@@ -1,0 +1,7 @@
+node_modules/
+web/dist/
+api/data/
+*.db
+*.db-*
+.DS_Store
+/data/
