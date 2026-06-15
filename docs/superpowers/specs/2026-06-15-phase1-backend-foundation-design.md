@@ -22,6 +22,7 @@ The product is built in phases. This spec is **Phase 1: the foundation** — get
 - **milmil** (`/Users/niskan516/Sync/Workspace/dev/milmil`) — architectural template (Go/Echo/sqlc/SQLite/golang-migrate/JWT+TOTP/koanf/zerolog/cobra; Vite+React 19/TanStack/shadcn/Tailwind v4; Docker).
 - **Deltalytix** (`hugodemenez/deltalytix`) — confirms keeping raw `Order`s + computed `Trade`s; first-class `Account`; `TickDetails` for futures P&L; `Tag` as an entity; `TradeAnalytics` (MAE/MFE/R:R) as an advanced/later concern.
 - **TradeNote** (`Eleven-Trading/TradeNote`) — confirms server-side import → group → daily aggregation; screenshots/notes per trade; calendar P&L as the centerpiece.
+- **TickerScribe** (`tickerscribe.com`, options-first) — confirms broker auto-detect + universal CSV mapper, P&L calendar, journal w/ mood + screenshots, public share links that **mask tickers/strikes**. Surfaced the **cash-transaction ledger** (deposits/withdrawals/fees/dividends → true balance-based equity & "capital deployed"), now folded into Phase 1. Its options depth (greeks, IV, per-leg P&L, ≤8-leg strategies, rollover chains, assignment/expiration) maps to Phase 4.
 
 ### Product decisions (locked)
 - **Instruments:** stocks, options, futures, forex/crypto (data model is instrument-agnostic at the core; instrument specifics via typed columns + a `details` JSON).
@@ -76,6 +77,7 @@ All tables are user-scoped (`user_id`). Flow: **import/manual → `executions` �
 ```
 users ──< accounts ──< executions ──< trade_executions >── trades ──< trade_tags >── tags
                           (raw fills)    (junction)       (round-trips)
+            └──< cash_transactions   (deposits/withdrawals/fees/dividends → balance & equity)
 instrument_specs   (symbol → tick_size, tick_value, multiplier, currency)
 import_batches     (provenance + undo for each import/manual entry)
 ```
@@ -102,6 +104,8 @@ Indexed on `(user_id, account_id, closed_at)` and `(user_id, symbol)`.
 **`trade_tags`** — junction `(trade_id, tag_id)`.
 
 **`instrument_specs`** — `id, symbol_root, instrument_type, tick_size, tick_value, multiplier, currency`. Seeded for common futures (ES, NQ, CL, …); default multiplier 1 (stocks), 100 (options). Used by the grouping engine for correct P&L.
+
+**`cash_transactions`** — `id, user_id, account_id, type(deposit|withdrawal|fee|dividend|interest|adjustment), amount(signed), currency, occurred_at, note, import_batch_id(nullable), created_at`. Powers a **balance-based equity curve** (starting_balance + cash flows + realized P&L) and "capital deployed" metrics. Full double-entry accounting stays deferred; this is the minimal single-entry ledger.
 
 **`import_batches`** — `id, user_id, account_id, source(csv|manual|api), filename(nullable), column_mapping(JSON, nullable), row_count, status(pending|committed|reversed), created_at`. Every import/manual entry is a reviewable, reversible unit.
 
@@ -138,6 +142,7 @@ REST/JSON under `/api/v1`, JWT-protected, every route scoped to the authenticate
 | **Auth** (from milmil) | `POST /auth/register`, `/auth/login`, `/auth/refresh`, `/auth/logout`, TOTP 2FA |
 | **Accounts** | `GET/POST /accounts`, `GET/PATCH/DELETE /accounts/:id` |
 | **Executions** | `GET /executions` (filters), `POST /executions` (manual fill) |
+| **Cash** | `GET/POST /cash-transactions` (filters), `PATCH/DELETE /cash-transactions/:id` |
 | **Manual trade** | `POST /trades/manual` — convenience: creates entry/exit executions + triggers grouping |
 | **Imports** | `POST /imports` (upload CSV → preview + suggested mapping), `POST /imports/:id/commit` (confirm mapping), `GET /imports`, `DELETE /imports/:id` (undo whole batch) |
 | **Trades** | `GET /trades` (filter: account, symbol, instrument, date range, status, tags), `GET /trades/:id`, `PATCH /trades/:id` (notes, tags), `POST /trades/regroup` |
@@ -154,7 +159,8 @@ Computed server-side (SQL aggregation where practical), filtered by the shared f
 
 - **Headline KPIs:** net P&L, gross P&L, total fees, total trades, win rate, **profit factor** (gross profit ÷ gross loss), **expectancy** (`winRate×avgWin − lossRate×avgLoss`), payoff ratio (avg win ÷ avg loss).
 - **Distribution:** avg win, avg loss, avg trade, largest win, largest loss, win/loss/breakeven counts.
-- **Equity curve:** cumulative net P&L over time (ordered by `closed_at`) + **max drawdown** derived from the curve.
+- **Equity curve:** **balance-based** — `starting_balance` + cash flows (`cash_transactions`) + realized net P&L, ordered chronologically + **max drawdown** derived from the curve. (A pure cumulative-P&L series is also available for trade-only views.)
+- **Capital:** capital deployed / cash allocation, derived from account balance and open exposure.
 - **Daily P&L** (`/analytics/daily`): net P&L per calendar day — foundation for the Phase-2 calendar heatmap.
 
 *Breakdowns by symbol/setup/time-of-day → Phase 2.*
@@ -216,4 +222,4 @@ Reuse milmil's `auth` package: JWT access + refresh tokens, bcrypt password hash
 
 ## 12. Out of Scope for Phase 1
 
-Live mark-to-market / open-trade P&L; broker API sync; options greeks & multi-leg spread modeling; screenshots/attachments; playbook/setups; calendar heatmap UI; breakdown reports; prop-firm account rules/payouts; MAE/MFE; public sharing; the iOS app. Each is slotted into Phases 2–4.
+Live mark-to-market / open-trade P&L; full double-entry accounting (Phase 1 ships only the minimal single-entry `cash_transactions` ledger); broker API sync; options greeks & multi-leg spread modeling; screenshots/attachments; playbook/setups; calendar heatmap UI; breakdown reports; prop-firm account rules/payouts; MAE/MFE; public sharing; the iOS app. Each is slotted into Phases 2–4.
