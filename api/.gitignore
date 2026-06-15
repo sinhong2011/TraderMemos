@@ -1,0 +1,6 @@
+/data/
+*.db
+*.db-*
+/server
+/tradermemos
+node_modules/
