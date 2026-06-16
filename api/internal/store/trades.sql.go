@@ -8,8 +8,18 @@ package store
 import (
 	"context"
 	"database/sql"
+	"strings"
 	"time"
 )
+
+const clearTradeExecutions = `-- name: ClearTradeExecutions :exec
+DELETE FROM trade_executions WHERE trade_id = ?
+`
+
+func (q *Queries) ClearTradeExecutions(ctx context.Context, tradeID string) error {
+	_, err := q.db.ExecContext(ctx, clearTradeExecutions, tradeID)
+	return err
+}
 
 const deleteTradesForAccount = `-- name: DeleteTradesForAccount :exec
 DELETE FROM trades WHERE user_id = ? AND account_id = ?
@@ -22,6 +32,33 @@ type DeleteTradesForAccountParams struct {
 
 func (q *Queries) DeleteTradesForAccount(ctx context.Context, arg DeleteTradesForAccountParams) error {
 	_, err := q.db.ExecContext(ctx, deleteTradesForAccount, arg.UserID, arg.AccountID)
+	return err
+}
+
+const deleteTradesNotInAccount = `-- name: DeleteTradesNotInAccount :exec
+DELETE FROM trades WHERE user_id = ? AND account_id = ? AND id NOT IN (/*SLICE:keep*/?)
+`
+
+type DeleteTradesNotInAccountParams struct {
+	UserID    string   `json:"user_id"`
+	AccountID string   `json:"account_id"`
+	Keep      []string `json:"keep"`
+}
+
+func (q *Queries) DeleteTradesNotInAccount(ctx context.Context, arg DeleteTradesNotInAccountParams) error {
+	query := deleteTradesNotInAccount
+	var queryParams []interface{}
+	queryParams = append(queryParams, arg.UserID)
+	queryParams = append(queryParams, arg.AccountID)
+	if len(arg.Keep) > 0 {
+		for _, v := range arg.Keep {
+			queryParams = append(queryParams, v)
+		}
+		query = strings.Replace(query, "/*SLICE:keep*/?", strings.Repeat(",?", len(arg.Keep))[1:], 1)
+	} else {
+		query = strings.Replace(query, "/*SLICE:keep*/?", "NULL", 1)
+	}
+	_, err := q.db.ExecContext(ctx, query, queryParams...)
 	return err
 }
 
@@ -226,6 +263,53 @@ func (q *Queries) ListClosedTrades(ctx context.Context, arg ListClosedTradesPara
 	return items, nil
 }
 
+const listExecutionsForTrade = `-- name: ListExecutionsForTrade :many
+SELECT e.id, e.user_id, e.account_id, e.external_id, e.symbol, e.instrument_type, e.side, e.quantity, e.price, e.fees, e.commission, e.executed_at, e.multiplier, e.details, e.import_batch_id, e.dedup_hash, e.created_at FROM executions e
+JOIN trade_executions te ON te.execution_id = e.id
+WHERE te.trade_id = ? ORDER BY e.executed_at, e.id
+`
+
+func (q *Queries) ListExecutionsForTrade(ctx context.Context, tradeID string) ([]Execution, error) {
+	rows, err := q.db.QueryContext(ctx, listExecutionsForTrade, tradeID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Execution
+	for rows.Next() {
+		var i Execution
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.AccountID,
+			&i.ExternalID,
+			&i.Symbol,
+			&i.InstrumentType,
+			&i.Side,
+			&i.Quantity,
+			&i.Price,
+			&i.Fees,
+			&i.Commission,
+			&i.ExecutedAt,
+			&i.Multiplier,
+			&i.Details,
+			&i.ImportBatchID,
+			&i.DedupHash,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateTradeNotes = `-- name: UpdateTradeNotes :exec
 UPDATE trades SET notes = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND user_id = ?
 `
@@ -238,5 +322,68 @@ type UpdateTradeNotesParams struct {
 
 func (q *Queries) UpdateTradeNotes(ctx context.Context, arg UpdateTradeNotesParams) error {
 	_, err := q.db.ExecContext(ctx, updateTradeNotes, arg.Notes, arg.ID, arg.UserID)
+	return err
+}
+
+const upsertTrade = `-- name: UpsertTrade :exec
+INSERT INTO trades (id, user_id, account_id, symbol, instrument_type, direction, status,
+    opened_at, closed_at, qty_opened, avg_entry_price, avg_exit_price, gross_pnl, fees_total,
+    net_pnl, pnl_currency, return_pct, r_multiple, time_in_trade_secs, notes)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '')
+ON CONFLICT(id) DO UPDATE SET
+    account_id = excluded.account_id, symbol = excluded.symbol,
+    instrument_type = excluded.instrument_type, direction = excluded.direction,
+    status = excluded.status, opened_at = excluded.opened_at, closed_at = excluded.closed_at,
+    qty_opened = excluded.qty_opened, avg_entry_price = excluded.avg_entry_price,
+    avg_exit_price = excluded.avg_exit_price, gross_pnl = excluded.gross_pnl,
+    fees_total = excluded.fees_total, net_pnl = excluded.net_pnl,
+    pnl_currency = excluded.pnl_currency, return_pct = excluded.return_pct,
+    time_in_trade_secs = excluded.time_in_trade_secs, updated_at = CURRENT_TIMESTAMP
+`
+
+type UpsertTradeParams struct {
+	ID              string          `json:"id"`
+	UserID          string          `json:"user_id"`
+	AccountID       string          `json:"account_id"`
+	Symbol          string          `json:"symbol"`
+	InstrumentType  string          `json:"instrument_type"`
+	Direction       string          `json:"direction"`
+	Status          string          `json:"status"`
+	OpenedAt        time.Time       `json:"opened_at"`
+	ClosedAt        sql.NullTime    `json:"closed_at"`
+	QtyOpened       float64         `json:"qty_opened"`
+	AvgEntryPrice   float64         `json:"avg_entry_price"`
+	AvgExitPrice    sql.NullFloat64 `json:"avg_exit_price"`
+	GrossPnl        sql.NullFloat64 `json:"gross_pnl"`
+	FeesTotal       float64         `json:"fees_total"`
+	NetPnl          sql.NullFloat64 `json:"net_pnl"`
+	PnlCurrency     string          `json:"pnl_currency"`
+	ReturnPct       sql.NullFloat64 `json:"return_pct"`
+	RMultiple       sql.NullFloat64 `json:"r_multiple"`
+	TimeInTradeSecs sql.NullInt64   `json:"time_in_trade_secs"`
+}
+
+func (q *Queries) UpsertTrade(ctx context.Context, arg UpsertTradeParams) error {
+	_, err := q.db.ExecContext(ctx, upsertTrade,
+		arg.ID,
+		arg.UserID,
+		arg.AccountID,
+		arg.Symbol,
+		arg.InstrumentType,
+		arg.Direction,
+		arg.Status,
+		arg.OpenedAt,
+		arg.ClosedAt,
+		arg.QtyOpened,
+		arg.AvgEntryPrice,
+		arg.AvgExitPrice,
+		arg.GrossPnl,
+		arg.FeesTotal,
+		arg.NetPnl,
+		arg.PnlCurrency,
+		arg.ReturnPct,
+		arg.RMultiple,
+		arg.TimeInTradeSecs,
+	)
 	return err
 }

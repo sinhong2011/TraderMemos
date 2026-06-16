@@ -51,7 +51,7 @@ func (s *Server) handleListTags(c echo.Context) error {
 }
 
 func (s *Server) handleDeleteTag(c echo.Context) error {
-	err := s.deps.Store.DeleteTag(c.Request().Context(), store.DeleteTagParams{
+	_, err := s.deps.Store.DeleteTag(c.Request().Context(), store.DeleteTagParams{
 		ID: c.Param("id"), UserID: auth.UserID(c),
 	})
 	if err != nil {

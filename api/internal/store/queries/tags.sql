@@ -1,10 +1,13 @@
 -- name: CreateTag :one
-INSERT INTO tags (id, user_id, name, color, description) VALUES (?, ?, ?, ?, ?) RETURNING *;
+INSERT INTO tags (id, user_id, name, color, description, kind) VALUES (?, ?, ?, ?, ?, ?) RETURNING *;
+
+-- name: UpdateTag :exec
+UPDATE tags SET name = ?, color = ?, description = ?, kind = ? WHERE id = ? AND user_id = ?;
 
 -- name: ListTags :many
 SELECT * FROM tags WHERE user_id = ? ORDER BY name;
 
--- name: DeleteTag :exec
+-- name: DeleteTag :execrows
 DELETE FROM tags WHERE id = ? AND user_id = ?;
 
 -- name: SetTradeTags :exec
