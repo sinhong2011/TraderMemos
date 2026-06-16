@@ -1,0 +1,14 @@
+version: "2"
+sql:
+  - engine: "sqlite"
+    schema: "internal/db/migrations"
+    queries: "internal/store/queries"
+    gen:
+      go:
+        package: "store"
+        out: "internal/store"
+        emit_json_tags: true
+        emit_interface: true
+        overrides:
+          - db_type: "TIMESTAMP"
+            go_type: "time.Time"
