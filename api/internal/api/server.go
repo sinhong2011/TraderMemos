@@ -6,17 +6,21 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/tradermemos/api/internal/auth"
+	"github.com/tradermemos/api/internal/storage"
 	"github.com/tradermemos/api/internal/store"
 	"github.com/tradermemos/api/internal/trades"
 )
 
 // Deps holds the services handlers need. Populated in cmd/server.
 type Deps struct {
-	JWTSecret string
-	Auth      *auth.Service
-	JWT       *auth.JWT
-	Store     *store.Queries
-	Trades    *trades.Service
+	JWTSecret      string
+	Auth           *auth.Service
+	JWT            *auth.JWT
+	Store          *store.Queries
+	Trades         *trades.Service
+	Storage        storage.Storage
+	AttachMaxBytes int64
+	ImportMaxBytes int64
 }
 
 type Server struct {
@@ -54,5 +58,6 @@ func (s *Server) routes() {
 	s.tradeRoutes(protected)
 	s.tagRoutes(protected)
 	s.setupRoutes(protected)
+	s.attachmentRoutes(protected)
 	s.analyticsRoutes(protected)
 }
