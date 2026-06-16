@@ -53,5 +53,6 @@ func (s *Server) routes() {
 	s.importRoutes(protected)
 	s.tradeRoutes(protected)
 	s.tagRoutes(protected)
+	s.setupRoutes(protected)
 	s.analyticsRoutes(protected)
 }
