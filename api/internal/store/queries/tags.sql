@@ -1,7 +1,7 @@
 -- name: CreateTag :one
 INSERT INTO tags (id, user_id, name, color, description, kind) VALUES (?, ?, ?, ?, ?, ?) RETURNING *;
 
--- name: UpdateTag :exec
+-- name: UpdateTag :execrows
 UPDATE tags SET name = ?, color = ?, description = ?, kind = ? WHERE id = ? AND user_id = ?;
 
 -- name: ListTags :many

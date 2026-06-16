@@ -151,7 +151,7 @@ func (q *Queries) SetTradeTags(ctx context.Context, arg SetTradeTagsParams) erro
 	return err
 }
 
-const updateTag = `-- name: UpdateTag :exec
+const updateTag = `-- name: UpdateTag :execrows
 UPDATE tags SET name = ?, color = ?, description = ?, kind = ? WHERE id = ? AND user_id = ?
 `
 
@@ -164,8 +164,8 @@ type UpdateTagParams struct {
 	UserID      string `json:"user_id"`
 }
 
-func (q *Queries) UpdateTag(ctx context.Context, arg UpdateTagParams) error {
-	_, err := q.db.ExecContext(ctx, updateTag,
+func (q *Queries) UpdateTag(ctx context.Context, arg UpdateTagParams) (int64, error) {
+	result, err := q.db.ExecContext(ctx, updateTag,
 		arg.Name,
 		arg.Color,
 		arg.Description,
@@ -173,5 +173,8 @@ func (q *Queries) UpdateTag(ctx context.Context, arg UpdateTagParams) error {
 		arg.ID,
 		arg.UserID,
 	)
-	return err
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
 }

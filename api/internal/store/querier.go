@@ -53,7 +53,7 @@ type Querier interface {
 	SetImportBatchStatus(ctx context.Context, arg SetImportBatchStatusParams) error
 	SetTradeTags(ctx context.Context, arg SetTradeTagsParams) error
 	UpdateSetup(ctx context.Context, arg UpdateSetupParams) error
-	UpdateTag(ctx context.Context, arg UpdateTagParams) error
+	UpdateTag(ctx context.Context, arg UpdateTagParams) (int64, error)
 	UpdateTradeNotes(ctx context.Context, arg UpdateTradeNotesParams) error
 	UpsertInstrumentSpec(ctx context.Context, arg UpsertInstrumentSpecParams) error
 	UpsertTrade(ctx context.Context, arg UpsertTradeParams) error

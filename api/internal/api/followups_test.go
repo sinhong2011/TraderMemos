@@ -14,6 +14,13 @@ func TestDeleteMissingAccountReturns404(t *testing.T) {
 	require.Equal(t, http.StatusNotFound, rec.Code)
 }
 
+func TestUpdateMissingTagReturns404(t *testing.T) {
+	s := testServer(t)
+	tok := registerAndLogin(t, s, "ut@x.com")
+	rec := do(s, http.MethodPatch, "/api/v1/tags/nope", `{"name":"x"}`, tok)
+	require.Equal(t, http.StatusNotFound, rec.Code)
+}
+
 func TestBadDateFilterReturns400(t *testing.T) {
 	s := testServer(t)
 	tok := registerAndLogin(t, s, "f@x.com")

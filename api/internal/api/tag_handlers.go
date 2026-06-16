@@ -58,11 +58,15 @@ func (s *Server) handleUpdateTag(c echo.Context) error {
 	}
 	userID := auth.UserID(c)
 	id := c.Param("id")
-	if err := s.deps.Store.UpdateTag(c.Request().Context(), store.UpdateTagParams{
+	n, err := s.deps.Store.UpdateTag(c.Request().Context(), store.UpdateTagParams{
 		Name: in.Name, Color: in.Color, Description: in.Description,
 		Kind: normalizeTagKind(in.Kind), ID: id, UserID: userID,
-	}); err != nil {
+	})
+	if err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not update tag", nil)
+	}
+	if n == 0 {
+		return Fail(http.StatusNotFound, "not_found", "tag not found", nil)
 	}
 	return c.NoContent(http.StatusNoContent)
 }
