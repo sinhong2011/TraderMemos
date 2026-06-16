@@ -1,0 +1,87 @@
+package api
+
+import (
+	"context"
+	"net/http"
+
+	"github.com/labstack/echo/v4"
+	"github.com/tradermemos/api/internal/analytics"
+	"github.com/tradermemos/api/internal/auth"
+	"github.com/tradermemos/api/internal/store"
+)
+
+func (s *Server) analyticsRoutes(g *echo.Group) {
+	g.GET("/analytics/summary", s.handleSummary)
+	g.GET("/analytics/equity-curve", s.handleEquityCurve)
+	g.GET("/analytics/daily", s.handleDaily)
+}
+
+func toClosedTrades(rows []store.Trade) []analytics.ClosedTrade {
+	out := make([]analytics.ClosedTrade, 0, len(rows))
+	for _, t := range rows {
+		if !t.NetPnl.Valid || !t.ClosedAt.Valid {
+			continue
+		}
+		out = append(out, analytics.ClosedTrade{
+			NetPnl: t.NetPnl.Float64, FeesTotal: t.FeesTotal, ClosedAt: t.ClosedAt.Time,
+		})
+	}
+	return out
+}
+
+func (s *Server) handleSummary(c echo.Context) error {
+	rows, err := s.loadClosedTrades(c.Request().Context(), auth.UserID(c), parseFilters(c))
+	if err != nil {
+		return Fail(http.StatusInternalServerError, "internal", "could not compute summary", nil)
+	}
+	return c.JSON(http.StatusOK, analytics.Summarize(toClosedTrades(rows)))
+}
+
+func (s *Server) handleDaily(c echo.Context) error {
+	rows, err := s.loadClosedTrades(c.Request().Context(), auth.UserID(c), parseFilters(c))
+	if err != nil {
+		return Fail(http.StatusInternalServerError, "internal", "could not compute daily pnl", nil)
+	}
+	return c.JSON(http.StatusOK, analytics.DailyPnl(toClosedTrades(rows)))
+}
+
+func (s *Server) handleEquityCurve(c echo.Context) error {
+	ctx := c.Request().Context()
+	uid := auth.UserID(c)
+	f := parseFilters(c)
+
+	rows, err := s.loadClosedTrades(ctx, uid, f)
+	if err != nil {
+		return Fail(http.StatusInternalServerError, "internal", "could not compute equity curve", nil)
+	}
+	startBal, err := s.startingBalance(ctx, uid, f.AccountID)
+	if err != nil {
+		return Fail(http.StatusInternalServerError, "internal", "could not load balances", nil)
+	}
+	cashRows, err := s.deps.Store.ListCashTransactions(ctx, store.ListCashTransactionsParams{
+		UserID: uid, AccountID: accountArg(f.AccountID),
+	})
+	if err != nil {
+		return Fail(http.StatusInternalServerError, "internal", "could not load cash flows", nil)
+	}
+	flows := make([]analytics.CashFlow, 0, len(cashRows))
+	for _, ct := range cashRows {
+		flows = append(flows, analytics.CashFlow{Amount: ct.Amount, OccurredAt: ct.OccurredAt})
+	}
+	return c.JSON(http.StatusOK, analytics.EquityCurve(startBal, flows, toClosedTrades(rows)))
+}
+
+// startingBalance returns the sum of starting balances for the user (or one account).
+func (s *Server) startingBalance(ctx context.Context, userID, accountID string) (float64, error) {
+	accs, err := s.deps.Store.ListAccounts(ctx, userID)
+	if err != nil {
+		return 0, err
+	}
+	var sum float64
+	for _, a := range accs {
+		if accountID == "" || a.ID == accountID {
+			sum += a.StartingBalance
+		}
+	}
+	return sum, nil
+}
