@@ -1,0 +1,22 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      TM_JWT_SECRET: ${TM_JWT_SECRET:-change-me}
+      TM_DB_PATH: /data/tradermemos.db
+    volumes:
+      - tm_data:/data
+  web:
+    build:
+      context: .
+      dockerfile: web/Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - api
+volumes:
+  tm_data:
