@@ -5,3 +5,4 @@ api/data/
 *.db-*
 .DS_Store
 /data/
+.superpowers/
