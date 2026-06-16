@@ -12,6 +12,7 @@ import (
 func (s *Server) tagRoutes(g *echo.Group) {
 	g.POST("/tags", s.handleCreateTag)
 	g.GET("/tags", s.handleListTags)
+	g.PATCH("/tags/:id", s.handleUpdateTag)
 	g.DELETE("/tags/:id", s.handleDeleteTag)
 }
 
@@ -19,6 +20,14 @@ type createTagReq struct {
 	Name        string `json:"name"`
 	Color       string `json:"color"`
 	Description string `json:"description"`
+	Kind        string `json:"kind"`
+}
+
+func normalizeTagKind(kind string) string {
+	if kind == "mistake" {
+		return "mistake"
+	}
+	return "custom"
 }
 
 func (s *Server) handleCreateTag(c echo.Context) error {
@@ -31,12 +40,31 @@ func (s *Server) handleCreateTag(c echo.Context) error {
 	}
 	tag, err := s.deps.Store.CreateTag(c.Request().Context(), store.CreateTagParams{
 		ID: uuid.NewString(), UserID: auth.UserID(c), Name: in.Name,
-		Color: in.Color, Description: in.Description,
+		Color: in.Color, Description: in.Description, Kind: normalizeTagKind(in.Kind),
 	})
 	if err != nil {
 		return Fail(http.StatusConflict, "conflict", "could not create tag (duplicate name?)", nil)
 	}
 	return c.JSON(http.StatusCreated, tag)
+}
+
+func (s *Server) handleUpdateTag(c echo.Context) error {
+	var in createTagReq
+	if err := c.Bind(&in); err != nil || in.Name == "" {
+		return Fail(http.StatusBadRequest, "bad_request", "name is required", nil)
+	}
+	if in.Color == "" {
+		in.Color = "#CBD5E1"
+	}
+	userID := auth.UserID(c)
+	id := c.Param("id")
+	if err := s.deps.Store.UpdateTag(c.Request().Context(), store.UpdateTagParams{
+		Name: in.Name, Color: in.Color, Description: in.Description,
+		Kind: normalizeTagKind(in.Kind), ID: id, UserID: userID,
+	}); err != nil {
+		return Fail(http.StatusInternalServerError, "internal", "could not update tag", nil)
+	}
+	return c.NoContent(http.StatusNoContent)
 }
 
 func (s *Server) handleListTags(c echo.Context) error {
