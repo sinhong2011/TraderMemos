@@ -21,6 +21,7 @@ type Querier interface {
 	DeleteTradesForAccount(ctx context.Context, arg DeleteTradesForAccountParams) error
 	ExecutionExists(ctx context.Context, arg ExecutionExistsParams) (int64, error)
 	GetAccount(ctx context.Context, arg GetAccountParams) (Account, error)
+	GetAccountByIDAny(ctx context.Context, id string) (Account, error)
 	GetImportBatch(ctx context.Context, arg GetImportBatchParams) (ImportBatch, error)
 	GetInstrumentSpec(ctx context.Context, arg GetInstrumentSpecParams) (InstrumentSpec, error)
 	GetTrade(ctx context.Context, arg GetTradeParams) (Trade, error)

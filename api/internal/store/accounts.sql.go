@@ -87,6 +87,26 @@ func (q *Queries) GetAccount(ctx context.Context, arg GetAccountParams) (Account
 	return i, err
 }
 
+const getAccountByIDAny = `-- name: GetAccountByIDAny :one
+SELECT id, user_id, name, broker, account_type, base_currency, starting_balance, created_at FROM accounts WHERE id = ?
+`
+
+func (q *Queries) GetAccountByIDAny(ctx context.Context, id string) (Account, error) {
+	row := q.db.QueryRowContext(ctx, getAccountByIDAny, id)
+	var i Account
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Name,
+		&i.Broker,
+		&i.AccountType,
+		&i.BaseCurrency,
+		&i.StartingBalance,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const listAccounts = `-- name: ListAccounts :many
 SELECT id, user_id, name, broker, account_type, base_currency, starting_balance, created_at FROM accounts WHERE user_id = ? ORDER BY created_at
 `

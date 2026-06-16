@@ -10,3 +10,6 @@ SELECT * FROM accounts WHERE id = ? AND user_id = ?;
 
 -- name: DeleteAccount :exec
 DELETE FROM accounts WHERE id = ? AND user_id = ?;
+
+-- name: GetAccountByIDAny :one
+SELECT * FROM accounts WHERE id = ?;
