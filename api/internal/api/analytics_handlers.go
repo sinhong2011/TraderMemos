@@ -14,6 +14,7 @@ func (s *Server) analyticsRoutes(g *echo.Group) {
 	g.GET("/analytics/summary", s.handleSummary)
 	g.GET("/analytics/equity-curve", s.handleEquityCurve)
 	g.GET("/analytics/daily", s.handleDaily)
+	g.GET("/analytics/breakdown", s.handleBreakdown)
 }
 
 func toClosedTrades(rows []store.Trade) []analytics.ClosedTrade {
