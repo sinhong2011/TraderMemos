@@ -79,11 +79,14 @@ func (s *Server) handleListTags(c echo.Context) error {
 }
 
 func (s *Server) handleDeleteTag(c echo.Context) error {
-	_, err := s.deps.Store.DeleteTag(c.Request().Context(), store.DeleteTagParams{
+	n, err := s.deps.Store.DeleteTag(c.Request().Context(), store.DeleteTagParams{
 		ID: c.Param("id"), UserID: auth.UserID(c),
 	})
 	if err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not delete tag", nil)
+	}
+	if n == 0 {
+		return Fail(http.StatusNotFound, "not_found", "tag not found", nil)
 	}
 	return c.NoContent(http.StatusNoContent)
 }

@@ -31,7 +31,11 @@ func toClosedTrades(rows []store.Trade) []analytics.ClosedTrade {
 }
 
 func (s *Server) handleSummary(c echo.Context) error {
-	rows, err := s.loadClosedTrades(c.Request().Context(), auth.UserID(c), parseFilters(c))
+	f, err := parseFilters(c)
+	if err != nil {
+		return Fail(http.StatusBadRequest, "bad_request", err.Error(), nil)
+	}
+	rows, err := s.loadClosedTrades(c.Request().Context(), auth.UserID(c), f)
 	if err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not compute summary", nil)
 	}
@@ -39,7 +43,11 @@ func (s *Server) handleSummary(c echo.Context) error {
 }
 
 func (s *Server) handleDaily(c echo.Context) error {
-	rows, err := s.loadClosedTrades(c.Request().Context(), auth.UserID(c), parseFilters(c))
+	f, err := parseFilters(c)
+	if err != nil {
+		return Fail(http.StatusBadRequest, "bad_request", err.Error(), nil)
+	}
+	rows, err := s.loadClosedTrades(c.Request().Context(), auth.UserID(c), f)
 	if err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not compute daily pnl", nil)
 	}
@@ -49,7 +57,10 @@ func (s *Server) handleDaily(c echo.Context) error {
 func (s *Server) handleEquityCurve(c echo.Context) error {
 	ctx := c.Request().Context()
 	uid := auth.UserID(c)
-	f := parseFilters(c)
+	f, err := parseFilters(c)
+	if err != nil {
+		return Fail(http.StatusBadRequest, "bad_request", err.Error(), nil)
+	}
 
 	rows, err := s.loadClosedTrades(ctx, uid, f)
 	if err != nil {

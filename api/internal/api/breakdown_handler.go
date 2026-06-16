@@ -22,7 +22,11 @@ func (s *Server) handleBreakdown(c echo.Context) error {
 	if !breakdownDims[by] {
 		return Fail(http.StatusBadRequest, "bad_request", "by must be one of symbol|setup|day_of_week|hour_of_day|tag", nil)
 	}
-	rows, err := s.loadClosedTrades(ctx, uid, parseFilters(c))
+	f, err := parseFilters(c)
+	if err != nil {
+		return Fail(http.StatusBadRequest, "bad_request", err.Error(), nil)
+	}
+	rows, err := s.loadClosedTrades(ctx, uid, f)
 	if err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not load trades", nil)
 	}

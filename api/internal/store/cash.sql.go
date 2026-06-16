@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-const deleteCashTransaction = `-- name: DeleteCashTransaction :exec
+const deleteCashTransaction = `-- name: DeleteCashTransaction :execrows
 DELETE FROM cash_transactions WHERE id = ? AND user_id = ?
 `
 
@@ -20,9 +20,12 @@ type DeleteCashTransactionParams struct {
 	UserID string `json:"user_id"`
 }
 
-func (q *Queries) DeleteCashTransaction(ctx context.Context, arg DeleteCashTransactionParams) error {
-	_, err := q.db.ExecContext(ctx, deleteCashTransaction, arg.ID, arg.UserID)
-	return err
+func (q *Queries) DeleteCashTransaction(ctx context.Context, arg DeleteCashTransactionParams) (int64, error) {
+	result, err := q.db.ExecContext(ctx, deleteCashTransaction, arg.ID, arg.UserID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
 }
 
 const insertCashTransaction = `-- name: InsertCashTransaction :one

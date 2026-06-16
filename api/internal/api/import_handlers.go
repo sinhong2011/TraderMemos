@@ -53,6 +53,9 @@ func readCSV(fh *multipart.FileHeader) (headers []string, rows []map[string]stri
 
 func (s *Server) handleImportPreview(c echo.Context) error {
 	uid := auth.UserID(c)
+	if s.deps.ImportMaxBytes > 0 && c.Request().ContentLength > s.deps.ImportMaxBytes {
+		return Fail(http.StatusRequestEntityTooLarge, "too_large", "upload exceeds size limit", nil)
+	}
 	accountID := c.FormValue("account_id")
 	if accountID == "" {
 		return Fail(http.StatusBadRequest, "bad_request", "account_id is required", nil)
@@ -97,6 +100,9 @@ type importResult struct {
 func (s *Server) handleImportCommit(c echo.Context) error {
 	ctx := c.Request().Context()
 	uid := auth.UserID(c)
+	if s.deps.ImportMaxBytes > 0 && c.Request().ContentLength > s.deps.ImportMaxBytes {
+		return Fail(http.StatusRequestEntityTooLarge, "too_large", "upload exceeds size limit", nil)
+	}
 	batchID := c.Param("id")
 
 	batch, err := s.deps.Store.GetImportBatch(ctx, store.GetImportBatchParams{ID: batchID, UserID: uid})

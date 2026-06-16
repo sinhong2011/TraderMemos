@@ -7,5 +7,5 @@ SELECT * FROM cash_transactions
 WHERE user_id = ? AND (sqlc.narg('account_id') IS NULL OR account_id = sqlc.narg('account_id'))
 ORDER BY occurred_at;
 
--- name: DeleteCashTransaction :exec
+-- name: DeleteCashTransaction :execrows
 DELETE FROM cash_transactions WHERE id = ? AND user_id = ?;

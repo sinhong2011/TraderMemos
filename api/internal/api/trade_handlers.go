@@ -19,7 +19,10 @@ func (s *Server) tradeRoutes(g *echo.Group) {
 
 func (s *Server) handleListTrades(c echo.Context) error {
 	uid := auth.UserID(c)
-	f := parseFilters(c)
+	f, err := parseFilters(c)
+	if err != nil {
+		return Fail(http.StatusBadRequest, "bad_request", err.Error(), nil)
+	}
 	rows, err := s.loadClosedTrades(c.Request().Context(), uid, f)
 	if err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not list trades", nil)

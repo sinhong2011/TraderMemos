@@ -48,7 +48,7 @@ func (q *Queries) CreateAccount(ctx context.Context, arg CreateAccountParams) (A
 	return i, err
 }
 
-const deleteAccount = `-- name: DeleteAccount :exec
+const deleteAccount = `-- name: DeleteAccount :execrows
 DELETE FROM accounts WHERE id = ? AND user_id = ?
 `
 
@@ -57,9 +57,12 @@ type DeleteAccountParams struct {
 	UserID string `json:"user_id"`
 }
 
-func (q *Queries) DeleteAccount(ctx context.Context, arg DeleteAccountParams) error {
-	_, err := q.db.ExecContext(ctx, deleteAccount, arg.ID, arg.UserID)
-	return err
+func (q *Queries) DeleteAccount(ctx context.Context, arg DeleteAccountParams) (int64, error) {
+	result, err := q.db.ExecContext(ctx, deleteAccount, arg.ID, arg.UserID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
 }
 
 const getAccount = `-- name: GetAccount :one

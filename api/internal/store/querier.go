@@ -16,9 +16,9 @@ type Querier interface {
 	CreateSetup(ctx context.Context, arg CreateSetupParams) (Setup, error)
 	CreateTag(ctx context.Context, arg CreateTagParams) (Tag, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
-	DeleteAccount(ctx context.Context, arg DeleteAccountParams) error
+	DeleteAccount(ctx context.Context, arg DeleteAccountParams) (int64, error)
 	DeleteAttachment(ctx context.Context, arg DeleteAttachmentParams) (int64, error)
-	DeleteCashTransaction(ctx context.Context, arg DeleteCashTransactionParams) error
+	DeleteCashTransaction(ctx context.Context, arg DeleteCashTransactionParams) (int64, error)
 	DeleteExecutionsForBatch(ctx context.Context, arg DeleteExecutionsForBatchParams) error
 	DeleteSetup(ctx context.Context, arg DeleteSetupParams) (int64, error)
 	DeleteTag(ctx context.Context, arg DeleteTagParams) (int64, error)
