@@ -5,12 +5,18 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/tradermemos/api/internal/auth"
+	"github.com/tradermemos/api/internal/store"
+	"github.com/tradermemos/api/internal/trades"
 )
 
 // Deps holds the services handlers need. Populated in cmd/server.
-// Fields added as later tasks introduce services.
 type Deps struct {
 	JWTSecret string
+	Auth      *auth.Service
+	JWT       *auth.JWT
+	Store     *store.Queries
+	Trades    *trades.Service
 }
 
 type Server struct {
@@ -29,5 +35,23 @@ func New(deps Deps) *Server {
 	e.GET("/healthz", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, map[string]string{"status": "ok"})
 	})
+	s.routes()
 	return s
+}
+
+func (s *Server) routes() {
+	v1 := s.Echo.Group("/api/v1")
+	s.authRoutes(v1)
+
+	protected := v1.Group("")
+	if s.deps.JWT != nil {
+		protected.Use(auth.Middleware(s.deps.JWT))
+	}
+	s.accountRoutes(protected)
+	s.executionRoutes(protected)
+	s.cashRoutes(protected)
+	s.importRoutes(protected)
+	s.tradeRoutes(protected)
+	s.tagRoutes(protected)
+	s.analyticsRoutes(protected)
 }

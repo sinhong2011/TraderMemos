@@ -6,8 +6,11 @@ import (
 	"path/filepath"
 
 	"github.com/tradermemos/api/internal/api"
+	"github.com/tradermemos/api/internal/auth"
 	"github.com/tradermemos/api/internal/config"
 	"github.com/tradermemos/api/internal/db"
+	"github.com/tradermemos/api/internal/store"
+	"github.com/tradermemos/api/internal/trades"
 )
 
 func main() {
@@ -25,6 +28,14 @@ func main() {
 	if err := db.Migrate(conn); err != nil {
 		log.Fatal(err)
 	}
-	s := api.New(api.Deps{JWTSecret: cfg.JWTSecret})
+	q := store.New(conn)
+	jwt := auth.NewJWT(cfg.JWTSecret)
+	s := api.New(api.Deps{
+		JWTSecret: cfg.JWTSecret,
+		JWT:       jwt,
+		Auth:      auth.NewService(q, jwt),
+		Store:     q,
+		Trades:    trades.NewService(q),
+	})
 	log.Fatal(s.Echo.Start(":" + cfg.HTTPPort))
 }
