@@ -9,6 +9,7 @@ import (
 	"github.com/tradermemos/api/internal/auth"
 	"github.com/tradermemos/api/internal/config"
 	"github.com/tradermemos/api/internal/db"
+	"github.com/tradermemos/api/internal/storage"
 	"github.com/tradermemos/api/internal/store"
 	"github.com/tradermemos/api/internal/trades"
 )
@@ -30,12 +31,16 @@ func main() {
 	}
 	q := store.New(conn)
 	jwt := auth.NewJWT(cfg.JWTSecret)
+	attachDir := filepath.Join(filepath.Dir(cfg.DBPath), "attachments")
 	s := api.New(api.Deps{
-		JWTSecret: cfg.JWTSecret,
-		JWT:       jwt,
-		Auth:      auth.NewService(q, jwt),
-		Store:     q,
-		Trades:    trades.NewService(q),
+		JWTSecret:      cfg.JWTSecret,
+		JWT:            jwt,
+		Auth:           auth.NewService(q, jwt),
+		Store:          q,
+		Trades:         trades.NewService(q),
+		Storage:        storage.NewLocalDisk(attachDir),
+		AttachMaxBytes: cfg.AttachMaxBytes,
+		ImportMaxBytes: cfg.ImportMaxBytes,
 	})
 	log.Fatal(s.Echo.Start(":" + cfg.HTTPPort))
 }

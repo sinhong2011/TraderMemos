@@ -2,21 +2,26 @@ package api
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/tradermemos/api/internal/auth"
+	"github.com/tradermemos/api/internal/storage"
 	"github.com/tradermemos/api/internal/store"
 	"github.com/tradermemos/api/internal/trades"
 )
 
 // Deps holds the services handlers need. Populated in cmd/server.
 type Deps struct {
-	JWTSecret string
-	Auth      *auth.Service
-	JWT       *auth.JWT
-	Store     *store.Queries
-	Trades    *trades.Service
+	JWTSecret      string
+	Auth           *auth.Service
+	JWT            *auth.JWT
+	Store          *store.Queries
+	Trades         *trades.Service
+	Storage        storage.Storage
+	AttachMaxBytes int64
+	ImportMaxBytes int64
 }
 
 type Server struct {
@@ -30,6 +35,11 @@ func New(deps Deps) *Server {
 	e.HTTPErrorHandler = errorHandler
 	e.Use(middleware.Recover())
 	e.Use(middleware.RequestID())
+	// Reject oversized request bodies at read time (before multipart parse).
+	// Sized to the largest configured upload cap; a 16KiB floor covers JSON.
+	if lim := bodyLimit(deps); lim > 0 {
+		e.Use(middleware.BodyLimit(strconv.FormatInt(lim, 10) + "B"))
+	}
 
 	s := &Server{Echo: e, deps: deps}
 	e.GET("/healthz", func(c echo.Context) error {
@@ -37,6 +47,15 @@ func New(deps Deps) *Server {
 	})
 	s.routes()
 	return s
+}
+
+// bodyLimit returns the larger of the configured upload caps (0 = no limit).
+func bodyLimit(deps Deps) int64 {
+	lim := deps.AttachMaxBytes
+	if deps.ImportMaxBytes > lim {
+		lim = deps.ImportMaxBytes
+	}
+	return lim
 }
 
 func (s *Server) routes() {
@@ -53,5 +72,7 @@ func (s *Server) routes() {
 	s.importRoutes(protected)
 	s.tradeRoutes(protected)
 	s.tagRoutes(protected)
+	s.setupRoutes(protected)
+	s.attachmentRoutes(protected)
 	s.analyticsRoutes(protected)
 }

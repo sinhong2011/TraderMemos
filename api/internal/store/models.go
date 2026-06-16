@@ -75,12 +75,21 @@ type InstrumentSpec struct {
 	Currency       string  `json:"currency"`
 }
 
+type Setup struct {
+	ID          string    `json:"id"`
+	UserID      string    `json:"user_id"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	CreatedAt   time.Time `json:"created_at"`
+}
+
 type Tag struct {
 	ID          string `json:"id"`
 	UserID      string `json:"user_id"`
 	Name        string `json:"name"`
 	Color       string `json:"color"`
 	Description string `json:"description"`
+	Kind        string `json:"kind"`
 }
 
 type Trade struct {
@@ -108,9 +117,29 @@ type Trade struct {
 	UpdatedAt       time.Time       `json:"updated_at"`
 }
 
+type TradeAttachment struct {
+	ID          string    `json:"id"`
+	UserID      string    `json:"user_id"`
+	TradeID     string    `json:"trade_id"`
+	Filename    string    `json:"filename"`
+	ContentType string    `json:"content_type"`
+	SizeBytes   int64     `json:"size_bytes"`
+	StorageKey  string    `json:"storage_key"`
+	CreatedAt   time.Time `json:"created_at"`
+}
+
 type TradeExecution struct {
 	TradeID     string `json:"trade_id"`
 	ExecutionID string `json:"execution_id"`
+}
+
+type TradeJournal struct {
+	TradeID     string          `json:"trade_id"`
+	UserID      string          `json:"user_id"`
+	Notes       string          `json:"notes"`
+	SetupID     sql.NullString  `json:"setup_id"`
+	InitialRisk sql.NullFloat64 `json:"initial_risk"`
+	UpdatedAt   time.Time       `json:"updated_at"`
 }
 
 type TradeTag struct {

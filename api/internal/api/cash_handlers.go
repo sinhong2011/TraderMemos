@@ -72,11 +72,14 @@ func (s *Server) handleListCash(c echo.Context) error {
 }
 
 func (s *Server) handleDeleteCash(c echo.Context) error {
-	err := s.deps.Store.DeleteCashTransaction(c.Request().Context(), store.DeleteCashTransactionParams{
+	n, err := s.deps.Store.DeleteCashTransaction(c.Request().Context(), store.DeleteCashTransactionParams{
 		ID: c.Param("id"), UserID: auth.UserID(c),
 	})
 	if err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not delete cash transaction", nil)
+	}
+	if n == 0 {
+		return Fail(http.StatusNotFound, "not_found", "cash transaction not found", nil)
 	}
 	return c.NoContent(http.StatusNoContent)
 }

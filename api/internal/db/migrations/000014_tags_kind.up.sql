@@ -1,0 +1,1 @@
+ALTER TABLE tags ADD COLUMN kind TEXT NOT NULL DEFAULT 'custom';

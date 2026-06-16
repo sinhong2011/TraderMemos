@@ -8,7 +8,7 @@ SELECT * FROM accounts WHERE user_id = ? ORDER BY created_at;
 -- name: GetAccount :one
 SELECT * FROM accounts WHERE id = ? AND user_id = ?;
 
--- name: DeleteAccount :exec
+-- name: DeleteAccount :execrows
 DELETE FROM accounts WHERE id = ? AND user_id = ?;
 
 -- name: GetAccountByIDAny :one

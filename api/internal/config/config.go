@@ -14,6 +14,8 @@ type Config struct {
 	JWTSecret       string
 	DefaultCurrency string
 	LogLevel        string
+	AttachMaxBytes  int64
+	ImportMaxBytes  int64
 }
 
 func Load() (Config, error) {
@@ -24,6 +26,8 @@ func Load() (Config, error) {
 		"jwt_secret":       "dev-insecure-change-me",
 		"default_currency": "USD",
 		"log_level":        "info",
+		"attach_max_bytes": int64(10 << 20),
+		"import_max_bytes": int64(10 << 20),
 	}, "."), nil)
 
 	// TM_HTTP_PORT -> http_port
@@ -37,5 +41,7 @@ func Load() (Config, error) {
 		JWTSecret:       k.String("jwt_secret"),
 		DefaultCurrency: k.String("default_currency"),
 		LogLevel:        k.String("log_level"),
+		AttachMaxBytes:  k.Int64("attach_max_bytes"),
+		ImportMaxBytes:  k.Int64("import_max_bytes"),
 	}, nil
 }

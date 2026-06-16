@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/tradermemos/api/internal/store"
 )
 
@@ -34,14 +33,15 @@ func (s *Service) Regroup(ctx context.Context, userID, accountID string) error {
 			ExecutedAt: r.ExecutedAt, Multiplier: r.Multiplier,
 		})
 	}
-	if err := s.q.DeleteTradesForAccount(ctx, store.DeleteTradesForAccountParams{UserID: userID, AccountID: accountID}); err != nil {
-		return err
-	}
+
+	keep := []string{}
 	for _, g := range groups {
 		for _, tr := range Group(g) {
-			id := uuid.NewString()
-			_, err := s.q.InsertTrade(ctx, toInsertParams(id, userID, accountID, acc.BaseCurrency, tr))
-			if err != nil {
+			id := tr.ExecutionIDs[0] // opening fill = stable id
+			if err := s.q.UpsertTrade(ctx, toUpsertParams(id, userID, accountID, acc.BaseCurrency, tr)); err != nil {
+				return err
+			}
+			if err := s.q.ClearTradeExecutions(ctx, id); err != nil {
 				return err
 			}
 			for _, eid := range tr.ExecutionIDs {
@@ -49,16 +49,21 @@ func (s *Service) Regroup(ctx context.Context, userID, accountID string) error {
 					return err
 				}
 			}
+			keep = append(keep, id)
 		}
 	}
-	return nil
+
+	if len(keep) == 0 {
+		return s.q.DeleteTradesForAccount(ctx, store.DeleteTradesForAccountParams{UserID: userID, AccountID: accountID})
+	}
+	return s.q.DeleteTradesNotInAccount(ctx, store.DeleteTradesNotInAccountParams{UserID: userID, AccountID: accountID, Keep: keep})
 }
 
-// toInsertParams maps the pure engine Trade (which uses *T for nullable fields)
-// onto the sqlc-generated InsertTradeParams (which uses sql.Null* for the same
+// toUpsertParams maps the pure engine Trade (which uses *T for nullable fields)
+// onto the sqlc-generated UpsertTradeParams (which uses sql.Null* for the same
 // nullable columns).
-func toInsertParams(id, userID, accountID, pnlCurrency string, tr Trade) store.InsertTradeParams {
-	return store.InsertTradeParams{
+func toUpsertParams(id, userID, accountID, pnlCurrency string, tr Trade) store.UpsertTradeParams {
+	return store.UpsertTradeParams{
 		ID:              id,
 		UserID:          userID,
 		AccountID:       accountID,
@@ -76,9 +81,8 @@ func toInsertParams(id, userID, accountID, pnlCurrency string, tr Trade) store.I
 		NetPnl:          nf(tr.NetPnl),
 		PnlCurrency:     pnlCurrency,
 		ReturnPct:       nf(tr.ReturnPct),
-		RMultiple:       sql.NullFloat64{}, // not produced by the engine; reserved for manual entry
+		RMultiple:       sql.NullFloat64{}, // derived from trade_journal.initial_risk at read time; null in the row
 		TimeInTradeSecs: ni(tr.TimeInTradeSecs),
-		Notes:           "",
 	}
 }
 

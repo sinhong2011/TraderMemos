@@ -19,7 +19,7 @@ func (q *Queries) ClearTradeTags(ctx context.Context, tradeID string) error {
 }
 
 const createTag = `-- name: CreateTag :one
-INSERT INTO tags (id, user_id, name, color, description) VALUES (?, ?, ?, ?, ?) RETURNING id, user_id, name, color, description
+INSERT INTO tags (id, user_id, name, color, description, kind) VALUES (?, ?, ?, ?, ?, ?) RETURNING id, user_id, name, color, description, kind
 `
 
 type CreateTagParams struct {
@@ -28,6 +28,7 @@ type CreateTagParams struct {
 	Name        string `json:"name"`
 	Color       string `json:"color"`
 	Description string `json:"description"`
+	Kind        string `json:"kind"`
 }
 
 func (q *Queries) CreateTag(ctx context.Context, arg CreateTagParams) (Tag, error) {
@@ -37,6 +38,7 @@ func (q *Queries) CreateTag(ctx context.Context, arg CreateTagParams) (Tag, erro
 		arg.Name,
 		arg.Color,
 		arg.Description,
+		arg.Kind,
 	)
 	var i Tag
 	err := row.Scan(
@@ -45,11 +47,12 @@ func (q *Queries) CreateTag(ctx context.Context, arg CreateTagParams) (Tag, erro
 		&i.Name,
 		&i.Color,
 		&i.Description,
+		&i.Kind,
 	)
 	return i, err
 }
 
-const deleteTag = `-- name: DeleteTag :exec
+const deleteTag = `-- name: DeleteTag :execrows
 DELETE FROM tags WHERE id = ? AND user_id = ?
 `
 
@@ -58,13 +61,16 @@ type DeleteTagParams struct {
 	UserID string `json:"user_id"`
 }
 
-func (q *Queries) DeleteTag(ctx context.Context, arg DeleteTagParams) error {
-	_, err := q.db.ExecContext(ctx, deleteTag, arg.ID, arg.UserID)
-	return err
+func (q *Queries) DeleteTag(ctx context.Context, arg DeleteTagParams) (int64, error) {
+	result, err := q.db.ExecContext(ctx, deleteTag, arg.ID, arg.UserID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
 }
 
 const listTags = `-- name: ListTags :many
-SELECT id, user_id, name, color, description FROM tags WHERE user_id = ? ORDER BY name
+SELECT id, user_id, name, color, description, kind FROM tags WHERE user_id = ? ORDER BY name
 `
 
 func (q *Queries) ListTags(ctx context.Context, userID string) ([]Tag, error) {
@@ -82,6 +88,7 @@ func (q *Queries) ListTags(ctx context.Context, userID string) ([]Tag, error) {
 			&i.Name,
 			&i.Color,
 			&i.Description,
+			&i.Kind,
 		); err != nil {
 			return nil, err
 		}
@@ -97,7 +104,7 @@ func (q *Queries) ListTags(ctx context.Context, userID string) ([]Tag, error) {
 }
 
 const listTagsForTrade = `-- name: ListTagsForTrade :many
-SELECT t.id, t.user_id, t.name, t.color, t.description FROM tags t JOIN trade_tags tt ON tt.tag_id = t.id WHERE tt.trade_id = ?
+SELECT t.id, t.user_id, t.name, t.color, t.description, t.kind FROM tags t JOIN trade_tags tt ON tt.tag_id = t.id WHERE tt.trade_id = ?
 `
 
 func (q *Queries) ListTagsForTrade(ctx context.Context, tradeID string) ([]Tag, error) {
@@ -115,6 +122,7 @@ func (q *Queries) ListTagsForTrade(ctx context.Context, tradeID string) ([]Tag, 
 			&i.Name,
 			&i.Color,
 			&i.Description,
+			&i.Kind,
 		); err != nil {
 			return nil, err
 		}
@@ -141,4 +149,32 @@ type SetTradeTagsParams struct {
 func (q *Queries) SetTradeTags(ctx context.Context, arg SetTradeTagsParams) error {
 	_, err := q.db.ExecContext(ctx, setTradeTags, arg.TradeID, arg.TagID)
 	return err
+}
+
+const updateTag = `-- name: UpdateTag :execrows
+UPDATE tags SET name = ?, color = ?, description = ?, kind = ? WHERE id = ? AND user_id = ?
+`
+
+type UpdateTagParams struct {
+	Name        string `json:"name"`
+	Color       string `json:"color"`
+	Description string `json:"description"`
+	Kind        string `json:"kind"`
+	ID          string `json:"id"`
+	UserID      string `json:"user_id"`
+}
+
+func (q *Queries) UpdateTag(ctx context.Context, arg UpdateTagParams) (int64, error) {
+	result, err := q.db.ExecContext(ctx, updateTag,
+		arg.Name,
+		arg.Color,
+		arg.Description,
+		arg.Kind,
+		arg.ID,
+		arg.UserID,
+	)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
 }

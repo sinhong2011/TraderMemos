@@ -19,7 +19,10 @@ func (s *Server) tradeRoutes(g *echo.Group) {
 
 func (s *Server) handleListTrades(c echo.Context) error {
 	uid := auth.UserID(c)
-	f := parseFilters(c)
+	f, err := parseFilters(c)
+	if err != nil {
+		return Fail(http.StatusBadRequest, "bad_request", err.Error(), nil)
+	}
 	rows, err := s.loadClosedTrades(c.Request().Context(), uid, f)
 	if err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not list trades", nil)
@@ -41,16 +44,18 @@ func (s *Server) handleGetTrade(c echo.Context) error {
 	if err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not load trade", nil)
 	}
-	tags, err := s.deps.Store.ListTagsForTrade(ctx, t.ID)
+	detail, err := s.buildTradeDetail(ctx, uid, t)
 	if err != nil {
-		return Fail(http.StatusInternalServerError, "internal", "could not load tags", nil)
+		return Fail(http.StatusInternalServerError, "internal", "could not load trade detail", nil)
 	}
-	return c.JSON(http.StatusOK, toTradeDTO(t, tags))
+	return c.JSON(http.StatusOK, detail)
 }
 
 type patchTradeReq struct {
-	Notes  *string  `json:"notes"`
-	TagIDs []string `json:"tag_ids"`
+	Notes       *string  `json:"notes"`
+	SetupID     *string  `json:"setup_id"`
+	InitialRisk *float64 `json:"initial_risk"`
+	TagIDs      []string `json:"tag_ids"`
 }
 
 func (s *Server) handlePatchTrade(c echo.Context) error {
@@ -71,11 +76,37 @@ func (s *Server) handlePatchTrade(c echo.Context) error {
 	if err := c.Bind(&in); err != nil {
 		return Fail(http.StatusBadRequest, "bad_request", "invalid body", nil)
 	}
-	if in.Notes != nil {
-		if err := s.deps.Store.UpdateTradeNotes(ctx, store.UpdateTradeNotesParams{
-			Notes: *in.Notes, ID: id, UserID: uid,
+
+	// Journal fields (notes/setup/risk) are merged with any existing journal so
+	// a partial PATCH does not clobber untouched fields.
+	if in.Notes != nil || in.SetupID != nil || in.InitialRisk != nil {
+		cur, jerr := s.deps.Store.GetTradeJournal(ctx, store.GetTradeJournalParams{TradeID: id, UserID: uid})
+		if jerr != nil && !errors.Is(jerr, sql.ErrNoRows) {
+			return Fail(http.StatusInternalServerError, "internal", "could not load journal", nil)
+		}
+		notes := cur.Notes
+		setupID := cur.SetupID
+		risk := cur.InitialRisk
+		if in.Notes != nil {
+			notes = *in.Notes
+		}
+		if in.SetupID != nil {
+			if *in.SetupID == "" {
+				setupID = sql.NullString{}
+			} else {
+				if _, serr := s.deps.Store.GetSetup(ctx, store.GetSetupParams{ID: *in.SetupID, UserID: uid}); serr != nil {
+					return Fail(http.StatusBadRequest, "bad_request", "unknown setup id", nil)
+				}
+				setupID = sql.NullString{String: *in.SetupID, Valid: true}
+			}
+		}
+		if in.InitialRisk != nil {
+			risk = sql.NullFloat64{Float64: *in.InitialRisk, Valid: true}
+		}
+		if err := s.deps.Store.UpsertTradeJournal(ctx, store.UpsertTradeJournalParams{
+			TradeID: id, UserID: uid, Notes: notes, SetupID: setupID, InitialRisk: risk,
 		}); err != nil {
-			return Fail(http.StatusInternalServerError, "internal", "could not update notes", nil)
+			return Fail(http.StatusInternalServerError, "internal", "could not update journal", nil)
 		}
 	}
 	if in.TagIDs != nil {
@@ -107,8 +138,11 @@ func (s *Server) handlePatchTrade(c echo.Context) error {
 	if err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not reload trade", nil)
 	}
-	tags, _ := s.deps.Store.ListTagsForTrade(ctx, id)
-	return c.JSON(http.StatusOK, toTradeDTO(t, tags))
+	detail, err := s.buildTradeDetail(ctx, uid, t)
+	if err != nil {
+		return Fail(http.StatusInternalServerError, "internal", "could not load trade detail", nil)
+	}
+	return c.JSON(http.StatusOK, detail)
 }
 
 type regroupReq struct {

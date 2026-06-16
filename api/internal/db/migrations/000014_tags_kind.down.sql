@@ -1,0 +1,1 @@
+-- irreversible: ADD COLUMN; no-op down

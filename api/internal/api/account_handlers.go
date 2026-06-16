@@ -81,11 +81,14 @@ func (s *Server) handleGetAccount(c echo.Context) error {
 }
 
 func (s *Server) handleDeleteAccount(c echo.Context) error {
-	err := s.deps.Store.DeleteAccount(c.Request().Context(), store.DeleteAccountParams{
+	n, err := s.deps.Store.DeleteAccount(c.Request().Context(), store.DeleteAccountParams{
 		ID: c.Param("id"), UserID: auth.UserID(c),
 	})
 	if err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not delete account", nil)
+	}
+	if n == 0 {
+		return Fail(http.StatusNotFound, "not_found", "account not found", nil)
 	}
 	return c.NoContent(http.StatusNoContent)
 }
