@@ -1,0 +1,24 @@
+import { create } from "zustand";
+
+interface FilterState {
+  accountId?: string;
+  from?: string;
+  to?: string;
+  symbol?: string;
+  setAccount: (id?: string) => void;
+  setRange: (from?: string, to?: string) => void;
+  setSymbol: (s?: string) => void;
+  reset: () => void;
+  toParams: () => { account_id?: string; from?: string; to?: string; symbol?: string };
+}
+
+export const useFilters = create<FilterState>((set, get) => ({
+  setAccount: (accountId) => set({ accountId }),
+  setRange: (from, to) => set({ from, to }),
+  setSymbol: (symbol) => set({ symbol }),
+  reset: () => set({ accountId: undefined, from: undefined, to: undefined, symbol: undefined }),
+  toParams: () => {
+    const s = get();
+    return { account_id: s.accountId, from: s.from, to: s.to, symbol: s.symbol };
+  },
+}));
