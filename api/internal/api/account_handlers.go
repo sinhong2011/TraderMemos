@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"net/http"
@@ -10,6 +11,13 @@ import (
 	"github.com/tradermemos/api/internal/auth"
 	"github.com/tradermemos/api/internal/store"
 )
+
+// assertAccount returns nil only if the account exists and belongs to userID.
+// Used to prevent writing into another user's account (IDOR guard).
+func (s *Server) assertAccount(ctx context.Context, userID, accountID string) error {
+	_, err := s.deps.Store.GetAccount(ctx, store.GetAccountParams{ID: accountID, UserID: userID})
+	return err
+}
 
 func (s *Server) accountRoutes(g *echo.Group) {
 	g.POST("/accounts", s.handleCreateAccount)

@@ -57,6 +57,9 @@ func (s *Server) handleImportPreview(c echo.Context) error {
 	if accountID == "" {
 		return Fail(http.StatusBadRequest, "bad_request", "account_id is required", nil)
 	}
+	if err := s.assertAccount(c.Request().Context(), uid, accountID); err != nil {
+		return Fail(http.StatusNotFound, "not_found", "account not found", nil)
+	}
 	fh, err := c.FormFile("file")
 	if err != nil {
 		return Fail(http.StatusBadRequest, "bad_request", "file is required", nil)

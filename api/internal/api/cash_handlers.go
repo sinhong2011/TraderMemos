@@ -38,6 +38,12 @@ func (s *Server) handleCreateCash(c echo.Context) error {
 	if in.AccountID == "" || !validCashTypes[in.Type] {
 		return Fail(http.StatusBadRequest, "bad_request", "account_id and a valid type are required", nil)
 	}
+	if in.OccurredAt.IsZero() {
+		return Fail(http.StatusBadRequest, "bad_request", "occurred_at is required", nil)
+	}
+	if err := s.assertAccount(c.Request().Context(), auth.UserID(c), in.AccountID); err != nil {
+		return Fail(http.StatusNotFound, "not_found", "account not found", nil)
+	}
 	if in.Currency == "" {
 		in.Currency = "USD"
 	}
