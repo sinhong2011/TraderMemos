@@ -41,11 +41,12 @@ export class ApiError extends Error {
 }
 
 export async function apiFetch<T = unknown>(path: string, opts: RequestInit = {}): Promise<T> {
+  const auth = getToken(); // lazily hydrates the token from storage on first use
   const res = await fetch(BASE + path, {
     ...opts,
     headers: {
       ...(opts.body && !(opts.body instanceof FormData) ? { "Content-Type": "application/json" } : {}),
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(auth ? { Authorization: `Bearer ${auth}` } : {}),
       ...(opts.headers ?? {}),
     },
   });

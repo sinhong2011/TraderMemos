@@ -7,14 +7,14 @@ import {
   useSummary,
 } from "../lib/hooks/useAnalytics";
 import { useTrades } from "../lib/hooks/useTrades";
-import { useFilters } from "../lib/filters";
+import { useFilterParams, useFilters } from "../lib/filters";
 
 export const Route = createFileRoute("/dashboard")({
   component: DashboardPage,
 });
 
 function DashboardPage() {
-  const filters = useFilters((s) => s.toParams());
+  const filters = useFilterParams();
   const accountId = useFilters((s) => s.accountId);
 
   const now = new Date();
