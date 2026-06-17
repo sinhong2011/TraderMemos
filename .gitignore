@@ -6,3 +6,8 @@ api/data/
 .DS_Store
 /data/
 .superpowers/
+
+# visual verification artifacts
+*.png
+.playwright-mcp/
+web/.playwright-mcp/
