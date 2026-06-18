@@ -1,10 +1,20 @@
 import { Outlet } from "@tanstack/react-router";
+import { LogOut } from "lucide-react";
 import { AccountSwitcher } from "../components/AccountSwitcher";
 import { AppNav } from "../components/AppNav";
 import { DateRangePicker } from "../components/DateRangePicker";
 import { Toaster } from "../components/Toaster";
+import { useAuth } from "../lib/auth";
+import { LoginScreen } from "./screens/LoginScreen";
 
 export function AppShell() {
+	const authed = useAuth((s) => s.authed);
+	const signOut = useAuth((s) => s.signOut);
+
+	if (!authed) {
+		return <LoginScreen />;
+	}
+
 	return (
 		<div
 			className="flex h-full"
@@ -27,6 +37,23 @@ export function AppShell() {
 					<div className="ml-auto flex items-center gap-2">
 						<DateRangePicker />
 						<AccountSwitcher />
+						<button
+							type="button"
+							onClick={signOut}
+							aria-label="Sign out"
+							className="flex items-center justify-center"
+							style={{
+								width: 28,
+								height: 28,
+								color: "var(--color-text-muted)",
+								background: "transparent",
+								border: "1px solid var(--color-border)",
+								borderRadius: "var(--radius-control)",
+								cursor: "pointer",
+							}}
+						>
+							<LogOut size={14} strokeWidth={1.5} />
+						</button>
 					</div>
 				</header>
 
