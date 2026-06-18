@@ -13,17 +13,16 @@ import type { LucideIcon } from "lucide-react";
 // Routes that exist in the router (type-safe Links)
 const ROUTER_ROUTES = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/calendar",  label: "Calendar",  icon: CalendarDays },
+  { to: "/trades",    label: "Trades",    icon: List },
+  { to: "/playbook",  label: "Playbook",  icon: BookOpen },
+  { to: "/reports",   label: "Reports",   icon: BarChart3 },
+  { to: "/settings",  label: "Accounts",  icon: Settings },
+  { to: "/import",    label: "Import",    icon: Upload },
 ] as const;
 
 // Routes planned for future phases (render as plain anchors until added to router)
-const FUTURE_ROUTES: { href: string; label: string; icon: LucideIcon }[] = [
-  { href: "/calendar",  label: "Calendar",  icon: CalendarDays },
-  { href: "/trades",    label: "Trades",    icon: List },
-  { href: "/playbook",  label: "Playbook",  icon: BookOpen },
-  { href: "/reports",   label: "Reports",   icon: BarChart3 },
-  { href: "/accounts",  label: "Accounts",  icon: Settings },
-  { href: "/import",    label: "Import",    icon: Upload },
-];
+const FUTURE_ROUTES: { href: string; label: string; icon: LucideIcon }[] = [];
 
 const itemBase: React.CSSProperties = {
   display: "flex",

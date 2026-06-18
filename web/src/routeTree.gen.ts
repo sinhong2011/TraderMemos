@@ -10,8 +10,10 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TradesRouteImport } from './routes/trades'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ReportsRouteImport } from './routes/reports'
 import { Route as PlaybookRouteImport } from './routes/playbook'
+import { Route as ImportRouteImport } from './routes/import'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as IndexRouteImport } from './routes/index'
@@ -23,6 +25,11 @@ const TradesRoute = TradesRouteImport.update({
   path: '/trades',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ReportsRoute = ReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
@@ -31,6 +38,11 @@ const ReportsRoute = ReportsRouteImport.update({
 const PlaybookRoute = PlaybookRouteImport.update({
   id: '/playbook',
   path: '/playbook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ImportRoute = ImportRouteImport.update({
+  id: '/import',
+  path: '/import',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -63,8 +75,10 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/calendar': typeof CalendarRoute
   '/dashboard': typeof DashboardRoute
+  '/import': typeof ImportRoute
   '/playbook': typeof PlaybookRoute
   '/reports': typeof ReportsRoute
+  '/settings': typeof SettingsRoute
   '/trades': typeof TradesRouteWithChildren
   '/trades/$id': typeof TradesIdRoute
   '/trades/': typeof TradesIndexRoute
@@ -73,8 +87,10 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/calendar': typeof CalendarRoute
   '/dashboard': typeof DashboardRoute
+  '/import': typeof ImportRoute
   '/playbook': typeof PlaybookRoute
   '/reports': typeof ReportsRoute
+  '/settings': typeof SettingsRoute
   '/trades/$id': typeof TradesIdRoute
   '/trades': typeof TradesIndexRoute
 }
@@ -83,8 +99,10 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/calendar': typeof CalendarRoute
   '/dashboard': typeof DashboardRoute
+  '/import': typeof ImportRoute
   '/playbook': typeof PlaybookRoute
   '/reports': typeof ReportsRoute
+  '/settings': typeof SettingsRoute
   '/trades': typeof TradesRouteWithChildren
   '/trades/$id': typeof TradesIdRoute
   '/trades/': typeof TradesIndexRoute
@@ -95,8 +113,10 @@ export interface FileRouteTypes {
     | '/'
     | '/calendar'
     | '/dashboard'
+    | '/import'
     | '/playbook'
     | '/reports'
+    | '/settings'
     | '/trades'
     | '/trades/$id'
     | '/trades/'
@@ -105,8 +125,10 @@ export interface FileRouteTypes {
     | '/'
     | '/calendar'
     | '/dashboard'
+    | '/import'
     | '/playbook'
     | '/reports'
+    | '/settings'
     | '/trades/$id'
     | '/trades'
   id:
@@ -114,8 +136,10 @@ export interface FileRouteTypes {
     | '/'
     | '/calendar'
     | '/dashboard'
+    | '/import'
     | '/playbook'
     | '/reports'
+    | '/settings'
     | '/trades'
     | '/trades/$id'
     | '/trades/'
@@ -125,8 +149,10 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CalendarRoute: typeof CalendarRoute
   DashboardRoute: typeof DashboardRoute
+  ImportRoute: typeof ImportRoute
   PlaybookRoute: typeof PlaybookRoute
   ReportsRoute: typeof ReportsRoute
+  SettingsRoute: typeof SettingsRoute
   TradesRoute: typeof TradesRouteWithChildren
 }
 
@@ -137,6 +163,13 @@ declare module '@tanstack/react-router' {
       path: '/trades'
       fullPath: '/trades'
       preLoaderRoute: typeof TradesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reports': {
@@ -151,6 +184,13 @@ declare module '@tanstack/react-router' {
       path: '/playbook'
       fullPath: '/playbook'
       preLoaderRoute: typeof PlaybookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/import': {
+      id: '/import'
+      path: '/import'
+      fullPath: '/import'
+      preLoaderRoute: typeof ImportRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -208,8 +248,10 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CalendarRoute: CalendarRoute,
   DashboardRoute: DashboardRoute,
+  ImportRoute: ImportRoute,
   PlaybookRoute: PlaybookRoute,
   ReportsRoute: ReportsRoute,
+  SettingsRoute: SettingsRoute,
   TradesRoute: TradesRouteWithChildren,
 }
 export const routeTree = rootRouteImport
