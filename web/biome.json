@@ -4,6 +4,8 @@
 		"ignore": [
 			"dist",
 			"node_modules",
+			"test-results",
+			"playwright-report",
 			"src/routeTree.gen.ts",
 			"src/i18n/locales/**"
 		]

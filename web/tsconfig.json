@@ -12,5 +12,5 @@
 		"noEmit": true,
 		"types": ["vitest/globals", "@testing-library/jest-dom"]
 	},
-	"include": ["src", "e2e"]
+	"include": ["src"]
 }

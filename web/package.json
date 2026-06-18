@@ -2,6 +2,7 @@
 	"name": "tradermemos-web",
 	"private": true,
 	"type": "module",
+	"packageManager": "pnpm@10.33.2",
 	"scripts": {
 		"dev": "vite",
 		"build": "tsc -b --noEmit && vite build",
@@ -48,6 +49,6 @@
 		"vitest": "^4.1.9"
 	},
 	"pnpm": {
-		"onlyBuiltDependencies": ["esbuild"]
+		"onlyBuiltDependencies": ["@biomejs/biome", "esbuild"]
 	}
 }
