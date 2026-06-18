@@ -1,7 +1,25 @@
-import { defineConfig } from "vite";
+import { lingui } from "@lingui/vite-plugin";
+import tailwind from "@tailwindcss/vite";
+import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import react from "@vitejs/plugin-react";
+import { defineConfig } from "vite";
 
 export default defineConfig({
-  plugins: [react()],
-  server: { port: 5173 },
+	plugins: [
+		// tanstackRouter must come before react()
+		tanstackRouter({ target: "react", autoCodeSplitting: true }),
+		react({
+			babel: {
+				plugins: ["@lingui/babel-plugin-lingui-macro"],
+			},
+		}),
+		tailwind(),
+		lingui(),
+	],
+	server: { port: 5173, proxy: { "/api": "http://localhost:8080" } },
+	test: {
+		environment: "jsdom",
+		setupFiles: ["./src/test/setup.ts"],
+		globals: true,
+	},
 });
