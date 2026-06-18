@@ -6,17 +6,22 @@ import { useTrades } from "./useTrades";
 afterEach(() => vi.restoreAllMocks());
 
 function wrapper({ children }: { children: React.ReactNode }) {
-  const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  return <QueryClientProvider client={qc}>{children}</QueryClientProvider>;
+	const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+	return <QueryClientProvider client={qc}>{children}</QueryClientProvider>;
 }
 
 describe("useTrades", () => {
-  it("fetches the trade list for the current filters", async () => {
-    vi.spyOn(globalThis, "fetch").mockResolvedValue(
-      new Response(JSON.stringify([{ id: "t1", symbol: "AAPL", net_pnl: 198 }]), { status: 200 }),
-    );
-    const { result } = renderHook(() => useTrades({ account_id: "a1" }), { wrapper });
-    await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(result.current.data?.[0].symbol).toBe("AAPL");
-  });
+	it("fetches the trade list for the current filters", async () => {
+		vi.spyOn(globalThis, "fetch").mockResolvedValue(
+			new Response(
+				JSON.stringify([{ id: "t1", symbol: "AAPL", net_pnl: 198 }]),
+				{ status: 200 },
+			),
+		);
+		const { result } = renderHook(() => useTrades({ account_id: "a1" }), {
+			wrapper,
+		});
+		await waitFor(() => expect(result.current.isSuccess).toBe(true));
+		expect(result.current.data?.[0].symbol).toBe("AAPL");
+	});
 });

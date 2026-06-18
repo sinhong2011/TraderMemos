@@ -1,6 +1,29 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
-  "files": {
-    "ignore": ["dist", "node_modules"]
-  }
+	"$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+	"files": {
+		"ignore": [
+			"dist",
+			"node_modules",
+			"src/routeTree.gen.ts",
+			"src/i18n/locales/**"
+		]
+	},
+	"linter": {
+		"rules": {
+			"recommended": true,
+			"suspicious": {
+				"noArrayIndexKey": "off",
+				"noExplicitAny": "off"
+			},
+			"style": {
+				"noNonNullAssertion": "off"
+			},
+			"a11y": {
+				"noSvgWithoutTitle": "off",
+				"useKeyWithClickEvents": "off",
+				"useButtonType": "off",
+				"noLabelWithoutControl": "off"
+			}
+		}
+	}
 }

@@ -8,14 +8,14 @@ import type { ReactNode } from "react";
 const catalogs: Record<string, Record<string, string>> = { en: {} };
 
 export function loadLocale(locale: string) {
-  i18n.load(locale, catalogs[locale] ?? {});
-  i18n.activate(locale);
+	i18n.load(locale, catalogs[locale] ?? {});
+	i18n.activate(locale);
 }
 
 loadLocale("en");
 
 export function I18nProvider({ children }: { children: ReactNode }) {
-  return <LinguiI18nProvider i18n={i18n}>{children}</LinguiI18nProvider>;
+	return <LinguiI18nProvider i18n={i18n}>{children}</LinguiI18nProvider>;
 }
 
 export { i18n };
