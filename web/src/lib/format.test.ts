@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { fmtDateShort, fmtDuration, fmtMoney, fmtPct, fmtRecord, fmtSignedMoney } from "./format";
+import {
+	fmtDateShort,
+	fmtDuration,
+	fmtMoney,
+	fmtPct,
+	fmtRecord,
+	fmtSignedMoney,
+} from "./format";
 
 describe("formatters", () => {
 	it("formats money by locale + currency", () => {
