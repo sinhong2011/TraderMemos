@@ -44,7 +44,8 @@ export function buildDayRecords(
 	for (const t of trades) {
 		if (!t.closed_at || t.net_pnl == null || t.net_pnl === 0) continue;
 		const date = t.closed_at.slice(0, 10);
-		const rec = (out[date] ??= { wins: 0, losses: 0 });
+		if (!(date in out)) out[date] = { wins: 0, losses: 0 };
+		const rec = out[date];
 		if (t.net_pnl > 0) rec.wins++;
 		else rec.losses++;
 	}
