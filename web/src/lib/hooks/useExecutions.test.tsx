@@ -33,11 +33,21 @@ describe("useCreateExecutions", () => {
 	beforeEach(() => mockedCreate.mockReset());
 
 	it("posts all rows sequentially and resolves with the count", async () => {
-		mockedCreate.mockResolvedValue(undefined);
+		let active = 0;
+		let maxActive = 0;
+		mockedCreate.mockImplementation(async () => {
+			active++;
+			maxActive = Math.max(maxActive, active);
+			await new Promise((r) => setTimeout(r, 5));
+			active--;
+		});
 		const { result } = renderHook(() => useCreateExecutions(), { wrapper });
 		const count = await result.current.mutateAsync([ROW, ROW]);
 		expect(count).toBe(2);
 		expect(mockedCreate).toHaveBeenCalledTimes(2);
+		expect(mockedCreate).toHaveBeenNthCalledWith(1, ROW);
+		expect(mockedCreate).toHaveBeenNthCalledWith(2, ROW);
+		expect(maxActive).toBe(1);
 	});
 
 	it("throws ExecutionBatchError listing failed row indexes", async () => {
