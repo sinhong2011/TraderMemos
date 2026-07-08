@@ -15,13 +15,14 @@ export function SegmentedControl({
 	ariaLabel?: string;
 }) {
 	return (
-		<div
-			role="group"
+		<fieldset
 			aria-label={ariaLabel}
 			style={{
 				display: "inline-flex",
 				gap: 2,
 				padding: 2,
+				border: "none",
+				margin: 0,
 				background: "var(--color-surface-raised)",
 				borderRadius: "var(--radius-control)",
 			}}
@@ -50,6 +51,6 @@ export function SegmentedControl({
 					</button>
 				);
 			})}
-		</div>
+		</fieldset>
 	);
 }
