@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { monthGrid } from "./calendar";
+import { buildDayRecords, monthGrid, weekSummaries } from "./calendar";
 
 describe("monthGrid", () => {
 	it("builds a 6x7 grid covering the month with pnl mapped by day", () => {
@@ -10,5 +10,44 @@ describe("monthGrid", () => {
 		const june1 = grid.weeks.flat().find((c) => c?.date === "2026-06-01");
 		expect(june1?.pnl).toBe(200);
 		expect(grid.monthTotal).toBe(150);
+	});
+});
+
+describe("buildDayRecords", () => {
+	it("counts wins and losses per close date", () => {
+		const records = buildDayRecords([
+			{ closed_at: "2026-07-02T14:00:00Z", net_pnl: 11.39 },
+			{ closed_at: "2026-07-02T15:00:00Z", net_pnl: 58.09 },
+			{ closed_at: "2026-07-02T16:00:00Z", net_pnl: -111.24 },
+			{ closed_at: "2026-07-01T16:00:00Z", net_pnl: -20.03 },
+			{ closed_at: null, net_pnl: null },
+			{ closed_at: "2026-07-03T16:00:00Z", net_pnl: 0 },
+		]);
+		expect(records["2026-07-02"]).toEqual({ wins: 2, losses: 1 });
+		expect(records["2026-07-01"]).toEqual({ wins: 0, losses: 1 });
+		expect(records["2026-07-03"]).toBeUndefined();
+	});
+});
+
+describe("weekSummaries", () => {
+	it("sums pnl and records per grid row", () => {
+		const pnl = { "2026-07-01": -20.03, "2026-07-02": -41.76 };
+		const grid = monthGrid(2026, 7, pnl);
+		const records = buildDayRecords([
+			{ closed_at: "2026-07-01T16:00:00Z", net_pnl: -20.03 },
+			{ closed_at: "2026-07-02T14:00:00Z", net_pnl: 11.39 },
+			{ closed_at: "2026-07-02T15:00:00Z", net_pnl: 58.09 },
+			{ closed_at: "2026-07-02T16:00:00Z", net_pnl: -111.24 },
+		]);
+		const weeks = weekSummaries(grid.weeks, records);
+		expect(weeks).toHaveLength(6);
+		// July 2026: the 1st and 2nd fall in the first grid row (Wed/Thu).
+		expect(weeks[0]).toEqual({
+			pnl: -61.79,
+			wins: 2,
+			losses: 2,
+			hasData: true,
+		});
+		expect(weeks[1]).toEqual({ pnl: 0, wins: 0, losses: 0, hasData: false });
 	});
 });
