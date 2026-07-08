@@ -6,14 +6,15 @@
 :root {
 	color-scheme: dark;
 
-	/* Surfaces */
-	--color-surface-base: #0b0e14;
-	--color-surface-panel: #11151f;
-	--color-surface-hover: #161b27;
-	--color-border: #1d2330;
+	/* Surfaces — layered navy slate (dark → light: panel, base, raised, hover) */
+	--color-surface-base: #161b26;
+	--color-surface-panel: #10141d;
+	--color-surface-raised: #1e2430;
+	--color-surface-hover: #27303f;
+	--color-border: #262e3d;
 
 	/* Text */
-	--color-text: #e6e9ef;
+	--color-text: #e8ebf1;
 	--color-text-muted: #8b93a7;
 
 	/* Accent */
@@ -24,10 +25,17 @@
 	--color-pos: #34d399;
 	--color-neg: #f87171;
 	--color-flat: #8b93a7;
+	--color-amber: #fbbf24;
+
+	/* Tinted fills (pills, banners, calendar cells) */
+	--tint-pos: rgba(52, 211, 153, 0.14);
+	--tint-neg: rgba(248, 113, 113, 0.14);
+	--tint-accent: rgba(110, 168, 254, 0.14);
+	--tint-amber: rgba(251, 191, 36, 0.14);
 
 	/* Radius */
 	--radius-control: 8px;
-	--radius-panel: 10px;
+	--radius-panel: 12px;
 
 	/* Motion */
 	--duration-fast: 150ms;
