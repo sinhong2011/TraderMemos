@@ -1,3 +1,4 @@
+import { CandlestickChart } from "lucide-react";
 import { useState } from "react";
 import { authApi } from "../../lib/api/auth";
 import { ApiError } from "../../lib/api/client";
@@ -55,9 +56,14 @@ export function LoginScreen() {
 				}}
 			>
 				<div
-					className="font-semibold"
-					style={{ color: "var(--color-accent)", marginBottom: 4 }}
+					className="flex items-center gap-2 font-semibold"
+					style={{ color: "var(--color-text)", marginBottom: 4 }}
 				>
+					<CandlestickChart
+						size={18}
+						strokeWidth={2}
+						style={{ color: "var(--color-accent)" }}
+					/>
 					TraderMemos
 				</div>
 				<div
@@ -114,7 +120,7 @@ export function LoginScreen() {
 						disabled={busy}
 						style={{
 							background: "var(--color-accent)",
-							color: "#0b0e14",
+							color: "#0e1218",
 							border: "none",
 							borderRadius: "var(--radius-control)",
 							padding: "9px 12px",

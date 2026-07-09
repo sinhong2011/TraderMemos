@@ -1,20 +1,66 @@
+import type { ColumnDef } from "@tanstack/react-table";
+import {
+	flexRender,
+	getCoreRowModel,
+	useReactTable,
+} from "@tanstack/react-table";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import type { Trade } from "../../lib/api/types";
 import { TradesView } from "./TradesView";
 
 // Mock DataTable: the real one uses a virtualizer that needs a sized scroll
-// container (absent in jsdom). Render the rows' symbols + net P&L plainly.
+// container (absent in jsdom). Render cells using the provided column
+// definitions, mirroring src/components/tradeColumns.test.tsx and
+// src/app/screens/DashboardView.test.tsx, which hit the same jsdom gotcha.
 vi.mock("../../components/DataTable", () => ({
-	DataTable: ({ data }: { data: Trade[] }) => (
-		<div data-testid="table">
-			{data.map((t) => (
-				<div key={t.id}>
-					{t.symbol} {t.net_pnl}
-				</div>
-			))}
-		</div>
-	),
+	DataTable: function MockDataTable<T>({
+		columns,
+		data,
+		onRowClick,
+	}: {
+		columns: ColumnDef<T>[];
+		data: T[];
+		onRowClick?: (row: T) => void;
+	}) {
+		const table = useReactTable({
+			data,
+			columns,
+			getCoreRowModel: getCoreRowModel(),
+		});
+
+		return (
+			<table>
+				<thead>
+					{table.getHeaderGroups().map((headerGroup) => (
+						<tr key={headerGroup.id}>
+							{headerGroup.headers.map((header) => (
+								<th key={header.id}>
+									{header.isPlaceholder
+										? null
+										: flexRender(
+												header.column.columnDef.header,
+												header.getContext(),
+											)}
+								</th>
+							))}
+						</tr>
+					))}
+				</thead>
+				<tbody>
+					{table.getRowModel().rows.map((row) => (
+						<tr key={row.id} onClick={() => onRowClick?.(row.original)}>
+							{row.getVisibleCells().map((cell) => (
+								<td key={cell.id}>
+									{flexRender(cell.column.columnDef.cell, cell.getContext())}
+								</td>
+							))}
+						</tr>
+					))}
+				</tbody>
+			</table>
+		);
+	},
 }));
 
 function trade(over: Partial<Trade>): Trade {
@@ -62,8 +108,11 @@ describe("TradesView", () => {
 				]}
 			/>,
 		);
-		expect(screen.getByText(/AAPL/)).toBeInTheDocument();
-		expect(screen.getByText(/MSFT/)).toBeInTheDocument();
+		expect(screen.getByText("SYMBOL")).toBeInTheDocument();
+		expect(screen.getByText("RETURN %")).toBeInTheDocument();
+		expect(screen.getByText("AAPL")).toBeInTheDocument();
+		expect(screen.getByText("MSFT")).toBeInTheDocument();
+		expect(screen.getByText("WIN")).toBeInTheDocument();
 		expect(screen.getByText("2 trades")).toBeInTheDocument();
 	});
 

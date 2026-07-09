@@ -1,126 +1,11 @@
-import type { ColumnDef } from "@tanstack/react-table";
 import { Search } from "lucide-react";
 import { DataTable } from "../../components/DataTable";
 import { EmptyState } from "../../components/EmptyState";
 import { Panel } from "../../components/Panel";
 import { Skeleton } from "../../components/Skeleton";
 import { Toolbar } from "../../components/Toolbar";
-import { pnlColor } from "../../components/theme-tokens";
+import { tradeColumns } from "../../components/tradeColumns";
 import type { Trade } from "../../lib/api/types";
-import { fmtSignedMoney } from "../../lib/format";
-
-const LOCALE = "en-US";
-
-function fmtDate(iso: string | null): string {
-	if (!iso) return "-";
-	return new Date(iso).toLocaleDateString(LOCALE, {
-		month: "short",
-		day: "numeric",
-		year: "numeric",
-	});
-}
-
-function columns(currency: string): ColumnDef<Trade>[] {
-	return [
-		{
-			accessorKey: "symbol",
-			header: "Symbol",
-			cell: (i) => (
-				<span style={{ color: "var(--color-text)" }}>
-					{i.getValue<string>()}
-				</span>
-			),
-		},
-		{
-			accessorKey: "direction",
-			header: "Dir",
-			cell: (i) => {
-				const d = i.getValue<string>();
-				return (
-					<span
-						style={{
-							color: d === "long" ? "var(--color-pos)" : "var(--color-neg)",
-						}}
-					>
-						{d.toUpperCase()}
-					</span>
-				);
-			},
-		},
-		{
-			accessorKey: "instrument_type",
-			header: "Type",
-			cell: (i) => (
-				<span style={{ color: "var(--color-text-muted)" }}>
-					{i.getValue<string>()}
-				</span>
-			),
-		},
-		{
-			accessorKey: "opened_at",
-			header: "Opened",
-			cell: (i) => (
-				<span style={{ color: "var(--color-text-muted)" }}>
-					{fmtDate(i.getValue<string>())}
-				</span>
-			),
-		},
-		{
-			accessorKey: "closed_at",
-			header: "Closed",
-			cell: (i) => (
-				<span style={{ color: "var(--color-text-muted)" }}>
-					{fmtDate(i.getValue<string | null>())}
-				</span>
-			),
-		},
-		{
-			accessorKey: "qty_opened",
-			header: "Qty",
-			cell: (i) => <span className="tabular-nums">{i.getValue<number>()}</span>,
-		},
-		{
-			accessorKey: "net_pnl",
-			header: "Net P&L",
-			cell: (i) => {
-				const v = i.getValue<number | null>();
-				if (v == null)
-					return <span style={{ color: "var(--color-text-muted)" }}>-</span>;
-				return (
-					<span className={`tabular-nums ${pnlColor(v)}`}>
-						{fmtSignedMoney(v, currency, LOCALE)}
-					</span>
-				);
-			},
-		},
-		{
-			accessorKey: "return_pct",
-			header: "Return",
-			cell: (i) => {
-				const v = i.getValue<number | null>();
-				if (v == null)
-					return <span style={{ color: "var(--color-text-muted)" }}>-</span>;
-				return (
-					<span className={`tabular-nums ${pnlColor(v)}`}>{v.toFixed(2)}%</span>
-				);
-			},
-		},
-		{
-			id: "tags",
-			header: "Tags",
-			cell: (i) => {
-				const tags = i.row.original.tags ?? [];
-				if (tags.length === 0)
-					return <span style={{ color: "var(--color-text-muted)" }}>-</span>;
-				return (
-					<span style={{ color: "var(--color-text-muted)" }}>
-						{tags.map((t) => t.name).join(", ")}
-					</span>
-				);
-			},
-		},
-	];
-}
 
 export interface TradesViewProps {
 	trades: Trade[];
@@ -191,7 +76,7 @@ export function TradesView({
 			) : (
 				<div style={{ height: 560 }}>
 					<DataTable
-						columns={columns(currency)}
+						columns={tradeColumns(currency, (t) => onSelectTrade(t.id))}
 						data={trades}
 						onRowClick={(t) => onSelectTrade(t.id)}
 					/>
