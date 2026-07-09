@@ -143,6 +143,30 @@ describe("DashboardView", () => {
 		expect(screen.getByRole("button", { name: "ALL" })).toBeInTheDocument();
 	});
 
+	it("computes OPEN percentage against all trades, not closed-only total", () => {
+		const openTrade: Trade = {
+			...TRADE,
+			id: "t2",
+			status: "open",
+			closed_at: null,
+			net_pnl: null,
+			avg_exit_price: null,
+			return_pct: null,
+			time_in_trade_secs: null,
+		};
+		// Two open trades, zero closed: the closed-only total would yield
+		// 2 / max(0, 1) = 200%; against all trades it is 2 / 2 = 100%.
+		render(
+			<DashboardView
+				{...BASE}
+				summary={{ ...SUMMARY, total_trades: 0, wins: 0, losses: 0 }}
+				trades={[openTrade, { ...openTrade, id: "t3" }]}
+			/>,
+		);
+		expect(screen.getByText("100%")).toBeInTheDocument();
+		expect(screen.queryByText("200%")).toBeNull();
+	});
+
 	it("shows the empty state with no data", () => {
 		render(
 			<DashboardView

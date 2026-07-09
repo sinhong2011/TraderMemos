@@ -185,6 +185,7 @@ function StatsStrip({
 	if (!summary) return null;
 
 	const total = Math.max(summary.total_trades, 1);
+	const allTotal = Math.max(trades.length, 1);
 	const openCount = trades.filter((t) => t.status === "open").length;
 	const avgWinAbs = Math.abs(summary.avg_win);
 	const avgLossAbs = Math.abs(summary.avg_loss);
@@ -214,8 +215,8 @@ function StatsStrip({
 					<StatBar
 						label="OPEN"
 						value={String(openCount)}
-						right={fmtPct(openCount / total, LOCALE)}
-						pct={openCount / total}
+						right={fmtPct(openCount / allTotal, LOCALE)}
+						pct={openCount / allTotal}
 						tone="accent"
 					/>
 					<StatBar
