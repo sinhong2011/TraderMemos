@@ -1,121 +1,126 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import {
-	BarChart3,
 	BookOpen,
 	CalendarDays,
+	CandlestickChart,
 	LayoutDashboard,
 	List,
+	PieChart,
+	Plus,
 	Settings,
 	Upload,
+	Zap,
 } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+import { useUI } from "../lib/ui";
+import { AccountSwitcher } from "./AccountSwitcher";
 
-// Routes that exist in the router (type-safe Links)
 const ROUTER_ROUTES = [
 	{ to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+	{ to: "/reports", label: "Stats", icon: PieChart },
 	{ to: "/calendar", label: "Calendar", icon: CalendarDays },
 	{ to: "/trades", label: "Trades", icon: List },
 	{ to: "/playbook", label: "Playbook", icon: BookOpen },
-	{ to: "/reports", label: "Reports", icon: BarChart3 },
-	{ to: "/settings", label: "Accounts", icon: Settings },
 	{ to: "/import", label: "Import", icon: Upload },
+	{ to: "/settings", label: "Settings", icon: Settings },
 ] as const;
-
-// Routes planned for future phases (render as plain anchors until added to router)
-const FUTURE_ROUTES: { href: string; label: string; icon: LucideIcon }[] = [];
 
 const itemBase: React.CSSProperties = {
 	display: "flex",
 	alignItems: "center",
 	gap: "10px",
-	padding: "7px 10px",
+	padding: "8px 12px",
 	borderRadius: "var(--radius-control)",
 	fontSize: "13px",
 	textDecoration: "none",
+	position: "relative",
 	transition: "background var(--duration-fast), color var(--duration-fast)",
 	cursor: "pointer",
 };
 
-function NavLink({
+function QuickAction({
 	label,
 	icon: Icon,
-	isActive,
-	href,
+	color,
+	onClick,
 }: {
 	label: string;
-	icon: LucideIcon;
-	isActive?: boolean;
-	href: string;
+	icon: typeof Plus;
+	color: string;
+	onClick: () => void;
 }) {
 	return (
-		<a
-			href={href}
+		<button
+			type="button"
+			onClick={onClick}
 			style={{
 				...itemBase,
-				color: isActive ? "var(--color-accent)" : "var(--color-text-muted)",
-				background: isActive ? "var(--color-accent-subtle)" : "transparent",
+				color,
+				background: "transparent",
+				border: "none",
+				width: "100%",
+				textAlign: "left",
+				fontFamily: "var(--font-ui)",
 			}}
 			onMouseEnter={(e) => {
-				if (!isActive) {
-					(e.currentTarget as HTMLElement).style.background =
-						"var(--color-surface-hover)";
-					(e.currentTarget as HTMLElement).style.color = "var(--color-text)";
-				}
+				(e.currentTarget as HTMLElement).style.background =
+					"var(--color-surface-hover)";
 			}}
 			onMouseLeave={(e) => {
-				if (!isActive) {
-					(e.currentTarget as HTMLElement).style.background = "transparent";
-					(e.currentTarget as HTMLElement).style.color =
-						"var(--color-text-muted)";
-				}
+				(e.currentTarget as HTMLElement).style.background = "transparent";
 			}}
 		>
 			<Icon size={15} strokeWidth={1.5} />
 			<span>{label}</span>
-		</a>
+		</button>
 	);
 }
 
 export function AppNav() {
-	const routerState = useRouterState();
-	const currentPath = routerState.location.pathname;
+	const openDrawer = useUI((s) => s.openDrawer);
 
 	return (
 		<nav
 			aria-label="Main navigation"
 			style={{
-				width: "200px",
-				minHeight: "100vh",
+				width: "260px",
 				background: "var(--color-surface-panel)",
 				borderRight: "1px solid var(--color-border)",
 				display: "flex",
 				flexDirection: "column",
 				gap: "2px",
-				padding: "0 8px 8px",
+				padding: "0 10px 12px",
 				flexShrink: 0,
+				overflowY: "auto",
 			}}
 		>
 			{/* Wordmark */}
 			<div
-				style={{
-					padding: "12px 10px 12px",
-					marginBottom: "4px",
-					borderBottom: "1px solid var(--color-border)",
-				}}
+				className="flex items-center gap-2"
+				style={{ padding: "14px 12px", marginBottom: "4px" }}
 			>
+				<CandlestickChart
+					size={20}
+					strokeWidth={2}
+					style={{ color: "var(--color-accent)" }}
+				/>
 				<span
 					style={{
-						fontSize: "14px",
-						fontWeight: 600,
+						fontSize: "16px",
+						fontWeight: 700,
 						letterSpacing: "-0.01em",
-						color: "var(--color-accent)",
+						color: "var(--color-text)",
 					}}
 				>
 					TraderMemos
 				</span>
 			</div>
 
-			{/* Type-safe router links */}
+			{/* Account switcher */}
+			<div style={{ padding: "0 2px", marginBottom: "10px" }}>
+				<AccountSwitcher />
+			</div>
+
+			{/* Nav */}
 			{ROUTER_ROUTES.map(({ to, label, icon: Icon }) => (
 				<Link
 					key={to}
@@ -126,26 +131,22 @@ export function AppNav() {
 							...itemBase,
 							color: "var(--color-accent)",
 							background: "var(--color-accent-subtle)",
+							boxShadow: "inset 3px 0 0 var(--color-accent)",
 						},
 					}}
 					inactiveProps={{
-						style: {
-							...itemBase,
-							color: "var(--color-text-muted)",
-						},
+						style: { ...itemBase, color: "var(--color-text-muted)" },
 					}}
 					onMouseEnter={(e) => {
 						const el = e.currentTarget as HTMLElement;
-						const active = el.getAttribute("aria-current") === "page";
-						if (!active) {
+						if (el.getAttribute("aria-current") !== "page") {
 							el.style.background = "var(--color-surface-hover)";
 							el.style.color = "var(--color-text)";
 						}
 					}}
 					onMouseLeave={(e) => {
 						const el = e.currentTarget as HTMLElement;
-						const active = el.getAttribute("aria-current") === "page";
-						if (!active) {
+						if (el.getAttribute("aria-current") !== "page") {
 							el.style.background = "transparent";
 							el.style.color = "var(--color-text-muted)";
 						}
@@ -156,16 +157,27 @@ export function AppNav() {
 				</Link>
 			))}
 
-			{/* Future routes - plain anchors until added to router */}
-			{FUTURE_ROUTES.map(({ href, label, icon }) => (
-				<NavLink
-					key={href}
-					href={href}
-					label={label}
-					icon={icon}
-					isActive={currentPath === href}
-				/>
-			))}
+			{/* Divider */}
+			<div
+				style={{
+					borderTop: "1px solid var(--color-border)",
+					margin: "10px 4px",
+				}}
+			/>
+
+			{/* Quick actions */}
+			<QuickAction
+				label="New Trade"
+				icon={Plus}
+				color="var(--color-accent)"
+				onClick={() => openDrawer("new-trade")}
+			/>
+			<QuickAction
+				label="New Setup"
+				icon={Zap}
+				color="var(--color-amber)"
+				onClick={() => openDrawer("new-setup")}
+			/>
 		</nav>
 	);
 }
