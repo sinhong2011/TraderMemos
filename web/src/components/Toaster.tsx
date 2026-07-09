@@ -1,4 +1,5 @@
 import { Toast as BaseToast } from "@base-ui-components/react";
+import type { ReactNode } from "react";
 import { ToastItem } from "./Toast";
 
 function ToastList() {
@@ -13,12 +14,14 @@ function ToastList() {
 }
 
 /**
- * Place <Toaster /> once in the app shell.
- * Use useToastManager() (re-exported from Toast.tsx) inside any child to add toasts.
+ * Wrap the app shell in <Toaster> once; it provides the toast context and
+ * renders the viewport. Use useToastManager() (re-exported from Toast.tsx)
+ * inside any child to add toasts.
  */
-export function Toaster() {
+export function Toaster({ children }: { children: ReactNode }) {
 	return (
 		<BaseToast.Provider>
+			{children}
 			<BaseToast.Viewport
 				style={{
 					position: "fixed",
