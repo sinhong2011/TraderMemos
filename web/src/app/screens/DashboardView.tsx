@@ -1,5 +1,5 @@
-import type { ColumnDef } from "@tanstack/react-table";
 import { TrendingUp } from "lucide-react";
+import { useState } from "react";
 import {
 	Area,
 	AreaChart,
@@ -13,418 +13,264 @@ import { ChartFrame, chartTheme } from "../../components/ChartFrame";
 import { DataTable } from "../../components/DataTable";
 import { EmptyState } from "../../components/EmptyState";
 import { Panel } from "../../components/Panel";
+import { SegmentedControl } from "../../components/SegmentedControl";
 import { Skeleton } from "../../components/Skeleton";
-import { StatCard } from "../../components/StatCard";
+import { StatBar } from "../../components/StatBar";
 import { pnlColor } from "../../components/theme-tokens";
+import { tradeColumns } from "../../components/tradeColumns";
 import type { Account, EquityPoint, Summary, Trade } from "../../lib/api/types";
-import { monthGrid } from "../../lib/calendar";
 import { fmtMoney, fmtPct, fmtSignedMoney } from "../../lib/format";
 
-// ---------------------------------------------------------------------------
-// Props
-// ---------------------------------------------------------------------------
-
 export interface DashboardViewProps {
-	// Query states
 	summaryLoading: boolean;
 	summaryError: boolean;
 	summary: Summary | undefined;
-
 	equityLoading: boolean;
 	equityError: boolean;
 	equityPoints: EquityPoint[];
-
-	dailyLoading: boolean;
-	dailyError: boolean;
-	dailyPnl: Record<string, number>;
-
 	tradesLoading: boolean;
 	tradesError: boolean;
 	trades: Trade[];
-
 	accounts: Account[];
 	selectedAccountId: string | undefined;
-
-	// For the mini-calendar: which month to show
-	year: number;
-	month: number; // 1-based
+	onSelectTrade: (t: Trade) => void;
 }
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
+const LOCALE = "en-US";
+const RANGES = [
+	{ value: "30D", label: "30D" },
+	{ value: "90D", label: "90D" },
+	{ value: "ALL", label: "ALL" },
+];
 
 function getCurrency(accounts: Account[], accountId?: string): string {
 	if (!accountId) return "USD";
 	return accounts.find((a) => a.id === accountId)?.base_currency ?? "USD";
 }
 
-const LOCALE = "en-US";
-
-const DOW_HEADERS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
-
-// ---------------------------------------------------------------------------
-// Sub-sections
-// ---------------------------------------------------------------------------
-
-function KpiRow({
-	loading,
-	error,
-	summary,
-	currency,
-}: {
-	loading: boolean;
-	error: boolean;
-	summary: Summary | undefined;
-	currency: string;
-}) {
-	if (loading) {
-		return (
-			<div className="grid grid-cols-5 gap-3">
-				{Array.from({ length: 5 }).map((_, i) => (
-					<Skeleton key={i} height="64px" />
-				))}
-			</div>
-		);
-	}
-	if (error) {
-		return (
-			<p className="text-xs" style={{ color: "var(--color-neg)" }}>
-				Failed to load summary.
-			</p>
-		);
-	}
-	if (!summary) return null;
-
-	const pnlAccent: "pos" | "neg" | "none" =
-		summary.net_pnl > 0 ? "pos" : summary.net_pnl < 0 ? "neg" : "none";
-
-	return (
-		<div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-			<StatCard
-				label="Net P&L"
-				value={fmtSignedMoney(summary.net_pnl, currency, LOCALE)}
-				accent={pnlAccent}
-			/>
-			<StatCard label="Win Rate" value={fmtPct(summary.win_rate, LOCALE)} />
-			<StatCard
-				label="Profit Factor"
-				value={
-					summary.profit_factor === 0 ? "-" : summary.profit_factor.toFixed(2)
-				}
-			/>
-			<StatCard
-				label="Expectancy"
-				value={fmtSignedMoney(summary.expectancy, currency, LOCALE)}
-			/>
-			<StatCard
-				label="Trades"
-				value={String(summary.total_trades)}
-				hint={`avg win ${fmtMoney(summary.avg_win, currency, LOCALE)}`}
-			/>
-		</div>
-	);
+function startingBalance(accounts: Account[], accountId?: string): number {
+	const list = accountId
+		? accounts.filter((a) => a.id === accountId)
+		: accounts;
+	return list.reduce((s, a) => s + a.starting_balance, 0);
 }
 
-function EquityCurvePanel({
+function rangeCutoff(range: string): number | null {
+	if (range === "ALL") return null;
+	const days = range === "30D" ? 30 : 90;
+	return Date.now() - days * 86400_000;
+}
+
+function EquityBand({
 	loading,
 	error,
 	points,
 	currency,
+	range,
+	onRangeChange,
 }: {
 	loading: boolean;
 	error: boolean;
 	points: EquityPoint[];
 	currency: string;
+	range: string;
+	onRangeChange: (r: string) => void;
 }) {
-	const content = () => {
-		if (loading) return <Skeleton height="200px" className="m-3" />;
-		if (error)
-			return (
+	const cutoff = rangeCutoff(range);
+	const visible = cutoff
+		? points.filter((p) => new Date(p.at).getTime() >= cutoff)
+		: points;
+
+	return (
+		<Panel>
+			<div className="flex items-center justify-between px-3 pt-2">
+				<SegmentedControl
+					ariaLabel="Equity range"
+					options={RANGES}
+					value={range}
+					onChange={onRangeChange}
+				/>
+			</div>
+			{loading ? (
+				<Skeleton height="150px" className="m-3" />
+			) : error ? (
 				<p className="p-4 text-xs" style={{ color: "var(--color-neg)" }}>
 					Failed to load equity curve.
 				</p>
-			);
-		if (points.length === 0)
-			return (
-				<EmptyState
-					title="No equity data"
-					hint="Add trades to see your equity curve."
-				/>
-			);
-		return (
-			<ChartFrame className="border-0 rounded-none">
-				<ResponsiveContainer width="100%" height={200}>
-					<AreaChart
-						data={points}
-						margin={{ top: 12, right: 12, bottom: 0, left: 0 }}
-					>
-						<defs>
-							<linearGradient id="eq-fill" x1="0" y1="0" x2="0" y2="1">
-								<stop offset="5%" stopColor="#34d399" stopOpacity={0.25} />
-								<stop offset="95%" stopColor="#34d399" stopOpacity={0} />
-							</linearGradient>
-						</defs>
-						<CartesianGrid vertical={false} stroke={chartTheme.gridColor} />
-						<XAxis
-							dataKey="at"
-							tick={{ fontSize: 10, fill: chartTheme.axisColor }}
-							tickFormatter={(v: string) => v.slice(0, 10)}
-							axisLine={false}
-							tickLine={false}
-							minTickGap={60}
-						/>
-						<YAxis
-							tick={{ fontSize: 10, fill: chartTheme.axisColor }}
-							tickFormatter={(v: number) => fmtMoney(v, currency, LOCALE)}
-							axisLine={false}
-							tickLine={false}
-							width={72}
-						/>
-						<Tooltip
-							contentStyle={{
-								background: chartTheme.tooltipBg,
-								border: `1px solid ${chartTheme.tooltipBorder}`,
-								color: chartTheme.tooltipText,
-								fontSize: 11,
-								fontFamily: "var(--font-mono)",
-							}}
-							labelFormatter={(label: string) => label.slice(0, 10)}
-							formatter={(value: number) => [
-								fmtMoney(value, currency, LOCALE),
-								"Equity",
-							]}
-							cursor={{ fill: chartTheme.cursorFill }}
-						/>
-						<Area
-							type="monotone"
-							dataKey="equity"
-							stroke="#34d399"
-							strokeWidth={1.5}
-							fill="url(#eq-fill)"
-							dot={false}
-							activeDot={{ r: 3, fill: "#34d399" }}
-						/>
-					</AreaChart>
-				</ResponsiveContainer>
-			</ChartFrame>
-		);
-	};
-
-	return <Panel title="Equity Curve">{content()}</Panel>;
-}
-
-function MiniCalendar({
-	loading,
-	error,
-	dailyPnl,
-	year,
-	month,
-	currency,
-}: {
-	loading: boolean;
-	error: boolean;
-	dailyPnl: Record<string, number>;
-	year: number;
-	month: number;
-	currency: string;
-}) {
-	const content = () => {
-		if (loading) return <Skeleton height="160px" className="m-3" />;
-		if (error)
-			return (
-				<p className="p-4 text-xs" style={{ color: "var(--color-neg)" }}>
-					Failed to load daily P&L.
-				</p>
-			);
-
-		const grid = monthGrid(year, month, dailyPnl);
-
-		return (
-			<div className="p-3">
-				{/* Day-of-week headers */}
-				<div className="grid grid-cols-7 mb-1">
-					{DOW_HEADERS.map((d) => (
-						<div
-							key={d}
-							className="text-center text-[10px] font-medium uppercase"
-							style={{ color: "var(--color-text-muted)" }}
+			) : visible.length === 0 ? (
+				<EmptyState title="No equity data" />
+			) : (
+				<ChartFrame className="border-0 rounded-none">
+					<ResponsiveContainer width="100%" height={150}>
+						<AreaChart
+							data={visible}
+							margin={{ top: 10, right: 12, bottom: 0, left: 0 }}
 						>
-							{d}
-						</div>
-					))}
-				</div>
-				{/* Weeks */}
-				{grid.weeks.map((week, wi) => (
-					<div key={wi} className="grid grid-cols-7 gap-px">
-						{week.map((cell, di) => {
-							if (!cell) {
-								return <div key={di} className="aspect-square" />;
-							}
-							const day = Number(cell.date.slice(8, 10));
-							const hasPnl = cell.pnl != null;
-							const color = hasPnl
-								? cell.pnl! > 0
-									? "var(--color-pos)"
-									: "var(--color-neg)"
-								: "var(--color-text-muted)";
-							return (
-								<div
-									key={di}
-									className="flex flex-col items-center justify-center aspect-square rounded text-[10px] leading-none"
-									style={{
-										background: hasPnl
-											? cell.pnl! > 0
-												? "rgba(52,211,153,0.12)"
-												: "rgba(248,113,113,0.12)"
-											: "transparent",
-										color,
-									}}
-									title={
-										hasPnl
-											? `${cell.date}: ${fmtSignedMoney(cell.pnl!, currency, LOCALE)}`
-											: cell.date
-									}
-								>
-									<span>{day}</span>
-									{hasPnl && (
-										<span className="text-[8px] leading-none mt-0.5 tabular-nums">
-											{cell.pnl! >= 0 ? "+" : ""}
-											{Math.round(cell.pnl!)}
-										</span>
-									)}
-								</div>
-							);
-						})}
-					</div>
-				))}
-				{/* Month total */}
-				<div
-					className="mt-2 pt-2 text-xs text-right tabular-nums"
-					style={{
-						borderTop: "1px solid var(--color-border)",
-						color:
-							grid.monthTotal > 0
-								? "var(--color-pos)"
-								: grid.monthTotal < 0
-									? "var(--color-neg)"
-									: "var(--color-text-muted)",
-					}}
-				>
-					Month total:{" "}
-					{grid.monthTotal !== 0
-						? fmtSignedMoney(grid.monthTotal, currency, LOCALE)
-						: "-"}
-				</div>
-			</div>
-		);
-	};
-
-	const monthName = new Date(year, month - 1, 1).toLocaleString(LOCALE, {
-		month: "long",
-		year: "numeric",
-	});
-
-	return <Panel title={`This Month - ${monthName}`}>{content()}</Panel>;
+							<defs>
+								<linearGradient id="eq-fill" x1="0" y1="0" x2="0" y2="1">
+									<stop offset="5%" stopColor="#6ea8fe" stopOpacity={0.2} />
+									<stop offset="95%" stopColor="#6ea8fe" stopOpacity={0} />
+								</linearGradient>
+							</defs>
+							<CartesianGrid vertical={false} stroke={chartTheme.gridColor} />
+							<XAxis
+								dataKey="at"
+								tick={{ fontSize: 10, fill: chartTheme.axisColor }}
+								tickFormatter={(v: string) => v.slice(0, 10)}
+								axisLine={false}
+								tickLine={false}
+								minTickGap={60}
+							/>
+							<YAxis
+								tick={{ fontSize: 10, fill: chartTheme.axisColor }}
+								tickFormatter={(v: number) => fmtMoney(v, currency, LOCALE)}
+								axisLine={false}
+								tickLine={false}
+								width={72}
+							/>
+							<Tooltip
+								contentStyle={{
+									background: chartTheme.tooltipBg,
+									border: `1px solid ${chartTheme.tooltipBorder}`,
+									color: chartTheme.tooltipText,
+									fontSize: 11,
+									fontFamily: "var(--font-mono)",
+								}}
+								labelFormatter={(label: string) => label.slice(0, 10)}
+								formatter={(value: number) => [
+									fmtMoney(value, currency, LOCALE),
+									"Equity",
+								]}
+								cursor={{ fill: chartTheme.cursorFill }}
+							/>
+							<Area
+								type="monotone"
+								dataKey="equity"
+								stroke="#6ea8fe"
+								strokeWidth={1.5}
+								fill="url(#eq-fill)"
+								dot={false}
+								activeDot={{ r: 3, fill: "#6ea8fe" }}
+							/>
+						</AreaChart>
+					</ResponsiveContainer>
+				</ChartFrame>
+			)}
+		</Panel>
+	);
 }
 
-// Recent trades columns
-function recentTradesColumns(currency: string): ColumnDef<Trade>[] {
-	return [
-		{
-			accessorKey: "symbol",
-			header: "Symbol",
-			cell: (info) => (
-				<span style={{ color: "var(--color-text)" }}>
-					{info.getValue<string>()}
-				</span>
-			),
-		},
-		{
-			accessorKey: "direction",
-			header: "Dir",
-			cell: (info) => (
-				<span
-					style={{
-						color:
-							info.getValue<string>() === "long"
-								? "var(--color-pos)"
-								: "var(--color-neg)",
-					}}
-				>
-					{info.getValue<string>().toUpperCase()}
-				</span>
-			),
-		},
-		{
-			accessorKey: "closed_at",
-			header: "Closed",
-			cell: (info) => {
-				const v = info.getValue<string | null>();
-				return (
-					<span style={{ color: "var(--color-text-muted)" }}>
-						{v ? v.slice(0, 10) : "-"}
-					</span>
-				);
-			},
-		},
-		{
-			accessorKey: "net_pnl",
-			header: "Net P&L",
-			cell: (info) => {
-				const v = info.getValue<number | null>();
-				if (v == null)
-					return <span style={{ color: "var(--color-text-muted)" }}>-</span>;
-				return (
-					<span className={pnlColor(v)}>
-						{fmtSignedMoney(v, currency, LOCALE)}
-					</span>
-				);
-			},
-		},
-	];
-}
-
-function RecentTradesPanel({
+function StatsStrip({
 	loading,
 	error,
+	summary,
 	trades,
 	currency,
+	starting,
 }: {
 	loading: boolean;
 	error: boolean;
+	summary: Summary | undefined;
 	trades: Trade[];
 	currency: string;
+	starting: number;
 }) {
-	const content = () => {
-		if (loading) return <Skeleton height="160px" className="m-3" />;
-		if (error)
-			return (
-				<p className="p-4 text-xs" style={{ color: "var(--color-neg)" }}>
-					Failed to load trades.
-				</p>
-			);
-		if (trades.length === 0)
-			return (
-				<EmptyState
-					title="No trades yet"
-					hint="Import a CSV or add a trade to get started."
-					icon={<TrendingUp size={32} strokeWidth={1.5} />}
-				/>
-			);
+	if (loading) return <Skeleton height="150px" />;
+	if (error)
 		return (
-			<div style={{ maxHeight: "280px" }}>
-				<DataTable columns={recentTradesColumns(currency)} data={trades} />
-			</div>
+			<p className="text-xs p-4" style={{ color: "var(--color-neg)" }}>
+				Failed to load summary.
+			</p>
 		);
-	};
+	if (!summary) return null;
 
-	return <Panel title="Recent Trades">{content()}</Panel>;
+	const total = Math.max(summary.total_trades, 1);
+	const openCount = trades.filter((t) => t.status === "open").length;
+	const avgWinAbs = Math.abs(summary.avg_win);
+	const avgLossAbs = Math.abs(summary.avg_loss);
+	const avgDen = avgWinAbs + avgLossAbs || 1;
+	const pnlPct = starting > 0 ? summary.net_pnl / starting : null;
+
+	return (
+		<Panel>
+			<div className="flex items-center gap-6 flex-wrap p-4">
+				<div className="flex flex-col gap-3 flex-1" style={{ minWidth: 130 }}>
+					<StatBar
+						label="WINS"
+						value={String(summary.wins)}
+						right={fmtPct(summary.win_rate, LOCALE)}
+						pct={summary.win_rate}
+						tone="pos"
+					/>
+					<StatBar
+						label="LOSSES"
+						value={String(summary.losses)}
+						right={fmtPct(summary.losses / total, LOCALE)}
+						pct={summary.losses / total}
+						tone="neg"
+					/>
+				</div>
+				<div className="flex flex-col gap-3 flex-1" style={{ minWidth: 130 }}>
+					<StatBar
+						label="OPEN"
+						value={String(openCount)}
+						right={fmtPct(openCount / total, LOCALE)}
+						pct={openCount / total}
+						tone="accent"
+					/>
+					<StatBar
+						label="WASH"
+						value={String(summary.breakeven)}
+						right={fmtPct(summary.breakeven / total, LOCALE)}
+						pct={summary.breakeven / total}
+						tone="amber"
+					/>
+				</div>
+				<div className="flex flex-col gap-3 flex-1" style={{ minWidth: 150 }}>
+					<StatBar
+						label="AVG W"
+						value={fmtMoney(summary.avg_win, currency, LOCALE)}
+						pct={avgWinAbs / avgDen}
+						tone="pos"
+					/>
+					<StatBar
+						label="AVG L"
+						value={fmtMoney(summary.avg_loss, currency, LOCALE)}
+						pct={avgLossAbs / avgDen}
+						tone="neg"
+					/>
+				</div>
+				<div
+					className="flex flex-col items-end gap-1"
+					style={{
+						borderLeft: "1px solid var(--color-border)",
+						paddingLeft: 20,
+					}}
+				>
+					<span
+						className="text-[11px] uppercase tracking-wide"
+						style={{ color: "var(--color-text-muted)" }}
+					>
+						PnL
+					</span>
+					<span
+						className={`text-2xl font-bold tabular-nums ${pnlColor(summary.net_pnl)}`}
+						style={{ fontFamily: "var(--font-mono)" }}
+					>
+						{fmtSignedMoney(summary.net_pnl, currency, LOCALE)}
+					</span>
+					{pnlPct != null && (
+						<span
+							className={`text-[11px] tabular-nums ${pnlColor(summary.net_pnl)}`}
+						>
+							{(pnlPct * 100).toFixed(2)}%
+						</span>
+					)}
+				</div>
+			</div>
+		</Panel>
+	);
 }
-
-// ---------------------------------------------------------------------------
-// Main export
-// ---------------------------------------------------------------------------
 
 export function DashboardView({
 	summaryLoading,
@@ -433,20 +279,17 @@ export function DashboardView({
 	equityLoading,
 	equityError,
 	equityPoints,
-	dailyLoading,
-	dailyError,
-	dailyPnl,
 	tradesLoading,
 	tradesError,
 	trades,
 	accounts,
 	selectedAccountId,
-	year,
-	month,
+	onSelectTrade,
 }: DashboardViewProps) {
 	const currency = getCurrency(accounts, selectedAccountId);
+	const starting = startingBalance(accounts, selectedAccountId);
+	const [range, setRange] = useState("30D");
 
-	// Show overall empty state if not loading and no trades at all
 	const noData =
 		!summaryLoading &&
 		!tradesLoading &&
@@ -460,7 +303,7 @@ export function DashboardView({
 			<div className="flex items-center justify-center h-full min-h-[400px]">
 				<EmptyState
 					title="No trades yet"
-					hint="Import a CSV or add a trade to get started."
+					hint="Import a CSV or log a trade to get started."
 					icon={<TrendingUp size={40} strokeWidth={1.5} />}
 				/>
 			</div>
@@ -469,43 +312,58 @@ export function DashboardView({
 
 	return (
 		<div className="flex flex-col gap-4">
-			{/* KPI row */}
-			<KpiRow
-				loading={summaryLoading}
-				error={summaryError}
-				summary={summary}
-				currency={currency}
-			/>
-
-			{/* Middle row: equity curve + mini calendar */}
-			<div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-				<div className="lg:col-span-2">
-					<EquityCurvePanel
+			{/* Top band: equity chart + stats strip */}
+			<div className="grid grid-cols-1 gap-4 xl:grid-cols-5">
+				<div className="xl:col-span-2">
+					<EquityBand
 						loading={equityLoading}
 						error={equityError}
 						points={equityPoints}
 						currency={currency}
+						range={range}
+						onRangeChange={setRange}
 					/>
 				</div>
-				<div>
-					<MiniCalendar
-						loading={dailyLoading}
-						error={dailyError}
-						dailyPnl={dailyPnl}
-						year={year}
-						month={month}
+				<div className="xl:col-span-3">
+					<StatsStrip
+						loading={summaryLoading}
+						error={summaryError}
+						summary={summary}
+						trades={trades}
 						currency={currency}
+						starting={starting}
 					/>
 				</div>
 			</div>
 
-			{/* Recent trades */}
-			<RecentTradesPanel
-				loading={tradesLoading}
-				error={tradesError}
-				trades={trades}
-				currency={currency}
-			/>
+			{/* Trades table */}
+			<Panel>
+				{tradesLoading ? (
+					<Skeleton height="240px" className="m-3" />
+				) : tradesError ? (
+					<p className="p-4 text-xs" style={{ color: "var(--color-neg)" }}>
+						Failed to load trades.
+					</p>
+				) : trades.length === 0 ? (
+					<EmptyState title="No trades in this range" />
+				) : (
+					<>
+						<div style={{ maxHeight: 520 }}>
+							<DataTable
+								columns={tradeColumns(currency, onSelectTrade)}
+								data={trades}
+								onRowClick={onSelectTrade}
+							/>
+						</div>
+						<p
+							className="text-center text-xs py-3"
+							style={{ color: "var(--color-text-muted)" }}
+						>
+							All {trades.length} trades loaded
+						</p>
+					</>
+				)}
+			</Panel>
 		</div>
 	);
 }

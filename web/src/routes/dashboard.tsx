@@ -1,12 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { DashboardView } from "../app/screens/DashboardView";
 import { useFilterParams, useFilters } from "../lib/filters";
 import { useAccounts } from "../lib/hooks/useAccounts";
-import {
-	useDailyPnl,
-	useEquityCurve,
-	useSummary,
-} from "../lib/hooks/useAnalytics";
+import { useEquityCurve, useSummary } from "../lib/hooks/useAnalytics";
 import { useTrades } from "../lib/hooks/useTrades";
 
 export const Route = createFileRoute("/dashboard")({
@@ -16,25 +12,16 @@ export const Route = createFileRoute("/dashboard")({
 function DashboardPage() {
 	const filters = useFilterParams();
 	const accountId = useFilters((s) => s.accountId);
-
-	const now = new Date();
-	const year = now.getFullYear();
-	const month = now.getMonth() + 1; // 1-based
+	const navigate = useNavigate();
 
 	const summaryQ = useSummary(filters);
 	const equityQ = useEquityCurve(filters);
-	const dailyQ = useDailyPnl(filters);
 	const tradesQ = useTrades(filters);
 	const accountsQ = useAccounts();
 
-	// Sort trades by closed_at desc and slice most recent 10
-	const recentTrades = [...(tradesQ.data ?? [])]
-		.filter((t) => t.closed_at != null)
-		.sort(
-			(a, b) =>
-				new Date(b.closed_at!).getTime() - new Date(a.closed_at!).getTime(),
-		)
-		.slice(0, 10);
+	const trades = [...(tradesQ.data ?? [])].sort(
+		(a, b) => new Date(b.opened_at).getTime() - new Date(a.opened_at).getTime(),
+	);
 
 	return (
 		<DashboardView
@@ -44,16 +31,14 @@ function DashboardPage() {
 			equityLoading={equityQ.isLoading}
 			equityError={equityQ.isError}
 			equityPoints={equityQ.data?.points ?? []}
-			dailyLoading={dailyQ.isLoading}
-			dailyError={dailyQ.isError}
-			dailyPnl={dailyQ.data ?? {}}
 			tradesLoading={tradesQ.isLoading}
 			tradesError={tradesQ.isError}
-			trades={recentTrades}
+			trades={trades}
 			accounts={accountsQ.data ?? []}
 			selectedAccountId={accountId}
-			year={year}
-			month={month}
+			onSelectTrade={(t) =>
+				navigate({ to: "/trades/$id", params: { id: t.id } })
+			}
 		/>
 	);
 }
