@@ -38,11 +38,18 @@ describe("NewSetupDrawer", () => {
 			"Opening range breakout",
 		);
 		await userEvent.click(screen.getByRole("button", { name: "Save" }));
-		await waitFor(() => expect(mockedCreate).toHaveBeenCalledTimes(1));
-		expect(mockedCreate.mock.calls[0][0]).toMatchObject({
-			name: "Gap and Go",
-			description: "Opening range breakout",
-		});
+		await waitFor(() =>
+			// TanStack Query v5.101 invokes mutationFn(variables, context) — the
+			// second arg ({ client, meta, mutationKey }) is framework-injected, so
+			// match it loosely while asserting the exact payload.
+			expect(mockedCreate).toHaveBeenCalledWith(
+				{
+					name: "Gap and Go",
+					description: "Opening range breakout",
+				},
+				expect.anything(),
+			),
+		);
 		await waitFor(() => expect(useUI.getState().drawer).toBeNull());
 	});
 
