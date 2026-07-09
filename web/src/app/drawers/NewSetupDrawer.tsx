@@ -64,6 +64,7 @@ export function NewSetupDrawer() {
 			<button
 				type="button"
 				onClick={close}
+				disabled={createSetup.isPending}
 				style={{
 					background: "var(--color-surface-raised)",
 					color: "var(--color-text)",
@@ -71,7 +72,8 @@ export function NewSetupDrawer() {
 					borderRadius: "var(--radius-control)",
 					padding: "7px 14px",
 					fontSize: 13,
-					cursor: "pointer",
+					cursor: createSetup.isPending ? "default" : "pointer",
+					opacity: createSetup.isPending ? 0.6 : 1,
 				}}
 			>
 				Cancel
@@ -101,7 +103,7 @@ export function NewSetupDrawer() {
 		<Drawer
 			open={open}
 			onOpenChange={(o) => {
-				if (!o) close();
+				if (!o && !createSetup.isPending) close();
 			}}
 			title="New Setup"
 			footer={footer}

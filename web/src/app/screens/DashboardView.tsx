@@ -185,6 +185,8 @@ function StatsStrip({
 	if (!summary) return null;
 
 	const total = Math.max(summary.total_trades, 1);
+	// OPEN is a share of all trades in scope; WINS/LOSSES/WASH are shares of
+	// closed trades (summary.total_trades) so they stay consistent with win_rate.
 	const allTotal = Math.max(trades.length, 1);
 	const openCount = trades.filter((t) => t.status === "open").length;
 	const avgWinAbs = Math.abs(summary.avg_win);

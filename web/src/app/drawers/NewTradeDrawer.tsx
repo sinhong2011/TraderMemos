@@ -1,5 +1,5 @@
 import { Plus, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import { Drawer, DrawerBanner } from "../../components/Drawer";
 import { SegmentedControl } from "../../components/SegmentedControl";
@@ -106,6 +106,22 @@ export function NewTradeDrawer() {
 		closeDrawer();
 	}
 
+	// The drawer stays mounted in the shell, so the initial `rows` state (and
+	// its captured nowLocal() timestamp) goes stale between opens. Reset
+	// whenever the drawer transitions from closed to open.
+	const wasOpen = useRef(false);
+	useEffect(() => {
+		if (open && !wasOpen.current) {
+			setAccountId("");
+			setMarket("stock");
+			setSymbol("");
+			setSide("long");
+			setRows([emptyRow("buy")]);
+			setError("");
+		}
+		wasOpen.current = open;
+	}, [open]);
+
 	function updateRow(i: number, patch: Partial<Row>) {
 		setRows((rs) => rs.map((r, j) => (j === i ? { ...r, ...patch } : r)));
 	}
@@ -162,6 +178,7 @@ export function NewTradeDrawer() {
 			<button
 				type="button"
 				onClick={close}
+				disabled={createExecutions.isPending}
 				style={{
 					background: "var(--color-surface-raised)",
 					color: "var(--color-text)",
@@ -169,7 +186,8 @@ export function NewTradeDrawer() {
 					borderRadius: "var(--radius-control)",
 					padding: "7px 14px",
 					fontSize: 13,
-					cursor: "pointer",
+					cursor: createExecutions.isPending ? "default" : "pointer",
+					opacity: createExecutions.isPending ? 0.6 : 1,
 				}}
 			>
 				Cancel
@@ -199,7 +217,7 @@ export function NewTradeDrawer() {
 		<Drawer
 			open={open}
 			onOpenChange={(o) => {
-				if (!o) close();
+				if (!o && !createExecutions.isPending) close();
 			}}
 			title="New Trade"
 			footer={footer}

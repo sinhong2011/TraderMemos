@@ -88,4 +88,36 @@ describe("NewTradeDrawer", () => {
 		expect(screen.queryByLabelText("Qty row 2")).not.toBeInTheDocument();
 		expect(useUI.getState().drawer).toBe("new-trade");
 	});
+
+	it("resets the form on reopen", async () => {
+		wrap(<NewTradeDrawer />);
+		await userEvent.type(screen.getByLabelText("Symbol"), "AAPL");
+		expect(screen.getByLabelText("Symbol")).toHaveValue("AAPL");
+
+		await userEvent.click(screen.getByRole("button", { name: "Cancel" }));
+		await waitFor(() => expect(useUI.getState().drawer).toBeNull());
+
+		useUI.getState().openDrawer("new-trade");
+		await waitFor(() =>
+			expect(screen.getByLabelText("Symbol")).toHaveValue(""),
+		);
+	});
+
+	// Ends with the drawer open and a permanently pending mutation — keep
+	// this test LAST in the file. Base UI's teardown after an open drawer
+	// with a dangling (never-settled) promise can corrupt the next test's
+	// render, so nothing should run after this one.
+	it("disables Cancel while a save is in flight", async () => {
+		// Never resolves: keeps the mutation pending for the life of the test
+		// so we can assert the Cancel button is disabled while saving.
+		mockedCreate.mockImplementation(() => new Promise(() => {}));
+		wrap(<NewTradeDrawer />);
+		await userEvent.type(screen.getByLabelText("Symbol"), "AAPL");
+		await userEvent.type(screen.getByLabelText("Qty row 1"), "10");
+		await userEvent.type(screen.getByLabelText("Price row 1"), "185.5");
+		await userEvent.click(screen.getByRole("button", { name: "Save" }));
+		await waitFor(() =>
+			expect(screen.getByRole("button", { name: "Cancel" })).toBeDisabled(),
+		);
+	});
 });

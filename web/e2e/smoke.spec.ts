@@ -56,9 +56,18 @@ test("new trade drawer logs a trade", async ({ page }) => {
 	await page.getByLabel("Symbol", { exact: true }).fill(symbol);
 	await page.getByLabel("Qty row 1").fill("5");
 	await page.getByLabel("Price row 1").fill("10.50");
+	// Add a closing sell row: the trades table (and dashboard) only ever
+	// lists closed trades, so a lone buy would create an open position that
+	// never appears there.
+	await page.getByRole("button", { name: "Add execution row" }).click();
+	await page.getByRole("button", { name: "Toggle action row 2" }).click();
+	await page.getByLabel("Qty row 2").fill("5");
+	await page.getByLabel("Price row 2").fill("11.00");
 	await page.getByRole("button", { name: "Save" }).click();
 
-	// Drawer closes and the trade shows up in the dashboard table.
+	// Drawer closes and the trade shows up in the dashboard table. Scope to
+	// the table body: the success toast can also contain the symbol, which
+	// would otherwise trip Playwright's strict-mode duplicate-match check.
 	await expect(page.getByText("Log any trade you've entered")).toBeHidden();
-	await expect(page.getByText(symbol)).toBeVisible();
+	await expect(page.locator("tbody").getByText(symbol)).toBeVisible();
 });
