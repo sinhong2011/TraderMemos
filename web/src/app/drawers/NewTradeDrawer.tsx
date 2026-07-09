@@ -144,9 +144,11 @@ export function NewTradeDrawer() {
 				// Keep only the failed rows in the form so a retry is targeted.
 				const failedIdx = new Set(e.failures.map((f) => f.index));
 				setRows((rs) => rs.filter((_, i) => failedIdx.has(i)));
+				// Number errors by post-filter position so they match what the
+				// user now sees (retained rows are exactly the failed ones, in order).
 				setError(
 					e.failures
-						.map((f) => `Execution ${f.index + 1} failed: ${f.message}`)
+						.map((f, j) => `Execution ${j + 1} failed: ${f.message}`)
 						.join("; "),
 				);
 			} else {

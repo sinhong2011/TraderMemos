@@ -70,13 +70,22 @@ describe("NewTradeDrawer", () => {
 	});
 
 	it("keeps the form open and reports failed rows on partial failure", async () => {
-		mockedCreate.mockRejectedValueOnce(new Error("boom"));
+		mockedCreate
+			.mockResolvedValueOnce(undefined)
+			.mockRejectedValueOnce(new Error("boom"));
 		wrap(<NewTradeDrawer />);
 		await userEvent.type(screen.getByLabelText("Symbol"), "AAPL");
 		await userEvent.type(screen.getByLabelText("Qty row 1"), "10");
 		await userEvent.type(screen.getByLabelText("Price row 1"), "185.5");
+		await userEvent.click(
+			screen.getByRole("button", { name: "Add execution row" }),
+		);
+		await userEvent.type(screen.getByLabelText("Qty row 2"), "5");
+		await userEvent.type(screen.getByLabelText("Price row 2"), "90");
 		await userEvent.click(screen.getByRole("button", { name: "Save" }));
-		expect(await screen.findByText(/execution 1 failed/i)).toBeVisible();
+		// Post-filter numbering: the failed row (originally #2) is now the only row
+		expect(await screen.findByText(/execution 1 failed: boom/i)).toBeVisible();
+		expect(screen.queryByLabelText("Qty row 2")).not.toBeInTheDocument();
 		expect(useUI.getState().drawer).toBe("new-trade");
 	});
 });
