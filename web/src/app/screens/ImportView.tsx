@@ -1,6 +1,7 @@
 import { ArrowRight, Check, FileText, RefreshCw, Upload } from "lucide-react";
 import { useRef, useState } from "react";
 import { Panel } from "../../components/Panel";
+import { SignalSelect } from "../../components/SignalSelect";
 import { Skeleton } from "../../components/Skeleton";
 import type { Account, ImportPreview, ImportResult } from "../../lib/api/types";
 
@@ -113,37 +114,41 @@ function Step1Upload({
 					) : (
 						<div>
 							<label style={labelStyle}>Account</label>
-							<select
+							<SignalSelect
 								value={accountId}
-								onChange={(e) => setAccountId(e.target.value)}
-								style={fieldStyle}
-								aria-label="Account select"
-							>
-								{accounts.map((a) => (
-									<option key={a.id} value={a.id}>
-										{a.name}
-									</option>
-								))}
-								{accounts.length === 0 && (
-									<option value="">No accounts - create one in Settings</option>
-								)}
-							</select>
+								onValueChange={setAccountId}
+								ariaLabel="Account select"
+								options={
+									accounts.length === 0
+										? [
+												{
+													value: "",
+													label: "No accounts - create one in Settings",
+													disabled: true,
+												},
+											]
+										: accounts.map((a) => ({ value: a.id, label: a.name }))
+								}
+								triggerClassName="h-8 font-mono text-[12px]"
+							/>
 						</div>
 					)}
 
 					<div>
 						<label style={labelStyle}>Instrument Type</label>
-						<select
+						<SignalSelect
 							value={instrumentType}
-							onChange={(e) => setInstrumentType(e.target.value)}
-							style={fieldStyle}
-						>
-							<option value="stock">Stock</option>
-							<option value="option">Option</option>
-							<option value="future">Future</option>
-							<option value="forex">Forex</option>
-							<option value="crypto">Crypto</option>
-						</select>
+							onValueChange={setInstrumentType}
+							ariaLabel="Instrument type"
+							options={[
+								{ value: "stock", label: "Stock" },
+								{ value: "option", label: "Option" },
+								{ value: "future", label: "Future" },
+								{ value: "forex", label: "Forex" },
+								{ value: "crypto", label: "Crypto" },
+							]}
+							triggerClassName="h-8 font-mono text-[12px]"
+						/>
 					</div>
 
 					<div>
@@ -265,19 +270,16 @@ function Step2Map({ preview, onCommit, onBack, error, loading }: Step2Props) {
 						{CANONICAL_FIELDS.map((field) => (
 							<div key={field}>
 								<label style={labelStyle}>{field.replace(/_/g, " ")}</label>
-								<select
+								<SignalSelect
 									value={mapping[field] ?? ""}
-									onChange={(e) => setField(field, e.target.value)}
-									style={fieldStyle}
-									aria-label={`Map ${field}`}
-								>
-									<option value="">(skip)</option>
-									{preview.headers.map((h) => (
-										<option key={h} value={h}>
-											{h}
-										</option>
-									))}
-								</select>
+									onValueChange={(v) => setField(field, v)}
+									ariaLabel={`Map ${field}`}
+									options={[
+										{ value: "", label: "(skip)" },
+										...preview.headers.map((h) => ({ value: h, label: h })),
+									]}
+									triggerClassName="h-8 font-mono text-[12px]"
+								/>
 							</div>
 						))}
 					</div>

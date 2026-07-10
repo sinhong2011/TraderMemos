@@ -121,13 +121,14 @@ delete/restore), Danger Zone.
 
 ## Gap list vs TraderMemos today (roadmap candidates)
 
-Already matched: shell/dashboard/calendar layout + exact palette, executions
-New Trade drawer, playbook setups, CSV import, share-free stats (Reports).
+See also: [`competitive-day-trader-roadmap.md`](./competitive-day-trader-roadmap.md)
+(Stonk Journal + TraderVue + TradeZella synthesis, day-trader priority order).
 
-Not yet in TraderMemos: target/stop per trade + R-multiple analytics, risk
-rules + compliance engine, trade templates / copy-to-account, Journal &
-Dividends on trades, standalone notes, planned-trade setups with
-convert-to-trade, stats filters + share links, day-of-week/session
-breakdowns, rolling metrics, position-size calculator + toolbox widgets,
-AI coach, table column options, clickable stat-strip filters, POS column /
-partial-position display, soft delete, PWA.
+Already matched (partial): shell/dashboard/calendar, New Trade modal shape
+(templates, target/stop, journal/dividends tabs, compliance button stub),
+clickable WINS/OPEN filters UI, POS column, CSV import, Reports basics.
+
+Still missing for session-ready use: open/partial trades in API+table,
+real risk rules engine, R-mode analytics, playbook performance + convert
+setup→trade, structured mistake/emotion tags, session/time-of-day leaks,
+MAE/MFE, notes API, dividends in trade P&L, AI coach, soft delete, PWA.

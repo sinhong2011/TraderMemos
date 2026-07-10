@@ -11,9 +11,14 @@ export interface ExecutionBody {
 	executed_at: string;
 }
 
+export interface CreateExecutionResponse {
+	execution_id: string;
+	trade_id: string;
+}
+
 export const executionsApi = {
 	create: (body: ExecutionBody) =>
-		apiFetch<void>("/executions", {
+		apiFetch<CreateExecutionResponse>("/executions", {
 			method: "POST",
 			body: JSON.stringify(body),
 		}),

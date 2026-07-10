@@ -41,9 +41,14 @@ function grp(key: string, net: number): BreakGroup {
 }
 
 const base = {
+	summaryLoading: false,
+	summaryError: false,
+	equityLoading: false,
 	loading: false,
 	error: false,
 	currency: "USD",
+	unit: "usd" as const,
+	onUnitChange: vi.fn(),
 	onDimChange: vi.fn(),
 };
 

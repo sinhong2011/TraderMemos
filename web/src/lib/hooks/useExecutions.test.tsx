@@ -19,7 +19,6 @@ function wrapper({ children }: { children: ReactNode }) {
 }
 
 const ROW = {
-	account_id: "a1",
 	symbol: "AAPL",
 	instrument_type: "stock",
 	side: "buy" as const,
@@ -32,35 +31,34 @@ const ROW = {
 describe("useCreateExecutions", () => {
 	beforeEach(() => mockedCreate.mockReset());
 
-	it("posts all rows sequentially and resolves with the count", async () => {
-		let active = 0;
-		let maxActive = 0;
-		mockedCreate.mockImplementation(async () => {
-			active++;
-			maxActive = Math.max(maxActive, active);
-			await new Promise((r) => setTimeout(r, 5));
-			active--;
+	it("posts all rows sequentially and returns trade ids", async () => {
+		mockedCreate.mockResolvedValue({
+			execution_id: "e1",
+			trade_id: "t1",
 		});
 		const { result } = renderHook(() => useCreateExecutions(), { wrapper });
-		const count = await result.current.mutateAsync([ROW, ROW]);
-		expect(count).toBe(2);
+		const res = await result.current.mutateAsync({
+			accountIds: ["a1"],
+			rows: [ROW, ROW],
+		});
+		expect(res.tradeIds).toEqual(["t1"]);
 		expect(mockedCreate).toHaveBeenCalledTimes(2);
-		expect(mockedCreate).toHaveBeenNthCalledWith(1, ROW);
-		expect(mockedCreate).toHaveBeenNthCalledWith(2, ROW);
-		expect(maxActive).toBe(1);
+		expect(mockedCreate).toHaveBeenNthCalledWith(1, { ...ROW, account_id: "a1" });
 	});
 
 	it("throws ExecutionBatchError listing failed row indexes", async () => {
 		mockedCreate
-			.mockResolvedValueOnce(undefined)
+			.mockResolvedValueOnce({ execution_id: "e1", trade_id: "t1" })
 			.mockRejectedValueOnce(new Error("boom"));
 		const { result } = renderHook(() => useCreateExecutions(), { wrapper });
-		await expect(result.current.mutateAsync([ROW, ROW])).rejects.toThrow(
-			ExecutionBatchError,
-		);
+		await expect(
+			result.current.mutateAsync({ accountIds: ["a1"], rows: [ROW, ROW] }),
+		).rejects.toThrow(ExecutionBatchError);
 		await waitFor(() => expect(result.current.isError).toBe(true));
 		const err = result.current.error as ExecutionBatchError;
-		expect(err.failures).toEqual([{ index: 1, message: "boom" }]);
+		expect(err.failures).toEqual([
+			{ index: 1, accountId: "a1", message: "boom" },
+		]);
 		expect(err.total).toBe(2);
 	});
 });

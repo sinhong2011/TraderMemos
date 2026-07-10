@@ -1,11 +1,18 @@
 import { create } from "zustand";
-import { getToken, setToken } from "./api/client";
+import { getToken, setToken, setUnauthorizedHandler } from "./api/client";
 
 interface AuthState {
 	authed: boolean;
 	signIn: (token: string) => void;
 	signOut: () => void;
 }
+
+function signOut() {
+	setToken("");
+	useAuth.setState({ authed: false });
+}
+
+setUnauthorizedHandler(signOut);
 
 // Reactive auth presence, mirrored from the api client's token storage so the
 // shell can gate on it. The api client remains the source of truth for the
@@ -16,8 +23,5 @@ export const useAuth = create<AuthState>((set) => ({
 		setToken(token);
 		set({ authed: true });
 	},
-	signOut: () => {
-		setToken("");
-		set({ authed: false });
-	},
+	signOut,
 }));

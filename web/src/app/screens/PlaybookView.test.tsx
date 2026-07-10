@@ -16,9 +16,17 @@ const base = {
 
 const setup: Setup = {
 	id: "s1",
+	user_id: "u1",
 	name: "ORB",
 	description: "Opening range breakout",
-} as Setup;
+	created_at: "2026-01-01T00:00:00Z",
+	thesis: "Opening range breakout",
+	symbol: "AAPL",
+	direction: "long",
+	target_price: 110,
+	stop_price: 95,
+	checklist: ["Above VWAP"],
+};
 const group: BreakGroup = {
 	key: "ORB",
 	summary: {

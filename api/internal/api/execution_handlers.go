@@ -51,8 +51,9 @@ func (s *Server) handleCreateExecution(c echo.Context) error {
 		in.InstrumentType = "stock"
 	}
 	hash := importer.DedupHash(in.Symbol, in.Side, in.Quantity, in.Price, in.ExecutedAt)
+	execID := uuid.NewString()
 	_, err := s.deps.Store.InsertExecution(c.Request().Context(), store.InsertExecutionParams{
-		ID: uuid.NewString(), UserID: uid, AccountID: in.AccountID,
+		ID: execID, UserID: uid, AccountID: in.AccountID,
 		Symbol: in.Symbol, InstrumentType: in.InstrumentType, Side: in.Side,
 		Quantity: in.Quantity, Price: in.Price, Fees: in.Fees, Commission: in.Commission,
 		ExecutedAt: in.ExecutedAt, Multiplier: in.Multiplier, DedupHash: hash,
@@ -63,7 +64,14 @@ func (s *Server) handleCreateExecution(c echo.Context) error {
 	if err := s.deps.Trades.Regroup(c.Request().Context(), uid, in.AccountID); err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not regroup trades", nil)
 	}
-	return c.NoContent(http.StatusCreated)
+	tradeID, err := s.deps.Store.GetTradeIDForExecution(c.Request().Context(), execID)
+	if err != nil {
+		return Fail(http.StatusInternalServerError, "internal", "could not resolve trade", nil)
+	}
+	return c.JSON(http.StatusCreated, map[string]string{
+		"execution_id": execID,
+		"trade_id":     tradeID,
+	})
 }
 
 func (s *Server) handleListExecutions(c echo.Context) error {

@@ -135,6 +135,16 @@ export function tradeColumns(
 			},
 		},
 		{
+			id: "pos",
+			header: "POS",
+			cell: (i) => {
+				const t = i.row.original;
+				if (t.status !== "open") return muted("-");
+				const qty = t.qty_remaining > 0 ? t.qty_remaining : t.qty_opened;
+				return <span className="tabular-nums">{qty.toFixed(2)}</span>;
+			},
+		},
+		{
 			accessorKey: "time_in_trade_secs",
 			header: "HOLD",
 			cell: (i) => {

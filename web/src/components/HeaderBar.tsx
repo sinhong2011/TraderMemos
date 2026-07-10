@@ -1,36 +1,17 @@
-import { LogOut, PanelLeft, Search } from "lucide-react";
+import { LogOut, Search } from "lucide-react";
+import { AccountSwitcher } from "./AccountSwitcher";
+import { DateRangePicker } from "./DateRangePicker";
+import { heroPnlClass } from "./theme-tokens";
 import { useAuth } from "../lib/auth";
 import { useFilterParams, useFilters } from "../lib/filters";
-import { fmtMoney, fmtSignedMoney } from "../lib/format";
+import { fmtMoney, fmtPct, fmtSignedMoney } from "../lib/format";
 import { computeHeaderStats } from "../lib/headerStats";
 import { useAccounts } from "../lib/hooks/useAccounts";
 import { useSummary } from "../lib/hooks/useAnalytics";
 import { useCash } from "../lib/hooks/useCash";
 import { useTrades } from "../lib/hooks/useTrades";
-import { useUI } from "../lib/ui";
-import { DateRangePicker } from "./DateRangePicker";
-import { pnlColor } from "./theme-tokens";
 
 const LOCALE = "en-US";
-
-function SubStat({ label, value }: { label: string; value: string }) {
-	return (
-		<div className="flex flex-col leading-tight">
-			<span
-				className="text-[10px] uppercase tracking-wide"
-				style={{ color: "var(--color-text-muted)" }}
-			>
-				{label}
-			</span>
-			<span
-				className="text-[12px] font-medium tabular-nums"
-				style={{ color: "var(--color-text)" }}
-			>
-				{value}
-			</span>
-		</div>
-	);
-}
 
 export function HeaderBar() {
 	const filters = useFilterParams();
@@ -38,7 +19,6 @@ export function HeaderBar() {
 	const symbol = useFilters((s) => s.symbol) ?? "";
 	const setSymbol = useFilters((s) => s.setSymbol);
 	const signOut = useAuth((s) => s.signOut);
-	const toggleSidebar = useUI((s) => s.toggleSidebar);
 
 	const accounts = useAccounts().data ?? [];
 	const summaryQ = useSummary(filters);
@@ -54,98 +34,55 @@ export function HeaderBar() {
 		summary: summaryQ.data,
 		trades: tradesQ.data ?? [],
 	});
+	const summary = summaryQ.data;
 
 	return (
-		<header
-			className="flex items-center gap-4 px-4 shrink-0"
-			style={{
-				borderBottom: "1px solid var(--color-border)",
-				background: "var(--color-surface-panel)",
-				height: "64px",
-			}}
-		>
-			<button
-				type="button"
-				onClick={toggleSidebar}
-				aria-label="Toggle sidebar"
-				style={{
-					background: "none",
-					border: "none",
-					cursor: "pointer",
-					color: "var(--color-text-muted)",
-					display: "flex",
-					padding: 4,
-				}}
-			>
-				<PanelLeft size={16} strokeWidth={1.5} />
-			</button>
-
-			{/* Account P&L block */}
-			<div className="flex items-center gap-4">
-				<span
-					className={`text-2xl font-bold tabular-nums tracking-tight ${pnlColor(stats.netPnl)}`}
-				>
+		<header className="flex h-[52px] shrink-0 items-center gap-4 border-b border-border bg-bg-elevated px-4">
+			<div className="flex min-w-0 items-center gap-3.5">
+				<div className={heroPnlClass(stats.netPnl)}>
 					{fmtSignedMoney(stats.netPnl, currency, LOCALE)}
-				</span>
-				<SubStat label="Cash" value={fmtMoney(stats.cash, currency, LOCALE)} />
-				<SubStat
-					label="Active"
-					value={fmtMoney(stats.active, currency, LOCALE)}
-				/>
+				</div>
+				<div className="flex flex-wrap items-center gap-1.5">
+					<span className="rounded-sharp border border-border px-2 py-1 font-mono text-[11px] text-text-muted">
+						WR {summary ? fmtPct(summary.win_rate, LOCALE) : "—"}
+					</span>
+					<span className="rounded-sharp border border-border px-2 py-1 font-mono text-[11px] text-text-muted">
+						PF{" "}
+						{summary?.profit_factor != null
+							? summary.profit_factor.toFixed(2)
+							: "—"}
+					</span>
+					<span className="rounded-sharp border border-border px-2 py-1 font-mono text-[11px] text-text-muted">
+						Cash {fmtMoney(stats.cash, currency, LOCALE)}
+					</span>
+				</div>
 			</div>
 
-			<div className="ml-auto flex items-center gap-2">
-				{/* Search and filter */}
-				<div
-					className="flex items-center gap-2 px-3"
-					style={{
-						background: "var(--color-surface-raised)",
-						border: "1px solid var(--color-border)",
-						borderRadius: 999,
-						height: 32,
-						width: 240,
-					}}
-				>
-					<Search
-						size={14}
-						strokeWidth={1.5}
-						style={{ color: "var(--color-text-muted)", flexShrink: 0 }}
-					/>
+			<div className="ml-auto flex min-w-0 items-center gap-2">
+				<div className="flex h-9 min-w-[200px] max-w-[280px] items-center gap-2 rounded-control border border-border bg-bg-inset px-2.5 text-text-dim">
+					<Search size={16} strokeWidth={1.75} aria-hidden />
 					<input
 						value={symbol}
 						onChange={(e) =>
 							setSymbol(e.target.value.toUpperCase() || undefined)
 						}
-						placeholder="Search and Filter"
+						placeholder="Filter symbol…"
 						aria-label="Search symbol"
-						style={{
-							background: "transparent",
-							border: "none",
-							outline: "none",
-							color: "var(--color-text)",
-							fontSize: 12,
-							fontFamily: "var(--font-ui)",
-							width: "100%",
-						}}
+						className="min-w-0 flex-1 border-none bg-transparent text-[13px] text-text outline-none placeholder:text-text-dim"
 					/>
+					<kbd className="rounded-sharp border border-border bg-[rgba(228,255,26,0.06)] px-1.5 py-0.5 font-mono text-[11px] leading-none text-signal">
+						⌘K
+					</kbd>
 				</div>
+				<AccountSwitcher />
 				<DateRangePicker />
 				<button
 					type="button"
 					onClick={signOut}
 					aria-label="Sign out"
-					className="flex items-center justify-center"
-					style={{
-						width: 30,
-						height: 30,
-						color: "var(--color-text-muted)",
-						background: "transparent",
-						border: "1px solid var(--color-border)",
-						borderRadius: "var(--radius-control)",
-						cursor: "pointer",
-					}}
+					className="flex size-9 cursor-pointer items-center justify-center rounded-control border border-border text-text-muted transition-colors hover:bg-bg-hover hover:text-text"
 				>
-					<LogOut size={14} strokeWidth={1.5} />
+					<LogOut size={16} strokeWidth={1.75} />
 				</button>
 			</div>
 		</header>

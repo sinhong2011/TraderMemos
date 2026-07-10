@@ -22,6 +22,7 @@
 		"@tanstack/react-router": "^1.95.0",
 		"@tanstack/react-table": "^8.20.0",
 		"@tanstack/react-virtual": "^3.11.0",
+		"clsx": "^2.1.1",
 		"lucide-react": "^0.469.0",
 		"react": "^19.0.0",
 		"react-dom": "^19.0.0",

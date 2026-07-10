@@ -2,6 +2,7 @@ import { ArrowLeft, Paperclip, Trash2, Upload } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { EmptyState } from "../../components/EmptyState";
 import { Panel } from "../../components/Panel";
+import { SignalSelect } from "../../components/SignalSelect";
 import { Skeleton } from "../../components/Skeleton";
 import { pnlColor } from "../../components/theme-tokens";
 import { getToken } from "../../lib/api/client";
@@ -13,6 +14,7 @@ import type {
 	TradeDetail,
 } from "../../lib/api/types";
 import { fmtMoney, fmtSignedMoney } from "../../lib/format";
+import { EMOTIONAL_STATES } from "../../lib/newTradeJournal";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -201,10 +203,29 @@ function TradeHeader({ trade, onBack }: TradeHeaderProps) {
 						<span
 							className={`text-2xl font-bold tabular-nums ${pnlColor(pnl)}`}
 							style={{ fontFamily: "var(--font-mono)" }}
+							title="Price P&L (excludes dividends)"
 						>
 							{fmtSignedMoney(pnl, currency, LOCALE)}
 						</span>
 					)}
+					{trade.dividend_total != null && trade.dividend_total !== 0 && (
+						<span
+							className="text-sm tabular-nums text-text-muted"
+							title="Dividends linked to this trade"
+						>
+							Div {fmtSignedMoney(trade.dividend_total, currency, LOCALE)}
+						</span>
+					)}
+					{trade.total_pnl != null &&
+						trade.dividend_total != null &&
+						trade.dividend_total !== 0 && (
+							<span
+								className={`text-sm tabular-nums ${pnlColor(trade.total_pnl)}`}
+								title="Total = price P&L + dividends"
+							>
+								Total {fmtSignedMoney(trade.total_pnl, currency, LOCALE)}
+							</span>
+						)}
 					{returnPct != null && (
 						<span className={`text-sm tabular-nums ${pnlColor(returnPct)}`}>
 							{returnPct >= 0 ? "+" : ""}
@@ -214,7 +235,7 @@ function TradeHeader({ trade, onBack }: TradeHeaderProps) {
 					{rMultiple != null && (
 						<span
 							className={`text-sm tabular-nums ${pnlColor(rMultiple)}`}
-							title="R-multiple"
+							title="R-multiple (price-based)"
 						>
 							{rMultiple >= 0 ? "+" : ""}
 							{rMultiple.toFixed(2)}R
@@ -388,6 +409,125 @@ function FillsTable({ fills, currency }: FillsTableProps) {
 	);
 }
 
+export interface AddFillInput {
+	side: "buy" | "sell";
+	quantity: number;
+	price: number;
+	fees: number;
+	executed_at: string;
+}
+
+function toLocalInputValue(d = new Date()): string {
+	const pad = (n: number) => String(n).padStart(2, "0");
+	return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function AddFillForm({
+	defaultSide,
+	busy,
+	onSubmit,
+}: {
+	defaultSide: "buy" | "sell";
+	busy: boolean;
+	onSubmit: (input: AddFillInput) => void;
+}) {
+	const [side, setSide] = useState<"buy" | "sell">(defaultSide);
+	const [qty, setQty] = useState("");
+	const [price, setPrice] = useState("");
+	const [fees, setFees] = useState("0");
+	const [at, setAt] = useState(toLocalInputValue);
+
+	function submit(e: React.FormEvent) {
+		e.preventDefault();
+		const quantity = Number.parseFloat(qty);
+		const px = Number.parseFloat(price);
+		const fee = Number.parseFloat(fees) || 0;
+		if (!(quantity > 0) || !(px >= 0)) return;
+		onSubmit({
+			side,
+			quantity,
+			price: px,
+			fees: fee,
+			executed_at: new Date(at).toISOString(),
+		});
+		setQty("");
+		setPrice("");
+		setFees("0");
+	}
+
+	const inputClass =
+		"h-8 w-full rounded-control border border-border bg-bg-inset px-2 text-[12px] text-text outline-none";
+
+	return (
+		<form
+			onSubmit={submit}
+			className="mt-3 flex flex-col gap-2 border-t border-border pt-3"
+		>
+			<p className="font-mono text-[10px] font-medium uppercase tracking-widest text-text-dim">
+				Add fill
+			</p>
+			<div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
+				<select
+					aria-label="Fill side"
+					value={side}
+					onChange={(e) => setSide(e.target.value as "buy" | "sell")}
+					className={inputClass}
+				>
+					<option value="buy">BUY</option>
+					<option value="sell">SELL</option>
+				</select>
+				<input
+					aria-label="Fill qty"
+					type="number"
+					step="any"
+					min="0"
+					placeholder="Qty"
+					value={qty}
+					onChange={(e) => setQty(e.target.value)}
+					className={inputClass}
+					required
+				/>
+				<input
+					aria-label="Fill price"
+					type="number"
+					step="any"
+					min="0"
+					placeholder="Price"
+					value={price}
+					onChange={(e) => setPrice(e.target.value)}
+					className={inputClass}
+					required
+				/>
+				<input
+					aria-label="Fill fee"
+					type="number"
+					step="any"
+					min="0"
+					placeholder="Fee"
+					value={fees}
+					onChange={(e) => setFees(e.target.value)}
+					className={inputClass}
+				/>
+				<input
+					aria-label="Fill datetime"
+					type="datetime-local"
+					value={at}
+					onChange={(e) => setAt(e.target.value)}
+					className={inputClass}
+					required
+				/>
+			</div>
+			<button
+				type="submit"
+				disabled={busy}
+				className="h-8 w-fit cursor-pointer rounded-control border border-border-strong bg-accent px-3 text-[12px] font-semibold text-bg disabled:opacity-55"
+			>
+				{busy ? "Adding…" : "Add fill"}
+			</button>
+		</form>
+	);
+}
+
 // ---------------------------------------------------------------------------
 // Journal panel (right column)
 // ---------------------------------------------------------------------------
@@ -396,6 +536,11 @@ export interface JournalFormState {
 	notes: string;
 	setup_id: string;
 	initial_risk: string;
+	emotional_state: string;
+	confidence: string;
+	trade_quality: string;
+	mae: string;
+	mfe: string;
 	tag_ids: string[];
 }
 
@@ -425,6 +570,11 @@ export function JournalPanel({
 			prevInitial.current.notes !== initialState.notes ||
 			prevInitial.current.setup_id !== initialState.setup_id ||
 			prevInitial.current.initial_risk !== initialState.initial_risk ||
+			prevInitial.current.emotional_state !== initialState.emotional_state ||
+			prevInitial.current.confidence !== initialState.confidence ||
+			prevInitial.current.trade_quality !== initialState.trade_quality ||
+			prevInitial.current.mae !== initialState.mae ||
+			prevInitial.current.mfe !== initialState.mfe ||
 			JSON.stringify(prevInitial.current.tag_ids) !==
 				JSON.stringify(initialState.tag_ids)
 		) {
@@ -490,19 +640,17 @@ export function JournalPanel({
 				<label htmlFor="trade-setup" style={labelStyle}>
 					Setup
 				</label>
-				<select
+				<SignalSelect
 					id="trade-setup"
 					value={form.setup_id}
-					onChange={(e) => setForm((f) => ({ ...f, setup_id: e.target.value }))}
-					style={inputStyle}
-				>
-					<option value="">None</option>
-					{setups.map((s) => (
-						<option key={s.id} value={s.id}>
-							{s.name}
-						</option>
-					))}
-				</select>
+					onValueChange={(setup_id) => setForm((f) => ({ ...f, setup_id }))}
+					options={[
+						{ value: "", label: "None" },
+						...setups.map((s) => ({ value: s.id, label: s.name })),
+					]}
+					ariaLabel="Setup"
+					triggerClassName="h-9 font-mono text-[12px]"
+				/>
 			</div>
 
 			{/* Initial risk */}
@@ -522,6 +670,92 @@ export function JournalPanel({
 					placeholder="0.00"
 					style={inputStyle}
 				/>
+			</div>
+
+			{/* Emotional state */}
+			<div>
+				<label htmlFor="trade-emotion" style={labelStyle}>
+					Emotional state
+				</label>
+				<SignalSelect
+					id="trade-emotion"
+					value={form.emotional_state}
+					onValueChange={(emotional_state) =>
+						setForm((f) => ({ ...f, emotional_state }))
+					}
+					options={[
+						{ value: "", label: "None" },
+						...EMOTIONAL_STATES.map((s) => ({ value: s, label: s })),
+					]}
+					ariaLabel="Emotional state"
+					triggerClassName="h-9 font-mono text-[12px]"
+				/>
+			</div>
+
+			<div className="grid grid-cols-2 gap-3">
+				<div>
+					<label htmlFor="trade-confidence" style={labelStyle}>
+						Confidence
+					</label>
+					<input
+						id="trade-confidence"
+						type="number"
+						min="1"
+						max="5"
+						value={form.confidence}
+						onChange={(e) =>
+							setForm((f) => ({ ...f, confidence: e.target.value }))
+						}
+						style={inputStyle}
+					/>
+				</div>
+				<div>
+					<label htmlFor="trade-quality" style={labelStyle}>
+						Trade quality
+					</label>
+					<input
+						id="trade-quality"
+						type="number"
+						min="1"
+						max="5"
+						value={form.trade_quality}
+						onChange={(e) =>
+							setForm((f) => ({ ...f, trade_quality: e.target.value }))
+						}
+						style={inputStyle}
+					/>
+				</div>
+			</div>
+
+			<div className="grid grid-cols-2 gap-3">
+				<div>
+					<label htmlFor="trade-mae" style={labelStyle}>
+						MAE ($)
+					</label>
+					<input
+						id="trade-mae"
+						type="number"
+						step="0.01"
+						value={form.mae}
+						onChange={(e) => setForm((f) => ({ ...f, mae: e.target.value }))}
+						placeholder="Max adverse"
+						style={inputStyle}
+					/>
+				</div>
+				<div>
+					<label htmlFor="trade-mfe" style={labelStyle}>
+						MFE ($)
+					</label>
+					<input
+						id="trade-mfe"
+						type="number"
+						step="0.01"
+						value={form.mfe}
+						onChange={(e) => setForm((f) => ({ ...f, mfe: e.target.value }))}
+						placeholder="Max favorable"
+						style={inputStyle}
+					/>
+				</div>
 			</div>
 
 			{/* Custom tags */}
@@ -734,9 +968,11 @@ export interface TradeDetailViewProps {
 	attachmentsLoading: boolean;
 	saving: boolean;
 	uploading: boolean;
+	addingFill?: boolean;
 	onSave: (state: JournalFormState) => void;
 	onUpload: (file: File) => void;
 	onDeleteAttachment: (attachmentId: string) => void;
+	onAddFill?: (input: AddFillInput) => void;
 	onBack?: () => void;
 }
 
@@ -749,9 +985,11 @@ export function TradeDetailView({
 	attachments,
 	saving,
 	uploading,
+	addingFill = false,
 	onSave,
 	onUpload,
 	onDeleteAttachment,
+	onAddFill,
 	onBack,
 }: TradeDetailViewProps) {
 	// --------------- Loading state ---------------
@@ -784,6 +1022,11 @@ export function TradeDetailView({
 		notes: trade.notes ?? "",
 		setup_id: trade.setup?.id ?? "",
 		initial_risk: trade.initial_risk != null ? String(trade.initial_risk) : "",
+		emotional_state: trade.emotional_state ?? "",
+		confidence: trade.confidence != null ? String(trade.confidence) : "",
+		trade_quality: trade.trade_quality != null ? String(trade.trade_quality) : "",
+		mae: trade.mae != null ? String(trade.mae) : "",
+		mfe: trade.mfe != null ? String(trade.mfe) : "",
 		tag_ids: (trade.tags ?? []).map((t) => t.id),
 	};
 
@@ -798,6 +1041,13 @@ export function TradeDetailView({
 				<div className="flex flex-col gap-4">
 					<Panel title={`Fills (${trade.fills.length})`}>
 						<FillsTable fills={trade.fills} currency={trade.pnl_currency} />
+						{onAddFill && (
+							<AddFillForm
+								defaultSide={trade.direction === "short" ? "buy" : "sell"}
+								busy={addingFill}
+								onSubmit={onAddFill}
+							/>
+						)}
 					</Panel>
 
 					{/* Screenshots below fills on desktop left column */}

@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import type {
 	Execution,
@@ -37,6 +38,12 @@ const mockSetup: Setup = {
 	name: "ORB",
 	description: "",
 	created_at: "2026-01-01T00:00:00Z",
+	thesis: "",
+	symbol: "",
+	direction: "",
+	target_price: null,
+	stop_price: null,
+	checklist: [],
 };
 
 const mockTags: Tag[] = [
@@ -119,6 +126,7 @@ const mockTrade: TradeDetail = {
 	opened_at: "2026-03-10T09:30:00Z",
 	closed_at: "2026-03-10T11:45:00Z",
 	qty_opened: 100,
+	qty_remaining: 0,
 	avg_entry_price: 175.5,
 	avg_exit_price: 183.0,
 	gross_pnl: 750,
@@ -132,7 +140,16 @@ const mockTrade: TradeDetail = {
 	fills: [fill1, fill2],
 	setup: mockSetup,
 	initial_risk: 300,
+	target_price: null,
+	stop_price: null,
 	r_multiple: 2,
+	emotional_state: "Focused",
+	confidence: 4,
+	trade_quality: 5,
+	mae: 50,
+	mfe: 200,
+	dividend_total: 0,
+	total_pnl: 747,
 	attachments: [mockAttachment],
 };
 
@@ -167,12 +184,12 @@ describe("TradeDetailView", () => {
 		expect(textarea).toHaveValue("clean break");
 	});
 
-	it("renders ORB as the selected setup option", () => {
+	it("renders ORB as the selected setup option", async () => {
 		render(<TradeDetailView {...defaultProps} />);
-		// The setup select should have ORB as an option and it should be selected
-		expect(screen.getByRole("option", { name: "ORB" })).toBeInTheDocument();
 		const select = screen.getByRole("combobox", { name: /setup/i });
-		expect((select as HTMLSelectElement).value).toBe("s1");
+		expect(select).toHaveTextContent("ORB");
+		await userEvent.click(select);
+		expect(screen.getByRole("option", { name: "ORB" })).toBeInTheDocument();
 	});
 
 	it("renders R-multiple of 2 in the header", () => {

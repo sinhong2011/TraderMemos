@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { useFilters } from "./filters";
+import { normalizeFilterDate, useFilters } from "./filters";
 
 describe("filter store", () => {
 	beforeEach(() => useFilters.getState().reset());
@@ -11,5 +11,17 @@ describe("filter store", () => {
 		const p = useFilters.getState().toParams();
 		expect(p.account_id).toBe("acc1");
 		expect(p.from).toBe("2026-06-01T00:00:00Z");
+	});
+
+	it("normalizes date-only filter values to RFC3339", () => {
+		expect(normalizeFilterDate("2026-06-01", "start")).toBe(
+			"2026-06-01T00:00:00Z",
+		);
+		expect(normalizeFilterDate("2026-06-30", "end")).toBe(
+			"2026-06-30T23:59:59Z",
+		);
+		expect(normalizeFilterDate("2026-06-01T00:00:00Z", "start")).toBe(
+			"2026-06-01T00:00:00Z",
+		);
 	});
 });

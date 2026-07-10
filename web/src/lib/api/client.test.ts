@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { ApiError, apiFetch, setToken } from "./client";
+import { ApiError, apiFetch, setToken, setUnauthorizedHandler } from "./client";
 
 afterEach(() => vi.restoreAllMocks());
 
@@ -31,5 +31,19 @@ describe("apiFetch", () => {
 			code: "bad_request",
 		});
 		await expect(apiFetch("/x")).rejects.toBeInstanceOf(ApiError);
+	});
+
+	it("invokes unauthorized handler on 401 for protected routes", async () => {
+		const onUnauthorized = vi.fn();
+		setUnauthorizedHandler(onUnauthorized);
+		vi.spyOn(globalThis, "fetch").mockResolvedValue(
+			new Response(
+				JSON.stringify({ error: { code: "error", message: "Unauthorized" } }),
+				{ status: 401 },
+			),
+		);
+		await expect(apiFetch("/trades")).rejects.toBeInstanceOf(ApiError);
+		expect(onUnauthorized).toHaveBeenCalledOnce();
+		setUnauthorizedHandler(null);
 	});
 });

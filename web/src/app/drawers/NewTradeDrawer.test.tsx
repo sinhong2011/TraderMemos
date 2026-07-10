@@ -4,11 +4,21 @@ import userEvent from "@testing-library/user-event";
 import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { executionsApi } from "../../lib/api/executions";
+import { tradesApi } from "../../lib/api/trades";
 import { useUI } from "../../lib/ui";
 import { NewTradeDrawer } from "./NewTradeDrawer";
 
 vi.mock("../../lib/api/executions", () => ({
 	executionsApi: { create: vi.fn() },
+}));
+vi.mock("../../lib/api/trades", () => ({
+	tradesApi: { patch: vi.fn() },
+}));
+vi.mock("../../lib/api/cash", () => ({
+	cashApi: { create: vi.fn() },
+}));
+vi.mock("../../lib/api/attachments", () => ({
+	attachmentsApi: { upload: vi.fn() },
 }));
 vi.mock("../../lib/hooks/useAccounts", () => ({
 	useAccounts: () => ({
@@ -18,11 +28,18 @@ vi.mock("../../lib/hooks/useAccounts", () => ({
 		],
 	}),
 }));
+vi.mock("../../lib/hooks/useSetups", () => ({
+	useSetups: () => ({ data: [] }),
+}));
+vi.mock("../../lib/hooks/useTags", () => ({
+	useTags: () => ({ data: [] }),
+}));
 vi.mock("../../components/Toast", () => ({
 	useToastManager: () => ({ add: vi.fn() }),
 }));
 
 const mockedCreate = vi.mocked(executionsApi.create);
+const mockedPatch = vi.mocked(tradesApi.patch);
 
 function wrap(ui: ReactNode) {
 	const qc = new QueryClient({
@@ -34,14 +51,22 @@ function wrap(ui: ReactNode) {
 describe("NewTradeDrawer", () => {
 	beforeEach(() => {
 		mockedCreate.mockReset();
-		useUI.getState().openDrawer("new-trade");
+		mockedPatch.mockReset();
+		mockedCreate.mockResolvedValue({
+			execution_id: "e1",
+			trade_id: "t1",
+		});
+		mockedPatch.mockResolvedValue({} as never);
+		useUI.getState().openModal("new-trade");
 	});
 
-	it("renders form fields when open", () => {
+	it("renders tabs and form fields when open", () => {
 		wrap(<NewTradeDrawer />);
 		expect(screen.getByText("New Trade")).toBeInTheDocument();
+		expect(screen.getByRole("button", { name: "General" })).toBeInTheDocument();
 		expect(screen.getByLabelText("Symbol")).toBeInTheDocument();
 		expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument();
+		expect(screen.getByRole("button", { name: "Check compliance" })).toBeInTheDocument();
 	});
 
 	it("shows a validation error instead of submitting an empty symbol", async () => {
@@ -51,8 +76,7 @@ describe("NewTradeDrawer", () => {
 		expect(mockedCreate).not.toHaveBeenCalled();
 	});
 
-	it("submits a valid row and closes", async () => {
-		mockedCreate.mockResolvedValue(undefined);
+	it("submits a valid row, patches journal, and closes", async () => {
 		wrap(<NewTradeDrawer />);
 		await userEvent.type(screen.getByLabelText("Symbol"), "AAPL");
 		await userEvent.type(screen.getByLabelText("Qty row 1"), "10");
@@ -66,12 +90,13 @@ describe("NewTradeDrawer", () => {
 			quantity: 10,
 			price: 185.5,
 		});
-		await waitFor(() => expect(useUI.getState().drawer).toBeNull());
+		await waitFor(() => expect(mockedPatch).toHaveBeenCalledWith("t1", expect.any(Object)));
+		await waitFor(() => expect(useUI.getState().modal).toBeNull());
 	});
 
 	it("keeps the form open and reports failed rows on partial failure", async () => {
 		mockedCreate
-			.mockResolvedValueOnce(undefined)
+			.mockResolvedValueOnce({ execution_id: "e1", trade_id: "t1" })
 			.mockRejectedValueOnce(new Error("boom"));
 		wrap(<NewTradeDrawer />);
 		await userEvent.type(screen.getByLabelText("Symbol"), "AAPL");
@@ -83,10 +108,8 @@ describe("NewTradeDrawer", () => {
 		await userEvent.type(screen.getByLabelText("Qty row 2"), "5");
 		await userEvent.type(screen.getByLabelText("Price row 2"), "90");
 		await userEvent.click(screen.getByRole("button", { name: "Save" }));
-		// Post-filter numbering: the failed row (originally #2) is now the only row
-		expect(await screen.findByText(/execution 1 failed: boom/i)).toBeVisible();
-		expect(screen.queryByLabelText("Qty row 2")).not.toBeInTheDocument();
-		expect(useUI.getState().drawer).toBe("new-trade");
+		expect(await screen.findByText(/row 2/i)).toBeVisible();
+		expect(useUI.getState().modal).toBe("new-trade");
 	});
 
 	it("resets the form on reopen", async () => {
@@ -95,21 +118,15 @@ describe("NewTradeDrawer", () => {
 		expect(screen.getByLabelText("Symbol")).toHaveValue("AAPL");
 
 		await userEvent.click(screen.getByRole("button", { name: "Cancel" }));
-		await waitFor(() => expect(useUI.getState().drawer).toBeNull());
+		await waitFor(() => expect(useUI.getState().modal).toBeNull());
 
-		useUI.getState().openDrawer("new-trade");
+		useUI.getState().openModal("new-trade");
 		await waitFor(() =>
 			expect(screen.getByLabelText("Symbol")).toHaveValue(""),
 		);
 	});
 
-	// Ends with the drawer open and a permanently pending mutation — keep
-	// this test LAST in the file. Base UI's teardown after an open drawer
-	// with a dangling (never-settled) promise can corrupt the next test's
-	// render, so nothing should run after this one.
 	it("disables Cancel while a save is in flight", async () => {
-		// Never resolves: keeps the mutation pending for the life of the test
-		// so we can assert the Cancel button is disabled while saving.
 		mockedCreate.mockImplementation(() => new Promise(() => {}));
 		wrap(<NewTradeDrawer />);
 		await userEvent.type(screen.getByLabelText("Symbol"), "AAPL");

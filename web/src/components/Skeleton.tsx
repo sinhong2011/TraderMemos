@@ -1,3 +1,5 @@
+import { cn } from "../lib/cn";
+
 interface SkeletonProps {
 	className?: string;
 	width?: string;
@@ -7,7 +9,7 @@ interface SkeletonProps {
 export function Skeleton({ className = "", width, height }: SkeletonProps) {
 	return (
 		<div
-			className={`skeleton-shimmer rounded-[var(--radius-control)] ${className}`}
+			className={cn("skeleton-shimmer rounded-control", className)}
 			style={{ width, height }}
 			aria-hidden="true"
 		/>

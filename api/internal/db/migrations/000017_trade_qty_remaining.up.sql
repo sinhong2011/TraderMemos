@@ -1,0 +1,1 @@
+ALTER TABLE trades ADD COLUMN qty_remaining REAL NOT NULL DEFAULT 0;

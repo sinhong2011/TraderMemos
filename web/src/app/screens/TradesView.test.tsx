@@ -74,6 +74,7 @@ function trade(over: Partial<Trade>): Trade {
 		opened_at: "2026-01-01T10:00:00Z",
 		closed_at: "2026-01-01T11:00:00Z",
 		qty_opened: 100,
+		qty_remaining: 0,
 		avg_entry_price: 10,
 		avg_exit_price: 12,
 		gross_pnl: 200,

@@ -73,6 +73,7 @@ func TestManualExecutionsProduceClosedTrade(t *testing.T) {
 	require.Len(t, got, 1)
 	require.Equal(t, "closed", got[0]["status"])
 	require.Equal(t, 200.0, got[0]["net_pnl"])
+	require.Equal(t, 0.0, got[0]["qty_remaining"])
 
 	rec = do(s, http.MethodGet, "/api/v1/analytics/summary?account_id="+acc, "", tok)
 	require.Equal(t, http.StatusOK, rec.Code)
@@ -80,6 +81,43 @@ func TestManualExecutionsProduceClosedTrade(t *testing.T) {
 	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &sum))
 	require.Equal(t, 200.0, sum["net_pnl"])
 	require.Equal(t, float64(1), sum["total_trades"])
+}
+
+func TestOpenTradeAppearsInList(t *testing.T) {
+	s := testServer(t)
+	tok := registerAndLogin(t, s, "open@x.com")
+	acc := accountID(t, s, tok)
+
+	buy := `{"account_id":"` + acc + `","symbol":"MSFT","instrument_type":"stock","side":"buy","quantity":50,"price":100,"executed_at":"2026-01-02T10:00:00Z"}`
+	require.Equal(t, http.StatusCreated, do(s, http.MethodPost, "/api/v1/executions", buy, tok).Code)
+
+	rec := do(s, http.MethodGet, "/api/v1/trades?account_id="+acc, "", tok)
+	require.Equal(t, http.StatusOK, rec.Code)
+	var got []map[string]any
+	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &got))
+	require.Len(t, got, 1)
+	require.Equal(t, "open", got[0]["status"])
+	require.Equal(t, 50.0, got[0]["qty_opened"])
+	require.Equal(t, 50.0, got[0]["qty_remaining"])
+	require.Nil(t, got[0]["net_pnl"])
+
+	rec = do(s, http.MethodGet, "/api/v1/trades?account_id="+acc+"&status=open", "", tok)
+	require.Equal(t, http.StatusOK, rec.Code)
+	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &got))
+	require.Len(t, got, 1)
+
+	rec = do(s, http.MethodGet, "/api/v1/trades?account_id="+acc+"&status=closed", "", tok)
+	require.Equal(t, http.StatusOK, rec.Code)
+	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &got))
+	require.Len(t, got, 0)
+
+	// Partial exit keeps the trade open with remaining qty.
+	sell := `{"account_id":"` + acc + `","symbol":"MSFT","instrument_type":"stock","side":"sell","quantity":20,"price":110,"executed_at":"2026-01-02T11:00:00Z"}`
+	require.Equal(t, http.StatusCreated, do(s, http.MethodPost, "/api/v1/executions", sell, tok).Code)
+	rec = do(s, http.MethodGet, "/api/v1/trades?account_id="+acc+"&status=open", "", tok)
+	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &got))
+	require.Len(t, got, 1)
+	require.Equal(t, 30.0, got[0]["qty_remaining"])
 }
 
 func TestCSVImportEndToEnd(t *testing.T) {

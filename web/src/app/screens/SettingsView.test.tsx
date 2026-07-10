@@ -47,6 +47,23 @@ const baseProps = {
 	onCreateSetup: vi.fn(noop),
 	onDeleteSetup: vi.fn(noop),
 
+	riskRules: {
+		max_risk_per_trade: null,
+		max_daily_loss: null,
+		max_open_risk: null,
+		default_account_risk_pct: 1,
+	},
+	riskRulesLoading: false,
+	riskRulesError: false,
+	riskRulesSaving: false,
+	onSaveRiskRules: vi.fn(noop),
+
+	checklistItems: ["Check VIX"],
+	checklistLoading: false,
+	checklistError: false,
+	checklistSaving: false,
+	onSaveChecklist: vi.fn(noop),
+
 	currentLocale: "en",
 	onLocaleChange: vi.fn(),
 };
@@ -77,6 +94,12 @@ describe("SettingsView", () => {
 	it("shows empty state for tags when no tags", () => {
 		render(<SettingsView {...baseProps} />);
 		expect(screen.getByText("No tags yet")).toBeInTheDocument();
+	});
+
+	it("renders risk rules section", () => {
+		render(<SettingsView {...baseProps} />);
+		expect(screen.getByText("Risk Rules")).toBeInTheDocument();
+		expect(screen.getByLabelText(/max risk per trade/i)).toBeInTheDocument();
 	});
 
 	it("shows empty state for setups when none", () => {

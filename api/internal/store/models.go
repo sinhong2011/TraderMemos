@@ -31,6 +31,13 @@ type CashTransaction struct {
 	Note          string         `json:"note"`
 	ImportBatchID sql.NullString `json:"import_batch_id"`
 	CreatedAt     time.Time      `json:"created_at"`
+	TradeID       sql.NullString `json:"trade_id"`
+}
+
+type ChecklistTemplate struct {
+	UserID    string    `json:"user_id"`
+	Items     string    `json:"items"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type Execution struct {
@@ -75,12 +82,37 @@ type InstrumentSpec struct {
 	Currency       string  `json:"currency"`
 }
 
+type JournalNote struct {
+	ID         string    `json:"id"`
+	UserID     string    `json:"user_id"`
+	OccurredAt string    `json:"occurred_at"`
+	Title      string    `json:"title"`
+	Body       string    `json:"body"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
+}
+
+type RiskRule struct {
+	UserID                string          `json:"user_id"`
+	MaxRiskPerTrade       sql.NullFloat64 `json:"max_risk_per_trade"`
+	MaxDailyLoss          sql.NullFloat64 `json:"max_daily_loss"`
+	MaxOpenRisk           sql.NullFloat64 `json:"max_open_risk"`
+	DefaultAccountRiskPct sql.NullFloat64 `json:"default_account_risk_pct"`
+	UpdatedAt             time.Time       `json:"updated_at"`
+}
+
 type Setup struct {
-	ID          string    `json:"id"`
-	UserID      string    `json:"user_id"`
-	Name        string    `json:"name"`
-	Description string    `json:"description"`
-	CreatedAt   time.Time `json:"created_at"`
+	ID          string          `json:"id"`
+	UserID      string          `json:"user_id"`
+	Name        string          `json:"name"`
+	Description string          `json:"description"`
+	CreatedAt   time.Time       `json:"created_at"`
+	Thesis      string          `json:"thesis"`
+	Symbol      string          `json:"symbol"`
+	Direction   string          `json:"direction"`
+	TargetPrice sql.NullFloat64 `json:"target_price"`
+	StopPrice   sql.NullFloat64 `json:"stop_price"`
+	Checklist   string          `json:"checklist"`
 }
 
 type Tag struct {
@@ -115,6 +147,7 @@ type Trade struct {
 	Notes           string          `json:"notes"`
 	CreatedAt       time.Time       `json:"created_at"`
 	UpdatedAt       time.Time       `json:"updated_at"`
+	QtyRemaining    float64         `json:"qty_remaining"`
 }
 
 type TradeAttachment struct {
@@ -134,12 +167,19 @@ type TradeExecution struct {
 }
 
 type TradeJournal struct {
-	TradeID     string          `json:"trade_id"`
-	UserID      string          `json:"user_id"`
-	Notes       string          `json:"notes"`
-	SetupID     sql.NullString  `json:"setup_id"`
-	InitialRisk sql.NullFloat64 `json:"initial_risk"`
-	UpdatedAt   time.Time       `json:"updated_at"`
+	TradeID        string          `json:"trade_id"`
+	UserID         string          `json:"user_id"`
+	Notes          string          `json:"notes"`
+	SetupID        sql.NullString  `json:"setup_id"`
+	InitialRisk    sql.NullFloat64 `json:"initial_risk"`
+	UpdatedAt      time.Time       `json:"updated_at"`
+	TargetPrice    sql.NullFloat64 `json:"target_price"`
+	StopPrice      sql.NullFloat64 `json:"stop_price"`
+	EmotionalState string          `json:"emotional_state"`
+	Confidence     sql.NullInt64   `json:"confidence"`
+	TradeQuality   sql.NullInt64   `json:"trade_quality"`
+	Mae            sql.NullFloat64 `json:"mae"`
+	Mfe            sql.NullFloat64 `json:"mfe"`
 }
 
 type TradeTag struct {

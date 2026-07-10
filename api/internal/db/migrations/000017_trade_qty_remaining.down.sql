@@ -1,0 +1,1 @@
+-- SQLite cannot DROP COLUMN portably; forward-only for dev.

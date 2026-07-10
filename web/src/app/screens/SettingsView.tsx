@@ -4,15 +4,18 @@ import {
 	Globe,
 	Plus,
 	Settings,
+	Shield,
 	Tag,
 	Trash2,
 	Wallet,
 	X,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { EmptyState } from "../../components/EmptyState";
 import { Panel } from "../../components/Panel";
+import { SignalSelect } from "../../components/SignalSelect";
 import { Skeleton } from "../../components/Skeleton";
+import type { RiskRules } from "../../lib/api/settings";
 import type {
 	Account,
 	CashTransaction,
@@ -261,15 +264,17 @@ function AccountsSection({
 						<div className="grid grid-cols-3 gap-3">
 							<div>
 								<label style={labelStyle}>Account Type</label>
-								<select
+								<SignalSelect
 									value={accountType}
-									onChange={(e) => setAccountType(e.target.value)}
-									style={fieldStyle}
-								>
-									<option value="cash">Cash</option>
-									<option value="margin">Margin</option>
-									<option value="prop">Prop</option>
-								</select>
+									onValueChange={setAccountType}
+									ariaLabel="Account type"
+									options={[
+										{ value: "cash", label: "Cash" },
+										{ value: "margin", label: "Margin" },
+										{ value: "prop", label: "Prop" },
+									]}
+									triggerClassName="h-8 font-mono text-[12px]"
+								/>
 							</div>
 							<div>
 								<label style={labelStyle}>Base Currency</label>
@@ -479,32 +484,33 @@ function CashSection({
 						<div className="grid grid-cols-2 gap-3">
 							<div>
 								<label style={labelStyle}>Account</label>
-								<select
+								<SignalSelect
 									value={accountId}
-									onChange={(e) => setAccountId(e.target.value)}
-									style={fieldStyle}
-								>
-									{accounts.map((a) => (
-										<option key={a.id} value={a.id}>
-											{a.name}
-										</option>
-									))}
-								</select>
+									onValueChange={setAccountId}
+									ariaLabel="Cash account"
+									options={accounts.map((a) => ({
+										value: a.id,
+										label: a.name,
+									}))}
+									triggerClassName="h-8 font-mono text-[12px]"
+								/>
 							</div>
 							<div>
 								<label style={labelStyle}>Type</label>
-								<select
+								<SignalSelect
 									value={type}
-									onChange={(e) => setType(e.target.value)}
-									style={fieldStyle}
-								>
-									<option value="deposit">Deposit</option>
-									<option value="withdrawal">Withdrawal</option>
-									<option value="fee">Fee</option>
-									<option value="dividend">Dividend</option>
-									<option value="interest">Interest</option>
-									<option value="adjustment">Adjustment</option>
-								</select>
+									onValueChange={setType}
+									ariaLabel="Cash type"
+									options={[
+										{ value: "deposit", label: "Deposit" },
+										{ value: "withdrawal", label: "Withdrawal" },
+										{ value: "fee", label: "Fee" },
+										{ value: "dividend", label: "Dividend" },
+										{ value: "interest", label: "Interest" },
+										{ value: "adjustment", label: "Adjustment" },
+									]}
+									triggerClassName="h-8 font-mono text-[12px]"
+								/>
 							</div>
 						</div>
 						<div className="grid grid-cols-2 gap-3">
@@ -723,14 +729,16 @@ function TagsSection({
 							</div>
 							<div>
 								<label style={labelStyle}>Kind</label>
-								<select
+								<SignalSelect
 									value={kind}
-									onChange={(e) => setKind(e.target.value)}
-									style={fieldStyle}
-								>
-									<option value="custom">Custom</option>
-									<option value="mistake">Mistake</option>
-								</select>
+									onValueChange={setKind}
+									ariaLabel="Tag kind"
+									options={[
+										{ value: "custom", label: "Custom" },
+										{ value: "mistake", label: "Mistake" },
+									]}
+									triggerClassName="h-8 font-mono text-[12px]"
+								/>
 							</div>
 						</div>
 						{formError && (
@@ -1018,14 +1026,13 @@ function LanguageSection({
 						/>
 						Interface Language
 					</label>
-					<select
+					<SignalSelect
 						value={currentLocale}
-						onChange={(e) => onLocaleChange(e.target.value)}
-						style={fieldStyle}
-						aria-label="Language selector"
-					>
-						<option value="en">English</option>
-					</select>
+						onValueChange={onLocaleChange}
+						ariaLabel="Language selector"
+						options={[{ value: "en", label: "English" }]}
+						triggerClassName="h-8 font-mono text-[12px]"
+					/>
 					<p
 						style={{
 							fontSize: 11,
@@ -1036,6 +1043,309 @@ function LanguageSection({
 						Additional languages will be available in a future update.
 					</p>
 				</div>
+			</div>
+		</Panel>
+	);
+}
+
+// ---------------------------------------------------------------------------
+// Risk rules section
+// ---------------------------------------------------------------------------
+
+function numOrEmpty(v: number | null | undefined): string {
+	return v == null ? "" : String(v);
+}
+
+function parseOptionalNum(v: string): number | null {
+	const t = v.trim();
+	if (!t) return null;
+	const n = Number(t);
+	return Number.isFinite(n) ? n : null;
+}
+
+interface RiskRulesSectionProps {
+	rules?: RiskRules;
+	loading: boolean;
+	error: boolean;
+	saving: boolean;
+	onSave: (body: RiskRules) => Promise<void>;
+}
+
+function RiskRulesSection({
+	rules,
+	loading,
+	error,
+	saving,
+	onSave,
+}: RiskRulesSectionProps) {
+	const [maxRisk, setMaxRisk] = useState("");
+	const [maxDaily, setMaxDaily] = useState("");
+	const [maxOpen, setMaxOpen] = useState("");
+	const [riskPct, setRiskPct] = useState("");
+	const [formError, setFormError] = useState<string | null>(null);
+	const [saved, setSaved] = useState(false);
+
+	useEffect(() => {
+		if (!rules) return;
+		setMaxRisk(numOrEmpty(rules.max_risk_per_trade));
+		setMaxDaily(numOrEmpty(rules.max_daily_loss));
+		setMaxOpen(numOrEmpty(rules.max_open_risk));
+		setRiskPct(numOrEmpty(rules.default_account_risk_pct));
+	}, [rules]);
+
+	async function handleSave() {
+		const body: RiskRules = {
+			max_risk_per_trade: parseOptionalNum(maxRisk),
+			max_daily_loss: parseOptionalNum(maxDaily),
+			max_open_risk: parseOptionalNum(maxOpen),
+			default_account_risk_pct: parseOptionalNum(riskPct),
+		};
+		if (
+			(maxRisk.trim() && body.max_risk_per_trade == null) ||
+			(maxDaily.trim() && body.max_daily_loss == null) ||
+			(maxOpen.trim() && body.max_open_risk == null) ||
+			(riskPct.trim() && body.default_account_risk_pct == null)
+		) {
+			setFormError("Enter valid numbers, or leave a field blank.");
+			return;
+		}
+		if (
+			body.default_account_risk_pct != null &&
+			(body.default_account_risk_pct < 0 || body.default_account_risk_pct > 100)
+		) {
+			setFormError("Default risk % must be between 0 and 100.");
+			return;
+		}
+		setFormError(null);
+		setSaved(false);
+		try {
+			await onSave(body);
+			setSaved(true);
+		} catch {
+			setFormError("Could not save risk rules.");
+		}
+	}
+
+	return (
+		<Panel title="Risk Rules">
+			<div style={{ padding: "12px 16px" }}>
+				<p
+					style={{
+						fontSize: 12,
+						color: "var(--color-text-muted)",
+						marginBottom: 12,
+						lineHeight: 1.45,
+					}}
+				>
+					<Shield
+						size={12}
+						strokeWidth={1.5}
+						style={{ display: "inline", marginRight: 6, verticalAlign: -1 }}
+					/>
+					Used by Check compliance on New Trade. Leave blank to skip a limit.
+				</p>
+				{loading ? (
+					<Skeleton height="120px" />
+				) : error ? (
+					<p style={{ fontSize: 12, color: "var(--color-neg)" }}>
+						Failed to load risk rules.
+					</p>
+				) : (
+					<div
+						style={{
+							display: "grid",
+							gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
+							gap: 12,
+							maxWidth: 640,
+						}}
+					>
+						<div>
+							<label style={labelStyle}>Max risk / trade ($)</label>
+							<input
+								style={fieldStyle}
+								inputMode="decimal"
+								value={maxRisk}
+								onChange={(e) => setMaxRisk(e.target.value)}
+								placeholder="e.g. 100"
+								aria-label="Max risk per trade"
+							/>
+						</div>
+						<div>
+							<label style={labelStyle}>Max daily loss ($)</label>
+							<input
+								style={fieldStyle}
+								inputMode="decimal"
+								value={maxDaily}
+								onChange={(e) => setMaxDaily(e.target.value)}
+								placeholder="e.g. 300"
+								aria-label="Max daily loss"
+							/>
+						</div>
+						<div>
+							<label style={labelStyle}>Max open risk ($)</label>
+							<input
+								style={fieldStyle}
+								inputMode="decimal"
+								value={maxOpen}
+								onChange={(e) => setMaxOpen(e.target.value)}
+								placeholder="e.g. 500"
+								aria-label="Max open risk"
+							/>
+						</div>
+						<div>
+							<label style={labelStyle}>Default account risk %</label>
+							<input
+								style={fieldStyle}
+								inputMode="decimal"
+								value={riskPct}
+								onChange={(e) => setRiskPct(e.target.value)}
+								placeholder="e.g. 1"
+								aria-label="Default account risk percent"
+							/>
+						</div>
+					</div>
+				)}
+				{formError && (
+					<p
+						style={{
+							fontSize: 12,
+							color: "var(--color-neg)",
+							marginTop: 10,
+						}}
+					>
+						{formError}
+					</p>
+				)}
+				{!loading && !error && (
+					<div style={{ marginTop: 14, display: "flex", alignItems: "center", gap: 10 }}>
+						<button
+							type="button"
+							onClick={() => void handleSave()}
+							disabled={saving}
+							style={btnPrimary}
+						>
+							{saving ? "Saving…" : "Save rules"}
+						</button>
+						{saved && (
+							<span
+								style={{
+									fontSize: 11,
+									color: "var(--color-pos)",
+									display: "inline-flex",
+									alignItems: "center",
+									gap: 4,
+								}}
+							>
+								<Check size={12} strokeWidth={2} />
+								Saved
+							</span>
+						)}
+					</div>
+				)}
+			</div>
+		</Panel>
+	);
+}
+
+// ---------------------------------------------------------------------------
+// Daily checklist template
+// ---------------------------------------------------------------------------
+
+interface ChecklistSectionProps {
+	items: string[];
+	loading: boolean;
+	error: boolean;
+	saving: boolean;
+	onSave: (items: string[]) => Promise<void>;
+}
+
+function ChecklistSection({
+	items,
+	loading,
+	error,
+	saving,
+	onSave,
+}: ChecklistSectionProps) {
+	const [text, setText] = useState(items.join("\n"));
+	const [saved, setSaved] = useState(false);
+
+	useEffect(() => {
+		setText(items.join("\n"));
+	}, [items]);
+
+	async function handleSave() {
+		const next = text
+			.split("\n")
+			.map((l) => l.trim())
+			.filter(Boolean);
+		setSaved(false);
+		await onSave(next);
+		setSaved(true);
+	}
+
+	return (
+		<Panel title="Daily Checklist">
+			<div style={{ padding: "12px 16px" }}>
+				<p
+					style={{
+						fontSize: 12,
+						color: "var(--color-text-muted)",
+						marginBottom: 12,
+						lineHeight: 1.45,
+					}}
+				>
+					Pre-market / EOD checklist shown when you create a New Note. One item
+					per line.
+				</p>
+				{loading ? (
+					<Skeleton height="100px" />
+				) : error ? (
+					<p style={{ fontSize: 12, color: "var(--color-neg)" }}>
+						Failed to load checklist template.
+					</p>
+				) : (
+					<textarea
+						aria-label="Daily checklist items"
+						value={text}
+						onChange={(e) => setText(e.target.value)}
+						rows={5}
+						placeholder={"Check VIX\nNo revenge trades\nSize within risk"}
+						style={{ ...fieldStyle, resize: "vertical", minHeight: 100 }}
+					/>
+				)}
+				{!loading && !error && (
+					<div
+						style={{
+							marginTop: 14,
+							display: "flex",
+							alignItems: "center",
+							gap: 10,
+						}}
+					>
+						<button
+							type="button"
+							onClick={() => void handleSave()}
+							disabled={saving}
+							style={btnPrimary}
+						>
+							{saving ? "Saving…" : "Save checklist"}
+						</button>
+						{saved && (
+							<span
+								style={{
+									fontSize: 11,
+									color: "var(--color-pos)",
+									display: "inline-flex",
+									alignItems: "center",
+									gap: 4,
+								}}
+							>
+								<Check size={12} strokeWidth={2} />
+								Saved
+							</span>
+						)}
+					</div>
+				)}
 			</div>
 		</Panel>
 	);
@@ -1091,6 +1401,20 @@ export interface SettingsViewProps {
 	onCreateSetup: (name: string, description: string) => Promise<void>;
 	onDeleteSetup: (id: string) => Promise<void>;
 
+	// Risk rules
+	riskRules?: RiskRules;
+	riskRulesLoading: boolean;
+	riskRulesError: boolean;
+	riskRulesSaving: boolean;
+	onSaveRiskRules: (body: RiskRules) => Promise<void>;
+
+	// Daily checklist template
+	checklistItems: string[];
+	checklistLoading: boolean;
+	checklistError: boolean;
+	checklistSaving: boolean;
+	onSaveChecklist: (items: string[]) => Promise<void>;
+
 	// i18n
 	currentLocale: string;
 	onLocaleChange: (locale: string) => void;
@@ -1117,6 +1441,16 @@ export function SettingsView({
 	setupsError,
 	onCreateSetup,
 	onDeleteSetup,
+	riskRules,
+	riskRulesLoading,
+	riskRulesError,
+	riskRulesSaving,
+	onSaveRiskRules,
+	checklistItems,
+	checklistLoading,
+	checklistError,
+	checklistSaving,
+	onSaveChecklist,
 	currentLocale,
 	onLocaleChange,
 }: SettingsViewProps) {
@@ -1128,6 +1462,20 @@ export function SettingsView({
 				error={accountsError}
 				onCreate={onCreateAccount}
 				onDelete={onDeleteAccount}
+			/>
+			<RiskRulesSection
+				rules={riskRules}
+				loading={riskRulesLoading}
+				error={riskRulesError}
+				saving={riskRulesSaving}
+				onSave={onSaveRiskRules}
+			/>
+			<ChecklistSection
+				items={checklistItems}
+				loading={checklistLoading}
+				error={checklistError}
+				saving={checklistSaving}
+				onSave={onSaveChecklist}
 			/>
 			<CashSection
 				accounts={accounts}

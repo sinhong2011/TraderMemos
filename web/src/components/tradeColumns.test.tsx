@@ -71,6 +71,7 @@ const TRADE: Trade = {
 	opened_at: "2026-07-02T13:00:00Z",
 	closed_at: "2026-07-02T13:39:00Z",
 	qty_opened: 80,
+	qty_remaining: 0,
 	avg_entry_price: 18.02,
 	avg_exit_price: 18.23,
 	gross_pnl: 16.8,

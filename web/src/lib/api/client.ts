@@ -1,5 +1,10 @@
 const BASE = (import.meta.env.VITE_API as string) ?? "/api/v1";
 let token = "";
+let onUnauthorized: (() => void) | null = null;
+
+export function setUnauthorizedHandler(handler: (() => void) | null) {
+	onUnauthorized = handler;
+}
 
 function tryStorage(): Storage | null {
 	try {
@@ -68,6 +73,9 @@ export async function apiFetch<T = unknown>(
 	const body = await res.json().catch(() => ({}));
 	if (!res.ok) {
 		const e = body?.error ?? {};
+		if (res.status === 401 && !path.startsWith("/auth/")) {
+			onUnauthorized?.();
+		}
 		throw new ApiError(
 			res.status,
 			e.code ?? "error",

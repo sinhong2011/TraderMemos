@@ -1,3 +1,5 @@
+import { cn } from "../lib/cn";
+
 export interface SegmentOption {
 	value: string;
 	label: string;
@@ -17,15 +19,7 @@ export function SegmentedControl({
 	return (
 		<fieldset
 			aria-label={ariaLabel}
-			style={{
-				display: "inline-flex",
-				gap: 2,
-				padding: 2,
-				border: "none",
-				margin: 0,
-				background: "var(--color-surface-raised)",
-				borderRadius: "var(--radius-control)",
-			}}
+			className="m-0 inline-flex gap-0.5 rounded-control border-none bg-bg-elevated p-0.5"
 		>
 			{options.map((o) => {
 				const active = o.value === value;
@@ -35,17 +29,12 @@ export function SegmentedControl({
 						type="button"
 						aria-pressed={active}
 						onClick={() => onChange(o.value)}
-						style={{
-							padding: "3px 10px",
-							fontSize: 11,
-							fontWeight: 600,
-							border: "none",
-							borderRadius: 6,
-							cursor: "pointer",
-							color: active ? "var(--color-accent)" : "var(--color-text-muted)",
-							background: active ? "var(--tint-accent)" : "transparent",
-							transition: "color var(--duration-fast)",
-						}}
+						className={cn(
+							"cursor-pointer rounded-control border-none px-2.5 py-0.5 text-[11px] font-semibold transition-colors duration-150",
+							active
+								? "bg-accent-bg text-accent"
+								: "bg-transparent text-text-muted",
+						)}
 					>
 						{o.label}
 					</button>

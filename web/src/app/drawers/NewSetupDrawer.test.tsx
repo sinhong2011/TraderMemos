@@ -26,36 +26,31 @@ function wrap(ui: ReactNode) {
 describe("NewSetupDrawer", () => {
 	beforeEach(() => {
 		mockedCreate.mockReset();
-		useUI.getState().openDrawer("new-setup");
+		useUI.getState().openModal("new-setup");
 	});
 
 	it("creates a setup and closes", async () => {
 		mockedCreate.mockResolvedValue({ id: "s1" } as never);
 		wrap(<NewSetupDrawer />);
 		await userEvent.type(screen.getByLabelText("Name"), "Gap and Go");
-		await userEvent.type(
-			screen.getByLabelText("Description / Notes"),
-			"Opening range breakout",
-		);
-		await userEvent.click(screen.getByRole("button", { name: "Save" }));
+		await userEvent.type(screen.getByLabelText("Thesis"), "Opening range breakout");
+		await userEvent.click(screen.getByRole("button", { name: /save setup/i }));
 		await waitFor(() =>
-			// TanStack Query v5.101 invokes mutationFn(variables, context) — the
-			// second arg ({ client, meta, mutationKey }) is framework-injected, so
-			// match it loosely while asserting the exact payload.
 			expect(mockedCreate).toHaveBeenCalledWith(
-				{
+				expect.objectContaining({
 					name: "Gap and Go",
-					description: "Opening range breakout",
-				},
+					thesis: "Opening range breakout",
+					direction: "long",
+				}),
 				expect.anything(),
 			),
 		);
-		await waitFor(() => expect(useUI.getState().drawer).toBeNull());
+		await waitFor(() => expect(useUI.getState().modal).toBeNull());
 	});
 
 	it("validates the name", async () => {
 		wrap(<NewSetupDrawer />);
-		await userEvent.click(screen.getByRole("button", { name: "Save" }));
+		await userEvent.click(screen.getByRole("button", { name: /save setup/i }));
 		expect(await screen.findByText(/name is required/i)).toBeVisible();
 		expect(mockedCreate).not.toHaveBeenCalled();
 	});

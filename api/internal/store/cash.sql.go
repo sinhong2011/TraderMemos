@@ -29,8 +29,8 @@ func (q *Queries) DeleteCashTransaction(ctx context.Context, arg DeleteCashTrans
 }
 
 const insertCashTransaction = `-- name: InsertCashTransaction :one
-INSERT INTO cash_transactions (id, user_id, account_id, type, amount, currency, occurred_at, note, import_batch_id)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id, user_id, account_id, type, amount, currency, occurred_at, note, import_batch_id, created_at
+INSERT INTO cash_transactions (id, user_id, account_id, type, amount, currency, occurred_at, note, import_batch_id, trade_id)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id, user_id, account_id, type, amount, currency, occurred_at, note, import_batch_id, created_at, trade_id
 `
 
 type InsertCashTransactionParams struct {
@@ -43,6 +43,7 @@ type InsertCashTransactionParams struct {
 	OccurredAt    time.Time      `json:"occurred_at"`
 	Note          string         `json:"note"`
 	ImportBatchID sql.NullString `json:"import_batch_id"`
+	TradeID       sql.NullString `json:"trade_id"`
 }
 
 func (q *Queries) InsertCashTransaction(ctx context.Context, arg InsertCashTransactionParams) (CashTransaction, error) {
@@ -56,6 +57,7 @@ func (q *Queries) InsertCashTransaction(ctx context.Context, arg InsertCashTrans
 		arg.OccurredAt,
 		arg.Note,
 		arg.ImportBatchID,
+		arg.TradeID,
 	)
 	var i CashTransaction
 	err := row.Scan(
@@ -69,12 +71,59 @@ func (q *Queries) InsertCashTransaction(ctx context.Context, arg InsertCashTrans
 		&i.Note,
 		&i.ImportBatchID,
 		&i.CreatedAt,
+		&i.TradeID,
 	)
 	return i, err
 }
 
+const listCashForTrade = `-- name: ListCashForTrade :many
+SELECT id, user_id, account_id, type, amount, currency, occurred_at, note, import_batch_id, created_at, trade_id FROM cash_transactions
+WHERE user_id = ? AND trade_id = ?
+ORDER BY occurred_at
+`
+
+type ListCashForTradeParams struct {
+	UserID  string         `json:"user_id"`
+	TradeID sql.NullString `json:"trade_id"`
+}
+
+func (q *Queries) ListCashForTrade(ctx context.Context, arg ListCashForTradeParams) ([]CashTransaction, error) {
+	rows, err := q.db.QueryContext(ctx, listCashForTrade, arg.UserID, arg.TradeID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []CashTransaction
+	for rows.Next() {
+		var i CashTransaction
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.AccountID,
+			&i.Type,
+			&i.Amount,
+			&i.Currency,
+			&i.OccurredAt,
+			&i.Note,
+			&i.ImportBatchID,
+			&i.CreatedAt,
+			&i.TradeID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listCashTransactions = `-- name: ListCashTransactions :many
-SELECT id, user_id, account_id, type, amount, currency, occurred_at, note, import_batch_id, created_at FROM cash_transactions
+SELECT id, user_id, account_id, type, amount, currency, occurred_at, note, import_batch_id, created_at, trade_id FROM cash_transactions
 WHERE user_id = ? AND (?2 IS NULL OR account_id = ?2)
 ORDER BY occurred_at
 `
@@ -104,6 +153,7 @@ func (q *Queries) ListCashTransactions(ctx context.Context, arg ListCashTransact
 			&i.Note,
 			&i.ImportBatchID,
 			&i.CreatedAt,
+			&i.TradeID,
 		); err != nil {
 			return nil, err
 		}

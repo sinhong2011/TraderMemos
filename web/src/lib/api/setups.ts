@@ -1,9 +1,15 @@
 import { apiFetch } from "./client";
 import type { Setup } from "./types";
 
-interface SetupBody {
+export interface SetupBody {
 	name: string;
 	description?: string;
+	thesis?: string;
+	symbol?: string;
+	direction?: string;
+	target_price?: number | null;
+	stop_price?: number | null;
+	checklist?: string[];
 }
 
 export const setupsApi = {
@@ -11,9 +17,9 @@ export const setupsApi = {
 	get: (id: string) => apiFetch<Setup>(`/setups/${id}`),
 	create: (body: SetupBody) =>
 		apiFetch<Setup>("/setups", { method: "POST", body: JSON.stringify(body) }),
-	update: (id: string, body: Partial<SetupBody>) =>
+	update: (id: string, body: SetupBody) =>
 		apiFetch<Setup>(`/setups/${id}`, {
-			method: "PUT",
+			method: "PATCH",
 			body: JSON.stringify(body),
 		}),
 	delete: (id: string) => apiFetch<void>(`/setups/${id}`, { method: "DELETE" }),

@@ -15,8 +15,9 @@ import { EmptyState } from "../../components/EmptyState";
 import { Panel } from "../../components/Panel";
 import { Skeleton } from "../../components/Skeleton";
 import { pnlColor } from "../../components/theme-tokens";
-import type { BreakGroup } from "../../lib/api/types";
-import { fmtPct, fmtSignedMoney } from "../../lib/format";
+import type { BreakGroup, EquityCurve, RSummary, Summary } from "../../lib/api/types";
+import { fmtMoney, fmtPct, fmtSignedMoney } from "../../lib/format";
+import { SegmentedControl } from "../../components/SegmentedControl";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -27,25 +28,40 @@ export type BreakdownDim =
 	| "setup"
 	| "day_of_week"
 	| "hour_of_day"
-	| "tag";
+	| "session"
+	| "tag"
+	| "mistake";
 
 const DIM_LABELS: Record<BreakdownDim, string> = {
 	symbol: "Symbol",
 	setup: "Setup",
 	day_of_week: "Day of Week",
 	hour_of_day: "Hour",
+	session: "Session",
 	tag: "Tag",
+	mistake: "Mistake",
 };
 
 const ALL_DIMS: BreakdownDim[] = [
 	"symbol",
 	"setup",
+	"session",
 	"day_of_week",
 	"hour_of_day",
 	"tag",
+	"mistake",
 ];
 
 export interface ReportsViewProps {
+	summary?: Summary;
+	summaryLoading: boolean;
+	summaryError: boolean;
+	rSummary?: RSummary;
+	rSummaryLoading?: boolean;
+	unit: "usd" | "r";
+	onUnitChange: (unit: "usd" | "r") => void;
+	equity?: EquityCurve;
+	equityLoading: boolean;
 	breakdown: BreakGroup[];
 	loading: boolean;
 	error: boolean;
@@ -61,6 +77,90 @@ export interface ReportsViewProps {
 const LOCALE = "en-US";
 const POS_COLOR = "#52ca96"; // emerald-400
 const NEG_COLOR = "#eb4b68"; // red-400
+
+// ---------------------------------------------------------------------------
+// Summary metrics grid (Stats page parity)
+// ---------------------------------------------------------------------------
+
+function SummaryMetricsGrid({
+	summary,
+	currency,
+	unit,
+	rSummary,
+}: {
+	summary: Summary;
+	currency: string;
+	unit: "usd" | "r";
+	rSummary?: RSummary;
+}) {
+	const inR = unit === "r" && rSummary;
+	const s = inR ? rSummary : summary;
+	const moneyOrR = (v: number) =>
+		inR ? `${v >= 0 ? "+" : ""}${v.toFixed(2)}R` : fmtSignedMoney(v, currency, LOCALE);
+	const absOrR = (v: number) =>
+		inR ? `${v.toFixed(2)}R` : fmtMoney(v, currency, LOCALE);
+
+	const feePct =
+		s.gross_profit + s.gross_loss !== 0
+			? (s.total_fees / Math.abs(s.gross_profit + s.gross_loss)) * 100
+			: 0;
+
+	return (
+		<div className="grid grid-cols-2 gap-px border-b border-border bg-border sm:grid-cols-3 lg:grid-cols-5">
+			<StatCard
+				label={inR ? "Net R" : "P&L"}
+				value={moneyOrR(s.net_pnl)}
+				accent={s.net_pnl >= 0 ? "pos" : "neg"}
+				hint={
+					inR
+						? `Avg ${rSummary!.avg_r.toFixed(2)}R · ${rSummary!.excluded} excluded (no risk)`
+						: `Gross ${fmtSignedMoney(s.gross_profit + s.gross_loss, currency, LOCALE)} · Fees ${fmtMoney(s.total_fees, currency, LOCALE)} (${feePct.toFixed(1)}%)`
+				}
+			/>
+			<StatCard
+				label="Win Rate"
+				value={fmtPct(s.win_rate, LOCALE)}
+				accent="none"
+			/>
+			<StatCard
+				label="Profit Factor"
+				value={s.profit_factor > 0 ? s.profit_factor.toFixed(2) : "—"}
+			/>
+			<StatCard label="Total Trades" value={String(s.total_trades)} />
+			<StatCard
+				label="Expectancy"
+				value={moneyOrR(s.expectancy)}
+				accent={s.expectancy >= 0 ? "pos" : "neg"}
+			/>
+			<StatCard
+				label={inR ? "Avg Win R" : "Avg Win"}
+				value={inR ? `${rSummary!.avg_win_r.toFixed(2)}R` : absOrR(s.avg_win)}
+				accent="pos"
+			/>
+			<StatCard
+				label={inR ? "Avg Loss R" : "Avg Loss"}
+				value={
+					inR
+						? `${rSummary!.avg_loss_r.toFixed(2)}R`
+						: absOrR(s.avg_loss)
+				}
+				accent="neg"
+			/>
+			<StatCard
+				label={inR ? "Best R" : "Largest Win"}
+				value={inR ? `${rSummary!.best_r.toFixed(2)}R` : absOrR(s.largest_win)}
+				accent="pos"
+			/>
+			<StatCard
+				label={inR ? "Worst R" : "Largest Loss"}
+				value={
+					inR ? `${rSummary!.worst_r.toFixed(2)}R` : absOrR(s.largest_loss)
+				}
+				accent="neg"
+			/>
+		</div>
+	);
+}
 
 // ---------------------------------------------------------------------------
 // Table columns
@@ -257,6 +357,14 @@ function PnlBarChart({ data, currency }: PnlBarChartProps) {
 // ---------------------------------------------------------------------------
 
 export function ReportsView({
+	summary,
+	summaryLoading,
+	summaryError,
+	rSummary,
+	unit,
+	onUnitChange,
+	equity,
+	equityLoading,
 	breakdown,
 	loading,
 	error,
@@ -266,7 +374,20 @@ export function ReportsView({
 }: ReportsViewProps) {
 	const columns = buildColumns(currency, DIM_LABELS[dim]);
 
-	const panelRight = <DimSelector value={dim} onChange={onDimChange} />;
+	const panelRight = (
+		<div className="flex items-center gap-2">
+			<SegmentedControl
+				ariaLabel="Report unit"
+				value={unit}
+				onChange={(v) => onUnitChange(v as "usd" | "r")}
+				options={[
+					{ value: "usd", label: "$" },
+					{ value: "r", label: "R" },
+				]}
+			/>
+			<DimSelector value={dim} onChange={onDimChange} />
+		</div>
+	);
 
 	const renderContent = () => {
 		if (loading) {
@@ -297,10 +418,8 @@ export function ReportsView({
 
 		return (
 			<>
-				{/* Chart */}
 				<PnlBarChart data={breakdown} currency={currency} />
 
-				{/* Table */}
 				<div style={{ maxHeight: 360 }}>
 					<DataTable columns={columns} data={breakdown} />
 				</div>
@@ -310,7 +429,97 @@ export function ReportsView({
 
 	return (
 		<div className="flex flex-col gap-4">
-			<Panel title="Reports" right={panelRight}>
+			{summaryLoading ? (
+				<Skeleton height="120px" />
+			) : summaryError ? (
+				<p className="p-4 text-xs text-loss">Failed to load summary.</p>
+			) : summary ? (
+				<Panel title="Statistics" className="overflow-hidden">
+					<SummaryMetricsGrid
+						summary={summary}
+						currency={currency}
+						unit={unit}
+						rSummary={rSummary}
+					/>
+					{unit === "r" && rSummary && rSummary.distribution.length > 0 && (
+						<div className="border-t border-border px-3 py-2">
+							<p className="mb-2 font-mono text-[10px] font-medium uppercase tracking-widest text-text-dim">
+								R-multiple distribution
+							</p>
+							<div className="flex flex-wrap gap-2">
+								{rSummary.distribution.map((b) => (
+									<span
+										key={b.label}
+										className="rounded-sharp border border-border px-2 py-1 font-mono text-[11px] text-text-muted"
+									>
+										{b.label}: {b.count}
+									</span>
+								))}
+							</div>
+						</div>
+					)}
+					{equityLoading ? (
+						<Skeleton height="160px" className="m-3" />
+					) : equity && equity.points.length > 0 ? (
+						<div className="border-t border-border p-3">
+							<p className="mb-2 font-mono text-[10px] font-medium uppercase tracking-widest text-text-dim">
+								Equity curve · Max DD{" "}
+								{fmtMoney(equity.max_drawdown, currency, LOCALE)}
+							</p>
+							<ChartFrame>
+								<ResponsiveContainer width="100%" height={160}>
+									<BarChart
+										data={equity.points}
+										margin={{ top: 8, right: 8, bottom: 0, left: 0 }}
+									>
+										<CartesianGrid
+											vertical={false}
+											stroke={chartTheme.gridColor}
+										/>
+										<XAxis
+											dataKey="at"
+											tick={{ fontSize: 10, fill: chartTheme.axisColor }}
+											tickFormatter={(v: string) => v.slice(5, 10)}
+											axisLine={false}
+											tickLine={false}
+										/>
+										<YAxis
+											tick={{ fontSize: 10, fill: chartTheme.axisColor }}
+											tickFormatter={(v: number) =>
+												fmtMoney(v, currency, LOCALE)
+											}
+											axisLine={false}
+											tickLine={false}
+											width={64}
+										/>
+										<Tooltip
+											contentStyle={{
+												background: chartTheme.tooltipBg,
+												border: `1px solid ${chartTheme.tooltipBorder}`,
+												color: chartTheme.tooltipText,
+												fontSize: 11,
+												fontFamily: "var(--font-mono)",
+											}}
+											formatter={(value: number) => [
+												fmtMoney(value, currency, LOCALE),
+												"Equity",
+											]}
+										/>
+										<Bar
+											dataKey="equity"
+											fill={chartTheme.accentStroke}
+											radius={[2, 2, 0, 0]}
+											fillOpacity={0.85}
+										/>
+									</BarChart>
+								</ResponsiveContainer>
+							</ChartFrame>
+						</div>
+					) : null}
+				</Panel>
+			) : null}
+
+			<Panel title="Breakdown" right={panelRight}>
 				{renderContent()}
 			</Panel>
 		</div>

@@ -1,13 +1,16 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { SettingsView } from "../app/screens/SettingsView";
 import { i18n, loadLocale } from "../i18n";
+import { settingsApi } from "../lib/api/settings";
 import {
 	useAccounts,
 	useCreateAccount,
 	useDeleteAccount,
 } from "../lib/hooks/useAccounts";
 import { useCash, useCreateCash, useDeleteCash } from "../lib/hooks/useCash";
+import { useRiskRules, useSaveRiskRules } from "../lib/hooks/useRiskRules";
 import {
 	useCreateSetup,
 	useDeleteSetup,
@@ -21,6 +24,7 @@ export const Route = createFileRoute("/settings")({
 
 function SettingsPage() {
 	const [currentLocale, setCurrentLocale] = useState(() => i18n.locale || "en");
+	const qc = useQueryClient();
 
 	// Accounts
 	const accountsQ = useAccounts();
@@ -41,6 +45,25 @@ function SettingsPage() {
 	const setupsQ = useSetups();
 	const createSetupM = useCreateSetup();
 	const deleteSetupM = useDeleteSetup();
+
+	// Risk rules
+	const riskRulesQ = useRiskRules();
+	const saveRiskRulesM = useSaveRiskRules();
+
+	// Checklist template
+	const checklistQ = useQuery({
+		queryKey: ["settings", "checklist-template"],
+		queryFn: () => settingsApi.getChecklistTemplate(),
+	});
+	const saveChecklistM = useMutation({
+		mutationFn: (items: string[]) =>
+			settingsApi.putChecklistTemplate({ items }),
+		onSuccess: () => {
+			void qc.invalidateQueries({
+				queryKey: ["settings", "checklist-template"],
+			});
+		},
+	});
 
 	function handleLocaleChange(locale: string) {
 		loadLocale(locale);
@@ -84,6 +107,20 @@ function SettingsPage() {
 			}}
 			onDeleteSetup={async (id) => {
 				await deleteSetupM.mutateAsync(id);
+			}}
+			riskRules={riskRulesQ.data}
+			riskRulesLoading={riskRulesQ.isLoading}
+			riskRulesError={riskRulesQ.isError}
+			riskRulesSaving={saveRiskRulesM.isPending}
+			onSaveRiskRules={async (body) => {
+				await saveRiskRulesM.mutateAsync(body);
+			}}
+			checklistItems={checklistQ.data?.items ?? []}
+			checklistLoading={checklistQ.isLoading}
+			checklistError={checklistQ.isError}
+			checklistSaving={saveChecklistM.isPending}
+			onSaveChecklist={async (items) => {
+				await saveChecklistM.mutateAsync(items);
 			}}
 			currentLocale={currentLocale}
 			onLocaleChange={handleLocaleChange}

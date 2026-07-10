@@ -1,3 +1,4 @@
+import { cn } from "../lib/cn";
 import { PILL_TONES, type PillTone } from "./Pill";
 
 export function StatBar({
@@ -6,16 +7,20 @@ export function StatBar({
 	right,
 	pct,
 	tone,
+	onClick,
+	active,
 }: {
 	label: string;
 	value: string;
 	right?: string;
 	pct: number;
 	tone: PillTone;
+	onClick?: () => void;
+	active?: boolean;
 }) {
 	const color = PILL_TONES[tone].color;
 	const clamped = Math.max(0, Math.min(1, pct));
-	return (
+	const inner = (
 		<div className="flex flex-col gap-1" style={{ minWidth: 110 }}>
 			<div className="flex items-baseline justify-between gap-3">
 				<span
@@ -51,5 +56,22 @@ export function StatBar({
 				/>
 			</div>
 		</div>
+	);
+
+	if (!onClick) return inner;
+
+	return (
+		<button
+			type="button"
+			onClick={onClick}
+			aria-pressed={active}
+			className={cn(
+				"cursor-pointer rounded-control border border-transparent px-2 py-1.5 text-left",
+				"transition-colors duration-150 hover:bg-bg-hover",
+				active && "border-border-strong bg-bg-hover",
+			)}
+		>
+			{inner}
+		</button>
 	);
 }

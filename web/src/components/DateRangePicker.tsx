@@ -1,11 +1,12 @@
+import { SignalSelect } from "./SignalSelect";
+import {
+	computePresetRange,
+	presetFromRange,
+	type DateRangePreset,
+} from "../lib/dateRangePresets";
 import { useFilters } from "../lib/filters";
 
-type Preset = {
-	label: string;
-	key: string;
-};
-
-const PRESETS: Preset[] = [
+const PRESETS: { label: string; key: DateRangePreset }[] = [
 	{ label: "Last 7 days", key: "7d" },
 	{ label: "Last 30 days", key: "30d" },
 	{ label: "Last 90 days", key: "90d" },
@@ -13,108 +14,28 @@ const PRESETS: Preset[] = [
 	{ label: "All time", key: "all" },
 ];
 
-function toISODate(d: Date): string {
-	return d.toISOString().slice(0, 10);
-}
-
-function computeRange(key: string): { from?: string; to?: string } {
-	const now = new Date();
-	const today = toISODate(now);
-
-	if (key === "7d") {
-		const from = new Date(now);
-		from.setDate(from.getDate() - 6);
-		return { from: toISODate(from), to: today };
-	}
-	if (key === "30d") {
-		const from = new Date(now);
-		from.setDate(from.getDate() - 29);
-		return { from: toISODate(from), to: today };
-	}
-	if (key === "90d") {
-		const from = new Date(now);
-		from.setDate(from.getDate() - 89);
-		return { from: toISODate(from), to: today };
-	}
-	if (key === "month") {
-		const from = new Date(now.getFullYear(), now.getMonth(), 1);
-		return { from: toISODate(from), to: today };
-	}
-	// "all" - no range constraints
-	return { from: undefined, to: undefined };
-}
-
-function currentKey(from?: string, to?: string): string {
-	if (!from && !to) return "all";
-	// best-effort match
-	const now = new Date();
-	const today = toISODate(now);
-	if (to !== today) return "";
-
-	const d = new Date(from ?? "");
-	const diffDays = Math.round(
-		(now.getTime() - d.getTime()) / (1000 * 60 * 60 * 24),
-	);
-
-	if (diffDays === 6) return "7d";
-	if (diffDays === 29) return "30d";
-	if (diffDays === 89) return "90d";
-
-	const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-	if (from === toISODate(monthStart)) return "month";
-
-	return "";
-}
-
 export function DateRangePicker() {
 	const { from, to, setRange } = useFilters();
-	const active = currentKey(from, to);
+	const active = presetFromRange(from, to);
 
-	function handleChange(e: React.ChangeEvent<HTMLSelectElement>) {
-		const { from: f, to: t } = computeRange(e.target.value);
-		setRange(f, t);
-	}
+	const options = [
+		...PRESETS.map((p) => ({ value: p.key, label: p.label })),
+		...(active === "custom"
+			? [{ value: "custom" as const, label: "Custom range", disabled: true }]
+			: []),
+	];
 
 	return (
-		<select
+		<SignalSelect
 			value={active}
-			onChange={handleChange}
-			style={{
-				background: "var(--color-surface-hover)",
-				color: "var(--color-text)",
-				border: "1px solid var(--color-border)",
-				borderRadius: "var(--radius-control)",
-				padding: "6px 10px",
-				fontSize: "12px",
-				fontFamily: "var(--font-ui)",
-				cursor: "pointer",
-				outline: "none",
-				transition: "border-color var(--duration-fast)",
+			onValueChange={(key) => {
+				if (key === "custom") return;
+				const { from: f, to: t } = computePresetRange(key as DateRangePreset);
+				setRange(f, t);
 			}}
-			onFocus={(e) => {
-				(e.currentTarget as HTMLElement).style.borderColor =
-					"var(--color-accent)";
-			}}
-			onBlur={(e) => {
-				(e.currentTarget as HTMLElement).style.borderColor =
-					"var(--color-border)";
-			}}
-			aria-label="Date range"
-		>
-			{PRESETS.map((p) => (
-				<option
-					key={p.key}
-					value={p.key}
-					style={{ background: "var(--color-surface-panel)" }}
-				>
-					{p.label}
-				</option>
-			))}
-			{active === "" && (
-				<option value="" style={{ background: "var(--color-surface-panel)" }}>
-					Custom range
-				</option>
-			)}
-		</select>
+			options={options}
+			ariaLabel="Date range"
+			triggerClassName="min-w-[132px] font-mono text-[11px] text-text-muted"
+		/>
 	);
 }

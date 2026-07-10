@@ -15,6 +15,7 @@ type Filters struct {
 	From      *time.Time
 	To        *time.Time
 	Symbol    string
+	Status    string // "" = all, "open" | "closed"
 }
 
 // parseFilters reads the shared filter query params. Malformed from/to dates
@@ -23,6 +24,10 @@ func parseFilters(c echo.Context) (Filters, error) {
 	var f Filters
 	f.AccountID = c.QueryParam("account_id")
 	f.Symbol = c.QueryParam("symbol")
+	f.Status = c.QueryParam("status")
+	if f.Status != "" && f.Status != "open" && f.Status != "closed" {
+		return f, fmt.Errorf("invalid 'status' (want open|closed)")
+	}
 	if v := c.QueryParam("from"); v != "" {
 		t, err := time.Parse(time.RFC3339, v)
 		if err != nil {
@@ -48,6 +53,13 @@ func accountArg(accountID string) interface{} {
 	return accountID
 }
 
+func statusArg(status string) interface{} {
+	if status == "" {
+		return nil
+	}
+	return status
+}
+
 // matchClosed reports whether a closed trade passes the symbol/date filters.
 func (f Filters) matchClosed(symbol string, closedAt time.Time) bool {
 	if f.Symbol != "" && symbol != f.Symbol {
@@ -57,6 +69,20 @@ func (f Filters) matchClosed(symbol string, closedAt time.Time) bool {
 		return false
 	}
 	if f.To != nil && closedAt.After(*f.To) {
+		return false
+	}
+	return true
+}
+
+// matchOpened reports whether a trade passes symbol/date filters using opened_at.
+func (f Filters) matchOpened(symbol string, openedAt time.Time) bool {
+	if f.Symbol != "" && symbol != f.Symbol {
+		return false
+	}
+	if f.From != nil && openedAt.Before(*f.From) {
+		return false
+	}
+	if f.To != nil && openedAt.After(*f.To) {
 		return false
 	}
 	return true

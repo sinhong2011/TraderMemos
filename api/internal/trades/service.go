@@ -74,6 +74,7 @@ func toUpsertParams(id, userID, accountID, pnlCurrency string, tr Trade) store.U
 		OpenedAt:        tr.OpenedAt,
 		ClosedAt:        nt(tr.ClosedAt),
 		QtyOpened:       tr.QtyOpened,
+		QtyRemaining:    tr.QtyRemaining,
 		AvgEntryPrice:   tr.AvgEntryPrice,
 		AvgExitPrice:    nf(tr.AvgExitPrice),
 		GrossPnl:        nf(tr.GrossPnl),

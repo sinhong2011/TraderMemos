@@ -1,19 +1,19 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { Drawer, DrawerBanner } from "./Drawer";
+import { Modal, ModalBanner } from "./Modal";
 
-describe("Drawer", () => {
+describe("Modal", () => {
 	it("renders title, children and footer when open", () => {
 		render(
-			<Drawer
+			<Modal
 				open
 				onOpenChange={vi.fn()}
 				title="New Trade"
 				footer={<button type="button">Save</button>}
 			>
-				<DrawerBanner>Log any trade.</DrawerBanner>
+				<ModalBanner>Log any trade.</ModalBanner>
 				<p>Body</p>
-			</Drawer>,
+			</Modal>,
 		);
 		expect(screen.getByText("New Trade")).toBeInTheDocument();
 		expect(screen.getByText("Log any trade.")).toBeInTheDocument();
@@ -22,9 +22,9 @@ describe("Drawer", () => {
 	});
 	it("renders nothing when closed", () => {
 		render(
-			<Drawer open={false} onOpenChange={vi.fn()} title="Hidden">
+			<Modal open={false} onOpenChange={vi.fn()} title="Hidden">
 				<p>Body</p>
-			</Drawer>,
+			</Modal>,
 		);
 		expect(screen.queryByText("Hidden")).not.toBeInTheDocument();
 	});

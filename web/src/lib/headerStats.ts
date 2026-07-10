@@ -24,6 +24,9 @@ export function computeHeaderStats(opts: {
 	const netPnl = opts.summary?.net_pnl ?? 0;
 	const active = opts.trades
 		.filter((t) => t.status === "open")
-		.reduce((s, t) => s + t.qty_opened * t.avg_entry_price, 0);
+		.reduce((s, t) => {
+			const qty = t.qty_remaining > 0 ? t.qty_remaining : t.qty_opened;
+			return s + qty * t.avg_entry_price;
+		}, 0);
 	return { netPnl, cash: starting + cashFlow + netPnl, active };
 }

@@ -1,8 +1,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { type ExecutionBody, executionsApi } from "../api/executions";
+import {
+	type CreateExecutionResponse,
+	type ExecutionBody,
+	executionsApi,
+} from "../api/executions";
 
 export interface ExecutionFailure {
 	index: number;
+	accountId: string;
 	message: string;
 }
 
@@ -17,31 +22,57 @@ export class ExecutionBatchError extends Error {
 	}
 }
 
-// Posts executions one-by-one so a single bad row doesn't sink the batch;
-// the server regroups trades after each insert.
+export interface SaveExecutionsInput {
+	accountIds: string[];
+	rows: Omit<ExecutionBody, "account_id">[];
+}
+
+export interface SaveExecutionsResult {
+	tradeIds: string[];
+}
+
 export function useCreateExecutions() {
 	const queryClient = useQueryClient();
 	return useMutation({
-		mutationFn: async (rows: ExecutionBody[]) => {
+		mutationFn: async ({
+			accountIds,
+			rows,
+		}: SaveExecutionsInput): Promise<SaveExecutionsResult> => {
 			const failures: ExecutionFailure[] = [];
-			for (let i = 0; i < rows.length; i++) {
-				try {
-					await executionsApi.create(rows[i]);
-				} catch (e) {
-					failures.push({
-						index: i,
-						message: e instanceof Error ? e.message : "request failed",
-					});
+			const tradeIds: string[] = [];
+			let total = 0;
+
+			for (const accountId of accountIds) {
+				let lastTradeId = "";
+				for (let i = 0; i < rows.length; i++) {
+					total += 1;
+					try {
+						const res: CreateExecutionResponse = await executionsApi.create({
+							...rows[i],
+							account_id: accountId,
+						});
+						lastTradeId = res.trade_id;
+					} catch (e) {
+						failures.push({
+							index: i,
+							accountId,
+							message: e instanceof Error ? e.message : "request failed",
+						});
+					}
 				}
+				if (lastTradeId) tradeIds.push(lastTradeId);
 			}
+
 			if (failures.length > 0) {
-				throw new ExecutionBatchError(failures, rows.length);
+				throw new ExecutionBatchError(failures, total);
 			}
-			return rows.length;
+			return { tradeIds };
 		},
 		onSettled: () => {
 			queryClient.invalidateQueries({ queryKey: ["trades"] });
+			queryClient.invalidateQueries({ queryKey: ["trade"] });
 			queryClient.invalidateQueries({ queryKey: ["analytics"] });
+			queryClient.invalidateQueries({ queryKey: ["cash"] });
 		},
 	});
 }

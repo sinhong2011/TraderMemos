@@ -11,6 +11,13 @@ export const tradesApi = {
 			notes?: string;
 			setup_id?: string;
 			initial_risk?: number;
+			target_price?: number;
+			stop_price?: number;
+			emotional_state?: string;
+			confidence?: number;
+			trade_quality?: number;
+			mae?: number;
+			mfe?: number;
 			tag_ids?: string[];
 		},
 	) =>

@@ -37,11 +37,11 @@ function PlaybookPage() {
 			breakdown={breakdownQ.data ?? []}
 			breakdownLoading={breakdownQ.isLoading}
 			currency={currency}
-			onCreate={async (name, description) => {
-				await createM.mutateAsync({ name, description });
+			onCreate={async (body) => {
+				await createM.mutateAsync(body);
 			}}
-			onUpdate={async (id, name, description) => {
-				await updateM.mutateAsync({ id, body: { name, description } });
+			onUpdate={async (id, body) => {
+				await updateM.mutateAsync({ id, body });
 			}}
 			onDelete={async (id) => {
 				await deleteM.mutateAsync(id);

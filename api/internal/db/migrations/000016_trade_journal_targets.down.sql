@@ -1,0 +1,2 @@
+-- SQLite cannot DROP COLUMN in older versions; recreate table if rollback needed.
+-- No-op for dev forward-only migrations.

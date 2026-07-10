@@ -5,6 +5,7 @@ export interface Filters {
 	from?: string;
 	to?: string;
 	symbol?: string;
+	status?: string;
 }
 
 export interface Tokens {
@@ -38,6 +39,12 @@ export interface Setup {
 	name: string;
 	description: string;
 	created_at: string;
+	thesis: string;
+	symbol: string;
+	direction: string;
+	target_price: number | null;
+	stop_price: number | null;
+	checklist: string[];
 }
 
 export interface Execution {
@@ -82,6 +89,7 @@ export interface Trade {
 	opened_at: string;
 	closed_at: string | null;
 	qty_opened: number;
+	qty_remaining: number;
 	avg_entry_price: number;
 	avg_exit_price: number | null;
 	gross_pnl: number | null;
@@ -92,6 +100,7 @@ export interface Trade {
 	time_in_trade_secs: number | null;
 	notes: string;
 	tags: Tag[];
+	initial_risk?: number | null;
 }
 
 // TradeDetail matches tradeDetailDTO from api/internal/api/trade_detail.go
@@ -99,7 +108,16 @@ export interface TradeDetail extends Trade {
 	fills: Execution[];
 	setup: Setup | null;
 	initial_risk: number | null;
+	target_price: number | null;
+	stop_price: number | null;
 	r_multiple: number | null;
+	emotional_state: string;
+	confidence: number | null;
+	trade_quality: number | null;
+	mae: number | null;
+	mfe: number | null;
+	dividend_total: number;
+	total_pnl: number | null;
 	attachments: TradeAttachment[];
 }
 
@@ -121,6 +139,24 @@ export interface Summary {
 	largest_win: number;
 	largest_loss: number;
 	total_fees: number;
+}
+
+export interface RBucket {
+	label: string;
+	count: number;
+	from: number;
+	to: number;
+}
+
+/** R-mode summary — dollar fields are in R units when from /analytics/r-summary. */
+export interface RSummary extends Summary {
+	excluded: number;
+	avg_r: number;
+	avg_win_r: number;
+	avg_loss_r: number;
+	best_r: number;
+	worst_r: number;
+	distribution: RBucket[];
 }
 
 // EquityPoint and EquityCurve match analytics.Equity from analytics/analytics.go
@@ -148,8 +184,18 @@ export interface CashTransaction {
 	currency: string;
 	occurred_at: string;
 	note: string;
-	import_batch_id: string | null;
+	trade_id: string | null;
+	import_batch_id?: string | null;
 	created_at: string;
+}
+
+export interface JournalNote {
+	id: string;
+	occurred_at: string;
+	title: string;
+	body: string;
+	created_at: string;
+	updated_at: string;
 }
 
 export interface ImportBatch {
