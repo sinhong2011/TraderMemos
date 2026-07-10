@@ -1,6 +1,9 @@
 node_modules/
 web/dist/
 api/data/
+api/tmp/
+api/.env
+api/.env.local
 *.db
 *.db-*
 .DS_Store

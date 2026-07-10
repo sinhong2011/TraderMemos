@@ -9,6 +9,7 @@ import (
 	"github.com/tradermemos/api/internal/auth"
 	"github.com/tradermemos/api/internal/config"
 	"github.com/tradermemos/api/internal/db"
+	"github.com/tradermemos/api/internal/logging"
 	"github.com/tradermemos/api/internal/storage"
 	"github.com/tradermemos/api/internal/store"
 	"github.com/tradermemos/api/internal/trades"
@@ -29,6 +30,8 @@ func main() {
 	if err := db.Migrate(conn); err != nil {
 		log.Fatal(err)
 	}
+	logger := logging.New(cfg.LogLevel)
+
 	q := store.New(conn)
 	jwt := auth.NewJWT(cfg.JWTSecret)
 	attachDir := filepath.Join(filepath.Dir(cfg.DBPath), "attachments")
@@ -38,9 +41,11 @@ func main() {
 		Auth:           auth.NewService(q, jwt),
 		Store:          q,
 		Trades:         trades.NewService(q),
+		Logger:         logger,
 		Storage:        storage.NewLocalDisk(attachDir),
 		AttachMaxBytes: cfg.AttachMaxBytes,
 		ImportMaxBytes: cfg.ImportMaxBytes,
 	})
+	logger.Info("tradermemos api listening", "port", cfg.HTTPPort, "db", cfg.DBPath, "log_level", cfg.LogLevel)
 	log.Fatal(s.Echo.Start(":" + cfg.HTTPPort))
 }
