@@ -10,12 +10,12 @@ interface ChartFrameProps {
  * ChartFrame wraps children in a dark-themed container.
  */
 export const chartTheme = {
-	axisColor: "#8b93a7",
-	gridColor: "#2a3140",
-	tooltipBg: "#232936",
-	tooltipBorder: "#2a3140",
+	axisColor: "#8a92a6",
+	gridColor: "#2d313d",
+	tooltipBg: "#2a2d39",
+	tooltipBorder: "#2d313d",
 	tooltipText: "#e6e9ef",
-	cursorFill: "rgba(110, 168, 254, 0.08)",
+	cursorFill: "rgba(79, 165, 255, 0.08)",
 } as const;
 
 export function ChartFrame({ children, className = "" }: ChartFrameProps) {

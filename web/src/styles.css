@@ -2,40 +2,51 @@
 @import "@fontsource-variable/geist/index.css";
 @import "@fontsource-variable/geist-mono/index.css";
 
+/* Remap the Tailwind palette classes used by pnlColor() onto the exact
+   Stonk-sampled semantic colors, so text-emerald-400/text-red-400/text-zinc-400
+   render the same green/red/muted as the CSS-variable tokens below. */
+@theme {
+	--color-emerald-400: #52ca96;
+	--color-red-400: #eb4b68;
+	--color-zinc-400: #8a92a6;
+}
+
 /* ── Design tokens ──────────────────────────────────────────────── */
 :root {
 	color-scheme: dark;
 
-	/* Surfaces — layered navy slate (dark → light: panel, base, raised, hover) */
-	--color-surface-base: #1b202b;
-	--color-surface-panel: #171b24;
-	--color-surface-raised: #232936;
-	--color-surface-hover: #2c3342;
-	--color-border: #2a3140;
+	/* Surfaces — sampled from Stonk Journal v2 live CSS (--bg-main/--bg-panel/--bg-muted/--border) */
+	--color-surface-base: #20222d;
+	--color-surface-panel: #20222d;
+	--color-surface-raised: #2a2d39;
+	--color-surface-hover: #353946;
+	--color-surface-deep: #1a1c24;
+	--color-border: #2d313d;
 
-	/* Text */
-	--color-text: #e8ebf1;
-	--color-text-muted: #8b93a7;
+	/* Text (--text-main/--text-muted/--text-strong) */
+	--color-text: #c8cdd9;
+	--color-text-muted: #8a92a6;
+	--color-text-strong: #ffffff;
 
-	/* Accent */
-	--color-accent: #6ea8fe;
-	--color-accent-subtle: rgba(110, 168, 254, 0.12);
+	/* Accent (--accent-blue) */
+	--color-accent: #4fa5ff;
+	--color-accent-subtle: rgba(79, 165, 255, 0.12);
 
-	/* P&L semantic */
-	--color-pos: #34d399;
-	--color-neg: #f87171;
-	--color-flat: #8b93a7;
-	--color-amber: #fbbf24;
+	/* P&L semantic (--accent-green/--accent-red/--accent-yellow) */
+	--color-pos: #52ca96;
+	--color-neg: #eb4b68;
+	--color-flat: #8a92a6;
+	--color-amber: #eab308;
 
 	/* Tinted fills (pills, banners, calendar cells) */
-	--tint-pos: rgba(52, 211, 153, 0.14);
-	--tint-neg: rgba(248, 113, 113, 0.14);
-	--tint-accent: rgba(110, 168, 254, 0.14);
-	--tint-amber: rgba(251, 191, 36, 0.14);
+	--tint-pos: rgba(82, 202, 150, 0.14);
+	--tint-neg: rgba(235, 75, 104, 0.14);
+	--tint-accent: rgba(79, 165, 255, 0.14);
+	--tint-amber: rgba(234, 179, 8, 0.14);
 
-	/* Radius */
-	--radius-control: 8px;
-	--radius-panel: 12px;
+	/* Radius (Stonk --ui-radius ≈ 7px) */
+	--radius-control: 7px;
+	--radius-panel: 10px;
 
 	/* Motion */
 	--duration-fast: 150ms;

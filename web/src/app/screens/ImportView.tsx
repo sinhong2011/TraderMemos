@@ -443,8 +443,8 @@ function Step3Result({ result, onDone, onImportAnother }: Step3Props) {
 					{result.errors.length > 0 && (
 						<div
 							style={{
-								background: "rgba(248,113,113,0.06)",
-								border: "1px solid rgba(248,113,113,0.2)",
+								background: "rgba(235,75,104,0.06)",
+								border: "1px solid rgba(235,75,104,0.2)",
 								borderRadius: "var(--radius-panel)",
 								padding: "10px 14px",
 							}}

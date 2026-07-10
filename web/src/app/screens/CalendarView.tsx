@@ -42,7 +42,7 @@ function bgOpacity(pnl: number): number {
 
 function dayBg(pnl: number): string {
 	const op = bgOpacity(pnl).toFixed(2);
-	return pnl >= 0 ? `rgba(52, 211, 153, ${op})` : `rgba(248, 113, 113, ${op})`;
+	return pnl >= 0 ? `rgba(82, 202, 150, ${op})` : `rgba(235, 75, 104, ${op})`;
 }
 
 function dayColor(pnl: number): string {

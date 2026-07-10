@@ -108,8 +108,8 @@ function EquityBand({
 						>
 							<defs>
 								<linearGradient id="eq-fill" x1="0" y1="0" x2="0" y2="1">
-									<stop offset="5%" stopColor="#6ea8fe" stopOpacity={0.2} />
-									<stop offset="95%" stopColor="#6ea8fe" stopOpacity={0} />
+									<stop offset="5%" stopColor="#4fa5ff" stopOpacity={0.2} />
+									<stop offset="95%" stopColor="#4fa5ff" stopOpacity={0} />
 								</linearGradient>
 							</defs>
 							<CartesianGrid vertical={false} stroke={chartTheme.gridColor} />
@@ -147,11 +147,11 @@ function EquityBand({
 							<Area
 								type="monotone"
 								dataKey="equity"
-								stroke="#6ea8fe"
+								stroke="#4fa5ff"
 								strokeWidth={1.5}
 								fill="url(#eq-fill)"
 								dot={false}
-								activeDot={{ r: 3, fill: "#6ea8fe" }}
+								activeDot={{ r: 3, fill: "#4fa5ff" }}
 							/>
 						</AreaChart>
 					</ResponsiveContainer>

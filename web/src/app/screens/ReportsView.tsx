@@ -59,8 +59,8 @@ export interface ReportsViewProps {
 // ---------------------------------------------------------------------------
 
 const LOCALE = "en-US";
-const POS_COLOR = "#34d399"; // emerald-400
-const NEG_COLOR = "#f87171"; // red-400
+const POS_COLOR = "#52ca96"; // emerald-400
+const NEG_COLOR = "#eb4b68"; // red-400
 
 // ---------------------------------------------------------------------------
 // Table columns

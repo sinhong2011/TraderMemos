@@ -176,13 +176,13 @@ function TradeHeader({ trade, onBack }: TradeHeaderProps) {
 						style={{
 							background:
 								trade.direction === "long"
-									? "rgba(52,211,153,0.15)"
-									: "rgba(248,113,113,0.15)",
+									? "rgba(82,202,150,0.15)"
+									: "rgba(235,75,104,0.15)",
 							color:
 								trade.direction === "long"
 									? "var(--color-pos)"
 									: "var(--color-neg)",
-							border: `1px solid ${trade.direction === "long" ? "rgba(52,211,153,0.3)" : "rgba(248,113,113,0.3)"}`,
+							border: `1px solid ${trade.direction === "long" ? "rgba(82,202,150,0.3)" : "rgba(235,75,104,0.3)"}`,
 						}}
 					>
 						{trade.direction}
