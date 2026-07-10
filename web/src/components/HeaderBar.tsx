@@ -23,8 +23,8 @@ function SubStat({ label, value }: { label: string; value: string }) {
 				{label}
 			</span>
 			<span
-				className="text-[11px] tabular-nums"
-				style={{ color: "var(--color-text)", fontFamily: "var(--font-mono)" }}
+				className="text-[12px] font-medium tabular-nums"
+				style={{ color: "var(--color-text)" }}
 			>
 				{value}
 			</span>
@@ -61,7 +61,7 @@ export function HeaderBar() {
 			style={{
 				borderBottom: "1px solid var(--color-border)",
 				background: "var(--color-surface-panel)",
-				height: "56px",
+				height: "64px",
 			}}
 		>
 			<button
@@ -81,10 +81,9 @@ export function HeaderBar() {
 			</button>
 
 			{/* Account P&L block */}
-			<div className="flex items-center gap-3">
+			<div className="flex items-center gap-4">
 				<span
-					className={`text-xl font-bold tabular-nums ${pnlColor(stats.netPnl)}`}
-					style={{ fontFamily: "var(--font-mono)" }}
+					className={`text-2xl font-bold tabular-nums tracking-tight ${pnlColor(stats.netPnl)}`}
 				>
 					{fmtSignedMoney(stats.netPnl, currency, LOCALE)}
 				</span>

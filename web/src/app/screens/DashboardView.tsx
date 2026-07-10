@@ -127,6 +127,7 @@ function EquityBand({
 								axisLine={false}
 								tickLine={false}
 								width={72}
+								domain={["auto", "auto"]}
 							/>
 							<Tooltip
 								contentStyle={{
@@ -257,8 +258,7 @@ function StatsStrip({
 						PnL
 					</span>
 					<span
-						className={`text-2xl font-bold tabular-nums ${pnlColor(summary.net_pnl)}`}
-						style={{ fontFamily: "var(--font-mono)" }}
+						className={`text-2xl font-bold tabular-nums tracking-tight ${pnlColor(summary.net_pnl)}`}
 					>
 						{fmtSignedMoney(summary.net_pnl, currency, LOCALE)}
 					</span>

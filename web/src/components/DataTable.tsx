@@ -34,7 +34,7 @@ export function DataTable<T>({ columns, data, onRowClick }: DataTableProps<T>) {
 	const rowVirtualizer = useVirtualizer({
 		count: rows.length,
 		getScrollElement: () => tableContainerRef.current,
-		estimateSize: () => 32,
+		estimateSize: () => 44,
 		overscan: 10,
 	});
 
@@ -51,8 +51,8 @@ export function DataTable<T>({ columns, data, onRowClick }: DataTableProps<T>) {
 			ref={tableContainerRef}
 			className="overflow-auto"
 			style={{
-				fontFamily: "var(--font-mono)",
-				fontSize: "12px",
+				fontFamily: "var(--font-ui)",
+				fontSize: "13px",
 				maxHeight: "100%",
 			}}
 		>
@@ -73,7 +73,7 @@ export function DataTable<T>({ columns, data, onRowClick }: DataTableProps<T>) {
 								return (
 									<th
 										key={header.id}
-										className="px-3 py-2 text-left font-medium select-none"
+										className="px-3 py-2.5 text-left font-medium select-none text-[11px] uppercase tracking-wide"
 										style={{
 											color: "var(--color-text-muted)",
 											borderBottom: "1px solid var(--color-border)",
@@ -142,7 +142,7 @@ export function DataTable<T>({ columns, data, onRowClick }: DataTableProps<T>) {
 								{row.getVisibleCells().map((cell) => (
 									<td
 										key={cell.id}
-										className="px-3 py-1.5"
+										className="px-3 py-3"
 										style={{
 											color: "var(--color-text)",
 											borderBottom: "1px solid var(--color-border)",

@@ -7,11 +7,11 @@
 	color-scheme: dark;
 
 	/* Surfaces — layered navy slate (dark → light: panel, base, raised, hover) */
-	--color-surface-base: #161b26;
-	--color-surface-panel: #10141d;
-	--color-surface-raised: #1e2430;
-	--color-surface-hover: #27303f;
-	--color-border: #262e3d;
+	--color-surface-base: #1b202b;
+	--color-surface-panel: #171b24;
+	--color-surface-raised: #232936;
+	--color-surface-hover: #2c3342;
+	--color-border: #2a3140;
 
 	/* Text */
 	--color-text: #e8ebf1;

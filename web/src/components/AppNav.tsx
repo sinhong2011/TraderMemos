@@ -27,10 +27,10 @@ const ROUTER_ROUTES = [
 const itemBase: React.CSSProperties = {
 	display: "flex",
 	alignItems: "center",
-	gap: "10px",
-	padding: "8px 12px",
+	gap: "12px",
+	padding: "10px 14px",
 	borderRadius: "var(--radius-control)",
-	fontSize: "13px",
+	fontSize: "14px",
 	textDecoration: "none",
 	position: "relative",
 	transition: "background var(--duration-fast), color var(--duration-fast)",
@@ -69,7 +69,7 @@ function QuickAction({
 				(e.currentTarget as HTMLElement).style.background = "transparent";
 			}}
 		>
-			<Icon size={15} strokeWidth={1.5} />
+			<Icon size={16} strokeWidth={1.75} />
 			<span>{label}</span>
 		</button>
 	);
@@ -95,17 +95,17 @@ export function AppNav() {
 		>
 			{/* Wordmark */}
 			<div
-				className="flex items-center gap-2"
-				style={{ padding: "14px 12px", marginBottom: "4px" }}
+				className="flex items-center gap-2.5"
+				style={{ padding: "18px 14px 16px", marginBottom: "2px" }}
 			>
 				<CandlestickChart
-					size={20}
+					size={22}
 					strokeWidth={2}
 					style={{ color: "var(--color-accent)" }}
 				/>
 				<span
 					style={{
-						fontSize: "16px",
+						fontSize: "17px",
 						fontWeight: 700,
 						letterSpacing: "-0.01em",
 						color: "var(--color-text)",
@@ -116,7 +116,7 @@ export function AppNav() {
 			</div>
 
 			{/* Account switcher */}
-			<div style={{ padding: "0 2px", marginBottom: "10px" }}>
+			<div style={{ padding: "0 4px", marginBottom: "14px" }}>
 				<AccountSwitcher />
 			</div>
 
@@ -152,7 +152,7 @@ export function AppNav() {
 						}
 					}}
 				>
-					<Icon size={15} strokeWidth={1.5} />
+					<Icon size={16} strokeWidth={1.75} />
 					<span>{label}</span>
 				</Link>
 			))}

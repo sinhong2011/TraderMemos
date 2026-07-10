@@ -30,7 +30,7 @@ export function Pill({
 				display: "inline-flex",
 				alignItems: "center",
 				gap: 4,
-				padding: "2px 8px",
+				padding: "3px 10px",
 				borderRadius: 999,
 				fontSize: 11,
 				fontWeight: 600,

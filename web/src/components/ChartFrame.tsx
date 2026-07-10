@@ -11,9 +11,9 @@ interface ChartFrameProps {
  */
 export const chartTheme = {
 	axisColor: "#8b93a7",
-	gridColor: "#262e3d",
-	tooltipBg: "#1e2430",
-	tooltipBorder: "#262e3d",
+	gridColor: "#2a3140",
+	tooltipBg: "#232936",
+	tooltipBorder: "#2a3140",
 	tooltipText: "#e6e9ef",
 	cursorFill: "rgba(110, 168, 254, 0.08)",
 } as const;

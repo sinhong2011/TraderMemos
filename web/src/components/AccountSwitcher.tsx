@@ -41,18 +41,28 @@ export function AccountSwitcher() {
 					display: "flex",
 					alignItems: "center",
 					gap: "8px",
-					background: "var(--color-surface-hover)",
+					background: "var(--color-surface-raised)",
 					color: "var(--color-text)",
 					border: "1px solid var(--color-border)",
-					borderRadius: "var(--radius-control)",
-					padding: "6px 10px",
+					borderRadius: "999px",
+					padding: "8px 14px",
 					cursor: "pointer",
-					minWidth: "140px",
+					width: "100%",
 					fontFamily: "var(--font-ui)",
-					fontSize: "12px",
+					fontSize: "13px",
 					transition: "border-color var(--duration-fast)",
 				}}
 			>
+				<span
+					aria-hidden
+					style={{
+						width: 8,
+						height: 8,
+						borderRadius: 999,
+						background: "var(--color-pos)",
+						flexShrink: 0,
+					}}
+				/>
 				<Select.Value>{() => selectedLabel}</Select.Value>
 				<ChevronDown
 					size={12}
