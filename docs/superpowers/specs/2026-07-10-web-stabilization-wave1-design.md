@@ -8,7 +8,9 @@
 
 Make the redesigned web app trustworthy for a daily trading-review session: no crashes, no surprise logouts, no lost journal text, no misleading chart/date rendering. Larger UX moves (command palette, metrics redesign, dashboard bento restructure, toolbox IA, drawer conversion, import UX) are **Wave 2** and out of scope here.
 
-## Scope — five fixes
+## Scope — four fixes
+
+> **Amendment (2026-07-10):** the original item 3 ("nav tooltips render under the Toolbox rail") was withdrawn after visual verification: tooltips paint correctly above the toolbox (`nav` is `z-[2]` vs the content frame's `z-[1]`). The earlier evidence was a hit-testing artifact of `pointer-events-none` tooltips. The two-identical-rails IA concern remains a Wave 2 item.
 
 ### 1. Reports screen crash
 
@@ -28,14 +30,7 @@ The API mints 15-min access / 30-day refresh tokens and exposes `POST /auth/refr
 - Journal draft autosave (`TradeDetailView`): debounce-save the journal form (notes, setup, risk, emotional state, confidence, quality, MAE/MFE) to `localStorage` keyed `tm_draft_trade_<id>`; restore on mount if present (and newer than server data load); clear on successful save. No server API changes.
 - Tests: client unit tests for refresh-retry, single-flight, and refresh-failure logout; TradeDetail test for draft restore/clear.
 
-### 3. Nav tooltip stacking
-
-Main-nav hover tooltips (`AppNav.tsx`, spans at `left-[calc(100%+8px)]`) render underneath the Toolbox rail (verified via `elementFromPoint`), because the nav and toolbox are sibling stacking contexts.
-
-- Give the nav rail a stacking context above the toolbox (e.g., `relative z-10` on the nav aside vs the toolbox's default), or portal the tooltips. Prefer the z-index fix — smallest change.
-- Verify by hover: tooltip fully legible over the toolbox column. Toolbox's own tooltips must still render above the main content.
-
-### 4. One locale, one date format
+### 3. One locale, one date format
 
 Tables hardcode `en-US` (`7/10/2026`) in seven files while native `datetime-local` inputs follow the OS locale (`10/07/2026`).
 
@@ -43,7 +38,7 @@ Tables hardcode `en-US` (`7/10/2026`) in seven files while native `datetime-loca
 - Replace all seven `const LOCALE = "en-US"` copies and the two inline `toLocaleString("en-US", …)` calls in `SettingsView.tsx` with the shared constant, so formatted output agrees with what the native inputs display.
 - Existing unit tests that assert `en-US` strings pin `navigator.language` in test setup so they stay deterministic.
 
-### 5. Equity chart axes (DashboardView)
+### 4. Equity chart axes (DashboardView)
 
 - **Y-axis:** compact currency ticks — drop cents; use `$10.1k`-style compact notation (`Intl.NumberFormat` `notation: "compact"`) so labels fit the 64px gutter without clipping.
 - **X-axis:** humanized day ticks (`Jul 9`) instead of raw ISO slices, and dedupe ticks so a day appears at most once (compute unique-day `ticks` from the series rather than relying on `minTickGap`).
@@ -56,9 +51,9 @@ Tables hardcode `en-US` (`7/10/2026`) in seven files while native `datetime-loca
 
 ## Testing
 
-- `make test-web` (vitest) covers items 1, 2, 4.
+- `make test-web` (vitest) covers items 1, 2, 3.
 - `make e2e` smoke must still pass; add a smoke step that visits `/reports` (it would have caught the crash).
-- Manual verify per `/verify`: drive the live app — visit Reports, hover nav icons, let a token expire (or shorten TTL locally) and confirm silent refresh, check chart axes and date rendering.
+- Manual verify per `/verify`: drive the live app — visit Reports, let a token expire (or shorten TTL locally) and confirm silent refresh, check chart axes and date rendering.
 
 ## Out of scope (Wave 2 backlog)
 
