@@ -121,7 +121,7 @@ export function LoginScreen() {
 				await authApi.register(loginEmail, loginPassword);
 			}
 			const tokens = await authApi.login(loginEmail, loginPassword);
-			signIn(tokens.access_token);
+			signIn(tokens.access_token, tokens.refresh_token);
 		} catch (err) {
 			setError(err instanceof ApiError ? err.message : "Something went wrong");
 		} finally {

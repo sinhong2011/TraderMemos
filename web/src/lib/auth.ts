@@ -1,14 +1,14 @@
 import { create } from "zustand";
-import { getToken, setToken, setUnauthorizedHandler } from "./api/client";
+import { getToken, setTokens, setUnauthorizedHandler } from "./api/client";
 
 interface AuthState {
 	authed: boolean;
-	signIn: (token: string) => void;
+	signIn: (access: string, refresh: string) => void;
 	signOut: () => void;
 }
 
 function signOut() {
-	setToken("");
+	setTokens("", "");
 	useAuth.setState({ authed: false });
 }
 
@@ -19,8 +19,8 @@ setUnauthorizedHandler(signOut);
 // token value; this store only tracks whether we are signed in.
 export const useAuth = create<AuthState>((set) => ({
 	authed: !!getToken(),
-	signIn: (token) => {
-		setToken(token);
+	signIn: (access, refresh) => {
+		setTokens(access, refresh);
 		set({ authed: true });
 	},
 	signOut,
