@@ -10,16 +10,19 @@ The current mark (pen + journal line + ascending bars) is a mashup of competitor
 patterns (TradeZella pen, Tradervue bars) and turns to mud at 16px. It says
 nothing ownable about Signal Terminal.
 
-## Approved concept
+## Approved concept (final, after iteration)
 
-**Monogram T + profit tick.** A sharp geometric **T** (for TraderMemos) built
-from heavy rectangular bars — terminal/mono character feel — in accent violet
-`#a78bfa`. The stem's base kicks up-right into a diagonal profit tick that
-terminates in a profit-green `#4ade80` node with a soft glow
-(`rgba(74,222,128,0.35)`), the "my P&L glows on the grid" moment. Background is
-the `#09090b` void with a subtle dot grid. Signal yellow is excluded (wayfinding
-only, per DESIGN.md). Rejected alternatives: glowing step-equity line, terminal
-cursor, refined pen mark.
+**"The T being typed"** — a glass-white **T** monogram with a detached
+profit-green terminal **block cursor** at cap height, on a violet gradient
+tile (`#b591ff → #8b5cf6 → #5426c9`), rendered Apple-HIG style: top light
+source, extruded T with drop shadow, bottom vignette, film grain, and an
+etched equity **step-line** climbing behind the T to the glowing cursor.
+Green appears only in the cursor (the single signal state). Signal yellow is
+excluded (wayfinding only, per DESIGN.md).
+
+Iteration history: flat violet T + diagonal tick (rejected: lollipop read),
+flat T + cap-height cursor on void (rejected: too flat), P3 simple gradient
+tile (rejected: too simple) → **P4 "steps"** shipped 2026-07-11.
 
 ## Deliverables
 
