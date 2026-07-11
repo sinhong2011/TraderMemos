@@ -532,6 +532,10 @@ function AddFillForm({
 // Journal panel (right column)
 // ---------------------------------------------------------------------------
 
+export function journalDraftKey(tradeId: string): string {
+	return `tm_draft_trade_${tradeId}`;
+}
+
 export interface JournalFormState {
 	notes: string;
 	setup_id: string;
@@ -545,6 +549,7 @@ export interface JournalFormState {
 }
 
 export interface JournalPanelProps {
+	tradeId: string;
 	initialState: JournalFormState;
 	setups: Setup[];
 	customTags: Tag[];
@@ -554,6 +559,7 @@ export interface JournalPanelProps {
 }
 
 export function JournalPanel({
+	tradeId,
 	initialState,
 	setups,
 	customTags,
@@ -582,6 +588,54 @@ export function JournalPanel({
 			prevInitial.current = initialState;
 		}
 	}, [initialState]);
+
+	const [draftRestored, setDraftRestored] = useState(false);
+
+	// Restore an unsaved draft once per trade. Drafts identical to the server
+	// state are stale (already saved) and get dropped instead of restored.
+	// mount-only per trade; the panel is keyed by trade id at the call site
+	// biome-ignore lint/correctness/useExhaustiveDependencies: run once per trade
+	useEffect(() => {
+		try {
+			const raw = localStorage.getItem(journalDraftKey(tradeId));
+			if (!raw) return;
+			const draft = JSON.parse(raw) as { at: number; form: JournalFormState };
+			if (JSON.stringify(draft.form) !== JSON.stringify(initialState)) {
+				setForm(draft.form);
+				setDraftRestored(true);
+			} else {
+				localStorage.removeItem(journalDraftKey(tradeId));
+			}
+		} catch {
+			/* corrupt draft — ignore */
+		}
+	}, [tradeId]);
+
+	// Debounce-persist edits so a session drop can't eat journal text.
+	useEffect(() => {
+		if (form === initialState) return; // untouched (same reference)
+		const t = setTimeout(() => {
+			try {
+				localStorage.setItem(
+					journalDraftKey(tradeId),
+					JSON.stringify({ at: Date.now(), form }),
+				);
+			} catch {
+				/* storage full/unavailable — ignore */
+			}
+		}, 500);
+		return () => clearTimeout(t);
+	}, [form, initialState, tradeId]);
+
+	function discardDraft() {
+		setForm(initialState);
+		setDraftRestored(false);
+		try {
+			localStorage.removeItem(journalDraftKey(tradeId));
+		} catch {
+			/* ignore */
+		}
+	}
 
 	function toggleTag(id: string) {
 		setForm((f) => ({
@@ -616,6 +670,20 @@ export function JournalPanel({
 
 	return (
 		<div className="flex flex-col gap-4 p-4">
+			{draftRestored && (
+				<div className="flex items-center justify-between gap-3 rounded-control border border-border bg-bg-inset px-3 py-2">
+					<span className="text-[11px] text-text-muted">
+						Unsaved draft restored.
+					</span>
+					<button
+						type="button"
+						onClick={discardDraft}
+						className="cursor-pointer text-[11px] text-accent hover:underline"
+					>
+						Discard draft
+					</button>
+				</div>
+			)}
 			{/* Notes */}
 			<div>
 				<label htmlFor="trade-notes" style={labelStyle}>
@@ -1065,6 +1133,7 @@ export function TradeDetailView({
 				<Panel title="Journal">
 					<JournalPanel
 						key={trade.id} // re-mount if trade changes
+						tradeId={trade.id}
 						initialState={journalInitial}
 						setups={setups}
 						customTags={customTags}

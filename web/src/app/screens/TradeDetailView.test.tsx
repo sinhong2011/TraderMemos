@@ -1,6 +1,6 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import type {
 	Execution,
 	Setup,
@@ -8,7 +8,12 @@ import type {
 	TradeAttachment,
 	TradeDetail,
 } from "../../lib/api/types";
-import { TradeDetailView } from "./TradeDetailView";
+import {
+	type JournalFormState,
+	JournalPanel,
+	TradeDetailView,
+	journalDraftKey,
+} from "./TradeDetailView";
 
 // ---------------------------------------------------------------------------
 // Mocks
@@ -246,5 +251,79 @@ describe("TradeDetailView", () => {
 		render(<TradeDetailView {...defaultProps} />);
 		// fmtSignedMoney(747, "USD", "en-US") => "+$747.00"
 		expect(screen.getByText("+$747.00")).toBeInTheDocument();
+	});
+});
+
+const emptyJournal: JournalFormState = {
+	notes: "",
+	setup_id: "",
+	initial_risk: "",
+	emotional_state: "",
+	confidence: "",
+	trade_quality: "",
+	mae: "",
+	mfe: "",
+	tag_ids: [],
+};
+
+function renderJournal(
+	tradeId: string,
+	initial: JournalFormState = emptyJournal,
+) {
+	return render(
+		<JournalPanel
+			tradeId={tradeId}
+			initialState={initial}
+			setups={[]}
+			customTags={[]}
+			mistakeTags={[]}
+			saving={false}
+			onSave={vi.fn()}
+		/>,
+	);
+}
+
+describe("JournalPanel drafts", () => {
+	afterEach(() => localStorage.clear());
+
+	it("restores a differing draft on mount and discards it on request", () => {
+		localStorage.setItem(
+			journalDraftKey("t1"),
+			JSON.stringify({
+				at: Date.now(),
+				form: { ...emptyJournal, notes: "draft note" },
+			}),
+		);
+		renderJournal("t1");
+		expect(screen.getByLabelText("Notes")).toHaveValue("draft note");
+		expect(screen.getByText("Unsaved draft restored.")).toBeInTheDocument();
+		fireEvent.click(screen.getByRole("button", { name: "Discard draft" }));
+		expect(screen.getByLabelText("Notes")).toHaveValue("");
+		expect(localStorage.getItem(journalDraftKey("t1"))).toBeNull();
+	});
+
+	it("drops a stale draft identical to the server state", () => {
+		localStorage.setItem(
+			journalDraftKey("t2"),
+			JSON.stringify({ at: Date.now(), form: emptyJournal }),
+		);
+		renderJournal("t2");
+		expect(
+			screen.queryByText("Unsaved draft restored."),
+		).not.toBeInTheDocument();
+		expect(localStorage.getItem(journalDraftKey("t2"))).toBeNull();
+	});
+
+	it("persists edits to a draft after the debounce window", () => {
+		vi.useFakeTimers();
+		renderJournal("t3");
+		fireEvent.change(screen.getByLabelText("Notes"), {
+			target: { value: "half-written thought" },
+		});
+		vi.advanceTimersByTime(600);
+		const raw = localStorage.getItem(journalDraftKey("t3"));
+		expect(raw).not.toBeNull();
+		expect(JSON.parse(raw!).form.notes).toBe("half-written thought");
+		vi.useRealTimers();
 	});
 });

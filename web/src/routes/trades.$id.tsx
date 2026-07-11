@@ -3,6 +3,7 @@ import {
 	type AddFillInput,
 	type JournalFormState,
 	TradeDetailView,
+	journalDraftKey,
 } from "../app/screens/TradeDetailView";
 import { useToastManager } from "../components/Toast";
 import {
@@ -35,26 +36,37 @@ function TradeDetailPage() {
 	const addFillMutation = useCreateExecutions();
 
 	function handleSave(form: JournalFormState) {
-		patchMutation.mutate({
-			id,
-			body: {
-				notes: form.notes,
-				setup_id: form.setup_id || undefined,
-				initial_risk: form.initial_risk
-					? Number.parseFloat(form.initial_risk)
-					: undefined,
-				emotional_state: form.emotional_state,
-				confidence: form.confidence
-					? Number.parseInt(form.confidence, 10)
-					: undefined,
-				trade_quality: form.trade_quality
-					? Number.parseInt(form.trade_quality, 10)
-					: undefined,
-				mae: form.mae ? Number.parseFloat(form.mae) : undefined,
-				mfe: form.mfe ? Number.parseFloat(form.mfe) : undefined,
-				tag_ids: form.tag_ids,
+		patchMutation.mutate(
+			{
+				id,
+				body: {
+					notes: form.notes,
+					setup_id: form.setup_id || undefined,
+					initial_risk: form.initial_risk
+						? Number.parseFloat(form.initial_risk)
+						: undefined,
+					emotional_state: form.emotional_state,
+					confidence: form.confidence
+						? Number.parseInt(form.confidence, 10)
+						: undefined,
+					trade_quality: form.trade_quality
+						? Number.parseInt(form.trade_quality, 10)
+						: undefined,
+					mae: form.mae ? Number.parseFloat(form.mae) : undefined,
+					mfe: form.mfe ? Number.parseFloat(form.mfe) : undefined,
+					tag_ids: form.tag_ids,
+				},
 			},
-		});
+			{
+				onSuccess: () => {
+					try {
+						localStorage.removeItem(journalDraftKey(id));
+					} catch {
+						/* ignore */
+					}
+				},
+			},
+		);
 	}
 
 	function handleUpload(file: File) {
