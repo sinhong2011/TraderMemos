@@ -69,4 +69,17 @@ describe("ReportsView", () => {
 		render(<ReportsView {...base} dim="symbol" breakdown={[]} />);
 		expect(screen.getByText(/No .*data|No data/i)).toBeInTheDocument();
 	});
+
+	it("renders the summary metrics grid", () => {
+		render(
+			<ReportsView
+				{...base}
+				dim="symbol"
+				breakdown={[grp("AAPL", 200)]}
+				summary={grp("all", 60).summary}
+			/>,
+		);
+		expect(screen.getByText("Profit Factor")).toBeInTheDocument();
+		expect(screen.getByText("Expectancy")).toBeInTheDocument();
+	});
 });

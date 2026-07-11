@@ -14,6 +14,7 @@ import { DataTable } from "../../components/DataTable";
 import { EmptyState } from "../../components/EmptyState";
 import { Panel } from "../../components/Panel";
 import { Skeleton } from "../../components/Skeleton";
+import { StatCard } from "../../components/StatCard";
 import { pnlColor } from "../../components/theme-tokens";
 import type { BreakGroup, EquityCurve, RSummary, Summary } from "../../lib/api/types";
 import { fmtMoney, fmtPct, fmtSignedMoney } from "../../lib/format";
