@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import { RouteErrorPanel } from "./components/RouteErrorPanel";
 import { I18nProvider } from "./i18n";
 import { routeTree } from "./routeTree.gen";
 import "./styles.css";
@@ -15,7 +16,10 @@ const queryClient = new QueryClient({
 	},
 });
 
-const router = createRouter({ routeTree });
+const router = createRouter({
+	routeTree,
+	defaultErrorComponent: ({ error }) => <RouteErrorPanel error={error} />,
+});
 
 declare module "@tanstack/react-router" {
 	interface Register {
