@@ -316,14 +316,50 @@ describe("JournalPanel drafts", () => {
 
 	it("persists edits to a draft after the debounce window", () => {
 		vi.useFakeTimers();
-		renderJournal("t3");
-		fireEvent.change(screen.getByLabelText("Notes"), {
-			target: { value: "half-written thought" },
-		});
-		vi.advanceTimersByTime(600);
-		const raw = localStorage.getItem(journalDraftKey("t3"));
-		expect(raw).not.toBeNull();
-		expect(JSON.parse(raw!).form.notes).toBe("half-written thought");
-		vi.useRealTimers();
+		try {
+			renderJournal("t3");
+			fireEvent.change(screen.getByLabelText("Notes"), {
+				target: { value: "half-written thought" },
+			});
+			expect(localStorage.getItem(journalDraftKey("t3"))).toBeNull();
+			vi.advanceTimersByTime(600);
+			const raw = localStorage.getItem(journalDraftKey("t3"));
+			expect(raw).not.toBeNull();
+			expect(JSON.parse(raw!).form.notes).toBe("half-written thought");
+		} finally {
+			vi.useRealTimers();
+		}
+	});
+
+	it("does not write a draft when the form is untouched across re-renders", () => {
+		vi.useFakeTimers();
+		try {
+			const { rerender } = render(
+				<JournalPanel
+					tradeId="t4"
+					initialState={{ ...emptyJournal }}
+					setups={[]}
+					customTags={[]}
+					mistakeTags={[]}
+					saving={false}
+					onSave={vi.fn()}
+				/>,
+			);
+			rerender(
+				<JournalPanel
+					tradeId="t4"
+					initialState={{ ...emptyJournal }}
+					setups={[]}
+					customTags={[]}
+					mistakeTags={[]}
+					saving={false}
+					onSave={vi.fn()}
+				/>,
+			);
+			vi.advanceTimersByTime(600);
+			expect(localStorage.getItem(journalDraftKey("t4"))).toBeNull();
+		} finally {
+			vi.useRealTimers();
+		}
 	});
 });

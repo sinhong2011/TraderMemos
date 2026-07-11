@@ -613,7 +613,7 @@ export function JournalPanel({
 
 	// Debounce-persist edits so a session drop can't eat journal text.
 	useEffect(() => {
-		if (form === initialState) return; // untouched (same reference)
+		if (JSON.stringify(form) === JSON.stringify(initialState)) return; // untouched
 		const t = setTimeout(() => {
 			try {
 				localStorage.setItem(
