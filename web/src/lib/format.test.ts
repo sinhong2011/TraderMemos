@@ -1,8 +1,11 @@
+import { i18n } from "@lingui/core";
 import { describe, expect, it } from "vitest";
 import {
 	fmtDateShort,
+	fmtDateTime,
 	fmtDuration,
 	fmtMoney,
+	fmtMoneyCompact,
 	fmtPct,
 	fmtRecord,
 	fmtSignedMoney,
@@ -11,6 +14,9 @@ import {
 describe("formatters", () => {
 	it("formats money by locale + currency", () => {
 		expect(fmtMoney(4182, "USD", "en-US")).toBe("$4,182.00");
+	});
+	it("formats compact money for chart axes", () => {
+		expect(fmtMoneyCompact(11790, "USD", "en-US")).toBe("$11.8K");
 	});
 	it("formats signed money", () => {
 		expect(fmtSignedMoney(198, "USD", "en-US")).toBe("+$198.00");
@@ -36,9 +42,33 @@ describe("fmtDuration", () => {
 });
 
 describe("fmtDateShort", () => {
-	it("formats M/D/YYYY", () => {
+	it("formats M/D/YYYY in the default locale", () => {
 		expect(fmtDateShort("2026-07-02T14:30:00Z")).toMatch(/^7\/[12]\/2026$/);
 		expect(fmtDateShort(null)).toBe("-");
+	});
+
+	it("follows the active app locale", () => {
+		i18n.load("ja", {});
+		i18n.activate("ja");
+		try {
+			// Noon local time avoids UTC/local day-boundary flakiness.
+			expect(fmtDateShort("2026-07-09T12:00:00")).toBe("2026/7/9");
+		} finally {
+			i18n.load("en", {});
+			i18n.activate("en");
+		}
+	});
+});
+
+describe("fmtDateTime", () => {
+	it("formats ISO timestamps for display", () => {
+		const formatted = fmtDateTime("2026-07-10T15:19:46.000Z", "en-US");
+		expect(formatted).toMatch(/Jul 10, 2026/);
+		expect(formatted).not.toContain("T15:19");
+	});
+
+	it("formats date-only strings without time", () => {
+		expect(fmtDateTime("2026-01-02", "en-US")).toBe("Jan 2, 2026");
 	});
 });
 

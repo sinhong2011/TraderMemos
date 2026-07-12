@@ -1,7 +1,23 @@
+import { intlLocale } from "./locale";
+
 export function fmtMoney(v: number, currency: string, locale: string): string {
 	return new Intl.NumberFormat(locale, { style: "currency", currency }).format(
 		v,
 	);
+}
+
+/** Compact axis labels — avoids clipping `$` in narrow Recharts gutters. */
+export function fmtMoneyCompact(
+	v: number,
+	currency: string,
+	locale: string,
+): string {
+	return new Intl.NumberFormat(locale, {
+		style: "currency",
+		currency,
+		notation: "compact",
+		maximumFractionDigits: 1,
+	}).format(v);
 }
 export function fmtSignedMoney(
 	v: number,
@@ -27,8 +43,33 @@ export function fmtDuration(secs: number | null | undefined): string {
 
 export function fmtDateShort(iso: string | null): string {
 	if (!iso) return "-";
+	return new Date(iso).toLocaleDateString(intlLocale());
+}
+
+/** Human-readable date/time for modals and detail views. Falls back to raw string when unparseable. */
+export function fmtDateTime(
+	iso: string | null | undefined,
+	locale?: string,
+): string {
+	if (!iso) return "—";
 	const d = new Date(iso);
-	return `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`;
+	if (Number.isNaN(d.getTime())) return iso;
+	const loc = locale ?? intlLocale();
+	const hasTime = /T|\d:\d/.test(iso);
+	if (!hasTime) {
+		return d.toLocaleDateString(loc, {
+			month: "short",
+			day: "numeric",
+			year: "numeric",
+		});
+	}
+	return d.toLocaleString(loc, {
+		month: "short",
+		day: "numeric",
+		year: "numeric",
+		hour: "2-digit",
+		minute: "2-digit",
+	});
 }
 
 export function fmtRecord(wins: number, losses: number): string {
