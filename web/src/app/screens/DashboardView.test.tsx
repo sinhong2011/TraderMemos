@@ -5,6 +5,7 @@ import {
 	useReactTable,
 } from "@tanstack/react-table";
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import type { Summary, Trade } from "../../lib/api/types";
 import { DashboardView } from "./DashboardView";
@@ -118,17 +119,20 @@ const BASE = {
 	accounts: [],
 	selectedAccountId: undefined,
 	onSelectTrade: vi.fn(),
+	accountFunded: false,
+	onImport: vi.fn(),
+	onNewTrade: vi.fn(),
 };
 
 describe("DashboardView", () => {
 	it("renders the stats strip from the summary", () => {
 		render(<DashboardView {...BASE} />);
-		expect(screen.getByText(/WINS/)).toBeInTheDocument();
-		expect(screen.getByText(/LOSSES/)).toBeInTheDocument();
-		expect(screen.getByText(/AVG W/)).toBeInTheDocument();
-		expect(screen.getByText(/AVG L/)).toBeInTheDocument();
-		expect(screen.getByText("PnL")).toBeInTheDocument();
-		expect(screen.getByText("-$61.79")).toBeInTheDocument();
+		expect(screen.getByText("WINS")).toBeInTheDocument();
+		expect(screen.getByText("LOSSES")).toBeInTheDocument();
+		expect(screen.getByText("AVG W")).toBeInTheDocument();
+		expect(screen.getByText("AVG L")).toBeInTheDocument();
+		expect(screen.getByText(/Gross/)).toBeInTheDocument();
+		expect(screen.getByText(/-\$61\.79/)).toBeInTheDocument();
 	});
 
 	it("renders the trades table with the loaded footer", () => {
@@ -168,7 +172,7 @@ describe("DashboardView", () => {
 		expect(screen.queryByText("200%")).toBeNull();
 	});
 
-	it("shows the empty state with no data", () => {
+	it("shows the empty state with onboarding actions", () => {
 		render(
 			<DashboardView
 				{...BASE}
@@ -178,5 +182,49 @@ describe("DashboardView", () => {
 			/>,
 		);
 		expect(screen.getByText("No trades yet")).toBeInTheDocument();
+		expect(
+			screen.getByText(
+				/Import broker history or log your first trade to start tracking performance/i,
+			),
+		).toBeInTheDocument();
+		expect(screen.getByRole("button", { name: /import csv/i })).toBeInTheDocument();
+		expect(screen.getByRole("button", { name: /log trade/i })).toBeInTheDocument();
+	});
+
+	it("shows funded-account hint when account has cash", () => {
+		render(
+			<DashboardView
+				{...BASE}
+				summary={{ ...SUMMARY, total_trades: 0 }}
+				trades={[]}
+				equityPoints={[]}
+				accountFunded
+			/>,
+		);
+		expect(
+			screen.getByText(
+				/Account funded — import history or log your first trade to see P&L light up here/i,
+			),
+		).toBeInTheDocument();
+	});
+
+	it("wires empty-state actions", async () => {
+		const user = userEvent.setup();
+		const onImport = vi.fn();
+		const onNewTrade = vi.fn();
+		render(
+			<DashboardView
+				{...BASE}
+				summary={{ ...SUMMARY, total_trades: 0 }}
+				trades={[]}
+				equityPoints={[]}
+				onImport={onImport}
+				onNewTrade={onNewTrade}
+			/>,
+		);
+		await user.click(screen.getByRole("button", { name: /import csv/i }));
+		await user.click(screen.getByRole("button", { name: /log trade/i }));
+		expect(onImport).toHaveBeenCalledOnce();
+		expect(onNewTrade).toHaveBeenCalledOnce();
 	});
 });

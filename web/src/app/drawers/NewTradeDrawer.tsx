@@ -4,6 +4,9 @@ import { z } from "zod";
 import { Modal, ModalBanner } from "../../components/Modal";
 import { Pill } from "../../components/Pill";
 import { SegmentedControl } from "../../components/SegmentedControl";
+import { SignalDatePicker } from "../../components/SignalDatePicker";
+import { SignalField } from "../../components/SignalField";
+import { SignalInput } from "../../components/SignalInput";
 import { SignalSelect } from "../../components/SignalSelect";
 import { useToastManager } from "../../components/Toast";
 import { attachmentsApi } from "../../lib/api/attachments";
@@ -63,7 +66,7 @@ const rowSchema = z.object({
 });
 
 const labelClass =
-	"mb-1 block font-mono text-[10px] font-medium uppercase tracking-widest text-text-dim";
+	"mb-1 block text-[10px] font-medium uppercase tracking-widest text-text-dim";
 
 const inputClass =
 	"w-full rounded-control border border-border bg-bg-inset px-2.5 py-2 text-xs text-text outline-none placeholder:text-text-dim";
@@ -426,13 +429,15 @@ export function NewTradeDrawer() {
 			close();
 		} catch (e) {
 			if (e instanceof ExecutionBatchError) {
-				setError(
-					e.failures
-						.map((f) => `Row ${f.index + 1} (${f.accountId}): ${f.message}`)
-						.join("; "),
-				);
+				const message = e.failures
+					.map((f) => `Row ${f.index + 1} (${f.accountId}): ${f.message}`)
+					.join("; ");
+				setError(message);
+				toast.add({ title: "Could not log trade", description: message });
 			} else {
-				setError(e instanceof Error ? e.message : "Save failed");
+				const message = e instanceof Error ? e.message : "Save failed";
+				setError(message);
+				toast.add({ title: "Could not log trade", description: message });
 			}
 		}
 	}
@@ -589,7 +594,7 @@ export function NewTradeDrawer() {
 								onValueChange={setAccountId}
 								options={accounts.map((a) => ({ value: a.id, label: a.name }))}
 								ariaLabel="Account"
-								triggerClassName="h-9 font-mono text-[12px]"
+								triggerClassName="h-9 text-[12px]"
 							/>
 						</div>
 						<div>
@@ -602,7 +607,7 @@ export function NewTradeDrawer() {
 								onValueChange={setMarket}
 								options={MARKETS}
 								ariaLabel="Market"
-								triggerClassName="h-9 font-mono text-[12px]"
+								triggerClassName="h-9 text-[12px]"
 							/>
 						</div>
 						<div>
@@ -675,14 +680,14 @@ export function NewTradeDrawer() {
 					</div>
 
 					{initialRisk != null && (
-						<p className="font-mono text-[10px] text-text-muted">
+						<p className="text-[10px] text-text-muted">
 							Planned risk: ${initialRisk.toFixed(2)}
 						</p>
 					)}
 
 					<div className="flex flex-col gap-2">
 						<div
-							className="grid gap-2 font-mono text-[10px] font-medium uppercase tracking-widest text-text-dim"
+							className="grid gap-2 text-[10px] font-medium uppercase tracking-widest text-text-dim"
 							style={{ gridTemplateColumns: "72px 1fr 80px 90px 72px 28px" }}
 						>
 							<span>Action</span>
@@ -793,7 +798,7 @@ export function NewTradeDrawer() {
 								...setups.map((s) => ({ value: s.id, label: s.name })),
 							]}
 							ariaLabel="Setup"
-							triggerClassName="h-9 font-mono text-[12px]"
+							triggerClassName="h-9 text-[12px]"
 						/>
 					</div>
 					<div>
@@ -809,7 +814,7 @@ export function NewTradeDrawer() {
 								...EMOTIONAL_STATES.map((s) => ({ value: s, label: s })),
 							]}
 							ariaLabel="Emotional state"
-							triggerClassName="h-9 font-mono text-[12px]"
+							triggerClassName="h-9 text-[12px]"
 						/>
 					</div>
 					{regularTags.length > 0 && (
@@ -934,44 +939,32 @@ export function NewTradeDrawer() {
 						price-based.
 					</p>
 					<div className="grid grid-cols-2 gap-3">
-						<div>
-							<label className={labelClass} htmlFor="nt-div-amt">
-								Amount ({currency})
-							</label>
-							<input
+						<SignalField label={`Amount (${currency})`} htmlFor="nt-div-amt">
+							<SignalInput
 								id="nt-div-amt"
 								inputMode="decimal"
 								value={dividendAmount}
 								onChange={(e) => setDividendAmount(e.target.value)}
 								placeholder="0.00"
-								className={inputClass}
 							/>
-						</div>
-						<div>
-							<label className={labelClass} htmlFor="nt-div-date">
-								Date
-							</label>
-							<input
+						</SignalField>
+						<SignalField label="Date">
+							<SignalDatePicker
 								id="nt-div-date"
-								type="date"
+								aria-label="Date"
 								value={dividendDate}
-								onChange={(e) => setDividendDate(e.target.value)}
-								className={inputClass}
+								onChange={setDividendDate}
 							/>
-						</div>
+						</SignalField>
 					</div>
-					<div>
-						<label className={labelClass} htmlFor="nt-div-note">
-							Note
-						</label>
-						<input
+					<SignalField label="Note" htmlFor="nt-div-note">
+						<SignalInput
 							id="nt-div-note"
 							value={dividendNote}
 							onChange={(e) => setDividendNote(e.target.value)}
 							placeholder="Optional"
-							className={inputClass}
 						/>
-					</div>
+					</SignalField>
 				</div>
 			)}
 

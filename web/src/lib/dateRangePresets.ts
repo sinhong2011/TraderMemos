@@ -1,6 +1,16 @@
 import { normalizeFilterDate } from "./filters";
+import { intlLocale } from "./locale";
 
 export type DateRangePreset = "7d" | "30d" | "90d" | "month" | "all" | "custom";
+
+export const PRESET_LABELS: Record<DateRangePreset, string> = {
+	"7d": "Last 7 days",
+	"30d": "Last 30 days",
+	"90d": "Last 90 days",
+	month: "This month",
+	all: "All time",
+	custom: "Custom range",
+};
 
 /** Calendar date in the user's local timezone (YYYY-MM-DD). */
 export function localDateString(d: Date): string {
@@ -80,4 +90,43 @@ export function presetFromRange(
 	if (fromDay === monthStart) return "month";
 
 	return "custom";
+}
+
+/** Parse filter ISO to local calendar date (no time shift). */
+export function parseFilterDay(iso?: string): Date | undefined {
+	const day = datePart(iso);
+	if (!day) return undefined;
+	const [y, m, d] = day.split("-").map(Number);
+	return new Date(y, m - 1, d);
+}
+
+/** Human-readable label for the header date trigger. */
+export function formatRangeLabel(
+	from?: string,
+	to?: string,
+	now = new Date(),
+): string {
+	const preset = presetFromRange(from, to, now);
+	if (preset !== "custom") return PRESET_LABELS[preset];
+
+	const fromDay = datePart(from);
+	const toDay = datePart(to);
+	if (!fromDay && !toDay) return PRESET_LABELS.all;
+	if (fromDay && toDay) {
+		const fmt = (d: string) => {
+			const [y, m, day] = d.split("-").map(Number);
+			return new Date(y, m - 1, day).toLocaleDateString(intlLocale(), {
+				month: "short",
+				day: "numeric",
+				...(fromDay.slice(0, 4) !== toDay.slice(0, 4)
+					? { year: "numeric" }
+					: {}),
+			});
+		};
+		const left = fmt(fromDay);
+		const right = fmt(toDay);
+		if (fromDay === toDay) return left;
+		return `${left} – ${right}`;
+	}
+	return PRESET_LABELS.custom;
 }

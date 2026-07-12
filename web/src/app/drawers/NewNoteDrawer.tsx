@@ -1,9 +1,14 @@
+import { useForm } from "@tanstack/react-form";
 import { useEffect, useState } from "react";
 import { Modal } from "../../components/Modal";
+import { SignalDatePicker } from "../../components/SignalDatePicker";
+import { fieldError, SignalField } from "../../components/SignalField";
+import { SignalInput, SignalTextarea } from "../../components/SignalInput";
 import { useToastManager } from "../../components/Toast";
 import { notesApi } from "../../lib/api/notes";
 import { settingsApi } from "../../lib/api/settings";
 import { useUI } from "../../lib/ui";
+import { signalLabelClass } from "../../components/signal-field-styles";
 
 function nowLocalDate(): string {
 	const d = new Date();
@@ -11,28 +16,52 @@ function nowLocalDate(): string {
 	return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
-const inputClass =
-	"w-full rounded-control border border-border bg-bg-inset px-2.5 py-2 text-xs text-text outline-none placeholder:text-text-dim";
-
-const labelClass =
-	"mb-1.5 block font-mono text-[10px] font-medium uppercase tracking-widest text-text-dim";
-
 export function NewNoteDrawer() {
 	const open = useUI((s) => s.modal === "new-note");
 	const closeModal = useUI((s) => s.closeModal);
 	const toast = useToastManager();
 
-	const [occurredAt, setOccurredAt] = useState(nowLocalDate());
-	const [title, setTitle] = useState("");
-	const [body, setBody] = useState("");
 	const [checklist, setChecklist] = useState<string[]>([]);
 	const [checked, setChecked] = useState<Record<string, boolean>>({});
 	const [saving, setSaving] = useState(false);
 
+	const form = useForm({
+		defaultValues: {
+			occurredAt: nowLocalDate(),
+			title: "",
+			body: "",
+		},
+		onSubmit: async ({ value }) => {
+			const trimmed = value.body.trim();
+			if (!trimmed) return;
+			setSaving(true);
+			try {
+				const checklistBlock =
+					checklist.length > 0
+						? `\n\nChecklist:\n${checklist
+								.map((item) => `- [${checked[item] ? "x" : " "}] ${item}`)
+								.join("\n")}`
+						: "";
+				const note = await notesApi.create({
+					occurred_at: value.occurredAt,
+					title: value.title.trim() || "Untitled note",
+					body: `${trimmed}${checklistBlock}`,
+				});
+				toast.add({ title: "Note saved", description: note.title });
+				close();
+			} catch (e) {
+				toast.add({
+					title: "Could not save note",
+					description: e instanceof Error ? e.message : "Try again",
+				});
+			} finally {
+				setSaving(false);
+			}
+		},
+	});
+
 	function reset() {
-		setOccurredAt(nowLocalDate());
-		setTitle("");
-		setBody("");
+		form.reset();
 		setChecked({});
 	}
 
@@ -48,34 +77,6 @@ export function NewNoteDrawer() {
 			setChecklist(t.items ?? []);
 		});
 	}, [open]);
-
-	async function handleSave() {
-		const trimmed = body.trim();
-		if (!trimmed) return;
-		setSaving(true);
-		try {
-			const checklistBlock =
-				checklist.length > 0
-					? `\n\nChecklist:\n${checklist
-							.map((item) => `- [${checked[item] ? "x" : " "}] ${item}`)
-							.join("\n")}`
-					: "";
-			const note = await notesApi.create({
-				occurred_at: occurredAt,
-				title: title.trim() || "Untitled note",
-				body: `${trimmed}${checklistBlock}`,
-			});
-			toast.add({ title: "Note saved", description: note.title });
-			close();
-		} catch (e) {
-			toast.add({
-				title: "Could not save note",
-				description: e instanceof Error ? e.message : "Try again",
-			});
-		} finally {
-			setSaving(false);
-		}
-	}
 
 	return (
 		<Modal
@@ -94,8 +95,8 @@ export function NewNoteDrawer() {
 					</button>
 					<button
 						type="button"
-						onClick={() => void handleSave()}
-						disabled={!body.trim() || saving}
+						onClick={() => void form.handleSubmit()}
+						disabled={!form.state.values.body.trim() || saving}
 						className="cursor-pointer rounded-control bg-accent px-3 py-1.5 text-xs font-medium text-bg disabled:cursor-not-allowed disabled:opacity-40"
 					>
 						{saving ? "Saving…" : "Save note"}
@@ -103,34 +104,44 @@ export function NewNoteDrawer() {
 				</div>
 			}
 		>
-			<div className="flex flex-col gap-4">
-				<div>
-					<label className={labelClass} htmlFor="note-date">
-						Date
-					</label>
-					<input
-						id="note-date"
-						type="date"
-						value={occurredAt}
-						onChange={(e) => setOccurredAt(e.target.value)}
-						className={inputClass}
-					/>
-				</div>
-				<div>
-					<label className={labelClass} htmlFor="note-title">
-						Title
-					</label>
-					<input
-						id="note-title"
-						value={title}
-						onChange={(e) => setTitle(e.target.value)}
-						placeholder="Session recap, market read, discipline check…"
-						className={inputClass}
-					/>
-				</div>
+			<form
+				className="flex flex-col gap-4"
+				onSubmit={(e) => {
+					e.preventDefault();
+					void form.handleSubmit();
+				}}
+			>
+				<form.Field name="occurredAt">
+					{(field) => (
+						<SignalField label="Date" htmlFor="note-date">
+							<SignalDatePicker
+								id="note-date"
+								aria-label="Date"
+								value={field.state.value}
+								onChange={field.handleChange}
+								onBlur={field.handleBlur}
+							/>
+						</SignalField>
+					)}
+				</form.Field>
+
+				<form.Field name="title">
+					{(field) => (
+						<SignalField label="Title" htmlFor="note-title">
+							<SignalInput
+								id="note-title"
+								value={field.state.value}
+								onBlur={field.handleBlur}
+								onChange={(e) => field.handleChange(e.target.value)}
+								placeholder="Session recap, market read, discipline check…"
+							/>
+						</SignalField>
+					)}
+				</form.Field>
+
 				{checklist.length > 0 && (
 					<div>
-						<span className={labelClass}>Daily checklist</span>
+						<span className={signalLabelClass}>Daily checklist</span>
 						<div className="flex flex-col gap-1.5 rounded-panel border border-border bg-bg-inset px-3 py-2">
 							{checklist.map((item) => (
 								<label
@@ -151,20 +162,32 @@ export function NewNoteDrawer() {
 						</div>
 					</div>
 				)}
-				<div>
-					<label className={labelClass} htmlFor="note-body">
-						Note
-					</label>
-					<textarea
-						id="note-body"
-						value={body}
-						onChange={(e) => setBody(e.target.value)}
-						placeholder="What happened today? What will you do differently?"
-						rows={10}
-						className={`${inputClass} resize-y`}
-					/>
-				</div>
-			</div>
+
+				<form.Field
+					name="body"
+					validators={{
+						onSubmit: ({ value }) =>
+							!value.trim() ? "Note body is required." : undefined,
+					}}
+				>
+					{(field) => (
+						<SignalField
+							label="Note"
+							htmlFor="note-body"
+							error={fieldError(field.state.meta.errors)}
+						>
+							<SignalTextarea
+								id="note-body"
+								value={field.state.value}
+								onBlur={field.handleBlur}
+								onChange={(e) => field.handleChange(e.target.value)}
+								placeholder="What happened today? What will you do differently?"
+								rows={10}
+							/>
+						</SignalField>
+					)}
+				</form.Field>
+			</form>
 		</Modal>
 	);
 }

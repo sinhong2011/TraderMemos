@@ -216,17 +216,62 @@ export interface RowError {
 }
 
 // ImportPreview is the response from POST /imports
+export interface JournalTradePreview {
+	row: number;
+	symbol: string;
+	market: string;
+	instrument_type?: string;
+	option_right?: string;
+	side: string;
+	status?: string;
+	qty: number;
+	entry: number;
+	exit: number;
+	entry_total?: number;
+	exit_total?: number;
+	return_usd: number;
+	return_pct?: number;
+	dividends?: number;
+	open_date: string;
+	close_date: string;
+	tags?: string;
+	setup?: string;
+	confidence?: string;
+	target?: string;
+	stop?: string;
+	notes?: string;
+}
+
+export interface JournalPreviewSummary {
+	row_count: number;
+	trade_count: number;
+	execution_count: number;
+	net_pnl: number;
+	stock_trades: number;
+	option_trades: number;
+	error_count: number;
+}
+
 export interface ImportPreview {
 	import_batch_id: string;
 	headers: string[];
 	sample_rows: Record<string, string>[];
 	suggested_mapping: Record<string, string>;
+	/** "journal_trades" for closed-trade journal CSVs; "executions" for fill CSVs */
+	format?: "journal_trades" | "executions";
+	row_count?: number;
+	journal_summary?: JournalPreviewSummary;
+	sample_trades?: JournalTradePreview[];
 }
 
 // ImportResult is the response from POST /imports/:id/commit
 export interface ImportResult {
 	inserted: number;
 	skipped: number;
+	annotated?: number;
+	/** Journal imports: closed round-trip count (fills = inserted) */
+	trades?: number;
+	format?: string;
 	errors: RowError[];
 }
 

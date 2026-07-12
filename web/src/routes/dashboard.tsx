@@ -1,10 +1,13 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { DashboardView } from "../app/screens/DashboardView";
 import { useFilterParams, useFilters } from "../lib/filters";
+import { computeHeaderStats } from "../lib/headerStats";
 import { useAccounts } from "../lib/hooks/useAccounts";
 import { useEquityCurve, useSummary } from "../lib/hooks/useAnalytics";
+import { useCash } from "../lib/hooks/useCash";
 import { useTrades } from "../lib/hooks/useTrades";
 import { filterTradesByStatus } from "../lib/tradeFilters";
+import { useUI } from "../lib/ui";
 
 export const Route = createFileRoute("/dashboard")({
 	component: DashboardPage,
@@ -16,11 +19,13 @@ function DashboardPage() {
 	const tradeStatusFilter = useFilters((s) => s.tradeStatus);
 	const toggleTradeStatus = useFilters((s) => s.toggleTradeStatus);
 	const navigate = useNavigate();
+	const openModal = useUI((s) => s.openModal);
 
 	const summaryQ = useSummary(filters);
 	const equityQ = useEquityCurve(filters);
 	const tradesQ = useTrades(filters);
 	const accountsQ = useAccounts();
+	const cashQ = useCash(filters);
 
 	const trades = filterTradesByStatus(
 		[...(tradesQ.data ?? [])].sort(
@@ -29,6 +34,14 @@ function DashboardPage() {
 		),
 		tradeStatusFilter,
 	);
+
+	const headerStats = computeHeaderStats({
+		accounts: accountsQ.data ?? [],
+		accountId,
+		cashTx: cashQ.data ?? [],
+		summary: summaryQ.data,
+		trades: tradesQ.data ?? [],
+	});
 
 	return (
 		<DashboardView
@@ -48,6 +61,9 @@ function DashboardPage() {
 			onSelectTrade={(t) =>
 				navigate({ to: "/trades/$id", params: { id: t.id } })
 			}
+			accountFunded={headerStats.cash > 0}
+			onImport={() => navigate({ to: "/import" })}
+			onNewTrade={() => openModal("new-trade")}
 		/>
 	);
 }

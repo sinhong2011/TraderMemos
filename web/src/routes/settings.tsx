@@ -1,11 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
 import { SettingsView } from "../app/screens/SettingsView";
-import { i18n, loadLocale } from "../i18n";
 import { settingsApi } from "../lib/api/settings";
 import {
 	useAccounts,
+	useClearAccountTrades,
 	useCreateAccount,
 	useDeleteAccount,
 } from "../lib/hooks/useAccounts";
@@ -23,13 +22,13 @@ export const Route = createFileRoute("/settings")({
 });
 
 function SettingsPage() {
-	const [currentLocale, setCurrentLocale] = useState(() => i18n.locale || "en");
 	const qc = useQueryClient();
 
 	// Accounts
 	const accountsQ = useAccounts();
 	const createAccountM = useCreateAccount();
 	const deleteAccountM = useDeleteAccount();
+	const clearAccountTradesM = useClearAccountTrades();
 
 	// Cash - list all cash for selected accounts (no filter = empty filters)
 	const cashQ = useCash({});
@@ -65,10 +64,6 @@ function SettingsPage() {
 		},
 	});
 
-	function handleLocaleChange(locale: string) {
-		loadLocale(locale);
-		setCurrentLocale(locale);
-	}
 
 	return (
 		<SettingsView
@@ -80,6 +75,9 @@ function SettingsPage() {
 			}}
 			onDeleteAccount={async (id) => {
 				await deleteAccountM.mutateAsync(id);
+			}}
+			onClearAccountTrades={async (id) => {
+				await clearAccountTradesM.mutateAsync(id);
 			}}
 			cashTransactions={cashQ.data ?? []}
 			cashLoading={cashQ.isLoading}
@@ -122,8 +120,6 @@ function SettingsPage() {
 			onSaveChecklist={async (items) => {
 				await saveChecklistM.mutateAsync(items);
 			}}
-			currentLocale={currentLocale}
-			onLocaleChange={handleLocaleChange}
 		/>
 	);
 }

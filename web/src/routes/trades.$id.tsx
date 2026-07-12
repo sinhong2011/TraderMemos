@@ -64,6 +64,16 @@ function TradeDetailPage() {
 					} catch {
 						/* ignore */
 					}
+					toast.add({
+						title: "Journal saved",
+						description: "Trade notes and metadata updated.",
+					});
+				},
+				onError: (err) => {
+					toast.add({
+						title: "Could not save journal",
+						description: err instanceof Error ? err.message : "Request failed",
+					});
 				},
 			},
 		);
@@ -72,11 +82,36 @@ function TradeDetailPage() {
 	function handleUpload(file: File) {
 		const fd = new FormData();
 		fd.append("file", file);
-		uploadMutation.mutate(fd);
+		uploadMutation.mutate(fd, {
+			onSuccess: () => {
+				toast.add({
+					title: "Screenshot uploaded",
+					description: file.name,
+				});
+			},
+			onError: (err) => {
+				toast.add({
+					title: "Upload failed",
+					description: err instanceof Error ? err.message : "Request failed",
+				});
+			},
+		});
 	}
 
 	function handleDeleteAttachment(attachmentId: string) {
-		deleteMutation.mutate(attachmentId);
+		deleteMutation.mutate(attachmentId, {
+			onSuccess: () => {
+				toast.add({
+					title: "Screenshot removed",
+				});
+			},
+			onError: (err) => {
+				toast.add({
+					title: "Could not remove screenshot",
+					description: err instanceof Error ? err.message : "Request failed",
+				});
+			},
+		});
 	}
 
 	async function handleAddFill(input: AddFillInput) {

@@ -1,15 +1,16 @@
 import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
+import { Card } from "../../components/Card";
 import { DataTable } from "../../components/DataTable";
 import { EmptyState } from "../../components/EmptyState";
-import { Panel } from "../../components/Panel";
+import { Page } from "../../components/Page";
 import { Skeleton } from "../../components/Skeleton";
 import { pnlColor } from "../../components/theme-tokens";
 import { tradeColumns } from "../../components/tradeColumns";
 import type { Account, Summary, Trade } from "../../lib/api/types";
 import { type DayRecord, monthGrid, weekSummaries } from "../../lib/calendar";
 import { fmtPct, fmtRecord, fmtSignedMoney } from "../../lib/format";
+import { intlLocale } from "../../lib/locale";
 
-const LOCALE = "en-US";
 const DOW_HEADERS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 
 export interface CalendarViewProps {
@@ -117,7 +118,7 @@ export function CalendarView({
 	const weeks = weekSummaries(grid.weeks, records);
 	const today = todayString();
 
-	const monthLabel = new Date(year, month - 1, 1).toLocaleString(LOCALE, {
+	const monthLabel = new Date(year, month - 1, 1).toLocaleString(intlLocale(), {
 		month: "long",
 		year: "numeric",
 	});
@@ -135,8 +136,8 @@ export function CalendarView({
 	});
 
 	return (
-		<div className="flex flex-col gap-4">
-			<Panel>
+		<Page>
+			<Card flush>
 				{/* Header: month nav + stats */}
 				<div
 					className="flex items-center gap-3 flex-wrap px-4 py-3"
@@ -185,7 +186,7 @@ export function CalendarView({
 									{monthSummary.total_trades}
 								</HeaderStat>
 								<HeaderStat label="Win rate">
-									{fmtPct(monthSummary.win_rate, LOCALE)}
+									{fmtPct(monthSummary.win_rate, intlLocale())}
 								</HeaderStat>
 								<div className="flex items-baseline gap-1.5">
 									<span
@@ -224,7 +225,7 @@ export function CalendarView({
 							<span
 								className={`text-xs font-bold tabular-nums ${pnlColor(monthPnl)}`}
 							>
-								{fmtSignedMoney(monthPnl, currency, LOCALE)}
+								{fmtSignedMoney(monthPnl, currency, intlLocale())}
 								{monthPct != null && ` (${monthPct.toFixed(1)}%)`}
 							</span>
 						</div>
@@ -293,7 +294,7 @@ export function CalendarView({
 												}
 												aria-label={
 													hasPnl
-														? `${cell.date} ${fmtSignedMoney(cell.pnl!, currency, LOCALE)}`
+														? `${cell.date} ${fmtSignedMoney(cell.pnl!, currency, intlLocale())}`
 														: cell.date
 												}
 												className="flex flex-col rounded-lg text-left"
@@ -341,7 +342,7 @@ export function CalendarView({
 														style={{ color: dayColor(cell.pnl!) }}
 													>
 														<span className="text-sm font-bold tabular-nums">
-															{fmtSignedMoney(cell.pnl!, currency, LOCALE)}
+															{fmtSignedMoney(cell.pnl!, currency, intlLocale())}
 														</span>
 														{rec && (
 															<span className="text-[10px] tabular-nums opacity-90">
@@ -370,7 +371,7 @@ export function CalendarView({
 										{ws.hasData ? (
 											<>
 												<span className="text-sm font-bold tabular-nums">
-													{fmtSignedMoney(ws.pnl, currency, LOCALE)}
+													{fmtSignedMoney(ws.pnl, currency, intlLocale())}
 												</span>
 												<span className="text-[10px] tabular-nums opacity-90">
 													{fmtRecord(ws.wins, ws.losses)}
@@ -395,34 +396,28 @@ export function CalendarView({
 						)}
 					</div>
 				)}
-			</Panel>
+			</Card>
 
-			{/* Day drill-in */}
-			{selectedDay && (
-				<Panel
+			{selectedDay ? (
+				<Card
 					title={`Trades - ${new Date(
 						`${selectedDay}T00:00:00`,
-					).toLocaleDateString(LOCALE, {
+					).toLocaleDateString(intlLocale(), {
 						weekday: "short",
 						month: "short",
 						day: "numeric",
 						year: "numeric",
 					})}`}
-					right={
+					action={
 						<button
 							type="button"
 							onClick={() => onSelectDay(null)}
-							className="text-[11px]"
-							style={{
-								color: "var(--color-text-muted)",
-								background: "none",
-								border: "none",
-								cursor: "pointer",
-							}}
+							className="cursor-pointer text-[11px] text-text-muted transition-colors hover:text-text"
 						>
 							Close
 						</button>
 					}
+					flush
 				>
 					{dayTradesLoading ? (
 						<Skeleton height="120px" className="m-4" />
@@ -441,8 +436,8 @@ export function CalendarView({
 							/>
 						</div>
 					)}
-				</Panel>
-			)}
-		</div>
+				</Card>
+			) : null}
+		</Page>
 	);
 }

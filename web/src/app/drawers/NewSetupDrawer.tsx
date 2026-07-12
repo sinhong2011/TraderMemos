@@ -1,14 +1,11 @@
-import { useState } from "react";
+import { useForm } from "@tanstack/react-form";
 import { Modal, ModalBanner } from "../../components/Modal";
 import { SegmentedControl } from "../../components/SegmentedControl";
+import { fieldError, SignalField } from "../../components/SignalField";
+import { SignalInput, SignalTextarea } from "../../components/SignalInput";
 import { useToastManager } from "../../components/Toast";
 import { useCreateSetup } from "../../lib/hooks/useSetups";
 import { useUI } from "../../lib/ui";
-
-const inputClass =
-	"w-full rounded-control border border-border bg-bg-inset px-2.5 py-2 text-xs text-text outline-none placeholder:text-text-dim";
-const labelClass =
-	"mb-1 block font-mono text-[10px] font-medium uppercase tracking-widest text-text-dim";
 
 function parseOptionalNum(v: string): number | null {
 	const t = v.trim();
@@ -23,57 +20,50 @@ export function NewSetupDrawer() {
 	const toast = useToastManager();
 	const createSetup = useCreateSetup();
 
-	const [name, setName] = useState("");
-	const [thesis, setThesis] = useState("");
-	const [symbol, setSymbol] = useState("");
-	const [direction, setDirection] = useState<"long" | "short">("long");
-	const [target, setTarget] = useState("");
-	const [stop, setStop] = useState("");
-	const [checklistText, setChecklistText] = useState("");
-	const [error, setError] = useState("");
+	const form = useForm({
+		defaultValues: {
+			name: "",
+			thesis: "",
+			symbol: "",
+			direction: "long" as "long" | "short",
+			target: "",
+			stop: "",
+			checklistText: "",
+		},
+		onSubmit: async ({ value }) => {
+			const checklist = value.checklistText
+				.split("\n")
+				.map((l) => l.trim())
+				.filter(Boolean);
+			try {
+				await createSetup.mutateAsync({
+					name: value.name.trim(),
+					description: value.thesis.trim(),
+					thesis: value.thesis.trim(),
+					symbol: value.symbol.trim().toUpperCase() || undefined,
+					direction: value.direction,
+					target_price: parseOptionalNum(value.target),
+					stop_price: parseOptionalNum(value.stop),
+					checklist,
+				});
+				toast.add({ title: "Setup created", description: value.name.trim() });
+				close();
+			} catch (e) {
+				toast.add({
+					title: "Could not create setup",
+					description: e instanceof Error ? e.message : "Save failed",
+				});
+			}
+		},
+	});
 
 	function reset() {
-		setName("");
-		setThesis("");
-		setSymbol("");
-		setDirection("long");
-		setTarget("");
-		setStop("");
-		setChecklistText("");
-		setError("");
+		form.reset();
 	}
 
 	function close() {
 		reset();
 		closeModal();
-	}
-
-	async function save() {
-		setError("");
-		if (!name.trim()) {
-			setError("Name is required.");
-			return;
-		}
-		const checklist = checklistText
-			.split("\n")
-			.map((l) => l.trim())
-			.filter(Boolean);
-		try {
-			await createSetup.mutateAsync({
-				name: name.trim(),
-				description: thesis.trim(),
-				thesis: thesis.trim(),
-				symbol: symbol.trim().toUpperCase() || undefined,
-				direction,
-				target_price: parseOptionalNum(target),
-				stop_price: parseOptionalNum(stop),
-				checklist,
-			});
-			toast.add({ title: "Setup created", description: name.trim() });
-			close();
-		} catch (e) {
-			setError(e instanceof Error ? e.message : "Save failed");
-		}
 	}
 
 	const footer = (
@@ -87,8 +77,8 @@ export function NewSetupDrawer() {
 				Cancel
 			</button>
 			<button
-				type="button"
-				onClick={() => void save()}
+				type="submit"
+				form="new-setup-form"
 				disabled={createSetup.isPending}
 				className="cursor-pointer rounded-control border-none bg-accent px-3.5 py-1.5 text-xs font-semibold text-bg disabled:opacity-50"
 			>
@@ -96,6 +86,13 @@ export function NewSetupDrawer() {
 			</button>
 		</div>
 	);
+
+	const submitError =
+		createSetup.isError && createSetup.error instanceof Error
+			? createSetup.error.message
+			: createSetup.isError
+				? "Save failed"
+				: undefined;
 
 	return (
 		<Modal
@@ -111,108 +108,143 @@ export function NewSetupDrawer() {
 				it to a trade when you take the shot.
 			</ModalBanner>
 
-			<div className="flex flex-col gap-1">
-				<label htmlFor="ns-name" className={labelClass}>
-					Name
-				</label>
-				<input
-					id="ns-name"
-					aria-label="Name"
-					value={name}
-					onChange={(e) => setName(e.target.value)}
-					placeholder="e.g. Gap and Go"
-					className={inputClass}
-				/>
-			</div>
+			<form
+				id="new-setup-form"
+				className="flex flex-col gap-3"
+				onSubmit={(e) => {
+					e.preventDefault();
+					void form.handleSubmit();
+				}}
+			>
+				<form.Field
+					name="name"
+					validators={{
+						onSubmit: ({ value }) =>
+							!value.trim() ? "Name is required." : undefined,
+					}}
+				>
+					{(field) => (
+						<SignalField
+							label="Name"
+							htmlFor="ns-name"
+							error={fieldError(field.state.meta.errors)}
+						>
+							<SignalInput
+								id="ns-name"
+								aria-label="Name"
+								value={field.state.value}
+								onBlur={field.handleBlur}
+								onChange={(e) => field.handleChange(e.target.value)}
+								placeholder="e.g. Gap and Go"
+							/>
+						</SignalField>
+					)}
+				</form.Field>
 
-			<div className="grid grid-cols-2 gap-3">
-				<div className="flex flex-col gap-1">
-					<label htmlFor="ns-symbol" className={labelClass}>
-						Symbol
-					</label>
-					<input
-						id="ns-symbol"
-						aria-label="Symbol"
-						value={symbol}
-						onChange={(e) => setSymbol(e.target.value)}
-						placeholder="AAPL"
-						className={inputClass}
-					/>
+				<div className="grid grid-cols-2 gap-3">
+					<form.Field name="symbol">
+						{(field) => (
+							<SignalField label="Symbol" htmlFor="ns-symbol">
+								<SignalInput
+									id="ns-symbol"
+									aria-label="Symbol"
+									value={field.state.value}
+									onBlur={field.handleBlur}
+									onChange={(e) => field.handleChange(e.target.value)}
+									placeholder="AAPL"
+								/>
+							</SignalField>
+						)}
+					</form.Field>
+
+					<form.Field name="direction">
+						{(field) => (
+							<SignalField label="Direction">
+								<SegmentedControl
+									ariaLabel="Direction"
+									value={field.state.value}
+									onChange={(v) => field.handleChange(v as "long" | "short")}
+									options={[
+										{ value: "long", label: "LONG" },
+										{ value: "short", label: "SHORT" },
+									]}
+								/>
+							</SignalField>
+						)}
+					</form.Field>
 				</div>
-				<div className="flex flex-col gap-1">
-					<span className={labelClass}>Direction</span>
-					<SegmentedControl
-						ariaLabel="Direction"
-						value={direction}
-						onChange={(v) => setDirection(v as "long" | "short")}
-						options={[
-							{ value: "long", label: "LONG" },
-							{ value: "short", label: "SHORT" },
-						]}
-					/>
+
+				<div className="grid grid-cols-2 gap-3">
+					<form.Field name="target">
+						{(field) => (
+							<SignalField label="Target" htmlFor="ns-target">
+								<SignalInput
+									id="ns-target"
+									aria-label="Target"
+									inputMode="decimal"
+									value={field.state.value}
+									onBlur={field.handleBlur}
+									onChange={(e) => field.handleChange(e.target.value)}
+								/>
+							</SignalField>
+						)}
+					</form.Field>
+
+					<form.Field name="stop">
+						{(field) => (
+							<SignalField label="Stop" htmlFor="ns-stop">
+								<SignalInput
+									id="ns-stop"
+									aria-label="Stop"
+									inputMode="decimal"
+									value={field.state.value}
+									onBlur={field.handleBlur}
+									onChange={(e) => field.handleChange(e.target.value)}
+								/>
+							</SignalField>
+						)}
+					</form.Field>
 				</div>
-			</div>
 
-			<div className="grid grid-cols-2 gap-3">
-				<div className="flex flex-col gap-1">
-					<label htmlFor="ns-target" className={labelClass}>
-						Target
-					</label>
-					<input
-						id="ns-target"
-						aria-label="Target"
-						inputMode="decimal"
-						value={target}
-						onChange={(e) => setTarget(e.target.value)}
-						className={inputClass}
-					/>
-				</div>
-				<div className="flex flex-col gap-1">
-					<label htmlFor="ns-stop" className={labelClass}>
-						Stop
-					</label>
-					<input
-						id="ns-stop"
-						aria-label="Stop"
-						inputMode="decimal"
-						value={stop}
-						onChange={(e) => setStop(e.target.value)}
-						className={inputClass}
-					/>
-				</div>
-			</div>
+				<form.Field name="thesis">
+					{(field) => (
+						<SignalField label="Thesis" htmlFor="ns-thesis">
+							<SignalTextarea
+								id="ns-thesis"
+								aria-label="Thesis"
+								value={field.state.value}
+								onBlur={field.handleBlur}
+								onChange={(e) => field.handleChange(e.target.value)}
+								placeholder="Why this setup? Entry criteria, invalidation…"
+								rows={3}
+							/>
+						</SignalField>
+					)}
+				</form.Field>
 
-			<div className="flex flex-col gap-1">
-				<label htmlFor="ns-thesis" className={labelClass}>
-					Thesis
-				</label>
-				<textarea
-					id="ns-thesis"
-					aria-label="Thesis"
-					value={thesis}
-					onChange={(e) => setThesis(e.target.value)}
-					placeholder="Why this setup? Entry criteria, invalidation…"
-					rows={3}
-					className={`${inputClass} resize-y`}
-				/>
-			</div>
+				<form.Field name="checklistText">
+					{(field) => (
+						<SignalField
+							label="Checklist (one item per line)"
+							htmlFor="ns-check"
+						>
+							<SignalTextarea
+								id="ns-check"
+								aria-label="Checklist"
+								value={field.state.value}
+								onBlur={field.handleBlur}
+								onChange={(e) => field.handleChange(e.target.value)}
+								placeholder={"Above VWAP\nRelative volume > 2"}
+								rows={4}
+							/>
+						</SignalField>
+					)}
+				</form.Field>
 
-			<div className="flex flex-col gap-1">
-				<label htmlFor="ns-check" className={labelClass}>
-					Checklist (one item per line)
-				</label>
-				<textarea
-					id="ns-check"
-					aria-label="Checklist"
-					value={checklistText}
-					onChange={(e) => setChecklistText(e.target.value)}
-					placeholder={"Above VWAP\nRelative volume > 2"}
-					rows={4}
-					className={`${inputClass} resize-y font-mono`}
-				/>
-			</div>
-
-			{error && <p className="m-0 text-xs text-loss">{error}</p>}
+				{submitError && (
+					<p className="m-0 text-xs text-loss">{submitError}</p>
+				)}
+			</form>
 		</Modal>
 	);
 }

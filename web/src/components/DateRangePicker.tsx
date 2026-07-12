@@ -1,41 +1,53 @@
-import { SignalSelect } from "./SignalSelect";
-import {
-	computePresetRange,
-	presetFromRange,
-	type DateRangePreset,
-} from "../lib/dateRangePresets";
+import { CalendarDays, ChevronDown } from "lucide-react";
+import { useState } from "react";
+import { formatRangeLabel } from "../lib/dateRangePresets";
 import { useFilters } from "../lib/filters";
-
-const PRESETS: { label: string; key: DateRangePreset }[] = [
-	{ label: "Last 7 days", key: "7d" },
-	{ label: "Last 30 days", key: "30d" },
-	{ label: "Last 90 days", key: "90d" },
-	{ label: "This month", key: "month" },
-	{ label: "All time", key: "all" },
-];
+import { cn } from "../lib/cn";
+import { DateRangePanel } from "./DateRangePanel";
+import { SignalPopover } from "./SignalPopover";
 
 export function DateRangePicker() {
-	const { from, to, setRange } = useFilters();
-	const active = presetFromRange(from, to);
-
-	const options = [
-		...PRESETS.map((p) => ({ value: p.key, label: p.label })),
-		...(active === "custom"
-			? [{ value: "custom" as const, label: "Custom range", disabled: true }]
-			: []),
-	];
+	const { from, to } = useFilters();
+	const [open, setOpen] = useState(false);
+	const label = formatRangeLabel(from, to);
 
 	return (
-		<SignalSelect
-			value={active}
-			onValueChange={(key) => {
-				if (key === "custom") return;
-				const { from: f, to: t } = computePresetRange(key as DateRangePreset);
-				setRange(f, t);
-			}}
-			options={options}
-			ariaLabel="Date range"
-			triggerClassName="min-w-[132px] font-mono text-[11px] text-text-muted"
-		/>
+		<SignalPopover
+			open={open}
+			onOpenChange={setOpen}
+			align="end"
+			triggerAriaLabel="Date range"
+			className="overflow-hidden p-0"
+			triggerClassName={cn(
+				"h-8 min-w-[112px] rounded-control border border-border bg-bg-inset px-2.5",
+				"text-left transition-[border-color,background-color,box-shadow] duration-150",
+				"hover:border-border-strong focus-visible:border-accent focus-visible:shadow-[0_0_0_3px_var(--color-accent-bg)]",
+				open && "border-accent shadow-[0_0_0_3px_var(--color-accent-bg)]",
+			)}
+			trigger={
+				<>
+					<CalendarDays
+						size={13}
+						strokeWidth={1.75}
+						className="shrink-0 text-text-dim"
+						aria-hidden
+					/>
+					<span className="min-w-0 flex-1 truncate text-[11px] text-text-muted">
+						{label}
+					</span>
+					<ChevronDown
+						size={12}
+						strokeWidth={1.75}
+						className={cn(
+							"shrink-0 text-text-dim transition-transform duration-150",
+							open && "rotate-180",
+						)}
+						aria-hidden
+					/>
+				</>
+			}
+		>
+			<DateRangePanel onApplied={() => setOpen(false)} />
+		</SignalPopover>
 	);
 }

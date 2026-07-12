@@ -1,5 +1,6 @@
 import { AlertCircle, ArrowRight, Eye, EyeOff, Lock, Mail, Zap } from "lucide-react";
 import { useId, useState } from "react";
+import { AppLogo } from "../../components/AppLogo";
 import { AuthModeTabs } from "../../components/AuthModeTabs";
 import { authApi } from "../../lib/api/auth";
 import { ApiError } from "../../lib/api/client";
@@ -15,7 +16,7 @@ const MODES = [
 type AuthMode = (typeof MODES)[number]["value"];
 
 const labelClass =
-	"font-mono text-[10px] font-medium uppercase tracking-[0.12em] text-text-dim";
+	"text-[10px] font-medium uppercase tracking-[0.12em] text-text-dim";
 
 function AuthField({
 	label,
@@ -177,9 +178,10 @@ export function LoginScreen() {
 
 					<div className="relative">
 						<div className="mb-8 flex items-center gap-2.5">
-							<span className="flex size-8 items-center justify-center rounded-sharp border border-border-strong bg-accent-bg font-mono text-[11px] font-semibold text-accent shadow-[0_0_20px_var(--color-accent-glow)]">
-								TM
-							</span>
+							<AppLogo
+								size={32}
+								className="shadow-[0_0_20px_var(--color-accent-glow)]"
+							/>
 							<span className="text-[13px] font-medium tracking-tight text-text">
 								TraderMemos
 							</span>
@@ -199,13 +201,13 @@ export function LoginScreen() {
 					<div className="relative mt-10 grid grid-cols-2 gap-px border border-border bg-border max-[820px]:hidden">
 						<div className="bg-bg-panel px-4 py-3.5">
 							<span className={labelClass}>Net P&amp;L</span>
-							<div className="mt-1.5 font-mono text-[22px] font-semibold tracking-tight text-profit hero-glow-profit">
+							<div className="mt-1.5 text-[22px] font-semibold tracking-tight text-profit hero-glow-profit">
 								+$2,847
 							</div>
 						</div>
 						<div className="bg-bg-panel px-4 py-3.5">
 							<span className={labelClass}>Win rate</span>
-							<div className="mt-1.5 font-mono text-[22px] font-semibold tracking-tight text-text">
+							<div className="mt-1.5 text-[22px] font-semibold tracking-tight text-text">
 								68.4%
 							</div>
 						</div>
@@ -220,7 +222,7 @@ export function LoginScreen() {
 					<div className="mx-auto flex w-full max-w-[320px] flex-col">
 						<header className="mb-6 flex flex-col items-center gap-4">
 							<div
-								className="flex size-9 items-center justify-center rounded-sharp border border-border-strong bg-accent-bg font-mono text-[11px] font-semibold text-accent shadow-[0_0_20px_var(--color-accent-glow)]"
+								className="flex size-9 items-center justify-center rounded-sharp border border-border-strong bg-accent-bg text-[11px] font-semibold text-accent shadow-[0_0_20px_var(--color-accent-glow)]"
 								aria-hidden
 							>
 								TM
@@ -322,14 +324,14 @@ export function LoginScreen() {
 										className="inline-flex cursor-pointer items-center gap-1.5 rounded-sharp border border-dashed border-[rgba(228,255,26,0.28)] bg-[rgba(228,255,26,0.04)] px-2.5 py-1 text-[11px] font-medium text-signal transition-colors hover:border-[rgba(228,255,26,0.45)] hover:bg-[rgba(228,255,26,0.08)] disabled:cursor-default disabled:opacity-55"
 									>
 										<Zap size={12} strokeWidth={1.5} aria-hidden />
-										<span className="font-mono">{DEV_ACCOUNT.email}</span>
+										<span>{DEV_ACCOUNT.email}</span>
 										<span className="text-text-dim">·</span>
 										<span>Dev sign-in</span>
 									</button>
 								) : (
 									<p className="text-[11px] text-text-dim">
 										Press{" "}
-										<kbd className="rounded-sharp border border-border bg-[rgba(228,255,26,0.06)] px-1.5 py-0.5 font-mono text-[10px] text-signal">
+										<kbd className="rounded-sharp border border-border bg-[rgba(228,255,26,0.06)] px-1.5 py-0.5 text-[10px] text-signal">
 											Enter
 										</kbd>{" "}
 										to continue

@@ -9,10 +9,11 @@ import {
 	XAxis,
 	YAxis,
 } from "recharts";
+import { Card } from "../../components/Card";
 import { ChartFrame, chartTheme } from "../../components/ChartFrame";
 import { DataTable } from "../../components/DataTable";
 import { EmptyState } from "../../components/EmptyState";
-import { Panel } from "../../components/Panel";
+import { Page } from "../../components/Page";
 import { SegmentedControl } from "../../components/SegmentedControl";
 import { Skeleton } from "../../components/Skeleton";
 import { StatBar } from "../../components/StatBar";
@@ -28,9 +29,6 @@ import {
 } from "../../lib/format";
 import { intlLocale } from "../../lib/locale";
 import type { TradeStatusFilter } from "../../lib/tradeFilters";
-
-const labelClass =
-	"font-mono text-[10px] font-medium uppercase tracking-widest text-text-dim";
 
 export interface DashboardViewProps {
 	summaryLoading: boolean;
@@ -89,8 +87,8 @@ function StatsStrip({
 	const toggle = (f: TradeStatusFilter) => onToggleTradeStatus?.(f);
 
 	return (
-		<div className="border-b border-border bg-bg-panel">
-			<div className="grid grid-cols-2 divide-x divide-border sm:grid-cols-3 lg:grid-cols-6">
+		<>
+			<div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
 				<StatBar
 					label="WINS"
 					value={String(summary.wins)}
@@ -134,7 +132,7 @@ function StatsStrip({
 					tone="neg"
 				/>
 			</div>
-			<p className="m-0 border-t border-border px-4 py-1.5 font-mono text-[10px] tabular-nums text-text-dim">
+			<p className="m-0 px-4 py-1.5 text-[10px] tabular-nums text-text-dim">
 				Gross{" "}
 				{fmtSignedMoney(
 					summary.gross_profit + summary.gross_loss,
@@ -144,36 +142,22 @@ function StatsStrip({
 				<span className="text-text-dim/60"> · </span>
 				Fees {fmtMoney(summary.total_fees, currency, intlLocale())}
 			</p>
-		</div>
+		</>
 	);
 }
 
-function DashboardBento({
-	summaryLoading,
-	summaryError,
-	summary,
-	trades,
+function EquityCurveChart({
 	equityLoading,
 	equityError,
 	equityPoints,
 	currency,
 	range,
-	onRangeChange,
-	tradeStatusFilter,
-	onToggleTradeStatus,
 }: {
-	summaryLoading: boolean;
-	summaryError: boolean;
-	summary: Summary | undefined;
-	trades: Trade[];
 	equityLoading: boolean;
 	equityError: boolean;
 	equityPoints: EquityPoint[];
 	currency: string;
 	range: string;
-	onRangeChange: (r: string) => void;
-	tradeStatusFilter?: TradeStatusFilter;
-	onToggleTradeStatus?: (filter: TradeStatusFilter) => void;
 }) {
 	const cutoff = rangeCutoff(range);
 	const visible = useMemo(
@@ -185,112 +169,84 @@ function DashboardBento({
 	);
 	const dayTicks = useMemo(() => uniqueDayTicks(visible), [visible]);
 
-	if (summaryLoading) {
-		return <Skeleton height="220px" />;
+	if (equityLoading) {
+		return <Skeleton height="120px" />;
 	}
-	if (summaryError) {
-		return <p className="p-4 text-xs text-loss">Failed to load summary.</p>;
+	if (equityError) {
+		return <p className="text-xs text-loss">Failed to load equity curve.</p>;
 	}
-	if (!summary) return null;
+	if (visible.length === 0) {
+		return <EmptyState title="No equity data" />;
+	}
 
 	return (
-		<div className="flex flex-col border-b border-border">
-			<div className="flex min-h-[200px] flex-col justify-between bg-bg-panel px-4 py-3.5">
-				<div className="flex items-center justify-between gap-3">
-					<span className={labelClass}>Equity curve</span>
-					<SegmentedControl
-						ariaLabel="Equity range"
-						options={RANGES}
-						value={range}
-						onChange={onRangeChange}
+		<ChartFrame inset className="rounded-none border-0 bg-transparent">
+			<ResponsiveContainer width="100%" height={120}>
+				<AreaChart
+					data={visible}
+					margin={{ top: 8, right: 8, bottom: 0, left: 4 }}
+				>
+					<defs>
+						<linearGradient id="eq-fill" x1="0" y1="0" x2="0" y2="1">
+							<stop
+								offset="5%"
+								stopColor={chartTheme.accentStroke}
+								stopOpacity={0.25}
+							/>
+							<stop
+								offset="95%"
+								stopColor={chartTheme.accentStroke}
+								stopOpacity={0}
+							/>
+						</linearGradient>
+					</defs>
+					<CartesianGrid vertical={false} stroke={chartTheme.gridColor} />
+					<XAxis
+						dataKey="at"
+						ticks={dayTicks}
+						tick={{ fontSize: 10, fill: chartTheme.axisColor }}
+						tickFormatter={(v: string) => fmtDayShort(v, intlLocale())}
+						axisLine={false}
+						tickLine={false}
+						minTickGap={60}
 					/>
-				</div>
-				{equityLoading ? (
-					<Skeleton height="120px" />
-				) : equityError ? (
-					<p className="text-xs text-loss">Failed to load equity curve.</p>
-				) : visible.length === 0 ? (
-					<EmptyState title="No equity data" />
-				) : (
-					<ChartFrame className="border-0 rounded-none mt-2">
-						<ResponsiveContainer width="100%" height={120}>
-							<AreaChart
-								data={visible}
-								margin={{ top: 8, right: 8, bottom: 0, left: 4 }}
-							>
-								<defs>
-									<linearGradient id="eq-fill" x1="0" y1="0" x2="0" y2="1">
-										<stop
-											offset="5%"
-											stopColor={chartTheme.accentStroke}
-											stopOpacity={0.25}
-										/>
-										<stop
-											offset="95%"
-											stopColor={chartTheme.accentStroke}
-											stopOpacity={0}
-										/>
-									</linearGradient>
-								</defs>
-								<CartesianGrid vertical={false} stroke={chartTheme.gridColor} />
-								<XAxis
-									dataKey="at"
-									ticks={dayTicks}
-									tick={{ fontSize: 10, fill: chartTheme.axisColor }}
-									tickFormatter={(v: string) => fmtDayShort(v, intlLocale())}
-									axisLine={false}
-									tickLine={false}
-									minTickGap={60}
-								/>
-								<YAxis
-									tick={{ fontSize: 10, fill: chartTheme.axisColor }}
-									tickFormatter={(v: number) =>
-										fmtMoneyCompact(v, currency, intlLocale())
-									}
-									axisLine={false}
-									tickLine={false}
-									width={52}
-									domain={["auto", "auto"]}
-								/>
-								<Tooltip
-									contentStyle={{
-										background: chartTheme.tooltipBg,
-										border: `1px solid ${chartTheme.tooltipBorder}`,
-										color: chartTheme.tooltipText,
-										fontSize: 11,
-										fontFamily: "var(--font-mono)",
-										borderRadius: "var(--radius-sharp)",
-									}}
-									labelFormatter={(label: string) => label.slice(0, 10)}
-									formatter={(value: number) => [
-										fmtMoney(value, currency, intlLocale()),
-										"Equity",
-									]}
-									cursor={{ fill: chartTheme.cursorFill }}
-								/>
-								<Area
-									type="monotone"
-									dataKey="equity"
-									stroke={chartTheme.accentStroke}
-									strokeWidth={1.5}
-									fill="url(#eq-fill)"
-									dot={false}
-									activeDot={{ r: 3, fill: chartTheme.accentStroke }}
-								/>
-							</AreaChart>
-						</ResponsiveContainer>
-					</ChartFrame>
-				)}
-			</div>
-
-			<StatsStrip
-				summary={summary}
-				trades={trades}
-				currency={currency}
-				tradeStatusFilter={tradeStatusFilter}
-				onToggleTradeStatus={onToggleTradeStatus}
-			/>
-		</div>
+					<YAxis
+						tick={{ fontSize: 10, fill: chartTheme.axisColor }}
+						tickFormatter={(v: number) =>
+							fmtMoneyCompact(v, currency, intlLocale())
+						}
+						axisLine={false}
+						tickLine={false}
+						width={52}
+						domain={["auto", "auto"]}
+					/>
+					<Tooltip
+						contentStyle={{
+							background: chartTheme.tooltipBg,
+							border: `1px solid ${chartTheme.tooltipBorder}`,
+							color: chartTheme.tooltipText,
+							fontSize: 11,
+							borderRadius: "var(--radius-sharp)",
+						}}
+						labelFormatter={(label) => String(label ?? "").slice(0, 10)}
+						formatter={(value) => [
+							fmtMoney(Number(value ?? 0), currency, intlLocale()),
+							"Equity",
+						]}
+						cursor={{ fill: chartTheme.cursorFill }}
+					/>
+					<Area
+						type="monotone"
+						dataKey="equity"
+						stroke={chartTheme.accentStroke}
+						strokeWidth={1.5}
+						fill="url(#eq-fill)"
+						dot={false}
+						activeDot={{ r: 3, fill: chartTheme.accentStroke }}
+					/>
+				</AreaChart>
+			</ResponsiveContainer>
+		</ChartFrame>
 	);
 }
 
@@ -347,7 +303,7 @@ export function DashboardView({
 		);
 
 		return (
-			<div className="flex min-h-[calc(100vh-68px)] flex-1 items-center justify-center">
+			<Page fill className="items-center justify-center">
 				<EmptyState
 					title="No trades yet"
 					hint={
@@ -358,28 +314,51 @@ export function DashboardView({
 					icon={<TrendingUp size={40} strokeWidth={1.5} />}
 					actions={emptyActions}
 				/>
-			</div>
+			</Page>
 		);
 	}
 
 	return (
-		<div className="flex flex-col">
-			<DashboardBento
-				summaryLoading={summaryLoading}
-				summaryError={summaryError}
-				summary={summary}
-				trades={trades}
-				equityLoading={equityLoading}
-				equityError={equityError}
-				equityPoints={equityPoints}
-				currency={currency}
-				range={range}
-				onRangeChange={setRange}
-				tradeStatusFilter={tradeStatusFilter}
-				onToggleTradeStatus={onToggleTradeStatus}
-			/>
+		<Page fill className="min-h-[calc(100dvh-52px)]">
+			<Card
+				title="Equity curve"
+				action={
+					<SegmentedControl
+						ariaLabel="Equity range"
+						options={RANGES}
+						value={range}
+						onChange={setRange}
+					/>
+				}
+			>
+				{summaryLoading ? (
+					<Skeleton height="120px" />
+				) : summaryError ? (
+					<p className="text-xs text-loss">Failed to load summary.</p>
+				) : !summary ? null : (
+					<EquityCurveChart
+						equityLoading={equityLoading}
+						equityError={equityError}
+						equityPoints={equityPoints}
+						currency={currency}
+						range={range}
+					/>
+				)}
+			</Card>
 
-			<Panel className="border-t-0 rounded-none">
+			{summary && !summaryLoading && !summaryError ? (
+				<Card title="Performance" flush>
+					<StatsStrip
+						summary={summary}
+						trades={trades}
+						currency={currency}
+						tradeStatusFilter={tradeStatusFilter}
+						onToggleTradeStatus={onToggleTradeStatus}
+					/>
+				</Card>
+			) : null}
+
+			<Card title="Trades" fill flush className="min-h-0">
 				{tradesLoading ? (
 					<Skeleton height="240px" className="m-3" />
 				) : tradesError ? (
@@ -399,19 +378,21 @@ export function DashboardView({
 					/>
 				) : (
 					<>
-						<div className="max-h-[520px]">
+						<div className="min-h-0 flex-1">
 							<DataTable
 								columns={tradeColumns(currency, onSelectTrade)}
 								data={trades}
 								onRowClick={onSelectTrade}
+								maxHeight="100%"
+								className="h-full"
 							/>
 						</div>
-						<p className="py-3 text-center text-xs text-text-muted">
+						<p className="shrink-0 py-2 text-center text-xs text-text-muted">
 							All {trades.length} trades loaded
 						</p>
 					</>
 				)}
-			</Panel>
-		</div>
+			</Card>
+		</Page>
 	);
 }

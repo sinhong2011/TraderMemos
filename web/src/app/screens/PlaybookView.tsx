@@ -1,13 +1,15 @@
 import { BookOpen, Check, Pencil, Plus, Trash2, X } from "lucide-react";
 import { useState } from "react";
+import { Card } from "../../components/Card";
 import { EmptyState } from "../../components/EmptyState";
-import { Panel } from "../../components/Panel";
+import { Page } from "../../components/Page";
 import { Skeleton } from "../../components/Skeleton";
 import { pnlColor } from "../../components/theme-tokens";
 import type { BreakGroup, Setup } from "../../lib/api/types";
 import type { SetupBody } from "../../lib/api/setups";
 import { fmtPct, fmtSignedMoney } from "../../lib/format";
 import { useUI } from "../../lib/ui";
+import { intlLocale } from "../../lib/locale";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -28,8 +30,6 @@ export interface PlaybookViewProps {
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
-
-const LOCALE = "en-US";
 
 function getGroupForSetup(
 	breakdown: BreakGroup[],
@@ -85,7 +85,6 @@ function SetupForm({
 		fontSize: 12,
 		padding: "5px 8px",
 		width: "100%",
-		fontFamily: "var(--font-mono)",
 		outline: "none",
 	};
 
@@ -244,7 +243,7 @@ function SetupCard({
 							fontSize: 13,
 							fontWeight: 600,
 							color: "var(--color-text)",
-							fontFamily: "var(--font-mono)",
+							
 						}}
 					>
 						{setup.name}
@@ -272,7 +271,7 @@ function SetupCard({
 							style={{
 								fontSize: 10,
 								color: "var(--color-text-dim)",
-								fontFamily: "var(--font-mono)",
+								
 							}}
 						>
 							{checklist.length} checklist item
@@ -391,11 +390,11 @@ function SetupCard({
 				<Stat label="Trades" value={hasData ? String(trades) : "-"} />
 				<Stat
 					label="Win Rate"
-					value={hasData ? fmtPct(winRate, LOCALE) : "-"}
+					value={hasData ? fmtPct(winRate, intlLocale()) : "-"}
 				/>
 				<Stat
 					label="Net P&L"
-					value={hasData ? fmtSignedMoney(netPnl, currency, LOCALE) : "-"}
+					value={hasData ? fmtSignedMoney(netPnl, currency, intlLocale()) : "-"}
 					valueClass={hasData ? pnlColor(netPnl) : ""}
 				/>
 				<Stat
@@ -404,7 +403,7 @@ function SetupCard({
 				/>
 				<Stat
 					label="Expectancy"
-					value={hasData ? fmtSignedMoney(exp, currency, LOCALE) : "-"}
+					value={hasData ? fmtSignedMoney(exp, currency, intlLocale()) : "-"}
 					valueClass={hasData ? pnlColor(exp) : ""}
 				/>
 			</div>
@@ -449,7 +448,7 @@ function Stat({
 				className={`tabular-nums ${valueClass}`}
 				style={{
 					fontSize: 12,
-					fontFamily: "var(--font-mono)",
+					
 					color: valueClass ? undefined : "var(--color-text)",
 					fontWeight: 600,
 				}}
@@ -607,10 +606,10 @@ export function PlaybookView({
 	};
 
 	return (
-		<div className="flex flex-col gap-4">
-			<Panel title="Playbook" right={panelRight}>
+		<Page>
+			<Card title="Playbook" action={panelRight}>
 				{renderContent()}
-			</Panel>
-		</div>
+			</Card>
+		</Page>
 	);
 }

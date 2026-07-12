@@ -5,14 +5,11 @@ import {
 	useReactTable,
 } from "@tanstack/react-table";
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import type { Trade } from "../../lib/api/types";
 import { TradesView } from "./TradesView";
 
-// Mock DataTable: the real one uses a virtualizer that needs a sized scroll
-// container (absent in jsdom). Render cells using the provided column
-// definitions, mirroring src/components/tradeColumns.test.tsx and
-// src/app/screens/DashboardView.test.tsx, which hit the same jsdom gotcha.
 vi.mock("../../components/DataTable", () => ({
 	DataTable: function MockDataTable<T>({
 		columns,
@@ -96,6 +93,12 @@ const base = {
 	symbol: "",
 	onSymbolChange: vi.fn(),
 	onSelectTrade: vi.fn(),
+	totalInScope: 0,
+	scopeLoading: false,
+	hasNarrowingFilters: false,
+	onClearFilters: vi.fn(),
+	onImport: vi.fn(),
+	onNewTrade: vi.fn(),
 };
 
 describe("TradesView", () => {
@@ -103,6 +106,7 @@ describe("TradesView", () => {
 		render(
 			<TradesView
 				{...base}
+				totalInScope={2}
 				trades={[
 					trade({ id: "t1", symbol: "AAPL", net_pnl: 198 }),
 					trade({ id: "t2", symbol: "MSFT", net_pnl: -102 }),
@@ -117,10 +121,50 @@ describe("TradesView", () => {
 		expect(screen.getByText("2 trades")).toBeInTheDocument();
 	});
 
-	it("shows an empty state when there are no trades", () => {
+	it("shows onboarding empty state when journal is empty", () => {
 		render(<TradesView {...base} trades={[]} />);
+		expect(screen.getByText("No trades yet")).toBeInTheDocument();
+		expect(screen.getAllByRole("button", { name: /import csv/i })).toHaveLength(
+			2,
+		);
+		expect(screen.getAllByRole("button", { name: /log trade/i })).toHaveLength(
+			2,
+		);
+	});
+
+	it("shows filtered empty state when scope has trades but list is empty", () => {
+		render(
+			<TradesView
+				{...base}
+				trades={[]}
+				totalInScope={3}
+				hasNarrowingFilters
+				symbol="ZZZZ"
+			/>,
+		);
 		expect(
 			screen.getByText("No trades match these filters"),
 		).toBeInTheDocument();
+		expect(
+			screen.getAllByRole("button", { name: /clear filters/i }).length,
+		).toBeGreaterThan(0);
+	});
+
+	it("wires header actions", async () => {
+		const user = userEvent.setup();
+		const onImport = vi.fn();
+		const onNewTrade = vi.fn();
+		render(
+			<TradesView
+				{...base}
+				trades={[]}
+				onImport={onImport}
+				onNewTrade={onNewTrade}
+			/>,
+		);
+		await user.click(screen.getAllByRole("button", { name: /import csv/i })[0]);
+		await user.click(screen.getAllByRole("button", { name: /log trade/i })[0]);
+		expect(onImport).toHaveBeenCalledOnce();
+		expect(onNewTrade).toHaveBeenCalledOnce();
 	});
 });
