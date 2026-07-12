@@ -9,8 +9,15 @@ api/.env.local
 .DS_Store
 /data/
 .superpowers/
+/tmp/
+.pnpm-store/
+web/.tanstack/
 
 # visual verification artifacts
 *.png
 .playwright-mcp/
 web/.playwright-mcp/
+
+# shipped image assets are exempt from the artifact ignore
+!brand/*.png
+!web/public/*.png
