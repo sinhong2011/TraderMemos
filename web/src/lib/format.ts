@@ -19,6 +19,13 @@ export function fmtMoneyCompact(
 		maximumFractionDigits: 1,
 	}).format(v);
 }
+/** Short day label for chart x-axes, e.g. `Jul 9`. */
+export function fmtDayShort(iso: string, locale: string): string {
+	return new Date(iso).toLocaleDateString(locale, {
+		month: "short",
+		day: "numeric",
+	});
+}
 export function fmtSignedMoney(
 	v: number,
 	currency: string,

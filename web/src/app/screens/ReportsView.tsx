@@ -13,12 +13,24 @@ import { ChartFrame, chartTheme } from "../../components/ChartFrame";
 import { DataTable } from "../../components/DataTable";
 import { EmptyState } from "../../components/EmptyState";
 import { Panel } from "../../components/Panel";
+import { SegmentedControl } from "../../components/SegmentedControl";
 import { Skeleton } from "../../components/Skeleton";
 import { StatCard } from "../../components/StatCard";
 import { pnlColor } from "../../components/theme-tokens";
-import type { BreakGroup, EquityCurve, RSummary, Summary } from "../../lib/api/types";
-import { fmtMoney, fmtPct, fmtSignedMoney } from "../../lib/format";
-import { SegmentedControl } from "../../components/SegmentedControl";
+import type {
+	BreakGroup,
+	EquityCurve,
+	RSummary,
+	Summary,
+} from "../../lib/api/types";
+import {
+	fmtDayShort,
+	fmtMoney,
+	fmtMoneyCompact,
+	fmtPct,
+	fmtSignedMoney,
+} from "../../lib/format";
+import { intlLocale } from "../../lib/locale";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -75,7 +87,6 @@ export interface ReportsViewProps {
 // Constants
 // ---------------------------------------------------------------------------
 
-const LOCALE = "en-US";
 const POS_COLOR = "#52ca96"; // emerald-400
 const NEG_COLOR = "#eb4b68"; // red-400
 
@@ -97,9 +108,11 @@ function SummaryMetricsGrid({
 	const inR = unit === "r" && rSummary;
 	const s = inR ? rSummary : summary;
 	const moneyOrR = (v: number) =>
-		inR ? `${v >= 0 ? "+" : ""}${v.toFixed(2)}R` : fmtSignedMoney(v, currency, LOCALE);
+		inR
+			? `${v >= 0 ? "+" : ""}${v.toFixed(2)}R`
+			: fmtSignedMoney(v, currency, intlLocale());
 	const absOrR = (v: number) =>
-		inR ? `${v.toFixed(2)}R` : fmtMoney(v, currency, LOCALE);
+		inR ? `${v.toFixed(2)}R` : fmtMoney(v, currency, intlLocale());
 
 	const feePct =
 		s.gross_profit + s.gross_loss !== 0
@@ -115,12 +128,12 @@ function SummaryMetricsGrid({
 				hint={
 					inR
 						? `Avg ${rSummary!.avg_r.toFixed(2)}R · ${rSummary!.excluded} excluded (no risk)`
-						: `Gross ${fmtSignedMoney(s.gross_profit + s.gross_loss, currency, LOCALE)} · Fees ${fmtMoney(s.total_fees, currency, LOCALE)} (${feePct.toFixed(1)}%)`
+						: `Gross ${fmtSignedMoney(s.gross_profit + s.gross_loss, currency, intlLocale())} · Fees ${fmtMoney(s.total_fees, currency, intlLocale())} (${feePct.toFixed(1)}%)`
 				}
 			/>
 			<StatCard
 				label="Win Rate"
-				value={fmtPct(s.win_rate, LOCALE)}
+				value={fmtPct(s.win_rate, intlLocale())}
 				accent="none"
 			/>
 			<StatCard
@@ -140,11 +153,7 @@ function SummaryMetricsGrid({
 			/>
 			<StatCard
 				label={inR ? "Avg Loss R" : "Avg Loss"}
-				value={
-					inR
-						? `${rSummary!.avg_loss_r.toFixed(2)}R`
-						: absOrR(s.avg_loss)
-				}
+				value={inR ? `${rSummary!.avg_loss_r.toFixed(2)}R` : absOrR(s.avg_loss)}
 				accent="neg"
 			/>
 			<StatCard
@@ -200,7 +209,7 @@ function buildColumns(
 			header: "Win Rate",
 			cell: (info) => (
 				<span className="tabular-nums" style={{ color: "var(--color-text)" }}>
-					{fmtPct(info.getValue<number>(), LOCALE)}
+					{fmtPct(info.getValue<number>(), intlLocale())}
 				</span>
 			),
 		},
@@ -212,7 +221,7 @@ function buildColumns(
 				const v = info.getValue<number>();
 				return (
 					<span className={`tabular-nums ${pnlColor(v)}`}>
-						{fmtSignedMoney(v, currency, LOCALE)}
+						{fmtSignedMoney(v, currency, intlLocale())}
 					</span>
 				);
 			},
@@ -238,7 +247,7 @@ function buildColumns(
 				const v = info.getValue<number>();
 				return (
 					<span className={`tabular-nums ${pnlColor(v)}`}>
-						{fmtSignedMoney(v, currency, LOCALE)}
+						{fmtSignedMoney(v, currency, intlLocale())}
 					</span>
 				);
 			},
@@ -319,7 +328,9 @@ function PnlBarChart({ data, currency }: PnlBarChartProps) {
 					/>
 					<YAxis
 						tick={{ fontSize: 10, fill: chartTheme.axisColor }}
-						tickFormatter={(v: number) => fmtSignedMoney(v, currency, LOCALE)}
+						tickFormatter={(v: number) =>
+							fmtSignedMoney(v, currency, intlLocale())
+						}
 						axisLine={false}
 						tickLine={false}
 						width={72}
@@ -333,7 +344,7 @@ function PnlBarChart({ data, currency }: PnlBarChartProps) {
 							fontFamily: "var(--font-mono)",
 						}}
 						formatter={(value: number) => [
-							fmtSignedMoney(value, currency, LOCALE),
+							fmtSignedMoney(value, currency, intlLocale()),
 							"Net P&L",
 						]}
 						cursor={{ fill: chartTheme.cursorFill }}
@@ -465,13 +476,13 @@ export function ReportsView({
 						<div className="border-t border-border p-3">
 							<p className="mb-2 font-mono text-[10px] font-medium uppercase tracking-widest text-text-dim">
 								Equity curve · Max DD{" "}
-								{fmtMoney(equity.max_drawdown, currency, LOCALE)}
+								{fmtMoney(equity.max_drawdown, currency, intlLocale())}
 							</p>
 							<ChartFrame>
 								<ResponsiveContainer width="100%" height={160}>
 									<BarChart
 										data={equity.points}
-										margin={{ top: 8, right: 8, bottom: 0, left: 0 }}
+										margin={{ top: 8, right: 8, bottom: 0, left: 4 }}
 									>
 										<CartesianGrid
 											vertical={false}
@@ -480,18 +491,20 @@ export function ReportsView({
 										<XAxis
 											dataKey="at"
 											tick={{ fontSize: 10, fill: chartTheme.axisColor }}
-											tickFormatter={(v: string) => v.slice(5, 10)}
+											tickFormatter={(v: string) =>
+												fmtDayShort(v, intlLocale())
+											}
 											axisLine={false}
 											tickLine={false}
 										/>
 										<YAxis
 											tick={{ fontSize: 10, fill: chartTheme.axisColor }}
 											tickFormatter={(v: number) =>
-												fmtMoney(v, currency, LOCALE)
+												fmtMoneyCompact(v, currency, intlLocale())
 											}
 											axisLine={false}
 											tickLine={false}
-											width={64}
+											width={52}
 										/>
 										<Tooltip
 											contentStyle={{
@@ -502,7 +515,7 @@ export function ReportsView({
 												fontFamily: "var(--font-mono)",
 											}}
 											formatter={(value: number) => [
-												fmtMoney(value, currency, LOCALE),
+												fmtMoney(value, currency, intlLocale()),
 												"Equity",
 											]}
 										/>

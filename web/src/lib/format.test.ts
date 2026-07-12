@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
 	fmtDateShort,
 	fmtDateTime,
+	fmtDayShort,
 	fmtDuration,
 	fmtMoney,
 	fmtMoneyCompact,
@@ -17,6 +18,9 @@ describe("formatters", () => {
 	});
 	it("formats compact money for chart axes", () => {
 		expect(fmtMoneyCompact(11790, "USD", "en-US")).toBe("$11.8K");
+	});
+	it("renders short day labels for chart axes", () => {
+		expect(fmtDayShort("2026-07-09T12:00:00", "en-US")).toBe("Jul 9");
 	});
 	it("formats signed money", () => {
 		expect(fmtSignedMoney(198, "USD", "en-US")).toBe("+$198.00");
