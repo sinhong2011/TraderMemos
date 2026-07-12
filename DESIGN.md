@@ -40,11 +40,10 @@ Every layout, color, and motion choice serves that feeling: serious tool, engine
 
 | Role | Font | Notes |
 |------|------|-------|
-| **UI / body / nav** | General Sans (400/500/600/700) | Load via Fontshare or self-host. Tight tracking on headings (`-0.02em` to `-0.04em`). |
-| **Data / tables / stats** | IBM Plex Mono (400/500/600) | `font-variant-numeric: tabular-nums` everywhere numbers appear. |
-| **Code / import errors** | IBM Plex Mono | Same stack |
+| **All UI** | General Sans (400/500/600/700) | Load via Fontshare. Tight tracking on headings (`-0.02em` to `-0.04em`). |
+| **Numbers** | General Sans + `tabular-nums` | Applied globally; keeps columns aligned without a separate mono face. |
 
-**Do not use:** Inter, Geist, Roboto, system-ui as primary UI face (reads as generic 2024 SaaS).
+**Do not use:** Inter, Geist, Roboto, system-ui as primary UI face (reads as generic 2024 SaaS). No monospace fonts in the product UI.
 
 ### Type scale (compact density)
 
@@ -54,7 +53,7 @@ Every layout, color, and motion choice serves that feeling: serious tool, engine
 | `text-stat` | 28px | Bento big numbers |
 | `text-title` | 14–16px | Section titles |
 | `text-body` | 14px | Default UI |
-| `text-label` | 11–12px | Uppercase labels, mono, `0.08–0.12em` tracking |
+| `text-label` | 11–12px | Uppercase labels, `0.08–0.12em` tracking |
 | `text-micro` | 10px | Table headers, pill text |
 
 ## Color
@@ -201,4 +200,5 @@ Build a **Signal** kit on existing stack — do **not** install default shadcn t
 | 2026-07-10 | Signal Terminal direction approved | User rejected "normal" Apogee Ledger; wanted 2026 standout (Linear/Raycast/brutalist) |
 | 2026-07-10 | Tiered radius (sharp data, soft controls) | Brutalist edge without harsh daily use on inputs |
 | 2026-07-10 | General Sans + IBM Plex Mono | Distinct from Geist/Inter; mono for all numeric data |
+| 2026-07-11 | JetBrains Mono Variable (Fontsource) | Replaces IBM Plex static; single variable file, sharper terminal read at 10–11px |
 | 2026-07-10 | Violet accent + signal yellow | Ownable vs category blue; yellow for wayfinding only |
