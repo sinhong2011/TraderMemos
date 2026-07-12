@@ -30,7 +30,6 @@ export function StatCard({ label, value, accent, hint }: StatCardProps) {
 			<span
 				className="text-xl font-semibold leading-none"
 				style={{
-					fontFamily: "var(--font-mono)",
 					color: accentColor(accent),
 					transition: "color var(--duration-fast)",
 				}}

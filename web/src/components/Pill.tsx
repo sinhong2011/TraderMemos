@@ -1,16 +1,14 @@
 import type { ReactNode } from "react";
+import { cn } from "../lib/cn";
 
 export type PillTone = "pos" | "neg" | "accent" | "amber" | "muted";
 
-const TONES: Record<PillTone, { color: string; bg: string }> = {
-	pos: { color: "var(--color-pos)", bg: "var(--tint-pos)" },
-	neg: { color: "var(--color-neg)", bg: "var(--tint-neg)" },
-	accent: { color: "var(--color-accent)", bg: "var(--tint-accent)" },
-	amber: { color: "var(--color-amber)", bg: "var(--tint-amber)" },
-	muted: {
-		color: "var(--color-text-muted)",
-		bg: "var(--color-surface-raised)",
-	},
+const TONES: Record<PillTone, string> = {
+	pos: "text-profit bg-tint-pos",
+	neg: "text-loss bg-tint-neg",
+	accent: "text-accent bg-tint-accent",
+	amber: "text-signal bg-tint-signal",
+	muted: "text-text-muted bg-bg-elevated",
 };
 
 export function Pill({
@@ -22,27 +20,15 @@ export function Pill({
 	children: ReactNode;
 	title?: string;
 }) {
-	const t = TONES[tone];
 	return (
 		<span
 			title={title}
-			style={{
-				display: "inline-flex",
-				alignItems: "center",
-				gap: 4,
-				padding: "3px 10px",
-				borderRadius: 999,
-				fontSize: 11,
-				fontWeight: 600,
-				letterSpacing: "0.02em",
-				color: t.color,
-				background: t.bg,
-				whiteSpace: "nowrap",
-			}}
+			className={cn(
+				"inline-flex items-center gap-1 whitespace-nowrap rounded-control px-2.5 py-[3px] text-[11px] font-semibold tracking-[0.02em]",
+				TONES[tone],
+			)}
 		>
 			{children}
 		</span>
 	);
 }
-
-export const PILL_TONES = TONES;

@@ -1,11 +1,6 @@
 import type { ReactNode } from "react";
 import { cn } from "../lib/cn";
 
-interface ChartFrameProps {
-	children: ReactNode;
-	className?: string;
-}
-
 export const chartTheme = {
 	axisColor: "#52525b",
 	gridColor: "rgba(255,255,255,0.06)",
@@ -16,11 +11,23 @@ export const chartTheme = {
 	accentStroke: "#a78bfa",
 } as const;
 
-export function ChartFrame({ children, className = "" }: ChartFrameProps) {
+interface ChartFrameProps {
+	children: ReactNode;
+	className?: string;
+	/** Inset well on void pages — uses bg-bg-inset instead of bg-bg-panel */
+	inset?: boolean;
+}
+
+export function ChartFrame({
+	children,
+	className = "",
+	inset = false,
+}: ChartFrameProps) {
 	return (
 		<div
 			className={cn(
-				"w-full rounded-sharp border border-border bg-bg-panel font-mono",
+				"w-full rounded-sharp border border-border",
+				inset ? "bg-bg-inset" : "bg-bg-panel",
 				className,
 			)}
 		>

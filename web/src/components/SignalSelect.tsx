@@ -1,6 +1,12 @@
 import { Select } from "@base-ui-components/react";
 import { Check, ChevronDown } from "lucide-react";
+import { useState } from "react";
 import { cn } from "../lib/cn";
+import {
+	signalOverlayPopupClass,
+	signalSelectItemClass,
+	signalSelectListClass,
+} from "./signal-overlay-styles";
 
 export type SignalSelectOption = {
 	value: string;
@@ -29,6 +35,8 @@ export function SignalSelect({
 	className?: string;
 	triggerClassName?: string;
 }) {
+	const [open, setOpen] = useState(false);
+
 	const labelFor = (current: string | null) => {
 		const option = options.find((o) => o.value === (current ?? value));
 		return option?.label;
@@ -39,6 +47,8 @@ export function SignalSelect({
 			<Select.Root
 				value={value}
 				onValueChange={(val: string | null) => onValueChange(val ?? "")}
+				open={open}
+				onOpenChange={setOpen}
 				disabled={disabled}
 				modal={false}
 			>
@@ -49,6 +59,7 @@ export function SignalSelect({
 						"flex h-8 w-full min-w-0 cursor-pointer items-center gap-2 rounded-control border border-border bg-bg-inset px-2.5",
 						"text-left text-[12px] text-text outline-none transition-[border-color,background-color,box-shadow] duration-150",
 						"hover:border-border-strong focus-visible:border-accent focus-visible:shadow-[0_0_0_3px_var(--color-accent-bg)]",
+						open && "border-accent bg-bg-elevated shadow-[0_0_0_3px_var(--color-accent-bg)]",
 						"data-[disabled]:cursor-default data-[disabled]:opacity-55",
 						triggerClassName,
 					)}
@@ -67,7 +78,11 @@ export function SignalSelect({
 					<ChevronDown
 						size={12}
 						strokeWidth={1.5}
-						className="shrink-0 text-text-dim"
+						className={cn(
+							"shrink-0 text-text-dim transition-transform duration-[220ms] ease-out",
+							open && "rotate-180 text-accent",
+							"motion-reduce:transition-none",
+						)}
 						aria-hidden
 					/>
 				</Select.Trigger>
@@ -76,37 +91,29 @@ export function SignalSelect({
 					<Select.Positioner
 						side="bottom"
 						align="start"
-						sideOffset={4}
+						sideOffset={6}
 						positionMethod="fixed"
 						alignItemWithTrigger={false}
 						className="z-[400]"
 					>
 						<Select.Popup
 							className={cn(
-								"max-h-64 min-w-[var(--anchor-width)] overflow-auto rounded-overlay border border-border-strong bg-bg-panel p-1",
-								"shadow-[0_12px_32px_rgba(0,0,0,0.45)] outline-none",
-								"origin-[var(--transform-origin)] transition-[transform,opacity] duration-150 ease-out",
-								"data-[starting-style]:scale-95 data-[starting-style]:opacity-0",
-								"data-[ending-style]:scale-95 data-[ending-style]:opacity-0",
-								"motion-reduce:transition-none",
+								signalOverlayPopupClass,
+								"max-h-64 min-w-[max(var(--anchor-width),9rem)] overflow-auto",
 							)}
 						>
-							<Select.List>
+							<Select.List className={signalSelectListClass}>
 								{options.map((option) => (
 									<Select.Item
 										key={option.value}
 										value={option.value}
 										disabled={option.disabled}
-										className={cn(
-											"flex cursor-pointer items-center gap-2 rounded-control px-2 py-1.5 text-[12px] text-text outline-none",
-											"data-[highlighted]:bg-bg-hover data-[selected]:text-accent",
-											"data-[disabled]:cursor-default data-[disabled]:opacity-40",
-										)}
+										className={signalSelectItemClass}
 									>
-										<Select.ItemIndicator className="flex w-3 shrink-0 justify-center">
+										<Select.ItemIndicator className="flex w-3.5 shrink-0 justify-center">
 											<Check
-												size={12}
-												strokeWidth={1.5}
+												size={13}
+												strokeWidth={2}
 												className="text-accent"
 											/>
 										</Select.ItemIndicator>

@@ -1,16 +1,13 @@
-// Semantic P&L color by sign (direction A: green/red on dark, zinc for flat).
+// Semantic P&L color by sign (green/red on dark, flat for zero).
 export function pnlColor(v: number | null | undefined): string {
-	if (v == null || v === 0) return "text-zinc-400";
-	return v > 0 ? "text-emerald-400" : "text-red-400";
+	if (v == null || v === 0) return "text-flat";
+	return v > 0 ? "text-profit" : "text-loss";
 }
 
 export function heroPnlClass(v: number | null | undefined): string {
-	const base =
-		"font-mono text-[32px] font-semibold leading-none tracking-[-0.03em]";
+	const base = "text-[32px] font-semibold leading-none tracking-[-0.03em]";
 	if (v == null || v === 0) return `${base} text-flat`;
-	return v > 0
-		? `${base} text-profit hero-glow-profit`
-		: `${base} text-loss hero-glow-loss`;
+	return v > 0 ? `${base} text-profit` : `${base} text-loss`;
 }
 
 const BENTO_TONE: Record<string, string> = {

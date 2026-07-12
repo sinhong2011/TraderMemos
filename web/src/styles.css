@@ -1,6 +1,4 @@
 @import "tailwindcss";
-@import url("https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap");
 
 @theme {
 	/* Signal Terminal tokens → Tailwind utilities (bg-bg, text-accent, rounded-sharp, …) */
@@ -15,8 +13,8 @@
 	--color-grid: rgba(255, 255, 255, 0.03);
 
 	--color-text: #fafafa;
-	--color-text-muted: #71717a;
-	--color-text-dim: #52525b;
+	--color-text-muted: #8b8b96;
+	--color-text-dim: #6d6d78;
 
 	--color-accent: #a78bfa;
 	--color-accent-glow: rgba(167, 139, 250, 0.35);
@@ -25,17 +23,18 @@
 
 	--color-profit: #4ade80;
 	--color-loss: #fb7185;
-	--color-flat: #71717a;
+	--color-flat: #8b8b96;
 
-	--color-emerald-400: #4ade80;
-	--color-red-400: #fb7185;
-	--color-zinc-400: #71717a;
+	--color-tint-pos: rgba(74, 222, 128, 0.08);
+	--color-tint-neg: rgba(251, 113, 133, 0.08);
+	--color-tint-accent: rgba(167, 139, 250, 0.12);
+	--color-tint-signal: rgba(228, 255, 26, 0.12);
 
-	--font-ui: "General Sans", system-ui, sans-serif;
-	--font-mono: "IBM Plex Mono", ui-monospace, monospace;
+	--font-ui: "General Sans", sans-serif;
 
 	--radius-sharp: 3px;
 	--radius-control: 6px;
+	--radius-card: 8px;
 	--radius-overlay: 10px;
 
 	--shadow-hard: 4px 4px 0 #000;
@@ -58,11 +57,11 @@
 	--color-neg: var(--color-loss);
 	--color-accent-subtle: var(--color-accent-bg);
 	--color-amber: var(--color-signal);
-	--radius-panel: var(--radius-sharp);
-	--tint-pos: rgba(74, 222, 128, 0.08);
-	--tint-neg: rgba(251, 113, 133, 0.08);
-	--tint-accent: var(--color-accent-bg);
-	--tint-amber: rgba(228, 255, 26, 0.12);
+	--radius-panel: var(--radius-card);
+	--tint-pos: var(--color-tint-pos);
+	--tint-neg: var(--color-tint-neg);
+	--tint-accent: var(--color-tint-accent);
+	--tint-amber: var(--color-tint-signal);
 	--duration-fast: 150ms;
 }
 
@@ -76,6 +75,21 @@
 	* {
 		@apply tabular-nums box-border;
 	}
+}
+
+@utility text-label {
+	font-size: 10px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.1em;
+	color: var(--color-text-dim);
+}
+
+@utility text-stat {
+	font-size: 28px;
+	font-weight: 600;
+	line-height: 1;
+	letter-spacing: -0.03em;
 }
 
 @keyframes auth-panel-in {
@@ -161,5 +175,29 @@
 	.skeleton-shimmer {
 		animation: none;
 		background: var(--color-bg-panel);
+	}
+}
+
+/* Toast enter/exit — Base UI sets data-starting-style / data-ending-style */
+.signal-toast {
+	transition:
+		opacity 150ms var(--ease-out),
+		transform 150ms var(--ease-out);
+}
+
+.signal-toast[data-starting-style] {
+	opacity: 0;
+	transform: translateX(12px);
+}
+
+.signal-toast[data-ending-style] {
+	opacity: 0;
+	transform: translateX(8px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.signal-toast[data-starting-style],
+	.signal-toast[data-ending-style] {
+		transform: none;
 	}
 }
