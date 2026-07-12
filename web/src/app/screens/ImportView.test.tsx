@@ -1,7 +1,17 @@
 import { render, screen } from "@testing-library/react";
+import type { ComponentProps } from "react";
 import { describe, expect, it, vi } from "vitest";
+import { Toaster } from "../../components/Toaster";
 import type { Account, ImportPreview, ImportResult } from "../../lib/api/types";
 import { ImportView } from "./ImportView";
+
+function renderImportView(props: ComponentProps<typeof ImportView>) {
+	return render(
+		<Toaster>
+			<ImportView {...props} />
+		</Toaster>,
+	);
+}
 
 const accounts: Account[] = [
 	{
@@ -13,6 +23,16 @@ const accounts: Account[] = [
 		base_currency: "USD",
 		starting_balance: 10000,
 		created_at: "2026-01-01T00:00:00Z",
+	},
+	{
+		id: "a2",
+		user_id: "u1",
+		name: "Margin",
+		broker: "IBKR",
+		account_type: "margin",
+		base_currency: "USD",
+		starting_balance: 5000,
+		created_at: "2026-01-02T00:00:00Z",
 	},
 ];
 
@@ -45,72 +65,74 @@ const mockResult: ImportResult = {
 
 describe("ImportView - Step 1", () => {
 	it("renders the file input in step 1", () => {
-		render(
-			<ImportView
-				accounts={accounts}
-				accountsLoading={false}
-				onPreview={vi.fn()}
-				onCommit={vi.fn()}
-				onDone={vi.fn()}
-			/>,
-		);
+		renderImportView({
+			accounts,
+			accountsLoading: false,
+			onPreview: vi.fn(),
+			onCommit: vi.fn(),
+			onDone: vi.fn(),
+		});
 		expect(screen.getByLabelText("CSV file input")).toBeInTheDocument();
 	});
 
 	it("renders account select in step 1", () => {
-		render(
-			<ImportView
-				accounts={accounts}
-				accountsLoading={false}
-				onPreview={vi.fn()}
-				onCommit={vi.fn()}
-				onDone={vi.fn()}
-			/>,
-		);
+		renderImportView({
+			accounts,
+			accountsLoading: false,
+			onPreview: vi.fn(),
+			onCommit: vi.fn(),
+			onDone: vi.fn(),
+		});
 		expect(screen.getByLabelText("Account select")).toBeInTheDocument();
 	});
 
 	it("shows the account name in the account select", () => {
-		render(
-			<ImportView
-				accounts={accounts}
-				accountsLoading={false}
-				onPreview={vi.fn()}
-				onCommit={vi.fn()}
-				onDone={vi.fn()}
-			/>,
-		);
-		expect(screen.getByText("Main")).toBeInTheDocument();
+		renderImportView({
+			accounts,
+			accountsLoading: false,
+			onPreview: vi.fn(),
+			onCommit: vi.fn(),
+			onDone: vi.fn(),
+		});
+		expect(screen.getByLabelText("Account select")).toHaveTextContent("Main");
 	});
 
-	it("shows Step 1 - Upload panel header", () => {
-		render(
-			<ImportView
-				accounts={accounts}
-				accountsLoading={false}
-				onPreview={vi.fn()}
-				onCommit={vi.fn()}
-				onDone={vi.fn()}
-			/>,
-		);
-		expect(screen.getByText(/Step 1/i)).toBeInTheDocument();
+	it("defaults to the header-selected account when provided", () => {
+		renderImportView({
+			accounts,
+			accountsLoading: false,
+			defaultAccountId: "a2",
+			onPreview: vi.fn(),
+			onCommit: vi.fn(),
+			onDone: vi.fn(),
+		});
+		expect(screen.getByLabelText("Account select")).toHaveTextContent("Margin");
+	});
+
+	it("shows Upload CSV panel and drop zone", () => {
+		renderImportView({
+			accounts,
+			accountsLoading: false,
+			onPreview: vi.fn(),
+			onCommit: vi.fn(),
+			onDone: vi.fn(),
+		});
+		expect(screen.getByText("Upload CSV")).toBeInTheDocument();
+		expect(screen.getByText(/Click to upload/i)).toBeInTheDocument();
+		expect(screen.getByText("Supported formats")).toBeInTheDocument();
 	});
 });
 
 describe("ImportView - Step 2 via simulated preview result", () => {
-	// We test step 2 by creating a wrapper that starts at step 2 via mocked onPreview
 	it("renders a mapping select for 'symbol' after preview", () => {
-		render(
-			<ImportView
-				accounts={accounts}
-				accountsLoading={false}
-				onPreview={vi.fn().mockResolvedValue(mockPreview)}
-				onCommit={vi.fn()}
-				onDone={vi.fn()}
-			/>,
-		);
+		renderImportView({
+			accounts,
+			accountsLoading: false,
+			onPreview: vi.fn().mockResolvedValue(mockPreview),
+			onCommit: vi.fn(),
+			onDone: vi.fn(),
+		});
 
-		// Verify the step indicator renders all steps
 		expect(screen.getByText("Upload")).toBeInTheDocument();
 		expect(screen.getByText("Map columns")).toBeInTheDocument();
 		expect(screen.getByText("Result")).toBeInTheDocument();
@@ -119,29 +141,20 @@ describe("ImportView - Step 2 via simulated preview result", () => {
 
 describe("ImportView - Step 3 result", () => {
 	it("renders the result panel after commit", () => {
-		// We test the Step3Result sub-component implicitly via ImportView by
-		// checking that when the view is at step 3, the result is shown.
-		// Since ImportView manages step state internally, we check step 1 is default.
-		render(
-			<ImportView
-				accounts={accounts}
-				accountsLoading={false}
-				onPreview={vi.fn()}
-				onCommit={vi.fn()}
-				onDone={vi.fn()}
-			/>,
-		);
-		// Step 1 should show by default
-		expect(screen.queryByText("Import Complete")).not.toBeInTheDocument();
-		expect(screen.getByText(/Step 1/i)).toBeInTheDocument();
+		renderImportView({
+			accounts,
+			accountsLoading: false,
+			onPreview: vi.fn(),
+			onCommit: vi.fn(),
+			onDone: vi.fn(),
+		});
+		expect(screen.queryByText("Import complete")).not.toBeInTheDocument();
+		expect(screen.getByText("Upload CSV")).toBeInTheDocument();
 	});
 });
 
-// Test the suggested mapping select is pre-filled (direct step 2 test)
 describe("ImportView - Step 2 mapping selects", () => {
 	it("renders suggested mapping selects from headers", () => {
-		// We test the internal Step2Map component behavior by importing it directly
-		// Here we verify the preview data structure matches what the component expects
 		expect(mockPreview.headers).toContain("Symbol");
 		expect(mockPreview.suggested_mapping.symbol).toBe("Symbol");
 		expect(mockResult.inserted).toBe(5);
