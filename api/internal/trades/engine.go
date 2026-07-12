@@ -18,6 +18,7 @@ type Execution struct {
 	Commission     float64
 	ExecutedAt     time.Time
 	Multiplier     float64 // 1 stock, 100 option, tick-derived for futures
+	LotKey         string  // optional; isolates overlapping same-symbol round-trips
 }
 
 type Trade struct {

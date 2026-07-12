@@ -23,6 +23,7 @@ func (s *Server) accountRoutes(g *echo.Group) {
 	g.POST("/accounts", s.handleCreateAccount)
 	g.GET("/accounts", s.handleListAccounts)
 	g.GET("/accounts/:id", s.handleGetAccount)
+	g.DELETE("/accounts/:id/trades", s.handleClearAccountTrades)
 	g.DELETE("/accounts/:id", s.handleDeleteAccount)
 }
 
@@ -80,9 +81,53 @@ func (s *Server) handleGetAccount(c echo.Context) error {
 	return c.JSON(http.StatusOK, acc)
 }
 
+func (s *Server) handleClearAccountTrades(c echo.Context) error {
+	uid := auth.UserID(c)
+	ctx := c.Request().Context()
+	id := c.Param("id")
+
+	if _, err := s.deps.Store.GetAccount(ctx, store.GetAccountParams{ID: id, UserID: uid}); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return Fail(http.StatusNotFound, "not_found", "account not found", nil)
+		}
+		return Fail(http.StatusInternalServerError, "internal", "could not load account", nil)
+	}
+
+	if err := s.deps.Store.DeleteTradesForAccount(ctx, store.DeleteTradesForAccountParams{
+		UserID: uid, AccountID: id,
+	}); err != nil {
+		return Fail(http.StatusInternalServerError, "internal", "could not clear trades", nil)
+	}
+	if err := s.deps.Store.DeleteExecutionsForAccount(ctx, store.DeleteExecutionsForAccountParams{
+		UserID: uid, AccountID: id,
+	}); err != nil {
+		return Fail(http.StatusInternalServerError, "internal", "could not clear executions", nil)
+	}
+	return c.NoContent(http.StatusNoContent)
+}
+
 func (s *Server) handleDeleteAccount(c echo.Context) error {
-	n, err := s.deps.Store.DeleteAccount(c.Request().Context(), store.DeleteAccountParams{
-		ID: c.Param("id"), UserID: auth.UserID(c),
+	uid := auth.UserID(c)
+	ctx := c.Request().Context()
+	id := c.Param("id")
+
+	if _, err := s.deps.Store.GetAccount(ctx, store.GetAccountParams{ID: id, UserID: uid}); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return Fail(http.StatusNotFound, "not_found", "account not found", nil)
+		}
+		return Fail(http.StatusInternalServerError, "internal", "could not load account", nil)
+	}
+
+	accs, err := s.deps.Store.ListAccounts(ctx, uid)
+	if err != nil {
+		return Fail(http.StatusInternalServerError, "internal", "could not list accounts", nil)
+	}
+	if len(accs) <= 1 {
+		return Fail(http.StatusConflict, "conflict", "cannot delete your only account — add another account first", nil)
+	}
+
+	n, err := s.deps.Store.DeleteAccount(ctx, store.DeleteAccountParams{
+		ID: id, UserID: uid,
 	})
 	if err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not delete account", nil)

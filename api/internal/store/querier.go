@@ -20,6 +20,7 @@ type Querier interface {
 	DeleteAccount(ctx context.Context, arg DeleteAccountParams) (int64, error)
 	DeleteAttachment(ctx context.Context, arg DeleteAttachmentParams) (int64, error)
 	DeleteCashTransaction(ctx context.Context, arg DeleteCashTransactionParams) (int64, error)
+	DeleteExecutionsForAccount(ctx context.Context, arg DeleteExecutionsForAccountParams) error
 	DeleteExecutionsForBatch(ctx context.Context, arg DeleteExecutionsForBatchParams) error
 	DeleteJournalNote(ctx context.Context, arg DeleteJournalNoteParams) (int64, error)
 	DeleteSetup(ctx context.Context, arg DeleteSetupParams) (int64, error)
