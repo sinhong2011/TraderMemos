@@ -1,69 +1,64 @@
 msgid ""
 msgstr ""
+"POT-Creation-Date: 2026-07-11 20:58+0800\n"
+"MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"MIME-Version: 1.0\n"
-"Language: en\n"
-"Project-Id-Version: \n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: \n"
-"PO-Revision-Date: \n"
-"Last-Translator: \n"
-"Language-Team: \n"
-"Plural-Forms: \n"
+"X-Generator: @lingui/cli\n"
+"Language: zh-HK\n"
 
 #: src/components/AppNav.tsx:33
 msgid "Calendar"
-msgstr "Calendar"
+msgstr "日曆"
 
 #: src/components/AppNav.tsx:31
 msgid "Dashboard"
-msgstr "Dashboard"
+msgstr "儀表板"
 
 #: src/components/AppNav.tsx:39
 msgid "Import"
-msgstr "Import"
+msgstr "匯入"
 
 #: src/app/screens/settings/settings-sections.tsx:1170
 msgid "Interface language"
-msgstr "Interface language"
+msgstr "介面語言"
 
 #: src/app/screens/settings/settings-sections.tsx:1167
 msgid "Interface language for TraderMemos."
-msgstr "Interface language for TraderMemos."
+msgstr "TraderMemos 的介面語言。"
 
 #: src/app/screens/settings/settings-sections.tsx:1166
 msgid "Language"
-msgstr "Language"
+msgstr "語言"
 
 #: src/app/screens/settings/settings-sections.tsx:1174
 msgid "Language selector"
-msgstr "Language selector"
+msgstr "語言選擇器"
 
 #: src/components/AppNav.tsx:257
 msgid "New Note"
-msgstr "New Note"
+msgstr "新增筆記"
 
 #: src/components/AppNav.tsx:251
 msgid "New Setup"
-msgstr "New Setup"
+msgstr "新增策略"
 
 #: src/components/AppNav.tsx:245
 msgid "New Trade"
-msgstr "New Trade"
+msgstr "新增交易"
 
 #: src/components/AppNav.tsx:38
 msgid "Playbook"
-msgstr "Playbook"
+msgstr "策略庫"
 
 #: src/components/AppNav.tsx:276
 msgid "Settings"
-msgstr "Settings"
+msgstr "設定"
 
 #: src/components/AppNav.tsx:34
 msgid "Stats"
-msgstr "Stats"
+msgstr "統計"
 
 #: src/components/AppNav.tsx:32
 msgid "Trades"
-msgstr "Trades"
+msgstr "交易"
