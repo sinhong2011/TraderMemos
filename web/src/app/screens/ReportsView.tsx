@@ -9,10 +9,11 @@ import {
 	XAxis,
 	YAxis,
 } from "recharts";
+import { Card } from "../../components/Card";
 import { ChartFrame, chartTheme } from "../../components/ChartFrame";
 import { DataTable } from "../../components/DataTable";
 import { EmptyState } from "../../components/EmptyState";
-import { Panel } from "../../components/Panel";
+import { Page } from "../../components/Page";
 import { SegmentedControl } from "../../components/SegmentedControl";
 import { Skeleton } from "../../components/Skeleton";
 import { StatCard } from "../../components/StatCard";
@@ -23,6 +24,7 @@ import type {
 	RSummary,
 	Summary,
 } from "../../lib/api/types";
+import { uniqueDayTicks } from "../../lib/chartTicks";
 import {
 	fmtDayShort,
 	fmtMoney,
@@ -341,10 +343,9 @@ function PnlBarChart({ data, currency }: PnlBarChartProps) {
 							border: `1px solid ${chartTheme.tooltipBorder}`,
 							color: chartTheme.tooltipText,
 							fontSize: 11,
-							fontFamily: "var(--font-mono)",
 						}}
-						formatter={(value: number) => [
-							fmtSignedMoney(value, currency, intlLocale()),
+						formatter={(value) => [
+							fmtSignedMoney(Number(value ?? 0), currency, intlLocale()),
 							"Net P&L",
 						]}
 						cursor={{ fill: chartTheme.cursorFill }}
@@ -440,13 +441,13 @@ export function ReportsView({
 	};
 
 	return (
-		<div className="flex flex-col gap-4">
+		<Page>
 			{summaryLoading ? (
 				<Skeleton height="120px" />
 			) : summaryError ? (
 				<p className="p-4 text-xs text-loss">Failed to load summary.</p>
 			) : summary ? (
-				<Panel title="Statistics" className="overflow-hidden">
+				<Card title="Statistics" className="overflow-hidden">
 					<SummaryMetricsGrid
 						summary={summary}
 						currency={currency}
@@ -455,14 +456,14 @@ export function ReportsView({
 					/>
 					{unit === "r" && rSummary && rSummary.distribution.length > 0 && (
 						<div className="border-t border-border px-3 py-2">
-							<p className="mb-2 font-mono text-[10px] font-medium uppercase tracking-widest text-text-dim">
+							<p className="mb-2 text-[10px] font-medium uppercase tracking-widest text-text-dim">
 								R-multiple distribution
 							</p>
 							<div className="flex flex-wrap gap-2">
 								{rSummary.distribution.map((b) => (
 									<span
 										key={b.label}
-										className="rounded-sharp border border-border px-2 py-1 font-mono text-[11px] text-text-muted"
+										className="rounded-sharp border border-border px-2 py-1 text-[11px] text-text-muted"
 									>
 										{b.label}: {b.count}
 									</span>
@@ -474,7 +475,7 @@ export function ReportsView({
 						<Skeleton height="160px" className="m-3" />
 					) : equity && equity.points.length > 0 ? (
 						<div className="border-t border-border p-3">
-							<p className="mb-2 font-mono text-[10px] font-medium uppercase tracking-widest text-text-dim">
+							<p className="mb-2 text-[10px] font-medium uppercase tracking-widest text-text-dim">
 								Equity curve · Max DD{" "}
 								{fmtMoney(equity.max_drawdown, currency, intlLocale())}
 							</p>
@@ -490,12 +491,14 @@ export function ReportsView({
 										/>
 										<XAxis
 											dataKey="at"
+											ticks={uniqueDayTicks(equity.points)}
 											tick={{ fontSize: 10, fill: chartTheme.axisColor }}
 											tickFormatter={(v: string) =>
 												fmtDayShort(v, intlLocale())
 											}
 											axisLine={false}
 											tickLine={false}
+											minTickGap={60}
 										/>
 										<YAxis
 											tick={{ fontSize: 10, fill: chartTheme.axisColor }}
@@ -512,10 +515,9 @@ export function ReportsView({
 												border: `1px solid ${chartTheme.tooltipBorder}`,
 												color: chartTheme.tooltipText,
 												fontSize: 11,
-												fontFamily: "var(--font-mono)",
 											}}
-											formatter={(value: number) => [
-												fmtMoney(value, currency, intlLocale()),
+											formatter={(value) => [
+												fmtMoney(Number(value ?? 0), currency, intlLocale()),
 												"Equity",
 											]}
 										/>
@@ -530,12 +532,12 @@ export function ReportsView({
 							</ChartFrame>
 						</div>
 					) : null}
-				</Panel>
+				</Card>
 			) : null}
 
-			<Panel title="Breakdown" right={panelRight}>
+			<Card title="Breakdown" action={panelRight}>
 				{renderContent()}
-			</Panel>
-		</div>
+			</Card>
+		</Page>
 	);
 }
