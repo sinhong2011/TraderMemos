@@ -8,30 +8,36 @@ import {
 	Plus,
 	Settings,
 	StickyNote,
+	Target,
 	Upload,
 	Zap,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useLayoutEffect, useRef, useState } from "react";
 import { cn } from "../lib/cn";
+import { navLabel } from "../lib/locale";
+import { useLocale } from "../i18n";
 import { useUI } from "../lib/ui";
+import { AppLogo } from "./AppLogo";
+import { AccountNavPopover } from "./AccountNavPopover";
 
 type NavItem = {
 	to: string;
-	label: string;
+	labelKey: Parameters<typeof navLabel>[1];
 	icon: LucideIcon;
 };
 
 const PRIMARY: NavItem[] = [
-	{ to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-	{ to: "/trades", label: "Trades", icon: List },
-	{ to: "/calendar", label: "Calendar", icon: CalendarDays },
-	{ to: "/reports", label: "Stats", icon: PieChart },
+	{ to: "/dashboard", labelKey: "dashboard", icon: LayoutDashboard },
+	{ to: "/trades", labelKey: "trades", icon: List },
+	{ to: "/calendar", labelKey: "calendar", icon: CalendarDays },
+	{ to: "/reports", labelKey: "stats", icon: PieChart },
 ];
 
 const SECONDARY: NavItem[] = [
-	{ to: "/playbook", label: "Playbook", icon: BookOpen },
-	{ to: "/import", label: "Import", icon: Upload },
+	{ to: "/playbook", labelKey: "playbook", icon: BookOpen },
+	{ to: "/calculator", labelKey: "calculator", icon: Target },
+	{ to: "/import", labelKey: "import", icon: Upload },
 ];
 
 const MAIN_ROUTES = [...PRIMARY, ...SECONDARY];
@@ -43,7 +49,7 @@ function RailTooltip({ label }: { label: string }) {
 				"pointer-events-none absolute top-1/2 left-[calc(100%+8px)] z-50",
 				"-translate-y-1/2 translate-x-1",
 				"rounded-control border border-border bg-bg-panel px-2 py-1",
-				"font-mono text-[11px] tracking-wide whitespace-nowrap text-text-muted",
+				"text-[11px] tracking-wide whitespace-nowrap text-text-muted",
 				"opacity-0 transition-[opacity,transform] duration-150 ease-out",
 				"group-hover:translate-x-0 group-hover:opacity-100",
 				"group-focus-visible:translate-x-0 group-focus-visible:opacity-100",
@@ -61,7 +67,10 @@ function RailLink({
 	icon: Icon,
 	active,
 	itemRef,
-}: NavItem & {
+}: {
+	to: string;
+	label: string;
+	icon: LucideIcon;
 	active: boolean;
 	itemRef?: (el: HTMLAnchorElement | null) => void;
 }) {
@@ -83,7 +92,7 @@ function RailLink({
 			)}
 		>
 			<Icon
-				size={18}
+				size={20}
 				strokeWidth={1.75}
 				className={cn(
 					"transition-transform duration-150 ease-out motion-reduce:transition-none",
@@ -104,7 +113,7 @@ function RailAction({
 	label: string;
 	icon: LucideIcon;
 	onClick: () => void;
-	tone: "accent" | "signal";
+	tone: "accent" | "signal" | "muted";
 }) {
 	return (
 		<button
@@ -119,11 +128,13 @@ function RailAction({
 				"motion-reduce:transition-none motion-reduce:active:scale-100",
 				tone === "accent"
 					? "text-accent hover:bg-accent-bg"
-					: "text-signal hover:bg-[rgba(228,255,26,0.08)]",
+					: tone === "signal"
+						? "text-signal hover:bg-[rgba(228,255,26,0.08)]"
+						: "text-text-dim hover:bg-bg-hover hover:text-text",
 			)}
 		>
 			<Icon
-				size={18}
+				size={20}
 				strokeWidth={1.75}
 				className="transition-transform duration-150 ease-out group-hover:scale-110 motion-reduce:transition-none"
 			/>
@@ -137,8 +148,10 @@ function isRouteActive(pathname: string, to: string) {
 }
 
 export function AppNav() {
+	const { locale } = useLocale();
 	const openModal = useUI((s) => s.openModal);
 	const pathname = useRouterState({ select: (s) => s.location.pathname });
+	const label = (key: Parameters<typeof navLabel>[1]) => navLabel(locale, key);
 
 	const listRef = useRef<HTMLDivElement>(null);
 	const itemRefs = useRef(new Map<string, HTMLAnchorElement>());
@@ -174,22 +187,20 @@ export function AppNav() {
 	return (
 		<nav
 			aria-label="Main navigation"
-			className="relative z-[2] flex h-full w-[52px] shrink-0 flex-col items-center border-r border-border bg-bg-elevated"
+			className="relative z-[2] flex h-full w-[52px] shrink-0 flex-col bg-bg"
 		>
-			<div className="flex w-full items-center justify-center py-3">
-				<div
-					className="flex size-8 items-center justify-center rounded-sharp font-mono text-[12px] font-semibold text-accent transition-transform duration-150 ease-out hover:scale-105 motion-reduce:transition-none"
-					title="TraderMemos"
-				>
-					TM
-				</div>
+			{/* Logo band — same 52px + border as HeaderBar */}
+			<div className="flex h-[52px] w-full shrink-0 items-center justify-center bg-bg">
+				<AppLogo
+					size={24}
+					className="transition-transform duration-150 ease-out hover:scale-105 motion-reduce:transition-none"
+				/>
 			</div>
 
 			<div
 				ref={listRef}
-				className="relative flex flex-1 flex-col items-center gap-0.5 py-1"
+				className="relative flex flex-1 flex-col items-center gap-0.5 py-2"
 			>
-				{/* Sliding active pip */}
 				<span
 					aria-hidden
 					className={cn(
@@ -205,7 +216,9 @@ export function AppNav() {
 				{PRIMARY.map((item) => (
 					<RailLink
 						key={item.to}
-						{...item}
+						to={item.to}
+						icon={item.icon}
+						label={label(item.labelKey)}
 						active={isRouteActive(pathname, item.to)}
 						itemRef={(el) => {
 							if (el) itemRefs.current.set(item.to, el);
@@ -222,7 +235,9 @@ export function AppNav() {
 				{SECONDARY.map((item) => (
 					<RailLink
 						key={item.to}
-						{...item}
+						to={item.to}
+						icon={item.icon}
+						label={label(item.labelKey)}
 						active={isRouteActive(pathname, item.to)}
 						itemRef={(el) => {
 							if (el) itemRefs.current.set(item.to, el);
@@ -232,21 +247,21 @@ export function AppNav() {
 				))}
 			</div>
 
-			<div className="flex w-full flex-col items-center gap-0.5 border-t border-border py-3">
+			<div className="flex w-full flex-col items-center gap-0.5 py-2">
 				<RailAction
-					label="New Trade"
+					label={label("newTrade")}
 					icon={Plus}
 					tone="accent"
 					onClick={() => openModal("new-trade")}
 				/>
 				<RailAction
-					label="New Setup"
+					label={label("newSetup")}
 					icon={Zap}
 					tone="signal"
 					onClick={() => openModal("new-setup")}
 				/>
 				<RailAction
-					label="New Note"
+					label={label("newNote")}
 					icon={StickyNote}
 					tone="accent"
 					onClick={() => openModal("new-note")}
@@ -263,11 +278,13 @@ export function AppNav() {
 					)}
 					<RailLink
 						to="/settings"
-						label="Settings"
+						label={label("settings")}
 						icon={Settings}
 						active={settingsActive}
 					/>
 				</div>
+
+				<AccountNavPopover />
 			</div>
 		</nav>
 	);

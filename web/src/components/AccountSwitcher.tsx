@@ -1,8 +1,9 @@
 import { SignalSelect } from "./SignalSelect";
+import { cn } from "../lib/cn";
 import { useFilters } from "../lib/filters";
 import { useAccounts } from "../lib/hooks/useAccounts";
 
-export function AccountSwitcher() {
+export function AccountSwitcher({ className }: { className?: string }) {
 	const { data: accounts, isLoading } = useAccounts();
 	const { accountId, setAccount } = useFilters();
 
@@ -21,18 +22,15 @@ export function AccountSwitcher() {
 	}
 
 	return (
-		<div className="flex items-center gap-2">
-			<span
-				aria-hidden
-				className="size-2 shrink-0 rounded-full bg-profit"
-			/>
-			<SignalSelect
-				value={accountId ?? ""}
-				onValueChange={(val) => setAccount(val === "" ? undefined : val)}
-				options={options}
-				ariaLabel="Account"
-				triggerClassName="min-w-[120px] font-mono text-[11px] text-text-muted"
-			/>
-		</div>
+		<SignalSelect
+			value={accountId ?? ""}
+			onValueChange={(val) => setAccount(val === "" ? undefined : val)}
+			options={options}
+			ariaLabel="Account"
+			triggerClassName={cn(
+				"h-8 min-w-0 text-[11px] text-text-muted",
+				className ?? "min-w-[112px]",
+			)}
+		/>
 	);
 }

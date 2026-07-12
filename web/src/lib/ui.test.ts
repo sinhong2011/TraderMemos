@@ -24,4 +24,12 @@ describe("useUI store", () => {
 		useUI.getState().toggleSidebar();
 		expect(useUI.getState().sidebarCollapsed).toBe(!before);
 	});
+	it("opens command palette and position size modal", () => {
+		useUI.getState().openCommandPalette();
+		expect(useUI.getState().commandOpen).toBe(true);
+		useUI.getState().setCommandOpen(false);
+		expect(useUI.getState().commandOpen).toBe(false);
+		useUI.getState().openPositionSize();
+		expect(useUI.getState().positionSizeOpen).toBe(true);
+	});
 });

@@ -37,3 +37,7 @@ if (
 		configurable: true,
 	});
 }
+
+if (typeof Element !== "undefined" && !Element.prototype.scrollIntoView) {
+	Element.prototype.scrollIntoView = () => {};
+}
