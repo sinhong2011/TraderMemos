@@ -7,7 +7,10 @@ test("login -> dashboard -> calendar -> trades -> detail -> stats", async ({
 	page,
 }) => {
 	await page.goto("/dashboard");
-	await page.evaluate(() => localStorage.removeItem("tm_token"));
+	await page.evaluate(() => {
+		localStorage.removeItem("tm_token");
+		localStorage.removeItem("tm_refresh");
+	});
 	await page.reload();
 
 	// Login screen.
@@ -32,14 +35,20 @@ test("login -> dashboard -> calendar -> trades -> detail -> stats", async ({
 	await page.locator("tbody tr").first().click();
 	await expect(page.getByText("Back to trades")).toBeVisible();
 
-	// Stats (reports).
+	// Stats (reports): the metrics grid must render — this is the assertion
+	// that would have caught the missing-StatCard crash.
 	await page.getByRole("link", { name: "Stats" }).click();
-	await expect(page.getByText("REPORTS")).toBeVisible();
+	await expect(page.getByText("Statistics")).toBeVisible();
+	// .first(): the label appears in the metrics grid and the breakdown table.
+	await expect(page.getByText("Profit Factor").first()).toBeVisible();
 });
 
 test("new trade drawer logs a trade", async ({ page }) => {
 	await page.goto("/dashboard");
-	await page.evaluate(() => localStorage.removeItem("tm_token"));
+	await page.evaluate(() => {
+		localStorage.removeItem("tm_token");
+		localStorage.removeItem("tm_refresh");
+	});
 	await page.reload();
 	await page.locator("#email").fill(EMAIL);
 	await page.locator("#password").fill(PASSWORD);
@@ -69,7 +78,10 @@ test("new trade drawer logs a trade", async ({ page }) => {
 
 test("new trade can still log a closed round-trip", async ({ page }) => {
 	await page.goto("/dashboard");
-	await page.evaluate(() => localStorage.removeItem("tm_token"));
+	await page.evaluate(() => {
+		localStorage.removeItem("tm_token");
+		localStorage.removeItem("tm_refresh");
+	});
 	await page.reload();
 	await page.locator("#email").fill(EMAIL);
 	await page.locator("#password").fill(PASSWORD);
