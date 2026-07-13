@@ -1,7 +1,8 @@
-import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
+import { CalendarDays } from "lucide-react";
 import { Card } from "../../components/Card";
 import { DataTable } from "../../components/DataTable";
 import { EmptyState } from "../../components/EmptyState";
+import { MonthPicker } from "../../components/MonthPicker";
 import { Page } from "../../components/Page";
 import { Skeleton } from "../../components/Skeleton";
 import { pnlColor } from "../../components/theme-tokens";
@@ -26,6 +27,8 @@ export interface CalendarViewProps {
 	onPrevMonth: () => void;
 	onNextMonth: () => void;
 	onToday: () => void;
+	onJumpToMonth: (year: number, month: number) => void;
+	canGoNext: boolean;
 	selectedDay: string | null;
 	onSelectDay: (date: string | null) => void;
 	dayTrades: Trade[];
@@ -54,21 +57,6 @@ function todayString(): string {
 	const d = new Date();
 	const pad = (n: number) => String(n).padStart(2, "0");
 	return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-}
-
-function navBtnStyle(): React.CSSProperties {
-	return {
-		width: 28,
-		height: 28,
-		color: "var(--color-text-muted)",
-		background: "transparent",
-		border: "1px solid var(--color-border)",
-		borderRadius: "var(--radius-control)",
-		cursor: "pointer",
-		display: "flex",
-		alignItems: "center",
-		justifyContent: "center",
-	};
 }
 
 function HeaderStat({
@@ -106,6 +94,8 @@ export function CalendarView({
 	onPrevMonth,
 	onNextMonth,
 	onToday,
+	onJumpToMonth,
+	canGoNext,
 	selectedDay,
 	onSelectDay,
 	dayTrades,
@@ -117,11 +107,6 @@ export function CalendarView({
 	const grid = monthGrid(year, month, dailyPnl);
 	const weeks = weekSummaries(grid.weeks, records);
 	const today = todayString();
-
-	const monthLabel = new Date(year, month - 1, 1).toLocaleString(intlLocale(), {
-		month: "long",
-		year: "numeric",
-	});
 
 	const startingList = selectedAccountId
 		? accounts.filter((a) => a.id === selectedAccountId)
@@ -139,47 +124,18 @@ export function CalendarView({
 		<Page>
 			<Card flush>
 				{/* Header: month nav + stats */}
-				<div
-					className="flex items-center gap-3 flex-wrap px-4 py-3"
-					style={{ borderBottom: "1px solid var(--color-border)" }}
-				>
-					<button
-						type="button"
-						onClick={onPrevMonth}
-						aria-label="Previous month"
-						style={navBtnStyle()}
-					>
-						<ChevronLeft size={14} strokeWidth={1.5} />
-					</button>
-					<span
-						className="text-sm font-semibold tabular-nums"
-						style={{ color: "var(--color-text)", minWidth: 110 }}
-					>
-						{monthLabel}
-					</span>
-					<button
-						type="button"
-						onClick={onNextMonth}
-						aria-label="Next month"
-						style={navBtnStyle()}
-					>
-						<ChevronRight size={14} strokeWidth={1.5} />
-					</button>
-					<button
-						type="button"
-						onClick={onToday}
-						style={{
-							...navBtnStyle(),
-							width: "auto",
-							padding: "0 10px",
-							fontSize: 12,
-							fontFamily: "var(--font-ui)",
-						}}
-					>
-						Today
-					</button>
+				<div className="flex flex-wrap items-center gap-3 px-4 py-3">
+					<MonthPicker
+						year={year}
+						month={month}
+						onPrevMonth={onPrevMonth}
+						onNextMonth={onNextMonth}
+						onToday={onToday}
+						onJumpToMonth={onJumpToMonth}
+						canGoNext={canGoNext}
+					/>
 
-					<div className="ml-auto flex items-center gap-5 flex-wrap">
+					<div className="ml-auto flex flex-wrap items-center gap-5">
 						{monthSummary && (
 							<>
 								<HeaderStat label="Trades">

@@ -31,11 +31,11 @@ function CalendarPage() {
 	const [month, setMonth] = useState(now.getMonth() + 1);
 	const [selectedDay, setSelectedDay] = useState<string | null>(null);
 
-	const dailyQ = useDailyPnl(filters);
-
-	// Month-scoped stats + records
+	// Month-scoped heatmap + stats + records: the visible month is the scope
+	// here, so the global date-range filter never starves the day cells.
 	const range = monthRange(year, month);
 	const monthFilters = { ...filters, from: range.from, to: range.to };
+	const dailyQ = useDailyPnl(monthFilters);
 	const monthSummaryQ = useSummary(monthFilters);
 	const monthTradesQ = useTrades(monthFilters);
 	const records = buildDayRecords(monthTradesQ.data ?? []);
@@ -66,6 +66,15 @@ function CalendarPage() {
 		setSelectedDay(null);
 	}
 
+	function jumpToMonth(y: number, m: number) {
+		setYear(y);
+		setMonth(m);
+		setSelectedDay(null);
+	}
+
+	const isCurrentMonth =
+		year === now.getFullYear() && month === now.getMonth() + 1;
+
 	return (
 		<CalendarView
 			dailyPnl={dailyQ.data ?? {}}
@@ -79,11 +88,9 @@ function CalendarPage() {
 			month={month}
 			onPrevMonth={() => shiftMonth(-1)}
 			onNextMonth={() => shiftMonth(1)}
-			onToday={() => {
-				setYear(now.getFullYear());
-				setMonth(now.getMonth() + 1);
-				setSelectedDay(null);
-			}}
+			onToday={() => jumpToMonth(now.getFullYear(), now.getMonth() + 1)}
+			onJumpToMonth={jumpToMonth}
+			canGoNext={!isCurrentMonth}
 			selectedDay={selectedDay}
 			onSelectDay={setSelectedDay}
 			dayTrades={selectedDay ? (dayTradesQ.data ?? []) : []}

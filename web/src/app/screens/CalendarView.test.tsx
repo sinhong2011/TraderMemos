@@ -28,6 +28,8 @@ const BASE = {
 	onPrevMonth: vi.fn(),
 	onNextMonth: vi.fn(),
 	onToday: vi.fn(),
+	onJumpToMonth: vi.fn(),
+	canGoNext: true,
 	selectedDay: null,
 	onSelectDay: vi.fn(),
 	dayTrades: [],
@@ -40,7 +42,7 @@ const BASE = {
 describe("CalendarView", () => {
 	it("renders the month stats header", () => {
 		render(<CalendarView {...BASE} />);
-		expect(screen.getByText("July 2026")).toBeInTheDocument();
+		expect(screen.getByRole("button", { name: /July 2026, choose month/i })).toBeInTheDocument();
 		expect(screen.getByText("Trades")).toBeInTheDocument();
 		expect(screen.getByText("Win rate")).toBeInTheDocument();
 		expect(screen.getByText("Record")).toBeInTheDocument();
