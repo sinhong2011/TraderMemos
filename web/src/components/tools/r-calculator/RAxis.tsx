@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { money, rLabel, shares as fmtShares, signedMoney } from "../../../lib/r-calculator/format";
+import { money, rLabel, signedMoney } from "../../../lib/r-calculator/format";
 import { useRCalculatorStore } from "../../../lib/r-calculator/useRCalculatorStore";
 import { cn } from "../../../lib/cn";
 
@@ -12,8 +12,6 @@ export function RAxis() {
 
 	const { input, result, exitResult } = store;
 	const long = input.direction === "long";
-	const isOpt = session.instrument === "options";
-	const unit = isOpt ? "ct" : "sh";
 	const maxR = exitResult.maxAxisR;
 
 	const top = (r: number) => ((maxR - r) / (maxR + 1)) * 100;
@@ -27,38 +25,15 @@ export function RAxis() {
 	const exitPrice = (r: number) =>
 		long ? input.entry + r * result.r1 : input.entry - r * result.r1;
 
-	const badge = isOpt
-		? session.optionType === "call"
-			? "CALL"
-			: "PUT"
-		: session.direction === "long"
-			? "LONG"
-			: "SHORT";
-	const bullish = isOpt
+	const bullish = session.instrument === "options"
 		? session.optionType === "call"
 		: session.direction === "long";
 
 	return (
-		<div className="flex min-h-0 flex-1 flex-col">
-			<div className="flex shrink-0 items-center justify-between px-4 pt-3 pb-1">
-				<span className="text-[10px] font-semibold uppercase tracking-widest text-text-muted">
-					Risk / reward axis
-				</span>
-				<span
-					className={cn(
-						"rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide",
-						bullish ? "bg-profit/15 text-profit" : "bg-loss/15 text-loss",
-					)}
-				>
-					{badge}
-				</span>
-			</div>
-
-			<div
-				className="relative grid min-h-[280px] flex-1 w-full grid-cols-[auto_1fr_auto] items-stretch px-4 py-2"
-			>
-				{/* Left scale */}
-				<div className="relative w-10 shrink-0">
+		<div className="flex min-h-0 flex-1 flex-col px-4 pb-4">
+			<div className="relative flex min-h-[240px] flex-1 items-stretch justify-center gap-2 py-2">
+				{/* Left scale — adjacent to track */}
+				<div className="relative w-12 shrink-0">
 					<ScaleTick top="0%" text={rLabel(maxR)} tone="profit" />
 					{exitResult.tiers.map((tier) => (
 						<ScaleTick
@@ -73,7 +48,7 @@ export function RAxis() {
 				</div>
 
 				{/* Center rail */}
-				<div className="relative mx-2 w-12 shrink-0">
+				<div className="relative w-12 shrink-0">
 					<div className="absolute top-0 left-1/2 h-full w-px -translate-x-1/2 bg-border" />
 
 					<div
@@ -133,8 +108,8 @@ export function RAxis() {
 					</button>
 				</div>
 
-				{/* Right prices */}
-				<div className="relative w-28 shrink-0 sm:w-36">
+				{/* Right prices — tight to track */}
+				<div className="relative w-28 shrink-0 sm:w-32">
 					<PriceLabel
 						top="0%"
 						tone="profit"
@@ -175,17 +150,6 @@ export function RAxis() {
 					/>
 				</div>
 			</div>
-
-			<AxisStrip
-				shares={result.shares}
-				posValue={result.posValue}
-				riskAmt={result.riskAmt}
-				remainingCash={result.remainingCash}
-				maxLoss={result.maxLoss}
-				limiter={result.limiter}
-				isOpt={isOpt}
-				unit={unit}
-			/>
 		</div>
 	);
 }
@@ -267,79 +231,5 @@ function PriceLabel({
 				</p>
 			) : null}
 		</div>
-	);
-}
-
-function AxisStrip({
-	shares,
-	posValue,
-	riskAmt,
-	remainingCash,
-	maxLoss,
-	limiter,
-	isOpt,
-	unit,
-}: {
-	shares: number;
-	posValue: number;
-	riskAmt: number;
-	remainingCash: number;
-	maxLoss: number;
-	limiter: string;
-	isOpt: boolean;
-	unit: string;
-}) {
-	return (
-		<div className="mt-auto flex shrink-0 flex-wrap gap-1.5 px-4 py-3">
-			<Metric label="Suggested size">
-				{fmtShares(shares)} {unit}
-			</Metric>
-			<Metric label={isOpt ? "Premium cost" : "Position value"}>
-				${money(posValue)}
-			</Metric>
-			<Metric label="Risk budget">${money(riskAmt)}</Metric>
-			<Metric label="Cash left">${money(remainingCash)}</Metric>
-			{isOpt ? (
-				<Metric label="Max loss" tone="loss">
-					${money(maxLoss)}
-				</Metric>
-			) : null}
-			<Metric
-				label="Limiter"
-				tone={limiter !== "none" ? "signal" : undefined}
-			>
-				{limiter === "risk"
-					? "Risk-limited"
-					: limiter === "cash"
-						? "Cash-limited"
-						: "—"}
-			</Metric>
-		</div>
-	);
-}
-
-function Metric({
-	label,
-	children,
-	tone,
-}: {
-	label: string;
-	children: React.ReactNode;
-	tone?: "loss" | "signal";
-}) {
-	return (
-		<span className="inline-flex items-baseline gap-1 rounded-control bg-bg-hover px-2 py-1 text-[10px]">
-			<span className="text-text-dim">{label}</span>
-			<span
-				className={cn(
-					"font-semibold tabular-nums",
-					tone === "loss" && "text-loss",
-					tone === "signal" && "text-signal",
-					!tone && "text-text",
-				)}
-			>
-				{children}
-			</span>
-		</span>
 	);
 }
