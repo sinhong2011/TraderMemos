@@ -16,15 +16,15 @@ import { intlLocale } from "../lib/locale";
 
 function HeaderStat({ label, value }: { label: string; value: string }) {
 	return (
-		<span className="inline-flex items-baseline gap-1 text-[11px] whitespace-nowrap">
-			<span className="uppercase tracking-widest text-text-dim">{label}</span>
-			<span className="tabular-nums text-text-muted">{value}</span>
+		<span className="inline-flex items-baseline gap-1 text-[13px] font-medium whitespace-nowrap">
+			<span className="uppercase tracking-widest text-text-muted">{label}</span>
+			<span className="font-semibold tabular-nums text-text">{value}</span>
 		</span>
 	);
 }
 
 function StatDivider() {
-	return <span aria-hidden className="text-text-dim/40 select-none">·</span>;
+	return <span aria-hidden className="text-[13px] text-text-muted/50 select-none">·</span>;
 }
 
 function SymbolFilterChip({
@@ -119,7 +119,7 @@ export function HeaderBar() {
 					className={cn(
 						"flex h-8 max-w-[200px] min-w-[80px] shrink-0 cursor-pointer items-center gap-2 rounded-control",
 						"border border-border bg-bg-inset/60 px-3",
-						"text-[12px] text-text-dim",
+						"text-[12px] font-medium text-text-dim",
 						"transition-[border-color,background-color,color] duration-150",
 						"hover:border-border-strong hover:bg-bg-hover hover:text-text-muted",
 						"focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",

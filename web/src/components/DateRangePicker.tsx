@@ -32,7 +32,7 @@ export function DateRangePicker() {
 						className="shrink-0 text-text-dim"
 						aria-hidden
 					/>
-					<span className="min-w-0 flex-1 truncate text-[11px] text-text-muted">
+					<span className="min-w-0 flex-1 truncate text-[11px] font-medium text-text-muted">
 						{label}
 					</span>
 					<ChevronDown

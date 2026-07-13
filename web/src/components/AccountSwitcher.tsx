@@ -28,7 +28,7 @@ export function AccountSwitcher({ className }: { className?: string }) {
 			options={options}
 			ariaLabel="Account"
 			triggerClassName={cn(
-				"h-8 min-w-0 text-[11px] text-text-muted",
+				"h-8 min-w-0 font-medium text-[11px] text-text-muted",
 				className ?? "min-w-[112px]",
 			)}
 		/>
