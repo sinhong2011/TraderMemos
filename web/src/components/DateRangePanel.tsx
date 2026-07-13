@@ -1,16 +1,16 @@
-import { format } from "date-fns";
+import { format, isSameDay } from "date-fns";
 import { useEffect, useState } from "react";
 import type { DateRange } from "react-day-picker";
+import { cn } from "../lib/cn";
 import {
+	type DateRangePreset,
+	PRESET_LABELS,
 	computePresetRange,
 	localDateString,
 	parseFilterDay,
-	PRESET_LABELS,
 	presetFromRange,
-	type DateRangePreset,
 } from "../lib/dateRangePresets";
 import { useFilters } from "../lib/filters";
-import { cn } from "../lib/cn";
 import { SignalCalendar } from "./SignalCalendar";
 
 const PRESETS: { key: DateRangePreset; label: string }[] = [
@@ -58,13 +58,20 @@ export function DateRangePanel({
 	onApplied?: () => void;
 }) {
 	const { from, to, setRange } = useFilters();
-	const [draft, setDraft] = useState<DateRange | undefined>(() => toDraft(from, to));
+	const [draft, setDraft] = useState<DateRange | undefined>(() =>
+		toDraft(from, to),
+	);
 
 	useEffect(() => {
 		setDraft(toDraft(from, to));
 	}, [from, to]);
 
 	const activePreset = presetFromRange(from, to);
+	const now = new Date();
+	const minYear = Math.min(
+		now.getFullYear() - 10,
+		draft?.from?.getFullYear() ?? Number.POSITIVE_INFINITY,
+	);
 
 	function applyPreset(key: DateRangePreset) {
 		const { from: f, to: t } = computePresetRange(key);
@@ -73,6 +80,16 @@ export function DateRangePanel({
 	}
 
 	function applyCustomRange(range: DateRange | undefined) {
+		// react-day-picker returns {from, to} on the same day for the first
+		// click; hold it as a pending start so the user can pick an end date.
+		// Clicking the same day again applies a one-day range.
+		const clickedSingleDay =
+			range?.from && range?.to && isSameDay(range.from, range.to);
+		const pendingStart = draft?.from && !draft?.to;
+		if (clickedSingleDay && !pendingStart) {
+			setDraft({ from: range.from, to: undefined });
+			return;
+		}
 		setDraft(range);
 		if (range?.from && range?.to) {
 			setRange(localDateString(range.from), localDateString(range.to));
@@ -112,7 +129,10 @@ export function DateRangePanel({
 	);
 
 	return (
-		<div className="flex w-[392px] max-w-[calc(100vw-2rem)]" aria-label="Date range">
+		<div
+			className="flex w-[424px] max-w-[calc(100vw-2rem)]"
+			aria-label="Date range"
+		>
 			<aside className="flex w-[148px] shrink-0 flex-col bg-bg">
 				<p className="m-0 px-3 pt-3 pb-2 text-[11px] font-medium uppercase tracking-widest text-text-muted">
 					Quick range
@@ -126,9 +146,12 @@ export function DateRangePanel({
 						mode="range"
 						selected={draft}
 						onSelect={applyCustomRange}
-						defaultMonth={draft?.from ?? draft?.to ?? new Date()}
+						defaultMonth={draft?.from ?? draft?.to ?? now}
 						numberOfMonths={1}
-						disabled={{ after: new Date() }}
+						disabled={{ after: now }}
+						captionLayout="dropdown"
+						startMonth={new Date(minYear, 0)}
+						endMonth={now}
 						className="p-0"
 					/>
 				</div>

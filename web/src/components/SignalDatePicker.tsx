@@ -1,8 +1,8 @@
 import { format } from "date-fns";
 import { CalendarDays, ChevronDown } from "lucide-react";
 import { useState } from "react";
-import { localDateString, parseFilterDay } from "../lib/dateRangePresets";
 import { cn } from "../lib/cn";
+import { localDateString, parseFilterDay } from "../lib/dateRangePresets";
 import { SignalCalendar } from "./SignalCalendar";
 import { SignalPopover } from "./SignalPopover";
 
@@ -29,6 +29,11 @@ export function SignalDatePicker({
 	const [open, setOpen] = useState(false);
 	const selected = value ? parseFilterDay(`${value}T00:00:00Z`) : undefined;
 	const label = selected ? format(selected, "MMM d, yyyy") : placeholder;
+	const now = new Date();
+	const minYear = Math.min(
+		now.getFullYear() - 10,
+		selected?.getFullYear() ?? Number.POSITIVE_INFINITY,
+	);
 
 	return (
 		<SignalPopover
@@ -87,8 +92,11 @@ export function SignalDatePicker({
 							onBlur?.();
 						}
 					}}
-					defaultMonth={selected ?? new Date()}
-					disabled={{ after: new Date() }}
+					defaultMonth={selected ?? now}
+					disabled={{ after: now }}
+					captionLayout="dropdown"
+					startMonth={new Date(minYear, 0)}
+					endMonth={now}
 					className="p-0"
 				/>
 			</div>
