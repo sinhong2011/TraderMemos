@@ -1,1 +1,4 @@
-/*eslint-disable*/import type{Messages}from"@lingui/core";export const messages=JSON.parse("{\"29Hx9U\":[\"統計\"],\"3dioPi\":[\"表示言語\"],\"4BzWk0\":[\"言語セレクター\"],\"7p5kLi\":[\"ダッシュボード\"],\"AjVXBS\":[\"カレンダー\"],\"PA/Etd\":[\"新規セットアップ\"],\"Tz0i8g\":[\"設定\"],\"Vava/Z\":[\"TraderMemos の表示言語。\"],\"ZFtwlj\":[\"トレード\"],\"l3s5ri\":[\"インポート\"],\"lLbLDQ\":[\"新規トレード\"],\"vXIe7J\":[\"言語\"],\"wm1sei\":[\"新規メモ\"],\"zJY4Uj\":[\"プレイブック\"]}")as Messages;
+/*eslint-disable*/ import type { Messages } from "@lingui/core";
+export const messages = JSON.parse(
+  '{"29Hx9U":["統計"],"3dioPi":["表示言語"],"4BzWk0":["言語セレクター"],"7p5kLi":["ダッシュボード"],"AjVXBS":["カレンダー"],"PA/Etd":["新規セットアップ"],"Tz0i8g":["設定"],"Vava/Z":["TraderMemos の表示言語。"],"ZFtwlj":["トレード"],"l3s5ri":["インポート"],"lLbLDQ":["新規トレード"],"vXIe7J":["言語"],"wm1sei":["新規メモ"],"zJY4Uj":["プレイブック"]}',
+) as Messages;

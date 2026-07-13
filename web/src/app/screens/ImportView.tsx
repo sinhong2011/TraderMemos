@@ -1,11 +1,4 @@
-import {
-  ArrowLeft,
-  ArrowRight,
-  Check,
-  FileText,
-  RefreshCw,
-  Upload,
-} from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, FileText, RefreshCw, Upload } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { CsvDropZone } from "../../components/CsvDropZone";
 import { DataTable } from "../../components/DataTable";
@@ -55,17 +48,11 @@ const CANONICAL_FIELDS = [
   "commission",
 ] as const;
 
-function resolveImportAccountId(
-	accounts: Account[],
-	preferredAccountId?: string,
-): string {
-	if (
-		preferredAccountId &&
-		accounts.some((account) => account.id === preferredAccountId)
-	) {
-		return preferredAccountId;
-	}
-	return accounts[0]?.id ?? "";
+function resolveImportAccountId(accounts: Account[], preferredAccountId?: string): string {
+  if (preferredAccountId && accounts.some((account) => account.id === preferredAccountId)) {
+    return preferredAccountId;
+  }
+  return accounts[0]?.id ?? "";
 }
 
 function ImportGuidance({ onLogTrade }: { onLogTrade?: () => void }) {
@@ -77,13 +64,12 @@ function ImportGuidance({ onLogTrade }: { onLogTrade?: () => void }) {
         </h2>
         <ul className="mt-3 flex flex-col gap-2.5 text-[12px] leading-relaxed text-text-muted">
           <li>
-            <span className="font-medium text-text">Fill CSV</span> — broker
-            execution exports; map a Market/Asset Type column for mixed
-            stock/option files, or we infer from the symbol.
+            <span className="font-medium text-text">Fill CSV</span> — broker execution exports; map
+            a Market/Asset Type column for mixed stock/option files, or we infer from the symbol.
           </li>
           <li>
-            <span className="font-medium text-text">Journal export</span> —
-            closed trades with Entry/Exit columns; setup and tags preserved.
+            <span className="font-medium text-text">Journal export</span> — closed trades with
+            Entry/Exit columns; setup and tags preserved.
           </li>
         </ul>
       </div>
@@ -128,57 +114,51 @@ function ImportGuidance({ onLogTrade }: { onLogTrade?: () => void }) {
 // ---------------------------------------------------------------------------
 
 interface Step1Props {
-	accounts: Account[];
-	accountsLoading: boolean;
-	defaultAccountId?: string;
-	onPreview: (file: File, accountId: string) => Promise<void>;
-	error: string | null;
-	loading: boolean;
+  accounts: Account[];
+  accountsLoading: boolean;
+  defaultAccountId?: string;
+  onPreview: (file: File, accountId: string) => Promise<void>;
+  error: string | null;
+  loading: boolean;
 }
 
 function Step1Upload({
-	accounts,
-	accountsLoading,
-	defaultAccountId,
-	onPreview,
-	error,
-	loading,
+  accounts,
+  accountsLoading,
+  defaultAccountId,
+  onPreview,
+  error,
+  loading,
 }: Step1Props) {
-	const [accountId, setAccountId] = useState("");
-	const [file, setFile] = useState<File | null>(null);
+  const [accountId, setAccountId] = useState("");
+  const [file, setFile] = useState<File | null>(null);
 
-	useEffect(() => {
-		if (accounts.length === 0) return;
-		setAccountId((prev) => {
-			if (prev && accounts.some((account) => account.id === prev)) return prev;
-			return resolveImportAccountId(accounts, defaultAccountId);
-		});
-	}, [accounts, defaultAccountId]);
+  useEffect(() => {
+    if (accounts.length === 0) return;
+    setAccountId((prev) => {
+      if (prev && accounts.some((account) => account.id === prev)) return prev;
+      return resolveImportAccountId(accounts, defaultAccountId);
+    });
+  }, [accounts, defaultAccountId]);
 
-	const effectiveAccountId = resolveImportAccountId(
-		accounts,
-		accountId || defaultAccountId,
-	);
-	const canSubmit = !!file && accounts.length > 0 && !!effectiveAccountId && !loading;
+  const effectiveAccountId = resolveImportAccountId(accounts, accountId || defaultAccountId);
+  const canSubmit = !!file && accounts.length > 0 && !!effectiveAccountId && !loading;
 
-	async function handleSubmit() {
-		if (!file || !effectiveAccountId) return;
-		await onPreview(file, effectiveAccountId);
-	}
+  async function handleSubmit() {
+    if (!file || !effectiveAccountId) return;
+    await onPreview(file, effectiveAccountId);
+  }
 
   return (
-    <Panel
-      title="Upload CSV"
-      className="rounded-none border-0 lg:border lg:rounded-sharp"
-    >
+    <Panel title="Upload CSV" className="rounded-none border-0 lg:border lg:rounded-sharp">
       <div className="flex flex-col gap-5 p-5 sm:p-6">
         {accountsLoading ? (
           <Skeleton height="36px" />
         ) : (
           <SignalField label="Account">
-						<SignalSelect
-							value={effectiveAccountId}
-							onValueChange={setAccountId}
+            <SignalSelect
+              value={effectiveAccountId}
+              onValueChange={setAccountId}
               ariaLabel="Account select"
               options={
                 accounts.length === 0
@@ -214,11 +194,7 @@ function Step1Upload({
           >
             {loading ? (
               <>
-                <RefreshCw
-                  size={13}
-                  strokeWidth={1.5}
-                  className="animate-spin"
-                />
+                <RefreshCw size={13} strokeWidth={1.5} className="animate-spin" />
                 Processing…
               </>
             ) : (
@@ -229,9 +205,7 @@ function Step1Upload({
             )}
           </button>
           {!file && accounts.length > 0 && (
-            <span className="text-[10px] text-text-dim">
-              Upload a CSV to continue
-            </span>
+            <span className="text-[10px] text-text-dim">Upload a CSV to continue</span>
           )}
         </div>
       </div>
@@ -275,16 +249,11 @@ function JournalSummaryStrip({
           sub="executions"
           tone="muted"
         />
-        <StatBar
-          label="Est. net P&L"
-          value={netPnl}
-          tone={pnlTone}
-        />
+        <StatBar label="Est. net P&L" value={netPnl} tone={pnlTone} />
       </div>
       {summary.error_count > 0 ? (
         <p className="border-t border-border px-4 py-2.5 text-[11px] text-loss">
-          {summary.error_count} row(s) could not be parsed — they will be
-          skipped on import.
+          {summary.error_count} row(s) could not be parsed — they will be skipped on import.
         </p>
       ) : null}
     </div>
@@ -302,36 +271,24 @@ function JournalTradePreviewTable({
   optionOverrides: Record<number, OptionRightOverride>;
   onOptionRightChange: (row: number, right: OptionRightOverride) => void;
 }) {
-  const [detailTrade, setDetailTrade] = useState<JournalTradePreview | null>(
-    null,
-  );
+  const [detailTrade, setDetailTrade] = useState<JournalTradePreview | null>(null);
   const displayTrades = useMemo(
     () => mergeOptionOverrides(trades, optionOverrides),
     [trades, optionOverrides],
   );
   const columns = useMemo(
-    () =>
-      journalTradePreviewColumns(currency, setDetailTrade, optionOverrides),
+    () => journalTradePreviewColumns(currency, setDetailTrade, optionOverrides),
     [currency, optionOverrides],
   );
 
   return (
     <>
-      <DataTable
-        columns={columns}
-        data={displayTrades}
-        dense
-        maxHeight="min(60vh, 520px)"
-      />
+      <DataTable columns={columns} data={displayTrades} dense maxHeight="min(60vh, 520px)" />
       <ImportJournalDetailModal
         trade={detailTrade}
         currency={currency}
         open={detailTrade != null}
-        optionRight={
-          detailTrade
-            ? effectiveOptionRight(detailTrade, optionOverrides)
-            : undefined
-        }
+        optionRight={detailTrade ? effectiveOptionRight(detailTrade, optionOverrides) : undefined}
         onOptionRightChange={onOptionRightChange}
         onOpenChange={(open) => {
           if (!open) setDetailTrade(null);
@@ -350,14 +307,7 @@ function CsvSamplePreviewTable({
 }) {
   const columns = useMemo(() => csvSampleColumns(headers), [headers]);
 
-  return (
-    <DataTable
-      columns={columns}
-      data={rows}
-      dense
-      maxHeight="min(60vh, 520px)"
-    />
-  );
+  return <DataTable columns={columns} data={rows} dense maxHeight="min(60vh, 520px)" />;
 }
 
 interface Step2Props {
@@ -372,14 +322,7 @@ interface Step2Props {
   loading: boolean;
 }
 
-function Step2Map({
-  preview,
-  currency,
-  onCommit,
-  onBack,
-  error,
-  loading,
-}: Step2Props) {
+function Step2Map({ preview, currency, onCommit, onBack, error, loading }: Step2Props) {
   const isJournal = preview.format === "journal_trades";
   const [mapping, setMapping] = useState<Record<string, string>>(() => {
     const initial: Record<string, string> = {};
@@ -388,9 +331,7 @@ function Step2Map({
     }
     return initial;
   });
-  const [optionOverrides, setOptionOverrides] = useState<
-    Record<number, OptionRightOverride>
-  >({});
+  const [optionOverrides, setOptionOverrides] = useState<Record<number, OptionRightOverride>>({});
 
   function setField(field: string, value: string) {
     setMapping((prev) => ({ ...prev, [field]: value }));
@@ -411,24 +352,19 @@ function Step2Map({
           {isJournal ? (
             <>
               <p className="mb-3 text-[12px] leading-relaxed text-text-muted">
-                Detected a Stonk Journal / closed-trade export. Each CSV row
-                becomes one round-trip trade (2 fills). Setup, tags, and journal
-                fields are applied automatically. Option call/put is inferred when
-                possible; open Details to set it on rows marked{" "}
+                Detected a Stonk Journal / closed-trade export. Each CSV row becomes one round-trip
+                trade (2 fills). Setup, tags, and journal fields are applied automatically. Option
+                call/put is inferred when possible; open Details to set it on rows marked{" "}
                 <span className="text-signal">Set type</span>.
               </p>
               {preview.journal_summary ? (
-                <JournalSummaryStrip
-                  summary={preview.journal_summary}
-                  currency={currency}
-                />
+                <JournalSummaryStrip summary={preview.journal_summary} currency={currency} />
               ) : null}
             </>
           ) : (
             <p className="mb-3 text-[12px] leading-relaxed text-text-muted">
-              Match each field to the corresponding column in your CSV.
-              Instrument type is optional — map Market/Asset Type for mixed
-              files, or leave skipped to infer from each symbol.
+              Match each field to the corresponding column in your CSV. Instrument type is optional
+              — map Market/Asset Type for mixed files, or leave skipped to infer from each symbol.
             </p>
           )}
 
@@ -451,9 +387,7 @@ function Step2Map({
             </div>
           )}
 
-          {error && (
-            <p className="mt-3 text-[11px] text-loss">{error}</p>
-          )}
+          {error && <p className="mt-3 text-[11px] text-loss">{error}</p>}
 
           <div className="mt-4 flex items-center gap-2">
             <button
@@ -464,11 +398,7 @@ function Step2Map({
             >
               {loading ? (
                 <>
-                  <RefreshCw
-                    size={13}
-                    strokeWidth={1.5}
-                    className="animate-spin"
-                  />
+                  <RefreshCw size={13} strokeWidth={1.5} className="animate-spin" />
                   Importing…
                 </>
               ) : (
@@ -478,12 +408,7 @@ function Step2Map({
                 </>
               )}
             </button>
-            <button
-              type="button"
-              onClick={onBack}
-              disabled={loading}
-              className={btnGhostClass}
-            >
+            <button type="button" onClick={onBack} disabled={loading} className={btnGhostClass}>
               Back
             </button>
           </div>
@@ -503,10 +428,7 @@ function Step2Map({
         </Panel>
       ) : (
         <Panel title="Sample Rows">
-          <CsvSamplePreviewTable
-            headers={preview.headers}
-            rows={preview.sample_rows}
-          />
+          <CsvSamplePreviewTable headers={preview.headers} rows={preview.sample_rows} />
         </Panel>
       )}
     </div>
@@ -530,38 +452,22 @@ function Step3Result({ result, onDone, onImportAnother }: Step3Props) {
         <div className="flex max-w-md flex-col gap-4">
           <div className="flex items-center gap-2">
             <Check size={16} strokeWidth={1.5} className="text-pos" />
-            <span className="text-[13px] font-semibold text-text">
-              Import finished
-            </span>
+            <span className="text-[13px] font-semibold text-text">Import finished</span>
           </div>
 
           <div className="rounded-sharp border border-border bg-bg-inset px-4 py-3">
             <div className="flex flex-col gap-2">
               {result.format === "journal_trades" && typeof result.trades === "number" ? (
-                <Row
-                  label="Trades created"
-                  value={String(result.trades)}
-                  highlight="pos"
-                />
+                <Row label="Trades created" value={String(result.trades)} highlight="pos" />
               ) : null}
               <Row
-                label={
-                  result.format === "journal_trades"
-                    ? "Fills inserted"
-                    : "Inserted"
-                }
+                label={result.format === "journal_trades" ? "Fills inserted" : "Inserted"}
                 value={String(result.inserted)}
                 highlight={result.format === "journal_trades" ? undefined : "pos"}
               />
-              <Row
-                label="Skipped (duplicates)"
-                value={String(result.skipped)}
-              />
+              <Row label="Skipped (duplicates)" value={String(result.skipped)} />
               {typeof result.annotated === "number" && (
-                <Row
-                  label="Journal annotated"
-                  value={String(result.annotated)}
-                />
+                <Row label="Journal annotated" value={String(result.annotated)} />
               )}
               <Row
                 label="Errors"
@@ -573,9 +479,7 @@ function Step3Result({ result, onDone, onImportAnother }: Step3Props) {
 
           {result.errors.length > 0 && (
             <div className="rounded-sharp border border-loss/20 bg-loss/5 px-3.5 py-2.5">
-              <p className="mb-1.5 text-[11px] font-semibold text-loss">
-                Row errors
-              </p>
+              <p className="mb-1.5 text-[11px] font-semibold text-loss">Row errors</p>
               {result.errors.map((e, i) => (
                 <p key={i} className="text-[11px] text-loss">
                   Row {e.row}: {e.message}
@@ -589,11 +493,7 @@ function Step3Result({ result, onDone, onImportAnother }: Step3Props) {
               <Check size={13} strokeWidth={1.5} />
               View dashboard
             </button>
-            <button
-              type="button"
-              onClick={onImportAnother}
-              className={btnGhostClass}
-            >
+            <button type="button" onClick={onImportAnother} className={btnGhostClass}>
               <Upload size={13} strokeWidth={1.5} />
               Import another
             </button>
@@ -635,10 +535,10 @@ function Row({
 // ---------------------------------------------------------------------------
 
 export interface ImportViewProps {
-	accounts: Account[];
-	accountsLoading: boolean;
-	defaultAccountId?: string;
-	onPreview: (formData: FormData) => Promise<ImportPreview>;
+  accounts: Account[];
+  accountsLoading: boolean;
+  defaultAccountId?: string;
+  onPreview: (formData: FormData) => Promise<ImportPreview>;
   onCommit: (batchId: string, formData: FormData) => Promise<ImportResult>;
   onDone: () => void;
   onLogTrade?: () => void;
@@ -646,10 +546,10 @@ export interface ImportViewProps {
 }
 
 export function ImportView({
-	accounts,
-	accountsLoading,
-	defaultAccountId,
-	onPreview,
+  accounts,
+  accountsLoading,
+  defaultAccountId,
+  onPreview,
   onCommit,
   onDone,
   onLogTrade,
@@ -685,9 +585,7 @@ export function ImportView({
       setStep(2);
     } catch (e) {
       setStepError(
-        e instanceof Error
-          ? e.message
-          : "Preview failed. Check your CSV and try again.",
+        e instanceof Error ? e.message : "Preview failed. Check your CSV and try again.",
       );
     } finally {
       setLoading(false);
@@ -712,9 +610,7 @@ export function ImportView({
       setResult(data);
       setStep(3);
     } catch (e) {
-      setStepError(
-        e instanceof Error ? e.message : "Import failed. Please try again.",
-      );
+      setStepError(e instanceof Error ? e.message : "Import failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -743,9 +639,7 @@ export function ImportView({
               Back to dashboard
             </button>
           )}
-          <h1 className="text-[15px] font-semibold tracking-tight text-text">
-            Import trades
-          </h1>
+          <h1 className="text-[15px] font-semibold tracking-tight text-text">Import trades</h1>
           <p className="mt-1 max-w-xl text-[12px] leading-relaxed text-text-muted">
             Upload broker history to populate your journal and analytics.
           </p>
@@ -786,11 +680,7 @@ export function ImportView({
 
       {step === 3 && result && (
         <div className="mx-auto w-full max-w-lg flex-1">
-          <Step3Result
-            result={result}
-            onDone={onDone}
-            onImportAnother={handleImportAnother}
-          />
+          <Step3Result result={result} onDone={onDone} onImportAnother={handleImportAnother} />
         </div>
       )}
     </div>

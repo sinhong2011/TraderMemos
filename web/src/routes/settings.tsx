@@ -3,123 +3,117 @@ import { createFileRoute } from "@tanstack/react-router";
 import { SettingsView } from "../app/screens/SettingsView";
 import { settingsApi } from "../lib/api/settings";
 import {
-	useAccounts,
-	useClearAccountTrades,
-	useCreateAccount,
-	useDeleteAccount,
+  useAccounts,
+  useClearAccountTrades,
+  useCreateAccount,
+  useDeleteAccount,
 } from "../lib/hooks/useAccounts";
 import { useCash, useCreateCash, useDeleteCash } from "../lib/hooks/useCash";
 import { useRiskRules, useSaveRiskRules } from "../lib/hooks/useRiskRules";
-import {
-	useCreateSetup,
-	useDeleteSetup,
-	useSetups,
-} from "../lib/hooks/useSetups";
+import { useCreateSetup, useDeleteSetup, useSetups } from "../lib/hooks/useSetups";
 import { useCreateTag, useDeleteTag, useTags } from "../lib/hooks/useTags";
 
 export const Route = createFileRoute("/settings")({
-	component: SettingsPage,
+  component: SettingsPage,
 });
 
 function SettingsPage() {
-	const qc = useQueryClient();
+  const qc = useQueryClient();
 
-	// Accounts
-	const accountsQ = useAccounts();
-	const createAccountM = useCreateAccount();
-	const deleteAccountM = useDeleteAccount();
-	const clearAccountTradesM = useClearAccountTrades();
+  // Accounts
+  const accountsQ = useAccounts();
+  const createAccountM = useCreateAccount();
+  const deleteAccountM = useDeleteAccount();
+  const clearAccountTradesM = useClearAccountTrades();
 
-	// Cash - list all cash for selected accounts (no filter = empty filters)
-	const cashQ = useCash({});
-	const createCashM = useCreateCash();
-	const deleteCashM = useDeleteCash();
+  // Cash - list all cash for selected accounts (no filter = empty filters)
+  const cashQ = useCash({});
+  const createCashM = useCreateCash();
+  const deleteCashM = useDeleteCash();
 
-	// Tags
-	const tagsQ = useTags();
-	const createTagM = useCreateTag();
-	const deleteTagM = useDeleteTag();
+  // Tags
+  const tagsQ = useTags();
+  const createTagM = useCreateTag();
+  const deleteTagM = useDeleteTag();
 
-	// Setups
-	const setupsQ = useSetups();
-	const createSetupM = useCreateSetup();
-	const deleteSetupM = useDeleteSetup();
+  // Setups
+  const setupsQ = useSetups();
+  const createSetupM = useCreateSetup();
+  const deleteSetupM = useDeleteSetup();
 
-	// Risk rules
-	const riskRulesQ = useRiskRules();
-	const saveRiskRulesM = useSaveRiskRules();
+  // Risk rules
+  const riskRulesQ = useRiskRules();
+  const saveRiskRulesM = useSaveRiskRules();
 
-	// Checklist template
-	const checklistQ = useQuery({
-		queryKey: ["settings", "checklist-template"],
-		queryFn: () => settingsApi.getChecklistTemplate(),
-	});
-	const saveChecklistM = useMutation({
-		mutationFn: (items: string[]) =>
-			settingsApi.putChecklistTemplate({ items }),
-		onSuccess: () => {
-			void qc.invalidateQueries({
-				queryKey: ["settings", "checklist-template"],
-			});
-		},
-	});
+  // Checklist template
+  const checklistQ = useQuery({
+    queryKey: ["settings", "checklist-template"],
+    queryFn: () => settingsApi.getChecklistTemplate(),
+  });
+  const saveChecklistM = useMutation({
+    mutationFn: (items: string[]) => settingsApi.putChecklistTemplate({ items }),
+    onSuccess: () => {
+      void qc.invalidateQueries({
+        queryKey: ["settings", "checklist-template"],
+      });
+    },
+  });
 
-
-	return (
-		<SettingsView
-			accounts={accountsQ.data ?? []}
-			accountsLoading={accountsQ.isLoading}
-			accountsError={accountsQ.isError}
-			onCreateAccount={async (body) => {
-				await createAccountM.mutateAsync(body);
-			}}
-			onDeleteAccount={async (id) => {
-				await deleteAccountM.mutateAsync(id);
-			}}
-			onClearAccountTrades={async (id) => {
-				await clearAccountTradesM.mutateAsync(id);
-			}}
-			cashTransactions={cashQ.data ?? []}
-			cashLoading={cashQ.isLoading}
-			cashError={cashQ.isError}
-			onCreateCash={async (body) => {
-				await createCashM.mutateAsync(body);
-			}}
-			onDeleteCash={async (id) => {
-				await deleteCashM.mutateAsync(id);
-			}}
-			tags={tagsQ.data ?? []}
-			tagsLoading={tagsQ.isLoading}
-			tagsError={tagsQ.isError}
-			onCreateTag={async (body) => {
-				await createTagM.mutateAsync(body);
-			}}
-			onDeleteTag={async (id) => {
-				await deleteTagM.mutateAsync(id);
-			}}
-			setups={setupsQ.data ?? []}
-			setupsLoading={setupsQ.isLoading}
-			setupsError={setupsQ.isError}
-			onCreateSetup={async (name, description) => {
-				await createSetupM.mutateAsync({ name, description });
-			}}
-			onDeleteSetup={async (id) => {
-				await deleteSetupM.mutateAsync(id);
-			}}
-			riskRules={riskRulesQ.data}
-			riskRulesLoading={riskRulesQ.isLoading}
-			riskRulesError={riskRulesQ.isError}
-			riskRulesSaving={saveRiskRulesM.isPending}
-			onSaveRiskRules={async (body) => {
-				await saveRiskRulesM.mutateAsync(body);
-			}}
-			checklistItems={checklistQ.data?.items ?? []}
-			checklistLoading={checklistQ.isLoading}
-			checklistError={checklistQ.isError}
-			checklistSaving={saveChecklistM.isPending}
-			onSaveChecklist={async (items) => {
-				await saveChecklistM.mutateAsync(items);
-			}}
-		/>
-	);
+  return (
+    <SettingsView
+      accounts={accountsQ.data ?? []}
+      accountsLoading={accountsQ.isLoading}
+      accountsError={accountsQ.isError}
+      onCreateAccount={async (body) => {
+        await createAccountM.mutateAsync(body);
+      }}
+      onDeleteAccount={async (id) => {
+        await deleteAccountM.mutateAsync(id);
+      }}
+      onClearAccountTrades={async (id) => {
+        await clearAccountTradesM.mutateAsync(id);
+      }}
+      cashTransactions={cashQ.data ?? []}
+      cashLoading={cashQ.isLoading}
+      cashError={cashQ.isError}
+      onCreateCash={async (body) => {
+        await createCashM.mutateAsync(body);
+      }}
+      onDeleteCash={async (id) => {
+        await deleteCashM.mutateAsync(id);
+      }}
+      tags={tagsQ.data ?? []}
+      tagsLoading={tagsQ.isLoading}
+      tagsError={tagsQ.isError}
+      onCreateTag={async (body) => {
+        await createTagM.mutateAsync(body);
+      }}
+      onDeleteTag={async (id) => {
+        await deleteTagM.mutateAsync(id);
+      }}
+      setups={setupsQ.data ?? []}
+      setupsLoading={setupsQ.isLoading}
+      setupsError={setupsQ.isError}
+      onCreateSetup={async (name, description) => {
+        await createSetupM.mutateAsync({ name, description });
+      }}
+      onDeleteSetup={async (id) => {
+        await deleteSetupM.mutateAsync(id);
+      }}
+      riskRules={riskRulesQ.data}
+      riskRulesLoading={riskRulesQ.isLoading}
+      riskRulesError={riskRulesQ.isError}
+      riskRulesSaving={saveRiskRulesM.isPending}
+      onSaveRiskRules={async (body) => {
+        await saveRiskRulesM.mutateAsync(body);
+      }}
+      checklistItems={checklistQ.data?.items ?? []}
+      checklistLoading={checklistQ.isLoading}
+      checklistError={checklistQ.isError}
+      checklistSaving={saveChecklistM.isPending}
+      onSaveChecklist={async (items) => {
+        await saveChecklistM.mutateAsync(items);
+      }}
+    />
+  );
 }
