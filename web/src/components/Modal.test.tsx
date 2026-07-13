@@ -1,31 +1,31 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vite-plus/test";
 import { Modal, ModalBanner } from "./Modal";
 
 describe("Modal", () => {
-	it("renders title, children and footer when open", () => {
-		render(
-			<Modal
-				open
-				onOpenChange={vi.fn()}
-				title="New Trade"
-				footer={<button type="button">Save</button>}
-			>
-				<ModalBanner>Log any trade.</ModalBanner>
-				<p>Body</p>
-			</Modal>,
-		);
-		expect(screen.getByText("New Trade")).toBeInTheDocument();
-		expect(screen.getByText("Log any trade.")).toBeInTheDocument();
-		expect(screen.getByText("Body")).toBeInTheDocument();
-		expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument();
-	});
-	it("renders nothing when closed", () => {
-		render(
-			<Modal open={false} onOpenChange={vi.fn()} title="Hidden">
-				<p>Body</p>
-			</Modal>,
-		);
-		expect(screen.queryByText("Hidden")).not.toBeInTheDocument();
-	});
+  it("renders title, children and footer when open", () => {
+    render(
+      <Modal
+        open
+        onOpenChange={vi.fn()}
+        title="New Trade"
+        footer={<button type="button">Save</button>}
+      >
+        <ModalBanner>Log any trade.</ModalBanner>
+        <p>Body</p>
+      </Modal>,
+    );
+    expect(screen.getByText("New Trade")).toBeInTheDocument();
+    expect(screen.getByText("Log any trade.")).toBeInTheDocument();
+    expect(screen.getByText("Body")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument();
+  });
+  it("renders nothing when closed", () => {
+    render(
+      <Modal open={false} onOpenChange={vi.fn()} title="Hidden">
+        <p>Body</p>
+      </Modal>,
+    );
+    expect(screen.queryByText("Hidden")).not.toBeInTheDocument();
+  });
 });

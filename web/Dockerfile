@@ -1,7 +1,7 @@
 FROM oven/bun:canary AS build
 WORKDIR /web
-COPY web/package.json ./
-RUN bun install
+COPY web/package.json web/bun.lock ./
+RUN bun install --frozen-lockfile
 COPY web/ ./
 RUN bun run build
 
