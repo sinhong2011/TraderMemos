@@ -22,6 +22,7 @@ export function SignalSelect({
 	ariaLabel,
 	id,
 	disabled,
+	ghost = false,
 	className,
 	triggerClassName,
 }: {
@@ -32,6 +33,8 @@ export function SignalSelect({
 	ariaLabel?: string;
 	id?: string;
 	disabled?: boolean;
+	/** Borderless trigger that blends into the surface until hovered. */
+	ghost?: boolean;
 	className?: string;
 	triggerClassName?: string;
 }) {
@@ -56,10 +59,19 @@ export function SignalSelect({
 					id={id}
 					aria-label={ariaLabel}
 					className={cn(
-						"flex h-8 w-full min-w-0 cursor-pointer items-center gap-2 rounded-control border border-border bg-bg-inset px-2.5",
+						"flex h-8 w-full min-w-0 cursor-pointer items-center gap-2 rounded-control border px-2.5",
 						"text-left text-[12px] text-text outline-none transition-[border-color,background-color,box-shadow] duration-150",
-						"hover:border-border-strong focus-visible:border-accent focus-visible:shadow-[0_0_0_3px_var(--color-accent-bg)]",
-						open && "border-accent bg-bg-elevated shadow-[0_0_0_3px_var(--color-accent-bg)]",
+						"focus-visible:border-accent focus-visible:shadow-[0_0_0_3px_var(--color-accent-bg)]",
+						ghost
+							? cn(
+									"border-transparent bg-transparent hover:bg-bg-hover",
+									open && "border-accent bg-bg-hover",
+								)
+							: cn(
+									"border-border bg-bg-inset hover:border-border-strong",
+									open &&
+										"border-accent bg-bg-elevated shadow-[0_0_0_3px_var(--color-accent-bg)]",
+								),
 						"data-[disabled]:cursor-default data-[disabled]:opacity-55",
 						triggerClassName,
 					)}
@@ -110,6 +122,9 @@ export function SignalSelect({
 										disabled={option.disabled}
 										className={signalSelectItemClass}
 									>
+										<Select.ItemText className="min-w-0 flex-1 truncate">
+											{option.label}
+										</Select.ItemText>
 										<Select.ItemIndicator className="flex w-3.5 shrink-0 justify-center">
 											<Check
 												size={13}
@@ -117,9 +132,6 @@ export function SignalSelect({
 												className="text-accent"
 											/>
 										</Select.ItemIndicator>
-										<Select.ItemText className="min-w-0 flex-1 truncate">
-											{option.label}
-										</Select.ItemText>
 									</Select.Item>
 								))}
 							</Select.List>
