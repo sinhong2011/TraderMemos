@@ -55,9 +55,9 @@ export function CalcInputField({
 				>
 					<Minus size={12} />
 				</button>
-				<div className="flex min-w-0 flex-1 items-center justify-center gap-0.5">
+				<div className="flex min-w-0 flex-1 items-center justify-end gap-0.5 pr-1">
 					{prefix ? (
-						<span className="text-[11px] text-text-dim">{prefix}</span>
+						<span className="shrink-0 text-[11px] text-text-dim">{prefix}</span>
 					) : null}
 					<input
 						type="text"
@@ -68,10 +68,10 @@ export function CalcInputField({
 							if (Number.isFinite(n)) onValue(n);
 							else if (e.target.value === "") onValue(0);
 						}}
-						className="w-full min-w-0 bg-transparent py-1.5 text-center text-xs tabular-nums text-text outline-none"
+						className="w-full min-w-0 bg-transparent py-1.5 text-right text-xs tabular-nums text-text outline-none"
 					/>
 					{suffix ? (
-						<span className="text-[11px] text-text-dim">{suffix}</span>
+						<span className="shrink-0 text-[11px] text-text-dim">{suffix}</span>
 					) : null}
 				</div>
 				<button

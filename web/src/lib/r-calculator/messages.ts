@@ -5,7 +5,7 @@ const WARNINGS: Record<WarningKey, string> = {
 	warn_stop_above_entry_short: "Stop must be above entry for a short",
 	warn_capital_too_small_stock:
 		"Capital can't buy 1 share — pick a cheaper instrument or add capital",
-	warn_risk_below_setting: "Actual risk below target (more conservative, OK)",
+	warn_risk_below_setting: "Actual risk is below your target.",
 	warn_prem_stop_vs_entry: "Stop premium must be below entry premium",
 	warn_capital_too_small_option:
 		"Capital can't buy 1 contract — lower the premium or add capital",

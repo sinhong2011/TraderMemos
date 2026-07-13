@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { X } from "lucide-react";
 import { useFilters } from "../../lib/filters";
 import { useAccounts } from "../../lib/hooks/useAccounts";
 import { useRiskRules } from "../../lib/hooks/useRiskRules";
@@ -7,13 +8,20 @@ import { useRCalculatorStore } from "../../lib/r-calculator/useRCalculatorStore"
 import { Page } from "../../components/Page";
 import { CalculatorPanel } from "../../components/tools/r-calculator/CalculatorPanel";
 import { FvgPanel } from "../../components/tools/r-calculator/FvgPanel";
-import { SegmentedControl } from "../../components/tools/r-calculator/SegmentedControl";
+import { SegmentedControl } from "../../components/SegmentedControl";
 import { SessionRail } from "../../components/tools/r-calculator/SessionRail";
 
 type AppMode = "rmultiple" | "fvg";
 
+const HINT_KEY = "tradermemos/r-calc/position-size-hint";
+
 export function RCalculatorView() {
 	const [mode, setMode] = useState<AppMode>("rmultiple");
+	const [hintDismissed, setHintDismissed] = useState(true);
+
+	useEffect(() => {
+		setHintDismissed(localStorage.getItem(HINT_KEY) === "1");
+	}, []);
 	const accountId = useFilters((s) => s.accountId);
 	const accounts = useAccounts().data ?? [];
 	const account = accounts.find((a) => a.id === accountId) ?? accounts[0];
@@ -60,6 +68,7 @@ export function RCalculatorView() {
 				onAdd={rStore.addSession}
 				onDuplicate={rStore.duplicateSession}
 				onRemove={rStore.removeSession}
+				onRename={rStore.renameSession}
 			/>
 		) : (
 			<SessionRail
@@ -69,6 +78,7 @@ export function RCalculatorView() {
 				onAdd={fvgStore.addSession}
 				onDuplicate={fvgStore.duplicateSession}
 				onRemove={fvgStore.removeSession}
+				onRename={fvgStore.renameSession}
 			/>
 		);
 
@@ -85,20 +95,35 @@ export function RCalculatorView() {
 					Size positions by risk, plan exit ladders, and visualize reward/risk.
 					Cash positions only — no leverage, fees, or slippage.
 				</p>
-				<p className="mt-1 text-[11px] text-text-dim">
-					Need a quick share count? Use Tools → Position size in the header.
-				</p>
+				{!hintDismissed ? (
+					<p className="mt-1 flex max-w-2xl items-center gap-2 text-[11px] text-text-dim">
+						<span>
+							Need a quick share count? Use Tools → Position size in the header.
+						</span>
+						<button
+							type="button"
+							aria-label="Dismiss hint"
+							onClick={() => {
+								localStorage.setItem(HINT_KEY, "1");
+								setHintDismissed(true);
+							}}
+							className="shrink-0 text-text-dim transition-colors hover:text-text-muted"
+						>
+							<X size={12} />
+						</button>
+					</p>
+				) : null}
 			</header>
 
 			<div className="flex shrink-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 				{sessionRail}
-				<SegmentedControl<AppMode>
+				<SegmentedControl
 					ariaLabel="Calculator mode"
 					value={mode}
-					onChange={setMode}
-					segments={[
-						{ value: "rmultiple", label: "R-Multiple", sub: "ENTRY/STOP" },
-						{ value: "fvg", label: "FVG", sub: "FAIR VALUE GAP" },
+					onChange={(v) => setMode(v as AppMode)}
+					options={[
+						{ value: "rmultiple", label: "R-Multiple" },
+						{ value: "fvg", label: "FVG" },
 					]}
 				/>
 			</div>

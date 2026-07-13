@@ -3,6 +3,7 @@ import { cn } from "../../../lib/cn";
 export interface Segment<T extends string> {
 	value: T;
 	label: string;
+	/** Short inline hint — same row, not stacked */
 	sub?: string;
 	glyph?: string;
 	accent?: "profit" | "loss" | "signal" | "accent";
@@ -21,37 +22,34 @@ export function SegmentedControl<T extends string>({
 	ariaLabel: string;
 	subtle?: boolean;
 }) {
-	const idx = segments.findIndex((s) => s.value === value);
-
 	return (
 		<div
 			role="tablist"
 			aria-label={ariaLabel}
 			className={cn(
-				"relative grid rounded-control p-0.5",
-				subtle ? "bg-bg-inset" : "bg-bg-hover",
+				"flex w-full gap-0.5 rounded-control p-0.5",
+				subtle ? "bg-bg-inset" : "bg-bg-elevated",
 			)}
-			style={{ gridTemplateColumns: `repeat(${segments.length}, 1fr)` }}
 		>
-			<div
-				className="pointer-events-none absolute inset-y-0.5 rounded-[5px] bg-bg-panel shadow-sm transition-transform duration-200 ease-out"
-				style={{
-					width: `calc((100% - 4px) / ${segments.length})`,
-					transform: `translateX(calc(${idx} * 100%))`,
-				}}
-			/>
 			{segments.map((seg) => {
 				const active = seg.value === value;
 				const accentClass =
 					seg.accent === "profit"
-						? "text-profit"
+						? active
+							? "bg-profit/10 text-profit"
+							: "text-text-muted hover:text-profit/80"
 						: seg.accent === "loss"
-							? "text-loss"
+							? active
+								? "bg-loss/10 text-loss"
+								: "text-text-muted hover:text-loss/80"
 							: seg.accent === "signal"
-								? "text-signal"
+								? active
+									? "bg-signal/10 text-signal"
+									: "text-text-muted hover:text-text"
 								: active
-									? "text-text"
-									: "text-text-muted";
+									? "bg-accent-bg text-accent"
+									: "text-text-muted hover:text-text";
+
 				return (
 					<button
 						key={seg.value}
@@ -60,18 +58,23 @@ export function SegmentedControl<T extends string>({
 						aria-selected={active}
 						onClick={() => onChange(seg.value)}
 						className={cn(
-							"relative z-[1] flex flex-col items-center gap-0 rounded-[5px] px-2 py-1.5 transition-colors duration-150",
-							active ? accentClass : "text-text-dim hover:text-text-muted",
+							"relative z-[1] flex min-h-7 min-w-0 flex-1 items-center justify-center gap-1 rounded-[5px] px-2.5 py-1 transition-colors duration-150",
+							accentClass,
 						)}
 					>
-						<span className="flex items-center gap-1 text-[11px] font-semibold">
-							{seg.glyph ? (
-								<span className="text-[9px]">{seg.glyph}</span>
-							) : null}
+						{seg.glyph ? (
+							<span className="text-[9px] leading-none">{seg.glyph}</span>
+						) : null}
+						<span className="truncate text-[11px] font-semibold leading-none">
 							{seg.label}
 						</span>
 						{seg.sub ? (
-							<span className="text-[8px] font-medium uppercase tracking-widest opacity-60">
+							<span
+								className={cn(
+									"hidden truncate text-[10px] font-medium leading-none sm:inline",
+									active ? "opacity-70" : "text-text-dim",
+								)}
+							>
 								{seg.sub}
 							</span>
 						) : null}

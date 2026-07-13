@@ -130,8 +130,8 @@ export function ExitLadder() {
 					<span className="text-[10px] font-medium uppercase tracking-widest text-text-dim">
 						Trailing stop
 					</span>
-					<span className="text-xs tabular-nums text-profit">
-						{trailerShares} {unit} left
+					<span className="text-[10px] tabular-nums text-text-dim">
+						{trailerShares} {unit} trail after tiers
 					</span>
 				</div>
 				<SegmentedControl<StopKind>
@@ -150,7 +150,7 @@ export function ExitLadder() {
 					segments={[
 						{ value: "breakeven", label: "Breakeven", sub: "0R" },
 						{ value: "original", label: "Original", sub: "−1R" },
-						{ value: "custom", label: "Custom", sub: "R" },
+						{ value: "custom", label: "Custom" },
 					]}
 				/>
 				{stopKind === "custom" ? (
