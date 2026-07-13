@@ -15,7 +15,7 @@ func TestGenericImporterParsesAndReportsBadRows(t *testing.T) {
 		"symbol": "Symbol", "side": "B/S", "quantity": "Qty",
 		"price": "Fill Price", "executed_at": "Trade Date", "commission": "Commission",
 	}
-	imp := NewGeneric(mapping, "stock")
+	imp := NewGeneric(mapping)
 	res := imp.ParseRows(rows)
 	require.Len(t, res.Executions, 1)
 	require.Equal(t, "buy", res.Executions[0].Side)

@@ -8,12 +8,11 @@ import (
 )
 
 type Generic struct {
-	mapping        map[string]string // canonicalField -> header
-	instrumentType string
+	mapping map[string]string // canonicalField -> header
 }
 
-func NewGeneric(mapping map[string]string, instrumentType string) *Generic {
-	return &Generic{mapping: mapping, instrumentType: instrumentType}
+func NewGeneric(mapping map[string]string) *Generic {
+	return &Generic{mapping: mapping}
 }
 
 func (g *Generic) Name() string           { return "generic" }
@@ -71,12 +70,28 @@ func (g *Generic) parseRow(row map[string]string) (ParsedExecution, error) {
 	if f := g.col(row, "fees"); f != "" {
 		p.Fees, _ = strconv.ParseFloat(f, 64)
 	}
-	p.InstrumentType = g.instrumentType
+	p.InstrumentType = ParseInstrumentType(g.col(row, "instrument_type"), p.Symbol)
+	if p.InstrumentType == "option" {
+		p.OptionRight = ParseOptionRight(g.col(row, "option_right"))
+		if p.OptionRight == "" {
+			p.OptionRight = InferOptionRight(p.Symbol)
+		}
+	}
+	p.Multiplier = DefaultMultiplier(p.InstrumentType)
 	return p, nil
 }
 
 func parseTime(s string) (time.Time, error) {
-	layouts := []string{time.RFC3339, "2006-01-02 15:04:05", "2006-01-02T15:04:05", "01/02/2006 15:04:05", "2006-01-02"}
+	s = strings.TrimSpace(s)
+	layouts := []string{
+		time.RFC3339Nano,
+		time.RFC3339,
+		"2006-01-02 15:04:05",
+		"2006-01-02T15:04:05",
+		"2006-01-02T15:04:05.000Z",
+		"01/02/2006 15:04:05",
+		"2006-01-02",
+	}
 	for _, l := range layouts {
 		if t, err := time.Parse(l, s); err == nil {
 			return t.UTC(), nil

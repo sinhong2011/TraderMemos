@@ -41,9 +41,14 @@ function grp(key: string, net: number): BreakGroup {
 }
 
 const base = {
+	summaryLoading: false,
+	summaryError: false,
+	equityLoading: false,
 	loading: false,
 	error: false,
 	currency: "USD",
+	unit: "usd" as const,
+	onUnitChange: vi.fn(),
 	onDimChange: vi.fn(),
 };
 
@@ -63,5 +68,18 @@ describe("ReportsView", () => {
 	it("shows an empty state when there is no data", () => {
 		render(<ReportsView {...base} dim="symbol" breakdown={[]} />);
 		expect(screen.getByText(/No .*data|No data/i)).toBeInTheDocument();
+	});
+
+	it("renders the summary metrics grid", () => {
+		render(
+			<ReportsView
+				{...base}
+				dim="symbol"
+				breakdown={[grp("AAPL", 200)]}
+				summary={grp("all", 60).summary}
+			/>,
+		);
+		expect(screen.getByText("Profit Factor")).toBeInTheDocument();
+		expect(screen.getByText("Expectancy")).toBeInTheDocument();
 	});
 });

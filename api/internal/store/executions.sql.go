@@ -11,6 +11,20 @@ import (
 	"time"
 )
 
+const deleteExecutionsForAccount = `-- name: DeleteExecutionsForAccount :exec
+DELETE FROM executions WHERE account_id = ? AND user_id = ?
+`
+
+type DeleteExecutionsForAccountParams struct {
+	AccountID string `json:"account_id"`
+	UserID    string `json:"user_id"`
+}
+
+func (q *Queries) DeleteExecutionsForAccount(ctx context.Context, arg DeleteExecutionsForAccountParams) error {
+	_, err := q.db.ExecContext(ctx, deleteExecutionsForAccount, arg.AccountID, arg.UserID)
+	return err
+}
+
 const deleteExecutionsForBatch = `-- name: DeleteExecutionsForBatch :exec
 DELETE FROM executions WHERE import_batch_id = ? AND user_id = ?
 `

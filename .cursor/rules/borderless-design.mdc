@@ -1,0 +1,34 @@
+---
+description: User prefers borderless UI — spacing and void backgrounds over box borders
+globs: web/src/**/*.{tsx,ts,css}
+alwaysApply: true
+---
+
+# Borderless design
+
+The user prefers **borderless** layouts for TraderMemos.
+
+## Do
+
+- Unify page chrome on `bg-bg` (sidebar, header, main content)
+- Separate sections with spacing, type hierarchy, and subtle hover (`bg-bg-hover`)
+- Use elevation only for true overlays (modals, popovers, dropdowns)
+- Keep borders on inputs, buttons, and chips where interaction affordance needs them
+
+## Avoid
+
+- `border-b` / `border-t` on shell header, nav bands, full-bleed panels, settings rows
+- Box borders around every list item or section card
+- Inset divider shadows between nav and main (`shadow-[inset_1px_0_0_…]`) unless explicitly requested
+- Hairline grids on data tables when hover + density is enough
+
+## Card blocks (page layout)
+
+- Wrap route content in `<Page>` — void background, `gap-4`, padding
+- Each logical section gets a `<Card>` — borderless `bg-bg-panel`, optional title/action
+- Use `flush` on cards that contain tables or full-bleed lists
+- Use `fill` when a card should grow in a column layout
+
+## When DESIGN.md conflicts
+
+`DESIGN.md` mentions hairline bento gaps and panel borders — treat those as optional structure, not mandatory boxes. Prefer the user's borderless direction unless they ask for explicit dividers.

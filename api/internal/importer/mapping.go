@@ -10,7 +10,9 @@ var fieldHints = map[string][]string{
 	"price":       {"fill price", "price", "avg price", "exec price"},
 	"executed_at": {"trade date", "date/time", "datetime", "time", "date"},
 	"fees":        {"fee", "fees"},
-	"commission":  {"commission", "comm"},
+	"commission":      {"commission", "comm"},
+	"instrument_type": {"market", "instrument type", "asset type", "sec type", "product type", "asset class"},
+	"option_right":    {"call/put", "option right", "option type", "right", "cp"},
 }
 
 // SuggestMapping returns canonicalField -> originalHeader best guesses.

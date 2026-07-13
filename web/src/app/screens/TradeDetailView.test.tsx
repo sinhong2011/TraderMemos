@@ -1,5 +1,6 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import type {
 	Execution,
 	Setup,
@@ -7,7 +8,12 @@ import type {
 	TradeAttachment,
 	TradeDetail,
 } from "../../lib/api/types";
-import { TradeDetailView } from "./TradeDetailView";
+import {
+	type JournalFormState,
+	JournalPanel,
+	TradeDetailView,
+	journalDraftKey,
+} from "./TradeDetailView";
 
 // ---------------------------------------------------------------------------
 // Mocks
@@ -37,6 +43,12 @@ const mockSetup: Setup = {
 	name: "ORB",
 	description: "",
 	created_at: "2026-01-01T00:00:00Z",
+	thesis: "",
+	symbol: "",
+	direction: "",
+	target_price: null,
+	stop_price: null,
+	checklist: [],
 };
 
 const mockTags: Tag[] = [
@@ -119,6 +131,7 @@ const mockTrade: TradeDetail = {
 	opened_at: "2026-03-10T09:30:00Z",
 	closed_at: "2026-03-10T11:45:00Z",
 	qty_opened: 100,
+	qty_remaining: 0,
 	avg_entry_price: 175.5,
 	avg_exit_price: 183.0,
 	gross_pnl: 750,
@@ -132,7 +145,16 @@ const mockTrade: TradeDetail = {
 	fills: [fill1, fill2],
 	setup: mockSetup,
 	initial_risk: 300,
+	target_price: null,
+	stop_price: null,
 	r_multiple: 2,
+	emotional_state: "Focused",
+	confidence: 4,
+	trade_quality: 5,
+	mae: 50,
+	mfe: 200,
+	dividend_total: 0,
+	total_pnl: 747,
 	attachments: [mockAttachment],
 };
 
@@ -167,12 +189,12 @@ describe("TradeDetailView", () => {
 		expect(textarea).toHaveValue("clean break");
 	});
 
-	it("renders ORB as the selected setup option", () => {
+	it("renders ORB as the selected setup option", async () => {
 		render(<TradeDetailView {...defaultProps} />);
-		// The setup select should have ORB as an option and it should be selected
-		expect(screen.getByRole("option", { name: "ORB" })).toBeInTheDocument();
 		const select = screen.getByRole("combobox", { name: /setup/i });
-		expect((select as HTMLSelectElement).value).toBe("s1");
+		expect(select).toHaveTextContent("ORB");
+		await userEvent.click(select);
+		expect(screen.getByRole("option", { name: "ORB" })).toBeInTheDocument();
 	});
 
 	it("renders R-multiple of 2 in the header", () => {
@@ -229,5 +251,115 @@ describe("TradeDetailView", () => {
 		render(<TradeDetailView {...defaultProps} />);
 		// fmtSignedMoney(747, "USD", "en-US") => "+$747.00"
 		expect(screen.getByText("+$747.00")).toBeInTheDocument();
+	});
+});
+
+const emptyJournal: JournalFormState = {
+	notes: "",
+	setup_id: "",
+	initial_risk: "",
+	emotional_state: "",
+	confidence: "",
+	trade_quality: "",
+	mae: "",
+	mfe: "",
+	tag_ids: [],
+};
+
+function renderJournal(
+	tradeId: string,
+	initial: JournalFormState = emptyJournal,
+) {
+	return render(
+		<JournalPanel
+			tradeId={tradeId}
+			initialState={initial}
+			setups={[]}
+			customTags={[]}
+			mistakeTags={[]}
+			saving={false}
+			onSave={vi.fn()}
+		/>,
+	);
+}
+
+describe("JournalPanel drafts", () => {
+	afterEach(() => localStorage.clear());
+
+	it("restores a differing draft on mount and discards it on request", () => {
+		localStorage.setItem(
+			journalDraftKey("t1"),
+			JSON.stringify({
+				at: Date.now(),
+				form: { ...emptyJournal, notes: "draft note" },
+			}),
+		);
+		renderJournal("t1");
+		expect(screen.getByLabelText("Notes")).toHaveValue("draft note");
+		expect(screen.getByText("Unsaved draft restored.")).toBeInTheDocument();
+		fireEvent.click(screen.getByRole("button", { name: "Discard draft" }));
+		expect(screen.getByLabelText("Notes")).toHaveValue("");
+		expect(localStorage.getItem(journalDraftKey("t1"))).toBeNull();
+	});
+
+	it("drops a stale draft identical to the server state", () => {
+		localStorage.setItem(
+			journalDraftKey("t2"),
+			JSON.stringify({ at: Date.now(), form: emptyJournal }),
+		);
+		renderJournal("t2");
+		expect(
+			screen.queryByText("Unsaved draft restored."),
+		).not.toBeInTheDocument();
+		expect(localStorage.getItem(journalDraftKey("t2"))).toBeNull();
+	});
+
+	it("persists edits to a draft after the debounce window", () => {
+		vi.useFakeTimers();
+		try {
+			renderJournal("t3");
+			fireEvent.change(screen.getByLabelText("Notes"), {
+				target: { value: "half-written thought" },
+			});
+			expect(localStorage.getItem(journalDraftKey("t3"))).toBeNull();
+			vi.advanceTimersByTime(600);
+			const raw = localStorage.getItem(journalDraftKey("t3"));
+			expect(raw).not.toBeNull();
+			expect(JSON.parse(raw!).form.notes).toBe("half-written thought");
+		} finally {
+			vi.useRealTimers();
+		}
+	});
+
+	it("does not write a draft when the form is untouched across re-renders", () => {
+		vi.useFakeTimers();
+		try {
+			const { rerender } = render(
+				<JournalPanel
+					tradeId="t4"
+					initialState={{ ...emptyJournal }}
+					setups={[]}
+					customTags={[]}
+					mistakeTags={[]}
+					saving={false}
+					onSave={vi.fn()}
+				/>,
+			);
+			rerender(
+				<JournalPanel
+					tradeId="t4"
+					initialState={{ ...emptyJournal }}
+					setups={[]}
+					customTags={[]}
+					mistakeTags={[]}
+					saving={false}
+					onSave={vi.fn()}
+				/>,
+			);
+			vi.advanceTimersByTime(600);
+			expect(localStorage.getItem(journalDraftKey("t4"))).toBeNull();
+		} finally {
+			vi.useRealTimers();
+		}
 	});
 });

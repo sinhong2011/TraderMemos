@@ -3,6 +3,7 @@ package trades
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"time"
 
 	"github.com/tradermemos/api/internal/store"
@@ -23,14 +24,18 @@ func (s *Service) Regroup(ctx context.Context, userID, accountID string) error {
 	if err != nil {
 		return err
 	}
-	// partition by symbol+instrument
+	// partition by symbol+instrument[+lot]
 	groups := map[string][]Execution{}
 	for _, r := range rows {
+		lot := lotKeyFromDetails(r.Details)
 		key := r.Symbol + "|" + r.InstrumentType
+		if lot != "" {
+			key += "|" + lot
+		}
 		groups[key] = append(groups[key], Execution{
 			ID: r.ID, Symbol: r.Symbol, InstrumentType: r.InstrumentType, Side: r.Side,
 			Quantity: r.Quantity, Price: r.Price, Fees: r.Fees, Commission: r.Commission,
-			ExecutedAt: r.ExecutedAt, Multiplier: r.Multiplier,
+			ExecutedAt: r.ExecutedAt, Multiplier: r.Multiplier, LotKey: lot,
 		})
 	}
 
@@ -59,6 +64,20 @@ func (s *Service) Regroup(ctx context.Context, userID, accountID string) error {
 	return s.q.DeleteTradesNotInAccount(ctx, store.DeleteTradesNotInAccountParams{UserID: userID, AccountID: accountID, Keep: keep})
 }
 
+func lotKeyFromDetails(details sql.NullString) string {
+	if !details.Valid || details.String == "" {
+		return ""
+	}
+	var m map[string]any
+	if err := json.Unmarshal([]byte(details.String), &m); err != nil {
+		return ""
+	}
+	if v, ok := m["lot"].(string); ok {
+		return v
+	}
+	return ""
+}
+
 // toUpsertParams maps the pure engine Trade (which uses *T for nullable fields)
 // onto the sqlc-generated UpsertTradeParams (which uses sql.Null* for the same
 // nullable columns).
@@ -74,6 +93,7 @@ func toUpsertParams(id, userID, accountID, pnlCurrency string, tr Trade) store.U
 		OpenedAt:        tr.OpenedAt,
 		ClosedAt:        nt(tr.ClosedAt),
 		QtyOpened:       tr.QtyOpened,
+		QtyRemaining:    tr.QtyRemaining,
 		AvgEntryPrice:   tr.AvgEntryPrice,
 		AvgExitPrice:    nf(tr.AvgExitPrice),
 		GrossPnl:        nf(tr.GrossPnl),

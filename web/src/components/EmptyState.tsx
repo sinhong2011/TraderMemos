@@ -4,16 +4,14 @@ interface EmptyStateProps {
 	title: string;
 	hint?: string;
 	icon?: ReactNode;
+	actions?: ReactNode;
 }
 
-export function EmptyState({ title, hint, icon }: EmptyStateProps) {
+export function EmptyState({ title, hint, icon, actions }: EmptyStateProps) {
 	return (
-		<div className="flex flex-col items-center justify-center gap-3 py-16 px-8 text-center">
+		<div className="flex flex-col items-center justify-center gap-3 px-8 py-16 text-center">
 			{icon && (
-				<div
-					style={{ color: "var(--color-text-muted)" }}
-					className="opacity-50"
-				>
+				<div className="opacity-50" style={{ color: "var(--color-text-muted)" }}>
 					{icon}
 				</div>
 			)}
@@ -21,10 +19,15 @@ export function EmptyState({ title, hint, icon }: EmptyStateProps) {
 				{title}
 			</p>
 			{hint && (
-				<p className="text-xs" style={{ color: "var(--color-text-muted)" }}>
+				<p className="max-w-sm text-xs" style={{ color: "var(--color-text-muted)" }}>
 					{hint}
 				</p>
 			)}
+			{actions ? (
+				<div className="mt-2 flex flex-wrap items-center justify-center gap-2">
+					{actions}
+				</div>
+			) : null}
 		</div>
 	);
 }

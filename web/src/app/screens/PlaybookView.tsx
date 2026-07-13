@@ -1,11 +1,15 @@
 import { BookOpen, Check, Pencil, Plus, Trash2, X } from "lucide-react";
 import { useState } from "react";
+import { Card } from "../../components/Card";
 import { EmptyState } from "../../components/EmptyState";
-import { Panel } from "../../components/Panel";
+import { Page } from "../../components/Page";
 import { Skeleton } from "../../components/Skeleton";
 import { pnlColor } from "../../components/theme-tokens";
 import type { BreakGroup, Setup } from "../../lib/api/types";
+import type { SetupBody } from "../../lib/api/setups";
 import { fmtPct, fmtSignedMoney } from "../../lib/format";
+import { useUI } from "../../lib/ui";
+import { intlLocale } from "../../lib/locale";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -18,16 +22,14 @@ export interface PlaybookViewProps {
 	breakdown: BreakGroup[];
 	breakdownLoading: boolean;
 	currency: string;
-	onCreate: (name: string, description: string) => Promise<void>;
-	onUpdate: (id: string, name: string, description: string) => Promise<void>;
+	onCreate: (body: SetupBody) => Promise<void>;
+	onUpdate: (id: string, body: SetupBody) => Promise<void>;
 	onDelete: (id: string) => Promise<void>;
 }
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
-
-const LOCALE = "en-US";
 
 function getGroupForSetup(
 	breakdown: BreakGroup[],
@@ -83,7 +85,6 @@ function SetupForm({
 		fontSize: 12,
 		padding: "5px 8px",
 		width: "100%",
-		fontFamily: "var(--font-mono)",
 		outline: "none",
 	};
 
@@ -194,6 +195,7 @@ interface SetupCardProps {
 	currency: string;
 	onEdit: (setup: Setup) => void;
 	onDelete: (setup: Setup) => void;
+	onConvert: (setup: Setup) => void;
 	editingId: string | null;
 	onSaveEdit: (name: string, description: string) => Promise<void>;
 	onCancelEdit: () => void;
@@ -205,6 +207,7 @@ function SetupCard({
 	currency,
 	onEdit,
 	onDelete,
+	onConvert,
 	editingId,
 	onSaveEdit,
 	onCancelEdit,
@@ -220,6 +223,8 @@ function SetupCard({
 	const hasData = trades > 0;
 
 	const isEditing = editingId === setup.id;
+	const thesis = setup.thesis || setup.description;
+	const checklist = setup.checklist ?? [];
 
 	return (
 		<div
@@ -238,18 +243,60 @@ function SetupCard({
 							fontSize: 13,
 							fontWeight: 600,
 							color: "var(--color-text)",
-							fontFamily: "var(--font-mono)",
+							
 						}}
 					>
 						{setup.name}
+						{setup.symbol ? (
+							<span
+								style={{
+									marginLeft: 8,
+									fontSize: 11,
+									fontWeight: 500,
+									color: "var(--color-text-muted)",
+								}}
+							>
+								{setup.symbol}
+								{setup.direction ? ` · ${setup.direction.toUpperCase()}` : ""}
+							</span>
+						) : null}
 					</span>
-					{setup.description && (
+					{thesis && (
 						<span style={{ fontSize: 11, color: "var(--color-text-muted)" }}>
-							{setup.description}
+							{thesis}
+						</span>
+					)}
+					{checklist.length > 0 && (
+						<span
+							style={{
+								fontSize: 10,
+								color: "var(--color-text-dim)",
+								
+							}}
+						>
+							{checklist.length} checklist item
+							{checklist.length === 1 ? "" : "s"}
 						</span>
 					)}
 				</div>
 				<div className="flex items-center gap-1 shrink-0 ml-3">
+					<button
+						type="button"
+						aria-label={`Convert ${setup.name} to trade`}
+						onClick={() => onConvert(setup)}
+						style={{
+							background: "transparent",
+							border: "1px solid var(--color-border)",
+							color: "var(--color-text-muted)",
+							cursor: "pointer",
+							padding: "2px 8px",
+							borderRadius: "var(--radius-control)",
+							fontSize: 11,
+							fontFamily: "inherit",
+						}}
+					>
+						Trade
+					</button>
 					<button
 						aria-label={`Edit ${setup.name}`}
 						onClick={() => onEdit(setup)}
@@ -343,11 +390,11 @@ function SetupCard({
 				<Stat label="Trades" value={hasData ? String(trades) : "-"} />
 				<Stat
 					label="Win Rate"
-					value={hasData ? fmtPct(winRate, LOCALE) : "-"}
+					value={hasData ? fmtPct(winRate, intlLocale()) : "-"}
 				/>
 				<Stat
 					label="Net P&L"
-					value={hasData ? fmtSignedMoney(netPnl, currency, LOCALE) : "-"}
+					value={hasData ? fmtSignedMoney(netPnl, currency, intlLocale()) : "-"}
 					valueClass={hasData ? pnlColor(netPnl) : ""}
 				/>
 				<Stat
@@ -356,7 +403,7 @@ function SetupCard({
 				/>
 				<Stat
 					label="Expectancy"
-					value={hasData ? fmtSignedMoney(exp, currency, LOCALE) : "-"}
+					value={hasData ? fmtSignedMoney(exp, currency, intlLocale()) : "-"}
 					valueClass={hasData ? pnlColor(exp) : ""}
 				/>
 			</div>
@@ -365,7 +412,7 @@ function SetupCard({
 			{isEditing && (
 				<SetupForm
 					initialName={setup.name}
-					initialDescription={setup.description}
+					initialDescription={thesis}
 					onSave={onSaveEdit}
 					onCancel={onCancelEdit}
 					saveLabel="Save"
@@ -401,7 +448,7 @@ function Stat({
 				className={`tabular-nums ${valueClass}`}
 				style={{
 					fontSize: 12,
-					fontFamily: "var(--font-mono)",
+					
 					color: valueClass ? undefined : "var(--color-text)",
 					fontWeight: 600,
 				}}
@@ -428,6 +475,23 @@ export function PlaybookView({
 }: PlaybookViewProps) {
 	const [showCreateForm, setShowCreateForm] = useState(false);
 	const [editingId, setEditingId] = useState<string | null>(null);
+	const openTradeFromSetup = useUI((s) => s.openTradeFromSetup);
+
+	function convertSetup(setup: Setup) {
+		openTradeFromSetup({
+			setupId: setup.id,
+			symbol: setup.symbol || undefined,
+			side:
+				setup.direction === "short"
+					? "short"
+					: setup.direction === "long"
+						? "long"
+						: undefined,
+			target: setup.target_price != null ? String(setup.target_price) : undefined,
+			stop: setup.stop_price != null ? String(setup.stop_price) : undefined,
+			notes: setup.thesis || setup.description || undefined,
+		});
+	}
 
 	const panelRight = (
 		<button
@@ -483,7 +547,12 @@ export function PlaybookView({
 				{showCreateForm && (
 					<SetupForm
 						onSave={async (name, description) => {
-							await onCreate(name, description);
+							await onCreate({
+								name,
+								description,
+								thesis: description,
+								checklist: [],
+							});
 							setShowCreateForm(false);
 						}}
 						onCancel={() => setShowCreateForm(false)}
@@ -511,10 +580,20 @@ export function PlaybookView({
 									setShowCreateForm(false);
 								}}
 								onSaveEdit={async (name, description) => {
-									await onUpdate(setup.id, name, description);
+									await onUpdate(setup.id, {
+										name,
+										description,
+										thesis: description,
+										symbol: setup.symbol,
+										direction: setup.direction,
+										target_price: setup.target_price,
+										stop_price: setup.stop_price,
+										checklist: setup.checklist ?? [],
+									});
 									setEditingId(null);
 								}}
 								onCancelEdit={() => setEditingId(null)}
+								onConvert={convertSetup}
 								onDelete={async (s) => {
 									await onDelete(s.id);
 								}}
@@ -527,10 +606,10 @@ export function PlaybookView({
 	};
 
 	return (
-		<div className="flex flex-col gap-4">
-			<Panel title="Playbook" right={panelRight}>
+		<Page>
+			<Card title="Playbook" action={panelRight}>
 				{renderContent()}
-			</Panel>
-		</div>
+			</Card>
+		</Page>
 	);
 }

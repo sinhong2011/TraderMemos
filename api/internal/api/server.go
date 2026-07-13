@@ -1,6 +1,7 @@
 package api
 
 import (
+	"log/slog"
 	"net/http"
 	"strconv"
 
@@ -19,29 +20,37 @@ type Deps struct {
 	JWT            *auth.JWT
 	Store          *store.Queries
 	Trades         *trades.Service
+	Logger         *slog.Logger
 	Storage        storage.Storage
 	AttachMaxBytes int64
 	ImportMaxBytes int64
 }
 
 type Server struct {
-	Echo *echo.Echo
-	deps Deps
+	Echo   *echo.Echo
+	deps   Deps
+	logger *slog.Logger
 }
 
 func New(deps Deps) *Server {
+	lg := deps.Logger
+	if lg == nil {
+		lg = slog.Default()
+	}
+
 	e := echo.New()
 	e.HideBanner = true
 	e.HTTPErrorHandler = errorHandler
-	e.Use(middleware.Recover())
 	e.Use(middleware.RequestID())
+	e.Use(requestLogger(lg))
+	e.Use(middleware.Recover())
 	// Reject oversized request bodies at read time (before multipart parse).
 	// Sized to the largest configured upload cap; a 16KiB floor covers JSON.
 	if lim := bodyLimit(deps); lim > 0 {
 		e.Use(middleware.BodyLimit(strconv.FormatInt(lim, 10) + "B"))
 	}
 
-	s := &Server{Echo: e, deps: deps}
+	s := &Server{Echo: e, deps: deps, logger: lg}
 	e.GET("/healthz", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, map[string]string{"status": "ok"})
 	})
@@ -75,4 +84,7 @@ func (s *Server) routes() {
 	s.setupRoutes(protected)
 	s.attachmentRoutes(protected)
 	s.analyticsRoutes(protected)
+	s.settingsRoutes(protected)
+	s.noteRoutes(protected)
+	s.checklistRoutes(protected)
 }

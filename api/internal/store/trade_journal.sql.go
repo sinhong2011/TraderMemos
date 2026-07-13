@@ -11,7 +11,7 @@ import (
 )
 
 const getTradeJournal = `-- name: GetTradeJournal :one
-SELECT trade_id, user_id, notes, setup_id, initial_risk, updated_at FROM trade_journal WHERE trade_id = ? AND user_id = ?
+SELECT trade_id, user_id, notes, setup_id, initial_risk, updated_at, target_price, stop_price, emotional_state, confidence, trade_quality, mae, mfe FROM trade_journal WHERE trade_id = ? AND user_id = ?
 `
 
 type GetTradeJournalParams struct {
@@ -29,24 +29,50 @@ func (q *Queries) GetTradeJournal(ctx context.Context, arg GetTradeJournalParams
 		&i.SetupID,
 		&i.InitialRisk,
 		&i.UpdatedAt,
+		&i.TargetPrice,
+		&i.StopPrice,
+		&i.EmotionalState,
+		&i.Confidence,
+		&i.TradeQuality,
+		&i.Mae,
+		&i.Mfe,
 	)
 	return i, err
 }
 
 const upsertTradeJournal = `-- name: UpsertTradeJournal :exec
-INSERT INTO trade_journal (trade_id, user_id, notes, setup_id, initial_risk, updated_at)
-VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+INSERT INTO trade_journal (
+    trade_id, user_id, notes, setup_id, initial_risk, target_price, stop_price,
+    emotional_state, confidence, trade_quality, mae, mfe, updated_at
+)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
 ON CONFLICT(trade_id) DO UPDATE SET
-    notes = excluded.notes, setup_id = excluded.setup_id,
-    initial_risk = excluded.initial_risk, updated_at = CURRENT_TIMESTAMP
+    notes = excluded.notes,
+    setup_id = excluded.setup_id,
+    initial_risk = excluded.initial_risk,
+    target_price = excluded.target_price,
+    stop_price = excluded.stop_price,
+    emotional_state = excluded.emotional_state,
+    confidence = excluded.confidence,
+    trade_quality = excluded.trade_quality,
+    mae = excluded.mae,
+    mfe = excluded.mfe,
+    updated_at = CURRENT_TIMESTAMP
 `
 
 type UpsertTradeJournalParams struct {
-	TradeID     string          `json:"trade_id"`
-	UserID      string          `json:"user_id"`
-	Notes       string          `json:"notes"`
-	SetupID     sql.NullString  `json:"setup_id"`
-	InitialRisk sql.NullFloat64 `json:"initial_risk"`
+	TradeID        string          `json:"trade_id"`
+	UserID         string          `json:"user_id"`
+	Notes          string          `json:"notes"`
+	SetupID        sql.NullString  `json:"setup_id"`
+	InitialRisk    sql.NullFloat64 `json:"initial_risk"`
+	TargetPrice    sql.NullFloat64 `json:"target_price"`
+	StopPrice      sql.NullFloat64 `json:"stop_price"`
+	EmotionalState string          `json:"emotional_state"`
+	Confidence     sql.NullInt64   `json:"confidence"`
+	TradeQuality   sql.NullInt64   `json:"trade_quality"`
+	Mae            sql.NullFloat64 `json:"mae"`
+	Mfe            sql.NullFloat64 `json:"mfe"`
 }
 
 func (q *Queries) UpsertTradeJournal(ctx context.Context, arg UpsertTradeJournalParams) error {
@@ -56,6 +82,13 @@ func (q *Queries) UpsertTradeJournal(ctx context.Context, arg UpsertTradeJournal
 		arg.Notes,
 		arg.SetupID,
 		arg.InitialRisk,
+		arg.TargetPrice,
+		arg.StopPrice,
+		arg.EmotionalState,
+		arg.Confidence,
+		arg.TradeQuality,
+		arg.Mae,
+		arg.Mfe,
 	)
 	return err
 }

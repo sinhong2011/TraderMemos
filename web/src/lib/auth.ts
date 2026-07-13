@@ -1,10 +1,15 @@
 import { create } from "zustand";
-import { getToken, setToken } from "./api/client";
+import { getToken, setTokens } from "./api/client";
 
 interface AuthState {
 	authed: boolean;
-	signIn: (token: string) => void;
+	signIn: (access: string, refresh: string) => void;
 	signOut: () => void;
+}
+
+function signOut() {
+	setTokens("", "");
+	useAuth.setState({ authed: false });
 }
 
 // Reactive auth presence, mirrored from the api client's token storage so the
@@ -12,12 +17,9 @@ interface AuthState {
 // token value; this store only tracks whether we are signed in.
 export const useAuth = create<AuthState>((set) => ({
 	authed: !!getToken(),
-	signIn: (token) => {
-		setToken(token);
+	signIn: (access, refresh) => {
+		setTokens(access, refresh);
 		set({ authed: true });
 	},
-	signOut: () => {
-		setToken("");
-		set({ authed: false });
-	},
+	signOut,
 }));

@@ -39,6 +39,7 @@ type tradeDTO struct {
 	OpenedAt        time.Time  `json:"opened_at"`
 	ClosedAt        *time.Time `json:"closed_at"`
 	QtyOpened       float64    `json:"qty_opened"`
+	QtyRemaining    float64    `json:"qty_remaining"`
 	AvgEntryPrice   float64    `json:"avg_entry_price"`
 	AvgExitPrice    *float64   `json:"avg_exit_price"`
 	GrossPnl        *float64   `json:"gross_pnl"`
@@ -49,6 +50,7 @@ type tradeDTO struct {
 	TimeInTradeSecs *int64     `json:"time_in_trade_secs"`
 	Notes           string     `json:"notes"`
 	Tags            []store.Tag `json:"tags"`
+	InitialRisk     *float64   `json:"initial_risk,omitempty"`
 }
 
 func toTradeDTO(t store.Trade, tags []store.Tag) tradeDTO {
@@ -59,7 +61,7 @@ func toTradeDTO(t store.Trade, tags []store.Tag) tradeDTO {
 		ID: t.ID, AccountID: t.AccountID, Symbol: t.Symbol,
 		InstrumentType: t.InstrumentType, Direction: t.Direction, Status: t.Status,
 		OpenedAt: t.OpenedAt, ClosedAt: tptr(t.ClosedAt), QtyOpened: t.QtyOpened,
-		AvgEntryPrice: t.AvgEntryPrice, AvgExitPrice: fptr(t.AvgExitPrice),
+		QtyRemaining: t.QtyRemaining, AvgEntryPrice: t.AvgEntryPrice, AvgExitPrice: fptr(t.AvgExitPrice),
 		GrossPnl: fptr(t.GrossPnl), FeesTotal: t.FeesTotal, NetPnl: fptr(t.NetPnl),
 		PnlCurrency: t.PnlCurrency, ReturnPct: fptr(t.ReturnPct),
 		TimeInTradeSecs: iptr(t.TimeInTradeSecs), Notes: t.Notes, Tags: tags,
@@ -79,6 +81,26 @@ func (s *Server) loadClosedTrades(ctx context.Context, userID string, f Filters)
 	out := rows[:0]
 	for _, t := range rows {
 		if t.ClosedAt.Valid && f.matchClosed(t.Symbol, t.ClosedAt.Time) {
+			out = append(out, t)
+		}
+	}
+	return out, nil
+}
+
+// loadTrades fetches open and/or closed trades for the trade log / dashboard.
+// Date filters use opened_at so open positions stay visible in range views.
+func (s *Server) loadTrades(ctx context.Context, userID string, f Filters) ([]store.Trade, error) {
+	rows, err := s.deps.Store.ListTrades(ctx, store.ListTradesParams{
+		UserID:    userID,
+		AccountID: accountArg(f.AccountID),
+		Status:    statusArg(f.Status),
+	})
+	if err != nil {
+		return nil, err
+	}
+	out := rows[:0]
+	for _, t := range rows {
+		if f.matchOpened(t.Symbol, t.OpenedAt) {
 			out = append(out, t)
 		}
 	}

@@ -1,0 +1,64 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-07-11 20:58+0800\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: ja\n"
+
+#: src/components/AppNav.tsx:33
+msgid "Calendar"
+msgstr "カレンダー"
+
+#: src/components/AppNav.tsx:31
+msgid "Dashboard"
+msgstr "ダッシュボード"
+
+#: src/components/AppNav.tsx:39
+msgid "Import"
+msgstr "インポート"
+
+#: src/app/screens/settings/settings-sections.tsx:1170
+msgid "Interface language"
+msgstr "表示言語"
+
+#: src/app/screens/settings/settings-sections.tsx:1167
+msgid "Interface language for TraderMemos."
+msgstr "TraderMemos の表示言語。"
+
+#: src/app/screens/settings/settings-sections.tsx:1166
+msgid "Language"
+msgstr "言語"
+
+#: src/app/screens/settings/settings-sections.tsx:1174
+msgid "Language selector"
+msgstr "言語セレクター"
+
+#: src/components/AppNav.tsx:257
+msgid "New Note"
+msgstr "新規メモ"
+
+#: src/components/AppNav.tsx:251
+msgid "New Setup"
+msgstr "新規セットアップ"
+
+#: src/components/AppNav.tsx:245
+msgid "New Trade"
+msgstr "新規トレード"
+
+#: src/components/AppNav.tsx:38
+msgid "Playbook"
+msgstr "プレイブック"
+
+#: src/components/AppNav.tsx:276
+msgid "Settings"
+msgstr "設定"
+
+#: src/components/AppNav.tsx:34
+msgid "Stats"
+msgstr "統計"
+
+#: src/components/AppNav.tsx:32
+msgid "Trades"
+msgstr "トレード"

@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -12,7 +11,8 @@ import (
 )
 
 var breakdownDims = map[string]bool{
-	"symbol": true, "setup": true, "day_of_week": true, "hour_of_day": true, "tag": true,
+	"symbol": true, "setup": true, "day_of_week": true, "hour_of_day": true,
+	"session": true, "tag": true, "mistake": true,
 }
 
 func (s *Server) handleBreakdown(c echo.Context) error {
@@ -20,7 +20,7 @@ func (s *Server) handleBreakdown(c echo.Context) error {
 	uid := auth.UserID(c)
 	by := c.QueryParam("by")
 	if !breakdownDims[by] {
-		return Fail(http.StatusBadRequest, "bad_request", "by must be one of symbol|setup|day_of_week|hour_of_day|tag", nil)
+		return Fail(http.StatusBadRequest, "bad_request", "by must be one of symbol|setup|day_of_week|hour_of_day|session|tag|mistake", nil)
 	}
 	f, err := parseFilters(c)
 	if err != nil {
@@ -39,19 +39,31 @@ func (s *Server) handleBreakdown(c echo.Context) error {
 			continue
 		}
 		ct := analytics.ClosedTrade{NetPnl: t.NetPnl.Float64, FeesTotal: t.FeesTotal, ClosedAt: t.ClosedAt.Time}
+		// Day-trader leak analysis uses entry (opened_at), not close.
+		at := t.OpenedAt
 		switch by {
 		case "symbol":
 			add(t.Symbol, ct)
 		case "day_of_week":
-			add(t.ClosedAt.Time.UTC().Weekday().String(), ct)
+			add(analytics.WeekdayName(at), ct)
 		case "hour_of_day":
-			add(fmt.Sprintf("%02d:00", t.ClosedAt.Time.UTC().Hour()), ct)
+			add(analytics.HourBucket(at), ct)
+		case "session":
+			add(analytics.SessionName(at), ct)
 		case "setup":
 			add(s.setupKey(ctx, uid, t.ID), ct)
 		case "tag":
-			names := s.tradeTagNames(ctx, t.ID)
+			names := s.tradeTagNames(ctx, t.ID, "")
 			if len(names) == 0 {
 				add("(untagged)", ct)
+			}
+			for _, n := range names {
+				add(n, ct)
+			}
+		case "mistake":
+			names := s.tradeTagNames(ctx, t.ID, "mistake")
+			if len(names) == 0 {
+				add("(none)", ct)
 			}
 			for _, n := range names {
 				add(n, ct)
@@ -73,13 +85,16 @@ func (s *Server) setupKey(ctx context.Context, userID, tradeID string) string {
 	return setup.Name
 }
 
-func (s *Server) tradeTagNames(ctx context.Context, tradeID string) []string {
+func (s *Server) tradeTagNames(ctx context.Context, tradeID, kind string) []string {
 	tags, err := s.deps.Store.ListTagsForTrade(ctx, tradeID)
 	if err != nil {
 		return nil
 	}
 	names := make([]string, 0, len(tags))
 	for _, t := range tags {
+		if kind != "" && t.Kind != kind {
+			continue
+		}
 		names = append(names, t.Name)
 	}
 	return names

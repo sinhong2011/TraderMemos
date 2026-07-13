@@ -36,3 +36,17 @@ export function useDeleteAccount() {
 		onSuccess: () => queryClient.invalidateQueries({ queryKey: ["accounts"] }),
 	});
 }
+
+export function useClearAccountTrades() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: (id: string) => accountsApi.clearTrades(id),
+		onSuccess: () => {
+			void queryClient.invalidateQueries({ queryKey: ["accounts"] });
+			void queryClient.invalidateQueries({ queryKey: ["trades"] });
+			void queryClient.invalidateQueries({ queryKey: ["executions"] });
+			void queryClient.invalidateQueries({ queryKey: ["analytics"] });
+			void queryClient.invalidateQueries({ queryKey: ["cash"] });
+		},
+	});
+}

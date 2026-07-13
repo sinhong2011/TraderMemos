@@ -23,13 +23,27 @@ func (s *Server) handleListTrades(c echo.Context) error {
 	if err != nil {
 		return Fail(http.StatusBadRequest, "bad_request", err.Error(), nil)
 	}
-	rows, err := s.loadClosedTrades(c.Request().Context(), uid, f)
+	rows, err := s.loadTrades(c.Request().Context(), uid, f)
 	if err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not list trades", nil)
 	}
+	risks, err := s.deps.Store.ListJournalRisks(c.Request().Context(), uid)
+	if err != nil {
+		return Fail(http.StatusInternalServerError, "internal", "could not load risk", nil)
+	}
+	riskByTrade := make(map[string]float64, len(risks))
+	for _, r := range risks {
+		if r.InitialRisk.Valid {
+			riskByTrade[r.TradeID] = r.InitialRisk.Float64
+		}
+	}
 	out := make([]tradeDTO, 0, len(rows))
 	for _, t := range rows {
-		out = append(out, toTradeDTO(t, nil))
+		dto := toTradeDTO(t, nil)
+		if risk, ok := riskByTrade[t.ID]; ok {
+			dto.InitialRisk = &risk
+		}
+		out = append(out, dto)
 	}
 	return c.JSON(http.StatusOK, out)
 }
@@ -52,10 +66,17 @@ func (s *Server) handleGetTrade(c echo.Context) error {
 }
 
 type patchTradeReq struct {
-	Notes       *string  `json:"notes"`
-	SetupID     *string  `json:"setup_id"`
-	InitialRisk *float64 `json:"initial_risk"`
-	TagIDs      []string `json:"tag_ids"`
+	Notes          *string  `json:"notes"`
+	SetupID        *string  `json:"setup_id"`
+	InitialRisk    *float64 `json:"initial_risk"`
+	TargetPrice    *float64 `json:"target_price"`
+	StopPrice      *float64 `json:"stop_price"`
+	EmotionalState *string  `json:"emotional_state"`
+	Confidence     *int64   `json:"confidence"`
+	TradeQuality   *int64   `json:"trade_quality"`
+	Mae            *float64 `json:"mae"`
+	Mfe            *float64 `json:"mfe"`
+	TagIDs         []string `json:"tag_ids"`
 }
 
 func (s *Server) handlePatchTrade(c echo.Context) error {
@@ -77,9 +98,12 @@ func (s *Server) handlePatchTrade(c echo.Context) error {
 		return Fail(http.StatusBadRequest, "bad_request", "invalid body", nil)
 	}
 
-	// Journal fields (notes/setup/risk) are merged with any existing journal so
-	// a partial PATCH does not clobber untouched fields.
-	if in.Notes != nil || in.SetupID != nil || in.InitialRisk != nil {
+	// Journal fields are merged with any existing journal so a partial PATCH
+	// does not clobber untouched fields.
+	journalTouched := in.Notes != nil || in.SetupID != nil || in.InitialRisk != nil ||
+		in.TargetPrice != nil || in.StopPrice != nil || in.EmotionalState != nil ||
+		in.Confidence != nil || in.TradeQuality != nil || in.Mae != nil || in.Mfe != nil
+	if journalTouched {
 		cur, jerr := s.deps.Store.GetTradeJournal(ctx, store.GetTradeJournalParams{TradeID: id, UserID: uid})
 		if jerr != nil && !errors.Is(jerr, sql.ErrNoRows) {
 			return Fail(http.StatusInternalServerError, "internal", "could not load journal", nil)
@@ -87,6 +111,13 @@ func (s *Server) handlePatchTrade(c echo.Context) error {
 		notes := cur.Notes
 		setupID := cur.SetupID
 		risk := cur.InitialRisk
+		target := cur.TargetPrice
+		stop := cur.StopPrice
+		emotion := cur.EmotionalState
+		confidence := cur.Confidence
+		quality := cur.TradeQuality
+		mae := cur.Mae
+		mfe := cur.Mfe
 		if in.Notes != nil {
 			notes = *in.Notes
 		}
@@ -103,8 +134,40 @@ func (s *Server) handlePatchTrade(c echo.Context) error {
 		if in.InitialRisk != nil {
 			risk = sql.NullFloat64{Float64: *in.InitialRisk, Valid: true}
 		}
+		if in.TargetPrice != nil {
+			target = sql.NullFloat64{Float64: *in.TargetPrice, Valid: true}
+		}
+		if in.StopPrice != nil {
+			stop = sql.NullFloat64{Float64: *in.StopPrice, Valid: true}
+		}
+		if in.EmotionalState != nil {
+			emotion = *in.EmotionalState
+		}
+		if in.Confidence != nil {
+			if *in.Confidence == 0 {
+				confidence = sql.NullInt64{}
+			} else {
+				confidence = sql.NullInt64{Int64: *in.Confidence, Valid: true}
+			}
+		}
+		if in.TradeQuality != nil {
+			if *in.TradeQuality == 0 {
+				quality = sql.NullInt64{}
+			} else {
+				quality = sql.NullInt64{Int64: *in.TradeQuality, Valid: true}
+			}
+		}
+		if in.Mae != nil {
+			mae = sql.NullFloat64{Float64: *in.Mae, Valid: true}
+		}
+		if in.Mfe != nil {
+			mfe = sql.NullFloat64{Float64: *in.Mfe, Valid: true}
+		}
 		if err := s.deps.Store.UpsertTradeJournal(ctx, store.UpsertTradeJournalParams{
 			TradeID: id, UserID: uid, Notes: notes, SetupID: setupID, InitialRisk: risk,
+			TargetPrice: target, StopPrice: stop,
+			EmotionalState: emotion, Confidence: confidence, TradeQuality: quality,
+			Mae: mae, Mfe: mfe,
 		}); err != nil {
 			return Fail(http.StatusInternalServerError, "internal", "could not update journal", nil)
 		}

@@ -24,4 +24,6 @@ export const accountsApi = {
 		}),
 	delete: (id: string) =>
 		apiFetch<void>(`/accounts/${id}`, { method: "DELETE" }),
+	clearTrades: (id: string) =>
+		apiFetch<void>(`/accounts/${id}/trades`, { method: "DELETE" }),
 };

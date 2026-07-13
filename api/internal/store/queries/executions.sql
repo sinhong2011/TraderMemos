@@ -9,5 +9,8 @@ SELECT * FROM executions WHERE user_id = ? AND account_id = ? ORDER BY executed_
 -- name: DeleteExecutionsForBatch :exec
 DELETE FROM executions WHERE import_batch_id = ? AND user_id = ?;
 
+-- name: DeleteExecutionsForAccount :exec
+DELETE FROM executions WHERE account_id = ? AND user_id = ?;
+
 -- name: ExecutionExists :one
 SELECT EXISTS(SELECT 1 FROM executions WHERE account_id = ? AND dedup_hash = ?);

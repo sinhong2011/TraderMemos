@@ -1,10 +1,20 @@
 import { apiFetch, qs } from "./client";
-import type { BreakGroup, EquityCurve, Filters, Summary } from "./types";
+import type {
+	BreakGroup,
+	EquityCurve,
+	Filters,
+	RSummary,
+	Summary,
+} from "./types";
 
 export const analyticsApi = {
 	summary: (f: Filters) =>
 		apiFetch<Summary>(
 			`/analytics/summary${qs(f as Record<string, string | undefined>)}`,
+		),
+	rSummary: (f: Filters) =>
+		apiFetch<RSummary>(
+			`/analytics/r-summary${qs(f as Record<string, string | undefined>)}`,
 		),
 	equityCurve: (f: Filters) =>
 		apiFetch<EquityCurve>(

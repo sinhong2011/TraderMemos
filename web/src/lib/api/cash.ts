@@ -8,6 +8,7 @@ interface CashBody {
 	currency: string;
 	occurred_at: string;
 	note?: string;
+	trade_id?: string;
 }
 
 export const cashApi = {

@@ -1,120 +1,53 @@
+import { CalendarDays, ChevronDown } from "lucide-react";
+import { useState } from "react";
+import { formatRangeLabel } from "../lib/dateRangePresets";
 import { useFilters } from "../lib/filters";
-
-type Preset = {
-	label: string;
-	key: string;
-};
-
-const PRESETS: Preset[] = [
-	{ label: "Last 7 days", key: "7d" },
-	{ label: "Last 30 days", key: "30d" },
-	{ label: "Last 90 days", key: "90d" },
-	{ label: "This month", key: "month" },
-	{ label: "All time", key: "all" },
-];
-
-function toISODate(d: Date): string {
-	return d.toISOString().slice(0, 10);
-}
-
-function computeRange(key: string): { from?: string; to?: string } {
-	const now = new Date();
-	const today = toISODate(now);
-
-	if (key === "7d") {
-		const from = new Date(now);
-		from.setDate(from.getDate() - 6);
-		return { from: toISODate(from), to: today };
-	}
-	if (key === "30d") {
-		const from = new Date(now);
-		from.setDate(from.getDate() - 29);
-		return { from: toISODate(from), to: today };
-	}
-	if (key === "90d") {
-		const from = new Date(now);
-		from.setDate(from.getDate() - 89);
-		return { from: toISODate(from), to: today };
-	}
-	if (key === "month") {
-		const from = new Date(now.getFullYear(), now.getMonth(), 1);
-		return { from: toISODate(from), to: today };
-	}
-	// "all" - no range constraints
-	return { from: undefined, to: undefined };
-}
-
-function currentKey(from?: string, to?: string): string {
-	if (!from && !to) return "all";
-	// best-effort match
-	const now = new Date();
-	const today = toISODate(now);
-	if (to !== today) return "";
-
-	const d = new Date(from ?? "");
-	const diffDays = Math.round(
-		(now.getTime() - d.getTime()) / (1000 * 60 * 60 * 24),
-	);
-
-	if (diffDays === 6) return "7d";
-	if (diffDays === 29) return "30d";
-	if (diffDays === 89) return "90d";
-
-	const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-	if (from === toISODate(monthStart)) return "month";
-
-	return "";
-}
+import { cn } from "../lib/cn";
+import { DateRangePanel } from "./DateRangePanel";
+import { SignalPopover } from "./SignalPopover";
 
 export function DateRangePicker() {
-	const { from, to, setRange } = useFilters();
-	const active = currentKey(from, to);
-
-	function handleChange(e: React.ChangeEvent<HTMLSelectElement>) {
-		const { from: f, to: t } = computeRange(e.target.value);
-		setRange(f, t);
-	}
+	const { from, to } = useFilters();
+	const [open, setOpen] = useState(false);
+	const label = formatRangeLabel(from, to);
 
 	return (
-		<select
-			value={active}
-			onChange={handleChange}
-			style={{
-				background: "var(--color-surface-hover)",
-				color: "var(--color-text)",
-				border: "1px solid var(--color-border)",
-				borderRadius: "var(--radius-control)",
-				padding: "6px 10px",
-				fontSize: "12px",
-				fontFamily: "var(--font-ui)",
-				cursor: "pointer",
-				outline: "none",
-				transition: "border-color var(--duration-fast)",
-			}}
-			onFocus={(e) => {
-				(e.currentTarget as HTMLElement).style.borderColor =
-					"var(--color-accent)";
-			}}
-			onBlur={(e) => {
-				(e.currentTarget as HTMLElement).style.borderColor =
-					"var(--color-border)";
-			}}
-			aria-label="Date range"
-		>
-			{PRESETS.map((p) => (
-				<option
-					key={p.key}
-					value={p.key}
-					style={{ background: "var(--color-surface-panel)" }}
-				>
-					{p.label}
-				</option>
-			))}
-			{active === "" && (
-				<option value="" style={{ background: "var(--color-surface-panel)" }}>
-					Custom range
-				</option>
+		<SignalPopover
+			open={open}
+			onOpenChange={setOpen}
+			align="end"
+			triggerAriaLabel="Date range"
+			className="overflow-hidden p-0"
+			triggerClassName={cn(
+				"h-8 min-w-[112px] rounded-control border border-border bg-bg-inset px-2.5",
+				"text-left transition-[border-color,background-color,box-shadow] duration-150",
+				"hover:border-border-strong focus-visible:border-accent focus-visible:shadow-[0_0_0_3px_var(--color-accent-bg)]",
+				open && "border-accent shadow-[0_0_0_3px_var(--color-accent-bg)]",
 			)}
-		</select>
+			trigger={
+				<>
+					<CalendarDays
+						size={13}
+						strokeWidth={1.75}
+						className="shrink-0 text-text-dim"
+						aria-hidden
+					/>
+					<span className="min-w-0 flex-1 truncate text-[11px] text-text-muted">
+						{label}
+					</span>
+					<ChevronDown
+						size={12}
+						strokeWidth={1.75}
+						className={cn(
+							"shrink-0 text-text-dim transition-transform duration-150",
+							open && "rotate-180",
+						)}
+						aria-hidden
+					/>
+				</>
+			}
+		>
+			<DateRangePanel onApplied={() => setOpen(false)} />
+		</SignalPopover>
 	);
 }

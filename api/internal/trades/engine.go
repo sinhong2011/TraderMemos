@@ -18,6 +18,7 @@ type Execution struct {
 	Commission     float64
 	ExecutedAt     time.Time
 	Multiplier     float64 // 1 stock, 100 option, tick-derived for futures
+	LotKey         string  // optional; isolates overlapping same-symbol round-trips
 }
 
 type Trade struct {
@@ -28,6 +29,7 @@ type Trade struct {
 	OpenedAt        time.Time
 	ClosedAt        *time.Time
 	QtyOpened       float64
+	QtyRemaining    float64 // open position size; 0 when closed
 	AvgEntryPrice   float64
 	AvgExitPrice    *float64
 	GrossPnl        *float64
@@ -184,7 +186,7 @@ func (s *openState) finalize(closedAt time.Time) Trade {
 	return Trade{
 		Symbol: s.symbol, InstrumentType: s.instrument, Direction: s.direction,
 		Status: "closed", OpenedAt: s.openedAt, ClosedAt: &closedAt,
-		QtyOpened: s.qtyOpened, AvgEntryPrice: money.Round2(avgEntry),
+		QtyOpened: s.qtyOpened, QtyRemaining: 0, AvgEntryPrice: money.Round2(avgEntry),
 		AvgExitPrice: f64(money.Round2(avgExit)), GrossPnl: f64(gross),
 		FeesTotal: money.Round2(s.feesTotal), NetPnl: f64(net), ReturnPct: f64(ret),
 		TimeInTradeSecs: &secs, ExecutionIDs: s.execIDs,
@@ -196,6 +198,7 @@ func (s *openState) finalizeOpen() Trade {
 	return Trade{
 		Symbol: s.symbol, InstrumentType: s.instrument, Direction: s.direction,
 		Status: "open", OpenedAt: s.openedAt, QtyOpened: s.qtyOpened,
+		QtyRemaining: money.Round2(abs(s.position)),
 		AvgEntryPrice: money.Round2(avgEntry), FeesTotal: money.Round2(s.feesTotal),
 		ExecutionIDs: s.execIDs,
 	}

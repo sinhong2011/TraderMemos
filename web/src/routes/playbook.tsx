@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PlaybookView } from "../app/screens/PlaybookView";
+import { useToastManager } from "../components/Toast";
 import { useFilterParams, useFilters } from "../lib/filters";
 import { useAccounts } from "../lib/hooks/useAccounts";
 import { useBreakdown } from "../lib/hooks/useAnalytics";
@@ -15,6 +16,7 @@ export const Route = createFileRoute("/playbook")({
 });
 
 function PlaybookPage() {
+	const toast = useToastManager();
 	const filters = useFilterParams();
 	const accountId = useFilters((s) => s.accountId);
 
@@ -37,14 +39,52 @@ function PlaybookPage() {
 			breakdown={breakdownQ.data ?? []}
 			breakdownLoading={breakdownQ.isLoading}
 			currency={currency}
-			onCreate={async (name, description) => {
-				await createM.mutateAsync({ name, description });
+			onCreate={async (body) => {
+				try {
+					await createM.mutateAsync(body);
+					toast.add({
+						title: "Setup created",
+						description: body.name,
+					});
+				} catch (err) {
+					toast.add({
+						title: "Could not create setup",
+						description: err instanceof Error ? err.message : "Request failed",
+					});
+					throw err;
+				}
 			}}
-			onUpdate={async (id, name, description) => {
-				await updateM.mutateAsync({ id, body: { name, description } });
+			onUpdate={async (id, body) => {
+				try {
+					await updateM.mutateAsync({ id, body });
+					toast.add({
+						title: "Setup updated",
+						description: body.name,
+					});
+				} catch (err) {
+					toast.add({
+						title: "Could not update setup",
+						description: err instanceof Error ? err.message : "Request failed",
+					});
+					throw err;
+				}
 			}}
 			onDelete={async (id) => {
-				await deleteM.mutateAsync(id);
+				const name =
+					setupsQ.data?.find((setup) => setup.id === id)?.name ?? "Setup";
+				try {
+					await deleteM.mutateAsync(id);
+					toast.add({
+						title: "Setup deleted",
+						description: name,
+					});
+				} catch (err) {
+					toast.add({
+						title: "Could not delete setup",
+						description: err instanceof Error ? err.message : "Request failed",
+					});
+					throw err;
+				}
 			}}
 		/>
 	);

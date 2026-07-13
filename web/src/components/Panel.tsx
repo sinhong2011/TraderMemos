@@ -1,34 +1,35 @@
 import type { ReactNode } from "react";
+import { cn } from "../lib/cn";
 
 interface PanelProps {
 	title?: string;
 	right?: ReactNode;
 	children: ReactNode;
 	className?: string;
+	/** void = full-bleed page surface (bg-bg); panel = elevated card (default) */
+	surface?: "void" | "panel";
 }
 
-export function Panel({ title, right, children, className = "" }: PanelProps) {
+export function Panel({
+	title,
+	right,
+	children,
+	className = "",
+	surface = "panel",
+}: PanelProps) {
 	return (
 		<div
-			className={`flex flex-col ${className}`}
-			style={{
-				background: "var(--color-surface-panel)",
-				border: "1px solid var(--color-border)",
-				borderRadius: "var(--radius-panel)",
-			}}
+			className={cn(
+				"flex flex-col",
+				surface === "panel" && "rounded-sharp border border-border bg-bg-panel",
+				surface === "void" && "bg-bg",
+				className,
+			)}
 		>
 			{(title || right) && (
-				<div
-					className="flex items-center justify-between px-4 py-2"
-					style={{
-						borderBottom: "1px solid var(--color-border)",
-					}}
-				>
+				<div className="flex items-center justify-between border-b border-border px-4 py-2">
 					{title && (
-						<span
-							className="text-xs font-semibold uppercase tracking-wide"
-							style={{ color: "var(--color-text-muted)" }}
-						>
+						<span className="text-label font-semibold text-text-muted">
 							{title}
 						</span>
 					)}

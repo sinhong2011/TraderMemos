@@ -1,13 +1,15 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
 import { SettingsView } from "../app/screens/SettingsView";
-import { i18n, loadLocale } from "../i18n";
+import { settingsApi } from "../lib/api/settings";
 import {
 	useAccounts,
+	useClearAccountTrades,
 	useCreateAccount,
 	useDeleteAccount,
 } from "../lib/hooks/useAccounts";
 import { useCash, useCreateCash, useDeleteCash } from "../lib/hooks/useCash";
+import { useRiskRules, useSaveRiskRules } from "../lib/hooks/useRiskRules";
 import {
 	useCreateSetup,
 	useDeleteSetup,
@@ -20,12 +22,13 @@ export const Route = createFileRoute("/settings")({
 });
 
 function SettingsPage() {
-	const [currentLocale, setCurrentLocale] = useState(() => i18n.locale || "en");
+	const qc = useQueryClient();
 
 	// Accounts
 	const accountsQ = useAccounts();
 	const createAccountM = useCreateAccount();
 	const deleteAccountM = useDeleteAccount();
+	const clearAccountTradesM = useClearAccountTrades();
 
 	// Cash - list all cash for selected accounts (no filter = empty filters)
 	const cashQ = useCash({});
@@ -42,10 +45,25 @@ function SettingsPage() {
 	const createSetupM = useCreateSetup();
 	const deleteSetupM = useDeleteSetup();
 
-	function handleLocaleChange(locale: string) {
-		loadLocale(locale);
-		setCurrentLocale(locale);
-	}
+	// Risk rules
+	const riskRulesQ = useRiskRules();
+	const saveRiskRulesM = useSaveRiskRules();
+
+	// Checklist template
+	const checklistQ = useQuery({
+		queryKey: ["settings", "checklist-template"],
+		queryFn: () => settingsApi.getChecklistTemplate(),
+	});
+	const saveChecklistM = useMutation({
+		mutationFn: (items: string[]) =>
+			settingsApi.putChecklistTemplate({ items }),
+		onSuccess: () => {
+			void qc.invalidateQueries({
+				queryKey: ["settings", "checklist-template"],
+			});
+		},
+	});
+
 
 	return (
 		<SettingsView
@@ -57,6 +75,9 @@ function SettingsPage() {
 			}}
 			onDeleteAccount={async (id) => {
 				await deleteAccountM.mutateAsync(id);
+			}}
+			onClearAccountTrades={async (id) => {
+				await clearAccountTradesM.mutateAsync(id);
 			}}
 			cashTransactions={cashQ.data ?? []}
 			cashLoading={cashQ.isLoading}
@@ -85,8 +106,20 @@ function SettingsPage() {
 			onDeleteSetup={async (id) => {
 				await deleteSetupM.mutateAsync(id);
 			}}
-			currentLocale={currentLocale}
-			onLocaleChange={handleLocaleChange}
+			riskRules={riskRulesQ.data}
+			riskRulesLoading={riskRulesQ.isLoading}
+			riskRulesError={riskRulesQ.isError}
+			riskRulesSaving={saveRiskRulesM.isPending}
+			onSaveRiskRules={async (body) => {
+				await saveRiskRulesM.mutateAsync(body);
+			}}
+			checklistItems={checklistQ.data?.items ?? []}
+			checklistLoading={checklistQ.isLoading}
+			checklistError={checklistQ.isError}
+			checklistSaving={saveChecklistM.isPending}
+			onSaveChecklist={async (items) => {
+				await saveChecklistM.mutateAsync(items);
+			}}
 		/>
 	);
 }

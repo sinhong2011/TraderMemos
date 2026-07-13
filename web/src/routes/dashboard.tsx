@@ -1,13 +1,13 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { DashboardView } from "../app/screens/DashboardView";
 import { useFilterParams, useFilters } from "../lib/filters";
+import { computeHeaderStats } from "../lib/headerStats";
 import { useAccounts } from "../lib/hooks/useAccounts";
-import {
-	useDailyPnl,
-	useEquityCurve,
-	useSummary,
-} from "../lib/hooks/useAnalytics";
+import { useEquityCurve, useSummary } from "../lib/hooks/useAnalytics";
+import { useCash } from "../lib/hooks/useCash";
 import { useTrades } from "../lib/hooks/useTrades";
+import { filterTradesByStatus } from "../lib/tradeFilters";
+import { useUI } from "../lib/ui";
 
 export const Route = createFileRoute("/dashboard")({
 	component: DashboardPage,
@@ -16,25 +16,32 @@ export const Route = createFileRoute("/dashboard")({
 function DashboardPage() {
 	const filters = useFilterParams();
 	const accountId = useFilters((s) => s.accountId);
-
-	const now = new Date();
-	const year = now.getFullYear();
-	const month = now.getMonth() + 1; // 1-based
+	const tradeStatusFilter = useFilters((s) => s.tradeStatus);
+	const toggleTradeStatus = useFilters((s) => s.toggleTradeStatus);
+	const navigate = useNavigate();
+	const openModal = useUI((s) => s.openModal);
 
 	const summaryQ = useSummary(filters);
 	const equityQ = useEquityCurve(filters);
-	const dailyQ = useDailyPnl(filters);
 	const tradesQ = useTrades(filters);
 	const accountsQ = useAccounts();
+	const cashQ = useCash(filters);
 
-	// Sort trades by closed_at desc and slice most recent 10
-	const recentTrades = [...(tradesQ.data ?? [])]
-		.filter((t) => t.closed_at != null)
-		.sort(
+	const trades = filterTradesByStatus(
+		[...(tradesQ.data ?? [])].sort(
 			(a, b) =>
-				new Date(b.closed_at!).getTime() - new Date(a.closed_at!).getTime(),
-		)
-		.slice(0, 10);
+				new Date(b.opened_at).getTime() - new Date(a.opened_at).getTime(),
+		),
+		tradeStatusFilter,
+	);
+
+	const headerStats = computeHeaderStats({
+		accounts: accountsQ.data ?? [],
+		accountId,
+		cashTx: cashQ.data ?? [],
+		summary: summaryQ.data,
+		trades: tradesQ.data ?? [],
+	});
 
 	return (
 		<DashboardView
@@ -44,16 +51,19 @@ function DashboardPage() {
 			equityLoading={equityQ.isLoading}
 			equityError={equityQ.isError}
 			equityPoints={equityQ.data?.points ?? []}
-			dailyLoading={dailyQ.isLoading}
-			dailyError={dailyQ.isError}
-			dailyPnl={dailyQ.data ?? {}}
 			tradesLoading={tradesQ.isLoading}
 			tradesError={tradesQ.isError}
-			trades={recentTrades}
+			trades={trades}
 			accounts={accountsQ.data ?? []}
 			selectedAccountId={accountId}
-			year={year}
-			month={month}
+			tradeStatusFilter={tradeStatusFilter}
+			onToggleTradeStatus={toggleTradeStatus}
+			onSelectTrade={(t) =>
+				navigate({ to: "/trades/$id", params: { id: t.id } })
+			}
+			accountFunded={headerStats.cash > 0}
+			onImport={() => navigate({ to: "/import" })}
+			onNewTrade={() => openModal("new-trade")}
 		/>
 	);
 }

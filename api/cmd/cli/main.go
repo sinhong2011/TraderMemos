@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
-	"github.com/google/uuid"
 	"github.com/spf13/cobra"
 	"github.com/tradermemos/api/internal/auth"
 	"github.com/tradermemos/api/internal/config"
@@ -107,15 +107,13 @@ func main() {
 	rg.Flags().StringVar(&acct, "account", "", "account id")
 	root.AddCommand(rg)
 
-	var impAcct, impFile, impInstrument, impMapping string
+	var impAcct, impFile, impMapping string
+	var impReplace bool
 	imp := &cobra.Command{
-		Use: "import", Short: "import a CSV of executions into an account",
+		Use: "import", Short: "import a CSV of executions or journal trades into an account",
 		RunE: func(*cobra.Command, []string) error {
 			if impAcct == "" || impFile == "" {
 				return fmt.Errorf("--account and --file are required")
-			}
-			if impInstrument == "" {
-				impInstrument = "stock"
 			}
 			q, err := openStore()
 			if err != nil {
@@ -126,49 +124,48 @@ func main() {
 			if err != nil {
 				return err
 			}
+			if impReplace {
+				if err := q.DeleteExecutionsForAccount(ctx, store.DeleteExecutionsForAccountParams{
+					AccountID: acc.ID, UserID: acc.UserID,
+				}); err != nil {
+					return err
+				}
+				if err := trades.NewService(q).Regroup(ctx, acc.UserID, acc.ID); err != nil {
+					return err
+				}
+				fmt.Println("cleared existing executions for account")
+			}
 			headers, rows, err := readCSVFile(impFile)
 			if err != nil {
 				return err
 			}
-			mapping := importer.SuggestMapping(headers)
-			if impMapping != "" {
-				if err := json.Unmarshal([]byte(impMapping), &mapping); err != nil {
-					return fmt.Errorf("invalid --mapping JSON: %w", err)
+			var parsed importer.ParseResult
+			format := importer.DetectFormat(headers)
+			if format == "journal_trades" {
+				parsed = importer.NewJournal().ParseRows(rows)
+			} else {
+				mapping := importer.SuggestMapping(headers)
+				if impMapping != "" {
+					if err := json.Unmarshal([]byte(impMapping), &mapping); err != nil {
+						return fmt.Errorf("invalid --mapping JSON: %w", err)
+					}
 				}
+				parsed = importer.NewGeneric(mapping).ParseRows(rows)
+				parsed.Format = "executions"
 			}
-			res := importer.NewGeneric(mapping, impInstrument).ParseRows(rows)
-			inserted := 0
-			for _, pe := range res.Executions {
-				hash := importer.DedupHash(pe.Symbol, pe.Side, pe.Quantity, pe.Price, pe.ExecutedAt)
-				exists, err := q.ExecutionExists(ctx, store.ExecutionExistsParams{AccountID: acc.ID, DedupHash: hash})
-				if err != nil {
-					return err
-				}
-				if exists == 1 {
-					continue
-				}
-				if _, err := q.InsertExecution(ctx, store.InsertExecutionParams{
-					ID: uuid.NewString(), UserID: acc.UserID, AccountID: acc.ID,
-					Symbol: pe.Symbol, InstrumentType: pe.InstrumentType, Side: pe.Side,
-					Quantity: pe.Quantity, Price: pe.Price, Fees: pe.Fees, Commission: pe.Commission,
-					ExecutedAt: pe.ExecutedAt, Multiplier: 1, DedupHash: hash,
-					ExternalID: sql.NullString{}, ImportBatchID: sql.NullString{},
-				}); err != nil {
-					return err
-				}
-				inserted++
-			}
-			if err := trades.NewService(q).Regroup(ctx, acc.UserID, acc.ID); err != nil {
+			res, err := importer.Commit(ctx, q, acc.UserID, acc.ID, sql.NullString{}, parsed)
+			if err != nil {
 				return err
 			}
-			fmt.Printf("imported %d executions (%d row errors)\n", inserted, len(res.Errors))
+			fmt.Printf("imported %d executions (%d skipped, %d annotated, %d row errors, format=%s)\n",
+				res.Inserted, res.Skipped, res.Annotated, len(res.Errors), res.Format)
 			return nil
 		},
 	}
 	imp.Flags().StringVar(&impAcct, "account", "", "account id")
 	imp.Flags().StringVar(&impFile, "file", "", "CSV file path")
-	imp.Flags().StringVar(&impInstrument, "instrument", "stock", "instrument type")
 	imp.Flags().StringVar(&impMapping, "mapping", "", "column mapping JSON (optional; auto-detected if omitted)")
+	imp.Flags().BoolVar(&impReplace, "replace", false, "delete existing executions for the account before import")
 	root.AddCommand(imp)
 
 	if err := root.Execute(); err != nil {
@@ -191,7 +188,10 @@ func readCSVFile(path string) (headers []string, rows []map[string]string, err e
 	if len(records) == 0 {
 		return nil, nil, fmt.Errorf("empty CSV")
 	}
-	headers = records[0]
+	headers = make([]string, len(records[0]))
+	for i, h := range records[0] {
+		headers[i] = strings.TrimPrefix(strings.TrimSpace(h), "\ufeff")
+	}
 	for _, rec := range records[1:] {
 		m := map[string]string{}
 		for i, h := range headers {

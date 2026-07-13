@@ -9,6 +9,13 @@ export function useSummary(filters: Filters) {
 	});
 }
 
+export function useRSummary(filters: Filters) {
+	return useQuery({
+		queryKey: ["analytics", "r-summary", filters],
+		queryFn: () => analyticsApi.rSummary(filters),
+	});
+}
+
 export function useEquityCurve(filters: Filters) {
 	return useQuery({
 		queryKey: ["analytics", "equity-curve", filters],

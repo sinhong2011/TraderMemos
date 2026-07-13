@@ -107,4 +107,16 @@ func TestOpenTradeHasNoPnl(t *testing.T) {
 	require.Equal(t, "open", out[0].Status)
 	require.Nil(t, out[0].NetPnl)
 	require.Nil(t, out[0].ClosedAt)
+	require.Equal(t, 100.0, out[0].QtyRemaining)
+}
+
+func TestPartialOpenKeepsRemainingQty(t *testing.T) {
+	out := Group([]Execution{
+		ex("1", "buy", 100, 10, "2026-01-01T10:00:00Z", 1),
+		ex("2", "sell", 40, 12, "2026-01-01T10:30:00Z", 1),
+	})
+	require.Len(t, out, 1)
+	require.Equal(t, "open", out[0].Status)
+	require.Equal(t, 100.0, out[0].QtyOpened)
+	require.Equal(t, 60.0, out[0].QtyRemaining)
 }

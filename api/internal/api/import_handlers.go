@@ -7,6 +7,8 @@ import (
 	"io"
 	"mime/multipart"
 	"net/http"
+	"strconv"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
@@ -38,7 +40,7 @@ func readCSV(fh *multipart.FileHeader) (headers []string, rows []map[string]stri
 	if len(records) == 0 {
 		return nil, nil, io.ErrUnexpectedEOF
 	}
-	headers = records[0]
+	headers = stripBOMHeaders(records[0])
 	for _, rec := range records[1:] {
 		m := map[string]string{}
 		for i, h := range headers {
@@ -49,6 +51,14 @@ func readCSV(fh *multipart.FileHeader) (headers []string, rows []map[string]stri
 		rows = append(rows, m)
 	}
 	return headers, rows, nil
+}
+
+func stripBOMHeaders(headers []string) []string {
+	out := make([]string, len(headers))
+	for i, h := range headers {
+		out[i] = strings.TrimPrefix(strings.TrimSpace(h), "\ufeff")
+	}
+	return out
 }
 
 func (s *Server) handleImportPreview(c echo.Context) error {
@@ -83,18 +93,34 @@ func (s *Server) handleImportPreview(c echo.Context) error {
 	if len(sample) > 5 {
 		sample = sample[:5]
 	}
-	return c.JSON(http.StatusOK, map[string]any{
+	format := importer.DetectFormat(headers)
+	suggested := importer.SuggestMapping(headers)
+	if format == "journal_trades" {
+		suggested = map[string]string{} // auto-mapped; UI skips column mapping
+	}
+	resp := map[string]any{
 		"import_batch_id":   batch.ID,
 		"headers":           headers,
 		"sample_rows":       sample,
-		"suggested_mapping": importer.SuggestMapping(headers),
-	})
+		"suggested_mapping": suggested,
+		"format":            format,
+		"row_count":         len(rows),
+	}
+	if format == "journal_trades" {
+		summary, sampleTrades := importer.BuildJournalPreview(rows)
+		resp["journal_summary"] = summary
+		resp["sample_trades"] = sampleTrades
+	}
+	return c.JSON(http.StatusOK, resp)
 }
 
 type importResult struct {
-	Inserted int                 `json:"inserted"`
-	Skipped  int                 `json:"skipped"`
-	Errors   []importer.RowError `json:"errors"`
+	Inserted  int                 `json:"inserted"`
+	Skipped   int                 `json:"skipped"`
+	Annotated int                 `json:"annotated"`
+	Trades    int                 `json:"trades"`
+	Format    string              `json:"format"`
+	Errors    []importer.RowError `json:"errors"`
 }
 
 func (s *Server) handleImportCommit(c echo.Context) error {
@@ -110,61 +136,66 @@ func (s *Server) handleImportCommit(c echo.Context) error {
 		return Fail(http.StatusNotFound, "not_found", "import batch not found", nil)
 	}
 
-	var mapping map[string]string
-	if err := json.Unmarshal([]byte(c.FormValue("column_mapping")), &mapping); err != nil || len(mapping) == 0 {
-		return Fail(http.StatusBadRequest, "bad_request", "column_mapping (JSON) is required", nil)
-	}
-	instrumentType := c.FormValue("instrument_type")
-	if instrumentType == "" {
-		instrumentType = "stock"
-	}
 	fh, err := c.FormFile("file")
 	if err != nil {
 		return Fail(http.StatusBadRequest, "bad_request", "file is required", nil)
 	}
-	_, rows, err := readCSV(fh)
+	headers, rows, err := readCSV(fh)
 	if err != nil {
 		return Fail(http.StatusBadRequest, "bad_request", "could not parse CSV", err.Error())
 	}
 
-	parsed := importer.NewGeneric(mapping, instrumentType).ParseRows(rows)
-	res := importResult{Errors: parsed.Errors}
-	if res.Errors == nil {
-		res.Errors = []importer.RowError{}
+	format := importer.DetectFormat(headers)
+	var parsed importer.ParseResult
+	if format == "journal_trades" {
+		opts := (*importer.JournalParseOptions)(nil)
+		if raw := c.FormValue("journal_option_overrides"); raw != "" {
+			rawOverrides := map[string]string{}
+			if err := json.Unmarshal([]byte(raw), &rawOverrides); err != nil {
+				return Fail(http.StatusBadRequest, "bad_request", "journal_option_overrides must be JSON object keyed by row number", nil)
+			}
+			overrides := map[int]string{}
+			for k, v := range rawOverrides {
+				rowNum, err := strconv.Atoi(k)
+				if err != nil || rowNum <= 0 {
+					continue
+				}
+				if right := importer.ParseOptionRight(v); right != "" {
+					overrides[rowNum] = right
+				}
+			}
+			if len(overrides) > 0 {
+				opts = &importer.JournalParseOptions{OptionRightByRow: overrides}
+			}
+		}
+		parsed = importer.NewJournal().ParseRowsWithOptions(rows, opts)
+	} else {
+		var mapping map[string]string
+		if raw := c.FormValue("column_mapping"); raw != "" {
+			if err := json.Unmarshal([]byte(raw), &mapping); err != nil || len(mapping) == 0 {
+				return Fail(http.StatusBadRequest, "bad_request", "column_mapping (JSON) is required", nil)
+			}
+		} else {
+			return Fail(http.StatusBadRequest, "bad_request", "column_mapping (JSON) is required", nil)
+		}
+		parsed = importer.NewGeneric(mapping).ParseRows(rows)
+		parsed.Format = "executions"
 	}
-	for _, pe := range parsed.Executions {
-		hash := importer.DedupHash(pe.Symbol, pe.Side, pe.Quantity, pe.Price, pe.ExecutedAt)
-		exists, err := s.deps.Store.ExecutionExists(ctx, store.ExecutionExistsParams{AccountID: batch.AccountID, DedupHash: hash})
-		if err != nil {
-			return Fail(http.StatusInternalServerError, "internal", "dedup check failed", nil)
-		}
-		if exists == 1 {
-			res.Skipped++
-			continue
-		}
-		ext := sql.NullString{}
-		if pe.ExternalID != "" {
-			ext = sql.NullString{String: pe.ExternalID, Valid: true}
-		}
-		if _, err := s.deps.Store.InsertExecution(ctx, store.InsertExecutionParams{
-			ID: uuid.NewString(), UserID: uid, AccountID: batch.AccountID, ExternalID: ext,
-			Symbol: pe.Symbol, InstrumentType: pe.InstrumentType, Side: pe.Side,
-			Quantity: pe.Quantity, Price: pe.Price, Fees: pe.Fees, Commission: pe.Commission,
-			ExecutedAt: pe.ExecutedAt, Multiplier: 1,
-			ImportBatchID: sql.NullString{String: batch.ID, Valid: true}, DedupHash: hash,
-		}); err != nil {
-			return Fail(http.StatusInternalServerError, "internal", "could not insert execution", nil)
-		}
-		res.Inserted++
+
+	committed, err := importer.Commit(ctx, s.deps.Store, uid, batch.AccountID,
+		sql.NullString{String: batch.ID, Valid: true}, parsed)
+	if err != nil {
+		return Fail(http.StatusInternalServerError, "internal", "could not import", err.Error())
 	}
 
 	if err := s.deps.Store.SetImportBatchStatus(ctx, store.SetImportBatchStatusParams{Status: "committed", ID: batch.ID, UserID: uid}); err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not finalize batch", nil)
 	}
-	if err := s.deps.Trades.Regroup(ctx, uid, batch.AccountID); err != nil {
-		return Fail(http.StatusInternalServerError, "internal", "could not regroup trades", nil)
-	}
-	return c.JSON(http.StatusOK, res)
+	return c.JSON(http.StatusOK, importResult{
+		Inserted: committed.Inserted, Skipped: committed.Skipped,
+		Annotated: committed.Annotated, Trades: committed.Trades,
+		Format: committed.Format, Errors: committed.Errors,
+	})
 }
 
 func (s *Server) handleListImports(c echo.Context) error {

@@ -2,8 +2,13 @@ import { ArrowLeft, Paperclip, Trash2, Upload } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { EmptyState } from "../../components/EmptyState";
 import { Panel } from "../../components/Panel";
+import { Pill } from "../../components/Pill";
+import { SignalField } from "../../components/SignalField";
+import { SignalInput, SignalTextarea } from "../../components/SignalInput";
+import { SignalSelect } from "../../components/SignalSelect";
 import { Skeleton } from "../../components/Skeleton";
-import { pnlColor } from "../../components/theme-tokens";
+import { heroPnlClass, pnlColor } from "../../components/theme-tokens";
+import { cn } from "../../lib/cn";
 import { getToken } from "../../lib/api/client";
 import type {
 	Execution,
@@ -13,12 +18,14 @@ import type {
 	TradeDetail,
 } from "../../lib/api/types";
 import { fmtMoney, fmtSignedMoney } from "../../lib/format";
+import { EMOTIONAL_STATES } from "../../lib/newTradeJournal";
+import { intlLocale } from "../../lib/locale";
 
-// ---------------------------------------------------------------------------
-// Constants
-// ---------------------------------------------------------------------------
+const accentButtonClass =
+	"inline-flex h-8 cursor-pointer items-center rounded-control border-none bg-accent px-3 text-[12px] font-semibold text-bg transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-55";
 
-const LOCALE = "en-US";
+const ghostButtonClass =
+	"inline-flex h-8 cursor-pointer items-center gap-2 rounded-control border border-border bg-bg-hover px-3 text-xs text-text transition-colors hover:border-border-strong hover:bg-bg-panel disabled:cursor-not-allowed disabled:opacity-55";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -26,7 +33,7 @@ const LOCALE = "en-US";
 
 function fmtDate(iso: string | null): string {
 	if (!iso) return "-";
-	return new Date(iso).toLocaleDateString(LOCALE, {
+	return new Date(iso).toLocaleDateString(intlLocale(), {
 		month: "short",
 		day: "numeric",
 		year: "numeric",
@@ -34,7 +41,7 @@ function fmtDate(iso: string | null): string {
 }
 
 function fmtDateTime(iso: string): string {
-	return new Date(iso).toLocaleString(LOCALE, {
+	return new Date(iso).toLocaleString(intlLocale(), {
 		month: "short",
 		day: "numeric",
 		hour: "2-digit",
@@ -48,9 +55,17 @@ function fmtBytes(bytes: number): string {
 	return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+function MetaStat({ label, value }: { label: string; value: string }) {
+	return (
+		<span className="inline-flex items-baseline gap-1.5 text-xs">
+			<span className="text-label">{label}</span>
+			<span className="tabular-nums text-text">{value}</span>
+		</span>
+	);
+}
+
 // ---------------------------------------------------------------------------
-// AuthedImage - fetches file through the api client (which adds Bearer token)
-// and renders via object URL so the <img> tag doesn't need auth headers.
+// AuthedImage
 // ---------------------------------------------------------------------------
 
 interface AuthedImageProps {
@@ -64,8 +79,6 @@ function AuthedImage({ attachmentId, filename }: AuthedImageProps) {
 
 	useEffect(() => {
 		let objectUrl: string | null = null;
-		// Fetch the image with an Authorization header (plain <img> cannot send headers).
-		// getToken() reads the stored Bearer token from the client module.
 		const t = getToken();
 		const BASE = (import.meta.env.VITE_API as string) ?? "/api/v1";
 		fetch(`${BASE}/attachments/${attachmentId}/file`, {
@@ -87,15 +100,7 @@ function AuthedImage({ attachmentId, filename }: AuthedImageProps) {
 
 	if (error) {
 		return (
-			<div
-				className="flex items-center justify-center text-xs rounded"
-				style={{
-					width: "100%",
-					aspectRatio: "16/9",
-					background: "var(--color-surface-hover)",
-					color: "var(--color-text-muted)",
-				}}
-			>
+			<div className="flex aspect-video w-full items-center justify-center rounded-sharp bg-bg-hover text-xs text-text-muted">
 				{filename}
 			</div>
 		);
@@ -109,8 +114,7 @@ function AuthedImage({ attachmentId, filename }: AuthedImageProps) {
 		<img
 			src={src}
 			alt={filename}
-			className="w-full rounded object-cover"
-			style={{ maxHeight: "200px" }}
+			className="max-h-[200px] w-full rounded-sharp object-cover"
 		/>
 	);
 }
@@ -131,90 +135,68 @@ function TradeHeader({ trade, onBack }: TradeHeaderProps) {
 	const returnPct = trade.return_pct;
 
 	return (
-		<div
-			className="flex flex-col gap-3 px-4 py-4"
-			style={{
-				background: "var(--color-surface-panel)",
-				border: "1px solid var(--color-border)",
-				borderRadius: "var(--radius-panel)",
-			}}
-		>
-			{/* Back + breadcrumb row */}
+		<div className="border-b border-border bg-bg px-4 py-4">
 			{onBack && (
 				<button
 					type="button"
 					onClick={onBack}
-					className="flex items-center gap-1 text-xs w-fit"
-					style={{
-						color: "var(--color-text-muted)",
-						background: "none",
-						border: "none",
-						cursor: "pointer",
-						padding: 0,
-					}}
+					className="mb-3 inline-flex items-center gap-1 text-xs text-text-muted transition-colors hover:text-text"
 				>
 					<ArrowLeft size={13} strokeWidth={1.5} />
 					Back to trades
 				</button>
 			)}
 
-			{/* Main header row */}
 			<div className="flex flex-wrap items-start justify-between gap-4">
-				{/* Symbol + direction */}
-				<div className="flex items-center gap-3">
-					<span
-						className="text-2xl font-bold tabular-nums tracking-tight"
-						style={{
-							color: "var(--color-text)",
-							fontFamily: "var(--font-mono)",
-						}}
-					>
+				<div className="flex flex-wrap items-center gap-3">
+					<span className="text-[28px] font-semibold tracking-[-0.03em] text-text">
 						{trade.symbol}
 					</span>
-					<span
-						className="text-xs font-semibold uppercase px-2 py-0.5 rounded"
-						style={{
-							background:
-								trade.direction === "long"
-									? "rgba(52,211,153,0.15)"
-									: "rgba(248,113,113,0.15)",
-							color:
-								trade.direction === "long"
-									? "var(--color-pos)"
-									: "var(--color-neg)",
-							border: `1px solid ${trade.direction === "long" ? "rgba(52,211,153,0.3)" : "rgba(248,113,113,0.3)"}`,
-						}}
-					>
+					<Pill tone={trade.direction === "long" ? "pos" : "neg"}>
 						{trade.direction}
-					</span>
-					<span
-						className="text-xs uppercase"
-						style={{ color: "var(--color-text-muted)" }}
-					>
+					</Pill>
+					<span className="text-xs uppercase tracking-wide text-text-muted">
 						{trade.instrument_type}
 					</span>
 				</div>
 
-				{/* P&L block */}
-				<div className="flex items-baseline gap-4">
+				<div className="flex flex-wrap items-baseline gap-3">
 					{pnl != null && (
 						<span
-							className={`text-2xl font-bold tabular-nums ${pnlColor(pnl)}`}
-							style={{ fontFamily: "var(--font-mono)" }}
+							className={cn(heroPnlClass(pnl), "text-[28px]!")}
+							title="Price P&L (excludes dividends)"
 						>
-							{fmtSignedMoney(pnl, currency, LOCALE)}
+							{fmtSignedMoney(pnl, currency, intlLocale())}
 						</span>
 					)}
+					{trade.dividend_total != null && trade.dividend_total !== 0 && (
+						<span
+							className="text-sm tabular-nums text-text-muted"
+							title="Dividends linked to this trade"
+						>
+							Div {fmtSignedMoney(trade.dividend_total, currency, intlLocale())}
+						</span>
+					)}
+					{trade.total_pnl != null &&
+						trade.dividend_total != null &&
+						trade.dividend_total !== 0 && (
+							<span
+								className={cn("text-sm tabular-nums", pnlColor(trade.total_pnl))}
+								title="Total = price P&L + dividends"
+							>
+								Total {fmtSignedMoney(trade.total_pnl, currency, intlLocale())}
+							</span>
+						)}
 					{returnPct != null && (
-						<span className={`text-sm tabular-nums ${pnlColor(returnPct)}`}>
+						<span className={cn("text-sm tabular-nums", pnlColor(returnPct))}>
 							{returnPct >= 0 ? "+" : ""}
 							{returnPct.toFixed(2)}%
 						</span>
 					)}
 					{rMultiple != null && (
 						<span
-							className={`text-sm tabular-nums ${pnlColor(rMultiple)}`}
-							title="R-multiple"
+							className={cn("text-sm tabular-nums", pnlColor(rMultiple))}
+							title="R-multiple (price-based)"
 						>
 							{rMultiple >= 0 ? "+" : ""}
 							{rMultiple.toFixed(2)}R
@@ -223,64 +205,24 @@ function TradeHeader({ trade, onBack }: TradeHeaderProps) {
 				</div>
 			</div>
 
-			{/* Metadata row */}
-			<div
-				className="flex flex-wrap gap-5 text-xs"
-				style={{ color: "var(--color-text-muted)" }}
-			>
-				<span>
-					<span className="uppercase mr-1" style={{ opacity: 0.6 }}>
-						Opened
-					</span>
-					<span className="tabular-nums" style={{ color: "var(--color-text)" }}>
-						{fmtDate(trade.opened_at)}
-					</span>
-				</span>
-				<span>
-					<span className="uppercase mr-1" style={{ opacity: 0.6 }}>
-						Closed
-					</span>
-					<span className="tabular-nums" style={{ color: "var(--color-text)" }}>
-						{fmtDate(trade.closed_at)}
-					</span>
-				</span>
-				<span>
-					<span className="uppercase mr-1" style={{ opacity: 0.6 }}>
-						Qty
-					</span>
-					<span className="tabular-nums" style={{ color: "var(--color-text)" }}>
-						{trade.qty_opened}
-					</span>
-				</span>
-				<span>
-					<span className="uppercase mr-1" style={{ opacity: 0.6 }}>
-						Entry
-					</span>
-					<span className="tabular-nums" style={{ color: "var(--color-text)" }}>
-						{fmtMoney(trade.avg_entry_price, currency, LOCALE)}
-					</span>
-				</span>
+			<div className="mt-3 flex flex-wrap gap-x-5 gap-y-2">
+				<MetaStat label="Opened" value={fmtDate(trade.opened_at)} />
+				<MetaStat label="Closed" value={fmtDate(trade.closed_at)} />
+				<MetaStat label="Qty" value={String(trade.qty_opened)} />
+				<MetaStat
+					label="Entry"
+					value={fmtMoney(trade.avg_entry_price, currency, intlLocale())}
+				/>
 				{trade.avg_exit_price != null && (
-					<span>
-						<span className="uppercase mr-1" style={{ opacity: 0.6 }}>
-							Exit
-						</span>
-						<span
-							className="tabular-nums"
-							style={{ color: "var(--color-text)" }}
-						>
-							{fmtMoney(trade.avg_exit_price, currency, LOCALE)}
-						</span>
-					</span>
+					<MetaStat
+						label="Exit"
+						value={fmtMoney(trade.avg_exit_price, currency, intlLocale())}
+					/>
 				)}
-				<span>
-					<span className="uppercase mr-1" style={{ opacity: 0.6 }}>
-						Fees
-					</span>
-					<span className="tabular-nums" style={{ color: "var(--color-text)" }}>
-						{fmtMoney(trade.fees_total, currency, LOCALE)}
-					</span>
-				</span>
+				<MetaStat
+					label="Fees"
+					value={fmtMoney(trade.fees_total, currency, intlLocale())}
+				/>
 			</div>
 		</div>
 	);
@@ -307,21 +249,13 @@ function FillsTable({ fills, currency }: FillsTableProps) {
 
 	return (
 		<div className="overflow-auto">
-			<table
-				className="w-full border-collapse"
-				style={{ fontFamily: "var(--font-mono)", fontSize: "12px" }}
-			>
+			<table className="w-full border-collapse text-xs">
 				<thead>
-					<tr style={{ background: "var(--color-surface-panel)" }}>
+					<tr className="border-b border-border bg-bg">
 						{["Side", "Qty", "Price", "Fees", "Executed"].map((h) => (
 							<th
 								key={h}
-								className="px-3 py-2 text-left font-medium"
-								style={{
-									color: "var(--color-text-muted)",
-									borderBottom: "1px solid var(--color-border)",
-									whiteSpace: "nowrap",
-								}}
+								className="px-3 py-2 text-left text-label font-medium whitespace-nowrap"
 							>
 								{h}
 							</th>
@@ -330,54 +264,28 @@ function FillsTable({ fills, currency }: FillsTableProps) {
 				</thead>
 				<tbody>
 					{fills.map((fill) => (
-						<tr key={fill.id}>
+						<tr
+							key={fill.id}
+							className="h-10 transition-colors duration-150 hover:bg-bg-hover"
+						>
 							<td
-								className="px-3 py-1.5"
-								style={{
-									color:
-										fill.side === "buy"
-											? "var(--color-pos)"
-											: "var(--color-neg)",
-									borderBottom: "1px solid var(--color-border)",
-								}}
+								className={cn(
+									"border-b border-border px-3 py-2 font-medium uppercase",
+									fill.side === "buy" ? "text-profit" : "text-loss",
+								)}
 							>
 								{fill.side.toUpperCase()}
 							</td>
-							<td
-								className="px-3 py-1.5 tabular-nums"
-								style={{
-									color: "var(--color-text)",
-									borderBottom: "1px solid var(--color-border)",
-								}}
-							>
+							<td className="border-b border-border px-3 py-2 tabular-nums text-text">
 								{fill.quantity}
 							</td>
-							<td
-								className="px-3 py-1.5 tabular-nums"
-								style={{
-									color: "var(--color-text)",
-									borderBottom: "1px solid var(--color-border)",
-								}}
-							>
-								{fmtMoney(fill.price, currency, LOCALE)}
+							<td className="border-b border-border px-3 py-2 tabular-nums text-text">
+								{fmtMoney(fill.price, currency, intlLocale())}
 							</td>
-							<td
-								className="px-3 py-1.5 tabular-nums"
-								style={{
-									color: "var(--color-text-muted)",
-									borderBottom: "1px solid var(--color-border)",
-								}}
-							>
-								{fmtMoney(fill.fees + fill.commission, currency, LOCALE)}
+							<td className="border-b border-border px-3 py-2 tabular-nums text-text-muted">
+								{fmtMoney(fill.fees + fill.commission, currency, intlLocale())}
 							</td>
-							<td
-								className="px-3 py-1.5 tabular-nums"
-								style={{
-									color: "var(--color-text-muted)",
-									borderBottom: "1px solid var(--color-border)",
-									whiteSpace: "nowrap",
-								}}
-							>
+							<td className="border-b border-border px-3 py-2 tabular-nums whitespace-nowrap text-text-muted">
 								{fmtDateTime(fill.executed_at)}
 							</td>
 						</tr>
@@ -388,18 +296,135 @@ function FillsTable({ fills, currency }: FillsTableProps) {
 	);
 }
 
+export interface AddFillInput {
+	side: "buy" | "sell";
+	quantity: number;
+	price: number;
+	fees: number;
+	executed_at: string;
+}
+
+function toLocalInputValue(d = new Date()): string {
+	const pad = (n: number) => String(n).padStart(2, "0");
+	return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function AddFillForm({
+	defaultSide,
+	busy,
+	onSubmit,
+}: {
+	defaultSide: "buy" | "sell";
+	busy: boolean;
+	onSubmit: (input: AddFillInput) => void;
+}) {
+	const [side, setSide] = useState<"buy" | "sell">(defaultSide);
+	const [qty, setQty] = useState("");
+	const [price, setPrice] = useState("");
+	const [fees, setFees] = useState("0");
+	const [at, setAt] = useState(toLocalInputValue);
+
+	function submit(e: React.FormEvent) {
+		e.preventDefault();
+		const quantity = Number.parseFloat(qty);
+		const px = Number.parseFloat(price);
+		const fee = Number.parseFloat(fees) || 0;
+		if (!(quantity > 0) || !(px >= 0)) return;
+		onSubmit({
+			side,
+			quantity,
+			price: px,
+			fees: fee,
+			executed_at: new Date(at).toISOString(),
+		});
+		setQty("");
+		setPrice("");
+		setFees("0");
+	}
+
+	return (
+		<form
+			onSubmit={submit}
+			className="border-t border-border px-4 py-3"
+		>
+			<p className="mb-2 text-label font-semibold text-text-muted">Add fill</p>
+			<div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
+				<SignalSelect
+					value={side}
+					onValueChange={(v) => setSide(v as "buy" | "sell")}
+					options={[
+						{ value: "buy", label: "BUY" },
+						{ value: "sell", label: "SELL" },
+					]}
+					ariaLabel="Fill side"
+					triggerClassName="h-8 text-[12px]"
+				/>
+				<SignalInput
+					aria-label="Fill qty"
+					type="number"
+					step="any"
+					min="0"
+					placeholder="Qty"
+					value={qty}
+					onChange={(e) => setQty(e.target.value)}
+					required
+				/>
+				<SignalInput
+					aria-label="Fill price"
+					type="number"
+					step="any"
+					min="0"
+					placeholder="Price"
+					value={price}
+					onChange={(e) => setPrice(e.target.value)}
+					required
+				/>
+				<SignalInput
+					aria-label="Fill fee"
+					type="number"
+					step="any"
+					min="0"
+					placeholder="Fee"
+					value={fees}
+					onChange={(e) => setFees(e.target.value)}
+				/>
+				<SignalInput
+					aria-label="Fill datetime"
+					type="datetime-local"
+					value={at}
+					onChange={(e) => setAt(e.target.value)}
+					required
+				/>
+			</div>
+			<button type="submit" disabled={busy} className={cn(accentButtonClass, "mt-2")}>
+				{busy ? "Adding…" : "Add fill"}
+			</button>
+		</form>
+	);
+}
+
 // ---------------------------------------------------------------------------
-// Journal panel (right column)
+// Journal panel
 // ---------------------------------------------------------------------------
+
+export function journalDraftKey(tradeId: string): string {
+	return `tm_draft_trade_${tradeId}`;
+}
 
 export interface JournalFormState {
 	notes: string;
 	setup_id: string;
 	initial_risk: string;
+	emotional_state: string;
+	confidence: string;
+	trade_quality: string;
+	mae: string;
+	mfe: string;
 	tag_ids: string[];
 }
 
 export interface JournalPanelProps {
+	tradeId: string;
 	initialState: JournalFormState;
 	setups: Setup[];
 	customTags: Tag[];
@@ -409,6 +434,7 @@ export interface JournalPanelProps {
 }
 
 export function JournalPanel({
+	tradeId,
 	initialState,
 	setups,
 	customTags,
@@ -418,13 +444,17 @@ export function JournalPanel({
 }: JournalPanelProps) {
 	const [form, setForm] = useState<JournalFormState>(initialState);
 
-	// Sync form if the trade detail re-fetches (e.g. after save)
 	const prevInitial = useRef(initialState);
 	useEffect(() => {
 		if (
 			prevInitial.current.notes !== initialState.notes ||
 			prevInitial.current.setup_id !== initialState.setup_id ||
 			prevInitial.current.initial_risk !== initialState.initial_risk ||
+			prevInitial.current.emotional_state !== initialState.emotional_state ||
+			prevInitial.current.confidence !== initialState.confidence ||
+			prevInitial.current.trade_quality !== initialState.trade_quality ||
+			prevInitial.current.mae !== initialState.mae ||
+			prevInitial.current.mfe !== initialState.mfe ||
 			JSON.stringify(prevInitial.current.tag_ids) !==
 				JSON.stringify(initialState.tag_ids)
 		) {
@@ -432,6 +462,50 @@ export function JournalPanel({
 			prevInitial.current = initialState;
 		}
 	}, [initialState]);
+
+	const [draftRestored, setDraftRestored] = useState(false);
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: run once per trade
+	useEffect(() => {
+		try {
+			const raw = localStorage.getItem(journalDraftKey(tradeId));
+			if (!raw) return;
+			const draft = JSON.parse(raw) as { at: number; form: JournalFormState };
+			if (JSON.stringify(draft.form) !== JSON.stringify(initialState)) {
+				setForm(draft.form);
+				setDraftRestored(true);
+			} else {
+				localStorage.removeItem(journalDraftKey(tradeId));
+			}
+		} catch {
+			/* corrupt draft — ignore */
+		}
+	}, [tradeId]);
+
+	useEffect(() => {
+		if (JSON.stringify(form) === JSON.stringify(initialState)) return;
+		const t = setTimeout(() => {
+			try {
+				localStorage.setItem(
+					journalDraftKey(tradeId),
+					JSON.stringify({ at: Date.now(), form }),
+				);
+			} catch {
+				/* storage full/unavailable — ignore */
+			}
+		}, 500);
+		return () => clearTimeout(t);
+	}, [form, initialState, tradeId]);
+
+	function discardDraft() {
+		setForm(initialState);
+		setDraftRestored(false);
+		try {
+			localStorage.removeItem(journalDraftKey(tradeId));
+		} catch {
+			/* ignore */
+		}
+	}
 
 	function toggleTag(id: string) {
 		setForm((f) => ({
@@ -442,75 +516,49 @@ export function JournalPanel({
 		}));
 	}
 
-	const inputStyle: React.CSSProperties = {
-		background: "var(--color-surface-hover)",
-		color: "var(--color-text)",
-		border: "1px solid var(--color-border)",
-		borderRadius: "var(--radius-control)",
-		padding: "6px 10px",
-		fontSize: "12px",
-		fontFamily: "var(--font-ui)",
-		outline: "none",
-		width: "100%",
-	};
-
-	const labelStyle: React.CSSProperties = {
-		color: "var(--color-text-muted)",
-		fontSize: "11px",
-		fontWeight: 500,
-		textTransform: "uppercase",
-		letterSpacing: "0.04em",
-		display: "block",
-		marginBottom: "4px",
-	};
-
 	return (
 		<div className="flex flex-col gap-4 p-4">
-			{/* Notes */}
-			<div>
-				<label htmlFor="trade-notes" style={labelStyle}>
-					Notes
-				</label>
-				<textarea
+			{draftRestored && (
+				<div className="flex items-center justify-between gap-3 rounded-control border border-border bg-bg-inset px-3 py-2">
+					<span className="text-[11px] text-text-muted">
+						Unsaved draft restored.
+					</span>
+					<button
+						type="button"
+						onClick={discardDraft}
+						className="cursor-pointer text-[11px] text-accent hover:underline"
+					>
+						Discard draft
+					</button>
+				</div>
+			)}
+
+			<SignalField label="Notes" htmlFor="trade-notes">
+				<SignalTextarea
 					id="trade-notes"
 					value={form.notes}
 					onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
 					rows={5}
 					placeholder="Write your trade journal entry..."
-					style={{
-						...inputStyle,
-						resize: "vertical",
-						lineHeight: 1.5,
-					}}
 				/>
-			</div>
+			</SignalField>
 
-			{/* Setup */}
-			<div>
-				<label htmlFor="trade-setup" style={labelStyle}>
-					Setup
-				</label>
-				<select
+			<SignalField label="Setup" htmlFor="trade-setup">
+				<SignalSelect
 					id="trade-setup"
 					value={form.setup_id}
-					onChange={(e) => setForm((f) => ({ ...f, setup_id: e.target.value }))}
-					style={inputStyle}
-				>
-					<option value="">None</option>
-					{setups.map((s) => (
-						<option key={s.id} value={s.id}>
-							{s.name}
-						</option>
-					))}
-				</select>
-			</div>
+					onValueChange={(setup_id) => setForm((f) => ({ ...f, setup_id }))}
+					options={[
+						{ value: "", label: "None" },
+						...setups.map((s) => ({ value: s.id, label: s.name })),
+					]}
+					ariaLabel="Setup"
+					triggerClassName="h-9 text-[12px]"
+				/>
+			</SignalField>
 
-			{/* Initial risk */}
-			<div>
-				<label htmlFor="trade-risk" style={labelStyle}>
-					Initial Risk
-				</label>
-				<input
+			<SignalField label="Initial risk" htmlFor="trade-risk">
+				<SignalInput
 					id="trade-risk"
 					type="number"
 					min="0"
@@ -520,84 +568,122 @@ export function JournalPanel({
 						setForm((f) => ({ ...f, initial_risk: e.target.value }))
 					}
 					placeholder="0.00"
-					style={inputStyle}
 				/>
+			</SignalField>
+
+			<SignalField label="Emotional state" htmlFor="trade-emotion">
+				<SignalSelect
+					id="trade-emotion"
+					value={form.emotional_state}
+					onValueChange={(emotional_state) =>
+						setForm((f) => ({ ...f, emotional_state }))
+					}
+					options={[
+						{ value: "", label: "None" },
+						...EMOTIONAL_STATES.map((s) => ({ value: s, label: s })),
+					]}
+					ariaLabel="Emotional state"
+					triggerClassName="h-9 text-[12px]"
+				/>
+			</SignalField>
+
+			<div className="grid grid-cols-2 gap-3">
+				<SignalField label="Confidence" htmlFor="trade-confidence">
+					<SignalInput
+						id="trade-confidence"
+						type="number"
+						min="1"
+						max="5"
+						value={form.confidence}
+						onChange={(e) =>
+							setForm((f) => ({ ...f, confidence: e.target.value }))
+						}
+					/>
+				</SignalField>
+				<SignalField label="Trade quality" htmlFor="trade-quality">
+					<SignalInput
+						id="trade-quality"
+						type="number"
+						min="1"
+						max="5"
+						value={form.trade_quality}
+						onChange={(e) =>
+							setForm((f) => ({ ...f, trade_quality: e.target.value }))
+						}
+					/>
+				</SignalField>
 			</div>
 
-			{/* Custom tags */}
+			<div className="grid grid-cols-2 gap-3">
+				<SignalField label="MAE ($)" htmlFor="trade-mae">
+					<SignalInput
+						id="trade-mae"
+						type="number"
+						step="0.01"
+						value={form.mae}
+						onChange={(e) => setForm((f) => ({ ...f, mae: e.target.value }))}
+						placeholder="Max adverse"
+					/>
+				</SignalField>
+				<SignalField label="MFE ($)" htmlFor="trade-mfe">
+					<SignalInput
+						id="trade-mfe"
+						type="number"
+						step="0.01"
+						value={form.mfe}
+						onChange={(e) => setForm((f) => ({ ...f, mfe: e.target.value }))}
+						placeholder="Max favorable"
+					/>
+				</SignalField>
+			</div>
+
 			{customTags.length > 0 && (
-				<div>
-					<span style={labelStyle}>Tags</span>
+				<SignalField label="Tags">
 					<div className="flex flex-col gap-1.5">
 						{customTags.map((tag) => (
 							<label
 								key={tag.id}
-								className="flex items-center gap-2 cursor-pointer select-none"
+								className="flex cursor-pointer select-none items-center gap-2"
 							>
 								<input
 									type="checkbox"
 									checked={form.tag_ids.includes(tag.id)}
 									onChange={() => toggleTag(tag.id)}
-									style={{ accentColor: "var(--color-accent)" }}
+									className="accent-accent"
 								/>
-								<span
-									className="text-xs"
-									style={{ color: "var(--color-text)" }}
-								>
-									{tag.name}
-								</span>
+								<span className="text-xs text-text">{tag.name}</span>
 							</label>
 						))}
 					</div>
-				</div>
+				</SignalField>
 			)}
 
-			{/* Mistake tags */}
 			{mistakeTags.length > 0 && (
-				<div>
-					<span style={labelStyle}>Mistakes</span>
+				<SignalField label="Mistakes">
 					<div className="flex flex-col gap-1.5">
 						{mistakeTags.map((tag) => (
 							<label
 								key={tag.id}
-								className="flex items-center gap-2 cursor-pointer select-none"
+								className="flex cursor-pointer select-none items-center gap-2"
 							>
 								<input
 									type="checkbox"
 									checked={form.tag_ids.includes(tag.id)}
 									onChange={() => toggleTag(tag.id)}
-									style={{ accentColor: "var(--color-neg)" }}
+									className="accent-loss"
 								/>
-								<span
-									className="text-xs"
-									style={{ color: "var(--color-text)" }}
-								>
-									{tag.name}
-								</span>
+								<span className="text-xs text-text">{tag.name}</span>
 							</label>
 						))}
 					</div>
-				</div>
+				</SignalField>
 			)}
 
-			{/* Save */}
 			<button
 				type="button"
 				onClick={() => onSave(form)}
 				disabled={saving}
-				style={{
-					background: "var(--color-accent)",
-					color: "#fff",
-					border: "none",
-					borderRadius: "var(--radius-control)",
-					padding: "7px 16px",
-					fontSize: "12px",
-					fontFamily: "var(--font-ui)",
-					fontWeight: 600,
-					cursor: saving ? "not-allowed" : "pointer",
-					opacity: saving ? 0.6 : 1,
-					alignSelf: "flex-start",
-				}}
+				className={accentButtonClass}
 			>
 				{saving ? "Saving..." : "Save"}
 			</button>
@@ -611,6 +697,7 @@ export function JournalPanel({
 
 interface ScreenshotsPanelProps {
 	attachments: TradeAttachment[];
+	loading: boolean;
 	uploading: boolean;
 	onUpload: (file: File) => void;
 	onDelete: (attachmentId: string) => void;
@@ -618,6 +705,7 @@ interface ScreenshotsPanelProps {
 
 function ScreenshotsPanel({
 	attachments,
+	loading,
 	uploading,
 	onUpload,
 	onDelete,
@@ -628,69 +716,52 @@ function ScreenshotsPanel({
 		const file = e.target.files?.[0];
 		if (file) {
 			onUpload(file);
-			// Reset so the same file can be re-selected
 			e.target.value = "";
 		}
 	}
 
+	if (loading) {
+		return (
+			<div className="p-4">
+				<Skeleton height="120px" />
+			</div>
+		);
+	}
+
 	return (
 		<div className="flex flex-col gap-4 p-4">
-			{/* Upload control */}
 			<div>
 				<input
 					ref={fileInputRef}
 					type="file"
 					accept="image/*"
 					onChange={handleFileChange}
-					style={{ display: "none" }}
+					className="hidden"
 					aria-label="Upload screenshot"
 				/>
 				<button
 					type="button"
 					onClick={() => fileInputRef.current?.click()}
 					disabled={uploading}
-					className="flex items-center gap-2"
-					style={{
-						background: "var(--color-surface-hover)",
-						color: uploading ? "var(--color-text-muted)" : "var(--color-text)",
-						border: "1px solid var(--color-border)",
-						borderRadius: "var(--radius-control)",
-						padding: "6px 12px",
-						fontSize: "12px",
-						fontFamily: "var(--font-ui)",
-						cursor: uploading ? "not-allowed" : "pointer",
-						opacity: uploading ? 0.6 : 1,
-					}}
+					className={ghostButtonClass}
 				>
 					<Upload size={13} strokeWidth={1.5} />
 					{uploading ? "Uploading..." : "Upload screenshot"}
 				</button>
 			</div>
 
-			{/* Gallery */}
 			{attachments.length === 0 ? (
-				<div
-					className="flex flex-col items-center justify-center gap-2 py-8 rounded text-xs"
-					style={{
-						border: "1px dashed var(--color-border)",
-						color: "var(--color-text-muted)",
-					}}
-				>
-					<Paperclip size={20} strokeWidth={1.5} style={{ opacity: 0.4 }} />
+				<div className="flex flex-col items-center justify-center gap-2 rounded-sharp border border-dashed border-border py-8 text-xs text-text-muted">
+					<Paperclip size={20} strokeWidth={1.5} className="opacity-40" />
 					No screenshots yet
 				</div>
 			) : (
 				<div className="flex flex-col gap-3">
 					{attachments.map((att) => (
 						<div key={att.id} className="flex flex-col gap-1">
-							{/* Image preview via authed object URL */}
 							<AuthedImage attachmentId={att.id} filename={att.filename} />
-							{/* Filename + size + delete row */}
 							<div className="flex items-center justify-between gap-2">
-								<span
-									className="text-xs truncate"
-									style={{ color: "var(--color-text-muted)" }}
-								>
+								<span className="truncate text-xs text-text-muted">
 									{att.filename}
 									<span className="ml-1 tabular-nums">
 										({fmtBytes(att.size_bytes)})
@@ -700,14 +771,7 @@ function ScreenshotsPanel({
 									type="button"
 									onClick={() => onDelete(att.id)}
 									title="Delete screenshot"
-									style={{
-										background: "none",
-										border: "none",
-										cursor: "pointer",
-										color: "var(--color-text-muted)",
-										padding: "2px",
-										flexShrink: 0,
-									}}
+									className="shrink-0 cursor-pointer rounded-sharp p-0.5 text-text-muted transition-colors hover:bg-bg-hover hover:text-text"
 								>
 									<Trash2 size={13} strokeWidth={1.5} />
 								</button>
@@ -721,7 +785,7 @@ function ScreenshotsPanel({
 }
 
 // ---------------------------------------------------------------------------
-// TradeDetailView - pure presentational component
+// TradeDetailView
 // ---------------------------------------------------------------------------
 
 export interface TradeDetailViewProps {
@@ -734,9 +798,11 @@ export interface TradeDetailViewProps {
 	attachmentsLoading: boolean;
 	saving: boolean;
 	uploading: boolean;
+	addingFill?: boolean;
 	onSave: (state: JournalFormState) => void;
 	onUpload: (file: File) => void;
 	onDeleteAttachment: (attachmentId: string) => void;
+	onAddFill?: (input: AddFillInput) => void;
 	onBack?: () => void;
 }
 
@@ -747,27 +813,30 @@ export function TradeDetailView({
 	setups,
 	allTags,
 	attachments,
+	attachmentsLoading,
 	saving,
 	uploading,
+	addingFill = false,
 	onSave,
 	onUpload,
 	onDeleteAttachment,
+	onAddFill,
 	onBack,
 }: TradeDetailViewProps) {
-	// --------------- Loading state ---------------
 	if (loading) {
 		return (
-			<div className="flex flex-col gap-4">
-				<Skeleton height="112px" />
-				<div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-					<Skeleton height="320px" />
-					<Skeleton height="320px" />
-				</div>
+			<div className="flex min-h-full flex-col">
+				<Panel surface="void" className="flex flex-1 flex-col rounded-none border-0">
+					<Skeleton height="112px" />
+					<div className="grid grid-cols-1 gap-px bg-border lg:grid-cols-[3fr_2fr]">
+						<Skeleton height="320px" className="m-4" />
+						<Skeleton height="320px" className="m-4" />
+					</div>
+				</Panel>
 			</div>
 		);
 	}
 
-	// --------------- Error / not found ---------------
 	if (error || !trade) {
 		return (
 			<EmptyState
@@ -784,46 +853,77 @@ export function TradeDetailView({
 		notes: trade.notes ?? "",
 		setup_id: trade.setup?.id ?? "",
 		initial_risk: trade.initial_risk != null ? String(trade.initial_risk) : "",
+		emotional_state: trade.emotional_state ?? "",
+		confidence: trade.confidence != null ? String(trade.confidence) : "",
+		trade_quality: trade.trade_quality != null ? String(trade.trade_quality) : "",
+		mae: trade.mae != null ? String(trade.mae) : "",
+		mfe: trade.mfe != null ? String(trade.mfe) : "",
 		tag_ids: (trade.tags ?? []).map((t) => t.id),
 	};
 
 	return (
-		<div className="flex flex-col gap-4">
-			{/* Header */}
-			<TradeHeader trade={trade} onBack={onBack} />
+		<div className="flex min-h-full flex-col">
+			<Panel
+				surface="void"
+				className="flex min-h-full flex-1 flex-col rounded-none border-0"
+			>
+				<TradeHeader trade={trade} onBack={onBack} />
 
-			{/* Two-column body */}
-			<div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-				{/* LEFT - Fills */}
-				<div className="flex flex-col gap-4">
-					<Panel title={`Fills (${trade.fills.length})`}>
-						<FillsTable fills={trade.fills} currency={trade.pnl_currency} />
-					</Panel>
+				<div className="grid min-h-0 flex-1 grid-cols-1 bg-border lg:grid-cols-[3fr_2fr] lg:gap-px">
+					{/* Left — fills + screenshots */}
+					<div className="flex min-h-0 flex-col divide-y divide-border bg-bg">
+						<section className="flex flex-col">
+							<div className="border-b border-border px-4 py-2">
+								<span className="text-label font-semibold text-text-muted">
+									Fills ({trade.fills.length})
+								</span>
+							</div>
+							<FillsTable fills={trade.fills} currency={trade.pnl_currency} />
+							{onAddFill && (
+								<AddFillForm
+									defaultSide={trade.direction === "short" ? "buy" : "sell"}
+									busy={addingFill}
+									onSubmit={onAddFill}
+								/>
+							)}
+						</section>
 
-					{/* Screenshots below fills on desktop left column */}
-					<Panel title="Screenshots">
-						<ScreenshotsPanel
-							attachments={attachments}
-							uploading={uploading}
-							onUpload={onUpload}
-							onDelete={onDeleteAttachment}
+						<section className="flex flex-col">
+							<div className="border-b border-border px-4 py-2">
+								<span className="text-label font-semibold text-text-muted">
+									Screenshots
+								</span>
+							</div>
+							<ScreenshotsPanel
+								attachments={attachments}
+								loading={attachmentsLoading}
+								uploading={uploading}
+								onUpload={onUpload}
+								onDelete={onDeleteAttachment}
+							/>
+						</section>
+					</div>
+
+					{/* Right — journal */}
+					<section className="flex min-h-0 flex-col bg-bg lg:overflow-y-auto">
+						<div className="border-b border-border px-4 py-2">
+							<span className="text-label font-semibold text-text-muted">
+								Journal
+							</span>
+						</div>
+						<JournalPanel
+							key={trade.id}
+							tradeId={trade.id}
+							initialState={journalInitial}
+							setups={setups}
+							customTags={customTags}
+							mistakeTags={mistakeTags}
+							saving={saving}
+							onSave={onSave}
 						/>
-					</Panel>
+					</section>
 				</div>
-
-				{/* RIGHT - Journal */}
-				<Panel title="Journal">
-					<JournalPanel
-						key={trade.id} // re-mount if trade changes
-						initialState={journalInitial}
-						setups={setups}
-						customTags={customTags}
-						mistakeTags={mistakeTags}
-						saving={saving}
-						onSave={onSave}
-					/>
-				</Panel>
-			</div>
+			</Panel>
 		</div>
 	);
 }

@@ -7,17 +7,26 @@ package store
 
 import (
 	"context"
+	"database/sql"
 )
 
 const createSetup = `-- name: CreateSetup :one
-INSERT INTO setups (id, user_id, name, description) VALUES (?, ?, ?, ?) RETURNING id, user_id, name, description, created_at
+INSERT INTO setups (id, user_id, name, description, thesis, symbol, direction, target_price, stop_price, checklist)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+RETURNING id, user_id, name, description, created_at, thesis, symbol, direction, target_price, stop_price, checklist
 `
 
 type CreateSetupParams struct {
-	ID          string `json:"id"`
-	UserID      string `json:"user_id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
+	ID          string          `json:"id"`
+	UserID      string          `json:"user_id"`
+	Name        string          `json:"name"`
+	Description string          `json:"description"`
+	Thesis      string          `json:"thesis"`
+	Symbol      string          `json:"symbol"`
+	Direction   string          `json:"direction"`
+	TargetPrice sql.NullFloat64 `json:"target_price"`
+	StopPrice   sql.NullFloat64 `json:"stop_price"`
+	Checklist   string          `json:"checklist"`
 }
 
 func (q *Queries) CreateSetup(ctx context.Context, arg CreateSetupParams) (Setup, error) {
@@ -26,6 +35,12 @@ func (q *Queries) CreateSetup(ctx context.Context, arg CreateSetupParams) (Setup
 		arg.UserID,
 		arg.Name,
 		arg.Description,
+		arg.Thesis,
+		arg.Symbol,
+		arg.Direction,
+		arg.TargetPrice,
+		arg.StopPrice,
+		arg.Checklist,
 	)
 	var i Setup
 	err := row.Scan(
@@ -34,6 +49,12 @@ func (q *Queries) CreateSetup(ctx context.Context, arg CreateSetupParams) (Setup
 		&i.Name,
 		&i.Description,
 		&i.CreatedAt,
+		&i.Thesis,
+		&i.Symbol,
+		&i.Direction,
+		&i.TargetPrice,
+		&i.StopPrice,
+		&i.Checklist,
 	)
 	return i, err
 }
@@ -56,7 +77,7 @@ func (q *Queries) DeleteSetup(ctx context.Context, arg DeleteSetupParams) (int64
 }
 
 const getSetup = `-- name: GetSetup :one
-SELECT id, user_id, name, description, created_at FROM setups WHERE id = ? AND user_id = ?
+SELECT id, user_id, name, description, created_at, thesis, symbol, direction, target_price, stop_price, checklist FROM setups WHERE id = ? AND user_id = ?
 `
 
 type GetSetupParams struct {
@@ -73,12 +94,18 @@ func (q *Queries) GetSetup(ctx context.Context, arg GetSetupParams) (Setup, erro
 		&i.Name,
 		&i.Description,
 		&i.CreatedAt,
+		&i.Thesis,
+		&i.Symbol,
+		&i.Direction,
+		&i.TargetPrice,
+		&i.StopPrice,
+		&i.Checklist,
 	)
 	return i, err
 }
 
 const listSetups = `-- name: ListSetups :many
-SELECT id, user_id, name, description, created_at FROM setups WHERE user_id = ? ORDER BY name
+SELECT id, user_id, name, description, created_at, thesis, symbol, direction, target_price, stop_price, checklist FROM setups WHERE user_id = ? ORDER BY name
 `
 
 func (q *Queries) ListSetups(ctx context.Context, userID string) ([]Setup, error) {
@@ -96,6 +123,12 @@ func (q *Queries) ListSetups(ctx context.Context, userID string) ([]Setup, error
 			&i.Name,
 			&i.Description,
 			&i.CreatedAt,
+			&i.Thesis,
+			&i.Symbol,
+			&i.Direction,
+			&i.TargetPrice,
+			&i.StopPrice,
+			&i.Checklist,
 		); err != nil {
 			return nil, err
 		}
@@ -111,20 +144,41 @@ func (q *Queries) ListSetups(ctx context.Context, userID string) ([]Setup, error
 }
 
 const updateSetup = `-- name: UpdateSetup :exec
-UPDATE setups SET name = ?, description = ? WHERE id = ? AND user_id = ?
+UPDATE setups SET
+    name = ?,
+    description = ?,
+    thesis = ?,
+    symbol = ?,
+    direction = ?,
+    target_price = ?,
+    stop_price = ?,
+    checklist = ?
+WHERE id = ? AND user_id = ?
 `
 
 type UpdateSetupParams struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	ID          string `json:"id"`
-	UserID      string `json:"user_id"`
+	Name        string          `json:"name"`
+	Description string          `json:"description"`
+	Thesis      string          `json:"thesis"`
+	Symbol      string          `json:"symbol"`
+	Direction   string          `json:"direction"`
+	TargetPrice sql.NullFloat64 `json:"target_price"`
+	StopPrice   sql.NullFloat64 `json:"stop_price"`
+	Checklist   string          `json:"checklist"`
+	ID          string          `json:"id"`
+	UserID      string          `json:"user_id"`
 }
 
 func (q *Queries) UpdateSetup(ctx context.Context, arg UpdateSetupParams) error {
 	_, err := q.db.ExecContext(ctx, updateSetup,
 		arg.Name,
 		arg.Description,
+		arg.Thesis,
+		arg.Symbol,
+		arg.Direction,
+		arg.TargetPrice,
+		arg.StopPrice,
+		arg.Checklist,
 		arg.ID,
 		arg.UserID,
 	)
