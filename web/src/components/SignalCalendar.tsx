@@ -1,27 +1,36 @@
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import {
+	ChevronDown,
+	ChevronLeft,
+	ChevronRight,
+	ChevronUp,
+} from "lucide-react";
 import type { ComponentProps } from "react";
-import { DayPicker, type DateRange } from "react-day-picker";
+import { type DateRange, DayPicker } from "react-day-picker";
 import { cn } from "../lib/cn";
 import { intlLocale } from "../lib/locale";
+import { SignalSelect } from "./SignalSelect";
 
 export type { DateRange };
 
 export const signalCalendarClassNames: NonNullable<
 	ComponentProps<typeof DayPicker>["classNames"]
 > = {
-	months: "flex flex-col",
-	month: "relative w-[252px]",
-	month_caption: "relative mb-3 flex h-8 items-center justify-center",
+	months: "relative flex flex-col",
+	month: "w-[252px]",
+	month_caption: "mb-3 flex h-8 items-center justify-center",
 	caption_label:
-		"text-[12px] font-medium tracking-normal text-text capitalize",
-	nav: "absolute inset-x-0 top-0 flex items-center justify-between",
+		"flex items-center gap-1 text-[12px] font-medium tracking-normal text-text capitalize",
+	dropdowns: "flex items-center gap-1",
+	// pointer-events-none so the full-width strip doesn't swallow clicks
+	// aimed at the caption dropdowns underneath; buttons re-enable it.
+	nav: "pointer-events-none absolute inset-x-0 top-0 flex items-center justify-between",
 	button_previous: cn(
-		"flex size-7 cursor-pointer items-center justify-center rounded-control border border-border bg-bg-inset text-text-muted",
+		"pointer-events-auto flex size-7 cursor-pointer items-center justify-center rounded-control border border-border bg-bg-inset text-text-muted",
 		"transition-colors hover:border-border-strong hover:bg-bg-hover hover:text-text",
 		"focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
 	),
 	button_next: cn(
-		"flex size-7 cursor-pointer items-center justify-center rounded-control border border-border bg-bg-inset text-text-muted",
+		"pointer-events-auto flex size-7 cursor-pointer items-center justify-center rounded-control border border-border bg-bg-inset text-text-muted",
 		"transition-colors hover:border-border-strong hover:bg-bg-hover hover:text-text",
 		"focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
 	),
@@ -50,6 +59,46 @@ export const signalCalendarClassNames: NonNullable<
 	hidden: "invisible",
 };
 
+/**
+ * Month/year caption dropdown rendered as a SignalSelect instead of the
+ * native <select> react-day-picker ships. rdp's handlers only read
+ * `e.target.value`, so a synthetic change event is enough.
+ */
+function SignalCalendarDropdown({
+	options,
+	value,
+	onChange,
+	disabled,
+	"aria-label": ariaLabel,
+}: {
+	options?: { value: number; label: string; disabled: boolean }[];
+	value?: string | number | readonly string[];
+	onChange?: React.ChangeEventHandler<HTMLSelectElement>;
+	disabled?: boolean;
+	"aria-label"?: string;
+}) {
+	return (
+		<SignalSelect
+			value={String(value)}
+			ariaLabel={ariaLabel}
+			disabled={disabled}
+			options={(options ?? []).map((o) => ({
+				value: String(o.value),
+				label: o.label,
+				disabled: o.disabled,
+			}))}
+			onValueChange={(v) =>
+				onChange?.({
+					target: { value: v },
+				} as React.ChangeEvent<HTMLSelectElement>)
+			}
+			ghost
+			className="w-auto"
+			triggerClassName="h-7 w-auto gap-1.5 px-2 text-[12px] font-medium capitalize"
+		/>
+	);
+}
+
 /** shadcn-style calendar adapted to Signal Terminal tokens. */
 export function SignalCalendar({
 	className,
@@ -74,12 +123,26 @@ export function SignalCalendar({
 				...props.formatters,
 			}}
 			components={{
-				Chevron: ({ orientation }) =>
-					orientation === "left" ? (
-						<ChevronLeft size={14} strokeWidth={1.75} aria-hidden />
-					) : (
-						<ChevronRight size={14} strokeWidth={1.75} aria-hidden />
-					),
+				Chevron: ({ orientation, className }) => {
+					const Icon =
+						orientation === "left"
+							? ChevronLeft
+							: orientation === "right"
+								? ChevronRight
+								: orientation === "up"
+									? ChevronUp
+									: ChevronDown;
+					const size = orientation === "down" || orientation === "up" ? 12 : 14;
+					return (
+						<Icon
+							size={size}
+							strokeWidth={1.75}
+							className={className}
+							aria-hidden
+						/>
+					);
+				},
+				Dropdown: SignalCalendarDropdown,
 				...props.components,
 			}}
 			{...props}
