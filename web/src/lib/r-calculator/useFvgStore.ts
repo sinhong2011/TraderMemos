@@ -42,6 +42,7 @@ interface FvgState {
 	addSession: () => void;
 	duplicateSession: (id: string) => void;
 	removeSession: (id: string) => void;
+	renameSession: (id: string, name: string) => void;
 	setField: <K extends keyof FvgSession>(key: K, value: FvgSession[K]) => void;
 }
 
@@ -120,6 +121,14 @@ export const useFvgStore = create<FvgState>()(
 					const newActive =
 						activeId === id ? next[Math.max(0, idx - 1)].id : activeId;
 					set(withDerived({ sessions: next, activeId: newActive }));
+				},
+
+				renameSession: (id, name) => {
+					const { sessions, activeId } = get();
+					const next = sessions.map((s) =>
+						s.id === id ? { ...s, name } : s,
+					);
+					set(withDerived({ sessions: next, activeId }));
 				},
 			};
 		},
