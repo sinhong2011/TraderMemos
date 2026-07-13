@@ -1,8 +1,9 @@
 {
 	"name": "tradermemos-web",
 	"private": true,
+	"workspaces": ["."],
 	"type": "module",
-	"packageManager": "pnpm@11.12.0",
+	"packageManager": "bun@1.4.0",
 	"scripts": {
 		"dev": "vite",
 		"build": "tsc -b --noEmit && vite build",

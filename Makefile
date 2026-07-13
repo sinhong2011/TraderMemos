@@ -1,4 +1,4 @@
-export PATH := $(HOME)/go/bin:$(PATH)
+export PATH := $(HOME)/.bun/bin:$(HOME)/go/bin:$(PATH)
 
 .PHONY: help setup dev dev-api dev-web build test test-api test-web lint lint-api lint-web e2e sqlc kill up down logs
 
@@ -13,21 +13,22 @@ setup: ## Install toolchains (mise) + air + web deps; seed api/.env
 	mise install
 	go install github.com/air-verse/air@latest
 	@test -f api/.env || (cp api/.env.example api/.env && echo "Created api/.env from .env.example")
-	cd web && pnpm install
+	@./scripts/ensure-bun.sh
+	cd web && bun install
 
 ## --- dev ---
 
 dev: ## Run API (air :8080) + web (vite :5173) together
 	@trap 'kill 0; wait' INT TERM EXIT; \
 	cd api && air & \
-	cd web && pnpm dev & \
+	cd web && bun run dev & \
 	wait
 
 dev-api: ## Run the Go API with air hot reload (:8080)
 	cd api && air
 
 dev-web: ## Run the Vite web dev server (:5173)
-	cd web && pnpm dev
+	cd web && bun run dev
 
 kill: ## Free API/web ports (air + listeners on 8080/5173)
 	@./scripts/release-ports.sh
@@ -36,7 +37,7 @@ kill: ## Free API/web ports (air + listeners on 8080/5173)
 
 build: ## Build api + web
 	cd api && go build ./...
-	cd web && pnpm build
+	cd web && bun run build
 
 ## --- test ---
 
@@ -46,10 +47,10 @@ test-api: ## Go tests
 	cd api && go test ./...
 
 test-web: ## Web unit tests (vitest)
-	cd web && pnpm test
+	cd web && bun run test
 
 e2e: ## Web end-to-end tests (playwright)
-	cd web && pnpm e2e
+	cd web && bun run e2e
 
 ## --- lint ---
 
@@ -59,7 +60,7 @@ lint-api: ## go vet
 	cd api && go vet ./...
 
 lint-web: ## biome check
-	cd web && pnpm lint
+	cd web && bun run lint
 
 ## --- codegen ---
 
