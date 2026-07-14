@@ -152,4 +152,18 @@ describe("TradeDetailSheet", () => {
     expect(screen.getByText(/still open/)).toBeInTheDocument();
     expect(screen.queryByText("+$2.50")).not.toBeInTheDocument();
   });
+
+  it("renders bento hero with fees cell, gross breakdown, and R-multiple", () => {
+    mockedDetail.mockReturnValue({
+      data: { ...TRADE, fees_total: 0.35, gross_pnl: 2.85, r_multiple: 0.5 },
+      isLoading: false,
+      isError: false,
+    } as never);
+    wrap(<TradeDetailSheet tradeId="t1" onClose={vi.fn<() => void>()} />);
+
+    expect(screen.getByText("Fees")).toBeInTheDocument();
+    expect(screen.getByText("$0.35")).toBeInTheDocument();
+    expect(screen.getByText(/\+\$2\.85 gross/)).toBeInTheDocument();
+    expect(screen.getAllByText("+0.50R").length).toBeGreaterThanOrEqual(1);
+  });
 });

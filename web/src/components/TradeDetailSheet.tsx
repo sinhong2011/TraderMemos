@@ -105,9 +105,9 @@ export function TradeDetailSheet({ tradeId, onClose }: TradeDetailSheetProps) {
   );
 }
 
-function MetaStat({ label, value }: { label: string; value: string }) {
+function BentoStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex flex-col gap-0.5">
+    <div className="flex flex-col gap-1 bg-bg-elevated p-3">
       <span className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">
         {label}
       </span>
@@ -139,29 +139,66 @@ function TradeDetailSheetBody({ trade }: { trade: TradeDetail }) {
                 }${hold === "-" ? "" : ` · ${hold}`}`}
           </span>
         </div>
-        {pnl != null && (
-          <p className={cn("mt-3 tabular-nums", heroPnlClass(pnl))}>
-            {fmtSignedMoney(pnl, currency, intlLocale())}
-            {trade.return_pct != null && (
-              <span className={cn("ml-2 text-sm font-semibold", pnlColor(trade.return_pct))}>
-                {trade.return_pct >= 0 ? "+" : ""}
-                {trade.return_pct.toFixed(2)}%
-              </span>
+        <div className="mt-3 grid grid-cols-[1.15fr_1fr] gap-px overflow-hidden rounded-sharp bg-border">
+          <div className="row-span-2 flex flex-col justify-between gap-3 bg-bg-elevated p-3.5">
+            <div>
+              {pnl != null ? (
+                <>
+                  <p
+                    className={cn(
+                      "m-0 tabular-nums",
+                      heroPnlClass(pnl),
+                      pnl > 0 && "hero-glow-profit",
+                      pnl < 0 && "hero-glow-loss",
+                    )}
+                  >
+                    {fmtSignedMoney(pnl, currency, intlLocale())}
+                  </p>
+                  <p className="mt-1.5 mb-0 text-sm font-semibold tabular-nums">
+                    {trade.return_pct != null && (
+                      <span className={pnlColor(trade.return_pct)}>
+                        {trade.return_pct >= 0 ? "+" : ""}
+                        {trade.return_pct.toFixed(2)}%
+                      </span>
+                    )}
+                    {trade.r_multiple != null && (
+                      <span className={cn("ml-2", pnlColor(trade.r_multiple))}>
+                        {trade.r_multiple >= 0 ? "+" : ""}
+                        {trade.r_multiple.toFixed(2)}R
+                      </span>
+                    )}
+                  </p>
+                </>
+              ) : (
+                <p className="m-0 text-[32px] font-semibold leading-none text-flat">—</p>
+              )}
+            </div>
+            {trade.gross_pnl != null && (
+              <p className="m-0 text-[10px] tabular-nums text-text-dim">
+                {fmtSignedMoney(trade.gross_pnl, currency, intlLocale())} gross −{" "}
+                {fmtMoney(trade.fees_total, currency, intlLocale())} fees
+              </p>
             )}
-          </p>
-        )}
-        <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-4">
-          <MetaStat label="Entry" value={fmtMoney(trade.avg_entry_price, currency, intlLocale())} />
-          <MetaStat
-            label="Exit"
-            value={
-              trade.avg_exit_price != null
-                ? fmtMoney(trade.avg_exit_price, currency, intlLocale())
-                : "—"
-            }
-          />
-          <MetaStat label="Qty" value={qty.toFixed(2)} />
-          <MetaStat label="Hold" value={hold === "-" ? "—" : hold} />
+          </div>
+          <div className="grid grid-cols-2 gap-px">
+            <BentoStat
+              label="Entry"
+              value={fmtMoney(trade.avg_entry_price, currency, intlLocale())}
+            />
+            <BentoStat
+              label="Exit"
+              value={
+                trade.avg_exit_price != null
+                  ? fmtMoney(trade.avg_exit_price, currency, intlLocale())
+                  : "—"
+              }
+            />
+          </div>
+          <div className="grid grid-cols-3 gap-px">
+            <BentoStat label="Qty" value={qty.toFixed(2)} />
+            <BentoStat label="Hold" value={hold === "-" ? "—" : hold} />
+            <BentoStat label="Fees" value={fmtMoney(trade.fees_total, currency, intlLocale())} />
+          </div>
         </div>
       </div>
 
