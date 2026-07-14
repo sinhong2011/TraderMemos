@@ -239,23 +239,32 @@ function TradeDetailSheetBody({
         {trade.fills.length === 0 ? (
           <p className="text-xs text-text-muted">No fills recorded.</p>
         ) : (
-          <ul className="flex flex-col gap-2">
+          <ul className="m-0 flex list-none flex-col gap-0.5 p-0">
             {trade.fills.map((f) => (
               <li
                 key={f.id}
-                className="flex items-center justify-between gap-2 text-xs tabular-nums text-text"
+                className="-mx-2 flex items-center justify-between gap-2 rounded-control px-2 py-1.5 text-xs tabular-nums transition-colors hover:bg-bg-hover"
               >
-                <span className={f.side === "buy" ? "text-profit" : "text-loss"}>
-                  {f.side.toUpperCase()} {f.quantity} @ {fmtMoney(f.price, currency, intlLocale())}
+                <span className="flex items-center gap-2">
+                  <span
+                    aria-label={f.side === "buy" ? "Buy" : "Sell"}
+                    className={cn(
+                      "flex size-4 items-center justify-center rounded-control text-[10px] font-bold",
+                      f.side === "buy" ? "bg-tint-pos text-profit" : "bg-tint-neg text-loss",
+                    )}
+                  >
+                    {f.side === "buy" ? "B" : "S"}
+                  </span>
+                  <span className="text-text">
+                    {f.quantity} @ {fmtMoney(f.price, currency, intlLocale())}
+                  </span>
+                  {f.fees + f.commission > 0 && (
+                    <span className="text-text-dim">
+                      {fmtMoney(f.fees + f.commission, currency, intlLocale())} fee
+                    </span>
+                  )}
                 </span>
-                <span className="text-text-muted">
-                  {new Date(f.executed_at).toLocaleString(intlLocale(), {
-                    month: "short",
-                    day: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </span>
+                <span className="text-text-muted">{fmtWhen(f.executed_at)}</span>
               </li>
             ))}
           </ul>

@@ -214,4 +214,20 @@ describe("TradeDetailSheet", () => {
     expect(screen.queryByText("Notes")).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /read more/i })).not.toBeInTheDocument();
   });
+
+  it("renders execution rows with side chips and fee amounts", () => {
+    mockedDetail.mockReturnValue({
+      data: {
+        ...TRADE,
+        fills: [{ ...TRADE.fills[0]!, fees: 0.25, commission: 0.1 }, TRADE.fills[1]!],
+      },
+      isLoading: false,
+      isError: false,
+    } as never);
+    wrap(<TradeDetailSheet tradeId="t1" onClose={vi.fn<() => void>()} />);
+
+    expect(screen.getByText("B")).toBeInTheDocument();
+    expect(screen.getByText("S")).toBeInTheDocument();
+    expect(screen.getByText(/\$0\.35 fee/)).toBeInTheDocument();
+  });
 });
