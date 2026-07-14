@@ -164,6 +164,7 @@ describe("TradeDetailSheet", () => {
     expect(screen.getByText("Fees")).toBeInTheDocument();
     expect(screen.getByText("$0.35")).toBeInTheDocument();
     expect(screen.getByText(/\+\$2\.85 gross/)).toBeInTheDocument();
-    expect(screen.getAllByText("+0.50R").length).toBeGreaterThanOrEqual(1);
+    // Exactly 2: one in the bento hero cell, one in RiskRewardPanel.
+    expect(screen.getAllByText("+0.50R")).toHaveLength(2);
   });
 });
