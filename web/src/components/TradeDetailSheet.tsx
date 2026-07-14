@@ -93,9 +93,10 @@ export function TradeDetailSheet({ tradeId, onClose }: TradeDetailSheetProps) {
         <DrawerBody className="gap-0 p-0">
           {detailQ.isLoading && (
             <div className="flex flex-col gap-3 p-4">
+              <Skeleton height="24px" width="60%" />
+              <Skeleton height="140px" />
+              <Skeleton height="200px" />
               <Skeleton height="72px" />
-              <Skeleton height="120px" />
-              <Skeleton height="96px" />
             </div>
           )}
           {detailQ.isError && (
