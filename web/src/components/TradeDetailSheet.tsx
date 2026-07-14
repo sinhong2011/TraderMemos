@@ -1,5 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import { ExternalLink, X } from "lucide-react";
+import { ExternalLink, X, Zap } from "lucide-react";
 import { TradeChartSection } from "./charts/TradeChartSection";
 import { RiskRewardPanel } from "./RiskRewardPanel";
 import {
@@ -42,6 +42,12 @@ export function TradeDetailSheet({ tradeId, onClose }: TradeDetailSheetProps) {
   const open = Boolean(tradeId);
   const detailQ = useTradeDetail(tradeId ?? "");
 
+  const openFullPage = () => {
+    if (!tradeId) return;
+    void navigate({ to: "/trades/$id", params: { id: tradeId } });
+    onClose();
+  };
+
   return (
     <Drawer
       open={open}
@@ -69,10 +75,7 @@ export function TradeDetailSheet({ tradeId, onClose }: TradeDetailSheetProps) {
             {tradeId && (
               <button
                 type="button"
-                onClick={() => {
-                  void navigate({ to: "/trades/$id", params: { id: tradeId } });
-                  onClose();
-                }}
+                onClick={openFullPage}
                 className="inline-flex cursor-pointer items-center gap-1.5 rounded-control px-2 py-1 text-xs text-accent transition-colors hover:bg-accent-bg"
               >
                 <ExternalLink size={12} strokeWidth={1.5} />
@@ -98,7 +101,9 @@ export function TradeDetailSheet({ tradeId, onClose }: TradeDetailSheetProps) {
           {detailQ.isError && (
             <p className="p-4 text-sm text-text-muted">Could not load trade detail.</p>
           )}
-          {detailQ.data && <TradeDetailSheetBody trade={detailQ.data} />}
+          {detailQ.data && (
+            <TradeDetailSheetBody trade={detailQ.data} onOpenFullPage={openFullPage} />
+          )}
         </DrawerBody>
       </DrawerContent>
     </Drawer>
@@ -116,7 +121,13 @@ function BentoStat({ label, value }: { label: string; value: string }) {
   );
 }
 
-function TradeDetailSheetBody({ trade }: { trade: TradeDetail }) {
+function TradeDetailSheetBody({
+  trade,
+  onOpenFullPage,
+}: {
+  trade: TradeDetail;
+  onOpenFullPage: () => void;
+}) {
   const currency = trade.pnl_currency;
   const pnl = trade.net_pnl;
   const status = tradeStatus(trade);
@@ -200,6 +211,21 @@ function TradeDetailSheetBody({ trade }: { trade: TradeDetail }) {
             <BentoStat label="Fees" value={fmtMoney(trade.fees_total, currency, intlLocale())} />
           </div>
         </div>
+        {(trade.tags.length > 0 || trade.setup) && (
+          <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
+            {trade.tags.map((t) => (
+              <Pill key={t.id} tone="muted">
+                {t.name}
+              </Pill>
+            ))}
+            {trade.setup && (
+              <span className="inline-flex items-center gap-1.5 text-xs text-text-muted">
+                <Zap size={14} strokeWidth={1.5} className="text-signal" />
+                Setup: <span className="font-medium text-text">{trade.setup.name}</span>
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
       <RiskRewardPanel trade={trade} className="p-0" hideWhenEmpty />
@@ -235,6 +261,22 @@ function TradeDetailSheetBody({ trade }: { trade: TradeDetail }) {
           </ul>
         )}
       </section>
+
+      {trade.notes.trim() !== "" && (
+        <section>
+          <p className={sectionLabelClass}>Notes</p>
+          <p className="m-0 line-clamp-3 text-sm whitespace-pre-wrap text-text-muted">
+            {trade.notes}
+          </p>
+          <button
+            type="button"
+            onClick={onOpenFullPage}
+            className="mt-1.5 cursor-pointer border-none bg-transparent p-0 text-xs text-accent hover:underline"
+          >
+            Read more
+          </button>
+        </section>
+      )}
     </div>
   );
 }

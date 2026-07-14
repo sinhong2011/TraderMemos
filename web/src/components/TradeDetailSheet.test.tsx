@@ -167,4 +167,51 @@ describe("TradeDetailSheet", () => {
     // Exactly 2: one in the bento hero cell, one in RiskRewardPanel.
     expect(screen.getAllByText("+0.50R")).toHaveLength(2);
   });
+
+  it("shows tags, setup name, and a clamped notes preview", () => {
+    mockedDetail.mockReturnValue({
+      data: {
+        ...TRADE,
+        tags: [
+          {
+            id: "tag1",
+            user_id: "u1",
+            name: "Breakout",
+            color: "#34d399",
+            description: "",
+            kind: "custom",
+          },
+        ],
+        setup: {
+          id: "s1",
+          user_id: "u1",
+          name: "ORB Fade",
+          description: "",
+          created_at: "2026-01-01T00:00:00Z",
+          thesis: "",
+          symbol: "",
+          direction: "",
+          target_price: null,
+          stop_price: null,
+          checklist: [],
+        },
+        notes: "Clean break of overnight high.\nSized down due to CPI.",
+      },
+      isLoading: false,
+      isError: false,
+    } as never);
+    wrap(<TradeDetailSheet tradeId="t1" onClose={vi.fn<() => void>()} />);
+
+    expect(screen.getByText("Breakout")).toBeInTheDocument();
+    expect(screen.getByText("ORB Fade")).toBeInTheDocument();
+    expect(screen.getByText(/Clean break of overnight high/)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /read more/i })).toBeInTheDocument();
+  });
+
+  it("omits context row and notes section when empty", () => {
+    wrap(<TradeDetailSheet tradeId="t1" onClose={vi.fn<() => void>()} />);
+    expect(screen.queryByText("Setup:")).not.toBeInTheDocument();
+    expect(screen.queryByText("Notes")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /read more/i })).not.toBeInTheDocument();
+  });
 });
