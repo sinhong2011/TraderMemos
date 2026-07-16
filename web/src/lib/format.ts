@@ -1,11 +1,20 @@
+import { isPrivacyMode, PRIVACY_MASK } from "./displayPrefs";
 import { intlLocale } from "./locale";
 
+function maskedMoney(): string | null {
+  return isPrivacyMode() ? PRIVACY_MASK : null;
+}
+
 export function fmtMoney(v: number, currency: string, locale: string): string {
+  const masked = maskedMoney();
+  if (masked) return masked;
   return new Intl.NumberFormat(locale, { style: "currency", currency }).format(v);
 }
 
 /** Compact axis labels — avoids clipping `$` in narrow Recharts gutters. */
 export function fmtMoneyCompact(v: number, currency: string, locale: string): string {
+  const masked = maskedMoney();
+  if (masked) return masked;
   return new Intl.NumberFormat(locale, {
     style: "currency",
     currency,
@@ -21,8 +30,20 @@ export function fmtDayShort(iso: string, locale: string): string {
   });
 }
 export function fmtSignedMoney(v: number, currency: string, locale: string): string {
+  const masked = maskedMoney();
+  if (masked) return masked;
   const s = fmtMoney(Math.abs(v), currency, locale);
   return v < 0 ? `-${s}` : `+${s}`;
+}
+
+/** Compact signed money for dense calendar / week cells, e.g. `+$1.5K`. */
+export function fmtSignedMoneyCompact(v: number, currency: string, locale: string): string {
+  const masked = maskedMoney();
+  if (masked) return masked;
+  const s = fmtMoneyCompact(Math.abs(v), currency, locale);
+  if (v < 0) return `-${s}`;
+  if (v > 0) return `+${s}`;
+  return s;
 }
 export function fmtPct(ratio: number, locale: string): string {
   return new Intl.NumberFormat(locale, {
@@ -40,7 +61,15 @@ export function fmtDuration(secs: number | null | undefined): string {
 
 export function fmtDateShort(iso: string | null): string {
   if (!iso) return "-";
-  return new Date(iso).toLocaleDateString(intlLocale());
+  // Prefer the calendar date from the ISO string to avoid timezone day-shift.
+  const m = /^(\d{4}-\d{2}-\d{2})/.exec(iso);
+  if (m) return m[1];
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "-";
+  const y = d.getUTCFullYear();
+  const mo = String(d.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(d.getUTCDate()).padStart(2, "0");
+  return `${y}-${mo}-${day}`;
 }
 
 /** Human-readable date/time for modals and detail views. Falls back to raw string when unparseable. */

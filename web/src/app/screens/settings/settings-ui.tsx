@@ -1,6 +1,9 @@
 import type { LucideIcon } from "lucide-react";
 import { Trash2 } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import { useId, useState, type ReactNode } from "react";
+import { Modal } from "../../../components/Modal";
+import { Pill } from "../../../components/Pill";
+import { SignalInput } from "../../../components/SignalInput";
 import { cn } from "../../../lib/cn";
 import { settingsSectionHash } from "../../../lib/settingsSection";
 
@@ -191,10 +194,12 @@ export function SettingsRow({
 
 function SettingsStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex flex-col items-end gap-0.5">
-      <span className="text-[13px] font-medium tabular-nums tracking-tight text-text">{value}</span>
-      <span className="text-[10px] text-text-dim">{label}</span>
-    </div>
+    <span className="inline-flex items-baseline gap-1.5 whitespace-nowrap">
+      <span className="text-[13px] font-semibold tabular-nums tracking-tight text-text">
+        {value}
+      </span>
+      <span className="text-[11px] text-text-dim">{label}</span>
+    </span>
   );
 }
 
@@ -222,10 +227,9 @@ export function BtnToolbar({
       onClick={onClick}
       aria-label={ariaLabel}
       className={cn(
-        "inline-flex h-7 cursor-pointer items-center rounded-control px-2 text-[12px] font-medium transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-45",
-        destructive
-          ? "text-loss/90 hover:bg-loss/10 hover:text-loss"
-          : "text-accent hover:bg-accent-bg/60",
+        "inline-flex h-7 cursor-pointer items-center rounded-control border-none bg-bg-input px-2.5 text-[12px] font-medium transition-colors duration-150",
+        "hover:bg-bg-input-hover disabled:cursor-not-allowed disabled:opacity-45",
+        destructive ? "text-loss" : "text-text-muted hover:text-text",
         className,
       )}
     >
@@ -244,7 +248,6 @@ export function AccountRow({
   cashCount,
   isPrimary,
   actions,
-  last = false,
 }: {
   name: string;
   broker: string;
@@ -262,27 +265,27 @@ export function AccountRow({
     .join(" · ");
 
   return (
-    <div
-      className={cn(
-        "flex flex-col gap-3 px-4 py-3 transition-colors duration-150 hover:bg-bg-hover lg:flex-row lg:items-center lg:justify-between lg:gap-6",
-        !last && "border-b border-border",
-      )}
-    >
+    <div className="flex flex-col gap-2.5 px-4 py-3 transition-colors duration-150 hover:bg-bg-hover sm:flex-row sm:items-center sm:gap-4">
       <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-          <span className="text-[13px] font-medium text-text">{name}</span>
-          {isPrimary ? <span className="text-[11px] text-text-muted">Primary</span> : null}
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+          <span className="text-[13px] font-semibold tracking-tight text-text">{name}</span>
+          {isPrimary ? <Pill tone="amber">Primary</Pill> : null}
         </div>
         <p className="mt-0.5 text-[11px] leading-relaxed text-text-dim">{meta}</p>
       </div>
 
-      <div className="flex flex-wrap items-center gap-4 lg:justify-end">
-        <SettingsStat label="Balance" value={balance} />
-        <SettingsStat
-          label={tradeCount === 1 ? "Trade" : "Trades"}
-          value={tradeCount > 0 ? String(tradeCount) : "—"}
-        />
-        <div className="flex flex-wrap items-center gap-0.5">{actions}</div>
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 sm:justify-end">
+        <div className="flex items-baseline gap-3">
+          <SettingsStat label="balance" value={balance} />
+          <span aria-hidden className="text-[12px] text-text-dim select-none">
+            ·
+          </span>
+          <SettingsStat
+            label={tradeCount === 1 ? "trade" : "trades"}
+            value={tradeCount > 0 ? String(tradeCount) : "—"}
+          />
+        </div>
+        <div className="flex flex-wrap items-center gap-1">{actions}</div>
       </div>
     </div>
   );
@@ -424,66 +427,78 @@ export function ClearTradesButton({
   onClear: () => void;
   disabled?: boolean;
 }) {
-  const [confirm, setConfirm] = useState(false);
+  const [open, setOpen] = useState(false);
   const [typed, setTyped] = useState("");
+  const inputId = useId();
 
   if (disabled || tradeCount <= 0) {
     return null;
   }
 
-  const detail = `Removes ${tradeCount} trade${tradeCount === 1 ? "" : "s"} and all executions. Keeps account, cash ledger, setups, and tags.`;
   const canClear = typed.trim() === accountName.trim();
 
-  if (confirm) {
-    return (
-      <div className="flex w-full max-w-[280px] flex-col items-end gap-2 rounded-control border border-loss/25 bg-bg-inset p-2.5">
-        <p className="m-0 text-right text-[10px] leading-snug text-text-dim">{detail}</p>
-        <label className="w-full">
-          <span className="mb-1 block text-[10px] text-text-dim">
-            Type <span className="text-text">{accountName}</span> to confirm
-          </span>
-          <input
-            value={typed}
-            onChange={(e) => setTyped(e.target.value)}
-            className="h-8 w-full rounded-control border border-border bg-bg px-2 text-[12px] text-text outline-none focus-visible:border-accent"
-            autoFocus
-          />
-        </label>
-        <span className="flex items-center gap-1.5">
-          <button
-            type="button"
-            disabled={!canClear}
-            onClick={() => {
-              setConfirm(false);
-              setTyped("");
-              onClear();
-            }}
-            className="cursor-pointer rounded-control border border-loss/40 bg-transparent px-2 py-1 text-[11px] font-medium text-loss hover:bg-loss/10 disabled:cursor-not-allowed disabled:opacity-45"
-          >
-            Clear trades
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setConfirm(false);
-              setTyped("");
-            }}
-            className="cursor-pointer rounded-control border border-border bg-transparent px-2 py-1 text-[11px] text-text-muted hover:text-text"
-          >
-            Cancel
-          </button>
-        </span>
-      </div>
-    );
-  }
+  const handleOpenChange = (next: boolean) => {
+    setOpen(next);
+    if (!next) setTyped("");
+  };
 
   return (
-    <button
-      type="button"
-      onClick={() => setConfirm(true)}
-      className="inline-flex h-7 cursor-pointer items-center rounded-control px-2 text-[12px] font-medium text-loss/90 transition-colors hover:bg-loss/10 hover:text-loss"
-    >
-      Clear trades
-    </button>
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="inline-flex h-7 cursor-pointer items-center rounded-control border-none bg-bg-input px-2.5 text-[12px] font-medium text-loss transition-colors hover:bg-bg-input-hover"
+      >
+        Clear trades
+      </button>
+      <Modal
+        open={open}
+        onOpenChange={handleOpenChange}
+        title={`Clear trades for ${accountName}?`}
+        className="max-w-[min(336px,94vw)]"
+        footer={
+          <>
+            <button
+              type="button"
+              onClick={() => handleOpenChange(false)}
+              className="cursor-pointer rounded-control border-none bg-transparent px-3 py-1.5 text-[12px] font-medium text-text-muted transition-colors hover:bg-bg-hover hover:text-text"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              disabled={!canClear}
+              onClick={() => {
+                handleOpenChange(false);
+                onClear();
+              }}
+              className="cursor-pointer rounded-control border-none bg-loss/15 px-3 py-1.5 text-[12px] font-semibold text-loss transition-colors hover:bg-loss/25 disabled:cursor-not-allowed disabled:opacity-45"
+            >
+              Clear trades
+            </button>
+          </>
+        }
+      >
+        <p className="m-0 text-[13px] leading-relaxed text-text-muted">
+          Removes <span className="font-semibold text-loss tabular-nums">{tradeCount}</span> trade
+          {tradeCount === 1 ? "" : "s"} and all executions. Keeps account, cash ledger, setups, and
+          tags.
+        </p>
+        <div>
+          <label htmlFor={inputId} className="mb-1.5 block text-[11px] text-text-dim">
+            Type <span className="font-medium text-text">{accountName}</span> to confirm
+          </label>
+          <SignalInput
+            id={inputId}
+            value={typed}
+            onChange={(e) => setTyped(e.target.value)}
+            autoFocus
+            autoComplete="off"
+            spellCheck={false}
+            aria-label={`Type ${accountName} to confirm`}
+          />
+        </div>
+      </Modal>
+    </>
   );
 }

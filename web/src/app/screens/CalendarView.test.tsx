@@ -1,7 +1,15 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vite-plus/test";
-import type { Summary } from "../../lib/api/types";
+import type { Summary, Trade } from "../../lib/api/types";
 import { CalendarView } from "./CalendarView";
+
+vi.mock("../../components/Toast", () => ({
+  useToastManager: () => ({ add: vi.fn() }),
+}));
+
+vi.mock("../../lib/hooks/useMoneyFx", () => ({
+  useMoneyFx: (currency: string) => ({ currency, rate: 1 }),
+}));
 
 const MONTH_SUMMARY = {
   total_trades: 4,
@@ -11,6 +19,29 @@ const MONTH_SUMMARY = {
   profit_factor: 0.53,
   net_pnl: -61.79,
 } as Summary;
+
+const DAY_TRADE: Trade = {
+  id: "t1",
+  account_id: "a1",
+  symbol: "AAPL",
+  status: "closed",
+  direction: "long",
+  instrument_type: "stock",
+  opened_at: "2026-07-01T10:00:00Z",
+  closed_at: "2026-07-01T11:00:00Z",
+  qty_opened: 1,
+  qty_remaining: 0,
+  avg_entry_price: 10,
+  avg_exit_price: 11,
+  gross_pnl: 1,
+  net_pnl: 1,
+  fees_total: 0,
+  pnl_currency: "USD",
+  return_pct: 10,
+  time_in_trade_secs: 3600,
+  notes: "",
+  tags: [],
+};
 
 const BASE = {
   dailyPnl: { "2026-07-01": -20.03, "2026-07-02": -41.76 },
@@ -25,18 +56,24 @@ const BASE = {
   selectedAccountId: undefined,
   year: 2026,
   month: 7,
+  mode: "month" as const,
+  onModeChange: vi.fn(),
   onPrevMonth: vi.fn(),
   onNextMonth: vi.fn(),
+  onPrevYear: vi.fn(),
+  onNextYear: vi.fn(),
   onToday: vi.fn(),
   onJumpToMonth: vi.fn(),
-  canGoNext: true,
-  selectedDay: null,
+  canGoNextMonth: true,
+  canGoNextYear: true,
+  selectedDay: null as string | null,
   onSelectDay: vi.fn(),
-  dayTrades: [],
+  dayTrades: [] as Trade[],
   dayTradesLoading: false,
   dayTradesError: false,
   currency: "USD",
   onSelectTrade: vi.fn(),
+  onOpenFullPage: vi.fn(),
 };
 
 describe("CalendarView", () => {
@@ -44,24 +81,45 @@ describe("CalendarView", () => {
     render(<CalendarView {...BASE} />);
     expect(screen.getByRole("button", { name: /July 2026, choose month/i })).toBeInTheDocument();
     expect(screen.getByText("Trades")).toBeInTheDocument();
-    expect(screen.getByText("Win rate")).toBeInTheDocument();
-    expect(screen.getByText("Record")).toBeInTheDocument();
-    expect(screen.getByText("2W")).toBeInTheDocument();
-    expect(screen.getByText("2L")).toBeInTheDocument();
-    expect(screen.getByText("Month P&L:")).toBeInTheDocument();
+    expect(screen.getByText("WR")).toBeInTheDocument();
+    expect(screen.getByText("PF")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Today" })).toBeInTheDocument();
   });
 
   it("renders day cells with pnl and records, plus WEEK column", () => {
     render(<CalendarView {...BASE} />);
-    expect(screen.getByText("-$20.03")).toBeInTheDocument();
-    expect(screen.getByText("-$41.76")).toBeInTheDocument();
-    expect(screen.getByText("2W1L")).toBeInTheDocument();
-    expect(screen.getByText("WEEK")).toBeInTheDocument();
-    // Week 1 total = -61.79 with 2W2L record. Note: monthSummary.net_pnl is
-    // also -61.79 in this fixture, so the same text renders twice (header
-    // stat + WEEK cell) - assert presence via getAllByText.
-    expect(screen.getAllByText("-$61.79").length).toBeGreaterThanOrEqual(2);
-    expect(screen.getByText("2W2L")).toBeInTheDocument();
+    // Compact money may render -$20 or -$20.03 depending on magnitude
+    expect(screen.getByText(/-\$20/)).toBeInTheDocument();
+    expect(screen.getByText(/-\$41/)).toBeInTheDocument();
+    expect(screen.getByText("Week")).toBeInTheDocument();
+    expect(screen.getByText("Week 1")).toBeInTheDocument();
+    expect(screen.getAllByText(/2 days/).length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("renders year overview with twelve month cards and trade counts", () => {
+    render(
+      <CalendarView
+        {...BASE}
+        mode="year"
+        yearDailyPnl={{ "2026-07-01": -20.03, "2026-03-10": 100 }}
+        yearTradesByMonth={{ "2026-07": 3, "2026-03": 1 }}
+      />,
+    );
+    expect(screen.getByRole("button", { name: /Jul 2026, 3 trades/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Mar 2026, 1 trades?/i })).toBeInTheDocument();
+    expect(screen.getByText("3 trades")).toBeInTheDocument();
+    expect(screen.getByText("1 trade")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Previous year" })).toBeInTheDocument();
+  });
+
+  it("opens day trades as a card list in a drawer when a day is selected", () => {
+    render(<CalendarView {...BASE} selectedDay="2026-07-01" dayTrades={[DAY_TRADE]} />);
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    expect(screen.getByText(/Trades —/i)).toBeInTheDocument();
+    expect(screen.getByRole("list")).toBeInTheDocument();
+    expect(screen.getByText("AAPL")).toBeInTheDocument();
+    expect(screen.getByText("WIN")).toBeInTheDocument();
+    expect(screen.getByText("STK")).toBeInTheDocument();
+    expect(screen.getByText("+$1.00")).toBeInTheDocument();
   });
 });

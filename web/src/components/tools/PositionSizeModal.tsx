@@ -5,10 +5,10 @@ import { useAccounts } from "../../lib/hooks/useAccounts";
 import { useRiskRules } from "../../lib/hooks/useRiskRules";
 import { positionSizeFromRisk } from "../../lib/positionSize";
 import { Modal } from "../Modal";
+import { signalInputClass } from "../signal-field-styles";
 
-const labelClass = "mb-1 block text-[10px] font-medium uppercase tracking-widest text-text-dim";
-const inputClass =
-  "w-full rounded-control border border-border bg-bg-inset px-2.5 py-2 text-xs text-text outline-none placeholder:text-text-dim";
+const labelClass = "mb-1 block text-[10px] font-medium uppercase tracking-widest text-text-muted";
+const inputClass = signalInputClass;
 
 export function PositionSizeModal({
   open,
@@ -110,7 +110,7 @@ export function PositionSizeModal({
       </div>
       {result ? (
         <div className="rounded-panel border border-border bg-bg-inset px-3.5 py-3">
-          <p className="m-0 text-[10px] font-medium uppercase tracking-widest text-text-dim">
+          <p className="m-0 text-[10px] font-medium uppercase tracking-widest text-text-muted">
             Suggested size
           </p>
           <p className="mt-1 mb-0 text-2xl tabular-nums text-text">{result.qty} shares</p>

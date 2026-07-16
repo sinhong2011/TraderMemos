@@ -8,6 +8,7 @@ import { Skeleton } from "../../components/Skeleton";
 import { tradeColumns } from "../../components/tradeColumns";
 import type { Trade } from "../../lib/api/types";
 import { cn } from "../../lib/cn";
+import { useMoneyFx } from "../../lib/hooks/useMoneyFx";
 import type { TradeStatusFilter } from "../../lib/tradeFilters";
 
 export interface TradesViewProps {
@@ -18,10 +19,12 @@ export interface TradesViewProps {
   symbol: string;
   onSymbolChange: (s: string) => void;
   onSelectTrade: (id: string) => void;
+  onOpenFullPage: (id: string) => void;
   totalInScope: number;
   scopeLoading: boolean;
   hasNarrowingFilters: boolean;
   tradeStatus?: TradeStatusFilter;
+  onToggleTradeStatus?: (filter: TradeStatusFilter) => void;
   onClearFilters: () => void;
   onClearStatus?: () => void;
   onImport: () => void;
@@ -35,6 +38,8 @@ const STATUS_LABELS: Record<TradeStatusFilter, string> = {
   open: "Open",
   wash: "Wash",
 };
+
+const STATUS_TOGGLES: TradeStatusFilter[] = ["win", "loss", "open", "wash"];
 
 function FilterChip({ label, onClear }: { label: string; onClear?: () => void }) {
   return (
@@ -92,24 +97,47 @@ export function TradesView({
   symbol,
   onSymbolChange,
   onSelectTrade,
+  onOpenFullPage,
   totalInScope,
   scopeLoading,
   hasNarrowingFilters,
   tradeStatus,
+  onToggleTradeStatus,
   onClearFilters,
   onClearStatus,
   onImport,
   onNewTrade,
   onRetry,
 }: TradesViewProps) {
+  const { currency: displayCurrency, rate } = useMoneyFx(currency);
+  const fxRate = rate ?? 1;
   const filteredEmpty = !loading && !error && trades.length === 0;
   const trulyEmpty = filteredEmpty && !scopeLoading && totalInScope === 0 && !hasNarrowingFilters;
   const narrowedEmpty = filteredEmpty && !trulyEmpty && (hasNarrowingFilters || totalInScope > 0);
 
   const headerActions = (
     <div className="flex flex-wrap items-center justify-end gap-2">
+      {onToggleTradeStatus
+        ? STATUS_TOGGLES.map((status) => (
+            <button
+              key={status}
+              type="button"
+              onClick={() => onToggleTradeStatus(status)}
+              className={cn(
+                "hidden h-7 cursor-pointer rounded-control px-2.5 text-[10px] font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent sm:inline-flex sm:items-center",
+                tradeStatus === status
+                  ? "bg-accent-bg text-accent"
+                  : "bg-bg-hover text-text-muted hover:text-text",
+              )}
+            >
+              {STATUS_LABELS[status]}
+            </button>
+          ))
+        : null}
       {tradeStatus ? (
-        <FilterChip label={STATUS_LABELS[tradeStatus]} onClear={onClearStatus} />
+        <span className="sm:hidden">
+          <FilterChip label={STATUS_LABELS[tradeStatus]} onClear={onClearStatus} />
+        </span>
       ) : null}
       {symbol ? (
         <FilterChip label={`Symbol: ${symbol}`} onClear={() => onSymbolChange("")} />
@@ -127,7 +155,7 @@ export function TradesView({
           placeholder="Symbol"
           maxLength={21}
           aria-label="Filter symbol"
-          className="h-8 w-[108px] border border-border bg-bg-inset pl-7 text-[11px] shadow-none hover:border-border-strong focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-accent/25"
+          className="h-8 w-[108px] pl-7 text-[11px]"
         />
       </div>
       <span className="text-[11px] tabular-nums text-text-muted">
@@ -170,8 +198,8 @@ export function TradesView({
   );
 
   return (
-    <Page fill className="h-full">
-      <Card title="Trades" action={headerActions} fill flush className="min-h-0">
+    <Page fill className="min-h-[calc(100dvh-52px)]">
+      <Card title="Trade log" action={headerActions} fill flush className="min-h-0">
         <div className="flex min-h-0 flex-1 flex-col">
           {loading ? (
             <Skeleton height="360px" className="m-4" />
@@ -221,9 +249,19 @@ export function TradesView({
           ) : (
             <div className="min-h-0 flex-1">
               <DataTable
-                columns={tradeColumns(currency, (t) => onSelectTrade(t.id))}
+                columns={tradeColumns(
+                  displayCurrency,
+                  {
+                    onOpenDrawer: (t) => onSelectTrade(t.id),
+                    onOpenFullPage: (t) => onOpenFullPage(t.id),
+                    onFilterSymbol: (s) => onSymbolChange(s),
+                  },
+                  fxRate,
+                )}
                 data={trades}
                 onRowClick={(t) => onSelectTrade(t.id)}
+                maxHeight="100%"
+                className="h-full"
               />
             </div>
           )}

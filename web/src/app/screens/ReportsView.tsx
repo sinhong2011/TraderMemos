@@ -21,7 +21,9 @@ import { pnlColor } from "../../components/theme-tokens";
 import type { BreakGroup, EquityCurve, RSummary, Summary } from "../../lib/api/types";
 import { uniqueDayTicks } from "../../lib/chartTicks";
 import { fmtDayShort, fmtMoney, fmtMoneyCompact, fmtPct, fmtSignedMoney } from "../../lib/format";
+import { useMoneyFx } from "../../lib/hooks/useMoneyFx";
 import { intlLocale } from "../../lib/locale";
+import { usePrivacyMode } from "../../lib/displayPrefs";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -88,19 +90,25 @@ const NEG_COLOR = "#eb4b68"; // red-400
 function SummaryMetricsGrid({
   summary,
   currency,
+  fxRate = 1,
   unit,
   rSummary,
 }: {
   summary: Summary;
   currency: string;
+  fxRate?: number;
   unit: "usd" | "r";
   rSummary?: RSummary;
 }) {
+  usePrivacyMode();
   const inR = unit === "r" && rSummary;
   const s = inR ? rSummary : summary;
   const moneyOrR = (v: number) =>
-    inR ? `${v >= 0 ? "+" : ""}${v.toFixed(2)}R` : fmtSignedMoney(v, currency, intlLocale());
-  const absOrR = (v: number) => (inR ? `${v.toFixed(2)}R` : fmtMoney(v, currency, intlLocale()));
+    inR
+      ? `${v >= 0 ? "+" : ""}${v.toFixed(2)}R`
+      : fmtSignedMoney(v * fxRate, currency, intlLocale());
+  const absOrR = (v: number) =>
+    inR ? `${v.toFixed(2)}R` : fmtMoney(v * fxRate, currency, intlLocale());
 
   const feePct =
     s.gross_profit + s.gross_loss !== 0
@@ -116,7 +124,7 @@ function SummaryMetricsGrid({
         hint={
           inR
             ? `Avg ${rSummary!.avg_r.toFixed(2)}R · ${rSummary!.excluded} excluded (no risk)`
-            : `Gross ${fmtSignedMoney(s.gross_profit + s.gross_loss, currency, intlLocale())} · Fees ${fmtMoney(s.total_fees, currency, intlLocale())} (${feePct.toFixed(1)}%)`
+            : `Gross ${fmtSignedMoney((s.gross_profit + s.gross_loss) * fxRate, currency, intlLocale())} · Fees ${fmtMoney(s.total_fees * fxRate, currency, intlLocale())} (${feePct.toFixed(1)}%)`
         }
       />
       <StatCard label="Win Rate" value={fmtPct(s.win_rate, intlLocale())} accent="none" />
@@ -158,7 +166,7 @@ function SummaryMetricsGrid({
 // Table columns
 // ---------------------------------------------------------------------------
 
-function buildColumns(currency: string, dimLabel: string): ColumnDef<BreakGroup>[] {
+function buildColumns(currency: string, dimLabel: string, fxRate = 1): ColumnDef<BreakGroup>[] {
   return [
     {
       accessorKey: "key",
@@ -195,11 +203,7 @@ function buildColumns(currency: string, dimLabel: string): ColumnDef<BreakGroup>
       header: "Net P&L",
       cell: (info) => {
         const v = info.getValue<number>();
-        return (
-          <span className={`tabular-nums ${pnlColor(v)}`}>
-            {fmtSignedMoney(v, currency, intlLocale())}
-          </span>
-        );
+        return <ReportsMoneyCell value={v} currency={currency} fxRate={fxRate} />;
       },
     },
     {
@@ -221,14 +225,27 @@ function buildColumns(currency: string, dimLabel: string): ColumnDef<BreakGroup>
       header: "Expectancy",
       cell: (info) => {
         const v = info.getValue<number>();
-        return (
-          <span className={`tabular-nums ${pnlColor(v)}`}>
-            {fmtSignedMoney(v, currency, intlLocale())}
-          </span>
-        );
+        return <ReportsMoneyCell value={v} currency={currency} fxRate={fxRate} />;
       },
     },
   ];
+}
+
+function ReportsMoneyCell({
+  value,
+  currency,
+  fxRate = 1,
+}: {
+  value: number;
+  currency: string;
+  fxRate?: number;
+}) {
+  usePrivacyMode();
+  return (
+    <span className={`tabular-nums ${pnlColor(value)}`}>
+      {fmtSignedMoney(value * fxRate, currency, intlLocale())}
+    </span>
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -279,12 +296,14 @@ function DimSelector({
 interface PnlBarChartProps {
   data: BreakGroup[];
   currency: string;
+  fxRate?: number;
 }
 
-function PnlBarChart({ data, currency }: PnlBarChartProps) {
+function PnlBarChart({ data, currency, fxRate = 1 }: PnlBarChartProps) {
+  usePrivacyMode();
   const chartData = data.map((g) => ({
     key: g.key,
-    net_pnl: g.summary.net_pnl,
+    net_pnl: g.summary.net_pnl * fxRate,
   }));
 
   return (
@@ -353,7 +372,10 @@ export function ReportsView({
   dim,
   onDimChange,
 }: ReportsViewProps) {
-  const columns = buildColumns(currency, DIM_LABELS[dim]);
+  usePrivacyMode();
+  const { currency: displayCurrency, rate } = useMoneyFx(currency);
+  const fxRate = rate ?? 1;
+  const columns = buildColumns(displayCurrency, DIM_LABELS[dim], fxRate);
 
   const panelRight = (
     <div className="flex items-center gap-2">
@@ -394,7 +416,7 @@ export function ReportsView({
 
     return (
       <>
-        <PnlBarChart data={breakdown} currency={currency} />
+        <PnlBarChart data={breakdown} currency={displayCurrency} fxRate={fxRate} />
 
         <div style={{ maxHeight: 360 }}>
           <DataTable columns={columns} data={breakdown} />
@@ -413,13 +435,14 @@ export function ReportsView({
         <Card title="Statistics" className="overflow-hidden">
           <SummaryMetricsGrid
             summary={summary}
-            currency={currency}
+            currency={displayCurrency}
+            fxRate={fxRate}
             unit={unit}
             rSummary={rSummary}
           />
           {unit === "r" && rSummary && rSummary.distribution.length > 0 && (
             <div className="border-t border-border px-3 py-2">
-              <p className="mb-2 text-[10px] font-medium uppercase tracking-widest text-text-dim">
+              <p className="mb-2 text-[10px] font-medium uppercase tracking-widest text-text-muted">
                 R-multiple distribution
               </p>
               <div className="flex flex-wrap gap-2">
@@ -438,12 +461,16 @@ export function ReportsView({
             <Skeleton height="160px" className="m-3" />
           ) : equity && equity.points.length > 0 ? (
             <div className="border-t border-border p-3">
-              <p className="mb-2 text-[10px] font-medium uppercase tracking-widest text-text-dim">
-                Equity curve · Max DD {fmtMoney(equity.max_drawdown, currency, intlLocale())}
+              <p className="mb-2 text-[10px] font-medium uppercase tracking-widest text-text-muted">
+                Equity curve · Max DD{" "}
+                {fmtMoney(equity.max_drawdown * fxRate, displayCurrency, intlLocale())}
               </p>
               <ChartFrame>
                 <ResponsiveContainer width="100%" height={160}>
-                  <BarChart data={equity.points} margin={{ top: 8, right: 8, bottom: 0, left: 4 }}>
+                  <BarChart
+                    data={equity.points.map((p) => ({ ...p, equity: p.equity * fxRate }))}
+                    margin={{ top: 8, right: 8, bottom: 0, left: 4 }}
+                  >
                     <CartesianGrid vertical={false} stroke={chartTheme.gridColor} />
                     <XAxis
                       dataKey="at"
@@ -456,7 +483,9 @@ export function ReportsView({
                     />
                     <YAxis
                       tick={{ fontSize: 10, fill: chartTheme.axisColor }}
-                      tickFormatter={(v: number) => fmtMoneyCompact(v, currency, intlLocale())}
+                      tickFormatter={(v: number) =>
+                        fmtMoneyCompact(v, displayCurrency, intlLocale())
+                      }
                       axisLine={false}
                       tickLine={false}
                       width={52}
@@ -469,7 +498,7 @@ export function ReportsView({
                         fontSize: 11,
                       }}
                       formatter={(value) => [
-                        fmtMoney(Number(value ?? 0), currency, intlLocale()),
+                        fmtMoney(Number(value ?? 0), displayCurrency, intlLocale()),
                         "Equity",
                       ]}
                     />

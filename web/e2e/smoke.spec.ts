@@ -18,19 +18,25 @@ test("login -> dashboard -> calendar -> trades -> detail -> stats", async ({ pag
   await page.getByRole("button", { name: "Sign in" }).click();
 
   // Dashboard: stats strip + range control.
-  await expect(page.getByText(/WINS/).first()).toBeVisible();
-  await expect(page.getByText(/LOSSES/).first()).toBeVisible();
-  await expect(page.getByRole("button", { name: "30D" })).toBeVisible();
+  await expect(page.getByText(/^Wins$/i).first()).toBeVisible();
+  await expect(page.getByText(/^Losses$/i).first()).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "30D" }).or(page.getByRole("tab", { name: "30D" })),
+  ).toBeVisible();
 
   // Calendar: month stats header + WEEK column.
   await page.getByRole("link", { name: "Calendar" }).click();
-  await expect(page.getByText("WEEK")).toBeVisible();
+  await expect(page.getByText("Week", { exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Today" })).toBeVisible();
 
-  // Trades log -> open a trade -> detail.
+  // Trades log -> open a trade (sheet) -> full detail page.
   await page.getByRole("link", { name: "Trades" }).click();
-  await expect(page.getByText(/\d+ trades/)).toBeVisible();
+  await expect(page.getByRole("button", { name: "Log trade" })).toBeVisible();
+  await expect(page.locator("tbody tr").first()).toBeVisible();
   await page.locator("tbody tr").first().click();
+  const sheet = page.getByRole("dialog");
+  await expect(sheet).toBeVisible();
+  await sheet.getByRole("button", { name: "Open full page" }).click();
   await expect(page.getByText("Back to trades")).toBeVisible();
 
   // Stats (reports): the metrics grid must render — this is the assertion
@@ -51,7 +57,7 @@ test("new trade drawer logs a trade", async ({ page }) => {
   await page.locator("#email").fill(EMAIL);
   await page.locator("#password").fill(PASSWORD);
   await page.getByRole("button", { name: "Sign in" }).click();
-  await expect(page.getByText(/WINS/).first()).toBeVisible();
+  await expect(page.getByText(/WINS|Wins/i).first()).toBeVisible();
 
   // Open the drawer from the sidebar quick action.
   await page.getByRole("button", { name: "New Trade" }).click();
@@ -84,7 +90,7 @@ test("new trade can still log a closed round-trip", async ({ page }) => {
   await page.locator("#email").fill(EMAIL);
   await page.locator("#password").fill(PASSWORD);
   await page.getByRole("button", { name: "Sign in" }).click();
-  await expect(page.getByText(/WINS/).first()).toBeVisible();
+  await expect(page.getByText(/WINS|Wins/i).first()).toBeVisible();
 
   await page.getByRole("button", { name: "New Trade" }).click();
   await expect(page.getByText("Log any trade you've entered")).toBeVisible();

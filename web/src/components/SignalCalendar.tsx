@@ -19,18 +19,18 @@ export const signalCalendarClassNames: NonNullable<ComponentProps<typeof DayPick
     // aimed at the caption dropdowns underneath; buttons re-enable it.
     nav: "pointer-events-none absolute inset-x-0 top-0 flex items-center justify-between",
     button_previous: cn(
-      "pointer-events-auto flex size-7 cursor-pointer items-center justify-center rounded-control border border-border bg-bg-inset text-text-muted",
-      "transition-colors hover:border-border-strong hover:bg-bg-hover hover:text-text",
+      "pointer-events-auto flex size-7 cursor-pointer items-center justify-center rounded-control border-none bg-transparent text-text-muted",
+      "transition-colors hover:bg-bg-hover hover:text-text",
       "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
     ),
     button_next: cn(
-      "pointer-events-auto flex size-7 cursor-pointer items-center justify-center rounded-control border border-border bg-bg-inset text-text-muted",
-      "transition-colors hover:border-border-strong hover:bg-bg-hover hover:text-text",
+      "pointer-events-auto flex size-7 cursor-pointer items-center justify-center rounded-control border-none bg-transparent text-text-muted",
+      "transition-colors hover:bg-bg-hover hover:text-text",
       "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
     ),
     month_grid: "w-full border-collapse",
     weekdays: "flex",
-    weekday: "flex-1 text-center text-[10px] font-medium uppercase tracking-widest text-text-dim",
+    weekday: "flex-1 text-center text-[10px] font-medium uppercase tracking-widest text-text-muted",
     week: "mt-1 flex w-full",
     day: "relative flex-1 p-0 text-center",
     day_button: cn(

@@ -102,7 +102,7 @@ export function DataTable<T>({
                         )}
                       >
                         {label}
-                        <span className="opacity-50 ml-0.5">
+                        <span className="ml-0.5 text-text-dim">
                           {sorted === "asc" ? (
                             <ChevronUp size={12} strokeWidth={1.5} />
                           ) : sorted === "desc" ? (

@@ -1,0 +1,140 @@
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+import type { BreakGroup } from "../lib/api/types";
+import { fmtMoneyCompact, fmtSignedMoney } from "../lib/format";
+import { intlLocale } from "../lib/locale";
+import { ChartFrame, chartTheme } from "./ChartFrame";
+import { SegmentedControl } from "./SegmentedControl";
+import { Skeleton } from "./Skeleton";
+import { usePrivacyMode } from "../lib/displayPrefs";
+
+export type DashboardBreakdownDim = "day_of_week" | "setup" | "symbol";
+
+const DIM_OPTIONS: { value: DashboardBreakdownDim; label: string }[] = [
+  { value: "day_of_week", label: "Day" },
+  { value: "setup", label: "Setup" },
+  { value: "symbol", label: "Symbol" },
+];
+
+const POS = "var(--color-profit)";
+const NEG = "var(--color-loss)";
+
+export interface DashboardBreakdownChartProps {
+  dim: DashboardBreakdownDim;
+  onDimChange: (dim: DashboardBreakdownDim) => void;
+  breakdown: BreakGroup[];
+  loading: boolean;
+  error: boolean;
+  currency: string;
+  fxRate?: number;
+  onOpenReports: () => void;
+}
+
+export function DashboardBreakdownChart({
+  dim,
+  onDimChange,
+  breakdown,
+  loading,
+  error,
+  currency,
+  fxRate = 1,
+  onOpenReports,
+}: DashboardBreakdownChartProps) {
+  usePrivacyMode();
+  const locale = intlLocale();
+  const chartData = breakdown.slice(0, 8).map((g) => ({
+    key: g.key.length > 10 ? `${g.key.slice(0, 9)}…` : g.key,
+    fullKey: g.key,
+    net_pnl: g.summary.net_pnl * fxRate,
+  }));
+
+  return (
+    <section className="flex h-full flex-col rounded-card bg-bg-panel">
+      <header className="flex flex-wrap items-start justify-between gap-3 px-4 py-3">
+        <div>
+          <h2 className="text-[10px] font-semibold uppercase tracking-widest text-signal">
+            Breakdown
+          </h2>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <SegmentedControl
+            ariaLabel="Breakdown dimension"
+            options={DIM_OPTIONS}
+            value={dim}
+            onChange={(v) => onDimChange(v as DashboardBreakdownDim)}
+          />
+          <button
+            type="button"
+            onClick={onOpenReports}
+            className="cursor-pointer rounded-sharp text-[11px] font-medium text-accent transition-opacity hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          >
+            Reports
+          </button>
+        </div>
+      </header>
+
+      <div className="flex-1 px-2 pb-3">
+        {loading ? (
+          <Skeleton height="180px" className="mx-2" />
+        ) : error ? (
+          <p className="px-2 text-xs text-loss">Failed to load breakdown.</p>
+        ) : chartData.length === 0 ? (
+          <p className="px-2 py-8 text-center text-xs text-text-muted">No breakdown data yet.</p>
+        ) : (
+          <ChartFrame inset className="rounded-none border-0 bg-transparent">
+            <ResponsiveContainer width="100%" height={180}>
+              <BarChart data={chartData} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
+                <CartesianGrid vertical={false} stroke={chartTheme.gridColor} />
+                <XAxis
+                  dataKey="key"
+                  tick={{ fontSize: 10, fill: chartTheme.axisColor }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis
+                  tick={{ fontSize: 10, fill: chartTheme.axisColor }}
+                  tickFormatter={(v: number) => fmtMoneyCompact(v, currency, locale)}
+                  axisLine={false}
+                  tickLine={false}
+                  width={48}
+                />
+                <Tooltip
+                  contentStyle={{
+                    background: chartTheme.tooltipBg,
+                    border: `1px solid ${chartTheme.tooltipBorder}`,
+                    color: chartTheme.tooltipText,
+                    fontSize: 11,
+                    borderRadius: "var(--radius-sharp)",
+                  }}
+                  labelFormatter={(_, payload) => String(payload?.[0]?.payload?.fullKey ?? _)}
+                  formatter={(value) => [
+                    fmtSignedMoney(Number(value ?? 0), currency, locale),
+                    "Net P&L",
+                  ]}
+                  cursor={{ fill: chartTheme.cursorFill }}
+                />
+                <Bar dataKey="net_pnl" radius={[2, 2, 0, 0]}>
+                  {chartData.map((entry) => (
+                    <Cell
+                      key={entry.fullKey}
+                      fill={entry.net_pnl >= 0 ? POS : NEG}
+                      fillOpacity={0.85}
+                    />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartFrame>
+        )}
+      </div>
+    </section>
+  );
+}

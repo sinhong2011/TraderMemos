@@ -53,6 +53,10 @@ export interface WeekSummary {
   wins: number;
   losses: number;
   hasData: boolean;
+  /** 1-based week-of-month index among non-empty month rows. */
+  weekNumber: number | null;
+  /** Count of calendar days in the row that have P&L. */
+  daysWithTrades: number;
 }
 
 // One summary per grid row: summed P&L and win/loss record for the week.
@@ -60,16 +64,21 @@ export function weekSummaries(
   weeks: (DayCell | null)[][],
   records: Record<string, DayRecord>,
 ): WeekSummary[] {
+  let monthWeek = 0;
   return weeks.map((week) => {
+    const inMonth = week.some((c) => c != null);
+    const weekNumber = inMonth ? ++monthWeek : null;
     let pnl = 0;
     let wins = 0;
     let losses = 0;
     let hasData = false;
+    let daysWithTrades = 0;
     for (const cell of week) {
       if (!cell) continue;
       if (cell.pnl != null) {
         pnl += cell.pnl;
         hasData = true;
+        daysWithTrades += 1;
       }
       const rec = records[cell.date];
       if (rec) {
@@ -77,6 +86,13 @@ export function weekSummaries(
         losses += rec.losses;
       }
     }
-    return { pnl: Math.round(pnl * 100) / 100, wins, losses, hasData };
+    return {
+      pnl: Math.round(pnl * 100) / 100,
+      wins,
+      losses,
+      hasData,
+      weekNumber,
+      daysWithTrades,
+    };
   });
 }

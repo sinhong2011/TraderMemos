@@ -1,4 +1,4 @@
-import { Toast as BaseToast } from "@base-ui-components/react";
+import { Toast as BaseToast } from "@base-ui/react";
 import type { ReactNode } from "react";
 import { ToastItem } from "./Toast";
 

@@ -7,8 +7,8 @@ import { SignalSelect } from "./SignalSelect";
 
 function navBtnClass(disabled?: boolean) {
   return cn(
-    "flex size-7 shrink-0 items-center justify-center rounded-control border border-border bg-transparent text-text-muted",
-    "transition-colors hover:border-border-strong hover:bg-bg-hover hover:text-text",
+    "flex size-7 shrink-0 items-center justify-center rounded-control border-none bg-transparent text-text-muted",
+    "transition-colors hover:bg-bg-hover hover:text-text",
     "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
     disabled && "pointer-events-none opacity-35",
   );
@@ -128,15 +128,15 @@ export function MonthPicker({
         triggerAriaLabel={`${monthLabel}, choose month`}
         className="overflow-hidden p-0"
         triggerClassName={cn(
-          "h-7 min-w-[9.5rem] rounded-control border border-border bg-transparent px-2.5",
+          "h-7 min-w-[9.5rem] rounded-control border-none bg-bg-input px-2.5",
           "text-[13px] font-semibold tabular-nums text-text",
-          "transition-[border-color,background-color,box-shadow] duration-150",
-          "hover:border-border-strong hover:bg-bg-hover",
-          open && "border-accent shadow-[0_0_0_3px_var(--color-accent-bg)]",
+          "transition-[background-color] duration-150",
+          "hover:bg-bg-input-hover",
+          open && "bg-bg-input-hover",
         )}
         trigger={
           <>
-            <span className="min-w-0 flex-1 truncate text-left">{monthLabel}</span>
+            <span className="min-w-0 flex-1 truncate text-center">{monthLabel}</span>
             <ChevronDown
               size={12}
               strokeWidth={1.75}

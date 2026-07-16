@@ -1,5 +1,15 @@
 import { useForm } from "@tanstack/react-form";
-import { Modal, ModalBanner } from "../../components/Modal";
+import { X } from "lucide-react";
+import {
+  Drawer,
+  DrawerBody,
+  DrawerClose,
+  DrawerContent,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+} from "../../components/Drawer";
+import { ModalBanner } from "../../components/Modal";
 import { SegmentedControl } from "../../components/SegmentedControl";
 import { fieldError, SignalField } from "../../components/SignalField";
 import { SignalInput, SignalTextarea } from "../../components/SignalInput";
@@ -95,146 +105,163 @@ export function NewSetupDrawer() {
         : undefined;
 
   return (
-    <Modal
+    <Drawer
       open={open}
       onOpenChange={(o) => {
         if (!o && !createSetup.isPending) close();
       }}
-      title="New Setup"
-      footer={footer}
+      modal="trap-focus"
     >
-      <ModalBanner>
-        Define a planned playbook setup — thesis, levels, and checklist. Convert it to a trade when
-        you take the shot.
-      </ModalBanner>
+      <DrawerContent>
+        <DrawerHeader>
+          <DrawerTitle>New Setup</DrawerTitle>
+          <DrawerClose
+            aria-label="Close"
+            className="ml-auto flex cursor-pointer border-none bg-transparent p-1 text-text-muted transition-colors hover:text-text"
+          >
+            <X size={18} strokeWidth={1.5} />
+          </DrawerClose>
+        </DrawerHeader>
+        <DrawerBody>
+          <ModalBanner>
+            Define a planned playbook setup — thesis, levels, and checklist. Convert it to a trade
+            when you take the shot.
+          </ModalBanner>
 
-      <form
-        id="new-setup-form"
-        className="flex flex-col gap-3"
-        onSubmit={(e) => {
-          e.preventDefault();
-          void form.handleSubmit();
-        }}
-      >
-        <form.Field
-          name="name"
-          validators={{
-            onSubmit: ({ value }) => (!value.trim() ? "Name is required." : undefined),
-          }}
-        >
-          {(field) => (
-            <SignalField label="Name" htmlFor="ns-name" error={fieldError(field.state.meta.errors)}>
-              <SignalInput
-                id="ns-name"
-                aria-label="Name"
-                value={field.state.value}
-                onBlur={field.handleBlur}
-                onChange={(e) => field.handleChange(e.target.value)}
-                placeholder="e.g. Gap and Go"
-              />
-            </SignalField>
-          )}
-        </form.Field>
+          <form
+            id="new-setup-form"
+            className="flex flex-col gap-3"
+            onSubmit={(e) => {
+              e.preventDefault();
+              void form.handleSubmit();
+            }}
+          >
+            <form.Field
+              name="name"
+              validators={{
+                onSubmit: ({ value }) => (!value.trim() ? "Name is required." : undefined),
+              }}
+            >
+              {(field) => (
+                <SignalField
+                  label="Name"
+                  htmlFor="ns-name"
+                  error={fieldError(field.state.meta.errors)}
+                >
+                  <SignalInput
+                    id="ns-name"
+                    aria-label="Name"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    placeholder="e.g. Gap and Go"
+                  />
+                </SignalField>
+              )}
+            </form.Field>
 
-        <div className="grid grid-cols-2 gap-3">
-          <form.Field name="symbol">
-            {(field) => (
-              <SignalField label="Symbol" htmlFor="ns-symbol">
-                <SignalInput
-                  id="ns-symbol"
-                  aria-label="Symbol"
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  placeholder="AAPL"
-                />
-              </SignalField>
-            )}
-          </form.Field>
+            <div className="grid grid-cols-2 gap-3">
+              <form.Field name="symbol">
+                {(field) => (
+                  <SignalField label="Symbol" htmlFor="ns-symbol">
+                    <SignalInput
+                      id="ns-symbol"
+                      aria-label="Symbol"
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      placeholder="AAPL"
+                    />
+                  </SignalField>
+                )}
+              </form.Field>
 
-          <form.Field name="direction">
-            {(field) => (
-              <SignalField label="Direction">
-                <SegmentedControl
-                  ariaLabel="Direction"
-                  value={field.state.value}
-                  onChange={(v) => field.handleChange(v as "long" | "short")}
-                  options={[
-                    { value: "long", label: "LONG" },
-                    { value: "short", label: "SHORT" },
-                  ]}
-                />
-              </SignalField>
-            )}
-          </form.Field>
-        </div>
+              <form.Field name="direction">
+                {(field) => (
+                  <SignalField label="Direction">
+                    <SegmentedControl
+                      ariaLabel="Direction"
+                      value={field.state.value}
+                      onChange={(v) => field.handleChange(v as "long" | "short")}
+                      options={[
+                        { value: "long", label: "LONG" },
+                        { value: "short", label: "SHORT" },
+                      ]}
+                    />
+                  </SignalField>
+                )}
+              </form.Field>
+            </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <form.Field name="target">
-            {(field) => (
-              <SignalField label="Target" htmlFor="ns-target">
-                <SignalInput
-                  id="ns-target"
-                  aria-label="Target"
-                  inputMode="decimal"
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                />
-              </SignalField>
-            )}
-          </form.Field>
+            <div className="grid grid-cols-2 gap-3">
+              <form.Field name="target">
+                {(field) => (
+                  <SignalField label="Target" htmlFor="ns-target">
+                    <SignalInput
+                      id="ns-target"
+                      aria-label="Target"
+                      inputMode="decimal"
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                    />
+                  </SignalField>
+                )}
+              </form.Field>
 
-          <form.Field name="stop">
-            {(field) => (
-              <SignalField label="Stop" htmlFor="ns-stop">
-                <SignalInput
-                  id="ns-stop"
-                  aria-label="Stop"
-                  inputMode="decimal"
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                />
-              </SignalField>
-            )}
-          </form.Field>
-        </div>
+              <form.Field name="stop">
+                {(field) => (
+                  <SignalField label="Stop" htmlFor="ns-stop">
+                    <SignalInput
+                      id="ns-stop"
+                      aria-label="Stop"
+                      inputMode="decimal"
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                    />
+                  </SignalField>
+                )}
+              </form.Field>
+            </div>
 
-        <form.Field name="thesis">
-          {(field) => (
-            <SignalField label="Thesis" htmlFor="ns-thesis">
-              <SignalTextarea
-                id="ns-thesis"
-                aria-label="Thesis"
-                value={field.state.value}
-                onBlur={field.handleBlur}
-                onChange={(e) => field.handleChange(e.target.value)}
-                placeholder="Why this setup? Entry criteria, invalidation…"
-                rows={3}
-              />
-            </SignalField>
-          )}
-        </form.Field>
+            <form.Field name="thesis">
+              {(field) => (
+                <SignalField label="Thesis" htmlFor="ns-thesis">
+                  <SignalTextarea
+                    id="ns-thesis"
+                    aria-label="Thesis"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    placeholder="Why this setup? Entry criteria, invalidation…"
+                    rows={3}
+                  />
+                </SignalField>
+              )}
+            </form.Field>
 
-        <form.Field name="checklistText">
-          {(field) => (
-            <SignalField label="Checklist (one item per line)" htmlFor="ns-check">
-              <SignalTextarea
-                id="ns-check"
-                aria-label="Checklist"
-                value={field.state.value}
-                onBlur={field.handleBlur}
-                onChange={(e) => field.handleChange(e.target.value)}
-                placeholder={"Above VWAP\nRelative volume > 2"}
-                rows={4}
-              />
-            </SignalField>
-          )}
-        </form.Field>
+            <form.Field name="checklistText">
+              {(field) => (
+                <SignalField label="Checklist (one item per line)" htmlFor="ns-check">
+                  <SignalTextarea
+                    id="ns-check"
+                    aria-label="Checklist"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    placeholder={"Above VWAP\nRelative volume > 2"}
+                    rows={4}
+                  />
+                </SignalField>
+              )}
+            </form.Field>
 
-        {submitError && <p className="m-0 text-xs text-loss">{submitError}</p>}
-      </form>
-    </Modal>
+            {submitError && <p className="m-0 text-xs text-loss">{submitError}</p>}
+          </form>
+        </DrawerBody>
+        <DrawerFooter>{footer}</DrawerFooter>
+      </DrawerContent>
+    </Drawer>
   );
 }

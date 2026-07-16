@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { type BreakdownDim, ReportsView } from "../app/screens/ReportsView";
+import { accountBaseCurrency } from "../lib/displayPrefs";
 import { useFilterParams, useFilters } from "../lib/filters";
 import { useAccounts } from "../lib/hooks/useAccounts";
 import { useBreakdown, useEquityCurve, useRSummary, useSummary } from "../lib/hooks/useAnalytics";
@@ -20,7 +21,7 @@ function ReportsPage() {
   const equityQ = useEquityCurve(filters);
   const breakdownQ = useBreakdown(dim, filters);
   const accountsQ = useAccounts();
-  const currency = (accountsQ.data ?? []).find((a) => a.id === accountId)?.base_currency ?? "USD";
+  const currency = accountBaseCurrency(accountsQ.data ?? [], accountId);
 
   return (
     <ReportsView

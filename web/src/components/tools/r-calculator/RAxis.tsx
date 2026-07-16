@@ -199,7 +199,7 @@ function PriceLabel({
       )}
       style={{ top }}
     >
-      <p className="m-0 text-[9px] uppercase tracking-widest text-text-dim">{caption}</p>
+      <p className="m-0 text-[9px] uppercase tracking-widest text-text-muted">{caption}</p>
       <p
         className={cn(
           "m-0 tabular-nums",

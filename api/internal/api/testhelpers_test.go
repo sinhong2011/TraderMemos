@@ -14,6 +14,7 @@ import (
 	"github.com/tradermemos/api/internal/api"
 	"github.com/tradermemos/api/internal/auth"
 	"github.com/tradermemos/api/internal/db"
+	"github.com/tradermemos/api/internal/marketdata"
 	"github.com/tradermemos/api/internal/storage"
 	"github.com/tradermemos/api/internal/store"
 	"github.com/tradermemos/api/internal/trades"
@@ -26,9 +27,12 @@ func testServer(t *testing.T) *api.Server {
 	require.NoError(t, db.Migrate(conn))
 	q := store.New(conn)
 	j := auth.NewJWT("test")
+	provider := marketdata.NewYahooProvider()
+	market := marketdata.NewService(q, provider)
 	return api.New(api.Deps{
 		JWT: j, Auth: auth.NewService(q, j), Store: q, Trades: trades.NewService(q),
 		Storage: storage.NewLocalDisk(filepath.Join(t.TempDir(), "attach")), AttachMaxBytes: 10 << 20,
+		Market: market,
 	})
 }
 

@@ -13,29 +13,27 @@ async function signIn(page: import("@playwright/test").Page) {
   await page.locator("#email").fill(EMAIL);
   await page.locator("#password").fill(PASSWORD);
   await page.getByRole("button", { name: "Sign in" }).click();
-  await expect(page.getByText(/WINS/).first()).toBeVisible();
+  await expect(page.getByText(/Wins/i).first()).toBeVisible();
 }
 
 test.describe("SignalSelect", () => {
-  test("account-and-filters popover expands and shows date presets", async ({ page }) => {
+  test("account popover and date-range control are available", async ({ page }) => {
     await signIn(page);
 
-    // Account + date range now live in the sidebar "Account and filters"
-    // popover, not a standalone header SignalSelect.
-    const trigger = page.getByRole("button", { name: "Account and filters" });
-    await trigger.click();
+    const account = page.getByRole("button", { name: /Account:/i });
+    await account.click();
+    await expect(page.getByRole("button", { name: "All accounts", exact: true })).toBeVisible();
+    await page.keyboard.press("Escape");
 
-    const popup = page.getByRole("dialog");
-    await expect(popup).toBeVisible();
-    await expect(popup.getByRole("combobox", { name: "Account" })).toBeVisible();
-    await expect(popup.getByRole("button", { name: "Last 30 days" })).toBeVisible();
+    const dateRange = page
+      .getByRole("combobox", { name: "Date range" })
+      .or(page.getByRole("button", { name: "Date range" }));
+    await dateRange.click();
+    await expect(page.getByRole("button", { name: "Last 30 days" })).toBeVisible();
 
-    const box = await popup.boundingBox();
+    const box = await page.getByRole("button", { name: "Last 30 days" }).boundingBox();
     expect(box).not.toBeNull();
     expect(box!.width).toBeGreaterThan(40);
-    expect(box!.height).toBeGreaterThan(40);
-    expect(box!.x).toBeGreaterThanOrEqual(0);
-    expect(box!.x + box!.width).toBeLessThanOrEqual(page.viewportSize()!.width + 1);
   });
 
   test("select inside New Trade modal expands and selects an option", async ({ page }) => {

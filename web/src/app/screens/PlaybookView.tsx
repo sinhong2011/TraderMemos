@@ -8,8 +8,10 @@ import { pnlColor } from "../../components/theme-tokens";
 import type { BreakGroup, Setup } from "../../lib/api/types";
 import type { SetupBody } from "../../lib/api/setups";
 import { fmtPct, fmtSignedMoney } from "../../lib/format";
+import { useMoneyFx } from "../../lib/hooks/useMoneyFx";
 import { useUI } from "../../lib/ui";
 import { intlLocale } from "../../lib/locale";
+import { usePrivacyMode } from "../../lib/displayPrefs";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -188,6 +190,7 @@ interface SetupCardProps {
   setup: Setup;
   group: BreakGroup | undefined;
   currency: string;
+  fxRate?: number;
   onEdit: (setup: Setup) => void;
   onDelete: (setup: Setup) => void;
   onConvert: (setup: Setup) => void;
@@ -200,6 +203,7 @@ function SetupCard({
   setup,
   group,
   currency,
+  fxRate = 1,
   onEdit,
   onDelete,
   onConvert,
@@ -207,6 +211,7 @@ function SetupCard({
   onSaveEdit,
   onCancelEdit,
 }: SetupCardProps) {
+  usePrivacyMode();
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   const sum = group?.summary;
@@ -372,13 +377,13 @@ function SetupCard({
         <Stat label="Win Rate" value={hasData ? fmtPct(winRate, intlLocale()) : "-"} />
         <Stat
           label="Net P&L"
-          value={hasData ? fmtSignedMoney(netPnl, currency, intlLocale()) : "-"}
+          value={hasData ? fmtSignedMoney(netPnl * fxRate, currency, intlLocale()) : "-"}
           valueClass={hasData ? pnlColor(netPnl) : ""}
         />
         <Stat label="Profit Factor" value={hasData && pf > 0 ? pf.toFixed(2) : "-"} />
         <Stat
           label="Expectancy"
-          value={hasData ? fmtSignedMoney(exp, currency, intlLocale()) : "-"}
+          value={hasData ? fmtSignedMoney(exp * fxRate, currency, intlLocale()) : "-"}
           valueClass={hasData ? pnlColor(exp) : ""}
         />
       </div>
@@ -448,6 +453,8 @@ export function PlaybookView({
   onUpdate,
   onDelete,
 }: PlaybookViewProps) {
+  const { currency: displayCurrency, rate } = useMoneyFx(currency);
+  const fxRate = rate ?? 1;
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const openTradeFromSetup = useUI((s) => s.openTradeFromSetup);
@@ -539,7 +546,8 @@ export function PlaybookView({
                 key={setup.id}
                 setup={setup}
                 group={getGroupForSetup(breakdown, setup.name)}
-                currency={currency}
+                currency={displayCurrency}
+                fxRate={fxRate}
                 editingId={editingId}
                 onEdit={(s) => {
                   setEditingId(s.id === editingId ? null : s.id);

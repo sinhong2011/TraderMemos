@@ -4,32 +4,32 @@ import { cn } from "../lib/cn";
 
 export type SignalToastVariant = "default" | "success" | "error" | "warning" | "info";
 
-const VARIANT_META: Record<SignalToastVariant, { icon: LucideIcon; accent: string; tint: string }> =
+const VARIANT_META: Record<SignalToastVariant, { icon: LucideIcon; accent: string; well: string }> =
   {
     default: {
       icon: Info,
-      accent: "text-text-dim",
-      tint: "",
+      accent: "text-text-muted",
+      well: "bg-bg-input text-text-muted",
     },
     success: {
       icon: Check,
       accent: "text-profit",
-      tint: "border-l-profit/80 bg-[var(--tint-pos)]",
+      well: "bg-[var(--tint-pos)] text-profit",
     },
     error: {
       icon: AlertCircle,
       accent: "text-loss",
-      tint: "border-l-loss/80 bg-[var(--tint-neg)]",
+      well: "bg-[var(--tint-neg)] text-loss",
     },
     warning: {
       icon: AlertTriangle,
       accent: "text-signal",
-      tint: "border-l-signal/80 bg-[var(--tint-amber)]",
+      well: "bg-[var(--tint-signal)] text-signal",
     },
     info: {
       icon: Info,
       accent: "text-accent",
-      tint: "border-l-accent/80 bg-accent-bg",
+      well: "bg-accent-bg text-accent",
     },
   };
 
@@ -53,24 +53,39 @@ export function resolveToastVariant(
   }
   if (/with errors/.test(text)) return "warning";
   if (/coming soon/.test(text)) return "info";
-  if (/saved|created|deleted|removed|uploaded|added|complete|passed|finished/.test(text)) {
+  if (
+    /saved|created|deleted|removed|uploaded|added|complete|passed|finished|scanned|prefilled/.test(
+      text,
+    )
+  ) {
     return "success";
   }
   return "default";
 }
 
-export function toastRootClass(variant: SignalToastVariant): string {
-  const { tint } = VARIANT_META[variant];
+/** Quiet panel toast — Signal Terminal: panel fill, no stripe / full-surface tint. */
+export function toastRootClass(_variant: SignalToastVariant): string {
   return cn(
-    "signal-toast pointer-events-auto flex min-w-[240px] max-w-[380px] items-start gap-2.5",
-    "rounded-[var(--radius-overlay)] border border-border-strong bg-bg-panel p-3 shadow-hard",
-    "border-l-[3px]",
-    variant === "default" ? "border-l-border-strong" : tint,
+    "signal-toast pointer-events-auto flex min-w-[260px] max-w-[360px] items-start gap-3",
+    "rounded-overlay border border-border bg-bg-panel p-3.5",
+    "shadow-[0_12px_32px_rgba(18,18,24,0.55)] outline-none",
+    "transition-[transform,opacity] duration-220 ease-out",
+    "data-[starting-style]:translate-y-2 data-[starting-style]:opacity-0",
+    "data-[ending-style]:translate-y-1 data-[ending-style]:opacity-0",
+    "data-[swipe-direction=right]:data-[ending-style]:translate-x-4",
+    "motion-reduce:transition-none motion-reduce:data-[starting-style]:translate-y-0",
+  );
+}
+
+export function toastIconWellClass(variant: SignalToastVariant): string {
+  return cn(
+    "flex size-8 shrink-0 items-center justify-center rounded-control",
+    VARIANT_META[variant].well,
   );
 }
 
 export function toastIconClass(variant: SignalToastVariant): string {
-  return cn("mt-0.5 shrink-0", VARIANT_META[variant].accent);
+  return VARIANT_META[variant].accent;
 }
 
 export function toastIcon(variant: SignalToastVariant): LucideIcon {
@@ -78,5 +93,5 @@ export function toastIcon(variant: SignalToastVariant): LucideIcon {
 }
 
 export function toastDescriptionClass(_variant: SignalToastVariant): string {
-  return "text-[11px] leading-snug text-text-muted";
+  return "mt-1 text-[12px] leading-relaxed text-text-muted";
 }

@@ -1,5 +1,5 @@
-import { i18n } from "@lingui/core";
-import { describe, expect, it } from "vite-plus/test";
+import { beforeEach, describe, expect, it } from "vite-plus/test";
+import { DISPLAY_PREFS_STORAGE_KEY, PRIVACY_MASK, useDisplayPrefs } from "./displayPrefs";
 import {
   fmtDateShort,
   fmtDateTime,
@@ -10,14 +10,30 @@ import {
   fmtPct,
   fmtRecord,
   fmtSignedMoney,
+  fmtSignedMoneyCompact,
 } from "./format";
 
 describe("formatters", () => {
+  beforeEach(() => {
+    localStorage.removeItem(DISPLAY_PREFS_STORAGE_KEY);
+    useDisplayPrefs.setState({ displayCurrency: null, privacyMode: false });
+  });
+
   it("formats money by locale + currency", () => {
     expect(fmtMoney(4182, "USD", "en-US")).toBe("$4,182.00");
   });
+
+  it("masks money when privacy mode is on", () => {
+    useDisplayPrefs.getState().setPrivacyMode(true);
+    expect(fmtMoney(4182, "USD", "en-US")).toBe(PRIVACY_MASK);
+    expect(fmtSignedMoney(-102, "USD", "en-US")).toBe(PRIVACY_MASK);
+  });
   it("formats compact money for chart axes", () => {
     expect(fmtMoneyCompact(11790, "USD", "en-US")).toBe("$11.8K");
+  });
+  it("formats compact signed money", () => {
+    expect(fmtSignedMoneyCompact(1460, "USD", "en-US")).toBe("+$1.5K");
+    expect(fmtSignedMoneyCompact(-586, "USD", "en-US")).toBe("-$586");
   });
   it("renders short day labels for chart axes", () => {
     expect(fmtDayShort("2026-07-09T12:00:00", "en-US")).toBe("Jul 9");
@@ -46,21 +62,10 @@ describe("fmtDuration", () => {
 });
 
 describe("fmtDateShort", () => {
-  it("formats M/D/YYYY in the default locale", () => {
-    expect(fmtDateShort("2026-07-02T14:30:00Z")).toMatch(/^7\/[12]\/2026$/);
+  it("formats yyyy-MM-dd from ISO timestamps", () => {
+    expect(fmtDateShort("2026-07-02T14:30:00Z")).toBe("2026-07-02");
+    expect(fmtDateShort("2026-07-09T12:00:00")).toBe("2026-07-09");
     expect(fmtDateShort(null)).toBe("-");
-  });
-
-  it("follows the active app locale", () => {
-    i18n.load("ja", {});
-    i18n.activate("ja");
-    try {
-      // Noon local time avoids UTC/local day-boundary flakiness.
-      expect(fmtDateShort("2026-07-09T12:00:00")).toBe("2026/7/9");
-    } finally {
-      i18n.load("en", {});
-      i18n.activate("en");
-    }
   });
 });
 

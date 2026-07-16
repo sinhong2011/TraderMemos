@@ -92,6 +92,18 @@ type JournalNote struct {
 	UpdatedAt  time.Time `json:"updated_at"`
 }
 
+type MarketBarsCache struct {
+	CacheKey  string         `json:"cache_key"`
+	Symbol    string         `json:"symbol"`
+	Interval  string         `json:"interval"`
+	FromTs    string         `json:"from_ts"`
+	ToTs      string         `json:"to_ts"`
+	BarsJson  []byte         `json:"bars_json"`
+	Provider  string         `json:"provider"`
+	FetchedAt string         `json:"fetched_at"`
+	ExpiresAt sql.NullString `json:"expires_at"`
+}
+
 type RiskRule struct {
 	UserID                string          `json:"user_id"`
 	MaxRiskPerTrade       sql.NullFloat64 `json:"max_risk_per_trade"`
@@ -180,6 +192,11 @@ type TradeJournal struct {
 	TradeQuality   sql.NullInt64   `json:"trade_quality"`
 	Mae            sql.NullFloat64 `json:"mae"`
 	Mfe            sql.NullFloat64 `json:"mfe"`
+}
+
+type TradeSetup struct {
+	TradeID string `json:"trade_id"`
+	SetupID string `json:"setup_id"`
 }
 
 type TradeTag struct {

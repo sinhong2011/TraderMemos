@@ -6,6 +6,22 @@ import { describe, expect, it, vi } from "vite-plus/test";
 import type { Summary, Trade } from "../../lib/api/types";
 import { DashboardView } from "./DashboardView";
 
+vi.mock("../../components/Toast", () => ({
+  useToastManager: () => ({ add: vi.fn() }),
+}));
+
+vi.mock("../../lib/hooks/useMoneyFx", () => ({
+  useMoneyFx: (baseCurrency: string) => ({
+    baseCurrency,
+    displayCurrency: baseCurrency || "USD",
+    currency: baseCurrency || "USD",
+    rate: 1,
+    toDisplay: (v: number) => v,
+    isLoading: false,
+    isError: false,
+  }),
+}));
+
 // Mock DataTable: the real one uses a virtualizer that needs a sized container
 // (absent in jsdom, so it renders zero rows). Mirrors
 // src/components/tradeColumns.test.tsx, which hits the same jsdom gotcha.
@@ -104,6 +120,28 @@ const BASE = {
   accounts: [],
   selectedAccountId: undefined,
   onSelectTrade: vi.fn(),
+  onOpenFullPage: vi.fn(),
+  onViewAllTrades: vi.fn(),
+  onOpenCalendar: vi.fn(),
+  onOpenReports: vi.fn(),
+  calendarYear: 2026,
+  calendarMonth: 7,
+  dailyPnl: { "2026-07-02": 11.39 },
+  dailyLoading: false,
+  dailyError: false,
+  breakdownDim: "day_of_week" as const,
+  onBreakdownDimChange: vi.fn(),
+  breakdown: [
+    {
+      key: "Wed",
+      summary: {
+        ...SUMMARY,
+        net_pnl: 11.39,
+      },
+    },
+  ],
+  breakdownLoading: false,
+  breakdownError: false,
   accountFunded: false,
   onImport: vi.fn(),
   onNewTrade: vi.fn(),
@@ -112,19 +150,97 @@ const BASE = {
 describe("DashboardView", () => {
   it("renders the stats strip from the summary", () => {
     render(<DashboardView {...BASE} />);
-    expect(screen.getByText("WINS")).toBeInTheDocument();
-    expect(screen.getByText("LOSSES")).toBeInTheDocument();
-    expect(screen.getByText("AVG W")).toBeInTheDocument();
-    expect(screen.getByText("AVG L")).toBeInTheDocument();
+    expect(screen.getByText("Wins")).toBeInTheDocument();
+    expect(screen.getByText("Losses")).toBeInTheDocument();
+    expect(screen.getByText("Avg win")).toBeInTheDocument();
+    expect(screen.getByText("Avg loss")).toBeInTheDocument();
     expect(screen.getByText(/Gross/)).toBeInTheDocument();
-    expect(screen.getByText(/-\$61\.79/)).toBeInTheDocument();
+    expect(screen.getByText(/^Net$/)).toBeInTheDocument();
+    expect(screen.getByText(/PF/)).toBeInTheDocument();
+    expect(screen.getAllByText("0.53").length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/-\$61\.79/).length).toBeGreaterThan(0);
   });
 
-  it("renders the trades table with the loaded footer", () => {
-    render(<DashboardView {...BASE} />);
-    expect(screen.getByText("TSLQ")).toBeInTheDocument();
+  it("renders recent trades with view-all action", async () => {
+    const user = userEvent.setup();
+    const onViewAllTrades = vi.fn();
+    render(<DashboardView {...BASE} onViewAllTrades={onViewAllTrades} />);
+    expect(screen.getByText("Recent trades")).toBeInTheDocument();
+    expect(screen.getAllByText("TSLQ").length).toBeGreaterThan(0);
     expect(screen.getByText("WIN")).toBeInTheDocument();
-    expect(screen.getByText("All 1 trades loaded")).toBeInTheDocument();
+    expect(screen.getByText("1 trade")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /view all trades/i }));
+    expect(onViewAllTrades).toHaveBeenCalledOnce();
+  });
+
+  it("renders insight bento panels", () => {
+    render(<DashboardView {...BASE} />);
+    expect(screen.getByText("PnL quality")).toBeInTheDocument();
+    expect(screen.getByText("Stability")).toBeInTheDocument();
+    expect(screen.getByText("Time")).toBeInTheDocument();
+    expect(screen.getByText("Expectancy")).toBeInTheDocument();
+    expect(screen.getByText("Best streak")).toBeInTheDocument();
+    expect(screen.getByText("Average hold")).toBeInTheDocument();
+  });
+
+  it("renders breakdown chart and mini calendar", async () => {
+    const user = userEvent.setup();
+    const onOpenCalendar = vi.fn();
+    const onOpenReports = vi.fn();
+    render(
+      <DashboardView {...BASE} onOpenCalendar={onOpenCalendar} onOpenReports={onOpenReports} />,
+    );
+    expect(screen.getByText("Breakdown")).toBeInTheDocument();
+    expect(screen.getByText("Month")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /full calendar/i })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /full calendar/i }));
+    expect(onOpenCalendar).toHaveBeenCalledOnce();
+    await user.click(screen.getByRole("button", { name: /reports/i }));
+    expect(onOpenReports).toHaveBeenCalledOnce();
+  });
+
+  it("shows account contribution when multiple accounts have trades", () => {
+    render(
+      <DashboardView
+        {...BASE}
+        accounts={[
+          {
+            id: "a1",
+            user_id: "u",
+            name: "Prop",
+            broker: "x",
+            account_type: "live",
+            base_currency: "USD",
+            starting_balance: 0,
+            created_at: "2026-01-01",
+          },
+          {
+            id: "a2",
+            user_id: "u",
+            name: "Personal",
+            broker: "x",
+            account_type: "live",
+            base_currency: "USD",
+            starting_balance: 0,
+            created_at: "2026-01-01",
+          },
+        ]}
+        trades={[TRADE, { ...TRADE, id: "t2", account_id: "a2", symbol: "ES", net_pnl: 50 }]}
+      />,
+    );
+    expect(screen.getByText("Account contribution")).toBeInTheDocument();
+    expect(screen.getByText("Prop")).toBeInTheDocument();
+    expect(screen.getByText("Personal")).toBeInTheDocument();
+  });
+
+  it("caps recent trades and reports remaining count", () => {
+    const many = Array.from({ length: 12 }, (_, i) => ({
+      ...TRADE,
+      id: `t${i}`,
+      symbol: i === 0 ? "TSLQ" : `SYM${i}`,
+    }));
+    render(<DashboardView {...BASE} trades={many} />);
+    expect(screen.getByText("Showing 10 of 12 trades")).toBeInTheDocument();
   });
 
   it("renders range segmented control", () => {

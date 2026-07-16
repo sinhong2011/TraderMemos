@@ -11,7 +11,11 @@ import {
   useDeleteAttachment,
   useUploadAttachment,
 } from "../lib/hooks/useAttachments";
-import { useCreateExecutions } from "../lib/hooks/useExecutions";
+import {
+  useCreateExecutions,
+  useDeleteExecution,
+  useUpdateExecution,
+} from "../lib/hooks/useExecutions";
 import { useSetups } from "../lib/hooks/useSetups";
 import { useTags } from "../lib/hooks/useTags";
 import { usePatchTrade, useTradeDetail } from "../lib/hooks/useTradeDetail";
@@ -34,6 +38,20 @@ function TradeDetailPage() {
   const uploadMutation = useUploadAttachment(id);
   const deleteMutation = useDeleteAttachment(id);
   const addFillMutation = useCreateExecutions();
+  const updateFillMutation = useUpdateExecution();
+  const deleteFillMutation = useDeleteExecution();
+
+  function navigateAfterFillChange(nextId: string | undefined) {
+    if (!nextId) {
+      void navigate({ to: "/trades" });
+      return;
+    }
+    if (nextId !== id) {
+      void navigate({ to: "/trades/$id", params: { id: nextId } });
+      return;
+    }
+    void detailQ.refetch();
+  }
 
   function handleSave(form: JournalFormState) {
     patchMutation.mutate(
@@ -41,8 +59,11 @@ function TradeDetailPage() {
         id,
         body: {
           notes: form.notes,
-          setup_id: form.setup_id || undefined,
+          setup_id: form.setup_ids[0] ?? form.setup_id ?? "",
+          setup_ids: form.setup_ids,
           initial_risk: form.initial_risk ? Number.parseFloat(form.initial_risk) : undefined,
+          target_price: form.target_price ? Number.parseFloat(form.target_price) : undefined,
+          stop_price: form.stop_price ? Number.parseFloat(form.stop_price) : undefined,
           emotional_state: form.emotional_state,
           confidence: form.confidence ? Number.parseInt(form.confidence, 10) : undefined,
           trade_quality: form.trade_quality ? Number.parseInt(form.trade_quality, 10) : undefined,
@@ -122,6 +143,7 @@ function TradeDetailPage() {
             quantity: input.quantity,
             price: input.price,
             fees: input.fees,
+            commission: input.commission,
             executed_at: input.executed_at,
           },
         ],
@@ -131,14 +153,54 @@ function TradeDetailPage() {
         title: "Fill added",
         description: "Position regrouped from executions.",
       });
-      if (nextId && nextId !== id) {
-        void navigate({ to: "/trades/$id", params: { id: nextId } });
-      } else {
-        void detailQ.refetch();
-      }
+      navigateAfterFillChange(nextId);
     } catch (err) {
       toast.add({
         title: "Could not add fill",
+        description: err instanceof Error ? err.message : "Request failed",
+      });
+    }
+  }
+
+  async function handleEditFill(fillId: string, input: AddFillInput) {
+    try {
+      const result = await updateFillMutation.mutateAsync({
+        id: fillId,
+        body: {
+          side: input.side,
+          quantity: input.quantity,
+          price: input.price,
+          fees: input.fees,
+          commission: input.commission,
+          executed_at: input.executed_at,
+        },
+      });
+      toast.add({
+        title: "Fill updated",
+        description: "Position regrouped from executions.",
+      });
+      navigateAfterFillChange(result.trade_id || undefined);
+    } catch (err) {
+      toast.add({
+        title: "Could not update fill",
+        description: err instanceof Error ? err.message : "Request failed",
+      });
+    }
+  }
+
+  async function handleDeleteFill(fillId: string) {
+    try {
+      const result = await deleteFillMutation.mutateAsync(fillId);
+      toast.add({
+        title: "Fill deleted",
+        description: result.trade_id
+          ? "Position regrouped from executions."
+          : "No fills left — returned to trades.",
+      });
+      navigateAfterFillChange(result.trade_id || undefined);
+    } catch (err) {
+      toast.add({
+        title: "Could not delete fill",
         description: err instanceof Error ? err.message : "Request failed",
       });
     }
@@ -156,10 +218,13 @@ function TradeDetailPage() {
       saving={patchMutation.isPending}
       uploading={uploadMutation.isPending}
       addingFill={addFillMutation.isPending}
+      mutatingFill={updateFillMutation.isPending || deleteFillMutation.isPending}
       onSave={handleSave}
       onUpload={handleUpload}
       onDeleteAttachment={handleDeleteAttachment}
       onAddFill={handleAddFill}
+      onEditFill={handleEditFill}
+      onDeleteFill={handleDeleteFill}
       onBack={() => navigate({ to: "/trades" })}
     />
   );

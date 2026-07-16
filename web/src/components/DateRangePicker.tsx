@@ -19,10 +19,10 @@ export function DateRangePicker() {
       triggerAriaLabel="Date range"
       className="overflow-hidden p-0"
       triggerClassName={cn(
-        "h-8 min-w-[112px] rounded-control border border-border bg-bg-inset px-2.5",
-        "text-left transition-[border-color,background-color,box-shadow] duration-150",
-        "hover:border-border-strong focus-visible:border-accent focus-visible:shadow-[0_0_0_3px_var(--color-accent-bg)]",
-        open && "border-accent shadow-[0_0_0_3px_var(--color-accent-bg)]",
+        "h-8 min-w-[112px] rounded-control border-none bg-bg-input px-2.5",
+        "text-left transition-[background-color] duration-150",
+        "hover:bg-bg-input-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+        open && "bg-bg-input-hover",
       )}
       trigger={
         <>

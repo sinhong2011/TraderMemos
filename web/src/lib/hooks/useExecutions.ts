@@ -1,5 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { type CreateExecutionResponse, type ExecutionBody, executionsApi } from "../api/executions";
+import {
+  type CreateExecutionResponse,
+  type ExecutionBody,
+  type MutationExecutionResponse,
+  type UpdateExecutionBody,
+  executionsApi,
+} from "../api/executions";
 
 export interface ExecutionFailure {
   index: number;
@@ -25,6 +31,13 @@ export interface SaveExecutionsInput {
 
 export interface SaveExecutionsResult {
   tradeIds: string[];
+}
+
+function invalidateTradeQueries(queryClient: ReturnType<typeof useQueryClient>) {
+  void queryClient.invalidateQueries({ queryKey: ["trades"] });
+  void queryClient.invalidateQueries({ queryKey: ["trade"] });
+  void queryClient.invalidateQueries({ queryKey: ["analytics"] });
+  void queryClient.invalidateQueries({ queryKey: ["cash"] });
 }
 
 export function useCreateExecutions() {
@@ -64,11 +77,28 @@ export function useCreateExecutions() {
       }
       return { tradeIds };
     },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["trades"] });
-      queryClient.invalidateQueries({ queryKey: ["trade"] });
-      queryClient.invalidateQueries({ queryKey: ["analytics"] });
-      queryClient.invalidateQueries({ queryKey: ["cash"] });
-    },
+    onSettled: () => invalidateTradeQueries(queryClient),
+  });
+}
+
+export function useUpdateExecution() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      id,
+      body,
+    }: {
+      id: string;
+      body: UpdateExecutionBody;
+    }): Promise<MutationExecutionResponse> => executionsApi.update(id, body),
+    onSettled: () => invalidateTradeQueries(queryClient),
+  });
+}
+
+export function useDeleteExecution() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string): Promise<MutationExecutionResponse> => executionsApi.delete(id),
+    onSettled: () => invalidateTradeQueries(queryClient),
   });
 }

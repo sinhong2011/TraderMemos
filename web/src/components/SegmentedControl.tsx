@@ -1,43 +1,62 @@
 import { cn } from "../lib/cn";
+import { Tabs, TabsIndicator, TabsList, TabsTrigger } from "./Tabs";
 
 export interface SegmentOption {
   value: string;
   label: string;
 }
 
+/**
+ * Compact segmented options — Tabs primitive with the muted pill chrome.
+ * For panels / other tab UIs, compose `Tabs*` directly.
+ */
 export function SegmentedControl({
   options,
   value,
   onChange,
   ariaLabel,
+  className,
+  /** Stretch equal-width segments across the container (section tabs). */
+  fullWidth = false,
+  size = "sm",
 }: {
   options: SegmentOption[];
   value: string;
   onChange: (v: string) => void;
   ariaLabel?: string;
+  className?: string;
+  fullWidth?: boolean;
+  size?: "sm" | "md";
 }) {
+  const tall = size === "md";
   return (
-    <fieldset
-      aria-label={ariaLabel}
-      className="m-0 inline-flex gap-0.5 rounded-control border-none bg-bg-elevated p-0.5"
+    <Tabs
+      value={value}
+      onValueChange={(next) => {
+        if (typeof next === "string") onChange(next);
+      }}
+      className={cn(fullWidth && "w-full")}
     >
-      {options.map((o) => {
-        const active = o.value === value;
-        return (
-          <button
+      <TabsList
+        aria-label={ariaLabel}
+        fullWidth={fullWidth}
+        className={cn("h-10 rounded-control border-none bg-bg-input p-1", className)}
+      >
+        <TabsIndicator className="rounded-control bg-bg-input-hover" />
+        {options.map((o) => (
+          <TabsTrigger
             key={o.value}
-            type="button"
-            aria-pressed={active}
-            onClick={() => onChange(o.value)}
+            value={o.value}
+            fullWidth={fullWidth}
             className={cn(
-              "cursor-pointer rounded-control border-none px-2.5 py-0.5 text-[11px] font-semibold transition-colors duration-150",
-              active ? "bg-accent-bg text-accent" : "bg-transparent text-text-muted",
+              "h-full font-medium text-text-dim hover:text-text-muted data-active:text-text",
+              tall ? "px-3.5 text-[13px]" : "px-3 text-[12px]",
             )}
           >
             {o.label}
-          </button>
-        );
-      })}
-    </fieldset>
+          </TabsTrigger>
+        ))}
+      </TabsList>
+    </Tabs>
   );
 }

@@ -57,3 +57,51 @@ func TestCreateMistakeTag(t *testing.T) {
 	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &tag))
 	require.Equal(t, "mistake", tag["kind"])
 }
+
+func TestPatchTradeMultiSetup(t *testing.T) {
+	s := testServer(t)
+	tok := registerAndLogin(t, s, "ms@x.com")
+	acc := accountID(t, s, tok)
+	id := closedTradeID(t, s, tok, acc)
+
+	rec := do(s, http.MethodPost, "/api/v1/setups", `{"name":"ORB"}`, tok)
+	require.Equal(t, http.StatusCreated, rec.Code, rec.Body.String())
+	var setupA map[string]any
+	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &setupA))
+	aID := setupA["id"].(string)
+
+	rec = do(s, http.MethodPost, "/api/v1/setups", `{"name":"FVG"}`, tok)
+	require.Equal(t, http.StatusCreated, rec.Code, rec.Body.String())
+	var setupB map[string]any
+	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &setupB))
+	bID := setupB["id"].(string)
+
+	body := `{"setup_ids":["` + aID + `","` + bID + `"]}`
+	rec = do(s, http.MethodPatch, "/api/v1/trades/"+id, body, tok)
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+	var d map[string]any
+	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &d))
+	require.Equal(t, "ORB", d["setup"].(map[string]any)["name"])
+	ids, ok := d["setup_ids"].([]any)
+	require.True(t, ok)
+	require.Equal(t, []any{aID, bID}, ids)
+
+	// Foreign setup rejected
+	tokB := registerAndLogin(t, s, "ms2@x.com")
+	rec = do(s, http.MethodPost, "/api/v1/setups", `{"name":"Foreign Only"}`, tokB)
+	require.Equal(t, http.StatusCreated, rec.Code)
+	var foreign map[string]any
+	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &foreign))
+	rec = do(s, http.MethodPatch, "/api/v1/trades/"+id,
+		`{"setup_ids":["`+foreign["id"].(string)+`"]}`, tok)
+	require.Equal(t, http.StatusBadRequest, rec.Code)
+
+	// Clear
+	rec = do(s, http.MethodPatch, "/api/v1/trades/"+id, `{"setup_ids":[]}`, tok)
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &d))
+	require.Nil(t, d["setup"])
+	ids, ok = d["setup_ids"].([]any)
+	require.True(t, ok)
+	require.Len(t, ids, 0)
+}

@@ -17,7 +17,7 @@ description: How to run and drive the TraderMemos web app for runtime verificati
 
 - `/calendar` — MonthPicker (trigger labeled "<Month Year>, choose month"), day cells, week summaries.
 - Header "Date range" button — DateRangePanel presets + custom two-click range (first click holds a pending start; footer shows "Select end date").
-- "New Note" nav button — drawer with SignalDatePicker ("Date" field). "New Trade" uses a native datetime-local input, not SignalDatePicker.
+- "New Note" nav button — drawer with SignalDatePicker ("Date" field). "New Trade" uses SignalDateTimePicker for fill timestamps.
 
 ## Gotchas
 

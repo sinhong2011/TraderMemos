@@ -107,6 +107,8 @@ export interface Trade {
 export interface TradeDetail extends Trade {
   fills: Execution[];
   setup: Setup | null;
+  /** Ordered setup ids; first is the main setup (matches journal.setup_id). */
+  setup_ids?: string[];
   initial_risk: number | null;
   target_price: number | null;
   stop_price: number | null;

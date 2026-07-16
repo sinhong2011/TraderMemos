@@ -1,4 +1,4 @@
-import { Popover } from "@base-ui-components/react";
+import { Popover } from "@base-ui/react";
 import type { ReactNode } from "react";
 import { cn } from "../lib/cn";
 import { signalOverlayPopupClass } from "./signal-overlay-styles";

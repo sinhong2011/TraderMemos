@@ -1,6 +1,8 @@
 package api
 
 import (
+	"database/sql"
+	"errors"
 	"net/http"
 	"time"
 
@@ -14,6 +16,8 @@ import (
 func (s *Server) executionRoutes(g *echo.Group) {
 	g.POST("/executions", s.handleCreateExecution)
 	g.GET("/executions", s.handleListExecutions)
+	g.PATCH("/executions/:id", s.handleUpdateExecution)
+	g.DELETE("/executions/:id", s.handleDeleteExecution)
 }
 
 type createExecutionReq struct {
@@ -27,6 +31,15 @@ type createExecutionReq struct {
 	Commission     float64   `json:"commission"`
 	ExecutedAt     time.Time `json:"executed_at"`
 	Multiplier     float64   `json:"multiplier"`
+}
+
+type updateExecutionReq struct {
+	Side       string    `json:"side"`
+	Quantity   float64   `json:"quantity"`
+	Price      float64   `json:"price"`
+	Fees       float64   `json:"fees"`
+	Commission *float64  `json:"commission"`
+	ExecutedAt time.Time `json:"executed_at"`
 }
 
 func (s *Server) handleCreateExecution(c echo.Context) error {
@@ -89,4 +102,115 @@ func (s *Server) handleListExecutions(c echo.Context) error {
 		rows = []store.Execution{}
 	}
 	return c.JSON(http.StatusOK, rows)
+}
+
+func (s *Server) handleUpdateExecution(c echo.Context) error {
+	uid := auth.UserID(c)
+	execID := c.Param("id")
+	var in updateExecutionReq
+	if err := c.Bind(&in); err != nil {
+		return Fail(http.StatusBadRequest, "bad_request", "invalid body", nil)
+	}
+	if in.Side != "buy" && in.Side != "sell" {
+		return Fail(http.StatusBadRequest, "bad_request", "side must be buy or sell", nil)
+	}
+	if !(in.Quantity > 0) || in.Price < 0 {
+		return Fail(http.StatusBadRequest, "bad_request", "quantity must be > 0 and price >= 0", nil)
+	}
+	if in.ExecutedAt.IsZero() {
+		return Fail(http.StatusBadRequest, "bad_request", "executed_at is required", nil)
+	}
+
+	ex, err := s.deps.Store.GetExecution(c.Request().Context(), store.GetExecutionParams{
+		ID: execID, UserID: uid,
+	})
+	if errors.Is(err, sql.ErrNoRows) {
+		return Fail(http.StatusNotFound, "not_found", "execution not found", nil)
+	}
+	if err != nil {
+		return Fail(http.StatusInternalServerError, "internal", "could not load execution", nil)
+	}
+
+	commission := 0.0
+	if in.Commission != nil {
+		commission = *in.Commission
+	}
+	hash := importer.DedupHash(ex.Symbol, in.Side, in.Quantity, in.Price, in.ExecutedAt)
+	n, err := s.deps.Store.UpdateExecution(c.Request().Context(), store.UpdateExecutionParams{
+		Side: in.Side, Quantity: in.Quantity, Price: in.Price,
+		Fees: in.Fees, Commission: commission, ExecutedAt: in.ExecutedAt,
+		DedupHash: hash, ID: execID, UserID: uid,
+	})
+	if err != nil {
+		return Fail(http.StatusConflict, "conflict", "could not update execution (duplicate fill?)", nil)
+	}
+	if n == 0 {
+		return Fail(http.StatusNotFound, "not_found", "execution not found", nil)
+	}
+	if err := s.deps.Trades.Regroup(c.Request().Context(), uid, ex.AccountID); err != nil {
+		return Fail(http.StatusInternalServerError, "internal", "could not regroup trades", nil)
+	}
+	tradeID, err := s.deps.Store.GetTradeIDForExecution(c.Request().Context(), execID)
+	if errors.Is(err, sql.ErrNoRows) {
+		tradeID = ""
+	} else if err != nil {
+		return Fail(http.StatusInternalServerError, "internal", "could not resolve trade", nil)
+	}
+	return c.JSON(http.StatusOK, map[string]string{
+		"execution_id": execID,
+		"trade_id":     tradeID,
+	})
+}
+
+func (s *Server) handleDeleteExecution(c echo.Context) error {
+	uid := auth.UserID(c)
+	execID := c.Param("id")
+	ex, err := s.deps.Store.GetExecution(c.Request().Context(), store.GetExecutionParams{
+		ID: execID, UserID: uid,
+	})
+	if errors.Is(err, sql.ErrNoRows) {
+		return Fail(http.StatusNotFound, "not_found", "execution not found", nil)
+	}
+	if err != nil {
+		return Fail(http.StatusInternalServerError, "internal", "could not load execution", nil)
+	}
+
+	prevTradeID, err := s.deps.Store.GetTradeIDForExecution(c.Request().Context(), execID)
+	var siblingIDs []string
+	if err == nil {
+		fills, ferr := s.deps.Store.ListExecutionsForTrade(c.Request().Context(), prevTradeID)
+		if ferr == nil {
+			for _, f := range fills {
+				if f.ID != execID {
+					siblingIDs = append(siblingIDs, f.ID)
+				}
+			}
+		}
+	}
+
+	n, err := s.deps.Store.DeleteExecution(c.Request().Context(), store.DeleteExecutionParams{
+		ID: execID, UserID: uid,
+	})
+	if err != nil {
+		return Fail(http.StatusInternalServerError, "internal", "could not delete execution", nil)
+	}
+	if n == 0 {
+		return Fail(http.StatusNotFound, "not_found", "execution not found", nil)
+	}
+	if err := s.deps.Trades.Regroup(c.Request().Context(), uid, ex.AccountID); err != nil {
+		return Fail(http.StatusInternalServerError, "internal", "could not regroup trades", nil)
+	}
+
+	tradeID := ""
+	for _, sid := range siblingIDs {
+		tid, gerr := s.deps.Store.GetTradeIDForExecution(c.Request().Context(), sid)
+		if gerr == nil {
+			tradeID = tid
+			break
+		}
+	}
+	return c.JSON(http.StatusOK, map[string]string{
+		"execution_id": execID,
+		"trade_id":     tradeID,
+	})
 }

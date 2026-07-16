@@ -3,6 +3,7 @@ import { CalendarDays, ChevronDown } from "lucide-react";
 import { useState } from "react";
 import { cn } from "../lib/cn";
 import { localDateString, parseFilterDay } from "../lib/dateRangePresets";
+import { signalControlTriggerClass } from "./signal-field-styles";
 import { SignalCalendar } from "./SignalCalendar";
 import { SignalPopover } from "./SignalPopover";
 
@@ -45,11 +46,10 @@ export function SignalDatePicker({
       triggerAriaLabel={ariaLabel}
       align="start"
       triggerClassName={cn(
-        "h-8 w-full rounded-control border border-border bg-bg-inset px-2.5",
-        "transition-[border-color,background-color,box-shadow] duration-150",
-        "hover:border-border-strong focus-visible:border-accent focus-visible:shadow-[0_0_0_3px_var(--color-accent-bg)]",
+        "inline-flex cursor-pointer items-center gap-2",
+        signalControlTriggerClass,
         disabled && "cursor-not-allowed opacity-55",
-        open && "border-accent shadow-[0_0_0_3px_var(--color-accent-bg)]",
+        open && "bg-bg-input-hover",
         className,
       )}
       trigger={
@@ -63,7 +63,7 @@ export function SignalDatePicker({
           <span
             id={id}
             className={cn(
-              "min-w-0 flex-1 truncate text-left text-[11px]",
+              "min-w-0 flex-1 truncate text-left text-[13px]",
               selected ? "text-text" : "text-text-dim",
             )}
           >

@@ -8,6 +8,8 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/tradermemos/api/internal/auth"
+	"github.com/tradermemos/api/internal/marketdata"
+	"github.com/tradermemos/api/internal/ocr"
 	"github.com/tradermemos/api/internal/storage"
 	"github.com/tradermemos/api/internal/store"
 	"github.com/tradermemos/api/internal/trades"
@@ -24,6 +26,9 @@ type Deps struct {
 	Storage        storage.Storage
 	AttachMaxBytes int64
 	ImportMaxBytes int64
+	OCRMaxBytes    int64
+	Market         *marketdata.Service
+	OCR            *ocr.Service
 }
 
 type Server struct {
@@ -64,6 +69,9 @@ func bodyLimit(deps Deps) int64 {
 	if deps.ImportMaxBytes > lim {
 		lim = deps.ImportMaxBytes
 	}
+	if deps.OCRMaxBytes > lim {
+		lim = deps.OCRMaxBytes
+	}
 	return lim
 }
 
@@ -87,4 +95,6 @@ func (s *Server) routes() {
 	s.settingsRoutes(protected)
 	s.noteRoutes(protected)
 	s.checklistRoutes(protected)
+	s.marketRoutes(protected)
+	s.ocrRoutes(protected)
 }

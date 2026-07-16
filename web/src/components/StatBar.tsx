@@ -9,6 +9,10 @@ const TONE_VALUE: Record<PillTone, string> = {
   muted: "text-text",
 };
 
+/**
+ * Interactive metric chip for dense strips (Performance filters).
+ * Title stays top-left; value block centers in the tile.
+ */
 export function StatBar({
   label,
   value,
@@ -24,30 +28,39 @@ export function StatBar({
   onClick?: () => void;
   active?: boolean;
 }) {
+  const interactive = Boolean(onClick);
+
+  const shell = cn(
+    "flex h-full min-h-[91px] w-full flex-col rounded-card px-3 py-3.5",
+    "bg-bg-panel",
+  );
+
   const inner = (
     <>
-      <span className="text-[10px] font-medium uppercase tracking-widest text-text-dim">
+      <span
+        className={cn(
+          "self-start text-left text-[12px] font-medium uppercase tracking-widest text-text-muted",
+          interactive && "transition-colors duration-150 ease-out",
+          interactive && (active ? "text-text" : "group-hover:text-text"),
+        )}
+      >
         {label}
       </span>
-      <div className="mt-1 flex items-baseline gap-2">
-        <span
-          className={cn("text-[15px] font-semibold leading-none tabular-nums", TONE_VALUE[tone])}
-        >
-          {value}
-        </span>
-        {sub ? <span className="text-[11px] tabular-nums text-text-dim">{sub}</span> : null}
+      <div className="mt-2 flex flex-1 flex-col items-center justify-center text-center">
+        <div className="flex items-baseline justify-center gap-1.5">
+          <span
+            className={cn("text-[18px] font-semibold leading-none tabular-nums", TONE_VALUE[tone])}
+          >
+            {value}
+          </span>
+          {sub ? <span className="text-[13px] tabular-nums text-text-dim">{sub}</span> : null}
+        </div>
       </div>
     </>
   );
 
-  const shellClass = cn(
-    "flex w-full flex-col justify-center px-4 py-3",
-    onClick && "transition-colors duration-150 hover:bg-bg-hover",
-    active && "bg-accent-bg",
-  );
-
   if (!onClick) {
-    return <div className={shellClass}>{inner}</div>;
+    return <div className={shell}>{inner}</div>;
   }
 
   return (
@@ -56,11 +69,12 @@ export function StatBar({
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        shellClass,
-        "relative cursor-pointer border-none bg-transparent text-left outline-none",
-        "focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-accent",
-        active &&
-          "after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-accent after:shadow-[0_0_8px_var(--color-accent-glow)]",
+        "group cursor-pointer border-none outline-none",
+        shell,
+        "transition-colors duration-150 ease-out",
+        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+        "motion-reduce:transition-none",
+        active ? "bg-accent-bg" : "hover:bg-bg-hover",
       )}
     >
       {inner}

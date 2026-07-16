@@ -1,10 +1,14 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import { ArrowDownRight, ArrowUpRight, MoreHorizontal } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 import type { Trade } from "../lib/api/types";
+import { usePrivacyMode } from "../lib/displayPrefs";
 import { fmtDateShort, fmtDuration, fmtMoney, fmtSignedMoney } from "../lib/format";
 import { intlLocale } from "../lib/locale";
 import { Pill, type PillTone } from "./Pill";
 import { pnlColor } from "./theme-tokens";
+import { TradeRowMenu, type TradeRowActions } from "./TradeRowMenu";
+
+export type { TradeRowActions };
 
 const MARKET_LABELS: Record<string, string> = {
   stock: "STK",
@@ -26,6 +30,15 @@ export function marketLabel(instrumentType: string): string {
   return MARKET_LABELS[instrumentType] ?? instrumentType.slice(0, 3).toUpperCase();
 }
 
+/** Conventional contract size when Trade list payloads omit fill multipliers. */
+export function tradeNotionalMultiplier(instrumentType: string): number {
+  return instrumentType === "option" ? 100 : 1;
+}
+
+export function tradeNotional(qty: number, price: number, instrumentType: string): number {
+  return qty * price * tradeNotionalMultiplier(instrumentType);
+}
+
 export function tradeStatus(t: Trade): {
   label: "WIN" | "LOSS" | "OPEN" | "BE";
   tone: PillTone;
@@ -40,12 +53,42 @@ function muted(v: string) {
   return <span className="text-text-muted">{v}</span>;
 }
 
-function money(v: number | null, currency: string) {
-  if (v == null) return muted("-");
-  return <span className="tabular-nums">{fmtMoney(v, currency, intlLocale())}</span>;
+function MoneyCell({
+  value,
+  currency,
+  fxRate = 1,
+}: {
+  value: number | null;
+  currency: string;
+  fxRate?: number;
+}) {
+  usePrivacyMode();
+  if (value == null) return muted("-");
+  return <span className="tabular-nums">{fmtMoney(value * fxRate, currency, intlLocale())}</span>;
 }
 
-export function tradeColumns(currency: string, onView: (t: Trade) => void): ColumnDef<Trade>[] {
+function SignedMoneyCell({
+  value,
+  currency,
+  fxRate = 1,
+}: {
+  value: number;
+  currency: string;
+  fxRate?: number;
+}) {
+  usePrivacyMode();
+  return (
+    <span className={`tabular-nums font-semibold ${pnlColor(value)}`}>
+      {fmtSignedMoney(value * fxRate, currency, intlLocale())}
+    </span>
+  );
+}
+
+export function tradeColumns(
+  currency: string,
+  actions: TradeRowActions,
+  fxRate = 1,
+): ColumnDef<Trade>[] {
   return [
     {
       accessorKey: "opened_at",
@@ -114,24 +157,32 @@ export function tradeColumns(currency: string, onView: (t: Trade) => void): Colu
       accessorKey: "avg_entry_price",
       header: "ENTRY",
       meta: { align: "right", headerTitle: "Average entry price" },
-      cell: (i) => money(i.getValue<number>(), currency),
+      cell: (i) => <MoneyCell value={i.getValue<number>()} currency={currency} fxRate={fxRate} />,
     },
     {
       accessorKey: "avg_exit_price",
       header: "EXIT",
       meta: { align: "right", headerTitle: "Average exit price" },
-      cell: (i) => money(i.getValue<number | null>(), currency),
+      cell: (i) => (
+        <MoneyCell value={i.getValue<number | null>()} currency={currency} fxRate={fxRate} />
+      ),
     },
     {
       id: "ent_tot",
       header: "ENT TOT",
       meta: {
         align: "right",
-        headerTitle: "Entry total — quantity × average entry",
+        headerTitle: "Entry total — quantity × average entry × multiplier",
       },
       cell: (i) => {
         const t = i.row.original;
-        return money(t.qty_opened * t.avg_entry_price, currency);
+        return (
+          <MoneyCell
+            value={tradeNotional(t.qty_opened, t.avg_entry_price, t.instrument_type)}
+            currency={currency}
+            fxRate={fxRate}
+          />
+        );
       },
     },
     {
@@ -139,13 +190,19 @@ export function tradeColumns(currency: string, onView: (t: Trade) => void): Colu
       header: "EXT TOT",
       meta: {
         align: "right",
-        headerTitle: "Exit total — quantity × average exit",
+        headerTitle: "Exit total — quantity × average exit × multiplier",
       },
       cell: (i) => {
         const t = i.row.original;
-        return t.avg_exit_price == null
-          ? muted("-")
-          : money(t.qty_opened * t.avg_exit_price, currency);
+        return t.avg_exit_price == null ? (
+          muted("-")
+        ) : (
+          <MoneyCell
+            value={tradeNotional(t.qty_opened, t.avg_exit_price, t.instrument_type)}
+            currency={currency}
+            fxRate={fxRate}
+          />
+        );
       },
     },
     {
@@ -179,11 +236,7 @@ export function tradeColumns(currency: string, onView: (t: Trade) => void): Colu
       cell: (i) => {
         const v = i.getValue<number | null>();
         if (v == null) return muted("-");
-        return (
-          <span className={`tabular-nums font-semibold ${pnlColor(v)}`}>
-            {fmtSignedMoney(v, currency, intlLocale())}
-          </span>
-        );
+        return <SignedMoneyCell value={v} currency={currency} fxRate={fxRate} />;
       },
     },
     {
@@ -203,19 +256,7 @@ export function tradeColumns(currency: string, onView: (t: Trade) => void): Colu
       id: "actions",
       header: "",
       enableSorting: false,
-      cell: (i) => (
-        <button
-          type="button"
-          aria-label={`View ${i.row.original.symbol}`}
-          onClick={(e) => {
-            e.stopPropagation();
-            onView(i.row.original);
-          }}
-          className="-my-2 flex h-9 w-9 cursor-pointer items-center justify-center rounded-control text-text-muted transition-colors hover:bg-bg-hover hover:text-text focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-accent"
-        >
-          <MoreHorizontal size={14} strokeWidth={1.5} />
-        </button>
-      ),
+      cell: (i) => <TradeRowMenu trade={i.row.original} actions={actions} />,
     },
   ];
 }

@@ -9,6 +9,7 @@ export const tradesApi = {
     body: {
       notes?: string;
       setup_id?: string;
+      setup_ids?: string[];
       initial_risk?: number;
       target_price?: number;
       stop_price?: number;

@@ -1,20 +1,25 @@
 @import "tailwindcss";
 
 @theme {
-  /* Signal Terminal tokens → Tailwind utilities (bg-bg, text-accent, rounded-sharp, …) */
-  --color-bg: #09090b;
-  --color-bg-elevated: #111114;
-  --color-bg-panel: #16161a;
-  --color-bg-hover: #1c1c22;
-  --color-bg-inset: #060608;
+  /* Signal Terminal tokens → Tailwind utilities (bg-bg, text-accent, rounded-sharp, …)
+     Surfaces stay charcoal/graphite — never pure black ink. */
+  --color-bg: #16161c;
+  --color-bg-elevated: #1c1c24;
+  --color-bg-panel: #23232c;
+  --color-bg-hover: #2b2b36;
+  --color-bg-inset: #121218;
+  /* Input controls: lifted chip on panel/void (panel #23232c → well #2b2b36) */
+  --color-bg-input: var(--color-bg-hover);
+  --color-bg-input-hover: #343440;
 
   --color-border: rgba(255, 255, 255, 0.08);
   --color-border-strong: rgba(255, 255, 255, 0.14);
-  --color-grid: rgba(255, 255, 255, 0.03);
+  --color-grid: rgba(255, 255, 255, 0.04);
 
   --color-text: #fafafa;
-  --color-text-muted: #8b8b96;
-  --color-text-dim: #6d6d78;
+  /* Muted/dim kept light enough for long sessions on graphite void (~7:1 / ~5.5:1) */
+  --color-text-muted: #b4b4bf;
+  --color-text-dim: #94949f;
 
   --color-accent: #a78bfa;
   --color-accent-glow: rgba(167, 139, 250, 0.35);
@@ -23,21 +28,30 @@
 
   --color-profit: #4ade80;
   --color-loss: #fb7185;
-  --color-flat: #8b8b96;
+  --color-flat: #b4b4bf;
 
   --color-tint-pos: rgba(74, 222, 128, 0.08);
   --color-tint-neg: rgba(251, 113, 133, 0.08);
   --color-tint-accent: rgba(167, 139, 250, 0.12);
   --color-tint-signal: rgba(228, 255, 26, 0.12);
 
-  --font-ui: "General Sans", sans-serif;
+  /* Overlay scrims — charcoal wash, not ink-black */
+  --color-overlay-scrim: rgba(22, 22, 28, 0.72);
+  --color-overlay-scrim-soft: rgba(22, 22, 28, 0.6);
 
-  --radius-sharp: 3px;
-  --radius-control: 6px;
-  --radius-card: 8px;
-  --radius-overlay: 10px;
+  --font-ui:
+    "Poppins", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
 
-  --shadow-hard: 4px 4px 0 #000;
+  /* Single product radius — controls, cards, overlays, drawers share the same curve.
+     Keep `rounded-full` only for true circles / capsule pills. */
+  --radius: 10px;
+  --radius-sharp: var(--radius);
+  --radius-control: var(--radius);
+  --radius-card: var(--radius);
+  --radius-overlay: var(--radius);
+
+  --shadow-hard: 4px 4px 0 #121218;
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 
   --animate-auth-panel-in: auth-panel-in 280ms var(--ease-out);
@@ -82,11 +96,11 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--color-text-dim);
+  color: var(--color-text-muted);
 }
 
 @utility text-stat {
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 600;
   line-height: 1;
   letter-spacing: -0.03em;
@@ -98,6 +112,41 @@
   }
   to {
     opacity: 1;
+  }
+}
+
+@keyframes year-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes calendar-mode-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+::view-transition-old(calendar-mode-panel),
+::view-transition-new(calendar-mode-panel) {
+  animation-duration: 250ms;
+  animation-timing-function: var(--ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(calendar-mode-panel),
+  ::view-transition-new(calendar-mode-panel) {
+    animation: none;
   }
 }
 
@@ -204,4 +253,31 @@
   .signal-toast[data-ending-style] {
     transform: none;
   }
+}
+
+/* Yet Another React Lightbox — Signal Terminal dark theme */
+.tm-lightbox {
+  --yarl__color_backdrop: rgba(22, 22, 28, 0.92);
+  --yarl__color_button: var(--color-text-muted);
+  --yarl__color_button_active: var(--color-text);
+  --yarl__color_button_disabled: var(--color-text-dim);
+  --yarl__slide_title_color: var(--color-text);
+  --yarl__slide_description_color: var(--color-text-muted);
+  --yarl__thumbnails_thumbnail_active_border_color: var(--color-accent);
+}
+
+.tm-lightbox .yarl__button {
+  filter: none;
+}
+
+.tm-lightbox .yarl__toolbar,
+.tm-lightbox .yarl__button {
+  border-radius: var(--radius-control);
+}
+
+.tm-lightbox .yarl__counter {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
 }

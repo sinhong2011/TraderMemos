@@ -47,7 +47,16 @@ describe("weekSummaries", () => {
       wins: 2,
       losses: 2,
       hasData: true,
+      weekNumber: 1,
+      daysWithTrades: 2,
     });
-    expect(weeks[1]).toEqual({ pnl: 0, wins: 0, losses: 0, hasData: false });
+    expect(weeks[1]).toEqual({
+      pnl: 0,
+      wins: 0,
+      losses: 0,
+      hasData: false,
+      weekNumber: 2,
+      daysWithTrades: 0,
+    });
   });
 });

@@ -1,7 +1,8 @@
-import { Select } from "@base-ui-components/react";
+import { Select } from "@base-ui/react";
 import { Check, ChevronDown } from "lucide-react";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { cn } from "../lib/cn";
+import { signalControlTriggerClass } from "./signal-field-styles";
 import {
   signalOverlayPopupClass,
   signalSelectItemClass,
@@ -10,7 +11,9 @@ import {
 
 export type SignalSelectOption = {
   value: string;
-  label: string;
+  label: ReactNode;
+  /** Compact label for the closed trigger; falls back to string `label` or `value`. */
+  shortLabel?: string;
   disabled?: boolean;
 };
 
@@ -40,9 +43,14 @@ export function SignalSelect({
 }) {
   const [open, setOpen] = useState(false);
 
-  const labelFor = (current: string | null) => {
+  const labelFor = (current: string | null, compact = false) => {
     const option = options.find((o) => o.value === (current ?? value));
-    return option?.label;
+    if (!option) return undefined;
+    if (compact) {
+      if (option.shortLabel) return option.shortLabel;
+      return typeof option.label === "string" ? option.label : option.value;
+    }
+    return option.label;
   };
 
   return (
@@ -59,18 +67,12 @@ export function SignalSelect({
           id={id}
           aria-label={ariaLabel}
           className={cn(
-            "flex h-8 w-full min-w-0 cursor-pointer items-center gap-2 rounded-control border px-2.5",
-            "text-left text-[12px] text-text outline-none transition-[border-color,background-color,box-shadow] duration-150",
-            "focus-visible:border-accent focus-visible:shadow-[0_0_0_3px_var(--color-accent-bg)]",
+            "flex min-w-0 cursor-pointer items-center gap-2",
+            signalControlTriggerClass,
+            "text-left",
             ghost
-              ? cn(
-                  "border-transparent bg-transparent hover:bg-bg-hover",
-                  open && "border-accent bg-bg-hover",
-                )
-              : cn(
-                  "border-border bg-bg-inset hover:border-border-strong",
-                  open && "border-accent bg-bg-elevated shadow-[0_0_0_3px_var(--color-accent-bg)]",
-                ),
+              ? cn("bg-transparent hover:bg-bg-hover", open && "bg-bg-hover")
+              : open && "bg-bg-input-hover",
             "data-[disabled]:cursor-default data-[disabled]:opacity-55",
             triggerClassName,
           )}
@@ -78,8 +80,8 @@ export function SignalSelect({
           <span className="min-w-0 flex-1 truncate">
             <Select.Value>
               {(current) =>
-                labelFor(current) ? (
-                  labelFor(current)
+                labelFor(current, true) ? (
+                  labelFor(current, true)
                 ) : (
                   <span className="text-text-dim">{placeholder}</span>
                 )

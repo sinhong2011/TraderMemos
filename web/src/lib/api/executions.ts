@@ -8,10 +8,26 @@ export interface ExecutionBody {
   quantity: number;
   price: number;
   fees: number;
+  commission?: number;
+  executed_at: string;
+  multiplier?: number;
+}
+
+export interface UpdateExecutionBody {
+  side: "buy" | "sell";
+  quantity: number;
+  price: number;
+  fees: number;
+  commission?: number;
   executed_at: string;
 }
 
 export interface CreateExecutionResponse {
+  execution_id: string;
+  trade_id: string;
+}
+
+export interface MutationExecutionResponse {
   execution_id: string;
   trade_id: string;
 }
@@ -21,5 +37,14 @@ export const executionsApi = {
     apiFetch<CreateExecutionResponse>("/executions", {
       method: "POST",
       body: JSON.stringify(body),
+    }),
+  update: (id: string, body: UpdateExecutionBody) =>
+    apiFetch<MutationExecutionResponse>(`/executions/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(body),
+    }),
+  delete: (id: string) =>
+    apiFetch<MutationExecutionResponse>(`/executions/${id}`, {
+      method: "DELETE",
     }),
 };

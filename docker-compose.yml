@@ -8,6 +8,12 @@ services:
     environment:
       TM_JWT_SECRET: ${TM_JWT_SECRET:-change-me}
       TM_DB_PATH: /data/tradermemos.db
+      TM_MARKET_DATA_ENABLED: ${TM_MARKET_DATA_ENABLED:-true}
+      TM_MARKET_DATA_PROVIDER: ${TM_MARKET_DATA_PROVIDER:-yahoo}
+      TM_MARKET_DATA_API_KEY: ${TM_MARKET_DATA_API_KEY:-}
+      TM_OCR_ENABLED: ${TM_OCR_ENABLED:-true}
+      TM_OCR_PROVIDER: ${TM_OCR_PROVIDER:-tesseract}
+      TM_OCR_LANG: ${TM_OCR_LANG:-eng}
     volumes:
       - tm_data:/data
   web:

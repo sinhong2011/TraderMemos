@@ -20,6 +20,7 @@ import { fmtMoney, fmtSignedMoney } from "../lib/format";
 import { intlLocale } from "../lib/locale";
 import { useTradeDetail } from "../lib/hooks/useTradeDetail";
 import { computeRiskReward } from "../lib/riskReward";
+import { usePrivacyMode } from "../lib/displayPrefs";
 
 export interface TradeDetailSheetProps {
   tradeId: string | null;
@@ -111,13 +112,23 @@ export function TradeDetailSheet({ tradeId, onClose }: TradeDetailSheetProps) {
   );
 }
 
-function BentoStat({ label, value }: { label: string; value: string }) {
+function BentoStat({
+  label,
+  value,
+  className,
+}: {
+  label: string;
+  value: string;
+  className?: string;
+}) {
   return (
-    <div className="flex flex-col gap-1 bg-bg-elevated p-3">
+    <div className={cn("flex min-w-0 flex-col gap-1 bg-bg-elevated p-2.5 sm:p-3", className)}>
       <span className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">
         {label}
       </span>
-      <span className="text-sm tabular-nums text-text">{value}</span>
+      <span className="truncate text-sm tabular-nums whitespace-nowrap text-text" title={value}>
+        {value}
+      </span>
     </div>
   );
 }
@@ -129,6 +140,7 @@ function TradeDetailSheetBody({
   trade: TradeDetail;
   onOpenFullPage: () => void;
 }) {
+  usePrivacyMode();
   const currency = trade.pnl_currency;
   const pnl = trade.net_pnl;
   const status = tradeStatus(trade);
@@ -206,7 +218,7 @@ function TradeDetailSheetBody({
               }
             />
           </div>
-          <div className="grid grid-cols-3 gap-px">
+          <div className="grid grid-cols-[minmax(0,1fr)_minmax(4.75rem,1.35fr)_minmax(0,1fr)] gap-px">
             <BentoStat label="Qty" value={qty.toFixed(2)} />
             <BentoStat label="Hold" value={hold === "-" ? "—" : hold} />
             <BentoStat label="Fees" value={fmtMoney(trade.fees_total, currency, intlLocale())} />

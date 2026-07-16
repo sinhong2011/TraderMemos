@@ -3,8 +3,25 @@ INSERT INTO executions (id, user_id, account_id, external_id, symbol, instrument
     quantity, price, fees, commission, executed_at, multiplier, details, import_batch_id, dedup_hash)
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING *;
 
+-- name: GetExecution :one
+SELECT * FROM executions WHERE id = ? AND user_id = ?;
+
+-- name: UpdateExecution :execrows
+UPDATE executions
+SET side = ?,
+    quantity = ?,
+    price = ?,
+    fees = ?,
+    commission = ?,
+    executed_at = ?,
+    dedup_hash = ?
+WHERE id = ? AND user_id = ?;
+
 -- name: ListExecutionsForAccount :many
 SELECT * FROM executions WHERE user_id = ? AND account_id = ? ORDER BY executed_at, id;
+
+-- name: DeleteExecution :execrows
+DELETE FROM executions WHERE id = ? AND user_id = ?;
 
 -- name: DeleteExecutionsForBatch :exec
 DELETE FROM executions WHERE import_batch_id = ? AND user_id = ?;

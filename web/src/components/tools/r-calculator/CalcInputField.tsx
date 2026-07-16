@@ -25,12 +25,12 @@ export function CalcInputField({
 }) {
   const accentRing =
     accent === "profit"
-      ? "focus-within:border-profit focus-within:shadow-[0_0_0_3px_rgba(74,222,128,0.15)]"
+      ? "focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-profit"
       : accent === "loss"
-        ? "focus-within:border-loss focus-within:shadow-[0_0_0_3px_rgba(251,113,133,0.15)]"
+        ? "focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-loss"
         : accent === "signal"
-          ? "focus-within:border-signal focus-within:shadow-[0_0_0_3px_rgba(228,255,26,0.1)]"
-          : "focus-within:border-accent focus-within:shadow-[0_0_0_3px_var(--color-accent-bg)]";
+          ? "focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-signal"
+          : "focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-accent";
 
   const bump = (delta: number) => {
     const next = Math.round((value + delta) * 1000) / 1000;
@@ -43,7 +43,7 @@ export function CalcInputField({
       <label className={signalLabelClass}>{label}</label>
       <div
         className={cn(
-          "flex items-center rounded-control border border-border bg-bg-inset transition-[border-color,box-shadow] duration-150",
+          "flex items-center rounded-control border-none bg-bg-input transition-[background-color] duration-150 hover:bg-bg-input-hover",
           accentRing,
         )}
       >

@@ -1,6 +1,15 @@
 import { useForm } from "@tanstack/react-form";
+import { X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Modal } from "../../components/Modal";
+import {
+  Drawer,
+  DrawerBody,
+  DrawerClose,
+  DrawerContent,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+} from "../../components/Drawer";
 import { SignalDatePicker } from "../../components/SignalDatePicker";
 import { fieldError, SignalField } from "../../components/SignalField";
 import { SignalInput, SignalTextarea } from "../../components/SignalInput";
@@ -79,12 +88,101 @@ export function NewNoteDrawer() {
   }, [open]);
 
   return (
-    <Modal
-      open={open}
-      onOpenChange={(v) => !v && !saving && close()}
-      title="New Note"
-      footer={
-        <div className="flex justify-end gap-2">
+    <Drawer open={open} onOpenChange={(v) => !v && !saving && close()} modal="trap-focus">
+      <DrawerContent>
+        <DrawerHeader>
+          <DrawerTitle>New Note</DrawerTitle>
+          <DrawerClose
+            aria-label="Close"
+            className="ml-auto flex cursor-pointer border-none bg-transparent p-1 text-text-muted transition-colors hover:text-text"
+          >
+            <X size={18} strokeWidth={1.5} />
+          </DrawerClose>
+        </DrawerHeader>
+        <DrawerBody>
+          <form
+            className="flex flex-col gap-4"
+            onSubmit={(e) => {
+              e.preventDefault();
+              void form.handleSubmit();
+            }}
+          >
+            <form.Field name="occurredAt">
+              {(field) => (
+                <SignalField label="Date" htmlFor="note-date">
+                  <SignalDatePicker
+                    id="note-date"
+                    aria-label="Date"
+                    value={field.state.value}
+                    onChange={field.handleChange}
+                    onBlur={field.handleBlur}
+                  />
+                </SignalField>
+              )}
+            </form.Field>
+
+            <form.Field name="title">
+              {(field) => (
+                <SignalField label="Title" htmlFor="note-title">
+                  <SignalInput
+                    id="note-title"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    placeholder="Session recap, market read, discipline check…"
+                  />
+                </SignalField>
+              )}
+            </form.Field>
+
+            {checklist.length > 0 && (
+              <div>
+                <span className={signalLabelClass}>Daily checklist</span>
+                <div className="flex flex-col gap-1.5 rounded-panel border border-border bg-bg-inset px-3 py-2">
+                  {checklist.map((item) => (
+                    <label
+                      key={item}
+                      className="flex cursor-pointer items-center gap-2 text-xs text-text"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={Boolean(checked[item])}
+                        onChange={() => setChecked((c) => ({ ...c, [item]: !c[item] }))}
+                        style={{ accentColor: "var(--color-accent)" }}
+                      />
+                      {item}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <form.Field
+              name="body"
+              validators={{
+                onSubmit: ({ value }) => (!value.trim() ? "Note body is required." : undefined),
+              }}
+            >
+              {(field) => (
+                <SignalField
+                  label="Note"
+                  htmlFor="note-body"
+                  error={fieldError(field.state.meta.errors)}
+                >
+                  <SignalTextarea
+                    id="note-body"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    placeholder="What happened today? What will you do differently?"
+                    rows={10}
+                  />
+                </SignalField>
+              )}
+            </form.Field>
+          </form>
+        </DrawerBody>
+        <DrawerFooter>
           <button
             type="button"
             onClick={close}
@@ -101,90 +199,8 @@ export function NewNoteDrawer() {
           >
             {saving ? "Saving…" : "Save note"}
           </button>
-        </div>
-      }
-    >
-      <form
-        className="flex flex-col gap-4"
-        onSubmit={(e) => {
-          e.preventDefault();
-          void form.handleSubmit();
-        }}
-      >
-        <form.Field name="occurredAt">
-          {(field) => (
-            <SignalField label="Date" htmlFor="note-date">
-              <SignalDatePicker
-                id="note-date"
-                aria-label="Date"
-                value={field.state.value}
-                onChange={field.handleChange}
-                onBlur={field.handleBlur}
-              />
-            </SignalField>
-          )}
-        </form.Field>
-
-        <form.Field name="title">
-          {(field) => (
-            <SignalField label="Title" htmlFor="note-title">
-              <SignalInput
-                id="note-title"
-                value={field.state.value}
-                onBlur={field.handleBlur}
-                onChange={(e) => field.handleChange(e.target.value)}
-                placeholder="Session recap, market read, discipline check…"
-              />
-            </SignalField>
-          )}
-        </form.Field>
-
-        {checklist.length > 0 && (
-          <div>
-            <span className={signalLabelClass}>Daily checklist</span>
-            <div className="flex flex-col gap-1.5 rounded-panel border border-border bg-bg-inset px-3 py-2">
-              {checklist.map((item) => (
-                <label
-                  key={item}
-                  className="flex cursor-pointer items-center gap-2 text-xs text-text"
-                >
-                  <input
-                    type="checkbox"
-                    checked={Boolean(checked[item])}
-                    onChange={() => setChecked((c) => ({ ...c, [item]: !c[item] }))}
-                    style={{ accentColor: "var(--color-accent)" }}
-                  />
-                  {item}
-                </label>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <form.Field
-          name="body"
-          validators={{
-            onSubmit: ({ value }) => (!value.trim() ? "Note body is required." : undefined),
-          }}
-        >
-          {(field) => (
-            <SignalField
-              label="Note"
-              htmlFor="note-body"
-              error={fieldError(field.state.meta.errors)}
-            >
-              <SignalTextarea
-                id="note-body"
-                value={field.state.value}
-                onBlur={field.handleBlur}
-                onChange={(e) => field.handleChange(e.target.value)}
-                placeholder="What happened today? What will you do differently?"
-                rows={10}
-              />
-            </SignalField>
-          )}
-        </form.Field>
-      </form>
-    </Modal>
+        </DrawerFooter>
+      </DrawerContent>
+    </Drawer>
   );
 }

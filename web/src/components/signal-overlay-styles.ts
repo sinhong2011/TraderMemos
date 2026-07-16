@@ -3,7 +3,7 @@ import { cn } from "../lib/cn";
 /** Shared enter/exit motion for floating overlays (popover, select, menus). */
 export const signalOverlayPopupClass = cn(
   "rounded-overlay border border-border-strong bg-bg-panel outline-none",
-  "shadow-[0_12px_32px_rgba(0,0,0,0.45)]",
+  "shadow-[0_12px_32px_rgba(18,18,24,0.55)]",
   "origin-[var(--transform-origin)]",
   "transition-[transform,opacity] duration-[220ms] ease-out",
   "data-[starting-style]:translate-y-[-6px] data-[starting-style]:scale-[0.97] data-[starting-style]:opacity-0",

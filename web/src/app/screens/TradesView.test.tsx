@@ -6,6 +6,10 @@ import { describe, expect, it, vi } from "vite-plus/test";
 import type { Trade } from "../../lib/api/types";
 import { TradesView } from "./TradesView";
 
+vi.mock("../../components/Toast", () => ({
+  useToastManager: () => ({ add: vi.fn() }),
+}));
+
 vi.mock("../../components/DataTable", () => ({
   DataTable: function MockDataTable<T>({
     columns,
@@ -84,6 +88,7 @@ const base = {
   symbol: "",
   onSymbolChange: vi.fn(),
   onSelectTrade: vi.fn(),
+  onOpenFullPage: vi.fn(),
   totalInScope: 0,
   scopeLoading: false,
   hasNarrowingFilters: false,

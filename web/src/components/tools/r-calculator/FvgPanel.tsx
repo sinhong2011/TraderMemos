@@ -83,7 +83,7 @@ export function FvgPanel() {
             </div>
 
             <div className="flex flex-col gap-2">
-              <span className="text-[10px] font-medium uppercase tracking-widest text-text-dim">
+              <span className="text-[10px] font-medium uppercase tracking-widest text-text-muted">
                 Entry at
               </span>
               <SegmentedControl

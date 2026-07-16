@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useMemo } from "react";
+import { APP_HOTKEYS, type AppHotkeyId } from "./hotkeys";
 import { TOOL_ITEMS } from "./tools";
 import { useToolRunner } from "./useToolRunner";
 import { useUI, type ModalKind } from "./ui";
@@ -26,7 +27,16 @@ export interface CommandItem {
   group: CommandGroup;
   icon: LucideIcon;
   keywords: string[];
+  /** UI badge for the bound hotkey, when one exists. */
+  shortcut?: string;
   run: () => void;
+}
+
+function shortcutFor(id: string): string | undefined {
+  if (id in APP_HOTKEYS) {
+    return APP_HOTKEYS[id as AppHotkeyId].label;
+  }
+  return undefined;
 }
 
 const NAV_COMMANDS: Array<{
@@ -114,6 +124,7 @@ export function useCommands(onRun?: () => void) {
       group: "Navigate",
       icon: item.icon,
       keywords: item.keywords ?? [],
+      shortcut: shortcutFor(item.id),
       run: wrap(() => navigate({ to: item.to })),
     }));
 
@@ -123,17 +134,22 @@ export function useCommands(onRun?: () => void) {
       group: "Actions",
       icon: item.icon,
       keywords: item.keywords ?? [],
+      shortcut: shortcutFor(item.id),
       run: wrap(() => openModal(item.modal)),
     }));
 
-    const toolCommands: CommandItem[] = TOOL_ITEMS.map((item) => ({
-      id: `tool-${item.id}`,
-      label: item.label,
-      group: "Tools",
-      icon: item.icon,
-      keywords: item.keywords,
-      run: wrap(() => runTool(item.id)),
-    }));
+    const toolCommands: CommandItem[] = TOOL_ITEMS.map((item) => {
+      const id = `tool-${item.id}`;
+      return {
+        id,
+        label: item.label,
+        group: "Tools" as const,
+        icon: item.icon,
+        keywords: item.keywords,
+        shortcut: shortcutFor(id),
+        run: wrap(() => runTool(item.id)),
+      };
+    });
 
     return [...navigateCommands, ...actionCommands, ...toolCommands];
   }, [navigate, onRun, openModal, runTool]);

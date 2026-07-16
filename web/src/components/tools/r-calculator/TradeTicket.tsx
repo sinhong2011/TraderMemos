@@ -33,7 +33,7 @@ export function TradeTicket({
       <dl className="grid gap-2">
         {rows.map((row) => (
           <div key={row.label} className="flex items-baseline justify-between gap-2">
-            <dt className="text-[10px] uppercase tracking-widest text-text-dim">{row.label}</dt>
+            <dt className="text-[10px] uppercase tracking-widest text-text-muted">{row.label}</dt>
             <dd
               className={cn(
                 "m-0 text-xs font-semibold tabular-nums",

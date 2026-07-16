@@ -20,6 +20,10 @@ vi.mock("../../lib/api/client", () => ({
   apiFetch: vi.fn(),
 }));
 
+vi.mock("../../components/charts/TradeChartSection", () => ({
+  TradeChartSection: () => <div data-testid="trade-chart-stub" />,
+}));
+
 // Stub globalThis.fetch so AuthedImage does not throw (returns a fake blob).
 globalThis.fetch = vi.fn().mockResolvedValue({
   ok: false, // triggers the error path -> renders filename fallback
@@ -138,6 +142,7 @@ const mockTrade: TradeDetail = {
   tags: [mockTags[0]],
   fills: [fill1, fill2],
   setup: mockSetup,
+  setup_ids: [mockSetup.id],
   initial_risk: 300,
   target_price: null,
   stop_price: null,
@@ -183,18 +188,17 @@ describe("TradeDetailView", () => {
     expect(textarea).toHaveValue("clean break");
   });
 
-  it("renders ORB as the selected setup option", async () => {
+  it("renders ORB as the main selected setup chip", () => {
     render(<TradeDetailView {...defaultProps} />);
-    const select = screen.getByRole("combobox", { name: /setup/i });
-    expect(select).toHaveTextContent("ORB");
-    await userEvent.click(select);
-    expect(screen.getByRole("option", { name: "ORB" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "ORB · main" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
   });
 
   it("renders R-multiple of 2 in the header", () => {
     render(<TradeDetailView {...defaultProps} />);
-    // The header shows +2.00R
-    expect(screen.getByText("+2.00R")).toBeInTheDocument();
+    expect(screen.getAllByText("+2.00R").length).toBeGreaterThan(0);
   });
 
   it("renders two fill rows", () => {
@@ -202,6 +206,20 @@ describe("TradeDetailView", () => {
     // Fills table has BUY and SELL rows
     expect(screen.getByText("BUY")).toBeInTheDocument();
     expect(screen.getByText("SELL")).toBeInTheDocument();
+  });
+
+  it("shows edit and delete actions when fill handlers are provided", async () => {
+    const onEditFill = vi.fn();
+    const onDeleteFill = vi.fn();
+    render(
+      <TradeDetailView {...defaultProps} onEditFill={onEditFill} onDeleteFill={onDeleteFill} />,
+    );
+    expect(screen.getByRole("button", { name: /edit buy fill/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /delete sell fill/i })).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: /edit buy fill/i }));
+    expect(await screen.findByRole("dialog")).toBeInTheDocument();
+    expect(screen.getByText("Edit fill")).toBeInTheDocument();
   });
 
   it("renders the fill quantities", () => {
@@ -239,12 +257,66 @@ describe("TradeDetailView", () => {
     // fmtSignedMoney(747, "USD", "en-US") => "+$747.00"
     expect(screen.getByText("+$747.00")).toBeInTheDocument();
   });
+
+  it("renders a WIN outcome badge for a closed profitable trade", () => {
+    render(<TradeDetailView {...defaultProps} />);
+    expect(screen.getByText("WIN")).toBeInTheDocument();
+  });
+
+  it("renders the hold duration in the header", () => {
+    render(<TradeDetailView {...defaultProps} />);
+    // 8100 secs -> "2h"
+    expect(screen.getByText("Held")).toBeInTheDocument();
+    expect(screen.getByText("2h")).toBeInTheDocument();
+  });
+
+  it("marks setup rating A as checked for confidence 4", () => {
+    render(<TradeDetailView {...defaultProps} />);
+    expect(screen.getByRole("radio", { name: "Setup rating A" })).toHaveAttribute(
+      "aria-checked",
+      "true",
+    );
+  });
+
+  it("toggles a mistake tag chip", async () => {
+    render(<TradeDetailView {...defaultProps} />);
+    const chip = screen.getByRole("button", { name: "Chased entry" });
+    expect(chip).toHaveAttribute("aria-pressed", "false");
+    await userEvent.click(chip);
+    expect(chip).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("marks main setup and toggles a secondary setup", async () => {
+    const second: Setup = { ...mockSetup, id: "setup-2", name: "FVG" };
+    render(
+      <TradeDetailView
+        {...defaultProps}
+        setups={[mockSetup, second]}
+        trade={{ ...mockTrade, setup_ids: [mockSetup.id] }}
+      />,
+    );
+    expect(screen.getByRole("button", { name: `${mockSetup.name} · main` })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    const secondary = screen.getByRole("button", { name: "FVG" });
+    expect(secondary).toHaveAttribute("aria-pressed", "false");
+    await userEvent.click(secondary);
+    expect(secondary).toHaveAttribute("aria-pressed", "true");
+  });
 });
 
 const emptyJournal: JournalFormState = {
   notes: "",
+  session: "",
+  entry_reason: "",
+  exit_reason: "",
+  review_notes: "",
   setup_id: "",
+  setup_ids: [],
   initial_risk: "",
+  target_price: "",
+  stop_price: "",
   emotional_state: "",
   confidence: "",
   trade_quality: "",
@@ -279,10 +351,10 @@ describe("JournalPanel drafts", () => {
       }),
     );
     renderJournal("t1");
-    expect(screen.getByLabelText("Notes")).toHaveValue("draft note");
+    expect(screen.getByLabelText("Review notes")).toHaveValue("draft note");
     expect(screen.getByText("Unsaved draft restored.")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Discard draft" }));
-    expect(screen.getByLabelText("Notes")).toHaveValue("");
+    expect(screen.getByLabelText("Review notes")).toHaveValue("");
     expect(localStorage.getItem(journalDraftKey("t1"))).toBeNull();
   });
 
@@ -300,14 +372,14 @@ describe("JournalPanel drafts", () => {
     vi.useFakeTimers();
     try {
       renderJournal("t3");
-      fireEvent.change(screen.getByLabelText("Notes"), {
+      fireEvent.change(screen.getByLabelText("Review notes"), {
         target: { value: "half-written thought" },
       });
       expect(localStorage.getItem(journalDraftKey("t3"))).toBeNull();
       vi.advanceTimersByTime(600);
       const raw = localStorage.getItem(journalDraftKey("t3"));
       expect(raw).not.toBeNull();
-      expect(JSON.parse(raw!).form.notes).toBe("half-written thought");
+      expect(JSON.parse(raw!).form.review_notes).toBe("half-written thought");
     } finally {
       vi.useRealTimers();
     }

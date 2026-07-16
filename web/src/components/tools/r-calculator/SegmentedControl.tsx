@@ -58,7 +58,7 @@ export function SegmentedControl<T extends string>({
             aria-selected={active}
             onClick={() => onChange(seg.value)}
             className={cn(
-              "relative z-[1] flex min-h-7 min-w-0 flex-1 items-center justify-center gap-1 rounded-[5px] px-2.5 py-1 transition-colors duration-150",
+              "relative z-[1] flex min-h-7 min-w-0 flex-1 items-center justify-center gap-1 rounded-control px-2.5 py-1 transition-colors duration-150",
               accentClass,
             )}
           >

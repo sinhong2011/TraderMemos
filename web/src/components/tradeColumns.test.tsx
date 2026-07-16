@@ -3,7 +3,17 @@ import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-tabl
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vite-plus/test";
 import type { Trade } from "../lib/api/types";
-import { marketLabel, tradeColumns, tradeStatus } from "./tradeColumns";
+import {
+  marketLabel,
+  tradeColumns,
+  tradeNotional,
+  tradeNotionalMultiplier,
+  tradeStatus,
+} from "./tradeColumns";
+
+vi.mock("./Toast", () => ({
+  useToastManager: () => ({ add: vi.fn() }),
+}));
 
 // Mock DataTable: the real one uses a virtualizer that needs a sized container (absent in jsdom).
 // Render cells using the provided column definitions.
@@ -95,14 +105,43 @@ describe("marketLabel", () => {
   });
 });
 
+describe("tradeNotional", () => {
+  it("applies ×100 for options and ×1 for stocks", () => {
+    expect(tradeNotionalMultiplier("option")).toBe(100);
+    expect(tradeNotionalMultiplier("stock")).toBe(1);
+    expect(tradeNotional(3, 1.64, "option")).toBeCloseTo(492);
+    expect(tradeNotional(90, 16.62, "stock")).toBeCloseTo(1495.8);
+  });
+});
+
 describe("tradeColumns", () => {
   it("renders a full trade row", () => {
-    render(<DataTable columns={tradeColumns("USD", vi.fn())} data={[TRADE]} />);
+    render(<DataTable columns={tradeColumns("USD", { onOpenFullPage: vi.fn() })} data={[TRADE]} />);
     expect(screen.getByText("TSLQ")).toBeInTheDocument();
     expect(screen.getByText("WIN")).toBeInTheDocument();
     expect(screen.getByText("STK")).toBeInTheDocument();
     expect(screen.getByText("39m")).toBeInTheDocument();
     expect(screen.getByText("+$11.39")).toBeInTheDocument();
     expect(screen.getByText("0.79%")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Actions for TSLQ" })).toBeInTheDocument();
+  });
+
+  it("shows option entry/exit totals with contract multiplier", () => {
+    const optionTrade: Trade = {
+      ...TRADE,
+      id: "opt1",
+      symbol: "NVDA",
+      instrument_type: "option",
+      qty_opened: 3,
+      avg_entry_price: 1.64,
+      avg_exit_price: 1.45,
+      net_pnl: -61.15,
+      return_pct: -12.43,
+    };
+    render(
+      <DataTable columns={tradeColumns("USD", { onOpenFullPage: vi.fn() })} data={[optionTrade]} />,
+    );
+    expect(screen.getByText("$492.00")).toBeInTheDocument();
+    expect(screen.getByText("$435.00")).toBeInTheDocument();
   });
 });

@@ -40,7 +40,7 @@ export function ExitLadder() {
       </header>
 
       <div className="flex flex-col gap-1.5">
-        <span className="text-[10px] font-medium uppercase tracking-widest text-text-dim">
+        <span className="text-[10px] font-medium uppercase tracking-widest text-text-muted">
           Presets
         </span>
         <div className="grid grid-cols-2 gap-2">
@@ -76,7 +76,7 @@ export function ExitLadder() {
           </div>
           <div className="min-w-0 flex-1 pb-3">
             <div className="mb-1 flex items-center justify-between">
-              <span className="text-[10px] font-medium uppercase tracking-widest text-text-dim">
+              <span className="text-[10px] font-medium uppercase tracking-widest text-text-muted">
                 Target {i + 1}
               </span>
               <button
@@ -122,7 +122,7 @@ export function ExitLadder() {
 
       <div className="pt-2">
         <div className="mb-2 flex items-center justify-between">
-          <span className="text-[10px] font-medium uppercase tracking-widest text-text-dim">
+          <span className="text-[10px] font-medium uppercase tracking-widest text-text-muted">
             Trailing stop
           </span>
           <span className="text-[10px] tabular-nums text-text-dim">

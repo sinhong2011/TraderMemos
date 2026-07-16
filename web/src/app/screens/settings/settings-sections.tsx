@@ -15,7 +15,9 @@ import { useTrades } from "../../../lib/hooks/useTrades";
 import { formatCashDisplay, signedCashAmount } from "../../../lib/cashAmount";
 import { intlLocale, LOCALE_OPTIONS, settingsLabel } from "../../../lib/locale";
 import { useAuth } from "../../../lib/auth";
+import { useJournalPrefs } from "../../../lib/journalPrefs";
 import { useLocale } from "../../../i18n";
+import { usePrivacyMode } from "../../../lib/displayPrefs";
 import {
   AccountRow,
   BtnGhost,
@@ -111,6 +113,7 @@ export function AccountsTab({
   onCreateCash,
   onDeleteCash,
 }: AccountsTabProps) {
+  usePrivacyMode();
   const toast = useToastManager();
   const [showAccountForm, setShowAccountForm] = useState(false);
   const [showCashForm, setShowCashForm] = useState(false);
@@ -1014,7 +1017,7 @@ export function JournalTab({
                     type="color"
                     value={tagColor}
                     onChange={(e) => setTagColor(e.target.value)}
-                    className="h-8 w-full cursor-pointer rounded-control border border-border bg-bg-inset p-0.5"
+                    className="h-8 w-full cursor-pointer rounded-control border-none bg-bg-input p-0.5"
                   />
                 </SignalField>
                 <SignalField label="Kind">
@@ -1182,6 +1185,8 @@ export function JournalTab({
 export function GeneralTab() {
   const { locale, setLocale } = useLocale();
   const signOut = useAuth((s) => s.signOut);
+  const maxScreenshots = useJournalPrefs((s) => s.maxScreenshotsPerTrade);
+  const setMaxScreenshots = useJournalPrefs((s) => s.setMaxScreenshotsPerTrade);
 
   return (
     <>
@@ -1196,6 +1201,31 @@ export function GeneralTab() {
               ariaLabel={settingsLabel(locale, "languageSelector")}
               options={LOCALE_OPTIONS}
               triggerClassName="h-8 min-w-[9rem] text-[12px]"
+            />
+          </SettingsGroupRow>
+        </SettingsGroup>
+      </SettingsSection>
+
+      <SettingsSection footer={settingsLabel(locale, "screenshotsFooter")}>
+        <SettingsGroup>
+          <SettingsGroupRow label={settingsLabel(locale, "maxScreenshots")} last>
+            <SignalInput
+              type="number"
+              min={1}
+              max={100}
+              inputMode="numeric"
+              placeholder={settingsLabel(locale, "maxScreenshotsHint")}
+              aria-label={settingsLabel(locale, "maxScreenshots")}
+              value={maxScreenshots ?? ""}
+              onChange={(e) => {
+                const raw = e.target.value.trim();
+                if (raw === "") {
+                  setMaxScreenshots(null);
+                  return;
+                }
+                setMaxScreenshots(Number(raw));
+              }}
+              className="h-8 w-[7.5rem] text-[12px]"
             />
           </SettingsGroupRow>
         </SettingsGroup>

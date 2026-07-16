@@ -4,9 +4,10 @@ import userEvent from "@testing-library/user-event";
 import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import { executionsApi } from "../../lib/api/executions";
+import { ocrApi } from "../../lib/api/ocr";
 import { tradesApi } from "../../lib/api/trades";
 import { useUI } from "../../lib/ui";
-import { NewTradeDrawer } from "./NewTradeDrawer";
+import { NewTradeDrawer, rowsFromOcrExtract } from "./NewTradeDrawer";
 
 vi.mock("../../lib/api/executions", () => ({
   executionsApi: { create: vi.fn() },
@@ -19,6 +20,9 @@ vi.mock("../../lib/api/cash", () => ({
 }));
 vi.mock("../../lib/api/attachments", () => ({
   attachmentsApi: { upload: vi.fn() },
+}));
+vi.mock("../../lib/api/ocr", () => ({
+  ocrApi: { parse: vi.fn() },
 }));
 vi.mock("../../lib/hooks/useAccounts", () => ({
   useAccounts: () => ({
@@ -37,9 +41,19 @@ vi.mock("../../lib/hooks/useTags", () => ({
 vi.mock("../../components/Toast", () => ({
   useToastManager: () => ({ add: vi.fn() }),
 }));
+vi.mock("../../lib/hooks/useRiskRules", () => ({
+  useRiskRules: () => ({ data: undefined }),
+}));
+vi.mock("../../lib/hooks/useAnalytics", () => ({
+  useSummary: () => ({ data: undefined }),
+}));
+vi.mock("../../lib/hooks/useTrades", () => ({
+  useTrades: () => ({ data: [] }),
+}));
 
 const mockedCreate = vi.mocked(executionsApi.create);
 const mockedPatch = vi.mocked(tradesApi.patch);
+const mockedOcrParse = vi.mocked(ocrApi.parse);
 
 function wrap(ui: ReactNode) {
   const qc = new QueryClient({
@@ -48,10 +62,44 @@ function wrap(ui: ReactNode) {
   return render(<QueryClientProvider client={qc}>{ui}</QueryClientProvider>);
 }
 
+describe("rowsFromOcrExtract", () => {
+  it("maps OCR fills into drawer rows", () => {
+    const rows = rowsFromOcrExtract(
+      {
+        symbol: "AAPL",
+        instrument_type: "stock",
+        side: "long",
+        confidence: 0.9,
+        raw_text: "…",
+        warnings: [],
+        rows: [
+          {
+            side: "buy",
+            quantity: 10,
+            price: 185.5,
+            fees: 0.5,
+            commission: 1,
+            executed_at: "2024-01-15T10:30:00Z",
+          },
+        ],
+      },
+      "long",
+    );
+    expect(rows).toHaveLength(1);
+    expect(rows[0].side).toBe("buy");
+    expect(rows[0].quantity).toBe("10");
+    expect(rows[0].price).toBe("185.5");
+    expect(rows[0].fees).toBe("0.5");
+    expect(rows[0].commission).toBe("1");
+    expect(rows[0].executed_at).toMatch(/2024-01-15T/);
+  });
+});
+
 describe("NewTradeDrawer", () => {
   beforeEach(() => {
     mockedCreate.mockReset();
     mockedPatch.mockReset();
+    mockedOcrParse.mockReset();
     mockedCreate.mockResolvedValue({
       execution_id: "e1",
       trade_id: "t1",
@@ -63,10 +111,13 @@ describe("NewTradeDrawer", () => {
   it("renders tabs and form fields when open", () => {
     wrap(<NewTradeDrawer />);
     expect(screen.getByText("New Trade")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "General" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "General" })).toBeInTheDocument();
     expect(screen.getByLabelText("Symbol")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Check compliance" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Prefill trade from screenshot" }),
+    ).toBeInTheDocument();
   });
 
   it("shows a validation error instead of submitting an empty symbol", async () => {
@@ -92,6 +143,40 @@ describe("NewTradeDrawer", () => {
     });
     await waitFor(() => expect(mockedPatch).toHaveBeenCalledWith("t1", expect.any(Object)));
     await waitFor(() => expect(useUI.getState().modal).toBeNull());
+  });
+
+  it("prefills the form from a scanned screenshot", async () => {
+    mockedOcrParse.mockResolvedValue({
+      symbol: "TSLA",
+      instrument_type: "stock",
+      side: "short",
+      confidence: 0.85,
+      raw_text: "TSLA SELL 5 @ 250.25",
+      warnings: [],
+      rows: [
+        {
+          side: "sell",
+          quantity: 5,
+          price: 250.25,
+          fees: 0,
+          commission: 0,
+          executed_at: "2024-06-01T14:32:00Z",
+        },
+      ],
+    });
+    wrap(<NewTradeDrawer />);
+    const file = new File([new Uint8Array([1, 2, 3])], "fill.png", { type: "image/png" });
+    const input = document.querySelector('[data-testid="ocr-scan-input"]');
+    expect(input).toBeTruthy();
+    await userEvent.upload(input as HTMLInputElement, file);
+    await waitFor(() => expect(mockedOcrParse).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(screen.getByLabelText("Symbol")).toHaveValue("TSLA"));
+    expect(screen.getByLabelText("Qty row 1")).toHaveValue("5");
+    expect(screen.getByLabelText("Price row 1")).toHaveValue("250.25");
+    expect(screen.getByRole("button", { name: /Toggle action row 1/i })).toHaveTextContent(/SELL/i);
+    // OCR does not attach journal screenshots — that stays on the Journal tab.
+    await userEvent.click(screen.getByRole("tab", { name: "Journal" }));
+    expect(screen.queryByText("fill.png")).not.toBeInTheDocument();
   });
 
   it("keeps the form open and reports failed rows on partial failure", async () => {

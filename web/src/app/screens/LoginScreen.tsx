@@ -7,6 +7,7 @@ import { ApiError } from "../../lib/api/client";
 import { useAuth } from "../../lib/auth";
 import { cn } from "../../lib/cn";
 import { DEV_ACCOUNT, isDevAuthEnabled } from "../../lib/devAccount";
+import { signalKbdClass } from "../../components/signal-field-styles";
 
 const MODES = [
   { value: "login", label: "Sign in" },
@@ -15,7 +16,7 @@ const MODES = [
 
 type AuthMode = (typeof MODES)[number]["value"];
 
-const labelClass = "text-[10px] font-medium uppercase tracking-[0.12em] text-text-dim";
+const labelClass = "text-[10px] font-medium uppercase tracking-[0.12em] text-text-muted";
 
 function AuthField({
   label,
@@ -61,7 +62,7 @@ function AuthField({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           className={cn(
-            "h-11 w-full rounded-control border border-border bg-bg-inset py-0 pl-10 text-[13px] text-text outline-none transition-[border-color,box-shadow,background-color] duration-150 placeholder:text-text-dim hover:border-border-strong focus:border-accent focus:bg-bg-elevated focus:shadow-[0_0_0_3px_var(--color-accent-bg)]",
+            "h-11 w-full rounded-control border-none bg-bg-input py-0 pl-10 text-[13px] text-text outline-none transition-[background-color] duration-150 placeholder:text-text-dim hover:bg-bg-input-hover focus:bg-bg-input-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
             isPassword ? "pr-10" : "pr-3",
           )}
           placeholder={placeholder}
@@ -314,11 +315,7 @@ export function LoginScreen() {
                   </button>
                 ) : (
                   <p className="text-[11px] text-text-dim">
-                    Press{" "}
-                    <kbd className="rounded-sharp border border-border bg-[rgba(228,255,26,0.06)] px-1.5 py-0.5 text-[10px] text-signal">
-                      Enter
-                    </kbd>{" "}
-                    to continue
+                    Press <kbd className={signalKbdClass}>Enter</kbd> to continue
                   </p>
                 )}
               </div>

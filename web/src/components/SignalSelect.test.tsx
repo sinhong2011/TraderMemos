@@ -25,7 +25,7 @@ describe("SignalSelect", () => {
     expect(screen.getByRole("combobox", { name: "Date range" })).toHaveTextContent("Last 30 days");
 
     await userEvent.click(screen.getByRole("combobox", { name: "Date range" }));
-    await userEvent.click(screen.getByRole("option", { name: "All time" }));
+    await userEvent.click(await screen.findByRole("option", { name: "All time" }));
     expect(onValueChange).toHaveBeenCalledWith("all");
   });
 
@@ -46,7 +46,7 @@ describe("SignalSelect", () => {
     );
 
     await userEvent.click(screen.getByRole("combobox", { name: "Market" }));
-    await userEvent.click(screen.getByRole("option", { name: "Margin" }));
+    await userEvent.click(await screen.findByRole("option", { name: "Margin" }));
     expect(onValueChange).toHaveBeenCalledWith("margin");
   });
 });

@@ -15,8 +15,11 @@ describe("resolveToastVariant", () => {
 });
 
 describe("toastRootClass", () => {
-  it("uses overlay radius and hard shadow", () => {
-    expect(toastRootClass("default")).toContain("rounded-[var(--radius-overlay)]");
-    expect(toastRootClass("default")).toContain("shadow-hard");
+  it("uses panel surface without stripe tint", () => {
+    const cls = toastRootClass("success");
+    expect(cls).toContain("rounded-overlay");
+    expect(cls).toContain("bg-bg-panel");
+    expect(cls).not.toContain("border-l-[3px]");
+    expect(cls).not.toContain("shadow-hard");
   });
 });

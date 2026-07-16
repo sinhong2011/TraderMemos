@@ -115,7 +115,11 @@ type SettingsLabelKey =
   | "languageSelector"
   | "session"
   | "signOut"
-  | "signOutFooter";
+  | "signOutFooter"
+  | "screenshots"
+  | "screenshotsFooter"
+  | "maxScreenshots"
+  | "maxScreenshotsHint";
 
 const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
   en: {
@@ -137,6 +141,11 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     session: "Session",
     signOut: "Sign out",
     signOutFooter: "End your session on this device.",
+    screenshots: "Screenshots",
+    screenshotsFooter:
+      "Cap how many images can attach when logging a trade. Leave empty for no limit.",
+    maxScreenshots: "Max per trade",
+    maxScreenshotsHint: "Empty = unlimited",
   },
   "zh-HK": {
     accounts: "帳戶",
@@ -157,6 +166,10 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     session: "工作階段",
     signOut: "登出",
     signOutFooter: "在此裝置結束你的工作階段。",
+    screenshots: "截圖",
+    screenshotsFooter: "限制記錄交易時可附加的圖片數量。留空表示不限。",
+    maxScreenshots: "每筆上限",
+    maxScreenshotsHint: "留空 = 不限",
   },
   ja: {
     accounts: "アカウント",
@@ -177,6 +190,10 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     session: "セッション",
     signOut: "サインアウト",
     signOutFooter: "このデバイスでのセッションを終了します。",
+    screenshots: "スクリーンショット",
+    screenshotsFooter: "トレード記録時に添付できる画像数の上限です。空欄は無制限です。",
+    maxScreenshots: "1件あたり上限",
+    maxScreenshotsHint: "空欄 = 無制限",
   },
   ko: {
     accounts: "계정",
@@ -197,6 +214,10 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     session: "세션",
     signOut: "로그아웃",
     signOutFooter: "이 기기에서 세션을 종료합니다.",
+    screenshots: "스크린샷",
+    screenshotsFooter: "거래 기록 시 첨부할 수 있는 이미지 수 한도입니다. 비우면 제한 없음.",
+    maxScreenshots: "거래당 최대",
+    maxScreenshotsHint: "비움 = 무제한",
   },
 };
 

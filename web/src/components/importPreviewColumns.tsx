@@ -1,16 +1,26 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import type { JournalTradePreview } from "../lib/api/types";
+import { cn } from "../lib/cn";
+import { usePrivacyMode } from "../lib/displayPrefs";
 import { fmtSignedMoney } from "../lib/format";
 import { formatOptionTypeLabel, type OptionRightOverride } from "../lib/importOptionRight";
 import { intlLocale } from "../lib/locale";
-import { cn } from "../lib/cn";
+
+function ReturnCell({ value, currency }: { value: number; currency: string }) {
+  usePrivacyMode();
+  const locale = intlLocale();
+  return (
+    <span className={cn("tabular-nums font-semibold", value >= 0 ? "text-profit" : "text-loss")}>
+      {fmtSignedMoney(value, currency, locale)}
+    </span>
+  );
+}
 
 export function journalTradePreviewColumns(
   currency: string,
   onDetails?: (trade: JournalTradePreview) => void,
   optionOverrides: Record<number, OptionRightOverride> = {},
 ): ColumnDef<JournalTradePreview>[] {
-  const locale = intlLocale();
   const columns: ColumnDef<JournalTradePreview>[] = [
     {
       accessorKey: "symbol",
@@ -64,16 +74,7 @@ export function journalTradePreviewColumns(
       accessorKey: "return_usd",
       header: "Return",
       meta: { align: "right" },
-      cell: (info) => {
-        const value = info.getValue<number>();
-        return (
-          <span
-            className={cn("tabular-nums font-semibold", value >= 0 ? "text-profit" : "text-loss")}
-          >
-            {fmtSignedMoney(value, currency, locale)}
-          </span>
-        );
-      },
+      cell: (info) => <ReturnCell value={info.getValue<number>()} currency={currency} />,
     },
   ];
 

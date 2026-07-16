@@ -8,6 +8,7 @@ import type { OptionRightOverride } from "../lib/importOptionRight";
 import { intlLocale } from "../lib/locale";
 import { cn } from "../lib/cn";
 import { heroPnlClass } from "./theme-tokens";
+import { usePrivacyMode } from "../lib/displayPrefs";
 
 function formatMarketLabel(trade: JournalTradePreview, optionRight: string): string {
   if (trade.instrument_type === "option") {
@@ -63,7 +64,7 @@ function DetailRow({
 }) {
   return (
     <div className="min-w-0">
-      <p className="text-[10px] uppercase tracking-[0.08em] text-text-dim">{label}</p>
+      <p className="text-[10px] uppercase tracking-[0.08em] text-text-muted">{label}</p>
       {children ?? (
         <p className={cn("mt-1 truncate text-[13px] tabular-nums", valueClassName)}>{value}</p>
       )}
@@ -74,7 +75,7 @@ function DetailRow({
 function DetailSection({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="flex flex-col gap-2">
-      <h3 className="text-[10px] uppercase tracking-[0.12em] text-text-dim">{title}</h3>
+      <h3 className="text-[10px] uppercase tracking-[0.12em] text-text-muted">{title}</h3>
       <div className="grid gap-3 rounded-sharp border border-border bg-bg-inset px-3 py-3 sm:grid-cols-2">
         {children}
       </div>
@@ -97,6 +98,7 @@ export function ImportJournalDetailModal({
   optionRight?: string;
   onOptionRightChange?: (row: number, right: OptionRightOverride) => void;
 }) {
+  usePrivacyMode();
   if (!trade) return null;
 
   const locale = intlLocale();
@@ -114,7 +116,7 @@ export function ImportJournalDetailModal({
         <p className="m-0 text-[11px] text-text-muted">Import preview · Row {trade.row}</p>
 
         <div className="rounded-sharp border border-border bg-bg-inset px-4 py-4">
-          <p className="text-[10px] uppercase tracking-[0.12em] text-text-dim">Return</p>
+          <p className="text-[10px] uppercase tracking-[0.12em] text-text-muted">Return</p>
           <div className="mt-2 flex flex-wrap items-end gap-x-4 gap-y-1">
             <p className={cn("m-0", heroPnlClass(trade.return_usd))}>
               {fmtSignedMoney(trade.return_usd, currency, locale)}
@@ -234,7 +236,7 @@ export function ImportJournalDetailModal({
 
         {trade.notes ? (
           <section className="flex flex-col gap-2 border-t border-border pt-4">
-            <h3 className="text-[10px] uppercase tracking-[0.12em] text-text-dim">Notes</h3>
+            <h3 className="text-[10px] uppercase tracking-[0.12em] text-text-muted">Notes</h3>
             <p className="m-0 whitespace-pre-wrap rounded-sharp border border-border bg-bg-inset px-3 py-3 text-[12px] leading-relaxed text-text">
               {trade.notes}
             </p>

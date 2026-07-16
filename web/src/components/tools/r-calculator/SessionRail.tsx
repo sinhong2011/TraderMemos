@@ -47,7 +47,7 @@ export function SessionRail({
 
   return (
     <div className="flex flex-wrap items-center gap-1.5">
-      <span className="mr-1 text-[10px] font-medium uppercase tracking-widest text-text-dim">
+      <span className="mr-1 text-[10px] font-medium uppercase tracking-widest text-text-muted">
         Positions
       </span>
       {sessions.map((s) => {
@@ -73,7 +73,7 @@ export function SessionRail({
                     cancelEdit();
                   }
                 }}
-                className="min-w-[5rem] max-w-[10rem] rounded-control border border-accent/40 bg-bg-inset px-2 py-1 text-[11px] font-medium text-text outline-none focus:border-accent focus:shadow-[0_0_0_3px_var(--color-accent-bg)]"
+                className="min-w-[5rem] max-w-[10rem] rounded-control border-none bg-bg-input px-2 py-1 text-[11px] font-medium text-text outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
                 aria-label="Rename position"
               />
             ) : (

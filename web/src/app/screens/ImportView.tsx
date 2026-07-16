@@ -16,6 +16,7 @@ import { Skeleton } from "../../components/Skeleton";
 import { cn } from "../../lib/cn";
 import { fmtSignedMoney } from "../../lib/format";
 import { intlLocale } from "../../lib/locale";
+import { usePrivacyMode } from "../../lib/displayPrefs";
 import type {
   Account,
   ImportPreview,
@@ -75,7 +76,7 @@ function ImportGuidance({ onLogTrade }: { onLogTrade?: () => void }) {
       </div>
 
       <div className="border-t border-border pt-4">
-        <h3 className="text-[10px] font-semibold uppercase tracking-widest text-text-dim">
+        <h3 className="text-[10px] font-semibold uppercase tracking-widest text-text-muted">
           Sample file
         </h3>
         <a
@@ -224,6 +225,7 @@ function JournalSummaryStrip({
   summary: JournalPreviewSummary;
   currency: string;
 }) {
+  usePrivacyMode();
   const locale = intlLocale();
   const netPnl = fmtSignedMoney(summary.net_pnl, currency, locale);
   const pnlTone = summary.net_pnl >= 0 ? "pos" : "neg";

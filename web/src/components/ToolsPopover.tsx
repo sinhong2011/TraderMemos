@@ -1,10 +1,12 @@
-import { Popover } from "@base-ui-components/react";
+import { Popover } from "@base-ui/react";
 import { Wrench } from "lucide-react";
 import { useState } from "react";
 import { cn } from "../lib/cn";
+import { APP_HOTKEYS } from "../lib/hotkeys";
 import { TOOL_ITEMS } from "../lib/tools";
 import { useToolRunner } from "../lib/useToolRunner";
 import { useUI } from "../lib/ui";
+import { signalKbdClass } from "./signal-field-styles";
 
 function RailTooltip({ label }: { label: string }) {
   return (
@@ -44,7 +46,9 @@ export function ToolsPopover({ variant = "rail" }: { variant?: "rail" | "header"
           isHeader ? "size-8" : "size-9",
           open
             ? "bg-[rgba(228,255,26,0.12)] text-signal"
-            : "text-signal hover:bg-[rgba(228,255,26,0.08)]",
+            : isHeader
+              ? "bg-bg-input text-signal hover:bg-bg-input-hover"
+              : "text-signal hover:bg-[rgba(228,255,26,0.08)]",
         )}
       >
         <Wrench
@@ -65,7 +69,7 @@ export function ToolsPopover({ variant = "rail" }: { variant?: "rail" | "header"
           <Popover.Popup
             className={cn(
               "w-[248px] rounded-overlay border border-border-strong bg-bg-panel p-3 outline-none",
-              "shadow-[0_12px_32px_rgba(0,0,0,0.45)]",
+              "shadow-[0_12px_32px_rgba(18,18,24,0.55)]",
               "origin-[var(--transform-origin)] transition-[transform,opacity] duration-150 ease-out",
               "data-[starting-style]:scale-95 data-[starting-style]:opacity-0",
               "data-[ending-style]:scale-95 data-[ending-style]:opacity-0",
@@ -113,9 +117,7 @@ export function ToolsPopover({ variant = "rail" }: { variant?: "rail" | "header"
                 )}
               >
                 <span>All commands</span>
-                <kbd className="rounded-sharp border border-border bg-bg-inset px-1.5 py-0.5 text-[10px] text-signal">
-                  ⌘K
-                </kbd>
+                <kbd className={signalKbdClass}>{APP_HOTKEYS.palette.label}</kbd>
               </button>
             </div>
           </Popover.Popup>

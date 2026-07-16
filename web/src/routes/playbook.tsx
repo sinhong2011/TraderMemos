@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PlaybookView } from "../app/screens/PlaybookView";
 import { useToastManager } from "../components/Toast";
+import { accountBaseCurrency } from "../lib/displayPrefs";
 import { useFilterParams, useFilters } from "../lib/filters";
 import { useAccounts } from "../lib/hooks/useAccounts";
 import { useBreakdown } from "../lib/hooks/useAnalytics";
@@ -18,7 +19,7 @@ function PlaybookPage() {
   const setupsQ = useSetups();
   const breakdownQ = useBreakdown("setup", filters);
   const accountsQ = useAccounts();
-  const currency = (accountsQ.data ?? []).find((a) => a.id === accountId)?.base_currency ?? "USD";
+  const currency = accountBaseCurrency(accountsQ.data ?? [], accountId);
 
   const createM = useCreateSetup();
   const updateM = useUpdateSetup();
