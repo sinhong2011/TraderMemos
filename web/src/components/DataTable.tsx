@@ -1,16 +1,17 @@
 import {
   type ColumnDef,
+  type OnChangeFn,
   type SortingState,
+  type VisibilityState,
   flexRender,
   getCoreRowModel,
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { ChevronDown, ChevronUp, ChevronsUpDown } from "lucide-react";
 import { useRef, useState } from "react";
 import { cn } from "../lib/cn";
-import { Button } from "./ui/button";
+import { ColumnHeader } from "./ColumnHeader";
 
 interface DataTableProps<T> {
   columns: ColumnDef<T>[];
@@ -20,6 +21,46 @@ interface DataTableProps<T> {
   maxHeight?: string | number;
   className?: string;
   dense?: boolean;
+  /** ~20% larger type and row height than default (trade log) */
+  comfortable?: boolean;
+  /** Hairline under header and between rows */
+  lined?: boolean;
+  /** Override sticky header surface (default `bg-bg-panel`) */
+  headerClassName?: string;
+  /** Controlled sorting (tablecn Sort button / header menu stay in sync) */
+  sorting?: SortingState;
+  onSortingChange?: OnChangeFn<SortingState>;
+  enableMultiSort?: boolean;
+  /** Controlled column visibility (tablecn View / Hide) */
+  columnVisibility?: VisibilityState;
+  onColumnVisibilityChange?: OnChangeFn<VisibilityState>;
+}
+
+function tableMetrics(dense: boolean, comfortable: boolean) {
+  if (dense)
+    return {
+      fontSize: 11,
+      rowHeight: 36,
+      headerText: "text-[10px] font-semibold tracking-widest",
+      headerPy: "py-2",
+      cellPy: "py-2",
+    };
+  if (comfortable)
+    return {
+      fontSize: 15.6,
+      rowHeight: 56,
+      /** Body-matched type; 52px header on the 4px grid */
+      headerText: "h-[52px] font-medium tracking-wide",
+      headerPy: "py-0",
+      cellPy: "py-3",
+    };
+  return {
+    fontSize: 13,
+    rowHeight: 44,
+    headerText: "text-[10px] font-semibold tracking-widest",
+    headerPy: "py-2.5",
+    cellPy: "py-2.5",
+  };
 }
 
 export function DataTable<T>({
@@ -29,25 +70,42 @@ export function DataTable<T>({
   maxHeight = "100%",
   className,
   dense = false,
+  comfortable = false,
+  lined = false,
+  headerClassName,
+  sorting: sortingProp,
+  onSortingChange,
+  enableMultiSort = false,
+  columnVisibility: visibilityProp,
+  onColumnVisibilityChange,
 }: DataTableProps<T>) {
-  const [sorting, setSorting] = useState<SortingState>([]);
+  const [internalSorting, setInternalSorting] = useState<SortingState>([]);
+  const [internalVisibility, setInternalVisibility] = useState<VisibilityState>({});
+  const sorting = sortingProp ?? internalSorting;
+  const setSorting = onSortingChange ?? setInternalSorting;
+  const columnVisibility = visibilityProp ?? internalVisibility;
+  const setColumnVisibility = onColumnVisibilityChange ?? setInternalVisibility;
   const tableContainerRef = useRef<HTMLDivElement>(null);
+  const metrics = tableMetrics(dense, comfortable);
 
   const table = useReactTable({
     data,
     columns,
-    state: { sorting },
+    state: { sorting, columnVisibility },
     onSortingChange: setSorting,
+    onColumnVisibilityChange: setColumnVisibility,
+    enableMultiSort,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
   });
 
   const { rows } = table.getRowModel();
+  const visibleColCount = table.getVisibleLeafColumns().length;
 
   const rowVirtualizer = useVirtualizer({
     count: rows.length,
     getScrollElement: () => tableContainerRef.current,
-    estimateSize: () => (dense ? 36 : 44),
+    estimateSize: () => metrics.rowHeight,
     overscan: 10,
   });
 
@@ -62,17 +120,16 @@ export function DataTable<T>({
       ref={tableContainerRef}
       className={cn("overflow-auto", className)}
       style={{
-        fontSize: dense ? "11px" : "13px",
+        fontSize: `${metrics.fontSize}px`,
         maxHeight,
       }}
     >
       <table className="w-full border-collapse">
-        <thead className="sticky top-0 z-1 bg-bg-panel">
+        <thead className={cn("sticky top-0 z-1 bg-bg-panel", headerClassName)}>
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>
               {headerGroup.headers.map((header) => {
                 const sorted = header.column.getIsSorted();
-                const canSort = header.column.getCanSort();
                 const meta = header.column.columnDef.meta as
                   | { align?: string; headerTitle?: string }
                   | undefined;
@@ -87,41 +144,20 @@ export function DataTable<T>({
                       sorted === "asc" ? "ascending" : sorted === "desc" ? "descending" : undefined
                     }
                     className={cn(
-                      "select-none px-3 py-2 font-semibold uppercase tracking-widest text-text-muted",
-                      dense ? "text-[10px]" : "text-[10px]",
+                      "select-none px-3 text-text-muted",
+                      metrics.headerText,
+                      metrics.headerPy,
+                      lined && "border-b border-border",
                       alignRight && "text-right",
                     )}
                   >
-                    {canSort ? (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        onClick={header.column.getToggleSortingHandler()}
-                        title={meta?.headerTitle}
-                        className={cn(
-                          "h-auto w-full justify-start gap-1 rounded-sharp px-0 uppercase tracking-widest hover:bg-transparent hover:text-text",
-                          alignRight && "justify-end",
-                        )}
-                      >
-                        {label}
-                        <span className="ml-0.5 text-text-dim">
-                          {sorted === "asc" ? (
-                            <ChevronUp size={12} strokeWidth={1.5} />
-                          ) : sorted === "desc" ? (
-                            <ChevronDown size={12} strokeWidth={1.5} />
-                          ) : (
-                            <ChevronsUpDown size={12} strokeWidth={1.5} />
-                          )}
-                        </span>
-                      </Button>
-                    ) : (
-                      <span
-                        title={meta?.headerTitle}
-                        className={cn("flex items-center gap-1", alignRight && "justify-end")}
-                      >
-                        {label}
-                      </span>
-                    )}
+                    <ColumnHeader
+                      column={header.column}
+                      title={label}
+                      titleAttr={meta?.headerTitle}
+                      alignRight={alignRight}
+                      comfortable={comfortable}
+                    />
                   </th>
                 );
               })}
@@ -131,7 +167,7 @@ export function DataTable<T>({
         <tbody>
           {paddingTop > 0 && (
             <tr>
-              <td style={{ height: `${paddingTop}px` }} colSpan={columns.length} />
+              <td style={{ height: `${paddingTop}px` }} colSpan={visibleColCount} />
             </tr>
           )}
           {virtualRows.map((virtualRow) => {
@@ -156,7 +192,8 @@ export function DataTable<T>({
                       key={cell.id}
                       className={cn(
                         "px-3 text-text whitespace-nowrap transition-colors duration-150",
-                        dense ? "py-2" : "py-2.5",
+                        metrics.cellPy,
+                        lined && "border-b border-border",
                         align,
                       )}
                     >
@@ -169,7 +206,7 @@ export function DataTable<T>({
           })}
           {paddingBottom > 0 && (
             <tr>
-              <td style={{ height: `${paddingBottom}px` }} colSpan={columns.length} />
+              <td style={{ height: `${paddingBottom}px` }} colSpan={visibleColCount} />
             </tr>
           )}
         </tbody>

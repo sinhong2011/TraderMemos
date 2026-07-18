@@ -92,19 +92,21 @@ export function tradeColumns(
   return [
     {
       accessorKey: "opened_at",
-      header: "DATE",
-      meta: { headerTitle: "Date opened" },
+      header: "Date",
+      meta: { label: "Created At", headerTitle: "Date opened" },
       cell: (i) => muted(fmtDateShort(i.getValue<string>())),
     },
     {
       accessorKey: "symbol",
-      header: "SYMBOL",
+      header: "Symbol",
+      meta: { label: "Symbol" },
       cell: (i) => <span className="font-semibold text-accent">{i.getValue<string>()}</span>,
     },
     {
       id: "status",
-      header: "STATUS",
-      meta: { headerTitle: "Trade result" },
+      header: "Status",
+      enableSorting: false,
+      meta: { label: "Status", headerTitle: "Trade result" },
       cell: (i) => {
         const s = tradeStatus(i.row.original);
         return (
@@ -116,8 +118,8 @@ export function tradeColumns(
     },
     {
       accessorKey: "direction",
-      header: "DIR",
-      meta: { headerTitle: "Direction — long or short" },
+      header: "Dir",
+      meta: { label: "Direction", headerTitle: "Direction — long or short" },
       cell: (i) =>
         i.getValue<string>() === "long" ? (
           <ArrowUpRight
@@ -139,8 +141,8 @@ export function tradeColumns(
     },
     {
       accessorKey: "instrument_type",
-      header: "MARKET",
-      meta: { headerTitle: "Instrument type" },
+      header: "Market",
+      meta: { label: "Market", headerTitle: "Instrument type" },
       cell: (i) => (
         <Pill tone="muted" title={MARKET_TITLES[i.getValue<string>()]}>
           {marketLabel(i.getValue<string>())}
@@ -149,29 +151,31 @@ export function tradeColumns(
     },
     {
       accessorKey: "qty_opened",
-      header: "QTY",
-      meta: { align: "right", headerTitle: "Quantity opened" },
+      header: "Qty",
+      meta: { align: "right", label: "Qty", headerTitle: "Quantity opened" },
       cell: (i) => <span className="tabular-nums">{i.getValue<number>().toFixed(2)}</span>,
     },
     {
       accessorKey: "avg_entry_price",
-      header: "ENTRY",
-      meta: { align: "right", headerTitle: "Average entry price" },
+      header: "Entry",
+      meta: { align: "right", label: "Entry", headerTitle: "Average entry price" },
       cell: (i) => <MoneyCell value={i.getValue<number>()} currency={currency} fxRate={fxRate} />,
     },
     {
       accessorKey: "avg_exit_price",
-      header: "EXIT",
-      meta: { align: "right", headerTitle: "Average exit price" },
+      header: "Exit",
+      meta: { align: "right", label: "Exit", headerTitle: "Average exit price" },
       cell: (i) => (
         <MoneyCell value={i.getValue<number | null>()} currency={currency} fxRate={fxRate} />
       ),
     },
     {
       id: "ent_tot",
-      header: "ENT TOT",
+      header: "Ent tot",
+      enableSorting: false,
       meta: {
         align: "right",
+        label: "Entry total",
         headerTitle: "Entry total — quantity × average entry × multiplier",
       },
       cell: (i) => {
@@ -187,9 +191,11 @@ export function tradeColumns(
     },
     {
       id: "ext_tot",
-      header: "EXT TOT",
+      header: "Ext tot",
+      enableSorting: false,
       meta: {
         align: "right",
+        label: "Exit total",
         headerTitle: "Exit total — quantity × average exit × multiplier",
       },
       cell: (i) => {
@@ -207,8 +213,9 @@ export function tradeColumns(
     },
     {
       id: "pos",
-      header: "POS",
-      meta: { align: "right", headerTitle: "Position still open" },
+      header: "Pos",
+      enableSorting: false,
+      meta: { align: "right", label: "Position", headerTitle: "Position still open" },
       cell: (i) => {
         const t = i.row.original;
         if (t.status !== "open") return muted("-");
@@ -218,8 +225,8 @@ export function tradeColumns(
     },
     {
       accessorKey: "time_in_trade_secs",
-      header: "HOLD",
-      meta: { align: "right", headerTitle: "Time in trade" },
+      header: "Hold",
+      meta: { align: "right", label: "Hold", headerTitle: "Time in trade" },
       cell: (i) => {
         const v = i.getValue<number | null>();
         return v == null || v <= 0 ? (
@@ -231,8 +238,8 @@ export function tradeColumns(
     },
     {
       accessorKey: "net_pnl",
-      header: "RETURN",
-      meta: { align: "right", headerTitle: "Net P&L" },
+      header: "Return",
+      meta: { align: "right", label: "Return", headerTitle: "Net P&L" },
       cell: (i) => {
         const v = i.getValue<number | null>();
         if (v == null) return muted("-");
@@ -241,9 +248,10 @@ export function tradeColumns(
     },
     {
       accessorKey: "return_pct",
-      header: "RETURN %",
+      header: "Return %",
       meta: {
         align: "right",
+        label: "Return %",
         headerTitle: "Net P&L as a percentage of entry total",
       },
       cell: (i) => {
@@ -256,7 +264,40 @@ export function tradeColumns(
       id: "actions",
       header: "",
       enableSorting: false,
+      enableHiding: false,
       cell: (i) => <TradeRowMenu trade={i.row.original} actions={actions} />,
     },
   ];
 }
+
+/** Sortable trade columns for the tablecn-style Sort button. */
+export const TRADE_SORT_COLUMNS: { id: string; label: string }[] = [
+  { id: "opened_at", label: "Created At" },
+  { id: "symbol", label: "Symbol" },
+  { id: "direction", label: "Direction" },
+  { id: "instrument_type", label: "Market" },
+  { id: "qty_opened", label: "Qty" },
+  { id: "avg_entry_price", label: "Entry" },
+  { id: "avg_exit_price", label: "Exit" },
+  { id: "time_in_trade_secs", label: "Hold" },
+  { id: "net_pnl", label: "Return" },
+  { id: "return_pct", label: "Return %" },
+];
+
+/** Hideable trade columns for the tablecn-style View button. */
+export const TRADE_VIEW_COLUMNS: { id: string; label: string }[] = [
+  { id: "opened_at", label: "Created At" },
+  { id: "symbol", label: "Symbol" },
+  { id: "status", label: "Status" },
+  { id: "direction", label: "Direction" },
+  { id: "instrument_type", label: "Market" },
+  { id: "qty_opened", label: "Qty" },
+  { id: "avg_entry_price", label: "Entry" },
+  { id: "avg_exit_price", label: "Exit" },
+  { id: "ent_tot", label: "Entry total" },
+  { id: "ext_tot", label: "Exit total" },
+  { id: "pos", label: "Position" },
+  { id: "time_in_trade_secs", label: "Hold" },
+  { id: "net_pnl", label: "Return" },
+  { id: "return_pct", label: "Return %" },
+];

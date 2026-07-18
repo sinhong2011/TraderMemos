@@ -2,12 +2,48 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vite-plus/test";
 import type { Trade } from "../../lib/api/types";
-import { TradesView } from "./TradesView";
+import { TradesView, sortTrades } from "./TradesView";
+
+vi.mock("../../lib/hooks/useMoneyFx", () => ({
+  useMoneyFx: (currency: string) => ({ currency, rate: 1 }),
+}));
 
 vi.mock("../../components/Toast", () => ({
   useToastManager: () => ({ add: vi.fn() }),
+}));
+
+vi.mock("../../components/SignalSelect", () => ({
+  SignalSelect: ({
+    value,
+    onValueChange,
+    ariaLabel,
+    options,
+  }: {
+    value: string;
+    onValueChange: (v: string) => void;
+    ariaLabel?: string;
+    options?: { value: string; label: ReactNode }[];
+  }) => (
+    <select aria-label={ariaLabel} value={value} onChange={(e) => onValueChange(e.target.value)}>
+      {(
+        options ?? [
+          { value: "10", label: "10" },
+          { value: "20", label: "20" },
+          { value: "30", label: "30" },
+          { value: "40", label: "40" },
+          { value: "50", label: "50" },
+          { value: "100", label: "100" },
+        ]
+      ).map((o) => (
+        <option key={o.value} value={o.value}>
+          {typeof o.label === "string" ? o.label : o.value}
+        </option>
+      ))}
+    </select>
+  ),
 }));
 
 vi.mock("../../components/DataTable", () => ({
@@ -109,12 +145,12 @@ describe("TradesView", () => {
         ]}
       />,
     );
-    expect(screen.getByText("SYMBOL")).toBeInTheDocument();
-    expect(screen.getByText("RETURN %")).toBeInTheDocument();
+    expect(screen.getByText("Symbol")).toBeInTheDocument();
+    expect(screen.getByText("Return %")).toBeInTheDocument();
     expect(screen.getByText("AAPL")).toBeInTheDocument();
     expect(screen.getByText("MSFT")).toBeInTheDocument();
     expect(screen.getByText("WIN")).toBeInTheDocument();
-    expect(screen.getByText("2 trades")).toBeInTheDocument();
+    expect(screen.getByText("1–2 of 2")).toBeInTheDocument();
   });
 
   it("shows onboarding empty state when journal is empty", () => {
@@ -127,6 +163,7 @@ describe("TradesView", () => {
   it("shows filtered empty state when scope has trades but list is empty", () => {
     render(<TradesView {...base} trades={[]} totalInScope={3} hasNarrowingFilters symbol="ZZZZ" />);
     expect(screen.getByText("No trades match these filters")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Reset" })).toBeInTheDocument();
     expect(screen.getAllByRole("button", { name: /clear filters/i }).length).toBeGreaterThan(0);
   });
 
@@ -139,5 +176,81 @@ describe("TradesView", () => {
     await user.click(screen.getAllByRole("button", { name: /log trade/i })[0]);
     expect(onImport).toHaveBeenCalledOnce();
     expect(onNewTrade).toHaveBeenCalledOnce();
+  });
+
+  it("wires status faceted filter", async () => {
+    const user = userEvent.setup();
+    const onToggleTradeStatus = vi.fn();
+    render(
+      <TradesView
+        {...base}
+        totalInScope={1}
+        trades={[trade({ id: "t1", symbol: "AAPL", net_pnl: 10 })]}
+        onToggleTradeStatus={onToggleTradeStatus}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Status" }));
+    await user.click(screen.getByRole("option", { name: /Wins/i }));
+    expect(onToggleTradeStatus).toHaveBeenCalledWith("win");
+  });
+
+  it("paginates long trade lists", async () => {
+    const user = userEvent.setup();
+    const trades = Array.from({ length: 30 }, (_, i) =>
+      trade({
+        id: `t${i}`,
+        symbol: `S${String(i).padStart(2, "0")}`,
+        net_pnl: i % 2 === 0 ? 10 : -10,
+      }),
+    );
+    render(<TradesView {...base} totalInScope={30} trades={trades} />);
+
+    expect(screen.getByText("1–20 of 30")).toBeInTheDocument();
+    expect(screen.getByText("S00")).toBeInTheDocument();
+    expect(screen.queryByText("S20")).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Next page" }));
+    expect(screen.getByText("21–30 of 30")).toBeInTheDocument();
+    expect(screen.getByText("S20")).toBeInTheDocument();
+    expect(screen.queryByText("S00")).not.toBeInTheDocument();
+  });
+
+  it("shows Created At, Sort, and View toolbar controls", () => {
+    render(
+      <TradesView {...base} totalInScope={1} trades={[trade({ id: "t1", symbol: "AAPL" })]} />,
+    );
+    expect(screen.getByText("Created At")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Sort" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Toggle columns" })).toBeInTheDocument();
+  });
+
+  it("opens Sort popover and adds a sort", async () => {
+    const user = userEvent.setup();
+    render(
+      <TradesView {...base} totalInScope={1} trades={[trade({ id: "t1", symbol: "AAPL" })]} />,
+    );
+    await user.click(screen.getByRole("button", { name: "Sort" }));
+    expect(screen.getByText("No sorting applied")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Add sort" }));
+    expect(screen.getByText("Sort by")).toBeInTheDocument();
+    expect(screen.getByLabelText("Sort column")).toHaveValue("opened_at");
+  });
+});
+
+describe("sortTrades", () => {
+  it("sorts by symbol ascending then descending", () => {
+    const rows = [
+      trade({ id: "a", symbol: "MSFT", net_pnl: 1 }),
+      trade({ id: "b", symbol: "AAPL", net_pnl: 2 }),
+    ];
+    expect(sortTrades(rows, [{ id: "symbol", desc: false }]).map((t) => t.symbol)).toEqual([
+      "AAPL",
+      "MSFT",
+    ]);
+    expect(sortTrades(rows, [{ id: "symbol", desc: true }]).map((t) => t.symbol)).toEqual([
+      "MSFT",
+      "AAPL",
+    ]);
   });
 });
