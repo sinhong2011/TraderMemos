@@ -76,6 +76,9 @@ const base = {
   tagBreakdown: [],
   tagBreakdownLoading: false,
   tagBreakdownError: false,
+  sessionBreakdown: [],
+  sessionBreakdownLoading: false,
+  sessionBreakdownError: false,
   currency: "USD",
   onDimChange: vi.fn(),
 };

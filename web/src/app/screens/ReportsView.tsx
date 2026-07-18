@@ -19,6 +19,7 @@ import { ReportsMetricEvolution } from "../../components/ReportsMetricEvolution"
 import { ReportsRDistributionChart } from "../../components/ReportsRDistributionChart";
 import { ReportsRMultiplePerformance } from "../../components/ReportsRMultiplePerformance";
 import { ReportsRollingWinRate } from "../../components/ReportsRollingWinRate";
+import { ReportsSessionTable } from "../../components/ReportsSessionTable";
 import { Skeleton } from "../../components/Skeleton";
 import { StatCard } from "../../components/StatCard";
 import { Button } from "../../components/ui/button";
@@ -99,6 +100,9 @@ export interface ReportsViewProps {
   tagBreakdown: BreakGroup[];
   tagBreakdownLoading: boolean;
   tagBreakdownError: boolean;
+  sessionBreakdown: BreakGroup[];
+  sessionBreakdownLoading: boolean;
+  sessionBreakdownError: boolean;
   currency: string;
   dim: BreakdownDim;
   onDimChange: (dim: BreakdownDim) => void;
@@ -396,6 +400,9 @@ export function ReportsView({
   tagBreakdown,
   tagBreakdownLoading,
   tagBreakdownError,
+  sessionBreakdown,
+  sessionBreakdownLoading,
+  sessionBreakdownError,
   currency,
   dim,
   onDimChange,
@@ -579,6 +586,14 @@ export function ReportsView({
           fxRate={fxRate}
         />
       </div>
+
+      <ReportsSessionTable
+        breakdown={sessionBreakdown}
+        loading={sessionBreakdownLoading}
+        error={sessionBreakdownError}
+        currency={displayCurrency}
+        fxRate={fxRate}
+      />
 
       <Card title="Breakdown" action={panelRight}>
         {renderContent()}

@@ -25,6 +25,7 @@ function ReportsPage() {
   const hourOfDayBreakdownQ = useBreakdown("hour_of_day", filters);
   const symbolBreakdownQ = useBreakdown("symbol", filters);
   const tagBreakdownQ = useBreakdown("tag", filters);
+  const sessionBreakdownQ = useBreakdown("session", filters);
   const accountsQ = useAccounts();
   const currency = accountBaseCurrency(accountsQ.data ?? [], accountId);
 
@@ -57,6 +58,9 @@ function ReportsPage() {
       tagBreakdown={tagBreakdownQ.data ?? []}
       tagBreakdownLoading={tagBreakdownQ.isLoading}
       tagBreakdownError={tagBreakdownQ.isError}
+      sessionBreakdown={sessionBreakdownQ.data ?? []}
+      sessionBreakdownLoading={sessionBreakdownQ.isLoading}
+      sessionBreakdownError={sessionBreakdownQ.isError}
       currency={currency}
       dim={dim}
       onDimChange={setDim}
