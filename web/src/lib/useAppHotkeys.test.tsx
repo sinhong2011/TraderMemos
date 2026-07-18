@@ -42,6 +42,15 @@ describe("useAppHotkeys", () => {
     await waitFor(() => expect(useUI.getState().modal).toBe("new-trade"));
   });
 
+  it("does not close new trade when n is pressed again", async () => {
+    const user = userEvent.setup();
+    useUI.setState({ modal: "new-trade" });
+    render(<HotkeyHost />);
+    await user.click(document.body);
+    await user.keyboard("n");
+    expect(useUI.getState().modal).toBe("new-trade");
+  });
+
   it("opens new trade on KeyN even when event.key is empty", async () => {
     render(<HotkeyHost />);
     document.dispatchEvent(

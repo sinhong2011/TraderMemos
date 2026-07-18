@@ -188,30 +188,27 @@ export function useAppHotkeys() {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       if (e.repeat) return;
-      if (drawerOrModalOpen() || isTypingContext(e)) return;
 
-      if (!e.shiftKey && isPlainLetter(e, "n")) {
+      const isNewTrade = !e.shiftKey && isPlainLetter(e, "n");
+      const isNewSetup = e.shiftKey && isPlainLetter(e, "s");
+      const isNewNote = e.shiftKey && isPlainLetter(e, "n");
+      if (!isNewTrade && !isNewSetup && !isNewNote) return;
+
+      // Drawer already open: swallow the key so it never toggles/closes or leaks to chrome.
+      if (drawerOrModalOpen()) {
         e.preventDefault();
         e.stopPropagation();
-        useUI.getState().setCommandOpen(false);
-        openModal("new-trade");
         return;
       }
 
-      if (e.shiftKey && isPlainLetter(e, "s")) {
-        e.preventDefault();
-        e.stopPropagation();
-        useUI.getState().setCommandOpen(false);
-        openModal("new-setup");
-        return;
-      }
+      if (isTypingContext(e)) return;
 
-      if (e.shiftKey && isPlainLetter(e, "n")) {
-        e.preventDefault();
-        e.stopPropagation();
-        useUI.getState().setCommandOpen(false);
-        openModal("new-note");
-      }
+      e.preventDefault();
+      e.stopPropagation();
+      useUI.getState().setCommandOpen(false);
+      if (isNewTrade) openModal("new-trade");
+      else if (isNewSetup) openModal("new-setup");
+      else openModal("new-note");
     };
 
     document.addEventListener("keydown", onKeyDown, CAPTURE);

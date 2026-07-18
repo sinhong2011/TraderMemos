@@ -39,7 +39,7 @@ export const useUI = create<UIState>((set, get) => ({
   sidebarCollapsed: false,
   commandOpen: false,
   positionSizeOpen: false,
-  openModal: (modal) => set({ modal }),
+  openModal: (modal) => set((s) => (s.modal === modal ? s : { modal })),
   openTradeFromSetup: (draft) => set({ modal: "new-trade", tradeDraft: draft }),
   consumeTradeDraft: () => {
     const draft = get().tradeDraft;
