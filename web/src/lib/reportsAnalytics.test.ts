@@ -153,32 +153,6 @@ describe("drawdownSeries", () => {
 });
 
 describe("avgRiskPerTrade", () => {
-  function trade(over: Partial<Trade>): Trade {
-    return {
-      id: "t1",
-      account_id: "a1",
-      symbol: "NQ",
-      instrument_type: "future",
-      direction: "long",
-      status: "closed",
-      opened_at: "2026-07-01T10:00:00Z",
-      closed_at: "2026-07-01T11:00:00Z",
-      qty_opened: 1,
-      qty_remaining: 0,
-      avg_entry_price: 100,
-      avg_exit_price: 110,
-      gross_pnl: 10,
-      fees_total: 0,
-      net_pnl: 10,
-      pnl_currency: "USD",
-      return_pct: 0.1,
-      time_in_trade_secs: 3600,
-      notes: "",
-      tags: [],
-      ...over,
-    };
-  }
-
   it("averages only trades with a positive initial_risk", () => {
     const trades = [
       trade({ id: "1", initial_risk: 100 }),
