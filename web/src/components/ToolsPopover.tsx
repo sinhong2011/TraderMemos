@@ -1,4 +1,3 @@
-import { Popover } from "@base-ui/react";
 import { Wrench } from "lucide-react";
 import { useState } from "react";
 import { cn } from "../lib/cn";
@@ -8,6 +7,7 @@ import { useToolRunner } from "../lib/useToolRunner";
 import { useUI } from "../lib/ui";
 import { Button } from "./ui/button";
 import { Kbd } from "./ui/kbd";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 
 function RailTooltip({ label }: { label: string }) {
   return (
@@ -35,8 +35,8 @@ export function ToolsPopover({ variant = "rail" }: { variant?: "rail" | "header"
   const isHeader = variant === "header";
 
   return (
-    <Popover.Root open={open} onOpenChange={setOpen} modal={false}>
-      <Popover.Trigger
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger
         title="Tools"
         aria-label="Tools"
         className={cn(
@@ -46,9 +46,11 @@ export function ToolsPopover({ variant = "rail" }: { variant?: "rail" | "header"
           "motion-reduce:transition-none",
           isHeader ? "size-8" : "size-9",
           open
-            ? "bg-[rgba(228,255,26,0.12)] text-signal"
+            ? isHeader
+              ? "border border-border-strong bg-bg-hover text-text"
+              : "border border-signal/40 bg-[rgba(228,255,26,0.12)] text-signal"
             : isHeader
-              ? "bg-bg-input text-signal hover:bg-bg-input-hover"
+              ? "border border-border bg-transparent text-text hover:border-border-strong hover:bg-bg-hover"
               : "text-signal hover:bg-[rgba(228,255,26,0.08)]",
         )}
       >
@@ -58,68 +60,54 @@ export function ToolsPopover({ variant = "rail" }: { variant?: "rail" | "header"
           className="transition-transform duration-150 ease-out group-hover:scale-105 motion-reduce:transition-none"
         />
         {!isHeader ? <RailTooltip label="Tools" /> : null}
-      </Popover.Trigger>
-      <Popover.Portal>
-        <Popover.Positioner
-          side={isHeader ? "bottom" : "right"}
-          align="end"
-          sideOffset={isHeader ? 6 : 8}
-          positionMethod="fixed"
-          className="z-[400]"
-        >
-          <Popover.Popup
-            className={cn(
-              "w-[248px] rounded-overlay border border-border-strong bg-bg-panel p-3 outline-none",
-              "shadow-[0_12px_32px_rgba(18,18,24,0.55)]",
-              "origin-[var(--transform-origin)] transition-[transform,opacity] duration-150 ease-out",
-              "data-[starting-style]:scale-95 data-[starting-style]:opacity-0",
-              "data-[ending-style]:scale-95 data-[ending-style]:opacity-0",
-              "motion-reduce:transition-none motion-reduce:data-[starting-style]:scale-100 motion-reduce:data-[ending-style]:scale-100",
-            )}
-          >
-            <p className="m-0 px-1 text-[10px] font-medium uppercase tracking-widest text-signal">
-              Tools
-            </p>
-            <div className="mt-2 grid grid-cols-3 gap-1">
-              {TOOL_ITEMS.map((tool) => {
-                const Icon = tool.icon;
-                return (
-                  <Button
-                    key={tool.id}
-                    type="button"
-                    variant="ghost"
-                    title={tool.label}
-                    onClick={() => {
-                      setOpen(false);
-                      runTool(tool.id);
-                    }}
-                    className="h-auto flex-col gap-1 px-1 py-2 text-text-dim"
-                  >
-                    <Icon size={18} strokeWidth={1.75} aria-hidden />
-                    <span className="max-w-full truncate text-[9px] leading-tight">
-                      {tool.label.split(" ")[0]}
-                    </span>
-                  </Button>
-                );
-              })}
-            </div>
-            <div className="mt-2 border-t border-border pt-2">
+      </PopoverTrigger>
+      <PopoverContent
+        side={isHeader ? "bottom" : "right"}
+        align="end"
+        sideOffset={isHeader ? 6 : 8}
+        className={cn("w-[248px] bg-bg-panel p-3", "shadow-[0_12px_32px_rgba(18,18,24,0.55)]")}
+      >
+        <p className="m-0 px-1 text-[10px] font-medium uppercase tracking-widest text-signal">
+          Tools
+        </p>
+        <div className="mt-2 grid grid-cols-3 gap-1">
+          {TOOL_ITEMS.map((tool) => {
+            const Icon = tool.icon;
+            return (
               <Button
+                key={tool.id}
                 type="button"
                 variant="ghost"
+                title={tool.label}
                 onClick={() => {
                   setOpen(false);
-                  openCommandPalette();
+                  runTool(tool.id);
                 }}
-                className="h-auto w-full justify-between px-2 py-1.5 text-[11px]"
+                className="h-auto flex-col gap-1 px-1 py-2 text-text-dim"
               >
-                <span>All commands</span>
-                <Kbd variant="signal">{APP_HOTKEYS.palette.label}</Kbd>
+                <Icon size={18} strokeWidth={1.75} aria-hidden />
+                <span className="max-w-full truncate text-[9px] leading-tight">
+                  {tool.label.split(" ")[0]}
+                </span>
               </Button>
-            </div>
-          </Popover.Popup>
-        </Popover.Positioner>
-      </Popover.Portal>
-    </Popover.Root>
+            );
+          })}
+        </div>
+        <div className="mt-2 border-t border-border pt-2">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => {
+              setOpen(false);
+              openCommandPalette();
+            }}
+            className="h-auto w-full justify-between px-2 py-1.5 text-[11px]"
+          >
+            <span>All commands</span>
+            <Kbd>{APP_HOTKEYS.palette.label}</Kbd>
+          </Button>
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 }

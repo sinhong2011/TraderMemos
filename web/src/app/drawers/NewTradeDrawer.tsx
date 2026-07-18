@@ -1286,12 +1286,13 @@ export function NewTradeDrawer() {
                 open={templatesOpen}
                 onOpenChange={setTemplatesOpen}
                 triggerAriaLabel="Templates"
+                className="min-w-[14rem] overflow-hidden p-0 shadow-[0_16px_40px_rgba(18,18,24,0.65)]"
                 triggerClassName={cn(
-                  "inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-control border-none bg-transparent px-2.5",
-                  "text-[12px] font-medium text-text-muted transition-colors",
-                  "hover:bg-bg-hover hover:text-text",
+                  "inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-control border border-border bg-transparent px-2.5",
+                  "text-[12px] font-medium text-text-muted transition-[color,background-color,border-color]",
+                  "hover:border-border-strong hover:text-text",
                   "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
-                  templatesOpen && "bg-bg-hover text-text",
+                  templatesOpen && "border-border-strong text-text",
                 )}
                 trigger={
                   <>
@@ -1300,26 +1301,41 @@ export function NewTradeDrawer() {
                   </>
                 }
               >
-                <div className="min-w-48 bg-bg-elevated p-1">
-                  {templates.map((t) => (
-                    <Button
-                      key={t.id}
-                      type="button"
-                      variant="ghost"
-                      className="h-auto w-full justify-start px-3 py-2"
-                      onClick={() => applyTemplate(t)}
-                    >
-                      {t.name}
-                    </Button>
-                  ))}
-                  <Button
+                <div className="flex flex-col p-1" role="menu" aria-label="Trade templates">
+                  {templates.length === 0 ? (
+                    <p className="m-0 px-2 py-2 text-[11px] text-text-dim">
+                      No saved templates yet
+                    </p>
+                  ) : (
+                    templates.map((t) => (
+                      <button
+                        key={t.id}
+                        type="button"
+                        role="menuitem"
+                        onClick={() => applyTemplate(t)}
+                        className={cn(
+                          "flex min-h-8 cursor-pointer items-center rounded-control px-2 text-left text-[12px] text-text",
+                          "transition-colors hover:bg-white/[0.06]",
+                          "focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-accent",
+                        )}
+                      >
+                        <span className="min-w-0 flex-1 truncate">{t.name}</span>
+                      </button>
+                    ))
+                  )}
+                  {templates.length > 0 ? <div className="my-1 h-px bg-border" /> : null}
+                  <button
                     type="button"
-                    variant="ghost"
-                    className="h-auto w-full justify-start px-3 py-2 text-accent"
+                    role="menuitem"
                     onClick={saveTemplate}
+                    className={cn(
+                      "flex min-h-8 cursor-pointer items-center rounded-control px-2 text-left text-[12px] font-medium text-accent",
+                      "transition-colors hover:bg-accent-bg",
+                      "focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-accent",
+                    )}
                   >
                     Save first symbol as template…
-                  </Button>
+                  </button>
                 </div>
               </SignalPopover>
               <DrawerClose

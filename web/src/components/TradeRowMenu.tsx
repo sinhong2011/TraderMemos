@@ -1,11 +1,10 @@
-import { Popover } from "@base-ui/react";
 import { Copy, ExternalLink, Filter, MoreHorizontal, PanelRight } from "lucide-react";
 import { useState } from "react";
 import type { Trade } from "../lib/api/types";
 import { cn } from "../lib/cn";
-import { signalOverlayPopupClass } from "./signal-overlay-styles";
 import { useToastManager } from "./Toast";
 import { Button } from "./ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 
 export interface TradeRowActions {
   /** Quick peek drawer. Omit when the list already opens the full page on row click. */
@@ -50,73 +49,64 @@ export function TradeRowMenu({ trade, actions }: { trade: Trade; actions: TradeR
   }
 
   return (
-    <Popover.Root open={open} onOpenChange={setOpen} modal={false}>
-      <Popover.Trigger
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger
         aria-label={`Actions for ${trade.symbol}`}
         onClick={(e) => e.stopPropagation()}
         className={cn(triggerClass, open && "bg-bg-hover text-text")}
       >
         <MoreHorizontal size={14} strokeWidth={1.5} aria-hidden />
-      </Popover.Trigger>
-      <Popover.Portal>
-        <Popover.Positioner
-          side="bottom"
-          align="end"
-          sideOffset={6}
-          positionMethod="fixed"
-          className="z-[400]"
-        >
-          <Popover.Popup
-            className={cn(signalOverlayPopupClass, "min-w-[180px] p-1.5")}
-            onClick={(e) => e.stopPropagation()}
+      </PopoverTrigger>
+      <PopoverContent
+        align="end"
+        className="min-w-[180px] p-1.5"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {actions.onOpenDrawer ? (
+          <Button
+            type="button"
+            variant="ghost"
+            className={itemClass}
+            onClick={() => run(() => actions.onOpenDrawer?.(trade))}
           >
-            {actions.onOpenDrawer ? (
-              <Button
-                type="button"
-                variant="ghost"
-                className={itemClass}
-                onClick={() => run(() => actions.onOpenDrawer?.(trade))}
-              >
-                <PanelRight size={14} strokeWidth={1.5} aria-hidden />
-                Open drawer
-              </Button>
-            ) : null}
-            <Button
-              type="button"
-              variant="ghost"
-              className={itemClass}
-              onClick={() => run(() => actions.onOpenFullPage(trade))}
-            >
-              <ExternalLink size={14} strokeWidth={1.5} aria-hidden />
-              Open full page
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              className={itemClass}
-              onClick={() =>
-                run(() => {
-                  void copySymbol();
-                })
-              }
-            >
-              <Copy size={14} strokeWidth={1.5} aria-hidden />
-              Copy symbol
-            </Button>
-            {actions.onFilterSymbol ? (
-              <Button
-                type="button"
-                variant="ghost"
-                className={itemClass}
-                onClick={() => run(() => actions.onFilterSymbol?.(trade.symbol))}
-              >
-                <Filter size={14} strokeWidth={1.5} aria-hidden />
-                Filter by {trade.symbol}
-              </Button>
-            ) : null}
-          </Popover.Popup>
-        </Popover.Positioner>
-      </Popover.Portal>
-    </Popover.Root>
+            <PanelRight size={14} strokeWidth={1.5} aria-hidden />
+            Open drawer
+          </Button>
+        ) : null}
+        <Button
+          type="button"
+          variant="ghost"
+          className={itemClass}
+          onClick={() => run(() => actions.onOpenFullPage(trade))}
+        >
+          <ExternalLink size={14} strokeWidth={1.5} aria-hidden />
+          Open full page
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          className={itemClass}
+          onClick={() =>
+            run(() => {
+              void copySymbol();
+            })
+          }
+        >
+          <Copy size={14} strokeWidth={1.5} aria-hidden />
+          Copy symbol
+        </Button>
+        {actions.onFilterSymbol ? (
+          <Button
+            type="button"
+            variant="ghost"
+            className={itemClass}
+            onClick={() => run(() => actions.onFilterSymbol?.(trade.symbol))}
+          >
+            <Filter size={14} strokeWidth={1.5} aria-hidden />
+            Filter by {trade.symbol}
+          </Button>
+        ) : null}
+      </PopoverContent>
+    </Popover>
   );
 }
