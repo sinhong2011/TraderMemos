@@ -9,6 +9,7 @@ api/.env.local
 .DS_Store
 /data/
 .superpowers/
+.worktrees/
 /tmp/
 .pnpm-store/
 web/.tanstack/
