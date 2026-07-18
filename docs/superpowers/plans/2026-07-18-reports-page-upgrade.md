@@ -1223,7 +1223,10 @@ export interface ReportsRollingWinRateProps {
 
 export function ReportsRollingWinRate({ trades, loading, error }: ReportsRollingWinRateProps) {
   const locale = intlLocale();
-  const [windowSize, setWindowSize] = useState(20);
+  // Default 10 (smallest window): the original 20-default was self-contradictory
+  // with this file's own test (10 trades, expects a visible result) — corrected
+  // during Task 5's review, confirmed with the user.
+  const [windowSize, setWindowSize] = useState(WINDOWS[0]);
 
   const points = rollingWinRate(trades, windowSize);
   const latest = points.length > 0 ? points[points.length - 1].rate : null;
