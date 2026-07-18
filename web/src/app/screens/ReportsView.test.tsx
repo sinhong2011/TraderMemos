@@ -70,6 +70,12 @@ const base = {
   hourOfDayBreakdown: [],
   hourOfDayBreakdownLoading: false,
   hourOfDayBreakdownError: false,
+  symbolBreakdown: [],
+  symbolBreakdownLoading: false,
+  symbolBreakdownError: false,
+  tagBreakdown: [],
+  tagBreakdownLoading: false,
+  tagBreakdownError: false,
   currency: "USD",
   onDimChange: vi.fn(),
 };

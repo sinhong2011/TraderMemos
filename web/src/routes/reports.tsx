@@ -23,6 +23,8 @@ function ReportsPage() {
   const breakdownQ = useBreakdown(dim, filters);
   const dayOfWeekBreakdownQ = useBreakdown("day_of_week", filters);
   const hourOfDayBreakdownQ = useBreakdown("hour_of_day", filters);
+  const symbolBreakdownQ = useBreakdown("symbol", filters);
+  const tagBreakdownQ = useBreakdown("tag", filters);
   const accountsQ = useAccounts();
   const currency = accountBaseCurrency(accountsQ.data ?? [], accountId);
 
@@ -49,6 +51,12 @@ function ReportsPage() {
       hourOfDayBreakdown={hourOfDayBreakdownQ.data ?? []}
       hourOfDayBreakdownLoading={hourOfDayBreakdownQ.isLoading}
       hourOfDayBreakdownError={hourOfDayBreakdownQ.isError}
+      symbolBreakdown={symbolBreakdownQ.data ?? []}
+      symbolBreakdownLoading={symbolBreakdownQ.isLoading}
+      symbolBreakdownError={symbolBreakdownQ.isError}
+      tagBreakdown={tagBreakdownQ.data ?? []}
+      tagBreakdownLoading={tagBreakdownQ.isLoading}
+      tagBreakdownError={tagBreakdownQ.isError}
       currency={currency}
       dim={dim}
       onDimChange={setDim}

@@ -93,6 +93,12 @@ export interface ReportsViewProps {
   hourOfDayBreakdown: BreakGroup[];
   hourOfDayBreakdownLoading: boolean;
   hourOfDayBreakdownError: boolean;
+  symbolBreakdown: BreakGroup[];
+  symbolBreakdownLoading: boolean;
+  symbolBreakdownError: boolean;
+  tagBreakdown: BreakGroup[];
+  tagBreakdownLoading: boolean;
+  tagBreakdownError: boolean;
   currency: string;
   dim: BreakdownDim;
   onDimChange: (dim: BreakdownDim) => void;
@@ -177,7 +183,11 @@ function SummaryMetricsGrid({
 // Table columns
 // ---------------------------------------------------------------------------
 
-function buildColumns(currency: string, dimLabel: string, fxRate = 1): ColumnDef<BreakGroup>[] {
+export function buildColumns(
+  currency: string,
+  dimLabel: string,
+  fxRate = 1,
+): ColumnDef<BreakGroup>[] {
   return [
     {
       accessorKey: "key",
@@ -380,6 +390,12 @@ export function ReportsView({
   hourOfDayBreakdown,
   hourOfDayBreakdownLoading,
   hourOfDayBreakdownError,
+  symbolBreakdown,
+  symbolBreakdownLoading,
+  symbolBreakdownError,
+  tagBreakdown,
+  tagBreakdownLoading,
+  tagBreakdownError,
   currency,
   dim,
   onDimChange,
@@ -521,6 +537,29 @@ export function ReportsView({
         loading={Boolean(rSummaryLoading)}
         error={Boolean(rSummaryError)}
       />
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <ReportsBreakdownCard
+          title="Symbol"
+          breakdown={symbolBreakdown}
+          loading={symbolBreakdownLoading}
+          error={symbolBreakdownError}
+          currency={displayCurrency}
+          fxRate={fxRate}
+          orientation="horizontal"
+          tableColumns={buildColumns(displayCurrency, "Symbol", fxRate)}
+        />
+        <ReportsBreakdownCard
+          title="Tag"
+          breakdown={tagBreakdown}
+          loading={tagBreakdownLoading}
+          error={tagBreakdownError}
+          currency={displayCurrency}
+          fxRate={fxRate}
+          orientation="horizontal"
+          tableColumns={buildColumns(displayCurrency, "Tag", fxRate)}
+        />
+      </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
         <ReportsBreakdownCard
