@@ -1,6 +1,6 @@
 import { useForm } from "@tanstack/react-form";
 import { BookOpen, Check, Plus, Settings, Shield, Tag, Wallet, X } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { EmptyState } from "../../../components/EmptyState";
 import { SegmentedControl } from "../../../components/SegmentedControl";
 import { SignalAmountInput } from "../../../components/SignalAmountInput";
@@ -13,7 +13,7 @@ import { Skeleton } from "../../../components/Skeleton";
 import { useToastManager } from "../../../components/Toast";
 import { Button } from "../../../components/ui/button";
 import { ApiError } from "../../../lib/api/client";
-import type { RiskRules } from "../../../lib/api/settings";
+import type { OcrSettings, RiskRules } from "../../../lib/api/settings";
 import type { Account, CashTransaction, Setup, Tag as TagType } from "../../../lib/api/types";
 import {
   useListOcrModels,
@@ -1325,24 +1325,36 @@ export function JournalTab({
 
 function VisionScanSection() {
   const { locale } = useLocale();
+  const { data, isPending, isError } = useOcrSettings();
+
+  return (
+    <SettingsSection
+      title={settingsLabel(locale, "visionScan")}
+      footer={settingsLabel(locale, "visionScanFooter")}
+    >
+      {isPending && !data ? (
+        <Skeleton height="160px" />
+      ) : isError || !data ? (
+        <p className="text-[12px] text-loss">Failed to load vision settings.</p>
+      ) : (
+        <VisionScanForm settings={data} />
+      )}
+    </SettingsSection>
+  );
+}
+
+function VisionScanForm({ settings }: { settings: OcrSettings }) {
+  const { locale } = useLocale();
   const toast = useToastManager();
-  const { data, isLoading, isError } = useOcrSettings();
   const save = useSaveOcrSettings();
   const test = useTestOcrSettings();
   const listModels = useListOcrModels();
   const [saved, setSaved] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [modelOptions, setModelOptions] = useState<string[]>([]);
-  const hydratedRef = useRef(false);
 
   const form = useForm({
-    defaultValues: ocrSettingsToFormValues({
-      enabled: false,
-      base_url: "https://api.openai.com/v1",
-      model: "gpt-4o-mini",
-      custom_prompt: "",
-      api_key_set: false,
-    }),
+    defaultValues: ocrSettingsToFormValues(settings),
     onSubmit: async ({ value }) => {
       setFormError(null);
       setSaved(false);
@@ -1360,12 +1372,6 @@ function VisionScanSection() {
       }
     },
   });
-
-  useEffect(() => {
-    if (!data || hydratedRef.current) return;
-    hydratedRef.current = true;
-    form.reset(ocrSettingsToFormValues(data));
-  }, [data]);
 
   const onTest = async () => {
     const draft = { ...form.state.values };
@@ -1431,168 +1437,157 @@ function VisionScanSection() {
   };
 
   return (
-    <SettingsSection
-      title={settingsLabel(locale, "visionScan")}
-      footer={settingsLabel(locale, "visionScanFooter")}
+    <form
+      className="flex flex-col gap-3"
+      onSubmit={(e) => {
+        e.preventDefault();
+        void form.handleSubmit();
+      }}
     >
-      {isLoading ? (
-        <Skeleton height="160px" />
-      ) : isError ? (
-        <p className="text-[12px] text-loss">Failed to load vision settings.</p>
-      ) : (
-        <form
-          className="flex flex-col gap-3"
-          onSubmit={(e) => {
-            e.preventDefault();
-            void form.handleSubmit();
-          }}
-        >
-          <SettingsGroup>
-            <form.Field name="enabled">
-              {(field) => (
-                <SettingsGroupRow label={settingsLabel(locale, "visionEnabled")} last>
-                  <SegmentedControl
-                    options={[
-                      { value: "off", label: settingsLabel(locale, "visionOff") },
-                      { value: "on", label: settingsLabel(locale, "visionOn") },
-                    ]}
-                    value={field.state.value ? "on" : "off"}
-                    onChange={(v) => field.handleChange(v === "on")}
-                  />
-                </SettingsGroupRow>
-              )}
-            </form.Field>
-          </SettingsGroup>
-          <form.Subscribe selector={(s) => s.values.enabled}>
-            {(enabled) => (
-              <fieldset
-                disabled={!enabled}
-                className={cn(
-                  "m-0 min-w-0 border-none p-0 transition-opacity duration-150",
-                  !enabled && "opacity-45",
-                )}
-              >
-                <SettingsGroup>
-                  <form.Field name="base_url">
-                    {(field) => (
-                      <SettingsGroupRow label={settingsLabel(locale, "visionBaseUrl")}>
-                        <div className="relative w-full min-w-[19.2rem]">
-                          <SignalInput
-                            value={field.state.value}
-                            onChange={(e) => field.handleChange(e.target.value)}
-                            placeholder="https://api.openai.com/v1"
-                            spellCheck={false}
-                            className="h-8 w-full pr-10 text-[12px]"
-                            aria-label={settingsLabel(locale, "visionBaseUrl")}
-                          />
-                          {field.state.value ? (
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon-sm"
-                              className="absolute top-1/2 right-1 -translate-y-1/2"
-                              aria-label="Clear base URL"
-                              onClick={() => field.handleChange("")}
-                            >
-                              <X size={13} strokeWidth={1.75} aria-hidden />
-                            </Button>
-                          ) : null}
-                        </div>
-                      </SettingsGroupRow>
-                    )}
-                  </form.Field>
-                  <form.Field name="model">
-                    {(field) => (
-                      <SettingsGroupRow label={settingsLabel(locale, "visionModel")}>
-                        <ModelAutocomplete
-                          value={field.state.value}
-                          onValueChange={(next) => field.handleChange(next)}
-                          models={modelOptions}
-                          onFetchModels={() => void onFetchModels()}
-                          fetching={listModels.isPending}
-                          fetchLabel={
-                            listModels.isPending
-                              ? settingsLabel(locale, "visionFetchingModels")
-                              : settingsLabel(locale, "visionFetchModels")
-                          }
-                          placeholder="gpt-4o-mini"
-                          className="w-full min-w-[19.2rem]"
-                          inputClassName="h-8 w-full text-[12px]"
-                          ariaLabel={settingsLabel(locale, "visionModel")}
-                        />
-                      </SettingsGroupRow>
-                    )}
-                  </form.Field>
-                  <form.Field name="api_key">
-                    {(field) => (
-                      <SettingsGroupRow label={settingsLabel(locale, "visionApiKey")}>
-                        <div className="flex min-w-0 flex-col items-end gap-1">
-                          <SignalPasswordInput
-                            autoComplete="off"
-                            value={field.state.value}
-                            onChange={(e) => field.handleChange(e.target.value)}
-                            onClear={() => field.handleChange("")}
-                            placeholder={
-                              data?.api_key_set
-                                ? data.api_key_hint || settingsLabel(locale, "visionApiKeyHint")
-                                : "sk-…"
-                            }
-                            spellCheck={false}
-                            className="h-8 min-w-[19.2rem] text-[12px]"
-                            aria-label={settingsLabel(locale, "visionApiKey")}
-                            showLabel="Show API key"
-                            hideLabel="Hide API key"
-                            clearLabel="Clear API key"
-                          />
-                          {data?.api_key_set ? (
-                            <span className="text-[10px] text-text-dim">
-                              {settingsLabel(locale, "visionApiKeyHint")}
-                            </span>
-                          ) : null}
-                        </div>
-                      </SettingsGroupRow>
-                    )}
-                  </form.Field>
-                  <form.Field name="custom_prompt">
-                    {(field) => (
-                      <SettingsGroupRow
-                        label={settingsLabel(locale, "visionCustomPrompt")}
-                        detail={settingsLabel(locale, "visionCustomPromptHint")}
-                        last
-                      >
-                        <SignalTextarea
-                          value={field.state.value}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                          placeholder={
-                            data?.default_prompt || settingsLabel(locale, "visionCustomPromptHint")
-                          }
-                          spellCheck={false}
-                          rows={8}
-                          className="min-h-[10rem] min-w-[19.2rem] whitespace-pre-wrap text-[11px] leading-snug"
-                          aria-label={settingsLabel(locale, "visionCustomPrompt")}
-                        />
-                      </SettingsGroupRow>
-                    )}
-                  </form.Field>
-                </SettingsGroup>
-              </fieldset>
+      <SettingsGroup>
+        <form.Field name="enabled">
+          {(field) => (
+            <SettingsGroupRow label={settingsLabel(locale, "visionEnabled")} last>
+              <SegmentedControl
+                options={[
+                  { value: "off", label: settingsLabel(locale, "visionOff") },
+                  { value: "on", label: settingsLabel(locale, "visionOn") },
+                ]}
+                value={field.state.value ? "on" : "off"}
+                onChange={(v) => field.handleChange(v === "on")}
+              />
+            </SettingsGroupRow>
+          )}
+        </form.Field>
+      </SettingsGroup>
+      <form.Subscribe selector={(s) => s.values.enabled}>
+        {(enabled) => (
+          <fieldset
+            disabled={!enabled}
+            className={cn(
+              "m-0 min-w-0 border-none p-0 transition-opacity duration-150",
+              !enabled && "opacity-45",
             )}
-          </form.Subscribe>
-          {formError ? <FormError message={formError} /> : null}
-          <div className="flex flex-wrap items-center gap-2">
-            <BtnPrimary type="submit" disabled={save.isPending}>
-              {save.isPending ? "Saving…" : settingsLabel(locale, "visionSave")}
-            </BtnPrimary>
-            <BtnGhost type="button" disabled={test.isPending} onClick={() => void onTest()}>
-              {test.isPending
-                ? settingsLabel(locale, "visionTesting")
-                : settingsLabel(locale, "visionTest")}
-            </BtnGhost>
-            <SavedBadge show={saved} />
-          </div>
-        </form>
-      )}
-    </SettingsSection>
+          >
+            <SettingsGroup>
+              <form.Field name="base_url">
+                {(field) => (
+                  <SettingsGroupRow label={settingsLabel(locale, "visionBaseUrl")}>
+                    <div className="relative w-full min-w-[19.2rem]">
+                      <SignalInput
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        placeholder="https://api.openai.com/v1"
+                        spellCheck={false}
+                        className="h-8 w-full pr-10 text-[12px]"
+                        aria-label={settingsLabel(locale, "visionBaseUrl")}
+                      />
+                      {field.state.value ? (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon-sm"
+                          className="absolute top-1/2 right-1 -translate-y-1/2"
+                          aria-label="Clear base URL"
+                          onClick={() => field.handleChange("")}
+                        >
+                          <X size={13} strokeWidth={1.75} aria-hidden />
+                        </Button>
+                      ) : null}
+                    </div>
+                  </SettingsGroupRow>
+                )}
+              </form.Field>
+              <form.Field name="model">
+                {(field) => (
+                  <SettingsGroupRow label={settingsLabel(locale, "visionModel")}>
+                    <ModelAutocomplete
+                      value={field.state.value}
+                      onValueChange={(next) => field.handleChange(next)}
+                      models={modelOptions}
+                      onFetchModels={() => void onFetchModels()}
+                      fetching={listModels.isPending}
+                      fetchLabel={
+                        listModels.isPending
+                          ? settingsLabel(locale, "visionFetchingModels")
+                          : settingsLabel(locale, "visionFetchModels")
+                      }
+                      placeholder="gpt-4o-mini"
+                      className="w-full min-w-[19.2rem]"
+                      inputClassName="h-8 w-full text-[12px]"
+                      ariaLabel={settingsLabel(locale, "visionModel")}
+                    />
+                  </SettingsGroupRow>
+                )}
+              </form.Field>
+              <form.Field name="api_key">
+                {(field) => (
+                  <SettingsGroupRow label={settingsLabel(locale, "visionApiKey")}>
+                    <div className="flex min-w-0 flex-col items-end gap-1">
+                      <SignalPasswordInput
+                        autoComplete="off"
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        onClear={() => field.handleChange("")}
+                        placeholder={
+                          settings.api_key_set
+                            ? settings.api_key_hint || settingsLabel(locale, "visionApiKeyHint")
+                            : "sk-…"
+                        }
+                        spellCheck={false}
+                        className="h-8 min-w-[19.2rem] text-[12px]"
+                        aria-label={settingsLabel(locale, "visionApiKey")}
+                        showLabel="Show API key"
+                        hideLabel="Hide API key"
+                        clearLabel="Clear API key"
+                      />
+                      {settings.api_key_set ? (
+                        <span className="text-[10px] text-text-dim">
+                          {settingsLabel(locale, "visionApiKeyHint")}
+                        </span>
+                      ) : null}
+                    </div>
+                  </SettingsGroupRow>
+                )}
+              </form.Field>
+              <form.Field name="custom_prompt">
+                {(field) => (
+                  <SettingsGroupRow
+                    label={settingsLabel(locale, "visionCustomPrompt")}
+                    detail={settingsLabel(locale, "visionCustomPromptHint")}
+                    last
+                  >
+                    <SignalTextarea
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      placeholder={
+                        settings.default_prompt || settingsLabel(locale, "visionCustomPromptHint")
+                      }
+                      spellCheck={false}
+                      rows={8}
+                      className="min-h-[10rem] min-w-[19.2rem] whitespace-pre-wrap text-[11px] leading-snug"
+                      aria-label={settingsLabel(locale, "visionCustomPrompt")}
+                    />
+                  </SettingsGroupRow>
+                )}
+              </form.Field>
+            </SettingsGroup>
+          </fieldset>
+        )}
+      </form.Subscribe>
+      {formError ? <FormError message={formError} /> : null}
+      <div className="flex flex-wrap items-center gap-2">
+        <BtnPrimary type="submit" disabled={save.isPending}>
+          {save.isPending ? "Saving…" : settingsLabel(locale, "visionSave")}
+        </BtnPrimary>
+        <BtnGhost type="button" disabled={test.isPending} onClick={() => void onTest()}>
+          {test.isPending
+            ? settingsLabel(locale, "visionTesting")
+            : settingsLabel(locale, "visionTest")}
+        </BtnGhost>
+        <SavedBadge show={saved} />
+      </div>
+    </form>
   );
 }
 
