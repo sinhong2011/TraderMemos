@@ -79,7 +79,10 @@ describe("ReportsView", () => {
 
   it("shows an empty state when there is no data", () => {
     render(<ReportsView {...base} dim="symbol" breakdown={[]} />);
-    expect(screen.getByText(/No .*data|No data/i)).toBeInTheDocument();
+    // Exact match: the R-multiple cards also render an empty state ("No R
+    // data") when rSummary is absent, so a loose "no data" pattern would
+    // match more than one element.
+    expect(screen.getByText("No data")).toBeInTheDocument();
   });
 
   it("renders the summary metrics grid", () => {

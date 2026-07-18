@@ -14,6 +14,8 @@ import { ChartFrame, chartTheme } from "../../components/ChartFrame";
 import { DataTable } from "../../components/DataTable";
 import { EmptyState } from "../../components/EmptyState";
 import { Page } from "../../components/Page";
+import { ReportsRDistributionChart } from "../../components/ReportsRDistributionChart";
+import { ReportsRMultiplePerformance } from "../../components/ReportsRMultiplePerformance";
 import { Skeleton } from "../../components/Skeleton";
 import { StatCard } from "../../components/StatCard";
 import { Button } from "../../components/ui/button";
@@ -351,9 +353,9 @@ export function ReportsView({
   summary,
   summaryLoading,
   summaryError,
-  rSummary: _rSummary,
-  rSummaryLoading: _rSummaryLoading,
-  rSummaryError: _rSummaryError,
+  rSummary,
+  rSummaryLoading,
+  rSummaryError,
   trades,
   tradesLoading: _tradesLoading,
   tradesError: _tradesError,
@@ -479,6 +481,21 @@ export function ReportsView({
           ) : null}
         </Card>
       ) : null}
+
+      <ReportsRMultiplePerformance
+        rSummary={rSummary}
+        loading={Boolean(rSummaryLoading)}
+        error={Boolean(rSummaryError)}
+      />
+
+      <ReportsRDistributionChart
+        distribution={rSummary?.distribution ?? []}
+        avgR={rSummary?.avg_r ?? 0}
+        totalTrades={rSummary?.total_trades ?? 0}
+        excluded={rSummary?.excluded ?? 0}
+        loading={Boolean(rSummaryLoading)}
+        error={Boolean(rSummaryError)}
+      />
 
       <Card title="Breakdown" action={panelRight}>
         {renderContent()}
