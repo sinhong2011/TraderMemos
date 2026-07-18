@@ -14,14 +14,21 @@ import { ChartFrame, chartTheme } from "../../components/ChartFrame";
 import { DataTable } from "../../components/DataTable";
 import { EmptyState } from "../../components/EmptyState";
 import { Page } from "../../components/Page";
-import { SegmentedControl } from "../../components/SegmentedControl";
 import { Skeleton } from "../../components/Skeleton";
 import { StatCard } from "../../components/StatCard";
 import { Button } from "../../components/ui/button";
 import { pnlColor } from "../../components/theme-tokens";
-import type { BreakGroup, EquityCurve, RSummary, Summary } from "../../lib/api/types";
+import { computeDashboardInsights } from "../../lib/dashboardInsights";
+import type { BreakGroup, EquityCurve, RSummary, Summary, Trade } from "../../lib/api/types";
 import { uniqueDayTicks } from "../../lib/chartTicks";
-import { fmtDayShort, fmtMoney, fmtMoneyCompact, fmtPct, fmtSignedMoney } from "../../lib/format";
+import {
+  fmtDayShort,
+  fmtDuration,
+  fmtMoney,
+  fmtMoneyCompact,
+  fmtPct,
+  fmtSignedMoney,
+} from "../../lib/format";
 import { useMoneyFx } from "../../lib/hooks/useMoneyFx";
 import { intlLocale } from "../../lib/locale";
 import { usePrivacyMode } from "../../lib/displayPrefs";
@@ -65,10 +72,13 @@ export interface ReportsViewProps {
   summaryError: boolean;
   rSummary?: RSummary;
   rSummaryLoading?: boolean;
-  unit: "usd" | "r";
-  onUnitChange: (unit: "usd" | "r") => void;
+  rSummaryError?: boolean;
+  trades: Trade[];
+  tradesLoading: boolean;
+  tradesError: boolean;
   equity?: EquityCurve;
   equityLoading: boolean;
+  equityError: boolean;
   breakdown: BreakGroup[];
   loading: boolean;
   error: boolean;
@@ -90,75 +100,64 @@ const NEG_COLOR = "#eb4b68"; // red-400
 
 function SummaryMetricsGrid({
   summary,
+  trades,
   currency,
   fxRate = 1,
-  unit,
-  rSummary,
 }: {
   summary: Summary;
+  trades: Trade[];
   currency: string;
   fxRate?: number;
-  unit: "usd" | "r";
-  rSummary?: RSummary;
 }) {
   usePrivacyMode();
-  const inR = unit === "r" && rSummary;
-  const s = inR ? rSummary : summary;
-  const moneyOrR = (v: number) =>
-    inR
-      ? `${v >= 0 ? "+" : ""}${v.toFixed(2)}R`
-      : fmtSignedMoney(v * fxRate, currency, intlLocale());
-  const absOrR = (v: number) =>
-    inR ? `${v.toFixed(2)}R` : fmtMoney(v * fxRate, currency, intlLocale());
-
+  const locale = intlLocale();
+  const insights = computeDashboardInsights(trades);
   const feePct =
-    s.gross_profit + s.gross_loss !== 0
-      ? (s.total_fees / Math.abs(s.gross_profit + s.gross_loss)) * 100
+    summary.gross_profit + summary.gross_loss !== 0
+      ? (summary.total_fees / Math.abs(summary.gross_profit + summary.gross_loss)) * 100
       : 0;
 
   return (
     <div className="grid grid-cols-2 gap-px border-b border-border bg-border sm:grid-cols-3 lg:grid-cols-5">
       <StatCard
-        label={inR ? "Net R" : "P&L"}
-        value={moneyOrR(s.net_pnl)}
-        accent={s.net_pnl >= 0 ? "pos" : "neg"}
-        hint={
-          inR
-            ? `Avg ${rSummary!.avg_r.toFixed(2)}R · ${rSummary!.excluded} excluded (no risk)`
-            : `Gross ${fmtSignedMoney((s.gross_profit + s.gross_loss) * fxRate, currency, intlLocale())} · Fees ${fmtMoney(s.total_fees * fxRate, currency, intlLocale())} (${feePct.toFixed(1)}%)`
-        }
+        label="P&L"
+        value={fmtSignedMoney(summary.net_pnl * fxRate, currency, locale)}
+        accent={summary.net_pnl >= 0 ? "pos" : "neg"}
+        hint={`Gross ${fmtSignedMoney((summary.gross_profit + summary.gross_loss) * fxRate, currency, locale)} · Fees ${fmtMoney(summary.total_fees * fxRate, currency, locale)} (${feePct.toFixed(1)}%)`}
       />
-      <StatCard label="Win Rate" value={fmtPct(s.win_rate, intlLocale())} accent="none" />
+      <StatCard label="Win Rate" value={fmtPct(summary.win_rate, locale)} accent="none" />
       <StatCard
         label="Profit Factor"
-        value={s.profit_factor > 0 ? s.profit_factor.toFixed(2) : "—"}
+        value={summary.profit_factor > 0 ? summary.profit_factor.toFixed(2) : "—"}
       />
-      <StatCard label="Total Trades" value={String(s.total_trades)} />
+      <StatCard label="Total Trades" value={String(summary.total_trades)} />
       <StatCard
         label="Expectancy"
-        value={moneyOrR(s.expectancy)}
-        accent={s.expectancy >= 0 ? "pos" : "neg"}
+        value={fmtSignedMoney(summary.expectancy * fxRate, currency, locale)}
+        accent={summary.expectancy >= 0 ? "pos" : "neg"}
       />
       <StatCard
-        label={inR ? "Avg Win R" : "Avg Win"}
-        value={inR ? `${rSummary!.avg_win_r.toFixed(2)}R` : absOrR(s.avg_win)}
+        label="Avg Win"
+        value={fmtMoney(summary.avg_win * fxRate, currency, locale)}
         accent="pos"
       />
       <StatCard
-        label={inR ? "Avg Loss R" : "Avg Loss"}
-        value={inR ? `${rSummary!.avg_loss_r.toFixed(2)}R` : absOrR(s.avg_loss)}
+        label="Avg Loss"
+        value={fmtMoney(summary.avg_loss * fxRate, currency, locale)}
         accent="neg"
       />
       <StatCard
-        label={inR ? "Best R" : "Largest Win"}
-        value={inR ? `${rSummary!.best_r.toFixed(2)}R` : absOrR(s.largest_win)}
+        label="Largest Win"
+        value={fmtMoney(summary.largest_win * fxRate, currency, locale)}
         accent="pos"
       />
       <StatCard
-        label={inR ? "Worst R" : "Largest Loss"}
-        value={inR ? `${rSummary!.worst_r.toFixed(2)}R` : absOrR(s.largest_loss)}
+        label="Largest Loss"
+        value={fmtMoney(summary.largest_loss * fxRate, currency, locale)}
         accent="neg"
       />
+      <StatCard label="Avg Win Hold" value={fmtDuration(insights.winHoldSecs)} accent="pos" />
+      <StatCard label="Avg Loss Hold" value={fmtDuration(insights.lossHoldSecs)} accent="neg" />
     </div>
   );
 }
@@ -352,11 +351,15 @@ export function ReportsView({
   summary,
   summaryLoading,
   summaryError,
-  rSummary,
-  unit,
-  onUnitChange,
+  rSummary: _rSummary,
+  rSummaryLoading: _rSummaryLoading,
+  rSummaryError: _rSummaryError,
+  trades,
+  tradesLoading: _tradesLoading,
+  tradesError: _tradesError,
   equity,
   equityLoading,
+  equityError: _equityError,
   breakdown,
   loading,
   error,
@@ -369,20 +372,7 @@ export function ReportsView({
   const fxRate = rate ?? 1;
   const columns = buildColumns(displayCurrency, DIM_LABELS[dim], fxRate);
 
-  const panelRight = (
-    <div className="flex items-center gap-2">
-      <SegmentedControl
-        ariaLabel="Report unit"
-        value={unit}
-        onChange={(v) => onUnitChange(v as "usd" | "r")}
-        options={[
-          { value: "usd", label: "$" },
-          { value: "r", label: "R" },
-        ]}
-      />
-      <DimSelector value={dim} onChange={onDimChange} />
-    </div>
-  );
+  const panelRight = <DimSelector value={dim} onChange={onDimChange} />;
 
   const renderContent = () => {
     if (loading) {
@@ -427,28 +417,10 @@ export function ReportsView({
         <Card title="Statistics" className="overflow-hidden">
           <SummaryMetricsGrid
             summary={summary}
+            trades={trades}
             currency={displayCurrency}
             fxRate={fxRate}
-            unit={unit}
-            rSummary={rSummary}
           />
-          {unit === "r" && rSummary && rSummary.distribution.length > 0 && (
-            <div className="border-t border-border px-3 py-2">
-              <p className="mb-2 text-[10px] font-medium uppercase tracking-widest text-text-muted">
-                R-multiple distribution
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {rSummary.distribution.map((b) => (
-                  <span
-                    key={b.label}
-                    className="rounded-sharp border border-border px-2 py-1 text-[11px] text-text-muted"
-                  >
-                    {b.label}: {b.count}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
           {equityLoading ? (
             <Skeleton height="160px" className="m-3" />
           ) : equity && equity.points.length > 0 ? (

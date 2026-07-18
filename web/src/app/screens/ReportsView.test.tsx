@@ -3,6 +3,20 @@ import { describe, expect, it, vi } from "vite-plus/test";
 import type { BreakGroup } from "../../lib/api/types";
 import { ReportsView } from "./ReportsView";
 
+// useMoneyFx pulls in useQuery, which needs a QueryClientProvider; mock it the
+// same way DashboardView.test.tsx does so ReportsView can render standalone.
+vi.mock("../../lib/hooks/useMoneyFx", () => ({
+  useMoneyFx: (baseCurrency: string) => ({
+    baseCurrency,
+    displayCurrency: baseCurrency || "USD",
+    currency: baseCurrency || "USD",
+    rate: 1,
+    toDisplay: (v: number) => v,
+    isLoading: false,
+    isError: false,
+  }),
+}));
+
 // Mock DataTable (virtualizer needs a sized container in jsdom) to render keys + P&L.
 vi.mock("../../components/DataTable", () => ({
   DataTable: ({ data }: { data: BreakGroup[] }) => (
@@ -43,12 +57,14 @@ function grp(key: string, net: number): BreakGroup {
 const base = {
   summaryLoading: false,
   summaryError: false,
+  trades: [],
+  tradesLoading: false,
+  tradesError: false,
   equityLoading: false,
+  equityError: false,
   loading: false,
   error: false,
   currency: "USD",
-  unit: "usd" as const,
-  onUnitChange: vi.fn(),
   onDimChange: vi.fn(),
 };
 
