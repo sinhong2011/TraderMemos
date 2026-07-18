@@ -16,6 +16,7 @@ import { EmptyState } from "../../components/EmptyState";
 import { Page } from "../../components/Page";
 import { ReportsRDistributionChart } from "../../components/ReportsRDistributionChart";
 import { ReportsRMultiplePerformance } from "../../components/ReportsRMultiplePerformance";
+import { ReportsRollingWinRate } from "../../components/ReportsRollingWinRate";
 import { Skeleton } from "../../components/Skeleton";
 import { StatCard } from "../../components/StatCard";
 import { Button } from "../../components/ui/button";
@@ -357,8 +358,8 @@ export function ReportsView({
   rSummaryLoading,
   rSummaryError,
   trades,
-  tradesLoading: _tradesLoading,
-  tradesError: _tradesError,
+  tradesLoading,
+  tradesError,
   equity,
   equityLoading,
   equityError: _equityError,
@@ -481,6 +482,8 @@ export function ReportsView({
           ) : null}
         </Card>
       ) : null}
+
+      <ReportsRollingWinRate trades={trades} loading={tradesLoading} error={tradesError} />
 
       <ReportsRMultiplePerformance
         rSummary={rSummary}
