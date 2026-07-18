@@ -6,8 +6,8 @@ import { APP_HOTKEYS } from "../lib/hotkeys";
 import { TOOL_ITEMS } from "../lib/tools";
 import { useToolRunner } from "../lib/useToolRunner";
 import { useUI } from "../lib/ui";
-import { signalKbdClass } from "./signal-field-styles";
 import { Button } from "./ui/button";
+import { Kbd } from "./ui/kbd";
 
 function RailTooltip({ label }: { label: string }) {
   return (
@@ -114,7 +114,7 @@ export function ToolsPopover({ variant = "rail" }: { variant?: "rail" | "header"
                 className="h-auto w-full justify-between px-2 py-1.5 text-[11px]"
               >
                 <span>All commands</span>
-                <kbd className={signalKbdClass}>{APP_HOTKEYS.palette.label}</kbd>
+                <Kbd variant="signal">{APP_HOTKEYS.palette.label}</Kbd>
               </Button>
             </div>
           </Popover.Popup>

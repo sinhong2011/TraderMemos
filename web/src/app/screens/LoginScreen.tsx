@@ -3,12 +3,12 @@ import { useId, useState } from "react";
 import { AppLogo } from "../../components/AppLogo";
 import { AuthModeTabs } from "../../components/AuthModeTabs";
 import { Button } from "../../components/ui/button";
+import { Kbd } from "../../components/ui/kbd";
 import { authApi } from "../../lib/api/auth";
 import { ApiError } from "../../lib/api/client";
 import { useAuth } from "../../lib/auth";
 import { cn } from "../../lib/cn";
 import { DEV_ACCOUNT, isDevAuthEnabled } from "../../lib/devAccount";
-import { signalKbdClass } from "../../components/signal-field-styles";
 
 const MODES = [
   { value: "login", label: "Sign in" },
@@ -322,7 +322,7 @@ export function LoginScreen() {
                   </Button>
                 ) : (
                   <p className="text-[11px] text-text-dim">
-                    Press <kbd className={signalKbdClass}>Enter</kbd> to continue
+                    Press <Kbd variant="signal">Enter</Kbd> to continue
                   </p>
                 )}
               </div>

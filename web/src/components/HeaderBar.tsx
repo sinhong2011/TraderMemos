@@ -1,9 +1,4 @@
 import { Eye, EyeOff, Search, Wallet, X } from "lucide-react";
-import { DateRangePicker } from "./DateRangePicker";
-import { SignalSelect } from "./SignalSelect";
-import { ToolsPopover } from "./ToolsPopover";
-import { heroPnlClass } from "./theme-tokens";
-import { Button } from "./ui/button";
 import { cn } from "../lib/cn";
 import {
   accountBaseCurrency,
@@ -22,7 +17,12 @@ import { useMoneyFx } from "../lib/hooks/useMoneyFx";
 import { useTrades } from "../lib/hooks/useTrades";
 import { intlLocale } from "../lib/locale";
 import { useUI } from "../lib/ui";
-import { signalKbdClass } from "./signal-field-styles";
+import { DateRangePicker } from "./DateRangePicker";
+import { SignalSelect } from "./SignalSelect";
+import { ToolsPopover } from "./ToolsPopover";
+import { heroPnlClass } from "./theme-tokens";
+import { Button } from "./ui/button";
+import { Kbd } from "./ui/kbd";
 
 const AUTO_VALUE = "__auto__";
 
@@ -192,13 +192,14 @@ export function HeaderBar() {
           type="button"
           variant="secondary"
           onClick={openCommandPalette}
-          className="w-[120px] justify-start gap-1.5 px-2.5 text-text-dim hover:text-text-muted"
+          aria-keyshortcuts="Meta+K Control+K"
+          className="min-w-[148px] justify-start px-2.5 text-text-dim hover:text-text-muted"
         >
-          <Search size={14} strokeWidth={1.75} aria-hidden />
+          <Search size={14} strokeWidth={1.75} aria-hidden data-icon="inline-start" />
           <span className="min-w-0 flex-1 truncate text-left">Search…</span>
-          <kbd className={cn("hidden shrink-0 sm:inline", signalKbdClass)}>
+          <Kbd variant="signal" data-icon="inline-end" className="hidden sm:inline-flex">
             {APP_HOTKEYS.palette.label}
-          </kbd>
+          </Kbd>
         </Button>
       </div>
 

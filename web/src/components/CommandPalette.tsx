@@ -7,7 +7,7 @@ import { useFilters } from "../lib/filters";
 import { APP_HOTKEYS } from "../lib/hotkeys";
 import { type CommandGroup, useCommands } from "../lib/useCommands";
 import { useUI } from "../lib/ui";
-import { signalKbdClass, signalKbdMutedClass } from "./signal-field-styles";
+import { Kbd, KbdGroup } from "./ui/kbd";
 
 const GROUP_ORDER: CommandGroup[] = ["Navigate", "Actions", "Tools"];
 
@@ -19,19 +19,19 @@ function CommandShortcut({
   children: string;
   tone?: "signal" | "muted";
 }) {
-  const cls = tone === "signal" ? signalKbdClass : signalKbdMutedClass;
+  const variant = tone === "signal" ? "signal" : "muted";
   const parts = children.trim().split(/\s+/).filter(Boolean);
   if (parts.length <= 1) {
-    return <kbd className={cls}>{children}</kbd>;
+    return <Kbd variant={variant}>{children}</Kbd>;
   }
   return (
-    <span className="inline-flex items-center gap-0.5">
+    <KbdGroup className="gap-0.5">
       {parts.map((part, i) => (
-        <kbd key={`${part}-${i}`} className={cls}>
+        <Kbd key={`${part}-${i}`} variant={variant}>
           {part}
-        </kbd>
+        </Kbd>
       ))}
-    </span>
+    </KbdGroup>
   );
 }
 
