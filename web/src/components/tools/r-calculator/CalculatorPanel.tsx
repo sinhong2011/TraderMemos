@@ -1,13 +1,13 @@
 import { money, shares as fmtShares } from "../../../lib/r-calculator/format";
 import { limiterLabel } from "../../../lib/r-calculator/messages";
 import { useRCalculatorStore } from "../../../lib/r-calculator/useRCalculatorStore";
+import { Card } from "../../Card";
+import { SegmentedControl } from "../../SegmentedControl";
 import { CalcInputField } from "./CalcInputField";
 import { ExitLadder } from "./ExitLadder";
 import { RAxis } from "./RAxis";
-import { SegmentedControl } from "./SegmentedControl";
 import { TradeTicket, type TradeTicketRow } from "./TradeTicket";
 import { WarningBanner } from "./WarningBanner";
-import { Card } from "../../Card";
 
 export function CalculatorPanel() {
   const store = useRCalculatorStore();
@@ -57,54 +57,34 @@ export function CalculatorPanel() {
             <div className="grid grid-cols-2 gap-2">
               <SegmentedControl
                 ariaLabel="Instrument type"
-                subtle
+                fullWidth
                 value={session.instrument}
-                onChange={(v) => store.setField("instrument", v)}
-                segments={[
-                  { value: "stock", label: "Stock", sub: "shares" },
-                  { value: "options", label: "Options", sub: "contracts" },
+                onChange={(v) => store.setField("instrument", v as "stock" | "options")}
+                options={[
+                  { value: "stock", label: "Stock shares" },
+                  { value: "options", label: "Options contracts" },
                 ]}
               />
               {isOpt ? (
                 <SegmentedControl
                   ariaLabel="Option type"
+                  fullWidth
                   value={session.optionType}
-                  onChange={(v) => store.setField("optionType", v)}
-                  segments={[
-                    {
-                      value: "call",
-                      label: "Call",
-                      sub: "Bullish",
-                      glyph: "▲",
-                      accent: "profit",
-                    },
-                    {
-                      value: "put",
-                      label: "Put",
-                      sub: "Bearish",
-                      glyph: "▼",
-                      accent: "loss",
-                    },
+                  onChange={(v) => store.setField("optionType", v as "call" | "put")}
+                  options={[
+                    { value: "call", label: "▲ Call" },
+                    { value: "put", label: "▼ Put" },
                   ]}
                 />
               ) : (
                 <SegmentedControl
                   ariaLabel="Trade direction"
+                  fullWidth
                   value={session.direction}
-                  onChange={(v) => store.setField("direction", v)}
-                  segments={[
-                    {
-                      value: "long",
-                      label: "Long",
-                      glyph: "▲",
-                      accent: "profit",
-                    },
-                    {
-                      value: "short",
-                      label: "Short",
-                      glyph: "▼",
-                      accent: "loss",
-                    },
+                  onChange={(v) => store.setField("direction", v as "long" | "short")}
+                  options={[
+                    { value: "long", label: "▲ Long" },
+                    { value: "short", label: "▼ Short" },
                   ]}
                 />
               )}

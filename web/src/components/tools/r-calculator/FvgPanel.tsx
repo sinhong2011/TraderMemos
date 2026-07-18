@@ -1,11 +1,11 @@
 import { money, shares as fmtShares } from "../../../lib/r-calculator/format";
 import { useFvgStore } from "../../../lib/r-calculator/useFvgStore";
+import { cn } from "../../../lib/cn";
+import { Card } from "../../Card";
+import { SegmentedControl } from "../../SegmentedControl";
 import { CalcInputField } from "./CalcInputField";
-import { SegmentedControl } from "./SegmentedControl";
 import { TradeTicket, type TradeTicketRow } from "./TradeTicket";
 import { WarningBanner } from "./WarningBanner";
-import { Card } from "../../Card";
-import { cn } from "../../../lib/cn";
 
 export function FvgPanel() {
   const store = useFvgStore();
@@ -43,21 +43,12 @@ export function FvgPanel() {
           <div className="flex flex-col gap-3">
             <SegmentedControl
               ariaLabel="Trade direction"
+              fullWidth
               value={session.direction}
-              onChange={(v) => store.setField("direction", v)}
-              segments={[
-                {
-                  value: "long",
-                  label: "Long",
-                  glyph: "▲",
-                  accent: "profit",
-                },
-                {
-                  value: "short",
-                  label: "Short",
-                  glyph: "▼",
-                  accent: "loss",
-                },
+              onChange={(v) => store.setField("direction", v as "long" | "short")}
+              options={[
+                { value: "long", label: "▲ Long" },
+                { value: "short", label: "▼ Short" },
               ]}
             />
 
@@ -88,10 +79,12 @@ export function FvgPanel() {
               </span>
               <SegmentedControl
                 ariaLabel="Entry location"
-                subtle
+                fullWidth
                 value={session.entryAt}
-                onChange={(v) => store.setField("entryAt", v)}
-                segments={[
+                onChange={(v) =>
+                  store.setField("entryAt", v as "top" | "mid" | "bottom" | "manual")
+                }
+                options={[
                   { value: "top", label: "Top" },
                   { value: "mid", label: "Mid" },
                   { value: "bottom", label: "Bottom" },

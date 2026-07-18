@@ -8,7 +8,8 @@
   --color-bg-panel: #23232c;
   --color-bg-hover: #2b2b36;
   --color-bg-inset: #121218;
-  /* Input controls: lifted chip on panel/void (panel #23232c → well #2b2b36) */
+  /* Input chips: lift off panel/elevated/inset. Do NOT place inputs on bg-hover —
+     --color-bg-input aliases hover, so chips would vanish (Instrument nesting). */
   --color-bg-input: var(--color-bg-hover);
   --color-bg-input-hover: #343440;
 

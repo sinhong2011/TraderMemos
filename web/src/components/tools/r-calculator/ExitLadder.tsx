@@ -1,8 +1,8 @@
 import { EXIT_PRESETS, matchPreset } from "../../../lib/r-calculator/exit";
 import { useRCalculatorStore } from "../../../lib/r-calculator/useRCalculatorStore";
-import { CalcInputField } from "./CalcInputField";
-import { SegmentedControl } from "./SegmentedControl";
 import { cn } from "../../../lib/cn";
+import { SegmentedControl } from "../../SegmentedControl";
+import { CalcInputField } from "./CalcInputField";
 
 type StopKind = "breakeven" | "original" | "custom";
 
@@ -129,22 +129,23 @@ export function ExitLadder() {
             {trailerShares} {unit} trail after tiers
           </span>
         </div>
-        <SegmentedControl<StopKind>
+        <SegmentedControl
           ariaLabel="Trailing stop"
-          subtle
+          fullWidth
           value={stopKind}
-          onChange={(v) =>
+          onChange={(v) => {
+            const kind = v as StopKind;
             store.setTrailerStop(
-              v === "custom"
+              kind === "custom"
                 ? { kind: "custom", r: customR }
-                : v === "original"
+                : kind === "original"
                   ? { kind: "original" }
                   : { kind: "breakeven" },
-            )
-          }
-          segments={[
-            { value: "breakeven", label: "Breakeven", sub: "0R" },
-            { value: "original", label: "Original", sub: "−1R" },
+            );
+          }}
+          options={[
+            { value: "breakeven", label: "Breakeven 0R" },
+            { value: "original", label: "Original −1R" },
             { value: "custom", label: "Custom" },
           ]}
         />

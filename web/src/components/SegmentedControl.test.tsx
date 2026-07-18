@@ -34,4 +34,38 @@ describe("SegmentedControl", () => {
     expect(list.className).toMatch(/w-full/);
     expect(screen.getByRole("tab", { name: "30D" }).className).toMatch(/flex-1/);
   });
+
+  it("applies semantic tone classes for long/short", () => {
+    const { rerender } = render(
+      <SegmentedControl
+        options={[
+          { value: "long", label: "LONG" },
+          { value: "short", label: "SHORT" },
+        ]}
+        tones={{ long: "pos", short: "neg" }}
+        value="long"
+        onChange={() => {}}
+        ariaLabel="Side"
+      />,
+    );
+    const list = screen.getByRole("tablist", { name: "Side" });
+    const indicator = list.querySelector("[class*=bg-profit]");
+    expect(indicator).toBeTruthy();
+    expect(screen.getByRole("tab", { name: "LONG" }).className).toMatch(/text-profit/);
+
+    rerender(
+      <SegmentedControl
+        options={[
+          { value: "long", label: "LONG" },
+          { value: "short", label: "SHORT" },
+        ]}
+        tones={{ long: "pos", short: "neg" }}
+        value="short"
+        onChange={() => {}}
+        ariaLabel="Side"
+      />,
+    );
+    expect(list.querySelector("[class*=bg-loss]")).toBeTruthy();
+    expect(screen.getByRole("tab", { name: "SHORT" }).className).toMatch(/text-loss/);
+  });
 });

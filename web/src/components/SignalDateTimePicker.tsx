@@ -1,7 +1,6 @@
 import { CalendarDays, ChevronDown } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "../lib/cn";
-import { intlLocale } from "../lib/locale";
 import { signalControlTriggerClass } from "./signal-field-styles";
 import { SignalCalendar } from "./SignalCalendar";
 import { SignalPopover } from "./SignalPopover";
@@ -56,26 +55,12 @@ function nowDatetimeLocal(): string {
   return formatDatetimeLocal(d, d.getHours(), d.getMinutes(), d.getSeconds());
 }
 
+/** Closed-trigger label: `yyyy-MM-dd HH:mm:ss` (24-hour). */
 function formatDisplay(value: string): string | null {
   const parsed = parseDatetimeLocal(value);
   if (!parsed) return null;
-  const d = new Date(
-    parsed.date.getFullYear(),
-    parsed.date.getMonth(),
-    parsed.date.getDate(),
-    parsed.hours,
-    parsed.minutes,
-    parsed.seconds,
-  );
-  return d.toLocaleString(intlLocale(), {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: false,
-  });
+  const { date, hours, minutes, seconds } = parsed;
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
 }
 
 function TimeColumn({

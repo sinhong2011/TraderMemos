@@ -31,6 +31,19 @@ describe("parseDatetimeLocal / formatDatetimeLocal", () => {
 });
 
 describe("SignalDateTimePicker", () => {
+  it("shows yyyy-MM-dd HH:mm:ss on the closed trigger", () => {
+    render(
+      <SignalDateTimePicker
+        aria-label="Fill datetime"
+        value="2026-07-15T22:31:39"
+        onChange={vi.fn()}
+      />,
+    );
+    expect(screen.getByRole("button", { name: "Fill datetime" })).toHaveTextContent(
+      "2026-07-15 22:31:39",
+    );
+  });
+
   it("opens panel with calendar and time columns", async () => {
     const onChange = vi.fn();
     render(
