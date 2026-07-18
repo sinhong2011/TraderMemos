@@ -63,15 +63,9 @@ const DIM_LABELS: Record<BreakdownDim, string> = {
   mistake: "Mistake",
 };
 
-const ALL_DIMS: BreakdownDim[] = [
-  "symbol",
-  "setup",
-  "session",
-  "day_of_week",
-  "hour_of_day",
-  "tag",
-  "mistake",
-];
+// Symbol, Tag, Day of Week, Time of Day, and Session each have their own
+// always-visible card above; this selector only covers the two dims without one.
+const SELECTOR_DIMS: BreakdownDim[] = ["setup", "mistake"];
 
 export interface ReportsViewProps {
   summary?: Summary;
@@ -287,7 +281,7 @@ function DimSelector({
 }) {
   return (
     <div className="flex items-center gap-1">
-      {ALL_DIMS.map((d) => {
+      {SELECTOR_DIMS.map((d) => {
         const active = d === value;
         return (
           <Button
