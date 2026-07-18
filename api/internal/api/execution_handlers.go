@@ -2,8 +2,10 @@ package api
 
 import (
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -21,16 +23,17 @@ func (s *Server) executionRoutes(g *echo.Group) {
 }
 
 type createExecutionReq struct {
-	AccountID      string    `json:"account_id"`
-	Symbol         string    `json:"symbol"`
-	InstrumentType string    `json:"instrument_type"`
-	Side           string    `json:"side"`
-	Quantity       float64   `json:"quantity"`
-	Price          float64   `json:"price"`
-	Fees           float64   `json:"fees"`
-	Commission     float64   `json:"commission"`
-	ExecutedAt     time.Time `json:"executed_at"`
-	Multiplier     float64   `json:"multiplier"`
+	AccountID      string            `json:"account_id"`
+	Symbol         string            `json:"symbol"`
+	InstrumentType string            `json:"instrument_type"`
+	Side           string            `json:"side"`
+	Quantity       float64           `json:"quantity"`
+	Price          float64           `json:"price"`
+	Fees           float64           `json:"fees"`
+	Commission     float64           `json:"commission"`
+	ExecutedAt     time.Time         `json:"executed_at"`
+	Multiplier     float64           `json:"multiplier"`
+	Details        map[string]string `json:"details"`
 }
 
 type updateExecutionReq struct {
@@ -64,14 +67,45 @@ func (s *Server) handleCreateExecution(c echo.Context) error {
 		in.InstrumentType = "stock"
 	}
 	hash := importer.DedupHash(in.Symbol, in.Side, in.Quantity, in.Price, in.ExecutedAt)
+
+	// Idempotent: same fill already logged → return existing trade link.
+	if existing, err := s.deps.Store.GetExecutionByDedup(c.Request().Context(), store.GetExecutionByDedupParams{
+		AccountID: in.AccountID, DedupHash: hash,
+	}); err == nil {
+		if existing.UserID != uid {
+			return Fail(http.StatusNotFound, "not_found", "account not found", nil)
+		}
+		tradeID, gerr := s.deps.Store.GetTradeIDForExecution(c.Request().Context(), existing.ID)
+		if gerr != nil {
+			return Fail(http.StatusInternalServerError, "internal", "could not resolve trade", nil)
+		}
+		return c.JSON(http.StatusOK, map[string]string{
+			"execution_id": existing.ID,
+			"trade_id":     tradeID,
+			"deduped":      "true",
+		})
+	} else if !errors.Is(err, sql.ErrNoRows) {
+		return Fail(http.StatusInternalServerError, "internal", "could not check execution", nil)
+	}
+
 	execID := uuid.NewString()
+	details := sql.NullString{}
+	if len(in.Details) > 0 {
+		if b, err := json.Marshal(in.Details); err == nil {
+			details = sql.NullString{String: string(b), Valid: true}
+		}
+	}
 	_, err := s.deps.Store.InsertExecution(c.Request().Context(), store.InsertExecutionParams{
 		ID: execID, UserID: uid, AccountID: in.AccountID,
 		Symbol: in.Symbol, InstrumentType: in.InstrumentType, Side: in.Side,
 		Quantity: in.Quantity, Price: in.Price, Fees: in.Fees, Commission: in.Commission,
-		ExecutedAt: in.ExecutedAt, Multiplier: in.Multiplier, DedupHash: hash,
+		ExecutedAt: in.ExecutedAt, Multiplier: in.Multiplier, Details: details, DedupHash: hash,
 	})
 	if err != nil {
+		s.logger.Warn("insert execution failed", "err", err, "symbol", in.Symbol, "side", in.Side)
+		if isUniqueConstraint(err) {
+			return Fail(http.StatusConflict, "conflict", "duplicate fill already exists", nil)
+		}
 		return Fail(http.StatusInternalServerError, "internal", "could not insert execution", nil)
 	}
 	if err := s.deps.Trades.Regroup(c.Request().Context(), uid, in.AccountID); err != nil {
@@ -85,6 +119,14 @@ func (s *Server) handleCreateExecution(c echo.Context) error {
 		"execution_id": execID,
 		"trade_id":     tradeID,
 	})
+}
+
+func isUniqueConstraint(err error) bool {
+	if err == nil {
+		return false
+	}
+	msg := strings.ToLower(err.Error())
+	return strings.Contains(msg, "unique") || strings.Contains(msg, "constraint")
 }
 
 func (s *Server) handleListExecutions(c echo.Context) error {

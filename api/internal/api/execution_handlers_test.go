@@ -28,6 +28,19 @@ func TestUpdateAndDeleteExecution(t *testing.T) {
 	require.NotEmpty(t, created.ExecutionID)
 	require.NotEmpty(t, created.TradeID)
 
+	// Duplicate create is idempotent — same execution/trade ids, HTTP 200.
+	dupRec := do(s, http.MethodPost, "/api/v1/executions", buy, tok)
+	require.Equal(t, http.StatusOK, dupRec.Code, dupRec.Body.String())
+	var duped struct {
+		ExecutionID string `json:"execution_id"`
+		TradeID     string `json:"trade_id"`
+		Deduped     string `json:"deduped"`
+	}
+	require.NoError(t, json.Unmarshal(dupRec.Body.Bytes(), &duped))
+	require.Equal(t, created.ExecutionID, duped.ExecutionID)
+	require.Equal(t, created.TradeID, duped.TradeID)
+	require.Equal(t, "true", duped.Deduped)
+
 	// Raise exit price → higher P&L after regroup.
 	var sellCreated struct {
 		ExecutionID string `json:"execution_id"`
