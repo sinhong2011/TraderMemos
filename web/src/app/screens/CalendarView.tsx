@@ -27,6 +27,7 @@ import { Page } from "../../components/Page";
 import { Pill } from "../../components/Pill";
 import { SegmentedControl } from "../../components/SegmentedControl";
 import { Skeleton } from "../../components/Skeleton";
+import { Button } from "../../components/ui/button";
 import { pnlBgTint, pnlColor } from "../../components/theme-tokens";
 import { TradeRowMenu } from "../../components/TradeRowMenu";
 import { marketLabel, tradeStatus } from "../../components/tradeColumns";
@@ -616,16 +617,17 @@ export function CalendarView({
 
                           if (!hasPnl) {
                             return (
-                              <button
+                              <Button
                                 key={di}
                                 type="button"
+                                variant="ghost"
                                 aria-label={dayAria}
                                 aria-current={isToday ? "date" : undefined}
                                 className={dayClass}
                                 style={dayStyle}
                               >
                                 {dayBody}
-                              </button>
+                              </Button>
                             );
                           }
 
@@ -645,8 +647,9 @@ export function CalendarView({
                               closeDelay={100}
                               sideOffset={8}
                               render={
-                                <button
+                                <Button
                                   type="button"
+                                  variant="ghost"
                                   onClick={() => onSelectDay(isSelected ? null : cell.date)}
                                 />
                               }

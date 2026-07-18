@@ -2,6 +2,7 @@ import { AlertCircle, ArrowRight, Eye, EyeOff, Lock, Mail, Zap } from "lucide-re
 import { useId, useState } from "react";
 import { AppLogo } from "../../components/AppLogo";
 import { AuthModeTabs } from "../../components/AuthModeTabs";
+import { Button } from "../../components/ui/button";
 import { authApi } from "../../lib/api/auth";
 import { ApiError } from "../../lib/api/client";
 import { useAuth } from "../../lib/auth";
@@ -71,9 +72,11 @@ function AuthField({
           required
         />
         {isPassword && (
-          <button
+          <Button
             type="button"
-            className="absolute right-1.5 flex size-8 cursor-pointer items-center justify-center rounded-sharp border-none bg-transparent text-text-dim transition-colors hover:bg-bg-hover hover:text-text-muted"
+            variant="ghost"
+            size="icon"
+            className="absolute right-1.5"
             onClick={() => setShowPassword((v) => !v)}
             aria-label={showPassword ? "Hide password" : "Show password"}
           >
@@ -82,7 +85,7 @@ function AuthField({
             ) : (
               <Eye size={15} strokeWidth={1.5} />
             )}
-          </button>
+          </Button>
         )}
       </div>
       <p
@@ -276,9 +279,11 @@ export function LoginScreen() {
                 </div>
               )}
 
-              <button
+              <Button
                 type="submit"
-                className="group mt-4 flex h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-control border border-border-strong bg-accent px-4 text-[13px] leading-none font-semibold text-bg transition-[opacity,box-shadow,transform] duration-150 hover:shadow-[0_0_28px_var(--color-accent-glow)] active:scale-[0.99] disabled:cursor-default disabled:opacity-55 disabled:active:scale-100"
+                variant="default"
+                size="lg"
+                className="group mt-4 h-11 w-full border border-border-strong hover:shadow-[0_0_28px_var(--color-accent-glow)] active:scale-[0.99] disabled:active:scale-100"
                 disabled={busy}
               >
                 <span>
@@ -298,21 +303,23 @@ export function LoginScreen() {
                     aria-hidden
                   />
                 )}
-              </button>
+              </Button>
 
               <div className="mt-4 flex h-8 items-center justify-center">
                 {devAuth && isLogin ? (
-                  <button
+                  <Button
                     type="button"
+                    variant="outline"
+                    size="sm"
                     onClick={signInWithDevAccount}
                     disabled={busy}
-                    className="inline-flex cursor-pointer items-center gap-1.5 rounded-sharp border border-dashed border-[rgba(228,255,26,0.28)] bg-[rgba(228,255,26,0.04)] px-2.5 py-1 text-[11px] font-medium text-signal transition-colors hover:border-[rgba(228,255,26,0.45)] hover:bg-[rgba(228,255,26,0.08)] disabled:cursor-default disabled:opacity-55"
+                    className="border-dashed border-[rgba(228,255,26,0.28)] bg-[rgba(228,255,26,0.04)] text-signal hover:border-[rgba(228,255,26,0.45)] hover:bg-[rgba(228,255,26,0.08)]"
                   >
                     <Zap size={12} strokeWidth={1.5} aria-hidden />
                     <span>{DEV_ACCOUNT.email}</span>
                     <span className="text-text-dim">·</span>
                     <span>Dev sign-in</span>
-                  </button>
+                  </Button>
                 ) : (
                   <p className="text-[11px] text-text-dim">
                     Press <kbd className={signalKbdClass}>Enter</kbd> to continue

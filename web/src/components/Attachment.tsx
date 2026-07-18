@@ -1,5 +1,6 @@
 import type { ComponentProps } from "react";
 import { cn } from "../lib/cn";
+import { Button } from "./ui/button";
 
 type AttachmentState = "idle" | "uploading" | "processing" | "error" | "done";
 type AttachmentSize = "default" | "sm" | "xs";
@@ -128,30 +129,27 @@ function AttachmentActions({ className, ...props }: ComponentProps<"div">) {
   );
 }
 
-function AttachmentAction({ className, ...props }: ComponentProps<"button">) {
+function AttachmentAction({ className, ...props }: ComponentProps<typeof Button>) {
   return (
-    <button
+    <Button
       type="button"
+      variant="ghost"
+      size="icon-xs"
       data-slot="attachment-action"
-      className={cn(
-        "inline-flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-control border-none bg-transparent text-text-muted transition-colors",
-        "hover:bg-bg-hover hover:text-text",
-        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
-        "disabled:cursor-not-allowed disabled:opacity-50",
-        className,
-      )}
+      className={className}
       {...props}
     />
   );
 }
 
-function AttachmentTrigger({ className, ...props }: ComponentProps<"button">) {
+function AttachmentTrigger({ className, ...props }: ComponentProps<typeof Button>) {
   return (
-    <button
+    <Button
       type="button"
+      variant="ghost"
       data-slot="attachment-trigger"
       className={cn(
-        "absolute inset-0 z-10 cursor-pointer border-none bg-transparent outline-none",
+        "absolute inset-0 z-10 h-auto rounded-none border-none bg-transparent p-0 hover:bg-transparent",
         className,
       )}
       {...props}

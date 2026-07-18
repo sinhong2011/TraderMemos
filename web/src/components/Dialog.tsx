@@ -2,6 +2,7 @@ import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
 import { X } from "lucide-react";
 import type { ComponentProps } from "react";
 import { cn } from "../lib/cn";
+import { buttonVariants } from "./ui/button";
 
 function Dialog({ ...props }: DialogPrimitive.Root.Props) {
   return <DialogPrimitive.Root data-slot="dialog" {...props} />;
@@ -67,7 +68,10 @@ function DialogContent({
           <DialogPrimitive.Close
             data-slot="dialog-close"
             aria-label="Close"
-            className="absolute top-4 right-5 flex cursor-pointer border-none bg-transparent p-1 text-text-muted transition-colors hover:text-text"
+            className={cn(
+              buttonVariants({ variant: "ghost", size: "icon-sm" }),
+              "absolute top-4 right-5",
+            )}
           >
             <X size={18} strokeWidth={1.5} />
           </DialogPrimitive.Close>

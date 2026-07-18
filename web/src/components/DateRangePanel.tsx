@@ -12,6 +12,7 @@ import {
 } from "../lib/dateRangePresets";
 import { useFilters } from "../lib/filters";
 import { SignalCalendar } from "./SignalCalendar";
+import { Button } from "./ui/button";
 
 const PRESETS: { key: DateRangePreset; label: string }[] = [
   { key: "7d", label: PRESET_LABELS["7d"] },
@@ -87,17 +88,15 @@ export function DateRangePanel({ onApplied }: { onApplied?: () => void }) {
       {PRESETS.map((p) => {
         const active = activePreset === p.key;
         return (
-          <button
+          <Button
             key={p.key}
             type="button"
+            variant="ghost"
             onClick={() => applyPreset(p.key)}
             className={cn(
-              "relative w-full cursor-pointer rounded-control py-2 pr-2 pl-2.5 text-left text-[11px] outline-none",
-              "transition-colors duration-100",
-              "focus-visible:ring-2 focus-visible:ring-accent/40",
-              active
-                ? "bg-bg-hover text-text"
-                : "text-text-muted hover:bg-bg-hover hover:text-text",
+              "relative h-auto w-full justify-start rounded-control py-2 pr-2 pl-2.5 text-left text-[11px]",
+              "focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:outline-none",
+              active && "bg-bg-hover text-text",
             )}
           >
             {active && (
@@ -107,7 +106,7 @@ export function DateRangePanel({ onApplied }: { onApplied?: () => void }) {
               />
             )}
             {p.label}
-          </button>
+          </Button>
         );
       })}
     </div>

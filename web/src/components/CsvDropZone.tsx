@@ -1,6 +1,7 @@
 import { FileText, Upload, X } from "lucide-react";
 import { useRef, useState } from "react";
 import { cn } from "../lib/cn";
+import { Button } from "./ui/button";
 
 export interface CsvDropZoneProps {
   file: File | null;
@@ -33,19 +34,22 @@ export function CsvDropZone({ file, onFileChange, disabled }: CsvDropZoneProps) 
             <p className="truncate text-[12px] font-medium text-text">{file.name}</p>
             <p className="text-[10px] text-text-dim">{(file.size / 1024).toFixed(1)} KB</p>
           </div>
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="icon-sm"
             disabled={disabled}
             onClick={() => pickFile(null)}
             aria-label="Remove CSV file"
-            className="flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-control text-text-dim transition-colors hover:bg-bg-hover hover:text-text disabled:cursor-not-allowed disabled:opacity-50"
+            className="shrink-0 text-text-dim"
           >
             <X size={14} strokeWidth={2} />
-          </button>
+          </Button>
         </div>
       ) : (
-        <button
+        <Button
           type="button"
+          variant="ghost"
           disabled={disabled}
           onClick={() => inputRef.current?.click()}
           onDragOver={(e) => {
@@ -60,10 +64,9 @@ export function CsvDropZone({ file, onFileChange, disabled }: CsvDropZoneProps) 
             pickFile(e.dataTransfer.files?.[0] ?? null);
           }}
           className={cn(
-            "flex w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-control border border-dashed px-4 py-8",
+            "h-auto w-full flex-col gap-2 rounded-control border border-dashed px-4 py-8 whitespace-normal",
             "text-[12px] transition-[border-color,background-color] duration-150",
-            "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
-            "disabled:cursor-not-allowed disabled:opacity-55",
+            "disabled:opacity-55",
             dragOver
               ? "border-accent bg-accent-bg"
               : "border-border bg-bg-inset hover:border-border-strong hover:bg-bg-hover",
@@ -79,7 +82,7 @@ export function CsvDropZone({ file, onFileChange, disabled }: CsvDropZoneProps) 
             <span className="text-accent">Click to upload</span> or drag CSV here
           </span>
           <span className="text-[10px] text-text-dim">.csv files only</span>
-        </button>
+        </Button>
       )}
 
       <input

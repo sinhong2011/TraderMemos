@@ -14,6 +14,7 @@ import { SignalDatePicker } from "../../components/SignalDatePicker";
 import { fieldError, SignalField } from "../../components/SignalField";
 import { SignalInput, SignalTextarea } from "../../components/SignalInput";
 import { useToastManager } from "../../components/Toast";
+import { Button } from "../../components/ui/button";
 import { notesApi } from "../../lib/api/notes";
 import { settingsApi } from "../../lib/api/settings";
 import { useUI } from "../../lib/ui";
@@ -183,22 +184,17 @@ export function NewNoteDrawer() {
           </form>
         </DrawerBody>
         <DrawerFooter>
-          <button
-            type="button"
-            onClick={close}
-            disabled={saving}
-            className="cursor-pointer rounded-control border border-border px-3 py-1.5 text-xs text-text-muted hover:bg-bg-hover"
-          >
+          <Button type="button" variant="outline" onClick={close} disabled={saving}>
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant="default"
             onClick={() => void form.handleSubmit()}
             disabled={!form.state.values.body.trim() || saving}
-            className="cursor-pointer rounded-control bg-accent px-3 py-1.5 text-xs font-medium text-bg disabled:cursor-not-allowed disabled:opacity-40"
           >
             {saving ? "Saving…" : "Save note"}
-          </button>
+          </Button>
         </DrawerFooter>
       </DrawerContent>
     </Drawer>

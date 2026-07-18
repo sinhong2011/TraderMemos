@@ -20,6 +20,7 @@ import { DashboardInsightBento } from "../../components/DashboardInsightBento";
 import { DashboardMiniCalendar } from "../../components/DashboardMiniCalendar";
 import { DataTable } from "../../components/DataTable";
 import { EmptyState } from "../../components/EmptyState";
+import { Button } from "../../components/ui/button";
 import { Page } from "../../components/Page";
 import { PerformanceStrip } from "../../components/PerformanceStrip";
 import { SegmentedControl } from "../../components/SegmentedControl";
@@ -242,22 +243,14 @@ export function DashboardView({
   if (noData) {
     const emptyActions = (
       <>
-        <button
-          type="button"
-          onClick={onImport}
-          className="inline-flex cursor-pointer items-center gap-1.5 rounded-control border-none bg-accent px-3 py-1.5 text-[12px] font-semibold text-bg transition-opacity hover:opacity-90"
-        >
+        <Button type="button" variant="default" onClick={onImport}>
           <Upload size={13} strokeWidth={1.75} />
           Import CSV
-        </button>
-        <button
-          type="button"
-          onClick={onNewTrade}
-          className="inline-flex cursor-pointer items-center gap-1.5 rounded-control border border-border bg-bg-inset px-3 py-1.5 text-[12px] text-text-muted transition-colors hover:border-border-strong hover:bg-bg-hover hover:text-text"
-        >
+        </Button>
+        <Button type="button" variant="outline" onClick={onNewTrade}>
           <Plus size={13} strokeWidth={1.75} />
           Log trade
-        </button>
+        </Button>
       </>
     );
 
@@ -278,14 +271,15 @@ export function DashboardView({
   }
 
   const recentAction = (
-    <button
+    <Button
       type="button"
+      variant="link"
       onClick={onViewAllTrades}
-      className="inline-flex cursor-pointer items-center gap-1 rounded-sharp text-[11px] font-medium text-accent transition-opacity hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+      className="h-auto gap-1 rounded-sharp text-[11px] font-medium"
     >
       View all trades
       <ArrowRight size={12} strokeWidth={2} aria-hidden />
-    </button>
+    </Button>
   );
 
   return (

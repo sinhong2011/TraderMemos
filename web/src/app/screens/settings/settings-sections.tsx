@@ -11,6 +11,7 @@ import { SignalInput, SignalPasswordInput, SignalTextarea } from "../../../compo
 import { SignalSelect } from "../../../components/SignalSelect";
 import { Skeleton } from "../../../components/Skeleton";
 import { useToastManager } from "../../../components/Toast";
+import { Button } from "../../../components/ui/button";
 import { ApiError } from "../../../lib/api/client";
 import type { RiskRules } from "../../../lib/api/settings";
 import type { Account, CashTransaction, Setup, Tag as TagType } from "../../../lib/api/types";
@@ -1485,14 +1486,16 @@ function VisionScanSection() {
                             aria-label={settingsLabel(locale, "visionBaseUrl")}
                           />
                           {field.state.value ? (
-                            <button
+                            <Button
                               type="button"
-                              className="absolute top-1/2 right-1 flex size-7 -translate-y-1/2 items-center justify-center rounded-control border-none bg-transparent text-text-dim transition-colors duration-150 hover:bg-bg-hover hover:text-text focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+                              variant="ghost"
+                              size="icon-sm"
+                              className="absolute top-1/2 right-1 -translate-y-1/2"
                               aria-label="Clear base URL"
                               onClick={() => field.handleChange("")}
                             >
                               <X size={13} strokeWidth={1.75} aria-hidden />
-                            </button>
+                            </Button>
                           ) : null}
                         </div>
                       </SettingsGroupRow>
@@ -1647,13 +1650,9 @@ export function GeneralTab() {
       <SettingsSection footer={settingsLabel(locale, "signOutFooter")}>
         <SettingsGroup>
           <SettingsGroupRow label={settingsLabel(locale, "session")} last>
-            <button
-              type="button"
-              onClick={() => signOut()}
-              className="inline-flex h-8 cursor-pointer items-center rounded-control px-3 text-[12px] font-medium text-text-muted transition-colors hover:bg-bg-hover hover:text-text"
-            >
+            <Button type="button" variant="ghost" onClick={() => signOut()}>
               {settingsLabel(locale, "signOut")}
-            </button>
+            </Button>
           </SettingsGroupRow>
         </SettingsGroup>
       </SettingsSection>

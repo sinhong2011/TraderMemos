@@ -3,11 +3,7 @@ import type { OcrSettings } from "../lib/api/settings";
 import { getOcrVisionSetupIssues, OCR_VISION_SETUP_STEPS } from "../lib/ocrVisionReady";
 import { cn } from "../lib/cn";
 import { Modal } from "./Modal";
-
-const btnGhost =
-  "inline-flex h-10 cursor-pointer items-center justify-center rounded-control border-none bg-bg-input px-3.5 text-[12px] font-medium text-text-muted transition-colors hover:bg-bg-input-hover hover:text-text disabled:cursor-not-allowed disabled:opacity-50";
-const btnPrimary =
-  "inline-flex h-10 cursor-pointer items-center justify-center gap-1.5 rounded-control border-none bg-accent px-5 text-[13px] font-semibold text-bg transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50";
+import { Button } from "./ui/button";
 
 export function OcrSetupPromptModal({
   open,
@@ -30,12 +26,12 @@ export function OcrSetupPromptModal({
       className="max-w-md"
       footer={
         <div className="flex flex-wrap justify-end gap-2">
-          <button type="button" className={btnGhost} onClick={() => onOpenChange(false)}>
+          <Button type="button" variant="secondary" size="lg" onClick={() => onOpenChange(false)}>
             Not now
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
-            className={btnPrimary}
+            size="lg"
             onClick={() => {
               onOpenChange(false);
               onOpenSettings();
@@ -43,7 +39,7 @@ export function OcrSetupPromptModal({
           >
             <Settings size={14} strokeWidth={1.75} aria-hidden />
             Open settings
-          </button>
+          </Button>
         </div>
       }
     >

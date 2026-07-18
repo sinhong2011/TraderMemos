@@ -2,6 +2,7 @@ import { useState } from "react";
 import { money, rLabel, signedMoney } from "../../../lib/r-calculator/format";
 import { useRCalculatorStore } from "../../../lib/r-calculator/useRCalculatorStore";
 import { cn } from "../../../lib/cn";
+import { Button } from "../../ui/button";
 
 export function RAxis() {
   const store = useRCalculatorStore();
@@ -75,11 +76,12 @@ export function RAxis() {
           </div>
 
           {exitResult.tiers.map((tier, i) => (
-            <button
+            <Button
               key={tier.r}
               type="button"
+              variant="ghost"
               className={cn(
-                "absolute left-1/2 z-20 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-bg ring-2 ring-profit transition-transform",
+                "absolute left-1/2 z-20 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-0 bg-bg p-0 ring-2 ring-profit hover:bg-bg",
                 active === `tier-${i}` && "scale-150",
               )}
               style={{ top: `${top(tier.r)}%` }}
@@ -88,10 +90,11 @@ export function RAxis() {
             />
           ))}
 
-          <button
+          <Button
             type="button"
+            variant="ghost"
             className={cn(
-              "absolute left-1/2 z-10 flex size-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-bg text-[10px] font-bold ring-2 transition-transform",
+              "absolute left-1/2 z-10 flex size-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-0 bg-bg p-0 text-[10px] font-bold ring-2 hover:bg-bg",
               bullish ? "text-profit ring-profit" : "text-loss ring-loss",
               active === "entry" && "scale-110",
             )}
@@ -100,7 +103,7 @@ export function RAxis() {
             onMouseLeave={() => setActive(null)}
           >
             {long ? "▲" : "▼"}
-          </button>
+          </Button>
         </div>
 
         {/* Right prices — tight to track */}

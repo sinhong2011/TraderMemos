@@ -8,6 +8,7 @@ import {
   signalSelectItemClass,
   signalSelectListClass,
 } from "./signal-overlay-styles";
+import { Button } from "./ui/button";
 
 export type SignalAutocompleteItem = {
   value: string;
@@ -211,8 +212,10 @@ export function ModelAutocomplete({
       showClear
       endAction={
         onFetchModels ? (
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="icon-sm"
             disabled={disabled || fetchDisabled || fetching}
             className={autocompleteActionClass}
             onClick={(e) => {
@@ -228,7 +231,7 @@ export function ModelAutocomplete({
             ) : (
               <RefreshCw size={13} strokeWidth={1.75} aria-hidden />
             )}
-          </button>
+          </Button>
         ) : undefined
       }
     />

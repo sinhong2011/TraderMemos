@@ -1,6 +1,7 @@
 import { Minus, Plus } from "lucide-react";
 import { signalLabelClass } from "../../signal-field-styles";
 import { cn } from "../../../lib/cn";
+import { Button } from "../../ui/button";
 
 export function CalcInputField({
   label,
@@ -47,14 +48,16 @@ export function CalcInputField({
           accentRing,
         )}
       >
-        <button
+        <Button
           type="button"
+          variant="ghost"
+          size="icon-sm"
           aria-label="Decrease"
           onClick={() => bump(-step)}
-          className="flex h-8 w-7 shrink-0 items-center justify-center text-text-dim transition-colors hover:text-text"
+          className="h-8 w-7 rounded-none text-text-dim hover:bg-transparent hover:text-text"
         >
           <Minus size={12} />
-        </button>
+        </Button>
         <div className="flex min-w-0 flex-1 items-center justify-end gap-0.5 pr-1">
           {prefix ? <span className="shrink-0 text-[11px] text-text-dim">{prefix}</span> : null}
           <input
@@ -70,14 +73,16 @@ export function CalcInputField({
           />
           {suffix ? <span className="shrink-0 text-[11px] text-text-dim">{suffix}</span> : null}
         </div>
-        <button
+        <Button
           type="button"
+          variant="ghost"
+          size="icon-sm"
           aria-label="Increase"
           onClick={() => bump(step)}
-          className="flex h-8 w-7 shrink-0 items-center justify-center text-text-dim transition-colors hover:text-text"
+          className="h-8 w-7 rounded-none text-text-dim hover:bg-transparent hover:text-text"
         >
           <Plus size={12} />
-        </button>
+        </Button>
       </div>
       {hint ? <p className="mt-1 text-[10px] text-text-dim">{hint}</p> : null}
     </div>

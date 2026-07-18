@@ -17,6 +17,7 @@ import { Page } from "../../components/Page";
 import { SegmentedControl } from "../../components/SegmentedControl";
 import { Skeleton } from "../../components/Skeleton";
 import { StatCard } from "../../components/StatCard";
+import { Button } from "../../components/ui/button";
 import { pnlColor } from "../../components/theme-tokens";
 import type { BreakGroup, EquityCurve, RSummary, Summary } from "../../lib/api/types";
 import { uniqueDayTicks } from "../../lib/chartTicks";
@@ -264,25 +265,16 @@ function DimSelector({
       {ALL_DIMS.map((d) => {
         const active = d === value;
         return (
-          <button
+          <Button
             key={d}
+            type="button"
+            variant={active ? "soft" : "outline"}
+            size="xs"
             onClick={() => onChange(d)}
-            style={{
-              padding: "4px 10px",
-              fontSize: 11,
-              fontFamily: "inherit",
-              border: "1px solid var(--color-border)",
-              borderRadius: "var(--radius-control)",
-              cursor: "pointer",
-              background: active ? "var(--color-accent-subtle)" : "transparent",
-              color: active ? "var(--color-accent)" : "var(--color-text-muted)",
-              transition: "background var(--duration-fast), color var(--duration-fast)",
-              fontWeight: active ? 600 : 400,
-              whiteSpace: "nowrap",
-            }}
+            className={active ? "font-semibold" : undefined}
           >
             {DIM_LABELS[d]}
-          </button>
+          </Button>
         );
       })}
     </div>

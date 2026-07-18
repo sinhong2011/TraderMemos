@@ -5,6 +5,7 @@ import { usePrivacyMode } from "../lib/displayPrefs";
 import { fmtSignedMoney } from "../lib/format";
 import { formatOptionTypeLabel, type OptionRightOverride } from "../lib/importOptionRight";
 import { intlLocale } from "../lib/locale";
+import { Button } from "./ui/button";
 
 function ReturnCell({ value, currency }: { value: number; currency: string }) {
   usePrivacyMode();
@@ -85,16 +86,17 @@ export function journalTradePreviewColumns(
       enableSorting: false,
       meta: { align: "right" },
       cell: (info) => (
-        <button
+        <Button
           type="button"
-          className="cursor-pointer rounded-control border border-border bg-bg-inset px-2 py-0.5 text-[11px] text-text-muted transition-colors hover:border-border-strong hover:bg-bg-hover hover:text-text"
+          variant="outline"
+          size="xs"
           onClick={(e) => {
             e.stopPropagation();
             onDetails(info.row.original);
           }}
         >
           Details
-        </button>
+        </Button>
       ),
     });
   }

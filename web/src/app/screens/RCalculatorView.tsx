@@ -6,6 +6,7 @@ import { useRiskRules } from "../../lib/hooks/useRiskRules";
 import { useFvgStore } from "../../lib/r-calculator/useFvgStore";
 import { useRCalculatorStore } from "../../lib/r-calculator/useRCalculatorStore";
 import { Page } from "../../components/Page";
+import { Button } from "../../components/ui/button";
 import { CalculatorPanel } from "../../components/tools/r-calculator/CalculatorPanel";
 import { FvgPanel } from "../../components/tools/r-calculator/FvgPanel";
 import { SegmentedControl } from "../../components/SegmentedControl";
@@ -95,17 +96,19 @@ export function RCalculatorView() {
         {!hintDismissed ? (
           <p className="mt-1 flex max-w-2xl items-center gap-2 text-[11px] text-text-dim">
             <span>Need a quick share count? Use Tools → Position size in the header.</span>
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="icon-xs"
               aria-label="Dismiss hint"
               onClick={() => {
                 localStorage.setItem(HINT_KEY, "1");
                 setHintDismissed(true);
               }}
-              className="shrink-0 text-text-dim transition-colors hover:text-text-muted"
+              className="shrink-0 text-text-dim hover:text-text-muted"
             >
               <X size={12} />
-            </button>
+            </Button>
           </p>
         ) : null}
       </header>

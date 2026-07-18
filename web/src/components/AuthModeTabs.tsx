@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import { cn } from "../lib/cn";
+import { Button } from "./ui/button";
 
 export interface AuthModeOption {
   value: string;
@@ -66,25 +67,26 @@ export function AuthModeTabs({
       {options.map((option) => {
         const active = option.value === value;
         return (
-          <button
+          <Button
             key={option.value}
             ref={(el) => {
               if (el) buttonRefs.current.set(option.value, el);
               else buttonRefs.current.delete(option.value);
             }}
             type="button"
+            variant="ghost"
             role="tab"
             id={`auth-tab-${option.value}`}
             aria-selected={active}
             tabIndex={active ? 0 : -1}
             className={cn(
-              "relative -mb-px cursor-pointer border-none bg-transparent pb-3 text-[13px] font-medium whitespace-nowrap transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
-              active ? "text-text" : "text-text-dim hover:text-text-muted",
+              "relative -mb-px h-auto rounded-none bg-transparent px-0 pb-3 text-[13px] font-medium hover:bg-transparent",
+              active ? "text-text hover:text-text" : "text-text-dim hover:text-text-muted",
             )}
             onClick={() => onChange(option.value)}
           >
             {option.label}
-          </button>
+          </Button>
         );
       })}
     </div>

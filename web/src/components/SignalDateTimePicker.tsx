@@ -4,6 +4,7 @@ import { cn } from "../lib/cn";
 import { signalControlTriggerClass } from "./signal-field-styles";
 import { SignalCalendar } from "./SignalCalendar";
 import { SignalPopover } from "./SignalPopover";
+import { Button } from "./ui/button";
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
 const MINUTES = Array.from({ length: 60 }, (_, i) => i);
@@ -94,22 +95,18 @@ function TimeColumn({
       {values.map((n) => {
         const active = n === selected;
         return (
-          <button
+          <Button
             key={n}
             type="button"
+            variant={active ? "default" : "ghost"}
             role="option"
             data-value={n}
             aria-selected={active}
             onClick={() => onSelect(n)}
-            className={cn(
-              "flex h-8 w-full cursor-pointer items-center justify-center rounded-control border-none text-[12px] tabular-nums transition-colors",
-              active
-                ? "bg-accent font-semibold text-bg"
-                : "bg-transparent text-text-muted hover:bg-bg-hover hover:text-text",
-            )}
+            className="h-8 w-full rounded-control tabular-nums"
           >
             {pad(n)}
-          </button>
+          </Button>
         );
       })}
     </div>
@@ -260,31 +257,24 @@ export function SignalDateTimePicker({
         </div>
       </div>
       <div className="flex items-center justify-between gap-2 px-3 pb-3">
-        <button
-          type="button"
-          onClick={setNow}
-          className="cursor-pointer rounded-control border-none bg-transparent px-2 py-1.5 text-[12px] font-medium text-accent transition-colors hover:bg-accent-bg"
-        >
+        <Button type="button" variant="soft" size="sm" onClick={setNow}>
           Now
-        </button>
+        </Button>
         <div className="flex items-center gap-1.5">
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="sm"
             onClick={() => {
               setOpen(false);
               onBlur?.();
             }}
-            className="cursor-pointer rounded-control border-none bg-transparent px-2.5 py-1.5 text-[12px] font-medium text-text-muted transition-colors hover:bg-bg-hover hover:text-text"
           >
             Cancel
-          </button>
-          <button
-            type="button"
-            onClick={apply}
-            className="cursor-pointer rounded-control border-none bg-accent px-3 py-1.5 text-[12px] font-semibold text-bg transition-opacity hover:opacity-90"
-          >
+          </Button>
+          <Button type="button" size="sm" onClick={apply}>
             Apply
-          </button>
+          </Button>
         </div>
       </div>
     </SignalPopover>

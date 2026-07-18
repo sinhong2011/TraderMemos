@@ -29,6 +29,7 @@
     "@tanstack/react-table": "^8.20.0",
     "@tanstack/react-virtual": "^3.11.0",
     "bignumber.js": "^11.1.5",
+    "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "date-fns": "^4.4.0",

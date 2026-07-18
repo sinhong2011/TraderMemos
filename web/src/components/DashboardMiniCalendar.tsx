@@ -5,6 +5,7 @@ import { fmtSignedMoneyCompact } from "../lib/format";
 import { intlLocale } from "../lib/locale";
 import { CalendarDayHoverCard } from "./CalendarDayHoverCard";
 import { pnlBgTint, pnlColor } from "./theme-tokens";
+import { Button } from "./ui/button";
 import { usePrivacyMode } from "../lib/displayPrefs";
 
 const DOW = ["S", "M", "T", "W", "T", "F", "S"];
@@ -55,14 +56,15 @@ export function DashboardMiniCalendar({
             {monthLabel(year, month, locale)}
           </p>
         </div>
-        <button
+        <Button
           type="button"
+          variant="link"
           onClick={onOpenCalendar}
-          className="inline-flex cursor-pointer items-center gap-1 rounded-sharp text-[11px] font-medium text-accent transition-opacity hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          className="h-auto gap-1 text-[11px] font-medium"
         >
           Full calendar
           <ArrowRight size={12} strokeWidth={2} aria-hidden />
-        </button>
+        </Button>
       </header>
 
       <div className="flex flex-1 flex-col px-3 pb-3">

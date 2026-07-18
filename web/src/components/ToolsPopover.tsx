@@ -7,6 +7,7 @@ import { TOOL_ITEMS } from "../lib/tools";
 import { useToolRunner } from "../lib/useToolRunner";
 import { useUI } from "../lib/ui";
 import { signalKbdClass } from "./signal-field-styles";
+import { Button } from "./ui/button";
 
 function RailTooltip({ label }: { label: string }) {
   return (
@@ -83,42 +84,38 @@ export function ToolsPopover({ variant = "rail" }: { variant?: "rail" | "header"
               {TOOL_ITEMS.map((tool) => {
                 const Icon = tool.icon;
                 return (
-                  <button
+                  <Button
                     key={tool.id}
                     type="button"
+                    variant="ghost"
                     title={tool.label}
                     onClick={() => {
                       setOpen(false);
                       runTool(tool.id);
                     }}
-                    className={cn(
-                      "flex cursor-pointer flex-col items-center gap-1 rounded-control px-1 py-2",
-                      "text-text-dim transition-colors hover:bg-bg-hover hover:text-text",
-                    )}
+                    className="h-auto flex-col gap-1 px-1 py-2 text-text-dim"
                   >
                     <Icon size={18} strokeWidth={1.75} aria-hidden />
                     <span className="max-w-full truncate text-[9px] leading-tight">
                       {tool.label.split(" ")[0]}
                     </span>
-                  </button>
+                  </Button>
                 );
               })}
             </div>
             <div className="mt-2 border-t border-border pt-2">
-              <button
+              <Button
                 type="button"
+                variant="ghost"
                 onClick={() => {
                   setOpen(false);
                   openCommandPalette();
                 }}
-                className={cn(
-                  "flex w-full cursor-pointer items-center justify-between rounded-control px-2 py-1.5",
-                  "text-[11px] text-text-muted transition-colors hover:bg-bg-hover hover:text-text",
-                )}
+                className="h-auto w-full justify-between px-2 py-1.5 text-[11px]"
               >
                 <span>All commands</span>
                 <kbd className={signalKbdClass}>{APP_HOTKEYS.palette.label}</kbd>
-              </button>
+              </Button>
             </div>
           </Popover.Popup>
         </Popover.Positioner>

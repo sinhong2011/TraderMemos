@@ -1,5 +1,5 @@
-import { cn } from "../lib/cn";
 import { type TradeGrade, TRADE_GRADES } from "../lib/tradeGrades";
+import { Button } from "./ui/button";
 
 export function GradeControl({
   label,
@@ -22,22 +22,18 @@ export function GradeControl({
         {TRADE_GRADES.map((g) => {
           const selected = value === g;
           return (
-            <button
+            <Button
               key={g}
               type="button"
+              variant={selected ? "soft" : "secondary"}
               role="radio"
               aria-checked={selected}
               aria-label={`${label} ${g}`}
               onClick={() => onChange(selected ? "" : g)}
-              className={cn(
-                "h-full flex-1 cursor-pointer rounded-control text-[12px] font-semibold tabular-nums transition-colors duration-150",
-                selected
-                  ? "bg-accent-bg text-accent"
-                  : "bg-bg-input text-text-muted hover:bg-bg-input-hover hover:text-text",
-              )}
+              className="h-full flex-1 font-semibold tabular-nums"
             >
               {g}
-            </button>
+            </Button>
           );
         })}
       </div>

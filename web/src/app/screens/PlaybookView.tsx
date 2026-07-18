@@ -5,6 +5,7 @@ import { EmptyState } from "../../components/EmptyState";
 import { Page } from "../../components/Page";
 import { Skeleton } from "../../components/Skeleton";
 import { pnlColor } from "../../components/theme-tokens";
+import { Button } from "../../components/ui/button";
 import type { BreakGroup, Setup } from "../../lib/api/types";
 import type { SetupBody } from "../../lib/api/setups";
 import { fmtPct, fmtSignedMoney } from "../../lib/format";
@@ -136,46 +137,14 @@ function SetupForm({
         </div>
         {err && <p style={{ fontSize: 11, color: "var(--color-neg)" }}>{err}</p>}
         <div className="flex items-center gap-2">
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 5,
-              padding: "5px 10px",
-              background: "var(--color-accent)",
-              color: "#fff",
-              border: "none",
-              borderRadius: "var(--radius-control)",
-              fontSize: 12,
-              cursor: saving ? "not-allowed" : "pointer",
-              opacity: saving ? 0.6 : 1,
-              fontFamily: "inherit",
-            }}
-          >
+          <Button type="button" variant="default" size="sm" onClick={handleSave} disabled={saving}>
             <Check size={12} strokeWidth={1.5} />
             {saveLabel}
-          </button>
-          <button
-            onClick={onCancel}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 5,
-              padding: "5px 10px",
-              background: "transparent",
-              color: "var(--color-text-muted)",
-              border: "1px solid var(--color-border)",
-              borderRadius: "var(--radius-control)",
-              fontSize: 12,
-              cursor: "pointer",
-              fontFamily: "inherit",
-            }}
-          >
+          </Button>
+          <Button type="button" variant="outline" size="sm" onClick={onCancel}>
             <X size={12} strokeWidth={1.5} />
             Cancel
-          </button>
+          </Button>
         </div>
       </div>
     </div>
@@ -273,100 +242,61 @@ function SetupCard({
           )}
         </div>
         <div className="flex items-center gap-1 shrink-0 ml-3">
-          <button
+          <Button
             type="button"
+            variant="outline"
+            size="xs"
             aria-label={`Convert ${setup.name} to trade`}
             onClick={() => onConvert(setup)}
-            style={{
-              background: "transparent",
-              border: "1px solid var(--color-border)",
-              color: "var(--color-text-muted)",
-              cursor: "pointer",
-              padding: "2px 8px",
-              borderRadius: "var(--radius-control)",
-              fontSize: 11,
-              fontFamily: "inherit",
-            }}
           >
             Trade
-          </button>
-          <button
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-xs"
             aria-label={`Edit ${setup.name}`}
             onClick={() => onEdit(setup)}
-            style={{
-              background: "none",
-              border: "none",
-              color: "var(--color-text-muted)",
-              cursor: "pointer",
-              padding: 4,
-              borderRadius: "var(--radius-control)",
-            }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLElement).style.color = "var(--color-accent)";
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLElement).style.color = "var(--color-text-muted)";
-            }}
+            className="hover:text-accent"
           >
             <Pencil size={13} strokeWidth={1.5} />
-          </button>
+          </Button>
           {confirmDelete ? (
             <span className="flex items-center gap-1">
-              <button
+              <Button
+                type="button"
+                variant="ghost"
+                size="xs"
                 aria-label="Confirm delete"
                 onClick={() => {
                   setConfirmDelete(false);
                   onDelete(setup);
                 }}
-                style={{
-                  background: "none",
-                  border: "none",
-                  color: "var(--color-neg)",
-                  cursor: "pointer",
-                  fontSize: 11,
-                  padding: "2px 4px",
-                  borderRadius: "var(--radius-control)",
-                }}
+                className="text-loss hover:text-loss"
               >
                 Delete
-              </button>
-              <button
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="xs"
                 aria-label="Cancel delete"
                 onClick={() => setConfirmDelete(false)}
-                style={{
-                  background: "none",
-                  border: "none",
-                  color: "var(--color-text-muted)",
-                  cursor: "pointer",
-                  fontSize: 11,
-                  padding: "2px 4px",
-                  borderRadius: "var(--radius-control)",
-                }}
               >
                 Cancel
-              </button>
+              </Button>
             </span>
           ) : (
-            <button
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-xs"
               aria-label={`Delete ${setup.name}`}
               onClick={() => setConfirmDelete(true)}
-              style={{
-                background: "none",
-                border: "none",
-                color: "var(--color-text-muted)",
-                cursor: "pointer",
-                padding: 4,
-                borderRadius: "var(--radius-control)",
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.color = "var(--color-neg)";
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.color = "var(--color-text-muted)";
-              }}
+              className="hover:text-loss"
             >
               <Trash2 size={13} strokeWidth={1.5} />
-            </button>
+            </Button>
           )}
         </div>
       </div>
@@ -471,28 +401,18 @@ export function PlaybookView({
   }
 
   const panelRight = (
-    <button
+    <Button
+      type="button"
+      variant={showCreateForm ? "soft" : "outline"}
+      size="sm"
       onClick={() => {
         setShowCreateForm((v) => !v);
         setEditingId(null);
       }}
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 5,
-        padding: "4px 10px",
-        background: showCreateForm ? "var(--color-accent-subtle)" : "transparent",
-        color: showCreateForm ? "var(--color-accent)" : "var(--color-text-muted)",
-        border: "1px solid var(--color-border)",
-        borderRadius: "var(--radius-control)",
-        fontSize: 12,
-        cursor: "pointer",
-        fontFamily: "inherit",
-      }}
     >
       <Plus size={13} strokeWidth={1.5} />
       New setup
-    </button>
+    </Button>
   );
 
   const renderContent = () => {

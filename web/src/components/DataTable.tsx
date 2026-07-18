@@ -10,6 +10,7 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import { ChevronDown, ChevronUp, ChevronsUpDown } from "lucide-react";
 import { useRef, useState } from "react";
 import { cn } from "../lib/cn";
+import { Button } from "./ui/button";
 
 interface DataTableProps<T> {
   columns: ColumnDef<T>[];
@@ -92,12 +93,13 @@ export function DataTable<T>({
                     )}
                   >
                     {canSort ? (
-                      <button
+                      <Button
                         type="button"
+                        variant="ghost"
                         onClick={header.column.getToggleSortingHandler()}
                         title={meta?.headerTitle}
                         className={cn(
-                          "flex w-full cursor-pointer items-center gap-1 rounded-sharp uppercase tracking-widest hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+                          "h-auto w-full justify-start gap-1 rounded-sharp px-0 uppercase tracking-widest hover:bg-transparent hover:text-text",
                           alignRight && "justify-end",
                         )}
                       >
@@ -111,7 +113,7 @@ export function DataTable<T>({
                             <ChevronsUpDown size={12} strokeWidth={1.5} />
                           )}
                         </span>
-                      </button>
+                      </Button>
                     ) : (
                       <span
                         title={meta?.headerTitle}

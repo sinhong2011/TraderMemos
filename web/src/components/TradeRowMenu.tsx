@@ -5,6 +5,7 @@ import type { Trade } from "../lib/api/types";
 import { cn } from "../lib/cn";
 import { signalOverlayPopupClass } from "./signal-overlay-styles";
 import { useToastManager } from "./Toast";
+import { Button } from "./ui/button";
 
 export interface TradeRowActions {
   /** Quick peek drawer. Omit when the list already opens the full page on row click. */
@@ -22,10 +23,9 @@ const triggerClass = cn(
 );
 
 const itemClass = cn(
-  "flex w-full cursor-pointer items-center gap-2 rounded-control px-2.5 py-2",
-  "text-[12px] text-text outline-none",
-  "transition-colors duration-100 hover:bg-bg-hover",
-  "motion-reduce:transition-none",
+  "h-auto w-full justify-start gap-2 rounded-control px-2.5 py-2",
+  "text-[12px] text-text",
+  "hover:bg-bg-hover hover:text-text",
 );
 
 export function TradeRowMenu({ trade, actions }: { trade: Trade; actions: TradeRowActions }) {
@@ -71,25 +71,28 @@ export function TradeRowMenu({ trade, actions }: { trade: Trade; actions: TradeR
             onClick={(e) => e.stopPropagation()}
           >
             {actions.onOpenDrawer ? (
-              <button
+              <Button
                 type="button"
+                variant="ghost"
                 className={itemClass}
                 onClick={() => run(() => actions.onOpenDrawer?.(trade))}
               >
                 <PanelRight size={14} strokeWidth={1.5} aria-hidden />
                 Open drawer
-              </button>
+              </Button>
             ) : null}
-            <button
+            <Button
               type="button"
+              variant="ghost"
               className={itemClass}
               onClick={() => run(() => actions.onOpenFullPage(trade))}
             >
               <ExternalLink size={14} strokeWidth={1.5} aria-hidden />
               Open full page
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              variant="ghost"
               className={itemClass}
               onClick={() =>
                 run(() => {
@@ -99,16 +102,17 @@ export function TradeRowMenu({ trade, actions }: { trade: Trade; actions: TradeR
             >
               <Copy size={14} strokeWidth={1.5} aria-hidden />
               Copy symbol
-            </button>
+            </Button>
             {actions.onFilterSymbol ? (
-              <button
+              <Button
                 type="button"
+                variant="ghost"
                 className={itemClass}
                 onClick={() => run(() => actions.onFilterSymbol?.(trade.symbol))}
               >
                 <Filter size={14} strokeWidth={1.5} aria-hidden />
                 Filter by {trade.symbol}
-              </button>
+              </Button>
             ) : null}
           </Popover.Popup>
         </Popover.Positioner>

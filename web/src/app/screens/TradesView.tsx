@@ -6,8 +6,8 @@ import { Page } from "../../components/Page";
 import { SignalInput } from "../../components/SignalInput";
 import { Skeleton } from "../../components/Skeleton";
 import { tradeColumns } from "../../components/tradeColumns";
+import { Button } from "../../components/ui/button";
 import type { Trade } from "../../lib/api/types";
-import { cn } from "../../lib/cn";
 import { useMoneyFx } from "../../lib/hooks/useMoneyFx";
 import type { TradeStatusFilter } from "../../lib/tradeFilters";
 
@@ -46,14 +46,16 @@ function FilterChip({ label, onClear }: { label: string; onClear?: () => void })
     <span className="inline-flex h-7 items-center gap-1 rounded-control bg-bg-hover px-2.5 text-[10px] font-medium text-text-muted">
       {label}
       {onClear ? (
-        <button
+        <Button
           type="button"
+          variant="ghost"
+          size="icon-sm"
           onClick={onClear}
           aria-label={`Clear ${label} filter`}
-          className="-me-1.5 flex h-7 w-7 cursor-pointer items-center justify-center rounded-control text-text-dim transition-colors hover:text-text focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-accent"
+          className="-me-1.5 text-text-dim hover:text-text"
         >
           <X size={10} strokeWidth={2} />
-        </button>
+        </Button>
       ) : null}
     </span>
   );
@@ -71,21 +73,16 @@ function ToolbarButton({
   variant?: "ghost" | "primary";
 }) {
   return (
-    <button
+    <Button
       type="button"
+      variant={variant === "primary" ? "soft" : "ghost"}
       onClick={onClick}
       aria-label={label}
       title={label}
-      className={cn(
-        "inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-control px-3 text-[11px] font-medium transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
-        variant === "primary"
-          ? "bg-accent-bg text-accent hover:bg-accent-bg/80 hover:text-text"
-          : "bg-bg-hover text-text-muted hover:bg-bg-hover/80 hover:text-text",
-      )}
     >
       <Icon size={13} strokeWidth={1.75} />
       <span className="hidden sm:inline">{label}</span>
-    </button>
+    </Button>
   );
 }
 
@@ -119,19 +116,16 @@ export function TradesView({
     <div className="flex flex-wrap items-center justify-end gap-2">
       {onToggleTradeStatus
         ? STATUS_TOGGLES.map((status) => (
-            <button
+            <Button
               key={status}
               type="button"
+              variant={tradeStatus === status ? "soft" : "ghost"}
+              size="sm"
               onClick={() => onToggleTradeStatus(status)}
-              className={cn(
-                "hidden h-7 cursor-pointer rounded-control px-2.5 text-[10px] font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent sm:inline-flex sm:items-center",
-                tradeStatus === status
-                  ? "bg-accent-bg text-accent"
-                  : "bg-bg-hover text-text-muted hover:text-text",
-              )}
+              className="hidden h-7 text-[10px] sm:inline-flex"
             >
               {STATUS_LABELS[status]}
-            </button>
+            </Button>
           ))
         : null}
       {tradeStatus ? (
@@ -162,13 +156,14 @@ export function TradesView({
         {trades.length} {trades.length === 1 ? "trade" : "trades"}
       </span>
       {hasNarrowingFilters ? (
-        <button
+        <Button
           type="button"
+          variant="link"
           onClick={onClearFilters}
-          className="cursor-pointer rounded-sharp text-[10px] font-medium text-accent transition-opacity hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          className="h-auto rounded-sharp text-[10px] font-medium"
         >
           Clear filters
-        </button>
+        </Button>
       ) : null}
       <span aria-hidden className="hidden h-5 w-px bg-border sm:block" />
       <ToolbarButton label="Import CSV" icon={Upload} onClick={onImport} />
@@ -178,22 +173,14 @@ export function TradesView({
 
   const emptyActions = (
     <>
-      <button
-        type="button"
-        onClick={onImport}
-        className="inline-flex cursor-pointer items-center gap-1.5 rounded-control bg-bg-hover px-3 py-1.5 text-[12px] font-medium text-text-muted transition-colors hover:text-text"
-      >
+      <Button type="button" variant="ghost" onClick={onImport}>
         <Upload size={13} strokeWidth={1.75} />
         Import CSV
-      </button>
-      <button
-        type="button"
-        onClick={onNewTrade}
-        className="inline-flex cursor-pointer items-center gap-1.5 rounded-control bg-accent-bg px-3 py-1.5 text-[12px] font-semibold text-accent transition-colors hover:text-text"
-      >
+      </Button>
+      <Button type="button" variant="soft" onClick={onNewTrade}>
         <Plus size={13} strokeWidth={1.75} />
         Log trade
-      </button>
+      </Button>
     </>
   );
 
@@ -209,13 +196,9 @@ export function TradesView({
                 Failed to load trades. Check your connection and try again.
               </p>
               {onRetry ? (
-                <button
-                  type="button"
-                  onClick={onRetry}
-                  className="inline-flex h-7 cursor-pointer items-center rounded-control bg-bg-hover px-2.5 text-[11px] font-medium text-text-muted transition-colors hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-                >
+                <Button type="button" variant="ghost" size="sm" onClick={onRetry}>
                   Retry
-                </button>
+                </Button>
               ) : null}
             </div>
           ) : trulyEmpty ? (
@@ -235,13 +218,9 @@ export function TradesView({
                 icon={<Search size={36} strokeWidth={1.5} />}
                 actions={
                   hasNarrowingFilters ? (
-                    <button
-                      type="button"
-                      onClick={onClearFilters}
-                      className="inline-flex cursor-pointer items-center gap-1.5 rounded-control bg-bg-hover px-3 py-1.5 text-[12px] text-text-muted transition-colors hover:text-text"
-                    >
+                    <Button type="button" variant="ghost" onClick={onClearFilters}>
                       Clear filters
-                    </button>
+                    </Button>
                   ) : undefined
                 }
               />

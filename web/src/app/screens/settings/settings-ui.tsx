@@ -4,6 +4,7 @@ import { useId, useState, type ReactNode } from "react";
 import { Modal } from "../../../components/Modal";
 import { Pill } from "../../../components/Pill";
 import { SignalInput } from "../../../components/SignalInput";
+import { Button } from "../../../components/ui/button";
 import { cn } from "../../../lib/cn";
 import { settingsSectionHash } from "../../../lib/settingsSection";
 
@@ -216,20 +217,17 @@ export function BtnToolbar({
   "aria-label"?: string;
 }) {
   return (
-    <button
+    <Button
       type={type}
+      variant="secondary"
+      size="sm"
       disabled={disabled}
       onClick={onClick}
       aria-label={ariaLabel}
-      className={cn(
-        "inline-flex h-7 cursor-pointer items-center rounded-control border-none bg-bg-input px-2.5 text-[12px] font-medium transition-colors duration-150",
-        "hover:bg-bg-input-hover disabled:cursor-not-allowed disabled:opacity-45",
-        destructive ? "text-loss" : "text-text-muted hover:text-text",
-        className,
-      )}
+      className={cn(destructive ? "text-loss hover:text-loss" : undefined, className)}
     >
       {children}
-    </button>
+    </Button>
   );
 }
 
@@ -298,14 +296,9 @@ export function BtnPrimary({
   onClick?: () => void;
 }) {
   return (
-    <button
-      type={type}
-      disabled={disabled}
-      onClick={onClick}
-      className="inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-control border-none bg-accent-bg px-3 text-[12px] font-medium text-accent transition-colors duration-150 hover:bg-accent-bg/80 hover:text-text disabled:cursor-not-allowed disabled:opacity-45"
-    >
+    <Button type={type} variant="soft" disabled={disabled} onClick={onClick}>
       {children}
-    </button>
+    </Button>
   );
 }
 
@@ -327,19 +320,17 @@ export function BtnGhost({
   "aria-label"?: string;
 }) {
   return (
-    <button
+    <Button
       type={type}
+      variant={active ? "soft" : "outline"}
+      size="sm"
       disabled={disabled}
       onClick={onClick}
       aria-label={ariaLabel}
-      className={cn(
-        "inline-flex cursor-pointer items-center gap-1.5 rounded-control border border-border bg-transparent px-2.5 py-1.5 text-[12px] font-medium text-text-muted transition-colors duration-150 hover:bg-bg-hover hover:text-text disabled:cursor-not-allowed disabled:opacity-45",
-        active && "border-accent/30 bg-accent-bg text-accent",
-        className,
-      )}
+      className={className}
     >
       {children}
-    </button>
+    </Button>
   );
 }
 
@@ -377,37 +368,36 @@ export function DeleteButton({
           <span className="text-right text-[10px] leading-snug text-text-dim">{detail}</span>
         ) : null}
         <span className="flex items-center gap-1.5">
-          <button
+          <Button
             type="button"
+            variant="destructive"
+            size="xs"
             onClick={() => {
               setConfirm(false);
               onDelete();
             }}
-            className="cursor-pointer rounded-control border border-loss/40 bg-transparent px-2 py-1 text-[11px] font-medium text-loss hover:bg-loss/10"
           >
             Delete
-          </button>
-          <button
-            type="button"
-            onClick={() => setConfirm(false)}
-            className="cursor-pointer rounded-control border border-border bg-transparent px-2 py-1 text-[11px] text-text-muted hover:text-text"
-          >
+          </Button>
+          <Button type="button" variant="outline" size="xs" onClick={() => setConfirm(false)}>
             Cancel
-          </button>
+          </Button>
         </span>
       </span>
     );
   }
 
   return (
-    <button
+    <Button
       type="button"
+      variant="ghost"
+      size="icon-xs"
       aria-label={`Delete ${label}`}
       onClick={() => setConfirm(true)}
-      className="cursor-pointer rounded-control border-none bg-transparent p-1 text-text-muted transition-colors duration-150 hover:text-loss"
+      className="hover:text-loss"
     >
       <Trash2 size={14} strokeWidth={1.5} />
-    </button>
+    </Button>
   );
 }
 
@@ -439,13 +429,15 @@ export function ClearTradesButton({
 
   return (
     <>
-      <button
+      <Button
         type="button"
+        variant="secondary"
+        size="sm"
         onClick={() => setOpen(true)}
-        className="inline-flex h-7 cursor-pointer items-center rounded-control border-none bg-bg-input px-2.5 text-[12px] font-medium text-loss transition-colors hover:bg-bg-input-hover"
+        className="text-loss hover:text-loss"
       >
         Clear trades
-      </button>
+      </Button>
       <Modal
         open={open}
         onOpenChange={handleOpenChange}
@@ -453,24 +445,21 @@ export function ClearTradesButton({
         className="max-w-[min(336px,94vw)]"
         footer={
           <>
-            <button
-              type="button"
-              onClick={() => handleOpenChange(false)}
-              className="cursor-pointer rounded-control border-none bg-transparent px-3 py-1.5 text-[12px] font-medium text-text-muted transition-colors hover:bg-bg-hover hover:text-text"
-            >
+            <Button type="button" variant="ghost" onClick={() => handleOpenChange(false)}>
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              variant="destructive"
               disabled={!canClear}
               onClick={() => {
                 handleOpenChange(false);
                 onClear();
               }}
-              className="cursor-pointer rounded-control border-none bg-loss/15 px-3 py-1.5 text-[12px] font-semibold text-loss transition-colors hover:bg-loss/25 disabled:cursor-not-allowed disabled:opacity-45"
+              className="border-transparent bg-loss/15 hover:bg-loss/25"
             >
               Clear trades
-            </button>
+            </Button>
           </>
         }
       >

@@ -16,6 +16,7 @@ import type { MarketBar, BarInterval } from "../../lib/api/market";
 import { cn } from "../../lib/cn";
 import { SegmentedControl } from "../SegmentedControl";
 import { Skeleton } from "../Skeleton";
+import { Button } from "../ui/button";
 import { BAR_INTERVALS, tradeChartTheme } from "./tradeChartTheme";
 
 function toChartTime(unixSec: number): UTCTimestamp {
@@ -224,14 +225,15 @@ export function TradeChart({
             />
           )}
           {onExpand && (
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="icon"
               aria-label="Expand chart"
               onClick={onExpand}
-              className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-control text-text-muted transition-colors hover:bg-bg-hover hover:text-text focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-accent"
             >
               <Maximize2 size={14} strokeWidth={1.5} aria-hidden />
-            </button>
+            </Button>
           )}
         </div>
       </div>

@@ -1,6 +1,7 @@
 import { Check } from "lucide-react";
 import { cn } from "../lib/cn";
 import type { OcrSymbolGroup } from "../lib/ocrSymbolGroups";
+import { Button } from "./ui/button";
 
 function qtySummary(g: OcrSymbolGroup): string {
   const parts: string[] = [];
@@ -48,18 +49,18 @@ export function OcrSymbolGroupList({
           .join(" · ");
 
         return (
-          <button
+          <Button
             key={g.symbol}
             type="button"
+            variant="ghost"
             role="option"
             aria-selected={active}
             onClick={() => !readOnly && onSelect(g.symbol)}
             disabled={readOnly}
             className={cn(
-              "flex w-full items-center gap-3 rounded-control px-3 py-2.5 text-left",
-              "border-none outline-none transition-colors duration-100",
-              "focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-accent",
-              active ? "bg-bg-hover" : "bg-transparent hover:bg-bg-hover",
+              "h-auto w-full justify-start gap-3 rounded-control px-3 py-2.5 text-left",
+              "focus-visible:outline-offset-[-2px]",
+              active ? "bg-bg-hover" : "bg-transparent",
               done && !active && "opacity-55",
               readOnly && "cursor-default hover:bg-transparent",
             )}
@@ -81,7 +82,7 @@ export function OcrSymbolGroupList({
             ) : (
               <span className="size-3.5 shrink-0" aria-hidden />
             )}
-          </button>
+          </Button>
         );
       })}
     </div>

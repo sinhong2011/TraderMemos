@@ -14,6 +14,7 @@ import { SegmentedControl } from "../../components/SegmentedControl";
 import { fieldError, SignalField } from "../../components/SignalField";
 import { SignalInput, SignalTextarea } from "../../components/SignalInput";
 import { useToastManager } from "../../components/Toast";
+import { Button } from "../../components/ui/button";
 import { useCreateSetup } from "../../lib/hooks/useSetups";
 import { useUI } from "../../lib/ui";
 
@@ -78,22 +79,23 @@ export function NewSetupDrawer() {
 
   const footer = (
     <div className="flex w-full justify-end gap-2">
-      <button
+      <Button
         type="button"
+        variant="outline"
+        size="sm"
         onClick={close}
         disabled={createSetup.isPending}
-        className="cursor-pointer rounded-control border border-border bg-bg-elevated px-3 py-1.5 text-[11px] font-medium text-text-muted hover:bg-bg-hover hover:text-text disabled:opacity-50"
       >
         Cancel
-      </button>
-      <button
+      </Button>
+      <Button
         type="submit"
         form="new-setup-form"
+        variant="default"
         disabled={createSetup.isPending}
-        className="cursor-pointer rounded-control border-none bg-accent px-3.5 py-1.5 text-xs font-semibold text-bg disabled:opacity-50"
       >
         {createSetup.isPending ? "Saving…" : "Save setup"}
-      </button>
+      </Button>
     </div>
   );
 

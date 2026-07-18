@@ -14,6 +14,7 @@ import { intlLocale } from "../lib/locale";
 import { ChartFrame, chartTheme } from "./ChartFrame";
 import { SegmentedControl } from "./SegmentedControl";
 import { Skeleton } from "./Skeleton";
+import { Button } from "./ui/button";
 import { usePrivacyMode } from "../lib/displayPrefs";
 
 export type DashboardBreakdownDim = "day_of_week" | "setup" | "symbol";
@@ -71,13 +72,14 @@ export function DashboardBreakdownChart({
             value={dim}
             onChange={(v) => onDimChange(v as DashboardBreakdownDim)}
           />
-          <button
+          <Button
             type="button"
+            variant="link"
             onClick={onOpenReports}
-            className="cursor-pointer rounded-sharp text-[11px] font-medium text-accent transition-opacity hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            className="h-auto text-[11px]"
           >
             Reports
-          </button>
+          </Button>
         </div>
       </header>
 

@@ -37,6 +37,7 @@ import {
 } from "../../components/JournalScreenshotUpload";
 import { BatchTradeResultPreview, TradeResultPreview } from "../../components/TradeResultPreview";
 import { useToastManager } from "../../components/Toast";
+import { Button } from "../../components/ui/button";
 import { ApiError } from "../../lib/api/client";
 import { attachmentsApi } from "../../lib/api/attachments";
 import { cashApi } from "../../lib/api/cash";
@@ -112,10 +113,6 @@ const MARKETS = [
   { value: "forex", label: "FOREX" },
 ];
 const FILL_COLS = "72px minmax(120px,200px) 72px 80px 88px 72px 88px 1fr 32px";
-const btnGhost =
-  "inline-flex h-10 cursor-pointer items-center justify-center rounded-control border-none bg-bg-input px-3.5 text-[12px] font-medium text-text-muted transition-colors hover:bg-bg-input-hover hover:text-text disabled:cursor-not-allowed disabled:opacity-50";
-const btnPrimary =
-  "inline-flex h-10 cursor-pointer items-center justify-center rounded-control border-none bg-accent px-5 text-[13px] font-semibold text-bg transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50";
 const labelClass = "mb-1 block text-[10px] font-semibold uppercase tracking-widest text-text-muted";
 export type Row = ExecutionRow;
 export { rowsFromOcrExtract };
@@ -407,11 +404,13 @@ function SymbolCard({
           <CollapsibleChevron />
         </CollapsibleTrigger>
         {removable ? (
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="icon"
             aria-label={`Remove symbol ${index + 1}`}
             disabled={pending}
-            className={cn(btnGhost, "size-8 shrink-0 px-0 text-loss")}
+            className="shrink-0 text-loss"
             onClick={() => {
               const next = (form.store.state.values.trades as SymbolTradeBlock[]).filter(
                 (_: SymbolTradeBlock, i: number) => i !== index,
@@ -420,7 +419,7 @@ function SymbolCard({
             }}
           >
             <Trash2 size={14} />
-          </button>
+          </Button>
         ) : null}
       </div>
       <CollapsibleContent animation="fade">
@@ -619,8 +618,10 @@ function SymbolCard({
                     className="grid items-start gap-2"
                     style={{ gridTemplateColumns: FILL_COLS }}
                   >
-                    <button
+                    <Button
                       type="button"
+                      variant="ghost"
+                      size="lg"
                       aria-label={`Toggle action symbol ${index + 1} row ${rowIndex + 1}`}
                       onClick={() =>
                         form.setFieldValue(
@@ -629,12 +630,12 @@ function SymbolCard({
                         )
                       }
                       className={cn(
-                        "h-10 rounded-control border-none text-[12px] font-bold",
+                        "font-bold hover:bg-transparent",
                         row.side === "buy" ? "bg-profit/15 text-profit" : "bg-loss/15 text-loss",
                       )}
                     >
                       {row.side.toUpperCase()}
-                    </button>
+                    </Button>
                     <form.Field name={`${base}.rows[${rowIndex}].executed_at` as never}>
                       {(field) => (
                         <SignalDateTimePicker
@@ -705,19 +706,23 @@ function SymbolCard({
                       emptyLabel={`P&L symbol ${index + 1} row ${rowIndex + 1}: empty`}
                     />
                     <span aria-hidden />
-                    <button
+                    <Button
                       type="button"
+                      variant="ghost"
+                      size="icon"
                       aria-label={`Remove row symbol ${index + 1} row ${rowIndex + 1}`}
                       disabled={block.rows.length === 1}
                       onClick={() => rowsField.removeValue(rowIndex)}
-                      className={cn(btnGhost, "size-8 justify-self-end px-0")}
+                      className="justify-self-end"
                     >
                       <X size={12} />
-                    </button>
+                    </Button>
                   </div>
                 ))}
-                <button
+                <Button
                   type="button"
+                  variant="default"
+                  size="icon"
                   aria-label={`Add execution row symbol ${index + 1}`}
                   onClick={() =>
                     rowsField.pushValue(
@@ -728,10 +733,10 @@ function SymbolCard({
                       }) as never,
                     )
                   }
-                  className="mx-auto flex size-9 items-center justify-center rounded-control border-none bg-accent text-bg"
+                  className="mx-auto size-9"
                 >
                   <Plus size={16} />
-                </button>
+                </Button>
               </div>
             )}
           </form.Field>
@@ -774,17 +779,18 @@ function SymbolCard({
                     const idx = block.setupIds.indexOf(s.id);
                     const on = idx >= 0;
                     return (
-                      <button
+                      <Button
                         key={s.id}
                         type="button"
+                        variant="ghost"
                         onClick={() => toggleSetupId(s.id)}
-                        className="cursor-pointer border-none bg-transparent p-0"
+                        className="h-auto border-none bg-transparent p-0 hover:bg-transparent"
                         aria-pressed={on}
                       >
                         <Pill tone={on ? "accent" : "muted"}>
                           {on && idx === 0 ? `${s.name} · main` : s.name}
                         </Pill>
-                      </button>
+                      </Button>
                     );
                   })}
                 </div>
@@ -796,19 +802,16 @@ function SymbolCard({
                 {TRADE_SESSIONS.map((s) => {
                   const on = block.session === s;
                   return (
-                    <button
+                    <Button
                       key={s}
                       type="button"
+                      variant={on ? "soft" : "secondary"}
+                      size="xs"
                       onClick={() => set("session", on ? "" : s)}
-                      className={cn(
-                        "cursor-pointer rounded-control border-none px-2.5 py-[3px] text-[11px] font-semibold tracking-[0.02em] transition-colors",
-                        on
-                          ? "bg-accent-bg text-accent"
-                          : "bg-bg-input text-text-muted hover:bg-bg-input-hover hover:text-text",
-                      )}
+                      className="tracking-[0.02em]"
                     >
                       {s}
-                    </button>
+                    </Button>
                   );
                 })}
               </div>
@@ -836,14 +839,15 @@ function SymbolCard({
                   {regularTags.map((t) => {
                     const on = block.selectedTagIds.includes(t.id);
                     return (
-                      <button
+                      <Button
                         key={t.id}
                         type="button"
+                        variant="ghost"
                         onClick={() => toggleId(block.selectedTagIds, t.id, "selectedTagIds")}
-                        className="cursor-pointer border-none bg-transparent p-0"
+                        className="h-auto border-none bg-transparent p-0 hover:bg-transparent"
                       >
                         <Pill tone={on ? "accent" : "muted"}>{t.name}</Pill>
-                      </button>
+                      </Button>
                     );
                   })}
                 </div>
@@ -857,16 +861,17 @@ function SymbolCard({
                   {mistakeTags.map((t) => {
                     const on = block.selectedMistakeIds.includes(t.id);
                     return (
-                      <button
+                      <Button
                         key={t.id}
                         type="button"
+                        variant="ghost"
                         onClick={() =>
                           toggleId(block.selectedMistakeIds, t.id, "selectedMistakeIds")
                         }
-                        className="cursor-pointer border-none bg-transparent p-0"
+                        className="h-auto border-none bg-transparent p-0 hover:bg-transparent"
                       >
                         <Pill tone={on ? "neg" : "muted"}>{t.name}</Pill>
-                      </button>
+                      </Button>
                     );
                   })}
                 </div>
@@ -1297,22 +1302,24 @@ export function NewTradeDrawer() {
               >
                 <div className="min-w-48 bg-bg-elevated p-1">
                   {templates.map((t) => (
-                    <button
+                    <Button
                       key={t.id}
                       type="button"
-                      className="block w-full rounded-control px-3 py-2 text-left text-[12px] hover:bg-bg-hover"
+                      variant="ghost"
+                      className="h-auto w-full justify-start px-3 py-2"
                       onClick={() => applyTemplate(t)}
                     >
                       {t.name}
-                    </button>
+                    </Button>
                   ))}
-                  <button
+                  <Button
                     type="button"
-                    className="w-full rounded-control px-3 py-2 text-left text-[12px] text-accent hover:bg-bg-hover"
+                    variant="ghost"
+                    className="h-auto w-full justify-start px-3 py-2 text-accent"
                     onClick={saveTemplate}
                   >
                     Save first symbol as template…
-                  </button>
+                  </Button>
                 </div>
               </SignalPopover>
               <DrawerClose
@@ -1350,7 +1357,7 @@ export function NewTradeDrawer() {
                     triggerClassName="text-[12px]"
                   />
                 </div>
-                <button
+                <Button
                   type="button"
                   disabled={ocrParse.isPending || ocrSettingsLoading}
                   onClick={onScanClick}
@@ -1368,7 +1375,7 @@ export function NewTradeDrawer() {
                     <ScanLine size={14} aria-hidden />
                   )}
                   {ocrParse.isPending ? "Scanning…" : "Scan to fill"}
-                </button>
+                </Button>
                 <input
                   ref={ocrFileRef}
                   type="file"
@@ -1474,15 +1481,17 @@ export function NewTradeDrawer() {
                   }
                 />
               ))}
-              <button
+              <Button
                 type="button"
+                variant="secondary"
+                size="lg"
                 onClick={() => form.setFieldValue("trades", [...values.trades, emptySymbolTrade()])}
                 disabled={pending}
-                className={cn(btnGhost, "mx-auto gap-1.5")}
+                className="mx-auto gap-1.5"
               >
                 <Plus size={15} />
                 Add symbol
-              </button>
+              </Button>
               {submitError && <p className="text-xs text-loss">{submitError}</p>}
             </form>
           </DrawerBody>
@@ -1500,24 +1509,37 @@ export function NewTradeDrawer() {
               ) : null}
               <div className="flex w-full justify-between gap-3">
                 <div className="flex gap-2">
-                  <button
+                  <Button
                     type="button"
-                    className={btnPrimary}
+                    variant="default"
+                    size="lg"
                     disabled={pending}
                     onClick={() => {
                       void form.handleSubmit();
                     }}
                   >
                     Save
-                  </button>
+                  </Button>
                 </div>
                 <div className="flex gap-2">
-                  <button type="button" className={btnGhost} disabled={pending} onClick={reset}>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="lg"
+                    disabled={pending}
+                    onClick={reset}
+                  >
                     Clear
-                  </button>
-                  <button type="button" className={btnGhost} disabled={pending} onClick={close}>
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="lg"
+                    disabled={pending}
+                    onClick={close}
+                  >
                     Cancel
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>

@@ -6,6 +6,7 @@ import { cn } from "../lib/cn";
 import { useFilters } from "../lib/filters";
 import { useAccounts } from "../lib/hooks/useAccounts";
 import { signalOverlayPopupClass } from "./signal-overlay-styles";
+import { Button } from "./ui/button";
 
 function RailTooltip({ label }: { label: string }) {
   return (
@@ -36,24 +37,25 @@ function AccountOption({
   onSelect: () => void;
 }) {
   return (
-    <button
+    <Button
       type="button"
+      variant="ghost"
       onClick={onSelect}
       className={cn(
-        "relative flex w-full cursor-pointer items-center gap-2 rounded-control py-2 pr-2.5 pl-3",
-        "text-left text-[12px] outline-none transition-colors duration-100",
+        "relative h-auto w-full justify-start gap-2 rounded-control py-2 pr-2.5 pl-3",
+        "text-left text-[12px]",
         "before:absolute before:top-1/2 before:left-1 before:h-4 before:w-0.5 before:-translate-y-1/2",
         "before:rounded-full before:bg-accent before:opacity-0 before:shadow-[0_0_6px_var(--color-accent-glow)] before:content-['']",
         selected
-          ? "bg-accent-bg font-medium text-accent before:opacity-100"
-          : "text-text hover:bg-bg-hover",
+          ? "bg-accent-bg font-medium text-accent hover:bg-accent-bg hover:text-accent before:opacity-100"
+          : "text-text",
       )}
     >
       <span className="min-w-0 flex-1 truncate">{label}</span>
       {selected ? (
         <Check size={13} strokeWidth={2} className="shrink-0 text-accent" aria-hidden />
       ) : null}
-    </button>
+    </Button>
   );
 }
 
@@ -132,21 +134,18 @@ export function AccountNavPopover() {
               )}
             </div>
             <div className="mt-1.5 border-t border-border pt-1.5">
-              <button
+              <Button
                 type="button"
+                variant="ghost"
                 onClick={() => {
                   setOpen(false);
                   signOut();
                 }}
-                className={cn(
-                  "flex w-full cursor-pointer items-center gap-2 rounded-control px-2.5 py-2",
-                  "text-[12px] font-medium text-text-muted transition-colors duration-150",
-                  "hover:bg-bg-hover hover:text-text",
-                )}
+                className="h-auto w-full justify-start gap-2 px-2.5 py-2 text-[12px] font-medium"
               >
                 <LogOut size={14} strokeWidth={1.75} aria-hidden />
                 Sign out
-              </button>
+              </Button>
             </div>
           </Popover.Popup>
         </Popover.Positioner>

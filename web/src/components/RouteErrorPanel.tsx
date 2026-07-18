@@ -1,3 +1,5 @@
+import { Button } from "./ui/button";
+
 export function RouteErrorPanel({ error }: { error: Error }) {
   return (
     <div className="flex h-full min-h-[240px] flex-col items-center justify-center gap-3 p-8">
@@ -8,13 +10,9 @@ export function RouteErrorPanel({ error }: { error: Error }) {
       <pre className="max-w-full overflow-x-auto rounded-control border border-border bg-bg-inset px-3 py-2 text-[11px] text-loss">
         {error.message}
       </pre>
-      <button
-        type="button"
-        onClick={() => window.location.reload()}
-        className="cursor-pointer rounded-control border border-border bg-bg-panel px-3 py-1.5 text-xs text-text transition-colors duration-150 hover:bg-bg-hover"
-      >
+      <Button type="button" variant="outline" onClick={() => window.location.reload()}>
         Reload
-      </button>
+      </Button>
     </div>
   );
 }

@@ -14,6 +14,7 @@ import { Skeleton } from "./Skeleton";
 import { Pill } from "./Pill";
 import { heroPnlClass, pnlColor } from "./theme-tokens";
 import { marketLabel, tradeStatus } from "./tradeColumns";
+import { Button } from "./ui/button";
 import { cn } from "../lib/cn";
 import type { TradeDetail } from "../lib/api/types";
 import { fmtMoney, fmtSignedMoney } from "../lib/format";
@@ -74,14 +75,16 @@ export function TradeDetailSheet({ tradeId, onClose }: TradeDetailSheetProps) {
           </DrawerTitle>
           <div className="ml-auto flex items-center gap-1">
             {tradeId && (
-              <button
+              <Button
                 type="button"
+                variant="soft"
+                size="xs"
                 onClick={openFullPage}
-                className="inline-flex cursor-pointer items-center gap-1.5 rounded-control px-2 py-1 text-xs text-accent transition-colors hover:bg-accent-bg"
+                className="gap-1.5"
               >
                 <ExternalLink size={12} strokeWidth={1.5} />
                 Open full page
-              </button>
+              </Button>
             )}
             <DrawerClose
               aria-label="Close"
@@ -290,13 +293,14 @@ function TradeDetailSheetBody({
           <p className="m-0 line-clamp-3 text-sm whitespace-pre-wrap text-text-muted">
             {trade.notes}
           </p>
-          <button
+          <Button
             type="button"
+            variant="link"
             onClick={onOpenFullPage}
-            className="mt-1.5 cursor-pointer border-none bg-transparent p-0 text-xs text-accent hover:underline"
+            className="mt-1.5 h-auto text-xs"
           >
             Read more
-          </button>
+          </Button>
         </section>
       )}
     </div>

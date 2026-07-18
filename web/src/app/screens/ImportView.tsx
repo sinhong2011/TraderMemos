@@ -13,6 +13,7 @@ import { StatBar } from "../../components/StatBar";
 import { SignalField } from "../../components/SignalField";
 import { SignalSelect } from "../../components/SignalSelect";
 import { Skeleton } from "../../components/Skeleton";
+import { Button } from "../../components/ui/button";
 import { cn } from "../../lib/cn";
 import { fmtSignedMoney } from "../../lib/format";
 import { intlLocale } from "../../lib/locale";
@@ -29,12 +30,6 @@ import {
   mergeOptionOverrides,
   type OptionRightOverride,
 } from "../../lib/importOptionRight";
-
-const btnPrimaryClass =
-  "inline-flex cursor-pointer items-center gap-1.5 rounded-control border-none bg-accent px-3 py-1.5 text-[12px] font-semibold text-bg transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-55";
-
-const btnGhostClass =
-  "inline-flex cursor-pointer items-center gap-1.5 rounded-control border border-border bg-bg-inset px-3 py-1.5 text-[12px] text-text-muted transition-colors hover:border-border-strong hover:bg-bg-hover hover:text-text disabled:cursor-not-allowed disabled:opacity-55";
 
 // Canonical trade fields we want to map
 const CANONICAL_FIELDS = [
@@ -97,13 +92,14 @@ function ImportGuidance({ onLogTrade }: { onLogTrade?: () => void }) {
 
       {onLogTrade ? (
         <div className="border-t border-border pt-4">
-          <button
+          <Button
             type="button"
+            variant="link"
             onClick={onLogTrade}
-            className="cursor-pointer text-[11px] text-text-muted transition-colors hover:text-text"
+            className="h-auto text-[11px] text-text-muted hover:text-text"
           >
             Log a trade manually instead →
-          </button>
+          </Button>
         </div>
       ) : null}
     </aside>
@@ -187,12 +183,7 @@ function Step1Upload({
         {error && <p className="text-[11px] text-loss">{error}</p>}
 
         <div className="flex flex-wrap items-center gap-3 pt-1">
-          <button
-            type="button"
-            onClick={handleSubmit}
-            disabled={!canSubmit}
-            className={btnPrimaryClass}
-          >
+          <Button type="button" variant="default" onClick={handleSubmit} disabled={!canSubmit}>
             {loading ? (
               <>
                 <RefreshCw size={13} strokeWidth={1.5} className="animate-spin" />
@@ -204,7 +195,7 @@ function Step1Upload({
                 Preview import
               </>
             )}
-          </button>
+          </Button>
           {!file && accounts.length > 0 && (
             <span className="text-[10px] text-text-dim">Upload a CSV to continue</span>
           )}
@@ -392,12 +383,7 @@ function Step2Map({ preview, currency, onCommit, onBack, error, loading }: Step2
           {error && <p className="mt-3 text-[11px] text-loss">{error}</p>}
 
           <div className="mt-4 flex items-center gap-2">
-            <button
-              type="button"
-              onClick={handleCommit}
-              disabled={loading}
-              className={btnPrimaryClass}
-            >
+            <Button type="button" variant="default" onClick={handleCommit} disabled={loading}>
               {loading ? (
                 <>
                   <RefreshCw size={13} strokeWidth={1.5} className="animate-spin" />
@@ -409,10 +395,10 @@ function Step2Map({ preview, currency, onCommit, onBack, error, loading }: Step2
                   Confirm import
                 </>
               )}
-            </button>
-            <button type="button" onClick={onBack} disabled={loading} className={btnGhostClass}>
+            </Button>
+            <Button type="button" variant="outline" onClick={onBack} disabled={loading}>
               Back
-            </button>
+            </Button>
           </div>
         </div>
       </Panel>
@@ -491,14 +477,14 @@ function Step3Result({ result, onDone, onImportAnother }: Step3Props) {
           )}
 
           <div className="mt-2 flex items-center gap-2">
-            <button type="button" onClick={onDone} className={btnPrimaryClass}>
+            <Button type="button" variant="default" onClick={onDone}>
               <Check size={13} strokeWidth={1.5} />
               View dashboard
-            </button>
-            <button type="button" onClick={onImportAnother} className={btnGhostClass}>
+            </Button>
+            <Button type="button" variant="outline" onClick={onImportAnother}>
               <Upload size={13} strokeWidth={1.5} />
               Import another
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -632,14 +618,15 @@ export function ImportView({
       <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           {onBack && step === 1 && (
-            <button
+            <Button
               type="button"
+              variant="ghost"
               onClick={onBack}
-              className="mb-2 inline-flex cursor-pointer items-center gap-1 text-[11px] text-text-dim transition-colors hover:text-text-muted"
+              className="mb-2 h-auto gap-1 px-0 text-[11px] text-text-dim hover:bg-transparent hover:text-text-muted"
             >
               <ArrowLeft size={12} strokeWidth={1.75} />
               Back to dashboard
-            </button>
+            </Button>
           )}
           <h1 className="text-[15px] font-semibold tracking-tight text-text">Import trades</h1>
           <p className="mt-1 max-w-xl text-[12px] leading-relaxed text-text-muted">

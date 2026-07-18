@@ -2,6 +2,7 @@ import { EXIT_PRESETS, matchPreset } from "../../../lib/r-calculator/exit";
 import { useRCalculatorStore } from "../../../lib/r-calculator/useRCalculatorStore";
 import { cn } from "../../../lib/cn";
 import { SegmentedControl } from "../../SegmentedControl";
+import { Button } from "../../ui/button";
 import { CalcInputField } from "./CalcInputField";
 
 type StopKind = "breakeven" | "original" | "custom";
@@ -48,21 +49,22 @@ export function ExitLadder() {
             const isActive = activePreset === preset.id;
             const meta = PRESET_LABELS[preset.id];
             return (
-              <button
+              <Button
                 key={preset.id}
                 type="button"
+                variant="ghost"
                 aria-pressed={isActive}
                 onClick={() => store.applyExitPreset(preset.plan)}
                 className={cn(
-                  "rounded-card px-3 py-2.5 text-left transition-colors",
+                  "h-auto flex-col items-start rounded-card px-3 py-2.5 text-left",
                   isActive
-                    ? "bg-profit/10 text-profit"
-                    : "bg-bg-hover text-text-muted hover:text-text",
+                    ? "bg-profit/10 text-profit hover:bg-profit/10 hover:text-profit"
+                    : "bg-bg-hover text-text-muted",
                 )}
               >
                 <span className="text-xs font-semibold">{meta.label}</span>
                 <p className="mt-0.5 text-[10px] leading-tight opacity-70">{meta.sub}</p>
-              </button>
+              </Button>
             );
           })}
         </div>
@@ -79,14 +81,16 @@ export function ExitLadder() {
               <span className="text-[10px] font-medium uppercase tracking-widest text-text-muted">
                 Target {i + 1}
               </span>
-              <button
+              <Button
                 type="button"
+                variant="ghost"
+                size="xs"
                 aria-label="Remove tier"
                 onClick={() => store.removeTier(i)}
-                className="text-[10px] text-text-dim opacity-0 transition-opacity hover:text-loss group-hover:opacity-100"
+                className="h-auto px-0 text-[10px] text-text-dim opacity-0 hover:bg-transparent hover:text-loss group-hover:opacity-100"
               >
                 Remove
-              </button>
+              </Button>
             </div>
             <div className="grid grid-cols-2 gap-2">
               <CalcInputField
@@ -112,13 +116,14 @@ export function ExitLadder() {
         </div>
       ))}
 
-      <button
+      <Button
         type="button"
+        variant="outline"
         onClick={() => store.addTier()}
-        className="rounded-control border border-dashed border-border py-2 text-xs text-text-dim transition-colors hover:border-accent/40 hover:text-accent"
+        className="h-auto border-dashed py-2 text-xs text-text-dim hover:border-accent/40 hover:text-accent"
       >
         + Add tier
-      </button>
+      </Button>
 
       <div className="pt-2">
         <div className="mb-2 flex items-center justify-between">

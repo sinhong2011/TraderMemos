@@ -15,6 +15,7 @@ import { SignalToggle } from "../../components/SignalToggle";
 import { JournalScreenshotUpload } from "../../components/JournalScreenshotUpload";
 import { Skeleton } from "../../components/Skeleton";
 import { GradeControl } from "../../components/GradeControl";
+import { Button } from "../../components/ui/button";
 import { heroPnlClass, pnlColor } from "../../components/theme-tokens";
 import { cn } from "../../lib/cn";
 import { getToken } from "../../lib/api/client";
@@ -35,30 +36,6 @@ function tradeOutcome(trade: TradeDetail): { label: string; tone: PillTone } {
   if (trade.net_pnl == null || trade.net_pnl === 0) return { label: "FLAT", tone: "muted" };
   return trade.net_pnl > 0 ? { label: "WIN", tone: "pos" } : { label: "LOSS", tone: "neg" };
 }
-
-const primaryButtonClass = cn(
-  "inline-flex h-8 cursor-pointer items-center justify-center gap-1.5 rounded-control px-3",
-  "text-[11px] font-medium text-accent transition-colors duration-150",
-  "bg-accent-bg hover:bg-accent-bg/80 hover:text-text",
-  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
-  "disabled:cursor-not-allowed disabled:opacity-55",
-);
-
-const ghostButtonClass = cn(
-  "inline-flex h-8 cursor-pointer items-center justify-center gap-1.5 rounded-control px-3",
-  "text-[11px] font-medium text-text-muted transition-colors duration-150",
-  "bg-bg-hover hover:bg-bg-hover/80 hover:text-text",
-  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
-  "disabled:cursor-not-allowed disabled:opacity-55",
-);
-
-const dangerButtonClass = cn(
-  "inline-flex h-8 cursor-pointer items-center justify-center gap-1.5 rounded-control px-3",
-  "text-[11px] font-medium text-loss transition-colors duration-150",
-  "border border-loss/40 bg-transparent hover:bg-loss/10",
-  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
-  "disabled:cursor-not-allowed disabled:opacity-55",
-);
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -300,28 +277,31 @@ function FillsTable({
                   <td className="px-3 py-2">
                     <div className="flex items-center justify-end gap-0.5">
                       {onEditFill && (
-                        <button
+                        <Button
                           type="button"
+                          variant="ghost"
+                          size="icon-sm"
                           aria-label={`Edit ${fill.side} fill`}
                           title="Edit fill"
                           disabled={mutating}
                           onClick={() => setEditing(fill)}
-                          className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-control text-text-muted transition-colors hover:bg-bg-hover hover:text-text disabled:cursor-not-allowed disabled:opacity-55"
                         >
                           <Pencil size={13} strokeWidth={1.5} aria-hidden />
-                        </button>
+                        </Button>
                       )}
                       {onDeleteFill && (
-                        <button
+                        <Button
                           type="button"
+                          variant="ghost"
+                          size="icon-sm"
                           aria-label={`Delete ${fill.side} fill`}
                           title="Delete fill"
                           disabled={mutating}
                           onClick={() => setDeleting(fill)}
-                          className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-control text-text-muted transition-colors hover:bg-bg-hover hover:text-loss disabled:cursor-not-allowed disabled:opacity-55"
+                          className="hover:text-loss"
                         >
                           <Trash2 size={13} strokeWidth={1.5} aria-hidden />
-                        </button>
+                        </Button>
                       )}
                     </div>
                   </td>
@@ -342,22 +322,17 @@ function FillsTable({
           className="max-w-[min(560px,94vw)]"
           footer={
             <div className="flex w-full justify-end gap-2">
-              <button
+              <Button
                 type="button"
-                className={ghostButtonClass}
+                variant="ghost"
                 disabled={mutating}
                 onClick={() => setEditing(null)}
               >
                 Cancel
-              </button>
-              <button
-                type="submit"
-                form="edit-fill-form"
-                disabled={mutating}
-                className={primaryButtonClass}
-              >
+              </Button>
+              <Button type="submit" form="edit-fill-form" variant="soft" disabled={mutating}>
                 {mutating ? "Saving…" : "Save fill"}
-              </button>
+              </Button>
             </div>
           }
         >
@@ -383,25 +358,25 @@ function FillsTable({
           className="max-w-[min(420px,94vw)]"
           footer={
             <div className="flex w-full justify-end gap-2">
-              <button
+              <Button
                 type="button"
-                className={ghostButtonClass}
+                variant="ghost"
                 disabled={mutating}
                 onClick={() => setDeleting(null)}
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
+                variant="destructive"
                 disabled={mutating}
-                className={dangerButtonClass}
                 onClick={() => {
                   onDeleteFill(deleting);
                   setDeleting(null);
                 }}
               >
                 {mutating ? "Deleting…" : "Delete"}
-              </button>
+              </Button>
             </div>
           }
         >
@@ -560,9 +535,9 @@ function FillForm({
         </SignalField>
       </div>
       {!formId && (
-        <button type="submit" disabled={busy} className={cn(primaryButtonClass, "mt-3")}>
+        <Button type="submit" variant="soft" disabled={busy} className="mt-3">
           {busy ? "Adding…" : (submitLabel ?? "Add fill")}
-        </button>
+        </Button>
       )}
     </form>
   );
@@ -830,13 +805,14 @@ export function JournalPanel({
       {draftRestored && (
         <div className="flex items-center justify-between gap-3 rounded-control bg-bg-hover px-3 py-2">
           <span className="text-[11px] text-text-muted">Unsaved draft restored.</span>
-          <button
+          <Button
             type="button"
+            variant="link"
             onClick={discardDraft}
-            className="cursor-pointer text-[11px] text-accent hover:underline"
+            className="h-auto text-[11px]"
           >
             Discard draft
-          </button>
+          </Button>
         </div>
       )}
 
@@ -1023,14 +999,15 @@ export function JournalPanel({
         </SignalField>
       </div>
 
-      <button
+      <Button
         type="button"
+        variant="soft"
         onClick={() => onSave(withBuiltNotes(form))}
         disabled={saving}
-        className={cn(primaryButtonClass, "h-9 w-full")}
+        className="h-9 w-full"
       >
         {saving ? "Saving..." : "Save"}
-      </button>
+      </Button>
     </div>
   );
 }
@@ -1198,14 +1175,15 @@ export function TradeDetailView({
   return (
     <Page fill>
       {onBack && (
-        <button
+        <Button
           type="button"
+          variant="ghost"
           onClick={onBack}
-          className="inline-flex items-center gap-1 self-start text-xs text-text-muted transition-colors hover:text-text"
+          className="h-auto gap-1 self-start px-0 text-xs hover:bg-transparent"
         >
           <ArrowLeft size={13} strokeWidth={1.5} />
           Back to trades
-        </button>
+        </Button>
       )}
 
       <TradeHeader trade={trade} />

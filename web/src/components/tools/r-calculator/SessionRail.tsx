@@ -1,6 +1,7 @@
 import { Copy, Pencil, Plus, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "../../../lib/cn";
+import { Button } from "../../ui/button";
 
 export function SessionRail({
   sessions,
@@ -77,8 +78,10 @@ export function SessionRail({
                 aria-label="Rename position"
               />
             ) : (
-              <button
+              <Button
                 type="button"
+                variant="ghost"
+                size="xs"
                 onClick={() => onSelect(s.id)}
                 onDoubleClick={(e) => {
                   e.preventDefault();
@@ -86,58 +89,66 @@ export function SessionRail({
                 }}
                 title={onRename ? "Double-click to rename" : undefined}
                 className={cn(
-                  "rounded-control px-2.5 py-1 text-[11px] font-medium transition-colors",
+                  "h-auto px-2.5 py-1",
                   active
-                    ? "bg-accent/15 text-accent"
-                    : "bg-bg-hover text-text-muted hover:text-text",
+                    ? "bg-accent/15 text-accent hover:bg-accent/15 hover:text-accent"
+                    : "bg-bg-hover text-text-muted",
                 )}
               >
                 {s.name}
-              </button>
+              </Button>
             )}
             {active && !editing ? (
               <div className="ml-0.5 flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
                 {onRename ? (
-                  <button
+                  <Button
                     type="button"
+                    variant="ghost"
+                    size="icon-xs"
                     aria-label="Rename"
                     onClick={() => startEdit(s.id, s.name)}
-                    className="rounded p-0.5 text-text-dim hover:text-text"
+                    className="size-auto rounded p-0.5 text-text-dim hover:bg-transparent hover:text-text"
                   >
                     <Pencil size={11} />
-                  </button>
+                  </Button>
                 ) : null}
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
+                  size="icon-xs"
                   aria-label="Duplicate"
                   onClick={() => onDuplicate(s.id)}
-                  className="rounded p-0.5 text-text-dim hover:text-text"
+                  className="size-auto rounded p-0.5 text-text-dim hover:bg-transparent hover:text-text"
                 >
                   <Copy size={11} />
-                </button>
+                </Button>
                 {sessions.length > 1 ? (
-                  <button
+                  <Button
                     type="button"
+                    variant="ghost"
+                    size="icon-xs"
                     aria-label="Delete"
                     onClick={() => onRemove(s.id)}
-                    className="rounded p-0.5 text-text-dim hover:text-loss"
+                    className="size-auto rounded p-0.5 text-text-dim hover:bg-transparent hover:text-loss"
                   >
                     <X size={11} />
-                  </button>
+                  </Button>
                 ) : null}
               </div>
             ) : null}
           </div>
         );
       })}
-      <button
+      <Button
         type="button"
+        variant="ghost"
+        size="xs"
         onClick={onAdd}
-        className="flex items-center gap-1 rounded-control bg-bg-hover px-2 py-1 text-[11px] text-text-dim transition-colors hover:text-text"
+        className="h-auto gap-1 bg-bg-hover px-2 py-1 text-text-dim"
       >
         <Plus size={11} />
         Add
-      </button>
+      </Button>
     </div>
   );
 }

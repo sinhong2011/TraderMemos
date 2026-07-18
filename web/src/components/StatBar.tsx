@@ -1,5 +1,6 @@
 import { cn } from "../lib/cn";
 import type { PillTone } from "./Pill";
+import { Button } from "./ui/button";
 
 const TONE_VALUE: Record<PillTone, string> = {
   pos: "text-profit",
@@ -64,20 +65,19 @@ export function StatBar({
   }
 
   return (
-    <button
+    <Button
       type="button"
+      variant="ghost"
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        "group cursor-pointer border-none outline-none",
+        "group h-auto flex-col items-stretch whitespace-normal border-none",
         shell,
-        "transition-colors duration-150 ease-out",
-        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
         "motion-reduce:transition-none",
-        active ? "bg-accent-bg" : "hover:bg-bg-hover",
+        active ? "bg-accent-bg hover:bg-accent-bg" : "hover:bg-bg-hover",
       )}
     >
       {inner}
-    </button>
+    </Button>
   );
 }

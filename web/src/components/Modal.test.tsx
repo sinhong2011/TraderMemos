@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vite-plus/test";
 import { Modal, ModalBanner } from "./Modal";
+import { Button } from "./ui/button";
 
 describe("Modal", () => {
   it("renders title, children and footer when open", () => {
@@ -9,7 +10,11 @@ describe("Modal", () => {
         open
         onOpenChange={vi.fn()}
         title="New Trade"
-        footer={<button type="button">Save</button>}
+        footer={
+          <Button type="button" variant="default">
+            Save
+          </Button>
+        }
       >
         <ModalBanner>Log any trade.</ModalBanner>
         <p>Body</p>

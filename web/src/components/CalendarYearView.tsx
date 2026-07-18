@@ -6,6 +6,7 @@ import { fmtSignedMoneyCompact } from "../lib/format";
 import { intlLocale } from "../lib/locale";
 import { CalendarDayHoverCard } from "./CalendarDayHoverCard";
 import { pnlBgTint, pnlColor } from "./theme-tokens";
+import { Button } from "./ui/button";
 import { usePrivacyMode } from "../lib/displayPrefs";
 
 function shortMonth(year: number, month: number, locale: string): string {
@@ -213,44 +214,41 @@ export function CalendarYearView({
   return (
     <div className="flex min-h-0 flex-1 flex-col px-3 pb-4 sm:px-4">
       <div className="mb-4 flex shrink-0 items-center justify-center gap-2">
-        <button
+        <Button
           type="button"
+          variant="ghost"
+          size="icon"
           aria-label="Previous year"
           onClick={onPrevYear}
           className={cn(
-            "flex size-8 items-center justify-center rounded-control text-text-muted",
             "transition-[background-color,color,transform] duration-150 ease-out",
-            "hover:bg-bg-hover hover:text-text hover:scale-105",
-            "active:scale-95",
-            "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+            "hover:scale-105 active:scale-95",
             "motion-reduce:transition-colors motion-reduce:hover:scale-100 motion-reduce:active:scale-100",
           )}
         >
           <ChevronLeft size={18} strokeWidth={1.75} />
-        </button>
+        </Button>
         <h2
           key={year}
           className="min-w-[4.5rem] animate-[year-card-in_200ms_var(--ease-out)_both] text-center text-[18px] font-semibold tracking-[-0.02em] text-text motion-reduce:animate-none"
         >
           {year}
         </h2>
-        <button
+        <Button
           type="button"
+          variant="ghost"
+          size="icon"
           aria-label="Next year"
           onClick={onNextYear}
           disabled={!canGoNext}
           className={cn(
-            "flex size-8 items-center justify-center rounded-control text-text-muted",
             "transition-[background-color,color,transform] duration-150 ease-out",
-            "hover:bg-bg-hover hover:text-text hover:scale-105",
-            "active:scale-95",
-            "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+            "hover:scale-105 active:scale-95",
             "motion-reduce:transition-colors motion-reduce:hover:scale-100 motion-reduce:active:scale-100",
-            !canGoNext && "pointer-events-none opacity-35",
           )}
         >
           <ChevronRight size={18} strokeWidth={1.75} />
-        </button>
+        </Button>
       </div>
 
       {loading ? (

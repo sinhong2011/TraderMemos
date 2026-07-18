@@ -4,15 +4,7 @@ import { cn } from "../lib/cn";
 import { intlLocale } from "../lib/locale";
 import { SignalPopover } from "./SignalPopover";
 import { SignalSelect } from "./SignalSelect";
-
-function navBtnClass(disabled?: boolean) {
-  return cn(
-    "flex size-7 shrink-0 items-center justify-center rounded-control border-none bg-transparent text-text-muted",
-    "transition-colors hover:bg-bg-hover hover:text-text",
-    "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
-    disabled && "pointer-events-none opacity-35",
-  );
-}
+import { Button } from "./ui/button";
 
 /** Sidebar shortcut styled like the DateRangePanel presets. */
 function QuickJump({
@@ -25,14 +17,14 @@ function QuickJump({
   children: React.ReactNode;
 }) {
   return (
-    <button
+    <Button
       type="button"
+      variant="ghost"
       onClick={onClick}
       className={cn(
-        "relative w-full cursor-pointer rounded-control py-2 pr-2 pl-2.5 text-left text-[11px] outline-none",
-        "transition-colors duration-100",
-        "focus-visible:ring-2 focus-visible:ring-accent/40",
-        active ? "bg-bg-hover text-text" : "text-text-muted hover:bg-bg-hover hover:text-text",
+        "relative h-auto w-full justify-start rounded-control py-2 pr-2 pl-2.5 text-left text-[11px]",
+        "focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:outline-none",
+        active ? "bg-bg-hover text-text" : "text-text-muted",
       )}
     >
       {active && (
@@ -42,7 +34,7 @@ function QuickJump({
         />
       )}
       {children}
-    </button>
+    </Button>
   );
 }
 
@@ -112,14 +104,15 @@ export function MonthPicker({
 
   return (
     <div className="flex items-center gap-2">
-      <button
+      <Button
         type="button"
+        variant="ghost"
+        size="icon-sm"
         onClick={onPrevMonth}
         aria-label="Previous month"
-        className={navBtnClass()}
       >
         <ChevronLeft size={14} strokeWidth={1.5} />
-      </button>
+      </Button>
 
       <SignalPopover
         open={open}
@@ -166,14 +159,15 @@ export function MonthPicker({
 
           <div className="flex min-w-0 flex-1 flex-col bg-bg-panel px-3 pt-3 pb-3">
             <div className="mb-2 flex items-center justify-between">
-              <button
+              <Button
                 type="button"
+                variant="ghost"
+                size="icon-sm"
                 onClick={() => setPickerYear((y) => y - 1)}
                 aria-label="Previous year"
-                className={navBtnClass()}
               >
                 <ChevronLeft size={14} strokeWidth={1.5} />
-              </button>
+              </Button>
               <SignalSelect
                 value={String(pickerYear)}
                 onValueChange={(v) => setPickerYear(Number(v))}
@@ -183,15 +177,16 @@ export function MonthPicker({
                 className="w-auto"
                 triggerClassName="h-7 w-auto gap-1.5 px-2.5 text-[12px] font-semibold tabular-nums"
               />
-              <button
+              <Button
                 type="button"
+                variant="ghost"
+                size="icon-sm"
                 onClick={() => setPickerYear((y) => y + 1)}
                 disabled={pickerYear >= now.getFullYear()}
                 aria-label="Next year"
-                className={navBtnClass(pickerYear >= now.getFullYear())}
               >
                 <ChevronRight size={14} strokeWidth={1.5} />
-              </button>
+              </Button>
             </div>
 
             <div className="grid grid-cols-3 gap-1">
@@ -201,23 +196,22 @@ export function MonthPicker({
                 const isCurrent = pickerYear === now.getFullYear() && i === now.getMonth();
                 const isFuture = pickerYear === now.getFullYear() && i > now.getMonth();
                 return (
-                  <button
+                  <Button
                     key={label}
                     type="button"
+                    variant={isActive ? "default" : "ghost"}
                     onClick={() => jump(pickerYear, m)}
                     disabled={isFuture}
                     aria-label={`${longMonths[i]} ${pickerYear}`}
                     aria-pressed={isActive}
                     className={cn(
-                      "h-9 rounded-control text-[11px] font-medium capitalize transition-colors",
-                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40",
-                      isActive ? "bg-accent font-semibold text-bg" : "text-text hover:bg-bg-hover",
+                      "h-9 capitalize",
                       !isActive && isCurrent && "text-signal ring-1 ring-signal/40 ring-inset",
-                      isFuture && "cursor-not-allowed opacity-30",
+                      isFuture && "opacity-30",
                     )}
                   >
                     {label}
-                  </button>
+                  </Button>
                 );
               })}
             </div>
@@ -225,24 +219,20 @@ export function MonthPicker({
         </div>
       </SignalPopover>
 
-      <button
+      <Button
         type="button"
+        variant="ghost"
+        size="icon-sm"
         onClick={onNextMonth}
         disabled={!canGoNext}
         aria-label="Next month"
-        className={navBtnClass(!canGoNext)}
       >
         <ChevronRight size={14} strokeWidth={1.5} />
-      </button>
+      </Button>
 
-      <button
-        type="button"
-        onClick={onToday}
-        disabled={isThisMonth}
-        className={cn(navBtnClass(isThisMonth), "h-7 w-auto px-2.5 text-[12px] font-medium")}
-      >
+      <Button type="button" variant="ghost" size="sm" onClick={onToday} disabled={isThisMonth}>
         Today
-      </button>
+      </Button>
     </div>
   );
 }

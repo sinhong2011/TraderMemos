@@ -2,6 +2,7 @@ import { Eye, EyeOff, X } from "lucide-react";
 import { forwardRef, useId, useState, type ComponentProps } from "react";
 import { cn } from "../lib/cn";
 import { signalInputClass } from "./signal-field-styles";
+import { Button } from "./ui/button";
 
 export const SignalInput = forwardRef<HTMLInputElement, ComponentProps<"input">>(
   function SignalInput({ className, ...props }, ref) {
@@ -61,33 +62,25 @@ export const SignalPasswordInput = forwardRef<HTMLInputElement, SignalPasswordIn
           {...props}
         />
         {onClear && hasValue ? (
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="icon-sm"
             disabled={disabled}
-            className={cn(
-              "absolute top-1/2 right-8 flex size-7 -translate-y-1/2 cursor-pointer items-center justify-center",
-              "rounded-control border-none bg-transparent text-text-dim transition-colors duration-150",
-              "hover:bg-bg-hover hover:text-text",
-              "focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent",
-              "disabled:cursor-not-allowed disabled:opacity-45",
-            )}
+            className="absolute top-1/2 right-8 -translate-y-1/2 text-text-dim disabled:opacity-45"
             onClick={onClear}
             aria-label={clearLabel}
             aria-controls={inputId}
           >
             <X size={13} strokeWidth={1.75} aria-hidden />
-          </button>
+          </Button>
         ) : null}
-        <button
+        <Button
           type="button"
+          variant="ghost"
+          size="icon-sm"
           disabled={disabled}
-          className={cn(
-            "absolute top-1/2 right-1 flex size-7 -translate-y-1/2 cursor-pointer items-center justify-center",
-            "rounded-control border-none bg-transparent text-text-dim transition-colors duration-150",
-            "hover:bg-bg-hover hover:text-text",
-            "focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent",
-            "disabled:cursor-not-allowed disabled:opacity-45",
-          )}
+          className="absolute top-1/2 right-1 -translate-y-1/2 text-text-dim disabled:opacity-45"
           onClick={() => setVisible((v) => !v)}
           aria-label={visible ? hideLabel : showLabel}
           aria-pressed={visible}
@@ -98,7 +91,7 @@ export const SignalPasswordInput = forwardRef<HTMLInputElement, SignalPasswordIn
           ) : (
             <Eye size={14} strokeWidth={1.75} aria-hidden />
           )}
-        </button>
+        </Button>
       </div>
     );
   },

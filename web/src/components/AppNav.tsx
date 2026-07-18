@@ -20,6 +20,7 @@ import { useLocale } from "../i18n";
 import { useUI } from "../lib/ui";
 import { AppLogo } from "./AppLogo";
 import { AccountNavPopover } from "./AccountNavPopover";
+import { Button } from "./ui/button";
 
 type NavItem = {
   to: string;
@@ -114,21 +115,21 @@ function RailAction({
   tone: "accent" | "signal" | "muted";
 }) {
   return (
-    <button
+    <Button
       type="button"
+      variant="ghost"
+      size="icon"
       title={label}
       aria-label={label}
       onClick={onClick}
       className={cn(
-        "group relative flex size-9 cursor-pointer items-center justify-center rounded-control",
-        "transition-[background-color,color,transform] duration-150 ease-out",
-        "active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
-        "motion-reduce:transition-none motion-reduce:active:scale-100",
+        "group relative size-9",
+        "active:scale-95 motion-reduce:active:scale-100",
         tone === "accent"
-          ? "text-accent hover:bg-accent-bg"
+          ? "text-accent hover:bg-accent-bg hover:text-accent"
           : tone === "signal"
-            ? "text-signal hover:bg-[rgba(228,255,26,0.08)]"
-            : "text-text-dim hover:bg-bg-hover hover:text-text",
+            ? "text-signal hover:bg-[rgba(228,255,26,0.08)] hover:text-signal"
+            : "text-text-dim",
       )}
     >
       <Icon
@@ -137,7 +138,7 @@ function RailAction({
         className="transition-transform duration-150 ease-out group-hover:scale-110 motion-reduce:transition-none"
       />
       <RailTooltip label={label} />
-    </button>
+    </Button>
   );
 }
 
