@@ -14,6 +14,7 @@ import { ChartFrame, chartTheme } from "../../components/ChartFrame";
 import { DataTable } from "../../components/DataTable";
 import { EmptyState } from "../../components/EmptyState";
 import { Page } from "../../components/Page";
+import { ReportsBreakdownCard } from "../../components/ReportsBreakdownCard";
 import { ReportsMetricEvolution } from "../../components/ReportsMetricEvolution";
 import { ReportsRDistributionChart } from "../../components/ReportsRDistributionChart";
 import { ReportsRMultiplePerformance } from "../../components/ReportsRMultiplePerformance";
@@ -86,6 +87,12 @@ export interface ReportsViewProps {
   breakdown: BreakGroup[];
   loading: boolean;
   error: boolean;
+  dayOfWeekBreakdown: BreakGroup[];
+  dayOfWeekBreakdownLoading: boolean;
+  dayOfWeekBreakdownError: boolean;
+  hourOfDayBreakdown: BreakGroup[];
+  hourOfDayBreakdownLoading: boolean;
+  hourOfDayBreakdownError: boolean;
   currency: string;
   dim: BreakdownDim;
   onDimChange: (dim: BreakdownDim) => void;
@@ -367,6 +374,12 @@ export function ReportsView({
   breakdown,
   loading,
   error,
+  dayOfWeekBreakdown,
+  dayOfWeekBreakdownLoading,
+  dayOfWeekBreakdownError,
+  hourOfDayBreakdown,
+  hourOfDayBreakdownLoading,
+  hourOfDayBreakdownError,
   currency,
   dim,
   onDimChange,
@@ -508,6 +521,25 @@ export function ReportsView({
         loading={Boolean(rSummaryLoading)}
         error={Boolean(rSummaryError)}
       />
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <ReportsBreakdownCard
+          title="Day of Week"
+          breakdown={dayOfWeekBreakdown}
+          loading={dayOfWeekBreakdownLoading}
+          error={dayOfWeekBreakdownError}
+          currency={displayCurrency}
+          fxRate={fxRate}
+        />
+        <ReportsBreakdownCard
+          title="Time of Day"
+          breakdown={hourOfDayBreakdown}
+          loading={hourOfDayBreakdownLoading}
+          error={hourOfDayBreakdownError}
+          currency={displayCurrency}
+          fxRate={fxRate}
+        />
+      </div>
 
       <Card title="Breakdown" action={panelRight}>
         {renderContent()}

@@ -21,6 +21,8 @@ function ReportsPage() {
   const equityQ = useEquityCurve(filters);
   const tradesQ = useTrades(filters);
   const breakdownQ = useBreakdown(dim, filters);
+  const dayOfWeekBreakdownQ = useBreakdown("day_of_week", filters);
+  const hourOfDayBreakdownQ = useBreakdown("hour_of_day", filters);
   const accountsQ = useAccounts();
   const currency = accountBaseCurrency(accountsQ.data ?? [], accountId);
 
@@ -41,6 +43,12 @@ function ReportsPage() {
       breakdown={breakdownQ.data ?? []}
       loading={breakdownQ.isLoading}
       error={breakdownQ.isError}
+      dayOfWeekBreakdown={dayOfWeekBreakdownQ.data ?? []}
+      dayOfWeekBreakdownLoading={dayOfWeekBreakdownQ.isLoading}
+      dayOfWeekBreakdownError={dayOfWeekBreakdownQ.isError}
+      hourOfDayBreakdown={hourOfDayBreakdownQ.data ?? []}
+      hourOfDayBreakdownLoading={hourOfDayBreakdownQ.isLoading}
+      hourOfDayBreakdownError={hourOfDayBreakdownQ.isError}
       currency={currency}
       dim={dim}
       onDimChange={setDim}

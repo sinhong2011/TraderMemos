@@ -64,6 +64,12 @@ const base = {
   equityError: false,
   loading: false,
   error: false,
+  dayOfWeekBreakdown: [],
+  dayOfWeekBreakdownLoading: false,
+  dayOfWeekBreakdownError: false,
+  hourOfDayBreakdown: [],
+  hourOfDayBreakdownLoading: false,
+  hourOfDayBreakdownError: false,
   currency: "USD",
   onDimChange: vi.fn(),
 };
