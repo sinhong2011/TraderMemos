@@ -1426,13 +1426,17 @@ import { fmtDayShort, fmtMoneyCompact, fmtPct } from "../lib/format";
 import { intlLocale } from "../lib/locale";
 import { type EvolutionGranularity, type EvolutionPoint, metricEvolution } from "../lib/reportsAnalytics";
 
-type RightMetric = "cumulativePnl" | "profitFactor" | "expectancy" | "avgPnlPerTrade";
+// "Avg P&L/Trade" is deliberately not offered here: it's algebraically identical
+// to "Expectancy" in this cumulative-to-date computation (winRate*avgWin -
+// lossRate*avgLoss reduces to cumulativePnl/count for any bucket), so the two
+// would always render as the same line. `avgPnlPerTrade` still exists on
+// `EvolutionPoint` (lib/reportsAnalytics.ts) but isn't wired to this selector.
+type RightMetric = "cumulativePnl" | "profitFactor" | "expectancy";
 
 const RIGHT_METRICS: { value: RightMetric; label: string }[] = [
   { value: "cumulativePnl", label: "Cumulative P&L" },
   { value: "profitFactor", label: "Profit Factor" },
   { value: "expectancy", label: "Expectancy" },
-  { value: "avgPnlPerTrade", label: "Avg P&L/Trade" },
 ];
 
 const GRANULARITIES: { value: EvolutionGranularity; label: string }[] = [
@@ -1470,7 +1474,6 @@ export function ReportsMetricEvolution({
     ...p,
     cumulativePnl: p.cumulativePnl * fxRate,
     expectancy: p.expectancy * fxRate,
-    avgPnlPerTrade: p.avgPnlPerTrade * fxRate,
   }));
   const fmtRight = rightFormatter(rightMetric, currency, locale);
   const rightLabel = RIGHT_METRICS.find((m) => m.value === rightMetric)?.label ?? "";

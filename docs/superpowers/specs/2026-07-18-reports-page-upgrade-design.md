@@ -76,7 +76,9 @@ Page (gap-4 on void bg-bg)
 │    hero %, line chart
 ├─ ReportsMetricEvolution — own Card, Day/Week/Month selector, dual-axis
 │    line chart (Win Rate % fixed left axis; right axis swappable among
-│    Cumulative P&L / Profit Factor / Expectancy / Avg P&L per Trade)
+│    Cumulative P&L / Profit Factor / Expectancy — "Avg P&L per Trade" was
+│    dropped as a fourth option since it's algebraically identical to
+│    Expectancy in this cumulative-to-date computation)
 ├─ ReportsRMultiplePerformance — own Card, 4 StatCards (Avg R/Trade,
 │    Avg Winning R, Avg Losing R, Best/Worst R)
 ├─ ReportsRDistributionChart — own Card, colored bar chart (replaces
