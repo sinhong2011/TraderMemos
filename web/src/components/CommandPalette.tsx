@@ -12,24 +12,15 @@ import { Kbd, KbdGroup } from "./ui/kbd";
 const GROUP_ORDER: CommandGroup[] = ["Navigate", "Actions", "Tools"];
 
 /** Split chord labels like `G D` into adjacent keycaps; keep `⌘K` as one chip. */
-function CommandShortcut({
-  children,
-  tone = "muted",
-}: {
-  children: string;
-  tone?: "signal" | "muted";
-}) {
-  const variant = tone === "signal" ? "signal" : "muted";
+function CommandShortcut({ children }: { children: string }) {
   const parts = children.trim().split(/\s+/).filter(Boolean);
   if (parts.length <= 1) {
-    return <Kbd variant={variant}>{children}</Kbd>;
+    return <Kbd>{children}</Kbd>;
   }
   return (
     <KbdGroup className="gap-0.5">
       {parts.map((part, i) => (
-        <Kbd key={`${part}-${i}`} variant={variant}>
-          {part}
-        </Kbd>
+        <Kbd key={`${part}-${i}`}>{part}</Kbd>
       ))}
     </KbdGroup>
   );
@@ -84,7 +75,7 @@ export function CommandPalette() {
                     "placeholder:text-text-dim",
                   )}
                 />
-                <CommandShortcut tone="signal">esc</CommandShortcut>
+                <CommandShortcut>esc</CommandShortcut>
               </div>
               <Command.List className="max-h-[min(420px,50vh)] overflow-y-auto p-2">
                 <Command.Empty className="px-3 py-8 text-center text-xs text-text-dim">
@@ -182,7 +173,7 @@ export function CommandPalette() {
               </Command.List>
               <div className="flex items-center justify-between gap-3 px-3 py-2 text-[10px] text-text-dim">
                 <span>Navigate with ↑↓ · Enter to run · shortcuts when empty</span>
-                <CommandShortcut tone="signal">{APP_HOTKEYS.palette.label}</CommandShortcut>
+                <CommandShortcut>{APP_HOTKEYS.palette.label}</CommandShortcut>
               </div>
             </Command>
           </Dialog.Popup>

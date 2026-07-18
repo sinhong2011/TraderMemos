@@ -61,9 +61,7 @@ export function DashboardBreakdownChart({
     <section className="flex h-full flex-col rounded-card bg-bg-panel">
       <header className="flex flex-wrap items-start justify-between gap-3 px-4 py-3">
         <div>
-          <h2 className="text-[10px] font-semibold uppercase tracking-widest text-signal">
-            Breakdown
-          </h2>
+          <h2 className="text-[10px] font-semibold tracking-wide text-signal">Breakdown</h2>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <SegmentedControl

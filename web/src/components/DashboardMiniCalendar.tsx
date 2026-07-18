@@ -51,7 +51,7 @@ export function DashboardMiniCalendar({
     <section className="flex h-full flex-col rounded-card bg-bg-panel">
       <header className="flex items-start justify-between gap-3 px-4 py-3">
         <div>
-          <h2 className="text-[10px] font-semibold uppercase tracking-widest text-signal">Month</h2>
+          <h2 className="text-[10px] font-semibold tracking-wide text-signal">Month</h2>
           <p className="mt-1 text-[13px] font-medium text-text">
             {monthLabel(year, month, locale)}
           </p>

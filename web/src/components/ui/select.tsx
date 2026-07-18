@@ -46,8 +46,8 @@ function SelectTrigger({
       data-variant={variant}
       className={cn(
         "group/select-trigger flex w-full min-w-0 cursor-pointer items-center justify-between gap-2",
-        "rounded-control border-none text-[13px] text-text whitespace-nowrap outline-none",
-        "transition-[background-color,color] duration-150",
+        "rounded-control border border-transparent text-[13px] text-text whitespace-nowrap outline-none",
+        "transition-[background-color,color,border-color] duration-150",
         "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
         "disabled:cursor-not-allowed disabled:opacity-55",
         "aria-invalid:outline-loss/40",

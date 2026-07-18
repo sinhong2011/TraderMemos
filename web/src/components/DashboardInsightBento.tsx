@@ -46,7 +46,7 @@ function Title({
   return (
     <p
       className={cn(
-        "self-start text-left text-[12px] font-semibold uppercase tracking-widest",
+        "self-start text-left text-[12px] font-semibold tracking-wide",
         tone === "signal" ? "text-signal" : "font-medium text-text-muted",
         className,
       )}

@@ -20,7 +20,7 @@ export interface PerformanceStripProps {
 function Meta({ label, value, className }: { label: string; value: string; className?: string }) {
   return (
     <p className="m-0 flex items-baseline gap-1.5 text-[13px] tabular-nums">
-      <span className="font-medium uppercase tracking-widest text-text-muted">{label}</span>
+      <span className="font-medium tracking-wide text-text-muted">{label}</span>
       <span className={cn("font-medium", className)}>{value}</span>
     </p>
   );
@@ -47,12 +47,10 @@ export function PerformanceStrip({
     <div className="flex h-full min-h-0 flex-col gap-3">
       {/* Net hero */}
       <section className="flex min-h-[133px] flex-1 flex-col rounded-card bg-bg-panel p-5">
-        <p className="self-start text-[12px] font-semibold uppercase tracking-widest text-signal">
+        <p className="self-start text-[12px] font-semibold tracking-wide text-signal">
           Performance
         </p>
-        <p className="mt-3 self-start text-[12px] font-medium uppercase tracking-widest text-text-muted">
-          Net
-        </p>
+        <p className="mt-3 self-start text-[12px] font-medium tracking-wide text-text-muted">Net</p>
         <div className="mt-3 flex flex-1 flex-col items-center justify-center text-center">
           <p
             className={cn(

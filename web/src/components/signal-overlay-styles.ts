@@ -19,9 +19,8 @@ export const signalSelectItemClass = cn(
   "relative flex min-h-9 cursor-pointer items-center gap-2.5 rounded-control py-2 pr-2.5 pl-3",
   "text-[12px] text-text outline-none",
   "transition-[background-color,color] duration-100 ease-out",
-  "before:absolute before:top-1/2 before:left-1 before:h-4 before:w-0.5 before:-translate-y-1/2 before:rounded-full before:bg-accent before:opacity-0 before:shadow-[0_0_6px_var(--color-accent-glow)] before:content-[''] before:transition-opacity before:duration-100",
   "data-[highlighted]:bg-bg-hover data-[highlighted]:text-text",
-  "data-[selected]:bg-accent-bg data-[selected]:font-medium data-[selected]:text-accent data-[selected]:before:opacity-100",
+  "data-[selected]:bg-accent-bg data-[selected]:font-medium data-[selected]:text-accent",
   "data-[disabled]:cursor-default data-[disabled]:opacity-40",
-  "motion-reduce:transition-none motion-reduce:before:transition-none",
+  "motion-reduce:transition-none",
 );

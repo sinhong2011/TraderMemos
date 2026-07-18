@@ -322,7 +322,7 @@ export function LoginScreen() {
                   </Button>
                 ) : (
                   <p className="text-[11px] text-text-dim">
-                    Press <Kbd variant="signal">Enter</Kbd> to continue
+                    Press <Kbd>Enter</Kbd> to continue
                   </p>
                 )}
               </div>

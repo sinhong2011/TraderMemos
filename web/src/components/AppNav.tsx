@@ -107,12 +107,10 @@ function RailAction({
   label,
   icon: Icon,
   onClick,
-  tone,
 }: {
   label: string;
   icon: LucideIcon;
   onClick: () => void;
-  tone: "accent" | "signal" | "muted";
 }) {
   return (
     <Button
@@ -122,15 +120,7 @@ function RailAction({
       title={label}
       aria-label={label}
       onClick={onClick}
-      className={cn(
-        "group relative size-9",
-        "active:scale-95 motion-reduce:active:scale-100",
-        tone === "accent"
-          ? "text-accent hover:bg-accent-bg hover:text-accent"
-          : tone === "signal"
-            ? "text-signal hover:bg-[rgba(228,255,26,0.08)] hover:text-signal"
-            : "text-text-dim",
-      )}
+      className="group relative size-9 text-text-dim hover:bg-bg-hover hover:text-text active:scale-95 motion-reduce:active:scale-100"
     >
       <Icon
         size={20}
@@ -242,22 +232,11 @@ export function AppNav() {
       </div>
 
       <div className="flex w-full flex-col items-center gap-0.5 py-2">
-        <RailAction
-          label={label("newTrade")}
-          icon={Plus}
-          tone="accent"
-          onClick={() => openModal("new-trade")}
-        />
-        <RailAction
-          label={label("newSetup")}
-          icon={Zap}
-          tone="signal"
-          onClick={() => openModal("new-setup")}
-        />
+        <RailAction label={label("newTrade")} icon={Plus} onClick={() => openModal("new-trade")} />
+        <RailAction label={label("newSetup")} icon={Zap} onClick={() => openModal("new-setup")} />
         <RailAction
           label={label("newNote")}
           icon={StickyNote}
-          tone="accent"
           onClick={() => openModal("new-note")}
         />
 

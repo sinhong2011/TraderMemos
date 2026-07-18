@@ -15,21 +15,21 @@ const kbdVariants = cva(
   {
     variants: {
       variant: {
-        /** Signal yellow wayfinding (esc, ⌘K, primary discovery). */
+        /** Quiet keycap for chrome, lists, and shortcuts. */
+        muted: "min-w-[1.25rem] bg-bg-input tabular-nums text-text-dim",
+        /** Signal yellow wayfinding (branded discovery surfaces only). */
         signal: "bg-[rgba(228,255,26,0.06)] text-signal",
-        /** Quiet keycap for dense lists (nav chords). */
-        muted: "min-w-[1.25rem] bg-bg-input tabular-nums text-text-muted",
       },
     },
     defaultVariants: {
-      variant: "signal",
+      variant: "muted",
     },
   },
 );
 
 function Kbd({
   className,
-  variant = "signal",
+  variant = "muted",
   ...props
 }: ComponentProps<"kbd"> & VariantProps<typeof kbdVariants>) {
   return <kbd data-slot="kbd" className={cn(kbdVariants({ variant }), className)} {...props} />;

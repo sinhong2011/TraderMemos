@@ -33,9 +33,7 @@ export function Card({
           <div className="min-w-0">
             {title != null ? (
               typeof title === "string" ? (
-                <h2 className="text-[10px] font-semibold uppercase tracking-widest text-signal">
-                  {title}
-                </h2>
+                <h2 className="text-[10px] font-semibold tracking-wide text-signal">{title}</h2>
               ) : (
                 title
               )

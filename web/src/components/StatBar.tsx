@@ -40,7 +40,7 @@ export function StatBar({
     <>
       <span
         className={cn(
-          "self-start text-left text-[12px] font-medium uppercase tracking-widest text-text-muted",
+          "self-start text-left text-[12px] font-medium tracking-wide text-text-muted",
           interactive && "transition-colors duration-150 ease-out",
           interactive && (active ? "text-text" : "group-hover:text-text"),
         )}

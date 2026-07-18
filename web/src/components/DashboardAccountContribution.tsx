@@ -29,7 +29,7 @@ export function DashboardAccountContribution({
   return (
     <section className="rounded-card bg-bg-panel">
       <header className="px-4 py-3">
-        <h2 className="text-[10px] font-semibold uppercase tracking-widest text-signal">
+        <h2 className="text-[10px] font-semibold tracking-wide text-signal">
           Account contribution
         </h2>
       </header>
