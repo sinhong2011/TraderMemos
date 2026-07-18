@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vite-plus/test";
 import type { BreakGroup } from "../../lib/api/types";
 import { ReportsView } from "./ReportsView";
@@ -79,10 +79,12 @@ describe("ReportsView", () => {
 
   it("shows an empty state when there is no data", () => {
     render(<ReportsView {...base} dim="symbol" breakdown={[]} />);
-    // Exact match: the R-multiple cards also render an empty state ("No R
-    // data") when rSummary is absent, so a loose "no data" pattern would
-    // match more than one element.
-    expect(screen.getByText("No data")).toBeInTheDocument();
+    // Scoped to the Breakdown card: the Metric Evolution card (empty trades,
+    // same as `base`) also renders an empty state titled "No data", so an
+    // unscoped text match would ambiguously match both.
+    const breakdownCard = screen.getByRole("heading", { name: "Breakdown" }).closest("section");
+    expect(breakdownCard).not.toBeNull();
+    expect(within(breakdownCard as HTMLElement).getByText("No data")).toBeInTheDocument();
   });
 
   it("renders the summary metrics grid", () => {
@@ -94,7 +96,10 @@ describe("ReportsView", () => {
         summary={grp("all", 60).summary}
       />,
     );
-    expect(screen.getByText("Profit Factor")).toBeInTheDocument();
-    expect(screen.getByText("Expectancy")).toBeInTheDocument();
+    // Selector-scoped: the Metric Evolution card's right-axis metric selector
+    // also has "Profit Factor" / "Expectancy" options (as buttons), which a
+    // plain text match would ambiguously match alongside the StatCard labels.
+    expect(screen.getByText("Profit Factor", { selector: "span" })).toBeInTheDocument();
+    expect(screen.getByText("Expectancy", { selector: "span" })).toBeInTheDocument();
   });
 });

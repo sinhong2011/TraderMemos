@@ -14,6 +14,7 @@ import { ChartFrame, chartTheme } from "../../components/ChartFrame";
 import { DataTable } from "../../components/DataTable";
 import { EmptyState } from "../../components/EmptyState";
 import { Page } from "../../components/Page";
+import { ReportsMetricEvolution } from "../../components/ReportsMetricEvolution";
 import { ReportsRDistributionChart } from "../../components/ReportsRDistributionChart";
 import { ReportsRMultiplePerformance } from "../../components/ReportsRMultiplePerformance";
 import { ReportsRollingWinRate } from "../../components/ReportsRollingWinRate";
@@ -484,6 +485,14 @@ export function ReportsView({
       ) : null}
 
       <ReportsRollingWinRate trades={trades} loading={tradesLoading} error={tradesError} />
+
+      <ReportsMetricEvolution
+        trades={trades}
+        loading={tradesLoading}
+        error={tradesError}
+        currency={displayCurrency}
+        fxRate={fxRate}
+      />
 
       <ReportsRMultiplePerformance
         rSummary={rSummary}
