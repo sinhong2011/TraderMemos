@@ -1,11 +1,15 @@
 import { describe, expect, it } from "vite-plus/test";
 import {
+  emptyExecutionRow,
+  emptySymbolTrade,
   executionRowSchema,
   parseTradeRows,
   validatePositiveAmount,
   validateSymbol,
+  validateSymbolTrades,
   validateTradeRows,
 } from "./newTradeFormSchema";
+import { flattenSymbolTradesToExecutions } from "./newTradeBlocks";
 
 describe("newTradeFormSchema", () => {
   it("rejects empty symbol", () => {
@@ -27,6 +31,9 @@ describe("newTradeFormSchema", () => {
         price: "185.5",
         fees: "0.5",
         commission: "1",
+        option_right: "",
+        strike: "",
+        expiry: "",
       },
     ]);
     expect(rows).toHaveLength(1);
@@ -43,6 +50,9 @@ describe("newTradeFormSchema", () => {
         price: "10",
         fees: "",
         commission: "",
+        option_right: "",
+        strike: "",
+        expiry: "",
       }).success,
     ).toBe(false);
   });
@@ -57,8 +67,35 @@ describe("newTradeFormSchema", () => {
           price: "",
           fees: "",
           commission: "",
+          option_right: "",
+          strike: "",
+          expiry: "",
         },
       ]),
     ).toMatch(/valid execution row/i);
+  });
+
+  it("validates multi-symbol batches", () => {
+    expect(validateSymbolTrades([emptySymbolTrade()])).toMatch(/symbol is required/i);
+    const aapl = emptySymbolTrade({
+      symbol: "AAPL",
+      rows: [{ ...emptyExecutionRow("buy"), quantity: "1", price: "10" }],
+    });
+    const empty = emptySymbolTrade({ symbol: "" });
+    expect(validateSymbolTrades([aapl, empty])).toBeUndefined();
+  });
+
+  it("flattens multiple symbol blocks for one save", () => {
+    const flat = flattenSymbolTradesToExecutions([
+      emptySymbolTrade({
+        symbol: "AAPL",
+        rows: [{ ...emptyExecutionRow("buy"), quantity: "1", price: "10" }],
+      }),
+      emptySymbolTrade({
+        symbol: "TSLA",
+        rows: [{ ...emptyExecutionRow("sell"), quantity: "2", price: "200" }],
+      }),
+    ]);
+    expect(flat.map((r) => r.symbol)).toEqual(["AAPL", "TSLA"]);
   });
 });

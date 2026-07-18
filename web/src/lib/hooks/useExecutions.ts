@@ -31,6 +31,8 @@ export interface SaveExecutionsInput {
 
 export interface SaveExecutionsResult {
   tradeIds: string[];
+  /** Last trade_id seen per symbol (uppercased). */
+  bySymbol: Record<string, string>;
 }
 
 function invalidateTradeQueries(queryClient: ReturnType<typeof useQueryClient>) {
@@ -48,11 +50,11 @@ export function useCreateExecutions() {
       rows,
     }: SaveExecutionsInput): Promise<SaveExecutionsResult> => {
       const failures: ExecutionFailure[] = [];
-      const tradeIds: string[] = [];
+      const tradeIdSet = new Set<string>();
+      const bySymbol: Record<string, string> = {};
       let total = 0;
 
       for (const accountId of accountIds) {
-        let lastTradeId = "";
         for (let i = 0; i < rows.length; i++) {
           total += 1;
           try {
@@ -60,7 +62,9 @@ export function useCreateExecutions() {
               ...rows[i],
               account_id: accountId,
             });
-            lastTradeId = res.trade_id;
+            tradeIdSet.add(res.trade_id);
+            const sym = rows[i].symbol.trim().toUpperCase();
+            if (sym) bySymbol[sym] = res.trade_id;
           } catch (e) {
             failures.push({
               index: i,
@@ -69,13 +73,12 @@ export function useCreateExecutions() {
             });
           }
         }
-        if (lastTradeId) tradeIds.push(lastTradeId);
       }
 
       if (failures.length > 0) {
         throw new ExecutionBatchError(failures, total);
       }
-      return { tradeIds };
+      return { tradeIds: [...tradeIdSet], bySymbol };
     },
     onSettled: () => invalidateTradeQueries(queryClient),
   });

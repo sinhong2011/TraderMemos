@@ -11,6 +11,8 @@ export interface ExecutionBody {
   commission?: number;
   executed_at: string;
   multiplier?: number;
+  /** Opaque JSON for option_right / strike / expiry / lot. */
+  details?: Record<string, string>;
 }
 
 export interface UpdateExecutionBody {
