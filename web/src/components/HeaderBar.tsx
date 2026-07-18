@@ -1,5 +1,6 @@
 import { Eye, EyeOff, Search, Wallet, X } from "lucide-react";
 import { cn } from "../lib/cn";
+import { currencyIcon } from "../lib/currencyIcon";
 import {
   accountBaseCurrency,
   DISPLAY_CURRENCIES,
@@ -61,6 +62,25 @@ function SymbolFilterChip({ symbol, onClear }: { symbol: string; onClear: () => 
   );
 }
 
+function CurrencyOptionLabel({ code, account }: { code: string; account?: boolean }) {
+  const Icon = currencyIcon(code);
+  return (
+    <span className="inline-flex min-w-0 items-center gap-1.5">
+      <Icon size={12} strokeWidth={1.75} className="shrink-0 text-text-dim" aria-hidden />
+      <span className="tabular-nums">{code}</span>
+      {account ? (
+        <>
+          <span className="text-text-dim" aria-hidden>
+            ·
+          </span>
+          <Wallet size={12} strokeWidth={1.75} className="shrink-0 text-text-dim" aria-hidden />
+          <span className="sr-only">account</span>
+        </>
+      ) : null}
+    </span>
+  );
+}
+
 function DisplayCurrencySelect({ baseCurrency }: { baseCurrency: string }) {
   const displayCurrency = useDisplayPrefs((s) => s.displayCurrency);
   const setDisplayCurrency = useDisplayPrefs((s) => s.setDisplayCurrency);
@@ -71,21 +91,13 @@ function DisplayCurrencySelect({ baseCurrency }: { baseCurrency: string }) {
   const options = [
     {
       value: AUTO_VALUE,
-      label: (
-        <span className="inline-flex items-center gap-1.5">
-          <span>{base}</span>
-          <span className="text-text-dim" aria-hidden>
-            ·
-          </span>
-          <Wallet size={12} strokeWidth={1.75} className="shrink-0 text-text-dim" aria-hidden />
-          <span className="sr-only">account</span>
-        </span>
-      ),
-      shortLabel: base,
+      label: <CurrencyOptionLabel code={base} account />,
+      shortLabel: <CurrencyOptionLabel code={base} />,
     },
     ...DISPLAY_CURRENCIES.filter((code) => code !== base).map((code) => ({
       value: code,
-      label: code,
+      label: <CurrencyOptionLabel code={code} />,
+      shortLabel: <CurrencyOptionLabel code={code} />,
     })),
   ];
 
@@ -103,7 +115,8 @@ function DisplayCurrencySelect({ baseCurrency }: { baseCurrency: string }) {
       }}
       options={options}
       ariaLabel={`Show amounts in (account ledger is ${base})`}
-      triggerClassName="h-8 w-[4.65rem] shrink-0 !border-transparent px-2 text-[11px] font-medium tabular-nums hover:!border-transparent"
+      ghost
+      triggerClassName="h-8 min-w-[5.25rem] shrink-0 border-border bg-transparent px-2 text-[11px] font-medium tabular-nums hover:border-border-strong hover:bg-transparent data-popup-open:border-border-strong data-popup-open:bg-transparent"
     />
   );
 }
@@ -116,15 +129,15 @@ function PrivacyToggle() {
   return (
     <Button
       type="button"
-      variant={privacyMode ? "soft" : "secondary"}
+      variant={privacyMode ? "soft" : "outline"}
       size="icon"
       onClick={togglePrivacyMode}
       aria-pressed={privacyMode}
       aria-label={privacyMode ? "Show sensitive amounts" : "Hide sensitive amounts"}
       title={privacyMode ? "Show amounts" : "Hide amounts"}
       className={cn(
-        "transition-[background-color,color] duration-200 ease-[var(--ease-out)]",
-        !privacyMode && "text-text-dim",
+        "transition-[background-color,color,border-color] duration-200 ease-[var(--ease-out)]",
+        !privacyMode && "bg-transparent text-text-dim hover:bg-bg-hover",
       )}
     >
       <Icon size={15} strokeWidth={1.75} aria-hidden />
@@ -190,14 +203,14 @@ export function HeaderBar() {
         {symbol ? <SymbolFilterChip symbol={symbol} onClear={() => setSymbol(undefined)} /> : null}
         <Button
           type="button"
-          variant="secondary"
+          variant="outline"
           onClick={openCommandPalette}
           aria-keyshortcuts="Meta+K Control+K"
-          className="min-w-[148px] justify-start px-2.5 text-text-dim hover:text-text-muted"
+          className="min-w-[148px] justify-start bg-transparent px-2.5 text-text hover:bg-bg-hover hover:text-text"
         >
           <Search size={14} strokeWidth={1.75} aria-hidden data-icon="inline-start" />
           <span className="min-w-0 flex-1 truncate text-left">Search…</span>
-          <Kbd variant="signal" data-icon="inline-end" className="hidden sm:inline-flex">
+          <Kbd data-icon="inline-end" className="hidden sm:inline-flex">
             {APP_HOTKEYS.palette.label}
           </Kbd>
         </Button>

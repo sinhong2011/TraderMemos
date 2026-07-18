@@ -13,7 +13,7 @@ export type SignalSelectOption = {
   value: string;
   label: ReactNode;
   /** Compact label for the closed trigger; falls back to string `label` or `value`. */
-  shortLabel?: string;
+  shortLabel?: ReactNode;
   disabled?: boolean;
 };
 
