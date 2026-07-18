@@ -17,6 +17,7 @@ import { Page } from "../../components/Page";
 import { ReportsBreakdownCard } from "../../components/ReportsBreakdownCard";
 import { ReportsMetricEvolution } from "../../components/ReportsMetricEvolution";
 import { ReportsRDistributionChart } from "../../components/ReportsRDistributionChart";
+import { ReportsRiskDrawdown } from "../../components/ReportsRiskDrawdown";
 import { ReportsRMultiplePerformance } from "../../components/ReportsRMultiplePerformance";
 import { ReportsRollingWinRate } from "../../components/ReportsRollingWinRate";
 import { ReportsSessionTable } from "../../components/ReportsSessionTable";
@@ -384,7 +385,7 @@ export function ReportsView({
   tradesError,
   equity,
   equityLoading,
-  equityError: _equityError,
+  equityError,
   breakdown,
   loading,
   error,
@@ -591,6 +592,15 @@ export function ReportsView({
         breakdown={sessionBreakdown}
         loading={sessionBreakdownLoading}
         error={sessionBreakdownError}
+        currency={displayCurrency}
+        fxRate={fxRate}
+      />
+
+      <ReportsRiskDrawdown
+        trades={trades}
+        equityPoints={equity?.points ?? []}
+        loading={tradesLoading || equityLoading}
+        error={tradesError || equityError}
         currency={displayCurrency}
         fxRate={fxRate}
       />
