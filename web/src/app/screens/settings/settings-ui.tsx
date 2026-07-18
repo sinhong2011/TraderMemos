@@ -104,10 +104,10 @@ export function SettingsGroupRow({
   return (
     <div
       className={cn(
-        "flex min-h-[44px] flex-col gap-2 px-4 py-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4",
-        !last && "border-b border-border",
+        "flex min-h-[44px] flex-col gap-2 px-4 py-2.5 transition-colors duration-150 hover:bg-bg-hover/60 sm:flex-row sm:items-center sm:justify-between sm:gap-4",
         className,
       )}
+      data-last={last ? "" : undefined}
     >
       <div className="min-w-0 flex-1">
         <div className="text-[13px] font-medium text-text">{label}</div>
@@ -165,20 +165,15 @@ export function SettingsRow({
   primary,
   secondary,
   actions,
-  last = false,
 }: {
   primary: ReactNode;
   secondary?: ReactNode;
   actions?: ReactNode;
+  /** @deprecated Dividers removed for borderless settings. */
   last?: boolean;
 }) {
   return (
-    <div
-      className={cn(
-        "flex min-h-[44px] flex-col gap-2 px-4 py-2.5 transition-colors duration-150 hover:bg-bg-hover sm:flex-row sm:items-center sm:justify-between sm:gap-4",
-        !last && "border-b border-border",
-      )}
-    >
+    <div className="flex min-h-[44px] flex-col gap-2 px-4 py-2.5 transition-colors duration-150 hover:bg-bg-hover sm:flex-row sm:items-center sm:justify-between sm:gap-4">
       <div className="min-w-0 flex-1">
         <div className="text-[13px] font-medium text-text">{primary}</div>
         {secondary ? (

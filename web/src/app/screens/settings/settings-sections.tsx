@@ -1,23 +1,55 @@
 import { useForm } from "@tanstack/react-form";
 import { BookOpen, Check, Plus, Settings, Shield, Tag, Wallet, X } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { EmptyState } from "../../../components/EmptyState";
+import { SegmentedControl } from "../../../components/SegmentedControl";
+import { SignalAmountInput } from "../../../components/SignalAmountInput";
 import { SignalDatePicker } from "../../../components/SignalDatePicker";
 import { fieldError, SignalField } from "../../../components/SignalField";
-import { SignalInput, SignalTextarea } from "../../../components/SignalInput";
+import { ModelAutocomplete } from "../../../components/SignalAutocomplete";
+import { SignalInput, SignalPasswordInput, SignalTextarea } from "../../../components/SignalInput";
 import { SignalSelect } from "../../../components/SignalSelect";
 import { Skeleton } from "../../../components/Skeleton";
 import { useToastManager } from "../../../components/Toast";
 import { ApiError } from "../../../lib/api/client";
 import type { RiskRules } from "../../../lib/api/settings";
 import type { Account, CashTransaction, Setup, Tag as TagType } from "../../../lib/api/types";
+import {
+  useListOcrModels,
+  useOcrSettings,
+  useSaveOcrSettings,
+  useTestOcrSettings,
+} from "../../../lib/hooks/useOcrSettings";
 import { useTrades } from "../../../lib/hooks/useTrades";
 import { formatCashDisplay, signedCashAmount } from "../../../lib/cashAmount";
+import { parseAmountToNumber } from "../../../lib/amountInput";
+import { cn } from "../../../lib/cn";
 import { intlLocale, LOCALE_OPTIONS, settingsLabel } from "../../../lib/locale";
+import {
+  ocrSettingsPutBody,
+  ocrSettingsTestBody,
+  ocrSettingsToFormValues,
+} from "../../../lib/ocrSettingsForm";
 import { useAuth } from "../../../lib/auth";
 import { useJournalPrefs } from "../../../lib/journalPrefs";
 import { useLocale } from "../../../i18n";
 import { usePrivacyMode } from "../../../lib/displayPrefs";
+import {
+  defaultAccountFormValues,
+  defaultCashFormValues,
+  defaultRiskFormValues,
+  defaultSetupFormValues,
+  defaultTagFormValues,
+  parseChecklistText,
+  riskFormToBody,
+  validateAccountId,
+  validateOptionalAmountField,
+  validatePositiveAmount,
+  validateRequiredName,
+  validateRiskForm,
+  validateRiskPercent,
+  validateStartingBalance,
+} from "../../../lib/settingsFormSchema";
 import {
   AccountRow,
   BtnGhost,
@@ -56,17 +88,6 @@ function ledgerBalance(account: Account, transactions: CashTransaction[]) {
     .filter((t) => t.account_id === account.id)
     .reduce((sum, t) => sum + t.amount, 0);
   return account.starting_balance + flows;
-}
-
-function numOrEmpty(v: number | null | undefined): string {
-  return v == null ? "" : String(v);
-}
-
-function parseOptionalNum(v: string): number | null {
-  const t = v.trim();
-  if (!t) return null;
-  const n = Number(t);
-  return Number.isFinite(n) ? n : null;
 }
 
 // ---------------------------------------------------------------------------
@@ -118,18 +139,10 @@ export function AccountsTab({
   const [showAccountForm, setShowAccountForm] = useState(false);
   const [showCashForm, setShowCashForm] = useState(false);
   const [filterAccountId, setFilterAccountId] = useState<string | null>(null);
-  const [accountSaving, setAccountSaving] = useState(false);
   const [accountFormError, setAccountFormError] = useState<string | null>(null);
   const [accountDeleteError, setAccountDeleteError] = useState<string | null>(null);
   const [clearTradesError, setClearTradesError] = useState<string | null>(null);
   const [cashFormError, setCashFormError] = useState<string | null>(null);
-  const [cashSaving, setCashSaving] = useState(false);
-
-  const [name, setName] = useState("");
-  const [broker, setBroker] = useState("");
-  const [accountType, setAccountType] = useState("cash");
-  const [baseCurrency, setBaseCurrency] = useState("USD");
-  const [startingBalance, setStartingBalance] = useState("");
 
   const tradesQ = useTrades({});
   const trades = tradesQ.data ?? [];
@@ -190,18 +203,32 @@ export function AccountsTab({
     }
   }
 
-  const cashForm = useForm({
-    defaultValues: {
-      accountId: accounts[0]?.id ?? "",
-      type: "deposit",
-      amount: "",
-      occurredAt: new Date().toISOString().slice(0, 10),
-      note: "",
-    },
+  const accountForm = useForm({
+    defaultValues: defaultAccountFormValues(),
     onSubmit: async ({ value }) => {
-      const amt = Number.parseFloat(value.amount);
+      setAccountFormError(null);
+      try {
+        await onCreateAccount({
+          name: value.name.trim(),
+          broker: value.broker.trim(),
+          account_type: value.accountType,
+          base_currency: value.baseCurrency.trim() || "USD",
+          starting_balance: parseAmountToNumber(value.startingBalance) ?? 0,
+        });
+        accountForm.reset(defaultAccountFormValues());
+        setShowAccountForm(false);
+      } catch {
+        setAccountFormError("Failed to create account.");
+      }
+    },
+  });
+
+  const cashForm = useForm({
+    defaultValues: defaultCashFormValues(accounts[0]?.id ?? ""),
+    onSubmit: async ({ value }) => {
+      const amt = parseAmountToNumber(value.amount);
+      if (amt == null) return;
       const acct = accounts.find((a) => a.id === value.accountId);
-      setCashSaving(true);
       setCashFormError(null);
       try {
         await onCreateCash({
@@ -212,13 +239,10 @@ export function AccountsTab({
           occurred_at: `${value.occurredAt}T00:00:00Z`,
           note: value.note.trim() || undefined,
         });
-        cashForm.reset();
-        cashForm.setFieldValue("accountId", accounts[0]?.id ?? "");
+        cashForm.reset(defaultCashFormValues(accounts[0]?.id ?? ""));
         setShowCashForm(false);
       } catch {
         setCashFormError("Failed to create transaction.");
-      } finally {
-        setCashSaving(false);
       }
     },
   });
@@ -228,39 +252,6 @@ export function AccountsTab({
       cashForm.setFieldValue("accountId", accounts[0].id);
     }
   }, [accounts, cashForm]);
-
-  async function handleCreateAccount() {
-    if (!name.trim()) {
-      setAccountFormError("Name is required.");
-      return;
-    }
-    const balance = Number.parseFloat(startingBalance);
-    if (Number.isNaN(balance)) {
-      setAccountFormError("Starting balance must be a number.");
-      return;
-    }
-    setAccountSaving(true);
-    setAccountFormError(null);
-    try {
-      await onCreateAccount({
-        name: name.trim(),
-        broker: broker.trim(),
-        account_type: accountType,
-        base_currency: baseCurrency.trim() || "USD",
-        starting_balance: balance,
-      });
-      setName("");
-      setBroker("");
-      setAccountType("cash");
-      setBaseCurrency("USD");
-      setStartingBalance("");
-      setShowAccountForm(false);
-    } catch {
-      setAccountFormError("Failed to create account.");
-    } finally {
-      setAccountSaving(false);
-    }
-  }
 
   const sortedTx = useMemo(
     () =>
@@ -278,11 +269,8 @@ export function AccountsTab({
   const filteredAccount = accounts.find((a) => a.id === filterAccountId);
 
   function openFundingForm(accountId: string, type: "deposit" | "withdrawal") {
-    cashForm.setFieldValue("accountId", accountId);
+    cashForm.reset(defaultCashFormValues(accountId));
     cashForm.setFieldValue("type", type);
-    cashForm.setFieldValue("amount", "");
-    cashForm.setFieldValue("note", "");
-    cashForm.setFieldValue("occurredAt", new Date().toISOString().slice(0, 10));
     setFilterAccountId(accountId);
     setCashFormError(null);
     setShowCashForm(true);
@@ -306,74 +294,129 @@ export function AccountsTab({
       >
         {showAccountForm && (
           <SettingsInsetForm>
-            <div className="flex flex-col gap-3">
+            <form
+              className="flex flex-col gap-3"
+              onSubmit={(e) => {
+                e.preventDefault();
+                void accountForm.handleSubmit();
+              }}
+            >
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <SignalField label="Name" htmlFor="acct-name">
-                  <SignalInput
-                    id="acct-name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="e.g. Main Account"
-                  />
-                </SignalField>
-                <SignalField label="Broker" htmlFor="acct-broker">
-                  <SignalInput
-                    id="acct-broker"
-                    value={broker}
-                    onChange={(e) => setBroker(e.target.value)}
-                    placeholder="e.g. IBKR"
-                  />
-                </SignalField>
+                <accountForm.Field
+                  name="name"
+                  validators={{
+                    onBlur: ({ value }) => validateRequiredName(value),
+                    onSubmit: ({ value }) => validateRequiredName(value),
+                  }}
+                >
+                  {(field) => (
+                    <SignalField
+                      label="Name"
+                      htmlFor="acct-name"
+                      error={fieldError(field.state.meta.errors)}
+                    >
+                      <SignalInput
+                        id="acct-name"
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        placeholder="e.g. Main Account"
+                      />
+                    </SignalField>
+                  )}
+                </accountForm.Field>
+                <accountForm.Field name="broker">
+                  {(field) => (
+                    <SignalField label="Broker" htmlFor="acct-broker">
+                      <SignalInput
+                        id="acct-broker"
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        placeholder="e.g. IBKR"
+                      />
+                    </SignalField>
+                  )}
+                </accountForm.Field>
               </div>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                <SignalField label="Account type">
-                  <SignalSelect
-                    value={accountType}
-                    onValueChange={setAccountType}
-                    ariaLabel="Account type"
-                    options={[
-                      { value: "cash", label: "Cash" },
-                      { value: "margin", label: "Margin" },
-                      { value: "prop", label: "Prop" },
-                    ]}
-                    triggerClassName="h-8 text-[12px]"
-                  />
-                </SignalField>
-                <SignalField label="Base currency" htmlFor="acct-currency">
-                  <SignalInput
-                    id="acct-currency"
-                    value={baseCurrency}
-                    onChange={(e) => setBaseCurrency(e.target.value)}
-                    placeholder="USD"
-                  />
-                </SignalField>
-                <SignalField label="Starting balance" htmlFor="acct-balance">
-                  <SignalInput
-                    id="acct-balance"
-                    type="number"
-                    value={startingBalance}
-                    onChange={(e) => setStartingBalance(e.target.value)}
-                    placeholder="0.00"
-                  />
-                </SignalField>
+                <accountForm.Field name="accountType">
+                  {(field) => (
+                    <SignalField label="Account type">
+                      <SignalSelect
+                        value={field.state.value}
+                        onValueChange={field.handleChange}
+                        ariaLabel="Account type"
+                        options={[
+                          { value: "cash", label: "Cash" },
+                          { value: "margin", label: "Margin" },
+                          { value: "prop", label: "Prop" },
+                        ]}
+                        triggerClassName="h-8 text-[12px]"
+                      />
+                    </SignalField>
+                  )}
+                </accountForm.Field>
+                <accountForm.Field name="baseCurrency">
+                  {(field) => (
+                    <SignalField label="Base currency" htmlFor="acct-currency">
+                      <SignalInput
+                        id="acct-currency"
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        placeholder="USD"
+                      />
+                    </SignalField>
+                  )}
+                </accountForm.Field>
+                <accountForm.Field
+                  name="startingBalance"
+                  validators={{
+                    onBlur: ({ value }) => validateStartingBalance(value),
+                    onSubmit: ({ value }) => validateStartingBalance(value),
+                  }}
+                >
+                  {(field) => (
+                    <SignalField
+                      label="Starting balance"
+                      htmlFor="acct-balance"
+                      error={fieldError(field.state.meta.errors)}
+                    >
+                      <SignalAmountInput
+                        id="acct-balance"
+                        value={field.state.value}
+                        onValueChange={field.handleChange}
+                        onBlur={field.handleBlur}
+                        placeholder="0.00"
+                        allowNegative
+                      />
+                    </SignalField>
+                  )}
+                </accountForm.Field>
               </div>
               <FormError message={accountFormError} />
               <div className="flex items-center gap-2">
-                <BtnPrimary disabled={accountSaving} onClick={() => void handleCreateAccount()}>
-                  <Check size={12} strokeWidth={1.5} />
-                  {accountSaving ? "Creating…" : "Create"}
-                </BtnPrimary>
+                <accountForm.Subscribe selector={(s) => s.isSubmitting}>
+                  {(accountSaving) => (
+                    <BtnPrimary type="submit" disabled={accountSaving}>
+                      <Check size={12} strokeWidth={1.5} />
+                      {accountSaving ? "Creating…" : "Create"}
+                    </BtnPrimary>
+                  )}
+                </accountForm.Subscribe>
                 <BtnGhost
                   onClick={() => {
                     setShowAccountForm(false);
                     setAccountFormError(null);
+                    accountForm.reset(defaultAccountFormValues());
                   }}
                 >
                   <X size={12} strokeWidth={1.5} />
                   Cancel
                 </BtnGhost>
               </div>
-            </div>
+            </form>
           </SettingsInsetForm>
         )}
 
@@ -501,7 +544,7 @@ export function AccountsTab({
                 <cashForm.Field
                   name="accountId"
                   validators={{
-                    onSubmit: ({ value }) => (!value ? "Account is required." : undefined),
+                    onSubmit: ({ value }) => validateAccountId(value),
                   }}
                 >
                   {(field) => (
@@ -544,13 +587,8 @@ export function AccountsTab({
                 <cashForm.Field
                   name="amount"
                   validators={{
-                    onSubmit: ({ value }) => {
-                      const amt = Number.parseFloat(value);
-                      if (Number.isNaN(amt) || amt <= 0) {
-                        return "Amount must be a positive number.";
-                      }
-                      return undefined;
-                    },
+                    onBlur: ({ value }) => validatePositiveAmount(value),
+                    onSubmit: ({ value }) => validatePositiveAmount(value),
                   }}
                 >
                   {(field) => (
@@ -559,12 +597,11 @@ export function AccountsTab({
                       htmlFor="cash-amount"
                       error={fieldError(field.state.meta.errors)}
                     >
-                      <SignalInput
+                      <SignalAmountInput
                         id="cash-amount"
-                        type="number"
                         value={field.state.value}
+                        onValueChange={field.handleChange}
                         onBlur={field.handleBlur}
-                        onChange={(e) => field.handleChange(e.target.value)}
                         placeholder="0.00"
                       />
                     </SignalField>
@@ -598,10 +635,14 @@ export function AccountsTab({
               </cashForm.Field>
               <FormError message={cashFormError} />
               <div className="flex items-center gap-2">
-                <BtnPrimary type="submit" disabled={cashSaving}>
-                  <Check size={12} strokeWidth={1.5} />
-                  {cashSaving ? "Adding…" : "Add"}
-                </BtnPrimary>
+                <cashForm.Subscribe selector={(s) => s.isSubmitting}>
+                  {(cashSaving) => (
+                    <BtnPrimary type="submit" disabled={cashSaving}>
+                      <Check size={12} strokeWidth={1.5} />
+                      {cashSaving ? "Adding…" : "Add"}
+                    </BtnPrimary>
+                  )}
+                </cashForm.Subscribe>
                 <BtnGhost
                   onClick={() => {
                     setShowCashForm(false);
@@ -708,77 +749,51 @@ export function RulesTab({
   onSaveChecklist,
 }: RulesTabProps) {
   const toast = useToastManager();
-  const [maxRisk, setMaxRisk] = useState("");
-  const [maxDaily, setMaxDaily] = useState("");
-  const [maxOpen, setMaxOpen] = useState("");
-  const [riskPct, setRiskPct] = useState("");
   const [riskFormError, setRiskFormError] = useState<string | null>(null);
   const [riskSaved, setRiskSaved] = useState(false);
-
-  const [checklistText, setChecklistText] = useState(checklistItems.join("\n"));
   const [checklistSaved, setChecklistSaved] = useState(false);
+
+  const riskForm = useForm({
+    defaultValues: defaultRiskFormValues(riskRules),
+    validators: {
+      onSubmit: ({ value }) => validateRiskForm(value),
+    },
+    onSubmit: async ({ value }) => {
+      setRiskFormError(null);
+      setRiskSaved(false);
+      try {
+        await onSaveRiskRules(riskFormToBody(value));
+        setRiskSaved(true);
+      } catch {
+        setRiskFormError("Could not save risk rules.");
+      }
+    },
+  });
+
+  const checklistForm = useForm({
+    defaultValues: { text: checklistItems.join("\n") },
+    onSubmit: async ({ value }) => {
+      setChecklistSaved(false);
+      try {
+        await onSaveChecklist(parseChecklistText(value.text));
+        setChecklistSaved(true);
+      } catch (err) {
+        toast.add({
+          title: "Could not save checklist",
+          description: err instanceof Error ? err.message : "Request failed",
+        });
+      }
+    },
+  });
 
   useEffect(() => {
     if (!riskRules) return;
-    setMaxRisk(numOrEmpty(riskRules.max_risk_per_trade));
-    setMaxDaily(numOrEmpty(riskRules.max_daily_loss));
-    setMaxOpen(numOrEmpty(riskRules.max_open_risk));
-    setRiskPct(numOrEmpty(riskRules.default_account_risk_pct));
+    riskForm.reset(defaultRiskFormValues(riskRules));
   }, [riskRules]);
 
   useEffect(() => {
-    setChecklistText(checklistItems.join("\n"));
+    checklistForm.reset({ text: checklistItems.join("\n") });
   }, [checklistItems]);
-
-  async function handleSaveRisk() {
-    const body: RiskRules = {
-      max_risk_per_trade: parseOptionalNum(maxRisk),
-      max_daily_loss: parseOptionalNum(maxDaily),
-      max_open_risk: parseOptionalNum(maxOpen),
-      default_account_risk_pct: parseOptionalNum(riskPct),
-    };
-    if (
-      (maxRisk.trim() && body.max_risk_per_trade == null) ||
-      (maxDaily.trim() && body.max_daily_loss == null) ||
-      (maxOpen.trim() && body.max_open_risk == null) ||
-      (riskPct.trim() && body.default_account_risk_pct == null)
-    ) {
-      setRiskFormError("Enter valid numbers, or leave a field blank.");
-      return;
-    }
-    if (
-      body.default_account_risk_pct != null &&
-      (body.default_account_risk_pct < 0 || body.default_account_risk_pct > 100)
-    ) {
-      setRiskFormError("Default risk % must be between 0 and 100.");
-      return;
-    }
-    setRiskFormError(null);
-    setRiskSaved(false);
-    try {
-      await onSaveRiskRules(body);
-      setRiskSaved(true);
-    } catch {
-      setRiskFormError("Could not save risk rules.");
-    }
-  }
-
-  async function handleSaveChecklist() {
-    const next = checklistText
-      .split("\n")
-      .map((l) => l.trim())
-      .filter(Boolean);
-    setChecklistSaved(false);
-    try {
-      await onSaveChecklist(next);
-      setChecklistSaved(true);
-    } catch (err) {
-      toast.add({
-        title: "Could not save checklist",
-        description: err instanceof Error ? err.message : "Request failed",
-      });
-    }
-  }
 
   return (
     <>
@@ -791,58 +806,123 @@ export function RulesTab({
         ) : riskRulesError ? (
           <p className="text-[12px] text-loss">Failed to load risk rules.</p>
         ) : (
-          <div className="grid max-w-2xl grid-cols-1 gap-3 sm:grid-cols-2">
-            <SignalField label="Max risk / trade ($)" htmlFor="max-risk">
-              <SignalInput
-                id="max-risk"
-                inputMode="decimal"
-                value={maxRisk}
-                onChange={(e) => setMaxRisk(e.target.value)}
-                placeholder="e.g. 100"
-                aria-label="Max risk per trade"
-              />
-            </SignalField>
-            <SignalField label="Max daily loss ($)" htmlFor="max-daily">
-              <SignalInput
-                id="max-daily"
-                inputMode="decimal"
-                value={maxDaily}
-                onChange={(e) => setMaxDaily(e.target.value)}
-                placeholder="e.g. 300"
-                aria-label="Max daily loss"
-              />
-            </SignalField>
-            <SignalField label="Max open risk ($)" htmlFor="max-open">
-              <SignalInput
-                id="max-open"
-                inputMode="decimal"
-                value={maxOpen}
-                onChange={(e) => setMaxOpen(e.target.value)}
-                placeholder="e.g. 500"
-                aria-label="Max open risk"
-              />
-            </SignalField>
-            <SignalField label="Default account risk %" htmlFor="risk-pct">
-              <SignalInput
-                id="risk-pct"
-                inputMode="decimal"
-                value={riskPct}
-                onChange={(e) => setRiskPct(e.target.value)}
-                placeholder="e.g. 1"
-                aria-label="Default account risk percent"
-              />
-            </SignalField>
-          </div>
-        )}
-        <FormError message={riskFormError} />
-        {!riskRulesLoading && !riskRulesError && (
-          <div className="mt-4 flex items-center gap-3">
-            <BtnPrimary disabled={riskRulesSaving} onClick={() => void handleSaveRisk()}>
-              <Shield size={12} strokeWidth={1.5} />
-              {riskRulesSaving ? "Saving…" : "Save rules"}
-            </BtnPrimary>
-            <SavedBadge show={riskSaved} />
-          </div>
+          <form
+            className="grid max-w-2xl grid-cols-1 gap-3 sm:grid-cols-2"
+            onSubmit={(e) => {
+              e.preventDefault();
+              void riskForm.handleSubmit();
+            }}
+          >
+            <riskForm.Field
+              name="maxRisk"
+              validators={{
+                onBlur: ({ value }) => validateOptionalAmountField(value),
+              }}
+            >
+              {(field) => (
+                <SignalField
+                  label="Max risk / trade ($)"
+                  htmlFor="max-risk"
+                  error={fieldError(field.state.meta.errors)}
+                >
+                  <SignalAmountInput
+                    id="max-risk"
+                    value={field.state.value}
+                    onValueChange={field.handleChange}
+                    onBlur={field.handleBlur}
+                    placeholder="e.g. 100"
+                    aria-label="Max risk per trade"
+                  />
+                </SignalField>
+              )}
+            </riskForm.Field>
+            <riskForm.Field
+              name="maxDaily"
+              validators={{
+                onBlur: ({ value }) => validateOptionalAmountField(value),
+              }}
+            >
+              {(field) => (
+                <SignalField
+                  label="Max daily loss ($)"
+                  htmlFor="max-daily"
+                  error={fieldError(field.state.meta.errors)}
+                >
+                  <SignalAmountInput
+                    id="max-daily"
+                    value={field.state.value}
+                    onValueChange={field.handleChange}
+                    onBlur={field.handleBlur}
+                    placeholder="e.g. 300"
+                    aria-label="Max daily loss"
+                  />
+                </SignalField>
+              )}
+            </riskForm.Field>
+            <riskForm.Field
+              name="maxOpen"
+              validators={{
+                onBlur: ({ value }) => validateOptionalAmountField(value),
+              }}
+            >
+              {(field) => (
+                <SignalField
+                  label="Max open risk ($)"
+                  htmlFor="max-open"
+                  error={fieldError(field.state.meta.errors)}
+                >
+                  <SignalAmountInput
+                    id="max-open"
+                    value={field.state.value}
+                    onValueChange={field.handleChange}
+                    onBlur={field.handleBlur}
+                    placeholder="e.g. 500"
+                    aria-label="Max open risk"
+                  />
+                </SignalField>
+              )}
+            </riskForm.Field>
+            <riskForm.Field
+              name="riskPct"
+              validators={{
+                onBlur: ({ value }) => validateRiskPercent(value),
+                onSubmit: ({ value }) => validateRiskPercent(value),
+              }}
+            >
+              {(field) => (
+                <SignalField
+                  label="Default account risk %"
+                  htmlFor="risk-pct"
+                  error={fieldError(field.state.meta.errors)}
+                >
+                  <SignalAmountInput
+                    id="risk-pct"
+                    value={field.state.value}
+                    onValueChange={field.handleChange}
+                    onBlur={field.handleBlur}
+                    placeholder="e.g. 1"
+                    aria-label="Default account risk percent"
+                  />
+                </SignalField>
+              )}
+            </riskForm.Field>
+            <div className="col-span-full">
+              <riskForm.Subscribe selector={(s) => s.errorMap.onSubmit}>
+                {(submitErr) => (
+                  <FormError
+                    message={riskFormError ?? (typeof submitErr === "string" ? submitErr : null)}
+                  />
+                )}
+              </riskForm.Subscribe>
+              <div className="mt-4 flex items-center gap-3">
+                <BtnPrimary type="submit" disabled={riskRulesSaving}>
+                  <Shield size={12} strokeWidth={1.5} />
+                  {riskRulesSaving ? "Saving…" : "Save rules"}
+                </BtnPrimary>
+                <SavedBadge show={riskSaved} />
+              </div>
+            </div>
+          </form>
         )}
       </SettingsSection>
 
@@ -855,24 +935,34 @@ export function RulesTab({
         ) : checklistError ? (
           <p className="text-[12px] text-loss">Failed to load checklist template.</p>
         ) : (
-          <SignalField label="Checklist items" htmlFor="checklist-items">
-            <SignalTextarea
-              id="checklist-items"
-              aria-label="Daily checklist items"
-              value={checklistText}
-              onChange={(e) => setChecklistText(e.target.value)}
-              rows={5}
-              placeholder={"Check VIX\nNo revenge trades\nSize within risk"}
-            />
-          </SignalField>
-        )}
-        {!checklistLoading && !checklistError && (
-          <div className="mt-4 flex items-center gap-3">
-            <BtnPrimary disabled={checklistSaving} onClick={() => void handleSaveChecklist()}>
-              {checklistSaving ? "Saving…" : "Save checklist"}
-            </BtnPrimary>
-            <SavedBadge show={checklistSaved} />
-          </div>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              void checklistForm.handleSubmit();
+            }}
+          >
+            <checklistForm.Field name="text">
+              {(field) => (
+                <SignalField label="Checklist items" htmlFor="checklist-items">
+                  <SignalTextarea
+                    id="checklist-items"
+                    aria-label="Daily checklist items"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    rows={5}
+                    placeholder={"Check VIX\nNo revenge trades\nSize within risk"}
+                  />
+                </SignalField>
+              )}
+            </checklistForm.Field>
+            <div className="mt-4 flex items-center gap-3">
+              <BtnPrimary type="submit" disabled={checklistSaving}>
+                {checklistSaving ? "Saving…" : "Save checklist"}
+              </BtnPrimary>
+              <SavedBadge show={checklistSaved} />
+            </div>
+          </form>
         )}
       </SettingsSection>
     </>
@@ -910,17 +1000,41 @@ export function JournalTab({
 }: JournalTabProps) {
   const toast = useToastManager();
   const [showTagForm, setShowTagForm] = useState(false);
-  const [tagName, setTagName] = useState("");
-  const [tagColor, setTagColor] = useState("#6366f1");
-  const [tagKind, setTagKind] = useState("custom");
-  const [tagSaving, setTagSaving] = useState(false);
   const [tagFormError, setTagFormError] = useState<string | null>(null);
-
   const [showSetupForm, setShowSetupForm] = useState(false);
-  const [setupName, setSetupName] = useState("");
-  const [setupDescription, setSetupDescription] = useState("");
-  const [setupSaving, setSetupSaving] = useState(false);
   const [setupFormError, setSetupFormError] = useState<string | null>(null);
+
+  const tagForm = useForm({
+    defaultValues: defaultTagFormValues(),
+    onSubmit: async ({ value }) => {
+      setTagFormError(null);
+      try {
+        await onCreateTag({
+          name: value.name.trim(),
+          color: value.color,
+          kind: value.kind,
+        });
+        tagForm.reset(defaultTagFormValues());
+        setShowTagForm(false);
+      } catch {
+        setTagFormError("Failed to create tag.");
+      }
+    },
+  });
+
+  const setupForm = useForm({
+    defaultValues: defaultSetupFormValues(),
+    onSubmit: async ({ value }) => {
+      setSetupFormError(null);
+      try {
+        await onCreateSetup(value.name.trim(), value.description.trim());
+        setupForm.reset(defaultSetupFormValues());
+        setShowSetupForm(false);
+      } catch {
+        setSetupFormError("Failed to create setup.");
+      }
+    },
+  });
 
   async function handleDeleteTag(id: string) {
     const name = tags.find((tag) => tag.id === id)?.name ?? "Tag";
@@ -948,45 +1062,6 @@ export function JournalTab({
     }
   }
 
-  async function handleCreateTag() {
-    if (!tagName.trim()) {
-      setTagFormError("Name is required.");
-      return;
-    }
-    setTagSaving(true);
-    setTagFormError(null);
-    try {
-      await onCreateTag({ name: tagName.trim(), color: tagColor, kind: tagKind });
-      setTagName("");
-      setTagColor("#6366f1");
-      setTagKind("custom");
-      setShowTagForm(false);
-    } catch {
-      setTagFormError("Failed to create tag.");
-    } finally {
-      setTagSaving(false);
-    }
-  }
-
-  async function handleCreateSetup() {
-    if (!setupName.trim()) {
-      setSetupFormError("Name is required.");
-      return;
-    }
-    setSetupSaving(true);
-    setSetupFormError(null);
-    try {
-      await onCreateSetup(setupName.trim(), setupDescription.trim());
-      setSetupName("");
-      setSetupDescription("");
-      setShowSetupForm(false);
-    } catch {
-      setSetupFormError("Failed to create setup.");
-    } finally {
-      setSetupSaving(false);
-    }
-  }
-
   return (
     <>
       <SettingsSection
@@ -1001,55 +1076,89 @@ export function JournalTab({
       >
         {showTagForm && (
           <SettingsInsetForm>
-            <div className="flex flex-col gap-3">
+            <form
+              className="flex flex-col gap-3"
+              onSubmit={(e) => {
+                e.preventDefault();
+                void tagForm.handleSubmit();
+              }}
+            >
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                <SignalField label="Name" htmlFor="tag-name">
-                  <SignalInput
-                    id="tag-name"
-                    value={tagName}
-                    onChange={(e) => setTagName(e.target.value)}
-                    placeholder="e.g. FOMO"
-                  />
-                </SignalField>
-                <SignalField label="Color" htmlFor="tag-color">
-                  <input
-                    id="tag-color"
-                    type="color"
-                    value={tagColor}
-                    onChange={(e) => setTagColor(e.target.value)}
-                    className="h-8 w-full cursor-pointer rounded-control border-none bg-bg-input p-0.5"
-                  />
-                </SignalField>
-                <SignalField label="Kind">
-                  <SignalSelect
-                    value={tagKind}
-                    onValueChange={setTagKind}
-                    ariaLabel="Tag kind"
-                    options={[
-                      { value: "custom", label: "Custom" },
-                      { value: "mistake", label: "Mistake" },
-                    ]}
-                    triggerClassName="h-8 text-[12px]"
-                  />
-                </SignalField>
+                <tagForm.Field
+                  name="name"
+                  validators={{
+                    onBlur: ({ value }) => validateRequiredName(value),
+                    onSubmit: ({ value }) => validateRequiredName(value),
+                  }}
+                >
+                  {(field) => (
+                    <SignalField
+                      label="Name"
+                      htmlFor="tag-name"
+                      error={fieldError(field.state.meta.errors)}
+                    >
+                      <SignalInput
+                        id="tag-name"
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        placeholder="e.g. FOMO"
+                      />
+                    </SignalField>
+                  )}
+                </tagForm.Field>
+                <tagForm.Field name="color">
+                  {(field) => (
+                    <SignalField label="Color" htmlFor="tag-color">
+                      <input
+                        id="tag-color"
+                        type="color"
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        className="h-8 w-full cursor-pointer rounded-control border-none bg-bg-input p-0.5"
+                      />
+                    </SignalField>
+                  )}
+                </tagForm.Field>
+                <tagForm.Field name="kind">
+                  {(field) => (
+                    <SignalField label="Kind">
+                      <SignalSelect
+                        value={field.state.value}
+                        onValueChange={field.handleChange}
+                        ariaLabel="Tag kind"
+                        options={[
+                          { value: "custom", label: "Custom" },
+                          { value: "mistake", label: "Mistake" },
+                        ]}
+                        triggerClassName="h-8 text-[12px]"
+                      />
+                    </SignalField>
+                  )}
+                </tagForm.Field>
               </div>
               <FormError message={tagFormError} />
               <div className="flex items-center gap-2">
-                <BtnPrimary disabled={tagSaving} onClick={() => void handleCreateTag()}>
-                  <Check size={12} strokeWidth={1.5} />
-                  {tagSaving ? "Creating…" : "Create"}
-                </BtnPrimary>
+                <tagForm.Subscribe selector={(s) => s.isSubmitting}>
+                  {(tagSaving) => (
+                    <BtnPrimary type="submit" disabled={tagSaving}>
+                      <Check size={12} strokeWidth={1.5} />
+                      {tagSaving ? "Creating…" : "Create"}
+                    </BtnPrimary>
+                  )}
+                </tagForm.Subscribe>
                 <BtnGhost
                   onClick={() => {
                     setShowTagForm(false);
                     setTagFormError(null);
+                    tagForm.reset(defaultTagFormValues());
                   }}
                 >
                   <X size={12} strokeWidth={1.5} />
                   Cancel
                 </BtnGhost>
               </div>
-            </div>
+            </form>
           </SettingsInsetForm>
         )}
 
@@ -1104,40 +1213,71 @@ export function JournalTab({
       >
         {showSetupForm && (
           <SettingsInsetForm>
-            <div className="flex flex-col gap-3">
-              <SignalField label="Name" htmlFor="setup-name">
-                <SignalInput
-                  id="setup-name"
-                  value={setupName}
-                  onChange={(e) => setSetupName(e.target.value)}
-                  placeholder="e.g. ORB, VWAP Fade"
-                />
-              </SignalField>
-              <SignalField label="Description" htmlFor="setup-desc">
-                <SignalInput
-                  id="setup-desc"
-                  value={setupDescription}
-                  onChange={(e) => setSetupDescription(e.target.value)}
-                  placeholder="Optional notes"
-                />
-              </SignalField>
+            <form
+              className="flex flex-col gap-3"
+              onSubmit={(e) => {
+                e.preventDefault();
+                void setupForm.handleSubmit();
+              }}
+            >
+              <setupForm.Field
+                name="name"
+                validators={{
+                  onBlur: ({ value }) => validateRequiredName(value),
+                  onSubmit: ({ value }) => validateRequiredName(value),
+                }}
+              >
+                {(field) => (
+                  <SignalField
+                    label="Name"
+                    htmlFor="setup-name"
+                    error={fieldError(field.state.meta.errors)}
+                  >
+                    <SignalInput
+                      id="setup-name"
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      placeholder="e.g. ORB, VWAP Fade"
+                    />
+                  </SignalField>
+                )}
+              </setupForm.Field>
+              <setupForm.Field name="description">
+                {(field) => (
+                  <SignalField label="Description" htmlFor="setup-desc">
+                    <SignalInput
+                      id="setup-desc"
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      placeholder="Optional notes"
+                    />
+                  </SignalField>
+                )}
+              </setupForm.Field>
               <FormError message={setupFormError} />
               <div className="flex items-center gap-2">
-                <BtnPrimary disabled={setupSaving} onClick={() => void handleCreateSetup()}>
-                  <Check size={12} strokeWidth={1.5} />
-                  {setupSaving ? "Creating…" : "Create"}
-                </BtnPrimary>
+                <setupForm.Subscribe selector={(s) => s.isSubmitting}>
+                  {(setupSaving) => (
+                    <BtnPrimary type="submit" disabled={setupSaving}>
+                      <Check size={12} strokeWidth={1.5} />
+                      {setupSaving ? "Creating…" : "Create"}
+                    </BtnPrimary>
+                  )}
+                </setupForm.Subscribe>
                 <BtnGhost
                   onClick={() => {
                     setShowSetupForm(false);
                     setSetupFormError(null);
+                    setupForm.reset(defaultSetupFormValues());
                   }}
                 >
                   <X size={12} strokeWidth={1.5} />
                   Cancel
                 </BtnGhost>
               </div>
-            </div>
+            </form>
           </SettingsInsetForm>
         )}
 
@@ -1182,6 +1322,277 @@ export function JournalTab({
 // General
 // ---------------------------------------------------------------------------
 
+function VisionScanSection() {
+  const { locale } = useLocale();
+  const toast = useToastManager();
+  const { data, isLoading, isError } = useOcrSettings();
+  const save = useSaveOcrSettings();
+  const test = useTestOcrSettings();
+  const listModels = useListOcrModels();
+  const [saved, setSaved] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [modelOptions, setModelOptions] = useState<string[]>([]);
+  const hydratedRef = useRef(false);
+
+  const form = useForm({
+    defaultValues: ocrSettingsToFormValues({
+      enabled: false,
+      base_url: "https://api.openai.com/v1",
+      model: "gpt-4o-mini",
+      custom_prompt: "",
+      api_key_set: false,
+    }),
+    onSubmit: async ({ value }) => {
+      setFormError(null);
+      setSaved(false);
+      try {
+        const body = ocrSettingsPutBody(value);
+        await save.mutateAsync(body);
+        form.setFieldValue("enabled", body.enabled);
+        form.setFieldValue("base_url", body.base_url);
+        form.setFieldValue("model", body.model);
+        form.setFieldValue("custom_prompt", body.custom_prompt);
+        form.setFieldValue("api_key", "");
+        setSaved(true);
+      } catch (err) {
+        setFormError(err instanceof Error ? err.message : "Could not save vision settings.");
+      }
+    },
+  });
+
+  useEffect(() => {
+    if (!data || hydratedRef.current) return;
+    hydratedRef.current = true;
+    form.reset(ocrSettingsToFormValues(data));
+  }, [data]);
+
+  const onTest = async () => {
+    const draft = { ...form.state.values };
+    try {
+      setFormError(null);
+      const result = await test.mutateAsync(ocrSettingsTestBody(draft));
+
+      // Keep user-entered values even if background query updates occur.
+      form.setFieldValue("enabled", draft.enabled);
+      form.setFieldValue("base_url", draft.base_url);
+      form.setFieldValue("model", draft.model);
+      form.setFieldValue("custom_prompt", draft.custom_prompt);
+      form.setFieldValue("api_key", draft.api_key);
+
+      if (result.ok) {
+        toast.add({ title: "Connection OK", description: "Vision API responded." });
+      } else {
+        toast.add({
+          title: "Connection failed",
+          description: result.error || "Vision API rejected the request",
+        });
+      }
+    } catch (err) {
+      // Also restore values on failure so testing never clears user input.
+      form.setFieldValue("enabled", draft.enabled);
+      form.setFieldValue("base_url", draft.base_url);
+      form.setFieldValue("model", draft.model);
+      form.setFieldValue("custom_prompt", draft.custom_prompt);
+      form.setFieldValue("api_key", draft.api_key);
+
+      toast.add({
+        title: "Connection failed",
+        description: err instanceof Error ? err.message : "Request failed",
+      });
+    }
+  };
+
+  const onFetchModels = async () => {
+    try {
+      const value = form.state.values;
+      const result = await listModels.mutateAsync({
+        base_url: value.base_url.trim(),
+        ...(value.api_key.trim() ? { api_key: value.api_key.trim() } : {}),
+      });
+      if (result.error) {
+        toast.add({
+          title: settingsLabel(locale, "visionFetchModels"),
+          description: result.error,
+        });
+        return;
+      }
+      setModelOptions(result.models);
+      toast.add({
+        title: settingsLabel(locale, "visionFetchModels"),
+        description: `${result.models.length} models`,
+      });
+    } catch (err) {
+      toast.add({
+        title: settingsLabel(locale, "visionFetchModels"),
+        description: err instanceof Error ? err.message : "Request failed",
+      });
+    }
+  };
+
+  return (
+    <SettingsSection
+      title={settingsLabel(locale, "visionScan")}
+      footer={settingsLabel(locale, "visionScanFooter")}
+    >
+      {isLoading ? (
+        <Skeleton height="160px" />
+      ) : isError ? (
+        <p className="text-[12px] text-loss">Failed to load vision settings.</p>
+      ) : (
+        <form
+          className="flex flex-col gap-3"
+          onSubmit={(e) => {
+            e.preventDefault();
+            void form.handleSubmit();
+          }}
+        >
+          <SettingsGroup>
+            <form.Field name="enabled">
+              {(field) => (
+                <SettingsGroupRow label={settingsLabel(locale, "visionEnabled")} last>
+                  <SegmentedControl
+                    options={[
+                      { value: "off", label: settingsLabel(locale, "visionOff") },
+                      { value: "on", label: settingsLabel(locale, "visionOn") },
+                    ]}
+                    value={field.state.value ? "on" : "off"}
+                    onChange={(v) => field.handleChange(v === "on")}
+                  />
+                </SettingsGroupRow>
+              )}
+            </form.Field>
+          </SettingsGroup>
+          <form.Subscribe selector={(s) => s.values.enabled}>
+            {(enabled) => (
+              <fieldset
+                disabled={!enabled}
+                className={cn(
+                  "m-0 min-w-0 border-none p-0 transition-opacity duration-150",
+                  !enabled && "opacity-45",
+                )}
+              >
+                <SettingsGroup>
+                  <form.Field name="base_url">
+                    {(field) => (
+                      <SettingsGroupRow label={settingsLabel(locale, "visionBaseUrl")}>
+                        <div className="relative w-full min-w-[19.2rem]">
+                          <SignalInput
+                            value={field.state.value}
+                            onChange={(e) => field.handleChange(e.target.value)}
+                            placeholder="https://api.openai.com/v1"
+                            spellCheck={false}
+                            className="h-8 w-full pr-10 text-[12px]"
+                            aria-label={settingsLabel(locale, "visionBaseUrl")}
+                          />
+                          {field.state.value ? (
+                            <button
+                              type="button"
+                              className="absolute top-1/2 right-1 flex size-7 -translate-y-1/2 items-center justify-center rounded-control border-none bg-transparent text-text-dim transition-colors duration-150 hover:bg-bg-hover hover:text-text focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+                              aria-label="Clear base URL"
+                              onClick={() => field.handleChange("")}
+                            >
+                              <X size={13} strokeWidth={1.75} aria-hidden />
+                            </button>
+                          ) : null}
+                        </div>
+                      </SettingsGroupRow>
+                    )}
+                  </form.Field>
+                  <form.Field name="model">
+                    {(field) => (
+                      <SettingsGroupRow label={settingsLabel(locale, "visionModel")}>
+                        <ModelAutocomplete
+                          value={field.state.value}
+                          onValueChange={(next) => field.handleChange(next)}
+                          models={modelOptions}
+                          onFetchModels={() => void onFetchModels()}
+                          fetching={listModels.isPending}
+                          fetchLabel={
+                            listModels.isPending
+                              ? settingsLabel(locale, "visionFetchingModels")
+                              : settingsLabel(locale, "visionFetchModels")
+                          }
+                          placeholder="gpt-4o-mini"
+                          className="w-full min-w-[19.2rem]"
+                          inputClassName="h-8 w-full text-[12px]"
+                          ariaLabel={settingsLabel(locale, "visionModel")}
+                        />
+                      </SettingsGroupRow>
+                    )}
+                  </form.Field>
+                  <form.Field name="api_key">
+                    {(field) => (
+                      <SettingsGroupRow label={settingsLabel(locale, "visionApiKey")}>
+                        <div className="flex min-w-0 flex-col items-end gap-1">
+                          <SignalPasswordInput
+                            autoComplete="off"
+                            value={field.state.value}
+                            onChange={(e) => field.handleChange(e.target.value)}
+                            onClear={() => field.handleChange("")}
+                            placeholder={
+                              data?.api_key_set
+                                ? data.api_key_hint || settingsLabel(locale, "visionApiKeyHint")
+                                : "sk-…"
+                            }
+                            spellCheck={false}
+                            className="h-8 min-w-[19.2rem] text-[12px]"
+                            aria-label={settingsLabel(locale, "visionApiKey")}
+                            showLabel="Show API key"
+                            hideLabel="Hide API key"
+                            clearLabel="Clear API key"
+                          />
+                          {data?.api_key_set ? (
+                            <span className="text-[10px] text-text-dim">
+                              {settingsLabel(locale, "visionApiKeyHint")}
+                            </span>
+                          ) : null}
+                        </div>
+                      </SettingsGroupRow>
+                    )}
+                  </form.Field>
+                  <form.Field name="custom_prompt">
+                    {(field) => (
+                      <SettingsGroupRow
+                        label={settingsLabel(locale, "visionCustomPrompt")}
+                        detail={settingsLabel(locale, "visionCustomPromptHint")}
+                        last
+                      >
+                        <SignalTextarea
+                          value={field.state.value}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          placeholder={
+                            data?.default_prompt || settingsLabel(locale, "visionCustomPromptHint")
+                          }
+                          spellCheck={false}
+                          rows={8}
+                          className="min-h-[10rem] min-w-[19.2rem] whitespace-pre-wrap text-[11px] leading-snug"
+                          aria-label={settingsLabel(locale, "visionCustomPrompt")}
+                        />
+                      </SettingsGroupRow>
+                    )}
+                  </form.Field>
+                </SettingsGroup>
+              </fieldset>
+            )}
+          </form.Subscribe>
+          {formError ? <FormError message={formError} /> : null}
+          <div className="flex flex-wrap items-center gap-2">
+            <BtnPrimary type="submit" disabled={save.isPending}>
+              {save.isPending ? "Saving…" : settingsLabel(locale, "visionSave")}
+            </BtnPrimary>
+            <BtnGhost type="button" disabled={test.isPending} onClick={() => void onTest()}>
+              {test.isPending
+                ? settingsLabel(locale, "visionTesting")
+                : settingsLabel(locale, "visionTest")}
+            </BtnGhost>
+            <SavedBadge show={saved} />
+          </div>
+        </form>
+      )}
+    </SettingsSection>
+  );
+}
+
 export function GeneralTab() {
   const { locale, setLocale } = useLocale();
   const signOut = useAuth((s) => s.signOut);
@@ -1225,11 +1636,13 @@ export function GeneralTab() {
                 }
                 setMaxScreenshots(Number(raw));
               }}
-              className="h-8 w-[7.5rem] text-[12px]"
+              className="h-8 w-[9rem] text-[12px]"
             />
           </SettingsGroupRow>
         </SettingsGroup>
       </SettingsSection>
+
+      <VisionScanSection />
 
       <SettingsSection footer={settingsLabel(locale, "signOutFooter")}>
         <SettingsGroup>

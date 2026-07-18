@@ -92,8 +92,7 @@ describe("SettingsView", () => {
   it("marks the only account as primary and hides delete", async () => {
     renderSettings({ ...baseProps });
     expect(await screen.findByText("Primary")).toBeInTheDocument();
-    expect(screen.getByText(/Balance/)).toBeInTheDocument();
-    expect(screen.queryByText(/ledger/i)).not.toBeInTheDocument();
+    expect(screen.getByText("$10,000.00")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /delete main/i })).not.toBeInTheDocument();
   });
 

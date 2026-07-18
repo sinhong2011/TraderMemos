@@ -119,7 +119,23 @@ type SettingsLabelKey =
   | "screenshots"
   | "screenshotsFooter"
   | "maxScreenshots"
-  | "maxScreenshotsHint";
+  | "maxScreenshotsHint"
+  | "visionScan"
+  | "visionScanFooter"
+  | "visionEnabled"
+  | "visionBaseUrl"
+  | "visionModel"
+  | "visionFetchModels"
+  | "visionFetchingModels"
+  | "visionApiKey"
+  | "visionApiKeyHint"
+  | "visionCustomPrompt"
+  | "visionCustomPromptHint"
+  | "visionSave"
+  | "visionTest"
+  | "visionTesting"
+  | "visionOff"
+  | "visionOn";
 
 const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
   en: {
@@ -134,7 +150,7 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     journalTitle: "Journal metadata",
     journalDescription: "Tags and playbook setups used when logging trades.",
     generalTitle: "General",
-    generalDescription: "App preferences and localization.",
+    generalDescription: "Preferences, screenshot scan, and session.",
     language: "Language",
     languageFooter: "Interface language for TraderMemos.",
     languageSelector: "Language selector",
@@ -145,7 +161,24 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     screenshotsFooter:
       "Cap how many images can attach when logging a trade. Leave empty for no limit.",
     maxScreenshots: "Max per trade",
-    maxScreenshotsHint: "Empty = unlimited",
+    maxScreenshotsHint: "Unlimited",
+    visionScan: "Screenshot scan",
+    visionScanFooter:
+      "LLM vision extracts fills from broker screenshots in New Trade. Keys stay on the server.",
+    visionEnabled: "Enabled",
+    visionBaseUrl: "API base URL",
+    visionModel: "Model",
+    visionFetchModels: "Fetch models",
+    visionFetchingModels: "Fetching models…",
+    visionApiKey: "API key",
+    visionApiKeyHint: "Leave blank to keep current key",
+    visionCustomPrompt: "Custom prompt",
+    visionCustomPromptHint: "Leave blank to use the built-in fill extraction prompt",
+    visionSave: "Save",
+    visionTest: "Test",
+    visionTesting: "Testing…",
+    visionOff: "Off",
+    visionOn: "On",
   },
   "zh-HK": {
     accounts: "帳戶",
@@ -159,7 +192,7 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     journalTitle: "日誌元數據",
     journalDescription: "記錄交易時使用的標籤及策略庫設定。",
     generalTitle: "一般",
-    generalDescription: "應用程式偏好設定及本地化。",
+    generalDescription: "偏好設定、截圖掃描及工作階段。",
     language: "語言",
     languageFooter: "TraderMemos 的介面語言。",
     languageSelector: "語言選擇器",
@@ -169,7 +202,23 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     screenshots: "截圖",
     screenshotsFooter: "限制記錄交易時可附加的圖片數量。留空表示不限。",
     maxScreenshots: "每筆上限",
-    maxScreenshotsHint: "留空 = 不限",
+    maxScreenshotsHint: "不限",
+    visionScan: "截圖掃描",
+    visionScanFooter: "以 LLM 視覺從券商截圖擷取成交，供 New Trade 使用。金鑰只保存在伺服器。",
+    visionEnabled: "啟用",
+    visionBaseUrl: "API 位址",
+    visionModel: "模型",
+    visionFetchModels: "擷取模型",
+    visionFetchingModels: "擷取模型中…",
+    visionApiKey: "API 金鑰",
+    visionApiKeyHint: "留空表示保留現有金鑰",
+    visionCustomPrompt: "自訂提示詞",
+    visionCustomPromptHint: "留空則使用內建成交擷取提示詞",
+    visionSave: "儲存",
+    visionTest: "測試",
+    visionTesting: "測試中…",
+    visionOff: "關",
+    visionOn: "開",
   },
   ja: {
     accounts: "アカウント",
@@ -183,7 +232,7 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     journalTitle: "ジャーナルメタデータ",
     journalDescription: "トレード記録時に使うタグとプレイブックセットアップ。",
     generalTitle: "一般",
-    generalDescription: "アプリの設定とローカライズ。",
+    generalDescription: "設定、スクショ解析、セッション。",
     language: "言語",
     languageFooter: "TraderMemos の表示言語。",
     languageSelector: "言語セレクター",
@@ -193,7 +242,24 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     screenshots: "スクリーンショット",
     screenshotsFooter: "トレード記録時に添付できる画像数の上限です。空欄は無制限です。",
     maxScreenshots: "1件あたり上限",
-    maxScreenshotsHint: "空欄 = 無制限",
+    maxScreenshotsHint: "無制限",
+    visionScan: "スクショ解析",
+    visionScanFooter:
+      "LLM ビジョンで証券会社のスクショから約定を抽出し、New Trade に反映します。キーはサーバーのみに保存されます。",
+    visionEnabled: "有効",
+    visionBaseUrl: "API ベース URL",
+    visionModel: "モデル",
+    visionFetchModels: "モデルを取得",
+    visionFetchingModels: "モデル取得中…",
+    visionApiKey: "API キー",
+    visionApiKeyHint: "空欄で既存キーを維持",
+    visionCustomPrompt: "カスタムプロンプト",
+    visionCustomPromptHint: "空欄で標準の約定抽出プロンプトを使用",
+    visionSave: "保存",
+    visionTest: "テスト",
+    visionTesting: "テスト中…",
+    visionOff: "オフ",
+    visionOn: "オン",
   },
   ko: {
     accounts: "계정",
@@ -207,7 +273,7 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     journalTitle: "저널 메타데이터",
     journalDescription: "거래 기록 시 사용하는 태그와 플레이북 셋업.",
     generalTitle: "일반",
-    generalDescription: "앱 환경설정 및 현지화.",
+    generalDescription: "환경설정, 스크린샷 스캔, 세션.",
     language: "언어",
     languageFooter: "TraderMemos 인터페이스 언어입니다.",
     languageSelector: "언어 선택",
@@ -217,7 +283,24 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     screenshots: "스크린샷",
     screenshotsFooter: "거래 기록 시 첨부할 수 있는 이미지 수 한도입니다. 비우면 제한 없음.",
     maxScreenshots: "거래당 최대",
-    maxScreenshotsHint: "비움 = 무제한",
+    maxScreenshotsHint: "무제한",
+    visionScan: "스크린샷 스캔",
+    visionScanFooter:
+      "LLM 비전으로 브로커 스크린샷에서 체결을 추출해 New Trade에 채웁니다. 키는 서버에만 저장됩니다.",
+    visionEnabled: "사용",
+    visionBaseUrl: "API 베이스 URL",
+    visionModel: "모델",
+    visionFetchModels: "모델 가져오기",
+    visionFetchingModels: "모델 가져오는 중…",
+    visionApiKey: "API 키",
+    visionApiKeyHint: "비우면 기존 키 유지",
+    visionCustomPrompt: "커스텀 프롬프트",
+    visionCustomPromptHint: "비우면 기본 체결 추출 프롬프트 사용",
+    visionSave: "저장",
+    visionTest: "테스트",
+    visionTesting: "테스트 중…",
+    visionOff: "끔",
+    visionOn: "켬",
   },
 };
 
