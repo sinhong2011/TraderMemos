@@ -66,7 +66,50 @@ describe("metricEvolution", () => {
     expect(points[1].cumulativePnl).toBe(80);
   });
 
+  it("computes profitFactor, expectancy, and avgPnlPerTrade per bucket", () => {
+    const trades = [
+      trade({ id: "1", closed_at: "2026-07-01T12:00:00Z", net_pnl: 100 }),
+      trade({ id: "2", closed_at: "2026-07-01T14:00:00Z", net_pnl: -40 }),
+      trade({ id: "3", closed_at: "2026-07-02T12:00:00Z", net_pnl: 20 }),
+    ];
+    const points = metricEvolution(trades, "day");
+    expect(points[0].profitFactor).toBeCloseTo(2.5);
+    expect(points[0].expectancy).toBeCloseTo(30);
+    expect(points[0].avgPnlPerTrade).toBeCloseTo(30);
+    expect(points[1].profitFactor).toBeCloseTo(3);
+    expect(points[1].expectancy).toBeCloseTo(26.67);
+    expect(points[1].avgPnlPerTrade).toBeCloseTo(26.67);
+  });
+
   it("returns an empty array with no closed trades", () => {
     expect(metricEvolution([trade({ status: "open", net_pnl: null })], "day")).toEqual([]);
+  });
+});
+
+describe("metricEvolution week/month bucketing", () => {
+  it("aligns week buckets to Monday", () => {
+    const trades = [
+      trade({ id: "1", closed_at: "2026-07-01T12:00:00Z", net_pnl: 10 }),
+      trade({ id: "2", closed_at: "2026-07-08T12:00:00Z", net_pnl: 10 }),
+    ];
+    const points = metricEvolution(trades, "week");
+    expect(points).toHaveLength(2);
+    for (const p of points) {
+      expect(new Date(p.bucket).getUTCDay()).toBe(1); // Monday
+    }
+    expect(points[0].bucket).not.toBe(points[1].bucket);
+  });
+
+  it("groups trades within the same calendar month into one bucket", () => {
+    const trades = [
+      trade({ id: "1", closed_at: "2026-07-01T12:00:00Z", net_pnl: 10 }),
+      trade({ id: "2", closed_at: "2026-07-28T12:00:00Z", net_pnl: 10 }),
+      trade({ id: "3", closed_at: "2026-08-01T12:00:00Z", net_pnl: 10 }),
+    ];
+    const points = metricEvolution(trades, "month");
+    expect(points).toHaveLength(2);
+    expect(points[0].bucket).toBe("2026-07-01");
+    expect(points[1].bucket).toBe("2026-08-01");
+    expect(points[0].cumulativePnl).toBe(20);
   });
 });
