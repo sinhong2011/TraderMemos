@@ -1,4 +1,4 @@
-import type { Trade } from "./api/types";
+import type { EquityPoint, Trade } from "./api/types";
 import { chronologicalClosed } from "./dashboardInsights";
 
 export interface RollingWinRatePoint {
@@ -106,4 +106,48 @@ export function metricEvolution(
     });
   }
   return points;
+}
+
+export interface DrawdownPoint {
+  at: string;
+  drawdownPct: number;
+}
+
+/** Running peak vs. each equity point, as a fraction (negative or zero). */
+export function drawdownSeries(points: EquityPoint[]): DrawdownPoint[] {
+  let peak = -Infinity;
+  return points.map((p) => {
+    if (p.equity > peak) peak = p.equity;
+    const drawdownPct = peak > 0 ? (p.equity - peak) / peak : 0;
+    return { at: p.at, drawdownPct };
+  });
+}
+
+export function currentDrawdownPct(points: EquityPoint[]): number {
+  const series = drawdownSeries(points);
+  return series.length > 0 ? series[series.length - 1].drawdownPct : 0;
+}
+
+export function maxDrawdownPct(points: EquityPoint[]): number {
+  const series = drawdownSeries(points);
+  return series.reduce((min, p) => Math.min(min, p.drawdownPct), 0);
+}
+
+export interface AvgRiskPerTrade {
+  avg: number | null;
+  included: number;
+  excluded: number;
+}
+
+/** Average planned risk ($) across trades with a stop set (`initial_risk`). */
+export function avgRiskPerTrade(trades: Trade[]): AvgRiskPerTrade {
+  const withRisk = trades.filter((t) => t.initial_risk != null && t.initial_risk > 0);
+  const excluded = trades.length - withRisk.length;
+  if (withRisk.length === 0) return { avg: null, included: 0, excluded };
+  const sum = withRisk.reduce((acc, t) => acc + (t.initial_risk ?? 0), 0);
+  return {
+    avg: Math.round((sum / withRisk.length) * 100) / 100,
+    included: withRisk.length,
+    excluded,
+  };
 }

@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vite-plus/test";
-import type { Trade } from "./api/types";
-import { metricEvolution, rollingWinRate } from "./reportsAnalytics";
+import type { EquityPoint, Trade } from "./api/types";
+import {
+  avgRiskPerTrade,
+  currentDrawdownPct,
+  drawdownSeries,
+  maxDrawdownPct,
+  metricEvolution,
+  rollingWinRate,
+} from "./reportsAnalytics";
 
 function trade(over: Partial<Trade>): Trade {
   return {
@@ -111,5 +118,83 @@ describe("metricEvolution week/month bucketing", () => {
     expect(points[0].bucket).toBe("2026-07-01");
     expect(points[1].bucket).toBe("2026-08-01");
     expect(points[0].cumulativePnl).toBe(20);
+  });
+});
+
+describe("drawdownSeries", () => {
+  it("tracks running peak-to-trough drawdown as a fraction", () => {
+    const points: EquityPoint[] = [
+      { at: "2026-07-01T00:00:00Z", equity: 1000 },
+      { at: "2026-07-02T00:00:00Z", equity: 1200 },
+      { at: "2026-07-03T00:00:00Z", equity: 900 },
+      { at: "2026-07-04T00:00:00Z", equity: 1100 },
+    ];
+    const series = drawdownSeries(points);
+    expect(series[0].drawdownPct).toBe(0);
+    expect(series[1].drawdownPct).toBe(0);
+    expect(series[2].drawdownPct).toBeCloseTo((900 - 1200) / 1200);
+    expect(series[3].drawdownPct).toBeCloseTo((1100 - 1200) / 1200);
+  });
+
+  it("reports current and max drawdown from the same series", () => {
+    const points: EquityPoint[] = [
+      { at: "2026-07-01T00:00:00Z", equity: 1000 },
+      { at: "2026-07-02T00:00:00Z", equity: 1200 },
+      { at: "2026-07-03T00:00:00Z", equity: 900 },
+    ];
+    expect(maxDrawdownPct(points)).toBeCloseTo((900 - 1200) / 1200);
+    expect(currentDrawdownPct(points)).toBeCloseTo((900 - 1200) / 1200);
+  });
+
+  it("returns 0 for an empty series", () => {
+    expect(currentDrawdownPct([])).toBe(0);
+    expect(maxDrawdownPct([])).toBe(0);
+  });
+});
+
+describe("avgRiskPerTrade", () => {
+  function trade(over: Partial<Trade>): Trade {
+    return {
+      id: "t1",
+      account_id: "a1",
+      symbol: "NQ",
+      instrument_type: "future",
+      direction: "long",
+      status: "closed",
+      opened_at: "2026-07-01T10:00:00Z",
+      closed_at: "2026-07-01T11:00:00Z",
+      qty_opened: 1,
+      qty_remaining: 0,
+      avg_entry_price: 100,
+      avg_exit_price: 110,
+      gross_pnl: 10,
+      fees_total: 0,
+      net_pnl: 10,
+      pnl_currency: "USD",
+      return_pct: 0.1,
+      time_in_trade_secs: 3600,
+      notes: "",
+      tags: [],
+      ...over,
+    };
+  }
+
+  it("averages only trades with a positive initial_risk", () => {
+    const trades = [
+      trade({ id: "1", initial_risk: 100 }),
+      trade({ id: "2", initial_risk: 200 }),
+      trade({ id: "3", initial_risk: null }),
+    ];
+    const result = avgRiskPerTrade(trades);
+    expect(result.avg).toBe(150);
+    expect(result.included).toBe(2);
+    expect(result.excluded).toBe(1);
+  });
+
+  it("returns null avg when no trades have risk set", () => {
+    const result = avgRiskPerTrade([trade({ id: "1", initial_risk: null })]);
+    expect(result.avg).toBeNull();
+    expect(result.included).toBe(0);
+    expect(result.excluded).toBe(1);
   });
 });
