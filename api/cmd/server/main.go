@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 	"path/filepath"
@@ -44,14 +45,19 @@ func main() {
 		logger.Info("market data enabled", "provider", provider.Name())
 	}
 	var ocrSvc *ocr.Service
-	if cfg.OCREnabled {
-		provider, err := ocr.NewProvider(cfg.OCRProvider, cfg.OCRLang)
-		if err != nil {
-			logger.Warn("ocr disabled", "err", err)
-		} else {
-			ocrSvc = ocr.NewService(provider)
-			logger.Info("ocr enabled", "provider", provider.Name(), "lang", cfg.OCRLang)
-		}
+	defaults := ocr.VisionConfig{
+		Enabled: cfg.OCREnabled,
+		BaseURL: cfg.OCRVisionBaseURL,
+		APIKey:  cfg.OCRVisionAPIKey,
+		Model:   cfg.OCRVisionModel,
+	}
+	ocrSvc = ocr.NewService(defaults, func(ctx context.Context) (ocr.VisionConfig, bool, error) {
+		return api.LoadOcrVisionOverlay(ctx, q)
+	})
+	if defaults.Ready() {
+		logger.Info("ocr vision env defaults ready", "model", cfg.OCRVisionModel, "base_url", cfg.OCRVisionBaseURL)
+	} else if cfg.OCREnabled {
+		logger.Warn("ocr env incomplete — configure in Settings → General or set TM_OCR_VISION_*")
 	}
 	s := api.New(api.Deps{
 		JWTSecret:      cfg.JWTSecret,

@@ -21,21 +21,7 @@ import (
 	"github.com/tradermemos/api/internal/trades"
 )
 
-type stubOCRProvider struct {
-	text string
-	err  error
-}
-
-func (s stubOCRProvider) Name() string { return "stub" }
-
-func (s stubOCRProvider) ExtractText(_ context.Context, _ []byte, _ string) (string, error) {
-	if s.err != nil {
-		return "", s.err
-	}
-	return s.text, nil
-}
-
-func testServerWithOCR(t *testing.T, provider ocr.Provider) *api.Server {
+func testServerWithOCR(t *testing.T, vision ocr.VisionConfig) *api.Server {
 	t.Helper()
 	conn, err := db.Open(filepath.Join(t.TempDir(), "t.db"))
 	require.NoError(t, err)
@@ -48,16 +34,29 @@ func testServerWithOCR(t *testing.T, provider ocr.Provider) *api.Server {
 		Storage: storage.NewLocalDisk(filepath.Join(t.TempDir(), "attach")), AttachMaxBytes: 10 << 20,
 		OCRMaxBytes: 10 << 20,
 		Market:      market,
-		OCR:         ocr.NewService(provider),
+		OCR: ocr.NewService(vision, func(ctx context.Context) (ocr.VisionConfig, bool, error) {
+			return api.LoadOcrVisionOverlay(ctx, q)
+		}),
 	})
 }
 
 func TestOCRParse_prefillsExtract(t *testing.T) {
-	s := testServerWithOCR(t, stubOCRProvider{text: `Symbol: AAPL
-BUY 10 @ 185.50
-Commission: 1.00
-2024-01-15 10:30:00
-`})
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"choices": []any{
+				map[string]any{
+					"message": map[string]any{
+						"content": `{"symbol":"AAPL","instrument_type":"stock","side":"long","rows":[{"symbol":"AAPL","side":"buy","quantity":10,"price":185.5,"fees":1}],"warnings":[]}`,
+					},
+				},
+			},
+		})
+	}))
+	defer srv.Close()
+
+	s := testServerWithOCR(t, ocr.VisionConfig{
+		Enabled: true, BaseURL: srv.URL, APIKey: "k", HTTPClient: srv.Client(),
+	})
 	tok := registerAndLogin(t, s, "ocr@example.com")
 
 	var buf bytes.Buffer
@@ -85,8 +84,8 @@ Commission: 1.00
 	require.Equal(t, 185.50, out.Rows[0].Price)
 }
 
-func TestOCRParse_unavailableWithoutService(t *testing.T) {
-	s := testServer(t)
+func TestOCRParse_unavailableWithoutReadyConfig(t *testing.T) {
+	s := testServerWithOCR(t, ocr.VisionConfig{})
 	tok := registerAndLogin(t, s, "ocr-off@example.com")
 
 	var buf bytes.Buffer
@@ -103,4 +102,90 @@ func TestOCRParse_unavailableWithoutService(t *testing.T) {
 	rec := httptest.NewRecorder()
 	s.Echo.ServeHTTP(rec, req)
 	require.Equal(t, http.StatusServiceUnavailable, rec.Code)
+}
+
+func TestOCRParse_surfacesUpstreamError(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusBadGateway)
+		_, _ = w.Write([]byte("Hello from gateway"))
+	}))
+	defer srv.Close()
+
+	s := testServerWithOCR(t, ocr.VisionConfig{
+		Enabled: true, BaseURL: srv.URL, APIKey: "k", HTTPClient: srv.Client(),
+	})
+	tok := registerAndLogin(t, s, "ocr-err@example.com")
+
+	var buf bytes.Buffer
+	w := multipart.NewWriter(&buf)
+	fw, err := w.CreateFormFile("file", "fill.png")
+	require.NoError(t, err)
+	_, err = fw.Write([]byte("fake"))
+	require.NoError(t, err)
+	require.NoError(t, w.Close())
+
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/ocr/parse", &buf)
+	req.Header.Set("Content-Type", w.FormDataContentType())
+	req.Header.Set("Authorization", "Bearer "+tok)
+	rec := httptest.NewRecorder()
+	s.Echo.ServeHTTP(rec, req)
+	require.Equal(t, http.StatusBadGateway, rec.Code)
+	require.Contains(t, rec.Body.String(), "ocr_failed")
+	require.Contains(t, rec.Body.String(), "Hello from gateway")
+}
+
+func TestOCRSettings_roundTripAndMask(t *testing.T) {
+	s := testServerWithOCR(t, ocr.VisionConfig{
+		Enabled: false,
+		BaseURL: "https://api.openai.com/v1",
+		Model:   "gpt-4o-mini",
+	})
+	tok := registerAndLogin(t, s, "ocr-settings@example.com")
+
+	rec := do(s, http.MethodGet, "/api/v1/settings/ocr", "", tok)
+	require.Equal(t, http.StatusOK, rec.Code)
+	var got map[string]any
+	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &got))
+	require.Equal(t, false, got["enabled"])
+	require.Equal(t, false, got["api_key_set"])
+
+	body := `{"enabled":true,"base_url":"https://vision.example/v1","model":"gpt-4o-mini","api_key":"sk-secret-key-9999"}`
+	rec = do(s, http.MethodPut, "/api/v1/settings/ocr", body, tok)
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &got))
+	require.Equal(t, true, got["enabled"])
+	require.Equal(t, true, got["api_key_set"])
+	require.Equal(t, "…9999", got["api_key_hint"])
+	require.NotContains(t, rec.Body.String(), "sk-secret-key-9999")
+
+	// Empty api_key keeps existing.
+	body = `{"enabled":true,"base_url":"https://vision.example/v1","model":"gpt-4o","api_key":""}`
+	rec = do(s, http.MethodPut, "/api/v1/settings/ocr", body, tok)
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &got))
+	require.Equal(t, "gpt-4o", got["model"])
+	require.Equal(t, true, got["api_key_set"])
+	require.Equal(t, "…9999", got["api_key_hint"])
+}
+
+func TestOCRSettings_testConnection(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/models" {
+			t.Fatalf("path: %s", r.URL.Path)
+		}
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"data": []any{map[string]any{"id": "gpt-4o-mini"}},
+		})
+	}))
+	defer srv.Close()
+
+	s := testServerWithOCR(t, ocr.VisionConfig{})
+	tok := registerAndLogin(t, s, "ocr-test@example.com")
+
+	body := `{"base_url":"` + srv.URL + `","model":"gpt-4o-mini","api_key":"k"}`
+	rec := do(s, http.MethodPost, "/api/v1/settings/ocr/test", body, tok)
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+	var got map[string]any
+	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &got))
+	require.Equal(t, true, got["ok"])
 }

@@ -104,6 +104,16 @@ type MarketBarsCache struct {
 	ExpiresAt sql.NullString `json:"expires_at"`
 }
 
+type OcrSetting struct {
+	ID           int64     `json:"id"`
+	Enabled      int64     `json:"enabled"`
+	BaseUrl      string    `json:"base_url"`
+	ApiKey       string    `json:"api_key"`
+	Model        string    `json:"model"`
+	UpdatedAt    time.Time `json:"updated_at"`
+	CustomPrompt string    `json:"custom_prompt"`
+}
+
 type RiskRule struct {
 	UserID                string          `json:"user_id"`
 	MaxRiskPerTrade       sql.NullFloat64 `json:"max_risk_per_trade"`

@@ -13,6 +13,10 @@ import (
 func (s *Server) settingsRoutes(g *echo.Group) {
 	g.GET("/settings/risk-rules", s.handleGetRiskRules)
 	g.PUT("/settings/risk-rules", s.handlePutRiskRules)
+	g.GET("/settings/ocr", s.handleGetOcrSettings)
+	g.PUT("/settings/ocr", s.handlePutOcrSettings)
+	g.POST("/settings/ocr/test", s.handleTestOcrSettings)
+	g.POST("/settings/ocr/models", s.handleListOcrModels)
 }
 
 type riskRulesDTO struct {

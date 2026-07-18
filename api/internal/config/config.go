@@ -20,9 +20,10 @@ type Config struct {
 	MarketDataAPIKey   string
 	MarketDataEnabled  bool
 	OCREnabled         bool
-	OCRProvider        string
-	OCRLang            string
 	OCRMaxBytes        int64
+	OCRVisionBaseURL   string
+	OCRVisionAPIKey    string
+	OCRVisionModel     string
 }
 
 func Load() (Config, error) {
@@ -37,10 +38,11 @@ func Load() (Config, error) {
 		"import_max_bytes":     int64(10 << 20),
 		"market_data_provider": "yahoo",
 		"market_data_enabled":  true,
-		"ocr_enabled":          true,
-		"ocr_provider":         "tesseract",
-		"ocr_lang":             "eng",
+		"ocr_enabled":          false,
 		"ocr_max_bytes":        int64(10 << 20),
+		"ocr_vision_base_url":  "https://api.openai.com/v1",
+		"ocr_vision_api_key":   "",
+		"ocr_vision_model":     "gpt-4o-mini",
 	}, "."), nil)
 
 	// TM_HTTP_PORT -> http_port
@@ -60,8 +62,9 @@ func Load() (Config, error) {
 		MarketDataAPIKey:   k.String("market_data_api_key"),
 		MarketDataEnabled:  k.Bool("market_data_enabled"),
 		OCREnabled:         k.Bool("ocr_enabled"),
-		OCRProvider:        k.String("ocr_provider"),
-		OCRLang:            k.String("ocr_lang"),
 		OCRMaxBytes:        k.Int64("ocr_max_bytes"),
+		OCRVisionBaseURL:   k.String("ocr_vision_base_url"),
+		OCRVisionAPIKey:    k.String("ocr_vision_api_key"),
+		OCRVisionModel:     k.String("ocr_vision_model"),
 	}, nil
 }

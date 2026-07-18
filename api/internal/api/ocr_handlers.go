@@ -59,7 +59,11 @@ func (s *Server) handleOCRParse(c echo.Context) error {
 			return Fail(http.StatusServiceUnavailable, "unavailable", "ocr not available", nil)
 		}
 		s.logger.Warn("ocr parse failed", "err", err)
-		return Fail(http.StatusBadGateway, "ocr_failed", "could not extract text from image", nil)
+		msg := strings.TrimSpace(err.Error())
+		if msg == "" {
+			msg = "could not extract fills from image"
+		}
+		return Fail(http.StatusBadGateway, "ocr_failed", msg, nil)
 	}
 	if out.Rows == nil {
 		out.Rows = []ocr.ExtractedFill{}

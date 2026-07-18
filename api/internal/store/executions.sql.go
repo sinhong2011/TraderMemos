@@ -106,6 +106,40 @@ func (q *Queries) GetExecution(ctx context.Context, arg GetExecutionParams) (Exe
 	return i, err
 }
 
+const getExecutionByDedup = `-- name: GetExecutionByDedup :one
+SELECT id, user_id, account_id, external_id, symbol, instrument_type, side, quantity, price, fees, commission, executed_at, multiplier, details, import_batch_id, dedup_hash, created_at FROM executions WHERE account_id = ? AND dedup_hash = ? LIMIT 1
+`
+
+type GetExecutionByDedupParams struct {
+	AccountID string `json:"account_id"`
+	DedupHash string `json:"dedup_hash"`
+}
+
+func (q *Queries) GetExecutionByDedup(ctx context.Context, arg GetExecutionByDedupParams) (Execution, error) {
+	row := q.db.QueryRowContext(ctx, getExecutionByDedup, arg.AccountID, arg.DedupHash)
+	var i Execution
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.AccountID,
+		&i.ExternalID,
+		&i.Symbol,
+		&i.InstrumentType,
+		&i.Side,
+		&i.Quantity,
+		&i.Price,
+		&i.Fees,
+		&i.Commission,
+		&i.ExecutedAt,
+		&i.Multiplier,
+		&i.Details,
+		&i.ImportBatchID,
+		&i.DedupHash,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const insertExecution = `-- name: InsertExecution :one
 INSERT INTO executions (id, user_id, account_id, external_id, symbol, instrument_type, side,
     quantity, price, fees, commission, executed_at, multiplier, details, import_batch_id, dedup_hash)

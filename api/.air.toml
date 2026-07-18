@@ -3,7 +3,6 @@ tmp_dir = "tmp"
 env_files = [".env"]
 
 [build]
-  # Resolves Homebrew tesseract/leptonica paths; falls back to no-OCR if missing.
   cmd = "./scripts/build-dev.sh ./tmp/server"
   entrypoint = "./tmp/server"
   include_ext = ["go", "tpl", "tmpl", "html", "sql"]

@@ -6,6 +6,9 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING *;
 -- name: GetExecution :one
 SELECT * FROM executions WHERE id = ? AND user_id = ?;
 
+-- name: GetExecutionByDedup :one
+SELECT * FROM executions WHERE account_id = ? AND dedup_hash = ? LIMIT 1;
+
 -- name: UpdateExecution :execrows
 UPDATE executions
 SET side = ?,
