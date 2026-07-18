@@ -11,6 +11,7 @@ import { SignalDateTimePicker } from "../../components/SignalDateTimePicker";
 import { SignalField } from "../../components/SignalField";
 import { SignalInput, SignalTextarea } from "../../components/SignalInput";
 import { SignalSelect } from "../../components/SignalSelect";
+import { SignalToggle } from "../../components/SignalToggle";
 import { JournalScreenshotUpload } from "../../components/JournalScreenshotUpload";
 import { Skeleton } from "../../components/Skeleton";
 import { GradeControl } from "../../components/GradeControl";
@@ -701,22 +702,15 @@ function TagChipGroup({
       {tags.map((tag) => {
         const active = selected.includes(tag.id);
         return (
-          <button
+          <SignalToggle
             key={tag.id}
-            type="button"
-            aria-pressed={active}
-            onClick={() => onToggle(tag.id)}
-            className={cn(
-              "h-7 cursor-pointer rounded-control border px-2.5 text-[11px] font-medium transition-colors duration-150",
-              active
-                ? tone === "accent"
-                  ? "border-accent/40 bg-accent-bg text-accent"
-                  : "border-loss/40 bg-tint-neg text-loss"
-                : "border-border bg-transparent text-text-muted hover:bg-bg-hover hover:text-text",
-            )}
+            pressed={active}
+            tone={tone}
+            onPressedChange={() => onToggle(tag.id)}
+            aria-label={tag.name}
           >
             {tag.name}
-          </button>
+          </SignalToggle>
         );
       })}
     </div>
@@ -861,17 +855,9 @@ export function JournalPanel({
               const idx = form.setup_ids.indexOf(s.id);
               const on = idx >= 0;
               return (
-                <button
-                  key={s.id}
-                  type="button"
-                  onClick={() => toggleSetup(s.id)}
-                  className="cursor-pointer border-none bg-transparent p-0"
-                  aria-pressed={on}
-                >
-                  <Pill tone={on ? "accent" : "muted"}>
-                    {on && idx === 0 ? `${s.name} · main` : s.name}
-                  </Pill>
-                </button>
+                <SignalToggle key={s.id} pressed={on} onPressedChange={() => toggleSetup(s.id)}>
+                  {on && idx === 0 ? `${s.name} · main` : s.name}
+                </SignalToggle>
               );
             })}
           </div>
@@ -886,14 +872,14 @@ export function JournalPanel({
           {TRADE_SESSIONS.map((s) => {
             const on = form.session === s;
             return (
-              <button
+              <SignalToggle
                 key={s}
-                type="button"
-                onClick={() => setForm((f) => ({ ...f, session: on ? "" : s }))}
-                className="cursor-pointer border-none bg-transparent p-0"
+                pressed={on}
+                onPressedChange={() => setForm((f) => ({ ...f, session: on ? "" : s }))}
+                aria-label={`Session ${s}`}
               >
-                <Pill tone={on ? "accent" : "muted"}>{s}</Pill>
-              </button>
+                {s}
+              </SignalToggle>
             );
           })}
         </div>
