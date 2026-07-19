@@ -116,5 +116,8 @@ describe("ReportsView", () => {
     // plain text match would ambiguously match alongside the StatCard labels.
     expect(screen.getByText("Profit Factor", { selector: "span" })).toBeInTheDocument();
     expect(screen.getByText("Expectancy", { selector: "span" })).toBeInTheDocument();
+    expect(screen.getByText("Performance")).toBeInTheDocument();
+    expect(screen.getByText("Trade Quality")).toBeInTheDocument();
+    expect(screen.getByText("Behavior & Costs")).toBeInTheDocument();
   });
 });
