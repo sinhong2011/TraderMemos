@@ -78,4 +78,29 @@ describe("ReportsRDistributionChart", () => {
     );
     expect(screen.getByText("No R data")).toBeInTheDocument();
   });
+
+  it("shows an empty state with zero R-eligible trades, even with populated zero-count buckets", () => {
+    // The backend always returns all 6 buckets (defaultRBuckets), even when
+    // no trade is R-eligible — distribution.length is never 0 in practice.
+    // totalTrades <= 0 (not distribution.length) is what should gate the
+    // empty state, matching ReportsRMultiplePerformance's `included <= 0`.
+    render(
+      <ReportsRDistributionChart
+        distribution={[
+          { label: "< -2R", count: 0, from: -1e9, to: -2 },
+          { label: "-2R to -1R", count: 0, from: -2, to: -1 },
+          { label: "-1R to 0", count: 0, from: -1, to: 0 },
+          { label: "0 to 1R", count: 0, from: 0, to: 1 },
+          { label: "1R to 2R", count: 0, from: 1, to: 2 },
+          { label: "≥ 2R", count: 0, from: 2, to: 1e9 },
+        ]}
+        avgR={0}
+        totalTrades={0}
+        excluded={26}
+        loading={false}
+        error={false}
+      />,
+    );
+    expect(screen.getByText("No R data")).toBeInTheDocument();
+  });
 });

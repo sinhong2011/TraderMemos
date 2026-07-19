@@ -40,7 +40,7 @@ export function ReportsRDistributionChart({
     <Card
       title="R-Multiple Distribution"
       action={
-        !loading && !error && distribution.length > 0 ? (
+        !loading && !error && distribution.length > 0 && totalTrades > 0 ? (
           <span className="text-[11px] font-medium text-text-muted">
             Avg {avgR >= 0 ? "+" : ""}
             {avgR.toFixed(2)}R
@@ -52,7 +52,7 @@ export function ReportsRDistributionChart({
         <Skeleton height="200px" />
       ) : error ? (
         <p className="text-xs text-loss">Failed to load R-multiple distribution.</p>
-      ) : distribution.length === 0 ? (
+      ) : distribution.length === 0 || totalTrades <= 0 ? (
         <EmptyState title="No R data" hint="Set stops on your trades to see the R distribution." />
       ) : (
         <>
