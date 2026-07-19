@@ -23,4 +23,17 @@ describe("StatCard", () => {
     render(<StatCard label="Breakeven" value="0" size="sm" />);
     expect(screen.getByText("0")).toHaveClass("text-[15px]");
   });
+
+  it('defaults to a bordered panel background for variant "panel"', () => {
+    render(<StatCard label="Avg Win" value="$45.95" />);
+    const cell = screen.getByText("$45.95").closest("div") as HTMLElement;
+    expect(cell.style.border).toBe("1px solid var(--color-border)");
+  });
+
+  it('uses an elevated, borderless background for variant="bento"', () => {
+    render(<StatCard label="P&L" value="+$61.19" variant="bento" />);
+    const cell = screen.getByText("+$61.19").closest("div") as HTMLElement;
+    expect(cell.style.background).toBe("var(--color-surface-hover)");
+    expect(cell.style.border).toBe("");
+  });
 });

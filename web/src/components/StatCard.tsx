@@ -7,11 +7,12 @@ interface StatCardProps {
   hint?: string;
   /**
    * "panel" (default) is a self-contained bordered card, for use in loosely
-   * spaced (gap-3+) grids. "flush" drops its own border/radius so it sits
-   * seamlessly inside a parent hairline grid (gap-px + bg-border) instead of
-   * double-bordering against the parent's hairlines.
+   * spaced (gap-3+) grids. "bento" is an elevated, borderless cell (one rung
+   * up the surface ladder from its typical parent Card) for use in
+   * real-gap (gap-3) bento grids, where cells should read as distinct raised
+   * compartments instead of blending into the parent panel behind them.
    */
-  variant?: "panel" | "flush";
+  variant?: "panel" | "bento";
   /**
    * Value type scale. "md" (default) is the original 20px size used by every
    * StatCard outside the Statistics card's tiered layout — do not change its
@@ -46,8 +47,11 @@ export function StatCard({
     <div
       className={cn("flex flex-col gap-1 px-4", size === "sm" ? "py-2" : "py-3")}
       style={
-        variant === "flush"
-          ? { background: "var(--color-surface-panel)" }
+        variant === "bento"
+          ? {
+              background: "var(--color-surface-hover)",
+              borderRadius: "var(--radius-panel)",
+            }
           : {
               background: "var(--color-surface-panel)",
               border: "1px solid var(--color-border)",
