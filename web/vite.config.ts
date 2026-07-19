@@ -1,5 +1,6 @@
 import { lingui } from "@lingui/vite-plugin";
 import babel from "@rolldown/plugin-babel";
+import { serwist } from "@serwist/vite";
 import tailwind from "@tailwindcss/vite";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import react, { reactCompilerPreset } from "@vitejs/plugin-react";
@@ -8,7 +9,7 @@ import { defineConfig, lazyPlugins } from "vite-plus";
 export default defineConfig({
   fmt: {},
   lint: {
-    ignorePatterns: ["dist/**", "src/routeTree.gen.ts", "src/i18n/locales/**"],
+    ignorePatterns: ["dist/**", "src/routeTree.gen.ts", "src/i18n/locales/**", "src/sw.ts"],
     plugins: ["typescript", "react"],
     jsPlugins: [{ name: "vite-plus", specifier: "vite-plus/oxlint-plugin" }],
     rules: { "vite-plus/prefer-vite-plus-imports": "error" },
@@ -34,6 +35,13 @@ export default defineConfig({
     }),
     tailwind(),
     lingui(),
+    serwist({
+      swSrc: "src/sw.ts",
+      swDest: "sw.js",
+      globDirectory: "dist",
+      injectionPoint: "self.__SW_MANIFEST",
+      rollupFormat: "iife",
+    }),
   ]),
   server: { port: 5173, proxy: { "/api": "http://localhost:8080" } },
   test: {

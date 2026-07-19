@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import { getSerwist } from "virtual:serwist";
 import "@fontsource/poppins/400.css";
 import "@fontsource/poppins/500.css";
 import "@fontsource/poppins/600.css";
@@ -10,6 +11,10 @@ import { RouteErrorPanel } from "./components/RouteErrorPanel";
 import { I18nProvider } from "./i18n";
 import { routeTree } from "./routeTree.gen";
 import "./styles.css";
+
+if ("serviceWorker" in navigator) {
+  void getSerwist().then((serwist) => serwist?.register());
+}
 
 const queryClient = new QueryClient({
   defaultOptions: {
