@@ -3,6 +3,13 @@ interface StatCardProps {
   value: string;
   accent?: "pos" | "neg" | "none";
   hint?: string;
+  /**
+   * "panel" (default) is a self-contained bordered card, for use in loosely
+   * spaced (gap-3+) grids. "flush" drops its own border/radius so it sits
+   * seamlessly inside a parent hairline grid (gap-px + bg-border) instead of
+   * double-bordering against the parent's hairlines.
+   */
+  variant?: "panel" | "flush";
 }
 
 function accentColor(accent?: "pos" | "neg" | "none"): string {
@@ -11,15 +18,19 @@ function accentColor(accent?: "pos" | "neg" | "none"): string {
   return "var(--color-text)";
 }
 
-export function StatCard({ label, value, accent, hint }: StatCardProps) {
+export function StatCard({ label, value, accent, hint, variant = "panel" }: StatCardProps) {
   return (
     <div
       className="flex flex-col gap-1 px-4 py-3"
-      style={{
-        background: "var(--color-surface-panel)",
-        border: "1px solid var(--color-border)",
-        borderRadius: "var(--radius-panel)",
-      }}
+      style={
+        variant === "flush"
+          ? { background: "var(--color-surface-panel)" }
+          : {
+              background: "var(--color-surface-panel)",
+              border: "1px solid var(--color-border)",
+              borderRadius: "var(--radius-panel)",
+            }
+      }
     >
       <span
         className="text-xs font-medium uppercase tracking-wide"

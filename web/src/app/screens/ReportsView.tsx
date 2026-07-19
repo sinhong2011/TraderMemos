@@ -136,44 +136,85 @@ function SummaryMetricsGrid({
   return (
     <div className="grid grid-cols-2 gap-px border-b border-border bg-border sm:grid-cols-3 lg:grid-cols-5">
       <StatCard
+        variant="flush"
         label="P&L"
         value={fmtSignedMoney(summary.net_pnl * fxRate, currency, locale)}
         accent={summary.net_pnl >= 0 ? "pos" : "neg"}
         hint={`Gross ${fmtSignedMoney((summary.gross_profit + summary.gross_loss) * fxRate, currency, locale)} · Fees ${fmtMoney(summary.total_fees * fxRate, currency, locale)} (${feePct.toFixed(1)}%)`}
       />
-      <StatCard label="Win Rate" value={fmtPct(summary.win_rate, locale)} accent="none" />
       <StatCard
+        variant="flush"
+        label="Win Rate"
+        value={fmtPct(summary.win_rate, locale)}
+        accent="none"
+      />
+      <StatCard
+        variant="flush"
         label="Profit Factor"
         value={summary.profit_factor > 0 ? summary.profit_factor.toFixed(2) : "—"}
       />
-      <StatCard label="Total Trades" value={String(summary.total_trades)} />
+      <StatCard variant="flush" label="Total Trades" value={String(summary.total_trades)} />
       <StatCard
+        variant="flush"
         label="Expectancy"
         value={fmtSignedMoney(summary.expectancy * fxRate, currency, locale)}
         accent={summary.expectancy >= 0 ? "pos" : "neg"}
       />
       <StatCard
+        variant="flush"
         label="Avg Win"
         value={fmtMoney(summary.avg_win * fxRate, currency, locale)}
         accent="pos"
       />
       <StatCard
+        variant="flush"
         label="Avg Loss"
         value={fmtMoney(summary.avg_loss * fxRate, currency, locale)}
         accent="neg"
       />
       <StatCard
+        variant="flush"
         label="Largest Win"
         value={fmtMoney(summary.largest_win * fxRate, currency, locale)}
         accent="pos"
       />
       <StatCard
+        variant="flush"
         label="Largest Loss"
         value={fmtMoney(summary.largest_loss * fxRate, currency, locale)}
         accent="neg"
       />
-      <StatCard label="Avg Win Hold" value={fmtDuration(insights.winHoldSecs)} accent="pos" />
-      <StatCard label="Avg Loss Hold" value={fmtDuration(insights.lossHoldSecs)} accent="neg" />
+      <StatCard
+        variant="flush"
+        label="Avg Win Hold"
+        value={fmtDuration(insights.winHoldSecs)}
+        accent="pos"
+      />
+      <StatCard
+        variant="flush"
+        label="Avg Loss Hold"
+        value={fmtDuration(insights.lossHoldSecs)}
+        accent="neg"
+      />
+      <StatCard variant="flush" label="Breakeven" value={String(summary.breakeven)} />
+      <StatCard
+        variant="flush"
+        label="Avg Trade"
+        value={fmtSignedMoney(summary.avg_trade * fxRate, currency, locale)}
+        accent={summary.avg_trade >= 0 ? "pos" : "neg"}
+      />
+      <StatCard
+        variant="flush"
+        label="Best Streak"
+        value={insights.bestStreak > 0 ? `${insights.bestStreak} trades` : "—"}
+        accent="pos"
+      />
+      <StatCard
+        variant="flush"
+        label="Total Fees"
+        value={fmtMoney(summary.total_fees * fxRate, currency, locale)}
+        accent="neg"
+      />
     </div>
   );
 }
