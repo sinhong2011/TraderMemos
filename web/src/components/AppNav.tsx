@@ -32,7 +32,7 @@ const PRIMARY: NavItem[] = [
   { to: "/dashboard", labelKey: "dashboard", icon: LayoutDashboard },
   { to: "/trades", labelKey: "trades", icon: List },
   { to: "/calendar", labelKey: "calendar", icon: CalendarDays },
-  { to: "/reports", labelKey: "stats", icon: PieChart },
+  { to: "/reports", labelKey: "reports", icon: PieChart },
 ];
 
 const SECONDARY: NavItem[] = [

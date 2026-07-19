@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import { expect, test } from "@playwright/test";
 
 const EMAIL = process.env.E2E_EMAIL ?? "demo@tradermemos.app";
@@ -39,9 +40,9 @@ test("login -> dashboard -> calendar -> trades -> detail -> stats", async ({ pag
   await sheet.getByRole("button", { name: "Open full page" }).click();
   await expect(page.getByText("Back to trades")).toBeVisible();
 
-  // Stats (reports): the metrics grid must render — this is the assertion
+  // Reports: the metrics grid must render — this is the assertion
   // that would have caught the missing-StatCard crash.
-  await page.getByRole("link", { name: "Stats" }).click();
+  await page.getByRole("link", { name: "Reports" }).click();
   await expect(page.getByText("Statistics")).toBeVisible();
   // .first(): the label appears in the metrics grid and the breakdown table.
   await expect(page.getByText("Profit Factor").first()).toBeVisible();

@@ -26,7 +26,7 @@ type NavLabelKey =
   | "dashboard"
   | "trades"
   | "calendar"
-  | "stats"
+  | "reports"
   | "playbook"
   | "calculator"
   | "import"
@@ -40,7 +40,7 @@ const NAV_LABELS: Record<AppLocale, Record<NavLabelKey, string>> = {
     dashboard: "Dashboard",
     trades: "Trades",
     calendar: "Calendar",
-    stats: "Stats",
+    reports: "Reports",
     playbook: "Playbook",
     calculator: "Calculator",
     import: "Import",
@@ -53,7 +53,7 @@ const NAV_LABELS: Record<AppLocale, Record<NavLabelKey, string>> = {
     dashboard: "儀表板",
     trades: "交易",
     calendar: "日曆",
-    stats: "統計",
+    reports: "報表",
     playbook: "策略庫",
     calculator: "計算器",
     import: "匯入",
@@ -66,7 +66,7 @@ const NAV_LABELS: Record<AppLocale, Record<NavLabelKey, string>> = {
     dashboard: "ダッシュボード",
     trades: "トレード",
     calendar: "カレンダー",
-    stats: "統計",
+    reports: "レポート",
     playbook: "プレイブック",
     calculator: "計算機",
     import: "インポート",
@@ -79,7 +79,7 @@ const NAV_LABELS: Record<AppLocale, Record<NavLabelKey, string>> = {
     dashboard: "대시보드",
     trades: "거래",
     calendar: "캘린더",
-    stats: "통계",
+    reports: "리포트",
     playbook: "플레이북",
     calculator: "계산기",
     import: "가져오기",
