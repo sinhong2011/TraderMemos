@@ -60,7 +60,9 @@ describe("ReportsRDistributionChart", () => {
       />,
     );
     expect(screen.getByText("-1 to 0")).toBeInTheDocument();
-    expect(screen.getByText(/Showing 9 of 18 closed trades/)).toBeInTheDocument();
+    // totalTrades (18) is the R-eligible/included count; excluded (9) is
+    // disjoint, so the caption's denominator is their sum, not totalTrades.
+    expect(screen.getByText(/Showing 18 of 27 closed trades, 9 excluded/)).toBeInTheDocument();
   });
 
   it("shows an empty state with no distribution data", () => {

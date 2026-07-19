@@ -21,7 +21,9 @@ export function ReportsRMultiplePerformance({
   error,
 }: ReportsRMultiplePerformanceProps) {
   usePrivacyMode();
-  const included = rSummary ? rSummary.total_trades - rSummary.excluded : 0;
+  // `total_trades` here is already the R-eligible (included) count — `excluded`
+  // is a disjoint count of trades skipped for missing risk, not a subset of it.
+  const included = rSummary?.total_trades ?? 0;
 
   return (
     <Card title="R-Multiple Performance">
@@ -37,7 +39,7 @@ export function ReportsRMultiplePerformance({
             label="Avg R/Trade"
             value={formatR(rSummary.avg_r)}
             accent={rSummary.avg_r >= 0 ? "pos" : "neg"}
-            hint={`${included} of ${rSummary.total_trades} trades`}
+            hint={`${included} of ${included + rSummary.excluded} trades`}
           />
           <StatCard label="Avg Winning R" value={formatR(rSummary.avg_win_r)} accent="pos" />
           <StatCard label="Avg Losing R" value={formatR(rSummary.avg_loss_r)} accent="neg" />

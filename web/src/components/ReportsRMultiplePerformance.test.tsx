@@ -41,13 +41,27 @@ describe("ReportsRMultiplePerformance", () => {
   });
 
   it("shows an empty state with no R-eligible trades", () => {
+    // total_trades is the R-eligible (included) count, not the full closed-trade
+    // count — zero R-eligible trades (even with some excluded for missing risk)
+    // is what should trigger the empty state.
     render(
       <ReportsRMultiplePerformance
-        rSummary={rSummary({ total_trades: 5, excluded: 5 })}
+        rSummary={rSummary({ total_trades: 0, excluded: 5 })}
         loading={false}
         error={false}
       />,
     );
     expect(screen.getByText("No R data")).toBeInTheDocument();
+  });
+
+  it("shows the included/total hint using the correct denominator", () => {
+    render(
+      <ReportsRMultiplePerformance
+        rSummary={rSummary({ total_trades: 18, excluded: 9 })}
+        loading={false}
+        error={false}
+      />,
+    );
+    expect(screen.getByText("18 of 27 trades")).toBeInTheDocument();
   });
 });

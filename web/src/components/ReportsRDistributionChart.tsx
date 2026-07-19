@@ -20,7 +20,9 @@ const NEG = "var(--color-loss)";
 export interface ReportsRDistributionChartProps {
   distribution: RBucket[];
   avgR: number;
+  /** R-eligible (included) closed trades — NOT the total closed-trade count. See `excluded`. */
   totalTrades: number;
+  /** Closed trades skipped for missing risk — disjoint from `totalTrades`, not a subset. */
   excluded: number;
   loading: boolean;
   error: boolean;
@@ -90,7 +92,7 @@ export function ReportsRDistributionChart({
             </ResponsiveContainer>
           </ChartFrame>
           <p className="mt-2 text-[11px] text-text-muted">
-            Showing {totalTrades - excluded} of {totalTrades} closed trades
+            Showing {totalTrades} of {totalTrades + excluded} closed trades
             {excluded > 0 ? `, ${excluded} excluded (no stop)` : ""}
           </p>
         </>
