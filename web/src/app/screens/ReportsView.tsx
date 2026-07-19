@@ -118,9 +118,7 @@ const NEG_COLOR = "#eb4b68"; // red-400
 function StatGroup({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div>
-      <p className="px-4 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-wide text-text-muted">
-        {label}
-      </p>
+      <p className="px-4 pt-3 pb-1 text-label">{label}</p>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">{children}</div>
     </div>
   );
@@ -146,7 +144,7 @@ function SummaryMetricsGrid({
       : 0;
 
   return (
-    <div className="border-b border-border">
+    <div>
       <StatGroup label="Performance">
         <StatCard
           variant="bento"
@@ -521,7 +519,7 @@ export function ReportsView({
       ) : summaryError ? (
         <p className="p-4 text-xs text-loss">Failed to load summary.</p>
       ) : summary ? (
-        <Card title="Statistics" className="overflow-hidden">
+        <Card title="Statistics">
           <SummaryMetricsGrid
             summary={summary}
             trades={trades}

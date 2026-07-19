@@ -119,5 +119,9 @@ describe("ReportsView", () => {
     expect(screen.getByText("Performance")).toBeInTheDocument();
     expect(screen.getByText("Trade Quality")).toBeInTheDocument();
     expect(screen.getByText("Behavior & Costs")).toBeInTheDocument();
+    // Avg Trade must be inside the Trade Quality group, not Performance or
+    // Behavior & Costs — this is the exact regrouping this branch is about.
+    const tradeQualityGroup = screen.getByText("Trade Quality").parentElement as HTMLElement;
+    expect(within(tradeQualityGroup).getByText("Avg Trade")).toBeInTheDocument();
   });
 });

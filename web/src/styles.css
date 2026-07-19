@@ -66,6 +66,7 @@
   --color-surface-panel: var(--color-bg-panel);
   --color-surface-raised: var(--color-bg-elevated);
   --color-surface-hover: var(--color-bg-hover);
+  --color-surface-bento: var(--color-bg-hover);
   --color-surface-deep: var(--color-bg-inset);
   --color-text-strong: var(--color-text);
   --color-pos: var(--color-profit);

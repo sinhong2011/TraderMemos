@@ -211,3 +211,4 @@ Build a **Signal** kit on existing stack — do **not** install default shadcn t
 | 2026-07-14 | Geist Variable default UI font | Replaces Figtree; self-hosted via `@fontsource-variable/geist` |
 | 2026-07-14 | Poppins default UI font | Replaces Geist; self-hosted via `@fontsource/poppins` (400/500/600/700) |
 | 2026-07-14 | Graphite surfaces (no black void) | Lifted ladder to `#16161c`…`#2b2b36`; ban pure-black BGs; inset stays charcoal `#121218` |
+| 2026-07-19 | `--color-surface-bento` alias for elevated bento cells | Reports Statistics card's cells sit permanently at the "one rung up" surface tone; aliased from `--color-bg-hover` (same value) instead of reusing that token's hover/active semantic directly, since 15 static cells aren't an interaction state |

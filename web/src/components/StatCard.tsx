@@ -49,7 +49,7 @@ export function StatCard({
       style={
         variant === "bento"
           ? {
-              background: "var(--color-surface-hover)",
+              background: "var(--color-surface-bento)",
               borderRadius: "var(--radius-panel)",
             }
           : {

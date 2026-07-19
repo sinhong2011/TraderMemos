@@ -4,6 +4,11 @@
 **Scope:** `web/src/components/StatCard.tsx`, `web/src/app/screens/ReportsView.tsx`
 **Approved:** Yes
 
+**Note:** the cell/grid treatment described below (`gap-px bg-border`
+hairlines, `variant="flush"`) was superseded during implementation — see
+`docs/superpowers/plans/2026-07-19-statistics-card-hierarchy.md`'s Task 3 and
+Global Constraints for the shipped `variant="bento"` + `gap-3` treatment.
+
 ## Problem
 
 The Reports page's Statistics card (`SummaryMetricsGrid` in `ReportsView.tsx`)
@@ -34,7 +39,7 @@ trader scans independently:
 
 | Tier | Label | Stats | Type size |
 |---|---|---|---|
-| 1 | Performance | P&L, Win Rate, Profit Factor, Total Trades, Expectancy | `lg` (~26px, matches `DESIGN.md`'s `text-stat` token) |
+| 1 | Performance | P&L, Win Rate, Profit Factor, Total Trades, Expectancy | `lg` (26px, a deliberate custom size — not `DESIGN.md`'s `text-stat` token, which resolves to 32px; kept at 26px per explicit user choice after seeing both) |
 | 2 | Trade Quality | Avg Win, Avg Loss, Largest Win, Largest Loss, Avg Trade | `md` (today's existing 20px — unchanged) |
 | 3 | Behavior & Costs | Avg Win Hold, Avg Loss Hold, Breakeven, Best Streak, Total Fees | `sm` (~15px, tighter padding) |
 
