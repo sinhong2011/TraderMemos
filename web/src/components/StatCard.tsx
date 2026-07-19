@@ -1,3 +1,5 @@
+import { cn } from "../lib/cn";
+
 interface StatCardProps {
   label: string;
   value: string;
@@ -10,6 +12,14 @@ interface StatCardProps {
    * double-bordering against the parent's hairlines.
    */
   variant?: "panel" | "flush";
+  /**
+   * Value type scale. "md" (default) is the original 20px size used by every
+   * StatCard outside the Statistics card's tiered layout — do not change its
+   * output class, other call sites depend on it staying "text-xl". "lg" and
+   * "sm" exist only for that tiered layout's Performance / Behavior & Costs
+   * rows.
+   */
+  size?: "lg" | "md" | "sm";
 }
 
 function accentColor(accent?: "pos" | "neg" | "none"): string {
@@ -18,10 +28,23 @@ function accentColor(accent?: "pos" | "neg" | "none"): string {
   return "var(--color-text)";
 }
 
-export function StatCard({ label, value, accent, hint, variant = "panel" }: StatCardProps) {
+function valueSizeClass(size: "lg" | "md" | "sm"): string {
+  if (size === "lg") return "text-[26px]";
+  if (size === "sm") return "text-[15px]";
+  return "text-xl";
+}
+
+export function StatCard({
+  label,
+  value,
+  accent,
+  hint,
+  variant = "panel",
+  size = "md",
+}: StatCardProps) {
   return (
     <div
-      className="flex flex-col gap-1 px-4 py-3"
+      className={cn("flex flex-col gap-1 px-4", size === "sm" ? "py-2" : "py-3")}
       style={
         variant === "flush"
           ? { background: "var(--color-surface-panel)" }
@@ -39,7 +62,7 @@ export function StatCard({ label, value, accent, hint, variant = "panel" }: Stat
         {label}
       </span>
       <span
-        className="text-xl font-semibold leading-none"
+        className={cn(valueSizeClass(size), "font-semibold leading-none")}
         style={{
           color: accentColor(accent),
           transition: "color var(--duration-fast)",
