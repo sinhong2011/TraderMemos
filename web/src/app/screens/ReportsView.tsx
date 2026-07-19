@@ -148,6 +148,7 @@ function SummaryMetricsGrid({
       <StatGroup label="Performance">
         <StatCard
           variant="bento"
+          align="center"
           size="lg"
           label="P&L"
           value={fmtSignedMoney(summary.net_pnl * fxRate, currency, locale)}
@@ -156,6 +157,7 @@ function SummaryMetricsGrid({
         />
         <StatCard
           variant="bento"
+          align="center"
           size="lg"
           label="Win Rate"
           value={fmtPct(summary.win_rate, locale)}
@@ -163,18 +165,21 @@ function SummaryMetricsGrid({
         />
         <StatCard
           variant="bento"
+          align="center"
           size="lg"
           label="Profit Factor"
           value={summary.profit_factor > 0 ? summary.profit_factor.toFixed(2) : "—"}
         />
         <StatCard
           variant="bento"
+          align="center"
           size="lg"
           label="Total Trades"
           value={String(summary.total_trades)}
         />
         <StatCard
           variant="bento"
+          align="center"
           size="lg"
           label="Expectancy"
           value={fmtSignedMoney(summary.expectancy * fxRate, currency, locale)}
@@ -184,30 +189,35 @@ function SummaryMetricsGrid({
       <StatGroup label="Trade Quality">
         <StatCard
           variant="bento"
+          align="center"
           label="Avg Win"
           value={fmtMoney(summary.avg_win * fxRate, currency, locale)}
           accent="pos"
         />
         <StatCard
           variant="bento"
+          align="center"
           label="Avg Loss"
           value={fmtMoney(summary.avg_loss * fxRate, currency, locale)}
           accent="neg"
         />
         <StatCard
           variant="bento"
+          align="center"
           label="Largest Win"
           value={fmtMoney(summary.largest_win * fxRate, currency, locale)}
           accent="pos"
         />
         <StatCard
           variant="bento"
+          align="center"
           label="Largest Loss"
           value={fmtMoney(summary.largest_loss * fxRate, currency, locale)}
           accent="neg"
         />
         <StatCard
           variant="bento"
+          align="center"
           label="Avg Trade"
           value={fmtSignedMoney(summary.avg_trade * fxRate, currency, locale)}
           accent={summary.avg_trade >= 0 ? "pos" : "neg"}
@@ -216,6 +226,7 @@ function SummaryMetricsGrid({
       <StatGroup label="Behavior & Costs">
         <StatCard
           variant="bento"
+          align="center"
           size="sm"
           label="Avg Win Hold"
           value={fmtDuration(insights.winHoldSecs)}
@@ -223,14 +234,22 @@ function SummaryMetricsGrid({
         />
         <StatCard
           variant="bento"
+          align="center"
           size="sm"
           label="Avg Loss Hold"
           value={fmtDuration(insights.lossHoldSecs)}
           accent="neg"
         />
-        <StatCard variant="bento" size="sm" label="Breakeven" value={String(summary.breakeven)} />
         <StatCard
           variant="bento"
+          align="center"
+          size="sm"
+          label="Breakeven"
+          value={String(summary.breakeven)}
+        />
+        <StatCard
+          variant="bento"
+          align="center"
           size="sm"
           label="Best Streak"
           value={insights.bestStreak > 0 ? `${insights.bestStreak} trades` : "—"}
@@ -238,6 +257,7 @@ function SummaryMetricsGrid({
         />
         <StatCard
           variant="bento"
+          align="center"
           size="sm"
           label="Total Fees"
           value={fmtMoney(summary.total_fees * fxRate, currency, locale)}
@@ -529,7 +549,7 @@ export function ReportsView({
           {equityLoading ? (
             <Skeleton height="160px" className="m-3" />
           ) : equity && equity.points.length > 0 ? (
-            <div className="border-t border-border p-3">
+            <div className="p-3">
               <p className="mb-2 text-[10px] font-medium uppercase tracking-widest text-text-muted">
                 Equity curve · Max DD{" "}
                 {fmtMoney(equity.max_drawdown * fxRate, displayCurrency, intlLocale())}

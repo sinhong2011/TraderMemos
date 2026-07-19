@@ -77,11 +77,12 @@ export function ReportsMetricEvolution({
   const rightColor = lastRightValue < 0 ? "var(--color-loss)" : "var(--color-profit)";
 
   const action = (
-    // Stacked (not side-by-side): "Right axis metric" alone can exceed a narrow
-    // card's width, so each control gets its own row. overflow-x-auto is a
-    // fallback so an over-wide control scrolls within itself rather than
-    // breaking the page layout at the very narrowest viewports.
-    <div className="flex flex-col items-start gap-2">
+    // Side-by-side once there's room (sm+), stacked below that: "Right axis
+    // metric" alone can exceed a narrow card's width, so each control keeps
+    // its own row there. overflow-x-auto is a fallback so an over-wide
+    // control scrolls within itself rather than breaking the page layout at
+    // the very narrowest viewports.
+    <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:gap-4">
       <div className="max-w-full overflow-x-auto">
         <SegmentedControl
           ariaLabel="Evolution granularity"

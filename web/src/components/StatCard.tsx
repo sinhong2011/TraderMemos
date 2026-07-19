@@ -21,6 +21,13 @@ interface StatCardProps {
    * rows.
    */
   size?: "lg" | "md" | "sm";
+  /**
+   * Content alignment within the cell. "left" (default) preserves the
+   * original layout used by every existing call site. "center" is only for
+   * the Statistics card's tiered bento layout — do not change the default,
+   * other call sites depend on left alignment.
+   */
+  align?: "left" | "center";
 }
 
 function accentColor(accent?: "pos" | "neg" | "none"): string {
@@ -42,10 +49,15 @@ export function StatCard({
   hint,
   variant = "panel",
   size = "md",
+  align = "left",
 }: StatCardProps) {
   return (
     <div
-      className={cn("flex flex-col gap-1 px-4", size === "sm" ? "py-2" : "py-3")}
+      className={cn(
+        "flex flex-col gap-1 px-4",
+        size === "sm" ? "py-2" : "py-3",
+        align === "center" && "items-center text-center",
+      )}
       style={
         variant === "bento"
           ? {
