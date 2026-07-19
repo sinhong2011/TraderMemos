@@ -29,7 +29,7 @@ export function Card({
       className={cn("flex flex-col rounded-card bg-bg-panel", fill && "min-h-0 flex-1", className)}
     >
       {hasHeader ? (
-        <header className="flex items-start justify-between gap-4 px-4 py-3">
+        <header className="flex flex-wrap items-start justify-between gap-4 px-4 py-3">
           <div className="min-w-0">
             {title != null ? (
               typeof title === "string" ? (
