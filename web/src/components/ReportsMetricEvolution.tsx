@@ -77,19 +77,27 @@ export function ReportsMetricEvolution({
   const rightColor = lastRightValue < 0 ? "var(--color-loss)" : "var(--color-profit)";
 
   const action = (
-    <div className="flex flex-wrap items-center gap-2">
-      <SegmentedControl
-        ariaLabel="Evolution granularity"
-        value={granularity}
-        onChange={(v) => setGranularity(v as EvolutionGranularity)}
-        options={GRANULARITIES}
-      />
-      <SegmentedControl
-        ariaLabel="Right axis metric"
-        value={rightMetric}
-        onChange={(v) => setRightMetric(v as RightMetric)}
-        options={RIGHT_METRICS}
-      />
+    // Stacked (not side-by-side): "Right axis metric" alone can exceed a narrow
+    // card's width, so each control gets its own row. overflow-x-auto is a
+    // fallback so an over-wide control scrolls within itself rather than
+    // breaking the page layout at the very narrowest viewports.
+    <div className="flex flex-col items-start gap-2">
+      <div className="max-w-full overflow-x-auto">
+        <SegmentedControl
+          ariaLabel="Evolution granularity"
+          value={granularity}
+          onChange={(v) => setGranularity(v as EvolutionGranularity)}
+          options={GRANULARITIES}
+        />
+      </div>
+      <div className="max-w-full overflow-x-auto">
+        <SegmentedControl
+          ariaLabel="Right axis metric"
+          value={rightMetric}
+          onChange={(v) => setRightMetric(v as RightMetric)}
+          options={RIGHT_METRICS}
+        />
+      </div>
     </div>
   );
 
