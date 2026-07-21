@@ -84,7 +84,7 @@ describe("ReportsRiskDrawdown", () => {
     );
     // avg risk 150 / 1000 = 15%
     expect(screen.getByText("15%")).toBeInTheDocument();
-    // Max DD stays a peak-equity ratio (−10%), not the unit toggle.
-    expect(screen.getByText("-10.00%")).toBeInTheDocument();
+    // Max/Current DD stay peak-equity ratios (−10%), not the unit toggle.
+    expect(screen.getAllByText("-10.00%")).toHaveLength(2);
   });
 });
