@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"net/http"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 	"github.com/tradermemos/api/internal/analytics"
@@ -12,7 +13,7 @@ import (
 
 var breakdownDims = map[string]bool{
 	"symbol": true, "setup": true, "day_of_week": true, "hour_of_day": true,
-	"session": true, "tag": true, "mistake": true,
+	"session": true, "tag": true, "mistake": true, "trade_quality": true,
 }
 
 func (s *Server) handleBreakdown(c echo.Context) error {
@@ -20,7 +21,7 @@ func (s *Server) handleBreakdown(c echo.Context) error {
 	uid := auth.UserID(c)
 	by := c.QueryParam("by")
 	if !breakdownDims[by] {
-		return Fail(http.StatusBadRequest, "bad_request", "by must be one of symbol|setup|day_of_week|hour_of_day|session|tag|mistake", nil)
+		return Fail(http.StatusBadRequest, "bad_request", "by must be one of symbol|setup|day_of_week|hour_of_day|session|tag|mistake|trade_quality", nil)
 	}
 	f, err := parseFilters(c)
 	if err != nil {
@@ -52,6 +53,8 @@ func (s *Server) handleBreakdown(c echo.Context) error {
 			add(analytics.SessionName(at), ct)
 		case "setup":
 			add(s.setupKey(ctx, uid, t.ID), ct)
+		case "trade_quality":
+			add(s.qualityKey(ctx, uid, t.ID), ct)
 		case "tag":
 			names := s.tradeTagNames(ctx, t.ID, "")
 			if len(names) == 0 {
@@ -83,6 +86,14 @@ func (s *Server) setupKey(ctx context.Context, userID, tradeID string) string {
 		return "(none)"
 	}
 	return setup.Name
+}
+
+func (s *Server) qualityKey(ctx context.Context, userID, tradeID string) string {
+	j, err := s.deps.Store.GetTradeJournal(ctx, store.GetTradeJournalParams{TradeID: tradeID, UserID: userID})
+	if err != nil || !j.TradeQuality.Valid {
+		return "unrated"
+	}
+	return strconv.FormatInt(j.TradeQuality.Int64, 10)
 }
 
 func (s *Server) tradeTagNames(ctx context.Context, tradeID, kind string) []string {
