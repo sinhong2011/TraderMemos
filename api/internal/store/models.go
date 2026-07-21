@@ -40,6 +40,16 @@ type ChecklistTemplate struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
+type CoachSetting struct {
+	ID           int64     `json:"id"`
+	Enabled      int64     `json:"enabled"`
+	BaseUrl      string    `json:"base_url"`
+	ApiKey       string    `json:"api_key"`
+	Model        string    `json:"model"`
+	CustomPrompt string    `json:"custom_prompt"`
+	UpdatedAt    time.Time `json:"updated_at"`
+}
+
 type Execution struct {
 	ID             string         `json:"id"`
 	UserID         string         `json:"user_id"`

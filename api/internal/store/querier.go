@@ -34,6 +34,7 @@ type Querier interface {
 	GetAccountByIDAny(ctx context.Context, id string) (Account, error)
 	GetAttachment(ctx context.Context, arg GetAttachmentParams) (TradeAttachment, error)
 	GetChecklistTemplate(ctx context.Context, userID string) (ChecklistTemplate, error)
+	GetCoachSettings(ctx context.Context) (CoachSetting, error)
 	GetExecution(ctx context.Context, arg GetExecutionParams) (Execution, error)
 	GetExecutionByDedup(ctx context.Context, arg GetExecutionByDedupParams) (Execution, error)
 	GetImportBatch(ctx context.Context, arg GetImportBatchParams) (ImportBatch, error)
@@ -77,6 +78,7 @@ type Querier interface {
 	UpdateTag(ctx context.Context, arg UpdateTagParams) (int64, error)
 	UpdateTradeNotes(ctx context.Context, arg UpdateTradeNotesParams) error
 	UpsertChecklistTemplate(ctx context.Context, arg UpsertChecklistTemplateParams) (ChecklistTemplate, error)
+	UpsertCoachSettings(ctx context.Context, arg UpsertCoachSettingsParams) (CoachSetting, error)
 	UpsertInstrumentSpec(ctx context.Context, arg UpsertInstrumentSpecParams) error
 	UpsertMarketBarsCache(ctx context.Context, arg UpsertMarketBarsCacheParams) error
 	UpsertOcrSettings(ctx context.Context, arg UpsertOcrSettingsParams) (OcrSetting, error)

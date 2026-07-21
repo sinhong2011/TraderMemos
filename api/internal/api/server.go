@@ -29,6 +29,7 @@ type Deps struct {
 	OCRMaxBytes    int64
 	Market         *marketdata.Service
 	OCR            *ocr.Service
+	CoachDefaults  ocr.VisionConfig
 }
 
 type Server struct {
