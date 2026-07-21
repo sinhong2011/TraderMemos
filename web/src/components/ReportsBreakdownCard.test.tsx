@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import type { ColumnDef } from "@tanstack/react-table";
 import { describe, expect, it, vi } from "vite-plus/test";
 import type { BreakGroup } from "../lib/api/types";
-import { ReportsBreakdownCard } from "./ReportsBreakdownCard";
+import { ReportsBreakdownCard, buildBreakdownChartData } from "./ReportsBreakdownCard";
 
 // Mock DataTable (virtualizer needs a sized container in jsdom) — same pattern as ReportsView.test.tsx.
 vi.mock("./DataTable", () => ({
@@ -43,13 +43,7 @@ function grp(key: string, net: number): BreakGroup {
 describe("ReportsBreakdownCard", () => {
   it("shows an empty state with no data", () => {
     render(
-      <ReportsBreakdownCard
-        title="Day of Week"
-        breakdown={[]}
-        loading={false}
-        error={false}
-        currency="USD"
-      />,
+      <ReportsBreakdownCard title="Day of Week" breakdown={[]} loading={false} error={false} />,
     );
     expect(screen.getByText("No data")).toBeInTheDocument();
   });
@@ -61,7 +55,6 @@ describe("ReportsBreakdownCard", () => {
         breakdown={[grp("Monday", 200), grp("Tuesday", -50)]}
         loading={false}
         error={false}
-        currency="USD"
       />,
     );
     expect(screen.getByText("Day of Week")).toBeInTheDocument();
@@ -74,7 +67,6 @@ describe("ReportsBreakdownCard", () => {
         breakdown={[grp("Monday", 200)]}
         loading={false}
         error={false}
-        currency="USD"
       />,
     );
     expect(screen.queryByText("Table")).not.toBeInTheDocument();
@@ -94,12 +86,36 @@ describe("ReportsBreakdownCard table toggle", () => {
         breakdown={[grp("AAPL", 200)]}
         loading={false}
         error={false}
-        currency="USD"
         tableColumns={testColumns}
       />,
     );
     expect(screen.getByText("Table")).toBeInTheDocument();
     await user.click(screen.getByText("Table"));
     expect(screen.getByTestId("table")).toBeInTheDocument();
+  });
+});
+
+describe("buildBreakdownChartData", () => {
+  it("defaults to raw net_pnl", () => {
+    expect(buildBreakdownChartData([grp("Monday", 200), grp("Tuesday", -50)])).toEqual([
+      { key: "Monday", net_pnl: 200 },
+      { key: "Tuesday", net_pnl: -50 },
+    ]);
+  });
+
+  it("uses the given pnlOf callback for gross P&L instead of net_pnl", () => {
+    const g = grp("Monday", 100);
+    g.summary.gross_profit = 260;
+    g.summary.gross_loss = 60; // gross = 200
+    expect(
+      buildBreakdownChartData([g], (row) => row.summary.gross_profit - row.summary.gross_loss),
+    ).toEqual([{ key: "Monday", net_pnl: 200 }]);
+  });
+
+  it("uses the given pnlOf callback for a percentage of a denominator", () => {
+    const g = grp("Monday", 250);
+    expect(buildBreakdownChartData([g], (row) => row.summary.net_pnl / 1000)).toEqual([
+      { key: "Monday", net_pnl: 0.25 },
+    ]);
   });
 });

@@ -1,7 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vite-plus/test";
-import type { BreakGroup } from "../lib/api/types";
-import { ReportsSessionTable } from "./ReportsSessionTable";
+import type { BreakGroup, Summary } from "../lib/api/types";
+import { ReportsDisplayProvider } from "./ReportsDisplayContext";
+import { ReportsSessionTable, SessionPnlCell } from "./ReportsSessionTable";
 
 vi.mock("./DataTable", () => ({
   DataTable: ({ data }: { data: BreakGroup[] }) => (
@@ -55,5 +56,57 @@ describe("ReportsSessionTable", () => {
       />,
     );
     expect(screen.getByText(/Unsessioned/)).toBeInTheDocument();
+  });
+});
+
+// DataTable is mocked above (its virtualizer needs a sized container in
+// jsdom), which bypasses the real net_pnl cell renderer — so SessionPnlCell
+// is tested directly instead.
+describe("SessionPnlCell", () => {
+  function summary(over: Partial<Summary>): Summary {
+    return {
+      total_trades: 1,
+      wins: 1,
+      losses: 0,
+      breakeven: 0,
+      win_rate: 1,
+      net_pnl: 0,
+      gross_profit: 0,
+      gross_loss: 0,
+      profit_factor: 1,
+      expectancy: 0,
+      avg_win: 0,
+      avg_loss: 0,
+      avg_trade: 0,
+      largest_win: 0,
+      largest_loss: 0,
+      total_fees: 0,
+      ...over,
+    };
+  }
+
+  it("shows the gross P&L when pnlMode is gross", () => {
+    // net_pnl (100) differs from gross (gross_profit - gross_loss = 260 - 60 = 200).
+    const s = summary({ net_pnl: 100, gross_profit: 260, gross_loss: 60 });
+    render(
+      <ReportsDisplayProvider
+        value={{ pnlMode: "gross", unitMode: "abs", denominator: 0, currency: "USD", fxRate: 1 }}
+      >
+        <SessionPnlCell summary={s} />
+      </ReportsDisplayProvider>,
+    );
+    expect(screen.getByText("+$200.00")).toBeInTheDocument();
+  });
+
+  it("shows a percentage of the denominator when unitMode is pct", () => {
+    const s = summary({ net_pnl: 250 });
+    render(
+      <ReportsDisplayProvider
+        value={{ pnlMode: "net", unitMode: "pct", denominator: 1000, currency: "USD", fxRate: 1 }}
+      >
+        <SessionPnlCell summary={s} />
+      </ReportsDisplayProvider>,
+    );
+    expect(screen.getByText("25%")).toBeInTheDocument();
   });
 });

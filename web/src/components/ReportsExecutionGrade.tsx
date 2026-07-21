@@ -1,19 +1,16 @@
 import { Card } from "./Card";
 import { EmptyState } from "./EmptyState";
+import { useReportsMoney } from "./ReportsDisplayContext";
 import { Skeleton } from "./Skeleton";
 import { pnlColor } from "./theme-tokens";
 import type { BreakGroup } from "../lib/api/types";
 import { usePrivacyMode } from "../lib/displayPrefs";
-import { fmtSignedMoney } from "../lib/format";
-import { intlLocale } from "../lib/locale";
 import { TRADE_GRADES, gradeFromInt } from "../lib/tradeGrades";
 
 export interface ReportsExecutionGradeProps {
   breakdown: BreakGroup[];
   loading: boolean;
   error: boolean;
-  currency: string;
-  fxRate?: number;
 }
 
 // A+ (best) → C (worst); Unrated always last.
@@ -30,18 +27,12 @@ function pfText(pf: number): string {
   return Number.isFinite(pf) && pf > 0 ? pf.toFixed(2) : "—";
 }
 
-export function ReportsExecutionGrade({
-  breakdown,
-  loading,
-  error,
-  currency,
-  fxRate = 1,
-}: ReportsExecutionGradeProps) {
+export function ReportsExecutionGrade({ breakdown, loading, error }: ReportsExecutionGradeProps) {
   usePrivacyMode();
-  const locale = intlLocale();
+  const money = useReportsMoney();
 
   const rows = breakdown.map((g) => ({ g, ...labelFor(g.key) })).sort((a, b) => a.rank - b.rank);
-  const maxAbs = Math.max(1, ...rows.map((r) => Math.abs(r.g.summary.net_pnl)));
+  const maxAbs = Math.max(1, ...rows.map((r) => Math.abs(money.pnl(r.g.summary))));
 
   return (
     <Card title="Execution Grade">
@@ -54,9 +45,9 @@ export function ReportsExecutionGrade({
       ) : (
         <ul className="flex flex-col gap-3">
           {rows.map(({ g, label }) => {
-            const net = g.summary.net_pnl * fxRate;
-            const pct = (Math.abs(g.summary.net_pnl) / maxAbs) * 100;
-            const barColor = g.summary.net_pnl >= 0 ? "var(--color-profit)" : "var(--color-loss)";
+            const pnl = money.pnl(g.summary);
+            const pct = (Math.abs(pnl) / maxAbs) * 100;
+            const barColor = pnl >= 0 ? "var(--color-profit)" : "var(--color-loss)";
             return (
               <li key={g.key} data-testid="exec-grade-row" className="flex flex-col gap-1">
                 <div className="flex items-baseline justify-between gap-3">
@@ -67,10 +58,8 @@ export function ReportsExecutionGrade({
                     <span className="text-[10px] tracking-wide text-flat">
                       PF {pfText(g.summary.profit_factor)}
                     </span>
-                    <span
-                      className={`text-sm font-semibold tabular-nums ${pnlColor(g.summary.net_pnl)}`}
-                    >
-                      {fmtSignedMoney(net, currency, locale)}
+                    <span className={`text-sm font-semibold tabular-nums ${pnlColor(pnl)}`}>
+                      {money.format(pnl)}
                     </span>
                   </span>
                 </div>

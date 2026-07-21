@@ -26,6 +26,7 @@ import {
 import { ReportsDayStrip } from "../../components/ReportsDayStrip";
 import {
   ReportsDisplayProvider,
+  useReportsMoney,
   type PnlMode,
   type UnitMode,
 } from "../../components/ReportsDisplayContext";
@@ -343,10 +344,7 @@ export function buildColumns(
       id: "net_pnl",
       accessorFn: (row) => row.summary.net_pnl,
       header: "Net P&L",
-      cell: (info) => {
-        const v = info.getValue<number>();
-        return <ReportsMoneyCell value={v} currency={currency} fxRate={fxRate} />;
-      },
+      cell: (info) => <PnlCell summary={info.row.original.summary} />,
     },
     {
       id: "profit_factor",
@@ -371,6 +369,16 @@ export function buildColumns(
       },
     },
   ];
+}
+
+/** Net P&L cell — honors the Reports net/gross + $/% display mode via
+ * useReportsMoney(); buildColumns is a plain function so it can't call the
+ * hook itself. Profit Factor and Expectancy stay net-$ (unconverted; see
+ * ReportsMoneyCell below) since the API doesn't expose a gross expectancy. */
+export function PnlCell({ summary }: { summary: Summary }) {
+  const money = useReportsMoney();
+  const pnl = money.pnl(summary);
+  return <span className={`tabular-nums ${pnlColor(pnl)}`}>{money.format(pnl)}</span>;
 }
 
 function ReportsMoneyCell({
@@ -646,8 +654,6 @@ export function ReportsView({
               breakdown={qualityBreakdown}
               loading={qualityBreakdownLoading}
               error={qualityBreakdownError}
-              currency={displayCurrency}
-              fxRate={fxRate}
             />
           </TabsContent>
 
@@ -670,8 +676,6 @@ export function ReportsView({
                 breakdown={symbolBreakdown}
                 loading={symbolBreakdownLoading}
                 error={symbolBreakdownError}
-                currency={displayCurrency}
-                fxRate={fxRate}
                 orientation="horizontal"
                 tableColumns={buildColumns(displayCurrency, "Symbol", fxRate)}
               />
@@ -680,8 +684,6 @@ export function ReportsView({
                 breakdown={tagBreakdown}
                 loading={tagBreakdownLoading}
                 error={tagBreakdownError}
-                currency={displayCurrency}
-                fxRate={fxRate}
                 orientation="horizontal"
                 tableColumns={buildColumns(displayCurrency, "Tag", fxRate)}
               />
@@ -693,16 +695,12 @@ export function ReportsView({
                 breakdown={dayOfWeekBreakdown}
                 loading={dayOfWeekBreakdownLoading}
                 error={dayOfWeekBreakdownError}
-                currency={displayCurrency}
-                fxRate={fxRate}
                 tableColumns={buildColumns(displayCurrency, "Day", fxRate)}
               />
               <ReportsHourlyList
                 breakdown={hourOfDayBreakdown}
                 loading={hourOfDayBreakdownLoading}
                 error={hourOfDayBreakdownError}
-                currency={displayCurrency}
-                fxRate={fxRate}
               />
             </div>
 
@@ -718,8 +716,6 @@ export function ReportsView({
               breakdown={symbolBreakdown}
               loading={symbolBreakdownLoading}
               error={symbolBreakdownError}
-              currency={displayCurrency}
-              fxRate={fxRate}
             />
           </TabsContent>
 

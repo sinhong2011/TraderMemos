@@ -1,7 +1,10 @@
 import { render, screen, within } from "@testing-library/react";
+import type { CellContext } from "@tanstack/react-table";
+import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vite-plus/test";
+import { ReportsDisplayProvider } from "../../components/ReportsDisplayContext";
 import type { BreakGroup } from "../../lib/api/types";
-import { ReportsView } from "./ReportsView";
+import { ReportsView, buildColumns } from "./ReportsView";
 
 // useMoneyFx pulls in useQuery, which needs a QueryClientProvider; mock it the
 // same way DashboardView.test.tsx does so ReportsView can render standalone.
@@ -219,5 +222,49 @@ describe("ReportsView", () => {
     );
     screen.getByRole("tab", { name: "Detailed" }).click();
     expect(onTabChange).toHaveBeenCalledWith("detailed");
+  });
+});
+
+// DataTable is mocked above (its virtualizer needs a sized container in
+// jsdom), which bypasses buildColumns' real net_pnl cell renderer — so the
+// column's `cell` function is exercised directly instead, wrapped in a
+// ReportsDisplayProvider like the other breakdown-family cards.
+describe("buildColumns net_pnl cell", () => {
+  function fakeInfo(g: BreakGroup): CellContext<BreakGroup, number> {
+    return { row: { original: g } } as unknown as CellContext<BreakGroup, number>;
+  }
+
+  function renderNetPnlCell(g: BreakGroup) {
+    const columns = buildColumns("USD", "Symbol");
+    const netPnlCol = columns.find((c) => c.id === "net_pnl")!;
+    const cellFn = netPnlCol.cell as (info: CellContext<BreakGroup, number>) => ReactNode;
+    return cellFn(fakeInfo(g));
+  }
+
+  it("shows the gross P&L when pnlMode is gross", () => {
+    // net_pnl (100) differs from gross (gross_profit - gross_loss = 260 - 60 = 200).
+    const g = grp("AAPL", 100);
+    g.summary.gross_profit = 260;
+    g.summary.gross_loss = 60;
+    render(
+      <ReportsDisplayProvider
+        value={{ pnlMode: "gross", unitMode: "abs", denominator: 0, currency: "USD", fxRate: 1 }}
+      >
+        {renderNetPnlCell(g)}
+      </ReportsDisplayProvider>,
+    );
+    expect(screen.getByText("+$200.00")).toBeInTheDocument();
+  });
+
+  it("shows a percentage of the denominator when unitMode is pct", () => {
+    const g = grp("AAPL", 250);
+    render(
+      <ReportsDisplayProvider
+        value={{ pnlMode: "net", unitMode: "pct", denominator: 1000, currency: "USD", fxRate: 1 }}
+      >
+        {renderNetPnlCell(g)}
+      </ReportsDisplayProvider>,
+    );
+    expect(screen.getByText("25%")).toBeInTheDocument();
   });
 });

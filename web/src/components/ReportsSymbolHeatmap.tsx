@@ -2,18 +2,15 @@ import { ResponsiveContainer, Tooltip, Treemap } from "recharts";
 import { Card } from "./Card";
 import { ChartFrame, chartTheme } from "./ChartFrame";
 import { EmptyState } from "./EmptyState";
+import { useReportsMoney } from "./ReportsDisplayContext";
 import { Skeleton } from "./Skeleton";
 import type { BreakGroup } from "../lib/api/types";
 import { usePrivacyMode } from "../lib/displayPrefs";
-import { fmtMoneyCompact, fmtSignedMoney } from "../lib/format";
-import { intlLocale } from "../lib/locale";
 
 export interface ReportsSymbolHeatmapProps {
   breakdown: BreakGroup[];
   loading: boolean;
   error: boolean;
-  currency: string;
-  fxRate?: number;
 }
 
 export interface HeatmapNode {
@@ -22,11 +19,20 @@ export interface HeatmapNode {
   netPnl: number;
 }
 
-/** One treemap node per symbol that has trades; area (size) encodes trade count. */
-export function buildHeatmapNodes(breakdown: BreakGroup[]): HeatmapNode[] {
+/**
+ * One treemap node per symbol that has trades; area (size) encodes trade
+ * count. `pnlOf` defaults to raw net_pnl but callers pass a net/gross-aware
+ * money.pnl() so the tile color/opacity and displayed value honor the
+ * Reports display mode (this is a plain function, so it can't call the
+ * useReportsMoney() hook itself).
+ */
+export function buildHeatmapNodes(
+  breakdown: BreakGroup[],
+  pnlOf: (g: BreakGroup) => number = (g) => g.summary.net_pnl,
+): HeatmapNode[] {
   return breakdown
     .filter((g) => g.summary.total_trades > 0)
-    .map((g) => ({ name: g.key, size: g.summary.total_trades, netPnl: g.summary.net_pnl }));
+    .map((g) => ({ name: g.key, size: g.summary.total_trades, netPnl: pnlOf(g) }));
 }
 
 /** Diverging fill: profit green / loss rose, opacity by |netPnl| vs the largest mover. */
@@ -35,7 +41,7 @@ export function tileStyle(netPnl: number, maxAbs: number): { fill: string; fillO
   return { fill: netPnl >= 0 ? "var(--color-profit)" : "var(--color-loss)", fillOpacity };
 }
 
-interface HeatCellProps {
+export interface HeatCellProps {
   x?: number;
   y?: number;
   width?: number;
@@ -44,12 +50,12 @@ interface HeatCellProps {
   netPnl?: number;
   payload?: HeatmapNode;
   maxAbs: number;
-  currency: string;
-  fxRate: number;
-  locale: string;
 }
 
-function HeatCell({
+/** Exported for direct testing — recharts' Treemap `content` renders zero-size
+ * cells in jsdom (no real layout), so tests render this in isolation with
+ * explicit width/height instead of through the full chart. */
+export function HeatCell({
   x = 0,
   y = 0,
   width = 0,
@@ -58,10 +64,8 @@ function HeatCell({
   netPnl,
   payload,
   maxAbs,
-  currency,
-  fxRate,
-  locale,
 }: HeatCellProps) {
+  const money = useReportsMoney();
   if (width <= 0 || height <= 0) return null;
   // recharts spreads the node onto the cell props; fall back to payload if not.
   const net = netPnl ?? payload?.netPnl ?? 0;
@@ -86,7 +90,7 @@ function HeatCell({
             {label}
           </text>
           <text x={x + 6} y={y + 30} fontSize={10} fill="var(--color-text-muted)">
-            {fmtMoneyCompact(net * fxRate, currency, locale)}
+            {money.formatCompact(net)}
           </text>
         </>
       ) : null}
@@ -94,16 +98,10 @@ function HeatCell({
   );
 }
 
-export function ReportsSymbolHeatmap({
-  breakdown,
-  loading,
-  error,
-  currency,
-  fxRate = 1,
-}: ReportsSymbolHeatmapProps) {
+export function ReportsSymbolHeatmap({ breakdown, loading, error }: ReportsSymbolHeatmapProps) {
   usePrivacyMode();
-  const locale = intlLocale();
-  const nodes = buildHeatmapNodes(breakdown);
+  const money = useReportsMoney();
+  const nodes = buildHeatmapNodes(breakdown, (g) => money.pnl(g.summary));
   const maxAbs = Math.max(1, ...nodes.map((n) => Math.abs(n.netPnl)));
 
   return (
@@ -121,9 +119,7 @@ export function ReportsSymbolHeatmap({
               data={nodes as any}
               dataKey="size"
               isAnimationActive={false}
-              content={
-                <HeatCell maxAbs={maxAbs} currency={currency} fxRate={fxRate} locale={locale} />
-              }
+              content={<HeatCell maxAbs={maxAbs} />}
             >
               <Tooltip
                 contentStyle={{
@@ -135,10 +131,7 @@ export function ReportsSymbolHeatmap({
                 formatter={(_v, _n, item) => {
                   const p = item?.payload as HeatmapNode | undefined;
                   if (!p) return ["", ""];
-                  return [
-                    `${fmtSignedMoney(p.netPnl * fxRate, currency, locale)} · ${p.size} trades`,
-                    p.name,
-                  ];
+                  return [`${money.format(p.netPnl)} · ${p.size} trades`, p.name];
                 }}
               />
             </Treemap>

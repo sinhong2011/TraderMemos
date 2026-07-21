@@ -2,12 +2,24 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Card } from "./Card";
 import { DataTable } from "./DataTable";
 import { EmptyState } from "./EmptyState";
+import { useReportsMoney } from "./ReportsDisplayContext";
 import { Skeleton } from "./Skeleton";
 import { pnlColor } from "./theme-tokens";
-import type { BreakGroup } from "../lib/api/types";
+import type { BreakGroup, Summary } from "../lib/api/types";
 import { usePrivacyMode } from "../lib/displayPrefs";
 import { fmtPct, fmtSignedMoney } from "../lib/format";
 import { intlLocale } from "../lib/locale";
+
+/** Net P&L cell — the only session-table column that honors the Reports
+ * net/gross + $/% display mode; PF/avg-trade/expectancy stay net-$ (the API
+ * doesn't expose gross variants of those derived per-trade stats). Exported
+ * so tests can render it directly (DataTable is mocked in tests since its
+ * virtualizer needs a sized container in jsdom, which bypasses real cells). */
+export function SessionPnlCell({ summary }: { summary: Summary }) {
+  const money = useReportsMoney();
+  const pnl = money.pnl(summary);
+  return <span className={`tabular-nums ${pnlColor(pnl)}`}>{money.format(pnl)}</span>;
+}
 
 export interface ReportsSessionTableProps {
   breakdown: BreakGroup[];
@@ -48,14 +60,7 @@ function buildSessionColumns(
       id: "net_pnl",
       accessorFn: (row) => row.summary.net_pnl,
       header: "Net P&L",
-      cell: (info) => {
-        const v = info.getValue<number>();
-        return (
-          <span className={`tabular-nums ${pnlColor(v)}`}>
-            {fmtSignedMoney(v * fxRate, currency, locale)}
-          </span>
-        );
-      },
+      cell: (info) => <SessionPnlCell summary={info.row.original.summary} />,
     },
     {
       id: "avg_trade",
@@ -76,9 +81,7 @@ function buildSessionColumns(
       header: "PF",
       cell: (info) => {
         const v = info.getValue<number>();
-        return (
-          <span className="tabular-nums text-text">{v > 0 ? v.toFixed(2) : "—"}</span>
-        );
+        return <span className="tabular-nums text-text">{v > 0 ? v.toFixed(2) : "—"}</span>;
       },
     },
     {
