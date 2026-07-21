@@ -1,5 +1,12 @@
-import { ArrowDownRight, ArrowUpRight, CalendarDays, X } from "lucide-react";
-import { useRef } from "react";
+import {
+  ArrowDownRight,
+  ArrowUpRight,
+  CalendarDays,
+  ChevronLeft,
+  ChevronRight,
+  X,
+} from "lucide-react";
+import { useRef, useState } from "react";
 import { CalendarDayHoverCard } from "../../components/CalendarDayHoverCard";
 import { CalendarYearView } from "../../components/CalendarYearView";
 import { Card } from "../../components/Card";
@@ -22,13 +29,15 @@ import {
   ItemMedia,
   ItemTitle,
 } from "../../components/Item";
+import { Modal } from "../../components/Modal";
 import { MonthPicker } from "../../components/MonthPicker";
 import { Page } from "../../components/Page";
 import { Pill } from "../../components/Pill";
 import { SegmentedControl } from "../../components/SegmentedControl";
 import { Skeleton } from "../../components/Skeleton";
 import { Button } from "../../components/ui/button";
-import { pnlBgTint, pnlColor } from "../../components/theme-tokens";
+import { pnlBgTint, pnlColor, heroPnlClass } from "../../components/theme-tokens";
+
 import { TradeRowMenu } from "../../components/TradeRowMenu";
 import { marketLabel, tradeStatus } from "../../components/tradeColumns";
 import type { Account, Summary, Trade } from "../../lib/api/types";
@@ -46,9 +55,11 @@ import { intlLocale } from "../../lib/locale";
 import { usePrivacyMode } from "../../lib/displayPrefs";
 
 const DOW_HEADERS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const GRID_COLS = {
-  gridTemplateColumns: "repeat(7, minmax(0, 1fr)) minmax(7.5rem, 0.9fr)",
-} as const;
+/** Weekend day-of-week indexes (Sun=0, Sat=6) — hidden below `md` in favor of taller Mon–Fri cells. */
+const WEEKEND_DOW = new Set([0, 6]);
+// Below `md`: 5 columns, Mon–Fri only. From `md` up: full 7 days + week-summary column.
+const GRID_COLS_CLASS =
+  "grid-cols-5 md:[grid-template-columns:repeat(7,minmax(0,1fr))_minmax(7.5rem,0.9fr)]";
 
 const VIEW_OPTS = [
   { value: "month", label: "Month" },
@@ -116,28 +127,6 @@ function formatDayTitle(isoDate: string): string {
     day: "numeric",
     year: "numeric",
   });
-}
-
-function HeaderStat({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="flex items-baseline gap-1.5">
-      <span className="text-xs text-text-muted">{label}</span>
-      <span className="text-xs font-semibold tabular-nums text-text">{children}</span>
-    </div>
-  );
-}
-
-function MonthStatChip({ children, className }: { children: React.ReactNode; className?: string }) {
-  return (
-    <span
-      className={cn(
-        "inline-flex items-center rounded-control px-2.5 py-1 text-[13px] font-semibold tabular-nums",
-        className,
-      )}
-    >
-      {children}
-    </span>
-  );
 }
 
 function dayTradeCount(rec: DayRecord | undefined): number {
@@ -374,6 +363,8 @@ export function CalendarView({
   onFilterSymbol,
 }: CalendarViewProps) {
   usePrivacyMode();
+  const [monthSummaryOpen, setMonthSummaryOpen] = useState(false);
+  const [yearSummaryOpen, setYearSummaryOpen] = useState(false);
   const { currency: displayCurrency, rate } = useMoneyFx(currency);
   const fxRate = rate ?? 1;
   const money = (v: number) => v * fxRate;
@@ -404,6 +395,25 @@ export function CalendarView({
   }, 0);
   const yearPct = starting > 0 ? (yearPnlTotal / starting) * 100 : null;
 
+  const yearTradingDays = Object.keys(yearDailyPnl).filter((key) =>
+    key.startsWith(`${year}-`),
+  ).length;
+  const yearTrades = Object.entries(yearTradesByMonth).reduce(
+    (sum, [key, count]) => (key.startsWith(`${year}-`) ? sum + count : sum),
+    0,
+  );
+  const yearWinLoss = Object.entries(yearDayRecords).reduce(
+    (acc, [date, rec]) => {
+      if (!date.startsWith(`${year}-`)) return acc;
+      return { wins: acc.wins + rec.wins, losses: acc.losses + rec.losses };
+    },
+    { wins: 0, losses: 0 },
+  );
+  const yearWinRate =
+    yearWinLoss.wins + yearWinLoss.losses > 0
+      ? yearWinLoss.wins / (yearWinLoss.wins + yearWinLoss.losses)
+      : null;
+
   const visibleWeekIndexes = grid.weeks
     .map((week, wi) => (week.every((c) => c == null) ? -1 : wi))
     .filter((wi) => wi >= 0);
@@ -428,67 +438,93 @@ export function CalendarView({
     <>
       <Page fill className="min-h-[calc(100dvh-52px)]">
         <Card fill flush className="min-h-0">
-          <div className="relative flex shrink-0 flex-wrap items-center gap-3 px-4 pt-3 pb-5">
-            <div className="relative z-[1]">
-              <SegmentedControl
-                ariaLabel="Calendar mode"
-                options={[...VIEW_OPTS]}
-                value={mode}
-                onChange={(v) => changeMode(v as CalendarMode)}
-              />
+          <div className="relative grid shrink-0 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-x-2 gap-y-2 px-4 pt-3 pb-5">
+            <div className="justify-self-start">
+              <div className="md:hidden">
+                <SegmentedControl
+                  ariaLabel="Calendar mode"
+                  options={[...VIEW_OPTS]}
+                  value={mode}
+                  onChange={(v) => changeMode(v as CalendarMode)}
+                  size="xs"
+                />
+              </div>
+              <div className="hidden md:block">
+                <SegmentedControl
+                  ariaLabel="Calendar mode"
+                  options={[...VIEW_OPTS]}
+                  value={mode}
+                  onChange={(v) => changeMode(v as CalendarMode)}
+                />
+              </div>
             </div>
 
-            {mode === "month" ? (
-              <MonthPicker
-                year={year}
-                month={month}
-                onPrevMonth={onPrevMonth}
-                onNextMonth={onNextMonth}
-                onToday={onToday}
-                onJumpToMonth={onJumpToMonth}
-                canGoNext={canGoNextMonth}
-              />
-            ) : (
-              <p className="pointer-events-none absolute inset-x-0 text-center text-[13px] font-medium text-text">
-                Year overview
-              </p>
-            )}
-
-            <div className="relative z-[1] ml-auto flex flex-wrap items-center gap-2">
+            <div className="justify-self-center">
               {mode === "month" ? (
-                <>
-                  <MonthStatChip className={cn(monthPnl >= 0 ? "text-profit" : "text-loss")}>
-                    {fmtSignedMoneyCompact(money(monthPnl), displayCurrency, intlLocale())}
-                    {monthPct != null && (
-                      <span className="ml-1 font-medium opacity-80">({monthPct.toFixed(1)}%)</span>
-                    )}
-                  </MonthStatChip>
-                  {tradingDays > 0 && (
-                    <MonthStatChip className="text-accent">
-                      {tradingDays} {tradingDays === 1 ? "day" : "days"}
-                    </MonthStatChip>
-                  )}
-                  {monthSummary && (
-                    <div className="ml-1 hidden items-center gap-3 sm:flex">
-                      <HeaderStat label="Trades">{monthSummary.total_trades}</HeaderStat>
-                      <HeaderStat label="WR">
-                        {fmtPct(monthSummary.win_rate, intlLocale())}
-                      </HeaderStat>
-                      <HeaderStat label="PF">
-                        {monthSummary.profit_factor === 0
-                          ? "-"
-                          : monthSummary.profit_factor.toFixed(2)}
-                      </HeaderStat>
-                    </div>
-                  )}
-                </>
+                <MonthPicker
+                  year={year}
+                  month={month}
+                  onPrevMonth={onPrevMonth}
+                  onNextMonth={onNextMonth}
+                  onToday={onToday}
+                  onJumpToMonth={onJumpToMonth}
+                  canGoNext={canGoNextMonth}
+                />
               ) : (
-                <MonthStatChip className={cn(yearPnlTotal >= 0 ? "text-profit" : "text-loss")}>
-                  {fmtSignedMoneyCompact(money(yearPnlTotal), displayCurrency, intlLocale())}
-                  {yearPct != null && (
-                    <span className="ml-1 font-medium opacity-80">({yearPct.toFixed(1)}%)</span>
+                <div className="flex items-center gap-1 md:gap-2">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-sm"
+                    onClick={onPrevYear}
+                    aria-label="Previous year"
+                    className="pointer-coarse:size-11"
+                  >
+                    <ChevronLeft size={14} strokeWidth={1.5} />
+                  </Button>
+                  <span className="min-w-[4.5rem] text-center text-[13px] font-semibold tabular-nums tracking-[-0.02em] text-text md:text-[15px]">
+                    {year}
+                  </span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-sm"
+                    onClick={onNextYear}
+                    disabled={!canGoNextYear}
+                    aria-label="Next year"
+                    className="pointer-coarse:size-11"
+                  >
+                    <ChevronRight size={14} strokeWidth={1.5} />
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            <div className="justify-self-end">
+              {mode === "month" ? (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => setMonthSummaryOpen(true)}
+                  className={cn(
+                    "shrink-0 font-semibold tabular-nums",
+                    monthPnl >= 0 ? "text-profit" : "text-loss",
                   )}
-                </MonthStatChip>
+                >
+                  {fmtSignedMoneyCompact(money(monthPnl), displayCurrency, intlLocale())}
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => setYearSummaryOpen(true)}
+                  className={cn(
+                    "shrink-0 font-semibold tabular-nums",
+                    yearPnlTotal >= 0 ? "text-profit" : "text-loss",
+                  )}
+                >
+                  {fmtSignedMoneyCompact(money(yearPnlTotal), displayCurrency, intlLocale())}
+                </Button>
               )}
             </div>
           </div>
@@ -512,9 +548,6 @@ export function CalendarView({
                 error={yearDailyError}
                 currency={displayCurrency}
                 fxRate={fxRate}
-                onPrevYear={onPrevYear}
-                onNextYear={onNextYear}
-                canGoNext={canGoNextYear}
                 onSelectMonth={(m) => {
                   onJumpToMonth(year, m);
                   changeMode("month");
@@ -524,18 +557,29 @@ export function CalendarView({
               <Skeleton height="100%" className="m-4 min-h-[320px] flex-1" />
             ) : dailyError ? (
               <p className="p-4 text-xs text-loss">Failed to load daily P&L.</p>
+            ) : !hasAnyPnl ? (
+              <div className="flex flex-1 items-center justify-center p-3 md:p-4">
+                <EmptyState
+                  title="No trades this month"
+                  hint="Navigate to a month with trades to see the P&L heatmap."
+                  icon={<CalendarDays size={32} strokeWidth={1.5} />}
+                />
+              </div>
             ) : (
-              <div className="flex min-h-0 flex-1 flex-col px-3 pb-3 sm:px-4 sm:pb-4">
-                <div className="mb-1.5 grid shrink-0 gap-1.5" style={GRID_COLS}>
-                  {DOW_HEADERS.map((d) => (
+              <div className="flex min-h-0 flex-1 flex-col p-3 md:p-4">
+                <div className={cn("mb-1.5 grid shrink-0 gap-1 md:gap-1.5", GRID_COLS_CLASS)}>
+                  {DOW_HEADERS.map((d, di) => (
                     <div
                       key={d}
-                      className="px-1 py-1 text-center text-[11px] font-medium text-text-muted"
+                      className={cn(
+                        "px-1 py-1 text-center text-[11px] font-medium text-text-muted",
+                        WEEKEND_DOW.has(di) && "hidden md:block",
+                      )}
                     >
                       {d}
                     </div>
                   ))}
-                  <div className="px-1 py-1 text-center text-[11px] font-medium text-text-muted">
+                  <div className="hidden px-1 py-1 text-center text-[11px] font-medium text-text-muted md:block">
                     Week
                   </div>
                 </div>
@@ -545,10 +589,24 @@ export function CalendarView({
                     const week = grid.weeks[wi];
                     const ws = weeks[wi];
                     return (
-                      <div key={wi} className="grid min-h-[88px] flex-1 gap-1.5" style={GRID_COLS}>
+                      <div
+                        key={wi}
+                        className={cn(
+                          "grid min-h-[76px] flex-1 gap-1 md:min-h-[88px] md:gap-1.5",
+                          GRID_COLS_CLASS,
+                        )}
+                      >
                         {week.map((cell, di) => {
                           if (!cell) {
-                            return <div key={di} className="h-full min-h-0" />;
+                            return (
+                              <div
+                                key={di}
+                                className={cn(
+                                  "h-full min-h-0",
+                                  WEEKEND_DOW.has(di) && "hidden md:block",
+                                )}
+                              />
+                            );
                           }
                           const dayNum = Number(cell.date.slice(8, 10));
                           const hasPnl = cell.pnl != null;
@@ -570,7 +628,7 @@ export function CalendarView({
                               {hasPnl ? (
                                 <span className="flex min-h-0 flex-1 flex-col items-center justify-center gap-0.5">
                                   <span
-                                    className="text-base font-semibold tabular-nums sm:text-lg"
+                                    className="text-[11px] font-semibold tabular-nums md:text-base lg:text-lg"
                                     style={{ color: dayColor(cell.pnl!) }}
                                   >
                                     {fmtSignedMoneyCompact(
@@ -599,10 +657,11 @@ export function CalendarView({
                             </>
                           );
                           const dayClass = cn(
-                            "relative flex h-full min-h-0 w-full flex-col rounded-control px-2 py-1.5 text-left transition-colors duration-150",
+                            "relative flex h-full min-h-0 w-full flex-col justify-start rounded-control px-1 py-1 text-left transition-colors duration-150 md:px-2 md:py-1.5",
                             hasPnl ? "cursor-pointer" : "cursor-default",
                             isToday && !hasPnl && "bg-tint-signal",
                             isSelected && "ring-1 ring-accent ring-inset",
+                            WEEKEND_DOW.has(di) && "hidden md:flex",
                           );
                           const dayStyle = {
                             background: hasPnl
@@ -661,7 +720,7 @@ export function CalendarView({
 
                         <div
                           className={cn(
-                            "relative flex h-full min-h-0 w-full flex-col rounded-control px-2.5 py-1.5",
+                            "relative hidden h-full min-h-0 w-full flex-col rounded-control px-2.5 py-1.5 md:flex",
                             !ws.hasData && "bg-bg-inset",
                           )}
                           style={ws.hasData ? { background: pnlBgTint(ws.pnl) } : undefined}
@@ -674,7 +733,7 @@ export function CalendarView({
                           {ws.hasData ? (
                             <span className="flex h-full min-h-0 w-full flex-col items-center justify-center gap-1.5">
                               <span
-                                className="text-base font-semibold tabular-nums sm:text-lg"
+                                className="text-base font-semibold tabular-nums md:text-lg"
                                 style={{ color: dayColor(ws.pnl) }}
                               >
                                 {fmtSignedMoneyCompact(
@@ -702,16 +761,6 @@ export function CalendarView({
                     );
                   })}
                 </div>
-
-                {!hasAnyPnl && (
-                  <div className="flex flex-1 items-center justify-center py-6">
-                    <EmptyState
-                      title="No trades this month"
-                      hint="Navigate to a month with trades to see the P&L heatmap."
-                      icon={<CalendarDays size={32} strokeWidth={1.5} />}
-                    />
-                  </div>
-                )}
               </div>
             )}
           </div>
@@ -730,6 +779,128 @@ export function CalendarView({
         onOpenFullPage={onOpenFullPage}
         onFilterSymbol={onFilterSymbol}
       />
+
+      <Modal
+        open={monthSummaryOpen}
+        onOpenChange={setMonthSummaryOpen}
+        title={formatMonthTitle(year, month)}
+        className="max-w-[min(380px,94vw)]"
+        bodyClassName="gap-5"
+      >
+        <PeriodSummaryBody
+          pnl={money(monthPnl)}
+          pct={monthPct}
+          currency={displayCurrency}
+          stats={[
+            { label: "Days", value: String(tradingDays) },
+            {
+              label: "Trades",
+              value: monthSummary ? String(monthSummary.total_trades) : "—",
+            },
+            {
+              label: "Win rate",
+              value: monthSummary ? fmtPct(monthSummary.win_rate, intlLocale()) : "—",
+            },
+            {
+              label: "Profit factor",
+              value: monthSummary
+                ? monthSummary.profit_factor === 0
+                  ? "—"
+                  : monthSummary.profit_factor.toFixed(2)
+                : "—",
+            },
+          ]}
+        />
+      </Modal>
+
+      <Modal
+        open={yearSummaryOpen}
+        onOpenChange={setYearSummaryOpen}
+        title={String(year)}
+        className="max-w-[min(380px,94vw)]"
+        bodyClassName="gap-5"
+      >
+        <PeriodSummaryBody
+          pnl={money(yearPnlTotal)}
+          pct={yearPct}
+          currency={displayCurrency}
+          stats={[
+            { label: "Days", value: String(yearTradingDays) },
+            { label: "Trades", value: String(yearTrades) },
+            {
+              label: "Win rate",
+              value: yearWinRate != null ? fmtPct(yearWinRate, intlLocale()) : "—",
+            },
+          ]}
+        />
+      </Modal>
     </>
+  );
+}
+
+function formatMonthTitle(year: number, month: number): string {
+  return new Date(year, month - 1, 1).toLocaleDateString(intlLocale(), {
+    month: "long",
+    year: "numeric",
+  });
+}
+
+function PeriodSummaryBody({
+  pnl,
+  pct,
+  currency,
+  stats,
+}: {
+  pnl: number;
+  pct?: number | null;
+  currency: string;
+  stats: { label: string; value: string }[];
+}) {
+  return (
+    <div className="flex flex-col gap-5">
+      <div
+        className="relative overflow-hidden rounded-control px-4 py-7 text-center"
+        style={{ background: pnlBgTint(pnl, { minOpacity: 0.07, maxOpacity: 0.2, scale: 400 }) }}
+      >
+        <p className="m-0 text-[11px] font-medium uppercase tracking-[0.12em] text-text-muted">
+          Net P&L
+        </p>
+        <p
+          className={cn(
+            "m-0 mt-2.5",
+            heroPnlClass(pnl),
+            pnl > 0 && "hero-glow-profit",
+            pnl < 0 && "hero-glow-loss",
+          )}
+        >
+          {fmtSignedMoneyCompact(pnl, currency, intlLocale())}
+        </p>
+        {pct != null ? (
+          <p className={cn("m-0 mt-2 text-[15px] font-semibold tabular-nums", pnlColor(pct))}>
+            {pct >= 0 ? "+" : ""}
+            {pct.toFixed(1)}%
+          </p>
+        ) : null}
+      </div>
+
+      <div className={cn("grid gap-2", stats.length === 3 ? "grid-cols-3" : "grid-cols-2")}>
+        {stats.map((stat) => (
+          <PeriodSummaryStat key={stat.label} label={stat.label} value={stat.value} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function PeriodSummaryStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex min-w-0 flex-col gap-1.5 rounded-control bg-bg px-3 py-3">
+      <p className="m-0 truncate text-[10px] font-medium uppercase tracking-[0.1em] text-text-muted">
+        {label}
+      </p>
+      <p className="m-0 text-[18px] font-semibold tracking-[-0.02em] tabular-nums text-text">
+        {value}
+      </p>
+    </div>
   );
 }

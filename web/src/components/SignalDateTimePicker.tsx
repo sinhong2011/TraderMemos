@@ -56,12 +56,18 @@ function nowDatetimeLocal(): string {
   return formatDatetimeLocal(d, d.getHours(), d.getMinutes(), d.getSeconds());
 }
 
-/** Closed-trigger label: `yyyy-MM-dd HH:mm:ss` (24-hour). */
+/** Closed-trigger label — matches fill list timestamps (e.g. `Jul 20, 09:35 PM`). */
 function formatDisplay(value: string): string | null {
   const parsed = parseDatetimeLocal(value);
   if (!parsed) return null;
   const { date, hours, minutes, seconds } = parsed;
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+  const d = new Date(date.getFullYear(), date.getMonth(), date.getDate(), hours, minutes, seconds);
+  return d.toLocaleString(undefined, {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 function TimeColumn({

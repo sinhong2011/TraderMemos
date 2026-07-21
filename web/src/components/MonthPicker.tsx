@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 import { cn } from "../lib/cn";
 import { intlLocale } from "../lib/locale";
 import { SignalPopover } from "./SignalPopover";
-import { SignalSelect } from "./SignalSelect";
 import { Button } from "./ui/button";
+import { NativeSelect, NativeSelectOption } from "./ui/native-select";
 
 /** Sidebar shortcut styled like the DateRangePanel presets. */
 function QuickJump({
@@ -103,13 +103,14 @@ export function MonthPicker({
   }
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-1 md:gap-2">
       <Button
         type="button"
         variant="ghost"
         size="icon-sm"
         onClick={onPrevMonth}
         aria-label="Previous month"
+        className="pointer-coarse:size-11"
       >
         <ChevronLeft size={14} strokeWidth={1.5} />
       </Button>
@@ -121,8 +122,9 @@ export function MonthPicker({
         triggerAriaLabel={`${monthLabel}, choose month`}
         className="overflow-hidden p-0"
         triggerClassName={cn(
-          "h-7 min-w-[9.5rem] rounded-control border-none bg-bg-input px-2.5",
-          "text-[13px] font-semibold tabular-nums text-text",
+          "h-8 min-w-[6.5rem] rounded-control border-none bg-bg-input px-2.5 md:h-7 md:min-w-[9.5rem]",
+          "max-md:pointer-coarse:h-8 md:pointer-coarse:h-11",
+          "text-[11px] font-semibold tabular-nums text-text md:text-[13px]",
           "transition-[background-color] duration-150",
           "hover:bg-bg-input-hover",
           open && "bg-bg-input-hover",
@@ -148,8 +150,14 @@ export function MonthPicker({
               Quick jump
             </p>
             <div className="flex flex-col gap-0.5 px-2 pb-3">
-              <QuickJump active={isThisMonth} onClick={() => applyQuick(0)}>
-                This month
+              <QuickJump
+                active={isThisMonth}
+                onClick={() => {
+                  onToday();
+                  setOpen(false);
+                }}
+              >
+                Today
               </QuickJump>
               <QuickJump active={isLastMonth} onClick={() => applyQuick(-1)}>
                 Last month
@@ -168,15 +176,20 @@ export function MonthPicker({
               >
                 <ChevronLeft size={14} strokeWidth={1.5} />
               </Button>
-              <SignalSelect
-                value={String(pickerYear)}
-                onValueChange={(v) => setPickerYear(Number(v))}
-                options={yearOptions}
-                ariaLabel="Choose year"
-                ghost
-                className="w-auto"
-                triggerClassName="h-7 w-auto gap-1.5 px-2.5 text-[12px] font-semibold tabular-nums"
-              />
+              <NativeSelect
+                size="sm"
+                variant="ghost"
+                value={pickerYear}
+                onChange={(e) => setPickerYear(Number(e.target.value))}
+                aria-label="Choose year"
+                className="font-semibold tabular-nums"
+              >
+                {yearOptions.map((o) => (
+                  <NativeSelectOption key={o.value} value={o.value}>
+                    {o.label}
+                  </NativeSelectOption>
+                ))}
+              </NativeSelect>
               <Button
                 type="button"
                 variant="ghost"
@@ -226,12 +239,9 @@ export function MonthPicker({
         onClick={onNextMonth}
         disabled={!canGoNext}
         aria-label="Next month"
+        className="pointer-coarse:size-11"
       >
         <ChevronRight size={14} strokeWidth={1.5} />
-      </Button>
-
-      <Button type="button" variant="ghost" size="sm" onClick={onToday} disabled={isThisMonth}>
-        Today
       </Button>
     </div>
   );

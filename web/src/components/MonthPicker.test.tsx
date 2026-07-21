@@ -72,13 +72,16 @@ describe("MonthPicker", () => {
     );
   });
 
-  it("applies quick jumps for this and last month", async () => {
+  it("applies quick jumps for today and last month", async () => {
     const props = makeProps();
     render(<MonthPicker {...props} />);
 
     await userEvent.click(screen.getByRole("button", { name: /choose month/i }));
-    await userEvent.click(screen.getByRole("button", { name: "Last month" }));
+    await userEvent.click(screen.getByRole("button", { name: "Today" }));
+    expect(props.onToday).toHaveBeenCalled();
 
+    await userEvent.click(screen.getByRole("button", { name: /choose month/i }));
+    await userEvent.click(screen.getByRole("button", { name: "Last month" }));
     expect(props.onJumpToMonth).toHaveBeenCalledWith(2026, 6);
   });
 });

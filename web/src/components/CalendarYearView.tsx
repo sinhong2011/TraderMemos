@@ -1,4 +1,3 @@
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { DayRecord } from "../lib/calendar";
 import { monthGrid } from "../lib/calendar";
 import { cn } from "../lib/cn";
@@ -6,7 +5,6 @@ import { fmtSignedMoneyCompact } from "../lib/format";
 import { intlLocale } from "../lib/locale";
 import { CalendarDayHoverCard } from "./CalendarDayHoverCard";
 import { pnlBgTint, pnlColor } from "./theme-tokens";
-import { Button } from "./ui/button";
 import { usePrivacyMode } from "../lib/displayPrefs";
 
 function shortMonth(year: number, month: number, locale: string): string {
@@ -107,7 +105,7 @@ function YearMonthCard({
       aria-label={label}
       style={{ animationDelay: `${index * 35}ms` }}
       className={cn(
-        "group/card relative flex h-full min-h-0 cursor-pointer flex-col overflow-hidden rounded-card bg-bg px-3 py-3 text-left sm:px-4 sm:py-4",
+        "group/card relative flex h-full min-h-0 cursor-pointer flex-col justify-center overflow-hidden rounded-card bg-bg px-3 py-3 text-left sm:justify-start sm:px-4 sm:py-4",
         "transition-[background-color,box-shadow] duration-150 ease-out",
         "hover:bg-bg-elevated hover:shadow-[0_12px_32px_-18px_var(--color-accent-glow)]",
         "active:bg-bg-hover active:shadow-none",
@@ -138,7 +136,7 @@ function YearMonthCard({
       </p>
 
       <div
-        className="relative mt-3 grid min-h-0 w-full flex-1 gap-1"
+        className="relative mt-3 hidden min-h-0 w-full flex-1 gap-1 sm:grid"
         style={{
           gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
           gridTemplateRows: `repeat(${Math.max(weeks.length, 1)}, minmax(0, 1fr))`,
@@ -191,10 +189,7 @@ export interface CalendarYearViewProps {
   error?: boolean;
   currency: string;
   fxRate?: number;
-  onPrevYear: () => void;
-  onNextYear: () => void;
   onSelectMonth: (month: number) => void;
-  canGoNext: boolean;
 }
 
 export function CalendarYearView({
@@ -206,51 +201,10 @@ export function CalendarYearView({
   error,
   currency,
   fxRate = 1,
-  onPrevYear,
-  onNextYear,
   onSelectMonth,
-  canGoNext,
 }: CalendarYearViewProps) {
   return (
-    <div className="flex min-h-0 flex-1 flex-col px-3 pb-4 sm:px-4">
-      <div className="mb-4 flex shrink-0 items-center justify-center gap-2">
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          aria-label="Previous year"
-          onClick={onPrevYear}
-          className={cn(
-            "transition-[background-color,color,transform] duration-150 ease-out",
-            "hover:scale-105 active:scale-95",
-            "motion-reduce:transition-colors motion-reduce:hover:scale-100 motion-reduce:active:scale-100",
-          )}
-        >
-          <ChevronLeft size={18} strokeWidth={1.75} />
-        </Button>
-        <h2
-          key={year}
-          className="min-w-[4.5rem] animate-[year-card-in_200ms_var(--ease-out)_both] text-center text-[18px] font-semibold tracking-[-0.02em] text-text motion-reduce:animate-none"
-        >
-          {year}
-        </h2>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          aria-label="Next year"
-          onClick={onNextYear}
-          disabled={!canGoNext}
-          className={cn(
-            "transition-[background-color,color,transform] duration-150 ease-out",
-            "hover:scale-105 active:scale-95",
-            "motion-reduce:transition-colors motion-reduce:hover:scale-100 motion-reduce:active:scale-100",
-          )}
-        >
-          <ChevronRight size={18} strokeWidth={1.75} />
-        </Button>
-      </div>
-
+    <div className="flex min-h-0 flex-1 flex-col px-3 pb-4 md:px-4">
       {loading ? (
         <div className="flex flex-1 items-center justify-center text-[12px] text-text-muted">
           Loading…
@@ -260,7 +214,7 @@ export function CalendarYearView({
       ) : (
         <div
           key={year}
-          className="grid min-h-0 flex-1 grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 lg:auto-rows-fr"
+          className="grid min-h-0 flex-1 grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 lg:auto-rows-fr"
         >
           {Array.from({ length: 12 }, (_, i) => {
             const m = i + 1;

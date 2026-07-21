@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vite-plus/test";
 import type { Summary, Trade } from "../../lib/api/types";
 import { CalendarView } from "./CalendarView";
@@ -77,13 +78,18 @@ const BASE = {
 };
 
 describe("CalendarView", () => {
-  it("renders the month stats header", () => {
+  it("renders compact P&L and opens month summary details in a modal", async () => {
     render(<CalendarView {...BASE} />);
     expect(screen.getByRole("button", { name: /July 2026, choose month/i })).toBeInTheDocument();
+
+    const pnlBtn = screen.getByRole("button", { name: /-\$61/ });
+    expect(pnlBtn).toBeInTheDocument();
+
+    await userEvent.click(pnlBtn);
+    expect(screen.getByText("Days")).toBeInTheDocument();
     expect(screen.getByText("Trades")).toBeInTheDocument();
-    expect(screen.getByText("WR")).toBeInTheDocument();
-    expect(screen.getByText("PF")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Today" })).toBeInTheDocument();
+    expect(screen.getByText("Win rate")).toBeInTheDocument();
+    expect(screen.getByText("Profit factor")).toBeInTheDocument();
   });
 
   it("renders day cells with pnl and records, plus WEEK column", () => {

@@ -3,7 +3,7 @@ import type { ComponentProps } from "react";
 import { type DateRange, DayPicker } from "react-day-picker";
 import { cn } from "../lib/cn";
 import { intlLocale } from "../lib/locale";
-import { SignalSelect } from "./SignalSelect";
+import { NativeSelect, NativeSelectOption } from "./ui/native-select";
 
 export type { DateRange };
 
@@ -53,9 +53,10 @@ export const signalCalendarClassNames: NonNullable<ComponentProps<typeof DayPick
   };
 
 /**
- * Month/year caption dropdown rendered as a SignalSelect instead of the
- * native <select> react-day-picker ships. rdp's handlers only read
- * `e.target.value`, so a synthetic change event is enough.
+ * Month/year caption dropdown — a real native <select>, styled to match
+ * Signal Terminal. Native beats a custom popover-in-popover here: on touch
+ * devices it opens the OS's own scrollable picker instead of a cramped
+ * nested list.
  */
 function SignalCalendarDropdown({
   options,
@@ -71,24 +72,21 @@ function SignalCalendarDropdown({
   "aria-label"?: string;
 }) {
   return (
-    <SignalSelect
+    <NativeSelect
+      size="sm"
+      variant="ghost"
       value={String(value)}
-      ariaLabel={ariaLabel}
+      onChange={onChange}
       disabled={disabled}
-      options={(options ?? []).map((o) => ({
-        value: String(o.value),
-        label: o.label,
-        disabled: o.disabled,
-      }))}
-      onValueChange={(v) =>
-        onChange?.({
-          target: { value: v },
-        } as React.ChangeEvent<HTMLSelectElement>)
-      }
-      ghost
-      className="w-auto"
-      triggerClassName="h-7 w-auto gap-1.5 px-2 text-[12px] font-medium capitalize"
-    />
+      aria-label={ariaLabel}
+      className="font-medium capitalize"
+    >
+      {(options ?? []).map((o) => (
+        <NativeSelectOption key={o.value} value={o.value} disabled={o.disabled}>
+          {o.label}
+        </NativeSelectOption>
+      ))}
+    </NativeSelect>
   );
 }
 
