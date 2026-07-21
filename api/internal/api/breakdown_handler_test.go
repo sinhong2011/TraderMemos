@@ -119,6 +119,41 @@ func TestBreakdownByTradeQuality(t *testing.T) {
 	require.Equal(t, -100.0, got["unrated"], "unrated MSFT trade")
 }
 
+func TestBreakdownBySideDuration(t *testing.T) {
+	s := testServer(t)
+	tok := registerAndLogin(t, s, "sd@x.com")
+	acc := accountID(t, s, tok)
+
+	mk := func(sym, side string, qty, price float64, ts string) {
+		body := fmt.Sprintf(`{"account_id":%q,"symbol":%q,"instrument_type":"stock","side":%q,"quantity":%g,"price":%g,"executed_at":%q}`,
+			acc, sym, side, qty, price, ts)
+		require.Equal(t, http.StatusCreated, do(s, http.MethodPost, "/api/v1/executions", body, tok).Code)
+	}
+	// AAPL: long scalp — buy 10:00, sell 10:05 (same ET day, 300s).
+	mk("AAPL", "buy", 100, 10, "2026-01-02T15:00:00Z")
+	mk("AAPL", "sell", 100, 11, "2026-01-02T15:05:00Z")
+	// MSFT: long swing — buy day 1, sell day 3.
+	mk("MSFT", "buy", 50, 20, "2026-01-02T15:00:00Z")
+	mk("MSFT", "sell", 50, 22, "2026-01-05T15:00:00Z")
+
+	// side=long & duration=scalp → only AAPL.
+	rec := do(s, http.MethodGet, "/api/v1/analytics/breakdown?by=symbol&side=long&duration=scalp&account_id="+acc, "", tok)
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+	var out []struct {
+		Key string `json:"key"`
+	}
+	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &out))
+	require.Len(t, out, 1)
+	require.Equal(t, "AAPL", out[0].Key)
+
+	// invalid side → 400
+	require.Equal(t, http.StatusBadRequest,
+		do(s, http.MethodGet, "/api/v1/analytics/breakdown?by=symbol&side=bogus", "", tok).Code)
+	// invalid duration → 400
+	require.Equal(t, http.StatusBadRequest,
+		do(s, http.MethodGet, "/api/v1/analytics/breakdown?by=symbol&duration=bogus", "", tok).Code)
+}
+
 func TestNotesCRUD(t *testing.T) {
 	s := testServer(t)
 	tok := registerAndLogin(t, s, "note@x.com")

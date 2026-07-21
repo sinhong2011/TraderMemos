@@ -5,6 +5,8 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
+	"github.com/tradermemos/api/internal/analytics"
+	"github.com/tradermemos/api/internal/store"
 )
 
 // Filters is the shared query-param filter set used by trades + analytics.
@@ -16,6 +18,8 @@ type Filters struct {
 	To        *time.Time
 	Symbol    string
 	Status    string // "" = all, "open" | "closed"
+	Side      string // "" = all, "long" | "short"
+	Duration  string // "" = all, "scalp" | "day" | "swing"
 }
 
 // parseFilters reads the shared filter query params. Malformed from/to dates
@@ -27,6 +31,14 @@ func parseFilters(c echo.Context) (Filters, error) {
 	f.Status = c.QueryParam("status")
 	if f.Status != "" && f.Status != "open" && f.Status != "closed" {
 		return f, fmt.Errorf("invalid 'status' (want open|closed)")
+	}
+	f.Side = c.QueryParam("side")
+	if f.Side != "" && f.Side != "long" && f.Side != "short" {
+		return f, fmt.Errorf("invalid 'side' (want long|short)")
+	}
+	f.Duration = c.QueryParam("duration")
+	if f.Duration != "" && f.Duration != "scalp" && f.Duration != "day" && f.Duration != "swing" {
+		return f, fmt.Errorf("invalid 'duration' (want scalp|day|swing)")
 	}
 	if v := c.QueryParam("from"); v != "" {
 		t, err := time.Parse(time.RFC3339, v)
@@ -86,4 +98,39 @@ func (f Filters) matchOpened(symbol string, openedAt time.Time) bool {
 		return false
 	}
 	return true
+}
+
+// matchSideDuration applies the Side/Duration filters to a trade. Open trades
+// (no valid close) pass the Side check but fail any Duration filter, since a
+// holding-period bucket requires a close.
+func (f Filters) matchSideDuration(t store.Trade) bool {
+	if f.Side == "long" && t.Direction != "long" {
+		return false
+	}
+	if f.Side == "short" && t.Direction != "short" {
+		return false
+	}
+	if f.Duration != "" {
+		if !t.ClosedAt.Valid {
+			return false
+		}
+		var secs *int64
+		if t.TimeInTradeSecs.Valid {
+			v := t.TimeInTradeSecs.Int64
+			secs = &v
+		}
+		if analytics.DurationBucket(t.OpenedAt, t.ClosedAt.Time, secs) != f.Duration {
+			return false
+		}
+	}
+	return true
+}
+
+// matchTrade layers Side/Duration (and the existing symbol/date checks) onto a
+// closed trade. Trades without a valid close are excluded.
+func (f Filters) matchTrade(t store.Trade) bool {
+	if !t.ClosedAt.Valid || !f.matchClosed(t.Symbol, t.ClosedAt.Time) {
+		return false
+	}
+	return f.matchSideDuration(t)
 }
