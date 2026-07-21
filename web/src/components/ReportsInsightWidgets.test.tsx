@@ -71,4 +71,13 @@ describe("ReportsInsightWidgets", () => {
     expect(screen.queryAllByTestId("donut-seg")).toHaveLength(0);
     expect(screen.getByText("Payoff ratio")).toBeInTheDocument();
   });
+
+  it("shows an infinite payoff and an all-green split bar when avg loss is zero", () => {
+    const noLoss: Summary = { ...summary, avg_win: 100, avg_loss: 0 };
+    render(<ReportsInsightWidgets summary={noLoss} currency="USD" />);
+    expect(screen.getByText("∞")).toBeInTheDocument();
+    // winLossTotal > 0 with avgLoss 0 → win segment takes the full bar width.
+    const winSegment = document.querySelector<HTMLElement>(".bg-profit[style*='width: 100%']");
+    expect(winSegment).not.toBeNull();
+  });
 });
