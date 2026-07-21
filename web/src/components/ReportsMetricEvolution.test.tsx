@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vite-plus/test";
 import type { Trade } from "../lib/api/types";
+import { ReportsDisplayProvider } from "./ReportsDisplayContext";
 import { ReportsMetricEvolution } from "./ReportsMetricEvolution";
 
 function trade(over: Partial<Trade>): Trade {
@@ -41,5 +42,36 @@ describe("ReportsMetricEvolution", () => {
     );
     expect(screen.getByRole("tablist", { name: "Evolution granularity" })).toBeInTheDocument();
     expect(screen.getByRole("tablist", { name: "Right axis metric" })).toBeInTheDocument();
+  });
+
+  it("re-expresses cumulative P&L as a percentage under unitMode pct", () => {
+    render(
+      <ReportsDisplayProvider
+        value={{ pnlMode: "net", unitMode: "pct", denominator: 1000, currency: "USD", fxRate: 1 }}
+      >
+        <ReportsMetricEvolution
+          trades={[trade({ net_pnl: 250, gross_pnl: 250 })]}
+          loading={false}
+          error={false}
+        />
+      </ReportsDisplayProvider>,
+    );
+    // 250 / 1000 = 25%
+    expect(screen.getByTestId("evolution-last-cum-pnl")).toHaveTextContent("25%");
+  });
+
+  it("uses gross trade P&L for cumulative when pnlMode is gross", () => {
+    render(
+      <ReportsDisplayProvider
+        value={{ pnlMode: "gross", unitMode: "abs", denominator: 0, currency: "USD", fxRate: 1 }}
+      >
+        <ReportsMetricEvolution
+          trades={[trade({ net_pnl: 100, gross_pnl: 200 })]}
+          loading={false}
+          error={false}
+        />
+      </ReportsDisplayProvider>,
+    );
+    expect(screen.getByTestId("evolution-last-cum-pnl")).toHaveTextContent("+$200");
   });
 });

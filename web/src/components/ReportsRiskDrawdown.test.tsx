@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vite-plus/test";
 import type { EquityPoint, Trade } from "../lib/api/types";
+import { ReportsDisplayProvider } from "./ReportsDisplayContext";
 import { ReportsRiskDrawdown } from "./ReportsRiskDrawdown";
 
 function trade(over: Partial<Trade>): Trade {
@@ -60,6 +61,30 @@ describe("ReportsRiskDrawdown", () => {
     expect(screen.getByText("Max Drawdown")).toBeInTheDocument();
     expect(screen.getByText("Current Drawdown")).toBeInTheDocument();
     expect(screen.getByText("Avg Risk/Trade")).toBeInTheDocument();
+    expect(screen.getByText("+$150.00")).toBeInTheDocument(); // avg of 100 + 200
     expect(screen.queryByText("Longest Losing Streak")).not.toBeInTheDocument();
+  });
+
+  it("shows Avg Risk/Trade as a percentage under unitMode pct", () => {
+    const points: EquityPoint[] = [
+      { at: "2026-07-01T00:00:00Z", equity: 1000 },
+      { at: "2026-07-02T00:00:00Z", equity: 900 },
+    ];
+    render(
+      <ReportsDisplayProvider
+        value={{ pnlMode: "net", unitMode: "pct", denominator: 1000, currency: "USD", fxRate: 1 }}
+      >
+        <ReportsRiskDrawdown
+          trades={[trade({ initial_risk: 100 }), trade({ id: "t2", initial_risk: 200 })]}
+          equityPoints={points}
+          loading={false}
+          error={false}
+        />
+      </ReportsDisplayProvider>,
+    );
+    // avg risk 150 / 1000 = 15%
+    expect(screen.getByText("15%")).toBeInTheDocument();
+    // Max DD stays a peak-equity ratio (−10%), not the unit toggle.
+    expect(screen.getByText("-10.00%")).toBeInTheDocument();
   });
 });

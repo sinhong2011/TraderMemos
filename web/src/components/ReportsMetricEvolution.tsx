@@ -8,19 +8,20 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { Card } from "./Card";
-import { ChartFrame, chartTheme } from "./ChartFrame";
-import { EmptyState } from "./EmptyState";
-import { SegmentedControl } from "./SegmentedControl";
-import { Skeleton } from "./Skeleton";
 import type { Trade } from "../lib/api/types";
-import { fmtDayShort, fmtMoneyCompact, fmtPct } from "../lib/format";
+import { fmtDayShort, fmtPct } from "../lib/format";
 import { intlLocale } from "../lib/locale";
 import {
   type EvolutionGranularity,
   type EvolutionPoint,
   metricEvolution,
 } from "../lib/reportsAnalytics";
+import { Card } from "./Card";
+import { ChartFrame, chartTheme } from "./ChartFrame";
+import { EmptyState } from "./EmptyState";
+import { useReportsMoney } from "./ReportsDisplayContext";
+import { SegmentedControl } from "./SegmentedControl";
+import { Skeleton } from "./Skeleton";
 
 // "Avg P&L/Trade" is deliberately not offered here: it's algebraically identical
 // to "Expectancy" in this cumulative-to-date computation (winRate*avgWin -
@@ -45,33 +46,30 @@ export interface ReportsMetricEvolutionProps {
   trades: Trade[];
   loading: boolean;
   error: boolean;
-  currency: string;
+  /** Kept for call-site compatibility; display currency/fx come from ReportsDisplayContext. */
+  currency?: string;
   fxRate?: number;
 }
 
-function rightFormatter(metric: RightMetric, currency: string, locale: string) {
-  if (metric === "profitFactor") return (v: number) => v.toFixed(2);
-  return (v: number) => fmtMoneyCompact(v, currency, locale);
-}
-
-export function ReportsMetricEvolution({
-  trades,
-  loading,
-  error,
-  currency,
-  fxRate = 1,
-}: ReportsMetricEvolutionProps) {
+export function ReportsMetricEvolution({ trades, loading, error }: ReportsMetricEvolutionProps) {
   const locale = intlLocale();
+  const money = useReportsMoney();
   const [granularity, setGranularity] = useState<EvolutionGranularity>("week");
   const [rightMetric, setRightMetric] = useState<RightMetric>("cumulativePnl");
 
-  const rawPoints = metricEvolution(trades, granularity);
+  const rawPoints = metricEvolution(trades, granularity, money.tradePnl);
+  // Dollar metrics (cumulative P&L, expectancy) re-express via display(); PF stays raw.
   const points: EvolutionPoint[] = rawPoints.map((p) => ({
     ...p,
-    cumulativePnl: p.cumulativePnl * fxRate,
-    expectancy: p.expectancy * fxRate,
+    cumulativePnl: money.display(p.cumulativePnl),
+    expectancy: money.display(p.expectancy),
+    avgPnlPerTrade: money.display(p.avgPnlPerTrade),
   }));
-  const fmtRight = rightFormatter(rightMetric, currency, locale);
+
+  const fmtRight =
+    rightMetric === "profitFactor"
+      ? (v: number) => v.toFixed(2)
+      : (v: number) => money.formatAxis(v);
   const rightLabel = RIGHT_METRICS.find((m) => m.value === rightMetric)?.label ?? "";
   const lastRightValue = points.length > 0 ? points[points.length - 1][rightMetric] : 0;
   const rightColor = lastRightValue < 0 ? "var(--color-loss)" : "var(--color-profit)";
@@ -112,6 +110,11 @@ export function ReportsMetricEvolution({
         <EmptyState title="No data" hint="Add trades or adjust filters to see trends over time." />
       ) : (
         <ChartFrame className="border-0 rounded-none">
+          {/* Expose the last cumulative P&L (display units) for unit tests —
+              recharts ticks are unreliable in jsdom. */}
+          <span data-testid="evolution-last-cum-pnl" className="sr-only">
+            {money.formatAxis(points[points.length - 1].cumulativePnl)}
+          </span>
           <ResponsiveContainer width="100%" height={220}>
             <LineChart data={points} margin={{ top: 8, right: 16, bottom: 0, left: 0 }}>
               <CartesianGrid vertical={false} stroke={chartTheme.gridColor} />

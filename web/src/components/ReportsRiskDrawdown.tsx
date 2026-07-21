@@ -10,7 +10,7 @@ import {
 import type { EquityPoint, Trade } from "../lib/api/types";
 import { uniqueDayTicks } from "../lib/chartTicks";
 import { usePrivacyMode } from "../lib/displayPrefs";
-import { fmtDayShort, fmtMoney } from "../lib/format";
+import { fmtDayShort } from "../lib/format";
 import { intlLocale } from "../lib/locale";
 import {
   avgRiskPerTrade,
@@ -21,6 +21,7 @@ import {
 import { Card } from "./Card";
 import { ChartFrame, chartTheme } from "./ChartFrame";
 import { EmptyState } from "./EmptyState";
+import { useReportsMoney } from "./ReportsDisplayContext";
 import { Skeleton } from "./Skeleton";
 import { StatCard } from "./StatCard";
 
@@ -29,7 +30,8 @@ export interface ReportsRiskDrawdownProps {
   equityPoints: EquityPoint[];
   loading: boolean;
   error: boolean;
-  currency: string;
+  /** Kept for call-site compatibility; display currency/fx come from ReportsDisplayContext. */
+  currency?: string;
   fxRate?: number;
 }
 
@@ -42,10 +44,9 @@ export function ReportsRiskDrawdown({
   equityPoints,
   loading,
   error,
-  currency,
-  fxRate = 1,
 }: ReportsRiskDrawdownProps) {
   usePrivacyMode();
+  const money = useReportsMoney();
   const locale = intlLocale();
   const risk = avgRiskPerTrade(trades);
   const series = drawdownSeries(equityPoints);
@@ -62,7 +63,9 @@ export function ReportsRiskDrawdown({
         <EmptyState title="No data" hint="Add trades to see risk and drawdown stats." />
       ) : (
         <>
-          {/* Lean row — Max DD $ / worst streak already live in summary bento */}
+          {/* Lean row — Max DD $ / worst streak already live in summary bento.
+              Max/Current DD % are equity-peak ratios (exempt from net/gross + $/%).
+              Avg Risk/Trade is a dollar figure and honors the unit toggle. */}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             <StatCard
               variant="bento"
@@ -83,7 +86,7 @@ export function ReportsRiskDrawdown({
               variant="bento"
               align="center"
               label="Avg Risk/Trade"
-              value={risk.avg != null ? fmtMoney(risk.avg * fxRate, currency, locale) : "—"}
+              value={risk.avg != null ? money.format(risk.avg) : "—"}
               hint={
                 risk.avg != null
                   ? `${risk.included} of ${risk.included + risk.excluded} trades`

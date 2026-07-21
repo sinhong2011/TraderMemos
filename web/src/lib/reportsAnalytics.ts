@@ -56,6 +56,7 @@ function bucketKey(iso: string, granularity: EvolutionGranularity): string {
 export function metricEvolution(
   trades: Trade[],
   granularity: EvolutionGranularity,
+  tradePnl: (t: Trade) => number = (t) => t.net_pnl ?? 0,
 ): EvolutionPoint[] {
   const closed = chronologicalClosed(trades);
   if (closed.length === 0) return [];
@@ -81,7 +82,7 @@ export function metricEvolution(
     const bucketTrades = byBucket.get(bucket);
     if (!bucketTrades) continue;
     for (const t of bucketTrades) {
-      const pnl = t.net_pnl ?? 0;
+      const pnl = tradePnl(t);
       cumulativePnl += pnl;
       count += 1;
       if (pnl > 0) {

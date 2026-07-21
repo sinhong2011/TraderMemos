@@ -91,6 +91,14 @@ describe("metricEvolution", () => {
   it("returns an empty array with no closed trades", () => {
     expect(metricEvolution([trade({ status: "open", net_pnl: null })], "day")).toEqual([]);
   });
+
+  it("honors a custom tradePnl accessor (gross)", () => {
+    const trades = [
+      trade({ id: "1", closed_at: "2026-07-01T12:00:00Z", net_pnl: 100, gross_pnl: 200 }),
+    ];
+    const points = metricEvolution(trades, "day", (t) => t.gross_pnl ?? t.net_pnl ?? 0);
+    expect(points[0].cumulativePnl).toBe(200);
+  });
 });
 
 describe("metricEvolution week/month bucketing", () => {
