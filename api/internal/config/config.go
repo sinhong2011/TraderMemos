@@ -24,6 +24,11 @@ type Config struct {
 	OCRVisionBaseURL   string
 	OCRVisionAPIKey    string
 	OCRVisionModel     string
+	OCRVisionTimeoutSec int
+	CoachEnabled       bool
+	CoachBaseURL       string
+	CoachAPIKey        string
+	CoachModel         string
 }
 
 func Load() (Config, error) {
@@ -38,11 +43,16 @@ func Load() (Config, error) {
 		"import_max_bytes":     int64(10 << 20),
 		"market_data_provider": "yahoo",
 		"market_data_enabled":  true,
-		"ocr_enabled":          false,
-		"ocr_max_bytes":        int64(10 << 20),
-		"ocr_vision_base_url":  "https://api.openai.com/v1",
-		"ocr_vision_api_key":   "",
-		"ocr_vision_model":     "gpt-4o-mini",
+		"ocr_enabled":           false,
+		"ocr_max_bytes":         int64(10 << 20),
+		"ocr_vision_base_url":   "https://api.openai.com/v1",
+		"ocr_vision_api_key":    "",
+		"ocr_vision_model":      "gpt-4o-mini",
+		"ocr_vision_timeout_sec": 90,
+		"coach_enabled":          false,
+		"coach_base_url":         "https://api.openai.com/v1",
+		"coach_api_key":          "",
+		"coach_model":            "gpt-4o-mini",
 	}, "."), nil)
 
 	// TM_HTTP_PORT -> http_port
@@ -61,10 +71,15 @@ func Load() (Config, error) {
 		MarketDataProvider: k.String("market_data_provider"),
 		MarketDataAPIKey:   k.String("market_data_api_key"),
 		MarketDataEnabled:  k.Bool("market_data_enabled"),
-		OCREnabled:         k.Bool("ocr_enabled"),
-		OCRMaxBytes:        k.Int64("ocr_max_bytes"),
-		OCRVisionBaseURL:   k.String("ocr_vision_base_url"),
-		OCRVisionAPIKey:    k.String("ocr_vision_api_key"),
-		OCRVisionModel:     k.String("ocr_vision_model"),
+		OCREnabled:          k.Bool("ocr_enabled"),
+		OCRMaxBytes:         k.Int64("ocr_max_bytes"),
+		OCRVisionBaseURL:    k.String("ocr_vision_base_url"),
+		OCRVisionAPIKey:     k.String("ocr_vision_api_key"),
+		OCRVisionModel:      k.String("ocr_vision_model"),
+		OCRVisionTimeoutSec: k.Int("ocr_vision_timeout_sec"),
+		CoachEnabled:        k.Bool("coach_enabled"),
+		CoachBaseURL:        k.String("coach_base_url"),
+		CoachAPIKey:         k.String("coach_api_key"),
+		CoachModel:          k.String("coach_model"),
 	}, nil
 }

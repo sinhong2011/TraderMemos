@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/tradermemos/api/internal/api"
 	"github.com/tradermemos/api/internal/auth"
@@ -51,13 +52,22 @@ func main() {
 		APIKey:  cfg.OCRVisionAPIKey,
 		Model:   cfg.OCRVisionModel,
 	}
+	if cfg.OCRVisionTimeoutSec > 0 {
+		defaults.Timeout = time.Duration(cfg.OCRVisionTimeoutSec) * time.Second
+	}
 	ocrSvc = ocr.NewService(defaults, func(ctx context.Context) (ocr.VisionConfig, bool, error) {
 		return api.LoadOcrVisionOverlay(ctx, q)
 	})
 	if defaults.Ready() {
 		logger.Info("ocr vision env defaults ready", "model", cfg.OCRVisionModel, "base_url", cfg.OCRVisionBaseURL)
 	} else if cfg.OCREnabled {
-		logger.Warn("ocr env incomplete — configure in Settings → General or set TM_OCR_VISION_*")
+		logger.Warn("ocr env incomplete — configure in Settings → AI or set TM_OCR_VISION_*")
+	}
+	coachDefaults := ocr.VisionConfig{
+		Enabled: cfg.CoachEnabled,
+		BaseURL: cfg.CoachBaseURL,
+		APIKey:  cfg.CoachAPIKey,
+		Model:   cfg.CoachModel,
 	}
 	s := api.New(api.Deps{
 		JWTSecret:      cfg.JWTSecret,
@@ -72,6 +82,7 @@ func main() {
 		OCRMaxBytes:    cfg.OCRMaxBytes,
 		Market:         marketSvc,
 		OCR:            ocrSvc,
+		CoachDefaults:  coachDefaults,
 	})
 	logger.Info("tradermemos api listening", "port", cfg.HTTPPort, "db", cfg.DBPath, "log_level", cfg.LogLevel)
 	log.Fatal(s.Echo.Start(":" + cfg.HTTPPort))

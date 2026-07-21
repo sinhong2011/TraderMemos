@@ -8,6 +8,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestExtractTradeFromImage_parsesJSON(t *testing.T) {
@@ -250,5 +251,27 @@ func TestTestVisionConnection(t *testing.T) {
 	})
 	if err != nil {
 		t.Fatal(err)
+	}
+}
+
+func TestExtractTradeFromImage_timeout(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		time.Sleep(200 * time.Millisecond)
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer srv.Close()
+
+	client := srv.Client()
+	client.Timeout = 50 * time.Millisecond
+
+	_, err := ExtractTradeFromImage(context.Background(), VisionConfig{
+		Enabled:    true,
+		BaseURL:    srv.URL,
+		APIKey:     "test-key",
+		HTTPClient: client,
+		Timeout:    50 * time.Millisecond,
+	}, []byte("fake-png"), "image/png")
+	if !errors.Is(err, ErrTimeout) {
+		t.Fatalf("want ErrTimeout, got %v", err)
 	}
 }

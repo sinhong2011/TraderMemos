@@ -58,6 +58,15 @@ func (s *Server) handleOCRParse(c echo.Context) error {
 		if errors.Is(err, ocr.ErrUnavailable) {
 			return Fail(http.StatusServiceUnavailable, "unavailable", "ocr not available", nil)
 		}
+		if errors.Is(err, ocr.ErrTimeout) {
+			s.logger.Warn("ocr parse timed out", "err", err)
+			return Fail(
+				http.StatusGatewayTimeout,
+				"ocr_timeout",
+				"Vision API timed out — check the endpoint is up, or try a smaller screenshot",
+				nil,
+			)
+		}
 		s.logger.Warn("ocr parse failed", "err", err)
 		msg := strings.TrimSpace(err.Error())
 		if msg == "" {

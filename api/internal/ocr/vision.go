@@ -5,14 +5,23 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"strings"
 	"time"
 )
 
 const visionConfidenceFloor = 0.45
+
+// DefaultVisionTimeout is the HTTP client timeout for vision chat completions.
+// Multimodal requests often need longer than a typical REST call.
+const DefaultVisionTimeout = 90 * time.Second
+
+// ErrTimeout means the vision upstream did not respond before the client deadline.
+var ErrTimeout = errors.New("ocr vision timeout")
 
 // VisionConfig configures an OpenAI-compatible vision endpoint for screenshot parse.
 type VisionConfig struct {
@@ -22,7 +31,9 @@ type VisionConfig struct {
 	Model   string
 	// CustomPrompt overrides the built-in vision system prompt when non-empty.
 	CustomPrompt string
-	// HTTPClient optional; defaults to a short-timeout client.
+	// Timeout for the HTTP client; zero uses DefaultVisionTimeout.
+	Timeout time.Duration
+	// HTTPClient optional; defaults to a client with Timeout.
 	HTTPClient *http.Client
 }
 
@@ -44,11 +55,32 @@ func (c VisionConfig) systemPrompt() string {
 	return DefaultVisionPrompt
 }
 
+func (c VisionConfig) timeout() time.Duration {
+	if c.Timeout > 0 {
+		return c.Timeout
+	}
+	return DefaultVisionTimeout
+}
+
 func (c VisionConfig) client() *http.Client {
 	if c.HTTPClient != nil {
 		return c.HTTPClient
 	}
-	return &http.Client{Timeout: 45 * time.Second}
+	return &http.Client{Timeout: c.timeout()}
+}
+
+func isTimeoutErr(err error) bool {
+	if err == nil {
+		return false
+	}
+	if errors.Is(err, context.DeadlineExceeded) || errors.Is(err, ErrTimeout) {
+		return true
+	}
+	var ne net.Error
+	if errors.As(err, &ne) && ne.Timeout() {
+		return true
+	}
+	return false
 }
 
 type visionRequest struct {
@@ -181,6 +213,14 @@ func ExtractTradeFromImage(ctx context.Context, cfg VisionConfig, image []byte, 
 
 	res, err := cfg.client().Do(req)
 	if err != nil {
+		if isTimeoutErr(err) {
+			return TradeExtract{}, fmt.Errorf(
+				"%w: vision API at %s did not respond within %s",
+				ErrTimeout,
+				base,
+				cfg.timeout(),
+			)
+		}
 		return TradeExtract{}, err
 	}
 	defer res.Body.Close()
