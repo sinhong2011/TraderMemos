@@ -1,7 +1,7 @@
 import { renderHook } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { describe, expect, it } from "vite-plus/test";
-import type { Summary } from "../lib/api/types";
+import type { Summary, Trade } from "../lib/api/types";
 import {
   ReportsDisplayProvider,
   useReportsMoney,
@@ -102,5 +102,59 @@ describe("useReportsMoney", () => {
       }),
     });
     expect(fx.result.current.display(100)).toBe(200);
+  });
+
+  it("tradePnl returns a number (not null) in both net and gross modes", () => {
+    const netMode = renderHook(() => useReportsMoney(), {
+      wrapper: wrapper({
+        pnlMode: "net",
+        unitMode: "abs",
+        denominator: 0,
+        currency: "USD",
+        fxRate: 1,
+      }),
+    });
+
+    const grossMode = renderHook(() => useReportsMoney(), {
+      wrapper: wrapper({
+        pnlMode: "gross",
+        unitMode: "abs",
+        denominator: 0,
+        currency: "USD",
+        fxRate: 1,
+      }),
+    });
+
+    // net mode: returns net_pnl
+    expect(
+      netMode.result.current.tradePnl({
+        net_pnl: 50,
+        gross_pnl: 70,
+      } as Trade),
+    ).toBe(50);
+
+    // net mode: null values return 0
+    expect(
+      netMode.result.current.tradePnl({
+        net_pnl: null,
+        gross_pnl: null,
+      } as Trade),
+    ).toBe(0);
+
+    // gross mode: returns gross_pnl
+    expect(
+      grossMode.result.current.tradePnl({
+        net_pnl: 50,
+        gross_pnl: 70,
+      } as Trade),
+    ).toBe(70);
+
+    // gross mode: gross_pnl null falls back to net_pnl
+    expect(
+      grossMode.result.current.tradePnl({
+        net_pnl: 50,
+        gross_pnl: null,
+      } as Trade),
+    ).toBe(50);
   });
 });

@@ -41,7 +41,8 @@ export function useReportsMoney() {
   const usePct = d.unitMode === "pct" && pctEnabled;
 
   const pnl = (s: Summary) => (d.pnlMode === "gross" ? s.gross_profit - s.gross_loss : s.net_pnl);
-  const tradePnl = (t: Trade) => (d.pnlMode === "gross" ? (t.gross_pnl ?? t.net_pnl) : t.net_pnl);
+  const tradePnl = (t: Trade) =>
+    d.pnlMode === "gross" ? (t.gross_pnl ?? t.net_pnl ?? 0) : (t.net_pnl ?? 0);
 
   const display = (rawPnl: number) =>
     usePct ? (rawPnl * d.fxRate) / d.denominator : rawPnl * d.fxRate;
