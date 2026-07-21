@@ -1,7 +1,16 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vite-plus/test";
 import type { BreakGroup, Setup } from "../../lib/api/types";
+import { useUI } from "../../lib/ui";
+import { TooltipProvider } from "../../components/ui/tooltip";
 import { PlaybookView } from "./PlaybookView";
+
+vi.mock("../../lib/hooks/useMoneyFx", () => ({
+  useMoneyFx: (currency: string) => ({ currency, rate: 1 }),
+}));
 
 const noop = async () => {};
 const base = {
@@ -9,8 +18,6 @@ const base = {
   setupsError: false,
   breakdownLoading: false,
   currency: "USD",
-  onCreate: vi.fn(noop),
-  onUpdate: vi.fn(noop),
   onDelete: vi.fn(noop),
 };
 
@@ -49,15 +56,71 @@ const group: BreakGroup = {
   },
 } as BreakGroup;
 
+function wrap(ui: ReactNode) {
+  const qc = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+  return render(
+    <QueryClientProvider client={qc}>
+      <TooltipProvider>{ui}</TooltipProvider>
+    </QueryClientProvider>,
+  );
+}
+
 describe("PlaybookView", () => {
   it("renders a setup with its breakdown stats", () => {
-    render(<PlaybookView {...base} setups={[setup]} breakdown={[group]} />);
+    wrap(<PlaybookView {...base} setups={[setup]} breakdown={[group]} />);
     expect(screen.getByText("ORB")).toBeInTheDocument();
     expect(screen.getAllByText(/\$500\.00/).length).toBeGreaterThan(0);
+    expect(screen.getByRole("button", { name: /log trade from orb/i })).toBeInTheDocument();
   });
 
   it("shows an empty state with no setups", () => {
-    render(<PlaybookView {...base} setups={[]} breakdown={[]} />);
+    wrap(<PlaybookView {...base} setups={[]} breakdown={[]} />);
     expect(screen.getByText("No setups yet")).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: /new setup/i }).length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("opens the new-setup modal from the header action", async () => {
+    useUI.setState({ modal: null, setupDraft: null });
+    wrap(<PlaybookView {...base} setups={[setup]} breakdown={[group]} />);
+    await userEvent.click(screen.getByRole("button", { name: /new setup/i }));
+    expect(useUI.getState().modal).toBe("new-setup");
+    expect(useUI.getState().setupDraft).toBeNull();
+  });
+
+  it("opens edit draft when editing a setup", async () => {
+    useUI.setState({ modal: null, setupDraft: null });
+    wrap(<PlaybookView {...base} setups={[setup]} breakdown={[group]} />);
+    await userEvent.click(screen.getByRole("button", { name: /edit orb/i }));
+    expect(useUI.getState().modal).toBe("new-setup");
+    expect(useUI.getState().setupDraft).toMatchObject({
+      id: "s1",
+      name: "ORB",
+      symbol: "AAPL",
+      direction: "long",
+    });
+  });
+
+  it("can hide unused setups", async () => {
+    const unused: Setup = {
+      ...setup,
+      id: "s2",
+      name: "Scalp",
+      symbol: "",
+      checklist: [],
+    };
+    wrap(<PlaybookView {...base} setups={[setup, unused]} breakdown={[group]} />);
+    expect(screen.getByText("Scalp")).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: /hide unused/i }));
+    expect(screen.queryByText("Scalp")).not.toBeInTheDocument();
+    expect(screen.getByText("ORB")).toBeInTheDocument();
+  });
+
+  it("renders setup metrics in an item footer", () => {
+    wrap(<PlaybookView {...base} setups={[setup]} breakdown={[group]} />);
+    expect(screen.getByRole("listitem")).toBeInTheDocument();
+    expect(screen.getByText("Expectancy")).toBeInTheDocument();
+    expect(screen.getByText("Profit factor")).toBeInTheDocument();
   });
 });

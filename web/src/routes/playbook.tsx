@@ -5,7 +5,7 @@ import { accountBaseCurrency } from "../lib/displayPrefs";
 import { useFilterParams, useFilters } from "../lib/filters";
 import { useAccounts } from "../lib/hooks/useAccounts";
 import { useBreakdown } from "../lib/hooks/useAnalytics";
-import { useCreateSetup, useDeleteSetup, useSetups, useUpdateSetup } from "../lib/hooks/useSetups";
+import { useDeleteSetup, useSetups } from "../lib/hooks/useSetups";
 
 export const Route = createFileRoute("/playbook")({
   component: PlaybookPage,
@@ -21,8 +21,6 @@ function PlaybookPage() {
   const accountsQ = useAccounts();
   const currency = accountBaseCurrency(accountsQ.data ?? [], accountId);
 
-  const createM = useCreateSetup();
-  const updateM = useUpdateSetup();
   const deleteM = useDeleteSetup();
 
   return (
@@ -33,36 +31,6 @@ function PlaybookPage() {
       breakdown={breakdownQ.data ?? []}
       breakdownLoading={breakdownQ.isLoading}
       currency={currency}
-      onCreate={async (body) => {
-        try {
-          await createM.mutateAsync(body);
-          toast.add({
-            title: "Setup created",
-            description: body.name,
-          });
-        } catch (err) {
-          toast.add({
-            title: "Could not create setup",
-            description: err instanceof Error ? err.message : "Request failed",
-          });
-          throw err;
-        }
-      }}
-      onUpdate={async (id, body) => {
-        try {
-          await updateM.mutateAsync({ id, body });
-          toast.add({
-            title: "Setup updated",
-            description: body.name,
-          });
-        } catch (err) {
-          toast.add({
-            title: "Could not update setup",
-            description: err instanceof Error ? err.message : "Request failed",
-          });
-          throw err;
-        }
-      }}
       onDelete={async (id) => {
         const name = setupsQ.data?.find((setup) => setup.id === id)?.name ?? "Setup";
         try {
