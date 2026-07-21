@@ -82,6 +82,8 @@ const base = {
   qualityBreakdown: [],
   qualityBreakdownLoading: false,
   qualityBreakdownError: false,
+  tab: "overview" as const,
+  onTabChange: vi.fn(),
   currency: "USD",
   onDimChange: vi.fn(),
 };
@@ -148,5 +150,53 @@ describe("ReportsView", () => {
     expect(screen.getByText("Execution Grade")).toBeInTheDocument();
     expect(screen.getByText("A+")).toBeInTheDocument();
     expect(screen.getByText("C")).toBeInTheDocument();
+  });
+
+  it("shows only the active tab's sections", () => {
+    render(
+      <ReportsView
+        {...base}
+        dim="symbol"
+        breakdown={[]}
+        tab="overview"
+        symbolBreakdown={[grp("AAPL", 200)]}
+      />,
+    );
+    // Overview owns Execution Grade; Detailed owns the Symbol card + Stock P&L heatmap.
+    expect(screen.getByText("Execution Grade")).toBeInTheDocument();
+    expect(screen.queryByText("Stock P&L")).not.toBeInTheDocument();
+    expect(screen.queryByText("Session")).not.toBeInTheDocument();
+  });
+
+  it("renders the Detailed tab's sections including the heatmap", () => {
+    render(
+      <ReportsView
+        {...base}
+        dim="symbol"
+        breakdown={[]}
+        tab="detailed"
+        symbolBreakdown={[grp("AAPL", 200)]}
+      />,
+    );
+    expect(screen.getByText("Stock P&L")).toBeInTheDocument();
+    // ReportsSessionTable's card title is "Session Performance" (set in that
+    // component, unchanged by this task); "Session" alone never matches exactly.
+    expect(screen.getByText("Session Performance")).toBeInTheDocument();
+    expect(screen.queryByText("Execution Grade")).not.toBeInTheDocument();
+  });
+
+  it("calls onTabChange when a tab is clicked", async () => {
+    const onTabChange = vi.fn();
+    render(
+      <ReportsView
+        {...base}
+        dim="symbol"
+        breakdown={[]}
+        tab="overview"
+        onTabChange={onTabChange}
+      />,
+    );
+    screen.getByRole("tab", { name: "Detailed" }).click();
+    expect(onTabChange).toHaveBeenCalledWith("detailed");
   });
 });

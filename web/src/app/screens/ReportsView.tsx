@@ -27,7 +27,9 @@ import { ReportsRiskDrawdown } from "../../components/ReportsRiskDrawdown";
 import { ReportsRMultiplePerformance } from "../../components/ReportsRMultiplePerformance";
 import { ReportsRollingWinRate } from "../../components/ReportsRollingWinRate";
 import { ReportsSessionTable } from "../../components/ReportsSessionTable";
+import { ReportsSymbolHeatmap } from "../../components/ReportsSymbolHeatmap";
 import { Skeleton } from "../../components/Skeleton";
+import { Tabs, TabsContent, TabsIndicator, TabsList, TabsTrigger } from "../../components/Tabs";
 import { Button } from "../../components/ui/button";
 import { pnlColor } from "../../components/theme-tokens";
 import type { BreakGroup, EquityCurve, RSummary, Summary, Trade } from "../../lib/api/types";
@@ -67,6 +69,15 @@ const DIM_LABELS: Record<BreakdownDim, string> = {
 // always-visible card above; this selector only covers the two dims without one.
 const SELECTOR_DIMS: BreakdownDim[] = ["setup", "mistake"];
 
+export type ReportsTab = "overview" | "win-loss" | "detailed" | "risk";
+
+const REPORT_TABS: { value: ReportsTab; label: string }[] = [
+  { value: "overview", label: "Overview" },
+  { value: "win-loss", label: "Win / Loss" },
+  { value: "detailed", label: "Detailed" },
+  { value: "risk", label: "Risk" },
+];
+
 export interface ReportsViewProps {
   summary?: Summary;
   summaryLoading: boolean;
@@ -101,6 +112,8 @@ export interface ReportsViewProps {
   qualityBreakdown: BreakGroup[];
   qualityBreakdownLoading: boolean;
   qualityBreakdownError: boolean;
+  tab: ReportsTab;
+  onTabChange: (t: ReportsTab) => void;
   currency: string;
   dim: BreakdownDim;
   onDimChange: (dim: BreakdownDim) => void;
@@ -491,6 +504,8 @@ export function ReportsView({
   qualityBreakdown,
   qualityBreakdownLoading,
   qualityBreakdownError,
+  tab,
+  onTabChange,
   currency,
   dim,
   onDimChange,
@@ -533,108 +548,148 @@ export function ReportsView({
 
   return (
     <Page>
-      {summaryLoading ? (
-        <Skeleton height="120px" />
-      ) : summaryError ? (
-        <p className="p-4 text-xs text-loss">Failed to load summary.</p>
-      ) : summary ? (
-        <SummaryMetricsGrid
-          summary={summary}
-          trades={trades}
-          tradesLoading={tradesLoading}
-          currency={displayCurrency}
-          fxRate={fxRate}
-          equity={equity}
-          equityLoading={equityLoading}
-        />
-      ) : null}
+      <Tabs
+        className="flex flex-col gap-4"
+        value={tab}
+        onValueChange={(v) => onTabChange(v as ReportsTab)}
+      >
+        <TabsList
+          aria-label="Report sections"
+          fullWidth
+          className="h-10 rounded-control border-none bg-bg-input p-1"
+        >
+          <TabsIndicator className="rounded-control bg-bg-input-hover" />
+          {REPORT_TABS.map((t) => (
+            <TabsTrigger
+              key={t.value}
+              value={t.value}
+              fullWidth
+              className="h-full px-3 text-[12px] font-medium text-text-dim hover:text-text-muted data-active:text-text"
+            >
+              {t.label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
 
-      <Card title="Playbook & Leaks" action={panelRight}>
-        {renderContent()}
-      </Card>
+        <TabsContent value="overview" className="flex flex-col gap-4">
+          {summaryLoading ? (
+            <Skeleton height="120px" />
+          ) : summaryError ? (
+            <p className="p-4 text-xs text-loss">Failed to load summary.</p>
+          ) : summary ? (
+            <SummaryMetricsGrid
+              summary={summary}
+              trades={trades}
+              tradesLoading={tradesLoading}
+              currency={displayCurrency}
+              fxRate={fxRate}
+              equity={equity}
+              equityLoading={equityLoading}
+            />
+          ) : null}
 
-      <ReportsRollingWinRate trades={trades} loading={tradesLoading} error={tradesError} />
+          <Card title="Playbook & Leaks" action={panelRight}>
+            {renderContent()}
+          </Card>
 
-      <ReportsMetricEvolution
-        trades={trades}
-        loading={tradesLoading}
-        error={tradesError}
-        currency={displayCurrency}
-        fxRate={fxRate}
-      />
+          <ReportsRMultiplePerformance
+            rSummary={rSummary}
+            loading={Boolean(rSummaryLoading)}
+            error={Boolean(rSummaryError)}
+          />
 
-      <ReportsRMultiplePerformance
-        rSummary={rSummary}
-        loading={Boolean(rSummaryLoading)}
-        error={Boolean(rSummaryError)}
-      />
+          <ReportsExecutionGrade
+            breakdown={qualityBreakdown}
+            loading={qualityBreakdownLoading}
+            error={qualityBreakdownError}
+            currency={displayCurrency}
+            fxRate={fxRate}
+          />
+        </TabsContent>
 
-      <ReportsExecutionGrade
-        breakdown={qualityBreakdown}
-        loading={qualityBreakdownLoading}
-        error={qualityBreakdownError}
-        currency={displayCurrency}
-        fxRate={fxRate}
-      />
+        <TabsContent value="win-loss" className="flex flex-col gap-4">
+          <ReportsRollingWinRate trades={trades} loading={tradesLoading} error={tradesError} />
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <ReportsBreakdownCard
-          title="Symbol"
-          breakdown={symbolBreakdown}
-          loading={symbolBreakdownLoading}
-          error={symbolBreakdownError}
-          currency={displayCurrency}
-          fxRate={fxRate}
-          orientation="horizontal"
-          tableColumns={buildColumns(displayCurrency, "Symbol", fxRate)}
-        />
-        <ReportsBreakdownCard
-          title="Tag"
-          breakdown={tagBreakdown}
-          loading={tagBreakdownLoading}
-          error={tagBreakdownError}
-          currency={displayCurrency}
-          fxRate={fxRate}
-          orientation="horizontal"
-          tableColumns={buildColumns(displayCurrency, "Tag", fxRate)}
-        />
-      </div>
+          <ReportsMetricEvolution
+            trades={trades}
+            loading={tradesLoading}
+            error={tradesError}
+            currency={displayCurrency}
+            fxRate={fxRate}
+          />
+        </TabsContent>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <ReportsBreakdownCard
-          title="Day of Week"
-          breakdown={dayOfWeekBreakdown}
-          loading={dayOfWeekBreakdownLoading}
-          error={dayOfWeekBreakdownError}
-          currency={displayCurrency}
-          fxRate={fxRate}
-          tableColumns={buildColumns(displayCurrency, "Day", fxRate)}
-        />
-        <ReportsHourlyList
-          breakdown={hourOfDayBreakdown}
-          loading={hourOfDayBreakdownLoading}
-          error={hourOfDayBreakdownError}
-          currency={displayCurrency}
-          fxRate={fxRate}
-        />
-      </div>
+        <TabsContent value="detailed" className="flex flex-col gap-4">
+          <div className="grid gap-4 lg:grid-cols-2">
+            <ReportsBreakdownCard
+              title="Symbol"
+              breakdown={symbolBreakdown}
+              loading={symbolBreakdownLoading}
+              error={symbolBreakdownError}
+              currency={displayCurrency}
+              fxRate={fxRate}
+              orientation="horizontal"
+              tableColumns={buildColumns(displayCurrency, "Symbol", fxRate)}
+            />
+            <ReportsBreakdownCard
+              title="Tag"
+              breakdown={tagBreakdown}
+              loading={tagBreakdownLoading}
+              error={tagBreakdownError}
+              currency={displayCurrency}
+              fxRate={fxRate}
+              orientation="horizontal"
+              tableColumns={buildColumns(displayCurrency, "Tag", fxRate)}
+            />
+          </div>
 
-      <ReportsSessionTable
-        breakdown={sessionBreakdown}
-        loading={sessionBreakdownLoading}
-        error={sessionBreakdownError}
-        currency={displayCurrency}
-        fxRate={fxRate}
-      />
+          <div className="grid gap-4 lg:grid-cols-2">
+            <ReportsBreakdownCard
+              title="Day of Week"
+              breakdown={dayOfWeekBreakdown}
+              loading={dayOfWeekBreakdownLoading}
+              error={dayOfWeekBreakdownError}
+              currency={displayCurrency}
+              fxRate={fxRate}
+              tableColumns={buildColumns(displayCurrency, "Day", fxRate)}
+            />
+            <ReportsHourlyList
+              breakdown={hourOfDayBreakdown}
+              loading={hourOfDayBreakdownLoading}
+              error={hourOfDayBreakdownError}
+              currency={displayCurrency}
+              fxRate={fxRate}
+            />
+          </div>
 
-      <ReportsRiskDrawdown
-        trades={trades}
-        equityPoints={equity?.points ?? []}
-        loading={tradesLoading || equityLoading}
-        error={tradesError || equityError}
-        currency={displayCurrency}
-        fxRate={fxRate}
-      />
+          <ReportsSessionTable
+            breakdown={sessionBreakdown}
+            loading={sessionBreakdownLoading}
+            error={sessionBreakdownError}
+            currency={displayCurrency}
+            fxRate={fxRate}
+          />
+
+          <ReportsSymbolHeatmap
+            breakdown={symbolBreakdown}
+            loading={symbolBreakdownLoading}
+            error={symbolBreakdownError}
+            currency={displayCurrency}
+            fxRate={fxRate}
+          />
+        </TabsContent>
+
+        <TabsContent value="risk" className="flex flex-col gap-4">
+          <ReportsRiskDrawdown
+            trades={trades}
+            equityPoints={equity?.points ?? []}
+            loading={tradesLoading || equityLoading}
+            error={tradesError || equityError}
+            currency={displayCurrency}
+            fxRate={fxRate}
+          />
+        </TabsContent>
+      </Tabs>
     </Page>
   );
 }
