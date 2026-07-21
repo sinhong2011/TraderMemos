@@ -165,7 +165,7 @@ describe("ReportsView", () => {
     // Overview owns Execution Grade; Detailed owns the Symbol card + Stock P&L heatmap.
     expect(screen.getByText("Execution Grade")).toBeInTheDocument();
     expect(screen.queryByText("Stock P&L")).not.toBeInTheDocument();
-    expect(screen.queryByText("Session")).not.toBeInTheDocument();
+    expect(screen.queryByText("Session Performance")).not.toBeInTheDocument();
   });
 
   it("renders the Detailed tab's sections including the heatmap", () => {
