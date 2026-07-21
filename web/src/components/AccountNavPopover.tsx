@@ -81,6 +81,7 @@ export function AccountNavPopover() {
         aria-label={`Account: ${selectedLabel}`}
         className={cn(
           "group relative flex size-9 cursor-pointer items-center justify-center rounded-control outline-none",
+          "pointer-coarse:size-11",
           "transition-[background-color,color,transform] duration-150 ease-out",
           "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
           "motion-reduce:transition-none",

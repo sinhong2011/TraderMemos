@@ -8,6 +8,7 @@ import "@fontsource/poppins/500.css";
 import "@fontsource/poppins/600.css";
 import "@fontsource/poppins/700.css";
 import { RouteErrorPanel } from "./components/RouteErrorPanel";
+import { TooltipProvider } from "./components/ui/tooltip";
 import { I18nProvider } from "./i18n";
 import { routeTree } from "./routeTree.gen";
 import "./styles.css";
@@ -40,7 +41,9 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <I18nProvider>
-        <RouterProvider router={router} />
+        <TooltipProvider>
+          <RouterProvider router={router} />
+        </TooltipProvider>
       </I18nProvider>
     </QueryClientProvider>
   </StrictMode>,

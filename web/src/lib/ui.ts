@@ -12,15 +12,32 @@ export interface TradeDraft {
   notes?: string;
 }
 
+/** Prefill payload when editing a setup in NewSetupDrawer. */
+export interface SetupDraft {
+  id: string;
+  name: string;
+  thesis: string;
+  symbol: string;
+  direction: "long" | "short";
+  target: string;
+  stop: string;
+  checklistText: string;
+}
+
 interface UIState {
   modal: ModalKind | null;
   tradeDraft: TradeDraft | null;
+  setupDraft: SetupDraft | null;
   sidebarCollapsed: boolean;
   commandOpen: boolean;
   positionSizeOpen: boolean;
+  /** Off-canvas nav drawer shown below the `md` breakpoint (phones). */
+  mobileNavOpen: boolean;
   openModal: (d: ModalKind) => void;
   openTradeFromSetup: (draft: TradeDraft) => void;
+  openSetupEdit: (draft: SetupDraft) => void;
   consumeTradeDraft: () => TradeDraft | null;
+  consumeSetupDraft: () => SetupDraft | null;
   closeModal: () => void;
   openCommandPalette: () => void;
   setCommandOpen: (open: boolean) => void;
@@ -31,27 +48,42 @@ interface UIState {
   /** @deprecated Use closeModal */
   closeDrawer: () => void;
   toggleSidebar: () => void;
+  openMobileNav: () => void;
+  closeMobileNav: () => void;
+  toggleMobileNav: () => void;
 }
 
 export const useUI = create<UIState>((set, get) => ({
   modal: null,
   tradeDraft: null,
+  setupDraft: null,
   sidebarCollapsed: false,
   commandOpen: false,
   positionSizeOpen: false,
-  openModal: (modal) => set((s) => (s.modal === modal ? s : { modal })),
+  mobileNavOpen: false,
+  openModal: (modal) =>
+    set((s) => (s.modal === modal && s.setupDraft == null ? s : { modal, setupDraft: null })),
   openTradeFromSetup: (draft) => set({ modal: "new-trade", tradeDraft: draft }),
+  openSetupEdit: (draft) => set({ modal: "new-setup", setupDraft: draft }),
   consumeTradeDraft: () => {
     const draft = get().tradeDraft;
     set({ tradeDraft: null });
     return draft;
   },
-  closeModal: () => set({ modal: null, tradeDraft: null }),
+  consumeSetupDraft: () => {
+    const draft = get().setupDraft;
+    set({ setupDraft: null });
+    return draft;
+  },
+  closeModal: () => set({ modal: null, tradeDraft: null, setupDraft: null }),
   openCommandPalette: () => set({ commandOpen: true }),
   setCommandOpen: (commandOpen) => set({ commandOpen }),
   openPositionSize: () => set({ positionSizeOpen: true }),
   setPositionSizeOpen: (positionSizeOpen) => set({ positionSizeOpen }),
-  openDrawer: (modal) => set({ modal }),
-  closeDrawer: () => set({ modal: null, tradeDraft: null }),
+  openDrawer: (modal) => set({ modal, setupDraft: null }),
+  closeDrawer: () => set({ modal: null, tradeDraft: null, setupDraft: null }),
   toggleSidebar: () => set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed })),
+  openMobileNav: () => set({ mobileNavOpen: true }),
+  closeMobileNav: () => set({ mobileNavOpen: false }),
+  toggleMobileNav: () => set((s) => ({ mobileNavOpen: !s.mobileNavOpen })),
 }));

@@ -44,14 +44,12 @@ export function ToolsPopover({ variant = "rail" }: { variant?: "rail" | "header"
           "transition-[background-color,color,transform] duration-150 ease-out",
           "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
           "motion-reduce:transition-none",
-          isHeader ? "size-8" : "size-9",
+          isHeader ? "size-8 pointer-coarse:size-11" : "size-9 pointer-coarse:size-11",
           open
-            ? isHeader
-              ? "border border-border-strong bg-bg-hover text-text"
-              : "border border-signal/40 bg-[rgba(228,255,26,0.12)] text-signal"
+            ? "bg-bg-hover text-text"
             : isHeader
-              ? "border border-border bg-transparent text-text hover:border-border-strong hover:bg-bg-hover"
-              : "text-signal hover:bg-[rgba(228,255,26,0.08)]",
+              ? "bg-transparent text-text hover:bg-bg-hover"
+              : "text-text-dim hover:bg-bg-hover hover:text-text",
         )}
       >
         <Wrench

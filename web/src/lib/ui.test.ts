@@ -19,6 +19,37 @@ describe("useUI store", () => {
     expect(draft?.symbol).toBe("AAPL");
     expect(useUI.getState().tradeDraft).toBeNull();
   });
+  it("opens setup edit with a draft", () => {
+    useUI.getState().openSetupEdit({
+      id: "s1",
+      name: "ORB",
+      thesis: "Breakout",
+      symbol: "AAPL",
+      direction: "long",
+      target: "110",
+      stop: "95",
+      checklistText: "Above VWAP",
+    });
+    expect(useUI.getState().modal).toBe("new-setup");
+    const draft = useUI.getState().consumeSetupDraft();
+    expect(draft?.name).toBe("ORB");
+    expect(useUI.getState().setupDraft).toBeNull();
+  });
+  it("clears setup draft when opening a fresh new-setup modal", () => {
+    useUI.getState().openSetupEdit({
+      id: "s1",
+      name: "ORB",
+      thesis: "",
+      symbol: "",
+      direction: "long",
+      target: "",
+      stop: "",
+      checklistText: "",
+    });
+    useUI.getState().openModal("new-setup");
+    expect(useUI.getState().modal).toBe("new-setup");
+    expect(useUI.getState().setupDraft).toBeNull();
+  });
   it("toggles sidebar", () => {
     const before = useUI.getState().sidebarCollapsed;
     useUI.getState().toggleSidebar();
