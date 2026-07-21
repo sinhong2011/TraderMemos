@@ -113,7 +113,9 @@ const NEG_COLOR = "var(--color-loss)";
 
 function BentoCell({ className, children }: { className?: string; children: ReactNode }) {
   return (
-    <section className={cn("flex h-full min-w-0 flex-col rounded-card bg-bg-panel p-4 sm:p-5", className)}>
+    <section
+      className={cn("flex h-full min-w-0 flex-col rounded-card bg-bg-panel p-4 sm:p-5", className)}
+    >
       {children}
     </section>
   );
@@ -169,7 +171,7 @@ function SummaryMetricsGrid({
         <BentoCell className="min-h-[180px]">
           <BentoTitle tone="muted">
             Equity curve
-            {equityPoints.length > 0
+            {equityPoints.length > 0 && equity
               ? ` · Max DD ${fmtMoney(equity.max_drawdown * fxRate, currency, locale)}`
               : null}
           </BentoTitle>
