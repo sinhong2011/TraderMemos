@@ -93,7 +93,9 @@ function DashboardPage() {
         onFilterSymbol={(symbol) => setSymbol(symbol)}
         onViewAllTrades={() => void navigate({ to: "/trades" })}
         onOpenCalendar={() => void navigate({ to: "/calendar" })}
-        onOpenReports={() => void navigate({ to: "/reports", search: { tab: "overview" } })}
+        onOpenReports={() =>
+          void navigate({ to: "/reports", search: { tab: "overview", side: "all", dur: "all" } })
+        }
         calendarYear={calendarYear}
         calendarMonth={calendarMonth}
         dailyPnl={dailyQ.data ?? {}}
