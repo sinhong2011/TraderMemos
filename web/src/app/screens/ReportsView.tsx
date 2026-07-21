@@ -19,6 +19,7 @@ import { EmptyState } from "../../components/EmptyState";
 import { Page } from "../../components/Page";
 import { ReportsBreakdownCard } from "../../components/ReportsBreakdownCard";
 import { ReportsDayStrip } from "../../components/ReportsDayStrip";
+import { ReportsExecutionGrade } from "../../components/ReportsExecutionGrade";
 import { ReportsHourlyList } from "../../components/ReportsHourlyList";
 import { ReportsSummaryBento } from "../../components/ReportsSummaryBento";
 import { ReportsMetricEvolution } from "../../components/ReportsMetricEvolution";
@@ -48,7 +49,8 @@ export type BreakdownDim =
   | "hour_of_day"
   | "session"
   | "tag"
-  | "mistake";
+  | "mistake"
+  | "trade_quality";
 
 const DIM_LABELS: Record<BreakdownDim, string> = {
   symbol: "Symbol",
@@ -58,6 +60,7 @@ const DIM_LABELS: Record<BreakdownDim, string> = {
   session: "Session",
   tag: "Tag",
   mistake: "Mistake",
+  trade_quality: "Execution",
 };
 
 // Symbol, Tag, Day of Week, Time of Day, and Session each have their own
@@ -95,6 +98,9 @@ export interface ReportsViewProps {
   sessionBreakdown: BreakGroup[];
   sessionBreakdownLoading: boolean;
   sessionBreakdownError: boolean;
+  qualityBreakdown: BreakGroup[];
+  qualityBreakdownLoading: boolean;
+  qualityBreakdownError: boolean;
   currency: string;
   dim: BreakdownDim;
   onDimChange: (dim: BreakdownDim) => void;
@@ -482,6 +488,9 @@ export function ReportsView({
   sessionBreakdown,
   sessionBreakdownLoading,
   sessionBreakdownError,
+  qualityBreakdown,
+  qualityBreakdownLoading,
+  qualityBreakdownError,
   currency,
   dim,
   onDimChange,
@@ -558,6 +567,14 @@ export function ReportsView({
         rSummary={rSummary}
         loading={Boolean(rSummaryLoading)}
         error={Boolean(rSummaryError)}
+      />
+
+      <ReportsExecutionGrade
+        breakdown={qualityBreakdown}
+        loading={qualityBreakdownLoading}
+        error={qualityBreakdownError}
+        currency={displayCurrency}
+        fxRate={fxRate}
       />
 
       <div className="grid gap-4 lg:grid-cols-2">

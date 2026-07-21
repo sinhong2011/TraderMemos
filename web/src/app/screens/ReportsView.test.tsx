@@ -79,6 +79,9 @@ const base = {
   sessionBreakdown: [],
   sessionBreakdownLoading: false,
   sessionBreakdownError: false,
+  qualityBreakdown: [],
+  qualityBreakdownLoading: false,
+  qualityBreakdownError: false,
   currency: "USD",
   onDimChange: vi.fn(),
 };
@@ -131,5 +134,19 @@ describe("ReportsView", () => {
     expect(screen.getByText("Best streak")).toBeInTheDocument();
     expect(screen.getByText("Main leak")).toBeInTheDocument();
     expect(screen.getByText("Open / breakeven")).toBeInTheDocument();
+  });
+
+  it("renders the execution grade card", () => {
+    render(
+      <ReportsView
+        {...base}
+        dim="symbol"
+        breakdown={[]}
+        qualityBreakdown={[grp("5", 200), grp("1", -100)]}
+      />,
+    );
+    expect(screen.getByText("Execution Grade")).toBeInTheDocument();
+    expect(screen.getByText("A+")).toBeInTheDocument();
+    expect(screen.getByText("C")).toBeInTheDocument();
   });
 });
