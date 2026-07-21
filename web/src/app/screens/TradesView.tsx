@@ -77,7 +77,7 @@ const STATUS_FACETS = [
   { value: "wash", label: "Wash" },
 ] as const;
 
-function ToolbarButton({
+function ToolbarIconButton({
   label,
   icon: Icon,
   onClick,
@@ -90,13 +90,16 @@ function ToolbarButton({
     <Button
       type="button"
       variant="outline"
+      size="icon"
       onClick={onClick}
       aria-label={label}
       title={label}
-      className="!bg-transparent hover:!bg-transparent"
+      className={cn(
+        "size-8 pointer-coarse:size-11",
+        "border-border !bg-transparent hover:border-border-strong hover:!bg-transparent",
+      )}
     >
-      <Icon size={13} strokeWidth={1.75} />
-      <span className="hidden sm:inline">{label}</span>
+      <Icon size={14} strokeWidth={1.75} />
     </Button>
   );
 }
@@ -226,6 +229,8 @@ export function TradesView({
           onColumnVisibilityChange={setColumnVisibility}
           className={toolbarControlClass}
         />
+        <ToolbarIconButton label="Import CSV" icon={Upload} onClick={onImport} />
+        <ToolbarIconButton label="Log trade" icon={Plus} onClick={onNewTrade} />
       </div>
     </div>
   );
@@ -247,15 +252,6 @@ export function TradesView({
 
   return (
     <Page fill className="h-full min-h-0 overflow-hidden bg-transparent">
-      <div className="flex shrink-0 flex-wrap items-center justify-between gap-2">
-        <h2 className="text-[13px] font-semibold uppercase tracking-widest text-signal">
-          Trade log
-        </h2>
-        <div className="flex items-center gap-2">
-          <ToolbarButton label="Import CSV" icon={Upload} onClick={onImport} />
-          <ToolbarButton label="Log trade" icon={Plus} onClick={onNewTrade} />
-        </div>
-      </div>
       {headerActions}
       <Card
         fill

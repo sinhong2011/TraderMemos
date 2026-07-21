@@ -1257,7 +1257,7 @@ export function NewTradeDrawer() {
   const openVisionSettings = () => {
     close();
     void navigate({ to: "/settings" });
-    window.location.hash = "general";
+    window.location.hash = "ai";
   };
 
   const onScanClick = () => {

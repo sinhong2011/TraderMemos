@@ -1,5 +1,6 @@
 import { useForm } from "@tanstack/react-form";
 import { X } from "lucide-react";
+import { useEffect } from "react";
 import {
   Drawer,
   DrawerBody,
@@ -15,7 +16,7 @@ import { fieldError, SignalField } from "../../components/SignalField";
 import { SignalInput, SignalTextarea } from "../../components/SignalInput";
 import { useToastManager } from "../../components/Toast";
 import { Button } from "../../components/ui/button";
-import { useCreateSetup } from "../../lib/hooks/useSetups";
+import { useCreateSetup, useUpdateSetup } from "../../lib/hooks/useSetups";
 import { useUI } from "../../lib/ui";
 
 function parseOptionalNum(v: string): number | null {
@@ -25,98 +26,119 @@ function parseOptionalNum(v: string): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
+const EMPTY_VALUES = {
+  name: "",
+  thesis: "",
+  symbol: "",
+  direction: "long" as "long" | "short",
+  target: "",
+  stop: "",
+  checklistText: "",
+};
+
 export function NewSetupDrawer() {
   const open = useUI((s) => s.modal === "new-setup");
+  const setupDraft = useUI((s) => s.setupDraft);
   const closeModal = useUI((s) => s.closeModal);
   const toast = useToastManager();
   const createSetup = useCreateSetup();
+  const updateSetup = useUpdateSetup();
+  const editingId = setupDraft?.id ?? null;
+  const isEdit = editingId != null;
 
   const form = useForm({
-    defaultValues: {
-      name: "",
-      thesis: "",
-      symbol: "",
-      direction: "long" as "long" | "short",
-      target: "",
-      stop: "",
-      checklistText: "",
-    },
+    defaultValues: EMPTY_VALUES,
     onSubmit: async ({ value }) => {
       const checklist = value.checklistText
         .split("\n")
         .map((l) => l.trim())
         .filter(Boolean);
+      const body = {
+        name: value.name.trim(),
+        description: value.thesis.trim(),
+        thesis: value.thesis.trim(),
+        symbol: value.symbol.trim().toUpperCase() || undefined,
+        direction: value.direction,
+        target_price: parseOptionalNum(value.target),
+        stop_price: parseOptionalNum(value.stop),
+        checklist,
+      };
       try {
-        await createSetup.mutateAsync({
-          name: value.name.trim(),
-          description: value.thesis.trim(),
-          thesis: value.thesis.trim(),
-          symbol: value.symbol.trim().toUpperCase() || undefined,
-          direction: value.direction,
-          target_price: parseOptionalNum(value.target),
-          stop_price: parseOptionalNum(value.stop),
-          checklist,
-        });
-        toast.add({ title: "Setup created", description: value.name.trim() });
+        if (editingId) {
+          await updateSetup.mutateAsync({ id: editingId, body });
+          toast.add({ title: "Setup updated", description: body.name });
+        } else {
+          await createSetup.mutateAsync(body);
+          toast.add({ title: "Setup created", description: body.name });
+        }
         close();
       } catch (e) {
         toast.add({
-          title: "Could not create setup",
+          title: editingId ? "Could not update setup" : "Could not create setup",
           description: e instanceof Error ? e.message : "Save failed",
         });
       }
     },
   });
 
-  function reset() {
-    form.reset();
-  }
+  useEffect(() => {
+    if (!open) return;
+    if (setupDraft) {
+      form.reset({
+        name: setupDraft.name,
+        thesis: setupDraft.thesis,
+        symbol: setupDraft.symbol,
+        direction: setupDraft.direction,
+        target: setupDraft.target,
+        stop: setupDraft.stop,
+        checklistText: setupDraft.checklistText,
+      });
+    } else {
+      form.reset(EMPTY_VALUES);
+    }
+  }, [open, setupDraft, form]);
 
   function close() {
-    reset();
+    form.reset(EMPTY_VALUES);
     closeModal();
   }
 
+  const pending = createSetup.isPending || updateSetup.isPending;
+
   const footer = (
     <div className="flex w-full justify-end gap-2">
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        onClick={close}
-        disabled={createSetup.isPending}
-      >
+      <Button type="button" variant="outline" size="sm" onClick={close} disabled={pending}>
         Cancel
       </Button>
-      <Button
-        type="submit"
-        form="new-setup-form"
-        variant="default"
-        disabled={createSetup.isPending}
-      >
-        {createSetup.isPending ? "Saving…" : "Save setup"}
+      <Button type="submit" form="new-setup-form" variant="default" disabled={pending}>
+        {pending ? "Saving…" : isEdit ? "Save changes" : "Save setup"}
       </Button>
     </div>
   );
 
   const submitError =
-    createSetup.isError && createSetup.error instanceof Error
+    (createSetup.isError && createSetup.error instanceof Error
       ? createSetup.error.message
       : createSetup.isError
         ? "Save failed"
-        : undefined;
+        : undefined) ??
+    (updateSetup.isError && updateSetup.error instanceof Error
+      ? updateSetup.error.message
+      : updateSetup.isError
+        ? "Save failed"
+        : undefined);
 
   return (
     <Drawer
       open={open}
       onOpenChange={(o) => {
-        if (!o && !createSetup.isPending) close();
+        if (!o && !pending) close();
       }}
       modal="trap-focus"
     >
       <DrawerContent>
         <DrawerHeader>
-          <DrawerTitle>New Setup</DrawerTitle>
+          <DrawerTitle>{isEdit ? "Edit Setup" : "New Setup"}</DrawerTitle>
           <DrawerClose
             aria-label="Close"
             className="ml-auto flex cursor-pointer border-none bg-transparent p-1 text-text-muted transition-colors hover:text-text"
@@ -126,8 +148,9 @@ export function NewSetupDrawer() {
         </DrawerHeader>
         <DrawerBody>
           <ModalBanner>
-            Define a planned playbook setup — thesis, levels, and checklist. Convert it to a trade
-            when you take the shot.
+            {isEdit
+              ? "Update thesis, levels, and checklist. Log a trade from the playbook when you take the shot."
+              : "Define a planned playbook setup — thesis, levels, and checklist. Convert it to a trade when you take the shot."}
           </ModalBanner>
 
           <form

@@ -114,7 +114,7 @@ function EquityCurveChart({
   const dayTicks = useMemo(() => uniqueDayTicks(visible), [visible]);
 
   if (equityLoading) {
-    return <Skeleton className="min-h-[160px] flex-1" height="100%" />;
+    return <Skeleton className="min-h-[240px] w-full flex-1 sm:min-h-[280px]" height="100%" />;
   }
   if (equityError) {
     return <p className="text-xs text-loss">Failed to load equity curve.</p>;
@@ -124,7 +124,7 @@ function EquityCurveChart({
   }
 
   return (
-    <div className="relative min-h-0 flex-1">
+    <div className="relative min-h-[240px] w-full flex-1 sm:min-h-[280px] lg:min-h-0">
       <ChartFrame inset className="absolute inset-0 rounded-none border-0 bg-transparent">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart
