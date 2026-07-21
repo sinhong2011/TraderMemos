@@ -52,7 +52,7 @@ export function ReportsExecutionGrade({
       ) : rows.length === 0 ? (
         <EmptyState title="No rated trades" hint="Rate your execution on trades to see this." />
       ) : (
-        <ul className="flex flex-col gap-3 px-4 pb-3">
+        <ul className="flex flex-col gap-3">
           {rows.map(({ g, label }) => {
             const net = g.summary.net_pnl * fxRate;
             const pct = (Math.abs(g.summary.net_pnl) / maxAbs) * 100;
