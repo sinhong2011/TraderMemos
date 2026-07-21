@@ -7,14 +7,8 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { Card } from "./Card";
-import { ChartFrame, chartTheme } from "./ChartFrame";
-import { EmptyState } from "./EmptyState";
-import { Skeleton } from "./Skeleton";
-import { StatCard } from "./StatCard";
 import type { EquityPoint, Trade } from "../lib/api/types";
 import { uniqueDayTicks } from "../lib/chartTicks";
-import { computeDashboardInsights } from "../lib/dashboardInsights";
 import { usePrivacyMode } from "../lib/displayPrefs";
 import { fmtDayShort, fmtMoney } from "../lib/format";
 import { intlLocale } from "../lib/locale";
@@ -24,6 +18,11 @@ import {
   drawdownSeries,
   maxDrawdownPct,
 } from "../lib/reportsAnalytics";
+import { Card } from "./Card";
+import { ChartFrame, chartTheme } from "./ChartFrame";
+import { EmptyState } from "./EmptyState";
+import { Skeleton } from "./Skeleton";
+import { StatCard } from "./StatCard";
 
 export interface ReportsRiskDrawdownProps {
   trades: Trade[];
@@ -48,7 +47,6 @@ export function ReportsRiskDrawdown({
 }: ReportsRiskDrawdownProps) {
   usePrivacyMode();
   const locale = intlLocale();
-  const insights = computeDashboardInsights(trades);
   const risk = avgRiskPerTrade(trades);
   const series = drawdownSeries(equityPoints);
   const maxDd = maxDrawdownPct(equityPoints);
@@ -64,18 +62,26 @@ export function ReportsRiskDrawdown({
         <EmptyState title="No data" hint="Add trades to see risk and drawdown stats." />
       ) : (
         <>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <StatCard label="Max Drawdown" value={fmtDrawdownPct(maxDd)} accent="neg" />
+          {/* Lean row — Max DD $ / worst streak already live in summary bento */}
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             <StatCard
+              variant="bento"
+              align="center"
+              label="Max Drawdown"
+              value={fmtDrawdownPct(maxDd)}
+              accent="neg"
+              hint="% of peak equity"
+            />
+            <StatCard
+              variant="bento"
+              align="center"
               label="Current Drawdown"
               value={fmtDrawdownPct(currentDd)}
               accent={currentDd < 0 ? "neg" : "none"}
             />
             <StatCard
-              label="Longest Losing Streak"
-              value={insights.worstStreak > 0 ? `${insights.worstStreak} trades` : "—"}
-            />
-            <StatCard
+              variant="bento"
+              align="center"
               label="Avg Risk/Trade"
               value={risk.avg != null ? fmtMoney(risk.avg * fxRate, currency, locale) : "—"}
               hint={
@@ -86,7 +92,7 @@ export function ReportsRiskDrawdown({
             />
           </div>
           <div className="mt-4">
-            <ChartFrame className="border-0 rounded-none">
+            <ChartFrame className="rounded-none border-0">
               <ResponsiveContainer width="100%" height={140}>
                 <AreaChart data={series} margin={{ top: 8, right: 8, bottom: 0, left: 4 }}>
                   <defs>

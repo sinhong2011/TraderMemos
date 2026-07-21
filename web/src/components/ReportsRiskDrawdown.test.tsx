@@ -59,7 +59,7 @@ describe("ReportsRiskDrawdown", () => {
     );
     expect(screen.getByText("Max Drawdown")).toBeInTheDocument();
     expect(screen.getByText("Current Drawdown")).toBeInTheDocument();
-    expect(screen.getByText("Longest Losing Streak")).toBeInTheDocument();
     expect(screen.getByText("Avg Risk/Trade")).toBeInTheDocument();
+    expect(screen.queryByText("Longest Losing Streak")).not.toBeInTheDocument();
   });
 });

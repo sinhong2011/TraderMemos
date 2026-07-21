@@ -23,9 +23,8 @@ interface StatCardProps {
   size?: "lg" | "md" | "sm";
   /**
    * Content alignment within the cell. "left" (default) preserves the
-   * original layout used by every existing call site. "center" is only for
-   * the Statistics card's tiered bento layout — do not change the default,
-   * other call sites depend on left alignment.
+   * original layout used by every existing call site. "center" centers label
+   * and value without forcing a square aspect ratio.
    */
   align?: "left" | "center";
 }
@@ -36,7 +35,12 @@ function accentColor(accent?: "pos" | "neg" | "none"): string {
   return "var(--color-text)";
 }
 
-function valueSizeClass(size: "lg" | "md" | "sm"): string {
+function valueSizeClass(size: "lg" | "md" | "sm", centered: boolean): string {
+  if (centered) {
+    if (size === "lg") return "text-[22px] sm:text-[24px]";
+    if (size === "sm") return "text-[14px] sm:text-[15px]";
+    return "text-[17px] sm:text-xl";
+  }
   if (size === "lg") return "text-[26px]";
   if (size === "sm") return "text-[15px]";
   return "text-xl";
@@ -51,12 +55,15 @@ export function StatCard({
   size = "md",
   align = "left",
 }: StatCardProps) {
+  const centered = align === "center";
+
   return (
     <div
       className={cn(
-        "flex flex-col gap-1 px-4",
-        size === "sm" ? "py-2" : "py-3",
-        align === "center" && "items-center text-center",
+        "flex flex-col",
+        centered
+          ? "w-full items-center gap-2 p-3 text-center"
+          : cn("gap-1 px-4", size === "sm" ? "py-2" : "py-3"),
       )}
       style={
         variant === "bento"
@@ -72,13 +79,21 @@ export function StatCard({
       }
     >
       <span
-        className="text-xs font-medium uppercase tracking-wide"
+        className={cn(
+          "text-[10px] font-medium tracking-wide uppercase sm:text-xs",
+          centered ? "self-center" : undefined,
+        )}
         style={{ color: "var(--color-text-muted)" }}
       >
         {label}
       </span>
+
       <span
-        className={cn(valueSizeClass(size), "font-semibold leading-none")}
+        className={cn(
+          valueSizeClass(size, centered),
+          "font-semibold leading-none tabular-nums",
+          centered && "max-w-full truncate",
+        )}
         style={{
           color: accentColor(accent),
           transition: "color var(--duration-fast)",
@@ -86,11 +101,14 @@ export function StatCard({
       >
         {value}
       </span>
-      {hint && (
-        <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>
+      {hint ? (
+        <span
+          className={cn("text-xs", centered && "line-clamp-2 max-w-full text-[10px] leading-snug")}
+          style={{ color: "var(--color-text-muted)" }}
+        >
           {hint}
         </span>
-      )}
+      ) : null}
     </div>
   );
 }

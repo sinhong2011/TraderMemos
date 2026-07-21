@@ -70,6 +70,30 @@ function buildSessionColumns(
         );
       },
     },
+    {
+      id: "profit_factor",
+      accessorFn: (row) => row.summary.profit_factor,
+      header: "PF",
+      cell: (info) => {
+        const v = info.getValue<number>();
+        return (
+          <span className="tabular-nums text-text">{v > 0 ? v.toFixed(2) : "—"}</span>
+        );
+      },
+    },
+    {
+      id: "expectancy",
+      accessorFn: (row) => row.summary.expectancy,
+      header: "Expectancy",
+      cell: (info) => {
+        const v = info.getValue<number>();
+        return (
+          <span className={`tabular-nums ${pnlColor(v)}`}>
+            {fmtSignedMoney(v * fxRate, currency, locale)}
+          </span>
+        );
+      },
+    },
   ];
 }
 
@@ -84,18 +108,22 @@ export function ReportsSessionTable({
   const locale = intlLocale();
 
   return (
-    <Card title="Session Performance">
+    <Card title="Session Performance" flush>
       {loading ? (
-        <Skeleton height="160px" />
+        <div className="p-4">
+          <Skeleton height="160px" />
+        </div>
       ) : error ? (
-        <p className="text-xs text-loss">Failed to load session performance.</p>
+        <p className="p-4 text-xs text-loss">Failed to load session performance.</p>
       ) : breakdown.length === 0 ? (
-        <EmptyState
-          title="No data"
-          hint="Add trades or adjust filters to see session performance."
-        />
+        <div className="p-4">
+          <EmptyState
+            title="No data"
+            hint="Add trades or adjust filters to see session performance."
+          />
+        </div>
       ) : (
-        <div style={{ maxHeight: 240 }}>
+        <div style={{ maxHeight: 280 }}>
           <DataTable columns={buildSessionColumns(currency, locale, fxRate)} data={breakdown} />
         </div>
       )}

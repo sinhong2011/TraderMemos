@@ -62,6 +62,7 @@ function PageButton({
       size="icon"
       aria-label={`Page ${page}`}
       aria-current={active ? "page" : undefined}
+      tooltip={false}
       onClick={onClick}
       className={cn(
         "min-w-8 text-[11px] tabular-nums",

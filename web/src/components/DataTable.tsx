@@ -21,7 +21,7 @@ interface DataTableProps<T> {
   maxHeight?: string | number;
   className?: string;
   dense?: boolean;
-  /** ~20% larger type and row height than default (trade log) */
+  /** Slightly larger type/row height than default (trade log); ~2% over base after density tune) */
   comfortable?: boolean;
   /** Hairline under header and between rows */
   lined?: boolean;
@@ -47,12 +47,12 @@ function tableMetrics(dense: boolean, comfortable: boolean) {
     };
   if (comfortable)
     return {
-      fontSize: 15.6,
-      rowHeight: 56,
-      /** Body-matched type; 52px header on the 4px grid */
-      headerText: "h-[52px] font-medium tracking-wide",
+      fontSize: 13.26, // 15.6 × 0.85
+      rowHeight: 48, // 56 × 0.85
+      /** Body-matched type; 44px header on the 4px grid */
+      headerText: "h-[44px] font-medium tracking-wide",
       headerPy: "py-0",
-      cellPy: "py-3",
+      cellPy: "py-2.5",
     };
   return {
     fontSize: 13,

@@ -1,10 +1,14 @@
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
 import { cva, type VariantProps } from "class-variance-authority";
+import type { ReactNode } from "react";
 import { cn } from "../../lib/cn";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
 
 /**
  * Signal Terminal Button — shadcn Base UI button with product tokens.
+ * Icon sizes auto-wrap a tooltip from `aria-label` / `title` (opt out with `tooltip={false}`).
  * @see https://ui.shadcn.com/docs/components/base/button
+ * @see https://ui.shadcn.com/docs/components/base/tooltip
  */
 const buttonVariants = cva(
   [
@@ -51,19 +55,104 @@ const buttonVariants = cva(
   },
 );
 
+const ICON_SIZES = new Set(["icon", "icon-xs", "icon-sm", "icon-lg"]);
+
+type ButtonProps = ButtonPrimitive.Props &
+  VariantProps<typeof buttonVariants> & {
+    /**
+     * Tooltip label for icon buttons.
+     * - omit / `true`: use `aria-label` or `title` when size is icon*
+     * - `string`: custom tooltip text
+     * - `false`: never show a tooltip
+     */
+    tooltip?: string | boolean;
+  };
+
+function resolveTooltip(
+  size: ButtonProps["size"],
+  tooltip: ButtonProps["tooltip"],
+  ariaLabel: ButtonProps["aria-label"],
+  title: ButtonProps["title"],
+): string | undefined {
+  if (tooltip === false) return undefined;
+  if (typeof tooltip === "string") {
+    const t = tooltip.trim();
+    return t || undefined;
+  }
+  if (!ICON_SIZES.has(size ?? "")) return undefined;
+  if (typeof ariaLabel === "string" && ariaLabel.trim()) return ariaLabel.trim();
+  if (typeof title === "string" && title.trim()) return title.trim();
+  return undefined;
+}
+
 function Button({
   className,
   variant = "default",
   size = "default",
+  tooltip,
+  title,
+  "aria-label": ariaLabel,
+  children,
+  disabled,
   ...props
-}: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {
+}: ButtonProps) {
+  const tip = resolveTooltip(size, tooltip, ariaLabel, title);
+  const buttonClass = cn(buttonVariants({ variant, size }), className);
+
+  if (!tip) {
+    return (
+      <ButtonPrimitive
+        data-slot="button"
+        className={buttonClass}
+        aria-label={ariaLabel}
+        title={title}
+        disabled={disabled}
+        {...props}
+      >
+        {children}
+      </ButtonPrimitive>
+    );
+  }
+
+  // Drop native `title` when a custom tooltip is shown to avoid double tips.
+  if (disabled) {
+    return (
+      <Tooltip>
+        <TooltipTrigger render={<span className="inline-flex" />}>
+          <ButtonPrimitive
+            data-slot="button"
+            className={buttonClass}
+            aria-label={ariaLabel}
+            disabled={disabled}
+            {...props}
+          >
+            {children}
+          </ButtonPrimitive>
+        </TooltipTrigger>
+        <TooltipContent>{tip}</TooltipContent>
+      </Tooltip>
+    );
+  }
+
   return (
-    <ButtonPrimitive
-      data-slot="button"
-      className={cn(buttonVariants({ variant, size }), className)}
-      {...props}
-    />
+    <Tooltip>
+      <TooltipTrigger
+        render={
+          <ButtonPrimitive
+            data-slot="button"
+            className={buttonClass}
+            aria-label={ariaLabel}
+            disabled={disabled}
+            {...props}
+          />
+        }
+      >
+        {children as ReactNode}
+      </TooltipTrigger>
+      <TooltipContent>{tip}</TooltipContent>
+    </Tooltip>
   );
 }
 
 export { Button, buttonVariants };
+export type { ButtonProps };

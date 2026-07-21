@@ -40,10 +40,12 @@ export function SegmentedControl({
   ariaLabel?: string;
   className?: string;
   fullWidth?: boolean;
-  size?: "sm" | "md";
+  /** "xs" is a tighter variant for cramped mobile toolbars. */
+  size?: "xs" | "sm" | "md";
   tones?: Partial<Record<string, SegmentTone>>;
 }) {
   const tall = size === "md";
+  const tiny = size === "xs";
   const activeTone = tones?.[value];
   return (
     <Tabs
@@ -56,7 +58,11 @@ export function SegmentedControl({
       <TabsList
         aria-label={ariaLabel}
         fullWidth={fullWidth}
-        className={cn("h-10 rounded-control border-none bg-bg-input p-1", className)}
+        className={cn(
+          tiny ? "h-8" : "h-10",
+          "rounded-control border-none bg-bg-input p-1",
+          className,
+        )}
       >
         <TabsIndicator
           className={cn(
@@ -74,7 +80,7 @@ export function SegmentedControl({
               className={cn(
                 "h-full font-medium text-text-dim hover:text-text-muted",
                 tone ? TRIGGER_TONE[tone] : "data-active:text-text",
-                tall ? "px-3.5 text-[13px]" : "px-3 text-[12px]",
+                tall ? "px-3.5 text-[13px]" : tiny ? "px-2 text-[11px]" : "px-3 text-[12px]",
               )}
             >
               {o.label}

@@ -38,6 +38,7 @@ describe("ReportsRMultiplePerformance", () => {
     expect(screen.getByText("+1.05R")).toBeInTheDocument();
     expect(screen.getByText("+2.14R")).toBeInTheDocument();
     expect(screen.getByText("-1.13R")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "R-Multiples" })).toBeInTheDocument();
   });
 
   it("shows an empty state with no R-eligible trades", () => {

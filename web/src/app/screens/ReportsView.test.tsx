@@ -97,7 +97,9 @@ describe("ReportsView", () => {
     // Scoped to the Breakdown card: the Metric Evolution card (empty trades,
     // same as `base`) also renders an empty state titled "No data", so an
     // unscoped text match would ambiguously match both.
-    const breakdownCard = screen.getByRole("heading", { name: "Breakdown" }).closest("section");
+    const breakdownCard = screen
+      .getByRole("heading", { name: "Playbook & Leaks" })
+      .closest("section");
     expect(breakdownCard).not.toBeNull();
     expect(within(breakdownCard as HTMLElement).getByText("No data")).toBeInTheDocument();
   });
@@ -111,17 +113,23 @@ describe("ReportsView", () => {
         summary={grp("all", 60).summary}
       />,
     );
-    // Selector-scoped: the Metric Evolution card's right-axis metric selector
-    // also has "Profit Factor" / "Expectancy" options (as buttons), which a
-    // plain text match would ambiguously match alongside the StatCard labels.
-    expect(screen.getByText("Profit Factor", { selector: "span" })).toBeInTheDocument();
-    expect(screen.getByText("Expectancy", { selector: "span" })).toBeInTheDocument();
-    expect(screen.getByText("Performance")).toBeInTheDocument();
-    expect(screen.getByText("Trade Quality")).toBeInTheDocument();
-    expect(screen.getByText("Behavior & Costs")).toBeInTheDocument();
-    // Avg Trade must be inside the Trade Quality group, not Performance or
-    // Behavior & Costs — this is the exact regrouping this branch is about.
-    const tradeQualityGroup = screen.getByText("Trade Quality").parentElement as HTMLElement;
-    expect(within(tradeQualityGroup).getByText("Avg Trade")).toBeInTheDocument();
+
+    expect(screen.getByText("Edge metrics")).toBeInTheDocument();
+    expect(screen.getByText("Profit factor")).toBeInTheDocument();
+    expect(screen.getByText("Win rate")).toBeInTheDocument();
+    expect(screen.getByText("Payoff ratio")).toBeInTheDocument();
+
+    const performance = screen.getByText("Performance").closest("section");
+    expect(performance).not.toBeNull();
+    expect(within(performance as HTMLElement).getByText("Net P&L")).toBeInTheDocument();
+    expect(within(performance as HTMLElement).getByText("Expectancy")).toBeInTheDocument();
+
+    expect(screen.getByText("Avg trade")).toBeInTheDocument();
+    expect(screen.getByText("Max drawdown")).toBeInTheDocument();
+    expect(screen.getByText("Total fees")).toBeInTheDocument();
+    expect(screen.getByText("Session context")).toBeInTheDocument();
+    expect(screen.getByText("Best streak")).toBeInTheDocument();
+    expect(screen.getByText("Main leak")).toBeInTheDocument();
+    expect(screen.getByText("Open / breakeven")).toBeInTheDocument();
   });
 });

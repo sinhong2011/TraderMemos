@@ -1,6 +1,8 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import type { ReactNode } from "react";
 import {
+  Area,
+  AreaChart,
   Bar,
   BarChart,
   CartesianGrid,
@@ -16,27 +18,21 @@ import { DataTable } from "../../components/DataTable";
 import { EmptyState } from "../../components/EmptyState";
 import { Page } from "../../components/Page";
 import { ReportsBreakdownCard } from "../../components/ReportsBreakdownCard";
+import { ReportsDayStrip } from "../../components/ReportsDayStrip";
+import { ReportsHourlyList } from "../../components/ReportsHourlyList";
+import { ReportsSummaryBento } from "../../components/ReportsSummaryBento";
 import { ReportsMetricEvolution } from "../../components/ReportsMetricEvolution";
-import { ReportsRDistributionChart } from "../../components/ReportsRDistributionChart";
 import { ReportsRiskDrawdown } from "../../components/ReportsRiskDrawdown";
 import { ReportsRMultiplePerformance } from "../../components/ReportsRMultiplePerformance";
 import { ReportsRollingWinRate } from "../../components/ReportsRollingWinRate";
 import { ReportsSessionTable } from "../../components/ReportsSessionTable";
 import { Skeleton } from "../../components/Skeleton";
-import { StatCard } from "../../components/StatCard";
 import { Button } from "../../components/ui/button";
 import { pnlColor } from "../../components/theme-tokens";
-import { computeDashboardInsights } from "../../lib/dashboardInsights";
 import type { BreakGroup, EquityCurve, RSummary, Summary, Trade } from "../../lib/api/types";
 import { uniqueDayTicks } from "../../lib/chartTicks";
-import {
-  fmtDayShort,
-  fmtDuration,
-  fmtMoney,
-  fmtMoneyCompact,
-  fmtPct,
-  fmtSignedMoney,
-} from "../../lib/format";
+import { cn } from "../../lib/cn";
+import { fmtDayShort, fmtMoney, fmtMoneyCompact, fmtPct, fmtSignedMoney } from "../../lib/format";
 import { useMoneyFx } from "../../lib/hooks/useMoneyFx";
 import { intlLocale } from "../../lib/locale";
 import { usePrivacyMode } from "../../lib/displayPrefs";
@@ -108,162 +104,158 @@ export interface ReportsViewProps {
 // Constants
 // ---------------------------------------------------------------------------
 
-const POS_COLOR = "#52ca96"; // emerald-400
-const NEG_COLOR = "#eb4b68"; // red-400
+const POS_COLOR = "var(--color-profit)";
+const NEG_COLOR = "var(--color-loss)";
 
 // ---------------------------------------------------------------------------
-// Summary metrics grid (Stats page parity)
+// Summary metrics — equity, day strip, insight widgets, bento grid
 // ---------------------------------------------------------------------------
 
-function StatGroup({ label, children }: { label: string; children: ReactNode }) {
+function BentoCell({ className, children }: { className?: string; children: ReactNode }) {
   return (
-    <div>
-      <p className="px-4 pt-3 pb-1 text-label">{label}</p>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">{children}</div>
-    </div>
+    <section className={cn("flex h-full min-w-0 flex-col rounded-card bg-bg-panel p-4 sm:p-5", className)}>
+      {children}
+    </section>
+  );
+}
+
+function BentoTitle({
+  children,
+  tone = "signal",
+  className,
+}: {
+  children: ReactNode;
+  tone?: "signal" | "muted";
+  className?: string;
+}) {
+  return (
+    <p
+      className={cn(
+        "self-start text-left text-[11px] font-semibold tracking-[0.06em] uppercase sm:text-[12px]",
+        tone === "signal" ? "text-signal" : "font-medium normal-case tracking-wide text-text-muted",
+        className,
+      )}
+    >
+      {children}
+    </p>
   );
 }
 
 function SummaryMetricsGrid({
   summary,
   trades,
+  tradesLoading,
   currency,
   fxRate = 1,
+  equity,
+  equityLoading,
 }: {
   summary: Summary;
   trades: Trade[];
+  tradesLoading?: boolean;
   currency: string;
   fxRate?: number;
+  equity?: EquityCurve;
+  equityLoading?: boolean;
 }) {
   usePrivacyMode();
   const locale = intlLocale();
-  const insights = computeDashboardInsights(trades);
-  const feePct =
-    summary.gross_profit + summary.gross_loss !== 0
-      ? (summary.total_fees / Math.abs(summary.gross_profit + summary.gross_loss)) * 100
-      : 0;
+  const equityPoints = equity?.points ?? [];
 
   return (
-    <div>
-      <StatGroup label="Performance">
-        <StatCard
-          variant="bento"
-          align="center"
-          size="lg"
-          label="P&L"
-          value={fmtSignedMoney(summary.net_pnl * fxRate, currency, locale)}
-          accent={summary.net_pnl >= 0 ? "pos" : "neg"}
-          hint={`Gross ${fmtSignedMoney((summary.gross_profit + summary.gross_loss) * fxRate, currency, locale)} · Fees ${fmtMoney(summary.total_fees * fxRate, currency, locale)} (${feePct.toFixed(1)}%)`}
-        />
-        <StatCard
-          variant="bento"
-          align="center"
-          size="lg"
-          label="Win Rate"
-          value={fmtPct(summary.win_rate, locale)}
-          accent="none"
-        />
-        <StatCard
-          variant="bento"
-          align="center"
-          size="lg"
-          label="Profit Factor"
-          value={summary.profit_factor > 0 ? summary.profit_factor.toFixed(2) : "—"}
-        />
-        <StatCard
-          variant="bento"
-          align="center"
-          size="lg"
-          label="Total Trades"
-          value={String(summary.total_trades)}
-        />
-        <StatCard
-          variant="bento"
-          align="center"
-          size="lg"
-          label="Expectancy"
-          value={fmtSignedMoney(summary.expectancy * fxRate, currency, locale)}
-          accent={summary.expectancy >= 0 ? "pos" : "neg"}
-        />
-      </StatGroup>
-      <StatGroup label="Trade Quality">
-        <StatCard
-          variant="bento"
-          align="center"
-          label="Avg Win"
-          value={fmtMoney(summary.avg_win * fxRate, currency, locale)}
-          accent="pos"
-        />
-        <StatCard
-          variant="bento"
-          align="center"
-          label="Avg Loss"
-          value={fmtMoney(summary.avg_loss * fxRate, currency, locale)}
-          accent="neg"
-        />
-        <StatCard
-          variant="bento"
-          align="center"
-          label="Largest Win"
-          value={fmtMoney(summary.largest_win * fxRate, currency, locale)}
-          accent="pos"
-        />
-        <StatCard
-          variant="bento"
-          align="center"
-          label="Largest Loss"
-          value={fmtMoney(summary.largest_loss * fxRate, currency, locale)}
-          accent="neg"
-        />
-        <StatCard
-          variant="bento"
-          align="center"
-          label="Avg Trade"
-          value={fmtSignedMoney(summary.avg_trade * fxRate, currency, locale)}
-          accent={summary.avg_trade >= 0 ? "pos" : "neg"}
-        />
-      </StatGroup>
-      <StatGroup label="Behavior & Costs">
-        <StatCard
-          variant="bento"
-          align="center"
-          size="sm"
-          label="Avg Win Hold"
-          value={fmtDuration(insights.winHoldSecs)}
-          accent="pos"
-        />
-        <StatCard
-          variant="bento"
-          align="center"
-          size="sm"
-          label="Avg Loss Hold"
-          value={fmtDuration(insights.lossHoldSecs)}
-          accent="neg"
-        />
-        <StatCard
-          variant="bento"
-          align="center"
-          size="sm"
-          label="Breakeven"
-          value={String(summary.breakeven)}
-        />
-        <StatCard
-          variant="bento"
-          align="center"
-          size="sm"
-          label="Best Streak"
-          value={insights.bestStreak > 0 ? `${insights.bestStreak} trades` : "—"}
-          accent="pos"
-        />
-        <StatCard
-          variant="bento"
-          align="center"
-          size="sm"
-          label="Total Fees"
-          value={fmtMoney(summary.total_fees * fxRate, currency, locale)}
-          accent="neg"
-        />
-      </StatGroup>
+    <div className="flex flex-col gap-3">
+      <div className="grid auto-rows-[minmax(64px,auto)] grid-cols-1 gap-3">
+        {/* Equity — top full-bleed, area chart like dashboard */}
+        <BentoCell className="min-h-[180px]">
+          <BentoTitle tone="muted">
+            Equity curve
+            {equityPoints.length > 0
+              ? ` · Max DD ${fmtMoney(equity.max_drawdown * fxRate, currency, locale)}`
+              : null}
+          </BentoTitle>
+          <div className="mt-2 min-h-0 flex-1">
+            {equityLoading ? (
+              <Skeleton height="148px" />
+            ) : equityPoints.length > 0 ? (
+              <ChartFrame inset className="rounded-none border-0 bg-transparent">
+                <ResponsiveContainer width="100%" height={148}>
+                  <AreaChart
+                    data={equityPoints.map((p) => ({ ...p, equity: p.equity * fxRate }))}
+                    margin={{ top: 8, right: 8, bottom: 0, left: 4 }}
+                    accessibilityLayer={false}
+                  >
+                    <defs>
+                      <linearGradient id="reports-eq-fill" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor={chartTheme.accentStroke} stopOpacity={0.25} />
+                        <stop offset="95%" stopColor={chartTheme.accentStroke} stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid vertical={false} stroke={chartTheme.gridColor} />
+                    <XAxis
+                      dataKey="at"
+                      ticks={uniqueDayTicks(equityPoints)}
+                      tick={{ fontSize: 10, fill: chartTheme.axisColor }}
+                      tickFormatter={(v: string) => fmtDayShort(v, intlLocale())}
+                      axisLine={false}
+                      tickLine={false}
+                      minTickGap={60}
+                    />
+                    <YAxis
+                      tick={{ fontSize: 10, fill: chartTheme.axisColor }}
+                      tickFormatter={(v: number) => fmtMoneyCompact(v, currency, intlLocale())}
+                      axisLine={false}
+                      tickLine={false}
+                      width={52}
+                      domain={["auto", "auto"]}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        background: chartTheme.tooltipBg,
+                        border: `1px solid ${chartTheme.tooltipBorder}`,
+                        color: chartTheme.tooltipText,
+                        fontSize: 11,
+                        borderRadius: "var(--radius-sharp)",
+                      }}
+                      labelFormatter={(label) => String(label ?? "").slice(0, 10)}
+                      formatter={(value) => [
+                        fmtMoney(Number(value ?? 0), currency, intlLocale()),
+                        "Equity",
+                      ]}
+                      cursor={{ fill: chartTheme.cursorFill }}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="equity"
+                      stroke={chartTheme.accentStroke}
+                      strokeWidth={1.5}
+                      fill="url(#reports-eq-fill)"
+                      dot={false}
+                      activeDot={{ r: 3, fill: chartTheme.accentStroke }}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </ChartFrame>
+            ) : (
+              <p className="py-8 text-center text-[12px] text-text-muted">No equity data yet.</p>
+            )}
+          </div>
+        </BentoCell>
+      </div>
+
+      <ReportsDayStrip
+        trades={trades}
+        loading={tradesLoading}
+        currency={currency}
+        fxRate={fxRate}
+      />
+
+      <ReportsSummaryBento
+        summary={summary}
+        trades={trades}
+        currency={currency}
+        fxRate={fxRate}
+        equity={equity}
+      />
     </div>
   );
 }
@@ -510,11 +502,7 @@ export function ReportsView({
     }
 
     if (error) {
-      return (
-        <p className="p-4 text-xs" style={{ color: "var(--color-neg)" }}>
-          Failed to load breakdown data.
-        </p>
-      );
+      return <p className="p-4 text-xs text-loss">Failed to load breakdown data.</p>;
     }
 
     if (breakdown.length === 0) {
@@ -539,71 +527,20 @@ export function ReportsView({
       ) : summaryError ? (
         <p className="p-4 text-xs text-loss">Failed to load summary.</p>
       ) : summary ? (
-        <Card title="Statistics">
-          <SummaryMetricsGrid
-            summary={summary}
-            trades={trades}
-            currency={displayCurrency}
-            fxRate={fxRate}
-          />
-          {equityLoading ? (
-            <Skeleton height="160px" className="m-3" />
-          ) : equity && equity.points.length > 0 ? (
-            <div className="p-3">
-              <p className="mb-2 text-[10px] font-medium uppercase tracking-widest text-text-muted">
-                Equity curve · Max DD{" "}
-                {fmtMoney(equity.max_drawdown * fxRate, displayCurrency, intlLocale())}
-              </p>
-              <ChartFrame>
-                <ResponsiveContainer width="100%" height={160}>
-                  <BarChart
-                    data={equity.points.map((p) => ({ ...p, equity: p.equity * fxRate }))}
-                    margin={{ top: 8, right: 8, bottom: 0, left: 4 }}
-                  >
-                    <CartesianGrid vertical={false} stroke={chartTheme.gridColor} />
-                    <XAxis
-                      dataKey="at"
-                      ticks={uniqueDayTicks(equity.points)}
-                      tick={{ fontSize: 10, fill: chartTheme.axisColor }}
-                      tickFormatter={(v: string) => fmtDayShort(v, intlLocale())}
-                      axisLine={false}
-                      tickLine={false}
-                      minTickGap={60}
-                    />
-                    <YAxis
-                      tick={{ fontSize: 10, fill: chartTheme.axisColor }}
-                      tickFormatter={(v: number) =>
-                        fmtMoneyCompact(v, displayCurrency, intlLocale())
-                      }
-                      axisLine={false}
-                      tickLine={false}
-                      width={52}
-                    />
-                    <Tooltip
-                      contentStyle={{
-                        background: chartTheme.tooltipBg,
-                        border: `1px solid ${chartTheme.tooltipBorder}`,
-                        color: chartTheme.tooltipText,
-                        fontSize: 11,
-                      }}
-                      formatter={(value) => [
-                        fmtMoney(Number(value ?? 0), displayCurrency, intlLocale()),
-                        "Equity",
-                      ]}
-                    />
-                    <Bar
-                      dataKey="equity"
-                      fill={chartTheme.accentStroke}
-                      radius={[2, 2, 0, 0]}
-                      fillOpacity={0.85}
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
-              </ChartFrame>
-            </div>
-          ) : null}
-        </Card>
+        <SummaryMetricsGrid
+          summary={summary}
+          trades={trades}
+          tradesLoading={tradesLoading}
+          currency={displayCurrency}
+          fxRate={fxRate}
+          equity={equity}
+          equityLoading={equityLoading}
+        />
       ) : null}
+
+      <Card title="Playbook & Leaks" action={panelRight}>
+        {renderContent()}
+      </Card>
 
       <ReportsRollingWinRate trades={trades} loading={tradesLoading} error={tradesError} />
 
@@ -617,15 +554,6 @@ export function ReportsView({
 
       <ReportsRMultiplePerformance
         rSummary={rSummary}
-        loading={Boolean(rSummaryLoading)}
-        error={Boolean(rSummaryError)}
-      />
-
-      <ReportsRDistributionChart
-        distribution={rSummary?.distribution ?? []}
-        avgR={rSummary?.avg_r ?? 0}
-        totalTrades={rSummary?.total_trades ?? 0}
-        excluded={rSummary?.excluded ?? 0}
         loading={Boolean(rSummaryLoading)}
         error={Boolean(rSummaryError)}
       />
@@ -661,9 +589,9 @@ export function ReportsView({
           error={dayOfWeekBreakdownError}
           currency={displayCurrency}
           fxRate={fxRate}
+          tableColumns={buildColumns(displayCurrency, "Day", fxRate)}
         />
-        <ReportsBreakdownCard
-          title="Time of Day"
+        <ReportsHourlyList
           breakdown={hourOfDayBreakdown}
           loading={hourOfDayBreakdownLoading}
           error={hourOfDayBreakdownError}
@@ -688,10 +616,6 @@ export function ReportsView({
         currency={displayCurrency}
         fxRate={fxRate}
       />
-
-      <Card title="Breakdown" action={panelRight}>
-        {renderContent()}
-      </Card>
     </Page>
   );
 }
