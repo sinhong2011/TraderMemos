@@ -95,12 +95,13 @@ export function navLabel(locale: string, key: NavLabelKey): string {
   return NAV_LABELS[loc][key];
 }
 
-export type SettingsSectionId = "accounts" | "rules" | "journal" | "general";
+export type SettingsSectionId = "accounts" | "rules" | "journal" | "ai" | "general";
 
-type SettingsLabelKey =
+export type SettingsLabelKey =
   | "accounts"
   | "rules"
   | "journal"
+  | "ai"
   | "general"
   | "accountsTitle"
   | "accountsDescription"
@@ -108,6 +109,8 @@ type SettingsLabelKey =
   | "rulesDescription"
   | "journalTitle"
   | "journalDescription"
+  | "aiTitle"
+  | "aiDescription"
   | "generalTitle"
   | "generalDescription"
   | "language"
@@ -135,13 +138,35 @@ type SettingsLabelKey =
   | "visionTest"
   | "visionTesting"
   | "visionOff"
-  | "visionOn";
+  | "visionOn"
+  | "coach"
+  | "coachTitle"
+  | "coachFooter"
+  | "coachEnabled"
+  | "coachBaseUrl"
+  | "coachModel"
+  | "coachFetchModels"
+  | "coachFetchingModels"
+  | "coachApiKey"
+  | "coachApiKeyHint"
+  | "coachCustomPrompt"
+  | "coachCustomPromptHint"
+  | "coachSave"
+  | "coachTest"
+  | "coachTesting"
+  | "coachOff"
+  | "coachOn"
+  | "llmEnabledDetail"
+  | "llmBaseUrlDetail"
+  | "llmModelDetail"
+  | "llmApiKeyDetail";
 
 const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
   en: {
     accounts: "Accounts",
     rules: "Rules",
     journal: "Journal",
+    ai: "AI",
     general: "General",
     accountsTitle: "Accounts & funding",
     accountsDescription: "Manage broker accounts, starting balances, and cash flows.",
@@ -149,8 +174,10 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     rulesDescription: "Risk limits and daily note checklist templates.",
     journalTitle: "Journal metadata",
     journalDescription: "Tags and playbook setups used when logging trades.",
+    aiTitle: "AI & LLM",
+    aiDescription: "Screenshot scan, trade coach, and OpenAI-compatible API keys.",
     generalTitle: "General",
-    generalDescription: "Preferences, screenshot scan, and session.",
+    generalDescription: "Preferences and session.",
     language: "Language",
     languageFooter: "Interface language for TraderMemos.",
     languageSelector: "Language selector",
@@ -179,11 +206,34 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     visionTesting: "Testing…",
     visionOff: "Off",
     visionOn: "On",
+    coach: "Coach",
+    coachTitle: "Trade coach",
+    coachFooter:
+      "LLM-powered coaching on trade detail. Falls back to rule-based notes when off or unavailable. Keys stay on the server.",
+    coachEnabled: "Enabled",
+    coachBaseUrl: "API base URL",
+    coachModel: "Model",
+    coachFetchModels: "Fetch models",
+    coachFetchingModels: "Fetching models…",
+    coachApiKey: "API key",
+    coachApiKeyHint: "Leave blank to keep current key",
+    coachCustomPrompt: "System prompt",
+    coachCustomPromptHint: "Leave blank to use the built-in coaching prompt",
+    coachSave: "Save",
+    coachTest: "Test",
+    coachTesting: "Testing…",
+    coachOff: "Off",
+    coachOn: "On",
+    llmEnabledDetail: "Turn on to call this API from the app.",
+    llmBaseUrlDetail: "OpenAI-compatible API root URL.",
+    llmModelDetail: "Model ID supported by your provider.",
+    llmApiKeyDetail: "Stored on the server only — never sent to the browser after save.",
   },
   "zh-HK": {
     accounts: "帳戶",
     rules: "規則",
     journal: "日誌",
+    ai: "AI",
     general: "一般",
     accountsTitle: "帳戶與資金",
     accountsDescription: "管理券商帳戶、起始結餘及現金流。",
@@ -191,8 +241,10 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     rulesDescription: "風險限制及每日筆記檢查清單範本。",
     journalTitle: "日誌元數據",
     journalDescription: "記錄交易時使用的標籤及策略庫設定。",
+    aiTitle: "AI 與 LLM",
+    aiDescription: "截圖掃描、交易教練及 OpenAI 相容 API 金鑰。",
     generalTitle: "一般",
-    generalDescription: "偏好設定、截圖掃描及工作階段。",
+    generalDescription: "偏好設定及工作階段。",
     language: "語言",
     languageFooter: "TraderMemos 的介面語言。",
     languageSelector: "語言選擇器",
@@ -219,11 +271,34 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     visionTesting: "測試中…",
     visionOff: "關",
     visionOn: "開",
+    coach: "教練",
+    coachTitle: "交易教練",
+    coachFooter:
+      "在交易詳情提供 LLM 教練意見。關閉或不可用時會使用規則式提示。金鑰只保存在伺服器。",
+    coachEnabled: "啟用",
+    coachBaseUrl: "API 位址",
+    coachModel: "模型",
+    coachFetchModels: "擷取模型",
+    coachFetchingModels: "擷取模型中…",
+    coachApiKey: "API 金鑰",
+    coachApiKeyHint: "留空表示保留現有金鑰",
+    coachCustomPrompt: "系統提示詞",
+    coachCustomPromptHint: "留空則使用內建教練提示詞",
+    coachSave: "儲存",
+    coachTest: "測試",
+    coachTesting: "測試中…",
+    coachOff: "關",
+    coachOn: "開",
+    llmEnabledDetail: "開啟後應用程式才會呼叫此 API。",
+    llmBaseUrlDetail: "OpenAI 相容 API 根位址。",
+    llmModelDetail: "供應商支援的模型 ID。",
+    llmApiKeyDetail: "只保存在伺服器，儲存後不會再傳到瀏覽器。",
   },
   ja: {
     accounts: "アカウント",
     rules: "ルール",
     journal: "ジャーナル",
+    ai: "AI",
     general: "一般",
     accountsTitle: "アカウントと資金",
     accountsDescription: "証券会社アカウント、開始残高、キャッシュフローを管理します。",
@@ -231,8 +306,10 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     rulesDescription: "リスク制限とデイリーノートのチェックリストテンプレート。",
     journalTitle: "ジャーナルメタデータ",
     journalDescription: "トレード記録時に使うタグとプレイブックセットアップ。",
+    aiTitle: "AI & LLM",
+    aiDescription: "スクショ解析、トレードコーチ、OpenAI 互換 API キー。",
     generalTitle: "一般",
-    generalDescription: "設定、スクショ解析、セッション。",
+    generalDescription: "設定とセッション。",
     language: "言語",
     languageFooter: "TraderMemos の表示言語。",
     languageSelector: "言語セレクター",
@@ -260,11 +337,34 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     visionTesting: "テスト中…",
     visionOff: "オフ",
     visionOn: "オン",
+    coach: "コーチ",
+    coachTitle: "トレードコーチ",
+    coachFooter:
+      "トレード詳細で LLM コーチングを表示します。オフまたは利用不可の場合はルールベースのメモにフォールバックします。キーはサーバーのみに保存されます。",
+    coachEnabled: "有効",
+    coachBaseUrl: "API ベース URL",
+    coachModel: "モデル",
+    coachFetchModels: "モデルを取得",
+    coachFetchingModels: "モデル取得中…",
+    coachApiKey: "API キー",
+    coachApiKeyHint: "空欄で既存キーを維持",
+    coachCustomPrompt: "システムプロンプト",
+    coachCustomPromptHint: "空欄で標準のコーチングプロンプトを使用",
+    coachSave: "保存",
+    coachTest: "テスト",
+    coachTesting: "テスト中…",
+    coachOff: "オフ",
+    coachOn: "オン",
+    llmEnabledDetail: "オンにするとアプリからこの API を呼び出します。",
+    llmBaseUrlDetail: "OpenAI 互換 API のルート URL。",
+    llmModelDetail: "プロバイダーがサポートするモデル ID。",
+    llmApiKeyDetail: "サーバーのみに保存 — 保存後はブラウザに送りません。",
   },
   ko: {
     accounts: "계정",
     rules: "규칙",
     journal: "저널",
+    ai: "AI",
     general: "일반",
     accountsTitle: "계정 및 자금",
     accountsDescription: "브로커 계정, 시작 잔액, 현금 흐름을 관리합니다.",
@@ -272,8 +372,10 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     rulesDescription: "리스크 한도와 일일 노트 체크리스트 템플릿.",
     journalTitle: "저널 메타데이터",
     journalDescription: "거래 기록 시 사용하는 태그와 플레이북 셋업.",
+    aiTitle: "AI & LLM",
+    aiDescription: "스크린샷 스캔, 트레이드 코치, OpenAI 호환 API 키.",
     generalTitle: "일반",
-    generalDescription: "환경설정, 스크린샷 스캔, 세션.",
+    generalDescription: "환경설정 및 세션.",
     language: "언어",
     languageFooter: "TraderMemos 인터페이스 언어입니다.",
     languageSelector: "언어 선택",
@@ -301,6 +403,28 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     visionTesting: "테스트 중…",
     visionOff: "끔",
     visionOn: "켬",
+    coach: "코치",
+    coachTitle: "트레이드 코치",
+    coachFooter:
+      "거래 상세에서 LLM 코칭을 제공합니다. 꺼져 있거나 사용할 수 없으면 규칙 기반 메모로 대체됩니다. 키는 서버에만 저장됩니다.",
+    coachEnabled: "사용",
+    coachBaseUrl: "API 베이스 URL",
+    coachModel: "모델",
+    coachFetchModels: "모델 가져오기",
+    coachFetchingModels: "모델 가져오는 중…",
+    coachApiKey: "API 키",
+    coachApiKeyHint: "비우면 기존 키 유지",
+    coachCustomPrompt: "시스템 프롬프트",
+    coachCustomPromptHint: "비우면 기본 코칭 프롬프트 사용",
+    coachSave: "저장",
+    coachTest: "테스트",
+    coachTesting: "테스트 중…",
+    coachOff: "끔",
+    coachOn: "켬",
+    llmEnabledDetail: "켜면 앱에서 이 API를 호출합니다.",
+    llmBaseUrlDetail: "OpenAI 호환 API 루트 URL.",
+    llmModelDetail: "제공자가 지원하는 모델 ID.",
+    llmApiKeyDetail: "서버에만 저장되며 저장 후 브라우저로 전송되지 않습니다.",
   },
 };
 
@@ -330,6 +454,7 @@ export function settingsNavItems(locale: string): {
       { id: "accounts", key: "accounts" },
       { id: "rules", key: "rules" },
       { id: "journal", key: "journal" },
+      { id: "ai", key: "ai" },
       { id: "general", key: "general" },
     ] as const
   ).map(({ id, key }) => ({

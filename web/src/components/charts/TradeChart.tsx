@@ -7,7 +7,6 @@ import {
   type ISeriesApi,
   type SeriesMarker,
   type Time,
-  type UTCTimestamp,
 } from "lightweight-charts";
 import { ChartCandlestick, Maximize2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -17,15 +16,13 @@ import { cn } from "../../lib/cn";
 import { SegmentedControl } from "../SegmentedControl";
 import { Skeleton } from "../Skeleton";
 import { Button } from "../ui/button";
+import { barsToCandlestickData } from "./barsToCandlestickData";
+import { utcSecToChartTime } from "./chartTime";
 import { BAR_INTERVALS, tradeChartTheme } from "./tradeChartTheme";
-
-function toChartTime(unixSec: number): UTCTimestamp {
-  return unixSec as UTCTimestamp;
-}
 
 function fillMarkers(fills: Execution[]): SeriesMarker<Time>[] {
   return fills.map((f) => ({
-    time: toChartTime(Math.floor(new Date(f.executed_at).getTime() / 1000)),
+    time: utcSecToChartTime(Math.floor(new Date(f.executed_at).getTime() / 1000)),
     position: f.side === "buy" ? "belowBar" : "aboveBar",
     shape: f.side === "buy" ? "arrowUp" : "arrowDown",
     color: f.side === "buy" ? tradeChartTheme.buyMarker : tradeChartTheme.sellMarker,
@@ -152,15 +149,7 @@ export function TradeChart({
       return;
     }
 
-    series.setData(
-      bars.map((b) => ({
-        time: toChartTime(b.time),
-        open: b.open,
-        high: b.high,
-        low: b.low,
-        close: b.close,
-      })),
-    );
+    series.setData(barsToCandlestickData(bars, interval));
 
     for (const line of series.priceLines()) {
       series.removePriceLine(line);
@@ -208,7 +197,7 @@ export function TradeChart({
     }
 
     chart.timeScale().fitContent();
-  }, [ready, bars, fills, targetPrice, stopPrice, entryPrice]);
+  }, [ready, bars, fills, interval, targetPrice, stopPrice, entryPrice]);
 
   return (
     <div className={cn("flex flex-col gap-2", className)}>

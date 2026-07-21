@@ -43,6 +43,8 @@ describe("locale", () => {
   it("translates settings navigation labels", () => {
     expect(settingsLabel("ja", "accounts")).toBe("アカウント");
     expect(settingsLabel("zh-HK", "general")).toBe("一般");
+    expect(settingsLabel("en", "ai")).toBe("AI");
+    expect(settingsLabel("en", "aiTitle")).toBe("AI & LLM");
   });
 
   it("exposes all language options", () => {
