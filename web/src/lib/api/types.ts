@@ -6,6 +6,8 @@ export interface Filters {
   to?: string;
   symbol?: string;
   status?: string;
+  side?: string;
+  duration?: string;
 }
 
 export interface Tokens {

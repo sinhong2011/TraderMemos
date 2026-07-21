@@ -1,11 +1,12 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { createFileRoute } from "@tanstack/react-router";
+import { useMemo, useState } from "react";
 import {
   type BreakdownDim,
   REPORT_TABS,
   type ReportsTab,
   ReportsView,
 } from "../app/screens/ReportsView";
+import type { ReportsDuration, ReportsSide } from "../components/ReportsControlBar";
 import { accountBaseCurrency } from "../lib/displayPrefs";
 import { useFilterParams, useFilters } from "../lib/filters";
 import { useAccounts } from "../lib/hooks/useAccounts";
@@ -13,11 +14,21 @@ import { useBreakdown, useEquityCurve, useRSummary, useSummary } from "../lib/ho
 import { useTrades } from "../lib/hooks/useTrades";
 
 const REPORT_TAB_VALUES: ReportsTab[] = REPORT_TABS.map((t) => t.value);
+const SIDE_VALUES: ReportsSide[] = ["all", "long", "short"];
+const DUR_VALUES: ReportsDuration[] = ["all", "scalp", "day", "swing"];
 
-export function validateReportsSearch(search: Record<string, unknown>): { tab: ReportsTab } {
+export function validateReportsSearch(search: Record<string, unknown>): {
+  tab: ReportsTab;
+  side: ReportsSide;
+  dur: ReportsDuration;
+} {
   const tab = search.tab;
+  const side = search.side;
+  const dur = search.dur;
   return {
     tab: REPORT_TAB_VALUES.includes(tab as ReportsTab) ? (tab as ReportsTab) : "overview",
+    side: SIDE_VALUES.includes(side as ReportsSide) ? (side as ReportsSide) : "all",
+    dur: DUR_VALUES.includes(dur as ReportsDuration) ? (dur as ReportsDuration) : "all",
   };
 }
 
@@ -30,22 +41,35 @@ function ReportsPage() {
   const filters = useFilterParams();
   const accountId = useFilters((s) => s.accountId);
   const [dim, setDim] = useState<BreakdownDim>("setup");
-  const { tab } = Route.useSearch();
-  const navigate = useNavigate();
+  const { tab, side, dur } = Route.useSearch();
+  const navigate = Route.useNavigate();
   const onTabChange = (next: ReportsTab) =>
     void navigate({ to: "/reports", search: (prev) => ({ ...prev, tab: next }) });
+  const onSideChange = (next: ReportsSide) =>
+    void navigate({ to: "/reports", search: (prev) => ({ ...prev, side: next }) });
+  const onDurationChange = (next: ReportsDuration) =>
+    void navigate({ to: "/reports", search: (prev) => ({ ...prev, dur: next }) });
 
-  const summaryQ = useSummary(filters);
-  const rSummaryQ = useRSummary(filters);
-  const equityQ = useEquityCurve(filters);
-  const tradesQ = useTrades(filters);
-  const breakdownQ = useBreakdown(dim, filters);
-  const dayOfWeekBreakdownQ = useBreakdown("day_of_week", filters);
-  const hourOfDayBreakdownQ = useBreakdown("hour_of_day", filters);
-  const symbolBreakdownQ = useBreakdown("symbol", filters);
-  const tagBreakdownQ = useBreakdown("tag", filters);
-  const sessionBreakdownQ = useBreakdown("session", filters);
-  const qualityBreakdownQ = useBreakdown("trade_quality", filters);
+  const analyticsFilters = useMemo(
+    () => ({
+      ...filters,
+      side: side === "all" ? undefined : side,
+      duration: dur === "all" ? undefined : dur,
+    }),
+    [filters, side, dur],
+  );
+
+  const summaryQ = useSummary(analyticsFilters);
+  const rSummaryQ = useRSummary(analyticsFilters);
+  const equityQ = useEquityCurve(analyticsFilters);
+  const tradesQ = useTrades(analyticsFilters);
+  const breakdownQ = useBreakdown(dim, analyticsFilters);
+  const dayOfWeekBreakdownQ = useBreakdown("day_of_week", analyticsFilters);
+  const hourOfDayBreakdownQ = useBreakdown("hour_of_day", analyticsFilters);
+  const symbolBreakdownQ = useBreakdown("symbol", analyticsFilters);
+  const tagBreakdownQ = useBreakdown("tag", analyticsFilters);
+  const sessionBreakdownQ = useBreakdown("session", analyticsFilters);
+  const qualityBreakdownQ = useBreakdown("trade_quality", analyticsFilters);
   const accountsQ = useAccounts();
   const currency = accountBaseCurrency(accountsQ.data ?? [], accountId);
 
@@ -89,6 +113,10 @@ function ReportsPage() {
       onDimChange={setDim}
       tab={tab}
       onTabChange={onTabChange}
+      side={side}
+      duration={dur}
+      onSideChange={onSideChange}
+      onDurationChange={onDurationChange}
     />
   );
 }

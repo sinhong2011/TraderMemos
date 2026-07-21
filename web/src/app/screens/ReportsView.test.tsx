@@ -86,6 +86,10 @@ const base = {
   onTabChange: vi.fn(),
   currency: "USD",
   onDimChange: vi.fn(),
+  side: "all" as const,
+  duration: "all" as const,
+  onSideChange: vi.fn(),
+  onDurationChange: vi.fn(),
 };
 
 describe("ReportsView", () => {
@@ -183,6 +187,12 @@ describe("ReportsView", () => {
     // component, unchanged by this task); "Session" alone never matches exactly.
     expect(screen.getByText("Session Performance")).toBeInTheDocument();
     expect(screen.queryByText("Execution Grade")).not.toBeInTheDocument();
+  });
+
+  it("renders the control bar side/duration options", () => {
+    render(<ReportsView {...base} dim="symbol" breakdown={[]} />);
+    expect(screen.getByRole("tab", { name: "Long" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Swing" })).toBeInTheDocument();
   });
 
   it("calls onTabChange when a tab is clicked", async () => {

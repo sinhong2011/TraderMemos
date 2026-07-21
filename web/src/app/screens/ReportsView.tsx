@@ -18,6 +18,11 @@ import { DataTable } from "../../components/DataTable";
 import { EmptyState } from "../../components/EmptyState";
 import { Page } from "../../components/Page";
 import { ReportsBreakdownCard } from "../../components/ReportsBreakdownCard";
+import {
+  ReportsControlBar,
+  type ReportsDuration,
+  type ReportsSide,
+} from "../../components/ReportsControlBar";
 import { ReportsDayStrip } from "../../components/ReportsDayStrip";
 import { ReportsExecutionGrade } from "../../components/ReportsExecutionGrade";
 import { ReportsHourlyList } from "../../components/ReportsHourlyList";
@@ -114,6 +119,10 @@ export interface ReportsViewProps {
   qualityBreakdownError: boolean;
   tab: ReportsTab;
   onTabChange: (t: ReportsTab) => void;
+  side: ReportsSide;
+  duration: ReportsDuration;
+  onSideChange: (s: ReportsSide) => void;
+  onDurationChange: (d: ReportsDuration) => void;
   currency: string;
   dim: BreakdownDim;
   onDimChange: (dim: BreakdownDim) => void;
@@ -506,6 +515,10 @@ export function ReportsView({
   qualityBreakdownError,
   tab,
   onTabChange,
+  side,
+  duration,
+  onSideChange,
+  onDurationChange,
   currency,
   dim,
   onDimChange,
@@ -570,6 +583,13 @@ export function ReportsView({
             </TabsTrigger>
           ))}
         </TabsList>
+
+        <ReportsControlBar
+          side={side}
+          duration={duration}
+          onSideChange={onSideChange}
+          onDurationChange={onDurationChange}
+        />
 
         <TabsContent value="overview" className="flex flex-col gap-4">
           {summaryLoading ? (
