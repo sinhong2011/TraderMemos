@@ -1,13 +1,18 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { type BreakdownDim, type ReportsTab, ReportsView } from "../app/screens/ReportsView";
+import {
+  type BreakdownDim,
+  REPORT_TABS,
+  type ReportsTab,
+  ReportsView,
+} from "../app/screens/ReportsView";
 import { accountBaseCurrency } from "../lib/displayPrefs";
 import { useFilterParams, useFilters } from "../lib/filters";
 import { useAccounts } from "../lib/hooks/useAccounts";
 import { useBreakdown, useEquityCurve, useRSummary, useSummary } from "../lib/hooks/useAnalytics";
 import { useTrades } from "../lib/hooks/useTrades";
 
-const REPORT_TAB_VALUES: ReportsTab[] = ["overview", "win-loss", "detailed", "risk"];
+const REPORT_TAB_VALUES: ReportsTab[] = REPORT_TABS.map((t) => t.value);
 
 export function validateReportsSearch(search: Record<string, unknown>): { tab: ReportsTab } {
   const tab = search.tab;

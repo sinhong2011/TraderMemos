@@ -71,7 +71,7 @@ const SELECTOR_DIMS: BreakdownDim[] = ["setup", "mistake"];
 
 export type ReportsTab = "overview" | "win-loss" | "detailed" | "risk";
 
-const REPORT_TABS: { value: ReportsTab; label: string }[] = [
+export const REPORT_TABS: { value: ReportsTab; label: string }[] = [
   { value: "overview", label: "Overview" },
   { value: "win-loss", label: "Win / Loss" },
   { value: "detailed", label: "Detailed" },
