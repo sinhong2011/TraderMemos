@@ -1,13 +1,23 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { type BreakdownDim, ReportsView } from "../app/screens/ReportsView";
+import { type BreakdownDim, type ReportsTab, ReportsView } from "../app/screens/ReportsView";
 import { accountBaseCurrency } from "../lib/displayPrefs";
 import { useFilterParams, useFilters } from "../lib/filters";
 import { useAccounts } from "../lib/hooks/useAccounts";
 import { useBreakdown, useEquityCurve, useRSummary, useSummary } from "../lib/hooks/useAnalytics";
 import { useTrades } from "../lib/hooks/useTrades";
 
+const REPORT_TAB_VALUES: ReportsTab[] = ["overview", "win-loss", "detailed", "risk"];
+
+export function validateReportsSearch(search: Record<string, unknown>): { tab: ReportsTab } {
+  const tab = search.tab;
+  return {
+    tab: REPORT_TAB_VALUES.includes(tab as ReportsTab) ? (tab as ReportsTab) : "overview",
+  };
+}
+
 export const Route = createFileRoute("/reports")({
+  validateSearch: validateReportsSearch,
   component: ReportsPage,
 });
 
@@ -15,6 +25,10 @@ function ReportsPage() {
   const filters = useFilterParams();
   const accountId = useFilters((s) => s.accountId);
   const [dim, setDim] = useState<BreakdownDim>("setup");
+  const { tab } = Route.useSearch();
+  const navigate = useNavigate();
+  const onTabChange = (next: ReportsTab) =>
+    void navigate({ to: "/reports", search: (prev) => ({ ...prev, tab: next }) });
 
   const summaryQ = useSummary(filters);
   const rSummaryQ = useRSummary(filters);
@@ -68,6 +82,8 @@ function ReportsPage() {
       currency={currency}
       dim={dim}
       onDimChange={setDim}
+      tab={tab}
+      onTabChange={onTabChange}
     />
   );
 }
