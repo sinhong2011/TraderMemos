@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
   type AddFillInput,
+  type DividendFormInput,
   type JournalFormState,
   TradeDetailView,
   journalDraftKey,
@@ -11,6 +12,7 @@ import {
   useDeleteAttachment,
   useUploadAttachment,
 } from "../lib/hooks/useAttachments";
+import { useCreateCash } from "../lib/hooks/useCash";
 import {
   useCreateExecutions,
   useDeleteExecution,
@@ -19,6 +21,7 @@ import {
 import { useSetups } from "../lib/hooks/useSetups";
 import { useTags } from "../lib/hooks/useTags";
 import { usePatchTrade, useTradeDetail } from "../lib/hooks/useTradeDetail";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/trades/$id")({
   component: TradeDetailPage,
@@ -28,6 +31,7 @@ function TradeDetailPage() {
   const { id } = Route.useParams();
   const navigate = useNavigate();
   const toast = useToastManager();
+  const queryClient = useQueryClient();
 
   const detailQ = useTradeDetail(id);
   const setupsQ = useSetups();
@@ -40,6 +44,7 @@ function TradeDetailPage() {
   const addFillMutation = useCreateExecutions();
   const updateFillMutation = useUpdateExecution();
   const deleteFillMutation = useDeleteExecution();
+  const createCashMutation = useCreateCash();
 
   function navigateAfterFillChange(nextId: string | undefined) {
     if (!nextId) {
@@ -206,6 +211,34 @@ function TradeDetailPage() {
     }
   }
 
+  async function handleSaveDividend(input: DividendFormInput) {
+    const trade = detailQ.data;
+    if (!trade) return;
+    try {
+      const signed = trade.direction === "short" ? -Math.abs(input.amount) : Math.abs(input.amount);
+      await createCashMutation.mutateAsync({
+        account_id: trade.account_id,
+        type: "dividend",
+        amount: signed,
+        currency: trade.pnl_currency,
+        occurred_at: new Date(`${input.date}T12:00:00`).toISOString(),
+        note: input.note || `${trade.symbol} dividend`,
+        trade_id: trade.id,
+      });
+      await queryClient.invalidateQueries({ queryKey: ["trade", id] });
+      await detailQ.refetch();
+      toast.add({
+        title: "Dividend added",
+        description: "Linked to this trade and included in total P&L.",
+      });
+    } catch (err) {
+      toast.add({
+        title: "Could not add dividend",
+        description: err instanceof Error ? err.message : "Request failed",
+      });
+    }
+  }
+
   return (
     <TradeDetailView
       trade={detailQ.data}
@@ -219,12 +252,14 @@ function TradeDetailPage() {
       uploading={uploadMutation.isPending}
       addingFill={addFillMutation.isPending}
       mutatingFill={updateFillMutation.isPending || deleteFillMutation.isPending}
+      savingDividend={createCashMutation.isPending}
       onSave={handleSave}
       onUpload={handleUpload}
       onDeleteAttachment={handleDeleteAttachment}
       onAddFill={handleAddFill}
       onEditFill={handleEditFill}
       onDeleteFill={handleDeleteFill}
+      onSaveDividend={handleSaveDividend}
       onBack={() => navigate({ to: "/trades" })}
     />
   );

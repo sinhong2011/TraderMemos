@@ -182,14 +182,41 @@ const defaultProps = {
 // ---------------------------------------------------------------------------
 
 describe("TradeDetailView", () => {
-  it("renders the notes value in the textarea", () => {
+  async function enterEditMode() {
+    await userEvent.click(screen.getByRole("button", { name: "Edit trade log" }));
+  }
+
+  async function expandJournal() {
+    await userEvent.click(screen.getByRole("button", { name: "Journal" }));
+  }
+
+  it("defaults to view mode with journal and dividend collapsed", () => {
+    render(<TradeDetailView {...defaultProps} onSaveDividend={vi.fn()} />);
+    expect(screen.queryByText("clean break")).not.toBeInTheDocument();
+    expect(screen.queryByText("No dividend recorded")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /edit buy fill/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Save" })).not.toBeInTheDocument();
+  });
+
+  it("shows read-only journal content when expanded in view mode", async () => {
     render(<TradeDetailView {...defaultProps} />);
-    const textarea = screen.getByRole("textbox", { name: /notes/i });
+    await expandJournal();
+    expect(screen.getByText("clean break")).toBeInTheDocument();
+    expect(screen.getByText("ORB · main")).toBeInTheDocument();
+  });
+
+  it("renders the notes value in the textarea after entering edit mode", async () => {
+    render(<TradeDetailView {...defaultProps} />);
+    await enterEditMode();
+    await expandJournal();
+    const textarea = screen.getByRole("textbox", { name: /review notes/i });
     expect(textarea).toHaveValue("clean break");
   });
 
-  it("renders ORB as the main selected setup chip", () => {
+  it("renders ORB as the main selected setup chip in edit mode", async () => {
     render(<TradeDetailView {...defaultProps} />);
+    await enterEditMode();
+    await expandJournal();
     expect(screen.getByRole("button", { name: "ORB · main" })).toHaveAttribute(
       "aria-pressed",
       "true",
@@ -201,6 +228,42 @@ describe("TradeDetailView", () => {
     expect(screen.getAllByText("+2.00R").length).toBeGreaterThan(0);
   });
 
+  it("renders trade metrics in the header and coach panel separately", () => {
+    render(<TradeDetailView {...defaultProps} />);
+    expect(screen.getByText("Coach")).toBeInTheDocument();
+    expect(screen.getByText("Gross")).toBeInTheDocument();
+    expect(screen.getByText("Plan")).toBeInTheDocument();
+    expect(screen.getByText("Capture")).toBeInTheDocument();
+    expect(screen.getByText("MAE")).toBeInTheDocument();
+    expect(screen.getByText("MFE")).toBeInTheDocument();
+    expect(screen.getByText("374%")).toBeInTheDocument(); // net 747 / mfe 200
+    expect(screen.getAllByText("Focused").length).toBeGreaterThan(0);
+  });
+
+  it("collapses coach when the header is clicked", async () => {
+    render(<TradeDetailView {...defaultProps} />);
+    expect(screen.getByText(/Write why you entered while it's fresh/i)).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "Coach" }));
+    expect(screen.queryByText(/Write why you entered while it's fresh/i)).not.toBeInTheDocument();
+    expect(screen.getByText("Gross")).toBeInTheDocument();
+  });
+
+  it("shows dividend read-only summary in view mode", async () => {
+    render(<TradeDetailView {...defaultProps} onSaveDividend={vi.fn()} />);
+    await userEvent.click(screen.getByRole("button", { name: "Dividend" }));
+    expect(screen.queryByLabelText("Dividend amount")).not.toBeInTheDocument();
+    expect(screen.getByText("No dividend recorded")).toBeInTheDocument();
+  });
+
+  it("shows dividend form in edit mode", async () => {
+    render(<TradeDetailView {...defaultProps} onSaveDividend={vi.fn()} />);
+    await enterEditMode();
+    await userEvent.click(screen.getByRole("button", { name: "Dividend" }));
+    expect(screen.getByLabelText("Dividend amount")).toBeVisible();
+    expect(screen.getByLabelText("Dividend date")).toBeVisible();
+    expect(screen.getByRole("button", { name: "Add dividend" })).toBeInTheDocument();
+  });
+
   it("renders two fill rows", () => {
     render(<TradeDetailView {...defaultProps} />);
     // Fills table has BUY and SELL rows
@@ -208,12 +271,15 @@ describe("TradeDetailView", () => {
     expect(screen.getByText("SELL")).toBeInTheDocument();
   });
 
-  it("shows edit and delete actions when fill handlers are provided", async () => {
+  it("shows edit and delete actions when fill handlers are provided in edit mode", async () => {
     const onEditFill = vi.fn();
     const onDeleteFill = vi.fn();
     render(
       <TradeDetailView {...defaultProps} onEditFill={onEditFill} onDeleteFill={onDeleteFill} />,
     );
+    expect(screen.queryByRole("button", { name: /edit buy fill/i })).not.toBeInTheDocument();
+
+    await enterEditMode();
     expect(screen.getByRole("button", { name: /edit buy fill/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /delete sell fill/i })).toBeInTheDocument();
 
@@ -242,9 +308,10 @@ describe("TradeDetailView", () => {
     expect(screen.getByText("Trade not found")).toBeInTheDocument();
   });
 
-  it("renders the attachment filename", () => {
+  it("renders the attachment filename when journal is expanded", async () => {
     render(<TradeDetailView {...defaultProps} />);
-    expect(screen.getByText(/entry-chart\.png/)).toBeInTheDocument();
+    await expandJournal();
+    expect(screen.getAllByText(/entry-chart\.png/).length).toBeGreaterThan(0);
   });
 
   it("renders the symbol in the header", () => {
@@ -254,8 +321,8 @@ describe("TradeDetailView", () => {
 
   it("renders the net P&L in the header", () => {
     render(<TradeDetailView {...defaultProps} />);
-    // fmtSignedMoney(747, "USD", "en-US") => "+$747.00"
-    expect(screen.getByText("+$747.00")).toBeInTheDocument();
+    // fmtSignedMoney(747, "USD", "en-US") => "+$747.00" (header + insights)
+    expect(screen.getAllByText("+$747.00").length).toBeGreaterThan(0);
   });
 
   it("renders a WIN outcome badge for a closed profitable trade", () => {
@@ -263,30 +330,33 @@ describe("TradeDetailView", () => {
     expect(screen.getByText("WIN")).toBeInTheDocument();
   });
 
-  it("renders the hold duration in the header", () => {
+  it("renders the hold duration in the header timeline", () => {
     render(<TradeDetailView {...defaultProps} />);
-    // 8100 secs -> "2h"
-    expect(screen.getByText("Held")).toBeInTheDocument();
-    expect(screen.getByText("2h")).toBeInTheDocument();
+    // 8100 secs -> "2h" in compact timeline + insights
+    expect(screen.getAllByText(/2h/).length).toBeGreaterThan(0);
   });
 
-  it("marks setup rating A as checked for confidence 4", () => {
+  it("marks setup rating A as checked for confidence 4 in edit mode", async () => {
     render(<TradeDetailView {...defaultProps} />);
+    await enterEditMode();
+    await expandJournal();
     expect(screen.getByRole("radio", { name: "Setup rating A" })).toHaveAttribute(
       "aria-checked",
       "true",
     );
   });
 
-  it("toggles a mistake tag chip", async () => {
+  it("toggles a mistake tag chip in edit mode", async () => {
     render(<TradeDetailView {...defaultProps} />);
+    await enterEditMode();
+    await expandJournal();
     const chip = screen.getByRole("button", { name: "Chased entry" });
     expect(chip).toHaveAttribute("aria-pressed", "false");
     await userEvent.click(chip);
     expect(chip).toHaveAttribute("aria-pressed", "true");
   });
 
-  it("marks main setup and toggles a secondary setup", async () => {
+  it("marks main setup and toggles a secondary setup in edit mode", async () => {
     const second: Setup = { ...mockSetup, id: "setup-2", name: "FVG" };
     render(
       <TradeDetailView
@@ -295,6 +365,8 @@ describe("TradeDetailView", () => {
         trade={{ ...mockTrade, setup_ids: [mockSetup.id] }}
       />,
     );
+    await enterEditMode();
+    await expandJournal();
     expect(screen.getByRole("button", { name: `${mockSetup.name} · main` })).toHaveAttribute(
       "aria-pressed",
       "true",
@@ -333,6 +405,7 @@ function renderJournal(tradeId: string, initial: JournalFormState = emptyJournal
       setups={[]}
       customTags={[]}
       mistakeTags={[]}
+      currency="USD"
       saving={false}
       onSave={vi.fn()}
     />,
@@ -395,6 +468,7 @@ describe("JournalPanel drafts", () => {
           setups={[]}
           customTags={[]}
           mistakeTags={[]}
+          currency="USD"
           saving={false}
           onSave={vi.fn()}
         />,
@@ -406,6 +480,7 @@ describe("JournalPanel drafts", () => {
           setups={[]}
           customTags={[]}
           mistakeTags={[]}
+          currency="USD"
           saving={false}
           onSave={vi.fn()}
         />,
