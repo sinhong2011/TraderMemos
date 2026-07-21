@@ -46,7 +46,7 @@ import { pnlColor } from "../../components/theme-tokens";
 import type { BreakGroup, EquityCurve, RSummary, Summary, Trade } from "../../lib/api/types";
 import { uniqueDayTicks } from "../../lib/chartTicks";
 import { cn } from "../../lib/cn";
-import { fmtDayShort, fmtMoney, fmtMoneyCompact, fmtPct, fmtSignedMoney } from "../../lib/format";
+import { fmtDayShort, fmtMoney, fmtMoneyCompact, fmtPct } from "../../lib/format";
 import { useMoneyFx } from "../../lib/hooks/useMoneyFx";
 import { intlLocale } from "../../lib/locale";
 import { usePrivacyMode } from "../../lib/displayPrefs";
@@ -305,11 +305,7 @@ function SummaryMetricsGrid({
 // Table columns
 // ---------------------------------------------------------------------------
 
-export function buildColumns(
-  currency: string,
-  dimLabel: string,
-  fxRate = 1,
-): ColumnDef<BreakGroup>[] {
+export function buildColumns(dimLabel: string): ColumnDef<BreakGroup>[] {
   return [
     {
       accessorKey: "key",
@@ -365,7 +361,7 @@ export function buildColumns(
       header: "Expectancy",
       cell: (info) => {
         const v = info.getValue<number>();
-        return <ReportsMoneyCell value={v} currency={currency} fxRate={fxRate} />;
+        return <ReportsMoneyCell value={v} />;
       },
     },
   ];
@@ -381,21 +377,11 @@ export function PnlCell({ summary }: { summary: Summary }) {
   return <span className={`tabular-nums ${pnlColor(pnl)}`}>{money.format(pnl)}</span>;
 }
 
-function ReportsMoneyCell({
-  value,
-  currency,
-  fxRate = 1,
-}: {
-  value: number;
-  currency: string;
-  fxRate?: number;
-}) {
+/** Single-dollar field cell (expectancy, etc.) — honors $/% via useReportsMoney. */
+function ReportsMoneyCell({ value }: { value: number }) {
   usePrivacyMode();
-  return (
-    <span className={`tabular-nums ${pnlColor(value)}`}>
-      {fmtSignedMoney(value * fxRate, currency, intlLocale())}
-    </span>
-  );
+  const money = useReportsMoney();
+  return <span className={`tabular-nums ${pnlColor(value)}`}>{money.format(value)}</span>;
 }
 
 // ---------------------------------------------------------------------------
@@ -436,15 +422,15 @@ function DimSelector({
 
 interface PnlBarChartProps {
   data: BreakGroup[];
-  currency: string;
-  fxRate?: number;
 }
 
-function PnlBarChart({ data, currency, fxRate = 1 }: PnlBarChartProps) {
+/** Playbook & Leaks bar chart — P&L series honors net/gross + $/% via useReportsMoney. */
+export function PnlBarChart({ data }: PnlBarChartProps) {
   usePrivacyMode();
+  const money = useReportsMoney();
   const chartData = data.map((g) => ({
     key: g.key,
-    net_pnl: g.summary.net_pnl * fxRate,
+    pnl: money.display(money.pnl(g.summary)),
   }));
 
   return (
@@ -460,7 +446,7 @@ function PnlBarChart({ data, currency, fxRate = 1 }: PnlBarChartProps) {
           />
           <YAxis
             tick={{ fontSize: 10, fill: chartTheme.axisColor }}
-            tickFormatter={(v: number) => fmtSignedMoney(v, currency, intlLocale())}
+            tickFormatter={(v: number) => money.formatAxis(v)}
             axisLine={false}
             tickLine={false}
             width={72}
@@ -472,17 +458,14 @@ function PnlBarChart({ data, currency, fxRate = 1 }: PnlBarChartProps) {
               color: chartTheme.tooltipText,
               fontSize: 11,
             }}
-            formatter={(value) => [
-              fmtSignedMoney(Number(value ?? 0), currency, intlLocale()),
-              "Net P&L",
-            ]}
+            formatter={(value) => [money.formatAxis(Number(value ?? 0)), "P&L"]}
             cursor={{ fill: chartTheme.cursorFill }}
           />
-          <Bar dataKey="net_pnl" radius={[2, 2, 0, 0]}>
+          <Bar dataKey="pnl" radius={[2, 2, 0, 0]}>
             {chartData.map((entry, index) => (
               <Cell
                 key={`cell-${index}`}
-                fill={entry.net_pnl >= 0 ? POS_COLOR : NEG_COLOR}
+                fill={entry.pnl >= 0 ? POS_COLOR : NEG_COLOR}
                 fillOpacity={0.85}
               />
             ))}
@@ -549,7 +532,7 @@ export function ReportsView({
   usePrivacyMode();
   const { currency: displayCurrency, rate } = useMoneyFx(currency);
   const fxRate = rate ?? 1;
-  const columns = buildColumns(displayCurrency, DIM_LABELS[dim], fxRate);
+  const columns = buildColumns(DIM_LABELS[dim]);
   const pctEnabled = denominator > 0;
 
   const panelRight = <DimSelector value={dim} onChange={onDimChange} />;
@@ -574,7 +557,7 @@ export function ReportsView({
 
     return (
       <>
-        <PnlBarChart data={breakdown} currency={displayCurrency} fxRate={fxRate} />
+        <PnlBarChart data={breakdown} />
 
         <div style={{ maxHeight: 360 }}>
           <DataTable columns={columns} data={breakdown} />
@@ -677,7 +660,7 @@ export function ReportsView({
                 loading={symbolBreakdownLoading}
                 error={symbolBreakdownError}
                 orientation="horizontal"
-                tableColumns={buildColumns(displayCurrency, "Symbol", fxRate)}
+                tableColumns={buildColumns("Symbol")}
               />
               <ReportsBreakdownCard
                 title="Tag"
@@ -685,7 +668,7 @@ export function ReportsView({
                 loading={tagBreakdownLoading}
                 error={tagBreakdownError}
                 orientation="horizontal"
-                tableColumns={buildColumns(displayCurrency, "Tag", fxRate)}
+                tableColumns={buildColumns("Tag")}
               />
             </div>
 
@@ -695,7 +678,7 @@ export function ReportsView({
                 breakdown={dayOfWeekBreakdown}
                 loading={dayOfWeekBreakdownLoading}
                 error={dayOfWeekBreakdownError}
-                tableColumns={buildColumns(displayCurrency, "Day", fxRate)}
+                tableColumns={buildColumns("Day")}
               />
               <ReportsHourlyList
                 breakdown={hourOfDayBreakdown}

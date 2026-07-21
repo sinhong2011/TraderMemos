@@ -1,8 +1,9 @@
 import type { Trade } from "../lib/api/types";
 import { cn } from "../lib/cn";
 import { usePrivacyMode } from "../lib/displayPrefs";
-import { fmtDayShort, fmtSignedMoney } from "../lib/format";
+import { fmtDayShort } from "../lib/format";
 import { intlLocale } from "../lib/locale";
+import { useReportsMoney } from "./ReportsDisplayContext";
 import { pnlColor } from "./theme-tokens";
 
 export interface DayStripItem {
@@ -12,13 +13,18 @@ export interface DayStripItem {
 }
 
 /** Closed-trade daily P&L strip, oldest → newest. */
-export function buildReportsDayStrip(trades: Trade[]): DayStripItem[] {
+export function buildReportsDayStrip(
+  trades: Trade[],
+  tradePnl: (t: Trade) => number = (t) => t.net_pnl ?? 0,
+): DayStripItem[] {
   const map = new Map<string, { pnl: number; trades: number }>();
   for (const t of trades) {
-    if (t.status === "open" || t.net_pnl == null) continue;
+    if (t.status === "open") continue;
+    const pnl = tradePnl(t);
+    if (pnl == null || Number.isNaN(pnl)) continue;
     const date = (t.closed_at ?? t.opened_at).slice(0, 10);
     const cur = map.get(date) ?? { pnl: 0, trades: 0 };
-    cur.pnl += t.net_pnl;
+    cur.pnl += pnl;
     cur.trades += 1;
     map.set(date, cur);
   }
@@ -34,14 +40,16 @@ export function buildReportsDayStrip(trades: Trade[]): DayStripItem[] {
 export interface ReportsDayStripProps {
   trades: Trade[];
   loading?: boolean;
-  currency: string;
+  /** Kept for call-site compatibility; display currency/fx come from ReportsDisplayContext. */
+  currency?: string;
   fxRate?: number;
 }
 
-export function ReportsDayStrip({ trades, loading, currency, fxRate = 1 }: ReportsDayStripProps) {
+export function ReportsDayStrip({ trades, loading }: ReportsDayStripProps) {
   usePrivacyMode();
+  const money = useReportsMoney();
   const locale = intlLocale();
-  const days = buildReportsDayStrip(trades);
+  const days = buildReportsDayStrip(trades, money.tradePnl);
 
   if (loading) {
     return (
@@ -82,7 +90,7 @@ export function ReportsDayStrip({ trades, loading, currency, fxRate = 1 }: Repor
                   pnlColor(d.pnl),
                 )}
               >
-                {fmtSignedMoney(d.pnl * fxRate, currency, locale)}
+                {money.format(d.pnl)}
               </p>
               <p className="mt-1 text-[9px] text-text-dim">
                 {d.trades} {d.trades === 1 ? "trade" : "trades"}

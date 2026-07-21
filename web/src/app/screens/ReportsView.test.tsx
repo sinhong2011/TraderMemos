@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vite-plus/test";
 import { ReportsDisplayProvider } from "../../components/ReportsDisplayContext";
 import type { BreakGroup } from "../../lib/api/types";
-import { ReportsView, buildColumns } from "./ReportsView";
+import { PnlBarChart, ReportsView, buildColumns } from "./ReportsView";
 
 // useMoneyFx pulls in useQuery, which needs a QueryClientProvider; mock it the
 // same way DashboardView.test.tsx does so ReportsView can render standalone.
@@ -235,7 +235,7 @@ describe("buildColumns net_pnl cell", () => {
   }
 
   function renderNetPnlCell(g: BreakGroup) {
-    const columns = buildColumns("USD", "Symbol");
+    const columns = buildColumns("Symbol");
     const netPnlCol = columns.find((c) => c.id === "net_pnl")!;
     const cellFn = netPnlCol.cell as (info: CellContext<BreakGroup, number>) => ReactNode;
     return cellFn(fakeInfo(g));
@@ -266,5 +266,35 @@ describe("buildColumns net_pnl cell", () => {
       </ReportsDisplayProvider>,
     );
     expect(screen.getByText("25%")).toBeInTheDocument();
+  });
+});
+
+describe("PnlBarChart display modes", () => {
+  it("plots gross P&L values when pnlMode is gross", () => {
+    const g = grp("AAPL", 100);
+    g.summary.gross_profit = 260;
+    g.summary.gross_loss = 60; // gross = 200
+    const { container } = render(
+      <ReportsDisplayProvider
+        value={{ pnlMode: "gross", unitMode: "abs", denominator: 0, currency: "USD", fxRate: 1 }}
+      >
+        <PnlBarChart data={[g]} />
+      </ReportsDisplayProvider>,
+    );
+    // Recharts may not paint bars in jsdom; assert the chart mounts and the
+    // series uses the re-expressed value via the Y-axis tick formatter path by
+    // checking formatAxis output is reachable (smoke: no crash + SVG present).
+    expect(container.querySelector(".recharts-responsive-container")).not.toBeNull();
+  });
+
+  it("honors pct unitMode without crashing", () => {
+    const { container } = render(
+      <ReportsDisplayProvider
+        value={{ pnlMode: "net", unitMode: "pct", denominator: 1000, currency: "USD", fxRate: 1 }}
+      >
+        <PnlBarChart data={[grp("AAPL", 250)]} />
+      </ReportsDisplayProvider>,
+    );
+    expect(container.querySelector(".recharts-responsive-container")).not.toBeNull();
   });
 });

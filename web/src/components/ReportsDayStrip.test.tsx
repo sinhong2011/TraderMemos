@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vite-plus/test";
 import type { Trade } from "../lib/api/types";
+import { ReportsDisplayProvider } from "./ReportsDisplayContext";
 import { buildReportsDayStrip, ReportsDayStrip } from "./ReportsDayStrip";
 
 function trade(
@@ -16,7 +17,7 @@ function trade(
     qty_remaining: 0,
     avg_entry_price: 100,
     avg_exit_price: 101,
-    gross_pnl: partial.net_pnl,
+    gross_pnl: partial.gross_pnl ?? partial.net_pnl,
     fees_total: 0,
     pnl_currency: "USD",
     return_pct: null,
@@ -70,5 +71,47 @@ describe("ReportsDayStrip", () => {
     expect(screen.getByText("Trading days")).toBeInTheDocument();
     expect(screen.getByText(/\+\$214\.90/)).toBeInTheDocument();
     expect(screen.getByText("1 trade")).toBeInTheDocument();
+  });
+
+  it("shows gross daily P&L when pnlMode is gross", () => {
+    render(
+      <ReportsDisplayProvider
+        value={{ pnlMode: "gross", unitMode: "abs", denominator: 0, currency: "USD", fxRate: 1 }}
+      >
+        <ReportsDayStrip
+          trades={[
+            trade({
+              id: "1",
+              net_pnl: 100,
+              gross_pnl: 200,
+              closed_at: "2024-05-06T15:00:00Z",
+              status: "closed",
+            }),
+          ]}
+        />
+      </ReportsDisplayProvider>,
+    );
+    expect(screen.getByText("+$200.00")).toBeInTheDocument();
+    expect(screen.queryByText("+$100.00")).not.toBeInTheDocument();
+  });
+
+  it("shows a percentage when unitMode is pct", () => {
+    render(
+      <ReportsDisplayProvider
+        value={{ pnlMode: "net", unitMode: "pct", denominator: 1000, currency: "USD", fxRate: 1 }}
+      >
+        <ReportsDayStrip
+          trades={[
+            trade({
+              id: "1",
+              net_pnl: 250,
+              closed_at: "2024-05-06T15:00:00Z",
+              status: "closed",
+            }),
+          ]}
+        />
+      </ReportsDisplayProvider>,
+    );
+    expect(screen.getByText("25%")).toBeInTheDocument();
   });
 });

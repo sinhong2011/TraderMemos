@@ -1,6 +1,7 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vite-plus/test";
 import type { Summary } from "../lib/api/types";
+import { ReportsDisplayProvider } from "./ReportsDisplayContext";
 import { ReportsSummaryBento } from "./ReportsSummaryBento";
 
 const summary: Summary = {
@@ -52,8 +53,8 @@ describe("ReportsSummaryBento", () => {
 
   it("renders avg win and avg loss in the split bar", () => {
     render(<ReportsSummaryBento summary={summary} trades={[]} currency="USD" />);
-    expect(screen.getByText("$100.00")).toBeInTheDocument();
-    expect(screen.getByText("$87.50")).toBeInTheDocument();
+    expect(screen.getByText("+$100.00")).toBeInTheDocument();
+    expect(screen.getByText("+$87.50")).toBeInTheDocument();
   });
 
   it("handles a zero-trade summary without crashing", () => {
@@ -79,5 +80,45 @@ describe("ReportsSummaryBento", () => {
     expect(screen.getByText("∞")).toBeInTheDocument();
     const winSegment = document.querySelector<HTMLElement>(".bg-profit[style*='width: 100%']");
     expect(winSegment).not.toBeNull();
+  });
+
+  it("shows the gross P&L in the hero when pnlMode is gross", () => {
+    // net_pnl 500; gross = gross_profit - gross_loss = 1200 - 700 = 500… use distinct values.
+    const s: Summary = {
+      ...summary,
+      net_pnl: 100,
+      gross_profit: 260,
+      gross_loss: 60, // gross P&L = 200
+    };
+    render(
+      <ReportsDisplayProvider
+        value={{ pnlMode: "gross", unitMode: "abs", denominator: 0, currency: "USD", fxRate: 1 }}
+      >
+        <ReportsSummaryBento summary={s} trades={[]} />
+      </ReportsDisplayProvider>,
+    );
+    const performance = screen.getByText("Performance").closest("section");
+    expect(performance).not.toBeNull();
+    expect(within(performance as HTMLElement).getByText("+$200.00")).toBeInTheDocument();
+    expect(within(performance as HTMLElement).queryByText("+$100.00")).not.toBeInTheDocument();
+    // Ratios stay unchanged.
+    expect(screen.getByText("1.71")).toBeInTheDocument();
+    expect(screen.getByText("60%")).toBeInTheDocument();
+  });
+
+  it("shows a percentage of the denominator when unitMode is pct", () => {
+    render(
+      <ReportsDisplayProvider
+        value={{ pnlMode: "net", unitMode: "pct", denominator: 1000, currency: "USD", fxRate: 1 }}
+      >
+        <ReportsSummaryBento summary={summary} trades={[]} />
+      </ReportsDisplayProvider>,
+    );
+    const performance = screen.getByText("Performance").closest("section");
+    expect(performance).not.toBeNull();
+    // net_pnl 500 / 1000 = 50%
+    expect(within(performance as HTMLElement).getByText("50%")).toBeInTheDocument();
+    // Win rate stays a ratio (not the unit toggle).
+    expect(screen.getByText("60%")).toBeInTheDocument();
   });
 });

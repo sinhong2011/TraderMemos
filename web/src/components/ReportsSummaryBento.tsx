@@ -4,21 +4,18 @@ import { pnlColor } from "./theme-tokens";
 import { cn } from "../lib/cn";
 import { computeDashboardInsights } from "../lib/dashboardInsights";
 import { usePrivacyMode } from "../lib/displayPrefs";
-import {
-  fmtDuration,
-  fmtMoney,
-  fmtPct,
-  fmtSignedMoney,
-} from "../lib/format";
+import { fmtDuration, fmtPct } from "../lib/format";
 import { intlLocale } from "../lib/locale";
 import { DonutRing } from "./charts/DonutRing";
 import { GaugeArc } from "./charts/GaugeArc";
+import { useReportsMoney } from "./ReportsDisplayContext";
 import { WinLossRecord } from "./WinLossRecord";
 
 export interface ReportsSummaryBentoProps {
   summary: Summary;
   trades: Trade[];
-  currency: string;
+  /** Kept for call-site compatibility; display currency/fx come from ReportsDisplayContext. */
+  currency?: string;
   fxRate?: number;
   equity?: EquityCurve;
 }
@@ -26,10 +23,7 @@ export interface ReportsSummaryBentoProps {
 function BentoCell({ className, children }: { className?: string; children: ReactNode }) {
   return (
     <section
-      className={cn(
-        "flex h-full min-w-0 flex-col rounded-card bg-bg-panel p-4 sm:p-5",
-        className,
-      )}
+      className={cn("flex h-full min-w-0 flex-col rounded-card bg-bg-panel p-4 sm:p-5", className)}
     >
       {children}
     </section>
@@ -55,7 +49,15 @@ function Eyebrow({
   );
 }
 
-function MetaRow({ label, value, className }: { label: string; value: string; className?: string }) {
+function MetaRow({
+  label,
+  value,
+  className,
+}: {
+  label: string;
+  value: string;
+  className?: string;
+}) {
   return (
     <p className="flex items-baseline justify-between gap-3 text-[13px] tabular-nums">
       <span className="text-text-muted">{label}</span>
@@ -95,21 +97,16 @@ function ContextItem({
 }
 
 /** Unified performance overview — hero, edge charts, key stats, context strip. */
-export function ReportsSummaryBento({
-  summary,
-  trades,
-  currency,
-  fxRate = 1,
-  equity,
-}: ReportsSummaryBentoProps) {
+export function ReportsSummaryBento({ summary, trades, equity }: ReportsSummaryBentoProps) {
   usePrivacyMode();
+  const money = useReportsMoney();
   const locale = intlLocale();
   const insights = computeDashboardInsights(trades);
-  const gross = summary.gross_profit + summary.gross_loss;
-  const feePct = gross !== 0 ? (summary.total_fees / Math.abs(gross)) * 100 : 0;
-  const money = (v: number) => v * fxRate;
+  const grossVolume = summary.gross_profit + summary.gross_loss;
+  const feePct = grossVolume !== 0 ? (summary.total_fees / Math.abs(grossVolume)) * 100 : 0;
   const openTrades = trades.filter((t) => t.status === "open").length;
   const maxDrawdown = equity?.max_drawdown;
+  const heroPnl = money.pnl(summary);
 
   const avgWin = summary.avg_win;
   const avgLoss = summary.avg_loss;
@@ -131,29 +128,29 @@ export function ReportsSummaryBento({
             <p
               className={cn(
                 "mt-3 text-center text-[36px] font-semibold leading-none tracking-[-0.04em] tabular-nums sm:text-[40px]",
-                pnlColor(summary.net_pnl),
-                summary.net_pnl > 0 && "drop-shadow-[0_0_32px_rgba(74,222,128,0.3)]",
-                summary.net_pnl < 0 && "drop-shadow-[0_0_32px_rgba(251,113,133,0.24)]",
+                pnlColor(heroPnl),
+                heroPnl > 0 && "drop-shadow-[0_0_32px_rgba(74,222,128,0.3)]",
+                heroPnl < 0 && "drop-shadow-[0_0_32px_rgba(251,113,133,0.24)]",
               )}
             >
-              {fmtSignedMoney(money(summary.net_pnl), currency, locale)}
+              {money.format(heroPnl)}
             </p>
           </div>
           <div className="mt-6 space-y-2.5">
             <MetaRow
               label="Gross"
-              value={fmtSignedMoney(money(gross), currency, locale)}
-              className={pnlColor(gross)}
+              value={money.format(grossVolume)}
+              className={pnlColor(grossVolume)}
             />
             <MetaRow
               label="Fees"
-              value={`${fmtMoney(money(summary.total_fees), currency, locale)} (${feePct.toFixed(1)}%)`}
+              value={`${money.format(summary.total_fees)} (${feePct.toFixed(1)}%)`}
               className="text-loss"
             />
             <MetaRow label="Trades" value={String(summary.total_trades)} />
             <MetaRow
               label="Expectancy"
-              value={fmtSignedMoney(money(summary.expectancy), currency, locale)}
+              value={money.format(summary.expectancy)}
               className={pnlColor(summary.expectancy)}
             />
           </div>
@@ -208,11 +205,7 @@ export function ReportsSummaryBento({
               <p
                 className={cn(
                   "mt-2 text-[28px] font-semibold leading-none tracking-[-0.03em] tabular-nums sm:text-[30px]",
-                  payoff >= 1
-                    ? "text-profit"
-                    : payoff > 0
-                      ? "text-loss"
-                      : "text-text-muted",
+                  payoff >= 1 ? "text-profit" : payoff > 0 ? "text-loss" : "text-text-muted",
                 )}
               >
                 {payoff === Infinity ? "∞" : payoff > 0 ? `${payoff.toFixed(2)}×` : "—"}
@@ -225,13 +218,13 @@ export function ReportsSummaryBento({
                 <div className="min-w-0">
                   <p className="text-[10px] text-text-dim">Avg win</p>
                   <p className="mt-0.5 truncate text-[14px] font-semibold tabular-nums text-profit">
-                    {fmtMoney(money(avgWin), currency, locale)}
+                    {money.format(avgWin)}
                   </p>
                 </div>
                 <div className="min-w-0 text-right">
                   <p className="text-[10px] text-text-dim">Avg loss</p>
                   <p className="mt-0.5 truncate text-[14px] font-semibold tabular-nums text-loss">
-                    {fmtMoney(money(avgLoss), currency, locale)}
+                    {money.format(avgLoss)}
                   </p>
                 </div>
               </div>
@@ -247,13 +240,13 @@ export function ReportsSummaryBento({
                 <div>
                   <p className="text-[10px] text-text-dim">Largest win</p>
                   <p className="mt-0.5 text-[13px] font-semibold tabular-nums text-profit">
-                    {fmtMoney(money(summary.largest_win), currency, locale)}
+                    {money.format(summary.largest_win)}
                   </p>
                 </div>
                 <div className="text-right">
                   <p className="text-[10px] text-text-dim">Largest loss</p>
                   <p className="mt-0.5 text-[13px] font-semibold tabular-nums text-loss">
-                    {fmtMoney(money(summary.largest_loss), currency, locale)}
+                    {money.format(summary.largest_loss)}
                   </p>
                 </div>
               </div>
@@ -272,16 +265,14 @@ export function ReportsSummaryBento({
               pnlColor(summary.avg_trade),
             )}
           >
-            {fmtSignedMoney(money(summary.avg_trade), currency, locale)}
+            {money.format(summary.avg_trade)}
           </p>
         </BentoCell>
 
         <BentoCell>
           <Eyebrow tone="muted">Max drawdown</Eyebrow>
           <p className="mt-3 text-center text-[24px] font-semibold leading-none tracking-[-0.03em] tabular-nums text-loss sm:text-[26px]">
-            {maxDrawdown != null && maxDrawdown > 0
-              ? fmtSignedMoney(money(-maxDrawdown), currency, locale)
-              : "—"}
+            {maxDrawdown != null && maxDrawdown > 0 ? money.format(-maxDrawdown) : "—"}
           </p>
           <p className="mt-2 text-center text-[10px] text-text-dim">peak pullback</p>
         </BentoCell>
@@ -289,9 +280,11 @@ export function ReportsSummaryBento({
         <BentoCell>
           <Eyebrow tone="muted">Total fees</Eyebrow>
           <p className="mt-3 text-center text-[24px] font-semibold leading-none tracking-[-0.03em] tabular-nums text-loss sm:text-[26px]">
-            {fmtMoney(money(summary.total_fees), currency, locale)}
+            {money.format(summary.total_fees)}
           </p>
-          <p className="mt-2 text-center text-[10px] text-text-dim">{feePct.toFixed(1)}% of gross</p>
+          <p className="mt-2 text-center text-[10px] text-text-dim">
+            {feePct.toFixed(1)}% of gross
+          </p>
         </BentoCell>
 
         <BentoCell>
@@ -321,30 +314,18 @@ export function ReportsSummaryBento({
           />
           <ContextItem
             label="Best day"
-            value={
-              insights.bestDay ? fmtSignedMoney(money(insights.bestDay.pnl), currency, locale) : "—"
-            }
+            value={insights.bestDay ? money.format(insights.bestDay.pnl) : "—"}
             hint={insights.bestDay?.date}
             tone={insights.bestDay && insights.bestDay.pnl > 0 ? "pos" : undefined}
           />
           <ContextItem
             label="Worst day"
-            value={
-              insights.worstDay ? fmtSignedMoney(money(insights.worstDay.pnl), currency, locale) : "—"
-            }
+            value={insights.worstDay ? money.format(insights.worstDay.pnl) : "—"}
             hint={insights.worstDay?.date}
             tone={insights.worstDay && insights.worstDay.pnl < 0 ? "neg" : undefined}
           />
-          <ContextItem
-            label="Winning hold"
-            value={fmtDuration(insights.winHoldSecs)}
-            tone="pos"
-          />
-          <ContextItem
-            label="Losing hold"
-            value={fmtDuration(insights.lossHoldSecs)}
-            tone="neg"
-          />
+          <ContextItem label="Winning hold" value={fmtDuration(insights.winHoldSecs)} tone="pos" />
+          <ContextItem label="Losing hold" value={fmtDuration(insights.lossHoldSecs)} tone="neg" />
           <ContextItem
             label="Avg hold"
             value={fmtDuration(insights.avgHoldSecs)}
