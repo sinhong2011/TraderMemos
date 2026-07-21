@@ -136,7 +136,10 @@ export function useAppHotkeys() {
     APP_HOTKEYS["nav-stats"].keys,
     () => {
       useUI.getState().setCommandOpen(false);
-      navigate({ to: "/reports", search: { tab: "overview", side: "all", dur: "all" } });
+      navigate({
+        to: "/reports",
+        search: { tab: "overview", side: "all", dur: "all", pnl: "net", unit: "abs" },
+      });
     },
     pageChord,
     [navigate],

@@ -90,6 +90,11 @@ const base = {
   duration: "all" as const,
   onSideChange: vi.fn(),
   onDurationChange: vi.fn(),
+  pnlMode: "net" as const,
+  unitMode: "abs" as const,
+  denominator: 0,
+  onPnlModeChange: vi.fn(),
+  onUnitModeChange: vi.fn(),
 };
 
 describe("ReportsView", () => {
@@ -193,6 +198,12 @@ describe("ReportsView", () => {
     render(<ReportsView {...base} dim="symbol" breakdown={[]} />);
     expect(screen.getByRole("tab", { name: "Long" })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: "Swing" })).toBeInTheDocument();
+  });
+
+  it("renders the display-mode toggles", () => {
+    render(<ReportsView {...base} dim="symbol" breakdown={[]} />);
+    expect(screen.getByRole("tab", { name: "Gross" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "%" })).toBeInTheDocument();
   });
 
   it("calls onTabChange when a tab is clicked", async () => {

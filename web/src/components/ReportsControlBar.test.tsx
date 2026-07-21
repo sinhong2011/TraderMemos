@@ -7,6 +7,11 @@ const base = {
   duration: "all" as const,
   onSideChange: vi.fn(),
   onDurationChange: vi.fn(),
+  pnlMode: "net" as const,
+  unitMode: "abs" as const,
+  onPnlModeChange: vi.fn(),
+  onUnitModeChange: vi.fn(),
+  pctEnabled: true,
 };
 
 describe("ReportsControlBar", () => {
@@ -30,5 +35,29 @@ describe("ReportsControlBar", () => {
     render(<ReportsControlBar {...base} onDurationChange={onDurationChange} />);
     screen.getByRole("tab", { name: "Swing" }).click();
     expect(onDurationChange).toHaveBeenCalledWith("swing");
+  });
+
+  it("renders the Net/Gross and $/% toggles", () => {
+    render(<ReportsControlBar {...base} />);
+    expect(screen.getByRole("tab", { name: "Net" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Gross" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "$" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "%" })).toBeInTheDocument();
+  });
+
+  it("calls onPnlModeChange and onUnitModeChange", () => {
+    const onPnlModeChange = vi.fn();
+    const onUnitModeChange = vi.fn();
+    render(
+      <ReportsControlBar
+        {...base}
+        onPnlModeChange={onPnlModeChange}
+        onUnitModeChange={onUnitModeChange}
+      />,
+    );
+    screen.getByRole("tab", { name: "Gross" }).click();
+    expect(onPnlModeChange).toHaveBeenCalledWith("gross");
+    screen.getByRole("tab", { name: "%" }).click();
+    expect(onUnitModeChange).toHaveBeenCalledWith("pct");
   });
 });

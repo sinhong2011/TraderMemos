@@ -7,6 +7,7 @@ import {
   ReportsView,
 } from "../app/screens/ReportsView";
 import type { ReportsDuration, ReportsSide } from "../components/ReportsControlBar";
+import type { PnlMode, UnitMode } from "../components/ReportsDisplayContext";
 import { accountBaseCurrency } from "../lib/displayPrefs";
 import { useFilterParams, useFilters } from "../lib/filters";
 import { useAccounts } from "../lib/hooks/useAccounts";
@@ -16,19 +17,27 @@ import { useTrades } from "../lib/hooks/useTrades";
 const REPORT_TAB_VALUES: ReportsTab[] = REPORT_TABS.map((t) => t.value);
 const SIDE_VALUES: ReportsSide[] = ["all", "long", "short"];
 const DUR_VALUES: ReportsDuration[] = ["all", "scalp", "day", "swing"];
+const PNL_VALUES: PnlMode[] = ["net", "gross"];
+const UNIT_VALUES: UnitMode[] = ["abs", "pct"];
 
 export function validateReportsSearch(search: Record<string, unknown>): {
   tab: ReportsTab;
   side: ReportsSide;
   dur: ReportsDuration;
+  pnl: PnlMode;
+  unit: UnitMode;
 } {
   const tab = search.tab;
   const side = search.side;
   const dur = search.dur;
+  const pnl = search.pnl;
+  const unit = search.unit;
   return {
     tab: REPORT_TAB_VALUES.includes(tab as ReportsTab) ? (tab as ReportsTab) : "overview",
     side: SIDE_VALUES.includes(side as ReportsSide) ? (side as ReportsSide) : "all",
     dur: DUR_VALUES.includes(dur as ReportsDuration) ? (dur as ReportsDuration) : "all",
+    pnl: PNL_VALUES.includes(pnl as PnlMode) ? (pnl as PnlMode) : "net",
+    unit: UNIT_VALUES.includes(unit as UnitMode) ? (unit as UnitMode) : "abs",
   };
 }
 
@@ -41,7 +50,7 @@ function ReportsPage() {
   const filters = useFilterParams();
   const accountId = useFilters((s) => s.accountId);
   const [dim, setDim] = useState<BreakdownDim>("setup");
-  const { tab, side, dur } = Route.useSearch();
+  const { tab, side, dur, pnl, unit } = Route.useSearch();
   const navigate = Route.useNavigate();
   const onTabChange = (next: ReportsTab) =>
     void navigate({ to: "/reports", search: (prev) => ({ ...prev, tab: next }) });
@@ -49,6 +58,10 @@ function ReportsPage() {
     void navigate({ to: "/reports", search: (prev) => ({ ...prev, side: next }) });
   const onDurationChange = (next: ReportsDuration) =>
     void navigate({ to: "/reports", search: (prev) => ({ ...prev, dur: next }) });
+  const onPnlModeChange = (next: PnlMode) =>
+    void navigate({ to: "/reports", search: (prev) => ({ ...prev, pnl: next }) });
+  const onUnitModeChange = (next: UnitMode) =>
+    void navigate({ to: "/reports", search: (prev) => ({ ...prev, unit: next }) });
 
   const analyticsFilters = useMemo(
     () => ({
@@ -72,6 +85,11 @@ function ReportsPage() {
   const qualityBreakdownQ = useBreakdown("trade_quality", analyticsFilters);
   const accountsQ = useAccounts();
   const currency = accountBaseCurrency(accountsQ.data ?? [], accountId);
+  const denominator = useMemo(() => {
+    const accts = accountsQ.data ?? [];
+    const scope = accountId ? accts.filter((a) => a.id === accountId) : accts;
+    return scope.reduce((sum, a) => sum + (a.starting_balance || 0), 0);
+  }, [accountsQ.data, accountId]);
 
   return (
     <ReportsView
@@ -117,6 +135,11 @@ function ReportsPage() {
       duration={dur}
       onSideChange={onSideChange}
       onDurationChange={onDurationChange}
+      pnlMode={pnl}
+      unitMode={unit}
+      denominator={denominator}
+      onPnlModeChange={onPnlModeChange}
+      onUnitModeChange={onUnitModeChange}
     />
   );
 }

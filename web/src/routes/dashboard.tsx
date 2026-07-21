@@ -94,7 +94,10 @@ function DashboardPage() {
         onViewAllTrades={() => void navigate({ to: "/trades" })}
         onOpenCalendar={() => void navigate({ to: "/calendar" })}
         onOpenReports={() =>
-          void navigate({ to: "/reports", search: { tab: "overview", side: "all", dur: "all" } })
+          void navigate({
+            to: "/reports",
+            search: { tab: "overview", side: "all", dur: "all", pnl: "net", unit: "abs" },
+          })
         }
         calendarYear={calendarYear}
         calendarMonth={calendarMonth}
