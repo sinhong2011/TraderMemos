@@ -20,6 +20,44 @@ vi.mock("../../lib/hooks/useTrades", () => ({
   useTrades: () => ({ data: [], isLoading: false, isError: false }),
 }));
 
+vi.mock("../../lib/hooks/useOcrSettings", () => ({
+  useOcrSettings: () => ({
+    data: {
+      enabled: false,
+      base_url: "",
+      model: "",
+      api_key_set: false,
+      api_key_hint: "",
+      custom_prompt: "",
+      default_prompt: "",
+    },
+    isPending: false,
+    isError: false,
+  }),
+  useSaveOcrSettings: () => ({ mutateAsync: vi.fn(), isPending: false }),
+  useTestOcrSettings: () => ({ mutateAsync: vi.fn(), isPending: false }),
+  useListOcrModels: () => ({ mutateAsync: vi.fn(), isPending: false }),
+}));
+
+vi.mock("../../lib/hooks/useCoachSettings", () => ({
+  useCoachSettings: () => ({
+    data: {
+      enabled: false,
+      base_url: "",
+      model: "",
+      api_key_set: false,
+      api_key_hint: "",
+      custom_prompt: "",
+      default_prompt: "",
+    },
+    isPending: false,
+    isError: false,
+  }),
+  useSaveCoachSettings: () => ({ mutateAsync: vi.fn(), isPending: false }),
+  useTestCoachSettings: () => ({ mutateAsync: vi.fn(), isPending: false }),
+  useListCoachModels: () => ({ mutateAsync: vi.fn(), isPending: false }),
+}));
+
 const noop = async () => {};
 
 const accounts: Account[] = [
@@ -114,6 +152,13 @@ describe("SettingsView", () => {
     expect(screen.getByText("Risk Rules")).toBeInTheDocument();
   });
 
+  it("opens the AI tab from the URL hash", async () => {
+    window.location.hash = "#ai";
+    renderSettings({ ...baseProps });
+    expect(await screen.findByRole("heading", { name: /screenshot scan/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /trade coach/i })).toBeInTheDocument();
+  });
+
   it("renders the language select on the general tab", async () => {
     window.location.hash = "#general";
     renderSettings({ ...baseProps });
@@ -196,5 +241,6 @@ describe("SettingsView", () => {
   it("exposes bookmarkable section links", () => {
     renderSettings({ ...baseProps });
     expect(screen.getByRole("link", { name: /^Rules$/i })).toHaveAttribute("href", "#rules");
+    expect(screen.getByRole("link", { name: /^AI$/i })).toHaveAttribute("href", "#ai");
   });
 });

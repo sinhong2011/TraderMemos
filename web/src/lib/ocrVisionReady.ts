@@ -22,7 +22,7 @@ export const OCR_VISION_SETUP_STEPS: Record<
 > = {
   disabled: {
     label: "Enable screenshot scan",
-    detail: "Turn on Screenshot scan under Settings → General.",
+    detail: "Turn on Screenshot scan under Settings → AI.",
   },
   missing_base_url: {
     label: "Set API base URL",

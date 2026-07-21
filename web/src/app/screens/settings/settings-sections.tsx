@@ -2,18 +2,23 @@ import { useForm } from "@tanstack/react-form";
 import { BookOpen, Check, Plus, Settings, Shield, Tag, Wallet, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { EmptyState } from "../../../components/EmptyState";
-import { SegmentedControl } from "../../../components/SegmentedControl";
+import { LlmApiSettingsForm } from "../../../components/LlmApiSettingsForm";
 import { SignalAmountInput } from "../../../components/SignalAmountInput";
 import { SignalDatePicker } from "../../../components/SignalDatePicker";
 import { fieldError, SignalField } from "../../../components/SignalField";
-import { ModelAutocomplete } from "../../../components/SignalAutocomplete";
-import { SignalInput, SignalPasswordInput, SignalTextarea } from "../../../components/SignalInput";
+import { SignalInput, SignalTextarea } from "../../../components/SignalInput";
 import { SignalSelect } from "../../../components/SignalSelect";
 import { Skeleton } from "../../../components/Skeleton";
 import { useToastManager } from "../../../components/Toast";
 import { Button } from "../../../components/ui/button";
 import { ApiError } from "../../../lib/api/client";
-import type { OcrSettings, RiskRules } from "../../../lib/api/settings";
+import type { RiskRules } from "../../../lib/api/settings";
+import {
+  useCoachSettings,
+  useListCoachModels,
+  useSaveCoachSettings,
+  useTestCoachSettings,
+} from "../../../lib/hooks/useCoachSettings";
 import type { Account, CashTransaction, Setup, Tag as TagType } from "../../../lib/api/types";
 import {
   useListOcrModels,
@@ -24,13 +29,13 @@ import {
 import { useTrades } from "../../../lib/hooks/useTrades";
 import { formatCashDisplay, signedCashAmount } from "../../../lib/cashAmount";
 import { parseAmountToNumber } from "../../../lib/amountInput";
-import { cn } from "../../../lib/cn";
-import { intlLocale, LOCALE_OPTIONS, settingsLabel } from "../../../lib/locale";
 import {
-  ocrSettingsPutBody,
-  ocrSettingsTestBody,
-  ocrSettingsToFormValues,
-} from "../../../lib/ocrSettingsForm";
+  intlLocale,
+  LOCALE_OPTIONS,
+  settingsLabel,
+  type SettingsLabelKey,
+} from "../../../lib/locale";
+import type { LlmApiSettingsLabels } from "../../../lib/llmApiSettings";
 import { useAuth } from "../../../lib/auth";
 import { useJournalPrefs } from "../../../lib/journalPrefs";
 import { useLocale } from "../../../i18n";
@@ -61,6 +66,7 @@ import {
   FormError,
   SavedBadge,
   SettingsInsetForm,
+  SettingsPanelBody,
   SettingsGroup,
   SettingsGroupRow,
   SettingsRow,
@@ -422,19 +428,25 @@ export function AccountsTab({
         )}
 
         {accountsLoading ? (
-          <div className="flex flex-col gap-2">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <Skeleton key={i} height="40px" />
-            ))}
-          </div>
+          <SettingsPanelBody>
+            <div className="flex flex-col gap-2">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <Skeleton key={i} height="40px" />
+              ))}
+            </div>
+          </SettingsPanelBody>
         ) : accountsError ? (
-          <p className="text-[12px] text-loss">Failed to load accounts.</p>
+          <SettingsPanelBody>
+            <p className="text-[12px] text-loss">Failed to load accounts.</p>
+          </SettingsPanelBody>
         ) : accounts.length === 0 ? (
-          <EmptyState
-            title="No accounts yet"
-            hint="Add an account to get started."
-            icon={<Settings size={28} strokeWidth={1.5} />}
-          />
+          <SettingsPanelBody>
+            <EmptyState
+              title="No accounts yet"
+              hint="Add an account to get started."
+              icon={<Settings size={28} strokeWidth={1.5} />}
+            />
+          </SettingsPanelBody>
         ) : (
           <>
             {accountDeleteError ? (
@@ -803,111 +815,125 @@ export function RulesTab({
         description="Used by Check compliance on New Trade. Leave blank to skip a limit."
       >
         {riskRulesLoading ? (
-          <Skeleton height="120px" />
+          <SettingsPanelBody>
+            <Skeleton height="120px" />
+          </SettingsPanelBody>
         ) : riskRulesError ? (
-          <p className="text-[12px] text-loss">Failed to load risk rules.</p>
+          <SettingsPanelBody>
+            <p className="text-[12px] text-loss">Failed to load risk rules.</p>
+          </SettingsPanelBody>
         ) : (
-          <form
-            className="grid max-w-2xl grid-cols-1 gap-3 sm:grid-cols-2"
-            onSubmit={(e) => {
-              e.preventDefault();
-              void riskForm.handleSubmit();
-            }}
-          >
-            <riskForm.Field
-              name="maxRisk"
-              validators={{
-                onBlur: ({ value }) => validateOptionalAmountField(value),
+          <SettingsPanelBody>
+            <form
+              className="flex flex-col gap-4"
+              onSubmit={(e) => {
+                e.preventDefault();
+                void riskForm.handleSubmit();
               }}
             >
-              {(field) => (
-                <SignalField
-                  label="Max risk / trade ($)"
-                  htmlFor="max-risk"
-                  error={fieldError(field.state.meta.errors)}
+              <div className="flex flex-wrap gap-3">
+                <riskForm.Field
+                  name="maxRisk"
+                  validators={{
+                    onBlur: ({ value }) => validateOptionalAmountField(value),
+                  }}
                 >
-                  <SignalAmountInput
-                    id="max-risk"
-                    value={field.state.value}
-                    onValueChange={field.handleChange}
-                    onBlur={field.handleBlur}
-                    placeholder="e.g. 100"
-                    aria-label="Max risk per trade"
-                  />
-                </SignalField>
-              )}
-            </riskForm.Field>
-            <riskForm.Field
-              name="maxDaily"
-              validators={{
-                onBlur: ({ value }) => validateOptionalAmountField(value),
-              }}
-            >
-              {(field) => (
-                <SignalField
-                  label="Max daily loss ($)"
-                  htmlFor="max-daily"
-                  error={fieldError(field.state.meta.errors)}
+                  {(field) => (
+                    <SignalField
+                      className="min-w-[min(100%,14rem)] flex-1"
+                      label="Max risk / trade ($)"
+                      htmlFor="max-risk"
+                      error={fieldError(field.state.meta.errors)}
+                    >
+                      <SignalAmountInput
+                        id="max-risk"
+                        value={field.state.value}
+                        onValueChange={field.handleChange}
+                        onBlur={field.handleBlur}
+                        placeholder="e.g. 100"
+                        aria-label="Max risk per trade"
+                        className="w-full"
+                      />
+                    </SignalField>
+                  )}
+                </riskForm.Field>
+                <riskForm.Field
+                  name="maxDaily"
+                  validators={{
+                    onBlur: ({ value }) => validateOptionalAmountField(value),
+                  }}
                 >
-                  <SignalAmountInput
-                    id="max-daily"
-                    value={field.state.value}
-                    onValueChange={field.handleChange}
-                    onBlur={field.handleBlur}
-                    placeholder="e.g. 300"
-                    aria-label="Max daily loss"
-                  />
-                </SignalField>
-              )}
-            </riskForm.Field>
-            <riskForm.Field
-              name="maxOpen"
-              validators={{
-                onBlur: ({ value }) => validateOptionalAmountField(value),
-              }}
-            >
-              {(field) => (
-                <SignalField
-                  label="Max open risk ($)"
-                  htmlFor="max-open"
-                  error={fieldError(field.state.meta.errors)}
+                  {(field) => (
+                    <SignalField
+                      className="min-w-[min(100%,14rem)] flex-1"
+                      label="Max daily loss ($)"
+                      htmlFor="max-daily"
+                      error={fieldError(field.state.meta.errors)}
+                    >
+                      <SignalAmountInput
+                        id="max-daily"
+                        value={field.state.value}
+                        onValueChange={field.handleChange}
+                        onBlur={field.handleBlur}
+                        placeholder="e.g. 300"
+                        aria-label="Max daily loss"
+                        className="w-full"
+                      />
+                    </SignalField>
+                  )}
+                </riskForm.Field>
+                <riskForm.Field
+                  name="maxOpen"
+                  validators={{
+                    onBlur: ({ value }) => validateOptionalAmountField(value),
+                  }}
                 >
-                  <SignalAmountInput
-                    id="max-open"
-                    value={field.state.value}
-                    onValueChange={field.handleChange}
-                    onBlur={field.handleBlur}
-                    placeholder="e.g. 500"
-                    aria-label="Max open risk"
-                  />
-                </SignalField>
-              )}
-            </riskForm.Field>
-            <riskForm.Field
-              name="riskPct"
-              validators={{
-                onBlur: ({ value }) => validateRiskPercent(value),
-                onSubmit: ({ value }) => validateRiskPercent(value),
-              }}
-            >
-              {(field) => (
-                <SignalField
-                  label="Default account risk %"
-                  htmlFor="risk-pct"
-                  error={fieldError(field.state.meta.errors)}
+                  {(field) => (
+                    <SignalField
+                      className="min-w-[min(100%,14rem)] flex-1"
+                      label="Max open risk ($)"
+                      htmlFor="max-open"
+                      error={fieldError(field.state.meta.errors)}
+                    >
+                      <SignalAmountInput
+                        id="max-open"
+                        value={field.state.value}
+                        onValueChange={field.handleChange}
+                        onBlur={field.handleBlur}
+                        placeholder="e.g. 500"
+                        aria-label="Max open risk"
+                        className="w-full"
+                      />
+                    </SignalField>
+                  )}
+                </riskForm.Field>
+                <riskForm.Field
+                  name="riskPct"
+                  validators={{
+                    onBlur: ({ value }) => validateRiskPercent(value),
+                    onSubmit: ({ value }) => validateRiskPercent(value),
+                  }}
                 >
-                  <SignalAmountInput
-                    id="risk-pct"
-                    value={field.state.value}
-                    onValueChange={field.handleChange}
-                    onBlur={field.handleBlur}
-                    placeholder="e.g. 1"
-                    aria-label="Default account risk percent"
-                  />
-                </SignalField>
-              )}
-            </riskForm.Field>
-            <div className="col-span-full">
+                  {(field) => (
+                    <SignalField
+                      className="min-w-[min(100%,14rem)] flex-1"
+                      label="Default account risk %"
+                      htmlFor="risk-pct"
+                      error={fieldError(field.state.meta.errors)}
+                    >
+                      <SignalAmountInput
+                        id="risk-pct"
+                        value={field.state.value}
+                        onValueChange={field.handleChange}
+                        onBlur={field.handleBlur}
+                        placeholder="e.g. 1"
+                        aria-label="Default account risk percent"
+                        className="w-full"
+                      />
+                    </SignalField>
+                  )}
+                </riskForm.Field>
+              </div>
               <riskForm.Subscribe selector={(s) => s.errorMap.onSubmit}>
                 {(submitErr) => (
                   <FormError
@@ -915,15 +941,15 @@ export function RulesTab({
                   />
                 )}
               </riskForm.Subscribe>
-              <div className="mt-4 flex items-center gap-3">
+              <div className="flex items-center justify-end gap-3">
+                <SavedBadge show={riskSaved} />
                 <BtnPrimary type="submit" disabled={riskRulesSaving}>
                   <Shield size={12} strokeWidth={1.5} />
                   {riskRulesSaving ? "Saving…" : "Save rules"}
                 </BtnPrimary>
-                <SavedBadge show={riskSaved} />
               </div>
-            </div>
-          </form>
+            </form>
+          </SettingsPanelBody>
         )}
       </SettingsSection>
 
@@ -932,38 +958,44 @@ export function RulesTab({
         description="Pre-market / EOD checklist shown when you create a New Note. One item per line."
       >
         {checklistLoading ? (
-          <Skeleton height="100px" />
+          <SettingsPanelBody>
+            <Skeleton height="100px" />
+          </SettingsPanelBody>
         ) : checklistError ? (
-          <p className="text-[12px] text-loss">Failed to load checklist template.</p>
+          <SettingsPanelBody>
+            <p className="text-[12px] text-loss">Failed to load checklist template.</p>
+          </SettingsPanelBody>
         ) : (
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              void checklistForm.handleSubmit();
-            }}
-          >
-            <checklistForm.Field name="text">
-              {(field) => (
-                <SignalField label="Checklist items" htmlFor="checklist-items">
-                  <SignalTextarea
-                    id="checklist-items"
-                    aria-label="Daily checklist items"
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    rows={5}
-                    placeholder={"Check VIX\nNo revenge trades\nSize within risk"}
-                  />
-                </SignalField>
-              )}
-            </checklistForm.Field>
-            <div className="mt-4 flex items-center gap-3">
-              <BtnPrimary type="submit" disabled={checklistSaving}>
-                {checklistSaving ? "Saving…" : "Save checklist"}
-              </BtnPrimary>
-              <SavedBadge show={checklistSaved} />
-            </div>
-          </form>
+          <SettingsPanelBody>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                void checklistForm.handleSubmit();
+              }}
+            >
+              <checklistForm.Field name="text">
+                {(field) => (
+                  <SignalField label="Checklist items" htmlFor="checklist-items">
+                    <SignalTextarea
+                      id="checklist-items"
+                      aria-label="Daily checklist items"
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      rows={5}
+                      placeholder={"Check VIX\nNo revenge trades\nSize within risk"}
+                    />
+                  </SignalField>
+                )}
+              </checklistForm.Field>
+              <div className="mt-4 flex items-center gap-3">
+                <BtnPrimary type="submit" disabled={checklistSaving}>
+                  {checklistSaving ? "Saving…" : "Save checklist"}
+                </BtnPrimary>
+                <SavedBadge show={checklistSaved} />
+              </div>
+            </form>
+          </SettingsPanelBody>
         )}
       </SettingsSection>
     </>
@@ -1320,12 +1352,39 @@ export function JournalTab({
 }
 
 // ---------------------------------------------------------------------------
-// General
+// AI & LLM
 // ---------------------------------------------------------------------------
+
+function llmApiLabels(locale: string, prefix: "vision" | "coach"): LlmApiSettingsLabels {
+  const key = (suffix: string) => settingsLabel(locale, `${prefix}${suffix}` as SettingsLabelKey);
+  return {
+    enabled: key("Enabled"),
+    enabledDetail: settingsLabel(locale, "llmEnabledDetail"),
+    off: key("Off"),
+    on: key("On"),
+    baseUrl: key("BaseUrl"),
+    baseUrlDetail: settingsLabel(locale, "llmBaseUrlDetail"),
+    model: key("Model"),
+    modelDetail: settingsLabel(locale, "llmModelDetail"),
+    fetchModels: key("FetchModels"),
+    fetchingModels: key("FetchingModels"),
+    apiKey: key("ApiKey"),
+    apiKeyHint: key("ApiKeyHint"),
+    apiKeyDetail: settingsLabel(locale, "llmApiKeyDetail"),
+    customPrompt: prefix === "coach" ? key("CustomPrompt") : key("CustomPrompt"),
+    customPromptHint: key("CustomPromptHint"),
+    save: key("Save"),
+    test: key("Test"),
+    testing: key("Testing"),
+  };
+}
 
 function VisionScanSection() {
   const { locale } = useLocale();
   const { data, isPending, isError } = useOcrSettings();
+  const save = useSaveOcrSettings();
+  const test = useTestOcrSettings();
+  const listModels = useListOcrModels();
 
   return (
     <SettingsSection
@@ -1333,263 +1392,73 @@ function VisionScanSection() {
       footer={settingsLabel(locale, "visionScanFooter")}
     >
       {isPending && !data ? (
-        <Skeleton height="160px" />
+        <SettingsPanelBody>
+          <Skeleton height="160px" />
+        </SettingsPanelBody>
       ) : isError || !data ? (
-        <p className="text-[12px] text-loss">Failed to load vision settings.</p>
+        <SettingsPanelBody>
+          <p className="text-[12px] text-loss">Failed to load vision settings.</p>
+        </SettingsPanelBody>
       ) : (
-        <VisionScanForm settings={data} />
+        <LlmApiSettingsForm
+          settings={data}
+          labels={llmApiLabels(locale, "vision")}
+          saveErrorMessage="Could not save vision settings."
+          onSave={(body) => save.mutateAsync(body)}
+          onTest={(body) => test.mutateAsync(body)}
+          onListModels={(body) => listModels.mutateAsync(body)}
+        />
       )}
     </SettingsSection>
   );
 }
 
-function VisionScanForm({ settings }: { settings: OcrSettings }) {
+function CoachSection() {
   const { locale } = useLocale();
-  const toast = useToastManager();
-  const save = useSaveOcrSettings();
-  const test = useTestOcrSettings();
-  const listModels = useListOcrModels();
-  const [saved, setSaved] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
-  const [modelOptions, setModelOptions] = useState<string[]>([]);
-
-  const form = useForm({
-    defaultValues: ocrSettingsToFormValues(settings),
-    onSubmit: async ({ value }) => {
-      setFormError(null);
-      setSaved(false);
-      try {
-        const body = ocrSettingsPutBody(value);
-        await save.mutateAsync(body);
-        form.setFieldValue("enabled", body.enabled);
-        form.setFieldValue("base_url", body.base_url);
-        form.setFieldValue("model", body.model);
-        form.setFieldValue("custom_prompt", body.custom_prompt);
-        form.setFieldValue("api_key", "");
-        setSaved(true);
-      } catch (err) {
-        setFormError(err instanceof Error ? err.message : "Could not save vision settings.");
-      }
-    },
-  });
-
-  const onTest = async () => {
-    const draft = { ...form.state.values };
-    try {
-      setFormError(null);
-      const result = await test.mutateAsync(ocrSettingsTestBody(draft));
-
-      // Keep user-entered values even if background query updates occur.
-      form.setFieldValue("enabled", draft.enabled);
-      form.setFieldValue("base_url", draft.base_url);
-      form.setFieldValue("model", draft.model);
-      form.setFieldValue("custom_prompt", draft.custom_prompt);
-      form.setFieldValue("api_key", draft.api_key);
-
-      if (result.ok) {
-        toast.add({ title: "Connection OK", description: "Vision API responded." });
-      } else {
-        toast.add({
-          title: "Connection failed",
-          description: result.error || "Vision API rejected the request",
-        });
-      }
-    } catch (err) {
-      // Also restore values on failure so testing never clears user input.
-      form.setFieldValue("enabled", draft.enabled);
-      form.setFieldValue("base_url", draft.base_url);
-      form.setFieldValue("model", draft.model);
-      form.setFieldValue("custom_prompt", draft.custom_prompt);
-      form.setFieldValue("api_key", draft.api_key);
-
-      toast.add({
-        title: "Connection failed",
-        description: err instanceof Error ? err.message : "Request failed",
-      });
-    }
-  };
-
-  const onFetchModels = async () => {
-    try {
-      const value = form.state.values;
-      const result = await listModels.mutateAsync({
-        base_url: value.base_url.trim(),
-        ...(value.api_key.trim() ? { api_key: value.api_key.trim() } : {}),
-      });
-      if (result.error) {
-        toast.add({
-          title: settingsLabel(locale, "visionFetchModels"),
-          description: result.error,
-        });
-        return;
-      }
-      setModelOptions(result.models);
-      toast.add({
-        title: settingsLabel(locale, "visionFetchModels"),
-        description: `${result.models.length} models`,
-      });
-    } catch (err) {
-      toast.add({
-        title: settingsLabel(locale, "visionFetchModels"),
-        description: err instanceof Error ? err.message : "Request failed",
-      });
-    }
-  };
+  const { data, isPending, isError } = useCoachSettings();
+  const save = useSaveCoachSettings();
+  const test = useTestCoachSettings();
+  const listModels = useListCoachModels();
 
   return (
-    <form
-      className="flex flex-col gap-3"
-      onSubmit={(e) => {
-        e.preventDefault();
-        void form.handleSubmit();
-      }}
+    <SettingsSection
+      title={settingsLabel(locale, "coachTitle")}
+      footer={settingsLabel(locale, "coachFooter")}
     >
-      <SettingsGroup>
-        <form.Field name="enabled">
-          {(field) => (
-            <SettingsGroupRow label={settingsLabel(locale, "visionEnabled")} last>
-              <SegmentedControl
-                options={[
-                  { value: "off", label: settingsLabel(locale, "visionOff") },
-                  { value: "on", label: settingsLabel(locale, "visionOn") },
-                ]}
-                value={field.state.value ? "on" : "off"}
-                onChange={(v) => field.handleChange(v === "on")}
-              />
-            </SettingsGroupRow>
-          )}
-        </form.Field>
-      </SettingsGroup>
-      <form.Subscribe selector={(s) => s.values.enabled}>
-        {(enabled) => (
-          <fieldset
-            disabled={!enabled}
-            className={cn(
-              "m-0 min-w-0 border-none p-0 transition-opacity duration-150",
-              !enabled && "opacity-45",
-            )}
-          >
-            <SettingsGroup>
-              <form.Field name="base_url">
-                {(field) => (
-                  <SettingsGroupRow label={settingsLabel(locale, "visionBaseUrl")}>
-                    <div className="relative w-full min-w-[19.2rem]">
-                      <SignalInput
-                        value={field.state.value}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        placeholder="https://api.openai.com/v1"
-                        spellCheck={false}
-                        className="h-8 w-full pr-10 text-[12px]"
-                        aria-label={settingsLabel(locale, "visionBaseUrl")}
-                      />
-                      {field.state.value ? (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon-sm"
-                          className="absolute top-1/2 right-1 -translate-y-1/2"
-                          aria-label="Clear base URL"
-                          onClick={() => field.handleChange("")}
-                        >
-                          <X size={13} strokeWidth={1.75} aria-hidden />
-                        </Button>
-                      ) : null}
-                    </div>
-                  </SettingsGroupRow>
-                )}
-              </form.Field>
-              <form.Field name="model">
-                {(field) => (
-                  <SettingsGroupRow label={settingsLabel(locale, "visionModel")}>
-                    <ModelAutocomplete
-                      value={field.state.value}
-                      onValueChange={(next) => field.handleChange(next)}
-                      models={modelOptions}
-                      onFetchModels={() => void onFetchModels()}
-                      fetching={listModels.isPending}
-                      fetchLabel={
-                        listModels.isPending
-                          ? settingsLabel(locale, "visionFetchingModels")
-                          : settingsLabel(locale, "visionFetchModels")
-                      }
-                      placeholder="gpt-4o-mini"
-                      className="w-full min-w-[19.2rem]"
-                      inputClassName="h-8 w-full text-[12px]"
-                      ariaLabel={settingsLabel(locale, "visionModel")}
-                    />
-                  </SettingsGroupRow>
-                )}
-              </form.Field>
-              <form.Field name="api_key">
-                {(field) => (
-                  <SettingsGroupRow label={settingsLabel(locale, "visionApiKey")}>
-                    <div className="flex min-w-0 flex-col items-end gap-1">
-                      <SignalPasswordInput
-                        autoComplete="off"
-                        value={field.state.value}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        onClear={() => field.handleChange("")}
-                        placeholder={
-                          settings.api_key_set
-                            ? settings.api_key_hint || settingsLabel(locale, "visionApiKeyHint")
-                            : "sk-…"
-                        }
-                        spellCheck={false}
-                        className="h-8 min-w-[19.2rem] text-[12px]"
-                        aria-label={settingsLabel(locale, "visionApiKey")}
-                        showLabel="Show API key"
-                        hideLabel="Hide API key"
-                        clearLabel="Clear API key"
-                      />
-                      {settings.api_key_set ? (
-                        <span className="text-[10px] text-text-dim">
-                          {settingsLabel(locale, "visionApiKeyHint")}
-                        </span>
-                      ) : null}
-                    </div>
-                  </SettingsGroupRow>
-                )}
-              </form.Field>
-              <form.Field name="custom_prompt">
-                {(field) => (
-                  <SettingsGroupRow
-                    label={settingsLabel(locale, "visionCustomPrompt")}
-                    detail={settingsLabel(locale, "visionCustomPromptHint")}
-                    last
-                  >
-                    <SignalTextarea
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      placeholder={
-                        settings.default_prompt || settingsLabel(locale, "visionCustomPromptHint")
-                      }
-                      spellCheck={false}
-                      rows={8}
-                      className="min-h-[10rem] min-w-[19.2rem] whitespace-pre-wrap text-[11px] leading-snug"
-                      aria-label={settingsLabel(locale, "visionCustomPrompt")}
-                    />
-                  </SettingsGroupRow>
-                )}
-              </form.Field>
-            </SettingsGroup>
-          </fieldset>
-        )}
-      </form.Subscribe>
-      {formError ? <FormError message={formError} /> : null}
-      <div className="flex flex-wrap items-center gap-2">
-        <BtnPrimary type="submit" disabled={save.isPending}>
-          {save.isPending ? "Saving…" : settingsLabel(locale, "visionSave")}
-        </BtnPrimary>
-        <BtnGhost type="button" disabled={test.isPending} onClick={() => void onTest()}>
-          {test.isPending
-            ? settingsLabel(locale, "visionTesting")
-            : settingsLabel(locale, "visionTest")}
-        </BtnGhost>
-        <SavedBadge show={saved} />
-      </div>
-    </form>
+      {isPending && !data ? (
+        <SettingsPanelBody>
+          <Skeleton height="160px" />
+        </SettingsPanelBody>
+      ) : isError || !data ? (
+        <SettingsPanelBody>
+          <p className="text-[12px] text-loss">Failed to load coach settings.</p>
+        </SettingsPanelBody>
+      ) : (
+        <LlmApiSettingsForm
+          settings={data}
+          labels={llmApiLabels(locale, "coach")}
+          saveErrorMessage="Could not save coach settings."
+          onSave={(body) => save.mutateAsync(body)}
+          onTest={(body) => test.mutateAsync(body)}
+          onListModels={(body) => listModels.mutateAsync(body)}
+        />
+      )}
+    </SettingsSection>
   );
 }
+
+export function AiTab() {
+  return (
+    <>
+      <VisionScanSection />
+      <CoachSection />
+    </>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// General
+// ---------------------------------------------------------------------------
 
 export function GeneralTab() {
   const { locale, setLocale } = useLocale();
@@ -1599,9 +1468,15 @@ export function GeneralTab() {
 
   return (
     <>
-      <SettingsSection footer={settingsLabel(locale, "languageFooter")}>
+      <SettingsSection
+        title={settingsLabel(locale, "generalTitle")}
+        description={settingsLabel(locale, "generalDescription")}
+      >
         <SettingsGroup>
-          <SettingsGroupRow label={settingsLabel(locale, "language")} last>
+          <SettingsGroupRow
+            label={settingsLabel(locale, "language")}
+            detail={settingsLabel(locale, "languageFooter")}
+          >
             <SignalSelect
               value={locale}
               onValueChange={(next) => {
@@ -1609,15 +1484,13 @@ export function GeneralTab() {
               }}
               ariaLabel={settingsLabel(locale, "languageSelector")}
               options={LOCALE_OPTIONS}
-              triggerClassName="h-8 min-w-[9rem] text-[12px]"
+              triggerClassName="h-10 w-full text-[13px]"
             />
           </SettingsGroupRow>
-        </SettingsGroup>
-      </SettingsSection>
-
-      <SettingsSection footer={settingsLabel(locale, "screenshotsFooter")}>
-        <SettingsGroup>
-          <SettingsGroupRow label={settingsLabel(locale, "maxScreenshots")} last>
+          <SettingsGroupRow
+            label={settingsLabel(locale, "maxScreenshots")}
+            detail={settingsLabel(locale, "screenshotsFooter")}
+          >
             <SignalInput
               type="number"
               min={1}
@@ -1634,18 +1507,15 @@ export function GeneralTab() {
                 }
                 setMaxScreenshots(Number(raw));
               }}
-              className="h-8 w-[9rem] text-[12px]"
+              className="h-10 w-full text-[13px]"
             />
           </SettingsGroupRow>
-        </SettingsGroup>
-      </SettingsSection>
-
-      <VisionScanSection />
-
-      <SettingsSection footer={settingsLabel(locale, "signOutFooter")}>
-        <SettingsGroup>
-          <SettingsGroupRow label={settingsLabel(locale, "session")} last>
-            <Button type="button" variant="ghost" onClick={() => signOut()}>
+          <SettingsGroupRow
+            label={settingsLabel(locale, "session")}
+            detail={settingsLabel(locale, "signOutFooter")}
+            last
+          >
+            <Button type="button" variant="outline" onClick={() => signOut()}>
               {settingsLabel(locale, "signOut")}
             </Button>
           </SettingsGroupRow>

@@ -4,6 +4,7 @@ export const SETTINGS_SECTION_IDS: SettingsSectionId[] = [
   "accounts",
   "rules",
   "journal",
+  "ai",
   "general",
 ];
 

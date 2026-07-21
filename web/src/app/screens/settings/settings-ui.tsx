@@ -5,7 +5,9 @@ import { Modal } from "../../../components/Modal";
 import { Pill } from "../../../components/Pill";
 import { SignalInput } from "../../../components/SignalInput";
 import { Button } from "../../../components/ui/button";
+import { NativeSelect, NativeSelectOption } from "../../../components/ui/native-select";
 import { cn } from "../../../lib/cn";
+import type { UrlScheme } from "../../../lib/llmApiSettings";
 import { settingsSectionHash } from "../../../lib/settingsSection";
 
 export function SettingsPageHeader({
@@ -25,7 +27,7 @@ export function SettingsPageHeader({
   );
 }
 
-export type SettingsSectionId = "accounts" | "rules" | "journal" | "general";
+export type SettingsSectionId = "accounts" | "rules" | "journal" | "ai" | "general";
 
 export function SettingsShell({ nav, children }: { nav: ReactNode; children: ReactNode }) {
   return (
@@ -75,6 +77,47 @@ export function SettingsNav({
   );
 }
 
+/** Panel card — title/description header, divided rows, optional footer actions */
+export function SettingsPanel({
+  title,
+  description,
+  action,
+  children,
+  footer,
+}: {
+  title?: string;
+  description?: string;
+  action?: ReactNode;
+  children: ReactNode;
+  footer?: ReactNode;
+}) {
+  return (
+    <div className="overflow-hidden rounded-card bg-bg-panel">
+      {(title || description || action) && (
+        <div className="flex items-start justify-between gap-4 px-5 pt-5 pb-1">
+          <div className="min-w-0">
+            {title ? (
+              <h2 className="text-[15px] font-semibold tracking-tight text-text">{title}</h2>
+            ) : null}
+            {description ? (
+              <p className="mt-1 max-w-2xl text-[12px] leading-relaxed text-text-muted">
+                {description}
+              </p>
+            ) : null}
+          </div>
+          {action ? <div className="shrink-0">{action}</div> : null}
+        </div>
+      )}
+      {children}
+      {footer ? (
+        <div className="flex flex-wrap items-center justify-end gap-2 border-t border-border/50 px-5 py-4">
+          {footer}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 /** macOS System Settings–style grouped panel */
 export function SettingsGroup({
   children,
@@ -84,7 +127,142 @@ export function SettingsGroup({
   className?: string;
 }) {
   return (
-    <div className={cn("overflow-hidden rounded-card bg-bg-panel", className)}>{children}</div>
+    <div className={cn("divide-y divide-border/40 border-t border-border/40", className)}>
+      {children}
+    </div>
+  );
+}
+
+export function SettingsBadge({
+  children,
+  tone = "muted",
+}: {
+  children: ReactNode;
+  tone?: "muted" | "required";
+}) {
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center rounded-control px-2 py-0.5 text-[10px] font-medium tracking-wide",
+        tone === "required" ? "bg-loss/15 text-loss" : "bg-bg-elevated text-text-muted",
+      )}
+    >
+      {children}
+    </span>
+  );
+}
+
+export function SettingsPanelBody({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return <div className={cn("border-t border-border/40 px-5 py-4", className)}>{children}</div>;
+}
+
+export function SettingsToggle({
+  checked,
+  onCheckedChange,
+  disabled,
+  id,
+  "aria-label": ariaLabel,
+}: {
+  checked: boolean;
+  onCheckedChange: (checked: boolean) => void;
+  disabled?: boolean;
+  id?: string;
+  "aria-label"?: string;
+}) {
+  return (
+    <button
+      id={id}
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-label={ariaLabel}
+      disabled={disabled}
+      onClick={() => onCheckedChange(!checked)}
+      className={cn(
+        "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors duration-150",
+        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+        "disabled:cursor-not-allowed disabled:opacity-45",
+        checked ? "bg-accent" : "bg-bg-input",
+      )}
+    >
+      <span
+        aria-hidden
+        className={cn(
+          "pointer-events-none absolute top-0.5 left-0.5 size-5 rounded-full bg-text shadow-sm transition-transform duration-150",
+          checked && "translate-x-5",
+        )}
+      />
+    </button>
+  );
+}
+
+export function SettingsPrefixedInput({
+  scheme,
+  onSchemeChange,
+  value,
+  onChange,
+  onBlur,
+  placeholder,
+  disabled,
+  "aria-label": ariaLabel,
+  className,
+}: {
+  scheme: UrlScheme;
+  onSchemeChange: (scheme: UrlScheme) => void;
+  value: string;
+  onChange: (value: string) => void;
+  onBlur?: () => void;
+  placeholder?: string;
+  disabled?: boolean;
+  "aria-label"?: string;
+  className?: string;
+}) {
+  const schemeId = useId();
+
+  return (
+    <div
+      className={cn(
+        "flex w-full overflow-hidden rounded-control bg-bg-input transition-colors duration-150",
+        "hover:bg-bg-input-hover focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-accent",
+        disabled && "opacity-45",
+        className,
+      )}
+    >
+      <label htmlFor={schemeId} className="sr-only">
+        URL scheme
+      </label>
+      <div className="flex shrink-0 items-center border-r border-border/50">
+        <NativeSelect
+          id={schemeId}
+          size="sm"
+          variant="ghost"
+          value={scheme}
+          disabled={disabled}
+          onChange={(e) => onSchemeChange(e.target.value as UrlScheme)}
+          aria-label="URL scheme"
+          className="h-10 min-w-[5.75rem] border-none pr-6 pl-3 text-[12px] text-text-dim"
+        >
+          <NativeSelectOption value="https">https://</NativeSelectOption>
+          <NativeSelectOption value="http">http://</NativeSelectOption>
+        </NativeSelect>
+      </div>
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        onBlur={onBlur}
+        placeholder={placeholder}
+        disabled={disabled}
+        aria-label={ariaLabel}
+        spellCheck={false}
+        className="h-10 min-w-0 flex-1 border-none bg-transparent px-3 text-[13px] text-text outline-none placeholder:text-text-dim"
+      />
+    </div>
   );
 }
 
@@ -92,31 +270,46 @@ export function SettingsGroup({
 export function SettingsGroupRow({
   label,
   detail,
+  badge,
   children,
   last = false,
+  alignTop = false,
   className,
 }: {
   label: ReactNode;
   detail?: ReactNode;
+  badge?: ReactNode;
   children: ReactNode;
   last?: boolean;
+  alignTop?: boolean;
   className?: string;
 }) {
   return (
     <div
       className={cn(
-        "flex min-h-[44px] flex-col gap-2 px-4 py-2.5 transition-colors duration-150 hover:bg-bg-hover/60 sm:flex-row sm:items-center sm:justify-between sm:gap-4",
+        "grid grid-cols-1 gap-3 px-5 py-4 md:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] md:gap-8",
+        alignTop ? "md:items-start" : "md:items-center",
         className,
       )}
       data-last={last ? "" : undefined}
     >
-      <div className="min-w-0 flex-1">
-        <div className="text-[13px] font-medium text-text">{label}</div>
+      <div className="min-w-0">
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="text-[13px] font-medium text-text">{label}</div>
+          {badge}
+        </div>
         {detail ? (
-          <div className="mt-0.5 text-[11px] leading-relaxed text-text-dim">{detail}</div>
+          <p className="mt-1 text-[12px] leading-relaxed text-text-muted">{detail}</p>
         ) : null}
       </div>
-      <div className="flex shrink-0 items-center sm:justify-end">{children}</div>
+      <div
+        className={cn(
+          "flex min-w-0 w-full justify-end md:max-w-md md:justify-self-end",
+          alignTop ? "items-start" : "items-center",
+        )}
+      >
+        {children}
+      </div>
     </div>
   );
 }
@@ -128,6 +321,7 @@ export function SettingsSection({
   footer,
   action,
   children,
+  panelFooter,
 }: {
   id?: string;
   title?: string;
@@ -135,31 +329,27 @@ export function SettingsSection({
   footer?: string;
   action?: ReactNode;
   children: ReactNode;
+  /** Right-aligned actions rendered inside the panel footer bar. */
+  panelFooter?: ReactNode;
 }) {
-  const footnote = footer ?? description;
+  const panelDescription = description ?? footer;
 
   return (
     <section id={id} className="scroll-mt-4">
-      {(title || action) && (
-        <div className="mb-2 flex items-center justify-between gap-3 px-1">
-          {title ? (
-            <h2 className="text-[11px] font-medium uppercase tracking-wider text-text-muted">
-              {title}
-            </h2>
-          ) : null}
-          {action ? <div className="shrink-0">{action}</div> : null}
-        </div>
-      )}
-      {children}
-      {footnote ? (
-        <p className="mt-2 px-1 text-[11px] leading-relaxed text-text-dim">{footnote}</p>
-      ) : null}
+      <SettingsPanel
+        title={title}
+        description={panelDescription}
+        action={action}
+        footer={panelFooter}
+      >
+        {children}
+      </SettingsPanel>
     </section>
   );
 }
 
 export function SettingsInsetForm({ children }: { children: ReactNode }) {
-  return <div className="mb-4 overflow-hidden rounded-card bg-bg-panel p-4">{children}</div>;
+  return <div className="border-t border-border/40 px-5 py-4">{children}</div>;
 }
 
 export function SettingsRow({
@@ -174,15 +364,17 @@ export function SettingsRow({
   last?: boolean;
 }) {
   return (
-    <div className="flex min-h-[44px] flex-col gap-2 px-4 py-2.5 transition-colors duration-150 hover:bg-bg-hover sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-      <div className="min-w-0 flex-1">
+    <div className="grid grid-cols-1 gap-3 px-5 py-4 md:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] md:items-center md:gap-8">
+      <div className="min-w-0">
         <div className="text-[13px] font-medium text-text">{primary}</div>
         {secondary ? (
-          <div className="mt-0.5 text-[11px] leading-relaxed text-text-dim">{secondary}</div>
+          <p className="mt-1 text-[12px] leading-relaxed text-text-muted">{secondary}</p>
         ) : null}
       </div>
       {actions ? (
-        <div className="flex shrink-0 flex-wrap items-center gap-2 sm:justify-end">{actions}</div>
+        <div className="flex shrink-0 flex-wrap items-center justify-end gap-2 md:justify-self-end">
+          {actions}
+        </div>
       ) : null}
     </div>
   );
@@ -258,16 +450,16 @@ export function AccountRow({
     .join(" · ");
 
   return (
-    <div className="flex flex-col gap-2.5 px-4 py-3 transition-colors duration-150 hover:bg-bg-hover sm:flex-row sm:items-center sm:gap-4">
-      <div className="min-w-0 flex-1">
+    <div className="grid grid-cols-1 gap-3 px-5 py-4 md:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] md:items-center md:gap-8">
+      <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
           <span className="text-[13px] font-semibold tracking-tight text-text">{name}</span>
           {isPrimary ? <Pill tone="amber">Primary</Pill> : null}
         </div>
-        <p className="mt-0.5 text-[11px] leading-relaxed text-text-dim">{meta}</p>
+        <p className="mt-1 text-[12px] leading-relaxed text-text-muted">{meta}</p>
       </div>
 
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 sm:justify-end">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 md:justify-self-end">
         <div className="flex items-baseline gap-3">
           <SettingsStat label="balance" value={balance} />
           <span aria-hidden className="text-[12px] text-text-dim select-none">
@@ -289,14 +481,24 @@ export function BtnPrimary({
   disabled,
   type = "button",
   onClick,
+  className,
 }: {
   children: ReactNode;
   disabled?: boolean;
   type?: "button" | "submit";
   onClick?: () => void;
+  className?: string;
 }) {
   return (
-    <Button type={type} variant="soft" disabled={disabled} onClick={onClick}>
+    <Button
+      type={type}
+      disabled={disabled}
+      onClick={onClick}
+      className={cn(
+        "h-9 min-h-9 border-transparent bg-text px-4 text-[12px] font-semibold text-bg hover:bg-text/90 hover:text-bg",
+        className,
+      )}
+    >
       {children}
     </Button>
   );
@@ -309,6 +511,7 @@ export function BtnGhost({
   type = "button",
   onClick,
   className,
+  size = "sm",
   "aria-label": ariaLabel,
 }: {
   children: ReactNode;
@@ -317,17 +520,18 @@ export function BtnGhost({
   type?: "button" | "submit";
   onClick?: () => void;
   className?: string;
+  size?: "sm" | "action";
   "aria-label"?: string;
 }) {
   return (
     <Button
       type={type}
       variant={active ? "soft" : "outline"}
-      size="sm"
+      size={size === "action" ? "default" : "sm"}
       disabled={disabled}
       onClick={onClick}
       aria-label={ariaLabel}
-      className={className}
+      className={cn(size === "action" && "h-9 min-h-9 px-4 text-[12px]", className)}
     >
       {children}
     </Button>

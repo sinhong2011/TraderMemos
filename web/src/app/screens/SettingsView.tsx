@@ -1,10 +1,10 @@
-import { Globe, Shield, Tag, Wallet } from "lucide-react";
+import { Globe, Shield, Sparkles, Tag, Wallet } from "lucide-react";
 import type { RiskRules } from "../../lib/api/settings";
 import { useLocale } from "../../i18n";
 import { useSettingsSection } from "../../lib/hooks/useSettingsSection";
 import { settingsNavItems, settingsSectionCopy, type SettingsSectionId } from "../../lib/locale";
 import type { Account, CashTransaction, Setup, Tag as TagType } from "../../lib/api/types";
-import { AccountsTab, GeneralTab, JournalTab, RulesTab } from "./settings/settings-sections";
+import { AccountsTab, AiTab, GeneralTab, JournalTab, RulesTab } from "./settings/settings-sections";
 import { SettingsNav, SettingsPageHeader, SettingsShell } from "./settings/settings-ui";
 import { Page } from "../../components/Page";
 
@@ -64,6 +64,7 @@ const NAV_ICONS: Record<SettingsSectionId, typeof Wallet> = {
   accounts: Wallet,
   rules: Shield,
   journal: Tag,
+  ai: Sparkles,
   general: Globe,
 };
 
@@ -123,6 +124,7 @@ export function SettingsView(props: SettingsViewProps) {
             onDeleteSetup={props.onDeleteSetup}
           />
         )}
+        {section === "ai" && <AiTab />}
         {section === "general" && <GeneralTab />}
       </Page>
     </SettingsShell>

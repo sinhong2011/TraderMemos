@@ -1,4 +1,21 @@
 import { apiFetch } from "./client";
+import type {
+  LlmApiModelsRequest,
+  LlmApiModelsResult,
+  LlmApiSettings,
+  LlmApiSettingsPut,
+  LlmApiSettingsTestRequest,
+  LlmApiSettingsTestResult,
+} from "../llmApiSettings";
+
+export type { LlmApiSettings as OcrSettings, LlmApiSettingsPut as OcrSettingsPut };
+export type { LlmApiSettingsTestRequest as OcrSettingsTestRequest };
+export type { LlmApiSettingsTestResult as OcrSettingsTestResult };
+export type { LlmApiModelsRequest as OcrModelsRequest };
+export type { LlmApiModelsResult as OcrModelsResult };
+
+export type CoachSettings = LlmApiSettings;
+export type CoachSettingsPut = LlmApiSettingsPut;
 
 export interface RiskRules {
   max_risk_per_trade: number | null;
@@ -9,49 +26,6 @@ export interface RiskRules {
 
 export interface ChecklistTemplate {
   items: string[];
-}
-
-export interface OcrSettings {
-  enabled: boolean;
-  base_url: string;
-  model: string;
-  custom_prompt: string;
-  /** Built-in vision prompt; shown as textarea placeholder when custom is empty. */
-  default_prompt?: string;
-  api_key_set: boolean;
-  api_key_hint?: string;
-}
-
-export interface OcrSettingsPut {
-  enabled: boolean;
-  base_url: string;
-  model: string;
-  custom_prompt: string;
-  /** Omit or empty to keep the existing key. */
-  api_key?: string;
-}
-
-export interface OcrSettingsTestResult {
-  ok: boolean;
-  error?: string;
-}
-
-export interface OcrSettingsTestRequest {
-  base_url?: string;
-  model?: string;
-  /** Omit or empty to use the saved key. */
-  api_key?: string;
-}
-
-export interface OcrModelsRequest {
-  base_url?: string;
-  /** Omit or empty to use the saved key. */
-  api_key?: string;
-}
-
-export interface OcrModelsResult {
-  models: string[];
-  error?: string;
 }
 
 export const settingsApi = {
@@ -67,19 +41,35 @@ export const settingsApi = {
       method: "PUT",
       body: JSON.stringify(body),
     }),
-  getOcrSettings: () => apiFetch<OcrSettings>("/settings/ocr"),
-  putOcrSettings: (body: OcrSettingsPut) =>
-    apiFetch<OcrSettings>("/settings/ocr", {
+  getOcrSettings: () => apiFetch<LlmApiSettings>("/settings/ocr"),
+  putOcrSettings: (body: LlmApiSettingsPut) =>
+    apiFetch<LlmApiSettings>("/settings/ocr", {
       method: "PUT",
       body: JSON.stringify(body),
     }),
-  testOcrSettings: (body: OcrSettingsTestRequest = {}) =>
-    apiFetch<OcrSettingsTestResult>("/settings/ocr/test", {
+  testOcrSettings: (body: LlmApiSettingsTestRequest = {}) =>
+    apiFetch<LlmApiSettingsTestResult>("/settings/ocr/test", {
       method: "POST",
       body: JSON.stringify(body),
     }),
-  listOcrModels: (body: OcrModelsRequest = {}) =>
-    apiFetch<OcrModelsResult>("/settings/ocr/models", {
+  listOcrModels: (body: LlmApiModelsRequest = {}) =>
+    apiFetch<LlmApiModelsResult>("/settings/ocr/models", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+  getCoachSettings: () => apiFetch<CoachSettings>("/settings/coach"),
+  putCoachSettings: (body: CoachSettingsPut) =>
+    apiFetch<CoachSettings>("/settings/coach", {
+      method: "PUT",
+      body: JSON.stringify(body),
+    }),
+  testCoachSettings: (body: LlmApiSettingsTestRequest = {}) =>
+    apiFetch<LlmApiSettingsTestResult>("/settings/coach/test", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+  listCoachModels: (body: LlmApiModelsRequest = {}) =>
+    apiFetch<LlmApiModelsResult>("/settings/coach/models", {
       method: "POST",
       body: JSON.stringify(body),
     }),

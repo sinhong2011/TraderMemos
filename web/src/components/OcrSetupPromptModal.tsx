@@ -45,7 +45,7 @@ export function OcrSetupPromptModal({
     >
       <p className="text-[13px] leading-relaxed text-text-muted">
         Screenshot scan uses an LLM vision API to read broker fills. Configure it once in Settings →
-        General, then return here to prefill trades.
+        AI, then return here to prefill trades.
       </p>
       <ul className="mt-4 flex flex-col gap-2">
         {issues.map((issue) => {

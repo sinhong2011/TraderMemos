@@ -9,6 +9,7 @@ describe("parseSettingsHash", () => {
   it("parses valid section hashes", () => {
     expect(parseSettingsHash("#rules")).toBe("rules");
     expect(parseSettingsHash("#journal")).toBe("journal");
+    expect(parseSettingsHash("#ai")).toBe("ai");
   });
 
   it("falls back to accounts for unknown hashes", () => {
@@ -20,5 +21,6 @@ describe("parseSettingsHash", () => {
 describe("settingsSectionHash", () => {
   it("builds hash links", () => {
     expect(settingsSectionHash("general")).toBe("#general");
+    expect(settingsSectionHash("ai")).toBe("#ai");
   });
 });
