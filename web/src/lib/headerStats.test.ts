@@ -10,11 +10,15 @@ const openTrade = (qty: number, entry: number) =>
 const closedTrade = () => ({ status: "closed", qty_opened: 5, avg_entry_price: 10 }) as Trade;
 
 describe("computeHeaderStats", () => {
-  it("computes cash from starting balance, cash flow and pnl", () => {
+  it("computes cash from cash ledger and pnl", () => {
     const s = computeHeaderStats({
       accounts: [acct("a1", 1000)],
       accountId: "a1",
-      cashTx: [{ amount: 500 }, { amount: -200 }] as never,
+      cashTx: [
+        { account_id: "a1", amount: 1000 },
+        { account_id: "a1", amount: 500 },
+        { account_id: "a1", amount: -200 },
+      ] as never,
       summary: summary(-61.79),
       trades: [],
     });
@@ -23,10 +27,13 @@ describe("computeHeaderStats", () => {
     expect(s.active).toBe(0);
   });
 
-  it("sums all accounts when none selected and open trade value", () => {
+  it("sums selected accounts cash only and open trade value", () => {
     const s = computeHeaderStats({
       accounts: [acct("a1", 1000), acct("a2", 2000)],
-      cashTx: [],
+      cashTx: [
+        { account_id: "a1", amount: 1000 },
+        { account_id: "a2", amount: 2000 },
+      ] as never,
       summary: undefined,
       trades: [openTrade(10, 5), closedTrade()],
     });

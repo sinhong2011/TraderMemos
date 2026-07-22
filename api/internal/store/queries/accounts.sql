@@ -8,6 +8,12 @@ SELECT * FROM accounts WHERE user_id = ? ORDER BY created_at;
 -- name: GetAccount :one
 SELECT * FROM accounts WHERE id = ? AND user_id = ?;
 
+-- name: UpdateAccount :one
+UPDATE accounts
+SET name = ?, broker = ?, account_type = ?, base_currency = ?, starting_balance = ?
+WHERE id = ? AND user_id = ?
+RETURNING *;
+
 -- name: DeleteAccount :execrows
 DELETE FROM accounts WHERE id = ? AND user_id = ?;
 

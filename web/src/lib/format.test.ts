@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from "vite-plus/test";
 import { DISPLAY_PREFS_STORAGE_KEY, PRIVACY_MASK, useDisplayPrefs } from "./displayPrefs";
 import {
+  fmtDate,
   fmtDateShort,
   fmtDateTime,
   fmtDayShort,
@@ -72,6 +73,28 @@ describe("fmtDateShort", () => {
     expect(fmtDateShort("2026-07-02T14:30:00Z")).toBe("2026-07-02");
     expect(fmtDateShort("2026-07-09T12:00:00")).toBe("2026-07-09");
     expect(fmtDateShort(null)).toBe("-");
+  });
+});
+
+describe("fmtDate", () => {
+  beforeEach(() => {
+    localStorage.removeItem(DISPLAY_PREFS_STORAGE_KEY);
+    useDisplayPrefs.setState({
+      displayCurrency: null,
+      privacyMode: false,
+      timezone: "UTC",
+      timeFormat: "h23",
+    });
+  });
+
+  it("formats calendar dates with locale and display timezone", () => {
+    expect(fmtDate("2026-07-22T10:31:04.000Z", "en-US")).toBe("Jul 22, 2026");
+  });
+
+  it("honors display timezone for day boundary", () => {
+    useDisplayPrefs.getState().setTimezone("Asia/Hong_Kong");
+    // 2026-07-21 16:00 UTC → Jul 22 in HKT
+    expect(fmtDate("2026-07-21T16:00:00.000Z", "en-US")).toBe("Jul 22, 2026");
   });
 });
 

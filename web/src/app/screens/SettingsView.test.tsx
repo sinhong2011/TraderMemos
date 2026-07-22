@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import type { ComponentProps } from "react";
 import { describe, expect, it, beforeEach, vi } from "vite-plus/test";
 import { Toaster } from "../../components/Toaster";
-import type { Account, CashTransaction, Setup, Tag } from "../../lib/api/types";
+import type { Account, CashTransaction, Tag } from "../../lib/api/types";
 import { renderWithI18n } from "../../test/renderWithI18n";
 import { DEFAULT_LOCALE, setStoredLocale } from "../../lib/locale";
 import { SettingsView } from "./SettingsView";
@@ -58,6 +58,25 @@ vi.mock("../../lib/hooks/useCoachSettings", () => ({
   useListCoachModels: () => ({ mutateAsync: vi.fn(), isPending: false }),
 }));
 
+vi.mock("../../lib/hooks/useApiHealth", () => ({
+  useApiHealth: () => ({
+    data: { status: "ok", version: "0.1.0", go: "go1.26.1" },
+    isPending: false,
+    isSuccess: true,
+    isError: false,
+  }),
+}));
+
+vi.mock("../../lib/hooks/useAccessTokens", () => ({
+  useAccessTokens: () => ({
+    data: [],
+    isLoading: false,
+    isError: false,
+  }),
+  useCreateAccessToken: () => ({ mutateAsync: vi.fn(), isPending: false }),
+  useRevokeAccessToken: () => ({ mutateAsync: vi.fn(), isPending: false }),
+}));
+
 const noop = async () => {};
 
 const accounts: Account[] = [
@@ -73,9 +92,21 @@ const accounts: Account[] = [
   },
 ];
 
-const cashTransactions: CashTransaction[] = [];
+const cashTransactions: CashTransaction[] = [
+  {
+    id: "c1",
+    user_id: "u1",
+    account_id: "a1",
+    type: "deposit",
+    amount: 10000,
+    currency: "USD",
+    occurred_at: "2026-01-01T00:00:00Z",
+    note: "Opening balance",
+    trade_id: null,
+    created_at: "2026-01-01T00:00:00Z",
+  },
+];
 const tags: Tag[] = [];
-const setups: Setup[] = [];
 
 const baseProps = {
   accounts,
@@ -83,12 +114,14 @@ const baseProps = {
   accountsError: false,
   onCreateAccount: vi.fn(noop),
   onDeleteAccount: vi.fn(noop),
+  onUpdateAccount: vi.fn(noop),
   onClearAccountTrades: vi.fn(noop),
 
   cashTransactions,
   cashLoading: false,
   cashError: false,
   onCreateCash: vi.fn(noop),
+  onUpdateCash: vi.fn(noop),
   onDeleteCash: vi.fn(noop),
 
   tags,
@@ -96,12 +129,6 @@ const baseProps = {
   tagsError: false,
   onCreateTag: vi.fn(noop),
   onDeleteTag: vi.fn(noop),
-
-  setups,
-  setupsLoading: false,
-  setupsError: false,
-  onCreateSetup: vi.fn(noop),
-  onDeleteSetup: vi.fn(noop),
 
   riskRules: {
     max_risk_per_trade: null,
@@ -130,7 +157,7 @@ describe("SettingsView", () => {
   it("marks the only account as primary and hides delete", async () => {
     renderSettings({ ...baseProps });
     expect(await screen.findByText("Primary")).toBeInTheDocument();
-    expect(screen.getByText("$10,000.00")).toBeInTheDocument();
+    expect(screen.getAllByText("$10,000.00").length).toBeGreaterThan(0);
     expect(screen.queryByRole("button", { name: /delete main/i })).not.toBeInTheDocument();
   });
 
@@ -166,39 +193,52 @@ describe("SettingsView", () => {
   });
 
   it("shows all supported language options on the general tab", async () => {
-    const user = userEvent.setup();
     window.location.hash = "#general";
     renderSettings({ ...baseProps });
-    await user.click(await screen.findByRole("combobox", { name: /language selector/i }));
-    const listbox = await screen.findByRole("listbox");
-    expect(listbox).toHaveTextContent("English");
-    expect(listbox).toHaveTextContent("繁體中文（香港）");
-    expect(listbox).toHaveTextContent("日本語");
-    expect(listbox).toHaveTextContent("한국어");
+    const select = await screen.findByRole("combobox", { name: /language selector/i });
+    expect(select).toHaveTextContent("English");
+    const options = Array.from((select as HTMLSelectElement).options).map((o) => o.textContent);
+    expect(options).toEqual(
+      expect.arrayContaining(["English", "繁體中文（香港）", "日本語", "한국어"]),
+    );
+  });
+
+  it("shows app config import/export actions on general tab", async () => {
+    window.location.hash = "#general";
+    renderSettings({ ...baseProps });
+    expect(await screen.findByRole("button", { name: /export config/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /import config/i })).toBeInTheDocument();
   });
 
   it("updates settings labels when language changes", async () => {
     const user = userEvent.setup();
     window.location.hash = "#general";
     renderSettings({ ...baseProps });
-    await user.click(await screen.findByRole("combobox", { name: /language selector/i }));
-    await user.click(await screen.findByRole("option", { name: "日本語" }));
+    const select = await screen.findByRole("combobox", { name: /language selector/i });
+    await user.selectOptions(select, "ja");
     expect(await screen.findByRole("link", { name: /^一般$/i })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "一般", level: 1 })).toBeInTheDocument();
     expect(screen.getByText("言語")).toBeInTheDocument();
   });
 
-  it("shows empty state for cash when no transactions", () => {
+  it("opens the API tab from the URL hash", async () => {
+    window.location.hash = "#api";
     renderSettings({ ...baseProps });
-    expect(screen.getByText("No transactions yet")).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: /api documentation/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /access tokens/i })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /open docs/i })).toBeInTheDocument();
   });
 
-  it("opens deposit form prefilled from account row shortcut", async () => {
+  it("shows empty state for cash when no transactions", async () => {
+    renderSettings({ ...baseProps, cashTransactions: [] });
+    expect(await screen.findByText("No transactions yet")).toBeInTheDocument();
+  });
+
+  it("opens cash form from add transaction action", async () => {
     const user = userEvent.setup();
     renderSettings({ ...baseProps });
-    await user.click(screen.getByRole("button", { name: /deposit to main/i }));
+    await user.click(await screen.findByRole("button", { name: /add transaction/i }));
     expect(screen.getByLabelText(/amount/i)).toBeInTheDocument();
-    expect(screen.getByText("Filtered to Main")).toBeInTheDocument();
   });
 
   it("shows empty state for tags when no tags", async () => {
@@ -216,11 +256,16 @@ describe("SettingsView", () => {
     expect(screen.getByLabelText(/max risk per trade/i)).toBeInTheDocument();
   });
 
-  it("shows empty state for setups when none", async () => {
+  it("points journal setups to Playbook instead of duplicating CRUD", async () => {
     const user = userEvent.setup();
     renderSettings({ ...baseProps });
     await user.click(screen.getByRole("link", { name: /^Journal$/i }));
-    expect(screen.getByText("No setups yet")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Playbook setups", level: 2 })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /open playbook/i })).toHaveAttribute(
+      "href",
+      "/playbook",
+    );
+    expect(screen.queryByText("No setups yet")).not.toBeInTheDocument();
   });
 
   it("renders accounts section header", () => {
@@ -242,5 +287,25 @@ describe("SettingsView", () => {
     renderSettings({ ...baseProps });
     expect(screen.getByRole("link", { name: /^Rules$/i })).toHaveAttribute("href", "#rules");
     expect(screen.getByRole("link", { name: /^AI$/i })).toHaveAttribute("href", "#ai");
+    expect(screen.getByRole("link", { name: /^About$/i })).toHaveAttribute("href", "#about");
+  });
+
+  it("opens the about tab from the URL hash", async () => {
+    window.location.hash = "#about";
+    renderSettings({ ...baseProps });
+    expect(
+      await screen.findByRole("heading", { name: "TraderMemos", level: 2 }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/open-source performance journal/i)).toBeInTheDocument();
+    expect(screen.getByText("sinhong2011")).toBeInTheDocument();
+    expect(screen.getByText("Backend API")).toBeInTheDocument();
+    expect(screen.getByText("Updates")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /check for updates/i })).toBeInTheDocument();
+    expect(screen.getByText("Connected")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "GitHub repository" })).toHaveAttribute(
+      "href",
+      "https://github.com/sinhong2011/TraderMemos",
+    );
+    expect(screen.getAllByRole("link", { name: /github repository/i })).toHaveLength(2);
   });
 });

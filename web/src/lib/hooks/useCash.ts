@@ -17,6 +17,15 @@ export function useCreateCash() {
   });
 }
 
+export function useUpdateCash() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, body }: { id: string; body: Parameters<typeof cashApi.update>[1] }) =>
+      cashApi.update(id, body),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["cash"] }),
+  });
+}
+
 export function useDeleteCash() {
   const queryClient = useQueryClient();
   return useMutation({

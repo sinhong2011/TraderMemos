@@ -19,5 +19,10 @@ export const cashApi = {
       method: "POST",
       body: JSON.stringify(body),
     }),
+  update: (id: string, body: Omit<CashBody, "account_id" | "trade_id">) =>
+    apiFetch<CashTransaction>(`/cash-transactions/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(body),
+    }),
   delete: (id: string) => apiFetch<void>(`/cash-transactions/${id}`, { method: "DELETE" }),
 };

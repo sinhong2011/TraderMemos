@@ -2,6 +2,7 @@ package api
 
 import (
 	"database/sql"
+	"errors"
 	"net/http"
 	"time"
 
@@ -19,6 +20,7 @@ var validCashTypes = map[string]bool{
 func (s *Server) cashRoutes(g *echo.Group) {
 	g.POST("/cash-transactions", s.handleCreateCash)
 	g.GET("/cash-transactions", s.handleListCash)
+	g.PUT("/cash-transactions/:id", s.handleUpdateCash)
 	g.DELETE("/cash-transactions/:id", s.handleDeleteCash)
 }
 
@@ -106,6 +108,43 @@ func (s *Server) handleListCash(c echo.Context) error {
 		out = append(out, toCashDTO(r))
 	}
 	return c.JSON(http.StatusOK, out)
+}
+
+type updateCashReq struct {
+	Type       string    `json:"type"`
+	Amount     float64   `json:"amount"`
+	Currency   string    `json:"currency"`
+	OccurredAt time.Time `json:"occurred_at"`
+	Note       string    `json:"note"`
+}
+
+func (s *Server) handleUpdateCash(c echo.Context) error {
+	uid := auth.UserID(c)
+	var in updateCashReq
+	if err := c.Bind(&in); err != nil {
+		return Fail(http.StatusBadRequest, "bad_request", "invalid body", nil)
+	}
+	if !validCashTypes[in.Type] {
+		return Fail(http.StatusBadRequest, "bad_request", "a valid type is required", nil)
+	}
+	if in.OccurredAt.IsZero() {
+		return Fail(http.StatusBadRequest, "bad_request", "occurred_at is required", nil)
+	}
+	if in.Currency == "" {
+		in.Currency = "USD"
+	}
+	tx, err := s.deps.Store.UpdateCashTransaction(c.Request().Context(), store.UpdateCashTransactionParams{
+		Type: in.Type, Amount: in.Amount, Currency: in.Currency,
+		OccurredAt: in.OccurredAt, Note: in.Note,
+		ID: c.Param("id"), UserID: uid,
+	})
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return Fail(http.StatusNotFound, "not_found", "cash transaction not found", nil)
+		}
+		return Fail(http.StatusInternalServerError, "internal", "could not update cash transaction", nil)
+	}
+	return c.JSON(http.StatusOK, toCashDTO(tx))
 }
 
 func (s *Server) handleDeleteCash(c echo.Context) error {

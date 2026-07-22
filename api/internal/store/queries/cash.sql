@@ -14,3 +14,9 @@ ORDER BY occurred_at;
 
 -- name: DeleteCashTransaction :execrows
 DELETE FROM cash_transactions WHERE id = ? AND user_id = ?;
+
+-- name: UpdateCashTransaction :one
+UPDATE cash_transactions
+SET type = ?, amount = ?, currency = ?, occurred_at = ?, note = ?
+WHERE id = ? AND user_id = ?
+RETURNING *;

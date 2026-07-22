@@ -7,10 +7,10 @@ import {
   useClearAccountTrades,
   useCreateAccount,
   useDeleteAccount,
+  useUpdateAccount,
 } from "../lib/hooks/useAccounts";
-import { useCash, useCreateCash, useDeleteCash } from "../lib/hooks/useCash";
+import { useCash, useCreateCash, useDeleteCash, useUpdateCash } from "../lib/hooks/useCash";
 import { useRiskRules, useSaveRiskRules } from "../lib/hooks/useRiskRules";
-import { useCreateSetup, useDeleteSetup, useSetups } from "../lib/hooks/useSetups";
 import { useCreateTag, useDeleteTag, useTags } from "../lib/hooks/useTags";
 
 export const Route = createFileRoute("/settings")({
@@ -23,23 +23,20 @@ function SettingsPage() {
   // Accounts
   const accountsQ = useAccounts();
   const createAccountM = useCreateAccount();
+  const updateAccountM = useUpdateAccount();
   const deleteAccountM = useDeleteAccount();
   const clearAccountTradesM = useClearAccountTrades();
 
   // Cash - list all cash for selected accounts (no filter = empty filters)
   const cashQ = useCash({});
   const createCashM = useCreateCash();
+  const updateCashM = useUpdateCash();
   const deleteCashM = useDeleteCash();
 
   // Tags
   const tagsQ = useTags();
   const createTagM = useCreateTag();
   const deleteTagM = useDeleteTag();
-
-  // Setups
-  const setupsQ = useSetups();
-  const createSetupM = useCreateSetup();
-  const deleteSetupM = useDeleteSetup();
 
   // Risk rules
   const riskRulesQ = useRiskRules();
@@ -70,6 +67,9 @@ function SettingsPage() {
       onDeleteAccount={async (id) => {
         await deleteAccountM.mutateAsync(id);
       }}
+      onUpdateAccount={async (id, body) => {
+        await updateAccountM.mutateAsync({ id, body });
+      }}
       onClearAccountTrades={async (id) => {
         await clearAccountTradesM.mutateAsync(id);
       }}
@@ -78,6 +78,9 @@ function SettingsPage() {
       cashError={cashQ.isError}
       onCreateCash={async (body) => {
         await createCashM.mutateAsync(body);
+      }}
+      onUpdateCash={async (id, body) => {
+        await updateCashM.mutateAsync({ id, body });
       }}
       onDeleteCash={async (id) => {
         await deleteCashM.mutateAsync(id);
@@ -90,15 +93,6 @@ function SettingsPage() {
       }}
       onDeleteTag={async (id) => {
         await deleteTagM.mutateAsync(id);
-      }}
-      setups={setupsQ.data ?? []}
-      setupsLoading={setupsQ.isLoading}
-      setupsError={setupsQ.isError}
-      onCreateSetup={async (name, description) => {
-        await createSetupM.mutateAsync({ name, description });
-      }}
-      onDeleteSetup={async (id) => {
-        await deleteSetupM.mutateAsync(id);
       }}
       riskRules={riskRulesQ.data}
       riskRulesLoading={riskRulesQ.isLoading}

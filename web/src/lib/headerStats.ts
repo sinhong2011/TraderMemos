@@ -7,8 +7,8 @@ export interface HeaderStats {
 }
 
 // Header account block: net P&L for the current filter scope, an estimated
-// cash balance (starting balances + cash flow + realized P&L), and the entry
-// value of open positions ("Active").
+// cash balance (cash ledger + realized P&L), and the entry value of open
+// positions ("Active"). Opening balance is seeded as the first deposit.
 export function computeHeaderStats(opts: {
   accounts: Account[];
   accountId?: string;
@@ -19,8 +19,10 @@ export function computeHeaderStats(opts: {
   const accounts = opts.accountId
     ? opts.accounts.filter((a) => a.id === opts.accountId)
     : opts.accounts;
-  const starting = accounts.reduce((s, a) => s + a.starting_balance, 0);
-  const cashFlow = opts.cashTx.reduce((s, c) => s + c.amount, 0);
+  const accountIds = new Set(accounts.map((a) => a.id));
+  const cashFlow = opts.cashTx
+    .filter((c) => accountIds.has(c.account_id))
+    .reduce((s, c) => s + c.amount, 0);
   const netPnl = opts.summary?.net_pnl ?? 0;
   const active = opts.trades
     .filter((t) => t.status === "open")
@@ -28,5 +30,5 @@ export function computeHeaderStats(opts: {
       const qty = t.qty_remaining > 0 ? t.qty_remaining : t.qty_opened;
       return s + qty * t.avg_entry_price;
     }, 0);
-  return { netPnl, cash: starting + cashFlow + netPnl, active };
+  return { netPnl, cash: cashFlow + netPnl, active };
 }

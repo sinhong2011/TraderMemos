@@ -74,6 +74,21 @@ export function fmtDateShort(iso: string | null): string {
   return `${y}-${mo}-${day}`;
 }
 
+/** Calendar date for timestamps (honors display timezone + app locale). */
+export function fmtDate(iso: string | null | undefined, locale?: string): string {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  const loc = locale ?? intlLocale();
+  const { timeZone } = getDisplayTimeOpts();
+  return d.toLocaleDateString(loc, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone,
+  });
+}
+
 /** Time-of-day for timestamps (honors display timezone + 12/24h). */
 export function fmtTime(iso: string, locale?: string): string {
   const d = new Date(iso);

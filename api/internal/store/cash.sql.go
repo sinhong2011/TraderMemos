@@ -167,3 +167,47 @@ func (q *Queries) ListCashTransactions(ctx context.Context, arg ListCashTransact
 	}
 	return items, nil
 }
+
+const updateCashTransaction = `-- name: UpdateCashTransaction :one
+UPDATE cash_transactions
+SET type = ?, amount = ?, currency = ?, occurred_at = ?, note = ?
+WHERE id = ? AND user_id = ?
+RETURNING id, user_id, account_id, type, amount, currency, occurred_at, note, import_batch_id, created_at, trade_id
+`
+
+type UpdateCashTransactionParams struct {
+	Type       string    `json:"type"`
+	Amount     float64   `json:"amount"`
+	Currency   string    `json:"currency"`
+	OccurredAt time.Time `json:"occurred_at"`
+	Note       string    `json:"note"`
+	ID         string    `json:"id"`
+	UserID     string    `json:"user_id"`
+}
+
+func (q *Queries) UpdateCashTransaction(ctx context.Context, arg UpdateCashTransactionParams) (CashTransaction, error) {
+	row := q.db.QueryRowContext(ctx, updateCashTransaction,
+		arg.Type,
+		arg.Amount,
+		arg.Currency,
+		arg.OccurredAt,
+		arg.Note,
+		arg.ID,
+		arg.UserID,
+	)
+	var i CashTransaction
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.AccountID,
+		&i.Type,
+		&i.Amount,
+		&i.Currency,
+		&i.OccurredAt,
+		&i.Note,
+		&i.ImportBatchID,
+		&i.CreatedAt,
+		&i.TradeID,
+	)
+	return i, err
+}

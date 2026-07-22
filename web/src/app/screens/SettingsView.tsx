@@ -1,9 +1,11 @@
-import { Globe, Shield, Sparkles, Tag, Wallet } from "lucide-react";
+import { Globe, Github, KeyRound, Shield, Sparkles, Tag, Wallet } from "lucide-react";
 import type { RiskRules } from "../../lib/api/settings";
 import { useLocale } from "../../i18n";
 import { useSettingsSection } from "../../lib/hooks/useSettingsSection";
 import { settingsNavItems, settingsSectionCopy, type SettingsSectionId } from "../../lib/locale";
-import type { Account, CashTransaction, Setup, Tag as TagType } from "../../lib/api/types";
+import type { Account, CashTransaction, Tag as TagType } from "../../lib/api/types";
+import { AboutTab } from "./settings/about-tab";
+import { ApiTab } from "./settings/api-tab";
 import { AccountsTab, AiTab, GeneralTab, JournalTab, RulesTab } from "./settings/settings-sections";
 import { SettingsNav, SettingsPageHeader, SettingsShell } from "./settings/settings-ui";
 import { Page } from "../../components/Page";
@@ -20,6 +22,7 @@ export interface SettingsViewProps {
     starting_balance: number;
   }) => Promise<void>;
   onDeleteAccount: (id: string) => Promise<void>;
+  onUpdateAccount: (id: string, body: { name: string; broker: string }) => Promise<void>;
   onClearAccountTrades: (id: string) => Promise<void>;
 
   cashTransactions: CashTransaction[];
@@ -33,6 +36,16 @@ export interface SettingsViewProps {
     occurred_at: string;
     note?: string;
   }) => Promise<void>;
+  onUpdateCash: (
+    id: string,
+    body: {
+      type: string;
+      amount: number;
+      currency: string;
+      occurred_at: string;
+      note?: string;
+    },
+  ) => Promise<void>;
   onDeleteCash: (id: string) => Promise<void>;
 
   tags: TagType[];
@@ -40,12 +53,6 @@ export interface SettingsViewProps {
   tagsError: boolean;
   onCreateTag: (body: { name: string; color?: string; kind?: string }) => Promise<void>;
   onDeleteTag: (id: string) => Promise<void>;
-
-  setups: Setup[];
-  setupsLoading: boolean;
-  setupsError: boolean;
-  onCreateSetup: (name: string, description: string) => Promise<void>;
-  onDeleteSetup: (id: string) => Promise<void>;
 
   riskRules?: RiskRules;
   riskRulesLoading: boolean;
@@ -66,6 +73,8 @@ const NAV_ICONS: Record<SettingsSectionId, typeof Wallet> = {
   journal: Tag,
   ai: Sparkles,
   general: Globe,
+  api: KeyRound,
+  about: Github,
 };
 
 export function SettingsView(props: SettingsViewProps) {
@@ -88,11 +97,13 @@ export function SettingsView(props: SettingsViewProps) {
             accountsError={props.accountsError}
             onCreateAccount={props.onCreateAccount}
             onDeleteAccount={props.onDeleteAccount}
+            onUpdateAccount={props.onUpdateAccount}
             onClearAccountTrades={props.onClearAccountTrades}
             cashTransactions={props.cashTransactions}
             cashLoading={props.cashLoading}
             cashError={props.cashError}
             onCreateCash={props.onCreateCash}
+            onUpdateCash={props.onUpdateCash}
             onDeleteCash={props.onDeleteCash}
           />
         )}
@@ -117,15 +128,12 @@ export function SettingsView(props: SettingsViewProps) {
             tagsError={props.tagsError}
             onCreateTag={props.onCreateTag}
             onDeleteTag={props.onDeleteTag}
-            setups={props.setups}
-            setupsLoading={props.setupsLoading}
-            setupsError={props.setupsError}
-            onCreateSetup={props.onCreateSetup}
-            onDeleteSetup={props.onDeleteSetup}
           />
         )}
         {section === "ai" && <AiTab />}
         {section === "general" && <GeneralTab />}
+        {section === "api" && <ApiTab />}
+        {section === "about" && <AboutTab />}
       </Page>
     </SettingsShell>
   );
