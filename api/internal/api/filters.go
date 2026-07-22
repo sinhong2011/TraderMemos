@@ -13,13 +13,14 @@ import (
 // Account filtering is pushed to SQL; symbol/date filtering is applied in Go
 // to avoid timestamp-binding fragility across the sqlite driver.
 type Filters struct {
-	AccountID string // "" = all accounts
-	From      *time.Time
-	To        *time.Time
-	Symbol    string
-	Status    string // "" = all, "open" | "closed"
-	Side      string // "" = all, "long" | "short"
-	Duration  string // "" = all, "scalp" | "day" | "swing"
+	AccountID  string // "" = all accounts
+	From       *time.Time
+	To         *time.Time
+	Symbol     string
+	Status     string // "" = all, "open" | "closed"
+	Side       string // "" = all, "long" | "short"
+	Duration   string // "" = all, "scalp" | "day" | "swing"
+	DateBasis  string // "" = legacy defaults, "close" | "open"
 }
 
 // parseFilters reads the shared filter query params. Malformed from/to dates
@@ -39,6 +40,10 @@ func parseFilters(c echo.Context) (Filters, error) {
 	f.Duration = c.QueryParam("duration")
 	if f.Duration != "" && f.Duration != "scalp" && f.Duration != "day" && f.Duration != "swing" {
 		return f, fmt.Errorf("invalid 'duration' (want scalp|day|swing)")
+	}
+	f.DateBasis = c.QueryParam("date_basis")
+	if f.DateBasis != "" && f.DateBasis != "close" && f.DateBasis != "open" {
+		return f, fmt.Errorf("invalid 'date_basis' (want close|open)")
 	}
 	if v := c.QueryParam("from"); v != "" {
 		t, err := time.Parse(time.RFC3339, v)
@@ -128,9 +133,37 @@ func (f Filters) matchSideDuration(t store.Trade) bool {
 
 // matchTrade layers Side/Duration (and the existing symbol/date checks) onto a
 // closed trade. Trades without a valid close are excluded.
+// date_basis=open filters the range by opened_at; otherwise (close / unset) by closed_at.
 func (f Filters) matchTrade(t store.Trade) bool {
-	if !t.ClosedAt.Valid || !f.matchClosed(t.Symbol, t.ClosedAt.Time) {
+	if !t.ClosedAt.Valid {
+		return false
+	}
+	ok := f.matchClosed(t.Symbol, t.ClosedAt.Time)
+	if f.DateBasis == "open" {
+		ok = f.matchOpened(t.Symbol, t.OpenedAt)
+	}
+	if !ok {
 		return false
 	}
 	return f.matchSideDuration(t)
+}
+
+// matchListDate applies from/to for the trade log. Unset date_basis keeps the
+// legacy opened_at behavior; date_basis=close uses closed_at when present so
+// overnight closes stay visible on their realization day.
+func (f Filters) matchListDate(t store.Trade) bool {
+	if f.Symbol != "" && t.Symbol != f.Symbol {
+		return false
+	}
+	at := t.OpenedAt
+	if f.DateBasis == "close" && t.ClosedAt.Valid {
+		at = t.ClosedAt.Time
+	}
+	if f.From != nil && at.Before(*f.From) {
+		return false
+	}
+	if f.To != nil && at.After(*f.To) {
+		return false
+	}
+	return true
 }

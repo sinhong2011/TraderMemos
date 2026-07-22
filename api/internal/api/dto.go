@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"time"
 
 	"github.com/tradermemos/api/internal/store"
@@ -25,6 +26,13 @@ func iptr(n sql.NullInt64) *int64 {
 		return nil
 	}
 	return &n.Int64
+}
+func sptr(n sql.NullString) *string {
+	if !n.Valid {
+		return nil
+	}
+	s := n.String
+	return &s
 }
 
 // tradeDTO flattens sqlc's sql.Null* fields into JSON-friendly nullable values
@@ -68,6 +76,53 @@ func toTradeDTO(t store.Trade, tags []store.Tag) tradeDTO {
 	}
 }
 
+// executionDTO flattens sql.Null* and parses details JSON so clients get
+// details: {option_right, strike, expiry} rather than {String, Valid}.
+type executionDTO struct {
+	ID             string            `json:"id"`
+	UserID         string            `json:"user_id"`
+	AccountID      string            `json:"account_id"`
+	ExternalID     *string           `json:"external_id"`
+	Symbol         string            `json:"symbol"`
+	InstrumentType string            `json:"instrument_type"`
+	Side           string            `json:"side"`
+	Quantity       float64           `json:"quantity"`
+	Price          float64           `json:"price"`
+	Fees           float64           `json:"fees"`
+	Commission     float64           `json:"commission"`
+	ExecutedAt     time.Time         `json:"executed_at"`
+	Multiplier     float64           `json:"multiplier"`
+	Details        map[string]string `json:"details"`
+	ImportBatchID  *string           `json:"import_batch_id"`
+	DedupHash      string            `json:"dedup_hash"`
+	CreatedAt      time.Time         `json:"created_at"`
+}
+
+func toExecutionDTO(e store.Execution) executionDTO {
+	details := map[string]string{}
+	if e.Details.Valid && e.Details.String != "" {
+		_ = json.Unmarshal([]byte(e.Details.String), &details)
+		if details == nil {
+			details = map[string]string{}
+		}
+	}
+	return executionDTO{
+		ID: e.ID, UserID: e.UserID, AccountID: e.AccountID,
+		ExternalID: sptr(e.ExternalID), Symbol: e.Symbol, InstrumentType: e.InstrumentType,
+		Side: e.Side, Quantity: e.Quantity, Price: e.Price, Fees: e.Fees, Commission: e.Commission,
+		ExecutedAt: e.ExecutedAt, Multiplier: e.Multiplier, Details: details,
+		ImportBatchID: sptr(e.ImportBatchID), DedupHash: e.DedupHash, CreatedAt: e.CreatedAt,
+	}
+}
+
+func toExecutionDTOs(rows []store.Execution) []executionDTO {
+	out := make([]executionDTO, 0, len(rows))
+	for _, e := range rows {
+		out = append(out, toExecutionDTO(e))
+	}
+	return out
+}
+
 // loadClosedTrades fetches a user's closed trades (optionally account-scoped in
 // SQL) and applies symbol/date filters in Go.
 func (s *Server) loadClosedTrades(ctx context.Context, userID string, f Filters) ([]store.Trade, error) {
@@ -88,7 +143,8 @@ func (s *Server) loadClosedTrades(ctx context.Context, userID string, f Filters)
 }
 
 // loadTrades fetches open and/or closed trades for the trade log / dashboard.
-// Date filters use opened_at so open positions stay visible in range views.
+// Date filters default to opened_at (legacy). Pass date_basis=close to filter
+// by closed_at so calendar / realized-day views stay consistent.
 func (s *Server) loadTrades(ctx context.Context, userID string, f Filters) ([]store.Trade, error) {
 	rows, err := s.deps.Store.ListTrades(ctx, store.ListTradesParams{
 		UserID:    userID,
@@ -100,7 +156,7 @@ func (s *Server) loadTrades(ctx context.Context, userID string, f Filters) ([]st
 	}
 	out := rows[:0]
 	for _, t := range rows {
-		if f.matchOpened(t.Symbol, t.OpenedAt) && f.matchSideDuration(t) {
+		if f.matchListDate(t) && f.matchSideDuration(t) {
 			out = append(out, t)
 		}
 	}

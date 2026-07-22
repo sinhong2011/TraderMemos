@@ -8,6 +8,8 @@ export interface Filters {
   status?: string;
   side?: string;
   duration?: string;
+  /** Attribute date filters / daily buckets by close or open timestamp. */
+  date_basis?: "close" | "open";
 }
 
 export interface Tokens {
@@ -63,7 +65,8 @@ export interface Execution {
   commission: number;
   executed_at: string;
   multiplier: number;
-  details: string | null;
+  /** Option contract fields: option_right, strike, expiry (and optional lot). */
+  details: Record<string, string> | null;
   import_batch_id: string | null;
   dedup_hash: string;
   created_at: string;

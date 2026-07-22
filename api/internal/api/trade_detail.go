@@ -13,7 +13,7 @@ import (
 // are promoted into the JSON object.
 type tradeDetailDTO struct {
 	tradeDTO
-	Fills          []store.Execution       `json:"fills"`
+	Fills          []executionDTO          `json:"fills"`
 	Setup          *setupDTO               `json:"setup"`
 	SetupIDs       []string                `json:"setup_ids"`
 	InitialRisk    *float64                `json:"initial_risk"`
@@ -45,7 +45,7 @@ func (s *Server) buildTradeDetail(ctx context.Context, userID string, t store.Tr
 	if fills == nil {
 		fills = []store.Execution{}
 	}
-	d.Fills = fills
+	d.Fills = toExecutionDTOs(fills)
 
 	atts, err := s.deps.Store.ListAttachmentsForTrade(ctx, store.ListAttachmentsForTradeParams{TradeID: t.ID, UserID: userID})
 	if err != nil {

@@ -60,11 +60,11 @@ func (s *Server) handleCreateExecution(c echo.Context) error {
 	if err := s.assertAccount(c.Request().Context(), uid, in.AccountID); err != nil {
 		return Fail(http.StatusNotFound, "not_found", "account not found", nil)
 	}
-	if in.Multiplier == 0 {
-		in.Multiplier = 1
-	}
 	if in.InstrumentType == "" {
 		in.InstrumentType = "stock"
+	}
+	if in.Multiplier == 0 {
+		in.Multiplier = importer.DefaultMultiplier(in.InstrumentType)
 	}
 	hash := importer.DedupHash(in.Symbol, in.Side, in.Quantity, in.Price, in.ExecutedAt)
 
@@ -143,7 +143,7 @@ func (s *Server) handleListExecutions(c echo.Context) error {
 	if rows == nil {
 		rows = []store.Execution{}
 	}
-	return c.JSON(http.StatusOK, rows)
+	return c.JSON(http.StatusOK, toExecutionDTOs(rows))
 }
 
 func (s *Server) handleUpdateExecution(c echo.Context) error {
