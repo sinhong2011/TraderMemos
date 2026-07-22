@@ -3,7 +3,9 @@ package api
 import (
 	"log/slog"
 	"net/http"
+	"runtime"
 	"strconv"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -13,6 +15,8 @@ import (
 	"github.com/tradermemos/api/internal/storage"
 	"github.com/tradermemos/api/internal/store"
 	"github.com/tradermemos/api/internal/trades"
+	"github.com/tradermemos/api/internal/version"
+	"golang.org/x/time/rate"
 )
 
 // Deps holds the services handlers need. Populated in cmd/server.
@@ -33,6 +37,10 @@ type Deps struct {
 	// CORSOrigins enable browser cross-origin access when the SPA is hosted
 	// separately (Vercel, Cloudflare Pages, etc.). Empty disables CORS.
 	CORSOrigins []string
+	// AuthRateLimit is requests/second per IP for auth + setup routes. 0 disables.
+	AuthRateLimit rate.Limit
+	// AllowDevAuth enables POST /auth/dev-ensure (local insecure JWT only).
+	AllowDevAuth bool
 }
 
 type Server struct {
@@ -51,7 +59,7 @@ func New(deps Deps) *Server {
 	e.HideBanner = true
 	e.HTTPErrorHandler = errorHandler
 	e.Use(middleware.RequestID())
-	e.Use(requestLogger(lg))
+	e.Use(RequestLogger(lg))
 	e.Use(middleware.Recover())
 	if len(deps.CORSOrigins) > 0 {
 		origins := deps.CORSOrigins
@@ -86,8 +94,17 @@ func New(deps Deps) *Server {
 
 	s := &Server{Echo: e, deps: deps, logger: lg}
 	e.GET("/healthz", func(c echo.Context) error {
-		return c.JSON(http.StatusOK, map[string]string{"status": "ok"})
+		payload := map[string]string{
+			"status":  "ok",
+			"version": version.Version,
+			"go":      runtime.Version(),
+		}
+		if version.Commit != "" {
+			payload["commit"] = version.Commit
+		}
+		return c.JSON(http.StatusOK, payload)
 	})
+	s.docsRoutes()
 	s.routes()
 	return s
 }
@@ -106,16 +123,35 @@ func bodyLimit(deps Deps) int64 {
 
 func (s *Server) routes() {
 	v1 := s.Echo.Group("/api/v1")
-	s.authRoutes(v1)
+
+	// Lightweight install probe — not rate-limited (SPA polls on every unauth mount).
+	v1.GET("/setup/status", s.handleSetupStatus)
+
+	limited := v1.Group("")
+	if lim := s.deps.AuthRateLimit; lim > 0 {
+		burst := int(lim) * 3
+		if burst < 5 {
+			burst = 5
+		}
+		rlStore := middleware.NewRateLimiterMemoryStoreWithConfig(middleware.RateLimiterMemoryStoreConfig{
+			Rate:      lim,
+			Burst:     burst,
+			ExpiresIn: 3 * time.Minute,
+		})
+		limited.Use(middleware.RateLimiter(rlStore))
+	}
+	s.authRoutes(limited)
+	limited.POST("/setup", s.handleSetupComplete)
 
 	protected := v1.Group("")
 	if s.deps.JWT != nil {
-		protected.Use(auth.Middleware(s.deps.JWT))
+		protected.Use(auth.Middleware(s.deps.JWT, s.deps.Store, s.deps.Store))
 	}
 	s.accountRoutes(protected)
 	s.executionRoutes(protected)
 	s.cashRoutes(protected)
 	s.importRoutes(protected)
+	s.exportRoutes(protected)
 	s.tradeRoutes(protected)
 	s.tagRoutes(protected)
 	s.setupRoutes(protected)
@@ -126,4 +162,5 @@ func (s *Server) routes() {
 	s.checklistRoutes(protected)
 	s.marketRoutes(protected)
 	s.ocrRoutes(protected)
+	s.accessTokenRoutes(protected)
 }

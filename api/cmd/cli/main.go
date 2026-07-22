@@ -88,8 +88,11 @@ func main() {
 				return err
 			}
 			cfg, _ := config.Load()
-			svc := auth.NewService(q, auth.NewJWT(cfg.JWTSecret))
-			u, err := svc.Register(context.Background(), email, password)
+			if err := auth.ValidatePassword(password); err != nil {
+				return fmt.Errorf("password must be at least %d characters", auth.MinPasswordLen)
+			}
+			svc := auth.NewService(q, auth.NewJWT(cfg.JWTSecret), true)
+			u, err := svc.CreateUserCLI(context.Background(), email, password)
 			if err != nil {
 				return err
 			}

@@ -17,11 +17,15 @@ import (
 	"github.com/tradermemos/api/internal/storage"
 	"github.com/tradermemos/api/internal/store"
 	"github.com/tradermemos/api/internal/trades"
+	"golang.org/x/time/rate"
 )
 
 func main() {
 	cfg, err := config.Load()
 	if err != nil {
+		log.Fatal(err)
+	}
+	if err := cfg.ValidateAuth(); err != nil {
 		log.Fatal(err)
 	}
 	if err := os.MkdirAll(filepath.Dir(cfg.DBPath), 0o755); err != nil {
@@ -35,6 +39,10 @@ func main() {
 		log.Fatal(err)
 	}
 	logger := logging.New(cfg.LogLevel)
+	if config.IsInsecureJWTSecret(cfg.JWTSecret) {
+		logger.Warn("TM_JWT_SECRET is insecure — acceptable only for local/dev; set openssl rand -hex 32 for production")
+	}
+	logger.Info("auth policy", "detail", cfg.AuthSummary())
 
 	q := store.New(conn)
 	jwt := auth.NewJWT(cfg.JWTSecret)
@@ -72,7 +80,7 @@ func main() {
 	s := api.New(api.Deps{
 		JWTSecret:      cfg.JWTSecret,
 		JWT:            jwt,
-		Auth:           auth.NewService(q, jwt),
+		Auth:           auth.NewService(q, jwt, cfg.AllowRegistration),
 		Store:          q,
 		Trades:         trades.NewService(q),
 		Logger:         logger,
@@ -84,7 +92,12 @@ func main() {
 		OCR:            ocrSvc,
 		CoachDefaults:  coachDefaults,
 		CORSOrigins:    cfg.CORSOrigins,
+		AuthRateLimit:  rate.Limit(2), // 2 req/s per IP on auth + setup
+		AllowDevAuth:   cfg.AllowInsecureJWT,
 	})
+	if cfg.AllowInsecureJWT {
+		logger.Warn("dev auth enabled — POST /api/v1/auth/dev-ensure is available")
+	}
 	if len(cfg.CORSOrigins) > 0 {
 		logger.Info("cors enabled", "origins", cfg.CORSOrigins)
 	}

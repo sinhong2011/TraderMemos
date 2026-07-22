@@ -16,6 +16,8 @@ func TestHealthz(t *testing.T) {
 	s.Echo.ServeHTTP(rec, req)
 	require.Equal(t, http.StatusOK, rec.Code)
 	require.Contains(t, rec.Body.String(), `"status":"ok"`)
+	require.Contains(t, rec.Body.String(), `"version":"0.1.0"`)
+	require.Contains(t, rec.Body.String(), `"go":`)
 }
 
 func TestCORSPreflightWhenConfigured(t *testing.T) {

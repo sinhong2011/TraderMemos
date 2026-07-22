@@ -2,8 +2,9 @@
 # One-click: https://railway.com/new/template?template=https://github.com/sinhong2011/TraderMemos
 #
 # After deploy: attach a Volume mounted at /data (persists TM_DB_PATH + attachments).
-# Generate TM_JWT_SECRET; set TM_CORS_ORIGINS to your Vercel/CF/Netlify origin(s).
-
+# Set TM_JWT_SECRET=$(openssl rand -hex 32) — do not enable TM_ALLOW_INSECURE_JWT.
+# Set TM_CORS_ORIGINS to your Vercel/CF/Netlify origin(s).
+# Optional: TM_ALLOW_REGISTRATION=true for extra UI signups after setup.
 [build]
 builder = "DOCKERFILE"
 dockerfilePath = "api/Dockerfile"

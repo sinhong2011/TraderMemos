@@ -1,6 +1,8 @@
 package config
 
 import (
+	"errors"
+	"fmt"
 	"os"
 	"strings"
 
@@ -9,10 +11,17 @@ import (
 	"github.com/knadh/koanf/v2"
 )
 
+const (
+	DefaultInsecureJWTSecret = "dev-insecure-change-me"
+	MinJWTSecretLen          = 32
+)
+
 type Config struct {
 	HTTPPort            string
 	DBPath              string
 	JWTSecret           string
+	AllowInsecureJWT    bool
+	AllowRegistration   bool
 	DefaultCurrency     string
 	LogLevel            string
 	AttachMaxBytes      int64
@@ -39,20 +48,22 @@ type Config struct {
 func Load() (Config, error) {
 	k := koanf.New(".")
 	_ = k.Load(confmap.Provider(map[string]interface{}{
-		"http_port":            "8080",
-		"db_path":              "data/tradermemos.db",
-		"jwt_secret":           "dev-insecure-change-me",
-		"default_currency":     "USD",
-		"log_level":            "info",
-		"attach_max_bytes":     int64(10 << 20),
-		"import_max_bytes":     int64(10 << 20),
-		"market_data_provider": "yahoo",
-		"market_data_enabled":  true,
-		"ocr_enabled":           false,
-		"ocr_max_bytes":         int64(10 << 20),
-		"ocr_vision_base_url":   "https://api.openai.com/v1",
-		"ocr_vision_api_key":    "",
-		"ocr_vision_model":      "gpt-4o-mini",
+		"http_port":              "8080",
+		"db_path":                "data/tradermemos.db",
+		"jwt_secret":             DefaultInsecureJWTSecret,
+		"allow_insecure_jwt":     false,
+		"allow_registration":     false,
+		"default_currency":       "USD",
+		"log_level":              "info",
+		"attach_max_bytes":       int64(10 << 20),
+		"import_max_bytes":       int64(10 << 20),
+		"market_data_provider":   "yahoo",
+		"market_data_enabled":    true,
+		"ocr_enabled":            false,
+		"ocr_max_bytes":          int64(10 << 20),
+		"ocr_vision_base_url":    "https://api.openai.com/v1",
+		"ocr_vision_api_key":     "",
+		"ocr_vision_model":       "gpt-4o-mini",
 		"ocr_vision_timeout_sec": 90,
 		"coach_enabled":          false,
 		"coach_base_url":         "https://api.openai.com/v1",
@@ -78,6 +89,8 @@ func Load() (Config, error) {
 		HTTPPort:            httpPort,
 		DBPath:              k.String("db_path"),
 		JWTSecret:           k.String("jwt_secret"),
+		AllowInsecureJWT:    k.Bool("allow_insecure_jwt"),
+		AllowRegistration:   k.Bool("allow_registration"),
 		DefaultCurrency:     k.String("default_currency"),
 		LogLevel:            k.String("log_level"),
 		AttachMaxBytes:      k.Int64("attach_max_bytes"),
@@ -99,6 +112,29 @@ func Load() (Config, error) {
 	}, nil
 }
 
+// IsInsecureJWTSecret reports known throwaway defaults or undersized secrets.
+func IsInsecureJWTSecret(secret string) bool {
+	switch strings.TrimSpace(secret) {
+	case "", DefaultInsecureJWTSecret, "change-me", "secret", "changeme":
+		return true
+	}
+	return len(secret) < MinJWTSecretLen
+}
+
+// ValidateAuth enforces a strong JWT secret unless AllowInsecureJWT is set.
+func (c Config) ValidateAuth() error {
+	if !IsInsecureJWTSecret(c.JWTSecret) {
+		return nil
+	}
+	if c.AllowInsecureJWT {
+		return nil
+	}
+	return errors.New(
+		"TM_JWT_SECRET is missing, too short (<32), or a known insecure default; " +
+			"set a strong secret (openssl rand -hex 32) or TM_ALLOW_INSECURE_JWT=true for local only",
+	)
+}
+
 // SplitCSV splits a comma-separated list, trimming spaces and dropping empties.
 func SplitCSV(s string) []string {
 	if s == "" {
@@ -116,4 +152,13 @@ func SplitCSV(s string) []string {
 		return nil
 	}
 	return out
+}
+
+// AuthSummary is a one-line log hint for registration policy.
+func (c Config) AuthSummary() string {
+	reg := "closed"
+	if c.AllowRegistration {
+		reg = "open"
+	}
+	return fmt.Sprintf("registration=%s", reg)
 }

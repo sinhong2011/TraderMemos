@@ -9,6 +9,18 @@ import (
 	"time"
 )
 
+type AccessToken struct {
+	ID          string       `json:"id"`
+	UserID      string       `json:"user_id"`
+	Name        string       `json:"name"`
+	TokenPrefix string       `json:"token_prefix"`
+	TokenHash   string       `json:"token_hash"`
+	ExpiresAt   sql.NullTime `json:"expires_at"`
+	LastUsedAt  sql.NullTime `json:"last_used_at"`
+	CreatedAt   time.Time    `json:"created_at"`
+	RevokedAt   sql.NullTime `json:"revoked_at"`
+}
+
 type Account struct {
 	ID              string    `json:"id"`
 	UserID          string    `json:"user_id"`
@@ -230,4 +242,5 @@ type User struct {
 	PasswordHash string         `json:"password_hash"`
 	TotpSecret   sql.NullString `json:"totp_secret"`
 	CreatedAt    time.Time      `json:"created_at"`
+	IsAdmin      int64          `json:"is_admin"`
 }

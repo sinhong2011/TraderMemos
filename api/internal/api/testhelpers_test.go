@@ -30,17 +30,32 @@ func testServer(t *testing.T) *api.Server {
 	provider := marketdata.NewYahooProvider()
 	market := marketdata.NewService(q, provider)
 	return api.New(api.Deps{
-		JWT: j, Auth: auth.NewService(q, j), Store: q, Trades: trades.NewService(q),
+		JWT: j, Auth: auth.NewService(q, j, true), Store: q, Trades: trades.NewService(q),
 		Storage: storage.NewLocalDisk(filepath.Join(t.TempDir(), "attach")), AttachMaxBytes: 10 << 20,
 		Market: market,
 	})
 }
 
+const testPassword = "hunter2pass"
+
 // registerAndLogin creates a user and returns its access token.
+// The first user on an empty DB goes through /setup; later users use /auth/register.
 func registerAndLogin(t *testing.T, s *api.Server, email string) string {
 	t.Helper()
-	body := `{"email":"` + email + `","password":"hunter2"}`
+	body := `{"email":"` + email + `","password":"` + testPassword + `"}`
+
 	rec := httptest.NewRecorder()
+	s.Echo.ServeHTTP(rec, jsonReq(http.MethodPost, "/api/v1/setup", body, ""))
+	if rec.Code == http.StatusCreated {
+		var out struct {
+			Access string `json:"access_token"`
+		}
+		require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &out))
+		require.NotEmpty(t, out.Access)
+		return out.Access
+	}
+
+	rec = httptest.NewRecorder()
 	s.Echo.ServeHTTP(rec, jsonReq(http.MethodPost, "/api/v1/auth/register", body, ""))
 	require.Equal(t, http.StatusCreated, rec.Code, rec.Body.String())
 
@@ -73,12 +88,16 @@ func do(s *api.Server, method, path, body, token string) *httptest.ResponseRecor
 
 // multipartReq builds a multipart request with a CSV file + extra fields.
 func multipartReq(t *testing.T, path, token, csvBody string, fields map[string]string) *http.Request {
+	return multipartFileReq(t, path, token, "trades.csv", csvBody, fields)
+}
+
+func multipartFileReq(t *testing.T, path, token, filename, body string, fields map[string]string) *http.Request {
 	t.Helper()
 	var buf bytes.Buffer
 	w := multipart.NewWriter(&buf)
-	fw, err := w.CreateFormFile("file", "trades.csv")
+	fw, err := w.CreateFormFile("file", filename)
 	require.NoError(t, err)
-	_, _ = fw.Write([]byte(csvBody))
+	_, _ = fw.Write([]byte(body))
 	for k, v := range fields {
 		require.NoError(t, w.WriteField(k, v))
 	}

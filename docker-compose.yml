@@ -6,7 +6,10 @@ services:
     ports:
       - "8080:8080"
     environment:
+      # Production: export TM_JWT_SECRET=$(openssl rand -hex 32) and omit ALLOW_INSECURE.
       TM_JWT_SECRET: ${TM_JWT_SECRET:-change-me}
+      TM_ALLOW_INSECURE_JWT: ${TM_ALLOW_INSECURE_JWT:-true}
+      TM_ALLOW_REGISTRATION: ${TM_ALLOW_REGISTRATION:-false}
       TM_DB_PATH: /data/tradermemos.db
       TM_MARKET_DATA_ENABLED: ${TM_MARKET_DATA_ENABLED:-true}
       TM_MARKET_DATA_PROVIDER: ${TM_MARKET_DATA_PROVIDER:-yahoo}

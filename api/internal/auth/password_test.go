@@ -12,3 +12,9 @@ func TestPasswordHashVerify(t *testing.T) {
 	require.True(t, VerifyPassword(h, "hunter2"))
 	require.False(t, VerifyPassword(h, "wrong"))
 }
+
+func TestValidatePassword(t *testing.T) {
+	require.ErrorIs(t, ValidatePassword("short"), ErrPasswordTooShort)
+	require.NoError(t, ValidatePassword("hunter2pass"))
+}
+

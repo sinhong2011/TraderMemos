@@ -8,7 +8,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func requestLogger(lg *slog.Logger) echo.MiddlewareFunc {
+func RequestLogger(lg *slog.Logger) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			if c.Path() == "/healthz" {
@@ -26,10 +26,16 @@ func requestLogger(lg *slog.Logger) echo.MiddlewareFunc {
 			status := res.Status
 			attrs := []any{
 				"method", req.Method,
-				"uri", req.RequestURI,
+				"route", c.Path(),
 				"status", status,
 				"latency", time.Since(start).Round(time.Millisecond).String(),
 				"id", res.Header().Get(echo.HeaderXRequestID),
+			}
+			if params := pathParams(c); len(params) > 0 {
+				attrs = append(attrs, "params", params)
+			}
+			if raw := rawQuery(req); raw != "" {
+				attrs = append(attrs, "query", raw)
 			}
 
 			switch {
@@ -43,4 +49,28 @@ func requestLogger(lg *slog.Logger) echo.MiddlewareFunc {
 			return nil
 		}
 	}
+}
+
+func pathParams(c echo.Context) map[string]string {
+	names := c.ParamNames()
+	if len(names) == 0 {
+		return nil
+	}
+	out := make(map[string]string, len(names))
+	for _, name := range names {
+		if v := c.Param(name); v != "" {
+			out[name] = v
+		}
+	}
+	if len(out) == 0 {
+		return nil
+	}
+	return out
+}
+
+func rawQuery(req *http.Request) string {
+	if req.URL == nil {
+		return ""
+	}
+	return req.URL.RawQuery
 }

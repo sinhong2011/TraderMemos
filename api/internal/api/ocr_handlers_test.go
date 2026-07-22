@@ -30,7 +30,7 @@ func testServerWithOCR(t *testing.T, vision ocr.VisionConfig) *api.Server {
 	j := auth.NewJWT("test")
 	market := marketdata.NewService(q, marketdata.NewYahooProvider())
 	return api.New(api.Deps{
-		JWT: j, Auth: auth.NewService(q, j), Store: q, Trades: trades.NewService(q),
+		JWT: j, Auth: auth.NewService(q, j, true), Store: q, Trades: trades.NewService(q),
 		Storage: storage.NewLocalDisk(filepath.Join(t.TempDir(), "attach")), AttachMaxBytes: 10 << 20,
 		OCRMaxBytes: 10 << 20,
 		Market:      market,
