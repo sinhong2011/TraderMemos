@@ -114,7 +114,24 @@ export interface BatchTradeResultPreviewProps {
   batch: BatchTradePnlPreview;
   currency: string;
   locale: string;
+  /** Account net P&L before this batch (header / summary scope). */
+  accountNetPnl?: number | null;
+  /** Estimated cash before this batch (starting + flows + realized). */
+  accountCash?: number | null;
   className?: string;
+}
+
+function BatchMeta({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className="min-w-0">
+      <p className="m-0 text-[10px] font-semibold uppercase tracking-widest text-text-dim">
+        {label}
+      </p>
+      <div className="mt-1 text-[13px] font-semibold leading-none tracking-[-0.02em] tabular-nums text-text">
+        {children}
+      </div>
+    </div>
+  );
 }
 
 /** Batch totals across every symbol in a multi-trade Save. */
@@ -122,17 +139,20 @@ export function BatchTradeResultPreview({
   batch,
   currency,
   locale,
+  accountNetPnl,
+  accountCash,
   className,
 }: BatchTradeResultPreviewProps) {
   if (batch.withFills === 0 && batch.net == null) return null;
 
-  const closedLabel =
-    batch.openCount === 0
-      ? `${batch.closedCount} closed`
-      : `${batch.closedCount} closed · ${batch.openCount} open`;
+  const batchDelta = batch.net ?? 0;
+  const hasAccountBaseline = accountNetPnl != null || accountCash != null;
+  const extTotal = accountNetPnl != null ? accountNetPnl + batchDelta : null;
+  const cashAfter = accountCash != null ? accountCash + batchDelta : null;
+  const allClosed = batch.openCount === 0 && batch.closedCount > 0;
 
   return (
-    <div className={cn("flex flex-col gap-2", className)} data-testid="batch-trade-result-preview">
+    <div className={cn("flex flex-col gap-3", className)} data-testid="batch-trade-result-preview">
       <div className="flex items-baseline justify-between gap-3">
         <p className="m-0 text-[10px] font-semibold uppercase tracking-widest text-signal">
           Batch result
@@ -144,54 +164,106 @@ export function BatchTradeResultPreview({
         ) : null}
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <BentoCell label="Symbols">
-          <span>
-            {batch.symbolCount}
-            <span className="ml-1.5 text-[11px] font-medium text-text-muted">{closedLabel}</span>
-          </span>
-        </BentoCell>
-        <BentoCell label="Fees">{fmtMoney(batch.feesTotal, currency, locale)}</BentoCell>
-        <BentoCell label="Est. P&L">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
+        <div className="min-w-0">
+          <p className="m-0 text-[10px] font-medium tracking-[0.04em] text-text-dim">Est. P&L</p>
           {batch.net == null ? (
-            <span className="text-text-dim">—</span>
+            <p className="mt-1.5 m-0 text-[26px] font-semibold leading-none tracking-[-0.04em] text-text-dim">
+              —
+            </p>
           ) : (
-            <span
+            <p
               className={cn(
+                "mt-1.5 m-0 text-[26px] font-semibold leading-none tracking-[-0.04em] tabular-nums",
                 pnlColor(batch.net),
-                batch.net > 0 && "drop-shadow-[0_0_18px_rgba(74,222,128,0.28)]",
-                batch.net < 0 && "drop-shadow-[0_0_18px_rgba(251,113,133,0.22)]",
+                batch.net > 0 && "drop-shadow-[0_0_28px_rgba(74,222,128,0.35)]",
+                batch.net < 0 && "drop-shadow-[0_0_28px_rgba(251,113,133,0.28)]",
               )}
             >
               {fmtSignedMoney(batch.net, currency, locale)}
               {batch.rMultiple != null ? (
-                <span className="ml-1.5 align-baseline text-[11px] font-medium text-text-muted">
+                <span className="ml-2 align-baseline text-[12px] font-medium tracking-normal text-text-muted">
                   {batch.rMultiple.toFixed(2)}R
                 </span>
               ) : null}
-            </span>
+            </p>
           )}
-        </BentoCell>
-        <BentoCell label="Closed">
-          {batch.openCount === 0 && batch.closedCount > 0 ? (
-            <span className="inline-flex items-center gap-1.5 text-profit">
+        </div>
+
+        <div className="flex flex-wrap items-start gap-x-5 gap-y-2.5 sm:justify-end">
+          <BatchMeta label="Symbols">
+            <span>
+              {batch.symbolCount}
+              <span className="ml-1.5 text-[11px] font-medium text-text-muted">
+                {batch.openCount === 0 ? "closed" : `${batch.closedCount}c · ${batch.openCount}o`}
+              </span>
+            </span>
+          </BatchMeta>
+          <BatchMeta label="Fees">{fmtMoney(batch.feesTotal, currency, locale)}</BatchMeta>
+          <BatchMeta label="Closed">
+            {allClosed ? (
+              <span className="inline-flex items-center gap-1.5 text-profit">
+                <span>
+                  {batch.closedCount}/{batch.symbolCount}
+                </span>
+                <span
+                  className="inline-flex size-4 items-center justify-center rounded-full bg-profit/15"
+                  aria-label="All closed"
+                >
+                  <Check size={11} strokeWidth={2.75} aria-hidden />
+                </span>
+              </span>
+            ) : (
               <span>
                 {batch.closedCount}/{batch.symbolCount}
               </span>
-              <span
-                className="inline-flex size-4 items-center justify-center rounded-full bg-profit/15"
-                aria-label="All closed"
-              >
-                <Check size={11} strokeWidth={2.75} aria-hidden />
-              </span>
-            </span>
-          ) : (
-            <span>
-              {batch.closedCount}/{batch.symbolCount}
-            </span>
-          )}
-        </BentoCell>
+            )}
+          </BatchMeta>
+        </div>
       </div>
+
+      {hasAccountBaseline ? (
+        <div
+          className={cn(
+            "flex flex-wrap items-end justify-between gap-x-4 gap-y-2 rounded-control px-3 py-2.5",
+            extTotal != null && extTotal > 0 && "bg-tint-pos",
+            extTotal != null && extTotal < 0 && "bg-tint-neg",
+            (extTotal == null || extTotal === 0) && "bg-bg-elevated",
+          )}
+          data-testid="batch-ext-total"
+        >
+          <div className="min-w-0">
+            <p className="m-0 text-[10px] font-semibold uppercase tracking-widest text-text-dim">
+              After save
+            </p>
+            <div className="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+              <span className="text-[11px] text-text-muted">Account P&L</span>
+              {extTotal == null ? (
+                <span className="text-[15px] font-semibold text-text-dim">—</span>
+              ) : (
+                <span
+                  className={cn(
+                    "text-[15px] font-semibold leading-none tracking-[-0.03em] tabular-nums",
+                    pnlColor(extTotal),
+                    extTotal > 0 && "drop-shadow-[0_0_16px_rgba(74,222,128,0.28)]",
+                    extTotal < 0 && "drop-shadow-[0_0_16px_rgba(251,113,133,0.22)]",
+                  )}
+                >
+                  {fmtSignedMoney(extTotal, currency, locale)}
+                </span>
+              )}
+            </div>
+          </div>
+          <div className="flex items-baseline gap-2">
+            <span className="text-[10px] font-semibold uppercase tracking-widest text-text-dim">
+              Cash
+            </span>
+            <span className="text-[13px] font-semibold tabular-nums tracking-tight text-text">
+              {cashAfter == null ? "—" : fmtMoney(cashAfter, currency, locale)}
+            </span>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

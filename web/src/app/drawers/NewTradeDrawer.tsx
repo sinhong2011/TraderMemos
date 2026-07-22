@@ -20,7 +20,7 @@ import {
 import { GradeControl } from "../../components/GradeControl";
 import { ModalBanner } from "../../components/Modal";
 import { OcrSetupPromptModal, ocrScanButtonClass } from "../../components/OcrSetupPromptModal";
-import { OcrSymbolGroupList } from "../../components/OcrSymbolGroupList";
+import { OcrScanSummary } from "../../components/OcrSymbolGroupList";
 import { Pill } from "../../components/Pill";
 import { SegmentedControl } from "../../components/SegmentedControl";
 import { SignalDatePicker } from "../../components/SignalDatePicker";
@@ -29,6 +29,7 @@ import { SignalField, fieldError } from "../../components/SignalField";
 import { SignalAmountInput } from "../../components/SignalAmountInput";
 import { SignalInput, SignalTextarea } from "../../components/SignalInput";
 import { SignalSelect } from "../../components/SignalSelect";
+import { NativeSelect, NativeSelectOption } from "../../components/ui/native-select";
 import { SignalPopover } from "../../components/SignalPopover";
 import { signalInputClass } from "../../components/signal-field-styles";
 import {
@@ -74,6 +75,7 @@ import {
 import {
   flattenSymbolTradesToExecutions,
   rowsFromOcrExtract,
+  symbolTradeFromDetail,
   tradesFromOcrExtract,
 } from "../../lib/newTradeBlocks";
 import { detectOptionStrategy } from "../../lib/optionStrategy";
@@ -91,12 +93,21 @@ import {
   intFromGrade,
 } from "../../lib/tradeGrades";
 import { useAccounts } from "../../lib/hooks/useAccounts";
-import { ExecutionBatchError, useCreateExecutions } from "../../lib/hooks/useExecutions";
+import { useSummary } from "../../lib/hooks/useAnalytics";
+import { useCash } from "../../lib/hooks/useCash";
+import {
+  ExecutionBatchError,
+  useCreateExecutions,
+  useDeleteExecution,
+  useUpdateExecution,
+} from "../../lib/hooks/useExecutions";
 import { useOcrParse } from "../../lib/hooks/useOcrParse";
 import { useOcrSettings } from "../../lib/hooks/useOcrSettings";
 import { isOcrVisionReady } from "../../lib/ocrVisionReady";
 import { useSetups } from "../../lib/hooks/useSetups";
 import { useTags } from "../../lib/hooks/useTags";
+import { useTradeDetail } from "../../lib/hooks/useTradeDetail";
+import { computeHeaderStats } from "../../lib/headerStats";
 import { getIntlLocale, getStoredLocale } from "../../lib/locale";
 import {
   listTradeTemplates,
@@ -427,11 +438,11 @@ function SymbolCard({
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <div>
               <label className={labelClass}>Market</label>
-              <SignalSelect
-                ariaLabel={`Market symbol ${index + 1}`}
+              <NativeSelect
+                aria-label={`Market symbol ${index + 1}`}
                 value={block.market}
-                options={MARKETS}
-                onValueChange={(market) => {
+                onChange={(e) => {
+                  const market = e.target.value;
                   const next = market === "futures" ? "future" : market;
                   set("market", next);
                   if (next === "option") {
@@ -447,8 +458,15 @@ function SymbolCard({
                     set("option_expiry", "");
                   }
                 }}
-                triggerClassName="h-9 text-[12px]"
-              />
+                className="h-9 w-full text-[12px]"
+                wrapperClassName="w-full"
+              >
+                {MARKETS.map((m) => (
+                  <NativeSelectOption key={m.value} value={m.value}>
+                    {m.label}
+                  </NativeSelectOption>
+                ))}
+              </NativeSelect>
             </div>
             {block.market === "future" && (
               <div>
@@ -998,7 +1016,10 @@ export function NewTradeDrawer() {
   usePrivacyMode();
   const navigate = useNavigate();
   const open = useUI((s) => s.modal === "new-trade");
+  const editTradeId = useUI((s) => s.editTradeId);
+  const editTradeDetail = useUI((s) => s.editTradeDetail);
   const closeModal = useUI((s) => s.closeModal);
+  const isEditMode = Boolean(editTradeId);
   const filterAccountId = useFilters((s) => s.accountId);
   const accounts = useAccounts().data ?? [];
   const setups = useSetups().data ?? [];
@@ -1006,6 +1027,11 @@ export function NewTradeDrawer() {
   const mistakeTags = useMemo(() => (allTags ?? []).filter((t) => t.kind === "mistake"), [allTags]);
   const regularTags = useMemo(() => (allTags ?? []).filter((t) => t.kind !== "mistake"), [allTags]);
   const createExecutions = useCreateExecutions();
+  const updateExecution = useUpdateExecution();
+  const deleteExecution = useDeleteExecution();
+  const editTradeQ = useTradeDetail(editTradeId ?? "");
+  /** Prefer the snapshot passed at open; fall back to query cache/network. */
+  const editSource = editTradeDetail ?? editTradeQ.data;
   const ocrParse = useOcrParse();
   const { data: ocrSettings, isLoading: ocrSettingsLoading } = useOcrSettings();
   const visionReady = isOcrVisionReady(ocrSettings);
@@ -1016,10 +1042,15 @@ export function NewTradeDrawer() {
   const [ocrWarnings, setOcrWarnings] = useState<string[]>([]);
   const [ocrSetupPromptOpen, setOcrSetupPromptOpen] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  const [editSaving, setEditSaving] = useState(false);
+  /** Bumps when edit form is hydrated so Field trees remount with filled values. */
+  const [editFormKey, setEditFormKey] = useState(0);
+  const [editHydrated, setEditHydrated] = useState(false);
   const [templates, setTemplates] = useState<TradeTemplate[]>([]);
   const [templatesOpen, setTemplatesOpen] = useState(false);
   const ocrFileRef = useRef<HTMLInputElement>(null);
   const wasOpen = useRef(false);
+  const prefilledEditId = useRef<string | null>(null);
   const locale = getIntlLocale(getStoredLocale());
   const defaultValuesRef = useRef(defaultNewTradeFormValues());
   const form = useForm({
@@ -1036,14 +1067,133 @@ export function NewTradeDrawer() {
         setSubmitError(tradesErr);
         return;
       }
-      const accountIds = [accountId, ...value.copyAccountIds.filter((id) => id !== accountId)];
-      try {
-        const rows = flattenSymbolTradesToExecutions(value.trades);
-        if (rows.length === 0) {
-          setSubmitError("Add at least one valid execution row.");
+      const rows = flattenSymbolTradesToExecutions(value.trades);
+      if (rows.length === 0) {
+        setSubmitError("Add at least one valid execution row.");
+        return;
+      }
+
+      const editId = useUI.getState().editTradeId;
+      if (editId) {
+        const existing = useUI.getState().editTradeDetail ?? editTradeQ.data;
+        if (!existing) {
+          setSubmitError("Trade still loading — try again.");
           return;
         }
-        const { tradeIds, bySymbol } = await createExecutions.mutateAsync({ accountIds, rows });
+        setEditSaving(true);
+        try {
+          const existingIds = new Set(existing.fills.map((f) => f.id));
+          const keptIds = new Set(rows.map((r) => r.id).filter((id): id is string => Boolean(id)));
+          let tradeId = editId;
+
+          for (const row of rows) {
+            if (row.id && existingIds.has(row.id)) {
+              const res = await updateExecution.mutateAsync({
+                id: row.id,
+                body: {
+                  side: row.side,
+                  quantity: row.quantity,
+                  price: row.price,
+                  fees: row.fees,
+                  commission: row.commission,
+                  executed_at: row.executed_at,
+                },
+              });
+              if (res.trade_id) tradeId = res.trade_id;
+            } else {
+              const { id: _omit, ...body } = row;
+              const res = await createExecutions.mutateAsync({
+                accountIds: [accountId],
+                rows: [body],
+              });
+              tradeId = res.tradeIds[0] ?? tradeId;
+            }
+          }
+
+          for (const fill of existing.fills) {
+            if (!keptIds.has(fill.id)) {
+              const res = await deleteExecution.mutateAsync(fill.id);
+              if (res.trade_id) tradeId = res.trade_id;
+              else if (!res.trade_id && existing.fills.length <= 1) {
+                tradeId = "";
+              }
+            }
+          }
+
+          const block = value.trades[0];
+          if (block && tradeId) {
+            await tradesApi.patch(tradeId, {
+              notes: buildStructuredJournalNotes({
+                session: block.session,
+                entryReason: block.entryReason,
+                exitReason: block.exitReason,
+                reviewNotes: block.reviewNotes,
+              }),
+              setup_id: block.setupIds[0] ?? "",
+              setup_ids: block.setupIds,
+              emotional_state: block.emotionalState || "",
+              confidence: intFromGrade(block.setupGrade),
+              trade_quality: intFromGrade(block.executionGrade),
+              tag_ids: [...block.selectedTagIds, ...block.selectedMistakeIds],
+              initial_risk: blockRisk(block) ?? undefined,
+              target_price: num(block.target) ?? undefined,
+              stop_price: num(block.stop) ?? undefined,
+            });
+            for (const file of capScreenshots(pendingFilesByKey[block.key] ?? [], maxScreenshots)) {
+              const fd = new FormData();
+              fd.append("file", file);
+              await attachmentsApi.upload(tradeId, fd);
+            }
+            const amount = num(block.dividendAmount);
+            if (amount != null && amount > 0) {
+              await cashApi.create({
+                account_id: accountId,
+                type: "dividend",
+                amount: block.side === "short" ? -Math.abs(amount) : Math.abs(amount),
+                currency: accounts.find((a) => a.id === accountId)?.base_currency ?? "USD",
+                occurred_at: new Date(`${block.dividendDate}T12:00:00`).toISOString(),
+                note:
+                  block.dividendNote || `${block.symbol.trim().toUpperCase() || "Trade"} dividend`,
+                trade_id: tradeId,
+              });
+            }
+          }
+
+          toast.add({
+            title: "Trade updated",
+            description: tradeId
+              ? "Fills and journal saved."
+              : "All fills removed — returned to trades.",
+          });
+          close();
+          if (tradeId) {
+            void navigate({ to: "/trades/$id", params: { id: tradeId } });
+          } else {
+            void navigate({ to: "/trades" });
+          }
+        } catch (error) {
+          const message =
+            error instanceof ExecutionBatchError
+              ? error.failures
+                  .map((f) => `Row ${f.index + 1} (${f.accountId}): ${f.message}`)
+                  .join("; ")
+              : error instanceof Error
+                ? error.message
+                : "Save failed";
+          setSubmitError(message);
+          toast.add({ title: "Could not update trade", description: message });
+        } finally {
+          setEditSaving(false);
+        }
+        return;
+      }
+
+      const accountIds = [accountId, ...value.copyAccountIds.filter((id) => id !== accountId)];
+      try {
+        const { tradeIds, bySymbol } = await createExecutions.mutateAsync({
+          accountIds,
+          rows: rows.map(({ id: _id, ...body }) => body),
+        });
         await Promise.all(
           value.trades.map(async (block) => {
             const id = bySymbol[block.symbol.trim().toUpperCase()];
@@ -1107,7 +1257,27 @@ export function NewTradeDrawer() {
   const values = useStore(form.store, (s) => s.values);
   const accountId = values.accountId || filterAccountId || accounts[0]?.id || "";
   const currency = accounts.find((a) => a.id === accountId)?.base_currency ?? "USD";
-  const pending = createExecutions.isPending;
+  const accountFilters = useMemo(() => ({ account_id: accountId || undefined }), [accountId]);
+  const summaryQ = useSummary(accountFilters);
+  const cashQ = useCash(accountFilters);
+  const accountBaseline = !accountId
+    ? { netPnl: null as number | null, cash: null as number | null }
+    : (() => {
+        const stats = computeHeaderStats({
+          accounts,
+          accountId,
+          cashTx: cashQ.data ?? [],
+          summary: summaryQ.data,
+          trades: [],
+        });
+        return { netPnl: stats.netPnl, cash: stats.cash };
+      })();
+  const pending =
+    createExecutions.isPending ||
+    updateExecution.isPending ||
+    deleteExecution.isPending ||
+    editSaving;
+
   const batchPreview = useMemo(
     () =>
       values.trades.length > 1
@@ -1137,6 +1307,8 @@ export function NewTradeDrawer() {
 
   function close() {
     reset();
+    prefilledEditId.current = null;
+    setEditHydrated(false);
     closeModal();
     setOcrSetupPromptOpen(false);
   }
@@ -1144,16 +1316,26 @@ export function NewTradeDrawer() {
   useEffect(() => {
     if (!open) {
       wasOpen.current = false;
+      prefilledEditId.current = null;
+      setEditHydrated(false);
       return;
     }
     if (wasOpen.current) return;
     wasOpen.current = true;
-    form.reset(defaultNewTradeFormValues());
     setPendingFilesByKey({});
     setOcrExtract(null);
     setOcrWarnings([]);
     setSubmitError("");
     setTemplates(listTradeTemplates());
+
+    const editingId = useUI.getState().editTradeId;
+    if (editingId) {
+      // Prefill runs when edit snapshot / detail is available.
+      return;
+    }
+
+    setEditHydrated(true);
+    form.reset(defaultNewTradeFormValues());
     if (!filterAccountId && accounts[0]?.id) {
       form.setFieldValue("accountId", accounts[0].id);
     } else if (filterAccountId) {
@@ -1174,6 +1356,28 @@ export function NewTradeDrawer() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- open once per drawer session
   }, [open]);
+
+  useEffect(() => {
+    if (!open || !editTradeId || !editSource) return;
+    if (prefilledEditId.current === editTradeId) return;
+    prefilledEditId.current = editTradeId;
+    const nextValues = {
+      accountId: editSource.account_id,
+      copyAccountIds: [] as string[],
+      trades: [symbolTradeFromDetail(editSource)],
+    };
+    // Match NewSetupDrawer / template apply: reset + setFieldValue so nested
+    // array Fields remount cleanly with filled values.
+    form.reset(nextValues);
+    form.setFieldValue("accountId", nextValues.accountId);
+    form.setFieldValue("copyAccountIds", nextValues.copyAccountIds);
+    form.setFieldValue("trades", nextValues.trades);
+    setPendingFilesByKey({});
+    setSubmitError("");
+    setEditFormKey((k) => k + 1);
+    setEditHydrated(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- prefill once per edit id
+  }, [open, editTradeId, editSource]);
 
   const applyTemplate = (template: TradeTemplate) => {
     const journal = parseJournalNotes(template.notes);
@@ -1280,64 +1484,66 @@ export function NewTradeDrawer() {
           }
         >
           <DrawerHeader>
-            <DrawerTitle>New Trade</DrawerTitle>
+            <DrawerTitle>{isEditMode ? "Edit Trade" : "New Trade"}</DrawerTitle>
             <div className="ml-auto flex items-center gap-0.5">
-              <SignalPopover
-                open={templatesOpen}
-                onOpenChange={setTemplatesOpen}
-                triggerAriaLabel="Templates"
-                className="min-w-[14rem] overflow-hidden p-0 shadow-[0_16px_40px_rgba(18,18,24,0.65)]"
-                triggerClassName={cn(
-                  "inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-control border border-border bg-transparent px-2.5",
-                  "text-[12px] font-medium text-text-muted transition-[color,background-color,border-color]",
-                  "hover:border-border-strong hover:text-text",
-                  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
-                  templatesOpen && "border-border-strong text-text",
-                )}
-                trigger={
-                  <>
-                    <FileStack size={14} strokeWidth={1.75} aria-hidden />
-                    Templates
-                  </>
-                }
-              >
-                <div className="flex flex-col p-1" role="menu" aria-label="Trade templates">
-                  {templates.length === 0 ? (
-                    <p className="m-0 px-2 py-2 text-[11px] text-text-dim">
-                      No saved templates yet
-                    </p>
-                  ) : (
-                    templates.map((t) => (
-                      <button
-                        key={t.id}
-                        type="button"
-                        role="menuitem"
-                        onClick={() => applyTemplate(t)}
-                        className={cn(
-                          "flex min-h-8 cursor-pointer items-center rounded-control px-2 text-left text-[12px] text-text",
-                          "transition-colors hover:bg-white/[0.06]",
-                          "focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-accent",
-                        )}
-                      >
-                        <span className="min-w-0 flex-1 truncate">{t.name}</span>
-                      </button>
-                    ))
+              {!isEditMode && (
+                <SignalPopover
+                  open={templatesOpen}
+                  onOpenChange={setTemplatesOpen}
+                  triggerAriaLabel="Templates"
+                  className="min-w-[14rem] overflow-hidden p-0 shadow-[0_16px_40px_rgba(18,18,24,0.65)]"
+                  triggerClassName={cn(
+                    "inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-control border border-border bg-transparent px-2.5",
+                    "text-[12px] font-medium text-text-muted transition-[color,background-color,border-color]",
+                    "hover:border-border-strong hover:text-text",
+                    "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+                    templatesOpen && "border-border-strong text-text",
                   )}
-                  {templates.length > 0 ? <div className="my-1 h-px bg-border" /> : null}
-                  <button
-                    type="button"
-                    role="menuitem"
-                    onClick={saveTemplate}
-                    className={cn(
-                      "flex min-h-8 cursor-pointer items-center rounded-control px-2 text-left text-[12px] font-medium text-accent",
-                      "transition-colors hover:bg-accent-bg",
-                      "focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-accent",
+                  trigger={
+                    <>
+                      <FileStack size={14} strokeWidth={1.75} aria-hidden />
+                      Templates
+                    </>
+                  }
+                >
+                  <div className="flex flex-col p-1" role="menu" aria-label="Trade templates">
+                    {templates.length === 0 ? (
+                      <p className="m-0 px-2 py-2 text-[11px] text-text-dim">
+                        No saved templates yet
+                      </p>
+                    ) : (
+                      templates.map((t) => (
+                        <button
+                          key={t.id}
+                          type="button"
+                          role="menuitem"
+                          onClick={() => applyTemplate(t)}
+                          className={cn(
+                            "flex min-h-8 cursor-pointer items-center rounded-control px-2 text-left text-[12px] text-text",
+                            "transition-colors hover:bg-white/[0.06]",
+                            "focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-accent",
+                          )}
+                        >
+                          <span className="min-w-0 flex-1 truncate">{t.name}</span>
+                        </button>
+                      ))
                     )}
-                  >
-                    Save first symbol as template…
-                  </button>
-                </div>
-              </SignalPopover>
+                    {templates.length > 0 ? <div className="my-1 h-px bg-border" /> : null}
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={saveTemplate}
+                      className={cn(
+                        "flex min-h-8 cursor-pointer items-center rounded-control px-2 text-left text-[12px] font-medium text-accent",
+                        "transition-colors hover:bg-accent-bg",
+                        "focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-accent",
+                      )}
+                    >
+                      Save first symbol as template…
+                    </button>
+                  </div>
+                </SignalPopover>
+              )}
               <DrawerClose
                 aria-label="Close"
                 className={cn(
@@ -1352,169 +1558,181 @@ export function NewTradeDrawer() {
           </DrawerHeader>
           <DrawerBody>
             <ModalBanner>
-              Add one or more symbols — each with fills, journal, and optional dividend. One Save
-              logs every symbol as its own trade.
+              {isEditMode
+                ? "Update fills, journal, and optional dividend for this trade."
+                : "Add one or more symbols — each with fills, journal, and optional dividend. One Save logs every symbol as its own trade."}
             </ModalBanner>
-            <form
-              className="mt-4 flex flex-col gap-4"
-              onSubmit={(event) => {
-                event.preventDefault();
-                void form.handleSubmit();
-              }}
-            >
-              <div className="flex flex-wrap items-end gap-3">
-                <div className="min-w-48 flex-1">
-                  <label className={labelClass}>Account</label>
-                  <SignalSelect
-                    ariaLabel="Account"
-                    value={accountId}
-                    options={accounts.map((a) => ({ value: a.id, label: a.name }))}
-                    onValueChange={(v) => form.setFieldValue("accountId", v)}
-                    triggerClassName="text-[12px]"
-                  />
-                </div>
-                <Button
-                  type="button"
-                  disabled={ocrParse.isPending || ocrSettingsLoading}
-                  onClick={onScanClick}
-                  className={ocrScanButtonClass(visionReady, ocrParse.isPending)}
-                  aria-label="Prefill trade from screenshot"
-                  title={
-                    visionReady
-                      ? "Select one or more screenshots"
-                      : "Set up screenshot scan in Settings before scanning"
-                  }
-                >
-                  {ocrParse.isPending ? (
-                    <Loader2 size={14} strokeWidth={1.75} className="animate-spin" aria-hidden />
-                  ) : (
-                    <ScanLine size={14} aria-hidden />
-                  )}
-                  {ocrParse.isPending ? "Scanning…" : "Scan to fill"}
-                </Button>
-                <input
-                  ref={ocrFileRef}
-                  type="file"
-                  accept="image/png,image/jpeg,image/webp"
-                  multiple
-                  data-testid="ocr-scan-input"
-                  className="sr-only"
-                  onChange={(event) => {
-                    const files = Array.from(event.target.files ?? []);
-                    event.target.value = "";
-                    if (files.length) void scan(files);
-                  }}
-                />
-              </div>
-              {accounts.filter((account) => account.id !== accountId).length > 0 && (
-                <div>
-                  <span className={labelClass}>Also save to</span>
-                  <div className="flex flex-wrap gap-2">
-                    {accounts
-                      .filter((account) => account.id !== accountId)
-                      .map((account) => (
-                        <label
-                          key={account.id}
-                          className="flex cursor-pointer items-center gap-2 rounded-control bg-bg-input px-3 py-2 text-[12px] text-text-muted"
-                        >
-                          <input
-                            type="checkbox"
-                            checked={values.copyAccountIds.includes(account.id)}
-                            onChange={() =>
-                              form.setFieldValue(
-                                "copyAccountIds",
-                                values.copyAccountIds.includes(account.id)
-                                  ? values.copyAccountIds.filter((id) => id !== account.id)
-                                  : [...values.copyAccountIds, account.id],
-                              )
-                            }
-                          />
-                          {account.name}
-                        </label>
-                      ))}
-                  </div>
-                </div>
-              )}
-              {ocrExtract && (
-                <div>
-                  <span className={labelClass}>Symbols loaded from scan</span>
-                  <OcrSymbolGroupList
-                    groups={groupOcrBySymbol(ocrExtract)}
-                    selected=""
-                    logged={new Set()}
-                    onSelect={() => {}}
-                    readOnly
-                  />
-                </div>
-              )}
-              {ocrWarnings.length > 0 && (
-                <ul className="text-[10px] text-text-muted" data-testid="ocr-warnings">
-                  {ocrWarnings.map((warning) => (
-                    <li
-                      key={warning}
-                      className={
-                        /vision extract|commission|Trades tab|review fills|no usable fills/i.test(
-                          warning,
-                        )
-                          ? "text-signal"
-                          : undefined
-                      }
-                    >
-                      · {warning}
-                    </li>
-                  ))}
-                </ul>
-              )}
-              {values.trades.map((block, index) => (
-                <SymbolCard
-                  key={block.key}
-                  form={form}
-                  block={block}
-                  index={index}
-                  currency={currency}
-                  locale={locale}
-                  removable={values.trades.length > 1}
-                  pending={pending}
-                  setups={setups}
-                  regularTags={regularTags}
-                  mistakeTags={mistakeTags}
-                  screenshotFiles={pendingFilesByKey[block.key] ?? []}
-                  maxScreenshots={maxScreenshots}
-                  onAddScreenshots={(incoming) =>
-                    setPendingFilesByKey((prev) => ({
-                      ...prev,
-                      [block.key]: capScreenshots(
-                        [...(prev[block.key] ?? []), ...incoming],
-                        maxScreenshots,
-                      ),
-                    }))
-                  }
-                  onRemoveScreenshot={(fileIndex) =>
-                    setPendingFilesByKey((prev) => ({
-                      ...prev,
-                      [block.key]: (prev[block.key] ?? []).filter((_, i) => i !== fileIndex),
-                    }))
-                  }
-                />
-              ))}
-              <Button
-                type="button"
-                variant="secondary"
-                size="lg"
-                onClick={() => form.setFieldValue("trades", [...values.trades, emptySymbolTrade()])}
-                disabled={pending}
-                className="mx-auto gap-1.5"
+            {isEditMode && !editHydrated && !editSource && editTradeQ.isLoading ? (
+              <p className="mt-6 text-center text-[13px] text-text-muted">Loading trade…</p>
+            ) : isEditMode && !editHydrated && !editSource && editTradeQ.isError ? (
+              <p className="mt-6 text-center text-[13px] text-loss">
+                Could not load trade for editing.
+              </p>
+            ) : isEditMode && !editHydrated ? (
+              <p className="mt-6 text-center text-[13px] text-text-muted">Loading trade…</p>
+            ) : (
+              <form
+                key={isEditMode ? `edit-${editTradeId}-${editFormKey}` : "new-trade"}
+                className="mt-4 flex flex-col gap-4"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  void form.handleSubmit();
+                }}
               >
-                <Plus size={15} />
-                Add symbol
-              </Button>
-              {submitError && <p className="text-xs text-loss">{submitError}</p>}
-            </form>
+                <div className="flex flex-wrap items-end gap-3">
+                  <div className="min-w-48 flex-1">
+                    <label className={labelClass}>Account</label>
+                    <NativeSelect
+                      aria-label="Account"
+                      value={accountId}
+                      onChange={(e) => form.setFieldValue("accountId", e.target.value)}
+                      disabled={isEditMode}
+                      className="w-full text-[12px]"
+                      wrapperClassName="w-full"
+                    >
+                      {accounts.map((a) => (
+                        <NativeSelectOption key={a.id} value={a.id}>
+                          {a.name}
+                        </NativeSelectOption>
+                      ))}
+                    </NativeSelect>
+                  </div>
+                  {!isEditMode && (
+                    <>
+                      <Button
+                        type="button"
+                        disabled={ocrParse.isPending || ocrSettingsLoading}
+                        onClick={onScanClick}
+                        className={ocrScanButtonClass(visionReady, ocrParse.isPending)}
+                        aria-label="Prefill trade from screenshot"
+                        title={
+                          visionReady
+                            ? "Select one or more screenshots"
+                            : "Set up screenshot scan in Settings before scanning"
+                        }
+                      >
+                        {ocrParse.isPending ? (
+                          <Loader2
+                            size={14}
+                            strokeWidth={1.75}
+                            className="animate-spin"
+                            aria-hidden
+                          />
+                        ) : (
+                          <ScanLine size={14} aria-hidden />
+                        )}
+                        {ocrParse.isPending ? "Scanning…" : "Scan to fill"}
+                      </Button>
+                      <input
+                        ref={ocrFileRef}
+                        type="file"
+                        accept="image/png,image/jpeg,image/webp"
+                        multiple
+                        data-testid="ocr-scan-input"
+                        className="sr-only"
+                        onChange={(event) => {
+                          const files = Array.from(event.target.files ?? []);
+                          event.target.value = "";
+                          if (files.length) void scan(files);
+                        }}
+                      />
+                    </>
+                  )}
+                </div>
+                {!isEditMode &&
+                  accounts.filter((account) => account.id !== accountId).length > 0 && (
+                    <div>
+                      <span className={labelClass}>Also save to</span>
+                      <div className="flex flex-wrap gap-2">
+                        {accounts
+                          .filter((account) => account.id !== accountId)
+                          .map((account) => (
+                            <label
+                              key={account.id}
+                              className="flex cursor-pointer items-center gap-2 rounded-control bg-bg-input px-3 py-2 text-[12px] text-text-muted"
+                            >
+                              <input
+                                type="checkbox"
+                                checked={values.copyAccountIds.includes(account.id)}
+                                onChange={() =>
+                                  form.setFieldValue(
+                                    "copyAccountIds",
+                                    values.copyAccountIds.includes(account.id)
+                                      ? values.copyAccountIds.filter((id) => id !== account.id)
+                                      : [...values.copyAccountIds, account.id],
+                                  )
+                                }
+                              />
+                              {account.name}
+                            </label>
+                          ))}
+                      </div>
+                    </div>
+                  )}
+                {!isEditMode && ocrExtract && (
+                  <OcrScanSummary groups={groupOcrBySymbol(ocrExtract)} warnings={ocrWarnings} />
+                )}
+                {values.trades.map((block, index) => (
+                  <SymbolCard
+                    key={block.key}
+                    form={form}
+                    block={block}
+                    index={index}
+                    currency={currency}
+                    locale={locale}
+                    removable={!isEditMode && values.trades.length > 1}
+                    pending={pending}
+                    setups={setups}
+                    regularTags={regularTags}
+                    mistakeTags={mistakeTags}
+                    screenshotFiles={pendingFilesByKey[block.key] ?? []}
+                    maxScreenshots={maxScreenshots}
+                    onAddScreenshots={(incoming) =>
+                      setPendingFilesByKey((prev) => ({
+                        ...prev,
+                        [block.key]: capScreenshots(
+                          [...(prev[block.key] ?? []), ...incoming],
+                          maxScreenshots,
+                        ),
+                      }))
+                    }
+                    onRemoveScreenshot={(fileIndex) =>
+                      setPendingFilesByKey((prev) => ({
+                        ...prev,
+                        [block.key]: (prev[block.key] ?? []).filter((_, i) => i !== fileIndex),
+                      }))
+                    }
+                  />
+                ))}
+                {!isEditMode && (
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="lg"
+                    onClick={() =>
+                      form.setFieldValue("trades", [...values.trades, emptySymbolTrade()])
+                    }
+                    disabled={pending}
+                    className="mx-auto gap-1.5"
+                  >
+                    <Plus size={15} />
+                    Add symbol
+                  </Button>
+                )}
+                {submitError && <p className="text-xs text-loss">{submitError}</p>}
+              </form>
+            )}
           </DrawerBody>
           <DrawerFooter>
             <div className="flex w-full flex-col gap-3">
               {batchPreview ? (
-                <BatchTradeResultPreview batch={batchPreview} currency={currency} locale={locale} />
+                <BatchTradeResultPreview
+                  batch={batchPreview}
+                  currency={currency}
+                  locale={locale}
+                  accountNetPnl={accountBaseline.netPnl}
+                  accountCash={accountBaseline.cash}
+                />
               ) : singleFooter ? (
                 <TradeResultPreview
                   preview={singleFooter.preview}
@@ -1529,24 +1747,26 @@ export function NewTradeDrawer() {
                     type="button"
                     variant="default"
                     size="lg"
-                    disabled={pending}
+                    disabled={pending || (isEditMode && !editHydrated)}
                     onClick={() => {
                       void form.handleSubmit();
                     }}
                   >
-                    Save
+                    {pending ? "Saving…" : isEditMode ? "Save changes" : "Save"}
                   </Button>
                 </div>
                 <div className="flex gap-2">
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    size="lg"
-                    disabled={pending}
-                    onClick={reset}
-                  >
-                    Clear
-                  </Button>
+                  {!isEditMode && (
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="lg"
+                      disabled={pending}
+                      onClick={reset}
+                    >
+                      Clear
+                    </Button>
+                  )}
                   <Button
                     type="button"
                     variant="secondary"

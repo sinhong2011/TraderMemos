@@ -25,7 +25,15 @@ vi.mock("../../lib/hooks/useOcrSettings", () => ({
   useOcrSettings: () => mockOcrSettings(),
 }));
 vi.mock("../../lib/hooks/useAccounts", () => ({
-  useAccounts: () => ({ data: [{ id: "a1", name: "Default", base_currency: "USD" }] }),
+  useAccounts: () => ({
+    data: [{ id: "a1", name: "Default", base_currency: "USD", starting_balance: 10000 }],
+  }),
+}));
+vi.mock("../../lib/hooks/useAnalytics", () => ({
+  useSummary: () => ({ data: { net_pnl: -50 }, isLoading: false }),
+}));
+vi.mock("../../lib/hooks/useCash", () => ({
+  useCash: () => ({ data: [], isLoading: false }),
 }));
 vi.mock("../../lib/hooks/useSetups", () => ({
   useSetups: () => ({ data: [{ id: "s1", name: "Breakout" }] }),
@@ -238,7 +246,12 @@ describe("NewTradeDrawer", () => {
     );
     expect(screen.getByLabelText("Symbol")).toHaveValue("AAPL");
     expect(screen.getByLabelText("Symbol 2")).toHaveValue("TSLA");
-    expect(screen.getByRole("listbox", { name: "Symbols in scan" })).toBeVisible();
+    expect(screen.getByTestId("ocr-scan-summary")).toBeVisible();
+    expect(screen.getByRole("button", { name: "Scan info" })).toHaveAttribute(
+      "aria-expanded",
+      "false",
+    );
+    expect(screen.queryByRole("listbox", { name: "Symbols in scan" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /Save & next/i })).not.toBeInTheDocument();
   });
 

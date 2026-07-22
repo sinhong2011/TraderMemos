@@ -1,11 +1,11 @@
-import { ArrowLeft, CircleDashed, Pencil, Plus, Trash2, Zap } from "lucide-react";
+import { ArrowLeft, Pencil, Trash2, Zap } from "lucide-react";
 import {
   forwardRef,
   useEffect,
+  useId,
   useImperativeHandle,
   useRef,
   useState,
-  type CSSProperties,
   type ReactNode,
 } from "react";
 import { Card } from "../../components/Card";
@@ -21,24 +21,21 @@ import { Modal } from "../../components/Modal";
 import { Page } from "../../components/Page";
 import { Pill, type PillTone } from "../../components/Pill";
 import { SignalAmountInput } from "../../components/SignalAmountInput";
-import { SignalDatePicker } from "../../components/SignalDatePicker";
-import { SignalDateTimePicker } from "../../components/SignalDateTimePicker";
 import { SignalField } from "../../components/SignalField";
 import { SignalInput, SignalTextarea } from "../../components/SignalInput";
 import { SignalSelect } from "../../components/SignalSelect";
 import { SignalToggle } from "../../components/SignalToggle";
-import { signalInputClass, signalLabelClass } from "../../components/signal-field-styles";
-import { JournalScreenshotUpload } from "../../components/JournalScreenshotUpload";
+import { signalLabelClass } from "../../components/signal-field-styles";
 import { Skeleton } from "../../components/Skeleton";
 import { GradeControl } from "../../components/GradeControl";
 import { marketLabel } from "../../components/tradeColumns";
+import { formatOptionMarketChip, optionContractFromFills } from "../../lib/optionContract";
 import { Button } from "../../components/ui/button";
 import { heroPnlClass, pnlColor } from "../../components/theme-tokens";
 import { cn } from "../../lib/cn";
-import { getToken } from "../../lib/api/client";
-import type { Execution, Setup, Tag, TradeAttachment, TradeDetail } from "../../lib/api/types";
-import { localDateString } from "../../lib/dateRangePresets";
-import { fmtMoney, fmtSignedMoney } from "../../lib/format";
+import type { Setup, Tag, TradeDetail } from "../../lib/api/types";
+import { fmtDateTime, fmtMoney, fmtSignedMoney, fmtTime } from "../../lib/format";
+
 import {
   buildStructuredJournalNotes,
   EMOTIONAL_STATES,
@@ -53,46 +50,7 @@ import {
   type TradeInsights,
 } from "../../lib/tradeInsights";
 import { gradeFromInt, intFromGrade, TRADE_SESSIONS, type TradeGrade } from "../../lib/tradeGrades";
-import { usePrivacyMode } from "../../lib/displayPrefs";
-
-/** Matches New Trade drawer execution row rhythm. */
-const FILL_COLS = "72px minmax(140px,1.4fr) 72px 88px 96px 72px 40px";
-const FILL_COLS_VIEW = "72px minmax(140px,1.4fr) 72px 88px 96px 72px";
-
-function fillGridStyle(editable: boolean): CSSProperties {
-  return { gridTemplateColumns: editable ? FILL_COLS : FILL_COLS_VIEW };
-}
-const sectionLabelClass =
-  "mb-2 block text-[10px] font-semibold uppercase tracking-widest text-text-muted";
-
-/** Collapsed-by-default section — same pattern as New Trade drawer. */
-function CollapsibleSection({
-  title,
-  summary,
-  children,
-  defaultOpen = false,
-}: {
-  title: string;
-  summary?: string;
-  children: ReactNode;
-  defaultOpen?: boolean;
-}) {
-  const [open, setOpen] = useState(defaultOpen);
-  return (
-    <Collapsible open={open} onOpenChange={setOpen} className="gap-3 pt-1">
-      <CollapsibleTrigger className="w-full" aria-label={title}>
-        <span className="text-[12px] font-bold uppercase tracking-widest text-text">{title}</span>
-        {!open && summary ? (
-          <span className="truncate text-[10px] text-text-muted">{summary}</span>
-        ) : null}
-        <CollapsibleChevron />
-      </CollapsibleTrigger>
-      <CollapsibleContent animation="height">
-        <div className="flex flex-col gap-4 pt-1">{children}</div>
-      </CollapsibleContent>
-    </Collapsible>
-  );
-}
+import { getDisplayTimeOpts, useDisplayTimePrefs, usePrivacyMode } from "../../lib/displayPrefs";
 
 function tradeOutcome(trade: TradeDetail): { label: string; tone: PillTone } {
   if (trade.status !== "closed") return { label: "OPEN", tone: "accent" };
@@ -104,21 +62,13 @@ function tradeOutcome(trade: TradeDetail): { label: string; tone: PillTone } {
 // Helpers
 // ---------------------------------------------------------------------------
 
-function fmtDateTime(iso: string): string {
-  return new Date(iso).toLocaleString(intlLocale(), {
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
-function sameCalendarDay(a: Date, b: Date): boolean {
-  return (
-    a.getFullYear() === b.getFullYear() &&
-    a.getMonth() === b.getMonth() &&
-    a.getDate() === b.getDate()
-  );
+function calendarDayKey(d: Date, timeZone: string): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(d);
 }
 
 /** Compact open→close line for the header (identity, not a metric dump). */
@@ -126,10 +76,12 @@ function fmtTradeTimeline(trade: TradeDetail, hold: string): string {
   const opened = new Date(trade.opened_at);
   if (Number.isNaN(opened.getTime())) return "—";
 
+  const { timeZone } = getDisplayTimeOpts();
   const day = opened.toLocaleDateString(intlLocale(), {
     month: "short",
     day: "numeric",
     year: "numeric",
+    timeZone,
   });
   const holdPart = hold && hold !== "-" ? ` · ${hold}` : "";
 
@@ -140,142 +92,11 @@ function fmtTradeTimeline(trade: TradeDetail, hold: string): string {
   const closed = new Date(trade.closed_at);
   if (Number.isNaN(closed.getTime())) return `${day}${holdPart}`;
 
-  if (sameCalendarDay(opened, closed)) {
-    const t0 = opened.toLocaleTimeString(intlLocale(), { hour: "2-digit", minute: "2-digit" });
-    const t1 = closed.toLocaleTimeString(intlLocale(), { hour: "2-digit", minute: "2-digit" });
-    return `${day} · ${t0} → ${t1}${holdPart}`;
+  if (calendarDayKey(opened, timeZone) === calendarDayKey(closed, timeZone)) {
+    return `${day} · ${fmtTime(trade.opened_at)} → ${fmtTime(trade.closed_at)}${holdPart}`;
   }
 
   return `${fmtDateTime(trade.opened_at)} → ${fmtDateTime(trade.closed_at)}${holdPart}`;
-}
-
-/** Per-fill notional chip — same surface as New Trade drawer amount cells. */
-function FillAmountChip({
-  quantity,
-  price,
-  multiplier,
-  currency,
-}: {
-  quantity: number;
-  price: number;
-  multiplier: number;
-  currency: string;
-}) {
-  const amount = quantity > 0 && price > 0 ? quantity * price * multiplier : null;
-  const empty = amount == null;
-  return (
-    <span
-      className={cn(
-        signalInputClass,
-        "inline-flex cursor-default items-center justify-center px-2 text-[12px] tabular-nums tracking-[-0.01em] hover:bg-bg-input",
-        empty ? "text-text-dim" : "font-medium",
-      )}
-      title={empty ? undefined : "Qty × price × multiplier"}
-    >
-      {empty ? (
-        <CircleDashed size={14} strokeWidth={1.75} aria-hidden />
-      ) : (
-        fmtMoney(amount, currency, intlLocale())
-      )}
-    </span>
-  );
-}
-
-function FillSideChip({
-  side,
-  onToggle,
-  disabled,
-}: {
-  side: "buy" | "sell";
-  onToggle?: () => void;
-  disabled?: boolean;
-}) {
-  const interactive = Boolean(onToggle);
-  return (
-    <Button
-      type="button"
-      variant="ghost"
-      size="lg"
-      disabled={disabled || !interactive}
-      aria-label={interactive ? `Toggle fill side (${side})` : `${side} fill`}
-      onClick={onToggle}
-      className={cn(
-        "font-bold hover:bg-transparent disabled:opacity-100",
-        side === "buy" ? "bg-profit/15 text-profit" : "bg-loss/15 text-loss",
-        !interactive && "cursor-default",
-      )}
-    >
-      {side.toUpperCase()}
-    </Button>
-  );
-}
-
-function FillColHeaders({ editable }: { editable: boolean }) {
-  return (
-    <div
-      className="grid gap-2 text-[10px] font-medium uppercase tracking-widest text-text-muted"
-      style={fillGridStyle(editable)}
-    >
-      <span>Action</span>
-      <span>Date / Time</span>
-      <span>Qty</span>
-      <span>Price</span>
-      <span>Amount</span>
-      <span>Fee</span>
-      {editable ? <span /> : null}
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// AuthedImage
-// ---------------------------------------------------------------------------
-
-interface AuthedImageProps {
-  attachmentId: string;
-  filename: string;
-}
-
-function AuthedImage({ attachmentId, filename }: AuthedImageProps) {
-  const [src, setSrc] = useState<string | null>(null);
-  const [error, setError] = useState(false);
-
-  useEffect(() => {
-    let objectUrl: string | null = null;
-    const t = getToken();
-    const BASE = (import.meta.env.VITE_API as string) ?? "/api/v1";
-    fetch(`${BASE}/attachments/${attachmentId}/file`, {
-      headers: t ? { Authorization: `Bearer ${t}` } : {},
-    })
-      .then((r) => {
-        if (!r.ok) throw new Error(`${r.status}`);
-        return r.blob();
-      })
-      .then((blob) => {
-        objectUrl = URL.createObjectURL(blob);
-        setSrc(objectUrl);
-      })
-      .catch(() => setError(true));
-    return () => {
-      if (objectUrl) URL.revokeObjectURL(objectUrl);
-    };
-  }, [attachmentId]);
-
-  if (error) {
-    return (
-      <div className="flex aspect-video w-full items-center justify-center rounded-sharp bg-bg-hover px-2 text-center text-xs text-text-muted">
-        {filename}
-      </div>
-    );
-  }
-
-  if (!src) {
-    return <Skeleton height="120px" />;
-  }
-
-  return (
-    <img src={src} alt={filename} className="aspect-video w-full rounded-sharp object-cover" />
-  );
 }
 
 // ---------------------------------------------------------------------------
@@ -434,6 +255,9 @@ function TradeMetricsBento({
             <BentoMiniStat label="Hold">
               {insights.holdLabel === "-" ? "—" : insights.holdLabel}
             </BentoMiniStat>
+            {trade.instrument_type === "option" ? (
+              <BentoMiniStat label="Mult">×{trade.fills[0]?.multiplier || 100}</BentoMiniStat>
+            ) : null}
           </div>
         </BentoCell>
 
@@ -523,6 +347,7 @@ function signedOrDash(v: number | null, currency: string): ReactNode {
 
 function TradeHeader({ trade, insights }: { trade: TradeDetail; insights: TradeInsights }) {
   usePrivacyMode();
+  useDisplayTimePrefs();
   const currency = trade.pnl_currency;
   const pnl = trade.net_pnl;
   const rMultiple = trade.r_multiple;
@@ -531,7 +356,11 @@ function TradeHeader({ trade, insights }: { trade: TradeDetail; insights: TradeI
   const hasDividends = trade.dividend_total != null && trade.dividend_total !== 0;
   const hold = insights.holdLabel;
   const timeline = fmtTradeTimeline(trade, hold);
-  const market = marketLabel(trade.instrument_type);
+  const market = formatOptionMarketChip(
+    trade.instrument_type,
+    marketLabel(trade.instrument_type),
+    optionContractFromFills(trade.fills),
+  );
   const direction = trade.direction.toUpperCase();
   const hasPlan =
     insights.target != null ||
@@ -750,363 +579,6 @@ function TradeCoachPanel({ trade, insights }: { trade: TradeDetail; insights: Tr
         </CollapsibleContent>
       </Collapsible>
     </section>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Fills (New Trade drawer execution-row pattern)
-// ---------------------------------------------------------------------------
-
-interface FillsTableProps {
-  fills: Execution[];
-  currency: string;
-  multiplier: number;
-  editable?: boolean;
-  mutating?: boolean;
-  onEditFill?: (fill: Execution, input: AddFillInput) => void;
-  onDeleteFill?: (fill: Execution) => void;
-}
-
-function FillsTable({
-  fills,
-  currency,
-  multiplier,
-  editable = true,
-  mutating = false,
-  onEditFill,
-  onDeleteFill,
-}: FillsTableProps) {
-  usePrivacyMode();
-  const [editing, setEditing] = useState<Execution | null>(null);
-  const [deleting, setDeleting] = useState<Execution | null>(null);
-  const canMutate = editable && Boolean(onEditFill || onDeleteFill);
-
-  if (fills.length === 0) {
-    return <EmptyState title="No fills" hint="Executions will appear here once imported." />;
-  }
-
-  return (
-    <>
-      <div className="flex flex-col gap-2 overflow-x-auto pb-1">
-        <FillColHeaders editable={editable} />
-        {fills.map((fill) => {
-          const feeTotal = fill.fees + fill.commission;
-          return (
-            <div key={fill.id} className="grid items-center gap-2" style={fillGridStyle(editable)}>
-              <FillSideChip side={fill.side === "sell" ? "sell" : "buy"} />
-              <span
-                className={cn(
-                  signalInputClass,
-                  "inline-flex cursor-default items-center truncate px-2.5 text-[12px] tabular-nums text-text-muted hover:bg-bg-input",
-                )}
-              >
-                {fmtDateTime(fill.executed_at)}
-              </span>
-              <span
-                className={cn(
-                  signalInputClass,
-                  "inline-flex cursor-default items-center justify-center px-2 text-[12px] tabular-nums hover:bg-bg-input",
-                )}
-              >
-                {fill.quantity}
-              </span>
-              <span
-                className={cn(
-                  signalInputClass,
-                  "inline-flex cursor-default items-center justify-center px-2 text-[12px] tabular-nums hover:bg-bg-input",
-                )}
-              >
-                {fmtMoney(fill.price, currency, intlLocale())}
-              </span>
-              <FillAmountChip
-                quantity={fill.quantity}
-                price={fill.price}
-                multiplier={multiplier}
-                currency={currency}
-              />
-              <span
-                className={cn(
-                  signalInputClass,
-                  "inline-flex cursor-default items-center justify-center px-2 text-[12px] tabular-nums text-text-muted hover:bg-bg-input",
-                )}
-              >
-                {fmtMoney(feeTotal, currency, intlLocale())}
-              </span>
-              {canMutate ? (
-                <div className="flex items-center justify-end gap-0.5">
-                  {onEditFill && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon-sm"
-                      aria-label={`Edit ${fill.side} fill`}
-                      title="Edit fill"
-                      disabled={mutating}
-                      onClick={() => setEditing(fill)}
-                    >
-                      <Pencil size={13} strokeWidth={1.5} aria-hidden />
-                    </Button>
-                  )}
-                  {onDeleteFill && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon-sm"
-                      aria-label={`Delete ${fill.side} fill`}
-                      title="Delete fill"
-                      disabled={mutating}
-                      onClick={() => setDeleting(fill)}
-                      className="hover:text-loss"
-                    >
-                      <Trash2 size={13} strokeWidth={1.5} aria-hidden />
-                    </Button>
-                  )}
-                </div>
-              ) : null}
-            </div>
-          );
-        })}
-      </div>
-
-      {editing && onEditFill && (
-        <Modal
-          open
-          onOpenChange={(open) => {
-            if (!open) setEditing(null);
-          }}
-          title="Edit fill"
-          className="max-w-[min(720px,94vw)]"
-          footer={
-            <div className="flex w-full justify-end gap-2">
-              <Button
-                type="button"
-                variant="ghost"
-                disabled={mutating}
-                onClick={() => setEditing(null)}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" form="edit-fill-form" variant="soft" disabled={mutating}>
-                {mutating ? "Saving…" : "Save fill"}
-              </Button>
-            </div>
-          }
-        >
-          <FillForm
-            formId="edit-fill-form"
-            initial={editing}
-            currency={currency}
-            multiplier={multiplier}
-            busy={mutating}
-            onSubmit={(input) => {
-              onEditFill(editing, input);
-              setEditing(null);
-            }}
-          />
-        </Modal>
-      )}
-
-      {deleting && onDeleteFill && (
-        <Modal
-          open
-          onOpenChange={(open) => {
-            if (!open) setDeleting(null);
-          }}
-          title="Delete fill?"
-          className="max-w-[min(420px,94vw)]"
-          footer={
-            <div className="flex w-full justify-end gap-2">
-              <Button
-                type="button"
-                variant="ghost"
-                disabled={mutating}
-                onClick={() => setDeleting(null)}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="button"
-                variant="destructive"
-                disabled={mutating}
-                onClick={() => {
-                  onDeleteFill(deleting);
-                  setDeleting(null);
-                }}
-              >
-                {mutating ? "Deleting…" : "Delete"}
-              </Button>
-            </div>
-          }
-        >
-          <p className="m-0 text-xs leading-relaxed text-text-muted">
-            Removes this {deleting.side.toUpperCase()} {deleting.quantity} @{" "}
-            {fmtMoney(deleting.price, currency, intlLocale())} fill and regroups the position. This
-            cannot be undone.
-          </p>
-        </Modal>
-      )}
-    </>
-  );
-}
-
-export interface AddFillInput {
-  side: "buy" | "sell";
-  quantity: number;
-  price: number;
-  fees: number;
-  commission: number;
-  executed_at: string;
-}
-
-function toLocalInputValue(d = new Date()): string {
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-}
-
-function FillForm({
-  formId,
-  initial,
-  defaultSide = "buy",
-  currency,
-  multiplier,
-  busy,
-  onSubmit,
-  submitLabel,
-}: {
-  formId?: string;
-  initial?: Execution;
-  defaultSide?: "buy" | "sell";
-  currency: string;
-  multiplier: number;
-  busy: boolean;
-  onSubmit: (input: AddFillInput) => void;
-  submitLabel?: string;
-}) {
-  const [side, setSide] = useState<"buy" | "sell">(
-    (initial?.side === "sell" ? "sell" : initial?.side === "buy" ? "buy" : defaultSide) as
-      | "buy"
-      | "sell",
-  );
-  const [qty, setQty] = useState(initial ? String(initial.quantity) : "");
-  const [price, setPrice] = useState(initial ? String(initial.price) : "");
-  const [fees, setFees] = useState(initial ? String(initial.fees + initial.commission) : "");
-  const [at, setAt] = useState(
-    initial ? toLocalInputValue(new Date(initial.executed_at)) : toLocalInputValue(),
-  );
-
-  const qtyN = Number.parseFloat(qty) || 0;
-  const priceN = Number.parseFloat(price) || 0;
-
-  function submit(e: React.FormEvent) {
-    e.preventDefault();
-    const quantity = Number.parseFloat(qty);
-    const px = Number.parseFloat(price);
-    const fee = Number.parseFloat(fees) || 0;
-    if (!(quantity > 0) || !(px >= 0)) return;
-    onSubmit({
-      side,
-      quantity,
-      price: px,
-      fees: fee,
-      commission: 0,
-      executed_at: new Date(at).toISOString(),
-    });
-    if (!initial) {
-      setQty("");
-      setPrice("");
-      setFees("");
-    }
-  }
-
-  const qtyId = formId ? `${formId}-qty` : "fill-qty";
-  const priceId = formId ? `${formId}-price` : "fill-price";
-  const feeId = formId ? `${formId}-fee` : "fill-fee";
-  const atId = formId ? `${formId}-at` : "fill-at";
-
-  return (
-    <form id={formId} onSubmit={submit} className={formId ? "px-1" : "pt-1"}>
-      <div className="grid items-start gap-2" style={fillGridStyle(true)}>
-        <FillSideChip
-          side={side}
-          onToggle={() => setSide((s) => (s === "buy" ? "sell" : "buy"))}
-          disabled={busy}
-        />
-        <SignalDateTimePicker id={atId} aria-label="Fill datetime" value={at} onChange={setAt} />
-        <SignalAmountInput
-          id={qtyId}
-          aria-label="Fill qty"
-          value={qty}
-          onValueChange={setQty}
-          placeholder="Qty"
-          compact
-          required
-          className="text-center"
-        />
-        <SignalAmountInput
-          id={priceId}
-          aria-label="Fill price"
-          value={price}
-          onValueChange={setPrice}
-          placeholder="Price"
-          compact
-          required
-          className="text-center"
-        />
-        <FillAmountChip
-          quantity={qtyN}
-          price={priceN}
-          multiplier={multiplier}
-          currency={currency}
-        />
-        <SignalAmountInput
-          id={feeId}
-          aria-label="Fill fee"
-          value={fees}
-          onValueChange={setFees}
-          placeholder="Fee"
-          compact
-          className="text-center"
-        />
-        {!formId ? (
-          <Button
-            type="submit"
-            variant="default"
-            size="icon"
-            disabled={busy}
-            aria-label={busy ? "Adding fill" : (submitLabel ?? "Add fill")}
-            className="justify-self-end"
-          >
-            <Plus size={16} strokeWidth={1.75} aria-hidden />
-          </Button>
-        ) : (
-          <span />
-        )}
-      </div>
-    </form>
-  );
-}
-
-function AddFillForm({
-  defaultSide,
-  currency,
-  multiplier,
-  busy,
-  onSubmit,
-}: {
-  defaultSide: "buy" | "sell";
-  currency: string;
-  multiplier: number;
-  busy: boolean;
-  onSubmit: (input: AddFillInput) => void;
-}) {
-  return (
-    <FillForm
-      defaultSide={defaultSide}
-      currency={currency}
-      multiplier={multiplier}
-      busy={busy}
-      onSubmit={onSubmit}
-    />
   );
 }
 
@@ -1750,148 +1222,6 @@ export const JournalPanel = forwardRef<JournalPanelHandle, JournalPanelProps>(fu
 });
 
 // ---------------------------------------------------------------------------
-// Dividend panel (New Trade drawer pattern)
-// ---------------------------------------------------------------------------
-
-export interface DividendFormInput {
-  amount: number;
-  date: string;
-  note: string;
-}
-
-function DividendPanel({
-  currency,
-  symbol,
-  direction,
-  existingTotal,
-  busy,
-  onSave,
-}: {
-  currency: string;
-  symbol: string;
-  direction: string;
-  existingTotal: number;
-  busy: boolean;
-  onSave: (input: DividendFormInput) => void;
-}) {
-  const [amount, setAmount] = useState("");
-  const [date, setDate] = useState(() => localDateString(new Date()));
-  const [note, setNote] = useState("");
-
-  function submit() {
-    const n = Number.parseFloat(amount);
-    if (!(n > 0) || !date) return;
-    onSave({ amount: n, date, note: note.trim() });
-    setAmount("");
-    setNote("");
-  }
-
-  return (
-    <div className="flex flex-col gap-4">
-      <p className="m-0 text-[10px] text-text-muted">
-        Optional payout on this symbol. Amount rolls into trade P&amp;L
-        {direction === "short" ? " (shorts as a debit)" : ""}.
-      </p>
-      {existingTotal !== 0 && (
-        <p className="m-0 text-[12px] tabular-nums text-text-muted">
-          Linked total{" "}
-          <span className={cn("font-medium", pnlColor(existingTotal))}>
-            {fmtSignedMoney(existingTotal, currency, intlLocale())}
-          </span>
-        </p>
-      )}
-      <div className="grid grid-cols-2 gap-3">
-        <SignalField label={`Amount (${currency})`}>
-          <SignalAmountInput
-            aria-label="Dividend amount"
-            value={amount}
-            onValueChange={setAmount}
-            placeholder="0.00"
-          />
-        </SignalField>
-        <div>
-          <span className={signalLabelClass}>Date</span>
-          <SignalDatePicker aria-label="Dividend date" value={date} onChange={setDate} />
-        </div>
-      </div>
-      <SignalField label="Note">
-        <SignalInput
-          aria-label="Dividend note"
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-          placeholder={`${symbol} dividend`}
-        />
-      </SignalField>
-      <Button
-        type="button"
-        variant="soft"
-        disabled={busy || !(Number.parseFloat(amount) > 0) || !date}
-        onClick={submit}
-        className="h-9 w-full"
-      >
-        {busy ? "Saving…" : "Add dividend"}
-      </Button>
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Screenshots panel
-// ---------------------------------------------------------------------------
-
-interface ScreenshotsPanelProps {
-  attachments: TradeAttachment[];
-  loading: boolean;
-  uploading: boolean;
-  onUpload: (file: File) => void;
-  onDelete: (attachmentId: string) => void;
-  readOnly?: boolean;
-}
-
-function ScreenshotsPanel({
-  attachments,
-  loading,
-  uploading,
-  onUpload,
-  onDelete,
-  readOnly = false,
-}: ScreenshotsPanelProps) {
-  if (loading) {
-    return <Skeleton height="120px" />;
-  }
-
-  if (readOnly && attachments.length === 0) {
-    return <p className="m-0 text-[13px] text-text-dim">—</p>;
-  }
-
-  return (
-    <JournalScreenshotUpload
-      items={attachments.map((att) => ({
-        key: att.id,
-        name: att.filename,
-        sizeBytes: att.size_bytes,
-        attachmentId: att.id,
-        preview: <AuthedImage attachmentId={att.id} filename={att.filename} />,
-        state: uploading ? "uploading" : "done",
-        onRemove: readOnly ? undefined : () => onDelete(att.id),
-      }))}
-      onAddFiles={
-        readOnly
-          ? undefined
-          : (files) => {
-              for (const file of files) onUpload(file);
-            }
-      }
-      disabled={readOnly}
-      uploading={uploading}
-      addLabel="Upload screenshot"
-      addDescription="PNG, JPG · one or more images"
-      inputTestId="trade-screenshot-input"
-    />
-  );
-}
-
-// ---------------------------------------------------------------------------
 // TradeDetailView
 // ---------------------------------------------------------------------------
 
@@ -1899,66 +1229,24 @@ export interface TradeDetailViewProps {
   trade: TradeDetail | undefined;
   loading: boolean;
   error: boolean;
-  setups: Setup[];
-  allTags: Tag[];
-  attachments: TradeAttachment[];
-  attachmentsLoading: boolean;
-  saving: boolean;
-  uploading: boolean;
-  addingFill?: boolean;
-  mutatingFill?: boolean;
-  savingDividend?: boolean;
-  onSave: (state: JournalFormState) => void;
-  onUpload: (file: File) => void;
-  onDeleteAttachment: (attachmentId: string) => void;
-  onAddFill?: (input: AddFillInput) => void;
-  onEditFill?: (fillId: string, input: AddFillInput) => void;
-  onDeleteFill?: (fillId: string) => void;
-  onSaveDividend?: (input: DividendFormInput) => void;
   onBack?: () => void;
+  onEdit?: () => void;
+  onDelete?: () => void | Promise<void>;
+  deleting?: boolean;
 }
 
 export function TradeDetailView({
   trade,
   loading,
   error,
-  setups,
-  allTags,
-  attachments,
-  attachmentsLoading,
-  saving,
-  uploading,
-  addingFill = false,
-  mutatingFill = false,
-  savingDividend = false,
-  onSave,
-  onUpload,
-  onDeleteAttachment,
-  onAddFill,
-  onEditFill,
-  onDeleteFill,
-  onSaveDividend,
   onBack,
+  onEdit,
+  onDelete,
+  deleting = false,
 }: TradeDetailViewProps) {
-  const journalRef = useRef<JournalPanelHandle>(null);
-  const [formEditing, setFormEditing] = useState(false);
-  const wasSaving = useRef(false);
-
-  useEffect(() => {
-    setFormEditing(false);
-  }, [trade?.id]);
-
-  useEffect(() => {
-    if (wasSaving.current && !saving && formEditing) {
-      setFormEditing(false);
-    }
-    wasSaving.current = saving;
-  }, [saving, formEditing]);
-
-  function cancelFormEdit() {
-    journalRef.current?.reset();
-    setFormEditing(false);
-  }
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [typedConfirm, setTypedConfirm] = useState("");
+  const confirmInputId = useId();
 
   if (loading) {
     return (
@@ -1987,49 +1275,110 @@ export function TradeDetailView({
     );
   }
 
-  const customTags = allTags.filter((t) => t.kind === "custom");
-  const mistakeTags = allTags.filter((t) => t.kind === "mistake");
-
-  const initialSetupIds =
-    trade.setup_ids && trade.setup_ids.length > 0
-      ? trade.setup_ids
-      : trade.setup?.id
-        ? [trade.setup.id]
-        : [];
-  const journalInitial: JournalFormState = hydrateJournalForm({
-    notes: trade.notes ?? "",
-    session: "",
-    entry_reason: "",
-    exit_reason: "",
-    review_notes: "",
-    setup_id: initialSetupIds[0] ?? "",
-    setup_ids: initialSetupIds,
-    initial_risk: trade.initial_risk != null ? String(trade.initial_risk) : "",
-    target_price: trade.target_price != null ? String(trade.target_price) : "",
-    stop_price: trade.stop_price != null ? String(trade.stop_price) : "",
-    emotional_state: trade.emotional_state ?? "",
-    confidence: trade.confidence != null ? String(trade.confidence) : "",
-    trade_quality: trade.trade_quality != null ? String(trade.trade_quality) : "",
-    mae: trade.mae != null ? String(trade.mae) : "",
-    mfe: trade.mfe != null ? String(trade.mfe) : "",
-    tag_ids: (trade.tags ?? []).map((t) => t.id),
-  });
-
   const insights = computeTradeInsights(trade);
+  const canDelete = typedConfirm.trim().toUpperCase() === trade.symbol.trim().toUpperCase();
+
+  const closeDeleteModal = (open: boolean) => {
+    setDeleteOpen(open);
+    if (!open) setTypedConfirm("");
+  };
 
   return (
     <Page fill>
-      {onBack && (
-        <Button
-          type="button"
-          variant="ghost"
-          onClick={onBack}
-          className="h-auto gap-1 self-start px-0 text-xs hover:bg-transparent"
+      <div className="flex items-center justify-between gap-3">
+        {onBack ? (
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={onBack}
+            className="h-auto gap-1 self-start px-0 text-xs hover:bg-transparent"
+          >
+            <ArrowLeft size={13} strokeWidth={1.5} />
+            Back to trades
+          </Button>
+        ) : (
+          <span />
+        )}
+        <div className="flex shrink-0 items-center gap-1.5">
+          {onEdit && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              className="shrink-0"
+              aria-label="Edit trade"
+              title="Edit trade"
+              onClick={onEdit}
+              disabled={deleting}
+            >
+              <Pencil size={15} strokeWidth={1.5} aria-hidden />
+            </Button>
+          )}
+          {onDelete ? (
+            <Button
+              type="button"
+              variant="destructive"
+              size="icon-sm"
+              aria-label="Remove trade"
+              title="Remove trade"
+              onClick={() => setDeleteOpen(true)}
+              disabled={deleting}
+            >
+              <Trash2 size={15} strokeWidth={1.5} aria-hidden />
+            </Button>
+          ) : null}
+        </div>
+      </div>
+
+      {onDelete ? (
+        <Modal
+          open={deleteOpen}
+          onOpenChange={closeDeleteModal}
+          title={`Remove ${trade.symbol}?`}
+          className="max-w-[min(336px,94vw)]"
+          footer={
+            <>
+              <Button
+                type="button"
+                variant="ghost"
+                disabled={deleting}
+                onClick={() => closeDeleteModal(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                variant="destructive"
+                disabled={!canDelete || deleting}
+                onClick={() => {
+                  void Promise.resolve(onDelete()).finally(() => closeDeleteModal(false));
+                }}
+                className="border-transparent bg-loss/15 hover:bg-loss/25"
+              >
+                {deleting ? "Removing…" : "Remove trade"}
+              </Button>
+            </>
+          }
         >
-          <ArrowLeft size={13} strokeWidth={1.5} />
-          Back to trades
-        </Button>
-      )}
+          <p className="m-0 text-[13px] leading-relaxed text-text-muted">
+            Permanently deletes this trade and all of its fills. This cannot be undone.
+          </p>
+          <div>
+            <label htmlFor={confirmInputId} className="mb-1.5 block text-[11px] text-text-dim">
+              Type <span className="font-medium text-text">{trade.symbol}</span> to confirm
+            </label>
+            <SignalInput
+              id={confirmInputId}
+              value={typedConfirm}
+              onChange={(e) => setTypedConfirm(e.target.value)}
+              autoFocus
+              autoComplete="off"
+              spellCheck={false}
+              aria-label={`Type ${trade.symbol} to confirm`}
+            />
+          </div>
+        </Modal>
+      ) : null}
 
       <TradeHeader trade={trade} insights={insights} />
 
@@ -2038,165 +1387,6 @@ export function TradeDetailView({
       </Card>
 
       <TradeCoachPanel trade={trade} insights={insights} />
-
-      <Card>
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center justify-between gap-2">
-            <span className={cn(sectionLabelClass, "mb-0")}>
-              {trade.symbol ? `Executions · ${trade.symbol}` : "Executions"}
-            </span>
-            {formEditing ? (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="h-8 shrink-0 text-xs"
-                onClick={cancelFormEdit}
-              >
-                Cancel
-              </Button>
-            ) : (
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-sm"
-                className="shrink-0"
-                aria-label="Edit trade log"
-                title="Edit trade log"
-                onClick={() => setFormEditing(true)}
-              >
-                <Pencil size={15} strokeWidth={1.5} aria-hidden />
-              </Button>
-            )}
-          </div>
-          <div>
-            <FillsTable
-              fills={trade.fills}
-              currency={trade.pnl_currency}
-              multiplier={trade.fills[0]?.multiplier || 1}
-              editable={formEditing}
-              mutating={mutatingFill || addingFill}
-              onEditFill={
-                formEditing && onEditFill
-                  ? (fill, input) => {
-                      onEditFill(fill.id, input);
-                    }
-                  : undefined
-              }
-              onDeleteFill={
-                formEditing && onDeleteFill
-                  ? (fill) => {
-                      onDeleteFill(fill.id);
-                    }
-                  : undefined
-              }
-            />
-            {formEditing && onAddFill && (
-              <AddFillForm
-                defaultSide={trade.direction === "short" ? "buy" : "sell"}
-                currency={trade.pnl_currency}
-                multiplier={trade.fills[0]?.multiplier || 1}
-                busy={addingFill}
-                onSubmit={onAddFill}
-              />
-            )}
-          </div>
-
-          <CollapsibleSection
-            title="Journal"
-            summary={
-              [
-                journalInitial.setup_ids.length
-                  ? `${journalInitial.setup_ids.length} setup${journalInitial.setup_ids.length === 1 ? "" : "s"}`
-                  : "",
-                journalInitial.session,
-                journalInitial.emotional_state,
-                attachments.length
-                  ? `${attachments.length} shot${attachments.length === 1 ? "" : "s"}`
-                  : "",
-              ]
-                .filter(Boolean)
-                .join(" · ") || undefined
-            }
-          >
-            <JournalPanel
-              ref={journalRef}
-              key={`${trade.id}-${formEditing ? "edit" : "view"}`}
-              tradeId={trade.id}
-              initialState={journalInitial}
-              setups={setups}
-              customTags={customTags}
-              mistakeTags={mistakeTags}
-              currency={trade.pnl_currency}
-              saving={saving}
-              onSave={onSave}
-              hideSave
-              readOnly={!formEditing}
-            >
-              <div>
-                <p className={signalLabelClass}>Screenshots</p>
-                <ScreenshotsPanel
-                  attachments={attachments}
-                  loading={attachmentsLoading}
-                  uploading={uploading}
-                  onUpload={onUpload}
-                  onDelete={onDeleteAttachment}
-                  readOnly={!formEditing}
-                />
-              </div>
-            </JournalPanel>
-          </CollapsibleSection>
-
-          {onSaveDividend && (
-            <CollapsibleSection
-              title="Dividend"
-              summary={
-                trade.dividend_total !== 0
-                  ? fmtSignedMoney(trade.dividend_total, trade.pnl_currency, intlLocale())
-                  : undefined
-              }
-            >
-              {formEditing ? (
-                <DividendPanel
-                  currency={trade.pnl_currency}
-                  symbol={trade.symbol}
-                  direction={trade.direction}
-                  existingTotal={trade.dividend_total}
-                  busy={savingDividend}
-                  onSave={onSaveDividend}
-                />
-              ) : (
-                <p className="m-0 text-[13px] text-text-muted">
-                  {trade.dividend_total !== 0 ? (
-                    <>
-                      Linked total{" "}
-                      <span
-                        className={cn("font-medium tabular-nums", pnlColor(trade.dividend_total))}
-                      >
-                        {fmtSignedMoney(trade.dividend_total, trade.pnl_currency, intlLocale())}
-                      </span>
-                    </>
-                  ) : (
-                    <span className="text-text-dim">No dividend recorded</span>
-                  )}
-                </p>
-              )}
-            </CollapsibleSection>
-          )}
-
-          {formEditing && (
-            <Button
-              type="button"
-              variant="soft"
-              onClick={() => journalRef.current?.save()}
-              disabled={saving}
-              className="h-9 w-full"
-            >
-              {saving ? "Saving..." : "Save"}
-            </Button>
-          )}
-        </div>
-      </Card>
     </Page>
   );
 }

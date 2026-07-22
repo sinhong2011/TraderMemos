@@ -157,6 +157,34 @@ export function ocrScanToastDescription(extract: TradeExtract): string {
   return `${n} symbol${n === 1 ? "" : "s"} ready to review.`;
 }
 
+const HIGHLIGHT_WARNING =
+  /vision extract|commission|Trades tab|review fills|no usable fills|no fills detected/i;
+
+/** Split OCR warnings into summary headline, highlighted tips, and detail lines. */
+export function partitionOcrWarnings(warnings: readonly string[]): {
+  headline: string | null;
+  highlights: string[];
+  details: string[];
+} {
+  let headline: string | null = null;
+  const highlights: string[] = [];
+  const details: string[] = [];
+  for (const raw of warnings) {
+    const w = raw.trim();
+    if (!w) continue;
+    if (/^merged \d+ screenshot/i.test(w) && !headline) {
+      headline = w;
+      continue;
+    }
+    if (HIGHLIGHT_WARNING.test(w)) {
+      highlights.push(w);
+      continue;
+    }
+    details.push(w);
+  }
+  return { headline, highlights, details };
+}
+
 /** Combine extracts from multiple screenshots into one fill set. */
 export function mergeTradeExtracts(parts: TradeExtract[]): TradeExtract {
   if (parts.length === 0) {

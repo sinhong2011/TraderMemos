@@ -7,6 +7,7 @@ import {
   nextOcrSymbol,
   ocrScanToastDescription,
   ocrSymbolsInExtract,
+  partitionOcrWarnings,
 } from "./ocrSymbolGroups";
 import type { TradeExtract } from "./api/ocr";
 
@@ -145,6 +146,21 @@ describe("ocrSymbolGroups", () => {
       }),
     ).toMatch(/no usable fills/);
     expect(ocrScanToastDescription({ ...multi, warnings: [] })).toMatch(/2 symbols ready/);
+  });
+
+  it("partitions warnings into headline, highlights, and details", () => {
+    expect(
+      partitionOcrWarnings([
+        "Merged 2 screenshots (13 fills).",
+        "vision extract — review fills before saving",
+        "[image 1] multiple symbols found",
+        "[image 2] missing execution times",
+      ]),
+    ).toEqual({
+      headline: "Merged 2 screenshots (13 fills).",
+      highlights: ["vision extract — review fills before saving"],
+      details: ["[image 1] multiple symbols found", "[image 2] missing execution times"],
+    });
   });
 });
 

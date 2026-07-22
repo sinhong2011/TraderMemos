@@ -1,6 +1,7 @@
 /** Build / flatten multi-symbol New Trade blocks. */
 
 import type { TradeExtract } from "./api/ocr";
+import type { TradeDetail } from "./api/types";
 import {
   emptyExecutionRow,
   emptySymbolTrade,
@@ -10,9 +11,16 @@ import {
   type SymbolTradeBlock,
 } from "./newTradeFormSchema";
 import { CUSTOM_PRESET_ID, multiplierForPreset, presetIdForSymbol } from "./futuresPresets";
+import { parseJournalNotes } from "./journalNotes";
+import {
+  optionContractFromDetails,
+  optionContractFromFills,
+  parseExecutionDetails,
+} from "./optionContract";
 import { buildExecutionDetails } from "./optionStrategy";
 import { parseAmountToNumber } from "./amountInput";
 import { defaultOcrSymbol, filterOcrExtractBySymbol, groupOcrBySymbol } from "./ocrSymbolGroups";
+import { gradeFromInt } from "./tradeGrades";
 
 function toDatetimeLocal(iso: string): string {
   if (!iso.trim()) return new Date().toISOString().slice(0, 19);
@@ -60,6 +68,8 @@ export function blockMultiplier(block: SymbolTradeBlock): number {
 }
 
 export type FlatExecutionRow = {
+  /** Existing fill id when editing — omit when creating. */
+  id?: string;
   symbol: string;
   instrument_type: string;
   side: "buy" | "sell";
@@ -93,6 +103,7 @@ export function flattenSymbolTradesToExecutions(trades: SymbolTradeBlock[]): Fla
             })
           : undefined;
       out.push({
+        id: src?.id,
         symbol: sym,
         instrument_type: block.market,
         side: r.side,
@@ -107,6 +118,83 @@ export function flattenSymbolTradesToExecutions(trades: SymbolTradeBlock[]): Fla
     });
   }
   return out;
+}
+
+/** Prefill New Trade drawer from an existing trade detail (edit mode). */
+export function symbolTradeFromDetail(trade: TradeDetail): SymbolTradeBlock {
+  const side = trade.direction === "short" ? "short" : "long";
+  const market = trade.instrument_type || "stock";
+  const journal = parseJournalNotes(trade.notes ?? "");
+  const contract = optionContractFromFills(trade.fills);
+  const right =
+    contract?.option_right === "put" || contract?.option_right === "call"
+      ? contract.option_right
+      : market === "option"
+        ? "call"
+        : "";
+  const fillMult = trade.fills.find((f) => f.multiplier > 0)?.multiplier;
+  const multiplier =
+    fillMult && fillMult > 0
+      ? String(fillMult)
+      : market === "option"
+        ? "100"
+        : market === "future" || market === "futures"
+          ? String(multiplierForPreset(presetIdForSymbol(trade.symbol)))
+          : "1";
+  const setupIds =
+    trade.setup_ids && trade.setup_ids.length > 0
+      ? trade.setup_ids
+      : trade.setup?.id
+        ? [trade.setup.id]
+        : [];
+  const tags = trade.tags ?? [];
+  const fills = [...trade.fills].sort((a, b) => a.executed_at.localeCompare(b.executed_at));
+  const rows: ExecutionRow[] =
+    fills.length > 0
+      ? fills.map((f) => {
+          const d = optionContractFromDetails(parseExecutionDetails(f.details));
+          return {
+            id: f.id,
+            side: f.side === "sell" ? "sell" : "buy",
+            executed_at: toDatetimeLocal(f.executed_at),
+            quantity: f.quantity > 0 ? String(f.quantity) : "",
+            price: f.price > 0 ? String(f.price) : "",
+            fees: formatNumField(f.fees),
+            commission: formatNumField(f.commission),
+            option_right:
+              d?.option_right === "put" || d?.option_right === "call" ? d.option_right : right,
+            strike: d?.strike ?? contract?.strike ?? "",
+            expiry: d?.expiry ?? contract?.expiry ?? "",
+          };
+        })
+      : [emptyExecutionRow(side === "long" ? "buy" : "sell")];
+
+  return emptySymbolTrade({
+    symbol: trade.symbol,
+    side,
+    market,
+    futuresPresetId:
+      market === "future" || market === "futures"
+        ? presetIdForSymbol(trade.symbol)
+        : CUSTOM_PRESET_ID,
+    multiplier,
+    option_right: right,
+    option_strike: contract?.strike ?? "",
+    option_expiry: contract?.expiry ?? "",
+    target: trade.target_price != null && trade.target_price > 0 ? String(trade.target_price) : "",
+    stop: trade.stop_price != null && trade.stop_price > 0 ? String(trade.stop_price) : "",
+    rows,
+    setupIds,
+    session: journal.session,
+    entryReason: journal.entryReason || journal.legacy,
+    exitReason: journal.exitReason,
+    reviewNotes: journal.reviewNotes,
+    emotionalState: trade.emotional_state ?? "",
+    setupGrade: gradeFromInt(trade.confidence),
+    executionGrade: gradeFromInt(trade.trade_quality),
+    selectedTagIds: tags.filter((t) => t.kind !== "mistake").map((t) => t.id),
+    selectedMistakeIds: tags.filter((t) => t.kind === "mistake").map((t) => t.id),
+  });
 }
 
 export function symbolTradeFromOcr(

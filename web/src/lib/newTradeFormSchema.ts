@@ -4,6 +4,8 @@ import { CUSTOM_PRESET_ID } from "./futuresPresets";
 import type { TradeGrade } from "./tradeGrades";
 
 export interface ExecutionRow {
+  /** Existing fill id when editing a trade — omitted for new rows. */
+  id?: string;
   side: "buy" | "sell";
   executed_at: string;
   quantity: string;

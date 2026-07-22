@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import type { Execution, Setup, Tag, TradeAttachment, TradeDetail } from "../../lib/api/types";
@@ -13,10 +13,9 @@ import {
 // Mocks
 // ---------------------------------------------------------------------------
 
-// AuthedImage calls fetch + URL.createObjectURL; stub the whole module so we
-// don't need network or real DOM APIs in the unit test.
 vi.mock("../../lib/api/client", () => ({
   getToken: () => "test-token",
+  getBaseUrl: () => "http://test.local",
   apiFetch: vi.fn(),
 }));
 
@@ -24,9 +23,8 @@ vi.mock("../../components/charts/TradeChartSection", () => ({
   TradeChartSection: () => <div data-testid="trade-chart-stub" />,
 }));
 
-// Stub globalThis.fetch so AuthedImage does not throw (returns a fake blob).
 globalThis.fetch = vi.fn().mockResolvedValue({
-  ok: false, // triggers the error path -> renders filename fallback
+  ok: false,
   status: 403,
   blob: vi.fn(),
 } as unknown as Response);
@@ -139,7 +137,7 @@ const mockTrade: TradeDetail = {
   return_pct: 4.27,
   time_in_trade_secs: 8100,
   notes: "clean break",
-  tags: [mockTags[0]],
+  tags: [mockTags[0]!],
   fills: [fill1, fill2],
   setup: mockSetup,
   setup_ids: [mockSetup.id],
@@ -157,70 +155,41 @@ const mockTrade: TradeDetail = {
   attachments: [mockAttachment],
 };
 
-// ---------------------------------------------------------------------------
-// Default props
-// ---------------------------------------------------------------------------
-
 const defaultProps = {
   trade: mockTrade,
   loading: false,
   error: false,
-  setups: [mockSetup],
-  allTags: mockTags,
-  attachments: [mockAttachment],
-  attachmentsLoading: false,
-  saving: false,
-  uploading: false,
-  onSave: vi.fn(),
-  onUpload: vi.fn(),
-  onDeleteAttachment: vi.fn(),
   onBack: vi.fn(),
+  onEdit: vi.fn(),
 };
 
-// ---------------------------------------------------------------------------
-// Tests
-// ---------------------------------------------------------------------------
-
 describe("TradeDetailView", () => {
-  async function enterEditMode() {
-    await userEvent.click(screen.getByRole("button", { name: "Edit trade log" }));
-  }
-
-  async function expandJournal() {
-    await userEvent.click(screen.getByRole("button", { name: "Journal" }));
-  }
-
-  it("defaults to view mode with journal and dividend collapsed", () => {
-    render(<TradeDetailView {...defaultProps} onSaveDividend={vi.fn()} />);
-    expect(screen.queryByText("clean break")).not.toBeInTheDocument();
-    expect(screen.queryByText("No dividend recorded")).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /edit buy fill/i })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Save" })).not.toBeInTheDocument();
+  it("does not render the executions / journal card on the page", () => {
+    render(<TradeDetailView {...defaultProps} />);
+    expect(screen.queryByText(/Executions/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Journal" })).not.toBeInTheDocument();
+    expect(screen.queryByText("BUY")).not.toBeInTheDocument();
   });
 
-  it("shows read-only journal content when expanded in view mode", async () => {
-    render(<TradeDetailView {...defaultProps} />);
-    await expandJournal();
-    expect(screen.getByText("clean break")).toBeInTheDocument();
-    expect(screen.getByText("ORB · main")).toBeInTheDocument();
+  it("places Edit at the page top right and calls onEdit", async () => {
+    const onEdit = vi.fn();
+    render(<TradeDetailView {...defaultProps} onEdit={onEdit} />);
+    await userEvent.click(screen.getByRole("button", { name: "Edit trade" }));
+    expect(onEdit).toHaveBeenCalledTimes(1);
   });
 
-  it("renders the notes value in the textarea after entering edit mode", async () => {
-    render(<TradeDetailView {...defaultProps} />);
-    await enterEditMode();
-    await expandJournal();
-    const textarea = screen.getByRole("textbox", { name: /review notes/i });
-    expect(textarea).toHaveValue("clean break");
-  });
-
-  it("renders ORB as the main selected setup chip in edit mode", async () => {
-    render(<TradeDetailView {...defaultProps} />);
-    await enterEditMode();
-    await expandJournal();
-    expect(screen.getByRole("button", { name: "ORB · main" })).toHaveAttribute(
-      "aria-pressed",
-      "true",
-    );
+  it("requires typing the symbol before removing a trade", async () => {
+    const onDelete = vi.fn();
+    render(<TradeDetailView {...defaultProps} onDelete={onDelete} />);
+    await userEvent.click(screen.getByRole("button", { name: "Remove trade" }));
+    const dialog = screen.getByRole("dialog", { name: /Remove AAPL/i });
+    expect(dialog).toBeVisible();
+    const footerRemove = within(dialog).getByRole("button", { name: "Remove trade" });
+    expect(footerRemove).toBeDisabled();
+    await userEvent.type(within(dialog).getByLabelText(/Type AAPL to confirm/i), "AAPL");
+    expect(footerRemove).toBeEnabled();
+    await userEvent.click(footerRemove);
+    expect(onDelete).toHaveBeenCalledTimes(1);
   });
 
   it("renders R-multiple of 2 in the header", () => {
@@ -236,7 +205,7 @@ describe("TradeDetailView", () => {
     expect(screen.getByText("Capture")).toBeInTheDocument();
     expect(screen.getByText("MAE")).toBeInTheDocument();
     expect(screen.getByText("MFE")).toBeInTheDocument();
-    expect(screen.getByText("374%")).toBeInTheDocument(); // net 747 / mfe 200
+    expect(screen.getByText("374%")).toBeInTheDocument();
     expect(screen.getAllByText("Focused").length).toBeGreaterThan(0);
   });
 
@@ -246,53 +215,6 @@ describe("TradeDetailView", () => {
     await userEvent.click(screen.getByRole("button", { name: "Coach" }));
     expect(screen.queryByText(/Write why you entered while it's fresh/i)).not.toBeInTheDocument();
     expect(screen.getByText("Gross")).toBeInTheDocument();
-  });
-
-  it("shows dividend read-only summary in view mode", async () => {
-    render(<TradeDetailView {...defaultProps} onSaveDividend={vi.fn()} />);
-    await userEvent.click(screen.getByRole("button", { name: "Dividend" }));
-    expect(screen.queryByLabelText("Dividend amount")).not.toBeInTheDocument();
-    expect(screen.getByText("No dividend recorded")).toBeInTheDocument();
-  });
-
-  it("shows dividend form in edit mode", async () => {
-    render(<TradeDetailView {...defaultProps} onSaveDividend={vi.fn()} />);
-    await enterEditMode();
-    await userEvent.click(screen.getByRole("button", { name: "Dividend" }));
-    expect(screen.getByLabelText("Dividend amount")).toBeVisible();
-    expect(screen.getByLabelText("Dividend date")).toBeVisible();
-    expect(screen.getByRole("button", { name: "Add dividend" })).toBeInTheDocument();
-  });
-
-  it("renders two fill rows", () => {
-    render(<TradeDetailView {...defaultProps} />);
-    // Fills table has BUY and SELL rows
-    expect(screen.getByText("BUY")).toBeInTheDocument();
-    expect(screen.getByText("SELL")).toBeInTheDocument();
-  });
-
-  it("shows edit and delete actions when fill handlers are provided in edit mode", async () => {
-    const onEditFill = vi.fn();
-    const onDeleteFill = vi.fn();
-    render(
-      <TradeDetailView {...defaultProps} onEditFill={onEditFill} onDeleteFill={onDeleteFill} />,
-    );
-    expect(screen.queryByRole("button", { name: /edit buy fill/i })).not.toBeInTheDocument();
-
-    await enterEditMode();
-    expect(screen.getByRole("button", { name: /edit buy fill/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /delete sell fill/i })).toBeInTheDocument();
-
-    await userEvent.click(screen.getByRole("button", { name: /edit buy fill/i }));
-    expect(await screen.findByRole("dialog")).toBeInTheDocument();
-    expect(screen.getByText("Edit fill")).toBeInTheDocument();
-  });
-
-  it("renders the fill quantities", () => {
-    render(<TradeDetailView {...defaultProps} />);
-    // Both fills have qty 100; expect at least one
-    const qtyCells = screen.getAllByText("100");
-    expect(qtyCells.length).toBeGreaterThanOrEqual(1);
   });
 
   it("shows Skeleton elements while loading", () => {
@@ -308,12 +230,6 @@ describe("TradeDetailView", () => {
     expect(screen.getByText("Trade not found")).toBeInTheDocument();
   });
 
-  it("renders the attachment filename when journal is expanded", async () => {
-    render(<TradeDetailView {...defaultProps} />);
-    await expandJournal();
-    expect(screen.getAllByText(/entry-chart\.png/).length).toBeGreaterThan(0);
-  });
-
   it("renders the symbol in the header", () => {
     render(<TradeDetailView {...defaultProps} />);
     expect(screen.getByText("AAPL")).toBeInTheDocument();
@@ -321,7 +237,6 @@ describe("TradeDetailView", () => {
 
   it("renders the net P&L in the header", () => {
     render(<TradeDetailView {...defaultProps} />);
-    // fmtSignedMoney(747, "USD", "en-US") => "+$747.00" (header + insights)
     expect(screen.getAllByText("+$747.00").length).toBeGreaterThan(0);
   });
 
@@ -332,49 +247,7 @@ describe("TradeDetailView", () => {
 
   it("renders the hold duration in the header timeline", () => {
     render(<TradeDetailView {...defaultProps} />);
-    // 8100 secs -> "2h" in compact timeline + insights
     expect(screen.getAllByText(/2h/).length).toBeGreaterThan(0);
-  });
-
-  it("marks setup rating A as checked for confidence 4 in edit mode", async () => {
-    render(<TradeDetailView {...defaultProps} />);
-    await enterEditMode();
-    await expandJournal();
-    expect(screen.getByRole("radio", { name: "Setup rating A" })).toHaveAttribute(
-      "aria-checked",
-      "true",
-    );
-  });
-
-  it("toggles a mistake tag chip in edit mode", async () => {
-    render(<TradeDetailView {...defaultProps} />);
-    await enterEditMode();
-    await expandJournal();
-    const chip = screen.getByRole("button", { name: "Chased entry" });
-    expect(chip).toHaveAttribute("aria-pressed", "false");
-    await userEvent.click(chip);
-    expect(chip).toHaveAttribute("aria-pressed", "true");
-  });
-
-  it("marks main setup and toggles a secondary setup in edit mode", async () => {
-    const second: Setup = { ...mockSetup, id: "setup-2", name: "FVG" };
-    render(
-      <TradeDetailView
-        {...defaultProps}
-        setups={[mockSetup, second]}
-        trade={{ ...mockTrade, setup_ids: [mockSetup.id] }}
-      />,
-    );
-    await enterEditMode();
-    await expandJournal();
-    expect(screen.getByRole("button", { name: `${mockSetup.name} · main` })).toHaveAttribute(
-      "aria-pressed",
-      "true",
-    );
-    const secondary = screen.getByRole("button", { name: "FVG" });
-    expect(secondary).toHaveAttribute("aria-pressed", "false");
-    await userEvent.click(secondary);
-    expect(secondary).toHaveAttribute("aria-pressed", "true");
   });
 });
 
