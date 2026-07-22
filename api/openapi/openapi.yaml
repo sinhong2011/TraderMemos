@@ -1,0 +1,817 @@
+openapi: 3.1.0
+info:
+  title: TraderMemos API
+  version: 1.0.0
+  description: |
+    Self-hosted trading journal API.
+
+    Authenticate with either:
+    - A short-lived session JWT from `POST /api/v1/auth/login` (web app)
+    - A personal access token (`tm_pat_…`) from Settings → API or `POST /api/v1/access-tokens`
+
+    Send the secret as `Authorization: Bearer <token>`.
+servers:
+  - url: /
+    description: This API host
+tags:
+  - name: Health
+  - name: Auth
+  - name: Access tokens
+  - name: Accounts
+  - name: Trades
+  - name: Executions
+  - name: Cash
+  - name: Import
+  - name: Export
+  - name: Analytics
+  - name: Tags
+  - name: Setups
+  - name: Notes
+paths:
+  /healthz:
+    get:
+      tags: [Health]
+      summary: Health check
+      operationId: getHealth
+      security: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  version:
+                    type: string
+                  go:
+                    type: string
+                  commit:
+                    type: string
+
+  /api/v1/setup/status:
+    get:
+      tags: [Auth]
+      summary: Setup / registration status
+      operationId: getSetupStatus
+      security: []
+      responses:
+        "200":
+          description: Status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SetupStatus"
+
+  /api/v1/setup:
+    post:
+      tags: [Auth]
+      summary: Complete first-user setup
+      operationId: completeSetup
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SetupRequest"
+      responses:
+        "201":
+          description: Owner created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenPair"
+        "409":
+          $ref: "#/components/responses/Error"
+
+  /api/v1/auth/login:
+    post:
+      tags: [Auth]
+      summary: Login
+      operationId: login
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Credentials"
+      responses:
+        "200":
+          description: Tokens
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenPair"
+        "401":
+          $ref: "#/components/responses/Error"
+
+  /api/v1/auth/refresh:
+    post:
+      tags: [Auth]
+      summary: Refresh access token
+      operationId: refresh
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refresh_token]
+              properties:
+                refresh_token:
+                  type: string
+      responses:
+        "200":
+          description: Tokens
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenPair"
+        "401":
+          $ref: "#/components/responses/Error"
+
+  /api/v1/auth/register:
+    post:
+      tags: [Auth]
+      summary: Register (when registration is open)
+      operationId: register
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Credentials"
+      responses:
+        "201":
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenPair"
+        "403":
+          $ref: "#/components/responses/Error"
+
+  /api/v1/access-tokens:
+    get:
+      tags: [Access tokens]
+      summary: List personal access tokens
+      operationId: listAccessTokens
+      responses:
+        "200":
+          description: Tokens (secrets never included)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AccessToken"
+        "401":
+          $ref: "#/components/responses/Error"
+    post:
+      tags: [Access tokens]
+      summary: Create a personal access token
+      description: |
+        Returns the full `token` secret **once**. Store it securely; it cannot be retrieved again.
+        Omit `expires_in_days` for a never-expiring token, or pass `30`, `90`, or `365`.
+      operationId: createAccessToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+                  maxLength: 80
+                expires_in_days:
+                  type: integer
+                  enum: [30, 90, 365]
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/AccessToken"
+                  - type: object
+                    required: [token]
+                    properties:
+                      token:
+                        type: string
+                        description: Full secret (`tm_pat_…`); shown only on create
+        "400":
+          $ref: "#/components/responses/Error"
+        "401":
+          $ref: "#/components/responses/Error"
+
+  /api/v1/access-tokens/{id}:
+    delete:
+      tags: [Access tokens]
+      summary: Revoke a personal access token
+      operationId: revokeAccessToken
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        "204":
+          description: Revoked
+        "404":
+          $ref: "#/components/responses/Error"
+        "401":
+          $ref: "#/components/responses/Error"
+
+  /api/v1/accounts:
+    get:
+      tags: [Accounts]
+      summary: List accounts
+      operationId: listAccounts
+      responses:
+        "200":
+          description: Accounts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Account"
+        "401":
+          $ref: "#/components/responses/Error"
+    post:
+      tags: [Accounts]
+      summary: Create account
+      operationId: createAccount
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAccount"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+        "400":
+          $ref: "#/components/responses/Error"
+
+  /api/v1/accounts/{id}:
+    get:
+      tags: [Accounts]
+      summary: Get account
+      operationId: getAccount
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        "200":
+          description: Account
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+        "404":
+          $ref: "#/components/responses/Error"
+    put:
+      tags: [Accounts]
+      summary: Update account
+      operationId: updateAccount
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                broker:
+                  type: string
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+    delete:
+      tags: [Accounts]
+      summary: Delete account
+      operationId: deleteAccount
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        "204":
+          description: Deleted
+
+  /api/v1/trades:
+    get:
+      tags: [Trades]
+      summary: List trades
+      operationId: listTrades
+      parameters:
+        - $ref: "#/components/parameters/AccountIdQuery"
+        - $ref: "#/components/parameters/FromQuery"
+        - $ref: "#/components/parameters/ToQuery"
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Trades
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: true
+
+  /api/v1/trades/{id}:
+    get:
+      tags: [Trades]
+      summary: Get trade
+      operationId: getTrade
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        "200":
+          description: Trade
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "404":
+          $ref: "#/components/responses/Error"
+    patch:
+      tags: [Trades]
+      summary: Update trade journal fields
+      operationId: patchTrade
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: Updated
+    delete:
+      tags: [Trades]
+      summary: Delete trade
+      operationId: deleteTrade
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        "204":
+          description: Deleted
+
+  /api/v1/executions:
+    get:
+      tags: [Executions]
+      summary: List executions
+      operationId: listExecutions
+      parameters:
+        - $ref: "#/components/parameters/AccountIdQuery"
+        - $ref: "#/components/parameters/FromQuery"
+        - $ref: "#/components/parameters/ToQuery"
+      responses:
+        "200":
+          description: Executions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: true
+    post:
+      tags: [Executions]
+      summary: Create execution
+      operationId: createExecution
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "201":
+          description: Created
+
+  /api/v1/executions/{id}:
+    patch:
+      tags: [Executions]
+      summary: Update execution
+      operationId: updateExecution
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: Updated
+    delete:
+      tags: [Executions]
+      summary: Delete execution
+      operationId: deleteExecution
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        "204":
+          description: Deleted
+
+  /api/v1/cash-transactions:
+    get:
+      tags: [Cash]
+      summary: List cash transactions
+      operationId: listCash
+      parameters:
+        - $ref: "#/components/parameters/AccountIdQuery"
+      responses:
+        "200":
+          description: Cash transactions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: true
+    post:
+      tags: [Cash]
+      summary: Create cash transaction
+      operationId: createCash
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "201":
+          description: Created
+
+  /api/v1/cash-transactions/{id}:
+    put:
+      tags: [Cash]
+      summary: Update cash transaction
+      operationId: updateCash
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: Updated
+    delete:
+      tags: [Cash]
+      summary: Delete cash transaction
+      operationId: deleteCash
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        "204":
+          description: Deleted
+
+  /api/v1/imports:
+    get:
+      tags: [Import]
+      summary: List import batches
+      operationId: listImports
+      responses:
+        "200":
+          description: Import batches
+    post:
+      tags: [Import]
+      summary: Preview import (multipart CSV/JSON)
+      operationId: previewImport
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: Preview
+
+  /api/v1/imports/{id}/commit:
+    post:
+      tags: [Import]
+      summary: Commit import batch
+      operationId: commitImport
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        "200":
+          description: Committed
+
+  /api/v1/exports:
+    get:
+      tags: [Export]
+      summary: Export journal data
+      operationId: exportJournal
+      parameters:
+        - name: format
+          in: query
+          schema:
+            type: string
+            enum: [csv, json]
+        - $ref: "#/components/parameters/AccountIdQuery"
+        - $ref: "#/components/parameters/FromQuery"
+        - $ref: "#/components/parameters/ToQuery"
+      responses:
+        "200":
+          description: Export payload
+
+  /api/v1/analytics/summary:
+    get:
+      tags: [Analytics]
+      summary: P&L summary
+      operationId: analyticsSummary
+      parameters:
+        - $ref: "#/components/parameters/AccountIdQuery"
+        - $ref: "#/components/parameters/FromQuery"
+        - $ref: "#/components/parameters/ToQuery"
+      responses:
+        "200":
+          description: Summary
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+
+  /api/v1/analytics/daily:
+    get:
+      tags: [Analytics]
+      summary: Daily P&L
+      operationId: analyticsDaily
+      parameters:
+        - $ref: "#/components/parameters/AccountIdQuery"
+        - $ref: "#/components/parameters/FromQuery"
+        - $ref: "#/components/parameters/ToQuery"
+      responses:
+        "200":
+          description: Daily rows
+
+  /api/v1/analytics/equity-curve:
+    get:
+      tags: [Analytics]
+      summary: Equity curve
+      operationId: analyticsEquityCurve
+      parameters:
+        - $ref: "#/components/parameters/AccountIdQuery"
+        - $ref: "#/components/parameters/FromQuery"
+        - $ref: "#/components/parameters/ToQuery"
+      responses:
+        "200":
+          description: Equity points
+
+  /api/v1/tags:
+    get:
+      tags: [Tags]
+      summary: List tags
+      operationId: listTags
+      responses:
+        "200":
+          description: Tags
+    post:
+      tags: [Tags]
+      summary: Create tag
+      operationId: createTag
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+                color:
+                  type: string
+                kind:
+                  type: string
+      responses:
+        "201":
+          description: Created
+
+  /api/v1/setups:
+    get:
+      tags: [Setups]
+      summary: List playbook setups
+      operationId: listSetups
+      responses:
+        "200":
+          description: Setups
+    post:
+      tags: [Setups]
+      summary: Create setup
+      operationId: createSetup
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "201":
+          description: Created
+
+  /api/v1/notes:
+    get:
+      tags: [Notes]
+      summary: List journal notes
+      operationId: listNotes
+      parameters:
+        - $ref: "#/components/parameters/FromQuery"
+        - $ref: "#/components/parameters/ToQuery"
+      responses:
+        "200":
+          description: Notes
+    post:
+      tags: [Notes]
+      summary: Create note
+      operationId: createNote
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "201":
+          description: Created
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: |
+        Session JWT access token **or** personal access token (`tm_pat_…`).
+  parameters:
+    IdPath:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+    AccountIdQuery:
+      name: account_id
+      in: query
+      schema:
+        type: string
+    FromQuery:
+      name: from
+      in: query
+      description: RFC3339 start time
+      schema:
+        type: string
+        format: date-time
+    ToQuery:
+      name: to
+      in: query
+      description: RFC3339 end time
+      schema:
+        type: string
+        format: date-time
+  responses:
+    Error:
+      description: Error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details: {}
+    Credentials:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 10
+    TokenPair:
+      type: object
+      properties:
+        access_token:
+          type: string
+        refresh_token:
+          type: string
+        is_admin:
+          type: boolean
+    SetupStatus:
+      type: object
+      properties:
+        needs_setup:
+          type: boolean
+        registration_open:
+          type: boolean
+        user_count:
+          type: integer
+        min_password_length:
+          type: integer
+    SetupRequest:
+      allOf:
+        - $ref: "#/components/schemas/Credentials"
+        - type: object
+          properties:
+            account:
+              $ref: "#/components/schemas/CreateAccount"
+    AccessToken:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        token_prefix:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+          nullable: true
+        last_used_at:
+          type: string
+          format: date-time
+          nullable: true
+    Account:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        broker:
+          type: string
+        account_type:
+          type: string
+        base_currency:
+          type: string
+        starting_balance:
+          type: number
+    CreateAccount:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        broker:
+          type: string
+        account_type:
+          type: string
+        base_currency:
+          type: string
+        starting_balance:
+          type: number
+
+security:
+  - bearerAuth: []
