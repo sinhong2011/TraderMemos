@@ -12,6 +12,8 @@ type Querier interface {
 	ClearTradeExecutions(ctx context.Context, tradeID string) error
 	ClearTradeSetups(ctx context.Context, tradeID string) error
 	ClearTradeTags(ctx context.Context, tradeID string) error
+	CountUsers(ctx context.Context) (int64, error)
+	CreateAccessToken(ctx context.Context, arg CreateAccessTokenParams) (AccessToken, error)
 	CreateAccount(ctx context.Context, arg CreateAccountParams) (Account, error)
 	CreateImportBatch(ctx context.Context, arg CreateImportBatchParams) (ImportBatch, error)
 	CreateJournalNote(ctx context.Context, arg CreateJournalNoteParams) (JournalNote, error)
@@ -32,6 +34,7 @@ type Querier interface {
 	DeleteTradesForAccount(ctx context.Context, arg DeleteTradesForAccountParams) error
 	DeleteTradesNotInAccount(ctx context.Context, arg DeleteTradesNotInAccountParams) error
 	ExecutionExists(ctx context.Context, arg ExecutionExistsParams) (int64, error)
+	GetAccessTokenByHash(ctx context.Context, tokenHash string) (AccessToken, error)
 	GetAccount(ctx context.Context, arg GetAccountParams) (Account, error)
 	GetAccountByIDAny(ctx context.Context, id string) (Account, error)
 	GetAttachment(ctx context.Context, arg GetAttachmentParams) (TradeAttachment, error)
@@ -56,6 +59,7 @@ type Querier interface {
 	InsertExecution(ctx context.Context, arg InsertExecutionParams) (Execution, error)
 	InsertTrade(ctx context.Context, arg InsertTradeParams) (Trade, error)
 	LinkTradeExecution(ctx context.Context, arg LinkTradeExecutionParams) error
+	ListAccessTokensByUser(ctx context.Context, userID string) ([]AccessToken, error)
 	ListAccounts(ctx context.Context, userID string) ([]Account, error)
 	ListAttachmentsForTrade(ctx context.Context, arg ListAttachmentsForTradeParams) ([]TradeAttachment, error)
 	ListCashForTrade(ctx context.Context, arg ListCashForTradeParams) ([]CashTransaction, error)
@@ -70,16 +74,22 @@ type Querier interface {
 	ListSetupsForTrade(ctx context.Context, tradeID string) ([]Setup, error)
 	ListTags(ctx context.Context, userID string) ([]Tag, error)
 	ListTagsForTrade(ctx context.Context, tradeID string) ([]Tag, error)
+	ListTradeJournalsForUser(ctx context.Context, userID string) ([]TradeJournal, error)
 	ListTradeTagsForUser(ctx context.Context, userID string) ([]ListTradeTagsForUserRow, error)
 	ListTrades(ctx context.Context, arg ListTradesParams) ([]Trade, error)
+	RevokeAccessToken(ctx context.Context, arg RevokeAccessTokenParams) (int64, error)
 	SetImportBatchStatus(ctx context.Context, arg SetImportBatchStatusParams) error
 	SetTradeSetup(ctx context.Context, arg SetTradeSetupParams) error
 	SetTradeTags(ctx context.Context, arg SetTradeTagsParams) error
+	TouchAccessTokenLastUsed(ctx context.Context, id string) error
+	UpdateAccount(ctx context.Context, arg UpdateAccountParams) (Account, error)
+	UpdateCashTransaction(ctx context.Context, arg UpdateCashTransactionParams) (CashTransaction, error)
 	UpdateExecution(ctx context.Context, arg UpdateExecutionParams) (int64, error)
 	UpdateJournalNote(ctx context.Context, arg UpdateJournalNoteParams) (JournalNote, error)
 	UpdateSetup(ctx context.Context, arg UpdateSetupParams) error
 	UpdateTag(ctx context.Context, arg UpdateTagParams) (int64, error)
 	UpdateTradeNotes(ctx context.Context, arg UpdateTradeNotesParams) error
+	UpdateUserPassword(ctx context.Context, arg UpdateUserPasswordParams) (User, error)
 	UpsertChecklistTemplate(ctx context.Context, arg UpsertChecklistTemplateParams) (ChecklistTemplate, error)
 	UpsertCoachSettings(ctx context.Context, arg UpsertCoachSettingsParams) (CoachSetting, error)
 	UpsertInstrumentSpec(ctx context.Context, arg UpsertInstrumentSpecParams) error
