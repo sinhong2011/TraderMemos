@@ -2,8 +2,8 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { CalendarView, type CalendarMode } from "../app/screens/CalendarView";
 import { TradeDetailSheet } from "../components/TradeDetailSheet";
-import { buildDayRecords } from "../lib/calendar";
-import { accountBaseCurrency } from "../lib/displayPrefs";
+import { buildDayRecords, tradeDayKey, tradesOnDay } from "../lib/calendar";
+import { accountBaseCurrency, useDisplayPrefs } from "../lib/displayPrefs";
 import { useFilterParams, useFilters } from "../lib/filters";
 import { useAccounts } from "../lib/hooks/useAccounts";
 import { useDailyPnl, useSummary } from "../lib/hooks/useAnalytics";
@@ -29,14 +29,17 @@ function yearRange(year: number) {
   };
 }
 
-/** Closed-trade counts keyed by "YYYY-MM". */
+/** Trade counts keyed by "YYYY-MM" under the active date basis. */
 function tradesByMonthKey(
-  trades: { closed_at: string | null; status: string }[],
+  trades: { opened_at: string; closed_at: string | null; status: string }[],
+  basis: "close" | "open",
 ): Record<string, number> {
   const out: Record<string, number> = {};
   for (const t of trades) {
-    if (!t.closed_at || t.status === "open") continue;
-    const key = t.closed_at.slice(0, 7);
+    if (t.status === "open") continue;
+    const day = tradeDayKey(t, basis);
+    if (!day) continue;
+    const key = day.slice(0, 7);
     out[key] = (out[key] ?? 0) + 1;
   }
   return out;
@@ -46,6 +49,7 @@ function CalendarPage() {
   const filters = useFilterParams();
   const accountId = useFilters((s) => s.accountId);
   const setSymbol = useFilters((s) => s.setSymbol);
+  const tradeDateBasis = useDisplayPrefs((s) => s.tradeDateBasis);
   const accountsQ = useAccounts();
   const navigate = useNavigate();
 
@@ -61,31 +65,30 @@ function CalendarPage() {
   const dailyQ = useDailyPnl(monthFilters);
   const monthSummaryQ = useSummary(monthFilters);
   const monthTradesQ = useTrades(monthFilters);
-  const records = buildDayRecords(monthTradesQ.data ?? []);
+  const records = useMemo(
+    () => buildDayRecords(monthTradesQ.data ?? [], tradeDateBasis),
+    [monthTradesQ.data, tradeDateBasis],
+  );
 
   const yRange = yearRange(year);
   const yearFilters = { ...filters, from: yRange.from, to: yRange.to };
   const yearDailyQ = useDailyPnl(yearFilters);
   const yearTradesQ = useTrades(yearFilters);
   const yearTradesByMonth = useMemo(
-    () => tradesByMonthKey(yearTradesQ.data ?? []),
-    [yearTradesQ.data],
+    () => tradesByMonthKey(yearTradesQ.data ?? [], tradeDateBasis),
+    [yearTradesQ.data, tradeDateBasis],
   );
-  const yearDayRecords = useMemo(() => buildDayRecords(yearTradesQ.data ?? []), [yearTradesQ.data]);
+  const yearDayRecords = useMemo(
+    () => buildDayRecords(yearTradesQ.data ?? [], tradeDateBasis),
+    [yearTradesQ.data, tradeDateBasis],
+  );
 
-  const dayFilters = selectedDay
-    ? {
-        ...filters,
-        from: `${selectedDay}T00:00:00Z`,
-        to: `${selectedDay}T23:59:59Z`,
-      }
-    : {
-        account_id: undefined,
-        from: undefined,
-        to: undefined,
-        symbol: undefined,
-      };
-  const dayTradesQ = useTrades(dayFilters);
+  // Drawer uses the same date basis as heatmap / "N trades" counts.
+  const scopeTradesQ = mode === "year" ? yearTradesQ : monthTradesQ;
+  const dayTrades = useMemo(() => {
+    if (!selectedDay) return [];
+    return tradesOnDay(scopeTradesQ.data ?? [], selectedDay, tradeDateBasis);
+  }, [selectedDay, scopeTradesQ.data, tradeDateBasis]);
 
   const accounts = accountsQ.data ?? [];
   const currency = accountBaseCurrency(accounts, accountId);
@@ -144,13 +147,16 @@ function CalendarPage() {
         canGoNextYear={!isCurrentYear}
         selectedDay={selectedDay}
         onSelectDay={setSelectedDay}
-        dayTrades={selectedDay ? (dayTradesQ.data ?? []) : []}
-        dayTradesLoading={selectedDay ? dayTradesQ.isLoading : false}
-        dayTradesError={selectedDay ? dayTradesQ.isError : false}
+        dayTrades={dayTrades}
+        dayTradesLoading={Boolean(selectedDay) && scopeTradesQ.isLoading}
+        dayTradesError={Boolean(selectedDay) && scopeTradesQ.isError}
         currency={currency}
         onSelectTrade={(t) => setSelectedTradeId(t.id)}
         onOpenFullPage={(t) => void navigate({ to: "/trades/$id", params: { id: t.id } })}
         onFilterSymbol={(symbol) => setSymbol(symbol)}
+        onDeleted={(t) => {
+          if (selectedTradeId === t.id) setSelectedTradeId(null);
+        }}
       />
       <TradeDetailSheet tradeId={selectedTradeId} onClose={() => setSelectedTradeId(null)} />
     </>

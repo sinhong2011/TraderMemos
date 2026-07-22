@@ -1,4 +1,4 @@
-import { isPrivacyMode, PRIVACY_MASK } from "./displayPrefs";
+import { getDisplayTimeOpts, isPrivacyMode, PRIVACY_MASK } from "./displayPrefs";
 import { intlLocale } from "./locale";
 
 function maskedMoney(): string | null {
@@ -22,11 +22,13 @@ export function fmtMoneyCompact(v: number, currency: string, locale: string): st
     maximumFractionDigits: 1,
   }).format(v);
 }
-/** Short day label for chart x-axes, e.g. `Jul 9`. */
+/** Short day label for chart x-axes, e.g. `Jul 9` (honors display timezone). */
 export function fmtDayShort(iso: string, locale: string): string {
+  const { timeZone } = getDisplayTimeOpts();
   return new Date(iso).toLocaleDateString(locale, {
     month: "short",
     day: "numeric",
+    timeZone,
   });
 }
 export function fmtSignedMoney(v: number, currency: string, locale: string): string {
@@ -72,18 +74,29 @@ export function fmtDateShort(iso: string | null): string {
   return `${y}-${mo}-${day}`;
 }
 
+/** Time-of-day for timestamps (honors display timezone + 12/24h). */
+export function fmtTime(iso: string, locale?: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "—";
+  const loc = locale ?? intlLocale();
+  const { timeZone, hour12 } = getDisplayTimeOpts();
+  return d.toLocaleTimeString(loc, { hour: "2-digit", minute: "2-digit", timeZone, hour12 });
+}
+
 /** Human-readable date/time for modals and detail views. Falls back to raw string when unparseable. */
 export function fmtDateTime(iso: string | null | undefined, locale?: string): string {
   if (!iso) return "—";
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return iso;
   const loc = locale ?? intlLocale();
+  const { timeZone, hour12 } = getDisplayTimeOpts();
   const hasTime = /T|\d:\d/.test(iso);
   if (!hasTime) {
     return d.toLocaleDateString(loc, {
       month: "short",
       day: "numeric",
       year: "numeric",
+      timeZone,
     });
   }
   return d.toLocaleString(loc, {
@@ -92,6 +105,8 @@ export function fmtDateTime(iso: string | null | undefined, locale?: string): st
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
+    timeZone,
+    hour12,
   });
 }
 

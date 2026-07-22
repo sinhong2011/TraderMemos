@@ -1,6 +1,12 @@
 import type { BreakGroup } from "../lib/api/types";
 import { cn } from "../lib/cn";
-import { usePrivacyMode } from "../lib/displayPrefs";
+import {
+  formatUtcHourLabel,
+  resolveDisplayTimezone,
+  useDisplayPrefs,
+  useDisplayTimePrefs,
+  usePrivacyMode,
+} from "../lib/displayPrefs";
 import { fmtPct } from "../lib/format";
 import { intlLocale } from "../lib/locale";
 import { EmptyState } from "./EmptyState";
@@ -14,11 +20,14 @@ export interface ReportsHourlyListProps {
   error: boolean;
 }
 
-/** Tradervue-style hourly list with magnitude bars. */
+/** Tradervue-style hourly list with magnitude bars. Keys from API are UTC hours. */
 export function ReportsHourlyList({ breakdown, loading, error }: ReportsHourlyListProps) {
   usePrivacyMode();
+  useDisplayTimePrefs();
   const locale = intlLocale();
   const money = useReportsMoney();
+  const timezonePref = useDisplayPrefs((s) => s.timezone);
+  const displayTz = resolveDisplayTimezone(timezonePref);
   const maxAbs = Math.max(...breakdown.map((g) => Math.abs(money.pnl(g.summary))), 1);
 
   return (
@@ -42,7 +51,9 @@ export function ReportsHourlyList({ breakdown, loading, error }: ReportsHourlyLi
               return (
                 <li key={g.key} className="min-w-0">
                   <div className="flex items-baseline justify-between gap-2">
-                    <span className="text-[11px] font-medium text-text-muted">{g.key}</span>
+                    <span className="text-[11px] font-medium text-text-muted">
+                      {formatUtcHourLabel(g.key, displayTz)}
+                    </span>
                     <span className="flex items-baseline gap-2">
                       <span className={cn("text-[12px] font-semibold tabular-nums", pnlColor(pnl))}>
                         {money.format(pnl)}

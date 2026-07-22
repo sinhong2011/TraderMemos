@@ -1,3 +1,5 @@
+import type { TradeDateBasis } from "./displayPrefs";
+
 export interface DayCell {
   date: string;
   pnl: number | null;
@@ -32,20 +34,47 @@ export interface DayRecord {
   losses: number;
 }
 
+type DatedTrade = {
+  opened_at: string;
+  closed_at: string | null;
+  net_pnl?: number | null;
+};
+
+/** UTC calendar day key for a trade under the chosen date basis. */
+export function tradeDayKey(
+  trade: Pick<DatedTrade, "opened_at" | "closed_at">,
+  basis: TradeDateBasis = "close",
+): string | null {
+  if (basis === "open") return trade.opened_at.slice(0, 10);
+  if (!trade.closed_at) return null;
+  return trade.closed_at.slice(0, 10);
+}
+
 // Derives per-day win/loss counts from closed trades, keyed "YYYY-MM-DD".
 export function buildDayRecords(
-  trades: { closed_at: string | null; net_pnl: number | null }[],
+  trades: { opened_at: string; closed_at: string | null; net_pnl: number | null }[],
+  basis: TradeDateBasis = "close",
 ): Record<string, DayRecord> {
   const out: Record<string, DayRecord> = {};
   for (const t of trades) {
-    if (!t.closed_at || t.net_pnl == null || t.net_pnl === 0) continue;
-    const date = t.closed_at.slice(0, 10);
+    if (t.net_pnl == null || t.net_pnl === 0) continue;
+    const date = tradeDayKey(t, basis);
+    if (!date) continue;
     if (!(date in out)) out[date] = { wins: 0, losses: 0 };
     const rec = out[date];
     if (t.net_pnl > 0) rec.wins++;
     else rec.losses++;
   }
   return out;
+}
+
+/** Trades attributed to a UTC calendar day under the chosen date basis. */
+export function tradesOnDay<T extends { opened_at: string; closed_at: string | null }>(
+  trades: readonly T[],
+  day: string,
+  basis: TradeDateBasis = "close",
+): T[] {
+  return trades.filter((t) => tradeDayKey(t, basis) === day);
 }
 
 export interface WeekSummary {

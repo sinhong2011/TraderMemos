@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vite-plus/test";
+import { beforeEach, describe, expect, it } from "vite-plus/test";
 import type { BreakGroup } from "../lib/api/types";
+import { DISPLAY_PREFS_STORAGE_KEY, useDisplayPrefs } from "../lib/displayPrefs";
 import { ReportsDisplayProvider } from "./ReportsDisplayContext";
 import { ReportsHourlyList } from "./ReportsHourlyList";
 
@@ -29,6 +30,16 @@ function grp(key: string, net: number, winRate = 0.5): BreakGroup {
 }
 
 describe("ReportsHourlyList", () => {
+  beforeEach(() => {
+    localStorage.removeItem(DISPLAY_PREFS_STORAGE_KEY);
+    useDisplayPrefs.setState({
+      displayCurrency: null,
+      privacyMode: false,
+      timezone: "UTC",
+      timeFormat: "h23",
+    });
+  });
+
   it("shows empty state with no hours", () => {
     render(<ReportsHourlyList breakdown={[]} loading={false} error={false} />);
     expect(screen.getByText("Hourly")).toBeInTheDocument();
@@ -47,8 +58,15 @@ describe("ReportsHourlyList", () => {
     expect(hours.map((el) => el.textContent)).toEqual(["14:00", "09:00", "11:00"]);
   });
 
+  it("relabels UTC hour keys into the display timezone", () => {
+    useDisplayPrefs.getState().setTimezone("Asia/Hong_Kong");
+    render(<ReportsHourlyList breakdown={[grp("14:00", -120)]} loading={false} error={false} />);
+    // 14:00 UTC → 22:00 HKT (fixed +8, no DST)
+    expect(screen.getByText("22:00")).toBeInTheDocument();
+    expect(screen.queryByText("14:00")).not.toBeInTheDocument();
+  });
+
   it("shows the gross P&L when pnlMode is gross", () => {
-    // net_pnl (100) differs from gross (gross_profit - gross_loss = 300 - 20 = 280).
     const g: BreakGroup = {
       key: "09:00",
       summary: {

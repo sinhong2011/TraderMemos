@@ -11,17 +11,23 @@ import { cn } from "../../lib/cn";
  */
 function NativeSelect({
   className,
+  wrapperClassName,
   size = "default",
   variant = "default",
   ...props
 }: Omit<ComponentProps<"select">, "size"> & {
   size?: "sm" | "default";
   variant?: "default" | "ghost";
+  /** Applied to the outer wrapper (default `w-fit`). Use `w-full` for settings rows. */
+  wrapperClassName?: string;
 }) {
   return (
     <span
       data-slot="native-select-wrapper"
-      className="group/native-select relative inline-flex w-fit items-center has-[select:disabled]:opacity-55"
+      className={cn(
+        "group/native-select relative inline-flex items-center has-[select:disabled]:opacity-55",
+        wrapperClassName ?? "w-fit",
+      )}
     >
       <select
         data-slot="native-select"
@@ -55,7 +61,9 @@ function NativeSelectOption({ className, ...props }: ComponentProps<"option">) {
   return (
     <option
       data-slot="native-select-option"
-      className={cn("bg-bg-panel text-text", className)}
+      // System colors so the OS picker stays readable (page `color` inherits as
+      // near-white and washes out light native menus).
+      className={cn("bg-[Canvas] text-[CanvasText]", className)}
       {...props}
     />
   );

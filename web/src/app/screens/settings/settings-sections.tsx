@@ -7,11 +7,11 @@ import { SignalAmountInput } from "../../../components/SignalAmountInput";
 import { SignalDatePicker } from "../../../components/SignalDatePicker";
 import { fieldError, SignalField } from "../../../components/SignalField";
 import { SignalInput, SignalTextarea } from "../../../components/SignalInput";
-import { SignalSelect } from "../../../components/SignalSelect";
 import { Skeleton } from "../../../components/Skeleton";
 import { useToastManager } from "../../../components/Toast";
 import { Button } from "../../../components/ui/button";
-import { ApiError } from "../../../lib/api/client";
+import { NativeSelect, NativeSelectOption } from "../../../components/ui/native-select";
+import { ApiError, getCustomApiBaseUrl, setBaseUrl } from "../../../lib/api/client";
 import type { RiskRules } from "../../../lib/api/settings";
 import {
   useCoachSettings,
@@ -39,7 +39,16 @@ import type { LlmApiSettingsLabels } from "../../../lib/llmApiSettings";
 import { useAuth } from "../../../lib/auth";
 import { useJournalPrefs } from "../../../lib/journalPrefs";
 import { useLocale } from "../../../i18n";
-import { usePrivacyMode } from "../../../lib/displayPrefs";
+import {
+  TIME_FORMAT_OPTIONS,
+  TRADE_DATE_BASIS_OPTIONS,
+  timezoneSelectOptions,
+  type TimeFormatPref,
+  type TimezonePref,
+  type TradeDateBasis,
+  usePrivacyMode,
+  useDisplayPrefs,
+} from "../../../lib/displayPrefs";
 import {
   defaultAccountFormValues,
   defaultCashFormValues,
@@ -350,17 +359,18 @@ export function AccountsTab({
                 <accountForm.Field name="accountType">
                   {(field) => (
                     <SignalField label="Account type">
-                      <SignalSelect
+                      <NativeSelect
+                        size="sm"
                         value={field.state.value}
-                        onValueChange={field.handleChange}
-                        ariaLabel="Account type"
-                        options={[
-                          { value: "cash", label: "Cash" },
-                          { value: "margin", label: "Margin" },
-                          { value: "prop", label: "Prop" },
-                        ]}
-                        triggerClassName="h-8 text-[12px]"
-                      />
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        aria-label="Account type"
+                        className="h-8 w-full text-[12px]"
+                        wrapperClassName="w-full"
+                      >
+                        <NativeSelectOption value="cash">Cash</NativeSelectOption>
+                        <NativeSelectOption value="margin">Margin</NativeSelectOption>
+                        <NativeSelectOption value="prop">Prop</NativeSelectOption>
+                      </NativeSelect>
                     </SignalField>
                   )}
                 </accountForm.Field>
@@ -562,36 +572,41 @@ export function AccountsTab({
                 >
                   {(field) => (
                     <SignalField label="Account" error={fieldError(field.state.meta.errors)}>
-                      <SignalSelect
+                      <NativeSelect
+                        size="sm"
                         value={field.state.value}
-                        onValueChange={field.handleChange}
-                        ariaLabel="Cash account"
-                        options={accounts.map((a) => ({
-                          value: a.id,
-                          label: a.name,
-                        }))}
-                        triggerClassName="h-8 text-[12px]"
-                      />
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        aria-label="Cash account"
+                        className="h-8 w-full text-[12px]"
+                        wrapperClassName="w-full"
+                      >
+                        {accounts.map((a) => (
+                          <NativeSelectOption key={a.id} value={a.id}>
+                            {a.name}
+                          </NativeSelectOption>
+                        ))}
+                      </NativeSelect>
                     </SignalField>
                   )}
                 </cashForm.Field>
                 <cashForm.Field name="type">
                   {(field) => (
                     <SignalField label="Type">
-                      <SignalSelect
+                      <NativeSelect
+                        size="sm"
                         value={field.state.value}
-                        onValueChange={field.handleChange}
-                        ariaLabel="Cash type"
-                        options={[
-                          { value: "deposit", label: "Deposit" },
-                          { value: "withdrawal", label: "Withdrawal" },
-                          { value: "fee", label: "Fee" },
-                          { value: "dividend", label: "Dividend" },
-                          { value: "interest", label: "Interest" },
-                          { value: "adjustment", label: "Adjustment" },
-                        ]}
-                        triggerClassName="h-8 text-[12px]"
-                      />
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        aria-label="Cash type"
+                        className="h-8 w-full text-[12px]"
+                        wrapperClassName="w-full"
+                      >
+                        <NativeSelectOption value="deposit">Deposit</NativeSelectOption>
+                        <NativeSelectOption value="withdrawal">Withdrawal</NativeSelectOption>
+                        <NativeSelectOption value="fee">Fee</NativeSelectOption>
+                        <NativeSelectOption value="dividend">Dividend</NativeSelectOption>
+                        <NativeSelectOption value="interest">Interest</NativeSelectOption>
+                        <NativeSelectOption value="adjustment">Adjustment</NativeSelectOption>
+                      </NativeSelect>
                     </SignalField>
                   )}
                 </cashForm.Field>
@@ -1156,16 +1171,17 @@ export function JournalTab({
                 <tagForm.Field name="kind">
                   {(field) => (
                     <SignalField label="Kind">
-                      <SignalSelect
+                      <NativeSelect
+                        size="sm"
                         value={field.state.value}
-                        onValueChange={field.handleChange}
-                        ariaLabel="Tag kind"
-                        options={[
-                          { value: "custom", label: "Custom" },
-                          { value: "mistake", label: "Mistake" },
-                        ]}
-                        triggerClassName="h-8 text-[12px]"
-                      />
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        aria-label="Tag kind"
+                        className="h-8 w-full text-[12px]"
+                        wrapperClassName="w-full"
+                      >
+                        <NativeSelectOption value="custom">Custom</NativeSelectOption>
+                        <NativeSelectOption value="mistake">Mistake</NativeSelectOption>
+                      </NativeSelect>
                     </SignalField>
                   )}
                 </tagForm.Field>
@@ -1465,6 +1481,13 @@ export function GeneralTab() {
   const signOut = useAuth((s) => s.signOut);
   const maxScreenshots = useJournalPrefs((s) => s.maxScreenshotsPerTrade);
   const setMaxScreenshots = useJournalPrefs((s) => s.setMaxScreenshotsPerTrade);
+  const timezone = useDisplayPrefs((s) => s.timezone);
+  const setTimezone = useDisplayPrefs((s) => s.setTimezone);
+  const timeFormat = useDisplayPrefs((s) => s.timeFormat);
+  const setTimeFormat = useDisplayPrefs((s) => s.setTimeFormat);
+  const tradeDateBasis = useDisplayPrefs((s) => s.tradeDateBasis);
+  const setTradeDateBasis = useDisplayPrefs((s) => s.setTradeDateBasis);
+  const [serverUrl, setServerUrl] = useState(() => getCustomApiBaseUrl());
 
   return (
     <>
@@ -1477,15 +1500,78 @@ export function GeneralTab() {
             label={settingsLabel(locale, "language")}
             detail={settingsLabel(locale, "languageFooter")}
           >
-            <SignalSelect
+            <NativeSelect
               value={locale}
-              onValueChange={(next) => {
-                void setLocale(next);
+              onChange={(e) => {
+                void setLocale(e.target.value as typeof locale);
               }}
-              ariaLabel={settingsLabel(locale, "languageSelector")}
-              options={LOCALE_OPTIONS}
-              triggerClassName="h-10 w-full text-[13px]"
-            />
+              aria-label={settingsLabel(locale, "languageSelector")}
+              className="w-full"
+              wrapperClassName="w-full"
+            >
+              {LOCALE_OPTIONS.map((o) => (
+                <NativeSelectOption key={o.value} value={o.value}>
+                  {o.label}
+                </NativeSelectOption>
+              ))}
+            </NativeSelect>
+          </SettingsGroupRow>
+          <SettingsGroupRow
+            label={settingsLabel(locale, "timezone")}
+            detail={settingsLabel(locale, "timezoneFooter")}
+            alignTop
+          >
+            <NativeSelect
+              value={timezone}
+              onChange={(e) => setTimezone(e.target.value as TimezonePref)}
+              aria-label={settingsLabel(locale, "timezoneSelector")}
+              className="w-full"
+              wrapperClassName="w-full"
+            >
+              {timezoneSelectOptions().map((o) => (
+                <NativeSelectOption key={o.value} value={o.value}>
+                  {o.label}
+                </NativeSelectOption>
+              ))}
+            </NativeSelect>
+          </SettingsGroupRow>
+          <SettingsGroupRow
+            label={settingsLabel(locale, "timeFormat")}
+            detail={settingsLabel(locale, "timeFormatFooter")}
+          >
+            <NativeSelect
+              value={timeFormat}
+              onChange={(e) => setTimeFormat(e.target.value as TimeFormatPref)}
+              aria-label={settingsLabel(locale, "timeFormatSelector")}
+              className="w-full"
+              wrapperClassName="w-full"
+            >
+              {TIME_FORMAT_OPTIONS.map((o) => (
+                <NativeSelectOption key={o.value} value={o.value}>
+                  {o.label}
+                </NativeSelectOption>
+              ))}
+            </NativeSelect>
+          </SettingsGroupRow>
+          <SettingsGroupRow
+            label={settingsLabel(locale, "tradeDateBasis")}
+            detail={settingsLabel(locale, "tradeDateBasisFooter")}
+          >
+            <NativeSelect
+              value={tradeDateBasis}
+              onChange={(e) => setTradeDateBasis(e.target.value as TradeDateBasis)}
+              aria-label={settingsLabel(locale, "tradeDateBasisSelector")}
+              className="w-full"
+              wrapperClassName="w-full"
+            >
+              {TRADE_DATE_BASIS_OPTIONS.map((o) => (
+                <NativeSelectOption key={o.value} value={o.value}>
+                  {o.value === "close"
+                    ? settingsLabel(locale, "tradeDateBasisClose")
+                    : settingsLabel(locale, "tradeDateBasisOpen")}
+                </NativeSelectOption>
+              ))}
+            </NativeSelect>
           </SettingsGroupRow>
           <SettingsGroupRow
             label={settingsLabel(locale, "maxScreenshots")}
@@ -1506,6 +1592,26 @@ export function GeneralTab() {
                   return;
                 }
                 setMaxScreenshots(Number(raw));
+              }}
+              className="h-10 w-full text-[13px]"
+            />
+          </SettingsGroupRow>
+          <SettingsGroupRow
+            label={settingsLabel(locale, "serverUrl")}
+            detail={settingsLabel(locale, "serverUrlFooter")}
+            alignTop
+          >
+            <SignalInput
+              type="text"
+              inputMode="url"
+              spellCheck={false}
+              placeholder={settingsLabel(locale, "serverUrlHint")}
+              aria-label={settingsLabel(locale, "serverUrl")}
+              value={serverUrl}
+              onChange={(e) => setServerUrl(e.target.value)}
+              onBlur={() => {
+                setBaseUrl(serverUrl);
+                setServerUrl(getCustomApiBaseUrl());
               }}
               className="h-10 w-full text-[13px]"
             />

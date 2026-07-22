@@ -116,6 +116,20 @@ export type SettingsLabelKey =
   | "language"
   | "languageFooter"
   | "languageSelector"
+  | "timezone"
+  | "timezoneFooter"
+  | "timezoneSelector"
+  | "timeFormat"
+  | "timeFormatFooter"
+  | "timeFormatSelector"
+  | "tradeDateBasis"
+  | "tradeDateBasisFooter"
+  | "tradeDateBasisSelector"
+  | "tradeDateBasisClose"
+  | "tradeDateBasisOpen"
+  | "serverUrl"
+  | "serverUrlFooter"
+  | "serverUrlHint"
   | "session"
   | "signOut"
   | "signOutFooter"
@@ -181,6 +195,23 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     language: "Language",
     languageFooter: "Interface language for TraderMemos.",
     languageSelector: "Language selector",
+    timezone: "Timezone",
+    timezoneFooter:
+      "Applies to all displayed times (trade timestamps, Hourly labels, charts). Doesn’t change how trades are grouped (UTC) or Session (Premarket/RTH stays US Eastern).",
+    timezoneSelector: "Timezone selector",
+    timeFormat: "Time format",
+    timeFormatFooter: "12-hour or 24-hour clock for displayed times.",
+    timeFormatSelector: "Time format selector",
+    tradeDateBasis: "Trade date basis",
+    tradeDateBasisFooter:
+      "Which timestamp places a trade on the calendar and in date filters. Close date uses last activity (realized P&L day). Open date uses entry.",
+    tradeDateBasisSelector: "Trade date basis selector",
+    tradeDateBasisClose: "Close date (last activity)",
+    tradeDateBasisOpen: "Open date (entry)",
+    serverUrl: "API server",
+    serverUrlFooter:
+      "Custom TraderMemos API base URL for this device. Leave blank to use the default. Origin-only URLs get /api/v1 appended.",
+    serverUrlHint: "https://your-host/api/v1",
     session: "Session",
     signOut: "Sign out",
     signOutFooter: "End your session on this device.",
@@ -248,6 +279,23 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     language: "語言",
     languageFooter: "TraderMemos 的介面語言。",
     languageSelector: "語言選擇器",
+    timezone: "時區",
+    timezoneFooter:
+      "套用到所有顯示時間（交易時間戳、小時標籤、圖表）。不會改變交易分組（仍以 UTC）或盤前/盤中/盤後（仍以美東為準）。",
+    timezoneSelector: "時區選擇器",
+    timeFormat: "時間格式",
+    timeFormatFooter: "顯示時間使用 12 小時制或 24 小時制。",
+    timeFormatSelector: "時間格式選擇器",
+    tradeDateBasis: "交易日期基準",
+    tradeDateBasisFooter:
+      "決定交易落在日曆哪一天，以及日期篩選用哪個時間戳。平倉日＝最後活動（已實現 P&L 日）。開倉日＝進場時間。",
+    tradeDateBasisSelector: "交易日期基準選擇器",
+    tradeDateBasisClose: "平倉日（最後活動）",
+    tradeDateBasisOpen: "開倉日（進場）",
+    serverUrl: "API 伺服器",
+    serverUrlFooter:
+      "此裝置的自訂 TraderMemos API 位址。留空則使用預設。只填主機時會自動加上 /api/v1。",
+    serverUrlHint: "https://your-host/api/v1",
     session: "工作階段",
     signOut: "登出",
     signOutFooter: "在此裝置結束你的工作階段。",
@@ -313,6 +361,23 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     language: "言語",
     languageFooter: "TraderMemos の表示言語。",
     languageSelector: "言語セレクター",
+    timezone: "タイムゾーン",
+    timezoneFooter:
+      "表示されるすべての時刻（トレード時刻、Hourly ラベル、チャート）に適用。取引の集計（UTC）やプレマーケット／RTH（米東部）は変わりません。",
+    timezoneSelector: "タイムゾーンセレクター",
+    timeFormat: "時刻形式",
+    timeFormatFooter: "表示時刻の 12 時間制 / 24 時間制。",
+    timeFormatSelector: "時刻形式セレクター",
+    tradeDateBasis: "トレード日付の基準",
+    tradeDateBasisFooter:
+      "カレンダー上の日と日付フィルタに使う時刻を選びます。決済日＝最後の活動（実現損益の日）。建玉日＝エントリー。",
+    tradeDateBasisSelector: "トレード日付基準セレクター",
+    tradeDateBasisClose: "決済日（最後の活動）",
+    tradeDateBasisOpen: "建玉日（エントリー）",
+    serverUrl: "API サーバー",
+    serverUrlFooter:
+      "このデバイスのカスタム TraderMemos API ベース URL。空欄でデフォルトを使用。オリジンのみの場合は /api/v1 を付与します。",
+    serverUrlHint: "https://your-host/api/v1",
     session: "セッション",
     signOut: "サインアウト",
     signOutFooter: "このデバイスでのセッションを終了します。",
@@ -379,6 +444,23 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     language: "언어",
     languageFooter: "TraderMemos 인터페이스 언어입니다.",
     languageSelector: "언어 선택",
+    timezone: "시간대",
+    timezoneFooter:
+      "표시되는 모든 시간(거래 타임스탬프, Hourly 라벨, 차트)에 적용됩니다. 거래 그룹(UTC)이나 프리마켓/RTH(미국 동부)는 바꾸지 않습니다.",
+    timezoneSelector: "시간대 선택",
+    timeFormat: "시간 형식",
+    timeFormatFooter: "표시 시간의 12시간제 / 24시간제.",
+    timeFormatSelector: "시간 형식 선택",
+    tradeDateBasis: "거래 날짜 기준",
+    tradeDateBasisFooter:
+      "캘린더 날짜와 날짜 필터에 쓸 타임스탬프입니다. 청산일 = 마지막 활동(실현 P&L 일). 진입일 = 오픈 시각.",
+    tradeDateBasisSelector: "거래 날짜 기준 선택",
+    tradeDateBasisClose: "청산일 (마지막 활동)",
+    tradeDateBasisOpen: "진입일 (오픈)",
+    serverUrl: "API 서버",
+    serverUrlFooter:
+      "이 기기의 사용자 지정 TraderMemos API 기본 URL입니다. 비우면 기본값을 씁니다. 호스트만 입력하면 /api/v1이 붙습니다.",
+    serverUrlHint: "https://your-host/api/v1",
     session: "세션",
     signOut: "로그아웃",
     signOutFooter: "이 기기에서 세션을 종료합니다.",

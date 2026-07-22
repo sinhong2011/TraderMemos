@@ -49,7 +49,7 @@ import { cn } from "../../lib/cn";
 import { fmtDayShort, fmtMoney, fmtMoneyCompact, fmtPct } from "../../lib/format";
 import { useMoneyFx } from "../../lib/hooks/useMoneyFx";
 import { intlLocale } from "../../lib/locale";
-import { usePrivacyMode } from "../../lib/displayPrefs";
+import { useDisplayTimePrefs, usePrivacyMode } from "../../lib/displayPrefs";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -200,6 +200,7 @@ function SummaryMetricsGrid({
   equityLoading?: boolean;
 }) {
   usePrivacyMode();
+  useDisplayTimePrefs();
   const locale = intlLocale();
   const equityPoints = equity?.points ?? [];
 

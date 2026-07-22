@@ -31,7 +31,7 @@ describe("parseDatetimeLocal / formatDatetimeLocal", () => {
 });
 
 describe("SignalDateTimePicker", () => {
-  it("shows a human-readable timestamp on the closed trigger", () => {
+  it("shows yyyy-MM-dd HH:mm:ss on the closed trigger", () => {
     render(
       <SignalDateTimePicker
         aria-label="Fill datetime"
@@ -40,9 +40,7 @@ describe("SignalDateTimePicker", () => {
       />,
     );
     const trigger = screen.getByRole("button", { name: "Fill datetime" });
-    expect(trigger).toHaveTextContent(/Jul 15/);
-    expect(trigger).toHaveTextContent(/31/);
-    expect(trigger).not.toHaveTextContent("2026-07-15 22:31:39");
+    expect(trigger).toHaveTextContent("2026-07-15 22:31:39");
   });
 
   it("opens panel with calendar and time columns", async () => {

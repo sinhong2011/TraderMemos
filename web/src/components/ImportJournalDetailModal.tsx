@@ -8,7 +8,7 @@ import type { OptionRightOverride } from "../lib/importOptionRight";
 import { intlLocale } from "../lib/locale";
 import { cn } from "../lib/cn";
 import { heroPnlClass } from "./theme-tokens";
-import { usePrivacyMode } from "../lib/displayPrefs";
+import { useDisplayTimePrefs, usePrivacyMode } from "../lib/displayPrefs";
 
 function formatMarketLabel(trade: JournalTradePreview, optionRight: string): string {
   if (trade.instrument_type === "option") {
@@ -99,6 +99,7 @@ export function ImportJournalDetailModal({
   onOptionRightChange?: (row: number, right: OptionRightOverride) => void;
 }) {
   usePrivacyMode();
+  useDisplayTimePrefs();
   if (!trade) return null;
 
   const locale = intlLocale();
@@ -116,7 +117,7 @@ export function ImportJournalDetailModal({
         <p className="m-0 text-[11px] text-text-muted">Import preview · Row {trade.row}</p>
 
         <div className="rounded-sharp border border-border bg-bg-inset px-4 py-4">
-          <p className="text-[10px] uppercase tracking-[0.12em] text-text-muted">Return</p>
+          <p className="text-[10px] uppercase tracking-[0.12em] text-text-muted">P&L</p>
           <div className="mt-2 flex flex-wrap items-end gap-x-4 gap-y-1">
             <p className={cn("m-0", heroPnlClass(trade.return_usd))}>
               {fmtSignedMoney(trade.return_usd, currency, locale)}

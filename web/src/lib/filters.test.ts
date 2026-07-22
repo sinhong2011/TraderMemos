@@ -11,6 +11,23 @@ describe("filter store", () => {
     expect(p.from).toBe("2026-06-01T00:00:00Z");
   });
 
+  it("stores multi-select tag ids and clears them on reset", () => {
+    useFilters.getState().setTagIds(["a", "b"]);
+    expect(useFilters.getState().tagIds).toEqual(["a", "b"]);
+    useFilters.getState().setTagIds([]);
+    expect(useFilters.getState().tagIds).toBeUndefined();
+    useFilters.getState().setTagIds(["a"]);
+    useFilters.getState().reset();
+    expect(useFilters.getState().tagIds).toBeUndefined();
+  });
+
+  it("stores multi-select markets and clears them on reset", () => {
+    useFilters.getState().setMarkets(["stock", "option"]);
+    expect(useFilters.getState().markets).toEqual(["stock", "option"]);
+    useFilters.getState().reset();
+    expect(useFilters.getState().markets).toBeUndefined();
+  });
+
   it("normalizes date-only filter values to RFC3339", () => {
     expect(normalizeFilterDate("2026-06-01", "start")).toBe("2026-06-01T00:00:00Z");
     expect(normalizeFilterDate("2026-06-30", "end")).toBe("2026-06-30T23:59:59Z");

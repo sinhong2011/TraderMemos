@@ -11,12 +11,18 @@ import {
   fmtRecord,
   fmtSignedMoney,
   fmtSignedMoneyCompact,
+  fmtTime,
 } from "./format";
 
 describe("formatters", () => {
   beforeEach(() => {
     localStorage.removeItem(DISPLAY_PREFS_STORAGE_KEY);
-    useDisplayPrefs.setState({ displayCurrency: null, privacyMode: false });
+    useDisplayPrefs.setState({
+      displayCurrency: null,
+      privacyMode: false,
+      timezone: "UTC",
+      timeFormat: "h23",
+    });
   });
 
   it("formats money by locale + currency", () => {
@@ -36,7 +42,7 @@ describe("formatters", () => {
     expect(fmtSignedMoneyCompact(-586, "USD", "en-US")).toBe("-$586");
   });
   it("renders short day labels for chart axes", () => {
-    expect(fmtDayShort("2026-07-09T12:00:00", "en-US")).toBe("Jul 9");
+    expect(fmtDayShort("2026-07-09T12:00:00Z", "en-US")).toBe("Jul 9");
   });
   it("formats signed money", () => {
     expect(fmtSignedMoney(198, "USD", "en-US")).toBe("+$198.00");
@@ -70,14 +76,37 @@ describe("fmtDateShort", () => {
 });
 
 describe("fmtDateTime", () => {
+  beforeEach(() => {
+    localStorage.removeItem(DISPLAY_PREFS_STORAGE_KEY);
+    useDisplayPrefs.setState({
+      displayCurrency: null,
+      privacyMode: false,
+      timezone: "UTC",
+      timeFormat: "h23",
+    });
+  });
+
   it("formats ISO timestamps for display", () => {
     const formatted = fmtDateTime("2026-07-10T15:19:46.000Z", "en-US");
     expect(formatted).toMatch(/Jul 10, 2026/);
+    expect(formatted).toMatch(/15:19/);
     expect(formatted).not.toContain("T15:19");
+  });
+
+  it("honors display timezone and 12-hour clock", () => {
+    useDisplayPrefs.getState().setTimezone("Asia/Hong_Kong");
+    useDisplayPrefs.getState().setTimeFormat("h12");
+    // 15:19 UTC → 23:19 HKT
+    const formatted = fmtDateTime("2026-07-10T15:19:46.000Z", "en-US");
+    expect(formatted).toMatch(/11:19\s*PM/i);
   });
 
   it("formats date-only strings without time", () => {
     expect(fmtDateTime("2026-01-02", "en-US")).toBe("Jan 2, 2026");
+  });
+
+  it("formats time-of-day via fmtTime", () => {
+    expect(fmtTime("2026-07-10T15:19:46.000Z", "en-US")).toBe("15:19");
   });
 });
 

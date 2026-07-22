@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { useShallow } from "zustand/react/shallow";
+import { useDisplayPrefs } from "./displayPrefs";
 import type { TradeStatusFilter } from "./tradeFilters";
 
 const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/;
@@ -27,11 +28,17 @@ interface FilterState {
   to?: string;
   symbol?: string;
   tradeStatus?: TradeStatusFilter;
+  /** Multi-select tag ids — trade matches if it has any selected tag. */
+  tagIds?: string[];
+  /** Multi-select instrument types — trade matches if type is selected. */
+  markets?: string[];
   setAccount: (id?: string) => void;
   setRange: (from?: string, to?: string) => void;
   setSymbol: (s?: string) => void;
   setTradeStatus: (s?: TradeStatusFilter) => void;
   toggleTradeStatus: (s: TradeStatusFilter) => void;
+  setTagIds: (ids?: string[]) => void;
+  setMarkets: (markets?: string[]) => void;
   reset: () => void;
   toParams: () => {
     account_id?: string;
@@ -50,6 +57,8 @@ export const useFilters = create<FilterState>((set, get) => ({
     set((s) => ({
       tradeStatus: s.tradeStatus === tradeStatus ? undefined : tradeStatus,
     })),
+  setTagIds: (tagIds) => set({ tagIds: tagIds?.length ? tagIds : undefined }),
+  setMarkets: (markets) => set({ markets: markets?.length ? markets : undefined }),
   reset: () =>
     set({
       accountId: undefined,
@@ -57,6 +66,8 @@ export const useFilters = create<FilterState>((set, get) => ({
       to: undefined,
       symbol: undefined,
       tradeStatus: undefined,
+      tagIds: undefined,
+      markets: undefined,
     }),
   toParams: () => {
     const s = get();
@@ -74,12 +85,14 @@ export const useFilters = create<FilterState>((set, get) => ({
 // render, which under Zustand v5's Object.is comparison causes an infinite
 // render loop. useShallow fixes that by comparing the object's keys.
 export function useFilterParams() {
+  const tradeDateBasis = useDisplayPrefs((s) => s.tradeDateBasis);
   return useFilters(
     useShallow((s) => ({
       account_id: s.accountId,
       from: normalizeFilterDate(s.from, "start"),
       to: normalizeFilterDate(s.to, "end"),
       symbol: s.symbol,
+      date_basis: tradeDateBasis,
     })),
   );
 }

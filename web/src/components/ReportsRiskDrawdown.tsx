@@ -9,7 +9,7 @@ import {
 } from "recharts";
 import type { EquityPoint, Trade } from "../lib/api/types";
 import { uniqueDayTicks } from "../lib/chartTicks";
-import { usePrivacyMode } from "../lib/displayPrefs";
+import { useDisplayTimePrefs, usePrivacyMode } from "../lib/displayPrefs";
 import { fmtDayShort } from "../lib/format";
 import { intlLocale } from "../lib/locale";
 import {
@@ -46,6 +46,7 @@ export function ReportsRiskDrawdown({
   error,
 }: ReportsRiskDrawdownProps) {
   usePrivacyMode();
+  useDisplayTimePrefs();
   const money = useReportsMoney();
   const locale = intlLocale();
   const risk = avgRiskPerTrade(trades);

@@ -9,6 +9,7 @@ import {
   YAxis,
 } from "recharts";
 import type { Trade } from "../lib/api/types";
+import { useDisplayTimePrefs } from "../lib/displayPrefs";
 import { fmtDayShort, fmtPct } from "../lib/format";
 import { intlLocale } from "../lib/locale";
 import {
@@ -52,6 +53,7 @@ export interface ReportsMetricEvolutionProps {
 }
 
 export function ReportsMetricEvolution({ trades, loading, error }: ReportsMetricEvolutionProps) {
+  useDisplayTimePrefs();
   const locale = intlLocale();
   const money = useReportsMoney();
   const [granularity, setGranularity] = useState<EvolutionGranularity>("week");

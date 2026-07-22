@@ -1,6 +1,6 @@
 import type { Trade } from "../lib/api/types";
 import { cn } from "../lib/cn";
-import { usePrivacyMode } from "../lib/displayPrefs";
+import { useDisplayTimePrefs, usePrivacyMode } from "../lib/displayPrefs";
 import { fmtDayShort } from "../lib/format";
 import { intlLocale } from "../lib/locale";
 import { useReportsMoney } from "./ReportsDisplayContext";
@@ -47,6 +47,7 @@ export interface ReportsDayStripProps {
 
 export function ReportsDayStrip({ trades, loading }: ReportsDayStripProps) {
   usePrivacyMode();
+  useDisplayTimePrefs();
   const money = useReportsMoney();
   const locale = intlLocale();
   const days = buildReportsDayStrip(trades, money.tradePnl);
