@@ -10,12 +10,11 @@ import "@fontsource/poppins/700.css";
 import { RouteErrorPanel } from "./components/RouteErrorPanel";
 import { TooltipProvider } from "./components/ui/tooltip";
 import { I18nProvider } from "./i18n";
+import { initAppUpdates } from "./lib/appUpdate";
 import { routeTree } from "./routeTree.gen";
 import "./styles.css";
 
-if ("serviceWorker" in navigator) {
-  void getSerwist().then((serwist) => serwist?.register());
-}
+void initAppUpdates(getSerwist);
 
 const queryClient = new QueryClient({
   defaultOptions: {

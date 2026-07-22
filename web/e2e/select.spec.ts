@@ -1,7 +1,10 @@
 import { expect, test } from "@playwright/test";
 
-const EMAIL = process.env.E2E_EMAIL ?? "demo@tradermemos.app";
-const PASSWORD = process.env.E2E_PASSWORD ?? "hunter2";
+if (!process.env.E2E_EMAIL || !process.env.E2E_PASSWORD) {
+  throw new Error("Set E2E_EMAIL and E2E_PASSWORD for e2e tests.");
+}
+const EMAIL = process.env.E2E_EMAIL;
+const PASSWORD = process.env.E2E_PASSWORD;
 
 async function signIn(page: import("@playwright/test").Page) {
   await page.goto("/dashboard");
@@ -10,7 +13,7 @@ async function signIn(page: import("@playwright/test").Page) {
     localStorage.removeItem("tm_refresh");
   });
   await page.reload();
-  await page.locator("#email").fill(EMAIL);
+  await page.locator("#username").fill(EMAIL);
   await page.locator("#password").fill(PASSWORD);
   await page.getByRole("button", { name: "Sign in" }).click();
   await expect(page.getByText(/Wins/i).first()).toBeVisible();

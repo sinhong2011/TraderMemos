@@ -161,6 +161,23 @@
   }
 }
 
+@keyframes signal-grid-drift {
+  0% {
+    background-position:
+      0 0,
+      0 0,
+      0 0,
+      0 0;
+  }
+  100% {
+    background-position:
+      0 0,
+      0 0,
+      24px 24px,
+      -24px 24px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -184,6 +201,11 @@
     auto,
     24px 24px,
     24px 24px;
+}
+
+@utility signal-app-animated {
+  animation: signal-grid-drift 14s linear infinite;
+  will-change: background-position;
 }
 
 @utility signal-app-grain {
@@ -261,6 +283,10 @@
   .skeleton-shimmer {
     animation: none;
     background: var(--color-bg-panel);
+  }
+
+  .signal-app-animated {
+    animation: none;
   }
 }
 

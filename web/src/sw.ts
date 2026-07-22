@@ -15,7 +15,8 @@ declare const self: ServiceWorkerGlobalScope;
 const serwist = new Serwist({
   precacheEntries: self.__SW_MANIFEST,
   precacheOptions: { cleanupOutdatedCaches: true },
-  skipWaiting: true,
+  // Stay waiting until the app sends SKIP_WAITING so users can confirm the reload.
+  skipWaiting: false,
   clientsClaim: true,
   navigationPreload: false,
   runtimeCaching: [
@@ -33,6 +34,12 @@ const serwist = new Serwist({
     },
     ...defaultCache,
   ],
+});
+
+self.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "SKIP_WAITING") {
+    void self.skipWaiting();
+  }
 });
 
 serwist.addEventListeners();

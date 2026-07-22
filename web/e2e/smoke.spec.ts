@@ -1,8 +1,11 @@
 /// <reference types="node" />
 import { expect, test } from "@playwright/test";
 
-const EMAIL = process.env.E2E_EMAIL ?? "demo@tradermemos.app";
-const PASSWORD = process.env.E2E_PASSWORD ?? "hunter2";
+if (!process.env.E2E_EMAIL || !process.env.E2E_PASSWORD) {
+  throw new Error("Set E2E_EMAIL and E2E_PASSWORD for e2e tests.");
+}
+const EMAIL = process.env.E2E_EMAIL;
+const PASSWORD = process.env.E2E_PASSWORD;
 
 test("login -> dashboard -> calendar -> trades -> detail -> stats", async ({ page }) => {
   await page.goto("/dashboard");
@@ -14,7 +17,7 @@ test("login -> dashboard -> calendar -> trades -> detail -> stats", async ({ pag
 
   // Login screen.
   await expect(page.getByText("Welcome back")).toBeVisible();
-  await page.locator("#email").fill(EMAIL);
+  await page.locator("#username").fill(EMAIL);
   await page.locator("#password").fill(PASSWORD);
   await page.getByRole("button", { name: "Sign in" }).click();
 
@@ -55,7 +58,7 @@ test("new trade drawer logs a trade", async ({ page }) => {
     localStorage.removeItem("tm_refresh");
   });
   await page.reload();
-  await page.locator("#email").fill(EMAIL);
+  await page.locator("#username").fill(EMAIL);
   await page.locator("#password").fill(PASSWORD);
   await page.getByRole("button", { name: "Sign in" }).click();
   await expect(page.getByText(/WINS|Wins/i).first()).toBeVisible();
@@ -88,7 +91,7 @@ test("new trade can still log a closed round-trip", async ({ page }) => {
     localStorage.removeItem("tm_refresh");
   });
   await page.reload();
-  await page.locator("#email").fill(EMAIL);
+  await page.locator("#username").fill(EMAIL);
   await page.locator("#password").fill(PASSWORD);
   await page.getByRole("button", { name: "Sign in" }).click();
   await expect(page.getByText(/WINS|Wins/i).first()).toBeVisible();

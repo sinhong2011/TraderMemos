@@ -2,8 +2,11 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { expect, test, type Page } from "@playwright/test";
 
-const EMAIL = process.env.E2E_EMAIL ?? "demo@tradermemos.app";
-const PASSWORD = process.env.E2E_PASSWORD ?? "hunter2";
+if (!process.env.E2E_EMAIL || !process.env.E2E_PASSWORD) {
+  throw new Error("Set E2E_EMAIL and E2E_PASSWORD for e2e tests.");
+}
+const EMAIL = process.env.E2E_EMAIL;
+const PASSWORD = process.env.E2E_PASSWORD;
 const FIXTURE = path.join(
   path.dirname(fileURLToPath(import.meta.url)),
   "fixtures",
@@ -17,7 +20,7 @@ async function signIn(page: Page) {
     localStorage.removeItem("tm_refresh");
   });
   await page.reload();
-  await page.locator("#email").fill(EMAIL);
+  await page.locator("#username").fill(EMAIL);
   await page.locator("#password").fill(PASSWORD);
   await page.getByRole("button", { name: "Sign in" }).click();
   await expect(page.getByText(/Wins/i).first()).toBeVisible();

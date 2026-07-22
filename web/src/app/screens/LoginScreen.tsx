@@ -1,14 +1,20 @@
-import { AlertCircle, ArrowRight, Eye, EyeOff, Lock, Mail, Server, Zap } from "lucide-react";
+import { AlertCircle, ArrowRight, Eye, EyeOff, Lock, Settings2, User } from "lucide-react";
 import { useId, useState } from "react";
 import { AppLogo } from "../../components/AppLogo";
 import { AuthModeTabs } from "../../components/AuthModeTabs";
+import { Modal } from "../../components/Modal";
+import { SignalInput } from "../../components/SignalInput";
 import { Button } from "../../components/ui/button";
 import { Kbd } from "../../components/ui/kbd";
 import { authApi } from "../../lib/api/auth";
-import { ApiError, DEFAULT_API_BASE, getCustomApiBaseUrl, setBaseUrl } from "../../lib/api/client";
+import {
+  ApiError,
+  editableApiBaseUrl,
+  getCustomApiBaseUrl,
+  setBaseUrl,
+} from "../../lib/api/client";
 import { useAuth } from "../../lib/auth";
 import { cn } from "../../lib/cn";
-import { DEV_ACCOUNT, isDevAuthEnabled } from "../../lib/devAccount";
 
 const MODES = [
   { value: "login", label: "Sign in" },
@@ -18,6 +24,7 @@ const MODES = [
 type AuthMode = (typeof MODES)[number]["value"];
 
 const labelClass = "text-[10px] font-medium uppercase tracking-[0.12em] text-text-muted";
+const MIN_PASSWORD = 10;
 
 function AuthField({
   label,
@@ -34,7 +41,7 @@ function AuthField({
 }: {
   label: string;
   id: string;
-  type: "email" | "password" | "text";
+  type: "password" | "text";
   value: string;
   onChange: (v: string) => void;
   placeholder?: string;
@@ -42,12 +49,12 @@ function AuthField({
   autoComplete?: string;
   autoFocus?: boolean;
   required?: boolean;
-  icon?: typeof Mail;
+  icon?: typeof User;
 }) {
   const [showPassword, setShowPassword] = useState(false);
   const isPassword = type === "password";
   const inputType = isPassword && showPassword ? "text" : type;
-  const FieldIcon = Icon ?? (type === "email" ? Mail : Lock);
+  const FieldIcon = Icon ?? (isPassword ? Lock : User);
 
   return (
     <div className="flex flex-col gap-1.5">
@@ -105,17 +112,25 @@ function AuthField({
   );
 }
 
-export function LoginScreen() {
+export function LoginScreen({
+  registrationOpen = false,
+  banner = "",
+}: {
+  registrationOpen?: boolean;
+  banner?: string;
+}) {
   const signIn = useAuth((s) => s.signIn);
   const formId = useId();
-  const devAuth = isDevAuthEnabled();
+
+  const modes = registrationOpen ? MODES : MODES.filter((m) => m.value === "login");
 
   const [mode, setMode] = useState<AuthMode>("login");
-  const [email, setEmail] = useState(() => (devAuth ? DEV_ACCOUNT.email : ""));
-  const [password, setPassword] = useState(() => (devAuth ? DEV_ACCOUNT.password : ""));
-  const [serverUrl, setServerUrl] = useState(() => getCustomApiBaseUrl());
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [serverUrl, setServerUrl] = useState(() => editableApiBaseUrl(getCustomApiBaseUrl()));
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [advancedOpen, setAdvancedOpen] = useState(false);
 
   async function completeSignIn(
     loginEmail: string,
@@ -146,28 +161,17 @@ export function LoginScreen() {
   function switchMode(next: AuthMode) {
     setMode(next);
     setError("");
-    if (next === "login" && devAuth) {
-      setEmail(DEV_ACCOUNT.email);
-      setPassword(DEV_ACCOUNT.password);
-    } else {
-      setPassword("");
-      if (next === "register") {
-        setEmail("");
-      }
+    setPassword("");
+    if (next === "register") {
+      setEmail("");
     }
-  }
-
-  async function signInWithDevAccount() {
-    setMode("login");
-    setEmail(DEV_ACCOUNT.email);
-    setPassword(DEV_ACCOUNT.password);
-    await completeSignIn(DEV_ACCOUNT.email, DEV_ACCOUNT.password, false);
   }
 
   const isLogin = mode === "login";
 
   return (
     <div className="signal-app relative flex min-h-full items-center justify-center p-6 max-[820px]:items-start max-[820px]:p-4">
+      <div className="signal-app-grid-scan" aria-hidden />
       <div className="signal-app-grain" aria-hidden />
 
       <div className="relative z-[1] grid h-[min(640px,calc(100vh-48px))] w-full max-w-[920px] grid-cols-[1fr_400px] overflow-hidden border border-border-strong bg-bg shadow-hard max-[820px]:h-auto max-[820px]:grid-cols-1">
@@ -221,20 +225,24 @@ export function LoginScreen() {
           aria-labelledby={`${formId}-title`}
         >
           <div className="mx-auto flex w-full max-w-[320px] flex-col">
-            <header className="mb-6 flex flex-col items-center gap-4">
-              <div
-                className="flex size-9 items-center justify-center rounded-sharp border border-border-strong bg-accent-bg text-[11px] font-semibold text-accent shadow-[0_0_20px_var(--color-accent-glow)]"
-                aria-hidden
-              >
-                TM
-              </div>
+            <header className="mb-6 flex flex-col items-center">
               <AuthModeTabs
                 ariaLabel="Authentication mode"
-                options={MODES}
+                options={modes}
                 value={mode}
                 onChange={(v) => switchMode(v as AuthMode)}
               />
             </header>
+
+            {banner && (
+              <div
+                className="mb-4 flex items-start gap-2 rounded-control border border-[rgba(228,255,26,0.22)] bg-[rgba(228,255,26,0.06)] px-3 py-2.5 text-xs leading-snug text-signal"
+                role="status"
+              >
+                <AlertCircle size={14} strokeWidth={1.5} aria-hidden />
+                <span>{banner}</span>
+              </div>
+            )}
 
             <form onSubmit={submit} noValidate={false} className="flex flex-col">
               <div className="mb-5">
@@ -253,13 +261,13 @@ export function LoginScreen() {
 
               <div className="flex flex-col gap-1">
                 <AuthField
-                  label="Email"
-                  id="email"
-                  type="email"
+                  label="Username"
+                  id="username"
+                  type="text"
                   value={email}
                   onChange={setEmail}
-                  placeholder="you@example.com"
-                  autoComplete="email"
+                  placeholder="owner"
+                  autoComplete="username"
                   autoFocus
                 />
                 <AuthField
@@ -268,23 +276,13 @@ export function LoginScreen() {
                   type="password"
                   value={password}
                   onChange={setPassword}
-                  placeholder={isLogin ? "Your password" : "At least 8 characters"}
+                  placeholder={isLogin ? "Your password" : `At least ${MIN_PASSWORD} characters`}
                   hint={
-                    isLogin ? undefined : "Use 8+ characters with a mix of letters and numbers."
+                    isLogin
+                      ? undefined
+                      : `Use ${MIN_PASSWORD}+ characters with a mix of letters and numbers.`
                   }
                   autoComplete={isLogin ? "current-password" : "new-password"}
-                />
-                <AuthField
-                  label="Server"
-                  id="server-url"
-                  type="text"
-                  value={serverUrl}
-                  onChange={setServerUrl}
-                  placeholder={DEFAULT_API_BASE}
-                  hint="Leave blank for the default API. Origin-only URLs get /api/v1 appended."
-                  autoComplete="url"
-                  required={false}
-                  icon={Server}
                 />
               </div>
 
@@ -324,28 +322,74 @@ export function LoginScreen() {
                 )}
               </Button>
 
-              <div className="mt-4 flex h-8 items-center justify-center">
-                {devAuth && isLogin ? (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={signInWithDevAccount}
-                    disabled={busy}
-                    className="border-dashed border-[rgba(228,255,26,0.28)] bg-[rgba(228,255,26,0.04)] text-signal hover:border-[rgba(228,255,26,0.45)] hover:bg-[rgba(228,255,26,0.08)]"
-                  >
-                    <Zap size={12} strokeWidth={1.5} aria-hidden />
-                    <span>{DEV_ACCOUNT.email}</span>
-                    <span className="text-text-dim">·</span>
-                    <span>Dev sign-in</span>
-                  </Button>
-                ) : (
-                  <p className="text-[11px] text-text-dim">
-                    Press <Kbd>Enter</Kbd> to continue
-                  </p>
-                )}
+              <div className="mt-4 flex flex-col items-center gap-2">
+                <p className="text-[11px] text-text-dim">
+                  Press <Kbd>Enter</Kbd> to continue
+                </p>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setAdvancedOpen(true)}
+                  className="text-text-muted hover:text-text"
+                >
+                  <Settings2 size={12} strokeWidth={1.5} aria-hidden />
+                  Advanced
+                  {serverUrl ? (
+                    <span className="max-w-[10rem] truncate text-text-dim" title={serverUrl}>
+                      · custom server
+                    </span>
+                  ) : null}
+                </Button>
               </div>
             </form>
+
+            <Modal
+              open={advancedOpen}
+              onOpenChange={setAdvancedOpen}
+              title="Advanced"
+              className="max-w-[min(400px,94vw)]"
+              footer={
+                <Button
+                  type="button"
+                  variant="default"
+                  onClick={() => {
+                    setBaseUrl(serverUrl);
+                    setServerUrl(editableApiBaseUrl(getCustomApiBaseUrl()));
+                    setAdvancedOpen(false);
+                  }}
+                >
+                  Save
+                </Button>
+              }
+            >
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="server-url" className={labelClass}>
+                  API server
+                </label>
+                <SignalInput
+                  id="server-url"
+                  type="text"
+                  inputMode="url"
+                  spellCheck={false}
+                  autoFocus
+                  autoComplete="url"
+                  placeholder="https://your-host"
+                  aria-label="API server"
+                  value={serverUrl}
+                  onChange={(e) => setServerUrl(e.target.value)}
+                  onBlur={() => {
+                    setBaseUrl(serverUrl);
+                    setServerUrl(editableApiBaseUrl(getCustomApiBaseUrl()));
+                  }}
+                  className="h-10 w-full text-[13px]"
+                />
+                <p className="text-[11px] leading-snug text-text-dim">
+                  API host for this device. Leave blank for the default. You only need the origin —{" "}
+                  /api/v1 is added automatically.
+                </p>
+              </div>
+            </Modal>
           </div>
         </section>
       </div>
