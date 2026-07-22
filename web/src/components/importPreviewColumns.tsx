@@ -73,7 +73,7 @@ export function journalTradePreviewColumns(
     },
     {
       accessorKey: "return_usd",
-      header: "Return",
+      header: "P&L",
       meta: { align: "right" },
       cell: (info) => <ReturnCell value={info.getValue<number>()} currency={currency} />,
     },

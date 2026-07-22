@@ -11,6 +11,13 @@ vi.mock("../../lib/hooks/useMoneyFx", () => ({
   useMoneyFx: (currency: string) => ({ currency, rate: 1 }),
 }));
 
+vi.mock("../../lib/hooks/useTradeDetail", () => ({
+  useDeleteTrade: () => ({
+    mutateAsync: vi.fn(),
+    isPending: false,
+  }),
+}));
+
 vi.mock("../../components/Toast", () => ({
   useToastManager: () => ({ add: vi.fn() }),
 }));
@@ -146,7 +153,7 @@ describe("TradesView", () => {
       />,
     );
     expect(screen.getByText("Symbol")).toBeInTheDocument();
-    expect(screen.getByText("Return %")).toBeInTheDocument();
+    expect(screen.getByText("P&L %")).toBeInTheDocument();
     expect(screen.getByText("AAPL")).toBeInTheDocument();
     expect(screen.getByText("MSFT")).toBeInTheDocument();
     expect(screen.getByText("WIN")).toBeInTheDocument();
@@ -193,6 +200,57 @@ describe("TradesView", () => {
     await user.click(screen.getByRole("button", { name: "Status" }));
     await user.click(screen.getByRole("option", { name: /Wins/i }));
     expect(onToggleTradeStatus).toHaveBeenCalledWith("win");
+  });
+
+  it("wires tags faceted filter", async () => {
+    const user = userEvent.setup();
+    const onTagIdsChange = vi.fn();
+    render(
+      <TradesView
+        {...base}
+        totalInScope={1}
+        trades={[
+          trade({
+            id: "t1",
+            symbol: "AAPL",
+            tags: [
+              {
+                id: "tag1",
+                user_id: "u1",
+                name: "Breakout",
+                color: "",
+                description: "",
+                kind: "custom",
+              },
+            ],
+          }),
+        ]}
+        tagOptions={[{ value: "tag1", label: "Breakout", count: 1 }]}
+        onTagIdsChange={onTagIdsChange}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Tags" }));
+    await user.click(screen.getByRole("option", { name: /Breakout/i }));
+    expect(onTagIdsChange).toHaveBeenCalledWith(["tag1"]);
+  });
+
+  it("wires market faceted filter", async () => {
+    const user = userEvent.setup();
+    const onMarketsChange = vi.fn();
+    render(
+      <TradesView
+        {...base}
+        totalInScope={1}
+        trades={[trade({ id: "t1", symbol: "AAPL", instrument_type: "stock" })]}
+        marketOptions={[{ value: "stock", label: "Stock", count: 1 }]}
+        onMarketsChange={onMarketsChange}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Market" }));
+    await user.click(screen.getByRole("option", { name: /Stock/i }));
+    expect(onMarketsChange).toHaveBeenCalledWith(["stock"]);
   });
 
   it("paginates long trade lists", async () => {

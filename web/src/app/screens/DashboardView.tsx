@@ -25,11 +25,11 @@ import { Page } from "../../components/Page";
 import { PerformanceStrip } from "../../components/PerformanceStrip";
 import { SegmentedControl } from "../../components/SegmentedControl";
 import { Skeleton } from "../../components/Skeleton";
-import { tradeColumns } from "../../components/tradeColumns";
+import { TRADE_COLUMN_PINNING, tradeColumns } from "../../components/tradeColumns";
 import type { Account, BreakGroup, EquityPoint, Summary, Trade } from "../../lib/api/types";
 import type { DayRecord } from "../../lib/calendar";
 import { uniqueDayTicks } from "../../lib/chartTicks";
-import { accountBaseCurrency, usePrivacyMode } from "../../lib/displayPrefs";
+import { accountBaseCurrency, useDisplayTimePrefs, usePrivacyMode } from "../../lib/displayPrefs";
 import { useMoneyFx } from "../../lib/hooks/useMoneyFx";
 import { fmtDayShort, fmtMoney, fmtMoneyCompact } from "../../lib/format";
 import { intlLocale } from "../../lib/locale";
@@ -53,6 +53,7 @@ export interface DashboardViewProps {
   onSelectTrade: (t: Trade) => void;
   onOpenFullPage: (t: Trade) => void;
   onFilterSymbol?: (symbol: string) => void;
+  onDeleted?: (t: Trade) => void;
   onViewAllTrades: () => void;
   onOpenCalendar: () => void;
   onOpenReports: () => void;
@@ -103,6 +104,7 @@ function EquityCurveChart({
   range: string;
 }) {
   usePrivacyMode();
+  useDisplayTimePrefs();
   const cutoff = rangeCutoff(range);
   const visible = useMemo(() => {
     const filtered = cutoff
@@ -206,6 +208,7 @@ export function DashboardView({
   onSelectTrade,
   onOpenFullPage,
   onFilterSymbol,
+  onDeleted,
   onViewAllTrades,
   onOpenCalendar,
   onOpenReports,
@@ -397,12 +400,14 @@ export function DashboardView({
                   onOpenDrawer: onSelectTrade,
                   onOpenFullPage,
                   onFilterSymbol,
+                  onDeleted,
                 },
                 fxRate,
               )}
               data={recentTrades}
               onRowClick={onSelectTrade}
               maxHeight={360}
+              columnPinning={TRADE_COLUMN_PINNING}
             />
             <p className="shrink-0 py-2 text-center text-xs text-text-muted">
               {hasMoreTrades

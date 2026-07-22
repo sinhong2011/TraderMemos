@@ -26,6 +26,11 @@ SELECT * FROM executions WHERE user_id = ? AND account_id = ? ORDER BY executed_
 -- name: DeleteExecution :execrows
 DELETE FROM executions WHERE id = ? AND user_id = ?;
 
+-- name: DeleteExecutionsForTrade :exec
+DELETE FROM executions
+WHERE user_id = ?
+  AND id IN (SELECT execution_id FROM trade_executions WHERE trade_id = ?);
+
 -- name: DeleteExecutionsForBatch :exec
 DELETE FROM executions WHERE import_batch_id = ? AND user_id = ?;
 

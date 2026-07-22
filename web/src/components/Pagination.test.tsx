@@ -3,27 +3,6 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vite-plus/test";
 import { Pagination } from "./Pagination";
 
-vi.mock("./SignalSelect", () => ({
-  SignalSelect: ({
-    value,
-    onValueChange,
-    ariaLabel,
-  }: {
-    value: string;
-    onValueChange: (v: string) => void;
-    ariaLabel?: string;
-  }) => (
-    <select aria-label={ariaLabel} value={value} onChange={(e) => onValueChange(e.target.value)}>
-      <option value="10">10</option>
-      <option value="20">20</option>
-      <option value="30">30</option>
-      <option value="40">40</option>
-      <option value="50">50</option>
-      <option value="100">100</option>
-    </select>
-  ),
-}));
-
 describe("Pagination", () => {
   it("renders range and navigates pages", async () => {
     const user = userEvent.setup();

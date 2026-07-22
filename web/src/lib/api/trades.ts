@@ -30,4 +30,8 @@ export const tradesApi = {
       method: "POST",
       body: JSON.stringify({ account_id }),
     }),
+  delete: (id: string) =>
+    apiFetch<void>(`/trades/${id}`, {
+      method: "DELETE",
+    }),
 };

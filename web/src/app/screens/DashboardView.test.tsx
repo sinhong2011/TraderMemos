@@ -10,6 +10,13 @@ vi.mock("../../components/Toast", () => ({
   useToastManager: () => ({ add: vi.fn() }),
 }));
 
+vi.mock("../../lib/hooks/useTradeDetail", () => ({
+  useDeleteTrade: () => ({
+    mutateAsync: vi.fn(),
+    isPending: false,
+  }),
+}));
+
 vi.mock("../../lib/hooks/useMoneyFx", () => ({
   useMoneyFx: (baseCurrency: string) => ({
     baseCurrency,

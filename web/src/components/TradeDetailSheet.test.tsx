@@ -12,6 +12,14 @@ vi.mock("@tanstack/react-router", () => ({
 
 vi.mock("../lib/hooks/useTradeDetail", () => ({
   useTradeDetail: vi.fn<() => unknown>(),
+  useDeleteTrade: () => ({
+    mutateAsync: vi.fn(),
+    isPending: false,
+  }),
+}));
+
+vi.mock("./Toast", () => ({
+  useToastManager: () => ({ add: vi.fn() }),
 }));
 
 vi.mock("./charts/TradeChartSection", () => ({
@@ -128,6 +136,7 @@ describe("TradeDetailSheet", () => {
     expect(screen.getByText("Exit")).toBeInTheDocument();
     expect(screen.queryByText("Target")).not.toBeInTheDocument();
     expect(screen.getByText(/Executions \(2\)/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Remove trade" })).toBeInTheDocument();
   });
 
   it("shows OPEN status with 'still open' and dash exit for open trades", () => {

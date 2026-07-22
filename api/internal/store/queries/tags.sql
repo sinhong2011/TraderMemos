@@ -18,3 +18,11 @@ DELETE FROM trade_tags WHERE trade_id = ?;
 
 -- name: ListTagsForTrade :many
 SELECT t.* FROM tags t JOIN trade_tags tt ON tt.tag_id = t.id WHERE tt.trade_id = ?;
+
+-- name: ListTradeTagsForUser :many
+SELECT tt.trade_id, t.id, t.user_id, t.name, t.color, t.description, t.kind
+FROM trade_tags tt
+JOIN tags t ON t.id = tt.tag_id
+JOIN trades tr ON tr.id = tt.trade_id
+WHERE tr.user_id = ?
+ORDER BY t.name;

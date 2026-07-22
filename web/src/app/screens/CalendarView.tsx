@@ -57,9 +57,9 @@ import { usePrivacyMode } from "../../lib/displayPrefs";
 const DOW_HEADERS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 /** Weekend day-of-week indexes (Sun=0, Sat=6) — hidden below `md` in favor of taller Mon–Fri cells. */
 const WEEKEND_DOW = new Set([0, 6]);
-// Below `md`: 5 columns, Mon–Fri only. From `md` up: full 7 days + week-summary column.
+// Below `md`: Mon–Fri + week summary. From `md` up: full 7 days + week summary.
 const GRID_COLS_CLASS =
-  "grid-cols-5 md:[grid-template-columns:repeat(7,minmax(0,1fr))_minmax(7.5rem,0.9fr)]";
+  "grid-cols-[repeat(5,minmax(0,1fr))_minmax(4.75rem,0.85fr)] md:[grid-template-columns:repeat(7,minmax(0,1fr))_minmax(7.5rem,0.9fr)]";
 
 const VIEW_OPTS = [
   { value: "month", label: "Month" },
@@ -107,6 +107,8 @@ export interface CalendarViewProps {
   /** Navigate to /trades/:id */
   onOpenFullPage: (t: Trade) => void;
   onFilterSymbol?: (symbol: string) => void;
+  /** Called after a successful row delete (e.g. close peek drawer). */
+  onDeleted?: (t: Trade) => void;
 }
 
 /** Softer P&L ink for heatmap cells — teal/rose, less neon than --color-profit/loss. */
@@ -160,6 +162,7 @@ function DayTradeItem({
   onSelectTrade,
   onOpenFullPage,
   onFilterSymbol,
+  onDeleted,
 }: {
   trade: Trade;
   currency: string;
@@ -167,6 +170,7 @@ function DayTradeItem({
   onSelectTrade: (t: Trade) => void;
   onOpenFullPage: (t: Trade) => void;
   onFilterSymbol?: (symbol: string) => void;
+  onDeleted?: (t: Trade) => void;
 }) {
   usePrivacyMode();
   const status = tradeStatus(trade);
@@ -246,6 +250,7 @@ function DayTradeItem({
             onOpenDrawer: onSelectTrade,
             onOpenFullPage,
             onFilterSymbol,
+            onDeleted,
           }}
         />
       </ItemActions>
@@ -264,6 +269,7 @@ function DayTradesDrawer({
   onSelectTrade,
   onOpenFullPage,
   onFilterSymbol,
+  onDeleted,
 }: {
   selectedDay: string | null;
   onClose: () => void;
@@ -275,6 +281,7 @@ function DayTradesDrawer({
   onSelectTrade: (t: Trade) => void;
   onOpenFullPage: (t: Trade) => void;
   onFilterSymbol?: (symbol: string) => void;
+  onDeleted?: (t: Trade) => void;
 }) {
   const open = Boolean(selectedDay);
   const title = selectedDay ? `Trades — ${formatDayTitle(selectedDay)}` : "Day trades";
@@ -317,6 +324,7 @@ function DayTradesDrawer({
                   onSelectTrade={onSelectTrade}
                   onOpenFullPage={onOpenFullPage}
                   onFilterSymbol={onFilterSymbol}
+                  onDeleted={onDeleted}
                 />
               ))}
             </ItemGroup>
@@ -361,6 +369,7 @@ export function CalendarView({
   onSelectTrade,
   onOpenFullPage,
   onFilterSymbol,
+  onDeleted,
 }: CalendarViewProps) {
   usePrivacyMode();
   const [monthSummaryOpen, setMonthSummaryOpen] = useState(false);
@@ -579,7 +588,7 @@ export function CalendarView({
                       {d}
                     </div>
                   ))}
-                  <div className="hidden px-1 py-1 text-center text-[11px] font-medium text-text-muted md:block">
+                  <div className="px-1 py-1 text-center text-[11px] font-medium text-text-muted">
                     Week
                   </div>
                 </div>
@@ -620,7 +629,9 @@ export function CalendarView({
                               <span
                                 className={cn(
                                   "self-end text-[11px] font-medium tabular-nums",
-                                  isToday ? "font-semibold text-accent" : "text-text-muted",
+                                  isToday
+                                    ? "inline-flex size-5 items-center justify-center rounded-full bg-accent font-semibold text-bg"
+                                    : "text-text-muted",
                                 )}
                               >
                                 {dayNum}
@@ -720,20 +731,20 @@ export function CalendarView({
 
                         <div
                           className={cn(
-                            "relative hidden h-full min-h-0 w-full flex-col rounded-control px-2.5 py-1.5 md:flex",
+                            "relative flex h-full min-h-0 w-full flex-col rounded-control px-1.5 py-1 md:px-2.5 md:py-1.5",
                             !ws.hasData && "bg-bg-inset",
                           )}
                           style={ws.hasData ? { background: pnlBgTint(ws.pnl) } : undefined}
                         >
                           {ws.weekNumber != null && (
-                            <span className="absolute top-1.5 right-2.5 z-[1] text-[11px] font-medium text-text-muted">
+                            <span className="absolute top-1 right-1.5 z-[1] text-[10px] font-medium text-text-muted md:top-1.5 md:right-2.5 md:text-[11px]">
                               Week {ws.weekNumber}
                             </span>
                           )}
                           {ws.hasData ? (
-                            <span className="flex h-full min-h-0 w-full flex-col items-center justify-center gap-1.5">
+                            <span className="flex h-full min-h-0 w-full flex-col items-center justify-center gap-0.5 md:gap-1.5">
                               <span
-                                className="text-base font-semibold tabular-nums md:text-lg"
+                                className="text-[11px] font-semibold tabular-nums md:text-base lg:text-lg"
                                 style={{ color: dayColor(ws.pnl) }}
                               >
                                 {fmtSignedMoneyCompact(
@@ -778,6 +789,7 @@ export function CalendarView({
         onSelectTrade={onSelectTrade}
         onOpenFullPage={onOpenFullPage}
         onFilterSymbol={onFilterSymbol}
+        onDeleted={onDeleted}
       />
 
       <Modal

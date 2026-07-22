@@ -11,7 +11,7 @@ function Harness() {
     <ViewOptions
       columns={[
         { id: "symbol", label: "Symbol" },
-        { id: "net_pnl", label: "Return" },
+        { id: "net_pnl", label: "P&L" },
       ]}
       columnVisibility={columnVisibility}
       onColumnVisibilityChange={setColumnVisibility}

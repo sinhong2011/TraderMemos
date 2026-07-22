@@ -1,6 +1,9 @@
 -- name: DeleteTradesForAccount :exec
 DELETE FROM trades WHERE user_id = ? AND account_id = ?;
 
+-- name: DeleteTrade :execrows
+DELETE FROM trades WHERE id = ? AND user_id = ?;
+
 -- name: InsertTrade :one
 INSERT INTO trades (id, user_id, account_id, symbol, instrument_type, direction, status,
     opened_at, closed_at, qty_opened, qty_remaining, avg_entry_price, avg_exit_price, gross_pnl, fees_total,

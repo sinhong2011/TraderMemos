@@ -1,5 +1,7 @@
 import {
+  type Column,
   type ColumnDef,
+  type ColumnPinningState,
   type OnChangeFn,
   type SortingState,
   type VisibilityState,
@@ -9,15 +11,22 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { cn } from "../lib/cn";
 import { ColumnHeader } from "./ColumnHeader";
+
+type ColumnMeta = {
+  align?: string;
+  headerTitle?: string;
+  /** Minimum column width in px (keeps money columns from clipping). */
+  minWidth?: number;
+};
 
 interface DataTableProps<T> {
   columns: ColumnDef<T>[];
   data: T[];
   onRowClick?: (row: T) => void;
-  /** Scroll container height — required for virtualization in flex layouts */
+  /** Cap scrollport height — container shrinks to content below this, so the H-bar sits under rows. */
   maxHeight?: string | number;
   className?: string;
   dense?: boolean;
@@ -34,6 +43,9 @@ interface DataTableProps<T> {
   /** Controlled column visibility (tablecn View / Hide) */
   columnVisibility?: VisibilityState;
   onColumnVisibilityChange?: OnChangeFn<VisibilityState>;
+  /** TanStack column pinning — sticky CSS via getIsPinned / getStart / getAfter. */
+  columnPinning?: ColumnPinningState;
+  onColumnPinningChange?: OnChangeFn<ColumnPinningState>;
 }
 
 function tableMetrics(dense: boolean, comfortable: boolean) {
@@ -63,6 +75,49 @@ function tableMetrics(dense: boolean, comfortable: boolean) {
   };
 }
 
+/**
+ * Sticky pin styles from TanStack's sticky column-pinning example.
+ * Header pins need top:0 + higher z so they stay above body pins while scrolling.
+ */
+function pinningStyle<T>(
+  column: Column<T>,
+  kind: "header" | "body",
+  pinActive: boolean,
+): CSSProperties {
+  const isPinned = column.getIsPinned();
+  if (!isPinned || !pinActive) return {};
+
+  const isLastLeft = isPinned === "left" && column.getIsLastColumn("left");
+  const isFirstRight = isPinned === "right" && column.getIsFirstColumn("right");
+
+  return {
+    position: "sticky",
+    left: isPinned === "left" ? `${column.getStart("left")}px` : undefined,
+    right: isPinned === "right" ? `${column.getAfter("right")}px` : undefined,
+    top: kind === "header" ? 0 : undefined,
+    zIndex: kind === "header" ? 3 : 1,
+    boxShadow: isLastLeft
+      ? "8px 0 12px -10px rgba(0,0,0,0.55)"
+      : isFirstRight
+        ? "-8px 0 12px -10px rgba(0,0,0,0.55)"
+        : undefined,
+  };
+}
+
+function pinningCellClass<T>(
+  column: Column<T>,
+  kind: "header" | "body",
+  pinActive: boolean,
+  headerClassName?: string,
+) {
+  if (!column.getIsPinned() || !pinActive) return undefined;
+  return cn(
+    // Opaque so scrolled cells never show through the pin.
+    kind === "header" ? (headerClassName ?? "bg-bg-panel") : "bg-bg",
+    kind === "body" && "group-hover:bg-bg-hover",
+  );
+}
+
 export function DataTable<T>({
   columns,
   data,
@@ -78,22 +133,31 @@ export function DataTable<T>({
   enableMultiSort = false,
   columnVisibility: visibilityProp,
   onColumnVisibilityChange,
+  columnPinning: pinningProp,
+  onColumnPinningChange,
 }: DataTableProps<T>) {
   const [internalSorting, setInternalSorting] = useState<SortingState>([]);
   const [internalVisibility, setInternalVisibility] = useState<VisibilityState>({});
+  const [internalPinning, setInternalPinning] = useState<ColumnPinningState>(
+    () => pinningProp ?? { left: [], right: [] },
+  );
   const sorting = sortingProp ?? internalSorting;
   const setSorting = onSortingChange ?? setInternalSorting;
   const columnVisibility = visibilityProp ?? internalVisibility;
   const setColumnVisibility = onColumnVisibilityChange ?? setInternalVisibility;
+  const columnPinning = pinningProp ?? internalPinning;
+  const setColumnPinning = onColumnPinningChange ?? setInternalPinning;
   const tableContainerRef = useRef<HTMLDivElement>(null);
+  const [pinActive, setPinActive] = useState(false);
   const metrics = tableMetrics(dense, comfortable);
 
   const table = useReactTable({
     data,
     columns,
-    state: { sorting, columnVisibility },
+    state: { sorting, columnVisibility, columnPinning },
     onSortingChange: setSorting,
     onColumnVisibilityChange: setColumnVisibility,
+    onColumnPinningChange: setColumnPinning,
     enableMultiSort,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -101,6 +165,8 @@ export function DataTable<T>({
 
   const { rows } = table.getRowModel();
   const visibleColCount = table.getVisibleLeafColumns().length;
+  const hasPinIntent =
+    (columnPinning.left?.length ?? 0) > 0 || (columnPinning.right?.length ?? 0) > 0;
 
   const rowVirtualizer = useVirtualizer({
     count: rows.length,
@@ -115,24 +181,60 @@ export function DataTable<T>({
   const paddingBottom =
     virtualRows.length > 0 ? totalSize - virtualRows[virtualRows.length - 1].end : 0;
 
+  // Sticky CSS only while content overflows horizontally — avoids covering P&L when everything fits.
+  useEffect(() => {
+    const el = tableContainerRef.current;
+    if (!el || !hasPinIntent) {
+      setPinActive(false);
+      return;
+    }
+
+    const update = () => {
+      const tableEl = el.querySelector("table");
+      const contentWidth = tableEl
+        ? Math.max(tableEl.scrollWidth, tableEl.offsetWidth)
+        : el.scrollWidth;
+      setPinActive(contentWidth > el.clientWidth + 1);
+    };
+    update();
+    const raf = requestAnimationFrame(update);
+
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    const tableEl = el.querySelector("table");
+    if (tableEl) ro.observe(tableEl);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      ro.disconnect();
+    };
+  }, [data, columns, columnVisibility, comfortable, dense, visibleColCount, hasPinIntent]);
+
+  const headerSurface = headerClassName ?? "bg-bg-panel";
+
   return (
     <div
       ref={tableContainerRef}
-      className={cn("overflow-auto", className)}
+      className={cn(
+        "min-w-0 max-w-full overflow-x-auto overflow-y-auto overscroll-contain scrollbar-table",
+        className,
+      )}
       style={{
         fontSize: `${metrics.fontSize}px`,
         maxHeight,
       }}
     >
-      <table className="w-full border-collapse">
-        <thead className={cn("sticky top-0 z-1 bg-bg-panel", headerClassName)}>
+      {/* separate + spacing 0 required for sticky pin + box-shadow (TanStack sticky pinning). */}
+      <table
+        className="w-max min-w-full border-separate border-spacing-0"
+        style={{ width: "max-content" }}
+      >
+        <thead className={cn("sticky top-0 z-[2]", headerSurface)}>
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>
               {headerGroup.headers.map((header) => {
                 const sorted = header.column.getIsSorted();
-                const meta = header.column.columnDef.meta as
-                  | { align?: string; headerTitle?: string }
-                  | undefined;
+                const meta = header.column.columnDef.meta as ColumnMeta | undefined;
                 const alignRight = meta?.align === "right";
                 const label = header.isPlaceholder
                   ? null
@@ -143,12 +245,19 @@ export function DataTable<T>({
                     aria-sort={
                       sorted === "asc" ? "ascending" : sorted === "desc" ? "descending" : undefined
                     }
+                    style={{
+                      ...(meta?.minWidth != null ? { minWidth: meta.minWidth } : {}),
+                      ...pinningStyle(header.column, "header", pinActive),
+                    }}
                     className={cn(
                       "select-none px-3 text-text-muted",
                       metrics.headerText,
                       metrics.headerPy,
                       lined && "border-b border-border",
                       alignRight && "text-right",
+                      // Every header cell opaque so body never paints through while scrolling.
+                      headerSurface,
+                      pinningCellClass(header.column, "header", pinActive, headerClassName),
                     )}
                   >
                     <ColumnHeader
@@ -182,19 +291,21 @@ export function DataTable<T>({
                 onClick={() => onRowClick?.(row.original)}
               >
                 {row.getVisibleCells().map((cell) => {
-                  const align =
-                    (cell.column.columnDef.meta as { align?: string } | undefined)?.align ===
-                    "right"
-                      ? "text-right"
-                      : "text-left";
+                  const meta = cell.column.columnDef.meta as ColumnMeta | undefined;
+                  const align = meta?.align === "right" ? "text-right" : "text-left";
                   return (
                     <td
                       key={cell.id}
+                      style={{
+                        ...(meta?.minWidth != null ? { minWidth: meta.minWidth } : {}),
+                        ...pinningStyle(cell.column, "body", pinActive),
+                      }}
                       className={cn(
                         "px-3 text-text whitespace-nowrap transition-colors duration-150",
                         metrics.cellPy,
                         lined && "border-b border-border",
                         align,
+                        pinningCellClass(cell.column, "body", pinActive, headerClassName),
                       )}
                     >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}

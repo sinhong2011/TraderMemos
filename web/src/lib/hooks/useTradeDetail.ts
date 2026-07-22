@@ -38,3 +38,16 @@ export function usePatchTrade() {
     },
   });
 }
+
+export function useDeleteTrade() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => tradesApi.delete(id),
+    onSuccess: (_data, id) => {
+      void queryClient.invalidateQueries({ queryKey: ["trades"] });
+      void queryClient.invalidateQueries({ queryKey: ["trade", id] });
+      void queryClient.invalidateQueries({ queryKey: ["analytics"] });
+      void queryClient.invalidateQueries({ queryKey: ["cash"] });
+    },
+  });
+}

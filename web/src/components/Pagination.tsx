@@ -2,8 +2,8 @@ import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
 import type { ReactNode } from "react";
 import { cn } from "../lib/cn";
 import { pageItems, pageRangeLabel } from "../lib/pagination";
-import { SignalSelect } from "./SignalSelect";
 import { Button } from "./ui/button";
+import { NativeSelect, NativeSelectOption } from "./ui/native-select";
 
 const DEFAULT_PAGE_SIZES = [10, 20, 30, 40, 50, 100] as const;
 
@@ -113,17 +113,20 @@ export function Pagination({
             <span className="hidden text-[10px] font-medium uppercase tracking-widest text-text-dim sm:inline">
               Rows
             </span>
-            <SignalSelect
-              ghost
-              ariaLabel="Rows per page"
+            <NativeSelect
+              variant="ghost"
+              size="sm"
+              aria-label="Rows per page"
               value={String(pageSize)}
-              onValueChange={(v) => onPageSizeChange(Number(v))}
-              options={pageSizeOptions.map((n) => ({
-                value: String(n),
-                label: String(n),
-              }))}
-              triggerClassName="h-8 w-[4.25rem] px-2 text-[11px] tabular-nums"
-            />
+              onChange={(e) => onPageSizeChange(Number(e.target.value))}
+              className="h-8 w-[4.25rem] px-2 pr-6 text-center text-[11px] tabular-nums"
+            >
+              {pageSizeOptions.map((n) => (
+                <NativeSelectOption key={n} value={String(n)}>
+                  {n}
+                </NativeSelectOption>
+              ))}
+            </NativeSelect>
           </div>
         ) : null}
 

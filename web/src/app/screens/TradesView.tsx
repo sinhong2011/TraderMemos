@@ -12,6 +12,7 @@ import { SignalInput } from "../../components/SignalInput";
 import { Skeleton } from "../../components/Skeleton";
 import { SortList } from "../../components/SortList";
 import {
+  TRADE_COLUMN_PINNING,
   TRADE_SORT_COLUMNS,
   TRADE_VIEW_COLUMNS,
   tradeColumns,
@@ -22,7 +23,7 @@ import type { Trade } from "../../lib/api/types";
 import { cn } from "../../lib/cn";
 import { useMoneyFx } from "../../lib/hooks/useMoneyFx";
 import { clampPage, pageCountFor, slicePage } from "../../lib/pagination";
-import type { TradeStatusFilter } from "../../lib/tradeFilters";
+import type { MarketFacetOption, TagFacetOption, TradeStatusFilter } from "../../lib/tradeFilters";
 
 const DEFAULT_PAGE_SIZE = 20;
 
@@ -58,11 +59,18 @@ export interface TradesViewProps {
   onSymbolChange: (s: string) => void;
   onSelectTrade: (id: string) => void;
   onOpenFullPage: (id: string) => void;
+  onDeleted?: (id: string) => void;
   totalInScope: number;
   scopeLoading: boolean;
   hasNarrowingFilters: boolean;
   tradeStatus?: TradeStatusFilter;
   onToggleTradeStatus?: (filter: TradeStatusFilter) => void;
+  tagIds?: string[];
+  tagOptions?: TagFacetOption[];
+  onTagIdsChange?: (ids?: string[]) => void;
+  markets?: string[];
+  marketOptions?: MarketFacetOption[];
+  onMarketsChange?: (markets?: string[]) => void;
   onClearFilters: () => void;
   onClearStatus?: () => void;
   onImport: () => void;
@@ -113,11 +121,18 @@ export function TradesView({
   onSymbolChange,
   onSelectTrade,
   onOpenFullPage,
+  onDeleted,
   totalInScope,
   scopeLoading,
   hasNarrowingFilters,
   tradeStatus,
   onToggleTradeStatus,
+  tagIds,
+  tagOptions,
+  onTagIdsChange,
+  markets,
+  marketOptions,
+  onMarketsChange,
   onClearFilters,
   onClearStatus,
   onImport,
@@ -138,7 +153,7 @@ export function TradesView({
 
   useEffect(() => {
     setPage(1);
-  }, [symbol, tradeStatus, pageSize]);
+  }, [symbol, tradeStatus, tagIds, markets, pageSize]);
 
   const filteredEmpty = !loading && !error && trades.length === 0;
   const trulyEmpty = filteredEmpty && !scopeLoading && totalInScope === 0 && !hasNarrowingFilters;
@@ -153,6 +168,24 @@ export function TradesView({
     }
     const value = Array.isArray(next) ? next[0] : next;
     if (value && value !== tradeStatus) onToggleTradeStatus(value as TradeStatusFilter);
+  }
+
+  function handleTagChange(next: string | string[] | undefined) {
+    if (!onTagIdsChange) return;
+    if (next == null || next === "") {
+      onTagIdsChange(undefined);
+      return;
+    }
+    onTagIdsChange(Array.isArray(next) ? next : [next]);
+  }
+
+  function handleMarketChange(next: string | string[] | undefined) {
+    if (!onMarketsChange) return;
+    if (next == null || next === "") {
+      onMarketsChange(undefined);
+      return;
+    }
+    onMarketsChange(Array.isArray(next) ? next : [next]);
   }
 
   const toolbarControlClass =
@@ -199,6 +232,26 @@ export function TradesView({
             options={STATUS_FACETS}
             value={tradeStatus}
             onChange={handleStatusChange}
+            className={toolbarControlClass}
+          />
+        ) : null}
+        {onMarketsChange && marketOptions && marketOptions.length > 0 ? (
+          <FacetedFilter
+            title="Market"
+            options={marketOptions}
+            value={markets}
+            onChange={handleMarketChange}
+            multiple
+            className={toolbarControlClass}
+          />
+        ) : null}
+        {onTagIdsChange && tagOptions && tagOptions.length > 0 ? (
+          <FacetedFilter
+            title="Tags"
+            options={tagOptions}
+            value={tagIds}
+            onChange={handleTagChange}
+            multiple
             className={toolbarControlClass}
           />
         ) : null}
@@ -285,7 +338,7 @@ export function TradesView({
             <div className="flex flex-1 items-center justify-center">
               <EmptyState
                 title="No trades match these filters"
-                hint="Widen the date range, clear the symbol filter, or switch account."
+                hint="Widen the date range, clear symbol/status/market/tags filters, or switch account."
                 icon={<Search size={36} strokeWidth={1.5} />}
                 actions={
                   hasNarrowingFilters ? (
@@ -305,13 +358,13 @@ export function TradesView({
                     onOpenDrawer: (t) => onSelectTrade(t.id),
                     onOpenFullPage: (t) => onOpenFullPage(t.id),
                     onFilterSymbol: (s) => onSymbolChange(s),
+                    onDeleted: onDeleted ? (t) => onDeleted(t.id) : undefined,
                   },
                   fxRate,
                 )}
                 data={pageTrades}
                 onRowClick={(t) => onSelectTrade(t.id)}
                 maxHeight="100%"
-                className="h-full"
                 comfortable
                 lined
                 headerClassName="bg-bg"
@@ -320,6 +373,7 @@ export function TradesView({
                 enableMultiSort
                 columnVisibility={columnVisibility}
                 onColumnVisibilityChange={setColumnVisibility}
+                columnPinning={TRADE_COLUMN_PINNING}
               />
             </div>
           )}

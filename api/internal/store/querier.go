@@ -24,9 +24,11 @@ type Querier interface {
 	DeleteExecution(ctx context.Context, arg DeleteExecutionParams) (int64, error)
 	DeleteExecutionsForAccount(ctx context.Context, arg DeleteExecutionsForAccountParams) error
 	DeleteExecutionsForBatch(ctx context.Context, arg DeleteExecutionsForBatchParams) error
+	DeleteExecutionsForTrade(ctx context.Context, arg DeleteExecutionsForTradeParams) error
 	DeleteJournalNote(ctx context.Context, arg DeleteJournalNoteParams) (int64, error)
 	DeleteSetup(ctx context.Context, arg DeleteSetupParams) (int64, error)
 	DeleteTag(ctx context.Context, arg DeleteTagParams) (int64, error)
+	DeleteTrade(ctx context.Context, arg DeleteTradeParams) (int64, error)
 	DeleteTradesForAccount(ctx context.Context, arg DeleteTradesForAccountParams) error
 	DeleteTradesNotInAccount(ctx context.Context, arg DeleteTradesNotInAccountParams) error
 	ExecutionExists(ctx context.Context, arg ExecutionExistsParams) (int64, error)
@@ -68,6 +70,7 @@ type Querier interface {
 	ListSetupsForTrade(ctx context.Context, tradeID string) ([]Setup, error)
 	ListTags(ctx context.Context, userID string) ([]Tag, error)
 	ListTagsForTrade(ctx context.Context, tradeID string) ([]Tag, error)
+	ListTradeTagsForUser(ctx context.Context, userID string) ([]ListTradeTagsForUserRow, error)
 	ListTrades(ctx context.Context, arg ListTradesParams) ([]Trade, error)
 	SetImportBatchStatus(ctx context.Context, arg SetImportBatchStatusParams) error
 	SetTradeSetup(ctx context.Context, arg SetTradeSetupParams) error

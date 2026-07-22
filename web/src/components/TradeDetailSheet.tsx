@@ -1,5 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
-import { ExternalLink, X, Zap } from "lucide-react";
+import { ExternalLink, Trash2, X, Zap } from "lucide-react";
+import { useId, useState } from "react";
 import { TradeChartSection } from "./charts/TradeChartSection";
 import { RiskRewardPanel } from "./RiskRewardPanel";
 import {
@@ -7,21 +8,26 @@ import {
   DrawerBody,
   DrawerClose,
   DrawerContent,
+  DrawerFooter,
   DrawerHeader,
   DrawerTitle,
 } from "./Drawer";
+import { Modal } from "./Modal";
 import { Skeleton } from "./Skeleton";
 import { Pill } from "./Pill";
+import { SignalInput } from "./SignalInput";
+import { useToastManager } from "./Toast";
 import { heroPnlClass, pnlColor } from "./theme-tokens";
 import { marketLabel, tradeStatus } from "./tradeColumns";
+import { formatOptionMarketChip, optionContractFromFills } from "../lib/optionContract";
 import { Button } from "./ui/button";
 import { cn } from "../lib/cn";
 import type { TradeDetail } from "../lib/api/types";
-import { fmtMoney, fmtSignedMoney } from "../lib/format";
+import { fmtDateTime, fmtMoney, fmtSignedMoney } from "../lib/format";
 import { intlLocale } from "../lib/locale";
-import { useTradeDetail } from "../lib/hooks/useTradeDetail";
+import { useDeleteTrade, useTradeDetail } from "../lib/hooks/useTradeDetail";
 import { computeRiskReward } from "../lib/riskReward";
-import { usePrivacyMode } from "../lib/displayPrefs";
+import { useDisplayTimePrefs, usePrivacyMode } from "../lib/displayPrefs";
 
 export interface TradeDetailSheetProps {
   tradeId: string | null;
@@ -30,24 +36,44 @@ export interface TradeDetailSheetProps {
 
 const sectionLabelClass = "mb-2 text-[10px] font-semibold uppercase tracking-widest text-signal";
 
-function fmtWhen(iso: string): string {
-  return new Date(iso).toLocaleString(intlLocale(), {
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
 export function TradeDetailSheet({ tradeId, onClose }: TradeDetailSheetProps) {
   const navigate = useNavigate();
+  const toast = useToastManager();
   const open = Boolean(tradeId);
   const detailQ = useTradeDetail(tradeId ?? "");
+  const deleteTrade = useDeleteTrade();
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [typedConfirm, setTypedConfirm] = useState("");
+  const confirmInputId = useId();
+
+  const trade = detailQ.data;
+  const canDelete =
+    trade != null && typedConfirm.trim().toUpperCase() === trade.symbol.trim().toUpperCase();
 
   const openFullPage = () => {
     if (!tradeId) return;
     void navigate({ to: "/trades/$id", params: { id: tradeId } });
     onClose();
+  };
+
+  const closeDeleteModal = (next: boolean) => {
+    setDeleteOpen(next);
+    if (!next) setTypedConfirm("");
+  };
+
+  const handleDelete = async () => {
+    if (!tradeId || !trade) return;
+    try {
+      await deleteTrade.mutateAsync(tradeId);
+      toast.add({ title: "Trade removed", description: trade.symbol });
+      closeDeleteModal(false);
+      onClose();
+    } catch {
+      toast.add({
+        title: "Could not remove trade",
+        description: "Try again in a moment",
+      });
+    }
   };
 
   return (
@@ -61,12 +87,17 @@ export function TradeDetailSheet({ tradeId, onClose }: TradeDetailSheetProps) {
       <DrawerContent>
         <DrawerHeader className="px-4 py-3">
           <DrawerTitle className="flex items-baseline gap-1.5">
-            {detailQ.data ? (
+            {trade ? (
               <>
-                {detailQ.data.symbol}
+                {trade.symbol}
                 <span className="text-xs font-medium text-text-muted">
-                  · {marketLabel(detailQ.data.instrument_type)} ·{" "}
-                  {detailQ.data.direction.toUpperCase()}
+                  ·{" "}
+                  {formatOptionMarketChip(
+                    trade.instrument_type,
+                    marketLabel(trade.instrument_type),
+                    optionContractFromFills(trade.fills),
+                  )}{" "}
+                  · {trade.direction.toUpperCase()}
                 </span>
               </>
             ) : (
@@ -106,10 +137,70 @@ export function TradeDetailSheet({ tradeId, onClose }: TradeDetailSheetProps) {
           {detailQ.isError && (
             <p className="p-4 text-sm text-text-muted">Could not load trade detail.</p>
           )}
-          {detailQ.data && (
-            <TradeDetailSheetBody trade={detailQ.data} onOpenFullPage={openFullPage} />
-          )}
+          {trade && <TradeDetailSheetBody trade={trade} onOpenFullPage={openFullPage} />}
         </DrawerBody>
+        {trade ? (
+          <DrawerFooter className="justify-start px-4">
+            <Button
+              type="button"
+              variant="destructive"
+              size="icon-sm"
+              aria-label="Remove trade"
+              title="Remove trade"
+              disabled={deleteTrade.isPending}
+              onClick={() => setDeleteOpen(true)}
+            >
+              <Trash2 size={15} strokeWidth={1.5} aria-hidden />
+            </Button>
+          </DrawerFooter>
+        ) : null}
+        {trade ? (
+          <Modal
+            open={deleteOpen}
+            onOpenChange={closeDeleteModal}
+            title={`Remove ${trade.symbol}?`}
+            className="max-w-[min(336px,94vw)]"
+            footer={
+              <>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  disabled={deleteTrade.isPending}
+                  onClick={() => closeDeleteModal(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  disabled={!canDelete || deleteTrade.isPending}
+                  onClick={() => void handleDelete()}
+                  className="border-transparent bg-loss/15 hover:bg-loss/25"
+                >
+                  {deleteTrade.isPending ? "Removing…" : "Remove trade"}
+                </Button>
+              </>
+            }
+          >
+            <p className="m-0 text-[13px] leading-relaxed text-text-muted">
+              Permanently deletes this trade and all of its fills. This cannot be undone.
+            </p>
+            <div>
+              <label htmlFor={confirmInputId} className="mb-1.5 block text-[11px] text-text-dim">
+                Type <span className="font-medium text-text">{trade.symbol}</span> to confirm
+              </label>
+              <SignalInput
+                id={confirmInputId}
+                value={typedConfirm}
+                onChange={(e) => setTypedConfirm(e.target.value)}
+                autoFocus
+                autoComplete="off"
+                spellCheck={false}
+                aria-label={`Type ${trade.symbol} to confirm`}
+              />
+            </div>
+          </Modal>
+        ) : null}
       </DrawerContent>
     </Drawer>
   );
@@ -144,6 +235,7 @@ function TradeDetailSheetBody({
   onOpenFullPage: () => void;
 }) {
   usePrivacyMode();
+  useDisplayTimePrefs();
   const currency = trade.pnl_currency;
   const pnl = trade.net_pnl;
   const status = tradeStatus(trade);
@@ -160,9 +252,9 @@ function TradeDetailSheetBody({
           </Pill>
           <span className="text-xs tabular-nums text-text-muted">
             {trade.status === "open"
-              ? `${fmtWhen(trade.opened_at)} · still open`
-              : `${fmtWhen(trade.opened_at)} → ${
-                  trade.closed_at ? fmtWhen(trade.closed_at) : "—"
+              ? `${fmtDateTime(trade.opened_at)} · still open`
+              : `${fmtDateTime(trade.opened_at)} → ${
+                  trade.closed_at ? fmtDateTime(trade.closed_at) : "—"
                 }${hold === "-" ? "" : ` · ${hold}`}`}
           </span>
         </div>
@@ -280,7 +372,7 @@ function TradeDetailSheetBody({
                     </span>
                   )}
                 </span>
-                <span className="text-text-muted">{fmtWhen(f.executed_at)}</span>
+                <span className="text-text-muted">{fmtDateTime(f.executed_at)}</span>
               </li>
             ))}
           </ul>

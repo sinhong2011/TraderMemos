@@ -91,6 +91,9 @@ function DashboardPage() {
         onSelectTrade={(t) => setSelectedTradeId(t.id)}
         onOpenFullPage={(t) => void navigate({ to: "/trades/$id", params: { id: t.id } })}
         onFilterSymbol={(symbol) => setSymbol(symbol)}
+        onDeleted={(t) => {
+          if (selectedTradeId === t.id) setSelectedTradeId(null);
+        }}
         onViewAllTrades={() => void navigate({ to: "/trades" })}
         onOpenCalendar={() => void navigate({ to: "/calendar" })}
         onOpenReports={() =>

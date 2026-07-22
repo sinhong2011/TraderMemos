@@ -137,6 +137,56 @@ func (q *Queries) ListTagsForTrade(ctx context.Context, tradeID string) ([]Tag, 
 	return items, nil
 }
 
+const listTradeTagsForUser = `-- name: ListTradeTagsForUser :many
+SELECT tt.trade_id, t.id, t.user_id, t.name, t.color, t.description, t.kind
+FROM trade_tags tt
+JOIN tags t ON t.id = tt.tag_id
+JOIN trades tr ON tr.id = tt.trade_id
+WHERE tr.user_id = ?
+ORDER BY t.name
+`
+
+type ListTradeTagsForUserRow struct {
+	TradeID     string `json:"trade_id"`
+	ID          string `json:"id"`
+	UserID      string `json:"user_id"`
+	Name        string `json:"name"`
+	Color       string `json:"color"`
+	Description string `json:"description"`
+	Kind        string `json:"kind"`
+}
+
+func (q *Queries) ListTradeTagsForUser(ctx context.Context, userID string) ([]ListTradeTagsForUserRow, error) {
+	rows, err := q.db.QueryContext(ctx, listTradeTagsForUser, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListTradeTagsForUserRow
+	for rows.Next() {
+		var i ListTradeTagsForUserRow
+		if err := rows.Scan(
+			&i.TradeID,
+			&i.ID,
+			&i.UserID,
+			&i.Name,
+			&i.Color,
+			&i.Description,
+			&i.Kind,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const setTradeTags = `-- name: SetTradeTags :exec
 INSERT OR IGNORE INTO trade_tags (trade_id, tag_id) VALUES (?, ?)
 `

@@ -5,14 +5,23 @@ import { describe, expect, it, vi } from "vite-plus/test";
 import type { Trade } from "../lib/api/types";
 import {
   marketLabel,
+  TRADE_COLUMN_PINNING,
   tradeColumns,
   tradeNotional,
   tradeNotionalMultiplier,
+  tradeRMultiple,
   tradeStatus,
 } from "./tradeColumns";
 
 vi.mock("./Toast", () => ({
   useToastManager: () => ({ add: vi.fn() }),
+}));
+
+vi.mock("../lib/hooks/useTradeDetail", () => ({
+  useDeleteTrade: () => ({
+    mutateAsync: vi.fn(),
+    isPending: false,
+  }),
 }));
 
 // Mock DataTable: the real one uses a virtualizer that needs a sized container (absent in jsdom).
@@ -77,6 +86,7 @@ const TRADE: Trade = {
   time_in_trade_secs: 2340,
   notes: "",
   tags: [],
+  initial_risk: 50,
 };
 
 describe("tradeStatus", () => {
@@ -94,6 +104,14 @@ describe("tradeStatus", () => {
       label: "BE",
       tone: "muted",
     });
+  });
+});
+
+describe("tradeRMultiple", () => {
+  it("divides net P&L by initial risk", () => {
+    expect(tradeRMultiple(TRADE)).toBeCloseTo(0.2278);
+    expect(tradeRMultiple({ ...TRADE, initial_risk: null })).toBeNull();
+    expect(tradeRMultiple({ ...TRADE, net_pnl: null })).toBeNull();
   });
 });
 
@@ -116,14 +134,50 @@ describe("tradeNotional", () => {
 
 describe("tradeColumns", () => {
   it("renders a full trade row", () => {
-    render(<DataTable columns={tradeColumns("USD", { onOpenFullPage: vi.fn() })} data={[TRADE]} />);
+    render(
+      <DataTable
+        columns={tradeColumns("USD", { onOpenFullPage: vi.fn() })}
+        data={[TRADE]}
+        columnPinning={TRADE_COLUMN_PINNING}
+      />,
+    );
     expect(screen.getByText("TSLQ")).toBeInTheDocument();
     expect(screen.getByText("WIN")).toBeInTheDocument();
     expect(screen.getByText("STK")).toBeInTheDocument();
     expect(screen.getByText("39m")).toBeInTheDocument();
     expect(screen.getByText("+$11.39")).toBeInTheDocument();
     expect(screen.getByText("0.79%")).toBeInTheDocument();
+    expect(screen.getByText("$5.41")).toBeInTheDocument();
+    expect(screen.getByText("+0.23R")).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Fees" })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Close" })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "R" })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Tags" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Actions for TSLQ" })).toBeInTheDocument();
+  });
+
+  it("renders tag pills when present", () => {
+    const tagged: Trade = {
+      ...TRADE,
+      tags: [
+        {
+          id: "tag1",
+          user_id: "u1",
+          name: "Breakout",
+          color: "",
+          description: "",
+          kind: "custom",
+        },
+      ],
+    };
+    render(
+      <DataTable
+        columns={tradeColumns("USD", { onOpenFullPage: vi.fn() })}
+        data={[tagged]}
+        columnPinning={TRADE_COLUMN_PINNING}
+      />,
+    );
+    expect(screen.getByText("Breakout")).toBeInTheDocument();
   });
 
   it("shows option entry/exit totals with contract multiplier", () => {
@@ -139,7 +193,11 @@ describe("tradeColumns", () => {
       return_pct: -12.43,
     };
     render(
-      <DataTable columns={tradeColumns("USD", { onOpenFullPage: vi.fn() })} data={[optionTrade]} />,
+      <DataTable
+        columns={tradeColumns("USD", { onOpenFullPage: vi.fn() })}
+        data={[optionTrade]}
+        columnPinning={TRADE_COLUMN_PINNING}
+      />,
     );
     expect(screen.getByText("$492.00")).toBeInTheDocument();
     expect(screen.getByText("$435.00")).toBeInTheDocument();

@@ -56,6 +56,22 @@ func (q *Queries) DeleteExecutionsForBatch(ctx context.Context, arg DeleteExecut
 	return err
 }
 
+const deleteExecutionsForTrade = `-- name: DeleteExecutionsForTrade :exec
+DELETE FROM executions
+WHERE user_id = ?
+  AND id IN (SELECT execution_id FROM trade_executions WHERE trade_id = ?)
+`
+
+type DeleteExecutionsForTradeParams struct {
+	UserID  string `json:"user_id"`
+	TradeID string `json:"trade_id"`
+}
+
+func (q *Queries) DeleteExecutionsForTrade(ctx context.Context, arg DeleteExecutionsForTradeParams) error {
+	_, err := q.db.ExecContext(ctx, deleteExecutionsForTrade, arg.UserID, arg.TradeID)
+	return err
+}
+
 const executionExists = `-- name: ExecutionExists :one
 SELECT EXISTS(SELECT 1 FROM executions WHERE account_id = ? AND dedup_hash = ?)
 `

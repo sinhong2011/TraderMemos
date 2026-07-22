@@ -14,20 +14,22 @@ func (s *Server) tradeRoutes(g *echo.Group) {
 	g.GET("/trades", s.handleListTrades)
 	g.GET("/trades/:id", s.handleGetTrade)
 	g.PATCH("/trades/:id", s.handlePatchTrade)
+	g.DELETE("/trades/:id", s.handleDeleteTrade)
 	g.POST("/trades/regroup", s.handleRegroup)
 }
 
 func (s *Server) handleListTrades(c echo.Context) error {
 	uid := auth.UserID(c)
+	ctx := c.Request().Context()
 	f, err := parseFilters(c)
 	if err != nil {
 		return Fail(http.StatusBadRequest, "bad_request", err.Error(), nil)
 	}
-	rows, err := s.loadTrades(c.Request().Context(), uid, f)
+	rows, err := s.loadTrades(ctx, uid, f)
 	if err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not list trades", nil)
 	}
-	risks, err := s.deps.Store.ListJournalRisks(c.Request().Context(), uid)
+	risks, err := s.deps.Store.ListJournalRisks(ctx, uid)
 	if err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not load risk", nil)
 	}
@@ -37,9 +39,20 @@ func (s *Server) handleListTrades(c echo.Context) error {
 			riskByTrade[r.TradeID] = r.InitialRisk.Float64
 		}
 	}
+	tagRows, err := s.deps.Store.ListTradeTagsForUser(ctx, uid)
+	if err != nil {
+		return Fail(http.StatusInternalServerError, "internal", "could not load tags", nil)
+	}
+	tagsByTrade := make(map[string][]store.Tag)
+	for _, r := range tagRows {
+		tagsByTrade[r.TradeID] = append(tagsByTrade[r.TradeID], store.Tag{
+			ID: r.ID, UserID: r.UserID, Name: r.Name, Color: r.Color,
+			Description: r.Description, Kind: r.Kind,
+		})
+	}
 	out := make([]tradeDTO, 0, len(rows))
 	for _, t := range rows {
-		dto := toTradeDTO(t, nil)
+		dto := toTradeDTO(t, tagsByTrade[t.ID])
 		if risk, ok := riskByTrade[t.ID]; ok {
 			dto.InitialRisk = &risk
 		}
@@ -274,6 +287,37 @@ func (s *Server) handlePatchTrade(c echo.Context) error {
 		return Fail(http.StatusInternalServerError, "internal", "could not load trade detail", nil)
 	}
 	return c.JSON(http.StatusOK, detail)
+}
+
+func (s *Server) handleDeleteTrade(c echo.Context) error {
+	ctx := c.Request().Context()
+	uid := auth.UserID(c)
+	id := c.Param("id")
+
+	t, err := s.deps.Store.GetTrade(ctx, store.GetTradeParams{ID: id, UserID: uid})
+	if errors.Is(err, sql.ErrNoRows) {
+		return Fail(http.StatusNotFound, "not_found", "trade not found", nil)
+	}
+	if err != nil {
+		return Fail(http.StatusInternalServerError, "internal", "could not load trade", nil)
+	}
+
+	// Remove fills first so executions do not linger after the trade row is gone.
+	if err := s.deps.Store.DeleteExecutionsForTrade(ctx, store.DeleteExecutionsForTradeParams{
+		UserID: uid, TradeID: t.ID,
+	}); err != nil {
+		return Fail(http.StatusInternalServerError, "internal", "could not delete executions", nil)
+	}
+
+	n, err := s.deps.Store.DeleteTrade(ctx, store.DeleteTradeParams{ID: t.ID, UserID: uid})
+	if err != nil {
+		return Fail(http.StatusInternalServerError, "internal", "could not delete trade", nil)
+	}
+	if n == 0 {
+		return Fail(http.StatusNotFound, "not_found", "trade not found", nil)
+	}
+
+	return c.NoContent(http.StatusNoContent)
 }
 
 type regroupReq struct {
