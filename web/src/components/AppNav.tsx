@@ -8,7 +8,6 @@ import { isRouteActive, MAIN_ROUTES, PRIMARY_NAV, SECONDARY_NAV } from "../lib/n
 import { useLocale } from "../i18n";
 import { useUI } from "../lib/ui";
 import { AppLogo } from "./AppLogo";
-import { AccountNavPopover } from "./AccountNavPopover";
 import { ToolsPopover } from "./ToolsPopover";
 
 function RailTooltip({ label }: { label: string }) {
@@ -231,8 +230,6 @@ export function AppNav() {
             active={settingsActive}
           />
         </div>
-
-        <AccountNavPopover />
       </div>
     </nav>
   );

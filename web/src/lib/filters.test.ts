@@ -28,6 +28,16 @@ describe("filter store", () => {
     expect(useFilters.getState().markets).toBeUndefined();
   });
 
+  it("stores multi-select symbols and serializes to comma param", () => {
+    useFilters.getState().setSymbols(["AAPL", "MSFT"]);
+    expect(useFilters.getState().symbols).toEqual(["AAPL", "MSFT"]);
+    expect(useFilters.getState().toParams().symbol).toBe("AAPL,MSFT");
+    useFilters.getState().setSymbol("NVDA");
+    expect(useFilters.getState().symbols).toEqual(["NVDA"]);
+    useFilters.getState().setSymbol(undefined);
+    expect(useFilters.getState().symbols).toBeUndefined();
+  });
+
   it("normalizes date-only filter values to RFC3339", () => {
     expect(normalizeFilterDate("2026-06-01", "start")).toBe("2026-06-01T00:00:00Z");
     expect(normalizeFilterDate("2026-06-30", "end")).toBe("2026-06-30T23:59:59Z");

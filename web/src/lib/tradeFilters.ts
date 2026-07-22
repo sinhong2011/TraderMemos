@@ -86,3 +86,30 @@ export function buildMarketFacetOptions(trades: Trade[]): MarketFacetOption[] {
     }))
     .sort((a, b) => a.label.localeCompare(b.label, undefined, { sensitivity: "base" }));
 }
+
+export type SymbolFacetOption = TagFacetOption;
+
+/** Unique symbols from the current trade set, with occurrence counts. */
+export function buildSymbolFacetOptions(trades: Trade[]): SymbolFacetOption[] {
+  const counts = new Map<string, number>();
+  for (const trade of trades) {
+    const symbol = trade.symbol.trim().toUpperCase();
+    if (!symbol) continue;
+    counts.set(symbol, (counts.get(symbol) ?? 0) + 1);
+  }
+  return [...counts.entries()]
+    .map(([value, count]) => ({ value, label: value, count }))
+    .sort((a, b) => a.label.localeCompare(b.label, undefined, { sensitivity: "base" }));
+}
+
+/** Match if the trade's symbol is in the selected list (OR). */
+export function matchesTradeSymbolFilter(t: Trade, symbols: string[] | undefined): boolean {
+  if (!symbols?.length) return true;
+  const wanted = new Set(symbols.map((s) => s.trim().toUpperCase()).filter(Boolean));
+  return wanted.has(t.symbol.trim().toUpperCase());
+}
+
+export function filterTradesBySymbols(trades: Trade[], symbols: string[] | undefined): Trade[] {
+  if (!symbols?.length) return trades;
+  return trades.filter((t) => matchesTradeSymbolFilter(t, symbols));
+}

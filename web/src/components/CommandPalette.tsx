@@ -29,8 +29,9 @@ function CommandShortcut({ children }: { children: string }) {
 export function CommandPalette() {
   const open = useUI((s) => s.commandOpen);
   const setCommandOpen = useUI((s) => s.setCommandOpen);
-  const symbol = useFilters((s) => s.symbol);
+  const symbols = useFilters((s) => s.symbols);
   const setSymbol = useFilters((s) => s.setSymbol);
+  const setSymbols = useFilters((s) => s.setSymbols);
   const [query, setQuery] = useState("");
   const commands = useCommands(() => setCommandOpen(false));
 
@@ -81,7 +82,7 @@ export function CommandPalette() {
                 <Command.Empty className="px-3 py-8 text-center text-xs text-text-dim">
                   No matching commands.
                 </Command.Empty>
-                {(canFilterSymbol || symbol) && (
+                {(canFilterSymbol || (symbols?.length ?? 0) > 0) && (
                   <Command.Group
                     heading="Filters"
                     className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:[&_[cmdk-group-heading]]:text-[10px] [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-widest [&_[cmdk-group-heading]]:text-text-muted"
@@ -110,11 +111,11 @@ export function CommandPalette() {
                         </span>
                       </Command.Item>
                     )}
-                    {symbol && (
+                    {symbols?.length ? (
                       <Command.Item
-                        value={`clear symbol ${symbol}`}
+                        value={`clear symbol ${symbols.join(" ")}`}
                         onSelect={() => {
-                          setSymbol(undefined);
+                          setSymbols(undefined);
                           setCommandOpen(false);
                         }}
                         className={cn(
@@ -130,10 +131,10 @@ export function CommandPalette() {
                           aria-hidden
                         />
                         <span className="min-w-0 flex-1 truncate">
-                          Clear symbol filter ({symbol})
+                          Clear symbol filter ({symbols.join(", ")})
                         </span>
                       </Command.Item>
-                    )}
+                    ) : null}
                   </Command.Group>
                 )}
                 {grouped.map(({ group, items }) => (

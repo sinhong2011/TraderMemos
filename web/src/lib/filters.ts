@@ -1,9 +1,11 @@
 import { create } from "zustand";
 import { useShallow } from "zustand/react/shallow";
+import { persist } from "zustand/middleware";
 import { useDisplayPrefs } from "./displayPrefs";
 import type { TradeStatusFilter } from "./tradeFilters";
 
 const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/;
+const FILTERS_STORAGE_KEY = "tm_filters";
 
 /** API filter dates must be RFC3339; accept legacy YYYY-MM-DD from the picker. */
 export function normalizeFilterDate(
@@ -22,11 +24,18 @@ export function filterDatePart(iso?: string): string | undefined {
   return iso.slice(0, 10);
 }
 
+/** Serialize selected symbols for the API `symbol` query param (comma-separated OR). */
+export function symbolsToParam(symbols?: string[]): string | undefined {
+  if (!symbols?.length) return undefined;
+  return symbols.join(",");
+}
+
 interface FilterState {
   accountId?: string;
   from?: string;
   to?: string;
-  symbol?: string;
+  /** Multi-select symbols — trade matches if its symbol is selected (OR). */
+  symbols?: string[];
   tradeStatus?: TradeStatusFilter;
   /** Multi-select tag ids — trade matches if it has any selected tag. */
   tagIds?: string[];
@@ -34,6 +43,8 @@ interface FilterState {
   markets?: string[];
   setAccount: (id?: string) => void;
   setRange: (from?: string, to?: string) => void;
+  setSymbols: (symbols?: string[]) => void;
+  /** Convenience: set a single symbol filter (or clear). */
   setSymbol: (s?: string) => void;
   setTradeStatus: (s?: TradeStatusFilter) => void;
   toggleTradeStatus: (s: TradeStatusFilter) => void;
@@ -48,37 +59,48 @@ interface FilterState {
   };
 }
 
-export const useFilters = create<FilterState>((set, get) => ({
-  setAccount: (accountId) => set({ accountId }),
-  setRange: (from, to) => set({ from, to }),
-  setSymbol: (symbol) => set({ symbol }),
-  setTradeStatus: (tradeStatus) => set({ tradeStatus }),
-  toggleTradeStatus: (tradeStatus) =>
-    set((s) => ({
-      tradeStatus: s.tradeStatus === tradeStatus ? undefined : tradeStatus,
-    })),
-  setTagIds: (tagIds) => set({ tagIds: tagIds?.length ? tagIds : undefined }),
-  setMarkets: (markets) => set({ markets: markets?.length ? markets : undefined }),
-  reset: () =>
-    set({
-      accountId: undefined,
-      from: undefined,
-      to: undefined,
-      symbol: undefined,
-      tradeStatus: undefined,
-      tagIds: undefined,
-      markets: undefined,
+export const useFilters = create<FilterState>()(
+  persist(
+    (set, get) => ({
+      setAccount: (accountId) => set({ accountId }),
+      setRange: (from, to) => set({ from, to }),
+      setSymbols: (symbols) => set({ symbols: symbols?.length ? symbols : undefined }),
+      setSymbol: (symbol) => set({ symbols: symbol ? [symbol] : undefined }),
+      setTradeStatus: (tradeStatus) => set({ tradeStatus }),
+      toggleTradeStatus: (tradeStatus) =>
+        set((s) => ({
+          tradeStatus: s.tradeStatus === tradeStatus ? undefined : tradeStatus,
+        })),
+      setTagIds: (tagIds) => set({ tagIds: tagIds?.length ? tagIds : undefined }),
+      setMarkets: (markets) => set({ markets: markets?.length ? markets : undefined }),
+      reset: () =>
+        set({
+          accountId: undefined,
+          from: undefined,
+          to: undefined,
+          symbols: undefined,
+          tradeStatus: undefined,
+          tagIds: undefined,
+          markets: undefined,
+        }),
+      toParams: () => {
+        const s = get();
+        return {
+          account_id: s.accountId,
+          from: s.from,
+          to: s.to,
+          symbol: symbolsToParam(s.symbols),
+        };
+      },
     }),
-  toParams: () => {
-    const s = get();
-    return {
-      account_id: s.accountId,
-      from: s.from,
-      to: s.to,
-      symbol: s.symbol,
-    };
-  },
-}));
+    {
+      name: FILTERS_STORAGE_KEY,
+      // Persist only the account selection so refresh keeps scope
+      // without unexpectedly carrying over date/symbol/search filters.
+      partialize: (s) => ({ accountId: s.accountId }),
+    },
+  ),
+);
 
 // useFilterParams returns the shared filter query params with a SHALLOW-stable
 // reference. Selecting `s.toParams()` directly returns a fresh object every
@@ -91,7 +113,7 @@ export function useFilterParams() {
       account_id: s.accountId,
       from: normalizeFilterDate(s.from, "start"),
       to: normalizeFilterDate(s.to, "end"),
-      symbol: s.symbol,
+      symbol: symbolsToParam(s.symbols),
       date_basis: tradeDateBasis,
     })),
   );

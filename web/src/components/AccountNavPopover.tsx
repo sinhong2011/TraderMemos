@@ -56,7 +56,7 @@ function AccountOption({
   );
 }
 
-export function AccountNavPopover() {
+export function AccountNavPopover({ variant = "rail" }: { variant?: "rail" | "header" }) {
   const [open, setOpen] = useState(false);
   const signOut = useAuth((s) => s.signOut);
   const { data: accounts, isLoading } = useAccounts();
@@ -68,6 +68,7 @@ export function AccountNavPopover() {
     ? (items.find((a) => a.id === accountId)?.name ?? "Account")
     : "All accounts";
   const filterActive = Boolean(accountId);
+  const isRail = variant === "rail";
 
   function pickAccount(id: string | undefined) {
     setAccount(id);
@@ -80,7 +81,8 @@ export function AccountNavPopover() {
         title={selectedLabel}
         aria-label={`Account: ${selectedLabel}`}
         className={cn(
-          "group relative flex size-9 cursor-pointer items-center justify-center rounded-control outline-none",
+          "group relative flex cursor-pointer items-center justify-center rounded-control outline-none",
+          isRail ? "size-9" : "size-8",
           "pointer-coarse:size-11",
           "transition-[background-color,color,transform] duration-150 ease-out",
           "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
@@ -91,13 +93,18 @@ export function AccountNavPopover() {
         )}
       >
         <CircleUser
-          size={20}
+          size={15}
           strokeWidth={1.75}
           className="transition-transform duration-150 ease-out group-hover:scale-105 motion-reduce:transition-none"
         />
-        <RailTooltip label={selectedLabel} />
+        {isRail ? <RailTooltip label={selectedLabel} /> : null}
       </PopoverTrigger>
-      <PopoverContent side="right" align="end" sideOffset={8} className="w-[220px] p-1.5">
+      <PopoverContent
+        side={isRail ? "right" : "bottom"}
+        align="end"
+        sideOffset={isRail ? 8 : 6}
+        className="w-[220px] p-1.5"
+      >
         <p className="m-0 flex items-center gap-1.5 px-2.5 pt-1.5 pb-2.5 text-[10px] font-semibold uppercase tracking-widest text-signal">
           <Wallet size={11} strokeWidth={1.75} aria-hidden />
           Account

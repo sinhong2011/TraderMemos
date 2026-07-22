@@ -128,8 +128,8 @@ const base = {
   loading: false,
   error: false,
   currency: "USD",
-  symbol: "",
-  onSymbolChange: vi.fn(),
+  symbols: [] as string[],
+  onSymbolsChange: vi.fn(),
   onSelectTrade: vi.fn(),
   onOpenFullPage: vi.fn(),
   totalInScope: 0,
@@ -168,7 +168,9 @@ describe("TradesView", () => {
   });
 
   it("shows filtered empty state when scope has trades but list is empty", () => {
-    render(<TradesView {...base} trades={[]} totalInScope={3} hasNarrowingFilters symbol="ZZZZ" />);
+    render(
+      <TradesView {...base} trades={[]} totalInScope={3} hasNarrowingFilters symbols={["ZZZZ"]} />,
+    );
     expect(screen.getByText("No trades match these filters")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Reset" })).toBeInTheDocument();
     expect(screen.getAllByRole("button", { name: /clear filters/i }).length).toBeGreaterThan(0);
@@ -200,6 +202,30 @@ describe("TradesView", () => {
     await user.click(screen.getByRole("button", { name: "Status" }));
     await user.click(screen.getByRole("option", { name: /Wins/i }));
     expect(onToggleTradeStatus).toHaveBeenCalledWith("win");
+  });
+
+  it("wires symbol combobox options", async () => {
+    const user = userEvent.setup();
+    const onSymbolsChange = vi.fn();
+    render(
+      <TradesView
+        {...base}
+        totalInScope={2}
+        trades={[
+          trade({ id: "t1", symbol: "AAPL", net_pnl: 10 }),
+          trade({ id: "t2", symbol: "MSFT", net_pnl: -5 }),
+        ]}
+        symbolOptions={[
+          { value: "AAPL", label: "AAPL", count: 1 },
+          { value: "MSFT", label: "MSFT", count: 1 },
+        ]}
+        onSymbolsChange={onSymbolsChange}
+      />,
+    );
+
+    await user.click(screen.getByRole("combobox", { name: "Filter symbol" }));
+    await user.click(screen.getByRole("option", { name: /MSFT/i }));
+    expect(onSymbolsChange).toHaveBeenCalledWith(["MSFT"]);
   });
 
   it("wires tags faceted filter", async () => {

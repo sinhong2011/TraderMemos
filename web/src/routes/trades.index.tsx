@@ -8,6 +8,7 @@ import { useAccounts } from "../lib/hooks/useAccounts";
 import { useTrades } from "../lib/hooks/useTrades";
 import {
   buildMarketFacetOptions,
+  buildSymbolFacetOptions,
   buildTagFacetOptions,
   filterTradesByMarkets,
   filterTradesByStatus,
@@ -24,11 +25,11 @@ function TradesPage() {
   const accountId = useFilters((s) => s.accountId);
   const from = useFilters((s) => s.from);
   const to = useFilters((s) => s.to);
-  const symbol = useFilters((s) => s.symbol) ?? "";
+  const symbols = useFilters((s) => s.symbols);
   const tradeStatus = useFilters((s) => s.tradeStatus);
   const tagIds = useFilters((s) => s.tagIds);
   const markets = useFilters((s) => s.markets);
-  const setSymbol = useFilters((s) => s.setSymbol);
+  const setSymbols = useFilters((s) => s.setSymbols);
   const setRange = useFilters((s) => s.setRange);
   const setTradeStatus = useFilters((s) => s.setTradeStatus);
   const toggleTradeStatus = useFilters((s) => s.toggleTradeStatus);
@@ -46,7 +47,7 @@ function TradesPage() {
   const hasNarrowingFilters = !!(
     from ||
     to ||
-    symbol ||
+    symbols?.length ||
     tradeStatus ||
     tagIds?.length ||
     markets?.length
@@ -57,13 +58,14 @@ function TradesPage() {
   const rawTrades = tradesQ.data ?? [];
   const tagOptions = useMemo(() => buildTagFacetOptions(rawTrades), [rawTrades]);
   const marketOptions = useMemo(() => buildMarketFacetOptions(rawTrades), [rawTrades]);
+  const symbolOptions = useMemo(() => buildSymbolFacetOptions(scopeQ.data ?? []), [scopeQ.data]);
   const trades = filterTradesByMarkets(
     filterTradesByTags(filterTradesByStatus(rawTrades, tradeStatus), tagIds),
     markets,
   );
 
   function handleClearFilters() {
-    setSymbol(undefined);
+    setSymbols(undefined);
     setRange(undefined, undefined);
     setTradeStatus(undefined);
     setTagIds(undefined);
@@ -77,8 +79,8 @@ function TradesPage() {
         loading={tradesQ.isLoading}
         error={tradesQ.isError}
         currency={currency}
-        symbol={symbol}
-        onSymbolChange={(s) => setSymbol(s || undefined)}
+        symbols={symbols ?? []}
+        onSymbolsChange={setSymbols}
         onSelectTrade={(id) => setSelectedTradeId(id)}
         onOpenFullPage={(id) => void navigate({ to: "/trades/$id", params: { id } })}
         onDeleted={(id) => {
@@ -95,6 +97,7 @@ function TradesPage() {
         markets={markets}
         marketOptions={marketOptions}
         onMarketsChange={setMarkets}
+        symbolOptions={symbolOptions}
         onClearFilters={handleClearFilters}
         onClearStatus={() => setTradeStatus(undefined)}
         onImport={() => navigate({ to: "/import" })}

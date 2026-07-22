@@ -1,5 +1,5 @@
 import type { SortingState, VisibilityState } from "@tanstack/react-table";
-import { List, Plus, Search, Upload, X } from "lucide-react";
+import { List, Plus, Search, Upload } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Card } from "../../components/Card";
 import { CreatedAtFilter } from "../../components/CreatedAtFilter";
@@ -8,7 +8,6 @@ import { EmptyState } from "../../components/EmptyState";
 import { FacetedFilter } from "../../components/FacetedFilter";
 import { Page } from "../../components/Page";
 import { Pagination } from "../../components/Pagination";
-import { SignalInput } from "../../components/SignalInput";
 import { Skeleton } from "../../components/Skeleton";
 import { SortList } from "../../components/SortList";
 import {
@@ -18,14 +17,33 @@ import {
   tradeColumns,
 } from "../../components/tradeColumns";
 import { Button } from "../../components/ui/button";
+import {
+  Combobox,
+  ComboboxChip,
+  ComboboxChips,
+  ComboboxChipsInput,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxItem,
+  ComboboxList,
+  ComboboxValue,
+  useComboboxAnchor,
+} from "../../components/ui/combobox";
 import { ViewOptions } from "../../components/ViewOptions";
 import type { Trade } from "../../lib/api/types";
 import { cn } from "../../lib/cn";
 import { useMoneyFx } from "../../lib/hooks/useMoneyFx";
 import { clampPage, pageCountFor, slicePage } from "../../lib/pagination";
-import type { MarketFacetOption, TagFacetOption, TradeStatusFilter } from "../../lib/tradeFilters";
+import type {
+  MarketFacetOption,
+  SymbolFacetOption,
+  TagFacetOption,
+  TradeStatusFilter,
+} from "../../lib/tradeFilters";
 
 const DEFAULT_PAGE_SIZE = 20;
+/** Previous single-symbol control was 11.72rem; +20%. */
+const SYMBOL_FILTER_WIDTH = "w-[14.06rem]";
 
 function compareSortValues(a: unknown, b: unknown): number {
   if (a == null && b == null) return 0;
@@ -55,8 +73,8 @@ export interface TradesViewProps {
   loading: boolean;
   error: boolean;
   currency: string;
-  symbol: string;
-  onSymbolChange: (s: string) => void;
+  symbols: string[];
+  onSymbolsChange: (symbols?: string[]) => void;
   onSelectTrade: (id: string) => void;
   onOpenFullPage: (id: string) => void;
   onDeleted?: (id: string) => void;
@@ -71,6 +89,7 @@ export interface TradesViewProps {
   markets?: string[];
   marketOptions?: MarketFacetOption[];
   onMarketsChange?: (markets?: string[]) => void;
+  symbolOptions?: SymbolFacetOption[];
   onClearFilters: () => void;
   onClearStatus?: () => void;
   onImport: () => void;
@@ -117,8 +136,8 @@ export function TradesView({
   loading,
   error,
   currency,
-  symbol,
-  onSymbolChange,
+  symbols,
+  onSymbolsChange,
   onSelectTrade,
   onOpenFullPage,
   onDeleted,
@@ -133,6 +152,7 @@ export function TradesView({
   markets,
   marketOptions,
   onMarketsChange,
+  symbolOptions = [],
   onClearFilters,
   onClearStatus,
   onImport,
@@ -153,7 +173,7 @@ export function TradesView({
 
   useEffect(() => {
     setPage(1);
-  }, [symbol, tradeStatus, tagIds, markets, pageSize]);
+  }, [symbols, tradeStatus, tagIds, markets, pageSize]);
 
   const filteredEmpty = !loading && !error && trades.length === 0;
   const trulyEmpty = filteredEmpty && !scopeLoading && totalInScope === 0 && !hasNarrowingFilters;
@@ -191,41 +211,59 @@ export function TradesView({
   const toolbarControlClass =
     "border-border !bg-transparent hover:border-border-strong hover:!bg-transparent aria-expanded:border-border-strong aria-expanded:!bg-transparent";
 
+  const symbolAnchor = useComboboxAnchor();
+  const selectedSymbols = useMemo(() => {
+    const byValue = new Map(symbolOptions.map((o) => [o.value, o]));
+    return symbols.map((value) => byValue.get(value) ?? { value, label: value, count: 0 });
+  }, [symbolOptions, symbols]);
+
   const headerActions = (
     <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 sm:gap-3">
       <div className="flex flex-wrap items-center gap-2">
-        <div className="relative flex items-center">
-          <Search
-            size={13}
-            strokeWidth={1.75}
-            className="pointer-events-none absolute left-2.5 text-text-dim"
-            aria-hidden
-          />
-          <SignalInput
-            value={symbol}
-            onChange={(e) => onSymbolChange(e.target.value.toUpperCase())}
-            placeholder="Filter symbol…"
-            maxLength={21}
-            aria-label="Filter symbol"
-            className={cn(
-              "h-8 w-[11.72rem] !border-solid !border !border-border !bg-transparent pl-7 text-[12px]",
-              "hover:!border-border-strong hover:!bg-transparent focus-visible:!bg-transparent",
-              symbol && "pr-7",
-            )}
-          />
-          {symbol ? (
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-xs"
-              aria-label="Clear symbol filter"
-              onClick={() => onSymbolChange("")}
-              className="absolute right-1 text-text-dim hover:text-text"
-            >
-              <X size={12} strokeWidth={2} />
-            </Button>
-          ) : null}
-        </div>
+        <Combobox
+          multiple
+          items={symbolOptions}
+          value={selectedSymbols}
+          onValueChange={(next) =>
+            onSymbolsChange(next.length ? next.map((item) => item.value) : undefined)
+          }
+          itemToStringLabel={(item) => item.label}
+          isItemEqualToValue={(a, b) => a.value === b.value}
+          autoHighlight
+        >
+          <ComboboxChips ref={symbolAnchor} className={SYMBOL_FILTER_WIDTH}>
+            <ComboboxValue>
+              {(values: SymbolFacetOption[]) => (
+                <>
+                  {values.map((item) => (
+                    <ComboboxChip key={item.value}>{item.label}</ComboboxChip>
+                  ))}
+                  <ComboboxChipsInput
+                    placeholder={values.length ? "Add…" : "Filter symbol…"}
+                    maxLength={21}
+                    aria-label="Filter symbol"
+                    startAdornment={
+                      values.length ? undefined : <Search size={13} strokeWidth={1.75} />
+                    }
+                  />
+                </>
+              )}
+            </ComboboxValue>
+          </ComboboxChips>
+          <ComboboxContent anchor={symbolAnchor} align="start" className={SYMBOL_FILTER_WIDTH}>
+            <ComboboxEmpty>No symbols found.</ComboboxEmpty>
+            <ComboboxList>
+              {(item: SymbolFacetOption) => (
+                <ComboboxItem key={item.value} value={item}>
+                  <span className="min-w-0 flex-1 truncate font-medium tracking-wide">
+                    {item.label}
+                  </span>
+                  <span className="tabular-nums text-[10px] text-text-dim">{item.count}</span>
+                </ComboboxItem>
+              )}
+            </ComboboxList>
+          </ComboboxContent>
+        </Combobox>
         {onToggleTradeStatus ? (
           <FacetedFilter
             title="Status"
@@ -357,7 +395,7 @@ export function TradesView({
                   {
                     onOpenDrawer: (t) => onSelectTrade(t.id),
                     onOpenFullPage: (t) => onOpenFullPage(t.id),
-                    onFilterSymbol: (s) => onSymbolChange(s),
+                    onFilterSymbol: (s) => onSymbolsChange([s]),
                     onDeleted: onDeleted ? (t) => onDeleted(t.id) : undefined,
                   },
                   fxRate,

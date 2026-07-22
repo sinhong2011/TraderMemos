@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -77,9 +78,24 @@ func statusArg(status string) interface{} {
 	return status
 }
 
+// matchSymbol reports whether symbol is allowed by the filter.
+// An empty Symbol matches all; otherwise Symbol may be a single ticker or a
+// comma-separated list (OR).
+func (f Filters) matchSymbol(symbol string) bool {
+	if f.Symbol == "" {
+		return true
+	}
+	for _, part := range strings.Split(f.Symbol, ",") {
+		if strings.TrimSpace(part) == symbol {
+			return true
+		}
+	}
+	return false
+}
+
 // matchClosed reports whether a closed trade passes the symbol/date filters.
 func (f Filters) matchClosed(symbol string, closedAt time.Time) bool {
-	if f.Symbol != "" && symbol != f.Symbol {
+	if !f.matchSymbol(symbol) {
 		return false
 	}
 	if f.From != nil && closedAt.Before(*f.From) {
@@ -93,7 +109,7 @@ func (f Filters) matchClosed(symbol string, closedAt time.Time) bool {
 
 // matchOpened reports whether a trade passes symbol/date filters using opened_at.
 func (f Filters) matchOpened(symbol string, openedAt time.Time) bool {
-	if f.Symbol != "" && symbol != f.Symbol {
+	if !f.matchSymbol(symbol) {
 		return false
 	}
 	if f.From != nil && openedAt.Before(*f.From) {

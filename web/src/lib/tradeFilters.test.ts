@@ -1,12 +1,15 @@
 import type { Trade } from "./api/types";
 import {
   buildMarketFacetOptions,
+  buildSymbolFacetOptions,
   buildTagFacetOptions,
   filterTradesByMarkets,
   filterTradesByStatus,
+  filterTradesBySymbols,
   filterTradesByTags,
   matchesTradeMarketFilter,
   matchesTradeStatusFilter,
+  matchesTradeSymbolFilter,
   matchesTradeTagFilter,
   tradeOutcome,
 } from "./tradeFilters";
@@ -110,5 +113,29 @@ describe("tradeFilters", () => {
       { value: "option", label: "Option", count: 1 },
       { value: "stock", label: "Stock", count: 3 },
     ]);
+  });
+
+  it("builds symbol facet options with counts", () => {
+    expect(
+      buildSymbolFacetOptions([
+        closedWin,
+        closedLoss,
+        { ...openTrade, symbol: "aapl" },
+        { ...washTrade, symbol: "  " },
+      ]),
+    ).toEqual([
+      { value: "AAPL", label: "AAPL", count: 1 },
+      { value: "X", label: "X", count: 2 },
+    ]);
+  });
+
+  it("filters trades by symbol (any match)", () => {
+    const trades = [closedWin, { ...closedLoss, symbol: "AAPL" }, { ...openTrade, symbol: "MSFT" }];
+    expect(filterTradesBySymbols(trades, ["AAPL", "MSFT"]).map((t) => t.symbol)).toEqual([
+      "AAPL",
+      "MSFT",
+    ]);
+    expect(filterTradesBySymbols(trades, undefined)).toEqual(trades);
+    expect(matchesTradeSymbolFilter(closedWin, ["AAPL"])).toBe(false);
   });
 });

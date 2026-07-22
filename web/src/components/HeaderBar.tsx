@@ -1,5 +1,5 @@
 import { Check, Eye, EyeOff, Menu, Search, Wallet, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "../lib/cn";
 import { currencyIcon } from "../lib/currencyIcon";
 import {
@@ -19,6 +19,7 @@ import { useMoneyFx } from "../lib/hooks/useMoneyFx";
 import { useTrades } from "../lib/hooks/useTrades";
 import { intlLocale } from "../lib/locale";
 import { useUI } from "../lib/ui";
+import { AccountNavPopover } from "./AccountNavPopover";
 import { DateRangePicker } from "./DateRangePicker";
 import { SignalSelect } from "./SignalSelect";
 import { heroPnlClass } from "./theme-tokens";
@@ -46,10 +47,11 @@ function StatDivider() {
   );
 }
 
-function SymbolFilterChip({ symbol, onClear }: { symbol: string; onClear: () => void }) {
+function SymbolFilterChip({ symbols, onClear }: { symbols: string[]; onClear: () => void }) {
+  const label = symbols.length <= 2 ? symbols.join(", ") : `${symbols[0]} +${symbols.length - 1}`;
   return (
     <span className="inline-flex h-8 shrink-0 items-center gap-1 rounded-control border border-accent/25 bg-accent-bg px-2 text-[11px] text-accent">
-      {symbol}
+      {label}
       <Button
         type="button"
         variant="ghost"
@@ -259,8 +261,9 @@ export function HeaderBar() {
   usePrivacyMode();
   const filters = useFilterParams();
   const accountId = useFilters((s) => s.accountId);
-  const symbol = useFilters((s) => s.symbol);
-  const setSymbol = useFilters((s) => s.setSymbol);
+  const setAccount = useFilters((s) => s.setAccount);
+  const symbols = useFilters((s) => s.symbols);
+  const setSymbols = useFilters((s) => s.setSymbols);
   const openCommandPalette = useUI((s) => s.openCommandPalette);
 
   const accounts = useAccounts().data ?? [];
@@ -278,6 +281,16 @@ export function HeaderBar() {
     trades: tradesQ.data ?? [],
   });
   const summary = summaryQ.data;
+  const hasSelectedAccount = accountId
+    ? accounts.some((account) => account.id === accountId)
+    : true;
+
+  useEffect(() => {
+    if (!accountId) return;
+    if (!hasSelectedAccount) {
+      setAccount(undefined);
+    }
+  }, [accountId, hasSelectedAccount, setAccount]);
 
   return (
     <header className="flex h-auto min-h-[52px] shrink-0 items-center gap-2 bg-bg px-3 pt-[calc(0.5rem+env(safe-area-inset-top))] pb-2 md:h-[52px] md:gap-3 md:px-4 md:pt-0 md:pb-0">
@@ -303,11 +316,13 @@ export function HeaderBar() {
           />
           <StatDivider />
           <HeaderStat
-            label="Cash"
+            label="Balance"
             value={fmtMoney(toDisplay(stats.cash), currency, intlLocale())}
           />
         </div>
-        {symbol ? <SymbolFilterChip symbol={symbol} onClear={() => setSymbol(undefined)} /> : null}
+        {symbols?.length ? (
+          <SymbolFilterChip symbols={symbols} onClear={() => setSymbols(undefined)} />
+        ) : null}
       </div>
 
       {/* Command search — desktop; icon button on the right covers smaller breakpoints */}
@@ -342,6 +357,7 @@ export function HeaderBar() {
           <DisplayCurrencySelect baseCurrency={baseCurrency} variant="rail" side="bottom" />
         </div>
         <PrivacyToggle />
+        <AccountNavPopover variant="header" />
       </div>
     </header>
   );
