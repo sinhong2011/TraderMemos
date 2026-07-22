@@ -1,974 +1,1793 @@
-import { ChevronDown, FileStack, Plus, X } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { z } from "zod";
-import { Modal, ModalBanner } from "../../components/Modal";
+import { useForm, useStore } from "@tanstack/react-form";
+import { useNavigate } from "@tanstack/react-router";
+import { CircleDashed, FileStack, Loader2, Plus, ScanLine, Trash2, X } from "lucide-react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import {
+  Drawer,
+  DrawerBody,
+  DrawerClose,
+  DrawerContent,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+} from "../../components/Drawer";
+import {
+  Collapsible,
+  CollapsibleChevron,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "../../components/Collapsible";
+import { GradeControl } from "../../components/GradeControl";
+import { ModalBanner } from "../../components/Modal";
+import { OcrSetupPromptModal, ocrScanButtonClass } from "../../components/OcrSetupPromptModal";
+import { OcrScanSummary } from "../../components/OcrSymbolGroupList";
 import { Pill } from "../../components/Pill";
 import { SegmentedControl } from "../../components/SegmentedControl";
 import { SignalDatePicker } from "../../components/SignalDatePicker";
-import { SignalField } from "../../components/SignalField";
-import { SignalInput } from "../../components/SignalInput";
+import { SignalDateTimePicker } from "../../components/SignalDateTimePicker";
+import { SignalField, fieldError } from "../../components/SignalField";
+import { SignalAmountInput } from "../../components/SignalAmountInput";
+import { SignalInput, SignalTextarea } from "../../components/SignalInput";
 import { SignalSelect } from "../../components/SignalSelect";
+import { NativeSelect, NativeSelectOption } from "../../components/ui/native-select";
+import { SignalPopover } from "../../components/SignalPopover";
+import { signalInputClass } from "../../components/signal-field-styles";
+import {
+  fileToScreenshotItem,
+  JournalScreenshotUpload,
+} from "../../components/JournalScreenshotUpload";
+import { BatchTradeResultPreview, TradeResultPreview } from "../../components/TradeResultPreview";
 import { useToastManager } from "../../components/Toast";
+import { Button } from "../../components/ui/button";
+import { ApiError } from "../../lib/api/client";
 import { attachmentsApi } from "../../lib/api/attachments";
 import { cashApi } from "../../lib/api/cash";
+import type { TradeExtract } from "../../lib/api/ocr";
 import { tradesApi } from "../../lib/api/trades";
-import { useFilters, normalizeFilterDate } from "../../lib/filters";
+import { parseAmountToNumber } from "../../lib/amountInput";
+import { cn } from "../../lib/cn";
+import { usePrivacyMode } from "../../lib/displayPrefs";
+import { fmtMoney, fmtSignedMoney } from "../../lib/format";
+import { useFilters } from "../../lib/filters";
 import {
-	buildJournalNotes,
-	computeInitialRisk,
-	EMOTIONAL_STATES,
-	weightedAvgEntry,
+  CUSTOM_PRESET_ID,
+  FUTURES_PRESETS,
+  multiplierForPreset,
+  presetIdForSymbol,
+} from "../../lib/futuresPresets";
+import { capScreenshots, useJournalPrefs } from "../../lib/journalPrefs";
+import {
+  buildStructuredJournalNotes,
+  computeInitialRisk,
+  parseJournalNotes,
+  weightedAvgEntry,
 } from "../../lib/newTradeJournal";
-import { localDateString } from "../../lib/dateRangePresets";
-import { checkTradeCompliance } from "../../lib/tradeCompliance";
 import {
-	listTradeTemplates,
-	saveTradeTemplate,
-	type TradeTemplate,
-} from "../../lib/tradeTemplates";
+  defaultNewTradeFormValues,
+  emptyExecutionRow,
+  emptySymbolTrade,
+  validateNonNegativeAmount,
+  validatePositiveAmount,
+  validateSymbolTrades,
+  type ExecutionRow,
+  type SymbolTradeBlock,
+} from "../../lib/newTradeFormSchema";
+import {
+  flattenSymbolTradesToExecutions,
+  rowsFromOcrExtract,
+  symbolTradeFromDetail,
+  tradesFromOcrExtract,
+} from "../../lib/newTradeBlocks";
+import { detectOptionStrategy } from "../../lib/optionStrategy";
+import { groupOcrBySymbol, ocrScanToastDescription } from "../../lib/ocrSymbolGroups";
+import { pnlColor } from "../../components/theme-tokens";
+import {
+  aggregateTradePnlPreviews,
+  previewFillNetPnls,
+  previewTradePnl,
+} from "../../lib/tradePnlPreview";
+import {
+  EMOTIONAL_STATES,
+  TRADE_SESSIONS,
+  gradeFromInt,
+  intFromGrade,
+} from "../../lib/tradeGrades";
 import { useAccounts } from "../../lib/hooks/useAccounts";
 import { useSummary } from "../../lib/hooks/useAnalytics";
+import { useCash } from "../../lib/hooks/useCash";
 import {
-	ExecutionBatchError,
-	useCreateExecutions,
+  ExecutionBatchError,
+  useCreateExecutions,
+  useDeleteExecution,
+  useUpdateExecution,
 } from "../../lib/hooks/useExecutions";
-import { useRiskRules } from "../../lib/hooks/useRiskRules";
+import { useOcrParse } from "../../lib/hooks/useOcrParse";
+import { useOcrSettings } from "../../lib/hooks/useOcrSettings";
+import { isOcrVisionReady } from "../../lib/ocrVisionReady";
 import { useSetups } from "../../lib/hooks/useSetups";
 import { useTags } from "../../lib/hooks/useTags";
-import { useTrades } from "../../lib/hooks/useTrades";
+import { useTradeDetail } from "../../lib/hooks/useTradeDetail";
+import { computeHeaderStats } from "../../lib/headerStats";
+import { getIntlLocale, getStoredLocale } from "../../lib/locale";
+import {
+  listTradeTemplates,
+  saveTradeTemplate,
+  type TradeTemplate,
+} from "../../lib/tradeTemplates";
 import { useUI } from "../../lib/ui";
-import { cn } from "../../lib/cn";
 
 const MARKETS = [
-	{ value: "stock", label: "STOCK" },
-	{ value: "option", label: "OPTION" },
-	{ value: "crypto", label: "CRYPTO" },
-	{ value: "futures", label: "FUTURES" },
-	{ value: "forex", label: "FOREX" },
+  { value: "stock", label: "STOCK" },
+  { value: "option", label: "OPTION" },
+  { value: "crypto", label: "CRYPTO" },
+  { value: "future", label: "FUTURES" },
+  { value: "forex", label: "FOREX" },
 ];
+const FILL_COLS = "72px minmax(120px,200px) 72px 80px 88px 72px 88px 1fr 32px";
+const labelClass = "mb-1 block text-[10px] font-semibold uppercase tracking-widest text-text-muted";
+export type Row = ExecutionRow;
+export { rowsFromOcrExtract };
 
-type Tab = "general" | "journal" | "dividends";
+/** Infer the New Trade form API without exploding TanStack Form type params. */
+function createNewTradeFormProbe() {
+  return useForm({ defaultValues: defaultNewTradeFormValues() });
+}
+type NewTradeFormApi = ReturnType<typeof createNewTradeFormProbe>;
 
-interface Row {
-	side: "buy" | "sell";
-	executed_at: string;
-	quantity: string;
-	price: string;
-	fees: string;
+function num(value: string) {
+  return parseAmountToNumber(value);
 }
 
-const rowSchema = z.object({
-	side: z.enum(["buy", "sell"]),
-	executed_at: z.string().min(1),
-	quantity: z.coerce.number().positive("qty must be > 0"),
-	price: z.coerce.number().positive("price must be > 0"),
-	fees: z.coerce.number().min(0),
-});
-
-const labelClass =
-	"mb-1 block text-[10px] font-medium uppercase tracking-widest text-text-dim";
-
-const inputClass =
-	"w-full rounded-control border border-border bg-bg-inset px-2.5 py-2 text-xs text-text outline-none placeholder:text-text-dim";
-
-const btnGhost =
-	"cursor-pointer rounded-control border border-border bg-bg-elevated px-2.5 py-1.5 text-[11px] font-medium text-text-muted transition-colors hover:bg-bg-hover hover:text-text disabled:cursor-not-allowed disabled:opacity-50";
-
-const btnPrimary =
-	"cursor-pointer rounded-control border-none bg-accent px-3.5 py-1.5 text-xs font-semibold text-bg disabled:cursor-not-allowed disabled:opacity-50";
-
-function nowLocal(): string {
-	const d = new Date();
-	d.setSeconds(0, 0);
-	const pad = (n: number) => String(n).padStart(2, "0");
-	return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+/** Per-fill notional (qty × price × multiplier) — same chip surface as amount inputs. */
+function FillAmountCell({
+  quantity,
+  price,
+  multiplier,
+  currency,
+  locale,
+  emptyLabel,
+}: {
+  quantity: number;
+  price: number;
+  multiplier: number;
+  currency: string;
+  locale: string;
+  emptyLabel?: string;
+}) {
+  const amount = quantity > 0 && price > 0 ? quantity * price * multiplier : null;
+  const empty = amount == null;
+  return (
+    <span
+      className={cn(
+        signalInputClass,
+        "inline-flex cursor-default items-center px-2 text-[12px] tabular-nums tracking-[-0.01em] hover:bg-bg-input",
+        empty ? "justify-center text-text-dim" : "font-medium",
+      )}
+      aria-label={empty ? emptyLabel : undefined}
+      title={empty ? undefined : "Qty × price × multiplier"}
+    >
+      {empty ? (
+        <CircleDashed size={14} strokeWidth={1.75} aria-hidden />
+      ) : (
+        fmtMoney(amount, currency, locale)
+      )}
+    </span>
+  );
 }
 
-function todayDate(): string {
-	const d = new Date();
-	const pad = (n: number) => String(n).padStart(2, "0");
-	return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+/** Per-fill P&L — transparent surface; color carries the signal. */
+function FillPnlCell({
+  value,
+  currency,
+  locale,
+  emptyLabel,
+}: {
+  value: number | null;
+  currency: string;
+  locale: string;
+  emptyLabel?: string;
+}) {
+  const empty = value == null;
+  return (
+    <span
+      className={cn(
+        "inline-flex h-10 w-full items-center justify-center rounded-control px-2.5 text-[12px] tabular-nums tracking-[-0.01em]",
+        empty ? "text-text-dim" : cn("font-medium", pnlColor(value)),
+      )}
+      aria-label={empty ? emptyLabel : undefined}
+    >
+      {empty ? (
+        <CircleDashed size={14} strokeWidth={1.75} aria-hidden />
+      ) : (
+        fmtSignedMoney(value, currency, locale)
+      )}
+    </span>
+  );
 }
 
-function emptyRow(side: "buy" | "sell"): Row {
-	return { side, executed_at: nowLocal(), quantity: "", price: "", fees: "" };
+/** Collapsed-by-default Journal / Dividend section with motion. */
+function CollapsibleSection({
+  title,
+  summary,
+  children,
+  defaultOpen = false,
+}: {
+  title: string;
+  summary?: string;
+  children: ReactNode;
+  defaultOpen?: boolean;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <Collapsible open={open} onOpenChange={(next) => setOpen(next)} className="gap-3 pt-1">
+      <CollapsibleTrigger className="w-full" aria-label={title}>
+        <span className="text-[12px] font-bold uppercase tracking-widest text-text">{title}</span>
+        {!open && summary ? (
+          <span className="truncate text-[10px] text-text-muted">{summary}</span>
+        ) : null}
+        <CollapsibleChevron />
+      </CollapsibleTrigger>
+      <CollapsibleContent animation="height">
+        <div className="flex flex-col gap-4 pt-1">{children}</div>
+      </CollapsibleContent>
+    </Collapsible>
+  );
 }
 
-function parseNum(v: string): number | null {
-	if (!v.trim()) return null;
-	const n = Number(v);
-	return Number.isFinite(n) ? n : null;
+function blockMultiplier(block: SymbolTradeBlock) {
+  return block.market === "future"
+    ? multiplierForPreset(block.futuresPresetId)
+    : num(block.multiplier) || (block.market === "option" ? 100 : 1);
 }
 
-const RATING_OPTS = [1, 2, 3, 4, 5].map((n) => ({
-	value: String(n),
-	label: String(n),
-}));
+function blockRisk(block: SymbolTradeBlock) {
+  const parsed = block.rows.reduce<
+    Array<{ side: "buy" | "sell"; quantity: number; price: number }>
+  >((rows, row) => {
+    const quantity = num(row.quantity);
+    const price = num(row.price);
+    if (quantity != null && price != null) rows.push({ side: row.side, quantity, price });
+    return rows;
+  }, []);
+  const entry = weightedAvgEntry(parsed, block.side);
+  if (!entry) return null;
+  return computeInitialRisk(
+    block.side,
+    entry.avg,
+    entry.qty,
+    num(block.stop),
+    blockMultiplier(block),
+  );
+}
+
+function blockPnlPreview(block: SymbolTradeBlock) {
+  const parsedRows = block.rows.map((r) => ({
+    side: r.side,
+    quantity: num(r.quantity) ?? 0,
+    price: num(r.price) ?? 0,
+    fees: num(r.fees) ?? 0,
+    commission: num(r.commission) ?? 0,
+  }));
+  const risk = blockRisk(block);
+  return {
+    preview: previewTradePnl(block.side, parsedRows, blockMultiplier(block), risk),
+    initialRisk: risk,
+  };
+}
+
+function SymbolCard({
+  form,
+  block,
+  index,
+  currency,
+  locale,
+  removable,
+  pending,
+  setups,
+  regularTags,
+  mistakeTags,
+  screenshotFiles,
+  maxScreenshots,
+  onAddScreenshots,
+  onRemoveScreenshot,
+}: {
+  form: NewTradeFormApi;
+  block: SymbolTradeBlock;
+  index: number;
+  currency: string;
+  locale: string;
+  removable: boolean;
+  pending: boolean;
+  setups: Array<{ id: string; name: string }>;
+  regularTags: Array<{ id: string; name: string }>;
+  mistakeTags: Array<{ id: string; name: string }>;
+  screenshotFiles: File[];
+  maxScreenshots: number | null;
+  onAddScreenshots: (files: File[]) => void;
+  onRemoveScreenshot: (fileIndex: number) => void;
+}) {
+  const base = `trades[${index}]` as const;
+  const parsedRows = useMemo(
+    () =>
+      block.rows.map((r) => ({
+        side: r.side,
+        quantity: num(r.quantity) ?? 0,
+        price: num(r.price) ?? 0,
+        fees: num(r.fees) ?? 0,
+        commission: num(r.commission) ?? 0,
+      })),
+    [block.rows],
+  );
+  const multiplier = blockMultiplier(block);
+  const entry = useMemo(() => weightedAvgEntry(parsedRows, block.side), [parsedRows, block.side]);
+  const risk = useMemo(
+    () =>
+      entry
+        ? computeInitialRisk(block.side, entry.avg, entry.qty, num(block.stop), multiplier)
+        : null,
+    [entry, block.side, block.stop, multiplier],
+  );
+  const preview = useMemo(
+    () => previewTradePnl(block.side, parsedRows, multiplier, risk),
+    [block.side, parsedRows, multiplier, risk],
+  );
+  const fillPnls = useMemo(
+    () => previewFillNetPnls(block.side, parsedRows, multiplier),
+    [block.side, parsedRows, multiplier],
+  );
+  const optionStrategy = useMemo(
+    () =>
+      block.market === "option"
+        ? detectOptionStrategy(block.side, [block.option_right || "call"])
+        : null,
+    [block.market, block.side, block.option_right],
+  );
+  const set = <K extends keyof SymbolTradeBlock>(key: K, value: SymbolTradeBlock[K]) =>
+    form.setFieldValue(`${base}.${key}` as never, value as never);
+  const syncContract = (
+    next: Partial<Pick<SymbolTradeBlock, "option_right" | "option_strike" | "option_expiry">>,
+  ) => {
+    const right = next.option_right ?? block.option_right;
+    const strike = next.option_strike ?? block.option_strike;
+    const expiry = next.option_expiry ?? block.option_expiry;
+    form.setFieldValue(
+      `${base}.rows` as never,
+      block.rows.map((r) => ({
+        ...r,
+        option_right: right === "put" || right === "call" ? right : r.option_right,
+        strike,
+        expiry,
+      })) as never,
+    );
+  };
+  const toggleSetupId = (id: string) => {
+    const next = block.setupIds.includes(id)
+      ? block.setupIds.filter((x) => x !== id)
+      : [...block.setupIds, id];
+    set("setupIds", next);
+  };
+  const toggleId = (ids: string[], id: string, field: "selectedTagIds" | "selectedMistakeIds") => {
+    set(field, ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]);
+  };
+  const suffix = index ? ` ${index + 1}` : "";
+  const [open, setOpen] = useState(true);
+  const collapsedSummary = [
+    block.side.toUpperCase(),
+    `${block.rows.length} fill${block.rows.length === 1 ? "" : "s"}`,
+    preview.net != null ? fmtSignedMoney(preview.net, currency, locale) : "",
+  ]
+    .filter(Boolean)
+    .join(" · ");
+  return (
+    <Collapsible
+      open={open}
+      onOpenChange={(next) => setOpen(next)}
+      className="gap-4 rounded-control bg-bg-hover p-4"
+      style={
+        {
+          "--color-bg-input": "var(--color-bg-elevated)",
+          "--color-bg-input-hover": "var(--color-bg-panel)",
+        } as CSSProperties
+      }
+      render={<section aria-label={`Symbol trade ${index + 1}`} />}
+    >
+      <div className="flex items-center gap-2">
+        <CollapsibleTrigger
+          className="min-w-0 flex-1 items-center gap-2.5"
+          aria-label={`Toggle symbol ${index + 1}`}
+        >
+          <span
+            className="flex size-6 shrink-0 items-center justify-center rounded-control bg-accent-bg text-[11px] font-semibold tabular-nums text-accent"
+            aria-hidden
+          >
+            {index + 1}
+          </span>
+          <span className="flex min-w-0 flex-1 flex-col gap-0.5 text-left">
+            <span className="truncate text-[15px] font-semibold leading-none tracking-[-0.02em] text-text">
+              {block.symbol || "Untitled"}
+            </span>
+            <span className="truncate text-[10px] font-medium uppercase tracking-[0.08em] text-text-dim">
+              {collapsedSummary && !open
+                ? `Symbol ${index + 1} · ${collapsedSummary}`
+                : `Symbol ${index + 1}`}
+            </span>
+          </span>
+          <CollapsibleChevron />
+        </CollapsibleTrigger>
+        {removable ? (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            aria-label={`Remove symbol ${index + 1}`}
+            disabled={pending}
+            className="shrink-0 text-loss"
+            onClick={() => {
+              const next = (form.store.state.values.trades as SymbolTradeBlock[]).filter(
+                (_: SymbolTradeBlock, i: number) => i !== index,
+              );
+              form.setFieldValue("trades", next.length ? next : [emptySymbolTrade()]);
+            }}
+          >
+            <Trash2 size={14} />
+          </Button>
+        ) : null}
+      </div>
+      <CollapsibleContent animation="fade">
+        <div className="flex flex-col gap-4">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div>
+              <label className={labelClass}>Market</label>
+              <NativeSelect
+                aria-label={`Market symbol ${index + 1}`}
+                value={block.market}
+                onChange={(e) => {
+                  const market = e.target.value;
+                  const next = market === "futures" ? "future" : market;
+                  set("market", next);
+                  if (next === "option") {
+                    set("multiplier", "100");
+                    if (!block.option_right) set("option_right", "call");
+                  } else if (next === "future") {
+                    set("futuresPresetId", presetIdForSymbol(block.symbol));
+                    set("multiplier", String(multiplierForPreset(presetIdForSymbol(block.symbol))));
+                  } else {
+                    set("multiplier", "1");
+                    set("option_right", "");
+                    set("option_strike", "");
+                    set("option_expiry", "");
+                  }
+                }}
+                className="h-9 w-full text-[12px]"
+                wrapperClassName="w-full"
+              >
+                {MARKETS.map((m) => (
+                  <NativeSelectOption key={m.value} value={m.value}>
+                    {m.label}
+                  </NativeSelectOption>
+                ))}
+              </NativeSelect>
+            </div>
+            {block.market === "future" && (
+              <div>
+                <label className={labelClass}>Contract</label>
+                <SignalSelect
+                  ariaLabel={`Contract symbol ${index + 1}`}
+                  value={block.futuresPresetId}
+                  options={[
+                    ...FUTURES_PRESETS.map((p) => ({ value: p.id, label: p.label })),
+                    { value: CUSTOM_PRESET_ID, label: "Custom" },
+                  ]}
+                  onValueChange={(id) => {
+                    set("futuresPresetId", id);
+                    if (id !== CUSTOM_PRESET_ID)
+                      set(
+                        "symbol",
+                        FUTURES_PRESETS.find((p) => p.id === id)?.symbol ?? block.symbol,
+                      );
+                  }}
+                  triggerClassName="h-9 text-[12px]"
+                />
+              </div>
+            )}
+            <form.Field
+              name={`${base}.symbol` as never}
+              validators={{ onBlur: ({ value }) => (value ? undefined : "Symbol is required.") }}
+            >
+              {(field) => (
+                <SignalField label="Symbol" error={fieldError(field.state.meta.errors)}>
+                  <input
+                    aria-label={`Symbol${suffix}`}
+                    value={field.state.value as string}
+                    onChange={(e) => {
+                      field.handleChange(e.target.value.toUpperCase() as never);
+                      if (block.market === "future")
+                        set("futuresPresetId", presetIdForSymbol(e.target.value));
+                    }}
+                    onBlur={field.handleBlur}
+                    placeholder="Ticker"
+                    className="h-9 w-full rounded-control border border-border bg-bg-input px-3 text-[12px] text-text outline-none focus:border-accent"
+                  />
+                </SignalField>
+              )}
+            </form.Field>
+            <div>
+              <span className={labelClass}>Side</span>
+              <SegmentedControl
+                ariaLabel={`Side symbol ${index + 1}`}
+                size="md"
+                options={[
+                  { value: "long", label: "↗ LONG" },
+                  { value: "short", label: "↘ SHORT" },
+                ]}
+                tones={{ long: "pos", short: "neg" }}
+                value={block.side}
+                onChange={(side) => {
+                  const next = side as "long" | "short";
+                  set("side", next);
+                  form.setFieldValue(
+                    `${base}.rows` as never,
+                    block.rows.map((r, row) =>
+                      row === 0 ? { ...r, side: next === "long" ? "buy" : "sell" } : r,
+                    ) as never,
+                  );
+                }}
+              />
+            </div>
+          </div>
+          {block.market === "option" && (
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <SignalField label="Multiplier">
+                <SignalAmountInput
+                  aria-label={`Multiplier symbol ${index + 1}`}
+                  value={block.multiplier}
+                  onValueChange={(v) => set("multiplier", v)}
+                  placeholder="100"
+                />
+              </SignalField>
+              <div>
+                <span className={labelClass}>Right</span>
+                <SegmentedControl
+                  ariaLabel={`Option right symbol ${index + 1}`}
+                  size="md"
+                  options={[
+                    { value: "call", label: "CALL" },
+                    { value: "put", label: "PUT" },
+                  ]}
+                  tones={{ call: "pos", put: "neg" }}
+                  value={block.option_right === "put" ? "put" : "call"}
+                  onChange={(v) => {
+                    const right = v === "put" ? "put" : "call";
+                    set("option_right", right);
+                    syncContract({ option_right: right });
+                  }}
+                />
+              </div>
+              <SignalField label="Strike">
+                <SignalAmountInput
+                  aria-label={`Strike symbol ${index + 1}`}
+                  value={block.option_strike}
+                  onValueChange={(v) => {
+                    set("option_strike", v);
+                    syncContract({ option_strike: v });
+                  }}
+                  placeholder="325"
+                />
+              </SignalField>
+              <div>
+                <span className={labelClass}>Expiry</span>
+                <SignalDatePicker
+                  aria-label={`Expiry symbol ${index + 1}`}
+                  value={block.option_expiry}
+                  onChange={(v) => {
+                    set("option_expiry", v);
+                    syncContract({ option_expiry: v });
+                  }}
+                />
+              </div>
+              {optionStrategy && (
+                <p className="col-span-full text-[11px] text-text-muted">
+                  {optionStrategy.label} · {optionStrategy.biasLabel}
+                </p>
+              )}
+            </div>
+          )}
+          <div className="grid grid-cols-2 gap-3">
+            <SignalField label="Target">
+              <SignalAmountInput
+                aria-label={`Target symbol ${index + 1}`}
+                value={block.target}
+                onValueChange={(v) => set("target", v)}
+                placeholder="Optional"
+              />
+            </SignalField>
+            <SignalField label="Stop">
+              <SignalAmountInput
+                aria-label={`Stop symbol ${index + 1}`}
+                value={block.stop}
+                onValueChange={(v) => set("stop", v)}
+                placeholder="Optional"
+              />
+            </SignalField>
+          </div>
+          <form.Field name={`${base}.rows` as never} mode="array">
+            {(rowsField) => (
+              <div className="flex flex-col gap-2">
+                <span className={labelClass}>
+                  {block.symbol ? `Executions · ${block.symbol}` : "Executions"}
+                </span>
+                <div
+                  className="grid gap-2 text-[10px] font-medium uppercase tracking-widest text-text-muted"
+                  style={{ gridTemplateColumns: FILL_COLS }}
+                >
+                  <span>Action</span>
+                  <span>Date / Time</span>
+                  <span>Qty</span>
+                  <span>Price</span>
+                  <span>Amount</span>
+                  <span>Fee</span>
+                  <span>P&L</span>
+                  <span />
+                  <span />
+                </div>
+                {block.rows.map((row, rowIndex) => (
+                  <div
+                    key={`${block.key}-${rowIndex}`}
+                    className="grid items-start gap-2"
+                    style={{ gridTemplateColumns: FILL_COLS }}
+                  >
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="lg"
+                      aria-label={`Toggle action symbol ${index + 1} row ${rowIndex + 1}`}
+                      onClick={() =>
+                        form.setFieldValue(
+                          `${base}.rows[${rowIndex}].side` as never,
+                          (row.side === "buy" ? "sell" : "buy") as never,
+                        )
+                      }
+                      className={cn(
+                        "font-bold hover:bg-transparent",
+                        row.side === "buy" ? "bg-profit/15 text-profit" : "bg-loss/15 text-loss",
+                      )}
+                    >
+                      {row.side.toUpperCase()}
+                    </Button>
+                    <form.Field name={`${base}.rows[${rowIndex}].executed_at` as never}>
+                      {(field) => (
+                        <SignalDateTimePicker
+                          aria-label={`Date/time symbol ${index + 1} row ${rowIndex + 1}`}
+                          value={field.state.value as string}
+                          onChange={(v) => field.handleChange(v as never)}
+                        />
+                      )}
+                    </form.Field>
+                    <form.Field
+                      name={`${base}.rows[${rowIndex}].quantity` as never}
+                      validators={{
+                        onBlur: ({ value }) => validatePositiveAmount(value as string, "Qty"),
+                      }}
+                    >
+                      {(field) => (
+                        <SignalAmountInput
+                          aria-label={`Qty${index ? ` symbol ${index + 1}` : ""} row ${rowIndex + 1}`}
+                          value={field.state.value as string}
+                          onValueChange={(v) => field.handleChange(v as never)}
+                          placeholder="Qty"
+                        />
+                      )}
+                    </form.Field>
+                    <form.Field
+                      name={`${base}.rows[${rowIndex}].price` as never}
+                      validators={{
+                        onBlur: ({ value }) => validatePositiveAmount(value as string, "Price"),
+                      }}
+                    >
+                      {(field) => (
+                        <SignalAmountInput
+                          aria-label={`Price${index ? ` symbol ${index + 1}` : ""} row ${rowIndex + 1}`}
+                          value={field.state.value as string}
+                          onValueChange={(v) => field.handleChange(v as never)}
+                          placeholder="Price"
+                        />
+                      )}
+                    </form.Field>
+                    <FillAmountCell
+                      quantity={parsedRows[rowIndex]?.quantity ?? 0}
+                      price={parsedRows[rowIndex]?.price ?? 0}
+                      multiplier={multiplier}
+                      currency={currency}
+                      locale={locale}
+                      emptyLabel={`Amount symbol ${index + 1} row ${rowIndex + 1}: empty`}
+                    />
+                    <form.Field
+                      name={`${base}.rows[${rowIndex}].fees` as never}
+                      validators={{
+                        onBlur: ({ value }) => validateNonNegativeAmount(value as string, "Fee"),
+                      }}
+                    >
+                      {(field) => (
+                        <SignalAmountInput
+                          aria-label={`Fee${index ? ` symbol ${index + 1}` : ""} row ${rowIndex + 1}`}
+                          value={field.state.value as string}
+                          onValueChange={(v) => field.handleChange(v as never)}
+                          placeholder="Fee"
+                          compact
+                        />
+                      )}
+                    </form.Field>
+                    <FillPnlCell
+                      value={fillPnls[rowIndex]}
+                      currency={currency}
+                      locale={locale}
+                      emptyLabel={`P&L symbol ${index + 1} row ${rowIndex + 1}: empty`}
+                    />
+                    <span aria-hidden />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      aria-label={`Remove row symbol ${index + 1} row ${rowIndex + 1}`}
+                      disabled={block.rows.length === 1}
+                      onClick={() => rowsField.removeValue(rowIndex)}
+                      className="justify-self-end"
+                    >
+                      <X size={12} />
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  type="button"
+                  variant="default"
+                  size="icon"
+                  aria-label={`Add execution row symbol ${index + 1}`}
+                  onClick={() =>
+                    rowsField.pushValue(
+                      emptyExecutionRow(block.side === "long" ? "buy" : "sell", {
+                        option_right: block.option_right,
+                        strike: block.option_strike,
+                        expiry: block.option_expiry,
+                      }) as never,
+                    )
+                  }
+                  className="mx-auto size-9"
+                >
+                  <Plus size={16} />
+                </Button>
+              </div>
+            )}
+          </form.Field>
+          <TradeResultPreview
+            preview={preview}
+            currency={currency}
+            locale={locale}
+            initialRisk={risk}
+          />
+
+          <CollapsibleSection
+            title="Journal"
+            summary={
+              [
+                block.setupIds.length
+                  ? `${block.setupIds.length} setup${block.setupIds.length === 1 ? "" : "s"}`
+                  : "",
+                block.session,
+                block.emotionalState,
+                screenshotFiles.length
+                  ? `${screenshotFiles.length} shot${screenshotFiles.length === 1 ? "" : "s"}`
+                  : "",
+              ]
+                .filter(Boolean)
+                .join(" · ") || undefined
+            }
+          >
+            <div>
+              <span className={labelClass}>Setups (select multiple)</span>
+              <p className="mb-2 text-[10px] text-text-muted">
+                First selected setup becomes the main setup.
+              </p>
+              {setups.length === 0 ? (
+                <p className="text-[11px] text-text-muted">
+                  No setups yet — create some in Playbook.
+                </p>
+              ) : (
+                <div className="flex flex-wrap gap-1.5">
+                  {setups.map((s) => {
+                    const idx = block.setupIds.indexOf(s.id);
+                    const on = idx >= 0;
+                    return (
+                      <Button
+                        key={s.id}
+                        type="button"
+                        variant="ghost"
+                        onClick={() => toggleSetupId(s.id)}
+                        className="h-auto border-none bg-transparent p-0 hover:bg-transparent"
+                        aria-pressed={on}
+                      >
+                        <Pill tone={on ? "accent" : "muted"}>
+                          {on && idx === 0 ? `${s.name} · main` : s.name}
+                        </Pill>
+                      </Button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+            <div>
+              <span className={labelClass}>Session</span>
+              <div className="flex flex-wrap gap-1.5">
+                {TRADE_SESSIONS.map((s) => {
+                  const on = block.session === s;
+                  return (
+                    <Button
+                      key={s}
+                      type="button"
+                      variant={on ? "soft" : "secondary"}
+                      size="xs"
+                      onClick={() => set("session", on ? "" : s)}
+                      className="tracking-[0.02em]"
+                    >
+                      {s}
+                    </Button>
+                  );
+                })}
+              </div>
+            </div>
+            <div>
+              <label className={labelClass} htmlFor={`nt-emotion-${block.key}`}>
+                Emotion
+              </label>
+              <SignalSelect
+                id={`nt-emotion-${block.key}`}
+                value={block.emotionalState}
+                onValueChange={(v) => set("emotionalState", v)}
+                options={[
+                  { value: "", label: "Not set" },
+                  ...EMOTIONAL_STATES.map((s) => ({ value: s, label: s })),
+                ]}
+                ariaLabel={`Emotion${suffix}`}
+                triggerClassName="h-9 text-[12px]"
+              />
+            </div>
+            {regularTags.length > 0 && (
+              <div>
+                <span className={labelClass}>Tags</span>
+                <div className="flex flex-wrap gap-1.5">
+                  {regularTags.map((t) => {
+                    const on = block.selectedTagIds.includes(t.id);
+                    return (
+                      <Button
+                        key={t.id}
+                        type="button"
+                        variant="ghost"
+                        onClick={() => toggleId(block.selectedTagIds, t.id, "selectedTagIds")}
+                        className="h-auto border-none bg-transparent p-0 hover:bg-transparent"
+                      >
+                        <Pill tone={on ? "accent" : "muted"}>{t.name}</Pill>
+                      </Button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+            {mistakeTags.length > 0 && (
+              <div>
+                <span className={labelClass}>Mistake type</span>
+                <p className="mb-2 text-[10px] text-text-muted">Optional — tap any that apply.</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {mistakeTags.map((t) => {
+                    const on = block.selectedMistakeIds.includes(t.id);
+                    return (
+                      <Button
+                        key={t.id}
+                        type="button"
+                        variant="ghost"
+                        onClick={() =>
+                          toggleId(block.selectedMistakeIds, t.id, "selectedMistakeIds")
+                        }
+                        className="h-auto border-none bg-transparent p-0 hover:bg-transparent"
+                      >
+                        <Pill tone={on ? "neg" : "muted"}>{t.name}</Pill>
+                      </Button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+            <GradeControl
+              label="Setup rating"
+              hint="Rate the setup itself — ignore PnL and emotion."
+              value={block.setupGrade}
+              onChange={(v) => set("setupGrade", v)}
+            />
+            <GradeControl
+              label="Execution rating"
+              hint="Rate your execution — patience, timing, stop discipline."
+              value={block.executionGrade}
+              onChange={(v) => set("executionGrade", v)}
+            />
+            <div>
+              <label className={labelClass} htmlFor={`nt-entry-${block.key}`}>
+                Entry reason
+              </label>
+              <SignalTextarea
+                id={`nt-entry-${block.key}`}
+                aria-label={`Entry reason${suffix}`}
+                value={block.entryReason}
+                onChange={(e) => set("entryReason", e.target.value)}
+                rows={2}
+                placeholder="Why did you enter?"
+              />
+            </div>
+            <div>
+              <label className={labelClass} htmlFor={`nt-exit-${block.key}`}>
+                Exit reason
+              </label>
+              <SignalTextarea
+                id={`nt-exit-${block.key}`}
+                aria-label={`Exit reason${suffix}`}
+                value={block.exitReason}
+                onChange={(e) => set("exitReason", e.target.value)}
+                rows={2}
+                placeholder="Why did you exit?"
+              />
+            </div>
+            <div>
+              <label className={labelClass} htmlFor={`nt-review-${block.key}`}>
+                Review notes
+              </label>
+              <SignalTextarea
+                id={`nt-review-${block.key}`}
+                aria-label={`Review notes${suffix}`}
+                value={block.reviewNotes}
+                onChange={(e) => set("reviewNotes", e.target.value)}
+                rows={3}
+                placeholder="What would you do differently?"
+              />
+            </div>
+            <div>
+              <span className={labelClass}>
+                Screenshots
+                {screenshotFiles.length > 0
+                  ? maxScreenshots != null
+                    ? ` (${screenshotFiles.length}/${maxScreenshots})`
+                    : ` (${screenshotFiles.length})`
+                  : maxScreenshots != null
+                    ? ` (max ${maxScreenshots})`
+                    : ""}
+              </span>
+              <JournalScreenshotUpload
+                className="mt-1"
+                inputTestId={`journal-screenshot-input-${index + 1}`}
+                items={screenshotFiles.map((file, fileIndex) =>
+                  fileToScreenshotItem(file, () => onRemoveScreenshot(fileIndex)),
+                )}
+                onAddFiles={onAddScreenshots}
+                maxCount={maxScreenshots}
+                disabled={pending}
+              />
+            </div>
+          </CollapsibleSection>
+
+          <CollapsibleSection
+            title="Dividend"
+            summary={
+              block.dividendAmount.trim() ? `${block.dividendAmount} ${currency}` : undefined
+            }
+          >
+            <p className="m-0 text-[10px] text-text-muted">
+              Optional payout on this symbol. Amount rolls into trade P&amp;L (shorts as a debit).
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              <SignalField label={`Amount (${currency})`}>
+                <SignalAmountInput
+                  aria-label={`Dividend amount${suffix}`}
+                  value={block.dividendAmount}
+                  onValueChange={(v) => set("dividendAmount", v)}
+                  placeholder="0.00"
+                />
+              </SignalField>
+              <div>
+                <span className={labelClass}>Date</span>
+                <SignalDatePicker
+                  aria-label={`Dividend date${suffix}`}
+                  value={block.dividendDate}
+                  onChange={(v) => set("dividendDate", v)}
+                />
+              </div>
+            </div>
+            <SignalField label="Note">
+              <SignalInput
+                aria-label={`Dividend note${suffix}`}
+                value={block.dividendNote}
+                onChange={(e) => set("dividendNote", e.target.value)}
+                placeholder="Optional"
+              />
+            </SignalField>
+          </CollapsibleSection>
+        </div>
+      </CollapsibleContent>
+    </Collapsible>
+  );
+}
 
 export function NewTradeDrawer() {
-	const open = useUI((s) => s.modal === "new-trade");
-	const closeModal = useUI((s) => s.closeModal);
-	const filterAccountId = useFilters((s) => s.accountId);
-	const accounts = useAccounts().data ?? [];
-	const setups = useSetups().data ?? [];
-	const allTags = useTags().data ?? [];
-	const mistakeTags = useMemo(
-		() => allTags.filter((t) => t.kind === "mistake"),
-		[allTags],
-	);
-	const regularTags = useMemo(
-		() => allTags.filter((t) => t.kind !== "mistake"),
-		[allTags],
-	);
-	const toast = useToastManager();
-	const createExecutions = useCreateExecutions();
-	const riskRulesQ = useRiskRules();
-	const today = localDateString(new Date());
-	const todayFilters = useMemo(
-		() => ({
-			account_id: filterAccountId,
-			from: normalizeFilterDate(today, "start"),
-			to: normalizeFilterDate(today, "end"),
-		}),
-		[filterAccountId, today],
-	);
-	const todaySummaryQ = useSummary(todayFilters);
-	const openTradesQ = useTrades({
-		account_id: filterAccountId,
-		status: "open",
-	});
-	const openRiskTotal = useMemo(() => {
-		const trades = openTradesQ.data ?? [];
-		return trades.reduce((sum, t) => {
-			const r = t.initial_risk;
-			return sum + (r != null && r > 0 ? r : 0);
-		}, 0);
-	}, [openTradesQ.data]);
+  usePrivacyMode();
+  const navigate = useNavigate();
+  const open = useUI((s) => s.modal === "new-trade");
+  const editTradeId = useUI((s) => s.editTradeId);
+  const editTradeDetail = useUI((s) => s.editTradeDetail);
+  const closeModal = useUI((s) => s.closeModal);
+  const isEditMode = Boolean(editTradeId);
+  const filterAccountId = useFilters((s) => s.accountId);
+  const accounts = useAccounts().data ?? [];
+  const setups = useSetups().data ?? [];
+  const allTags = useTags().data;
+  const mistakeTags = useMemo(() => (allTags ?? []).filter((t) => t.kind === "mistake"), [allTags]);
+  const regularTags = useMemo(() => (allTags ?? []).filter((t) => t.kind !== "mistake"), [allTags]);
+  const createExecutions = useCreateExecutions();
+  const updateExecution = useUpdateExecution();
+  const deleteExecution = useDeleteExecution();
+  const editTradeQ = useTradeDetail(editTradeId ?? "");
+  /** Prefer the snapshot passed at open; fall back to query cache/network. */
+  const editSource = editTradeDetail ?? editTradeQ.data;
+  const ocrParse = useOcrParse();
+  const { data: ocrSettings, isLoading: ocrSettingsLoading } = useOcrSettings();
+  const visionReady = isOcrVisionReady(ocrSettings);
+  const toast = useToastManager();
+  const maxScreenshots = useJournalPrefs((s) => s.maxScreenshotsPerTrade);
+  const [pendingFilesByKey, setPendingFilesByKey] = useState<Record<string, File[]>>({});
+  const [ocrExtract, setOcrExtract] = useState<TradeExtract | null>(null);
+  const [ocrWarnings, setOcrWarnings] = useState<string[]>([]);
+  const [ocrSetupPromptOpen, setOcrSetupPromptOpen] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+  const [editSaving, setEditSaving] = useState(false);
+  /** Bumps when edit form is hydrated so Field trees remount with filled values. */
+  const [editFormKey, setEditFormKey] = useState(0);
+  const [editHydrated, setEditHydrated] = useState(false);
+  const [templates, setTemplates] = useState<TradeTemplate[]>([]);
+  const [templatesOpen, setTemplatesOpen] = useState(false);
+  const ocrFileRef = useRef<HTMLInputElement>(null);
+  const wasOpen = useRef(false);
+  const prefilledEditId = useRef<string | null>(null);
+  const locale = getIntlLocale(getStoredLocale());
+  const defaultValuesRef = useRef(defaultNewTradeFormValues());
+  const form = useForm({
+    defaultValues: defaultValuesRef.current,
+    onSubmit: async ({ value }) => {
+      setSubmitError("");
+      const accountId = value.accountId || filterAccountId || accounts[0]?.id || "";
+      if (!accountId) {
+        setSubmitError("Account is required.");
+        return;
+      }
+      const tradesErr = validateSymbolTrades(value.trades);
+      if (tradesErr) {
+        setSubmitError(tradesErr);
+        return;
+      }
+      const rows = flattenSymbolTradesToExecutions(value.trades);
+      if (rows.length === 0) {
+        setSubmitError("Add at least one valid execution row.");
+        return;
+      }
 
-	const [tab, setTab] = useState<Tab>("general");
-	const [accountId, setAccountId] = useState("");
-	const [copyAccountIds, setCopyAccountIds] = useState<string[]>([]);
-	const [market, setMarket] = useState("stock");
-	const [symbol, setSymbol] = useState("");
-	const [side, setSide] = useState<"long" | "short">("long");
-	const [target, setTarget] = useState("");
-	const [stop, setStop] = useState("");
-	const [rows, setRows] = useState<Row[]>([emptyRow("buy")]);
-	const [setupId, setSetupId] = useState("");
-	const [emotionalState, setEmotionalState] = useState("");
-	const [confidence, setConfidence] = useState("3");
-	const [tradeQuality, setTradeQuality] = useState("3");
-	const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
-	const [selectedMistakeIds, setSelectedMistakeIds] = useState<string[]>([]);
-	const [notes, setNotes] = useState("");
-	const [pendingFiles, setPendingFiles] = useState<File[]>([]);
-	const [dividendAmount, setDividendAmount] = useState("");
-	const [dividendDate, setDividendDate] = useState(todayDate());
-	const [dividendNote, setDividendNote] = useState("");
-	const [error, setError] = useState("");
-	const [templatesOpen, setTemplatesOpen] = useState(false);
-	const [copyOpen, setCopyOpen] = useState(false);
-	const [templates, setTemplates] = useState<TradeTemplate[]>([]);
+      const editId = useUI.getState().editTradeId;
+      if (editId) {
+        const existing = useUI.getState().editTradeDetail ?? editTradeQ.data;
+        if (!existing) {
+          setSubmitError("Trade still loading — try again.");
+          return;
+        }
+        setEditSaving(true);
+        try {
+          const existingIds = new Set(existing.fills.map((f) => f.id));
+          const keptIds = new Set(rows.map((r) => r.id).filter((id): id is string => Boolean(id)));
+          let tradeId = editId;
 
-	const effectiveAccountId =
-		accountId || filterAccountId || accounts[0]?.id || "";
-	const currency =
-		accounts.find((a) => a.id === effectiveAccountId)?.base_currency ?? "USD";
+          for (const row of rows) {
+            if (row.id && existingIds.has(row.id)) {
+              const res = await updateExecution.mutateAsync({
+                id: row.id,
+                body: {
+                  side: row.side,
+                  quantity: row.quantity,
+                  price: row.price,
+                  fees: row.fees,
+                  commission: row.commission,
+                  executed_at: row.executed_at,
+                },
+              });
+              if (res.trade_id) tradeId = res.trade_id;
+            } else {
+              const { id: _omit, ...body } = row;
+              const res = await createExecutions.mutateAsync({
+                accountIds: [accountId],
+                rows: [body],
+              });
+              tradeId = res.tradeIds[0] ?? tradeId;
+            }
+          }
 
-	const wasOpen = useRef(false);
+          for (const fill of existing.fills) {
+            if (!keptIds.has(fill.id)) {
+              const res = await deleteExecution.mutateAsync(fill.id);
+              if (res.trade_id) tradeId = res.trade_id;
+              else if (!res.trade_id && existing.fills.length <= 1) {
+                tradeId = "";
+              }
+            }
+          }
 
-	function resetForm() {
-		setTab("general");
-		setAccountId("");
-		setCopyAccountIds([]);
-		setMarket("stock");
-		setSymbol("");
-		setSide("long");
-		setTarget("");
-		setStop("");
-		setRows([emptyRow("buy")]);
-		setSetupId("");
-		setEmotionalState("");
-		setConfidence("3");
-		setTradeQuality("3");
-		setSelectedTagIds([]);
-		setSelectedMistakeIds([]);
-		setNotes("");
-		setPendingFiles([]);
-		setDividendAmount("");
-		setDividendDate(todayDate());
-		setDividendNote("");
-		setError("");
-		setTemplatesOpen(false);
-		setCopyOpen(false);
-	}
+          const block = value.trades[0];
+          if (block && tradeId) {
+            await tradesApi.patch(tradeId, {
+              notes: buildStructuredJournalNotes({
+                session: block.session,
+                entryReason: block.entryReason,
+                exitReason: block.exitReason,
+                reviewNotes: block.reviewNotes,
+              }),
+              setup_id: block.setupIds[0] ?? "",
+              setup_ids: block.setupIds,
+              emotional_state: block.emotionalState || "",
+              confidence: intFromGrade(block.setupGrade),
+              trade_quality: intFromGrade(block.executionGrade),
+              tag_ids: [...block.selectedTagIds, ...block.selectedMistakeIds],
+              initial_risk: blockRisk(block) ?? undefined,
+              target_price: num(block.target) ?? undefined,
+              stop_price: num(block.stop) ?? undefined,
+            });
+            for (const file of capScreenshots(pendingFilesByKey[block.key] ?? [], maxScreenshots)) {
+              const fd = new FormData();
+              fd.append("file", file);
+              await attachmentsApi.upload(tradeId, fd);
+            }
+            const amount = num(block.dividendAmount);
+            if (amount != null && amount > 0) {
+              await cashApi.create({
+                account_id: accountId,
+                type: "dividend",
+                amount: block.side === "short" ? -Math.abs(amount) : Math.abs(amount),
+                currency: accounts.find((a) => a.id === accountId)?.base_currency ?? "USD",
+                occurred_at: new Date(`${block.dividendDate}T12:00:00`).toISOString(),
+                note:
+                  block.dividendNote || `${block.symbol.trim().toUpperCase() || "Trade"} dividend`,
+                trade_id: tradeId,
+              });
+            }
+          }
 
-	function close() {
-		resetForm();
-		closeModal();
-	}
+          toast.add({
+            title: "Trade updated",
+            description: tradeId
+              ? "Fills and journal saved."
+              : "All fills removed — returned to trades.",
+          });
+          close();
+          if (tradeId) {
+            void navigate({ to: "/trades/$id", params: { id: tradeId } });
+          } else {
+            void navigate({ to: "/trades" });
+          }
+        } catch (error) {
+          const message =
+            error instanceof ExecutionBatchError
+              ? error.failures
+                  .map((f) => `Row ${f.index + 1} (${f.accountId}): ${f.message}`)
+                  .join("; ")
+              : error instanceof Error
+                ? error.message
+                : "Save failed";
+          setSubmitError(message);
+          toast.add({ title: "Could not update trade", description: message });
+        } finally {
+          setEditSaving(false);
+        }
+        return;
+      }
 
-	const consumeTradeDraft = useUI((s) => s.consumeTradeDraft);
+      const accountIds = [accountId, ...value.copyAccountIds.filter((id) => id !== accountId)];
+      try {
+        const { tradeIds, bySymbol } = await createExecutions.mutateAsync({
+          accountIds,
+          rows: rows.map(({ id: _id, ...body }) => body),
+        });
+        await Promise.all(
+          value.trades.map(async (block) => {
+            const id = bySymbol[block.symbol.trim().toUpperCase()];
+            if (!id) return;
+            await tradesApi.patch(id, {
+              notes: buildStructuredJournalNotes({
+                session: block.session,
+                entryReason: block.entryReason,
+                exitReason: block.exitReason,
+                reviewNotes: block.reviewNotes,
+              }),
+              setup_id: block.setupIds[0] ?? "",
+              setup_ids: block.setupIds,
+              emotional_state: block.emotionalState || "",
+              confidence: intFromGrade(block.setupGrade),
+              trade_quality: intFromGrade(block.executionGrade),
+              tag_ids: [...block.selectedTagIds, ...block.selectedMistakeIds],
+              initial_risk: blockRisk(block) ?? undefined,
+              target_price: num(block.target) ?? undefined,
+              stop_price: num(block.stop) ?? undefined,
+            });
+            for (const file of capScreenshots(pendingFilesByKey[block.key] ?? [], maxScreenshots)) {
+              const fd = new FormData();
+              fd.append("file", file);
+              await attachmentsApi.upload(id, fd);
+            }
+            const amount = num(block.dividendAmount);
+            if (amount != null && amount > 0) {
+              await cashApi.create({
+                account_id: accountId,
+                type: "dividend",
+                amount: block.side === "short" ? -Math.abs(amount) : Math.abs(amount),
+                currency: accounts.find((a) => a.id === accountId)?.base_currency ?? "USD",
+                occurred_at: new Date(`${block.dividendDate}T12:00:00`).toISOString(),
+                note:
+                  block.dividendNote || `${block.symbol.trim().toUpperCase() || "Trade"} dividend`,
+                trade_id: id,
+              });
+            }
+          }),
+        );
+        toast.add({
+          title: "Trades logged",
+          description: `${Object.keys(bySymbol).length || tradeIds.length} symbol${(Object.keys(bySymbol).length || tradeIds.length) === 1 ? "" : "s"} saved.`,
+        });
+        close();
+      } catch (error) {
+        const message =
+          error instanceof ExecutionBatchError
+            ? error.failures
+                .map((f) => `Row ${f.index + 1} (${f.accountId}): ${f.message}`)
+                .join("; ")
+            : error instanceof Error
+              ? error.message
+              : "Save failed";
+        setSubmitError(message);
+        toast.add({ title: "Could not log trades", description: message });
+      }
+    },
+  });
+  const values = useStore(form.store, (s) => s.values);
+  const accountId = values.accountId || filterAccountId || accounts[0]?.id || "";
+  const currency = accounts.find((a) => a.id === accountId)?.base_currency ?? "USD";
+  const accountFilters = useMemo(() => ({ account_id: accountId || undefined }), [accountId]);
+  const summaryQ = useSummary(accountFilters);
+  const cashQ = useCash(accountFilters);
+  const accountBaseline = !accountId
+    ? { netPnl: null as number | null, cash: null as number | null }
+    : (() => {
+        const stats = computeHeaderStats({
+          accounts,
+          accountId,
+          cashTx: cashQ.data ?? [],
+          summary: summaryQ.data,
+          trades: [],
+        });
+        return { netPnl: stats.netPnl, cash: stats.cash };
+      })();
+  const pending =
+    createExecutions.isPending ||
+    updateExecution.isPending ||
+    deleteExecution.isPending ||
+    editSaving;
 
-	useEffect(() => {
-		if (open && !wasOpen.current) {
-			resetForm();
-			setTemplates(listTradeTemplates());
-			const draft = consumeTradeDraft();
-			if (draft) {
-				if (draft.symbol) setSymbol(draft.symbol);
-				if (draft.side) {
-					setSide(draft.side);
-					setRows([emptyRow(draft.side === "long" ? "buy" : "sell")]);
-				}
-				if (draft.target) setTarget(draft.target);
-				if (draft.stop) setStop(draft.stop);
-				if (draft.setupId) setSetupId(draft.setupId);
-				if (draft.notes) setNotes(draft.notes);
-			}
-		}
-		wasOpen.current = open;
-	}, [open, consumeTradeDraft]);
+  const batchPreview = useMemo(
+    () =>
+      values.trades.length > 1
+        ? aggregateTradePnlPreviews(values.trades.map(blockPnlPreview))
+        : null,
+    [values.trades],
+  );
+  const singleFooter = useMemo(() => {
+    if (values.trades.length !== 1) return null;
+    const result = blockPnlPreview(values.trades[0]!);
+    return {
+      preview: result.preview,
+      risk: result.initialRisk,
+    };
+  }, [values.trades]);
 
-	function updateRow(i: number, patch: Partial<Row>) {
-		setRows((rs) => rs.map((r, j) => (j === i ? { ...r, ...patch } : r)));
-	}
+  function reset() {
+    form.reset(defaultNewTradeFormValues());
+    setPendingFilesByKey({});
+    setOcrExtract(null);
+    setOcrWarnings([]);
+    setSubmitError("");
+    setTemplatesOpen(false);
+    const acct = filterAccountId || accounts[0]?.id || "";
+    if (acct) form.setFieldValue("accountId", acct);
+  }
 
-	function toggleId(list: string[], id: string, set: (v: string[]) => void) {
-		set(list.includes(id) ? list.filter((x) => x !== id) : [...list, id]);
-	}
+  function close() {
+    reset();
+    prefilledEditId.current = null;
+    setEditHydrated(false);
+    closeModal();
+    setOcrSetupPromptOpen(false);
+  }
 
-	function applyTemplate(t: TradeTemplate) {
-		setMarket(t.market);
-		setSymbol(t.symbol);
-		setSide(t.side);
-		setTarget(t.target);
-		setStop(t.stop);
-		setRows(
-			t.rows.map((r) => ({
-				...r,
-				executed_at: nowLocal(),
-			})),
-		);
-		setSetupId(t.setupId);
-		setNotes(t.notes);
-		setEmotionalState(t.emotionalState);
-		setConfidence(String(t.confidence || 3));
-		setTradeQuality(String(t.tradeQuality || 3));
-		setSelectedTagIds(t.tagIds);
-		setSelectedMistakeIds(t.mistakeTagIds);
-		setTemplatesOpen(false);
-	}
+  useEffect(() => {
+    if (!open) {
+      wasOpen.current = false;
+      prefilledEditId.current = null;
+      setEditHydrated(false);
+      return;
+    }
+    if (wasOpen.current) return;
+    wasOpen.current = true;
+    setPendingFilesByKey({});
+    setOcrExtract(null);
+    setOcrWarnings([]);
+    setSubmitError("");
+    setTemplates(listTradeTemplates());
 
-	function handleSaveTemplate() {
-		const name = window.prompt("Template name");
-		if (!name?.trim()) return;
-		saveTradeTemplate({
-			name: name.trim(),
-			market,
-			symbol,
-			side,
-			target,
-			stop,
-			rows: rows.map(({ side, quantity, price, fees }) => ({
-				side,
-				quantity,
-				price,
-				fees,
-			})),
-			setupId,
-			notes,
-			emotionalState,
-			confidence: Number(confidence) || 3,
-			tradeQuality: Number(tradeQuality) || 3,
-			tagIds: selectedTagIds,
-			mistakeTagIds: selectedMistakeIds,
-		});
-		setTemplates(listTradeTemplates());
-		toast.add({ title: "Template saved", description: name.trim() });
-	}
+    const editingId = useUI.getState().editTradeId;
+    if (editingId) {
+      // Prefill runs when edit snapshot / detail is available.
+      return;
+    }
 
-	const parsedRows = useMemo(() => {
-		const out: z.infer<typeof rowSchema>[] = [];
-		for (const r of rows) {
-			const p = rowSchema.safeParse(r);
-			if (p.success) out.push(p.data);
-		}
-		return out;
-	}, [rows]);
+    setEditHydrated(true);
+    form.reset(defaultNewTradeFormValues());
+    if (!filterAccountId && accounts[0]?.id) {
+      form.setFieldValue("accountId", accounts[0].id);
+    } else if (filterAccountId) {
+      form.setFieldValue("accountId", filterAccountId);
+    }
+    const draft = useUI.getState().consumeTradeDraft();
+    if (draft) {
+      form.setFieldValue("trades", [
+        emptySymbolTrade({
+          symbol: draft.symbol,
+          side: draft.side || "long",
+          target: draft.target,
+          stop: draft.stop,
+          rows: [emptyExecutionRow(draft.side === "short" ? "sell" : "buy")],
+          setupIds: draft.setupId ? [draft.setupId] : [],
+        }),
+      ]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- open once per drawer session
+  }, [open]);
 
-	const entry = useMemo(
-		() => weightedAvgEntry(parsedRows, side),
-		[parsedRows, side],
-	);
+  useEffect(() => {
+    if (!open || !editTradeId || !editSource) return;
+    if (prefilledEditId.current === editTradeId) return;
+    prefilledEditId.current = editTradeId;
+    const nextValues = {
+      accountId: editSource.account_id,
+      copyAccountIds: [] as string[],
+      trades: [symbolTradeFromDetail(editSource)],
+    };
+    // Match NewSetupDrawer / template apply: reset + setFieldValue so nested
+    // array Fields remount cleanly with filled values.
+    form.reset(nextValues);
+    form.setFieldValue("accountId", nextValues.accountId);
+    form.setFieldValue("copyAccountIds", nextValues.copyAccountIds);
+    form.setFieldValue("trades", nextValues.trades);
+    setPendingFilesByKey({});
+    setSubmitError("");
+    setEditFormKey((k) => k + 1);
+    setEditHydrated(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- prefill once per edit id
+  }, [open, editTradeId, editSource]);
 
-	const initialRisk = useMemo(() => {
-		if (!entry) return null;
-		return computeInitialRisk(side, entry.avg, entry.qty, parseNum(stop));
-	}, [entry, side, stop]);
+  const applyTemplate = (template: TradeTemplate) => {
+    const journal = parseJournalNotes(template.notes);
+    form.setFieldValue("trades", [
+      emptySymbolTrade({
+        market: template.market,
+        symbol: template.symbol,
+        side: template.side,
+        target: template.target,
+        stop: template.stop,
+        multiplier: template.market === "option" ? "100" : "1",
+        rows: template.rows.map((r) => ({ ...emptyExecutionRow(r.side), ...r })),
+        setupIds: template.setupId ? [template.setupId] : [],
+        session: journal.session,
+        entryReason: journal.entryReason || journal.legacy,
+        exitReason: journal.exitReason,
+        reviewNotes: journal.reviewNotes,
+        emotionalState: template.emotionalState,
+        setupGrade: gradeFromInt(template.confidence),
+        executionGrade: gradeFromInt(template.tradeQuality),
+        selectedTagIds: template.tagIds,
+        selectedMistakeIds: template.mistakeTagIds,
+      }),
+    ]);
+    setTemplatesOpen(false);
+  };
 
-	function runCompliance() {
-		const rules = riskRulesQ.data;
-		const result = checkTradeCompliance({
-			side,
-			entryPrice: entry?.avg ?? null,
-			qty: entry?.qty ?? null,
-			targetPrice: parseNum(target),
-			stopPrice: parseNum(stop),
-			initialRisk,
-			rules: rules
-				? {
-						max_risk_per_trade: rules.max_risk_per_trade,
-						max_daily_loss: rules.max_daily_loss,
-						max_open_risk: rules.max_open_risk,
-					}
-				: undefined,
-			todayNetPnl: todaySummaryQ.data?.net_pnl ?? null,
-			openRiskTotal,
-		});
-		if (result.passed) {
-			toast.add({
-				title: "Compliance check passed",
-				description:
-					result.warnings.join(" ") ||
-					"Plan looks consistent with your risk rules.",
-			});
-		} else {
-			toast.add({
-				title: "Compliance issues found",
-				description: [...result.issues, ...result.warnings].join(" "),
-			});
-		}
-		setError(result.issues[0] ?? "");
-	}
+  const saveTemplate = () => {
+    const name = window.prompt("Template name");
+    const block = values.trades[0];
+    if (!name?.trim() || !block) return;
+    saveTradeTemplate({
+      name: name.trim(),
+      market: block.market,
+      symbol: block.symbol,
+      side: block.side,
+      target: block.target,
+      stop: block.stop,
+      rows: block.rows.map(({ side, quantity, price, fees }) => ({ side, quantity, price, fees })),
+      setupId: block.setupIds[0] ?? "",
+      notes: buildStructuredJournalNotes({
+        session: block.session,
+        entryReason: block.entryReason,
+        exitReason: block.exitReason,
+        reviewNotes: block.reviewNotes,
+      }),
+      emotionalState: block.emotionalState,
+      confidence: intFromGrade(block.setupGrade) ?? 3,
+      tradeQuality: intFromGrade(block.executionGrade) ?? 3,
+      tagIds: block.selectedTagIds,
+      mistakeTagIds: block.selectedMistakeIds,
+    });
+    setTemplates(listTradeTemplates());
+  };
 
-	async function save() {
-		setError("");
-		if (!effectiveAccountId) {
-			setError("account is required");
-			return;
-		}
-		if (!symbol.trim()) {
-			setError("symbol is required");
-			setTab("general");
-			return;
-		}
-		if (parsedRows.length === 0) {
-			setError("add at least one valid execution row");
-			setTab("general");
-			return;
-		}
+  const scan = async (files: File | File[]) => {
+    const list = Array.isArray(files) ? files : [files];
+    if (list.length === 0) return;
+    try {
+      const extract = await ocrParse.mutateAsync(list);
+      form.setFieldValue("trades", tradesFromOcrExtract(extract));
+      setPendingFilesByKey({});
+      setOcrExtract(extract);
+      setOcrWarnings(extract.warnings ?? []);
+      toast.add({
+        title: list.length > 1 ? `Scanned ${list.length} images` : "Symbols loaded",
+        description: ocrScanToastDescription(extract),
+      });
+    } catch (error) {
+      toast.add({
+        title: "OCR failed",
+        description:
+          error instanceof ApiError || error instanceof Error
+            ? error.message
+            : "Could not scan screenshot",
+        type: "error",
+      });
+    }
+  };
 
-		const accountIds = [
-			effectiveAccountId,
-			...copyAccountIds.filter((id) => id !== effectiveAccountId),
-		];
+  const openVisionSettings = () => {
+    close();
+    void navigate({ to: "/settings" });
+    window.location.hash = "ai";
+  };
 
-		const executionRows = parsedRows.map((r) => ({
-			symbol: symbol.toUpperCase(),
-			instrument_type: market,
-			side: r.side,
-			quantity: r.quantity,
-			price: r.price,
-			fees: r.fees,
-			executed_at: new Date(r.executed_at).toISOString(),
-		}));
+  const onScanClick = () => {
+    if (ocrSettingsLoading) return;
+    if (!visionReady) {
+      setOcrSetupPromptOpen(true);
+      return;
+    }
+    ocrFileRef.current?.click();
+  };
 
-		try {
-			const { tradeIds } = await createExecutions.mutateAsync({
-				accountIds,
-				rows: executionRows,
-			});
-
-			const journalNotes = buildJournalNotes({ notes });
-
-			const patchBody = {
-				notes: journalNotes,
-				setup_id: setupId || "",
-				initial_risk: initialRisk ?? undefined,
-				target_price: parseNum(target) ?? undefined,
-				stop_price: parseNum(stop) ?? undefined,
-				emotional_state: emotionalState || "",
-				confidence: Number(confidence) || undefined,
-				trade_quality: Number(tradeQuality) || undefined,
-				tag_ids: [...selectedTagIds, ...selectedMistakeIds],
-			};
-
-			for (const tradeId of tradeIds) {
-				await tradesApi.patch(tradeId, patchBody);
-			}
-
-			const primaryTradeId = tradeIds[0];
-			if (primaryTradeId && pendingFiles.length > 0) {
-				for (const file of pendingFiles.slice(0, 5)) {
-					const fd = new FormData();
-					fd.append("file", file);
-					await attachmentsApi.upload(primaryTradeId, fd);
-				}
-			}
-
-			const divAmount = parseNum(dividendAmount);
-			if (primaryTradeId && divAmount != null && divAmount > 0) {
-				const signed =
-					side === "short" ? -Math.abs(divAmount) : Math.abs(divAmount);
-				await cashApi.create({
-					account_id: effectiveAccountId,
-					type: "dividend",
-					amount: signed,
-					currency,
-					occurred_at: new Date(`${dividendDate}T12:00:00`).toISOString(),
-					note: dividendNote || `${symbol.toUpperCase()} dividend`,
-					trade_id: primaryTradeId,
-				});
-			}
-
-			toast.add({
-				title: "Trade logged",
-				description: `${symbol.toUpperCase()} saved${copyAccountIds.length ? ` (+${copyAccountIds.length} copies)` : ""}.`,
-			});
-			close();
-		} catch (e) {
-			if (e instanceof ExecutionBatchError) {
-				const message = e.failures
-					.map((f) => `Row ${f.index + 1} (${f.accountId}): ${f.message}`)
-					.join("; ");
-				setError(message);
-				toast.add({ title: "Could not log trade", description: message });
-			} else {
-				const message = e instanceof Error ? e.message : "Save failed";
-				setError(message);
-				toast.add({ title: "Could not log trade", description: message });
-			}
-		}
-	}
-
-	const otherAccounts = accounts.filter((a) => a.id !== effectiveAccountId);
-	const pending = createExecutions.isPending;
-
-	const headerActions = (
-		<>
-			<div className="relative">
-				<button
-					type="button"
-					className={btnGhost}
-					onClick={() => {
-						setTemplates(listTradeTemplates());
-						setTemplatesOpen((v) => !v);
-						setCopyOpen(false);
-					}}
-				>
-					<span className="inline-flex items-center gap-1">
-						<FileStack size={12} />
-						Templates
-						<ChevronDown size={12} />
-					</span>
-				</button>
-				{templatesOpen && (
-					<div className="absolute right-0 top-[calc(100%+4px)] z-50 min-w-[180px] rounded-control border border-border bg-bg-panel py-1 shadow-hard">
-						{templates.length === 0 ? (
-							<p className="px-3 py-2 text-[11px] text-text-muted">No templates</p>
-						) : (
-							templates.map((t) => (
-								<button
-									key={t.id}
-									type="button"
-									className="block w-full cursor-pointer border-none bg-transparent px-3 py-1.5 text-left text-xs text-text hover:bg-bg-hover"
-									onClick={() => applyTemplate(t)}
-								>
-									{t.name}
-								</button>
-							))
-						)}
-						<button
-							type="button"
-							className="block w-full cursor-pointer border-none border-t border-border bg-transparent px-3 py-1.5 text-left text-[11px] text-accent hover:bg-bg-hover"
-							onClick={handleSaveTemplate}
-						>
-							Save current as template…
-						</button>
-					</div>
-				)}
-			</div>
-			{otherAccounts.length > 0 && (
-				<div className="relative">
-					<button
-						type="button"
-						className={btnGhost}
-						onClick={() => {
-							setCopyOpen((v) => !v);
-							setTemplatesOpen(false);
-						}}
-					>
-						<span className="inline-flex items-center gap-1">
-							Save copies to
-							<ChevronDown size={12} />
-						</span>
-					</button>
-					{copyOpen && (
-						<div className="absolute right-0 top-[calc(100%+4px)] z-50 min-w-[200px] rounded-control border border-border bg-bg-panel p-2 shadow-hard">
-							{otherAccounts.map((a) => (
-								<label
-									key={a.id}
-									className="flex cursor-pointer items-center gap-2 rounded-sharp px-2 py-1.5 text-xs text-text hover:bg-bg-hover"
-								>
-									<input
-										type="checkbox"
-										checked={copyAccountIds.includes(a.id)}
-										onChange={() =>
-											toggleId(copyAccountIds, a.id, setCopyAccountIds)
-										}
-									/>
-									{a.name}
-								</label>
-							))}
-						</div>
-					)}
-				</div>
-			)}
-		</>
-	);
-
-	const footer = (
-		<div className="flex w-full items-center justify-between gap-3">
-			<div className="flex gap-2">
-				<button
-					type="button"
-					className={btnPrimary}
-					onClick={save}
-					disabled={pending}
-				>
-					Save
-				</button>
-				<button
-					type="button"
-					className={btnGhost}
-					onClick={runCompliance}
-					disabled={pending}
-				>
-					Check compliance
-				</button>
-			</div>
-			<button type="button" className={btnGhost} onClick={close} disabled={pending}>
-				Cancel
-			</button>
-		</div>
-	);
-
-	return (
-		<Modal
-			open={open}
-			onOpenChange={(o) => {
-				if (!o && !pending) close();
-			}}
-			title="New Trade"
-			headerActions={headerActions}
-			footer={footer}
-		>
-			<ModalBanner>
-				Log any trade you've entered — still open, partially exited, or fully
-				closed. Add buy/sell executions, journal notes, and run a compliance
-				check against your risk plan.
-			</ModalBanner>
-
-			<SegmentedControl
-				ariaLabel="Trade form section"
-				options={[
-					{ value: "general", label: "General" },
-					{ value: "journal", label: "Journal" },
-					{ value: "dividends", label: "Dividends" },
-				]}
-				value={tab}
-				onChange={(v) => setTab(v as Tab)}
-			/>
-
-			{tab === "general" && (
-				<>
-					<div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-						<div>
-							<label className={labelClass} htmlFor="nt-account">
-								Account
-							</label>
-							<SignalSelect
-								id="nt-account"
-								value={effectiveAccountId}
-								onValueChange={setAccountId}
-								options={accounts.map((a) => ({ value: a.id, label: a.name }))}
-								ariaLabel="Account"
-								triggerClassName="h-9 text-[12px]"
-							/>
-						</div>
-						<div>
-							<label className={labelClass} htmlFor="nt-market">
-								Market
-							</label>
-							<SignalSelect
-								id="nt-market"
-								value={market}
-								onValueChange={setMarket}
-								options={MARKETS}
-								ariaLabel="Market"
-								triggerClassName="h-9 text-[12px]"
-							/>
-						</div>
-						<div>
-							<label className={labelClass} htmlFor="nt-symbol">
-								Symbol
-							</label>
-							<input
-								id="nt-symbol"
-								aria-label="Symbol"
-								value={symbol}
-								onChange={(e) => setSymbol(e.target.value.toUpperCase())}
-								placeholder="AAPL"
-								className={inputClass}
-							/>
-						</div>
-						<div>
-							<span className={labelClass}>Side</span>
-							<SegmentedControl
-								ariaLabel="Side"
-								options={[
-									{ value: "long", label: "↗ LONG" },
-									{ value: "short", label: "↘ SHORT" },
-								]}
-								value={side}
-								onChange={(v) => {
-									const next = v as "long" | "short";
-									setSide(next);
-									setRows((rs) =>
-										rs.map((r, i) =>
-											i === 0
-												? {
-														...r,
-														side: next === "long" ? "buy" : "sell",
-													}
-												: r,
-										),
-									);
-								}}
-							/>
-						</div>
-					</div>
-
-					<div className="grid grid-cols-2 gap-3">
-						<div>
-							<label className={labelClass} htmlFor="nt-target">
-								Target
-							</label>
-							<input
-								id="nt-target"
-								inputMode="decimal"
-								value={target}
-								onChange={(e) => setTarget(e.target.value)}
-								placeholder="Optional"
-								className={inputClass}
-							/>
-						</div>
-						<div>
-							<label className={labelClass} htmlFor="nt-stop">
-								Stop
-							</label>
-							<input
-								id="nt-stop"
-								inputMode="decimal"
-								value={stop}
-								onChange={(e) => setStop(e.target.value)}
-								placeholder="Optional"
-								className={inputClass}
-							/>
-						</div>
-					</div>
-
-					{initialRisk != null && (
-						<p className="text-[10px] text-text-muted">
-							Planned risk: ${initialRisk.toFixed(2)}
-						</p>
-					)}
-
-					<div className="flex flex-col gap-2">
-						<div
-							className="grid gap-2 text-[10px] font-medium uppercase tracking-widest text-text-dim"
-							style={{ gridTemplateColumns: "72px 1fr 80px 90px 72px 28px" }}
-						>
-							<span>Action</span>
-							<span>Date / Time</span>
-							<span>Qty</span>
-							<span>Price</span>
-							<span>Fee</span>
-							<span />
-						</div>
-						{rows.map((row, i) => (
-							<div
-								key={i}
-								className="grid items-center gap-2"
-								style={{
-									gridTemplateColumns: "72px 1fr 80px 90px 72px 28px",
-								}}
-							>
-								<button
-									type="button"
-									aria-label={`Toggle action row ${i + 1}`}
-									onClick={() =>
-										updateRow(i, {
-											side: row.side === "buy" ? "sell" : "buy",
-										})
-									}
-									className={cn(
-										"cursor-pointer rounded-full border-none py-1 text-[11px] font-bold",
-										row.side === "buy"
-											? "bg-[var(--tint-pos)] text-pos"
-											: "bg-[var(--tint-neg)] text-loss",
-									)}
-								>
-									{row.side.toUpperCase()}
-								</button>
-								<input
-									type="datetime-local"
-									aria-label={`Date/time row ${i + 1}`}
-									value={row.executed_at}
-									onChange={(e) =>
-										updateRow(i, { executed_at: e.target.value })
-									}
-									className={inputClass}
-								/>
-								<input
-									inputMode="decimal"
-									aria-label={`Qty row ${i + 1}`}
-									placeholder="Qty"
-									value={row.quantity}
-									onChange={(e) => updateRow(i, { quantity: e.target.value })}
-									className={inputClass}
-								/>
-								<input
-									inputMode="decimal"
-									aria-label={`Price row ${i + 1}`}
-									placeholder="Price"
-									value={row.price}
-									onChange={(e) => updateRow(i, { price: e.target.value })}
-									className={inputClass}
-								/>
-								<input
-									inputMode="decimal"
-									aria-label={`Fee row ${i + 1}`}
-									placeholder="Fee"
-									value={row.fees}
-									onChange={(e) => updateRow(i, { fees: e.target.value })}
-									className={inputClass}
-								/>
-								<button
-									type="button"
-									aria-label={`Remove row ${i + 1}`}
-									disabled={rows.length === 1}
-									onClick={() => setRows((rs) => rs.filter((_, j) => j !== i))}
-									className="flex cursor-pointer border-none bg-transparent p-0 text-text-muted disabled:opacity-40"
-								>
-									<X size={14} />
-								</button>
-							</div>
-						))}
-						<button
-							type="button"
-							aria-label="Add execution row"
-							onClick={() =>
-								setRows((rs) => [
-									...rs,
-									emptyRow(side === "long" ? "buy" : "sell"),
-								])
-							}
-							className="mx-auto mt-1 flex size-8 cursor-pointer items-center justify-center rounded-full border-none bg-accent text-bg"
-						>
-							<Plus size={16} />
-						</button>
-					</div>
-				</>
-			)}
-
-			{tab === "journal" && (
-				<div className="flex flex-col gap-4">
-					<div>
-						<label className={labelClass} htmlFor="nt-setup">
-							Setup
-						</label>
-						<SignalSelect
-							id="nt-setup"
-							value={setupId}
-							onValueChange={setSetupId}
-							options={[
-								{ value: "", label: "None" },
-								...setups.map((s) => ({ value: s.id, label: s.name })),
-							]}
-							ariaLabel="Setup"
-							triggerClassName="h-9 text-[12px]"
-						/>
-					</div>
-					<div>
-						<label className={labelClass} htmlFor="nt-emotion">
-							Emotional state
-						</label>
-						<SignalSelect
-							id="nt-emotion"
-							value={emotionalState}
-							onValueChange={setEmotionalState}
-							options={[
-								{ value: "", label: "Not set" },
-								...EMOTIONAL_STATES.map((s) => ({ value: s, label: s })),
-							]}
-							ariaLabel="Emotional state"
-							triggerClassName="h-9 text-[12px]"
-						/>
-					</div>
-					{regularTags.length > 0 && (
-						<div>
-							<span className={labelClass}>Tags</span>
-							<div className="flex flex-wrap gap-1.5">
-								{regularTags.map((t) => {
-									const on = selectedTagIds.includes(t.id);
-									return (
-										<button
-											key={t.id}
-											type="button"
-											onClick={() =>
-												toggleId(selectedTagIds, t.id, setSelectedTagIds)
-											}
-											className="cursor-pointer border-none bg-transparent p-0"
-										>
-											<Pill tone={on ? "accent" : "muted"}>{t.name}</Pill>
-										</button>
-									);
-								})}
-							</div>
-						</div>
-					)}
-					{mistakeTags.length > 0 && (
-						<div>
-							<span className={labelClass}>Mistakes</span>
-							<p className="mb-2 text-[10px] text-text-muted">
-								Optional — tap any that apply. None are added by default.
-							</p>
-							<div className="flex flex-wrap gap-1.5">
-								{mistakeTags.map((t) => {
-									const on = selectedMistakeIds.includes(t.id);
-									return (
-										<button
-											key={t.id}
-											type="button"
-											onClick={() =>
-												toggleId(
-													selectedMistakeIds,
-													t.id,
-													setSelectedMistakeIds,
-												)
-											}
-											className="cursor-pointer border-none bg-transparent p-0"
-										>
-											<Pill tone={on ? "neg" : "muted"}>{t.name}</Pill>
-										</button>
-									);
-								})}
-							</div>
-						</div>
-					)}
-					<div>
-						<span className={labelClass}>Confidence</span>
-						<SegmentedControl
-							ariaLabel="Confidence"
-							options={RATING_OPTS}
-							value={confidence}
-							onChange={setConfidence}
-						/>
-					</div>
-					<div>
-						<span className={labelClass}>Trade quality</span>
-						<p className="mb-2 text-[10px] text-text-muted">
-							How well you executed your plan, rated after the trade.
-						</p>
-						<SegmentedControl
-							ariaLabel="Trade quality"
-							options={RATING_OPTS}
-							value={tradeQuality}
-							onChange={setTradeQuality}
-						/>
-					</div>
-					<div>
-						<label className={labelClass} htmlFor="nt-notes">
-							Notes
-						</label>
-						<textarea
-							id="nt-notes"
-							value={notes}
-							onChange={(e) => setNotes(e.target.value)}
-							rows={5}
-							placeholder="What was the thesis? What would you do differently?"
-							className={`${inputClass} resize-y`}
-						/>
-					</div>
-					<div>
-						<span className={labelClass}>
-							Screenshots ({pendingFiles.length}/5)
-						</span>
-						<input
-							type="file"
-							accept="image/*"
-							multiple
-							onChange={(e) => {
-								const files = [...(e.target.files ?? [])].slice(
-									0,
-									5 - pendingFiles.length,
-								);
-								setPendingFiles((f) => [...f, ...files].slice(0, 5));
-								e.target.value = "";
-							}}
-							className="text-xs text-text-muted"
-						/>
-						{pendingFiles.length > 0 && (
-							<ul className="mt-2 space-y-1 text-[11px] text-text-muted">
-								{pendingFiles.map((f) => (
-									<li key={f.name}>{f.name}</li>
-								))}
-							</ul>
-						)}
-					</div>
-				</div>
-			)}
-
-			{tab === "dividends" && (
-				<div className="flex flex-col gap-4">
-					<p className="text-xs leading-relaxed text-text-muted">
-						Track dividend payouts on this position. Amount rolls into trade
-						total P&amp;L (shorts are recorded as a debit). Win/Loss and R stay
-						price-based.
-					</p>
-					<div className="grid grid-cols-2 gap-3">
-						<SignalField label={`Amount (${currency})`} htmlFor="nt-div-amt">
-							<SignalInput
-								id="nt-div-amt"
-								inputMode="decimal"
-								value={dividendAmount}
-								onChange={(e) => setDividendAmount(e.target.value)}
-								placeholder="0.00"
-							/>
-						</SignalField>
-						<SignalField label="Date">
-							<SignalDatePicker
-								id="nt-div-date"
-								aria-label="Date"
-								value={dividendDate}
-								onChange={setDividendDate}
-							/>
-						</SignalField>
-					</div>
-					<SignalField label="Note" htmlFor="nt-div-note">
-						<SignalInput
-							id="nt-div-note"
-							value={dividendNote}
-							onChange={(e) => setDividendNote(e.target.value)}
-							placeholder="Optional"
-						/>
-					</SignalField>
-				</div>
-			)}
-
-			{error && <p className="text-xs text-loss">{error}</p>}
-		</Modal>
-	);
+  return (
+    <>
+      <Drawer open={open} onOpenChange={(next) => !next && !pending && close()} modal>
+        <DrawerContent
+          style={
+            {
+              "--drawer-content-width": "min(860px, calc(100vw - 2 * var(--drawer-inset)))",
+            } as CSSProperties
+          }
+        >
+          <DrawerHeader>
+            <DrawerTitle>{isEditMode ? "Edit Trade" : "New Trade"}</DrawerTitle>
+            <div className="ml-auto flex items-center gap-0.5">
+              {!isEditMode && (
+                <SignalPopover
+                  open={templatesOpen}
+                  onOpenChange={setTemplatesOpen}
+                  triggerAriaLabel="Templates"
+                  className="min-w-[14rem] overflow-hidden p-0 shadow-[0_16px_40px_rgba(18,18,24,0.65)]"
+                  triggerClassName={cn(
+                    "inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-control border border-border bg-transparent px-2.5",
+                    "text-[12px] font-medium text-text-muted transition-[color,background-color,border-color]",
+                    "hover:border-border-strong hover:text-text",
+                    "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+                    templatesOpen && "border-border-strong text-text",
+                  )}
+                  trigger={
+                    <>
+                      <FileStack size={14} strokeWidth={1.75} aria-hidden />
+                      Templates
+                    </>
+                  }
+                >
+                  <div className="flex flex-col p-1" role="menu" aria-label="Trade templates">
+                    {templates.length === 0 ? (
+                      <p className="m-0 px-2 py-2 text-[11px] text-text-dim">
+                        No saved templates yet
+                      </p>
+                    ) : (
+                      templates.map((t) => (
+                        <button
+                          key={t.id}
+                          type="button"
+                          role="menuitem"
+                          onClick={() => applyTemplate(t)}
+                          className={cn(
+                            "flex min-h-8 cursor-pointer items-center rounded-control px-2 text-left text-[12px] text-text",
+                            "transition-colors hover:bg-white/[0.06]",
+                            "focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-accent",
+                          )}
+                        >
+                          <span className="min-w-0 flex-1 truncate">{t.name}</span>
+                        </button>
+                      ))
+                    )}
+                    {templates.length > 0 ? <div className="my-1 h-px bg-border" /> : null}
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={saveTemplate}
+                      className={cn(
+                        "flex min-h-8 cursor-pointer items-center rounded-control px-2 text-left text-[12px] font-medium text-accent",
+                        "transition-colors hover:bg-accent-bg",
+                        "focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-accent",
+                      )}
+                    >
+                      Save first symbol as template…
+                    </button>
+                  </div>
+                </SignalPopover>
+              )}
+              <DrawerClose
+                aria-label="Close"
+                className={cn(
+                  "inline-flex size-8 cursor-pointer items-center justify-center rounded-control border-none bg-transparent",
+                  "text-text-muted transition-colors hover:bg-bg-hover hover:text-text",
+                  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+                )}
+              >
+                <X size={16} strokeWidth={1.5} />
+              </DrawerClose>
+            </div>
+          </DrawerHeader>
+          <DrawerBody>
+            <ModalBanner>
+              {isEditMode
+                ? "Update fills, journal, and optional dividend for this trade."
+                : "Add one or more symbols — each with fills, journal, and optional dividend. One Save logs every symbol as its own trade."}
+            </ModalBanner>
+            {isEditMode && !editHydrated && !editSource && editTradeQ.isLoading ? (
+              <p className="mt-6 text-center text-[13px] text-text-muted">Loading trade…</p>
+            ) : isEditMode && !editHydrated && !editSource && editTradeQ.isError ? (
+              <p className="mt-6 text-center text-[13px] text-loss">
+                Could not load trade for editing.
+              </p>
+            ) : isEditMode && !editHydrated ? (
+              <p className="mt-6 text-center text-[13px] text-text-muted">Loading trade…</p>
+            ) : (
+              <form
+                key={isEditMode ? `edit-${editTradeId}-${editFormKey}` : "new-trade"}
+                className="mt-4 flex flex-col gap-4"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  void form.handleSubmit();
+                }}
+              >
+                <div className="flex flex-wrap items-end gap-3">
+                  <div className="min-w-48 flex-1">
+                    <label className={labelClass}>Account</label>
+                    <NativeSelect
+                      aria-label="Account"
+                      value={accountId}
+                      onChange={(e) => form.setFieldValue("accountId", e.target.value)}
+                      disabled={isEditMode}
+                      className="w-full text-[12px]"
+                      wrapperClassName="w-full"
+                    >
+                      {accounts.map((a) => (
+                        <NativeSelectOption key={a.id} value={a.id}>
+                          {a.name}
+                        </NativeSelectOption>
+                      ))}
+                    </NativeSelect>
+                  </div>
+                  {!isEditMode && (
+                    <>
+                      <Button
+                        type="button"
+                        disabled={ocrParse.isPending || ocrSettingsLoading}
+                        onClick={onScanClick}
+                        className={ocrScanButtonClass(visionReady, ocrParse.isPending)}
+                        aria-label="Prefill trade from screenshot"
+                        title={
+                          visionReady
+                            ? "Select one or more screenshots"
+                            : "Set up screenshot scan in Settings before scanning"
+                        }
+                      >
+                        {ocrParse.isPending ? (
+                          <Loader2
+                            size={14}
+                            strokeWidth={1.75}
+                            className="animate-spin"
+                            aria-hidden
+                          />
+                        ) : (
+                          <ScanLine size={14} aria-hidden />
+                        )}
+                        {ocrParse.isPending ? "Scanning…" : "Scan to fill"}
+                      </Button>
+                      <input
+                        ref={ocrFileRef}
+                        type="file"
+                        accept="image/png,image/jpeg,image/webp"
+                        multiple
+                        data-testid="ocr-scan-input"
+                        className="sr-only"
+                        onChange={(event) => {
+                          const files = Array.from(event.target.files ?? []);
+                          event.target.value = "";
+                          if (files.length) void scan(files);
+                        }}
+                      />
+                    </>
+                  )}
+                </div>
+                {!isEditMode &&
+                  accounts.filter((account) => account.id !== accountId).length > 0 && (
+                    <div>
+                      <span className={labelClass}>Also save to</span>
+                      <div className="flex flex-wrap gap-2">
+                        {accounts
+                          .filter((account) => account.id !== accountId)
+                          .map((account) => (
+                            <label
+                              key={account.id}
+                              className="flex cursor-pointer items-center gap-2 rounded-control bg-bg-input px-3 py-2 text-[12px] text-text-muted"
+                            >
+                              <input
+                                type="checkbox"
+                                checked={values.copyAccountIds.includes(account.id)}
+                                onChange={() =>
+                                  form.setFieldValue(
+                                    "copyAccountIds",
+                                    values.copyAccountIds.includes(account.id)
+                                      ? values.copyAccountIds.filter((id) => id !== account.id)
+                                      : [...values.copyAccountIds, account.id],
+                                  )
+                                }
+                              />
+                              {account.name}
+                            </label>
+                          ))}
+                      </div>
+                    </div>
+                  )}
+                {!isEditMode && ocrExtract && (
+                  <OcrScanSummary groups={groupOcrBySymbol(ocrExtract)} warnings={ocrWarnings} />
+                )}
+                {values.trades.map((block, index) => (
+                  <SymbolCard
+                    key={block.key}
+                    form={form}
+                    block={block}
+                    index={index}
+                    currency={currency}
+                    locale={locale}
+                    removable={!isEditMode && values.trades.length > 1}
+                    pending={pending}
+                    setups={setups}
+                    regularTags={regularTags}
+                    mistakeTags={mistakeTags}
+                    screenshotFiles={pendingFilesByKey[block.key] ?? []}
+                    maxScreenshots={maxScreenshots}
+                    onAddScreenshots={(incoming) =>
+                      setPendingFilesByKey((prev) => ({
+                        ...prev,
+                        [block.key]: capScreenshots(
+                          [...(prev[block.key] ?? []), ...incoming],
+                          maxScreenshots,
+                        ),
+                      }))
+                    }
+                    onRemoveScreenshot={(fileIndex) =>
+                      setPendingFilesByKey((prev) => ({
+                        ...prev,
+                        [block.key]: (prev[block.key] ?? []).filter((_, i) => i !== fileIndex),
+                      }))
+                    }
+                  />
+                ))}
+                {!isEditMode && (
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="lg"
+                    onClick={() =>
+                      form.setFieldValue("trades", [...values.trades, emptySymbolTrade()])
+                    }
+                    disabled={pending}
+                    className="mx-auto gap-1.5"
+                  >
+                    <Plus size={15} />
+                    Add symbol
+                  </Button>
+                )}
+                {submitError && <p className="text-xs text-loss">{submitError}</p>}
+              </form>
+            )}
+          </DrawerBody>
+          <DrawerFooter>
+            <div className="flex w-full flex-col gap-3">
+              {batchPreview ? (
+                <BatchTradeResultPreview
+                  batch={batchPreview}
+                  currency={currency}
+                  locale={locale}
+                  accountNetPnl={accountBaseline.netPnl}
+                  accountCash={accountBaseline.cash}
+                />
+              ) : singleFooter ? (
+                <TradeResultPreview
+                  preview={singleFooter.preview}
+                  currency={currency}
+                  locale={locale}
+                  initialRisk={singleFooter.risk}
+                />
+              ) : null}
+              <div className="flex w-full justify-between gap-3">
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="default"
+                    size="lg"
+                    disabled={pending || (isEditMode && !editHydrated)}
+                    onClick={() => {
+                      void form.handleSubmit();
+                    }}
+                  >
+                    {pending ? "Saving…" : isEditMode ? "Save changes" : "Save"}
+                  </Button>
+                </div>
+                <div className="flex gap-2">
+                  {!isEditMode && (
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="lg"
+                      disabled={pending}
+                      onClick={reset}
+                    >
+                      Clear
+                    </Button>
+                  )}
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="lg"
+                    disabled={pending}
+                    onClick={close}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
+      <OcrSetupPromptModal
+        open={ocrSetupPromptOpen}
+        onOpenChange={setOcrSetupPromptOpen}
+        settings={ocrSettings}
+        onOpenSettings={openVisionSettings}
+      />
+    </>
+  );
 }

@@ -9,6 +9,7 @@ api/.env.local
 .DS_Store
 /data/
 .superpowers/
+.worktrees/
 /tmp/
 .pnpm-store/
 web/.tanstack/
@@ -21,3 +22,4 @@ web/.playwright-mcp/
 # shipped image assets are exempt from the artifact ignore
 !brand/*.png
 !web/public/*.png
+.gstack/

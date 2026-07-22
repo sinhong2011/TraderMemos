@@ -4,6 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/tradermemos/api/internal/store"
@@ -24,14 +26,11 @@ func (s *Service) Regroup(ctx context.Context, userID, accountID string) error {
 	if err != nil {
 		return err
 	}
-	// partition by symbol+instrument[+lot]
+	// partition by symbol+instrument[+lot|+option contract]
 	groups := map[string][]Execution{}
 	for _, r := range rows {
 		lot := lotKeyFromDetails(r.Details)
-		key := r.Symbol + "|" + r.InstrumentType
-		if lot != "" {
-			key += "|" + lot
-		}
+		key := partitionKey(r.Symbol, r.InstrumentType, r.Details)
 		groups[key] = append(groups[key], Execution{
 			ID: r.ID, Symbol: r.Symbol, InstrumentType: r.InstrumentType, Side: r.Side,
 			Quantity: r.Quantity, Price: r.Price, Fees: r.Fees, Commission: r.Commission,
@@ -76,6 +75,51 @@ func lotKeyFromDetails(details sql.NullString) string {
 		return v
 	}
 	return ""
+}
+
+// partitionKey isolates overlapping same-symbol positions.
+// Prefer explicit lot; otherwise for options use right|strike|expiry so distinct
+// contracts (e.g. TSLA 360P vs 370C) do not merge into one trade.
+func partitionKey(symbol, instrumentType string, details sql.NullString) string {
+	key := symbol + "|" + instrumentType
+	if lot := lotKeyFromDetails(details); lot != "" {
+		return key + "|" + lot
+	}
+	if contract := contractKeyFromDetails(details); contract != "" {
+		return key + "|" + contract
+	}
+	return key
+}
+
+func contractKeyFromDetails(details sql.NullString) string {
+	if !details.Valid || details.String == "" {
+		return ""
+	}
+	var m map[string]any
+	if err := json.Unmarshal([]byte(details.String), &m); err != nil {
+		return ""
+	}
+	str := func(k string) string {
+		switch v := m[k].(type) {
+		case string:
+			return strings.TrimSpace(v)
+		case float64:
+			// JSON numbers (strike) — keep compact form without trailing .0 when whole.
+			if v == float64(int64(v)) {
+				return strconv.FormatInt(int64(v), 10)
+			}
+			return strconv.FormatFloat(v, 'f', -1, 64)
+		default:
+			return ""
+		}
+	}
+	right := strings.ToLower(str("option_right"))
+	strike := str("strike")
+	expiry := str("expiry")
+	if right == "" && strike == "" && expiry == "" {
+		return ""
+	}
+	return right + "|" + strike + "|" + expiry
 }
 
 // toUpsertParams maps the pure engine Trade (which uses *T for nullable fields)

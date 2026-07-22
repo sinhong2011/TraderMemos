@@ -40,6 +40,16 @@ type ChecklistTemplate struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
+type CoachSetting struct {
+	ID           int64     `json:"id"`
+	Enabled      int64     `json:"enabled"`
+	BaseUrl      string    `json:"base_url"`
+	ApiKey       string    `json:"api_key"`
+	Model        string    `json:"model"`
+	CustomPrompt string    `json:"custom_prompt"`
+	UpdatedAt    time.Time `json:"updated_at"`
+}
+
 type Execution struct {
 	ID             string         `json:"id"`
 	UserID         string         `json:"user_id"`
@@ -90,6 +100,28 @@ type JournalNote struct {
 	Body       string    `json:"body"`
 	CreatedAt  time.Time `json:"created_at"`
 	UpdatedAt  time.Time `json:"updated_at"`
+}
+
+type MarketBarsCache struct {
+	CacheKey  string         `json:"cache_key"`
+	Symbol    string         `json:"symbol"`
+	Interval  string         `json:"interval"`
+	FromTs    string         `json:"from_ts"`
+	ToTs      string         `json:"to_ts"`
+	BarsJson  []byte         `json:"bars_json"`
+	Provider  string         `json:"provider"`
+	FetchedAt string         `json:"fetched_at"`
+	ExpiresAt sql.NullString `json:"expires_at"`
+}
+
+type OcrSetting struct {
+	ID           int64     `json:"id"`
+	Enabled      int64     `json:"enabled"`
+	BaseUrl      string    `json:"base_url"`
+	ApiKey       string    `json:"api_key"`
+	Model        string    `json:"model"`
+	UpdatedAt    time.Time `json:"updated_at"`
+	CustomPrompt string    `json:"custom_prompt"`
 }
 
 type RiskRule struct {
@@ -180,6 +212,11 @@ type TradeJournal struct {
 	TradeQuality   sql.NullInt64   `json:"trade_quality"`
 	Mae            sql.NullFloat64 `json:"mae"`
 	Mfe            sql.NullFloat64 `json:"mfe"`
+}
+
+type TradeSetup struct {
+	TradeID string `json:"trade_id"`
+	SetupID string `json:"setup_id"`
 }
 
 type TradeTag struct {

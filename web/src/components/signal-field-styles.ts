@@ -1,9 +1,17 @@
 /** Shared Tailwind classes for Signal form controls (shadcn Field pattern). */
 export const signalLabelClass =
-	"mb-1.5 block text-[10px] font-semibold uppercase tracking-widest text-text-muted";
+  "mb-1.5 block text-[10px] font-semibold uppercase tracking-widest text-text-muted";
 
+/**
+ * Elevated graphite fill, borderless — Signal Terminal inputs.
+ * Height 40px (h-10) so fields read as solid chips on panel surfaces.
+ */
 export const signalInputClass =
-	"w-full rounded-control border border-border bg-bg-inset px-2.5 py-2 text-xs text-text outline-none transition-[border-color,box-shadow] duration-150 placeholder:text-text-dim hover:border-border-strong focus-visible:border-accent focus-visible:shadow-[0_0_0_3px_var(--color-accent-bg)] disabled:cursor-not-allowed disabled:opacity-55";
+  "h-10 w-full rounded-control border-none bg-bg-input px-3 text-[13px] text-text outline-none transition-colors duration-150 placeholder:text-text-dim hover:bg-bg-input-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:cursor-not-allowed disabled:opacity-55";
+
+/** Trigger chrome shared by selects / date / datetime pickers. */
+export const signalControlTriggerClass =
+  "h-10 w-full rounded-control border-none bg-bg-input px-3 text-[13px] text-text outline-none transition-[background-color] duration-150 hover:bg-bg-input-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";
 
 export const signalFieldErrorClass = "mt-1 text-[10px] text-loss";
 

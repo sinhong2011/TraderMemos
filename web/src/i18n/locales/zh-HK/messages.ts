@@ -1,1 +1,4 @@
-/*eslint-disable*/import type{Messages}from"@lingui/core";export const messages=JSON.parse("{\"29Hx9U\":[\"統計\"],\"3dioPi\":[\"介面語言\"],\"4BzWk0\":[\"語言選擇器\"],\"7p5kLi\":[\"儀表板\"],\"AjVXBS\":[\"日曆\"],\"PA/Etd\":[\"新增策略\"],\"Tz0i8g\":[\"設定\"],\"Vava/Z\":[\"TraderMemos 的介面語言。\"],\"ZFtwlj\":[\"交易\"],\"l3s5ri\":[\"匯入\"],\"lLbLDQ\":[\"新增交易\"],\"vXIe7J\":[\"語言\"],\"wm1sei\":[\"新增筆記\"],\"zJY4Uj\":[\"策略庫\"]}")as Messages;
+/*eslint-disable*/ import type { Messages } from "@lingui/core";
+export const messages = JSON.parse(
+  '{"29Hx9U":["統計"],"3dioPi":["介面語言"],"4BzWk0":["語言選擇器"],"7p5kLi":["儀表板"],"AjVXBS":["日曆"],"PA/Etd":["新增策略"],"Tz0i8g":["設定"],"Vava/Z":["TraderMemos 的介面語言。"],"ZFtwlj":["交易"],"l3s5ri":["匯入"],"lLbLDQ":["新增交易"],"vXIe7J":["語言"],"wm1sei":["新增筆記"],"zJY4Uj":["策略庫"]}',
+) as Messages;

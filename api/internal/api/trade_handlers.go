@@ -14,20 +14,22 @@ func (s *Server) tradeRoutes(g *echo.Group) {
 	g.GET("/trades", s.handleListTrades)
 	g.GET("/trades/:id", s.handleGetTrade)
 	g.PATCH("/trades/:id", s.handlePatchTrade)
+	g.DELETE("/trades/:id", s.handleDeleteTrade)
 	g.POST("/trades/regroup", s.handleRegroup)
 }
 
 func (s *Server) handleListTrades(c echo.Context) error {
 	uid := auth.UserID(c)
+	ctx := c.Request().Context()
 	f, err := parseFilters(c)
 	if err != nil {
 		return Fail(http.StatusBadRequest, "bad_request", err.Error(), nil)
 	}
-	rows, err := s.loadTrades(c.Request().Context(), uid, f)
+	rows, err := s.loadTrades(ctx, uid, f)
 	if err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not list trades", nil)
 	}
-	risks, err := s.deps.Store.ListJournalRisks(c.Request().Context(), uid)
+	risks, err := s.deps.Store.ListJournalRisks(ctx, uid)
 	if err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not load risk", nil)
 	}
@@ -37,9 +39,20 @@ func (s *Server) handleListTrades(c echo.Context) error {
 			riskByTrade[r.TradeID] = r.InitialRisk.Float64
 		}
 	}
+	tagRows, err := s.deps.Store.ListTradeTagsForUser(ctx, uid)
+	if err != nil {
+		return Fail(http.StatusInternalServerError, "internal", "could not load tags", nil)
+	}
+	tagsByTrade := make(map[string][]store.Tag)
+	for _, r := range tagRows {
+		tagsByTrade[r.TradeID] = append(tagsByTrade[r.TradeID], store.Tag{
+			ID: r.ID, UserID: r.UserID, Name: r.Name, Color: r.Color,
+			Description: r.Description, Kind: r.Kind,
+		})
+	}
 	out := make([]tradeDTO, 0, len(rows))
 	for _, t := range rows {
-		dto := toTradeDTO(t, nil)
+		dto := toTradeDTO(t, tagsByTrade[t.ID])
 		if risk, ok := riskByTrade[t.ID]; ok {
 			dto.InitialRisk = &risk
 		}
@@ -68,6 +81,7 @@ func (s *Server) handleGetTrade(c echo.Context) error {
 type patchTradeReq struct {
 	Notes          *string  `json:"notes"`
 	SetupID        *string  `json:"setup_id"`
+	SetupIDs       []string `json:"setup_ids"`
 	InitialRisk    *float64 `json:"initial_risk"`
 	TargetPrice    *float64 `json:"target_price"`
 	StopPrice      *float64 `json:"stop_price"`
@@ -100,9 +114,10 @@ func (s *Server) handlePatchTrade(c echo.Context) error {
 
 	// Journal fields are merged with any existing journal so a partial PATCH
 	// does not clobber untouched fields.
-	journalTouched := in.Notes != nil || in.SetupID != nil || in.InitialRisk != nil ||
-		in.TargetPrice != nil || in.StopPrice != nil || in.EmotionalState != nil ||
-		in.Confidence != nil || in.TradeQuality != nil || in.Mae != nil || in.Mfe != nil
+	journalTouched := in.Notes != nil || in.SetupID != nil || in.SetupIDs != nil ||
+		in.InitialRisk != nil || in.TargetPrice != nil || in.StopPrice != nil ||
+		in.EmotionalState != nil || in.Confidence != nil || in.TradeQuality != nil ||
+		in.Mae != nil || in.Mfe != nil
 	if journalTouched {
 		cur, jerr := s.deps.Store.GetTradeJournal(ctx, store.GetTradeJournalParams{TradeID: id, UserID: uid})
 		if jerr != nil && !errors.Is(jerr, sql.ErrNoRows) {
@@ -121,14 +136,80 @@ func (s *Server) handlePatchTrade(c echo.Context) error {
 		if in.Notes != nil {
 			notes = *in.Notes
 		}
-		if in.SetupID != nil {
+		if in.SetupIDs != nil {
+			owned, err := s.deps.Store.ListSetups(ctx, uid)
+			if err != nil {
+				return Fail(http.StatusInternalServerError, "internal", "could not load setups", nil)
+			}
+			ownedSet := make(map[string]bool, len(owned))
+			for _, st := range owned {
+				ownedSet[st.ID] = true
+			}
+			seen := make(map[string]bool, len(in.SetupIDs))
+			unique := make([]string, 0, len(in.SetupIDs))
+			for _, sid := range in.SetupIDs {
+				if sid == "" {
+					continue
+				}
+				if !ownedSet[sid] {
+					return Fail(http.StatusBadRequest, "bad_request", "unknown setup id: "+sid, nil)
+				}
+				if seen[sid] {
+					continue
+				}
+				seen[sid] = true
+				unique = append(unique, sid)
+			}
+			main := ""
+			if in.SetupID != nil {
+				main = *in.SetupID
+			} else if len(unique) > 0 {
+				main = unique[0]
+			}
+			if main != "" && !ownedSet[main] {
+				return Fail(http.StatusBadRequest, "bad_request", "unknown setup id", nil)
+			}
+			if main == "" {
+				setupID = sql.NullString{}
+			} else {
+				setupID = sql.NullString{String: main, Valid: true}
+				if !seen[main] {
+					unique = append([]string{main}, unique...)
+				} else if unique[0] != main {
+					rest := make([]string, 0, len(unique)-1)
+					for _, sid := range unique {
+						if sid != main {
+							rest = append(rest, sid)
+						}
+					}
+					unique = append([]string{main}, rest...)
+				}
+			}
+			if err := s.deps.Store.ClearTradeSetups(ctx, id); err != nil {
+				return Fail(http.StatusInternalServerError, "internal", "could not clear setups", nil)
+			}
+			for _, sid := range unique {
+				if err := s.deps.Store.SetTradeSetup(ctx, store.SetTradeSetupParams{TradeID: id, SetupID: sid}); err != nil {
+					return Fail(http.StatusInternalServerError, "internal", "could not set setups", nil)
+				}
+			}
+		} else if in.SetupID != nil {
 			if *in.SetupID == "" {
 				setupID = sql.NullString{}
+				if err := s.deps.Store.ClearTradeSetups(ctx, id); err != nil {
+					return Fail(http.StatusInternalServerError, "internal", "could not clear setups", nil)
+				}
 			} else {
 				if _, serr := s.deps.Store.GetSetup(ctx, store.GetSetupParams{ID: *in.SetupID, UserID: uid}); serr != nil {
 					return Fail(http.StatusBadRequest, "bad_request", "unknown setup id", nil)
 				}
 				setupID = sql.NullString{String: *in.SetupID, Valid: true}
+				if err := s.deps.Store.ClearTradeSetups(ctx, id); err != nil {
+					return Fail(http.StatusInternalServerError, "internal", "could not clear setups", nil)
+				}
+				if err := s.deps.Store.SetTradeSetup(ctx, store.SetTradeSetupParams{TradeID: id, SetupID: *in.SetupID}); err != nil {
+					return Fail(http.StatusInternalServerError, "internal", "could not set setups", nil)
+				}
 			}
 		}
 		if in.InitialRisk != nil {
@@ -206,6 +287,37 @@ func (s *Server) handlePatchTrade(c echo.Context) error {
 		return Fail(http.StatusInternalServerError, "internal", "could not load trade detail", nil)
 	}
 	return c.JSON(http.StatusOK, detail)
+}
+
+func (s *Server) handleDeleteTrade(c echo.Context) error {
+	ctx := c.Request().Context()
+	uid := auth.UserID(c)
+	id := c.Param("id")
+
+	t, err := s.deps.Store.GetTrade(ctx, store.GetTradeParams{ID: id, UserID: uid})
+	if errors.Is(err, sql.ErrNoRows) {
+		return Fail(http.StatusNotFound, "not_found", "trade not found", nil)
+	}
+	if err != nil {
+		return Fail(http.StatusInternalServerError, "internal", "could not load trade", nil)
+	}
+
+	// Remove fills first so executions do not linger after the trade row is gone.
+	if err := s.deps.Store.DeleteExecutionsForTrade(ctx, store.DeleteExecutionsForTradeParams{
+		UserID: uid, TradeID: t.ID,
+	}); err != nil {
+		return Fail(http.StatusInternalServerError, "internal", "could not delete executions", nil)
+	}
+
+	n, err := s.deps.Store.DeleteTrade(ctx, store.DeleteTradeParams{ID: t.ID, UserID: uid})
+	if err != nil {
+		return Fail(http.StatusInternalServerError, "internal", "could not delete trade", nil)
+	}
+	if n == 0 {
+		return Fail(http.StatusNotFound, "not_found", "trade not found", nil)
+	}
+
+	return c.NoContent(http.StatusNoContent)
 }
 
 type regroupReq struct {

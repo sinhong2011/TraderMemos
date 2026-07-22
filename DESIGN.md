@@ -40,8 +40,8 @@ Every layout, color, and motion choice serves that feeling: serious tool, engine
 
 | Role | Font | Notes |
 |------|------|-------|
-| **All UI** | General Sans (400/500/600/700) | Load via Fontshare. Tight tracking on headings (`-0.02em` to `-0.04em`). |
-| **Numbers** | General Sans + `tabular-nums` | Applied globally; keeps columns aligned without a separate mono face. |
+| **All UI** | Poppins (400/500/600/700) | Self-hosted via `@fontsource/poppins`. Fallback: system UI stack. Tight tracking on headings (`-0.02em` to `-0.04em`). |
+| **Numbers** | Poppins + `tabular-nums` | Applied globally; keeps columns aligned without a separate mono face. |
 
 **Do not use:** Inter, Geist, Roboto, system-ui as primary UI face (reads as generic 2024 SaaS). No monospace fonts in the product UI.
 
@@ -60,15 +60,17 @@ Every layout, color, and motion choice serves that feeling: serious tool, engine
 
 - **Approach:** Restrained accent + electric signal + semantic P&L. No purple gradient heroes.
 
-### Surfaces (elevation ladder — +8% luminance per step)
+### Surfaces (elevation ladder — charcoal, never pure black)
 
 | Token | Hex | Use |
 |-------|-----|-----|
-| `--color-bg` | `#09090b` | App void, rail |
-| `--color-bg-elevated` | `#111114` | Sidebar, table header |
-| `--color-bg-panel` | `#16161a` | Bento cells, panels |
-| `--color-bg-hover` | `#1c1c22` | Row hover, active |
-| `--color-bg-inset` | `#060608` | Chart wells, inputs |
+| `--color-bg` | `#16161c` | App void, rail |
+| `--color-bg-elevated` | `#1c1c24` | Sidebar, table header |
+| `--color-bg-panel` | `#23232c` | Bento cells, panels |
+| `--color-bg-hover` | `#2b2b36` | Row hover, active |
+| `--color-bg-inset` | `#121218` | Chart wells, inputs |
+
+**Rule:** Never use pure black (`#000` / `#09090b`-class ink) for surfaces. Keep the ladder graphite so void, panels, and insets stay readable and distinct.
 
 ### Structure
 
@@ -80,11 +82,13 @@ Every layout, color, and motion choice serves that feeling: serious tool, engine
 
 ### Text
 
-| Token | Hex |
-|-------|-----|
-| `--color-text` | `#fafafa` |
-| `--color-text-muted` | `#71717a` |
-| `--color-text-dim` | `#52525b` |
+| Token | Hex | Use |
+|-------|-----|-----|
+| `--color-text` | `#fafafa` | Primary body / values |
+| `--color-text-muted` | `#b4b4bf` | Secondary labels, hints (~7:1 on void) |
+| `--color-text-dim` | `#94949f` | Icons, placeholders, tertiary (~5.5:1) |
+
+Do not stack extra opacity on muted/dim text (e.g. `/50`, `opacity-50`) — tokens are already hierarchy; further dimming fails eye comfort on dark void.
 
 ### Accent & signal
 
@@ -101,7 +105,7 @@ Every layout, color, and motion choice serves that feeling: serious tool, engine
 |-------|-----|
 | `--color-profit` | `#4ade80` |
 | `--color-loss` | `#fb7185` |
-| `--color-flat` | `#71717a` |
+| `--color-flat` | `#b4b4bf` |
 
 P&L text may use subtle glow on hero figure only: `text-shadow: 0 0 40px rgba(74,222,128,0.35)`.
 
@@ -129,16 +133,14 @@ P&L text may use subtle glow on hero figure only: `text-shadow: 0 0 40px rgba(74
 - **Tables:** Full width, no nested Panel wrappers
 - **Max content width:** None (use horizontal space)
 
-### Border radius (tiered — locked)
+### Border radius (unified)
 
 | Element | Radius |
 |---------|--------|
-| Bento cells, tables, app shell | `0–3px` (`--radius-sharp: 3px`) |
-| Buttons, inputs, pills, badges | `6px` (`--radius-control: 6px`) |
-| Drawers, modals, toasts | `8–10px` (`--radius-overlay: 10px`) |
-| Dots, avatars | `9999px` |
+| Controls, cards, panels, overlays, drawers | `10px` (`--radius` → `--radius-control` / `--radius-card` / `--radius-overlay` / `--radius-sharp`) |
+| Dots, avatars, capsule pills | `9999px` (`rounded-full`) |
 
-**Rule:** Never uniform `12px` on everything. Data sharp, controls soft.
+**Rule:** One product curve for rectangular UI. Use `rounded-full` only for true circles and capsules.
 
 ### Shadows
 
@@ -202,3 +204,11 @@ Build a **Signal** kit on existing stack — do **not** install default shadcn t
 | 2026-07-10 | General Sans + IBM Plex Mono | Distinct from Geist/Inter; mono for all numeric data |
 | 2026-07-11 | JetBrains Mono Variable (Fontsource) | Replaces IBM Plex static; single variable file, sharper terminal read at 10–11px |
 | 2026-07-10 | Violet accent + signal yellow | Ownable vs category blue; yellow for wayfinding only |
+| 2026-07-14 | Floating inset drawers, 16px radius | Drawers float 8px from window edges (shadcn base drawer `--drawer-inset`); user approved 16px radius for drawers only — other overlays stay on `--radius-overlay` (10px) |
+| 2026-07-15 | Unified product radius `10px` | Collapse sharp/control/card/overlay tiers (+ drawer 16px) onto `--radius: 10px`; keep `rounded-full` for circles/capsules |
+| 2026-07-14 | Brighter muted/dim text | User reported gray copy too hard to read; lift muted `#b4b4bf`, dim `#94949f`; avoid opacity stacks on secondary text |
+| 2026-07-14 | Figtree Variable default UI font | Replaces General Sans (Fontshare); self-hosted via `@fontsource-variable/figtree` |
+| 2026-07-14 | Geist Variable default UI font | Replaces Figtree; self-hosted via `@fontsource-variable/geist` |
+| 2026-07-14 | Poppins default UI font | Replaces Geist; self-hosted via `@fontsource/poppins` (400/500/600/700) |
+| 2026-07-14 | Graphite surfaces (no black void) | Lifted ladder to `#16161c`…`#2b2b36`; ban pure-black BGs; inset stays charcoal `#121218` |
+| 2026-07-19 | `--color-surface-bento` alias for elevated bento cells | Reports Statistics card's cells sit permanently at the "one rung up" surface tone; aliased from `--color-bg-hover` (same value) instead of reusing that token's hover/active semantic directly, since 15 static cells aren't an interaction state |

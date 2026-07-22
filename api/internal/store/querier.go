@@ -10,6 +10,7 @@ import (
 
 type Querier interface {
 	ClearTradeExecutions(ctx context.Context, tradeID string) error
+	ClearTradeSetups(ctx context.Context, tradeID string) error
 	ClearTradeTags(ctx context.Context, tradeID string) error
 	CreateAccount(ctx context.Context, arg CreateAccountParams) (Account, error)
 	CreateImportBatch(ctx context.Context, arg CreateImportBatchParams) (ImportBatch, error)
@@ -20,11 +21,14 @@ type Querier interface {
 	DeleteAccount(ctx context.Context, arg DeleteAccountParams) (int64, error)
 	DeleteAttachment(ctx context.Context, arg DeleteAttachmentParams) (int64, error)
 	DeleteCashTransaction(ctx context.Context, arg DeleteCashTransactionParams) (int64, error)
+	DeleteExecution(ctx context.Context, arg DeleteExecutionParams) (int64, error)
 	DeleteExecutionsForAccount(ctx context.Context, arg DeleteExecutionsForAccountParams) error
 	DeleteExecutionsForBatch(ctx context.Context, arg DeleteExecutionsForBatchParams) error
+	DeleteExecutionsForTrade(ctx context.Context, arg DeleteExecutionsForTradeParams) error
 	DeleteJournalNote(ctx context.Context, arg DeleteJournalNoteParams) (int64, error)
 	DeleteSetup(ctx context.Context, arg DeleteSetupParams) (int64, error)
 	DeleteTag(ctx context.Context, arg DeleteTagParams) (int64, error)
+	DeleteTrade(ctx context.Context, arg DeleteTradeParams) (int64, error)
 	DeleteTradesForAccount(ctx context.Context, arg DeleteTradesForAccountParams) error
 	DeleteTradesNotInAccount(ctx context.Context, arg DeleteTradesNotInAccountParams) error
 	ExecutionExists(ctx context.Context, arg ExecutionExistsParams) (int64, error)
@@ -32,9 +36,14 @@ type Querier interface {
 	GetAccountByIDAny(ctx context.Context, id string) (Account, error)
 	GetAttachment(ctx context.Context, arg GetAttachmentParams) (TradeAttachment, error)
 	GetChecklistTemplate(ctx context.Context, userID string) (ChecklistTemplate, error)
+	GetCoachSettings(ctx context.Context) (CoachSetting, error)
+	GetExecution(ctx context.Context, arg GetExecutionParams) (Execution, error)
+	GetExecutionByDedup(ctx context.Context, arg GetExecutionByDedupParams) (Execution, error)
 	GetImportBatch(ctx context.Context, arg GetImportBatchParams) (ImportBatch, error)
 	GetInstrumentSpec(ctx context.Context, arg GetInstrumentSpecParams) (InstrumentSpec, error)
 	GetJournalNote(ctx context.Context, arg GetJournalNoteParams) (JournalNote, error)
+	GetMarketBarsCache(ctx context.Context, cacheKey string) (MarketBarsCache, error)
+	GetOcrSettings(ctx context.Context) (GetOcrSettingsRow, error)
 	GetRiskRules(ctx context.Context, userID string) (RiskRule, error)
 	GetSetup(ctx context.Context, arg GetSetupParams) (Setup, error)
 	GetTrade(ctx context.Context, arg GetTradeParams) (Trade, error)
@@ -58,17 +67,24 @@ type Querier interface {
 	ListJournalNotes(ctx context.Context, arg ListJournalNotesParams) ([]JournalNote, error)
 	ListJournalRisks(ctx context.Context, userID string) ([]ListJournalRisksRow, error)
 	ListSetups(ctx context.Context, userID string) ([]Setup, error)
+	ListSetupsForTrade(ctx context.Context, tradeID string) ([]Setup, error)
 	ListTags(ctx context.Context, userID string) ([]Tag, error)
 	ListTagsForTrade(ctx context.Context, tradeID string) ([]Tag, error)
+	ListTradeTagsForUser(ctx context.Context, userID string) ([]ListTradeTagsForUserRow, error)
 	ListTrades(ctx context.Context, arg ListTradesParams) ([]Trade, error)
 	SetImportBatchStatus(ctx context.Context, arg SetImportBatchStatusParams) error
+	SetTradeSetup(ctx context.Context, arg SetTradeSetupParams) error
 	SetTradeTags(ctx context.Context, arg SetTradeTagsParams) error
+	UpdateExecution(ctx context.Context, arg UpdateExecutionParams) (int64, error)
 	UpdateJournalNote(ctx context.Context, arg UpdateJournalNoteParams) (JournalNote, error)
 	UpdateSetup(ctx context.Context, arg UpdateSetupParams) error
 	UpdateTag(ctx context.Context, arg UpdateTagParams) (int64, error)
 	UpdateTradeNotes(ctx context.Context, arg UpdateTradeNotesParams) error
 	UpsertChecklistTemplate(ctx context.Context, arg UpsertChecklistTemplateParams) (ChecklistTemplate, error)
+	UpsertCoachSettings(ctx context.Context, arg UpsertCoachSettingsParams) (CoachSetting, error)
 	UpsertInstrumentSpec(ctx context.Context, arg UpsertInstrumentSpecParams) error
+	UpsertMarketBarsCache(ctx context.Context, arg UpsertMarketBarsCacheParams) error
+	UpsertOcrSettings(ctx context.Context, arg UpsertOcrSettingsParams) (OcrSetting, error)
 	UpsertRiskRules(ctx context.Context, arg UpsertRiskRulesParams) (RiskRule, error)
 	UpsertTrade(ctx context.Context, arg UpsertTradeParams) error
 	UpsertTradeJournal(ctx context.Context, arg UpsertTradeJournalParams) error

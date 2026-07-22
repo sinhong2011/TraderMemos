@@ -1,76 +1,83 @@
 import { cn } from "../lib/cn";
 import type { PillTone } from "./Pill";
+import { Button } from "./ui/button";
 
 const TONE_VALUE: Record<PillTone, string> = {
-	pos: "text-profit",
-	neg: "text-loss",
-	accent: "text-accent",
-	amber: "text-signal",
-	muted: "text-text",
+  pos: "text-profit",
+  neg: "text-loss",
+  accent: "text-accent",
+  amber: "text-signal",
+  muted: "text-text",
 };
 
+/**
+ * Interactive metric chip for dense strips (Performance filters).
+ * Title stays top-left; value block centers in the tile.
+ */
 export function StatBar({
-	label,
-	value,
-	sub,
-	tone = "muted",
-	onClick,
-	active,
+  label,
+  value,
+  sub,
+  tone = "muted",
+  onClick,
+  active,
 }: {
-	label: string;
-	value: string;
-	sub?: string;
-	tone?: PillTone;
-	onClick?: () => void;
-	active?: boolean;
+  label: string;
+  value: string;
+  sub?: string;
+  tone?: PillTone;
+  onClick?: () => void;
+  active?: boolean;
 }) {
-	const inner = (
-		<>
-			<span className="text-[10px] font-medium uppercase tracking-widest text-text-dim">
-				{label}
-			</span>
-			<div className="mt-1 flex items-baseline gap-2">
-				<span
-					className={cn(
-						"text-[15px] font-semibold leading-none tabular-nums",
-						TONE_VALUE[tone],
-					)}
-				>
-					{value}
-				</span>
-				{sub ? (
-					<span className="text-[11px] tabular-nums text-text-dim">
-						{sub}
-					</span>
-				) : null}
-			</div>
-		</>
-	);
+  const interactive = Boolean(onClick);
 
-	const shellClass = cn(
-		"flex w-full flex-col justify-center px-4 py-3",
-		onClick && "transition-colors duration-150 hover:bg-bg-hover",
-		active && "bg-accent-bg",
-	);
+  const shell = cn(
+    "flex h-full min-h-[91px] w-full flex-col rounded-card px-3 py-3.5",
+    "bg-bg-panel",
+  );
 
-	if (!onClick) {
-		return <div className={shellClass}>{inner}</div>;
-	}
+  const inner = (
+    <>
+      <span
+        className={cn(
+          "self-start text-left text-[12px] font-medium tracking-wide text-text-muted",
+          interactive && "transition-colors duration-150 ease-out",
+          interactive && (active ? "text-text" : "group-hover:text-text"),
+        )}
+      >
+        {label}
+      </span>
+      <div className="mt-2 flex flex-1 flex-col items-center justify-center text-center">
+        <div className="flex items-baseline justify-center gap-1.5">
+          <span
+            className={cn("text-[18px] font-semibold leading-none tabular-nums", TONE_VALUE[tone])}
+          >
+            {value}
+          </span>
+          {sub ? <span className="text-[13px] tabular-nums text-text-dim">{sub}</span> : null}
+        </div>
+      </div>
+    </>
+  );
 
-	return (
-		<button
-			type="button"
-			onClick={onClick}
-			aria-pressed={active}
-			className={cn(
-				shellClass,
-				"relative cursor-pointer border-none bg-transparent text-left outline-none",
-				"focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-accent",
-				active &&
-					"after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-accent after:shadow-[0_0_8px_var(--color-accent-glow)]",
-			)}
-		>
-			{inner}
-		</button>
-	);
+  if (!onClick) {
+    return <div className={shell}>{inner}</div>;
+  }
+
+  return (
+    <Button
+      type="button"
+      variant="ghost"
+      onClick={onClick}
+      aria-pressed={active}
+      className={cn(
+        "group h-auto flex-col items-stretch whitespace-normal border-none",
+        shell,
+        "motion-reduce:transition-none",
+        active ? "bg-accent-bg hover:bg-accent-bg" : "hover:bg-bg-hover",
+      )}
+    >
+      {inner}
+    </Button>
+  );
 }

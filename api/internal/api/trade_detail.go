@@ -13,8 +13,9 @@ import (
 // are promoted into the JSON object.
 type tradeDetailDTO struct {
 	tradeDTO
-	Fills          []store.Execution       `json:"fills"`
+	Fills          []executionDTO          `json:"fills"`
 	Setup          *setupDTO               `json:"setup"`
+	SetupIDs       []string                `json:"setup_ids"`
 	InitialRisk    *float64                `json:"initial_risk"`
 	TargetPrice    *float64                `json:"target_price"`
 	StopPrice      *float64                `json:"stop_price"`
@@ -44,7 +45,7 @@ func (s *Server) buildTradeDetail(ctx context.Context, userID string, t store.Tr
 	if fills == nil {
 		fills = []store.Execution{}
 	}
-	d.Fills = fills
+	d.Fills = toExecutionDTOs(fills)
 
 	atts, err := s.deps.Store.ListAttachmentsForTrade(ctx, store.ListAttachmentsForTradeParams{TradeID: t.ID, UserID: userID})
 	if err != nil {
@@ -71,6 +72,12 @@ func (s *Server) buildTradeDetail(ctx context.Context, userID string, t store.Tr
 		d.TotalPnl = &total
 	}
 
+	linkedSetups, err := s.deps.Store.ListSetupsForTrade(ctx, t.ID)
+	if err != nil {
+		return tradeDetailDTO{}, err
+	}
+	d.SetupIDs = make([]string, 0, len(linkedSetups))
+
 	j, err := s.deps.Store.GetTradeJournal(ctx, store.GetTradeJournalParams{TradeID: t.ID, UserID: userID})
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return tradeDetailDTO{}, err
@@ -91,11 +98,28 @@ func (s *Server) buildTradeDetail(ctx context.Context, userID string, t store.Tr
 				dto := toSetupDTO(setup)
 				d.Setup = &dto
 			}
+			d.SetupIDs = append(d.SetupIDs, j.SetupID.String)
 		}
 		// R stays price-based (Stonk model): dividends do not affect R.
 		if j.InitialRisk.Valid && j.InitialRisk.Float64 != 0 && t.NetPnl.Valid {
 			r := t.NetPnl.Float64 / j.InitialRisk.Float64
 			d.RMultiple = &r
+		}
+	}
+	mainID := ""
+	if len(d.SetupIDs) > 0 {
+		mainID = d.SetupIDs[0]
+	}
+	if mainID == "" && len(linkedSetups) > 0 {
+		for _, st := range linkedSetups {
+			d.SetupIDs = append(d.SetupIDs, st.ID)
+		}
+	} else {
+		for _, st := range linkedSetups {
+			if st.ID == mainID {
+				continue
+			}
+			d.SetupIDs = append(d.SetupIDs, st.ID)
 		}
 	}
 	return d, nil

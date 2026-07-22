@@ -11,6 +11,23 @@ import (
 	"time"
 )
 
+const deleteExecution = `-- name: DeleteExecution :execrows
+DELETE FROM executions WHERE id = ? AND user_id = ?
+`
+
+type DeleteExecutionParams struct {
+	ID     string `json:"id"`
+	UserID string `json:"user_id"`
+}
+
+func (q *Queries) DeleteExecution(ctx context.Context, arg DeleteExecutionParams) (int64, error) {
+	result, err := q.db.ExecContext(ctx, deleteExecution, arg.ID, arg.UserID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
+}
+
 const deleteExecutionsForAccount = `-- name: DeleteExecutionsForAccount :exec
 DELETE FROM executions WHERE account_id = ? AND user_id = ?
 `
@@ -39,6 +56,22 @@ func (q *Queries) DeleteExecutionsForBatch(ctx context.Context, arg DeleteExecut
 	return err
 }
 
+const deleteExecutionsForTrade = `-- name: DeleteExecutionsForTrade :exec
+DELETE FROM executions
+WHERE user_id = ?
+  AND id IN (SELECT execution_id FROM trade_executions WHERE trade_id = ?)
+`
+
+type DeleteExecutionsForTradeParams struct {
+	UserID  string `json:"user_id"`
+	TradeID string `json:"trade_id"`
+}
+
+func (q *Queries) DeleteExecutionsForTrade(ctx context.Context, arg DeleteExecutionsForTradeParams) error {
+	_, err := q.db.ExecContext(ctx, deleteExecutionsForTrade, arg.UserID, arg.TradeID)
+	return err
+}
+
 const executionExists = `-- name: ExecutionExists :one
 SELECT EXISTS(SELECT 1 FROM executions WHERE account_id = ? AND dedup_hash = ?)
 `
@@ -53,6 +86,74 @@ func (q *Queries) ExecutionExists(ctx context.Context, arg ExecutionExistsParams
 	var column_1 int64
 	err := row.Scan(&column_1)
 	return column_1, err
+}
+
+const getExecution = `-- name: GetExecution :one
+SELECT id, user_id, account_id, external_id, symbol, instrument_type, side, quantity, price, fees, commission, executed_at, multiplier, details, import_batch_id, dedup_hash, created_at FROM executions WHERE id = ? AND user_id = ?
+`
+
+type GetExecutionParams struct {
+	ID     string `json:"id"`
+	UserID string `json:"user_id"`
+}
+
+func (q *Queries) GetExecution(ctx context.Context, arg GetExecutionParams) (Execution, error) {
+	row := q.db.QueryRowContext(ctx, getExecution, arg.ID, arg.UserID)
+	var i Execution
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.AccountID,
+		&i.ExternalID,
+		&i.Symbol,
+		&i.InstrumentType,
+		&i.Side,
+		&i.Quantity,
+		&i.Price,
+		&i.Fees,
+		&i.Commission,
+		&i.ExecutedAt,
+		&i.Multiplier,
+		&i.Details,
+		&i.ImportBatchID,
+		&i.DedupHash,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const getExecutionByDedup = `-- name: GetExecutionByDedup :one
+SELECT id, user_id, account_id, external_id, symbol, instrument_type, side, quantity, price, fees, commission, executed_at, multiplier, details, import_batch_id, dedup_hash, created_at FROM executions WHERE account_id = ? AND dedup_hash = ? LIMIT 1
+`
+
+type GetExecutionByDedupParams struct {
+	AccountID string `json:"account_id"`
+	DedupHash string `json:"dedup_hash"`
+}
+
+func (q *Queries) GetExecutionByDedup(ctx context.Context, arg GetExecutionByDedupParams) (Execution, error) {
+	row := q.db.QueryRowContext(ctx, getExecutionByDedup, arg.AccountID, arg.DedupHash)
+	var i Execution
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.AccountID,
+		&i.ExternalID,
+		&i.Symbol,
+		&i.InstrumentType,
+		&i.Side,
+		&i.Quantity,
+		&i.Price,
+		&i.Fees,
+		&i.Commission,
+		&i.ExecutedAt,
+		&i.Multiplier,
+		&i.Details,
+		&i.ImportBatchID,
+		&i.DedupHash,
+		&i.CreatedAt,
+	)
+	return i, err
 }
 
 const insertExecution = `-- name: InsertExecution :one
@@ -170,4 +271,46 @@ func (q *Queries) ListExecutionsForAccount(ctx context.Context, arg ListExecutio
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateExecution = `-- name: UpdateExecution :execrows
+UPDATE executions
+SET side = ?,
+    quantity = ?,
+    price = ?,
+    fees = ?,
+    commission = ?,
+    executed_at = ?,
+    dedup_hash = ?
+WHERE id = ? AND user_id = ?
+`
+
+type UpdateExecutionParams struct {
+	Side       string    `json:"side"`
+	Quantity   float64   `json:"quantity"`
+	Price      float64   `json:"price"`
+	Fees       float64   `json:"fees"`
+	Commission float64   `json:"commission"`
+	ExecutedAt time.Time `json:"executed_at"`
+	DedupHash  string    `json:"dedup_hash"`
+	ID         string    `json:"id"`
+	UserID     string    `json:"user_id"`
+}
+
+func (q *Queries) UpdateExecution(ctx context.Context, arg UpdateExecutionParams) (int64, error) {
+	result, err := q.db.ExecContext(ctx, updateExecution,
+		arg.Side,
+		arg.Quantity,
+		arg.Price,
+		arg.Fees,
+		arg.Commission,
+		arg.ExecutedAt,
+		arg.DedupHash,
+		arg.ID,
+		arg.UserID,
+	)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
 }

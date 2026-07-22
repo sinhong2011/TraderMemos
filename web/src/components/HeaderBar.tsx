@@ -1,146 +1,348 @@
-import { Search, X } from "lucide-react";
-import { AccountSwitcher } from "./AccountSwitcher";
-import { DateRangePicker } from "./DateRangePicker";
-import { ToolsPopover } from "./ToolsPopover";
-import { heroPnlClass } from "./theme-tokens";
+import { Check, Eye, EyeOff, Menu, Search, Wallet, X } from "lucide-react";
+import { useState } from "react";
 import { cn } from "../lib/cn";
+import { currencyIcon } from "../lib/currencyIcon";
+import {
+  accountBaseCurrency,
+  DISPLAY_CURRENCIES,
+  useDisplayPrefs,
+  usePrivacyMode,
+} from "../lib/displayPrefs";
 import { useFilterParams, useFilters } from "../lib/filters";
+import { APP_HOTKEYS } from "../lib/hotkeys";
 import { fmtMoney, fmtPct, fmtSignedMoney } from "../lib/format";
 import { computeHeaderStats } from "../lib/headerStats";
 import { useAccounts } from "../lib/hooks/useAccounts";
 import { useSummary } from "../lib/hooks/useAnalytics";
 import { useCash } from "../lib/hooks/useCash";
+import { useMoneyFx } from "../lib/hooks/useMoneyFx";
 import { useTrades } from "../lib/hooks/useTrades";
-import { useUI } from "../lib/ui";
 import { intlLocale } from "../lib/locale";
+import { useUI } from "../lib/ui";
+import { DateRangePicker } from "./DateRangePicker";
+import { SignalSelect } from "./SignalSelect";
+import { heroPnlClass } from "./theme-tokens";
+import { Button } from "./ui/button";
+import { Kbd } from "./ui/kbd";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+
+const AUTO_VALUE = "__auto__";
 
 function HeaderStat({ label, value }: { label: string; value: string }) {
-	return (
-		<span className="inline-flex items-baseline gap-1 text-[11px] whitespace-nowrap">
-			<span className="uppercase tracking-widest text-text-dim">{label}</span>
-			<span className="tabular-nums text-text-muted">{value}</span>
-		</span>
-	);
+  return (
+    <span className="inline-flex items-baseline gap-1 text-[13px] font-medium whitespace-nowrap">
+      <span className="uppercase tracking-widest text-text-muted">{label}</span>
+      <span className="font-semibold tabular-nums text-text">{value}</span>
+    </span>
+  );
 }
 
 function StatDivider() {
-	return <span aria-hidden className="text-text-dim/40 select-none">·</span>;
+  return (
+    <span aria-hidden className="text-[13px] text-text-dim select-none">
+      ·
+    </span>
+  );
 }
 
-function SymbolFilterChip({
-	symbol,
-	onClear,
+function SymbolFilterChip({ symbol, onClear }: { symbol: string; onClear: () => void }) {
+  return (
+    <span className="inline-flex h-8 shrink-0 items-center gap-1 rounded-control border border-accent/25 bg-accent-bg px-2 text-[11px] text-accent">
+      {symbol}
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon-xs"
+        onClick={onClear}
+        aria-label="Clear symbol filter"
+        className="rounded-sharp text-accent/70 hover:bg-accent/10 hover:text-accent"
+      >
+        <X size={12} strokeWidth={2} />
+      </Button>
+    </span>
+  );
+}
+
+function CurrencyOptionLabel({ code, account }: { code: string; account?: boolean }) {
+  const Icon = currencyIcon(code);
+  return (
+    <span className="inline-flex min-w-0 items-center gap-1.5">
+      <Icon size={12} strokeWidth={1.75} className="shrink-0 text-text-dim" aria-hidden />
+      <span className="tabular-nums">{code}</span>
+      {account ? (
+        <>
+          <span className="text-text-dim" aria-hidden>
+            ·
+          </span>
+          <Wallet size={12} strokeWidth={1.75} className="shrink-0 text-text-dim" aria-hidden />
+          <span className="sr-only">account</span>
+        </>
+      ) : null}
+    </span>
+  );
+}
+
+export function DisplayCurrencySelect({
+  baseCurrency,
+  variant = "header",
+  side,
 }: {
-	symbol: string;
-	onClear: () => void;
+  baseCurrency: string;
+  variant?: "header" | "rail";
+  /** Popover side; defaults to `right` for rail, `bottom` for header. */
+  side?: "top" | "right" | "bottom" | "left";
 }) {
-	return (
-		<span className="inline-flex h-8 shrink-0 items-center gap-1 rounded-control border border-accent/25 bg-accent-bg px-2 text-[11px] text-accent">
-			{symbol}
-			<button
-				type="button"
-				onClick={onClear}
-				aria-label="Clear symbol filter"
-				className="flex cursor-pointer items-center justify-center rounded-sharp p-0.5 text-accent/70 transition-colors hover:bg-accent/10 hover:text-accent"
-			>
-				<X size={12} strokeWidth={2} />
-			</button>
-		</span>
-	);
+  const [open, setOpen] = useState(false);
+  const displayCurrency = useDisplayPrefs((s) => s.displayCurrency);
+  const setDisplayCurrency = useDisplayPrefs((s) => s.setDisplayCurrency);
+  const base = baseCurrency.trim().toUpperCase() || "USD";
+  // `null` or an override that matches the account base = show in account currency (no FX).
+  const usingAccount = displayCurrency === null || displayCurrency.toUpperCase() === base;
+  const activeCode = usingAccount ? base : displayCurrency!.toUpperCase();
+  const ActiveIcon = currencyIcon(activeCode);
+  const popoverSide = side ?? (variant === "rail" ? "right" : "bottom");
+  const tipSide = popoverSide === "right" ? "right" : "bottom";
+  const tipLabel = usingAccount
+    ? `Display currency · ${activeCode} (account)`
+    : `Display currency · ${activeCode}`;
+
+  const options = [
+    {
+      value: AUTO_VALUE,
+      label: <CurrencyOptionLabel code={base} account />,
+      shortLabel: <CurrencyOptionLabel code={base} />,
+    },
+    ...DISPLAY_CURRENCIES.filter((code) => code !== base).map((code) => ({
+      value: code,
+      label: <CurrencyOptionLabel code={code} />,
+      shortLabel: <CurrencyOptionLabel code={code} />,
+    })),
+  ];
+
+  function applyCurrency(v: string) {
+    if (v === AUTO_VALUE || v.toUpperCase() === base) {
+      setDisplayCurrency(null);
+      return;
+    }
+    if ((DISPLAY_CURRENCIES as readonly string[]).includes(v)) {
+      setDisplayCurrency(v as (typeof DISPLAY_CURRENCIES)[number]);
+    }
+  }
+
+  if (variant === "rail") {
+    return (
+      <Popover open={open} onOpenChange={setOpen}>
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <PopoverTrigger
+                aria-label={`Show amounts in (account ledger is ${base})`}
+                className={cn(
+                  "group relative flex size-8 cursor-pointer items-center justify-center rounded-control outline-none",
+                  "pointer-coarse:size-11",
+                  "transition-[background-color,color,transform] duration-150 ease-out",
+                  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+                  "motion-reduce:transition-none",
+                  open || !usingAccount
+                    ? "bg-bg-hover text-text"
+                    : "text-text-dim hover:bg-bg-hover hover:text-text",
+                )}
+              />
+            }
+          >
+            <ActiveIcon
+              size={15}
+              strokeWidth={1.75}
+              className="transition-transform duration-150 ease-out group-hover:scale-105 motion-reduce:transition-none"
+            />
+          </TooltipTrigger>
+          <TooltipContent side={tipSide}>{tipLabel}</TooltipContent>
+        </Tooltip>
+        <PopoverContent
+          side={popoverSide}
+          align="end"
+          sideOffset={popoverSide === "right" ? 8 : 6}
+          className="w-[200px] p-1.5"
+        >
+          <p className="m-0 px-2.5 pt-1.5 pb-2.5 text-[10px] font-semibold uppercase tracking-widest text-signal">
+            Currency
+          </p>
+          <div className="flex flex-col gap-0.5">
+            {options.map((opt) => {
+              const selected =
+                opt.value === AUTO_VALUE ? usingAccount : !usingAccount && opt.value === activeCode;
+              return (
+                <Button
+                  key={opt.value}
+                  type="button"
+                  variant="ghost"
+                  onClick={() => {
+                    applyCurrency(opt.value);
+                    setOpen(false);
+                  }}
+                  className={cn(
+                    "relative h-auto w-full justify-start gap-2 rounded-control py-2 pr-2.5 pl-3",
+                    "text-left text-[12px]",
+                    selected
+                      ? "bg-accent-bg font-medium text-accent hover:bg-accent-bg hover:text-accent"
+                      : "text-text",
+                  )}
+                >
+                  <span className="min-w-0 flex-1 truncate">{opt.label}</span>
+                  {selected ? (
+                    <Check size={13} strokeWidth={2} className="shrink-0 text-accent" aria-hidden />
+                  ) : null}
+                </Button>
+              );
+            })}
+          </div>
+        </PopoverContent>
+      </Popover>
+    );
+  }
+
+  return (
+    <SignalSelect
+      value={usingAccount ? AUTO_VALUE : displayCurrency!}
+      onValueChange={applyCurrency}
+      options={options}
+      ariaLabel={`Show amounts in (account ledger is ${base})`}
+      ghost
+      triggerClassName="h-8 min-w-[5.25rem] shrink-0 px-2 text-[11px] font-medium tabular-nums pointer-coarse:h-11"
+    />
+  );
+}
+
+function PrivacyToggle() {
+  const privacyMode = useDisplayPrefs((s) => s.privacyMode);
+  const togglePrivacyMode = useDisplayPrefs((s) => s.togglePrivacyMode);
+  const Icon = privacyMode ? EyeOff : Eye;
+
+  return (
+    <Button
+      type="button"
+      variant={privacyMode ? "soft" : "ghost"}
+      size="icon"
+      onClick={togglePrivacyMode}
+      aria-pressed={privacyMode}
+      aria-label={privacyMode ? "Show sensitive amounts" : "Hide sensitive amounts"}
+      title={privacyMode ? "Show amounts" : "Hide amounts"}
+      className={cn(
+        "pointer-coarse:size-11",
+        "transition-[background-color,color,border-color] duration-200 ease-[var(--ease-out)]",
+        !privacyMode && "bg-transparent text-text-dim hover:bg-bg-hover",
+      )}
+    >
+      <Icon size={15} strokeWidth={1.75} aria-hidden />
+    </Button>
+  );
+}
+
+function MobileNavTrigger() {
+  const openMobileNav = useUI((s) => s.openMobileNav);
+  return (
+    <Button
+      type="button"
+      variant="ghost"
+      size="icon"
+      onClick={openMobileNav}
+      aria-label="Open menu"
+      className="shrink-0 pointer-coarse:size-11 text-text-dim hover:bg-bg-hover hover:text-text md:hidden"
+    >
+      <Menu size={18} strokeWidth={1.75} aria-hidden />
+    </Button>
+  );
 }
 
 export function HeaderBar() {
-	const filters = useFilterParams();
-	const accountId = useFilters((s) => s.accountId);
-	const symbol = useFilters((s) => s.symbol);
-	const setSymbol = useFilters((s) => s.setSymbol);
-	const openCommandPalette = useUI((s) => s.openCommandPalette);
+  usePrivacyMode();
+  const filters = useFilterParams();
+  const accountId = useFilters((s) => s.accountId);
+  const symbol = useFilters((s) => s.symbol);
+  const setSymbol = useFilters((s) => s.setSymbol);
+  const openCommandPalette = useUI((s) => s.openCommandPalette);
 
-	const accounts = useAccounts().data ?? [];
-	const summaryQ = useSummary(filters);
-	const tradesQ = useTrades(filters);
-	const cashQ = useCash(filters);
+  const accounts = useAccounts().data ?? [];
+  const summaryQ = useSummary(filters);
+  const tradesQ = useTrades(filters);
+  const cashQ = useCash(filters);
 
-	const currency =
-		accounts.find((a) => a.id === accountId)?.base_currency ?? "USD";
-	const stats = computeHeaderStats({
-		accounts,
-		accountId,
-		cashTx: cashQ.data ?? [],
-		summary: summaryQ.data,
-		trades: tradesQ.data ?? [],
-	});
-	const summary = summaryQ.data;
+  const baseCurrency = accountBaseCurrency(accounts, accountId);
+  const { currency, toDisplay, isLoading: fxLoading } = useMoneyFx(baseCurrency);
+  const stats = computeHeaderStats({
+    accounts,
+    accountId,
+    cashTx: cashQ.data ?? [],
+    summary: summaryQ.data,
+    trades: tradesQ.data ?? [],
+  });
+  const summary = summaryQ.data;
 
-	return (
-		<header className="grid h-[52px] shrink-0 grid-cols-[minmax(0,auto)_minmax(0,1fr)_auto] items-center gap-3 bg-bg px-4">
-			{/* Performance strip */}
-			<div className="flex min-w-0 items-center gap-3">
-				<div className={cn(heroPnlClass(stats.netPnl), "shrink-0 text-[28px]")}>
-					{fmtSignedMoney(stats.netPnl, currency, intlLocale())}
-				</div>
-				<div
-					aria-hidden
-					className="hidden h-7 w-px shrink-0 bg-border sm:block"
-				/>
-				<div className="hidden min-w-0 items-center gap-2 sm:flex">
-					<HeaderStat
-						label="WR"
-						value={summary ? fmtPct(summary.win_rate, intlLocale()) : "—"}
-					/>
-					<StatDivider />
-					<HeaderStat
-						label="PF"
-						value={
-							summary?.profit_factor != null
-								? summary.profit_factor.toFixed(2)
-								: "—"
-						}
-					/>
-					<StatDivider />
-					<HeaderStat
-						label="Cash"
-						value={fmtMoney(stats.cash, currency, intlLocale())}
-					/>
-				</div>
-			</div>
+  return (
+    <header className="flex h-auto min-h-[52px] shrink-0 items-center gap-2 bg-bg px-3 pt-[calc(0.5rem+env(safe-area-inset-top))] pb-2 md:h-[52px] md:gap-3 md:px-4 md:pt-0 md:pb-0">
+      {/* Performance strip */}
+      <div className="flex min-w-0 flex-1 items-center gap-2 md:gap-3">
+        <MobileNavTrigger />
+        <div
+          className={cn(
+            heroPnlClass(stats.netPnl),
+            "shrink-0 text-[22px] sm:text-[28px]",
+            fxLoading && "opacity-60",
+          )}
+        >
+          {fmtSignedMoney(toDisplay(stats.netPnl), currency, intlLocale())}
+        </div>
+        <div aria-hidden className="hidden h-7 w-px shrink-0 bg-border md:block" />
+        <div className="hidden min-w-0 items-center gap-2 md:flex">
+          <HeaderStat label="WR" value={summary ? fmtPct(summary.win_rate, intlLocale()) : "—"} />
+          <StatDivider />
+          <HeaderStat
+            label="PF"
+            value={summary?.profit_factor != null ? summary.profit_factor.toFixed(2) : "—"}
+          />
+          <StatDivider />
+          <HeaderStat
+            label="Cash"
+            value={fmtMoney(toDisplay(stats.cash), currency, intlLocale())}
+          />
+        </div>
+        {symbol ? <SymbolFilterChip symbol={symbol} onClear={() => setSymbol(undefined)} /> : null}
+      </div>
 
-			{/* Command search — single entry point */}
-			<div className="flex min-w-0 items-center justify-end gap-2 px-1">
-				{symbol ? (
-					<SymbolFilterChip
-						symbol={symbol}
-						onClear={() => setSymbol(undefined)}
-					/>
-				) : null}
-				<button
-					type="button"
-					onClick={openCommandPalette}
-					className={cn(
-						"flex h-8 max-w-[200px] min-w-[80px] shrink-0 cursor-pointer items-center gap-2 rounded-control",
-						"border border-border bg-bg-inset/60 px-3",
-						"text-[12px] text-text-dim",
-						"transition-[border-color,background-color,color] duration-150",
-						"hover:border-border-strong hover:bg-bg-hover hover:text-text-muted",
-						"focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
-					)}
-				>
-					<Search size={14} strokeWidth={1.75} aria-hidden />
-					<span className="min-w-0 flex-1 truncate text-left">
-						Jump to page or tool…
-					</span>
-					<kbd className="hidden shrink-0 rounded-sharp border border-border bg-[rgba(228,255,26,0.06)] px-1.5 py-0.5 text-[10px] leading-none text-signal sm:inline">
-						⌘K
-					</kbd>
-				</button>
-			</div>
+      {/* Command search — desktop; icon button on the right covers smaller breakpoints */}
+      <div className="hidden justify-center px-1 lg:flex">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={openCommandPalette}
+          aria-keyshortcuts="Meta+K Control+K"
+          className="w-[150px] justify-start bg-transparent px-2.5 text-text hover:bg-bg-hover hover:text-text"
+        >
+          <Search size={14} strokeWidth={1.75} aria-hidden data-icon="inline-start" />
+          <span className="min-w-0 flex-1 truncate text-left">Search…</span>
+          <Kbd data-icon="inline-end">{APP_HOTKEYS.palette.label}</Kbd>
+        </Button>
+      </div>
 
-			{/* Global filters */}
-			<div className="flex shrink-0 items-center gap-1.5">
-				<AccountSwitcher className="h-8 min-w-[7.5rem] text-[11px]" />
-				<DateRangePicker />
-				<ToolsPopover variant="header" />
-			</div>
-		</header>
-	);
+      <div className="flex shrink-0 items-center gap-1">
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={openCommandPalette}
+          aria-label="Search"
+          aria-keyshortcuts="Meta+K Control+K"
+          className="pointer-coarse:size-11 text-text-dim hover:bg-bg-hover hover:text-text lg:hidden"
+        >
+          <Search size={16} strokeWidth={1.75} aria-hidden />
+        </Button>
+        <div className="hidden items-center gap-1 md:flex">
+          <DateRangePicker variant="rail" side="bottom" />
+          <DisplayCurrencySelect baseCurrency={baseCurrency} variant="rail" side="bottom" />
+        </div>
+        <PrivacyToggle />
+      </div>
+    </header>
+  );
 }

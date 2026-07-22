@@ -9,7 +9,21 @@ import (
 
 func tr(net float64, closed string) ClosedTrade {
 	tt, _ := time.Parse(time.RFC3339, closed)
-	return ClosedTrade{NetPnl: net, FeesTotal: 1, ClosedAt: tt}
+	return ClosedTrade{NetPnl: net, FeesTotal: 1, OpenedAt: tt, ClosedAt: tt}
+}
+
+func TestDailyPnlDateBasis(t *testing.T) {
+	opened, _ := time.Parse(time.RFC3339, "2026-07-21T20:00:00Z")
+	closed, _ := time.Parse(time.RFC3339, "2026-07-22T14:00:00Z")
+	in := []ClosedTrade{{NetPnl: 88.3, FeesTotal: 1, OpenedAt: opened, ClosedAt: closed}}
+
+	byClose := DailyPnl(in, "close")
+	require.Equal(t, 88.3, byClose["2026-07-22"])
+	require.Equal(t, 0.0, byClose["2026-07-21"])
+
+	byOpen := DailyPnl(in, "open")
+	require.Equal(t, 88.3, byOpen["2026-07-21"])
+	require.Equal(t, 0.0, byOpen["2026-07-22"])
 }
 
 func TestSummary(t *testing.T) {

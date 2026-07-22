@@ -1,0 +1,13 @@
+[build]
+  base = "web"
+  command = "bun install --frozen-lockfile && bun run build"
+  publish = "dist"
+
+[build.environment]
+  # Netlify picks up packageManager from web/package.json (bun).
+  NODE_VERSION = "22"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

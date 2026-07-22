@@ -28,7 +28,14 @@ func (s *Service) Register(ctx context.Context, email, password string) (store.U
 	if err != nil {
 		return store.User{}, err
 	}
-	return s.q.CreateUser(ctx, store.CreateUserParams{ID: uuid.NewString(), Email: email, PasswordHash: h})
+	u, err := s.q.CreateUser(ctx, store.CreateUserParams{ID: uuid.NewString(), Email: email, PasswordHash: h})
+	if err != nil {
+		return store.User{}, err
+	}
+	if err := store.SeedDefaultSetups(ctx, s.q, u.ID); err != nil {
+		return store.User{}, err
+	}
+	return u, nil
 }
 
 func (s *Service) Login(ctx context.Context, email, password string) (Tokens, store.User, error) {

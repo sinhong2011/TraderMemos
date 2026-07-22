@@ -3,7 +3,7 @@ tmp_dir = "tmp"
 env_files = [".env"]
 
 [build]
-  cmd = "go build -o ./tmp/server ./cmd/server"
+  cmd = "./scripts/build-dev.sh ./tmp/server"
   entrypoint = "./tmp/server"
   include_ext = ["go", "tpl", "tmpl", "html", "sql"]
   exclude_dir = ["tmp", "vendor", "testdata", "internal/store"]

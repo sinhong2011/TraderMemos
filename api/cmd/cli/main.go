@@ -34,6 +34,21 @@ func openStore() (*store.Queries, error) {
 	return store.New(conn), nil
 }
 
+func openConn() (*sql.DB, error) {
+	cfg, _ := config.Load()
+	if err := os.MkdirAll(dir(cfg.DBPath), 0o755); err != nil {
+		return nil, err
+	}
+	conn, err := db.Open(cfg.DBPath)
+	if err != nil {
+		return nil, err
+	}
+	if err := db.Migrate(conn); err != nil {
+		return nil, err
+	}
+	return conn, nil
+}
+
 func dir(p string) string {
 	for i := len(p) - 1; i >= 0; i-- {
 		if p[i] == '/' {
@@ -85,6 +100,85 @@ func main() {
 	cu.Flags().StringVar(&email, "email", "", "email")
 	cu.Flags().StringVar(&password, "password", "", "password")
 	root.AddCommand(cu)
+
+	seedSetups := &cobra.Command{
+		Use: "seed-setups", Short: "ensure default playbook setups exist for a user",
+		RunE: func(*cobra.Command, []string) error {
+			if email == "" {
+				return fmt.Errorf("--email is required")
+			}
+			q, err := openStore()
+			if err != nil {
+				return err
+			}
+			ctx := context.Background()
+			u, err := q.GetUserByEmail(ctx, email)
+			if err != nil {
+				return fmt.Errorf("user not found: %w", err)
+			}
+			if err := store.SeedDefaultSetups(ctx, q, u.ID); err != nil {
+				return err
+			}
+			fmt.Println("default setups ensured for", u.Email)
+			return nil
+		},
+	}
+	seedSetups.Flags().StringVar(&email, "email", "", "user email")
+	root.AddCommand(seedSetups)
+
+	seedSetupsAll := &cobra.Command{
+		Use:   "seed-setups-all",
+		Short: "ensure default playbook setups exist for all users",
+		RunE: func(*cobra.Command, []string) error {
+			ctx := context.Background()
+			conn, err := openConn()
+			if err != nil {
+				return err
+			}
+			defer conn.Close()
+
+			q := store.New(conn)
+			rows, err := conn.QueryContext(ctx, `SELECT id, email FROM users`)
+			if err != nil {
+				return err
+			}
+			var users []struct {
+				id    string
+				email string
+			}
+			for rows.Next() {
+				var userID, userEmail string
+				if err := rows.Scan(&userID, &userEmail); err != nil {
+					_ = rows.Close()
+					return err
+				}
+				users = append(users, struct {
+					id    string
+					email string
+				}{id: userID, email: userEmail})
+			}
+			if err := rows.Err(); err != nil {
+				_ = rows.Close()
+				return err
+			}
+			if err := rows.Close(); err != nil {
+				return err
+			}
+
+			var seeded int
+			for _, u := range users {
+				if err := store.SeedDefaultSetups(ctx, q, u.id); err != nil {
+					return err
+				}
+				seeded++
+				fmt.Println("seeded setups for", u.email)
+			}
+
+			fmt.Println("default setups ensured for", seeded, "users")
+			return nil
+		},
+	}
+	root.AddCommand(seedSetupsAll)
 
 	var acct string
 	rg := &cobra.Command{

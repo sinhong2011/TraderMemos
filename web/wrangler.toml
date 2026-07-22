@@ -1,0 +1,10 @@
+# TraderMemos web — Cloudflare Workers (static SPA)
+# Used by: Deploy to Cloudflare button + `wrangler deploy`.
+# https://deploy.workers.cloudflare.com/?url=https://github.com/sinhong2011/TraderMemos/tree/main/web
+
+name = "tradermemos"
+compatibility_date = "2026-07-21"
+
+[assets]
+directory = "./dist"
+not_found_handling = "single-page-application"

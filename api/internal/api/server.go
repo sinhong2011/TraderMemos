@@ -8,6 +8,8 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/tradermemos/api/internal/auth"
+	"github.com/tradermemos/api/internal/marketdata"
+	"github.com/tradermemos/api/internal/ocr"
 	"github.com/tradermemos/api/internal/storage"
 	"github.com/tradermemos/api/internal/store"
 	"github.com/tradermemos/api/internal/trades"
@@ -24,6 +26,13 @@ type Deps struct {
 	Storage        storage.Storage
 	AttachMaxBytes int64
 	ImportMaxBytes int64
+	OCRMaxBytes    int64
+	Market         *marketdata.Service
+	OCR            *ocr.Service
+	CoachDefaults  ocr.VisionConfig
+	// CORSOrigins enable browser cross-origin access when the SPA is hosted
+	// separately (Vercel, Cloudflare Pages, etc.). Empty disables CORS.
+	CORSOrigins []string
 }
 
 type Server struct {
@@ -44,6 +53,31 @@ func New(deps Deps) *Server {
 	e.Use(middleware.RequestID())
 	e.Use(requestLogger(lg))
 	e.Use(middleware.Recover())
+	if len(deps.CORSOrigins) > 0 {
+		origins := deps.CORSOrigins
+		e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+			AllowOriginFunc: func(origin string) (bool, error) {
+				return OriginAllowed(origin, origins), nil
+			},
+			AllowMethods: []string{
+				http.MethodGet,
+				http.MethodHead,
+				http.MethodPut,
+				http.MethodPatch,
+				http.MethodPost,
+				http.MethodDelete,
+				http.MethodOptions,
+			},
+			AllowHeaders: []string{
+				echo.HeaderOrigin,
+				echo.HeaderContentType,
+				echo.HeaderAccept,
+				echo.HeaderAuthorization,
+			},
+			ExposeHeaders: []string{echo.HeaderXRequestID},
+			MaxAge:        600,
+		}))
+	}
 	// Reject oversized request bodies at read time (before multipart parse).
 	// Sized to the largest configured upload cap; a 16KiB floor covers JSON.
 	if lim := bodyLimit(deps); lim > 0 {
@@ -63,6 +97,9 @@ func bodyLimit(deps Deps) int64 {
 	lim := deps.AttachMaxBytes
 	if deps.ImportMaxBytes > lim {
 		lim = deps.ImportMaxBytes
+	}
+	if deps.OCRMaxBytes > lim {
+		lim = deps.OCRMaxBytes
 	}
 	return lim
 }
@@ -87,4 +124,6 @@ func (s *Server) routes() {
 	s.settingsRoutes(protected)
 	s.noteRoutes(protected)
 	s.checklistRoutes(protected)
+	s.marketRoutes(protected)
+	s.ocrRoutes(protected)
 }

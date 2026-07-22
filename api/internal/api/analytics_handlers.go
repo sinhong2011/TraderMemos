@@ -25,7 +25,10 @@ func toClosedTrades(rows []store.Trade) []analytics.ClosedTrade {
 			continue
 		}
 		out = append(out, analytics.ClosedTrade{
-			NetPnl: t.NetPnl.Float64, FeesTotal: t.FeesTotal, ClosedAt: t.ClosedAt.Time,
+			NetPnl:    t.NetPnl.Float64,
+			FeesTotal: t.FeesTotal,
+			OpenedAt:  t.OpenedAt,
+			ClosedAt:  t.ClosedAt.Time,
 		})
 	}
 	return out
@@ -91,7 +94,7 @@ func (s *Server) handleDaily(c echo.Context) error {
 	if err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not compute daily pnl", nil)
 	}
-	return c.JSON(http.StatusOK, analytics.DailyPnl(toClosedTrades(rows)))
+	return c.JSON(http.StatusOK, analytics.DailyPnl(toClosedTrades(rows), f.DateBasis))
 }
 
 func (s *Server) handleEquityCurve(c echo.Context) error {

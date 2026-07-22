@@ -1,462 +1,319 @@
-import { BookOpen, Check, Pencil, Plus, Trash2, X } from "lucide-react";
-import { useState } from "react";
-import { Card } from "../../components/Card";
+import {
+  ArrowDownRight,
+  ArrowUpRight,
+  BookOpen,
+  Eye,
+  EyeOff,
+  ListFilter,
+  Pencil,
+  Plus,
+  Trash2,
+} from "lucide-react";
+import { useMemo, useState } from "react";
 import { EmptyState } from "../../components/EmptyState";
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemMedia,
+  ItemTitle,
+} from "../../components/Item";
 import { Page } from "../../components/Page";
 import { Skeleton } from "../../components/Skeleton";
 import { pnlColor } from "../../components/theme-tokens";
+import { Button } from "../../components/ui/button";
+import { NativeSelect, NativeSelectOption } from "../../components/ui/native-select";
 import type { BreakGroup, Setup } from "../../lib/api/types";
-import type { SetupBody } from "../../lib/api/setups";
+import { cn } from "../../lib/cn";
+import { usePrivacyMode } from "../../lib/displayPrefs";
 import { fmtPct, fmtSignedMoney } from "../../lib/format";
-import { useUI } from "../../lib/ui";
+import { useMoneyFx } from "../../lib/hooks/useMoneyFx";
 import { intlLocale } from "../../lib/locale";
+import { useUI, type SetupDraft } from "../../lib/ui";
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
 export interface PlaybookViewProps {
-	setups: Setup[];
-	setupsLoading: boolean;
-	setupsError: boolean;
-	breakdown: BreakGroup[];
-	breakdownLoading: boolean;
-	currency: string;
-	onCreate: (body: SetupBody) => Promise<void>;
-	onUpdate: (id: string, body: SetupBody) => Promise<void>;
-	onDelete: (id: string) => Promise<void>;
+  setups: Setup[];
+  setupsLoading: boolean;
+  setupsError: boolean;
+  breakdown: BreakGroup[];
+  breakdownLoading: boolean;
+  currency: string;
+  onDelete: (id: string) => Promise<void>;
+}
+
+type SortKey = "name" | "pnl" | "winRate" | "trades";
+
+interface SetupRowModel {
+  setup: Setup;
+  group: BreakGroup | undefined;
+  trades: number;
+  winRate: number;
+  netPnl: number;
+  pf: number;
+  exp: number;
+  hasData: boolean;
 }
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
-function getGroupForSetup(
-	breakdown: BreakGroup[],
-	setupName: string,
-): BreakGroup | undefined {
-	return breakdown.find((g) => g.key === setupName);
+function getGroupForSetup(breakdown: BreakGroup[], setupName: string): BreakGroup | undefined {
+  return breakdown.find((g) => g.key === setupName);
+}
+
+function toSetupDraft(setup: Setup): SetupDraft {
+  return {
+    id: setup.id,
+    name: setup.name,
+    thesis: setup.thesis || setup.description || "",
+    symbol: setup.symbol || "",
+    direction: setup.direction === "short" ? "short" : "long",
+    target: setup.target_price != null ? String(setup.target_price) : "",
+    stop: setup.stop_price != null ? String(setup.stop_price) : "",
+    checklistText: (setup.checklist ?? []).join("\n"),
+  };
+}
+
+function buildRows(setups: Setup[], breakdown: BreakGroup[]): SetupRowModel[] {
+  return setups.map((setup) => {
+    const group = getGroupForSetup(breakdown, setup.name);
+    const sum = group?.summary;
+    const trades = sum?.total_trades ?? 0;
+    return {
+      setup,
+      group,
+      trades,
+      winRate: sum?.win_rate ?? 0,
+      netPnl: sum?.net_pnl ?? 0,
+      pf: sum?.profit_factor ?? 0,
+      exp: sum?.expectancy ?? 0,
+      hasData: trades > 0,
+    };
+  });
+}
+
+function sortRows(rows: SetupRowModel[], sort: SortKey): SetupRowModel[] {
+  const next = [...rows];
+  next.sort((a, b) => {
+    switch (sort) {
+      case "pnl":
+        return b.netPnl - a.netPnl || a.setup.name.localeCompare(b.setup.name);
+      case "winRate":
+        return b.winRate - a.winRate || a.setup.name.localeCompare(b.setup.name);
+      case "trades":
+        return b.trades - a.trades || a.setup.name.localeCompare(b.setup.name);
+      case "name":
+      default:
+        return a.setup.name.localeCompare(b.setup.name);
+    }
+  });
+  return next;
 }
 
 // ---------------------------------------------------------------------------
-// Inline form for creating / editing
+// Setup item
 // ---------------------------------------------------------------------------
 
-interface SetupFormProps {
-	initialName?: string;
-	initialDescription?: string;
-	onSave: (name: string, description: string) => Promise<void>;
-	onCancel: () => void;
-	saveLabel: string;
+interface SetupItemProps {
+  row: SetupRowModel;
+  currency: string;
+  fxRate: number;
+  onEdit: (setup: Setup) => void;
+  onDelete: (setup: Setup) => void;
+  onConvert: (setup: Setup) => void;
 }
 
-function SetupForm({
-	initialName = "",
-	initialDescription = "",
-	onSave,
-	onCancel,
-	saveLabel,
-}: SetupFormProps) {
-	const [name, setName] = useState(initialName);
-	const [description, setDescription] = useState(initialDescription);
-	const [saving, setSaving] = useState(false);
-	const [err, setErr] = useState<string | null>(null);
+function SetupItem({ row, currency, fxRate, onEdit, onDelete, onConvert }: SetupItemProps) {
+  usePrivacyMode();
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const { setup, trades, winRate, netPnl, pf, exp, hasData } = row;
+  const thesis = setup.thesis || setup.description;
+  const checklist = setup.checklist ?? [];
+  const locale = intlLocale();
+  const isShort = setup.direction === "short";
+  const DirIcon = isShort ? ArrowDownRight : ArrowUpRight;
 
-	async function handleSave() {
-		if (!name.trim()) {
-			setErr("Name is required.");
-			return;
-		}
-		setSaving(true);
-		setErr(null);
-		try {
-			await onSave(name.trim(), description.trim());
-		} catch {
-			setErr("Failed to save. Please try again.");
-			setSaving(false);
-		}
-	}
+  const metaBits = [
+    setup.target_price != null ? `T ${setup.target_price}` : null,
+    setup.stop_price != null ? `S ${setup.stop_price}` : null,
+    checklist.length > 0 ? `${checklist.length} check${checklist.length === 1 ? "" : "s"}` : null,
+  ].filter(Boolean);
 
-	const fieldStyle: React.CSSProperties = {
-		background: "var(--color-surface-base)",
-		border: "1px solid var(--color-border)",
-		borderRadius: "var(--radius-control)",
-		color: "var(--color-text)",
-		fontSize: 12,
-		padding: "5px 8px",
-		width: "100%",
-		outline: "none",
-	};
+  return (
+    <Item
+      variant="default"
+      size="default"
+      className={cn(
+        "w-full gap-3 border-transparent bg-bg-hover px-3.5 py-3",
+        "hover:bg-bg-panel",
+        !hasData && "opacity-75",
+      )}
+    >
+      <ItemMedia
+        variant="icon"
+        aria-hidden
+        className={cn(
+          "size-9 self-center",
+          hasData
+            ? isShort
+              ? "bg-tint-neg text-loss"
+              : "bg-tint-pos text-profit"
+            : "bg-bg-panel text-text-dim",
+        )}
+      >
+        {setup.direction ? (
+          <DirIcon size={16} strokeWidth={2} />
+        ) : (
+          <BookOpen size={16} strokeWidth={1.75} />
+        )}
+      </ItemMedia>
 
-	const labelStyle: React.CSSProperties = {
-		display: "block",
-		fontSize: 11,
-		color: "var(--color-text-muted)",
-		marginBottom: 4,
-		fontWeight: 500,
-		letterSpacing: "0.03em",
-		textTransform: "uppercase",
-	};
+      <ItemContent className="gap-1.5">
+        <ItemTitle className="gap-2 text-[15px]">
+          <span className="font-semibold tracking-tight text-text">{setup.name}</span>
+          {setup.symbol ? (
+            <span className="text-[12px] font-medium tracking-wide text-accent">
+              {setup.symbol}
+              {setup.direction ? ` · ${setup.direction.toUpperCase()}` : ""}
+            </span>
+          ) : null}
+        </ItemTitle>
+        {thesis ? (
+          <ItemDescription className="line-clamp-1 text-[13px]">{thesis}</ItemDescription>
+        ) : metaBits.length > 0 ? (
+          <ItemDescription className="text-[12px] text-text-dim">
+            {metaBits.join(" · ")}
+          </ItemDescription>
+        ) : !hasData ? (
+          <ItemDescription className="text-[12px] text-text-dim">
+            No trades in this range
+          </ItemDescription>
+        ) : null}
 
-	return (
-		<div
-			style={{
-				padding: "12px 16px",
-				borderBottom: "1px solid var(--color-border)",
-				background: "var(--color-surface-base)",
-			}}
-		>
-			<div className="flex flex-col gap-3">
-				<div>
-					<label style={labelStyle}>Name</label>
-					<input
-						type="text"
-						value={name}
-						onChange={(e) => setName(e.target.value)}
-						placeholder="e.g. ORB, VWAP Fade"
-						style={fieldStyle}
-						onKeyDown={(e) => {
-							if (e.key === "Enter") handleSave();
-							if (e.key === "Escape") onCancel();
-						}}
-					/>
-				</div>
-				<div>
-					<label style={labelStyle}>Description</label>
-					<input
-						type="text"
-						value={description}
-						onChange={(e) => setDescription(e.target.value)}
-						placeholder="Optional notes about this setup"
-						style={fieldStyle}
-						onKeyDown={(e) => {
-							if (e.key === "Enter") handleSave();
-							if (e.key === "Escape") onCancel();
-						}}
-					/>
-				</div>
-				{err && (
-					<p style={{ fontSize: 11, color: "var(--color-neg)" }}>{err}</p>
-				)}
-				<div className="flex items-center gap-2">
-					<button
-						onClick={handleSave}
-						disabled={saving}
-						style={{
-							display: "flex",
-							alignItems: "center",
-							gap: 5,
-							padding: "5px 10px",
-							background: "var(--color-accent)",
-							color: "#fff",
-							border: "none",
-							borderRadius: "var(--radius-control)",
-							fontSize: 12,
-							cursor: saving ? "not-allowed" : "pointer",
-							opacity: saving ? 0.6 : 1,
-							fontFamily: "inherit",
-						}}
-					>
-						<Check size={12} strokeWidth={1.5} />
-						{saveLabel}
-					</button>
-					<button
-						onClick={onCancel}
-						style={{
-							display: "flex",
-							alignItems: "center",
-							gap: 5,
-							padding: "5px 10px",
-							background: "transparent",
-							color: "var(--color-text-muted)",
-							border: "1px solid var(--color-border)",
-							borderRadius: "var(--radius-control)",
-							fontSize: 12,
-							cursor: "pointer",
-							fontFamily: "inherit",
-						}}
-					>
-						<X size={12} strokeWidth={1.5} />
-						Cancel
-					</button>
-				</div>
-			</div>
-		</div>
-	);
+        {hasData ? (
+          <div className="flex flex-wrap gap-x-6 gap-y-2 pt-1">
+            <SetupMetric label="Trades" value={String(trades)} />
+            <SetupMetric label="Win rate" value={fmtPct(winRate, locale)} />
+            <SetupMetric
+              label="Net P&L"
+              value={fmtSignedMoney(netPnl * fxRate, currency, locale)}
+              valueClass={pnlColor(netPnl)}
+            />
+            <SetupMetric label="Profit factor" value={pf > 0 ? pf.toFixed(2) : "—"} />
+            <SetupMetric
+              label="Expectancy"
+              value={fmtSignedMoney(exp * fxRate, currency, locale)}
+              valueClass={pnlColor(exp)}
+            />
+          </div>
+        ) : null}
+      </ItemContent>
+
+      {hasData ? (
+        <ItemContent className="hidden min-w-[7.5rem] flex-none items-end gap-0.5 self-center text-right sm:flex">
+          <ItemTitle className={cn("text-[15px] font-semibold tabular-nums", pnlColor(netPnl))}>
+            {fmtSignedMoney(netPnl * fxRate, currency, locale)}
+          </ItemTitle>
+          <ItemDescription className="text-[12px] tabular-nums">
+            {trades} trade{trades === 1 ? "" : "s"} · {fmtPct(winRate, locale)} WR
+          </ItemDescription>
+        </ItemContent>
+      ) : null}
+
+      <ItemActions className="self-center">
+        <Button
+          type="button"
+          variant="outline"
+          size="xs"
+          aria-label={`Log trade from ${setup.name}`}
+          onClick={() => onConvert(setup)}
+        >
+          Trade
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-xs"
+          aria-label={`Edit ${setup.name}`}
+          onClick={() => onEdit(setup)}
+          className="text-text-dim hover:text-accent"
+        >
+          <Pencil size={13} strokeWidth={1.5} />
+        </Button>
+        {confirmDelete ? (
+          <span className="flex items-center gap-1">
+            <Button
+              type="button"
+              variant="ghost"
+              size="xs"
+              aria-label="Confirm delete"
+              onClick={() => {
+                setConfirmDelete(false);
+                onDelete(setup);
+              }}
+              className="text-loss hover:text-loss"
+            >
+              Delete
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="xs"
+              aria-label="Cancel delete"
+              onClick={() => setConfirmDelete(false)}
+            >
+              Cancel
+            </Button>
+          </span>
+        ) : (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-xs"
+            aria-label={`Delete ${setup.name}`}
+            onClick={() => setConfirmDelete(true)}
+            className="text-text-dim hover:text-loss"
+          >
+            <Trash2 size={13} strokeWidth={1.5} />
+          </Button>
+        )}
+      </ItemActions>
+    </Item>
+  );
 }
 
-// ---------------------------------------------------------------------------
-// Setup card row
-// ---------------------------------------------------------------------------
-
-interface SetupCardProps {
-	setup: Setup;
-	group: BreakGroup | undefined;
-	currency: string;
-	onEdit: (setup: Setup) => void;
-	onDelete: (setup: Setup) => void;
-	onConvert: (setup: Setup) => void;
-	editingId: string | null;
-	onSaveEdit: (name: string, description: string) => Promise<void>;
-	onCancelEdit: () => void;
-}
-
-function SetupCard({
-	setup,
-	group,
-	currency,
-	onEdit,
-	onDelete,
-	onConvert,
-	editingId,
-	onSaveEdit,
-	onCancelEdit,
-}: SetupCardProps) {
-	const [confirmDelete, setConfirmDelete] = useState(false);
-
-	const sum = group?.summary;
-	const trades = sum?.total_trades ?? 0;
-	const winRate = sum?.win_rate ?? 0;
-	const netPnl = sum?.net_pnl ?? 0;
-	const pf = sum?.profit_factor ?? 0;
-	const exp = sum?.expectancy ?? 0;
-	const hasData = trades > 0;
-
-	const isEditing = editingId === setup.id;
-	const thesis = setup.thesis || setup.description;
-	const checklist = setup.checklist ?? [];
-
-	return (
-		<div
-			style={{
-				borderBottom: "1px solid var(--color-border)",
-			}}
-		>
-			{/* Card header row */}
-			<div
-				className="flex items-start justify-between"
-				style={{ padding: "10px 16px 0" }}
-			>
-				<div className="flex flex-col gap-0.5">
-					<span
-						style={{
-							fontSize: 13,
-							fontWeight: 600,
-							color: "var(--color-text)",
-							
-						}}
-					>
-						{setup.name}
-						{setup.symbol ? (
-							<span
-								style={{
-									marginLeft: 8,
-									fontSize: 11,
-									fontWeight: 500,
-									color: "var(--color-text-muted)",
-								}}
-							>
-								{setup.symbol}
-								{setup.direction ? ` · ${setup.direction.toUpperCase()}` : ""}
-							</span>
-						) : null}
-					</span>
-					{thesis && (
-						<span style={{ fontSize: 11, color: "var(--color-text-muted)" }}>
-							{thesis}
-						</span>
-					)}
-					{checklist.length > 0 && (
-						<span
-							style={{
-								fontSize: 10,
-								color: "var(--color-text-dim)",
-								
-							}}
-						>
-							{checklist.length} checklist item
-							{checklist.length === 1 ? "" : "s"}
-						</span>
-					)}
-				</div>
-				<div className="flex items-center gap-1 shrink-0 ml-3">
-					<button
-						type="button"
-						aria-label={`Convert ${setup.name} to trade`}
-						onClick={() => onConvert(setup)}
-						style={{
-							background: "transparent",
-							border: "1px solid var(--color-border)",
-							color: "var(--color-text-muted)",
-							cursor: "pointer",
-							padding: "2px 8px",
-							borderRadius: "var(--radius-control)",
-							fontSize: 11,
-							fontFamily: "inherit",
-						}}
-					>
-						Trade
-					</button>
-					<button
-						aria-label={`Edit ${setup.name}`}
-						onClick={() => onEdit(setup)}
-						style={{
-							background: "none",
-							border: "none",
-							color: "var(--color-text-muted)",
-							cursor: "pointer",
-							padding: 4,
-							borderRadius: "var(--radius-control)",
-						}}
-						onMouseEnter={(e) => {
-							(e.currentTarget as HTMLElement).style.color =
-								"var(--color-accent)";
-						}}
-						onMouseLeave={(e) => {
-							(e.currentTarget as HTMLElement).style.color =
-								"var(--color-text-muted)";
-						}}
-					>
-						<Pencil size={13} strokeWidth={1.5} />
-					</button>
-					{confirmDelete ? (
-						<span className="flex items-center gap-1">
-							<button
-								aria-label="Confirm delete"
-								onClick={() => {
-									setConfirmDelete(false);
-									onDelete(setup);
-								}}
-								style={{
-									background: "none",
-									border: "none",
-									color: "var(--color-neg)",
-									cursor: "pointer",
-									fontSize: 11,
-									padding: "2px 4px",
-									borderRadius: "var(--radius-control)",
-								}}
-							>
-								Delete
-							</button>
-							<button
-								aria-label="Cancel delete"
-								onClick={() => setConfirmDelete(false)}
-								style={{
-									background: "none",
-									border: "none",
-									color: "var(--color-text-muted)",
-									cursor: "pointer",
-									fontSize: 11,
-									padding: "2px 4px",
-									borderRadius: "var(--radius-control)",
-								}}
-							>
-								Cancel
-							</button>
-						</span>
-					) : (
-						<button
-							aria-label={`Delete ${setup.name}`}
-							onClick={() => setConfirmDelete(true)}
-							style={{
-								background: "none",
-								border: "none",
-								color: "var(--color-text-muted)",
-								cursor: "pointer",
-								padding: 4,
-								borderRadius: "var(--radius-control)",
-							}}
-							onMouseEnter={(e) => {
-								(e.currentTarget as HTMLElement).style.color =
-									"var(--color-neg)";
-							}}
-							onMouseLeave={(e) => {
-								(e.currentTarget as HTMLElement).style.color =
-									"var(--color-text-muted)";
-							}}
-						>
-							<Trash2 size={13} strokeWidth={1.5} />
-						</button>
-					)}
-				</div>
-			</div>
-
-			{/* Stats row */}
-			<div
-				className="flex items-center gap-4 flex-wrap"
-				style={{ padding: "6px 16px 10px" }}
-			>
-				<Stat label="Trades" value={hasData ? String(trades) : "-"} />
-				<Stat
-					label="Win Rate"
-					value={hasData ? fmtPct(winRate, intlLocale()) : "-"}
-				/>
-				<Stat
-					label="Net P&L"
-					value={hasData ? fmtSignedMoney(netPnl, currency, intlLocale()) : "-"}
-					valueClass={hasData ? pnlColor(netPnl) : ""}
-				/>
-				<Stat
-					label="Profit Factor"
-					value={hasData && pf > 0 ? pf.toFixed(2) : "-"}
-				/>
-				<Stat
-					label="Expectancy"
-					value={hasData ? fmtSignedMoney(exp, currency, intlLocale()) : "-"}
-					valueClass={hasData ? pnlColor(exp) : ""}
-				/>
-			</div>
-
-			{/* Inline edit form */}
-			{isEditing && (
-				<SetupForm
-					initialName={setup.name}
-					initialDescription={thesis}
-					onSave={onSaveEdit}
-					onCancel={onCancelEdit}
-					saveLabel="Save"
-				/>
-			)}
-		</div>
-	);
-}
-
-function Stat({
-	label,
-	value,
-	valueClass = "",
+function SetupMetric({
+  label,
+  value,
+  valueClass,
 }: {
-	label: string;
-	value: string;
-	valueClass?: string;
+  label: string;
+  value: string;
+  valueClass?: string;
 }) {
-	return (
-		<div className="flex flex-col gap-0.5">
-			<span
-				style={{
-					fontSize: 10,
-					color: "var(--color-text-muted)",
-					textTransform: "uppercase",
-					letterSpacing: "0.04em",
-					fontWeight: 500,
-				}}
-			>
-				{label}
-			</span>
-			<span
-				className={`tabular-nums ${valueClass}`}
-				style={{
-					fontSize: 12,
-					
-					color: valueClass ? undefined : "var(--color-text)",
-					fontWeight: 600,
-				}}
-			>
-				{value}
-			</span>
-		</div>
-	);
+  return (
+    <div className="flex min-w-0 flex-col gap-0.5">
+      <span className="text-[10px] font-medium tracking-[0.08em] text-text-dim uppercase">
+        {label}
+      </span>
+      <span
+        className={cn(
+          "text-[13px] font-semibold tabular-nums",
+          valueClass ?? "text-text",
+          value === "—" && "font-medium text-text-dim",
+        )}
+      >
+        {value}
+      </span>
+    </div>
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -464,152 +321,185 @@ function Stat({
 // ---------------------------------------------------------------------------
 
 export function PlaybookView({
-	setups,
-	setupsLoading,
-	setupsError,
-	breakdown,
-	currency,
-	onCreate,
-	onUpdate,
-	onDelete,
+  setups,
+  setupsLoading,
+  setupsError,
+  breakdown,
+  currency,
+  onDelete,
 }: PlaybookViewProps) {
-	const [showCreateForm, setShowCreateForm] = useState(false);
-	const [editingId, setEditingId] = useState<string | null>(null);
-	const openTradeFromSetup = useUI((s) => s.openTradeFromSetup);
+  const { currency: displayCurrency, rate } = useMoneyFx(currency);
+  const fxRate = rate ?? 1;
+  const openModal = useUI((s) => s.openModal);
+  const openSetupEdit = useUI((s) => s.openSetupEdit);
+  const openTradeFromSetup = useUI((s) => s.openTradeFromSetup);
+  const [sort, setSort] = useState<SortKey>("name");
+  const [hideUnused, setHideUnused] = useState(false);
 
-	function convertSetup(setup: Setup) {
-		openTradeFromSetup({
-			setupId: setup.id,
-			symbol: setup.symbol || undefined,
-			side:
-				setup.direction === "short"
-					? "short"
-					: setup.direction === "long"
-						? "long"
-						: undefined,
-			target: setup.target_price != null ? String(setup.target_price) : undefined,
-			stop: setup.stop_price != null ? String(setup.stop_price) : undefined,
-			notes: setup.thesis || setup.description || undefined,
-		});
-	}
+  const rows = useMemo(() => {
+    const built = buildRows(setups, breakdown);
+    const filtered = hideUnused ? built.filter((r) => r.hasData) : built;
+    return sortRows(filtered, sort);
+  }, [setups, breakdown, hideUnused, sort]);
 
-	const panelRight = (
-		<button
-			onClick={() => {
-				setShowCreateForm((v) => !v);
-				setEditingId(null);
-			}}
-			style={{
-				display: "flex",
-				alignItems: "center",
-				gap: 5,
-				padding: "4px 10px",
-				background: showCreateForm
-					? "var(--color-accent-subtle)"
-					: "transparent",
-				color: showCreateForm
-					? "var(--color-accent)"
-					: "var(--color-text-muted)",
-				border: "1px solid var(--color-border)",
-				borderRadius: "var(--radius-control)",
-				fontSize: 12,
-				cursor: "pointer",
-				fontFamily: "inherit",
-			}}
-		>
-			<Plus size={13} strokeWidth={1.5} />
-			New setup
-		</button>
-	);
+  const unusedCount = useMemo(
+    () => buildRows(setups, breakdown).filter((r) => !r.hasData).length,
+    [setups, breakdown],
+  );
 
-	const renderContent = () => {
-		if (setupsLoading) {
-			return (
-				<div className="flex flex-col gap-2 p-4">
-					{Array.from({ length: 3 }).map((_, i) => (
-						<Skeleton key={i} height="64px" />
-					))}
-				</div>
-			);
-		}
+  function convertSetup(setup: Setup) {
+    openTradeFromSetup({
+      setupId: setup.id,
+      symbol: setup.symbol || undefined,
+      side: setup.direction === "short" ? "short" : setup.direction === "long" ? "long" : undefined,
+      target: setup.target_price != null ? String(setup.target_price) : undefined,
+      stop: setup.stop_price != null ? String(setup.stop_price) : undefined,
+      notes: setup.thesis || setup.description || undefined,
+    });
+  }
 
-		if (setupsError) {
-			return (
-				<p className="p-4 text-xs" style={{ color: "var(--color-neg)" }}>
-					Failed to load setups.
-				</p>
-			);
-		}
+  const toolbarIconClass = cn(
+    "size-8 pointer-coarse:size-11",
+    "border-transparent !bg-transparent hover:!bg-bg-hover",
+  );
 
-		return (
-			<>
-				{/* Create form at top */}
-				{showCreateForm && (
-					<SetupForm
-						onSave={async (name, description) => {
-							await onCreate({
-								name,
-								description,
-								thesis: description,
-								checklist: [],
-							});
-							setShowCreateForm(false);
-						}}
-						onCancel={() => setShowCreateForm(false)}
-						saveLabel="Create"
-					/>
-				)}
+  const toolbar = (
+    <div className="flex flex-wrap items-center justify-between gap-2">
+      {setups.length > 0 ? (
+        <span className="relative inline-flex items-center">
+          <ListFilter
+            size={14}
+            strokeWidth={1.75}
+            className="pointer-events-none absolute left-2.5 z-10 text-text-dim"
+            aria-hidden
+          />
+          <NativeSelect
+            size="sm"
+            aria-label="Sort setups"
+            value={sort}
+            onChange={(e) => setSort(e.target.value as SortKey)}
+            className={cn(
+              "min-w-[8.25rem] border-border !bg-transparent hover:border-border-strong hover:!bg-transparent",
+              "h-8 pr-7 pl-8 text-[12px]",
+            )}
+          >
+            <NativeSelectOption value="name">Name</NativeSelectOption>
+            <NativeSelectOption value="pnl">Net P&L</NativeSelectOption>
+            <NativeSelectOption value="winRate">Win rate</NativeSelectOption>
+            <NativeSelectOption value="trades">Trades</NativeSelectOption>
+          </NativeSelect>
+        </span>
+      ) : (
+        <span />
+      )}
+      <div className="flex flex-wrap items-center justify-end gap-2">
+        {setups.length > 0 && unusedCount > 0 ? (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={() => setHideUnused((v) => !v)}
+            aria-pressed={hideUnused}
+            aria-label={hideUnused ? "Show unused setups" : "Hide unused setups"}
+            className={cn(
+              toolbarIconClass,
+              hideUnused && "!bg-accent-bg text-accent hover:!bg-accent-bg",
+            )}
+          >
+            {hideUnused ? (
+              <Eye size={14} strokeWidth={1.75} />
+            ) : (
+              <EyeOff size={14} strokeWidth={1.75} />
+            )}
+          </Button>
+        ) : null}
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={() => openModal("new-setup")}
+          aria-label="New setup"
+          className={toolbarIconClass}
+        >
+          <Plus size={14} strokeWidth={1.75} />
+        </Button>
+      </div>
+    </div>
+  );
 
-				{setups.length === 0 && !showCreateForm ? (
-					<EmptyState
-						title="No setups yet"
-						hint="Create a setup to start tracking your playbook."
-						icon={<BookOpen size={32} strokeWidth={1.5} />}
-					/>
-				) : (
-					<div>
-						{setups.map((setup) => (
-							<SetupCard
-								key={setup.id}
-								setup={setup}
-								group={getGroupForSetup(breakdown, setup.name)}
-								currency={currency}
-								editingId={editingId}
-								onEdit={(s) => {
-									setEditingId(s.id === editingId ? null : s.id);
-									setShowCreateForm(false);
-								}}
-								onSaveEdit={async (name, description) => {
-									await onUpdate(setup.id, {
-										name,
-										description,
-										thesis: description,
-										symbol: setup.symbol,
-										direction: setup.direction,
-										target_price: setup.target_price,
-										stop_price: setup.stop_price,
-										checklist: setup.checklist ?? [],
-									});
-									setEditingId(null);
-								}}
-								onCancelEdit={() => setEditingId(null)}
-								onConvert={convertSetup}
-								onDelete={async (s) => {
-									await onDelete(s.id);
-								}}
-							/>
-						))}
-					</div>
-				)}
-			</>
-		);
-	};
+  const renderContent = () => {
+    if (setupsLoading) {
+      return (
+        <div className="flex flex-col gap-2">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} height="88px" className="rounded-control" />
+          ))}
+        </div>
+      );
+    }
 
-	return (
-		<Page>
-			<Card title="Playbook" action={panelRight}>
-				{renderContent()}
-			</Card>
-		</Page>
-	);
+    if (setupsError) {
+      return <p className="text-xs text-loss">Failed to load setups.</p>;
+    }
+
+    if (setups.length === 0) {
+      return (
+        <EmptyState
+          title="No setups yet"
+          hint="Define your edge — thesis, levels, and checklist — then log trades from each play."
+          icon={<BookOpen size={32} strokeWidth={1.5} />}
+          actions={
+            <Button
+              type="button"
+              variant="default"
+              size="sm"
+              onClick={() => openModal("new-setup")}
+            >
+              <Plus size={13} strokeWidth={1.5} />
+              New setup
+            </Button>
+          }
+        />
+      );
+    }
+
+    if (rows.length === 0) {
+      return (
+        <EmptyState
+          title="No traded setups"
+          hint="Every setup is still unused in this date range. Log a trade or show unused setups."
+          actions={
+            <Button type="button" variant="outline" size="sm" onClick={() => setHideUnused(false)}>
+              Show unused
+            </Button>
+          }
+        />
+      );
+    }
+
+    return (
+      <ItemGroup className="gap-2">
+        {rows.map((row) => (
+          <SetupItem
+            key={row.setup.id}
+            row={row}
+            currency={displayCurrency}
+            fxRate={fxRate}
+            onEdit={(s) => openSetupEdit(toSetupDraft(s))}
+            onConvert={convertSetup}
+            onDelete={async (s) => {
+              await onDelete(s.id);
+            }}
+          />
+        ))}
+      </ItemGroup>
+    );
+  };
+
+  return (
+    <Page>
+      {toolbar}
+      {renderContent()}
+    </Page>
+  );
 }

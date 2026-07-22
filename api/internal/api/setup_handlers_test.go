@@ -13,12 +13,12 @@ func TestSetupCRUDAndIsolation(t *testing.T) {
 	tokA := registerAndLogin(t, s, "a@s.com")
 	tokB := registerAndLogin(t, s, "b@s.com")
 
-	body := `{"name":"Breakout","description":"ORB","thesis":"Hold VWAP","symbol":"AAPL","direction":"long","target_price":110,"stop_price":95,"checklist":["Above VWAP","Volume spike"]}`
+	body := `{"name":"ORB VWAP","description":"ORB","thesis":"Hold VWAP","symbol":"AAPL","direction":"long","target_price":110,"stop_price":95,"checklist":["Above VWAP","Volume spike"]}`
 	rec := do(s, http.MethodPost, "/api/v1/setups", body, tokA)
 	require.Equal(t, http.StatusCreated, rec.Code, rec.Body.String())
 	var created map[string]any
 	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &created))
-	require.Equal(t, "Breakout", created["name"])
+	require.Equal(t, "ORB VWAP", created["name"])
 	require.Equal(t, "Hold VWAP", created["thesis"])
 	require.Equal(t, "AAPL", created["symbol"])
 	require.Equal(t, "long", created["direction"])
@@ -29,13 +29,13 @@ func TestSetupCRUDAndIsolation(t *testing.T) {
 	rec = do(s, http.MethodGet, "/api/v1/setups", "", tokB)
 	var setups []map[string]any
 	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &setups))
-	require.Len(t, setups, 0)
+	require.Len(t, setups, 9)
 
 	rec = do(s, http.MethodGet, "/api/v1/setups", "", tokA)
 	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &setups))
-	require.Len(t, setups, 1)
+	require.Len(t, setups, 10)
 
-	patch := `{"name":"Breakout","thesis":"Updated","symbol":"MSFT","direction":"short","checklist":["Level held"]}`
+	patch := `{"name":"ORB VWAP","thesis":"Updated","symbol":"MSFT","direction":"short","checklist":["Level held"]}`
 	rec = do(s, http.MethodPatch, "/api/v1/setups/"+id, patch, tokA)
 	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
 	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &created))

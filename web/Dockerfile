@@ -1,10 +1,9 @@
-FROM node:22 AS build
+FROM oven/bun:canary AS build
 WORKDIR /web
-RUN corepack enable
-COPY web/package.json web/pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
+COPY web/package.json web/bun.lock ./
+RUN bun install --frozen-lockfile
 COPY web/ ./
-RUN pnpm run build
+RUN bun run build
 
 FROM nginx:alpine
 COPY web/nginx.conf /etc/nginx/conf.d/default.conf

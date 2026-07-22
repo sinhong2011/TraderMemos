@@ -21,6 +21,23 @@ func (q *Queries) ClearTradeExecutions(ctx context.Context, tradeID string) erro
 	return err
 }
 
+const deleteTrade = `-- name: DeleteTrade :execrows
+DELETE FROM trades WHERE id = ? AND user_id = ?
+`
+
+type DeleteTradeParams struct {
+	ID     string `json:"id"`
+	UserID string `json:"user_id"`
+}
+
+func (q *Queries) DeleteTrade(ctx context.Context, arg DeleteTradeParams) (int64, error) {
+	result, err := q.db.ExecContext(ctx, deleteTrade, arg.ID, arg.UserID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
+}
+
 const deleteTradesForAccount = `-- name: DeleteTradesForAccount :exec
 DELETE FROM trades WHERE user_id = ? AND account_id = ?
 `

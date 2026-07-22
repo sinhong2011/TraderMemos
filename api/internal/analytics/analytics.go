@@ -10,6 +10,7 @@ import (
 type ClosedTrade struct {
 	NetPnl    float64
 	FeesTotal float64
+	OpenedAt  time.Time
 	ClosedAt  time.Time
 }
 
@@ -125,11 +126,16 @@ func EquityCurve(startingBalance float64, flows []CashFlow, ts []ClosedTrade) Eq
 	return out
 }
 
-// DailyPnl aggregates net P&L per calendar day (UTC). Feeds the Phase-2 calendar.
-func DailyPnl(ts []ClosedTrade) map[string]float64 {
+// DailyPnl aggregates net P&L per calendar day (UTC). Feeds the calendar heatmap.
+// basis "open" keys by opened_at; anything else (including "") keys by closed_at.
+func DailyPnl(ts []ClosedTrade, basis string) map[string]float64 {
 	out := map[string]float64{}
 	for _, t := range ts {
-		day := t.ClosedAt.UTC().Format("2006-01-02")
+		at := t.ClosedAt
+		if basis == "open" {
+			at = t.OpenedAt
+		}
+		day := at.UTC().Format("2006-01-02")
 		out[day] = money.Round2(out[day] + t.NetPnl)
 	}
 	return out
