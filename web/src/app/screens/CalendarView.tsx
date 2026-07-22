@@ -1,55 +1,23 @@
-import {
-  ArrowDownRight,
-  ArrowUpRight,
-  CalendarDays,
-  ChevronLeft,
-  ChevronRight,
-  X,
-} from "lucide-react";
+import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
 import { useRef, useState } from "react";
 import { CalendarDayHoverCard } from "../../components/CalendarDayHoverCard";
 import { CalendarYearView } from "../../components/CalendarYearView";
 import { Card } from "../../components/Card";
+import { DayTradesDrawer } from "../../components/DayTradesDrawer";
 import { WinLossRecord } from "../../components/WinLossRecord";
-import {
-  Drawer,
-  DrawerBody,
-  DrawerClose,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-} from "../../components/Drawer";
 import { EmptyState } from "../../components/EmptyState";
-import {
-  Item,
-  ItemActions,
-  ItemContent,
-  ItemDescription,
-  ItemGroup,
-  ItemMedia,
-  ItemTitle,
-} from "../../components/Item";
 import { Modal } from "../../components/Modal";
 import { MonthPicker } from "../../components/MonthPicker";
 import { Page } from "../../components/Page";
-import { Pill } from "../../components/Pill";
 import { SegmentedControl } from "../../components/SegmentedControl";
 import { Skeleton } from "../../components/Skeleton";
 import { Button } from "../../components/ui/button";
 import { pnlBgTint, pnlColor, heroPnlClass } from "../../components/theme-tokens";
 
-import { TradeRowMenu } from "../../components/TradeRowMenu";
-import { marketLabel, tradeStatus } from "../../components/tradeColumns";
 import type { Account, Summary, Trade } from "../../lib/api/types";
 import { type DayRecord, monthGrid, weekSummaries } from "../../lib/calendar";
 import { cn } from "../../lib/cn";
-import {
-  fmtDuration,
-  fmtMoney,
-  fmtPct,
-  fmtSignedMoney,
-  fmtSignedMoneyCompact,
-} from "../../lib/format";
+import { fmtPct, fmtSignedMoney, fmtSignedMoneyCompact } from "../../lib/format";
 import { useMoneyFx } from "../../lib/hooks/useMoneyFx";
 import { intlLocale } from "../../lib/locale";
 import { usePrivacyMode } from "../../lib/displayPrefs";
@@ -122,15 +90,6 @@ function todayString(): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
-function formatDayTitle(isoDate: string): string {
-  return new Date(`${isoDate}T00:00:00`).toLocaleDateString(intlLocale(), {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
-
 function dayTradeCount(rec: DayRecord | undefined): number {
   if (!rec) return 0;
   return rec.wins + rec.losses;
@@ -141,198 +100,6 @@ function dayWinRate(rec: DayRecord | undefined): string | null {
   const n = rec.wins + rec.losses;
   if (n === 0) return null;
   return `${((rec.wins / n) * 100).toFixed(1)}%`;
-}
-
-function tradeCardMeta(trade: Trade, currency: string, fxRate = 1): string {
-  const qty = trade.qty_opened.toFixed(trade.qty_opened % 1 === 0 ? 0 : 2);
-  const entry = fmtMoney(trade.avg_entry_price * fxRate, currency, intlLocale());
-  const exit =
-    trade.avg_exit_price != null
-      ? fmtMoney(trade.avg_exit_price * fxRate, currency, intlLocale())
-      : "—";
-  const hold = fmtDuration(trade.time_in_trade_secs);
-  const holdPart = hold === "-" ? null : hold;
-  return [qty, `${entry} → ${exit}`, holdPart].filter(Boolean).join(" · ");
-}
-
-function DayTradeItem({
-  trade,
-  currency,
-  fxRate = 1,
-  onSelectTrade,
-  onOpenFullPage,
-  onFilterSymbol,
-  onDeleted,
-}: {
-  trade: Trade;
-  currency: string;
-  fxRate?: number;
-  onSelectTrade: (t: Trade) => void;
-  onOpenFullPage: (t: Trade) => void;
-  onFilterSymbol?: (symbol: string) => void;
-  onDeleted?: (t: Trade) => void;
-}) {
-  usePrivacyMode();
-  const status = tradeStatus(trade);
-  const isLong = trade.direction === "long";
-  const DirIcon = isLong ? ArrowUpRight : ArrowDownRight;
-
-  return (
-    <Item
-      variant="default"
-      size="default"
-      className={cn(
-        "w-full cursor-pointer gap-3 border-transparent bg-bg-hover px-3.5 py-3",
-        "hover:bg-bg-panel focus-visible:bg-bg-panel",
-      )}
-      tabIndex={0}
-      onClick={() => onSelectTrade(trade)}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          onSelectTrade(trade);
-        }
-      }}
-    >
-      <ItemMedia
-        variant="icon"
-        aria-hidden
-        className={cn(
-          "size-9 self-center",
-          isLong ? "bg-tint-pos text-profit" : "bg-tint-neg text-loss",
-        )}
-      >
-        <DirIcon size={16} strokeWidth={2} aria-label={isLong ? "long" : "short"} />
-      </ItemMedia>
-      <ItemContent className="gap-1">
-        <ItemTitle className="gap-2 text-[15px]">
-          <span className="font-semibold tracking-tight text-accent">{trade.symbol}</span>
-          <Pill tone={status.tone} title={status.label === "BE" ? "Break-even" : undefined}>
-            {status.label}
-          </Pill>
-          <span className="text-[12px] font-medium tracking-wide text-text-muted">
-            {marketLabel(trade.instrument_type)}
-          </span>
-        </ItemTitle>
-        <ItemDescription className="text-[13px] text-text-muted">
-          {tradeCardMeta(trade, currency, fxRate)}
-        </ItemDescription>
-      </ItemContent>
-      <ItemContent className="items-end gap-0.5 text-right">
-        {trade.net_pnl != null ? (
-          <>
-            <ItemTitle
-              className={cn("text-[15px] font-semibold tabular-nums", pnlColor(trade.net_pnl))}
-            >
-              {fmtSignedMoney(trade.net_pnl * fxRate, currency, intlLocale())}
-            </ItemTitle>
-            {trade.return_pct != null && (
-              <ItemDescription
-                className={cn("text-[13px] tabular-nums", pnlColor(trade.return_pct))}
-              >
-                {trade.return_pct >= 0 ? "+" : ""}
-                {trade.return_pct.toFixed(2)}%
-              </ItemDescription>
-            )}
-          </>
-        ) : (
-          <ItemTitle className="text-[15px] text-text-muted">—</ItemTitle>
-        )}
-      </ItemContent>
-      <ItemActions
-        className="self-center"
-        onClick={(e) => e.stopPropagation()}
-        onKeyDown={(e) => e.stopPropagation()}
-      >
-        <TradeRowMenu
-          trade={trade}
-          actions={{
-            onOpenDrawer: onSelectTrade,
-            onOpenFullPage,
-            onFilterSymbol,
-            onDeleted,
-          }}
-        />
-      </ItemActions>
-    </Item>
-  );
-}
-
-function DayTradesDrawer({
-  selectedDay,
-  onClose,
-  dayTrades,
-  dayTradesLoading,
-  dayTradesError,
-  currency,
-  fxRate = 1,
-  onSelectTrade,
-  onOpenFullPage,
-  onFilterSymbol,
-  onDeleted,
-}: {
-  selectedDay: string | null;
-  onClose: () => void;
-  dayTrades: Trade[];
-  dayTradesLoading: boolean;
-  dayTradesError: boolean;
-  currency: string;
-  fxRate?: number;
-  onSelectTrade: (t: Trade) => void;
-  onOpenFullPage: (t: Trade) => void;
-  onFilterSymbol?: (symbol: string) => void;
-  onDeleted?: (t: Trade) => void;
-}) {
-  const open = Boolean(selectedDay);
-  const title = selectedDay ? `Trades — ${formatDayTitle(selectedDay)}` : "Day trades";
-
-  return (
-    <Drawer
-      open={open}
-      onOpenChange={(v) => {
-        if (!v) onClose();
-      }}
-      modal="trap-focus"
-    >
-      <DrawerContent className="[--drawer-content-width:min(440px,calc(100vw-2*var(--drawer-inset)))]">
-        <DrawerHeader className="px-4 py-3">
-          <DrawerTitle>{title}</DrawerTitle>
-          <DrawerClose
-            aria-label="Close"
-            className="ml-auto flex cursor-pointer rounded-control border-none bg-transparent p-1 text-text-muted transition-colors hover:bg-bg-hover hover:text-text"
-          >
-            <X size={18} strokeWidth={1.5} />
-          </DrawerClose>
-        </DrawerHeader>
-        <DrawerBody className="gap-0 p-0">
-          {dayTradesLoading ? (
-            <Skeleton height="160px" className="m-4" />
-          ) : dayTradesError ? (
-            <p className="p-4 text-xs text-loss">Failed to load trades.</p>
-          ) : dayTrades.length === 0 ? (
-            <div className="p-6">
-              <EmptyState title="No trades on this day" />
-            </div>
-          ) : (
-            <ItemGroup className="gap-2 p-4">
-              {dayTrades.map((trade) => (
-                <DayTradeItem
-                  key={trade.id}
-                  trade={trade}
-                  currency={currency}
-                  fxRate={fxRate}
-                  onSelectTrade={onSelectTrade}
-                  onOpenFullPage={onOpenFullPage}
-                  onFilterSymbol={onFilterSymbol}
-                  onDeleted={onDeleted}
-                />
-              ))}
-            </ItemGroup>
-          )}
-        </DrawerBody>
-      </DrawerContent>
-    </Drawer>
-  );
 }
 
 export function CalendarView({
@@ -670,16 +437,13 @@ export function CalendarView({
                           const dayClass = cn(
                             "relative flex h-full min-h-0 w-full flex-col justify-start rounded-control px-1 py-1 text-left transition-colors duration-150 md:px-2 md:py-1.5",
                             hasPnl ? "cursor-pointer" : "cursor-default",
-                            isToday && !hasPnl && "bg-tint-signal",
                             isSelected && "ring-1 ring-accent ring-inset",
                             WEEKEND_DOW.has(di) && "hidden md:flex",
                           );
                           const dayStyle = {
                             background: hasPnl
                               ? pnlBgTint(cell.pnl!)
-                              : isToday
-                                ? undefined
-                                : "var(--color-surface-raised)",
+                              : "var(--color-surface-raised)",
                           };
                           const dayAria = hasPnl
                             ? `${cell.date} ${fmtSignedMoney(money(cell.pnl!), displayCurrency, intlLocale())}`

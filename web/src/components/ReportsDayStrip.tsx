@@ -12,7 +12,7 @@ export interface DayStripItem {
   trades: number;
 }
 
-/** Closed-trade daily P&L strip, oldest → newest. */
+/** Closed-trade daily P&L strip, newest → oldest. */
 export function buildReportsDayStrip(
   trades: Trade[],
   tradePnl: (t: Trade) => number = (t) => t.net_pnl ?? 0,
@@ -34,7 +34,7 @@ export function buildReportsDayStrip(
       pnl: Math.round(s.pnl * 100) / 100,
       trades: s.trades,
     }))
-    .sort((a, b) => a.date.localeCompare(b.date));
+    .sort((a, b) => b.date.localeCompare(a.date));
 }
 
 export interface ReportsDayStripProps {
@@ -43,9 +43,10 @@ export interface ReportsDayStripProps {
   /** Kept for call-site compatibility; display currency/fx come from ReportsDisplayContext. */
   currency?: string;
   fxRate?: number;
+  onDayClick?: (date: string) => void;
 }
 
-export function ReportsDayStrip({ trades, loading }: ReportsDayStripProps) {
+export function ReportsDayStrip({ trades, loading, onDayClick }: ReportsDayStripProps) {
   usePrivacyMode();
   useDisplayTimePrefs();
   const money = useReportsMoney();
@@ -74,17 +75,22 @@ export function ReportsDayStrip({ trades, loading }: ReportsDayStripProps) {
         {days.map((d) => {
           const dow = new Date(`${d.date}T12:00:00Z`).getUTCDay();
           const isWeekend = dow === 0 || dow === 6;
+          const label = fmtDayShort(`${d.date}T12:00:00Z`, locale);
+          const CardTag = onDayClick ? "button" : "div";
           return (
-            <div
+            <CardTag
               key={d.date}
+              type={onDayClick ? "button" : undefined}
+              onClick={onDayClick ? () => onDayClick(d.date) : undefined}
               className={cn(
-                "flex w-[88px] shrink-0 flex-col rounded-card bg-bg-panel px-2.5 py-2",
+                "flex w-[88px] shrink-0 flex-col rounded-card bg-bg-panel px-2.5 py-2 text-left",
+                onDayClick &&
+                  "cursor-pointer border-none transition-colors hover:bg-bg-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40",
                 isWeekend && "opacity-60",
               )}
+              aria-label={onDayClick ? `View trades for ${label}` : undefined}
             >
-              <p className="text-[10px] font-medium text-text-muted">
-                {fmtDayShort(`${d.date}T12:00:00Z`, locale)}
-              </p>
+              <p className="text-[10px] font-medium text-text-muted">{label}</p>
               <p
                 className={cn(
                   "mt-1.5 text-[13px] font-semibold leading-none tabular-nums tracking-[-0.02em]",
@@ -96,7 +102,7 @@ export function ReportsDayStrip({ trades, loading }: ReportsDayStripProps) {
               <p className="mt-1 text-[9px] text-text-dim">
                 {d.trades} {d.trades === 1 ? "trade" : "trades"}
               </p>
-            </div>
+            </CardTag>
           );
         })}
       </div>

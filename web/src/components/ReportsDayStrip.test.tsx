@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vite-plus/test";
+import userEvent from "@testing-library/user-event";
+import { describe, expect, it, vi } from "vite-plus/test";
 import type { Trade } from "../lib/api/types";
 import { ReportsDisplayProvider } from "./ReportsDisplayContext";
 import { buildReportsDayStrip, ReportsDayStrip } from "./ReportsDayStrip";
@@ -29,7 +30,7 @@ function trade(
 }
 
 describe("buildReportsDayStrip", () => {
-  it("aggregates closed trades by day and sorts ascending", () => {
+  it("aggregates closed trades by day and sorts descending", () => {
     const days = buildReportsDayStrip([
       trade({ id: "1", net_pnl: 100, closed_at: "2024-05-07T15:00:00Z", status: "closed" }),
       trade({ id: "2", net_pnl: -40, closed_at: "2024-05-06T15:00:00Z", status: "closed" }),
@@ -42,8 +43,8 @@ describe("buildReportsDayStrip", () => {
       }),
     ]);
     expect(days).toEqual([
-      { date: "2024-05-06", pnl: -40, trades: 1 },
       { date: "2024-05-07", pnl: 125, trades: 2 },
+      { date: "2024-05-06", pnl: -40, trades: 1 },
     ]);
   });
 });
@@ -113,5 +114,25 @@ describe("ReportsDayStrip", () => {
       </ReportsDisplayProvider>,
     );
     expect(screen.getByText("25%")).toBeInTheDocument();
+  });
+
+  it("calls onDayClick when a day card is clicked", async () => {
+    const user = userEvent.setup();
+    const onDayClick = vi.fn<(date: string) => void>();
+    render(
+      <ReportsDayStrip
+        trades={[
+          trade({
+            id: "1",
+            net_pnl: 100,
+            closed_at: "2024-05-06T15:00:00Z",
+            status: "closed",
+          }),
+        ]}
+        onDayClick={onDayClick}
+      />,
+    );
+    await user.click(screen.getByRole("button", { name: /view trades for/i }));
+    expect(onDayClick).toHaveBeenCalledWith("2024-05-06");
   });
 });

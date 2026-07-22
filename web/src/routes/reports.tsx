@@ -8,6 +8,8 @@ import {
 } from "../app/screens/ReportsView";
 import type { ReportsDuration, ReportsSide } from "../components/ReportsControlBar";
 import type { PnlMode, UnitMode } from "../components/ReportsDisplayContext";
+import { TradeDetailSheet } from "../components/TradeDetailSheet";
+import { tradesOnDay } from "../lib/calendar";
 import { accountBaseCurrency } from "../lib/displayPrefs";
 import { useFilterParams, useFilters } from "../lib/filters";
 import { useAccounts } from "../lib/hooks/useAccounts";
@@ -49,7 +51,10 @@ export const Route = createFileRoute("/reports")({
 function ReportsPage() {
   const filters = useFilterParams();
   const accountId = useFilters((s) => s.accountId);
+  const setSymbol = useFilters((s) => s.setSymbol);
   const [dim, setDim] = useState<BreakdownDim>("setup");
+  const [selectedDay, setSelectedDay] = useState<string | null>(null);
+  const [selectedTradeId, setSelectedTradeId] = useState<string | null>(null);
   const { tab, side, dur, pnl, unit } = Route.useSearch();
   const navigate = Route.useNavigate();
   const onTabChange = (next: ReportsTab) =>
@@ -76,6 +81,10 @@ function ReportsPage() {
   const rSummaryQ = useRSummary(analyticsFilters);
   const equityQ = useEquityCurve(analyticsFilters);
   const tradesQ = useTrades(analyticsFilters);
+  const dayTrades = useMemo(() => {
+    if (!selectedDay) return [];
+    return tradesOnDay(tradesQ.data ?? [], selectedDay, "close");
+  }, [selectedDay, tradesQ.data]);
   const breakdownQ = useBreakdown(dim, analyticsFilters);
   const dayOfWeekBreakdownQ = useBreakdown("day_of_week", analyticsFilters);
   const hourOfDayBreakdownQ = useBreakdown("hour_of_day", analyticsFilters);
@@ -92,54 +101,68 @@ function ReportsPage() {
   }, [accountsQ.data, accountId]);
 
   return (
-    <ReportsView
-      summary={summaryQ.data}
-      summaryLoading={summaryQ.isLoading}
-      summaryError={summaryQ.isError}
-      rSummary={rSummaryQ.data}
-      rSummaryLoading={rSummaryQ.isLoading}
-      rSummaryError={rSummaryQ.isError}
-      trades={tradesQ.data ?? []}
-      tradesLoading={tradesQ.isLoading}
-      tradesError={tradesQ.isError}
-      equity={equityQ.data}
-      equityLoading={equityQ.isLoading}
-      equityError={equityQ.isError}
-      breakdown={breakdownQ.data ?? []}
-      loading={breakdownQ.isLoading}
-      error={breakdownQ.isError}
-      dayOfWeekBreakdown={dayOfWeekBreakdownQ.data ?? []}
-      dayOfWeekBreakdownLoading={dayOfWeekBreakdownQ.isLoading}
-      dayOfWeekBreakdownError={dayOfWeekBreakdownQ.isError}
-      hourOfDayBreakdown={hourOfDayBreakdownQ.data ?? []}
-      hourOfDayBreakdownLoading={hourOfDayBreakdownQ.isLoading}
-      hourOfDayBreakdownError={hourOfDayBreakdownQ.isError}
-      symbolBreakdown={symbolBreakdownQ.data ?? []}
-      symbolBreakdownLoading={symbolBreakdownQ.isLoading}
-      symbolBreakdownError={symbolBreakdownQ.isError}
-      tagBreakdown={tagBreakdownQ.data ?? []}
-      tagBreakdownLoading={tagBreakdownQ.isLoading}
-      tagBreakdownError={tagBreakdownQ.isError}
-      sessionBreakdown={sessionBreakdownQ.data ?? []}
-      sessionBreakdownLoading={sessionBreakdownQ.isLoading}
-      sessionBreakdownError={sessionBreakdownQ.isError}
-      qualityBreakdown={qualityBreakdownQ.data ?? []}
-      qualityBreakdownLoading={qualityBreakdownQ.isLoading}
-      qualityBreakdownError={qualityBreakdownQ.isError}
-      currency={currency}
-      dim={dim}
-      onDimChange={setDim}
-      tab={tab}
-      onTabChange={onTabChange}
-      side={side}
-      duration={dur}
-      onSideChange={onSideChange}
-      onDurationChange={onDurationChange}
-      pnlMode={pnl}
-      unitMode={unit}
-      denominator={denominator}
-      onPnlModeChange={onPnlModeChange}
-      onUnitModeChange={onUnitModeChange}
-    />
+    <>
+      <ReportsView
+        summary={summaryQ.data}
+        summaryLoading={summaryQ.isLoading}
+        summaryError={summaryQ.isError}
+        rSummary={rSummaryQ.data}
+        rSummaryLoading={rSummaryQ.isLoading}
+        rSummaryError={rSummaryQ.isError}
+        trades={tradesQ.data ?? []}
+        tradesLoading={tradesQ.isLoading}
+        tradesError={tradesQ.isError}
+        equity={equityQ.data}
+        equityLoading={equityQ.isLoading}
+        equityError={equityQ.isError}
+        breakdown={breakdownQ.data ?? []}
+        loading={breakdownQ.isLoading}
+        error={breakdownQ.isError}
+        dayOfWeekBreakdown={dayOfWeekBreakdownQ.data ?? []}
+        dayOfWeekBreakdownLoading={dayOfWeekBreakdownQ.isLoading}
+        dayOfWeekBreakdownError={dayOfWeekBreakdownQ.isError}
+        hourOfDayBreakdown={hourOfDayBreakdownQ.data ?? []}
+        hourOfDayBreakdownLoading={hourOfDayBreakdownQ.isLoading}
+        hourOfDayBreakdownError={hourOfDayBreakdownQ.isError}
+        symbolBreakdown={symbolBreakdownQ.data ?? []}
+        symbolBreakdownLoading={symbolBreakdownQ.isLoading}
+        symbolBreakdownError={symbolBreakdownQ.isError}
+        tagBreakdown={tagBreakdownQ.data ?? []}
+        tagBreakdownLoading={tagBreakdownQ.isLoading}
+        tagBreakdownError={tagBreakdownQ.isError}
+        sessionBreakdown={sessionBreakdownQ.data ?? []}
+        sessionBreakdownLoading={sessionBreakdownQ.isLoading}
+        sessionBreakdownError={sessionBreakdownQ.isError}
+        qualityBreakdown={qualityBreakdownQ.data ?? []}
+        qualityBreakdownLoading={qualityBreakdownQ.isLoading}
+        qualityBreakdownError={qualityBreakdownQ.isError}
+        currency={currency}
+        dim={dim}
+        onDimChange={setDim}
+        tab={tab}
+        onTabChange={onTabChange}
+        side={side}
+        duration={dur}
+        onSideChange={onSideChange}
+        onDurationChange={onDurationChange}
+        pnlMode={pnl}
+        unitMode={unit}
+        denominator={denominator}
+        onPnlModeChange={onPnlModeChange}
+        onUnitModeChange={onUnitModeChange}
+        selectedDay={selectedDay}
+        onSelectDay={setSelectedDay}
+        dayTrades={dayTrades}
+        dayTradesLoading={Boolean(selectedDay) && tradesQ.isLoading}
+        dayTradesError={Boolean(selectedDay) && tradesQ.isError}
+        onSelectTrade={(t) => setSelectedTradeId(t.id)}
+        onOpenFullPage={(t) => void navigate({ to: "/trades/$id", params: { id: t.id } })}
+        onFilterSymbol={(symbol) => setSymbol(symbol)}
+        onTradeDeleted={(t) => {
+          if (selectedTradeId === t.id) setSelectedTradeId(null);
+        }}
+      />
+      <TradeDetailSheet tradeId={selectedTradeId} onClose={() => setSelectedTradeId(null)} />
+    </>
   );
 }

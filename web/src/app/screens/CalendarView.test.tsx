@@ -1,5 +1,7 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import type { ReactElement } from "react";
 import { describe, expect, it, vi } from "vite-plus/test";
 import type { Summary, Trade } from "../../lib/api/types";
 import { CalendarView } from "./CalendarView";
@@ -11,6 +13,11 @@ vi.mock("../../components/Toast", () => ({
 vi.mock("../../lib/hooks/useMoneyFx", () => ({
   useMoneyFx: (currency: string) => ({ currency, rate: 1 }),
 }));
+
+function wrap(ui: ReactElement) {
+  const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  return render(<QueryClientProvider client={qc}>{ui}</QueryClientProvider>);
+}
 
 const MONTH_SUMMARY = {
   total_trades: 4,
@@ -79,7 +86,7 @@ const BASE = {
 
 describe("CalendarView", () => {
   it("renders compact P&L and opens month summary details in a modal", async () => {
-    render(<CalendarView {...BASE} />);
+    wrap(<CalendarView {...BASE} />);
     expect(screen.getByRole("button", { name: /July 2026, choose month/i })).toBeInTheDocument();
 
     const pnlBtn = screen.getByRole("button", { name: /-\$61/ });
@@ -93,7 +100,7 @@ describe("CalendarView", () => {
   });
 
   it("renders day cells with pnl and records, plus WEEK column", () => {
-    render(<CalendarView {...BASE} />);
+    wrap(<CalendarView {...BASE} />);
     // Compact money may render -$20 or -$20.03 depending on magnitude
     expect(screen.getByText(/-\$20/)).toBeInTheDocument();
     expect(screen.getByText(/-\$41/)).toBeInTheDocument();
@@ -103,7 +110,7 @@ describe("CalendarView", () => {
   });
 
   it("renders year overview with twelve month cards and trade counts", () => {
-    render(
+    wrap(
       <CalendarView
         {...BASE}
         mode="year"
@@ -119,13 +126,17 @@ describe("CalendarView", () => {
   });
 
   it("opens day trades as a card list in a drawer when a day is selected", () => {
-    render(<CalendarView {...BASE} selectedDay="2026-07-01" dayTrades={[DAY_TRADE]} />);
-    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    wrap(<CalendarView {...BASE} selectedDay="2026-07-01" dayTrades={[DAY_TRADE]} />);
+    const dialog = screen.getByRole("dialog");
+    expect(dialog).toBeInTheDocument();
     expect(screen.getByText(/Trades —/i)).toBeInTheDocument();
+    expect(dialog).toHaveTextContent("1 trade");
+    expect(dialog).toHaveTextContent("1W");
+    expect(dialog).toHaveTextContent("100.0%");
     expect(screen.getByRole("list")).toBeInTheDocument();
     expect(screen.getByText("AAPL")).toBeInTheDocument();
     expect(screen.getByText("WIN")).toBeInTheDocument();
     expect(screen.getByText("STK")).toBeInTheDocument();
-    expect(screen.getByText("+$1.00")).toBeInTheDocument();
+    expect(screen.getAllByText("+$1.00").length).toBeGreaterThanOrEqual(1);
   });
 });

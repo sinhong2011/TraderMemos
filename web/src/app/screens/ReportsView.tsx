@@ -15,6 +15,7 @@ import {
 import { Card } from "../../components/Card";
 import { ChartFrame, chartTheme } from "../../components/ChartFrame";
 import { DataTable } from "../../components/DataTable";
+import { DayTradesDrawer } from "../../components/DayTradesDrawer";
 import { EmptyState } from "../../components/EmptyState";
 import { Page } from "../../components/Page";
 import { ReportsBreakdownCard } from "../../components/ReportsBreakdownCard";
@@ -137,6 +138,15 @@ export interface ReportsViewProps {
   currency: string;
   dim: BreakdownDim;
   onDimChange: (dim: BreakdownDim) => void;
+  selectedDay: string | null;
+  onSelectDay: (date: string | null) => void;
+  dayTrades: Trade[];
+  dayTradesLoading: boolean;
+  dayTradesError: boolean;
+  onSelectTrade: (t: Trade) => void;
+  onOpenFullPage: (t: Trade) => void;
+  onFilterSymbol?: (symbol: string) => void;
+  onTradeDeleted?: (t: Trade) => void;
 }
 
 // ---------------------------------------------------------------------------
@@ -190,6 +200,7 @@ function SummaryMetricsGrid({
   fxRate = 1,
   equity,
   equityLoading,
+  onDayClick,
 }: {
   summary: Summary;
   trades: Trade[];
@@ -198,6 +209,7 @@ function SummaryMetricsGrid({
   fxRate?: number;
   equity?: EquityCurve;
   equityLoading?: boolean;
+  onDayClick?: (date: string) => void;
 }) {
   usePrivacyMode();
   useDisplayTimePrefs();
@@ -289,6 +301,7 @@ function SummaryMetricsGrid({
         loading={tradesLoading}
         currency={currency}
         fxRate={fxRate}
+        onDayClick={onDayClick}
       />
 
       <ReportsSummaryBento
@@ -529,6 +542,15 @@ export function ReportsView({
   currency,
   dim,
   onDimChange,
+  selectedDay,
+  onSelectDay,
+  dayTrades,
+  dayTradesLoading,
+  dayTradesError,
+  onSelectTrade,
+  onOpenFullPage,
+  onFilterSymbol,
+  onTradeDeleted,
 }: ReportsViewProps) {
   usePrivacyMode();
   const { currency: displayCurrency, rate } = useMoneyFx(currency);
@@ -621,6 +643,7 @@ export function ReportsView({
                 fxRate={fxRate}
                 equity={equity}
                 equityLoading={equityLoading}
+                onDayClick={(date) => onSelectDay(date)}
               />
             ) : null}
 
@@ -715,6 +738,19 @@ export function ReportsView({
           </TabsContent>
         </Tabs>
       </Page>
+      <DayTradesDrawer
+        selectedDay={selectedDay}
+        onClose={() => onSelectDay(null)}
+        dayTrades={dayTrades}
+        dayTradesLoading={dayTradesLoading}
+        dayTradesError={dayTradesError}
+        currency={displayCurrency}
+        fxRate={fxRate}
+        onSelectTrade={onSelectTrade}
+        onOpenFullPage={onOpenFullPage}
+        onFilterSymbol={onFilterSymbol}
+        onDeleted={onTradeDeleted}
+      />
     </ReportsDisplayProvider>
   );
 }
