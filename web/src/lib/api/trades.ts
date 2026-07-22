@@ -1,9 +1,17 @@
 import { apiFetch, qs } from "./client";
+import type { TradeCoachReview } from "./trades.coach.types";
 import type { Filters, Trade, TradeDetail } from "./types";
+
+export type { TradeCoachApiNote, TradeCoachReview, TradeCoachSource } from "./trades.coach.types";
 
 export const tradesApi = {
   list: (f: Filters) => apiFetch<Trade[]>(`/trades${qs(f as Record<string, string | undefined>)}`),
   get: (id: string) => apiFetch<TradeDetail>(`/trades/${id}`),
+  /** LLM coach review when enabled in settings; otherwise source "off". */
+  coach: (id: string) =>
+    apiFetch<TradeCoachReview>(`/trades/${id}/coach`, {
+      method: "POST",
+    }),
   patch: (
     id: string,
     body: {

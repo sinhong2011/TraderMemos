@@ -1,4 +1,4 @@
-import { ArrowLeft, Pencil, Trash2, Zap } from "lucide-react";
+import { ArrowLeft, Loader2, Pencil, RefreshCw, Trash2, Zap } from "lucide-react";
 import {
   forwardRef,
   useEffect,
@@ -49,6 +49,7 @@ import {
   type TradeCoachNote,
   type TradeInsights,
 } from "../../lib/tradeInsights";
+import { useTradeCoach } from "../../lib/hooks/useTradeCoach";
 import { gradeFromInt, intFromGrade, TRADE_SESSIONS, type TradeGrade } from "../../lib/tradeGrades";
 import { getDisplayTimeOpts, useDisplayTimePrefs, usePrivacyMode } from "../../lib/displayPrefs";
 
@@ -512,16 +513,49 @@ function TradeCoachNotes({ notes }: { notes: TradeCoachNote[] }) {
   );
 }
 
+function toCoachNotes(
+  notes: { id: string; tone: string; headline: string; detail: string; priority: number }[],
+): TradeCoachNote[] {
+  return notes.map((n) => ({
+    id: n.id,
+    tone: (["neg", "warn", "pos", "tip"].includes(n.tone) ? n.tone : "tip") as CoachTone,
+    headline: n.headline,
+    detail: n.detail,
+    priority: n.priority,
+  }));
+}
+
 function TradeCoachPanel({ trade, insights }: { trade: TradeDetail; insights: TradeInsights }) {
   usePrivacyMode();
   const [open, setOpen] = useState(true);
   const currency = trade.pnl_currency;
-  const coachNotes = generateTradeCoachNotes(trade, insights);
-  const hasExcursion = insights.mae != null || insights.mfe != null;
+  const ruleNotes = generateTradeCoachNotes(trade, insights);
+  const coach = useTradeCoach(trade.id);
+  const { reset: resetCoach } = coach;
 
-  if (coachNotes.length === 0 && !hasExcursion) return null;
+  useEffect(() => {
+    resetCoach();
+  }, [trade.id, resetCoach]);
+
+  const llmNotes =
+    coach.data?.source === "llm" && coach.data.notes.length > 0
+      ? toCoachNotes(coach.data.notes)
+      : null;
+  const hasGenerated = coach.data != null || coach.isError;
+  const coachNotes = llmNotes ?? ruleNotes;
+  const usingLlm = llmNotes != null;
+  const hasExcursion = insights.mae != null || insights.mfe != null;
+  const showAskAi = coach.coachConfigured;
+
+  if (coachNotes.length === 0 && !hasExcursion && !coach.isPending) return null;
 
   const collapsedSummary = coachNotes[0]?.headline ?? (hasExcursion ? "Excursion data" : undefined);
+  const errorMsg =
+    coach.data?.source === "error"
+      ? coach.data.error
+      : coach.isError
+        ? "Could not reach the coach API"
+        : undefined;
 
   return (
     <section className="flex flex-col rounded-card bg-bg-panel">
@@ -532,6 +566,16 @@ function TradeCoachPanel({ trade, insights }: { trade: TradeDetail; insights: Tr
         >
           <div className="flex min-w-0 flex-1 items-center gap-2 overflow-hidden">
             <h2 className="shrink-0 text-[10px] font-semibold tracking-wide text-signal">Coach</h2>
+            {hasGenerated ? (
+              <span
+                className={cn(
+                  "shrink-0 rounded-control px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider",
+                  usingLlm ? "bg-accent-bg text-accent" : "bg-bg-elevated text-text-muted",
+                )}
+              >
+                {usingLlm ? "AI" : "Rules"}
+              </span>
+            ) : null}
             {!open && collapsedSummary ? (
               <span className="truncate text-[10px] text-text-muted">{collapsedSummary}</span>
             ) : null}
@@ -540,7 +584,55 @@ function TradeCoachPanel({ trade, insights }: { trade: TradeDetail; insights: Tr
         </CollapsibleTrigger>
         <CollapsibleContent animation="height">
           <div className="flex flex-col gap-4 px-4 pb-4">
-            <TradeCoachNotes notes={coachNotes} />
+            {showAskAi ? (
+              <div className="flex items-center justify-between gap-2">
+                <p className="m-0 min-w-0 flex-1 text-[11px] text-text-dim">
+                  {coach.isPending
+                    ? "Asking the coach…"
+                    : usingLlm
+                      ? "Generated from this trade via your coach model"
+                      : errorMsg
+                        ? "Showing rule-based notes — AI unavailable"
+                        : hasGenerated
+                          ? "Rule-based notes — AI coach returned nothing useful"
+                          : "Rule-based notes — click Ask AI for model coaching"}
+                </p>
+                <Button
+                  type="button"
+                  variant={hasGenerated ? "ghost" : "soft"}
+                  size="sm"
+                  aria-label={hasGenerated ? "Regenerate AI coach" : "Ask AI coach"}
+                  disabled={coach.isPending}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    void coach.generate();
+                  }}
+                >
+                  {coach.isPending ? (
+                    <Loader2 className="animate-spin" aria-hidden />
+                  ) : hasGenerated ? (
+                    <RefreshCw aria-hidden />
+                  ) : null}
+                  {coach.isPending ? "Generating…" : hasGenerated ? "Regenerate" : "Ask AI"}
+                </Button>
+              </div>
+            ) : null}
+
+            {coach.isPending && !hasGenerated ? (
+              <div className="flex flex-col gap-2" aria-busy="true">
+                <Skeleton className="h-14 w-full" />
+                <Skeleton className="h-14 w-full" />
+              </div>
+            ) : (
+              <TradeCoachNotes notes={coachNotes} />
+            )}
+
+            {errorMsg && !usingLlm ? (
+              <p className="m-0 text-[11px] text-text-muted" role="status">
+                {errorMsg}
+              </p>
+            ) : null}
 
             {hasExcursion && (
               <div>

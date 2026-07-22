@@ -1,5 +1,7 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import userEvent from "@testing-library/user-event";
+import type { ReactElement } from "react";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import type { Execution, Setup, Tag, TradeAttachment, TradeDetail } from "../../lib/api/types";
 import {
@@ -19,6 +21,34 @@ vi.mock("../../lib/api/client", () => ({
   apiFetch: vi.fn(),
 }));
 
+const tradeCoachMock = vi.hoisted(() => ({
+  current: {
+    coachConfigured: false,
+    settingsPending: false,
+    data: undefined as
+      | {
+          source: "llm" | "off" | "error";
+          notes: {
+            id: string;
+            tone: "neg" | "warn" | "pos" | "tip";
+            headline: string;
+            detail: string;
+            priority: number;
+          }[];
+          error?: string;
+        }
+      | undefined,
+    isPending: false,
+    isError: false,
+    generate: vi.fn(),
+    reset: vi.fn(),
+  },
+}));
+
+vi.mock("../../lib/hooks/useTradeCoach", () => ({
+  useTradeCoach: () => tradeCoachMock.current,
+}));
+
 vi.mock("../../components/charts/TradeChartSection", () => ({
   TradeChartSection: () => <div data-testid="trade-chart-stub" />,
 }));
@@ -28,6 +58,13 @@ globalThis.fetch = vi.fn().mockResolvedValue({
   status: 403,
   blob: vi.fn(),
 } as unknown as Response);
+
+function renderView(ui: ReactElement) {
+  const qc = new QueryClient({
+    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+  });
+  return render(<QueryClientProvider client={qc}>{ui}</QueryClientProvider>);
+}
 
 // ---------------------------------------------------------------------------
 // Fixtures
@@ -164,8 +201,20 @@ const defaultProps = {
 };
 
 describe("TradeDetailView", () => {
+  afterEach(() => {
+    tradeCoachMock.current = {
+      coachConfigured: false,
+      settingsPending: false,
+      data: undefined,
+      isPending: false,
+      isError: false,
+      generate: vi.fn(),
+      reset: vi.fn(),
+    };
+  });
+
   it("does not render the executions / journal card on the page", () => {
-    render(<TradeDetailView {...defaultProps} />);
+    renderView(<TradeDetailView {...defaultProps} />);
     expect(screen.queryByText(/Executions/i)).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Journal" })).not.toBeInTheDocument();
     expect(screen.queryByText("BUY")).not.toBeInTheDocument();
@@ -173,14 +222,14 @@ describe("TradeDetailView", () => {
 
   it("places Edit at the page top right and calls onEdit", async () => {
     const onEdit = vi.fn();
-    render(<TradeDetailView {...defaultProps} onEdit={onEdit} />);
+    renderView(<TradeDetailView {...defaultProps} onEdit={onEdit} />);
     await userEvent.click(screen.getByRole("button", { name: "Edit trade" }));
     expect(onEdit).toHaveBeenCalledTimes(1);
   });
 
   it("requires typing the symbol before removing a trade", async () => {
     const onDelete = vi.fn();
-    render(<TradeDetailView {...defaultProps} onDelete={onDelete} />);
+    renderView(<TradeDetailView {...defaultProps} onDelete={onDelete} />);
     await userEvent.click(screen.getByRole("button", { name: "Remove trade" }));
     const dialog = screen.getByRole("dialog", { name: /Remove AAPL/i });
     expect(dialog).toBeVisible();
@@ -193,12 +242,12 @@ describe("TradeDetailView", () => {
   });
 
   it("renders R-multiple of 2 in the header", () => {
-    render(<TradeDetailView {...defaultProps} />);
+    renderView(<TradeDetailView {...defaultProps} />);
     expect(screen.getAllByText("+2.00R").length).toBeGreaterThan(0);
   });
 
   it("renders trade metrics in the header and coach panel separately", () => {
-    render(<TradeDetailView {...defaultProps} />);
+    renderView(<TradeDetailView {...defaultProps} />);
     expect(screen.getByText("Coach")).toBeInTheDocument();
     expect(screen.getByText("Gross")).toBeInTheDocument();
     expect(screen.getByText("Plan")).toBeInTheDocument();
@@ -210,15 +259,83 @@ describe("TradeDetailView", () => {
   });
 
   it("collapses coach when the header is clicked", async () => {
-    render(<TradeDetailView {...defaultProps} />);
+    renderView(<TradeDetailView {...defaultProps} />);
     expect(screen.getByText(/Write why you entered while it's fresh/i)).toBeInTheDocument();
     await userEvent.click(screen.getByRole("button", { name: "Coach" }));
     expect(screen.queryByText(/Write why you entered while it's fresh/i)).not.toBeInTheDocument();
     expect(screen.getByText("Gross")).toBeInTheDocument();
   });
 
+  it("shows Ask AI when coach is configured and generates on click", async () => {
+    const generate = vi.fn();
+    tradeCoachMock.current = {
+      coachConfigured: true,
+      settingsPending: false,
+      data: undefined,
+      isPending: false,
+      isError: false,
+      generate,
+      reset: vi.fn(),
+    };
+    renderView(<TradeDetailView {...defaultProps} />);
+    expect(screen.getByText(/click Ask AI for model coaching/i)).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "Ask AI coach" }));
+    expect(generate).toHaveBeenCalledTimes(1);
+  });
+
+  it("shows LLM coach notes when the coach API returns them", () => {
+    tradeCoachMock.current = {
+      coachConfigured: true,
+      settingsPending: false,
+      data: {
+        source: "llm",
+        notes: [
+          {
+            id: "llm-1",
+            tone: "tip",
+            headline: "Hold winners longer",
+            detail: "MFE capture was only 40% — trail the stop next time.",
+            priority: 1,
+          },
+        ],
+      },
+      isPending: false,
+      isError: false,
+      generate: vi.fn(),
+      reset: vi.fn(),
+    };
+    renderView(<TradeDetailView {...defaultProps} />);
+    expect(screen.getByText("AI")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Regenerate AI coach" })).toBeInTheDocument();
+    expect(screen.getByText("Hold winners longer")).toBeInTheDocument();
+    expect(screen.getByText(/trail the stop next time/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Write why you entered while it's fresh/i)).not.toBeInTheDocument();
+  });
+
+  it("falls back to rule notes when coach API errors", () => {
+    tradeCoachMock.current = {
+      coachConfigured: true,
+      settingsPending: false,
+      data: { source: "error", notes: [], error: "coach api 502: boom" },
+      isPending: false,
+      isError: false,
+      generate: vi.fn(),
+      reset: vi.fn(),
+    };
+    renderView(<TradeDetailView {...defaultProps} />);
+    expect(screen.getByText("Rules")).toBeInTheDocument();
+    expect(screen.getByText(/Write why you entered while it's fresh/i)).toBeInTheDocument();
+    expect(screen.getByText(/coach api 502/i)).toBeInTheDocument();
+  });
+
+  it("does not show Ask AI when coach is not configured", () => {
+    renderView(<TradeDetailView {...defaultProps} />);
+    expect(screen.queryByRole("button", { name: "Ask AI coach" })).not.toBeInTheDocument();
+    expect(screen.getByText(/Write why you entered while it's fresh/i)).toBeInTheDocument();
+  });
+
   it("shows Skeleton elements while loading", () => {
-    const { container } = render(
+    const { container } = renderView(
       <TradeDetailView {...defaultProps} trade={undefined} loading={true} />,
     );
     const skeletons = container.querySelectorAll('[aria-hidden="true"]');
@@ -226,27 +343,29 @@ describe("TradeDetailView", () => {
   });
 
   it("shows empty/error state when error and no trade", () => {
-    render(<TradeDetailView {...defaultProps} trade={undefined} loading={false} error={true} />);
+    renderView(
+      <TradeDetailView {...defaultProps} trade={undefined} loading={false} error={true} />,
+    );
     expect(screen.getByText("Trade not found")).toBeInTheDocument();
   });
 
   it("renders the symbol in the header", () => {
-    render(<TradeDetailView {...defaultProps} />);
+    renderView(<TradeDetailView {...defaultProps} />);
     expect(screen.getByText("AAPL")).toBeInTheDocument();
   });
 
   it("renders the net P&L in the header", () => {
-    render(<TradeDetailView {...defaultProps} />);
+    renderView(<TradeDetailView {...defaultProps} />);
     expect(screen.getAllByText("+$747.00").length).toBeGreaterThan(0);
   });
 
   it("renders a WIN outcome badge for a closed profitable trade", () => {
-    render(<TradeDetailView {...defaultProps} />);
+    renderView(<TradeDetailView {...defaultProps} />);
     expect(screen.getByText("WIN")).toBeInTheDocument();
   });
 
   it("renders the hold duration in the header timeline", () => {
-    render(<TradeDetailView {...defaultProps} />);
+    renderView(<TradeDetailView {...defaultProps} />);
     expect(screen.getAllByText(/2h/).length).toBeGreaterThan(0);
   });
 });
