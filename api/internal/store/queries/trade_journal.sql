@@ -19,3 +19,6 @@ ON CONFLICT(trade_id) DO UPDATE SET
 
 -- name: GetTradeJournal :one
 SELECT * FROM trade_journal WHERE trade_id = ? AND user_id = ?;
+
+-- name: ListTradeJournalsForUser :many
+SELECT * FROM trade_journal WHERE user_id = ?;

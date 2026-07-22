@@ -164,3 +164,81 @@ func TestCSVImportEndToEnd(t *testing.T) {
 	require.Len(t, got, 1)
 	require.Equal(t, 198.0, got[0]["net_pnl"])
 }
+
+func TestJSONImportTradesEndToEnd(t *testing.T) {
+	s := testServer(t)
+	tok := registerAndLogin(t, s, "json-trades@x.com")
+	acc := accountID(t, s, tok)
+
+	jsonBody := `{
+		"trades": [{
+			"symbol": "AAPL",
+			"instrument_type": "stock",
+			"direction": "long",
+			"status": "closed",
+			"opened_at": "2026-01-01T10:00:00Z",
+			"closed_at": "2026-01-01T11:00:00Z",
+			"qty_opened": 100,
+			"avg_entry_price": 10,
+			"avg_exit_price": 12,
+			"net_pnl": 200,
+			"notes": "json import"
+		}]
+	}`
+
+	rec := httptest.NewRecorder()
+	s.Echo.ServeHTTP(rec, multipartFileReq(t, "/api/v1/imports", tok, "trades.json", jsonBody,
+		map[string]string{"account_id": acc}))
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+	var preview struct {
+		ImportBatchID string `json:"import_batch_id"`
+		Format        string `json:"format"`
+		Source        string `json:"source"`
+	}
+	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &preview))
+	require.Equal(t, "journal_trades", preview.Format)
+	require.Equal(t, "json", preview.Source)
+
+	rec = httptest.NewRecorder()
+	s.Echo.ServeHTTP(rec, multipartFileReq(t, "/api/v1/imports/"+preview.ImportBatchID+"/commit", tok, "trades.json", jsonBody, nil))
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+
+	rec = do(s, http.MethodGet, "/api/v1/trades?account_id="+acc, "", tok)
+	var got []map[string]any
+	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &got))
+	require.Len(t, got, 1)
+	require.Equal(t, 200.0, got[0]["net_pnl"])
+}
+
+func TestJSONImportExecutionsEndToEnd(t *testing.T) {
+	s := testServer(t)
+	tok := registerAndLogin(t, s, "json-ex@x.com")
+	acc := accountID(t, s, tok)
+
+	jsonBody := `{
+		"executions": [
+			{"symbol":"AAPL","side":"buy","quantity":100,"price":10,"executed_at":"2026-01-01T10:00:00Z","instrument_type":"stock"},
+			{"symbol":"AAPL","side":"sell","quantity":100,"price":12,"executed_at":"2026-01-01T11:00:00Z","instrument_type":"stock"}
+		]
+	}`
+
+	rec := httptest.NewRecorder()
+	s.Echo.ServeHTTP(rec, multipartFileReq(t, "/api/v1/imports", tok, "fills.json", jsonBody,
+		map[string]string{"account_id": acc}))
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+	var preview struct {
+		ImportBatchID string `json:"import_batch_id"`
+		Format        string `json:"format"`
+	}
+	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &preview))
+	require.Equal(t, "executions", preview.Format)
+
+	rec = httptest.NewRecorder()
+	s.Echo.ServeHTTP(rec, multipartFileReq(t, "/api/v1/imports/"+preview.ImportBatchID+"/commit", tok, "fills.json", jsonBody, nil))
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+	var res struct {
+		Inserted int `json:"inserted"`
+	}
+	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &res))
+	require.Equal(t, 2, res.Inserted)
+}

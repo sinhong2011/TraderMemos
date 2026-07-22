@@ -254,3 +254,70 @@ func ensureSetup(ctx context.Context, q *store.Queries, userID, name string) (st
 	}
 	return created.ID, nil
 }
+
+// UpsertSetups restores a playbook catalog from a JSON backup.
+// Matching is case-insensitive by name; existing setups are overwritten with catalog fields.
+func UpsertSetups(ctx context.Context, q *store.Queries, userID string, catalog []JSONSetup) (int, error) {
+	if len(catalog) == 0 {
+		return 0, nil
+	}
+	existing, err := q.ListSetups(ctx, userID)
+	if err != nil {
+		return 0, err
+	}
+	byName := make(map[string]store.Setup, len(existing))
+	for _, s := range existing {
+		byName[strings.ToLower(s.Name)] = s
+	}
+
+	applied := 0
+	for _, item := range catalog {
+		name := strings.TrimSpace(item.Name)
+		if name == "" {
+			continue
+		}
+		target := sql.NullFloat64{}
+		if item.TargetPrice != nil {
+			target = sql.NullFloat64{Float64: *item.TargetPrice, Valid: true}
+		}
+		stop := sql.NullFloat64{}
+		if item.StopPrice != nil {
+			stop = sql.NullFloat64{Float64: *item.StopPrice, Valid: true}
+		}
+		checklist := item.Checklist
+		if checklist == nil {
+			checklist = []string{}
+		}
+		checklistJSON, err := json.Marshal(checklist)
+		if err != nil {
+			checklistJSON = []byte("[]")
+		}
+		dir := strings.ToLower(strings.TrimSpace(item.Direction))
+		if dir != "long" && dir != "short" {
+			dir = ""
+		}
+
+		if cur, ok := byName[strings.ToLower(name)]; ok {
+			if err := q.UpdateSetup(ctx, store.UpdateSetupParams{
+				Name: name, Description: item.Description, Thesis: item.Thesis,
+				Symbol: item.Symbol, Direction: dir, TargetPrice: target, StopPrice: stop,
+				Checklist: string(checklistJSON), ID: cur.ID, UserID: userID,
+			}); err != nil {
+				return applied, err
+			}
+			applied++
+			continue
+		}
+		created, err := q.CreateSetup(ctx, store.CreateSetupParams{
+			ID: uuid.NewString(), UserID: userID, Name: name,
+			Description: item.Description, Thesis: item.Thesis, Symbol: item.Symbol,
+			Direction: dir, TargetPrice: target, StopPrice: stop, Checklist: string(checklistJSON),
+		})
+		if err != nil {
+			return applied, err
+		}
+		byName[strings.ToLower(name)] = created
+		applied++
+	}
+	return applied, nil
+}

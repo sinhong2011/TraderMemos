@@ -40,6 +40,47 @@ func (q *Queries) GetTradeJournal(ctx context.Context, arg GetTradeJournalParams
 	return i, err
 }
 
+const listTradeJournalsForUser = `-- name: ListTradeJournalsForUser :many
+SELECT trade_id, user_id, notes, setup_id, initial_risk, updated_at, target_price, stop_price, emotional_state, confidence, trade_quality, mae, mfe FROM trade_journal WHERE user_id = ?
+`
+
+func (q *Queries) ListTradeJournalsForUser(ctx context.Context, userID string) ([]TradeJournal, error) {
+	rows, err := q.db.QueryContext(ctx, listTradeJournalsForUser, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []TradeJournal
+	for rows.Next() {
+		var i TradeJournal
+		if err := rows.Scan(
+			&i.TradeID,
+			&i.UserID,
+			&i.Notes,
+			&i.SetupID,
+			&i.InitialRisk,
+			&i.UpdatedAt,
+			&i.TargetPrice,
+			&i.StopPrice,
+			&i.EmotionalState,
+			&i.Confidence,
+			&i.TradeQuality,
+			&i.Mae,
+			&i.Mfe,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const upsertTradeJournal = `-- name: UpsertTradeJournal :exec
 INSERT INTO trade_journal (
     trade_id, user_id, notes, setup_id, initial_risk, target_price, stop_price,
