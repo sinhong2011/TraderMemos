@@ -1,0 +1,146 @@
+# Publish api + web images to Docker Hub.
+#
+# Repo secrets (Docker Hub → Account Settings → Security → Access Tokens):
+#   DOCKERHUB_USERNAME
+#   DOCKERHUB_TOKEN
+#
+# Images:
+#   docker.io/<username>/tradermemos-api
+#   docker.io/<username>/tradermemos-web
+#
+# Triggers:
+#   - GitHub Release published (semver tags from the release tag)
+#   - workflow_call from release-please (version input)
+#   - workflow_dispatch (latest + sha on main; sha only on other branches)
+
+name: Publish Docker images
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: Semver version without v prefix (from release-please)
+        required: false
+        type: string
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  test-api:
+    name: Test API
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.26.1"
+          cache-dependency-path: api/go.sum
+
+      - name: Test
+        run: go test ./...
+
+      - name: Build
+        run: go build ./...
+
+  test-web:
+    name: Test web
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          # 1.4 is canary-only until the Rust rewrite ships a stable tag.
+          bun-version: canary
+
+      - name: Install
+        run: bun install --frozen-lockfile
+
+      - name: Lint and typecheck
+        run: bun run check
+
+      - name: Test
+        run: bun run test
+
+      - name: Build
+        run: bun run build
+        env:
+          # Empty = relative /api/v1 (same-origin Docker / Server field at runtime).
+          VITE_API: ${{ vars.VITE_API }}
+
+  publish:
+    name: Push ${{ matrix.image }}
+    needs: [test-api, test-web]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - image: api
+            dockerfile: api/Dockerfile
+          - image: web
+            dockerfile: web/Dockerfile
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve build metadata
+        id: buildmeta
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          if [ -n "$INPUT_VERSION" ]; then
+            VERSION="$INPUT_VERSION"
+          elif [ "${{ github.event_name }}" = "release" ]; then
+            VERSION="${{ github.event.release.tag_name }}"
+            VERSION="${VERSION#v}"
+          else
+            VERSION=$(cat VERSION 2>/dev/null || echo dev)
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "commit=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/setup-qemu-action@v3
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ secrets.DOCKERHUB_USERNAME }}/tradermemos-${{ matrix.image }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=raw,value=latest,enable=${{ inputs.version != '' || github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') }}
+            type=sha,prefix=,format=short
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          platforms: linux/amd64,linux/arm64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            VERSION=${{ steps.buildmeta.outputs.version }}
+            COMMIT=${{ steps.buildmeta.outputs.commit }}
+            APP_VERSION=${{ steps.buildmeta.outputs.version }}
+            APP_BUILD=${{ steps.buildmeta.outputs.commit }}

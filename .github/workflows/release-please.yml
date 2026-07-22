@@ -1,0 +1,43 @@
+# Opens Release PRs from conventional commits on main. Merging the PR tags
+# vX.Y.Z, updates CHANGELOG.md / VERSION / web/package.json, and publishes
+# a GitHub Release. Docker images are built in the chained publish job below
+# (GITHUB_TOKEN releases do not trigger separate workflow runs).
+#
+# Commit style: feat:, fix:, feat!: (see docs/release.md)
+
+name: Release Please
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: release-please
+  cancel-in-progress: false
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    outputs:
+      releases_created: ${{ steps.release.outputs.releases_created }}
+      version: ${{ steps.release.outputs.version }}
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  publish-docker:
+    name: Publish Docker images
+    needs: release-please
+    if: ${{ needs.release-please.outputs.releases_created == 'true' }}
+    uses: ./.github/workflows/docker-publish.yml
+    with:
+      version: ${{ needs.release-please.outputs.version }}
+    secrets: inherit
