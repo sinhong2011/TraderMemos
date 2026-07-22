@@ -1,7 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { getToken } from "../api/client";
-
-const BASE = (import.meta.env.VITE_API as string) ?? "/api/v1";
+import { getBaseUrl, getToken } from "../api/client";
 
 /** Stable blob URLs for authenticated attachment previews (revoked on unmount / id removal). */
 export function useAuthedAttachmentUrls(attachmentIds: readonly string[]) {
@@ -16,7 +14,7 @@ export function useAuthedAttachmentUrls(attachmentIds: readonly string[]) {
     for (const id of attachmentIds) {
       if (cacheRef.current.has(id)) continue;
       const t = getToken();
-      void fetch(`${BASE}/attachments/${id}/file`, {
+      void fetch(`${getBaseUrl()}/attachments/${id}/file`, {
         headers: t ? { Authorization: `Bearer ${t}` } : {},
       })
         .then((r) => {

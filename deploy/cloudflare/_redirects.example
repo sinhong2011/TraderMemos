@@ -1,0 +1,12 @@
+# Cloudflare Pages _redirects
+# Default SPA fallback already ships as web/public/_redirects.
+#
+# Mode 3 — edge proxy (same-origin). Replace API host, keep status 200,
+# and place this file as web/public/_redirects (replaces the SPA-only file):
+/api/*  https://API_HOST_REPLACE_ME/api/:splat  200
+/healthz  https://API_HOST_REPLACE_ME/healthz  200
+/*    /index.html   200
+#
+# Mode 2 — CDN UI + cross-origin API: keep web/public/_redirects as SPA-only,
+# set TM_CORS_ORIGINS=https://*.pages.dev (plus custom domain), and use the
+# Server field or VITE_API.

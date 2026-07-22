@@ -83,7 +83,11 @@ func main() {
 		Market:         marketSvc,
 		OCR:            ocrSvc,
 		CoachDefaults:  coachDefaults,
+		CORSOrigins:    cfg.CORSOrigins,
 	})
+	if len(cfg.CORSOrigins) > 0 {
+		logger.Info("cors enabled", "origins", cfg.CORSOrigins)
+	}
 	logger.Info("tradermemos api listening", "port", cfg.HTTPPort, "db", cfg.DBPath, "log_level", cfg.LogLevel)
 	log.Fatal(s.Echo.Start(":" + cfg.HTTPPort))
 }

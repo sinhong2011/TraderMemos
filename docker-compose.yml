@@ -15,6 +15,9 @@ services:
       TM_OCR_VISION_BASE_URL: ${TM_OCR_VISION_BASE_URL:-https://api.openai.com/v1}
       TM_OCR_VISION_API_KEY: ${TM_OCR_VISION_API_KEY:-}
       TM_OCR_VISION_MODEL: ${TM_OCR_VISION_MODEL:-gpt-4o-mini}
+      # Only needed when the SPA is on another origin (Vercel/CF Pages).
+      # Same-origin Docker (web → /api proxy) should leave this empty.
+      TM_CORS_ORIGINS: ${TM_CORS_ORIGINS:-}
     volumes:
       - tm_data:/data
   web:

@@ -1,4 +1,9 @@
-const BASE = (import.meta.env.VITE_API as string) ?? "/api/v1";
+export const API_BASE_STORAGE_KEY = "tm_api_base";
+
+/** Build-time default when no custom server is stored. */
+export const DEFAULT_API_BASE = (import.meta.env.VITE_API as string) ?? "/api/v1";
+
+let baseUrl = "";
 let token = "";
 let refreshToken = "";
 let refreshInFlight: Promise<boolean> | null = null;
@@ -29,6 +34,59 @@ function persist(key: string, value: string) {
   } catch {
     /* ignore */
   }
+}
+
+/**
+ * Normalize a custom API base: trim, strip trailing slashes, and append `/api/v1`
+ * when the user only entered an origin (or origin + `/`).
+ */
+export function normalizeApiBaseUrl(raw: string): string {
+  const trimmed = raw.trim();
+  if (!trimmed) return "";
+  const withoutTrailing = trimmed.replace(/\/+$/, "");
+  try {
+    const u = new URL(withoutTrailing, "http://local.invalid");
+    const path = u.pathname.replace(/\/+$/, "") || "";
+    if (!path || path === "/") {
+      return `${withoutTrailing}/api/v1`;
+    }
+  } catch {
+    /* keep as trimmed without trailing slash */
+  }
+  return withoutTrailing;
+}
+
+/** Effective API base used by all clients (custom override or build default). */
+export function getBaseUrl(): string {
+  if (!baseUrl) {
+    try {
+      const saved = tryStorage()?.getItem(API_BASE_STORAGE_KEY);
+      if (saved) baseUrl = saved;
+    } catch {
+      /* ignore */
+    }
+  }
+  return baseUrl || DEFAULT_API_BASE;
+}
+
+/** Custom override only — empty means the build-time {@link DEFAULT_API_BASE} is used. */
+export function getCustomApiBaseUrl(): string {
+  if (baseUrl) return baseUrl;
+  try {
+    return tryStorage()?.getItem(API_BASE_STORAGE_KEY) ?? "";
+  } catch {
+    return "";
+  }
+}
+
+/**
+ * Persist a custom TraderMemos API base. Pass empty string to clear and fall
+ * back to {@link DEFAULT_API_BASE}.
+ */
+export function setBaseUrl(url: string) {
+  const next = normalizeApiBaseUrl(url);
+  baseUrl = next;
+  persist(API_BASE_STORAGE_KEY, next);
 }
 
 export function setToken(t: string) {
@@ -85,7 +143,7 @@ function tryRefresh(): Promise<boolean> {
       const rt = getRefreshToken();
       if (!rt) return false;
       try {
-        const res = await fetch(`${BASE}/auth/refresh`, {
+        const res = await fetch(`${getBaseUrl()}/auth/refresh`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ refresh_token: rt }),
@@ -111,7 +169,7 @@ export async function apiFetch<T = unknown>(
   retried = false,
 ): Promise<T> {
   const auth = getToken(); // lazily hydrates the token from storage on first use
-  const res = await fetch(BASE + path, {
+  const res = await fetch(getBaseUrl() + path, {
     ...opts,
     headers: {
       ...(opts.body && !(opts.body instanceof FormData)

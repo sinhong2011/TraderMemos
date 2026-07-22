@@ -1,0 +1,3 @@
+# Cloudflare Pages / Netlify SPA fallback (static files win when present).
+# For GitHub → Cloudflare Pages: root directory = web, build = bun run build, output = dist.
+/*    /index.html   200

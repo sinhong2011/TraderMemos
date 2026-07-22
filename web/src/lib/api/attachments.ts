@@ -1,4 +1,4 @@
-import { apiFetch } from "./client";
+import { apiFetch, getBaseUrl } from "./client";
 import type { TradeAttachment } from "./types";
 
 export const attachmentsApi = {
@@ -10,7 +10,7 @@ export const attachmentsApi = {
     }),
   list: (tradeId: string) => apiFetch<TradeAttachment[]>(`/trades/${tradeId}/attachments`),
   // Returns the raw file URL (caller opens in new tab or uses as img src)
-  fileUrl: (attachmentId: string) => `/api/v1/attachments/${attachmentId}/file`,
+  fileUrl: (attachmentId: string) => `${getBaseUrl()}/attachments/${attachmentId}/file`,
   delete: (tradeId: string, attachmentId: string) =>
     apiFetch<void>(`/trades/${tradeId}/attachments/${attachmentId}`, {
       method: "DELETE",

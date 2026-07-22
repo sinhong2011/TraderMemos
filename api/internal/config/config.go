@@ -1,6 +1,7 @@
 package config
 
 import (
+	"os"
 	"strings"
 
 	"github.com/knadh/koanf/providers/confmap"
@@ -9,26 +10,30 @@ import (
 )
 
 type Config struct {
-	HTTPPort           string
-	DBPath             string
-	JWTSecret          string
-	DefaultCurrency    string
-	LogLevel           string
-	AttachMaxBytes     int64
-	ImportMaxBytes     int64
-	MarketDataProvider string
-	MarketDataAPIKey   string
-	MarketDataEnabled  bool
-	OCREnabled         bool
-	OCRMaxBytes        int64
-	OCRVisionBaseURL   string
-	OCRVisionAPIKey    string
-	OCRVisionModel     string
+	HTTPPort            string
+	DBPath              string
+	JWTSecret           string
+	DefaultCurrency     string
+	LogLevel            string
+	AttachMaxBytes      int64
+	ImportMaxBytes      int64
+	MarketDataProvider  string
+	MarketDataAPIKey    string
+	MarketDataEnabled   bool
+	OCREnabled          bool
+	OCRMaxBytes         int64
+	OCRVisionBaseURL    string
+	OCRVisionAPIKey     string
+	OCRVisionModel      string
 	OCRVisionTimeoutSec int
-	CoachEnabled       bool
-	CoachBaseURL       string
-	CoachAPIKey        string
-	CoachModel         string
+	CoachEnabled        bool
+	CoachBaseURL        string
+	CoachAPIKey         string
+	CoachModel          string
+	// CORSOrigins is a comma-separated allowlist for browser frontends on
+	// another origin (e.g. Vercel/Cloudflare Pages). Empty = CORS off
+	// (same-origin Docker / reverse-proxy default).
+	CORSOrigins []string
 }
 
 func Load() (Config, error) {
@@ -53,6 +58,7 @@ func Load() (Config, error) {
 		"coach_base_url":         "https://api.openai.com/v1",
 		"coach_api_key":          "",
 		"coach_model":            "gpt-4o-mini",
+		"cors_origins":           "",
 	}, "."), nil)
 
 	// TM_HTTP_PORT -> http_port
@@ -60,17 +66,25 @@ func Load() (Config, error) {
 		return strings.ReplaceAll(strings.ToLower(strings.TrimPrefix(s, "TM_")), "__", ".")
 	}), nil)
 
+	httpPort := k.String("http_port")
+	// Railway / Heroku-style: honor PORT when TM_HTTP_PORT is unset.
+	if _, set := os.LookupEnv("TM_HTTP_PORT"); !set {
+		if p := os.Getenv("PORT"); p != "" {
+			httpPort = p
+		}
+	}
+
 	return Config{
-		HTTPPort:           k.String("http_port"),
-		DBPath:             k.String("db_path"),
-		JWTSecret:          k.String("jwt_secret"),
-		DefaultCurrency:    k.String("default_currency"),
-		LogLevel:           k.String("log_level"),
-		AttachMaxBytes:     k.Int64("attach_max_bytes"),
-		ImportMaxBytes:     k.Int64("import_max_bytes"),
-		MarketDataProvider: k.String("market_data_provider"),
-		MarketDataAPIKey:   k.String("market_data_api_key"),
-		MarketDataEnabled:  k.Bool("market_data_enabled"),
+		HTTPPort:            httpPort,
+		DBPath:              k.String("db_path"),
+		JWTSecret:           k.String("jwt_secret"),
+		DefaultCurrency:     k.String("default_currency"),
+		LogLevel:            k.String("log_level"),
+		AttachMaxBytes:      k.Int64("attach_max_bytes"),
+		ImportMaxBytes:      k.Int64("import_max_bytes"),
+		MarketDataProvider:  k.String("market_data_provider"),
+		MarketDataAPIKey:    k.String("market_data_api_key"),
+		MarketDataEnabled:   k.Bool("market_data_enabled"),
 		OCREnabled:          k.Bool("ocr_enabled"),
 		OCRMaxBytes:         k.Int64("ocr_max_bytes"),
 		OCRVisionBaseURL:    k.String("ocr_vision_base_url"),
@@ -81,5 +95,25 @@ func Load() (Config, error) {
 		CoachBaseURL:        k.String("coach_base_url"),
 		CoachAPIKey:         k.String("coach_api_key"),
 		CoachModel:          k.String("coach_model"),
+		CORSOrigins:         SplitCSV(k.String("cors_origins")),
 	}, nil
+}
+
+// SplitCSV splits a comma-separated list, trimming spaces and dropping empties.
+func SplitCSV(s string) []string {
+	if s == "" {
+		return nil
+	}
+	parts := strings.Split(s, ",")
+	out := make([]string, 0, len(parts))
+	for _, p := range parts {
+		p = strings.TrimSpace(p)
+		if p != "" {
+			out = append(out, p)
+		}
+	}
+	if len(out) == 0 {
+		return nil
+	}
+	return out
 }

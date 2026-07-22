@@ -1,0 +1,15 @@
+# Railway config-as-code — deploys the Go API (SQLite + attachments).
+# One-click: https://railway.com/new/template?template=https://github.com/sinhong2011/TraderMemos
+#
+# After deploy: attach a Volume mounted at /data (persists TM_DB_PATH + attachments).
+# Generate TM_JWT_SECRET; set TM_CORS_ORIGINS to your Vercel/CF/Netlify origin(s).
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "api/Dockerfile"
+
+[deploy]
+healthcheckPath = "/healthz"
+healthcheckTimeout = 30
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 5

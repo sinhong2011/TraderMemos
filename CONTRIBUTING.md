@@ -41,6 +41,16 @@ Useful targets:
 
 Vite+ proxies `/api` → `http://localhost:8080` during `vp dev`.
 
+### Self-host / deploy
+
+See **[docs/fork-deploy.md](docs/fork-deploy.md)** to put the SPA on your Vercel/Cloudflare account, and **[docs/deploy.md](docs/deploy.md)** for Docker / CORS / edge rewrite. Deploy buttons: [README](README.md).
+
+```bash
+make up          # docker compose: web :3000 (SPA + /api proxy), api :8080
+make down
+make logs
+```
+
 ### Vite+ commands (run from `web/`)
 
 | Command | What it does |

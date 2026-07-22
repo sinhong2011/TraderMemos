@@ -30,6 +30,9 @@ type Deps struct {
 	Market         *marketdata.Service
 	OCR            *ocr.Service
 	CoachDefaults  ocr.VisionConfig
+	// CORSOrigins enable browser cross-origin access when the SPA is hosted
+	// separately (Vercel, Cloudflare Pages, etc.). Empty disables CORS.
+	CORSOrigins []string
 }
 
 type Server struct {
@@ -50,6 +53,31 @@ func New(deps Deps) *Server {
 	e.Use(middleware.RequestID())
 	e.Use(requestLogger(lg))
 	e.Use(middleware.Recover())
+	if len(deps.CORSOrigins) > 0 {
+		origins := deps.CORSOrigins
+		e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+			AllowOriginFunc: func(origin string) (bool, error) {
+				return OriginAllowed(origin, origins), nil
+			},
+			AllowMethods: []string{
+				http.MethodGet,
+				http.MethodHead,
+				http.MethodPut,
+				http.MethodPatch,
+				http.MethodPost,
+				http.MethodDelete,
+				http.MethodOptions,
+			},
+			AllowHeaders: []string{
+				echo.HeaderOrigin,
+				echo.HeaderContentType,
+				echo.HeaderAccept,
+				echo.HeaderAuthorization,
+			},
+			ExposeHeaders: []string{echo.HeaderXRequestID},
+			MaxAge:        600,
+		}))
+	}
 	// Reject oversized request bodies at read time (before multipart parse).
 	// Sized to the largest configured upload cap; a 16KiB floor covers JSON.
 	if lim := bodyLimit(deps); lim > 0 {

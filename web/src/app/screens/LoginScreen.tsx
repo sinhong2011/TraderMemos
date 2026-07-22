@@ -1,11 +1,11 @@
-import { AlertCircle, ArrowRight, Eye, EyeOff, Lock, Mail, Zap } from "lucide-react";
+import { AlertCircle, ArrowRight, Eye, EyeOff, Lock, Mail, Server, Zap } from "lucide-react";
 import { useId, useState } from "react";
 import { AppLogo } from "../../components/AppLogo";
 import { AuthModeTabs } from "../../components/AuthModeTabs";
 import { Button } from "../../components/ui/button";
 import { Kbd } from "../../components/ui/kbd";
 import { authApi } from "../../lib/api/auth";
-import { ApiError } from "../../lib/api/client";
+import { ApiError, DEFAULT_API_BASE, getCustomApiBaseUrl, setBaseUrl } from "../../lib/api/client";
 import { useAuth } from "../../lib/auth";
 import { cn } from "../../lib/cn";
 import { DEV_ACCOUNT, isDevAuthEnabled } from "../../lib/devAccount";
@@ -29,6 +29,8 @@ function AuthField({
   hint,
   autoComplete,
   autoFocus,
+  required = true,
+  icon: Icon,
 }: {
   label: string;
   id: string;
@@ -39,11 +41,13 @@ function AuthField({
   hint?: string;
   autoComplete?: string;
   autoFocus?: boolean;
+  required?: boolean;
+  icon?: typeof Mail;
 }) {
   const [showPassword, setShowPassword] = useState(false);
   const isPassword = type === "password";
   const inputType = isPassword && showPassword ? "text" : type;
-  const Icon = type === "email" ? Mail : Lock;
+  const FieldIcon = Icon ?? (type === "email" ? Mail : Lock);
 
   return (
     <div className="flex flex-col gap-1.5">
@@ -51,7 +55,7 @@ function AuthField({
         {label}
       </label>
       <div className="group relative flex items-center">
-        <Icon
+        <FieldIcon
           size={15}
           strokeWidth={1.5}
           className="pointer-events-none absolute left-3 text-text-dim transition-colors group-focus-within:text-accent"
@@ -69,7 +73,8 @@ function AuthField({
           placeholder={placeholder}
           autoComplete={autoComplete}
           autoFocus={autoFocus}
-          required
+          required={required}
+          spellCheck={false}
         />
         {isPassword && (
           <Button
@@ -108,6 +113,7 @@ export function LoginScreen() {
   const [mode, setMode] = useState<AuthMode>("login");
   const [email, setEmail] = useState(() => (devAuth ? DEV_ACCOUNT.email : ""));
   const [password, setPassword] = useState(() => (devAuth ? DEV_ACCOUNT.password : ""));
+  const [serverUrl, setServerUrl] = useState(() => getCustomApiBaseUrl());
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -119,6 +125,7 @@ export function LoginScreen() {
     setError("");
     setBusy(true);
     try {
+      setBaseUrl(serverUrl);
       if (asRegister) {
         await authApi.register(loginEmail, loginPassword);
       }
@@ -163,7 +170,7 @@ export function LoginScreen() {
     <div className="signal-app relative flex min-h-full items-center justify-center p-6 max-[820px]:items-start max-[820px]:p-4">
       <div className="signal-app-grain" aria-hidden />
 
-      <div className="relative z-[1] grid h-[min(580px,calc(100vh-48px))] w-full max-w-[920px] grid-cols-[1fr_400px] overflow-hidden border border-border-strong bg-bg shadow-hard max-[820px]:h-auto max-[820px]:grid-cols-1">
+      <div className="relative z-[1] grid h-[min(640px,calc(100vh-48px))] w-full max-w-[920px] grid-cols-[1fr_400px] overflow-hidden border border-border-strong bg-bg shadow-hard max-[820px]:h-auto max-[820px]:grid-cols-1">
         {/* Brand panel */}
         <aside
           className="relative flex flex-col justify-between overflow-hidden border-r border-border bg-bg-elevated p-10 max-[820px]:border-r-0 max-[820px]:border-b max-[820px]:p-7"
@@ -210,7 +217,7 @@ export function LoginScreen() {
 
         {/* Auth form panel — fixed shell height; content flows naturally */}
         <section
-          className="flex h-full flex-col justify-center bg-bg px-8 py-8 max-[820px]:justify-start max-[820px]:px-6 max-[820px]:py-7"
+          className="flex h-full flex-col justify-center overflow-y-auto bg-bg px-8 py-8 max-[820px]:justify-start max-[820px]:px-6 max-[820px]:py-7"
           aria-labelledby={`${formId}-title`}
         >
           <div className="mx-auto flex w-full max-w-[320px] flex-col">
@@ -266,6 +273,18 @@ export function LoginScreen() {
                     isLogin ? undefined : "Use 8+ characters with a mix of letters and numbers."
                   }
                   autoComplete={isLogin ? "current-password" : "new-password"}
+                />
+                <AuthField
+                  label="Server"
+                  id="server-url"
+                  type="text"
+                  value={serverUrl}
+                  onChange={setServerUrl}
+                  placeholder={DEFAULT_API_BASE}
+                  hint="Leave blank for the default API. Origin-only URLs get /api/v1 appended."
+                  autoComplete="url"
+                  required={false}
+                  icon={Server}
                 />
               </div>
 

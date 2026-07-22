@@ -2,7 +2,13 @@ import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import {
   ApiError,
   apiFetch,
+  API_BASE_STORAGE_KEY,
+  DEFAULT_API_BASE,
+  getBaseUrl,
+  getCustomApiBaseUrl,
   getRefreshToken,
+  normalizeApiBaseUrl,
+  setBaseUrl,
   setToken,
   setTokens,
   setUnauthorizedHandler,
@@ -11,7 +17,49 @@ import {
 afterEach(() => {
   vi.restoreAllMocks();
   setTokens("", "");
+  setBaseUrl("");
   setUnauthorizedHandler(null);
+});
+
+describe("api base url", () => {
+  it("defaults to build-time BASE when unset", () => {
+    expect(getCustomApiBaseUrl()).toBe("");
+    expect(getBaseUrl()).toBe(DEFAULT_API_BASE);
+  });
+
+  it("persists a custom base and appends /api/v1 for origins", () => {
+    setBaseUrl("https://journal.example.com");
+    expect(getBaseUrl()).toBe("https://journal.example.com/api/v1");
+    expect(localStorage.getItem(API_BASE_STORAGE_KEY)).toBe("https://journal.example.com/api/v1");
+    expect(getCustomApiBaseUrl()).toBe("https://journal.example.com/api/v1");
+  });
+
+  it("keeps an explicit /api/v1 path", () => {
+    setBaseUrl("https://journal.example.com/api/v1/");
+    expect(getBaseUrl()).toBe("https://journal.example.com/api/v1");
+  });
+
+  it("clears custom base back to default", () => {
+    setBaseUrl("https://journal.example.com/api/v1");
+    setBaseUrl("");
+    expect(getCustomApiBaseUrl()).toBe("");
+    expect(getBaseUrl()).toBe(DEFAULT_API_BASE);
+    expect(localStorage.getItem(API_BASE_STORAGE_KEY)).toBeNull();
+  });
+
+  it("normalizeApiBaseUrl trims and strips trailing slashes", () => {
+    expect(normalizeApiBaseUrl("  https://x.test/api/v1/  ")).toBe("https://x.test/api/v1");
+    expect(normalizeApiBaseUrl("")).toBe("");
+  });
+
+  it("apiFetch uses the custom base url", async () => {
+    setBaseUrl("https://custom.test/api/v1");
+    const spy = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue(new Response(JSON.stringify({ ok: true }), { status: 200 }));
+    await apiFetch("/trades");
+    expect(String(spy.mock.calls[0][0])).toBe("https://custom.test/api/v1/trades");
+  });
 });
 
 describe("apiFetch", () => {

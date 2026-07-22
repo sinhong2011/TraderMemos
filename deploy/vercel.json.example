@@ -1,0 +1,22 @@
+# Optional API rewrite (mode 3 — same-origin CDN).
+# Copy into web/vercel.json rewrites *before* the SPA fallback, and replace the host.
+# Default web/vercel.json is SPA-only (mode 2: Server field / VITE_API + API CORS).
+#
+# {
+#   "source": "/api/:path*",
+#   "destination": "https://API_HOST_REPLACE_ME/api/:path*"
+# }
+
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://API_HOST_REPLACE_ME/api/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
