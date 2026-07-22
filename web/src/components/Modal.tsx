@@ -33,15 +33,17 @@ export function Modal({
   bodyClassName?: string;
 }) {
   return (
-    <Dialog open={open} onOpenChange={onOpenChange} modal="trap-focus">
+    <Dialog open={open} onOpenChange={onOpenChange} modal>
       <DialogContent
         className={className}
         overlayClassName={overlayClassName}
         showCloseButton={false}
       >
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          <div className="ml-auto flex items-center gap-2">
+        <DialogHeader className="relative">
+          <DialogTitle className="pointer-events-none absolute inset-x-0 text-center">
+            {title}
+          </DialogTitle>
+          <div className="relative z-[1] ml-auto flex items-center gap-2">
             {headerActions}
             <DialogClose
               aria-label="Close"

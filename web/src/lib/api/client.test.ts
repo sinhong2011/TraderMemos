@@ -3,11 +3,14 @@ import {
   ApiError,
   apiFetch,
   API_BASE_STORAGE_KEY,
+  apiDocsUrl,
+  apiHealthUrl,
   DEFAULT_API_BASE,
   getBaseUrl,
   getCustomApiBaseUrl,
   getRefreshToken,
   normalizeApiBaseUrl,
+  editableApiBaseUrl,
   setBaseUrl,
   setToken,
   setTokens,
@@ -50,6 +53,35 @@ describe("api base url", () => {
   it("normalizeApiBaseUrl trims and strips trailing slashes", () => {
     expect(normalizeApiBaseUrl("  https://x.test/api/v1/  ")).toBe("https://x.test/api/v1");
     expect(normalizeApiBaseUrl("")).toBe("");
+  });
+
+  it("editableApiBaseUrl strips trailing /api/v1 for the input", () => {
+    expect(editableApiBaseUrl("https://journal.example.com/api/v1")).toBe(
+      "https://journal.example.com",
+    );
+    expect(editableApiBaseUrl("https://journal.example.com/api/v1/")).toBe(
+      "https://journal.example.com",
+    );
+    expect(editableApiBaseUrl("/api/v1")).toBe("");
+    expect(editableApiBaseUrl("")).toBe("");
+    expect(editableApiBaseUrl("https://journal.example.com/custom")).toBe(
+      "https://journal.example.com/custom",
+    );
+  });
+
+  it("apiHealthUrl maps api base to /healthz", () => {
+    expect(apiHealthUrl("/api/v1")).toBe("/healthz");
+    expect(apiHealthUrl("https://journal.example.com/api/v1")).toBe(
+      "https://journal.example.com/healthz",
+    );
+    expect(apiHealthUrl("https://journal.example.com")).toBe("https://journal.example.com/healthz");
+  });
+
+  it("apiDocsUrl maps api base to /docs", () => {
+    expect(apiDocsUrl("/api/v1")).toBe("/docs");
+    expect(apiDocsUrl("https://journal.example.com/api/v1")).toBe(
+      "https://journal.example.com/docs",
+    );
   });
 
   it("apiFetch uses the custom base url", async () => {

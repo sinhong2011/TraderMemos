@@ -1,8 +1,20 @@
 import { useForm } from "@tanstack/react-form";
-import { BookOpen, Check, Plus, Settings, Shield, Tag, Wallet, X } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import {
+  Check,
+  Download,
+  Pencil,
+  Plus,
+  Settings,
+  Shield,
+  Tag,
+  Upload,
+  Wallet,
+  X,
+} from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { EmptyState } from "../../../components/EmptyState";
 import { LlmApiSettingsForm } from "../../../components/LlmApiSettingsForm";
+import { Modal } from "../../../components/Modal";
 import { SignalAmountInput } from "../../../components/SignalAmountInput";
 import { SignalDatePicker } from "../../../components/SignalDatePicker";
 import { fieldError, SignalField } from "../../../components/SignalField";
@@ -11,7 +23,13 @@ import { Skeleton } from "../../../components/Skeleton";
 import { useToastManager } from "../../../components/Toast";
 import { Button } from "../../../components/ui/button";
 import { NativeSelect, NativeSelectOption } from "../../../components/ui/native-select";
-import { ApiError, getCustomApiBaseUrl, setBaseUrl } from "../../../lib/api/client";
+import {
+  ApiError,
+  editableApiBaseUrl,
+  getCustomApiBaseUrl,
+  setBaseUrl,
+} from "../../../lib/api/client";
+import { applyParsedAppConfig, buildAppConfigExport, parseAppConfig } from "../../../lib/appConfig";
 import type { RiskRules } from "../../../lib/api/settings";
 import {
   useCoachSettings,
@@ -19,7 +37,7 @@ import {
   useSaveCoachSettings,
   useTestCoachSettings,
 } from "../../../lib/hooks/useCoachSettings";
-import type { Account, CashTransaction, Setup, Tag as TagType } from "../../../lib/api/types";
+import type { Account, CashTransaction, Tag as TagType } from "../../../lib/api/types";
 import {
   useListOcrModels,
   useOcrSettings,
@@ -29,6 +47,7 @@ import {
 import { useTrades } from "../../../lib/hooks/useTrades";
 import { formatCashDisplay, signedCashAmount } from "../../../lib/cashAmount";
 import { parseAmountToNumber } from "../../../lib/amountInput";
+import { fmtDate, fmtMoney, fmtSignedMoney } from "../../../lib/format";
 import {
   intlLocale,
   LOCALE_OPTIONS,
@@ -53,7 +72,6 @@ import {
   defaultAccountFormValues,
   defaultCashFormValues,
   defaultRiskFormValues,
-  defaultSetupFormValues,
   defaultTagFormValues,
   parseChecklistText,
   riskFormToBody,
@@ -69,7 +87,6 @@ import {
   AccountRow,
   BtnGhost,
   BtnPrimary,
-  BtnToolbar,
   ClearTradesButton,
   DeleteButton,
   FormError,
@@ -100,11 +117,25 @@ function accountRecordDetail(tradeCount: number, cashCount: number): string {
 }
 
 function ledgerBalance(account: Account, transactions: CashTransaction[]) {
-  const flows = transactions
+  // Funded equity base is the cash ledger only. Opening balance is seeded as the
+  // first deposit when the account is created, so starting_balance is metadata.
+  return transactions
     .filter((t) => t.account_id === account.id)
     .reduce((sum, t) => sum + t.amount, 0);
-  return account.starting_balance + flows;
 }
+
+const POPULAR_BROKERS = [
+  "IBKR",
+  "Webull",
+  "Robinhood",
+  "Fidelity",
+  "Charles Schwab",
+  "E*TRADE",
+  "tastytrade",
+  "Moomoo",
+  "FUTU",
+] as const;
+const OTHER_BROKER_VALUE = "__other__";
 
 // ---------------------------------------------------------------------------
 // Accounts & funding
@@ -122,6 +153,7 @@ export interface AccountsTabProps {
     starting_balance: number;
   }) => Promise<void>;
   onDeleteAccount: (id: string) => Promise<void>;
+  onUpdateAccount: (id: string, body: { name: string; broker: string }) => Promise<void>;
   onClearAccountTrades: (id: string) => Promise<void>;
   cashTransactions: CashTransaction[];
   cashLoading: boolean;
@@ -134,6 +166,16 @@ export interface AccountsTabProps {
     occurred_at: string;
     note?: string;
   }) => Promise<void>;
+  onUpdateCash: (
+    id: string,
+    body: {
+      type: string;
+      amount: number;
+      currency: string;
+      occurred_at: string;
+      note?: string;
+    },
+  ) => Promise<void>;
   onDeleteCash: (id: string) => Promise<void>;
 }
 
@@ -143,11 +185,13 @@ export function AccountsTab({
   accountsError,
   onCreateAccount,
   onDeleteAccount,
+  onUpdateAccount,
   onClearAccountTrades,
   cashTransactions,
   cashLoading,
   cashError,
   onCreateCash,
+  onUpdateCash,
   onDeleteCash,
 }: AccountsTabProps) {
   usePrivacyMode();
@@ -157,8 +201,22 @@ export function AccountsTab({
   const [filterAccountId, setFilterAccountId] = useState<string | null>(null);
   const [accountFormError, setAccountFormError] = useState<string | null>(null);
   const [accountDeleteError, setAccountDeleteError] = useState<string | null>(null);
+  const [accountEditError, setAccountEditError] = useState<string | null>(null);
   const [clearTradesError, setClearTradesError] = useState<string | null>(null);
   const [cashFormError, setCashFormError] = useState<string | null>(null);
+  const [editAccountId, setEditAccountId] = useState<string | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editBrokerChoice, setEditBrokerChoice] = useState<string>(POPULAR_BROKERS[0]);
+  const [editBrokerCustom, setEditBrokerCustom] = useState("");
+  const [editingAccount, setEditingAccount] = useState(false);
+  const [editCashId, setEditCashId] = useState<string | null>(null);
+  const [editCashType, setEditCashType] = useState("deposit");
+  const [editCashAmount, setEditCashAmount] = useState("");
+  const [editCashDate, setEditCashDate] = useState("");
+  const [editCashNote, setEditCashNote] = useState("");
+  const [editCashCurrency, setEditCashCurrency] = useState("USD");
+  const [editCashError, setEditCashError] = useState<string | null>(null);
+  const [savingCash, setSavingCash] = useState(false);
 
   const tradesQ = useTrades({});
   const trades = tradesQ.data ?? [];
@@ -169,6 +227,14 @@ export function AccountsTab({
       counts.set(trade.account_id, (counts.get(trade.account_id) ?? 0) + 1);
     }
     return counts;
+  }, [trades]);
+  const netPnlByAccount = useMemo(() => {
+    const totals = new Map<string, number>();
+    for (const trade of trades) {
+      if (typeof trade.net_pnl !== "number") continue;
+      totals.set(trade.account_id, (totals.get(trade.account_id) ?? 0) + trade.net_pnl);
+    }
+    return totals;
   }, [trades]);
   const cashCountByAccount = useMemo(() => {
     const counts = new Map<string, number>();
@@ -207,6 +273,55 @@ export function AccountsTab({
     }
   }
 
+  function startEditAccount(account: Account) {
+    setAccountEditError(null);
+    setEditAccountId(account.id);
+    setEditName(account.name);
+    const broker = account.broker.trim();
+    if (POPULAR_BROKERS.includes(broker as (typeof POPULAR_BROKERS)[number])) {
+      setEditBrokerChoice(broker);
+      setEditBrokerCustom("");
+    } else {
+      setEditBrokerChoice(OTHER_BROKER_VALUE);
+      setEditBrokerCustom(broker);
+    }
+  }
+
+  function cancelEditAccount() {
+    setAccountEditError(null);
+    setEditAccountId(null);
+    setEditName("");
+    setEditBrokerChoice(POPULAR_BROKERS[0]);
+    setEditBrokerCustom("");
+    setEditingAccount(false);
+  }
+
+  async function handleSaveAccount(id: string) {
+    const name = editName.trim();
+    const broker =
+      editBrokerChoice === OTHER_BROKER_VALUE ? editBrokerCustom.trim() : editBrokerChoice.trim();
+    if (!name) {
+      setAccountEditError("Account name is required.");
+      return;
+    }
+    if (!broker) {
+      setAccountEditError("Broker is required.");
+      return;
+    }
+    setEditingAccount(true);
+    setAccountEditError(null);
+    try {
+      await onUpdateAccount(id, { name, broker });
+      toast.add({ title: "Account updated", description: name });
+      cancelEditAccount();
+    } catch (err) {
+      const message = err instanceof ApiError ? err.message : "Failed to update account.";
+      setAccountEditError(message);
+      toast.add({ title: "Could not update account", description: message });
+      setEditingAccount(false);
+    }
+  }
+
   async function handleDeleteCash(id: string) {
     try {
       await onDeleteCash(id);
@@ -216,6 +331,53 @@ export function AccountsTab({
         title: "Could not remove transaction",
         description: err instanceof Error ? err.message : "Request failed",
       });
+    }
+  }
+
+  function startEditCash(tx: CashTransaction) {
+    setEditCashError(null);
+    setEditCashId(tx.id);
+    setEditCashType(tx.type);
+    setEditCashAmount(String(Math.abs(tx.amount)));
+    setEditCashDate(tx.occurred_at.slice(0, 10));
+    setEditCashNote(tx.note ?? "");
+    setEditCashCurrency(tx.currency || "USD");
+  }
+
+  function cancelEditCash() {
+    setEditCashId(null);
+    setEditCashError(null);
+    setSavingCash(false);
+  }
+
+  async function handleSaveCash() {
+    if (!editCashId) return;
+    const amount = parseAmountToNumber(editCashAmount);
+    if (amount == null || amount <= 0) {
+      setEditCashError("Enter a valid amount.");
+      return;
+    }
+    if (!editCashDate) {
+      setEditCashError("Date is required.");
+      return;
+    }
+    setSavingCash(true);
+    setEditCashError(null);
+    try {
+      await onUpdateCash(editCashId, {
+        type: editCashType,
+        amount: signedCashAmount(editCashType, amount),
+        currency: editCashCurrency || "USD",
+        occurred_at: new Date(`${editCashDate}T12:00:00.000Z`).toISOString(),
+        note: editCashNote.trim() || undefined,
+      });
+      toast.add({ title: "Transaction updated" });
+      cancelEditCash();
+    } catch (err) {
+      const message = err instanceof ApiError ? err.message : "Failed to update transaction.";
+      setEditCashError(message);
+      toast.add({ title: "Could not update transaction", description: message });
+      setSavingCash(false);
     }
   }
 
@@ -283,18 +445,6 @@ export function AccountsTab({
   }, [filterAccountId, sortedTx]);
 
   const filteredAccount = accounts.find((a) => a.id === filterAccountId);
-
-  function openFundingForm(accountId: string, type: "deposit" | "withdrawal") {
-    cashForm.reset(defaultCashFormValues(accountId));
-    cashForm.setFieldValue("type", type);
-    setFilterAccountId(accountId);
-    setCashFormError(null);
-    setShowCashForm(true);
-    queueMicrotask(() => {
-      const el = document.getElementById("settings-funding");
-      el?.scrollIntoView?.({ behavior: "smooth", block: "start" });
-    });
-  }
 
   return (
     <>
@@ -398,6 +548,7 @@ export function AccountsTab({
                     <SignalField
                       label="Starting balance"
                       htmlFor="acct-balance"
+                      description="Saved as the first deposit in the cash ledger."
                       error={fieldError(field.state.meta.errors)}
                     >
                       <SignalAmountInput
@@ -450,7 +601,7 @@ export function AccountsTab({
             <p className="text-[12px] text-loss">Failed to load accounts.</p>
           </SettingsPanelBody>
         ) : accounts.length === 0 ? (
-          <SettingsPanelBody>
+          <SettingsPanelBody className="py-8">
             <EmptyState
               title="No accounts yet"
               hint="Add an account to get started."
@@ -459,67 +610,150 @@ export function AccountsTab({
           </SettingsPanelBody>
         ) : (
           <>
-            {accountDeleteError ? (
-              <p className="mb-3 text-[11px] text-loss">{accountDeleteError}</p>
-            ) : null}
-            {clearTradesError ? (
-              <p className="mb-3 text-[11px] text-loss">{clearTradesError}</p>
-            ) : null}
-            <SettingsGroup>
-              {accounts.map((acc, index) => {
-                const balance = ledgerBalance(acc, cashTransactions);
-                const isPrimary = acc.id === primaryId;
-                const isOnlyAccount = accounts.length === 1;
-                const tradeCount = tradeCountByAccount.get(acc.id) ?? 0;
-                const cashCount = cashCountByAccount.get(acc.id) ?? 0;
-                const balanceLabel = balance.toLocaleString(intlLocale(), {
-                  style: "currency",
-                  currency: acc.base_currency,
-                });
-                return (
-                  <AccountRow
-                    key={acc.id}
-                    last={index === accounts.length - 1}
-                    name={acc.name}
-                    broker={acc.broker}
-                    accountType={acc.account_type}
-                    currency={acc.base_currency}
-                    balance={balanceLabel}
-                    tradeCount={tradeCount}
-                    cashCount={cashCount}
-                    isPrimary={isPrimary}
-                    actions={
-                      <>
-                        <BtnToolbar
-                          aria-label={`Deposit to ${acc.name}`}
-                          onClick={() => openFundingForm(acc.id, "deposit")}
+            <div className="flex flex-col gap-3">
+              {accountDeleteError ? (
+                <p className="text-[11px] text-loss">{accountDeleteError}</p>
+              ) : null}
+              {accountEditError ? (
+                <p className="text-[11px] text-loss">{accountEditError}</p>
+              ) : null}
+              {clearTradesError ? (
+                <p className="text-[11px] text-loss">{clearTradesError}</p>
+              ) : null}
+              <div className="flex flex-col gap-2">
+                {accounts.map((acc) => {
+                  const balance = ledgerBalance(acc, cashTransactions);
+                  const isPrimary = acc.id === primaryId;
+                  const isOnlyAccount = accounts.length === 1;
+                  const tradeCount = tradeCountByAccount.get(acc.id) ?? 0;
+                  const netPnl = netPnlByAccount.get(acc.id) ?? 0;
+                  const cashCount = cashCountByAccount.get(acc.id) ?? 0;
+                  const locale = intlLocale();
+                  const depositedLabel = fmtMoney(balance, acc.base_currency, locale);
+                  const equity = balance + netPnl;
+                  const equityLabel = fmtMoney(equity, acc.base_currency, locale);
+                  const realizedPnlLabel = fmtSignedMoney(netPnl, acc.base_currency, locale);
+                  const pnlPctLabel =
+                    balance !== 0
+                      ? (netPnl / balance).toLocaleString(locale, {
+                          style: "percent",
+                          maximumFractionDigits: 2,
+                          signDisplay: "exceptZero",
+                        })
+                      : "—";
+                  return (
+                    <AccountRow
+                      key={acc.id}
+                      name={acc.name}
+                      broker={acc.broker}
+                      accountType={acc.account_type}
+                      currency={acc.base_currency}
+                      depositedLabel={depositedLabel}
+                      equityLabel={equityLabel}
+                      realizedPnlLabel={realizedPnlLabel}
+                      pnlPctLabel={pnlPctLabel}
+                      tradeCount={tradeCount}
+                      netPnl={netPnl}
+                      isPrimary={isPrimary}
+                      headerAction={
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          aria-label={`Edit ${acc.name}`}
+                          onClick={() => startEditAccount(acc)}
+                          disabled={editingAccount}
+                          className="h-8 border-border-strong bg-transparent px-3 text-[12px] text-text hover:bg-bg-hover"
                         >
-                          Deposit
-                        </BtnToolbar>
-                        <BtnToolbar
-                          aria-label={`Withdraw from ${acc.name}`}
-                          onClick={() => openFundingForm(acc.id, "withdrawal")}
-                        >
-                          Withdraw
-                        </BtnToolbar>
-                        <ClearTradesButton
-                          accountName={acc.name}
-                          tradeCount={tradeCount}
-                          onClear={() => void handleClearAccountTrades(acc.id)}
-                        />
-                        {!isOnlyAccount ? (
-                          <DeleteButton
-                            label={acc.name}
-                            detail={accountRecordDetail(tradeCount, cashCount)}
-                            onDelete={() => void handleDeleteAccount(acc.id)}
+                          Edit account
+                        </Button>
+                      }
+                      footerActions={
+                        <>
+                          <ClearTradesButton
+                            accountName={acc.name}
+                            tradeCount={tradeCount}
+                            onClear={() => void handleClearAccountTrades(acc.id)}
                           />
-                        ) : null}
-                      </>
-                    }
+                          {!isOnlyAccount ? (
+                            <DeleteButton
+                              label={acc.name}
+                              detail={accountRecordDetail(tradeCount, cashCount)}
+                              onDelete={() => void handleDeleteAccount(acc.id)}
+                            />
+                          ) : null}
+                        </>
+                      }
+                    />
+                  );
+                })}
+              </div>
+            </div>
+            <Modal
+              open={Boolean(editAccountId)}
+              onOpenChange={(open) => {
+                if (!open) cancelEditAccount();
+              }}
+              title="Edit account"
+              className="max-w-[min(500px,94vw)]"
+              footer={
+                <>
+                  <BtnGhost onClick={cancelEditAccount} disabled={editingAccount} size="action">
+                    <X size={12} strokeWidth={1.5} />
+                    Cancel
+                  </BtnGhost>
+                  <BtnPrimary
+                    onClick={() => {
+                      if (editAccountId) void handleSaveAccount(editAccountId);
+                    }}
+                    disabled={editingAccount}
+                    className="h-9 min-h-9"
+                  >
+                    <Check size={12} strokeWidth={1.5} />
+                    {editingAccount ? "Saving…" : "Save"}
+                  </BtnPrimary>
+                </>
+              }
+            >
+              <div className="flex flex-col gap-3">
+                <SignalField label="Account name" htmlFor="edit-account-name">
+                  <SignalInput
+                    id="edit-account-name"
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    placeholder="e.g. Main Account"
                   />
-                );
-              })}
-            </SettingsGroup>
+                </SignalField>
+                <SignalField label="Broker">
+                  <NativeSelect
+                    size="sm"
+                    value={editBrokerChoice}
+                    onChange={(e) => setEditBrokerChoice(e.target.value)}
+                    aria-label="Broker"
+                    className="h-8 w-full text-[12px]"
+                    wrapperClassName="w-full"
+                  >
+                    {POPULAR_BROKERS.map((broker) => (
+                      <NativeSelectOption key={broker} value={broker}>
+                        {broker}
+                      </NativeSelectOption>
+                    ))}
+                    <NativeSelectOption value={OTHER_BROKER_VALUE}>Other</NativeSelectOption>
+                  </NativeSelect>
+                </SignalField>
+                {editBrokerChoice === OTHER_BROKER_VALUE ? (
+                  <SignalField label="Custom broker" htmlFor="edit-account-broker">
+                    <SignalInput
+                      id="edit-account-broker"
+                      value={editBrokerCustom}
+                      onChange={(e) => setEditBrokerCustom(e.target.value)}
+                      placeholder="Type broker name"
+                    />
+                  </SignalField>
+                ) : null}
+              </div>
+              {accountEditError ? <FormError message={accountEditError} /> : null}
+            </Modal>
           </>
         )}
       </SettingsSection>
@@ -545,8 +779,8 @@ export function AccountsTab({
         }
       >
         {filterAccountId && filteredAccount && (
-          <div className="mb-3 flex flex-wrap items-center gap-2">
-            <span className="rounded-sharp border border-border bg-bg-inset px-2 py-1 text-[11px] text-text-muted">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-sharp bg-bg-panel px-2 py-1 text-[11px] text-text-muted">
               Filtered to {filteredAccount.name}
             </span>
             <BtnGhost className="px-2 py-1 text-[11px]" onClick={() => setFilterAccountId(null)}>
@@ -686,23 +920,29 @@ export function AccountsTab({
         )}
 
         {cashLoading ? (
-          <div className="flex flex-col gap-2">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <Skeleton key={i} height="40px" />
-            ))}
-          </div>
+          <SettingsPanelBody>
+            <div className="flex flex-col gap-2">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <Skeleton key={i} height="40px" />
+              ))}
+            </div>
+          </SettingsPanelBody>
         ) : cashError ? (
-          <p className="text-[12px] text-loss">Failed to load transactions.</p>
+          <SettingsPanelBody>
+            <p className="text-[12px] text-loss">Failed to load transactions.</p>
+          </SettingsPanelBody>
         ) : displayedTx.length === 0 ? (
-          <EmptyState
-            title={filterAccountId ? "No transactions for this account" : "No transactions yet"}
-            hint={
-              filterAccountId
-                ? "Record a deposit or withdrawal for this account."
-                : "Add a deposit or withdrawal to track balance changes."
-            }
-            icon={<Wallet size={28} strokeWidth={1.5} />}
-          />
+          <SettingsPanelBody className="py-8">
+            <EmptyState
+              title={filterAccountId ? "No transactions for this account" : "No transactions yet"}
+              hint={
+                filterAccountId
+                  ? "Record a deposit or withdrawal for this account."
+                  : "Add a deposit or withdrawal to track balance changes."
+              }
+              icon={<Wallet size={28} strokeWidth={1.5} />}
+            />
+          </SettingsPanelBody>
         ) : (
           <SettingsGroup>
             {displayedTx.map((tx, index) => {
@@ -723,17 +963,29 @@ export function AccountsTab({
                   }
                   secondary={
                     <>
-                      {new Date(tx.occurred_at).toLocaleDateString()}{" "}
-                      {tx.note && <span className="text-text-dim">· {tx.note}</span>}
+                      {fmtDate(tx.occurred_at)}
+                      {tx.note ? <span className="text-text-dim"> · {tx.note}</span> : null}
                     </>
                   }
                   actions={
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1.5">
                       <span
-                        className={`text-[12px] tabular-nums ${isOutflow ? "text-loss" : "text-profit"}`}
+                        className={`mr-1.5 text-[12px] font-semibold tabular-nums ${
+                          isOutflow ? "text-loss" : "text-profit"
+                        }`}
                       >
                         {display}
                       </span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-xs"
+                        tooltip={false}
+                        aria-label={`Edit ${tx.type} transaction`}
+                        onClick={() => startEditCash(tx)}
+                      >
+                        <Pencil size={14} strokeWidth={1.5} />
+                      </Button>
                       <DeleteButton label={tx.type} onDelete={() => void handleDeleteCash(tx.id)} />
                     </div>
                   }
@@ -743,6 +995,69 @@ export function AccountsTab({
           </SettingsGroup>
         )}
       </SettingsSection>
+
+      <Modal
+        open={Boolean(editCashId)}
+        onOpenChange={(open) => {
+          if (!open) cancelEditCash();
+        }}
+        title="Edit transaction"
+        className="max-w-[min(440px,94vw)]"
+        footer={
+          <>
+            <BtnGhost onClick={cancelEditCash} disabled={savingCash} size="action">
+              <X size={12} strokeWidth={1.5} />
+              Cancel
+            </BtnGhost>
+            <BtnPrimary onClick={() => void handleSaveCash()} disabled={savingCash}>
+              <Check size={12} strokeWidth={1.5} />
+              {savingCash ? "Saving…" : "Save"}
+            </BtnPrimary>
+          </>
+        }
+      >
+        <div className="flex flex-col gap-3">
+          <SignalField label="Type">
+            <NativeSelect
+              size="sm"
+              value={editCashType}
+              onChange={(e) => setEditCashType(e.target.value)}
+              aria-label="Cash type"
+              className="h-8 w-full text-[12px]"
+              wrapperClassName="w-full"
+            >
+              <NativeSelectOption value="deposit">Deposit</NativeSelectOption>
+              <NativeSelectOption value="withdrawal">Withdrawal</NativeSelectOption>
+              <NativeSelectOption value="fee">Fee</NativeSelectOption>
+              <NativeSelectOption value="dividend">Dividend</NativeSelectOption>
+              <NativeSelectOption value="interest">Interest</NativeSelectOption>
+              <NativeSelectOption value="adjustment">Adjustment</NativeSelectOption>
+            </NativeSelect>
+          </SignalField>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <SignalField label="Amount" htmlFor="edit-cash-amount">
+              <SignalAmountInput
+                id="edit-cash-amount"
+                value={editCashAmount}
+                onValueChange={setEditCashAmount}
+                placeholder="0.00"
+              />
+            </SignalField>
+            <SignalField label="Date">
+              <SignalDatePicker aria-label="Date" value={editCashDate} onChange={setEditCashDate} />
+            </SignalField>
+          </div>
+          <SignalField label="Note" htmlFor="edit-cash-note">
+            <SignalInput
+              id="edit-cash-note"
+              value={editCashNote}
+              onChange={(e) => setEditCashNote(e.target.value)}
+              placeholder="Optional note"
+            />
+          </SignalField>
+          <FormError message={editCashError} />
+        </div>
+      </Modal>
     </>
   );
 }
@@ -999,6 +1314,7 @@ export function RulesTab({
                       onChange={(e) => field.handleChange(e.target.value)}
                       rows={5}
                       placeholder={"Check VIX\nNo revenge trades\nSize within risk"}
+                      className="border border-border !bg-transparent hover:!bg-transparent focus-visible:!bg-transparent"
                     />
                   </SignalField>
                 )}
@@ -1018,7 +1334,7 @@ export function RulesTab({
 }
 
 // ---------------------------------------------------------------------------
-// Journal (tags + setups)
+// Journal (tags)
 // ---------------------------------------------------------------------------
 
 export interface JournalTabProps {
@@ -1027,11 +1343,6 @@ export interface JournalTabProps {
   tagsError: boolean;
   onCreateTag: (body: { name: string; color?: string; kind?: string }) => Promise<void>;
   onDeleteTag: (id: string) => Promise<void>;
-  setups: Setup[];
-  setupsLoading: boolean;
-  setupsError: boolean;
-  onCreateSetup: (name: string, description: string) => Promise<void>;
-  onDeleteSetup: (id: string) => Promise<void>;
 }
 
 export function JournalTab({
@@ -1040,17 +1351,10 @@ export function JournalTab({
   tagsError,
   onCreateTag,
   onDeleteTag,
-  setups,
-  setupsLoading,
-  setupsError,
-  onCreateSetup,
-  onDeleteSetup,
 }: JournalTabProps) {
   const toast = useToastManager();
   const [showTagForm, setShowTagForm] = useState(false);
   const [tagFormError, setTagFormError] = useState<string | null>(null);
-  const [showSetupForm, setShowSetupForm] = useState(false);
-  const [setupFormError, setSetupFormError] = useState<string | null>(null);
 
   const tagForm = useForm({
     defaultValues: defaultTagFormValues(),
@@ -1070,20 +1374,6 @@ export function JournalTab({
     },
   });
 
-  const setupForm = useForm({
-    defaultValues: defaultSetupFormValues(),
-    onSubmit: async ({ value }) => {
-      setSetupFormError(null);
-      try {
-        await onCreateSetup(value.name.trim(), value.description.trim());
-        setupForm.reset(defaultSetupFormValues());
-        setShowSetupForm(false);
-      } catch {
-        setSetupFormError("Failed to create setup.");
-      }
-    },
-  });
-
   async function handleDeleteTag(id: string) {
     const name = tags.find((tag) => tag.id === id)?.name ?? "Tag";
     try {
@@ -1092,19 +1382,6 @@ export function JournalTab({
     } catch (err) {
       toast.add({
         title: "Could not delete tag",
-        description: err instanceof Error ? err.message : "Request failed",
-      });
-    }
-  }
-
-  async function handleDeleteSetup(id: string) {
-    const name = setups.find((setup) => setup.id === id)?.name ?? "Setup";
-    try {
-      await onDeleteSetup(id);
-      toast.add({ title: "Setup deleted", description: name });
-    } catch (err) {
-      toast.add({
-        title: "Could not delete setup",
         description: err instanceof Error ? err.message : "Request failed",
       });
     }
@@ -1212,19 +1489,25 @@ export function JournalTab({
         )}
 
         {tagsLoading ? (
-          <div className="flex flex-col gap-2">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <Skeleton key={i} height="36px" />
-            ))}
-          </div>
+          <SettingsPanelBody>
+            <div className="flex flex-col gap-2">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <Skeleton key={i} height="36px" />
+              ))}
+            </div>
+          </SettingsPanelBody>
         ) : tagsError ? (
-          <p className="text-[12px] text-loss">Failed to load tags.</p>
+          <SettingsPanelBody>
+            <p className="text-[12px] text-loss">Failed to load tags.</p>
+          </SettingsPanelBody>
         ) : tags.length === 0 ? (
-          <EmptyState
-            title="No tags yet"
-            hint="Create tags to annotate your trades."
-            icon={<Tag size={28} strokeWidth={1.5} />}
-          />
+          <SettingsPanelBody className="py-8">
+            <EmptyState
+              title="No tags yet"
+              hint="Create tags to annotate your trades."
+              icon={<Tag size={28} strokeWidth={1.5} />}
+            />
+          </SettingsPanelBody>
         ) : (
           <SettingsGroup>
             {tags.map((tag, index) => (
@@ -1251,117 +1534,19 @@ export function JournalTab({
       </SettingsSection>
 
       <SettingsSection
-        title="Setups"
-        description="Playbook patterns linked from the New Trade drawer."
-        action={
-          <BtnGhost active={showSetupForm} onClick={() => setShowSetupForm((v) => !v)}>
-            <Plus size={13} strokeWidth={1.5} />
-            Add setup
-          </BtnGhost>
-        }
+        title="Playbook setups"
+        description="Manage thesis, checklist, and performance on the Playbook page — not here."
       >
-        {showSetupForm && (
-          <SettingsInsetForm>
-            <form
-              className="flex flex-col gap-3"
-              onSubmit={(e) => {
-                e.preventDefault();
-                void setupForm.handleSubmit();
-              }}
-            >
-              <setupForm.Field
-                name="name"
-                validators={{
-                  onBlur: ({ value }) => validateRequiredName(value),
-                  onSubmit: ({ value }) => validateRequiredName(value),
-                }}
-              >
-                {(field) => (
-                  <SignalField
-                    label="Name"
-                    htmlFor="setup-name"
-                    error={fieldError(field.state.meta.errors)}
-                  >
-                    <SignalInput
-                      id="setup-name"
-                      value={field.state.value}
-                      onBlur={field.handleBlur}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      placeholder="e.g. ORB, VWAP Fade"
-                    />
-                  </SignalField>
-                )}
-              </setupForm.Field>
-              <setupForm.Field name="description">
-                {(field) => (
-                  <SignalField label="Description" htmlFor="setup-desc">
-                    <SignalInput
-                      id="setup-desc"
-                      value={field.state.value}
-                      onBlur={field.handleBlur}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      placeholder="Optional notes"
-                    />
-                  </SignalField>
-                )}
-              </setupForm.Field>
-              <FormError message={setupFormError} />
-              <div className="flex items-center gap-2">
-                <setupForm.Subscribe selector={(s) => s.isSubmitting}>
-                  {(setupSaving) => (
-                    <BtnPrimary type="submit" disabled={setupSaving}>
-                      <Check size={12} strokeWidth={1.5} />
-                      {setupSaving ? "Creating…" : "Create"}
-                    </BtnPrimary>
-                  )}
-                </setupForm.Subscribe>
-                <BtnGhost
-                  onClick={() => {
-                    setShowSetupForm(false);
-                    setSetupFormError(null);
-                    setupForm.reset(defaultSetupFormValues());
-                  }}
-                >
-                  <X size={12} strokeWidth={1.5} />
-                  Cancel
-                </BtnGhost>
-              </div>
-            </form>
-          </SettingsInsetForm>
-        )}
-
-        {setupsLoading ? (
-          <div className="flex flex-col gap-2">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <Skeleton key={i} height="36px" />
-            ))}
+        <SettingsPanelBody>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="m-0 max-w-xl text-[12px] leading-relaxed text-text-muted">
+              Setups are created and edited in Playbook, then linked when you log a trade.
+            </p>
+            <Button type="button" variant="outline" render={<a href="/playbook" />}>
+              Open Playbook
+            </Button>
           </div>
-        ) : setupsError ? (
-          <p className="text-[12px] text-loss">Failed to load setups.</p>
-        ) : setups.length === 0 ? (
-          <EmptyState
-            title="No setups yet"
-            hint="Create a setup to track your playbook strategies."
-            icon={<BookOpen size={28} strokeWidth={1.5} />}
-          />
-        ) : (
-          <SettingsGroup>
-            {setups.map((setup, index) => (
-              <SettingsRow
-                key={setup.id}
-                last={index === setups.length - 1}
-                primary={setup.name}
-                secondary={setup.description || undefined}
-                actions={
-                  <DeleteButton
-                    label={setup.name}
-                    onDelete={() => void handleDeleteSetup(setup.id)}
-                  />
-                }
-              />
-            ))}
-          </SettingsGroup>
-        )}
+        </SettingsPanelBody>
       </SettingsSection>
     </>
   );
@@ -1478,6 +1663,7 @@ export function AiTab() {
 
 export function GeneralTab() {
   const { locale, setLocale } = useLocale();
+  const toast = useToastManager();
   const signOut = useAuth((s) => s.signOut);
   const maxScreenshots = useJournalPrefs((s) => s.maxScreenshotsPerTrade);
   const setMaxScreenshots = useJournalPrefs((s) => s.setMaxScreenshotsPerTrade);
@@ -1487,14 +1673,48 @@ export function GeneralTab() {
   const setTimeFormat = useDisplayPrefs((s) => s.setTimeFormat);
   const tradeDateBasis = useDisplayPrefs((s) => s.tradeDateBasis);
   const setTradeDateBasis = useDisplayPrefs((s) => s.setTradeDateBasis);
-  const [serverUrl, setServerUrl] = useState(() => getCustomApiBaseUrl());
+  const [serverUrl, setServerUrl] = useState(() => editableApiBaseUrl(getCustomApiBaseUrl()));
+  const configInputRef = useRef<HTMLInputElement | null>(null);
+
+  function handleExportConfig() {
+    const payload = buildAppConfigExport(locale, getCustomApiBaseUrl());
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    const stamp = new Date().toISOString().slice(0, 10);
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `tradermemos-app-config-${stamp}.json`;
+    link.rel = "noopener";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    toast.add({
+      title: "App config exported",
+      description: "Downloaded your local app preferences as JSON.",
+    });
+  }
+
+  async function handleImportConfig(file: File) {
+    try {
+      const parsed = parseAppConfig(await file.text());
+      await applyParsedAppConfig(parsed, setLocale);
+      setServerUrl(editableApiBaseUrl(getCustomApiBaseUrl()));
+      toast.add({
+        title: "App config imported",
+        description: "Settings restored from backup.",
+      });
+    } catch (err) {
+      toast.add({
+        title: "Could not import config",
+        description: err instanceof Error ? err.message : "Invalid config file.",
+      });
+    }
+  }
 
   return (
     <>
-      <SettingsSection
-        title={settingsLabel(locale, "generalTitle")}
-        description={settingsLabel(locale, "generalDescription")}
-      >
+      <SettingsSection>
         <SettingsGroup>
           <SettingsGroupRow
             label={settingsLabel(locale, "language")}
@@ -1611,7 +1831,7 @@ export function GeneralTab() {
               onChange={(e) => setServerUrl(e.target.value)}
               onBlur={() => {
                 setBaseUrl(serverUrl);
-                setServerUrl(getCustomApiBaseUrl());
+                setServerUrl(editableApiBaseUrl(getCustomApiBaseUrl()));
               }}
               className="h-10 w-full text-[13px]"
             />
@@ -1619,11 +1839,41 @@ export function GeneralTab() {
           <SettingsGroupRow
             label={settingsLabel(locale, "session")}
             detail={settingsLabel(locale, "signOutFooter")}
-            last
           >
             <Button type="button" variant="outline" onClick={() => signOut()}>
               {settingsLabel(locale, "signOut")}
             </Button>
+          </SettingsGroupRow>
+          <SettingsGroupRow
+            label={settingsLabel(locale, "appConfig")}
+            detail={settingsLabel(locale, "appConfigFooter")}
+            last
+          >
+            <div className="flex w-full flex-wrap justify-end gap-2">
+              <Button type="button" variant="outline" onClick={handleExportConfig}>
+                <Download size={13} strokeWidth={1.5} />
+                {settingsLabel(locale, "exportConfig")}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => configInputRef.current?.click()}
+              >
+                <Upload size={13} strokeWidth={1.5} />
+                {settingsLabel(locale, "importConfig")}
+              </Button>
+              <input
+                ref={configInputRef}
+                type="file"
+                accept="application/json,.json"
+                className="hidden"
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  if (file) void handleImportConfig(file);
+                  event.currentTarget.value = "";
+                }}
+              />
+            </div>
           </SettingsGroupRow>
         </SettingsGroup>
       </SettingsSection>

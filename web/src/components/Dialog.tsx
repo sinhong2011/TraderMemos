@@ -85,10 +85,7 @@ function DialogHeader({ className, ...props }: ComponentProps<"div">) {
   return (
     <div
       data-slot="dialog-header"
-      className={cn(
-        "flex shrink-0 items-center justify-between gap-3 border-b border-border px-5 py-4",
-        className,
-      )}
+      className={cn("flex shrink-0 items-center justify-between gap-3 px-5 py-4", className)}
       {...props}
     />
   );
@@ -109,10 +106,7 @@ function DialogFooter({ className, ...props }: ComponentProps<"div">) {
   return (
     <div
       data-slot="dialog-footer"
-      className={cn(
-        "flex w-full shrink-0 items-center justify-end gap-2 border-t border-border px-5 py-3",
-        className,
-      )}
+      className={cn("flex w-full shrink-0 items-center justify-end gap-2 px-5 py-3", className)}
       {...props}
     />
   );

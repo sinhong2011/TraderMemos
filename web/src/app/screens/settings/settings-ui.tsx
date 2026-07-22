@@ -27,7 +27,14 @@ export function SettingsPageHeader({
   );
 }
 
-export type SettingsSectionId = "accounts" | "rules" | "journal" | "ai" | "general";
+export type SettingsSectionId =
+  | "accounts"
+  | "rules"
+  | "journal"
+  | "ai"
+  | "general"
+  | "api"
+  | "about";
 
 export function SettingsShell({ nav, children }: { nav: ReactNode; children: ReactNode }) {
   return (
@@ -118,21 +125,6 @@ export function SettingsPanel({
   );
 }
 
-/** macOS System Settings–style grouped panel */
-export function SettingsGroup({
-  children,
-  className,
-}: {
-  children: ReactNode;
-  className?: string;
-}) {
-  return (
-    <div className={cn("divide-y divide-border/40 border-t border-border/40", className)}>
-      {children}
-    </div>
-  );
-}
-
 export function SettingsBadge({
   children,
   tone = "muted",
@@ -152,6 +144,7 @@ export function SettingsBadge({
   );
 }
 
+/** Optional content block under a bare section title. */
 export function SettingsPanelBody({
   children,
   className,
@@ -159,7 +152,76 @@ export function SettingsPanelBody({
   children: ReactNode;
   className?: string;
 }) {
-  return <div className={cn("border-t border-border/40 px-5 py-4", className)}>{children}</div>;
+  return (
+    <div className={cn("rounded-card border border-border px-5 py-4", className)}>{children}</div>
+  );
+}
+
+/** Grouped preference rows in a rounded bordered block. */
+export function SettingsGroup({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div
+      className={cn(
+        "overflow-hidden rounded-card border border-border divide-y divide-border/40",
+        className,
+      )}
+    >
+      {children}
+    </div>
+  );
+}
+
+export function SettingsInsetForm({ children }: { children: ReactNode }) {
+  return (
+    <div className="rounded-card border border-border px-5 py-4">
+      <div className="flex flex-col gap-3">{children}</div>
+    </div>
+  );
+}
+
+export function SettingsSection({
+  id,
+  title,
+  description,
+  footer,
+  action,
+  children,
+}: {
+  id?: string;
+  title?: string;
+  description?: string;
+  footer?: string;
+  action?: ReactNode;
+  children: ReactNode;
+}) {
+  const panelDescription = description ?? footer;
+
+  return (
+    <section id={id} className="scroll-mt-4 flex flex-col gap-4">
+      {(title || panelDescription || action) && (
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            {title ? (
+              <h2 className="m-0 text-[15px] font-semibold tracking-tight text-text">{title}</h2>
+            ) : null}
+            {panelDescription ? (
+              <p className="mt-1 max-w-2xl text-[12px] leading-relaxed text-text-muted">
+                {panelDescription}
+              </p>
+            ) : null}
+          </div>
+          {action ? <div className="shrink-0">{action}</div> : null}
+        </div>
+      )}
+      {children}
+    </section>
+  );
 }
 
 export function SettingsToggle({
@@ -314,44 +376,6 @@ export function SettingsGroupRow({
   );
 }
 
-export function SettingsSection({
-  id,
-  title,
-  description,
-  footer,
-  action,
-  children,
-  panelFooter,
-}: {
-  id?: string;
-  title?: string;
-  description?: string;
-  footer?: string;
-  action?: ReactNode;
-  children: ReactNode;
-  /** Right-aligned actions rendered inside the panel footer bar. */
-  panelFooter?: ReactNode;
-}) {
-  const panelDescription = description ?? footer;
-
-  return (
-    <section id={id} className="scroll-mt-4">
-      <SettingsPanel
-        title={title}
-        description={panelDescription}
-        action={action}
-        footer={panelFooter}
-      >
-        {children}
-      </SettingsPanel>
-    </section>
-  );
-}
-
-export function SettingsInsetForm({ children }: { children: ReactNode }) {
-  return <div className="border-t border-border/40 px-5 py-4">{children}</div>;
-}
-
 export function SettingsRow({
   primary,
   secondary,
@@ -377,17 +401,6 @@ export function SettingsRow({
         </div>
       ) : null}
     </div>
-  );
-}
-
-function SettingsStat({ label, value }: { label: string; value: string }) {
-  return (
-    <span className="inline-flex items-baseline gap-1.5 whitespace-nowrap">
-      <span className="text-[13px] font-semibold tabular-nums tracking-tight text-text">
-        {value}
-      </span>
-      <span className="text-[11px] text-text-dim">{label}</span>
-    </span>
   );
 }
 
@@ -428,49 +441,95 @@ export function AccountRow({
   broker,
   accountType,
   currency,
-  balance,
+  depositedLabel,
+  equityLabel,
+  realizedPnlLabel,
+  pnlPctLabel,
   tradeCount,
-  cashCount,
+  netPnl,
   isPrimary,
-  actions,
+  headerAction,
+  footerActions,
 }: {
   name: string;
   broker: string;
   accountType: string;
   currency: string;
-  balance: string;
+  depositedLabel: string;
+  equityLabel: string;
+  realizedPnlLabel: string;
+  pnlPctLabel: string;
   tradeCount: number;
-  cashCount: number;
+  netPnl: number;
   isPrimary: boolean;
-  actions: ReactNode;
-  last?: boolean;
+  headerAction?: ReactNode;
+  footerActions?: ReactNode;
 }) {
-  const meta = [broker || "—", accountType, currency, cashCount > 0 ? `${cashCount} cash tx` : null]
+  const metaParts = [
+    broker || null,
+    accountType ? accountType.charAt(0).toUpperCase() + accountType.slice(1) : null,
+    currency || null,
+  ].filter(Boolean) as string[];
+
+  const pnlTone = netPnl > 0 ? "text-profit" : netPnl < 0 ? "text-loss" : "text-text-muted";
+
+  const footerMeta = [
+    ...metaParts,
+    tradeCount > 0 ? `${tradeCount} ${tradeCount === 1 ? "trade" : "trades"}` : null,
+  ]
     .filter(Boolean)
     .join(" · ");
 
   return (
-    <div className="grid grid-cols-1 gap-3 px-5 py-4 md:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] md:items-center md:gap-8">
-      <div className="min-w-0">
-        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-          <span className="text-[13px] font-semibold tracking-tight text-text">{name}</span>
+    <div className="rounded-card border border-border px-4 py-4 transition-colors duration-150 hover:bg-bg-hover/40 motion-reduce:transition-none">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0 flex flex-wrap items-center gap-x-2 gap-y-1">
+          <h3 className="m-0 text-[15.4px] font-semibold tracking-tight text-text">{name}</h3>
           {isPrimary ? <Pill tone="amber">Primary</Pill> : null}
         </div>
-        <p className="mt-1 text-[12px] leading-relaxed text-text-muted">{meta}</p>
+        {headerAction ? <div className="shrink-0">{headerAction}</div> : null}
       </div>
 
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 md:justify-self-end">
-        <div className="flex items-baseline gap-3">
-          <SettingsStat label="balance" value={balance} />
-          <span aria-hidden className="text-[12px] text-text-dim select-none">
-            ·
-          </span>
-          <SettingsStat
-            label={tradeCount === 1 ? "trade" : "trades"}
-            value={tradeCount > 0 ? String(tradeCount) : "—"}
-          />
+      <div className="mt-4 grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-3">
+        <div className="min-w-0">
+          <p className="m-0 text-[10px] font-medium uppercase tracking-[0.12em] text-text-dim">
+            Deposited
+          </p>
+          <p className="m-0 mt-1 text-[13px] font-semibold tabular-nums tracking-tight text-text">
+            {depositedLabel}
+          </p>
         </div>
-        <div className="flex flex-wrap items-center gap-1">{actions}</div>
+        <div className="min-w-0 sm:col-start-2">
+          <p className="m-0 text-[10px] font-medium uppercase tracking-[0.12em] text-text-dim">
+            Equity
+          </p>
+          <p className="m-0 mt-1 text-[18px] font-semibold tabular-nums tracking-tight text-text">
+            {equityLabel}
+          </p>
+        </div>
+        <div className="min-w-0 col-span-2 sm:col-span-1 sm:col-start-3">
+          <p className="m-0 text-[10px] font-medium uppercase tracking-[0.12em] text-text-dim">
+            Realized P&L
+          </p>
+          <p
+            className={cn(
+              "m-0 mt-1 text-[13px] font-semibold tabular-nums tracking-tight",
+              pnlTone,
+            )}
+          >
+            {realizedPnlLabel}
+            {pnlPctLabel !== "—" ? (
+              <span className="ml-1.5 font-normal text-[12px]">({pnlPctLabel})</span>
+            ) : null}
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
+        <p className="m-0 min-w-0 text-[11px] text-text-dim">{footerMeta || "No broker set"}</p>
+        {footerActions ? (
+          <div className="flex flex-wrap items-center justify-end gap-1.5">{footerActions}</div>
+        ) : null}
       </div>
     </div>
   );

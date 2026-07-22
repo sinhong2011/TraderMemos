@@ -6,6 +6,8 @@ export const SETTINGS_SECTION_IDS: SettingsSectionId[] = [
   "journal",
   "ai",
   "general",
+  "api",
+  "about",
 ];
 
 export const DEFAULT_SETTINGS_SECTION: SettingsSectionId = "accounts";

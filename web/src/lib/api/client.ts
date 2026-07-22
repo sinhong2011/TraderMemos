@@ -56,6 +56,20 @@ export function normalizeApiBaseUrl(raw: string): string {
   return withoutTrailing;
 }
 
+/**
+ * Value for the API-server input: strip a trailing `/api/v1` so users only edit
+ * the origin. {@link setBaseUrl} / {@link normalizeApiBaseUrl} re-append it.
+ */
+export function editableApiBaseUrl(stored: string): string {
+  const trimmed = stored.trim().replace(/\/+$/, "");
+  if (!trimmed) return "";
+  if (trimmed === "/api/v1") return "";
+  if (trimmed.endsWith("/api/v1")) {
+    return trimmed.slice(0, -"/api/v1".length);
+  }
+  return trimmed;
+}
+
 /** Effective API base used by all clients (custom override or build default). */
 export function getBaseUrl(): string {
   if (!baseUrl) {
@@ -192,6 +206,42 @@ export async function apiFetch<T = unknown>(
     throw new ApiError(res.status, e.code ?? "error", e.message ?? res.statusText);
   }
   return body as T;
+}
+
+/** Authenticated GET that returns the raw Response (for file downloads). */
+export async function apiRawGet(path: string, retried = false): Promise<Response> {
+  const auth = getToken();
+  const res = await fetch(getBaseUrl() + path, {
+    headers: auth ? { Authorization: `Bearer ${auth}` } : {},
+  });
+  if (res.status === 401 && !path.startsWith("/auth/")) {
+    if (!retried && (await tryRefresh())) {
+      return apiRawGet(path, true);
+    }
+    onUnauthorized?.();
+  }
+  return res;
+}
+
+/** Map an API base (`/api/v1` or `https://host/api/v1`) to an API-root path (e.g. `/healthz`, `/docs`). */
+export function apiRootUrl(apiBase: string, path: string): string {
+  const trimmed = apiBase.trim().replace(/\/+$/, "");
+  const root = trimmed.replace(/\/api\/v1$/i, "");
+  const suffix = path.startsWith("/") ? path : `/${path}`;
+  if (/^https?:\/\//i.test(root)) {
+    return `${root}${suffix}`;
+  }
+  return root ? `${root}${suffix}` : suffix;
+}
+
+/** Map an API base (`/api/v1` or `https://host/api/v1`) to the root `/healthz` probe. */
+export function apiHealthUrl(apiBase: string): string {
+  return apiRootUrl(apiBase, "/healthz");
+}
+
+/** Map an API base to the public Scalar docs UI. */
+export function apiDocsUrl(apiBase: string): string {
+  return apiRootUrl(apiBase, "/docs");
 }
 
 export function qs(params: Record<string, string | undefined>): string {

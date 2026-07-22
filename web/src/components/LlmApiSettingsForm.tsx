@@ -257,28 +257,26 @@ export function LlmApiSettingsForm({
             </fieldset>
           )}
         </form.Subscribe>
-      </SettingsGroup>
-
-      {formError ? (
-        <div className="border-t border-border/40 px-5 py-3">
-          <FormError message={formError} />
+        {formError ? (
+          <div className="px-5 py-3">
+            <FormError message={formError} />
+          </div>
+        ) : null}
+        <div className="flex flex-wrap items-center justify-end gap-2 px-5 py-4">
+          <SavedBadge show={saved} />
+          <BtnGhost
+            type="button"
+            size="action"
+            disabled={testing}
+            onClick={() => void onTestConnection()}
+          >
+            {testing ? labels.testing : labels.test}
+          </BtnGhost>
+          <BtnPrimary type="submit" disabled={saving}>
+            {saving ? "Saving…" : labels.save}
+          </BtnPrimary>
         </div>
-      ) : null}
-
-      <div className="flex flex-wrap items-center justify-end gap-2 border-t border-border/50 px-5 py-4">
-        <SavedBadge show={saved} />
-        <BtnGhost
-          type="button"
-          size="action"
-          disabled={testing}
-          onClick={() => void onTestConnection()}
-        >
-          {testing ? labels.testing : labels.test}
-        </BtnGhost>
-        <BtnPrimary type="submit" disabled={saving}>
-          {saving ? "Saving…" : labels.save}
-        </BtnPrimary>
-      </div>
+      </SettingsGroup>
     </form>
   );
 }

@@ -45,6 +45,8 @@ describe("locale", () => {
     expect(settingsLabel("zh-HK", "general")).toBe("一般");
     expect(settingsLabel("en", "ai")).toBe("AI");
     expect(settingsLabel("en", "aiTitle")).toBe("AI & LLM");
+    expect(settingsLabel("en", "about")).toBe("About");
+    expect(settingsLabel("ja", "aboutTitle")).toBe("TraderMemos について");
   });
 
   it("exposes all language options", () => {
