@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, Check, FileText, RefreshCw, Upload } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Download, FileText, RefreshCw, Upload } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { CsvDropZone } from "../../components/CsvDropZone";
 import { DataTable } from "../../components/DataTable";
@@ -9,11 +9,13 @@ import {
   journalTradePreviewColumns,
 } from "../../components/importPreviewColumns";
 import { Panel } from "../../components/Panel";
+import { SegmentedControl } from "../../components/SegmentedControl";
 import { StatBar } from "../../components/StatBar";
 import { SignalField } from "../../components/SignalField";
 import { SignalSelect } from "../../components/SignalSelect";
 import { Skeleton } from "../../components/Skeleton";
 import { Button } from "../../components/ui/button";
+import { NativeSelect, NativeSelectOption } from "../../components/ui/native-select";
 import { cn } from "../../lib/cn";
 import { fmtSignedMoney } from "../../lib/format";
 import { intlLocale } from "../../lib/locale";
@@ -30,6 +32,7 @@ import {
   mergeOptionOverrides,
   type OptionRightOverride,
 } from "../../lib/importOptionRight";
+import { downloadExport, type ExportFormat } from "../../lib/api/exports";
 
 // Canonical trade fields we want to map
 const CANONICAL_FIELDS = [
@@ -67,7 +70,21 @@ function ImportGuidance({ onLogTrade }: { onLogTrade?: () => void }) {
             <span className="font-medium text-text">Journal export</span> — closed trades with
             Entry/Exit columns; setup and tags preserved.
           </li>
+          <li>
+            <span className="font-medium text-text">JSON export</span> — full account backup with
+            trades, fills, tags, cash, and the playbook setups catalog; re-import on this page.
+          </li>
         </ul>
+      </div>
+
+      <div className="border-t border-border pt-4">
+        <h3 className="text-[10px] font-semibold uppercase tracking-widest text-text-muted">
+          Export
+        </h3>
+        <p className="mt-2 text-[11px] leading-relaxed text-text-dim">
+          Switch to Export to download your account as JSON (full backup) or CSV (journal
+          spreadsheet). Re-import either format on Import.
+        </p>
       </div>
 
       <div className="border-t border-border pt-4">
@@ -147,7 +164,7 @@ function Step1Upload({
   }
 
   return (
-    <Panel title="Upload CSV" className="rounded-none border-0 lg:border lg:rounded-sharp">
+    <Panel title="Upload file" className="rounded-none border-0 lg:border lg:rounded-sharp">
       <div className="flex flex-col gap-5 p-5 sm:p-6">
         {accountsLoading ? (
           <Skeleton height="36px" />
@@ -174,8 +191,8 @@ function Step1Upload({
         )}
 
         <SignalField
-          label="CSV file"
-          description={file ? undefined : "Select a file to enable Preview."}
+          label="File"
+          description={file ? undefined : "Select a CSV or JSON file to enable Preview."}
         >
           <CsvDropZone file={file} onFileChange={setFile} disabled={loading} />
         </SignalField>
@@ -197,7 +214,7 @@ function Step1Upload({
             )}
           </Button>
           {!file && accounts.length > 0 && (
-            <span className="text-[10px] text-text-dim">Upload a CSV to continue</span>
+            <span className="text-[10px] text-text-dim">Upload a CSV or JSON file to continue</span>
           )}
         </div>
       </div>
@@ -317,6 +334,7 @@ interface Step2Props {
 
 function Step2Map({ preview, currency, onCommit, onBack, error, loading }: Step2Props) {
   const isJournal = preview.format === "journal_trades";
+  const skipMapping = isJournal || (preview.source === "json" && preview.format === "executions");
   const [mapping, setMapping] = useState<Record<string, string>>(() => {
     const initial: Record<string, string> = {};
     for (const field of CANONICAL_FIELDS) {
@@ -340,7 +358,7 @@ function Step2Map({ preview, currency, onCommit, onBack, error, loading }: Step2
 
   return (
     <div className="flex flex-col gap-4">
-      <Panel title={isJournal ? "Review journal" : "Map columns"}>
+      <Panel title={skipMapping ? (isJournal ? "Review journal" : "Review import") : "Map columns"}>
         <div className="p-4 sm:p-5">
           {isJournal ? (
             <>
@@ -354,6 +372,11 @@ function Step2Map({ preview, currency, onCommit, onBack, error, loading }: Step2
                 <JournalSummaryStrip summary={preview.journal_summary} currency={currency} />
               ) : null}
             </>
+          ) : skipMapping ? (
+            <p className="mb-3 text-[12px] leading-relaxed text-text-muted">
+              Detected a TraderMemos JSON execution export. Fills will be imported directly — no
+              column mapping needed.
+            </p>
           ) : (
             <p className="mb-3 text-[12px] leading-relaxed text-text-muted">
               Match each field to the corresponding column in your CSV. Instrument type is optional
@@ -361,7 +384,7 @@ function Step2Map({ preview, currency, onCommit, onBack, error, loading }: Step2
             </p>
           )}
 
-          {!isJournal && (
+          {!skipMapping && (
             <div className="flex max-w-lg flex-col gap-3">
               {CANONICAL_FIELDS.map((field) => (
                 <SignalField key={field} label={field.replace(/_/g, " ")}>
@@ -457,6 +480,12 @@ function Step3Result({ result, onDone, onImportAnother }: Step3Props) {
               {typeof result.annotated === "number" && (
                 <Row label="Journal annotated" value={String(result.annotated)} />
               )}
+              {typeof result.setups_upserted === "number" && result.setups_upserted > 0 ? (
+                <Row label="Setups restored" value={String(result.setups_upserted)} />
+              ) : null}
+              {typeof result.cash_inserted === "number" && result.cash_inserted > 0 ? (
+                <Row label="Cash transactions" value={String(result.cash_inserted)} />
+              ) : null}
               <Row
                 label="Errors"
                 value={String(result.errors.length)}
@@ -519,6 +548,122 @@ function Row({
 }
 
 // ---------------------------------------------------------------------------
+// Export
+// ---------------------------------------------------------------------------
+
+interface ExportPanelProps {
+  accounts: Account[];
+  accountsLoading: boolean;
+  defaultAccountId?: string;
+}
+
+function ExportPanel({ accounts, accountsLoading, defaultAccountId }: ExportPanelProps) {
+  const [accountId, setAccountId] = useState("");
+  const [format, setFormat] = useState<ExportFormat>("json");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (accounts.length === 0) return;
+    setAccountId((prev) => {
+      if (prev && accounts.some((account) => account.id === prev)) return prev;
+      return resolveImportAccountId(accounts, defaultAccountId);
+    });
+  }, [accounts, defaultAccountId]);
+
+  const effectiveAccountId = resolveImportAccountId(accounts, accountId || defaultAccountId);
+  const canExport = accounts.length > 0 && !!effectiveAccountId && !loading;
+
+  async function handleExport() {
+    if (!effectiveAccountId) return;
+    setLoading(true);
+    setError(null);
+    try {
+      await downloadExport({ format, accountId: effectiveAccountId });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Export failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const formatHint =
+    format === "csv"
+      ? "Journal spreadsheet of closed trades — same account data as JSON, spreadsheet-friendly encoding."
+      : "Canonical backup: all trades with fills, journal fields, tags, cash, and the full playbook setups catalog. Re-import this file directly.";
+
+  return (
+    <Panel title="Export account" className="rounded-none border-0 lg:border lg:rounded-sharp">
+      <div className="flex flex-col gap-5 p-5 sm:p-6">
+        {accountsLoading ? (
+          <Skeleton height="36px" />
+        ) : (
+          <SignalField label="Account">
+            <NativeSelect
+              value={effectiveAccountId}
+              onChange={(event) => setAccountId(event.target.value)}
+              aria-label="Export account select"
+              size="sm"
+              wrapperClassName="w-full"
+              className="h-8 text-[12px]"
+            >
+              {accounts.length === 0 ? (
+                <NativeSelectOption value="" disabled>
+                  No accounts — create one in Settings
+                </NativeSelectOption>
+              ) : (
+                accounts.map((account) => (
+                  <NativeSelectOption key={account.id} value={account.id}>
+                    {account.name}
+                  </NativeSelectOption>
+                ))
+              )}
+            </NativeSelect>
+          </SignalField>
+        )}
+
+        <SignalField label="Format">
+          <SegmentedControl
+            ariaLabel="Export format"
+            value={format}
+            onChange={(v) => setFormat(v as ExportFormat)}
+            options={[
+              { value: "json", label: "JSON" },
+              { value: "csv", label: "CSV" },
+            ]}
+          />
+        </SignalField>
+
+        <p className="text-[11px] leading-relaxed text-text-muted">{formatHint}</p>
+
+        {error ? <p className="text-[11px] text-loss">{error}</p> : null}
+
+        <div className="flex flex-wrap items-center gap-3 pt-1">
+          <Button
+            type="button"
+            variant="default"
+            onClick={() => void handleExport()}
+            disabled={!canExport}
+          >
+            {loading ? (
+              <>
+                <RefreshCw size={13} strokeWidth={1.5} className="animate-spin" />
+                Preparing…
+              </>
+            ) : (
+              <>
+                <Download size={13} strokeWidth={1.5} />
+                Download export
+              </>
+            )}
+          </Button>
+        </div>
+      </div>
+    </Panel>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Main export - driven by step state
 // ---------------------------------------------------------------------------
 
@@ -544,6 +689,7 @@ export function ImportView({
   onBack,
 }: ImportViewProps) {
   const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [dataMode, setDataMode] = useState<"import" | "export">("import");
   const [preview, setPreview] = useState<ImportPreview | null>(null);
   const [result, setResult] = useState<ImportResult | null>(null);
   const [stepError, setStepError] = useState<string | null>(null);
@@ -628,49 +774,73 @@ export function ImportView({
               Back to dashboard
             </Button>
           )}
-          <h1 className="text-[15px] font-semibold tracking-tight text-text">Import trades</h1>
+          <h1 className="text-[15px] font-semibold tracking-tight text-text">Import & export</h1>
           <p className="mt-1 max-w-xl text-[12px] leading-relaxed text-text-muted">
-            Upload broker history to populate your journal and analytics.
+            {dataMode === "import"
+              ? "Upload broker history to populate your journal and analytics."
+              : "Download your trades or fills for backup and portability."}
           </p>
         </div>
+        <SegmentedControl
+          ariaLabel="Import or export"
+          value={dataMode}
+          onChange={(v) => setDataMode(v as "import" | "export")}
+          options={[
+            { value: "import", label: "Import" },
+            { value: "export", label: "Export" },
+          ]}
+        />
       </div>
 
-      <ImportStepIndicator current={step} format={preview?.format} />
-
-      {step === 1 && (
+      {dataMode === "export" ? (
         <div className="grid flex-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(240px,280px)] lg:items-start">
-          <Step1Upload
+          <ExportPanel
             accounts={accounts}
             accountsLoading={accountsLoading}
             defaultAccountId={defaultAccountId}
-            onPreview={handlePreview}
-            error={stepError}
-            loading={loading}
           />
           <ImportGuidance onLogTrade={onLogTrade} />
         </div>
-      )}
+      ) : (
+        <>
+          <ImportStepIndicator current={step} format={preview?.format} />
 
-      {step === 2 && preview && (
-        <div className="mx-auto w-full max-w-4xl flex-1">
-          <Step2Map
-            preview={preview}
-            currency={importCurrency}
-            onCommit={handleCommit}
-            onBack={() => {
-              setStep(1);
-              setStepError(null);
-            }}
-            error={stepError}
-            loading={loading}
-          />
-        </div>
-      )}
+          {step === 1 && (
+            <div className="grid flex-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(240px,280px)] lg:items-start">
+              <Step1Upload
+                accounts={accounts}
+                accountsLoading={accountsLoading}
+                defaultAccountId={defaultAccountId}
+                onPreview={handlePreview}
+                error={stepError}
+                loading={loading}
+              />
+              <ImportGuidance onLogTrade={onLogTrade} />
+            </div>
+          )}
 
-      {step === 3 && result && (
-        <div className="mx-auto w-full max-w-lg flex-1">
-          <Step3Result result={result} onDone={onDone} onImportAnother={handleImportAnother} />
-        </div>
+          {step === 2 && preview && (
+            <div className="mx-auto w-full max-w-4xl flex-1">
+              <Step2Map
+                preview={preview}
+                currency={importCurrency}
+                onCommit={handleCommit}
+                onBack={() => {
+                  setStep(1);
+                  setStepError(null);
+                }}
+                error={stepError}
+                loading={loading}
+              />
+            </div>
+          )}
+
+          {step === 3 && result && (
+            <div className="mx-auto w-full max-w-lg flex-1">
+              <Step3Result result={result} onDone={onDone} onImportAnother={handleImportAnother} />
+            </div>
+          )}
+        </>
       )}
     </div>
   );

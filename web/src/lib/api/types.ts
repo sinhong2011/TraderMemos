@@ -266,6 +266,8 @@ export interface ImportPreview {
   suggested_mapping: Record<string, string>;
   /** "journal_trades" for closed-trade journal CSVs; "executions" for fill CSVs */
   format?: "journal_trades" | "executions";
+  /** Upload source detected by the API */
+  source?: "csv" | "json";
   row_count?: number;
   journal_summary?: JournalPreviewSummary;
   sample_trades?: JournalTradePreview[];
@@ -278,6 +280,8 @@ export interface ImportResult {
   annotated?: number;
   /** Journal imports: closed round-trip count (fills = inserted) */
   trades?: number;
+  cash_inserted?: number;
+  setups_upserted?: number;
   format?: string;
   errors: RowError[];
 }

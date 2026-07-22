@@ -7,7 +7,7 @@ describe("CsvDropZone", () => {
   it("renders drop zone when no file selected", () => {
     render(<CsvDropZone file={null} onFileChange={vi.fn()} />);
     expect(screen.getByText(/Click to upload/i)).toBeInTheDocument();
-    expect(screen.getByLabelText("CSV file input")).toBeInTheDocument();
+    expect(screen.getByLabelText("Import file input")).toBeInTheDocument();
   });
 
   it("shows selected file chip", () => {
@@ -21,7 +21,7 @@ describe("CsvDropZone", () => {
     const onFileChange = vi.fn();
     const file = new File(["a,b\n1,2"], "trades.csv", { type: "text/csv" });
     render(<CsvDropZone file={file} onFileChange={onFileChange} />);
-    await user.click(screen.getByRole("button", { name: /remove csv file/i }));
+    await user.click(screen.getByRole("button", { name: /remove file/i }));
     expect(onFileChange).toHaveBeenCalledWith(null);
   });
 });

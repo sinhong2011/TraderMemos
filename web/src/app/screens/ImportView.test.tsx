@@ -72,7 +72,7 @@ describe("ImportView - Step 1", () => {
       onCommit: vi.fn(),
       onDone: vi.fn(),
     });
-    expect(screen.getByLabelText("CSV file input")).toBeInTheDocument();
+    expect(screen.getByLabelText("Import file input")).toBeInTheDocument();
   });
 
   it("renders account select in step 1", () => {
@@ -117,9 +117,23 @@ describe("ImportView - Step 1", () => {
       onCommit: vi.fn(),
       onDone: vi.fn(),
     });
-    expect(screen.getByText("Upload CSV")).toBeInTheDocument();
+    expect(screen.getByText("Upload file")).toBeInTheDocument();
     expect(screen.getByText(/Click to upload/i)).toBeInTheDocument();
     expect(screen.getByText("Supported formats")).toBeInTheDocument();
+  });
+
+  it("renders export panel when export tab is selected", async () => {
+    const user = (await import("@testing-library/user-event")).default.setup();
+    renderImportView({
+      accounts,
+      accountsLoading: false,
+      onPreview: vi.fn(),
+      onCommit: vi.fn(),
+      onDone: vi.fn(),
+    });
+    await user.click(screen.getByRole("tab", { name: "Export" }));
+    expect(screen.getByText("Export account")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /download export/i })).toBeInTheDocument();
   });
 });
 
@@ -149,7 +163,7 @@ describe("ImportView - Step 3 result", () => {
       onDone: vi.fn(),
     });
     expect(screen.queryByText("Import complete")).not.toBeInTheDocument();
-    expect(screen.getByText("Upload CSV")).toBeInTheDocument();
+    expect(screen.getByText("Upload file")).toBeInTheDocument();
   });
 });
 

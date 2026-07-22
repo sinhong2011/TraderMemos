@@ -19,7 +19,12 @@ export function CsvDropZone({ file, onFileChange, disabled }: CsvDropZoneProps) 
       if (inputRef.current) inputRef.current.value = "";
       return;
     }
-    if (!next.name.toLowerCase().endsWith(".csv") && next.type !== "text/csv") {
+    if (
+      !next.name.toLowerCase().endsWith(".csv") &&
+      next.type !== "text/csv" &&
+      !next.name.toLowerCase().endsWith(".json") &&
+      next.type !== "application/json"
+    ) {
       return;
     }
     onFileChange(next);
@@ -40,7 +45,7 @@ export function CsvDropZone({ file, onFileChange, disabled }: CsvDropZoneProps) 
             size="icon-sm"
             disabled={disabled}
             onClick={() => pickFile(null)}
-            aria-label="Remove CSV file"
+            aria-label="Remove file"
             className="shrink-0 text-text-dim"
           >
             <X size={14} strokeWidth={2} />
@@ -79,17 +84,17 @@ export function CsvDropZone({ file, onFileChange, disabled }: CsvDropZoneProps) 
             aria-hidden
           />
           <span className="text-text-muted">
-            <span className="text-accent">Click to upload</span> or drag CSV here
+            <span className="text-accent">Click to upload</span> or drag file here
           </span>
-          <span className="text-[10px] text-text-dim">.csv files only</span>
+          <span className="text-[10px] text-text-dim">.csv or .json</span>
         </Button>
       )}
 
       <input
         ref={inputRef}
         type="file"
-        accept=".csv,text/csv"
-        aria-label="CSV file input"
+        accept=".csv,text/csv,.json,application/json"
+        aria-label="Import file input"
         className="sr-only"
         disabled={disabled}
         onChange={(e) => pickFile(e.target.files?.[0] ?? null)}
