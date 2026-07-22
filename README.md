@@ -2,7 +2,14 @@
 
 # TraderMemos
 
-**Self-hosted trading journal** — Go API + React web (Signal Terminal)
+**Self-hosted trading journal** — own your data, review your edge
+
+<br/>
+
+[![Go](https://img.shields.io/badge/Go-1.26+-00ADD8?logo=go&logoColor=white)](api/go.mod)
+[![React](https://img.shields.io/badge/React-Vite+-61DAFB?logo=react&logoColor=black)](web/)
+[![SQLite](https://img.shields.io/badge/SQLite-embedded-003B57?logo=sqlite&logoColor=white)](api/)
+[![Self-hosted](https://img.shields.io/badge/Self--hosted-ready-8b5cf6)](docs/fork-deploy.md)
 
 <br/>
 
@@ -23,23 +30,70 @@
 
 </div>
 
-## Get Started
+---
 
-1. Click a **Deploy** button above — web UI on **your** Vercel / Cloudflare / Netlify, or **API** on Railway (see below).
-2. Run the API (Railway button, Docker/`make up`, or a VPS):
-   ```bash
-   make up   # local all-in-one
-   ```
-3. Allow your CDN origin on the API:
-   ```bash
-   TM_CORS_ORIGINS=https://*.vercel.app,https://*.pages.dev,https://*.workers.dev,https://*.netlify.app,https://*.up.railway.app,http://localhost:5173
-   ```
-4. Open the web app → leave **Server** blank only for same-origin Docker; otherwise enter your API URL (or set `VITE_API` at build time).
+## Why TraderMemos?
+
+Cloud journals like **TradeZella** and **TraderSync** are polished — but your edge lives in the data.
+
+TraderMemos follows the same self-hosting philosophy as **[Ghost](https://github.com/TryGhost/Ghost)**, **[Umami](https://github.com/umami-software/umami)**, and **[Plane](https://github.com/makeplane/plane)**: run it on your infrastructure, own the database, extend without permission. Inspired by the polish of **[Linear](https://linear.app)** and **[Cal.com](https://github.com/calcom/cal.com)'s** open-core clarity — applied to a trading terminal.
+
+| | Cloud journals | TraderMemos |
+|---|---|---|
+| **Data ownership** | Vendor-hosted | Your SQLite / VPS |
+| **Cost** | Monthly subscription | Free + your hosting |
+| **AI keys** | Often vendor-managed | Your OpenAI-compatible API |
+| **Customization** | Limited | Fork, patch, deploy |
+
+## Features
+
+- **Dashboard** — asymmetric bento stats, glowing P&L hero, step equity curve
+- **Trade log** — virtualized table, execution detail, tags, setups, journal notes
+- **P&L calendar** — daily heatmap with drill-down
+- **Reports** — win rate, expectancy, setup/hourly/session breakdown
+- **Playbook** — linked strategy library
+- **Import** — CSV broker statements
+- **Tools** — position-size calculator, risk rules, cash ledger
+- **AI (optional)** — screenshot fill extraction + trade coach via OpenAI-compatible APIs
+- **API access** — personal access tokens (`tm_pat_…`) for MCP/scripts; OpenAPI docs at `/docs`
+
+## Tech stack
+
+| Layer | Stack |
+|-------|-------|
+| **API** | Go · Echo · sqlc · golang-migrate · SQLite |
+| **Web** | React · Vite+ · TanStack Router/Query/Form · Tailwind |
+| **Mobile** | Expo (planned) |
+| **Design** | Signal Terminal — see [DESIGN.md](DESIGN.md) |
+
+## Quick start
+
+### 1. Deploy the web UI
+
+Click a **Deploy** button above — hosts the SPA on **your** Vercel / Cloudflare / Netlify account.
+
+### 2. Run the API
+
+```bash
+make up   # local all-in-one → http://localhost:3000
+```
+
+Or use the **Railway** button (attach a Volume at `/data` for persistence).
+
+### 3. Connect web → API
+
+Allow your CDN origin on the API:
+
+```bash
+TM_CORS_ORIGINS=https://*.vercel.app,https://*.pages.dev,https://*.workers.dev,https://*.netlify.app,https://*.up.railway.app,http://localhost:5173
+```
+
+Open the web app → set **Server** to your API URL (or set `VITE_API` at build time). Leave **Server** blank only for same-origin Docker.
 
 | Button | Deploys |
 |--------|---------|
 | Vercel / Cloudflare / Netlify | Web SPA (`web/`) |
-| Railway | Go API ([`railway.toml`](railway.toml) → `api/Dockerfile`) — attach a Volume at `/data` |
+| Railway | Go API ([`railway.toml`](railway.toml) → `api/Dockerfile`) |
 
 > CDN hosts the **web UI**. Railway/Docker hosts the **API** (SQLite + uploads).
 
@@ -53,11 +107,35 @@ make setup && make up   # http://localhost:3000  (SPA + /api proxy)
 
 Same-origin `/api` — no CORS, blank Server field.
 
+On first visit with an empty database, the **setup wizard** creates the owner account. For production, set `TM_JWT_SECRET=$(openssl rand -hex 32)` and put TLS (Caddy/Traefik) in front — see [docs/deploy.md](docs/deploy.md).
+
+## Development
+
+```bash
+git clone https://github.com/sinhong2011/TraderMemos.git
+cd TraderMemos
+make setup && make dev   # API :8080 + web :5173
+```
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for targets, Vite+ commands, and project structure.
+
 ## Docs
 
 | Doc | Topic |
 |-----|--------|
 | [docs/fork-deploy.md](docs/fork-deploy.md) | One-click / fork → Vercel, Cloudflare, Netlify, Railway |
 | [docs/deploy.md](docs/deploy.md) | Docker, CORS, edge rewrite |
+| [docs/release.md](docs/release.md) | Versioning, changelogs, GitHub Releases |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Local dev (`make dev`) |
 | [DESIGN.md](DESIGN.md) | Signal Terminal UI system |
+
+## Similar projects
+
+TraderMemos sits alongside other self-hosted tools traders and builders reach for:
+
+- **[Ghost](https://github.com/TryGhost/Ghost)** — publishing you own
+- **[Umami](https://github.com/umami-software/umami)** — analytics you own
+- **[Plane](https://github.com/makeplane/plane)** — project tracking you own
+- **[Cal.com](https://github.com/calcom/cal.com)** — scheduling you own
+
+TraderMemos brings that same sovereignty to **performance review**.

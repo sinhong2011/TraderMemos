@@ -48,9 +48,20 @@ Important env (compose / host):
 
 | Variable | Purpose |
 |----------|---------|
-| `TM_JWT_SECRET` | JWT signing secret (change for real use) |
+| `TM_JWT_SECRET` | JWT signing secret — **required** for production (`openssl rand -hex 32`) |
+| `TM_ALLOW_INSECURE_JWT` | Compose defaults `true` for first-run convenience; set `false`/unset in production |
+| `TM_ALLOW_REGISTRATION` | Default `false`. After setup, only the owner exists unless you opt in |
 | `TM_DB_PATH` | SQLite path inside the API volume (`/data/tradermemos.db`) |
 | `TM_CORS_ORIGINS` | Leave empty for this mode |
+
+**First boot:** open `http://localhost:3000` — if the database has no users, the **setup wizard** creates the owner (admin) account and an optional trading account. Public registration stays closed afterward.
+
+```bash
+# Production-ish compose example
+export TM_JWT_SECRET=$(openssl rand -hex 32)
+export TM_ALLOW_INSECURE_JWT=false
+make up
+```
 
 Data lives in the `tm_data` Docker volume (SQLite + attachments).
 
@@ -59,7 +70,34 @@ make logs        # follow compose logs
 make down        # stop stack
 ```
 
-Production tip: put Caddy/Traefik/nginx in front for TLS and point it at the `web` service only — `/api` stays same-origin.
+Production tip: put **Caddy / Traefik / nginx** in front for **TLS** and point it at the `web` service only — `/api` stays same-origin. Do not expose the API without TLS on the public internet.
+
+### Auth hardening (built-in)
+
+- First-user **setup** endpoint; open `/auth/register` is disabled by default
+- Passwords must be **≥ 10** characters (bcrypt)
+- Auth + setup routes are **rate-limited** (~2 req/s per IP)
+- Access vs refresh JWTs use distinct `typ` claims
+- Server **refuses to start** on a known-insecure JWT secret unless `TM_ALLOW_INSECURE_JWT=true`
+
+### API access tokens & OpenAPI docs
+
+Create long-lived tokens in **Settings → API** for MCP, AI agents, or scripts. They have the same API power as your user account.
+
+```bash
+# Call any protected route with the token shown once at create time
+curl -H "Authorization: Bearer tm_pat_…" https://your-host/api/v1/accounts
+```
+
+Browse the interactive OpenAPI reference (Scalar):
+
+| Setup | Docs URL |
+|-------|----------|
+| Docker all-in-one (`web` nginx) | `http://localhost:3000/docs` |
+| API directly | `http://localhost:8080/docs` |
+| Split API host | `https://api.example.com/docs` |
+
+Raw spec: `/openapi.yaml` on the same host. Docs are public; protect the host with TLS and network controls as usual.
 
 ---
 
@@ -80,6 +118,8 @@ https://api.example.com     → Docker/Go API + SQLite volume
 ```bash
 TM_CORS_ORIGINS=https://*.vercel.app,https://*.pages.dev,http://localhost:5173
 TM_JWT_SECRET=$(openssl rand -hex 32)
+# Do not set TM_ALLOW_INSECURE_JWT on public APIs
+# TM_ALLOW_REGISTRATION=true   # only if you want extra users via the UI
 ```
 
 Wildcard forms `https://*.vercel.app` and `https://*.pages.dev` match preview/production CDN hosts. Use exact origins for custom domains.
