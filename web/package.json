@@ -20,13 +20,6 @@
     "i18n:extract": "lingui extract",
     "i18n:compile": "lingui compile --typescript --namespace es"
   },
-  "cloudflare": {
-    "bindings": {
-      "VITE_API": {
-        "description": "Optional build-time API base URL (e.g. `https://api.example.com/api/v1`). Leave empty and set **Server** on the login screen instead. See [fork-deploy.md](https://github.com/sinhong2011/TraderMemos/blob/main/docs/fork-deploy.md)."
-      }
-    }
-  },
   "dependencies": {
     "@base-ui/react": "1.6.0",
     "@date-fns/tz": "^1.5.0",
@@ -38,6 +31,15 @@
     "@tanstack/react-router": "^1.95.0",
     "@tanstack/react-table": "^8.20.0",
     "@tanstack/react-virtual": "^3.11.0",
+    "@tiptap/extension-image": "^3.28.0",
+    "@tiptap/extension-link": "^3.28.0",
+    "@tiptap/extension-placeholder": "^3.28.0",
+    "@tiptap/extension-task-item": "^3.28.0",
+    "@tiptap/extension-task-list": "^3.28.0",
+    "@tiptap/extension-underline": "^3.28.0",
+    "@tiptap/pm": "^3.28.0",
+    "@tiptap/react": "^3.28.0",
+    "@tiptap/starter-kit": "^3.28.0",
     "bignumber.js": "^11.1.5",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -52,6 +54,7 @@
     "react-hotkeys-hook": "^5.3.3",
     "recharts": "^3.9.2",
     "tailwind-merge": "^3.6.0",
+    "tiptap-markdown": "^0.9.0",
     "yet-another-react-lightbox": "^3.32.1",
     "zod": "^3.24.0",
     "zustand": "^5.0.0"
@@ -104,5 +107,12 @@
     "vite": "npm:@voidzero-dev/vite-plus-core@0.2.4",
     "vite-plus": "0.2.4",
     "vitest": "4.1.10"
+  },
+  "cloudflare": {
+    "bindings": {
+      "VITE_API": {
+        "description": "Optional build-time API base URL (e.g. `https://api.example.com/api/v1`). Leave empty and set **Server** on the login screen instead. See [fork-deploy.md](https://github.com/sinhong2011/TraderMemos/blob/main/docs/fork-deploy.md)."
+      }
+    }
   }
 }
