@@ -35,6 +35,34 @@ describe("useUI store", () => {
     expect(draft?.name).toBe("ORB");
     expect(useUI.getState().setupDraft).toBeNull();
   });
+  it("opens note edit with a draft", () => {
+    useUI.getState().openNoteEdit({
+      id: "n1",
+      type: "daily_log",
+      occurredAt: "2026-07-23",
+      title: "Session",
+      body: "## Review\nClean day",
+      symbols: [{ symbol: "AAPL", body: "Held VWAP" }],
+    });
+    expect(useUI.getState().modal).toBe("new-note");
+    const draft = useUI.getState().consumeNoteDraft();
+    expect(draft?.title).toBe("Session");
+    expect(draft?.symbols?.[0]?.symbol).toBe("AAPL");
+    expect(useUI.getState().noteDraft).toBeNull();
+  });
+  it("clears note draft when opening a fresh new-note modal", () => {
+    useUI.getState().openNoteEdit({
+      id: "n1",
+      type: "note",
+      occurredAt: "2026-07-23",
+      title: "Session",
+      body: "x",
+      symbols: [],
+    });
+    useUI.getState().openModal("new-note");
+    expect(useUI.getState().modal).toBe("new-note");
+    expect(useUI.getState().noteDraft).toBeNull();
+  });
   it("clears setup draft when opening a fresh new-setup modal", () => {
     useUI.getState().openSetupEdit({
       id: "s1",

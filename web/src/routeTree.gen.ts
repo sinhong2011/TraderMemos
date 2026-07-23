@@ -14,6 +14,7 @@ import { Route as SetupRouteImport } from "./routes/setup";
 import { Route as SettingsRouteImport } from "./routes/settings";
 import { Route as ReportsRouteImport } from "./routes/reports";
 import { Route as PlaybookRouteImport } from "./routes/playbook";
+import { Route as NotesRouteImport } from "./routes/notes";
 import { Route as LoginRouteImport } from "./routes/login";
 import { Route as ImportRouteImport } from "./routes/import";
 import { Route as DashboardRouteImport } from "./routes/dashboard";
@@ -46,6 +47,11 @@ const ReportsRoute = ReportsRouteImport.update({
 const PlaybookRoute = PlaybookRouteImport.update({
   id: "/playbook",
   path: "/playbook",
+  getParentRoute: () => rootRouteImport,
+} as any);
+const NotesRoute = NotesRouteImport.update({
+  id: "/notes",
+  path: "/notes",
   getParentRoute: () => rootRouteImport,
 } as any);
 const LoginRoute = LoginRouteImport.update({
@@ -96,6 +102,7 @@ export interface FileRoutesByFullPath {
   "/dashboard": typeof DashboardRoute;
   "/import": typeof ImportRoute;
   "/login": typeof LoginRoute;
+  "/notes": typeof NotesRoute;
   "/playbook": typeof PlaybookRoute;
   "/reports": typeof ReportsRoute;
   "/settings": typeof SettingsRoute;
@@ -111,6 +118,7 @@ export interface FileRoutesByTo {
   "/dashboard": typeof DashboardRoute;
   "/import": typeof ImportRoute;
   "/login": typeof LoginRoute;
+  "/notes": typeof NotesRoute;
   "/playbook": typeof PlaybookRoute;
   "/reports": typeof ReportsRoute;
   "/settings": typeof SettingsRoute;
@@ -126,6 +134,7 @@ export interface FileRoutesById {
   "/dashboard": typeof DashboardRoute;
   "/import": typeof ImportRoute;
   "/login": typeof LoginRoute;
+  "/notes": typeof NotesRoute;
   "/playbook": typeof PlaybookRoute;
   "/reports": typeof ReportsRoute;
   "/settings": typeof SettingsRoute;
@@ -143,6 +152,7 @@ export interface FileRouteTypes {
     | "/dashboard"
     | "/import"
     | "/login"
+    | "/notes"
     | "/playbook"
     | "/reports"
     | "/settings"
@@ -158,6 +168,7 @@ export interface FileRouteTypes {
     | "/dashboard"
     | "/import"
     | "/login"
+    | "/notes"
     | "/playbook"
     | "/reports"
     | "/settings"
@@ -172,6 +183,7 @@ export interface FileRouteTypes {
     | "/dashboard"
     | "/import"
     | "/login"
+    | "/notes"
     | "/playbook"
     | "/reports"
     | "/settings"
@@ -188,6 +200,7 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute;
   ImportRoute: typeof ImportRoute;
   LoginRoute: typeof LoginRoute;
+  NotesRoute: typeof NotesRoute;
   PlaybookRoute: typeof PlaybookRoute;
   ReportsRoute: typeof ReportsRoute;
   SettingsRoute: typeof SettingsRoute;
@@ -230,6 +243,13 @@ declare module "@tanstack/react-router" {
       path: "/playbook";
       fullPath: "/playbook";
       preLoaderRoute: typeof PlaybookRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/notes": {
+      id: "/notes";
+      path: "/notes";
+      fullPath: "/notes";
+      preLoaderRoute: typeof NotesRouteImport;
       parentRoute: typeof rootRouteImport;
     };
     "/login": {
@@ -310,6 +330,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   ImportRoute: ImportRoute,
   LoginRoute: LoginRoute,
+  NotesRoute: NotesRoute,
   PlaybookRoute: PlaybookRoute,
   ReportsRoute: ReportsRoute,
   SettingsRoute: SettingsRoute,

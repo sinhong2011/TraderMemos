@@ -75,6 +75,7 @@ export const APP_HOTKEYS = {
   "nav-calendar": { keys: "g>c", label: formatHotkeyLabel("g>c") },
   "nav-stats": { keys: "g>s", label: formatHotkeyLabel("g>s") },
   "nav-playbook": { keys: "g>p", label: formatHotkeyLabel("g>p") },
+  "nav-notes": { keys: "g>n", label: formatHotkeyLabel("g>n") },
   "nav-calculator": { keys: "g>r", label: formatHotkeyLabel("g>r") },
   "nav-import": { keys: "g>i", label: formatHotkeyLabel("g>i") },
   // `mod+,` is unsafe: the library delimiter is `,`, so use the `comma` alias.

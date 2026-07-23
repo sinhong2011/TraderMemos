@@ -25,10 +25,21 @@ export interface SetupDraft {
   checklistText: string;
 }
 
+/** Prefill payload when editing a journal note. */
+export interface NoteDraft {
+  id: string;
+  type: "note" | "daily_log";
+  occurredAt: string;
+  title: string;
+  body: string;
+  symbols: Array<{ symbol: string; body: string }>;
+}
+
 interface UIState {
   modal: ModalKind | null;
   tradeDraft: TradeDraft | null;
   setupDraft: SetupDraft | null;
+  noteDraft: NoteDraft | null;
   /** When set with modal `new-trade`, NewTradeDrawer opens in edit mode. */
   editTradeId: string | null;
   /** Snapshot used to prefill the edit form immediately (avoids empty-form race). */
@@ -42,8 +53,10 @@ interface UIState {
   openTradeFromSetup: (draft: TradeDraft) => void;
   openTradeEdit: (trade: TradeDetail) => void;
   openSetupEdit: (draft: SetupDraft) => void;
+  openNoteEdit: (draft: NoteDraft) => void;
   consumeTradeDraft: () => TradeDraft | null;
   consumeSetupDraft: () => SetupDraft | null;
+  consumeNoteDraft: () => NoteDraft | null;
   closeModal: () => void;
   openCommandPalette: () => void;
   setCommandOpen: (open: boolean) => void;
@@ -68,6 +81,7 @@ export const useUI = create<UIState>((set, get) => ({
   modal: null,
   tradeDraft: null,
   setupDraft: null,
+  noteDraft: null,
   editTradeId: null,
   editTradeDetail: null,
   sidebarCollapsed: false,
@@ -76,15 +90,17 @@ export const useUI = create<UIState>((set, get) => ({
   mobileNavOpen: false,
   openModal: (modal) =>
     set((s) =>
-      s.modal === modal && s.setupDraft == null && s.editTradeId == null
+      s.modal === modal && s.setupDraft == null && s.noteDraft == null && s.editTradeId == null
         ? s
         : {
             modal,
             setupDraft: null,
+            noteDraft: null,
             ...(modal === "new-trade" ? { ...clearEditTrade, tradeDraft: null } : {}),
           },
     ),
-  openTradeFromSetup: (draft) => set({ modal: "new-trade", tradeDraft: draft, ...clearEditTrade }),
+  openTradeFromSetup: (draft) =>
+    set({ modal: "new-trade", tradeDraft: draft, noteDraft: null, ...clearEditTrade }),
   openTradeEdit: (trade) =>
     set({
       modal: "new-trade",
@@ -92,8 +108,10 @@ export const useUI = create<UIState>((set, get) => ({
       editTradeDetail: trade,
       tradeDraft: null,
       setupDraft: null,
+      noteDraft: null,
     }),
-  openSetupEdit: (draft) => set({ modal: "new-setup", setupDraft: draft }),
+  openSetupEdit: (draft) => set({ modal: "new-setup", setupDraft: draft, noteDraft: null }),
+  openNoteEdit: (draft) => set({ modal: "new-note", noteDraft: draft, setupDraft: null }),
   consumeTradeDraft: () => {
     const draft = get().tradeDraft;
     set({ tradeDraft: null });
@@ -104,7 +122,13 @@ export const useUI = create<UIState>((set, get) => ({
     set({ setupDraft: null });
     return draft;
   },
-  closeModal: () => set({ modal: null, tradeDraft: null, setupDraft: null, ...clearEditTrade }),
+  consumeNoteDraft: () => {
+    const draft = get().noteDraft;
+    set({ noteDraft: null });
+    return draft;
+  },
+  closeModal: () =>
+    set({ modal: null, tradeDraft: null, setupDraft: null, noteDraft: null, ...clearEditTrade }),
   openCommandPalette: () => set({ commandOpen: true }),
   setCommandOpen: (commandOpen) => set({ commandOpen }),
   openPositionSize: () => set({ positionSizeOpen: true }),
@@ -113,9 +137,11 @@ export const useUI = create<UIState>((set, get) => ({
     set({
       modal,
       setupDraft: null,
+      noteDraft: null,
       ...(modal === "new-trade" ? { ...clearEditTrade, tradeDraft: null } : {}),
     }),
-  closeDrawer: () => set({ modal: null, tradeDraft: null, setupDraft: null, ...clearEditTrade }),
+  closeDrawer: () =>
+    set({ modal: null, tradeDraft: null, setupDraft: null, noteDraft: null, ...clearEditTrade }),
   toggleSidebar: () => set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed })),
   openMobileNav: () => set({ mobileNavOpen: true }),
   closeMobileNav: () => set({ mobileNavOpen: false }),

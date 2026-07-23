@@ -62,6 +62,13 @@ const NAV_COMMANDS: Array<{
   { id: "nav-stats", label: "Stats", to: "/reports", icon: PieChart },
   { id: "nav-playbook", label: "Playbook", to: "/playbook", icon: BookOpen },
   {
+    id: "nav-notes",
+    label: "Notes",
+    to: "/notes",
+    icon: StickyNote,
+    keywords: ["journal", "memo"],
+  },
+  {
     id: "nav-calculator",
     label: "Calculator",
     to: "/calculator",

@@ -4,6 +4,7 @@ import {
   LayoutDashboard,
   List,
   PieChart,
+  StickyNote,
   Target,
   Upload,
 } from "lucide-react";
@@ -26,6 +27,7 @@ export const PRIMARY_NAV: NavItem[] = [
 
 /** Shown in the desktop/tablet rail bottom group and the mobile nav drawer. */
 export const SECONDARY_NAV: NavItem[] = [
+  { to: "/notes", labelKey: "notes", icon: StickyNote },
   { to: "/playbook", labelKey: "playbook", icon: BookOpen },
   { to: "/calculator", labelKey: "calculator", icon: Target },
   { to: "/import", labelKey: "import", icon: Upload },

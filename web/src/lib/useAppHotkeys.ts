@@ -109,7 +109,7 @@ export function useAppHotkeys() {
     APP_HOTKEYS["nav-dashboard"].keys,
     () => {
       useUI.getState().setCommandOpen(false);
-      navigate({ to: "/dashboard" });
+      void navigate({ to: "/dashboard" });
     },
     pageChord,
     [navigate],
@@ -118,7 +118,7 @@ export function useAppHotkeys() {
     APP_HOTKEYS["nav-trades"].keys,
     () => {
       useUI.getState().setCommandOpen(false);
-      navigate({ to: "/trades" });
+      void navigate({ to: "/trades" });
     },
     pageChord,
     [navigate],
@@ -127,7 +127,7 @@ export function useAppHotkeys() {
     APP_HOTKEYS["nav-calendar"].keys,
     () => {
       useUI.getState().setCommandOpen(false);
-      navigate({ to: "/calendar" });
+      void navigate({ to: "/calendar" });
     },
     pageChord,
     [navigate],
@@ -136,7 +136,7 @@ export function useAppHotkeys() {
     APP_HOTKEYS["nav-stats"].keys,
     () => {
       useUI.getState().setCommandOpen(false);
-      navigate({
+      void navigate({
         to: "/reports",
         search: { tab: "overview", side: "all", dur: "all", pnl: "net", unit: "abs" },
       });
@@ -148,7 +148,16 @@ export function useAppHotkeys() {
     APP_HOTKEYS["nav-playbook"].keys,
     () => {
       useUI.getState().setCommandOpen(false);
-      navigate({ to: "/playbook" });
+      void navigate({ to: "/playbook" });
+    },
+    pageChord,
+    [navigate],
+  );
+  useHotkeys(
+    APP_HOTKEYS["nav-notes"].keys,
+    () => {
+      useUI.getState().setCommandOpen(false);
+      void navigate({ to: "/notes" });
     },
     pageChord,
     [navigate],
@@ -157,7 +166,7 @@ export function useAppHotkeys() {
     APP_HOTKEYS["nav-calculator"].keys,
     () => {
       useUI.getState().setCommandOpen(false);
-      navigate({ to: "/calculator" });
+      void navigate({ to: "/calculator" });
     },
     pageChord,
     [navigate],
@@ -166,7 +175,7 @@ export function useAppHotkeys() {
     APP_HOTKEYS["nav-import"].keys,
     () => {
       useUI.getState().setCommandOpen(false);
-      navigate({ to: "/import" });
+      void navigate({ to: "/import" });
     },
     pageChord,
     [navigate],
@@ -175,7 +184,7 @@ export function useAppHotkeys() {
     APP_HOTKEYS["nav-settings"].keys,
     () => {
       useUI.getState().setCommandOpen(false);
-      navigate({ to: "/settings" });
+      void navigate({ to: "/settings" });
     },
     {
       enableOnFormTags: true,

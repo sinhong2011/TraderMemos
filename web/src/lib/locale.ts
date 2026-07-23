@@ -27,6 +27,7 @@ type NavLabelKey =
   | "trades"
   | "calendar"
   | "reports"
+  | "notes"
   | "playbook"
   | "calculator"
   | "import"
@@ -41,6 +42,7 @@ const NAV_LABELS: Record<AppLocale, Record<NavLabelKey, string>> = {
     trades: "Trades",
     calendar: "Calendar",
     reports: "Reports",
+    notes: "Notes",
     playbook: "Playbook",
     calculator: "Calculator",
     import: "Import",
@@ -54,6 +56,7 @@ const NAV_LABELS: Record<AppLocale, Record<NavLabelKey, string>> = {
     trades: "交易",
     calendar: "日曆",
     reports: "報表",
+    notes: "筆記",
     playbook: "策略庫",
     calculator: "計算器",
     import: "匯入",
@@ -67,6 +70,7 @@ const NAV_LABELS: Record<AppLocale, Record<NavLabelKey, string>> = {
     trades: "トレード",
     calendar: "カレンダー",
     reports: "レポート",
+    notes: "メモ",
     playbook: "プレイブック",
     calculator: "計算機",
     import: "インポート",
@@ -80,6 +84,7 @@ const NAV_LABELS: Record<AppLocale, Record<NavLabelKey, string>> = {
     trades: "거래",
     calendar: "캘린더",
     reports: "리포트",
+    notes: "메모",
     playbook: "플레이북",
     calculator: "계산기",
     import: "가져오기",
@@ -241,7 +246,7 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     accountsTitle: "Accounts & funding",
     accountsDescription: "Manage broker accounts, starting balances, and cash flows.",
     rulesTitle: "Rules & checklist",
-    rulesDescription: "Risk limits and daily note checklist templates.",
+    rulesDescription: "Risk limits plus a rich-text daily checklist for New Note.",
     journalTitle: "Journal metadata",
     journalDescription: "Tags used when logging trades. Manage setups in Playbook.",
     aiTitle: "AI & LLM",

@@ -1,9 +1,10 @@
+import type { ReactNode } from "react";
 import { cn } from "../lib/cn";
 import { Tabs, TabsIndicator, TabsList, TabsTrigger } from "./Tabs";
 
 export interface SegmentOption {
   value: string;
-  label: string;
+  label: ReactNode;
 }
 
 type SegmentTone = "pos" | "neg";
@@ -60,7 +61,7 @@ export function SegmentedControl({
         fullWidth={fullWidth}
         className={cn(
           tiny ? "h-8" : "h-10",
-          "rounded-control border-none bg-bg-input p-1",
+          "rounded-control border border-border bg-bg-input p-1",
           className,
         )}
       >

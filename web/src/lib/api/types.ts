@@ -196,11 +196,20 @@ export interface CashTransaction {
   created_at: string;
 }
 
+export type JournalNoteType = "note" | "daily_log";
+
+export interface JournalNoteSymbol {
+  symbol: string;
+  body: string;
+}
+
 export interface JournalNote {
   id: string;
+  type: JournalNoteType;
   occurred_at: string;
   title: string;
   body: string;
+  symbols: JournalNoteSymbol[];
   created_at: string;
   updated_at: string;
 }
