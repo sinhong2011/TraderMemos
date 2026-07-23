@@ -56,6 +56,19 @@ func TestExportUnifiedCSVAndJSON(t *testing.T) {
 	require.Contains(t, names, "ORB")
 }
 
+func TestExportZipIncludesJSON(t *testing.T) {
+	s := testServer(t)
+	tok := registerAndLogin(t, s, "export-zip@x.com")
+	acc := accountID(t, s, tok)
+	_ = closedTradeID(t, s, tok, acc)
+
+	rec := do(s, http.MethodGet, "/api/v1/exports?account_id="+acc+"&format=zip", "", tok)
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+	require.Equal(t, "application/zip", rec.Header().Get("Content-Type"))
+	require.Contains(t, rec.Header().Get("Content-Disposition"), ".zip")
+	require.Greater(t, rec.Body.Len(), 100)
+}
+
 func TestExportJSONIncludesBrokerAndCash(t *testing.T) {
 	s := testServer(t)
 	tok := registerAndLogin(t, s, "export-cash@x.com")

@@ -1,10 +1,14 @@
 package api
 
 import (
+	"archive/zip"
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
+	"path"
 	"strings"
 	"time"
 
@@ -60,8 +64,8 @@ func (s *Server) handleExport(c echo.Context) error {
 	if format == "" {
 		format = "json"
 	}
-	if format != "csv" && format != "json" {
-		return Fail(http.StatusBadRequest, "bad_request", "format must be csv or json", nil)
+	if format != "csv" && format != "json" && format != "zip" {
+		return Fail(http.StatusBadRequest, "bad_request", "format must be csv, json, or zip", nil)
 	}
 
 	accountID := c.QueryParam("account_id")
@@ -111,7 +115,7 @@ func (s *Server) handleExport(c echo.Context) error {
 	}
 
 	switch format {
-	case "json":
+	case "json", "zip":
 		setupRows, err := s.deps.Store.ListSetups(ctx, uid)
 		if err != nil {
 			return Fail(http.StatusInternalServerError, "internal", "could not load setups", nil)
@@ -120,9 +124,7 @@ func (s *Server) handleExport(c echo.Context) error {
 		for _, st := range setupRows {
 			setupOut = append(setupOut, toSetupDTO(st))
 		}
-		filename := exporter.ExportFilename("tradermemos-export", acc.Name, "json")
-		c.Response().Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, filename))
-		return c.JSON(http.StatusOK, accountExportJSON{
+		payload := accountExportJSON{
 			FormatVersion: exportFormatVersion,
 			ExportedAt:    time.Now().UTC(),
 			AccountID:     accountID,
@@ -136,7 +138,13 @@ func (s *Server) handleExport(c echo.Context) error {
 			Setups:           setupOut,
 			TradeCount:       len(details),
 			Trades:           details,
-		})
+		}
+		if format == "json" {
+			filename := exporter.ExportFilename("tradermemos-export", acc.Name, "json")
+			c.Response().Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, filename))
+			return c.JSON(http.StatusOK, payload)
+		}
+		return s.writeExportZip(c, uid, accountID, acc.Name, payload)
 	default:
 		rows, err := s.buildJournalExportRows(ctx, uid, f)
 		if err != nil {
@@ -150,6 +158,66 @@ func (s *Server) handleExport(c echo.Context) error {
 		c.Response().Header().Set("Content-Type", "text/csv; charset=utf-8")
 		c.Response().Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, filename))
 		return c.Blob(http.StatusOK, "text/csv; charset=utf-8", buf.Bytes())
+	}
+}
+
+func (s *Server) writeExportZip(c echo.Context, userID, accountID, accountName string, payload accountExportJSON) error {
+	ctx := c.Request().Context()
+	var buf bytes.Buffer
+	zw := zip.NewWriter(&buf)
+
+	jsonBytes, err := json.MarshalIndent(payload, "", "  ")
+	if err != nil {
+		return Fail(http.StatusInternalServerError, "internal", "could not encode export json", nil)
+	}
+	w, err := zw.Create("export.json")
+	if err != nil {
+		return Fail(http.StatusInternalServerError, "internal", "could not create zip entry", nil)
+	}
+	if _, err := w.Write(jsonBytes); err != nil {
+		return Fail(http.StatusInternalServerError, "internal", "could not write export json", nil)
+	}
+
+	atts, err := s.deps.Store.ListAttachmentsForAccount(ctx, store.ListAttachmentsForAccountParams{
+		UserID: userID, AccountID: accountID,
+	})
+	if err != nil {
+		return Fail(http.StatusInternalServerError, "internal", "could not list attachments", nil)
+	}
+	for _, att := range atts {
+		r, err := s.deps.Storage.Get(att.StorageKey)
+		if err != nil {
+			continue
+		}
+		ext := extensionForContentType(att.ContentType)
+		name := path.Join("attachments", att.TradeID, att.ID+ext)
+		entry, err := zw.Create(name)
+		if err != nil {
+			_ = r.Close()
+			continue
+		}
+		_, _ = io.Copy(entry, r)
+		_ = r.Close()
+	}
+
+	if err := zw.Close(); err != nil {
+		return Fail(http.StatusInternalServerError, "internal", "could not finalize zip", nil)
+	}
+	filename := exporter.ExportFilename("tradermemos-export", accountName, "zip")
+	c.Response().Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, filename))
+	return c.Blob(http.StatusOK, "application/zip", buf.Bytes())
+}
+
+func extensionForContentType(ct string) string {
+	switch strings.ToLower(ct) {
+	case "image/png":
+		return ".png"
+	case "image/webp":
+		return ".webp"
+	case "image/jpeg", "image/jpg":
+		return ".jpg"
+	default:
+		return ""
 	}
 }
 
