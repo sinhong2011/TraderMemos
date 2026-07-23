@@ -1,5 +1,6 @@
 import type { CSSProperties, ReactElement, ReactNode } from "react";
 import type { DayRecord } from "../lib/calendar";
+import type { Trade } from "../lib/api/types";
 import { CalendarDayHoverDetails } from "./CalendarDayHoverDetails";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "./HoverCard";
 
@@ -10,6 +11,7 @@ export function CalendarDayHoverCard({
   record,
   currency,
   fxRate = 1,
+  trades,
   children,
   className,
   style,
@@ -25,6 +27,7 @@ export function CalendarDayHoverCard({
   record?: DayRecord;
   currency: string;
   fxRate?: number;
+  trades?: Trade[];
   children?: ReactNode;
   className?: string;
   style?: CSSProperties;
@@ -35,6 +38,7 @@ export function CalendarDayHoverCard({
   sideOffset?: number;
   render?: ReactElement;
 }) {
+  const hasRows = (trades?.length ?? 0) > 0;
   return (
     <HoverCard>
       <HoverCardTrigger
@@ -48,13 +52,19 @@ export function CalendarDayHoverCard({
       >
         {children}
       </HoverCardTrigger>
-      <HoverCardContent side="top" align="center" sideOffset={sideOffset}>
+      <HoverCardContent
+        side="top"
+        align="center"
+        sideOffset={sideOffset}
+        className={hasRows ? "max-w-[22rem] p-3" : undefined}
+      >
         <CalendarDayHoverDetails
           date={date}
           pnl={pnl}
           record={record}
           currency={currency}
           fxRate={fxRate}
+          trades={trades}
         />
       </HoverCardContent>
     </HoverCard>

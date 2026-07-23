@@ -1,4 +1,5 @@
 import type { DayRecord } from "../lib/calendar";
+import type { Trade } from "../lib/api/types";
 import { monthGrid } from "../lib/calendar";
 import { cn } from "../lib/cn";
 import { fmtSignedMoneyCompact } from "../lib/format";
@@ -20,12 +21,14 @@ function YearDayCell({
   record,
   currency,
   fxRate,
+  trades,
 }: {
   date: string;
   pnl: number | null;
   record?: DayRecord;
   currency: string;
   fxRate: number;
+  trades?: Trade[];
 }) {
   const cellClass = cn(
     "block h-full min-h-0 min-w-0 rounded-sharp transition-[filter,box-shadow,opacity] duration-150",
@@ -50,6 +53,7 @@ function YearDayCell({
       record={record}
       currency={currency}
       fxRate={fxRate}
+      trades={trades}
       className={cellClass}
       style={cellStyle}
     />
@@ -61,6 +65,7 @@ function YearMonthCard({
   month,
   dailyPnl,
   dayRecords,
+  tradesByDay,
   tradeCount,
   currency,
   fxRate,
@@ -71,6 +76,7 @@ function YearMonthCard({
   month: number;
   dailyPnl: Record<string, number>;
   dayRecords: Record<string, DayRecord>;
+  tradesByDay?: Map<string, Trade[]>;
   tradeCount: number;
   currency: string;
   fxRate: number;
@@ -155,6 +161,7 @@ function YearMonthCard({
                 record={dayRecords[cell.date]}
                 currency={currency}
                 fxRate={fxRate}
+                trades={tradesByDay?.get(cell.date)}
               />
             );
           }),
@@ -185,6 +192,8 @@ export interface CalendarYearViewProps {
   tradesByMonth?: Record<string, number>;
   /** Win/loss records keyed by "YYYY-MM-DD". */
   dayRecords?: Record<string, DayRecord>;
+  /** Day trades for hover-card rows, keyed by "YYYY-MM-DD". */
+  tradesByDay?: Map<string, Trade[]>;
   loading?: boolean;
   error?: boolean;
   currency: string;
@@ -197,6 +206,7 @@ export function CalendarYearView({
   dailyPnl,
   tradesByMonth = {},
   dayRecords = {},
+  tradesByDay,
   loading,
   error,
   currency,
@@ -227,6 +237,7 @@ export function CalendarYearView({
                 index={i}
                 dailyPnl={dailyPnl}
                 dayRecords={dayRecords}
+                tradesByDay={tradesByDay}
                 tradeCount={tradesByMonth[key] ?? 0}
                 currency={currency}
                 fxRate={fxRate}

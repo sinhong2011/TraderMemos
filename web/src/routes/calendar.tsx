@@ -121,6 +121,8 @@ function CalendarPage() {
         yearTradesByMonth={yearTradesByMonth}
         yearDayRecords={yearDayRecords}
         records={records}
+        monthTrades={monthTradesQ.data ?? []}
+        yearTradeList={yearTradesQ.data ?? []}
         monthSummary={monthSummaryQ.data}
         accounts={accounts}
         selectedAccountId={accountId}

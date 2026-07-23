@@ -1,5 +1,5 @@
 import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { CalendarDayHoverCard } from "../../components/CalendarDayHoverCard";
 import { CalendarYearView } from "../../components/CalendarYearView";
 import { Card } from "../../components/Card";
@@ -15,12 +15,12 @@ import { Button } from "../../components/ui/button";
 import { pnlBgTint, pnlColor, heroPnlClass } from "../../components/theme-tokens";
 
 import type { Account, Summary, Trade } from "../../lib/api/types";
-import { type DayRecord, monthGrid, weekSummaries } from "../../lib/calendar";
+import { type DayRecord, monthGrid, tradeDayKey, weekSummaries } from "../../lib/calendar";
 import { cn } from "../../lib/cn";
 import { fmtPct, fmtSignedMoney, fmtSignedMoneyCompact } from "../../lib/format";
 import { useMoneyFx } from "../../lib/hooks/useMoneyFx";
 import { intlLocale } from "../../lib/locale";
-import { usePrivacyMode } from "../../lib/displayPrefs";
+import { useDisplayPrefs, usePrivacyMode } from "../../lib/displayPrefs";
 
 const DOW_HEADERS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 /** Weekend day-of-week indexes (Sun=0, Sat=6) — hidden below `md` in favor of taller Mon–Fri cells. */
@@ -49,6 +49,10 @@ export interface CalendarViewProps {
   /** Year-scoped win/loss records keyed by "YYYY-MM-DD". */
   yearDayRecords?: Record<string, DayRecord>;
   records: Record<string, DayRecord>;
+  /** Month-scoped trades for hover-card execution rows. */
+  monthTrades?: Trade[];
+  /** Year-scoped trades for year-view hover cards. */
+  yearTradeList?: Trade[];
   monthSummary: Summary | undefined;
   accounts: Account[];
   selectedAccountId: string | undefined;
@@ -112,6 +116,8 @@ export function CalendarView({
   yearTradesByMonth = {},
   yearDayRecords = {},
   records,
+  monthTrades = [],
+  yearTradeList = [],
   monthSummary,
   accounts,
   selectedAccountId,
@@ -139,6 +145,7 @@ export function CalendarView({
   onDeleted,
 }: CalendarViewProps) {
   usePrivacyMode();
+  const tradeDateBasis = useDisplayPrefs((s) => s.tradeDateBasis);
   const [monthSummaryOpen, setMonthSummaryOpen] = useState(false);
   const [yearSummaryOpen, setYearSummaryOpen] = useState(false);
   const { currency: displayCurrency, rate } = useMoneyFx(currency);
@@ -147,6 +154,30 @@ export function CalendarView({
   const grid = monthGrid(year, month, dailyPnl);
   const weeks = weekSummaries(grid.weeks, records);
   const today = todayString();
+
+  const monthTradesByDay = useMemo(() => {
+    const map = new Map<string, Trade[]>();
+    for (const trade of monthTrades) {
+      const key = tradeDayKey(trade, tradeDateBasis);
+      if (!key) continue;
+      const list = map.get(key);
+      if (list) list.push(trade);
+      else map.set(key, [trade]);
+    }
+    return map;
+  }, [monthTrades, tradeDateBasis]);
+
+  const yearTradesByDay = useMemo(() => {
+    const map = new Map<string, Trade[]>();
+    for (const trade of yearTradeList) {
+      const key = tradeDayKey(trade, tradeDateBasis);
+      if (!key) continue;
+      const list = map.get(key);
+      if (list) list.push(trade);
+      else map.set(key, [trade]);
+    }
+    return map;
+  }, [yearTradeList, tradeDateBasis]);
 
   const startingList = selectedAccountId
     ? accounts.filter((a) => a.id === selectedAccountId)
@@ -280,7 +311,7 @@ export function CalendarView({
               {mode === "month" ? (
                 <Button
                   type="button"
-                  variant="secondary"
+                  variant="outline"
                   onClick={() => setMonthSummaryOpen(true)}
                   className={cn(
                     "shrink-0 font-semibold tabular-nums",
@@ -292,7 +323,7 @@ export function CalendarView({
               ) : (
                 <Button
                   type="button"
-                  variant="secondary"
+                  variant="outline"
                   onClick={() => setYearSummaryOpen(true)}
                   className={cn(
                     "shrink-0 font-semibold tabular-nums",
@@ -320,6 +351,7 @@ export function CalendarView({
                 dailyPnl={yearDailyPnl}
                 tradesByMonth={yearTradesByMonth}
                 dayRecords={yearDayRecords}
+                tradesByDay={yearTradesByDay}
                 loading={yearDailyLoading}
                 error={yearDailyError}
                 currency={displayCurrency}
@@ -473,6 +505,7 @@ export function CalendarView({
                               record={rec}
                               currency={displayCurrency}
                               fxRate={fxRate}
+                              trades={monthTradesByDay.get(cell.date) ?? []}
                               ariaLabel={dayAria}
                               ariaCurrent={isToday ? "date" : undefined}
                               className={dayClass}
