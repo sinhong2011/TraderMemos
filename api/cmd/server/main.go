@@ -46,7 +46,10 @@ func main() {
 
 	q := store.New(conn)
 	jwt := auth.NewJWT(cfg.JWTSecret)
-	attachDir := filepath.Join(filepath.Dir(cfg.DBPath), "attachments")
+	attachDir := cfg.AttachDir
+	if attachDir == "" {
+		attachDir = filepath.Join(filepath.Dir(cfg.DBPath), "attachments")
+	}
 	var marketSvc *marketdata.Service
 	if cfg.MarketDataEnabled {
 		provider := marketdata.NewProvider(cfg.MarketDataProvider, cfg.MarketDataAPIKey)

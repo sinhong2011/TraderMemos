@@ -25,6 +25,9 @@ type Config struct {
 	DefaultCurrency     string
 	LogLevel            string
 	AttachMaxBytes      int64
+	// AttachDir overrides the default attachments directory (sibling of DB).
+	// Empty = <dir(DBPath)>/attachments.
+	AttachDir string
 	ImportMaxBytes      int64
 	MarketDataProvider  string
 	MarketDataAPIKey    string
@@ -56,6 +59,7 @@ func Load() (Config, error) {
 		"default_currency":       "USD",
 		"log_level":              "info",
 		"attach_max_bytes":       int64(10 << 20),
+		"attach_dir":             "",
 		"import_max_bytes":       int64(10 << 20),
 		"market_data_provider":   "yahoo",
 		"market_data_enabled":    true,
@@ -94,6 +98,7 @@ func Load() (Config, error) {
 		DefaultCurrency:     k.String("default_currency"),
 		LogLevel:            k.String("log_level"),
 		AttachMaxBytes:      k.Int64("attach_max_bytes"),
+		AttachDir:           k.String("attach_dir"),
 		ImportMaxBytes:      k.Int64("import_max_bytes"),
 		MarketDataProvider:  k.String("market_data_provider"),
 		MarketDataAPIKey:    k.String("market_data_api_key"),

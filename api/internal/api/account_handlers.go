@@ -199,6 +199,8 @@ func (s *Server) handleClearAccountTrades(c echo.Context) error {
 		return Fail(http.StatusInternalServerError, "internal", "could not load account", nil)
 	}
 
+	s.purgeAttachmentsForAccount(ctx, uid, id)
+
 	if err := s.deps.Store.DeleteTradesForAccount(ctx, store.DeleteTradesForAccountParams{
 		UserID: uid, AccountID: id,
 	}); err != nil {
@@ -231,6 +233,8 @@ func (s *Server) handleDeleteAccount(c echo.Context) error {
 	if len(accs) <= 1 {
 		return Fail(http.StatusConflict, "conflict", "cannot delete your only account — add another account first", nil)
 	}
+
+	s.purgeAttachmentsForAccount(ctx, uid, id)
 
 	n, err := s.deps.Store.DeleteAccount(ctx, store.DeleteAccountParams{
 		ID: id, UserID: uid,

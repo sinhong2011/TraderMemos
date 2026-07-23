@@ -28,6 +28,7 @@ type Querier interface {
 	DeleteExecutionsForBatch(ctx context.Context, arg DeleteExecutionsForBatchParams) error
 	DeleteExecutionsForTrade(ctx context.Context, arg DeleteExecutionsForTradeParams) error
 	DeleteJournalNote(ctx context.Context, arg DeleteJournalNoteParams) (int64, error)
+	DeleteMediaFile(ctx context.Context, arg DeleteMediaFileParams) (int64, error)
 	DeleteSetup(ctx context.Context, arg DeleteSetupParams) (int64, error)
 	DeleteTag(ctx context.Context, arg DeleteTagParams) (int64, error)
 	DeleteTrade(ctx context.Context, arg DeleteTradeParams) (int64, error)
@@ -46,6 +47,7 @@ type Querier interface {
 	GetInstrumentSpec(ctx context.Context, arg GetInstrumentSpecParams) (InstrumentSpec, error)
 	GetJournalNote(ctx context.Context, arg GetJournalNoteParams) (JournalNote, error)
 	GetMarketBarsCache(ctx context.Context, cacheKey string) (MarketBarsCache, error)
+	GetMediaFile(ctx context.Context, arg GetMediaFileParams) (MediaFile, error)
 	GetOcrSettings(ctx context.Context) (GetOcrSettingsRow, error)
 	GetRiskRules(ctx context.Context, userID string) (RiskRule, error)
 	GetSetup(ctx context.Context, arg GetSetupParams) (Setup, error)
@@ -57,10 +59,12 @@ type Querier interface {
 	InsertAttachment(ctx context.Context, arg InsertAttachmentParams) (TradeAttachment, error)
 	InsertCashTransaction(ctx context.Context, arg InsertCashTransactionParams) (CashTransaction, error)
 	InsertExecution(ctx context.Context, arg InsertExecutionParams) (Execution, error)
+	InsertMediaFile(ctx context.Context, arg InsertMediaFileParams) (MediaFile, error)
 	InsertTrade(ctx context.Context, arg InsertTradeParams) (Trade, error)
 	LinkTradeExecution(ctx context.Context, arg LinkTradeExecutionParams) error
 	ListAccessTokensByUser(ctx context.Context, userID string) ([]AccessToken, error)
 	ListAccounts(ctx context.Context, userID string) ([]Account, error)
+	ListAttachmentsForAccount(ctx context.Context, arg ListAttachmentsForAccountParams) ([]TradeAttachment, error)
 	ListAttachmentsForTrade(ctx context.Context, arg ListAttachmentsForTradeParams) ([]TradeAttachment, error)
 	ListCashForTrade(ctx context.Context, arg ListCashForTradeParams) ([]CashTransaction, error)
 	ListCashTransactions(ctx context.Context, arg ListCashTransactionsParams) ([]CashTransaction, error)
@@ -70,6 +74,7 @@ type Querier interface {
 	ListImportBatches(ctx context.Context, userID string) ([]ImportBatch, error)
 	ListJournalNotes(ctx context.Context, arg ListJournalNotesParams) ([]JournalNote, error)
 	ListJournalRisks(ctx context.Context, userID string) ([]ListJournalRisksRow, error)
+	ListMediaFilesForUser(ctx context.Context, userID string) ([]MediaFile, error)
 	ListSetups(ctx context.Context, userID string) ([]Setup, error)
 	ListSetupsForTrade(ctx context.Context, tradeID string) ([]Setup, error)
 	ListTags(ctx context.Context, userID string) ([]Tag, error)

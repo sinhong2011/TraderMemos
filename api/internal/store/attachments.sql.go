@@ -26,6 +26,23 @@ func (q *Queries) DeleteAttachment(ctx context.Context, arg DeleteAttachmentPara
 	return result.RowsAffected()
 }
 
+const deleteMediaFile = `-- name: DeleteMediaFile :execrows
+DELETE FROM media_files WHERE id = ? AND user_id = ?
+`
+
+type DeleteMediaFileParams struct {
+	ID     string `json:"id"`
+	UserID string `json:"user_id"`
+}
+
+func (q *Queries) DeleteMediaFile(ctx context.Context, arg DeleteMediaFileParams) (int64, error) {
+	result, err := q.db.ExecContext(ctx, deleteMediaFile, arg.ID, arg.UserID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
+}
+
 const getAttachment = `-- name: GetAttachment :one
 SELECT id, user_id, trade_id, filename, content_type, size_bytes, storage_key, created_at FROM trade_attachments WHERE id = ? AND user_id = ?
 `
@@ -42,6 +59,30 @@ func (q *Queries) GetAttachment(ctx context.Context, arg GetAttachmentParams) (T
 		&i.ID,
 		&i.UserID,
 		&i.TradeID,
+		&i.Filename,
+		&i.ContentType,
+		&i.SizeBytes,
+		&i.StorageKey,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const getMediaFile = `-- name: GetMediaFile :one
+SELECT id, user_id, filename, content_type, size_bytes, storage_key, created_at FROM media_files WHERE id = ? AND user_id = ?
+`
+
+type GetMediaFileParams struct {
+	ID     string `json:"id"`
+	UserID string `json:"user_id"`
+}
+
+func (q *Queries) GetMediaFile(ctx context.Context, arg GetMediaFileParams) (MediaFile, error) {
+	row := q.db.QueryRowContext(ctx, getMediaFile, arg.ID, arg.UserID)
+	var i MediaFile
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
 		&i.Filename,
 		&i.ContentType,
 		&i.SizeBytes,
@@ -90,6 +131,86 @@ func (q *Queries) InsertAttachment(ctx context.Context, arg InsertAttachmentPara
 	return i, err
 }
 
+const insertMediaFile = `-- name: InsertMediaFile :one
+INSERT INTO media_files (id, user_id, filename, content_type, size_bytes, storage_key)
+VALUES (?, ?, ?, ?, ?, ?) RETURNING id, user_id, filename, content_type, size_bytes, storage_key, created_at
+`
+
+type InsertMediaFileParams struct {
+	ID          string `json:"id"`
+	UserID      string `json:"user_id"`
+	Filename    string `json:"filename"`
+	ContentType string `json:"content_type"`
+	SizeBytes   int64  `json:"size_bytes"`
+	StorageKey  string `json:"storage_key"`
+}
+
+func (q *Queries) InsertMediaFile(ctx context.Context, arg InsertMediaFileParams) (MediaFile, error) {
+	row := q.db.QueryRowContext(ctx, insertMediaFile,
+		arg.ID,
+		arg.UserID,
+		arg.Filename,
+		arg.ContentType,
+		arg.SizeBytes,
+		arg.StorageKey,
+	)
+	var i MediaFile
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Filename,
+		&i.ContentType,
+		&i.SizeBytes,
+		&i.StorageKey,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const listAttachmentsForAccount = `-- name: ListAttachmentsForAccount :many
+SELECT a.id, a.user_id, a.trade_id, a.filename, a.content_type, a.size_bytes, a.storage_key, a.created_at FROM trade_attachments a
+INNER JOIN trades t ON t.id = a.trade_id
+WHERE a.user_id = ? AND t.account_id = ?
+ORDER BY a.created_at
+`
+
+type ListAttachmentsForAccountParams struct {
+	UserID    string `json:"user_id"`
+	AccountID string `json:"account_id"`
+}
+
+func (q *Queries) ListAttachmentsForAccount(ctx context.Context, arg ListAttachmentsForAccountParams) ([]TradeAttachment, error) {
+	rows, err := q.db.QueryContext(ctx, listAttachmentsForAccount, arg.UserID, arg.AccountID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []TradeAttachment
+	for rows.Next() {
+		var i TradeAttachment
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.TradeID,
+			&i.Filename,
+			&i.ContentType,
+			&i.SizeBytes,
+			&i.StorageKey,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listAttachmentsForTrade = `-- name: ListAttachmentsForTrade :many
 SELECT id, user_id, trade_id, filename, content_type, size_bytes, storage_key, created_at FROM trade_attachments WHERE trade_id = ? AND user_id = ? ORDER BY created_at
 `
@@ -112,6 +233,41 @@ func (q *Queries) ListAttachmentsForTrade(ctx context.Context, arg ListAttachmen
 			&i.ID,
 			&i.UserID,
 			&i.TradeID,
+			&i.Filename,
+			&i.ContentType,
+			&i.SizeBytes,
+			&i.StorageKey,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listMediaFilesForUser = `-- name: ListMediaFilesForUser :many
+SELECT id, user_id, filename, content_type, size_bytes, storage_key, created_at FROM media_files WHERE user_id = ? ORDER BY created_at
+`
+
+func (q *Queries) ListMediaFilesForUser(ctx context.Context, userID string) ([]MediaFile, error) {
+	rows, err := q.db.QueryContext(ctx, listMediaFilesForUser, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []MediaFile
+	for rows.Next() {
+		var i MediaFile
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
 			&i.Filename,
 			&i.ContentType,
 			&i.SizeBytes,

@@ -310,6 +310,8 @@ func (s *Server) handleDeleteTrade(c echo.Context) error {
 		return Fail(http.StatusInternalServerError, "internal", "could not delete executions", nil)
 	}
 
+	s.purgeAttachmentsForTrade(ctx, uid, t.ID)
+
 	n, err := s.deps.Store.DeleteTrade(ctx, store.DeleteTradeParams{ID: t.ID, UserID: uid})
 	if err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not delete trade", nil)
