@@ -5,6 +5,25 @@ All notable changes to TraderMemos are documented in this file.
 Release versioning is managed by [release-please](https://github.com/googleapis/release-please).
 See [docs/release.md](docs/release.md) for the release workflow.
 
+## [0.1.2](https://github.com/sinhong2011/TraderMemos/compare/v0.1.1...v0.1.2) (2026-07-23)
+
+
+### Features
+
+* **api:** add optional Postgres backend beside SQLite ([2bb1c17](https://github.com/sinhong2011/TraderMemos/commit/2bb1c177bf7adc5b28c832e0df58e405363c7e47))
+* **api:** export Call/Put on journal CSV from fill details ([6aace51](https://github.com/sinhong2011/TraderMemos/commit/6aace518dce762c8908a6fdeb808f72851eb8d38))
+* **api:** make import preview parse-only and skip orphan journal exits ([bbd9e6b](https://github.com/sinhong2011/TraderMemos/commit/bbd9e6be6677916068a6e571e4016c06b687de90))
+* **api:** unify database config on TM_DATABASE_URL ([fc5af2a](https://github.com/sinhong2011/TraderMemos/commit/fc5af2a9f79382e4b9d68445cc65a34eb23ff498))
+* **docker:** pull Hub images by default with build override ([49e207a](https://github.com/sinhong2011/TraderMemos/commit/49e207af2706c591c02a29d92aa16669230657f6))
+* **web:** add Dir column with LC/LP/SC/SP option tags ([a5e18ce](https://github.com/sinhong2011/TraderMemos/commit/a5e18ce2fccb63b697d3f85b9d3080f75f745646))
+* **web:** stage import edits client-side and confirm via /imports/commit ([2f55b80](https://github.com/sinhong2011/TraderMemos/commit/2f55b80050088f58d5f55a74b9ffa5e0beb947f6))
+
+
+### Bug Fixes
+
+* **api:** expand Postgres slice params for trade delete queries ([eb80105](https://github.com/sinhong2011/TraderMemos/commit/eb80105dd83883715628c5eb384ff2d2e2109d3f))
+* **api:** soften option_right partitioning when regrouping fills ([58d9e6f](https://github.com/sinhong2011/TraderMemos/commit/58d9e6f82137e6b1ea226fac20272b2aad6773db))
+
 ## [0.1.1](https://github.com/sinhong2011/TraderMemos/compare/v0.1.0...v0.1.1) (2026-07-23)
 
 
