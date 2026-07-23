@@ -10,7 +10,7 @@ services:
       TM_JWT_SECRET: ${TM_JWT_SECRET:-change-me}
       TM_ALLOW_INSECURE_JWT: ${TM_ALLOW_INSECURE_JWT:-true}
       TM_ALLOW_REGISTRATION: ${TM_ALLOW_REGISTRATION:-false}
-      TM_DB_PATH: /data/tradermemos.db
+      TM_DATABASE_URL: sqlite:///data/tradermemos.db
       TM_MARKET_DATA_ENABLED: ${TM_MARKET_DATA_ENABLED:-true}
       TM_MARKET_DATA_PROVIDER: ${TM_MARKET_DATA_PROVIDER:-yahoo}
       TM_MARKET_DATA_API_KEY: ${TM_MARKET_DATA_API_KEY:-}

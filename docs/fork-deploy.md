@@ -67,13 +67,13 @@ Railway is the best one-click host for the **Go API** (disk volume for SQLite). 
 
 1. [Deploy on Railway](https://railway.com/new/template?template=https%3A%2F%2Fgithub.com%2Fsinhong2011%2FTraderMemos&utm_medium=integration&utm_source=button&utm_campaign=tradermemos) — or New Project → Deploy from GitHub → your fork.  
 2. Root [`railway.toml`](../railway.toml) builds `api/Dockerfile` and health-checks `/healthz`.  
-3. **Attach a Volume** mounted at `/data` (keeps `TM_DB_PATH` + attachments across deploys).  
+3. **Attach a Volume** mounted at `/data` (keeps SQLite + attachments across deploys).  
 4. Variables:
    | Variable | Notes |
    |----------|--------|
    | `TM_JWT_SECRET` | Required — generate with `openssl rand -hex 32` |
    | `TM_CORS_ORIGINS` | e.g. `https://*.vercel.app,https://*.netlify.app` |
-   | `TM_DB_PATH` | Default `/data/tradermemos.db` (matches Dockerfile) |
+   | `TM_DATABASE_URL` | Default `sqlite:///data/tradermemos.db` (matches Dockerfile); legacy `TM_DB_PATH` still works |
 5. Generate a public domain (`*.up.railway.app`) → use that as login **Server** / `VITE_API`.  
 6. `PORT` is honored automatically when `TM_HTTP_PORT` is unset.
 

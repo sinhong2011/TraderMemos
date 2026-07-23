@@ -1,7 +1,8 @@
 # Railway config-as-code — deploys the Go API (SQLite + attachments).
 # One-click: https://railway.com/new/template?template=https://github.com/sinhong2011/TraderMemos
 #
-# After deploy: attach a Volume mounted at /data (persists TM_DB_PATH + attachments).
+# After deploy: attach a Volume mounted at /data (persists SQLite + attachments).
+# Default image env: TM_DATABASE_URL=sqlite:///data/tradermemos.db
 # Set TM_JWT_SECRET=$(openssl rand -hex 32) — do not enable TM_ALLOW_INSECURE_JWT.
 # Set TM_CORS_ORIGINS to your Vercel/CF/Netlify origin(s).
 # Optional: TM_ALLOW_REGISTRATION=true for extra UI signups after setup.

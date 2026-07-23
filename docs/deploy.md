@@ -51,7 +51,7 @@ Important env (compose / host):
 | `TM_JWT_SECRET` | JWT signing secret — **required** for production (`openssl rand -hex 32`) |
 | `TM_ALLOW_INSECURE_JWT` | Compose defaults `true` for first-run convenience; set `false`/unset in production |
 | `TM_ALLOW_REGISTRATION` | Default `false`. After setup, only the owner exists unless you opt in |
-| `TM_DB_PATH` | SQLite path inside the API volume (`/data/tradermemos.db`) |
+| `TM_DATABASE_URL` | Unified DB URL — default `sqlite:///data/tradermemos.db` (legacy `TM_DB_PATH` still works) |
 | `TM_CORS_ORIGINS` | Leave empty for this mode |
 
 **First boot:** open `http://localhost:3000` — if the database has no users, the **setup wizard** creates the owner (admin) account and an optional trading account. Public registration stays closed afterward.

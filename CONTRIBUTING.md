@@ -19,7 +19,7 @@ make setup           # mise + air + vp install; seeds api/.env
 make check           # go vet + vp check
 make test            # go test + vp test
 
-# Optional: edit api/.env (TM_JWT_SECRET, TM_DB_PATH, …)
+# Optional: edit api/.env (TM_JWT_SECRET, TM_DATABASE_URL, …)
 # See api/.env.example for the full list.
 
 make dev             # API :8080 (air) + web :5173 (vite) with hot reload

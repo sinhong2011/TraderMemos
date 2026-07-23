@@ -20,6 +20,6 @@ COPY --from=build /out/server /server
 COPY --from=build /out/tradermemos /tradermemos
 EXPOSE 8080
 VOLUME ["/data"]
-ENV TM_DB_PATH=/data/tradermemos.db
+ENV TM_DATABASE_URL=sqlite:///data/tradermemos.db
 ENV TM_OCR_ENABLED=false
 ENTRYPOINT ["/server"]
