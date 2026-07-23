@@ -1,12 +1,15 @@
 # Publish api + web images to Docker Hub.
 #
 # Repo secrets (Docker Hub → Account Settings → Security → Access Tokens):
-#   DOCKERHUB_USERNAME
+#   DOCKERHUB_USERNAME   — Hub namespace (same value end users put in root .env)
 #   DOCKERHUB_TOKEN
 #
 # Images:
 #   docker.io/<username>/tradermemos-api
 #   docker.io/<username>/tradermemos-web
+#
+# Self-host compose pulls those images via DOCKERHUB_USERNAME in root .env
+# (see .env.example). Default namespace in compose is sinhong2011.
 #
 # Triggers:
 #   - GitHub Release published (semver tags from the release tag)

@@ -74,11 +74,17 @@ sqlc: ## Regenerate sqlc code
 
 ## --- docker ---
 
-up: ## Start full stack (SQLite API — default)
-	docker compose up --build -d
+up: ## Start stack from Docker Hub images (SQLite)
+	docker compose up -d
 
-up-postgres: ## Start stack with Postgres (uses docker-compose.postgres.yml)
-	docker compose -f docker-compose.yml -f docker-compose.postgres.yml up --build -d
+up-build: ## Build images from source, then start (SQLite)
+	docker compose -f docker-compose.yml -f docker-compose.build.yml up --build -d
+
+up-postgres: ## Hub images + Postgres overlay
+	docker compose -f docker-compose.yml -f docker-compose.postgres.yml up -d
+
+up-postgres-build: ## Build from source + Postgres overlay
+	docker compose -f docker-compose.yml -f docker-compose.build.yml -f docker-compose.postgres.yml up --build -d
 
 down: ## Stop docker compose stack
 	docker compose down

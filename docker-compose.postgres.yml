@@ -2,8 +2,10 @@
 # Default docker-compose.yml stays SQLite-only — do not use this unless you want Postgres.
 #
 #   make up-postgres
-#   # or:
-#   docker compose -f docker-compose.yml -f docker-compose.postgres.yml up --build -d
+#   # or (Hub images):
+#   docker compose -f docker-compose.yml -f docker-compose.postgres.yml up -d
+#   # or (build from source):
+#   docker compose -f docker-compose.yml -f docker-compose.build.yml -f docker-compose.postgres.yml up --build -d
 #
 # API URL: postgres://tm:tm@postgres:5432/tradermemos?sslmode=disable
 # Attachments stay on the /data volume (TM_ATTACH_DIR=/data/attachments).

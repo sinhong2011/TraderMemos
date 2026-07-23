@@ -46,10 +46,13 @@ Vite+ proxies `/api` → `http://localhost:8080` during `vp dev`.
 See **[docs/fork-deploy.md](docs/fork-deploy.md)** to put the SPA on your Vercel/Cloudflare account, and **[docs/deploy.md](docs/deploy.md)** for Docker / CORS / edge rewrite. Deploy buttons: [README](README.md).
 
 ```bash
-make up          # docker compose: web :3000 (SPA + /api proxy), api :8080
+make up          # pull Hub images: web :3000 (SPA + /api proxy), api :8080
+make up-build    # build Dockerfiles from this checkout instead
 make down
 make logs
 ```
+
+Hub namespace / tag: copy [`.env.example`](.env.example) → `.env` and set `DOCKERHUB_USERNAME` / `TM_IMAGE_TAG`. CI publish uses GitHub secrets `DOCKERHUB_USERNAME` + `DOCKERHUB_TOKEN`.
 
 ### Vite+ commands (run from `web/`)
 

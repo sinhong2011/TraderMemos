@@ -1,8 +1,18 @@
+# Self-host stack — pulls published images from Docker Hub by default.
+#
+# Username / tag (Compose loads `.env` automatically):
+#   DOCKERHUB_USERNAME  — Hub namespace that owns the images (default: sinhong2011)
+#   TM_IMAGE_TAG        — image tag (default: latest; prefer a semver in production)
+#
+#   cp .env.example .env   # then edit DOCKERHUB_USERNAME if you fork/publish your own
+#
+# Build from source instead:
+#   docker compose -f docker-compose.yml -f docker-compose.build.yml up --build -d
+#   # or: make up-build
+
 services:
   api:
-    build:
-      context: .
-      dockerfile: api/Dockerfile
+    image: ${DOCKERHUB_USERNAME:-sinhong2011}/tradermemos-api:${TM_IMAGE_TAG:-latest}
     ports:
       - "8080:8080"
     environment:
@@ -25,9 +35,7 @@ services:
     volumes:
       - tm_data:/data
   web:
-    build:
-      context: .
-      dockerfile: web/Dockerfile
+    image: ${DOCKERHUB_USERNAME:-sinhong2011}/tradermemos-web:${TM_IMAGE_TAG:-latest}
     ports:
       - "3000:80"
     depends_on:

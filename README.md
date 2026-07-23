@@ -102,7 +102,9 @@ Already forked? Import your fork → Root **`web`** (Vercel/CF) or [`netlify.tom
 ## Docker all-in-one
 
 ```bash
-make setup && make up   # http://localhost:3000  (SPA + /api proxy)
+cp .env.example .env   # optional: DOCKERHUB_USERNAME, TM_IMAGE_TAG
+make up                # pull Hub images → http://localhost:3000
+# make up-build        # or build from this repo
 ```
 
 Same-origin `/api` — no CORS, blank Server field.

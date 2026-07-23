@@ -1,0 +1,27 @@
+# Contributor / source build override.
+# Default docker-compose.yml pulls Docker Hub images — merge this file to build locally.
+#
+#   make up-build
+#   # or:
+#   docker compose -f docker-compose.yml -f docker-compose.build.yml up --build -d
+#
+# Optional Postgres:
+#   docker compose -f docker-compose.yml -f docker-compose.build.yml -f docker-compose.postgres.yml up --build -d
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+      args:
+        VERSION: ${TM_IMAGE_TAG:-dev}
+        COMMIT: ${TM_COMMIT:-local}
+    image: ${DOCKERHUB_USERNAME:-sinhong2011}/tradermemos-api:${TM_IMAGE_TAG:-local}
+  web:
+    build:
+      context: .
+      dockerfile: web/Dockerfile
+      args:
+        APP_VERSION: ${TM_IMAGE_TAG:-dev}
+        APP_BUILD: ${TM_COMMIT:-local}
+    image: ${DOCKERHUB_USERNAME:-sinhong2011}/tradermemos-web:${TM_IMAGE_TAG:-local}

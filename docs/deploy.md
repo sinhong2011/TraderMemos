@@ -28,14 +28,28 @@ TM_CORS_ORIGINS=https://*.vercel.app,https://*.pages.dev,https://*.workers.dev,h
 
 ## 1. Docker all-in-one (recommended default)
 
+Pulls published images from Docker Hub (`sinhong2011/tradermemos-api` + `…-web`).
+
 ```bash
-# From repo root — builds api + web, serves SPA at :3000 (SQLite by default)
-make up          # docker compose up --build -d
+# Optional: copy and edit Hub namespace / tag
+cp .env.example .env
+# DOCKERHUB_USERNAME=sinhong2011   # your Hub user if you publish your own images
+# TM_IMAGE_TAG=0.1.1               # pin a release in production (default: latest)
+
+make up            # docker compose up -d  (pull Hub images, SQLite)
 # open http://localhost:3000
 
-# Optional: same stack on Postgres instead of SQLite
-make up-postgres # docker compose -f docker-compose.yml -f docker-compose.postgres.yml up --build -d
+make up-postgres   # same + Postgres overlay
+make up-build      # build api/web from this repo instead of pulling
 ```
+
+**Where the Docker Hub username comes from**
+
+| Context | Where to set it |
+|---------|-----------------|
+| End users / self-host | Root `.env` → `DOCKERHUB_USERNAME` (Compose loads it automatically). Defaults to `sinhong2011`. |
+| Image tag | Root `.env` → `TM_IMAGE_TAG` (`latest` or a semver like `0.1.1`). |
+| CI publish to Hub | GitHub repo secrets `DOCKERHUB_USERNAME` + `DOCKERHUB_TOKEN` (see `.github/workflows/docker-publish.yml`). |
 
 What you get:
 
@@ -62,6 +76,8 @@ Important env (compose / host):
 
 ```bash
 # Production-ish compose example
+cp .env.example .env
+# edit .env: TM_IMAGE_TAG=0.1.1, TM_JWT_SECRET=…, TM_ALLOW_INSECURE_JWT=false
 export TM_JWT_SECRET=$(openssl rand -hex 32)
 export TM_ALLOW_INSECURE_JWT=false
 make up
