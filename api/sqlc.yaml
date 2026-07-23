@@ -12,3 +12,52 @@ sql:
         overrides:
           - db_type: "TIMESTAMP"
             go_type: "time.Time"
+  - engine: "postgresql"
+    schema: "internal/db/migrations_pg"
+    queries: "internal/store/queries_pg"
+    gen:
+      go:
+        package: "storepg"
+        out: "internal/storepg"
+        sql_package: "database/sql"
+        emit_json_tags: true
+        emit_interface: true
+        overrides:
+          - db_type: "pg_catalog.timestamptz"
+            go_type: "time.Time"
+          - db_type: "timestamptz"
+            go_type: "time.Time"
+          - db_type: "pg_catalog.timestamp"
+            go_type: "time.Time"
+          - db_type: "timestamp"
+            go_type: "time.Time"
+          - db_type: "pg_catalog.int4"
+            go_type: "int64"
+          - db_type: "int4"
+            go_type: "int64"
+          - db_type: "pg_catalog.int4"
+            nullable: true
+            go_type: "database/sql.NullInt64"
+          - db_type: "int4"
+            nullable: true
+            go_type: "database/sql.NullInt64"
+          - db_type: "pg_catalog.int2"
+            go_type: "int64"
+          - db_type: "int2"
+            go_type: "int64"
+          - db_type: "pg_catalog.int2"
+            nullable: true
+            go_type: "database/sql.NullInt64"
+          - db_type: "int2"
+            nullable: true
+            go_type: "database/sql.NullInt64"
+          - db_type: "pg_catalog.int8"
+            go_type: "int64"
+          - db_type: "int8"
+            go_type: "int64"
+          - db_type: "pg_catalog.int8"
+            nullable: true
+            go_type: "database/sql.NullInt64"
+          - db_type: "int8"
+            nullable: true
+            go_type: "database/sql.NullInt64"

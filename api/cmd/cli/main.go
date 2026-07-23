@@ -19,32 +19,32 @@ import (
 	"github.com/tradermemos/api/internal/trades"
 )
 
-func openStore() (*store.Queries, error) {
-	conn, err := openConn()
+func openStore() (store.Querier, error) {
+	conn, driver, err := openConn()
 	if err != nil {
 		return nil, err
 	}
-	return store.New(conn), nil
+	return store.NewForDriver(conn, driver), nil
 }
 
-func openConn() (*sql.DB, error) {
+func openConn() (*sql.DB, string, error) {
 	cfg, err := config.Load()
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	if cfg.Driver == db.DriverSQLite && cfg.DBPath != "" {
 		if err := os.MkdirAll(dir(cfg.DBPath), 0o755); err != nil {
-			return nil, err
+			return nil, "", err
 		}
 	}
 	conn, err := db.Open(cfg.DatabaseURL)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
-	if err := db.Migrate(conn); err != nil {
-		return nil, err
+	if err := db.Migrate(conn, cfg.Driver); err != nil {
+		return nil, "", err
 	}
-	return conn, nil
+	return conn, cfg.Driver, nil
 }
 
 func dir(p string) string {
@@ -132,13 +132,13 @@ func main() {
 		Short: "ensure default playbook setups exist for all users",
 		RunE: func(*cobra.Command, []string) error {
 			ctx := context.Background()
-			conn, err := openConn()
+			conn, driver, err := openConn()
 			if err != nil {
 				return err
 			}
 			defer conn.Close()
 
-			q := store.New(conn)
+			q := store.NewForDriver(conn, driver)
 			rows, err := conn.QueryContext(ctx, `SELECT id, email FROM users`)
 			if err != nil {
 				return err

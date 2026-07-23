@@ -220,7 +220,7 @@ func toOcrSettingsDTO(cfg ocr.VisionConfig) ocrSettingsDTO {
 	}
 }
 
-func LoadOcrVisionOverlay(ctx context.Context, q *store.Queries) (ocr.VisionConfig, bool, error) {
+func LoadOcrVisionOverlay(ctx context.Context, q store.Querier) (ocr.VisionConfig, bool, error) {
 	row, err := q.GetOcrSettings(ctx)
 	if errors.Is(err, sql.ErrNoRows) {
 		return ocr.VisionConfig{}, false, nil

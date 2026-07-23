@@ -22,7 +22,7 @@ var DefaultSetupNames = []string{
 }
 
 // SeedDefaultSetups creates any missing default setups for userID (skips existing names, case-insensitive).
-func SeedDefaultSetups(ctx context.Context, q *Queries, userID string) error {
+func SeedDefaultSetups(ctx context.Context, q Querier, userID string) error {
 	existing, err := q.ListSetups(ctx, userID)
 	if err != nil {
 		return err

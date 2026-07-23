@@ -17,12 +17,12 @@ var (
 )
 
 type Service struct {
-	q                  *store.Queries
+	q                  store.Querier
 	jwt                *JWT
 	allowRegistration  bool
 }
 
-func NewService(q *store.Queries, jwt *JWT, allowRegistration bool) *Service {
+func NewService(q store.Querier, jwt *JWT, allowRegistration bool) *Service {
 	return &Service{q: q, jwt: jwt, allowRegistration: allowRegistration}
 }
 

@@ -21,9 +21,9 @@ type Config struct {
 	HTTPPort string
 	// DatabaseURL is the unified DB connection string (TM_DATABASE_URL).
 	// Examples: sqlite:data/tradermemos.db, sqlite:///data/tradermemos.db,
-	// postgres://… (parsed; driver not implemented yet).
+	// postgres://user:pass@host:5432/db?sslmode=require
 	DatabaseURL string
-	// Driver is "sqlite" or "postgres" after ResolveDatabase.
+	// Driver is "sqlite" or "postgres" after resolveDatabase.
 	Driver string
 	// DBPath is the SQLite filesystem path when Driver is sqlite.
 	// Still accepted via legacy TM_DB_PATH (converted to a sqlite: URL).
@@ -34,8 +34,9 @@ type Config struct {
 	DefaultCurrency     string
 	LogLevel            string
 	AttachMaxBytes      int64
-	// AttachDir overrides the default attachments directory (sibling of DB).
-	// Empty = <dir(DBPath)>/attachments for sqlite.
+	// AttachDir overrides the default attachments directory.
+	// Empty = <dir(DBPath)>/attachments for sqlite; for postgres set explicitly
+	// (defaults to data/attachments when DBPath is empty).
 	AttachDir           string
 	ImportMaxBytes      int64
 	MarketDataProvider  string

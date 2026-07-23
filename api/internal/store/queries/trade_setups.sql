@@ -1,5 +1,6 @@
 -- name: SetTradeSetup :exec
-INSERT OR IGNORE INTO trade_setups (trade_id, setup_id) VALUES (?, ?);
+INSERT INTO trade_setups (trade_id, setup_id) VALUES (?, ?)
+ON CONFLICT (trade_id, setup_id) DO NOTHING;
 
 -- name: ClearTradeSetups :exec
 DELETE FROM trade_setups WHERE trade_id = ?;

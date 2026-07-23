@@ -11,9 +11,9 @@ import (
 	"github.com/tradermemos/api/internal/store"
 )
 
-type Service struct{ q *store.Queries }
+type Service struct{ q store.Querier }
 
-func NewService(q *store.Queries) *Service { return &Service{q: q} }
+func NewService(q store.Querier) *Service { return &Service{q: q} }
 
 // Regroup rebuilds all trades for an account from its executions. Idempotent.
 func (s *Service) Regroup(ctx context.Context, userID, accountID string) error {

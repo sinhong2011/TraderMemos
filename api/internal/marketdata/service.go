@@ -14,7 +14,7 @@ import (
 
 // Service resolves bar requests with in-memory LRU, SQLite cache, and provider fetch.
 type Service struct {
-	Store    *store.Queries
+	Store    store.Querier
 	Provider Provider
 	mem      *memCache
 	group    singleflight.Group
@@ -22,7 +22,7 @@ type Service struct {
 	fxGroup  singleflight.Group
 }
 
-func NewService(q *store.Queries, provider Provider) *Service {
+func NewService(q store.Querier, provider Provider) *Service {
 	return &Service{
 		Store:    q,
 		Provider: provider,

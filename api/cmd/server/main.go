@@ -37,7 +37,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	if err := db.Migrate(conn); err != nil {
+	if err := db.Migrate(conn, cfg.Driver); err != nil {
 		log.Fatal(err)
 	}
 	logger := logging.New(cfg.LogLevel)
@@ -46,11 +46,15 @@ func main() {
 	}
 	logger.Info("auth policy", "detail", cfg.AuthSummary())
 
-	q := store.New(conn)
+	q := store.NewForDriver(conn, cfg.Driver)
 	jwt := auth.NewJWT(cfg.JWTSecret)
 	attachDir := cfg.AttachDir
 	if attachDir == "" {
-		attachDir = filepath.Join(filepath.Dir(cfg.DBPath), "attachments")
+		if cfg.DBPath != "" {
+			attachDir = filepath.Join(filepath.Dir(cfg.DBPath), "attachments")
+		} else {
+			attachDir = "data/attachments"
+		}
 	}
 	var marketSvc *marketdata.Service
 	if cfg.MarketDataEnabled {
@@ -102,6 +106,6 @@ func main() {
 	if len(cfg.CORSOrigins) > 0 {
 		logger.Info("cors enabled", "origins", cfg.CORSOrigins)
 	}
-	logger.Info("tradermemos api listening", "port", cfg.HTTPPort, "db", cfg.DatabaseURL, "log_level", cfg.LogLevel)
+	logger.Info("tradermemos api listening", "port", cfg.HTTPPort, "db", db.RedactDatabaseURL(cfg.DatabaseURL), "log_level", cfg.LogLevel)
 	log.Fatal(s.Echo.Start(":" + cfg.HTTPPort))
 }

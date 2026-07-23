@@ -1,6 +1,7 @@
 package db
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -38,6 +39,7 @@ func TestParseURL_Postgres(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, DriverPostgres, d.Driver)
 	require.Equal(t, raw, d.OpenDSN)
+	require.Equal(t, raw, d.URL)
 	require.Empty(t, d.SQLitePath)
 }
 
@@ -50,10 +52,11 @@ func TestParseURL_Errors(t *testing.T) {
 	require.Error(t, err)
 }
 
-func TestOpen_RejectsPostgres(t *testing.T) {
-	_, err := Open("postgres://localhost/db")
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "not implemented")
+func TestRedactDatabaseURL(t *testing.T) {
+	got := RedactDatabaseURL("postgres://user:s3cret@host:5432/db?sslmode=require")
+	require.NotContains(t, got, "s3cret")
+	require.True(t, strings.Contains(got, "***") || strings.Contains(got, "%2A%2A%2A"))
+	require.Equal(t, "sqlite:data/x.db", RedactDatabaseURL("sqlite:data/x.db"))
 }
 
 func TestOpen_BarePath(t *testing.T) {
@@ -69,5 +72,5 @@ func TestOpen_SQLiteURL(t *testing.T) {
 	conn, err := Open(FormatSQLiteURL(path))
 	require.NoError(t, err)
 	defer conn.Close()
-	require.NoError(t, Migrate(conn))
+	require.NoError(t, Migrate(conn, DriverSQLite))
 }

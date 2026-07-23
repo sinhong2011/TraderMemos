@@ -210,7 +210,7 @@ func toCoachSettingsDTO(cfg ocr.VisionConfig) coachSettingsDTO {
 	}
 }
 
-func LoadCoachOverlay(ctx context.Context, q *store.Queries) (ocr.VisionConfig, bool, error) {
+func LoadCoachOverlay(ctx context.Context, q store.Querier) (ocr.VisionConfig, bool, error) {
 	row, err := q.GetCoachSettings(ctx)
 	if errors.Is(err, sql.ErrNoRows) {
 		return ocr.VisionConfig{}, false, nil

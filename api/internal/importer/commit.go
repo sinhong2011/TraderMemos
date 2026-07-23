@@ -23,7 +23,7 @@ type CommitResult struct {
 
 // Commit inserts executions, regroups trades, then applies journal annotations.
 // batchID may be invalid (CLI imports); when valid, executions are tagged for reversal.
-func Commit(ctx context.Context, q *store.Queries, userID, accountID string, batchID sql.NullString, parsed ParseResult) (CommitResult, error) {
+func Commit(ctx context.Context, q store.Querier, userID, accountID string, batchID sql.NullString, parsed ParseResult) (CommitResult, error) {
 	res := CommitResult{Errors: parsed.Errors, Format: parsed.Format}
 	if res.Errors == nil {
 		res.Errors = []RowError{}
@@ -99,7 +99,7 @@ func Commit(ctx context.Context, q *store.Queries, userID, accountID string, bat
 	return res, nil
 }
 
-func applyAnnotation(ctx context.Context, q *store.Queries, userID, accountID, tradeID string, ann *TradeAnnotation) error {
+func applyAnnotation(ctx context.Context, q store.Querier, userID, accountID, tradeID string, ann *TradeAnnotation) error {
 	if ann == nil {
 		return nil
 	}
@@ -234,7 +234,7 @@ func applyAnnotation(ctx context.Context, q *store.Queries, userID, accountID, t
 	return nil
 }
 
-func ensureSetup(ctx context.Context, q *store.Queries, userID, name string) (string, error) {
+func ensureSetup(ctx context.Context, q store.Querier, userID, name string) (string, error) {
 	setups, err := q.ListSetups(ctx, userID)
 	if err != nil {
 		return "", err
@@ -257,7 +257,7 @@ func ensureSetup(ctx context.Context, q *store.Queries, userID, name string) (st
 
 // UpsertSetups restores a playbook catalog from a JSON backup.
 // Matching is case-insensitive by name; existing setups are overwritten with catalog fields.
-func UpsertSetups(ctx context.Context, q *store.Queries, userID string, catalog []JSONSetup) (int, error) {
+func UpsertSetups(ctx context.Context, q store.Querier, userID string, catalog []JSONSetup) (int, error) {
 	if len(catalog) == 0 {
 		return 0, nil
 	}

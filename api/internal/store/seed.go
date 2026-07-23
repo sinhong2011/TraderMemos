@@ -20,7 +20,7 @@ var futuresSeed = []specSeed{
 }
 
 // SeedInstrumentSpecs upserts the common futures contract specs.
-func SeedInstrumentSpecs(ctx context.Context, q *Queries) error {
+func SeedInstrumentSpecs(ctx context.Context, q Querier) error {
 	for _, s := range futuresSeed {
 		err := q.UpsertInstrumentSpec(ctx, UpsertInstrumentSpecParams{
 			ID: uuid.NewString(), SymbolRoot: s.root, InstrumentType: s.itype,

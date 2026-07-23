@@ -34,9 +34,10 @@ type Database struct {
 //	/data/tradermemos.db          (bare path → sqlite)
 //	data/tradermemos.db           (bare path → sqlite)
 //
-// Accepted for future wiring (Open rejects until implemented):
+// Also supported:
 //
-//	postgres://…  postgresql://…
+//	postgres://user:pass@host:5432/db?sslmode=require
+//	postgresql://…
 func ParseURL(raw string) (Database, error) {
 	raw = strings.TrimSpace(raw)
 	if raw == "" {
@@ -69,6 +70,19 @@ func ParseURL(raw string) (Database, error) {
 	default:
 		return Database{}, fmt.Errorf("unsupported database url scheme %q (use sqlite:… or postgres://…)", u.Scheme)
 	}
+}
+
+// RedactDatabaseURL masks password credentials for logs.
+func RedactDatabaseURL(raw string) string {
+	u, err := url.Parse(strings.TrimSpace(raw))
+	if err != nil || u.User == nil {
+		return raw
+	}
+	name := u.User.Username()
+	if _, has := u.User.Password(); has {
+		u.User = url.UserPassword(name, "***")
+	}
+	return u.String()
 }
 
 // FormatSQLiteURL builds the canonical sqlite: URL for a filesystem path.

@@ -11,7 +11,8 @@ SELECT * FROM tags WHERE user_id = ? ORDER BY name;
 DELETE FROM tags WHERE id = ? AND user_id = ?;
 
 -- name: SetTradeTags :exec
-INSERT OR IGNORE INTO trade_tags (trade_id, tag_id) VALUES (?, ?);
+INSERT INTO trade_tags (trade_id, tag_id) VALUES (?, ?)
+ON CONFLICT (trade_id, tag_id) DO NOTHING;
 
 -- name: ClearTradeTags :exec
 DELETE FROM trade_tags WHERE trade_id = ?;

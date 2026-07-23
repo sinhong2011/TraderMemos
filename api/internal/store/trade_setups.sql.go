@@ -61,7 +61,8 @@ func (q *Queries) ListSetupsForTrade(ctx context.Context, tradeID string) ([]Set
 }
 
 const setTradeSetup = `-- name: SetTradeSetup :exec
-INSERT OR IGNORE INTO trade_setups (trade_id, setup_id) VALUES (?, ?)
+INSERT INTO trade_setups (trade_id, setup_id) VALUES (?, ?)
+ON CONFLICT (trade_id, setup_id) DO NOTHING
 `
 
 type SetTradeSetupParams struct {

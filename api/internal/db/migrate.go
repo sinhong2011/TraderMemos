@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4/database/postgres"
 	"github.com/golang-migrate/migrate/v4/database/sqlite"
 	"github.com/golang-migrate/migrate/v4/source/iofs"
 	"golang.org/x/sys/unix"
@@ -17,17 +18,34 @@ import (
 //go:embed all:migrations
 var migrationsFS embed.FS
 
-func Migrate(conn *sql.DB) error {
-	dbPath, err := sqliteMainFile(conn)
-	if err != nil {
-		return err
+//go:embed all:migrations_pg
+var migrationsPGFS embed.FS
+
+// Migrate applies schema migrations.
+// Optional driver defaults to SQLite; pass DriverPostgres for Postgres.
+// SQLite uses the historical migrations/ chain; Postgres uses squashed migrations_pg/.
+func Migrate(conn *sql.DB, driver ...string) error {
+	d := DriverSQLite
+	if len(driver) > 0 && driver[0] != "" {
+		d = driver[0]
 	}
-	return withMigrateLock(dbPath, func() error {
-		return migrateUp(conn)
-	})
+	switch d {
+	case DriverSQLite:
+		dbPath, err := sqliteMainFile(conn)
+		if err != nil {
+			return err
+		}
+		return withMigrateLock(dbPath, func() error {
+			return migrateSQLite(conn)
+		})
+	case DriverPostgres:
+		return migratePostgres(conn)
+	default:
+		return fmt.Errorf("migrate: unsupported driver %q", d)
+	}
 }
 
-func migrateUp(conn *sql.DB) error {
+func migrateSQLite(conn *sql.DB) error {
 	src, err := iofs.New(migrationsFS, "migrations")
 	if err != nil {
 		return err
@@ -55,6 +73,25 @@ func migrateUp(conn *sql.DB) error {
 	}
 	// Do not m.Close(): WithInstance owns our *sql.DB and Close would shut it down.
 
+	if err := m.Up(); err != nil && !errors.Is(err, migrate.ErrNoChange) {
+		return err
+	}
+	return nil
+}
+
+func migratePostgres(conn *sql.DB) error {
+	src, err := iofs.New(migrationsPGFS, "migrations_pg")
+	if err != nil {
+		return err
+	}
+	drv, err := postgres.WithInstance(conn, &postgres.Config{})
+	if err != nil {
+		return err
+	}
+	m, err := migrate.NewWithInstance("iofs", src, "postgres", drv)
+	if err != nil {
+		return err
+	}
 	if err := m.Up(); err != nil && !errors.Is(err, migrate.ErrNoChange) {
 		return err
 	}

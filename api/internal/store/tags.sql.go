@@ -188,7 +188,8 @@ func (q *Queries) ListTradeTagsForUser(ctx context.Context, userID string) ([]Li
 }
 
 const setTradeTags = `-- name: SetTradeTags :exec
-INSERT OR IGNORE INTO trade_tags (trade_id, tag_id) VALUES (?, ?)
+INSERT INTO trade_tags (trade_id, tag_id) VALUES (?, ?)
+ON CONFLICT (trade_id, tag_id) DO NOTHING
 `
 
 type SetTradeTagsParams struct {
