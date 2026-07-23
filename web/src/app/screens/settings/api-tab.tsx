@@ -9,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../../../components/Dialog";
+import { ModalBanner } from "../../../components/Modal";
 import { useToastManager } from "../../../components/Toast";
 import { Button } from "../../../components/ui/button";
 import { NativeSelect, NativeSelectOption } from "../../../components/ui/native-select";
@@ -22,7 +23,13 @@ import {
 } from "../../../lib/hooks/useAccessTokens";
 import { useLocale } from "../../../i18n";
 import { intlLocale, settingsLabel } from "../../../lib/locale";
-import { DeleteButton, SettingsPanelBody, SettingsSection } from "./settings-ui";
+import {
+  DeleteButton,
+  SettingsGroup,
+  SettingsPanelBody,
+  SettingsRow,
+  SettingsSection,
+} from "./settings-ui";
 
 type ExpiryChoice = "never" | "30" | "90" | "365";
 
@@ -143,7 +150,7 @@ export function ApiTab() {
         action={
           <Button
             type="button"
-            variant="secondary"
+            variant="outline"
             size="sm"
             onClick={() => {
               resetCreateForm();
@@ -166,47 +173,70 @@ export function ApiTab() {
             <p className="m-0 text-[12px] text-loss">{settingsLabel(locale, "apiTokensError")}</p>
           </SettingsPanelBody>
         ) : tokens.length === 0 ? (
-          <SettingsPanelBody className="flex items-start gap-3 py-5">
-            <KeyRound size={18} strokeWidth={1.5} className="mt-0.5 shrink-0 text-text-dim" />
-            <p className="m-0 text-[13px] leading-relaxed text-text-muted">
-              {settingsLabel(locale, "apiTokensEmpty")}
-            </p>
+          <SettingsPanelBody className="py-8">
+            <div className="flex flex-col items-center gap-2 text-center">
+              <KeyRound size={28} strokeWidth={1.5} className="text-text-dim" aria-hidden />
+              <p className="m-0 text-[13px] font-medium text-text">
+                {settingsLabel(locale, "apiTokensEmpty")}
+              </p>
+            </div>
           </SettingsPanelBody>
         ) : (
-          <ul className="m-0 flex list-none flex-col gap-2 p-0">
-            {tokens.map((tok) => (
-              <li
+          <SettingsGroup>
+            {tokens.map((tok, index) => (
+              <SettingsRow
                 key={tok.id}
-                className="flex items-start justify-between gap-3 rounded-card border border-border bg-bg-panel px-4 py-3.5 transition-colors duration-150 hover:bg-bg-hover"
-              >
-                <div className="min-w-0">
-                  <p className="m-0 text-[14px] font-medium tracking-tight text-text">{tok.name}</p>
-                  <p className="m-0 mt-1 text-[11px] tabular-nums text-text-dim">
-                    {tok.token_prefix}…
-                  </p>
-                  <p className="m-0 mt-2 text-[11px] leading-relaxed text-text-muted">
-                    {settingsLabel(locale, "apiTokenCreated")}:{" "}
-                    {formatWhen(tok.created_at, displayLocale)}
-                    {" · "}
-                    {settingsLabel(locale, "apiTokenExpires")}:{" "}
-                    {tok.expires_at
-                      ? formatWhen(tok.expires_at, displayLocale)
-                      : settingsLabel(locale, "apiTokenExpiryNever")}
-                    {" · "}
-                    {settingsLabel(locale, "apiTokenLastUsed")}:{" "}
-                    {formatWhen(tok.last_used_at, displayLocale)}
-                  </p>
-                </div>
-                <DeleteButton
-                  label={tok.name}
-                  detail={settingsLabel(locale, "apiTokenRevokeConfirm")}
-                  onDelete={() => {
-                    void handleRevoke(tok.id);
-                  }}
-                />
-              </li>
+                last={index === tokens.length - 1}
+                primary={
+                  <span className="flex min-w-0 flex-wrap items-center gap-2">
+                    <span className="truncate">{tok.name}</span>
+                    <code className="rounded-control border border-border bg-bg-inset px-1.5 py-0.5 text-[11px] font-normal tabular-nums text-text-muted">
+                      {tok.token_prefix}…
+                    </code>
+                  </span>
+                }
+                secondary={
+                  <span className="flex flex-wrap gap-x-4 gap-y-1">
+                    <span>
+                      <span className="text-text-dim">
+                        {settingsLabel(locale, "apiTokenCreated")}
+                      </span>{" "}
+                      <span className="tabular-nums text-text-muted">
+                        {formatWhen(tok.created_at, displayLocale)}
+                      </span>
+                    </span>
+                    <span>
+                      <span className="text-text-dim">
+                        {settingsLabel(locale, "apiTokenExpires")}
+                      </span>{" "}
+                      <span className="tabular-nums text-text-muted">
+                        {tok.expires_at
+                          ? formatWhen(tok.expires_at, displayLocale)
+                          : settingsLabel(locale, "apiTokenExpiryNever")}
+                      </span>
+                    </span>
+                    <span>
+                      <span className="text-text-dim">
+                        {settingsLabel(locale, "apiTokenLastUsed")}
+                      </span>{" "}
+                      <span className="tabular-nums text-text-muted">
+                        {formatWhen(tok.last_used_at, displayLocale)}
+                      </span>
+                    </span>
+                  </span>
+                }
+                actions={
+                  <DeleteButton
+                    label={tok.name}
+                    detail={settingsLabel(locale, "apiTokenRevokeConfirm")}
+                    onDelete={() => {
+                      void handleRevoke(tok.id);
+                    }}
+                  />
+                }
+              />
             ))}
-          </ul>
+          </SettingsGroup>
         )}
       </SettingsSection>
 
@@ -218,42 +248,52 @@ export function ApiTab() {
         }}
       >
         <DialogContent className="max-w-[min(480px,94vw)]" showCloseButton>
-          <DialogHeader>
+          <DialogHeader className="flex-col items-start gap-1.5 pr-12">
             <DialogTitle>
               {created
                 ? settingsLabel(locale, "apiTokenRevealTitle")
                 : settingsLabel(locale, "apiTokenCreate")}
             </DialogTitle>
-            <DialogDescription>
-              {created
-                ? settingsLabel(locale, "apiTokenRevealHint")
-                : settingsLabel(locale, "apiTokenCreateHint")}
-            </DialogDescription>
+            {!created ? (
+              <DialogDescription className="text-left leading-relaxed">
+                {settingsLabel(locale, "apiTokenCreateHint")}
+              </DialogDescription>
+            ) : (
+              <DialogDescription className="sr-only">
+                {settingsLabel(locale, "apiTokenRevealHint")}
+              </DialogDescription>
+            )}
           </DialogHeader>
           <DialogBody>
             {created ? (
-              <div className="flex flex-col gap-3">
-                <label className="text-[11px] font-medium uppercase tracking-[0.1em] text-text-dim">
-                  {settingsLabel(locale, "apiTokenSecret")}
-                </label>
-                <div className="flex items-stretch gap-2">
-                  <code className="min-w-0 flex-1 break-all rounded-control bg-bg-inset px-3 py-2.5 text-[12px] tabular-nums text-text">
-                    {created.token}
-                  </code>
+              <div className="flex flex-col gap-4">
+                <ModalBanner>{settingsLabel(locale, "apiTokenRevealHint")}</ModalBanner>
+                <div className="flex flex-col gap-2">
+                  <span className="text-[11px] font-medium uppercase tracking-[0.1em] text-text-dim">
+                    {settingsLabel(locale, "apiTokenSecret")}
+                  </span>
+                  <div className="rounded-control border border-border bg-bg-inset px-3.5 py-3">
+                    <code className="block break-all font-sans text-[12px] leading-relaxed tabular-nums text-text">
+                      {created.token}
+                    </code>
+                  </div>
                   <Button
                     type="button"
-                    variant="secondary"
-                    size="icon"
+                    variant="outline"
+                    className="w-full"
                     aria-label={settingsLabel(locale, "apiTokenCopy")}
                     onClick={() => {
                       void handleCopy(created.token);
                     }}
                   >
                     {copied ? (
-                      <Check size={16} strokeWidth={1.5} />
+                      <Check size={14} strokeWidth={1.5} aria-hidden />
                     ) : (
-                      <Copy size={16} strokeWidth={1.5} />
+                      <Copy size={14} strokeWidth={1.5} aria-hidden />
                     )}
+                    {copied
+                      ? settingsLabel(locale, "apiTokenCopied")
+                      : settingsLabel(locale, "apiTokenCopy")}
                   </Button>
                 </div>
               </div>
@@ -308,17 +348,16 @@ export function ApiTab() {
           </DialogBody>
           <DialogFooter>
             {created ? (
-              <Button type="button" variant="default" onClick={closeCreate}>
+              <Button type="button" onClick={closeCreate}>
                 {settingsLabel(locale, "apiTokenDone")}
               </Button>
             ) : (
               <>
-                <Button type="button" variant="ghost" onClick={closeCreate}>
+                <Button type="button" variant="outline" onClick={closeCreate}>
                   {settingsLabel(locale, "apiTokenCancel")}
                 </Button>
                 <Button
                   type="button"
-                  variant="default"
                   disabled={createToken.isPending || !name.trim()}
                   onClick={() => {
                     void handleCreate();

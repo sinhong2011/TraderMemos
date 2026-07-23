@@ -549,15 +549,7 @@ export function BtnPrimary({
   className?: string;
 }) {
   return (
-    <Button
-      type={type}
-      disabled={disabled}
-      onClick={onClick}
-      className={cn(
-        "h-9 min-h-9 border-transparent bg-text px-4 text-[12px] font-semibold text-bg hover:bg-text/90 hover:text-bg",
-        className,
-      )}
-    >
+    <Button type={type} disabled={disabled} onClick={onClick} className={className}>
       {children}
     </Button>
   );
