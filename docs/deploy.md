@@ -29,9 +29,12 @@ TM_CORS_ORIGINS=https://*.vercel.app,https://*.pages.dev,https://*.workers.dev,h
 ## 1. Docker all-in-one (recommended default)
 
 ```bash
-# From repo root — builds api + web, serves SPA at :3000
+# From repo root — builds api + web, serves SPA at :3000 (SQLite by default)
 make up          # docker compose up --build -d
 # open http://localhost:3000
+
+# Optional: same stack on Postgres instead of SQLite
+make up-postgres # docker compose -f docker-compose.yml -f docker-compose.postgres.yml up --build -d
 ```
 
 What you get:
@@ -51,7 +54,8 @@ Important env (compose / host):
 | `TM_JWT_SECRET` | JWT signing secret — **required** for production (`openssl rand -hex 32`) |
 | `TM_ALLOW_INSECURE_JWT` | Compose defaults `true` for first-run convenience; set `false`/unset in production |
 | `TM_ALLOW_REGISTRATION` | Default `false`. After setup, only the owner exists unless you opt in |
-| `TM_DATABASE_URL` | Unified DB URL — default `sqlite:///data/tradermemos.db` (legacy `TM_DB_PATH` still works) |
+| `TM_DATABASE_URL` | Unified DB URL — SQLite `sqlite:///data/tradermemos.db` (default) or `postgres://user:pass@host:5432/db?sslmode=require`. Legacy `TM_DB_PATH` still works for SQLite. |
+| `TM_ATTACH_DIR` | Attachment disk path. Defaults to `<dbDir>/attachments` for SQLite; set explicitly for Postgres (e.g. `data/attachments`). |
 | `TM_CORS_ORIGINS` | Leave empty for this mode |
 
 **First boot:** open `http://localhost:3000` — if the database has no users, the **setup wizard** creates the owner (admin) account and an optional trading account. Public registration stays closed afterward.

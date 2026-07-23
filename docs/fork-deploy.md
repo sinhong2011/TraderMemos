@@ -73,7 +73,7 @@ Railway is the best one-click host for the **Go API** (disk volume for SQLite). 
    |----------|--------|
    | `TM_JWT_SECRET` | Required — generate with `openssl rand -hex 32` |
    | `TM_CORS_ORIGINS` | e.g. `https://*.vercel.app,https://*.netlify.app` |
-   | `TM_DATABASE_URL` | Default `sqlite:///data/tradermemos.db` (matches Dockerfile); legacy `TM_DB_PATH` still works |
+   | `TM_DATABASE_URL` | Default `sqlite:///data/tradermemos.db` (matches Dockerfile); or `postgres://user:pass@host:5432/db?sslmode=require`. Legacy `TM_DB_PATH` still works for SQLite. |
 5. Generate a public domain (`*.up.railway.app`) → use that as login **Server** / `VITE_API`.  
 6. `PORT` is honored automatically when `TM_HTTP_PORT` is unset.
 

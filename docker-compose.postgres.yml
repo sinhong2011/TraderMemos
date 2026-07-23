@@ -1,0 +1,37 @@
+# Optional Postgres stack (example).
+# Default docker-compose.yml stays SQLite-only — do not use this unless you want Postgres.
+#
+#   make up-postgres
+#   # or:
+#   docker compose -f docker-compose.yml -f docker-compose.postgres.yml up --build -d
+#
+# API URL: postgres://tm:tm@postgres:5432/tradermemos?sslmode=disable
+# Attachments stay on the /data volume (TM_ATTACH_DIR=/data/attachments).
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: tm
+      POSTGRES_PASSWORD: tm
+      POSTGRES_DB: tradermemos
+    volumes:
+      - tm_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tm -d tradermemos"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  api:
+    environment:
+      TM_DATABASE_URL: postgres://tm:tm@postgres:5432/tradermemos?sslmode=disable
+      TM_ATTACH_DIR: /data/attachments
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  tm_pg_data:
