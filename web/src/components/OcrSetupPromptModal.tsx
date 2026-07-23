@@ -1,7 +1,5 @@
-import { Settings } from "lucide-react";
 import type { OcrSettings } from "../lib/api/settings";
 import { getOcrVisionSetupIssues, OCR_VISION_SETUP_STEPS } from "../lib/ocrVisionReady";
-import { cn } from "../lib/cn";
 import { Modal } from "./Modal";
 import { Button } from "./ui/button";
 
@@ -25,22 +23,20 @@ export function OcrSetupPromptModal({
       title="Set up screenshot scan"
       className="max-w-md"
       footer={
-        <div className="flex flex-wrap justify-end gap-2">
-          <Button type="button" variant="secondary" size="lg" onClick={() => onOpenChange(false)}>
+        <>
+          <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
             Not now
           </Button>
           <Button
             type="button"
-            size="lg"
             onClick={() => {
               onOpenChange(false);
               onOpenSettings();
             }}
           >
-            <Settings size={14} strokeWidth={1.75} aria-hidden />
             Open settings
           </Button>
-        </div>
+        </>
       }
     >
       <p className="text-[13px] leading-relaxed text-text-muted">
@@ -62,16 +58,5 @@ export function OcrSetupPromptModal({
         })}
       </ul>
     </Modal>
-  );
-}
-
-/** Muted scan trigger styling when vision is not configured yet. */
-export function ocrScanButtonClass(ready: boolean, pending: boolean) {
-  return cn(
-    "inline-flex h-10 cursor-pointer items-center justify-center rounded-control border-none bg-bg-input px-3.5 text-[12px] font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 gap-1.5",
-    ready
-      ? "text-text-muted hover:bg-bg-input-hover hover:text-text"
-      : "text-text-dim hover:bg-bg-input-hover hover:text-text-muted",
-    pending && "opacity-70",
   );
 }

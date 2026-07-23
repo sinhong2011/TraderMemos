@@ -19,7 +19,7 @@ import {
 } from "../../components/Collapsible";
 import { GradeControl } from "../../components/GradeControl";
 import { ModalBanner } from "../../components/Modal";
-import { OcrSetupPromptModal, ocrScanButtonClass } from "../../components/OcrSetupPromptModal";
+import { OcrSetupPromptModal } from "../../components/OcrSetupPromptModal";
 import { OcrScanSummary } from "../../components/OcrSymbolGroupList";
 import { Pill } from "../../components/Pill";
 import { SegmentedControl } from "../../components/SegmentedControl";
@@ -38,7 +38,7 @@ import {
 } from "../../components/JournalScreenshotUpload";
 import { BatchTradeResultPreview, TradeResultPreview } from "../../components/TradeResultPreview";
 import { useToastManager } from "../../components/Toast";
-import { Button } from "../../components/ui/button";
+import { Button, buttonVariants } from "../../components/ui/button";
 import { ApiError } from "../../lib/api/client";
 import { attachmentsApi } from "../../lib/api/attachments";
 import { cashApi } from "../../lib/api/cash";
@@ -1493,11 +1493,8 @@ export function NewTradeDrawer() {
                   triggerAriaLabel="Templates"
                   className="min-w-[14rem] overflow-hidden p-0 shadow-[0_16px_40px_rgba(18,18,24,0.65)]"
                   triggerClassName={cn(
-                    "inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-control border border-border bg-transparent px-2.5",
-                    "text-[12px] font-medium text-text-muted transition-[color,background-color,border-color]",
-                    "hover:border-border-strong hover:text-text",
-                    "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
-                    templatesOpen && "border-border-strong text-text",
+                    buttonVariants({ variant: "outline", size: "sm" }),
+                    templatesOpen && "border-border-strong bg-bg-hover text-text",
                   )}
                   trigger={
                     <>
@@ -1601,9 +1598,15 @@ export function NewTradeDrawer() {
                     <>
                       <Button
                         type="button"
+                        variant="outline"
+                        size="lg"
                         disabled={ocrParse.isPending || ocrSettingsLoading}
                         onClick={onScanClick}
-                        className={ocrScanButtonClass(visionReady, ocrParse.isPending)}
+                        className={cn(
+                          "font-medium",
+                          !visionReady && "text-text-dim",
+                          ocrParse.isPending && "opacity-70",
+                        )}
                         aria-label="Prefill trade from screenshot"
                         title={
                           visionReady
@@ -1707,13 +1710,12 @@ export function NewTradeDrawer() {
                 {!isEditMode && (
                   <Button
                     type="button"
-                    variant="secondary"
-                    size="lg"
+                    variant="outline"
                     onClick={() =>
                       form.setFieldValue("trades", [...values.trades, emptySymbolTrade()])
                     }
                     disabled={pending}
-                    className="mx-auto gap-1.5"
+                    className="mx-auto"
                   >
                     <Plus size={15} />
                     Add symbol
@@ -1741,42 +1743,24 @@ export function NewTradeDrawer() {
                   initialRisk={singleFooter.risk}
                 />
               ) : null}
-              <div className="flex w-full justify-between gap-3">
-                <div className="flex gap-2">
-                  <Button
-                    type="button"
-                    variant="default"
-                    size="lg"
-                    disabled={pending || (isEditMode && !editHydrated)}
-                    onClick={() => {
-                      void form.handleSubmit();
-                    }}
-                  >
-                    {pending ? "Saving…" : isEditMode ? "Save changes" : "Save"}
+              <div className="flex w-full items-center justify-end gap-2">
+                {!isEditMode && (
+                  <Button type="button" variant="outline" disabled={pending} onClick={reset}>
+                    Clear
                   </Button>
-                </div>
-                <div className="flex gap-2">
-                  {!isEditMode && (
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      size="lg"
-                      disabled={pending}
-                      onClick={reset}
-                    >
-                      Clear
-                    </Button>
-                  )}
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    size="lg"
-                    disabled={pending}
-                    onClick={close}
-                  >
-                    Cancel
-                  </Button>
-                </div>
+                )}
+                <Button type="button" variant="outline" disabled={pending} onClick={close}>
+                  Cancel
+                </Button>
+                <Button
+                  type="button"
+                  disabled={pending || (isEditMode && !editHydrated)}
+                  onClick={() => {
+                    void form.handleSubmit();
+                  }}
+                >
+                  {pending ? "Saving…" : isEditMode ? "Save changes" : "Save"}
+                </Button>
               </div>
             </div>
           </DrawerFooter>
