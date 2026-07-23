@@ -34,7 +34,10 @@ interface DataTableProps<T> {
   comfortable?: boolean;
   /** Hairline under header and between rows */
   lined?: boolean;
-  /** Override sticky header surface (default `bg-bg-panel`) */
+  /**
+   * Opaque surface for sticky header + pinned columns (must match the table chrome).
+   * Defaults to `bg-bg-panel`; pass `bg-bg` on void surfaces (e.g. Trades).
+   */
   headerClassName?: string;
   /** Controlled sorting (tablecn Sort button / header menu stay in sync) */
   sorting?: SortingState;
@@ -96,10 +99,11 @@ function pinningStyle<T>(
     right: isPinned === "right" ? `${column.getAfter("right")}px` : undefined,
     top: kind === "header" ? 0 : undefined,
     zIndex: kind === "header" ? 3 : 1,
+    // Hairline edge only — heavy drop shadows smear over P&L under the pin.
     boxShadow: isLastLeft
-      ? "8px 0 12px -10px rgba(0,0,0,0.55)"
+      ? "1px 0 0 0 var(--color-border)"
       : isFirstRight
-        ? "-8px 0 12px -10px rgba(0,0,0,0.55)"
+        ? "-1px 0 0 0 var(--color-border)"
         : undefined,
   };
 }
@@ -108,12 +112,12 @@ function pinningCellClass<T>(
   column: Column<T>,
   kind: "header" | "body",
   pinActive: boolean,
-  headerClassName?: string,
+  surfaceClassName: string,
 ) {
   if (!column.getIsPinned() || !pinActive) return undefined;
   return cn(
-    // Opaque so scrolled cells never show through the pin.
-    kind === "header" ? (headerClassName ?? "bg-bg-panel") : "bg-bg",
+    // Opaque so scrolled cells never show through the pin — same token as thead.
+    surfaceClassName,
     kind === "body" && "group-hover:bg-bg-hover",
   );
 }
@@ -257,7 +261,7 @@ export function DataTable<T>({
                       alignRight && "text-right",
                       // Every header cell opaque so body never paints through while scrolling.
                       headerSurface,
-                      pinningCellClass(header.column, "header", pinActive, headerClassName),
+                      pinningCellClass(header.column, "header", pinActive, headerSurface),
                     )}
                   >
                     <ColumnHeader
@@ -305,7 +309,7 @@ export function DataTable<T>({
                         metrics.cellPy,
                         lined && "border-b border-border",
                         align,
-                        pinningCellClass(cell.column, "body", pinActive, headerClassName),
+                        pinningCellClass(cell.column, "body", pinActive, headerSurface),
                       )}
                     >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}

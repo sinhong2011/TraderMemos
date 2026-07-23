@@ -25,7 +25,7 @@ import { Page } from "../../components/Page";
 import { PerformanceStrip } from "../../components/PerformanceStrip";
 import { SegmentedControl } from "../../components/SegmentedControl";
 import { Skeleton } from "../../components/Skeleton";
-import { TRADE_COLUMN_PINNING, tradeColumns } from "../../components/tradeColumns";
+import { tradeColumns } from "../../components/tradeColumns";
 import type { Account, BreakGroup, EquityPoint, Summary, Trade } from "../../lib/api/types";
 import type { DayRecord } from "../../lib/calendar";
 import { uniqueDayTicks } from "../../lib/chartTicks";
@@ -407,7 +407,6 @@ export function DashboardView({
               data={recentTrades}
               onRowClick={onSelectTrade}
               maxHeight={360}
-              columnPinning={TRADE_COLUMN_PINNING}
             />
             <p className="shrink-0 py-2 text-center text-xs text-text-muted">
               {hasMoreTrades
