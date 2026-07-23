@@ -6,8 +6,8 @@ RETURNING *;
 -- name: ListJournalNotes :many
 SELECT * FROM journal_notes
 WHERE user_id = $1
-  AND (sqlc.narg('from_date') IS NULL OR occurred_at >= sqlc.narg('from_date'))
-  AND (sqlc.narg('to_date') IS NULL OR occurred_at <= sqlc.narg('to_date'))
+  AND (occurred_at >= COALESCE(sqlc.narg('from_date')::text, occurred_at))
+  AND (occurred_at <= COALESCE(sqlc.narg('to_date')::text, occurred_at))
 ORDER BY occurred_at DESC, created_at DESC;
 
 -- name: GetJournalNote :one

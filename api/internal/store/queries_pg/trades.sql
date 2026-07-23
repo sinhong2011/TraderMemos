@@ -22,16 +22,16 @@ UPDATE trades SET notes = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2 AND u
 -- name: ListClosedTrades :many
 SELECT * FROM trades
 WHERE user_id = $1 AND status = 'closed'
-  AND (sqlc.narg('account_id') IS NULL OR account_id = sqlc.narg('account_id'))
-  AND (sqlc.narg('from') IS NULL OR closed_at >= sqlc.narg('from'))
-  AND (sqlc.narg('to') IS NULL OR closed_at <= sqlc.narg('to'))
+  AND (account_id = COALESCE(sqlc.narg('account_id'), account_id))
+  AND (closed_at >= COALESCE(sqlc.narg('from')::timestamp, closed_at))
+  AND (closed_at <= COALESCE(sqlc.narg('to')::timestamp, closed_at))
 ORDER BY closed_at;
 
 -- name: ListTrades :many
 SELECT * FROM trades
 WHERE user_id = $1
-  AND (sqlc.narg('account_id') IS NULL OR account_id = sqlc.narg('account_id'))
-  AND (sqlc.narg('status') IS NULL OR status = sqlc.narg('status'))
+  AND (account_id = COALESCE(sqlc.narg('account_id'), account_id))
+  AND (status = COALESCE(sqlc.narg('status'), status))
 ORDER BY opened_at DESC;
 
 -- name: UpsertTrade :exec
@@ -51,6 +51,8 @@ ON CONFLICT(id) DO UPDATE SET
     time_in_trade_secs = excluded.time_in_trade_secs, updated_at = CURRENT_TIMESTAMP;
 
 -- name: DeleteTradesNotInAccount :exec
+-- NOTE: sqlc+database/sql emits a broken single-$3 slice expand for Postgres.
+-- storepg/trades.sql.go implements placeholder expansion manually; re-check after `make sqlc`.
 DELETE FROM trades WHERE user_id = $1 AND account_id = $2 AND id NOT IN (sqlc.slice('keep'));
 
 -- name: ClearTradeExecutions :exec

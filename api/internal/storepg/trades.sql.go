@@ -8,6 +8,7 @@ package storepg
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"strings"
 	"time"
 )
@@ -53,7 +54,7 @@ func (q *Queries) DeleteTradesForAccount(ctx context.Context, arg DeleteTradesFo
 }
 
 const deleteTradesNotInAccount = `-- name: DeleteTradesNotInAccount :exec
-DELETE FROM trades WHERE user_id = $1 AND account_id = $2 AND id NOT IN ($3)
+DELETE FROM trades WHERE user_id = $1 AND account_id = $2 AND id NOT IN (/*SLICE:keep*/$3)
 `
 
 type DeleteTradesNotInAccountParams struct {
@@ -63,19 +64,23 @@ type DeleteTradesNotInAccountParams struct {
 }
 
 func (q *Queries) DeleteTradesNotInAccount(ctx context.Context, arg DeleteTradesNotInAccountParams) error {
-	query := deleteTradesNotInAccount
-	var queryParams []interface{}
-	queryParams = append(queryParams, arg.UserID)
-	queryParams = append(queryParams, arg.AccountID)
-	if len(arg.Keep) > 0 {
-		for _, v := range arg.Keep {
-			queryParams = append(queryParams, v)
-		}
-		query = strings.Replace(query, "/*SLICE:keep*/?", strings.Repeat(",?", len(arg.Keep))[1:], 1)
-	} else {
-		query = strings.Replace(query, "/*SLICE:keep*/?", "NULL", 1)
+	if len(arg.Keep) == 0 {
+		_, err := q.db.ExecContext(ctx,
+			`DELETE FROM trades WHERE user_id = $1 AND account_id = $2`,
+			arg.UserID, arg.AccountID,
+		)
+		return err
 	}
-	_, err := q.db.ExecContext(ctx, query, queryParams...)
+	params := make([]interface{}, 0, 2+len(arg.Keep))
+	params = append(params, arg.UserID, arg.AccountID)
+	placeholders := make([]string, len(arg.Keep))
+	for i, id := range arg.Keep {
+		placeholders[i] = fmt.Sprintf("$%d", i+3)
+		params = append(params, id)
+	}
+	query := `DELETE FROM trades WHERE user_id = $1 AND account_id = $2 AND id NOT IN (` +
+		strings.Join(placeholders, ",") + `)`
+	_, err := q.db.ExecContext(ctx, query, params...)
 	return err
 }
 
@@ -220,17 +225,17 @@ func (q *Queries) LinkTradeExecution(ctx context.Context, arg LinkTradeExecution
 const listClosedTrades = `-- name: ListClosedTrades :many
 SELECT id, user_id, account_id, symbol, instrument_type, direction, status, opened_at, closed_at, qty_opened, avg_entry_price, avg_exit_price, gross_pnl, fees_total, net_pnl, pnl_currency, return_pct, r_multiple, time_in_trade_secs, notes, created_at, updated_at, qty_remaining FROM trades
 WHERE user_id = $1 AND status = 'closed'
-  AND ($2 IS NULL OR account_id = $2)
-  AND ($3 IS NULL OR closed_at >= $3)
-  AND ($4 IS NULL OR closed_at <= $4)
+  AND (account_id = COALESCE($2, account_id))
+  AND (closed_at >= COALESCE($3::timestamp, closed_at))
+  AND (closed_at <= COALESCE($4::timestamp, closed_at))
 ORDER BY closed_at
 `
 
 type ListClosedTradesParams struct {
-	UserID    string      `json:"user_id"`
-	AccountID interface{} `json:"account_id"`
-	From      interface{} `json:"from"`
-	To        interface{} `json:"to"`
+	UserID    string         `json:"user_id"`
+	AccountID sql.NullString `json:"account_id"`
+	From      sql.NullTime   `json:"from"`
+	To        sql.NullTime   `json:"to"`
 }
 
 func (q *Queries) ListClosedTrades(ctx context.Context, arg ListClosedTradesParams) ([]Trade, error) {
@@ -335,15 +340,15 @@ func (q *Queries) ListExecutionsForTrade(ctx context.Context, tradeID string) ([
 const listTrades = `-- name: ListTrades :many
 SELECT id, user_id, account_id, symbol, instrument_type, direction, status, opened_at, closed_at, qty_opened, avg_entry_price, avg_exit_price, gross_pnl, fees_total, net_pnl, pnl_currency, return_pct, r_multiple, time_in_trade_secs, notes, created_at, updated_at, qty_remaining FROM trades
 WHERE user_id = $1
-  AND ($2 IS NULL OR account_id = $2)
-  AND ($3 IS NULL OR status = $3)
+  AND (account_id = COALESCE($2, account_id))
+  AND (status = COALESCE($3, status))
 ORDER BY opened_at DESC
 `
 
 type ListTradesParams struct {
-	UserID    string      `json:"user_id"`
-	AccountID interface{} `json:"account_id"`
-	Status    interface{} `json:"status"`
+	UserID    string         `json:"user_id"`
+	AccountID sql.NullString `json:"account_id"`
+	Status    sql.NullString `json:"status"`
 }
 
 func (q *Queries) ListTrades(ctx context.Context, arg ListTradesParams) ([]Trade, error) {

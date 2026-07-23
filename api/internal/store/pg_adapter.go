@@ -401,7 +401,10 @@ func (p *PG) ListCashForTrade(ctx context.Context, arg ListCashForTradeParams) (
 }
 
 func (p *PG) ListCashTransactions(ctx context.Context, arg ListCashTransactionsParams) ([]CashTransaction, error) {
-	v, err := p.q.ListCashTransactions(ctx, storepg.ListCashTransactionsParams(arg))
+	v, err := p.q.ListCashTransactions(ctx, storepg.ListCashTransactionsParams{
+		UserID: arg.UserID,
+		AccountID: ifaceToNullString(arg.AccountID),
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -409,7 +412,12 @@ func (p *PG) ListCashTransactions(ctx context.Context, arg ListCashTransactionsP
 }
 
 func (p *PG) ListClosedTrades(ctx context.Context, arg ListClosedTradesParams) ([]Trade, error) {
-	v, err := p.q.ListClosedTrades(ctx, storepg.ListClosedTradesParams(arg))
+	v, err := p.q.ListClosedTrades(ctx, storepg.ListClosedTradesParams{
+		UserID: arg.UserID,
+		AccountID: ifaceToNullString(arg.AccountID),
+		From: ifaceToNullTime(arg.From),
+		To: ifaceToNullTime(arg.To),
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -441,7 +449,11 @@ func (p *PG) ListImportBatches(ctx context.Context, userID string) ([]ImportBatc
 }
 
 func (p *PG) ListJournalNotes(ctx context.Context, arg ListJournalNotesParams) ([]JournalNote, error) {
-	v, err := p.q.ListJournalNotes(ctx, storepg.ListJournalNotesParams(arg))
+	v, err := p.q.ListJournalNotes(ctx, storepg.ListJournalNotesParams{
+		UserID: arg.UserID,
+		FromDate: ifaceToNullString(arg.FromDate),
+		ToDate: ifaceToNullString(arg.ToDate),
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -513,7 +525,11 @@ func (p *PG) ListTradeTagsForUser(ctx context.Context, userID string) ([]ListTra
 }
 
 func (p *PG) ListTrades(ctx context.Context, arg ListTradesParams) ([]Trade, error) {
-	v, err := p.q.ListTrades(ctx, storepg.ListTradesParams(arg))
+	v, err := p.q.ListTrades(ctx, storepg.ListTradesParams{
+		UserID: arg.UserID,
+		AccountID: ifaceToNullString(arg.AccountID),
+		Status: ifaceToNullString(arg.Status),
+	})
 	if err != nil {
 		return nil, err
 	}

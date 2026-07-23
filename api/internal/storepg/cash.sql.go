@@ -124,13 +124,13 @@ func (q *Queries) ListCashForTrade(ctx context.Context, arg ListCashForTradePara
 
 const listCashTransactions = `-- name: ListCashTransactions :many
 SELECT id, user_id, account_id, type, amount, currency, occurred_at, note, import_batch_id, created_at, trade_id FROM cash_transactions
-WHERE user_id = $1 AND ($2 IS NULL OR account_id = $2)
+WHERE user_id = $1 AND (account_id = COALESCE($2, account_id))
 ORDER BY occurred_at
 `
 
 type ListCashTransactionsParams struct {
-	UserID    string      `json:"user_id"`
-	AccountID interface{} `json:"account_id"`
+	UserID    string         `json:"user_id"`
+	AccountID sql.NullString `json:"account_id"`
 }
 
 func (q *Queries) ListCashTransactions(ctx context.Context, arg ListCashTransactionsParams) ([]CashTransaction, error) {

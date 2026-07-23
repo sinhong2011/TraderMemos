@@ -7,6 +7,7 @@ package storepg
 
 import (
 	"context"
+	"database/sql"
 )
 
 const createJournalNote = `-- name: CreateJournalNote :one
@@ -112,15 +113,15 @@ func (q *Queries) GetJournalNote(ctx context.Context, arg GetJournalNoteParams) 
 const listJournalNotes = `-- name: ListJournalNotes :many
 SELECT id, user_id, occurred_at, title, body, created_at, updated_at, symbols, note_type FROM journal_notes
 WHERE user_id = $1
-  AND ($2 IS NULL OR occurred_at >= $2)
-  AND ($3 IS NULL OR occurred_at <= $3)
+  AND (occurred_at >= COALESCE($2::text, occurred_at))
+  AND (occurred_at <= COALESCE($3::text, occurred_at))
 ORDER BY occurred_at DESC, created_at DESC
 `
 
 type ListJournalNotesParams struct {
-	UserID   string      `json:"user_id"`
-	FromDate interface{} `json:"from_date"`
-	ToDate   interface{} `json:"to_date"`
+	UserID   string         `json:"user_id"`
+	FromDate sql.NullString `json:"from_date"`
+	ToDate   sql.NullString `json:"to_date"`
 }
 
 func (q *Queries) ListJournalNotes(ctx context.Context, arg ListJournalNotesParams) ([]JournalNote, error) {

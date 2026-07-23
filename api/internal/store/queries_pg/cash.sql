@@ -4,7 +4,7 @@ VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *;
 
 -- name: ListCashTransactions :many
 SELECT * FROM cash_transactions
-WHERE user_id = $1 AND (sqlc.narg('account_id') IS NULL OR account_id = sqlc.narg('account_id'))
+WHERE user_id = $1 AND (account_id = COALESCE(sqlc.narg('account_id'), account_id))
 ORDER BY occurred_at;
 
 -- name: ListCashForTrade :many

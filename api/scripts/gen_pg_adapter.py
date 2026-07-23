@@ -29,8 +29,41 @@ for p in (ROOT / "internal/store").glob("*.go"):
     for m in re.finditer(r"^type ([A-Z]\w+) struct", p.read_text(), flags=re.M):
         store_types.add(m.group(1))
 
+# Params where Postgres sqlc emits Null* while SQLite keeps interface{}.
+PARAM_CONVERTERS = {
+    "ListTradesParams": (
+        "storepg.ListTradesParams{\n"
+        "\t\tUserID: arg.UserID,\n"
+        "\t\tAccountID: ifaceToNullString(arg.AccountID),\n"
+        "\t\tStatus: ifaceToNullString(arg.Status),\n"
+        "\t}"
+    ),
+    "ListCashTransactionsParams": (
+        "storepg.ListCashTransactionsParams{\n"
+        "\t\tUserID: arg.UserID,\n"
+        "\t\tAccountID: ifaceToNullString(arg.AccountID),\n"
+        "\t}"
+    ),
+    "ListClosedTradesParams": (
+        "storepg.ListClosedTradesParams{\n"
+        "\t\tUserID: arg.UserID,\n"
+        "\t\tAccountID: ifaceToNullString(arg.AccountID),\n"
+        "\t\tFrom: ifaceToNullTime(arg.From),\n"
+        "\t\tTo: ifaceToNullTime(arg.To),\n"
+        "\t}"
+    ),
+    "ListJournalNotesParams": (
+        "storepg.ListJournalNotesParams{\n"
+        "\t\tUserID: arg.UserID,\n"
+        "\t\tFromDate: ifaceToNullString(arg.FromDate),\n"
+        "\t\tToDate: ifaceToNullString(arg.ToDate),\n"
+        "\t}"
+    ),
+}
 def convert_value(expr: str, typ: str, to_pg: bool) -> str:
     typ = typ.strip()
+    if to_pg and typ in PARAM_CONVERTERS and expr == "arg":
+        return PARAM_CONVERTERS[typ]
     if typ.startswith("[]"):
         inner = typ[2:]
         if inner in store_types:
