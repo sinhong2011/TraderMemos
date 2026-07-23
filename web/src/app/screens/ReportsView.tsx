@@ -602,7 +602,7 @@ export function ReportsView({
           <TabsList
             aria-label="Report sections"
             fullWidth
-            className="h-10 rounded-control border-none bg-bg-input p-1"
+            className="h-10 rounded-control border border-border bg-bg-input p-1"
           >
             <TabsIndicator className="rounded-control bg-bg-input-hover" />
             {REPORT_TABS.map((t) => (

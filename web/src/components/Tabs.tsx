@@ -17,7 +17,7 @@ export function TabsList({
   return (
     <TabsPrimitive.List
       className={cn(
-        "relative m-0 inline-flex items-center gap-0.5 border-none",
+        "relative m-0 inline-flex items-center gap-0.5",
         fullWidth && "flex w-full",
         className,
       )}
