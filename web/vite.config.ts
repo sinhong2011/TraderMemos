@@ -31,7 +31,11 @@ export default defineConfig({
     __APP_VERSION__: JSON.stringify(appVersion),
     __APP_BUILD__: JSON.stringify(appBuild),
   },
-  fmt: {},
+  fmt: {
+    // TanStack Router regenerates this with its own quote/semi style on every
+    // `vp dev`; formatting it in pre-commit causes a permanent dirty loop.
+    ignorePatterns: ["dist/**", "src/routeTree.gen.ts", "src/i18n/locales/**", "src/sw.ts"],
+  },
   lint: {
     ignorePatterns: ["dist/**", "src/routeTree.gen.ts", "src/i18n/locales/**", "src/sw.ts"],
     plugins: ["typescript", "react"],

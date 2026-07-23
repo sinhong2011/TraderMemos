@@ -8,320 +8,321 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from "./routes/__root";
-import { Route as TradesRouteImport } from "./routes/trades";
-import { Route as SetupRouteImport } from "./routes/setup";
-import { Route as SettingsRouteImport } from "./routes/settings";
-import { Route as ReportsRouteImport } from "./routes/reports";
-import { Route as PlaybookRouteImport } from "./routes/playbook";
-import { Route as NotesRouteImport } from "./routes/notes";
-import { Route as LoginRouteImport } from "./routes/login";
-import { Route as ImportRouteImport } from "./routes/import";
-import { Route as DashboardRouteImport } from "./routes/dashboard";
-import { Route as CalendarRouteImport } from "./routes/calendar";
-import { Route as CalculatorRouteImport } from "./routes/calculator";
-import { Route as IndexRouteImport } from "./routes/index";
-import { Route as TradesIndexRouteImport } from "./routes/trades.index";
-import { Route as TradesIdRouteImport } from "./routes/trades.$id";
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as TradesRouteImport } from './routes/trades'
+import { Route as SetupRouteImport } from './routes/setup'
+import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as ReportsRouteImport } from './routes/reports'
+import { Route as PlaybookRouteImport } from './routes/playbook'
+import { Route as NotesRouteImport } from './routes/notes'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as ImportRouteImport } from './routes/import'
+import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as CalendarRouteImport } from './routes/calendar'
+import { Route as CalculatorRouteImport } from './routes/calculator'
+import { Route as IndexRouteImport } from './routes/index'
+import { Route as TradesIndexRouteImport } from './routes/trades.index'
+import { Route as TradesIdRouteImport } from './routes/trades.$id'
 
 const TradesRoute = TradesRouteImport.update({
-  id: "/trades",
-  path: "/trades",
+  id: '/trades',
+  path: '/trades',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const SetupRoute = SetupRouteImport.update({
-  id: "/setup",
-  path: "/setup",
+  id: '/setup',
+  path: '/setup',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const SettingsRoute = SettingsRouteImport.update({
-  id: "/settings",
-  path: "/settings",
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const ReportsRoute = ReportsRouteImport.update({
-  id: "/reports",
-  path: "/reports",
+  id: '/reports',
+  path: '/reports',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const PlaybookRoute = PlaybookRouteImport.update({
-  id: "/playbook",
-  path: "/playbook",
+  id: '/playbook',
+  path: '/playbook',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const NotesRoute = NotesRouteImport.update({
-  id: "/notes",
-  path: "/notes",
+  id: '/notes',
+  path: '/notes',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const LoginRoute = LoginRouteImport.update({
-  id: "/login",
-  path: "/login",
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const ImportRoute = ImportRouteImport.update({
-  id: "/import",
-  path: "/import",
+  id: '/import',
+  path: '/import',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const DashboardRoute = DashboardRouteImport.update({
-  id: "/dashboard",
-  path: "/dashboard",
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const CalendarRoute = CalendarRouteImport.update({
-  id: "/calendar",
-  path: "/calendar",
+  id: '/calendar',
+  path: '/calendar',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const CalculatorRoute = CalculatorRouteImport.update({
-  id: "/calculator",
-  path: "/calculator",
+  id: '/calculator',
+  path: '/calculator',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const IndexRoute = IndexRouteImport.update({
-  id: "/",
-  path: "/",
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const TradesIndexRoute = TradesIndexRouteImport.update({
-  id: "/",
-  path: "/",
+  id: '/',
+  path: '/',
   getParentRoute: () => TradesRoute,
-} as any);
+} as any)
 const TradesIdRoute = TradesIdRouteImport.update({
-  id: "/$id",
-  path: "/$id",
+  id: '/$id',
+  path: '/$id',
   getParentRoute: () => TradesRoute,
-} as any);
+} as any)
 
 export interface FileRoutesByFullPath {
-  "/": typeof IndexRoute;
-  "/calculator": typeof CalculatorRoute;
-  "/calendar": typeof CalendarRoute;
-  "/dashboard": typeof DashboardRoute;
-  "/import": typeof ImportRoute;
-  "/login": typeof LoginRoute;
-  "/notes": typeof NotesRoute;
-  "/playbook": typeof PlaybookRoute;
-  "/reports": typeof ReportsRoute;
-  "/settings": typeof SettingsRoute;
-  "/setup": typeof SetupRoute;
-  "/trades": typeof TradesRouteWithChildren;
-  "/trades/$id": typeof TradesIdRoute;
-  "/trades/": typeof TradesIndexRoute;
+  '/': typeof IndexRoute
+  '/calculator': typeof CalculatorRoute
+  '/calendar': typeof CalendarRoute
+  '/dashboard': typeof DashboardRoute
+  '/import': typeof ImportRoute
+  '/login': typeof LoginRoute
+  '/notes': typeof NotesRoute
+  '/playbook': typeof PlaybookRoute
+  '/reports': typeof ReportsRoute
+  '/settings': typeof SettingsRoute
+  '/setup': typeof SetupRoute
+  '/trades': typeof TradesRouteWithChildren
+  '/trades/$id': typeof TradesIdRoute
+  '/trades/': typeof TradesIndexRoute
 }
 export interface FileRoutesByTo {
-  "/": typeof IndexRoute;
-  "/calculator": typeof CalculatorRoute;
-  "/calendar": typeof CalendarRoute;
-  "/dashboard": typeof DashboardRoute;
-  "/import": typeof ImportRoute;
-  "/login": typeof LoginRoute;
-  "/notes": typeof NotesRoute;
-  "/playbook": typeof PlaybookRoute;
-  "/reports": typeof ReportsRoute;
-  "/settings": typeof SettingsRoute;
-  "/setup": typeof SetupRoute;
-  "/trades/$id": typeof TradesIdRoute;
-  "/trades": typeof TradesIndexRoute;
+  '/': typeof IndexRoute
+  '/calculator': typeof CalculatorRoute
+  '/calendar': typeof CalendarRoute
+  '/dashboard': typeof DashboardRoute
+  '/import': typeof ImportRoute
+  '/login': typeof LoginRoute
+  '/notes': typeof NotesRoute
+  '/playbook': typeof PlaybookRoute
+  '/reports': typeof ReportsRoute
+  '/settings': typeof SettingsRoute
+  '/setup': typeof SetupRoute
+  '/trades/$id': typeof TradesIdRoute
+  '/trades': typeof TradesIndexRoute
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport;
-  "/": typeof IndexRoute;
-  "/calculator": typeof CalculatorRoute;
-  "/calendar": typeof CalendarRoute;
-  "/dashboard": typeof DashboardRoute;
-  "/import": typeof ImportRoute;
-  "/login": typeof LoginRoute;
-  "/notes": typeof NotesRoute;
-  "/playbook": typeof PlaybookRoute;
-  "/reports": typeof ReportsRoute;
-  "/settings": typeof SettingsRoute;
-  "/setup": typeof SetupRoute;
-  "/trades": typeof TradesRouteWithChildren;
-  "/trades/$id": typeof TradesIdRoute;
-  "/trades/": typeof TradesIndexRoute;
+  __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/calculator': typeof CalculatorRoute
+  '/calendar': typeof CalendarRoute
+  '/dashboard': typeof DashboardRoute
+  '/import': typeof ImportRoute
+  '/login': typeof LoginRoute
+  '/notes': typeof NotesRoute
+  '/playbook': typeof PlaybookRoute
+  '/reports': typeof ReportsRoute
+  '/settings': typeof SettingsRoute
+  '/setup': typeof SetupRoute
+  '/trades': typeof TradesRouteWithChildren
+  '/trades/$id': typeof TradesIdRoute
+  '/trades/': typeof TradesIndexRoute
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath;
+  fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | "/"
-    | "/calculator"
-    | "/calendar"
-    | "/dashboard"
-    | "/import"
-    | "/login"
-    | "/notes"
-    | "/playbook"
-    | "/reports"
-    | "/settings"
-    | "/setup"
-    | "/trades"
-    | "/trades/$id"
-    | "/trades/";
-  fileRoutesByTo: FileRoutesByTo;
+    | '/'
+    | '/calculator'
+    | '/calendar'
+    | '/dashboard'
+    | '/import'
+    | '/login'
+    | '/notes'
+    | '/playbook'
+    | '/reports'
+    | '/settings'
+    | '/setup'
+    | '/trades'
+    | '/trades/$id'
+    | '/trades/'
+  fileRoutesByTo: FileRoutesByTo
   to:
-    | "/"
-    | "/calculator"
-    | "/calendar"
-    | "/dashboard"
-    | "/import"
-    | "/login"
-    | "/notes"
-    | "/playbook"
-    | "/reports"
-    | "/settings"
-    | "/setup"
-    | "/trades/$id"
-    | "/trades";
+    | '/'
+    | '/calculator'
+    | '/calendar'
+    | '/dashboard'
+    | '/import'
+    | '/login'
+    | '/notes'
+    | '/playbook'
+    | '/reports'
+    | '/settings'
+    | '/setup'
+    | '/trades/$id'
+    | '/trades'
   id:
-    | "__root__"
-    | "/"
-    | "/calculator"
-    | "/calendar"
-    | "/dashboard"
-    | "/import"
-    | "/login"
-    | "/notes"
-    | "/playbook"
-    | "/reports"
-    | "/settings"
-    | "/setup"
-    | "/trades"
-    | "/trades/$id"
-    | "/trades/";
-  fileRoutesById: FileRoutesById;
+    | '__root__'
+    | '/'
+    | '/calculator'
+    | '/calendar'
+    | '/dashboard'
+    | '/import'
+    | '/login'
+    | '/notes'
+    | '/playbook'
+    | '/reports'
+    | '/settings'
+    | '/setup'
+    | '/trades'
+    | '/trades/$id'
+    | '/trades/'
+  fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute;
-  CalculatorRoute: typeof CalculatorRoute;
-  CalendarRoute: typeof CalendarRoute;
-  DashboardRoute: typeof DashboardRoute;
-  ImportRoute: typeof ImportRoute;
-  LoginRoute: typeof LoginRoute;
-  NotesRoute: typeof NotesRoute;
-  PlaybookRoute: typeof PlaybookRoute;
-  ReportsRoute: typeof ReportsRoute;
-  SettingsRoute: typeof SettingsRoute;
-  SetupRoute: typeof SetupRoute;
-  TradesRoute: typeof TradesRouteWithChildren;
+  IndexRoute: typeof IndexRoute
+  CalculatorRoute: typeof CalculatorRoute
+  CalendarRoute: typeof CalendarRoute
+  DashboardRoute: typeof DashboardRoute
+  ImportRoute: typeof ImportRoute
+  LoginRoute: typeof LoginRoute
+  NotesRoute: typeof NotesRoute
+  PlaybookRoute: typeof PlaybookRoute
+  ReportsRoute: typeof ReportsRoute
+  SettingsRoute: typeof SettingsRoute
+  SetupRoute: typeof SetupRoute
+  TradesRoute: typeof TradesRouteWithChildren
 }
 
-declare module "@tanstack/react-router" {
+declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    "/trades": {
-      id: "/trades";
-      path: "/trades";
-      fullPath: "/trades";
-      preLoaderRoute: typeof TradesRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/setup": {
-      id: "/setup";
-      path: "/setup";
-      fullPath: "/setup";
-      preLoaderRoute: typeof SetupRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/settings": {
-      id: "/settings";
-      path: "/settings";
-      fullPath: "/settings";
-      preLoaderRoute: typeof SettingsRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/reports": {
-      id: "/reports";
-      path: "/reports";
-      fullPath: "/reports";
-      preLoaderRoute: typeof ReportsRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/playbook": {
-      id: "/playbook";
-      path: "/playbook";
-      fullPath: "/playbook";
-      preLoaderRoute: typeof PlaybookRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/notes": {
-      id: "/notes";
-      path: "/notes";
-      fullPath: "/notes";
-      preLoaderRoute: typeof NotesRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/login": {
-      id: "/login";
-      path: "/login";
-      fullPath: "/login";
-      preLoaderRoute: typeof LoginRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/import": {
-      id: "/import";
-      path: "/import";
-      fullPath: "/import";
-      preLoaderRoute: typeof ImportRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/dashboard": {
-      id: "/dashboard";
-      path: "/dashboard";
-      fullPath: "/dashboard";
-      preLoaderRoute: typeof DashboardRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/calendar": {
-      id: "/calendar";
-      path: "/calendar";
-      fullPath: "/calendar";
-      preLoaderRoute: typeof CalendarRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/calculator": {
-      id: "/calculator";
-      path: "/calculator";
-      fullPath: "/calculator";
-      preLoaderRoute: typeof CalculatorRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/": {
-      id: "/";
-      path: "/";
-      fullPath: "/";
-      preLoaderRoute: typeof IndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/trades/": {
-      id: "/trades/";
-      path: "/";
-      fullPath: "/trades/";
-      preLoaderRoute: typeof TradesIndexRouteImport;
-      parentRoute: typeof TradesRoute;
-    };
-    "/trades/$id": {
-      id: "/trades/$id";
-      path: "/$id";
-      fullPath: "/trades/$id";
-      preLoaderRoute: typeof TradesIdRouteImport;
-      parentRoute: typeof TradesRoute;
-    };
+    '/trades': {
+      id: '/trades'
+      path: '/trades'
+      fullPath: '/trades'
+      preLoaderRoute: typeof TradesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/setup': {
+      id: '/setup'
+      path: '/setup'
+      fullPath: '/setup'
+      preLoaderRoute: typeof SetupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reports': {
+      id: '/reports'
+      path: '/reports'
+      fullPath: '/reports'
+      preLoaderRoute: typeof ReportsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/playbook': {
+      id: '/playbook'
+      path: '/playbook'
+      fullPath: '/playbook'
+      preLoaderRoute: typeof PlaybookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notes': {
+      id: '/notes'
+      path: '/notes'
+      fullPath: '/notes'
+      preLoaderRoute: typeof NotesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/import': {
+      id: '/import'
+      path: '/import'
+      fullPath: '/import'
+      preLoaderRoute: typeof ImportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/calendar': {
+      id: '/calendar'
+      path: '/calendar'
+      fullPath: '/calendar'
+      preLoaderRoute: typeof CalendarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/calculator': {
+      id: '/calculator'
+      path: '/calculator'
+      fullPath: '/calculator'
+      preLoaderRoute: typeof CalculatorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/trades/': {
+      id: '/trades/'
+      path: '/'
+      fullPath: '/trades/'
+      preLoaderRoute: typeof TradesIndexRouteImport
+      parentRoute: typeof TradesRoute
+    }
+    '/trades/$id': {
+      id: '/trades/$id'
+      path: '/$id'
+      fullPath: '/trades/$id'
+      preLoaderRoute: typeof TradesIdRouteImport
+      parentRoute: typeof TradesRoute
+    }
   }
 }
 
 interface TradesRouteChildren {
-  TradesIdRoute: typeof TradesIdRoute;
-  TradesIndexRoute: typeof TradesIndexRoute;
+  TradesIdRoute: typeof TradesIdRoute
+  TradesIndexRoute: typeof TradesIndexRoute
 }
 
 const TradesRouteChildren: TradesRouteChildren = {
   TradesIdRoute: TradesIdRoute,
   TradesIndexRoute: TradesIndexRoute,
-};
+}
 
-const TradesRouteWithChildren = TradesRoute._addFileChildren(TradesRouteChildren);
+const TradesRouteWithChildren =
+  TradesRoute._addFileChildren(TradesRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -336,7 +337,7 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   SetupRoute: SetupRoute,
   TradesRoute: TradesRouteWithChildren,
-};
+}
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>();
+  ._addFileTypes<FileRouteTypes>()
