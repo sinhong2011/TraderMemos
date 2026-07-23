@@ -10,7 +10,7 @@ const OPTIONS = [
 
 describe("AuthModeTabs", () => {
   it("selects the active tab and fires onChange", async () => {
-    const onChange = vi.fn();
+    const onChange = vi.fn<(...args: any[]) => any>();
     const { container } = render(
       <AuthModeTabs options={OPTIONS} value="login" onChange={onChange} />,
     );

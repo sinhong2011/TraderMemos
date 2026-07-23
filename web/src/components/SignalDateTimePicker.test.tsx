@@ -36,7 +36,7 @@ describe("SignalDateTimePicker", () => {
       <SignalDateTimePicker
         aria-label="Fill datetime"
         value="2026-07-15T22:31:39"
-        onChange={vi.fn()}
+        onChange={vi.fn<(...args: any[]) => any>()}
       />,
     );
     const trigger = screen.getByRole("button", { name: "Fill datetime" });
@@ -44,7 +44,7 @@ describe("SignalDateTimePicker", () => {
   });
 
   it("opens panel with calendar and time columns", async () => {
-    const onChange = vi.fn();
+    const onChange = vi.fn<(...args: any[]) => any>();
     render(
       <SignalDateTimePicker
         aria-label="Fill datetime"
@@ -63,7 +63,7 @@ describe("SignalDateTimePicker", () => {
   });
 
   it("applies selected hour, minute, and second", async () => {
-    const onChange = vi.fn();
+    const onChange = vi.fn<(...args: any[]) => any>();
     render(
       <SignalDateTimePicker
         aria-label="Fill datetime"

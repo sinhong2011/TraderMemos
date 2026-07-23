@@ -24,7 +24,7 @@ describe("SignalPasswordInput", () => {
 
   it("shows clear action and calls onClear", async () => {
     const user = userEvent.setup();
-    const onClear = vi.fn();
+    const onClear = vi.fn<(...args: any[]) => any>();
     render(
       <SignalPasswordInput
         aria-label="Secret"

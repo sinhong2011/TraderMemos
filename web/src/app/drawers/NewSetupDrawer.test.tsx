@@ -8,10 +8,10 @@ import { useUI } from "../../lib/ui";
 import { NewSetupDrawer } from "./NewSetupDrawer";
 
 vi.mock("../../lib/api/setups", () => ({
-  setupsApi: { create: vi.fn(), update: vi.fn() },
+  setupsApi: { create: vi.fn<(...args: any[]) => any>(), update: vi.fn<(...args: any[]) => any>() },
 }));
 vi.mock("../../components/Toast", () => ({
-  useToastManager: () => ({ add: vi.fn() }),
+  useToastManager: () => ({ add: vi.fn<(...args: any[]) => any>() }),
 }));
 
 const mockedCreate = vi.mocked(setupsApi.create);

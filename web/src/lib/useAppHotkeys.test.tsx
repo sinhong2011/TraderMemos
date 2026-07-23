@@ -4,14 +4,14 @@ import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import { useAppHotkeys } from "./useAppHotkeys";
 import { useUI } from "./ui";
 
-const navigate = vi.fn();
+const navigate = vi.fn<(...args: any[]) => any>();
 
 vi.mock("@tanstack/react-router", () => ({
   useNavigate: () => navigate,
 }));
 
 vi.mock("./useToolRunner", () => ({
-  useToolRunner: () => vi.fn(),
+  useToolRunner: () => vi.fn<(...args: any[]) => any>(),
 }));
 
 function HotkeyHost() {

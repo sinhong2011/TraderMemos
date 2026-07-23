@@ -6,11 +6,11 @@ import { useUI } from "../lib/ui";
 import { CommandPalette } from "./CommandPalette";
 
 vi.mock("@tanstack/react-router", () => ({
-  useNavigate: () => vi.fn(),
+  useNavigate: () => vi.fn<(...args: any[]) => any>(),
 }));
 
 vi.mock("../lib/useToolRunner", () => ({
-  useToolRunner: () => vi.fn(),
+  useToolRunner: () => vi.fn<(...args: any[]) => any>(),
 }));
 
 describe("CommandPalette", () => {

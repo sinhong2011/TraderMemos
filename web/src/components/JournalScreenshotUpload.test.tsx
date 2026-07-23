@@ -5,7 +5,7 @@ import { JournalScreenshotUpload, fileToScreenshotItem } from "./JournalScreensh
 describe("JournalScreenshotUpload", () => {
   it("renders add control and lists pending screenshots with previews", async () => {
     const onAddFiles = vi.fn<(files: File[]) => void>();
-    const onRemove = vi.fn();
+    const onRemove = vi.fn<(...args: any[]) => any>();
     const file = new File(["pixels"], "chart.png", { type: "image/png" });
     Object.defineProperty(file, "size", { value: 2048 });
 
@@ -46,8 +46,8 @@ describe("JournalScreenshotUpload", () => {
 
     const { rerender } = render(
       <JournalScreenshotUpload
-        items={[fileToScreenshotItem(file, vi.fn())]}
-        onAddFiles={vi.fn()}
+        items={[fileToScreenshotItem(file, vi.fn<(...args: any[]) => any>())]}
+        onAddFiles={vi.fn<(...args: any[]) => any>()}
       />,
     );
 
@@ -61,8 +61,8 @@ describe("JournalScreenshotUpload", () => {
 
     rerender(
       <JournalScreenshotUpload
-        items={[fileToScreenshotItem(file, vi.fn())]}
-        onAddFiles={vi.fn()}
+        items={[fileToScreenshotItem(file, vi.fn<(...args: any[]) => any>())]}
+        onAddFiles={vi.fn<(...args: any[]) => any>()}
       />,
     );
 
@@ -87,7 +87,7 @@ describe("JournalScreenshotUpload", () => {
             sizeBytes: 100,
           },
         ]}
-        onAddFiles={vi.fn()}
+        onAddFiles={vi.fn<(...args: any[]) => any>()}
         maxCount={1}
       />,
     );
@@ -104,8 +104,8 @@ describe("JournalScreenshotUpload", () => {
 
     render(
       <JournalScreenshotUpload
-        items={[fileToScreenshotItem(file, vi.fn())]}
-        onAddFiles={vi.fn()}
+        items={[fileToScreenshotItem(file, vi.fn<(...args: any[]) => any>())]}
+        onAddFiles={vi.fn<(...args: any[]) => any>()}
       />,
     );
 

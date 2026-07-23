@@ -8,7 +8,7 @@ describe("Modal", () => {
     render(
       <Modal
         open
-        onOpenChange={vi.fn()}
+        onOpenChange={vi.fn<(...args: any[]) => any>()}
         title="New Trade"
         footer={
           <Button type="button" variant="default">
@@ -27,7 +27,7 @@ describe("Modal", () => {
   });
   it("renders nothing when closed", () => {
     render(
-      <Modal open={false} onOpenChange={vi.fn()} title="Hidden">
+      <Modal open={false} onOpenChange={vi.fn<(...args: any[]) => any>()} title="Hidden">
         <p>Body</p>
       </Modal>,
     );

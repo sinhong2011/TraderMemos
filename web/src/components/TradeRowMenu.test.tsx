@@ -16,7 +16,7 @@ vi.mock("../lib/hooks/useTradeDetail", () => ({
 }));
 
 vi.mock("./Toast", () => ({
-  useToastManager: () => ({ add: vi.fn() }),
+  useToastManager: () => ({ add: vi.fn<(...args: any[]) => any>() }),
 }));
 
 const TRADE: Trade = {

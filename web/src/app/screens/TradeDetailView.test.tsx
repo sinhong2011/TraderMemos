@@ -18,7 +18,7 @@ import {
 vi.mock("../../lib/api/client", () => ({
   getToken: () => "test-token",
   getBaseUrl: () => "http://test.local",
-  apiFetch: vi.fn(),
+  apiFetch: vi.fn<(...args: any[]) => any>(),
 }));
 
 const tradeCoachMock = vi.hoisted(() => ({
@@ -40,8 +40,8 @@ const tradeCoachMock = vi.hoisted(() => ({
       | undefined,
     isPending: false,
     isError: false,
-    generate: vi.fn(),
-    reset: vi.fn(),
+    generate: vi.fn<(...args: any[]) => any>(),
+    reset: vi.fn<(...args: any[]) => any>(),
   },
 }));
 
@@ -53,10 +53,10 @@ vi.mock("../../components/charts/TradeChartSection", () => ({
   TradeChartSection: () => <div data-testid="trade-chart-stub" />,
 }));
 
-globalThis.fetch = vi.fn().mockResolvedValue({
+globalThis.fetch = vi.fn<(...args: any[]) => any>().mockResolvedValue({
   ok: false,
   status: 403,
-  blob: vi.fn(),
+  blob: vi.fn<(...args: any[]) => any>(),
 } as unknown as Response);
 
 function renderView(ui: ReactElement) {
@@ -196,8 +196,8 @@ const defaultProps = {
   trade: mockTrade,
   loading: false,
   error: false,
-  onBack: vi.fn(),
-  onEdit: vi.fn(),
+  onBack: vi.fn<(...args: any[]) => any>(),
+  onEdit: vi.fn<(...args: any[]) => any>(),
 };
 
 describe("TradeDetailView", () => {
@@ -208,8 +208,8 @@ describe("TradeDetailView", () => {
       data: undefined,
       isPending: false,
       isError: false,
-      generate: vi.fn(),
-      reset: vi.fn(),
+      generate: vi.fn<(...args: any[]) => any>(),
+      reset: vi.fn<(...args: any[]) => any>(),
     };
   });
 
@@ -221,14 +221,14 @@ describe("TradeDetailView", () => {
   });
 
   it("places Edit at the page top right and calls onEdit", async () => {
-    const onEdit = vi.fn();
+    const onEdit = vi.fn<(...args: any[]) => any>();
     renderView(<TradeDetailView {...defaultProps} onEdit={onEdit} />);
     await userEvent.click(screen.getByRole("button", { name: "Edit trade" }));
     expect(onEdit).toHaveBeenCalledTimes(1);
   });
 
   it("requires typing the symbol before removing a trade", async () => {
-    const onDelete = vi.fn();
+    const onDelete = vi.fn<(...args: any[]) => any>();
     renderView(<TradeDetailView {...defaultProps} onDelete={onDelete} />);
     await userEvent.click(screen.getByRole("button", { name: "Remove trade" }));
     const dialog = screen.getByRole("dialog", { name: /Remove AAPL/i });
@@ -267,7 +267,7 @@ describe("TradeDetailView", () => {
   });
 
   it("shows Ask AI when coach is configured and generates on click", async () => {
-    const generate = vi.fn();
+    const generate = vi.fn<(...args: any[]) => any>();
     tradeCoachMock.current = {
       coachConfigured: true,
       settingsPending: false,
@@ -275,7 +275,7 @@ describe("TradeDetailView", () => {
       isPending: false,
       isError: false,
       generate,
-      reset: vi.fn(),
+      reset: vi.fn<(...args: any[]) => any>(),
     };
     renderView(<TradeDetailView {...defaultProps} />);
     expect(screen.getByText(/click Ask AI for model coaching/i)).toBeInTheDocument();
@@ -301,8 +301,8 @@ describe("TradeDetailView", () => {
       },
       isPending: false,
       isError: false,
-      generate: vi.fn(),
-      reset: vi.fn(),
+      generate: vi.fn<(...args: any[]) => any>(),
+      reset: vi.fn<(...args: any[]) => any>(),
     };
     renderView(<TradeDetailView {...defaultProps} />);
     expect(screen.getByText("AI")).toBeInTheDocument();
@@ -319,8 +319,8 @@ describe("TradeDetailView", () => {
       data: { source: "error", notes: [], error: "coach api 502: boom" },
       isPending: false,
       isError: false,
-      generate: vi.fn(),
-      reset: vi.fn(),
+      generate: vi.fn<(...args: any[]) => any>(),
+      reset: vi.fn<(...args: any[]) => any>(),
     };
     renderView(<TradeDetailView {...defaultProps} />);
     expect(screen.getByText("Rules")).toBeInTheDocument();
@@ -399,7 +399,7 @@ function renderJournal(tradeId: string, initial: JournalFormState = emptyJournal
       mistakeTags={[]}
       currency="USD"
       saving={false}
-      onSave={vi.fn()}
+      onSave={vi.fn<(...args: any[]) => any>()}
     />,
   );
 }
@@ -462,7 +462,7 @@ describe("JournalPanel drafts", () => {
           mistakeTags={[]}
           currency="USD"
           saving={false}
-          onSave={vi.fn()}
+          onSave={vi.fn<(...args: any[]) => any>()}
         />,
       );
       rerender(
@@ -474,7 +474,7 @@ describe("JournalPanel drafts", () => {
           mistakeTags={[]}
           currency="USD"
           saving={false}
-          onSave={vi.fn()}
+          onSave={vi.fn<(...args: any[]) => any>()}
         />,
       );
       vi.advanceTimersByTime(600);

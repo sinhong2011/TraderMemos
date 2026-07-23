@@ -7,10 +7,10 @@ function makeProps() {
   return {
     year: 2026,
     month: 7,
-    onPrevMonth: vi.fn(),
-    onNextMonth: vi.fn(),
-    onToday: vi.fn(),
-    onJumpToMonth: vi.fn(),
+    onPrevMonth: vi.fn<(...args: any[]) => any>(),
+    onNextMonth: vi.fn<(...args: any[]) => any>(),
+    onToday: vi.fn<(...args: any[]) => any>(),
+    onJumpToMonth: vi.fn<(...args: any[]) => any>(),
   };
 }
 

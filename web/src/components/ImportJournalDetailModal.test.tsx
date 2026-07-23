@@ -26,7 +26,7 @@ const sampleTrade: JournalTradePreview = {
 
 describe("journalTradePreviewColumns", () => {
   it("includes a Details action when onDetails is provided", () => {
-    const onDetails = vi.fn();
+    const onDetails = vi.fn<(...args: any[]) => any>();
     const columns = journalTradePreviewColumns("USD", onDetails);
     const marketCol = columns.find((c) => c.id === "market");
     expect(
@@ -53,9 +53,9 @@ describe("ImportJournalDetailModal", () => {
         trade={sampleTrade}
         currency="USD"
         open
-        onOpenChange={vi.fn()}
+        onOpenChange={vi.fn<(...args: any[]) => any>()}
         optionRight="call"
-        onOptionRightChange={vi.fn()}
+        onOptionRightChange={vi.fn<(...args: any[]) => any>()}
       />,
     );
 
@@ -71,7 +71,7 @@ describe("ImportJournalDetailModal", () => {
 
   it("closes when the close button is clicked", async () => {
     const user = userEvent.setup();
-    const onOpenChange = vi.fn();
+    const onOpenChange = vi.fn<(...args: any[]) => any>();
     render(
       <ImportJournalDetailModal
         trade={sampleTrade}

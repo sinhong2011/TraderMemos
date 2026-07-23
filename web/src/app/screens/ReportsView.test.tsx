@@ -86,18 +86,25 @@ const base = {
   qualityBreakdownLoading: false,
   qualityBreakdownError: false,
   tab: "overview" as const,
-  onTabChange: vi.fn(),
+  onTabChange: vi.fn<(...args: any[]) => any>(),
   currency: "USD",
-  onDimChange: vi.fn(),
+  onDimChange: vi.fn<(...args: any[]) => any>(),
   side: "all" as const,
   duration: "all" as const,
-  onSideChange: vi.fn(),
-  onDurationChange: vi.fn(),
+  onSideChange: vi.fn<(...args: any[]) => any>(),
+  onDurationChange: vi.fn<(...args: any[]) => any>(),
   pnlMode: "net" as const,
   unitMode: "abs" as const,
   denominator: 0,
-  onPnlModeChange: vi.fn(),
-  onUnitModeChange: vi.fn(),
+  onPnlModeChange: vi.fn<(...args: any[]) => any>(),
+  onUnitModeChange: vi.fn<(...args: any[]) => any>(),
+  selectedDay: null,
+  onSelectDay: vi.fn<(...args: any[]) => any>(),
+  dayTrades: [],
+  dayTradesLoading: false,
+  dayTradesError: false,
+  onSelectTrade: vi.fn<(...args: any[]) => any>(),
+  onOpenFullPage: vi.fn<(...args: any[]) => any>(),
 };
 
 describe("ReportsView", () => {
@@ -210,7 +217,7 @@ describe("ReportsView", () => {
   });
 
   it("calls onTabChange when a tab is clicked", async () => {
-    const onTabChange = vi.fn();
+    const onTabChange = vi.fn<(...args: any[]) => any>();
     render(
       <ReportsView
         {...base}

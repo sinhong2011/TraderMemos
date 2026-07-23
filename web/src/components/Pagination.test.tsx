@@ -6,7 +6,7 @@ import { Pagination } from "./Pagination";
 describe("Pagination", () => {
   it("renders range and navigates pages", async () => {
     const user = userEvent.setup();
-    const onPageChange = vi.fn();
+    const onPageChange = vi.fn<(...args: any[]) => any>();
     render(
       <Pagination page={1} pageCount={3} total={60} pageSize={25} onPageChange={onPageChange} />,
     );
@@ -22,21 +22,29 @@ describe("Pagination", () => {
   });
 
   it("disables previous on first page", () => {
-    render(<Pagination page={1} pageCount={2} total={40} pageSize={25} onPageChange={vi.fn()} />);
+    render(
+      <Pagination
+        page={1}
+        pageCount={2}
+        total={40}
+        pageSize={25}
+        onPageChange={vi.fn<(...args: any[]) => any>()}
+      />,
+    );
     expect(screen.getByRole("button", { name: "Previous page" })).toBeDisabled();
     expect(screen.getByRole("button", { name: "Next page" })).not.toBeDisabled();
   });
 
   it("changes page size", async () => {
     const user = userEvent.setup();
-    const onPageSizeChange = vi.fn();
+    const onPageSizeChange = vi.fn<(...args: any[]) => any>();
     render(
       <Pagination
         page={1}
         pageCount={1}
         total={20}
         pageSize={25}
-        onPageChange={vi.fn()}
+        onPageChange={vi.fn<(...args: any[]) => any>()}
         onPageSizeChange={onPageSizeChange}
         alwaysShow
       />,

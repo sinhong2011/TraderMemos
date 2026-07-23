@@ -18,7 +18,7 @@ const base = {
   setupsError: false,
   breakdownLoading: false,
   currency: "USD",
-  onDelete: vi.fn(noop),
+  onDelete: vi.fn<(...args: any[]) => any>(noop),
 };
 
 const setup: Setup = {

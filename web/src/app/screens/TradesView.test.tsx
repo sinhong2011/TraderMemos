@@ -13,13 +13,13 @@ vi.mock("../../lib/hooks/useMoneyFx", () => ({
 
 vi.mock("../../lib/hooks/useTradeDetail", () => ({
   useDeleteTrade: () => ({
-    mutateAsync: vi.fn(),
+    mutateAsync: vi.fn<(...args: any[]) => any>(),
     isPending: false,
   }),
 }));
 
 vi.mock("../../components/Toast", () => ({
-  useToastManager: () => ({ add: vi.fn() }),
+  useToastManager: () => ({ add: vi.fn<(...args: any[]) => any>() }),
 }));
 
 vi.mock("../../components/SignalSelect", () => ({
@@ -129,15 +129,15 @@ const base = {
   error: false,
   currency: "USD",
   symbols: [] as string[],
-  onSymbolsChange: vi.fn(),
-  onSelectTrade: vi.fn(),
-  onOpenFullPage: vi.fn(),
+  onSymbolsChange: vi.fn<(...args: any[]) => any>(),
+  onSelectTrade: vi.fn<(...args: any[]) => any>(),
+  onOpenFullPage: vi.fn<(...args: any[]) => any>(),
   totalInScope: 0,
   scopeLoading: false,
   hasNarrowingFilters: false,
-  onClearFilters: vi.fn(),
-  onImport: vi.fn(),
-  onNewTrade: vi.fn(),
+  onClearFilters: vi.fn<(...args: any[]) => any>(),
+  onImport: vi.fn<(...args: any[]) => any>(),
+  onNewTrade: vi.fn<(...args: any[]) => any>(),
 };
 
 describe("TradesView", () => {
@@ -178,8 +178,8 @@ describe("TradesView", () => {
 
   it("wires header actions", async () => {
     const user = userEvent.setup();
-    const onImport = vi.fn();
-    const onNewTrade = vi.fn();
+    const onImport = vi.fn<(...args: any[]) => any>();
+    const onNewTrade = vi.fn<(...args: any[]) => any>();
     render(<TradesView {...base} trades={[]} onImport={onImport} onNewTrade={onNewTrade} />);
     await user.click(screen.getAllByRole("button", { name: /import csv/i })[0]);
     await user.click(screen.getAllByRole("button", { name: /log trade/i })[0]);
@@ -189,7 +189,7 @@ describe("TradesView", () => {
 
   it("wires status faceted filter", async () => {
     const user = userEvent.setup();
-    const onToggleTradeStatus = vi.fn();
+    const onToggleTradeStatus = vi.fn<(...args: any[]) => any>();
     render(
       <TradesView
         {...base}
@@ -206,7 +206,7 @@ describe("TradesView", () => {
 
   it("wires symbol combobox options", async () => {
     const user = userEvent.setup();
-    const onSymbolsChange = vi.fn();
+    const onSymbolsChange = vi.fn<(...args: any[]) => any>();
     render(
       <TradesView
         {...base}
@@ -230,7 +230,7 @@ describe("TradesView", () => {
 
   it("wires tags faceted filter", async () => {
     const user = userEvent.setup();
-    const onTagIdsChange = vi.fn();
+    const onTagIdsChange = vi.fn<(...args: any[]) => any>();
     render(
       <TradesView
         {...base}
@@ -263,7 +263,7 @@ describe("TradesView", () => {
 
   it("wires market faceted filter", async () => {
     const user = userEvent.setup();
-    const onMarketsChange = vi.fn();
+    const onMarketsChange = vi.fn<(...args: any[]) => any>();
     render(
       <TradesView
         {...base}

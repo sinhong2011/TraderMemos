@@ -14,12 +14,12 @@ import {
 } from "./tradeColumns";
 
 vi.mock("./Toast", () => ({
-  useToastManager: () => ({ add: vi.fn() }),
+  useToastManager: () => ({ add: vi.fn<(...args: any[]) => any>() }),
 }));
 
 vi.mock("../lib/hooks/useTradeDetail", () => ({
   useDeleteTrade: () => ({
-    mutateAsync: vi.fn(),
+    mutateAsync: vi.fn<(...args: any[]) => any>(),
     isPending: false,
   }),
 }));
@@ -136,7 +136,7 @@ describe("tradeColumns", () => {
   it("renders a full trade row", () => {
     render(
       <DataTable
-        columns={tradeColumns("USD", { onOpenFullPage: vi.fn() })}
+        columns={tradeColumns("USD", { onOpenFullPage: vi.fn<(...args: any[]) => any>() })}
         data={[TRADE]}
         columnPinning={TRADE_COLUMN_PINNING}
       />,
@@ -172,7 +172,7 @@ describe("tradeColumns", () => {
     };
     render(
       <DataTable
-        columns={tradeColumns("USD", { onOpenFullPage: vi.fn() })}
+        columns={tradeColumns("USD", { onOpenFullPage: vi.fn<(...args: any[]) => any>() })}
         data={[tagged]}
         columnPinning={TRADE_COLUMN_PINNING}
       />,
@@ -194,7 +194,7 @@ describe("tradeColumns", () => {
     };
     render(
       <DataTable
-        columns={tradeColumns("USD", { onOpenFullPage: vi.fn() })}
+        columns={tradeColumns("USD", { onOpenFullPage: vi.fn<(...args: any[]) => any>() })}
         data={[optionTrade]}
         columnPinning={TRADE_COLUMN_PINNING}
       />,

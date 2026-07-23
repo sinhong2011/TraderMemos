@@ -7,7 +7,8 @@ import { useFilters } from "../lib/filters";
 import { AccountNavPopover } from "./AccountNavPopover";
 
 vi.mock("../lib/auth", () => ({
-  useAuth: (sel: (s: { signOut: () => void }) => unknown) => sel({ signOut: vi.fn<() => void>() }),
+  useAuth: (sel: (s: { signOut: () => void }) => unknown) =>
+    sel({ signOut: vi.fn<(...args: any[]) => any>() }),
 }));
 
 vi.mock("../lib/hooks/useAccounts", () => ({

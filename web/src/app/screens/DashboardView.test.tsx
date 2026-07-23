@@ -7,12 +7,12 @@ import type { Summary, Trade } from "../../lib/api/types";
 import { DashboardView } from "./DashboardView";
 
 vi.mock("../../components/Toast", () => ({
-  useToastManager: () => ({ add: vi.fn() }),
+  useToastManager: () => ({ add: vi.fn<(...args: any[]) => any>() }),
 }));
 
 vi.mock("../../lib/hooks/useTradeDetail", () => ({
   useDeleteTrade: () => ({
-    mutateAsync: vi.fn(),
+    mutateAsync: vi.fn<(...args: any[]) => any>(),
     isPending: false,
   }),
 }));
@@ -126,18 +126,18 @@ const BASE = {
   trades: [TRADE],
   accounts: [],
   selectedAccountId: undefined,
-  onSelectTrade: vi.fn(),
-  onOpenFullPage: vi.fn(),
-  onViewAllTrades: vi.fn(),
-  onOpenCalendar: vi.fn(),
-  onOpenReports: vi.fn(),
+  onSelectTrade: vi.fn<(...args: any[]) => any>(),
+  onOpenFullPage: vi.fn<(...args: any[]) => any>(),
+  onViewAllTrades: vi.fn<(...args: any[]) => any>(),
+  onOpenCalendar: vi.fn<(...args: any[]) => any>(),
+  onOpenReports: vi.fn<(...args: any[]) => any>(),
   calendarYear: 2026,
   calendarMonth: 7,
   dailyPnl: { "2026-07-02": 11.39 },
   dailyLoading: false,
   dailyError: false,
   breakdownDim: "day_of_week" as const,
-  onBreakdownDimChange: vi.fn(),
+  onBreakdownDimChange: vi.fn<(...args: any[]) => any>(),
   breakdown: [
     {
       key: "Wed",
@@ -150,8 +150,8 @@ const BASE = {
   breakdownLoading: false,
   breakdownError: false,
   accountFunded: false,
-  onImport: vi.fn(),
-  onNewTrade: vi.fn(),
+  onImport: vi.fn<(...args: any[]) => any>(),
+  onNewTrade: vi.fn<(...args: any[]) => any>(),
 };
 
 describe("DashboardView", () => {
@@ -170,7 +170,7 @@ describe("DashboardView", () => {
 
   it("renders recent trades with view-all action", async () => {
     const user = userEvent.setup();
-    const onViewAllTrades = vi.fn();
+    const onViewAllTrades = vi.fn<(...args: any[]) => any>();
     render(<DashboardView {...BASE} onViewAllTrades={onViewAllTrades} />);
     expect(screen.getByText("Recent trades")).toBeInTheDocument();
     expect(screen.getAllByText("TSLQ").length).toBeGreaterThan(0);
@@ -192,8 +192,8 @@ describe("DashboardView", () => {
 
   it("renders breakdown chart and mini calendar", async () => {
     const user = userEvent.setup();
-    const onOpenCalendar = vi.fn();
-    const onOpenReports = vi.fn();
+    const onOpenCalendar = vi.fn<(...args: any[]) => any>();
+    const onOpenReports = vi.fn<(...args: any[]) => any>();
     render(
       <DashboardView {...BASE} onOpenCalendar={onOpenCalendar} onOpenReports={onOpenReports} />,
     );
@@ -318,8 +318,8 @@ describe("DashboardView", () => {
 
   it("wires empty-state actions", async () => {
     const user = userEvent.setup();
-    const onImport = vi.fn();
-    const onNewTrade = vi.fn();
+    const onImport = vi.fn<(...args: any[]) => any>();
+    const onNewTrade = vi.fn<(...args: any[]) => any>();
     render(
       <DashboardView
         {...BASE}

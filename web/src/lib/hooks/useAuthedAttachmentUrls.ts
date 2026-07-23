@@ -8,10 +8,13 @@ export function useAuthedAttachmentUrls(attachmentIds: readonly string[]) {
   const keys = [...attachmentIds].sort().join("|");
 
   useEffect(() => {
-    const active = new Set(attachmentIds);
+    // Derive ids from `keys` so the effect depends on a stable serialization,
+    // not a new array identity each render.
+    const ids = keys.length === 0 ? [] : keys.split("|");
+    const active = new Set(ids);
     let cancelled = false;
 
-    for (const id of attachmentIds) {
+    for (const id of ids) {
       if (cacheRef.current.has(id)) continue;
       const t = getToken();
       void fetch(`${getBaseUrl()}/attachments/${id}/file`, {

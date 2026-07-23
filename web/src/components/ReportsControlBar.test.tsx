@@ -5,12 +5,12 @@ import { ReportsControlBar } from "./ReportsControlBar";
 const base = {
   side: "all" as const,
   duration: "all" as const,
-  onSideChange: vi.fn(),
-  onDurationChange: vi.fn(),
+  onSideChange: vi.fn<(...args: any[]) => any>(),
+  onDurationChange: vi.fn<(...args: any[]) => any>(),
   pnlMode: "net" as const,
   unitMode: "abs" as const,
-  onPnlModeChange: vi.fn(),
-  onUnitModeChange: vi.fn(),
+  onPnlModeChange: vi.fn<(...args: any[]) => any>(),
+  onUnitModeChange: vi.fn<(...args: any[]) => any>(),
   pctEnabled: true,
 };
 
@@ -24,14 +24,14 @@ describe("ReportsControlBar", () => {
   });
 
   it("calls onSideChange when a side is picked", () => {
-    const onSideChange = vi.fn();
+    const onSideChange = vi.fn<(...args: any[]) => any>();
     render(<ReportsControlBar {...base} onSideChange={onSideChange} />);
     screen.getByRole("tab", { name: "Long" }).click();
     expect(onSideChange).toHaveBeenCalledWith("long");
   });
 
   it("calls onDurationChange when a duration is picked", () => {
-    const onDurationChange = vi.fn();
+    const onDurationChange = vi.fn<(...args: any[]) => any>();
     render(<ReportsControlBar {...base} onDurationChange={onDurationChange} />);
     screen.getByRole("tab", { name: "Swing" }).click();
     expect(onDurationChange).toHaveBeenCalledWith("swing");
@@ -46,8 +46,8 @@ describe("ReportsControlBar", () => {
   });
 
   it("calls onPnlModeChange and onUnitModeChange", () => {
-    const onPnlModeChange = vi.fn();
-    const onUnitModeChange = vi.fn();
+    const onPnlModeChange = vi.fn<(...args: any[]) => any>();
+    const onUnitModeChange = vi.fn<(...args: any[]) => any>();
     render(
       <ReportsControlBar
         {...base}

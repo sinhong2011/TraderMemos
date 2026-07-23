@@ -9,7 +9,7 @@ function wrap(ui: React.ReactNode) {
 
 describe("Button", () => {
   it("renders default variant and forwards clicks", async () => {
-    const onClick = vi.fn();
+    const onClick = vi.fn<(...args: any[]) => any>();
     wrap(
       <Button type="button" onClick={onClick}>
         Save

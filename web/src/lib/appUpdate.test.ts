@@ -27,7 +27,7 @@ describe("initAppUpdates", () => {
     const serwist: SerwistLike = {
       register: vi.fn<() => Promise<ServiceWorkerRegistration | undefined>>(async () => undefined),
       update: vi.fn<() => Promise<void>>(async () => undefined),
-      messageSkipWaiting: vi.fn<() => void>(),
+      messageSkipWaiting: vi.fn<(...args: any[]) => any>(),
       addEventListener: (type, listener) => {
         listeners.set(type, listener);
       },

@@ -12,7 +12,7 @@ const OPTIONS = [
 describe("FacetedFilter", () => {
   it("opens options and selects a value", async () => {
     const user = userEvent.setup();
-    const onChange = vi.fn();
+    const onChange = vi.fn<(...args: any[]) => any>();
     render(<FacetedFilter title="Status" options={OPTIONS} onChange={onChange} />);
 
     await user.click(screen.getByRole("button", { name: "Status" }));
@@ -22,7 +22,7 @@ describe("FacetedFilter", () => {
 
   it("shows selected badge and clears", async () => {
     const user = userEvent.setup();
-    const onChange = vi.fn();
+    const onChange = vi.fn<(...args: any[]) => any>();
     render(<FacetedFilter title="Status" options={OPTIONS} value="loss" onChange={onChange} />);
 
     expect(screen.getByText("Losses")).toBeInTheDocument();

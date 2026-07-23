@@ -2,18 +2,21 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vite-plus/test";
 
 vi.mock("lightweight-charts", () => {
-  const series = { setData: vi.fn(), createPriceLine: vi.fn() };
+  const series = {
+    setData: vi.fn<(...args: any[]) => any>(),
+    createPriceLine: vi.fn<(...args: any[]) => any>(),
+  };
   const chart = {
-    addSeries: vi.fn(() => series),
-    applyOptions: vi.fn(),
-    remove: vi.fn(),
-    timeScale: () => ({ fitContent: vi.fn() }),
+    addSeries: vi.fn<(...args: any[]) => any>(() => series),
+    applyOptions: vi.fn<(...args: any[]) => any>(),
+    remove: vi.fn<(...args: any[]) => any>(),
+    timeScale: () => ({ fitContent: vi.fn<(...args: any[]) => any>() }),
   };
   return {
     CandlestickSeries: {},
     ColorType: { Solid: "solid" },
-    createChart: vi.fn(() => chart),
-    createSeriesMarkers: vi.fn(),
+    createChart: vi.fn<(...args: any[]) => any>(() => chart),
+    createSeriesMarkers: vi.fn<(...args: any[]) => any>(),
   };
 });
 

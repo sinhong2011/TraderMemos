@@ -4,10 +4,10 @@ import { AnimatedHeight } from "./AnimatedHeight";
 
 describe("AnimatedHeight", () => {
   it("renders children inside a height wrapper", () => {
-    const ro = vi.fn();
+    const ro = vi.fn<(...args: any[]) => any>();
     class MockResizeObserver {
       observe = ro;
-      disconnect = vi.fn();
+      disconnect = vi.fn<(...args: any[]) => any>();
     }
     vi.stubGlobal("ResizeObserver", MockResizeObserver);
 

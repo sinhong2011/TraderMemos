@@ -6,7 +6,7 @@ import { executionsApi } from "../api/executions";
 import { ExecutionBatchError, useCreateExecutions } from "./useExecutions";
 
 vi.mock("../api/executions", () => ({
-  executionsApi: { create: vi.fn() },
+  executionsApi: { create: vi.fn<(...args: any[]) => any>() },
 }));
 
 const mockedCreate = vi.mocked(executionsApi.create);

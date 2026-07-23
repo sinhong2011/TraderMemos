@@ -120,7 +120,7 @@ describe("apiFetch", () => {
   });
 
   it("invokes unauthorized handler on 401 for protected routes", async () => {
-    const onUnauthorized = vi.fn();
+    const onUnauthorized = vi.fn<(...args: any[]) => any>();
     setUnauthorizedHandler(onUnauthorized);
     vi.spyOn(globalThis, "fetch").mockResolvedValue(
       new Response(JSON.stringify({ error: { code: "error", message: "Unauthorized" } }), {
@@ -194,7 +194,7 @@ describe("token refresh", () => {
 
   it("falls back to unauthorized handler when refresh fails", async () => {
     setTokens("stale", "bad-ref");
-    const onUnauthorized = vi.fn();
+    const onUnauthorized = vi.fn<(...args: any[]) => any>();
     setUnauthorizedHandler(onUnauthorized);
     vi.spyOn(globalThis, "fetch").mockImplementation(async (url) => {
       if (String(url).endsWith("/auth/refresh")) return protected401();

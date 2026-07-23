@@ -12,7 +12,7 @@ const OPTIONS = [
 
 describe("SignalSelect", () => {
   it("shows the selected label and fires onValueChange", async () => {
-    const onValueChange = vi.fn();
+    const onValueChange = vi.fn<(...args: any[]) => any>();
     render(
       <SignalSelect
         value="30d"
@@ -30,7 +30,7 @@ describe("SignalSelect", () => {
   });
 
   it("works inside a modal dialog without blocking option clicks", async () => {
-    const onValueChange = vi.fn();
+    const onValueChange = vi.fn<(...args: any[]) => any>();
     render(
       <Modal open onOpenChange={() => {}} title="Test modal">
         <SignalSelect

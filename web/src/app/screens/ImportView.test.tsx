@@ -68,9 +68,9 @@ describe("ImportView - Step 1", () => {
     renderImportView({
       accounts,
       accountsLoading: false,
-      onPreview: vi.fn(),
-      onCommit: vi.fn(),
-      onDone: vi.fn(),
+      onPreview: vi.fn<(...args: any[]) => any>(),
+      onCommit: vi.fn<(...args: any[]) => any>(),
+      onDone: vi.fn<(...args: any[]) => any>(),
     });
     expect(screen.getByLabelText("Import file input")).toBeInTheDocument();
   });
@@ -79,9 +79,9 @@ describe("ImportView - Step 1", () => {
     renderImportView({
       accounts,
       accountsLoading: false,
-      onPreview: vi.fn(),
-      onCommit: vi.fn(),
-      onDone: vi.fn(),
+      onPreview: vi.fn<(...args: any[]) => any>(),
+      onCommit: vi.fn<(...args: any[]) => any>(),
+      onDone: vi.fn<(...args: any[]) => any>(),
     });
     expect(screen.getByLabelText("Account select")).toBeInTheDocument();
   });
@@ -90,9 +90,9 @@ describe("ImportView - Step 1", () => {
     renderImportView({
       accounts,
       accountsLoading: false,
-      onPreview: vi.fn(),
-      onCommit: vi.fn(),
-      onDone: vi.fn(),
+      onPreview: vi.fn<(...args: any[]) => any>(),
+      onCommit: vi.fn<(...args: any[]) => any>(),
+      onDone: vi.fn<(...args: any[]) => any>(),
     });
     expect(screen.getByLabelText("Account select")).toHaveTextContent("Main");
   });
@@ -102,9 +102,9 @@ describe("ImportView - Step 1", () => {
       accounts,
       accountsLoading: false,
       defaultAccountId: "a2",
-      onPreview: vi.fn(),
-      onCommit: vi.fn(),
-      onDone: vi.fn(),
+      onPreview: vi.fn<(...args: any[]) => any>(),
+      onCommit: vi.fn<(...args: any[]) => any>(),
+      onDone: vi.fn<(...args: any[]) => any>(),
     });
     expect(screen.getByLabelText("Account select")).toHaveTextContent("Margin");
   });
@@ -113,9 +113,9 @@ describe("ImportView - Step 1", () => {
     renderImportView({
       accounts,
       accountsLoading: false,
-      onPreview: vi.fn(),
-      onCommit: vi.fn(),
-      onDone: vi.fn(),
+      onPreview: vi.fn<(...args: any[]) => any>(),
+      onCommit: vi.fn<(...args: any[]) => any>(),
+      onDone: vi.fn<(...args: any[]) => any>(),
     });
     expect(screen.getByText("Upload file")).toBeInTheDocument();
     expect(screen.getByText(/Click to upload/i)).toBeInTheDocument();
@@ -127,9 +127,9 @@ describe("ImportView - Step 1", () => {
     renderImportView({
       accounts,
       accountsLoading: false,
-      onPreview: vi.fn(),
-      onCommit: vi.fn(),
-      onDone: vi.fn(),
+      onPreview: vi.fn<(...args: any[]) => any>(),
+      onCommit: vi.fn<(...args: any[]) => any>(),
+      onDone: vi.fn<(...args: any[]) => any>(),
     });
     await user.click(screen.getByRole("tab", { name: "Export" }));
     expect(screen.getByText("Export account")).toBeInTheDocument();
@@ -142,9 +142,9 @@ describe("ImportView - Step 2 via simulated preview result", () => {
     renderImportView({
       accounts,
       accountsLoading: false,
-      onPreview: vi.fn().mockResolvedValue(mockPreview),
-      onCommit: vi.fn(),
-      onDone: vi.fn(),
+      onPreview: vi.fn<(...args: any[]) => any>().mockResolvedValue(mockPreview),
+      onCommit: vi.fn<(...args: any[]) => any>(),
+      onDone: vi.fn<(...args: any[]) => any>(),
     });
 
     expect(screen.getByText("Upload")).toBeInTheDocument();
@@ -158,9 +158,9 @@ describe("ImportView - Step 3 result", () => {
     renderImportView({
       accounts,
       accountsLoading: false,
-      onPreview: vi.fn(),
-      onCommit: vi.fn(),
-      onDone: vi.fn(),
+      onPreview: vi.fn<(...args: any[]) => any>(),
+      onCommit: vi.fn<(...args: any[]) => any>(),
+      onDone: vi.fn<(...args: any[]) => any>(),
     });
     expect(screen.queryByText("Import complete")).not.toBeInTheDocument();
     expect(screen.getByText("Upload file")).toBeInTheDocument();

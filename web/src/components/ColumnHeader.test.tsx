@@ -13,9 +13,9 @@ function mockColumn(over: {
     getCanSort: () => over.canSort ?? true,
     getCanHide: () => over.canHide ?? true,
     getIsSorted: () => over.sorted ?? false,
-    toggleSorting: vi.fn(),
-    clearSorting: vi.fn(),
-    toggleVisibility: vi.fn(),
+    toggleSorting: vi.fn<(...args: any[]) => any>(),
+    clearSorting: vi.fn<(...args: any[]) => any>(),
+    toggleVisibility: vi.fn<(...args: any[]) => any>(),
   } as unknown as Column<unknown, unknown>;
 }
 

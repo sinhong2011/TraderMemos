@@ -5,7 +5,7 @@ import { SignalToggle } from "./SignalToggle";
 
 describe("SignalToggle", () => {
   it("toggles pressed state and fires onPressedChange", async () => {
-    const onPressedChange = vi.fn();
+    const onPressedChange = vi.fn<(...args: any[]) => any>();
     render(
       <SignalToggle aria-label="Breakout" pressed={false} onPressedChange={onPressedChange}>
         Breakout

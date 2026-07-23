@@ -221,18 +221,18 @@ export function AccountsTab({
   const [savingCash, setSavingCash] = useState(false);
 
   const tradesQ = useTrades({});
-  const trades = tradesQ.data ?? [];
+  const trades = tradesQ.data;
   const primaryId = useMemo(() => primaryAccountId(accounts), [accounts]);
   const tradeCountByAccount = useMemo(() => {
     const counts = new Map<string, number>();
-    for (const trade of trades) {
+    for (const trade of trades ?? []) {
       counts.set(trade.account_id, (counts.get(trade.account_id) ?? 0) + 1);
     }
     return counts;
   }, [trades]);
   const netPnlByAccount = useMemo(() => {
     const totals = new Map<string, number>();
-    for (const trade of trades) {
+    for (const trade of trades ?? []) {
       if (typeof trade.net_pnl !== "number") continue;
       totals.set(trade.account_id, (totals.get(trade.account_id) ?? 0) + trade.net_pnl);
     }

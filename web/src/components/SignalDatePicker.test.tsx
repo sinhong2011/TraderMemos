@@ -5,7 +5,7 @@ import { SignalDatePicker } from "./SignalDatePicker";
 
 describe("SignalDatePicker", () => {
   it("opens calendar and selects a date", async () => {
-    const onChange = vi.fn();
+    const onChange = vi.fn<(...args: any[]) => any>();
     render(<SignalDatePicker aria-label="Trade date" value="2026-07-01" onChange={onChange} />);
 
     expect(screen.getByRole("button", { name: "Trade date" })).toHaveTextContent("Jul 1, 2026");

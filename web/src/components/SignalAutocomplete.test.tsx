@@ -6,7 +6,7 @@ import { ModelAutocomplete, SignalAutocomplete } from "./SignalAutocomplete";
 describe("SignalAutocomplete", () => {
   it("filters and selects an item", async () => {
     const user = userEvent.setup();
-    const onValueChange = vi.fn();
+    const onValueChange = vi.fn<(...args: any[]) => any>();
     render(
       <SignalAutocomplete
         value=""
@@ -26,7 +26,7 @@ describe("SignalAutocomplete", () => {
 describe("ModelAutocomplete", () => {
   it("exposes a fetch models control on the right", async () => {
     const user = userEvent.setup();
-    const onFetch = vi.fn();
+    const onFetch = vi.fn<(...args: any[]) => any>();
     render(
       <ModelAutocomplete
         value="gpt-4o-mini"
@@ -60,7 +60,7 @@ describe("ModelAutocomplete", () => {
 
   it("clears the model value", async () => {
     const user = userEvent.setup();
-    const onValueChange = vi.fn();
+    const onValueChange = vi.fn<(...args: any[]) => any>();
     render(
       <ModelAutocomplete value="gpt-4o-mini" onValueChange={onValueChange} ariaLabel="Model" />,
     );

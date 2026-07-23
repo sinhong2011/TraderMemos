@@ -18,7 +18,7 @@ vi.mock("../../lib/api/attachments", () => ({
   attachmentsApi: { upload: vi.fn<() => Promise<unknown>>() },
 }));
 vi.mock("../../lib/api/ocr", () => ({ ocrApi: { parse: vi.fn<() => Promise<unknown>>() } }));
-vi.mock("@tanstack/react-router", () => ({ useNavigate: () => vi.fn<() => void>() }));
+vi.mock("@tanstack/react-router", () => ({ useNavigate: () => vi.fn<(...args: any[]) => any>() }));
 
 const mockOcrSettings = vi.fn<() => unknown>();
 vi.mock("../../lib/hooks/useOcrSettings", () => ({
@@ -47,7 +47,7 @@ vi.mock("../../lib/hooks/useTags", () => ({
   }),
 }));
 vi.mock("../../components/Toast", () => ({
-  useToastManager: () => ({ add: vi.fn<() => void>() }),
+  useToastManager: () => ({ add: vi.fn<(...args: any[]) => any>() }),
 }));
 
 const mockedCreate = vi.mocked(executionsApi.create);

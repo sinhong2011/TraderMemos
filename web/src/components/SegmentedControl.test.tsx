@@ -11,7 +11,7 @@ const OPTIONS = [
 
 describe("SegmentedControl", () => {
   it("marks the active option and fires onChange", async () => {
-    const onChange = vi.fn();
+    const onChange = vi.fn<(...args: any[]) => any>();
     render(<SegmentedControl options={OPTIONS} value="30D" onChange={onChange} />);
     expect(screen.getByRole("tab", { name: "30D" })).toHaveAttribute("aria-selected", "true");
     await userEvent.click(screen.getByRole("tab", { name: "ALL" }));

@@ -55,12 +55,12 @@ function TradesPage() {
   const scopeFilters = accountId ? { account_id: accountId } : {};
   const scopeQ = useTrades(scopeFilters);
 
-  const rawTrades = tradesQ.data ?? [];
-  const tagOptions = useMemo(() => buildTagFacetOptions(rawTrades), [rawTrades]);
-  const marketOptions = useMemo(() => buildMarketFacetOptions(rawTrades), [rawTrades]);
+  const rawTrades = tradesQ.data;
+  const tagOptions = useMemo(() => buildTagFacetOptions(rawTrades ?? []), [rawTrades]);
+  const marketOptions = useMemo(() => buildMarketFacetOptions(rawTrades ?? []), [rawTrades]);
   const symbolOptions = useMemo(() => buildSymbolFacetOptions(scopeQ.data ?? []), [scopeQ.data]);
   const trades = filterTradesByMarkets(
-    filterTradesByTags(filterTradesByStatus(rawTrades, tradeStatus), tagIds),
+    filterTradesByTags(filterTradesByStatus(rawTrades ?? [], tradeStatus), tagIds),
     markets,
   );
 

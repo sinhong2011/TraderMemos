@@ -34,9 +34,9 @@ vi.mock("../../lib/hooks/useOcrSettings", () => ({
     isPending: false,
     isError: false,
   }),
-  useSaveOcrSettings: () => ({ mutateAsync: vi.fn(), isPending: false }),
-  useTestOcrSettings: () => ({ mutateAsync: vi.fn(), isPending: false }),
-  useListOcrModels: () => ({ mutateAsync: vi.fn(), isPending: false }),
+  useSaveOcrSettings: () => ({ mutateAsync: vi.fn<(...args: any[]) => any>(), isPending: false }),
+  useTestOcrSettings: () => ({ mutateAsync: vi.fn<(...args: any[]) => any>(), isPending: false }),
+  useListOcrModels: () => ({ mutateAsync: vi.fn<(...args: any[]) => any>(), isPending: false }),
 }));
 
 vi.mock("../../lib/hooks/useCoachSettings", () => ({
@@ -53,9 +53,9 @@ vi.mock("../../lib/hooks/useCoachSettings", () => ({
     isPending: false,
     isError: false,
   }),
-  useSaveCoachSettings: () => ({ mutateAsync: vi.fn(), isPending: false }),
-  useTestCoachSettings: () => ({ mutateAsync: vi.fn(), isPending: false }),
-  useListCoachModels: () => ({ mutateAsync: vi.fn(), isPending: false }),
+  useSaveCoachSettings: () => ({ mutateAsync: vi.fn<(...args: any[]) => any>(), isPending: false }),
+  useTestCoachSettings: () => ({ mutateAsync: vi.fn<(...args: any[]) => any>(), isPending: false }),
+  useListCoachModels: () => ({ mutateAsync: vi.fn<(...args: any[]) => any>(), isPending: false }),
 }));
 
 vi.mock("../../lib/hooks/useApiHealth", () => ({
@@ -73,8 +73,8 @@ vi.mock("../../lib/hooks/useAccessTokens", () => ({
     isLoading: false,
     isError: false,
   }),
-  useCreateAccessToken: () => ({ mutateAsync: vi.fn(), isPending: false }),
-  useRevokeAccessToken: () => ({ mutateAsync: vi.fn(), isPending: false }),
+  useCreateAccessToken: () => ({ mutateAsync: vi.fn<(...args: any[]) => any>(), isPending: false }),
+  useRevokeAccessToken: () => ({ mutateAsync: vi.fn<(...args: any[]) => any>(), isPending: false }),
 }));
 
 const noop = async () => {};
@@ -112,23 +112,23 @@ const baseProps = {
   accounts,
   accountsLoading: false,
   accountsError: false,
-  onCreateAccount: vi.fn(noop),
-  onDeleteAccount: vi.fn(noop),
-  onUpdateAccount: vi.fn(noop),
-  onClearAccountTrades: vi.fn(noop),
+  onCreateAccount: vi.fn<(...args: any[]) => any>(noop),
+  onDeleteAccount: vi.fn<(...args: any[]) => any>(noop),
+  onUpdateAccount: vi.fn<(...args: any[]) => any>(noop),
+  onClearAccountTrades: vi.fn<(...args: any[]) => any>(noop),
 
   cashTransactions,
   cashLoading: false,
   cashError: false,
-  onCreateCash: vi.fn(noop),
-  onUpdateCash: vi.fn(noop),
-  onDeleteCash: vi.fn(noop),
+  onCreateCash: vi.fn<(...args: any[]) => any>(noop),
+  onUpdateCash: vi.fn<(...args: any[]) => any>(noop),
+  onDeleteCash: vi.fn<(...args: any[]) => any>(noop),
 
   tags,
   tagsLoading: false,
   tagsError: false,
-  onCreateTag: vi.fn(noop),
-  onDeleteTag: vi.fn(noop),
+  onCreateTag: vi.fn<(...args: any[]) => any>(noop),
+  onDeleteTag: vi.fn<(...args: any[]) => any>(noop),
 
   riskRules: {
     max_risk_per_trade: null,
@@ -139,14 +139,14 @@ const baseProps = {
   riskRulesLoading: false,
   riskRulesError: false,
   riskRulesSaving: false,
-  onSaveRiskRules: vi.fn(noop),
+  onSaveRiskRules: vi.fn<(...args: any[]) => any>(noop),
 
   checklistItems: ["Check VIX"],
   checklistContent: "- [ ] Check VIX",
   checklistLoading: false,
   checklistError: false,
   checklistSaving: false,
-  onSaveChecklist: vi.fn(noop),
+  onSaveChecklist: vi.fn<(...args: any[]) => any>(noop),
 };
 
 describe("SettingsView", () => {

@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import type { TradeDetail } from "../lib/api/types";
 import { TradeDetailSheet } from "./TradeDetailSheet";
 
-const navigate = vi.fn<() => void>();
+const navigate = vi.fn<(...args: any[]) => any>();
 vi.mock("@tanstack/react-router", () => ({
   useNavigate: () => navigate,
 }));
@@ -13,13 +13,13 @@ vi.mock("@tanstack/react-router", () => ({
 vi.mock("../lib/hooks/useTradeDetail", () => ({
   useTradeDetail: vi.fn<() => unknown>(),
   useDeleteTrade: () => ({
-    mutateAsync: vi.fn(),
+    mutateAsync: vi.fn<(...args: any[]) => any>(),
     isPending: false,
   }),
 }));
 
 vi.mock("./Toast", () => ({
-  useToastManager: () => ({ add: vi.fn() }),
+  useToastManager: () => ({ add: vi.fn<(...args: any[]) => any>() }),
 }));
 
 vi.mock("./charts/TradeChartSection", () => ({
@@ -124,7 +124,7 @@ describe("TradeDetailSheet", () => {
   });
 
   it("shows WIN status, dates, and collapses empty plan dashes", () => {
-    wrap(<TradeDetailSheet tradeId="t1" onClose={vi.fn<() => void>()} />);
+    wrap(<TradeDetailSheet tradeId="t1" onClose={vi.fn<(...args: any[]) => any>()} />);
 
     expect(screen.getByText("WIN")).toBeInTheDocument();
     // Identity moved into the drawer title: "CL8698 · STK · LONG"
@@ -155,7 +155,7 @@ describe("TradeDetailSheet", () => {
       isLoading: false,
       isError: false,
     } as never);
-    wrap(<TradeDetailSheet tradeId="t1" onClose={vi.fn<() => void>()} />);
+    wrap(<TradeDetailSheet tradeId="t1" onClose={vi.fn<(...args: any[]) => any>()} />);
 
     expect(screen.getByText("OPEN")).toBeInTheDocument();
     expect(screen.getByText(/still open/)).toBeInTheDocument();
@@ -168,7 +168,7 @@ describe("TradeDetailSheet", () => {
       isLoading: false,
       isError: false,
     } as never);
-    wrap(<TradeDetailSheet tradeId="t1" onClose={vi.fn<() => void>()} />);
+    wrap(<TradeDetailSheet tradeId="t1" onClose={vi.fn<(...args: any[]) => any>()} />);
 
     expect(screen.getByText("Fees")).toBeInTheDocument();
     expect(screen.getByText("$0.35")).toBeInTheDocument();
@@ -209,7 +209,7 @@ describe("TradeDetailSheet", () => {
       isLoading: false,
       isError: false,
     } as never);
-    wrap(<TradeDetailSheet tradeId="t1" onClose={vi.fn<() => void>()} />);
+    wrap(<TradeDetailSheet tradeId="t1" onClose={vi.fn<(...args: any[]) => any>()} />);
 
     expect(screen.getByText("Breakout")).toBeInTheDocument();
     expect(screen.getByText("ORB Fade")).toBeInTheDocument();
@@ -218,7 +218,7 @@ describe("TradeDetailSheet", () => {
   });
 
   it("omits context row and notes section when empty", () => {
-    wrap(<TradeDetailSheet tradeId="t1" onClose={vi.fn<() => void>()} />);
+    wrap(<TradeDetailSheet tradeId="t1" onClose={vi.fn<(...args: any[]) => any>()} />);
     expect(screen.queryByText("Setup:")).not.toBeInTheDocument();
     expect(screen.queryByText("Notes")).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /read more/i })).not.toBeInTheDocument();
@@ -233,7 +233,7 @@ describe("TradeDetailSheet", () => {
       isLoading: false,
       isError: false,
     } as never);
-    wrap(<TradeDetailSheet tradeId="t1" onClose={vi.fn<() => void>()} />);
+    wrap(<TradeDetailSheet tradeId="t1" onClose={vi.fn<(...args: any[]) => any>()} />);
 
     expect(screen.getByText("B")).toBeInTheDocument();
     expect(screen.getByText("S")).toBeInTheDocument();

@@ -7,7 +7,7 @@ import type { Summary, Trade } from "../../lib/api/types";
 import { CalendarView } from "./CalendarView";
 
 vi.mock("../../components/Toast", () => ({
-  useToastManager: () => ({ add: vi.fn() }),
+  useToastManager: () => ({ add: vi.fn<(...args: any[]) => any>() }),
 }));
 
 vi.mock("../../lib/hooks/useMoneyFx", () => ({
@@ -65,23 +65,23 @@ const BASE = {
   year: 2026,
   month: 7,
   mode: "month" as const,
-  onModeChange: vi.fn(),
-  onPrevMonth: vi.fn(),
-  onNextMonth: vi.fn(),
-  onPrevYear: vi.fn(),
-  onNextYear: vi.fn(),
-  onToday: vi.fn(),
-  onJumpToMonth: vi.fn(),
+  onModeChange: vi.fn<(...args: any[]) => any>(),
+  onPrevMonth: vi.fn<(...args: any[]) => any>(),
+  onNextMonth: vi.fn<(...args: any[]) => any>(),
+  onPrevYear: vi.fn<(...args: any[]) => any>(),
+  onNextYear: vi.fn<(...args: any[]) => any>(),
+  onToday: vi.fn<(...args: any[]) => any>(),
+  onJumpToMonth: vi.fn<(...args: any[]) => any>(),
   canGoNextMonth: true,
   canGoNextYear: true,
   selectedDay: null as string | null,
-  onSelectDay: vi.fn(),
+  onSelectDay: vi.fn<(...args: any[]) => any>(),
   dayTrades: [] as Trade[],
   dayTradesLoading: false,
   dayTradesError: false,
   currency: "USD",
-  onSelectTrade: vi.fn(),
-  onOpenFullPage: vi.fn(),
+  onSelectTrade: vi.fn<(...args: any[]) => any>(),
+  onOpenFullPage: vi.fn<(...args: any[]) => any>(),
 };
 
 describe("CalendarView", () => {

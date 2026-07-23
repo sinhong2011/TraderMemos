@@ -71,7 +71,7 @@ describe("appConfig", () => {
   });
 
   it("applies parsed config to stores and api base", async () => {
-    const setLocale = vi.fn(async () => {});
+    const setLocale = vi.fn<(...args: any[]) => any>(async () => {});
     await applyParsedAppConfig(
       {
         locale: "zh-HK",
