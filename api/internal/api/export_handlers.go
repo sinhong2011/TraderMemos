@@ -45,15 +45,35 @@ type exportCashTx struct {
 
 // accountExportJSON is the canonical TraderMemos backup format (JSON).
 type accountExportJSON struct {
-	FormatVersion    int               `json:"format_version"`
-	ExportedAt       time.Time         `json:"exported_at"`
-	AccountID        string            `json:"account_id"`
-	AccountName      string            `json:"account_name"`
-	Account          exportAccountMeta `json:"account"`
-	CashTransactions []exportCashTx    `json:"cash_transactions"`
-	Setups           []setupDTO        `json:"setups"`
-	TradeCount       int               `json:"trade_count"`
-	Trades           []tradeDetailDTO  `json:"trades"`
+	FormatVersion    int                `json:"format_version"`
+	ExportedAt       time.Time          `json:"exported_at"`
+	AccountID        string             `json:"account_id,omitempty"`
+	AccountName      string             `json:"account_name,omitempty"`
+	Account          *exportAccountMeta `json:"account,omitempty"`
+	CashTransactions []exportCashTx     `json:"cash_transactions"`
+	Setups           []setupDTO         `json:"setups"`
+	TradeCount       int                `json:"trade_count"`
+	Trades           []tradeDetailDTO   `json:"trades"`
+}
+
+func queryTruthy(v string) bool {
+	switch strings.ToLower(strings.TrimSpace(v)) {
+	case "1", "true", "yes", "on":
+		return true
+	default:
+		return false
+	}
+}
+
+// stripAccountFromTradeExport clears account identifiers so the payload is
+// portable trade data without binding to a specific account.
+func stripAccountFromTradeExport(details []tradeDetailDTO) {
+	for i := range details {
+		details[i].AccountID = ""
+		for j := range details[i].Fills {
+			details[i].Fills[j].AccountID = ""
+		}
+	}
 }
 
 func (s *Server) handleExport(c echo.Context) error {
@@ -75,6 +95,11 @@ func (s *Server) handleExport(c echo.Context) error {
 	acc, err := s.deps.Store.GetAccount(ctx, store.GetAccountParams{ID: accountID, UserID: uid})
 	if err != nil {
 		return Fail(http.StatusNotFound, "not_found", "account not found", nil)
+	}
+
+	omitAccount := queryTruthy(c.QueryParam("omit_account"))
+	if omitAccount && format == "csv" {
+		return Fail(http.StatusBadRequest, "bad_request", "omit_account is only supported for json and zip", nil)
 	}
 
 	f, err := parseFilters(c)
@@ -124,20 +149,25 @@ func (s *Server) handleExport(c echo.Context) error {
 		for _, st := range setupRows {
 			setupOut = append(setupOut, toSetupDTO(st))
 		}
+		if omitAccount {
+			stripAccountFromTradeExport(details)
+		}
 		payload := accountExportJSON{
-			FormatVersion: exportFormatVersion,
-			ExportedAt:    time.Now().UTC(),
-			AccountID:     accountID,
-			AccountName:   acc.Name,
-			Account: exportAccountMeta{
-				ID: acc.ID, Name: acc.Name, Broker: acc.Broker,
-				AccountType: acc.AccountType, BaseCurrency: acc.BaseCurrency,
-				StartingBalance: acc.StartingBalance,
-			},
+			FormatVersion:    exportFormatVersion,
+			ExportedAt:       time.Now().UTC(),
 			CashTransactions: cashOut,
 			Setups:           setupOut,
 			TradeCount:       len(details),
 			Trades:           details,
+		}
+		if !omitAccount {
+			payload.AccountID = accountID
+			payload.AccountName = acc.Name
+			payload.Account = &exportAccountMeta{
+				ID: acc.ID, Name: acc.Name, Broker: acc.Broker,
+				AccountType: acc.AccountType, BaseCurrency: acc.BaseCurrency,
+				StartingBalance: acc.StartingBalance,
+			}
 		}
 		if format == "json" {
 			filename := exporter.ExportFilename("tradermemos-export", acc.Name, "json")
@@ -278,16 +308,41 @@ func (s *Server) buildJournalExportRows(ctx context.Context, userID string, f Fi
 		if j.SetupID.Valid {
 			setup = setupName[j.SetupID.String]
 		}
+		optionRight := ""
+		if t.InstrumentType == "option" {
+			fills, ferr := s.deps.Store.ListExecutionsForTrade(ctx, t.ID)
+			if ferr == nil {
+				optionRight = optionRightFromFills(fills)
+			}
+		}
 		row, ok := exporter.BuildJournalRow(exporter.JournalInput{
-			Trade:     t,
-			Journal:   j,
-			Tags:      tagsByTrade[t.ID],
-			Setup:     setup,
-			Dividends: dividendsByTrade[t.ID],
+			Trade:       t,
+			Journal:     j,
+			Tags:        tagsByTrade[t.ID],
+			Setup:       setup,
+			Dividends:   dividendsByTrade[t.ID],
+			OptionRight: optionRight,
 		})
 		if ok {
 			out = append(out, row)
 		}
 	}
 	return out, nil
+}
+
+func optionRightFromFills(fills []store.Execution) string {
+	for _, f := range fills {
+		if !f.Details.Valid || f.Details.String == "" {
+			continue
+		}
+		var details map[string]string
+		if err := json.Unmarshal([]byte(f.Details.String), &details); err != nil {
+			continue
+		}
+		right := strings.ToLower(strings.TrimSpace(details["option_right"]))
+		if right == "call" || right == "put" {
+			return right
+		}
+	}
+	return ""
 }

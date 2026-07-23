@@ -27,12 +27,16 @@ export async function downloadExport(params: {
   accountId: string;
   from?: string;
   to?: string;
+  /** JSON/ZIP only: strip account identity from the export (trade data portable). */
+  omitAccount?: boolean;
 }): Promise<void> {
   const path = `/exports${qs({
     account_id: params.accountId,
     format: params.format,
     from: params.from,
     to: params.to,
+    omit_account:
+      params.omitAccount && (params.format === "json" || params.format === "zip") ? "1" : undefined,
   })}`;
 
   const res = await apiRawGet(path);

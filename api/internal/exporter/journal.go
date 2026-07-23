@@ -14,7 +14,7 @@ import (
 
 // Journal columns match the Stonk Journal / closed-trade import format.
 var journalHeaders = []string{
-	"Date", "Symbol", "Status", "Market", "Side", "Qty", "Entry", "Exit",
+	"Date", "Symbol", "Status", "Market", "Side", "Call/Put", "Qty", "Entry", "Exit",
 	"Entry Total", "Exit Total", "Position",
 	"Return ($)", "Return (%)", "Dividends", "Open Date",
 	"Tags", "Setup", "Confidence", "Target", "Stop", "Notes",
@@ -27,6 +27,7 @@ type JournalRow struct {
 	Status      string
 	Market      string
 	Side        string
+	CallPut     string // Call|Put when Market is OPTION
 	Qty         float64
 	Entry       float64
 	Exit        float64
@@ -46,11 +47,12 @@ type JournalRow struct {
 
 // JournalInput bundles store rows needed to build journal exports.
 type JournalInput struct {
-	Trade   store.Trade
-	Journal store.TradeJournal
-	Tags    []store.Tag
-	Setup   string
-	Dividends float64
+	Trade       store.Trade
+	Journal     store.TradeJournal
+	Tags        []store.Tag
+	Setup       string
+	Dividends   float64
+	OptionRight string // call|put from fill details
 }
 
 // BuildJournalRow converts a closed trade into a journal export row.
@@ -82,8 +84,15 @@ func BuildJournalRow(in JournalInput) (JournalRow, bool) {
 		status = "LOSS"
 	}
 	market := "STOCK"
+	callPut := ""
 	if t.InstrumentType == "option" {
 		market = "OPTION"
+		switch strings.ToLower(strings.TrimSpace(in.OptionRight)) {
+		case "call":
+			callPut = "Call"
+		case "put":
+			callPut = "Put"
+		}
 	}
 	side := "LONG"
 	if t.Direction == "short" {
@@ -112,6 +121,7 @@ func BuildJournalRow(in JournalInput) (JournalRow, bool) {
 		Status:     status,
 		Market:     market,
 		Side:       side,
+		CallPut:    callPut,
 		Qty:        t.QtyOpened,
 		Entry:      t.AvgEntryPrice,
 		Exit:       exit,
@@ -171,6 +181,7 @@ func journalRowValues(row JournalRow) []string {
 		row.Status,
 		row.Market,
 		row.Side,
+		row.CallPut,
 		formatNum(row.Qty),
 		formatNum(row.Entry),
 		formatNum(row.Exit),
