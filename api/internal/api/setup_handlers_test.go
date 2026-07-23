@@ -29,20 +29,6 @@ func testServerRegistrationClosed(t *testing.T) *api.Server {
 	})
 }
 
-func testServerDevAuth(t *testing.T) *api.Server {
-	t.Helper()
-	conn, err := db.Open(filepath.Join(t.TempDir(), "t.db"))
-	require.NoError(t, err)
-	require.NoError(t, db.Migrate(conn))
-	q := store.New(conn)
-	j := auth.NewJWT("test-secret-at-least-32-chars!!")
-	return api.New(api.Deps{
-		JWT: j, Auth: auth.NewService(q, j, true), Store: q, Trades: trades.NewService(q),
-		Storage: storage.NewLocalDisk(filepath.Join(t.TempDir(), "attach")), AttachMaxBytes: 10 << 20,
-		AllowDevAuth: true,
-	})
-}
-
 func TestSetupStatusEmpty(t *testing.T) {
 	s := testServerRegistrationClosed(t)
 	rec := do(s, http.MethodGet, "/api/v1/setup/status", "", "")
@@ -92,33 +78,5 @@ func TestRegisterRejectsShortPassword(t *testing.T) {
 	rec := do(s, http.MethodPost, "/api/v1/auth/register",
 		`{"email":"short@x.com","password":"short"}`, "")
 	require.Equal(t, http.StatusBadRequest, rec.Code)
-}
-
-func TestDevEnsureResetsPassword(t *testing.T) {
-	s := testServer(t)
-	// First owner via setup with an old password shape.
-	body := `{"email":"demo@tradermemos.app","password":"hunter2pass"}`
-	rec := httptest.NewRecorder()
-	s.Echo.ServeHTTP(rec, jsonReq(http.MethodPost, "/api/v1/setup", body, ""))
-	require.Equal(t, http.StatusCreated, rec.Code, rec.Body.String())
-
-	// Without AllowDevAuth the route 404s.
-	rec = do(s, http.MethodPost, "/api/v1/auth/dev-ensure",
-		`{"email":"demo@tradermemos.app","password":"hunter2pass"}`, "")
-	require.Equal(t, http.StatusNotFound, rec.Code)
-
-	s2 := testServerDevAuth(t)
-	_ = registerAndLogin(t, s2, "demo@tradermemos.app")
-	rec = do(s2, http.MethodPost, "/api/v1/auth/dev-ensure",
-		`{"email":"demo@tradermemos.app","password":"newpass1234"}`, "")
-	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
-
-	rec = do(s2, http.MethodPost, "/api/v1/auth/login",
-		`{"email":"demo@tradermemos.app","password":"hunter2pass"}`, "")
-	require.Equal(t, http.StatusUnauthorized, rec.Code)
-
-	rec = do(s2, http.MethodPost, "/api/v1/auth/login",
-		`{"email":"demo@tradermemos.app","password":"newpass1234"}`, "")
-	require.Equal(t, http.StatusOK, rec.Code)
 }
 

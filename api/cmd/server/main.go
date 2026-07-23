@@ -96,11 +96,7 @@ func main() {
 		CoachDefaults:  coachDefaults,
 		CORSOrigins:    cfg.CORSOrigins,
 		AuthRateLimit:  rate.Limit(2), // 2 req/s per IP on auth + setup
-		AllowDevAuth:   cfg.AllowInsecureJWT,
 	})
-	if cfg.AllowInsecureJWT {
-		logger.Warn("dev auth enabled — POST /api/v1/auth/dev-ensure is available")
-	}
 	if len(cfg.CORSOrigins) > 0 {
 		logger.Info("cors enabled", "origins", cfg.CORSOrigins)
 	}

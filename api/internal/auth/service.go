@@ -75,30 +75,6 @@ func (s *Service) CreateUserCLI(ctx context.Context, email, password string) (st
 	return s.createUser(ctx, email, password, n == 0)
 }
 
-// EnsureUser creates the user or resets their password. Intended for local/dev
-// bootstrap (gated by the HTTP handler), not for production registration.
-func (s *Service) EnsureUser(ctx context.Context, email, password string) (store.User, error) {
-	if err := ValidatePassword(password); err != nil {
-		return store.User{}, err
-	}
-	u, err := s.q.GetUserByEmail(ctx, email)
-	if err == nil {
-		h, herr := HashPassword(password)
-		if herr != nil {
-			return store.User{}, herr
-		}
-		return s.q.UpdateUserPassword(ctx, store.UpdateUserPasswordParams{
-			PasswordHash: h,
-			ID:           u.ID,
-		})
-	}
-	n, cerr := s.CountUsers(ctx)
-	if cerr != nil {
-		return store.User{}, cerr
-	}
-	return s.createUser(ctx, email, password, n == 0)
-}
-
 // CompleteSetup creates the first owner account. Only succeeds when no users exist.
 func (s *Service) CompleteSetup(ctx context.Context, email, password string) (store.User, Tokens, error) {
 	needs, err := s.NeedsSetup(ctx)

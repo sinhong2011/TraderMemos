@@ -39,8 +39,6 @@ type Deps struct {
 	CORSOrigins []string
 	// AuthRateLimit is requests/second per IP for auth + setup routes. 0 disables.
 	AuthRateLimit rate.Limit
-	// AllowDevAuth enables POST /auth/dev-ensure (local insecure JWT only).
-	AllowDevAuth bool
 }
 
 type Server struct {

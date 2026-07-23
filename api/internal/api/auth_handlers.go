@@ -20,7 +20,6 @@ func (s *Server) authRoutes(g *echo.Group) {
 	g.POST("/auth/register", s.handleRegister)
 	g.POST("/auth/login", s.handleLogin)
 	g.POST("/auth/refresh", s.handleRefresh)
-	g.POST("/auth/dev-ensure", s.handleDevEnsure)
 }
 
 func (s *Server) handleSetupStatus(c echo.Context) error {
@@ -160,25 +159,4 @@ func (s *Server) handleRefresh(c echo.Context) error {
 		return Fail(http.StatusUnauthorized, "unauthorized", "invalid refresh token", nil)
 	}
 	return c.JSON(http.StatusOK, toks)
-}
-
-// handleDevEnsure creates or resets a user password. Only available when
-// AllowDevAuth is set (local TM_ALLOW_INSECURE_JWT).
-func (s *Server) handleDevEnsure(c echo.Context) error {
-	if !s.deps.AllowDevAuth {
-		return Fail(http.StatusNotFound, "not_found", "not found", nil)
-	}
-	var in credentials
-	if err := c.Bind(&in); err != nil || in.Email == "" || in.Password == "" {
-		return Fail(http.StatusBadRequest, "bad_request", "email and password required", nil)
-	}
-	u, err := s.deps.Auth.EnsureUser(c.Request().Context(), in.Email, in.Password)
-	if errors.Is(err, auth.ErrPasswordTooShort) {
-		return Fail(http.StatusBadRequest, "bad_request",
-			"password must be at least "+strconv.Itoa(auth.MinPasswordLen)+" characters", nil)
-	}
-	if err != nil {
-		return Fail(http.StatusInternalServerError, "internal", "could not ensure user", nil)
-	}
-	return c.JSON(http.StatusOK, map[string]any{"id": u.ID, "email": u.Email, "is_admin": u.IsAdmin == 1})
 }
