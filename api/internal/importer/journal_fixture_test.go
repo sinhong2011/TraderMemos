@@ -10,7 +10,7 @@ import (
 )
 
 func TestJournalFixtureNetPnlMatchesReturnColumn(t *testing.T) {
-	f, err := os.Open("testdata/stonk-journal-trades-all-time-2026-07-11.csv")
+	f, err := os.Open("testdata/tradermemos-export-journal.csv")
 	require.NoError(t, err)
 	defer f.Close()
 

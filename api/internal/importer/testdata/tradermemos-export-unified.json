@@ -1,0 +1,326 @@
+{
+  "format_version": 1,
+  "exported_at": "2026-07-23T06:53:39.646773Z",
+  "account_id": "00000000-0000-4000-8000-000000000001",
+  "account_name": "Testing",
+  "account": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "name": "Testing",
+    "broker": "IBKR",
+    "account_type": "cash",
+    "base_currency": "USD",
+    "starting_balance": 10000
+  },
+  "cash_transactions": [
+    {
+      "type": "deposit",
+      "amount": 1589.47,
+      "currency": "USD",
+      "occurred_at": "2026-07-22T12:00:00Z",
+      "note": "Opening balance"
+    }
+  ],
+  "setups": [
+    {
+      "name": "Breakout",
+      "description": "",
+      "thesis": "",
+      "symbol": "",
+      "direction": "",
+      "checklist": []
+    },
+    {
+      "name": "Gap Fill",
+      "description": "",
+      "thesis": "",
+      "symbol": "",
+      "direction": "",
+      "checklist": []
+    },
+    {
+      "name": "Mean Reversion",
+      "description": "",
+      "thesis": "",
+      "symbol": "",
+      "direction": "",
+      "checklist": []
+    },
+    {
+      "name": "Momentum",
+      "description": "",
+      "thesis": "",
+      "symbol": "",
+      "direction": "",
+      "checklist": []
+    },
+    {
+      "name": "Other",
+      "description": "",
+      "thesis": "",
+      "symbol": "",
+      "direction": "",
+      "checklist": []
+    }
+  ],
+  "trade_count": 5,
+  "trades": [
+    {
+      "symbol": "INTC",
+      "instrument_type": "option",
+      "direction": "long",
+      "status": "closed",
+      "opened_at": "2026-07-22T22:51:04Z",
+      "closed_at": "2026-07-22T22:55:11Z",
+      "qty_opened": 1,
+      "qty_remaining": 0,
+      "avg_entry_price": 3.2,
+      "avg_exit_price": 3.02,
+      "gross_pnl": -18,
+      "fees_total": 2.07,
+      "net_pnl": -20.07,
+      "pnl_currency": "USD",
+      "return_pct": -6.27,
+      "notes": "",
+      "tags": [],
+      "fills": [
+        {
+          "symbol": "INTC",
+          "side": "buy",
+          "quantity": 1,
+          "price": 3.2,
+          "fees": 1.03,
+          "commission": 0,
+          "executed_at": "2026-07-22T22:51:04Z",
+          "instrument_type": "option",
+          "multiplier": 100
+        },
+        {
+          "symbol": "INTC",
+          "side": "sell",
+          "quantity": 1,
+          "price": 3.02,
+          "fees": 1.04,
+          "commission": 0,
+          "executed_at": "2026-07-22T22:55:11Z",
+          "instrument_type": "option",
+          "multiplier": 100
+        }
+      ],
+      "dividend_total": 0,
+      "total_pnl": -20.07
+    },
+    {
+      "symbol": "NVDA",
+      "instrument_type": "option",
+      "direction": "long",
+      "status": "closed",
+      "opened_at": "2026-07-22T14:28:07Z",
+      "closed_at": "2026-07-22T14:32:21Z",
+      "qty_opened": 5,
+      "qty_remaining": 0,
+      "avg_entry_price": 2,
+      "avg_exit_price": 1.9,
+      "gross_pnl": -50,
+      "fees_total": 6.87,
+      "net_pnl": -56.87,
+      "pnl_currency": "USD",
+      "return_pct": -5.69,
+      "notes": "",
+      "tags": [],
+      "fills": [
+        {
+          "symbol": "NVDA",
+          "side": "buy",
+          "quantity": 5,
+          "price": 2,
+          "fees": 3.42,
+          "commission": 0,
+          "executed_at": "2026-07-22T14:28:07Z",
+          "instrument_type": "option",
+          "multiplier": 100
+        },
+        {
+          "symbol": "NVDA",
+          "side": "sell",
+          "quantity": 5,
+          "price": 1.9,
+          "fees": 3.45,
+          "commission": 0,
+          "executed_at": "2026-07-22T14:32:21Z",
+          "instrument_type": "option",
+          "multiplier": 100
+        }
+      ],
+      "dividend_total": 0,
+      "total_pnl": -56.87
+    },
+    {
+      "symbol": "INTC",
+      "instrument_type": "option",
+      "direction": "long",
+      "status": "closed",
+      "opened_at": "2026-07-22T14:21:23Z",
+      "closed_at": "2026-07-22T14:21:45Z",
+      "qty_opened": 3,
+      "qty_remaining": 0,
+      "avg_entry_price": 0.02,
+      "avg_exit_price": 0.01,
+      "gross_pnl": -3,
+      "fees_total": 1.09,
+      "net_pnl": -4.09,
+      "pnl_currency": "USD",
+      "return_pct": -68.17,
+      "notes": "",
+      "tags": [],
+      "fills": [
+        {
+          "symbol": "INTC",
+          "side": "buy",
+          "quantity": 3,
+          "price": 0.02,
+          "fees": 0.54,
+          "commission": 0,
+          "executed_at": "2026-07-22T14:21:23Z",
+          "instrument_type": "option",
+          "multiplier": 100
+        },
+        {
+          "symbol": "INTC",
+          "side": "sell",
+          "quantity": 3,
+          "price": 0.01,
+          "fees": 0.55,
+          "commission": 0,
+          "executed_at": "2026-07-22T14:21:45Z",
+          "instrument_type": "option",
+          "multiplier": 100
+        }
+      ],
+      "dividend_total": 0,
+      "total_pnl": -4.09
+    },
+    {
+      "symbol": "NVDA",
+      "instrument_type": "option",
+      "direction": "long",
+      "status": "closed",
+      "opened_at": "2026-07-22T14:15:52Z",
+      "closed_at": "2026-07-22T14:17:54Z",
+      "qty_opened": 6,
+      "qty_remaining": 0,
+      "avg_entry_price": 2,
+      "avg_exit_price": 1.93,
+      "gross_pnl": -42,
+      "fees_total": 6.58,
+      "net_pnl": -48.58,
+      "pnl_currency": "USD",
+      "return_pct": -4.05,
+      "notes": "",
+      "tags": [],
+      "fills": [
+        {
+          "symbol": "NVDA",
+          "side": "buy",
+          "quantity": 6,
+          "price": 2,
+          "fees": 2.5,
+          "commission": 0,
+          "executed_at": "2026-07-22T14:15:52Z",
+          "instrument_type": "option",
+          "multiplier": 100
+        },
+        {
+          "symbol": "NVDA",
+          "side": "sell",
+          "quantity": 6,
+          "price": 1.93,
+          "fees": 4.08,
+          "commission": 0,
+          "executed_at": "2026-07-22T14:17:54Z",
+          "instrument_type": "option",
+          "multiplier": 100
+        }
+      ],
+      "dividend_total": 0,
+      "total_pnl": -48.58
+    },
+    {
+      "symbol": "NVDA",
+      "instrument_type": "option",
+      "direction": "long",
+      "status": "closed",
+      "opened_at": "2026-07-22T13:50:13Z",
+      "closed_at": "2026-07-22T14:02:26Z",
+      "qty_opened": 8,
+      "qty_remaining": 0,
+      "avg_entry_price": 1.64,
+      "avg_exit_price": 1.68,
+      "gross_pnl": 28,
+      "fees_total": 9.59,
+      "net_pnl": 18.41,
+      "pnl_currency": "USD",
+      "return_pct": 1.4,
+      "notes": "",
+      "tags": [],
+      "fills": [
+        {
+          "symbol": "NVDA",
+          "side": "buy",
+          "quantity": 5,
+          "price": 1.59,
+          "fees": 3.42,
+          "commission": 0,
+          "executed_at": "2026-07-22T13:50:13Z",
+          "instrument_type": "option",
+          "multiplier": 100
+        },
+        {
+          "symbol": "NVDA",
+          "side": "sell",
+          "quantity": 3,
+          "price": 1.7,
+          "fees": 2.07,
+          "commission": 0,
+          "executed_at": "2026-07-22T13:52:05Z",
+          "instrument_type": "option",
+          "multiplier": 100
+        },
+        {
+          "symbol": "NVDA",
+          "side": "buy",
+          "quantity": 3,
+          "price": 1.73,
+          "fees": 2.05,
+          "commission": 0,
+          "executed_at": "2026-07-22T13:58:03Z",
+          "instrument_type": "option",
+          "multiplier": 100
+        },
+        {
+          "symbol": "NVDA",
+          "side": "sell",
+          "quantity": 3,
+          "price": 1.7,
+          "fees": 0.67,
+          "commission": 0,
+          "executed_at": "2026-07-22T14:01:44Z",
+          "instrument_type": "option",
+          "multiplier": 100
+        },
+        {
+          "symbol": "NVDA",
+          "side": "sell",
+          "quantity": 2,
+          "price": 1.61,
+          "fees": 1.38,
+          "commission": 0,
+          "executed_at": "2026-07-22T14:02:26Z",
+          "instrument_type": "option",
+          "multiplier": 100
+        }
+      ],
+      "dividend_total": 0,
+      "total_pnl": 18.41
+    }
+  ]
+}
