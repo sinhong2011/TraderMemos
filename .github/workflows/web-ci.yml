@@ -21,16 +21,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: oven-sh/setup-bun@v2
+      - uses: pnpm/action-setup@v4
         with:
-          # 1.4 is canary-only until the Rust rewrite ships a stable tag.
-          bun-version: canary
+          version: 11.16.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: web/.node-version
+          cache: pnpm
+          cache-dependency-path: web/pnpm-lock.yaml
 
       - name: Install
-        run: bun install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
 
       - name: Build
-        run: bun run build
+        run: pnpm run build
         env:
           # Empty = relative /api/v1 (Server field / edge rewrite at runtime).
           VITE_API: ${{ vars.VITE_API }}

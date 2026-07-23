@@ -1,6 +1,9 @@
 # TraderMemos web — Cloudflare Workers (static SPA)
 # Used by: Deploy to Cloudflare button + `wrangler deploy`.
 # https://deploy.workers.cloudflare.com/?url=https://github.com/sinhong2011/TraderMemos/tree/main/web
+#
+# Workers Builds: set install/build to pnpm (packageManager in package.json),
+#   e.g. install = `pnpm install --frozen-lockfile`, build = `pnpm run build`, output = `dist`.
 
 name = "tradermemos"
 compatibility_date = "2026-07-21"

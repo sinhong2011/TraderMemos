@@ -15,7 +15,7 @@ export default defineConfig({
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
-    command: "bun run dev",
+    command: "pnpm run dev",
     url: "http://localhost:5173",
     reuseExistingServer: true,
     timeout: 60_000,
