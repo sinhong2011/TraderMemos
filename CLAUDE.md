@@ -27,4 +27,4 @@ The `web/` app uses [Vite+](https://viteplus.dev/guide/) — unified dev, build,
 - After pulling: `cd web && vp install`
 - Validate changes: `vp check` and `vp test`
 - Pre-commit hooks run `vp staged` on staged web files (`.vite-hooks/` at repo root).
-- Node version is pinned in `web/.node-version` (25.6.1); Bun 1.4 canary via `packageManager` + `scripts/ensure-bun.sh`.
+- Node version is pinned in `web/.node-version` (24.18.0 LTS); pnpm 11 via `packageManager` + `scripts/ensure-pnpm.sh`.

@@ -5,7 +5,7 @@
 ### Prerequisites
 
 - **Go** 1.26+ (via [mise](https://mise.jdx.dev/) — see `mise.toml`)
-- **Node** 25.6+ (via Vite+ `web/.node-version` or mise) + **Bun** 1.4 canary + **Vite+** (`vp` CLI)
+- **Node** 24 LTS (via Vite+ `web/.node-version` or mise) + **pnpm** 11 + **Vite+** (`vp` CLI)
 - **sqlc** (optional; for regenerating store code)
 
 ### Clone and bootstrap
@@ -64,6 +64,7 @@ Hub namespace / tag: copy [`.env.example`](.env.example) → `.env` and set `DOC
 | `vp check` | Lint + format + typecheck |
 | `vp fmt` | Format only |
 | `vp staged` | Check staged files (also runs on pre-commit) |
+| `pnpm run …` | Same scripts via pnpm (`dev`, `test`, `build`, …) |
 
 ### Project structure
 

@@ -48,7 +48,7 @@ Use this when you clicked **Fork** on GitHub and want continuous deploys from *y
 |---------|--------|
 | Repository | your fork |
 | Root directory | `web` |
-| Build command | `bun run build` |
+| Build command | `pnpm run build` |
 | Output directory | `dist` |
 | Env (optional) | `VITE_API` |
 
