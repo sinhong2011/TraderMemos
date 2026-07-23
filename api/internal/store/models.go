@@ -50,6 +50,7 @@ type ChecklistTemplate struct {
 	UserID    string    `json:"user_id"`
 	Items     string    `json:"items"`
 	UpdatedAt time.Time `json:"updated_at"`
+	Content   string    `json:"content"`
 }
 
 type CoachSetting struct {
@@ -112,6 +113,8 @@ type JournalNote struct {
 	Body       string    `json:"body"`
 	CreatedAt  time.Time `json:"created_at"`
 	UpdatedAt  time.Time `json:"updated_at"`
+	Symbols    string    `json:"symbols"`
+	NoteType   string    `json:"note_type"`
 }
 
 type MarketBarsCache struct {

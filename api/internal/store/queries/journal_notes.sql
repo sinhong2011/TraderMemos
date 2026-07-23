@@ -1,6 +1,6 @@
 -- name: CreateJournalNote :one
-INSERT INTO journal_notes (id, user_id, occurred_at, title, body, created_at, updated_at)
-VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+INSERT INTO journal_notes (id, user_id, occurred_at, title, body, symbols, note_type, created_at, updated_at)
+VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
 RETURNING *;
 
 -- name: ListJournalNotes :many
@@ -15,7 +15,7 @@ SELECT * FROM journal_notes WHERE id = ? AND user_id = ?;
 
 -- name: UpdateJournalNote :one
 UPDATE journal_notes
-SET occurred_at = ?, title = ?, body = ?, updated_at = CURRENT_TIMESTAMP
+SET occurred_at = ?, title = ?, body = ?, symbols = ?, note_type = ?, updated_at = CURRENT_TIMESTAMP
 WHERE id = ? AND user_id = ?
 RETURNING *;
 
@@ -26,9 +26,10 @@ DELETE FROM journal_notes WHERE id = ? AND user_id = ?;
 SELECT * FROM checklist_templates WHERE user_id = ?;
 
 -- name: UpsertChecklistTemplate :one
-INSERT INTO checklist_templates (user_id, items, updated_at)
-VALUES (?, ?, CURRENT_TIMESTAMP)
+INSERT INTO checklist_templates (user_id, items, content, updated_at)
+VALUES (?, ?, ?, CURRENT_TIMESTAMP)
 ON CONFLICT(user_id) DO UPDATE SET
     items = excluded.items,
+    content = excluded.content,
     updated_at = CURRENT_TIMESTAMP
 RETURNING *;

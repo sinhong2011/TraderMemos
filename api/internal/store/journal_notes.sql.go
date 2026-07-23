@@ -10,9 +10,9 @@ import (
 )
 
 const createJournalNote = `-- name: CreateJournalNote :one
-INSERT INTO journal_notes (id, user_id, occurred_at, title, body, created_at, updated_at)
-VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-RETURNING id, user_id, occurred_at, title, body, created_at, updated_at
+INSERT INTO journal_notes (id, user_id, occurred_at, title, body, symbols, note_type, created_at, updated_at)
+VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+RETURNING id, user_id, occurred_at, title, body, created_at, updated_at, symbols, note_type
 `
 
 type CreateJournalNoteParams struct {
@@ -21,6 +21,8 @@ type CreateJournalNoteParams struct {
 	OccurredAt string `json:"occurred_at"`
 	Title      string `json:"title"`
 	Body       string `json:"body"`
+	Symbols    string `json:"symbols"`
+	NoteType   string `json:"note_type"`
 }
 
 func (q *Queries) CreateJournalNote(ctx context.Context, arg CreateJournalNoteParams) (JournalNote, error) {
@@ -30,6 +32,8 @@ func (q *Queries) CreateJournalNote(ctx context.Context, arg CreateJournalNotePa
 		arg.OccurredAt,
 		arg.Title,
 		arg.Body,
+		arg.Symbols,
+		arg.NoteType,
 	)
 	var i JournalNote
 	err := row.Scan(
@@ -40,6 +44,8 @@ func (q *Queries) CreateJournalNote(ctx context.Context, arg CreateJournalNotePa
 		&i.Body,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Symbols,
+		&i.NoteType,
 	)
 	return i, err
 }
@@ -62,18 +68,23 @@ func (q *Queries) DeleteJournalNote(ctx context.Context, arg DeleteJournalNotePa
 }
 
 const getChecklistTemplate = `-- name: GetChecklistTemplate :one
-SELECT user_id, items, updated_at FROM checklist_templates WHERE user_id = ?
+SELECT user_id, items, updated_at, content FROM checklist_templates WHERE user_id = ?
 `
 
 func (q *Queries) GetChecklistTemplate(ctx context.Context, userID string) (ChecklistTemplate, error) {
 	row := q.db.QueryRowContext(ctx, getChecklistTemplate, userID)
 	var i ChecklistTemplate
-	err := row.Scan(&i.UserID, &i.Items, &i.UpdatedAt)
+	err := row.Scan(
+		&i.UserID,
+		&i.Items,
+		&i.UpdatedAt,
+		&i.Content,
+	)
 	return i, err
 }
 
 const getJournalNote = `-- name: GetJournalNote :one
-SELECT id, user_id, occurred_at, title, body, created_at, updated_at FROM journal_notes WHERE id = ? AND user_id = ?
+SELECT id, user_id, occurred_at, title, body, created_at, updated_at, symbols, note_type FROM journal_notes WHERE id = ? AND user_id = ?
 `
 
 type GetJournalNoteParams struct {
@@ -92,12 +103,14 @@ func (q *Queries) GetJournalNote(ctx context.Context, arg GetJournalNoteParams) 
 		&i.Body,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Symbols,
+		&i.NoteType,
 	)
 	return i, err
 }
 
 const listJournalNotes = `-- name: ListJournalNotes :many
-SELECT id, user_id, occurred_at, title, body, created_at, updated_at FROM journal_notes
+SELECT id, user_id, occurred_at, title, body, created_at, updated_at, symbols, note_type FROM journal_notes
 WHERE user_id = ?
   AND (?2 IS NULL OR occurred_at >= ?2)
   AND (?3 IS NULL OR occurred_at <= ?3)
@@ -127,6 +140,8 @@ func (q *Queries) ListJournalNotes(ctx context.Context, arg ListJournalNotesPara
 			&i.Body,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.Symbols,
+			&i.NoteType,
 		); err != nil {
 			return nil, err
 		}
@@ -143,15 +158,17 @@ func (q *Queries) ListJournalNotes(ctx context.Context, arg ListJournalNotesPara
 
 const updateJournalNote = `-- name: UpdateJournalNote :one
 UPDATE journal_notes
-SET occurred_at = ?, title = ?, body = ?, updated_at = CURRENT_TIMESTAMP
+SET occurred_at = ?, title = ?, body = ?, symbols = ?, note_type = ?, updated_at = CURRENT_TIMESTAMP
 WHERE id = ? AND user_id = ?
-RETURNING id, user_id, occurred_at, title, body, created_at, updated_at
+RETURNING id, user_id, occurred_at, title, body, created_at, updated_at, symbols, note_type
 `
 
 type UpdateJournalNoteParams struct {
 	OccurredAt string `json:"occurred_at"`
 	Title      string `json:"title"`
 	Body       string `json:"body"`
+	Symbols    string `json:"symbols"`
+	NoteType   string `json:"note_type"`
 	ID         string `json:"id"`
 	UserID     string `json:"user_id"`
 }
@@ -161,6 +178,8 @@ func (q *Queries) UpdateJournalNote(ctx context.Context, arg UpdateJournalNotePa
 		arg.OccurredAt,
 		arg.Title,
 		arg.Body,
+		arg.Symbols,
+		arg.NoteType,
 		arg.ID,
 		arg.UserID,
 	)
@@ -173,27 +192,36 @@ func (q *Queries) UpdateJournalNote(ctx context.Context, arg UpdateJournalNotePa
 		&i.Body,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Symbols,
+		&i.NoteType,
 	)
 	return i, err
 }
 
 const upsertChecklistTemplate = `-- name: UpsertChecklistTemplate :one
-INSERT INTO checklist_templates (user_id, items, updated_at)
-VALUES (?, ?, CURRENT_TIMESTAMP)
+INSERT INTO checklist_templates (user_id, items, content, updated_at)
+VALUES (?, ?, ?, CURRENT_TIMESTAMP)
 ON CONFLICT(user_id) DO UPDATE SET
     items = excluded.items,
+    content = excluded.content,
     updated_at = CURRENT_TIMESTAMP
-RETURNING user_id, items, updated_at
+RETURNING user_id, items, updated_at, content
 `
 
 type UpsertChecklistTemplateParams struct {
-	UserID string `json:"user_id"`
-	Items  string `json:"items"`
+	UserID  string `json:"user_id"`
+	Items   string `json:"items"`
+	Content string `json:"content"`
 }
 
 func (q *Queries) UpsertChecklistTemplate(ctx context.Context, arg UpsertChecklistTemplateParams) (ChecklistTemplate, error) {
-	row := q.db.QueryRowContext(ctx, upsertChecklistTemplate, arg.UserID, arg.Items)
+	row := q.db.QueryRowContext(ctx, upsertChecklistTemplate, arg.UserID, arg.Items, arg.Content)
 	var i ChecklistTemplate
-	err := row.Scan(&i.UserID, &i.Items, &i.UpdatedAt)
+	err := row.Scan(
+		&i.UserID,
+		&i.Items,
+		&i.UpdatedAt,
+		&i.Content,
+	)
 	return i, err
 }

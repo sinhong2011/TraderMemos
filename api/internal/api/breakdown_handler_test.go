@@ -163,12 +163,20 @@ func TestNotesCRUD(t *testing.T) {
 	var note map[string]any
 	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &note))
 	id := note["id"].(string)
+	require.Equal(t, "note", note["type"])
+
+	rec = do(s, http.MethodPost, "/api/v1/notes", `{"type":"daily_log","occurred_at":"2026-07-11","body":"session","symbols":[{"symbol":"AAPL","body":"held vwap"}]}`, tok)
+	require.Equal(t, http.StatusCreated, rec.Code, rec.Body.String())
+	var daily map[string]any
+	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &daily))
+	require.Equal(t, "daily_log", daily["type"])
+	require.Equal(t, "Daily log", daily["title"])
 
 	rec = do(s, http.MethodGet, "/api/v1/notes", "", tok)
 	require.Equal(t, http.StatusOK, rec.Code)
 	var list []map[string]any
 	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &list))
-	require.Len(t, list, 1)
+	require.Len(t, list, 2)
 
 	rec = do(s, http.MethodPut, "/api/v1/settings/checklist-template", `{"items":["Check VIX","No revenge"]}`, tok)
 	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
@@ -179,4 +187,5 @@ func TestNotesCRUD(t *testing.T) {
 	require.Equal(t, []any{"Check VIX", "No revenge"}, cl["items"])
 
 	require.Equal(t, http.StatusNoContent, do(s, http.MethodDelete, "/api/v1/notes/"+id, "", tok).Code)
+	require.Equal(t, http.StatusNoContent, do(s, http.MethodDelete, "/api/v1/notes/"+daily["id"].(string), "", tok).Code)
 }
