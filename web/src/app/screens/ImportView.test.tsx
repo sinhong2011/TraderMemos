@@ -1,9 +1,9 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import type { ComponentProps } from "react";
 import { describe, expect, it, vi } from "vite-plus/test";
 import { Toaster } from "../../components/Toaster";
 import type { Account, ImportPreview, ImportResult } from "../../lib/api/types";
-import { ImportView } from "./ImportView";
+import { ImportView, jsonFileHasAccountName } from "./ImportView";
 
 function renderImportView(props: ComponentProps<typeof ImportView>) {
   return render(
@@ -37,7 +37,7 @@ const accounts: Account[] = [
 ];
 
 const mockPreview: ImportPreview = {
-  import_batch_id: "batch-1",
+  import_batch_id: "",
   headers: ["Date", "Symbol", "Side", "Qty", "Price"],
   sample_rows: [
     {
@@ -94,7 +94,7 @@ describe("ImportView - Step 1", () => {
       onCommit: vi.fn<(...args: any[]) => any>(),
       onDone: vi.fn<(...args: any[]) => any>(),
     });
-    expect(screen.getByLabelText("Account select")).toHaveTextContent("Main");
+    expect(screen.getByLabelText("Account select")).toHaveValue("a1");
   });
 
   it("defaults to the header-selected account when provided", () => {
@@ -106,7 +106,7 @@ describe("ImportView - Step 1", () => {
       onCommit: vi.fn<(...args: any[]) => any>(),
       onDone: vi.fn<(...args: any[]) => any>(),
     });
-    expect(screen.getByLabelText("Account select")).toHaveTextContent("Margin");
+    expect(screen.getByLabelText("Account select")).toHaveValue("a2");
   });
 
   it("shows Upload CSV panel and drop zone", () => {
@@ -134,6 +134,11 @@ describe("ImportView - Step 1", () => {
     await user.click(screen.getByRole("tab", { name: "Export" }));
     expect(screen.getByText("Export account")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /download export/i })).toBeInTheDocument();
+    expect(screen.getByLabelText(/omit account details/i)).toBeInTheDocument();
+    await user.click(screen.getByRole("tab", { name: "CSV" }));
+    expect(screen.queryByLabelText(/omit account details/i)).not.toBeInTheDocument();
+    await user.click(screen.getByRole("tab", { name: "ZIP" }));
+    expect(screen.getByLabelText(/omit account details/i)).toBeInTheDocument();
   });
 });
 
@@ -172,5 +177,56 @@ describe("ImportView - Step 2 mapping selects", () => {
     expect(mockPreview.headers).toContain("Symbol");
     expect(mockPreview.suggested_mapping.symbol).toBe("Symbol");
     expect(mockResult.inserted).toBe(5);
+  });
+});
+
+describe("jsonFileHasAccountName", () => {
+  it("reads nested account.name from export JSON", () => {
+    expect(
+      jsonFileHasAccountName(
+        JSON.stringify({ account: { name: "Testing", broker: "IBKR" }, trades: [] }),
+      ),
+    ).toBe("Testing");
+  });
+
+  it("reads legacy account_name", () => {
+    expect(jsonFileHasAccountName(JSON.stringify({ account_name: "Legacy", trades: [] }))).toBe(
+      "Legacy",
+    );
+  });
+
+  it("returns null for arrays and JSON without account name", () => {
+    expect(jsonFileHasAccountName("[]")).toBeNull();
+    expect(jsonFileHasAccountName(JSON.stringify({ trades: [] }))).toBeNull();
+  });
+});
+
+describe("ImportView - JSON account bypass", () => {
+  it("enables Preview when there are no accounts but JSON includes account name", async () => {
+    renderImportView({
+      accounts: [],
+      accountsLoading: false,
+      onPreview: vi.fn<(...args: any[]) => any>(),
+      onCommit: vi.fn<(...args: any[]) => any>(),
+      onDone: vi.fn<(...args: any[]) => any>(),
+    });
+
+    expect(screen.getByRole("button", { name: /preview import/i })).toBeDisabled();
+
+    const payload = JSON.stringify({
+      account: { name: "Imported Backup", broker: "IBKR" },
+      trades: [],
+    });
+    const file = new File([payload], "backup.json", { type: "application/json" });
+    fireEvent.change(screen.getByLabelText("Import file input"), {
+      target: { files: [file] },
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText("backup.json")).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /preview import/i })).toBeEnabled();
+    });
+    expect(screen.getByText(/from the json file/i)).toBeInTheDocument();
+    expect(screen.getByText(/on confirm/i)).toBeInTheDocument();
   });
 });

@@ -114,6 +114,7 @@ import {
   saveTradeTemplate,
   type TradeTemplate,
 } from "../../lib/tradeTemplates";
+import { isImportPreviewEditId } from "../../lib/importTradePreview";
 import { useUI } from "../../lib/ui";
 
 const MARKETS = [
@@ -435,9 +436,8 @@ function SymbolCard({
       </div>
       <CollapsibleContent animation="fade">
         <div className="flex flex-col gap-4">
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <div>
-              <label className={labelClass}>Market</label>
+          <div className="grid grid-cols-2 items-start gap-3 sm:grid-cols-4">
+            <SignalField label="Market">
               <NativeSelect
                 aria-label={`Market symbol ${index + 1}`}
                 value={block.market}
@@ -458,7 +458,6 @@ function SymbolCard({
                     set("option_expiry", "");
                   }
                 }}
-                className="h-9 w-full text-[12px]"
                 wrapperClassName="w-full"
               >
                 {MARKETS.map((m) => (
@@ -467,10 +466,9 @@ function SymbolCard({
                   </NativeSelectOption>
                 ))}
               </NativeSelect>
-            </div>
+            </SignalField>
             {block.market === "future" && (
-              <div>
-                <label className={labelClass}>Contract</label>
+              <SignalField label="Contract">
                 <SignalSelect
                   ariaLabel={`Contract symbol ${index + 1}`}
                   value={block.futuresPresetId}
@@ -486,9 +484,8 @@ function SymbolCard({
                         FUTURES_PRESETS.find((p) => p.id === id)?.symbol ?? block.symbol,
                       );
                   }}
-                  triggerClassName="h-9 text-[12px]"
                 />
-              </div>
+              </SignalField>
             )}
             <form.Field
               name={`${base}.symbol` as never}
@@ -496,7 +493,7 @@ function SymbolCard({
             >
               {(field) => (
                 <SignalField label="Symbol" error={fieldError(field.state.meta.errors)}>
-                  <input
+                  <SignalInput
                     aria-label={`Symbol${suffix}`}
                     value={field.state.value as string}
                     onChange={(e) => {
@@ -506,16 +503,16 @@ function SymbolCard({
                     }}
                     onBlur={field.handleBlur}
                     placeholder="Ticker"
-                    className="h-9 w-full rounded-control border border-border bg-bg-input px-3 text-[12px] text-text outline-none focus:border-accent"
+                    className="uppercase"
                   />
                 </SignalField>
               )}
             </form.Field>
-            <div>
-              <span className={labelClass}>Side</span>
+            <SignalField label="Side">
               <SegmentedControl
                 ariaLabel={`Side symbol ${index + 1}`}
                 size="md"
+                fullWidth
                 options={[
                   { value: "long", label: "↗ LONG" },
                   { value: "short", label: "↘ SHORT" },
@@ -533,7 +530,7 @@ function SymbolCard({
                   );
                 }}
               />
-            </div>
+            </SignalField>
           </div>
           {block.market === "option" && (
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -1020,6 +1017,7 @@ export function NewTradeDrawer() {
   const editTradeDetail = useUI((s) => s.editTradeDetail);
   const closeModal = useUI((s) => s.closeModal);
   const isEditMode = Boolean(editTradeId);
+  const isImportPreviewEdit = isImportPreviewEditId(editTradeId);
   const filterAccountId = useFilters((s) => s.accountId);
   const accounts = useAccounts().data ?? [];
   const setups = useSetups().data ?? [];
@@ -1057,6 +1055,17 @@ export function NewTradeDrawer() {
     defaultValues: defaultValuesRef.current,
     onSubmit: async ({ value }) => {
       setSubmitError("");
+      const editId = useUI.getState().editTradeId;
+      if (editId && isImportPreviewEditId(editId)) {
+        const block = value.trades[0];
+        const right = block?.option_right;
+        const optionRight = right === "call" || right === "put" ? right : "";
+        const apply = useUI.getState().importPreviewApply;
+        apply?.(optionRight);
+        close();
+        return;
+      }
+
       const accountId = value.accountId || filterAccountId || accounts[0]?.id || "";
       if (!accountId) {
         setSubmitError("Account is required.");
@@ -1073,7 +1082,6 @@ export function NewTradeDrawer() {
         return;
       }
 
-      const editId = useUI.getState().editTradeId;
       if (editId) {
         const existing = useUI.getState().editTradeDetail ?? editTradeQ.data;
         if (!existing) {
@@ -1484,7 +1492,9 @@ export function NewTradeDrawer() {
           }
         >
           <DrawerHeader>
-            <DrawerTitle>{isEditMode ? "Edit Trade" : "New Trade"}</DrawerTitle>
+            <DrawerTitle>
+              {isImportPreviewEdit ? "Edit Trade" : isEditMode ? "Edit Trade" : "New Trade"}
+            </DrawerTitle>
             <div className="ml-auto flex items-center gap-0.5">
               {!isEditMode && (
                 <SignalPopover
@@ -1518,7 +1528,7 @@ export function NewTradeDrawer() {
                           className={cn(
                             "flex min-h-8 cursor-pointer items-center rounded-control px-2 text-left text-[12px] text-text",
                             "transition-colors hover:bg-white/[0.06]",
-                            "focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-accent",
+                            "focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-border-strong",
                           )}
                         >
                           <span className="min-w-0 flex-1 truncate">{t.name}</span>
@@ -1533,7 +1543,7 @@ export function NewTradeDrawer() {
                       className={cn(
                         "flex min-h-8 cursor-pointer items-center rounded-control px-2 text-left text-[12px] font-medium text-accent",
                         "transition-colors hover:bg-accent-bg",
-                        "focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-accent",
+                        "focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-border-strong",
                       )}
                     >
                       Save first symbol as template…
@@ -1546,7 +1556,7 @@ export function NewTradeDrawer() {
                 className={cn(
                   "inline-flex size-8 cursor-pointer items-center justify-center rounded-control border-none bg-transparent",
                   "text-text-muted transition-colors hover:bg-bg-hover hover:text-text",
-                  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+                  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-strong",
                 )}
               >
                 <X size={16} strokeWidth={1.5} />
@@ -1555,9 +1565,11 @@ export function NewTradeDrawer() {
           </DrawerHeader>
           <DrawerBody>
             <ModalBanner>
-              {isEditMode
-                ? "Update fills, journal, and optional dividend for this trade."
-                : "Add one or more symbols — each with fills, journal, and optional dividend. One Save logs every symbol as its own trade."}
+              {isImportPreviewEdit
+                ? "Import preview — review fills and set call/put. Apply updates this row; Confirm import writes the account."
+                : isEditMode
+                  ? "Update fills, journal, and optional dividend for this trade."
+                  : "Add one or more symbols — each with fills, journal, and optional dividend. One Save logs every symbol as its own trade."}
             </ModalBanner>
             {isEditMode && !editHydrated && !editSource && editTradeQ.isLoading ? (
               <p className="mt-6 text-center text-[13px] text-text-muted">Loading trade…</p>
@@ -1759,7 +1771,15 @@ export function NewTradeDrawer() {
                     void form.handleSubmit();
                   }}
                 >
-                  {pending ? "Saving…" : isEditMode ? "Save changes" : "Save"}
+                  {pending
+                    ? isImportPreviewEdit
+                      ? "Applying…"
+                      : "Saving…"
+                    : isImportPreviewEdit
+                      ? "Apply"
+                      : isEditMode
+                        ? "Save changes"
+                        : "Save"}
                 </Button>
               </div>
             </div>

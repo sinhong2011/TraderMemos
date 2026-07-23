@@ -1,7 +1,4 @@
-import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vite-plus/test";
-import { ImportJournalDetailModal } from "./ImportJournalDetailModal";
 import { journalTradePreviewColumns } from "./importPreviewColumns";
 import type { JournalTradePreview } from "../lib/api/types";
 
@@ -25,64 +22,39 @@ const sampleTrade: JournalTradePreview = {
 };
 
 describe("journalTradePreviewColumns", () => {
-  it("includes a Details action when onDetails is provided", () => {
-    const onDetails = vi.fn<(...args: any[]) => any>();
-    const columns = journalTradePreviewColumns("USD", onDetails);
+  it("includes an Edit action when onEdit is provided", () => {
+    const onEdit = vi.fn<(...args: any[]) => any>();
+    const columns = journalTradePreviewColumns("USD", onEdit);
     const marketCol = columns.find((c) => c.id === "market");
     expect(
       marketCol &&
         "accessorFn" in marketCol &&
         typeof marketCol.accessorFn === "function" &&
         marketCol.accessorFn(sampleTrade, 0),
-    ).toBe("CALL");
+    ).toBe("OPTION");
+
+    const dirCol = columns.find((c) => c.id === "direction");
+    expect(dirCol).toBeDefined();
+    expect(columns.find((c) => c.id === "option_right")).toBeUndefined();
+    expect(columns.find((c) => c.id === "side")).toBeUndefined();
 
     const actionsCol = columns.find((c) => c.id === "actions");
     expect(actionsCol).toBeDefined();
   });
 
-  it("omits the actions column without onDetails", () => {
+  it("omits the actions column without onEdit", () => {
     const columns = journalTradePreviewColumns("USD");
     expect(columns.find((c) => c.id === "actions")).toBeUndefined();
   });
-});
 
-describe("ImportJournalDetailModal", () => {
-  it("shows trade details when open", async () => {
-    render(
-      <ImportJournalDetailModal
-        trade={sampleTrade}
-        currency="USD"
-        open
-        onOpenChange={vi.fn<(...args: any[]) => any>()}
-        optionRight="call"
-        onOptionRightChange={vi.fn<(...args: any[]) => any>()}
-      />,
-    );
-
-    expect(screen.getByRole("heading", { name: "TSLA 240119C00200000" })).toBeInTheDocument();
-    expect(screen.getByText(/Import preview · Row 2/)).toBeInTheDocument();
-    expect(screen.getByText("OPT · CALL")).toBeInTheDocument();
-    expect(screen.getByLabelText("Option type")).toBeInTheDocument();
-    expect(screen.getByText("WIN")).toBeInTheDocument();
-    expect(screen.queryByText("Confidence")).not.toBeInTheDocument();
-    expect(screen.getByText("Breakout")).toBeInTheDocument();
-    expect(screen.getByText("Scaled out early")).toBeInTheDocument();
-  });
-
-  it("closes when the close button is clicked", async () => {
-    const user = userEvent.setup();
-    const onOpenChange = vi.fn<(...args: any[]) => any>();
-    render(
-      <ImportJournalDetailModal
-        trade={sampleTrade}
-        currency="USD"
-        open
-        onOpenChange={onOpenChange}
-      />,
-    );
-
-    await user.click(screen.getByLabelText("Close"));
-    expect(onOpenChange).toHaveBeenCalled();
-    expect(onOpenChange.mock.calls[0]?.[0]).toBe(false);
+  it("maps long call to LC for sorting", () => {
+    const columns = journalTradePreviewColumns("USD");
+    const dirCol = columns.find((c) => c.id === "direction");
+    expect(
+      dirCol &&
+        "accessorFn" in dirCol &&
+        typeof dirCol.accessorFn === "function" &&
+        dirCol.accessorFn(sampleTrade, 0),
+    ).toBe("LC");
   });
 });

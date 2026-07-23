@@ -5,7 +5,7 @@ export function useTradeDetail(id: string) {
   return useQuery({
     queryKey: ["trade", id],
     queryFn: () => tradesApi.get(id),
-    enabled: Boolean(id),
+    enabled: Boolean(id) && !id.startsWith("import-preview:"),
   });
 }
 

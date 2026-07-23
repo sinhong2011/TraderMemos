@@ -1,10 +1,17 @@
 import type { ColumnDef } from "@tanstack/react-table";
+import { Pencil } from "lucide-react";
 import type { JournalTradePreview } from "../lib/api/types";
 import { cn } from "../lib/cn";
 import { usePrivacyMode } from "../lib/displayPrefs";
 import { fmtSignedMoney } from "../lib/format";
-import { formatOptionTypeLabel, type OptionRightOverride } from "../lib/importOptionRight";
+import {
+  effectiveOptionRight,
+  formatMarketLabel,
+  type OptionRightOverride,
+} from "../lib/importOptionRight";
 import { intlLocale } from "../lib/locale";
+import { resolveTradeDirection } from "../lib/tradeDirection";
+import { DirCell } from "./DirCell";
 import { Button } from "./ui/button";
 
 function ReturnCell({ value, currency }: { value: number; currency: string }) {
@@ -19,7 +26,7 @@ function ReturnCell({ value, currency }: { value: number; currency: string }) {
 
 export function journalTradePreviewColumns(
   currency: string,
-  onDetails?: (trade: JournalTradePreview) => void,
+  onEdit?: (trade: JournalTradePreview) => void,
   optionOverrides: Record<number, OptionRightOverride> = {},
 ): ColumnDef<JournalTradePreview>[] {
   const columns: ColumnDef<JournalTradePreview>[] = [
@@ -31,27 +38,37 @@ export function journalTradePreviewColumns(
     {
       id: "market",
       header: "Market",
-      accessorFn: (row) => formatOptionTypeLabel(row, optionOverrides),
-      cell: (info) => {
-        const trade = info.row.original;
-        const label = info.getValue<string>();
-        const needsType = trade.instrument_type === "option" && label === "Set type";
-        return (
-          <span
-            className={cn(
-              "text-[11px] uppercase tracking-wide",
-              needsType ? "text-signal" : "text-text-muted",
-            )}
-          >
-            {label}
-          </span>
-        );
-      },
+      accessorFn: (row) => formatMarketLabel(row),
+      cell: (info) => (
+        <span className="text-[11px] uppercase tracking-wide text-text-muted">
+          {formatMarketLabel(info.row.original)}
+        </span>
+      ),
     },
     {
-      accessorKey: "side",
-      header: "Side",
-      cell: (info) => <span className="text-text-muted">{info.getValue<string>()}</span>,
+      id: "direction",
+      header: "Dir",
+      accessorFn: (row) =>
+        resolveTradeDirection({
+          direction: row.side,
+          instrumentType: row.instrument_type,
+          optionRight: effectiveOptionRight(row, optionOverrides),
+          symbol: row.symbol,
+          markMissingOptionRight: true,
+        }).sortKey,
+      meta: { label: "Direction", headerTitle: "Direction — long/short, call/put when option" },
+      cell: (info) => {
+        const trade = info.row.original;
+        return (
+          <DirCell
+            direction={trade.side}
+            instrumentType={trade.instrument_type}
+            optionRight={effectiveOptionRight(trade, optionOverrides)}
+            symbol={trade.symbol}
+            markMissingOptionRight
+          />
+        );
+      },
     },
     {
       accessorKey: "qty",
@@ -79,7 +96,7 @@ export function journalTradePreviewColumns(
     },
   ];
 
-  if (onDetails) {
+  if (onEdit) {
     columns.push({
       id: "actions",
       header: "",
@@ -88,14 +105,16 @@ export function journalTradePreviewColumns(
       cell: (info) => (
         <Button
           type="button"
-          variant="outline"
-          size="xs"
+          variant="ghost"
+          size="icon-xs"
+          aria-label={`Edit ${info.row.original.symbol}`}
+          title="Edit trade"
           onClick={(e) => {
             e.stopPropagation();
-            onDetails(info.row.original);
+            onEdit(info.row.original);
           }}
         >
-          Details
+          <Pencil size={12} strokeWidth={1.75} />
         </Button>
       ),
     });

@@ -1,8 +1,17 @@
-import { ArrowLeft, ArrowRight, Check, Download, FileText, RefreshCw, Upload } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  Download,
+  FileJson,
+  FileText,
+  Info,
+  RefreshCw,
+  Upload,
+} from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { CsvDropZone } from "../../components/CsvDropZone";
 import { DataTable } from "../../components/DataTable";
-import { ImportJournalDetailModal } from "../../components/ImportJournalDetailModal";
 import { ImportStepIndicator } from "../../components/ImportStepIndicator";
 import {
   csvSampleColumns,
@@ -10,16 +19,14 @@ import {
 } from "../../components/importPreviewColumns";
 import { Panel } from "../../components/Panel";
 import { SegmentedControl } from "../../components/SegmentedControl";
-import { StatBar } from "../../components/StatBar";
 import { SignalField } from "../../components/SignalField";
+import { SignalPopover } from "../../components/SignalPopover";
 import { SignalSelect } from "../../components/SignalSelect";
+import { SignalToggle } from "../../components/SignalToggle";
 import { Skeleton } from "../../components/Skeleton";
-import { Button } from "../../components/ui/button";
+import { Button, buttonVariants } from "../../components/ui/button";
 import { NativeSelect, NativeSelectOption } from "../../components/ui/native-select";
-import { cn } from "../../lib/cn";
-import { fmtSignedMoney } from "../../lib/format";
-import { intlLocale } from "../../lib/locale";
-import { usePrivacyMode } from "../../lib/displayPrefs";
+import { downloadExport, type ExportFormat } from "../../lib/api/exports";
 import type {
   Account,
   ImportPreview,
@@ -27,12 +34,17 @@ import type {
   JournalPreviewSummary,
   JournalTradePreview,
 } from "../../lib/api/types";
+import { cn } from "../../lib/cn";
+import { usePrivacyMode } from "../../lib/displayPrefs";
+import { fmtSignedMoney } from "../../lib/format";
 import {
   effectiveOptionRight,
   mergeOptionOverrides,
   type OptionRightOverride,
 } from "../../lib/importOptionRight";
-import { downloadExport, type ExportFormat } from "../../lib/api/exports";
+import { tradeDetailFromJournalPreview } from "../../lib/importTradePreview";
+import { intlLocale } from "../../lib/locale";
+import { useUI } from "../../lib/ui";
 
 // Canonical trade fields we want to map
 const CANONICAL_FIELDS = [
@@ -52,6 +64,39 @@ function resolveImportAccountId(accounts: Account[], preferredAccountId?: string
     return preferredAccountId;
   }
   return accounts[0]?.id ?? "";
+}
+
+/** True when a JSON backup embeds an account name (nested or legacy flat). */
+export function jsonFileHasAccountName(text: string): string | null {
+  try {
+    const data = JSON.parse(text) as unknown;
+    if (!data || typeof data !== "object" || Array.isArray(data)) return null;
+    const root = data as Record<string, unknown>;
+    const nested = root.account;
+    if (nested && typeof nested === "object" && !Array.isArray(nested)) {
+      const name = String((nested as { name?: unknown }).name ?? "").trim();
+      if (name) return name;
+    }
+    const flat = String(root.account_name ?? "").trim();
+    return flat || null;
+  } catch {
+    return null;
+  }
+}
+
+async function readJSONAccountName(file: File): Promise<string | null> {
+  if (!file.name.toLowerCase().endsWith(".json")) return null;
+  try {
+    const text = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result ?? ""));
+      reader.onerror = () => reject(reader.error ?? new Error("read failed"));
+      reader.readAsText(file);
+    });
+    return jsonFileHasAccountName(text);
+  } catch {
+    return null;
+  }
 }
 
 function ImportGuidance({ onLogTrade }: { onLogTrade?: () => void }) {
@@ -91,14 +136,24 @@ function ImportGuidance({ onLogTrade }: { onLogTrade?: () => void }) {
         <h3 className="text-[10px] font-semibold uppercase tracking-widest text-text-muted">
           Sample file
         </h3>
-        <a
-          href="/sample-fill-import.csv"
-          download="sample-fill-import.csv"
-          className="mt-2 inline-flex items-center gap-1.5 text-[11px] text-accent no-underline transition-opacity hover:opacity-80"
-        >
-          <FileText size={12} strokeWidth={1.75} />
-          Download sample CSV
-        </a>
+        <div className="mt-2 flex flex-col gap-2">
+          <a
+            href="/sample-fill-import.csv"
+            download="sample-fill-import.csv"
+            className="inline-flex items-center gap-1.5 text-[11px] text-accent no-underline transition-opacity hover:opacity-80"
+          >
+            <FileText size={12} strokeWidth={1.75} />
+            Download sample CSV
+          </a>
+          <a
+            href="/sample-json-import.json"
+            download="sample-json-import.json"
+            className="inline-flex items-center gap-1.5 text-[11px] text-accent no-underline transition-opacity hover:opacity-80"
+          >
+            <FileJson size={12} strokeWidth={1.75} />
+            Download sample JSON
+          </a>
+        </div>
       </div>
 
       <div className="border-t border-border pt-4">
@@ -146,6 +201,7 @@ function Step1Upload({
 }: Step1Props) {
   const [accountId, setAccountId] = useState("");
   const [file, setFile] = useState<File | null>(null);
+  const [jsonAccountName, setJsonAccountName] = useState<string | null>(null);
 
   useEffect(() => {
     if (accounts.length === 0) return;
@@ -156,11 +212,25 @@ function Step1Upload({
   }, [accounts, defaultAccountId]);
 
   const effectiveAccountId = resolveImportAccountId(accounts, accountId || defaultAccountId);
-  const canSubmit = !!file && accounts.length > 0 && !!effectiveAccountId && !loading;
+  const isJsonFile = !!file && file.name.toLowerCase().endsWith(".json");
+  // JSON backups can create/match an account from embedded metadata — no select required.
+  const canBypassAccount = Boolean(jsonAccountName) || (isJsonFile && accounts.length === 0);
+  const canSubmit =
+    !!file && !loading && (canBypassAccount || (accounts.length > 0 && !!effectiveAccountId));
+
+  async function handleFileChange(next: File | null) {
+    setFile(next);
+    if (!next) {
+      setJsonAccountName(null);
+      return;
+    }
+    setJsonAccountName(await readJSONAccountName(next));
+  }
 
   async function handleSubmit() {
-    if (!file || !effectiveAccountId) return;
-    await onPreview(file, effectiveAccountId);
+    if (!file) return;
+    if (!canBypassAccount && !effectiveAccountId) return;
+    await onPreview(file, canBypassAccount && !effectiveAccountId ? "" : effectiveAccountId);
   }
 
   return (
@@ -168,39 +238,73 @@ function Step1Upload({
       <div className="flex flex-col gap-5 p-5 sm:p-6">
         {accountsLoading ? (
           <Skeleton height="36px" />
+        ) : canBypassAccount && accounts.length === 0 ? (
+          <SignalField
+            label="Account"
+            description={
+              jsonAccountName
+                ? `Will create “${jsonAccountName}” from the JSON file on confirm.`
+                : "Will create or match an account from the JSON file on confirm."
+            }
+          >
+            <p className="rounded-control border border-border bg-bg-input px-3 py-2.5 text-[13px] text-text">
+              {jsonAccountName ?? "From JSON backup"}
+            </p>
+          </SignalField>
         ) : (
-          <SignalField label="Account">
-            <SignalSelect
+          <SignalField
+            label="Account"
+            description={
+              canBypassAccount
+                ? `JSON includes “${jsonAccountName}” — select an account to override, or leave the default.`
+                : undefined
+            }
+          >
+            <NativeSelect
               value={effectiveAccountId}
-              onValueChange={setAccountId}
-              ariaLabel="Account select"
-              options={
-                accounts.length === 0
-                  ? [
-                      {
-                        value: "",
-                        label: "No accounts — create one in Settings",
-                        disabled: true,
-                      },
-                    ]
-                  : accounts.map((a) => ({ value: a.id, label: a.name }))
-              }
-              triggerClassName="h-8 text-[12px]"
-            />
+              onChange={(event) => setAccountId(event.target.value)}
+              aria-label="Account select"
+              wrapperClassName="w-full"
+            >
+              {accounts.length === 0 ? (
+                <NativeSelectOption value="" disabled>
+                  No accounts — create one in Settings
+                </NativeSelectOption>
+              ) : (
+                accounts.map((a) => (
+                  <NativeSelectOption key={a.id} value={a.id}>
+                    {a.name}
+                  </NativeSelectOption>
+                ))
+              )}
+            </NativeSelect>
           </SignalField>
         )}
 
         <SignalField
           label="File"
-          description={file ? undefined : "Select a CSV or JSON file to enable Preview."}
+          description={
+            file
+              ? undefined
+              : "Select a CSV or JSON file to enable Preview. JSON backups with an account can skip creating one first."
+          }
         >
-          <CsvDropZone file={file} onFileChange={setFile} disabled={loading} />
+          <CsvDropZone
+            file={file}
+            onFileChange={(f) => void handleFileChange(f)}
+            disabled={loading}
+          />
         </SignalField>
 
         {error && <p className="text-[11px] text-loss">{error}</p>}
 
         <div className="flex flex-wrap items-center gap-3 pt-1">
-          <Button type="button" variant="default" onClick={handleSubmit} disabled={!canSubmit}>
+          <Button
+            type="button"
+            variant="default"
+            onClick={() => void handleSubmit()}
+            disabled={!canSubmit}
+          >
             {loading ? (
               <>
                 <RefreshCw size={13} strokeWidth={1.5} className="animate-spin" />
@@ -208,13 +312,15 @@ function Step1Upload({
               </>
             ) : (
               <>
-                <ArrowRight size={13} strokeWidth={1.5} />
                 Preview import
+                <ArrowRight size={13} strokeWidth={1.5} />
               </>
             )}
           </Button>
-          {!file && accounts.length > 0 && (
-            <span className="text-[10px] text-text-dim">Upload a CSV or JSON file to continue</span>
+          {file && !canSubmit && !canBypassAccount && accounts.length === 0 && (
+            <span className="text-[10px] text-text-dim">
+              Create an account in Settings, or upload a JSON backup that includes account details
+            </span>
           )}
         </div>
       </div>
@@ -236,33 +342,61 @@ function JournalSummaryStrip({
   usePrivacyMode();
   const locale = intlLocale();
   const netPnl = fmtSignedMoney(summary.net_pnl, currency, locale);
-  const pnlTone = summary.net_pnl >= 0 ? "pos" : "neg";
+  const pnlTone = summary.net_pnl >= 0 ? "text-profit" : "text-loss";
+
+  const cells: { label: string; value: string; sub?: string; valueClass?: string }[] = [
+    {
+      label: "Trades",
+      value: String(summary.trade_count),
+      sub: "round-trips",
+    },
+    {
+      label: "Markets",
+      value: `${summary.stock_trades} / ${summary.option_trades}`,
+      sub: "stk / opt",
+      valueClass: "text-accent",
+    },
+    {
+      label: "Fills",
+      value: String(summary.execution_count),
+      sub: "executions",
+    },
+    {
+      label: "Est. net P&L",
+      value: netPnl,
+      valueClass: pnlTone,
+    },
+  ];
 
   return (
-    <div className="mb-4 overflow-hidden rounded-sharp border border-border bg-bg">
-      <div className="grid grid-cols-2 divide-x divide-y divide-border sm:grid-cols-4 sm:divide-y-0">
-        <StatBar
-          label="Trades"
-          value={String(summary.trade_count)}
-          sub="round-trips"
-          tone="muted"
-        />
-        <StatBar
-          label="Markets"
-          value={`${summary.stock_trades} / ${summary.option_trades}`}
-          sub="stk / opt"
-          tone="accent"
-        />
-        <StatBar
-          label="Fills"
-          value={String(summary.execution_count)}
-          sub="executions"
-          tone="muted"
-        />
-        <StatBar label="Est. net P&L" value={netPnl} tone={pnlTone} />
+    <div className="flex flex-col gap-2">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        {cells.map((cell) => (
+          <div
+            key={cell.label}
+            className="flex min-h-19 flex-col rounded-control bg-bg-inset px-3 py-3"
+          >
+            <span className="text-[10px] font-semibold uppercase tracking-widest text-text-muted">
+              {cell.label}
+            </span>
+            <div className="mt-auto flex flex-wrap items-baseline gap-1.5 pt-2">
+              <span
+                className={cn(
+                  "text-[18px] font-semibold leading-none tabular-nums",
+                  cell.valueClass ?? "text-text",
+                )}
+              >
+                {cell.value}
+              </span>
+              {cell.sub ? (
+                <span className="text-[11px] tabular-nums text-text-dim">{cell.sub}</span>
+              ) : null}
+            </div>
+          </div>
+        ))}
       </div>
       {summary.error_count > 0 ? (
-        <p className="border-t border-border px-4 py-2.5 text-[11px] text-loss">
+        <p className="rounded-control bg-loss/10 px-3 py-2 text-[11px] text-loss">
           {summary.error_count} row(s) could not be parsed — they will be skipped on import.
         </p>
       ) : null}
@@ -273,39 +407,44 @@ function JournalSummaryStrip({
 function JournalTradePreviewTable({
   trades,
   currency,
+  accountId,
   optionOverrides,
   onOptionRightChange,
 }: {
   trades: JournalTradePreview[];
   currency: string;
+  accountId: string;
   optionOverrides: Record<number, OptionRightOverride>;
   onOptionRightChange: (row: number, right: OptionRightOverride) => void;
 }) {
-  const [detailTrade, setDetailTrade] = useState<JournalTradePreview | null>(null);
+  const openImportTradePreview = useUI((s) => s.openImportTradePreview);
   const displayTrades = useMemo(
     () => mergeOptionOverrides(trades, optionOverrides),
     [trades, optionOverrides],
   );
+
   const columns = useMemo(
-    () => journalTradePreviewColumns(currency, setDetailTrade, optionOverrides),
-    [currency, optionOverrides],
+    () =>
+      journalTradePreviewColumns(
+        currency,
+        (trade) => {
+          const detail = tradeDetailFromJournalPreview(trade, {
+            accountId: accountId || "pending",
+            optionRight: effectiveOptionRight(trade, optionOverrides),
+            currency,
+          });
+          openImportTradePreview(detail, (optionRight) => {
+            if (optionRight === "call" || optionRight === "put") {
+              onOptionRightChange(trade.row, optionRight);
+            }
+          });
+        },
+        optionOverrides,
+      ),
+    [currency, accountId, optionOverrides, onOptionRightChange, openImportTradePreview],
   );
 
-  return (
-    <>
-      <DataTable columns={columns} data={displayTrades} dense maxHeight="min(60vh, 520px)" />
-      <ImportJournalDetailModal
-        trade={detailTrade}
-        currency={currency}
-        open={detailTrade != null}
-        optionRight={detailTrade ? effectiveOptionRight(detailTrade, optionOverrides) : undefined}
-        onOptionRightChange={onOptionRightChange}
-        onOpenChange={(open) => {
-          if (!open) setDetailTrade(null);
-        }}
-      />
-    </>
-  );
+  return <DataTable columns={columns} data={displayTrades} dense maxHeight="min(60vh, 520px)" />;
 }
 
 function CsvSamplePreviewTable({
@@ -323,6 +462,7 @@ function CsvSamplePreviewTable({
 interface Step2Props {
   preview: ImportPreview;
   currency: string;
+  accountId: string;
   onCommit: (
     mapping: Record<string, string>,
     optionOverrides?: Record<number, OptionRightOverride>,
@@ -332,7 +472,7 @@ interface Step2Props {
   loading: boolean;
 }
 
-function Step2Map({ preview, currency, onCommit, onBack, error, loading }: Step2Props) {
+function Step2Map({ preview, currency, accountId, onCommit, onBack, error, loading }: Step2Props) {
   const isJournal = preview.format === "journal_trades";
   const skipMapping = isJournal || (preview.source === "json" && preview.format === "executions");
   const [mapping, setMapping] = useState<Record<string, string>>(() => {
@@ -358,29 +498,38 @@ function Step2Map({ preview, currency, onCommit, onBack, error, loading }: Step2
 
   return (
     <div className="flex flex-col gap-4">
+      <Button
+        type="button"
+        variant="ghost"
+        onClick={onBack}
+        disabled={loading}
+        className="h-auto w-fit gap-1 px-2 py-1 text-[11px] text-text-dim hover:bg-bg-hover hover:text-text-muted"
+      >
+        <ArrowLeft size={12} strokeWidth={1.75} />
+        Back
+      </Button>
+
       <Panel title={skipMapping ? (isJournal ? "Review journal" : "Review import") : "Map columns"}>
-        <div className="p-4 sm:p-5">
+        <div className="flex flex-col gap-5 p-5 sm:p-6">
           {isJournal ? (
-            <>
-              <p className="mb-3 text-[12px] leading-relaxed text-text-muted">
-                Detected a Stonk Journal / closed-trade export. Each CSV row becomes one round-trip
-                trade (2 fills). Setup, tags, and journal fields are applied automatically. Option
-                call/put is inferred when possible; open Details to set it on rows marked{" "}
-                <span className="text-signal">Set type</span>.
+            <div className="flex flex-col gap-4">
+              <p className="m-0 text-[12px] leading-relaxed text-text-muted">
+                Closed-trade journal export — each row becomes one round-trip (2 fills). Setup,
+                tags, and journal fields apply automatically. Dir shows side and call/put when
+                present; use <span className="font-medium text-text">Edit</span> to fill gaps.
               </p>
               {preview.journal_summary ? (
                 <JournalSummaryStrip summary={preview.journal_summary} currency={currency} />
               ) : null}
-            </>
+            </div>
           ) : skipMapping ? (
-            <p className="mb-3 text-[12px] leading-relaxed text-text-muted">
-              Detected a TraderMemos JSON execution export. Fills will be imported directly — no
-              column mapping needed.
+            <p className="m-0 text-[12px] leading-relaxed text-text-muted">
+              TraderMemos JSON execution export — fills import directly, no column mapping needed.
             </p>
           ) : (
-            <p className="mb-3 text-[12px] leading-relaxed text-text-muted">
-              Match each field to the corresponding column in your CSV. Instrument type is optional
-              — map Market/Asset Type for mixed files, or leave skipped to infer from each symbol.
+            <p className="m-0 text-[12px] leading-relaxed text-text-muted">
+              Match each field to a CSV column. Instrument type is optional — map Market/Asset Type
+              for mixed files, or skip to infer from each symbol.
             </p>
           )}
 
@@ -403,26 +552,16 @@ function Step2Map({ preview, currency, onCommit, onBack, error, loading }: Step2
             </div>
           )}
 
-          {error && <p className="mt-3 text-[11px] text-loss">{error}</p>}
+          {error ? <p className="text-[11px] text-loss">{error}</p> : null}
 
-          <div className="mt-4 flex items-center gap-2">
-            <Button type="button" variant="default" onClick={handleCommit} disabled={loading}>
-              {loading ? (
-                <>
-                  <RefreshCw size={13} strokeWidth={1.5} className="animate-spin" />
-                  Importing…
-                </>
-              ) : (
-                <>
-                  <Check size={13} strokeWidth={1.5} />
-                  Confirm import
-                </>
-              )}
-            </Button>
-            <Button type="button" variant="outline" onClick={onBack} disabled={loading}>
-              Back
-            </Button>
-          </div>
+          {preview.pending_account ? (
+            <p className="m-0 rounded-sharp bg-bg-inset px-3 py-2.5 text-[12px] leading-relaxed text-text-muted">
+              Account{" "}
+              <span className="font-medium text-text">“{preview.pending_account.name}”</span>
+              {preview.pending_account.broker ? ` · ${preview.pending_account.broker}` : ""} will be
+              created when you confirm.
+            </p>
+          ) : null}
         </div>
       </Panel>
 
@@ -433,6 +572,7 @@ function Step2Map({ preview, currency, onCommit, onBack, error, loading }: Step2
           <JournalTradePreviewTable
             trades={preview.sample_trades}
             currency={currency}
+            accountId={accountId}
             optionOverrides={optionOverrides}
             onOptionRightChange={setOptionRight}
           />
@@ -442,6 +582,24 @@ function Step2Map({ preview, currency, onCommit, onBack, error, loading }: Step2
           <CsvSamplePreviewTable headers={preview.headers} rows={preview.sample_rows} />
         </Panel>
       )}
+
+      <div className="flex flex-wrap items-center justify-end gap-3">
+        <Button
+          type="button"
+          variant="default"
+          onClick={() => void handleCommit()}
+          disabled={loading}
+        >
+          {loading ? (
+            <>
+              <RefreshCw size={13} strokeWidth={1.5} className="animate-spin" />
+              Importing…
+            </>
+          ) : (
+            "Confirm import"
+          )}
+        </Button>
+      </div>
     </div>
   );
 }
@@ -560,6 +718,8 @@ interface ExportPanelProps {
 function ExportPanel({ accounts, accountsLoading, defaultAccountId }: ExportPanelProps) {
   const [accountId, setAccountId] = useState("");
   const [format, setFormat] = useState<ExportFormat>("json");
+  const [omitAccount, setOmitAccount] = useState(false);
+  const [omitInfoOpen, setOmitInfoOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -573,13 +733,18 @@ function ExportPanel({ accounts, accountsLoading, defaultAccountId }: ExportPane
 
   const effectiveAccountId = resolveImportAccountId(accounts, accountId || defaultAccountId);
   const canExport = accounts.length > 0 && !!effectiveAccountId && !loading;
+  const showOmitAccount = format === "json" || format === "zip";
 
   async function handleExport() {
     if (!effectiveAccountId) return;
     setLoading(true);
     setError(null);
     try {
-      await downloadExport({ format, accountId: effectiveAccountId });
+      await downloadExport({
+        format,
+        accountId: effectiveAccountId,
+        omitAccount: showOmitAccount && omitAccount,
+      });
     } catch (e) {
       setError(e instanceof Error ? e.message : "Export failed. Please try again.");
     } finally {
@@ -591,8 +756,12 @@ function ExportPanel({ accounts, accountsLoading, defaultAccountId }: ExportPane
     format === "csv"
       ? "Journal spreadsheet of closed trades — same account data as JSON, spreadsheet-friendly encoding."
       : format === "zip"
-        ? "Full backup zip: export.json plus trade screenshot files under attachments/. Re-import JSON from the archive; keep the folder for photo restore."
-        : "Canonical backup: all trades with fills, journal fields, tags, cash, and the full playbook setups catalog. Re-import this file directly.";
+        ? omitAccount
+          ? "ZIP without account identity — pick an account again on re-import."
+          : "Full backup zip: export.json plus trade screenshots under attachments/."
+        : omitAccount
+          ? "Trade data only — re-import requires selecting or creating an account."
+          : "Canonical backup: trades, fills, journal, cash, and playbook setups.";
 
   return (
     <Panel title="Export account" className="rounded-none border-0 lg:border lg:rounded-sharp">
@@ -605,9 +774,7 @@ function ExportPanel({ accounts, accountsLoading, defaultAccountId }: ExportPane
               value={effectiveAccountId}
               onChange={(event) => setAccountId(event.target.value)}
               aria-label="Export account select"
-              size="sm"
               wrapperClassName="w-full"
-              className="h-8 text-[12px]"
             >
               {accounts.length === 0 ? (
                 <NativeSelectOption value="" disabled>
@@ -623,6 +790,43 @@ function ExportPanel({ accounts, accountsLoading, defaultAccountId }: ExportPane
             </NativeSelect>
           </SignalField>
         )}
+
+        {showOmitAccount ? (
+          <div className="flex items-center gap-1">
+            <SignalToggle
+              pressed={omitAccount}
+              onPressedChange={setOmitAccount}
+              variant="outline"
+              size="sm"
+              tone="accent"
+              aria-label="Omit account details"
+            >
+              Omit account
+            </SignalToggle>
+            <SignalPopover
+              open={omitInfoOpen}
+              onOpenChange={setOmitInfoOpen}
+              align="start"
+              triggerAriaLabel="About omit account"
+              triggerClassName={cn(
+                buttonVariants({ variant: "ghost", size: "icon-sm" }),
+                "text-text-dim hover:text-text",
+                omitInfoOpen && "bg-bg-hover text-text",
+              )}
+              className="max-w-[17rem] bg-bg-panel p-3 shadow-[0_12px_32px_rgba(18,18,24,0.55)]"
+              trigger={<Info size={14} strokeWidth={1.75} aria-hidden />}
+            >
+              <p className="m-0 text-[10px] font-semibold uppercase tracking-widest text-signal">
+                Omit account
+              </p>
+              <p className="mt-2 m-0 text-[12px] leading-relaxed text-text-muted">
+                Strips account name, broker, and IDs from the export — including on trades and
+                fills. Use this for portable trade data; re-import requires selecting or creating an
+                account.
+              </p>
+            </SignalPopover>
+          </div>
+        ) : null}
 
         <SignalField label="Format">
           <SegmentedControl
@@ -703,9 +907,10 @@ export function ImportView({
   const [stagedAccountId, setStagedAccountId] = useState("");
 
   const importCurrency =
-    accounts.find((a) => a.id === stagedAccountId)?.base_currency ??
-    accounts.find((a) => a.id === defaultAccountId)?.base_currency ??
-    accounts[0]?.base_currency ??
+    preview?.pending_account?.base_currency ||
+    accounts.find((a) => a.id === stagedAccountId)?.base_currency ||
+    accounts.find((a) => a.id === defaultAccountId)?.base_currency ||
+    accounts[0]?.base_currency ||
     "USD";
 
   async function handlePreview(file: File, accountId: string) {
@@ -716,8 +921,9 @@ export function ImportView({
     try {
       const fd = new FormData();
       fd.append("file", file);
-      fd.append("account_id", accountId);
+      if (accountId) fd.append("account_id", accountId);
       const data = await onPreview(fd);
+      if (data.account_id) setStagedAccountId(data.account_id);
       setPreview(data);
       setStep(2);
     } catch (e) {
@@ -740,10 +946,12 @@ export function ImportView({
       const fd = new FormData();
       fd.append("file", stagedFile);
       fd.append("column_mapping", JSON.stringify(mapping));
+      // Confirm is the only write — always use fresh commit (no preview batch).
+      if (stagedAccountId) fd.append("account_id", stagedAccountId);
       if (preview.format === "journal_trades" && Object.keys(optionOverrides).length > 0) {
         fd.append("journal_option_overrides", JSON.stringify(optionOverrides));
       }
-      const data = await onCommit(preview.import_batch_id, fd);
+      const data = await onCommit("", fd);
       setResult(data);
       setStep(3);
     } catch (e) {
@@ -827,6 +1035,7 @@ export function ImportView({
               <Step2Map
                 preview={preview}
                 currency={importCurrency}
+                accountId={stagedAccountId || preview.account_id || ""}
                 onCommit={handleCommit}
                 onBack={() => {
                   setStep(1);

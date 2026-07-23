@@ -44,6 +44,11 @@ interface UIState {
   editTradeId: string | null;
   /** Snapshot used to prefill the edit form immediately (avoids empty-form race). */
   editTradeDetail: TradeDetail | null;
+  /**
+   * When editing an import-preview row, Apply calls this instead of the trades API.
+   * Receives option_right from the form (empty string when unset).
+   */
+  importPreviewApply: ((optionRight: "" | "call" | "put") => void) | null;
   sidebarCollapsed: boolean;
   commandOpen: boolean;
   positionSizeOpen: boolean;
@@ -52,6 +57,11 @@ interface UIState {
   openModal: (d: ModalKind) => void;
   openTradeFromSetup: (draft: TradeDraft) => void;
   openTradeEdit: (trade: TradeDetail) => void;
+  /** Open New Trade drawer for an import preview row (Apply writes local overrides). */
+  openImportTradePreview: (
+    trade: TradeDetail,
+    onApply: (optionRight: "" | "call" | "put") => void,
+  ) => void;
   openSetupEdit: (draft: SetupDraft) => void;
   openNoteEdit: (draft: NoteDraft) => void;
   consumeTradeDraft: () => TradeDraft | null;
@@ -75,6 +85,7 @@ interface UIState {
 const clearEditTrade = {
   editTradeId: null as string | null,
   editTradeDetail: null as TradeDetail | null,
+  importPreviewApply: null as ((optionRight: "" | "call" | "put") => void) | null,
 };
 
 export const useUI = create<UIState>((set, get) => ({
@@ -84,6 +95,7 @@ export const useUI = create<UIState>((set, get) => ({
   noteDraft: null,
   editTradeId: null,
   editTradeDetail: null,
+  importPreviewApply: null,
   sidebarCollapsed: false,
   commandOpen: false,
   positionSizeOpen: false,
@@ -106,6 +118,17 @@ export const useUI = create<UIState>((set, get) => ({
       modal: "new-trade",
       editTradeId: trade.id,
       editTradeDetail: trade,
+      importPreviewApply: null,
+      tradeDraft: null,
+      setupDraft: null,
+      noteDraft: null,
+    }),
+  openImportTradePreview: (trade, onApply) =>
+    set({
+      modal: "new-trade",
+      editTradeId: trade.id,
+      editTradeDetail: trade,
+      importPreviewApply: onApply,
       tradeDraft: null,
       setupDraft: null,
       noteDraft: null,

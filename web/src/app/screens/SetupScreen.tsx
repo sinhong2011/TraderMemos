@@ -114,7 +114,7 @@ function Field({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           className={cn(
-            "h-11 w-full rounded-control border-none bg-bg-input py-0 pl-10 text-[13px] text-text outline-none transition-[background-color] duration-150 placeholder:text-text-dim hover:bg-bg-input-hover focus:bg-bg-input-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+            "h-11 w-full rounded-control border-none bg-bg-input py-0 pl-10 text-[13px] text-text outline-none transition-[background-color] duration-150 placeholder:text-text-dim hover:bg-bg-input-hover focus:bg-bg-input-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-strong",
             isPassword ? "pr-10" : "pr-3",
           )}
           placeholder={placeholder}
@@ -181,11 +181,6 @@ export function SetupScreen() {
           : "Could not preview initial import";
       throw new Error(message);
     }
-    const importBatchID =
-      typeof previewBody.import_batch_id === "string" ? previewBody.import_batch_id : "";
-    if (!importBatchID) {
-      throw new Error("Import preview did not return a batch id");
-    }
     const suggestedMapping =
       typeof previewBody.suggested_mapping === "object" && previewBody.suggested_mapping
         ? (previewBody.suggested_mapping as Record<string, string>)
@@ -194,8 +189,9 @@ export function SetupScreen() {
     const mapping = format === "journal_trades" ? {} : suggestedMapping;
     const commitForm = new FormData();
     commitForm.append("file", file);
+    commitForm.append("account_id", accountID);
     commitForm.append("column_mapping", JSON.stringify(mapping));
-    const commitRes = await fetch(`${getBaseUrl()}/imports/${importBatchID}/commit`, {
+    const commitRes = await fetch(`${getBaseUrl()}/imports/commit`, {
       method: "POST",
       headers: { Authorization: `Bearer ${accessToken}` },
       body: commitForm,

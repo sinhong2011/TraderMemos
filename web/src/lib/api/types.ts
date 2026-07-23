@@ -268,8 +268,21 @@ export interface JournalPreviewSummary {
   error_count: number;
 }
 
+export interface PendingImportAccount {
+  name: string;
+  broker?: string;
+  account_type?: string;
+  base_currency?: string;
+  starting_balance?: number;
+}
+
 export interface ImportPreview {
+  /** Always empty — batch is created on confirm only. */
   import_batch_id: string;
+  /** Matched/selected account, or empty when pending_account is set. */
+  account_id?: string;
+  /** Proposed new account from JSON — created only on confirm. */
+  pending_account?: PendingImportAccount;
   headers: string[];
   sample_rows: Record<string, string>[];
   suggested_mapping: Record<string, string>;

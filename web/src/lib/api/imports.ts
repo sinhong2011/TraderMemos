@@ -2,12 +2,12 @@ import { apiFetch } from "./client";
 import type { ImportBatch, ImportPreview, ImportResult } from "./types";
 
 export const importsApi = {
-  // Step 1: upload CSV + account_id → preview with suggested mapping
+  // Step 1: parse-only preview (no DB writes)
   preview: (formData: FormData) =>
     apiFetch<ImportPreview>("/imports", { method: "POST", body: formData }),
-  // Step 2: commit with file + column_mapping JSON string
+  // Step 2: confirm — only write path (batch + fills). Pass empty id for fresh commit.
   commit: (id: string, formData: FormData) =>
-    apiFetch<ImportResult>(`/imports/${id}/commit`, {
+    apiFetch<ImportResult>(id ? `/imports/${id}/commit` : "/imports/commit", {
       method: "POST",
       body: formData,
     }),

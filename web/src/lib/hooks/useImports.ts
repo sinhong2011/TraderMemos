@@ -21,6 +21,8 @@ export function useImportCommit() {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["imports"] });
       void queryClient.invalidateQueries({ queryKey: ["trades"] });
+      void queryClient.invalidateQueries({ queryKey: ["accounts"] });
+      void queryClient.invalidateQueries({ queryKey: ["cash"] });
     },
   });
 }
