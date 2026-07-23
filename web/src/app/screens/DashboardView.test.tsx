@@ -252,8 +252,8 @@ describe("DashboardView", () => {
 
   it("renders range segmented control", () => {
     render(<DashboardView {...BASE} />);
-    expect(screen.getByRole("button", { name: "30D" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "ALL" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "30D" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "ALL" })).toBeInTheDocument();
   });
 
   it("computes OPEN percentage against all trades, not closed-only total", () => {

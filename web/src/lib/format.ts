@@ -19,6 +19,7 @@ export function fmtMoneyCompact(v: number, currency: string, locale: string): st
     style: "currency",
     currency,
     notation: "compact",
+    minimumFractionDigits: 0,
     maximumFractionDigits: 1,
   }).format(v);
 }

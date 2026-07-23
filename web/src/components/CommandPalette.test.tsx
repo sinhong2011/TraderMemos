@@ -23,7 +23,7 @@ describe("CommandPalette", () => {
     expect(screen.getByText("New Trade")).toBeInTheDocument();
     expect(screen.getByText("Position size")).toBeInTheDocument();
     expect(screen.getAllByText("G").length).toBeGreaterThan(0);
-    expect(screen.getByText("N")).toBeInTheDocument();
+    expect(screen.getAllByText("N").length).toBeGreaterThan(0);
   });
 
   it("filters commands by query", async () => {
