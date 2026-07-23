@@ -5,7 +5,7 @@
 # Workers Builds: set install/build to pnpm (packageManager in package.json),
 #   e.g. install = `pnpm install --frozen-lockfile`, build = `pnpm run build`, output = `dist`.
 
-name = "tradermemos"
+name = "trader-memos"
 compatibility_date = "2026-07-21"
 
 [assets]

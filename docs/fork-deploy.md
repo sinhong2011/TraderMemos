@@ -52,7 +52,7 @@ Use this when you clicked **Fork** on GitHub and want continuous deploys from *y
 | Output directory | `dist` |
 | Env (optional) | `VITE_API` |
 
-SPA fallback: `web/public/_redirects`.
+Prefer Option 1 (Workers + [`web/wrangler.toml`](../web/wrangler.toml)) for SPA routing — Cloudflare rejects a `/* /index.html 200` `_redirects` rule on Workers assets.
 
 ### Netlify
 

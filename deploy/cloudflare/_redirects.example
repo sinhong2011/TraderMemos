@@ -1,12 +1,14 @@
-# Cloudflare Pages _redirects
-# Default SPA fallback already ships as web/public/_redirects.
+# Cloudflare Workers / Pages _redirects — optional API edge proxy (mode 3).
+#
+# Do NOT add `/* /index.html 200` here. Workers rejects that rule as an
+# infinite loop with default HTML handling. SPA fallback is configured in
+# web/wrangler.toml via:
+#   [assets] not_found_handling = "single-page-application"
 #
 # Mode 3 — edge proxy (same-origin). Replace API host, keep status 200,
-# and place this file as web/public/_redirects (replaces the SPA-only file):
+# and place this file as web/public/_redirects before `vp build`:
 /api/*  https://API_HOST_REPLACE_ME/api/:splat  200
 /healthz  https://API_HOST_REPLACE_ME/healthz  200
-/*    /index.html   200
 #
-# Mode 2 — CDN UI + cross-origin API: keep web/public/_redirects as SPA-only,
-# set TM_CORS_ORIGINS=https://*.pages.dev (plus custom domain), and use the
-# Server field or VITE_API.
+# Mode 2 — CDN UI + cross-origin API: leave web/public/_redirects absent
+# (SPA via wrangler.toml), set TM_CORS_ORIGINS, and use Server / VITE_API.

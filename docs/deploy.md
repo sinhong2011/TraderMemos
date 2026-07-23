@@ -177,9 +177,9 @@ Keep the browser on one origin; the edge proxies `/api` to your API. No CORS and
 
 Copy [`deploy/vercel.json.example`](../deploy/vercel.json.example), set `destination` to your API host, deploy `web/dist` (or connect the `web/` project with `outputDirectory: dist`).
 
-### Cloudflare Pages
+### Cloudflare Workers / Pages
 
-Copy [`deploy/cloudflare/_redirects.example`](../deploy/cloudflare/_redirects.example) into the build output as `_redirects` (e.g. `web/public/_redirects` before `vp build`), with a `200` proxy to your API.
+Copy [`deploy/cloudflare/_redirects.example`](../deploy/cloudflare/_redirects.example) into `web/public/_redirects` before `vp build`, with a `200` proxy to your API. Keep SPA fallback in [`web/wrangler.toml`](../web/wrangler.toml) (`not_found_handling = "single-page-application"`) — do not add `/* /index.html 200` (Workers rejects it as an infinite loop).
 
 Leave `TM_CORS_ORIGINS` empty when using rewrites — the browser never talks cross-origin.
 
