@@ -5,6 +5,13 @@ All notable changes to TraderMemos are documented in this file.
 Release versioning is managed by [release-please](https://github.com/googleapis/release-please).
 See [docs/release.md](docs/release.md) for the release workflow.
 
+## [0.1.4](https://github.com/sinhong2011/TraderMemos/compare/v0.1.3...v0.1.4) (2026-07-23)
+
+
+### Bug Fixes
+
+* **web:** unblock Cloudflare Workers deploy SPA redirects ([d1d8b9d](https://github.com/sinhong2011/TraderMemos/commit/d1d8b9d933b071080e1a95b2721ab78a1719d94d))
+
 ## [0.1.3](https://github.com/sinhong2011/TraderMemos/compare/v0.1.2...v0.1.3) (2026-07-23)
 
 
