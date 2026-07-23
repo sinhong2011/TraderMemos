@@ -37,11 +37,18 @@ func Commit(ctx context.Context, q store.Querier, userID, accountID string, batc
 		ann     *TradeAnnotation
 	}
 	var pendingAnns []pending
+	// Journal lots where an earlier leg was skipped (already in DB). Skip the rest of
+	// that lot so a re-import does not insert an orphan avg-exit sell as an OPEN short.
+	skippedLots := map[string]bool{}
 
 	for _, pe := range parsed.Executions {
 		mult := pe.Multiplier
 		if mult == 0 {
 			mult = DefaultMultiplier(pe.InstrumentType)
+		}
+		if pe.LotKey != "" && skippedLots[pe.LotKey] {
+			res.Skipped++
+			continue
 		}
 		hash := DedupHash(pe.Symbol, pe.Side, pe.Quantity, pe.Price, pe.ExecutedAt)
 		exists, err := q.ExecutionExists(ctx, store.ExecutionExistsParams{AccountID: accountID, DedupHash: hash})
@@ -49,6 +56,9 @@ func Commit(ctx context.Context, q store.Querier, userID, accountID string, batc
 			return res, err
 		}
 		if exists == 1 {
+			if pe.LotKey != "" {
+				skippedLots[pe.LotKey] = true
+			}
 			res.Skipped++
 			continue
 		}

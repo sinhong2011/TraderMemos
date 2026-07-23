@@ -20,6 +20,8 @@ import (
 
 func (s *Server) importRoutes(g *echo.Group) {
 	g.POST("/imports", s.handleImportPreview)
+	// Fresh commit (no preview batch) — used when JSON account creation is deferred to confirm.
+	g.POST("/imports/commit", s.handleImportCommitFresh)
 	g.POST("/imports/:id/commit", s.handleImportCommit)
 	g.GET("/imports", s.handleListImports)
 	g.DELETE("/imports/:id", s.handleDeleteImport)
@@ -113,15 +115,9 @@ func stripBOMHeaders(headers []string) []string {
 
 func (s *Server) handleImportPreview(c echo.Context) error {
 	uid := auth.UserID(c)
+	ctx := c.Request().Context()
 	if s.deps.ImportMaxBytes > 0 && c.Request().ContentLength > s.deps.ImportMaxBytes {
 		return Fail(http.StatusRequestEntityTooLarge, "too_large", "upload exceeds size limit", nil)
-	}
-	accountID := c.FormValue("account_id")
-	if accountID == "" {
-		return Fail(http.StatusBadRequest, "bad_request", "account_id is required", nil)
-	}
-	if err := s.assertAccount(c.Request().Context(), uid, accountID); err != nil {
-		return Fail(http.StatusNotFound, "not_found", "account not found", nil)
 	}
 	fh, err := c.FormFile("file")
 	if err != nil {
@@ -131,6 +127,20 @@ func (s *Server) handleImportPreview(c echo.Context) error {
 	if err != nil {
 		return Fail(http.StatusBadRequest, "bad_request", "could not parse upload", err.Error())
 	}
+
+	accountID := strings.TrimSpace(c.FormValue("account_id"))
+	var pendingAccount *importer.JSONAccountMeta
+	if accountID == "" {
+		matched, pending, rerr := s.matchJSONImportAccount(ctx, uid, loaded)
+		if rerr != nil {
+			return rerr
+		}
+		accountID = matched
+		pendingAccount = pending
+	} else if err := s.assertAccount(ctx, uid, accountID); err != nil {
+		return Fail(http.StatusNotFound, "not_found", "account not found", nil)
+	}
+
 	source := loaded.Source
 	rowCount := len(loaded.Rows)
 	if source == "json" && rowCount == 0 {
@@ -138,14 +148,6 @@ func (s *Server) handleImportPreview(c echo.Context) error {
 		if loaded.Format == "journal_trades" {
 			rowCount = importer.CountJournalTrades(loaded.JSON.Result.Executions)
 		}
-	}
-	batch, err := s.deps.Store.CreateImportBatch(c.Request().Context(), store.CreateImportBatchParams{
-		ID: uuid.NewString(), UserID: uid, AccountID: accountID, Source: source,
-		Filename: sql.NullString{String: fh.Filename, Valid: true},
-		RowCount: int64(rowCount), Status: "pending",
-	})
-	if err != nil {
-		return Fail(http.StatusInternalServerError, "internal", "could not create import batch", nil)
 	}
 	sample := loaded.Rows
 	if len(sample) > 5 {
@@ -156,31 +158,173 @@ func (s *Server) handleImportPreview(c echo.Context) error {
 		suggested = map[string]string{}
 	}
 	resp := map[string]any{
-		"import_batch_id":   batch.ID,
 		"headers":           loaded.Headers,
 		"sample_rows":       sample,
 		"suggested_mapping": suggested,
 		"format":            loaded.Format,
 		"source":            source,
 		"row_count":         rowCount,
+		// Preview is parse-only — batch is created on confirm.
+		"import_batch_id": "",
 	}
 	if loaded.Format == "journal_trades" {
 		summary, sampleTrades := importer.BuildJournalPreview(loaded.Rows)
 		resp["journal_summary"] = summary
 		resp["sample_trades"] = sampleTrades
 	}
+
+	if accountID == "" && pendingAccount != nil {
+		resp["account_id"] = ""
+		resp["pending_account"] = pendingAccountJSON(pendingAccount)
+		return c.JSON(http.StatusOK, resp)
+	}
+
+	resp["account_id"] = accountID
 	return c.JSON(http.StatusOK, resp)
 }
 
+func pendingAccountJSON(meta *importer.JSONAccountMeta) map[string]any {
+	out := map[string]any{
+		"name":          strings.TrimSpace(meta.Name),
+		"broker":        strings.TrimSpace(meta.Broker),
+		"account_type":  strings.TrimSpace(meta.AccountType),
+		"base_currency": strings.TrimSpace(meta.BaseCurrency),
+	}
+	if meta.StartingBalance != nil {
+		out["starting_balance"] = *meta.StartingBalance
+	}
+	return out
+}
+
+// matchJSONImportAccount matches an existing account from JSON metadata.
+// If none match, returns pending metadata for deferred creation on confirm.
+// CSV uploads still require account_id.
+func (s *Server) matchJSONImportAccount(ctx context.Context, userID string, loaded loadedImport) (matchedID string, pending *importer.JSONAccountMeta, err error) {
+	if loaded.Source != "json" || loaded.JSON.Account == nil || strings.TrimSpace(loaded.JSON.Account.Name) == "" {
+		return "", nil, Fail(http.StatusBadRequest, "bad_request", "account_id is required", nil)
+	}
+	meta := loaded.JSON.Account
+	name := strings.TrimSpace(meta.Name)
+	broker := strings.TrimSpace(meta.Broker)
+
+	accs, err := s.deps.Store.ListAccounts(ctx, userID)
+	if err != nil {
+		return "", nil, Fail(http.StatusInternalServerError, "internal", "could not list accounts", nil)
+	}
+	var nameMatch *store.Account
+	for i := range accs {
+		acc := &accs[i]
+		if !strings.EqualFold(strings.TrimSpace(acc.Name), name) {
+			continue
+		}
+		if broker != "" && strings.EqualFold(strings.TrimSpace(acc.Broker), broker) {
+			return acc.ID, nil, nil
+		}
+		if nameMatch == nil {
+			nameMatch = acc
+		}
+	}
+	if nameMatch != nil {
+		return nameMatch.ID, nil, nil
+	}
+	return "", meta, nil
+}
+
+func (s *Server) createAccountFromJSONMeta(ctx context.Context, userID string, meta *importer.JSONAccountMeta) (store.Account, error) {
+	if meta == nil || strings.TrimSpace(meta.Name) == "" {
+		return store.Account{}, Fail(http.StatusBadRequest, "bad_request", "account metadata is required", nil)
+	}
+	name := strings.TrimSpace(meta.Name)
+	broker := strings.TrimSpace(meta.Broker)
+	accountType := strings.TrimSpace(meta.AccountType)
+	if accountType == "" {
+		accountType = "cash"
+	}
+	baseCurrency := strings.TrimSpace(meta.BaseCurrency)
+	if baseCurrency == "" {
+		baseCurrency = "USD"
+	}
+	var startingBalance float64
+	if meta.StartingBalance != nil {
+		startingBalance = *meta.StartingBalance
+	}
+	acc, err := s.deps.Store.CreateAccount(ctx, store.CreateAccountParams{
+		ID: uuid.NewString(), UserID: userID, Name: name, Broker: broker,
+		AccountType: accountType, BaseCurrency: baseCurrency, StartingBalance: startingBalance,
+	})
+	if err != nil {
+		return store.Account{}, Fail(http.StatusInternalServerError, "internal", "could not create account from import", nil)
+	}
+	if err := s.ensureOpeningDeposit(ctx, userID, acc); err != nil {
+		return store.Account{}, Fail(http.StatusInternalServerError, "internal", "account created but opening deposit failed", nil)
+	}
+	return acc, nil
+}
+
 type importResult struct {
-	Inserted      int                 `json:"inserted"`
-	Skipped       int                 `json:"skipped"`
-	Annotated     int                 `json:"annotated"`
-	Trades        int                 `json:"trades"`
-	CashInserted  int                 `json:"cash_inserted"`
-	SetupsUpserted int                `json:"setups_upserted"`
-	Format        string              `json:"format"`
-	Errors        []importer.RowError `json:"errors"`
+	Inserted       int                 `json:"inserted"`
+	Skipped        int                 `json:"skipped"`
+	Annotated      int                 `json:"annotated"`
+	Trades         int                 `json:"trades"`
+	CashInserted   int                 `json:"cash_inserted"`
+	SetupsUpserted int                 `json:"setups_upserted"`
+	Format         string              `json:"format"`
+	AccountID      string              `json:"account_id,omitempty"`
+	Errors         []importer.RowError `json:"errors"`
+}
+
+// handleImportCommitFresh creates account (if needed) + batch, then commits in one step.
+// Web uses this after a parse-only preview (no pending batch).
+func (s *Server) handleImportCommitFresh(c echo.Context) error {
+	ctx := c.Request().Context()
+	uid := auth.UserID(c)
+	if s.deps.ImportMaxBytes > 0 && c.Request().ContentLength > s.deps.ImportMaxBytes {
+		return Fail(http.StatusRequestEntityTooLarge, "too_large", "upload exceeds size limit", nil)
+	}
+	fh, err := c.FormFile("file")
+	if err != nil {
+		return Fail(http.StatusBadRequest, "bad_request", "file is required", nil)
+	}
+	loaded, err := loadImportFile(fh)
+	if err != nil {
+		return Fail(http.StatusBadRequest, "bad_request", "could not parse upload", err.Error())
+	}
+
+	accountID := strings.TrimSpace(c.FormValue("account_id"))
+	if accountID == "" {
+		matched, pending, rerr := s.matchJSONImportAccount(ctx, uid, loaded)
+		if rerr != nil {
+			return rerr
+		}
+		if matched != "" {
+			accountID = matched
+		} else {
+			acc, cerr := s.createAccountFromJSONMeta(ctx, uid, pending)
+			if cerr != nil {
+				return cerr
+			}
+			accountID = acc.ID
+		}
+	} else if err := s.assertAccount(ctx, uid, accountID); err != nil {
+		return Fail(http.StatusNotFound, "not_found", "account not found", nil)
+	}
+
+	rowCount := len(loaded.Rows)
+	if loaded.Source == "json" && rowCount == 0 {
+		rowCount = len(loaded.JSON.Result.Executions)
+		if loaded.Format == "journal_trades" {
+			rowCount = importer.CountJournalTrades(loaded.JSON.Result.Executions)
+		}
+	}
+	batch, err := s.deps.Store.CreateImportBatch(ctx, store.CreateImportBatchParams{
+		ID: uuid.NewString(), UserID: uid, AccountID: accountID, Source: loaded.Source,
+		Filename: sql.NullString{String: fh.Filename, Valid: true},
+		RowCount: int64(rowCount), Status: "pending",
+	})
+	if err != nil {
+		return Fail(http.StatusInternalServerError, "internal", "could not create import batch", nil)
+	}
+	return s.finishImportCommit(c, uid, batch, loaded)
 }
 
 func (s *Server) handleImportCommit(c echo.Context) error {
@@ -204,6 +348,11 @@ func (s *Server) handleImportCommit(c echo.Context) error {
 	if err != nil {
 		return Fail(http.StatusBadRequest, "bad_request", "could not parse upload", err.Error())
 	}
+	return s.finishImportCommit(c, uid, batch, loaded)
+}
+
+func (s *Server) finishImportCommit(c echo.Context, uid string, batch store.ImportBatch, loaded loadedImport) error {
+	ctx := c.Request().Context()
 
 	var parsed importer.ParseResult
 	switch {
@@ -273,6 +422,7 @@ func (s *Server) handleImportCommit(c echo.Context) error {
 		Annotated: committed.Annotated, Trades: committed.Trades,
 		Format: committed.Format, Errors: committed.Errors,
 		CashInserted: cashInserted, SetupsUpserted: setupsUpserted,
+		AccountID: batch.AccountID,
 	})
 }
 

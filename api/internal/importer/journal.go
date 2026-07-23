@@ -139,7 +139,7 @@ func parseJournalRow(row map[string]string, optionRightOverride string) ([]Parse
 		Notes:      strings.TrimSpace(get("notes")),
 		Setup:      strings.TrimSpace(get("setup")),
 		Explicit: []string{
-			get("option right", "option_right", "call/put", "call put", "right", "option type", "contract type", "strategy", "direction", "dir"),
+			get("option right", "option_right", "call/put", "call put", "call_put", "right", "option type", "contract type", "strategy", "direction", "dir"),
 			get("side"),
 			get("market"),
 		},

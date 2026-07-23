@@ -139,13 +139,13 @@ func TestCSVImportEndToEnd(t *testing.T) {
 		SuggestedMapping map[string]string `json:"suggested_mapping"`
 	}
 	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &preview))
-	require.NotEmpty(t, preview.ImportBatchID)
+	require.Empty(t, preview.ImportBatchID)
 	require.Equal(t, "Symbol", preview.SuggestedMapping["symbol"])
 
 	mapping, _ := json.Marshal(preview.SuggestedMapping)
 	rec = httptest.NewRecorder()
-	s.Echo.ServeHTTP(rec, multipartReq(t, "/api/v1/imports/"+preview.ImportBatchID+"/commit", tok, csvBody,
-		map[string]string{"column_mapping": string(mapping), "instrument_type": "stock"}))
+	s.Echo.ServeHTTP(rec, multipartReq(t, "/api/v1/imports/commit", tok, csvBody,
+		map[string]string{"account_id": acc, "column_mapping": string(mapping), "instrument_type": "stock"}))
 	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
 	var res struct {
 		Inserted int `json:"inserted"`
@@ -196,11 +196,13 @@ func TestJSONImportTradesEndToEnd(t *testing.T) {
 		Source        string `json:"source"`
 	}
 	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &preview))
+	require.Empty(t, preview.ImportBatchID)
 	require.Equal(t, "journal_trades", preview.Format)
 	require.Equal(t, "json", preview.Source)
 
 	rec = httptest.NewRecorder()
-	s.Echo.ServeHTTP(rec, multipartFileReq(t, "/api/v1/imports/"+preview.ImportBatchID+"/commit", tok, "trades.json", jsonBody, nil))
+	s.Echo.ServeHTTP(rec, multipartFileReq(t, "/api/v1/imports/commit", tok, "trades.json", jsonBody,
+		map[string]string{"account_id": acc}))
 	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
 
 	rec = do(s, http.MethodGet, "/api/v1/trades?account_id="+acc, "", tok)
@@ -231,10 +233,12 @@ func TestJSONImportExecutionsEndToEnd(t *testing.T) {
 		Format        string `json:"format"`
 	}
 	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &preview))
+	require.Empty(t, preview.ImportBatchID)
 	require.Equal(t, "executions", preview.Format)
 
 	rec = httptest.NewRecorder()
-	s.Echo.ServeHTTP(rec, multipartFileReq(t, "/api/v1/imports/"+preview.ImportBatchID+"/commit", tok, "fills.json", jsonBody, nil))
+	s.Echo.ServeHTTP(rec, multipartFileReq(t, "/api/v1/imports/commit", tok, "fills.json", jsonBody,
+		map[string]string{"account_id": acc}))
 	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
 	var res struct {
 		Inserted int `json:"inserted"`

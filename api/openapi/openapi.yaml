@@ -524,6 +524,26 @@ paths:
         "200":
           description: Preview
 
+  /api/v1/imports/commit:
+    post:
+      tags: [Import]
+      summary: Commit import without a preview batch (creates account from JSON when needed)
+      operationId: commitImportFresh
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                account_id:
+                  type: string
+      responses:
+        "200":
+          description: Committed
+
   /api/v1/imports/{id}/commit:
     post:
       tags: [Import]

@@ -205,7 +205,8 @@ func main() {
 	var impAcct, impFile, impMapping string
 	var impReplace bool
 	imp := &cobra.Command{
-		Use: "import", Short: "import a CSV of executions or journal trades into an account",
+		Use:   "import",
+		Short: "import CSV or TraderMemos JSON export into an account",
 		RunE: func(*cobra.Command, []string) error {
 			if impAcct == "" || impFile == "" {
 				return fmt.Errorf("--account and --file are required")
@@ -230,23 +231,41 @@ func main() {
 				}
 				fmt.Println("cleared existing executions for account")
 			}
-			headers, rows, err := readCSVFile(impFile)
-			if err != nil {
-				return err
-			}
+
 			var parsed importer.ParseResult
-			format := importer.DetectFormat(headers)
-			if format == "journal_trades" {
-				parsed = importer.NewJournal().ParseRows(rows)
-			} else {
-				mapping := importer.SuggestMapping(headers)
-				if impMapping != "" {
-					if err := json.Unmarshal([]byte(impMapping), &mapping); err != nil {
-						return fmt.Errorf("invalid --mapping JSON: %w", err)
-					}
+			if importer.IsJSONFilename(impFile) {
+				body, err := os.ReadFile(impFile)
+				if err != nil {
+					return err
 				}
-				parsed = importer.NewGeneric(mapping).ParseRows(rows)
-				parsed.Format = "executions"
+				j, err := importer.ParseJSONImport(body)
+				if err != nil {
+					return err
+				}
+				if n, err := importer.UpsertSetups(ctx, q, acc.UserID, j.Setups); err != nil {
+					return err
+				} else if n > 0 {
+					fmt.Printf("upserted %d setups\n", n)
+				}
+				parsed = j.Result
+			} else {
+				headers, rows, err := readCSVFile(impFile)
+				if err != nil {
+					return err
+				}
+				format := importer.DetectFormat(headers)
+				if format == "journal_trades" {
+					parsed = importer.NewJournal().ParseRows(rows)
+				} else {
+					mapping := importer.SuggestMapping(headers)
+					if impMapping != "" {
+						if err := json.Unmarshal([]byte(impMapping), &mapping); err != nil {
+							return fmt.Errorf("invalid --mapping JSON: %w", err)
+						}
+					}
+					parsed = importer.NewGeneric(mapping).ParseRows(rows)
+					parsed.Format = "executions"
+				}
 			}
 			res, err := importer.Commit(ctx, q, acc.UserID, acc.ID, sql.NullString{}, parsed)
 			if err != nil {
@@ -258,8 +277,8 @@ func main() {
 		},
 	}
 	imp.Flags().StringVar(&impAcct, "account", "", "account id")
-	imp.Flags().StringVar(&impFile, "file", "", "CSV file path")
-	imp.Flags().StringVar(&impMapping, "mapping", "", "column mapping JSON (optional; auto-detected if omitted)")
+	imp.Flags().StringVar(&impFile, "file", "", "CSV or JSON export path")
+	imp.Flags().StringVar(&impMapping, "mapping", "", "column mapping JSON (CSV only; optional)")
 	imp.Flags().BoolVar(&impReplace, "replace", false, "delete existing executions for the account before import")
 	root.AddCommand(imp)
 

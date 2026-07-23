@@ -605,6 +605,7 @@ func tradeToJournalRow(t jsonTrade, exs []ParsedExecution) map[string]string {
 		"Status":       status,
 		"Market":       market,
 		"Side":         side,
+		"Call/Put":     formatOptionRightLabel(entry.OptionRight),
 		"Qty":          formatFloat(entry.Quantity),
 		"Entry":        formatFloat(entry.Price),
 		"Exit":         formatFloat(exit.Price),
@@ -621,6 +622,17 @@ func tradeToJournalRow(t jsonTrade, exs []ParsedExecution) map[string]string {
 		"Target":       target,
 		"Stop":         stop,
 		"Notes":        ann.Notes,
+	}
+}
+
+func formatOptionRightLabel(right string) string {
+	switch strings.ToLower(strings.TrimSpace(right)) {
+	case "call":
+		return "Call"
+	case "put":
+		return "Put"
+	default:
+		return ""
 	}
 }
 

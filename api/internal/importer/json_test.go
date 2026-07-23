@@ -173,6 +173,35 @@ func TestParseJSONTradesWithFills(t *testing.T) {
 	require.Equal(t, 50.0, got.Result.Executions[0].Quantity)
 }
 
+func TestParseJSONOptionFillsCarryCallPutIntoJournalPreview(t *testing.T) {
+	body := []byte(`{
+		"trades": [{
+			"symbol": "NVDA",
+			"instrument_type": "option",
+			"direction": "long",
+			"status": "closed",
+			"opened_at": "2026-01-01T10:00:00Z",
+			"closed_at": "2026-01-01T11:00:00Z",
+			"qty_opened": 3,
+			"avg_entry_price": 2.3,
+			"avg_exit_price": 2.43,
+			"net_pnl": 36.84,
+			"fills": [
+				{"symbol":"NVDA","side":"buy","quantity":3,"price":2.3,"executed_at":"2026-01-01T10:00:00Z","instrument_type":"option","multiplier":100,"details":{"option_right":"call"}},
+				{"symbol":"NVDA","side":"sell","quantity":3,"price":2.43,"executed_at":"2026-01-01T11:00:00Z","instrument_type":"option","multiplier":100,"details":{"option_right":"call"}}
+			]
+		}]
+	}`)
+	got, err := ParseJSONImport(body)
+	require.NoError(t, err)
+	require.Equal(t, "call", got.Result.Executions[0].OptionRight)
+	require.Equal(t, "Call", got.Rows[0]["Call/Put"])
+
+	_, samples := BuildJournalPreview(got.Rows)
+	require.Len(t, samples, 1)
+	require.Equal(t, "call", samples[0].OptionRight)
+}
+
 func TestParseJSONInvalid(t *testing.T) {
 	_, err := ParseJSONImport([]byte(`{"foo":1}`))
 	require.Error(t, err)
