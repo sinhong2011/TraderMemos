@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"github.com/tradermemos/api/internal/version"
 )
 
 func TestHealthz(t *testing.T) {
@@ -16,7 +17,7 @@ func TestHealthz(t *testing.T) {
 	s.Echo.ServeHTTP(rec, req)
 	require.Equal(t, http.StatusOK, rec.Code)
 	require.Contains(t, rec.Body.String(), `"status":"ok"`)
-	require.Contains(t, rec.Body.String(), `"version":"0.1.0"`)
+	require.Contains(t, rec.Body.String(), `"version":"`+version.Version+`"`)
 	require.Contains(t, rec.Body.String(), `"go":`)
 }
 

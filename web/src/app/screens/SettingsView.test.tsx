@@ -155,11 +155,11 @@ describe("SettingsView", () => {
     window.location.hash = "#accounts";
   });
 
-  it("marks the only account as primary and hides delete", async () => {
+  it("marks the only account as primary and disables delete", async () => {
     renderSettings({ ...baseProps });
     expect(await screen.findByText("Primary")).toBeInTheDocument();
     expect(screen.getAllByText("$10,000.00").length).toBeGreaterThan(0);
-    expect(screen.queryByRole("button", { name: /delete main/i })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /delete main/i })).toBeDisabled();
   });
 
   it("allows deleting a secondary account when two exist", () => {
