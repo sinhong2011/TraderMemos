@@ -126,7 +126,7 @@ export function FacetedFilter({
                 aria-selected={isSelected}
                 onClick={() => selectOption(option, isSelected)}
                 className={cn(
-                  "flex min-h-8 cursor-pointer items-center gap-2 rounded-control px-2 text-left text-[12px] text-text transition-colors hover:bg-white/[0.06] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-accent",
+                  "flex min-h-8 cursor-pointer items-center gap-2 rounded-control px-2 text-left text-[12px] text-text transition-colors hover:bg-white/[0.06] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-border-strong",
                   isSelected && "bg-accent-bg text-accent hover:bg-accent-bg",
                 )}
               >
@@ -151,7 +151,7 @@ export function FacetedFilter({
               <button
                 type="button"
                 onClick={() => clear()}
-                className="flex min-h-8 cursor-pointer items-center justify-center rounded-control px-2 text-[12px] font-medium text-text-muted transition-colors hover:bg-white/[0.06] hover:text-text focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-accent"
+                className="flex min-h-8 cursor-pointer items-center justify-center rounded-control px-2 text-[12px] font-medium text-text-muted transition-colors hover:bg-white/[0.06] hover:text-text focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-border-strong"
               >
                 Clear filters
               </button>

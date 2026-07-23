@@ -40,7 +40,7 @@ export function TabsTrigger({
         "rounded-control px-2.5 py-0.5 text-[11px] font-semibold",
         "text-text-muted transition-[color,transform] duration-150 ease-[var(--ease-out)]",
         "hover:text-text",
-        "focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-accent",
+        "focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-border-strong",
         "active:scale-[0.98] motion-reduce:active:scale-100",
         "data-active:text-text",
         "data-disabled:pointer-events-none data-disabled:opacity-40",
@@ -78,7 +78,7 @@ export function TabsContent({ className, ...props }: ComponentProps<typeof TabsP
   return (
     <TabsPrimitive.Panel
       className={cn(
-        "outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+        "outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-strong",
         className,
       )}
       {...props}

@@ -46,7 +46,7 @@ export function SignalToggle({
         "border font-semibold tracking-[0.02em] whitespace-nowrap text-text-muted outline-none",
         "transition-colors duration-150",
         "hover:bg-bg-input-hover hover:text-text",
-        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-strong",
         "disabled:pointer-events-none disabled:opacity-50",
         "[&_svg]:pointer-events-none [&_svg]:shrink-0",
         sizeClass[size],

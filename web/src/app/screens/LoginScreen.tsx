@@ -74,7 +74,7 @@ function AuthField({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           className={cn(
-            "h-11 w-full rounded-control border-none bg-bg-input py-0 pl-10 text-[13px] text-text outline-none transition-[background-color] duration-150 placeholder:text-text-dim hover:bg-bg-input-hover focus:bg-bg-input-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+            "h-11 w-full rounded-control border-none bg-bg-input py-0 pl-10 text-[13px] text-text outline-none transition-[background-color] duration-150 placeholder:text-text-dim hover:bg-bg-input-hover focus:bg-bg-input-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-strong",
             isPassword ? "pr-10" : "pr-3",
           )}
           placeholder={placeholder}

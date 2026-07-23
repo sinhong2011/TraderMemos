@@ -35,7 +35,7 @@ export function DateRangePicker({
                   "group relative flex size-8 cursor-pointer items-center justify-center rounded-control outline-none",
                   "pointer-coarse:size-11",
                   "transition-[background-color,color,transform] duration-150 ease-out",
-                  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+                  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-strong",
                   "motion-reduce:transition-none",
                   open || filterActive
                     ? "bg-bg-hover text-text"
@@ -74,7 +74,7 @@ export function DateRangePicker({
       triggerClassName={cn(
         "h-8 min-w-[112px] rounded-control border border-transparent bg-transparent px-2.5 pointer-coarse:h-11",
         "text-left transition-[background-color] duration-150",
-        "hover:bg-bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+        "hover:bg-bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-strong",
         open && "bg-bg-hover",
       )}
       trigger={

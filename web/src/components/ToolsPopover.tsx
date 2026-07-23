@@ -42,7 +42,7 @@ export function ToolsPopover({ variant = "rail" }: { variant?: "rail" | "header"
         className={cn(
           "group relative flex cursor-pointer items-center justify-center rounded-control outline-none",
           "transition-[background-color,color,transform] duration-150 ease-out",
-          "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+          "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-strong",
           "motion-reduce:transition-none",
           isHeader ? "size-8 pointer-coarse:size-11" : "size-9 pointer-coarse:size-11",
           open

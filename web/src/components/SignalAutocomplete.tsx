@@ -27,7 +27,7 @@ const autocompleteActionClass = cn(
   "flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-control border-none",
   "bg-transparent text-text-dim transition-colors duration-150",
   "hover:bg-bg-hover hover:text-text",
-  "focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent",
+  "focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-border-strong",
   "disabled:cursor-not-allowed disabled:opacity-45",
   "data-[disabled]:cursor-not-allowed data-[disabled]:opacity-45",
 );

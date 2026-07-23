@@ -87,7 +87,7 @@ function ComboboxInput({
         "relative flex h-8 w-full min-w-0 items-center rounded-control border border-border bg-transparent",
         "transition-colors duration-150",
         "hover:border-border-strong",
-        "has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-accent",
+        "has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-border-strong",
         className,
       )}
     >
@@ -127,7 +127,7 @@ const ComboboxChips = forwardRef<HTMLDivElement, ComboboxPrimitive.Chips.Props>(
           "flex min-h-8 w-full min-w-0 flex-wrap items-center gap-1 rounded-control border border-border bg-transparent px-1.5 py-1",
           "transition-colors duration-150",
           "hover:border-border-strong",
-          "has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-accent",
+          "has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-border-strong",
           className,
         )}
         {...props}

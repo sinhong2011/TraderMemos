@@ -59,7 +59,7 @@ const LAYOUT_OPTS: SegmentOption[] = [
 const menuTriggerClass = cn(
   "flex size-8 cursor-pointer items-center justify-center rounded-control",
   "text-text-muted transition-colors hover:bg-bg-hover hover:text-text",
-  "outline-none focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-accent",
+  "outline-none focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-border-strong",
 );
 
 function formatNoteDay(isoDate: string, locale: string): string {
@@ -169,7 +169,7 @@ function NoteTile({
       className={cn(
         "group/note flex cursor-pointer flex-col rounded-card bg-bg-elevated text-left outline-none",
         "transition-colors duration-100 hover:bg-bg-panel",
-        "focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent",
+        "focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-border-strong",
         isCard ? "min-h-0" : "w-full",
       )}
     >

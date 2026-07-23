@@ -46,9 +46,9 @@ function SelectTrigger({
       data-variant={variant}
       className={cn(
         "group/select-trigger flex w-full min-w-0 cursor-pointer items-center justify-between gap-2",
-        "rounded-control border border-transparent text-[13px] text-text whitespace-nowrap outline-none",
+        "rounded-control border text-[13px] text-text whitespace-nowrap outline-none",
         "transition-[background-color,color,border-color] duration-150",
-        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-strong",
         "disabled:cursor-not-allowed disabled:opacity-55",
         "aria-invalid:outline-loss/40",
         "data-disabled:cursor-not-allowed data-disabled:opacity-55",
@@ -57,8 +57,9 @@ function SelectTrigger({
         size === "default" && "h-10 px-3",
         size === "sm" && "h-8 px-2.5 text-[12px]",
         variant === "default" &&
-          "bg-bg-input hover:bg-bg-input-hover data-popup-open:bg-bg-input-hover",
-        variant === "ghost" && "bg-transparent hover:bg-bg-hover data-popup-open:bg-bg-hover",
+          "border-border bg-bg-input hover:bg-bg-input-hover data-popup-open:bg-bg-input-hover",
+        variant === "ghost" &&
+          "border-transparent bg-transparent hover:bg-bg-hover data-popup-open:bg-bg-hover",
         className,
       )}
       {...props}

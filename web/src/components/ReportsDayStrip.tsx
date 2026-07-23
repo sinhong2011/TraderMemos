@@ -85,7 +85,7 @@ export function ReportsDayStrip({ trades, loading, onDayClick }: ReportsDayStrip
               className={cn(
                 "flex w-[88px] shrink-0 flex-col rounded-card bg-bg-panel px-2.5 py-2 text-left",
                 onDayClick &&
-                  "cursor-pointer border-none transition-colors hover:bg-bg-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40",
+                  "cursor-pointer border-none transition-colors hover:bg-bg-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-strong",
                 isWeekend && "opacity-60",
               )}
               aria-label={onDayClick ? `View trades for ${label}` : undefined}

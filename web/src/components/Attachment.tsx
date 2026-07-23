@@ -37,7 +37,7 @@ function Attachment({
       data-orientation={orientation}
       className={cn(
         "group/attachment relative flex w-fit max-w-full min-w-0 shrink-0 flex-wrap rounded-card border border-border bg-bg-panel text-text transition-colors",
-        "focus-within:outline-2 focus-within:outline-offset-[-2px] focus-within:outline-accent",
+        "focus-within:outline-2 focus-within:outline-offset-[-2px] focus-within:outline-border-strong",
         "has-[>a,>button]:hover:bg-bg-hover data-[state=error]:border-loss/30 data-[state=idle]:border-dashed",
         attachmentSizeClass[size],
         attachmentOrientationClass[orientation],

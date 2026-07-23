@@ -94,7 +94,7 @@ Do not stack extra opacity on muted/dim text (e.g. `/50`, `opacity-50`) — toke
 
 | Token | Hex | Use |
 |-------|-----|-----|
-| `--color-accent` | `#a78bfa` | Links, active nav, symbol column, focus ring |
+| `--color-accent` | `#a78bfa` | Links, active nav, symbol column |
 | `--color-accent-glow` | `rgba(167,139,250,0.35)` | Hero glow, active rail |
 | `--color-accent-bg` | `rgba(167,139,250,0.12)` | Selected states |
 | `--color-signal` | `#e4ff1a` | Wayfinding labels, kbd hints, section tags — **never on P&L** |

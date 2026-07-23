@@ -53,7 +53,7 @@ function RailLink({
         "group relative flex size-9 items-center justify-center rounded-control no-underline",
         "pointer-coarse:size-11",
         "transition-[background-color,color,transform] duration-150 ease-out",
-        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-strong",
         "motion-reduce:transition-none",
         active ? "bg-accent-bg text-accent" : "text-text-dim hover:bg-bg-hover hover:text-text",
       )}
@@ -90,7 +90,7 @@ function RailAction({
         "group relative flex size-9 cursor-pointer items-center justify-center rounded-control border-none bg-transparent p-0",
         "pointer-coarse:size-11",
         "transition-[background-color,color,transform] duration-150 ease-out",
-        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-strong",
         "motion-reduce:transition-none",
         "text-text-dim hover:bg-bg-hover hover:text-text active:scale-95",
         "motion-reduce:active:scale-100",

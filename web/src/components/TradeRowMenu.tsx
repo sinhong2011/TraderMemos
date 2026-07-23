@@ -29,7 +29,7 @@ export interface TradeRowActions {
 const triggerClass = cn(
   "-my-2 flex h-9 w-9 cursor-pointer items-center justify-center rounded-control",
   "text-text-muted transition-colors hover:bg-bg-hover hover:text-text",
-  "outline-none focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-accent",
+  "outline-none focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-border-strong",
 );
 
 export function TradeRowMenu({ trade, actions }: { trade: Trade; actions: TradeRowActions }) {

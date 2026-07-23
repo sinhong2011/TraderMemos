@@ -129,10 +129,10 @@ export function SignalEditor({
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-control bg-bg-input transition-colors duration-150",
+        "overflow-hidden rounded-control border border-border bg-bg-input transition-colors duration-150",
         !readOnly &&
-          "hover:bg-bg-input-hover focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-accent",
-        readOnly && "bg-transparent",
+          "hover:bg-bg-input-hover focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-border-strong",
+        readOnly && "border-transparent bg-transparent",
         className,
       )}
     >

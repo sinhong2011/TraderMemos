@@ -85,7 +85,7 @@ export function AccountNavPopover({ variant = "rail" }: { variant?: "rail" | "he
           isRail ? "size-9" : "size-8",
           "pointer-coarse:size-11",
           "transition-[background-color,color,transform] duration-150 ease-out",
-          "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+          "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-strong",
           "motion-reduce:transition-none",
           open || filterActive
             ? "bg-bg-hover text-text"

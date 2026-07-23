@@ -75,7 +75,7 @@ function CollapsibleTrigger({ className, ...props }: CollapsiblePrimitive.Trigge
       data-slot="collapsible-trigger"
       className={cn(
         "group/collapsible-trigger flex cursor-pointer items-center gap-2 border-none bg-transparent p-0 text-left outline-none",
-        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-strong",
         "disabled:cursor-not-allowed disabled:opacity-50",
         className,
       )}

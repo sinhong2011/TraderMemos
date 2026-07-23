@@ -32,9 +32,9 @@ function NativeSelect({
       <select
         data-slot="native-select"
         className={cn(
-          "w-full min-w-0 cursor-pointer appearance-none rounded-control border border-transparent text-text",
+          "w-full min-w-0 cursor-pointer appearance-none rounded-control border border-border text-text",
           "outline-none transition-[background-color,color] duration-150",
-          "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+          "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-strong",
           "disabled:pointer-events-none disabled:cursor-not-allowed",
           size === "default" && "h-10 py-0 pr-8 pl-3 text-[13px]",
           size === "sm" && "h-7 py-0 pr-6 pl-2.5 text-[12px]",

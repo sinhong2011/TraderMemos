@@ -38,7 +38,7 @@ const itemVariants = cva(
   [
     "group/item flex w-full flex-wrap items-center rounded-control border text-[12px]",
     "transition-colors duration-150 outline-none",
-    "focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-accent",
+    "focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-border-strong",
     "[a]:transition-colors [a]:hover:bg-bg-hover",
   ].join(" "),
   {

@@ -95,7 +95,7 @@ export function DateRangePanel({ onApplied }: { onApplied?: () => void }) {
             onClick={() => applyPreset(p.key)}
             className={cn(
               "relative h-auto w-full justify-start rounded-control py-2 pr-2 pl-2.5 text-left text-[11px]",
-              "focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:outline-none",
+              "focus-visible:ring-2 focus-visible:ring-border-strong focus-visible:outline-none",
               active && "bg-bg-hover text-text",
             )}
           >

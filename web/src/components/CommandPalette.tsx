@@ -59,7 +59,7 @@ export function CommandPalette() {
             )}
           >
             <Command label="Command palette" loop className="flex flex-col">
-              <div className="m-2 flex items-center gap-2 rounded-control bg-bg-input px-3">
+              <div className="m-2 flex items-center gap-2 rounded-control border border-border bg-bg-input px-3">
                 <Search
                   size={16}
                   strokeWidth={1.75}

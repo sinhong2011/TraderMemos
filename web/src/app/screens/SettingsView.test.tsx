@@ -277,14 +277,17 @@ describe("SettingsView", () => {
     expect(screen.getByLabelText(/rule type/i)).toBeInTheDocument();
   });
 
-  it("shows rich checklist editor on rules tab", async () => {
+  it("opens checklist editor in a modal on rules tab", async () => {
     const user = userEvent.setup();
     renderSettings({ ...baseProps });
     await user.click(screen.getByRole("link", { name: /^Rules$/i }));
     expect(screen.getByText("Daily Checklist")).toBeInTheDocument();
+    expect(screen.getByText("Check VIX")).toBeInTheDocument();
+    expect(screen.queryByLabelText(/daily checklist and rules/i)).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /edit checklist/i }));
+    expect(screen.getByRole("heading", { name: /daily checklist/i })).toBeInTheDocument();
     expect(screen.getByLabelText(/daily checklist and rules/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^save$/i })).toBeInTheDocument();
-    expect(screen.getByText(/1 checklist item detected/i)).toBeInTheDocument();
   });
 
   it("points journal setups to Playbook instead of duplicating CRUD", async () => {

@@ -91,6 +91,7 @@ import {
   BtnGhost,
   BtnPrimary,
   ClearTradesButton,
+  DeleteAccountButton,
   DeleteButton,
   FormError,
   SettingsInsetForm,
@@ -135,7 +136,7 @@ const POPULAR_BROKERS = [
   "E*TRADE",
   "tastytrade",
   "Moomoo",
-  "FUTU",
+  "FUTU NIU NIU",
 ] as const;
 const OTHER_BROKER_VALUE = "__other__";
 
@@ -454,141 +455,207 @@ export function AccountsTab({
         title="Accounts"
         description="Broker accounts used for trade grouping and filters."
         action={
-          <BtnGhost active={showAccountForm} onClick={() => setShowAccountForm((v) => !v)}>
+          <BtnGhost
+            onClick={() => {
+              setAccountFormError(null);
+              accountForm.reset({
+                ...defaultAccountFormValues(),
+                broker: POPULAR_BROKERS[0],
+              });
+              setShowAccountForm(true);
+            }}
+          >
             <Plus size={13} strokeWidth={1.5} />
             Add account
           </BtnGhost>
         }
       >
-        {showAccountForm && (
-          <SettingsInsetForm>
-            <form
-              className="flex flex-col gap-3"
-              onSubmit={(e) => {
-                e.preventDefault();
-                void accountForm.handleSubmit();
+        <Modal
+          open={showAccountForm}
+          onOpenChange={(open) => {
+            if (!open) {
+              setShowAccountForm(false);
+              setAccountFormError(null);
+              accountForm.reset(defaultAccountFormValues());
+            }
+          }}
+          title="Add account"
+          className="max-w-[min(500px,94vw)]"
+          footer={
+            <accountForm.Subscribe selector={(s) => s.isSubmitting}>
+              {(accountSaving) => (
+                <>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setShowAccountForm(false);
+                      setAccountFormError(null);
+                      accountForm.reset(defaultAccountFormValues());
+                    }}
+                    disabled={accountSaving}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={() => void accountForm.handleSubmit()}
+                    disabled={accountSaving}
+                  >
+                    {accountSaving ? "Creating…" : "Create"}
+                  </Button>
+                </>
+              )}
+            </accountForm.Subscribe>
+          }
+        >
+          <form
+            className="flex flex-col gap-3"
+            onSubmit={(e) => {
+              e.preventDefault();
+              void accountForm.handleSubmit();
+            }}
+          >
+            <accountForm.Field
+              name="name"
+              validators={{
+                onBlur: ({ value }) => validateRequiredName(value),
+                onSubmit: ({ value }) => validateRequiredName(value),
               }}
             >
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <accountForm.Field
-                  name="name"
-                  validators={{
-                    onBlur: ({ value }) => validateRequiredName(value),
-                    onSubmit: ({ value }) => validateRequiredName(value),
-                  }}
+              {(field) => (
+                <SignalField
+                  label="Account name"
+                  htmlFor="acct-name"
+                  error={fieldError(field.state.meta.errors)}
                 >
-                  {(field) => (
+                  <SignalInput
+                    id="acct-name"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    placeholder="e.g. Main Account"
+                    autoFocus
+                  />
+                </SignalField>
+              )}
+            </accountForm.Field>
+            <accountForm.Field
+              name="broker"
+              validators={{
+                onBlur: ({ value }) => (value.trim() ? undefined : "Broker is required."),
+                onSubmit: ({ value }) => (value.trim() ? undefined : "Broker is required."),
+              }}
+            >
+              {(field) => {
+                const brokerIsOther = !(POPULAR_BROKERS as readonly string[]).includes(
+                  field.state.value,
+                );
+                const brokerSelectValue = brokerIsOther ? OTHER_BROKER_VALUE : field.state.value;
+                return (
+                  <>
                     <SignalField
-                      label="Name"
-                      htmlFor="acct-name"
-                      error={fieldError(field.state.meta.errors)}
+                      label="Broker"
+                      error={brokerIsOther ? undefined : fieldError(field.state.meta.errors)}
                     >
-                      <SignalInput
-                        id="acct-name"
-                        value={field.state.value}
-                        onBlur={field.handleBlur}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        placeholder="e.g. Main Account"
-                      />
-                    </SignalField>
-                  )}
-                </accountForm.Field>
-                <accountForm.Field name="broker">
-                  {(field) => (
-                    <SignalField label="Broker" htmlFor="acct-broker">
-                      <SignalInput
-                        id="acct-broker"
-                        value={field.state.value}
-                        onBlur={field.handleBlur}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        placeholder="e.g. IBKR"
-                      />
-                    </SignalField>
-                  )}
-                </accountForm.Field>
-              </div>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                <accountForm.Field name="accountType">
-                  {(field) => (
-                    <SignalField label="Account type">
                       <NativeSelect
-                        size="sm"
-                        value={field.state.value}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        aria-label="Account type"
-                        className="h-8 w-full text-[12px]"
+                        id="acct-broker"
+                        value={brokerSelectValue}
+                        onChange={(e) => {
+                          const next = e.target.value;
+                          field.handleChange(next === OTHER_BROKER_VALUE ? "" : next);
+                        }}
+                        onBlur={field.handleBlur}
+                        aria-label="Broker"
                         wrapperClassName="w-full"
                       >
-                        <NativeSelectOption value="cash">Cash</NativeSelectOption>
-                        <NativeSelectOption value="margin">Margin</NativeSelectOption>
-                        <NativeSelectOption value="prop">Prop</NativeSelectOption>
+                        {POPULAR_BROKERS.map((broker) => (
+                          <NativeSelectOption key={broker} value={broker}>
+                            {broker}
+                          </NativeSelectOption>
+                        ))}
+                        <NativeSelectOption value={OTHER_BROKER_VALUE}>Other</NativeSelectOption>
                       </NativeSelect>
                     </SignalField>
-                  )}
-                </accountForm.Field>
-                <accountForm.Field name="baseCurrency">
-                  {(field) => (
-                    <SignalField label="Base currency" htmlFor="acct-currency">
-                      <SignalInput
-                        id="acct-currency"
-                        value={field.state.value}
-                        onBlur={field.handleBlur}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        placeholder="USD"
-                      />
-                    </SignalField>
-                  )}
-                </accountForm.Field>
-                <accountForm.Field
-                  name="startingBalance"
-                  validators={{
-                    onBlur: ({ value }) => validateStartingBalance(value),
-                    onSubmit: ({ value }) => validateStartingBalance(value),
-                  }}
-                >
-                  {(field) => (
-                    <SignalField
-                      label="Starting balance"
-                      htmlFor="acct-balance"
-                      description="Saved as the first deposit in the cash ledger."
-                      error={fieldError(field.state.meta.errors)}
+                    {brokerSelectValue === OTHER_BROKER_VALUE ? (
+                      <SignalField
+                        label="Custom broker"
+                        htmlFor="acct-broker-other"
+                        error={fieldError(field.state.meta.errors)}
+                      >
+                        <SignalInput
+                          id="acct-broker-other"
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          placeholder="Type broker name"
+                          autoFocus
+                        />
+                      </SignalField>
+                    ) : null}
+                  </>
+                );
+              }}
+            </accountForm.Field>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <accountForm.Field name="accountType">
+                {(field) => (
+                  <SignalField label="Account type">
+                    <NativeSelect
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      aria-label="Account type"
+                      wrapperClassName="w-full"
                     >
-                      <SignalAmountInput
-                        id="acct-balance"
-                        value={field.state.value}
-                        onValueChange={field.handleChange}
-                        onBlur={field.handleBlur}
-                        placeholder="0.00"
-                        allowNegative
-                      />
-                    </SignalField>
-                  )}
-                </accountForm.Field>
-              </div>
-              <FormError message={accountFormError} />
-              <div className="flex items-center gap-2">
-                <accountForm.Subscribe selector={(s) => s.isSubmitting}>
-                  {(accountSaving) => (
-                    <BtnPrimary type="submit" disabled={accountSaving}>
-                      <Check size={12} strokeWidth={1.5} />
-                      {accountSaving ? "Creating…" : "Create"}
-                    </BtnPrimary>
-                  )}
-                </accountForm.Subscribe>
-                <BtnGhost
-                  onClick={() => {
-                    setShowAccountForm(false);
-                    setAccountFormError(null);
-                    accountForm.reset(defaultAccountFormValues());
-                  }}
-                >
-                  <X size={12} strokeWidth={1.5} />
-                  Cancel
-                </BtnGhost>
-              </div>
-            </form>
-          </SettingsInsetForm>
-        )}
+                      <NativeSelectOption value="cash">Cash</NativeSelectOption>
+                      <NativeSelectOption value="margin">Margin</NativeSelectOption>
+                      <NativeSelectOption value="prop">Prop</NativeSelectOption>
+                    </NativeSelect>
+                  </SignalField>
+                )}
+              </accountForm.Field>
+              <accountForm.Field name="baseCurrency">
+                {(field) => (
+                  <SignalField label="Base currency" htmlFor="acct-currency">
+                    <SignalInput
+                      id="acct-currency"
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      placeholder="USD"
+                    />
+                  </SignalField>
+                )}
+              </accountForm.Field>
+              <accountForm.Field
+                name="startingBalance"
+                validators={{
+                  onBlur: ({ value }) => validateStartingBalance(value),
+                  onSubmit: ({ value }) => validateStartingBalance(value),
+                }}
+              >
+                {(field) => (
+                  <SignalField
+                    label="Starting balance"
+                    htmlFor="acct-balance"
+                    description="Saved as the first deposit in the cash ledger."
+                    error={fieldError(field.state.meta.errors)}
+                  >
+                    <SignalAmountInput
+                      id="acct-balance"
+                      value={field.state.value}
+                      onValueChange={field.handleChange}
+                      onBlur={field.handleBlur}
+                      placeholder="0.00"
+                      allowNegative
+                    />
+                  </SignalField>
+                )}
+              </accountForm.Field>
+            </div>
+            <FormError message={accountFormError} />
+          </form>
+        </Modal>
 
         {accountsLoading ? (
           <SettingsPanelBody>
@@ -658,33 +725,34 @@ export function AccountsTab({
                       netPnl={netPnl}
                       isPrimary={isPrimary}
                       headerAction={
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          aria-label={`Edit ${acc.name}`}
-                          onClick={() => startEditAccount(acc)}
-                          disabled={editingAccount}
-                          className="h-8 border-border-strong bg-transparent px-3 text-[12px] text-text hover:bg-bg-hover"
-                        >
-                          Edit account
-                        </Button>
+                        <div className="flex flex-wrap items-center justify-end gap-1.5">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon-sm"
+                            aria-label={`Edit ${acc.name}`}
+                            title="Edit account"
+                            onClick={() => startEditAccount(acc)}
+                            disabled={editingAccount}
+                            className="border-border-strong bg-transparent text-text hover:bg-bg-hover"
+                          >
+                            <Pencil size={14} strokeWidth={1.5} />
+                          </Button>
+                          <DeleteAccountButton
+                            accountName={acc.name}
+                            detail={accountRecordDetail(tradeCount, cashCount)}
+                            onDelete={() => void handleDeleteAccount(acc.id)}
+                            disabled={isOnlyAccount}
+                            disabledReason="Add another account before deleting this one"
+                          />
+                        </div>
                       }
                       footerActions={
-                        <>
-                          <ClearTradesButton
-                            accountName={acc.name}
-                            tradeCount={tradeCount}
-                            onClear={() => void handleClearAccountTrades(acc.id)}
-                          />
-                          {!isOnlyAccount ? (
-                            <DeleteButton
-                              label={acc.name}
-                              detail={accountRecordDetail(tradeCount, cashCount)}
-                              onDelete={() => void handleDeleteAccount(acc.id)}
-                            />
-                          ) : null}
-                        </>
+                        <ClearTradesButton
+                          accountName={acc.name}
+                          tradeCount={tradeCount}
+                          onClear={() => void handleClearAccountTrades(acc.id)}
+                        />
                       }
                     />
                   );
@@ -731,11 +799,9 @@ export function AccountsTab({
                 </SignalField>
                 <SignalField label="Broker">
                   <NativeSelect
-                    size="sm"
                     value={editBrokerChoice}
                     onChange={(e) => setEditBrokerChoice(e.target.value)}
                     aria-label="Broker"
-                    className="h-8 w-full text-[12px]"
                     wrapperClassName="w-full"
                   >
                     {POPULAR_BROKERS.map((broker) => (
@@ -1110,11 +1176,13 @@ export function RulesTab({
 
   const [checklistDraft, setChecklistDraft] = useState(checklistContent);
   const [checklistEditorKey, setChecklistEditorKey] = useState(0);
+  const [checklistModalOpen, setChecklistModalOpen] = useState(false);
 
   useEffect(() => {
+    if (checklistModalOpen) return;
     setChecklistDraft(checklistContent);
     setChecklistEditorKey((k) => k + 1);
-  }, [checklistContent]);
+  }, [checklistContent, checklistModalOpen]);
 
   const activeRules = useMemo(() => activeRiskRuleEntries(riskRules), [riskRules]);
   const availableKeys = useMemo(() => availableRiskRuleKeys(riskRules), [riskRules]);
@@ -1124,6 +1192,19 @@ export function RulesTab({
     setRuleModal({ open: false });
     setRuleError(null);
     setRuleValue("");
+  }
+
+  function openChecklistModal() {
+    setChecklistDraft(checklistContent);
+    setChecklistEditorKey((k) => k + 1);
+    setChecklistModalOpen(true);
+  }
+
+  function closeChecklistModal() {
+    if (checklistSaving) return;
+    setChecklistModalOpen(false);
+    setChecklistDraft(checklistContent);
+    setChecklistEditorKey((k) => k + 1);
   }
 
   function openAddRule() {
@@ -1189,6 +1270,7 @@ export function RulesTab({
     try {
       await onSaveChecklist({ content: checklistDraft });
       toast.add({ title: "Checklist saved" });
+      setChecklistModalOpen(false);
     } catch (err) {
       toast.add({
         title: "Could not save checklist",
@@ -1274,13 +1356,15 @@ export function RulesTab({
 
       <SettingsSection
         title="Daily Checklist"
-        description="Write trading rules and checklist items as rich text. Task items appear when you create a daily log note."
+        description="Trading rules and checklist items for New Note. Edit in a modal — task items appear when you create a daily log."
         action={
           <BtnGhost
-            onClick={() => void handleSaveChecklist()}
-            disabled={checklistLoading || checklistSaving}
+            onClick={openChecklistModal}
+            disabled={checklistLoading || checklistError}
+            aria-label="Edit checklist"
           >
-            Save
+            <Pencil size={13} strokeWidth={1.5} />
+            Edit
           </BtnGhost>
         }
       >
@@ -1288,7 +1372,7 @@ export function RulesTab({
           <SettingsPanelBody>
             <div className="flex flex-col gap-2">
               {Array.from({ length: 3 }).map((_, i) => (
-                <Skeleton key={i} height="52px" />
+                <Skeleton key={i} height="40px" />
               ))}
             </div>
           </SettingsPanelBody>
@@ -1296,31 +1380,77 @@ export function RulesTab({
           <SettingsPanelBody>
             <p className="text-[12px] text-loss">Failed to load checklist template.</p>
           </SettingsPanelBody>
-        ) : (
-          <SettingsPanelBody className="flex flex-col gap-3">
-            <SignalEditor
-              key={checklistEditorKey}
-              value={checklistDraft}
-              onChange={setChecklistDraft}
-              placeholder={"- [ ] Check VIX\n- [ ] No revenge trades\n- [ ] Size within risk rules"}
-              minHeight={220}
-              showHints
-              aria-label="Daily checklist and rules"
+        ) : checklistItems.length === 0 && !checklistContent.trim() ? (
+          <SettingsPanelBody className="py-8">
+            <EmptyState
+              title="No checklist yet"
+              hint="Add rules and - [ ] items. They show up on New Note."
+              icon={<Check size={28} strokeWidth={1.5} />}
             />
-            {checklistItems.length > 0 ? (
-              <p className="text-[11px] text-text-dim">
-                {checklistItems.length} checklist item{checklistItems.length === 1 ? "" : "s"}{" "}
-                detected for New Note.
-              </p>
-            ) : (
-              <p className="text-[11px] text-text-dim">
-                Tip: use checklist buttons or type <code className="text-accent">- [ ]</code> for
-                each rule.
-              </p>
-            )}
+          </SettingsPanelBody>
+        ) : checklistItems.length > 0 ? (
+          <SettingsGroup>
+            {checklistItems.map((item, index) => (
+              <SettingsRow
+                key={`${item}-${index}`}
+                last={index === checklistItems.length - 1}
+                primary={item}
+              />
+            ))}
+          </SettingsGroup>
+        ) : (
+          <SettingsPanelBody>
+            <p className="text-[12px] text-text-muted">
+              Checklist text saved — add <code className="text-accent">- [ ]</code> items so they
+              appear on New Note.
+            </p>
           </SettingsPanelBody>
         )}
       </SettingsSection>
+
+      <Modal
+        open={checklistModalOpen}
+        onOpenChange={(open) => {
+          if (!open) closeChecklistModal();
+        }}
+        title="Daily checklist"
+        className="max-w-[min(560px,94vw)]"
+        footer={
+          <>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={closeChecklistModal}
+              disabled={checklistSaving}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={() => void handleSaveChecklist()}
+              disabled={checklistSaving}
+            >
+              {checklistSaving ? "Saving…" : "Save"}
+            </Button>
+          </>
+        }
+      >
+        <div className="flex flex-col gap-3">
+          <SignalEditor
+            key={checklistEditorKey}
+            value={checklistDraft}
+            onChange={setChecklistDraft}
+            placeholder={"- [ ] Check VIX\n- [ ] No revenge trades\n- [ ] Size within risk rules"}
+            minHeight={220}
+            showHints
+            aria-label="Daily checklist and rules"
+          />
+          <p className="text-[11px] text-text-dim">
+            Tip: use checklist buttons or type <code className="text-accent">- [ ]</code> for each
+            rule.
+          </p>
+        </div>
+      </Modal>
 
       <Modal
         open={ruleModal.open}

@@ -31,7 +31,7 @@ export function CalcInputField({
         ? "focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-loss"
         : accent === "signal"
           ? "focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-signal"
-          : "focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-accent";
+          : "focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-border-strong";
 
   const bump = (delta: number) => {
     const next = Math.round((value + delta) * 1000) / 1000;

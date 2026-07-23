@@ -248,7 +248,7 @@ export function SettingsToggle({
       onClick={() => onCheckedChange(!checked)}
       className={cn(
         "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors duration-150",
-        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-strong",
         "disabled:cursor-not-allowed disabled:opacity-45",
         checked ? "bg-accent" : "bg-bg-input",
       )}
@@ -291,7 +291,7 @@ export function SettingsPrefixedInput({
     <div
       className={cn(
         "flex w-full overflow-hidden rounded-control bg-bg-input transition-colors duration-150",
-        "hover:bg-bg-input-hover focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-accent",
+        "hover:bg-bg-input-hover focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-border-strong",
         disabled && "opacity-45",
         className,
       )}
@@ -723,6 +723,93 @@ export function ClearTradesButton({
           {tradeCount === 1 ? "" : "s"} and all executions. Keeps account, cash ledger, setups, and
           tags.
         </p>
+        <div>
+          <label htmlFor={inputId} className="mb-1.5 block text-[11px] text-text-dim">
+            Type <span className="font-medium text-text">{accountName}</span> to confirm
+          </label>
+          <SignalInput
+            id={inputId}
+            value={typed}
+            onChange={(e) => setTyped(e.target.value)}
+            autoFocus
+            autoComplete="off"
+            spellCheck={false}
+            aria-label={`Type ${accountName} to confirm`}
+          />
+        </div>
+      </Modal>
+    </>
+  );
+}
+
+export function DeleteAccountButton({
+  accountName,
+  detail,
+  onDelete,
+  disabled,
+  disabledReason,
+}: {
+  accountName: string;
+  detail?: string;
+  onDelete: () => void;
+  disabled?: boolean;
+  disabledReason?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const [typed, setTyped] = useState("");
+  const inputId = useId();
+
+  const canDelete = typed.trim() === accountName.trim();
+
+  const handleOpenChange = (next: boolean) => {
+    setOpen(next);
+    if (!next) setTyped("");
+  };
+
+  return (
+    <>
+      <Button
+        type="button"
+        variant="outline"
+        size="icon-sm"
+        disabled={disabled}
+        title={disabled ? disabledReason : "Delete account"}
+        aria-label={`Delete ${accountName}`}
+        onClick={() => setOpen(true)}
+        className="border-border-strong bg-transparent text-loss hover:bg-loss/10 hover:text-loss disabled:opacity-40"
+      >
+        <Trash2 size={14} strokeWidth={1.5} />
+      </Button>
+      <Modal
+        open={open}
+        onOpenChange={handleOpenChange}
+        title={`Delete ${accountName}?`}
+        className="max-w-[min(336px,94vw)]"
+        footer={
+          <>
+            <Button type="button" variant="ghost" onClick={() => handleOpenChange(false)}>
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={!canDelete}
+              onClick={() => {
+                handleOpenChange(false);
+                onDelete();
+              }}
+              className="border-transparent bg-loss/15 hover:bg-loss/25"
+            >
+              Delete account
+            </Button>
+          </>
+        }
+      >
+        <p className="m-0 text-[13px] leading-relaxed text-text-muted">
+          Permanently removes this account and all linked trades, executions, cash transactions, and
+          attachments. This cannot be undone.
+        </p>
+        {detail ? <p className="m-0 text-[12px] leading-snug text-text-dim">{detail}</p> : null}
         <div>
           <label htmlFor={inputId} className="mb-1.5 block text-[11px] text-text-dim">
             Type <span className="font-medium text-text">{accountName}</span> to confirm

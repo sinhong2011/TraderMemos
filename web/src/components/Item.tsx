@@ -47,7 +47,7 @@ export function Item({
       className={cn(
         "group/item flex flex-wrap items-center rounded-control border text-sm outline-none",
         "transition-colors duration-100",
-        "focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-accent",
+        "focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-border-strong",
         itemVariantClass[variant],
         itemSizeClass[size],
         className,

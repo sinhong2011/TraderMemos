@@ -21,12 +21,12 @@ export const signalCalendarClassNames: NonNullable<ComponentProps<typeof DayPick
     button_previous: cn(
       "pointer-events-auto flex size-7 cursor-pointer items-center justify-center rounded-control border-none bg-transparent text-text-muted",
       "transition-colors hover:bg-bg-hover hover:text-text",
-      "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+      "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-strong",
     ),
     button_next: cn(
       "pointer-events-auto flex size-7 cursor-pointer items-center justify-center rounded-control border-none bg-transparent text-text-muted",
       "transition-colors hover:bg-bg-hover hover:text-text",
-      "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+      "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-strong",
     ),
     month_grid: "w-full border-collapse",
     weekdays: "flex",
@@ -36,7 +36,7 @@ export const signalCalendarClassNames: NonNullable<ComponentProps<typeof DayPick
     day_button: cn(
       "mx-auto flex size-8 cursor-pointer items-center justify-center rounded-control text-[11px] tabular-nums text-text",
       "transition-[background-color,color,box-shadow] duration-100 hover:bg-bg-hover",
-      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40",
+      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-strong",
     ),
     selected:
       "[&>button]:bg-accent [&>button]:font-semibold [&>button]:text-bg [&>button]:hover:bg-accent [&>button]:hover:text-bg",

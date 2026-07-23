@@ -115,7 +115,7 @@ function YearMonthCard({
         "transition-[background-color,box-shadow] duration-150 ease-out",
         "hover:bg-bg-elevated hover:shadow-[0_12px_32px_-18px_var(--color-accent-glow)]",
         "active:bg-bg-hover active:shadow-none",
-        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-strong",
         "motion-reduce:animate-none",
         "animate-[year-card-in_250ms_var(--ease-out)_both]",
         isFuture && "opacity-50",

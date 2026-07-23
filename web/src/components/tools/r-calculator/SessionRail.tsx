@@ -74,7 +74,7 @@ export function SessionRail({
                     cancelEdit();
                   }
                 }}
-                className="min-w-[5rem] max-w-[10rem] rounded-control border-none bg-bg-input px-2 py-1 text-[11px] font-medium text-text outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                className="min-w-[5rem] max-w-[10rem] rounded-control border-none bg-bg-input px-2 py-1 text-[11px] font-medium text-text outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-strong"
                 aria-label="Rename position"
               />
             ) : (

@@ -17,7 +17,7 @@ const buttonVariants = cva(
     "text-[12px] font-medium whitespace-nowrap select-none",
     "transition-[color,background-color,opacity,border-color,box-shadow] duration-150 ease-[var(--ease-out)]",
     "outline-none",
-    "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+    "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-strong",
     "disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
     "aria-invalid:border-loss aria-invalid:outline-loss/40",
     "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
