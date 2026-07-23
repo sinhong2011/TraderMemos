@@ -78,48 +78,113 @@ func lotKeyFromDetails(details sql.NullString) string {
 }
 
 // partitionKey isolates overlapping same-symbol positions.
-// Prefer explicit lot; otherwise for options use right|strike|expiry so distinct
-// contracts (e.g. TSLA 360P vs 370C) do not merge into one trade.
+// Prefer explicit lot; OCC-style option symbols are already unique per contract;
+// otherwise use right|strike|expiry (inferring call/put from the symbol when missing).
 func partitionKey(symbol, instrumentType string, details sql.NullString) string {
 	key := symbol + "|" + instrumentType
 	if lot := lotKeyFromDetails(details); lot != "" {
 		return key + "|" + lot
 	}
-	if contract := contractKeyFromDetails(details); contract != "" {
+	// OCC roots already encode expiry/right/strike — don't sub-split on sparse details
+	// (one fill with option_right and one without would otherwise leave ghost OPEN trades).
+	if instrumentType == "option" && looksLikeOCCOptionSymbol(symbol) {
+		return key
+	}
+	if contract := contractKeyFromDetails(details, symbol, instrumentType); contract != "" {
 		return key + "|" + contract
 	}
 	return key
 }
 
-func contractKeyFromDetails(details sql.NullString) string {
-	if !details.Valid || details.String == "" {
-		return ""
-	}
-	var m map[string]any
-	if err := json.Unmarshal([]byte(details.String), &m); err != nil {
-		return ""
-	}
-	str := func(k string) string {
-		switch v := m[k].(type) {
-		case string:
-			return strings.TrimSpace(v)
-		case float64:
-			// JSON numbers (strike) — keep compact form without trailing .0 when whole.
-			if v == float64(int64(v)) {
-				return strconv.FormatInt(int64(v), 10)
+func contractKeyFromDetails(details sql.NullString, symbol, instrumentType string) string {
+	var right, strike, expiry string
+	if details.Valid && details.String != "" {
+		var m map[string]any
+		if err := json.Unmarshal([]byte(details.String), &m); err == nil {
+			str := func(k string) string {
+				switch v := m[k].(type) {
+				case string:
+					return strings.TrimSpace(v)
+				case float64:
+					if v == float64(int64(v)) {
+						return strconv.FormatInt(int64(v), 10)
+					}
+					return strconv.FormatFloat(v, 'f', -1, 64)
+				default:
+					return ""
+				}
 			}
-			return strconv.FormatFloat(v, 'f', -1, 64)
-		default:
-			return ""
+			right = strings.ToLower(str("option_right"))
+			strike = str("strike")
+			expiry = str("expiry")
 		}
 	}
-	right := strings.ToLower(str("option_right"))
-	strike := str("strike")
-	expiry := str("expiry")
+	if instrumentType == "option" && right != "call" && right != "put" {
+		right = inferOptionRightFromSymbol(symbol)
+	}
 	if right == "" && strike == "" && expiry == "" {
 		return ""
 	}
 	return right + "|" + strike + "|" + expiry
+}
+
+// looksLikeOCCOptionSymbol detects compact or spaced OCC roots (e.g. TSLA240119C00200000).
+func looksLikeOCCOptionSymbol(symbol string) bool {
+	return inferOptionRightFromSymbol(symbol) != "" && optionOCCDigitRun(symbol)
+}
+
+func optionOCCDigitRun(symbol string) bool {
+	compact := strings.ToUpper(strings.ReplaceAll(strings.TrimSpace(symbol), " ", ""))
+	// Need digits around the C/P marker (expiry yyymmdd + strike).
+	for i := 1; i < len(compact)-1; i++ {
+		ch := compact[i]
+		if (ch == 'C' || ch == 'P') &&
+			compact[i-1] >= '0' && compact[i-1] <= '9' &&
+			compact[i+1] >= '0' && compact[i+1] <= '9' {
+			return true
+		}
+	}
+	return false
+}
+
+// inferOptionRightFromSymbol mirrors importer.InferOptionRight for regroup partitioning.
+func inferOptionRightFromSymbol(symbol string) string {
+	s := strings.TrimSpace(symbol)
+	if s == "" {
+		return ""
+	}
+	for _, part := range strings.Fields(s) {
+		switch strings.ToLower(strings.TrimSpace(part)) {
+		case "call":
+			return "call"
+		case "put":
+			return "put"
+		}
+	}
+	compact := strings.ToUpper(strings.ReplaceAll(s, " ", ""))
+	if right := optionRightFromOCCMarker(compact); right != "" {
+		return right
+	}
+	parts := strings.Fields(s)
+	if len(parts) >= 2 {
+		return optionRightFromOCCMarker(strings.ToUpper(parts[len(parts)-1]))
+	}
+	return ""
+}
+
+func optionRightFromOCCMarker(s string) string {
+	upper := strings.ToUpper(s)
+	for i := 1; i < len(upper)-1; i++ {
+		ch := upper[i]
+		prev, next := upper[i-1], upper[i+1]
+		if ch == 'C' && prev >= '0' && prev <= '9' && next >= '0' && next <= '9' {
+			return "call"
+		}
+		if ch == 'P' && prev >= '0' && prev <= '9' && next >= '0' && next <= '9' {
+			return "put"
+		}
+	}
+	return ""
 }
 
 // toUpsertParams maps the pure engine Trade (which uses *T for nullable fields)

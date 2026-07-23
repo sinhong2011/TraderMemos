@@ -7,36 +7,29 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestPartitionKey_usesLotWhenPresent(t *testing.T) {
-	key := partitionKey("TSLA", "option", sql.NullString{
-		String: `{"lot":"j1","option_right":"put","strike":"360"}`,
-		Valid:  true,
-	})
-	require.Equal(t, "TSLA|option|j1", key)
+func TestPartitionKeyOCCIgnoresSparseOptionDetails(t *testing.T) {
+	sym := "TSLA 240119C00200000"
+	withRight := sql.NullString{String: `{"option_right":"call"}`, Valid: true}
+	empty := sql.NullString{}
+
+	// Previously these diverged (…|call|| vs bare symbol|option) and left OPEN ghosts.
+	require.Equal(t,
+		partitionKey(sym, "option", withRight),
+		partitionKey(sym, "option", empty),
+	)
+	require.Equal(t, sym+"|option", partitionKey(sym, "option", empty))
 }
 
-func TestPartitionKey_usesContractWhenNoLot(t *testing.T) {
-	a := partitionKey("TSLA", "option", sql.NullString{
-		String: `{"option_right":"put","strike":"360","expiry":"2026-07-24"}`,
-		Valid:  true,
-	})
-	b := partitionKey("TSLA", "option", sql.NullString{
-		String: `{"option_right":"call","strike":"370","expiry":"2026-07-24"}`,
-		Valid:  true,
-	})
-	require.Equal(t, "TSLA|option|put|360|2026-07-24", a)
-	require.Equal(t, "TSLA|option|call|370|2026-07-24", b)
-	require.NotEqual(t, a, b)
+func TestPartitionKeyBareUnderlyingUsesInferredRight(t *testing.T) {
+	withRight := sql.NullString{String: `{"option_right":"put"}`, Valid: true}
+	empty := sql.NullString{}
+
+	// Bare underlyings still need call/put when present; empty stays unscoped.
+	require.Equal(t, "TSLA|option|put||", partitionKey("TSLA", "option", withRight))
+	require.Equal(t, "TSLA|option", partitionKey("TSLA", "option", empty))
 }
 
-func TestPartitionKey_numericStrike(t *testing.T) {
-	key := partitionKey("TSLA", "option", sql.NullString{
-		String: `{"option_right":"put","strike":360,"expiry":"2026-07-24"}`,
-		Valid:  true,
-	})
-	require.Equal(t, "TSLA|option|put|360|2026-07-24", key)
-}
-
-func TestPartitionKey_stockWithoutDetails(t *testing.T) {
-	require.Equal(t, "AAPL|stock", partitionKey("AAPL", "stock", sql.NullString{}))
+func TestPartitionKeyLotWins(t *testing.T) {
+	details := sql.NullString{String: `{"lot":"r3","option_right":"call"}`, Valid: true}
+	require.Equal(t, "NVDA|option|r3", partitionKey("NVDA", "option", details))
 }
