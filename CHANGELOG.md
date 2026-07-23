@@ -5,6 +5,13 @@ All notable changes to TraderMemos are documented in this file.
 Release versioning is managed by [release-please](https://github.com/googleapis/release-please).
 See [docs/release.md](docs/release.md) for the release workflow.
 
+## [0.1.3](https://github.com/sinhong2011/TraderMemos/compare/v0.1.2...v0.1.3) (2026-07-23)
+
+
+### Bug Fixes
+
+* **ci:** align healthz and settings tests with current behavior ([dcbd6d0](https://github.com/sinhong2011/TraderMemos/commit/dcbd6d0d3e420a0b8f4517658f815f6e57dc240e))
+
 ## [0.1.2](https://github.com/sinhong2011/TraderMemos/compare/v0.1.1...v0.1.2) (2026-07-23)
 
 
