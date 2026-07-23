@@ -48,7 +48,8 @@ function SettingsPage() {
     queryFn: () => settingsApi.getChecklistTemplate(),
   });
   const saveChecklistM = useMutation({
-    mutationFn: (items: string[]) => settingsApi.putChecklistTemplate({ items }),
+    mutationFn: (body: { items?: string[]; content: string }) =>
+      settingsApi.putChecklistTemplate(body),
     onSuccess: () => {
       void qc.invalidateQueries({
         queryKey: ["settings", "checklist-template"],
@@ -102,11 +103,12 @@ function SettingsPage() {
         await saveRiskRulesM.mutateAsync(body);
       }}
       checklistItems={checklistQ.data?.items ?? []}
+      checklistContent={checklistQ.data?.content ?? ""}
       checklistLoading={checklistQ.isLoading}
       checklistError={checklistQ.isError}
       checklistSaving={saveChecklistM.isPending}
-      onSaveChecklist={async (items) => {
-        await saveChecklistM.mutateAsync(items);
+      onSaveChecklist={async (body) => {
+        await saveChecklistM.mutateAsync(body);
       }}
     />
   );

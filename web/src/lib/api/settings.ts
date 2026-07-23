@@ -26,6 +26,7 @@ export interface RiskRules {
 
 export interface ChecklistTemplate {
   items: string[];
+  content?: string;
 }
 
 export const settingsApi = {
@@ -36,7 +37,9 @@ export const settingsApi = {
       body: JSON.stringify(body),
     }),
   getChecklistTemplate: () => apiFetch<ChecklistTemplate>("/settings/checklist-template"),
-  putChecklistTemplate: (body: ChecklistTemplate) =>
+  putChecklistTemplate: (
+    body: Partial<ChecklistTemplate> & { content?: string; items?: string[] },
+  ) =>
     apiFetch<ChecklistTemplate>("/settings/checklist-template", {
       method: "PUT",
       body: JSON.stringify(body),

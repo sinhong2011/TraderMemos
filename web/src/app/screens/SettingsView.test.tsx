@@ -134,7 +134,7 @@ const baseProps = {
     max_risk_per_trade: null,
     max_daily_loss: null,
     max_open_risk: null,
-    default_account_risk_pct: 1,
+    default_account_risk_pct: null,
   },
   riskRulesLoading: false,
   riskRulesError: false,
@@ -142,6 +142,7 @@ const baseProps = {
   onSaveRiskRules: vi.fn(noop),
 
   checklistItems: ["Check VIX"],
+  checklistContent: "- [ ] Check VIX",
   checklistLoading: false,
   checklistError: false,
   checklistSaving: false,
@@ -253,7 +254,37 @@ describe("SettingsView", () => {
     renderSettings({ ...baseProps });
     await user.click(screen.getByRole("link", { name: /^Rules$/i }));
     expect(screen.getByText("Risk Rules")).toBeInTheDocument();
-    expect(screen.getByLabelText(/max risk per trade/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /add rule/i })).toBeInTheDocument();
+    expect(screen.getByText("No risk rules yet")).toBeInTheDocument();
+  });
+
+  it("lists configured risk rules and opens add modal", async () => {
+    const user = userEvent.setup();
+    renderSettings({
+      ...baseProps,
+      riskRules: {
+        max_risk_per_trade: 100,
+        max_daily_loss: null,
+        max_open_risk: null,
+        default_account_risk_pct: null,
+      },
+    });
+    await user.click(screen.getByRole("link", { name: /^Rules$/i }));
+    expect(screen.getByText("Max risk / trade")).toBeInTheDocument();
+    expect(screen.getByText("$100")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /add rule/i }));
+    expect(screen.getByRole("heading", { name: /add risk rule/i })).toBeInTheDocument();
+    expect(screen.getByLabelText(/rule type/i)).toBeInTheDocument();
+  });
+
+  it("shows rich checklist editor on rules tab", async () => {
+    const user = userEvent.setup();
+    renderSettings({ ...baseProps });
+    await user.click(screen.getByRole("link", { name: /^Rules$/i }));
+    expect(screen.getByText("Daily Checklist")).toBeInTheDocument();
+    expect(screen.getByLabelText(/daily checklist and rules/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^save$/i })).toBeInTheDocument();
+    expect(screen.getByText(/1 checklist item detected/i)).toBeInTheDocument();
   });
 
   it("points journal setups to Playbook instead of duplicating CRUD", async () => {

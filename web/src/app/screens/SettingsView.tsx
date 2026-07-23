@@ -61,10 +61,11 @@ export interface SettingsViewProps {
   onSaveRiskRules: (body: RiskRules) => Promise<void>;
 
   checklistItems: string[];
+  checklistContent: string;
   checklistLoading: boolean;
   checklistError: boolean;
   checklistSaving: boolean;
-  onSaveChecklist: (items: string[]) => Promise<void>;
+  onSaveChecklist: (body: { items?: string[]; content: string }) => Promise<void>;
 }
 
 const NAV_ICONS: Record<SettingsSectionId, typeof Wallet> = {
@@ -115,6 +116,7 @@ export function SettingsView(props: SettingsViewProps) {
             riskRulesSaving={props.riskRulesSaving}
             onSaveRiskRules={props.onSaveRiskRules}
             checklistItems={props.checklistItems}
+            checklistContent={props.checklistContent}
             checklistLoading={props.checklistLoading}
             checklistError={props.checklistError}
             checklistSaving={props.checklistSaving}

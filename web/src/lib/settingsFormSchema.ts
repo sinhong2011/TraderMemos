@@ -93,6 +93,115 @@ export type RiskFormValues = {
   riskPct: string;
 };
 
+export type RiskRuleKey = keyof RiskRules;
+
+export type RiskRuleDef = {
+  key: RiskRuleKey;
+  label: string;
+  detail: string;
+  unit: "$" | "%";
+  placeholder: string;
+};
+
+/** Fixed catalog of risk limits supported by the API / compliance check. */
+export const RISK_RULE_DEFS: readonly RiskRuleDef[] = [
+  {
+    key: "max_risk_per_trade",
+    label: "Max risk / trade",
+    detail: "Cap planned risk on a single trade.",
+    unit: "$",
+    placeholder: "e.g. 100",
+  },
+  {
+    key: "max_daily_loss",
+    label: "Max daily loss",
+    detail: "Stop when today's realized loss hits this amount.",
+    unit: "$",
+    placeholder: "e.g. 300",
+  },
+  {
+    key: "max_open_risk",
+    label: "Max open risk",
+    detail: "Limit total risk across open positions.",
+    unit: "$",
+    placeholder: "e.g. 500",
+  },
+  {
+    key: "default_account_risk_pct",
+    label: "Default account risk %",
+    detail: "Suggested size as a percent of account equity.",
+    unit: "%",
+    placeholder: "e.g. 1",
+  },
+] as const;
+
+export function riskRuleDef(key: RiskRuleKey): RiskRuleDef {
+  const def = RISK_RULE_DEFS.find((d) => d.key === key);
+  if (!def) throw new Error(`Unknown risk rule: ${key}`);
+  return def;
+}
+
+export function emptyRiskRules(): RiskRules {
+  return {
+    max_risk_per_trade: null,
+    max_daily_loss: null,
+    max_open_risk: null,
+    default_account_risk_pct: null,
+  };
+}
+
+export function activeRiskRuleEntries(
+  rules?: RiskRules | null,
+): { key: RiskRuleKey; value: number; def: RiskRuleDef }[] {
+  const body = rules ?? emptyRiskRules();
+  return RISK_RULE_DEFS.flatMap((def) => {
+    const value = body[def.key];
+    if (value == null) return [];
+    return [{ key: def.key, value, def }];
+  });
+}
+
+export function availableRiskRuleKeys(rules?: RiskRules | null): RiskRuleKey[] {
+  const body = rules ?? emptyRiskRules();
+  return RISK_RULE_DEFS.filter((def) => body[def.key] == null).map((def) => def.key);
+}
+
+export function setRiskRuleValue(
+  rules: RiskRules | null | undefined,
+  key: RiskRuleKey,
+  value: number | null,
+): RiskRules {
+  return { ...(rules ?? emptyRiskRules()), [key]: value };
+}
+
+export function formatRiskRuleValue(key: RiskRuleKey, value: number, locale?: string): string {
+  const def = riskRuleDef(key);
+  if (def.unit === "%") {
+    return `${value.toLocaleString(locale, { maximumFractionDigits: 2 })}%`;
+  }
+  return `$${value.toLocaleString(locale, { maximumFractionDigits: 2 })}`;
+}
+
+export function validateRiskRuleValue(key: RiskRuleKey, raw: string): string | undefined {
+  if (key === "default_account_risk_pct") {
+    const t = raw.trim();
+    if (!t) return "Enter a value.";
+    return validateRiskPercent(raw) ?? undefined;
+  }
+  const t = raw.trim();
+  if (!t) return "Enter a value.";
+  return validateOptionalAmountField(raw) ?? undefined;
+}
+
+export function parseRiskRuleValue(key: RiskRuleKey, raw: string): number | null {
+  if (key === "default_account_risk_pct") {
+    const err = validateRiskPercent(raw);
+    if (err || !raw.trim()) return null;
+    return parseOptionalAmount(raw);
+  }
+  return parseOptionalAmount(raw);
+}
+
 export function defaultRiskFormValues(rules?: RiskRules | null): RiskFormValues {
   return {
     maxRisk: numOrEmpty(rules?.max_risk_per_trade),

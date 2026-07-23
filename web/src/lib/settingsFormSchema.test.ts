@@ -1,13 +1,19 @@
 import { describe, expect, it } from "vite-plus/test";
 import {
+  activeRiskRuleEntries,
+  availableRiskRuleKeys,
   defaultAccountFormValues,
+  formatRiskRuleValue,
   parseChecklistText,
   parseOptionalAmount,
+  parseRiskRuleValue,
   riskFormToBody,
+  setRiskRuleValue,
   validatePositiveAmount,
   validateRequiredName,
   validateRiskForm,
   validateRiskPercent,
+  validateRiskRuleValue,
   validateStartingBalance,
 } from "./settingsFormSchema";
 
@@ -71,6 +77,30 @@ describe("settingsFormSchema", () => {
 
   it("parses checklist lines", () => {
     expect(parseChecklistText("  a\n\nb  \n")).toEqual(["a", "b"]);
+  });
+
+  it("lists active and available risk rules", () => {
+    const rules = {
+      max_risk_per_trade: 100,
+      max_daily_loss: null,
+      max_open_risk: null,
+      default_account_risk_pct: 1,
+    };
+    expect(activeRiskRuleEntries(rules).map((r) => r.key)).toEqual([
+      "max_risk_per_trade",
+      "default_account_risk_pct",
+    ]);
+    expect(availableRiskRuleKeys(rules)).toEqual(["max_daily_loss", "max_open_risk"]);
+    expect(setRiskRuleValue(rules, "max_daily_loss", 300).max_daily_loss).toBe(300);
+    expect(formatRiskRuleValue("max_risk_per_trade", 100, "en-US")).toBe("$100");
+    expect(formatRiskRuleValue("default_account_risk_pct", 1.5, "en-US")).toBe("1.5%");
+  });
+
+  it("validates and parses risk rule modal values", () => {
+    expect(validateRiskRuleValue("max_risk_per_trade", "")).toMatch(/enter a value/i);
+    expect(validateRiskRuleValue("default_account_risk_pct", "101")).toMatch(/0 and 100/);
+    expect(parseRiskRuleValue("max_risk_per_trade", "50")).toBe(50);
+    expect(parseRiskRuleValue("default_account_risk_pct", "2")).toBe(2);
   });
 
   it("provides account defaults", () => {

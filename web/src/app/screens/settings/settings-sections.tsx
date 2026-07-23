@@ -17,8 +17,9 @@ import { LlmApiSettingsForm } from "../../../components/LlmApiSettingsForm";
 import { Modal } from "../../../components/Modal";
 import { SignalAmountInput } from "../../../components/SignalAmountInput";
 import { SignalDatePicker } from "../../../components/SignalDatePicker";
+import { SignalEditor } from "../../../components/SignalEditor";
 import { fieldError, SignalField } from "../../../components/SignalField";
-import { SignalInput, SignalTextarea } from "../../../components/SignalInput";
+import { SignalInput } from "../../../components/SignalInput";
 import { Skeleton } from "../../../components/Skeleton";
 import { useToastManager } from "../../../components/Toast";
 import { Button } from "../../../components/ui/button";
@@ -69,19 +70,21 @@ import {
   useDisplayPrefs,
 } from "../../../lib/displayPrefs";
 import {
+  activeRiskRuleEntries,
+  availableRiskRuleKeys,
   defaultAccountFormValues,
   defaultCashFormValues,
-  defaultRiskFormValues,
   defaultTagFormValues,
-  parseChecklistText,
-  riskFormToBody,
+  formatRiskRuleValue,
+  parseRiskRuleValue,
+  riskRuleDef,
+  setRiskRuleValue,
   validateAccountId,
-  validateOptionalAmountField,
   validatePositiveAmount,
   validateRequiredName,
-  validateRiskForm,
-  validateRiskPercent,
+  validateRiskRuleValue,
   validateStartingBalance,
+  type RiskRuleKey,
 } from "../../../lib/settingsFormSchema";
 import {
   AccountRow,
@@ -90,7 +93,6 @@ import {
   ClearTradesButton,
   DeleteButton,
   FormError,
-  SavedBadge,
   SettingsInsetForm,
   SettingsPanelBody,
   SettingsGroup,
@@ -698,20 +700,23 @@ export function AccountsTab({
               className="max-w-[min(500px,94vw)]"
               footer={
                 <>
-                  <BtnGhost onClick={cancelEditAccount} disabled={editingAccount} size="action">
-                    <X size={12} strokeWidth={1.5} />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={cancelEditAccount}
+                    disabled={editingAccount}
+                  >
                     Cancel
-                  </BtnGhost>
-                  <BtnPrimary
+                  </Button>
+                  <Button
+                    type="button"
                     onClick={() => {
                       if (editAccountId) void handleSaveAccount(editAccountId);
                     }}
                     disabled={editingAccount}
-                    className="h-9 min-h-9"
                   >
-                    <Check size={12} strokeWidth={1.5} />
                     {editingAccount ? "Saving…" : "Save"}
-                  </BtnPrimary>
+                  </Button>
                 </>
               }
             >
@@ -1005,14 +1010,12 @@ export function AccountsTab({
         className="max-w-[min(440px,94vw)]"
         footer={
           <>
-            <BtnGhost onClick={cancelEditCash} disabled={savingCash} size="action">
-              <X size={12} strokeWidth={1.5} />
+            <Button type="button" variant="outline" onClick={cancelEditCash} disabled={savingCash}>
               Cancel
-            </BtnGhost>
-            <BtnPrimary onClick={() => void handleSaveCash()} disabled={savingCash}>
-              <Check size={12} strokeWidth={1.5} />
+            </Button>
+            <Button type="button" onClick={() => void handleSaveCash()} disabled={savingCash}>
               {savingCash ? "Saving…" : "Save"}
-            </BtnPrimary>
+            </Button>
           </>
         }
       >
@@ -1073,11 +1076,17 @@ export interface RulesTabProps {
   riskRulesSaving: boolean;
   onSaveRiskRules: (body: RiskRules) => Promise<void>;
   checklistItems: string[];
+  checklistContent: string;
   checklistLoading: boolean;
   checklistError: boolean;
   checklistSaving: boolean;
-  onSaveChecklist: (items: string[]) => Promise<void>;
+  onSaveChecklist: (body: { items?: string[]; content: string }) => Promise<void>;
 }
+
+type RuleModalState =
+  | { open: false }
+  | { open: true; mode: "add" }
+  | { open: true; mode: "edit"; key: RiskRuleKey };
 
 export function RulesTab({
   riskRules,
@@ -1086,249 +1095,315 @@ export function RulesTab({
   riskRulesSaving,
   onSaveRiskRules,
   checklistItems,
+  checklistContent,
   checklistLoading,
   checklistError,
   checklistSaving,
   onSaveChecklist,
 }: RulesTabProps) {
   const toast = useToastManager();
-  const [riskFormError, setRiskFormError] = useState<string | null>(null);
-  const [riskSaved, setRiskSaved] = useState(false);
-  const [checklistSaved, setChecklistSaved] = useState(false);
+  const locale = intlLocale();
+  const [ruleModal, setRuleModal] = useState<RuleModalState>({ open: false });
+  const [ruleKey, setRuleKey] = useState<RiskRuleKey>("max_risk_per_trade");
+  const [ruleValue, setRuleValue] = useState("");
+  const [ruleError, setRuleError] = useState<string | null>(null);
 
-  const riskForm = useForm({
-    defaultValues: defaultRiskFormValues(riskRules),
-    validators: {
-      onSubmit: ({ value }) => validateRiskForm(value),
-    },
-    onSubmit: async ({ value }) => {
-      setRiskFormError(null);
-      setRiskSaved(false);
-      try {
-        await onSaveRiskRules(riskFormToBody(value));
-        setRiskSaved(true);
-      } catch {
-        setRiskFormError("Could not save risk rules.");
-      }
-    },
-  });
-
-  const checklistForm = useForm({
-    defaultValues: { text: checklistItems.join("\n") },
-    onSubmit: async ({ value }) => {
-      setChecklistSaved(false);
-      try {
-        await onSaveChecklist(parseChecklistText(value.text));
-        setChecklistSaved(true);
-      } catch (err) {
-        toast.add({
-          title: "Could not save checklist",
-          description: err instanceof Error ? err.message : "Request failed",
-        });
-      }
-    },
-  });
+  const [checklistDraft, setChecklistDraft] = useState(checklistContent);
+  const [checklistEditorKey, setChecklistEditorKey] = useState(0);
 
   useEffect(() => {
-    if (!riskRules) return;
-    riskForm.reset(defaultRiskFormValues(riskRules));
-  }, [riskRules]);
+    setChecklistDraft(checklistContent);
+    setChecklistEditorKey((k) => k + 1);
+  }, [checklistContent]);
 
-  useEffect(() => {
-    checklistForm.reset({ text: checklistItems.join("\n") });
-  }, [checklistItems]);
+  const activeRules = useMemo(() => activeRiskRuleEntries(riskRules), [riskRules]);
+  const availableKeys = useMemo(() => availableRiskRuleKeys(riskRules), [riskRules]);
+  const canAddRule = availableKeys.length > 0;
+
+  function closeRuleModal() {
+    setRuleModal({ open: false });
+    setRuleError(null);
+    setRuleValue("");
+  }
+
+  function openAddRule() {
+    const first = availableKeys[0];
+    if (!first) return;
+    setRuleKey(first);
+    setRuleValue("");
+    setRuleError(null);
+    setRuleModal({ open: true, mode: "add" });
+  }
+
+  function openEditRule(key: RiskRuleKey, value: number) {
+    setRuleKey(key);
+    setRuleValue(String(value));
+    setRuleError(null);
+    setRuleModal({ open: true, mode: "edit", key });
+  }
+
+  async function persistRules(next: RiskRules, successTitle: string) {
+    try {
+      await onSaveRiskRules(next);
+      toast.add({ title: successTitle });
+      closeRuleModal();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Request failed";
+      setRuleError(message);
+      toast.add({ title: "Could not save risk rule", description: message });
+    }
+  }
+
+  async function handleSaveRule() {
+    const key = ruleModal.open && ruleModal.mode === "edit" ? ruleModal.key : ruleKey;
+    const validation = validateRiskRuleValue(key, ruleValue);
+    if (validation) {
+      setRuleError(validation);
+      return;
+    }
+    const parsed = parseRiskRuleValue(key, ruleValue);
+    if (parsed == null) {
+      setRuleError("Enter a valid number.");
+      return;
+    }
+    setRuleError(null);
+    await persistRules(
+      setRiskRuleValue(riskRules, key, parsed),
+      ruleModal.open && ruleModal.mode === "edit" ? "Rule updated" : "Rule added",
+    );
+  }
+
+  async function handleDeleteRule(key: RiskRuleKey) {
+    try {
+      await onSaveRiskRules(setRiskRuleValue(riskRules, key, null));
+      toast.add({ title: "Rule removed", description: riskRuleDef(key).label });
+    } catch (err) {
+      toast.add({
+        title: "Could not remove rule",
+        description: err instanceof Error ? err.message : "Request failed",
+      });
+    }
+  }
+
+  async function handleSaveChecklist() {
+    try {
+      await onSaveChecklist({ content: checklistDraft });
+      toast.add({ title: "Checklist saved" });
+    } catch (err) {
+      toast.add({
+        title: "Could not save checklist",
+        description: err instanceof Error ? err.message : "Request failed",
+      });
+    }
+  }
+
+  const modalDef = riskRuleDef(ruleKey);
+  const modalTitle =
+    ruleModal.open && ruleModal.mode === "edit" ? "Edit risk rule" : "Add risk rule";
 
   return (
     <>
       <SettingsSection
         title="Risk Rules"
-        description="Used by Check compliance on New Trade. Leave blank to skip a limit."
+        description="Used by Check compliance on New Trade. Add only the limits you want enforced."
+        action={
+          <BtnGhost
+            onClick={openAddRule}
+            disabled={!canAddRule || riskRulesLoading || riskRulesSaving}
+          >
+            <Plus size={13} strokeWidth={1.5} />
+            Add rule
+          </BtnGhost>
+        }
       >
         {riskRulesLoading ? (
           <SettingsPanelBody>
-            <Skeleton height="120px" />
+            <div className="flex flex-col gap-2">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <Skeleton key={i} height="52px" />
+              ))}
+            </div>
           </SettingsPanelBody>
         ) : riskRulesError ? (
           <SettingsPanelBody>
             <p className="text-[12px] text-loss">Failed to load risk rules.</p>
           </SettingsPanelBody>
-        ) : (
-          <SettingsPanelBody>
-            <form
-              className="flex flex-col gap-4"
-              onSubmit={(e) => {
-                e.preventDefault();
-                void riskForm.handleSubmit();
-              }}
-            >
-              <div className="flex flex-wrap gap-3">
-                <riskForm.Field
-                  name="maxRisk"
-                  validators={{
-                    onBlur: ({ value }) => validateOptionalAmountField(value),
-                  }}
-                >
-                  {(field) => (
-                    <SignalField
-                      className="min-w-[min(100%,14rem)] flex-1"
-                      label="Max risk / trade ($)"
-                      htmlFor="max-risk"
-                      error={fieldError(field.state.meta.errors)}
-                    >
-                      <SignalAmountInput
-                        id="max-risk"
-                        value={field.state.value}
-                        onValueChange={field.handleChange}
-                        onBlur={field.handleBlur}
-                        placeholder="e.g. 100"
-                        aria-label="Max risk per trade"
-                        className="w-full"
-                      />
-                    </SignalField>
-                  )}
-                </riskForm.Field>
-                <riskForm.Field
-                  name="maxDaily"
-                  validators={{
-                    onBlur: ({ value }) => validateOptionalAmountField(value),
-                  }}
-                >
-                  {(field) => (
-                    <SignalField
-                      className="min-w-[min(100%,14rem)] flex-1"
-                      label="Max daily loss ($)"
-                      htmlFor="max-daily"
-                      error={fieldError(field.state.meta.errors)}
-                    >
-                      <SignalAmountInput
-                        id="max-daily"
-                        value={field.state.value}
-                        onValueChange={field.handleChange}
-                        onBlur={field.handleBlur}
-                        placeholder="e.g. 300"
-                        aria-label="Max daily loss"
-                        className="w-full"
-                      />
-                    </SignalField>
-                  )}
-                </riskForm.Field>
-                <riskForm.Field
-                  name="maxOpen"
-                  validators={{
-                    onBlur: ({ value }) => validateOptionalAmountField(value),
-                  }}
-                >
-                  {(field) => (
-                    <SignalField
-                      className="min-w-[min(100%,14rem)] flex-1"
-                      label="Max open risk ($)"
-                      htmlFor="max-open"
-                      error={fieldError(field.state.meta.errors)}
-                    >
-                      <SignalAmountInput
-                        id="max-open"
-                        value={field.state.value}
-                        onValueChange={field.handleChange}
-                        onBlur={field.handleBlur}
-                        placeholder="e.g. 500"
-                        aria-label="Max open risk"
-                        className="w-full"
-                      />
-                    </SignalField>
-                  )}
-                </riskForm.Field>
-                <riskForm.Field
-                  name="riskPct"
-                  validators={{
-                    onBlur: ({ value }) => validateRiskPercent(value),
-                    onSubmit: ({ value }) => validateRiskPercent(value),
-                  }}
-                >
-                  {(field) => (
-                    <SignalField
-                      className="min-w-[min(100%,14rem)] flex-1"
-                      label="Default account risk %"
-                      htmlFor="risk-pct"
-                      error={fieldError(field.state.meta.errors)}
-                    >
-                      <SignalAmountInput
-                        id="risk-pct"
-                        value={field.state.value}
-                        onValueChange={field.handleChange}
-                        onBlur={field.handleBlur}
-                        placeholder="e.g. 1"
-                        aria-label="Default account risk percent"
-                        className="w-full"
-                      />
-                    </SignalField>
-                  )}
-                </riskForm.Field>
-              </div>
-              <riskForm.Subscribe selector={(s) => s.errorMap.onSubmit}>
-                {(submitErr) => (
-                  <FormError
-                    message={riskFormError ?? (typeof submitErr === "string" ? submitErr : null)}
-                  />
-                )}
-              </riskForm.Subscribe>
-              <div className="flex items-center justify-end gap-3">
-                <SavedBadge show={riskSaved} />
-                <BtnPrimary type="submit" disabled={riskRulesSaving}>
-                  <Shield size={12} strokeWidth={1.5} />
-                  {riskRulesSaving ? "Saving…" : "Save rules"}
-                </BtnPrimary>
-              </div>
-            </form>
+        ) : activeRules.length === 0 ? (
+          <SettingsPanelBody className="py-8">
+            <EmptyState
+              title="No risk rules yet"
+              hint="Add a limit — max risk per trade, daily loss, open risk, or account risk %."
+              icon={<Shield size={28} strokeWidth={1.5} />}
+            />
           </SettingsPanelBody>
+        ) : (
+          <SettingsGroup>
+            {activeRules.map(({ key, value, def }, index) => (
+              <SettingsRow
+                key={key}
+                last={index === activeRules.length - 1}
+                primary={def.label}
+                secondary={def.detail}
+                actions={
+                  <>
+                    <span className="text-[13px] font-medium tabular-nums text-text">
+                      {formatRiskRuleValue(key, value, locale)}
+                    </span>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      aria-label={`Edit ${def.label}`}
+                      disabled={riskRulesSaving}
+                      onClick={() => openEditRule(key, value)}
+                    >
+                      Edit
+                    </Button>
+                    <DeleteButton
+                      label={def.label}
+                      disabled={riskRulesSaving}
+                      onDelete={() => void handleDeleteRule(key)}
+                    />
+                  </>
+                }
+              />
+            ))}
+          </SettingsGroup>
         )}
       </SettingsSection>
 
       <SettingsSection
         title="Daily Checklist"
-        description="Pre-market / EOD checklist shown when you create a New Note. One item per line."
+        description="Write trading rules and checklist items as rich text. Task items appear when you create a daily log note."
+        action={
+          <BtnGhost
+            onClick={() => void handleSaveChecklist()}
+            disabled={checklistLoading || checklistSaving}
+          >
+            Save
+          </BtnGhost>
+        }
       >
         {checklistLoading ? (
           <SettingsPanelBody>
-            <Skeleton height="100px" />
+            <div className="flex flex-col gap-2">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <Skeleton key={i} height="52px" />
+              ))}
+            </div>
           </SettingsPanelBody>
         ) : checklistError ? (
           <SettingsPanelBody>
             <p className="text-[12px] text-loss">Failed to load checklist template.</p>
           </SettingsPanelBody>
         ) : (
-          <SettingsPanelBody>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                void checklistForm.handleSubmit();
-              }}
-            >
-              <checklistForm.Field name="text">
-                {(field) => (
-                  <SignalField label="Checklist items" htmlFor="checklist-items">
-                    <SignalTextarea
-                      id="checklist-items"
-                      aria-label="Daily checklist items"
-                      value={field.state.value}
-                      onBlur={field.handleBlur}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      rows={5}
-                      placeholder={"Check VIX\nNo revenge trades\nSize within risk"}
-                      className="border border-border !bg-transparent hover:!bg-transparent focus-visible:!bg-transparent"
-                    />
-                  </SignalField>
-                )}
-              </checklistForm.Field>
-              <div className="mt-4 flex items-center gap-3">
-                <BtnPrimary type="submit" disabled={checklistSaving}>
-                  {checklistSaving ? "Saving…" : "Save checklist"}
-                </BtnPrimary>
-                <SavedBadge show={checklistSaved} />
-              </div>
-            </form>
+          <SettingsPanelBody className="flex flex-col gap-3">
+            <SignalEditor
+              key={checklistEditorKey}
+              value={checklistDraft}
+              onChange={setChecklistDraft}
+              placeholder={"- [ ] Check VIX\n- [ ] No revenge trades\n- [ ] Size within risk rules"}
+              minHeight={220}
+              showHints
+              aria-label="Daily checklist and rules"
+            />
+            {checklistItems.length > 0 ? (
+              <p className="text-[11px] text-text-dim">
+                {checklistItems.length} checklist item{checklistItems.length === 1 ? "" : "s"}{" "}
+                detected for New Note.
+              </p>
+            ) : (
+              <p className="text-[11px] text-text-dim">
+                Tip: use checklist buttons or type <code className="text-accent">- [ ]</code> for
+                each rule.
+              </p>
+            )}
           </SettingsPanelBody>
         )}
       </SettingsSection>
+
+      <Modal
+        open={ruleModal.open}
+        onOpenChange={(open) => {
+          if (!open) closeRuleModal();
+        }}
+        title={modalTitle}
+        className="max-w-[min(440px,94vw)]"
+        footer={
+          <>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={closeRuleModal}
+              disabled={riskRulesSaving}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              disabled={
+                riskRulesSaving || (ruleModal.open && ruleModal.mode === "add" && !canAddRule)
+              }
+              onClick={() => void handleSaveRule()}
+            >
+              {riskRulesSaving
+                ? "Saving…"
+                : ruleModal.open && ruleModal.mode === "edit"
+                  ? "Save"
+                  : "Add rule"}
+            </Button>
+          </>
+        }
+      >
+        <div className="flex flex-col gap-3">
+          {ruleModal.open && ruleModal.mode === "add" ? (
+            <SignalField label="Rule type">
+              <NativeSelect
+                size="sm"
+                value={ruleKey}
+                onChange={(e) => setRuleKey(e.target.value as RiskRuleKey)}
+                aria-label="Rule type"
+                className="h-8 w-full text-[12px]"
+                wrapperClassName="w-full"
+              >
+                {availableKeys.map((key) => {
+                  const def = riskRuleDef(key);
+                  return (
+                    <NativeSelectOption key={key} value={key}>
+                      {def.label}
+                    </NativeSelectOption>
+                  );
+                })}
+              </NativeSelect>
+            </SignalField>
+          ) : (
+            <div className="flex flex-col gap-1">
+              <span className="text-[11px] font-medium uppercase tracking-[0.1em] text-text-dim">
+                Rule type
+              </span>
+              <p className="m-0 text-[13px] font-medium text-text">{modalDef.label}</p>
+              <p className="m-0 text-[12px] text-text-muted">{modalDef.detail}</p>
+            </div>
+          )}
+          <SignalField
+            label={modalDef.unit === "%" ? "Value (%)" : "Value ($)"}
+            htmlFor="risk-rule-value"
+            error={ruleError ?? undefined}
+          >
+            <SignalAmountInput
+              id="risk-rule-value"
+              value={ruleValue}
+              onValueChange={(v) => {
+                setRuleValue(v);
+                if (ruleError) setRuleError(null);
+              }}
+              placeholder={modalDef.placeholder}
+              aria-label={modalDef.label}
+              className="w-full"
+            />
+          </SignalField>
+        </div>
+      </Modal>
     </>
   );
 }
