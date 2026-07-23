@@ -1,6 +1,7 @@
 /data/
 *.db
 *.db-*
+*.migrate.lock
 /server
 /tradermemos
 node_modules/
