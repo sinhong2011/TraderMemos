@@ -199,7 +199,7 @@ export function FormatToolbar({
         <input
           ref={fileRef}
           type="file"
-          accept="image/png,image/jpeg,image/webp,image/gif"
+          accept="image/png,image/jpeg,image/webp"
           className="sr-only"
           aria-label="Upload image"
           onChange={(e) => void onPickImage(e.target.files?.[0])}

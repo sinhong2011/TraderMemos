@@ -1,1 +1,1 @@
-export type ExportFormat = "csv" | "json";
+export type ExportFormat = "csv" | "json" | "zip";

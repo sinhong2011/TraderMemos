@@ -20,7 +20,7 @@ export function useUploadAttachment(tradeId: string) {
 export function useDeleteAttachment(tradeId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (attachmentId: string) => attachmentsApi.delete(tradeId, attachmentId),
+    mutationFn: (attachmentId: string) => attachmentsApi.delete(attachmentId),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["attachments", tradeId] }),
   });
 }

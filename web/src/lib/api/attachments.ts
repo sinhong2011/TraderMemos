@@ -11,8 +11,8 @@ export const attachmentsApi = {
   list: (tradeId: string) => apiFetch<TradeAttachment[]>(`/trades/${tradeId}/attachments`),
   // Returns the raw file URL (caller opens in new tab or uses as img src)
   fileUrl: (attachmentId: string) => `${getBaseUrl()}/attachments/${attachmentId}/file`,
-  delete: (tradeId: string, attachmentId: string) =>
-    apiFetch<void>(`/trades/${tradeId}/attachments/${attachmentId}`, {
+  delete: (attachmentId: string) =>
+    apiFetch<void>(`/attachments/${attachmentId}`, {
       method: "DELETE",
     }),
 };

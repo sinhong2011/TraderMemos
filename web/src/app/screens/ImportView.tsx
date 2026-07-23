@@ -82,8 +82,8 @@ function ImportGuidance({ onLogTrade }: { onLogTrade?: () => void }) {
           Export
         </h3>
         <p className="mt-2 text-[11px] leading-relaxed text-text-dim">
-          Switch to Export to download your account as JSON (full backup) or CSV (journal
-          spreadsheet). Re-import either format on Import.
+          Switch to Export to download JSON, CSV, or ZIP (JSON + screenshots). Re-import JSON/CSV on
+          Import.
         </p>
       </div>
 
@@ -590,7 +590,9 @@ function ExportPanel({ accounts, accountsLoading, defaultAccountId }: ExportPane
   const formatHint =
     format === "csv"
       ? "Journal spreadsheet of closed trades — same account data as JSON, spreadsheet-friendly encoding."
-      : "Canonical backup: all trades with fills, journal fields, tags, cash, and the full playbook setups catalog. Re-import this file directly.";
+      : format === "zip"
+        ? "Full backup zip: export.json plus trade screenshot files under attachments/. Re-import JSON from the archive; keep the folder for photo restore."
+        : "Canonical backup: all trades with fills, journal fields, tags, cash, and the full playbook setups catalog. Re-import this file directly.";
 
   return (
     <Panel title="Export account" className="rounded-none border-0 lg:border lg:rounded-sharp">
@@ -630,6 +632,7 @@ function ExportPanel({ accounts, accountsLoading, defaultAccountId }: ExportPane
             options={[
               { value: "json", label: "JSON" },
               { value: "csv", label: "CSV" },
+              { value: "zip", label: "ZIP" },
             ]}
           />
         </SignalField>

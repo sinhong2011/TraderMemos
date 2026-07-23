@@ -1,5 +1,5 @@
-/** Compress oversized images to a data URL TipTap can embed (no auth URL needed). */
-const MAX_DATA_URL_BYTES = 900_000;
+/** Compress oversized images before upload / legacy embed. */
+const MAX_BYTES = 900_000;
 const MAX_EDGE_PX = 1600;
 const JPEG_QUALITY = 0.82;
 
@@ -28,15 +28,37 @@ function loadImage(src: string): Promise<HTMLImageElement> {
   });
 }
 
-/** Turn a user image file into a data URL suitable for note body storage. */
-export async function imageFileToDataUrl(file: File): Promise<string> {
+function canvasToBlob(canvas: HTMLCanvasElement, type: string, quality: number): Promise<Blob> {
+  return new Promise((resolve, reject) => {
+    canvas.toBlob(
+      (blob) => {
+        if (!blob) {
+          reject(new Error("Could not process image"));
+          return;
+        }
+        resolve(blob);
+      },
+      type,
+      quality,
+    );
+  });
+}
+
+/** Compress a user image to a File suitable for Storage upload (png/jpeg/webp). */
+export async function imageFileToUploadFile(file: File): Promise<File> {
   if (!file.type.startsWith("image/")) {
     throw new Error("Only image files are supported");
   }
 
-  const raw = await readAsDataUrl(file);
-  if (raw.length <= MAX_DATA_URL_BYTES) return raw;
+  const allowed =
+    file.type === "image/png" || file.type === "image/jpeg" || file.type === "image/webp";
+  if (!allowed && file.type !== "image/jpg") {
+    throw new Error("Only PNG, JPEG, or WebP images are supported");
+  }
 
+  if (file.size <= MAX_BYTES) return file;
+
+  const raw = await readAsDataUrl(file);
   const img = await loadImage(raw);
   const scale = Math.min(1, MAX_EDGE_PX / Math.max(img.width, img.height));
   const width = Math.max(1, Math.round(img.width * scale));
@@ -50,13 +72,21 @@ export async function imageFileToDataUrl(file: File): Promise<string> {
   ctx.drawImage(img, 0, 0, width, height);
 
   let quality = JPEG_QUALITY;
-  let out = canvas.toDataURL("image/jpeg", quality);
-  while (out.length > MAX_DATA_URL_BYTES && quality > 0.45) {
+  let blob = await canvasToBlob(canvas, "image/jpeg", quality);
+  while (blob.size > MAX_BYTES && quality > 0.45) {
     quality -= 0.1;
-    out = canvas.toDataURL("image/jpeg", quality);
+    blob = await canvasToBlob(canvas, "image/jpeg", quality);
   }
-  if (out.length > MAX_DATA_URL_BYTES) {
+  if (blob.size > MAX_BYTES) {
     throw new Error("Image is too large after compression — try a smaller file");
   }
-  return out;
+
+  const base = file.name.replace(/\.[^.]+$/, "") || "image";
+  return new File([blob], `${base}.jpg`, { type: "image/jpeg", lastModified: Date.now() });
+}
+
+/** @deprecated Prefer imageFileToUploadFile + media upload. Kept for reading/legacy tests. */
+export async function imageFileToDataUrl(file: File): Promise<string> {
+  const upload = await imageFileToUploadFile(file);
+  return readAsDataUrl(upload);
 }

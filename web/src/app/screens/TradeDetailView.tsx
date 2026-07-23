@@ -50,8 +50,18 @@ import {
   type TradeInsights,
 } from "../../lib/tradeInsights";
 import { useTradeCoach } from "../../lib/hooks/useTradeCoach";
+import {
+  useAttachments,
+  useDeleteAttachment,
+  useUploadAttachment,
+} from "../../lib/hooks/useAttachments";
+import { useJournalPrefs } from "../../lib/journalPrefs";
 import { gradeFromInt, intFromGrade, TRADE_SESSIONS, type TradeGrade } from "../../lib/tradeGrades";
 import { getDisplayTimeOpts, useDisplayTimePrefs, usePrivacyMode } from "../../lib/displayPrefs";
+import {
+  JournalScreenshotUpload,
+  type ScreenshotAttachmentItem,
+} from "../../components/JournalScreenshotUpload";
 
 function tradeOutcome(trade: TradeDetail): { label: string; tone: PillTone } {
   if (trade.status !== "closed") return { label: "OPEN", tone: "accent" };
@@ -1478,7 +1488,52 @@ export function TradeDetailView({
         <TradeChartSection trade={trade} />
       </Card>
 
+      <Card title="Screenshots" description="Charts and fills attached to this trade.">
+        <TradeScreenshotsSection tradeId={trade.id} />
+      </Card>
+
       <TradeCoachPanel trade={trade} insights={insights} />
     </Page>
+  );
+}
+
+function TradeScreenshotsSection({ tradeId }: { tradeId: string }) {
+  const { data: attachments = [], isLoading } = useAttachments(tradeId);
+  const upload = useUploadAttachment(tradeId);
+  const remove = useDeleteAttachment(tradeId);
+  const maxScreenshots = useJournalPrefs((s) => s.maxScreenshotsPerTrade);
+  const uploading = upload.isPending;
+
+  const items: ScreenshotAttachmentItem[] = attachments.map((att) => ({
+    key: att.id,
+    name: att.filename,
+    sizeBytes: att.size_bytes,
+    attachmentId: att.id,
+    state: "done",
+    onRemove: () => {
+      void remove.mutateAsync(att.id);
+    },
+  }));
+
+  async function onAddFiles(files: File[]) {
+    for (const file of files) {
+      const fd = new FormData();
+      fd.append("file", file);
+      await upload.mutateAsync(fd);
+    }
+  }
+
+  return isLoading ? (
+    <Skeleton height="72px" />
+  ) : (
+    <JournalScreenshotUpload
+      items={items}
+      onAddFiles={(files) => void onAddFiles(files)}
+      uploading={uploading}
+      disabled={remove.isPending}
+      maxCount={maxScreenshots}
+      addLabel="Add screenshots"
+      addDescription="PNG, JPG, WebP · click to browse"
+    />
   );
 }
