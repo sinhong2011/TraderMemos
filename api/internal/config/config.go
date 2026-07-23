@@ -9,6 +9,7 @@ import (
 	"github.com/knadh/koanf/providers/confmap"
 	"github.com/knadh/koanf/providers/env"
 	"github.com/knadh/koanf/v2"
+	"github.com/tradermemos/api/internal/db"
 )
 
 const (
@@ -17,7 +18,15 @@ const (
 )
 
 type Config struct {
-	HTTPPort            string
+	HTTPPort string
+	// DatabaseURL is the unified DB connection string (TM_DATABASE_URL).
+	// Examples: sqlite:data/tradermemos.db, sqlite:///data/tradermemos.db,
+	// postgres://… (parsed; driver not implemented yet).
+	DatabaseURL string
+	// Driver is "sqlite" or "postgres" after ResolveDatabase.
+	Driver string
+	// DBPath is the SQLite filesystem path when Driver is sqlite.
+	// Still accepted via legacy TM_DB_PATH (converted to a sqlite: URL).
 	DBPath              string
 	JWTSecret           string
 	AllowInsecureJWT    bool
@@ -26,8 +35,8 @@ type Config struct {
 	LogLevel            string
 	AttachMaxBytes      int64
 	// AttachDir overrides the default attachments directory (sibling of DB).
-	// Empty = <dir(DBPath)>/attachments.
-	AttachDir string
+	// Empty = <dir(DBPath)>/attachments for sqlite.
+	AttachDir           string
 	ImportMaxBytes      int64
 	MarketDataProvider  string
 	MarketDataAPIKey    string
@@ -52,6 +61,7 @@ func Load() (Config, error) {
 	k := koanf.New(".")
 	_ = k.Load(confmap.Provider(map[string]interface{}{
 		"http_port":              "8080",
+		"database_url":           "",
 		"db_path":                "data/tradermemos.db",
 		"jwt_secret":             DefaultInsecureJWTSecret,
 		"allow_insecure_jwt":     false,
@@ -89,9 +99,8 @@ func Load() (Config, error) {
 		}
 	}
 
-	return Config{
+	cfg := Config{
 		HTTPPort:            httpPort,
-		DBPath:              k.String("db_path"),
 		JWTSecret:           k.String("jwt_secret"),
 		AllowInsecureJWT:    k.Bool("allow_insecure_jwt"),
 		AllowRegistration:   k.Bool("allow_registration"),
@@ -114,7 +123,34 @@ func Load() (Config, error) {
 		CoachAPIKey:         k.String("coach_api_key"),
 		CoachModel:          k.String("coach_model"),
 		CORSOrigins:         SplitCSV(k.String("cors_origins")),
-	}, nil
+	}
+	if err := cfg.resolveDatabase(k.String("database_url"), k.String("db_path")); err != nil {
+		return Config{}, err
+	}
+	return cfg, nil
+}
+
+// resolveDatabase prefers TM_DATABASE_URL; falls back to TM_DB_PATH / default path as sqlite:.
+func (c *Config) resolveDatabase(databaseURL, dbPath string) error {
+	raw := strings.TrimSpace(databaseURL)
+	if raw == "" {
+		if _, set := os.LookupEnv("TM_DATABASE_URL"); set {
+			return errors.New("TM_DATABASE_URL is set but empty")
+		}
+		path := strings.TrimSpace(dbPath)
+		if path == "" {
+			path = "data/tradermemos.db"
+		}
+		raw = db.FormatSQLiteURL(path)
+	}
+	info, err := db.ParseURL(raw)
+	if err != nil {
+		return fmt.Errorf("TM_DATABASE_URL: %w", err)
+	}
+	c.DatabaseURL = info.URL
+	c.Driver = info.Driver
+	c.DBPath = info.SQLitePath
+	return nil
 }
 
 // IsInsecureJWTSecret reports known throwaway defaults or undersized secrets.

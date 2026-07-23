@@ -20,26 +20,24 @@ import (
 )
 
 func openStore() (*store.Queries, error) {
-	cfg, _ := config.Load()
-	if err := os.MkdirAll(dir(cfg.DBPath), 0o755); err != nil {
-		return nil, err
-	}
-	conn, err := db.Open(cfg.DBPath)
+	conn, err := openConn()
 	if err != nil {
-		return nil, err
-	}
-	if err := db.Migrate(conn); err != nil {
 		return nil, err
 	}
 	return store.New(conn), nil
 }
 
 func openConn() (*sql.DB, error) {
-	cfg, _ := config.Load()
-	if err := os.MkdirAll(dir(cfg.DBPath), 0o755); err != nil {
+	cfg, err := config.Load()
+	if err != nil {
 		return nil, err
 	}
-	conn, err := db.Open(cfg.DBPath)
+	if cfg.Driver == db.DriverSQLite && cfg.DBPath != "" {
+		if err := os.MkdirAll(dir(cfg.DBPath), 0o755); err != nil {
+			return nil, err
+		}
+	}
+	conn, err := db.Open(cfg.DatabaseURL)
 	if err != nil {
 		return nil, err
 	}

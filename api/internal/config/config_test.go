@@ -10,7 +10,9 @@ func TestLoadDefaults(t *testing.T) {
 	cfg, err := Load()
 	require.NoError(t, err)
 	require.Equal(t, "8080", cfg.HTTPPort)
+	require.Equal(t, "sqlite", cfg.Driver)
 	require.Equal(t, "data/tradermemos.db", cfg.DBPath)
+	require.Equal(t, "sqlite:data/tradermemos.db", cfg.DatabaseURL)
 	require.Equal(t, "USD", cfg.DefaultCurrency)
 	require.False(t, cfg.AllowRegistration)
 	require.False(t, cfg.AllowInsecureJWT)
@@ -29,6 +31,33 @@ func TestLoadEnvOverride(t *testing.T) {
 	require.Equal(t, []string{"https://app.example.com", "http://localhost:5173"}, cfg.CORSOrigins)
 	require.True(t, cfg.AllowRegistration)
 	require.True(t, cfg.AllowInsecureJWT)
+}
+
+func TestLoadDatabaseURL(t *testing.T) {
+	t.Setenv("TM_DATABASE_URL", "sqlite:///tmp/demo.db")
+	cfg, err := Load()
+	require.NoError(t, err)
+	require.Equal(t, "sqlite", cfg.Driver)
+	require.Equal(t, "/tmp/demo.db", cfg.DBPath)
+	require.Equal(t, "sqlite:///tmp/demo.db", cfg.DatabaseURL)
+}
+
+func TestLoadLegacyDBPath(t *testing.T) {
+	t.Setenv("TM_DB_PATH", "/data/legacy.db")
+	cfg, err := Load()
+	require.NoError(t, err)
+	require.Equal(t, "sqlite", cfg.Driver)
+	require.Equal(t, "/data/legacy.db", cfg.DBPath)
+	require.Equal(t, "sqlite:///data/legacy.db", cfg.DatabaseURL)
+}
+
+func TestLoadDatabaseURLWinsOverDBPath(t *testing.T) {
+	t.Setenv("TM_DATABASE_URL", "sqlite:///data/from-url.db")
+	t.Setenv("TM_DB_PATH", "/data/from-path.db")
+	cfg, err := Load()
+	require.NoError(t, err)
+	require.Equal(t, "/data/from-url.db", cfg.DBPath)
+	require.Equal(t, "sqlite:///data/from-url.db", cfg.DatabaseURL)
 }
 
 func TestLoadPortFallback(t *testing.T) {

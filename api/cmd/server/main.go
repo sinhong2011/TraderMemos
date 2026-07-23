@@ -28,10 +28,12 @@ func main() {
 	if err := cfg.ValidateAuth(); err != nil {
 		log.Fatal(err)
 	}
-	if err := os.MkdirAll(filepath.Dir(cfg.DBPath), 0o755); err != nil {
-		log.Fatal(err)
+	if cfg.Driver == db.DriverSQLite && cfg.DBPath != "" {
+		if err := os.MkdirAll(filepath.Dir(cfg.DBPath), 0o755); err != nil {
+			log.Fatal(err)
+		}
 	}
-	conn, err := db.Open(cfg.DBPath)
+	conn, err := db.Open(cfg.DatabaseURL)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -100,6 +102,6 @@ func main() {
 	if len(cfg.CORSOrigins) > 0 {
 		logger.Info("cors enabled", "origins", cfg.CORSOrigins)
 	}
-	logger.Info("tradermemos api listening", "port", cfg.HTTPPort, "db", cfg.DBPath, "log_level", cfg.LogLevel)
+	logger.Info("tradermemos api listening", "port", cfg.HTTPPort, "db", cfg.DatabaseURL, "log_level", cfg.LogLevel)
 	log.Fatal(s.Echo.Start(":" + cfg.HTTPPort))
 }
