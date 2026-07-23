@@ -1,9 +1,10 @@
 import type { ColumnDef, ColumnPinningState } from "@tanstack/react-table";
-import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 import type { Trade } from "../lib/api/types";
 import { usePrivacyMode } from "../lib/displayPrefs";
 import { fmtDateShort, fmtDuration, fmtMoney, fmtSignedMoney } from "../lib/format";
 import { intlLocale } from "../lib/locale";
+import { resolveTradeDirection } from "../lib/tradeDirection";
+import { DirCell } from "./DirCell";
 import { Pill, type PillTone } from "./Pill";
 import { pnlColor } from "./theme-tokens";
 import { TradeRowMenu, type TradeRowActions } from "./TradeRowMenu";
@@ -119,8 +120,8 @@ export function tradeColumns(
     },
     {
       id: "status",
+      accessorFn: (row) => tradeStatus(row).label,
       header: "Status",
-      enableSorting: false,
       meta: { label: "Status", headerTitle: "Trade result", minWidth: 64 },
       cell: (i) => {
         const s = tradeStatus(i.row.original);
@@ -132,27 +133,25 @@ export function tradeColumns(
       },
     },
     {
-      accessorKey: "direction",
+      id: "direction",
+      accessorFn: (row) =>
+        resolveTradeDirection({
+          direction: row.direction,
+          instrumentType: row.instrument_type,
+          symbol: row.symbol,
+        }).sortKey,
       header: "Dir",
-      meta: { label: "Direction", headerTitle: "Direction — long or short" },
-      cell: (i) =>
-        i.getValue<string>() === "long" ? (
-          <ArrowUpRight
-            size={14}
-            strokeWidth={2}
-            className="text-text-muted"
-            role="img"
-            aria-label="long"
-          />
-        ) : (
-          <ArrowDownRight
-            size={14}
-            strokeWidth={2}
-            className="text-text-muted"
-            role="img"
-            aria-label="short"
-          />
-        ),
+      meta: {
+        label: "Direction",
+        headerTitle: "Direction — long/short; LC/LP/SC/SP when option",
+        minWidth: 52,
+      },
+      cell: (i) => {
+        const t = i.row.original;
+        return (
+          <DirCell direction={t.direction} instrumentType={t.instrument_type} symbol={t.symbol} />
+        );
+      },
     },
     {
       accessorKey: "instrument_type",
@@ -186,8 +185,8 @@ export function tradeColumns(
     },
     {
       id: "ent_tot",
+      accessorFn: (row) => tradeNotional(row.qty_opened, row.avg_entry_price, row.instrument_type),
       header: "Ent tot",
-      enableSorting: false,
       meta: {
         align: "right",
         label: "Entry total",
@@ -207,13 +206,24 @@ export function tradeColumns(
     },
     {
       id: "ext_tot",
+      accessorFn: (row) =>
+        row.avg_exit_price == null
+          ? null
+          : tradeNotional(row.qty_opened, row.avg_exit_price, row.instrument_type),
       header: "Ext tot",
-      enableSorting: false,
       meta: {
         align: "right",
         label: "Exit total",
         headerTitle: "Exit total — quantity × average exit × multiplier",
         minWidth: 88,
+      },
+      sortingFn: (a, b, id) => {
+        const av = a.getValue<number | null>(id);
+        const bv = b.getValue<number | null>(id);
+        if (av == null && bv == null) return 0;
+        if (av == null) return 1;
+        if (bv == null) return -1;
+        return av === bv ? 0 : av < bv ? -1 : 1;
       },
       cell: (i) => {
         const t = i.row.original;
@@ -230,9 +240,20 @@ export function tradeColumns(
     },
     {
       id: "pos",
+      accessorFn: (row) => {
+        if (row.status !== "open") return null;
+        return row.qty_remaining > 0 ? row.qty_remaining : row.qty_opened;
+      },
       header: "Pos",
-      enableSorting: false,
       meta: { align: "right", label: "Position", headerTitle: "Position still open", minWidth: 56 },
+      sortingFn: (a, b, id) => {
+        const av = a.getValue<number | null>(id);
+        const bv = b.getValue<number | null>(id);
+        if (av == null && bv == null) return 0;
+        if (av == null) return 1;
+        if (bv == null) return -1;
+        return av === bv ? 0 : av < bv ? -1 : 1;
+      },
       cell: (i) => {
         const t = i.row.original;
         if (t.status !== "open") return muted("-");
@@ -353,11 +374,15 @@ export const TRADE_SORT_COLUMNS: { id: string; label: string }[] = [
   { id: "opened_at", label: "Created At" },
   { id: "closed_at", label: "Close date" },
   { id: "symbol", label: "Symbol" },
+  { id: "status", label: "Status" },
   { id: "direction", label: "Direction" },
   { id: "instrument_type", label: "Market" },
   { id: "qty_opened", label: "Qty" },
   { id: "avg_entry_price", label: "Entry" },
   { id: "avg_exit_price", label: "Exit" },
+  { id: "ent_tot", label: "Entry total" },
+  { id: "ext_tot", label: "Exit total" },
+  { id: "pos", label: "Position" },
   { id: "time_in_trade_secs", label: "Hold" },
   { id: "fees_total", label: "Fees" },
   { id: "net_pnl", label: "P&L" },

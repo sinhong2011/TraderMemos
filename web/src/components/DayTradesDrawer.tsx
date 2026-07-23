@@ -28,6 +28,7 @@ import { marketLabel, tradeStatus } from "./tradeColumns";
 import { TradeRowMenu } from "./TradeRowMenu";
 import { pnlColor } from "./theme-tokens";
 import { WinLossRecord } from "./WinLossRecord";
+import { resolveTradeDirection } from "../lib/tradeDirection";
 
 function formatDayTitle(isoDate: string): string {
   return new Date(`${isoDate}T00:00:00`).toLocaleDateString(intlLocale(), {
@@ -138,8 +139,21 @@ function DayTradeItem({
 }) {
   usePrivacyMode();
   const status = tradeStatus(trade);
-  const isLong = trade.direction === "long";
-  const DirIcon = isLong ? ArrowUpRight : ArrowDownRight;
+  const dir = resolveTradeDirection({
+    direction: trade.direction,
+    instrumentType: trade.instrument_type,
+    symbol: trade.symbol,
+  });
+  const isLong = dir.long;
+  const DirIcon = dir.arrowUp ? ArrowUpRight : ArrowDownRight;
+  const dirTone =
+    dir.tone === "profit"
+      ? "bg-tint-pos text-profit"
+      : dir.tone === "loss"
+        ? "bg-tint-neg text-loss"
+        : isLong
+          ? "bg-tint-pos text-profit"
+          : "bg-tint-neg text-loss";
 
   return (
     <Item
@@ -158,15 +172,8 @@ function DayTradeItem({
         }
       }}
     >
-      <ItemMedia
-        variant="icon"
-        aria-hidden
-        className={cn(
-          "size-9 self-center",
-          isLong ? "bg-tint-pos text-profit" : "bg-tint-neg text-loss",
-        )}
-      >
-        <DirIcon size={16} strokeWidth={2} aria-label={isLong ? "long" : "short"} />
+      <ItemMedia variant="icon" aria-hidden className={cn("size-9 self-center", dirTone)}>
+        <DirIcon size={16} strokeWidth={2} aria-label={dir.label} />
       </ItemMedia>
       <ItemContent className="gap-1">
         <ItemTitle className="gap-2 text-[15px]">
@@ -174,6 +181,21 @@ function DayTradeItem({
           <Pill tone={status.tone} title={status.label === "BE" ? "Break-even" : undefined}>
             {status.label}
           </Pill>
+          {dir.tag && dir.tag !== "?" ? (
+            <span
+              className={cn(
+                "text-[11px] font-semibold tracking-wide",
+                dir.tone === "profit"
+                  ? "text-profit"
+                  : dir.tone === "loss"
+                    ? "text-loss"
+                    : "text-text-muted",
+              )}
+              title={dir.label}
+            >
+              {dir.tag}
+            </span>
+          ) : null}
           <span className="text-[12px] font-medium tracking-wide text-text-muted">
             {marketLabel(trade.instrument_type)}
           </span>
