@@ -163,7 +163,7 @@ Build a **Signal** kit on existing stack — do **not** install default shadcn t
 | Layer | Choice |
 |-------|--------|
 | Primitives | `@base-ui-components/react` (already installed) |
-| Styling | Tailwind v4 + CSS variables in `web/src/styles.css` |
+| Styling | Tailwind v4 + CSS variables in `web/src/global.css` |
 | Variants | CVA for Button, Badge, Pill, Input |
 | Icons | Lucide 16px, stroke 1.5, default `--color-text-dim` |
 
@@ -179,7 +179,7 @@ Build a **Signal** kit on existing stack — do **not** install default shadcn t
 
 ### Migration order
 
-1. Replace `:root` tokens in `styles.css` (delete Stonk sampling)
+1. Replace `:root` tokens in `global.css` (delete Stonk sampling)
 2. Build Signal primitives
 3. Rebuild shell (rail + header)
 4. Dashboard bento + table

@@ -14,6 +14,7 @@ import {
 import { useEffect, useMemo, useRef, useState } from "react";
 import { EmptyState } from "../../../components/EmptyState";
 import { LlmApiSettingsForm } from "../../../components/LlmApiSettingsForm";
+import { ModeToggle } from "../../../components/ModeToggle";
 import { Modal } from "../../../components/Modal";
 import { SignalAmountInput } from "../../../components/SignalAmountInput";
 import { SignalDatePicker } from "../../../components/SignalDatePicker";
@@ -1940,6 +1941,21 @@ export function GeneralTab() {
                 </NativeSelectOption>
               ))}
             </NativeSelect>
+          </SettingsGroupRow>
+          <SettingsGroupRow
+            label={settingsLabel(locale, "theme")}
+            detail={settingsLabel(locale, "themeFooter")}
+          >
+            <ModeToggle
+              labels={{
+                themeLight: settingsLabel(locale, "themeLight"),
+                themeDark: settingsLabel(locale, "themeDark"),
+                themeSystem: settingsLabel(locale, "themeSystem"),
+                themeSelector: settingsLabel(locale, "themeSelector"),
+              }}
+              className="w-full"
+              wrapperClassName="w-full"
+            />
           </SettingsGroupRow>
           <SettingsGroupRow
             label={settingsLabel(locale, "timezone")}

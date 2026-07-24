@@ -1,0 +1,508 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+  Signal Terminal × shadcn theme
+  — Semantic tokens (:root / .dark) follow shadcn conventions.
+  — Values stay Signal Terminal (DESIGN.md): charcoal void, violet brand, P&L semantics.
+  — Product aliases (bg-*, text-*, rounded-*) keep existing utilities working.
+*/
+@theme inline {
+  /* shadcn semantic → Tailwind utilities (bg-background, text-primary, …) */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Signal elevation ladder (bg-bg, bg-bg-panel, …) — charcoal, never pure black */
+  --color-bg: var(--background);
+  --color-bg-elevated: var(--bg-elevated);
+  --color-bg-panel: var(--card);
+  --color-bg-hover: var(--bg-hover);
+  --color-bg-inset: var(--bg-inset);
+  /* Input chips: lift off panel/elevated/inset. Do NOT place inputs on bg-hover —
+     --color-bg-input aliases hover, so chips would vanish (Instrument nesting). */
+  --color-bg-input: var(--bg-input);
+  --color-bg-input-hover: var(--bg-input-hover);
+
+  --color-border-strong: var(--border-strong);
+  --color-grid: var(--grid);
+
+  --color-text: var(--foreground);
+  --color-text-muted: var(--muted-foreground);
+  --color-text-dim: var(--text-dim);
+
+  /* Brand violet — maps to --accent / --primary for Signal + shadcn primary actions */
+  --color-accent-glow: var(--accent-glow);
+  --color-accent-bg: var(--accent-bg);
+  --color-signal: var(--signal);
+
+  --color-profit: var(--profit);
+  --color-loss: var(--loss);
+  --color-flat: var(--flat);
+
+  --color-tint-pos: var(--tint-pos);
+  --color-tint-neg: var(--tint-neg);
+  --color-tint-accent: var(--tint-accent);
+  --color-tint-signal: var(--tint-signal);
+
+  --color-overlay-scrim: var(--overlay-scrim);
+  --color-overlay-scrim-soft: var(--overlay-scrim-soft);
+
+  --font-ui:
+    "Poppins", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+
+  /* shadcn radius scale — base is Signal’s single product curve (10px) */
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* Signal aliases — controls, cards, overlays share the same curve.
+     Keep `rounded-full` only for true circles / capsule pills. */
+  --radius-sharp: var(--radius);
+  --radius-control: var(--radius);
+  --radius-card: var(--radius);
+  --radius-overlay: var(--radius);
+
+  --shadow-hard: 4px 4px 0 var(--bg-inset);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --animate-auth-panel-in: auth-panel-in 280ms var(--ease-out);
+  --animate-shimmer: shimmer 1.5s ease-in-out infinite;
+}
+
+/*
+  Light / dark tokens (shadcn convention).
+  — :root + .light = Signal Terminal light (cool graphite paper, not cream).
+  — .dark = Signal Terminal charcoal void (DESIGN.md).
+  Default product mode is dark; ThemeProvider toggles the class on <html>.
+*/
+:root,
+.light {
+  color-scheme: light;
+  --radius: 0.625rem;
+  --theme-color: #f2f2f5;
+
+  --background: #f2f2f5;
+  --foreground: #16161c;
+  --card: #ffffff;
+  --card-foreground: #16161c;
+  --popover: #ffffff;
+  --popover-foreground: #16161c;
+  --primary: #7c5cf0;
+  --primary-foreground: #ffffff;
+  --secondary: #e8e8ee;
+  --secondary-foreground: #16161c;
+  --muted: #e8e8ee;
+  --muted-foreground: #5c5c6a;
+  --accent: #7c5cf0;
+  --accent-foreground: #ffffff;
+  --destructive: #e11d48;
+  --border: rgba(22, 22, 28, 0.1);
+  --input: rgba(22, 22, 28, 0.14);
+  --ring: #7c5cf0;
+  --chart-1: #7c5cf0;
+  --chart-2: #16a34a;
+  --chart-3: #8a9a00;
+  --chart-4: #64748b;
+  --chart-5: #e11d48;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #16161c;
+  --sidebar-primary: #7c5cf0;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e8e8ee;
+  --sidebar-accent-foreground: #16161c;
+  --sidebar-border: rgba(22, 22, 28, 0.1);
+  --sidebar-ring: #7c5cf0;
+
+  --bg-elevated: #ffffff;
+  --bg-hover: #e4e4ec;
+  --bg-inset: #e0e0e8;
+  --bg-input: #e8e8ee;
+  --bg-input-hover: #dedee6;
+  --border-strong: rgba(22, 22, 28, 0.18);
+  --grid: rgba(22, 22, 28, 0.06);
+  --text-dim: #6b6b78;
+  --accent-glow: rgba(124, 92, 240, 0.28);
+  --accent-bg: rgba(124, 92, 240, 0.12);
+  --signal: #8a9a00;
+  --profit: #16a34a;
+  --loss: #e11d48;
+  --flat: #5c5c6a;
+  --tint-pos: rgba(22, 163, 74, 0.1);
+  --tint-neg: rgba(225, 29, 72, 0.08);
+  --tint-accent: rgba(124, 92, 240, 0.1);
+  --tint-signal: rgba(138, 154, 0, 0.12);
+  --overlay-scrim: rgba(242, 242, 245, 0.78);
+  --overlay-scrim-soft: rgba(242, 242, 245, 0.65);
+  --scrollbar-thumb: rgba(22, 22, 28, 0.28);
+  --scrollbar-thumb-hover: rgba(22, 22, 28, 0.45);
+  --scrollbar-track: rgba(22, 22, 28, 0.06);
+
+  /* Legacy CSS var aliases — older screens still reference these in inline styles */
+  --color-surface-base: var(--background);
+  --color-surface-panel: var(--card);
+  --color-surface-raised: var(--bg-elevated);
+  --color-surface-hover: var(--bg-hover);
+  --color-surface-bento: var(--bg-hover);
+  --color-surface-deep: var(--bg-inset);
+  --color-text-strong: var(--foreground);
+  --color-pos: var(--profit);
+  --color-neg: var(--loss);
+  --color-accent-subtle: var(--accent-bg);
+  --color-amber: var(--signal);
+  --radius-panel: var(--radius);
+  --duration-fast: 150ms;
+}
+
+.dark {
+  color-scheme: dark;
+  --theme-color: #16161c;
+
+  --background: #16161c;
+  --foreground: #fafafa;
+  --card: #23232c;
+  --card-foreground: #fafafa;
+  --popover: #23232c;
+  --popover-foreground: #fafafa;
+  --primary: #a78bfa;
+  --primary-foreground: #16161c;
+  --secondary: #1c1c24;
+  --secondary-foreground: #fafafa;
+  --muted: #2b2b36;
+  --muted-foreground: #b4b4bf;
+  --accent: #a78bfa;
+  --accent-foreground: #16161c;
+  --destructive: #fb7185;
+  --border: rgba(255, 255, 255, 0.08);
+  --input: rgba(255, 255, 255, 0.14);
+  --ring: rgba(255, 255, 255, 0.14);
+  --chart-1: #a78bfa;
+  --chart-2: #4ade80;
+  --chart-3: #e4ff1a;
+  --chart-4: #94a3b8;
+  --chart-5: #fb7185;
+  --sidebar: #1c1c24;
+  --sidebar-foreground: #fafafa;
+  --sidebar-primary: #a78bfa;
+  --sidebar-primary-foreground: #16161c;
+  --sidebar-accent: #2b2b36;
+  --sidebar-accent-foreground: #fafafa;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-ring: rgba(255, 255, 255, 0.14);
+
+  --bg-elevated: #1c1c24;
+  --bg-hover: #2b2b36;
+  --bg-inset: #121218;
+  --bg-input: #2b2b36;
+  --bg-input-hover: #343440;
+  --border-strong: rgba(255, 255, 255, 0.14);
+  --grid: rgba(255, 255, 255, 0.04);
+  --text-dim: #94949f;
+  --accent-glow: rgba(167, 139, 250, 0.35);
+  --accent-bg: rgba(167, 139, 250, 0.12);
+  --signal: #e4ff1a;
+  --profit: #4ade80;
+  --loss: #fb7185;
+  --flat: #b4b4bf;
+  --tint-pos: rgba(74, 222, 128, 0.08);
+  --tint-neg: rgba(251, 113, 133, 0.08);
+  --tint-accent: rgba(167, 139, 250, 0.12);
+  --tint-signal: rgba(228, 255, 26, 0.12);
+  --overlay-scrim: rgba(22, 22, 28, 0.72);
+  --overlay-scrim-soft: rgba(22, 22, 28, 0.6);
+  --scrollbar-thumb: rgba(255, 255, 255, 0.28);
+  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.45);
+  --scrollbar-track: rgba(255, 255, 255, 0.06);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50 tabular-nums box-border;
+  }
+
+  html,
+  body,
+  #root {
+    /* 100dvh tracks iOS Safari dynamic toolbars; h-full keeps nested flex shells working */
+    @apply h-full min-h-dvh bg-background text-foreground font-ui text-[14px] antialiased;
+  }
+}
+
+@utility text-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted-foreground);
+}
+
+@utility text-stat {
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+@keyframes auth-panel-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes year-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes calendar-mode-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+::view-transition-old(calendar-mode-panel),
+::view-transition-new(calendar-mode-panel) {
+  animation-duration: 250ms;
+  animation-timing-function: var(--ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(calendar-mode-panel),
+  ::view-transition-new(calendar-mode-panel) {
+    animation: none;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes signal-grid-drift {
+  0% {
+    background-position:
+      0 0,
+      0 0,
+      0 0,
+      0 0;
+  }
+  100% {
+    background-position:
+      0 0,
+      0 0,
+      24px 24px,
+      -24px 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Complex backgrounds / glows — Tailwind utilities can't express these cleanly */
+@utility signal-app {
+  min-height: 100%;
+  background-color: var(--background);
+  background-image:
+    radial-gradient(circle at 20% 0%, rgba(167, 139, 250, 0.08), transparent 40%),
+    radial-gradient(circle at 80% 100%, rgba(74, 222, 128, 0.04), transparent 35%),
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size:
+    auto,
+    auto,
+    24px 24px,
+    24px 24px;
+}
+
+@utility signal-app-animated {
+  animation: signal-grid-drift 14s linear infinite;
+  will-change: background-position;
+}
+
+@utility signal-app-grain {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+@utility hero-glow-profit {
+  text-shadow: 0 0 40px rgba(74, 222, 128, 0.35);
+}
+
+@utility hero-glow-loss {
+  text-shadow: 0 0 40px rgba(251, 113, 133, 0.3);
+}
+
+@utility text-headline-accent {
+  background: linear-gradient(
+    135deg,
+    var(--foreground) 0%,
+    var(--accent) 55%,
+    var(--muted-foreground) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+@utility skeleton-shimmer {
+  background: linear-gradient(90deg, var(--card) 25%, var(--bg-hover) 50%, var(--card) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/** DataTable scrollport — classic thin bars (not overlay) so H/V stay grabable. */
+@utility scrollbar-table {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+
+  &::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover);
+    background-clip: padding-box;
+  }
+
+  &::-webkit-scrollbar-corner {
+    background: var(--scrollbar-track);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-shimmer {
+    animation: none;
+    background: var(--card);
+  }
+
+  .signal-app-animated {
+    animation: none;
+  }
+}
+
+/* Toast enter/exit — Base UI sets data-starting-style / data-ending-style */
+.signal-toast {
+  transition:
+    opacity 150ms var(--ease-out),
+    transform 150ms var(--ease-out);
+}
+
+.signal-toast[data-starting-style] {
+  opacity: 0;
+  transform: translateX(12px);
+}
+
+.signal-toast[data-ending-style] {
+  opacity: 0;
+  transform: translateX(8px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .signal-toast[data-starting-style],
+  .signal-toast[data-ending-style] {
+    transform: none;
+  }
+}
+
+/* Yet Another React Lightbox — follows active theme tokens */
+.tm-lightbox {
+  --yarl__color_backdrop: var(--overlay-scrim);
+  --yarl__color_button: var(--muted-foreground);
+  --yarl__color_button_active: var(--foreground);
+  --yarl__color_button_disabled: var(--text-dim);
+  --yarl__slide_title_color: var(--foreground);
+  --yarl__slide_description_color: var(--muted-foreground);
+  --yarl__thumbnails_thumbnail_active_border_color: var(--accent);
+}
+
+.tm-lightbox .yarl__button {
+  filter: none;
+}
+
+.tm-lightbox .yarl__toolbar,
+.tm-lightbox .yarl__button {
+  border-radius: var(--radius);
+}
+
+.tm-lightbox .yarl__counter {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--muted-foreground);
+}

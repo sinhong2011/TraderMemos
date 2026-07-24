@@ -134,6 +134,12 @@ export type SettingsLabelKey =
   | "language"
   | "languageFooter"
   | "languageSelector"
+  | "theme"
+  | "themeFooter"
+  | "themeSelector"
+  | "themeLight"
+  | "themeDark"
+  | "themeSystem"
   | "timezone"
   | "timezoneFooter"
   | "timezoneSelector"
@@ -260,6 +266,12 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     language: "Language",
     languageFooter: "Interface language for TraderMemos.",
     languageSelector: "Language selector",
+    theme: "Appearance",
+    themeFooter: "Light, dark, or match the system preference.",
+    themeSelector: "Appearance selector",
+    themeLight: "Light",
+    themeDark: "Dark",
+    themeSystem: "System",
     timezone: "Timezone",
     timezoneFooter:
       "Applies to all displayed times (trade timestamps, Hourly labels, charts). Doesn’t change how trades are grouped (UTC) or Session (Premarket/RTH stays US Eastern).",
@@ -396,6 +408,12 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     language: "語言",
     languageFooter: "TraderMemos 的介面語言。",
     languageSelector: "語言選擇器",
+    theme: "外觀",
+    themeFooter: "淺色、深色，或跟隨系統設定。",
+    themeSelector: "外觀選擇器",
+    themeLight: "淺色",
+    themeDark: "深色",
+    themeSystem: "系統",
     timezone: "時區",
     timezoneFooter:
       "套用到所有顯示時間（交易時間戳、小時標籤、圖表）。不會改變交易分組（仍以 UTC）或盤前/盤中/盤後（仍以美東為準）。",
@@ -527,6 +545,12 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     language: "言語",
     languageFooter: "TraderMemos の表示言語。",
     languageSelector: "言語セレクター",
+    theme: "外観",
+    themeFooter: "ライト、ダーク、またはシステム設定に合わせます。",
+    themeSelector: "外観セレクター",
+    themeLight: "ライト",
+    themeDark: "ダーク",
+    themeSystem: "システム",
     timezone: "タイムゾーン",
     timezoneFooter:
       "表示されるすべての時刻（トレード時刻、Hourly ラベル、チャート）に適用。取引の集計（UTC）やプレマーケット／RTH（米東部）は変わりません。",
@@ -662,6 +686,12 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     language: "언어",
     languageFooter: "TraderMemos 인터페이스 언어입니다.",
     languageSelector: "언어 선택",
+    theme: "모양",
+    themeFooter: "라이트, 다크, 또는 시스템 설정을 따릅니다.",
+    themeSelector: "모양 선택",
+    themeLight: "라이트",
+    themeDark: "다크",
+    themeSystem: "시스템",
     timezone: "시간대",
     timezoneFooter:
       "표시되는 모든 시간(거래 타임스탬프, Hourly 라벨, 차트)에 적용됩니다. 거래 그룹(UTC)이나 프리마켓/RTH(미국 동부)는 바꾸지 않습니다.",
@@ -795,11 +825,11 @@ export function settingsNavItems(locale: string): {
 }[] {
   return (
     [
+      { id: "general", key: "general" },
       { id: "accounts", key: "accounts" },
       { id: "rules", key: "rules" },
       { id: "journal", key: "journal" },
       { id: "ai", key: "ai" },
-      { id: "general", key: "general" },
       { id: "api", key: "api" },
       { id: "about", key: "about" },
     ] as const

@@ -64,10 +64,7 @@ function PageButton({
       aria-current={active ? "page" : undefined}
       tooltip={false}
       onClick={onClick}
-      className={cn(
-        "min-w-8 text-[11px] tabular-nums",
-        active && "shadow-[0_0_0_1px_rgba(167,139,250,0.25)]",
-      )}
+      className={cn("min-w-8 text-[11px] tabular-nums", active && "ring-1 ring-accent/25")}
     >
       {page}
     </Button>
