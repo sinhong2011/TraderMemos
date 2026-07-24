@@ -7,7 +7,8 @@ import { positionSizeFromRisk } from "../../lib/positionSize";
 import { Modal } from "../Modal";
 import { signalInputClass } from "../signal-field-styles";
 
-const labelClass = "mb-1 block text-[10px] font-medium uppercase tracking-widest text-text-muted";
+const labelClass =
+  "mb-1 block text-[10px] font-medium uppercase tracking-widest text-muted-foreground";
 const inputClass = signalInputClass;
 
 export function PositionSizeModal({
@@ -52,7 +53,7 @@ export function PositionSizeModal({
 
   return (
     <Modal open={open} onOpenChange={onOpenChange} title="Position size" className="max-w-[420px]">
-      <p className="m-0 text-xs leading-relaxed text-text-muted">
+      <p className="m-0 text-xs leading-relaxed text-muted-foreground">
         Size from account equity, risk %, entry, and stop. Uses your default risk % from Settings
         when available.
       </p>
@@ -109,24 +110,24 @@ export function PositionSizeModal({
         </div>
       </div>
       {result ? (
-        <div className="rounded-panel border border-border bg-bg-inset px-3.5 py-3">
-          <p className="m-0 text-[10px] font-medium uppercase tracking-widest text-text-muted">
+        <div className="rounded-panel border border-border bg-muted px-3.5 py-3">
+          <p className="m-0 text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
             Suggested size
           </p>
-          <p className="mt-1 mb-0 text-2xl tabular-nums text-text">{result.qty} shares</p>
-          <p className="mt-1 mb-0 text-[11px] text-text-muted">
+          <p className="mt-1 mb-0 text-2xl tabular-nums text-foreground">{result.qty} shares</p>
+          <p className="mt-1 mb-0 text-[11px] text-muted-foreground">
             Risk ${result.riskDollars.toFixed(2)} · ${result.perShareRisk.toFixed(2)} / share
           </p>
         </div>
       ) : (
-        <p className="m-0 text-xs text-text-dim">
+        <p className="m-0 text-xs text-muted-foreground">
           Enter equity, risk %, entry, and stop to see size.
         </p>
       )}
       <Link
         to="/calculator"
         onClick={() => onOpenChange(false)}
-        className="mt-1 inline-flex text-[11px] font-medium text-accent no-underline transition-colors hover:text-text"
+        className="mt-1 inline-flex text-[11px] font-medium text-primary no-underline transition-colors hover:text-foreground"
       >
         Open full planner — exit ladder &amp; R-axis →
       </Link>

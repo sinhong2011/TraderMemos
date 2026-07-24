@@ -27,13 +27,13 @@ describe("StatCard", () => {
   it('defaults to a bordered panel background for variant "panel"', () => {
     render(<StatCard label="Avg Win" value="$45.95" />);
     const cell = screen.getByText("Avg Win").parentElement as HTMLElement;
-    expect(cell.style.border).toBe("1px solid var(--color-border)");
+    expect(cell.style.border).toBe("1px solid var(--border)");
   });
 
   it('uses an elevated, borderless background for variant="bento"', () => {
     render(<StatCard label="P&L" value="+$61.19" variant="bento" />);
     const cell = screen.getByText("P&L").parentElement as HTMLElement;
-    expect(cell.style.background).toBe("var(--color-surface-bento)");
+    expect(cell.style.background).toBe("var(--muted)");
     expect(cell.style.border).toBe("");
   });
 
@@ -46,7 +46,7 @@ describe("StatCard", () => {
   it('keeps the panel border-radius for variant="bento"', () => {
     render(<StatCard label="P&L" value="+$61.19" variant="bento" />);
     const cell = screen.getByText("P&L").parentElement as HTMLElement;
-    expect(cell.style.borderRadius).toBe("var(--radius-panel)");
+    expect(cell.style.borderRadius).toBe("var(--radius)");
   });
 
   it('centers content for align="center" without forcing a square', () => {

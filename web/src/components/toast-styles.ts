@@ -8,28 +8,28 @@ const VARIANT_META: Record<SignalToastVariant, { icon: LucideIcon; accent: strin
   {
     default: {
       icon: Info,
-      accent: "text-text-muted",
-      well: "bg-bg-input text-text-muted",
+      accent: "text-muted-foreground",
+      well: "bg-muted text-muted-foreground",
     },
     success: {
       icon: Check,
       accent: "text-profit",
-      well: "bg-[var(--tint-pos)] text-profit",
+      well: "bg-[color-mix(in oklch, var(--profit) 12%, transparent)] text-profit",
     },
     error: {
       icon: AlertCircle,
-      accent: "text-loss",
-      well: "bg-[var(--tint-neg)] text-loss",
+      accent: "text-destructive",
+      well: "bg-[color-mix(in oklch, var(--loss) 12%, transparent)] text-destructive",
     },
     warning: {
       icon: AlertTriangle,
-      accent: "text-signal",
-      well: "bg-[var(--tint-signal)] text-signal",
+      accent: "text-chart-3",
+      well: "bg-[var(--tint-signal)] text-chart-3",
     },
     info: {
       icon: Info,
-      accent: "text-accent",
-      well: "bg-accent-bg text-accent",
+      accent: "text-primary",
+      well: "bg-primary/10 text-primary",
     },
   };
 
@@ -63,11 +63,11 @@ export function resolveToastVariant(
   return "default";
 }
 
-/** Quiet panel toast — Signal Terminal: panel fill, no stripe / full-surface tint. */
+/** Quiet panel toast — shadcn: panel fill, no stripe / full-surface tint. */
 export function toastRootClass(_variant: SignalToastVariant): string {
   return cn(
     "signal-toast pointer-events-auto flex min-w-[260px] max-w-[360px] items-start gap-3",
-    "rounded-overlay border border-border bg-bg-panel p-3.5",
+    "rounded-lg border border-border bg-card p-3.5",
     "shadow-[0_12px_32px_rgba(18,18,24,0.55)] outline-none",
     "transition-[transform,opacity] duration-220 ease-out",
     "data-[starting-style]:translate-y-2 data-[starting-style]:opacity-0",
@@ -79,7 +79,7 @@ export function toastRootClass(_variant: SignalToastVariant): string {
 
 export function toastIconWellClass(variant: SignalToastVariant): string {
   return cn(
-    "flex size-8 shrink-0 items-center justify-center rounded-control",
+    "flex size-8 shrink-0 items-center justify-center rounded-md",
     VARIANT_META[variant].well,
   );
 }
@@ -93,5 +93,5 @@ export function toastIcon(variant: SignalToastVariant): LucideIcon {
 }
 
 export function toastDescriptionClass(_variant: SignalToastVariant): string {
-  return "mt-1 text-[12px] leading-relaxed text-text-muted";
+  return "mt-1 text-[12px] leading-relaxed text-muted-foreground";
 }

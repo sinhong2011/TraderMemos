@@ -32,18 +32,22 @@ function toDraft(from?: string, to?: string): DateRange | undefined {
 
 function RangeFooter({ draft }: { draft: DateRange | undefined }) {
   if (draft?.from && !draft.to) {
-    return <p className="m-0 text-[10px] uppercase tracking-widest text-signal">Select end date</p>;
+    return (
+      <p className="m-0 text-[10px] uppercase tracking-widest text-chart-3">Select end date</p>
+    );
   }
   if (draft?.from && draft.to) {
     return (
-      <p className="m-0 text-[11px] tabular-nums text-text-muted">
+      <p className="m-0 text-[11px] tabular-nums text-muted-foreground">
         {format(draft.from, "MMM d, yyyy")}
-        <span className="text-text-dim"> – </span>
+        <span className="text-muted-foreground"> – </span>
         {format(draft.to, "MMM d, yyyy")}
       </p>
     );
   }
-  return <p className="m-0 text-[11px] text-text-muted">Click two dates for a custom range</p>;
+  return (
+    <p className="m-0 text-[11px] text-muted-foreground">Click two dates for a custom range</p>
+  );
 }
 
 export function DateRangePanel({ onApplied }: { onApplied?: () => void }) {
@@ -103,18 +107,18 @@ export function DateRangePanel({ onApplied }: { onApplied?: () => void }) {
             variant="ghost"
             onClick={() => applyPreset(p.key)}
             className={cn(
-              "relative h-auto justify-start rounded-control text-left text-[11px]",
-              "focus-visible:ring-2 focus-visible:ring-border-strong focus-visible:outline-none",
+              "relative h-auto justify-start rounded-md text-left text-[11px]",
+              "focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
               "max-sm:snap-start max-sm:shrink-0 max-sm:px-2.5 max-sm:py-2",
               "sm:w-full sm:py-2 sm:pr-2 sm:pl-2.5",
-              active && "bg-bg-hover text-text",
+              active && "bg-accent text-foreground",
             )}
           >
             {active && (
               <span
                 aria-hidden
                 className={cn(
-                  "absolute rounded-full bg-accent",
+                  "absolute rounded-full bg-primary",
                   "max-sm:inset-x-2 max-sm:bottom-0 max-sm:h-0.5",
                   "sm:top-1/2 sm:left-0 sm:h-4 sm:w-0.5 sm:-translate-y-1/2",
                 )}
@@ -135,14 +139,14 @@ export function DateRangePanel({ onApplied }: { onApplied?: () => void }) {
       )}
       aria-label="Date range"
     >
-      <aside className="flex shrink-0 flex-col bg-bg sm:w-[148px]">
-        <p className="m-0 px-3 pt-3 pb-2 text-[11px] font-medium uppercase tracking-widest text-text-muted">
+      <aside className="flex shrink-0 flex-col bg-background sm:w-[148px]">
+        <p className="m-0 px-3 pt-3 pb-2 text-[11px] font-medium uppercase tracking-widest text-muted-foreground">
           Quick range
         </p>
         {presetList}
       </aside>
 
-      <div className="flex min-w-0 flex-1 flex-col bg-bg-panel">
+      <div className="flex min-w-0 flex-1 flex-col bg-card">
         <div className="flex justify-center px-3 pt-3 pb-1 max-sm:pt-1">
           <SignalCalendar
             mode="range"

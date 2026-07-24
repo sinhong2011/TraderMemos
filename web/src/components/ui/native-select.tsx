@@ -3,8 +3,8 @@ import type { ComponentProps } from "react";
 import { cn } from "../../lib/cn";
 
 /**
- * Signal Terminal Native Select — shadcn Base native-select adapted to
- * product tokens. Real <select> beats a custom popover for short, frequent
+ * shadcn Native Select — shadcn Base native-select adapted to
+ * theme tokens. Real <select> beats a custom popover for short, frequent
  * choices (year, month): on touch it opens the OS's own picker instead of a
  * cramped nested list.
  * @see https://ui.shadcn.com/docs/components/base/native-select
@@ -32,16 +32,16 @@ function NativeSelect({
       <select
         data-slot="native-select"
         className={cn(
-          "w-full min-w-0 cursor-pointer appearance-none rounded-control border border-border text-text",
+          "w-full min-w-0 cursor-pointer appearance-none rounded-md border border-border text-foreground",
           "outline-none transition-[background-color,color] duration-150",
-          "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-strong",
+          "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
           "disabled:pointer-events-none disabled:cursor-not-allowed",
           // ≥16px on coarse pointers so iOS Safari doesn't zoom the page on focus
           size === "default" && "h-10 py-0 pr-8 pl-3 text-[13px] pointer-coarse:text-base",
           size === "sm" &&
             "h-7 py-0 pr-6 pl-2.5 text-[12px] pointer-coarse:h-9 pointer-coarse:text-base",
-          variant === "default" && "bg-bg-input hover:bg-bg-input-hover",
-          variant === "ghost" && "bg-transparent hover:bg-bg-hover",
+          variant === "default" && "bg-muted hover:bg-accent",
+          variant === "ghost" && "bg-transparent hover:bg-accent",
           className,
         )}
         {...props}
@@ -50,7 +50,7 @@ function NativeSelect({
         size={12}
         strokeWidth={1.5}
         className={cn(
-          "pointer-events-none absolute text-text-dim",
+          "pointer-events-none absolute text-muted-foreground",
           size === "default" ? "right-3" : "right-2",
         )}
         aria-hidden

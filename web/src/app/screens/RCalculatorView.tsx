@@ -86,15 +86,15 @@ export function RCalculatorView() {
   return (
     <Page fill className="min-h-[calc(100vh-52px)] gap-4 p-4 sm:gap-5 sm:p-6">
       <header className="shrink-0">
-        <h1 className="text-[22px] font-semibold tracking-tight text-text">
+        <h1 className="text-[22px] font-semibold tracking-tight text-foreground">
           R-Multiple Calculator
         </h1>
-        <p className="mt-1 max-w-2xl text-[12px] leading-relaxed text-text-muted">
+        <p className="mt-1 max-w-2xl text-[12px] leading-relaxed text-muted-foreground">
           Size positions by risk, plan exit ladders, and visualize reward/risk. Cash positions only
           — no leverage, fees, or slippage.
         </p>
         {!hintDismissed ? (
-          <p className="mt-1 flex max-w-2xl items-center gap-2 text-[11px] text-text-dim">
+          <p className="mt-1 flex max-w-2xl items-center gap-2 text-[11px] text-muted-foreground">
             <span>Need a quick share count? Use Tools → Position size in the header.</span>
             <Button
               type="button"
@@ -105,7 +105,7 @@ export function RCalculatorView() {
                 localStorage.setItem(HINT_KEY, "1");
                 setHintDismissed(true);
               }}
-              className="shrink-0 text-text-dim hover:text-text-muted"
+              className="shrink-0 text-muted-foreground hover:text-muted-foreground"
             >
               <X size={12} />
             </Button>

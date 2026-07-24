@@ -20,8 +20,8 @@ import { Skeleton } from "./Skeleton";
 import type { BreakGroup } from "../lib/api/types";
 import { usePrivacyMode } from "../lib/displayPrefs";
 
-const POS = "var(--color-profit)";
-const NEG = "var(--color-loss)";
+const POS = "var(--profit)";
+const NEG = "var(--loss)";
 
 export interface ReportsBreakdownCardProps {
   title: string;
@@ -73,7 +73,7 @@ export function ReportsBreakdownCard({
       {loading ? (
         <Skeleton height="220px" />
       ) : error ? (
-        <p className="text-xs text-loss">Failed to load {title.toLowerCase()}.</p>
+        <p className="text-xs text-destructive">Failed to load {title.toLowerCase()}.</p>
       ) : breakdown.length === 0 ? (
         <EmptyState title="No data" hint="Add trades or adjust filters to see a breakdown." />
       ) : view === "table" && tableColumns ? (

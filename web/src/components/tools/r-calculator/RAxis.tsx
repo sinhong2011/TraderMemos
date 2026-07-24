@@ -81,7 +81,7 @@ export function RAxis() {
               type="button"
               variant="ghost"
               className={cn(
-                "absolute left-1/2 z-20 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-0 bg-bg p-0 ring-2 ring-profit hover:bg-bg",
+                "absolute left-1/2 z-20 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-0 bg-background p-0 ring-2 ring-profit hover:bg-background",
                 active === `tier-${i}` && "scale-150",
               )}
               style={{ top: `${top(tier.r)}%` }}
@@ -94,8 +94,8 @@ export function RAxis() {
             type="button"
             variant="ghost"
             className={cn(
-              "absolute left-1/2 z-10 flex size-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-0 bg-bg p-0 text-[10px] font-bold ring-2 hover:bg-bg",
-              bullish ? "text-profit ring-profit" : "text-loss ring-loss",
+              "absolute left-1/2 z-10 flex size-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-0 bg-background p-0 text-[10px] font-bold ring-2 hover:bg-background",
+              bullish ? "text-profit ring-profit" : "text-destructive ring-loss",
               active === "entry" && "scale-110",
             )}
             style={{ top: `${entryTop}%` }}
@@ -166,8 +166,8 @@ function ScaleTick({
       className={cn(
         "absolute right-0 -translate-y-1/2 whitespace-nowrap text-right text-[9px] tabular-nums",
         tone === "profit" && "text-profit",
-        tone === "loss" && "text-loss",
-        tone === "muted" && "text-text-dim",
+        tone === "loss" && "text-destructive",
+        tone === "muted" && "text-muted-foreground",
         emphasize && "font-semibold",
       )}
       style={{ top }}
@@ -202,14 +202,14 @@ function PriceLabel({
       )}
       style={{ top }}
     >
-      <p className="m-0 text-[9px] uppercase tracking-widest text-text-muted">{caption}</p>
+      <p className="m-0 text-[9px] uppercase tracking-widest text-muted-foreground">{caption}</p>
       <p
         className={cn(
           "m-0 tabular-nums",
           emphasize ? "text-sm font-bold" : "text-xs font-semibold",
           tone === "profit" && "text-profit",
-          tone === "loss" && "text-loss",
-          tone === "text" && "text-text",
+          tone === "loss" && "text-destructive",
+          tone === "text" && "text-foreground",
         )}
       >
         {price}
@@ -218,7 +218,7 @@ function PriceLabel({
         <p
           className={cn(
             "m-0 text-[10px] tabular-nums",
-            tone === "profit" ? "text-profit/80" : "text-loss/80",
+            tone === "profit" ? "text-profit/80" : "text-destructive/80",
           )}
         >
           {pl}

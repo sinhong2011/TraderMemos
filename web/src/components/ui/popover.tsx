@@ -4,7 +4,7 @@ import { cn } from "../../lib/cn";
 import { signalOverlayPopupClass } from "../signal-overlay-styles";
 
 /**
- * Signal Terminal Popover — shadcn Base UI popover with product tokens.
+ * shadcn Popover — shadcn Base UI popover with theme tokens.
  * @see https://ui.shadcn.com/docs/components/base/popover
  */
 
@@ -44,7 +44,7 @@ function PopoverContent({
       >
         <PopoverPrimitive.Popup
           data-slot="popover-content"
-          className={cn(signalOverlayPopupClass, "bg-bg-hover p-3", className)}
+          className={cn(signalOverlayPopupClass, "bg-accent p-3", className)}
           {...props}
         >
           {children}
@@ -68,7 +68,7 @@ function PopoverTitle({ className, ...props }: PopoverPrimitive.Title.Props) {
   return (
     <PopoverPrimitive.Title
       data-slot="popover-title"
-      className={cn("font-medium text-text", className)}
+      className={cn("font-medium text-foreground", className)}
       {...props}
     />
   );
@@ -78,7 +78,7 @@ function PopoverDescription({ className, ...props }: PopoverPrimitive.Descriptio
   return (
     <PopoverPrimitive.Description
       data-slot="popover-description"
-      className={cn("text-[12px] text-text-muted", className)}
+      className={cn("text-[12px] text-muted-foreground", className)}
       {...props}
     />
   );

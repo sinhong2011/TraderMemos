@@ -74,7 +74,7 @@ export function FvgPanel() {
             </div>
 
             <div className="flex flex-col gap-2">
-              <span className="text-[10px] font-medium uppercase tracking-widest text-text-muted">
+              <span className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
                 Entry at
               </span>
               <SegmentedControl
@@ -207,8 +207,8 @@ function FvgAxis({ long, rMultiple }: { long: boolean; rMultiple: number }) {
           </div>
           <div
             className={cn(
-              "absolute left-1/2 z-10 flex size-5 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-bg text-[9px] font-bold ring-2",
-              long ? "text-profit ring-profit" : "text-loss ring-loss",
+              "absolute left-1/2 z-10 flex size-5 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-background text-[9px] font-bold ring-2",
+              long ? "text-profit ring-profit" : "text-destructive ring-loss",
             )}
             style={{ top: `${entryTop}%` }}
           >
@@ -242,8 +242,8 @@ function AxisLabel({
         "absolute -translate-y-1/2 whitespace-nowrap text-[10px] tabular-nums",
         align === "right" ? "right-0 text-right" : "left-0 text-left",
         tone === "profit" && "text-profit",
-        tone === "loss" && "text-loss",
-        tone === "muted" && "text-text-dim",
+        tone === "loss" && "text-destructive",
+        tone === "muted" && "text-muted-foreground",
         emphasize && "font-semibold",
       )}
       style={{ top }}

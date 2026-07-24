@@ -93,7 +93,7 @@ function useFileObjectUrls(filesRef: RefObject<readonly File[]>, fileKeys: strin
 function FilePreview({ file, src }: { file: File; src: string }) {
   const [failed, setFailed] = useState(false);
   if (failed) {
-    return <ImageIcon className="size-6 text-text-muted" aria-hidden />;
+    return <ImageIcon className="size-6 text-muted-foreground" aria-hidden />;
   }
   return (
     <img
@@ -231,7 +231,7 @@ export function JournalScreenshotUpload({
           state={uploading ? "uploading" : "idle"}
           className={cn(
             "w-full",
-            !pickerDisabled && "cursor-pointer hover:bg-bg-hover",
+            !pickerDisabled && "cursor-pointer hover:bg-accent",
             pickerDisabled && "opacity-55",
           )}
           onClick={() => {
@@ -306,7 +306,7 @@ export function JournalScreenshotUpload({
           ))}
         </AttachmentGroup>
       ) : onAddFiles ? null : (
-        <div className="flex flex-col items-center justify-center gap-2 rounded-control border border-dashed border-border py-8 text-xs text-text-muted">
+        <div className="flex flex-col items-center justify-center gap-2 rounded-md border border-dashed border-border py-8 text-xs text-muted-foreground">
           <ImageIcon size={20} strokeWidth={1.5} className="opacity-40" aria-hidden />
           No screenshots yet
         </div>

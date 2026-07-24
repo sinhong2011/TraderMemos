@@ -141,7 +141,7 @@ export function NewSetupDrawer() {
           <DrawerTitle>{isEdit ? "Edit Setup" : "New Setup"}</DrawerTitle>
           <DrawerClose
             aria-label="Close"
-            className="ml-auto flex cursor-pointer border-none bg-transparent p-1 text-text-muted transition-colors hover:text-text"
+            className="ml-auto flex cursor-pointer border-none bg-transparent p-1 text-muted-foreground transition-colors hover:text-foreground"
           >
             <X size={18} strokeWidth={1.5} />
           </DrawerClose>
@@ -282,7 +282,7 @@ export function NewSetupDrawer() {
               )}
             </form.Field>
 
-            {submitError && <p className="m-0 text-xs text-loss">{submitError}</p>}
+            {submitError && <p className="m-0 text-xs text-destructive">{submitError}</p>}
           </form>
         </DrawerBody>
         <DrawerFooter>{footer}</DrawerFooter>

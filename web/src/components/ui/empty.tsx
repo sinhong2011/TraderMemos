@@ -3,7 +3,7 @@ import type { ComponentProps } from "react";
 import { cn } from "../../lib/cn";
 
 /**
- * Signal Terminal Empty — shadcn Base empty state adapted to product tokens.
+ * shadcn Empty — shadcn Base empty state adapted to theme tokens.
  * @see https://ui.shadcn.com/docs/components/base/empty
  */
 function Empty({ className, ...props }: ComponentProps<"div">) {
@@ -11,7 +11,7 @@ function Empty({ className, ...props }: ComponentProps<"div">) {
     <div
       data-slot="empty"
       className={cn(
-        "flex min-w-0 flex-1 flex-col items-center justify-center gap-4 rounded-card border border-dashed border-border p-6 text-center text-balance md:p-10",
+        "flex min-w-0 flex-1 flex-col items-center justify-center gap-4 rounded-lg border border-dashed border-border p-6 text-center text-balance md:p-10",
         className,
       )}
       {...props}
@@ -30,12 +30,12 @@ function EmptyHeader({ className, ...props }: ComponentProps<"div">) {
 }
 
 const emptyMediaVariants = cva(
-  "mb-1 flex shrink-0 items-center justify-center text-text-dim [&_svg]:pointer-events-none [&_svg]:shrink-0",
+  "mb-1 flex shrink-0 items-center justify-center text-muted-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0",
   {
     variants: {
       variant: {
         default: "bg-transparent",
-        icon: "flex size-10 shrink-0 items-center justify-center rounded-control bg-bg-elevated text-text-muted [&_svg:not([class*='size-'])]:size-5",
+        icon: "flex size-10 shrink-0 items-center justify-center rounded-md bg-sidebar text-muted-foreground [&_svg:not([class*='size-'])]:size-5",
       },
     },
     defaultVariants: {
@@ -63,7 +63,7 @@ function EmptyTitle({ className, ...props }: ComponentProps<"div">) {
   return (
     <div
       data-slot="empty-title"
-      className={cn("text-sm font-medium text-text", className)}
+      className={cn("text-sm font-medium text-foreground", className)}
       {...props}
     />
   );
@@ -74,7 +74,7 @@ function EmptyDescription({ className, ...props }: ComponentProps<"p">) {
     <div
       data-slot="empty-description"
       className={cn(
-        "text-xs leading-relaxed text-text-muted [&>a]:text-accent [&>a]:underline [&>a]:underline-offset-4",
+        "text-xs leading-relaxed text-muted-foreground [&>a]:text-primary [&>a]:underline [&>a]:underline-offset-4",
         className,
       )}
       {...props}

@@ -25,7 +25,7 @@ export function DonutRing({ segments, children, className, strokeWidth = 12 }: D
           cy={50}
           r={40}
           fill="none"
-          stroke="var(--color-bg-inset)"
+          stroke="var(--muted)"
           strokeWidth={strokeWidth}
           pathLength={100}
         />

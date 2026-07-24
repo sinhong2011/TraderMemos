@@ -47,7 +47,7 @@ export function Modal({
             {headerActions}
             <DialogClose
               aria-label="Close"
-              className="flex cursor-pointer border-none bg-transparent p-1 text-text-muted transition-colors hover:text-text"
+              className="flex cursor-pointer border-none bg-transparent p-1 text-muted-foreground transition-colors hover:text-foreground"
             >
               <X size={18} strokeWidth={1.5} />
             </DialogClose>
@@ -62,8 +62,8 @@ export function Modal({
 
 export function ModalBanner({ children }: { children: ReactNode }) {
   return (
-    <div className="flex gap-2.5 rounded-control border border-border bg-accent-bg px-3.5 py-3 text-xs leading-relaxed text-text">
-      <Info size={16} strokeWidth={1.5} className="mt-0.5 shrink-0 text-accent" aria-hidden />
+    <div className="flex gap-2.5 rounded-md border border-border bg-primary/10 px-3.5 py-3 text-xs leading-relaxed text-foreground">
+      <Info size={16} strokeWidth={1.5} className="mt-0.5 shrink-0 text-primary" aria-hidden />
       <div>{children}</div>
     </div>
   );

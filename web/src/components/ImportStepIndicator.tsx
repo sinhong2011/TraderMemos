@@ -17,7 +17,7 @@ function stepLabel(item: (typeof STEPS)[number], format?: string): string {
 export function ImportStepIndicator({ current, format }: { current: 1 | 2 | 3; format?: string }) {
   return (
     <nav aria-label="Import progress" className="mb-6">
-      <ol className="flex w-full items-start rounded-sharp border border-border bg-bg px-3 py-4 sm:px-5">
+      <ol className="flex w-full items-start rounded-md border border-border bg-background px-3 py-4 sm:px-5">
         {STEPS.map((item, index) => {
           const isActive = item.step === current;
           const isDone = item.step < current;
@@ -34,13 +34,13 @@ export function ImportStepIndicator({ current, format }: { current: 1 | 2 | 3; f
               <div className="flex w-22 shrink-0 flex-col items-center gap-2 sm:w-24">
                 <span
                   className={cn(
-                    "relative flex size-7 items-center justify-center rounded-control border text-[11px] font-semibold tabular-nums",
+                    "relative flex size-7 items-center justify-center rounded-md border text-[11px] font-semibold tabular-nums",
                     "transition-[transform,background-color,border-color,box-shadow,color] duration-250 ease-out",
                     "motion-reduce:transition-none",
                     isActive &&
-                      "scale-105 border-accent bg-accent-bg text-accent shadow-[0_0_0_1px_rgba(228,255,26,0.25),0_0_14px_rgba(228,255,26,0.12)]",
-                    isDone && "border-accent/35 bg-accent/15 text-accent",
-                    !isActive && !isDone && "border-border bg-bg-inset text-text-dim",
+                      "scale-105 border-primary bg-primary/10 text-primary shadow-[0_0_0_1px_rgba(228,255,26,0.25),0_0_14px_rgba(228,255,26,0.12)]",
+                    isDone && "border-primary/35 bg-accent/15 text-primary",
+                    !isActive && !isDone && "border-border bg-muted text-muted-foreground",
                   )}
                   aria-current={isActive ? "step" : undefined}
                 >
@@ -57,7 +57,7 @@ export function ImportStepIndicator({ current, format }: { current: 1 | 2 | 3; f
                   {isActive ? (
                     <span
                       aria-hidden
-                      className="absolute inset-0 rounded-control ring-1 ring-accent/20 motion-reduce:hidden"
+                      className="absolute inset-0 rounded-md ring-1 ring-primary/20 motion-reduce:hidden"
                     />
                   ) : null}
                 </span>
@@ -65,9 +65,9 @@ export function ImportStepIndicator({ current, format }: { current: 1 | 2 | 3; f
                   className={cn(
                     "max-w-full truncate text-center text-[10px] uppercase tracking-widest",
                     "transition-colors duration-250 ease-out motion-reduce:transition-none",
-                    isActive && "font-semibold text-text",
-                    isDone && "text-accent/80",
-                    !isActive && !isDone && "text-text-dim",
+                    isActive && "font-semibold text-foreground",
+                    isDone && "text-primary/80",
+                    !isActive && !isDone && "text-muted-foreground",
                   )}
                 >
                   {label}
@@ -79,7 +79,7 @@ export function ImportStepIndicator({ current, format }: { current: 1 | 2 | 3; f
                   <div className="relative h-[2px] w-full overflow-hidden rounded-full bg-border">
                     <div
                       className={cn(
-                        "absolute inset-y-0 left-0 rounded-full bg-accent",
+                        "absolute inset-y-0 left-0 rounded-full bg-primary",
                         "transition-[width] duration-500 ease-out motion-reduce:transition-none",
                         isDone ? "w-full" : "w-0",
                       )}

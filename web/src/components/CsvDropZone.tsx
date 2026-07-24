@@ -55,23 +55,23 @@ export function CsvDropZone({ file, onFileChange, disabled }: CsvDropZoneProps) 
   return (
     <div className="flex flex-col gap-2">
       {file ? (
-        <div className="flex items-center gap-3 rounded-control bg-bg-inset px-3 py-3">
+        <div className="flex items-center gap-3 rounded-md bg-muted px-3 py-3">
           <div
-            className="flex size-9 shrink-0 items-center justify-center rounded-control bg-bg-panel text-text-muted"
+            className="flex size-9 shrink-0 items-center justify-center rounded-md bg-card text-muted-foreground"
             aria-hidden
           >
             <FileIcon size={16} strokeWidth={1.75} />
           </div>
 
           <div className="min-w-0 flex-1">
-            <p className="m-0 truncate text-[13px] font-medium tracking-tight text-text">
+            <p className="m-0 truncate text-[13px] font-medium tracking-tight text-foreground">
               {file.name}
             </p>
             <div className="mt-1 flex min-w-0 flex-wrap items-center gap-2">
               {kind === "json" || kind === "csv" ? (
                 <Pill tone="accent">{kind.toUpperCase()}</Pill>
               ) : null}
-              <p className="m-0 text-[11px] tabular-nums text-text-dim">
+              <p className="m-0 text-[11px] tabular-nums text-muted-foreground">
                 {formatFileSize(file.size)} · ready to preview
               </p>
             </div>
@@ -84,7 +84,7 @@ export function CsvDropZone({ file, onFileChange, disabled }: CsvDropZoneProps) 
             disabled={disabled}
             onClick={() => pickFile(null)}
             aria-label="Remove file"
-            className="shrink-0 text-text-dim hover:text-loss"
+            className="shrink-0 text-muted-foreground hover:text-destructive"
           >
             <X size={14} strokeWidth={2} />
           </Button>
@@ -107,24 +107,26 @@ export function CsvDropZone({ file, onFileChange, disabled }: CsvDropZoneProps) 
             pickFile(e.dataTransfer.files?.[0] ?? null);
           }}
           className={cn(
-            "h-auto w-full flex-col gap-2 rounded-control border border-dashed px-4 py-8 whitespace-normal",
+            "h-auto w-full flex-col gap-2 rounded-md border border-dashed px-4 py-8 whitespace-normal",
             "text-[12px] transition-[border-color,background-color] duration-150",
             "disabled:opacity-55",
             dragOver
-              ? "border-accent/40 bg-accent-bg"
-              : "border-border bg-bg-inset hover:border-border-strong hover:bg-bg-hover",
+              ? "border-primary/40 bg-primary/10"
+              : "border-border bg-muted hover:border-border hover:bg-accent",
           )}
         >
           <Upload
             size={22}
             strokeWidth={1.5}
-            className={dragOver ? "text-accent" : "text-text-dim"}
+            className={dragOver ? "text-primary" : "text-muted-foreground"}
             aria-hidden
           />
-          <span className="text-text-muted">
-            <span className="font-medium text-text">Click to upload</span> or drag file here
+          <span className="text-muted-foreground">
+            <span className="font-medium text-foreground">Click to upload</span> or drag file here
           </span>
-          <span className="text-[10px] uppercase tracking-[0.1em] text-text-dim">CSV · JSON</span>
+          <span className="text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
+            CSV · JSON
+          </span>
         </Button>
       )}
 

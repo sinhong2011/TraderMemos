@@ -34,7 +34,7 @@ export interface TradeDetailSheetProps {
   onClose: () => void;
 }
 
-const sectionLabelClass = "mb-2 text-[10px] font-semibold uppercase tracking-widest text-signal";
+const sectionLabelClass = "mb-2 text-[10px] font-semibold uppercase tracking-widest text-chart-3";
 
 export function TradeDetailSheet({ tradeId, onClose }: TradeDetailSheetProps) {
   const navigate = useNavigate();
@@ -90,14 +90,14 @@ export function TradeDetailSheet({ tradeId, onClose }: TradeDetailSheetProps) {
             {trade ? (
               <>
                 {trade.symbol}
-                <span className="text-xs font-medium text-text-muted">
-                  ·{" "}
+                <span className="text-xs font-medium text-muted-foreground">
+                  ·{""}
                   {formatOptionMarketChip(
                     trade.instrument_type,
                     marketLabel(trade.instrument_type),
                     optionContractFromFills(trade.fills),
-                  )}{" "}
-                  · {trade.direction.toUpperCase()}
+                  )}
+                  {""}· {trade.direction.toUpperCase()}
                 </span>
               </>
             ) : (
@@ -119,7 +119,7 @@ export function TradeDetailSheet({ tradeId, onClose }: TradeDetailSheetProps) {
             )}
             <DrawerClose
               aria-label="Close"
-              className="flex cursor-pointer rounded-control border-none bg-transparent p-1 text-text-muted transition-colors hover:bg-bg-hover hover:text-text"
+              className="flex cursor-pointer rounded-md border-none bg-transparent p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
             >
               <X size={18} strokeWidth={1.5} />
             </DrawerClose>
@@ -135,7 +135,7 @@ export function TradeDetailSheet({ tradeId, onClose }: TradeDetailSheetProps) {
             </div>
           )}
           {detailQ.isError && (
-            <p className="p-4 text-sm text-text-muted">Could not load trade detail.</p>
+            <p className="p-4 text-sm text-muted-foreground">Could not load trade detail.</p>
           )}
           {trade && <TradeDetailSheetBody trade={trade} onOpenFullPage={openFullPage} />}
         </DrawerBody>
@@ -175,19 +175,22 @@ export function TradeDetailSheet({ tradeId, onClose }: TradeDetailSheetProps) {
                   variant="destructive"
                   disabled={!canDelete || deleteTrade.isPending}
                   onClick={() => void handleDelete()}
-                  className="border-transparent bg-loss/15 hover:bg-loss/25"
+                  className="border-transparent bg-destructive/15 hover:bg-destructive/25"
                 >
                   {deleteTrade.isPending ? "Removing…" : "Remove trade"}
                 </Button>
               </>
             }
           >
-            <p className="m-0 text-[13px] leading-relaxed text-text-muted">
+            <p className="m-0 text-[13px] leading-relaxed text-muted-foreground">
               Permanently deletes this trade and all of its fills. This cannot be undone.
             </p>
             <div>
-              <label htmlFor={confirmInputId} className="mb-1.5 block text-[11px] text-text-dim">
-                Type <span className="font-medium text-text">{trade.symbol}</span> to confirm
+              <label
+                htmlFor={confirmInputId}
+                className="mb-1.5 block text-[11px] text-muted-foreground"
+              >
+                Type <span className="font-medium text-foreground">{trade.symbol}</span> to confirm
               </label>
               <SignalInput
                 id={confirmInputId}
@@ -216,11 +219,14 @@ function BentoStat({
   className?: string;
 }) {
   return (
-    <div className={cn("flex min-w-0 flex-col gap-1 bg-bg-elevated p-2.5 sm:p-3", className)}>
-      <span className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">
+    <div className={cn("flex min-w-0 flex-col gap-1 bg-sidebar p-2.5 sm:p-3", className)}>
+      <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
         {label}
       </span>
-      <span className="truncate text-sm tabular-nums whitespace-nowrap text-text" title={value}>
+      <span
+        className="truncate text-sm tabular-nums whitespace-nowrap text-foreground"
+        title={value}
+      >
         {value}
       </span>
     </div>
@@ -250,7 +256,7 @@ function TradeDetailSheetBody({
           <Pill tone={status.tone} title={status.label === "BE" ? "Break-even" : undefined}>
             {status.label}
           </Pill>
-          <span className="text-xs tabular-nums text-text-muted">
+          <span className="text-xs tabular-nums text-muted-foreground">
             {trade.status === "open"
               ? `${fmtDateTime(trade.opened_at)} · still open`
               : `${fmtDateTime(trade.opened_at)} → ${
@@ -258,8 +264,8 @@ function TradeDetailSheetBody({
                 }${hold === "-" ? "" : ` · ${hold}`}`}
           </span>
         </div>
-        <div className="mt-3 grid grid-cols-[1.15fr_1fr] gap-px overflow-hidden rounded-sharp bg-border">
-          <div className="row-span-2 flex flex-col justify-between gap-3 bg-bg-elevated p-3.5">
+        <div className="mt-3 grid grid-cols-[1.15fr_1fr] gap-px overflow-hidden rounded-md bg-border">
+          <div className="row-span-2 flex flex-col justify-between gap-3 bg-sidebar p-3.5">
             <div>
               {pnl != null ? (
                 <>
@@ -267,8 +273,8 @@ function TradeDetailSheetBody({
                     className={cn(
                       "m-0 tabular-nums",
                       heroPnlClass(pnl),
-                      pnl > 0 && "hero-glow-profit",
-                      pnl < 0 && "hero-glow-loss",
+                      pnl > 0 && "",
+                      pnl < 0 && "",
                     )}
                   >
                     {fmtSignedMoney(pnl, currency, intlLocale())}
@@ -293,8 +299,8 @@ function TradeDetailSheetBody({
               )}
             </div>
             {trade.gross_pnl != null && (
-              <p className="m-0 text-[10px] tabular-nums text-text-dim">
-                {fmtSignedMoney(trade.gross_pnl, currency, intlLocale())} gross −{" "}
+              <p className="m-0 text-[10px] tabular-nums text-muted-foreground">
+                {fmtSignedMoney(trade.gross_pnl, currency, intlLocale())} gross −{""}
                 {fmtMoney(trade.fees_total, currency, intlLocale())} fees
               </p>
             )}
@@ -327,9 +333,9 @@ function TradeDetailSheetBody({
               </Pill>
             ))}
             {trade.setup && (
-              <span className="inline-flex items-center gap-1.5 text-xs text-text-muted">
-                <Zap size={14} strokeWidth={1.5} className="text-signal" />
-                Setup: <span className="font-medium text-text">{trade.setup.name}</span>
+              <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+                <Zap size={14} strokeWidth={1.5} className="text-chart-3" />
+                Setup: <span className="font-medium text-foreground">{trade.setup.name}</span>
               </span>
             )}
           </div>
@@ -345,34 +351,36 @@ function TradeDetailSheetBody({
       <section>
         <p className={sectionLabelClass}>Executions ({trade.fills.length})</p>
         {trade.fills.length === 0 ? (
-          <p className="text-xs text-text-muted">No fills recorded.</p>
+          <p className="text-xs text-muted-foreground">No fills recorded.</p>
         ) : (
           <ul className="m-0 flex list-none flex-col gap-0.5 p-0">
             {trade.fills.map((f) => (
               <li
                 key={f.id}
-                className="-mx-2 flex items-center justify-between gap-2 rounded-control px-2 py-1.5 text-xs tabular-nums transition-colors hover:bg-bg-hover"
+                className="-mx-2 flex items-center justify-between gap-2 rounded-md px-2 py-1.5 text-xs tabular-nums transition-colors hover:bg-accent"
               >
                 <span className="flex items-center gap-2">
                   <span
                     aria-label={f.side === "buy" ? "Buy" : "Sell"}
                     className={cn(
-                      "flex size-4 items-center justify-center rounded-control text-[10px] font-bold",
-                      f.side === "buy" ? "bg-tint-pos text-profit" : "bg-tint-neg text-loss",
+                      "flex size-4 items-center justify-center rounded-md text-[10px] font-bold",
+                      f.side === "buy"
+                        ? "bg-profit/10 text-profit"
+                        : "bg-destructive/10 text-destructive",
                     )}
                   >
                     {f.side === "buy" ? "B" : "S"}
                   </span>
-                  <span className="text-text">
+                  <span className="text-foreground">
                     {f.quantity} @ {fmtMoney(f.price, currency, intlLocale())}
                   </span>
                   {f.fees + f.commission > 0 && (
-                    <span className="text-text-dim">
+                    <span className="text-muted-foreground">
                       {fmtMoney(f.fees + f.commission, currency, intlLocale())} fee
                     </span>
                   )}
                 </span>
-                <span className="text-text-muted">{fmtDateTime(f.executed_at)}</span>
+                <span className="text-muted-foreground">{fmtDateTime(f.executed_at)}</span>
               </li>
             ))}
           </ul>
@@ -382,7 +390,7 @@ function TradeDetailSheetBody({
       {trade.notes.trim() !== "" && (
         <section>
           <p className={sectionLabelClass}>Notes</p>
-          <p className="m-0 line-clamp-3 text-sm whitespace-pre-wrap text-text-muted">
+          <p className="m-0 line-clamp-3 text-sm whitespace-pre-wrap text-muted-foreground">
             {trade.notes}
           </p>
           <Button

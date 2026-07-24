@@ -62,7 +62,7 @@ export function SortList({
         <ArrowDownUp size={14} strokeWidth={1.75} />
         Sort
         {sorting.length > 0 ? (
-          <span className="rounded-control bg-bg-hover px-1.5 py-0.5 text-[10px] font-medium tabular-nums text-text-muted">
+          <span className="rounded-md bg-accent px-1.5 py-0.5 text-[10px] font-medium tabular-nums text-muted-foreground">
             {sorting.length}
           </span>
         ) : null}
@@ -73,10 +73,10 @@ export function SortList({
       >
         <div className="flex flex-col gap-3 p-3">
           <div>
-            <p className="m-0 text-[12px] font-medium text-text">
+            <p className="m-0 text-[12px] font-medium text-foreground">
               {sorting.length > 0 ? "Sort by" : "No sorting applied"}
             </p>
-            <p className="m-0 mt-0.5 text-[11px] text-text-dim">
+            <p className="m-0 mt-0.5 text-[11px] text-muted-foreground">
               {sorting.length > 0
                 ? "Modify sorting to organize your rows."
                 : "Add sorting to organize your rows."}
@@ -117,7 +117,7 @@ export function SortList({
                       size="icon-sm"
                       aria-label={`Remove ${labelById.get(sort.id) ?? sort.id} sort`}
                       onClick={() => removeSort(sort.id)}
-                      className="shrink-0 text-text-dim hover:text-text"
+                      className="shrink-0 text-muted-foreground hover:text-foreground"
                     >
                       <Trash2 size={14} strokeWidth={1.75} />
                     </Button>

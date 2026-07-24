@@ -78,45 +78,45 @@ export function OcrSymbolGroupList({
             }
             className={cn(
               "text-left",
-              active && "bg-accent-bg hover:bg-accent-bg",
-              !active && "bg-bg-elevated hover:bg-bg-hover",
+              active && "bg-primary/10 hover:bg-primary/10",
+              !active && "bg-sidebar hover:bg-accent",
               done && !active && "opacity-55",
-              readOnly && "cursor-default hover:bg-bg-elevated disabled:opacity-100",
+              readOnly && "cursor-default hover:bg-sidebar disabled:opacity-100",
             )}
           >
             <ItemMedia
               variant="icon"
               className={cn(
                 "size-6 text-[11px] font-semibold tabular-nums",
-                active ? "bg-accent/20 text-accent" : "bg-bg-hover text-text-dim",
+                active ? "bg-accent/20 text-primary" : "bg-accent text-muted-foreground",
               )}
               aria-hidden
             >
               {index + 1}
             </ItemMedia>
             <ItemContent>
-              <ItemTitle className="text-accent">{g.symbol}</ItemTitle>
+              <ItemTitle className="text-primary">{g.symbol}</ItemTitle>
               <ItemDescription className="line-clamp-1">
                 {contractLine(g)}
-                <span className="text-text-dim"> · </span>
+                <span className="text-muted-foreground"> · </span>
                 <span
                   className={cn(
                     "font-semibold uppercase tracking-[0.06em]",
                     g.side === "long" && "text-profit",
-                    g.side === "short" && "text-loss",
-                    !g.side && "text-text-dim",
+                    g.side === "short" && "text-destructive",
+                    !g.side && "text-muted-foreground",
                   )}
                 >
                   {g.side || "—"}
                 </span>
-                <span className="text-text-dim"> · </span>
-                <span className="tabular-nums text-text-muted">{qtyLabel(g) ?? "—"}</span>
+                <span className="text-muted-foreground"> · </span>
+                <span className="tabular-nums text-muted-foreground">{qtyLabel(g) ?? "—"}</span>
               </ItemDescription>
             </ItemContent>
             <ItemActions>
-              <span className="tabular-nums text-[12px] font-medium text-text">
+              <span className="tabular-nums text-[12px] font-medium text-foreground">
                 {g.fillCount}
-                <span className="ml-1 text-[11px] font-normal text-text-dim">
+                <span className="ml-1 text-[11px] font-normal text-muted-foreground">
                   {g.fillCount === 1 ? "fill" : "fills"}
                 </span>
               </span>
@@ -160,7 +160,7 @@ export function OcrScanSummary({
   return (
     <Collapsible
       defaultOpen={false}
-      className="overflow-hidden rounded-control bg-bg-panel"
+      className="overflow-hidden rounded-md bg-card"
       data-testid="ocr-scan-summary"
     >
       <CollapsibleTrigger
@@ -172,9 +172,9 @@ export function OcrScanSummary({
       >
         <span
           className={cn(
-            "flex size-7 shrink-0 items-center justify-center rounded-control",
-            "bg-bg-elevated text-signal transition-colors duration-150",
-            "group-hover/collapsible-trigger:bg-accent-bg group-hover/collapsible-trigger:text-accent",
+            "flex size-7 shrink-0 items-center justify-center rounded-md",
+            "bg-sidebar text-chart-3 transition-colors duration-150",
+            "group-hover/collapsible-trigger:bg-primary/10 group-hover/collapsible-trigger:text-primary",
           )}
         >
           <ScanText size={14} strokeWidth={1.5} aria-hidden />
@@ -182,8 +182,8 @@ export function OcrScanSummary({
         <span className="min-w-0 flex-1">
           <span
             className={cn(
-              "block text-[11px] font-semibold uppercase tracking-widest text-signal",
-              "transition-colors duration-150 group-hover/collapsible-trigger:text-accent",
+              "block text-[11px] font-semibold uppercase tracking-widest text-chart-3",
+              "transition-colors duration-150 group-hover/collapsible-trigger:text-primary",
             )}
           >
             Scan info
@@ -191,15 +191,15 @@ export function OcrScanSummary({
           {summaryBits.length > 0 ? (
             <span
               className={cn(
-                "mt-0.5 block truncate text-[11px] leading-snug text-text-dim",
-                "transition-colors duration-150 group-hover/collapsible-trigger:text-text-muted",
+                "mt-0.5 block truncate text-[11px] leading-snug text-muted-foreground",
+                "transition-colors duration-150 group-hover/collapsible-trigger:text-muted-foreground",
               )}
             >
               {summaryBits.join(" · ")}
             </span>
           ) : null}
         </span>
-        <CollapsibleChevron className="transition-colors duration-150 group-hover/collapsible-trigger:text-text" />
+        <CollapsibleChevron className="transition-colors duration-150 group-hover/collapsible-trigger:text-foreground" />
       </CollapsibleTrigger>
 
       <CollapsibleContent animation="height">
@@ -219,10 +219,10 @@ export function OcrScanSummary({
 
           {noteCount > 0 ? (
             <div
-              className="flex flex-col gap-2 rounded-control bg-bg-inset/60 px-3 py-2.5"
+              className="flex flex-col gap-2 rounded-md bg-muted/60 px-3 py-2.5"
               data-testid="ocr-warnings"
             >
-              <p className="m-0 text-[10px] font-semibold uppercase tracking-widest text-text-dim">
+              <p className="m-0 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
                 Extraction notes
                 <span className="ml-1.5 tabular-nums">({noteCount})</span>
               </p>
@@ -231,7 +231,7 @@ export function OcrScanSummary({
                   {highlights.map((w) => (
                     <li
                       key={w}
-                      className="rounded-control bg-[rgba(228,255,26,0.06)] px-2.5 py-1.5 text-[11px] leading-snug text-signal"
+                      className="rounded-md bg-[rgba(228,255,26,0.06)] px-2.5 py-1.5 text-[11px] leading-snug text-chart-3"
                     >
                       {w}
                     </li>
@@ -243,7 +243,7 @@ export function OcrScanSummary({
                   {details.map((w) => (
                     <li
                       key={w}
-                      className="text-[11px] leading-snug text-text-dim before:mr-1.5 before:text-text-dim before:content-['·']"
+                      className="text-[11px] leading-snug text-muted-foreground before:mr-1.5 before:text-muted-foreground before:content-['·']"
                     >
                       {w}
                     </li>

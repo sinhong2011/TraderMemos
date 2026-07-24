@@ -13,8 +13,8 @@ function RailTooltip({ label }: { label: string }) {
       className={cn(
         "pointer-events-none absolute top-1/2 left-[calc(100%+8px)] z-50",
         "-translate-y-1/2 translate-x-1",
-        "rounded-control border border-border bg-bg-panel px-2 py-1",
-        "text-[11px] tracking-wide whitespace-nowrap text-text-muted",
+        "rounded-md border border-border bg-card px-2 py-1",
+        "text-[11px] tracking-wide whitespace-nowrap text-muted-foreground",
         "opacity-0 transition-[opacity,transform] duration-150 ease-out",
         "group-hover:translate-x-0 group-hover:opacity-100",
         "group-focus-visible:translate-x-0 group-focus-visible:opacity-100",
@@ -41,16 +41,16 @@ function AccountOption({
       variant="ghost"
       onClick={onSelect}
       className={cn(
-        "relative h-auto w-full justify-start gap-2 rounded-control py-2 pr-2.5 pl-3",
+        "relative h-auto w-full justify-start gap-2 rounded-md py-2 pr-2.5 pl-3",
         "text-left text-[12px]",
         selected
-          ? "bg-accent-bg font-medium text-accent hover:bg-accent-bg hover:text-accent"
-          : "text-text",
+          ? "bg-primary/10 font-medium text-primary hover:bg-primary/10 hover:text-primary"
+          : "text-foreground",
       )}
     >
       <span className="min-w-0 flex-1 truncate">{label}</span>
       {selected ? (
-        <Check size={13} strokeWidth={2} className="shrink-0 text-accent" aria-hidden />
+        <Check size={13} strokeWidth={2} className="shrink-0 text-primary" aria-hidden />
       ) : null}
     </Button>
   );
@@ -81,15 +81,15 @@ export function AccountNavPopover({ variant = "rail" }: { variant?: "rail" | "he
         title={selectedLabel}
         aria-label={`Account: ${selectedLabel}`}
         className={cn(
-          "group relative flex cursor-pointer items-center justify-center rounded-control outline-none",
+          "group relative flex cursor-pointer items-center justify-center rounded-md outline-none",
           isRail ? "size-9" : "size-8",
           "pointer-coarse:size-11",
           "transition-[background-color,color,transform] duration-150 ease-out",
-          "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-strong",
+          "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
           "motion-reduce:transition-none",
           open || filterActive
-            ? "bg-bg-hover text-text"
-            : "text-text-dim hover:bg-bg-hover hover:text-text",
+            ? "bg-accent text-foreground"
+            : "text-muted-foreground hover:bg-accent hover:text-foreground",
         )}
       >
         <CircleUser
@@ -105,13 +105,13 @@ export function AccountNavPopover({ variant = "rail" }: { variant?: "rail" | "he
         sideOffset={isRail ? 8 : 6}
         className="w-[220px] p-1.5"
       >
-        <p className="m-0 flex items-center gap-1.5 px-2.5 pt-1.5 pb-2.5 text-[10px] font-semibold uppercase tracking-widest text-signal">
+        <p className="m-0 flex items-center gap-1.5 px-2.5 pt-1.5 pb-2.5 text-[10px] font-semibold uppercase tracking-widest text-chart-3">
           <Wallet size={11} strokeWidth={1.75} aria-hidden />
           Account
         </p>
         <div className="flex flex-col gap-0.5">
           {isLoading ? (
-            <p className="px-2.5 py-2 text-[12px] text-text-muted">Loading…</p>
+            <p className="px-2.5 py-2 text-[12px] text-muted-foreground">Loading…</p>
           ) : (
             <>
               <AccountOption

@@ -20,15 +20,15 @@ export function GaugeArc({ value, children, className, gradientId = "gauge-grad"
       <svg viewBox="0 0 100 54" className="w-full" role="presentation">
         <defs>
           <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="var(--color-loss)" />
-            <stop offset="50%" stopColor="var(--color-signal)" />
-            <stop offset="100%" stopColor="var(--color-profit)" />
+            <stop offset="0%" stopColor="var(--loss)" />
+            <stop offset="50%" stopColor="var(--chart-3)" />
+            <stop offset="100%" stopColor="var(--profit)" />
           </linearGradient>
         </defs>
         <path
           d={ARC_PATH}
           fill="none"
-          stroke="var(--color-bg-inset)"
+          stroke="var(--muted)"
           strokeWidth={8}
           strokeLinecap="round"
           pathLength={100}

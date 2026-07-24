@@ -22,17 +22,17 @@ function QuickJump({
       variant="ghost"
       onClick={onClick}
       className={cn(
-        "relative h-auto justify-start rounded-control text-left text-[11px]",
-        "focus-visible:ring-2 focus-visible:ring-border-strong focus-visible:outline-none",
+        "relative h-auto justify-start rounded-md text-left text-[11px]",
+        "focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
         "max-sm:shrink-0 max-sm:px-2.5 max-sm:py-2 sm:w-full sm:py-2 sm:pr-2 sm:pl-2.5",
-        active ? "bg-bg-hover text-text" : "text-text-muted",
+        active ? "bg-accent text-foreground" : "text-muted-foreground",
       )}
     >
       {active && (
         <span
           aria-hidden
           className={cn(
-            "absolute rounded-full bg-accent",
+            "absolute rounded-full bg-primary",
             "max-sm:inset-x-2 max-sm:bottom-0 max-sm:h-0.5",
             "sm:top-1/2 sm:left-0 sm:h-4 sm:w-0.5 sm:-translate-y-1/2",
           )}
@@ -127,12 +127,12 @@ export function MonthPicker({
         triggerAriaLabel={`${monthLabel}, choose month`}
         className="overflow-hidden p-0"
         triggerClassName={cn(
-          "h-8 min-w-[6.5rem] rounded-control border-none bg-bg-input px-2.5 md:h-7 md:min-w-[9.5rem]",
+          "h-8 min-w-[6.5rem] rounded-md border-none bg-muted px-2.5 md:h-7 md:min-w-[9.5rem]",
           "max-md:pointer-coarse:h-8 md:pointer-coarse:h-11",
-          "text-[11px] font-semibold tabular-nums text-text md:text-[13px]",
+          "text-[11px] font-semibold tabular-nums text-foreground md:text-[13px]",
           "transition-[background-color] duration-150",
-          "hover:bg-bg-input-hover",
-          open && "bg-bg-input-hover",
+          "hover:bg-accent",
+          open && "bg-accent",
         )}
         trigger={
           <>
@@ -141,7 +141,7 @@ export function MonthPicker({
               size={12}
               strokeWidth={1.75}
               className={cn(
-                "shrink-0 text-text-dim transition-transform duration-150",
+                "shrink-0 text-muted-foreground transition-transform duration-150",
                 open && "rotate-180",
               )}
               aria-hidden
@@ -156,8 +156,8 @@ export function MonthPicker({
           )}
           aria-label="Choose month"
         >
-          <aside className="flex shrink-0 flex-col bg-bg sm:w-[116px]">
-            <p className="m-0 px-3 pt-3 pb-2 text-[11px] font-medium uppercase tracking-widest text-text-muted">
+          <aside className="flex shrink-0 flex-col bg-background sm:w-[116px]">
+            <p className="m-0 px-3 pt-3 pb-2 text-[11px] font-medium uppercase tracking-widest text-muted-foreground">
               Quick jump
             </p>
             <div
@@ -183,7 +183,7 @@ export function MonthPicker({
             </div>
           </aside>
 
-          <div className="flex min-w-0 flex-1 flex-col bg-bg-panel px-3 pt-3 pb-3 max-sm:pt-1">
+          <div className="flex min-w-0 flex-1 flex-col bg-card px-3 pt-3 pb-3 max-sm:pt-1">
             <div className="mb-2 flex items-center justify-between">
               <Button
                 type="button"
@@ -237,7 +237,7 @@ export function MonthPicker({
                     aria-pressed={isActive}
                     className={cn(
                       "h-9 capitalize",
-                      !isActive && isCurrent && "text-signal ring-1 ring-signal/40 ring-inset",
+                      !isActive && isCurrent && "text-chart-3 ring-1 ring-signal/40 ring-inset",
                       isFuture && "opacity-30",
                     )}
                   >

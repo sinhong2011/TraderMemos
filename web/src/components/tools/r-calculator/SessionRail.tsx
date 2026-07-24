@@ -48,7 +48,7 @@ export function SessionRail({
 
   return (
     <div className="flex flex-wrap items-center gap-1.5">
-      <span className="mr-1 text-[10px] font-medium uppercase tracking-widest text-text-muted">
+      <span className="mr-1 text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
         Positions
       </span>
       {sessions.map((s) => {
@@ -74,7 +74,7 @@ export function SessionRail({
                     cancelEdit();
                   }
                 }}
-                className="min-w-[5rem] max-w-[10rem] rounded-control border-none bg-bg-input px-2 py-1 text-[11px] font-medium text-text outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-strong"
+                className="min-w-[5rem] max-w-[10rem] rounded-md border-none bg-muted px-2 py-1 text-[11px] font-medium text-foreground outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                 aria-label="Rename position"
               />
             ) : (
@@ -91,8 +91,8 @@ export function SessionRail({
                 className={cn(
                   "h-auto px-2.5 py-1",
                   active
-                    ? "bg-accent/15 text-accent hover:bg-accent/15 hover:text-accent"
-                    : "bg-bg-hover text-text-muted",
+                    ? "bg-accent/15 text-primary hover:bg-primary/15 hover:text-primary"
+                    : "bg-accent text-muted-foreground",
                 )}
               >
                 {s.name}
@@ -107,7 +107,7 @@ export function SessionRail({
                     size="icon-xs"
                     aria-label="Rename"
                     onClick={() => startEdit(s.id, s.name)}
-                    className="size-auto rounded p-0.5 text-text-dim hover:bg-transparent hover:text-text"
+                    className="size-auto rounded p-0.5 text-muted-foreground hover:bg-transparent hover:text-foreground"
                   >
                     <Pencil size={11} />
                   </Button>
@@ -118,7 +118,7 @@ export function SessionRail({
                   size="icon-xs"
                   aria-label="Duplicate"
                   onClick={() => onDuplicate(s.id)}
-                  className="size-auto rounded p-0.5 text-text-dim hover:bg-transparent hover:text-text"
+                  className="size-auto rounded p-0.5 text-muted-foreground hover:bg-transparent hover:text-foreground"
                 >
                   <Copy size={11} />
                 </Button>
@@ -129,7 +129,7 @@ export function SessionRail({
                     size="icon-xs"
                     aria-label="Delete"
                     onClick={() => onRemove(s.id)}
-                    className="size-auto rounded p-0.5 text-text-dim hover:bg-transparent hover:text-loss"
+                    className="size-auto rounded p-0.5 text-muted-foreground hover:bg-transparent hover:text-destructive"
                   >
                     <X size={11} />
                   </Button>
@@ -144,7 +144,7 @@ export function SessionRail({
         variant="ghost"
         size="xs"
         onClick={onAdd}
-        className="h-auto gap-1 bg-bg-hover px-2 py-1 text-text-dim"
+        className="h-auto gap-1 bg-accent px-2 py-1 text-muted-foreground"
       >
         <Plus size={11} />
         Add

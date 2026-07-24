@@ -75,7 +75,7 @@ const NAV_COMMANDS: Array<{
     icon: Target,
     keywords: ["r-multiple", "r", "exit ladder", "fvg", "position size"],
   },
-  { id: "nav-import", label: "Import", to: "/import", icon: Upload },
+  { id: "nav-import ", label: "Import", to: "/import", icon: Upload },
   {
     id: "nav-settings",
     label: "Settings",

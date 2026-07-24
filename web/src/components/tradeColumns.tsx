@@ -57,7 +57,7 @@ export function tradeRMultiple(t: Trade): number | null {
 }
 
 function muted(v: string) {
-  return <span className="text-text-muted">{v}</span>;
+  return <span className="text-muted-foreground">{v}</span>;
 }
 
 function MoneyCell({
@@ -116,7 +116,7 @@ export function tradeColumns(
       accessorKey: "symbol",
       header: "Symbol",
       meta: { label: "Symbol", minWidth: 72 },
-      cell: (i) => <span className="font-semibold text-accent">{i.getValue<string>()}</span>,
+      cell: (i) => <span className="font-semibold text-primary">{i.getValue<string>()}</span>,
     },
     {
       id: "status",
@@ -270,7 +270,7 @@ export function tradeColumns(
         return v == null || v <= 0 ? (
           muted("-")
         ) : (
-          <span className="tabular-nums text-text-muted">{fmtDuration(v)}</span>
+          <span className="tabular-nums text-muted-foreground">{fmtDuration(v)}</span>
         );
       },
     },

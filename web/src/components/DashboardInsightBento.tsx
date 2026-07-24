@@ -21,14 +21,14 @@ export interface DashboardInsightBentoProps {
 
 function toneClass(tone?: InsightRow["tone"]): string {
   if (tone === "pos") return "text-profit";
-  if (tone === "neg") return "text-loss";
-  if (tone === "muted") return "text-text-muted";
-  return "text-text";
+  if (tone === "neg") return "text-destructive";
+  if (tone === "muted") return "text-muted-foreground";
+  return "text-foreground";
 }
 
 function BentoCell({ className, children }: { className?: string; children: ReactNode }) {
   return (
-    <section className={cn("flex h-full min-w-0 flex-col rounded-card bg-bg-panel p-5", className)}>
+    <section className={cn("flex h-full min-w-0 flex-col rounded-lg bg-card p-5", className)}>
       {children}
     </section>
   );
@@ -47,7 +47,7 @@ function Title({
     <p
       className={cn(
         "self-start text-left text-[12px] font-semibold tracking-wide",
-        tone === "signal" ? "text-signal" : "font-medium text-text-muted",
+        tone === "signal" ? "text-chart-3" : "font-medium text-muted-foreground",
         className,
       )}
     >
@@ -59,7 +59,7 @@ function Title({
 function WinLossHint({ hint }: { hint: string }) {
   const m = /^(\d+)W\s*\/\s*(\d+)L$/.exec(hint.trim());
   if (!m) {
-    return <span className="text-[17px] text-text-dim">{hint}</span>;
+    return <span className="text-[17px] text-muted-foreground">{hint}</span>;
   }
   return (
     <WinLossRecord
@@ -109,7 +109,7 @@ function StatTile({ row, className }: { row: InsightRow; className?: string }) {
         >
           {row.value}
         </p>
-        {row.hint ? <p className="mt-1.5 text-[10px] text-text-dim">{row.hint}</p> : null}
+        {row.hint ? <p className="mt-1.5 text-[10px] text-muted-foreground">{row.hint}</p> : null}
       </div>
     </BentoCell>
   );
@@ -165,7 +165,9 @@ export function DashboardInsightBento({
               >
                 {row.value}
               </p>
-              {row.hint ? <p className="mt-0.5 text-[10px] text-text-dim">{row.hint}</p> : null}
+              {row.hint ? (
+                <p className="mt-0.5 text-[10px] text-muted-foreground">{row.hint}</p>
+              ) : null}
             </div>
           ))}
         </div>

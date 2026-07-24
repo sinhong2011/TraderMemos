@@ -151,8 +151,8 @@ function SetupItem({ row, currency, fxRate, onEdit, onDelete, onConvert }: Setup
       variant="default"
       size="default"
       className={cn(
-        "w-full gap-3 border-transparent bg-bg-hover px-3.5 py-3",
-        "hover:bg-bg-panel",
+        "w-full gap-3 border-transparent bg-accent px-3.5 py-3",
+        "hover:bg-card",
         !hasData && "opacity-75",
       )}
     >
@@ -163,9 +163,9 @@ function SetupItem({ row, currency, fxRate, onEdit, onDelete, onConvert }: Setup
           "size-9 self-center",
           hasData
             ? isShort
-              ? "bg-tint-neg text-loss"
-              : "bg-tint-pos text-profit"
-            : "bg-bg-panel text-text-dim",
+              ? "bg-destructive/10 text-destructive"
+              : "bg-profit/10 text-profit"
+            : "bg-card text-muted-foreground",
         )}
       >
         {setup.direction ? (
@@ -177,9 +177,9 @@ function SetupItem({ row, currency, fxRate, onEdit, onDelete, onConvert }: Setup
 
       <ItemContent className="gap-1.5">
         <ItemTitle className="gap-2 text-[15px]">
-          <span className="font-semibold tracking-tight text-text">{setup.name}</span>
+          <span className="font-semibold tracking-tight text-foreground">{setup.name}</span>
           {setup.symbol ? (
-            <span className="text-[12px] font-medium tracking-wide text-accent">
+            <span className="text-[12px] font-medium tracking-wide text-primary">
               {setup.symbol}
               {setup.direction ? ` · ${setup.direction.toUpperCase()}` : ""}
             </span>
@@ -188,11 +188,11 @@ function SetupItem({ row, currency, fxRate, onEdit, onDelete, onConvert }: Setup
         {thesis ? (
           <ItemDescription className="line-clamp-1 text-[13px]">{thesis}</ItemDescription>
         ) : metaBits.length > 0 ? (
-          <ItemDescription className="text-[12px] text-text-dim">
+          <ItemDescription className="text-[12px] text-muted-foreground">
             {metaBits.join(" · ")}
           </ItemDescription>
         ) : !hasData ? (
-          <ItemDescription className="text-[12px] text-text-dim">
+          <ItemDescription className="text-[12px] text-muted-foreground">
             No trades in this range
           </ItemDescription>
         ) : null}
@@ -243,7 +243,7 @@ function SetupItem({ row, currency, fxRate, onEdit, onDelete, onConvert }: Setup
           size="icon-xs"
           aria-label={`Edit ${setup.name}`}
           onClick={() => onEdit(setup)}
-          className="text-text-dim hover:text-accent"
+          className="text-muted-foreground hover:text-primary"
         >
           <Pencil size={13} strokeWidth={1.5} />
         </Button>
@@ -258,7 +258,7 @@ function SetupItem({ row, currency, fxRate, onEdit, onDelete, onConvert }: Setup
                 setConfirmDelete(false);
                 onDelete(setup);
               }}
-              className="text-loss hover:text-loss"
+              className="text-destructive hover:text-destructive"
             >
               Delete
             </Button>
@@ -279,7 +279,7 @@ function SetupItem({ row, currency, fxRate, onEdit, onDelete, onConvert }: Setup
             size="icon-xs"
             aria-label={`Delete ${setup.name}`}
             onClick={() => setConfirmDelete(true)}
-            className="text-text-dim hover:text-loss"
+            className="text-muted-foreground hover:text-destructive"
           >
             <Trash2 size={13} strokeWidth={1.5} />
           </Button>
@@ -300,14 +300,14 @@ function SetupMetric({
 }) {
   return (
     <div className="flex min-w-0 flex-col gap-0.5">
-      <span className="text-[10px] font-medium tracking-[0.08em] text-text-dim uppercase">
+      <span className="text-[10px] font-medium tracking-[0.08em] text-muted-foreground uppercase">
         {label}
       </span>
       <span
         className={cn(
           "text-[13px] font-semibold tabular-nums",
-          valueClass ?? "text-text",
-          value === "—" && "font-medium text-text-dim",
+          valueClass ?? "text-foreground",
+          value === "—" && "font-medium text-muted-foreground",
         )}
       >
         {value}
@@ -360,7 +360,7 @@ export function PlaybookView({
 
   const toolbarIconClass = cn(
     "size-8 pointer-coarse:size-11",
-    "border-transparent !bg-transparent hover:!bg-bg-hover",
+    "border-transparent !bg-transparent hover:!bg-accent",
   );
 
   const toolbar = (
@@ -370,7 +370,7 @@ export function PlaybookView({
           <ListFilter
             size={14}
             strokeWidth={1.75}
-            className="pointer-events-none absolute left-2.5 z-10 text-text-dim"
+            className="pointer-events-none absolute left-2.5 z-10 text-muted-foreground"
             aria-hidden
           />
           <NativeSelect
@@ -379,7 +379,7 @@ export function PlaybookView({
             value={sort}
             onChange={(e) => setSort(e.target.value as SortKey)}
             className={cn(
-              "min-w-[8.25rem] border-border !bg-transparent hover:border-border-strong hover:!bg-transparent",
+              "min-w-[8.25rem] border-border !bg-transparent hover:border-border hover:!bg-transparent",
               "h-8 pr-7 pl-8 text-[12px]",
             )}
           >
@@ -403,7 +403,7 @@ export function PlaybookView({
             aria-label={hideUnused ? "Show unused setups" : "Hide unused setups"}
             className={cn(
               toolbarIconClass,
-              hideUnused && "!bg-accent-bg text-accent hover:!bg-accent-bg",
+              hideUnused && "!bg-primary/10 text-primary hover:!bg-primary/10",
             )}
           >
             {hideUnused ? (
@@ -432,14 +432,14 @@ export function PlaybookView({
       return (
         <div className="flex flex-col gap-2">
           {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} height="88px" className="rounded-control" />
+            <Skeleton key={i} height="88px" className="rounded-md" />
           ))}
         </div>
       );
     }
 
     if (setupsError) {
-      return <p className="text-xs text-loss">Failed to load setups.</p>;
+      return <p className="text-xs text-destructive">Failed to load setups.</p>;
     }
 
     if (setups.length === 0) {

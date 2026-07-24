@@ -8,7 +8,7 @@ import {
 } from "../signal-overlay-styles";
 
 /**
- * Signal Terminal Dropdown Menu — shadcn Base UI menu with product tokens.
+ * shadcn Dropdown Menu — shadcn Base UI menu with theme tokens.
  * @see https://ui.shadcn.com/docs/components/base/dropdown-menu
  */
 
@@ -45,7 +45,7 @@ function DropdownMenuContent({
           data-slot="dropdown-menu-content"
           className={cn(
             signalOverlayPopupClass,
-            "min-w-[10rem] overflow-hidden bg-bg-hover p-0 shadow-[0_16px_40px_rgba(18,18,24,0.65)]",
+            "min-w-[10rem] overflow-hidden bg-accent p-0 shadow-[0_16px_40px_rgba(18,18,24,0.65)]",
             className,
           )}
           {...props}
@@ -70,7 +70,7 @@ function DropdownMenuLabel({ className, ...props }: MenuPrimitive.GroupLabel.Pro
     <MenuPrimitive.GroupLabel
       data-slot="dropdown-menu-label"
       className={cn(
-        "px-2 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-text-dim",
+        "px-2 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground",
         className,
       )}
       {...props}
@@ -89,7 +89,7 @@ function DropdownMenuItem({
       data-inset={inset || undefined}
       className={cn(
         signalSelectItemClass,
-        "min-h-8 gap-2 py-1.5 pl-2 data-[selected]:bg-transparent data-[selected]:font-normal data-[selected]:text-text",
+        "min-h-8 gap-2 py-1.5 pl-2 data-[selected]:bg-transparent data-[selected]:font-normal data-[selected]:text-foreground",
         "data-[highlighted]:bg-white/[0.06]",
         inset && "pl-8",
         className,
@@ -111,7 +111,7 @@ function DropdownMenuCheckboxItem({
       checked={checked}
       className={cn(
         signalSelectItemClass,
-        "min-h-8 gap-2 py-1.5 pl-2 data-[selected]:bg-transparent data-[selected]:font-normal data-[selected]:text-text",
+        "min-h-8 gap-2 py-1.5 pl-2 data-[selected]:bg-transparent data-[selected]:font-normal data-[selected]:text-foreground",
         "data-[highlighted]:bg-white/[0.06]",
         className,
       )}
@@ -119,7 +119,7 @@ function DropdownMenuCheckboxItem({
     >
       <span className="flex size-3.5 shrink-0 items-center justify-center">
         <MenuPrimitive.CheckboxItemIndicator>
-          <Check size={12} strokeWidth={2.5} className="text-accent" aria-hidden />
+          <Check size={12} strokeWidth={2.5} className="text-primary" aria-hidden />
         </MenuPrimitive.CheckboxItemIndicator>
       </span>
       {children}

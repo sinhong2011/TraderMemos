@@ -8,7 +8,7 @@ import {
 } from "../signal-overlay-styles";
 
 /**
- * Signal Terminal Select — shadcn Base UI select with product tokens.
+ * shadcn Select — shadcn Base UI select with theme tokens.
  * @see https://ui.shadcn.com/docs/components/base/select
  */
 
@@ -46,20 +46,19 @@ function SelectTrigger({
       data-variant={variant}
       className={cn(
         "group/select-trigger flex w-full min-w-0 cursor-pointer items-center justify-between gap-2",
-        "rounded-control border text-[13px] text-text whitespace-nowrap outline-none",
+        "rounded-md border text-[13px] text-foreground whitespace-nowrap outline-none",
         "transition-[background-color,color,border-color] duration-150",
-        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-strong",
+        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
         "disabled:cursor-not-allowed disabled:opacity-55",
-        "aria-invalid:outline-loss/40",
+        "aria-invalid:outline-destructive/40",
         "data-disabled:cursor-not-allowed data-disabled:opacity-55",
         "*:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center",
         "[&_svg]:pointer-events-none [&_svg]:shrink-0",
         size === "default" && "h-10 px-3",
         size === "sm" && "h-8 px-2.5 text-[12px]",
-        variant === "default" &&
-          "border-border bg-bg-input hover:bg-bg-input-hover data-popup-open:bg-bg-input-hover",
+        variant === "default" && "border-border bg-muted hover:bg-accent data-popup-open:bg-accent",
         variant === "ghost" &&
-          "border-transparent bg-transparent hover:bg-bg-hover data-popup-open:bg-bg-hover",
+          "border-transparent bg-transparent hover:bg-accent data-popup-open:bg-accent",
         className,
       )}
       {...props}
@@ -70,8 +69,8 @@ function SelectTrigger({
           size={12}
           strokeWidth={1.5}
           className={cn(
-            "text-text-dim transition-transform duration-220 ease-out",
-            "group-data-popup-open/select-trigger:rotate-180 group-data-popup-open/select-trigger:text-accent",
+            "text-muted-foreground transition-transform duration-220 ease-out",
+            "group-data-popup-open/select-trigger:rotate-180 group-data-popup-open/select-trigger:text-primary",
             "motion-reduce:transition-none",
           )}
           aria-hidden
@@ -133,7 +132,7 @@ function SelectLabel({ className, ...props }: SelectPrimitive.GroupLabel.Props) 
     <SelectPrimitive.GroupLabel
       data-slot="select-label"
       className={cn(
-        "px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-text-dim",
+        "px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground",
         className,
       )}
       {...props}
@@ -152,7 +151,7 @@ function SelectItem({ className, children, ...props }: SelectPrimitive.Item.Prop
         {children}
       </SelectPrimitive.ItemText>
       <SelectPrimitive.ItemIndicator className="flex w-3.5 shrink-0 justify-center">
-        <Check size={13} strokeWidth={2} className="text-accent" aria-hidden />
+        <Check size={13} strokeWidth={2} className="text-primary" aria-hidden />
       </SelectPrimitive.ItemIndicator>
     </SelectPrimitive.Item>
   );
@@ -173,7 +172,7 @@ function SelectScrollUpButton({ className, ...props }: SelectPrimitive.ScrollUpA
     <SelectPrimitive.ScrollUpArrow
       data-slot="select-scroll-up-button"
       className={cn(
-        "top-0 flex w-full cursor-default items-center justify-center bg-bg-panel py-1 text-text-dim",
+        "top-0 flex w-full cursor-default items-center justify-center bg-card py-1 text-muted-foreground",
         className,
       )}
       {...props}
@@ -188,7 +187,7 @@ function SelectScrollDownButton({ className, ...props }: SelectPrimitive.ScrollD
     <SelectPrimitive.ScrollDownArrow
       data-slot="select-scroll-down-button"
       className={cn(
-        "bottom-0 flex w-full cursor-default items-center justify-center bg-bg-panel py-1 text-text-dim",
+        "bottom-0 flex w-full cursor-default items-center justify-center bg-card py-1 text-muted-foreground",
         className,
       )}
       {...props}

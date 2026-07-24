@@ -50,7 +50,7 @@ describe("ReportsExecutionGrade", () => {
   it("colors net P&L by sign", () => {
     render(<ReportsExecutionGrade {...props} breakdown={[grp("5", 200), grp("1", -100)]} />);
     expect(screen.getByText("+$200.00")).toHaveClass("text-profit");
-    expect(screen.getByText("-$100.00")).toHaveClass("text-loss");
+    expect(screen.getByText("-$100.00")).toHaveClass("text-destructive");
   });
 
   it("sizes each bar proportionally to |net P&L|", () => {

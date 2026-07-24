@@ -57,9 +57,9 @@ const LAYOUT_OPTS: SegmentOption[] = [
 ];
 
 const menuTriggerClass = cn(
-  "flex size-8 cursor-pointer items-center justify-center rounded-control",
-  "text-text-muted transition-colors hover:bg-bg-hover hover:text-text",
-  "outline-none focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-border-strong",
+  "flex size-8 cursor-pointer items-center justify-center rounded-md",
+  "text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
+  "outline-none focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ring",
 );
 
 function formatNoteDay(isoDate: string, locale: string): string {
@@ -104,7 +104,7 @@ function NoteActionsMenu({
       <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
         <DropdownMenuTrigger
           aria-label={`Actions for ${title}`}
-          className={cn(menuTriggerClass, menuOpen && "bg-bg-hover text-text")}
+          className={cn(menuTriggerClass, menuOpen && "bg-accent text-foreground")}
         >
           <MoreVertical size={14} strokeWidth={1.5} aria-hidden />
         </DropdownMenuTrigger>
@@ -123,7 +123,7 @@ function NoteActionsMenu({
             Open
           </DropdownMenuItem>
           <DropdownMenuItem
-            className="text-loss data-[highlighted]:text-loss"
+            className="text-destructive data-[highlighted]:text-destructive"
             onClick={() => {
               setMenuOpen(false);
               onDelete();
@@ -167,19 +167,24 @@ function NoteTile({
         }
       }}
       className={cn(
-        "group/note flex cursor-pointer flex-col rounded-card bg-bg-elevated text-left outline-none",
-        "transition-colors duration-100 hover:bg-bg-panel",
-        "focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-border-strong",
+        "group/note flex cursor-pointer flex-col rounded-lg bg-sidebar text-left outline-none",
+        "transition-colors duration-100 hover:bg-card",
+        "focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring",
         isCard ? "min-h-0" : "w-full",
       )}
     >
       <header className="flex items-start gap-3 px-4 pt-4 pb-3">
         <div className="min-w-0 flex-1">
-          <span className="inline-flex items-center gap-1.5 text-[12px] font-medium text-text-muted tabular-nums">
-            <CalendarDays size={13} strokeWidth={1.75} className="text-text-dim" aria-hidden />
+          <span className="inline-flex items-center gap-1.5 text-[12px] font-medium text-muted-foreground tabular-nums">
+            <CalendarDays
+              size={13}
+              strokeWidth={1.75}
+              className="text-muted-foreground"
+              aria-hidden
+            />
             {formatNoteDay(note.occurred_at, locale)}
           </span>
-          <h3 className="mt-1 truncate text-[14px] font-medium tracking-tight text-text">
+          <h3 className="mt-1 truncate text-[14px] font-medium tracking-tight text-foreground">
             {note.title}
           </h3>
         </div>
@@ -188,7 +193,7 @@ function NoteTile({
 
       <div
         className={cn(
-          "mx-4 flex flex-col rounded-control bg-bg",
+          "mx-4 flex flex-col rounded-md bg-background",
           isCard ? "gap-3.5 p-3.5" : "gap-3 p-3.5 sm:flex-row sm:items-stretch sm:gap-5",
         )}
       >
@@ -198,14 +203,14 @@ function NoteTile({
               <Tags
                 size={15}
                 strokeWidth={1.75}
-                className="mt-0.5 shrink-0 text-text-dim"
+                className="mt-0.5 shrink-0 text-muted-foreground"
                 aria-hidden
               />
               <div className="flex min-w-0 flex-1 flex-wrap gap-1">
                 {symbols.map((s) => (
                   <span
                     key={s.symbol}
-                    className="rounded-control bg-bg-elevated px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-accent"
+                    className="rounded-md bg-sidebar px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-primary"
                   >
                     {s.symbol}
                   </span>
@@ -218,7 +223,7 @@ function NoteTile({
         <div className={cn("min-w-0", !isCard && "sm:flex-1")}>
           <p
             className={cn(
-              "text-[12px] leading-relaxed text-text-muted",
+              "text-[12px] leading-relaxed text-muted-foreground",
               isCard ? "line-clamp-4" : "line-clamp-2 sm:line-clamp-3",
             )}
           >
@@ -265,8 +270,8 @@ export function NotesView({ notes, loading, error, onDelete }: NotesViewProps) {
     <Page fill>
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
-          <h2 className="text-[10px] font-semibold tracking-wide text-signal">Notes</h2>
-          <p className="mt-1 text-[12px] leading-relaxed text-text-muted">
+          <h2 className="text-[10px] font-semibold tracking-wide text-chart-3">Notes</h2>
+          <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground">
             Freeform notes and daily logs. Tap to edit — Shift+N for a new one.
           </p>
         </div>
@@ -288,15 +293,15 @@ export function NotesView({ notes, loading, error, onDelete }: NotesViewProps) {
       {loading ? (
         layout === "cards" ? (
           <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-            <Skeleton className="h-52 w-full rounded-card" />
-            <Skeleton className="h-52 w-full rounded-card" />
-            <Skeleton className="h-52 w-full rounded-card" />
+            <Skeleton className="h-52 w-full rounded-lg" />
+            <Skeleton className="h-52 w-full rounded-lg" />
+            <Skeleton className="h-52 w-full rounded-lg" />
           </div>
         ) : (
           <div className="flex min-h-0 flex-1 flex-col gap-3">
-            <Skeleton className="h-36 w-full rounded-card" />
-            <Skeleton className="h-36 w-full rounded-card" />
-            <Skeleton className="h-36 w-full rounded-card" />
+            <Skeleton className="h-36 w-full rounded-lg" />
+            <Skeleton className="h-36 w-full rounded-lg" />
+            <Skeleton className="h-36 w-full rounded-lg" />
           </div>
         )
       ) : error ? (

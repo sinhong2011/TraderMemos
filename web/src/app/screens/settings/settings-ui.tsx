@@ -19,9 +19,11 @@ export function SettingsPageHeader({
 }) {
   return (
     <header className="px-6 pb-2 pt-6">
-      <h1 className="text-[22px] font-semibold tracking-tight text-text">{title}</h1>
+      <h1 className="text-[22px] font-semibold tracking-tight text-foreground">{title}</h1>
       {description && (
-        <p className="mt-1 max-w-xl text-[12px] leading-relaxed text-text-muted">{description}</p>
+        <p className="mt-1 max-w-xl text-[12px] leading-relaxed text-muted-foreground">
+          {description}
+        </p>
       )}
     </header>
   );
@@ -39,8 +41,8 @@ export type SettingsSectionId =
 export function SettingsShell({ nav, children }: { nav: ReactNode; children: ReactNode }) {
   return (
     <div className="flex min-h-[calc(100vh-52px)] flex-col lg:flex-row">
-      <aside className="shrink-0 bg-bg px-3 py-3 lg:w-[220px] lg:py-5">{nav}</aside>
-      <div className="min-w-0 flex-1 bg-bg">{children}</div>
+      <aside className="shrink-0 bg-background px-3 py-3 lg:w-[220px] lg:py-5">{nav}</aside>
+      <div className="min-w-0 flex-1 bg-background">{children}</div>
     </div>
   );
 }
@@ -68,10 +70,10 @@ export function SettingsNav({
                 onChange(id);
               }}
               className={cn(
-                "flex w-full cursor-pointer items-center gap-2.5 rounded-control px-3 py-2 text-left text-[13px] font-medium no-underline transition-colors duration-150",
+                "flex w-full cursor-pointer items-center gap-2.5 rounded-md px-3 py-2 text-left text-[13px] font-medium no-underline transition-colors duration-150",
                 isActive
-                  ? "bg-bg-hover text-text"
-                  : "bg-transparent text-text-muted hover:bg-bg-hover/70 hover:text-text",
+                  ? "bg-accent text-foreground"
+                  : "bg-transparent text-muted-foreground hover:bg-accent/70 hover:text-foreground",
               )}
             >
               <Icon size={14} strokeWidth={1.5} aria-hidden />
@@ -99,15 +101,15 @@ export function SettingsPanel({
   footer?: ReactNode;
 }) {
   return (
-    <div className="overflow-hidden rounded-card bg-bg-panel">
+    <div className="overflow-hidden rounded-lg bg-card">
       {(title || description || action) && (
         <div className="flex items-start justify-between gap-4 px-5 pt-5 pb-1">
           <div className="min-w-0">
             {title ? (
-              <h2 className="text-[15px] font-semibold tracking-tight text-text">{title}</h2>
+              <h2 className="text-[15px] font-semibold tracking-tight text-foreground">{title}</h2>
             ) : null}
             {description ? (
-              <p className="mt-1 max-w-2xl text-[12px] leading-relaxed text-text-muted">
+              <p className="mt-1 max-w-2xl text-[12px] leading-relaxed text-muted-foreground">
                 {description}
               </p>
             ) : null}
@@ -135,8 +137,10 @@ export function SettingsBadge({
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-control px-2 py-0.5 text-[10px] font-medium tracking-wide",
-        tone === "required" ? "bg-loss/15 text-loss" : "bg-bg-elevated text-text-muted",
+        "inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-medium tracking-wide",
+        tone === "required"
+          ? "bg-destructive/15 text-destructive"
+          : "bg-sidebar text-muted-foreground",
       )}
     >
       {children}
@@ -153,7 +157,7 @@ export function SettingsPanelBody({
   className?: string;
 }) {
   return (
-    <div className={cn("rounded-card border border-border px-5 py-4", className)}>{children}</div>
+    <div className={cn("rounded-lg border border-border px-5 py-4", className)}>{children}</div>
   );
 }
 
@@ -168,7 +172,7 @@ export function SettingsGroup({
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-card border border-border divide-y divide-border/40",
+        "overflow-hidden rounded-lg border border-border divide-y divide-border/40",
         className,
       )}
     >
@@ -179,7 +183,7 @@ export function SettingsGroup({
 
 export function SettingsInsetForm({ children }: { children: ReactNode }) {
   return (
-    <div className="rounded-card border border-border px-5 py-4">
+    <div className="rounded-lg border border-border px-5 py-4">
       <div className="flex flex-col gap-3">{children}</div>
     </div>
   );
@@ -208,10 +212,12 @@ export function SettingsSection({
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
             {title ? (
-              <h2 className="m-0 text-[15px] font-semibold tracking-tight text-text">{title}</h2>
+              <h2 className="m-0 text-[15px] font-semibold tracking-tight text-foreground">
+                {title}
+              </h2>
             ) : null}
             {panelDescription ? (
-              <p className="mt-1 max-w-2xl text-[12px] leading-relaxed text-text-muted">
+              <p className="mt-1 max-w-2xl text-[12px] leading-relaxed text-muted-foreground">
                 {panelDescription}
               </p>
             ) : null}
@@ -248,9 +254,9 @@ export function SettingsToggle({
       onClick={() => onCheckedChange(!checked)}
       className={cn(
         "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors duration-150",
-        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-strong",
+        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
         "disabled:cursor-not-allowed disabled:opacity-45",
-        checked ? "bg-accent" : "bg-bg-input",
+        checked ? "bg-primary" : "bg-muted",
       )}
     >
       <span
@@ -290,8 +296,8 @@ export function SettingsPrefixedInput({
   return (
     <div
       className={cn(
-        "flex w-full overflow-hidden rounded-control bg-bg-input transition-colors duration-150",
-        "hover:bg-bg-input-hover focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-border-strong",
+        "flex w-full overflow-hidden rounded-md bg-muted transition-colors duration-150",
+        "hover:bg-accent focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-ring",
         disabled && "opacity-45",
         className,
       )}
@@ -308,7 +314,7 @@ export function SettingsPrefixedInput({
           disabled={disabled}
           onChange={(e) => onSchemeChange(e.target.value as UrlScheme)}
           aria-label="URL scheme"
-          className="h-10 min-w-[5.75rem] border-none pr-6 pl-3 text-[12px] text-text-dim"
+          className="h-10 min-w-[5.75rem] border-none pr-6 pl-3 text-[12px] text-muted-foreground"
         >
           <NativeSelectOption value="https">https://</NativeSelectOption>
           <NativeSelectOption value="http">http://</NativeSelectOption>
@@ -322,7 +328,7 @@ export function SettingsPrefixedInput({
         disabled={disabled}
         aria-label={ariaLabel}
         spellCheck={false}
-        className="h-10 min-w-0 flex-1 border-none bg-transparent px-3 text-[13px] text-text outline-none placeholder:text-text-dim"
+        className="h-10 min-w-0 flex-1 border-none bg-transparent px-3 text-[13px] text-foreground outline-none placeholder:text-muted-foreground"
       />
     </div>
   );
@@ -357,11 +363,11 @@ export function SettingsGroupRow({
     >
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
-          <div className="text-[13px] font-medium text-text">{label}</div>
+          <div className="text-[13px] font-medium text-foreground">{label}</div>
           {badge}
         </div>
         {detail ? (
-          <p className="mt-1 text-[12px] leading-relaxed text-text-muted">{detail}</p>
+          <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground">{detail}</p>
         ) : null}
       </div>
       <div
@@ -390,9 +396,9 @@ export function SettingsRow({
   return (
     <div className="grid grid-cols-1 gap-3 px-5 py-4 md:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] md:items-center md:gap-8">
       <div className="min-w-0">
-        <div className="text-[13px] font-medium text-text">{primary}</div>
+        <div className="text-[13px] font-medium text-foreground">{primary}</div>
         {secondary ? (
-          <p className="mt-1 text-[12px] leading-relaxed text-text-muted">{secondary}</p>
+          <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground">{secondary}</p>
         ) : null}
       </div>
       {actions ? (
@@ -429,7 +435,7 @@ export function BtnToolbar({
       disabled={disabled}
       onClick={onClick}
       aria-label={ariaLabel}
-      className={cn(destructive ? "text-loss hover:text-loss" : undefined, className)}
+      className={cn(destructive ? "text-destructive hover:text-destructive" : undefined, className)}
     >
       {children}
     </Button>
@@ -471,7 +477,8 @@ export function AccountRow({
     currency || null,
   ].filter(Boolean) as string[];
 
-  const pnlTone = netPnl > 0 ? "text-profit" : netPnl < 0 ? "text-loss" : "text-text-muted";
+  const pnlTone =
+    netPnl > 0 ? "text-profit" : netPnl < 0 ? "text-destructive" : "text-muted-foreground";
 
   const footerMeta = [
     ...metaParts,
@@ -481,10 +488,10 @@ export function AccountRow({
     .join(" · ");
 
   return (
-    <div className="rounded-card border border-border px-4 py-4 transition-colors duration-150 hover:bg-bg-hover/40 motion-reduce:transition-none">
+    <div className="rounded-lg border border-border px-4 py-4 transition-colors duration-150 hover:bg-accent/40 motion-reduce:transition-none">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex flex-wrap items-center gap-x-2 gap-y-1">
-          <h3 className="m-0 text-[15.4px] font-semibold tracking-tight text-text">{name}</h3>
+          <h3 className="m-0 text-[15.4px] font-semibold tracking-tight text-foreground">{name}</h3>
           {isPrimary ? <Pill tone="amber">Primary</Pill> : null}
         </div>
         {headerAction ? <div className="shrink-0">{headerAction}</div> : null}
@@ -492,23 +499,23 @@ export function AccountRow({
 
       <div className="mt-4 grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-3">
         <div className="min-w-0">
-          <p className="m-0 text-[10px] font-medium uppercase tracking-[0.12em] text-text-dim">
+          <p className="m-0 text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
             Deposited
           </p>
-          <p className="m-0 mt-1 text-[13px] font-semibold tabular-nums tracking-tight text-text">
+          <p className="m-0 mt-1 text-[13px] font-semibold tabular-nums tracking-tight text-foreground">
             {depositedLabel}
           </p>
         </div>
         <div className="min-w-0 sm:col-start-2">
-          <p className="m-0 text-[10px] font-medium uppercase tracking-[0.12em] text-text-dim">
+          <p className="m-0 text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
             Equity
           </p>
-          <p className="m-0 mt-1 text-[18px] font-semibold tabular-nums tracking-tight text-text">
+          <p className="m-0 mt-1 text-[18px] font-semibold tabular-nums tracking-tight text-foreground">
             {equityLabel}
           </p>
         </div>
         <div className="min-w-0 col-span-2 sm:col-span-1 sm:col-start-3">
-          <p className="m-0 text-[10px] font-medium uppercase tracking-[0.12em] text-text-dim">
+          <p className="m-0 text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
             Realized P&L
           </p>
           <p
@@ -526,7 +533,9 @@ export function AccountRow({
       </div>
 
       <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
-        <p className="m-0 min-w-0 text-[11px] text-text-dim">{footerMeta || "No broker set"}</p>
+        <p className="m-0 min-w-0 text-[11px] text-muted-foreground">
+          {footerMeta || "No broker set"}
+        </p>
         {footerActions ? (
           <div className="flex flex-wrap items-center justify-end gap-1.5">{footerActions}</div>
         ) : null}
@@ -591,7 +600,7 @@ export function BtnGhost({
 
 export function FormError({ message }: { message?: string | null }) {
   if (!message) return null;
-  return <p className="text-[11px] text-loss">{message}</p>;
+  return <p className="text-[11px] text-destructive">{message}</p>;
 }
 
 export function SavedBadge({ show }: { show: boolean }) {
@@ -620,7 +629,9 @@ export function DeleteButton({
     return (
       <span className="flex max-w-[220px] flex-col items-end gap-1.5">
         {detail ? (
-          <span className="text-right text-[10px] leading-snug text-text-dim">{detail}</span>
+          <span className="text-right text-[10px] leading-snug text-muted-foreground">
+            {detail}
+          </span>
         ) : null}
         <span className="flex items-center gap-1.5">
           <Button
@@ -649,7 +660,7 @@ export function DeleteButton({
       size="icon-xs"
       aria-label={`Delete ${label}`}
       onClick={() => setConfirm(true)}
-      className="hover:text-loss"
+      className="hover:text-destructive"
     >
       <Trash2 size={14} strokeWidth={1.5} />
     </Button>
@@ -689,7 +700,7 @@ export function ClearTradesButton({
         variant="secondary"
         size="sm"
         onClick={() => setOpen(true)}
-        className="text-loss hover:text-loss"
+        className="text-destructive hover:text-destructive"
       >
         Clear trades
       </Button>
@@ -711,21 +722,22 @@ export function ClearTradesButton({
                 handleOpenChange(false);
                 onClear();
               }}
-              className="border-transparent bg-loss/15 hover:bg-loss/25"
+              className="border-transparent bg-destructive/15 hover:bg-destructive/25"
             >
               Clear trades
             </Button>
           </>
         }
       >
-        <p className="m-0 text-[13px] leading-relaxed text-text-muted">
-          Removes <span className="font-semibold text-loss tabular-nums">{tradeCount}</span> trade
+        <p className="m-0 text-[13px] leading-relaxed text-muted-foreground">
+          Removes <span className="font-semibold text-destructive tabular-nums">{tradeCount}</span>{" "}
+          trade
           {tradeCount === 1 ? "" : "s"} and all executions. Keeps account, cash ledger, setups, and
           tags.
         </p>
         <div>
-          <label htmlFor={inputId} className="mb-1.5 block text-[11px] text-text-dim">
-            Type <span className="font-medium text-text">{accountName}</span> to confirm
+          <label htmlFor={inputId} className="mb-1.5 block text-[11px] text-muted-foreground">
+            Type <span className="font-medium text-foreground">{accountName}</span> to confirm
           </label>
           <SignalInput
             id={inputId}
@@ -776,7 +788,7 @@ export function DeleteAccountButton({
         title={disabled ? disabledReason : "Delete account"}
         aria-label={`Delete ${accountName}`}
         onClick={() => setOpen(true)}
-        className="border-border-strong bg-transparent text-loss hover:bg-loss/10 hover:text-loss disabled:opacity-40"
+        className="border-border bg-transparent text-destructive hover:bg-destructive/10 hover:text-destructive disabled:opacity-40"
       >
         <Trash2 size={14} strokeWidth={1.5} />
       </Button>
@@ -798,21 +810,23 @@ export function DeleteAccountButton({
                 handleOpenChange(false);
                 onDelete();
               }}
-              className="border-transparent bg-loss/15 hover:bg-loss/25"
+              className="border-transparent bg-destructive/15 hover:bg-destructive/25"
             >
               Delete account
             </Button>
           </>
         }
       >
-        <p className="m-0 text-[13px] leading-relaxed text-text-muted">
+        <p className="m-0 text-[13px] leading-relaxed text-muted-foreground">
           Permanently removes this account and all linked trades, executions, cash transactions, and
           attachments. This cannot be undone.
         </p>
-        {detail ? <p className="m-0 text-[12px] leading-snug text-text-dim">{detail}</p> : null}
+        {detail ? (
+          <p className="m-0 text-[12px] leading-snug text-muted-foreground">{detail}</p>
+        ) : null}
         <div>
-          <label htmlFor={inputId} className="mb-1.5 block text-[11px] text-text-dim">
-            Type <span className="font-medium text-text">{accountName}</span> to confirm
+          <label htmlFor={inputId} className="mb-1.5 block text-[11px] text-muted-foreground">
+            Type <span className="font-medium text-foreground">{accountName}</span> to confirm
           </label>
           <SignalInput
             id={inputId}

@@ -668,7 +668,7 @@ export function AccountsTab({
           </SettingsPanelBody>
         ) : accountsError ? (
           <SettingsPanelBody>
-            <p className="text-[12px] text-loss">Failed to load accounts.</p>
+            <p className="text-[12px] text-destructive">Failed to load accounts.</p>
           </SettingsPanelBody>
         ) : accounts.length === 0 ? (
           <SettingsPanelBody className="py-8">
@@ -682,13 +682,13 @@ export function AccountsTab({
           <>
             <div className="flex flex-col gap-3">
               {accountDeleteError ? (
-                <p className="text-[11px] text-loss">{accountDeleteError}</p>
+                <p className="text-[11px] text-destructive">{accountDeleteError}</p>
               ) : null}
               {accountEditError ? (
-                <p className="text-[11px] text-loss">{accountEditError}</p>
+                <p className="text-[11px] text-destructive">{accountEditError}</p>
               ) : null}
               {clearTradesError ? (
-                <p className="text-[11px] text-loss">{clearTradesError}</p>
+                <p className="text-[11px] text-destructive">{clearTradesError}</p>
               ) : null}
               <div className="flex flex-col gap-2">
                 {accounts.map((acc) => {
@@ -735,7 +735,7 @@ export function AccountsTab({
                             title="Edit account"
                             onClick={() => startEditAccount(acc)}
                             disabled={editingAccount}
-                            className="border-border-strong bg-transparent text-text hover:bg-bg-hover"
+                            className="border-border bg-transparent text-foreground hover:bg-accent"
                           >
                             <Pencil size={14} strokeWidth={1.5} />
                           </Button>
@@ -852,7 +852,7 @@ export function AccountsTab({
       >
         {filterAccountId && filteredAccount && (
           <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-sharp bg-bg-panel px-2 py-1 text-[11px] text-text-muted">
+            <span className="rounded-md bg-card px-2 py-1 text-[11px] text-muted-foreground">
               Filtered to {filteredAccount.name}
             </span>
             <BtnGhost className="px-2 py-1 text-[11px]" onClick={() => setFilterAccountId(null)}>
@@ -1001,7 +1001,7 @@ export function AccountsTab({
           </SettingsPanelBody>
         ) : cashError ? (
           <SettingsPanelBody>
-            <p className="text-[12px] text-loss">Failed to load transactions.</p>
+            <p className="text-[12px] text-destructive">Failed to load transactions.</p>
           </SettingsPanelBody>
         ) : displayedTx.length === 0 ? (
           <SettingsPanelBody className="py-8">
@@ -1029,21 +1029,23 @@ export function AccountsTab({
                     <span className="capitalize">
                       {tx.type}
                       {acct && (
-                        <span className="ml-2 font-normal text-text-muted">· {acct.name}</span>
+                        <span className="ml-2 font-normal text-muted-foreground">
+                          · {acct.name}
+                        </span>
                       )}
                     </span>
                   }
                   secondary={
                     <>
                       {fmtDate(tx.occurred_at)}
-                      {tx.note ? <span className="text-text-dim"> · {tx.note}</span> : null}
+                      {tx.note ? <span className="text-muted-foreground"> · {tx.note}</span> : null}
                     </>
                   }
                   actions={
                     <div className="flex items-center gap-1.5">
                       <span
                         className={`mr-1.5 text-[12px] font-semibold tabular-nums ${
-                          isOutflow ? "text-loss" : "text-profit"
+                          isOutflow ? "text-destructive" : "text-profit"
                         }`}
                       >
                         {display}
@@ -1309,7 +1311,7 @@ export function RulesTab({
           </SettingsPanelBody>
         ) : riskRulesError ? (
           <SettingsPanelBody>
-            <p className="text-[12px] text-loss">Failed to load risk rules.</p>
+            <p className="text-[12px] text-destructive">Failed to load risk rules.</p>
           </SettingsPanelBody>
         ) : activeRules.length === 0 ? (
           <SettingsPanelBody className="py-8">
@@ -1329,7 +1331,7 @@ export function RulesTab({
                 secondary={def.detail}
                 actions={
                   <>
-                    <span className="text-[13px] font-medium tabular-nums text-text">
+                    <span className="text-[13px] font-medium tabular-nums text-foreground">
                       {formatRiskRuleValue(key, value, locale)}
                     </span>
                     <Button
@@ -1379,7 +1381,7 @@ export function RulesTab({
           </SettingsPanelBody>
         ) : checklistError ? (
           <SettingsPanelBody>
-            <p className="text-[12px] text-loss">Failed to load checklist template.</p>
+            <p className="text-[12px] text-destructive">Failed to load checklist template.</p>
           </SettingsPanelBody>
         ) : checklistItems.length === 0 && !checklistContent.trim() ? (
           <SettingsPanelBody className="py-8">
@@ -1401,8 +1403,8 @@ export function RulesTab({
           </SettingsGroup>
         ) : (
           <SettingsPanelBody>
-            <p className="text-[12px] text-text-muted">
-              Checklist text saved — add <code className="text-accent">- [ ]</code> items so they
+            <p className="text-[12px] text-muted-foreground">
+              Checklist text saved — add <code className="text-primary">- [ ]</code> items so they
               appear on New Note.
             </p>
           </SettingsPanelBody>
@@ -1446,8 +1448,8 @@ export function RulesTab({
             showHints
             aria-label="Daily checklist and rules"
           />
-          <p className="text-[11px] text-text-dim">
-            Tip: use checklist buttons or type <code className="text-accent">- [ ]</code> for each
+          <p className="text-[11px] text-muted-foreground">
+            Tip: use checklist buttons or type <code className="text-primary">- [ ]</code> for each
             rule.
           </p>
         </div>
@@ -1509,11 +1511,11 @@ export function RulesTab({
             </SignalField>
           ) : (
             <div className="flex flex-col gap-1">
-              <span className="text-[11px] font-medium uppercase tracking-[0.1em] text-text-dim">
+              <span className="text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground">
                 Rule type
               </span>
-              <p className="m-0 text-[13px] font-medium text-text">{modalDef.label}</p>
-              <p className="m-0 text-[12px] text-text-muted">{modalDef.detail}</p>
+              <p className="m-0 text-[13px] font-medium text-foreground">{modalDef.label}</p>
+              <p className="m-0 text-[12px] text-muted-foreground">{modalDef.detail}</p>
             </div>
           )}
           <SignalField
@@ -1646,7 +1648,7 @@ export function JournalTab({
                         type="color"
                         value={field.state.value}
                         onChange={(e) => field.handleChange(e.target.value)}
-                        className="h-8 w-full cursor-pointer rounded-control border-none bg-bg-input p-0.5"
+                        className="h-8 w-full cursor-pointer rounded-md border-none bg-muted p-0.5"
                       />
                     </SignalField>
                   )}
@@ -1704,7 +1706,7 @@ export function JournalTab({
           </SettingsPanelBody>
         ) : tagsError ? (
           <SettingsPanelBody>
-            <p className="text-[12px] text-loss">Failed to load tags.</p>
+            <p className="text-[12px] text-destructive">Failed to load tags.</p>
           </SettingsPanelBody>
         ) : tags.length === 0 ? (
           <SettingsPanelBody className="py-8">
@@ -1745,7 +1747,7 @@ export function JournalTab({
       >
         <SettingsPanelBody>
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="m-0 max-w-xl text-[12px] leading-relaxed text-text-muted">
+            <p className="m-0 max-w-xl text-[12px] leading-relaxed text-muted-foreground">
               Setups are created and edited in Playbook, then linked when you log a trade.
             </p>
             <Button type="button" variant="outline" render={<a href="/playbook" />}>
@@ -1804,7 +1806,7 @@ function VisionScanSection() {
         </SettingsPanelBody>
       ) : isError || !data ? (
         <SettingsPanelBody>
-          <p className="text-[12px] text-loss">Failed to load vision settings.</p>
+          <p className="text-[12px] text-destructive">Failed to load vision settings.</p>
         </SettingsPanelBody>
       ) : (
         <LlmApiSettingsForm
@@ -1838,7 +1840,7 @@ function CoachSection() {
         </SettingsPanelBody>
       ) : isError || !data ? (
         <SettingsPanelBody>
-          <p className="text-[12px] text-loss">Failed to load coach settings.</p>
+          <p className="text-[12px] text-destructive">Failed to load coach settings.</p>
         </SettingsPanelBody>
       ) : (
         <LlmApiSettingsForm

@@ -11,7 +11,7 @@ import { mediaApi, mediaSrc, parseMediaId } from "../../lib/api/media";
 import { getToken } from "../../lib/api/client";
 import { imageFileToUploadFile } from "./imageDataUrl";
 
-const IMAGE_CLASS = "se-image max-h-80 max-w-full rounded-control";
+const IMAGE_CLASS = "se-image max-h-80 max-w-full rounded-md";
 
 /** TipTap Image that keeps `tm-media:` attrs but renders authed blob URLs. */
 const SignalImage = Image.extend({
@@ -89,7 +89,7 @@ export function createSignalEditorExtensions(placeholder: string) {
       openOnClick: false,
       autolink: true,
       HTMLAttributes: {
-        class: "text-accent underline decoration-accent/40 underline-offset-2",
+        class: "text-primary underline decoration-accent/40 underline-offset-2",
         rel: "noopener noreferrer",
         target: "_blank",
       },

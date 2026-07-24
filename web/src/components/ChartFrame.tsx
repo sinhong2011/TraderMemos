@@ -14,7 +14,7 @@ export const chartTheme = {
 interface ChartFrameProps {
   children: ReactNode;
   className?: string;
-  /** Inset well on void pages — uses bg-bg-inset instead of bg-bg-panel */
+  /** Inset well on void pages — uses bg-muted instead of bg-card */
   inset?: boolean;
 }
 
@@ -22,8 +22,8 @@ export function ChartFrame({ children, className = "", inset = false }: ChartFra
   return (
     <div
       className={cn(
-        "flex w-full min-h-0 flex-col rounded-sharp border border-border",
-        inset ? "bg-bg-inset" : "bg-bg-panel",
+        "flex w-full min-h-0 flex-col rounded-md border border-border",
+        inset ? "bg-muted" : "bg-card",
         className,
       )}
     >

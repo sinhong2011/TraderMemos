@@ -17,7 +17,7 @@ import {
 import { useAuth } from "../../lib/auth";
 import { cn } from "../../lib/cn";
 
-const labelClass = "text-[10px] font-medium uppercase tracking-[0.12em] text-text-muted";
+const labelClass = "text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground";
 const MIN_PASSWORD = 10;
 
 function SetupStepIndicator({ step }: { step: 1 | 2 }) {
@@ -45,16 +45,19 @@ function SetupStepIndicator({ step }: { step: 1 | 2 }) {
                 className={cn(
                   "flex h-8 w-8 items-center justify-center rounded-full text-[11px] font-semibold tabular-nums transition-colors",
                   step === n
-                    ? "border border-accent/70 bg-accent/12 text-accent"
+                    ? "border border-primary/70 bg-accent/12 text-primary"
                     : step > n
-                      ? "bg-accent text-bg"
-                      : "bg-bg-hover text-text-dim",
+                      ? "bg-primary text-background"
+                      : "bg-accent text-muted-foreground",
                 )}
               >
                 {n}
               </span>
               <span
-                className={cn("text-[11px] font-medium", step >= n ? "text-text" : "text-text-dim")}
+                className={cn(
+                  "text-[11px] font-medium",
+                  step >= n ? "text-foreground" : "text-muted-foreground",
+                )}
               >
                 {label}
               </span>
@@ -105,7 +108,7 @@ function Field({
         <FieldIcon
           size={15}
           strokeWidth={1.5}
-          className="pointer-events-none absolute left-3 text-text-dim transition-colors group-focus-within:text-accent"
+          className="pointer-events-none absolute left-3 text-muted-foreground transition-colors group-focus-within:text-primary"
           aria-hidden
         />
         <input
@@ -114,7 +117,7 @@ function Field({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           className={cn(
-            "h-11 w-full rounded-control border-none bg-bg-input py-0 pl-10 text-[13px] text-text outline-none transition-[background-color] duration-150 placeholder:text-text-dim hover:bg-bg-input-hover focus:bg-bg-input-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-strong",
+            "h-11 w-full rounded-md border-none bg-muted py-0 pl-10 text-[13px] text-foreground outline-none transition-[background-color] duration-150 placeholder:text-muted-foreground hover:bg-accent focus:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
             isPassword ? "pr-10" : "pr-3",
           )}
           placeholder={placeholder}
@@ -128,7 +131,7 @@ function Field({
             type="button"
             variant="ghost"
             size="icon-sm"
-            className="absolute right-1.5 text-text-dim hover:text-text"
+            className="absolute right-1.5 text-muted-foreground hover:text-foreground"
             onClick={() => setShowPassword((v) => !v)}
             aria-label={showPassword ? "Hide password" : "Show password"}
           >
@@ -137,7 +140,10 @@ function Field({
         )}
       </div>
       <p
-        className={cn("min-h-[1rem] text-[11px] leading-snug text-text-dim", !hint && "invisible")}
+        className={cn(
+          "min-h-[1rem] text-[11px] leading-snug text-muted-foreground",
+          !hint && "invisible",
+        )}
       >
         {hint ?? "\u00a0"}
       </p>
@@ -178,7 +184,7 @@ export function SetupScreen() {
         previewBody.error &&
         typeof (previewBody.error as { message?: unknown }).message === "string"
           ? (previewBody.error as { message: string }).message
-          : "Could not preview initial import";
+          : "Could not preview initial import ";
       throw new Error(message);
     }
     const suggestedMapping =
@@ -203,7 +209,7 @@ export function SetupScreen() {
         commitBody.error &&
         typeof (commitBody.error as { message?: unknown }).message === "string"
           ? (commitBody.error as { message: string }).message
-          : "Could not complete initial import";
+          : "Could not complete initial import ";
       throw new Error(message);
     }
   }
@@ -234,7 +240,7 @@ export function SetupScreen() {
             ? ((result.account as { id: string }).id ?? "")
             : "";
         if (!accountID) {
-          throw new Error("Setup finished but no account id was returned for import");
+          throw new Error("Setup finished but no account id was returned for import ");
         }
         await importAfterSetup(result.access_token, accountID, importFile);
       }
@@ -265,12 +271,10 @@ export function SetupScreen() {
   }
 
   return (
-    <div className="signal-app relative flex min-h-full items-center justify-center p-6 max-[820px]:items-start max-[820px]:p-4">
-      <div className="signal-app-grain" aria-hidden />
-
-      <div className="relative z-[1] grid h-[min(720px,calc(100vh-48px))] w-full max-w-[920px] grid-cols-[1fr_420px] overflow-hidden border border-border-strong bg-bg shadow-hard max-[820px]:h-auto max-[820px]:grid-cols-1">
+    <div className="relative flex min-h-full items-center justify-center p-6 max-[820px]:items-start max-[820px]:p-4">
+      <div className="relative z-[1] grid h-[min(720px,calc(100vh-48px))] w-full max-w-[920px] grid-cols-[1fr_420px] overflow-hidden border border-border bg-background shadow-md max-[820px]:h-auto max-[820px]:grid-cols-1">
         <aside
-          className="relative flex flex-col justify-between overflow-hidden border-r border-border bg-bg-elevated p-10 max-[820px]:border-r-0 max-[820px]:border-b max-[820px]:p-7"
+          className="relative flex flex-col justify-between overflow-hidden border-r border-border bg-sidebar p-10 max-[820px]:border-r-0 max-[820px]:border-b max-[820px]:p-7"
           aria-hidden="true"
         >
           <div
@@ -282,20 +286,25 @@ export function SetupScreen() {
           />
           <div className="relative">
             <div className="mb-8 flex items-center gap-2.5">
-              <AppLogo size={32} className="shadow-[0_0_20px_var(--color-accent-glow)]" />
-              <span className="text-[13px] font-medium tracking-tight text-text">TraderMemos</span>
+              <AppLogo
+                size={32}
+                className="shadow-[0_0_20px_color-mix(in oklch, var(--primary) 35%, transparent)]"
+              />
+              <span className="text-[13px] font-medium tracking-tight text-foreground">
+                TraderMemos
+              </span>
             </div>
-            <p className={cn(labelClass, "mb-3 text-signal")}>First install</p>
-            <h1 className="m-0 text-[clamp(28px,3.4vw,36px)] leading-[1.05] font-bold tracking-[-0.04em] text-text">
+            <p className={cn(labelClass, "mb-3 text-chart-3")}>First install</p>
+            <h1 className="m-0 text-[clamp(28px,3.4vw,36px)] leading-[1.05] font-bold tracking-[-0.04em] text-foreground">
               Claim this
               <br />
-              <span className="text-headline-accent">instance.</span>
+              <span className="text-primary">instance.</span>
             </h1>
-            <p className="mt-4 max-w-[34ch] text-[13px] leading-relaxed text-text-muted">
+            <p className="mt-4 max-w-[34ch] text-[13px] leading-relaxed text-muted-foreground">
               Create the owner account. Public registration stays closed unless you opt in later.
             </p>
           </div>
-          <ul className="relative m-0 list-none space-y-2 p-0 text-[12px] text-text-muted max-[820px]:mt-6">
+          <ul className="relative m-0 list-none space-y-2 p-0 text-[12px] text-muted-foreground max-[820px]:mt-6">
             <li>Owner account becomes the instance admin</li>
             <li>Optional trading account so you can journal immediately</li>
             <li>Put TLS in front (Caddy / Traefik) for production</li>
@@ -304,7 +313,7 @@ export function SetupScreen() {
 
         <section
           className={cn(
-            "flex h-full flex-col overflow-y-auto bg-bg px-8 py-8 max-[820px]:px-6 max-[820px]:py-7",
+            "flex h-full flex-col overflow-y-auto bg-background px-8 py-8 max-[820px]:px-6 max-[820px]:py-7",
             step === 1 ? "justify-center max-[820px]:justify-start" : "justify-start pt-10",
           )}
           aria-labelledby={`${formId}-title`}
@@ -313,11 +322,11 @@ export function SetupScreen() {
             <header className="mb-4">
               <h2
                 id={`${formId}-title`}
-                className="mb-1 text-[17px] font-semibold tracking-tight text-text"
+                className="mb-1 text-[17px] font-semibold tracking-tight text-foreground"
               >
-                {step === 1 ? "Setup wizard" : "Optional import"}
+                {step === 1 ? "Setup wizard" : "Optional import "}
               </h2>
-              <p className="text-[12px] leading-relaxed text-text-muted">
+              <p className="text-[12px] leading-relaxed text-muted-foreground">
                 {step === 1
                   ? "One-time bootstrap for a fresh self-hosted deploy."
                   : "Seed your journal from a backup, or start empty and import later."}
@@ -393,10 +402,10 @@ export function SetupScreen() {
                   </div>
                 </div>
               ) : (
-                <div className="flex flex-col gap-4 rounded-sharp bg-bg-panel p-4">
+                <div className="flex flex-col gap-4 rounded-md bg-card p-4">
                   <div>
-                    <p className={cn(labelClass, "mb-2 text-signal")}>Optional</p>
-                    <p className="text-[12px] leading-relaxed text-text-muted">
+                    <p className={cn(labelClass, "mb-2 text-chart-3")}>Optional</p>
+                    <p className="text-[12px] leading-relaxed text-muted-foreground">
                       Drop a TraderMemos export or broker history file. You can always import from
                       Settings → Import & export.
                     </p>
@@ -404,7 +413,7 @@ export function SetupScreen() {
                       {[".csv", ".json"].map((ext) => (
                         <span
                           key={ext}
-                          className="rounded-full bg-bg-inset px-2 py-0.5 text-[10px] font-medium text-text-dim"
+                          className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground"
                         >
                           {ext}
                         </span>
@@ -413,13 +422,15 @@ export function SetupScreen() {
                   </div>
                   <CsvDropZone file={importFile} onFileChange={setImportFile} disabled={busy} />
                   {!importFile ? (
-                    <p className="text-[11px] text-text-dim">No file selected — safe to skip.</p>
+                    <p className="text-[11px] text-muted-foreground">
+                      No file selected — safe to skip.
+                    </p>
                   ) : (
                     <div className="space-y-1">
-                      <p className="text-[11px] text-text-muted">
+                      <p className="text-[11px] text-muted-foreground">
                         Ready to import after your owner account is created.
                       </p>
-                      <p className="text-[11px] text-text-dim">
+                      <p className="text-[11px] text-muted-foreground">
                         JSON account id is ignored — data imports into the account you create here.
                         Broker, starting balance, and cash deposits/withdrawals are restored when
                         present.
@@ -431,7 +442,7 @@ export function SetupScreen() {
 
               {error && (
                 <div
-                  className="mt-1 flex items-start gap-2 rounded-control border border-[rgba(251,113,133,0.22)] bg-[rgba(251,113,133,0.08)] px-3 py-2.5 text-xs leading-snug text-loss"
+                  className="mt-1 flex items-start gap-2 rounded-md border border-[rgba(251,113,133,0.22)] bg-[rgba(251,113,133,0.08)] px-3 py-2.5 text-xs leading-snug text-destructive"
                   role="alert"
                 >
                   <AlertCircle size={14} strokeWidth={1.5} aria-hidden />
@@ -445,7 +456,7 @@ export function SetupScreen() {
                     type="submit"
                     variant="default"
                     size="lg"
-                    className="group mt-4 h-11 w-full border border-border-strong hover:shadow-[0_0_28px_var(--color-accent-glow)] active:scale-[0.99] disabled:active:scale-100"
+                    className="group mt-4 h-11 w-full border border-border hover:shadow-[0_0_28px_color-mix(in oklch, var(--primary) 35%, transparent)] active:scale-[0.99] disabled:active:scale-100"
                     disabled={busy}
                   >
                     <span>Continue</span>
@@ -457,7 +468,7 @@ export function SetupScreen() {
                     />
                   </Button>
 
-                  <p className="mt-4 text-center text-[11px] text-text-dim">
+                  <p className="mt-4 text-center text-[11px] text-muted-foreground">
                     Press <Kbd>Enter</Kbd> to continue
                   </p>
                   <div className="mt-2 flex items-center justify-center">
@@ -466,12 +477,15 @@ export function SetupScreen() {
                       variant="ghost"
                       size="sm"
                       onClick={() => setAdvancedOpen(true)}
-                      className="text-text-muted hover:text-text"
+                      className="text-muted-foreground hover:text-foreground"
                     >
                       <Settings2 size={12} strokeWidth={1.5} aria-hidden />
                       Advanced
                       {serverUrl ? (
-                        <span className="max-w-[10rem] truncate text-text-dim" title={serverUrl}>
+                        <span
+                          className="max-w-[10rem] truncate text-muted-foreground"
+                          title={serverUrl}
+                        >
                           · custom server
                         </span>
                       ) : null}
@@ -484,7 +498,7 @@ export function SetupScreen() {
                     type="button"
                     variant="default"
                     size="lg"
-                    className="group h-11 w-full border border-border-strong hover:shadow-[0_0_28px_var(--color-accent-glow)] active:scale-[0.99] disabled:active:scale-100"
+                    className="group h-11 w-full border border-border hover:shadow-[0_0_28px_color-mix(in oklch, var(--primary) 35%, transparent)] active:scale-[0.99] disabled:active:scale-100"
                     onClick={() => void finishSetup()}
                     disabled={busy}
                   >
@@ -492,7 +506,7 @@ export function SetupScreen() {
                       {busy
                         ? "Finishing…"
                         : importFile
-                          ? "Create & import"
+                          ? "Create & import "
                           : "Create owner account"}
                     </span>
                     {!busy ? (
@@ -519,7 +533,7 @@ export function SetupScreen() {
                   <Button
                     type="button"
                     variant="ghost"
-                    className="h-9 w-full text-text-muted hover:text-text"
+                    className="h-9 w-full text-muted-foreground hover:text-foreground"
                     onClick={() => {
                       setError("");
                       setStep(1);
@@ -571,7 +585,7 @@ export function SetupScreen() {
                   }}
                   className="h-10 w-full text-[13px]"
                 />
-                <p className="text-[11px] leading-snug text-text-dim">
+                <p className="text-[11px] leading-snug text-muted-foreground">
                   Leave blank for the default. Origin only — /api/v1 is added automatically.
                 </p>
               </div>

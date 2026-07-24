@@ -53,16 +53,16 @@ export function AppUpdateBanner() {
   return (
     <div
       role="status"
-      className="pointer-events-auto fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-1/2 z-[9998] flex w-[min(100%-2rem,24rem)] -translate-x-1/2 items-start gap-3 rounded-overlay border border-border bg-bg-panel p-3.5 shadow-[0_12px_32px_rgba(18,18,24,0.55)] md:bottom-[max(1.5rem,env(safe-area-inset-bottom))]"
+      className="pointer-events-auto fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-1/2 z-[9998] flex w-[min(100%-2rem,24rem)] -translate-x-1/2 items-start gap-3 rounded-lg border border-border bg-card p-3.5 shadow-[0_12px_32px_rgba(18,18,24,0.55)] md:bottom-[max(1.5rem,env(safe-area-inset-bottom))]"
     >
-      <div className="flex size-8 shrink-0 items-center justify-center rounded-control bg-accent-bg text-accent">
+      <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
         <RefreshCw size={15} strokeWidth={1.75} aria-hidden />
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-[13px] font-semibold tracking-tight text-text">
+        <p className="text-[13px] font-semibold tracking-tight text-foreground">
           {content.updateBannerTitle}
         </p>
-        <p className="mt-1 text-[12px] leading-relaxed text-text-muted">{description}</p>
+        <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground">{description}</p>
         <div className="mt-3 flex flex-wrap items-center gap-2">
           {swReady ? (
             <Button type="button" size="sm" onClick={() => applyUpdate()}>
@@ -85,7 +85,7 @@ export function AppUpdateBanner() {
         type="button"
         aria-label={content.updateDismiss}
         onClick={() => dismiss()}
-        className="flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-control border-none bg-transparent text-text-dim transition-colors duration-150 hover:bg-bg-hover hover:text-text"
+        className="flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-md border-none bg-transparent text-muted-foreground transition-colors duration-150 hover:bg-accent hover:text-foreground"
       >
         <X size={14} strokeWidth={1.5} />
       </button>

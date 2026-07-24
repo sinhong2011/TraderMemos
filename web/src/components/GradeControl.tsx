@@ -14,10 +14,10 @@ export function GradeControl({
 }) {
   return (
     <div>
-      <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-text-muted">
+      <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
         {label}
       </p>
-      {hint ? <p className="mb-2 text-[10px] leading-snug text-text-dim">{hint}</p> : null}
+      {hint ? <p className="mb-2 text-[10px] leading-snug text-muted-foreground">{hint}</p> : null}
       <div role="radiogroup" aria-label={label} className="flex h-10 gap-1">
         {TRADE_GRADES.map((g) => {
           const selected = value === g;

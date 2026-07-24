@@ -24,16 +24,16 @@ function toItems(items: readonly (string | SignalAutocompleteItem)[]): SignalAut
 }
 
 const autocompleteActionClass = cn(
-  "flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-control border-none",
-  "bg-transparent text-text-dim transition-colors duration-150",
-  "hover:bg-bg-hover hover:text-text",
-  "focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-border-strong",
+  "flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-md border-none",
+  "bg-transparent text-muted-foreground transition-colors duration-150",
+  "hover:bg-accent hover:text-foreground",
+  "focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-ring",
   "disabled:cursor-not-allowed disabled:opacity-45",
   "data-[disabled]:cursor-not-allowed data-[disabled]:opacity-45",
 );
 
 /**
- * Signal Terminal autocomplete (Base UI / ReUI pattern).
+ * shadcn autocomplete (Base UI / ReUI pattern).
  * Free-form input with filtered suggestions; optional end action slot.
  */
 export function SignalAutocomplete({
@@ -119,7 +119,7 @@ export function SignalAutocomplete({
                   strokeWidth={1.5}
                   className={cn(
                     "transition-transform duration-[220ms] ease-out",
-                    open && "rotate-180 text-accent",
+                    open && "rotate-180 text-primary",
                     "motion-reduce:transition-none",
                   )}
                   aria-hidden
@@ -138,7 +138,7 @@ export function SignalAutocomplete({
                 "max-h-64 min-w-[max(var(--anchor-width),12rem)] overflow-auto",
               )}
             >
-              <Autocomplete.Empty className="px-3 py-2.5 text-center text-[12px] text-text-muted">
+              <Autocomplete.Empty className="px-3 py-2.5 text-center text-[12px] text-muted-foreground">
                 {emptyText}
               </Autocomplete.Empty>
               <Autocomplete.List className={signalSelectListClass}>

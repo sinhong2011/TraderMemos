@@ -6,7 +6,7 @@ import { cn } from "../lib/cn";
 import { pnlColor } from "./theme-tokens";
 import { usePrivacyMode } from "../lib/displayPrefs";
 
-const sectionLabelClass = "mb-3 text-[10px] font-semibold uppercase tracking-widest text-signal";
+const sectionLabelClass = "mb-3 text-[10px] font-semibold uppercase tracking-widest text-chart-3";
 
 function StatCell({
   label,
@@ -19,10 +19,10 @@ function StatCell({
 }) {
   return (
     <div className="flex flex-col gap-0.5">
-      <span className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">
+      <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
         {label}
       </span>
-      <span className={cn("text-sm tabular-nums text-text", valueClassName)}>{value}</span>
+      <span className={cn("text-sm tabular-nums text-foreground", valueClassName)}>{value}</span>
     </div>
   );
 }
@@ -97,7 +97,7 @@ export function RiskRewardPanel({
     return (
       <section className={cn("px-4 py-3", className)}>
         <p className={sectionLabelClass}>Risk / Reward</p>
-        <p className="text-xs text-text-muted">
+        <p className="text-xs text-muted-foreground">
           No plan set — add target and stop on the full page.
         </p>
       </section>

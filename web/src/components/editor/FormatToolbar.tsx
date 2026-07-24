@@ -42,8 +42,8 @@ function FormatButton({
       onMouseDown={(e) => e.preventDefault()}
       onClick={onClick}
       className={cn(
-        "text-text-dim hover:bg-bg-hover hover:text-text",
-        active && "bg-accent-bg text-accent hover:bg-accent-bg hover:text-accent",
+        "text-muted-foreground hover:bg-accent hover:text-foreground",
+        active && "bg-primary/10 text-primary hover:bg-primary/10 hover:text-primary",
       )}
     >
       {children}

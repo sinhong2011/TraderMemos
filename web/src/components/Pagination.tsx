@@ -39,7 +39,7 @@ function NavButton({
       aria-label={label}
       disabled={disabled}
       onClick={onClick}
-      className="text-text-dim disabled:opacity-35"
+      className="text-muted-foreground disabled:opacity-35"
     >
       {children}
     </Button>
@@ -64,7 +64,7 @@ function PageButton({
       aria-current={active ? "page" : undefined}
       tooltip={false}
       onClick={onClick}
-      className={cn("min-w-8 text-[11px] tabular-nums", active && "ring-1 ring-accent/25")}
+      className={cn("min-w-8 text-[11px] tabular-nums", active && "ring-1 ring-primary/25")}
     >
       {page}
     </Button>
@@ -72,7 +72,7 @@ function PageButton({
 }
 
 /**
- * Compact Signal Terminal pagination — range label, page pills, optional page-size.
+ * Compact shadcn pagination — range label, page pills, optional page-size.
  * Borderless footer chrome; accent active page.
  */
 export function Pagination({
@@ -99,15 +99,15 @@ export function Pagination({
       aria-label="Pagination"
       className={cn("flex flex-wrap items-center justify-between gap-3 px-4 py-2.5", className)}
     >
-      <p className="text-[11px] tabular-nums text-text-muted">
-        <span className="text-text-dim">Showing </span>
+      <p className="text-[11px] tabular-nums text-muted-foreground">
+        <span className="text-muted-foreground">Showing </span>
         {pageRangeLabel(page, pageSize, total)}
       </p>
 
       <div className="flex flex-wrap items-center gap-2">
         {onPageSizeChange ? (
           <div className="flex items-center gap-1.5">
-            <span className="hidden text-[10px] font-medium uppercase tracking-widest text-text-dim sm:inline">
+            <span className="hidden text-[10px] font-medium uppercase tracking-widest text-muted-foreground sm:inline">
               Rows
             </span>
             <NativeSelect
@@ -128,7 +128,7 @@ export function Pagination({
         ) : null}
 
         {showPager ? (
-          <div className="flex items-center gap-0.5 rounded-control bg-bg-inset/60 p-0.5">
+          <div className="flex items-center gap-0.5 rounded-md bg-muted/60 p-0.5">
             <NavButton
               label="Previous page"
               disabled={!canPrev}
@@ -144,7 +144,7 @@ export function Pagination({
                     <MoreHorizontal
                       size={14}
                       strokeWidth={1.5}
-                      className="text-text-dim"
+                      className="text-muted-foreground"
                       aria-hidden
                     />
                     <span className="sr-only">More pages</span>

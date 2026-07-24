@@ -3,22 +3,22 @@ import type { ComponentProps } from "react";
 import { cn } from "../../lib/cn";
 
 /**
- * Signal Terminal Kbd — shadcn Base kbd with product tokens.
+ * shadcn Kbd — shadcn Base kbd with theme tokens.
  * @see https://ui.shadcn.com/docs/components/base/kbd
  */
 const kbdVariants = cva(
   [
     "pointer-events-none inline-flex h-5 w-fit min-w-5 items-center justify-center gap-1",
-    "rounded-control border-none px-1.5 font-ui text-[10px] leading-none font-medium select-none",
+    "rounded-md border-none px-1.5 font-sans text-[10px] leading-none font-medium select-none",
     "[&_svg:not([class*='size-'])]:size-3",
   ].join(" "),
   {
     variants: {
       variant: {
         /** Quiet keycap for chrome, lists, and shortcuts. */
-        muted: "min-w-[1.25rem] bg-bg-input tabular-nums text-text-dim",
+        muted: "min-w-[1.25rem] bg-muted tabular-nums text-muted-foreground",
         /** Signal yellow wayfinding (branded discovery surfaces only). */
-        signal: "bg-[rgba(228,255,26,0.06)] text-signal",
+        signal: "bg-[rgba(228,255,26,0.06)] text-chart-3",
       },
     },
     defaultVariants: {

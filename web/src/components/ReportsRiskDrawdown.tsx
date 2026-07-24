@@ -59,7 +59,7 @@ export function ReportsRiskDrawdown({
       {loading ? (
         <Skeleton height="240px" />
       ) : error ? (
-        <p className="text-xs text-loss">Failed to load risk &amp; drawdown.</p>
+        <p className="text-xs text-destructive">Failed to load risk &amp; drawdown.</p>
       ) : equityPoints.length === 0 ? (
         <EmptyState title="No data" hint="Add trades to see risk and drawdown stats." />
       ) : (
@@ -101,8 +101,8 @@ export function ReportsRiskDrawdown({
                 <AreaChart data={series} margin={{ top: 8, right: 8, bottom: 0, left: 4 }}>
                   <defs>
                     <linearGradient id="dd-fill" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="var(--color-loss)" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="var(--color-loss)" stopOpacity={0} />
+                      <stop offset="5%" stopColor="var(--loss)" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="var(--loss)" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid vertical={false} stroke={chartTheme.gridColor} />
@@ -135,7 +135,7 @@ export function ReportsRiskDrawdown({
                   <Area
                     type="monotone"
                     dataKey="drawdownPct"
-                    stroke="var(--color-loss)"
+                    stroke="var(--loss)"
                     strokeWidth={1.5}
                     fill="url(#dd-fill)"
                     dot={false}

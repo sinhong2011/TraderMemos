@@ -25,13 +25,12 @@ function AuthedShell() {
   useAppHotkeys();
 
   return (
-    <div className="signal-app relative flex h-full overflow-hidden pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]">
-      <div className="signal-app-grain" aria-hidden />
+    <div className="relative flex h-full overflow-hidden bg-background pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]">
       <AppNav />
 
-      <div className="relative z-[1] flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-bg shadow-[inset_1px_0_0_var(--color-border)]">
+      <div className="relative z-[1] flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-background">
         <HeaderBar />
-        <main className="min-h-0 min-w-0 flex-1 overflow-auto bg-bg pb-[calc(56px+env(safe-area-inset-bottom))] md:pb-0">
+        <main className="min-h-0 min-w-0 flex-1 overflow-auto bg-background pb-[calc(56px+env(safe-area-inset-bottom))] md:pb-0">
           <Outlet />
         </main>
       </div>
@@ -87,7 +86,7 @@ function UnauthedGate() {
 
   if (!status) {
     return (
-      <div className="signal-app flex min-h-full items-center justify-center bg-bg text-[13px] text-text-muted">
+      <div className="flex min-h-full items-center justify-center bg-background text-[13px] text-muted-foreground">
         Checking install status…
       </div>
     );

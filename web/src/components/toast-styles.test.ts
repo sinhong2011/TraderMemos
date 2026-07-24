@@ -17,9 +17,9 @@ describe("resolveToastVariant", () => {
 describe("toastRootClass", () => {
   it("uses panel surface without stripe tint", () => {
     const cls = toastRootClass("success");
-    expect(cls).toContain("rounded-overlay");
-    expect(cls).toContain("bg-bg-panel");
+    expect(cls).toContain("rounded-lg");
+    expect(cls).toContain("bg-card");
     expect(cls).not.toContain("border-l-[3px]");
-    expect(cls).not.toContain("shadow-hard");
+    expect(cls).not.toContain("shadow-md");
   });
 });

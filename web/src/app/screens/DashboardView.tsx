@@ -119,7 +119,7 @@ function EquityCurveChart({
     return <Skeleton className="min-h-[240px] w-full flex-1 sm:min-h-[280px]" height="100%" />;
   }
   if (equityError) {
-    return <p className="text-xs text-loss">Failed to load equity curve.</p>;
+    return <p className="text-xs text-destructive">Failed to load equity curve.</p>;
   }
   if (visible.length === 0) {
     return <EmptyState title="No equity data" />;
@@ -165,7 +165,7 @@ function EquityCurveChart({
                 border: `1px solid ${chartTheme.tooltipBorder}`,
                 color: chartTheme.tooltipText,
                 fontSize: 11,
-                borderRadius: "var(--radius-sharp)",
+                borderRadius: "var(--radius)",
               }}
               labelFormatter={(label) => String(label ?? "").slice(0, 10)}
               formatter={(value) => [
@@ -278,7 +278,7 @@ export function DashboardView({
       type="button"
       variant="link"
       onClick={onViewAllTrades}
-      className="h-auto gap-1 rounded-sharp text-[11px] font-medium"
+      className="h-auto gap-1 rounded-md text-[11px] font-medium"
     >
       View all trades
       <ArrowRight size={12} strokeWidth={2} aria-hidden />
@@ -305,7 +305,7 @@ export function DashboardView({
           {summaryLoading ? (
             <Skeleton className="min-h-[160px] flex-1" height="100%" />
           ) : summaryError ? (
-            <p className="text-xs text-loss">Failed to load summary.</p>
+            <p className="text-xs text-destructive">Failed to load summary.</p>
           ) : !summary ? null : (
             <EquityCurveChart
               equityLoading={equityLoading}
@@ -385,7 +385,7 @@ export function DashboardView({
         {tradesLoading ? (
           <Skeleton height="200px" className="m-3" />
         ) : tradesError ? (
-          <p className="p-4 text-xs text-loss">Failed to load trades.</p>
+          <p className="p-4 text-xs text-destructive">Failed to load trades.</p>
         ) : trades.length === 0 ? (
           <EmptyState
             title={tradeStatusFilter ? "No trades match this filter" : "No trades in this range"}
@@ -408,7 +408,7 @@ export function DashboardView({
               onRowClick={onSelectTrade}
               maxHeight={360}
             />
-            <p className="shrink-0 py-2 text-center text-xs text-text-muted">
+            <p className="shrink-0 py-2 text-center text-xs text-muted-foreground">
               {hasMoreTrades
                 ? `Showing ${recentTrades.length} of ${trades.length} trades`
                 : `${trades.length} ${trades.length === 1 ? "trade" : "trades"}`}

@@ -44,9 +44,9 @@ export interface CalendarViewProps {
   yearDailyPnl?: Record<string, number>;
   yearDailyLoading?: boolean;
   yearDailyError?: boolean;
-  /** Closed-trade counts keyed by "YYYY-MM". */
+  /** Closed-trade counts keyed by"YYYY-MM". */
   yearTradesByMonth?: Record<string, number>;
-  /** Year-scoped win/loss records keyed by "YYYY-MM-DD". */
+  /** Year-scoped win/loss records keyed by"YYYY-MM-DD". */
   yearDayRecords?: Record<string, DayRecord>;
   records: Record<string, DayRecord>;
   /** Month-scoped trades for hover-card execution rows. */
@@ -289,7 +289,7 @@ export function CalendarView({
                   >
                     <ChevronLeft size={14} strokeWidth={1.5} />
                   </Button>
-                  <span className="min-w-[4.5rem] text-center text-[13px] font-semibold tabular-nums tracking-[-0.02em] text-text md:text-[15px]">
+                  <span className="min-w-[4.5rem] text-center text-[13px] font-semibold tabular-nums tracking-[-0.02em] text-foreground md:text-[15px]">
                     {year}
                   </span>
                   <Button
@@ -315,7 +315,7 @@ export function CalendarView({
                   onClick={() => setMonthSummaryOpen(true)}
                   className={cn(
                     "shrink-0 font-semibold tabular-nums",
-                    monthPnl >= 0 ? "text-profit" : "text-loss",
+                    monthPnl >= 0 ? "text-profit" : "text-destructive",
                   )}
                 >
                   {fmtSignedMoneyCompact(money(monthPnl), displayCurrency, intlLocale())}
@@ -327,7 +327,7 @@ export function CalendarView({
                   onClick={() => setYearSummaryOpen(true)}
                   className={cn(
                     "shrink-0 font-semibold tabular-nums",
-                    yearPnlTotal >= 0 ? "text-profit" : "text-loss",
+                    yearPnlTotal >= 0 ? "text-profit" : "text-destructive",
                   )}
                 >
                   {fmtSignedMoneyCompact(money(yearPnlTotal), displayCurrency, intlLocale())}
@@ -340,7 +340,7 @@ export function CalendarView({
             key={`${mode}-${modeAnimKey.current}`}
             className={cn(
               "flex min-h-0 flex-1 flex-col",
-              "animate-[calendar-mode-in_250ms_var(--ease-out)_both]",
+              "animate-[calendar-mode-in_250ms_cubic-bezier(0.16, 1, 0.3, 1)_both]",
               "motion-reduce:animate-none",
             )}
             style={{ viewTransitionName: "calendar-mode-panel" }}
@@ -364,7 +364,7 @@ export function CalendarView({
             ) : dailyLoading ? (
               <Skeleton height="100%" className="m-4 min-h-[320px] flex-1" />
             ) : dailyError ? (
-              <p className="p-4 text-xs text-loss">Failed to load daily P&L.</p>
+              <p className="p-4 text-xs text-destructive">Failed to load daily P&L.</p>
             ) : !hasAnyPnl ? (
               <div className="flex flex-1 items-center justify-center p-3 md:p-4">
                 <EmptyState
@@ -380,14 +380,14 @@ export function CalendarView({
                     <div
                       key={d}
                       className={cn(
-                        "px-1 py-1 text-center text-[11px] font-medium text-text-muted",
+                        "px-1 py-1 text-center text-[11px] font-medium text-muted-foreground",
                         WEEKEND_DOW.has(di) && "hidden md:block",
                       )}
                     >
                       {d}
                     </div>
                   ))}
-                  <div className="px-1 py-1 text-center text-[11px] font-medium text-text-muted">
+                  <div className="px-1 py-1 text-center text-[11px] font-medium text-muted-foreground">
                     Week
                   </div>
                 </div>
@@ -429,8 +429,8 @@ export function CalendarView({
                                 className={cn(
                                   "self-end text-[11px] font-medium tabular-nums",
                                   isToday
-                                    ? "inline-flex size-5 items-center justify-center rounded-full bg-accent font-semibold text-bg"
-                                    : "text-text-muted",
+                                    ? "inline-flex size-5 items-center justify-center rounded-full bg-primary font-semibold text-background"
+                                    : "text-muted-foreground",
                                 )}
                               >
                                 {dayNum}
@@ -448,18 +448,18 @@ export function CalendarView({
                                     )}
                                   </span>
                                   {trades > 0 && (
-                                    <span className="text-[10px] tabular-nums text-text-muted">
+                                    <span className="text-[10px] tabular-nums text-muted-foreground">
                                       {trades} {trades === 1 ? "trade" : "trades"}
                                     </span>
                                   )}
                                   {winRate && (
-                                    <span className="text-[10px] tabular-nums text-text-muted">
+                                    <span className="text-[10px] tabular-nums text-muted-foreground">
                                       <WinLossRecord
                                         wins={rec!.wins}
                                         losses={rec!.losses}
                                         className="opacity-90"
                                       />
-                                      <span className="text-text-dim"> · {winRate}</span>
+                                      <span className="text-muted-foreground"> · {winRate}</span>
                                     </span>
                                   )}
                                 </span>
@@ -467,15 +467,13 @@ export function CalendarView({
                             </>
                           );
                           const dayClass = cn(
-                            "relative flex h-full min-h-0 w-full flex-col justify-start rounded-control px-1 py-1 text-left transition-colors duration-150 md:px-2 md:py-1.5",
+                            "relative flex h-full min-h-0 w-full flex-col justify-start rounded-md px-1 py-1 text-left transition-colors duration-150 md:px-2 md:py-1.5",
                             hasPnl ? "cursor-pointer" : "cursor-default",
-                            isSelected && "ring-1 ring-accent ring-inset",
+                            isSelected && "ring-1 ring-primary ring-inset",
                             WEEKEND_DOW.has(di) && "hidden md:flex",
                           );
                           const dayStyle = {
-                            background: hasPnl
-                              ? pnlBgTint(cell.pnl!)
-                              : "var(--color-surface-raised)",
+                            background: hasPnl ? pnlBgTint(cell.pnl!) : "var(--sidebar)",
                           };
                           const dayAria = hasPnl
                             ? `${cell.date} ${fmtSignedMoney(money(cell.pnl!), displayCurrency, intlLocale())}`
@@ -528,13 +526,13 @@ export function CalendarView({
 
                         <div
                           className={cn(
-                            "relative flex h-full min-h-0 w-full flex-col rounded-control px-1.5 py-1 md:px-2.5 md:py-1.5",
-                            !ws.hasData && "bg-bg-inset",
+                            "relative flex h-full min-h-0 w-full flex-col rounded-md px-1.5 py-1 md:px-2.5 md:py-1.5",
+                            !ws.hasData && "bg-muted",
                           )}
                           style={ws.hasData ? { background: pnlBgTint(ws.pnl) } : undefined}
                         >
                           {ws.weekNumber != null && (
-                            <span className="absolute top-1 right-1.5 z-[1] text-[10px] font-medium text-text-muted md:top-1.5 md:right-2.5 md:text-[11px]">
+                            <span className="absolute top-1 right-1.5 z-[1] text-[10px] font-medium text-muted-foreground md:top-1.5 md:right-2.5 md:text-[11px]">
                               Week {ws.weekNumber}
                             </span>
                           )}
@@ -555,12 +553,12 @@ export function CalendarView({
                                   <WinLossRecord wins={ws.wins} losses={ws.losses} />
                                 </span>
                               ) : null}
-                              <span className="text-[10px] tabular-nums text-text-muted">
+                              <span className="text-[10px] tabular-nums text-muted-foreground">
                                 {ws.daysWithTrades} {ws.daysWithTrades === 1 ? "day" : "days"}
                               </span>
                             </span>
                           ) : (
-                            <span className="flex h-full items-center justify-center text-xs text-text-dim">
+                            <span className="flex h-full items-center justify-center text-xs text-muted-foreground">
                               —
                             </span>
                           )}
@@ -668,20 +666,13 @@ function PeriodSummaryBody({
   return (
     <div className="flex flex-col gap-5">
       <div
-        className="relative overflow-hidden rounded-control px-4 py-7 text-center"
+        className="relative overflow-hidden rounded-md px-4 py-7 text-center"
         style={{ background: pnlBgTint(pnl, { minOpacity: 0.07, maxOpacity: 0.2, scale: 400 }) }}
       >
-        <p className="m-0 text-[11px] font-medium uppercase tracking-[0.12em] text-text-muted">
+        <p className="m-0 text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
           Net P&L
         </p>
-        <p
-          className={cn(
-            "m-0 mt-2.5",
-            heroPnlClass(pnl),
-            pnl > 0 && "hero-glow-profit",
-            pnl < 0 && "hero-glow-loss",
-          )}
-        >
+        <p className={cn("m-0 mt-2.5", heroPnlClass(pnl), pnl > 0 && "", pnl < 0 && "")}>
           {fmtSignedMoneyCompact(pnl, currency, intlLocale())}
         </p>
         {pct != null ? (
@@ -703,11 +694,11 @@ function PeriodSummaryBody({
 
 function PeriodSummaryStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex min-w-0 flex-col gap-1.5 rounded-control bg-bg px-3 py-3">
-      <p className="m-0 truncate text-[10px] font-medium uppercase tracking-[0.1em] text-text-muted">
+    <div className="flex min-w-0 flex-col gap-1.5 rounded-md bg-background px-3 py-3">
+      <p className="m-0 truncate text-[10px] font-medium uppercase tracking-[0.1em] text-muted-foreground">
         {label}
       </p>
-      <p className="m-0 text-[18px] font-semibold tracking-[-0.02em] tabular-nums text-text">
+      <p className="m-0 text-[18px] font-semibold tracking-[-0.02em] tabular-nums text-foreground">
         {value}
       </p>
     </div>

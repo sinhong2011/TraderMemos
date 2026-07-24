@@ -57,7 +57,7 @@ export function SignalEditor({
         "aria-label": ariaLabel ?? "Editor",
         ...(ariaInvalid ? { "aria-invalid": "true" } : {}),
         class: cn(
-          "se-content prose-signal px-3 py-2.5 text-[13px] leading-relaxed text-text outline-none",
+          "se-content prose-signal px-3 py-2.5 text-[13px] leading-relaxed text-foreground outline-none",
           contentClassName,
         ),
         style: `min-height: ${minHeight}px`,
@@ -129,9 +129,9 @@ export function SignalEditor({
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-control border border-border bg-bg-input transition-colors duration-150",
+        "overflow-hidden rounded-md border border-border bg-muted transition-colors duration-150",
         !readOnly &&
-          "hover:bg-bg-input-hover focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-border-strong",
+          "hover:bg-accent focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-ring",
         readOnly && "border-transparent bg-transparent",
         className,
       )}
@@ -141,12 +141,12 @@ export function SignalEditor({
       ) : null}
       <EditorContent editor={editor} />
       {uploadError ? (
-        <p className="px-3 pb-2 text-[10px] text-loss" role="alert">
+        <p className="px-3 pb-2 text-[10px] text-destructive" role="alert">
           {uploadError}
         </p>
       ) : null}
       {showHints ? (
-        <p className="flex flex-wrap items-center gap-x-2 gap-y-1 px-3 pt-1 pb-2 text-[10px] text-text-dim">
+        <p className="flex flex-wrap items-center gap-x-2 gap-y-1 px-3 pt-1 pb-2 text-[10px] text-muted-foreground">
           <span className="inline-flex items-center gap-1">
             <Kbd>#</Kbd> heading
           </span>

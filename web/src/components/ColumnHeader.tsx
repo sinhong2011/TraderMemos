@@ -53,9 +53,9 @@ export function ColumnHeader<TData, TValue>({
             variant="ghost"
             title={titleAttr}
             className={cn(
-              "h-auto w-full gap-1 rounded-sharp px-0 text-[length:inherit] font-medium",
-              "hover:bg-transparent hover:text-text",
-              "aria-expanded:bg-transparent data-popup-open:bg-transparent data-popup-open:text-text",
+              "h-auto w-full gap-1 rounded-md px-0 text-[length:inherit] font-medium",
+              "hover:bg-transparent hover:text-foreground",
+              "aria-expanded:bg-transparent data-popup-open:bg-transparent data-popup-open:text-foreground",
               comfortable ? "tracking-wide" : "tracking-widest",
               alignRight ? "justify-end" : "justify-start",
               className,
@@ -65,7 +65,7 @@ export function ColumnHeader<TData, TValue>({
       >
         {title}
         {canSort ? (
-          <span className="ml-0.5 text-text-dim">
+          <span className="ml-0.5 text-muted-foreground">
             {sorted === "asc" ? (
               <ChevronUp size={12} strokeWidth={1.5} aria-hidden />
             ) : sorted === "desc" ? (
@@ -80,16 +80,26 @@ export function ColumnHeader<TData, TValue>({
         {canSort ? (
           <>
             <DropdownMenuItem onClick={() => column.toggleSorting(false)}>
-              <ChevronUp size={14} strokeWidth={1.75} className="text-text-dim" aria-hidden />
+              <ChevronUp
+                size={14}
+                strokeWidth={1.75}
+                className="text-muted-foreground"
+                aria-hidden
+              />
               Asc
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => column.toggleSorting(true)}>
-              <ChevronDown size={14} strokeWidth={1.75} className="text-text-dim" aria-hidden />
+              <ChevronDown
+                size={14}
+                strokeWidth={1.75}
+                className="text-muted-foreground"
+                aria-hidden
+              />
               Desc
             </DropdownMenuItem>
             {sorted ? (
               <DropdownMenuItem onClick={() => column.clearSorting()}>
-                <X size={14} strokeWidth={1.75} className="text-text-dim" aria-hidden />
+                <X size={14} strokeWidth={1.75} className="text-muted-foreground" aria-hidden />
                 Reset
               </DropdownMenuItem>
             ) : null}
@@ -98,7 +108,7 @@ export function ColumnHeader<TData, TValue>({
         {canSort && canHide ? <DropdownMenuSeparator /> : null}
         {canHide ? (
           <DropdownMenuItem onClick={() => column.toggleVisibility(false)}>
-            <EyeOff size={14} strokeWidth={1.75} className="text-text-dim" aria-hidden />
+            <EyeOff size={14} strokeWidth={1.75} className="text-muted-foreground" aria-hidden />
             Hide
           </DropdownMenuItem>
         ) : null}

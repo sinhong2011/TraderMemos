@@ -68,13 +68,15 @@ export function CalendarDayHoverDetails({
 
   return (
     <div className="flex min-w-[14rem] flex-col gap-2.5">
-      <p className="text-[13px] font-medium text-text-muted">{formatDayTitle(date, locale)}</p>
+      <p className="text-[13px] font-medium text-muted-foreground">
+        {formatDayTitle(date, locale)}
+      </p>
       {hasPnl ? (
         <>
           <p className={cn("text-[18px] font-semibold tabular-nums", pnlColor(pnl))}>
             {fmtSignedMoney(pnl * fxRate, currency, locale)}
           </p>
-          <div className="flex flex-col gap-0.5 text-[13px] tabular-nums text-text-muted">
+          <div className="flex flex-col gap-0.5 text-[13px] tabular-nums text-muted-foreground">
             <span>
               {tradeCount > 0
                 ? `${tradeCount} ${tradeCount === 1 ? "trade" : "trades"}`
@@ -85,7 +87,7 @@ export function CalendarDayHoverDetails({
             {record && tradeCount > 0 && (
               <span>
                 <WinLossRecord wins={record.wins} losses={record.losses} />
-                {winRate ? <span className="text-text-muted"> · {winRate}</span> : null}
+                {winRate ? <span className="text-muted-foreground"> · {winRate}</span> : null}
               </span>
             )}
           </div>
@@ -99,17 +101,17 @@ export function CalendarDayHoverDetails({
                   key={trade.id}
                   className="flex items-center gap-2 py-1 text-[12px] tabular-nums first:pt-0 last:pb-0"
                 >
-                  <span className="min-w-0 flex-1 truncate font-medium tracking-wide text-text">
+                  <span className="min-w-0 flex-1 truncate font-medium tracking-wide text-foreground">
                     {trade.symbol}
                   </span>
-                  <span className="shrink-0 uppercase text-[10px] tracking-wider text-text-dim">
+                  <span className="shrink-0 uppercase text-[10px] tracking-wider text-muted-foreground">
                     {trade.direction}
                   </span>
-                  <span className="shrink-0 text-text-dim">{tradeTimeLabel(trade)}</span>
+                  <span className="shrink-0 text-muted-foreground">{tradeTimeLabel(trade)}</span>
                   <span
                     className={cn(
                       "min-w-[4.25rem] shrink-0 text-right font-semibold",
-                      trade.net_pnl != null ? pnlColor(trade.net_pnl) : "text-text-dim",
+                      trade.net_pnl != null ? pnlColor(trade.net_pnl) : "text-muted-foreground",
                     )}
                   >
                     {trade.net_pnl != null
@@ -122,7 +124,7 @@ export function CalendarDayHoverDetails({
           ) : null}
         </>
       ) : (
-        <p className="text-[14px] text-text-dim">No trades</p>
+        <p className="text-[14px] text-muted-foreground">No trades</p>
       )}
     </div>
   );

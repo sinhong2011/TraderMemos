@@ -90,17 +90,17 @@ function DaySummary({
       >
         {fmtSignedMoney(summary.pnl * fxRate, currency, locale)}
       </p>
-      <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[13px] tabular-nums text-text-muted">
+      <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[13px] tabular-nums text-muted-foreground">
         <span>
           {summary.trades} {summary.trades === 1 ? "trade" : "trades"}
         </span>
         {(summary.wins > 0 || summary.losses > 0) && (
           <>
-            <span className="text-text-dim" aria-hidden>
+            <span className="text-muted-foreground" aria-hidden>
               ·
             </span>
             <WinLossRecord wins={summary.wins} losses={summary.losses} />
-            {winRateLabel ? <span className="text-text-muted">· {winRateLabel}</span> : null}
+            {winRateLabel ? <span className="text-muted-foreground">· {winRateLabel}</span> : null}
           </>
         )}
       </div>
@@ -148,20 +148,20 @@ function DayTradeItem({
   const DirIcon = dir.arrowUp ? ArrowUpRight : ArrowDownRight;
   const dirTone =
     dir.tone === "profit"
-      ? "bg-tint-pos text-profit"
+      ? "bg-profit/10 text-profit"
       : dir.tone === "loss"
-        ? "bg-tint-neg text-loss"
+        ? "bg-destructive/10 text-destructive"
         : isLong
-          ? "bg-tint-pos text-profit"
-          : "bg-tint-neg text-loss";
+          ? "bg-profit/10 text-profit"
+          : "bg-destructive/10 text-destructive";
 
   return (
     <Item
       variant="default"
       size="default"
       className={cn(
-        "w-full cursor-pointer gap-3 border-transparent bg-bg-hover px-3.5 py-3",
-        "hover:bg-bg-panel focus-visible:bg-bg-panel",
+        "w-full cursor-pointer gap-3 border-transparent bg-accent px-3.5 py-3",
+        "hover:bg-card focus-visible:bg-card",
       )}
       tabIndex={0}
       onClick={() => onSelectTrade(trade)}
@@ -177,7 +177,7 @@ function DayTradeItem({
       </ItemMedia>
       <ItemContent className="gap-1">
         <ItemTitle className="gap-2 text-[15px]">
-          <span className="font-semibold tracking-tight text-accent">{trade.symbol}</span>
+          <span className="font-semibold tracking-tight text-primary">{trade.symbol}</span>
           <Pill tone={status.tone} title={status.label === "BE" ? "Break-even" : undefined}>
             {status.label}
           </Pill>
@@ -188,19 +188,19 @@ function DayTradeItem({
                 dir.tone === "profit"
                   ? "text-profit"
                   : dir.tone === "loss"
-                    ? "text-loss"
-                    : "text-text-muted",
+                    ? "text-destructive"
+                    : "text-muted-foreground",
               )}
               title={dir.label}
             >
               {dir.tag}
             </span>
           ) : null}
-          <span className="text-[12px] font-medium tracking-wide text-text-muted">
+          <span className="text-[12px] font-medium tracking-wide text-muted-foreground">
             {marketLabel(trade.instrument_type)}
           </span>
         </ItemTitle>
-        <ItemDescription className="text-[13px] text-text-muted">
+        <ItemDescription className="text-[13px] text-muted-foreground">
           {tradeCardMeta(trade, currency, fxRate)}
         </ItemDescription>
       </ItemContent>
@@ -222,7 +222,7 @@ function DayTradeItem({
             )}
           </>
         ) : (
-          <ItemTitle className="text-[15px] text-text-muted">—</ItemTitle>
+          <ItemTitle className="text-[15px] text-muted-foreground">—</ItemTitle>
         )}
       </ItemContent>
       <ItemActions
@@ -287,7 +287,7 @@ export function DayTradesDrawer({
           <DrawerTitle>{title}</DrawerTitle>
           <DrawerClose
             aria-label="Close"
-            className="ml-auto flex cursor-pointer rounded-control border-none bg-transparent p-1 text-text-muted transition-colors hover:bg-bg-hover hover:text-text"
+            className="ml-auto flex cursor-pointer rounded-md border-none bg-transparent p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           >
             <X size={18} strokeWidth={1.5} />
           </DrawerClose>
@@ -296,7 +296,7 @@ export function DayTradesDrawer({
           {dayTradesLoading ? (
             <Skeleton height="160px" className="m-4" />
           ) : dayTradesError ? (
-            <p className="p-4 text-xs text-loss">Failed to load trades.</p>
+            <p className="p-4 text-xs text-destructive">Failed to load trades.</p>
           ) : dayTrades.length === 0 ? (
             <div className="p-6">
               <EmptyState title="No trades on this day" />

@@ -67,7 +67,7 @@ export const SignalPasswordInput = forwardRef<HTMLInputElement, SignalPasswordIn
             variant="ghost"
             size="icon-sm"
             disabled={disabled}
-            className="absolute top-1/2 right-8 -translate-y-1/2 text-text-dim disabled:opacity-45"
+            className="absolute top-1/2 right-8 -translate-y-1/2 text-muted-foreground disabled:opacity-45"
             onClick={onClear}
             aria-label={clearLabel}
             aria-controls={inputId}
@@ -80,7 +80,7 @@ export const SignalPasswordInput = forwardRef<HTMLInputElement, SignalPasswordIn
           variant="ghost"
           size="icon-sm"
           disabled={disabled}
-          className="absolute top-1/2 right-1 -translate-y-1/2 text-text-dim disabled:opacity-45"
+          className="absolute top-1/2 right-1 -translate-y-1/2 text-muted-foreground disabled:opacity-45"
           onClick={() => setVisible((v) => !v)}
           aria-label={visible ? hideLabel : showLabel}
           aria-pressed={visible}

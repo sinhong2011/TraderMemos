@@ -49,7 +49,7 @@ export function SignalDatePicker({
         "inline-flex cursor-pointer items-center gap-2",
         signalControlTriggerClass,
         disabled && "cursor-not-allowed opacity-55",
-        open && "bg-bg-input-hover",
+        open && "bg-accent",
         className,
       )}
       trigger={
@@ -57,14 +57,14 @@ export function SignalDatePicker({
           <CalendarDays
             size={13}
             strokeWidth={1.5}
-            className="shrink-0 text-text-dim"
+            className="shrink-0 text-muted-foreground"
             aria-hidden
           />
           <span
             id={id}
             className={cn(
               "min-w-0 flex-1 truncate text-left text-[13px]",
-              selected ? "text-text" : "text-text-dim",
+              selected ? "text-foreground" : "text-muted-foreground",
             )}
           >
             {label}
@@ -73,7 +73,7 @@ export function SignalDatePicker({
             size={12}
             strokeWidth={1.5}
             className={cn(
-              "shrink-0 text-text-dim transition-transform duration-150",
+              "shrink-0 text-muted-foreground transition-transform duration-150",
               open && "rotate-180",
             )}
             aria-hidden

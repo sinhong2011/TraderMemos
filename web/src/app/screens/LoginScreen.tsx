@@ -23,7 +23,7 @@ const MODES = [
 
 type AuthMode = (typeof MODES)[number]["value"];
 
-const labelClass = "text-[10px] font-medium uppercase tracking-[0.12em] text-text-muted";
+const labelClass = "text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground";
 const MIN_PASSWORD = 10;
 
 function AuthField({
@@ -65,7 +65,7 @@ function AuthField({
         <FieldIcon
           size={15}
           strokeWidth={1.5}
-          className="pointer-events-none absolute left-3 text-text-dim transition-colors group-focus-within:text-accent"
+          className="pointer-events-none absolute left-3 text-muted-foreground transition-colors group-focus-within:text-primary"
           aria-hidden
         />
         <input
@@ -74,7 +74,7 @@ function AuthField({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           className={cn(
-            "h-11 w-full rounded-control border-none bg-bg-input py-0 pl-10 text-[13px] text-text outline-none transition-[background-color] duration-150 placeholder:text-text-dim hover:bg-bg-input-hover focus:bg-bg-input-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-strong",
+            "h-11 w-full rounded-md border-none bg-muted py-0 pl-10 text-[13px] text-foreground outline-none transition-[background-color] duration-150 placeholder:text-muted-foreground hover:bg-accent focus:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
             isPassword ? "pr-10" : "pr-3",
           )}
           placeholder={placeholder}
@@ -102,7 +102,7 @@ function AuthField({
       </div>
       <p
         className={cn(
-          "min-h-[1.35em] text-[11px] leading-snug text-text-dim",
+          "min-h-[1.35em] text-[11px] leading-snug text-muted-foreground",
           !hint && "invisible",
         )}
       >
@@ -170,14 +170,11 @@ export function LoginScreen({
   const isLogin = mode === "login";
 
   return (
-    <div className="signal-app relative flex min-h-full items-center justify-center p-6 max-[820px]:items-start max-[820px]:p-4">
-      <div className="signal-app-grid-scan" aria-hidden />
-      <div className="signal-app-grain" aria-hidden />
-
-      <div className="relative z-[1] grid h-[min(640px,calc(100vh-48px))] w-full max-w-[920px] grid-cols-[1fr_400px] overflow-hidden border border-border-strong bg-bg shadow-hard max-[820px]:h-auto max-[820px]:grid-cols-1">
+    <div className="relative flex min-h-full items-center justify-center p-6 max-[820px]:items-start max-[820px]:p-4">
+      <div className="relative z-[1] grid h-[min(640px,calc(100vh-48px))] w-full max-w-[920px] grid-cols-[1fr_400px] overflow-hidden border border-border bg-background shadow-md max-[820px]:h-auto max-[820px]:grid-cols-1">
         {/* Brand panel */}
         <aside
-          className="relative flex flex-col justify-between overflow-hidden border-r border-border bg-bg-elevated p-10 max-[820px]:border-r-0 max-[820px]:border-b max-[820px]:p-7"
+          className="relative flex flex-col justify-between overflow-hidden border-r border-border bg-sidebar p-10 max-[820px]:border-r-0 max-[820px]:border-b max-[820px]:p-7"
           aria-hidden="true"
         >
           <div
@@ -190,38 +187,45 @@ export function LoginScreen({
 
           <div className="relative">
             <div className="mb-8 flex items-center gap-2.5">
-              <AppLogo size={32} className="shadow-[0_0_20px_var(--color-accent-glow)]" />
-              <span className="text-[13px] font-medium tracking-tight text-text">TraderMemos</span>
+              <AppLogo
+                size={32}
+                className="shadow-[0_0_20px_color-mix(in oklch, var(--primary) 35%, transparent)]"
+              />
+              <span className="text-[13px] font-medium tracking-tight text-foreground">
+                TraderMemos
+              </span>
             </div>
 
-            <p className={cn(labelClass, "mb-3 text-signal")}>Signal Terminal</p>
-            <h1 className="m-0 text-[clamp(30px,3.6vw,38px)] leading-[1.05] font-bold tracking-[-0.04em] text-text">
+            <p className={cn(labelClass, "mb-3 text-muted-foreground")}>Trading journal</p>
+            <h1 className="m-0 text-[clamp(30px,3.6vw,38px)] leading-[1.05] font-bold tracking-[-0.04em] text-foreground">
               Your P&amp;L,
               <br />
-              <span className="text-headline-accent">on the grid.</span>
+              <span className="text-primary">on the grid.</span>
             </h1>
-            <p className="mt-4 max-w-[34ch] text-[13px] leading-relaxed text-text-muted">
+            <p className="mt-4 max-w-[34ch] text-[13px] leading-relaxed text-muted-foreground">
               Dense stats. Zero clutter. Numbers that glow when they matter.
             </p>
           </div>
 
           <div className="relative mt-10 grid grid-cols-2 gap-px border border-border bg-border max-[820px]:hidden">
-            <div className="bg-bg-panel px-4 py-3.5">
+            <div className="bg-card px-4 py-3.5">
               <span className={labelClass}>Net P&amp;L</span>
-              <div className="mt-1.5 text-[22px] font-semibold tracking-tight text-profit hero-glow-profit">
+              <div className="mt-1.5 text-[22px] font-semibold tracking-tight text-profit">
                 +$2,847
               </div>
             </div>
-            <div className="bg-bg-panel px-4 py-3.5">
+            <div className="bg-card px-4 py-3.5">
               <span className={labelClass}>Win rate</span>
-              <div className="mt-1.5 text-[22px] font-semibold tracking-tight text-text">68.4%</div>
+              <div className="mt-1.5 text-[22px] font-semibold tracking-tight text-foreground">
+                68.4%
+              </div>
             </div>
           </div>
         </aside>
 
         {/* Auth form panel — fixed shell height; content flows naturally */}
         <section
-          className="flex h-full flex-col justify-center overflow-y-auto bg-bg px-8 py-8 max-[820px]:justify-start max-[820px]:px-6 max-[820px]:py-7"
+          className="flex h-full flex-col justify-center overflow-y-auto bg-background px-8 py-8 max-[820px]:justify-start max-[820px]:px-6 max-[820px]:py-7"
           aria-labelledby={`${formId}-title`}
         >
           <div className="mx-auto flex w-full max-w-[320px] flex-col">
@@ -236,7 +240,7 @@ export function LoginScreen({
 
             {banner && (
               <div
-                className="mb-4 flex items-start gap-2 rounded-control border border-[rgba(228,255,26,0.22)] bg-[rgba(228,255,26,0.06)] px-3 py-2.5 text-xs leading-snug text-signal"
+                className="mb-4 flex items-start gap-2 rounded-md border border-[rgba(228,255,26,0.22)] bg-[rgba(228,255,26,0.06)] px-3 py-2.5 text-xs leading-snug text-chart-3"
                 role="status"
               >
                 <AlertCircle size={14} strokeWidth={1.5} aria-hidden />
@@ -248,11 +252,11 @@ export function LoginScreen({
               <div className="mb-5">
                 <h2
                   id={`${formId}-title`}
-                  className="mb-1 text-[17px] font-semibold tracking-tight text-text"
+                  className="mb-1 text-[17px] font-semibold tracking-tight text-foreground"
                 >
                   {isLogin ? "Welcome back" : "Start your journal"}
                 </h2>
-                <p className="text-[12px] leading-relaxed text-text-muted">
+                <p className="text-[12px] leading-relaxed text-muted-foreground">
                   {isLogin
                     ? "Pick up where your last session left off."
                     : "Your trade data stays on your stack."}
@@ -288,7 +292,7 @@ export function LoginScreen({
 
               {error && (
                 <div
-                  className="mt-1 flex items-start gap-2 rounded-control border border-[rgba(251,113,133,0.22)] bg-[rgba(251,113,133,0.08)] px-3 py-2.5 text-xs leading-snug text-loss"
+                  className="mt-1 flex items-start gap-2 rounded-md border border-[rgba(251,113,133,0.22)] bg-[rgba(251,113,133,0.08)] px-3 py-2.5 text-xs leading-snug text-destructive"
                   role="alert"
                 >
                   <AlertCircle size={14} strokeWidth={1.5} aria-hidden />
@@ -300,7 +304,7 @@ export function LoginScreen({
                 type="submit"
                 variant="default"
                 size="lg"
-                className="group mt-4 h-11 w-full border border-border-strong hover:shadow-[0_0_28px_var(--color-accent-glow)] active:scale-[0.99] disabled:active:scale-100"
+                className="group mt-4 h-11 w-full border border-border hover:shadow-[0_0_28px_color-mix(in oklch, var(--primary) 35%, transparent)] active:scale-[0.99] disabled:active:scale-100"
                 disabled={busy}
               >
                 <span>
@@ -323,7 +327,7 @@ export function LoginScreen({
               </Button>
 
               <div className="mt-4 flex flex-col items-center gap-2">
-                <p className="text-[11px] text-text-dim">
+                <p className="text-[11px] text-muted-foreground">
                   Press <Kbd>Enter</Kbd> to continue
                 </p>
                 <Button
@@ -331,12 +335,15 @@ export function LoginScreen({
                   variant="ghost"
                   size="sm"
                   onClick={() => setAdvancedOpen(true)}
-                  className="text-text-muted hover:text-text"
+                  className="text-muted-foreground hover:text-foreground"
                 >
                   <Settings2 size={12} strokeWidth={1.5} aria-hidden />
                   Advanced
                   {serverUrl ? (
-                    <span className="max-w-[10rem] truncate text-text-dim" title={serverUrl}>
+                    <span
+                      className="max-w-[10rem] truncate text-muted-foreground"
+                      title={serverUrl}
+                    >
                       · custom server
                     </span>
                   ) : null}
@@ -384,8 +391,9 @@ export function LoginScreen({
                   }}
                   className="h-10 w-full text-[13px]"
                 />
-                <p className="text-[11px] leading-snug text-text-dim">
-                  API host for this device. Leave blank for the default. You only need the origin —{" "}
+                <p className="text-[11px] leading-snug text-muted-foreground">
+                  API host for this device. Leave blank for the default. You only need the origin —
+                  {""}
                   /api/v1 is added automatically.
                 </p>
               </div>

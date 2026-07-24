@@ -4,7 +4,7 @@ import { SignalEditor } from "./SignalEditor";
 /** Read-only rich note body via the same TipTap pipeline as SignalEditor. */
 export function MarkdownBody({ markdown, className }: { markdown: string; className?: string }) {
   if (!markdown.trim()) {
-    return <p className={cn("text-[13px] text-text-dim", className)}>No content</p>;
+    return <p className={cn("text-[13px] text-muted-foreground", className)}>No content</p>;
   }
 
   return (

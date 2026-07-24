@@ -14,17 +14,17 @@ const sizeClass: Record<SignalToggleSize, string> = {
 };
 
 const variantClass: Record<SignalToggleVariant, string> = {
-  default: "border-transparent bg-bg-hover",
+  default: "border-transparent bg-accent",
   outline: "border border-border bg-transparent",
 };
 
 const tonePressedClass: Record<SignalToggleTone, string> = {
-  accent: "aria-pressed:border-accent/40 aria-pressed:bg-accent-bg aria-pressed:text-accent",
-  neg: "aria-pressed:border-loss/40 aria-pressed:bg-tint-neg aria-pressed:text-loss",
+  accent: "aria-pressed:border-primary/40 aria-pressed:bg-primary/10 aria-pressed:text-primary",
+  neg: "aria-pressed:border-destructive/40 aria-pressed:bg-destructive/10 aria-pressed:text-destructive",
 };
 
 /**
- * Shadcn/Base UI Toggle adapted to Signal Terminal tokens.
+ * Shadcn/Base UI Toggle adapted to shadcn tokens.
  * @see https://ui.shadcn.com/docs/components/base/toggle
  */
 export function SignalToggle({
@@ -42,11 +42,11 @@ export function SignalToggle({
     <TogglePrimitive
       data-slot="toggle"
       className={cn(
-        "group/toggle inline-flex cursor-pointer items-center justify-center gap-1 rounded-control",
-        "border font-semibold tracking-[0.02em] whitespace-nowrap text-text-muted outline-none",
+        "group/toggle inline-flex cursor-pointer items-center justify-center gap-1 rounded-md",
+        "border font-semibold tracking-[0.02em] whitespace-nowrap text-muted-foreground outline-none",
         "transition-colors duration-150",
-        "hover:bg-bg-input-hover hover:text-text",
-        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-strong",
+        "hover:bg-accent hover:text-foreground",
+        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
         "disabled:pointer-events-none disabled:opacity-50",
         "[&_svg]:pointer-events-none [&_svg]:shrink-0",
         sizeClass[size],

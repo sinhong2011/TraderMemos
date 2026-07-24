@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>TraderMemos</title>
-    <meta name="theme-color" content="#16161c" />
+    <meta name="theme-color" content="#171717" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="TraderMemos" />
@@ -27,7 +27,7 @@
           document.documentElement.classList.add(resolved);
           document.documentElement.style.colorScheme = resolved;
           var meta = document.querySelector('meta[name="theme-color"]');
-          if (meta) meta.setAttribute("content", resolved === "dark" ? "#16161c" : "#f2f2f5");
+          if (meta) meta.setAttribute("content", resolved === "dark" ? "#171717" : "#ffffff");
         } catch (_) {
           document.documentElement.classList.add("dark");
           document.documentElement.style.colorScheme = "dark";

@@ -2,7 +2,7 @@ import { cn } from "../lib/cn";
 
 /** Shared enter/exit motion for floating overlays (popover, select, menus). */
 export const signalOverlayPopupClass = cn(
-  "rounded-overlay border border-border-strong bg-bg-panel outline-none",
+  "rounded-lg border border-border bg-card outline-none",
   "shadow-[0_12px_32px_rgba(18,18,24,0.55)]",
   "origin-[var(--transform-origin)]",
   "transition-[transform,opacity] duration-[220ms] ease-out",
@@ -16,11 +16,11 @@ export const signalOverlayPopupClass = cn(
 export const signalSelectListClass = "flex flex-col gap-0.5 p-1.5";
 
 export const signalSelectItemClass = cn(
-  "relative flex min-h-9 cursor-pointer items-center gap-2.5 rounded-control py-2 pr-2.5 pl-3",
-  "text-[12px] text-text outline-none",
+  "relative flex min-h-9 cursor-pointer items-center gap-2.5 rounded-md py-2 pr-2.5 pl-3",
+  "text-[12px] text-foreground outline-none",
   "transition-[background-color,color] duration-100 ease-out",
-  "data-[highlighted]:bg-bg-hover data-[highlighted]:text-text",
-  "data-[selected]:bg-accent-bg data-[selected]:font-medium data-[selected]:text-accent",
+  "data-[highlighted]:bg-accent data-[highlighted]:text-foreground",
+  "data-[selected]:bg-primary/10 data-[selected]:font-medium data-[selected]:text-primary",
   "data-[disabled]:cursor-default data-[disabled]:opacity-40",
   "motion-reduce:transition-none",
 );

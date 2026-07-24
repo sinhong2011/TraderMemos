@@ -33,15 +33,15 @@ const AUTO_VALUE = "__auto__";
 function HeaderStat({ label, value }: { label: string; value: string }) {
   return (
     <span className="inline-flex items-baseline gap-1 text-[13px] font-medium whitespace-nowrap">
-      <span className="uppercase tracking-widest text-text-muted">{label}</span>
-      <span className="font-semibold tabular-nums text-text">{value}</span>
+      <span className="uppercase tracking-widest text-muted-foreground">{label}</span>
+      <span className="font-semibold tabular-nums text-foreground">{value}</span>
     </span>
   );
 }
 
 function StatDivider() {
   return (
-    <span aria-hidden className="text-[13px] text-text-dim select-none">
+    <span aria-hidden className="text-[13px] text-muted-foreground select-none">
       ·
     </span>
   );
@@ -50,7 +50,7 @@ function StatDivider() {
 function SymbolFilterChip({ symbols, onClear }: { symbols: string[]; onClear: () => void }) {
   const label = symbols.length <= 2 ? symbols.join(", ") : `${symbols[0]} +${symbols.length - 1}`;
   return (
-    <span className="inline-flex h-8 shrink-0 items-center gap-1 rounded-control border border-accent/25 bg-accent-bg px-2 text-[11px] text-accent">
+    <span className="inline-flex h-8 shrink-0 items-center gap-1 rounded-md border border-primary/25 bg-primary/10 px-2 text-[11px] text-primary">
       {label}
       <Button
         type="button"
@@ -58,7 +58,7 @@ function SymbolFilterChip({ symbols, onClear }: { symbols: string[]; onClear: ()
         size="icon-xs"
         onClick={onClear}
         aria-label="Clear symbol filter"
-        className="rounded-sharp text-accent/70 hover:bg-accent/10 hover:text-accent"
+        className="rounded-md text-primary/70 hover:bg-primary/10 hover:text-primary"
       >
         <X size={12} strokeWidth={2} />
       </Button>
@@ -70,14 +70,19 @@ function CurrencyOptionLabel({ code, account }: { code: string; account?: boolea
   const Icon = currencyIcon(code);
   return (
     <span className="inline-flex min-w-0 items-center gap-1.5">
-      <Icon size={12} strokeWidth={1.75} className="shrink-0 text-text-dim" aria-hidden />
+      <Icon size={12} strokeWidth={1.75} className="shrink-0 text-muted-foreground" aria-hidden />
       <span className="tabular-nums">{code}</span>
       {account ? (
         <>
-          <span className="text-text-dim" aria-hidden>
+          <span className="text-muted-foreground" aria-hidden>
             ·
           </span>
-          <Wallet size={12} strokeWidth={1.75} className="shrink-0 text-text-dim" aria-hidden />
+          <Wallet
+            size={12}
+            strokeWidth={1.75}
+            className="shrink-0 text-muted-foreground"
+            aria-hidden
+          />
           <span className="sr-only">account</span>
         </>
       ) : null}
@@ -141,14 +146,14 @@ export function DisplayCurrencySelect({
               <PopoverTrigger
                 aria-label={`Show amounts in (account ledger is ${base})`}
                 className={cn(
-                  "group relative flex size-8 cursor-pointer items-center justify-center rounded-control outline-none",
+                  "group relative flex size-8 cursor-pointer items-center justify-center rounded-md outline-none",
                   "pointer-coarse:size-11",
                   "transition-[background-color,color,transform] duration-150 ease-out",
-                  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-strong",
+                  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
                   "motion-reduce:transition-none",
                   open || !usingAccount
-                    ? "bg-bg-hover text-text"
-                    : "text-text-dim hover:bg-bg-hover hover:text-text",
+                    ? "bg-accent text-foreground"
+                    : "text-muted-foreground hover:bg-accent hover:text-foreground",
                 )}
               />
             }
@@ -167,7 +172,7 @@ export function DisplayCurrencySelect({
           sideOffset={popoverSide === "right" ? 8 : 6}
           className="w-[200px] p-1.5"
         >
-          <p className="m-0 px-2.5 pt-1.5 pb-2.5 text-[10px] font-semibold uppercase tracking-widest text-signal">
+          <p className="m-0 px-2.5 pt-1.5 pb-2.5 text-[10px] font-semibold uppercase tracking-widest text-chart-3">
             Currency
           </p>
           <div className="flex flex-col gap-0.5">
@@ -184,16 +189,21 @@ export function DisplayCurrencySelect({
                     setOpen(false);
                   }}
                   className={cn(
-                    "relative h-auto w-full justify-start gap-2 rounded-control py-2 pr-2.5 pl-3",
+                    "relative h-auto w-full justify-start gap-2 rounded-md py-2 pr-2.5 pl-3",
                     "text-left text-[12px]",
                     selected
-                      ? "bg-accent-bg font-medium text-accent hover:bg-accent-bg hover:text-accent"
-                      : "text-text",
+                      ? "bg-primary/10 font-medium text-primary hover:bg-primary/10 hover:text-primary"
+                      : "text-foreground",
                   )}
                 >
                   <span className="min-w-0 flex-1 truncate">{opt.label}</span>
                   {selected ? (
-                    <Check size={13} strokeWidth={2} className="shrink-0 text-accent" aria-hidden />
+                    <Check
+                      size={13}
+                      strokeWidth={2}
+                      className="shrink-0 text-primary"
+                      aria-hidden
+                    />
                   ) : null}
                 </Button>
               );
@@ -232,8 +242,8 @@ function PrivacyToggle() {
       title={privacyMode ? "Show amounts" : "Hide amounts"}
       className={cn(
         "pointer-coarse:size-11",
-        "transition-[background-color,color,border-color] duration-200 ease-[var(--ease-out)]",
-        !privacyMode && "bg-transparent text-text-dim hover:bg-bg-hover",
+        "transition-[background-color,color,border-color] duration-200 ease-[cubic-bezier(0.16, 1, 0.3, 1)]",
+        !privacyMode && "bg-transparent text-muted-foreground hover:bg-accent",
       )}
     >
       <Icon size={15} strokeWidth={1.75} aria-hidden />
@@ -250,7 +260,7 @@ function MobileNavTrigger() {
       size="icon"
       onClick={openMobileNav}
       aria-label="Open menu"
-      className="shrink-0 pointer-coarse:size-11 text-text-dim hover:bg-bg-hover hover:text-text md:hidden"
+      className="shrink-0 pointer-coarse:size-11 text-muted-foreground hover:bg-accent hover:text-foreground md:hidden"
     >
       <Menu size={18} strokeWidth={1.75} aria-hidden />
     </Button>
@@ -293,7 +303,7 @@ export function HeaderBar() {
   }, [accountId, hasSelectedAccount, setAccount]);
 
   return (
-    <header className="flex h-auto min-h-[52px] shrink-0 items-center gap-2 bg-bg px-3 pt-[calc(0.5rem+env(safe-area-inset-top))] pb-2 md:h-[52px] md:gap-3 md:px-4 md:pt-0 md:pb-0">
+    <header className="flex h-auto min-h-[52px] shrink-0 items-center gap-2 bg-background px-3 pt-[calc(0.5rem+env(safe-area-inset-top))] pb-2 md:h-[52px] md:gap-3 md:px-4 md:pt-0 md:pb-0">
       {/* Performance strip */}
       <div className="flex min-w-0 flex-1 items-center gap-2 md:gap-3">
         <MobileNavTrigger />
@@ -332,7 +342,7 @@ export function HeaderBar() {
           variant="outline"
           onClick={openCommandPalette}
           aria-keyshortcuts="Meta+K Control+K"
-          className="w-[150px] justify-start bg-transparent px-2.5 text-text hover:bg-bg-hover hover:text-text"
+          className="w-[150px] justify-start bg-transparent px-2.5 text-foreground hover:bg-accent hover:text-foreground"
         >
           <Search size={14} strokeWidth={1.75} aria-hidden data-icon="inline-start" />
           <span className="min-w-0 flex-1 truncate text-left">Search…</span>
@@ -348,7 +358,7 @@ export function HeaderBar() {
           onClick={openCommandPalette}
           aria-label="Search"
           aria-keyshortcuts="Meta+K Control+K"
-          className="pointer-coarse:size-11 text-text-dim hover:bg-bg-hover hover:text-text lg:hidden"
+          className="pointer-coarse:size-11 text-muted-foreground hover:bg-accent hover:text-foreground lg:hidden"
         >
           <Search size={16} strokeWidth={1.75} aria-hidden />
         </Button>

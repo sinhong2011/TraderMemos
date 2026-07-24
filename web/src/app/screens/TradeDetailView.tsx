@@ -127,17 +127,14 @@ function InsightCell({
 }) {
   return (
     <section
-      className={cn(
-        "flex min-w-0 flex-col gap-1.5 rounded-card bg-bg-elevated px-3 py-3",
-        className,
-      )}
+      className={cn("flex min-w-0 flex-col gap-1.5 rounded-lg bg-sidebar px-3 py-3", className)}
     >
-      <p className="m-0 text-[10px] font-semibold uppercase tracking-widest text-text-muted">
+      <p className="m-0 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
         {label}
       </p>
       <div
         className={cn(
-          "text-[15px] font-semibold leading-none tracking-[-0.02em] tabular-nums text-text",
+          "text-[15px] font-semibold leading-none tracking-[-0.02em] tabular-nums text-foreground",
           valueClassName,
         )}
       >
@@ -150,10 +147,7 @@ function InsightCell({
 function BentoCell({ className, children }: { className?: string; children: ReactNode }) {
   return (
     <section
-      className={cn(
-        "flex h-full min-w-0 flex-col rounded-card bg-bg-elevated p-3 sm:p-4",
-        className,
-      )}
+      className={cn("flex h-full min-w-0 flex-col rounded-lg bg-sidebar p-3 sm:p-4", className)}
     >
       {children}
     </section>
@@ -173,7 +167,7 @@ function BentoLabel({
     <p
       className={cn(
         "m-0 text-[10px] font-semibold uppercase tracking-widest",
-        tone === "signal" ? "text-signal" : "text-text-muted",
+        tone === "signal" ? "text-chart-3" : "text-muted-foreground",
         className,
       )}
     >
@@ -186,7 +180,7 @@ function BentoMiniStat({ label, children }: { label: string; children: ReactNode
   return (
     <div className="flex min-w-0 flex-col gap-1">
       <BentoLabel>{label}</BentoLabel>
-      <div className="text-[14px] font-semibold leading-none tracking-[-0.02em] tabular-nums text-text">
+      <div className="text-[14px] font-semibold leading-none tracking-[-0.02em] tabular-nums text-foreground">
         {children}
       </div>
     </div>
@@ -219,9 +213,9 @@ function TradeMetricsBento({
               className={cn(
                 "m-0 text-[26px] font-semibold leading-none tracking-[-0.03em] tabular-nums sm:text-[30px]",
                 net != null && net > 0 && "text-profit",
-                net != null && net < 0 && "text-loss",
+                net != null && net < 0 && "text-destructive",
                 net === 0 && "text-flat",
-                net == null && "text-text-dim",
+                net == null && "text-muted-foreground",
               )}
             >
               {signedOrDash(insights.netPnl, currency)}
@@ -241,9 +235,11 @@ function TradeMetricsBento({
           <div className="grid grid-cols-2 gap-x-4 gap-y-3 pt-2">
             <BentoMiniStat label="Gross">{signedOrDash(insights.grossPnl, currency)}</BentoMiniStat>
             <BentoMiniStat label="Fees">
-              <span className="text-text-muted">{moneyOrDash(insights.feesTotal, currency)}</span>
+              <span className="text-muted-foreground">
+                {moneyOrDash(insights.feesTotal, currency)}
+              </span>
               {insights.feeDragPct != null && (
-                <span className="ml-1 text-[10px] font-medium text-text-dim">
+                <span className="ml-1 text-[10px] font-medium text-muted-foreground">
                   {(insights.feeDragPct * 100).toFixed(1)}%
                 </span>
               )}
@@ -307,7 +303,7 @@ function TradeMetricsBento({
             label="Actual R"
           >
             {insights.rMultiple == null ? (
-              <span className="text-text-dim">—</span>
+              <span className="text-muted-foreground">—</span>
             ) : (
               <span className={pnlColor(insights.rMultiple)}>
                 {insights.rMultiple >= 0 ? "+" : ""}
@@ -348,7 +344,7 @@ function moneyOrDash(v: number | null, currency: string): string {
 }
 
 function signedOrDash(v: number | null, currency: string): ReactNode {
-  if (v == null) return <span className="text-text-dim">—</span>;
+  if (v == null) return <span className="text-muted-foreground">—</span>;
   return <span className={pnlColor(v)}>{fmtSignedMoney(v, currency, intlLocale())}</span>;
 }
 
@@ -392,7 +388,7 @@ function TradeHeader({ trade, insights }: { trade: TradeDetail; insights: TradeI
         <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-4">
           <div className="flex min-w-0 flex-col gap-2">
             <div className="flex flex-wrap items-center gap-2.5">
-              <span className="text-[28px] font-semibold leading-none tracking-[-0.03em] text-text">
+              <span className="text-[28px] font-semibold leading-none tracking-[-0.03em] text-foreground">
                 {trade.symbol}
               </span>
               <Pill tone={outcome.tone} title={outcome.label === "FLAT" ? "Break-even" : undefined}>
@@ -402,17 +398,13 @@ function TradeHeader({ trade, insights }: { trade: TradeDetail; insights: TradeI
                 {market} · {direction}
               </Pill>
             </div>
-            <p className="m-0 text-xs tabular-nums text-text-muted">{timeline}</p>
+            <p className="m-0 text-xs tabular-nums text-muted-foreground">{timeline}</p>
           </div>
 
           <div className="flex flex-col items-end gap-1.5">
             {pnl != null ? (
               <span
-                className={cn(
-                  heroPnlClass(pnl),
-                  pnl > 0 && "hero-glow-profit",
-                  pnl < 0 && "hero-glow-loss",
-                )}
+                className={cn(heroPnlClass(pnl), pnl > 0 && "", pnl < 0 && "")}
                 title="Price P&L (excludes dividends)"
               >
                 {fmtSignedMoney(pnl, currency, intlLocale())}
@@ -437,14 +429,14 @@ function TradeHeader({ trade, insights }: { trade: TradeDetail; insights: TradeI
                 </span>
               ) : (
                 trade.initial_risk == null && (
-                  <span className="text-[11px] text-text-dim" title="No initial risk set">
+                  <span className="text-[11px] text-muted-foreground" title="No initial risk set">
                     No R
                   </span>
                 )
               )}
               {hasDividends && (
                 <span
-                  className="text-sm tabular-nums text-text-muted"
+                  className="text-sm tabular-nums text-muted-foreground"
                   title="Dividends linked to this trade"
                 >
                   Div {fmtSignedMoney(trade.dividend_total!, currency, intlLocale())}
@@ -481,13 +473,13 @@ function TradeHeader({ trade, insights }: { trade: TradeDetail; insights: TradeI
 function coachToneClass(tone: CoachTone): string {
   switch (tone) {
     case "neg":
-      return "text-loss";
+      return "text-destructive";
     case "warn":
-      return "text-signal";
+      return "text-chart-3";
     case "pos":
       return "text-profit";
     default:
-      return "text-accent";
+      return "text-primary";
   }
 }
 
@@ -510,13 +502,15 @@ function TradeCoachNotes({ notes }: { notes: TradeCoachNote[] }) {
   return (
     <ul className="m-0 flex list-none flex-col gap-2 p-0">
       {notes.map((note) => (
-        <li key={note.id} className="rounded-card bg-bg-elevated px-3 py-2.5">
-          <p className="m-0 text-[11px] font-semibold uppercase tracking-widest text-text-muted">
+        <li key={note.id} className="rounded-lg bg-sidebar px-3 py-2.5">
+          <p className="m-0 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
             <span className={coachToneClass(note.tone)}>{coachToneLabel(note.tone)}</span>
-            <span className="text-text-dim"> · </span>
+            <span className="text-muted-foreground"> · </span>
             {note.headline}
           </p>
-          <p className="m-0 mt-1.5 text-[13px] leading-relaxed text-text-muted">{note.detail}</p>
+          <p className="m-0 mt-1.5 text-[13px] leading-relaxed text-muted-foreground">
+            {note.detail}
+          </p>
         </li>
       ))}
     </ul>
@@ -568,26 +562,26 @@ function TradeCoachPanel({ trade, insights }: { trade: TradeDetail; insights: Tr
         : undefined;
 
   return (
-    <section className="flex flex-col rounded-card bg-bg-panel">
+    <section className="flex flex-col rounded-lg bg-card">
       <Collapsible open={open} onOpenChange={setOpen}>
         <CollapsibleTrigger
           className="w-full items-center justify-between gap-4 px-4 py-3"
           aria-label="Coach"
         >
           <div className="flex min-w-0 flex-1 items-center gap-2 overflow-hidden">
-            <h2 className="shrink-0 text-[10px] font-semibold tracking-wide text-signal">Coach</h2>
+            <h2 className="shrink-0 text-[10px] font-semibold tracking-wide text-chart-3">Coach</h2>
             {hasGenerated ? (
               <span
                 className={cn(
-                  "shrink-0 rounded-control px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider",
-                  usingLlm ? "bg-accent-bg text-accent" : "bg-bg-elevated text-text-muted",
+                  "shrink-0 rounded-md px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider",
+                  usingLlm ? "bg-primary/10 text-primary" : "bg-sidebar text-muted-foreground",
                 )}
               >
                 {usingLlm ? "AI" : "Rules"}
               </span>
             ) : null}
             {!open && collapsedSummary ? (
-              <span className="truncate text-[10px] text-text-muted">{collapsedSummary}</span>
+              <span className="truncate text-[10px] text-muted-foreground">{collapsedSummary}</span>
             ) : null}
           </div>
           <CollapsibleChevron />
@@ -596,7 +590,7 @@ function TradeCoachPanel({ trade, insights }: { trade: TradeDetail; insights: Tr
           <div className="flex flex-col gap-4 px-4 pb-4">
             {showAskAi ? (
               <div className="flex items-center justify-between gap-2">
-                <p className="m-0 min-w-0 flex-1 text-[11px] text-text-dim">
+                <p className="m-0 min-w-0 flex-1 text-[11px] text-muted-foreground">
                   {coach.isPending
                     ? "Asking the coach…"
                     : usingLlm
@@ -639,7 +633,7 @@ function TradeCoachPanel({ trade, insights }: { trade: TradeDetail; insights: Tr
             )}
 
             {errorMsg && !usingLlm ? (
-              <p className="m-0 text-[11px] text-text-muted" role="status">
+              <p className="m-0 text-[11px] text-muted-foreground" role="status">
                 {errorMsg}
               </p>
             ) : null}
@@ -652,7 +646,7 @@ function TradeCoachPanel({ trade, insights }: { trade: TradeDetail; insights: Tr
                   <InsightCell label="MFE">{signedOrDash(insights.mfe, currency)}</InsightCell>
                   <InsightCell label="Capture">
                     {insights.mfeCapturePct == null ? (
-                      <span className="text-text-dim">—</span>
+                      <span className="text-muted-foreground">—</span>
                     ) : (
                       <span className={pnlColor(insights.mfeCapturePct)}>
                         {(insights.mfeCapturePct * 100).toFixed(0)}%
@@ -661,12 +655,12 @@ function TradeCoachPanel({ trade, insights }: { trade: TradeDetail; insights: Tr
                   </InsightCell>
                   <InsightCell label="Left on table">
                     {insights.leftOnTable == null ? (
-                      <span className="text-text-dim">—</span>
+                      <span className="text-muted-foreground">—</span>
                     ) : (
                       <span
                         className={cn(
                           insights.leftOnTable > 0
-                            ? "text-text-muted"
+                            ? "text-muted-foreground"
                             : pnlColor(insights.leftOnTable),
                         )}
                       >
@@ -847,7 +841,7 @@ function JournalReadOnlyField({ label, children }: { label: string; children: Re
   return (
     <div>
       <p className={signalLabelClass}>{label}</p>
-      <div className="text-[13px] leading-relaxed text-text">{children}</div>
+      <div className="text-[13px] leading-relaxed text-foreground">{children}</div>
     </div>
   );
 }
@@ -877,7 +871,7 @@ function JournalReadOnlyView({
   const selectedSetups = setups.filter((s) => hydrated.setup_ids.includes(s.id));
   const selectedCustom = customTags.filter((t) => hydrated.tag_ids.includes(t.id));
   const selectedMistake = mistakeTags.filter((t) => hydrated.tag_ids.includes(t.id));
-  const dash = <span className="text-text-dim">—</span>;
+  const dash = <span className="text-muted-foreground">—</span>;
 
   const moneyField = (raw: string) => {
     const n = Number.parseFloat(raw);
@@ -1125,8 +1119,8 @@ export const JournalPanel = forwardRef<JournalPanelHandle, JournalPanelProps>(fu
   return (
     <div className="flex flex-col gap-4">
       {draftRestored && (
-        <div className="flex items-center justify-between gap-3 rounded-control bg-bg-hover px-3 py-2">
-          <span className="text-[11px] text-text-muted">Unsaved draft restored.</span>
+        <div className="flex items-center justify-between gap-3 rounded-md bg-accent px-3 py-2">
+          <span className="text-[11px] text-muted-foreground">Unsaved draft restored.</span>
           <Button
             type="button"
             variant="link"
@@ -1140,11 +1134,11 @@ export const JournalPanel = forwardRef<JournalPanelHandle, JournalPanelProps>(fu
 
       <div>
         <p className={signalLabelClass}>Setups (select multiple)</p>
-        <p className="mb-2 text-[10px] text-text-muted">
+        <p className="mb-2 text-[10px] text-muted-foreground">
           First selected setup becomes the main setup.
         </p>
         {setups.length === 0 ? (
-          <p className="text-[11px] text-text-muted">No setups yet.</p>
+          <p className="text-[11px] text-muted-foreground">No setups yet.</p>
         ) : (
           <div className="flex flex-wrap gap-1.5">
             {setups.map((s) => {
@@ -1455,19 +1449,22 @@ export function TradeDetailView({
                 onClick={() => {
                   void Promise.resolve(onDelete()).finally(() => closeDeleteModal(false));
                 }}
-                className="border-transparent bg-loss/15 hover:bg-loss/25"
+                className="border-transparent bg-destructive/15 hover:bg-destructive/25"
               >
                 {deleting ? "Removing…" : "Remove trade"}
               </Button>
             </>
           }
         >
-          <p className="m-0 text-[13px] leading-relaxed text-text-muted">
+          <p className="m-0 text-[13px] leading-relaxed text-muted-foreground">
             Permanently deletes this trade and all of its fills. This cannot be undone.
           </p>
           <div>
-            <label htmlFor={confirmInputId} className="mb-1.5 block text-[11px] text-text-dim">
-              Type <span className="font-medium text-text">{trade.symbol}</span> to confirm
+            <label
+              htmlFor={confirmInputId}
+              className="mb-1.5 block text-[11px] text-muted-foreground"
+            >
+              Type <span className="font-medium text-foreground">{trade.symbol}</span> to confirm
             </label>
             <SignalInput
               id={confirmInputId}

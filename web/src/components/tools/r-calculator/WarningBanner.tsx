@@ -14,16 +14,16 @@ export function WarningBanner({ warns }: { warns: Warning[] }) {
         <div
           key={w.key}
           className={cn(
-            "rounded-control px-3 py-2 text-[11px] leading-relaxed",
-            w.tone === "danger" && "bg-loss/10 text-loss",
-            w.tone === "caution" && "bg-signal/5 text-signal",
+            "rounded-md px-3 py-2 text-[11px] leading-relaxed",
+            w.tone === "danger" && "bg-destructive/10 text-destructive",
+            w.tone === "caution" && "bg-chart-3/5 text-chart-3",
           )}
         >
           {msg(w.key)}
         </div>
       ))}
       {notes.map((w) => (
-        <p key={w.key} className="m-0 text-[11px] text-text-dim">
+        <p key={w.key} className="m-0 text-[11px] text-muted-foreground">
           {msg(w.key)}
         </p>
       ))}

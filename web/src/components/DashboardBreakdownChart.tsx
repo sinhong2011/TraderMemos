@@ -26,8 +26,8 @@ const DIM_OPTIONS: { value: DashboardBreakdownDim; label: string }[] = [
   { value: "symbol", label: "Symbol" },
 ];
 
-const POS = "var(--color-profit)";
-const NEG = "var(--color-loss)";
+const POS = "var(--profit)";
+const NEG = "var(--loss)";
 
 export interface DashboardBreakdownChartProps {
   dim: DashboardBreakdownDim;
@@ -59,9 +59,9 @@ export function DashboardBreakdownChart({
   }));
 
   return (
-    <section className="flex h-full flex-col rounded-card bg-bg-panel">
+    <section className="flex h-full flex-col rounded-lg bg-card">
       <header className="flex flex-wrap items-start justify-between gap-3 px-4 py-3">
-        <h2 className="text-[10px] font-semibold tracking-wide text-signal">Breakdown</h2>
+        <h2 className="text-[10px] font-semibold tracking-wide text-chart-3">Breakdown</h2>
         <SegmentedControl
           ariaLabel="Breakdown dimension"
           options={DIM_OPTIONS}
@@ -75,9 +75,11 @@ export function DashboardBreakdownChart({
           {loading ? (
             <Skeleton height="180px" className="mx-2" />
           ) : error ? (
-            <p className="px-2 text-xs text-loss">Failed to load breakdown.</p>
+            <p className="px-2 text-xs text-destructive">Failed to load breakdown.</p>
           ) : chartData.length === 0 ? (
-            <p className="px-2 py-8 text-center text-xs text-text-muted">No breakdown data yet.</p>
+            <p className="px-2 py-8 text-center text-xs text-muted-foreground">
+              No breakdown data yet.
+            </p>
           ) : (
             <ChartFrame inset className="rounded-none border-0 bg-transparent">
               <ResponsiveContainer width="100%" height={180}>
@@ -102,7 +104,7 @@ export function DashboardBreakdownChart({
                       border: `1px solid ${chartTheme.tooltipBorder}`,
                       color: chartTheme.tooltipText,
                       fontSize: 11,
-                      borderRadius: "var(--radius-sharp)",
+                      borderRadius: "var(--radius)",
                     }}
                     labelFormatter={(_, payload) => String(payload?.[0]?.payload?.fullKey ?? _)}
                     formatter={(value) => [

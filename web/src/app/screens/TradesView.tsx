@@ -123,7 +123,7 @@ function ToolbarIconButton({
       title={label}
       className={cn(
         "size-8 pointer-coarse:size-11",
-        "border-border !bg-transparent hover:border-border-strong hover:!bg-transparent",
+        "border-border !bg-transparent hover:border-border hover:!bg-transparent",
       )}
     >
       <Icon size={14} strokeWidth={1.75} />
@@ -209,7 +209,7 @@ export function TradesView({
   }
 
   const toolbarControlClass =
-    "border-border !bg-transparent hover:border-border-strong hover:!bg-transparent aria-expanded:border-border-strong aria-expanded:!bg-transparent";
+    "border-border !bg-transparent hover:border-border hover:!bg-transparent aria-expanded:border-border aria-expanded:!bg-transparent";
 
   const symbolAnchor = useComboboxAnchor();
   const selectedSymbols = useMemo(() => {
@@ -258,7 +258,9 @@ export function TradesView({
                   <span className="min-w-0 flex-1 truncate font-medium tracking-wide">
                     {item.label}
                   </span>
-                  <span className="tabular-nums text-[10px] text-text-dim">{item.count}</span>
+                  <span className="tabular-nums text-[10px] text-muted-foreground">
+                    {item.count}
+                  </span>
                 </ComboboxItem>
               )}
             </ComboboxList>
@@ -344,17 +346,13 @@ export function TradesView({
   return (
     <Page fill className="h-full min-h-0 overflow-hidden bg-transparent">
       {headerActions}
-      <Card
-        fill
-        flush
-        className="min-h-0 overflow-hidden border border-border-strong bg-transparent"
-      >
+      <Card fill flush className="min-h-0 overflow-hidden border border-border bg-transparent">
         <div className="flex min-h-0 flex-1 flex-col">
           {loading ? (
             <Skeleton height="360px" className="m-4" />
           ) : error ? (
             <div className="flex flex-wrap items-center gap-3 p-4">
-              <p className="text-xs text-loss">
+              <p className="text-xs text-destructive">
                 Failed to load trades. Check your connection and try again.
               </p>
               {onRetry ? (
@@ -405,7 +403,7 @@ export function TradesView({
                 maxHeight="100%"
                 comfortable
                 lined
-                headerClassName="bg-bg"
+                headerClassName="bg-background"
                 sorting={sorting}
                 onSortingChange={setSorting}
                 enableMultiSort

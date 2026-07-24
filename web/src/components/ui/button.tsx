@@ -5,37 +5,36 @@ import { cn } from "../../lib/cn";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
 
 /**
- * Signal Terminal Button — shadcn Base UI button with product tokens.
+ * Button — shadcn Base UI with theme tokens.
  * Icon sizes auto-wrap a tooltip from `aria-label` / `title` (opt out with `tooltip={false}`).
  * @see https://ui.shadcn.com/docs/components/base/button
- * @see https://ui.shadcn.com/docs/components/base/tooltip
  */
 const buttonVariants = cva(
   [
     "group/button inline-flex shrink-0 cursor-pointer items-center justify-center gap-1.5",
-    "rounded-control border border-transparent bg-clip-padding",
+    "rounded-md border border-transparent bg-clip-padding",
     "text-[12px] font-medium whitespace-nowrap select-none",
-    "transition-[color,background-color,opacity,border-color,box-shadow] duration-150 ease-[var(--ease-out)]",
+    "transition-[color,background-color,opacity,border-color,box-shadow] duration-150 ease-[cubic-bezier(0.16, 1, 0.3, 1)]",
     "outline-none",
-    "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-strong",
+    "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
     "disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
-    "aria-invalid:border-loss aria-invalid:outline-loss/40",
+    "aria-invalid:border-destructive aria-invalid:outline-destructive/40",
     "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   ].join(" "),
   {
     variants: {
       variant: {
-        default: "bg-accent text-bg hover:opacity-90",
+        default: "bg-primary text-primary-foreground hover:bg-primary/90",
         outline:
-          "border-border bg-bg-inset text-text-muted hover:border-border-strong hover:bg-bg-hover hover:text-text aria-expanded:bg-bg-hover aria-expanded:text-text",
+          "border-border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground aria-expanded:bg-accent aria-expanded:text-accent-foreground",
         secondary:
-          "bg-bg-input text-text-muted hover:bg-bg-input-hover hover:text-text aria-expanded:bg-bg-input-hover aria-expanded:text-text",
+          "bg-secondary text-secondary-foreground hover:bg-secondary/80 aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
         ghost:
-          "text-text-muted hover:bg-bg-hover hover:text-text aria-expanded:bg-bg-hover aria-expanded:text-text",
-        soft: "bg-accent-bg text-accent hover:bg-accent-bg/80 hover:text-text",
+          "hover:bg-accent hover:text-accent-foreground aria-expanded:bg-accent aria-expanded:text-accent-foreground",
+        soft: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         destructive:
-          "border-loss/40 bg-transparent text-loss hover:bg-loss/10 focus-visible:outline-loss",
-        link: "h-auto rounded-none px-0 text-accent underline-offset-4 hover:underline",
+          "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:outline-destructive",
+        link: "h-auto rounded-none px-0 text-primary underline-offset-4 hover:underline",
       },
       size: {
         default: "h-8 px-3 has-data-[icon=inline-end]:pr-2.5 has-data-[icon=inline-start]:pl-2.5",

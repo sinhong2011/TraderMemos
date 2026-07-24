@@ -7,8 +7,8 @@ describe("DonutRing", () => {
     render(
       <DonutRing
         segments={[
-          { value: 12, color: "var(--color-profit)" },
-          { value: 8, color: "var(--color-loss)" },
+          { value: 12, color: "var(--profit)" },
+          { value: 8, color: "var(--loss)" },
         ]}
       />,
     );
@@ -19,13 +19,13 @@ describe("DonutRing", () => {
   });
 
   it("renders no segments when the total is zero", () => {
-    render(<DonutRing segments={[{ value: 0, color: "var(--color-profit)" }]} />);
+    render(<DonutRing segments={[{ value: 0, color: "var(--profit)" }]} />);
     expect(screen.queryAllByTestId("donut-seg")).toHaveLength(0);
   });
 
   it("renders centered children in the hole", () => {
     render(
-      <DonutRing segments={[{ value: 1, color: "var(--color-profit)" }]}>
+      <DonutRing segments={[{ value: 1, color: "var(--profit)" }]}>
         <span>60%</span>
       </DonutRing>,
     );

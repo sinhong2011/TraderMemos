@@ -110,7 +110,7 @@ const ABOUT: Record<AppLocale, AboutContent> = {
       },
     ],
     stackTitle: "Built with",
-    stack: ["Go · Echo · SQLite", "React · Vite+ · TanStack", "Tailwind · Signal Terminal UI"],
+    stack: ["Go · Echo · SQLite", "React · Vite+ · TanStack", "Tailwind · shadcn UI"],
     linksTitle: "Resources",
     links: [
       {
@@ -131,7 +131,7 @@ const ABOUT: Record<AppLocale, AboutContent> = {
       {
         label: "Design system",
         href: `${REPO_URL}/blob/main/DESIGN.md`,
-        description: "Signal Terminal — typography, color, and layout rules.",
+        description: "shadcn — typography, color, and layout rules.",
       },
     ],
     philosophyTitle: "Why self-host?",
@@ -217,7 +217,7 @@ const ABOUT: Record<AppLocale, AboutContent> = {
       },
     ],
     stackTitle: "技術棧",
-    stack: ["Go · Echo · SQLite", "React · Vite+ · TanStack", "Tailwind · Signal Terminal UI"],
+    stack: ["Go · Echo · SQLite", "React · Vite+ · TanStack", "Tailwind · shadcn UI"],
     linksTitle: "資源",
     links: [
       {
@@ -238,7 +238,7 @@ const ABOUT: Record<AppLocale, AboutContent> = {
       {
         label: "設計系統",
         href: `${REPO_URL}/blob/main/DESIGN.md`,
-        description: "Signal Terminal——字體、色彩與版面規則。",
+        description: "shadcn——字體、色彩與版面規則。",
       },
     ],
     philosophyTitle: "為何自架？",
@@ -325,7 +325,7 @@ const ABOUT: Record<AppLocale, AboutContent> = {
       },
     ],
     stackTitle: "技術スタック",
-    stack: ["Go · Echo · SQLite", "React · Vite+ · TanStack", "Tailwind · Signal Terminal UI"],
+    stack: ["Go · Echo · SQLite", "React · Vite+ · TanStack", "Tailwind · shadcn UI"],
     linksTitle: "リソース",
     links: [
       {
@@ -346,7 +346,7 @@ const ABOUT: Record<AppLocale, AboutContent> = {
       {
         label: "デザインシステム",
         href: `${REPO_URL}/blob/main/DESIGN.md`,
-        description: "Signal Terminal — タイポ、カラー、レイアウトルール。",
+        description: "shadcn — タイポ、カラー、レイアウトルール。",
       },
     ],
     philosophyTitle: "なぜセルフホスト？",
@@ -432,7 +432,7 @@ const ABOUT: Record<AppLocale, AboutContent> = {
       },
     ],
     stackTitle: "기술 스택",
-    stack: ["Go · Echo · SQLite", "React · Vite+ · TanStack", "Tailwind · Signal Terminal UI"],
+    stack: ["Go · Echo · SQLite", "React · Vite+ · TanStack", "Tailwind · shadcn UI"],
     linksTitle: "리소스",
     links: [
       {
@@ -453,7 +453,7 @@ const ABOUT: Record<AppLocale, AboutContent> = {
       {
         label: "디자인 시스템",
         href: `${REPO_URL}/blob/main/DESIGN.md`,
-        description: "Signal Terminal — 타이포, 색상, 레이아웃 규칙.",
+        description: "shadcn — 타이포, 색상, 레이아웃 규칙.",
       },
     ],
     philosophyTitle: "왜 셀프호스팅?",

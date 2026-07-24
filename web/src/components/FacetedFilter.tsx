@@ -78,12 +78,12 @@ export function FacetedFilter({
                 onChange(undefined);
               }
             }}
-            className="inline-flex text-text-dim transition-opacity hover:text-text"
+            className="inline-flex text-muted-foreground transition-opacity hover:text-foreground"
           >
             <XCircle size={14} strokeWidth={1.75} />
           </span>
         ) : (
-          <PlusCircle size={14} strokeWidth={1.75} className="text-text-dim" aria-hidden />
+          <PlusCircle size={14} strokeWidth={1.75} className="text-muted-foreground" aria-hidden />
         )}
         <span>{title}</span>
         {selected.size > 0 ? (
@@ -91,21 +91,21 @@ export function FacetedFilter({
             <span aria-hidden className="mx-0.5 h-4 w-px shrink-0 bg-border" />
             <span className="hidden items-center gap-1 lg:flex">
               {selected.size > 2 ? (
-                <span className="rounded-control border border-border px-1.5 py-0.5 text-[10px] font-medium tabular-nums text-text-muted">
+                <span className="rounded-md border border-border px-1.5 py-0.5 text-[10px] font-medium tabular-nums text-muted-foreground">
                   {selected.size} selected
                 </span>
               ) : (
                 selectedOptions.map((o) => (
                   <span
                     key={o.value}
-                    className="rounded-control border border-border px-1.5 py-0.5 text-[10px] font-medium text-text-muted"
+                    className="rounded-md border border-border px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground"
                   >
                     {o.label}
                   </span>
                 ))
               )}
             </span>
-            <span className="rounded-control border border-border px-1.5 py-0.5 text-[10px] font-medium tabular-nums text-text-muted lg:hidden">
+            <span className="rounded-md border border-border px-1.5 py-0.5 text-[10px] font-medium tabular-nums text-muted-foreground lg:hidden">
               {selected.size}
             </span>
           </>
@@ -126,21 +126,23 @@ export function FacetedFilter({
                 aria-selected={isSelected}
                 onClick={() => selectOption(option, isSelected)}
                 className={cn(
-                  "flex min-h-8 cursor-pointer items-center gap-2 rounded-control px-2 text-left text-[12px] text-text transition-colors hover:bg-white/[0.06] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-border-strong",
-                  isSelected && "bg-accent-bg text-accent hover:bg-accent-bg",
+                  "flex min-h-8 cursor-pointer items-center gap-2 rounded-md px-2 text-left text-[12px] text-foreground transition-colors hover:bg-white/[0.06] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ring",
+                  isSelected && "bg-primary/10 text-primary hover:bg-primary/10",
                 )}
               >
                 <span
                   className={cn(
-                    "flex size-3.5 shrink-0 items-center justify-center rounded-sharp border border-border-strong",
-                    isSelected && "border-accent bg-accent text-bg",
+                    "flex size-3.5 shrink-0 items-center justify-center rounded-md border border-border",
+                    isSelected && "border-primary bg-primary text-background",
                   )}
                 >
                   {isSelected ? <Check size={10} strokeWidth={2.5} /> : null}
                 </span>
                 <span className="min-w-0 flex-1 truncate">{option.label}</span>
                 {option.count != null ? (
-                  <span className="tabular-nums text-[10px] text-text-dim">{option.count}</span>
+                  <span className="tabular-nums text-[10px] text-muted-foreground">
+                    {option.count}
+                  </span>
                 ) : null}
               </button>
             );
@@ -151,7 +153,7 @@ export function FacetedFilter({
               <button
                 type="button"
                 onClick={() => clear()}
-                className="flex min-h-8 cursor-pointer items-center justify-center rounded-control px-2 text-[12px] font-medium text-text-muted transition-colors hover:bg-white/[0.06] hover:text-text focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-border-strong"
+                className="flex min-h-8 cursor-pointer items-center justify-center rounded-md px-2 text-[12px] font-medium text-muted-foreground transition-colors hover:bg-white/[0.06] hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ring"
               >
                 Clear filters
               </button>

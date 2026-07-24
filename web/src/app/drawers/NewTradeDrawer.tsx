@@ -125,7 +125,8 @@ const MARKETS = [
   { value: "forex", label: "FOREX" },
 ];
 const FILL_COLS = "72px minmax(120px,200px) 72px 80px 88px 72px 88px 1fr 32px";
-const labelClass = "mb-1 block text-[10px] font-semibold uppercase tracking-widest text-text-muted";
+const labelClass =
+  "mb-1 block text-[10px] font-semibold uppercase tracking-widest text-muted-foreground";
 export type Row = ExecutionRow;
 export { rowsFromOcrExtract };
 
@@ -161,8 +162,8 @@ function FillAmountCell({
     <span
       className={cn(
         signalInputClass,
-        "inline-flex cursor-default items-center px-2 text-[12px] tabular-nums tracking-[-0.01em] hover:bg-bg-input",
-        empty ? "justify-center text-text-dim" : "font-medium",
+        "inline-flex cursor-default items-center px-2 text-[12px] tabular-nums tracking-[-0.01em] hover:bg-muted",
+        empty ? "justify-center text-muted-foreground" : "font-medium",
       )}
       aria-label={empty ? emptyLabel : undefined}
       title={empty ? undefined : "Qty × price × multiplier"}
@@ -192,8 +193,8 @@ function FillPnlCell({
   return (
     <span
       className={cn(
-        "inline-flex h-10 w-full items-center justify-center rounded-control px-2.5 text-[12px] tabular-nums tracking-[-0.01em]",
-        empty ? "text-text-dim" : cn("font-medium", pnlColor(value)),
+        "inline-flex h-10 w-full items-center justify-center rounded-md px-2.5 text-[12px] tabular-nums tracking-[-0.01em]",
+        empty ? "text-muted-foreground" : cn("font-medium", pnlColor(value)),
       )}
       aria-label={empty ? emptyLabel : undefined}
     >
@@ -222,9 +223,11 @@ function CollapsibleSection({
   return (
     <Collapsible open={open} onOpenChange={(next) => setOpen(next)} className="gap-3 pt-1">
       <CollapsibleTrigger className="w-full" aria-label={title}>
-        <span className="text-[12px] font-bold uppercase tracking-widest text-text">{title}</span>
+        <span className="text-[12px] font-bold uppercase tracking-widest text-foreground">
+          {title}
+        </span>
         {!open && summary ? (
-          <span className="truncate text-[10px] text-text-muted">{summary}</span>
+          <span className="truncate text-[10px] text-muted-foreground">{summary}</span>
         ) : null}
         <CollapsibleChevron />
       </CollapsibleTrigger>
@@ -378,18 +381,12 @@ function SymbolCard({
     preview.net != null ? fmtSignedMoney(preview.net, currency, locale) : "",
   ]
     .filter(Boolean)
-    .join(" · ");
+    .join(" ·");
   return (
     <Collapsible
       open={open}
       onOpenChange={(next) => setOpen(next)}
-      className="gap-4 rounded-control bg-bg-hover p-4"
-      style={
-        {
-          "--color-bg-input": "var(--color-bg-elevated)",
-          "--color-bg-input-hover": "var(--color-bg-panel)",
-        } as CSSProperties
-      }
+      className="gap-4 rounded-md bg-accent p-4"
       render={<section aria-label={`Symbol trade ${index + 1}`} />}
     >
       <div className="flex items-center gap-2">
@@ -398,16 +395,16 @@ function SymbolCard({
           aria-label={`Toggle symbol ${index + 1}`}
         >
           <span
-            className="flex size-6 shrink-0 items-center justify-center rounded-control bg-accent-bg text-[11px] font-semibold tabular-nums text-accent"
+            className="flex size-6 shrink-0 items-center justify-center rounded-md bg-primary/10 text-[11px] font-semibold tabular-nums text-primary"
             aria-hidden
           >
             {index + 1}
           </span>
           <span className="flex min-w-0 flex-1 flex-col gap-0.5 text-left">
-            <span className="truncate text-[15px] font-semibold leading-none tracking-[-0.02em] text-text">
+            <span className="truncate text-[15px] font-semibold leading-none tracking-[-0.02em] text-foreground">
               {block.symbol || "Untitled"}
             </span>
-            <span className="truncate text-[10px] font-medium uppercase tracking-[0.08em] text-text-dim">
+            <span className="truncate text-[10px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
               {collapsedSummary && !open
                 ? `Symbol ${index + 1} · ${collapsedSummary}`
                 : `Symbol ${index + 1}`}
@@ -422,7 +419,7 @@ function SymbolCard({
             size="icon"
             aria-label={`Remove symbol ${index + 1}`}
             disabled={pending}
-            className="shrink-0 text-loss"
+            className="shrink-0 text-destructive"
             onClick={() => {
               const next = (form.store.state.values.trades as SymbolTradeBlock[]).filter(
                 (_: SymbolTradeBlock, i: number) => i !== index,
@@ -583,7 +580,7 @@ function SymbolCard({
                 />
               </div>
               {optionStrategy && (
-                <p className="col-span-full text-[11px] text-text-muted">
+                <p className="col-span-full text-[11px] text-muted-foreground">
                   {optionStrategy.label} · {optionStrategy.biasLabel}
                 </p>
               )}
@@ -614,7 +611,7 @@ function SymbolCard({
                   {block.symbol ? `Executions · ${block.symbol}` : "Executions"}
                 </span>
                 <div
-                  className="grid gap-2 text-[10px] font-medium uppercase tracking-widest text-text-muted"
+                  className="grid gap-2 text-[10px] font-medium uppercase tracking-widest text-muted-foreground"
                   style={{ gridTemplateColumns: FILL_COLS }}
                 >
                   <span>Action</span>
@@ -646,7 +643,9 @@ function SymbolCard({
                       }
                       className={cn(
                         "font-bold hover:bg-transparent",
-                        row.side === "buy" ? "bg-profit/15 text-profit" : "bg-loss/15 text-loss",
+                        row.side === "buy"
+                          ? "bg-profit/15 text-profit"
+                          : "bg-destructive/15 text-destructive",
                       )}
                     >
                       {row.side.toUpperCase()}
@@ -776,16 +775,16 @@ function SymbolCard({
                   : "",
               ]
                 .filter(Boolean)
-                .join(" · ") || undefined
+                .join(" ·") || undefined
             }
           >
             <div>
               <span className={labelClass}>Setups (select multiple)</span>
-              <p className="mb-2 text-[10px] text-text-muted">
+              <p className="mb-2 text-[10px] text-muted-foreground">
                 First selected setup becomes the main setup.
               </p>
               {setups.length === 0 ? (
-                <p className="text-[11px] text-text-muted">
+                <p className="text-[11px] text-muted-foreground">
                   No setups yet — create some in Playbook.
                 </p>
               ) : (
@@ -871,7 +870,9 @@ function SymbolCard({
             {mistakeTags.length > 0 && (
               <div>
                 <span className={labelClass}>Mistake type</span>
-                <p className="mb-2 text-[10px] text-text-muted">Optional — tap any that apply.</p>
+                <p className="mb-2 text-[10px] text-muted-foreground">
+                  Optional — tap any that apply.
+                </p>
                 <div className="flex flex-wrap gap-1.5">
                   {mistakeTags.map((t) => {
                     const on = block.selectedMistakeIds.includes(t.id);
@@ -973,7 +974,7 @@ function SymbolCard({
               block.dividendAmount.trim() ? `${block.dividendAmount} ${currency}` : undefined
             }
           >
-            <p className="m-0 text-[10px] text-text-muted">
+            <p className="m-0 text-[10px] text-muted-foreground">
               Optional payout on this symbol. Amount rolls into trade P&amp;L (shorts as a debit).
             </p>
             <div className="grid grid-cols-2 gap-3">
@@ -1184,7 +1185,7 @@ export function NewTradeDrawer() {
             error instanceof ExecutionBatchError
               ? error.failures
                   .map((f) => `Row ${f.index + 1} (${f.accountId}): ${f.message}`)
-                  .join("; ")
+                  .join(";")
               : error instanceof Error
                 ? error.message
                 : "Save failed";
@@ -1253,7 +1254,7 @@ export function NewTradeDrawer() {
           error instanceof ExecutionBatchError
             ? error.failures
                 .map((f) => `Row ${f.index + 1} (${f.accountId}): ${f.message}`)
-                .join("; ")
+                .join(";")
             : error instanceof Error
               ? error.message
               : "Save failed";
@@ -1504,7 +1505,7 @@ export function NewTradeDrawer() {
                   className="min-w-[14rem] overflow-hidden p-0 shadow-[0_16px_40px_rgba(18,18,24,0.65)]"
                   triggerClassName={cn(
                     buttonVariants({ variant: "outline", size: "sm" }),
-                    templatesOpen && "border-border-strong bg-bg-hover text-text",
+                    templatesOpen && "border-border bg-accent text-foreground",
                   )}
                   trigger={
                     <>
@@ -1515,7 +1516,7 @@ export function NewTradeDrawer() {
                 >
                   <div className="flex flex-col p-1" role="menu" aria-label="Trade templates">
                     {templates.length === 0 ? (
-                      <p className="m-0 px-2 py-2 text-[11px] text-text-dim">
+                      <p className="m-0 px-2 py-2 text-[11px] text-muted-foreground">
                         No saved templates yet
                       </p>
                     ) : (
@@ -1526,9 +1527,9 @@ export function NewTradeDrawer() {
                           role="menuitem"
                           onClick={() => applyTemplate(t)}
                           className={cn(
-                            "flex min-h-8 cursor-pointer items-center rounded-control px-2 text-left text-[12px] text-text",
+                            "flex min-h-8 cursor-pointer items-center rounded-md px-2 text-left text-[12px] text-foreground",
                             "transition-colors hover:bg-white/[0.06]",
-                            "focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-border-strong",
+                            "focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ring",
                           )}
                         >
                           <span className="min-w-0 flex-1 truncate">{t.name}</span>
@@ -1541,9 +1542,9 @@ export function NewTradeDrawer() {
                       role="menuitem"
                       onClick={saveTemplate}
                       className={cn(
-                        "flex min-h-8 cursor-pointer items-center rounded-control px-2 text-left text-[12px] font-medium text-accent",
-                        "transition-colors hover:bg-accent-bg",
-                        "focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-border-strong",
+                        "flex min-h-8 cursor-pointer items-center rounded-md px-2 text-left text-[12px] font-medium text-primary",
+                        "transition-colors hover:bg-primary/10",
+                        "focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ring",
                       )}
                     >
                       Save first symbol as template…
@@ -1554,9 +1555,9 @@ export function NewTradeDrawer() {
               <DrawerClose
                 aria-label="Close"
                 className={cn(
-                  "inline-flex size-8 cursor-pointer items-center justify-center rounded-control border-none bg-transparent",
-                  "text-text-muted transition-colors hover:bg-bg-hover hover:text-text",
-                  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-strong",
+                  "inline-flex size-8 cursor-pointer items-center justify-center rounded-md border-none bg-transparent",
+                  "text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
+                  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
                 )}
               >
                 <X size={16} strokeWidth={1.5} />
@@ -1572,13 +1573,13 @@ export function NewTradeDrawer() {
                   : "Add one or more symbols — each with fills, journal, and optional dividend. One Save logs every symbol as its own trade."}
             </ModalBanner>
             {isEditMode && !editHydrated && !editSource && editTradeQ.isLoading ? (
-              <p className="mt-6 text-center text-[13px] text-text-muted">Loading trade…</p>
+              <p className="mt-6 text-center text-[13px] text-muted-foreground">Loading trade…</p>
             ) : isEditMode && !editHydrated && !editSource && editTradeQ.isError ? (
-              <p className="mt-6 text-center text-[13px] text-loss">
+              <p className="mt-6 text-center text-[13px] text-destructive">
                 Could not load trade for editing.
               </p>
             ) : isEditMode && !editHydrated ? (
-              <p className="mt-6 text-center text-[13px] text-text-muted">Loading trade…</p>
+              <p className="mt-6 text-center text-[13px] text-muted-foreground">Loading trade…</p>
             ) : (
               <form
                 key={isEditMode ? `edit-${editTradeId}-${editFormKey}` : "new-trade"}
@@ -1616,7 +1617,7 @@ export function NewTradeDrawer() {
                         onClick={onScanClick}
                         className={cn(
                           "font-medium",
-                          !visionReady && "text-text-dim",
+                          !visionReady && "text-muted-foreground",
                           ocrParse.isPending && "opacity-70",
                         )}
                         aria-label="Prefill trade from screenshot"
@@ -1664,7 +1665,7 @@ export function NewTradeDrawer() {
                           .map((account) => (
                             <label
                               key={account.id}
-                              className="flex cursor-pointer items-center gap-2 rounded-control bg-bg-input px-3 py-2 text-[12px] text-text-muted"
+                              className="flex cursor-pointer items-center gap-2 rounded-md bg-muted px-3 py-2 text-[12px] text-muted-foreground"
                             >
                               <input
                                 type="checkbox"
@@ -1733,7 +1734,7 @@ export function NewTradeDrawer() {
                     Add symbol
                   </Button>
                 )}
-                {submitError && <p className="text-xs text-loss">{submitError}</p>}
+                {submitError && <p className="text-xs text-destructive">{submitError}</p>}
               </form>
             )}
           </DrawerBody>

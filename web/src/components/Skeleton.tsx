@@ -9,7 +9,7 @@ interface SkeletonProps {
 export function Skeleton({ className = "", width, height }: SkeletonProps) {
   return (
     <div
-      className={cn("skeleton-shimmer rounded-control", className)}
+      className={cn("skeleton-shimmer rounded-md", className)}
       style={{ width, height }}
       aria-hidden="true"
     />

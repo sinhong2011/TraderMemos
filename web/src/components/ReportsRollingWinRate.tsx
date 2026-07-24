@@ -47,7 +47,7 @@ export function ReportsRollingWinRate({ trades, loading, error }: ReportsRolling
       {loading ? (
         <Skeleton height="200px" />
       ) : error ? (
-        <p className="text-xs text-loss">Failed to load rolling win rate.</p>
+        <p className="text-xs text-destructive">Failed to load rolling win rate.</p>
       ) : points.length === 0 ? (
         <EmptyState
           title="Not enough trades"
@@ -55,7 +55,7 @@ export function ReportsRollingWinRate({ trades, loading, error }: ReportsRolling
         />
       ) : (
         <>
-          <p className="mb-3 text-[43px] font-semibold leading-none tracking-[-0.04em] tabular-nums text-text">
+          <p className="mb-3 text-[43px] font-semibold leading-none tracking-[-0.04em] tabular-nums text-foreground">
             {fmtPct(latest ?? 0, locale)}
           </p>
           <ChartFrame className="border-0 rounded-none">

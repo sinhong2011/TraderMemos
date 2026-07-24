@@ -75,12 +75,12 @@ export function SignalSelect({
           variant={ghost ? "ghost" : "default"}
           className={triggerClassName}
         >
-          <SelectValue placeholder={<span className="text-text-dim">{placeholder}</span>}>
+          <SelectValue placeholder={<span className="text-muted-foreground">{placeholder}</span>}>
             {(current) =>
               labelFor(current, true) ? (
                 labelFor(current, true)
               ) : (
-                <span className="text-text-dim">{placeholder}</span>
+                <span className="text-muted-foreground">{placeholder}</span>
               )
             }
           </SelectValue>

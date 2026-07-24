@@ -6,12 +6,12 @@ alwaysApply: true
 
 # Borderless design
 
-The user prefers **borderless** layouts for TraderMemos.
+The user prefers **borderless** layouts for TraderMemos (on top of shadcn/ui tokens).
 
 ## Do
 
-- Unify page chrome on `bg-bg` (sidebar, header, main content)
-- Separate sections with spacing, type hierarchy, and subtle hover (`bg-bg-hover`)
+- Unify page chrome on `bg-background` (sidebar, header, main content)
+- Separate sections with spacing, type hierarchy, and subtle hover (`bg-accent` / `bg-muted`)
 - Use elevation only for true overlays (modals, popovers, dropdowns)
 - Keep borders on inputs, buttons, and chips where interaction affordance needs them
 
@@ -19,16 +19,16 @@ The user prefers **borderless** layouts for TraderMemos.
 
 - `border-b` / `border-t` on shell header, nav bands, full-bleed panels, settings rows
 - Box borders around every list item or section card
-- Inset divider shadows between nav and main (`shadow-[inset_1px_0_0_…]`) unless explicitly requested
+- Inset divider shadows between nav and main unless explicitly requested
 - Hairline grids on data tables when hover + density is enough
 
 ## Card blocks (page layout)
 
-- Wrap route content in `<Page>` — void background, `gap-4`, padding
-- Each logical section gets a `<Card>` — borderless `bg-bg-panel`, optional title/action
+- Wrap route content in `<Page>` — `bg-background`, `gap-4`, padding
+- Each logical section gets a `<Card>` — borderless `bg-card`, optional title/action
 - Use `flush` on cards that contain tables or full-bleed lists
 - Use `fill` when a card should grow in a column layout
 
 ## When DESIGN.md conflicts
 
-`DESIGN.md` mentions hairline bento gaps and panel borders — treat those as optional structure, not mandatory boxes. Prefer the user's borderless direction unless they ask for explicit dividers.
+Prefer the user's borderless direction unless they ask for explicit dividers. Token names follow shadcn (`background`, `card`, `muted`, `accent`, `primary`).

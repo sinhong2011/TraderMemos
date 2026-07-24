@@ -66,6 +66,6 @@ describe("SegmentedControl", () => {
       />,
     );
     expect(list.querySelector("[class*=bg-loss]")).toBeTruthy();
-    expect(screen.getByRole("tab", { name: "SHORT" }).className).toMatch(/text-loss/);
+    expect(screen.getByRole("tab", { name: "SHORT" }).className).toMatch(/text-destructive/);
   });
 });

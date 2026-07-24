@@ -74,7 +74,7 @@ export function ReportsMetricEvolution({ trades, loading, error }: ReportsMetric
       : (v: number) => money.formatAxis(v);
   const rightLabel = RIGHT_METRICS.find((m) => m.value === rightMetric)?.label ?? "";
   const lastRightValue = points.length > 0 ? points[points.length - 1][rightMetric] : 0;
-  const rightColor = lastRightValue < 0 ? "var(--color-loss)" : "var(--color-profit)";
+  const rightColor = lastRightValue < 0 ? "var(--loss)" : "var(--profit)";
 
   const action = (
     // Side-by-side once there's room (sm+), stacked below that: "Right axis
@@ -107,7 +107,7 @@ export function ReportsMetricEvolution({ trades, loading, error }: ReportsMetric
       {loading ? (
         <Skeleton height="220px" />
       ) : error ? (
-        <p className="text-xs text-loss">Failed to load metric evolution.</p>
+        <p className="text-xs text-destructive">Failed to load metric evolution.</p>
       ) : points.length === 0 ? (
         <EmptyState title="No data" hint="Add trades or adjust filters to see trends over time." />
       ) : (

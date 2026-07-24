@@ -57,7 +57,7 @@ export function AuthModeTabs({
     >
       <span
         aria-hidden
-        className="pointer-events-none absolute bottom-0 h-0.5 rounded-full bg-accent shadow-[0_0_12px_var(--color-accent-glow)] transition-[left,width,opacity] duration-[220ms] ease-out motion-reduce:transition-none"
+        className="pointer-events-none absolute bottom-0 h-0.5 rounded-full bg-primary shadow-[0_0_12px_color-mix(in oklch, var(--primary) 35%, transparent)] transition-[left,width,opacity] duration-[220ms] ease-out motion-reduce:transition-none"
         style={{
           left: indicator.left,
           width: indicator.width,
@@ -81,7 +81,9 @@ export function AuthModeTabs({
             tabIndex={active ? 0 : -1}
             className={cn(
               "relative -mb-px h-auto rounded-none bg-transparent px-0 pb-3 text-[13px] font-medium hover:bg-transparent",
-              active ? "text-text hover:text-text" : "text-text-dim hover:text-text-muted",
+              active
+                ? "text-foreground hover:text-foreground"
+                : "text-muted-foreground hover:text-muted-foreground",
             )}
             onClick={() => onChange(option.value)}
           >

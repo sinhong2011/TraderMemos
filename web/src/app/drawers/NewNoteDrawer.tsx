@@ -191,7 +191,7 @@ export function NewNoteDrawer() {
           </div>
           <DrawerClose
             aria-label="Close"
-            className="ml-auto flex cursor-pointer border-none bg-transparent p-1 text-text-muted transition-colors hover:text-text"
+            className="ml-auto flex cursor-pointer border-none bg-transparent p-1 text-muted-foreground transition-colors hover:text-foreground"
           >
             <X size={18} strokeWidth={1.5} />
           </DrawerClose>
@@ -255,17 +255,17 @@ export function NewNoteDrawer() {
             {isDailyLog && !isEdit && checklist.length > 0 && (
               <div>
                 <span className={signalLabelClass}>Daily checklist</span>
-                <div className="flex flex-col gap-1.5 rounded-control bg-bg-inset px-3 py-2">
+                <div className="flex flex-col gap-1.5 rounded-md bg-muted px-3 py-2">
                   {checklist.map((item) => (
                     <label
                       key={item}
-                      className="flex cursor-pointer items-center gap-2 text-[13px] text-text"
+                      className="flex cursor-pointer items-center gap-2 text-[13px] text-foreground"
                     >
                       <input
                         type="checkbox"
                         checked={Boolean(checked[item])}
                         onChange={() => setChecked((c) => ({ ...c, [item]: !c[item] }))}
-                        style={{ accentColor: "var(--color-accent)" }}
+                        style={{ accentColor: "var(--primary)" }}
                       />
                       {item}
                     </label>
@@ -328,7 +328,7 @@ export function NewNoteDrawer() {
                   </Button>
                 </div>
                 {symbolCards.length === 0 ? (
-                  <p className="text-[12px] text-text-dim">
+                  <p className="text-[12px] text-muted-foreground">
                     Link tickers you focused on today — each card keeps its own notes.
                   </p>
                 ) : (
@@ -381,7 +381,7 @@ function NoteSymbolCard({
 }) {
   const inputId = useId();
   return (
-    <div className="flex flex-col gap-3 rounded-control bg-bg-hover p-3">
+    <div className="flex flex-col gap-3 rounded-md bg-accent p-3">
       <div className="flex items-center gap-2">
         <SignalInput
           id={inputId}
@@ -391,14 +391,14 @@ function NoteSymbolCard({
           }
           placeholder="Ticker"
           aria-label="Symbol"
-          className="h-9 max-w-[9rem] font-semibold tracking-wide text-accent"
+          className="h-9 max-w-[9rem] font-semibold tracking-wide text-primary"
         />
         <Button
           type="button"
           variant="ghost"
           size="icon-xs"
           aria-label={`Remove ${card.symbol || "symbol"} card`}
-          className="ml-auto text-text-dim hover:text-loss"
+          className="ml-auto text-muted-foreground hover:text-destructive"
           onClick={onRemove}
         >
           <Trash2 size={13} strokeWidth={1.5} />
@@ -411,7 +411,7 @@ function NoteSymbolCard({
         placeholder={`What happened with ${card.symbol || "this symbol"}?`}
         minHeight={120}
         showHints={false}
-        className="bg-bg-elevated hover:bg-bg-panel"
+        className="bg-sidebar hover:bg-card"
       />
     </div>
   );

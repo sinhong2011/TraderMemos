@@ -11,12 +11,12 @@ type SegmentTone = "pos" | "neg";
 
 const INDICATOR_TONE: Record<SegmentTone, string> = {
   pos: "bg-profit/20",
-  neg: "bg-loss/20",
+  neg: "bg-destructive/20",
 };
 
 const TRIGGER_TONE: Record<SegmentTone, string> = {
   pos: "data-active:text-profit",
-  neg: "data-active:text-loss",
+  neg: "data-active:text-destructive",
 };
 
 /**
@@ -61,14 +61,14 @@ export function SegmentedControl({
         fullWidth={fullWidth}
         className={cn(
           tiny ? "h-8" : "h-10",
-          "rounded-control border border-border bg-bg-input p-1",
+          "rounded-md border border-border bg-muted p-1",
           className,
         )}
       >
         <TabsIndicator
           className={cn(
-            "rounded-control transition-[left,top,width,height,background-color] duration-250 ease-[var(--ease-out)]",
-            activeTone ? INDICATOR_TONE[activeTone] : "bg-bg-input-hover",
+            "rounded-md transition-[left,top,width,height,background-color] duration-250 ease-[cubic-bezier(0.16, 1, 0.3, 1)]",
+            activeTone ? INDICATOR_TONE[activeTone] : "bg-accent",
           )}
         />
         {options.map((o) => {
@@ -79,8 +79,8 @@ export function SegmentedControl({
               value={o.value}
               fullWidth={fullWidth}
               className={cn(
-                "h-full font-medium text-text-dim hover:text-text-muted",
-                tone ? TRIGGER_TONE[tone] : "data-active:text-text",
+                "h-full font-medium text-muted-foreground hover:text-muted-foreground",
+                tone ? TRIGGER_TONE[tone] : "data-active:text-foreground",
                 tall ? "px-3.5 text-[13px]" : tiny ? "px-2 text-[11px]" : "px-3 text-[12px]",
               )}
             >

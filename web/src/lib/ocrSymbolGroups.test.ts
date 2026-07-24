@@ -142,7 +142,7 @@ describe("ocrSymbolGroups", () => {
     expect(
       ocrScanToastDescription({
         ...multi,
-        warnings: ["vision returned no usable fills — try a clearer screenshot or CSV import"],
+        warnings: ["vision returned no usable fills — try a clearer screenshot or CSV import "],
       }),
     ).toMatch(/no usable fills/);
     expect(ocrScanToastDescription({ ...multi, warnings: [] })).toMatch(/2 symbols ready/);

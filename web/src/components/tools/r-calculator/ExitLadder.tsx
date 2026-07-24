@@ -32,16 +32,16 @@ export function ExitLadder() {
   const trailerShares = store.exitResult.trailerShares;
 
   return (
-    <div className="flex flex-col gap-3 rounded-card bg-bg-panel p-4">
+    <div className="flex flex-col gap-3 rounded-lg bg-card p-4">
       <header className="flex items-center gap-2">
         <span className="h-4 w-0.5 rounded-full bg-profit" />
-        <h3 className="text-[10px] font-semibold uppercase tracking-widest text-text-muted">
+        <h3 className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
           Exit ladder
         </h3>
       </header>
 
       <div className="flex flex-col gap-1.5">
-        <span className="text-[10px] font-medium uppercase tracking-widest text-text-muted">
+        <span className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
           Presets
         </span>
         <div className="grid grid-cols-2 gap-2">
@@ -56,10 +56,10 @@ export function ExitLadder() {
                 aria-pressed={isActive}
                 onClick={() => store.applyExitPreset(preset.plan)}
                 className={cn(
-                  "h-auto flex-col items-start rounded-card px-3 py-2.5 text-left",
+                  "h-auto flex-col items-start rounded-lg px-3 py-2.5 text-left",
                   isActive
                     ? "bg-profit/10 text-profit hover:bg-profit/10 hover:text-profit"
-                    : "bg-bg-hover text-text-muted",
+                    : "bg-accent text-muted-foreground",
                 )}
               >
                 <span className="text-xs font-semibold">{meta.label}</span>
@@ -78,7 +78,7 @@ export function ExitLadder() {
           </div>
           <div className="min-w-0 flex-1 pb-3">
             <div className="mb-1 flex items-center justify-between">
-              <span className="text-[10px] font-medium uppercase tracking-widest text-text-muted">
+              <span className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
                 Target {i + 1}
               </span>
               <Button
@@ -87,7 +87,7 @@ export function ExitLadder() {
                 size="xs"
                 aria-label="Remove tier"
                 onClick={() => store.removeTier(i)}
-                className="h-auto px-0 text-[10px] text-text-dim opacity-0 hover:bg-transparent hover:text-loss group-hover:opacity-100"
+                className="h-auto px-0 text-[10px] text-muted-foreground opacity-0 hover:bg-transparent hover:text-destructive group-hover:opacity-100"
               >
                 Remove
               </Button>
@@ -120,17 +120,17 @@ export function ExitLadder() {
         type="button"
         variant="outline"
         onClick={() => store.addTier()}
-        className="h-auto border-dashed py-2 text-xs text-text-dim hover:border-accent/40 hover:text-accent"
+        className="h-auto border-dashed py-2 text-xs text-muted-foreground hover:border-primary/40 hover:text-primary"
       >
         + Add tier
       </Button>
 
       <div className="pt-2">
         <div className="mb-2 flex items-center justify-between">
-          <span className="text-[10px] font-medium uppercase tracking-widest text-text-muted">
+          <span className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
             Trailing stop
           </span>
-          <span className="text-[10px] tabular-nums text-text-dim">
+          <span className="text-[10px] tabular-nums text-muted-foreground">
             {trailerShares} {unit} trail after tiers
           </span>
         </div>

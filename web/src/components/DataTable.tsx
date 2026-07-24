@@ -36,7 +36,7 @@ interface DataTableProps<T> {
   lined?: boolean;
   /**
    * Opaque surface for sticky header + pinned columns (must match the table chrome).
-   * Defaults to `bg-bg-panel`; pass `bg-bg` on void surfaces (e.g. Trades).
+   * Defaults to `bg-card`; pass `bg-background` on void surfaces (e.g. Trades).
    */
   headerClassName?: string;
   /** Controlled sorting (tablecn Sort button / header menu stay in sync) */
@@ -101,9 +101,9 @@ function pinningStyle<T>(
     zIndex: kind === "header" ? 3 : 1,
     // Hairline edge only — heavy drop shadows smear over P&L under the pin.
     boxShadow: isLastLeft
-      ? "1px 0 0 0 var(--color-border)"
+      ? "1px 0 0 0 var(--border)"
       : isFirstRight
-        ? "-1px 0 0 0 var(--color-border)"
+        ? "-1px 0 0 0 var(--border)"
         : undefined,
   };
 }
@@ -118,7 +118,7 @@ function pinningCellClass<T>(
   return cn(
     // Opaque so scrolled cells never show through the pin — same token as thead.
     surfaceClassName,
-    kind === "body" && "group-hover:bg-bg-hover",
+    kind === "body" && "group-hover:bg-accent",
   );
 }
 
@@ -214,7 +214,7 @@ export function DataTable<T>({
     };
   }, [data, columns, columnVisibility, comfortable, dense, visibleColCount, hasPinIntent]);
 
-  const headerSurface = headerClassName ?? "bg-bg-panel";
+  const headerSurface = headerClassName ?? "bg-card";
 
   return (
     <div
@@ -254,7 +254,7 @@ export function DataTable<T>({
                       ...pinningStyle(header.column, "header", pinActive),
                     }}
                     className={cn(
-                      "select-none px-3 text-text-muted",
+                      "select-none px-3 text-muted-foreground",
                       metrics.headerText,
                       metrics.headerPy,
                       lined && "border-b border-border",
@@ -290,7 +290,7 @@ export function DataTable<T>({
                 key={row.id}
                 className={cn(
                   "group transition-colors duration-150",
-                  onRowClick && "cursor-pointer hover:bg-bg-hover",
+                  onRowClick && "cursor-pointer hover:bg-accent",
                 )}
                 onClick={() => onRowClick?.(row.original)}
               >
@@ -305,7 +305,7 @@ export function DataTable<T>({
                         ...pinningStyle(cell.column, "body", pinActive),
                       }}
                       className={cn(
-                        "px-3 text-text whitespace-nowrap transition-colors duration-150",
+                        "px-3 text-foreground whitespace-nowrap transition-colors duration-150",
                         metrics.cellPy,
                         lined && "border-b border-border",
                         align,

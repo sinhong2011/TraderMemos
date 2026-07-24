@@ -2,7 +2,7 @@ import { Tooltip as TooltipPrimitive } from "@base-ui/react/tooltip";
 import { cn } from "../../lib/cn";
 
 /**
- * Signal Terminal Tooltip — shadcn Base UI tooltip with product tokens.
+ * shadcn Tooltip — shadcn Base UI tooltip with theme tokens.
  * @see https://ui.shadcn.com/docs/components/base/tooltip
  */
 
@@ -41,8 +41,8 @@ function TooltipContent({
           data-slot="tooltip-content"
           className={cn(
             "z-[400] inline-flex w-fit max-w-xs origin-[var(--transform-origin)] items-center",
-            "rounded-control border border-border bg-bg-panel px-2 py-1",
-            "text-[11px] tracking-wide text-text-muted",
+            "rounded-md border border-border bg-card px-2 py-1",
+            "text-[11px] tracking-wide text-muted-foreground",
             "shadow-[0_8px_20px_rgba(18,18,24,0.45)] outline-none",
             "transition-[transform,opacity] duration-150 ease-out",
             "data-[starting-style]:scale-95 data-[starting-style]:opacity-0",

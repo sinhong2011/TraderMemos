@@ -153,8 +153,8 @@ export interface ReportsViewProps {
 // Constants
 // ---------------------------------------------------------------------------
 
-const POS_COLOR = "var(--color-profit)";
-const NEG_COLOR = "var(--color-loss)";
+const POS_COLOR = "var(--profit)";
+const NEG_COLOR = "var(--loss)";
 
 // ---------------------------------------------------------------------------
 // Summary metrics — equity, day strip, insight widgets, bento grid
@@ -163,7 +163,7 @@ const NEG_COLOR = "var(--color-loss)";
 function BentoCell({ className, children }: { className?: string; children: ReactNode }) {
   return (
     <section
-      className={cn("flex h-full min-w-0 flex-col rounded-card bg-bg-panel p-4 sm:p-5", className)}
+      className={cn("flex h-full min-w-0 flex-col rounded-lg bg-card p-4 sm:p-5", className)}
     >
       {children}
     </section>
@@ -183,7 +183,9 @@ function BentoTitle({
     <p
       className={cn(
         "self-start text-left text-[11px] font-semibold tracking-[0.06em] uppercase sm:text-[12px]",
-        tone === "signal" ? "text-signal" : "font-medium normal-case tracking-wide text-text-muted",
+        tone === "signal"
+          ? "text-chart-3"
+          : "font-medium normal-case tracking-wide text-muted-foreground",
         className,
       )}
     >
@@ -268,7 +270,7 @@ function SummaryMetricsGrid({
                         border: `1px solid ${chartTheme.tooltipBorder}`,
                         color: chartTheme.tooltipText,
                         fontSize: 11,
-                        borderRadius: "var(--radius-sharp)",
+                        borderRadius: "var(--radius)",
                       }}
                       labelFormatter={(label) => String(label ?? "").slice(0, 10)}
                       formatter={(value) => [
@@ -290,7 +292,9 @@ function SummaryMetricsGrid({
                 </ResponsiveContainer>
               </ChartFrame>
             ) : (
-              <p className="py-8 text-center text-[12px] text-text-muted">No equity data yet.</p>
+              <p className="py-8 text-center text-[12px] text-muted-foreground">
+                No equity data yet.
+              </p>
             )}
           </div>
         </BentoCell>
@@ -325,7 +329,7 @@ export function buildColumns(dimLabel: string): ColumnDef<BreakGroup>[] {
       accessorKey: "key",
       header: dimLabel,
       cell: (info) => (
-        <span style={{ color: "var(--color-text)", fontWeight: 600 }}>
+        <span style={{ color: "var(--foreground)", fontWeight: 600 }}>
           {info.getValue<string>()}
         </span>
       ),
@@ -335,7 +339,7 @@ export function buildColumns(dimLabel: string): ColumnDef<BreakGroup>[] {
       accessorFn: (row) => row.summary.total_trades,
       header: "Trades",
       cell: (info) => (
-        <span className="tabular-nums" style={{ color: "var(--color-text-muted)" }}>
+        <span className="tabular-nums" style={{ color: "var(--muted-foreground)" }}>
           {info.getValue<number>()}
         </span>
       ),
@@ -345,7 +349,7 @@ export function buildColumns(dimLabel: string): ColumnDef<BreakGroup>[] {
       accessorFn: (row) => row.summary.win_rate,
       header: "Win Rate",
       cell: (info) => (
-        <span className="tabular-nums" style={{ color: "var(--color-text)" }}>
+        <span className="tabular-nums" style={{ color: "var(--foreground)" }}>
           {fmtPct(info.getValue<number>(), intlLocale())}
         </span>
       ),
@@ -363,7 +367,7 @@ export function buildColumns(dimLabel: string): ColumnDef<BreakGroup>[] {
       cell: (info) => {
         const v = info.getValue<number>();
         return (
-          <span className="tabular-nums" style={{ color: "var(--color-text)" }}>
+          <span className="tabular-nums" style={{ color: "var(--foreground)" }}>
             {v > 0 ? v.toFixed(2) : "-"}
           </span>
         );
@@ -571,7 +575,7 @@ export function ReportsView({
     }
 
     if (error) {
-      return <p className="p-4 text-xs text-loss">Failed to load breakdown data.</p>;
+      return <p className="p-4 text-xs text-destructive">Failed to load breakdown data.</p>;
     }
 
     if (breakdown.length === 0) {
@@ -602,15 +606,15 @@ export function ReportsView({
           <TabsList
             aria-label="Report sections"
             fullWidth
-            className="h-10 rounded-control border border-border bg-bg-input p-1"
+            className="h-10 rounded-md border border-border bg-muted p-1"
           >
-            <TabsIndicator className="rounded-control bg-bg-input-hover" />
+            <TabsIndicator className="rounded-md bg-accent" />
             {REPORT_TABS.map((t) => (
               <TabsTrigger
                 key={t.value}
                 value={t.value}
                 fullWidth
-                className="h-full px-3 text-[12px] font-medium text-text-dim hover:text-text-muted data-active:text-text"
+                className="h-full px-3 text-[12px] font-medium text-muted-foreground hover:text-muted-foreground data-active:text-foreground"
               >
                 {t.label}
               </TabsTrigger>
@@ -633,7 +637,7 @@ export function ReportsView({
             {summaryLoading ? (
               <Skeleton height="120px" />
             ) : summaryError ? (
-              <p className="p-4 text-xs text-loss">Failed to load summary.</p>
+              <p className="p-4 text-xs text-destructive">Failed to load summary.</p>
             ) : summary ? (
               <SummaryMetricsGrid
                 summary={summary}

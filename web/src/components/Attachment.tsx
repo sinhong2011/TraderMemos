@@ -10,7 +10,7 @@ const attachmentSizeClass: Record<AttachmentSize, string> = {
   default:
     "gap-2 text-sm has-data-[slot=attachment-content]:px-2.5 has-data-[slot=attachment-content]:py-2 has-data-[slot=attachment-media]:p-2",
   sm: "gap-2.5 text-xs has-data-[slot=attachment-content]:px-2 has-data-[slot=attachment-content]:py-1.5 has-data-[slot=attachment-media]:p-1.5",
-  xs: "gap-1.5 rounded-control text-xs has-data-[slot=attachment-content]:px-1.5 has-data-[slot=attachment-content]:py-1 has-data-[slot=attachment-media]:p-1",
+  xs: "gap-1.5 rounded-md text-xs has-data-[slot=attachment-content]:px-1.5 has-data-[slot=attachment-content]:py-1 has-data-[slot=attachment-media]:p-1",
 };
 
 const attachmentOrientationClass: Record<AttachmentOrientation, string> = {
@@ -36,9 +36,9 @@ function Attachment({
       data-size={size}
       data-orientation={orientation}
       className={cn(
-        "group/attachment relative flex w-fit max-w-full min-w-0 shrink-0 flex-wrap rounded-card border border-border bg-bg-panel text-text transition-colors",
-        "focus-within:outline-2 focus-within:outline-offset-[-2px] focus-within:outline-border-strong",
-        "has-[>a,>button]:hover:bg-bg-hover data-[state=error]:border-loss/30 data-[state=idle]:border-dashed",
+        "group/attachment relative flex w-fit max-w-full min-w-0 shrink-0 flex-wrap rounded-lg border border-border bg-card text-foreground transition-colors",
+        "focus-within:outline-2 focus-within:outline-offset-[-2px] focus-within:outline-ring",
+        "has-[>a,>button]:hover:bg-accent data-[state=error]:border-destructive/30 data-[state=idle]:border-dashed",
         attachmentSizeClass[size],
         attachmentOrientationClass[orientation],
         className,
@@ -60,9 +60,9 @@ function AttachmentMedia({
       data-slot="attachment-media"
       data-variant={variant}
       className={cn(
-        "relative flex aspect-square w-10 shrink-0 items-center justify-center overflow-hidden rounded-control bg-bg-hover text-text",
+        "relative flex aspect-square w-10 shrink-0 items-center justify-center overflow-hidden rounded-md bg-accent text-foreground",
         "group-data-[orientation=vertical]/attachment:w-full group-data-[size=sm]/attachment:w-8 group-data-[size=xs]/attachment:w-7",
-        "group-data-[size=xs]/attachment:rounded-control group-data-[state=error]/attachment:bg-loss/10 group-data-[state=error]/attachment:text-loss",
+        "group-data-[size=xs]/attachment:rounded-md group-data-[state=error]/attachment:bg-destructive/10 group-data-[state=error]/attachment:text-destructive",
         "[&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4",
         "group-data-[orientation=vertical]/attachment:[&_svg:not([class*='size-'])]:size-6",
         "group-data-[size=xs]/attachment:[&_svg:not([class*='size-'])]:size-3.5",
@@ -107,7 +107,7 @@ function AttachmentDescription({ className, ...props }: ComponentProps<"span">) 
     <span
       data-slot="attachment-description"
       className={cn(
-        "mt-0.5 block min-w-full truncate text-xs text-text-muted group-data-[state=error]/attachment:text-loss/80",
+        "mt-0.5 block min-w-full truncate text-xs text-muted-foreground group-data-[state=error]/attachment:text-destructive/80",
         className,
       )}
       {...props}
