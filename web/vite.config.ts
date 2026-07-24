@@ -31,6 +31,11 @@ export default defineConfig({
     __APP_VERSION__: JSON.stringify(appVersion),
     __APP_BUILD__: JSON.stringify(appBuild),
   },
+  resolve: {
+    alias: {
+      "@": resolve(dirname(fileURLToPath(import.meta.url)), "./src"),
+    },
+  },
   fmt: {
     // TanStack Router regenerates this with its own quote/semi style on every
     // `vp dev`; formatting it in pre-commit causes a permanent dirty loop.
