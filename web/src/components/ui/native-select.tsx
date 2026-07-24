@@ -36,8 +36,10 @@ function NativeSelect({
           "outline-none transition-[background-color,color] duration-150",
           "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-strong",
           "disabled:pointer-events-none disabled:cursor-not-allowed",
-          size === "default" && "h-10 py-0 pr-8 pl-3 text-[13px]",
-          size === "sm" && "h-7 py-0 pr-6 pl-2.5 text-[12px]",
+          // ≥16px on coarse pointers so iOS Safari doesn't zoom the page on focus
+          size === "default" && "h-10 py-0 pr-8 pl-3 text-[13px] pointer-coarse:text-base",
+          size === "sm" &&
+            "h-7 py-0 pr-6 pl-2.5 text-[12px] pointer-coarse:h-9 pointer-coarse:text-base",
           variant === "default" && "bg-bg-input hover:bg-bg-input-hover",
           variant === "ghost" && "bg-transparent hover:bg-bg-hover",
           className,

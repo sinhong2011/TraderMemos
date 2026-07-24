@@ -13,4 +13,12 @@ describe("dateRangePresets", () => {
     const range = computePresetRange("30d", now);
     expect(presetFromRange(range.from, range.to, now)).toBe("30d");
   });
+
+  it("round-trips the ytd preset", () => {
+    const now = new Date("2026-07-24T10:00:00+08:00");
+    const range = computePresetRange("ytd", now);
+    expect(range.from?.slice(0, 10)).toBe("2026-01-01");
+    expect(range.to?.slice(0, 10)).toBe("2026-07-24");
+    expect(presetFromRange(range.from, range.to, now)).toBe("ytd");
+  });
 });

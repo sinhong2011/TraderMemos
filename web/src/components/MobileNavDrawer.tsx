@@ -205,7 +205,7 @@ export function MobileNavDrawer() {
             <X size={18} strokeWidth={1.5} />
           </DrawerClose>
         </DrawerHeader>
-        <div className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto p-3">
+        <div className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
           <FiltersSection />
 
           <div className="my-2 h-px bg-border" aria-hidden />

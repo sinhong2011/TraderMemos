@@ -1,13 +1,14 @@
 import { normalizeFilterDate } from "./filters";
 import { intlLocale } from "./locale";
 
-export type DateRangePreset = "7d" | "30d" | "90d" | "month" | "all" | "custom";
+export type DateRangePreset = "7d" | "30d" | "90d" | "mtd" | "ytd" | "all" | "custom";
 
 export const PRESET_LABELS: Record<DateRangePreset, string> = {
   "7d": "Last 7 days",
   "30d": "Last 30 days",
   "90d": "Last 90 days",
-  month: "This month",
+  mtd: "MTD",
+  ytd: "YTD",
   all: "All time",
   custom: "Custom range",
 };
@@ -60,8 +61,12 @@ export function computePresetRange(
     from.setDate(from.getDate() - 89);
     return toRangeBounds(localDateString(from), today);
   }
-  if (key === "month") {
+  if (key === "mtd") {
     const from = new Date(now.getFullYear(), now.getMonth(), 1);
+    return toRangeBounds(localDateString(from), today);
+  }
+  if (key === "ytd") {
+    const from = new Date(now.getFullYear(), 0, 1);
     return toRangeBounds(localDateString(from), today);
   }
   return { from: undefined, to: undefined };
@@ -81,7 +86,10 @@ export function presetFromRange(from?: string, to?: string, now = new Date()): D
   if (diffDays === 89) return "90d";
 
   const monthStart = localDateString(new Date(now.getFullYear(), now.getMonth(), 1));
-  if (fromDay === monthStart) return "month";
+  if (fromDay === monthStart) return "mtd";
+
+  const yearStart = localDateString(new Date(now.getFullYear(), 0, 1));
+  if (fromDay === yearStart) return "ytd";
 
   return "custom";
 }

@@ -22,15 +22,20 @@ function QuickJump({
       variant="ghost"
       onClick={onClick}
       className={cn(
-        "relative h-auto w-full justify-start rounded-control py-2 pr-2 pl-2.5 text-left text-[11px]",
+        "relative h-auto justify-start rounded-control text-left text-[11px]",
         "focus-visible:ring-2 focus-visible:ring-border-strong focus-visible:outline-none",
+        "max-sm:shrink-0 max-sm:px-2.5 max-sm:py-2 sm:w-full sm:py-2 sm:pr-2 sm:pl-2.5",
         active ? "bg-bg-hover text-text" : "text-text-muted",
       )}
     >
       {active && (
         <span
           aria-hidden
-          className="absolute top-1/2 left-0 h-4 w-0.5 -translate-y-1/2 rounded-full bg-accent"
+          className={cn(
+            "absolute rounded-full bg-accent",
+            "max-sm:inset-x-2 max-sm:bottom-0 max-sm:h-0.5",
+            "sm:top-1/2 sm:left-0 sm:h-4 sm:w-0.5 sm:-translate-y-1/2",
+          )}
         />
       )}
       {children}
@@ -144,12 +149,25 @@ export function MonthPicker({
           </>
         }
       >
-        <div className="flex w-[320px] max-w-[calc(100vw-2rem)]" aria-label="Choose month">
-          <aside className="flex w-[116px] shrink-0 flex-col bg-bg">
+        <div
+          className={cn(
+            "flex max-h-[min(100dvh-2rem,100%)] w-[min(100vw-2rem,320px)] flex-col overflow-y-auto overscroll-contain",
+            "pb-[env(safe-area-inset-bottom)] sm:w-[320px] sm:flex-row sm:pb-0",
+          )}
+          aria-label="Choose month"
+        >
+          <aside className="flex shrink-0 flex-col bg-bg sm:w-[116px]">
             <p className="m-0 px-3 pt-3 pb-2 text-[11px] font-medium uppercase tracking-widest text-text-muted">
               Quick jump
             </p>
-            <div className="flex flex-col gap-0.5 px-2 pb-3">
+            <div
+              className={cn(
+                "flex gap-1 px-2 pb-3",
+                "max-sm:flex-row max-sm:overflow-x-auto max-sm:overscroll-x-contain max-sm:pb-2",
+                "[scrollbar-width:none] max-sm:[&::-webkit-scrollbar]:hidden",
+                "sm:flex-col sm:gap-0.5",
+              )}
+            >
               <QuickJump
                 active={isThisMonth}
                 onClick={() => {
@@ -165,7 +183,7 @@ export function MonthPicker({
             </div>
           </aside>
 
-          <div className="flex min-w-0 flex-1 flex-col bg-bg-panel px-3 pt-3 pb-3">
+          <div className="flex min-w-0 flex-1 flex-col bg-bg-panel px-3 pt-3 pb-3 max-sm:pt-1">
             <div className="mb-2 flex items-center justify-between">
               <Button
                 type="button"

@@ -149,7 +149,10 @@ function DrawerHeader({ className, ...props }: ComponentProps<"div">) {
   return (
     <div
       data-slot="drawer-header"
-      className={cn("flex shrink-0 items-center justify-between gap-3 px-5 pt-4 pb-3", className)}
+      className={cn(
+        "flex shrink-0 items-center justify-between gap-3 px-5 pt-[max(1rem,env(safe-area-inset-top))] pb-3",
+        className,
+      )}
       {...props}
     />
   );
@@ -171,7 +174,7 @@ function DrawerFooter({ className, ...props }: ComponentProps<"div">) {
     <div
       data-slot="drawer-footer"
       className={cn(
-        "mt-auto flex shrink-0 items-center justify-end gap-2 bg-bg-panel px-5 pt-1 pb-4",
+        "mt-auto flex shrink-0 items-center justify-end gap-2 bg-bg-panel px-5 pt-1 pb-[max(1rem,env(safe-area-inset-bottom))]",
         className,
       )}
       {...props}

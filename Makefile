@@ -27,8 +27,8 @@ dev: ## Run API (air :8080) + web (Vite+ :5173) together
 dev-api: ## Run the Go API with air hot reload (:8080)
 	cd api && air
 
-dev-web: ## Run the Vite+ dev server (:5173)
-	cd web && pnpm run dev
+dev-web: ## Run the Vite+ dev server (:5173) on all interfaces (--host)
+	cd web && pnpm run dev -- --host
 
 kill: ## Free API/web ports (air + listeners on 8080/5173)
 	@./scripts/release-ports.sh

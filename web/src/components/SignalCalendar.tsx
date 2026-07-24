@@ -35,6 +35,7 @@ export const signalCalendarClassNames: NonNullable<ComponentProps<typeof DayPick
     day: "relative flex-1 p-0 text-center",
     day_button: cn(
       "mx-auto flex size-8 cursor-pointer items-center justify-center rounded-control text-[11px] tabular-nums text-text",
+      "pointer-coarse:size-10 pointer-coarse:text-[13px]",
       "transition-[background-color,color,box-shadow] duration-100 hover:bg-bg-hover",
       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-strong",
     ),
