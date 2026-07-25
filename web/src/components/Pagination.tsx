@@ -1,7 +1,7 @@
 import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
 import type { ReactNode } from "react";
-import { cn } from "../lib/cn";
-import { pageItems, pageRangeLabel } from "../lib/pagination";
+import { cn } from "@/lib/cn";
+import { pageItems, pageRangeLabel } from "@/lib/pagination";
 import { Button } from "./ui/button";
 import { NativeSelect, NativeSelectOption } from "./ui/native-select";
 

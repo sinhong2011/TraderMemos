@@ -3,9 +3,9 @@ import { EmptyState } from "./EmptyState";
 import { useReportsMoney } from "./ReportsDisplayContext";
 import { Skeleton } from "./Skeleton";
 import { pnlColor } from "./theme-tokens";
-import type { BreakGroup } from "../lib/api/types";
-import { usePrivacyMode } from "../lib/displayPrefs";
-import { TRADE_GRADES, gradeFromInt } from "../lib/tradeGrades";
+import type { BreakGroup } from "@/lib/api/types";
+import { usePrivacyMode } from "@/lib/displayPrefs";
+import { TRADE_GRADES, gradeFromInt } from "@/lib/tradeGrades";
 
 export interface ReportsExecutionGradeProps {
   breakdown: BreakGroup[];

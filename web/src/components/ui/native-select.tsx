@@ -1,6 +1,6 @@
 import { ChevronDown } from "lucide-react";
 import type { ComponentProps } from "react";
-import { cn } from "../../lib/cn";
+import { cn } from "@/lib/cn";
 
 /**
  * shadcn Native Select — shadcn Base native-select adapted to

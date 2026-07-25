@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
-import type { SettingsSectionId } from "../../app/screens/settings/settings-ui";
+import type { SettingsSectionId } from "@/app/screens/settings/settings-ui";
 import {
   DEFAULT_SETTINGS_SECTION,
   parseSettingsHash,
   settingsSectionHash,
-} from "../settingsSection";
+} from "@/lib/settingsSection";
 
 function readSectionFromLocation(): SettingsSectionId {
   if (typeof window === "undefined") return DEFAULT_SETTINGS_SECTION;

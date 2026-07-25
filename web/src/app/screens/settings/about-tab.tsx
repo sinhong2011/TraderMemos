@@ -9,24 +9,24 @@ import {
   Sparkles,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { AppLogo } from "../../../components/AppLogo";
-import { Pill } from "../../../components/Pill";
-import { Skeleton } from "../../../components/Skeleton";
-import { Button } from "../../../components/ui/button";
+import { AppLogo } from "@/components/AppLogo";
+import { Pill } from "@/components/Pill";
+import { Skeleton } from "@/components/Skeleton";
+import { Button } from "@/components/ui/button";
 import {
   aboutContent,
   DEVELOPER_AVATAR,
   DEVELOPER_GITHUB,
   DEVELOPER_NAME,
   REPO_URL,
-} from "../../../lib/aboutContent";
-import { getBaseUrl } from "../../../lib/api/client";
-import { useAppUpdate } from "../../../lib/appUpdate";
-import { cn } from "../../../lib/cn";
-import { fmtDateTime } from "../../../lib/format";
-import { useApiHealth } from "../../../lib/hooks/useApiHealth";
-import { APP_BUILD, APP_VERSION, formatVersion } from "../../../lib/version";
-import { useLocale } from "../../../i18n";
+} from "@/lib/aboutContent";
+import { getBaseUrl } from "@/lib/api/client";
+import { useAppUpdate } from "@/lib/appUpdate";
+import { cn } from "@/lib/cn";
+import { fmtDateTime } from "@/lib/format";
+import { useApiHealth } from "@/lib/hooks/useApiHealth";
+import { APP_BUILD, APP_VERSION, formatVersion } from "@/lib/version";
+import { useLocale } from "@/i18n";
 import { SettingsGroup, SettingsGroupRow, SettingsPanelBody, SettingsSection } from "./settings-ui";
 
 const FEATURE_ICONS: LucideIcon[] = [

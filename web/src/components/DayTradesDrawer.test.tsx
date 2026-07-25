@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vite-plus/test";
-import type { Trade } from "../lib/api/types";
+import type { Trade } from "@/lib/api/types";
 import { summarizeDayTrades } from "./DayTradesDrawer";
 
 function trade(partial: Partial<Trade> & Pick<Trade, "id" | "net_pnl">): Trade {

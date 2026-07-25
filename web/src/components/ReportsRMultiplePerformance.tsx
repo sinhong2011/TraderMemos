@@ -8,8 +8,8 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import type { RSummary } from "../lib/api/types";
-import { usePrivacyMode } from "../lib/displayPrefs";
+import type { RSummary } from "@/lib/api/types";
+import { usePrivacyMode } from "@/lib/displayPrefs";
 import { Card } from "./Card";
 import { ChartFrame, chartTheme } from "./ChartFrame";
 import { EmptyState } from "./EmptyState";

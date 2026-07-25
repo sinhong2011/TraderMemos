@@ -5,16 +5,16 @@ import {
   REPORT_TABS,
   type ReportsTab,
   ReportsView,
-} from "../app/screens/ReportsView";
-import type { ReportsDuration, ReportsSide } from "../components/ReportsControlBar";
-import type { PnlMode, UnitMode } from "../components/ReportsDisplayContext";
-import { TradeDetailSheet } from "../components/TradeDetailSheet";
-import { tradesOnDay } from "../lib/calendar";
-import { accountBaseCurrency } from "../lib/displayPrefs";
-import { useFilterParams, useFilters } from "../lib/filters";
-import { useAccounts } from "../lib/hooks/useAccounts";
-import { useBreakdown, useEquityCurve, useRSummary, useSummary } from "../lib/hooks/useAnalytics";
-import { useTrades } from "../lib/hooks/useTrades";
+} from "@/app/screens/ReportsView";
+import type { ReportsDuration, ReportsSide } from "@/components/ReportsControlBar";
+import type { PnlMode, UnitMode } from "@/components/ReportsDisplayContext";
+import { TradeDetailSheet } from "@/components/TradeDetailSheet";
+import { tradesOnDay } from "@/lib/calendar";
+import { accountBaseCurrency } from "@/lib/displayPrefs";
+import { useFilterParams, useFilters } from "@/lib/filters";
+import { useAccounts } from "@/lib/hooks/useAccounts";
+import { useBreakdown, useEquityCurve, useRSummary, useSummary } from "@/lib/hooks/useAnalytics";
+import { useTrades } from "@/lib/hooks/useTrades";
 
 const REPORT_TAB_VALUES: ReportsTab[] = REPORT_TABS.map((t) => t.value);
 const SIDE_VALUES: ReportsSide[] = ["all", "long", "short"];

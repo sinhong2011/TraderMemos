@@ -1,12 +1,12 @@
-import type { DayRecord } from "../lib/calendar";
-import type { Trade } from "../lib/api/types";
-import { monthGrid } from "../lib/calendar";
-import { cn } from "../lib/cn";
-import { fmtSignedMoneyCompact } from "../lib/format";
-import { intlLocale } from "../lib/locale";
+import type { DayRecord } from "@/lib/calendar";
+import type { Trade } from "@/lib/api/types";
+import { monthGrid } from "@/lib/calendar";
+import { cn } from "@/lib/cn";
+import { fmtSignedMoneyCompact } from "@/lib/format";
+import { intlLocale } from "@/lib/locale";
 import { CalendarDayHoverCard } from "./CalendarDayHoverCard";
 import { pnlBgTint, pnlColor } from "./theme-tokens";
-import { usePrivacyMode } from "../lib/displayPrefs";
+import { usePrivacyMode } from "@/lib/displayPrefs";
 
 function shortMonth(year: number, month: number, locale: string): string {
   return new Date(Date.UTC(year, month - 1, 1)).toLocaleDateString(locale, {

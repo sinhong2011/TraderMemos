@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { cn } from "../lib/cn";
+import { cn } from "@/lib/cn";
 
 export const chartTheme = {
   axisColor: "#94949f",

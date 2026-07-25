@@ -1,16 +1,16 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Pencil } from "lucide-react";
-import type { JournalTradePreview } from "../lib/api/types";
-import { cn } from "../lib/cn";
-import { usePrivacyMode } from "../lib/displayPrefs";
-import { fmtSignedMoney } from "../lib/format";
+import type { JournalTradePreview } from "@/lib/api/types";
+import { cn } from "@/lib/cn";
+import { usePrivacyMode } from "@/lib/displayPrefs";
+import { fmtSignedMoney } from "@/lib/format";
 import {
   effectiveOptionRight,
   formatMarketLabel,
   type OptionRightOverride,
-} from "../lib/importOptionRight";
-import { intlLocale } from "../lib/locale";
-import { resolveTradeDirection } from "../lib/tradeDirection";
+} from "@/lib/importOptionRight";
+import { intlLocale } from "@/lib/locale";
+import { resolveTradeDirection } from "@/lib/tradeDirection";
 import { DirCell } from "./DirCell";
 import { Button } from "./ui/button";
 

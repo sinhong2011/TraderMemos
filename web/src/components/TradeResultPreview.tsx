@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 import { Check } from "lucide-react";
-import { cn } from "../lib/cn";
-import { fmtMoney, fmtSignedMoney } from "../lib/format";
-import type { BatchTradePnlPreview, TradePnlPreview } from "../lib/tradePnlPreview";
+import { cn } from "@/lib/cn";
+import { fmtMoney, fmtSignedMoney } from "@/lib/format";
+import type { BatchTradePnlPreview, TradePnlPreview } from "@/lib/tradePnlPreview";
 import { pnlColor } from "./theme-tokens";
 
 export interface TradeResultPreviewProps {

@@ -4,7 +4,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vite-plus/test";
-import type { Trade } from "../../lib/api/types";
+import type { Trade } from "@/lib/api/types";
 import { TradesView, sortTrades } from "./TradesView";
 
 vi.mock("../../lib/hooks/useMoneyFx", () => ({
@@ -22,8 +22,8 @@ vi.mock("../../components/Toast", () => ({
   useToastManager: () => ({ add: vi.fn<(...args: any[]) => any>() }),
 }));
 
-vi.mock("../../components/SignalSelect", () => ({
-  SignalSelect: ({
+vi.mock("../../components/OptionsSelect", () => ({
+  OptionsSelect: ({
     value,
     onValueChange,
     ariaLabel,

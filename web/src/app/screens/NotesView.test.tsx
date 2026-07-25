@@ -1,9 +1,9 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
-import type { JournalNote } from "../../lib/api/types";
-import { useNotesPrefs } from "../../lib/notesPrefs";
-import { useUI } from "../../lib/ui";
+import type { JournalNote } from "@/lib/api/types";
+import { useNotesPrefs } from "@/lib/notesPrefs";
+import { useUI } from "@/lib/ui";
 import { NotesView } from "./NotesView";
 
 const notes: JournalNote[] = [

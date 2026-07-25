@@ -1,7 +1,7 @@
 import { Minus, Plus } from "lucide-react";
-import { signalLabelClass } from "../../signal-field-styles";
-import { cn } from "../../../lib/cn";
-import { Button } from "../../ui/button";
+import { fieldLabelClass } from "@/components/field-styles";
+import { cn } from "@/lib/cn";
+import { Button } from "@/components/ui/button";
 
 export function CalcInputField({
   label,
@@ -41,7 +41,7 @@ export function CalcInputField({
 
   return (
     <div>
-      <label className={signalLabelClass}>{label}</label>
+      <label className={fieldLabelClass}>{label}</label>
       <div
         className={cn(
           "flex items-center rounded-md border-none bg-muted transition-[background-color] duration-150 hover:bg-accent",

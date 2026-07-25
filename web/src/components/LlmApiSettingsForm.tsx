@@ -1,9 +1,9 @@
 import { useForm } from "@tanstack/react-form";
 import { useState } from "react";
-import { ModelAutocomplete } from "./SignalAutocomplete";
-import { SignalPasswordInput, SignalTextarea } from "./SignalInput";
+import { ModelAutocomplete } from "./Autocomplete";
+import { PasswordInput, FormTextarea } from "./FormInput";
 import { useToastManager } from "./Toast";
-import { cn } from "../lib/cn";
+import { cn } from "@/lib/cn";
 import {
   buildPrefixedUrl,
   llmApiModelsBody,
@@ -16,7 +16,7 @@ import {
   type LlmApiSettingsLabels,
   type LlmApiSettingsPut,
   type LlmApiSettingsTestResult,
-} from "../lib/llmApiSettings";
+} from "@/lib/llmApiSettings";
 import {
   BtnGhost,
   BtnPrimary,
@@ -27,7 +27,7 @@ import {
   SettingsGroupRow,
   SettingsPrefixedInput,
   SettingsToggle,
-} from "../app/screens/settings/settings-ui";
+} from "@/app/screens/settings/settings-ui";
 
 export function LlmApiSettingsForm({
   settings,
@@ -216,7 +216,7 @@ export function LlmApiSettingsForm({
                     detail={labels.apiKeyDetail}
                     badge={<SettingsBadge tone="required">Required</SettingsBadge>}
                   >
-                    <SignalPasswordInput
+                    <PasswordInput
                       autoComplete="off"
                       value={field.state.value}
                       onChange={(e) => field.handleChange(e.target.value)}
@@ -242,7 +242,7 @@ export function LlmApiSettingsForm({
                     alignTop
                     last
                   >
-                    <SignalTextarea
+                    <FormTextarea
                       value={field.state.value}
                       onChange={(e) => field.handleChange(e.target.value)}
                       placeholder={settings.default_prompt || labels.customPromptHint}

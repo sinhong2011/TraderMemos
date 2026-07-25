@@ -1,7 +1,7 @@
 import { format, isSameDay } from "date-fns";
 import { useEffect, useState } from "react";
 import type { DateRange } from "react-day-picker";
-import { cn } from "../lib/cn";
+import { cn } from "@/lib/cn";
 import {
   type DateRangePreset,
   PRESET_LABELS,
@@ -9,9 +9,9 @@ import {
   localDateString,
   parseFilterDay,
   presetFromRange,
-} from "../lib/dateRangePresets";
-import { useFilters } from "../lib/filters";
-import { SignalCalendar } from "./SignalCalendar";
+} from "@/lib/dateRangePresets";
+import { useFilters } from "@/lib/filters";
+import { AppCalendar } from "./AppCalendar";
 import { Button } from "./ui/button";
 
 const PRESETS: { key: DateRangePreset; label: string }[] = [
@@ -134,12 +134,14 @@ export function DateRangePanel({ onApplied }: { onApplied?: () => void }) {
   return (
     <div
       className={cn(
-        "flex max-h-[min(100dvh-2rem,100%)] w-[min(100vw-2rem,424px)] flex-col overflow-y-auto overscroll-contain",
+        // rounded-md keeps the nested surfaces (preset rail + calendar) on the
+        // --radius scale one tier inside the popover's rounded-lg edge.
+        "flex max-h-[min(100dvh-2rem,100%)] w-[min(100vw-2rem,424px)] flex-col overflow-y-auto overscroll-contain rounded-md",
         "pb-[env(safe-area-inset-bottom)] sm:w-[424px] sm:flex-row sm:pb-0",
       )}
       aria-label="Date range"
     >
-      <aside className="flex shrink-0 flex-col bg-background sm:w-[148px]">
+      <aside className="flex shrink-0 flex-col rounded-md bg-background sm:w-[148px]">
         <p className="m-0 px-3 pt-3 pb-2 text-[11px] font-medium uppercase tracking-widest text-muted-foreground">
           Quick range
         </p>
@@ -148,7 +150,7 @@ export function DateRangePanel({ onApplied }: { onApplied?: () => void }) {
 
       <div className="flex min-w-0 flex-1 flex-col bg-card">
         <div className="flex justify-center px-3 pt-3 pb-1 max-sm:pt-1">
-          <SignalCalendar
+          <AppCalendar
             mode="range"
             selected={draft}
             onSelect={applyCustomRange}

@@ -1,14 +1,14 @@
 import type { LucideIcon } from "lucide-react";
 import { Trash2 } from "lucide-react";
 import { useId, useState, type ReactNode } from "react";
-import { Modal } from "../../../components/Modal";
-import { Pill } from "../../../components/Pill";
-import { SignalInput } from "../../../components/SignalInput";
-import { Button } from "../../../components/ui/button";
-import { NativeSelect, NativeSelectOption } from "../../../components/ui/native-select";
-import { cn } from "../../../lib/cn";
-import type { UrlScheme } from "../../../lib/llmApiSettings";
-import { settingsSectionHash } from "../../../lib/settingsSection";
+import { Modal } from "@/components/Modal";
+import { Pill } from "@/components/Pill";
+import { FormInput } from "@/components/FormInput";
+import { Button } from "@/components/ui/button";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
+import { cn } from "@/lib/cn";
+import type { UrlScheme } from "@/lib/llmApiSettings";
+import { settingsSectionHash } from "@/lib/settingsSection";
 
 export function SettingsPageHeader({
   title,
@@ -739,7 +739,7 @@ export function ClearTradesButton({
           <label htmlFor={inputId} className="mb-1.5 block text-[11px] text-muted-foreground">
             Type <span className="font-medium text-foreground">{accountName}</span> to confirm
           </label>
-          <SignalInput
+          <FormInput
             id={inputId}
             value={typed}
             onChange={(e) => setTyped(e.target.value)}
@@ -828,7 +828,7 @@ export function DeleteAccountButton({
           <label htmlFor={inputId} className="mb-1.5 block text-[11px] text-muted-foreground">
             Type <span className="font-medium text-foreground">{accountName}</span> to confirm
           </label>
-          <SignalInput
+          <FormInput
             id={inputId}
             value={typed}
             onChange={(e) => setTyped(e.target.value)}

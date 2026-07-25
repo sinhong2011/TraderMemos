@@ -1,11 +1,11 @@
-import type { Account, Trade } from "../lib/api/types";
-import { computeAccountContribution } from "../lib/dashboardInsights";
-import { cn } from "../lib/cn";
-import { fmtPct, fmtSignedMoney } from "../lib/format";
-import { intlLocale } from "../lib/locale";
+import type { Account, Trade } from "@/lib/api/types";
+import { computeAccountContribution } from "@/lib/dashboardInsights";
+import { cn } from "@/lib/cn";
+import { fmtPct, fmtSignedMoney } from "@/lib/format";
+import { intlLocale } from "@/lib/locale";
 import { pnlColor } from "./theme-tokens";
 import { WinLossRecord } from "./WinLossRecord";
-import { usePrivacyMode } from "../lib/displayPrefs";
+import { usePrivacyMode } from "@/lib/displayPrefs";
 
 export interface DashboardAccountContributionProps {
   trades: Trade[];

@@ -1,8 +1,8 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vite-plus/test";
-import { useAppHotkeys } from "../lib/useAppHotkeys";
-import { useUI } from "../lib/ui";
+import { useAppHotkeys } from "@/lib/useAppHotkeys";
+import { useUI } from "@/lib/ui";
 import { CommandPalette } from "./CommandPalette";
 
 vi.mock("@tanstack/react-router", () => ({

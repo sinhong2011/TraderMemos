@@ -2,11 +2,11 @@ import { Dialog } from "@base-ui/react";
 import { Command } from "cmdk";
 import { Filter, Search, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { cn } from "../lib/cn";
-import { useFilters } from "../lib/filters";
-import { APP_HOTKEYS } from "../lib/hotkeys";
-import { type CommandGroup, useCommands } from "../lib/useCommands";
-import { useUI } from "../lib/ui";
+import { cn } from "@/lib/cn";
+import { useFilters } from "@/lib/filters";
+import { APP_HOTKEYS } from "@/lib/hotkeys";
+import { type CommandGroup, useCommands } from "@/lib/useCommands";
+import { useUI } from "@/lib/ui";
 import { Kbd, KbdGroup } from "./ui/kbd";
 
 const GROUP_ORDER: CommandGroup[] = ["Navigate", "Actions", "Tools"];
@@ -50,12 +50,12 @@ export function CommandPalette() {
   return (
     <Dialog.Root open={open} onOpenChange={setCommandOpen} modal="trap-focus">
       <Dialog.Portal>
-        <Dialog.Backdrop className="fixed inset-0 z-[500] bg-overlay-scrim backdrop-blur-[2px]" />
+        <Dialog.Backdrop className="fixed inset-0 z-[500] bg-black/50 backdrop-blur-[2px]" />
         <div className="fixed inset-0 z-[510] flex items-start justify-center px-4 pt-[min(18vh,120px)] pointer-events-none">
           <Dialog.Popup
             className={cn(
               "pointer-events-auto w-full max-w-[560px] overflow-hidden",
-              "rounded-lg border border-border bg-card shadow-[0_16px_48px_rgba(18,18,24,0.6)] outline-none",
+              "rounded-lg border border-border bg-card shadow-lg outline-none",
             )}
           >
             <Command label="Command palette" loop className="flex flex-col">

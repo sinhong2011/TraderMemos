@@ -1,10 +1,10 @@
-import type { TradeDetail } from "../lib/api/types";
-import { fmtMoney } from "../lib/format";
-import { intlLocale } from "../lib/locale";
-import { computeRiskReward, type RiskRewardMetrics } from "../lib/riskReward";
-import { cn } from "../lib/cn";
+import type { TradeDetail } from "@/lib/api/types";
+import { fmtMoney } from "@/lib/format";
+import { intlLocale } from "@/lib/locale";
+import { computeRiskReward, type RiskRewardMetrics } from "@/lib/riskReward";
+import { cn } from "@/lib/cn";
 import { pnlColor } from "./theme-tokens";
-import { usePrivacyMode } from "../lib/displayPrefs";
+import { usePrivacyMode } from "@/lib/displayPrefs";
 
 const sectionLabelClass = "mb-3 text-[10px] font-semibold uppercase tracking-widest text-chart-3";
 

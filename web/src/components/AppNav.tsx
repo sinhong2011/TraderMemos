@@ -2,11 +2,11 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { Plus, Settings, StickyNote, Zap } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useLayoutEffect, useRef, useState } from "react";
-import { cn } from "../lib/cn";
-import { navLabel } from "../lib/locale";
-import { isRouteActive, MAIN_ROUTES, PRIMARY_NAV, SECONDARY_NAV } from "../lib/navItems";
-import { useLocale } from "../i18n";
-import { useUI } from "../lib/ui";
+import { cn } from "@/lib/cn";
+import { navLabel } from "@/lib/locale";
+import { isRouteActive, MAIN_ROUTES, PRIMARY_NAV, SECONDARY_NAV } from "@/lib/navItems";
+import { useLocale } from "@/i18n";
+import { useUI } from "@/lib/ui";
 import { AppLogo } from "./AppLogo";
 import { ToolsPopover } from "./ToolsPopover";
 

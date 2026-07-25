@@ -12,7 +12,7 @@ import { Card } from "./Card";
 import { ChartFrame, chartTheme } from "./ChartFrame";
 import { EmptyState } from "./EmptyState";
 import { Skeleton } from "./Skeleton";
-import type { RBucket } from "../lib/api/types";
+import type { RBucket } from "@/lib/api/types";
 
 const POS = "var(--profit)";
 const NEG = "var(--loss)";

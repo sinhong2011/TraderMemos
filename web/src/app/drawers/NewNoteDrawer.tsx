@@ -11,20 +11,20 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-} from "../../components/Drawer";
-import { isEditorEmpty } from "../../components/editor/markdown";
-import { SegmentedControl } from "../../components/SegmentedControl";
-import { SignalDatePicker } from "../../components/SignalDatePicker";
-import { SignalEditor } from "../../components/SignalEditor";
-import { fieldError, SignalField } from "../../components/SignalField";
-import { SignalInput } from "../../components/SignalInput";
-import { useToastManager } from "../../components/Toast";
-import { Button } from "../../components/ui/button";
-import { signalLabelClass } from "../../components/signal-field-styles";
-import { notesApi } from "../../lib/api/notes";
-import type { JournalNoteSymbol, JournalNoteType } from "../../lib/api/types";
-import { settingsApi } from "../../lib/api/settings";
-import { useUI } from "../../lib/ui";
+} from "@/components/Drawer";
+import { isEditorEmpty } from "@/components/editor/markdown";
+import { SegmentedControl } from "@/components/SegmentedControl";
+import { DatePicker } from "@/components/DatePicker";
+import { RichTextEditor } from "@/components/RichTextEditor";
+import { fieldError, Field } from "@/components/Field";
+import { FormInput } from "@/components/FormInput";
+import { useToastManager } from "@/components/Toast";
+import { Button } from "@/components/ui/button";
+import { fieldLabelClass } from "@/components/field-styles";
+import { notesApi } from "@/lib/api/notes";
+import type { JournalNoteSymbol, JournalNoteType } from "@/lib/api/types";
+import { settingsApi } from "@/lib/api/settings";
+import { useUI } from "@/lib/ui";
 
 function nowLocalDate(): string {
   const d = new Date();
@@ -225,22 +225,22 @@ export function NewNoteDrawer() {
 
             <form.Field name="occurredAt">
               {(field) => (
-                <SignalField label="Date" htmlFor="note-date">
-                  <SignalDatePicker
+                <Field label="Date" htmlFor="note-date">
+                  <DatePicker
                     id="note-date"
                     aria-label="Date"
                     value={field.state.value}
                     onChange={field.handleChange}
                     onBlur={field.handleBlur}
                   />
-                </SignalField>
+                </Field>
               )}
             </form.Field>
 
             <form.Field name="title">
               {(field) => (
-                <SignalField label="Title" htmlFor="note-title">
-                  <SignalInput
+                <Field label="Title" htmlFor="note-title">
+                  <FormInput
                     id="note-title"
                     value={field.state.value}
                     onBlur={field.handleBlur}
@@ -248,13 +248,13 @@ export function NewNoteDrawer() {
                     placeholder={isDailyLog ? "Daily log, session recap…" : "Untitled note"}
                     autoFocus={isEdit}
                   />
-                </SignalField>
+                </Field>
               )}
             </form.Field>
 
             {isDailyLog && !isEdit && checklist.length > 0 && (
               <div>
-                <span className={signalLabelClass}>Daily checklist</span>
+                <span className={fieldLabelClass}>Daily checklist</span>
                 <div className="flex flex-col gap-1.5 rounded-md bg-muted px-3 py-2">
                   {checklist.map((item) => (
                     <label
@@ -287,12 +287,12 @@ export function NewNoteDrawer() {
               }}
             >
               {(field) => (
-                <SignalField
+                <Field
                   label={isDailyLog ? "Day notes" : "Notes"}
                   htmlFor="note-body"
                   error={fieldError(field.state.meta.errors)}
                 >
-                  <SignalEditor
+                  <RichTextEditor
                     key={`body-${noteType}-${editorKey}`}
                     id="note-body"
                     aria-label={isDailyLog ? "Day notes" : "Notes"}
@@ -307,14 +307,14 @@ export function NewNoteDrawer() {
                     autoFocus={!isEdit}
                     showHints
                   />
-                </SignalField>
+                </Field>
               )}
             </form.Field>
 
             {isDailyLog ? (
               <div className="flex flex-col gap-3">
                 <div className="flex items-center justify-between gap-2">
-                  <span className={signalLabelClass} style={{ marginBottom: 0 }}>
+                  <span className={fieldLabelClass} style={{ marginBottom: 0 }}>
                     Symbol cards
                   </span>
                   <Button
@@ -383,7 +383,7 @@ function NoteSymbolCard({
   return (
     <div className="flex flex-col gap-3 rounded-md bg-accent p-3">
       <div className="flex items-center gap-2">
-        <SignalInput
+        <FormInput
           id={inputId}
           value={card.symbol}
           onChange={(e) =>
@@ -404,7 +404,7 @@ function NoteSymbolCard({
           <Trash2 size={13} strokeWidth={1.5} />
         </Button>
       </div>
-      <SignalEditor
+      <RichTextEditor
         key={editorKey}
         value={card.body}
         onChange={(body) => onChange({ ...card, body })}

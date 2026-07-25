@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import userEvent from "@testing-library/user-event";
 import type { ReactElement } from "react";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
-import type { Execution, Setup, Tag, TradeAttachment, TradeDetail } from "../../lib/api/types";
+import type { Execution, Setup, Tag, TradeAttachment, TradeDetail } from "@/lib/api/types";
 import {
   type JournalFormState,
   JournalPanel,

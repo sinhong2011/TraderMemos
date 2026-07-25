@@ -1,17 +1,17 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { DashboardView } from "../app/screens/DashboardView";
-import type { DashboardBreakdownDim } from "../components/DashboardBreakdownChart";
-import { TradeDetailSheet } from "../components/TradeDetailSheet";
-import { buildDayRecords } from "../lib/calendar";
-import { useFilterParams, useFilters } from "../lib/filters";
-import { computeHeaderStats } from "../lib/headerStats";
-import { useAccounts } from "../lib/hooks/useAccounts";
-import { useBreakdown, useDailyPnl, useEquityCurve, useSummary } from "../lib/hooks/useAnalytics";
-import { useCash } from "../lib/hooks/useCash";
-import { useTrades } from "../lib/hooks/useTrades";
-import { filterTradesByStatus } from "../lib/tradeFilters";
-import { useUI } from "../lib/ui";
+import { DashboardView } from "@/app/screens/DashboardView";
+import type { DashboardBreakdownDim } from "@/components/DashboardBreakdownChart";
+import { TradeDetailSheet } from "@/components/TradeDetailSheet";
+import { buildDayRecords } from "@/lib/calendar";
+import { useFilterParams, useFilters } from "@/lib/filters";
+import { computeHeaderStats } from "@/lib/headerStats";
+import { useAccounts } from "@/lib/hooks/useAccounts";
+import { useBreakdown, useDailyPnl, useEquityCurve, useSummary } from "@/lib/hooks/useAnalytics";
+import { useCash } from "@/lib/hooks/useCash";
+import { useTrades } from "@/lib/hooks/useTrades";
+import { filterTradesByStatus } from "@/lib/tradeFilters";
+import { useUI } from "@/lib/ui";
 
 export const Route = createFileRoute("/dashboard")({
   component: DashboardPage,

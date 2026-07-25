@@ -10,41 +10,38 @@ import {
   Upload,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { CsvDropZone } from "../../components/CsvDropZone";
-import { DataTable } from "../../components/DataTable";
-import { ImportStepIndicator } from "../../components/ImportStepIndicator";
-import {
-  csvSampleColumns,
-  journalTradePreviewColumns,
-} from "../../components/importPreviewColumns";
-import { Panel } from "../../components/Panel";
-import { SegmentedControl } from "../../components/SegmentedControl";
-import { SignalField } from "../../components/SignalField";
-import { SignalPopover } from "../../components/SignalPopover";
-import { SignalSelect } from "../../components/SignalSelect";
-import { SignalToggle } from "../../components/SignalToggle";
-import { Skeleton } from "../../components/Skeleton";
-import { Button, buttonVariants } from "../../components/ui/button";
-import { NativeSelect, NativeSelectOption } from "../../components/ui/native-select";
-import { downloadExport, type ExportFormat } from "../../lib/api/exports";
+import { CsvDropZone } from "@/components/CsvDropZone";
+import { DataTable } from "@/components/DataTable";
+import { ImportStepIndicator } from "@/components/ImportStepIndicator";
+import { csvSampleColumns, journalTradePreviewColumns } from "@/components/importPreviewColumns";
+import { Panel } from "@/components/Panel";
+import { SegmentedControl } from "@/components/SegmentedControl";
+import { Field } from "@/components/Field";
+import { ControlledPopover } from "@/components/ControlledPopover";
+import { OptionsSelect } from "@/components/OptionsSelect";
+import { ToneToggle } from "@/components/ToneToggle";
+import { Skeleton } from "@/components/Skeleton";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
+import { downloadExport, type ExportFormat } from "@/lib/api/exports";
 import type {
   Account,
   ImportPreview,
   ImportResult,
   JournalPreviewSummary,
   JournalTradePreview,
-} from "../../lib/api/types";
-import { cn } from "../../lib/cn";
-import { usePrivacyMode } from "../../lib/displayPrefs";
-import { fmtSignedMoney } from "../../lib/format";
+} from "@/lib/api/types";
+import { cn } from "@/lib/cn";
+import { usePrivacyMode } from "@/lib/displayPrefs";
+import { fmtSignedMoney } from "@/lib/format";
 import {
   effectiveOptionRight,
   mergeOptionOverrides,
   type OptionRightOverride,
-} from "../../lib/importOptionRight";
-import { tradeDetailFromJournalPreview } from "../../lib/importTradePreview";
-import { intlLocale } from "../../lib/locale";
-import { useUI } from "../../lib/ui";
+} from "@/lib/importOptionRight";
+import { tradeDetailFromJournalPreview } from "@/lib/importTradePreview";
+import { intlLocale } from "@/lib/locale";
+import { useUI } from "@/lib/ui";
 
 // Canonical trade fields we want to map
 const CANONICAL_FIELDS = [
@@ -240,7 +237,7 @@ function Step1Upload({
         {accountsLoading ? (
           <Skeleton height="36px" />
         ) : canBypassAccount && accounts.length === 0 ? (
-          <SignalField
+          <Field
             label="Account"
             description={
               jsonAccountName
@@ -251,9 +248,9 @@ function Step1Upload({
             <p className="rounded-md border border-border bg-muted px-3 py-2.5 text-[13px] text-foreground">
               {jsonAccountName ?? "From JSON backup"}
             </p>
-          </SignalField>
+          </Field>
         ) : (
-          <SignalField
+          <Field
             label="Account"
             description={
               canBypassAccount
@@ -279,10 +276,10 @@ function Step1Upload({
                 ))
               )}
             </NativeSelect>
-          </SignalField>
+          </Field>
         )}
 
-        <SignalField
+        <Field
           label="File"
           description={
             file
@@ -295,7 +292,7 @@ function Step1Upload({
             onFileChange={(f) => void handleFileChange(f)}
             disabled={loading}
           />
-        </SignalField>
+        </Field>
 
         {error && <p className="text-[11px] text-destructive">{error}</p>}
 
@@ -536,8 +533,8 @@ function Step2Map({ preview, currency, accountId, onCommit, onBack, error, loadi
           {!skipMapping && (
             <div className="flex max-w-lg flex-col gap-3">
               {CANONICAL_FIELDS.map((field) => (
-                <SignalField key={field} label={field.replace(/_/g, " ")}>
-                  <SignalSelect
+                <Field key={field} label={field.replace(/_/g, " ")}>
+                  <OptionsSelect
                     value={mapping[field] ?? ""}
                     onValueChange={(v) => setField(field, v)}
                     ariaLabel={`Map ${field}`}
@@ -547,7 +544,7 @@ function Step2Map({ preview, currency, accountId, onCommit, onBack, error, loadi
                     ]}
                     triggerClassName="h-8 text-[12px]"
                   />
-                </SignalField>
+                </Field>
               ))}
             </div>
           )}
@@ -769,7 +766,7 @@ function ExportPanel({ accounts, accountsLoading, defaultAccountId }: ExportPane
         {accountsLoading ? (
           <Skeleton height="36px" />
         ) : (
-          <SignalField label="Account">
+          <Field label="Account">
             <NativeSelect
               value={effectiveAccountId}
               onChange={(event) => setAccountId(event.target.value)}
@@ -788,12 +785,12 @@ function ExportPanel({ accounts, accountsLoading, defaultAccountId }: ExportPane
                 ))
               )}
             </NativeSelect>
-          </SignalField>
+          </Field>
         )}
 
         {showOmitAccount ? (
           <div className="flex items-center gap-1">
-            <SignalToggle
+            <ToneToggle
               pressed={omitAccount}
               onPressedChange={setOmitAccount}
               variant="outline"
@@ -802,8 +799,8 @@ function ExportPanel({ accounts, accountsLoading, defaultAccountId }: ExportPane
               aria-label="Omit account details"
             >
               Omit account
-            </SignalToggle>
-            <SignalPopover
+            </ToneToggle>
+            <ControlledPopover
               open={omitInfoOpen}
               onOpenChange={setOmitInfoOpen}
               align="start"
@@ -813,7 +810,7 @@ function ExportPanel({ accounts, accountsLoading, defaultAccountId }: ExportPane
                 "text-muted-foreground hover:text-foreground",
                 omitInfoOpen && "bg-accent text-foreground",
               )}
-              className="max-w-[17rem] bg-card p-3 shadow-[0_12px_32px_rgba(18,18,24,0.55)]"
+              className="max-w-[17rem] p-3"
               trigger={<Info size={14} strokeWidth={1.75} aria-hidden />}
             >
               <p className="m-0 text-[10px] font-semibold uppercase tracking-widest text-chart-3">
@@ -824,11 +821,11 @@ function ExportPanel({ accounts, accountsLoading, defaultAccountId }: ExportPane
                 fills. Use this for portable trade data; re-import requires selecting or creating an
                 account.
               </p>
-            </SignalPopover>
+            </ControlledPopover>
           </div>
         ) : null}
 
-        <SignalField label="Format">
+        <Field label="Format">
           <SegmentedControl
             ariaLabel="Export format"
             value={format}
@@ -839,7 +836,7 @@ function ExportPanel({ accounts, accountsLoading, defaultAccountId }: ExportPane
               { value: "zip", label: "ZIP" },
             ]}
           />
-        </SignalField>
+        </Field>
 
         <p className="text-[11px] leading-relaxed text-muted-foreground">{formatHint}</p>
 

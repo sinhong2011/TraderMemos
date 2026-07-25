@@ -1,8 +1,8 @@
 import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
-import { cn } from "../lib/cn";
-import { intlLocale } from "../lib/locale";
-import { SignalPopover } from "./SignalPopover";
+import { cn } from "@/lib/cn";
+import { intlLocale } from "@/lib/locale";
+import { ControlledPopover } from "./ControlledPopover";
 import { Button } from "./ui/button";
 import { NativeSelect, NativeSelectOption } from "./ui/native-select";
 
@@ -120,7 +120,7 @@ export function MonthPicker({
         <ChevronLeft size={14} strokeWidth={1.5} />
       </Button>
 
-      <SignalPopover
+      <ControlledPopover
         open={open}
         onOpenChange={setOpen}
         align="start"
@@ -151,12 +151,14 @@ export function MonthPicker({
       >
         <div
           className={cn(
-            "flex max-h-[min(100dvh-2rem,100%)] w-[min(100vw-2rem,320px)] flex-col overflow-y-auto overscroll-contain",
+            // Matches DateRangePanel: nested surfaces stay on the --radius
+            // scale one tier inside the popover's rounded-lg edge.
+            "flex max-h-[min(100dvh-2rem,100%)] w-[min(100vw-2rem,320px)] flex-col overflow-y-auto overscroll-contain rounded-md",
             "pb-[env(safe-area-inset-bottom)] sm:w-[320px] sm:flex-row sm:pb-0",
           )}
           aria-label="Choose month"
         >
-          <aside className="flex shrink-0 flex-col bg-background sm:w-[116px]">
+          <aside className="flex shrink-0 flex-col rounded-md bg-background sm:w-[116px]">
             <p className="m-0 px-3 pt-3 pb-2 text-[11px] font-medium uppercase tracking-widest text-muted-foreground">
               Quick jump
             </p>
@@ -237,7 +239,7 @@ export function MonthPicker({
                     aria-pressed={isActive}
                     className={cn(
                       "h-9 capitalize",
-                      !isActive && isCurrent && "text-chart-3 ring-1 ring-signal/40 ring-inset",
+                      !isActive && isCurrent && "text-chart-3 ring-1 ring-warning/40 ring-inset",
                       isFuture && "opacity-30",
                     )}
                   >
@@ -248,7 +250,7 @@ export function MonthPicker({
             </div>
           </div>
         </div>
-      </SignalPopover>
+      </ControlledPopover>
 
       <Button
         type="button"

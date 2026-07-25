@@ -1,14 +1,14 @@
 import { Globe, Github, KeyRound, Shield, Sparkles, Tag, Wallet } from "lucide-react";
-import type { RiskRules } from "../../lib/api/settings";
-import { useLocale } from "../../i18n";
-import { useSettingsSection } from "../../lib/hooks/useSettingsSection";
-import { settingsNavItems, settingsSectionCopy, type SettingsSectionId } from "../../lib/locale";
-import type { Account, CashTransaction, Tag as TagType } from "../../lib/api/types";
+import type { RiskRules } from "@/lib/api/settings";
+import { useLocale } from "@/i18n";
+import { useSettingsSection } from "@/lib/hooks/useSettingsSection";
+import { settingsNavItems, settingsSectionCopy, type SettingsSectionId } from "@/lib/locale";
+import type { Account, CashTransaction, Tag as TagType } from "@/lib/api/types";
 import { AboutTab } from "./settings/about-tab";
 import { ApiTab } from "./settings/api-tab";
 import { AccountsTab, AiTab, GeneralTab, JournalTab, RulesTab } from "./settings/settings-sections";
 import { SettingsNav, SettingsPageHeader, SettingsShell } from "./settings/settings-ui";
-import { Page } from "../../components/Page";
+import { Page } from "@/components/Page";
 
 export interface SettingsViewProps {
   accounts: Account[];

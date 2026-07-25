@@ -1,4 +1,4 @@
-import { cn } from "../lib/cn";
+import { cn } from "@/lib/cn";
 
 /** Colored win/loss record: green W, red L. */
 export function WinLossRecord({

@@ -1,9 +1,9 @@
 import { Check, CircleUser, LogOut, Wallet } from "lucide-react";
 import { useState } from "react";
-import { useAuth } from "../lib/auth";
-import { cn } from "../lib/cn";
-import { useFilters } from "../lib/filters";
-import { useAccounts } from "../lib/hooks/useAccounts";
+import { useAuth } from "@/lib/auth";
+import { cn } from "@/lib/cn";
+import { useFilters } from "@/lib/filters";
+import { useAccounts } from "@/lib/hooks/useAccounts";
 import { Button } from "./ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 
@@ -13,8 +13,8 @@ function RailTooltip({ label }: { label: string }) {
       className={cn(
         "pointer-events-none absolute top-1/2 left-[calc(100%+8px)] z-50",
         "-translate-y-1/2 translate-x-1",
-        "rounded-md border border-border bg-card px-2 py-1",
-        "text-[11px] tracking-wide whitespace-nowrap text-muted-foreground",
+        "rounded-md border border-border bg-popover px-2 py-1",
+        "text-[11px] tracking-wide whitespace-nowrap text-popover-foreground",
         "opacity-0 transition-[opacity,transform] duration-150 ease-out",
         "group-hover:translate-x-0 group-hover:opacity-100",
         "group-focus-visible:translate-x-0 group-focus-visible:opacity-100",

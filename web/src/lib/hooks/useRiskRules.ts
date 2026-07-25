@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { type RiskRules, settingsApi } from "../api/settings";
+import { type RiskRules, settingsApi } from "@/lib/api/settings";
 
 export function useRiskRules() {
   return useQuery({

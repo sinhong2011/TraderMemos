@@ -3,10 +3,10 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
-import { executionsApi } from "../../lib/api/executions";
-import { ocrApi } from "../../lib/api/ocr";
-import { tradesApi } from "../../lib/api/trades";
-import { useUI } from "../../lib/ui";
+import { executionsApi } from "@/lib/api/executions";
+import { ocrApi } from "@/lib/api/ocr";
+import { tradesApi } from "@/lib/api/trades";
+import { useUI } from "@/lib/ui";
 import { NewTradeDrawer, rowsFromOcrExtract } from "./NewTradeDrawer";
 
 vi.mock("../../lib/api/executions", () => ({

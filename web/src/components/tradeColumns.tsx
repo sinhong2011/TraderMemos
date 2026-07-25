@@ -1,9 +1,9 @@
 import type { ColumnDef, ColumnPinningState } from "@tanstack/react-table";
-import type { Trade } from "../lib/api/types";
-import { usePrivacyMode } from "../lib/displayPrefs";
-import { fmtDateShort, fmtDuration, fmtMoney, fmtSignedMoney } from "../lib/format";
-import { intlLocale } from "../lib/locale";
-import { resolveTradeDirection } from "../lib/tradeDirection";
+import type { Trade } from "@/lib/api/types";
+import { usePrivacyMode } from "@/lib/displayPrefs";
+import { fmtDateShort, fmtDuration, fmtMoney, fmtSignedMoney } from "@/lib/format";
+import { intlLocale } from "@/lib/locale";
+import { resolveTradeDirection } from "@/lib/tradeDirection";
 import { DirCell } from "./DirCell";
 import { Pill, type PillTone } from "./Pill";
 import { pnlColor } from "./theme-tokens";

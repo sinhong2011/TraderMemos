@@ -2,7 +2,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vite-plus/test";
-import type { Trade } from "../lib/api/types";
+import type { Trade } from "@/lib/api/types";
 import {
   marketLabel,
   TRADE_COLUMN_PINNING,

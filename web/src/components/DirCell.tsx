@@ -1,6 +1,6 @@
 import { ArrowDownRight, ArrowUpRight } from "lucide-react";
-import { cn } from "../lib/cn";
-import { resolveTradeDirection, type TradeDirectionView } from "../lib/tradeDirection";
+import { cn } from "@/lib/cn";
+import { resolveTradeDirection, type TradeDirectionView } from "@/lib/tradeDirection";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 const TONE_CLASS: Record<TradeDirectionView["tone"], string> = {

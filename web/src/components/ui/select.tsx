@@ -1,11 +1,7 @@
 import { Select as SelectPrimitive } from "@base-ui/react/select";
 import { Check, ChevronDown, ChevronUp } from "lucide-react";
-import { cn } from "../../lib/cn";
-import {
-  signalOverlayPopupClass,
-  signalSelectItemClass,
-  signalSelectListClass,
-} from "../signal-overlay-styles";
+import { cn } from "@/lib/cn";
+import { overlayItemClass, overlayListClass, overlayPopupClass } from "@/components/overlay-styles";
 
 /**
  * shadcn Select — shadcn Base UI select with theme tokens.
@@ -110,7 +106,7 @@ function SelectContent({
           data-slot="select-content"
           data-align-trigger={alignItemWithTrigger}
           className={cn(
-            signalOverlayPopupClass,
+            overlayPopupClass,
             "relative max-h-(--available-height) min-w-[max(var(--anchor-width),9rem)] w-(--anchor-width)",
             "origin-(--transform-origin) overflow-x-hidden overflow-y-auto",
             "data-[align-trigger=true]:animate-none",
@@ -119,7 +115,7 @@ function SelectContent({
           {...props}
         >
           <SelectScrollUpButton />
-          <SelectPrimitive.List className={signalSelectListClass}>{children}</SelectPrimitive.List>
+          <SelectPrimitive.List className={overlayListClass}>{children}</SelectPrimitive.List>
           <SelectScrollDownButton />
         </SelectPrimitive.Popup>
       </SelectPrimitive.Positioner>
@@ -144,7 +140,7 @@ function SelectItem({ className, children, ...props }: SelectPrimitive.Item.Prop
   return (
     <SelectPrimitive.Item
       data-slot="select-item"
-      className={cn(signalSelectItemClass, className)}
+      className={cn(overlayItemClass, className)}
       {...props}
     >
       <SelectPrimitive.ItemText className="min-w-0 flex-1 truncate">

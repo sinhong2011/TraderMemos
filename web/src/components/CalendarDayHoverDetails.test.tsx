@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vite-plus/test";
-import type { Trade } from "../lib/api/types";
+import type { Trade } from "@/lib/api/types";
 import { CalendarDayHoverDetails } from "./CalendarDayHoverDetails";
 
 function trade(over: Partial<Trade>): Trade {

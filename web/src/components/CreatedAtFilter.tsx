@@ -1,8 +1,8 @@
 import { CalendarDays, XCircle } from "lucide-react";
 import { useState, type MouseEvent } from "react";
-import { formatRangeLabel } from "../lib/dateRangePresets";
-import { cn } from "../lib/cn";
-import { useFilters } from "../lib/filters";
+import { formatRangeLabel } from "@/lib/dateRangePresets";
+import { cn } from "@/lib/cn";
+import { useFilters } from "@/lib/filters";
 import { DateRangePanel } from "./DateRangePanel";
 import { buttonVariants } from "./ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
@@ -70,10 +70,7 @@ export function CreatedAtFilter({ className }: { className?: string }) {
           </>
         ) : null}
       </PopoverTrigger>
-      <PopoverContent
-        align="start"
-        className="w-auto overflow-hidden p-0 shadow-[0_16px_40px_rgba(18,18,24,0.65)]"
-      >
+      <PopoverContent align="start" className="w-auto overflow-hidden p-0">
         <DateRangePanel onApplied={() => setOpen(false)} />
       </PopoverContent>
     </Popover>

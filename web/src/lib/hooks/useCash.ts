@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { cashApi } from "../api/cash";
-import type { Filters } from "../api/types";
+import { cashApi } from "@/lib/api/cash";
+import type { Filters } from "@/lib/api/types";
 
 export function useCash(filters: Filters) {
   return useQuery({

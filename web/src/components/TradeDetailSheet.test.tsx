@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
-import type { TradeDetail } from "../lib/api/types";
+import type { TradeDetail } from "@/lib/api/types";
 import { TradeDetailSheet } from "./TradeDetailSheet";
 
 const navigate = vi.fn<(...args: any[]) => any>();
@@ -26,7 +26,7 @@ vi.mock("./charts/TradeChartSection", () => ({
   TradeChartSection: () => <div data-testid="trade-chart-stub" />,
 }));
 
-import { useTradeDetail } from "../lib/hooks/useTradeDetail";
+import { useTradeDetail } from "@/lib/hooks/useTradeDetail";
 
 const mockedDetail = vi.mocked(useTradeDetail);
 

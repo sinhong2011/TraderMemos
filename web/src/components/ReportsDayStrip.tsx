@@ -1,8 +1,8 @@
-import type { Trade } from "../lib/api/types";
-import { cn } from "../lib/cn";
-import { useDisplayTimePrefs, usePrivacyMode } from "../lib/displayPrefs";
-import { fmtDayShort } from "../lib/format";
-import { intlLocale } from "../lib/locale";
+import type { Trade } from "@/lib/api/types";
+import { cn } from "@/lib/cn";
+import { useDisplayTimePrefs, usePrivacyMode } from "@/lib/displayPrefs";
+import { fmtDayShort } from "@/lib/format";
+import { intlLocale } from "@/lib/locale";
 import { useReportsMoney } from "./ReportsDisplayContext";
 import { pnlColor } from "./theme-tokens";
 

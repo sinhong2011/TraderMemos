@@ -1,14 +1,11 @@
 import { Menu as MenuPrimitive } from "@base-ui/react/menu";
-import { Check } from "lucide-react";
-import { cn } from "../../lib/cn";
-import {
-  signalOverlayPopupClass,
-  signalSelectItemClass,
-  signalSelectListClass,
-} from "../signal-overlay-styles";
+import { Check, ChevronRight } from "lucide-react";
+import type { ComponentProps } from "react";
+import { overlayItemClass, overlayListClass, overlayPopupClass } from "@/components/overlay-styles";
+import { cn } from "@/lib/cn";
 
 /**
- * shadcn Dropdown Menu — shadcn Base UI menu with theme tokens.
+ * shadcn Dropdown Menu — Base UI menu with theme tokens.
  * @see https://ui.shadcn.com/docs/components/base/dropdown-menu
  */
 
@@ -43,19 +40,62 @@ function DropdownMenuContent({
       >
         <MenuPrimitive.Popup
           data-slot="dropdown-menu-content"
-          className={cn(
-            signalOverlayPopupClass,
-            "min-w-[10rem] overflow-hidden bg-accent p-0 shadow-[0_16px_40px_rgba(18,18,24,0.65)]",
-            className,
-          )}
+          className={cn(overlayPopupClass, "min-w-[10rem] overflow-hidden p-0", className)}
           {...props}
         >
-          <MenuPrimitive.Viewport className={signalSelectListClass}>
-            {children}
-          </MenuPrimitive.Viewport>
+          <MenuPrimitive.Viewport className={overlayListClass}>{children}</MenuPrimitive.Viewport>
         </MenuPrimitive.Popup>
       </MenuPrimitive.Positioner>
     </MenuPrimitive.Portal>
+  );
+}
+
+function DropdownMenuSub(props: MenuPrimitive.SubmenuRoot.Props) {
+  return <MenuPrimitive.SubmenuRoot data-slot="dropdown-menu-sub" {...props} />;
+}
+
+function DropdownMenuSubTrigger({
+  className,
+  inset,
+  children,
+  ...props
+}: MenuPrimitive.SubmenuTrigger.Props & { inset?: boolean }) {
+  return (
+    <MenuPrimitive.SubmenuTrigger
+      data-slot="dropdown-menu-sub-trigger"
+      data-inset={inset || undefined}
+      className={cn(
+        overlayItemClass,
+        "min-h-8 gap-2 py-1.5 pl-2 data-[selected]:bg-transparent data-[selected]:font-normal data-[selected]:text-foreground",
+        inset && "pl-8",
+        className,
+      )}
+      {...props}
+    >
+      {children}
+      <ChevronRight size={14} strokeWidth={1.75} className="ml-auto opacity-60" aria-hidden />
+    </MenuPrimitive.SubmenuTrigger>
+  );
+}
+
+function DropdownMenuSubContent({
+  className,
+  side = "right",
+  sideOffset = 0,
+  align = "start",
+  alignOffset = -3,
+  ...props
+}: ComponentProps<typeof DropdownMenuContent>) {
+  return (
+    <DropdownMenuContent
+      data-slot="dropdown-menu-sub-content"
+      className={cn("min-w-[8rem]", className)}
+      side={side}
+      sideOffset={sideOffset}
+      align={align}
+      alignOffset={alignOffset}
+      {...props}
+    />
   );
 }
 
@@ -88,9 +128,8 @@ function DropdownMenuItem({
       data-slot="dropdown-menu-item"
       data-inset={inset || undefined}
       className={cn(
-        signalSelectItemClass,
+        overlayItemClass,
         "min-h-8 gap-2 py-1.5 pl-2 data-[selected]:bg-transparent data-[selected]:font-normal data-[selected]:text-foreground",
-        "data-[highlighted]:bg-white/[0.06]",
         inset && "pl-8",
         className,
       )}
@@ -110,9 +149,8 @@ function DropdownMenuCheckboxItem({
       data-slot="dropdown-menu-checkbox-item"
       checked={checked}
       className={cn(
-        signalSelectItemClass,
+        overlayItemClass,
         "min-h-8 gap-2 py-1.5 pl-2 data-[selected]:bg-transparent data-[selected]:font-normal data-[selected]:text-foreground",
-        "data-[highlighted]:bg-white/[0.06]",
         className,
       )}
       {...props}
@@ -145,5 +183,8 @@ export {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 };

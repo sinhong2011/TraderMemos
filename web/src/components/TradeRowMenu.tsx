@@ -1,10 +1,10 @@
 import { Copy, ExternalLink, Filter, MoreHorizontal, PanelRight, Trash2 } from "lucide-react";
 import { useId, useState } from "react";
-import type { Trade } from "../lib/api/types";
-import { cn } from "../lib/cn";
-import { useDeleteTrade } from "../lib/hooks/useTradeDetail";
+import type { Trade } from "@/lib/api/types";
+import { cn } from "@/lib/cn";
+import { useDeleteTrade } from "@/lib/hooks/useTradeDetail";
 import { Modal } from "./Modal";
-import { SignalInput } from "./SignalInput";
+import { FormInput } from "./FormInput";
 import { useToastManager } from "./Toast";
 import { Button } from "./ui/button";
 import {
@@ -179,7 +179,7 @@ export function TradeRowMenu({ trade, actions }: { trade: Trade; actions: TradeR
           >
             Type <span className="font-medium text-foreground">{trade.symbol}</span> to confirm
           </label>
-          <SignalInput
+          <FormInput
             id={confirmInputId}
             value={typedConfirm}
             onChange={(e) => setTypedConfirm(e.target.value)}

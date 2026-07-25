@@ -6,7 +6,7 @@ import type {
   LlmApiSettingsPut,
   LlmApiSettingsTestRequest,
   LlmApiSettingsTestResult,
-} from "../llmApiSettings";
+} from "@/lib/llmApiSettings";
 
 export type { LlmApiSettings as OcrSettings, LlmApiSettingsPut as OcrSettingsPut };
 export type { LlmApiSettingsTestRequest as OcrSettingsTestRequest };

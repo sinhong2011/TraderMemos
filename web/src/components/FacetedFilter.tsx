@@ -1,6 +1,6 @@
 import { Check, PlusCircle, XCircle } from "lucide-react";
 import { useState, type MouseEvent } from "react";
-import { cn } from "../lib/cn";
+import { cn } from "@/lib/cn";
 import { buttonVariants } from "./ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 
@@ -111,10 +111,7 @@ export function FacetedFilter({
           </>
         ) : null}
       </PopoverTrigger>
-      <PopoverContent
-        align="start"
-        className="w-[11.5rem] p-0 shadow-[0_16px_40px_rgba(18,18,24,0.65)]"
-      >
+      <PopoverContent align="start" className="w-[11.5rem] p-0">
         <div className="flex max-h-72 flex-col p-1" role="listbox" aria-label={title}>
           {options.map((option) => {
             const isSelected = selected.has(option.value);
@@ -126,7 +123,7 @@ export function FacetedFilter({
                 aria-selected={isSelected}
                 onClick={() => selectOption(option, isSelected)}
                 className={cn(
-                  "flex min-h-8 cursor-pointer items-center gap-2 rounded-md px-2 text-left text-[12px] text-foreground transition-colors hover:bg-white/[0.06] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ring",
+                  "flex min-h-8 cursor-pointer items-center gap-2 rounded-md px-2 text-left text-[12px] text-foreground transition-colors hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ring",
                   isSelected && "bg-primary/10 text-primary hover:bg-primary/10",
                 )}
               >
@@ -153,7 +150,7 @@ export function FacetedFilter({
               <button
                 type="button"
                 onClick={() => clear()}
-                className="flex min-h-8 cursor-pointer items-center justify-center rounded-md px-2 text-[12px] font-medium text-muted-foreground transition-colors hover:bg-white/[0.06] hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ring"
+                className="flex min-h-8 cursor-pointer items-center justify-center rounded-md px-2 text-[12px] font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ring"
               >
                 Clear filters
               </button>

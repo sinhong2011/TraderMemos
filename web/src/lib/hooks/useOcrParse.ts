@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
-import { ocrApi, type TradeExtract } from "../api/ocr";
-import { mergeTradeExtracts } from "../ocrSymbolGroups";
+import { ocrApi, type TradeExtract } from "@/lib/api/ocr";
+import { mergeTradeExtracts } from "@/lib/ocrSymbolGroups";
 
 /** Cap multi-select screenshots so a single scan stays affordable. */
 export const OCR_SCAN_MAX_FILES = 8;

@@ -1,10 +1,10 @@
 import { Wrench } from "lucide-react";
 import { useState } from "react";
-import { cn } from "../lib/cn";
-import { APP_HOTKEYS } from "../lib/hotkeys";
-import { TOOL_ITEMS } from "../lib/tools";
-import { useToolRunner } from "../lib/useToolRunner";
-import { useUI } from "../lib/ui";
+import { cn } from "@/lib/cn";
+import { APP_HOTKEYS } from "@/lib/hotkeys";
+import { TOOL_ITEMS } from "@/lib/tools";
+import { useToolRunner } from "@/lib/useToolRunner";
+import { useUI } from "@/lib/ui";
 import { Button } from "./ui/button";
 import { Kbd } from "./ui/kbd";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
@@ -15,8 +15,8 @@ function RailTooltip({ label }: { label: string }) {
       className={cn(
         "pointer-events-none absolute top-1/2 left-[calc(100%+8px)] z-50",
         "-translate-y-1/2 translate-x-1",
-        "rounded-md border border-border bg-card px-2 py-1",
-        "text-[11px] tracking-wide whitespace-nowrap text-muted-foreground",
+        "rounded-md border border-border bg-popover px-2 py-1",
+        "text-[11px] tracking-wide whitespace-nowrap text-popover-foreground",
         "opacity-0 transition-[opacity,transform] duration-150 ease-out",
         "group-hover:translate-x-0 group-hover:opacity-100",
         "group-focus-visible:translate-x-0 group-focus-visible:opacity-100",
@@ -63,7 +63,7 @@ export function ToolsPopover({ variant = "rail" }: { variant?: "rail" | "header"
         side={isHeader ? "bottom" : "right"}
         align="end"
         sideOffset={isHeader ? 6 : 8}
-        className={cn("w-[248px] bg-card p-3", "shadow-[0_12px_32px_rgba(18,18,24,0.55)]")}
+        className="w-[248px] p-3"
       >
         <p className="m-0 px-1 text-[10px] font-medium uppercase tracking-widest text-chart-3">
           Tools

@@ -15,19 +15,19 @@ import {
 import { Modal } from "./Modal";
 import { Skeleton } from "./Skeleton";
 import { Pill } from "./Pill";
-import { SignalInput } from "./SignalInput";
+import { FormInput } from "./FormInput";
 import { useToastManager } from "./Toast";
 import { heroPnlClass, pnlColor } from "./theme-tokens";
 import { marketLabel, tradeStatus } from "./tradeColumns";
-import { formatOptionMarketChip, optionContractFromFills } from "../lib/optionContract";
+import { formatOptionMarketChip, optionContractFromFills } from "@/lib/optionContract";
 import { Button } from "./ui/button";
-import { cn } from "../lib/cn";
-import type { TradeDetail } from "../lib/api/types";
-import { fmtDateTime, fmtMoney, fmtSignedMoney } from "../lib/format";
-import { intlLocale } from "../lib/locale";
-import { useDeleteTrade, useTradeDetail } from "../lib/hooks/useTradeDetail";
-import { computeRiskReward } from "../lib/riskReward";
-import { useDisplayTimePrefs, usePrivacyMode } from "../lib/displayPrefs";
+import { cn } from "@/lib/cn";
+import type { TradeDetail } from "@/lib/api/types";
+import { fmtDateTime, fmtMoney, fmtSignedMoney } from "@/lib/format";
+import { intlLocale } from "@/lib/locale";
+import { useDeleteTrade, useTradeDetail } from "@/lib/hooks/useTradeDetail";
+import { computeRiskReward } from "@/lib/riskReward";
+import { useDisplayTimePrefs, usePrivacyMode } from "@/lib/displayPrefs";
 
 export interface TradeDetailSheetProps {
   tradeId: string | null;
@@ -192,7 +192,7 @@ export function TradeDetailSheet({ tradeId, onClose }: TradeDetailSheetProps) {
               >
                 Type <span className="font-medium text-foreground">{trade.symbol}</span> to confirm
               </label>
-              <SignalInput
+              <FormInput
                 id={confirmInputId}
                 value={typedConfirm}
                 onChange={(e) => setTypedConfirm(e.target.value)}

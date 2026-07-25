@@ -1,5 +1,5 @@
 import { Tooltip as TooltipPrimitive } from "@base-ui/react/tooltip";
-import { cn } from "../../lib/cn";
+import { cn } from "@/lib/cn";
 
 /**
  * shadcn Tooltip — shadcn Base UI tooltip with theme tokens.
@@ -41,9 +41,9 @@ function TooltipContent({
           data-slot="tooltip-content"
           className={cn(
             "z-[400] inline-flex w-fit max-w-xs origin-[var(--transform-origin)] items-center",
-            "rounded-md border border-border bg-card px-2 py-1",
-            "text-[11px] tracking-wide text-muted-foreground",
-            "shadow-[0_8px_20px_rgba(18,18,24,0.45)] outline-none",
+            "rounded-md border border-border bg-popover px-2 py-1",
+            "text-[11px] tracking-wide text-popover-foreground",
+            "shadow-md outline-none",
             "transition-[transform,opacity] duration-150 ease-out",
             "data-[starting-style]:scale-95 data-[starting-style]:opacity-0",
             "data-[ending-style]:scale-95 data-[ending-style]:opacity-0",

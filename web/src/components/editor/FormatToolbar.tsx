@@ -12,9 +12,9 @@ import {
   Underline,
 } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { cn } from "../../lib/cn";
-import { SignalInput } from "../SignalInput";
-import { Button } from "../ui/button";
+import { cn } from "@/lib/cn";
+import { FormInput } from "@/components/FormInput";
+import { Button } from "@/components/ui/button";
 import { insertImageFromFile } from "./tiptapExtensions";
 
 function FormatButton({
@@ -208,7 +208,7 @@ export function FormatToolbar({
 
       {linkOpen ? (
         <div className="flex items-center gap-1.5 pb-1">
-          <SignalInput
+          <FormInput
             value={linkUrl}
             onChange={(e) => setLinkUrl(e.target.value)}
             onKeyDown={(e) => {

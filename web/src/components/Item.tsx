@@ -1,5 +1,5 @@
 import type { ComponentProps } from "react";
-import { cn } from "../lib/cn";
+import { cn } from "@/lib/cn";
 
 const itemVariantClass = {
   default: "border-transparent bg-transparent",

@@ -8,60 +8,60 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { Card } from "../../components/Card";
-import { TradeChartSection } from "../../components/charts/TradeChartSection";
+import { Card } from "@/components/Card";
+import { TradeChartSection } from "@/components/charts/TradeChartSection";
 import {
   Collapsible,
   CollapsibleChevron,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "../../components/Collapsible";
-import { EmptyState } from "../../components/EmptyState";
-import { Modal } from "../../components/Modal";
-import { Page } from "../../components/Page";
-import { Pill, type PillTone } from "../../components/Pill";
-import { SignalAmountInput } from "../../components/SignalAmountInput";
-import { SignalField } from "../../components/SignalField";
-import { SignalInput, SignalTextarea } from "../../components/SignalInput";
-import { SignalSelect } from "../../components/SignalSelect";
-import { SignalToggle } from "../../components/SignalToggle";
-import { signalLabelClass } from "../../components/signal-field-styles";
-import { Skeleton } from "../../components/Skeleton";
-import { GradeControl } from "../../components/GradeControl";
-import { marketLabel } from "../../components/tradeColumns";
-import { formatOptionMarketChip, optionContractFromFills } from "../../lib/optionContract";
-import { Button } from "../../components/ui/button";
-import { heroPnlClass, pnlColor } from "../../components/theme-tokens";
-import { cn } from "../../lib/cn";
-import type { Setup, Tag, TradeDetail } from "../../lib/api/types";
-import { fmtDateTime, fmtMoney, fmtSignedMoney, fmtTime } from "../../lib/format";
+} from "@/components/Collapsible";
+import { EmptyState } from "@/components/EmptyState";
+import { Modal } from "@/components/Modal";
+import { Page } from "@/components/Page";
+import { Pill, type PillTone } from "@/components/Pill";
+import { AmountInput } from "@/components/AmountInput";
+import { Field } from "@/components/Field";
+import { FormInput, FormTextarea } from "@/components/FormInput";
+import { OptionsSelect } from "@/components/OptionsSelect";
+import { ToneToggle } from "@/components/ToneToggle";
+import { fieldLabelClass } from "@/components/field-styles";
+import { Skeleton } from "@/components/Skeleton";
+import { GradeControl } from "@/components/GradeControl";
+import { marketLabel } from "@/components/tradeColumns";
+import { formatOptionMarketChip, optionContractFromFills } from "@/lib/optionContract";
+import { Button } from "@/components/ui/button";
+import { heroPnlClass, pnlColor } from "@/components/theme-tokens";
+import { cn } from "@/lib/cn";
+import type { Setup, Tag, TradeDetail } from "@/lib/api/types";
+import { fmtDateTime, fmtMoney, fmtSignedMoney, fmtTime } from "@/lib/format";
 
 import {
   buildStructuredJournalNotes,
   EMOTIONAL_STATES,
   parseJournalNotes,
-} from "../../lib/newTradeJournal";
-import { intlLocale } from "../../lib/locale";
+} from "@/lib/newTradeJournal";
+import { intlLocale } from "@/lib/locale";
 import {
   computeTradeInsights,
   generateTradeCoachNotes,
   type CoachTone,
   type TradeCoachNote,
   type TradeInsights,
-} from "../../lib/tradeInsights";
-import { useTradeCoach } from "../../lib/hooks/useTradeCoach";
+} from "@/lib/tradeInsights";
+import { useTradeCoach } from "@/lib/hooks/useTradeCoach";
 import {
   useAttachments,
   useDeleteAttachment,
   useUploadAttachment,
-} from "../../lib/hooks/useAttachments";
-import { useJournalPrefs } from "../../lib/journalPrefs";
-import { gradeFromInt, intFromGrade, TRADE_SESSIONS, type TradeGrade } from "../../lib/tradeGrades";
-import { getDisplayTimeOpts, useDisplayTimePrefs, usePrivacyMode } from "../../lib/displayPrefs";
+} from "@/lib/hooks/useAttachments";
+import { useJournalPrefs } from "@/lib/journalPrefs";
+import { gradeFromInt, intFromGrade, TRADE_SESSIONS, type TradeGrade } from "@/lib/tradeGrades";
+import { getDisplayTimeOpts, useDisplayTimePrefs, usePrivacyMode } from "@/lib/displayPrefs";
 import {
   JournalScreenshotUpload,
   type ScreenshotAttachmentItem,
-} from "../../components/JournalScreenshotUpload";
+} from "@/components/JournalScreenshotUpload";
 
 function tradeOutcome(trade: TradeDetail): { label: string; tone: PillTone } {
   if (trade.status !== "closed") return { label: "OPEN", tone: "accent" };
@@ -640,7 +640,7 @@ function TradeCoachPanel({ trade, insights }: { trade: TradeDetail; insights: Tr
 
             {hasExcursion && (
               <div>
-                <p className={cn(signalLabelClass, "mb-2")}>Excursion</p>
+                <p className={cn(fieldLabelClass, "mb-2")}>Excursion</p>
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                   <InsightCell label="MAE">{signedOrDash(insights.mae, currency)}</InsightCell>
                   <InsightCell label="MFE">{signedOrDash(insights.mfe, currency)}</InsightCell>
@@ -800,7 +800,7 @@ function TagChipGroup({
       {tags.map((tag) => {
         const active = selected.includes(tag.id);
         return (
-          <SignalToggle
+          <ToneToggle
             key={tag.id}
             pressed={active}
             tone={tone}
@@ -808,7 +808,7 @@ function TagChipGroup({
             aria-label={tag.name}
           >
             {tag.name}
-          </SignalToggle>
+          </ToneToggle>
         );
       })}
     </div>
@@ -840,7 +840,7 @@ export type JournalPanelHandle = {
 function JournalReadOnlyField({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div>
-      <p className={signalLabelClass}>{label}</p>
+      <p className={fieldLabelClass}>{label}</p>
       <div className="text-[13px] leading-relaxed text-foreground">{children}</div>
     </div>
   );
@@ -885,7 +885,7 @@ function JournalReadOnlyView({
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <p className={signalLabelClass}>Setups</p>
+        <p className={fieldLabelClass}>Setups</p>
         {selectedSetups.length === 0 ? (
           dash
         ) : (
@@ -919,7 +919,7 @@ function JournalReadOnlyView({
 
       {selectedCustom.length > 0 && (
         <div>
-          <p className={signalLabelClass}>Tags</p>
+          <p className={fieldLabelClass}>Tags</p>
           <div className="flex flex-wrap gap-1.5">
             {selectedCustom.map((t) => (
               <Pill key={t.id} tone="muted">
@@ -932,7 +932,7 @@ function JournalReadOnlyView({
 
       {selectedMistake.length > 0 && (
         <div>
-          <p className={signalLabelClass}>Mistake type</p>
+          <p className={fieldLabelClass}>Mistake type</p>
           <div className="flex flex-wrap gap-1.5">
             {selectedMistake.map((t) => (
               <Pill key={t.id} tone="neg">
@@ -1133,7 +1133,7 @@ export const JournalPanel = forwardRef<JournalPanelHandle, JournalPanelProps>(fu
       )}
 
       <div>
-        <p className={signalLabelClass}>Setups (select multiple)</p>
+        <p className={fieldLabelClass}>Setups (select multiple)</p>
         <p className="mb-2 text-[10px] text-muted-foreground">
           First selected setup becomes the main setup.
         </p>
@@ -1145,9 +1145,9 @@ export const JournalPanel = forwardRef<JournalPanelHandle, JournalPanelProps>(fu
               const idx = form.setup_ids.indexOf(s.id);
               const on = idx >= 0;
               return (
-                <SignalToggle key={s.id} pressed={on} onPressedChange={() => toggleSetup(s.id)}>
+                <ToneToggle key={s.id} pressed={on} onPressedChange={() => toggleSetup(s.id)}>
                   {on && idx === 0 ? `${s.name} · main` : s.name}
-                </SignalToggle>
+                </ToneToggle>
               );
             })}
           </div>
@@ -1155,26 +1155,26 @@ export const JournalPanel = forwardRef<JournalPanelHandle, JournalPanelProps>(fu
       </div>
 
       <div>
-        <p className={signalLabelClass}>Session</p>
+        <p className={fieldLabelClass}>Session</p>
         <div className="flex flex-wrap gap-1.5">
           {TRADE_SESSIONS.map((s) => {
             const on = form.session === s;
             return (
-              <SignalToggle
+              <ToneToggle
                 key={s}
                 pressed={on}
                 onPressedChange={() => setForm((f) => ({ ...f, session: on ? "" : s }))}
                 aria-label={`Session ${s}`}
               >
                 {s}
-              </SignalToggle>
+              </ToneToggle>
             );
           })}
         </div>
       </div>
 
-      <SignalField label="Emotion" htmlFor="trade-emotion">
-        <SignalSelect
+      <Field label="Emotion" htmlFor="trade-emotion">
+        <OptionsSelect
           id="trade-emotion"
           value={form.emotional_state}
           onValueChange={(emotional_state) => setForm((f) => ({ ...f, emotional_state }))}
@@ -1185,55 +1185,55 @@ export const JournalPanel = forwardRef<JournalPanelHandle, JournalPanelProps>(fu
           ariaLabel="Emotion"
           triggerClassName="h-9 text-[12px]"
         />
-      </SignalField>
+      </Field>
 
       <div className="grid grid-cols-3 gap-3">
-        <SignalField label="Initial risk" htmlFor="trade-risk">
-          <SignalAmountInput
+        <Field label="Initial risk" htmlFor="trade-risk">
+          <AmountInput
             id="trade-risk"
             value={form.initial_risk}
             onValueChange={(initial_risk) => setForm((f) => ({ ...f, initial_risk }))}
             placeholder="0.00"
           />
-        </SignalField>
-        <SignalField label="Target" htmlFor="trade-target">
-          <SignalAmountInput
+        </Field>
+        <Field label="Target" htmlFor="trade-target">
+          <AmountInput
             id="trade-target"
             value={form.target_price}
             onValueChange={(target_price) => setForm((f) => ({ ...f, target_price }))}
             placeholder="Target"
           />
-        </SignalField>
-        <SignalField label="Stop" htmlFor="trade-stop">
-          <SignalAmountInput
+        </Field>
+        <Field label="Stop" htmlFor="trade-stop">
+          <AmountInput
             id="trade-stop"
             value={form.stop_price}
             onValueChange={(stop_price) => setForm((f) => ({ ...f, stop_price }))}
             placeholder="Stop"
           />
-        </SignalField>
+        </Field>
       </div>
 
       {customTags.length > 0 && (
-        <SignalField label="Tags">
+        <Field label="Tags">
           <TagChipGroup
             tags={customTags}
             selected={form.tag_ids}
             onToggle={toggleTag}
             tone="accent"
           />
-        </SignalField>
+        </Field>
       )}
 
       {mistakeTags.length > 0 && (
-        <SignalField label="Mistake type">
+        <Field label="Mistake type">
           <TagChipGroup
             tags={mistakeTags}
             selected={form.tag_ids}
             onToggle={toggleTag}
             tone="neg"
           />
-        </SignalField>
+        </Field>
       )}
 
       <RatingField
@@ -1249,55 +1249,55 @@ export const JournalPanel = forwardRef<JournalPanelHandle, JournalPanelProps>(fu
         onChange={(trade_quality) => setForm((f) => ({ ...f, trade_quality }))}
       />
 
-      <SignalField label="Entry reason" htmlFor="trade-entry-reason">
-        <SignalTextarea
+      <Field label="Entry reason" htmlFor="trade-entry-reason">
+        <FormTextarea
           id="trade-entry-reason"
           value={form.entry_reason}
           onChange={(e) => setForm((f) => ({ ...f, entry_reason: e.target.value }))}
           rows={2}
           placeholder="Why did you enter?"
         />
-      </SignalField>
+      </Field>
 
-      <SignalField label="Exit reason" htmlFor="trade-exit-reason">
-        <SignalTextarea
+      <Field label="Exit reason" htmlFor="trade-exit-reason">
+        <FormTextarea
           id="trade-exit-reason"
           value={form.exit_reason}
           onChange={(e) => setForm((f) => ({ ...f, exit_reason: e.target.value }))}
           rows={2}
           placeholder="Why did you exit?"
         />
-      </SignalField>
+      </Field>
 
-      <SignalField label="Review notes" htmlFor="trade-review-notes">
-        <SignalTextarea
+      <Field label="Review notes" htmlFor="trade-review-notes">
+        <FormTextarea
           id="trade-review-notes"
           value={form.review_notes}
           onChange={(e) => setForm((f) => ({ ...f, review_notes: e.target.value }))}
           rows={3}
           placeholder="What would you do differently?"
         />
-      </SignalField>
+      </Field>
 
       <div className="grid grid-cols-2 gap-3">
-        <SignalField label="MAE ($)" htmlFor="trade-mae">
-          <SignalAmountInput
+        <Field label="MAE ($)" htmlFor="trade-mae">
+          <AmountInput
             id="trade-mae"
             value={form.mae}
             onValueChange={(mae) => setForm((f) => ({ ...f, mae }))}
             placeholder="Max adverse"
             allowNegative
           />
-        </SignalField>
-        <SignalField label="MFE ($)" htmlFor="trade-mfe">
-          <SignalAmountInput
+        </Field>
+        <Field label="MFE ($)" htmlFor="trade-mfe">
+          <AmountInput
             id="trade-mfe"
             value={form.mfe}
             onValueChange={(mfe) => setForm((f) => ({ ...f, mfe }))}
             placeholder="Max favorable"
             allowNegative
           />
-        </SignalField>
+        </Field>
       </div>
 
       {children}
@@ -1466,7 +1466,7 @@ export function TradeDetailView({
             >
               Type <span className="font-medium text-foreground">{trade.symbol}</span> to confirm
             </label>
-            <SignalInput
+            <FormInput
               id={confirmInputId}
               value={typedConfirm}
               onChange={(e) => setTypedConfirm(e.target.value)}

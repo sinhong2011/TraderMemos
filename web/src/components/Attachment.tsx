@@ -1,5 +1,5 @@
 import type { ComponentProps } from "react";
-import { cn } from "../lib/cn";
+import { cn } from "@/lib/cn";
 import { Button } from "./ui/button";
 
 type AttachmentState = "idle" | "uploading" | "processing" | "error" | "done";

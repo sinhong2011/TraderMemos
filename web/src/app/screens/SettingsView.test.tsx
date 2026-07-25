@@ -2,11 +2,11 @@ import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ComponentProps } from "react";
 import { describe, expect, it, beforeEach, vi } from "vite-plus/test";
-import { Toaster } from "../../components/Toaster";
-import { ThemeProvider } from "../../components/theme-provider";
-import type { Account, CashTransaction, Tag } from "../../lib/api/types";
-import { renderWithI18n } from "../../test/renderWithI18n";
-import { DEFAULT_LOCALE, setStoredLocale } from "../../lib/locale";
+import { Toaster } from "@/components/Toaster";
+import { ThemeProvider } from "@/components/theme-provider";
+import type { Account, CashTransaction, Tag } from "@/lib/api/types";
+import { renderWithI18n } from "@/test/renderWithI18n";
+import { DEFAULT_LOCALE, setStoredLocale } from "@/lib/locale";
 import { SettingsView } from "./SettingsView";
 
 function renderSettings(props: ComponentProps<typeof SettingsView>) {

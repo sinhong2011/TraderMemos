@@ -1,13 +1,13 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { CalendarView, type CalendarMode } from "../app/screens/CalendarView";
-import { TradeDetailSheet } from "../components/TradeDetailSheet";
-import { buildDayRecords, tradeDayKey, tradesOnDay } from "../lib/calendar";
-import { accountBaseCurrency, useDisplayPrefs } from "../lib/displayPrefs";
-import { useFilterParams, useFilters } from "../lib/filters";
-import { useAccounts } from "../lib/hooks/useAccounts";
-import { useDailyPnl, useSummary } from "../lib/hooks/useAnalytics";
-import { useTrades } from "../lib/hooks/useTrades";
+import { CalendarView, type CalendarMode } from "@/app/screens/CalendarView";
+import { TradeDetailSheet } from "@/components/TradeDetailSheet";
+import { buildDayRecords, tradeDayKey, tradesOnDay } from "@/lib/calendar";
+import { accountBaseCurrency, useDisplayPrefs } from "@/lib/displayPrefs";
+import { useFilterParams, useFilters } from "@/lib/filters";
+import { useAccounts } from "@/lib/hooks/useAccounts";
+import { useDailyPnl, useSummary } from "@/lib/hooks/useAnalytics";
+import { useTrades } from "@/lib/hooks/useTrades";
 
 export const Route = createFileRoute("/calendar")({
   component: CalendarPage,

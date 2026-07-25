@@ -1,8 +1,8 @@
-import { money, shares as fmtShares } from "../../../lib/r-calculator/format";
-import { useFvgStore } from "../../../lib/r-calculator/useFvgStore";
-import { cn } from "../../../lib/cn";
-import { Card } from "../../Card";
-import { SegmentedControl } from "../../SegmentedControl";
+import { money, shares as fmtShares } from "@/lib/r-calculator/format";
+import { useFvgStore } from "@/lib/r-calculator/useFvgStore";
+import { cn } from "@/lib/cn";
+import { Card } from "@/components/Card";
+import { SegmentedControl } from "@/components/SegmentedControl";
 import { CalcInputField } from "./CalcInputField";
 import { TradeTicket, type TradeTicketRow } from "./TradeTicket";
 import { WarningBanner } from "./WarningBanner";

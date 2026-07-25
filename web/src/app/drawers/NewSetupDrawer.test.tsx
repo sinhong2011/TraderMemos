@@ -3,8 +3,8 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
-import { setupsApi } from "../../lib/api/setups";
-import { useUI } from "../../lib/ui";
+import { setupsApi } from "@/lib/api/setups";
+import { useUI } from "@/lib/ui";
 import { NewSetupDrawer } from "./NewSetupDrawer";
 
 vi.mock("../../lib/api/setups", () => ({

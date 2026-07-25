@@ -3,7 +3,7 @@ import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-tabl
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vite-plus/test";
-import type { Summary, Trade } from "../../lib/api/types";
+import type { Summary, Trade } from "@/lib/api/types";
 import { DashboardView } from "./DashboardView";
 
 vi.mock("../../components/Toast", () => ({

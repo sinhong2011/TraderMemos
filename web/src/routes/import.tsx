@@ -1,9 +1,9 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ImportView } from "../app/screens/ImportView";
-import { useAccounts } from "../lib/hooks/useAccounts";
-import { useImportCommit, useImportPreview } from "../lib/hooks/useImports";
-import { useFilters } from "../lib/filters";
-import { useUI } from "../lib/ui";
+import { ImportView } from "@/app/screens/ImportView";
+import { useAccounts } from "@/lib/hooks/useAccounts";
+import { useImportCommit, useImportPreview } from "@/lib/hooks/useImports";
+import { useFilters } from "@/lib/filters";
+import { useUI } from "@/lib/ui";
 
 export const Route = createFileRoute("/import")({
   component: ImportPage,

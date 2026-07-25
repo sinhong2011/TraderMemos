@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
-import { useFilters } from "../../lib/filters";
-import { useAccounts } from "../../lib/hooks/useAccounts";
-import { useRiskRules } from "../../lib/hooks/useRiskRules";
-import { useFvgStore } from "../../lib/r-calculator/useFvgStore";
-import { useRCalculatorStore } from "../../lib/r-calculator/useRCalculatorStore";
-import { Page } from "../../components/Page";
-import { Button } from "../../components/ui/button";
-import { CalculatorPanel } from "../../components/tools/r-calculator/CalculatorPanel";
-import { FvgPanel } from "../../components/tools/r-calculator/FvgPanel";
-import { SegmentedControl } from "../../components/SegmentedControl";
-import { SessionRail } from "../../components/tools/r-calculator/SessionRail";
+import { useFilters } from "@/lib/filters";
+import { useAccounts } from "@/lib/hooks/useAccounts";
+import { useRiskRules } from "@/lib/hooks/useRiskRules";
+import { useFvgStore } from "@/lib/r-calculator/useFvgStore";
+import { useRCalculatorStore } from "@/lib/r-calculator/useRCalculatorStore";
+import { Page } from "@/components/Page";
+import { Button } from "@/components/ui/button";
+import { CalculatorPanel } from "@/components/tools/r-calculator/CalculatorPanel";
+import { FvgPanel } from "@/components/tools/r-calculator/FvgPanel";
+import { SegmentedControl } from "@/components/SegmentedControl";
+import { SessionRail } from "@/components/tools/r-calculator/SessionRail";
 
 type AppMode = "rmultiple" | "fvg";
 

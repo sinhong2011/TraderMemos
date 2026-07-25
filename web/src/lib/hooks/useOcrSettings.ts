@@ -4,7 +4,7 @@ import {
   type OcrSettingsPut,
   type OcrSettingsTestRequest,
   settingsApi,
-} from "../api/settings";
+} from "@/lib/api/settings";
 
 export function useOcrSettings() {
   return useQuery({

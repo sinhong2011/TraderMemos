@@ -1,9 +1,9 @@
-import type { DayRecord } from "../lib/calendar";
-import type { Trade } from "../lib/api/types";
-import { cn } from "../lib/cn";
-import { usePrivacyMode } from "../lib/displayPrefs";
-import { fmtSignedMoney } from "../lib/format";
-import { intlLocale } from "../lib/locale";
+import type { DayRecord } from "@/lib/calendar";
+import type { Trade } from "@/lib/api/types";
+import { cn } from "@/lib/cn";
+import { usePrivacyMode } from "@/lib/displayPrefs";
+import { fmtSignedMoney } from "@/lib/format";
+import { intlLocale } from "@/lib/locale";
 import { pnlColor } from "./theme-tokens";
 import { WinLossRecord } from "./WinLossRecord";
 

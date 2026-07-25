@@ -9,24 +9,25 @@ import {
   Trash2,
 } from "lucide-react";
 import { useMemo, useState } from "react";
-import { EmptyState } from "../../components/EmptyState";
-import { Page } from "../../components/Page";
-import { Pill } from "../../components/Pill";
-import { SegmentedControl, type SegmentOption } from "../../components/SegmentedControl";
-import { Skeleton } from "../../components/Skeleton";
-import { noteExcerpt } from "../../components/editor/markdown";
-import { Button } from "../../components/ui/button";
+import { EmptyState } from "@/components/EmptyState";
+import { Page } from "@/components/Page";
+import { Pill } from "@/components/Pill";
+import { SegmentedControl, type SegmentOption } from "@/components/SegmentedControl";
+import { CardGridSkeleton } from "@/components/skeletons/card-skeleton";
+import { ListSkeleton } from "@/components/skeletons/list-skeleton";
+import { noteExcerpt } from "@/components/editor/markdown";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "../../components/ui/dropdown-menu";
-import type { JournalNote } from "../../lib/api/types";
-import { cn } from "../../lib/cn";
-import { intlLocale } from "../../lib/locale";
-import { useNotesPrefs, type NotesLayout } from "../../lib/notesPrefs";
-import { useUI } from "../../lib/ui";
+} from "@/components/ui/dropdown-menu";
+import type { JournalNote } from "@/lib/api/types";
+import { cn } from "@/lib/cn";
+import { intlLocale } from "@/lib/locale";
+import { useNotesPrefs, type NotesLayout } from "@/lib/notesPrefs";
+import { useUI } from "@/lib/ui";
 
 export interface NotesViewProps {
   notes: JournalNote[];
@@ -292,17 +293,13 @@ export function NotesView({ notes, loading, error, onDelete }: NotesViewProps) {
 
       {loading ? (
         layout === "cards" ? (
-          <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-            <Skeleton className="h-52 w-full rounded-lg" />
-            <Skeleton className="h-52 w-full rounded-lg" />
-            <Skeleton className="h-52 w-full rounded-lg" />
-          </div>
+          <CardGridSkeleton
+            count={3}
+            className="min-h-0 flex-1 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3"
+            mediaClassName="h-36"
+          />
         ) : (
-          <div className="flex min-h-0 flex-1 flex-col gap-3">
-            <Skeleton className="h-36 w-full rounded-lg" />
-            <Skeleton className="h-36 w-full rounded-lg" />
-            <Skeleton className="h-36 w-full rounded-lg" />
-          </div>
+          <ListSkeleton rows={3} className="min-h-0 flex-1" />
         )
       ) : error ? (
         <EmptyState title="Could not load notes" hint="Try refreshing the page." />

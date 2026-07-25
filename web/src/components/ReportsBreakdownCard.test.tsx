@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ColumnDef } from "@tanstack/react-table";
 import { describe, expect, it, vi } from "vite-plus/test";
-import type { BreakGroup } from "../lib/api/types";
+import type { BreakGroup } from "@/lib/api/types";
 import { ReportsBreakdownCard, buildBreakdownChartData } from "./ReportsBreakdownCard";
 
 // Mock DataTable (virtualizer needs a sized container in jsdom) — same pattern as ReportsView.test.tsx.

@@ -8,15 +8,15 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import type { Trade } from "../lib/api/types";
-import { useDisplayTimePrefs } from "../lib/displayPrefs";
-import { fmtDayShort, fmtPct } from "../lib/format";
-import { intlLocale } from "../lib/locale";
+import type { Trade } from "@/lib/api/types";
+import { useDisplayTimePrefs } from "@/lib/displayPrefs";
+import { fmtDayShort, fmtPct } from "@/lib/format";
+import { intlLocale } from "@/lib/locale";
 import {
   type EvolutionGranularity,
   type EvolutionPoint,
   metricEvolution,
-} from "../lib/reportsAnalytics";
+} from "@/lib/reportsAnalytics";
 import { Card } from "./Card";
 import { ChartFrame, chartTheme } from "./ChartFrame";
 import { EmptyState } from "./EmptyState";

@@ -1,6 +1,6 @@
-import type { Warning } from "../../../lib/r-calculator/calc";
-import { msg } from "../../../lib/r-calculator/messages";
-import { cn } from "../../../lib/cn";
+import type { Warning } from "@/lib/r-calculator/calc";
+import { msg } from "@/lib/r-calculator/messages";
+import { cn } from "@/lib/cn";
 
 export function WarningBanner({ warns }: { warns: Warning[] }) {
   if (warns.length === 0) return null;

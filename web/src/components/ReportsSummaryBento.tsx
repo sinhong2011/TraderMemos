@@ -1,11 +1,11 @@
 import type { ReactNode } from "react";
-import type { EquityCurve, Summary, Trade } from "../lib/api/types";
+import type { EquityCurve, Summary, Trade } from "@/lib/api/types";
 import { pnlColor } from "./theme-tokens";
-import { cn } from "../lib/cn";
-import { computeDashboardInsights } from "../lib/dashboardInsights";
-import { usePrivacyMode } from "../lib/displayPrefs";
-import { fmtDuration, fmtPct } from "../lib/format";
-import { intlLocale } from "../lib/locale";
+import { cn } from "@/lib/cn";
+import { computeDashboardInsights } from "@/lib/dashboardInsights";
+import { usePrivacyMode } from "@/lib/displayPrefs";
+import { fmtDuration, fmtPct } from "@/lib/format";
+import { intlLocale } from "@/lib/locale";
 import { DonutRing } from "./charts/DonutRing";
 import { GaugeArc } from "./charts/GaugeArc";
 import { useReportsMoney } from "./ReportsDisplayContext";

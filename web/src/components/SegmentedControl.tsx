@@ -1,6 +1,8 @@
-import type { ReactNode } from "react";
-import { cn } from "../lib/cn";
-import { Tabs, TabsIndicator, TabsList, TabsTrigger } from "./Tabs";
+import { motion, useReducedMotion } from "motion/react";
+import { useId, type ReactNode } from "react";
+import { cn } from "@/lib/cn";
+import { Button } from "./ui/button";
+import { ButtonGroup } from "./ui/button-group";
 
 export interface SegmentOption {
   value: string;
@@ -10,18 +12,38 @@ export interface SegmentOption {
 type SegmentTone = "pos" | "neg";
 
 const INDICATOR_TONE: Record<SegmentTone, string> = {
-  pos: "bg-profit/20",
-  neg: "bg-destructive/20",
+  pos: "bg-profit/15 shadow-sm",
+  neg: "bg-destructive/15 shadow-sm",
 };
 
-const TRIGGER_TONE: Record<SegmentTone, string> = {
-  pos: "data-active:text-profit",
-  neg: "data-active:text-destructive",
+const ACTIVE_TEXT: Record<SegmentTone, string> = {
+  pos: "text-profit",
+  neg: "text-destructive",
+};
+
+const SIZE_MAP = {
+  xs: "xs",
+  sm: "sm",
+  md: "lg",
+} as const;
+
+const SIZE_CLASS = {
+  xs: "h-6 px-2 text-[11px] font-medium",
+  sm: "h-7 px-2.5 text-[12px] font-medium",
+  md: "h-9 px-3.5 text-[13px] font-semibold",
+} as const;
+
+const PILL_SPRING = {
+  type: "spring" as const,
+  stiffness: 520,
+  damping: 38,
+  mass: 0.75,
 };
 
 /**
- * Compact segmented options — Tabs primitive with the muted pill chrome.
- * For panels / other tab UIs, compose `Tabs*` directly.
+ * Compact exclusive options — ReUI ButtonGroup with a soft pill track
+ * and a Motion-sliding active indicator.
+ * @see https://reui.io/r/base-nova/c-button-group-42.json
  */
 export function SegmentedControl({
   options,
@@ -29,10 +51,10 @@ export function SegmentedControl({
   onChange,
   ariaLabel,
   className,
-  /** Stretch equal-width segments across the container (section tabs). */
+  /** Stretch equal-width segments across the container. */
   fullWidth = false,
   size = "sm",
-  /** Optional semantic fill for the active pill (e.g. long→pos, short→neg). */
+  /** Optional semantic fill for the active segment (e.g. long→pos, short→neg). */
   tones,
 }: {
   options: SegmentOption[];
@@ -45,50 +67,63 @@ export function SegmentedControl({
   size?: "xs" | "sm" | "md";
   tones?: Partial<Record<string, SegmentTone>>;
 }) {
-  const tall = size === "md";
-  const tiny = size === "xs";
+  const layoutId = `segmented-pill-${useId()}`;
+  const reduceMotion = useReducedMotion();
   const activeTone = tones?.[value];
+
   return (
-    <Tabs
-      value={value}
-      onValueChange={(next) => {
-        if (typeof next === "string") onChange(next);
-      }}
-      className={cn(fullWidth && "w-full")}
+    <ButtonGroup
+      aria-label={ariaLabel}
+      className={cn(
+        // Soft track — undo joined-outline chrome for a pill segmented look
+        "gap-0.5 rounded-lg border border-border bg-muted p-0.5 shadow-xs",
+        "*:data-slot:rounded-md!",
+        "[&>[data-slot]~[data-slot]]:rounded-md!",
+        "[&>[data-slot]~[data-slot]]:border-l!",
+        "[&>[data-slot]:not(:has(~[data-slot]))]:rounded-md!",
+        fullWidth && "w-full",
+        className,
+      )}
     >
-      <TabsList
-        aria-label={ariaLabel}
-        fullWidth={fullWidth}
-        className={cn(
-          tiny ? "h-8" : "h-10",
-          "rounded-md border border-border bg-muted p-1",
-          className,
-        )}
-      >
-        <TabsIndicator
-          className={cn(
-            "rounded-md transition-[left,top,width,height,background-color] duration-250 ease-[cubic-bezier(0.16, 1, 0.3, 1)]",
-            activeTone ? INDICATOR_TONE[activeTone] : "bg-accent",
-          )}
-        />
-        {options.map((o) => {
-          const tone = tones?.[o.value];
-          return (
-            <TabsTrigger
-              key={o.value}
-              value={o.value}
-              fullWidth={fullWidth}
-              className={cn(
-                "h-full font-medium text-muted-foreground hover:text-muted-foreground",
-                tone ? TRIGGER_TONE[tone] : "data-active:text-foreground",
-                tall ? "px-3.5 text-[13px]" : tiny ? "px-2 text-[11px]" : "px-3 text-[12px]",
-              )}
-            >
-              {o.label}
-            </TabsTrigger>
-          );
-        })}
-      </TabsList>
-    </Tabs>
+      {options.map((o) => {
+        const active = value === o.value;
+        const tone = tones?.[o.value];
+        return (
+          <Button
+            key={o.value}
+            type="button"
+            variant="ghost"
+            size={SIZE_MAP[size]}
+            aria-pressed={active}
+            className={cn(
+              SIZE_CLASS[size],
+              "relative isolate border-transparent shadow-none",
+              "text-muted-foreground hover:bg-transparent hover:text-foreground",
+              "focus-visible:outline-offset-0",
+              "active:scale-[0.98] motion-reduce:active:scale-100",
+              fullWidth && "min-w-0 flex-1",
+              active && (tone ? ACTIVE_TEXT[tone] : "text-foreground"),
+            )}
+            onClick={() => onChange(o.value)}
+          >
+            {active ? (
+              <motion.span
+                layoutId={layoutId}
+                className={cn(
+                  "absolute inset-0 -z-10 rounded-md",
+                  activeTone
+                    ? INDICATOR_TONE[activeTone]
+                    : // Light: raised white on muted. Dark: `background` is the void (near-black) —
+                      // use `input` (translucent white) so the pill lifts like ReUI/shadcn demos.
+                      "bg-background shadow-sm dark:bg-input dark:shadow-none",
+                )}
+                transition={reduceMotion ? { duration: 0 } : PILL_SPRING}
+              />
+            ) : null}
+            <span className="relative z-0">{o.label}</span>
+          </Button>
+        );
+      })}
+    </ButtonGroup>
   );
 }

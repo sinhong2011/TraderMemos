@@ -1,8 +1,8 @@
 import { RefreshCw, X } from "lucide-react";
-import { aboutContent } from "../lib/aboutContent";
-import { useAppUpdate } from "../lib/appUpdate";
-import { useLocale } from "../i18n";
-import { APP_VERSION } from "../lib/version";
+import { aboutContent } from "@/lib/aboutContent";
+import { useAppUpdate } from "@/lib/appUpdate";
+import { useLocale } from "@/i18n";
+import { APP_VERSION } from "@/lib/version";
 import { Button } from "./ui/button";
 
 function fillBanner(
@@ -53,7 +53,7 @@ export function AppUpdateBanner() {
   return (
     <div
       role="status"
-      className="pointer-events-auto fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-1/2 z-[9998] flex w-[min(100%-2rem,24rem)] -translate-x-1/2 items-start gap-3 rounded-lg border border-border bg-card p-3.5 shadow-[0_12px_32px_rgba(18,18,24,0.55)] md:bottom-[max(1.5rem,env(safe-area-inset-bottom))]"
+      className="pointer-events-auto fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-1/2 z-[9998] flex w-[min(100%-2rem,24rem)] -translate-x-1/2 items-start gap-3 rounded-lg border border-border bg-card p-3.5 shadow-md md:bottom-[max(1.5rem,env(safe-area-inset-bottom))]"
     >
       <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
         <RefreshCw size={15} strokeWidth={1.75} aria-hidden />

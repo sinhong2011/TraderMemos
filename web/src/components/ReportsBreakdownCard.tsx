@@ -17,8 +17,8 @@ import { EmptyState } from "./EmptyState";
 import { useReportsMoney } from "./ReportsDisplayContext";
 import { SegmentedControl } from "./SegmentedControl";
 import { Skeleton } from "./Skeleton";
-import type { BreakGroup } from "../lib/api/types";
-import { usePrivacyMode } from "../lib/displayPrefs";
+import type { BreakGroup } from "@/lib/api/types";
+import { usePrivacyMode } from "@/lib/displayPrefs";
 
 const POS = "var(--profit)";
 const NEG = "var(--loss)";

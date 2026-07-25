@@ -13,10 +13,10 @@ import { ChartFrame, chartTheme } from "./ChartFrame";
 import { EmptyState } from "./EmptyState";
 import { SegmentedControl } from "./SegmentedControl";
 import { Skeleton } from "./Skeleton";
-import type { Trade } from "../lib/api/types";
-import { fmtPct } from "../lib/format";
-import { intlLocale } from "../lib/locale";
-import { rollingWinRate } from "../lib/reportsAnalytics";
+import type { Trade } from "@/lib/api/types";
+import { fmtPct } from "@/lib/format";
+import { intlLocale } from "@/lib/locale";
+import { rollingWinRate } from "@/lib/reportsAnalytics";
 
 const WINDOWS = [10, 20, 50, 100];
 

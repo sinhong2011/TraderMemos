@@ -1,5 +1,5 @@
-import type { OcrSettings } from "../lib/api/settings";
-import { getOcrVisionSetupIssues, OCR_VISION_SETUP_STEPS } from "../lib/ocrVisionReady";
+import type { OcrSettings } from "@/lib/api/settings";
+import { getOcrVisionSetupIssues, OCR_VISION_SETUP_STEPS } from "@/lib/ocrVisionReady";
 import { Modal } from "./Modal";
 import { Button } from "./ui/button";
 

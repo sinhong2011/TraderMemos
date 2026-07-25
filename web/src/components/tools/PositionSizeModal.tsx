@@ -1,15 +1,15 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { useFilters } from "../../lib/filters";
-import { useAccounts } from "../../lib/hooks/useAccounts";
-import { useRiskRules } from "../../lib/hooks/useRiskRules";
-import { positionSizeFromRisk } from "../../lib/positionSize";
-import { Modal } from "../Modal";
-import { signalInputClass } from "../signal-field-styles";
+import { useFilters } from "@/lib/filters";
+import { useAccounts } from "@/lib/hooks/useAccounts";
+import { useRiskRules } from "@/lib/hooks/useRiskRules";
+import { positionSizeFromRisk } from "@/lib/positionSize";
+import { Modal } from "@/components/Modal";
+import { fieldInputClass } from "@/components/field-styles";
 
 const labelClass =
   "mb-1 block text-[10px] font-medium uppercase tracking-widest text-muted-foreground";
-const inputClass = signalInputClass;
+const inputClass = fieldInputClass;
 
 export function PositionSizeModal({
   open,

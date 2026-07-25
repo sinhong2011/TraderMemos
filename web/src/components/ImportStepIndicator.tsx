@@ -1,5 +1,5 @@
 import { Check } from "lucide-react";
-import { cn } from "../lib/cn";
+import { cn } from "@/lib/cn";
 
 const STEPS = [
   { step: 1 as const, label: "Upload" },
@@ -38,7 +38,7 @@ export function ImportStepIndicator({ current, format }: { current: 1 | 2 | 3; f
                     "transition-[transform,background-color,border-color,box-shadow,color] duration-250 ease-out",
                     "motion-reduce:transition-none",
                     isActive &&
-                      "scale-105 border-primary bg-primary/10 text-primary shadow-[0_0_0_1px_rgba(228,255,26,0.25),0_0_14px_rgba(228,255,26,0.12)]",
+                      "scale-105 border-primary bg-primary/10 text-primary shadow-none ring-2 ring-warning/30",
                     isDone && "border-primary/35 bg-accent/15 text-primary",
                     !isActive && !isDone && "border-border bg-muted text-muted-foreground",
                   )}

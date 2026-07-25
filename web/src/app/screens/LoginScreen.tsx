@@ -1,20 +1,18 @@
-import { AlertCircle, ArrowRight, Eye, EyeOff, Lock, Settings2, User } from "lucide-react";
+import { AlertCircle, ArrowRight, Settings2 } from "lucide-react";
 import { useId, useState } from "react";
-import { AppLogo } from "../../components/AppLogo";
-import { AuthModeTabs } from "../../components/AuthModeTabs";
-import { Modal } from "../../components/Modal";
-import { SignalInput } from "../../components/SignalInput";
-import { Button } from "../../components/ui/button";
-import { Kbd } from "../../components/ui/kbd";
-import { authApi } from "../../lib/api/auth";
-import {
-  ApiError,
-  editableApiBaseUrl,
-  getCustomApiBaseUrl,
-  setBaseUrl,
-} from "../../lib/api/client";
-import { useAuth } from "../../lib/auth";
-import { cn } from "../../lib/cn";
+import { AppLogo } from "@/components/AppLogo";
+import { Field } from "@/components/Field";
+import { fieldHintClass, fieldLabelClass } from "@/components/field-styles";
+import { FormInput, PasswordInput } from "@/components/FormInput";
+import { Modal } from "@/components/Modal";
+import { Alert, AlertDescription } from "@/components/reui/alert";
+import { SegmentedControl } from "@/components/SegmentedControl";
+import { Button } from "@/components/ui/button";
+import { Kbd } from "@/components/ui/kbd";
+import { authApi } from "@/lib/api/auth";
+import { ApiError, editableApiBaseUrl, getCustomApiBaseUrl, setBaseUrl } from "@/lib/api/client";
+import { useAuth } from "@/lib/auth";
+import { cn } from "@/lib/cn";
 
 const MODES = [
   { value: "login", label: "Sign in" },
@@ -23,94 +21,7 @@ const MODES = [
 
 type AuthMode = (typeof MODES)[number]["value"];
 
-const labelClass = "text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground";
 const MIN_PASSWORD = 10;
-
-function AuthField({
-  label,
-  id,
-  type,
-  value,
-  onChange,
-  placeholder,
-  hint,
-  autoComplete,
-  autoFocus,
-  required = true,
-  icon: Icon,
-}: {
-  label: string;
-  id: string;
-  type: "password" | "text";
-  value: string;
-  onChange: (v: string) => void;
-  placeholder?: string;
-  hint?: string;
-  autoComplete?: string;
-  autoFocus?: boolean;
-  required?: boolean;
-  icon?: typeof User;
-}) {
-  const [showPassword, setShowPassword] = useState(false);
-  const isPassword = type === "password";
-  const inputType = isPassword && showPassword ? "text" : type;
-  const FieldIcon = Icon ?? (isPassword ? Lock : User);
-
-  return (
-    <div className="flex flex-col gap-1.5">
-      <label htmlFor={id} className={labelClass}>
-        {label}
-      </label>
-      <div className="group relative flex items-center">
-        <FieldIcon
-          size={15}
-          strokeWidth={1.5}
-          className="pointer-events-none absolute left-3 text-muted-foreground transition-colors group-focus-within:text-primary"
-          aria-hidden
-        />
-        <input
-          id={id}
-          type={inputType}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          className={cn(
-            "h-11 w-full rounded-md border-none bg-muted py-0 pl-10 text-[13px] text-foreground outline-none transition-[background-color] duration-150 placeholder:text-muted-foreground hover:bg-accent focus:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
-            isPassword ? "pr-10" : "pr-3",
-          )}
-          placeholder={placeholder}
-          autoComplete={autoComplete}
-          autoFocus={autoFocus}
-          required={required}
-          spellCheck={false}
-        />
-        {isPassword && (
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="absolute right-1.5"
-            onClick={() => setShowPassword((v) => !v)}
-            aria-label={showPassword ? "Hide password" : "Show password"}
-          >
-            {showPassword ? (
-              <EyeOff size={15} strokeWidth={1.5} />
-            ) : (
-              <Eye size={15} strokeWidth={1.5} />
-            )}
-          </Button>
-        )}
-      </div>
-      <p
-        className={cn(
-          "min-h-[1.35em] text-[11px] leading-snug text-muted-foreground",
-          !hint && "invisible",
-        )}
-      >
-        {hint ?? "\u00a0"}
-      </p>
-    </div>
-  );
-}
 
 export function LoginScreen({
   registrationOpen = false,
@@ -122,7 +33,7 @@ export function LoginScreen({
   const signIn = useAuth((s) => s.signIn);
   const formId = useId();
 
-  const modes = registrationOpen ? MODES : MODES.filter((m) => m.value === "login");
+  const modes = registrationOpen ? [...MODES] : MODES.filter((m) => m.value === "login");
 
   const [mode, setMode] = useState<AuthMode>("login");
   const [email, setEmail] = useState("");
@@ -170,89 +81,92 @@ export function LoginScreen({
   const isLogin = mode === "login";
 
   return (
-    <div className="relative flex min-h-full items-center justify-center p-6 max-[820px]:items-start max-[820px]:p-4">
-      <div className="relative z-[1] grid h-[min(640px,calc(100vh-48px))] w-full max-w-[920px] grid-cols-[1fr_400px] overflow-hidden border border-border bg-background shadow-md max-[820px]:h-auto max-[820px]:grid-cols-1">
-        {/* Brand panel */}
+    <div className="relative flex min-h-full bg-background">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_50%_at_0%_0%,color-mix(in_oklch,var(--primary)_8%,transparent),transparent_55%),radial-gradient(ellipse_45%_40%_at_100%_100%,color-mix(in_oklch,var(--profit)_6%,transparent),transparent_50%)]"
+      />
+
+      <div
+        className={cn(
+          "relative z-[1] mx-auto grid w-full max-w-[1040px] flex-1",
+          "lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]",
+          "items-stretch gap-0 px-6 py-10 sm:px-8 sm:py-12",
+          "max-lg:items-start max-lg:gap-10 max-lg:py-8",
+        )}
+      >
         <aside
-          className="relative flex flex-col justify-between overflow-hidden border-r border-border bg-sidebar p-10 max-[820px]:border-r-0 max-[820px]:border-b max-[820px]:p-7"
+          className="flex flex-col justify-between gap-10 lg:pr-12 xl:pr-16"
           aria-hidden="true"
         >
-          <div
-            className="pointer-events-none absolute inset-0"
-            style={{
-              backgroundImage:
-                "radial-gradient(ellipse 80% 60% at 0% 0%, rgba(167,139,250,0.14), transparent 55%), radial-gradient(ellipse 50% 40% at 100% 100%, rgba(74,222,128,0.06), transparent 50%)",
-            }}
-          />
-
-          <div className="relative">
-            <div className="mb-8 flex items-center gap-2.5">
-              <AppLogo
-                size={32}
-                className="shadow-[0_0_20px_color-mix(in oklch, var(--primary) 35%, transparent)]"
-              />
-              <span className="text-[13px] font-medium tracking-tight text-foreground">
+          <div>
+            <div className="mb-10 flex items-center gap-3">
+              <AppLogo size={36} />
+              <span className="text-[15px] font-semibold tracking-tight text-foreground">
                 TraderMemos
               </span>
             </div>
 
-            <p className={cn(labelClass, "mb-3 text-muted-foreground")}>Trading journal</p>
-            <h1 className="m-0 text-[clamp(30px,3.6vw,38px)] leading-[1.05] font-bold tracking-[-0.04em] text-foreground">
+            <p className={cn(fieldLabelClass, "mb-3")}>Trading journal</p>
+            <h1 className="m-0 max-w-[14ch] text-[clamp(2rem,4.2vw,2.75rem)] leading-[1.05] font-semibold tracking-[-0.04em] text-foreground">
               Your P&amp;L,
               <br />
-              <span className="text-primary">on the grid.</span>
+              on the grid.
             </h1>
-            <p className="mt-4 max-w-[34ch] text-[13px] leading-relaxed text-muted-foreground">
-              Dense stats. Zero clutter. Numbers that glow when they matter.
+            <p className="mt-5 max-w-[36ch] text-[13px] leading-relaxed text-muted-foreground">
+              Dense stats. Quiet chrome. Review the session without the noise.
             </p>
           </div>
 
-          <div className="relative mt-10 grid grid-cols-2 gap-px border border-border bg-border max-[820px]:hidden">
-            <div className="bg-card px-4 py-3.5">
-              <span className={labelClass}>Net P&amp;L</span>
-              <div className="mt-1.5 text-[22px] font-semibold tracking-tight text-profit">
+          <dl className="hidden grid-cols-2 gap-8 lg:grid">
+            <div>
+              <dt className={fieldLabelClass}>Net P&amp;L</dt>
+              <dd className="m-0 mt-1 text-[1.5rem] font-semibold tracking-tight tabular-nums text-profit">
                 +$2,847
-              </div>
+              </dd>
             </div>
-            <div className="bg-card px-4 py-3.5">
-              <span className={labelClass}>Win rate</span>
-              <div className="mt-1.5 text-[22px] font-semibold tracking-tight text-foreground">
+            <div>
+              <dt className={fieldLabelClass}>Win rate</dt>
+              <dd className="m-0 mt-1 text-[1.5rem] font-semibold tracking-tight tabular-nums text-foreground">
                 68.4%
-              </div>
+              </dd>
             </div>
-          </div>
+          </dl>
         </aside>
 
-        {/* Auth form panel — fixed shell height; content flows naturally */}
         <section
-          className="flex h-full flex-col justify-center overflow-y-auto bg-background px-8 py-8 max-[820px]:justify-start max-[820px]:px-6 max-[820px]:py-7"
+          className={cn(
+            "flex flex-col justify-center",
+            "rounded-xl bg-card px-7 py-8 sm:px-9 sm:py-10",
+            "lg:my-auto lg:max-h-[min(640px,calc(100vh-6rem))]",
+          )}
           aria-labelledby={`${formId}-title`}
         >
-          <div className="mx-auto flex w-full max-w-[320px] flex-col">
-            <header className="mb-6 flex flex-col items-center">
-              <AuthModeTabs
-                ariaLabel="Authentication mode"
-                options={modes}
-                value={mode}
-                onChange={(v) => switchMode(v as AuthMode)}
-              />
-            </header>
-
-            {banner && (
-              <div
-                className="mb-4 flex items-start gap-2 rounded-md border border-[rgba(228,255,26,0.22)] bg-[rgba(228,255,26,0.06)] px-3 py-2.5 text-xs leading-snug text-chart-3"
-                role="status"
-              >
-                <AlertCircle size={14} strokeWidth={1.5} aria-hidden />
-                <span>{banner}</span>
+          <div className="mx-auto flex w-full max-w-[22rem] flex-col">
+            {modes.length > 1 ? (
+              <div className="mb-7 flex justify-center">
+                <SegmentedControl
+                  ariaLabel="Authentication mode"
+                  options={modes}
+                  value={mode}
+                  onChange={(v) => switchMode(v as AuthMode)}
+                  size="sm"
+                />
               </div>
-            )}
+            ) : null}
 
-            <form onSubmit={submit} noValidate={false} className="flex flex-col">
-              <div className="mb-5">
+            {banner ? (
+              <Alert variant="warning" className="mb-5">
+                <AlertCircle />
+                <AlertDescription>{banner}</AlertDescription>
+              </Alert>
+            ) : null}
+
+            <form onSubmit={submit} className="flex flex-col gap-5">
+              <header>
                 <h2
                   id={`${formId}-title`}
-                  className="mb-1 text-[17px] font-semibold tracking-tight text-foreground"
+                  className="mb-1 text-[1.125rem] font-semibold tracking-tight text-foreground"
                 >
                   {isLogin ? "Welcome back" : "Start your journal"}
                 </h2>
@@ -261,50 +175,55 @@ export function LoginScreen({
                     ? "Pick up where your last session left off."
                     : "Your trade data stays on your stack."}
                 </p>
-              </div>
+              </header>
 
-              <div className="flex flex-col gap-1">
-                <AuthField
-                  label="Username"
-                  id="username"
-                  type="text"
-                  value={email}
-                  onChange={setEmail}
-                  placeholder="owner"
-                  autoComplete="username"
-                  autoFocus
-                />
-                <AuthField
+              <div className="flex flex-col gap-4">
+                <Field label="Username" htmlFor="username">
+                  <FormInput
+                    id="username"
+                    type="text"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="owner"
+                    autoComplete="username"
+                    autoFocus
+                    required
+                    spellCheck={false}
+                  />
+                </Field>
+
+                <Field
                   label="Password"
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={setPassword}
-                  placeholder={isLogin ? "Your password" : `At least ${MIN_PASSWORD} characters`}
-                  hint={
+                  htmlFor="password"
+                  description={
                     isLogin
                       ? undefined
                       : `Use ${MIN_PASSWORD}+ characters with a mix of letters and numbers.`
                   }
-                  autoComplete={isLogin ? "current-password" : "new-password"}
-                />
+                >
+                  <PasswordInput
+                    id="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder={isLogin ? "Your password" : `At least ${MIN_PASSWORD} characters`}
+                    autoComplete={isLogin ? "current-password" : "new-password"}
+                    required
+                  />
+                </Field>
               </div>
 
-              {error && (
-                <div
-                  className="mt-1 flex items-start gap-2 rounded-md border border-[rgba(251,113,133,0.22)] bg-[rgba(251,113,133,0.08)] px-3 py-2.5 text-xs leading-snug text-destructive"
-                  role="alert"
-                >
-                  <AlertCircle size={14} strokeWidth={1.5} aria-hidden />
-                  <span>{error}</span>
-                </div>
-              )}
+              {error ? (
+                <Alert variant="destructive">
+                  <AlertCircle />
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              ) : null}
 
               <Button
                 type="submit"
                 variant="default"
                 size="lg"
-                className="group mt-4 h-11 w-full border border-border hover:shadow-[0_0_28px_color-mix(in oklch, var(--primary) 35%, transparent)] active:scale-[0.99] disabled:active:scale-100"
+                className="h-10 w-full"
                 disabled={busy}
               >
                 <span>
@@ -316,17 +235,10 @@ export function LoginScreen({
                       ? "Sign in"
                       : "Create account"}
                 </span>
-                {!busy && (
-                  <ArrowRight
-                    size={14}
-                    strokeWidth={2}
-                    className="transition-transform duration-150 group-hover:translate-x-0.5"
-                    aria-hidden
-                  />
-                )}
+                {!busy ? <ArrowRight size={14} strokeWidth={2} aria-hidden /> : null}
               </Button>
 
-              <div className="mt-4 flex flex-col items-center gap-2">
+              <div className="flex flex-col items-center gap-2.5 pt-1">
                 <p className="text-[11px] text-muted-foreground">
                   Press <Kbd>Enter</Kbd> to continue
                 </p>
@@ -370,11 +282,8 @@ export function LoginScreen({
                 </Button>
               }
             >
-              <div className="flex flex-col gap-1.5">
-                <label htmlFor="server-url" className={labelClass}>
-                  API server
-                </label>
-                <SignalInput
+              <Field label="API server" htmlFor="server-url">
+                <FormInput
                   id="server-url"
                   type="text"
                   inputMode="url"
@@ -389,14 +298,12 @@ export function LoginScreen({
                     setBaseUrl(serverUrl);
                     setServerUrl(editableApiBaseUrl(getCustomApiBaseUrl()));
                   }}
-                  className="h-10 w-full text-[13px]"
                 />
-                <p className="text-[11px] leading-snug text-muted-foreground">
+                <p className={fieldHintClass}>
                   API host for this device. Leave blank for the default. You only need the origin —
-                  {""}
                   /api/v1 is added automatically.
                 </p>
-              </div>
+              </Field>
             </Modal>
           </div>
         </section>

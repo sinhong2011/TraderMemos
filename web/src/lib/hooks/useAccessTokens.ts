@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { tokensApi, type CreateAccessTokenBody } from "../api/tokens";
+import { tokensApi, type CreateAccessTokenBody } from "@/lib/api/tokens";
 
 export function useAccessTokens() {
   return useQuery({

@@ -1,6 +1,6 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import type { ComponentProps } from "react";
-import { cn } from "../../lib/cn";
+import { cn } from "@/lib/cn";
 
 /**
  * shadcn Kbd — shadcn Base kbd with theme tokens.
@@ -17,8 +17,10 @@ const kbdVariants = cva(
       variant: {
         /** Quiet keycap for chrome, lists, and shortcuts. */
         muted: "min-w-[1.25rem] bg-muted tabular-nums text-muted-foreground",
-        /** Signal yellow wayfinding (branded discovery surfaces only). */
-        signal: "bg-[rgba(228,255,26,0.06)] text-chart-3",
+        /** Emphasized keycap for discovery / shortcut hints. */
+        accent: "bg-warning/10 text-warning",
+        /** @deprecated Use `accent` — Signal Terminal leftover. */
+        signal: "bg-warning/10 text-warning",
       },
     },
     defaultVariants: {

@@ -8,21 +8,21 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "../../../components/Dialog";
-import { ModalBanner } from "../../../components/Modal";
-import { useToastManager } from "../../../components/Toast";
-import { Button } from "../../../components/ui/button";
-import { NativeSelect, NativeSelectOption } from "../../../components/ui/native-select";
-import { SignalInput } from "../../../components/SignalInput";
-import { apiDocsUrl, getBaseUrl } from "../../../lib/api/client";
-import type { AccessTokenExpiryDays, CreatedAccessToken } from "../../../lib/api/tokens";
+} from "@/components/Dialog";
+import { ModalBanner } from "@/components/Modal";
+import { useToastManager } from "@/components/Toast";
+import { Button } from "@/components/ui/button";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
+import { FormInput } from "@/components/FormInput";
+import { apiDocsUrl, getBaseUrl } from "@/lib/api/client";
+import type { AccessTokenExpiryDays, CreatedAccessToken } from "@/lib/api/tokens";
 import {
   useAccessTokens,
   useCreateAccessToken,
   useRevokeAccessToken,
-} from "../../../lib/hooks/useAccessTokens";
-import { useLocale } from "../../../i18n";
-import { intlLocale, settingsLabel } from "../../../lib/locale";
+} from "@/lib/hooks/useAccessTokens";
+import { useLocale } from "@/i18n";
+import { intlLocale, settingsLabel } from "@/lib/locale";
 import {
   DeleteButton,
   SettingsGroup,
@@ -308,7 +308,7 @@ export function ApiTab() {
                   >
                     {settingsLabel(locale, "apiTokenName")}
                   </label>
-                  <SignalInput
+                  <FormInput
                     id="access-token-name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}

@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
-import { useFilters } from "../lib/filters";
+import { useFilters } from "@/lib/filters";
 import { AccountNavPopover } from "./AccountNavPopover";
 
 vi.mock("../lib/auth", () => ({

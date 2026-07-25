@@ -10,7 +10,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { useMemo, useState } from "react";
-import { EmptyState } from "../../components/EmptyState";
+import { EmptyState } from "@/components/EmptyState";
 import {
   Item,
   ItemActions,
@@ -19,19 +19,19 @@ import {
   ItemGroup,
   ItemMedia,
   ItemTitle,
-} from "../../components/Item";
-import { Page } from "../../components/Page";
-import { Skeleton } from "../../components/Skeleton";
-import { pnlColor } from "../../components/theme-tokens";
-import { Button } from "../../components/ui/button";
-import { NativeSelect, NativeSelectOption } from "../../components/ui/native-select";
-import type { BreakGroup, Setup } from "../../lib/api/types";
-import { cn } from "../../lib/cn";
-import { usePrivacyMode } from "../../lib/displayPrefs";
-import { fmtPct, fmtSignedMoney } from "../../lib/format";
-import { useMoneyFx } from "../../lib/hooks/useMoneyFx";
-import { intlLocale } from "../../lib/locale";
-import { useUI, type SetupDraft } from "../../lib/ui";
+} from "@/components/Item";
+import { Page } from "@/components/Page";
+import { ListSkeleton } from "@/components/skeletons/list-skeleton";
+import { pnlColor } from "@/components/theme-tokens";
+import { Button } from "@/components/ui/button";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
+import type { BreakGroup, Setup } from "@/lib/api/types";
+import { cn } from "@/lib/cn";
+import { usePrivacyMode } from "@/lib/displayPrefs";
+import { fmtPct, fmtSignedMoney } from "@/lib/format";
+import { useMoneyFx } from "@/lib/hooks/useMoneyFx";
+import { intlLocale } from "@/lib/locale";
+import { useUI, type SetupDraft } from "@/lib/ui";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -429,13 +429,7 @@ export function PlaybookView({
 
   const renderContent = () => {
     if (setupsLoading) {
-      return (
-        <div className="flex flex-col gap-2">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} height="88px" className="rounded-md" />
-          ))}
-        </div>
-      );
+      return <ListSkeleton rows={4} />;
     }
 
     if (setupsError) {

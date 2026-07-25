@@ -1,6 +1,6 @@
 import { FileJson, FileText, Upload, X } from "lucide-react";
 import { useRef, useState } from "react";
-import { cn } from "../lib/cn";
+import { cn } from "@/lib/cn";
 import { Button } from "./ui/button";
 import { Pill } from "./Pill";
 

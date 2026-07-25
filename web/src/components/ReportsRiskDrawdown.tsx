@@ -7,17 +7,17 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import type { EquityPoint, Trade } from "../lib/api/types";
-import { uniqueDayTicks } from "../lib/chartTicks";
-import { useDisplayTimePrefs, usePrivacyMode } from "../lib/displayPrefs";
-import { fmtDayShort } from "../lib/format";
-import { intlLocale } from "../lib/locale";
+import type { EquityPoint, Trade } from "@/lib/api/types";
+import { uniqueDayTicks } from "@/lib/chartTicks";
+import { useDisplayTimePrefs, usePrivacyMode } from "@/lib/displayPrefs";
+import { fmtDayShort } from "@/lib/format";
+import { intlLocale } from "@/lib/locale";
 import {
   avgRiskPerTrade,
   currentDrawdownPct,
   drawdownSeries,
   maxDrawdownPct,
-} from "../lib/reportsAnalytics";
+} from "@/lib/reportsAnalytics";
 import { Card } from "./Card";
 import { ChartFrame, chartTheme } from "./ChartFrame";
 import { EmptyState } from "./EmptyState";

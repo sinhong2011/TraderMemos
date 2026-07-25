@@ -10,12 +10,12 @@ import {
 } from "lightweight-charts";
 import { ChartCandlestick, Maximize2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import type { Execution } from "../../lib/api/types";
-import type { MarketBar, BarInterval } from "../../lib/api/market";
-import { cn } from "../../lib/cn";
-import { SegmentedControl } from "../SegmentedControl";
-import { Skeleton } from "../Skeleton";
-import { Button } from "../ui/button";
+import type { Execution } from "@/lib/api/types";
+import type { MarketBar, BarInterval } from "@/lib/api/market";
+import { cn } from "@/lib/cn";
+import { SegmentedControl } from "@/components/SegmentedControl";
+import { Skeleton } from "@/components/Skeleton";
+import { Button } from "@/components/ui/button";
 import { barsToCandlestickData } from "./barsToCandlestickData";
 import { utcSecToChartTime } from "./chartTime";
 import { BAR_INTERVALS, tradeChartTheme } from "./tradeChartTheme";

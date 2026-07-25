@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { importsApi } from "../api/imports";
+import { importsApi } from "@/lib/api/imports";
 
 export function useImports() {
   return useQuery({ queryKey: ["imports"], queryFn: () => importsApi.list() });

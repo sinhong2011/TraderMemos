@@ -1,10 +1,10 @@
 import { CalendarDays, ChevronDown } from "lucide-react";
 import { useState } from "react";
-import { formatRangeLabel } from "../lib/dateRangePresets";
-import { useFilters } from "../lib/filters";
-import { cn } from "../lib/cn";
+import { formatRangeLabel } from "@/lib/dateRangePresets";
+import { useFilters } from "@/lib/filters";
+import { cn } from "@/lib/cn";
 import { DateRangePanel } from "./DateRangePanel";
-import { SignalPopover } from "./SignalPopover";
+import { ControlledPopover } from "./ControlledPopover";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
@@ -56,7 +56,7 @@ export function DateRangePicker({
           side={popoverSide}
           align="end"
           sideOffset={popoverSide === "right" ? 8 : 6}
-          className="w-auto overflow-hidden border-border bg-card p-0 shadow-[0_12px_32px_rgba(18,18,24,0.55)]"
+          className="w-auto overflow-hidden p-0"
         >
           <DateRangePanel onApplied={() => setOpen(false)} />
         </PopoverContent>
@@ -65,7 +65,7 @@ export function DateRangePicker({
   }
 
   return (
-    <SignalPopover
+    <ControlledPopover
       open={open}
       onOpenChange={setOpen}
       align="end"
@@ -101,6 +101,6 @@ export function DateRangePicker({
       }
     >
       <DateRangePanel onApplied={() => setOpen(false)} />
-    </SignalPopover>
+    </ControlledPopover>
   );
 }

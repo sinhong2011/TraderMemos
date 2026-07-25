@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vite-plus/test";
-import type { EquityPoint, Trade } from "../lib/api/types";
+import type { EquityPoint, Trade } from "@/lib/api/types";
 import { ReportsDisplayProvider } from "./ReportsDisplayContext";
 import { ReportsRiskDrawdown } from "./ReportsRiskDrawdown";
 

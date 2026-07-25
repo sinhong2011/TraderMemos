@@ -1,8 +1,8 @@
-import { money, shares as fmtShares } from "../../../lib/r-calculator/format";
-import { limiterLabel } from "../../../lib/r-calculator/messages";
-import { useRCalculatorStore } from "../../../lib/r-calculator/useRCalculatorStore";
-import { Card } from "../../Card";
-import { SegmentedControl } from "../../SegmentedControl";
+import { money, shares as fmtShares } from "@/lib/r-calculator/format";
+import { limiterLabel } from "@/lib/r-calculator/messages";
+import { useRCalculatorStore } from "@/lib/r-calculator/useRCalculatorStore";
+import { Card } from "@/components/Card";
+import { SegmentedControl } from "@/components/SegmentedControl";
 import { CalcInputField } from "./CalcInputField";
 import { ExitLadder } from "./ExitLadder";
 import { RAxis } from "./RAxis";

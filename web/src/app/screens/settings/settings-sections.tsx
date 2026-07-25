@@ -12,54 +12,45 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { EmptyState } from "../../../components/EmptyState";
-import { LlmApiSettingsForm } from "../../../components/LlmApiSettingsForm";
-import { ModeToggle } from "../../../components/ModeToggle";
-import { Modal } from "../../../components/Modal";
-import { SignalAmountInput } from "../../../components/SignalAmountInput";
-import { SignalDatePicker } from "../../../components/SignalDatePicker";
-import { SignalEditor } from "../../../components/SignalEditor";
-import { fieldError, SignalField } from "../../../components/SignalField";
-import { SignalInput } from "../../../components/SignalInput";
-import { Skeleton } from "../../../components/Skeleton";
-import { useToastManager } from "../../../components/Toast";
-import { Button } from "../../../components/ui/button";
-import { NativeSelect, NativeSelectOption } from "../../../components/ui/native-select";
-import {
-  ApiError,
-  editableApiBaseUrl,
-  getCustomApiBaseUrl,
-  setBaseUrl,
-} from "../../../lib/api/client";
-import { applyParsedAppConfig, buildAppConfigExport, parseAppConfig } from "../../../lib/appConfig";
-import type { RiskRules } from "../../../lib/api/settings";
+import { EmptyState } from "@/components/EmptyState";
+import { LlmApiSettingsForm } from "@/components/LlmApiSettingsForm";
+import { ModeToggle } from "@/components/ModeToggle";
+import { Modal } from "@/components/Modal";
+import { AmountInput } from "@/components/AmountInput";
+import { DatePicker } from "@/components/DatePicker";
+import { RichTextEditor } from "@/components/RichTextEditor";
+import { fieldError, Field } from "@/components/Field";
+import { FormInput } from "@/components/FormInput";
+import { FormSkeleton } from "@/components/skeletons/form-skeleton";
+import { ListSkeleton } from "@/components/skeletons/list-skeleton";
+import { useToastManager } from "@/components/Toast";
+import { Button } from "@/components/ui/button";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
+import { ApiError, editableApiBaseUrl, getCustomApiBaseUrl, setBaseUrl } from "@/lib/api/client";
+import { applyParsedAppConfig, buildAppConfigExport, parseAppConfig } from "@/lib/appConfig";
+import type { RiskRules } from "@/lib/api/settings";
 import {
   useCoachSettings,
   useListCoachModels,
   useSaveCoachSettings,
   useTestCoachSettings,
-} from "../../../lib/hooks/useCoachSettings";
-import type { Account, CashTransaction, Tag as TagType } from "../../../lib/api/types";
+} from "@/lib/hooks/useCoachSettings";
+import type { Account, CashTransaction, Tag as TagType } from "@/lib/api/types";
 import {
   useListOcrModels,
   useOcrSettings,
   useSaveOcrSettings,
   useTestOcrSettings,
-} from "../../../lib/hooks/useOcrSettings";
-import { useTrades } from "../../../lib/hooks/useTrades";
-import { formatCashDisplay, signedCashAmount } from "../../../lib/cashAmount";
-import { parseAmountToNumber } from "../../../lib/amountInput";
-import { fmtDate, fmtMoney, fmtSignedMoney } from "../../../lib/format";
-import {
-  intlLocale,
-  LOCALE_OPTIONS,
-  settingsLabel,
-  type SettingsLabelKey,
-} from "../../../lib/locale";
-import type { LlmApiSettingsLabels } from "../../../lib/llmApiSettings";
-import { useAuth } from "../../../lib/auth";
-import { useJournalPrefs } from "../../../lib/journalPrefs";
-import { useLocale } from "../../../i18n";
+} from "@/lib/hooks/useOcrSettings";
+import { useTrades } from "@/lib/hooks/useTrades";
+import { formatCashDisplay, signedCashAmount } from "@/lib/cashAmount";
+import { parseAmountToNumber } from "@/lib/amountInput";
+import { fmtDate, fmtMoney, fmtSignedMoney } from "@/lib/format";
+import { intlLocale, LOCALE_OPTIONS, settingsLabel, type SettingsLabelKey } from "@/lib/locale";
+import type { LlmApiSettingsLabels } from "@/lib/llmApiSettings";
+import { useAuth } from "@/lib/auth";
+import { useJournalPrefs } from "@/lib/journalPrefs";
+import { useLocale } from "@/i18n";
 import {
   TIME_FORMAT_OPTIONS,
   TRADE_DATE_BASIS_OPTIONS,
@@ -69,7 +60,7 @@ import {
   type TradeDateBasis,
   usePrivacyMode,
   useDisplayPrefs,
-} from "../../../lib/displayPrefs";
+} from "@/lib/displayPrefs";
 import {
   activeRiskRuleEntries,
   availableRiskRuleKeys,
@@ -86,7 +77,7 @@ import {
   validateRiskRuleValue,
   validateStartingBalance,
   type RiskRuleKey,
-} from "../../../lib/settingsFormSchema";
+} from "@/lib/settingsFormSchema";
 import {
   AccountRow,
   BtnGhost,
@@ -525,12 +516,12 @@ export function AccountsTab({
               }}
             >
               {(field) => (
-                <SignalField
+                <Field
                   label="Account name"
                   htmlFor="acct-name"
                   error={fieldError(field.state.meta.errors)}
                 >
-                  <SignalInput
+                  <FormInput
                     id="acct-name"
                     value={field.state.value}
                     onBlur={field.handleBlur}
@@ -538,7 +529,7 @@ export function AccountsTab({
                     placeholder="e.g. Main Account"
                     autoFocus
                   />
-                </SignalField>
+                </Field>
               )}
             </accountForm.Field>
             <accountForm.Field
@@ -555,7 +546,7 @@ export function AccountsTab({
                 const brokerSelectValue = brokerIsOther ? OTHER_BROKER_VALUE : field.state.value;
                 return (
                   <>
-                    <SignalField
+                    <Field
                       label="Broker"
                       error={brokerIsOther ? undefined : fieldError(field.state.meta.errors)}
                     >
@@ -577,14 +568,14 @@ export function AccountsTab({
                         ))}
                         <NativeSelectOption value={OTHER_BROKER_VALUE}>Other</NativeSelectOption>
                       </NativeSelect>
-                    </SignalField>
+                    </Field>
                     {brokerSelectValue === OTHER_BROKER_VALUE ? (
-                      <SignalField
+                      <Field
                         label="Custom broker"
                         htmlFor="acct-broker-other"
                         error={fieldError(field.state.meta.errors)}
                       >
-                        <SignalInput
+                        <FormInput
                           id="acct-broker-other"
                           value={field.state.value}
                           onBlur={field.handleBlur}
@@ -592,7 +583,7 @@ export function AccountsTab({
                           placeholder="Type broker name"
                           autoFocus
                         />
-                      </SignalField>
+                      </Field>
                     ) : null}
                   </>
                 );
@@ -601,7 +592,7 @@ export function AccountsTab({
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               <accountForm.Field name="accountType">
                 {(field) => (
-                  <SignalField label="Account type">
+                  <Field label="Account type">
                     <NativeSelect
                       value={field.state.value}
                       onChange={(e) => field.handleChange(e.target.value)}
@@ -612,20 +603,20 @@ export function AccountsTab({
                       <NativeSelectOption value="margin">Margin</NativeSelectOption>
                       <NativeSelectOption value="prop">Prop</NativeSelectOption>
                     </NativeSelect>
-                  </SignalField>
+                  </Field>
                 )}
               </accountForm.Field>
               <accountForm.Field name="baseCurrency">
                 {(field) => (
-                  <SignalField label="Base currency" htmlFor="acct-currency">
-                    <SignalInput
+                  <Field label="Base currency" htmlFor="acct-currency">
+                    <FormInput
                       id="acct-currency"
                       value={field.state.value}
                       onBlur={field.handleBlur}
                       onChange={(e) => field.handleChange(e.target.value)}
                       placeholder="USD"
                     />
-                  </SignalField>
+                  </Field>
                 )}
               </accountForm.Field>
               <accountForm.Field
@@ -636,13 +627,13 @@ export function AccountsTab({
                 }}
               >
                 {(field) => (
-                  <SignalField
+                  <Field
                     label="Starting balance"
                     htmlFor="acct-balance"
                     description="Saved as the first deposit in the cash ledger."
                     error={fieldError(field.state.meta.errors)}
                   >
-                    <SignalAmountInput
+                    <AmountInput
                       id="acct-balance"
                       value={field.state.value}
                       onValueChange={field.handleChange}
@@ -650,7 +641,7 @@ export function AccountsTab({
                       placeholder="0.00"
                       allowNegative
                     />
-                  </SignalField>
+                  </Field>
                 )}
               </accountForm.Field>
             </div>
@@ -660,11 +651,7 @@ export function AccountsTab({
 
         {accountsLoading ? (
           <SettingsPanelBody>
-            <div className="flex flex-col gap-2">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <Skeleton key={i} height="40px" />
-              ))}
-            </div>
+            <ListSkeleton rows={3} />
           </SettingsPanelBody>
         ) : accountsError ? (
           <SettingsPanelBody>
@@ -790,15 +777,15 @@ export function AccountsTab({
               }
             >
               <div className="flex flex-col gap-3">
-                <SignalField label="Account name" htmlFor="edit-account-name">
-                  <SignalInput
+                <Field label="Account name" htmlFor="edit-account-name">
+                  <FormInput
                     id="edit-account-name"
                     value={editName}
                     onChange={(e) => setEditName(e.target.value)}
                     placeholder="e.g. Main Account"
                   />
-                </SignalField>
-                <SignalField label="Broker">
+                </Field>
+                <Field label="Broker">
                   <NativeSelect
                     value={editBrokerChoice}
                     onChange={(e) => setEditBrokerChoice(e.target.value)}
@@ -812,16 +799,16 @@ export function AccountsTab({
                     ))}
                     <NativeSelectOption value={OTHER_BROKER_VALUE}>Other</NativeSelectOption>
                   </NativeSelect>
-                </SignalField>
+                </Field>
                 {editBrokerChoice === OTHER_BROKER_VALUE ? (
-                  <SignalField label="Custom broker" htmlFor="edit-account-broker">
-                    <SignalInput
+                  <Field label="Custom broker" htmlFor="edit-account-broker">
+                    <FormInput
                       id="edit-account-broker"
                       value={editBrokerCustom}
                       onChange={(e) => setEditBrokerCustom(e.target.value)}
                       placeholder="Type broker name"
                     />
-                  </SignalField>
+                  </Field>
                 ) : null}
               </div>
               {accountEditError ? <FormError message={accountEditError} /> : null}
@@ -877,7 +864,7 @@ export function AccountsTab({
                   }}
                 >
                   {(field) => (
-                    <SignalField label="Account" error={fieldError(field.state.meta.errors)}>
+                    <Field label="Account" error={fieldError(field.state.meta.errors)}>
                       <NativeSelect
                         size="sm"
                         value={field.state.value}
@@ -892,12 +879,12 @@ export function AccountsTab({
                           </NativeSelectOption>
                         ))}
                       </NativeSelect>
-                    </SignalField>
+                    </Field>
                   )}
                 </cashForm.Field>
                 <cashForm.Field name="type">
                   {(field) => (
-                    <SignalField label="Type">
+                    <Field label="Type">
                       <NativeSelect
                         size="sm"
                         value={field.state.value}
@@ -913,7 +900,7 @@ export function AccountsTab({
                         <NativeSelectOption value="interest">Interest</NativeSelectOption>
                         <NativeSelectOption value="adjustment">Adjustment</NativeSelectOption>
                       </NativeSelect>
-                    </SignalField>
+                    </Field>
                   )}
                 </cashForm.Field>
               </div>
@@ -926,45 +913,45 @@ export function AccountsTab({
                   }}
                 >
                   {(field) => (
-                    <SignalField
+                    <Field
                       label="Amount"
                       htmlFor="cash-amount"
                       error={fieldError(field.state.meta.errors)}
                     >
-                      <SignalAmountInput
+                      <AmountInput
                         id="cash-amount"
                         value={field.state.value}
                         onValueChange={field.handleChange}
                         onBlur={field.handleBlur}
                         placeholder="0.00"
                       />
-                    </SignalField>
+                    </Field>
                   )}
                 </cashForm.Field>
                 <cashForm.Field name="occurredAt">
                   {(field) => (
-                    <SignalField label="Date">
-                      <SignalDatePicker
+                    <Field label="Date">
+                      <DatePicker
                         aria-label="Date"
                         value={field.state.value}
                         onChange={field.handleChange}
                         onBlur={field.handleBlur}
                       />
-                    </SignalField>
+                    </Field>
                   )}
                 </cashForm.Field>
               </div>
               <cashForm.Field name="note">
                 {(field) => (
-                  <SignalField label="Note" htmlFor="cash-note">
-                    <SignalInput
+                  <Field label="Note" htmlFor="cash-note">
+                    <FormInput
                       id="cash-note"
                       value={field.state.value}
                       onBlur={field.handleBlur}
                       onChange={(e) => field.handleChange(e.target.value)}
                       placeholder="Optional note"
                     />
-                  </SignalField>
+                  </Field>
                 )}
               </cashForm.Field>
               <FormError message={cashFormError} />
@@ -993,11 +980,7 @@ export function AccountsTab({
 
         {cashLoading ? (
           <SettingsPanelBody>
-            <div className="flex flex-col gap-2">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <Skeleton key={i} height="40px" />
-              ))}
-            </div>
+            <ListSkeleton rows={3} />
           </SettingsPanelBody>
         ) : cashError ? (
           <SettingsPanelBody>
@@ -1089,7 +1072,7 @@ export function AccountsTab({
         }
       >
         <div className="flex flex-col gap-3">
-          <SignalField label="Type">
+          <Field label="Type">
             <NativeSelect
               size="sm"
               value={editCashType}
@@ -1105,28 +1088,28 @@ export function AccountsTab({
               <NativeSelectOption value="interest">Interest</NativeSelectOption>
               <NativeSelectOption value="adjustment">Adjustment</NativeSelectOption>
             </NativeSelect>
-          </SignalField>
+          </Field>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <SignalField label="Amount" htmlFor="edit-cash-amount">
-              <SignalAmountInput
+            <Field label="Amount" htmlFor="edit-cash-amount">
+              <AmountInput
                 id="edit-cash-amount"
                 value={editCashAmount}
                 onValueChange={setEditCashAmount}
                 placeholder="0.00"
               />
-            </SignalField>
-            <SignalField label="Date">
-              <SignalDatePicker aria-label="Date" value={editCashDate} onChange={setEditCashDate} />
-            </SignalField>
+            </Field>
+            <Field label="Date">
+              <DatePicker aria-label="Date" value={editCashDate} onChange={setEditCashDate} />
+            </Field>
           </div>
-          <SignalField label="Note" htmlFor="edit-cash-note">
-            <SignalInput
+          <Field label="Note" htmlFor="edit-cash-note">
+            <FormInput
               id="edit-cash-note"
               value={editCashNote}
               onChange={(e) => setEditCashNote(e.target.value)}
               placeholder="Optional note"
             />
-          </SignalField>
+          </Field>
           <FormError message={editCashError} />
         </div>
       </Modal>
@@ -1303,11 +1286,7 @@ export function RulesTab({
       >
         {riskRulesLoading ? (
           <SettingsPanelBody>
-            <div className="flex flex-col gap-2">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <Skeleton key={i} height="52px" />
-              ))}
-            </div>
+            <ListSkeleton rows={3} />
           </SettingsPanelBody>
         ) : riskRulesError ? (
           <SettingsPanelBody>
@@ -1373,11 +1352,7 @@ export function RulesTab({
       >
         {checklistLoading ? (
           <SettingsPanelBody>
-            <div className="flex flex-col gap-2">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <Skeleton key={i} height="40px" />
-              ))}
-            </div>
+            <ListSkeleton rows={3} />
           </SettingsPanelBody>
         ) : checklistError ? (
           <SettingsPanelBody>
@@ -1439,7 +1414,7 @@ export function RulesTab({
         }
       >
         <div className="flex flex-col gap-3">
-          <SignalEditor
+          <RichTextEditor
             key={checklistEditorKey}
             value={checklistDraft}
             onChange={setChecklistDraft}
@@ -1490,7 +1465,7 @@ export function RulesTab({
       >
         <div className="flex flex-col gap-3">
           {ruleModal.open && ruleModal.mode === "add" ? (
-            <SignalField label="Rule type">
+            <Field label="Rule type">
               <NativeSelect
                 size="sm"
                 value={ruleKey}
@@ -1508,7 +1483,7 @@ export function RulesTab({
                   );
                 })}
               </NativeSelect>
-            </SignalField>
+            </Field>
           ) : (
             <div className="flex flex-col gap-1">
               <span className="text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground">
@@ -1518,12 +1493,12 @@ export function RulesTab({
               <p className="m-0 text-[12px] text-muted-foreground">{modalDef.detail}</p>
             </div>
           )}
-          <SignalField
+          <Field
             label={modalDef.unit === "%" ? "Value (%)" : "Value ($)"}
             htmlFor="risk-rule-value"
             error={ruleError ?? undefined}
           >
-            <SignalAmountInput
+            <AmountInput
               id="risk-rule-value"
               value={ruleValue}
               onValueChange={(v) => {
@@ -1534,7 +1509,7 @@ export function RulesTab({
               aria-label={modalDef.label}
               className="w-full"
             />
-          </SignalField>
+          </Field>
         </div>
       </Modal>
     </>
@@ -1625,24 +1600,24 @@ export function JournalTab({
                   }}
                 >
                   {(field) => (
-                    <SignalField
+                    <Field
                       label="Name"
                       htmlFor="tag-name"
                       error={fieldError(field.state.meta.errors)}
                     >
-                      <SignalInput
+                      <FormInput
                         id="tag-name"
                         value={field.state.value}
                         onBlur={field.handleBlur}
                         onChange={(e) => field.handleChange(e.target.value)}
                         placeholder="e.g. FOMO"
                       />
-                    </SignalField>
+                    </Field>
                   )}
                 </tagForm.Field>
                 <tagForm.Field name="color">
                   {(field) => (
-                    <SignalField label="Color" htmlFor="tag-color">
+                    <Field label="Color" htmlFor="tag-color">
                       <input
                         id="tag-color"
                         type="color"
@@ -1650,12 +1625,12 @@ export function JournalTab({
                         onChange={(e) => field.handleChange(e.target.value)}
                         className="h-8 w-full cursor-pointer rounded-md border-none bg-muted p-0.5"
                       />
-                    </SignalField>
+                    </Field>
                   )}
                 </tagForm.Field>
                 <tagForm.Field name="kind">
                   {(field) => (
-                    <SignalField label="Kind">
+                    <Field label="Kind">
                       <NativeSelect
                         size="sm"
                         value={field.state.value}
@@ -1667,7 +1642,7 @@ export function JournalTab({
                         <NativeSelectOption value="custom">Custom</NativeSelectOption>
                         <NativeSelectOption value="mistake">Mistake</NativeSelectOption>
                       </NativeSelect>
-                    </SignalField>
+                    </Field>
                   )}
                 </tagForm.Field>
               </div>
@@ -1698,11 +1673,7 @@ export function JournalTab({
 
         {tagsLoading ? (
           <SettingsPanelBody>
-            <div className="flex flex-col gap-2">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <Skeleton key={i} height="36px" />
-              ))}
-            </div>
+            <ListSkeleton rows={3} />
           </SettingsPanelBody>
         ) : tagsError ? (
           <SettingsPanelBody>
@@ -1802,7 +1773,7 @@ function VisionScanSection() {
     >
       {isPending && !data ? (
         <SettingsPanelBody>
-          <Skeleton height="160px" />
+          <FormSkeleton fields={3} />
         </SettingsPanelBody>
       ) : isError || !data ? (
         <SettingsPanelBody>
@@ -1836,7 +1807,7 @@ function CoachSection() {
     >
       {isPending && !data ? (
         <SettingsPanelBody>
-          <Skeleton height="160px" />
+          <FormSkeleton fields={3} />
         </SettingsPanelBody>
       ) : isError || !data ? (
         <SettingsPanelBody>
@@ -2020,7 +1991,7 @@ export function GeneralTab() {
             label={settingsLabel(locale, "maxScreenshots")}
             detail={settingsLabel(locale, "screenshotsFooter")}
           >
-            <SignalInput
+            <FormInput
               type="number"
               min={1}
               max={100}
@@ -2044,7 +2015,7 @@ export function GeneralTab() {
             detail={settingsLabel(locale, "serverUrlFooter")}
             alignTop
           >
-            <SignalInput
+            <FormInput
               type="text"
               inputMode="url"
               spellCheck={false}

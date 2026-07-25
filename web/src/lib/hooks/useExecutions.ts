@@ -5,7 +5,7 @@ import {
   type MutationExecutionResponse,
   type UpdateExecutionBody,
   executionsApi,
-} from "../api/executions";
+} from "@/lib/api/executions";
 
 export interface ExecutionFailure {
   index: number;

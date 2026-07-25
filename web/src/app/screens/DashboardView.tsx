@@ -9,31 +9,33 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { Card } from "../../components/Card";
-import { ChartFrame, chartTheme } from "../../components/ChartFrame";
-import { DashboardAccountContribution } from "../../components/DashboardAccountContribution";
+import { Card } from "@/components/Card";
+import { ChartFrame, chartTheme } from "@/components/ChartFrame";
+import { DashboardAccountContribution } from "@/components/DashboardAccountContribution";
 import {
   type DashboardBreakdownDim,
   DashboardBreakdownChart,
-} from "../../components/DashboardBreakdownChart";
-import { DashboardInsightBento } from "../../components/DashboardInsightBento";
-import { DashboardMiniCalendar } from "../../components/DashboardMiniCalendar";
-import { DataTable } from "../../components/DataTable";
-import { EmptyState } from "../../components/EmptyState";
-import { Button } from "../../components/ui/button";
-import { Page } from "../../components/Page";
-import { PerformanceStrip } from "../../components/PerformanceStrip";
-import { SegmentedControl } from "../../components/SegmentedControl";
-import { Skeleton } from "../../components/Skeleton";
-import { tradeColumns } from "../../components/tradeColumns";
-import type { Account, BreakGroup, EquityPoint, Summary, Trade } from "../../lib/api/types";
-import type { DayRecord } from "../../lib/calendar";
-import { uniqueDayTicks } from "../../lib/chartTicks";
-import { accountBaseCurrency, useDisplayTimePrefs, usePrivacyMode } from "../../lib/displayPrefs";
-import { useMoneyFx } from "../../lib/hooks/useMoneyFx";
-import { fmtDayShort, fmtMoney, fmtMoneyCompact } from "../../lib/format";
-import { intlLocale } from "../../lib/locale";
-import type { TradeStatusFilter } from "../../lib/tradeFilters";
+} from "@/components/DashboardBreakdownChart";
+import { DashboardInsightBento } from "@/components/DashboardInsightBento";
+import { DashboardMiniCalendar } from "@/components/DashboardMiniCalendar";
+import { DataTable } from "@/components/DataTable";
+import { EmptyState } from "@/components/EmptyState";
+import { Button } from "@/components/ui/button";
+import { Page } from "@/components/Page";
+import { PerformanceStrip } from "@/components/PerformanceStrip";
+import { SegmentedControl } from "@/components/SegmentedControl";
+import { Skeleton } from "@/components/Skeleton";
+import { CardSkeleton } from "@/components/skeletons/card-skeleton";
+import { TableSkeleton } from "@/components/skeletons/table-skeleton";
+import { tradeColumns } from "@/components/tradeColumns";
+import type { Account, BreakGroup, EquityPoint, Summary, Trade } from "@/lib/api/types";
+import type { DayRecord } from "@/lib/calendar";
+import { uniqueDayTicks } from "@/lib/chartTicks";
+import { accountBaseCurrency, useDisplayTimePrefs, usePrivacyMode } from "@/lib/displayPrefs";
+import { useMoneyFx } from "@/lib/hooks/useMoneyFx";
+import { fmtDayShort, fmtMoney, fmtMoneyCompact } from "@/lib/format";
+import { intlLocale } from "@/lib/locale";
+import type { TradeStatusFilter } from "@/lib/tradeFilters";
 
 export interface DashboardViewProps {
   summaryLoading: boolean;
@@ -116,7 +118,7 @@ function EquityCurveChart({
   const dayTicks = useMemo(() => uniqueDayTicks(visible), [visible]);
 
   if (equityLoading) {
-    return <Skeleton className="min-h-[240px] w-full flex-1 sm:min-h-[280px]" height="100%" />;
+    return <Skeleton className="min-h-[240px] w-full flex-1 sm:min-h-[280px]" />;
   }
   if (equityError) {
     return <p className="text-xs text-destructive">Failed to load equity curve.</p>;
@@ -303,7 +305,7 @@ export function DashboardView({
           }
         >
           {summaryLoading ? (
-            <Skeleton className="min-h-[160px] flex-1" height="100%" />
+            <Skeleton className="min-h-[160px] w-full flex-1" />
           ) : summaryError ? (
             <p className="text-xs text-destructive">Failed to load summary.</p>
           ) : !summary ? null : (
@@ -330,9 +332,9 @@ export function DashboardView({
             />
           </div>
         ) : summaryLoading ? (
-          <Card title="Performance" className="lg:col-span-2">
-            <Skeleton height="210px" />
-          </Card>
+          <div className="lg:col-span-2">
+            <CardSkeleton mediaClassName="h-[210px]" />
+          </div>
         ) : null}
       </div>
 
@@ -383,7 +385,7 @@ export function DashboardView({
 
       <Card title="Recent trades" action={recentAction} flush>
         {tradesLoading ? (
-          <Skeleton height="200px" className="m-3" />
+          <TableSkeleton rows={5} columns={4} className="m-1" />
         ) : tradesError ? (
           <p className="p-4 text-xs text-destructive">Failed to load trades.</p>
         ) : trades.length === 0 ? (

@@ -1,6 +1,6 @@
 import { Tabs as TabsPrimitive } from "@base-ui/react/tabs";
 import type { ComponentProps } from "react";
-import { cn } from "../lib/cn";
+import { cn } from "@/lib/cn";
 
 /** Neutral shadcn-style Tabs on Base UI. Product looks (pill track, etc.) live at call sites. */
 export function Tabs({ className, ...props }: ComponentProps<typeof TabsPrimitive.Root>) {

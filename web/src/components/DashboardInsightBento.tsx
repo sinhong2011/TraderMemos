@@ -1,15 +1,15 @@
 import type { ReactNode } from "react";
-import type { Summary, Trade } from "../lib/api/types";
-import { cn } from "../lib/cn";
+import type { Summary, Trade } from "@/lib/api/types";
+import { cn } from "@/lib/cn";
 import {
   type InsightRow,
   buildInsightPanels,
   computeDashboardInsights,
-} from "../lib/dashboardInsights";
-import { fmtDuration, fmtMoney, fmtPct, fmtSignedMoney } from "../lib/format";
-import { intlLocale } from "../lib/locale";
+} from "@/lib/dashboardInsights";
+import { fmtDuration, fmtMoney, fmtPct, fmtSignedMoney } from "@/lib/format";
+import { intlLocale } from "@/lib/locale";
 import { WinLossRecord } from "./WinLossRecord";
-import { usePrivacyMode } from "../lib/displayPrefs";
+import { usePrivacyMode } from "@/lib/displayPrefs";
 
 export interface DashboardInsightBentoProps {
   summary: Summary;

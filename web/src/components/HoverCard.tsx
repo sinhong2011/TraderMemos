@@ -1,7 +1,7 @@
 import { PreviewCard } from "@base-ui/react/preview-card";
 import type { ComponentProps, ReactNode } from "react";
-import { cn } from "../lib/cn";
-import { signalOverlayPopupClass } from "./signal-overlay-styles";
+import { cn } from "@/lib/cn";
+import { overlayPopupClass } from "./overlay-styles";
 
 /** shadcn-style HoverCard built on Base UI PreviewCard (project stack). */
 export function HoverCard(props: ComponentProps<typeof PreviewCard.Root>) {
@@ -47,7 +47,7 @@ export function HoverCardContent({
         className="z-[400]"
       >
         <PreviewCard.Popup
-          className={cn(signalOverlayPopupClass, "w-max max-w-[264px] p-3.5", className)}
+          className={cn(overlayPopupClass, "w-max max-w-[264px] p-3.5", className)}
         >
           {children}
         </PreviewCard.Popup>

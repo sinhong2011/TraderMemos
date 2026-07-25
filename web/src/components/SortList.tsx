@@ -1,8 +1,8 @@
 import type { OnChangeFn, SortingState } from "@tanstack/react-table";
 import { ArrowDownUp, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { cn } from "../lib/cn";
-import { SignalSelect } from "./SignalSelect";
+import { cn } from "@/lib/cn";
+import { OptionsSelect } from "./OptionsSelect";
 import { Button, buttonVariants } from "./ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 
@@ -67,10 +67,7 @@ export function SortList({
           </span>
         ) : null}
       </PopoverTrigger>
-      <PopoverContent
-        align="end"
-        className="w-[22rem] max-w-[calc(100vw-2rem)] p-0 shadow-[0_16px_40px_rgba(18,18,24,0.65)]"
-      >
+      <PopoverContent align="end" className="w-[22rem] max-w-[calc(100vw-2rem)] p-0">
         <div className="flex flex-col gap-3 p-3">
           <div>
             <p className="m-0 text-[12px] font-medium text-foreground">
@@ -92,7 +89,7 @@ export function SortList({
                 ];
                 return (
                   <li key={sort.id} className="flex items-center gap-1.5">
-                    <SignalSelect
+                    <OptionsSelect
                       value={sort.id}
                       onValueChange={(id) => updateSort(sort.id, { id })}
                       options={columnOptions}
@@ -100,7 +97,7 @@ export function SortList({
                       className="min-w-0 flex-1"
                       triggerClassName="h-8"
                     />
-                    <SignalSelect
+                    <OptionsSelect
                       value={sort.desc ? "desc" : "asc"}
                       onValueChange={(dir) => updateSort(sort.id, { desc: dir === "desc" })}
                       options={[

@@ -1,4 +1,4 @@
-import { type TradeGrade, TRADE_GRADES } from "../lib/tradeGrades";
+import { type TradeGrade, TRADE_GRADES } from "@/lib/tradeGrades";
 import { Button } from "./ui/button";
 
 export function GradeControl({

@@ -1,8 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { TradeDetailView } from "../app/screens/TradeDetailView";
-import { useToastManager } from "../components/Toast";
-import { useDeleteTrade, useTradeDetail } from "../lib/hooks/useTradeDetail";
-import { useUI } from "../lib/ui";
+import { TradeDetailView } from "@/app/screens/TradeDetailView";
+import { useToastManager } from "@/components/Toast";
+import { useDeleteTrade, useTradeDetail } from "@/lib/hooks/useTradeDetail";
+import { useUI } from "@/lib/ui";
 
 export const Route = createFileRoute("/trades/$id")({
   component: TradeDetailPage,

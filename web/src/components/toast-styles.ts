@@ -1,42 +1,38 @@
 import { AlertCircle, AlertTriangle, Check, Info, type LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
-import { cn } from "../lib/cn";
+import { cn } from "@/lib/cn";
 
-export type SignalToastVariant = "default" | "success" | "error" | "warning" | "info";
+export type ToastVariant = "default" | "success" | "error" | "warning" | "info";
 
-const VARIANT_META: Record<SignalToastVariant, { icon: LucideIcon; accent: string; well: string }> =
-  {
-    default: {
-      icon: Info,
-      accent: "text-muted-foreground",
-      well: "bg-muted text-muted-foreground",
-    },
-    success: {
-      icon: Check,
-      accent: "text-profit",
-      well: "bg-[color-mix(in oklch, var(--profit) 12%, transparent)] text-profit",
-    },
-    error: {
-      icon: AlertCircle,
-      accent: "text-destructive",
-      well: "bg-[color-mix(in oklch, var(--loss) 12%, transparent)] text-destructive",
-    },
-    warning: {
-      icon: AlertTriangle,
-      accent: "text-chart-3",
-      well: "bg-[var(--tint-signal)] text-chart-3",
-    },
-    info: {
-      icon: Info,
-      accent: "text-primary",
-      well: "bg-primary/10 text-primary",
-    },
-  };
+const VARIANT_META: Record<ToastVariant, { icon: LucideIcon; accent: string; well: string }> = {
+  default: {
+    icon: Info,
+    accent: "text-muted-foreground",
+    well: "bg-muted text-muted-foreground",
+  },
+  success: {
+    icon: Check,
+    accent: "text-profit",
+    well: "bg-[color-mix(in oklch, var(--profit) 12%, transparent)] text-profit",
+  },
+  error: {
+    icon: AlertCircle,
+    accent: "text-destructive",
+    well: "bg-[color-mix(in oklch, var(--loss) 12%, transparent)] text-destructive",
+  },
+  warning: {
+    icon: AlertTriangle,
+    well: "bg-warning/10 text-warning",
+    accent: "text-warning",
+  },
+  info: {
+    icon: Info,
+    accent: "text-primary",
+    well: "bg-primary/10 text-primary",
+  },
+};
 
-export function resolveToastVariant(
-  type: string | undefined,
-  title: ReactNode,
-): SignalToastVariant {
+export function resolveToastVariant(type: string | undefined, title: ReactNode): ToastVariant {
   if (
     type === "success" ||
     type === "error" ||
@@ -64,11 +60,11 @@ export function resolveToastVariant(
 }
 
 /** Quiet panel toast — shadcn: panel fill, no stripe / full-surface tint. */
-export function toastRootClass(_variant: SignalToastVariant): string {
+export function toastRootClass(_variant: ToastVariant): string {
   return cn(
-    "signal-toast pointer-events-auto flex min-w-[260px] max-w-[360px] items-start gap-3",
+    "toast-panel pointer-events-auto flex min-w-[260px] max-w-[360px] items-start gap-3",
     "rounded-lg border border-border bg-card p-3.5",
-    "shadow-[0_12px_32px_rgba(18,18,24,0.55)] outline-none",
+    "shadow-md outline-none",
     "transition-[transform,opacity] duration-220 ease-out",
     "data-[starting-style]:translate-y-2 data-[starting-style]:opacity-0",
     "data-[ending-style]:translate-y-1 data-[ending-style]:opacity-0",
@@ -77,21 +73,21 @@ export function toastRootClass(_variant: SignalToastVariant): string {
   );
 }
 
-export function toastIconWellClass(variant: SignalToastVariant): string {
+export function toastIconWellClass(variant: ToastVariant): string {
   return cn(
     "flex size-8 shrink-0 items-center justify-center rounded-md",
     VARIANT_META[variant].well,
   );
 }
 
-export function toastIconClass(variant: SignalToastVariant): string {
+export function toastIconClass(variant: ToastVariant): string {
   return VARIANT_META[variant].accent;
 }
 
-export function toastIcon(variant: SignalToastVariant): LucideIcon {
+export function toastIcon(variant: ToastVariant): LucideIcon {
   return VARIANT_META[variant].icon;
 }
 
-export function toastDescriptionClass(_variant: SignalToastVariant): string {
+export function toastDescriptionClass(_variant: ToastVariant): string {
   return "mt-1 text-[12px] leading-relaxed text-muted-foreground";
 }

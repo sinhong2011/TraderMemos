@@ -10,58 +10,58 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-} from "../../components/Drawer";
+} from "@/components/Drawer";
 import {
   Collapsible,
   CollapsibleChevron,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "../../components/Collapsible";
-import { GradeControl } from "../../components/GradeControl";
-import { ModalBanner } from "../../components/Modal";
-import { OcrSetupPromptModal } from "../../components/OcrSetupPromptModal";
-import { OcrScanSummary } from "../../components/OcrSymbolGroupList";
-import { Pill } from "../../components/Pill";
-import { SegmentedControl } from "../../components/SegmentedControl";
-import { SignalDatePicker } from "../../components/SignalDatePicker";
-import { SignalDateTimePicker } from "../../components/SignalDateTimePicker";
-import { SignalField, fieldError } from "../../components/SignalField";
-import { SignalAmountInput } from "../../components/SignalAmountInput";
-import { SignalInput, SignalTextarea } from "../../components/SignalInput";
-import { SignalSelect } from "../../components/SignalSelect";
-import { NativeSelect, NativeSelectOption } from "../../components/ui/native-select";
-import { SignalPopover } from "../../components/SignalPopover";
-import { signalInputClass } from "../../components/signal-field-styles";
+} from "@/components/Collapsible";
+import { GradeControl } from "@/components/GradeControl";
+import { ModalBanner } from "@/components/Modal";
+import { OcrSetupPromptModal } from "@/components/OcrSetupPromptModal";
+import { OcrScanSummary } from "@/components/OcrSymbolGroupList";
+import { Pill } from "@/components/Pill";
+import { SegmentedControl } from "@/components/SegmentedControl";
+import { DatePicker } from "@/components/DatePicker";
+import { DateTimePicker } from "@/components/DateTimePicker";
+import { Field, fieldError } from "@/components/Field";
+import { AmountInput } from "@/components/AmountInput";
+import { FormInput, FormTextarea } from "@/components/FormInput";
+import { OptionsSelect } from "@/components/OptionsSelect";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
+import { ControlledPopover } from "@/components/ControlledPopover";
+import { fieldInputClass } from "@/components/field-styles";
 import {
   fileToScreenshotItem,
   JournalScreenshotUpload,
-} from "../../components/JournalScreenshotUpload";
-import { BatchTradeResultPreview, TradeResultPreview } from "../../components/TradeResultPreview";
-import { useToastManager } from "../../components/Toast";
-import { Button, buttonVariants } from "../../components/ui/button";
-import { ApiError } from "../../lib/api/client";
-import { attachmentsApi } from "../../lib/api/attachments";
-import { cashApi } from "../../lib/api/cash";
-import type { TradeExtract } from "../../lib/api/ocr";
-import { tradesApi } from "../../lib/api/trades";
-import { parseAmountToNumber } from "../../lib/amountInput";
-import { cn } from "../../lib/cn";
-import { usePrivacyMode } from "../../lib/displayPrefs";
-import { fmtMoney, fmtSignedMoney } from "../../lib/format";
-import { useFilters } from "../../lib/filters";
+} from "@/components/JournalScreenshotUpload";
+import { BatchTradeResultPreview, TradeResultPreview } from "@/components/TradeResultPreview";
+import { useToastManager } from "@/components/Toast";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { ApiError } from "@/lib/api/client";
+import { attachmentsApi } from "@/lib/api/attachments";
+import { cashApi } from "@/lib/api/cash";
+import type { TradeExtract } from "@/lib/api/ocr";
+import { tradesApi } from "@/lib/api/trades";
+import { parseAmountToNumber } from "@/lib/amountInput";
+import { cn } from "@/lib/cn";
+import { usePrivacyMode } from "@/lib/displayPrefs";
+import { fmtMoney, fmtSignedMoney } from "@/lib/format";
+import { useFilters } from "@/lib/filters";
 import {
   CUSTOM_PRESET_ID,
   FUTURES_PRESETS,
   multiplierForPreset,
   presetIdForSymbol,
-} from "../../lib/futuresPresets";
-import { capScreenshots, useJournalPrefs } from "../../lib/journalPrefs";
+} from "@/lib/futuresPresets";
+import { capScreenshots, useJournalPrefs } from "@/lib/journalPrefs";
 import {
   buildStructuredJournalNotes,
   computeInitialRisk,
   parseJournalNotes,
   weightedAvgEntry,
-} from "../../lib/newTradeJournal";
+} from "@/lib/newTradeJournal";
 import {
   defaultNewTradeFormValues,
   emptyExecutionRow,
@@ -71,51 +71,42 @@ import {
   validateSymbolTrades,
   type ExecutionRow,
   type SymbolTradeBlock,
-} from "../../lib/newTradeFormSchema";
+} from "@/lib/newTradeFormSchema";
 import {
   flattenSymbolTradesToExecutions,
   rowsFromOcrExtract,
   symbolTradeFromDetail,
   tradesFromOcrExtract,
-} from "../../lib/newTradeBlocks";
-import { detectOptionStrategy } from "../../lib/optionStrategy";
-import { groupOcrBySymbol, ocrScanToastDescription } from "../../lib/ocrSymbolGroups";
-import { pnlColor } from "../../components/theme-tokens";
+} from "@/lib/newTradeBlocks";
+import { detectOptionStrategy } from "@/lib/optionStrategy";
+import { groupOcrBySymbol, ocrScanToastDescription } from "@/lib/ocrSymbolGroups";
+import { pnlColor } from "@/components/theme-tokens";
 import {
   aggregateTradePnlPreviews,
   previewFillNetPnls,
   previewTradePnl,
-} from "../../lib/tradePnlPreview";
-import {
-  EMOTIONAL_STATES,
-  TRADE_SESSIONS,
-  gradeFromInt,
-  intFromGrade,
-} from "../../lib/tradeGrades";
-import { useAccounts } from "../../lib/hooks/useAccounts";
-import { useSummary } from "../../lib/hooks/useAnalytics";
-import { useCash } from "../../lib/hooks/useCash";
+} from "@/lib/tradePnlPreview";
+import { EMOTIONAL_STATES, TRADE_SESSIONS, gradeFromInt, intFromGrade } from "@/lib/tradeGrades";
+import { useAccounts } from "@/lib/hooks/useAccounts";
+import { useSummary } from "@/lib/hooks/useAnalytics";
+import { useCash } from "@/lib/hooks/useCash";
 import {
   ExecutionBatchError,
   useCreateExecutions,
   useDeleteExecution,
   useUpdateExecution,
-} from "../../lib/hooks/useExecutions";
-import { useOcrParse } from "../../lib/hooks/useOcrParse";
-import { useOcrSettings } from "../../lib/hooks/useOcrSettings";
-import { isOcrVisionReady } from "../../lib/ocrVisionReady";
-import { useSetups } from "../../lib/hooks/useSetups";
-import { useTags } from "../../lib/hooks/useTags";
-import { useTradeDetail } from "../../lib/hooks/useTradeDetail";
-import { computeHeaderStats } from "../../lib/headerStats";
-import { getIntlLocale, getStoredLocale } from "../../lib/locale";
-import {
-  listTradeTemplates,
-  saveTradeTemplate,
-  type TradeTemplate,
-} from "../../lib/tradeTemplates";
-import { isImportPreviewEditId } from "../../lib/importTradePreview";
-import { useUI } from "../../lib/ui";
+} from "@/lib/hooks/useExecutions";
+import { useOcrParse } from "@/lib/hooks/useOcrParse";
+import { useOcrSettings } from "@/lib/hooks/useOcrSettings";
+import { isOcrVisionReady } from "@/lib/ocrVisionReady";
+import { useSetups } from "@/lib/hooks/useSetups";
+import { useTags } from "@/lib/hooks/useTags";
+import { useTradeDetail } from "@/lib/hooks/useTradeDetail";
+import { computeHeaderStats } from "@/lib/headerStats";
+import { getIntlLocale, getStoredLocale } from "@/lib/locale";
+import { listTradeTemplates, saveTradeTemplate, type TradeTemplate } from "@/lib/tradeTemplates";
+import { isImportPreviewEditId } from "@/lib/importTradePreview";
+import { useUI } from "@/lib/ui";
 
 const MARKETS = [
   { value: "stock", label: "STOCK" },
@@ -161,7 +152,7 @@ function FillAmountCell({
   return (
     <span
       className={cn(
-        signalInputClass,
+        fieldInputClass,
         "inline-flex cursor-default items-center px-2 text-[12px] tabular-nums tracking-[-0.01em] hover:bg-muted",
         empty ? "justify-center text-muted-foreground" : "font-medium",
       )}
@@ -434,7 +425,7 @@ function SymbolCard({
       <CollapsibleContent animation="fade">
         <div className="flex flex-col gap-4">
           <div className="grid grid-cols-2 items-start gap-3 sm:grid-cols-4">
-            <SignalField label="Market">
+            <Field label="Market">
               <NativeSelect
                 aria-label={`Market symbol ${index + 1}`}
                 value={block.market}
@@ -463,10 +454,10 @@ function SymbolCard({
                   </NativeSelectOption>
                 ))}
               </NativeSelect>
-            </SignalField>
+            </Field>
             {block.market === "future" && (
-              <SignalField label="Contract">
-                <SignalSelect
+              <Field label="Contract">
+                <OptionsSelect
                   ariaLabel={`Contract symbol ${index + 1}`}
                   value={block.futuresPresetId}
                   options={[
@@ -482,15 +473,15 @@ function SymbolCard({
                       );
                   }}
                 />
-              </SignalField>
+              </Field>
             )}
             <form.Field
               name={`${base}.symbol` as never}
               validators={{ onBlur: ({ value }) => (value ? undefined : "Symbol is required.") }}
             >
               {(field) => (
-                <SignalField label="Symbol" error={fieldError(field.state.meta.errors)}>
-                  <SignalInput
+                <Field label="Symbol" error={fieldError(field.state.meta.errors)}>
+                  <FormInput
                     aria-label={`Symbol${suffix}`}
                     value={field.state.value as string}
                     onChange={(e) => {
@@ -502,10 +493,10 @@ function SymbolCard({
                     placeholder="Ticker"
                     className="uppercase"
                   />
-                </SignalField>
+                </Field>
               )}
             </form.Field>
-            <SignalField label="Side">
+            <Field label="Side">
               <SegmentedControl
                 ariaLabel={`Side symbol ${index + 1}`}
                 size="md"
@@ -527,18 +518,18 @@ function SymbolCard({
                   );
                 }}
               />
-            </SignalField>
+            </Field>
           </div>
           {block.market === "option" && (
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <SignalField label="Multiplier">
-                <SignalAmountInput
+              <Field label="Multiplier">
+                <AmountInput
                   aria-label={`Multiplier symbol ${index + 1}`}
                   value={block.multiplier}
                   onValueChange={(v) => set("multiplier", v)}
                   placeholder="100"
                 />
-              </SignalField>
+              </Field>
               <div>
                 <span className={labelClass}>Right</span>
                 <SegmentedControl
@@ -557,8 +548,8 @@ function SymbolCard({
                   }}
                 />
               </div>
-              <SignalField label="Strike">
-                <SignalAmountInput
+              <Field label="Strike">
+                <AmountInput
                   aria-label={`Strike symbol ${index + 1}`}
                   value={block.option_strike}
                   onValueChange={(v) => {
@@ -567,10 +558,10 @@ function SymbolCard({
                   }}
                   placeholder="325"
                 />
-              </SignalField>
+              </Field>
               <div>
                 <span className={labelClass}>Expiry</span>
-                <SignalDatePicker
+                <DatePicker
                   aria-label={`Expiry symbol ${index + 1}`}
                   value={block.option_expiry}
                   onChange={(v) => {
@@ -587,22 +578,22 @@ function SymbolCard({
             </div>
           )}
           <div className="grid grid-cols-2 gap-3">
-            <SignalField label="Target">
-              <SignalAmountInput
+            <Field label="Target">
+              <AmountInput
                 aria-label={`Target symbol ${index + 1}`}
                 value={block.target}
                 onValueChange={(v) => set("target", v)}
                 placeholder="Optional"
               />
-            </SignalField>
-            <SignalField label="Stop">
-              <SignalAmountInput
+            </Field>
+            <Field label="Stop">
+              <AmountInput
                 aria-label={`Stop symbol ${index + 1}`}
                 value={block.stop}
                 onValueChange={(v) => set("stop", v)}
                 placeholder="Optional"
               />
-            </SignalField>
+            </Field>
           </div>
           <form.Field name={`${base}.rows` as never} mode="array">
             {(rowsField) => (
@@ -652,7 +643,7 @@ function SymbolCard({
                     </Button>
                     <form.Field name={`${base}.rows[${rowIndex}].executed_at` as never}>
                       {(field) => (
-                        <SignalDateTimePicker
+                        <DateTimePicker
                           aria-label={`Date/time symbol ${index + 1} row ${rowIndex + 1}`}
                           value={field.state.value as string}
                           onChange={(v) => field.handleChange(v as never)}
@@ -666,7 +657,7 @@ function SymbolCard({
                       }}
                     >
                       {(field) => (
-                        <SignalAmountInput
+                        <AmountInput
                           aria-label={`Qty${index ? ` symbol ${index + 1}` : ""} row ${rowIndex + 1}`}
                           value={field.state.value as string}
                           onValueChange={(v) => field.handleChange(v as never)}
@@ -681,7 +672,7 @@ function SymbolCard({
                       }}
                     >
                       {(field) => (
-                        <SignalAmountInput
+                        <AmountInput
                           aria-label={`Price${index ? ` symbol ${index + 1}` : ""} row ${rowIndex + 1}`}
                           value={field.state.value as string}
                           onValueChange={(v) => field.handleChange(v as never)}
@@ -704,7 +695,7 @@ function SymbolCard({
                       }}
                     >
                       {(field) => (
-                        <SignalAmountInput
+                        <AmountInput
                           aria-label={`Fee${index ? ` symbol ${index + 1}` : ""} row ${rowIndex + 1}`}
                           value={field.state.value as string}
                           onValueChange={(v) => field.handleChange(v as never)}
@@ -834,7 +825,7 @@ function SymbolCard({
               <label className={labelClass} htmlFor={`nt-emotion-${block.key}`}>
                 Emotion
               </label>
-              <SignalSelect
+              <OptionsSelect
                 id={`nt-emotion-${block.key}`}
                 value={block.emotionalState}
                 onValueChange={(v) => set("emotionalState", v)}
@@ -909,7 +900,7 @@ function SymbolCard({
               <label className={labelClass} htmlFor={`nt-entry-${block.key}`}>
                 Entry reason
               </label>
-              <SignalTextarea
+              <FormTextarea
                 id={`nt-entry-${block.key}`}
                 aria-label={`Entry reason${suffix}`}
                 value={block.entryReason}
@@ -922,7 +913,7 @@ function SymbolCard({
               <label className={labelClass} htmlFor={`nt-exit-${block.key}`}>
                 Exit reason
               </label>
-              <SignalTextarea
+              <FormTextarea
                 id={`nt-exit-${block.key}`}
                 aria-label={`Exit reason${suffix}`}
                 value={block.exitReason}
@@ -935,7 +926,7 @@ function SymbolCard({
               <label className={labelClass} htmlFor={`nt-review-${block.key}`}>
                 Review notes
               </label>
-              <SignalTextarea
+              <FormTextarea
                 id={`nt-review-${block.key}`}
                 aria-label={`Review notes${suffix}`}
                 value={block.reviewNotes}
@@ -978,31 +969,31 @@ function SymbolCard({
               Optional payout on this symbol. Amount rolls into trade P&amp;L (shorts as a debit).
             </p>
             <div className="grid grid-cols-2 gap-3">
-              <SignalField label={`Amount (${currency})`}>
-                <SignalAmountInput
+              <Field label={`Amount (${currency})`}>
+                <AmountInput
                   aria-label={`Dividend amount${suffix}`}
                   value={block.dividendAmount}
                   onValueChange={(v) => set("dividendAmount", v)}
                   placeholder="0.00"
                 />
-              </SignalField>
+              </Field>
               <div>
                 <span className={labelClass}>Date</span>
-                <SignalDatePicker
+                <DatePicker
                   aria-label={`Dividend date${suffix}`}
                   value={block.dividendDate}
                   onChange={(v) => set("dividendDate", v)}
                 />
               </div>
             </div>
-            <SignalField label="Note">
-              <SignalInput
+            <Field label="Note">
+              <FormInput
                 aria-label={`Dividend note${suffix}`}
                 value={block.dividendNote}
                 onChange={(e) => set("dividendNote", e.target.value)}
                 placeholder="Optional"
               />
-            </SignalField>
+            </Field>
           </CollapsibleSection>
         </div>
       </CollapsibleContent>
@@ -1498,11 +1489,11 @@ export function NewTradeDrawer() {
             </DrawerTitle>
             <div className="ml-auto flex items-center gap-0.5">
               {!isEditMode && (
-                <SignalPopover
+                <ControlledPopover
                   open={templatesOpen}
                   onOpenChange={setTemplatesOpen}
                   triggerAriaLabel="Templates"
-                  className="min-w-[14rem] overflow-hidden p-0 shadow-[0_16px_40px_rgba(18,18,24,0.65)]"
+                  className="min-w-[14rem] overflow-hidden p-0"
                   triggerClassName={cn(
                     buttonVariants({ variant: "outline", size: "sm" }),
                     templatesOpen && "border-border bg-accent text-foreground",
@@ -1528,7 +1519,7 @@ export function NewTradeDrawer() {
                           onClick={() => applyTemplate(t)}
                           className={cn(
                             "flex min-h-8 cursor-pointer items-center rounded-md px-2 text-left text-[12px] text-foreground",
-                            "transition-colors hover:bg-white/[0.06]",
+                            "transition-colors hover:bg-accent",
                             "focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ring",
                           )}
                         >
@@ -1550,7 +1541,7 @@ export function NewTradeDrawer() {
                       Save first symbol as template…
                     </button>
                   </div>
-                </SignalPopover>
+                </ControlledPopover>
               )}
               <DrawerClose
                 aria-label="Close"

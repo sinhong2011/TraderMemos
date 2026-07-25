@@ -1,17 +1,17 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { SettingsView } from "../app/screens/SettingsView";
-import { settingsApi } from "../lib/api/settings";
+import { SettingsView } from "@/app/screens/SettingsView";
+import { settingsApi } from "@/lib/api/settings";
 import {
   useAccounts,
   useClearAccountTrades,
   useCreateAccount,
   useDeleteAccount,
   useUpdateAccount,
-} from "../lib/hooks/useAccounts";
-import { useCash, useCreateCash, useDeleteCash, useUpdateCash } from "../lib/hooks/useCash";
-import { useRiskRules, useSaveRiskRules } from "../lib/hooks/useRiskRules";
-import { useCreateTag, useDeleteTag, useTags } from "../lib/hooks/useTags";
+} from "@/lib/hooks/useAccounts";
+import { useCash, useCreateCash, useDeleteCash, useUpdateCash } from "@/lib/hooks/useCash";
+import { useRiskRules, useSaveRiskRules } from "@/lib/hooks/useRiskRules";
+import { useCreateTag, useDeleteTag, useTags } from "@/lib/hooks/useTags";
 
 export const Route = createFileRoute("/settings")({
   component: SettingsPage,

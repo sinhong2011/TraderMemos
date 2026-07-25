@@ -4,8 +4,8 @@ import { ChartFrame, chartTheme } from "./ChartFrame";
 import { EmptyState } from "./EmptyState";
 import { useReportsMoney } from "./ReportsDisplayContext";
 import { Skeleton } from "./Skeleton";
-import type { BreakGroup } from "../lib/api/types";
-import { usePrivacyMode } from "../lib/displayPrefs";
+import type { BreakGroup } from "@/lib/api/types";
+import { usePrivacyMode } from "@/lib/displayPrefs";
 
 export interface ReportsSymbolHeatmapProps {
   breakdown: BreakGroup[];

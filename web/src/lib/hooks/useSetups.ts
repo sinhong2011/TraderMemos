@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { setupsApi } from "../api/setups";
+import { setupsApi } from "@/lib/api/setups";
 
 export function useSetups() {
   return useQuery({ queryKey: ["setups"], queryFn: () => setupsApi.list() });

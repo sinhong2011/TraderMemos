@@ -1,10 +1,10 @@
 import { Popover as PopoverPrimitive } from "@base-ui/react/popover";
 import type { ComponentProps } from "react";
-import { cn } from "../../lib/cn";
-import { signalOverlayPopupClass } from "../signal-overlay-styles";
+import { cn } from "@/lib/cn";
+import { overlayPopupClass } from "@/components/overlay-styles";
 
 /**
- * shadcn Popover — shadcn Base UI popover with theme tokens.
+ * shadcn Popover — Base UI popover with theme tokens.
  * @see https://ui.shadcn.com/docs/components/base/popover
  */
 
@@ -44,7 +44,7 @@ function PopoverContent({
       >
         <PopoverPrimitive.Popup
           data-slot="popover-content"
-          className={cn(signalOverlayPopupClass, "bg-accent p-3", className)}
+          className={cn(overlayPopupClass, "p-3", className)}
           {...props}
         >
           {children}

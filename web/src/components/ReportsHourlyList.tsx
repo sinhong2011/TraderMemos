@@ -1,14 +1,14 @@
-import type { BreakGroup } from "../lib/api/types";
-import { cn } from "../lib/cn";
+import type { BreakGroup } from "@/lib/api/types";
+import { cn } from "@/lib/cn";
 import {
   formatUtcHourLabel,
   resolveDisplayTimezone,
   useDisplayPrefs,
   useDisplayTimePrefs,
   usePrivacyMode,
-} from "../lib/displayPrefs";
-import { fmtPct } from "../lib/format";
-import { intlLocale } from "../lib/locale";
+} from "@/lib/displayPrefs";
+import { fmtPct } from "@/lib/format";
+import { intlLocale } from "@/lib/locale";
 import { EmptyState } from "./EmptyState";
 import { useReportsMoney } from "./ReportsDisplayContext";
 import { Skeleton } from "./Skeleton";

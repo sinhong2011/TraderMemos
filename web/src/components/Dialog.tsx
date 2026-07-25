@@ -1,7 +1,7 @@
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
 import { X } from "lucide-react";
 import type { ComponentProps } from "react";
-import { cn } from "../lib/cn";
+import { cn } from "@/lib/cn";
 import { buttonVariants } from "./ui/button";
 
 function Dialog({ ...props }: DialogPrimitive.Root.Props) {
@@ -25,7 +25,7 @@ function DialogOverlay({ className, ...props }: DialogPrimitive.Backdrop.Props) 
     <DialogPrimitive.Backdrop
       data-slot="dialog-overlay"
       className={cn(
-        "fixed inset-0 isolate z-40 bg-overlay-scrim backdrop-blur-[2px]",
+        "fixed inset-0 isolate z-40 bg-black/50 backdrop-blur-[2px]",
         "transition-opacity duration-250 ease-out",
         "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0",
         "motion-reduce:transition-none",

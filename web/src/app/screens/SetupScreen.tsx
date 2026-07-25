@@ -1,21 +1,21 @@
 import { AlertCircle, ArrowRight, Eye, EyeOff, Lock, Settings2, User, Wallet } from "lucide-react";
 import { useId, useState } from "react";
-import { AppLogo } from "../../components/AppLogo";
-import { CsvDropZone } from "../../components/CsvDropZone";
-import { Modal } from "../../components/Modal";
-import { SignalInput } from "../../components/SignalInput";
-import { Button } from "../../components/ui/button";
-import { Kbd } from "../../components/ui/kbd";
-import { authApi } from "../../lib/api/auth";
+import { AppLogo } from "@/components/AppLogo";
+import { CsvDropZone } from "@/components/CsvDropZone";
+import { Modal } from "@/components/Modal";
+import { FormInput } from "@/components/FormInput";
+import { Button } from "@/components/ui/button";
+import { Kbd } from "@/components/ui/kbd";
+import { authApi } from "@/lib/api/auth";
 import {
   ApiError,
   editableApiBaseUrl,
   getCustomApiBaseUrl,
   getBaseUrl,
   setBaseUrl,
-} from "../../lib/api/client";
-import { useAuth } from "../../lib/auth";
-import { cn } from "../../lib/cn";
+} from "@/lib/api/client";
+import { useAuth } from "@/lib/auth";
+import { cn } from "@/lib/cn";
 
 const labelClass = "text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground";
 const MIN_PASSWORD = 10;
@@ -35,7 +35,7 @@ function SetupStepIndicator({ step }: { step: 1 | 2 }) {
               <div
                 className={cn(
                   "h-px min-w-[4.5rem] flex-1",
-                  step > n ? "bg-accent/45" : "bg-border-strong",
+                  step > n ? "bg-accent/45" : "bg-border",
                 )}
                 aria-hidden
               />
@@ -568,7 +568,7 @@ export function SetupScreen() {
                 <label htmlFor="setup-server-url" className={labelClass}>
                   API server
                 </label>
-                <SignalInput
+                <FormInput
                   id="setup-server-url"
                   type="text"
                   inputMode="url"

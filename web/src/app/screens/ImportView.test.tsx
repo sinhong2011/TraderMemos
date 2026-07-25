@@ -1,8 +1,8 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import type { ComponentProps } from "react";
 import { describe, expect, it, vi } from "vite-plus/test";
-import { Toaster } from "../../components/Toaster";
-import type { Account, ImportPreview, ImportResult } from "../../lib/api/types";
+import { Toaster } from "@/components/Toaster";
+import type { Account, ImportPreview, ImportResult } from "@/lib/api/types";
 import { ImportView, jsonFileHasAccountName } from "./ImportView";
 
 function renderImportView(props: ComponentProps<typeof ImportView>) {

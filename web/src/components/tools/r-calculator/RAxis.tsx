@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { money, rLabel, signedMoney } from "../../../lib/r-calculator/format";
-import { useRCalculatorStore } from "../../../lib/r-calculator/useRCalculatorStore";
-import { cn } from "../../../lib/cn";
-import { Button } from "../../ui/button";
+import { money, rLabel, signedMoney } from "@/lib/r-calculator/format";
+import { useRCalculatorStore } from "@/lib/r-calculator/useRCalculatorStore";
+import { cn } from "@/lib/cn";
+import { Button } from "@/components/ui/button";
 
 export function RAxis() {
   const store = useRCalculatorStore();

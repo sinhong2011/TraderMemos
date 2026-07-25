@@ -18,15 +18,15 @@ import { DateRangePicker } from "./DateRangePicker";
 import { DisplayCurrencySelect } from "./HeaderBar";
 import { ToolsPopover } from "./ToolsPopover";
 import { Button } from "./ui/button";
-import { useAuth } from "../lib/auth";
-import { cn } from "../lib/cn";
-import { accountBaseCurrency } from "../lib/displayPrefs";
-import { useFilters } from "../lib/filters";
-import { useAccounts } from "../lib/hooks/useAccounts";
-import { useLocale } from "../i18n";
-import { navLabel } from "../lib/locale";
-import { isRouteActive, SECONDARY_NAV } from "../lib/navItems";
-import { useUI } from "../lib/ui";
+import { useAuth } from "@/lib/auth";
+import { cn } from "@/lib/cn";
+import { accountBaseCurrency } from "@/lib/displayPrefs";
+import { useFilters } from "@/lib/filters";
+import { useAccounts } from "@/lib/hooks/useAccounts";
+import { useLocale } from "@/i18n";
+import { navLabel } from "@/lib/locale";
+import { isRouteActive, SECONDARY_NAV } from "@/lib/navItems";
+import { useUI } from "@/lib/ui";
 
 function NavRow({
   to,

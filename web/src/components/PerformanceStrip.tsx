@@ -1,11 +1,11 @@
 import { StatBar } from "./StatBar";
 import { pnlColor } from "./theme-tokens";
-import type { Summary, Trade } from "../lib/api/types";
-import { cn } from "../lib/cn";
-import { usePrivacyMode } from "../lib/displayPrefs";
-import { fmtMoney, fmtPct, fmtSignedMoney } from "../lib/format";
-import { intlLocale } from "../lib/locale";
-import type { TradeStatusFilter } from "../lib/tradeFilters";
+import type { Summary, Trade } from "@/lib/api/types";
+import { cn } from "@/lib/cn";
+import { usePrivacyMode } from "@/lib/displayPrefs";
+import { fmtMoney, fmtPct, fmtSignedMoney } from "@/lib/format";
+import { intlLocale } from "@/lib/locale";
+import type { TradeStatusFilter } from "@/lib/tradeFilters";
 
 export interface PerformanceStripProps {
   summary: Summary;

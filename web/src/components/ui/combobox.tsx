@@ -1,12 +1,8 @@
 import { Combobox as ComboboxPrimitive } from "@base-ui/react/combobox";
 import { Check, ChevronDown, X } from "lucide-react";
 import { useRef, forwardRef, type ComponentProps, type ReactNode } from "react";
-import { cn } from "../../lib/cn";
-import {
-  signalOverlayPopupClass,
-  signalSelectItemClass,
-  signalSelectListClass,
-} from "../signal-overlay-styles";
+import { cn } from "@/lib/cn";
+import { overlayPopupClass, overlayItemClass, overlayListClass } from "@/components/overlay-styles";
 import { Button } from "./button";
 
 /**
@@ -224,7 +220,7 @@ function ComboboxContent({
         <ComboboxPrimitive.Popup
           data-slot="combobox-content"
           className={cn(
-            signalOverlayPopupClass,
+            overlayPopupClass,
             "relative max-h-(--available-height) w-(--anchor-width) max-w-(--available-width)",
             "min-w-[max(var(--anchor-width),9rem)] origin-(--transform-origin) overflow-hidden p-0",
             className,
@@ -240,11 +236,7 @@ function ComboboxList({ className, ...props }: ComboboxPrimitive.List.Props) {
   return (
     <ComboboxPrimitive.List
       data-slot="combobox-list"
-      className={cn(
-        signalSelectListClass,
-        "max-h-72 overflow-y-auto overscroll-contain",
-        className,
-      )}
+      className={cn(overlayListClass, "max-h-72 overflow-y-auto overscroll-contain", className)}
       {...props}
     />
   );
@@ -254,7 +246,7 @@ function ComboboxItem({ className, children, ...props }: ComboboxPrimitive.Item.
   return (
     <ComboboxPrimitive.Item
       data-slot="combobox-item"
-      className={cn(signalSelectItemClass, "w-full cursor-pointer", className)}
+      className={cn(overlayItemClass, "w-full cursor-pointer", className)}
       {...props}
     >
       {children}

@@ -1,7 +1,7 @@
 import { Copy, Pencil, Plus, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { cn } from "../../../lib/cn";
-import { Button } from "../../ui/button";
+import { cn } from "@/lib/cn";
+import { Button } from "@/components/ui/button";
 
 export function SessionRail({
   sessions,

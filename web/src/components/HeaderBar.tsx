@@ -1,27 +1,27 @@
 import { Check, Eye, EyeOff, Menu, Search, Wallet, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { cn } from "../lib/cn";
-import { currencyIcon } from "../lib/currencyIcon";
+import { cn } from "@/lib/cn";
+import { currencyIcon } from "@/lib/currencyIcon";
 import {
   accountBaseCurrency,
   DISPLAY_CURRENCIES,
   useDisplayPrefs,
   usePrivacyMode,
-} from "../lib/displayPrefs";
-import { useFilterParams, useFilters } from "../lib/filters";
-import { APP_HOTKEYS } from "../lib/hotkeys";
-import { fmtMoney, fmtPct, fmtSignedMoney } from "../lib/format";
-import { computeHeaderStats } from "../lib/headerStats";
-import { useAccounts } from "../lib/hooks/useAccounts";
-import { useSummary } from "../lib/hooks/useAnalytics";
-import { useCash } from "../lib/hooks/useCash";
-import { useMoneyFx } from "../lib/hooks/useMoneyFx";
-import { useTrades } from "../lib/hooks/useTrades";
-import { intlLocale } from "../lib/locale";
-import { useUI } from "../lib/ui";
+} from "@/lib/displayPrefs";
+import { useFilterParams, useFilters } from "@/lib/filters";
+import { APP_HOTKEYS } from "@/lib/hotkeys";
+import { fmtMoney, fmtPct, fmtSignedMoney } from "@/lib/format";
+import { computeHeaderStats } from "@/lib/headerStats";
+import { useAccounts } from "@/lib/hooks/useAccounts";
+import { useSummary } from "@/lib/hooks/useAnalytics";
+import { useCash } from "@/lib/hooks/useCash";
+import { useMoneyFx } from "@/lib/hooks/useMoneyFx";
+import { useTrades } from "@/lib/hooks/useTrades";
+import { intlLocale } from "@/lib/locale";
+import { useUI } from "@/lib/ui";
 import { AccountNavPopover } from "./AccountNavPopover";
 import { DateRangePicker } from "./DateRangePicker";
-import { SignalSelect } from "./SignalSelect";
+import { OptionsSelect } from "./OptionsSelect";
 import { heroPnlClass } from "./theme-tokens";
 import { Button } from "./ui/button";
 import { Kbd } from "./ui/kbd";
@@ -215,7 +215,7 @@ export function DisplayCurrencySelect({
   }
 
   return (
-    <SignalSelect
+    <OptionsSelect
       value={usingAccount ? AUTO_VALUE : displayCurrency!}
       onValueChange={applyCurrency}
       options={options}

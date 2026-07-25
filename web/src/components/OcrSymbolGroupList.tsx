@@ -5,9 +5,9 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "./Collapsible";
-import { cn } from "../lib/cn";
-import type { OcrSymbolGroup } from "../lib/ocrSymbolGroups";
-import { partitionOcrWarnings } from "../lib/ocrSymbolGroups";
+import { cn } from "@/lib/cn";
+import type { OcrSymbolGroup } from "@/lib/ocrSymbolGroups";
+import { partitionOcrWarnings } from "@/lib/ocrSymbolGroups";
 import {
   Item,
   ItemActions,
@@ -231,7 +231,7 @@ export function OcrScanSummary({
                   {highlights.map((w) => (
                     <li
                       key={w}
-                      className="rounded-md bg-[rgba(228,255,26,0.06)] px-2.5 py-1.5 text-[11px] leading-snug text-chart-3"
+                      className="rounded-md bg-warning/10 px-2.5 py-1.5 text-[11px] leading-snug text-chart-3"
                     >
                       {w}
                     </li>

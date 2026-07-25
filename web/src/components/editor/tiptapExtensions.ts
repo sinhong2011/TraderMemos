@@ -7,14 +7,14 @@ import Underline from "@tiptap/extension-underline";
 import type { Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { Markdown } from "tiptap-markdown";
-import { mediaApi, mediaSrc, parseMediaId } from "../../lib/api/media";
-import { getToken } from "../../lib/api/client";
+import { mediaApi, mediaSrc, parseMediaId } from "@/lib/api/media";
+import { getToken } from "@/lib/api/client";
 import { imageFileToUploadFile } from "./imageDataUrl";
 
 const IMAGE_CLASS = "se-image max-h-80 max-w-full rounded-md";
 
 /** TipTap Image that keeps `tm-media:` attrs but renders authed blob URLs. */
-const SignalImage = Image.extend({
+const EditorImage = Image.extend({
   addNodeView() {
     return ({ node }) => {
       const dom = document.createElement("img");
@@ -76,7 +76,7 @@ const SignalImage = Image.extend({
   },
 });
 
-export function createSignalEditorExtensions(placeholder: string) {
+export function createEditorExtensions(placeholder: string) {
   return [
     StarterKit.configure({
       heading: { levels: [2, 3] },
@@ -94,7 +94,7 @@ export function createSignalEditorExtensions(placeholder: string) {
         target: "_blank",
       },
     }),
-    SignalImage.configure({
+    EditorImage.configure({
       // Legacy notes may still embed data URLs; new inserts use tm-media: refs.
       allowBase64: true,
       HTMLAttributes: {

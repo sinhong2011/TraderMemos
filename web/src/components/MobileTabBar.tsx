@@ -1,8 +1,8 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { cn } from "../lib/cn";
-import { useLocale } from "../i18n";
-import { navLabel } from "../lib/locale";
-import { isRouteActive, PRIMARY_NAV } from "../lib/navItems";
+import { cn } from "@/lib/cn";
+import { useLocale } from "@/i18n";
+import { navLabel } from "@/lib/locale";
+import { isRouteActive, PRIMARY_NAV } from "@/lib/navItems";
 
 /**
  * Fixed bottom nav for phone widths (<768px) — the AppNav rail is `hidden`

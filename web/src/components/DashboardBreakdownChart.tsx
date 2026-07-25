@@ -9,14 +9,14 @@ import {
   YAxis,
 } from "recharts";
 import { ArrowRight } from "lucide-react";
-import type { BreakGroup } from "../lib/api/types";
-import { fmtMoneyCompact, fmtSignedMoney } from "../lib/format";
-import { intlLocale } from "../lib/locale";
+import type { BreakGroup } from "@/lib/api/types";
+import { fmtMoneyCompact, fmtSignedMoney } from "@/lib/format";
+import { intlLocale } from "@/lib/locale";
 import { ChartFrame, chartTheme } from "./ChartFrame";
 import { SegmentedControl } from "./SegmentedControl";
 import { Skeleton } from "./Skeleton";
 import { Button } from "./ui/button";
-import { usePrivacyMode } from "../lib/displayPrefs";
+import { usePrivacyMode } from "@/lib/displayPrefs";
 
 export type DashboardBreakdownDim = "day_of_week" | "setup" | "symbol";
 

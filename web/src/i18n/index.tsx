@@ -16,7 +16,7 @@ import {
   isAppLocale,
   setStoredLocale,
   type AppLocale,
-} from "../lib/locale";
+} from "@/lib/locale";
 import { messages as enMessages } from "./locales/en/messages";
 
 export { i18n };

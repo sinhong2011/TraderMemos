@@ -1,49 +1,35 @@
 import type { SortingState, VisibilityState } from "@tanstack/react-table";
 import { List, Plus, Search, Upload } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { Card } from "../../components/Card";
-import { CreatedAtFilter } from "../../components/CreatedAtFilter";
-import { DataTable } from "../../components/DataTable";
-import { EmptyState } from "../../components/EmptyState";
-import { FacetedFilter } from "../../components/FacetedFilter";
-import { Page } from "../../components/Page";
-import { Pagination } from "../../components/Pagination";
-import { Skeleton } from "../../components/Skeleton";
-import { SortList } from "../../components/SortList";
+import { Card } from "@/components/Card";
+import { CreatedAtFilter } from "@/components/CreatedAtFilter";
+import { DataTable } from "@/components/DataTable";
+import { EmptyState } from "@/components/EmptyState";
+import { Page } from "@/components/Page";
+import { Pagination } from "@/components/Pagination";
+import { TableSkeleton } from "@/components/skeletons/table-skeleton";
+import { SortList } from "@/components/SortList";
 import {
   TRADE_COLUMN_PINNING,
   TRADE_SORT_COLUMNS,
   TRADE_VIEW_COLUMNS,
   tradeColumns,
-} from "../../components/tradeColumns";
-import { Button } from "../../components/ui/button";
-import {
-  Combobox,
-  ComboboxChip,
-  ComboboxChips,
-  ComboboxChipsInput,
-  ComboboxContent,
-  ComboboxEmpty,
-  ComboboxItem,
-  ComboboxList,
-  ComboboxValue,
-  useComboboxAnchor,
-} from "../../components/ui/combobox";
-import { ViewOptions } from "../../components/ViewOptions";
-import type { Trade } from "../../lib/api/types";
-import { cn } from "../../lib/cn";
-import { useMoneyFx } from "../../lib/hooks/useMoneyFx";
-import { clampPage, pageCountFor, slicePage } from "../../lib/pagination";
+} from "@/components/tradeColumns";
+import { TradesFilters } from "@/components/TradesFilters";
+import { Button } from "@/components/ui/button";
+import { ViewOptions } from "@/components/ViewOptions";
+import type { Trade } from "@/lib/api/types";
+import { cn } from "@/lib/cn";
+import { useMoneyFx } from "@/lib/hooks/useMoneyFx";
+import { clampPage, pageCountFor, slicePage } from "@/lib/pagination";
 import type {
   MarketFacetOption,
   SymbolFacetOption,
   TagFacetOption,
   TradeStatusFilter,
-} from "../../lib/tradeFilters";
+} from "@/lib/tradeFilters";
 
 const DEFAULT_PAGE_SIZE = 20;
-/** Previous single-symbol control was 11.72rem; +20%. */
-const SYMBOL_FILTER_WIDTH = "w-[14.06rem]";
 
 function compareSortValues(a: unknown, b: unknown): number {
   if (a == null && b == null) return 0;
@@ -96,13 +82,6 @@ export interface TradesViewProps {
   onNewTrade: () => void;
   onRetry?: () => void;
 }
-
-const STATUS_FACETS = [
-  { value: "win", label: "Wins" },
-  { value: "loss", label: "Losses" },
-  { value: "open", label: "Open" },
-  { value: "wash", label: "Wash" },
-] as const;
 
 function ToolbarIconButton({
   label,
@@ -179,122 +158,26 @@ export function TradesView({
   const trulyEmpty = filteredEmpty && !scopeLoading && totalInScope === 0 && !hasNarrowingFilters;
   const narrowedEmpty = filteredEmpty && !trulyEmpty && (hasNarrowingFilters || totalInScope > 0);
 
-  function handleStatusChange(next: string | string[] | undefined) {
-    if (!onToggleTradeStatus) return;
-    if (next == null || next === "") {
-      if (onClearStatus) onClearStatus();
-      else if (tradeStatus) onToggleTradeStatus(tradeStatus);
-      return;
-    }
-    const value = Array.isArray(next) ? next[0] : next;
-    if (value && value !== tradeStatus) onToggleTradeStatus(value as TradeStatusFilter);
-  }
-
-  function handleTagChange(next: string | string[] | undefined) {
-    if (!onTagIdsChange) return;
-    if (next == null || next === "") {
-      onTagIdsChange(undefined);
-      return;
-    }
-    onTagIdsChange(Array.isArray(next) ? next : [next]);
-  }
-
-  function handleMarketChange(next: string | string[] | undefined) {
-    if (!onMarketsChange) return;
-    if (next == null || next === "") {
-      onMarketsChange(undefined);
-      return;
-    }
-    onMarketsChange(Array.isArray(next) ? next : [next]);
-  }
-
   const toolbarControlClass =
     "border-border !bg-transparent hover:border-border hover:!bg-transparent aria-expanded:border-border aria-expanded:!bg-transparent";
-
-  const symbolAnchor = useComboboxAnchor();
-  const selectedSymbols = useMemo(() => {
-    const byValue = new Map(symbolOptions.map((o) => [o.value, o]));
-    return symbols.map((value) => byValue.get(value) ?? { value, label: value, count: 0 });
-  }, [symbolOptions, symbols]);
 
   const headerActions = (
     <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 sm:gap-3">
       <div className="flex flex-wrap items-center gap-2">
-        <Combobox
-          multiple
-          items={symbolOptions}
-          value={selectedSymbols}
-          onValueChange={(next) =>
-            onSymbolsChange(next.length ? next.map((item) => item.value) : undefined)
-          }
-          itemToStringLabel={(item) => item.label}
-          isItemEqualToValue={(a, b) => a.value === b.value}
-          autoHighlight
-        >
-          <ComboboxChips ref={symbolAnchor} className={SYMBOL_FILTER_WIDTH}>
-            <ComboboxValue>
-              {(values: SymbolFacetOption[]) => (
-                <>
-                  {values.map((item) => (
-                    <ComboboxChip key={item.value}>{item.label}</ComboboxChip>
-                  ))}
-                  <ComboboxChipsInput
-                    placeholder={values.length ? "Add…" : "Filter symbol…"}
-                    maxLength={21}
-                    aria-label="Filter symbol"
-                    startAdornment={
-                      values.length ? undefined : <Search size={13} strokeWidth={1.75} />
-                    }
-                  />
-                </>
-              )}
-            </ComboboxValue>
-          </ComboboxChips>
-          <ComboboxContent anchor={symbolAnchor} align="start" className={SYMBOL_FILTER_WIDTH}>
-            <ComboboxEmpty>No symbols found.</ComboboxEmpty>
-            <ComboboxList>
-              {(item: SymbolFacetOption) => (
-                <ComboboxItem key={item.value} value={item}>
-                  <span className="min-w-0 flex-1 truncate font-medium tracking-wide">
-                    {item.label}
-                  </span>
-                  <span className="tabular-nums text-[10px] text-muted-foreground">
-                    {item.count}
-                  </span>
-                </ComboboxItem>
-              )}
-            </ComboboxList>
-          </ComboboxContent>
-        </Combobox>
-        {onToggleTradeStatus ? (
-          <FacetedFilter
-            title="Status"
-            options={STATUS_FACETS}
-            value={tradeStatus}
-            onChange={handleStatusChange}
-            className={toolbarControlClass}
-          />
-        ) : null}
-        {onMarketsChange && marketOptions && marketOptions.length > 0 ? (
-          <FacetedFilter
-            title="Market"
-            options={marketOptions}
-            value={markets}
-            onChange={handleMarketChange}
-            multiple
-            className={toolbarControlClass}
-          />
-        ) : null}
-        {onTagIdsChange && tagOptions && tagOptions.length > 0 ? (
-          <FacetedFilter
-            title="Tags"
-            options={tagOptions}
-            value={tagIds}
-            onChange={handleTagChange}
-            multiple
-            className={toolbarControlClass}
-          />
-        ) : null}
+        <TradesFilters
+          symbols={symbols}
+          onSymbolsChange={onSymbolsChange}
+          symbolOptions={symbolOptions}
+          tradeStatus={tradeStatus}
+          onToggleTradeStatus={onToggleTradeStatus}
+          onClearStatus={onClearStatus}
+          markets={markets}
+          marketOptions={marketOptions}
+          onMarketsChange={onMarketsChange}
+          tagIds={tagIds}
+          tagOptions={tagOptions}
+          onTagIdsChange={onTagIdsChange}
+        />
         <CreatedAtFilter className={toolbarControlClass} />
         {hasNarrowingFilters ? (
           <Button
@@ -349,7 +232,7 @@ export function TradesView({
       <Card fill flush className="min-h-0 overflow-hidden border border-border bg-transparent">
         <div className="flex min-h-0 flex-1 flex-col">
           {loading ? (
-            <Skeleton height="360px" className="m-4" />
+            <TableSkeleton rows={8} columns={5} className="m-2" />
           ) : error ? (
             <div className="flex flex-wrap items-center gap-3 p-4">
               <p className="text-xs text-destructive">

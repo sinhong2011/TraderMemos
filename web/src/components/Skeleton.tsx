@@ -1,4 +1,5 @@
-import { cn } from "../lib/cn";
+import { Skeleton as UiSkeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/cn";
 
 interface SkeletonProps {
   className?: string;
@@ -6,12 +7,7 @@ interface SkeletonProps {
   height?: string;
 }
 
+/** Compatibility wrapper — prefer `@/components/ui/skeleton` or `@/components/skeletons/*`. */
 export function Skeleton({ className = "", width, height }: SkeletonProps) {
-  return (
-    <div
-      className={cn("skeleton-shimmer rounded-md", className)}
-      style={{ width, height }}
-      aria-hidden="true"
-    />
-  );
+  return <UiSkeleton className={cn(className)} style={{ width, height }} aria-hidden="true" />;
 }

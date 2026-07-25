@@ -20,6 +20,6 @@ describe("toastRootClass", () => {
     expect(cls).toContain("rounded-lg");
     expect(cls).toContain("bg-card");
     expect(cls).not.toContain("border-l-[3px]");
-    expect(cls).not.toContain("shadow-md");
+    expect(cls).toContain("shadow-md");
   });
 });

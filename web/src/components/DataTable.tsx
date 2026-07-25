@@ -12,7 +12,7 @@ import {
 } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import { cn } from "../lib/cn";
+import { cn } from "@/lib/cn";
 import { ColumnHeader } from "./ColumnHeader";
 
 type ColumnMeta = {
@@ -90,21 +90,12 @@ function pinningStyle<T>(
   const isPinned = column.getIsPinned();
   if (!isPinned || !pinActive) return {};
 
-  const isLastLeft = isPinned === "left" && column.getIsLastColumn("left");
-  const isFirstRight = isPinned === "right" && column.getIsFirstColumn("right");
-
   return {
     position: "sticky",
     left: isPinned === "left" ? `${column.getStart("left")}px` : undefined,
     right: isPinned === "right" ? `${column.getAfter("right")}px` : undefined,
     top: kind === "header" ? 0 : undefined,
     zIndex: kind === "header" ? 3 : 1,
-    // Hairline edge only — heavy drop shadows smear over P&L under the pin.
-    boxShadow: isLastLeft
-      ? "1px 0 0 0 var(--border)"
-      : isFirstRight
-        ? "-1px 0 0 0 var(--border)"
-        : undefined,
   };
 }
 

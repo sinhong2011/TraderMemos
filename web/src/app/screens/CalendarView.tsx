@@ -1,26 +1,26 @@
 import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
-import { CalendarDayHoverCard } from "../../components/CalendarDayHoverCard";
-import { CalendarYearView } from "../../components/CalendarYearView";
-import { Card } from "../../components/Card";
-import { DayTradesDrawer } from "../../components/DayTradesDrawer";
-import { WinLossRecord } from "../../components/WinLossRecord";
-import { EmptyState } from "../../components/EmptyState";
-import { Modal } from "../../components/Modal";
-import { MonthPicker } from "../../components/MonthPicker";
-import { Page } from "../../components/Page";
-import { SegmentedControl } from "../../components/SegmentedControl";
-import { Skeleton } from "../../components/Skeleton";
-import { Button } from "../../components/ui/button";
-import { pnlBgTint, pnlColor, heroPnlClass } from "../../components/theme-tokens";
+import { CalendarDayHoverCard } from "@/components/CalendarDayHoverCard";
+import { CalendarYearView } from "@/components/CalendarYearView";
+import { Card } from "@/components/Card";
+import { DayTradesDrawer } from "@/components/DayTradesDrawer";
+import { WinLossRecord } from "@/components/WinLossRecord";
+import { EmptyState } from "@/components/EmptyState";
+import { Modal } from "@/components/Modal";
+import { MonthPicker } from "@/components/MonthPicker";
+import { Page } from "@/components/Page";
+import { SegmentedControl } from "@/components/SegmentedControl";
+import { CardSkeleton } from "@/components/skeletons/card-skeleton";
+import { Button } from "@/components/ui/button";
+import { pnlBgTint, pnlColor, heroPnlClass } from "@/components/theme-tokens";
 
-import type { Account, Summary, Trade } from "../../lib/api/types";
-import { type DayRecord, monthGrid, tradeDayKey, weekSummaries } from "../../lib/calendar";
-import { cn } from "../../lib/cn";
-import { fmtPct, fmtSignedMoney, fmtSignedMoneyCompact } from "../../lib/format";
-import { useMoneyFx } from "../../lib/hooks/useMoneyFx";
-import { intlLocale } from "../../lib/locale";
-import { useDisplayPrefs, usePrivacyMode } from "../../lib/displayPrefs";
+import type { Account, Summary, Trade } from "@/lib/api/types";
+import { type DayRecord, monthGrid, tradeDayKey, weekSummaries } from "@/lib/calendar";
+import { cn } from "@/lib/cn";
+import { fmtPct, fmtSignedMoney, fmtSignedMoneyCompact } from "@/lib/format";
+import { useMoneyFx } from "@/lib/hooks/useMoneyFx";
+import { intlLocale } from "@/lib/locale";
+import { useDisplayPrefs, usePrivacyMode } from "@/lib/displayPrefs";
 
 const DOW_HEADERS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 /** Weekend day-of-week indexes (Sun=0, Sat=6) — hidden below `md` in favor of taller Mon–Fri cells. */
@@ -362,7 +362,10 @@ export function CalendarView({
                 }}
               />
             ) : dailyLoading ? (
-              <Skeleton height="100%" className="m-4 min-h-[320px] flex-1" />
+              <CardSkeleton
+                className="m-4 min-h-[320px] flex-1"
+                mediaClassName="min-h-[280px] flex-1"
+              />
             ) : dailyError ? (
               <p className="p-4 text-xs text-destructive">Failed to load daily P&L.</p>
             ) : !hasAnyPnl ? (

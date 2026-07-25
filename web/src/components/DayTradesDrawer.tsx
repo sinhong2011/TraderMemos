@@ -1,9 +1,9 @@
 import { ArrowDownRight, ArrowUpRight, X } from "lucide-react";
-import type { Trade } from "../lib/api/types";
-import { cn } from "../lib/cn";
-import { usePrivacyMode } from "../lib/displayPrefs";
-import { fmtDuration, fmtMoney, fmtSignedMoney } from "../lib/format";
-import { intlLocale } from "../lib/locale";
+import type { Trade } from "@/lib/api/types";
+import { cn } from "@/lib/cn";
+import { usePrivacyMode } from "@/lib/displayPrefs";
+import { fmtDuration, fmtMoney, fmtSignedMoney } from "@/lib/format";
+import { intlLocale } from "@/lib/locale";
 import {
   Drawer,
   DrawerBody,
@@ -28,7 +28,7 @@ import { marketLabel, tradeStatus } from "./tradeColumns";
 import { TradeRowMenu } from "./TradeRowMenu";
 import { pnlColor } from "./theme-tokens";
 import { WinLossRecord } from "./WinLossRecord";
-import { resolveTradeDirection } from "../lib/tradeDirection";
+import { resolveTradeDirection } from "@/lib/tradeDirection";
 
 function formatDayTitle(isoDate: string): string {
   return new Date(`${isoDate}T00:00:00`).toLocaleDateString(intlLocale(), {

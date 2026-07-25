@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { apiHealthUrl, getBaseUrl } from "../api/client";
+import { apiHealthUrl, getBaseUrl } from "@/lib/api/client";
 
 export type ApiHealth = {
   status: string;

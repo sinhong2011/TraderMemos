@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { marketApi } from "../api/market";
-import { useDisplayCurrency } from "../displayPrefs";
+import { marketApi } from "@/lib/api/market";
+import { useDisplayCurrency } from "@/lib/displayPrefs";
 
 /** Latest FX: 1 `from` = `rate` `to`. Skips the network when currencies match. */
 export function useFxRate(from: string, to: string) {

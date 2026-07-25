@@ -1,8 +1,8 @@
-import { EXIT_PRESETS, matchPreset } from "../../../lib/r-calculator/exit";
-import { useRCalculatorStore } from "../../../lib/r-calculator/useRCalculatorStore";
-import { cn } from "../../../lib/cn";
-import { SegmentedControl } from "../../SegmentedControl";
-import { Button } from "../../ui/button";
+import { EXIT_PRESETS, matchPreset } from "@/lib/r-calculator/exit";
+import { useRCalculatorStore } from "@/lib/r-calculator/useRCalculatorStore";
+import { cn } from "@/lib/cn";
+import { SegmentedControl } from "@/components/SegmentedControl";
+import { Button } from "@/components/ui/button";
 import { CalcInputField } from "./CalcInputField";
 
 type StopKind = "breakeven" | "original" | "custom";
