@@ -1,0 +1,10 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "reui": {
+      "type": "remote",
+      "url": "https://mcp.reui.io/api/mcp",
+      "enabled": true
+    }
+  }
+}

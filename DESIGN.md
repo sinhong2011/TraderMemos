@@ -49,6 +49,10 @@ Added with the same pattern as [shadcn “Adding New Tokens”](https://ui.shadc
 | `loss` | Prefer `destructive` for errors; `loss` aliases P&L red where distinct |
 | `flat` | Zero / flat P&L |
 
+### Semantic extensions (ReUI)
+
+ReUI alerts/badges also use: `info`, `success`, `warning`, `invert`, and `destructive-foreground` (see https://reui.io/docs/styling). Keep domain `profit` / `loss` / `flat` for P&L; use ReUI `success` / `destructive` for UI chrome states.
+
 ## Spacing & radius
 
 - Prefer Tailwind spacing scale.
@@ -65,15 +69,19 @@ Added with the same pattern as [shadcn “Adding New Tokens”](https://ui.shadc
 |-------|--------|
 | Primitives | `@base-ui/react` |
 | Styling | Tailwind v4 + CSS variables in `web/src/global.css` |
-| Config | `web/components.json` (`style: base-nova`) |
+| Config | `web/components.json` (`style: base-nova`, registry `@reui`) |
 | Variants | CVA |
 | Icons | Lucide |
+| Extended UI | [ReUI](https://reui.io/docs) → `web/src/components/reui/` |
 
 Add UI with the CLI from `web/`:
 
 ```bash
 pnpm dlx shadcn@latest add <component>
+pnpm dlx shadcn@latest add @reui/<name> --yes
 ```
+
+Floating overlays (popover, select, menu, tooltip) use `bg-popover` / `text-popover-foreground` via `overlay-styles.ts` — not `bg-accent` or Signal-era hardcoded shadows.
 
 ### Layout wrappers
 
@@ -92,3 +100,4 @@ pnpm dlx shadcn@latest add <component>
 |------|----------|-----------|
 | 2026-07-10 | Signal Terminal | Early product identity |
 | 2026-07-24 | Adopt shadcn theme system | Align with Base UI + CLI ecosystem; light/dark; remove custom Signal token surface |
+| 2026-07-24 | Integrate ReUI registry | Free Base UI components/examples + Cursor MCP/skill; premium via license key |

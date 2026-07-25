@@ -18,5 +18,8 @@
     "hooks": "@/lib/hooks"
   },
   "menuColor": "default",
-  "menuAccent": "subtle"
+  "menuAccent": "subtle",
+  "registries": {
+    "@reui": "https://reui.io/r/{style}/{name}.json"
+  }
 }

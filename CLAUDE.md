@@ -12,7 +12,15 @@ Do not deviate without explicit user approval.
 
 In QA mode, flag any code that doesn't match `DESIGN.md`.
 
-Current direction: **shadcn/ui** (2026-07-24).
+Current direction: **shadcn/ui** (2026-07-24), with [ReUI](https://reui.io/docs) as the extended component registry (`@reui`).
+
+## ReUI
+
+- Registry in `web/components.json` (`@reui` → `base-nova` / Base UI).
+- Install from `web/`: `pnpm dlx shadcn@latest add @reui/<name> --yes`
+- Free primitives/examples: `c-*` and shared `@reui/*` UI under `web/src/components/reui/`.
+- Premium blocks/icons need `REUI_LICENSE_KEY` in `web/.env.local` and the authenticated registry form — see https://reui.io/docs/license-setup.
+- Cursor MCP: `.cursor/mcp.json` → `https://mcp.reui.io/api/mcp` (sign in on first use). Agent skill under `.cursor/skills/reui`.
 
 ## User preferences
 
