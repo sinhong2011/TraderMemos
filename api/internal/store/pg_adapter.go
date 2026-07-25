@@ -96,6 +96,10 @@ func (p *PG) DeleteAccount(ctx context.Context, arg DeleteAccountParams) (int64,
 	return p.q.DeleteAccount(ctx, storepg.DeleteAccountParams(arg))
 }
 
+func (p *PG) DeleteAnnualGoal(ctx context.Context, arg DeleteAnnualGoalParams) (int64, error) {
+	return p.q.DeleteAnnualGoal(ctx, storepg.DeleteAnnualGoalParams(arg))
+}
+
 func (p *PG) DeleteAttachment(ctx context.Context, arg DeleteAttachmentParams) (int64, error) {
 	return p.q.DeleteAttachment(ctx, storepg.DeleteAttachmentParams(arg))
 }
@@ -174,6 +178,14 @@ func (p *PG) GetAccountByIDAny(ctx context.Context, id string) (Account, error) 
 		return Account{}, err
 	}
 	return Account(v), nil
+}
+
+func (p *PG) GetAnnualGoal(ctx context.Context, arg GetAnnualGoalParams) (AnnualGoal, error) {
+	v, err := p.q.GetAnnualGoal(ctx, storepg.GetAnnualGoalParams(arg))
+	if err != nil {
+		return AnnualGoal{}, err
+	}
+	return AnnualGoal(v), nil
 }
 
 func (p *PG) GetAttachment(ctx context.Context, arg GetAttachmentParams) (TradeAttachment, error) {
@@ -602,6 +614,14 @@ func (p *PG) UpdateUserPassword(ctx context.Context, arg UpdateUserPasswordParam
 		return User{}, err
 	}
 	return User(v), nil
+}
+
+func (p *PG) UpsertAnnualGoal(ctx context.Context, arg UpsertAnnualGoalParams) (AnnualGoal, error) {
+	v, err := p.q.UpsertAnnualGoal(ctx, storepg.UpsertAnnualGoalParams(arg))
+	if err != nil {
+		return AnnualGoal{}, err
+	}
+	return AnnualGoal(v), nil
 }
 
 func (p *PG) UpsertChecklistTemplate(ctx context.Context, arg UpsertChecklistTemplateParams) (ChecklistTemplate, error) {

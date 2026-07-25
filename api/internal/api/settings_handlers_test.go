@@ -31,6 +31,37 @@ func TestRiskRulesRoundTrip(t *testing.T) {
 	require.Equal(t, 1.0, got["default_account_risk_pct"])
 }
 
+func TestAnnualGoalRoundTrip(t *testing.T) {
+	s := testServer(t)
+	tok := registerAndLogin(t, s, "goal@x.com")
+
+	rec := do(s, http.MethodGet, "/api/v1/settings/annual-goal?year=2026", "", tok)
+	require.Equal(t, http.StatusOK, rec.Code)
+	var empty map[string]any
+	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &empty))
+	require.Equal(t, float64(2026), empty["year"])
+	require.Nil(t, empty["amount"])
+
+	body := `{"year":2026,"amount":100000}`
+	rec = do(s, http.MethodPut, "/api/v1/settings/annual-goal", body, tok)
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+
+	rec = do(s, http.MethodGet, "/api/v1/settings/annual-goal?year=2026", "", tok)
+	require.Equal(t, http.StatusOK, rec.Code)
+	var got map[string]any
+	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &got))
+	require.Equal(t, float64(2026), got["year"])
+	require.Equal(t, 100000.0, got["amount"])
+
+	rec = do(s, http.MethodPut, "/api/v1/settings/annual-goal", `{"year":2026,"amount":0}`, tok)
+	require.Equal(t, http.StatusBadRequest, rec.Code)
+
+	rec = do(s, http.MethodDelete, "/api/v1/settings/annual-goal?year=2026", "", tok)
+	require.Equal(t, http.StatusOK, rec.Code)
+	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &got))
+	require.Nil(t, got["amount"])
+}
+
 func TestRSummaryExcludesMissingRisk(t *testing.T) {
 	s := testServer(t)
 	tok := registerAndLogin(t, s, "rsum@x.com")

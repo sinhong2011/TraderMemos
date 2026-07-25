@@ -9,6 +9,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { AnnualGoalCard } from "@/components/AnnualGoalCard";
 import { Card } from "@/components/Card";
 import { ChartFrame, chartTheme } from "@/components/ChartFrame";
 import { DashboardAccountContribution } from "@/components/DashboardAccountContribution";
@@ -73,6 +74,14 @@ export interface DashboardViewProps {
   accountFunded: boolean;
   onImport: () => void;
   onNewTrade: () => void;
+  goalYear: number;
+  goalAmount: number | null | undefined;
+  goalLoading: boolean;
+  goalSaving: boolean;
+  ytdNetPnl: number | undefined;
+  ytdLoading: boolean;
+  onSaveGoal: (amount: number) => Promise<void>;
+  onClearGoal: () => Promise<void>;
 }
 
 const RANGES = [
@@ -228,6 +237,14 @@ export function DashboardView({
   accountFunded,
   onImport,
   onNewTrade,
+  goalYear,
+  goalAmount,
+  goalLoading,
+  goalSaving,
+  ytdNetPnl,
+  ytdLoading,
+  onSaveGoal,
+  onClearGoal,
 }: DashboardViewProps) {
   const baseCurrency = accountBaseCurrency(accounts, selectedAccountId);
   const { currency, rate } = useMoneyFx(baseCurrency);
@@ -337,6 +354,19 @@ export function DashboardView({
           </div>
         ) : null}
       </div>
+
+      <AnnualGoalCard
+        year={goalYear}
+        goalAmount={goalAmount}
+        ytdNetPnl={ytdNetPnl}
+        currency={currency}
+        fxRate={fxRate}
+        variant="hero"
+        loading={goalLoading || ytdLoading}
+        saving={goalSaving}
+        onSave={onSaveGoal}
+        onClear={onClearGoal}
+      />
 
       {summary && !summaryLoading && !summaryError ? (
         <DashboardInsightBento

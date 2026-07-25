@@ -2,10 +2,12 @@ import { useForm } from "@tanstack/react-form";
 import {
   Check,
   Download,
+  LogOut,
   Pencil,
   Plus,
   Settings,
   Shield,
+  Target,
   Tag,
   Upload,
   Wallet,
@@ -28,7 +30,7 @@ import { Button } from "@/components/ui/button";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { ApiError, editableApiBaseUrl, getCustomApiBaseUrl, setBaseUrl } from "@/lib/api/client";
 import { applyParsedAppConfig, buildAppConfigExport, parseAppConfig } from "@/lib/appConfig";
-import type { RiskRules } from "@/lib/api/settings";
+import type { AnnualGoal, RiskRules } from "@/lib/api/settings";
 import {
   useCoachSettings,
   useListCoachModels,
@@ -1127,6 +1129,12 @@ export interface RulesTabProps {
   riskRulesError: boolean;
   riskRulesSaving: boolean;
   onSaveRiskRules: (body: RiskRules) => Promise<void>;
+  annualGoal?: AnnualGoal;
+  annualGoalLoading: boolean;
+  annualGoalError: boolean;
+  annualGoalSaving: boolean;
+  onSaveAnnualGoal: (body: { year: number; amount: number }) => Promise<void>;
+  onClearAnnualGoal: (year: number) => Promise<void>;
   checklistItems: string[];
   checklistContent: string;
   checklistLoading: boolean;
@@ -1146,6 +1154,12 @@ export function RulesTab({
   riskRulesError,
   riskRulesSaving,
   onSaveRiskRules,
+  annualGoal,
+  annualGoalLoading,
+  annualGoalError,
+  annualGoalSaving,
+  onSaveAnnualGoal,
+  onClearAnnualGoal,
   checklistItems,
   checklistContent,
   checklistLoading,
@@ -1155,6 +1169,10 @@ export function RulesTab({
 }: RulesTabProps) {
   const toast = useToastManager();
   const locale = intlLocale();
+  const goalYear = annualGoal?.year ?? new Date().getFullYear();
+  const [goalModalOpen, setGoalModalOpen] = useState(false);
+  const [goalDraft, setGoalDraft] = useState("");
+  const [goalError, setGoalError] = useState<string | null>(null);
   const [ruleModal, setRuleModal] = useState<RuleModalState>({ open: false });
   const [ruleKey, setRuleKey] = useState<RiskRuleKey>("max_risk_per_trade");
   const [ruleValue, setRuleValue] = useState("");
@@ -1265,6 +1283,49 @@ export function RulesTab({
     }
   }
 
+  function openGoalModal() {
+    setGoalDraft(annualGoal?.amount != null ? String(annualGoal.amount) : "");
+    setGoalError(null);
+    setGoalModalOpen(true);
+  }
+
+  function closeGoalModal() {
+    if (annualGoalSaving) return;
+    setGoalModalOpen(false);
+    setGoalError(null);
+  }
+
+  async function handleSaveGoal() {
+    const parsed = parseAmountToNumber(goalDraft);
+    if (parsed == null || parsed <= 0) {
+      setGoalError("Enter a goal greater than zero.");
+      return;
+    }
+    setGoalError(null);
+    try {
+      await onSaveAnnualGoal({ year: goalYear, amount: parsed });
+      toast.add({ title: "Annual goal saved" });
+      setGoalModalOpen(false);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Request failed";
+      setGoalError(message);
+      toast.add({ title: "Could not save annual goal", description: message });
+    }
+  }
+
+  async function handleClearGoal() {
+    try {
+      await onClearAnnualGoal(goalYear);
+      toast.add({ title: "Annual goal cleared" });
+      setGoalModalOpen(false);
+    } catch (err) {
+      toast.add({
+        title: "Could not clear annual goal",
+        description: err instanceof Error ? err.message : "Request failed",
+      });
+    }
+  }
+
   const modalDef = riskRuleDef(ruleKey);
   const modalTitle =
     ruleModal.open && ruleModal.mode === "edit" ? "Edit risk rule" : "Add risk rule";
@@ -1332,6 +1393,69 @@ export function RulesTab({
                 }
               />
             ))}
+          </SettingsGroup>
+        )}
+      </SettingsSection>
+
+      <SettingsSection
+        title="Annual P&L Goal"
+        description={`Net P&L target for ${goalYear}. Shown on Dashboard and Reports with YTD progress.`}
+        action={
+          <BtnGhost
+            onClick={openGoalModal}
+            disabled={annualGoalLoading || annualGoalSaving}
+            aria-label={annualGoal?.amount != null ? "Edit annual goal" : "Set annual goal"}
+          >
+            <Pencil size={13} strokeWidth={1.5} />
+            {annualGoal?.amount != null ? "Edit" : "Set goal"}
+          </BtnGhost>
+        }
+      >
+        {annualGoalLoading ? (
+          <SettingsPanelBody>
+            <ListSkeleton rows={1} />
+          </SettingsPanelBody>
+        ) : annualGoalError ? (
+          <SettingsPanelBody>
+            <p className="text-[12px] text-destructive">Failed to load annual goal.</p>
+          </SettingsPanelBody>
+        ) : annualGoal?.amount == null ? (
+          <SettingsPanelBody className="py-8">
+            <EmptyState
+              title="No annual goal yet"
+              hint="Set a net P&L target for the year — progress appears on Dashboard and Reports."
+              icon={<Target size={28} strokeWidth={1.5} />}
+            />
+          </SettingsPanelBody>
+        ) : (
+          <SettingsGroup>
+            <SettingsRow
+              last
+              primary={`${goalYear} target`}
+              secondary="User-level net P&L goal (respects account filter on Dashboard/Reports)"
+              actions={
+                <>
+                  <span className="text-[13px] font-medium tabular-nums text-foreground">
+                    ${annualGoal.amount.toLocaleString(locale, { maximumFractionDigits: 2 })}
+                  </span>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    aria-label="Edit annual goal"
+                    disabled={annualGoalSaving}
+                    onClick={openGoalModal}
+                  >
+                    Edit
+                  </Button>
+                  <DeleteButton
+                    label="annual goal"
+                    disabled={annualGoalSaving}
+                    onDelete={() => void handleClearGoal()}
+                  />
+                </>
+              }
+            />
           </SettingsGroup>
         )}
       </SettingsSection>
@@ -1510,6 +1634,73 @@ export function RulesTab({
               className="w-full"
             />
           </Field>
+        </div>
+      </Modal>
+
+      <Modal
+        open={goalModalOpen}
+        onOpenChange={(open) => {
+          if (!open) closeGoalModal();
+        }}
+        title={`${goalYear} P&L goal`}
+        className="max-w-[min(440px,94vw)]"
+        footer={
+          <div className="flex w-full items-center justify-between gap-2">
+            {annualGoal?.amount != null ? (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                disabled={annualGoalSaving}
+                onClick={() => void handleClearGoal()}
+                className="text-destructive hover:text-destructive"
+              >
+                Clear
+              </Button>
+            ) : (
+              <span />
+            )}
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={closeGoalModal}
+                disabled={annualGoalSaving}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                disabled={annualGoalSaving}
+                onClick={() => void handleSaveGoal()}
+              >
+                {annualGoalSaving ? "Saving…" : "Save goal"}
+              </Button>
+            </div>
+          </div>
+        }
+      >
+        <div className="flex flex-col gap-3">
+          <Field
+            label="Target net P&L ($)"
+            htmlFor="annual-goal-amount"
+            error={goalError ?? undefined}
+          >
+            <AmountInput
+              id="annual-goal-amount"
+              value={goalDraft}
+              onValueChange={(v) => {
+                setGoalDraft(v);
+                if (goalError) setGoalError(null);
+              }}
+              placeholder="100000"
+              aria-label="Annual P&L goal amount"
+              className="w-full"
+            />
+          </Field>
+          <p className="m-0 text-[12px] leading-relaxed text-muted-foreground">
+            Progress uses calendar-year net P&L and appears on Dashboard and Reports.
+          </p>
         </div>
       </Modal>
     </>
@@ -2035,6 +2226,7 @@ export function GeneralTab() {
             detail={settingsLabel(locale, "signOutFooter")}
           >
             <Button type="button" variant="outline" onClick={() => signOut()}>
+              <LogOut size={14} strokeWidth={1.75} aria-hidden />
               {settingsLabel(locale, "signOut")}
             </Button>
           </SettingsGroupRow>

@@ -12,45 +12,48 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { Card } from "../../components/Card";
-import { ChartFrame, chartTheme } from "../../components/ChartFrame";
-import { DataTable } from "../../components/DataTable";
-import { DayTradesDrawer } from "../../components/DayTradesDrawer";
-import { EmptyState } from "../../components/EmptyState";
-import { Page } from "../../components/Page";
-import { ReportsBreakdownCard } from "../../components/ReportsBreakdownCard";
+import { AnnualGoalCard } from "@/components/AnnualGoalCard";
+import { Card } from "@/components/Card";
+import { ChartFrame, chartTheme } from "@/components/ChartFrame";
+import { DataTable } from "@/components/DataTable";
+import { DayTradesDrawer } from "@/components/DayTradesDrawer";
+import { EmptyState } from "@/components/EmptyState";
+import { Page } from "@/components/Page";
+import { ReportsBreakdownCard } from "@/components/ReportsBreakdownCard";
 import {
   ReportsControlBar,
   type ReportsDuration,
   type ReportsSide,
-} from "../../components/ReportsControlBar";
-import { ReportsDayStrip } from "../../components/ReportsDayStrip";
+} from "@/components/ReportsControlBar";
+import { ReportsDayStrip } from "@/components/ReportsDayStrip";
 import {
   ReportsDisplayProvider,
   useReportsMoney,
   type PnlMode,
   type UnitMode,
-} from "../../components/ReportsDisplayContext";
-import { ReportsExecutionGrade } from "../../components/ReportsExecutionGrade";
-import { ReportsHourlyList } from "../../components/ReportsHourlyList";
-import { ReportsSummaryBento } from "../../components/ReportsSummaryBento";
-import { ReportsMetricEvolution } from "../../components/ReportsMetricEvolution";
-import { ReportsRiskDrawdown } from "../../components/ReportsRiskDrawdown";
-import { ReportsRMultiplePerformance } from "../../components/ReportsRMultiplePerformance";
-import { ReportsRollingWinRate } from "../../components/ReportsRollingWinRate";
-import { ReportsSessionTable } from "../../components/ReportsSessionTable";
-import { ReportsSymbolHeatmap } from "../../components/ReportsSymbolHeatmap";
-import { Skeleton } from "../../components/Skeleton";
-import { Tabs, TabsContent, TabsIndicator, TabsList, TabsTrigger } from "../../components/Tabs";
-import { Button } from "../../components/ui/button";
-import { pnlColor } from "../../components/theme-tokens";
-import type { BreakGroup, EquityCurve, RSummary, Summary, Trade } from "../../lib/api/types";
-import { uniqueDayTicks } from "../../lib/chartTicks";
-import { cn } from "../../lib/cn";
-import { fmtDayShort, fmtMoney, fmtMoneyCompact, fmtPct } from "../../lib/format";
-import { useMoneyFx } from "../../lib/hooks/useMoneyFx";
-import { intlLocale } from "../../lib/locale";
-import { useDisplayTimePrefs, usePrivacyMode } from "../../lib/displayPrefs";
+} from "@/components/ReportsDisplayContext";
+import { ReportsExecutionGrade } from "@/components/ReportsExecutionGrade";
+import { ReportsHourlyList } from "@/components/ReportsHourlyList";
+import { ReportsSummaryBento } from "@/components/ReportsSummaryBento";
+import { ReportsMetricEvolution } from "@/components/ReportsMetricEvolution";
+import { ReportsRiskDrawdown } from "@/components/ReportsRiskDrawdown";
+import { ReportsRMultiplePerformance } from "@/components/ReportsRMultiplePerformance";
+import { ReportsRollingWinRate } from "@/components/ReportsRollingWinRate";
+import { ReportsSessionTable } from "@/components/ReportsSessionTable";
+import { ReportsSymbolHeatmap } from "@/components/ReportsSymbolHeatmap";
+import { Skeleton } from "@/components/Skeleton";
+import { CardSkeleton } from "@/components/skeletons/card-skeleton";
+import { TableSkeleton } from "@/components/skeletons/table-skeleton";
+import { Tabs, TabsContent, TabsIndicator, TabsList, TabsTrigger } from "@/components/Tabs";
+import { Button } from "@/components/ui/button";
+import { pnlColor } from "@/components/theme-tokens";
+import type { BreakGroup, EquityCurve, RSummary, Summary, Trade } from "@/lib/api/types";
+import { uniqueDayTicks } from "@/lib/chartTicks";
+import { cn } from "@/lib/cn";
+import { fmtDayShort, fmtMoney, fmtMoneyCompact, fmtPct } from "@/lib/format";
+import { useMoneyFx } from "@/lib/hooks/useMoneyFx";
+import { intlLocale } from "@/lib/locale";
+import { useDisplayTimePrefs, usePrivacyMode } from "@/lib/displayPrefs";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -147,6 +150,14 @@ export interface ReportsViewProps {
   onOpenFullPage: (t: Trade) => void;
   onFilterSymbol?: (symbol: string) => void;
   onTradeDeleted?: (t: Trade) => void;
+  goalYear: number;
+  goalAmount: number | null | undefined;
+  goalLoading: boolean;
+  goalSaving: boolean;
+  ytdNetPnl: number | undefined;
+  ytdLoading: boolean;
+  onSaveGoal: (amount: number) => Promise<void>;
+  onClearGoal: () => Promise<void>;
 }
 
 // ---------------------------------------------------------------------------
@@ -203,6 +214,14 @@ function SummaryMetricsGrid({
   equity,
   equityLoading,
   onDayClick,
+  goalYear,
+  goalAmount,
+  goalLoading,
+  goalSaving,
+  ytdNetPnl,
+  ytdLoading,
+  onSaveGoal,
+  onClearGoal,
 }: {
   summary: Summary;
   trades: Trade[];
@@ -212,6 +231,14 @@ function SummaryMetricsGrid({
   equity?: EquityCurve;
   equityLoading?: boolean;
   onDayClick?: (date: string) => void;
+  goalYear: number;
+  goalAmount: number | null | undefined;
+  goalLoading: boolean;
+  goalSaving: boolean;
+  ytdNetPnl: number | undefined;
+  ytdLoading: boolean;
+  onSaveGoal: (amount: number) => Promise<void>;
+  onClearGoal: () => Promise<void>;
 }) {
   usePrivacyMode();
   useDisplayTimePrefs();
@@ -231,7 +258,7 @@ function SummaryMetricsGrid({
           </BentoTitle>
           <div className="mt-2 min-h-0 flex-1">
             {equityLoading ? (
-              <Skeleton height="148px" />
+              <Skeleton className="h-[148px] w-full" />
             ) : equityPoints.length > 0 ? (
               <ChartFrame inset className="rounded-none border-0 bg-transparent">
                 <ResponsiveContainer width="100%" height={148}>
@@ -306,6 +333,19 @@ function SummaryMetricsGrid({
         currency={currency}
         fxRate={fxRate}
         onDayClick={onDayClick}
+      />
+
+      <AnnualGoalCard
+        year={goalYear}
+        goalAmount={goalAmount}
+        ytdNetPnl={ytdNetPnl}
+        currency={currency}
+        fxRate={fxRate}
+        variant="compact"
+        loading={goalLoading || ytdLoading}
+        saving={goalSaving}
+        onSave={onSaveGoal}
+        onClear={onClearGoal}
       />
 
       <ReportsSummaryBento
@@ -555,6 +595,14 @@ export function ReportsView({
   onOpenFullPage,
   onFilterSymbol,
   onTradeDeleted,
+  goalYear,
+  goalAmount,
+  goalLoading,
+  goalSaving,
+  ytdNetPnl,
+  ytdLoading,
+  onSaveGoal,
+  onClearGoal,
 }: ReportsViewProps) {
   usePrivacyMode();
   const { currency: displayCurrency, rate } = useMoneyFx(currency);
@@ -568,8 +616,8 @@ export function ReportsView({
     if (loading) {
       return (
         <div className="flex flex-col gap-3 p-4">
-          <Skeleton height="200px" />
-          <Skeleton height="160px" />
+          <CardSkeleton mediaClassName="h-[200px]" className="bg-transparent p-0" />
+          <TableSkeleton rows={4} columns={3} className="p-0" />
         </div>
       );
     }
@@ -608,7 +656,7 @@ export function ReportsView({
             fullWidth
             className="h-10 rounded-md border border-border bg-muted p-1"
           >
-            <TabsIndicator className="rounded-md bg-accent" />
+            <TabsIndicator className="rounded-md border border-border bg-transparent" />
             {REPORT_TABS.map((t) => (
               <TabsTrigger
                 key={t.value}
@@ -648,6 +696,14 @@ export function ReportsView({
                 equity={equity}
                 equityLoading={equityLoading}
                 onDayClick={(date) => onSelectDay(date)}
+                goalYear={goalYear}
+                goalAmount={goalAmount}
+                goalLoading={goalLoading}
+                goalSaving={goalSaving}
+                ytdNetPnl={ytdNetPnl}
+                ytdLoading={ytdLoading}
+                onSaveGoal={onSaveGoal}
+                onClearGoal={onClearGoal}
               />
             ) : null}
 

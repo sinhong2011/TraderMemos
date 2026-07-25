@@ -152,6 +152,14 @@ const BASE = {
   accountFunded: false,
   onImport: vi.fn<(...args: any[]) => any>(),
   onNewTrade: vi.fn<(...args: any[]) => any>(),
+  goalYear: 2026,
+  goalAmount: null,
+  goalLoading: false,
+  goalSaving: false,
+  ytdNetPnl: undefined,
+  ytdLoading: false,
+  onSaveGoal: vi.fn<(...args: any[]) => any>(async () => {}),
+  onClearGoal: vi.fn<(...args: any[]) => any>(async () => {}),
 };
 
 describe("DashboardView", () => {
@@ -252,8 +260,8 @@ describe("DashboardView", () => {
 
   it("renders range segmented control", () => {
     render(<DashboardView {...BASE} />);
-    expect(screen.getByRole("tab", { name: "30D" })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "ALL" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "30D" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "ALL" })).toBeInTheDocument();
   });
 
   it("computes OPEN percentage against all trades, not closed-only total", () => {

@@ -32,6 +32,13 @@ type Account struct {
 	CreatedAt       time.Time `json:"created_at"`
 }
 
+type AnnualGoal struct {
+	UserID    string    `json:"user_id"`
+	Year      int64     `json:"year"`
+	Amount    float64   `json:"amount"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
 type CashTransaction struct {
 	ID            string         `json:"id"`
 	UserID        string         `json:"user_id"`

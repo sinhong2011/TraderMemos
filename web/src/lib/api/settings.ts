@@ -24,6 +24,11 @@ export interface RiskRules {
   default_account_risk_pct: number | null;
 }
 
+export interface AnnualGoal {
+  year: number;
+  amount: number | null;
+}
+
 export interface ChecklistTemplate {
   items: string[];
   content?: string;
@@ -35,6 +40,19 @@ export const settingsApi = {
     apiFetch<RiskRules>("/settings/risk-rules", {
       method: "PUT",
       body: JSON.stringify(body),
+    }),
+  getAnnualGoal: (year?: number) => {
+    const q = year != null ? `?year=${year}` : "";
+    return apiFetch<AnnualGoal>(`/settings/annual-goal${q}`);
+  },
+  putAnnualGoal: (body: { year: number; amount: number }) =>
+    apiFetch<AnnualGoal>("/settings/annual-goal", {
+      method: "PUT",
+      body: JSON.stringify(body),
+    }),
+  deleteAnnualGoal: (year: number) =>
+    apiFetch<AnnualGoal>(`/settings/annual-goal?year=${year}`, {
+      method: "DELETE",
     }),
   getChecklistTemplate: () => apiFetch<ChecklistTemplate>("/settings/checklist-template"),
   putChecklistTemplate: (
