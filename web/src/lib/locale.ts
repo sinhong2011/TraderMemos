@@ -288,7 +288,7 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     serverUrl: "API server",
     serverUrlFooter:
       "API host for this device. Leave blank for the default. You only need the origin — /api/v1 is added automatically.",
-    serverUrlHint: "https://your-host",
+    serverUrlHint: "https://example.com",
     session: "Session",
     signOut: "Sign out",
     signOutFooter: "End your session on this device.",
@@ -429,7 +429,7 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     tradeDateBasisOpen: "開倉日（進場）",
     serverUrl: "API 伺服器",
     serverUrlFooter: "此裝置的 API 主機。留空則使用預設。只需填主機，/api/v1 會自動加上。",
-    serverUrlHint: "https://your-host",
+    serverUrlHint: "https://example.com",
     session: "工作階段",
     signOut: "登出",
     signOutFooter: "在此裝置結束你的工作階段。",
@@ -567,7 +567,7 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     serverUrl: "API サーバー",
     serverUrlFooter:
       "このデバイスの API ホスト。空欄でデフォルト。オリジンだけでよく、/api/v1 は自動付与されます。",
-    serverUrlHint: "https://your-host",
+    serverUrlHint: "https://example.com",
     session: "セッション",
     signOut: "サインアウト",
     signOutFooter: "このデバイスでのセッションを終了します。",
@@ -708,7 +708,7 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     serverUrl: "API 서버",
     serverUrlFooter:
       "이 기기의 API 호스트입니다. 비우면 기본값을 씁니다. 호스트만 입력하면 /api/v1이 자동으로 붙습니다.",
-    serverUrlHint: "https://your-host",
+    serverUrlHint: "https://example.com",
     session: "세션",
     signOut: "로그아웃",
     signOutFooter: "이 기기에서 세션을 종료합니다.",

@@ -46,3 +46,6 @@ web/.playwright-mcp/
 !brand/*.png
 !web/public/*.png
 .gstack/
+
+# Local scheduler state
+.claude/scheduled_tasks.lock
