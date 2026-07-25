@@ -18,7 +18,7 @@ describe("SetupScreen", () => {
     await userEvent.type(screen.getByLabelText("Confirm password"), "supersecret123");
     await userEvent.click(screen.getByRole("button", { name: "Continue" }));
 
-    expect(screen.getByRole("heading", { name: "Optional import " })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Optional import" })).toBeInTheDocument();
     expect(screen.getAllByText(/\.csv/).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/\.json/).length).toBeGreaterThan(0);
     expect(screen.getByRole("button", { name: "Skip for now" })).toBeInTheDocument();
