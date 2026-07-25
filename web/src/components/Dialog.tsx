@@ -54,7 +54,7 @@ function DialogContent({
         data-slot="dialog-content"
         className={cn(
           "fixed top-1/2 left-1/2 z-50 flex max-h-[min(90vh,880px)] w-full max-w-[min(720px,94vw)] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden",
-          "rounded-lg border border-border bg-card text-sm text-foreground outline-none",
+          "rounded-lg border border-border bg-popover text-sm text-foreground outline-none",
           "transition-[transform,opacity] duration-250 ease-out",
           "data-[starting-style]:-translate-y-[calc(50%+6px)] data-[starting-style]:scale-[0.98] data-[starting-style]:opacity-0",
           "data-[ending-style]:scale-[0.98] data-[ending-style]:opacity-0",
@@ -96,7 +96,7 @@ function DialogBody({ className, ...props }: ComponentProps<"div">) {
   return (
     <div
       data-slot="dialog-body"
-      className={cn("flex min-h-0 flex-1 flex-col gap-4 overflow-auto p-5", className)}
+      className={cn("flex min-h-0 flex-1 flex-col gap-6 overflow-auto p-5", className)}
       {...props}
     />
   );

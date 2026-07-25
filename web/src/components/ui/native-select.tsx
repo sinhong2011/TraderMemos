@@ -1,59 +1,83 @@
-import { ChevronDown } from "lucide-react";
+"use client";
+
+import { ChevronDownIcon } from "lucide-react";
 import type { ComponentProps } from "react";
 import { cn } from "@/lib/cn";
 
 /**
- * shadcn Native Select — shadcn Base native-select adapted to
- * theme tokens. Real <select> beats a custom popover for short, frequent
- * choices (year, month): on touch it opens the OS's own picker instead of a
- * cramped nested list.
- * @see https://ui.shadcn.com/docs/components/base/native-select
+ * Native `<select>` with coss ui field chrome (same shell as Input / SelectTrigger).
+ * Keeps the OS picker — better for short, frequent choices (year, month, rows).
+ * @see https://coss.com/ui/docs/styling
  */
+
+type NativeSelectProps = Omit<ComponentProps<"select">, "size"> & {
+  size?: "sm" | "default" | "lg";
+  /** Borderless control that blends into the surface until hovered. */
+  variant?: "default" | "ghost";
+  /** Applied to the outer wrapper (default `w-fit`). Use `w-full` for settings rows. */
+  wrapperClassName?: string;
+};
+
 function NativeSelect({
   className,
   wrapperClassName,
   size = "default",
   variant = "default",
   ...props
-}: Omit<ComponentProps<"select">, "size"> & {
-  size?: "sm" | "default";
-  variant?: "default" | "ghost";
-  /** Applied to the outer wrapper (default `w-fit`). Use `w-full` for settings rows. */
-  wrapperClassName?: string;
-}) {
+}: NativeSelectProps) {
   return (
     <span
       data-slot="native-select-wrapper"
+      data-size={size}
+      data-variant={variant}
       className={cn(
-        "group/native-select relative inline-flex items-center has-[select:disabled]:opacity-55",
+        "group/native-select relative inline-flex items-center",
+        variant === "default" &&
+          cn(
+            "rounded-lg border border-input bg-background not-dark:bg-clip-padding text-base text-foreground shadow-xs/5 ring-ring/24 transition-shadow sm:text-sm",
+            "before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--radius-lg)-1px)]",
+            "not-has-disabled:not-has-focus-visible:not-has-aria-invalid:before:shadow-[0_1px_--theme(--color-black/4%)]",
+            "has-focus-visible:border-ring has-focus-visible:ring-[3px]",
+            "has-aria-invalid:border-destructive/36 has-focus-visible:has-aria-invalid:border-destructive/64 has-focus-visible:has-aria-invalid:ring-destructive/16",
+            "has-disabled:opacity-64 has-[:disabled,:focus-visible,[aria-invalid]]:shadow-none",
+            "dark:bg-input/32 dark:has-aria-invalid:ring-destructive/24 dark:not-has-disabled:not-has-focus-visible:not-has-aria-invalid:before:shadow-[0_-1px_--theme(--color-white/6%)]",
+            size === "default" && "h-8.5 sm:h-7.5",
+            size === "sm" && "h-7.5 sm:h-6.5",
+            size === "lg" && "h-9.5 sm:h-8.5",
+          ),
+        variant === "ghost" &&
+          cn(
+            "rounded-lg bg-transparent text-foreground transition-colors has-disabled:opacity-64 hover:bg-accent",
+            size === "default" && "h-8.5 sm:h-7.5",
+            size === "sm" && "h-7.5 sm:h-6.5",
+            size === "lg" && "h-9.5 sm:h-8.5",
+          ),
         wrapperClassName ?? "w-fit",
       )}
     >
       <select
         data-slot="native-select"
+        data-size={size}
         className={cn(
-          "w-full min-w-0 cursor-pointer appearance-none rounded-md border border-border text-foreground",
-          "outline-none transition-[background-color,color] duration-150",
-          "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+          "h-full w-full min-w-0 cursor-pointer appearance-none bg-transparent text-foreground outline-none",
           "disabled:pointer-events-none disabled:cursor-not-allowed",
           // ≥16px on coarse pointers so iOS Safari doesn't zoom the page on focus
-          size === "default" && "h-10 py-0 pr-8 pl-3 text-[13px] pointer-coarse:text-base",
-          size === "sm" &&
-            "h-7 py-0 pr-6 pl-2.5 text-[12px] pointer-coarse:h-9 pointer-coarse:text-base",
-          variant === "default" && "bg-muted hover:bg-accent",
-          variant === "ghost" && "bg-transparent hover:bg-accent",
+          "pointer-coarse:text-base",
+          size === "default" && "py-0 pr-8 pl-[calc(--spacing(3)-1px)]",
+          size === "sm" && "gap-1.5 py-0 pr-7 pl-[calc(--spacing(2.5)-1px)]",
+          size === "lg" && "py-0 pr-9 pl-[calc(--spacing(3)-1px)]",
           className,
         )}
         {...props}
       />
-      <ChevronDown
-        size={12}
-        strokeWidth={1.5}
+      <ChevronDownIcon
         className={cn(
-          "pointer-events-none absolute text-muted-foreground",
-          size === "default" ? "right-3" : "right-2",
+          "pointer-events-none absolute top-1/2 -translate-y-1/2 text-muted-foreground opacity-80 select-none",
+          "size-4.5 sm:size-4",
+          size === "sm" ? "right-2" : "right-2.5",
         )}
         aria-hidden
+        data-slot="native-select-icon"
       />
     </span>
   );
@@ -71,4 +95,14 @@ function NativeSelectOption({ className, ...props }: ComponentProps<"option">) {
   );
 }
 
-export { NativeSelect, NativeSelectOption };
+function NativeSelectOptGroup({ className, ...props }: ComponentProps<"optgroup">) {
+  return (
+    <optgroup
+      data-slot="native-select-optgroup"
+      className={cn("bg-[Canvas] text-[CanvasText]", className)}
+      {...props}
+    />
+  );
+}
+
+export { NativeSelect, NativeSelectOptGroup, NativeSelectOption };

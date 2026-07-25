@@ -13,8 +13,8 @@ describe("Kbd", () => {
   it("groups adjacent keycaps", () => {
     render(
       <KbdGroup>
-        <Kbd variant="muted">G</Kbd>
-        <Kbd variant="muted">D</Kbd>
+        <Kbd>G</Kbd>
+        <Kbd>D</Kbd>
       </KbdGroup>,
     );
     expect(screen.getByText("G")).toBeInTheDocument();

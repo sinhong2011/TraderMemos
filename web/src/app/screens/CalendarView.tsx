@@ -470,7 +470,8 @@ export function CalendarView({
                             </>
                           );
                           const dayClass = cn(
-                            "relative flex h-full min-h-0 w-full flex-col justify-start rounded-md px-1 py-1 text-left transition-colors duration-150 md:px-2 md:py-1.5",
+                            // `sm:h-full` must beat Button size (`sm:h-8`) so day cells fill the row.
+                            "relative flex h-full min-h-0 w-full flex-col justify-start rounded-md px-1 py-1 text-left transition-colors duration-150 sm:h-full md:px-2 md:py-1.5",
                             hasPnl ? "cursor-pointer" : "cursor-default",
                             isSelected && "ring-1 ring-primary ring-inset",
                             WEEKEND_DOW.has(di) && "hidden md:flex",

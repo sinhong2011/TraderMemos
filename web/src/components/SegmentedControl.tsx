@@ -1,8 +1,9 @@
+"use client";
+
 import { motion, useReducedMotion } from "motion/react";
 import { useId, type ReactNode } from "react";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { cn } from "@/lib/cn";
-import { Button } from "./ui/button";
-import { ButtonGroup } from "./ui/button-group";
 
 export interface SegmentOption {
   value: string;
@@ -12,8 +13,8 @@ export interface SegmentOption {
 type SegmentTone = "pos" | "neg";
 
 const INDICATOR_TONE: Record<SegmentTone, string> = {
-  pos: "bg-profit/15 shadow-sm",
-  neg: "bg-destructive/15 shadow-sm",
+  pos: "bg-profit/15 shadow-xs/5",
+  neg: "bg-destructive/15 shadow-xs/5",
 };
 
 const ACTIVE_TEXT: Record<SegmentTone, string> = {
@@ -21,16 +22,25 @@ const ACTIVE_TEXT: Record<SegmentTone, string> = {
   neg: "text-destructive",
 };
 
-const SIZE_MAP = {
-  xs: "xs",
+/** Map product sizes onto coss ToggleGroup sizes. */
+const TOGGLE_SIZE = {
+  xs: "sm",
   sm: "sm",
-  md: "lg",
+  md: "default",
 } as const;
 
+/** Outer track height — `md` matches coss Input / NativeSelect (`h-8.5` / `sm:h-7.5`). */
+const TRACK_SIZE = {
+  xs: "h-6 p-px",
+  sm: "h-7.5 p-0.5 sm:h-7",
+  md: "h-8.5 p-0.5 sm:h-7.5",
+} as const;
+
+/** Items fill the track; override Toggle `h-*` / `min-w-*` so padding doesn't inflate height. */
 const SIZE_CLASS = {
-  xs: "h-6 px-2 text-[11px] font-medium",
-  sm: "h-7 px-2.5 text-[12px] font-medium",
-  md: "h-9 px-3.5 text-[13px] font-semibold",
+  xs: "h-full min-h-0 min-w-0 px-2 text-[11px] font-medium sm:h-full sm:min-w-0",
+  sm: "h-full min-h-0 min-w-0 px-2.5 text-[12px] font-medium sm:h-full sm:min-w-0",
+  md: "h-full min-h-0 min-w-0 px-3 text-[12px] font-semibold sm:h-full sm:min-w-0",
 } as const;
 
 const PILL_SPRING = {
@@ -41,9 +51,8 @@ const PILL_SPRING = {
 };
 
 /**
- * Compact exclusive options — ReUI ButtonGroup with a soft pill track
- * and a Motion-sliding active indicator.
- * @see https://reui.io/r/base-nova/c-button-group-42.json
+ * Exclusive segmented control — coss ToggleGroup track + Motion sliding pill.
+ * @see https://coss.com/ui/docs/components/toggle-group
  */
 export function SegmentedControl({
   options,
@@ -72,15 +81,21 @@ export function SegmentedControl({
   const activeTone = tones?.[value];
 
   return (
-    <ButtonGroup
+    <ToggleGroup
+      value={[value]}
+      onValueChange={(next) => {
+        // Exclusive control — ignore deselection of the active item.
+        const nextValue = next[0];
+        if (!nextValue || nextValue === value) return;
+        onChange(nextValue);
+      }}
+      size={TOGGLE_SIZE[size]}
+      variant="default"
       aria-label={ariaLabel}
       className={cn(
-        // Soft track — undo joined-outline chrome for a pill segmented look
-        "gap-0.5 rounded-lg border border-border bg-muted p-0.5 shadow-xs",
-        "*:data-slot:rounded-md!",
-        "[&>[data-slot]~[data-slot]]:rounded-md!",
-        "[&>[data-slot]~[data-slot]]:border-l!",
-        "[&>[data-slot]:not(:has(~[data-slot]))]:rounded-md!",
+        "items-stretch gap-0.5 rounded-lg border border-input bg-muted shadow-xs/5",
+        "dark:bg-input/32",
+        TRACK_SIZE[size],
         fullWidth && "w-full",
         className,
       )}
@@ -89,22 +104,20 @@ export function SegmentedControl({
         const active = value === o.value;
         const tone = tones?.[o.value];
         return (
-          <Button
+          <ToggleGroupItem
             key={o.value}
-            type="button"
-            variant="ghost"
-            size={SIZE_MAP[size]}
-            aria-pressed={active}
+            value={o.value}
+            aria-label={typeof o.label === "string" ? o.label : undefined}
             className={cn(
               SIZE_CLASS[size],
-              "relative isolate border-transparent shadow-none",
+              "relative isolate border-transparent shadow-none before:hidden",
               "text-muted-foreground hover:bg-transparent hover:text-foreground",
-              "focus-visible:outline-offset-0",
+              "data-pressed:bg-transparent data-pressed:text-foreground",
+              "focus-visible:ring-offset-0",
               "active:scale-[0.98] motion-reduce:active:scale-100",
               fullWidth && "min-w-0 flex-1",
               active && (tone ? ACTIVE_TEXT[tone] : "text-foreground"),
             )}
-            onClick={() => onChange(o.value)}
           >
             {active ? (
               <motion.span
@@ -113,17 +126,16 @@ export function SegmentedControl({
                   "absolute inset-0 -z-10 rounded-md",
                   activeTone
                     ? INDICATOR_TONE[activeTone]
-                    : // Light: raised white on muted. Dark: `background` is the void (near-black) —
-                      // use `input` (translucent white) so the pill lifts like ReUI/shadcn demos.
-                      "bg-background shadow-sm dark:bg-input dark:shadow-none",
+                    : // Light: raised surface on muted. Dark: lift with translucent input fill.
+                      "bg-background shadow-xs/5 dark:bg-input dark:shadow-none",
                 )}
                 transition={reduceMotion ? { duration: 0 } : PILL_SPRING}
               />
             ) : null}
             <span className="relative z-0">{o.label}</span>
-          </Button>
+          </ToggleGroupItem>
         );
       })}
-    </ButtonGroup>
+    </ToggleGroup>
   );
 }

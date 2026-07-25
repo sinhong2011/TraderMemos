@@ -1,7 +1,8 @@
 # Design System — TraderMemos
 
-**Direction:** shadcn/ui (neutral base)  
-**Updated:** 2026-07-24
+**Direction:** shadcn/ui + [coss ui](https://coss.com/ui/docs/styling) color tokens (opaque borders)  
+**Updated:** 2026-07-24  
+**Brand primary:** TraderMemos blue `oklch(0.617 0.1305 235.19)` (not coss neutral primary)
 
 ## Product Context
 
@@ -49,9 +50,9 @@ Added with the same pattern as [shadcn “Adding New Tokens”](https://ui.shadc
 | `loss` | Prefer `destructive` for errors; `loss` aliases P&L red where distinct |
 | `flat` | Zero / flat P&L |
 
-### Semantic extensions (ReUI)
+### Semantic extensions (coss / alerts)
 
-ReUI alerts/badges also use: `info`, `success`, `warning`, `invert`, and `destructive-foreground` (see https://reui.io/docs/styling). Keep domain `profit` / `loss` / `flat` for P&L; use ReUI `success` / `destructive` for UI chrome states.
+coss alerts use: `info`, `success`, `warning`, `error` (see https://coss.com/ui/docs/components/alert). Keep domain `profit` / `loss` / `flat` for P&L.
 
 ## Spacing & radius
 
@@ -69,16 +70,16 @@ ReUI alerts/badges also use: `info`, `success`, `warning`, `invert`, and `destru
 |-------|--------|
 | Primitives | `@base-ui/react` |
 | Styling | Tailwind v4 + CSS variables in `web/src/global.css` |
-| Config | `web/components.json` (`style: base-nova`, registry `@reui`) |
+| Config | `web/components.json` (`style: base-nova`, registry `@coss`) |
 | Variants | CVA |
 | Icons | Lucide |
-| Extended UI | [ReUI](https://reui.io/docs) → `web/src/components/reui/` |
+| Extended UI | [coss ui](https://coss.com/ui/docs) → `web/src/components/ui/` |
 
 Add UI with the CLI from `web/`:
 
 ```bash
 pnpm dlx shadcn@latest add <component>
-pnpm dlx shadcn@latest add @reui/<name> --yes
+pnpm dlx shadcn@latest add @coss/<name> --overwrite --yes
 ```
 
 Floating overlays (popover, select, menu, tooltip) use `bg-popover` / `text-popover-foreground` via `overlay-styles.ts` — not `bg-accent` or Signal-era hardcoded shadows.
@@ -100,4 +101,5 @@ Floating overlays (popover, select, menu, tooltip) use `bg-popover` / `text-popo
 |------|----------|-----------|
 | 2026-07-10 | Signal Terminal | Early product identity |
 | 2026-07-24 | Adopt shadcn theme system | Align with Base UI + CLI ecosystem; light/dark; remove custom Signal token surface |
-| 2026-07-24 | Integrate ReUI registry | Free Base UI components/examples + Cursor MCP/skill; premium via license key |
+| 2026-07-24 | Adopt coss ui color tokens | Opaque alpha borders / muted surfaces per https://coss.com/ui/docs/styling; brand primary retained |
+| 2026-07-24 | Replace ReUI with coss | `@coss/alert|autocomplete|number-field|card`; Filters kept as owned `components/filters.tsx` (no coss equivalent) |

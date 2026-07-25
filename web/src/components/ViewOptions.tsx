@@ -9,7 +9,7 @@ import {
   DropdownMenuGroup,
   DropdownMenuLabel,
   DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
+} from "./ui/menu";
 
 export type ViewColumnOption = {
   id: string;

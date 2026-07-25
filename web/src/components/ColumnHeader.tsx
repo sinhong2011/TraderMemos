@@ -9,7 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
+} from "./ui/menu";
 
 /**
  * tablecn-style column header — dropdown with Asc / Desc / Reset / Hide.

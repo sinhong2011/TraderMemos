@@ -22,7 +22,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/ui/menu";
 import type { JournalNote } from "@/lib/api/types";
 import { cn } from "@/lib/cn";
 import { intlLocale } from "@/lib/locale";
@@ -124,7 +124,7 @@ function NoteActionsMenu({
             Open
           </DropdownMenuItem>
           <DropdownMenuItem
-            className="text-destructive data-[highlighted]:text-destructive"
+            variant="destructive"
             onClick={() => {
               setMenuOpen(false);
               onDelete();

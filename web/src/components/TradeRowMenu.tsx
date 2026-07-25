@@ -13,7 +13,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
+} from "./ui/menu";
 
 export interface TradeRowActions {
   /** Quick peek drawer. Omit when the list already opens the full page on row click. */
@@ -130,7 +130,7 @@ export function TradeRowMenu({ trade, actions }: { trade: Trade; actions: TradeR
           ) : null}
           <DropdownMenuSeparator />
           <DropdownMenuItem
-            className="text-destructive data-[highlighted]:bg-destructive/10 data-[highlighted]:text-destructive"
+            variant="destructive"
             onClick={() => {
               setMenuOpen(false);
               setDeleteOpen(true);
