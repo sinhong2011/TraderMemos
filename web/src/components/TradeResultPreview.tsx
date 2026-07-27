@@ -55,7 +55,12 @@ export function TradeResultPreview({
   const money = (v: number | null) => (v == null ? "—" : fmtMoney(v, currency, locale));
 
   return (
-    <div className={cn("flex flex-col gap-2", className)} data-testid="trade-result-preview">
+    // Container-driven: this sits inside a symbol card *and* at drawer level, so
+    // its own width — not the viewport — decides whether the bento fits four up.
+    <div
+      className={cn("flex flex-col gap-2 @container/result", className)}
+      data-testid="trade-result-preview"
+    >
       <div className="flex items-baseline justify-between gap-3">
         <p className="m-0 text-[10px] font-semibold uppercase tracking-widest text-chart-3">
           Result
@@ -67,7 +72,7 @@ export function TradeResultPreview({
         ) : null}
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 @min-[32rem]/result:grid-cols-4">
         <BentoCell label="Avg Entry">{money(preview.avgEntry)}</BentoCell>
         <BentoCell label="Avg Exit">{money(preview.avgExit)}</BentoCell>
         <BentoCell label="Est. P&L">
@@ -152,7 +157,10 @@ export function BatchTradeResultPreview({
   const allClosed = batch.openCount === 0 && batch.closedCount > 0;
 
   return (
-    <div className={cn("flex flex-col gap-3", className)} data-testid="batch-trade-result-preview">
+    <div
+      className={cn("flex flex-col gap-3 @container/batch", className)}
+      data-testid="batch-trade-result-preview"
+    >
       <div className="flex items-baseline justify-between gap-3">
         <p className="m-0 text-[10px] font-semibold uppercase tracking-widest text-chart-3">
           Batch result
@@ -164,7 +172,7 @@ export function BatchTradeResultPreview({
         ) : null}
       </div>
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
+      <div className="flex flex-col gap-3 @min-[32rem]/batch:flex-row @min-[32rem]/batch:items-end @min-[32rem]/batch:justify-between @min-[32rem]/batch:gap-6">
         <div className="min-w-0">
           <p className="m-0 text-[10px] font-medium tracking-[0.04em] text-muted-foreground">
             Est. P&L
@@ -192,7 +200,7 @@ export function BatchTradeResultPreview({
           )}
         </div>
 
-        <div className="flex flex-wrap items-start gap-x-5 gap-y-2.5 sm:justify-end">
+        <div className="flex flex-wrap items-start gap-x-5 gap-y-2.5 @min-[32rem]/batch:justify-end">
           <BatchMeta label="Symbols">
             <span>
               {batch.symbolCount}
