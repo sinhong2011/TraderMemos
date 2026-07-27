@@ -16,13 +16,24 @@ type AppMode = "rmultiple" | "fvg";
 
 const HINT_KEY = "tradermemos/r-calc/position-size-hint";
 
+const MODE_COPY: Record<AppMode, { title: string; description: string }> = {
+  rmultiple: {
+    title: "R-Multiple Calculator",
+    description:
+      "Size positions by risk, plan exit ladders, and visualize reward/risk. Cash positions only — no leverage, fees, or slippage.",
+  },
+  fvg: {
+    title: "FVG Calculator",
+    description:
+      "Size an entry inside a fair-value gap against a buffered stop. Cash positions only — no leverage, fees, or slippage.",
+  },
+};
+
 export function RCalculatorView() {
   const [mode, setMode] = useState<AppMode>("rmultiple");
-  const [hintDismissed, setHintDismissed] = useState(true);
+  // Read on first render so the hint doesn't flash in after mount.
+  const [hintDismissed, setHintDismissed] = useState(() => localStorage.getItem(HINT_KEY) === "1");
 
-  useEffect(() => {
-    setHintDismissed(localStorage.getItem(HINT_KEY) === "1");
-  }, []);
   const accountId = useFilters((s) => s.accountId);
   const accounts = useAccounts().data ?? [];
   const account = accounts.find((a) => a.id === accountId) ?? accounts[0];
@@ -87,14 +98,13 @@ export function RCalculatorView() {
     <Page fill className="min-h-[calc(100vh-52px)] gap-4 p-4 sm:gap-5 sm:p-6">
       <header className="shrink-0">
         <h1 className="text-[22px] font-semibold tracking-tight text-foreground">
-          R-Multiple Calculator
+          {MODE_COPY[mode].title}
         </h1>
-        <p className="mt-1 max-w-2xl text-[12px] leading-relaxed text-muted-foreground">
-          Size positions by risk, plan exit ladders, and visualize reward/risk. Cash positions only
-          — no leverage, fees, or slippage.
+        <p className="mt-1 max-w-2xl text-[13px] leading-relaxed text-muted-foreground">
+          {MODE_COPY[mode].description}
         </p>
         {!hintDismissed ? (
-          <p className="mt-1 flex max-w-2xl items-center gap-2 text-[11px] text-muted-foreground">
+          <div className="mt-2 flex max-w-2xl items-center gap-1 text-xs text-muted-foreground">
             <span>Need a quick share count? Use Tools → Position size in the header.</span>
             <Button
               type="button"
@@ -105,11 +115,11 @@ export function RCalculatorView() {
                 localStorage.setItem(HINT_KEY, "1");
                 setHintDismissed(true);
               }}
-              className="shrink-0 text-muted-foreground hover:text-muted-foreground"
+              className="shrink-0 text-muted-foreground"
             >
-              <X size={12} />
+              <X />
             </Button>
-          </p>
+          </div>
         ) : null}
       </header>
 
