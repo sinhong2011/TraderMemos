@@ -107,7 +107,7 @@ export function NewSetupDrawer() {
   const pending = createSetup.isPending || updateSetup.isPending;
 
   const footer = (
-    <div className="flex w-full justify-end gap-2">
+    <div className="flex w-full justify-center gap-2">
       <Button type="button" variant="outline" size="sm" onClick={close} disabled={pending}>
         Cancel
       </Button>
