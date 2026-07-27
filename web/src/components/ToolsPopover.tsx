@@ -5,6 +5,7 @@ import { APP_HOTKEYS } from "@/lib/hotkeys";
 import { TOOL_ITEMS } from "@/lib/tools";
 import { useToolRunner } from "@/lib/useToolRunner";
 import { useUI } from "@/lib/ui";
+import { filterChipClass } from "./field-styles";
 import { Button } from "./ui/button";
 import { Kbd } from "./ui/kbd";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
@@ -44,20 +45,23 @@ export function ToolsPopover({ variant = "rail" }: { variant?: "rail" | "header"
           "transition-[background-color,color,transform] duration-150 ease-out",
           "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
           "motion-reduce:transition-none",
-          isHeader ? "size-8 pointer-coarse:size-11" : "size-9 pointer-coarse:size-11",
+          // Beside the range and currency chips this needs the same chrome and
+          // a word — an unlabelled icon read as a stray glyph in that row.
+          isHeader ? filterChipClass : "size-9 pointer-coarse:size-11",
           open
             ? "bg-accent text-foreground"
-            : isHeader
-              ? "bg-transparent text-foreground hover:bg-accent"
-              : "text-muted-foreground hover:bg-accent hover:text-foreground",
+            : !isHeader && "text-muted-foreground hover:bg-accent hover:text-foreground",
         )}
       >
         <Wrench
-          size={isHeader ? 15 : 20}
+          size={isHeader ? 14 : 20}
           strokeWidth={1.75}
-          className="transition-transform duration-150 ease-out group-hover:scale-105 motion-reduce:transition-none"
+          className={cn(
+            "transition-transform duration-150 ease-out group-hover:scale-105 motion-reduce:transition-none",
+            isHeader && "shrink-0 text-muted-foreground",
+          )}
         />
-        {!isHeader ? <RailTooltip label="Tools" /> : null}
+        {isHeader ? <span>Tools</span> : <RailTooltip label="Tools" />}
       </PopoverTrigger>
       <PopoverContent
         side={isHeader ? "bottom" : "right"}

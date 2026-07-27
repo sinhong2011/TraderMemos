@@ -13,6 +13,14 @@ export const fieldInputClass =
 /** Trigger chrome shared by date / datetime pickers — same footprint as `fieldInputClass`. */
 export const fieldControlTriggerClass = fieldInputClass;
 
+/**
+ * Filter chip — the drawer's range / currency / tools controls. They sit side
+ * by side, so they share one height, radius, type scale and muted surface
+ * instead of each being a differently sized ghost control.
+ */
+export const filterChipClass =
+  "inline-flex h-9 shrink-0 items-center gap-2 rounded-md border-none bg-muted/40 px-2.5 text-[12px] font-medium text-foreground transition-colors hover:bg-accent pointer-coarse:h-10";
+
 export const fieldErrorClass = "mt-1.5 text-xs text-destructive";
 
 export const fieldHintClass =

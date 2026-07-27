@@ -21,6 +21,7 @@ import { intlLocale } from "@/lib/locale";
 import { useUI } from "@/lib/ui";
 import { AccountNavPopover } from "./AccountNavPopover";
 import { DateRangePicker } from "./DateRangePicker";
+import { filterChipClass } from "./field-styles";
 import { OptionsSelect } from "./OptionsSelect";
 import { heroPnlClass } from "./theme-tokens";
 import { Button } from "./ui/button";
@@ -221,7 +222,7 @@ export function DisplayCurrencySelect({
       options={options}
       ariaLabel={`Show amounts in (account ledger is ${base})`}
       ghost
-      triggerClassName="h-8 min-w-[5.25rem] shrink-0 px-2 text-[11px] font-medium tabular-nums pointer-coarse:h-11"
+      triggerClassName={cn(filterChipClass, "min-w-[5.25rem] gap-1.5 tabular-nums")}
     />
   );
 }

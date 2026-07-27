@@ -101,7 +101,7 @@ function FiltersSection() {
           Filters
         </span>
       </SectionLabel>
-      <div className="flex flex-wrap items-center gap-1.5 px-3 py-1">
+      <div className="flex flex-wrap items-center gap-2 px-3 pt-0.5 pb-1.5">
         <DateRangePicker />
         <DisplayCurrencySelect baseCurrency={baseCurrency} />
         <ToolsPopover variant="header" />

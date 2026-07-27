@@ -3,6 +3,7 @@ import { useState } from "react";
 import { formatRangeLabel } from "@/lib/dateRangePresets";
 import { useFilters } from "@/lib/filters";
 import { cn } from "@/lib/cn";
+import { filterChipClass } from "./field-styles";
 import { DateRangePanel } from "./DateRangePanel";
 import { ControlledPopover } from "./ControlledPopover";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
@@ -72,22 +73,20 @@ export function DateRangePicker({
       triggerAriaLabel="Date range"
       className="overflow-hidden p-0"
       triggerClassName={cn(
-        "h-8 min-w-[112px] rounded-md border border-transparent bg-transparent px-2.5 pointer-coarse:h-11",
-        "text-left transition-[background-color] duration-150",
-        "hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+        filterChipClass,
+        "min-w-[7rem] flex-1 text-left",
+        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
         open && "bg-accent",
       )}
       trigger={
         <>
           <CalendarDays
-            size={13}
+            size={14}
             strokeWidth={1.75}
             className="shrink-0 text-muted-foreground"
             aria-hidden
           />
-          <span className="min-w-0 flex-1 truncate text-[11px] font-medium text-muted-foreground">
-            {label}
-          </span>
+          <span className="min-w-0 flex-1 truncate">{label}</span>
           <ChevronDown
             size={12}
             strokeWidth={1.75}
