@@ -92,9 +92,9 @@ export function DateRangePanel({ onApplied }: { onApplied?: () => void }) {
     <div
       className={cn(
         "flex gap-1 px-2 pb-3",
-        // iOS / narrow: horizontal chips so the calendar keeps full width
-        "max-sm:snap-x max-sm:snap-mandatory max-sm:flex-row max-sm:overflow-x-auto max-sm:overscroll-x-contain max-sm:pb-2",
-        "[scrollbar-width:none] max-sm:[&::-webkit-scrollbar]:hidden",
+        // Narrow: a 3-up grid. The old horizontal scroller clipped the last
+        // preset mid-word with nothing to signal that it scrolled.
+        "max-sm:grid max-sm:grid-cols-3 max-sm:gap-1.5 max-sm:px-2 max-sm:pb-1",
         "sm:flex-col sm:gap-0.5",
       )}
     >
@@ -109,19 +109,17 @@ export function DateRangePanel({ onApplied }: { onApplied?: () => void }) {
             className={cn(
               "relative h-auto justify-start rounded-md text-left text-[11px]",
               "focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
-              "max-sm:snap-start max-sm:shrink-0 max-sm:px-2.5 max-sm:py-2",
+              // In the grid each preset is its own chip: a muted surface for
+              // tap affordance, tint instead of a rail for the active one.
+              "max-sm:justify-center max-sm:bg-muted/40 max-sm:px-1.5 max-sm:py-2 max-sm:text-center",
               "sm:w-full sm:py-2 sm:pr-2 sm:pl-2.5",
-              active && "bg-accent text-foreground",
+              active && "max-sm:bg-primary/12 max-sm:text-primary sm:bg-accent sm:text-foreground",
             )}
           >
             {active && (
               <span
                 aria-hidden
-                className={cn(
-                  "absolute rounded-full bg-primary",
-                  "max-sm:inset-x-2 max-sm:bottom-0 max-sm:h-0.5",
-                  "sm:top-1/2 sm:left-0 sm:h-4 sm:w-0.5 sm:-translate-y-1/2",
-                )}
+                className="absolute top-1/2 left-0 hidden h-4 w-0.5 -translate-y-1/2 rounded-full bg-primary sm:block"
               />
             )}
             {p.label}
@@ -141,15 +139,17 @@ export function DateRangePanel({ onApplied }: { onApplied?: () => void }) {
       )}
       aria-label="Date range"
     >
-      <aside className="flex shrink-0 flex-col rounded-md bg-background sm:w-[148px]">
-        <p className="m-0 px-3 pt-3 pb-2 text-[11px] font-medium uppercase tracking-widest text-muted-foreground">
+      {/* Stacked on a phone the two surfaces read as unrelated bands, so the
+          panel goes single-surface there and only splits on sm+. */}
+      <aside className="flex shrink-0 flex-col rounded-md max-sm:pt-1 sm:w-[148px] sm:bg-background">
+        <p className="m-0 px-3 pt-3 pb-2 text-[10px] font-medium uppercase tracking-widest text-muted-foreground max-sm:px-2 max-sm:pt-0 max-sm:pb-1.5">
           Quick range
         </p>
         {presetList}
       </aside>
 
-      <div className="flex min-w-0 flex-1 flex-col bg-card">
-        <div className="flex justify-center px-3 pt-3 pb-1 max-sm:pt-1">
+      <div className="flex min-w-0 flex-1 flex-col sm:bg-card">
+        <div className="flex justify-center px-3 pt-3 pb-1 max-sm:pt-2">
           <AppCalendar
             mode="range"
             selected={draft}
