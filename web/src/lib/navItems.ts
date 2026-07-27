@@ -1,11 +1,11 @@
 import {
   BookOpen,
   CalendarDays,
+  Calculator,
   LayoutDashboard,
   List,
   PieChart,
   StickyNote,
-  Target,
   Upload,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -29,7 +29,7 @@ export const PRIMARY_NAV: NavItem[] = [
 export const SECONDARY_NAV: NavItem[] = [
   { to: "/notes", labelKey: "notes", icon: StickyNote },
   { to: "/playbook", labelKey: "playbook", icon: BookOpen },
-  { to: "/calculator", labelKey: "calculator", icon: Target },
+  { to: "/calculator", labelKey: "calculator", icon: Calculator },
   { to: "/import", labelKey: "import", icon: Upload },
 ];
 
