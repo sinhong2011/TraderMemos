@@ -48,9 +48,7 @@ export function SessionRail({
 
   return (
     <div className="flex flex-wrap items-center gap-1.5">
-      <span className="mr-1 text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
-        Positions
-      </span>
+      <span className="mr-1 text-[13px] font-medium text-muted-foreground">Positions</span>
       {sessions.map((s) => {
         const active = s.id === activeId;
         const editing = editingId === s.id;
@@ -91,15 +89,15 @@ export function SessionRail({
                 className={cn(
                   "h-auto px-2.5 py-1",
                   active
-                    ? "bg-accent/15 text-primary hover:bg-primary/15 hover:text-primary"
-                    : "bg-accent text-muted-foreground",
+                    ? "bg-primary/12 text-primary hover:bg-primary/16 hover:text-primary"
+                    : "bg-muted text-muted-foreground hover:text-foreground",
                 )}
               >
                 {s.name}
               </Button>
             )}
             {active && !editing ? (
-              <div className="ml-0.5 flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+              <div className="ml-0.5 flex items-center gap-0.5 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
                 {onRename ? (
                   <Button
                     type="button"
@@ -144,7 +142,7 @@ export function SessionRail({
         variant="ghost"
         size="xs"
         onClick={onAdd}
-        className="h-auto gap-1 bg-accent px-2 py-1 text-muted-foreground"
+        className="h-auto gap-1 bg-muted px-2 py-1 text-muted-foreground hover:text-foreground"
       >
         <Plus size={11} />
         Add
