@@ -1,4 +1,4 @@
-import { money, shares as fmtShares } from "@/lib/r-calculator/format";
+import { money, shares as fmtShares, signedMoney } from "@/lib/r-calculator/format";
 import { useFvgStore } from "@/lib/r-calculator/useFvgStore";
 import { cn } from "@/lib/cn";
 import { Card } from "@/components/Card";
@@ -149,17 +149,46 @@ export function FvgPanel() {
           heroUnit="sh"
           rows={ticketRows}
         />
-        {result.valid ? (
-          <Card title="Risk / reward axis" fill flush className="min-h-[280px]">
-            <FvgAxis long={long} rMultiple={session.rMultiple} />
-          </Card>
-        ) : null}
+        {/* Keep the card mounted when the inputs are invalid so the column doesn't collapse. */}
+        <Card title="Risk / reward axis" fill flush className="min-h-[280px]">
+          {result.valid ? (
+            <FvgAxis
+              long={long}
+              rMultiple={session.rMultiple}
+              entryPrice={result.entryPrice}
+              stopPrice={result.stopPrice}
+              targetPrice={result.targetPrice}
+              profitAtTarget={result.profitAtTarget}
+              lossAtStop={result.lossAtStop}
+            />
+          ) : (
+            <div className="flex min-h-[240px] flex-1 items-center justify-center px-4 pb-4 text-center text-[13px] text-muted-foreground">
+              Set a valid gap and stop to plot the axis.
+            </div>
+          )}
+        </Card>
       </div>
     </div>
   );
 }
 
-function FvgAxis({ long, rMultiple }: { long: boolean; rMultiple: number }) {
+function FvgAxis({
+  long,
+  rMultiple,
+  entryPrice,
+  stopPrice,
+  targetPrice,
+  profitAtTarget,
+  lossAtStop,
+}: {
+  long: boolean;
+  rMultiple: number;
+  entryPrice: number;
+  stopPrice: number;
+  targetPrice: number;
+  profitAtTarget: number;
+  lossAtStop: number;
+}) {
   const entryTop = (rMultiple / (rMultiple + 1)) * 100;
 
   return (
@@ -168,7 +197,7 @@ function FvgAxis({ long, rMultiple }: { long: boolean; rMultiple: number }) {
         {/* Left scale */}
         <div className="relative w-10 shrink-0">
           <AxisLabel top="0%" text={`+${rMultiple}R`} tone="profit" align="right" />
-          <AxisLabel top={`${entryTop}%`} text="Entry" tone="muted" align="right" emphasize />
+          <AxisLabel top={`${entryTop}%`} text="0" tone="muted" align="right" emphasize />
           <AxisLabel top="100%" text="−1R" tone="loss" align="right" />
         </div>
 
@@ -180,26 +209,22 @@ function FvgAxis({ long, rMultiple }: { long: boolean; rMultiple: number }) {
             style={{ height: "100%" }}
           >
             <div
-              className="absolute inset-x-0 top-0 origin-bottom overflow-hidden rounded-t-full"
-              style={{
-                height: `${entryTop}%`,
-                background: "linear-gradient(to top, rgba(74,222,128,0.3), rgba(74,222,128,0.9))",
-              }}
+              className="absolute inset-x-0 top-0 origin-bottom overflow-hidden rounded-t-full bg-linear-to-t from-profit/30 to-profit/90"
+              style={{ height: `${entryTop}%` }}
             />
             <div
-              className="absolute inset-x-0 origin-top overflow-hidden rounded-b-full"
+              className="absolute inset-x-0 origin-top overflow-hidden rounded-b-full bg-linear-to-b from-destructive/90 to-destructive/30"
               style={{
                 top: `${entryTop}%`,
                 height: `${100 - entryTop}%`,
-                background:
-                  "linear-gradient(to bottom, rgba(251,113,133,0.9), rgba(251,113,133,0.3))",
               }}
             />
           </div>
           <div
+            aria-hidden
             className={cn(
               "absolute left-1/2 z-10 flex size-5 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-background text-[9px] font-bold ring-2",
-              long ? "text-profit ring-profit" : "text-destructive ring-loss",
+              long ? "text-profit ring-profit" : "text-destructive ring-destructive",
             )}
             style={{ top: `${entryTop}%` }}
           >
@@ -207,9 +232,74 @@ function FvgAxis({ long, rMultiple }: { long: boolean; rMultiple: number }) {
           </div>
         </div>
 
-        {/* Right spacer for symmetry */}
-        <div className="w-10 shrink-0" />
+        {/* Right prices */}
+        <div className="relative w-28 shrink-0 sm:w-32">
+          <FvgPriceLabel
+            top="0%"
+            tone="profit"
+            caption={`Target +${rMultiple}R`}
+            price={money(targetPrice)}
+            pl={signedMoney(profitAtTarget)}
+          />
+          <FvgPriceLabel
+            top={`${entryTop}%`}
+            tone="text"
+            caption="Entry"
+            price={money(entryPrice)}
+            emphasize
+          />
+          <FvgPriceLabel
+            top="100%"
+            tone="loss"
+            caption="Stop −1R"
+            price={money(stopPrice)}
+            pl={signedMoney(-lossAtStop)}
+          />
+        </div>
       </div>
+    </div>
+  );
+}
+
+function FvgPriceLabel({
+  top,
+  tone,
+  caption,
+  price,
+  pl,
+  emphasize,
+}: {
+  top: string;
+  tone: "profit" | "loss" | "text";
+  caption: string;
+  price: string;
+  pl?: string;
+  emphasize?: boolean;
+}) {
+  return (
+    <div className="absolute left-0 -translate-y-1/2" style={{ top }}>
+      <p className="m-0 text-[11px] text-muted-foreground">{caption}</p>
+      <p
+        className={cn(
+          "m-0 tabular-nums",
+          emphasize ? "text-sm font-semibold" : "text-[13px] font-medium",
+          tone === "profit" && "text-profit",
+          tone === "loss" && "text-destructive",
+          tone === "text" && "text-foreground",
+        )}
+      >
+        {price}
+      </p>
+      {pl ? (
+        <p
+          className={cn(
+            "m-0 text-[11px] tabular-nums",
+            tone === "profit" ? "text-profit/80" : "text-destructive/80",
+          )}
+        >
+          {pl}
+        </p>
+      ) : null}
     </div>
   );
 }
