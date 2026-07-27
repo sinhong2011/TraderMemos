@@ -1,94 +1,76 @@
-import { Minus, Plus } from "lucide-react";
-import { fieldLabelClass } from "@/components/field-styles";
-import { cn } from "@/lib/cn";
-import { Button } from "@/components/ui/button";
+import { useId } from "react";
+import { Label } from "@/components/ui/label";
+import {
+  NumberField,
+  NumberFieldDecrement,
+  NumberFieldGroup,
+  NumberFieldIncrement,
+  NumberFieldInput,
+} from "@/components/ui/number-field";
 
+/** Trim float dust from stepping (0.05 + 0.25 → 0.30000000000000004) without losing real precision. */
+const clean = (n: number) => Math.round(n * 1e6) / 1e6;
+
+/**
+ * Labelled numeric field for the calculators — coss `NumberField` chrome so it
+ * matches Input / NativeSelect / date triggers, with an optional unit adornment.
+ */
 export function CalcInputField({
   label,
   value,
   onValue,
   step = 1,
   min,
+  max,
   prefix,
   suffix,
   hint,
-  accent = "accent",
 }: {
   label: string;
   value: number;
   onValue: (n: number) => void;
   step?: number;
   min?: number;
+  max?: number;
   prefix?: string;
   suffix?: string;
   hint?: string;
-  accent?: "accent" | "profit" | "loss" | "signal";
 }) {
-  const accentRing =
-    accent === "profit"
-      ? "focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-profit"
-      : accent === "loss"
-        ? "focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-destructive"
-        : accent === "signal"
-          ? "focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-signal"
-          : "focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-ring";
-
-  const bump = (delta: number) => {
-    const next = Math.round((value + delta) * 1000) / 1000;
-    if (min != null && next < min) return;
-    onValue(next);
-  };
+  const id = useId();
+  const hintId = hint ? `${id}-hint` : undefined;
 
   return (
-    <div>
-      <label className={fieldLabelClass}>{label}</label>
-      <div
-        className={cn(
-          "flex items-center rounded-md border-none bg-muted transition-[background-color] duration-150 hover:bg-accent",
-          accentRing,
-        )}
-      >
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-sm"
-          aria-label="Decrease"
-          onClick={() => bump(-step)}
-          className="h-8 w-7 rounded-none text-muted-foreground hover:bg-transparent hover:text-foreground"
-        >
-          <Minus size={12} />
-        </Button>
-        <div className="flex min-w-0 flex-1 items-center justify-end gap-0.5 pr-1">
-          {prefix ? (
-            <span className="shrink-0 text-[11px] text-muted-foreground">{prefix}</span>
-          ) : null}
-          <input
-            type="text"
+    <NumberField
+      id={id}
+      className="gap-1.5"
+      value={Number.isFinite(value) ? value : null}
+      onValueChange={(next) => onValue(next == null ? 0 : clean(next))}
+      step={step}
+      min={min}
+      max={max}
+    >
+      <Label htmlFor={id} className="text-[13px] font-medium text-muted-foreground">
+        {label}
+      </Label>
+      <NumberFieldGroup>
+        <NumberFieldDecrement aria-label={`Decrease ${label}`} />
+        <span className="flex min-w-0 flex-1 items-center gap-1">
+          {prefix ? <span className="shrink-0 text-muted-foreground">{prefix}</span> : null}
+          {/* Prices and R values are fractional — keep the decimal keypad on mobile. */}
+          <NumberFieldInput
             inputMode="decimal"
-            value={Number.isFinite(value) ? value : ""}
-            onChange={(e) => {
-              const n = Number.parseFloat(e.target.value);
-              if (Number.isFinite(n)) onValue(n);
-              else if (e.target.value === "") onValue(0);
-            }}
-            className="w-full min-w-0 bg-transparent py-1.5 text-right text-xs tabular-nums text-foreground outline-none"
+            aria-describedby={hintId}
+            className="px-0 text-right"
           />
-          {suffix ? (
-            <span className="shrink-0 text-[11px] text-muted-foreground">{suffix}</span>
-          ) : null}
-        </div>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-sm"
-          aria-label="Increase"
-          onClick={() => bump(step)}
-          className="h-8 w-7 rounded-none text-muted-foreground hover:bg-transparent hover:text-foreground"
-        >
-          <Plus size={12} />
-        </Button>
-      </div>
-      {hint ? <p className="mt-1 text-[10px] text-muted-foreground">{hint}</p> : null}
-    </div>
+          {suffix ? <span className="shrink-0 text-muted-foreground">{suffix}</span> : null}
+        </span>
+        <NumberFieldIncrement aria-label={`Increase ${label}`} />
+      </NumberFieldGroup>
+      {hint ? (
+        <p id={hintId} className="text-xs text-muted-foreground">
+          {hint}
+        </p>
+      ) : null}
+    </NumberField>
   );
 }

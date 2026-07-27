@@ -60,7 +60,6 @@ export function FvgPanel() {
                 step={0.01}
                 min={0}
                 prefix="$"
-                accent="profit"
               />
               <CalcInputField
                 label="Gap bottom"
@@ -69,14 +68,11 @@ export function FvgPanel() {
                 step={0.01}
                 min={0}
                 prefix="$"
-                accent="loss"
               />
             </div>
 
             <div className="flex flex-col gap-2">
-              <span className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
-                Entry at
-              </span>
+              <span className="text-[13px] font-medium text-muted-foreground">Entry at</span>
               <SegmentedControl
                 ariaLabel="Entry location"
                 fullWidth
@@ -99,7 +95,6 @@ export function FvgPanel() {
                   step={0.01}
                   min={0}
                   prefix="$"
-                  accent="accent"
                 />
               ) : null}
             </div>
@@ -113,7 +108,6 @@ export function FvgPanel() {
                 min={0}
                 prefix="$"
                 hint="beyond the gap"
-                accent="loss"
               />
               <CalcInputField
                 label="Target"
@@ -123,7 +117,6 @@ export function FvgPanel() {
                 min={0}
                 suffix="R"
                 hint="reward multiple"
-                accent="profit"
               />
               <CalcInputField
                 label="Account"
@@ -132,7 +125,6 @@ export function FvgPanel() {
                 step={100}
                 min={0}
                 prefix="$"
-                accent="accent"
               />
               <CalcInputField
                 label="Risk"
@@ -142,7 +134,6 @@ export function FvgPanel() {
                 min={0}
                 suffix="%"
                 hint="per trade"
-                accent="accent"
               />
             </div>
           </div>

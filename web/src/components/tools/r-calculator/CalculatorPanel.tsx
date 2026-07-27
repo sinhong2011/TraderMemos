@@ -100,7 +100,6 @@ export function CalculatorPanel() {
                     step={0.05}
                     min={0}
                     prefix="$"
-                    accent="profit"
                   />
                   <CalcInputField
                     label="Stop premium"
@@ -109,7 +108,6 @@ export function CalculatorPanel() {
                     step={0.05}
                     min={0}
                     prefix="$"
-                    accent="loss"
                   />
                 </>
               ) : (
@@ -121,7 +119,6 @@ export function CalculatorPanel() {
                     step={0.01}
                     min={0}
                     prefix="$"
-                    accent="profit"
                   />
                   <CalcInputField
                     label="Stop"
@@ -130,7 +127,6 @@ export function CalculatorPanel() {
                     step={0.01}
                     min={0}
                     prefix="$"
-                    accent="loss"
                   />
                 </>
               )}
@@ -141,7 +137,6 @@ export function CalculatorPanel() {
                 step={100}
                 min={0}
                 prefix="$"
-                accent="accent"
               />
               <CalcInputField
                 label="Risk"
@@ -151,7 +146,6 @@ export function CalculatorPanel() {
                 min={0}
                 suffix="%"
                 hint="per trade"
-                accent="accent"
               />
               {isOpt ? (
                 <div className="col-span-2">
@@ -163,7 +157,6 @@ export function CalculatorPanel() {
                     min={1}
                     suffix="sh"
                     hint="Multiplier"
-                    accent="accent"
                   />
                 </div>
               ) : null}
