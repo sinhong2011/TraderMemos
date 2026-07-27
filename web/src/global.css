@@ -352,13 +352,20 @@
 }
 
 .tm-lightbox {
-  --yarl__color_backdrop: color-mix(in oklch, var(--background) 92%, transparent);
+  /* Same black scrim family as the drawer / dialog backdrops, pushed heavier:
+     a screenshot needs the app behind it gone, not tinted. `--background`
+     would put a white sheet behind the image in the light theme. */
+  --yarl__color_backdrop: rgb(0 0 0 / 0.9);
   --yarl__color_button: var(--muted-foreground);
   --yarl__color_button_active: var(--foreground);
   --yarl__color_button_disabled: var(--muted-foreground);
   --yarl__slide_title_color: var(--foreground);
   --yarl__slide_description_color: var(--muted-foreground);
   --yarl__thumbnails_thumbnail_active_border_color: var(--primary);
+}
+
+.tm-lightbox .yarl__container {
+  backdrop-filter: blur(4px);
 }
 
 .tm-lightbox .yarl__button {

@@ -324,10 +324,8 @@ export function JournalScreenshotUpload({
         on={{
           view: ({ index }) => setLightboxIndex(index),
         }}
-        styles={{
-          root: { "--yarl__color_backdrop": "rgba(22, 22, 28, 0.92)" },
-          container: { backgroundColor: "transparent" },
-        }}
+        // Scrim + chrome live in `.tm-lightbox` (global.css). An inline
+        // `container: transparent` here would knock the backdrop out entirely.
         className="tm-lightbox"
       />
     </div>
