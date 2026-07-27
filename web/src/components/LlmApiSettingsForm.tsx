@@ -53,6 +53,7 @@ export function LlmApiSettingsForm({
   const [fetchingModels, setFetchingModels] = useState(false);
 
   const form = useForm({
+    formId: "llm-api-settings",
     defaultValues: llmApiSettingsToFormValues(settings),
     onSubmit: async ({ value }) => {
       setFormError(null);

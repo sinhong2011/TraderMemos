@@ -59,6 +59,7 @@ export function NewNoteDrawer() {
   const isDailyLog = noteType === "daily_log";
 
   const form = useForm({
+    formId: "new-note",
     defaultValues: {
       occurredAt: nowLocalDate(),
       title: "",

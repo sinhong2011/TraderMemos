@@ -379,6 +379,7 @@ export function AccountsTab({
   }
 
   const accountForm = useForm({
+    formId: "settings-account",
     defaultValues: defaultAccountFormValues(),
     onSubmit: async ({ value }) => {
       setAccountFormError(null);
@@ -399,6 +400,7 @@ export function AccountsTab({
   });
 
   const cashForm = useForm({
+    formId: "settings-cash",
     defaultValues: defaultCashFormValues(accounts[0]?.id ?? ""),
     onSubmit: async ({ value }) => {
       const amt = parseAmountToNumber(value.amount);
@@ -1731,6 +1733,7 @@ export function JournalTab({
   const [tagFormError, setTagFormError] = useState<string | null>(null);
 
   const tagForm = useForm({
+    formId: "settings-tag",
     defaultValues: defaultTagFormValues(),
     onSubmit: async ({ value }) => {
       setTagFormError(null);

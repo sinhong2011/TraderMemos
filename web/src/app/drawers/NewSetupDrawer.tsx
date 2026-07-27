@@ -47,6 +47,7 @@ export function NewSetupDrawer() {
   const isEdit = editingId != null;
 
   const form = useForm({
+    formId: "new-setup",
     defaultValues: EMPTY_VALUES,
     onSubmit: async ({ value }) => {
       const checklist = value.checklistText
