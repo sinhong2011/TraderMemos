@@ -38,3 +38,9 @@ if (typeof localStorage === "undefined" || typeof localStorage.getItem !== "func
 if (typeof Element !== "undefined" && !Element.prototype.scrollIntoView) {
   Element.prototype.scrollIntoView = () => {};
 }
+
+// jsdom ships no Web Animations API; base-ui's ScrollArea viewport (combobox /
+// select popups) calls getAnimations on a timer after mount.
+if (typeof Element !== "undefined" && !Element.prototype.getAnimations) {
+  Element.prototype.getAnimations = () => [];
+}

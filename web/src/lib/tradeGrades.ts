@@ -46,6 +46,24 @@ export const EMOTIONAL_STATES = [
   "Overconfident",
 ] as const;
 
+/**
+ * `emotional_state` is a single free-text column, so a multi-select is stored
+ * comma-joined and split back out on hydrate.
+ */
+export function parseEmotionalStates(raw: string | null | undefined): string[] {
+  return (raw ?? "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+export function joinEmotionalStates(states: readonly string[]): string {
+  return states
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .join(", ");
+}
+
 /** Session labels for journal chips (stored in notes until a real session column exists). */
 export const TRADE_SESSIONS = ["Asia", "London", "New York AM", "New York PM"] as const;
 export type TradeSession = (typeof TRADE_SESSIONS)[number];
