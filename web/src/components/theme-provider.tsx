@@ -48,15 +48,39 @@ function readStoredTheme(storageKey: string, fallback: Theme): Theme {
   return fallback;
 }
 
+/**
+ * Normalize a computed color to #rrggbb — Safari won't take `color(srgb …)` as
+ * a theme-color, and that is what a `color-mix()` token computes to.
+ */
+function toHexColor(value: string): string | null {
+  const parts = value.match(/-?[\d.]+(?:e[-+]?\d+)?/gi);
+  if (!parts || parts.length < 3) return null;
+  // `color(srgb 0.087 0.087 0.087)` gives 0–1 fractions; `rgb(22, 22, 22)` gives 0–255.
+  const scale = value.startsWith("color(") ? 255 : 1;
+  if (parts.length > 3 && Number(parts[3]) === 0) return null; // fully transparent
+  const channel = (raw: string) => {
+    const n = Math.round(Number(raw) * scale);
+    return Math.min(255, Math.max(0, n)).toString(16).padStart(2, "0");
+  };
+  return `#${channel(parts[0])}${channel(parts[1])}${channel(parts[2])}`;
+}
+
 function applyThemeClass(resolved: ResolvedTheme) {
   const root = window.document.documentElement;
   root.classList.remove("light", "dark");
   root.classList.add(resolved);
   root.style.colorScheme = resolved;
 
-  const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) {
-    meta.setAttribute("content", resolved === "dark" ? "#171717" : "#ffffff");
+  // Read --background back off the body (the class swap above already applied)
+  // so the browser-chrome tint can't drift from the token. The stored theme
+  // outranks the system scheme, so every media-scoped copy in index.html gets
+  // the same value — whichever one matches is then correct.
+  const metas = document.querySelectorAll('meta[name="theme-color"]');
+  if (metas.length === 0) return;
+  const bg = document.body ? getComputedStyle(document.body).backgroundColor : null;
+  const chrome = (bg && toHexColor(bg)) ?? (resolved === "dark" ? "#161616" : "#ffffff");
+  for (const meta of metas) {
+    meta.setAttribute("content", chrome);
   }
 }
 

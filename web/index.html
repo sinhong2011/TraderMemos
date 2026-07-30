@@ -4,7 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>TraderMemos</title>
-    <meta name="theme-color" content="#171717" />
+    <meta name="color-scheme" content="dark light" />
+    <!-- Parse-time browser-chrome tint per system scheme. Literals mirror
+         --background (global.css); the script below and ThemeProvider re-derive
+         them from the token once the app's own theme preference is known. -->
+    <meta name="theme-color" content="#161616" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="TraderMemos" />
@@ -26,8 +31,15 @@
               : theme;
           document.documentElement.classList.add(resolved);
           document.documentElement.style.colorScheme = resolved;
-          var meta = document.querySelector('meta[name="theme-color"]');
-          if (meta) meta.setAttribute("content", resolved === "dark" ? "#171717" : "#ffffff");
+          // The app's stored theme outranks the system scheme, so give every
+          // theme-color copy the same value — whichever media matches is right.
+          // Literals here because the body has no styles yet; ThemeProvider
+          // re-derives them from --background once React mounts.
+          var chrome = resolved === "dark" ? "#161616" : "#ffffff";
+          var metas = document.querySelectorAll('meta[name="theme-color"]');
+          for (var i = 0; i < metas.length; i++) {
+            metas[i].setAttribute("content", chrome);
+          }
         } catch (_) {
           document.documentElement.classList.add("dark");
           document.documentElement.style.colorScheme = "dark";
