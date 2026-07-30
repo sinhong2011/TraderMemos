@@ -106,7 +106,12 @@ function DialogFooter({ className, ...props }: ComponentProps<"div">) {
   return (
     <div
       data-slot="dialog-footer"
-      className={cn("flex w-full shrink-0 items-center justify-end gap-2 px-5 py-3", className)}
+      className={cn(
+        // Stacked and full-width on phones (primary action last in DOM sits on top),
+        // inline and right-aligned from sm up.
+        "flex w-full shrink-0 flex-col-reverse gap-2 px-5 py-3 sm:flex-row sm:items-center sm:justify-end",
+        className,
+      )}
       {...props}
     />
   );

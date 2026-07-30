@@ -1,5 +1,7 @@
-import { ChartCandlestick, CircleDot, Search, Tags } from "lucide-react";
+import { ChartCandlestick, CircleDot, ListFilterPlus, Search, Tags } from "lucide-react";
 import { useMemo, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/cn";
 import {
   Filters,
   type Filter,
@@ -59,6 +61,8 @@ function operatorOf(filters: Filter<TradesFilterValue>[], field: string, fallbac
 }
 
 export function TradesFilters({
+  triggerClassName,
+  iconOnly = false,
   symbols,
   onSymbolsChange,
   symbolOptions = [],
@@ -72,6 +76,10 @@ export function TradesFilters({
   tagOptions,
   onTagIdsChange,
 }: {
+  /** Styling for the "Add filter" trigger so it matches the sibling toolbar controls. */
+  triggerClassName?: string;
+  /** Drop the trigger label to the accessible name only — compact toolbars. */
+  iconOnly?: boolean;
   symbols: string[];
   onSymbolsChange: (symbols?: string[]) => void;
   symbolOptions?: SymbolFacetOption[];
@@ -210,6 +218,20 @@ export function TradesFilters({
       size="sm"
       allowMultiple={false}
       showSearchInput
+      // The stock trigger renders at the Button default size (h-9 on phones);
+      // supplying our own keeps it level with Created At / Sort.
+      trigger={
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          aria-label="Add filter"
+          className={cn(triggerClassName, iconOnly && "w-8 px-0 [&>svg]:mx-0")}
+        >
+          <ListFilterPlus size={14} strokeWidth={1.75} />
+          {iconOnly ? null : "Add filter"}
+        </Button>
+      }
       i18n={{
         addFilter: "Add filter",
         searchFields: "Search filters…",

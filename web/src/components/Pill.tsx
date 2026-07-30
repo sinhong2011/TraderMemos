@@ -15,10 +15,12 @@ export function Pill({
   tone = "muted",
   children,
   title,
+  className,
 }: {
   tone?: PillTone;
   children: ReactNode;
   title?: string;
+  className?: string;
 }) {
   return (
     <span
@@ -26,6 +28,7 @@ export function Pill({
       className={cn(
         "inline-flex items-center gap-1 whitespace-nowrap rounded-md px-2.5 py-[3px] text-[11px] font-semibold tracking-[0.02em]",
         TONES[tone],
+        className,
       )}
     >
       {children}

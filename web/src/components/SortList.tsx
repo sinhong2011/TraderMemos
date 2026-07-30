@@ -15,11 +15,14 @@ export type SortColumnOption = {
  * tablecn-style Sort control — outline trigger + multi-sort popover.
  */
 export function SortList({
+  iconOnly = false,
   sorting,
   onSortingChange,
   columns,
   className,
 }: {
+  /** Drop the label to the accessible name only — compact toolbars. */
+  iconOnly?: boolean;
   sorting: SortingState;
   onSortingChange: OnChangeFn<SortingState>;
   columns: readonly SortColumnOption[];
@@ -55,12 +58,14 @@ export function SortList({
         className={cn(
           buttonVariants({ variant: "outline", size: "sm" }),
           "h-8 !bg-transparent hover:!bg-transparent aria-expanded:!bg-transparent",
+          iconOnly && "px-0 [&>svg]:mx-0",
           className,
+          iconOnly && "w-8",
         )}
         aria-label="Sort"
       >
         <ArrowDownUp size={14} strokeWidth={1.75} />
-        Sort
+        {iconOnly ? null : "Sort"}
         {sorting.length > 0 ? (
           <span className="rounded-md bg-accent px-1.5 py-0.5 text-[10px] font-medium tabular-nums text-muted-foreground">
             {sorting.length}

@@ -30,7 +30,13 @@ export function Field({
   className?: string;
 }) {
   return (
-    <UiField data-invalid={error ? true : undefined} className={cn("gap-2.5", className)}>
+    // `invalid` is the Base UI hook for externally-driven validity (we validate
+    // with TanStack Form), and it's what marks the control aria-invalid.
+    <UiField
+      invalid={Boolean(error)}
+      data-invalid={error ? true : undefined}
+      className={cn("gap-2.5", className)}
+    >
       {label ? (
         <div className="flex items-center gap-1">
           <FieldLabel htmlFor={htmlFor} className={cn(fieldLabelClass, "mb-0 inline")}>
@@ -76,7 +82,14 @@ export function Field({
       {description && !error ? (
         <FieldDescription className={cn(fieldHintClass, "mt-0")}>{description}</FieldDescription>
       ) : null}
-      {error ? <UiFieldError className={cn(fieldErrorClass, "mt-0")}>{error}</UiFieldError> : null}
+      {/* `match` — Base UI renders Field.Error off its own ValidityState unless
+          told an external library owns visibility, so without it our TanStack
+          Form messages never reached the DOM. */}
+      {error ? (
+        <UiFieldError match className={cn(fieldErrorClass, "mt-0")}>
+          {error}
+        </UiFieldError>
+      ) : null}
     </UiField>
   );
 }

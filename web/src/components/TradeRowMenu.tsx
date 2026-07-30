@@ -1,4 +1,4 @@
-import { Copy, ExternalLink, Filter, MoreHorizontal, PanelRight, Trash2 } from "lucide-react";
+import { Copy, ExternalLink, Filter, MoreVertical, PanelRight, Trash2 } from "lucide-react";
 import { useId, useState } from "react";
 import type { Trade } from "@/lib/api/types";
 import { cn } from "@/lib/cn";
@@ -84,7 +84,7 @@ export function TradeRowMenu({ trade, actions }: { trade: Trade; actions: TradeR
           aria-label={`Actions for ${trade.symbol}`}
           className={cn(triggerClass, menuOpen && "bg-accent text-foreground")}
         >
-          <MoreHorizontal size={14} strokeWidth={1.5} aria-hidden />
+          <MoreVertical size={14} strokeWidth={1.5} aria-hidden />
         </DropdownMenuTrigger>
         <DropdownMenuContent
           align="end"

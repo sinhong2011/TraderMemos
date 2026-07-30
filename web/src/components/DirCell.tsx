@@ -3,7 +3,8 @@ import { cn } from "@/lib/cn";
 import { resolveTradeDirection, type TradeDirectionView } from "@/lib/tradeDirection";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
-const TONE_CLASS: Record<TradeDirectionView["tone"], string> = {
+/** Shared by the Dir column and the list row so both color a side the same way. */
+export const DIR_TONE_CLASS: Record<TradeDirectionView["tone"], string> = {
   profit: "text-profit",
   loss: "text-destructive",
   signal: "text-chart-3",
@@ -20,7 +21,7 @@ export function DirCell(props: {
 }) {
   const view = resolveTradeDirection(props);
   const Icon = view.arrowUp ? ArrowUpRight : ArrowDownRight;
-  const color = TONE_CLASS[view.tone];
+  const color = DIR_TONE_CLASS[view.tone];
 
   return (
     <Tooltip>

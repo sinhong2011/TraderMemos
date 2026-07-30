@@ -1,6 +1,7 @@
 import { Pencil, Target, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { AmountInput } from "@/components/AmountInput";
+import { Card } from "@/components/Card";
 import { GoalProgressBar } from "@/components/GoalProgressBar";
 import { Modal } from "@/components/Modal";
 import { Button } from "@/components/ui/button";
@@ -169,58 +170,62 @@ export function AnnualGoalCard({
     </Modal>
   );
 
+  // The page column is a flex column: shrink-0 keeps a card from being squeezed
+  // below its content height.
+  const cardClass = cn("shrink-0", className);
+
+  // Passed as a node rather than a plain string so the dashboard's amber section
+  // heading survives the move onto Card (whose string titles are muted grey).
+  const cardTitle = (
+    <h2 className="m-0 text-[12px] font-semibold tracking-wide text-chart-3">
+      Annual P&L Goal · {year}
+    </h2>
+  );
+
+  const editAction = (
+    <Button
+      type="button"
+      variant="ghost"
+      size="icon-sm"
+      aria-label="Edit annual goal"
+      onClick={openEditor}
+      className="size-7 text-muted-foreground"
+    >
+      <Pencil size={13} strokeWidth={1.5} />
+    </Button>
+  );
+
   if (loading) {
     return (
-      <section
-        className={cn(
-          "flex flex-col rounded-lg bg-card",
-          variant === "hero" ? "min-h-[140px] p-5" : "p-4 sm:p-5",
-          className,
-        )}
-      >
-        <div className="h-3 w-28 animate-pulse rounded bg-muted" />
-        <div className="mt-4 h-8 w-20 animate-pulse rounded bg-muted" />
+      <Card title={cardTitle} className={cardClass}>
+        <div className="h-8 w-20 animate-pulse rounded bg-muted" />
         <div className="mt-4 h-5 w-full animate-pulse rounded bg-muted" />
-      </section>
+      </Card>
     );
   }
 
   if (!hasGoal || !progress) {
     return (
       <>
-        <section
-          className={cn(
-            "flex flex-col justify-center rounded-lg bg-card",
-            variant === "hero" ? "min-h-[140px] p-5" : "p-4 sm:p-5",
-            className,
-          )}
-        >
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <p className="m-0 text-[12px] font-semibold tracking-wide text-chart-3">
-                Annual P&L Goal
-              </p>
-              <p className="mt-2 m-0 text-[13px] text-muted-foreground">
-                Set a {year} net P&L target to track progress here.
-              </p>
-            </div>
+        <Card
+          title={cardTitle}
+          action={
             <Target
               size={18}
               strokeWidth={1.5}
               className="shrink-0 text-muted-foreground"
               aria-hidden
             />
-          </div>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="mt-4 self-start"
-            onClick={openEditor}
-          >
+          }
+          className={cardClass}
+        >
+          <p className="m-0 text-[13px] text-muted-foreground">
+            Set a {year} net P&L target to track progress here.
+          </p>
+          <Button type="button" variant="outline" size="sm" className="mt-4" onClick={openEditor}>
             Set annual goal
           </Button>
-        </section>
+        </Card>
         {editModal}
       </>
     );
@@ -232,23 +237,8 @@ export function AnnualGoalCard({
   if (variant === "compact") {
     return (
       <>
-        <section className={cn("flex flex-col rounded-lg bg-card p-4 sm:p-5", className)}>
-          <div className="flex items-center justify-between gap-2">
-            <p className="m-0 text-[11px] font-semibold tracking-[0.06em] uppercase text-chart-3 sm:text-[12px]">
-              Annual P&L Goal
-            </p>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-sm"
-              aria-label="Edit annual goal"
-              onClick={openEditor}
-              className="size-7 text-muted-foreground"
-            >
-              <Pencil size={13} strokeWidth={1.5} />
-            </Button>
-          </div>
-          <p className="mt-2 m-0 flex flex-wrap items-baseline gap-1.5 text-[20px] font-semibold tabular-nums tracking-tight text-foreground sm:text-[22px]">
+        <Card title={cardTitle} action={editAction} className={cardClass}>
+          <p className="m-0 flex flex-wrap items-baseline gap-1.5 text-[20px] font-semibold tabular-nums tracking-tight text-foreground sm:text-[22px]">
             <span className={pnlColor(progress.ytdNetPnl)}>
               {fmtMoneyCompact(money(progress.ytdNetPnl), currency, locale)}
             </span>
@@ -258,7 +248,6 @@ export function AnnualGoalCard({
           </p>
           <GoalProgressBar
             progress={progress.progress}
-            segments={36}
             className="mt-3 h-4"
             fillClassName={fillClass}
             aria-label={`${year} goal progress`}
@@ -273,7 +262,7 @@ export function AnnualGoalCard({
                 : `Left ${fmtMoneyCompact(money(progress.remaining), currency, locale)}`}
             </span>
           </div>
-        </section>
+        </Card>
         {editModal}
       </>
     );
@@ -282,82 +271,77 @@ export function AnnualGoalCard({
   // Hero variant
   return (
     <>
-      <section className={cn("flex min-h-[140px] flex-col rounded-lg bg-card p-5", className)}>
-        <div className="flex items-start justify-between gap-3">
-          <p className="m-0 text-[12px] font-semibold tracking-wide text-chart-3">
-            Annual P&L Goal · {year}
-          </p>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-sm"
-            aria-label="Edit annual goal"
-            onClick={openEditor}
-            className="size-7 text-muted-foreground"
-          >
-            <Pencil size={13} strokeWidth={1.5} />
-          </Button>
-        </div>
+      {/*
+       * Two-part instrument: the summary sits in a fixed left column, and the bar
+       * takes the rest with YTD / Goal / Left annotating its ends. Stacking them
+       * vertically instead leaves every value pinned to an edge of a card that is
+       * as wide as the viewport.
+       */}
+      <Card title={cardTitle} action={editAction} className={cardClass}>
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:gap-8">
+          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 lg:w-[260px] lg:shrink-0">
+            <p className="m-0 text-[32px] font-semibold leading-none tracking-[-0.04em] tabular-nums text-foreground">
+              {fmtPct(Math.min(progress.progressPct, 999) / 100, locale)}
+            </p>
+            <p
+              className={cn(
+                "m-0 text-[13px] font-medium tabular-nums",
+                paceTone(progress.paceStatus),
+              )}
+            >
+              {progress.paceStatus === "over" ? (
+                <>+{fmtPct((progress.progressPct - 100) / 100, locale)} over goal</>
+              ) : (
+                <>
+                  {fmtSignedMoney(money(progress.paceDelta), currency, locale)}
+                  <span className="ml-1 font-normal text-muted-foreground">vs linear pace</span>
+                </>
+              )}
+            </p>
+          </div>
 
-        <div className="mt-3 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <p className="m-0 text-[32px] font-semibold leading-none tracking-[-0.04em] tabular-nums text-foreground">
-            {fmtPct(Math.min(progress.progressPct, 999) / 100, locale)}
-          </p>
-          <p
-            className={cn(
-              "m-0 text-[13px] font-medium tabular-nums",
-              paceTone(progress.paceStatus),
-            )}
-          >
-            {progress.paceStatus === "over" ? (
-              <>+{fmtPct((progress.progressPct - 100) / 100, locale)} over goal</>
-            ) : (
-              <>
-                {fmtSignedMoney(money(progress.paceDelta), currency, locale)}
-                <span className="ml-1 font-normal text-muted-foreground">vs linear pace</span>
-              </>
-            )}
-          </p>
-        </div>
+          <div className="min-w-0 flex-1">
+            <GoalProgressBar
+              progress={progress.progress}
+              fillClassName={fillClass}
+              aria-label={`${year} goal progress`}
+            />
 
-        <GoalProgressBar
-          progress={progress.progress}
-          className="mt-4"
-          fillClassName={fillClass}
-          aria-label={`${year} goal progress`}
-        />
-
-        <div className="mt-3 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 text-[13px] tabular-nums">
-          <p className="m-0">
-            <span className="font-medium text-muted-foreground">YTD </span>
-            <span className={cn("font-semibold", pnlColor(progress.ytdNetPnl))}>
-              {fmtMoney(money(progress.ytdNetPnl), currency, locale)}
-            </span>
-          </p>
-          <p className="m-0 text-muted-foreground">
-            Goal{" "}
-            <span className="font-semibold text-foreground">
-              {fmtMoney(money(progress.goal), currency, locale)}
-            </span>
-            <span className="mx-1.5 text-border">·</span>
-            {progress.overBy > 0 ? (
-              <>
-                Over{" "}
-                <span className="font-semibold text-profit">
-                  {fmtMoney(money(progress.overBy), currency, locale)}
+            <div className="mt-2 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 text-[13px] tabular-nums">
+              <p className="m-0">
+                <span className="font-medium text-muted-foreground">YTD </span>
+                <span className={cn("font-semibold", pnlColor(progress.ytdNetPnl))}>
+                  {fmtMoney(money(progress.ytdNetPnl), currency, locale)}
                 </span>
-              </>
-            ) : (
-              <>
-                Left{" "}
+              </p>
+              <p className="m-0 text-muted-foreground">
+                Goal{" "}
                 <span className="font-semibold text-foreground">
-                  {fmtMoney(money(progress.remaining), currency, locale)}
+                  {fmtMoney(money(progress.goal), currency, locale)}
                 </span>
-              </>
-            )}
-          </p>
+                <span className="mx-1.5 text-muted-foreground/50" aria-hidden>
+                  ·
+                </span>
+                {progress.overBy > 0 ? (
+                  <>
+                    Over{" "}
+                    <span className="font-semibold text-profit">
+                      {fmtMoney(money(progress.overBy), currency, locale)}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    Left{" "}
+                    <span className="font-semibold text-foreground">
+                      {fmtMoney(money(progress.remaining), currency, locale)}
+                    </span>
+                  </>
+                )}
+              </p>
+            </div>
+          </div>
         </div>
-      </section>
+      </Card>
       {editModal}
     </>
   );

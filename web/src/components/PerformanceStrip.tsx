@@ -40,7 +40,9 @@ export function PerformanceStrip({
   const allTotal = Math.max(trades.length, 1);
   const openCount = trades.filter((t) => t.status === "open").length;
   const toggle = (f: TradeStatusFilter) => onToggleTradeStatus?.(f);
-  const gross = summary.gross_profit + summary.gross_loss;
+  // gross_profit/gross_loss are net-based win/loss buckets, so their difference is
+  // just net_pnl. Real gross P&L is net plus the fees that were deducted from it.
+  const gross = summary.net_pnl + summary.total_fees;
   const money = (v: number) => v * fxRate;
 
   return (

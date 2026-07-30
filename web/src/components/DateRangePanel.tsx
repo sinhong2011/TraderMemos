@@ -134,8 +134,14 @@ export function DateRangePanel({ onApplied }: { onApplied?: () => void }) {
       className={cn(
         // rounded-md keeps the nested surfaces (preset rail + calendar) on the
         // --radius scale one tier inside the popover's rounded-lg edge.
-        "flex max-h-[min(100dvh-2rem,100%)] w-[min(100vw-2rem,424px)] flex-col overflow-y-auto overscroll-contain rounded-md",
-        "pb-[env(safe-area-inset-bottom)] sm:w-[424px] sm:flex-row sm:pb-0",
+        // 448px leaves slack over the 424px min-content (148 rail + 252 day
+        // grid + padding): at exactly min-content, any font-metric or rounding
+        // difference overflowed, and `overflow-y-auto` forces `overflow-x` to
+        // `auto`, so a stray horizontal scrollbar appeared under the panel.
+        // Hiding overflow-x is safe only where the width is fixed — below sm the
+        // panel narrows with the viewport and must still be able to scroll.
+        "flex max-h-[min(100dvh-2rem,100%)] w-[min(100vw-2rem,448px)] flex-col overflow-y-auto overscroll-contain rounded-md",
+        "pb-[env(safe-area-inset-bottom)] sm:w-[448px] sm:flex-row sm:overflow-x-hidden sm:pb-0",
       )}
       aria-label="Date range"
     >

@@ -11,7 +11,14 @@ import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
  * tablecn-style date range filter — dashed outline trigger + calendar popover.
  * Shares `from`/`to` with the header date range via the filter store.
  */
-export function CreatedAtFilter({ className }: { className?: string }) {
+export function CreatedAtFilter({
+  className,
+  iconOnly = false,
+}: {
+  className?: string;
+  /** Drop the label to the accessible name only — compact toolbars. */
+  iconOnly?: boolean;
+}) {
   const { from, to, setRange } = useFilters();
   const [open, setOpen] = useState(false);
   const active = !!(from || to);
@@ -26,10 +33,13 @@ export function CreatedAtFilter({ className }: { className?: string }) {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
+        aria-label="Created At"
         className={cn(
           buttonVariants({ variant: "outline", size: "sm" }),
           "h-8 border-border !bg-transparent font-normal hover:!bg-transparent aria-expanded:!bg-transparent",
+          iconOnly && "px-0 [&>svg]:mx-0",
           className,
+          iconOnly && (active ? "w-auto px-2" : "w-8"),
         )}
       >
         {active ? (
@@ -57,7 +67,7 @@ export function CreatedAtFilter({ className }: { className?: string }) {
             aria-hidden
           />
         )}
-        <span>Created At</span>
+        {iconOnly ? null : <span>Created At</span>}
         {active ? (
           <>
             <span aria-hidden className="mx-0.5 h-4 w-px shrink-0 bg-border" />
