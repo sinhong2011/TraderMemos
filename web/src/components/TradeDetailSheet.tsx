@@ -15,6 +15,7 @@ import {
 import { Modal } from "./Modal";
 import { Skeleton } from "./Skeleton";
 import { Pill } from "./Pill";
+import { cardSectionLabelClass } from "./StatCell";
 import { FormInput } from "./FormInput";
 import { useToastManager } from "./Toast";
 import { heroPnlClass, pnlColor } from "./theme-tokens";
@@ -34,7 +35,7 @@ export interface TradeDetailSheetProps {
   onClose: () => void;
 }
 
-const sectionLabelClass = "mb-2 text-[10px] font-semibold uppercase tracking-widest text-chart-3";
+const sectionLabelClass = cn(cardSectionLabelClass, "mb-2");
 
 export function TradeDetailSheet({ tradeId, onClose }: TradeDetailSheetProps) {
   const navigate = useNavigate();
@@ -47,6 +48,19 @@ export function TradeDetailSheet({ tradeId, onClose }: TradeDetailSheetProps) {
   const confirmInputId = useId();
 
   const trade = detailQ.data;
+  // "OPT · 115 CALL · 2026-07-22 · LONG" as separate parts — the market chip
+  // already joins its own pieces with the same dot, so split it back apart and
+  // let the header re-join them with wrap points between each.
+  const headerMeta = trade
+    ? [
+        ...formatOptionMarketChip(
+          trade.instrument_type,
+          marketLabel(trade.instrument_type),
+          optionContractFromFills(trade.fills),
+        ).split(" · "),
+        trade.direction.toUpperCase(),
+      ]
+    : [];
   const canDelete =
     trade != null && typedConfirm.trim().toUpperCase() === trade.symbol.trim().toUpperCase();
 
@@ -86,25 +100,32 @@ export function TradeDetailSheet({ tradeId, onClose }: TradeDetailSheetProps) {
     >
       <DrawerContent>
         <DrawerHeader className="px-4 py-3">
-          <DrawerTitle className="flex items-baseline gap-1.5">
+          <DrawerTitle className="flex min-w-0 flex-col gap-0.5">
             {trade ? (
               <>
-                {trade.symbol}
-                <span className="text-xs font-medium text-muted-foreground">
-                  ·{""}
-                  {formatOptionMarketChip(
-                    trade.instrument_type,
-                    marketLabel(trade.instrument_type),
-                    optionContractFromFills(trade.fills),
-                  )}
-                  {""}· {trade.direction.toUpperCase()}
+                <span className="truncate text-[15px] leading-tight font-semibold tracking-tight">
+                  {trade.symbol}
+                </span>
+                {/* Contract details wrap part-by-part rather than mid-token, so a
+                    narrow drawer never splits an expiry date across two lines. */}
+                <span className="flex flex-wrap items-center text-[11px] leading-tight font-medium text-muted-foreground">
+                  {headerMeta.map((part, i) => (
+                    <span key={`${part}-${i}`} className="whitespace-nowrap">
+                      {i > 0 ? (
+                        <span aria-hidden className="px-1 text-muted-foreground/50">
+                          ·
+                        </span>
+                      ) : null}
+                      {part}
+                    </span>
+                  ))}
                 </span>
               </>
             ) : (
               "Trade"
             )}
           </DrawerTitle>
-          <div className="ml-auto flex items-center gap-1">
+          <div className="ml-auto flex shrink-0 items-center gap-1">
             {tradeId && (
               <Button
                 type="button"
@@ -140,17 +161,16 @@ export function TradeDetailSheet({ tradeId, onClose }: TradeDetailSheetProps) {
           {trade && <TradeDetailSheetBody trade={trade} onOpenFullPage={openFullPage} />}
         </DrawerBody>
         {trade ? (
-          <DrawerFooter className="justify-start px-4">
+          <DrawerFooter className="px-4 pt-3">
             <Button
               type="button"
               variant="destructive"
-              size="icon-sm"
-              aria-label="Remove trade"
-              title="Remove trade"
               disabled={deleteTrade.isPending}
               onClick={() => setDeleteOpen(true)}
+              className="w-full gap-2 border-transparent bg-destructive/15 hover:bg-destructive/25"
             >
               <Trash2 size={15} strokeWidth={1.5} aria-hidden />
+              Remove trade
             </Button>
           </DrawerFooter>
         ) : null}
@@ -269,14 +289,7 @@ function TradeDetailSheetBody({
             <div>
               {pnl != null ? (
                 <>
-                  <p
-                    className={cn(
-                      "m-0 tabular-nums",
-                      heroPnlClass(pnl),
-                      pnl > 0 && "",
-                      pnl < 0 && "",
-                    )}
-                  >
+                  <p className={cn("m-0 tabular-nums", heroPnlClass(pnl))}>
                     {fmtSignedMoney(pnl, currency, intlLocale())}
                   </p>
                   <p className="mt-1.5 mb-0 text-sm font-semibold tabular-nums">
