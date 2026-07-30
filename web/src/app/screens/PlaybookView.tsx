@@ -2,25 +2,24 @@ import {
   ArrowDownRight,
   ArrowUpRight,
   BookOpen,
+  Check,
+  ChevronDown,
+  ChevronsUpDown,
+  ChevronUp,
   Eye,
   EyeOff,
   ListFilter,
   Pencil,
   Plus,
   Trash2,
+  X,
 } from "lucide-react";
 import { useMemo, useState } from "react";
+import { Card } from "@/components/Card";
 import { EmptyState } from "@/components/EmptyState";
-import {
-  Item,
-  ItemActions,
-  ItemContent,
-  ItemDescription,
-  ItemGroup,
-  ItemMedia,
-  ItemTitle,
-} from "@/components/Item";
+import { Item, ItemActions, ItemGroup, ItemTitle } from "@/components/Item";
 import { Page } from "@/components/Page";
+import { Pill } from "@/components/Pill";
 import { ListSkeleton } from "@/components/skeletons/list-skeleton";
 import { pnlColor } from "@/components/theme-tokens";
 import { Button } from "@/components/ui/button";
@@ -47,12 +46,14 @@ export interface PlaybookViewProps {
   onDelete: (id: string) => Promise<void>;
 }
 
-type SortKey = "name" | "pnl" | "winRate" | "trades";
+type SortKey = "name" | "trades" | "winRate" | "pf" | "exp" | "pnl";
+type SortDir = "asc" | "desc";
 
 interface SetupRowModel {
   setup: Setup;
-  group: BreakGroup | undefined;
   trades: number;
+  wins: number;
+  losses: number;
   winRate: number;
   netPnl: number;
   pf: number;
@@ -60,13 +61,42 @@ interface SetupRowModel {
   hasData: boolean;
 }
 
+/**
+ * Shared grid template for the traded-plays header and its rows so metric
+ * labels line up over their values. Below `xl` rows collapse to a stacked
+ * card-ish layout with a compact meta line instead of columns.
+ */
+const PLAY_GRID = cn(
+  "xl:grid xl:items-center xl:gap-x-4",
+  "xl:grid-cols-[minmax(9rem,1fr)_5rem_5.5rem_6.75rem_6.5rem_7rem_7.5rem]",
+);
+
+const METRIC_COLUMNS: { key: SortKey; label: string }[] = [
+  { key: "trades", label: "Trades" },
+  { key: "winRate", label: "Win rate" },
+  { key: "pf", label: "Profit factor" },
+  { key: "exp", label: "Expectancy" },
+  { key: "pnl", label: "Net P&L" },
+];
+
+const SORT_OPTIONS: { key: SortKey; label: string }[] = [
+  { key: "name", label: "Name" },
+  ...METRIC_COLUMNS,
+];
+
+/** Metric sorts read best high-to-low; names read A→Z. */
+const DEFAULT_DIR: Record<SortKey, SortDir> = {
+  name: "asc",
+  trades: "desc",
+  winRate: "desc",
+  pf: "desc",
+  exp: "desc",
+  pnl: "desc",
+};
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
-
-function getGroupForSetup(breakdown: BreakGroup[], setupName: string): BreakGroup | undefined {
-  return breakdown.find((g) => g.key === setupName);
-}
 
 function toSetupDraft(setup: Setup): SetupDraft {
   return {
@@ -83,13 +113,13 @@ function toSetupDraft(setup: Setup): SetupDraft {
 
 function buildRows(setups: Setup[], breakdown: BreakGroup[]): SetupRowModel[] {
   return setups.map((setup) => {
-    const group = getGroupForSetup(breakdown, setup.name);
-    const sum = group?.summary;
+    const sum = breakdown.find((g) => g.key === setup.name)?.summary;
     const trades = sum?.total_trades ?? 0;
     return {
       setup,
-      group,
       trades,
+      wins: sum?.wins ?? 0,
+      losses: sum?.losses ?? 0,
       winRate: sum?.win_rate ?? 0,
       netPnl: sum?.net_pnl ?? 0,
       pf: sum?.profit_factor ?? 0,
@@ -99,180 +129,199 @@ function buildRows(setups: Setup[], breakdown: BreakGroup[]): SetupRowModel[] {
   });
 }
 
-function sortRows(rows: SetupRowModel[], sort: SortKey): SetupRowModel[] {
-  const next = [...rows];
-  next.sort((a, b) => {
-    switch (sort) {
-      case "pnl":
-        return b.netPnl - a.netPnl || a.setup.name.localeCompare(b.setup.name);
-      case "winRate":
-        return b.winRate - a.winRate || a.setup.name.localeCompare(b.setup.name);
-      case "trades":
-        return b.trades - a.trades || a.setup.name.localeCompare(b.setup.name);
-      case "name":
-      default:
-        return a.setup.name.localeCompare(b.setup.name);
-    }
+const SORT_VALUE: Record<SortKey, (row: SetupRowModel) => number | string> = {
+  name: (r) => r.setup.name.toLowerCase(),
+  trades: (r) => r.trades,
+  winRate: (r) => r.winRate,
+  pf: (r) => r.pf,
+  exp: (r) => r.exp,
+  pnl: (r) => r.netPnl,
+};
+
+function sortRows(rows: SetupRowModel[], key: SortKey, dir: SortDir): SetupRowModel[] {
+  const read = SORT_VALUE[key];
+  return [...rows].sort((a, b) => {
+    const av = read(a);
+    const bv = read(b);
+    const primary = typeof av === "string" ? av.localeCompare(bv as string) : av - (bv as number);
+    if (primary !== 0) return dir === "asc" ? primary : -primary;
+    return a.setup.name.localeCompare(b.setup.name);
   });
-  return next;
+}
+
+/** Levels and checklist size — the plan detail worth showing when space allows. */
+function planBits(setup: Setup): string[] {
+  const checks = setup.checklist ?? [];
+  return [
+    setup.target_price != null ? `T ${setup.target_price}` : null,
+    setup.stop_price != null ? `S ${setup.stop_price}` : null,
+    checks.length > 0 ? `${checks.length} check${checks.length === 1 ? "" : "s"}` : null,
+  ].filter((bit): bit is string => bit != null);
+}
+
+function setupSubline(setup: Setup): string {
+  return setup.thesis || setup.description || planBits(setup).join(" · ");
 }
 
 // ---------------------------------------------------------------------------
-// Setup item
+// Row pieces
 // ---------------------------------------------------------------------------
 
-interface SetupItemProps {
-  row: SetupRowModel;
-  currency: string;
-  fxRate: number;
+function PlayIcon({
+  setup,
+  tone,
+  /** Bare glyph for chips, where a tinted tile would out-shout the name. */
+  chip = false,
+}: {
+  setup: Setup;
+  tone: "pos" | "neg" | "muted";
+  chip?: boolean;
+}) {
+  const Icon = setup.direction
+    ? setup.direction === "short"
+      ? ArrowDownRight
+      : ArrowUpRight
+    : BookOpen;
+
+  if (chip) {
+    return (
+      <Icon
+        size={13}
+        strokeWidth={setup.direction ? 2 : 1.75}
+        aria-hidden
+        className="shrink-0 text-muted-foreground"
+      />
+    );
+  }
+
+  return (
+    <span
+      aria-hidden
+      className={cn(
+        "flex size-9 shrink-0 items-center justify-center rounded-md",
+        tone === "pos"
+          ? "bg-profit/10 text-profit"
+          : tone === "neg"
+            ? "bg-destructive/10 text-destructive"
+            : "bg-accent text-muted-foreground",
+      )}
+    >
+      <Icon size={16} strokeWidth={setup.direction ? 2 : 1.75} />
+    </span>
+  );
+}
+
+function MetricCell({
+  value,
+  valueClass,
+  /** 0–1 ratio rendered as a hairline bar under the value (win rate). */
+  ratio,
+  title,
+}: {
+  value: string;
+  valueClass?: string;
+  ratio?: number;
+  title?: string;
+}) {
+  return (
+    <div className="flex flex-col items-end gap-1" title={title}>
+      <span
+        className={cn(
+          "text-[13px] font-semibold tabular-nums text-foreground",
+          value === "—" && "font-medium text-muted-foreground",
+          valueClass,
+        )}
+      >
+        {value}
+      </span>
+      {/* Slot is reserved in every cell so values keep one baseline across columns. */}
+      <span
+        className={cn(
+          "flex h-[3px] w-full overflow-hidden rounded-full",
+          ratio != null && "bg-accent",
+        )}
+        aria-hidden
+      >
+        {ratio != null ? (
+          <span
+            className="h-full rounded-full bg-profit"
+            style={{ width: `${Math.round(Math.min(Math.max(ratio, 0), 1) * 100)}%` }}
+          />
+        ) : null}
+      </span>
+    </div>
+  );
+}
+
+interface RowActions {
   onEdit: (setup: Setup) => void;
   onDelete: (setup: Setup) => void;
   onConvert: (setup: Setup) => void;
 }
 
-function SetupItem({ row, currency, fxRate, onEdit, onDelete, onConvert }: SetupItemProps) {
-  usePrivacyMode();
-  const [confirmDelete, setConfirmDelete] = useState(false);
-  const { setup, trades, winRate, netPnl, pf, exp, hasData } = row;
-  const thesis = setup.thesis || setup.description;
-  const checklist = setup.checklist ?? [];
-  const locale = intlLocale();
-  const isShort = setup.direction === "short";
-  const DirIcon = isShort ? ArrowDownRight : ArrowUpRight;
+interface SetupActionsProps extends RowActions {
+  setup: Setup;
+}
 
-  const metaBits = [
-    setup.target_price != null ? `T ${setup.target_price}` : null,
-    setup.stop_price != null ? `S ${setup.stop_price}` : null,
-    checklist.length > 0 ? `${checklist.length} check${checklist.length === 1 ? "" : "s"}` : null,
-  ].filter(Boolean);
+/**
+ * Trade, edit and delete stay visible on every play. Delete swaps in a compact
+ * ✓/✕ confirm in place so the cluster keeps its width. Renders bare buttons —
+ * the caller supplies the container (`ItemActions` on chips, the grid's last
+ * column on traded rows).
+ */
+function SetupActions({ setup, onEdit, onDelete, onConvert }: SetupActionsProps) {
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   return (
-    <Item
-      variant="default"
-      size="default"
-      className={cn(
-        "w-full gap-3 border-transparent bg-accent px-3.5 py-3",
-        "hover:bg-card",
-        !hasData && "opacity-75",
-      )}
-    >
-      <ItemMedia
-        variant="icon"
-        aria-hidden
-        className={cn(
-          "size-9 self-center",
-          hasData
-            ? isShort
-              ? "bg-destructive/10 text-destructive"
-              : "bg-profit/10 text-profit"
-            : "bg-card text-muted-foreground",
-        )}
+    <>
+      <Button
+        type="button"
+        variant="ghost"
+        size="xs"
+        aria-label={`Log trade from ${setup.name}`}
+        onClick={() => onConvert(setup)}
+        className="text-muted-foreground hover:text-foreground"
       >
-        {setup.direction ? (
-          <DirIcon size={16} strokeWidth={2} />
-        ) : (
-          <BookOpen size={16} strokeWidth={1.75} />
-        )}
-      </ItemMedia>
-
-      <ItemContent className="gap-1.5">
-        <ItemTitle className="gap-2 text-[15px]">
-          <span className="font-semibold tracking-tight text-foreground">{setup.name}</span>
-          {setup.symbol ? (
-            <span className="text-[12px] font-medium tracking-wide text-primary">
-              {setup.symbol}
-              {setup.direction ? ` · ${setup.direction.toUpperCase()}` : ""}
-            </span>
-          ) : null}
-        </ItemTitle>
-        {thesis ? (
-          <ItemDescription className="line-clamp-1 text-[13px]">{thesis}</ItemDescription>
-        ) : metaBits.length > 0 ? (
-          <ItemDescription className="text-[12px] text-muted-foreground">
-            {metaBits.join(" · ")}
-          </ItemDescription>
-        ) : !hasData ? (
-          <ItemDescription className="text-[12px] text-muted-foreground">
-            No trades in this range
-          </ItemDescription>
-        ) : null}
-
-        {hasData ? (
-          <div className="flex flex-wrap gap-x-6 gap-y-2 pt-1">
-            <SetupMetric label="Trades" value={String(trades)} />
-            <SetupMetric label="Win rate" value={fmtPct(winRate, locale)} />
-            <SetupMetric
-              label="Net P&L"
-              value={fmtSignedMoney(netPnl * fxRate, currency, locale)}
-              valueClass={pnlColor(netPnl)}
-            />
-            <SetupMetric label="Profit factor" value={pf > 0 ? pf.toFixed(2) : "—"} />
-            <SetupMetric
-              label="Expectancy"
-              value={fmtSignedMoney(exp * fxRate, currency, locale)}
-              valueClass={pnlColor(exp)}
-            />
-          </div>
-        ) : null}
-      </ItemContent>
-
-      {hasData ? (
-        <ItemContent className="hidden min-w-[7.5rem] flex-none items-end gap-0.5 self-center text-right sm:flex">
-          <ItemTitle className={cn("text-[15px] font-semibold tabular-nums", pnlColor(netPnl))}>
-            {fmtSignedMoney(netPnl * fxRate, currency, locale)}
-          </ItemTitle>
-          <ItemDescription className="text-[12px] tabular-nums">
-            {trades} trade{trades === 1 ? "" : "s"} · {fmtPct(winRate, locale)} WR
-          </ItemDescription>
-        </ItemContent>
-      ) : null}
-
-      <ItemActions className="self-center">
-        <Button
-          type="button"
-          variant="outline"
-          size="xs"
-          aria-label={`Log trade from ${setup.name}`}
-          onClick={() => onConvert(setup)}
-        >
-          Trade
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-xs"
-          aria-label={`Edit ${setup.name}`}
-          onClick={() => onEdit(setup)}
-          className="text-muted-foreground hover:text-primary"
-        >
-          <Pencil size={13} strokeWidth={1.5} />
-        </Button>
-        {confirmDelete ? (
-          <span className="flex items-center gap-1">
-            <Button
-              type="button"
-              variant="ghost"
-              size="xs"
-              aria-label="Confirm delete"
-              onClick={() => {
-                setConfirmDelete(false);
-                onDelete(setup);
-              }}
-              className="text-destructive hover:text-destructive"
-            >
-              Delete
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="xs"
-              aria-label="Cancel delete"
-              onClick={() => setConfirmDelete(false)}
-            >
-              Cancel
-            </Button>
-          </span>
-        ) : (
+        Trade
+      </Button>
+      {confirmDelete ? (
+        <>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-xs"
+            aria-label={`Confirm delete ${setup.name}`}
+            onClick={() => {
+              setConfirmDelete(false);
+              onDelete(setup);
+            }}
+            className="text-destructive hover:text-destructive"
+          >
+            <Check size={13} strokeWidth={2} />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-xs"
+            aria-label="Cancel delete"
+            onClick={() => setConfirmDelete(false)}
+            className="text-muted-foreground"
+          >
+            <X size={13} strokeWidth={2} />
+          </Button>
+        </>
+      ) : (
+        <>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-xs"
+            aria-label={`Edit ${setup.name}`}
+            onClick={() => onEdit(setup)}
+            className="text-muted-foreground hover:text-primary"
+          >
+            <Pencil size={13} strokeWidth={1.5} />
+          </Button>
           <Button
             type="button"
             variant="ghost"
@@ -283,35 +332,195 @@ function SetupItem({ row, currency, fxRate, onEdit, onDelete, onConvert }: Setup
           >
             <Trash2 size={13} strokeWidth={1.5} />
           </Button>
-        )}
+        </>
+      )}
+    </>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Rows
+// ---------------------------------------------------------------------------
+
+interface PlayRowProps extends RowActions {
+  row: SetupRowModel;
+  currency: string;
+  fxRate: number;
+}
+
+function TradedPlayRow({ row, currency, fxRate, ...actions }: PlayRowProps) {
+  const locale = intlLocale();
+  const { setup, trades, wins, losses, winRate, netPnl, pf, exp } = row;
+  const subline = setupSubline(setup);
+  const money = (v: number) => fmtSignedMoney(v * fxRate, currency, locale);
+
+  return (
+    <div
+      role="listitem"
+      className={cn(
+        "group/play flex items-center gap-3 rounded-lg px-2 py-2.5",
+        "transition-colors duration-100 hover:bg-accent motion-reduce:transition-none",
+        PLAY_GRID,
+      )}
+    >
+      <div className="flex min-w-0 flex-1 items-center gap-3">
+        <PlayIcon setup={setup} tone={netPnl < 0 ? "neg" : "pos"} />
+        <div className="min-w-0">
+          <div className="flex min-w-0 items-center gap-2">
+            <span className="truncate text-[14px] font-semibold tracking-tight text-foreground">
+              {setup.name}
+            </span>
+            {setup.symbol ? (
+              <Pill tone="accent" className="px-1.5 py-0 text-[10px]">
+                {setup.symbol}
+                {setup.direction ? ` · ${setup.direction.toUpperCase()}` : ""}
+              </Pill>
+            ) : null}
+          </div>
+          {subline ? (
+            <p className="mt-0.5 truncate text-[12px] leading-relaxed text-muted-foreground">
+              {subline}
+            </p>
+          ) : null}
+          <p className="mt-1 flex flex-wrap items-center gap-x-1.5 text-[11px] tabular-nums whitespace-nowrap text-muted-foreground xl:hidden">
+            <span>
+              {trades} trade{trades === 1 ? "" : "s"}
+            </span>
+            <span aria-hidden>·</span>
+            <span>{fmtPct(winRate, locale)} WR</span>
+            <span aria-hidden>·</span>
+            <span className={cn("font-semibold", pnlColor(netPnl))}>{money(netPnl)}</span>
+          </p>
+        </div>
+      </div>
+
+      <div className="hidden xl:contents">
+        <MetricCell value={String(trades)} />
+        <MetricCell
+          value={fmtPct(winRate, locale)}
+          ratio={winRate}
+          title={`${wins} win${wins === 1 ? "" : "s"} · ${losses} loss${losses === 1 ? "" : "es"}`}
+        />
+        <MetricCell value={pf > 0 ? pf.toFixed(2) : "—"} />
+        <MetricCell value={money(exp)} valueClass={pnlColor(exp)} />
+        <MetricCell value={money(netPnl)} valueClass={cn("text-[14px]", pnlColor(netPnl))} />
+      </div>
+
+      <ItemActions className="gap-0.5 xl:justify-end">
+        <SetupActions setup={setup} {...actions} />
+      </ItemActions>
+    </div>
+  );
+}
+
+/**
+ * Idle plays are chips sized to their own name rather than cells in a stretched
+ * grid: name and actions stay adjacent, so nothing floats in a column of gutter.
+ * `ItemContent` is deliberately skipped — its `flex-1` is what would stretch the
+ * name away from the buttons. Detail (thesis, levels, checklist) lives in the
+ * editor these chips open.
+ */
+function UnusedPlayChip({ row, ...actions }: { row: SetupRowModel } & RowActions) {
+  const { setup } = row;
+
+  return (
+    <Item
+      variant="muted"
+      size="sm"
+      className="w-fit gap-2 py-1 pr-1 pl-2.5 hover:bg-accent"
+      title={setupSubline(setup) || undefined}
+    >
+      <PlayIcon setup={setup} tone="muted" chip />
+      <ItemTitle className="gap-1.5 text-[13px] tracking-tight">
+        <span className="max-w-[14rem] truncate">{setup.name}</span>
+        {setup.symbol ? (
+          <span className="shrink-0 text-[11px] tracking-wide text-primary">{setup.symbol}</span>
+        ) : null}
+      </ItemTitle>
+      <ItemActions className="gap-0.5">
+        <SetupActions setup={setup} {...actions} />
       </ItemActions>
     </Item>
   );
 }
 
-function SetupMetric({
+// ---------------------------------------------------------------------------
+// Header pieces
+// ---------------------------------------------------------------------------
+
+function ColumnSortButton({
+  label,
+  sortKey,
+  active,
+  dir,
+  onSort,
+  align = "end",
+}: {
+  label: string;
+  sortKey: SortKey;
+  active: boolean;
+  dir: SortDir;
+  onSort: (key: SortKey) => void;
+  align?: "start" | "end";
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => onSort(sortKey)}
+      aria-label={`Sort by ${label}`}
+      className={cn(
+        "group/col flex cursor-pointer items-center gap-1 rounded-sm outline-none",
+        align === "start" ? "justify-self-start" : "justify-end",
+        "text-[10px] font-medium tracking-[0.08em] uppercase",
+        "transition-colors duration-150 hover:text-foreground motion-reduce:transition-none",
+        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+        active ? "text-foreground" : "text-muted-foreground",
+      )}
+    >
+      {label}
+      {active ? (
+        dir === "asc" ? (
+          <ChevronUp size={11} strokeWidth={2} aria-hidden />
+        ) : (
+          <ChevronDown size={11} strokeWidth={2} aria-hidden />
+        )
+      ) : (
+        <ChevronsUpDown
+          size={11}
+          strokeWidth={2}
+          aria-hidden
+          className="opacity-0 transition-opacity group-hover/col:opacity-60"
+        />
+      )}
+    </button>
+  );
+}
+
+function SummaryStat({
   label,
   value,
   valueClass,
+  sub,
 }: {
   label: string;
   value: string;
   valueClass?: string;
+  sub?: string;
 }) {
   return (
-    <div className="flex min-w-0 flex-col gap-0.5">
+    <div className="flex min-w-0 flex-col gap-1">
       <span className="text-[10px] font-medium tracking-[0.08em] text-muted-foreground uppercase">
         {label}
       </span>
       <span
         className={cn(
-          "text-[13px] font-semibold tabular-nums",
-          valueClass ?? "text-foreground",
-          value === "—" && "font-medium text-muted-foreground",
+          "truncate text-[17px] leading-none font-semibold tracking-tight tabular-nums text-foreground",
+          valueClass,
         )}
       >
         {value}
       </span>
+      {sub ? <span className="truncate text-[11px] text-muted-foreground">{sub}</span> : null}
     </div>
   );
 }
@@ -328,24 +537,56 @@ export function PlaybookView({
   currency,
   onDelete,
 }: PlaybookViewProps) {
+  usePrivacyMode();
+  const locale = intlLocale();
   const { currency: displayCurrency, rate } = useMoneyFx(currency);
   const fxRate = rate ?? 1;
   const openModal = useUI((s) => s.openModal);
   const openSetupEdit = useUI((s) => s.openSetupEdit);
   const openTradeFromSetup = useUI((s) => s.openTradeFromSetup);
   const [sort, setSort] = useState<SortKey>("name");
+  const [dir, setDir] = useState<SortDir>("asc");
   const [hideUnused, setHideUnused] = useState(false);
 
-  const rows = useMemo(() => {
-    const built = buildRows(setups, breakdown);
-    const filtered = hideUnused ? built.filter((r) => r.hasData) : built;
-    return sortRows(filtered, sort);
-  }, [setups, breakdown, hideUnused, sort]);
-
-  const unusedCount = useMemo(
-    () => buildRows(setups, breakdown).filter((r) => !r.hasData).length,
-    [setups, breakdown],
+  const rows = useMemo(() => buildRows(setups, breakdown), [setups, breakdown]);
+  const traded = useMemo(
+    () =>
+      sortRows(
+        rows.filter((r) => r.hasData),
+        sort,
+        dir,
+      ),
+    [rows, sort, dir],
   );
+  const unused = useMemo(
+    () =>
+      sortRows(
+        rows.filter((r) => !r.hasData),
+        "name",
+        "asc",
+      ),
+    [rows],
+  );
+
+  const totals = useMemo(() => {
+    const trades = traded.reduce((n, r) => n + r.trades, 0);
+    const wins = traded.reduce((n, r) => n + r.wins, 0);
+    const netPnl = traded.reduce((n, r) => n + r.netPnl, 0);
+    const best = traded.reduce<SetupRowModel | null>(
+      (top, r) => (top == null || r.netPnl > top.netPnl ? r : top),
+      null,
+    );
+    return { trades, wins, netPnl, winRate: trades > 0 ? wins / trades : 0, best };
+  }, [traded]);
+
+  function sortBy(key: SortKey) {
+    if (key === sort) {
+      setDir((d) => (d === "asc" ? "desc" : "asc"));
+      return;
+    }
+    setSort(key);
+    setDir(DEFAULT_DIR[key]);
+  }
 
   function convertSetup(setup: Setup) {
     openTradeFromSetup({
@@ -358,52 +599,65 @@ export function PlaybookView({
     });
   }
 
-  const toolbarIconClass = cn(
-    "size-8 pointer-coarse:size-11",
-    "border-transparent !bg-transparent hover:!bg-accent",
-  );
+  const rowActions = {
+    onEdit: (s: Setup) => openSetupEdit(toSetupDraft(s)),
+    onConvert: convertSetup,
+    onDelete: async (s: Setup) => {
+      await onDelete(s.id);
+    },
+  };
 
-  const toolbar = (
-    <div className="flex flex-wrap items-center justify-between gap-2">
-      {setups.length > 0 ? (
-        <span className="relative inline-flex items-center">
-          <ListFilter
-            size={14}
-            strokeWidth={1.75}
-            className="pointer-events-none absolute left-2.5 z-10 text-muted-foreground"
-            aria-hidden
-          />
-          <NativeSelect
-            size="sm"
-            aria-label="Sort setups"
-            value={sort}
-            onChange={(e) => setSort(e.target.value as SortKey)}
-            className={cn(
-              "min-w-[8.25rem] border-border !bg-transparent hover:border-border hover:!bg-transparent",
-              "h-8 pr-7 pl-8 text-[12px]",
-            )}
-          >
-            <NativeSelectOption value="name">Name</NativeSelectOption>
-            <NativeSelectOption value="pnl">Net P&L</NativeSelectOption>
-            <NativeSelectOption value="winRate">Win rate</NativeSelectOption>
-            <NativeSelectOption value="trades">Trades</NativeSelectOption>
-          </NativeSelect>
-        </span>
-      ) : (
-        <span />
-      )}
-      <div className="flex flex-wrap items-center justify-end gap-2">
-        {setups.length > 0 && unusedCount > 0 ? (
+  const subtitle = () => {
+    if (setups.length === 0) return "Define your plays once, then log trades straight from them.";
+    const plays = `${setups.length} play${setups.length === 1 ? "" : "s"}`;
+    if (traded.length === 0) return `${plays} · none traded in this range`;
+    return `${plays} · ${traded.length} traded in this range`;
+  };
+
+  const header = (
+    <header className="flex flex-wrap items-start justify-between gap-x-4 gap-y-3">
+      <div className="min-w-0">
+        <h2 className="text-[15px] font-semibold tracking-tight text-foreground">Playbook</h2>
+        <p className="mt-0.5 text-[12px] leading-relaxed text-muted-foreground">{subtitle()}</p>
+      </div>
+      <div className="flex flex-wrap items-center gap-2">
+        {traded.length > 0 ? (
+          <span className="relative inline-flex items-center xl:hidden">
+            <ListFilter
+              size={14}
+              strokeWidth={1.75}
+              className="pointer-events-none absolute left-2.5 z-10 text-muted-foreground"
+              aria-hidden
+            />
+            <NativeSelect
+              size="sm"
+              aria-label="Sort plays"
+              value={sort}
+              onChange={(e) => {
+                const key = e.target.value as SortKey;
+                setSort(key);
+                setDir(DEFAULT_DIR[key]);
+              }}
+              className="h-8 min-w-[8.25rem] pr-7 pl-8 text-[12px]"
+            >
+              {SORT_OPTIONS.map((opt) => (
+                <NativeSelectOption key={opt.key} value={opt.key}>
+                  {opt.label}
+                </NativeSelectOption>
+              ))}
+            </NativeSelect>
+          </span>
+        ) : null}
+        {unused.length > 0 ? (
           <Button
             type="button"
             variant="ghost"
-            size="icon"
+            size="sm"
             onClick={() => setHideUnused((v) => !v)}
             aria-pressed={hideUnused}
-            aria-label={hideUnused ? "Show unused setups" : "Hide unused setups"}
             className={cn(
-              toolbarIconClass,
-              hideUnused && "!bg-primary/10 text-primary hover:!bg-primary/10",
+              "text-muted-foreground hover:text-foreground",
+              hideUnused && "text-foreground",
             )}
           >
             {hideUnused ? (
@@ -411,29 +665,118 @@ export function PlaybookView({
             ) : (
               <EyeOff size={14} strokeWidth={1.75} />
             )}
+            {hideUnused ? "Show unused" : "Hide unused"}
+            <span className="tabular-nums opacity-70">{unused.length}</span>
           </Button>
         ) : null}
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          onClick={() => openModal("new-setup")}
-          aria-label="New setup"
-          className={toolbarIconClass}
-        >
+        <Button type="button" onClick={() => openModal("new-setup")}>
           <Plus size={14} strokeWidth={1.75} />
+          New setup
         </Button>
       </div>
-    </div>
+    </header>
+  );
+
+  const summaryCard = (
+    <Card>
+      <div className="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3 lg:grid-cols-5">
+        <SummaryStat
+          label="Plays traded"
+          value={`${traded.length}/${setups.length}`}
+          sub={unused.length > 0 ? `${unused.length} idle` : "All plays in use"}
+        />
+        <SummaryStat label="Trades" value={String(totals.trades)} />
+        <SummaryStat
+          label="Win rate"
+          value={fmtPct(totals.winRate, locale)}
+          sub={`${totals.wins} of ${totals.trades} won`}
+        />
+        <SummaryStat
+          label="Net"
+          value={fmtSignedMoney(totals.netPnl * fxRate, currency, locale)}
+          valueClass={pnlColor(totals.netPnl)}
+        />
+        {totals.best ? (
+          <SummaryStat
+            label="Top play"
+            value={totals.best.setup.name}
+            valueClass="tracking-tight"
+            sub={fmtSignedMoney(totals.best.netPnl * fxRate, currency, locale)}
+          />
+        ) : null}
+      </div>
+    </Card>
+  );
+
+  const tradedCard = (
+    <Card flush className="pt-3 pb-2">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 px-4">
+        <h3 className="text-xs font-medium text-muted-foreground">Traded in this range</h3>
+        <span className="text-[11px] tabular-nums text-muted-foreground">
+          {traded.length} play{traded.length === 1 ? "" : "s"}
+        </span>
+      </div>
+
+      <div className={cn("hidden px-4 pt-3 pb-1", PLAY_GRID)}>
+        {/* Offset by the row icon (size-9 + gap-3) so the label sits over the names. */}
+        <span className="pl-12">
+          <ColumnSortButton
+            label="Play"
+            sortKey="name"
+            active={sort === "name"}
+            dir={dir}
+            onSort={sortBy}
+            align="start"
+          />
+        </span>
+        {METRIC_COLUMNS.map((col) => (
+          <ColumnSortButton
+            key={col.key}
+            label={col.label}
+            sortKey={col.key}
+            active={sort === col.key}
+            dir={dir}
+            onSort={sortBy}
+          />
+        ))}
+        <span />
+      </div>
+
+      <ItemGroup className="mt-1 gap-0.5 px-2">
+        {traded.map((row) => (
+          <TradedPlayRow
+            key={row.setup.id}
+            row={row}
+            currency={displayCurrency}
+            fxRate={fxRate}
+            {...rowActions}
+          />
+        ))}
+      </ItemGroup>
+    </Card>
+  );
+
+  const unusedCard = (
+    <Card flush className="pt-3 pb-4">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 px-4">
+        <h3 className="text-xs font-medium text-muted-foreground">Not traded in this range</h3>
+        <span className="text-[11px] tabular-nums text-muted-foreground">
+          {unused.length} play{unused.length === 1 ? "" : "s"}
+        </span>
+      </div>
+      <ItemGroup className="mt-3 flex-row flex-wrap gap-2 px-4">
+        {unused.map((row) => (
+          <UnusedPlayChip key={row.setup.id} row={row} {...rowActions} />
+        ))}
+      </ItemGroup>
+    </Card>
   );
 
   const renderContent = () => {
-    if (setupsLoading) {
-      return <ListSkeleton rows={4} />;
-    }
+    if (setupsLoading) return <ListSkeleton rows={4} />;
 
     if (setupsError) {
-      return <p className="text-xs text-destructive">Failed to load setups.</p>;
+      return <EmptyState title="Could not load setups" hint="Try refreshing the page." />;
     }
 
     if (setups.length === 0) {
@@ -441,15 +784,10 @@ export function PlaybookView({
         <EmptyState
           title="No setups yet"
           hint="Define your edge — thesis, levels, and checklist — then log trades from each play."
-          icon={<BookOpen size={32} strokeWidth={1.5} />}
+          icon={<BookOpen size={28} strokeWidth={1.5} />}
           actions={
-            <Button
-              type="button"
-              variant="default"
-              size="sm"
-              onClick={() => openModal("new-setup")}
-            >
-              <Plus size={13} strokeWidth={1.5} />
+            <Button type="button" onClick={() => openModal("new-setup")}>
+              <Plus size={14} strokeWidth={1.75} />
               New setup
             </Button>
           }
@@ -457,13 +795,14 @@ export function PlaybookView({
       );
     }
 
-    if (rows.length === 0) {
+    if (traded.length === 0 && hideUnused) {
       return (
         <EmptyState
-          title="No traded setups"
-          hint="Every setup is still unused in this date range. Log a trade or show unused setups."
+          title="No traded plays"
+          hint="Every play is still unused in this date range. Log a trade or show unused plays."
+          icon={<BookOpen size={28} strokeWidth={1.5} />}
           actions={
-            <Button type="button" variant="outline" size="sm" onClick={() => setHideUnused(false)}>
+            <Button type="button" variant="outline" onClick={() => setHideUnused(false)}>
               Show unused
             </Button>
           }
@@ -472,27 +811,17 @@ export function PlaybookView({
     }
 
     return (
-      <ItemGroup className="gap-2">
-        {rows.map((row) => (
-          <SetupItem
-            key={row.setup.id}
-            row={row}
-            currency={displayCurrency}
-            fxRate={fxRate}
-            onEdit={(s) => openSetupEdit(toSetupDraft(s))}
-            onConvert={convertSetup}
-            onDelete={async (s) => {
-              await onDelete(s.id);
-            }}
-          />
-        ))}
-      </ItemGroup>
+      <>
+        {traded.length > 0 ? summaryCard : null}
+        {traded.length > 0 ? tradedCard : null}
+        {unused.length > 0 && !hideUnused ? unusedCard : null}
+      </>
     );
   };
 
   return (
     <Page>
-      {toolbar}
+      {header}
       {renderContent()}
     </Page>
   );

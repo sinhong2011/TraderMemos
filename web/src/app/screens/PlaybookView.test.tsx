@@ -70,9 +70,18 @@ function wrap(ui: ReactNode) {
 describe("PlaybookView", () => {
   it("renders a setup with its breakdown stats", () => {
     wrap(<PlaybookView {...base} setups={[setup]} breakdown={[group]} />);
-    expect(screen.getByText("ORB")).toBeInTheDocument();
+    // Name shows on the row and again as the summary's top play.
+    expect(screen.getAllByText("ORB").length).toBeGreaterThan(0);
     expect(screen.getAllByText(/\$500\.00/).length).toBeGreaterThan(0);
     expect(screen.getByRole("button", { name: /log trade from orb/i })).toBeInTheDocument();
+  });
+
+  it("summarises the traded plays", () => {
+    wrap(<PlaybookView {...base} setups={[setup]} breakdown={[group]} />);
+    expect(screen.getByText("Plays traded")).toBeInTheDocument();
+    expect(screen.getByText("1/1")).toBeInTheDocument();
+    expect(screen.getByText("Top play")).toBeInTheDocument();
+    expect(screen.getByText("3 of 5 won")).toBeInTheDocument();
   });
 
   it("shows an empty state with no setups", () => {
@@ -114,13 +123,45 @@ describe("PlaybookView", () => {
     expect(screen.getByText("Scalp")).toBeInTheDocument();
     await userEvent.click(screen.getByRole("button", { name: /hide unused/i }));
     expect(screen.queryByText("Scalp")).not.toBeInTheDocument();
-    expect(screen.getByText("ORB")).toBeInTheDocument();
+    expect(screen.getAllByText("ORB").length).toBeGreaterThan(0);
   });
 
-  it("renders setup metrics in an item footer", () => {
+  it("labels metric columns once, as sort controls", () => {
     wrap(<PlaybookView {...base} setups={[setup]} breakdown={[group]} />);
     expect(screen.getByRole("listitem")).toBeInTheDocument();
-    expect(screen.getByText("Expectancy")).toBeInTheDocument();
-    expect(screen.getByText("Profit factor")).toBeInTheDocument();
+    for (const label of ["Trades", "Win rate", "Profit factor", "Expectancy", "Net P&L"]) {
+      expect(screen.getByRole("button", { name: `Sort by ${label}` })).toBeInTheDocument();
+    }
+  });
+
+  it("sorts traded plays by a metric column and flips direction on re-click", async () => {
+    const second: Setup = { ...setup, id: "s2", name: "Fade", symbol: "MSFT" };
+    const secondGroup = {
+      ...group,
+      key: "Fade",
+      summary: { ...group.summary, net_pnl: 900 },
+    } as BreakGroup;
+    wrap(<PlaybookView {...base} setups={[setup, second]} breakdown={[group, secondGroup]} />);
+
+    const rowNames = () =>
+      screen.getAllByRole("listitem").map((li) => li.textContent?.startsWith("Fade") ?? false);
+
+    // Name sort (default) puts Fade first.
+    expect(rowNames()[0]).toBe(true);
+
+    // Net P&L descending puts the bigger winner (Fade, +$900) first.
+    await userEvent.click(screen.getByRole("button", { name: /sort by net p&l/i }));
+    expect(rowNames()[0]).toBe(true);
+
+    // Re-click flips to ascending, so ORB (+$500) leads.
+    await userEvent.click(screen.getByRole("button", { name: /sort by net p&l/i }));
+    expect(rowNames()[0]).toBe(false);
+  });
+
+  it("groups untraded plays into their own section", () => {
+    const unused: Setup = { ...setup, id: "s2", name: "Scalp", symbol: "" };
+    wrap(<PlaybookView {...base} setups={[setup, unused]} breakdown={[group]} />);
+    expect(screen.getByText("Traded in this range")).toBeInTheDocument();
+    expect(screen.getByText("Not traded in this range")).toBeInTheDocument();
   });
 });

@@ -134,6 +134,15 @@ const POPULAR_BROKERS = [
 ] as const;
 const OTHER_BROKER_VALUE = "__other__";
 
+const CASH_TYPE_OPTIONS = [
+  { value: "deposit", label: "Deposit" },
+  { value: "withdrawal", label: "Withdrawal" },
+  { value: "fee", label: "Fee" },
+  { value: "dividend", label: "Dividend" },
+  { value: "interest", label: "Interest" },
+  { value: "adjustment", label: "Adjustment" },
+] as const;
+
 // ---------------------------------------------------------------------------
 // Accounts & funding
 // ---------------------------------------------------------------------------
@@ -429,6 +438,19 @@ export function AccountsTab({
       cashForm.setFieldValue("accountId", accounts[0].id);
     }
   }, [accounts, cashForm]);
+
+  function openCashForm() {
+    setCashFormError(null);
+    setFilterAccountId(null);
+    cashForm.reset(defaultCashFormValues(accounts[0]?.id ?? ""));
+    setShowCashForm(true);
+  }
+
+  function closeCashForm() {
+    setShowCashForm(false);
+    setCashFormError(null);
+    cashForm.reset(defaultCashFormValues(accounts[0]?.id ?? ""));
+  }
 
   const sortedTx = useMemo(
     () =>
@@ -826,16 +848,7 @@ export function AccountsTab({
         title="Deposits & withdrawals"
         description="Track cash flows that affect your equity curve and header cash stat."
         action={
-          <BtnGhost
-            active={showCashForm}
-            onClick={() => {
-              setShowCashForm((v) => {
-                const next = !v;
-                if (next) setFilterAccountId(null);
-                return next;
-              });
-            }}
-          >
+          <BtnGhost onClick={openCashForm}>
             <Plus size={13} strokeWidth={1.5} />
             Add transaction
           </BtnGhost>
@@ -851,136 +864,141 @@ export function AccountsTab({
             </BtnGhost>
           </div>
         )}
-        {showCashForm && (
-          <SettingsInsetForm>
-            <form
-              className="flex flex-col gap-3"
-              onSubmit={(e) => {
-                e.preventDefault();
-                void cashForm.handleSubmit();
-              }}
-            >
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <cashForm.Field
-                  name="accountId"
-                  validators={{
-                    onSubmit: ({ value }) => validateAccountId(value),
-                  }}
-                >
-                  {(field) => (
-                    <Field label="Account" error={fieldError(field.state.meta.errors)}>
-                      <NativeSelect
-                        size="sm"
-                        value={field.state.value}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        aria-label="Cash account"
-                        className="h-8 w-full text-[12px]"
-                        wrapperClassName="w-full"
-                      >
-                        {accounts.map((a) => (
-                          <NativeSelectOption key={a.id} value={a.id}>
-                            {a.name}
-                          </NativeSelectOption>
-                        ))}
-                      </NativeSelect>
-                    </Field>
-                  )}
-                </cashForm.Field>
-                <cashForm.Field name="type">
-                  {(field) => (
-                    <Field label="Type">
-                      <NativeSelect
-                        size="sm"
-                        value={field.state.value}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        aria-label="Cash type"
-                        className="h-8 w-full text-[12px]"
-                        wrapperClassName="w-full"
-                      >
-                        <NativeSelectOption value="deposit">Deposit</NativeSelectOption>
-                        <NativeSelectOption value="withdrawal">Withdrawal</NativeSelectOption>
-                        <NativeSelectOption value="fee">Fee</NativeSelectOption>
-                        <NativeSelectOption value="dividend">Dividend</NativeSelectOption>
-                        <NativeSelectOption value="interest">Interest</NativeSelectOption>
-                        <NativeSelectOption value="adjustment">Adjustment</NativeSelectOption>
-                      </NativeSelect>
-                    </Field>
-                  )}
-                </cashForm.Field>
-              </div>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <cashForm.Field
-                  name="amount"
-                  validators={{
-                    onBlur: ({ value }) => validatePositiveAmount(value),
-                    onSubmit: ({ value }) => validatePositiveAmount(value),
-                  }}
-                >
-                  {(field) => (
-                    <Field
-                      label="Amount"
-                      htmlFor="cash-amount"
-                      error={fieldError(field.state.meta.errors)}
-                    >
-                      <AmountInput
-                        id="cash-amount"
-                        value={field.state.value}
-                        onValueChange={field.handleChange}
-                        onBlur={field.handleBlur}
-                        placeholder="0.00"
-                      />
-                    </Field>
-                  )}
-                </cashForm.Field>
-                <cashForm.Field name="occurredAt">
-                  {(field) => (
-                    <Field label="Date">
-                      <DatePicker
-                        aria-label="Date"
-                        value={field.state.value}
-                        onChange={field.handleChange}
-                        onBlur={field.handleBlur}
-                      />
-                    </Field>
-                  )}
-                </cashForm.Field>
-              </div>
-              <cashForm.Field name="note">
+        <Modal
+          open={showCashForm}
+          onOpenChange={(open) => {
+            if (!open) closeCashForm();
+          }}
+          title="Add transaction"
+          className="max-w-[min(500px,94vw)]"
+          footer={
+            <cashForm.Subscribe selector={(s) => s.isSubmitting}>
+              {(cashSaving) => (
+                <>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={closeCashForm}
+                    disabled={cashSaving}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={() => void cashForm.handleSubmit()}
+                    disabled={cashSaving}
+                  >
+                    {cashSaving ? "Adding…" : "Add transaction"}
+                  </Button>
+                </>
+              )}
+            </cashForm.Subscribe>
+          }
+        >
+          <form
+            className="flex flex-col gap-3"
+            onSubmit={(e) => {
+              e.preventDefault();
+              void cashForm.handleSubmit();
+            }}
+          >
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <cashForm.Field
+                name="accountId"
+                validators={{
+                  onSubmit: ({ value }) => validateAccountId(value),
+                }}
+              >
                 {(field) => (
-                  <Field label="Note" htmlFor="cash-note">
-                    <FormInput
-                      id="cash-note"
+                  <Field label="Account" error={fieldError(field.state.meta.errors)}>
+                    <NativeSelect
                       value={field.state.value}
-                      onBlur={field.handleBlur}
                       onChange={(e) => field.handleChange(e.target.value)}
-                      placeholder="Optional note"
+                      aria-label="Cash account"
+                      wrapperClassName="w-full"
+                    >
+                      {accounts.map((a) => (
+                        <NativeSelectOption key={a.id} value={a.id}>
+                          {a.name}
+                        </NativeSelectOption>
+                      ))}
+                    </NativeSelect>
+                  </Field>
+                )}
+              </cashForm.Field>
+              <cashForm.Field name="type">
+                {(field) => (
+                  <Field label="Type">
+                    <NativeSelect
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      aria-label="Cash type"
+                      wrapperClassName="w-full"
+                    >
+                      {CASH_TYPE_OPTIONS.map(({ value, label }) => (
+                        <NativeSelectOption key={value} value={value}>
+                          {label}
+                        </NativeSelectOption>
+                      ))}
+                    </NativeSelect>
+                  </Field>
+                )}
+              </cashForm.Field>
+            </div>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <cashForm.Field
+                name="amount"
+                validators={{
+                  onBlur: ({ value }) => validatePositiveAmount(value),
+                  onSubmit: ({ value }) => validatePositiveAmount(value),
+                }}
+              >
+                {(field) => (
+                  <Field
+                    label="Amount"
+                    htmlFor="cash-amount"
+                    error={fieldError(field.state.meta.errors)}
+                  >
+                    <AmountInput
+                      id="cash-amount"
+                      value={field.state.value}
+                      onValueChange={field.handleChange}
+                      onBlur={field.handleBlur}
+                      placeholder="0.00"
+                      autoFocus
                     />
                   </Field>
                 )}
               </cashForm.Field>
-              <FormError message={cashFormError} />
-              <div className="flex items-center gap-2">
-                <cashForm.Subscribe selector={(s) => s.isSubmitting}>
-                  {(cashSaving) => (
-                    <BtnPrimary type="submit" disabled={cashSaving}>
-                      <Check size={12} strokeWidth={1.5} />
-                      {cashSaving ? "Adding…" : "Add"}
-                    </BtnPrimary>
-                  )}
-                </cashForm.Subscribe>
-                <BtnGhost
-                  onClick={() => {
-                    setShowCashForm(false);
-                    setCashFormError(null);
-                  }}
-                >
-                  <X size={12} strokeWidth={1.5} />
-                  Cancel
-                </BtnGhost>
-              </div>
-            </form>
-          </SettingsInsetForm>
-        )}
+              <cashForm.Field name="occurredAt">
+                {(field) => (
+                  <Field label="Date">
+                    <DatePicker
+                      aria-label="Date"
+                      value={field.state.value}
+                      onChange={field.handleChange}
+                      onBlur={field.handleBlur}
+                    />
+                  </Field>
+                )}
+              </cashForm.Field>
+            </div>
+            <cashForm.Field name="note">
+              {(field) => (
+                <Field label="Note" htmlFor="cash-note">
+                  <FormInput
+                    id="cash-note"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    placeholder="Optional note"
+                  />
+                </Field>
+              )}
+            </cashForm.Field>
+            <FormError message={cashFormError} />
+          </form>
+        </Modal>
 
         {cashLoading ? (
           <SettingsPanelBody>
@@ -1078,19 +1096,16 @@ export function AccountsTab({
         <div className="flex flex-col gap-3">
           <Field label="Type">
             <NativeSelect
-              size="sm"
               value={editCashType}
               onChange={(e) => setEditCashType(e.target.value)}
               aria-label="Cash type"
-              className="h-8 w-full text-[12px]"
               wrapperClassName="w-full"
             >
-              <NativeSelectOption value="deposit">Deposit</NativeSelectOption>
-              <NativeSelectOption value="withdrawal">Withdrawal</NativeSelectOption>
-              <NativeSelectOption value="fee">Fee</NativeSelectOption>
-              <NativeSelectOption value="dividend">Dividend</NativeSelectOption>
-              <NativeSelectOption value="interest">Interest</NativeSelectOption>
-              <NativeSelectOption value="adjustment">Adjustment</NativeSelectOption>
+              {CASH_TYPE_OPTIONS.map(({ value, label }) => (
+                <NativeSelectOption key={value} value={value}>
+                  {label}
+                </NativeSelectOption>
+              ))}
             </NativeSelect>
           </Field>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
