@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { cn } from "@/lib/cn";
 import { intlLocale } from "@/lib/locale";
 import { ControlledPopover } from "./ControlledPopover";
+import { PeriodNav } from "./PeriodNav";
 import { Button } from "./ui/button";
 import { NativeSelect, NativeSelectOption } from "./ui/native-select";
 
@@ -43,9 +44,9 @@ function QuickJump({
   );
 }
 
-function formatMonthYear(date: Date): string {
+function formatMonthYear(date: Date, month: "long" | "short" = "long"): string {
   return date.toLocaleDateString(intlLocale(), {
-    month: "long",
+    month,
     year: "numeric",
   });
 }
@@ -83,6 +84,9 @@ export function MonthPicker({
   }, [open, year]);
 
   const monthLabel = formatMonthYear(new Date(year, month - 1, 1));
+  // Below `sm` the toolbar has to fit mode toggle + nav + P&L on one row, so the
+  // visible label drops to "Jul 2026"; the accessible name stays long.
+  const shortMonthLabel = formatMonthYear(new Date(year, month - 1, 1), "short");
   const shortMonths = monthLabels("short");
   const longMonths = monthLabels("long");
 
@@ -108,18 +112,13 @@ export function MonthPicker({
   }
 
   return (
-    <div className="flex items-center gap-1 md:gap-2">
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon-sm"
-        onClick={onPrevMonth}
-        aria-label="Previous month"
-        className="pointer-coarse:size-11"
-      >
-        <ChevronLeft size={14} strokeWidth={1.5} />
-      </Button>
-
+    <PeriodNav
+      onPrev={onPrevMonth}
+      onNext={onNextMonth}
+      prevLabel="Previous month"
+      nextLabel="Next month"
+      canGoNext={canGoNext}
+    >
       <ControlledPopover
         open={open}
         onOpenChange={setOpen}
@@ -127,16 +126,17 @@ export function MonthPicker({
         triggerAriaLabel={`${monthLabel}, choose month`}
         className="overflow-hidden p-0"
         triggerClassName={cn(
-          "h-8 min-w-[6.5rem] rounded-md border-none bg-muted px-2.5 md:h-7 md:min-w-[9.5rem]",
-          "max-md:pointer-coarse:h-8 md:pointer-coarse:h-11",
-          "text-[11px] font-semibold tabular-nums text-foreground md:text-[13px]",
-          "transition-[background-color] duration-150",
-          "hover:bg-accent",
+          "h-full min-w-0 flex-1 justify-center gap-1 rounded-md px-1.5 sm:gap-1.5 sm:px-2.5",
+          "text-[12px] font-semibold tabular-nums text-foreground sm:text-[13px]",
+          "transition-colors duration-150 hover:bg-accent",
           open && "bg-accent",
         )}
         trigger={
           <>
-            <span className="min-w-0 flex-1 truncate text-center">{monthLabel}</span>
+            <span className="min-w-0 truncate sm:hidden">{shortMonthLabel}</span>
+            <span className="hidden min-w-0 truncate sm:inline sm:min-w-[7.5rem]">
+              {monthLabel}
+            </span>
             <ChevronDown
               size={12}
               strokeWidth={1.75}
@@ -158,8 +158,11 @@ export function MonthPicker({
           )}
           aria-label="Choose month"
         >
-          <aside className="flex shrink-0 flex-col rounded-md bg-background sm:w-[116px]">
-            <p className="m-0 px-3 pt-3 pb-2 text-[11px] font-medium uppercase tracking-widest text-muted-foreground">
+          {/* Stacked below the grid on a phone — the month you came to pick is
+              what should meet the thumb first. Ordered rather than moved in the
+              DOM so it stays the left rail, and first in tab order, from `sm` up. */}
+          <aside className="order-last flex shrink-0 flex-col rounded-md bg-background sm:order-first sm:w-[116px]">
+            <p className="m-0 px-3 pt-3 pb-2 text-[11px] font-medium uppercase tracking-widest text-muted-foreground max-sm:pt-1">
               Quick jump
             </p>
             <div
@@ -185,7 +188,7 @@ export function MonthPicker({
             </div>
           </aside>
 
-          <div className="flex min-w-0 flex-1 flex-col bg-card px-3 pt-3 pb-3 max-sm:pt-1">
+          <div className="flex min-w-0 flex-1 flex-col bg-card px-3 pt-3 pb-3 max-sm:pb-1">
             <div className="mb-2 flex items-center justify-between">
               <Button
                 type="button"
@@ -251,18 +254,6 @@ export function MonthPicker({
           </div>
         </div>
       </ControlledPopover>
-
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon-sm"
-        onClick={onNextMonth}
-        disabled={!canGoNext}
-        aria-label="Next month"
-        className="pointer-coarse:size-11"
-      >
-        <ChevronRight size={14} strokeWidth={1.5} />
-      </Button>
-    </div>
+    </PeriodNav>
   );
 }

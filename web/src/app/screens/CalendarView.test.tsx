@@ -81,7 +81,6 @@ const BASE = {
   dayTradesError: false,
   currency: "USD",
   onSelectTrade: vi.fn<(...args: any[]) => any>(),
-  onOpenFullPage: vi.fn<(...args: any[]) => any>(),
 };
 
 describe("CalendarView", () => {
