@@ -9,13 +9,13 @@ import {
   YAxis,
 } from "recharts";
 import { Card } from "./Card";
-import { ChartFrame, chartTheme } from "./ChartFrame";
+import { ChartFrame, chartTheme, chartTooltipStyle } from "./ChartFrame";
 import { EmptyState } from "./EmptyState";
 import { Skeleton } from "./Skeleton";
-import type { RBucket } from "../lib/api/types";
+import type { RBucket } from "@/lib/api/types";
 
-const POS = "var(--color-profit)";
-const NEG = "var(--color-loss)";
+const POS = "var(--profit)";
+const NEG = "var(--loss)";
 
 export interface ReportsRDistributionChartProps {
   distribution: RBucket[];
@@ -41,7 +41,7 @@ export function ReportsRDistributionChart({
       title="R-Multiple Distribution"
       action={
         !loading && !error && distribution.length > 0 && totalTrades > 0 ? (
-          <span className="text-[11px] font-medium text-text-muted">
+          <span className="text-[11px] font-medium text-muted-foreground">
             Avg {avgR >= 0 ? "+" : ""}
             {avgR.toFixed(2)}R
           </span>
@@ -51,7 +51,7 @@ export function ReportsRDistributionChart({
       {loading ? (
         <Skeleton height="200px" />
       ) : error ? (
-        <p className="text-xs text-loss">Failed to load R-multiple distribution.</p>
+        <p className="text-xs text-destructive">Failed to load R-multiple distribution.</p>
       ) : distribution.length === 0 || totalTrades <= 0 ? (
         <EmptyState title="No R data" hint="Set stops on your trades to see the R distribution." />
       ) : (
@@ -74,12 +74,7 @@ export function ReportsRDistributionChart({
                   allowDecimals={false}
                 />
                 <Tooltip
-                  contentStyle={{
-                    background: chartTheme.tooltipBg,
-                    border: `1px solid ${chartTheme.tooltipBorder}`,
-                    color: chartTheme.tooltipText,
-                    fontSize: 11,
-                  }}
+                  {...chartTooltipStyle}
                   formatter={(value) => [String(value), "Trades"]}
                   cursor={{ fill: chartTheme.cursorFill }}
                 />
@@ -91,7 +86,7 @@ export function ReportsRDistributionChart({
               </BarChart>
             </ResponsiveContainer>
           </ChartFrame>
-          <p className="mt-2 text-[11px] text-text-muted">
+          <p className="mt-2 text-[11px] text-muted-foreground">
             Showing {totalTrades} of {totalTrades + excluded} closed trades
             {excluded > 0 ? `, ${excluded} excluded (no stop)` : ""}
           </p>

@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { tradesApi, type TradeCoachReview } from "../api/trades";
+import { tradesApi, type TradeCoachReview } from "@/lib/api/trades";
 import { useCoachSettings } from "./useCoachSettings";
 
 /** Coach LLM is opt-in per trade — call `generate()` from a button. */

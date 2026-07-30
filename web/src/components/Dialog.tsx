@@ -1,7 +1,7 @@
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
 import { X } from "lucide-react";
 import type { ComponentProps } from "react";
-import { cn } from "../lib/cn";
+import { cn } from "@/lib/cn";
 import { buttonVariants } from "./ui/button";
 
 function Dialog({ ...props }: DialogPrimitive.Root.Props) {
@@ -25,7 +25,7 @@ function DialogOverlay({ className, ...props }: DialogPrimitive.Backdrop.Props) 
     <DialogPrimitive.Backdrop
       data-slot="dialog-overlay"
       className={cn(
-        "fixed inset-0 isolate z-40 bg-overlay-scrim backdrop-blur-[2px]",
+        "fixed inset-0 isolate z-40 bg-black/50 backdrop-blur-[2px]",
         "transition-opacity duration-250 ease-out",
         "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0",
         "motion-reduce:transition-none",
@@ -54,7 +54,7 @@ function DialogContent({
         data-slot="dialog-content"
         className={cn(
           "fixed top-1/2 left-1/2 z-50 flex max-h-[min(90vh,880px)] w-full max-w-[min(720px,94vw)] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden",
-          "rounded-overlay border border-border-strong bg-bg-panel text-sm text-text outline-none",
+          "rounded-lg border border-border bg-popover text-sm text-foreground outline-none",
           "transition-[transform,opacity] duration-250 ease-out",
           "data-[starting-style]:-translate-y-[calc(50%+6px)] data-[starting-style]:scale-[0.98] data-[starting-style]:opacity-0",
           "data-[ending-style]:scale-[0.98] data-[ending-style]:opacity-0",
@@ -96,7 +96,7 @@ function DialogBody({ className, ...props }: ComponentProps<"div">) {
   return (
     <div
       data-slot="dialog-body"
-      className={cn("flex min-h-0 flex-1 flex-col gap-4 overflow-auto p-5", className)}
+      className={cn("flex min-h-0 flex-1 flex-col gap-6 overflow-auto p-5", className)}
       {...props}
     />
   );
@@ -106,7 +106,12 @@ function DialogFooter({ className, ...props }: ComponentProps<"div">) {
   return (
     <div
       data-slot="dialog-footer"
-      className={cn("flex w-full shrink-0 items-center justify-end gap-2 px-5 py-3", className)}
+      className={cn(
+        // Stacked and full-width on phones (primary action last in DOM sits on top),
+        // inline and right-aligned from sm up.
+        "flex w-full shrink-0 flex-col-reverse gap-2 px-5 py-3 sm:flex-row sm:items-center sm:justify-end",
+        className,
+      )}
       {...props}
     />
   );
@@ -116,7 +121,7 @@ function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
   return (
     <DialogPrimitive.Title
       data-slot="dialog-title"
-      className={cn("m-0 text-[15px] leading-none font-semibold text-text", className)}
+      className={cn("m-0 text-[15px] leading-none font-semibold text-foreground", className)}
       {...props}
     />
   );
@@ -126,7 +131,7 @@ function DialogDescription({ className, ...props }: DialogPrimitive.Description.
   return (
     <DialogPrimitive.Description
       data-slot="dialog-description"
-      className={cn("text-xs text-balance text-text-muted", className)}
+      className={cn("text-xs text-balance text-muted-foreground", className)}
       {...props}
     />
   );

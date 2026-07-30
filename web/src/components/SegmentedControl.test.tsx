@@ -13,8 +13,9 @@ describe("SegmentedControl", () => {
   it("marks the active option and fires onChange", async () => {
     const onChange = vi.fn<(...args: any[]) => any>();
     render(<SegmentedControl options={OPTIONS} value="30D" onChange={onChange} />);
-    expect(screen.getByRole("tab", { name: "30D" })).toHaveAttribute("aria-selected", "true");
-    await userEvent.click(screen.getByRole("tab", { name: "ALL" }));
+    expect(screen.getByRole("button", { name: "30D" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: "ALL" })).toHaveAttribute("aria-pressed", "false");
+    await userEvent.click(screen.getByRole("button", { name: "ALL" }));
     expect(onChange).toHaveBeenCalledWith("ALL");
   });
 
@@ -29,10 +30,10 @@ describe("SegmentedControl", () => {
         ariaLabel="Range"
       />,
     );
-    const list = screen.getByRole("tablist", { name: "Range" });
-    expect(list.className).toMatch(/flex/);
-    expect(list.className).toMatch(/w-full/);
-    expect(screen.getByRole("tab", { name: "30D" }).className).toMatch(/flex-1/);
+    const group = screen.getByRole("group", { name: "Range" });
+    expect(group.className).toMatch(/w-full/);
+    expect(group.className).toMatch(/bg-muted/);
+    expect(screen.getByRole("button", { name: "30D" }).className).toMatch(/flex-1/);
   });
 
   it("applies semantic tone classes for long/short", () => {
@@ -48,10 +49,9 @@ describe("SegmentedControl", () => {
         ariaLabel="Side"
       />,
     );
-    const list = screen.getByRole("tablist", { name: "Side" });
-    const indicator = list.querySelector("[class*=bg-profit]");
-    expect(indicator).toBeTruthy();
-    expect(screen.getByRole("tab", { name: "LONG" }).className).toMatch(/text-profit/);
+    const long = screen.getByRole("button", { name: "LONG" });
+    expect(long.className).toMatch(/text-profit/);
+    expect(long.querySelector("[class*=bg-profit]")).toBeTruthy();
 
     rerender(
       <SegmentedControl
@@ -65,7 +65,18 @@ describe("SegmentedControl", () => {
         ariaLabel="Side"
       />,
     );
-    expect(list.querySelector("[class*=bg-loss]")).toBeTruthy();
-    expect(screen.getByRole("tab", { name: "SHORT" }).className).toMatch(/text-loss/);
+    const short = screen.getByRole("button", { name: "SHORT" });
+    expect(short.className).toMatch(/text-destructive/);
+    expect(short.querySelector("[class*=bg-destructive]")).toBeTruthy();
+  });
+
+  it("uses a raised pill for the default active segment", () => {
+    render(
+      <SegmentedControl options={OPTIONS} value="30D" onChange={() => {}} ariaLabel="Range" />,
+    );
+    const active = screen.getByRole("button", { name: "30D" });
+    const pill = active.querySelector("[class*=rounded-md]");
+    expect(pill?.className).toMatch(/bg-background/);
+    expect(pill?.className).toMatch(/dark:bg-input/);
   });
 });

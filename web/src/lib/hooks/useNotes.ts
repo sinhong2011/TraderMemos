@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { notesApi, type NoteBody } from "../api/notes";
+import { notesApi, type NoteBody } from "@/lib/api/notes";
 
 export function useNotes(f?: { from?: string; to?: string }) {
   return useQuery({

@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ReactElement } from "react";
 import { describe, expect, it, vi } from "vite-plus/test";
-import type { Summary, Trade } from "../../lib/api/types";
+import type { Summary, Trade } from "@/lib/api/types";
 import { CalendarView } from "./CalendarView";
 
 vi.mock("../../components/Toast", () => ({
@@ -81,7 +81,6 @@ const BASE = {
   dayTradesError: false,
   currency: "USD",
   onSelectTrade: vi.fn<(...args: any[]) => any>(),
-  onOpenFullPage: vi.fn<(...args: any[]) => any>(),
 };
 
 describe("CalendarView", () => {

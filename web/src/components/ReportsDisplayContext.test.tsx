@@ -1,7 +1,7 @@
 import { renderHook } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { describe, expect, it } from "vite-plus/test";
-import type { Summary, Trade } from "../lib/api/types";
+import type { Summary, Trade } from "@/lib/api/types";
 import {
   ReportsDisplayProvider,
   useReportsMoney,

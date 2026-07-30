@@ -21,6 +21,7 @@ type Querier interface {
 	CreateTag(ctx context.Context, arg CreateTagParams) (Tag, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	DeleteAccount(ctx context.Context, arg DeleteAccountParams) (int64, error)
+	DeleteAnnualGoal(ctx context.Context, arg DeleteAnnualGoalParams) (int64, error)
 	DeleteAttachment(ctx context.Context, arg DeleteAttachmentParams) (int64, error)
 	DeleteCashTransaction(ctx context.Context, arg DeleteCashTransactionParams) (int64, error)
 	DeleteExecution(ctx context.Context, arg DeleteExecutionParams) (int64, error)
@@ -38,6 +39,7 @@ type Querier interface {
 	GetAccessTokenByHash(ctx context.Context, tokenHash string) (AccessToken, error)
 	GetAccount(ctx context.Context, arg GetAccountParams) (Account, error)
 	GetAccountByIDAny(ctx context.Context, id string) (Account, error)
+	GetAnnualGoal(ctx context.Context, arg GetAnnualGoalParams) (AnnualGoal, error)
 	GetAttachment(ctx context.Context, arg GetAttachmentParams) (TradeAttachment, error)
 	GetChecklistTemplate(ctx context.Context, userID string) (ChecklistTemplate, error)
 	GetCoachSettings(ctx context.Context) (CoachSetting, error)
@@ -95,6 +97,7 @@ type Querier interface {
 	UpdateTag(ctx context.Context, arg UpdateTagParams) (int64, error)
 	UpdateTradeNotes(ctx context.Context, arg UpdateTradeNotesParams) error
 	UpdateUserPassword(ctx context.Context, arg UpdateUserPasswordParams) (User, error)
+	UpsertAnnualGoal(ctx context.Context, arg UpsertAnnualGoalParams) (AnnualGoal, error)
 	UpsertChecklistTemplate(ctx context.Context, arg UpsertChecklistTemplateParams) (ChecklistTemplate, error)
 	UpsertCoachSettings(ctx context.Context, arg UpsertCoachSettingsParams) (CoachSetting, error)
 	UpsertInstrumentSpec(ctx context.Context, arg UpsertInstrumentSpecParams) error

@@ -1,14 +1,14 @@
 import { Globe, Github, KeyRound, Shield, Sparkles, Tag, Wallet } from "lucide-react";
-import type { RiskRules } from "../../lib/api/settings";
-import { useLocale } from "../../i18n";
-import { useSettingsSection } from "../../lib/hooks/useSettingsSection";
-import { settingsNavItems, settingsSectionCopy, type SettingsSectionId } from "../../lib/locale";
-import type { Account, CashTransaction, Tag as TagType } from "../../lib/api/types";
+import type { AnnualGoal, RiskRules } from "@/lib/api/settings";
+import { useLocale } from "@/i18n";
+import { useSettingsSection } from "@/lib/hooks/useSettingsSection";
+import { settingsNavItems, settingsSectionCopy, type SettingsSectionId } from "@/lib/locale";
+import type { Account, CashTransaction, Tag as TagType } from "@/lib/api/types";
 import { AboutTab } from "./settings/about-tab";
 import { ApiTab } from "./settings/api-tab";
 import { AccountsTab, AiTab, GeneralTab, JournalTab, RulesTab } from "./settings/settings-sections";
 import { SettingsNav, SettingsPageHeader, SettingsShell } from "./settings/settings-ui";
-import { Page } from "../../components/Page";
+import { Page } from "@/components/Page";
 
 export interface SettingsViewProps {
   accounts: Account[];
@@ -59,6 +59,13 @@ export interface SettingsViewProps {
   riskRulesError: boolean;
   riskRulesSaving: boolean;
   onSaveRiskRules: (body: RiskRules) => Promise<void>;
+
+  annualGoal?: AnnualGoal;
+  annualGoalLoading: boolean;
+  annualGoalError: boolean;
+  annualGoalSaving: boolean;
+  onSaveAnnualGoal: (body: { year: number; amount: number }) => Promise<void>;
+  onClearAnnualGoal: (year: number) => Promise<void>;
 
   checklistItems: string[];
   checklistContent: string;
@@ -115,6 +122,12 @@ export function SettingsView(props: SettingsViewProps) {
             riskRulesError={props.riskRulesError}
             riskRulesSaving={props.riskRulesSaving}
             onSaveRiskRules={props.onSaveRiskRules}
+            annualGoal={props.annualGoal}
+            annualGoalLoading={props.annualGoalLoading}
+            annualGoalError={props.annualGoalError}
+            annualGoalSaving={props.annualGoalSaving}
+            onSaveAnnualGoal={props.onSaveAnnualGoal}
+            onClearAnnualGoal={props.onClearAnnualGoal}
             checklistItems={props.checklistItems}
             checklistContent={props.checklistContent}
             checklistLoading={props.checklistLoading}

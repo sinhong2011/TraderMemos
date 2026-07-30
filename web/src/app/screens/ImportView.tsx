@@ -3,6 +3,7 @@ import {
   ArrowRight,
   Check,
   Download,
+  FileArchive,
   FileJson,
   FileText,
   Info,
@@ -10,41 +11,39 @@ import {
   Upload,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { CsvDropZone } from "../../components/CsvDropZone";
-import { DataTable } from "../../components/DataTable";
-import { ImportStepIndicator } from "../../components/ImportStepIndicator";
-import {
-  csvSampleColumns,
-  journalTradePreviewColumns,
-} from "../../components/importPreviewColumns";
-import { Panel } from "../../components/Panel";
-import { SegmentedControl } from "../../components/SegmentedControl";
-import { SignalField } from "../../components/SignalField";
-import { SignalPopover } from "../../components/SignalPopover";
-import { SignalSelect } from "../../components/SignalSelect";
-import { SignalToggle } from "../../components/SignalToggle";
-import { Skeleton } from "../../components/Skeleton";
-import { Button, buttonVariants } from "../../components/ui/button";
-import { NativeSelect, NativeSelectOption } from "../../components/ui/native-select";
-import { downloadExport, type ExportFormat } from "../../lib/api/exports";
+import { Card } from "@/components/Card";
+import { CsvDropZone } from "@/components/CsvDropZone";
+import { DataTable } from "@/components/DataTable";
+import { ImportStepIndicator } from "@/components/ImportStepIndicator";
+import { csvSampleColumns, journalTradePreviewColumns } from "@/components/importPreviewColumns";
+import { Page } from "@/components/Page";
+import { SegmentedControl } from "@/components/SegmentedControl";
+import { Field } from "@/components/Field";
+import { ControlledPopover } from "@/components/ControlledPopover";
+import { OptionsSelect } from "@/components/OptionsSelect";
+import { ToneToggle } from "@/components/ToneToggle";
+import { Skeleton } from "@/components/Skeleton";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
+import { downloadExport, type ExportFormat } from "@/lib/api/exports";
 import type {
   Account,
   ImportPreview,
   ImportResult,
   JournalPreviewSummary,
   JournalTradePreview,
-} from "../../lib/api/types";
-import { cn } from "../../lib/cn";
-import { usePrivacyMode } from "../../lib/displayPrefs";
-import { fmtSignedMoney } from "../../lib/format";
+} from "@/lib/api/types";
+import { cn } from "@/lib/cn";
+import { usePrivacyMode } from "@/lib/displayPrefs";
+import { fmtSignedMoney } from "@/lib/format";
 import {
   effectiveOptionRight,
   mergeOptionOverrides,
   type OptionRightOverride,
-} from "../../lib/importOptionRight";
-import { tradeDetailFromJournalPreview } from "../../lib/importTradePreview";
-import { intlLocale } from "../../lib/locale";
-import { useUI } from "../../lib/ui";
+} from "@/lib/importOptionRight";
+import { tradeDetailFromJournalPreview } from "@/lib/importTradePreview";
+import { intlLocale } from "@/lib/locale";
+import { useUI } from "@/lib/ui";
 
 // Canonical trade fields we want to map
 const CANONICAL_FIELDS = [
@@ -99,82 +98,114 @@ async function readJSONAccountName(file: File): Promise<string | null> {
   }
 }
 
+interface FormatNote {
+  icon: typeof FileText;
+  name: string;
+  body: string;
+}
+
+const IMPORT_FORMATS: FormatNote[] = [
+  {
+    icon: FileText,
+    name: "Fill CSV",
+    body: "Broker execution exports. Map a Market/Asset Type column for mixed stock/option files, or let us infer it from the symbol.",
+  },
+  {
+    icon: FileText,
+    name: "Journal export",
+    body: "Closed trades with Entry/Exit columns — setup and tags are preserved.",
+  },
+  {
+    icon: FileJson,
+    name: "JSON export",
+    body: "Full account backup: trades, fills, tags, cash, and the playbook setups catalog.",
+  },
+];
+
+const EXPORT_FORMATS: (FormatNote & { value: ExportFormat })[] = [
+  {
+    value: "json",
+    icon: FileJson,
+    name: "JSON",
+    body: "Canonical backup — trades, fills, journal, cash, and playbook setups. Re-import on this page.",
+  },
+  {
+    value: "csv",
+    icon: FileText,
+    name: "CSV",
+    body: "Journal spreadsheet of closed trades, in spreadsheet-friendly encoding.",
+  },
+  {
+    value: "zip",
+    icon: FileArchive,
+    name: "ZIP",
+    body: "export.json plus trade screenshots under attachments/.",
+  },
+];
+
+function FormatList({ items }: { items: FormatNote[] }) {
+  return (
+    <ul className="flex flex-col gap-2">
+      {items.map((item) => (
+        <li key={item.name} className="rounded-md bg-muted/50 px-3 py-2.5">
+          <div className="flex items-center gap-1.5">
+            <item.icon size={12} strokeWidth={1.75} className="text-muted-foreground" aria-hidden />
+            <span className="text-[12px] font-medium text-foreground">{item.name}</span>
+          </div>
+          <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground">{item.body}</p>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 function ImportGuidance({ onLogTrade }: { onLogTrade?: () => void }) {
   return (
-    <aside className="flex flex-col gap-4 rounded-sharp border border-border bg-bg p-4 lg:sticky lg:top-4">
-      <div>
-        <h2 className="text-[10px] font-semibold uppercase tracking-widest text-signal">
-          Supported formats
-        </h2>
-        <ul className="mt-3 flex flex-col gap-2.5 text-[12px] leading-relaxed text-text-muted">
-          <li>
-            <span className="font-medium text-text">Fill CSV</span> — broker execution exports; map
-            a Market/Asset Type column for mixed stock/option files, or we infer from the symbol.
-          </li>
-          <li>
-            <span className="font-medium text-text">Journal export</span> — closed trades with
-            Entry/Exit columns; setup and tags preserved.
-          </li>
-          <li>
-            <span className="font-medium text-text">JSON export</span> — full account backup with
-            trades, fills, tags, cash, and the playbook setups catalog; re-import on this page.
-          </li>
-        </ul>
-      </div>
+    <Card title="Supported formats" className="self-start lg:sticky lg:top-6">
+      <div className="flex flex-col gap-4">
+        <FormatList items={IMPORT_FORMATS} />
 
-      <div className="border-t border-border pt-4">
-        <h3 className="text-[10px] font-semibold uppercase tracking-widest text-text-muted">
-          Export
-        </h3>
-        <p className="mt-2 text-[11px] leading-relaxed text-text-dim">
-          Switch to Export to download JSON, CSV, or ZIP (JSON + screenshots). Re-import JSON/CSV on
-          Import.
-        </p>
-      </div>
-
-      <div className="border-t border-border pt-4">
-        <h3 className="text-[10px] font-semibold uppercase tracking-widest text-text-muted">
-          Sample file
-        </h3>
-        <div className="mt-2 flex flex-col gap-2">
+        <div className="grid grid-cols-2 gap-2">
           <a
             href="/sample-fill-import.csv"
             download="sample-fill-import.csv"
-            className="inline-flex items-center gap-1.5 text-[11px] text-accent no-underline transition-opacity hover:opacity-80"
+            className={cn(
+              buttonVariants({ variant: "outline", size: "sm" }),
+              "w-full no-underline",
+            )}
           >
-            <FileText size={12} strokeWidth={1.75} />
-            Download sample CSV
+            <FileText size={13} strokeWidth={1.75} aria-hidden />
+            Sample CSV
           </a>
           <a
             href="/sample-json-import.json"
             download="sample-json-import.json"
-            className="inline-flex items-center gap-1.5 text-[11px] text-accent no-underline transition-opacity hover:opacity-80"
+            className={cn(
+              buttonVariants({ variant: "outline", size: "sm" }),
+              "w-full no-underline",
+            )}
           >
-            <FileJson size={12} strokeWidth={1.75} />
-            Download sample JSON
+            <FileJson size={13} strokeWidth={1.75} aria-hidden />
+            Sample JSON
           </a>
         </div>
-      </div>
 
-      <div className="border-t border-border pt-4">
-        <p className="text-[11px] leading-relaxed text-text-dim">
-          Your CSV stays on your server. Nothing is sent to third parties.
+        <p className="text-[11px] leading-relaxed text-muted-foreground">
+          Your file stays on your server. Nothing is sent to third parties.
         </p>
-      </div>
 
-      {onLogTrade ? (
-        <div className="border-t border-border pt-4">
+        {onLogTrade ? (
           <Button
             type="button"
             variant="link"
             onClick={onLogTrade}
-            className="h-auto text-[11px] text-text-muted hover:text-text"
+            className="h-auto w-fit px-0 text-[11px] text-muted-foreground hover:text-foreground"
           >
             Log a trade manually instead →
           </Button>
-        </div>
-      ) : null}
-    </aside>
+        ) : null}
+      </div>
+    </Card>
   );
 }
 
@@ -234,31 +265,33 @@ function Step1Upload({
   }
 
   return (
-    <Panel title="Upload file" className="rounded-none border-0 lg:border lg:rounded-sharp">
-      <div className="flex flex-col gap-5 p-5 sm:p-6">
+    <Card title="Upload file" fill>
+      <div className="flex min-h-0 flex-1 flex-col gap-4">
         {accountsLoading ? (
           <Skeleton height="36px" />
         ) : canBypassAccount && accounts.length === 0 ? (
-          <SignalField
+          <Field
             label="Account"
             description={
               jsonAccountName
                 ? `Will create “${jsonAccountName}” from the JSON file on confirm.`
                 : "Will create or match an account from the JSON file on confirm."
             }
+            className="w-full sm:max-w-xs"
           >
-            <p className="rounded-control border border-border bg-bg-input px-3 py-2.5 text-[13px] text-text">
+            <p className="w-full rounded-lg bg-muted px-3 py-2 text-[13px] text-foreground">
               {jsonAccountName ?? "From JSON backup"}
             </p>
-          </SignalField>
+          </Field>
         ) : (
-          <SignalField
+          <Field
             label="Account"
             description={
               canBypassAccount
-                ? `JSON includes “${jsonAccountName}” — select an account to override, or leave the default.`
+                ? `JSON includes “${jsonAccountName}” — select an account to override.`
                 : undefined
             }
+            className="w-full sm:max-w-xs"
           >
             <NativeSelect
               value={effectiveAccountId}
@@ -278,32 +311,27 @@ function Step1Upload({
                 ))
               )}
             </NativeSelect>
-          </SignalField>
+          </Field>
         )}
 
-        <SignalField
-          label="File"
-          description={
-            file
-              ? undefined
-              : "Select a CSV or JSON file to enable Preview. JSON backups with an account can skip creating one first."
-          }
-        >
+        <Field label="File" className="min-h-0 w-full flex-1">
           <CsvDropZone
             file={file}
             onFileChange={(f) => void handleFileChange(f)}
             disabled={loading}
+            fill
           />
-        </SignalField>
+        </Field>
 
-        {error && <p className="text-[11px] text-loss">{error}</p>}
+        {error ? <p className="text-[12px] text-destructive">{error}</p> : null}
 
-        <div className="flex flex-wrap items-center gap-3 pt-1">
+        <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center">
           <Button
             type="button"
             variant="default"
             onClick={() => void handleSubmit()}
             disabled={!canSubmit}
+            className="w-full sm:w-auto"
           >
             {loading ? (
               <>
@@ -317,14 +345,16 @@ function Step1Upload({
               </>
             )}
           </Button>
-          {file && !canSubmit && !canBypassAccount && accounts.length === 0 && (
-            <span className="text-[10px] text-text-dim">
-              Create an account in Settings, or upload a JSON backup that includes account details
-            </span>
-          )}
+          <span className="text-[12px] text-muted-foreground">
+            {file && !canSubmit && !canBypassAccount && accounts.length === 0
+              ? "Create an account in Settings, or upload a JSON backup that includes account details"
+              : file
+                ? null
+                : "Select a CSV or JSON file to continue"}
+          </span>
         </div>
       </div>
-    </Panel>
+    </Card>
   );
 }
 
@@ -342,7 +372,7 @@ function JournalSummaryStrip({
   usePrivacyMode();
   const locale = intlLocale();
   const netPnl = fmtSignedMoney(summary.net_pnl, currency, locale);
-  const pnlTone = summary.net_pnl >= 0 ? "text-profit" : "text-loss";
+  const pnlTone = summary.net_pnl >= 0 ? "text-profit" : "text-destructive";
 
   const cells: { label: string; value: string; sub?: string; valueClass?: string }[] = [
     {
@@ -354,7 +384,7 @@ function JournalSummaryStrip({
       label: "Markets",
       value: `${summary.stock_trades} / ${summary.option_trades}`,
       sub: "stk / opt",
-      valueClass: "text-accent",
+      valueClass: "text-primary",
     },
     {
       label: "Fills",
@@ -372,31 +402,28 @@ function JournalSummaryStrip({
     <div className="flex flex-col gap-2">
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         {cells.map((cell) => (
-          <div
-            key={cell.label}
-            className="flex min-h-19 flex-col rounded-control bg-bg-inset px-3 py-3"
-          >
-            <span className="text-[10px] font-semibold uppercase tracking-widest text-text-muted">
+          <div key={cell.label} className="flex min-h-19 flex-col rounded-md bg-muted px-3 py-3">
+            <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
               {cell.label}
             </span>
             <div className="mt-auto flex flex-wrap items-baseline gap-1.5 pt-2">
               <span
                 className={cn(
                   "text-[18px] font-semibold leading-none tabular-nums",
-                  cell.valueClass ?? "text-text",
+                  cell.valueClass ?? "text-foreground",
                 )}
               >
                 {cell.value}
               </span>
               {cell.sub ? (
-                <span className="text-[11px] tabular-nums text-text-dim">{cell.sub}</span>
+                <span className="text-[11px] tabular-nums text-muted-foreground">{cell.sub}</span>
               ) : null}
             </div>
           </div>
         ))}
       </div>
       {summary.error_count > 0 ? (
-        <p className="rounded-control bg-loss/10 px-3 py-2 text-[11px] text-loss">
+        <p className="rounded-md bg-destructive/10 px-3 py-2 text-[11px] text-destructive">
           {summary.error_count} row(s) could not be parsed — they will be skipped on import.
         </p>
       ) : null}
@@ -503,41 +530,47 @@ function Step2Map({ preview, currency, accountId, onCommit, onBack, error, loadi
         variant="ghost"
         onClick={onBack}
         disabled={loading}
-        className="h-auto w-fit gap-1 px-2 py-1 text-[11px] text-text-dim hover:bg-bg-hover hover:text-text-muted"
+        className="h-auto w-fit gap-1 px-2 py-1 text-[11px] text-muted-foreground hover:bg-accent hover:text-muted-foreground"
       >
         <ArrowLeft size={12} strokeWidth={1.75} />
         Back
       </Button>
 
-      <Panel title={skipMapping ? (isJournal ? "Review journal" : "Review import") : "Map columns"}>
-        <div className="flex flex-col gap-5 p-5 sm:p-6">
+      <Card title={skipMapping ? (isJournal ? "Review journal" : "Review import") : "Map columns"}>
+        <div className="flex flex-col gap-5">
           {isJournal ? (
             <div className="flex flex-col gap-4">
-              <p className="m-0 text-[12px] leading-relaxed text-text-muted">
+              <p className="m-0 text-[12px] leading-relaxed text-muted-foreground">
                 Closed-trade journal export — each row becomes one round-trip (2 fills). Setup,
                 tags, and journal fields apply automatically. Dir shows side and call/put when
-                present; use <span className="font-medium text-text">Edit</span> to fill gaps.
+                present; use <span className="font-medium text-foreground">Edit</span> to fill gaps.
               </p>
               {preview.journal_summary ? (
                 <JournalSummaryStrip summary={preview.journal_summary} currency={currency} />
               ) : null}
             </div>
           ) : skipMapping ? (
-            <p className="m-0 text-[12px] leading-relaxed text-text-muted">
+            <p className="m-0 text-[12px] leading-relaxed text-muted-foreground">
               TraderMemos JSON execution export — fills import directly, no column mapping needed.
             </p>
           ) : (
-            <p className="m-0 text-[12px] leading-relaxed text-text-muted">
+            <p className="m-0 text-[12px] leading-relaxed text-muted-foreground">
               Match each field to a CSV column. Instrument type is optional — map Market/Asset Type
               for mixed files, or skip to infer from each symbol.
             </p>
           )}
 
           {!skipMapping && (
-            <div className="flex max-w-lg flex-col gap-3">
+            <div className="grid gap-x-4 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
               {CANONICAL_FIELDS.map((field) => (
-                <SignalField key={field} label={field.replace(/_/g, " ")}>
-                  <SignalSelect
+                <Field
+                  key={field}
+                  label={field.replace(/_/g, " ")}
+                  // `items-stretch` overrides the Field default `items-start` so
+                  // each trigger fills its grid column and the rows stay aligned.
+                  className="w-full items-stretch capitalize"
+                >
+                  <OptionsSelect
                     value={mapping[field] ?? ""}
                     onValueChange={(v) => setField(field, v)}
                     ariaLabel={`Map ${field}`}
@@ -545,28 +578,29 @@ function Step2Map({ preview, currency, accountId, onCommit, onBack, error, loadi
                       { value: "", label: "(skip)" },
                       ...preview.headers.map((h) => ({ value: h, label: h })),
                     ]}
-                    triggerClassName="h-8 text-[12px]"
+                    triggerClassName="h-8 w-full text-[12px] normal-case"
                   />
-                </SignalField>
+                </Field>
               ))}
             </div>
           )}
 
-          {error ? <p className="text-[11px] text-loss">{error}</p> : null}
+          {error ? <p className="text-[11px] text-destructive">{error}</p> : null}
 
           {preview.pending_account ? (
-            <p className="m-0 rounded-sharp bg-bg-inset px-3 py-2.5 text-[12px] leading-relaxed text-text-muted">
+            <p className="m-0 rounded-md bg-muted px-3 py-2.5 text-[12px] leading-relaxed text-muted-foreground">
               Account{" "}
-              <span className="font-medium text-text">“{preview.pending_account.name}”</span>
+              <span className="font-medium text-foreground">“{preview.pending_account.name}”</span>
               {preview.pending_account.broker ? ` · ${preview.pending_account.broker}` : ""} will be
               created when you confirm.
             </p>
           ) : null}
         </div>
-      </Panel>
+      </Card>
 
       {isJournal && preview.sample_trades && preview.sample_trades.length > 0 ? (
-        <Panel
+        <Card
+          flush
           title={`Trade preview (${preview.journal_summary?.trade_count ?? preview.sample_trades.length})`}
         >
           <JournalTradePreviewTable
@@ -576,19 +610,20 @@ function Step2Map({ preview, currency, accountId, onCommit, onBack, error, loadi
             optionOverrides={optionOverrides}
             onOptionRightChange={setOptionRight}
           />
-        </Panel>
+        </Card>
       ) : (
-        <Panel title="Sample Rows">
+        <Card flush title="Sample rows">
           <CsvSamplePreviewTable headers={preview.headers} rows={preview.sample_rows} />
-        </Panel>
+        </Card>
       )}
 
-      <div className="flex flex-wrap items-center justify-end gap-3">
+      <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
         <Button
           type="button"
           variant="default"
           onClick={() => void handleCommit()}
           disabled={loading}
+          className="w-full sm:w-auto"
         >
           {loading ? (
             <>
@@ -616,66 +651,74 @@ interface Step3Props {
 
 function Step3Result({ result, onDone, onImportAnother }: Step3Props) {
   return (
-    <Panel title="Import complete">
-      <div className="p-5 sm:p-6">
-        <div className="flex max-w-md flex-col gap-4">
-          <div className="flex items-center gap-2">
-            <Check size={16} strokeWidth={1.5} className="text-pos" />
-            <span className="text-[13px] font-semibold text-text">Import finished</span>
-          </div>
+    <Card title="Import complete">
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center gap-2">
+          <span
+            className="flex size-7 items-center justify-center rounded-full bg-profit/12 text-profit"
+            aria-hidden
+          >
+            <Check size={15} strokeWidth={2} />
+          </span>
+          <span className="text-[13px] font-semibold text-foreground">Import finished</span>
+        </div>
 
-          <div className="rounded-sharp border border-border bg-bg-inset px-4 py-3">
-            <div className="flex flex-col gap-2">
-              {result.format === "journal_trades" && typeof result.trades === "number" ? (
-                <Row label="Trades created" value={String(result.trades)} highlight="pos" />
-              ) : null}
-              <Row
-                label={result.format === "journal_trades" ? "Fills inserted" : "Inserted"}
-                value={String(result.inserted)}
-                highlight={result.format === "journal_trades" ? undefined : "pos"}
-              />
-              <Row label="Skipped (duplicates)" value={String(result.skipped)} />
-              {typeof result.annotated === "number" && (
-                <Row label="Journal annotated" value={String(result.annotated)} />
-              )}
-              {typeof result.setups_upserted === "number" && result.setups_upserted > 0 ? (
-                <Row label="Setups restored" value={String(result.setups_upserted)} />
-              ) : null}
-              {typeof result.cash_inserted === "number" && result.cash_inserted > 0 ? (
-                <Row label="Cash transactions" value={String(result.cash_inserted)} />
-              ) : null}
-              <Row
-                label="Errors"
-                value={String(result.errors.length)}
-                highlight={result.errors.length > 0 ? "neg" : undefined}
-              />
-            </div>
-          </div>
-
-          {result.errors.length > 0 && (
-            <div className="rounded-sharp border border-loss/20 bg-loss/5 px-3.5 py-2.5">
-              <p className="mb-1.5 text-[11px] font-semibold text-loss">Row errors</p>
-              {result.errors.map((e, i) => (
-                <p key={i} className="text-[11px] text-loss">
-                  Row {e.row}: {e.message}
-                </p>
-              ))}
-            </div>
-          )}
-
-          <div className="mt-2 flex items-center gap-2">
-            <Button type="button" variant="default" onClick={onDone}>
-              <Check size={13} strokeWidth={1.5} />
-              View dashboard
-            </Button>
-            <Button type="button" variant="outline" onClick={onImportAnother}>
-              <Upload size={13} strokeWidth={1.5} />
-              Import another
-            </Button>
+        <div className="rounded-md bg-muted px-4 py-3">
+          <div className="flex flex-col gap-2">
+            {result.format === "journal_trades" && typeof result.trades === "number" ? (
+              <Row label="Trades created" value={String(result.trades)} highlight="pos" />
+            ) : null}
+            <Row
+              label={result.format === "journal_trades" ? "Fills inserted" : "Inserted"}
+              value={String(result.inserted)}
+              highlight={result.format === "journal_trades" ? undefined : "pos"}
+            />
+            <Row label="Skipped (duplicates)" value={String(result.skipped)} />
+            {typeof result.annotated === "number" && (
+              <Row label="Journal annotated" value={String(result.annotated)} />
+            )}
+            {typeof result.setups_upserted === "number" && result.setups_upserted > 0 ? (
+              <Row label="Setups restored" value={String(result.setups_upserted)} />
+            ) : null}
+            {typeof result.cash_inserted === "number" && result.cash_inserted > 0 ? (
+              <Row label="Cash transactions" value={String(result.cash_inserted)} />
+            ) : null}
+            <Row
+              label="Errors"
+              value={String(result.errors.length)}
+              highlight={result.errors.length > 0 ? "neg" : undefined}
+            />
           </div>
         </div>
+
+        {result.errors.length > 0 && (
+          <div className="rounded-md bg-destructive/10 px-3.5 py-2.5">
+            <p className="mb-1.5 text-[11px] font-semibold text-destructive">Row errors</p>
+            {result.errors.map((e, i) => (
+              <p key={i} className="text-[11px] text-destructive">
+                Row {e.row}: {e.message}
+              </p>
+            ))}
+          </div>
+        )}
+
+        <div className="mt-2 flex flex-col items-stretch gap-2 sm:flex-row sm:items-center">
+          <Button type="button" variant="default" onClick={onDone} className="w-full sm:w-auto">
+            <Check size={13} strokeWidth={1.5} />
+            View dashboard
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onImportAnother}
+            className="w-full sm:w-auto"
+          >
+            <Upload size={13} strokeWidth={1.5} />
+            Import another
+          </Button>
+        </div>
       </div>
-    </Panel>
+    </Card>
   );
 }
 
@@ -690,13 +733,13 @@ function Row({
 }) {
   return (
     <div className="flex justify-between text-[12px]">
-      <span className="text-text-muted">{label}</span>
+      <span className="text-muted-foreground">{label}</span>
       <span
         className={cn(
           "tabular-nums font-semibold",
-          highlight === "pos" && "text-pos",
-          highlight === "neg" && "text-loss",
-          !highlight && "text-text",
+          highlight === "pos" && "text-profit",
+          highlight === "neg" && "text-destructive",
+          !highlight && "text-foreground",
         )}
       >
         {value}
@@ -752,24 +795,13 @@ function ExportPanel({ accounts, accountsLoading, defaultAccountId }: ExportPane
     }
   }
 
-  const formatHint =
-    format === "csv"
-      ? "Journal spreadsheet of closed trades — same account data as JSON, spreadsheet-friendly encoding."
-      : format === "zip"
-        ? omitAccount
-          ? "ZIP without account identity — pick an account again on re-import."
-          : "Full backup zip: export.json plus trade screenshots under attachments/."
-        : omitAccount
-          ? "Trade data only — re-import requires selecting or creating an account."
-          : "Canonical backup: trades, fills, journal, cash, and playbook setups.";
-
   return (
-    <Panel title="Export account" className="rounded-none border-0 lg:border lg:rounded-sharp">
-      <div className="flex flex-col gap-5 p-5 sm:p-6">
+    <Card title="Export account">
+      <div className="flex flex-col gap-5">
         {accountsLoading ? (
           <Skeleton height="36px" />
         ) : (
-          <SignalField label="Account">
+          <Field label="Account" className="w-full sm:max-w-xs">
             <NativeSelect
               value={effectiveAccountId}
               onChange={(event) => setAccountId(event.target.value)}
@@ -788,12 +820,55 @@ function ExportPanel({ accounts, accountsLoading, defaultAccountId }: ExportPane
                 ))
               )}
             </NativeSelect>
-          </SignalField>
+          </Field>
         )}
+
+        <Field label="Format" className="w-full">
+          <div className="grid w-full gap-2 sm:grid-cols-3">
+            {EXPORT_FORMATS.map((option) => {
+              const isActive = option.value === format;
+              return (
+                // Plain button: the option is a multi-line card, so it opts out
+                // of the fixed-height coss Button chrome.
+                <button
+                  key={option.value}
+                  type="button"
+                  aria-pressed={isActive}
+                  // Keeps the accessible name the format alone, not the blurb.
+                  aria-label={option.name}
+                  onClick={() => setFormat(option.value)}
+                  className={cn(
+                    "flex cursor-pointer flex-col items-start gap-1 rounded-lg px-3 py-2.5 text-left outline-none transition-colors",
+                    "focus-visible:ring-2 focus-visible:ring-ring",
+                    isActive
+                      ? "bg-primary/10 ring-1 ring-inset ring-primary/35 hover:bg-primary/14"
+                      : "bg-muted hover:bg-muted/70",
+                  )}
+                >
+                  <span className="flex w-full items-center gap-1.5">
+                    <option.icon
+                      size={13}
+                      strokeWidth={1.75}
+                      className={isActive ? "text-primary" : "text-muted-foreground"}
+                      aria-hidden
+                    />
+                    <span className="truncate text-[13px] font-semibold text-foreground">
+                      {option.name}
+                    </span>
+                    {isActive ? (
+                      <Check size={13} className="ml-auto shrink-0 text-primary" aria-hidden />
+                    ) : null}
+                  </span>
+                  <span className="text-xs leading-snug text-muted-foreground">{option.body}</span>
+                </button>
+              );
+            })}
+          </div>
+        </Field>
 
         {showOmitAccount ? (
           <div className="flex items-center gap-1">
-            <SignalToggle
+            <ToneToggle
               pressed={omitAccount}
               onPressedChange={setOmitAccount}
               variant="outline"
@@ -802,55 +877,45 @@ function ExportPanel({ accounts, accountsLoading, defaultAccountId }: ExportPane
               aria-label="Omit account details"
             >
               Omit account
-            </SignalToggle>
-            <SignalPopover
+            </ToneToggle>
+            <ControlledPopover
               open={omitInfoOpen}
               onOpenChange={setOmitInfoOpen}
               align="start"
               triggerAriaLabel="About omit account"
               triggerClassName={cn(
                 buttonVariants({ variant: "ghost", size: "icon-sm" }),
-                "text-text-dim hover:text-text",
-                omitInfoOpen && "bg-bg-hover text-text",
+                "text-muted-foreground hover:text-foreground",
+                omitInfoOpen && "bg-accent text-foreground",
               )}
-              className="max-w-[17rem] bg-bg-panel p-3 shadow-[0_12px_32px_rgba(18,18,24,0.55)]"
+              className="max-w-[17rem] p-3"
               trigger={<Info size={14} strokeWidth={1.75} aria-hidden />}
             >
-              <p className="m-0 text-[10px] font-semibold uppercase tracking-widest text-signal">
-                Omit account
-              </p>
-              <p className="mt-2 m-0 text-[12px] leading-relaxed text-text-muted">
+              <p className="m-0 text-[12px] font-medium text-foreground">Omit account</p>
+              <p className="mt-2 m-0 text-[12px] leading-relaxed text-muted-foreground">
                 Strips account name, broker, and IDs from the export — including on trades and
                 fills. Use this for portable trade data; re-import requires selecting or creating an
                 account.
               </p>
-            </SignalPopover>
+            </ControlledPopover>
           </div>
         ) : null}
 
-        <SignalField label="Format">
-          <SegmentedControl
-            ariaLabel="Export format"
-            value={format}
-            onChange={(v) => setFormat(v as ExportFormat)}
-            options={[
-              { value: "json", label: "JSON" },
-              { value: "csv", label: "CSV" },
-              { value: "zip", label: "ZIP" },
-            ]}
-          />
-        </SignalField>
+        <p className="text-[11px] leading-relaxed text-muted-foreground">
+          {showOmitAccount && omitAccount
+            ? "Account name, broker, and IDs are stripped — re-import requires selecting or creating an account."
+            : "Exports are generated on your server and downloaded straight to this device."}
+        </p>
 
-        <p className="text-[11px] leading-relaxed text-text-muted">{formatHint}</p>
+        {error ? <p className="text-[12px] text-destructive">{error}</p> : null}
 
-        {error ? <p className="text-[11px] text-loss">{error}</p> : null}
-
-        <div className="flex flex-wrap items-center gap-3 pt-1">
+        <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center">
           <Button
             type="button"
             variant="default"
             onClick={() => void handleExport()}
             disabled={!canExport}
+            className="w-full sm:w-auto"
           >
             {loading ? (
               <>
@@ -866,7 +931,7 @@ function ExportPanel({ accounts, accountsLoading, defaultAccountId }: ExportPane
           </Button>
         </div>
       </div>
-    </Panel>
+    </Card>
   );
 }
 
@@ -882,7 +947,6 @@ export interface ImportViewProps {
   onCommit: (batchId: string, formData: FormData) => Promise<ImportResult>;
   onDone: () => void;
   onLogTrade?: () => void;
-  onBack?: () => void;
 }
 
 export function ImportView({
@@ -893,7 +957,6 @@ export function ImportView({
   onCommit,
   onDone,
   onLogTrade,
-  onBack,
 }: ImportViewProps) {
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [dataMode, setDataMode] = useState<"import" | "export">("import");
@@ -971,22 +1034,13 @@ export function ImportView({
   }
 
   return (
-    <div className="flex min-h-full flex-col px-4 py-5 sm:px-6">
-      <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+    <Page fill>
+      <header className="flex flex-wrap items-start justify-between gap-x-4 gap-y-3">
         <div className="min-w-0">
-          {onBack && step === 1 && (
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={onBack}
-              className="mb-2 h-auto gap-1 px-0 text-[11px] text-text-dim hover:bg-transparent hover:text-text-muted"
-            >
-              <ArrowLeft size={12} strokeWidth={1.75} />
-              Back to dashboard
-            </Button>
-          )}
-          <h1 className="text-[15px] font-semibold tracking-tight text-text">Import & export</h1>
-          <p className="mt-1 max-w-xl text-[12px] leading-relaxed text-text-muted">
+          <h1 className="text-[22px] font-semibold tracking-tight text-foreground">
+            Import & export
+          </h1>
+          <p className="mt-1 max-w-xl text-[13px] leading-relaxed text-muted-foreground">
             {dataMode === "import"
               ? "Upload broker history to populate your journal and analytics."
               : "Download your trades or fills for backup and portability."}
@@ -1001,23 +1055,22 @@ export function ImportView({
             { value: "export", label: "Export" },
           ]}
         />
-      </div>
+      </header>
 
       {dataMode === "export" ? (
-        <div className="grid flex-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(240px,280px)] lg:items-start">
+        <div className="w-full">
           <ExportPanel
             accounts={accounts}
             accountsLoading={accountsLoading}
             defaultAccountId={defaultAccountId}
           />
-          <ImportGuidance onLogTrade={onLogTrade} />
         </div>
       ) : (
         <>
           <ImportStepIndicator current={step} format={preview?.format} />
 
           {step === 1 && (
-            <div className="grid flex-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(240px,280px)] lg:items-start">
+            <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(260px,300px)]">
               <Step1Upload
                 accounts={accounts}
                 accountsLoading={accountsLoading}
@@ -1031,7 +1084,7 @@ export function ImportView({
           )}
 
           {step === 2 && preview && (
-            <div className="mx-auto w-full max-w-4xl flex-1">
+            <div className="w-full">
               <Step2Map
                 preview={preview}
                 currency={importCurrency}
@@ -1048,12 +1101,12 @@ export function ImportView({
           )}
 
           {step === 3 && result && (
-            <div className="mx-auto w-full max-w-lg flex-1">
+            <div className="w-full max-w-xl">
               <Step3Result result={result} onDone={onDone} onImportAnother={handleImportAnother} />
             </div>
           )}
         </>
       )}
-    </div>
+    </Page>
   );
 }

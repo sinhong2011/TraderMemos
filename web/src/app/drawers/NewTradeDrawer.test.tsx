@@ -1,12 +1,12 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
-import { executionsApi } from "../../lib/api/executions";
-import { ocrApi } from "../../lib/api/ocr";
-import { tradesApi } from "../../lib/api/trades";
-import { useUI } from "../../lib/ui";
+import { executionsApi } from "@/lib/api/executions";
+import { ocrApi } from "@/lib/api/ocr";
+import { tradesApi } from "@/lib/api/trades";
+import { useUI } from "@/lib/ui";
 import { NewTradeDrawer, rowsFromOcrExtract } from "./NewTradeDrawer";
 
 vi.mock("../../lib/api/executions", () => ({
@@ -151,7 +151,7 @@ describe("NewTradeDrawer", () => {
     expect(screen.getByLabelText("Emotion")).toBeVisible();
     expect(screen.getByLabelText("Entry reason")).toBeVisible();
     expect(screen.getByText("Screenshots")).toBeVisible();
-    expect(screen.getByText("Breakout")).toBeVisible();
+    expect(screen.getByLabelText("Setups")).toBeVisible();
     await user.click(screen.getByRole("button", { name: "Dividend" }));
     expect(screen.getByLabelText("Dividend amount")).toBeVisible();
     expect(screen.getByLabelText("Dividend date")).toBeVisible();
@@ -160,7 +160,41 @@ describe("NewTradeDrawer", () => {
     expect(screen.getAllByRole("button", { name: "Dividend" })).toHaveLength(2);
   });
 
-  it("keeps result preview sticky in the footer", async () => {
+  it("picks a session from the native select and emotions from the combobox, saving emotions comma-joined", async () => {
+    const user = userEvent.setup();
+    wrap(<NewTradeDrawer />);
+    await user.type(screen.getByLabelText("Symbol"), "AAPL");
+    await user.type(screen.getByLabelText("Qty row 1"), "10");
+    await user.type(screen.getByLabelText("Price row 1"), "100");
+    await user.click(screen.getByRole("button", { name: "Journal" }));
+
+    const session = screen.getByLabelText("Session");
+    expect(session).toHaveValue("");
+    await user.selectOptions(session, "Asia");
+    expect(session).toHaveValue("Asia");
+    await user.selectOptions(session, "London");
+    expect(session).toHaveValue("London");
+
+    const emotion = screen.getByLabelText("Emotion");
+    await user.click(emotion);
+    await user.click(await screen.findByRole("option", { name: "Calm" }));
+    await user.click(await screen.findByRole("option", { name: "FOMO" }));
+    await user.keyboard("{Escape}");
+    expect(emotion).toHaveTextContent("Calm, FOMO");
+
+    await user.click(screen.getByRole("button", { name: "Save" }));
+    await waitFor(() =>
+      expect(mockedPatch).toHaveBeenCalledWith(
+        "t1",
+        expect.objectContaining({
+          emotional_state: "Calm, FOMO",
+          notes: expect.stringContaining("## Session\nLondon"),
+        }),
+      ),
+    );
+  });
+
+  it("renders a per-symbol result preview plus a rolled-up one at the form bottom", async () => {
     const user = userEvent.setup();
     wrap(<NewTradeDrawer />);
     await user.type(screen.getByLabelText("Symbol"), "AAPL");
@@ -181,9 +215,15 @@ describe("NewTradeDrawer", () => {
   it("adds and removes symbols without closing", async () => {
     wrap(<NewTradeDrawer />);
     await userEvent.click(screen.getByRole("button", { name: "Add symbol" }));
-    expect(screen.getByRole("region", { name: "Symbol trade 2" })).toBeVisible();
+    // The card fades in, so it is in the DOM before it is visible.
+    await waitFor(() =>
+      expect(screen.getByRole("region", { name: "Symbol trade 2" })).toBeVisible(),
+    );
     await userEvent.click(screen.getByRole("button", { name: "Remove symbol 2" }));
-    expect(screen.queryByRole("region", { name: "Symbol trade 2" })).not.toBeInTheDocument();
+    // The card plays an exit animation, so it leaves the DOM a frame later.
+    await waitFor(() =>
+      expect(screen.queryByRole("region", { name: "Symbol trade 2" })).not.toBeInTheDocument(),
+    );
     expect(useUI.getState().modal).toBe("new-trade");
   });
 
@@ -241,11 +281,22 @@ describe("NewTradeDrawer", () => {
       document.querySelector('[data-testid="ocr-scan-input"]') as HTMLInputElement,
       new File(["x"], "fills.png", { type: "image/png" }),
     );
-    await waitFor(() =>
-      expect(screen.getByRole("region", { name: "Symbol trade 2" })).toBeVisible(),
-    );
-    expect(screen.getByLabelText("Symbol")).toHaveValue("AAPL");
-    expect(screen.getByLabelText("Symbol 2")).toHaveValue("TSLA");
+    // The pre-scan block leaves via AnimatePresence, so it stays mounted (and
+    // keeps its "Symbol" label) until the exit finishes. Wait for the list to
+    // settle rather than asserting mid-transition.
+    await waitFor(() => {
+      // Both conditions together: the list passes through a transient count of
+      // two on the way up (old block + first scanned block) before the exit
+      // finishes, and only the settled state has "Symbol trade 2" as well.
+      expect(screen.getByRole("region", { name: "Symbol trade 2" })).toBeVisible();
+      expect(screen.getAllByRole("region", { name: /^Symbol trade/ })).toHaveLength(2);
+    });
+    // Every block labels its field "Symbol" — Base UI's Field sets
+    // aria-labelledby, which outranks the block's own aria-label in the
+    // accessible-name calculation. Scope to each block's region instead.
+    const [firstBlock, secondBlock] = screen.getAllByRole("region", { name: /^Symbol trade/ });
+    expect(within(firstBlock!).getByLabelText("Symbol")).toHaveValue("AAPL");
+    expect(within(secondBlock!).getByLabelText("Symbol")).toHaveValue("TSLA");
     expect(screen.getByTestId("ocr-scan-summary")).toBeVisible();
     expect(screen.getByRole("button", { name: "Scan info" })).toHaveAttribute(
       "aria-expanded",
@@ -312,7 +363,9 @@ describe("NewTradeDrawer", () => {
     wrap(<NewTradeDrawer />);
     await userEvent.type(screen.getByLabelText("Qty row 1"), "3");
     await userEvent.type(screen.getByLabelText("Price row 1"), "1.95");
-    expect(screen.getByText("Amount")).toBeVisible();
+    // Two "Amount" labels exist — the table header and the stacked per-cell one;
+    // CSS (container queries) picks which shows, so both are present in jsdom.
+    expect(screen.getAllByText("Amount")[0]).toBeVisible();
     expect(await screen.findByText("$5.85")).toBeVisible();
   });
 
@@ -376,7 +429,12 @@ describe("NewTradeDrawer", () => {
     wrap(<NewTradeDrawer />);
     await userEvent.type(screen.getByLabelText("Symbol"), "AAPL");
     await userEvent.click(screen.getByRole("button", { name: "Clear" }));
-    expect(screen.getByLabelText("Symbol")).toHaveValue("");
+    // Clear swaps in a fresh block key, so the old card animates out alongside it.
+    await waitFor(() => {
+      const symbols = screen.getAllByLabelText("Symbol");
+      expect(symbols).toHaveLength(1);
+      expect(symbols[0]).toHaveValue("");
+    });
     await userEvent.click(screen.getByRole("button", { name: "Cancel" }));
     await waitFor(() => expect(useUI.getState().modal).toBeNull());
   });

@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { type BarInterval, marketApi } from "../api/market";
+import { type BarInterval, marketApi } from "@/lib/api/market";
 
 /** E2E fixtures and invalid tickers should not hit market data APIs. */
 export function isChartableSymbol(symbol: string): boolean {

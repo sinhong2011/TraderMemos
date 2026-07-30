@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef, useState } from "react";
-import { cn } from "../lib/cn";
+import { cn } from "@/lib/cn";
 import { Button } from "./ui/button";
 
 export interface AuthModeOption {
@@ -7,6 +7,7 @@ export interface AuthModeOption {
   label: string;
 }
 
+/** Underline tablist for auth mode — used by tests; login UI prefers SegmentedControl. */
 export function AuthModeTabs({
   options,
   value,
@@ -53,11 +54,11 @@ export function AuthModeTabs({
       ref={listRef}
       role="tablist"
       aria-label={ariaLabel}
-      className="relative flex w-full items-center justify-center gap-6 border-b border-border"
+      className="relative flex w-full items-center justify-center gap-6"
     >
       <span
         aria-hidden
-        className="pointer-events-none absolute bottom-0 h-0.5 rounded-full bg-accent shadow-[0_0_12px_var(--color-accent-glow)] transition-[left,width,opacity] duration-[220ms] ease-out motion-reduce:transition-none"
+        className="pointer-events-none absolute bottom-0 h-0.5 rounded-full bg-primary transition-[left,width,opacity] duration-[220ms] ease-out motion-reduce:transition-none"
         style={{
           left: indicator.left,
           width: indicator.width,
@@ -80,8 +81,10 @@ export function AuthModeTabs({
             aria-selected={active}
             tabIndex={active ? 0 : -1}
             className={cn(
-              "relative -mb-px h-auto rounded-none bg-transparent px-0 pb-3 text-[13px] font-medium hover:bg-transparent",
-              active ? "text-text hover:text-text" : "text-text-dim hover:text-text-muted",
+              "relative h-auto rounded-none bg-transparent px-0 pb-3 text-[13px] font-medium hover:bg-transparent",
+              active
+                ? "text-foreground hover:text-foreground"
+                : "text-muted-foreground hover:text-muted-foreground",
             )}
             onClick={() => onChange(option.value)}
           >

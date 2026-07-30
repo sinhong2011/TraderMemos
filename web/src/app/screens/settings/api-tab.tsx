@@ -8,21 +8,21 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "../../../components/Dialog";
-import { ModalBanner } from "../../../components/Modal";
-import { useToastManager } from "../../../components/Toast";
-import { Button } from "../../../components/ui/button";
-import { NativeSelect, NativeSelectOption } from "../../../components/ui/native-select";
-import { SignalInput } from "../../../components/SignalInput";
-import { apiDocsUrl, getBaseUrl } from "../../../lib/api/client";
-import type { AccessTokenExpiryDays, CreatedAccessToken } from "../../../lib/api/tokens";
+} from "@/components/Dialog";
+import { ModalBanner } from "@/components/Modal";
+import { useToastManager } from "@/components/Toast";
+import { Button } from "@/components/ui/button";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
+import { FormInput } from "@/components/FormInput";
+import { apiDocsUrl, getBaseUrl } from "@/lib/api/client";
+import type { AccessTokenExpiryDays, CreatedAccessToken } from "@/lib/api/tokens";
 import {
   useAccessTokens,
   useCreateAccessToken,
   useRevokeAccessToken,
-} from "../../../lib/hooks/useAccessTokens";
-import { useLocale } from "../../../i18n";
-import { intlLocale, settingsLabel } from "../../../lib/locale";
+} from "@/lib/hooks/useAccessTokens";
+import { useLocale } from "@/i18n";
+import { intlLocale, settingsLabel } from "@/lib/locale";
 import {
   DeleteButton,
   SettingsGroup,
@@ -125,10 +125,10 @@ export function ApiTab() {
       <SettingsSection title={settingsLabel(locale, "apiDocsTitle")}>
         <SettingsPanelBody className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
-            <p className="m-0 text-[13px] font-medium text-text">
+            <p className="m-0 text-[13px] font-medium text-foreground">
               {settingsLabel(locale, "apiDocsLink")}
             </p>
-            <p className="mt-1 m-0 text-[12px] leading-relaxed text-text-muted">
+            <p className="mt-1 m-0 text-[12px] leading-relaxed text-muted-foreground">
               {settingsLabel(locale, "apiDocsDescription")}
             </p>
           </div>
@@ -136,7 +136,7 @@ export function ApiTab() {
             href={docsUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex shrink-0 items-center gap-1.5 self-start rounded-control bg-bg-input px-2.5 py-1.5 text-[12px] font-medium text-text-muted no-underline transition-colors duration-150 hover:bg-bg-input-hover hover:text-text sm:self-center"
+            className="inline-flex shrink-0 items-center gap-1.5 self-start rounded-md bg-muted px-2.5 py-1.5 text-[12px] font-medium text-muted-foreground no-underline transition-colors duration-150 hover:bg-accent hover:text-foreground sm:self-center"
           >
             {settingsLabel(locale, "apiDocsOpen")}
             <ExternalLink size={13} strokeWidth={1.5} />
@@ -164,19 +164,21 @@ export function ApiTab() {
       >
         {tokensQuery.isLoading ? (
           <SettingsPanelBody>
-            <p className="m-0 text-[12px] text-text-muted">
+            <p className="m-0 text-[12px] text-muted-foreground">
               {settingsLabel(locale, "apiTokensLoading")}
             </p>
           </SettingsPanelBody>
         ) : tokensQuery.isError ? (
           <SettingsPanelBody>
-            <p className="m-0 text-[12px] text-loss">{settingsLabel(locale, "apiTokensError")}</p>
+            <p className="m-0 text-[12px] text-destructive">
+              {settingsLabel(locale, "apiTokensError")}
+            </p>
           </SettingsPanelBody>
         ) : tokens.length === 0 ? (
           <SettingsPanelBody className="py-8">
             <div className="flex flex-col items-center gap-2 text-center">
-              <KeyRound size={28} strokeWidth={1.5} className="text-text-dim" aria-hidden />
-              <p className="m-0 text-[13px] font-medium text-text">
+              <KeyRound size={28} strokeWidth={1.5} className="text-muted-foreground" aria-hidden />
+              <p className="m-0 text-[13px] font-medium text-foreground">
                 {settingsLabel(locale, "apiTokensEmpty")}
               </p>
             </div>
@@ -190,7 +192,7 @@ export function ApiTab() {
                 primary={
                   <span className="flex min-w-0 flex-wrap items-center gap-2">
                     <span className="truncate">{tok.name}</span>
-                    <code className="rounded-control border border-border bg-bg-inset px-1.5 py-0.5 text-[11px] font-normal tabular-nums text-text-muted">
+                    <code className="rounded-md border border-border bg-muted px-1.5 py-0.5 text-[11px] font-normal tabular-nums text-muted-foreground">
                       {tok.token_prefix}…
                     </code>
                   </span>
@@ -198,28 +200,28 @@ export function ApiTab() {
                 secondary={
                   <span className="flex flex-wrap gap-x-4 gap-y-1">
                     <span>
-                      <span className="text-text-dim">
+                      <span className="text-muted-foreground">
                         {settingsLabel(locale, "apiTokenCreated")}
                       </span>{" "}
-                      <span className="tabular-nums text-text-muted">
+                      <span className="tabular-nums text-muted-foreground">
                         {formatWhen(tok.created_at, displayLocale)}
                       </span>
                     </span>
                     <span>
-                      <span className="text-text-dim">
+                      <span className="text-muted-foreground">
                         {settingsLabel(locale, "apiTokenExpires")}
                       </span>{" "}
-                      <span className="tabular-nums text-text-muted">
+                      <span className="tabular-nums text-muted-foreground">
                         {tok.expires_at
                           ? formatWhen(tok.expires_at, displayLocale)
                           : settingsLabel(locale, "apiTokenExpiryNever")}
                       </span>
                     </span>
                     <span>
-                      <span className="text-text-dim">
+                      <span className="text-muted-foreground">
                         {settingsLabel(locale, "apiTokenLastUsed")}
                       </span>{" "}
-                      <span className="tabular-nums text-text-muted">
+                      <span className="tabular-nums text-muted-foreground">
                         {formatWhen(tok.last_used_at, displayLocale)}
                       </span>
                     </span>
@@ -269,11 +271,11 @@ export function ApiTab() {
               <div className="flex flex-col gap-4">
                 <ModalBanner>{settingsLabel(locale, "apiTokenRevealHint")}</ModalBanner>
                 <div className="flex flex-col gap-2">
-                  <span className="text-[11px] font-medium uppercase tracking-[0.1em] text-text-dim">
+                  <span className="text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground">
                     {settingsLabel(locale, "apiTokenSecret")}
                   </span>
-                  <div className="rounded-control border border-border bg-bg-inset px-3.5 py-3">
-                    <code className="block break-all font-sans text-[12px] leading-relaxed tabular-nums text-text">
+                  <div className="rounded-md border border-border bg-muted px-3.5 py-3">
+                    <code className="block break-all font-sans text-[12px] leading-relaxed tabular-nums text-foreground">
                       {created.token}
                     </code>
                   </div>
@@ -302,11 +304,11 @@ export function ApiTab() {
                 <div className="flex flex-col gap-1.5">
                   <label
                     htmlFor="access-token-name"
-                    className="text-[11px] font-medium uppercase tracking-[0.1em] text-text-dim"
+                    className="text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground"
                   >
                     {settingsLabel(locale, "apiTokenName")}
                   </label>
-                  <SignalInput
+                  <FormInput
                     id="access-token-name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
@@ -318,7 +320,7 @@ export function ApiTab() {
                 <div className="flex flex-col gap-1.5">
                   <label
                     htmlFor="access-token-expiry"
-                    className="text-[11px] font-medium uppercase tracking-[0.1em] text-text-dim"
+                    className="text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground"
                   >
                     {settingsLabel(locale, "apiTokenExpiry")}
                   </label>

@@ -9,31 +9,37 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { Card } from "../../components/Card";
-import { ChartFrame, chartTheme } from "../../components/ChartFrame";
-import { DashboardAccountContribution } from "../../components/DashboardAccountContribution";
+import { AnnualGoalCard } from "@/components/AnnualGoalCard";
+import { Card } from "@/components/Card";
+import { ChartFrame, chartTheme, chartTooltipStyle } from "@/components/ChartFrame";
+import { DashboardAccountContribution } from "@/components/DashboardAccountContribution";
 import {
   type DashboardBreakdownDim,
   DashboardBreakdownChart,
-} from "../../components/DashboardBreakdownChart";
-import { DashboardInsightBento } from "../../components/DashboardInsightBento";
-import { DashboardMiniCalendar } from "../../components/DashboardMiniCalendar";
-import { DataTable } from "../../components/DataTable";
-import { EmptyState } from "../../components/EmptyState";
-import { Button } from "../../components/ui/button";
-import { Page } from "../../components/Page";
-import { PerformanceStrip } from "../../components/PerformanceStrip";
-import { SegmentedControl } from "../../components/SegmentedControl";
-import { Skeleton } from "../../components/Skeleton";
-import { tradeColumns } from "../../components/tradeColumns";
-import type { Account, BreakGroup, EquityPoint, Summary, Trade } from "../../lib/api/types";
-import type { DayRecord } from "../../lib/calendar";
-import { uniqueDayTicks } from "../../lib/chartTicks";
-import { accountBaseCurrency, useDisplayTimePrefs, usePrivacyMode } from "../../lib/displayPrefs";
-import { useMoneyFx } from "../../lib/hooks/useMoneyFx";
-import { fmtDayShort, fmtMoney, fmtMoneyCompact } from "../../lib/format";
-import { intlLocale } from "../../lib/locale";
-import type { TradeStatusFilter } from "../../lib/tradeFilters";
+} from "@/components/DashboardBreakdownChart";
+import { DashboardInsightBento } from "@/components/DashboardInsightBento";
+import { DashboardMiniCalendar } from "@/components/DashboardMiniCalendar";
+import { DataTable } from "@/components/DataTable";
+import { ItemGroup } from "@/components/Item";
+import { EmptyState } from "@/components/EmptyState";
+import { Button } from "@/components/ui/button";
+import { Page } from "@/components/Page";
+import { PerformanceStrip } from "@/components/PerformanceStrip";
+import { SegmentedControl } from "@/components/SegmentedControl";
+import { Skeleton } from "@/components/Skeleton";
+import { CardSkeleton } from "@/components/skeletons/card-skeleton";
+import { TableSkeleton } from "@/components/skeletons/table-skeleton";
+import { tradeColumns } from "@/components/tradeColumns";
+import { TradeListItem } from "@/components/TradeListItem";
+import type { Account, BreakGroup, EquityPoint, Summary, Trade } from "@/lib/api/types";
+import type { DayRecord } from "@/lib/calendar";
+import { uniqueDayTicks } from "@/lib/chartTicks";
+import { accountBaseCurrency, useDisplayTimePrefs, usePrivacyMode } from "@/lib/displayPrefs";
+import { COMPACT_VIEWPORT, useMediaQuery } from "@/lib/hooks/use-mobile";
+import { useMoneyFx } from "@/lib/hooks/useMoneyFx";
+import { fmtDayShort, fmtMoney, fmtMoneyCompact } from "@/lib/format";
+import { intlLocale } from "@/lib/locale";
+import type { TradeStatusFilter } from "@/lib/tradeFilters";
 
 export interface DashboardViewProps {
   summaryLoading: boolean;
@@ -71,6 +77,14 @@ export interface DashboardViewProps {
   accountFunded: boolean;
   onImport: () => void;
   onNewTrade: () => void;
+  goalYear: number;
+  goalAmount: number | null | undefined;
+  goalLoading: boolean;
+  goalSaving: boolean;
+  ytdNetPnl: number | undefined;
+  ytdLoading: boolean;
+  onSaveGoal: (amount: number) => Promise<void>;
+  onClearGoal: () => Promise<void>;
 }
 
 const RANGES = [
@@ -116,10 +130,10 @@ function EquityCurveChart({
   const dayTicks = useMemo(() => uniqueDayTicks(visible), [visible]);
 
   if (equityLoading) {
-    return <Skeleton className="min-h-[240px] w-full flex-1 sm:min-h-[280px]" height="100%" />;
+    return <Skeleton className="min-h-[240px] w-full flex-1 sm:min-h-[280px]" />;
   }
   if (equityError) {
-    return <p className="text-xs text-loss">Failed to load equity curve.</p>;
+    return <p className="text-xs text-destructive">Failed to load equity curve.</p>;
   }
   if (visible.length === 0) {
     return <EmptyState title="No equity data" />;
@@ -160,13 +174,7 @@ function EquityCurveChart({
               domain={["auto", "auto"]}
             />
             <Tooltip
-              contentStyle={{
-                background: chartTheme.tooltipBg,
-                border: `1px solid ${chartTheme.tooltipBorder}`,
-                color: chartTheme.tooltipText,
-                fontSize: 11,
-                borderRadius: "var(--radius-sharp)",
-              }}
+              {...chartTooltipStyle}
               labelFormatter={(label) => String(label ?? "").slice(0, 10)}
               formatter={(value) => [
                 fmtMoney(Number(value ?? 0), currency, intlLocale()),
@@ -226,10 +234,19 @@ export function DashboardView({
   accountFunded,
   onImport,
   onNewTrade,
+  goalYear,
+  goalAmount,
+  goalLoading,
+  goalSaving,
+  ytdNetPnl,
+  ytdLoading,
+  onSaveGoal,
+  onClearGoal,
 }: DashboardViewProps) {
   const baseCurrency = accountBaseCurrency(accounts, selectedAccountId);
   const { currency, rate } = useMoneyFx(baseCurrency);
   const fxRate = rate ?? 1;
+  const compact = useMediaQuery(COMPACT_VIEWPORT);
   const [range, setRange] = useState("30D");
 
   const recentTrades = useMemo(() => trades.slice(0, DASHBOARD_RECENT_LIMIT), [trades]);
@@ -278,7 +295,7 @@ export function DashboardView({
       type="button"
       variant="link"
       onClick={onViewAllTrades}
-      className="h-auto gap-1 rounded-sharp text-[11px] font-medium"
+      className="h-auto gap-1 rounded-md text-[11px] font-medium"
     >
       View all trades
       <ArrowRight size={12} strokeWidth={2} aria-hidden />
@@ -286,9 +303,13 @@ export function DashboardView({
   );
 
   return (
-    <Page className="min-h-[calc(100dvh-52px)]">
+    <Page className="min-h-[calc(100svh-52px)]">
       {/* Asymmetric hero: tall equity + performance strip (Signal Terminal bento) */}
-      <div className="grid gap-4 lg:grid-cols-5 lg:items-stretch lg:min-h-[320px]">
+      {/* The 320px floor lives on the row track, not as min-h on the container: a
+          min-height here makes the container definite and the single auto row stretches
+          to exactly fill it, capping the performance strip's taller content so it
+          spills out and overlaps the goal card below. minmax() floors without capping. */}
+      <div className="grid gap-4 lg:grid-cols-5 lg:grid-rows-[minmax(320px,auto)] lg:items-stretch">
         <Card
           title="Equity curve"
           className="h-full lg:col-span-3"
@@ -303,9 +324,9 @@ export function DashboardView({
           }
         >
           {summaryLoading ? (
-            <Skeleton className="min-h-[160px] flex-1" height="100%" />
+            <Skeleton className="min-h-[160px] w-full flex-1" />
           ) : summaryError ? (
-            <p className="text-xs text-loss">Failed to load summary.</p>
+            <p className="text-xs text-destructive">Failed to load summary.</p>
           ) : !summary ? null : (
             <EquityCurveChart
               equityLoading={equityLoading}
@@ -319,7 +340,7 @@ export function DashboardView({
         </Card>
 
         {summary && !summaryLoading && !summaryError ? (
-          <div className="min-h-[265px] lg:col-span-2 lg:min-h-0">
+          <div className="min-h-[265px] lg:col-span-2">
             <PerformanceStrip
               summary={summary}
               trades={trades}
@@ -330,11 +351,24 @@ export function DashboardView({
             />
           </div>
         ) : summaryLoading ? (
-          <Card title="Performance" className="lg:col-span-2">
-            <Skeleton height="210px" />
-          </Card>
+          <div className="lg:col-span-2">
+            <CardSkeleton mediaClassName="h-[210px]" />
+          </div>
         ) : null}
       </div>
+
+      <AnnualGoalCard
+        year={goalYear}
+        goalAmount={goalAmount}
+        ytdNetPnl={ytdNetPnl}
+        currency={currency}
+        fxRate={fxRate}
+        variant="hero"
+        loading={goalLoading || ytdLoading}
+        saving={goalSaving}
+        onSave={onSaveGoal}
+        onClear={onClearGoal}
+      />
 
       {summary && !summaryLoading && !summaryError ? (
         <DashboardInsightBento
@@ -383,9 +417,9 @@ export function DashboardView({
 
       <Card title="Recent trades" action={recentAction} flush>
         {tradesLoading ? (
-          <Skeleton height="200px" className="m-3" />
+          <TableSkeleton rows={5} columns={4} className="m-1" />
         ) : tradesError ? (
-          <p className="p-4 text-xs text-loss">Failed to load trades.</p>
+          <p className="p-4 text-xs text-destructive">Failed to load trades.</p>
         ) : trades.length === 0 ? (
           <EmptyState
             title={tradeStatusFilter ? "No trades match this filter" : "No trades in this range"}
@@ -393,22 +427,39 @@ export function DashboardView({
           />
         ) : (
           <>
-            <DataTable
-              columns={tradeColumns(
-                currency,
-                {
-                  onOpenDrawer: onSelectTrade,
-                  onOpenFullPage,
-                  onFilterSymbol,
-                  onDeleted,
-                },
-                fxRate,
-              )}
-              data={recentTrades}
-              onRowClick={onSelectTrade}
-              maxHeight={360}
-            />
-            <p className="shrink-0 py-2 text-center text-xs text-text-muted">
+            {/* Phone: the same list row the trade log uses — the wide table
+                can't fit, and 10 rows don't need virtualizing. */}
+            {compact ? (
+              <ItemGroup className="gap-2 px-4 pb-4">
+                {recentTrades.map((trade) => (
+                  <TradeListItem
+                    key={trade.id}
+                    trade={trade}
+                    currency={currency}
+                    fxRate={fxRate}
+                    showDate
+                    onSelect={onSelectTrade}
+                  />
+                ))}
+              </ItemGroup>
+            ) : (
+              <DataTable
+                columns={tradeColumns(
+                  currency,
+                  {
+                    onOpenDrawer: onSelectTrade,
+                    onOpenFullPage,
+                    onFilterSymbol,
+                    onDeleted,
+                  },
+                  fxRate,
+                )}
+                data={recentTrades}
+                onRowClick={onSelectTrade}
+                maxHeight={360}
+              />
+            )}
+            <p className="shrink-0 py-2 text-center text-xs text-muted-foreground">
               {hasMoreTrades
                 ? `Showing ${recentTrades.length} of ${trades.length} trades`
                 : `${trades.length} ${trades.length === 1 ? "trade" : "trades"}`}

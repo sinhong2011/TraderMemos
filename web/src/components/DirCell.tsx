@@ -1,13 +1,14 @@
 import { ArrowDownRight, ArrowUpRight } from "lucide-react";
-import { cn } from "../lib/cn";
-import { resolveTradeDirection, type TradeDirectionView } from "../lib/tradeDirection";
+import { cn } from "@/lib/cn";
+import { resolveTradeDirection, type TradeDirectionView } from "@/lib/tradeDirection";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
-const TONE_CLASS: Record<TradeDirectionView["tone"], string> = {
+/** Shared by the Dir column and the list row so both color a side the same way. */
+export const DIR_TONE_CLASS: Record<TradeDirectionView["tone"], string> = {
   profit: "text-profit",
-  loss: "text-loss",
-  signal: "text-signal",
-  muted: "text-text-muted",
+  loss: "text-destructive",
+  signal: "text-chart-3",
+  muted: "text-muted-foreground",
 };
 
 export function DirCell(props: {
@@ -20,7 +21,7 @@ export function DirCell(props: {
 }) {
   const view = resolveTradeDirection(props);
   const Icon = view.arrowUp ? ArrowUpRight : ArrowDownRight;
-  const color = TONE_CLASS[view.tone];
+  const color = DIR_TONE_CLASS[view.tone];
 
   return (
     <Tooltip>
@@ -29,7 +30,7 @@ export function DirCell(props: {
           <span
             className={cn(
               "inline-flex cursor-default items-center gap-1 outline-none",
-              "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-strong",
+              "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
               props.className,
             )}
           />
@@ -42,8 +43,8 @@ export function DirCell(props: {
         <span className="sr-only">{view.label}</span>
       </TooltipTrigger>
       <TooltipContent side="top" className="flex-col items-start gap-0.5 px-2.5 py-1.5">
-        <span className="font-medium text-text">{view.label}</span>
-        <span className="text-[10px] text-text-dim">{view.detail}</span>
+        <span className="font-medium text-foreground">{view.label}</span>
+        <span className="text-[10px] text-muted-foreground">{view.detail}</span>
       </TooltipContent>
     </Tooltip>
   );

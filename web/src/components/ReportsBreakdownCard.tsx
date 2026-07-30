@@ -11,17 +11,17 @@ import {
   YAxis,
 } from "recharts";
 import { Card } from "./Card";
-import { ChartFrame, chartTheme } from "./ChartFrame";
+import { ChartFrame, chartTheme, chartTooltipStyle, pnlTooltipValue } from "./ChartFrame";
 import { DataTable } from "./DataTable";
 import { EmptyState } from "./EmptyState";
 import { useReportsMoney } from "./ReportsDisplayContext";
 import { SegmentedControl } from "./SegmentedControl";
 import { Skeleton } from "./Skeleton";
-import type { BreakGroup } from "../lib/api/types";
-import { usePrivacyMode } from "../lib/displayPrefs";
+import type { BreakGroup } from "@/lib/api/types";
+import { usePrivacyMode } from "@/lib/displayPrefs";
 
-const POS = "var(--color-profit)";
-const NEG = "var(--color-loss)";
+const POS = "var(--profit)";
+const NEG = "var(--loss)";
 
 export interface ReportsBreakdownCardProps {
   title: string;
@@ -73,7 +73,7 @@ export function ReportsBreakdownCard({
       {loading ? (
         <Skeleton height="220px" />
       ) : error ? (
-        <p className="text-xs text-loss">Failed to load {title.toLowerCase()}.</p>
+        <p className="text-xs text-destructive">Failed to load {title.toLowerCase()}.</p>
       ) : breakdown.length === 0 ? (
         <EmptyState title="No data" hint="Add trades or adjust filters to see a breakdown." />
       ) : view === "table" && tableColumns ? (
@@ -129,13 +129,11 @@ export function ReportsBreakdownCard({
                 </>
               )}
               <Tooltip
-                contentStyle={{
-                  background: chartTheme.tooltipBg,
-                  border: `1px solid ${chartTheme.tooltipBorder}`,
-                  color: chartTheme.tooltipText,
-                  fontSize: 11,
-                }}
-                formatter={(value) => [money.formatAxis(Number(value ?? 0)), "Net P&L"]}
+                {...chartTooltipStyle}
+                formatter={(value) => [
+                  pnlTooltipValue(Number(value ?? 0), money.formatAxis(Number(value ?? 0))),
+                  "Net P&L",
+                ]}
                 cursor={{ fill: chartTheme.cursorFill }}
               />
               <Bar dataKey="net_pnl" radius={horizontal ? [0, 2, 2, 0] : [2, 2, 0, 0]}>

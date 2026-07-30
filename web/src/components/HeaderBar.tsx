@@ -1,31 +1,40 @@
-import { Check, Eye, EyeOff, Menu, Search, Wallet, X } from "lucide-react";
+import { Eye, EyeOff, Search, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { cn } from "../lib/cn";
-import { currencyIcon } from "../lib/currencyIcon";
+import { cn } from "@/lib/cn";
+import { currencyIcon, currencyRegion, currencySymbol } from "@/lib/currency";
 import {
   accountBaseCurrency,
   DISPLAY_CURRENCIES,
   useDisplayPrefs,
   usePrivacyMode,
-} from "../lib/displayPrefs";
-import { useFilterParams, useFilters } from "../lib/filters";
-import { APP_HOTKEYS } from "../lib/hotkeys";
-import { fmtMoney, fmtPct, fmtSignedMoney } from "../lib/format";
-import { computeHeaderStats } from "../lib/headerStats";
-import { useAccounts } from "../lib/hooks/useAccounts";
-import { useSummary } from "../lib/hooks/useAnalytics";
-import { useCash } from "../lib/hooks/useCash";
-import { useMoneyFx } from "../lib/hooks/useMoneyFx";
-import { useTrades } from "../lib/hooks/useTrades";
-import { intlLocale } from "../lib/locale";
-import { useUI } from "../lib/ui";
+} from "@/lib/displayPrefs";
+import { useFilterParams, useFilters } from "@/lib/filters";
+import { APP_HOTKEYS } from "@/lib/hotkeys";
+import { fmtMoney, fmtPct, fmtSignedMoney, fmtSignedPct } from "@/lib/format";
+import { computeHeaderStats } from "@/lib/headerStats";
+import { useAccounts } from "@/lib/hooks/useAccounts";
+import { useSummary } from "@/lib/hooks/useAnalytics";
+import { useCash } from "@/lib/hooks/useCash";
+import { useMoneyFx } from "@/lib/hooks/useMoneyFx";
+import { useTrades } from "@/lib/hooks/useTrades";
+import { intlLocale } from "@/lib/locale";
+import { useUI } from "@/lib/ui";
 import { AccountNavPopover } from "./AccountNavPopover";
 import { DateRangePicker } from "./DateRangePicker";
-import { SignalSelect } from "./SignalSelect";
+import { filterChipClass } from "./field-styles";
+import { OptionsSelect } from "./OptionsSelect";
 import { heroPnlClass } from "./theme-tokens";
 import { Button } from "./ui/button";
 import { Kbd } from "./ui/kbd";
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import {
+  Menu,
+  MenuGroup,
+  MenuGroupLabel,
+  MenuPopup,
+  MenuRadioGroup,
+  MenuRadioItem,
+  MenuTrigger,
+} from "./ui/menu";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 const AUTO_VALUE = "__auto__";
@@ -33,15 +42,15 @@ const AUTO_VALUE = "__auto__";
 function HeaderStat({ label, value }: { label: string; value: string }) {
   return (
     <span className="inline-flex items-baseline gap-1 text-[13px] font-medium whitespace-nowrap">
-      <span className="uppercase tracking-widest text-text-muted">{label}</span>
-      <span className="font-semibold tabular-nums text-text">{value}</span>
+      <span className="uppercase tracking-widest text-muted-foreground">{label}</span>
+      <span className="font-semibold tabular-nums text-foreground">{value}</span>
     </span>
   );
 }
 
 function StatDivider() {
   return (
-    <span aria-hidden className="text-[13px] text-text-dim select-none">
+    <span aria-hidden className="text-[13px] text-muted-foreground select-none">
       ·
     </span>
   );
@@ -50,7 +59,7 @@ function StatDivider() {
 function SymbolFilterChip({ symbols, onClear }: { symbols: string[]; onClear: () => void }) {
   const label = symbols.length <= 2 ? symbols.join(", ") : `${symbols[0]} +${symbols.length - 1}`;
   return (
-    <span className="inline-flex h-8 shrink-0 items-center gap-1 rounded-control border border-accent/25 bg-accent-bg px-2 text-[11px] text-accent">
+    <span className="inline-flex h-8 shrink-0 items-center gap-1 rounded-md border border-primary/25 bg-primary/10 px-2 text-[11px] text-primary">
       {label}
       <Button
         type="button"
@@ -58,7 +67,7 @@ function SymbolFilterChip({ symbols, onClear }: { symbols: string[]; onClear: ()
         size="icon-xs"
         onClick={onClear}
         aria-label="Clear symbol filter"
-        className="rounded-sharp text-accent/70 hover:bg-accent/10 hover:text-accent"
+        className="rounded-md text-primary/70 hover:bg-primary/10 hover:text-primary"
       >
         <X size={12} strokeWidth={2} />
       </Button>
@@ -66,22 +75,32 @@ function SymbolFilterChip({ symbols, onClear }: { symbols: string[]; onClear: ()
   );
 }
 
-function CurrencyOptionLabel({ code, account }: { code: string; account?: boolean }) {
-  const Icon = currencyIcon(code);
+/** `HK$ HKD Hong Kong` — the symbol alone can't separate five dollars and two yen. */
+function CurrencyOptionLabel({ code, detail }: { code: string; detail?: string }) {
   return (
     <span className="inline-flex min-w-0 items-center gap-1.5">
-      <Icon size={12} strokeWidth={1.75} className="shrink-0 text-text-dim" aria-hidden />
+      <span className="shrink-0 text-muted-foreground">{currencySymbol(code)}</span>
       <span className="tabular-nums">{code}</span>
-      {account ? (
-        <>
-          <span className="text-text-dim" aria-hidden>
-            ·
-          </span>
-          <Wallet size={12} strokeWidth={1.75} className="shrink-0 text-text-dim" aria-hidden />
-          <span className="sr-only">account</span>
-        </>
-      ) : null}
+      {detail ? <span className="min-w-0 truncate text-muted-foreground">{detail}</span> : null}
     </span>
+  );
+}
+
+/** Menu row: symbol column, code, then the issuing region as a quiet trailing hint. */
+function CurrencyMenuItem({ value, code }: { value: string; code: string }) {
+  const region = currencyRegion(code);
+  return (
+    <MenuRadioItem value={value} closeOnClick className="pe-2.5">
+      <span className="flex w-full items-center gap-2">
+        <span className="w-8 shrink-0 text-end text-muted-foreground">{currencySymbol(code)}</span>
+        <span className="font-medium tabular-nums">{code}</span>
+        {region ? (
+          <span className="ms-auto min-w-0 truncate text-[11px] text-muted-foreground">
+            {region}
+          </span>
+        ) : null}
+      </span>
+    </MenuRadioItem>
   );
 }
 
@@ -109,15 +128,16 @@ export function DisplayCurrencySelect({
     ? `Display currency · ${activeCode} (account)`
     : `Display currency · ${activeCode}`;
 
+  const convertible = DISPLAY_CURRENCIES.filter((code) => code !== base);
   const options = [
     {
       value: AUTO_VALUE,
-      label: <CurrencyOptionLabel code={base} account />,
+      label: <CurrencyOptionLabel code={base} detail="Account" />,
       shortLabel: <CurrencyOptionLabel code={base} />,
     },
-    ...DISPLAY_CURRENCIES.filter((code) => code !== base).map((code) => ({
+    ...convertible.map((code) => ({
       value: code,
-      label: <CurrencyOptionLabel code={code} />,
+      label: <CurrencyOptionLabel code={code} detail={currencyRegion(code)} />,
       shortLabel: <CurrencyOptionLabel code={code} />,
     })),
   ];
@@ -134,21 +154,21 @@ export function DisplayCurrencySelect({
 
   if (variant === "rail") {
     return (
-      <Popover open={open} onOpenChange={setOpen}>
+      <Menu open={open} onOpenChange={setOpen}>
         <Tooltip>
           <TooltipTrigger
             render={
-              <PopoverTrigger
+              <MenuTrigger
                 aria-label={`Show amounts in (account ledger is ${base})`}
                 className={cn(
-                  "group relative flex size-8 cursor-pointer items-center justify-center rounded-control outline-none",
+                  "group relative flex size-8 cursor-pointer items-center justify-center rounded-md outline-none",
                   "pointer-coarse:size-11",
                   "transition-[background-color,color,transform] duration-150 ease-out",
-                  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-strong",
+                  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
                   "motion-reduce:transition-none",
                   open || !usingAccount
-                    ? "bg-bg-hover text-text"
-                    : "text-text-dim hover:bg-bg-hover hover:text-text",
+                    ? "bg-accent text-foreground"
+                    : "text-muted-foreground hover:bg-accent hover:text-foreground",
                 )}
               />
             }
@@ -161,57 +181,40 @@ export function DisplayCurrencySelect({
           </TooltipTrigger>
           <TooltipContent side={tipSide}>{tipLabel}</TooltipContent>
         </Tooltip>
-        <PopoverContent
+        <MenuPopup
           side={popoverSide}
           align="end"
           sideOffset={popoverSide === "right" ? 8 : 6}
-          className="w-[200px] p-1.5"
+          className="w-60"
         >
-          <p className="m-0 px-2.5 pt-1.5 pb-2.5 text-[10px] font-semibold uppercase tracking-widest text-signal">
-            Currency
-          </p>
-          <div className="flex flex-col gap-0.5">
-            {options.map((opt) => {
-              const selected =
-                opt.value === AUTO_VALUE ? usingAccount : !usingAccount && opt.value === activeCode;
-              return (
-                <Button
-                  key={opt.value}
-                  type="button"
-                  variant="ghost"
-                  onClick={() => {
-                    applyCurrency(opt.value);
-                    setOpen(false);
-                  }}
-                  className={cn(
-                    "relative h-auto w-full justify-start gap-2 rounded-control py-2 pr-2.5 pl-3",
-                    "text-left text-[12px]",
-                    selected
-                      ? "bg-accent-bg font-medium text-accent hover:bg-accent-bg hover:text-accent"
-                      : "text-text",
-                  )}
-                >
-                  <span className="min-w-0 flex-1 truncate">{opt.label}</span>
-                  {selected ? (
-                    <Check size={13} strokeWidth={2} className="shrink-0 text-accent" aria-hidden />
-                  ) : null}
-                </Button>
-              );
-            })}
-          </div>
-        </PopoverContent>
-      </Popover>
+          <MenuRadioGroup
+            value={usingAccount ? AUTO_VALUE : activeCode}
+            onValueChange={(value) => applyCurrency(String(value))}
+          >
+            <MenuGroup>
+              <MenuGroupLabel>Account currency</MenuGroupLabel>
+              <CurrencyMenuItem value={AUTO_VALUE} code={base} />
+            </MenuGroup>
+            <MenuGroup>
+              <MenuGroupLabel className="pt-2.5">Convert to</MenuGroupLabel>
+              {convertible.map((code) => (
+                <CurrencyMenuItem key={code} value={code} code={code} />
+              ))}
+            </MenuGroup>
+          </MenuRadioGroup>
+        </MenuPopup>
+      </Menu>
     );
   }
 
   return (
-    <SignalSelect
+    <OptionsSelect
       value={usingAccount ? AUTO_VALUE : displayCurrency!}
       onValueChange={applyCurrency}
       options={options}
       ariaLabel={`Show amounts in (account ledger is ${base})`}
       ghost
-      triggerClassName="h-8 min-w-[5.25rem] shrink-0 px-2 text-[11px] font-medium tabular-nums pointer-coarse:h-11"
+      triggerClassName={cn(filterChipClass, "min-w-[5.25rem] gap-1.5 tabular-nums")}
     />
   );
 }
@@ -232,27 +235,11 @@ function PrivacyToggle() {
       title={privacyMode ? "Show amounts" : "Hide amounts"}
       className={cn(
         "pointer-coarse:size-11",
-        "transition-[background-color,color,border-color] duration-200 ease-[var(--ease-out)]",
-        !privacyMode && "bg-transparent text-text-dim hover:bg-bg-hover",
+        "transition-[background-color,color,border-color] duration-200 ease-[cubic-bezier(0.16, 1, 0.3, 1)]",
+        !privacyMode && "bg-transparent text-muted-foreground hover:bg-accent",
       )}
     >
       <Icon size={15} strokeWidth={1.75} aria-hidden />
-    </Button>
-  );
-}
-
-function MobileNavTrigger() {
-  const openMobileNav = useUI((s) => s.openMobileNav);
-  return (
-    <Button
-      type="button"
-      variant="ghost"
-      size="icon"
-      onClick={openMobileNav}
-      aria-label="Open menu"
-      className="shrink-0 pointer-coarse:size-11 text-text-dim hover:bg-bg-hover hover:text-text md:hidden"
-    >
-      <Menu size={18} strokeWidth={1.75} aria-hidden />
     </Button>
   );
 }
@@ -292,19 +279,25 @@ export function HeaderBar() {
     }
   }, [accountId, hasSelectedAccount, setAccount]);
 
+  // Sticky pins the strip while the document scrolls on phones; ≥md the shell
+  // is viewport-height so it resolves to a no-op.
   return (
-    <header className="flex h-auto min-h-[52px] shrink-0 items-center gap-2 bg-bg px-3 pt-[calc(0.5rem+env(safe-area-inset-top))] pb-2 md:h-[52px] md:gap-3 md:px-4 md:pt-0 md:pb-0">
+    <header className="sticky top-0 z-20 flex h-auto min-h-[52px] shrink-0 items-center gap-2 bg-background px-3 pt-[calc(0.5rem+env(safe-area-inset-top))] pb-2 md:h-[52px] md:gap-3 md:px-4 md:pt-0 md:pb-0">
       {/* Performance strip */}
       <div className="flex min-w-0 flex-1 items-center gap-2 md:gap-3">
-        <MobileNavTrigger />
         <div
           className={cn(
             heroPnlClass(stats.netPnl),
-            "shrink-0 text-[22px] sm:text-[28px]",
+            "flex shrink-0 items-baseline gap-1.5 text-[17px] sm:text-[20px]",
             fxLoading && "opacity-60",
           )}
         >
-          {fmtSignedMoney(toDisplay(stats.netPnl), currency, intlLocale())}
+          <span>{fmtSignedMoney(toDisplay(stats.netPnl), currency, intlLocale())}</span>
+          {stats.netPnlPct != null ? (
+            <span className="text-[12px] font-medium opacity-70 sm:text-[13px]">
+              {fmtSignedPct(stats.netPnlPct, intlLocale())}
+            </span>
+          ) : null}
         </div>
         <div aria-hidden className="hidden h-7 w-px shrink-0 bg-border md:block" />
         <div className="hidden min-w-0 items-center gap-2 md:flex">
@@ -332,7 +325,7 @@ export function HeaderBar() {
           variant="outline"
           onClick={openCommandPalette}
           aria-keyshortcuts="Meta+K Control+K"
-          className="w-[150px] justify-start bg-transparent px-2.5 text-text hover:bg-bg-hover hover:text-text"
+          className="w-[150px] justify-start bg-transparent px-2.5 text-foreground hover:bg-accent hover:text-foreground"
         >
           <Search size={14} strokeWidth={1.75} aria-hidden data-icon="inline-start" />
           <span className="min-w-0 flex-1 truncate text-left">Search…</span>
@@ -348,7 +341,7 @@ export function HeaderBar() {
           onClick={openCommandPalette}
           aria-label="Search"
           aria-keyshortcuts="Meta+K Control+K"
-          className="pointer-coarse:size-11 text-text-dim hover:bg-bg-hover hover:text-text lg:hidden"
+          className="pointer-coarse:size-11 text-muted-foreground hover:bg-accent hover:text-foreground lg:hidden"
         >
           <Search size={16} strokeWidth={1.75} aria-hidden />
         </Button>

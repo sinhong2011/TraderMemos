@@ -1,4 +1,4 @@
-import { cn } from "../lib/cn";
+import { cn } from "@/lib/cn";
 
 interface StatCardProps {
   label: string;
@@ -30,9 +30,9 @@ interface StatCardProps {
 }
 
 function accentColor(accent?: "pos" | "neg" | "none"): string {
-  if (accent === "pos") return "var(--color-pos)";
-  if (accent === "neg") return "var(--color-neg)";
-  return "var(--color-text)";
+  if (accent === "pos") return "var(--profit)";
+  if (accent === "neg") return "var(--loss)";
+  return "var(--foreground)";
 }
 
 function valueSizeClass(size: "lg" | "md" | "sm", centered: boolean): string {
@@ -68,13 +68,13 @@ export function StatCard({
       style={
         variant === "bento"
           ? {
-              background: "var(--color-surface-bento)",
-              borderRadius: "var(--radius-panel)",
+              background: "var(--muted)",
+              borderRadius: "var(--radius)",
             }
           : {
-              background: "var(--color-surface-panel)",
-              border: "1px solid var(--color-border)",
-              borderRadius: "var(--radius-panel)",
+              background: "var(--card)",
+              border: "1px solid var(--border)",
+              borderRadius: "var(--radius)",
             }
       }
     >
@@ -83,7 +83,7 @@ export function StatCard({
           "text-[10px] font-medium tracking-wide uppercase sm:text-xs",
           centered ? "self-center" : undefined,
         )}
-        style={{ color: "var(--color-text-muted)" }}
+        style={{ color: "var(--muted-foreground)" }}
       >
         {label}
       </span>
@@ -96,7 +96,7 @@ export function StatCard({
         )}
         style={{
           color: accentColor(accent),
-          transition: "color var(--duration-fast)",
+          transition: "color 150ms",
         }}
       >
         {value}
@@ -104,7 +104,7 @@ export function StatCard({
       {hint ? (
         <span
           className={cn("text-xs", centered && "line-clamp-2 max-w-full text-[10px] leading-snug")}
-          style={{ color: "var(--color-text-muted)" }}
+          style={{ color: "var(--muted-foreground)" }}
         >
           {hint}
         </span>

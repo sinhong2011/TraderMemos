@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useCallback } from "react";
-import { useToastManager } from "../components/Toast";
+import { useToastManager } from "@/components/Toast";
 import { TOOL_ITEMS, type ToolId } from "./tools";
 import { useUI } from "./ui";
 

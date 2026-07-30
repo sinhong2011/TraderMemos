@@ -1,9 +1,10 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { type ColumnDef, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import userEvent from "@testing-library/user-event";
 import type { ReactElement } from "react";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
-import type { Execution, Setup, Tag, TradeAttachment, TradeDetail } from "../../lib/api/types";
+import type { Execution, Setup, Tag, TradeAttachment, TradeDetail } from "@/lib/api/types";
 import {
   type JournalFormState,
   JournalPanel,
@@ -51,6 +52,38 @@ vi.mock("../../lib/hooks/useTradeCoach", () => ({
 
 vi.mock("../../components/charts/TradeChartSection", () => ({
   TradeChartSection: () => <div data-testid="trade-chart-stub" />,
+}));
+
+// Mock DataTable: the real one virtualizes against a measured container, which
+// jsdom never gives it, so it renders zero rows. Mirrors DashboardView.test.
+vi.mock("../../components/DataTable", () => ({
+  DataTable: function MockDataTable<T>({ columns, data }: { columns: ColumnDef<T>[]; data: T[] }) {
+    const table = useReactTable({ data, columns, getCoreRowModel: getCoreRowModel() });
+    return (
+      <table>
+        <thead>
+          {table.getHeaderGroups().map((hg) => (
+            <tr key={hg.id}>
+              {hg.headers.map((h) => (
+                <th key={h.id}>
+                  {h.isPlaceholder ? null : flexRender(h.column.columnDef.header, h.getContext())}
+                </th>
+              ))}
+            </tr>
+          ))}
+        </thead>
+        <tbody>
+          {table.getRowModel().rows.map((row) => (
+            <tr key={row.id}>
+              {row.getVisibleCells().map((cell) => (
+                <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    );
+  },
 }));
 
 globalThis.fetch = vi.fn<(...args: any[]) => any>().mockResolvedValue({
@@ -213,11 +246,32 @@ describe("TradeDetailView", () => {
     };
   });
 
-  it("does not render the executions / journal card on the page", () => {
+  it("renders the executions table on the shared DataTable", () => {
     renderView(<TradeDetailView {...defaultProps} />);
-    expect(screen.queryByText(/Executions/i)).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Journal" })).not.toBeInTheDocument();
-    expect(screen.queryByText("BUY")).not.toBeInTheDocument();
+    expect(screen.getByText("Executions (2)")).toBeInTheDocument();
+    expect(screen.getByText("BUY")).toBeInTheDocument();
+    expect(screen.getByText("SELL")).toBeInTheDocument();
+    // Value = qty × price × multiplier — 100 × 175.50 on the buy, 100 × 183 on
+    // the sell — the same number the trade log's Ent tot / Ext tot columns show.
+    expect(screen.getAllByText("$17,550.00").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("$18,300.00").length).toBeGreaterThan(0);
+    // Two fills is not a scaled trade, so the position column stays out.
+    expect(screen.queryByText("Pos")).not.toBeInTheDocument();
+    // Fee total rides in the card header rather than a footer band.
+    expect(screen.getByText(/\$3\.00 fees/)).toBeInTheDocument();
+  });
+
+  it("renders the journal read-only and routes editing to the drawer", async () => {
+    const onEdit = vi.fn<(...args: any[]) => any>();
+    renderView(<TradeDetailView {...defaultProps} onEdit={onEdit} />);
+    expect(screen.getByText("Journal")).toBeInTheDocument();
+    // Freeform pre-template notes still surface.
+    expect(screen.getByText("clean break")).toBeInTheDocument();
+    expect(screen.getByText("ORB")).toBeInTheDocument();
+    // No inline form on the page — the drawer owns every journal input.
+    expect(screen.queryByLabelText("Review notes")).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "Edit journal" }));
+    expect(onEdit).toHaveBeenCalledTimes(1);
   });
 
   it("places Edit at the page top right and calls onEdit", async () => {
@@ -230,7 +284,8 @@ describe("TradeDetailView", () => {
   it("requires typing the symbol before removing a trade", async () => {
     const onDelete = vi.fn<(...args: any[]) => any>();
     renderView(<TradeDetailView {...defaultProps} onDelete={onDelete} />);
-    await userEvent.click(screen.getByRole("button", { name: "Remove trade" }));
+    await userEvent.click(screen.getByRole("button", { name: "Trade actions" }));
+    await userEvent.click(await screen.findByRole("menuitem", { name: "Remove trade" }));
     const dialog = screen.getByRole("dialog", { name: /Remove AAPL/i });
     expect(dialog).toBeVisible();
     const footerRemove = within(dialog).getByRole("button", { name: "Remove trade" });
@@ -246,16 +301,37 @@ describe("TradeDetailView", () => {
     expect(screen.getAllByText("+2.00R").length).toBeGreaterThan(0);
   });
 
-  it("renders trade metrics in the header and coach panel separately", () => {
+  it("splits summary, plan, and coach across their own cards", () => {
     renderView(<TradeDetailView {...defaultProps} />);
     expect(screen.getByText("Coach")).toBeInTheDocument();
     expect(screen.getByText("Gross")).toBeInTheDocument();
-    expect(screen.getByText("Plan")).toBeInTheDocument();
+    expect(screen.getByText("Plan vs actual")).toBeInTheDocument();
+    // Excursion lives with the plan now, not inside the coach panel.
     expect(screen.getByText("Capture")).toBeInTheDocument();
     expect(screen.getByText("MAE")).toBeInTheDocument();
     expect(screen.getByText("MFE")).toBeInTheDocument();
     expect(screen.getByText("374%")).toBeInTheDocument();
     expect(screen.getAllByText("Focused").length).toBeGreaterThan(0);
+  });
+
+  it("keeps net P&L to a single hero figure", () => {
+    renderView(<TradeDetailView {...defaultProps} />);
+    // Once in the summary hero, once as the realized bar in Plan vs actual —
+    // never twice inside the same card as the old bento did.
+    expect(screen.getAllByText("+$747.00")).toHaveLength(2);
+  });
+
+  it("prompts for a plan instead of rendering a grid of dashes", () => {
+    const onEdit = vi.fn<(...args: any[]) => any>();
+    renderView(
+      <TradeDetailView
+        {...defaultProps}
+        onEdit={onEdit}
+        trade={{ ...mockTrade, initial_risk: null, r_multiple: null, mae: null, mfe: null }}
+      />,
+    );
+    expect(screen.getByText(/No plan recorded/i)).toBeInTheDocument();
+    expect(screen.queryByText("Planned R:R")).not.toBeInTheDocument();
   });
 
   it("collapses coach when the header is clicked", async () => {

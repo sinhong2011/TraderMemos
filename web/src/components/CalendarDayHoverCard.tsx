@@ -1,6 +1,6 @@
 import type { CSSProperties, ReactElement, ReactNode } from "react";
-import type { DayRecord } from "../lib/calendar";
-import type { Trade } from "../lib/api/types";
+import type { DayRecord } from "@/lib/calendar";
+import type { Trade } from "@/lib/api/types";
 import { CalendarDayHoverDetails } from "./CalendarDayHoverDetails";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "./HoverCard";
 

@@ -2,13 +2,13 @@ import { useNavigate } from "@tanstack/react-router";
 import {
   BookOpen,
   CalendarDays,
+  Calculator,
   LayoutDashboard,
   List,
   PieChart,
   Plus,
   Settings,
   StickyNote,
-  Target,
   Upload,
   Zap,
 } from "lucide-react";
@@ -72,10 +72,10 @@ const NAV_COMMANDS: Array<{
     id: "nav-calculator",
     label: "Calculator",
     to: "/calculator",
-    icon: Target,
+    icon: Calculator,
     keywords: ["r-multiple", "r", "exit ladder", "fvg", "position size"],
   },
-  { id: "nav-import", label: "Import", to: "/import", icon: Upload },
+  { id: "nav-import ", label: "Import", to: "/import", icon: Upload },
   {
     id: "nav-settings",
     label: "Settings",

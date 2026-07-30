@@ -6,6 +6,11 @@ import type { TradeGrade } from "./tradeGrades";
 export interface ExecutionRow {
   /** Existing fill id when editing a trade — omitted for new rows. */
   id?: string;
+  /**
+   * Stable client key for list rendering, like `SymbolTradeBlock.key`. Index
+   * keys would hand a removed row's exit animation to its neighbour.
+   */
+  key?: string;
   side: "buy" | "sell";
   executed_at: string;
   quantity: string;
@@ -36,7 +41,8 @@ export interface SymbolTradeBlock {
   /** Per-symbol journal */
   setupIds: string[];
   session: string;
-  emotionalState: string;
+  /** Multi-select; serialized comma-joined into the `emotional_state` column. */
+  emotionalStates: string[];
   setupGrade: TradeGrade | "";
   executionGrade: TradeGrade | "";
   selectedTagIds: string[];
@@ -73,11 +79,19 @@ export function nextTradeBlockKey(): string {
   return `t${tradeKeySeq}-${Date.now().toString(36)}`;
 }
 
+let rowKeySeq = 0;
+
+export function nextExecutionRowKey(): string {
+  rowKeySeq += 1;
+  return `r${rowKeySeq}-${Date.now().toString(36)}`;
+}
+
 export function emptyExecutionRow(
   side: "buy" | "sell",
   optionDefaults?: Partial<Pick<ExecutionRow, "option_right" | "strike" | "expiry">>,
 ): ExecutionRow {
   return {
+    key: nextExecutionRowKey(),
     side,
     executed_at: nowLocalDatetime(),
     quantity: "",
@@ -109,7 +123,7 @@ export function emptySymbolTrade(
     rows: partial?.rows ?? [emptyExecutionRow(side === "long" ? "buy" : "sell")],
     setupIds: partial?.setupIds ?? [],
     session: partial?.session ?? "",
-    emotionalState: partial?.emotionalState ?? "",
+    emotionalStates: partial?.emotionalStates ?? [],
     setupGrade: partial?.setupGrade ?? "",
     executionGrade: partial?.executionGrade ?? "",
     selectedTagIds: partial?.selectedTagIds ?? [],

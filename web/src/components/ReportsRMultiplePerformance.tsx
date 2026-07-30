@@ -8,10 +8,10 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import type { RSummary } from "../lib/api/types";
-import { usePrivacyMode } from "../lib/displayPrefs";
+import type { RSummary } from "@/lib/api/types";
+import { usePrivacyMode } from "@/lib/displayPrefs";
 import { Card } from "./Card";
-import { ChartFrame, chartTheme } from "./ChartFrame";
+import { ChartFrame, chartTheme, chartTooltipStyle } from "./ChartFrame";
 import { EmptyState } from "./EmptyState";
 import { Skeleton } from "./Skeleton";
 import { StatCard } from "./StatCard";
@@ -22,8 +22,8 @@ export interface ReportsRMultiplePerformanceProps {
   error: boolean;
 }
 
-const POS = "var(--color-profit)";
-const NEG = "var(--color-loss)";
+const POS = "var(--profit)";
+const NEG = "var(--loss)";
 
 function formatR(v: number): string {
   return `${v >= 0 ? "+" : ""}${v.toFixed(2)}R`;
@@ -47,7 +47,7 @@ export function ReportsRMultiplePerformance({
       {loading ? (
         <Skeleton height="280px" />
       ) : error ? (
-        <p className="text-xs text-loss">Failed to load R-multiple performance.</p>
+        <p className="text-xs text-destructive">Failed to load R-multiple performance.</p>
       ) : !hasData ? (
         <EmptyState title="No R data" hint="Set stops on your trades to see R-multiples." />
       ) : (
@@ -103,12 +103,7 @@ export function ReportsRMultiplePerformance({
                       allowDecimals={false}
                     />
                     <Tooltip
-                      contentStyle={{
-                        background: chartTheme.tooltipBg,
-                        border: `1px solid ${chartTheme.tooltipBorder}`,
-                        color: chartTheme.tooltipText,
-                        fontSize: 11,
-                      }}
+                      {...chartTooltipStyle}
                       formatter={(value) => {
                         const count = Number(value ?? 0);
                         const pct = included > 0 ? ((count / included) * 100).toFixed(0) : "0";
@@ -124,7 +119,7 @@ export function ReportsRMultiplePerformance({
                   </BarChart>
                 </ResponsiveContainer>
               </ChartFrame>
-              <p className="mt-2 text-[11px] text-text-muted">
+              <p className="mt-2 text-[11px] text-muted-foreground">
                 Showing {included} of {included + excluded} closed trades
                 {excluded > 0 ? `, ${excluded} excluded (no stop)` : ""}
               </p>

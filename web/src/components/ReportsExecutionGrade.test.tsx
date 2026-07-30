@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vite-plus/test";
-import type { BreakGroup } from "../lib/api/types";
+import type { BreakGroup } from "@/lib/api/types";
 import { ReportsDisplayProvider } from "./ReportsDisplayContext";
 import { ReportsExecutionGrade } from "./ReportsExecutionGrade";
 
@@ -50,7 +50,7 @@ describe("ReportsExecutionGrade", () => {
   it("colors net P&L by sign", () => {
     render(<ReportsExecutionGrade {...props} breakdown={[grp("5", 200), grp("1", -100)]} />);
     expect(screen.getByText("+$200.00")).toHaveClass("text-profit");
-    expect(screen.getByText("-$100.00")).toHaveClass("text-loss");
+    expect(screen.getByText("-$100.00")).toHaveClass("text-destructive");
   });
 
   it("sizes each bar proportionally to |net P&L|", () => {

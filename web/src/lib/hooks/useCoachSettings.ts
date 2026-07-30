@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { LlmApiModelsRequest, LlmApiSettingsTestRequest } from "../llmApiSettings";
-import { type CoachSettingsPut, settingsApi } from "../api/settings";
+import type { LlmApiModelsRequest, LlmApiSettingsTestRequest } from "@/lib/llmApiSettings";
+import { type CoachSettingsPut, settingsApi } from "@/lib/api/settings";
 
 export function useCoachSettings() {
   return useQuery({

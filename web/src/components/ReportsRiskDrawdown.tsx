@@ -7,19 +7,19 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import type { EquityPoint, Trade } from "../lib/api/types";
-import { uniqueDayTicks } from "../lib/chartTicks";
-import { useDisplayTimePrefs, usePrivacyMode } from "../lib/displayPrefs";
-import { fmtDayShort } from "../lib/format";
-import { intlLocale } from "../lib/locale";
+import type { EquityPoint, Trade } from "@/lib/api/types";
+import { uniqueDayTicks } from "@/lib/chartTicks";
+import { useDisplayTimePrefs, usePrivacyMode } from "@/lib/displayPrefs";
+import { fmtDayShort } from "@/lib/format";
+import { intlLocale } from "@/lib/locale";
 import {
   avgRiskPerTrade,
   currentDrawdownPct,
   drawdownSeries,
   maxDrawdownPct,
-} from "../lib/reportsAnalytics";
+} from "@/lib/reportsAnalytics";
 import { Card } from "./Card";
-import { ChartFrame, chartTheme } from "./ChartFrame";
+import { ChartFrame, chartTheme, chartTooltipStyle, pnlTooltipValue } from "./ChartFrame";
 import { EmptyState } from "./EmptyState";
 import { useReportsMoney } from "./ReportsDisplayContext";
 import { Skeleton } from "./Skeleton";
@@ -59,7 +59,7 @@ export function ReportsRiskDrawdown({
       {loading ? (
         <Skeleton height="240px" />
       ) : error ? (
-        <p className="text-xs text-loss">Failed to load risk &amp; drawdown.</p>
+        <p className="text-xs text-destructive">Failed to load risk &amp; drawdown.</p>
       ) : equityPoints.length === 0 ? (
         <EmptyState title="No data" hint="Add trades to see risk and drawdown stats." />
       ) : (
@@ -101,8 +101,8 @@ export function ReportsRiskDrawdown({
                 <AreaChart data={series} margin={{ top: 8, right: 8, bottom: 0, left: 4 }}>
                   <defs>
                     <linearGradient id="dd-fill" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="var(--color-loss)" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="var(--color-loss)" stopOpacity={0} />
+                      <stop offset="5%" stopColor="var(--loss)" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="var(--loss)" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid vertical={false} stroke={chartTheme.gridColor} />
@@ -124,18 +124,16 @@ export function ReportsRiskDrawdown({
                     domain={["auto", 0]}
                   />
                   <Tooltip
-                    contentStyle={{
-                      background: chartTheme.tooltipBg,
-                      border: `1px solid ${chartTheme.tooltipBorder}`,
-                      color: chartTheme.tooltipText,
-                      fontSize: 11,
-                    }}
-                    formatter={(value) => [fmtDrawdownPct(Number(value ?? 0)), "Drawdown"]}
+                    {...chartTooltipStyle}
+                    formatter={(value) => [
+                      pnlTooltipValue(Number(value ?? 0), fmtDrawdownPct(Number(value ?? 0))),
+                      "Drawdown",
+                    ]}
                   />
                   <Area
                     type="monotone"
                     dataKey="drawdownPct"
-                    stroke="var(--color-loss)"
+                    stroke="var(--loss)"
                     strokeWidth={1.5}
                     fill="url(#dd-fill)"
                     dot={false}

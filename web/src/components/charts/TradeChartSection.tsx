@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
-import type { BarInterval } from "../../lib/api/market";
-import type { TradeDetail } from "../../lib/api/types";
+import type { BarInterval } from "@/lib/api/market";
+import type { TradeDetail } from "@/lib/api/types";
 import {
   chartWindowFromTrade,
   defaultBarInterval,
   isChartableSymbol,
   useMarketBars,
-} from "../../lib/hooks/useMarketBars";
-import { Modal } from "../Modal";
+} from "@/lib/hooks/useMarketBars";
+import { Modal } from "@/components/Modal";
 import { TradeChart } from "./TradeChart";
 
 function modalChartHeight(): number {

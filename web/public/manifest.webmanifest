@@ -4,8 +4,8 @@
   "description": "Self-hosted trading journal",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#09090b",
-  "theme_color": "#09090b",
+  "background_color": "#161616",
+  "theme_color": "#161616",
   "icons": [
     {
       "src": "/icon-192.png",

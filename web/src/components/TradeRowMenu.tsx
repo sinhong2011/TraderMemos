@@ -1,10 +1,10 @@
-import { Copy, ExternalLink, Filter, MoreHorizontal, PanelRight, Trash2 } from "lucide-react";
+import { Copy, ExternalLink, Filter, MoreVertical, PanelRight, Trash2 } from "lucide-react";
 import { useId, useState } from "react";
-import type { Trade } from "../lib/api/types";
-import { cn } from "../lib/cn";
-import { useDeleteTrade } from "../lib/hooks/useTradeDetail";
+import type { Trade } from "@/lib/api/types";
+import { cn } from "@/lib/cn";
+import { useDeleteTrade } from "@/lib/hooks/useTradeDetail";
 import { Modal } from "./Modal";
-import { SignalInput } from "./SignalInput";
+import { FormInput } from "./FormInput";
 import { useToastManager } from "./Toast";
 import { Button } from "./ui/button";
 import {
@@ -13,7 +13,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
+} from "./ui/menu";
 
 export interface TradeRowActions {
   /** Quick peek drawer. Omit when the list already opens the full page on row click. */
@@ -27,9 +27,9 @@ export interface TradeRowActions {
 }
 
 const triggerClass = cn(
-  "-my-2 flex h-9 w-9 cursor-pointer items-center justify-center rounded-control",
-  "text-text-muted transition-colors hover:bg-bg-hover hover:text-text",
-  "outline-none focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-border-strong",
+  "-my-2 flex h-9 w-9 cursor-pointer items-center justify-center rounded-md",
+  "text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
+  "outline-none focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ring",
 );
 
 export function TradeRowMenu({ trade, actions }: { trade: Trade; actions: TradeRowActions }) {
@@ -82,9 +82,9 @@ export function TradeRowMenu({ trade, actions }: { trade: Trade; actions: TradeR
       <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
         <DropdownMenuTrigger
           aria-label={`Actions for ${trade.symbol}`}
-          className={cn(triggerClass, menuOpen && "bg-bg-hover text-text")}
+          className={cn(triggerClass, menuOpen && "bg-accent text-foreground")}
         >
-          <MoreHorizontal size={14} strokeWidth={1.5} aria-hidden />
+          <MoreVertical size={14} strokeWidth={1.5} aria-hidden />
         </DropdownMenuTrigger>
         <DropdownMenuContent
           align="end"
@@ -130,7 +130,7 @@ export function TradeRowMenu({ trade, actions }: { trade: Trade; actions: TradeR
           ) : null}
           <DropdownMenuSeparator />
           <DropdownMenuItem
-            className="text-loss data-[highlighted]:bg-loss/10 data-[highlighted]:text-loss"
+            variant="destructive"
             onClick={() => {
               setMenuOpen(false);
               setDeleteOpen(true);
@@ -162,21 +162,24 @@ export function TradeRowMenu({ trade, actions }: { trade: Trade; actions: TradeR
               variant="destructive"
               disabled={!canDelete || deleteTrade.isPending}
               onClick={() => void handleDelete()}
-              className="border-transparent bg-loss/15 hover:bg-loss/25"
+              className="border-transparent bg-destructive/15 hover:bg-destructive/25"
             >
               {deleteTrade.isPending ? "Removing…" : "Remove trade"}
             </Button>
           </>
         }
       >
-        <p className="m-0 text-[13px] leading-relaxed text-text-muted">
+        <p className="m-0 text-[13px] leading-relaxed text-muted-foreground">
           Permanently deletes this trade and all of its fills. This cannot be undone.
         </p>
         <div>
-          <label htmlFor={confirmInputId} className="mb-1.5 block text-[11px] text-text-dim">
-            Type <span className="font-medium text-text">{trade.symbol}</span> to confirm
+          <label
+            htmlFor={confirmInputId}
+            className="mb-1.5 block text-[11px] text-muted-foreground"
+          >
+            Type <span className="font-medium text-foreground">{trade.symbol}</span> to confirm
           </label>
-          <SignalInput
+          <FormInput
             id={confirmInputId}
             value={typedConfirm}
             onChange={(e) => setTypedConfirm(e.target.value)}

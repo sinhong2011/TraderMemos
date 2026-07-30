@@ -1,4 +1,5 @@
-import { cn } from "../../../lib/cn";
+import { Card } from "@/components/Card";
+import { cn } from "@/lib/cn";
 
 export type TradeTicketRow = {
   label: string;
@@ -18,28 +19,23 @@ export function TradeTicket({
   rows: TradeTicketRow[];
 }) {
   return (
-    <div className="rounded-card bg-bg-panel p-4">
-      <div className="mb-4">
-        <p className="m-0 text-[10px] font-semibold uppercase tracking-widest text-text-muted">
-          {heroLabel}
-        </p>
-        <p className="m-0 mt-1 text-[28px] font-semibold leading-none tracking-tight tabular-nums text-text">
-          {heroValue}
-          {heroUnit ? (
-            <span className="ml-1.5 text-[14px] font-medium text-text-muted">{heroUnit}</span>
-          ) : null}
-        </p>
-      </div>
-      <dl className="grid gap-2">
+    <Card title={heroLabel}>
+      <p className="m-0 text-[32px] font-semibold leading-none tracking-tight tabular-nums text-foreground">
+        {heroValue}
+        {heroUnit ? (
+          <span className="ml-1.5 text-base font-medium text-muted-foreground">{heroUnit}</span>
+        ) : null}
+      </p>
+      <dl className="mt-5 grid gap-2.5">
         {rows.map((row) => (
-          <div key={row.label} className="flex items-baseline justify-between gap-2">
-            <dt className="text-[10px] uppercase tracking-widest text-text-muted">{row.label}</dt>
+          <div key={row.label} className="flex items-baseline justify-between gap-3">
+            <dt className="text-[13px] text-muted-foreground">{row.label}</dt>
             <dd
               className={cn(
-                "m-0 text-xs font-semibold tabular-nums",
+                "m-0 text-[13px] font-medium tabular-nums",
                 row.tone === "profit" && "text-profit",
-                row.tone === "loss" && "text-loss",
-                !row.tone && "text-text",
+                row.tone === "loss" && "text-destructive",
+                !row.tone && "text-foreground",
               )}
             >
               {row.value}
@@ -47,6 +43,6 @@ export function TradeTicket({
           </div>
         ))}
       </dl>
-    </div>
+    </Card>
   );
 }

@@ -1,13 +1,13 @@
-import { cn } from "../lib/cn";
+import { cn } from "@/lib/cn";
 import type { PillTone } from "./Pill";
 import { Button } from "./ui/button";
 
 const TONE_VALUE: Record<PillTone, string> = {
   pos: "text-profit",
-  neg: "text-loss",
-  accent: "text-accent",
-  amber: "text-signal",
-  muted: "text-text",
+  neg: "text-destructive",
+  accent: "text-primary",
+  amber: "text-chart-3",
+  muted: "text-foreground",
 };
 
 /**
@@ -31,18 +31,15 @@ export function StatBar({
 }) {
   const interactive = Boolean(onClick);
 
-  const shell = cn(
-    "flex h-full min-h-[91px] w-full flex-col rounded-card px-3 py-3.5",
-    "bg-bg-panel",
-  );
+  const shell = cn("flex h-full min-h-[91px] w-full flex-col rounded-lg px-3 py-3.5", "bg-card");
 
   const inner = (
     <>
       <span
         className={cn(
-          "self-start text-left text-[12px] font-medium tracking-wide text-text-muted",
+          "self-start text-left text-[12px] font-medium tracking-wide text-muted-foreground",
           interactive && "transition-colors duration-150 ease-out",
-          interactive && (active ? "text-text" : "group-hover:text-text"),
+          interactive && (active ? "text-foreground" : "group-hover:text-foreground"),
         )}
       >
         {label}
@@ -54,7 +51,9 @@ export function StatBar({
           >
             {value}
           </span>
-          {sub ? <span className="text-[13px] tabular-nums text-text-dim">{sub}</span> : null}
+          {sub ? (
+            <span className="text-[13px] tabular-nums text-muted-foreground">{sub}</span>
+          ) : null}
         </div>
       </div>
     </>
@@ -74,7 +73,7 @@ export function StatBar({
         "group h-auto flex-col items-stretch whitespace-normal border-none",
         shell,
         "motion-reduce:transition-none",
-        active ? "bg-accent-bg hover:bg-accent-bg" : "hover:bg-bg-hover",
+        active ? "bg-primary/10 hover:bg-primary/10" : "hover:bg-accent",
       )}
     >
       {inner}

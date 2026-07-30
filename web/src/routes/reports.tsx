@@ -5,16 +5,18 @@ import {
   REPORT_TABS,
   type ReportsTab,
   ReportsView,
-} from "../app/screens/ReportsView";
-import type { ReportsDuration, ReportsSide } from "../components/ReportsControlBar";
-import type { PnlMode, UnitMode } from "../components/ReportsDisplayContext";
-import { TradeDetailSheet } from "../components/TradeDetailSheet";
-import { tradesOnDay } from "../lib/calendar";
-import { accountBaseCurrency } from "../lib/displayPrefs";
-import { useFilterParams, useFilters } from "../lib/filters";
-import { useAccounts } from "../lib/hooks/useAccounts";
-import { useBreakdown, useEquityCurve, useRSummary, useSummary } from "../lib/hooks/useAnalytics";
-import { useTrades } from "../lib/hooks/useTrades";
+} from "@/app/screens/ReportsView";
+import type { ReportsDuration, ReportsSide } from "@/components/ReportsControlBar";
+import type { PnlMode, UnitMode } from "@/components/ReportsDisplayContext";
+import { TradeDetailSheet } from "@/components/TradeDetailSheet";
+import { ytdFiltersForYear } from "@/lib/annualGoal";
+import { tradesOnDay } from "@/lib/calendar";
+import { accountBaseCurrency } from "@/lib/displayPrefs";
+import { useFilterParams, useFilters } from "@/lib/filters";
+import { useAccounts } from "@/lib/hooks/useAccounts";
+import { useBreakdown, useEquityCurve, useRSummary, useSummary } from "@/lib/hooks/useAnalytics";
+import { useAnnualGoal, useClearAnnualGoal, useSaveAnnualGoal } from "@/lib/hooks/useAnnualGoal";
+import { useTrades } from "@/lib/hooks/useTrades";
 
 const REPORT_TAB_VALUES: ReportsTab[] = REPORT_TABS.map((t) => t.value);
 const SIDE_VALUES: ReportsSide[] = ["all", "long", "short"];
@@ -51,12 +53,12 @@ export const Route = createFileRoute("/reports")({
 function ReportsPage() {
   const filters = useFilterParams();
   const accountId = useFilters((s) => s.accountId);
-  const setSymbol = useFilters((s) => s.setSymbol);
   const [dim, setDim] = useState<BreakdownDim>("setup");
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [selectedTradeId, setSelectedTradeId] = useState<string | null>(null);
   const { tab, side, dur, pnl, unit } = Route.useSearch();
   const navigate = Route.useNavigate();
+  const goalYear = new Date().getFullYear();
   const onTabChange = (next: ReportsTab) =>
     void navigate({ to: "/reports", search: (prev) => ({ ...prev, tab: next }) });
   const onSideChange = (next: ReportsSide) =>
@@ -76,8 +78,13 @@ function ReportsPage() {
     }),
     [filters, side, dur],
   );
+  const ytdFilters = useMemo(
+    () => ytdFiltersForYear(analyticsFilters, goalYear),
+    [analyticsFilters, goalYear],
+  );
 
   const summaryQ = useSummary(analyticsFilters);
+  const ytdSummaryQ = useSummary(ytdFilters);
   const rSummaryQ = useRSummary(analyticsFilters);
   const equityQ = useEquityCurve(analyticsFilters);
   const tradesQ = useTrades(analyticsFilters);
@@ -93,6 +100,9 @@ function ReportsPage() {
   const sessionBreakdownQ = useBreakdown("session", analyticsFilters);
   const qualityBreakdownQ = useBreakdown("trade_quality", analyticsFilters);
   const accountsQ = useAccounts();
+  const annualGoalQ = useAnnualGoal(goalYear);
+  const saveAnnualGoalM = useSaveAnnualGoal();
+  const clearAnnualGoalM = useClearAnnualGoal();
   const currency = accountBaseCurrency(accountsQ.data ?? [], accountId);
   const denominator = useMemo(() => {
     const accts = accountsQ.data ?? [];
@@ -156,10 +166,17 @@ function ReportsPage() {
         dayTradesLoading={Boolean(selectedDay) && tradesQ.isLoading}
         dayTradesError={Boolean(selectedDay) && tradesQ.isError}
         onSelectTrade={(t) => setSelectedTradeId(t.id)}
-        onOpenFullPage={(t) => void navigate({ to: "/trades/$id", params: { id: t.id } })}
-        onFilterSymbol={(symbol) => setSymbol(symbol)}
-        onTradeDeleted={(t) => {
-          if (selectedTradeId === t.id) setSelectedTradeId(null);
+        goalYear={goalYear}
+        goalAmount={annualGoalQ.data?.amount}
+        goalLoading={annualGoalQ.isLoading}
+        goalSaving={saveAnnualGoalM.isPending || clearAnnualGoalM.isPending}
+        ytdNetPnl={ytdSummaryQ.data?.net_pnl}
+        ytdLoading={ytdSummaryQ.isLoading}
+        onSaveGoal={async (amount) => {
+          await saveAnnualGoalM.mutateAsync({ year: goalYear, amount });
+        }}
+        onClearGoal={async () => {
+          await clearAnnualGoalM.mutateAsync(goalYear);
         }}
       />
       <TradeDetailSheet tradeId={selectedTradeId} onClose={() => setSelectedTradeId(null)} />

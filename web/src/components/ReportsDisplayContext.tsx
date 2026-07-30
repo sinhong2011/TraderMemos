@@ -1,7 +1,7 @@
 import { createContext, useContext, type ReactNode } from "react";
-import type { Summary, Trade } from "../lib/api/types";
-import { fmtPct, fmtSignedMoney, fmtSignedMoneyCompact } from "../lib/format";
-import { intlLocale } from "../lib/locale";
+import type { Summary, Trade } from "@/lib/api/types";
+import { fmtPct, fmtSignedMoney, fmtSignedMoneyCompact } from "@/lib/format";
+import { intlLocale } from "@/lib/locale";
 
 export type PnlMode = "net" | "gross";
 export type UnitMode = "abs" | "pct";

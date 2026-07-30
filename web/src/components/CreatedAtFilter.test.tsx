@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it } from "vite-plus/test";
-import { useFilters } from "../lib/filters";
+import { useFilters } from "@/lib/filters";
 import { CreatedAtFilter } from "./CreatedAtFilter";
 
 describe("CreatedAtFilter", () => {

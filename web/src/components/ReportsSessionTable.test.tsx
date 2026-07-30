@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vite-plus/test";
-import type { BreakGroup, Summary } from "../lib/api/types";
+import type { BreakGroup, Summary } from "@/lib/api/types";
 import { ReportsDisplayProvider } from "./ReportsDisplayContext";
 import { ReportsSessionTable, SessionPnlCell } from "./ReportsSessionTable";
 

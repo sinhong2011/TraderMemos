@@ -1,6 +1,6 @@
 import { useEffect } from "react";
-import { setUnauthorizedHandler } from "../lib/api/client";
-import { useAuth } from "../lib/auth";
+import { setUnauthorizedHandler } from "@/lib/api/client";
+import { useAuth } from "@/lib/auth";
 import { useToastManager } from "./Toast";
 
 /** Registers a 401 handler that signs out and surfaces a toast when session expires. */

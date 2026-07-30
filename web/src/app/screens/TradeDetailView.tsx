@@ -1,4 +1,4 @@
-import { ArrowLeft, Loader2, Pencil, RefreshCw, Trash2, Zap } from "lucide-react";
+import { ArrowLeft, Loader2, MoreVertical, Pencil, RefreshCw, Trash2 } from "lucide-react";
 import {
   forwardRef,
   useEffect,
@@ -8,471 +8,66 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { Card } from "../../components/Card";
-import { TradeChartSection } from "../../components/charts/TradeChartSection";
+import { Card } from "@/components/Card";
+import { TradeChartSection } from "@/components/charts/TradeChartSection";
 import {
   Collapsible,
   CollapsibleChevron,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "../../components/Collapsible";
-import { EmptyState } from "../../components/EmptyState";
-import { Modal } from "../../components/Modal";
-import { Page } from "../../components/Page";
-import { Pill, type PillTone } from "../../components/Pill";
-import { SignalAmountInput } from "../../components/SignalAmountInput";
-import { SignalField } from "../../components/SignalField";
-import { SignalInput, SignalTextarea } from "../../components/SignalInput";
-import { SignalSelect } from "../../components/SignalSelect";
-import { SignalToggle } from "../../components/SignalToggle";
-import { signalLabelClass } from "../../components/signal-field-styles";
-import { Skeleton } from "../../components/Skeleton";
-import { GradeControl } from "../../components/GradeControl";
-import { marketLabel } from "../../components/tradeColumns";
-import { formatOptionMarketChip, optionContractFromFills } from "../../lib/optionContract";
-import { Button } from "../../components/ui/button";
-import { heroPnlClass, pnlColor } from "../../components/theme-tokens";
-import { cn } from "../../lib/cn";
-import type { Setup, Tag, TradeDetail } from "../../lib/api/types";
-import { fmtDateTime, fmtMoney, fmtSignedMoney, fmtTime } from "../../lib/format";
+} from "@/components/Collapsible";
+import { EmptyState } from "@/components/EmptyState";
+import { Modal } from "@/components/Modal";
+import { Page } from "@/components/Page";
+import { Pill } from "@/components/Pill";
+import { AmountInput } from "@/components/AmountInput";
+import { Field } from "@/components/Field";
+import { FormInput, FormTextarea } from "@/components/FormInput";
+import { OptionsSelect } from "@/components/OptionsSelect";
+import { ToneToggle } from "@/components/ToneToggle";
+import { fieldLabelClass } from "@/components/field-styles";
+import { Skeleton } from "@/components/Skeleton";
+import { GradeControl } from "@/components/GradeControl";
+import { TradeExecutionsCard } from "@/components/TradeExecutionsCard";
+import { TradeJournalCard } from "@/components/TradeJournalCard";
+import { TradePlanCard } from "@/components/TradePlanCard";
+import { TradeSummaryCard } from "@/components/TradeSummaryCard";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/menu";
+import { cn } from "@/lib/cn";
+import type { Setup, Tag, TradeDetail } from "@/lib/api/types";
+import { fmtMoney } from "@/lib/format";
 
 import {
   buildStructuredJournalNotes,
   EMOTIONAL_STATES,
   parseJournalNotes,
-} from "../../lib/newTradeJournal";
-import { intlLocale } from "../../lib/locale";
+} from "@/lib/newTradeJournal";
+import { intlLocale } from "@/lib/locale";
 import {
   computeTradeInsights,
   generateTradeCoachNotes,
   type CoachTone,
   type TradeCoachNote,
   type TradeInsights,
-} from "../../lib/tradeInsights";
-import { useTradeCoach } from "../../lib/hooks/useTradeCoach";
+} from "@/lib/tradeInsights";
+import { useTradeCoach } from "@/lib/hooks/useTradeCoach";
 import {
   useAttachments,
   useDeleteAttachment,
   useUploadAttachment,
-} from "../../lib/hooks/useAttachments";
-import { useJournalPrefs } from "../../lib/journalPrefs";
-import { gradeFromInt, intFromGrade, TRADE_SESSIONS, type TradeGrade } from "../../lib/tradeGrades";
-import { getDisplayTimeOpts, useDisplayTimePrefs, usePrivacyMode } from "../../lib/displayPrefs";
+} from "@/lib/hooks/useAttachments";
+import { useJournalPrefs } from "@/lib/journalPrefs";
+import { gradeFromInt, intFromGrade, TRADE_SESSIONS, type TradeGrade } from "@/lib/tradeGrades";
 import {
   JournalScreenshotUpload,
   type ScreenshotAttachmentItem,
-} from "../../components/JournalScreenshotUpload";
-
-function tradeOutcome(trade: TradeDetail): { label: string; tone: PillTone } {
-  if (trade.status !== "closed") return { label: "OPEN", tone: "accent" };
-  if (trade.net_pnl == null || trade.net_pnl === 0) return { label: "FLAT", tone: "muted" };
-  return trade.net_pnl > 0 ? { label: "WIN", tone: "pos" } : { label: "LOSS", tone: "neg" };
-}
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-function calendarDayKey(d: Date, timeZone: string): string {
-  return new Intl.DateTimeFormat("en-CA", {
-    timeZone,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(d);
-}
-
-/** Compact open→close line for the header (identity, not a metric dump). */
-function fmtTradeTimeline(trade: TradeDetail, hold: string): string {
-  const opened = new Date(trade.opened_at);
-  if (Number.isNaN(opened.getTime())) return "—";
-
-  const { timeZone } = getDisplayTimeOpts();
-  const day = opened.toLocaleDateString(intlLocale(), {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    timeZone,
-  });
-  const holdPart = hold && hold !== "-" ? ` · ${hold}` : "";
-
-  if (trade.status === "open" || !trade.closed_at) {
-    return `${fmtDateTime(trade.opened_at)} · still open`;
-  }
-
-  const closed = new Date(trade.closed_at);
-  if (Number.isNaN(closed.getTime())) return `${day}${holdPart}`;
-
-  if (calendarDayKey(opened, timeZone) === calendarDayKey(closed, timeZone)) {
-    return `${day} · ${fmtTime(trade.opened_at)} → ${fmtTime(trade.closed_at)}${holdPart}`;
-  }
-
-  return `${fmtDateTime(trade.opened_at)} → ${fmtDateTime(trade.closed_at)}${holdPart}`;
-}
-
-// ---------------------------------------------------------------------------
-// Trade metric cells (header + coach)
-// ---------------------------------------------------------------------------
-
-function InsightCell({
-  label,
-  children,
-  className,
-  valueClassName,
-}: {
-  label: string;
-  children: ReactNode;
-  className?: string;
-  valueClassName?: string;
-}) {
-  return (
-    <section
-      className={cn(
-        "flex min-w-0 flex-col gap-1.5 rounded-card bg-bg-elevated px-3 py-3",
-        className,
-      )}
-    >
-      <p className="m-0 text-[10px] font-semibold uppercase tracking-widest text-text-muted">
-        {label}
-      </p>
-      <div
-        className={cn(
-          "text-[15px] font-semibold leading-none tracking-[-0.02em] tabular-nums text-text",
-          valueClassName,
-        )}
-      >
-        {children}
-      </div>
-    </section>
-  );
-}
-
-function BentoCell({ className, children }: { className?: string; children: ReactNode }) {
-  return (
-    <section
-      className={cn(
-        "flex h-full min-w-0 flex-col rounded-card bg-bg-elevated p-3 sm:p-4",
-        className,
-      )}
-    >
-      {children}
-    </section>
-  );
-}
-
-function BentoLabel({
-  children,
-  className,
-  tone = "muted",
-}: {
-  children: ReactNode;
-  className?: string;
-  tone?: "signal" | "muted";
-}) {
-  return (
-    <p
-      className={cn(
-        "m-0 text-[10px] font-semibold uppercase tracking-widest",
-        tone === "signal" ? "text-signal" : "text-text-muted",
-        className,
-      )}
-    >
-      {children}
-    </p>
-  );
-}
-
-function BentoMiniStat({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <div className="flex min-w-0 flex-col gap-1">
-      <BentoLabel>{label}</BentoLabel>
-      <div className="text-[14px] font-semibold leading-none tracking-[-0.02em] tabular-nums text-text">
-        {children}
-      </div>
-    </div>
-  );
-}
-
-function TradeMetricsBento({
-  trade,
-  insights,
-  currency,
-  hasPlan,
-  hasContext,
-}: {
-  trade: TradeDetail;
-  insights: TradeInsights;
-  currency: string;
-  hasPlan: boolean;
-  hasContext: boolean;
-}) {
-  const showPlan = hasPlan || insights.rMultiple != null;
-  const net = insights.netPnl;
-
-  return (
-    <div className="flex flex-col gap-3">
-      <div className="grid auto-rows-[minmax(72px,auto)] grid-cols-2 gap-1.5 sm:grid-cols-4 lg:grid-cols-12 lg:auto-rows-[minmax(84px,auto)] lg:gap-3">
-        <BentoCell className="col-span-2 justify-between sm:col-span-4 lg:col-span-4 lg:row-span-2">
-          <BentoLabel tone="signal">P&amp;L</BentoLabel>
-          <div className="flex flex-1 flex-col justify-center py-1">
-            <p
-              className={cn(
-                "m-0 text-[26px] font-semibold leading-none tracking-[-0.03em] tabular-nums sm:text-[30px]",
-                net != null && net > 0 && "text-profit",
-                net != null && net < 0 && "text-loss",
-                net === 0 && "text-flat",
-                net == null && "text-text-dim",
-              )}
-            >
-              {signedOrDash(insights.netPnl, currency)}
-            </p>
-            {insights.returnPct != null && (
-              <p
-                className={cn(
-                  "m-0 mt-2 text-sm font-semibold tabular-nums",
-                  pnlColor(insights.returnPct),
-                )}
-              >
-                {insights.returnPct >= 0 ? "+" : ""}
-                {insights.returnPct.toFixed(2)}%
-              </p>
-            )}
-          </div>
-          <div className="grid grid-cols-2 gap-x-4 gap-y-3 pt-2">
-            <BentoMiniStat label="Gross">{signedOrDash(insights.grossPnl, currency)}</BentoMiniStat>
-            <BentoMiniStat label="Fees">
-              <span className="text-text-muted">{moneyOrDash(insights.feesTotal, currency)}</span>
-              {insights.feeDragPct != null && (
-                <span className="ml-1 text-[10px] font-medium text-text-dim">
-                  {(insights.feeDragPct * 100).toFixed(1)}%
-                </span>
-              )}
-            </BentoMiniStat>
-          </div>
-        </BentoCell>
-
-        <BentoCell className="col-span-2 sm:col-span-4 lg:col-span-3 lg:row-span-2">
-          <BentoLabel tone="signal">Execution</BentoLabel>
-          <div className="mt-3 grid flex-1 grid-cols-2 content-center gap-x-4 gap-y-4">
-            <BentoMiniStat label="Entry">
-              {fmtMoney(trade.avg_entry_price, currency, intlLocale())}
-            </BentoMiniStat>
-            <BentoMiniStat label="Exit">
-              {trade.avg_exit_price != null
-                ? fmtMoney(trade.avg_exit_price, currency, intlLocale())
-                : "—"}
-            </BentoMiniStat>
-            <BentoMiniStat label="Qty">{insights.qtyOpened}</BentoMiniStat>
-            <BentoMiniStat label="Hold">
-              {insights.holdLabel === "-" ? "—" : insights.holdLabel}
-            </BentoMiniStat>
-            {trade.instrument_type === "option" ? (
-              <BentoMiniStat label="Mult">×{trade.fills[0]?.multiplier || 100}</BentoMiniStat>
-            ) : null}
-          </div>
-        </BentoCell>
-
-        {showPlan ? (
-          <BentoCell className="col-span-2 sm:col-span-4 lg:col-span-5 lg:row-span-2">
-            <BentoLabel tone="signal">Plan</BentoLabel>
-            <div className="mt-3 grid flex-1 grid-cols-2 content-center gap-x-4 gap-y-4 sm:grid-cols-3">
-              <BentoMiniStat label="Risk">
-                {insights.initialRisk != null && insights.initialRisk > 0
-                  ? moneyOrDash(insights.initialRisk, currency)
-                  : "—"}
-              </BentoMiniStat>
-              <BentoMiniStat label="Target">{moneyOrDash(insights.target, currency)}</BentoMiniStat>
-              <BentoMiniStat label="Stop">{moneyOrDash(insights.stop, currency)}</BentoMiniStat>
-              <BentoMiniStat label="Breakeven">
-                {moneyOrDash(insights.breakeven, currency)}
-              </BentoMiniStat>
-              <BentoMiniStat label="Planned R:R">
-                {insights.plannedRR != null ? `${insights.plannedRR.toFixed(2)}:1` : "—"}
-              </BentoMiniStat>
-              <BentoMiniStat label="Actual R">
-                {insights.rMultiple == null ? (
-                  "—"
-                ) : (
-                  <span className={pnlColor(insights.rMultiple)}>
-                    {insights.rMultiple >= 0 ? "+" : ""}
-                    {insights.rMultiple.toFixed(2)}R
-                  </span>
-                )}
-              </BentoMiniStat>
-            </div>
-          </BentoCell>
-        ) : (
-          <InsightCell
-            className="col-span-2 sm:col-span-4 lg:col-span-5 lg:row-span-2"
-            label="Actual R"
-          >
-            {insights.rMultiple == null ? (
-              <span className="text-text-dim">—</span>
-            ) : (
-              <span className={pnlColor(insights.rMultiple)}>
-                {insights.rMultiple >= 0 ? "+" : ""}
-                {insights.rMultiple.toFixed(2)}R
-              </span>
-            )}
-          </InsightCell>
-        )}
-      </div>
-
-      {hasContext && (
-        <div className="flex flex-wrap items-center gap-2">
-          {insights.setupName && (
-            <Pill tone="accent">
-              <span className="inline-flex items-center gap-1">
-                <Zap size={11} strokeWidth={1.75} aria-hidden />
-                {insights.setupName}
-              </span>
-            </Pill>
-          )}
-          {insights.emotion && <Pill tone="muted">{insights.emotion}</Pill>}
-          {insights.setupGrade && <Pill tone="accent">Setup {insights.setupGrade}</Pill>}
-          {insights.executionGrade && <Pill tone="accent">Exec {insights.executionGrade}</Pill>}
-          {(trade.tags ?? []).map((tag) => (
-            <Pill key={tag.id} tone={tag.kind === "mistake" ? "neg" : "muted"}>
-              {tag.name}
-            </Pill>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function moneyOrDash(v: number | null, currency: string): string {
-  if (v == null) return "—";
-  return fmtMoney(v, currency, intlLocale());
-}
-
-function signedOrDash(v: number | null, currency: string): ReactNode {
-  if (v == null) return <span className="text-text-dim">—</span>;
-  return <span className={pnlColor(v)}>{fmtSignedMoney(v, currency, intlLocale())}</span>;
-}
-
-// ---------------------------------------------------------------------------
-// Header
-// ---------------------------------------------------------------------------
-
-function TradeHeader({ trade, insights }: { trade: TradeDetail; insights: TradeInsights }) {
-  usePrivacyMode();
-  useDisplayTimePrefs();
-  const currency = trade.pnl_currency;
-  const pnl = trade.net_pnl;
-  const rMultiple = trade.r_multiple;
-  const returnPct = trade.return_pct;
-  const outcome = tradeOutcome(trade);
-  const hasDividends = trade.dividend_total != null && trade.dividend_total !== 0;
-  const hold = insights.holdLabel;
-  const timeline = fmtTradeTimeline(trade, hold);
-  const market = formatOptionMarketChip(
-    trade.instrument_type,
-    marketLabel(trade.instrument_type),
-    optionContractFromFills(trade.fills),
-  );
-  const direction = trade.direction.toUpperCase();
-  const hasPlan =
-    insights.target != null ||
-    insights.stop != null ||
-    insights.plannedRR != null ||
-    insights.initialRisk != null ||
-    insights.breakeven != null;
-  const hasContext =
-    insights.setupName != null ||
-    insights.emotion != null ||
-    Boolean(insights.setupGrade) ||
-    Boolean(insights.executionGrade) ||
-    insights.tagNames.length > 0;
-
-  return (
-    <Card>
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-4">
-          <div className="flex min-w-0 flex-col gap-2">
-            <div className="flex flex-wrap items-center gap-2.5">
-              <span className="text-[28px] font-semibold leading-none tracking-[-0.03em] text-text">
-                {trade.symbol}
-              </span>
-              <Pill tone={outcome.tone} title={outcome.label === "FLAT" ? "Break-even" : undefined}>
-                {outcome.label}
-              </Pill>
-              <Pill tone="muted">
-                {market} · {direction}
-              </Pill>
-            </div>
-            <p className="m-0 text-xs tabular-nums text-text-muted">{timeline}</p>
-          </div>
-
-          <div className="flex flex-col items-end gap-1.5">
-            {pnl != null ? (
-              <span
-                className={cn(
-                  heroPnlClass(pnl),
-                  pnl > 0 && "hero-glow-profit",
-                  pnl < 0 && "hero-glow-loss",
-                )}
-                title="Price P&L (excludes dividends)"
-              >
-                {fmtSignedMoney(pnl, currency, intlLocale())}
-              </span>
-            ) : (
-              <span className={heroPnlClass(null)}>—</span>
-            )}
-            <div className="flex flex-wrap items-baseline justify-end gap-x-3 gap-y-1">
-              {returnPct != null && (
-                <span className={cn("text-sm font-semibold tabular-nums", pnlColor(returnPct))}>
-                  {returnPct >= 0 ? "+" : ""}
-                  {returnPct.toFixed(2)}%
-                </span>
-              )}
-              {rMultiple != null ? (
-                <span
-                  className={cn("text-sm font-semibold tabular-nums", pnlColor(rMultiple))}
-                  title="R-multiple (price-based)"
-                >
-                  {rMultiple >= 0 ? "+" : ""}
-                  {rMultiple.toFixed(2)}R
-                </span>
-              ) : (
-                trade.initial_risk == null && (
-                  <span className="text-[11px] text-text-dim" title="No initial risk set">
-                    No R
-                  </span>
-                )
-              )}
-              {hasDividends && (
-                <span
-                  className="text-sm tabular-nums text-text-muted"
-                  title="Dividends linked to this trade"
-                >
-                  Div {fmtSignedMoney(trade.dividend_total!, currency, intlLocale())}
-                </span>
-              )}
-              {hasDividends && trade.total_pnl != null && (
-                <span
-                  className={cn("text-sm tabular-nums", pnlColor(trade.total_pnl))}
-                  title="Total = price P&L + dividends"
-                >
-                  Total {fmtSignedMoney(trade.total_pnl, currency, intlLocale())}
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <TradeMetricsBento
-          trade={trade}
-          insights={insights}
-          currency={currency}
-          hasPlan={hasPlan}
-          hasContext={hasContext}
-        />
-      </div>
-    </Card>
-  );
-}
+} from "@/components/JournalScreenshotUpload";
 
 // ---------------------------------------------------------------------------
 // Coach
@@ -481,13 +76,14 @@ function TradeHeader({ trade, insights }: { trade: TradeDetail; insights: TradeI
 function coachToneClass(tone: CoachTone): string {
   switch (tone) {
     case "neg":
-      return "text-loss";
+      return "text-destructive";
     case "warn":
-      return "text-signal";
+      // `warning` is the semantic alert token; `chart-3` is data-viz paint.
+      return "text-warning";
     case "pos":
       return "text-profit";
     default:
-      return "text-accent";
+      return "text-primary";
   }
 }
 
@@ -510,13 +106,15 @@ function TradeCoachNotes({ notes }: { notes: TradeCoachNote[] }) {
   return (
     <ul className="m-0 flex list-none flex-col gap-2 p-0">
       {notes.map((note) => (
-        <li key={note.id} className="rounded-card bg-bg-elevated px-3 py-2.5">
-          <p className="m-0 text-[11px] font-semibold uppercase tracking-widest text-text-muted">
+        <li key={note.id} className="rounded-lg bg-sidebar px-3 py-2.5">
+          <p className="m-0 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
             <span className={coachToneClass(note.tone)}>{coachToneLabel(note.tone)}</span>
-            <span className="text-text-dim"> · </span>
+            <span className="text-muted-foreground"> · </span>
             {note.headline}
           </p>
-          <p className="m-0 mt-1.5 text-[13px] leading-relaxed text-text-muted">{note.detail}</p>
+          <p className="m-0 mt-1.5 text-[13px] leading-relaxed text-muted-foreground">
+            {note.detail}
+          </p>
         </li>
       ))}
     </ul>
@@ -536,9 +134,7 @@ function toCoachNotes(
 }
 
 function TradeCoachPanel({ trade, insights }: { trade: TradeDetail; insights: TradeInsights }) {
-  usePrivacyMode();
   const [open, setOpen] = useState(true);
-  const currency = trade.pnl_currency;
   const ruleNotes = generateTradeCoachNotes(trade, insights);
   const coach = useTradeCoach(trade.id);
   const { reset: resetCoach } = coach;
@@ -554,12 +150,13 @@ function TradeCoachPanel({ trade, insights }: { trade: TradeDetail; insights: Tr
   const hasGenerated = coach.data != null || coach.isError;
   const coachNotes = llmNotes ?? ruleNotes;
   const usingLlm = llmNotes != null;
-  const hasExcursion = insights.mae != null || insights.mfe != null;
   const showAskAi = coach.coachConfigured;
 
-  if (coachNotes.length === 0 && !hasExcursion && !coach.isPending) return null;
+  // Excursion moved to the plan card — this panel is advice, not measurement,
+  // so with no notes there is nothing left to show.
+  if (coachNotes.length === 0 && !coach.isPending) return null;
 
-  const collapsedSummary = coachNotes[0]?.headline ?? (hasExcursion ? "Excursion data" : undefined);
+  const collapsedSummary = coachNotes[0]?.headline;
   const errorMsg =
     coach.data?.source === "error"
       ? coach.data.error
@@ -568,26 +165,28 @@ function TradeCoachPanel({ trade, insights }: { trade: TradeDetail; insights: Tr
         : undefined;
 
   return (
-    <section className="flex flex-col rounded-card bg-bg-panel">
+    <section className="flex flex-col rounded-lg bg-card">
       <Collapsible open={open} onOpenChange={setOpen}>
         <CollapsibleTrigger
           className="w-full items-center justify-between gap-4 px-4 py-3"
           aria-label="Coach"
         >
           <div className="flex min-w-0 flex-1 items-center gap-2 overflow-hidden">
-            <h2 className="shrink-0 text-[10px] font-semibold tracking-wide text-signal">Coach</h2>
+            {/* Same type as a Card title — Coach is a card block that happens to
+                collapse, not a differently-branded panel. */}
+            <h2 className="shrink-0 text-xs font-medium text-muted-foreground">Coach</h2>
             {hasGenerated ? (
               <span
                 className={cn(
-                  "shrink-0 rounded-control px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider",
-                  usingLlm ? "bg-accent-bg text-accent" : "bg-bg-elevated text-text-muted",
+                  "shrink-0 rounded-md px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider",
+                  usingLlm ? "bg-primary/10 text-primary" : "bg-sidebar text-muted-foreground",
                 )}
               >
                 {usingLlm ? "AI" : "Rules"}
               </span>
             ) : null}
             {!open && collapsedSummary ? (
-              <span className="truncate text-[10px] text-text-muted">{collapsedSummary}</span>
+              <span className="truncate text-[10px] text-muted-foreground">{collapsedSummary}</span>
             ) : null}
           </div>
           <CollapsibleChevron />
@@ -596,7 +195,7 @@ function TradeCoachPanel({ trade, insights }: { trade: TradeDetail; insights: Tr
           <div className="flex flex-col gap-4 px-4 pb-4">
             {showAskAi ? (
               <div className="flex items-center justify-between gap-2">
-                <p className="m-0 min-w-0 flex-1 text-[11px] text-text-dim">
+                <p className="m-0 min-w-0 flex-1 text-[11px] text-muted-foreground">
                   {coach.isPending
                     ? "Asking the coach…"
                     : usingLlm
@@ -639,44 +238,10 @@ function TradeCoachPanel({ trade, insights }: { trade: TradeDetail; insights: Tr
             )}
 
             {errorMsg && !usingLlm ? (
-              <p className="m-0 text-[11px] text-text-muted" role="status">
+              <p className="m-0 text-[11px] text-muted-foreground" role="status">
                 {errorMsg}
               </p>
             ) : null}
-
-            {hasExcursion && (
-              <div>
-                <p className={cn(signalLabelClass, "mb-2")}>Excursion</p>
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                  <InsightCell label="MAE">{signedOrDash(insights.mae, currency)}</InsightCell>
-                  <InsightCell label="MFE">{signedOrDash(insights.mfe, currency)}</InsightCell>
-                  <InsightCell label="Capture">
-                    {insights.mfeCapturePct == null ? (
-                      <span className="text-text-dim">—</span>
-                    ) : (
-                      <span className={pnlColor(insights.mfeCapturePct)}>
-                        {(insights.mfeCapturePct * 100).toFixed(0)}%
-                      </span>
-                    )}
-                  </InsightCell>
-                  <InsightCell label="Left on table">
-                    {insights.leftOnTable == null ? (
-                      <span className="text-text-dim">—</span>
-                    ) : (
-                      <span
-                        className={cn(
-                          insights.leftOnTable > 0
-                            ? "text-text-muted"
-                            : pnlColor(insights.leftOnTable),
-                        )}
-                      >
-                        {fmtSignedMoney(insights.leftOnTable, currency, intlLocale())}
-                      </span>
-                    )}
-                  </InsightCell>
-                </div>
-              </div>
-            )}
           </div>
         </CollapsibleContent>
       </Collapsible>
@@ -806,7 +371,7 @@ function TagChipGroup({
       {tags.map((tag) => {
         const active = selected.includes(tag.id);
         return (
-          <SignalToggle
+          <ToneToggle
             key={tag.id}
             pressed={active}
             tone={tone}
@@ -814,7 +379,7 @@ function TagChipGroup({
             aria-label={tag.name}
           >
             {tag.name}
-          </SignalToggle>
+          </ToneToggle>
         );
       })}
     </div>
@@ -846,8 +411,8 @@ export type JournalPanelHandle = {
 function JournalReadOnlyField({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div>
-      <p className={signalLabelClass}>{label}</p>
-      <div className="text-[13px] leading-relaxed text-text">{children}</div>
+      <p className={fieldLabelClass}>{label}</p>
+      <div className="text-[13px] leading-relaxed text-foreground">{children}</div>
     </div>
   );
 }
@@ -877,7 +442,7 @@ function JournalReadOnlyView({
   const selectedSetups = setups.filter((s) => hydrated.setup_ids.includes(s.id));
   const selectedCustom = customTags.filter((t) => hydrated.tag_ids.includes(t.id));
   const selectedMistake = mistakeTags.filter((t) => hydrated.tag_ids.includes(t.id));
-  const dash = <span className="text-text-dim">—</span>;
+  const dash = <span className="text-muted-foreground">—</span>;
 
   const moneyField = (raw: string) => {
     const n = Number.parseFloat(raw);
@@ -891,7 +456,7 @@ function JournalReadOnlyView({
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <p className={signalLabelClass}>Setups</p>
+        <p className={fieldLabelClass}>Setups</p>
         {selectedSetups.length === 0 ? (
           dash
         ) : (
@@ -925,7 +490,7 @@ function JournalReadOnlyView({
 
       {selectedCustom.length > 0 && (
         <div>
-          <p className={signalLabelClass}>Tags</p>
+          <p className={fieldLabelClass}>Tags</p>
           <div className="flex flex-wrap gap-1.5">
             {selectedCustom.map((t) => (
               <Pill key={t.id} tone="muted">
@@ -938,7 +503,7 @@ function JournalReadOnlyView({
 
       {selectedMistake.length > 0 && (
         <div>
-          <p className={signalLabelClass}>Mistake type</p>
+          <p className={fieldLabelClass}>Mistake type</p>
           <div className="flex flex-wrap gap-1.5">
             {selectedMistake.map((t) => (
               <Pill key={t.id} tone="neg">
@@ -1125,8 +690,8 @@ export const JournalPanel = forwardRef<JournalPanelHandle, JournalPanelProps>(fu
   return (
     <div className="flex flex-col gap-4">
       {draftRestored && (
-        <div className="flex items-center justify-between gap-3 rounded-control bg-bg-hover px-3 py-2">
-          <span className="text-[11px] text-text-muted">Unsaved draft restored.</span>
+        <div className="flex items-center justify-between gap-3 rounded-md bg-accent px-3 py-2">
+          <span className="text-[11px] text-muted-foreground">Unsaved draft restored.</span>
           <Button
             type="button"
             variant="link"
@@ -1139,21 +704,21 @@ export const JournalPanel = forwardRef<JournalPanelHandle, JournalPanelProps>(fu
       )}
 
       <div>
-        <p className={signalLabelClass}>Setups (select multiple)</p>
-        <p className="mb-2 text-[10px] text-text-muted">
+        <p className={fieldLabelClass}>Setups (select multiple)</p>
+        <p className="mb-2 text-[10px] text-muted-foreground">
           First selected setup becomes the main setup.
         </p>
         {setups.length === 0 ? (
-          <p className="text-[11px] text-text-muted">No setups yet.</p>
+          <p className="text-[11px] text-muted-foreground">No setups yet.</p>
         ) : (
           <div className="flex flex-wrap gap-1.5">
             {setups.map((s) => {
               const idx = form.setup_ids.indexOf(s.id);
               const on = idx >= 0;
               return (
-                <SignalToggle key={s.id} pressed={on} onPressedChange={() => toggleSetup(s.id)}>
+                <ToneToggle key={s.id} pressed={on} onPressedChange={() => toggleSetup(s.id)}>
                   {on && idx === 0 ? `${s.name} · main` : s.name}
-                </SignalToggle>
+                </ToneToggle>
               );
             })}
           </div>
@@ -1161,26 +726,26 @@ export const JournalPanel = forwardRef<JournalPanelHandle, JournalPanelProps>(fu
       </div>
 
       <div>
-        <p className={signalLabelClass}>Session</p>
+        <p className={fieldLabelClass}>Session</p>
         <div className="flex flex-wrap gap-1.5">
           {TRADE_SESSIONS.map((s) => {
             const on = form.session === s;
             return (
-              <SignalToggle
+              <ToneToggle
                 key={s}
                 pressed={on}
                 onPressedChange={() => setForm((f) => ({ ...f, session: on ? "" : s }))}
                 aria-label={`Session ${s}`}
               >
                 {s}
-              </SignalToggle>
+              </ToneToggle>
             );
           })}
         </div>
       </div>
 
-      <SignalField label="Emotion" htmlFor="trade-emotion">
-        <SignalSelect
+      <Field label="Emotion" htmlFor="trade-emotion">
+        <OptionsSelect
           id="trade-emotion"
           value={form.emotional_state}
           onValueChange={(emotional_state) => setForm((f) => ({ ...f, emotional_state }))}
@@ -1191,55 +756,55 @@ export const JournalPanel = forwardRef<JournalPanelHandle, JournalPanelProps>(fu
           ariaLabel="Emotion"
           triggerClassName="h-9 text-[12px]"
         />
-      </SignalField>
+      </Field>
 
       <div className="grid grid-cols-3 gap-3">
-        <SignalField label="Initial risk" htmlFor="trade-risk">
-          <SignalAmountInput
+        <Field label="Initial risk" htmlFor="trade-risk">
+          <AmountInput
             id="trade-risk"
             value={form.initial_risk}
             onValueChange={(initial_risk) => setForm((f) => ({ ...f, initial_risk }))}
             placeholder="0.00"
           />
-        </SignalField>
-        <SignalField label="Target" htmlFor="trade-target">
-          <SignalAmountInput
+        </Field>
+        <Field label="Target" htmlFor="trade-target">
+          <AmountInput
             id="trade-target"
             value={form.target_price}
             onValueChange={(target_price) => setForm((f) => ({ ...f, target_price }))}
             placeholder="Target"
           />
-        </SignalField>
-        <SignalField label="Stop" htmlFor="trade-stop">
-          <SignalAmountInput
+        </Field>
+        <Field label="Stop" htmlFor="trade-stop">
+          <AmountInput
             id="trade-stop"
             value={form.stop_price}
             onValueChange={(stop_price) => setForm((f) => ({ ...f, stop_price }))}
             placeholder="Stop"
           />
-        </SignalField>
+        </Field>
       </div>
 
       {customTags.length > 0 && (
-        <SignalField label="Tags">
+        <Field label="Tags">
           <TagChipGroup
             tags={customTags}
             selected={form.tag_ids}
             onToggle={toggleTag}
             tone="accent"
           />
-        </SignalField>
+        </Field>
       )}
 
       {mistakeTags.length > 0 && (
-        <SignalField label="Mistake type">
+        <Field label="Mistake type">
           <TagChipGroup
             tags={mistakeTags}
             selected={form.tag_ids}
             onToggle={toggleTag}
             tone="neg"
           />
-        </SignalField>
+        </Field>
       )}
 
       <RatingField
@@ -1255,55 +820,55 @@ export const JournalPanel = forwardRef<JournalPanelHandle, JournalPanelProps>(fu
         onChange={(trade_quality) => setForm((f) => ({ ...f, trade_quality }))}
       />
 
-      <SignalField label="Entry reason" htmlFor="trade-entry-reason">
-        <SignalTextarea
+      <Field label="Entry reason" htmlFor="trade-entry-reason">
+        <FormTextarea
           id="trade-entry-reason"
           value={form.entry_reason}
           onChange={(e) => setForm((f) => ({ ...f, entry_reason: e.target.value }))}
           rows={2}
           placeholder="Why did you enter?"
         />
-      </SignalField>
+      </Field>
 
-      <SignalField label="Exit reason" htmlFor="trade-exit-reason">
-        <SignalTextarea
+      <Field label="Exit reason" htmlFor="trade-exit-reason">
+        <FormTextarea
           id="trade-exit-reason"
           value={form.exit_reason}
           onChange={(e) => setForm((f) => ({ ...f, exit_reason: e.target.value }))}
           rows={2}
           placeholder="Why did you exit?"
         />
-      </SignalField>
+      </Field>
 
-      <SignalField label="Review notes" htmlFor="trade-review-notes">
-        <SignalTextarea
+      <Field label="Review notes" htmlFor="trade-review-notes">
+        <FormTextarea
           id="trade-review-notes"
           value={form.review_notes}
           onChange={(e) => setForm((f) => ({ ...f, review_notes: e.target.value }))}
           rows={3}
           placeholder="What would you do differently?"
         />
-      </SignalField>
+      </Field>
 
       <div className="grid grid-cols-2 gap-3">
-        <SignalField label="MAE ($)" htmlFor="trade-mae">
-          <SignalAmountInput
+        <Field label="MAE ($)" htmlFor="trade-mae">
+          <AmountInput
             id="trade-mae"
             value={form.mae}
             onValueChange={(mae) => setForm((f) => ({ ...f, mae }))}
             placeholder="Max adverse"
             allowNegative
           />
-        </SignalField>
-        <SignalField label="MFE ($)" htmlFor="trade-mfe">
-          <SignalAmountInput
+        </Field>
+        <Field label="MFE ($)" htmlFor="trade-mfe">
+          <AmountInput
             id="trade-mfe"
             value={form.mfe}
             onValueChange={(mfe) => setForm((f) => ({ ...f, mfe }))}
             placeholder="Max favorable"
             allowNegative
           />
-        </SignalField>
+        </Field>
       </div>
 
       {children}
@@ -1350,17 +915,19 @@ export function TradeDetailView({
   const [typedConfirm, setTypedConfirm] = useState("");
   const confirmInputId = useId();
 
+  // Placeholder heights mirror the real cards — summary, plan, chart — so the
+  // page does not jump when the trade lands.
   if (loading) {
     return (
       <Page fill>
         <Card>
-          <Skeleton height="96px" />
+          <Skeleton height="132px" />
         </Card>
         <Card>
-          <Skeleton height="280px" />
+          <Skeleton height="180px" />
         </Card>
         <Card>
-          <Skeleton height="420px" />
+          <Skeleton height="320px" />
         </Card>
       </Page>
     );
@@ -1401,33 +968,44 @@ export function TradeDetailView({
         ) : (
           <span />
         )}
+        {/* Edit is the action a review reaches for; delete is rare and
+            irreversible, so it moves into the overflow menu instead of sitting
+            on the page as the loudest element on it. */}
         <div className="flex shrink-0 items-center gap-1.5">
           {onEdit && (
             <Button
               type="button"
-              variant="ghost"
-              size="icon-sm"
-              className="shrink-0"
-              aria-label="Edit trade"
-              title="Edit trade"
+              variant="soft"
+              size="sm"
+              className="shrink-0 gap-1.5"
               onClick={onEdit}
               disabled={deleting}
             >
-              <Pencil size={15} strokeWidth={1.5} aria-hidden />
+              <Pencil size={14} strokeWidth={1.5} aria-hidden />
+              Edit trade
             </Button>
           )}
           {onDelete ? (
-            <Button
-              type="button"
-              variant="destructive"
-              size="icon-sm"
-              aria-label="Remove trade"
-              title="Remove trade"
-              onClick={() => setDeleteOpen(true)}
-              disabled={deleting}
-            >
-              <Trash2 size={15} strokeWidth={1.5} aria-hidden />
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                aria-label="Trade actions"
+                disabled={deleting}
+                className={cn(
+                  "flex size-8 cursor-pointer items-center justify-center rounded-md border-none bg-transparent",
+                  "text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
+                  "outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+                  "disabled:cursor-not-allowed disabled:opacity-50",
+                )}
+              >
+                <MoreVertical size={15} strokeWidth={1.5} aria-hidden />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" side="bottom" sideOffset={4} className="p-1">
+                <DropdownMenuItem variant="destructive" onClick={() => setDeleteOpen(true)}>
+                  <Trash2 size={14} strokeWidth={1.5} aria-hidden />
+                  Remove trade
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : null}
         </div>
       </div>
@@ -1455,21 +1033,24 @@ export function TradeDetailView({
                 onClick={() => {
                   void Promise.resolve(onDelete()).finally(() => closeDeleteModal(false));
                 }}
-                className="border-transparent bg-loss/15 hover:bg-loss/25"
+                className="border-transparent bg-destructive/15 hover:bg-destructive/25"
               >
                 {deleting ? "Removing…" : "Remove trade"}
               </Button>
             </>
           }
         >
-          <p className="m-0 text-[13px] leading-relaxed text-text-muted">
+          <p className="m-0 text-[13px] leading-relaxed text-muted-foreground">
             Permanently deletes this trade and all of its fills. This cannot be undone.
           </p>
           <div>
-            <label htmlFor={confirmInputId} className="mb-1.5 block text-[11px] text-text-dim">
-              Type <span className="font-medium text-text">{trade.symbol}</span> to confirm
+            <label
+              htmlFor={confirmInputId}
+              className="mb-1.5 block text-[11px] text-muted-foreground"
+            >
+              Type <span className="font-medium text-foreground">{trade.symbol}</span> to confirm
             </label>
-            <SignalInput
+            <FormInput
               id={confirmInputId}
               value={typedConfirm}
               onChange={(e) => setTypedConfirm(e.target.value)}
@@ -1482,17 +1063,26 @@ export function TradeDetailView({
         </Modal>
       ) : null}
 
-      <TradeHeader trade={trade} insights={insights} />
+      {/* Ordered by the questions a review actually asks: what happened, did it
+          follow the plan, what did price do, why did I take it, how was it
+          filled, what should change, what did it look like. */}
+      <TradeSummaryCard trade={trade} insights={insights} />
+
+      <TradePlanCard trade={trade} insights={insights} onEdit={onEdit} />
 
       <Card flush className="pt-4">
         <TradeChartSection trade={trade} />
       </Card>
 
+      <TradeJournalCard trade={trade} onEdit={onEdit} />
+
+      <TradeExecutionsCard trade={trade} />
+
+      <TradeCoachPanel trade={trade} insights={insights} />
+
       <Card title="Screenshots" description="Charts and fills attached to this trade.">
         <TradeScreenshotsSection tradeId={trade.id} />
       </Card>
-
-      <TradeCoachPanel trade={trade} insights={insights} />
     </Page>
   );
 }

@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it } from "vite-plus/test";
-import type { BreakGroup } from "../lib/api/types";
-import { DISPLAY_PREFS_STORAGE_KEY, useDisplayPrefs } from "../lib/displayPrefs";
+import type { BreakGroup } from "@/lib/api/types";
+import { DISPLAY_PREFS_STORAGE_KEY, useDisplayPrefs } from "@/lib/displayPrefs";
 import { ReportsDisplayProvider } from "./ReportsDisplayContext";
 import { ReportsHourlyList } from "./ReportsHourlyList";
 

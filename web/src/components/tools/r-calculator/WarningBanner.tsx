@@ -1,6 +1,7 @@
-import type { Warning } from "../../../lib/r-calculator/calc";
-import { msg } from "../../../lib/r-calculator/messages";
-import { cn } from "../../../lib/cn";
+import { AlertTriangle, CircleAlert } from "lucide-react";
+import type { Warning } from "@/lib/r-calculator/calc";
+import { msg } from "@/lib/r-calculator/messages";
+import { Alert, AlertTitle } from "@/components/ui/alert";
 
 export function WarningBanner({ warns }: { warns: Warning[] }) {
   if (warns.length === 0) return null;
@@ -9,24 +10,27 @@ export function WarningBanner({ warns }: { warns: Warning[] }) {
   const notes = warns.filter((w) => w.tone === "ok");
 
   return (
-    <div className="flex flex-col gap-1.5" role="status" aria-live="polite">
-      {serious.map((w) => (
-        <div
-          key={w.key}
-          className={cn(
-            "rounded-control px-3 py-2 text-[11px] leading-relaxed",
-            w.tone === "danger" && "bg-loss/10 text-loss",
-            w.tone === "caution" && "bg-signal/5 text-signal",
-          )}
-        >
-          {msg(w.key)}
+    // Each `Alert` carries its own `role="alert"`; the notes get a polite region below.
+    <div className="flex flex-col gap-2">
+      {serious.map((w) => {
+        const danger = w.tone === "danger";
+        const Icon = danger ? CircleAlert : AlertTriangle;
+        return (
+          <Alert key={w.key} variant={danger ? "error" : "warning"}>
+            <Icon aria-hidden />
+            <AlertTitle className="font-normal">{msg(w.key)}</AlertTitle>
+          </Alert>
+        );
+      })}
+      {notes.length > 0 ? (
+        <div className="flex flex-col gap-1" role="status" aria-live="polite">
+          {notes.map((w) => (
+            <p key={w.key} className="m-0 text-xs text-muted-foreground">
+              {msg(w.key)}
+            </p>
+          ))}
         </div>
-      ))}
-      {notes.map((w) => (
-        <p key={w.key} className="m-0 text-[11px] text-text-dim">
-          {msg(w.key)}
-        </p>
-      ))}
+      ) : null}
     </div>
   );
 }

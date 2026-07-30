@@ -1,11 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { PlaybookView } from "../app/screens/PlaybookView";
-import { useToastManager } from "../components/Toast";
-import { accountBaseCurrency } from "../lib/displayPrefs";
-import { useFilterParams, useFilters } from "../lib/filters";
-import { useAccounts } from "../lib/hooks/useAccounts";
-import { useBreakdown } from "../lib/hooks/useAnalytics";
-import { useDeleteSetup, useSetups } from "../lib/hooks/useSetups";
+import { PlaybookView } from "@/app/screens/PlaybookView";
+import { useToastManager } from "@/components/Toast";
+import { accountBaseCurrency } from "@/lib/displayPrefs";
+import { useFilterParams, useFilters } from "@/lib/filters";
+import { useAccounts } from "@/lib/hooks/useAccounts";
+import { useBreakdown } from "@/lib/hooks/useAnalytics";
+import { useDeleteSetup, useSetups } from "@/lib/hooks/useSetups";
 
 export const Route = createFileRoute("/playbook")({
   component: PlaybookPage,

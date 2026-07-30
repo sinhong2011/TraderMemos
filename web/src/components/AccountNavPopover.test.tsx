@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
-import { useFilters } from "../lib/filters";
+import { useFilters } from "@/lib/filters";
 import { AccountNavPopover } from "./AccountNavPopover";
 
 vi.mock("../lib/auth", () => ({
@@ -33,13 +33,15 @@ describe("AccountNavPopover", () => {
     useFilters.getState().reset();
   });
 
-  it("lists accounts and sets the filter", async () => {
+  it("lists accounts with their ledger currency and sets the filter", async () => {
     const user = userEvent.setup();
     wrap(<AccountNavPopover />);
 
     await user.click(screen.getByRole("button", { name: /Account: All accounts/i }));
-    expect(screen.getByRole("button", { name: "Live" })).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Live" }));
+    const all = await screen.findByRole("menuitemradio", { name: /All accounts 2 accounts/ });
+    expect(all).toBeChecked();
+    const live = screen.getByRole("menuitemradio", { name: /Live USD/ });
+    await user.click(live);
 
     expect(useFilters.getState().accountId).toBe("a1");
   });

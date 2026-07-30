@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vite-plus/test";
 import { render, screen } from "@testing-library/react";
 import { BatchTradeResultPreview } from "./TradeResultPreview";
-import type { BatchTradePnlPreview } from "../lib/tradePnlPreview";
+import type { BatchTradePnlPreview } from "@/lib/tradePnlPreview";
 
 const batch: BatchTradePnlPreview = {
   symbolCount: 4,

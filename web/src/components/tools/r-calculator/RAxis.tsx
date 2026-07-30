@@ -1,8 +1,7 @@
 import { useState } from "react";
-import { money, rLabel, signedMoney } from "../../../lib/r-calculator/format";
-import { useRCalculatorStore } from "../../../lib/r-calculator/useRCalculatorStore";
-import { cn } from "../../../lib/cn";
-import { Button } from "../../ui/button";
+import { money, rLabel, signedMoney } from "@/lib/r-calculator/format";
+import { useRCalculatorStore } from "@/lib/r-calculator/useRCalculatorStore";
+import { cn } from "@/lib/cn";
 
 export function RAxis() {
   const store = useRCalculatorStore();
@@ -56,32 +55,25 @@ export function RAxis() {
             }}
           >
             <div
-              className="absolute inset-x-0 top-0 origin-bottom overflow-hidden rounded-t-full"
-              style={{
-                height: `${entryTop}%`,
-                background: "linear-gradient(to top, rgba(74,222,128,0.3), rgba(74,222,128,0.9))",
-                boxShadow: "0 0 12px -2px rgba(74,222,128,0.4)",
-              }}
+              className="absolute inset-x-0 top-0 origin-bottom overflow-hidden rounded-t-full bg-linear-to-t from-profit/30 to-profit/90 shadow-[0_0_12px_-2px] shadow-profit/40"
+              style={{ height: `${entryTop}%` }}
             />
             <div
-              className="absolute inset-x-0 origin-top overflow-hidden rounded-b-full"
+              className="absolute inset-x-0 origin-top overflow-hidden rounded-b-full bg-linear-to-b from-destructive/90 to-destructive/30 shadow-[0_0_12px_-2px] shadow-destructive/40"
               style={{
                 top: `${entryTop}%`,
                 height: `${100 - entryTop}%`,
-                background:
-                  "linear-gradient(to bottom, rgba(251,113,133,0.9), rgba(251,113,133,0.3))",
-                boxShadow: "0 0 12px -2px rgba(251,113,133,0.4)",
               }}
             />
           </div>
 
+          {/* Markers are hover affordances for the price labels, not controls. */}
           {exitResult.tiers.map((tier, i) => (
-            <Button
+            <span
               key={tier.r}
-              type="button"
-              variant="ghost"
+              aria-hidden
               className={cn(
-                "absolute left-1/2 z-20 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-0 bg-bg p-0 ring-2 ring-profit hover:bg-bg",
+                "absolute left-1/2 z-20 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-background ring-2 ring-profit transition-transform duration-150",
                 active === `tier-${i}` && "scale-150",
               )}
               style={{ top: `${top(tier.r)}%` }}
@@ -90,12 +82,11 @@ export function RAxis() {
             />
           ))}
 
-          <Button
-            type="button"
-            variant="ghost"
+          <span
+            aria-hidden
             className={cn(
-              "absolute left-1/2 z-10 flex size-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-0 bg-bg p-0 text-[10px] font-bold ring-2 hover:bg-bg",
-              bullish ? "text-profit ring-profit" : "text-loss ring-loss",
+              "absolute left-1/2 z-10 flex size-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-background text-[10px] font-bold ring-2 transition-transform duration-150",
+              bullish ? "text-profit ring-profit" : "text-destructive ring-destructive",
               active === "entry" && "scale-110",
             )}
             style={{ top: `${entryTop}%` }}
@@ -103,7 +94,7 @@ export function RAxis() {
             onMouseLeave={() => setActive(null)}
           >
             {long ? "▲" : "▼"}
-          </Button>
+          </span>
         </div>
 
         {/* Right prices — tight to track */}
@@ -164,10 +155,10 @@ function ScaleTick({
   return (
     <span
       className={cn(
-        "absolute right-0 -translate-y-1/2 whitespace-nowrap text-right text-[9px] tabular-nums",
+        "absolute right-0 -translate-y-1/2 whitespace-nowrap text-right text-[10px] tabular-nums",
         tone === "profit" && "text-profit",
-        tone === "loss" && "text-loss",
-        tone === "muted" && "text-text-dim",
+        tone === "loss" && "text-destructive",
+        tone === "muted" && "text-muted-foreground",
         emphasize && "font-semibold",
       )}
       style={{ top }}
@@ -202,14 +193,14 @@ function PriceLabel({
       )}
       style={{ top }}
     >
-      <p className="m-0 text-[9px] uppercase tracking-widest text-text-muted">{caption}</p>
+      <p className="m-0 text-[11px] text-muted-foreground">{caption}</p>
       <p
         className={cn(
           "m-0 tabular-nums",
-          emphasize ? "text-sm font-bold" : "text-xs font-semibold",
+          emphasize ? "text-sm font-semibold" : "text-[13px] font-medium",
           tone === "profit" && "text-profit",
-          tone === "loss" && "text-loss",
-          tone === "text" && "text-text",
+          tone === "loss" && "text-destructive",
+          tone === "text" && "text-foreground",
         )}
       >
         {price}
@@ -217,8 +208,8 @@ function PriceLabel({
       {pl ? (
         <p
           className={cn(
-            "m-0 text-[10px] tabular-nums",
-            tone === "profit" ? "text-profit/80" : "text-loss/80",
+            "m-0 text-[11px] tabular-nums",
+            tone === "profit" ? "text-profit/80" : "text-destructive/80",
           )}
         >
           {pl}

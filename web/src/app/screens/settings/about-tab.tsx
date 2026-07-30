@@ -9,24 +9,24 @@ import {
   Sparkles,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { AppLogo } from "../../../components/AppLogo";
-import { Pill } from "../../../components/Pill";
-import { Skeleton } from "../../../components/Skeleton";
-import { Button } from "../../../components/ui/button";
+import { AppLogo } from "@/components/AppLogo";
+import { Pill } from "@/components/Pill";
+import { Skeleton } from "@/components/Skeleton";
+import { Button } from "@/components/ui/button";
 import {
   aboutContent,
   DEVELOPER_AVATAR,
   DEVELOPER_GITHUB,
   DEVELOPER_NAME,
   REPO_URL,
-} from "../../../lib/aboutContent";
-import { getBaseUrl } from "../../../lib/api/client";
-import { useAppUpdate } from "../../../lib/appUpdate";
-import { cn } from "../../../lib/cn";
-import { fmtDateTime } from "../../../lib/format";
-import { useApiHealth } from "../../../lib/hooks/useApiHealth";
-import { APP_BUILD, APP_VERSION, formatVersion } from "../../../lib/version";
-import { useLocale } from "../../../i18n";
+} from "@/lib/aboutContent";
+import { getBaseUrl } from "@/lib/api/client";
+import { useAppUpdate } from "@/lib/appUpdate";
+import { cn } from "@/lib/cn";
+import { fmtDateTime } from "@/lib/format";
+import { useApiHealth } from "@/lib/hooks/useApiHealth";
+import { APP_BUILD, APP_VERSION, formatVersion } from "@/lib/version";
+import { useLocale } from "@/i18n";
 import { SettingsGroup, SettingsGroupRow, SettingsPanelBody, SettingsSection } from "./settings-ui";
 
 const FEATURE_ICONS: LucideIcon[] = [
@@ -48,16 +48,16 @@ function AboutFeatureCard({
   description: string;
 }) {
   return (
-    <div className="flex gap-3 rounded-control bg-bg-elevated/60 px-4 py-3.5">
+    <div className="flex gap-3 rounded-md bg-sidebar/60 px-4 py-3.5">
       <div
-        className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-control bg-accent/10 text-accent"
+        className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-md bg-accent/10 text-primary"
         aria-hidden
       >
         <Icon size={15} strokeWidth={1.5} />
       </div>
       <div className="min-w-0">
-        <h3 className="text-[13px] font-semibold tracking-tight text-text">{title}</h3>
-        <p className="mt-1 text-[12px] leading-relaxed text-text-muted">{description}</p>
+        <h3 className="text-[13px] font-semibold tracking-tight text-foreground">{title}</h3>
+        <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground">{description}</p>
       </div>
     </div>
   );
@@ -83,28 +83,30 @@ function AboutLinkRow({
       target="_blank"
       rel="noopener noreferrer"
       className={cn(
-        "group flex items-start justify-between gap-4 px-5 py-4 no-underline transition-colors duration-150 hover:bg-bg-hover/50",
+        "group flex items-start justify-between gap-4 px-5 py-4 no-underline transition-colors duration-150 hover:bg-accent/50",
         !last && "border-b border-border/40",
       )}
     >
       <div className="flex min-w-0 items-start gap-3">
         {isGithub ? (
           <span
-            className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-control bg-bg-elevated text-text-muted group-hover:text-text"
+            className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-md bg-sidebar text-muted-foreground group-hover:text-foreground"
             aria-hidden
           >
             <Github size={14} strokeWidth={1.5} />
           </span>
         ) : null}
         <div className="min-w-0">
-          <div className="text-[13px] font-medium text-text group-hover:text-accent">{label}</div>
-          <p className="mt-1 text-[12px] leading-relaxed text-text-muted">{description}</p>
+          <div className="text-[13px] font-medium text-foreground group-hover:text-primary">
+            {label}
+          </div>
+          <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground">{description}</p>
         </div>
       </div>
       <TrailIcon
         size={14}
         strokeWidth={1.5}
-        className="mt-0.5 shrink-0 text-text-dim group-hover:text-accent"
+        className="mt-0.5 shrink-0 text-muted-foreground group-hover:text-primary"
         aria-hidden
       />
     </a>
@@ -113,7 +115,7 @@ function AboutLinkRow({
 
 function AboutInfoValue({ children }: { children: React.ReactNode }) {
   return (
-    <span className="text-right text-[13px] font-medium tabular-nums tracking-tight text-text">
+    <span className="text-right text-[13px] font-medium tabular-nums tracking-tight text-foreground">
       {children}
     </span>
   );
@@ -133,13 +135,13 @@ function ApiHealthStatus({
   checkingLabel: string;
 }) {
   if (loading) {
-    return <span className="text-[12px] text-text-dim">{checkingLabel}</span>;
+    return <span className="text-[12px] text-muted-foreground">{checkingLabel}</span>;
   }
   return (
     <span
       className={cn(
         "inline-flex items-center gap-1.5 text-[12px] font-medium",
-        ok ? "text-profit" : "text-loss",
+        ok ? "text-profit" : "text-destructive",
       )}
     >
       <span className={cn("size-1.5 rounded-full", ok ? "bg-profit" : "bg-loss")} aria-hidden />
@@ -194,12 +196,12 @@ export function AboutTab() {
           <div className="flex items-start gap-4">
             <AppLogo
               size={52}
-              className="shadow-[0_0_24px_var(--color-accent-glow)]"
+              className="shadow-[0_0_24px_color-mix(in oklch, var(--primary) 35%, transparent)]"
               title="TraderMemos"
             />
             <div className="min-w-0 pt-0.5">
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                <span className="text-[28px] font-bold tracking-[-0.03em] text-text">
+                <span className="text-[28px] font-bold tracking-[-0.03em] text-foreground">
                   TraderMemos
                 </span>
                 <Pill tone="muted">{formatVersion(APP_VERSION, APP_BUILD || undefined)}</Pill>
@@ -208,14 +210,16 @@ export function AboutTab() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="GitHub repository"
-                  className="inline-flex size-8 items-center justify-center rounded-control text-text-muted no-underline transition-colors duration-150 hover:bg-bg-hover hover:text-text"
+                  className="inline-flex size-8 items-center justify-center rounded-md text-muted-foreground no-underline transition-colors duration-150 hover:bg-accent hover:text-foreground"
                 >
                   <Github size={18} strokeWidth={1.5} />
                 </a>
               </div>
             </div>
           </div>
-          <p className="max-w-2xl text-[13px] leading-relaxed text-text-muted">{content.intro}</p>
+          <p className="max-w-2xl text-[13px] leading-relaxed text-muted-foreground">
+            {content.intro}
+          </p>
         </SettingsPanelBody>
       </SettingsSection>
 
@@ -232,7 +236,9 @@ export function AboutTab() {
                 {formatVersion(apiVersionLabel, health.data?.commit?.slice(0, 7) || undefined)}
               </AboutInfoValue>
             ) : (
-              <span className="text-[12px] text-text-dim">{content.updateApiUnreachable}</span>
+              <span className="text-[12px] text-muted-foreground">
+                {content.updateApiUnreachable}
+              </span>
             )}
           </SettingsGroupRow>
           <SettingsGroupRow label={content.updateLatestLabel}>
@@ -242,19 +248,19 @@ export function AboutTab() {
               <div className="text-right">
                 <AboutInfoValue>{formatVersion(remote.version)}</AboutInfoValue>
                 {remote.name !== remote.tag ? (
-                  <p className="mt-0.5 text-[11px] text-text-dim">{remote.name}</p>
+                  <p className="mt-0.5 text-[11px] text-muted-foreground">{remote.name}</p>
                 ) : null}
               </div>
             ) : (
-              <span className="text-[12px] text-text-dim">—</span>
+              <span className="text-[12px] text-muted-foreground">—</span>
             )}
           </SettingsGroupRow>
           {remote?.publishedAt ? (
             <SettingsGroupRow label={content.updateReleasePublished}>
-              <span className="text-right text-[12px] text-text-muted">
+              <span className="text-right text-[12px] text-muted-foreground">
                 {releasePublished}
                 {remote.prerelease ? (
-                  <span className="ml-2 text-[11px] uppercase tracking-wide text-signal">pre</span>
+                  <span className="ml-2 text-[11px] uppercase tracking-wide text-chart-3">pre</span>
                 ) : null}
               </span>
             </SettingsGroupRow>
@@ -263,27 +269,27 @@ export function AboutTab() {
             <span
               className={cn(
                 "text-[12px] font-medium",
-                swReady || webBehind || apiBehind ? "text-signal" : "text-profit",
+                swReady || webBehind || apiBehind ? "text-chart-3" : "text-profit",
               )}
             >
               {updateStatus}
             </span>
           </SettingsGroupRow>
           <SettingsGroupRow label={content.updateLastChecked}>
-            <span className="text-right text-[12px] text-text-muted">{lastCheckedLabel}</span>
+            <span className="text-right text-[12px] text-muted-foreground">{lastCheckedLabel}</span>
           </SettingsGroupRow>
           {remote?.excerpt ? (
             <div className="space-y-2 px-5 py-4">
-              <h3 className="text-[12px] font-semibold tracking-tight text-text">
+              <h3 className="text-[12px] font-semibold tracking-tight text-foreground">
                 {content.updateReleaseTitle}
               </h3>
-              <p className="text-[12px] leading-relaxed text-text-muted">{remote.excerpt}</p>
+              <p className="text-[12px] leading-relaxed text-muted-foreground">{remote.excerpt}</p>
               {remote.url ? (
                 <a
                   href={remote.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-[12px] font-medium text-accent no-underline hover:underline"
+                  className="inline-flex items-center gap-1.5 text-[12px] font-medium text-primary no-underline hover:underline"
                 >
                   {content.updateViewRelease}
                   <ExternalLink size={12} strokeWidth={1.5} aria-hidden />
@@ -317,7 +323,9 @@ export function AboutTab() {
                 <ExternalLink size={13} strokeWidth={1.5} aria-hidden />
               </Button>
             ) : null}
-            {checkError ? <p className="w-full text-[11px] text-loss">{checkError}</p> : null}
+            {checkError ? (
+              <p className="w-full text-[11px] text-destructive">{checkError}</p>
+            ) : null}
           </div>
         </SettingsGroup>
       </SettingsSection>
@@ -331,20 +339,20 @@ export function AboutTab() {
                 alt=""
                 width={44}
                 height={44}
-                className="size-11 rounded-full bg-bg-elevated ring-1 ring-border/50"
+                className="size-11 rounded-full bg-sidebar ring-1 ring-border/50"
               />
               <div>
-                <div className="text-[14px] font-semibold tracking-tight text-text">
+                <div className="text-[14px] font-semibold tracking-tight text-foreground">
                   {DEVELOPER_NAME}
                 </div>
-                <p className="mt-0.5 text-[12px] text-text-muted">{content.developerRole}</p>
+                <p className="mt-0.5 text-[12px] text-muted-foreground">{content.developerRole}</p>
               </div>
             </div>
             <a
               href={DEVELOPER_GITHUB}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-control bg-bg-elevated px-3 py-2 text-[12px] font-medium text-text no-underline transition-colors duration-150 hover:bg-bg-hover hover:text-accent"
+              className="inline-flex items-center gap-1.5 rounded-md bg-sidebar px-3 py-2 text-[12px] font-medium text-foreground no-underline transition-colors duration-150 hover:bg-accent hover:text-primary"
             >
               <Github size={14} strokeWidth={1.5} aria-hidden />
               {content.developerGithubLabel}
@@ -357,7 +365,9 @@ export function AboutTab() {
         <SettingsGroup>
           <SettingsGroupRow label={content.apiBaseUrlLabel} alignTop>
             <AboutInfoValue>
-              <code className="break-all text-[12px] font-normal text-text-muted">{apiBase}</code>
+              <code className="break-all text-[12px] font-normal text-muted-foreground">
+                {apiBase}
+              </code>
             </AboutInfoValue>
           </SettingsGroupRow>
           <SettingsGroupRow label={content.apiHealthLabel}>
@@ -380,7 +390,7 @@ export function AboutTab() {
                 {formatVersion(health.data.version, health.data.commit?.slice(0, 7) || undefined)}
               </AboutInfoValue>
             ) : (
-              <span className="text-[12px] text-text-dim">—</span>
+              <span className="text-[12px] text-muted-foreground">—</span>
             )}
           </SettingsGroupRow>
           <SettingsGroupRow label={content.apiGoLabel} last>
@@ -389,7 +399,7 @@ export function AboutTab() {
             ) : healthOk && health.data?.go ? (
               <AboutInfoValue>{health.data.go}</AboutInfoValue>
             ) : (
-              <span className="text-[12px] text-text-dim">—</span>
+              <span className="text-[12px] text-muted-foreground">—</span>
             )}
           </SettingsGroupRow>
         </SettingsGroup>
@@ -416,7 +426,7 @@ export function AboutTab() {
             {content.stack.map((item) => (
               <span
                 key={item}
-                className="rounded-control bg-bg-elevated px-3 py-1.5 text-[12px] font-medium text-text-muted"
+                className="rounded-md bg-sidebar px-3 py-1.5 text-[12px] font-medium text-muted-foreground"
               >
                 {item}
               </span>
@@ -427,10 +437,10 @@ export function AboutTab() {
 
       <SettingsSection title={content.philosophyTitle}>
         <SettingsPanelBody>
-          <p className="max-w-2xl text-[13px] leading-relaxed text-text-muted">
+          <p className="max-w-2xl text-[13px] leading-relaxed text-muted-foreground">
             {content.philosophy}
           </p>
-          <p className="mt-3 text-[12px] text-text-dim">{content.licenseNote}</p>
+          <p className="mt-3 text-[12px] text-muted-foreground">{content.licenseNote}</p>
         </SettingsPanelBody>
       </SettingsSection>
 

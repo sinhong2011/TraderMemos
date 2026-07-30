@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { tagsApi } from "../api/tags";
+import { tagsApi } from "@/lib/api/tags";
 
 export function useTags(kind?: string) {
   return useQuery({

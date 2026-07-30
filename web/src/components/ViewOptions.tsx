@@ -1,6 +1,6 @@
 import type { OnChangeFn, VisibilityState } from "@tanstack/react-table";
 import { Settings2 } from "lucide-react";
-import { cn } from "../lib/cn";
+import { cn } from "@/lib/cn";
 import { buttonVariants } from "./ui/button";
 import {
   DropdownMenu,
@@ -9,7 +9,7 @@ import {
   DropdownMenuGroup,
   DropdownMenuLabel,
   DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
+} from "./ui/menu";
 
 export type ViewColumnOption = {
   id: string;

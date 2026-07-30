@@ -12,45 +12,53 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { Card } from "../../components/Card";
-import { ChartFrame, chartTheme } from "../../components/ChartFrame";
-import { DataTable } from "../../components/DataTable";
-import { DayTradesDrawer } from "../../components/DayTradesDrawer";
-import { EmptyState } from "../../components/EmptyState";
-import { Page } from "../../components/Page";
-import { ReportsBreakdownCard } from "../../components/ReportsBreakdownCard";
+import { AnnualGoalCard } from "@/components/AnnualGoalCard";
+import { Card } from "@/components/Card";
+import {
+  ChartFrame,
+  chartTheme,
+  chartTooltipStyle,
+  pnlTooltipValue,
+} from "@/components/ChartFrame";
+import { DataTable } from "@/components/DataTable";
+import { DayTradesDrawer } from "@/components/DayTradesDrawer";
+import { EmptyState } from "@/components/EmptyState";
+import { Page } from "@/components/Page";
+import { ReportsBreakdownCard } from "@/components/ReportsBreakdownCard";
 import {
   ReportsControlBar,
   type ReportsDuration,
   type ReportsSide,
-} from "../../components/ReportsControlBar";
-import { ReportsDayStrip } from "../../components/ReportsDayStrip";
+} from "@/components/ReportsControlBar";
+import { ReportsDayStrip } from "@/components/ReportsDayStrip";
 import {
   ReportsDisplayProvider,
   useReportsMoney,
   type PnlMode,
   type UnitMode,
-} from "../../components/ReportsDisplayContext";
-import { ReportsExecutionGrade } from "../../components/ReportsExecutionGrade";
-import { ReportsHourlyList } from "../../components/ReportsHourlyList";
-import { ReportsSummaryBento } from "../../components/ReportsSummaryBento";
-import { ReportsMetricEvolution } from "../../components/ReportsMetricEvolution";
-import { ReportsRiskDrawdown } from "../../components/ReportsRiskDrawdown";
-import { ReportsRMultiplePerformance } from "../../components/ReportsRMultiplePerformance";
-import { ReportsRollingWinRate } from "../../components/ReportsRollingWinRate";
-import { ReportsSessionTable } from "../../components/ReportsSessionTable";
-import { ReportsSymbolHeatmap } from "../../components/ReportsSymbolHeatmap";
-import { Skeleton } from "../../components/Skeleton";
-import { Tabs, TabsContent, TabsIndicator, TabsList, TabsTrigger } from "../../components/Tabs";
-import { Button } from "../../components/ui/button";
-import { pnlColor } from "../../components/theme-tokens";
-import type { BreakGroup, EquityCurve, RSummary, Summary, Trade } from "../../lib/api/types";
-import { uniqueDayTicks } from "../../lib/chartTicks";
-import { cn } from "../../lib/cn";
-import { fmtDayShort, fmtMoney, fmtMoneyCompact, fmtPct } from "../../lib/format";
-import { useMoneyFx } from "../../lib/hooks/useMoneyFx";
-import { intlLocale } from "../../lib/locale";
-import { useDisplayTimePrefs, usePrivacyMode } from "../../lib/displayPrefs";
+} from "@/components/ReportsDisplayContext";
+import { ReportsExecutionGrade } from "@/components/ReportsExecutionGrade";
+import { ReportsHourlyList } from "@/components/ReportsHourlyList";
+import { ReportsSummaryBento } from "@/components/ReportsSummaryBento";
+import { ReportsMetricEvolution } from "@/components/ReportsMetricEvolution";
+import { ReportsRiskDrawdown } from "@/components/ReportsRiskDrawdown";
+import { ReportsRMultiplePerformance } from "@/components/ReportsRMultiplePerformance";
+import { ReportsRollingWinRate } from "@/components/ReportsRollingWinRate";
+import { ReportsSessionTable } from "@/components/ReportsSessionTable";
+import { ReportsSymbolHeatmap } from "@/components/ReportsSymbolHeatmap";
+import { Skeleton } from "@/components/Skeleton";
+import { CardSkeleton } from "@/components/skeletons/card-skeleton";
+import { TableSkeleton } from "@/components/skeletons/table-skeleton";
+import { Tabs, TabsContent, TabsIndicator, TabsList, TabsTrigger } from "@/components/Tabs";
+import { Button } from "@/components/ui/button";
+import { pnlColor } from "@/components/theme-tokens";
+import type { BreakGroup, EquityCurve, RSummary, Summary, Trade } from "@/lib/api/types";
+import { uniqueDayTicks } from "@/lib/chartTicks";
+import { cn } from "@/lib/cn";
+import { fmtDayShort, fmtMoney, fmtMoneyCompact, fmtPct } from "@/lib/format";
+import { useMoneyFx } from "@/lib/hooks/useMoneyFx";
+import { intlLocale } from "@/lib/locale";
+import { useDisplayTimePrefs, usePrivacyMode } from "@/lib/displayPrefs";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -144,17 +152,22 @@ export interface ReportsViewProps {
   dayTradesLoading: boolean;
   dayTradesError: boolean;
   onSelectTrade: (t: Trade) => void;
-  onOpenFullPage: (t: Trade) => void;
-  onFilterSymbol?: (symbol: string) => void;
-  onTradeDeleted?: (t: Trade) => void;
+  goalYear: number;
+  goalAmount: number | null | undefined;
+  goalLoading: boolean;
+  goalSaving: boolean;
+  ytdNetPnl: number | undefined;
+  ytdLoading: boolean;
+  onSaveGoal: (amount: number) => Promise<void>;
+  onClearGoal: () => Promise<void>;
 }
 
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
 
-const POS_COLOR = "var(--color-profit)";
-const NEG_COLOR = "var(--color-loss)";
+const POS_COLOR = "var(--profit)";
+const NEG_COLOR = "var(--loss)";
 
 // ---------------------------------------------------------------------------
 // Summary metrics — equity, day strip, insight widgets, bento grid
@@ -163,7 +176,7 @@ const NEG_COLOR = "var(--color-loss)";
 function BentoCell({ className, children }: { className?: string; children: ReactNode }) {
   return (
     <section
-      className={cn("flex h-full min-w-0 flex-col rounded-card bg-bg-panel p-4 sm:p-5", className)}
+      className={cn("flex h-full min-w-0 flex-col rounded-lg bg-card p-4 sm:p-5", className)}
     >
       {children}
     </section>
@@ -183,7 +196,9 @@ function BentoTitle({
     <p
       className={cn(
         "self-start text-left text-[11px] font-semibold tracking-[0.06em] uppercase sm:text-[12px]",
-        tone === "signal" ? "text-signal" : "font-medium normal-case tracking-wide text-text-muted",
+        tone === "signal"
+          ? "text-chart-3"
+          : "font-medium normal-case tracking-wide text-muted-foreground",
         className,
       )}
     >
@@ -201,6 +216,14 @@ function SummaryMetricsGrid({
   equity,
   equityLoading,
   onDayClick,
+  goalYear,
+  goalAmount,
+  goalLoading,
+  goalSaving,
+  ytdNetPnl,
+  ytdLoading,
+  onSaveGoal,
+  onClearGoal,
 }: {
   summary: Summary;
   trades: Trade[];
@@ -210,6 +233,14 @@ function SummaryMetricsGrid({
   equity?: EquityCurve;
   equityLoading?: boolean;
   onDayClick?: (date: string) => void;
+  goalYear: number;
+  goalAmount: number | null | undefined;
+  goalLoading: boolean;
+  goalSaving: boolean;
+  ytdNetPnl: number | undefined;
+  ytdLoading: boolean;
+  onSaveGoal: (amount: number) => Promise<void>;
+  onClearGoal: () => Promise<void>;
 }) {
   usePrivacyMode();
   useDisplayTimePrefs();
@@ -229,7 +260,7 @@ function SummaryMetricsGrid({
           </BentoTitle>
           <div className="mt-2 min-h-0 flex-1">
             {equityLoading ? (
-              <Skeleton height="148px" />
+              <Skeleton className="h-[148px] w-full" />
             ) : equityPoints.length > 0 ? (
               <ChartFrame inset className="rounded-none border-0 bg-transparent">
                 <ResponsiveContainer width="100%" height={148}>
@@ -263,13 +294,7 @@ function SummaryMetricsGrid({
                       domain={["auto", "auto"]}
                     />
                     <Tooltip
-                      contentStyle={{
-                        background: chartTheme.tooltipBg,
-                        border: `1px solid ${chartTheme.tooltipBorder}`,
-                        color: chartTheme.tooltipText,
-                        fontSize: 11,
-                        borderRadius: "var(--radius-sharp)",
-                      }}
+                      {...chartTooltipStyle}
                       labelFormatter={(label) => String(label ?? "").slice(0, 10)}
                       formatter={(value) => [
                         fmtMoney(Number(value ?? 0), currency, intlLocale()),
@@ -290,7 +315,9 @@ function SummaryMetricsGrid({
                 </ResponsiveContainer>
               </ChartFrame>
             ) : (
-              <p className="py-8 text-center text-[12px] text-text-muted">No equity data yet.</p>
+              <p className="py-8 text-center text-[12px] text-muted-foreground">
+                No equity data yet.
+              </p>
             )}
           </div>
         </BentoCell>
@@ -302,6 +329,19 @@ function SummaryMetricsGrid({
         currency={currency}
         fxRate={fxRate}
         onDayClick={onDayClick}
+      />
+
+      <AnnualGoalCard
+        year={goalYear}
+        goalAmount={goalAmount}
+        ytdNetPnl={ytdNetPnl}
+        currency={currency}
+        fxRate={fxRate}
+        variant="compact"
+        loading={goalLoading || ytdLoading}
+        saving={goalSaving}
+        onSave={onSaveGoal}
+        onClear={onClearGoal}
       />
 
       <ReportsSummaryBento
@@ -325,7 +365,7 @@ export function buildColumns(dimLabel: string): ColumnDef<BreakGroup>[] {
       accessorKey: "key",
       header: dimLabel,
       cell: (info) => (
-        <span style={{ color: "var(--color-text)", fontWeight: 600 }}>
+        <span style={{ color: "var(--foreground)", fontWeight: 600 }}>
           {info.getValue<string>()}
         </span>
       ),
@@ -335,7 +375,7 @@ export function buildColumns(dimLabel: string): ColumnDef<BreakGroup>[] {
       accessorFn: (row) => row.summary.total_trades,
       header: "Trades",
       cell: (info) => (
-        <span className="tabular-nums" style={{ color: "var(--color-text-muted)" }}>
+        <span className="tabular-nums" style={{ color: "var(--muted-foreground)" }}>
           {info.getValue<number>()}
         </span>
       ),
@@ -345,7 +385,7 @@ export function buildColumns(dimLabel: string): ColumnDef<BreakGroup>[] {
       accessorFn: (row) => row.summary.win_rate,
       header: "Win Rate",
       cell: (info) => (
-        <span className="tabular-nums" style={{ color: "var(--color-text)" }}>
+        <span className="tabular-nums" style={{ color: "var(--foreground)" }}>
           {fmtPct(info.getValue<number>(), intlLocale())}
         </span>
       ),
@@ -363,7 +403,7 @@ export function buildColumns(dimLabel: string): ColumnDef<BreakGroup>[] {
       cell: (info) => {
         const v = info.getValue<number>();
         return (
-          <span className="tabular-nums" style={{ color: "var(--color-text)" }}>
+          <span className="tabular-nums" style={{ color: "var(--foreground)" }}>
             {v > 0 ? v.toFixed(2) : "-"}
           </span>
         );
@@ -466,13 +506,11 @@ export function PnlBarChart({ data }: PnlBarChartProps) {
             width={72}
           />
           <Tooltip
-            contentStyle={{
-              background: chartTheme.tooltipBg,
-              border: `1px solid ${chartTheme.tooltipBorder}`,
-              color: chartTheme.tooltipText,
-              fontSize: 11,
-            }}
-            formatter={(value) => [money.formatAxis(Number(value ?? 0)), "P&L"]}
+            {...chartTooltipStyle}
+            formatter={(value) => [
+              pnlTooltipValue(Number(value ?? 0), money.formatAxis(Number(value ?? 0))),
+              "P&L",
+            ]}
             cursor={{ fill: chartTheme.cursorFill }}
           />
           <Bar dataKey="pnl" radius={[2, 2, 0, 0]}>
@@ -548,9 +586,14 @@ export function ReportsView({
   dayTradesLoading,
   dayTradesError,
   onSelectTrade,
-  onOpenFullPage,
-  onFilterSymbol,
-  onTradeDeleted,
+  goalYear,
+  goalAmount,
+  goalLoading,
+  goalSaving,
+  ytdNetPnl,
+  ytdLoading,
+  onSaveGoal,
+  onClearGoal,
 }: ReportsViewProps) {
   usePrivacyMode();
   const { currency: displayCurrency, rate } = useMoneyFx(currency);
@@ -564,14 +607,14 @@ export function ReportsView({
     if (loading) {
       return (
         <div className="flex flex-col gap-3 p-4">
-          <Skeleton height="200px" />
-          <Skeleton height="160px" />
+          <CardSkeleton mediaClassName="h-[200px]" className="bg-transparent p-0" />
+          <TableSkeleton rows={4} columns={3} className="p-0" />
         </div>
       );
     }
 
     if (error) {
-      return <p className="p-4 text-xs text-loss">Failed to load breakdown data.</p>;
+      return <p className="p-4 text-xs text-destructive">Failed to load breakdown data.</p>;
     }
 
     if (breakdown.length === 0) {
@@ -602,15 +645,15 @@ export function ReportsView({
           <TabsList
             aria-label="Report sections"
             fullWidth
-            className="h-10 rounded-control border border-border bg-bg-input p-1"
+            className="h-10 rounded-md border border-border bg-muted p-1"
           >
-            <TabsIndicator className="rounded-control bg-bg-input-hover" />
+            <TabsIndicator className="rounded-md border border-border bg-transparent" />
             {REPORT_TABS.map((t) => (
               <TabsTrigger
                 key={t.value}
                 value={t.value}
                 fullWidth
-                className="h-full px-3 text-[12px] font-medium text-text-dim hover:text-text-muted data-active:text-text"
+                className="h-full px-3 text-[12px] font-medium text-muted-foreground hover:text-muted-foreground data-active:text-foreground"
               >
                 {t.label}
               </TabsTrigger>
@@ -633,7 +676,7 @@ export function ReportsView({
             {summaryLoading ? (
               <Skeleton height="120px" />
             ) : summaryError ? (
-              <p className="p-4 text-xs text-loss">Failed to load summary.</p>
+              <p className="p-4 text-xs text-destructive">Failed to load summary.</p>
             ) : summary ? (
               <SummaryMetricsGrid
                 summary={summary}
@@ -644,6 +687,14 @@ export function ReportsView({
                 equity={equity}
                 equityLoading={equityLoading}
                 onDayClick={(date) => onSelectDay(date)}
+                goalYear={goalYear}
+                goalAmount={goalAmount}
+                goalLoading={goalLoading}
+                goalSaving={goalSaving}
+                ytdNetPnl={ytdNetPnl}
+                ytdLoading={ytdLoading}
+                onSaveGoal={onSaveGoal}
+                onClearGoal={onClearGoal}
               />
             ) : null}
 
@@ -747,9 +798,6 @@ export function ReportsView({
         currency={displayCurrency}
         fxRate={fxRate}
         onSelectTrade={onSelectTrade}
-        onOpenFullPage={onOpenFullPage}
-        onFilterSymbol={onFilterSymbol}
-        onDeleted={onTradeDeleted}
       />
     </ReportsDisplayProvider>
   );

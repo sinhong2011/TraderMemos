@@ -1,15 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import {
-  Check,
-  LogOut,
-  Plus,
-  Settings,
-  SlidersHorizontal,
-  StickyNote,
-  Wallet,
-  X,
-  Zap,
-} from "lucide-react";
+import { Check, LogOut, Settings, SlidersHorizontal, Wallet, X } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { Drawer, DrawerClose, DrawerContent, DrawerHeader, DrawerTitle } from "./Drawer";
@@ -18,15 +8,15 @@ import { DateRangePicker } from "./DateRangePicker";
 import { DisplayCurrencySelect } from "./HeaderBar";
 import { ToolsPopover } from "./ToolsPopover";
 import { Button } from "./ui/button";
-import { useAuth } from "../lib/auth";
-import { cn } from "../lib/cn";
-import { accountBaseCurrency } from "../lib/displayPrefs";
-import { useFilters } from "../lib/filters";
-import { useAccounts } from "../lib/hooks/useAccounts";
-import { useLocale } from "../i18n";
-import { navLabel } from "../lib/locale";
-import { isRouteActive, SECONDARY_NAV } from "../lib/navItems";
-import { useUI } from "../lib/ui";
+import { useAuth } from "@/lib/auth";
+import { cn } from "@/lib/cn";
+import { accountBaseCurrency } from "@/lib/displayPrefs";
+import { useFilters } from "@/lib/filters";
+import { useAccounts } from "@/lib/hooks/useAccounts";
+import { useLocale } from "@/i18n";
+import { navLabel } from "@/lib/locale";
+import { CREATE_ACTIONS, isRouteActive, PRIMARY_NAV, SECONDARY_NAV } from "@/lib/navItems";
+import { useUI } from "@/lib/ui";
 
 function NavRow({
   to,
@@ -47,9 +37,9 @@ function NavRow({
       onClick={onNavigate}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "flex min-h-11 items-center gap-3 rounded-control px-3 no-underline",
+        "flex min-h-11 items-center gap-3 rounded-md px-3 no-underline",
         "text-[14px] font-medium",
-        active ? "bg-accent-bg text-accent" : "text-text hover:bg-bg-hover",
+        active ? "bg-primary/10 text-primary" : "text-foreground hover:bg-accent",
       )}
     >
       <Icon size={18} strokeWidth={1.75} aria-hidden />
@@ -72,7 +62,7 @@ function ActionRow({
       type="button"
       variant="ghost"
       onClick={onClick}
-      className="h-11 w-full justify-start gap-3 rounded-control px-3 text-[14px] font-medium text-text hover:bg-bg-hover"
+      className="h-11 w-full justify-start gap-3 rounded-md px-3 text-[14px] font-medium text-foreground hover:bg-accent"
     >
       <Icon size={18} strokeWidth={1.75} aria-hidden />
       {label}
@@ -82,7 +72,7 @@ function ActionRow({
 
 function SectionLabel({ children }: { children: ReactNode }) {
   return (
-    <p className="mt-1 mb-1 px-3 text-[10px] font-semibold tracking-widest text-text-dim uppercase">
+    <p className="mt-1 mb-1 px-3 text-[10px] font-semibold tracking-widest text-muted-foreground uppercase">
       {children}
     </p>
   );
@@ -101,7 +91,7 @@ function FiltersSection() {
           Filters
         </span>
       </SectionLabel>
-      <div className="flex flex-wrap items-center gap-1.5 px-3 py-1">
+      <div className="flex flex-wrap items-center gap-2 px-3 pt-0.5 pb-1.5">
         <DateRangePicker />
         <DisplayCurrencySelect baseCurrency={baseCurrency} />
         <ToolsPopover variant="header" />
@@ -126,7 +116,7 @@ function AccountSection({ onNavigate }: { onNavigate: () => void }) {
         </span>
       </SectionLabel>
       {isLoading ? (
-        <p className="px-3 py-2 text-[13px] text-text-muted">Loading…</p>
+        <p className="px-3 py-2 text-[13px] text-muted-foreground">Loading…</p>
       ) : (
         <div className="flex flex-col gap-0.5">
           <Button
@@ -134,8 +124,8 @@ function AccountSection({ onNavigate }: { onNavigate: () => void }) {
             variant="ghost"
             onClick={() => setAccount(undefined)}
             className={cn(
-              "h-11 w-full justify-start gap-2 rounded-control px-3 text-left text-[14px]",
-              !accountId ? "bg-accent-bg font-medium text-accent" : "text-text",
+              "h-11 w-full justify-start gap-2 rounded-md px-3 text-left text-[14px]",
+              !accountId ? "bg-primary/10 font-medium text-primary" : "text-foreground",
             )}
           >
             <span className="min-w-0 flex-1 truncate">All accounts</span>
@@ -148,8 +138,10 @@ function AccountSection({ onNavigate }: { onNavigate: () => void }) {
               variant="ghost"
               onClick={() => setAccount(account.id)}
               className={cn(
-                "h-11 w-full justify-start gap-2 rounded-control px-3 text-left text-[14px]",
-                accountId === account.id ? "bg-accent-bg font-medium text-accent" : "text-text",
+                "h-11 w-full justify-start gap-2 rounded-md px-3 text-left text-[14px]",
+                accountId === account.id
+                  ? "bg-primary/10 font-medium text-primary"
+                  : "text-foreground",
               )}
             >
               <span className="min-w-0 flex-1 truncate">{account.name}</span>
@@ -200,17 +192,27 @@ export function MobileNavDrawer() {
           </div>
           <DrawerClose
             aria-label="Close menu"
-            className="ml-auto flex size-9 cursor-pointer items-center justify-center rounded-control border-none bg-transparent text-text-muted transition-colors hover:text-text"
+            className="ml-auto flex size-9 cursor-pointer items-center justify-center rounded-md border-none bg-transparent text-muted-foreground transition-colors hover:text-foreground"
           >
             <X size={18} strokeWidth={1.5} />
           </DrawerClose>
         </DrawerHeader>
-        <div className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto p-3">
+        <div className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
           <FiltersSection />
 
           <div className="my-2 h-px bg-border" aria-hidden />
 
           <SectionLabel>More</SectionLabel>
+          {PRIMARY_NAV.filter((item) => item.to === "/reports").map((item) => (
+            <NavRow
+              key={item.to}
+              to={item.to}
+              label={label(item.labelKey)}
+              icon={item.icon}
+              active={isRouteActive(pathname, item.to)}
+              onNavigate={closeMobileNav}
+            />
+          ))}
           {SECONDARY_NAV.map((item) => (
             <NavRow
               key={item.to}
@@ -232,21 +234,14 @@ export function MobileNavDrawer() {
           <div className="my-2 h-px bg-border" aria-hidden />
 
           <SectionLabel>Quick add</SectionLabel>
-          <ActionRow
-            label={label("newTrade")}
-            icon={Plus}
-            onClick={() => runAction(() => openModal("new-trade"))}
-          />
-          <ActionRow
-            label={label("newSetup")}
-            icon={Zap}
-            onClick={() => runAction(() => openModal("new-setup"))}
-          />
-          <ActionRow
-            label={label("newNote")}
-            icon={StickyNote}
-            onClick={() => runAction(() => openModal("new-note"))}
-          />
+          {CREATE_ACTIONS.map((action) => (
+            <ActionRow
+              key={action.modal}
+              label={label(action.labelKey)}
+              icon={action.icon}
+              onClick={() => runAction(() => openModal(action.modal))}
+            />
+          ))}
 
           <div className="my-2 h-px bg-border" aria-hidden />
 

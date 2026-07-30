@@ -172,7 +172,7 @@ export function useAppHotkeys() {
     [navigate],
   );
   useHotkeys(
-    APP_HOTKEYS["nav-import"].keys,
+    APP_HOTKEYS["nav-import "].keys,
     () => {
       useUI.getState().setCommandOpen(false);
       void navigate({ to: "/import" });

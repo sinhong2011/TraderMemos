@@ -5,8 +5,8 @@ import type { SortingState } from "@tanstack/react-table";
 import { describe, expect, it, vi } from "vite-plus/test";
 import { SortList } from "./SortList";
 
-vi.mock("./SignalSelect", () => ({
-  SignalSelect: ({
+vi.mock("./OptionsSelect", () => ({
+  OptionsSelect: ({
     value,
     onValueChange,
     ariaLabel,

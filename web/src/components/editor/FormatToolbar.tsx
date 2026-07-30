@@ -12,9 +12,9 @@ import {
   Underline,
 } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { cn } from "../../lib/cn";
-import { SignalInput } from "../SignalInput";
-import { Button } from "../ui/button";
+import { cn } from "@/lib/cn";
+import { FormInput } from "@/components/FormInput";
+import { Button } from "@/components/ui/button";
 import { insertImageFromFile } from "./tiptapExtensions";
 
 function FormatButton({
@@ -42,8 +42,8 @@ function FormatButton({
       onMouseDown={(e) => e.preventDefault()}
       onClick={onClick}
       className={cn(
-        "text-text-dim hover:bg-bg-hover hover:text-text",
-        active && "bg-accent-bg text-accent hover:bg-accent-bg hover:text-accent",
+        "text-muted-foreground hover:bg-accent hover:text-foreground",
+        active && "bg-primary/10 text-primary hover:bg-primary/10 hover:text-primary",
       )}
     >
       {children}
@@ -118,7 +118,7 @@ export function FormatToolbar({
   };
 
   return (
-    <div className="flex flex-col gap-1.5 px-2 pt-2 pb-1">
+    <div className="flex shrink-0 flex-col gap-1.5 px-2 pt-2 pb-1">
       <div
         role="toolbar"
         aria-label="Text formatting"
@@ -208,7 +208,7 @@ export function FormatToolbar({
 
       {linkOpen ? (
         <div className="flex items-center gap-1.5 pb-1">
-          <SignalInput
+          <FormInput
             value={linkUrl}
             onChange={(e) => setLinkUrl(e.target.value)}
             onKeyDown={(e) => {

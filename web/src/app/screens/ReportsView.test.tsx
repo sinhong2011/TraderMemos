@@ -2,8 +2,8 @@ import { render, screen, within } from "@testing-library/react";
 import type { CellContext } from "@tanstack/react-table";
 import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vite-plus/test";
-import { ReportsDisplayProvider } from "../../components/ReportsDisplayContext";
-import type { BreakGroup } from "../../lib/api/types";
+import { ReportsDisplayProvider } from "@/components/ReportsDisplayContext";
+import type { BreakGroup } from "@/lib/api/types";
 import { PnlBarChart, ReportsView, buildColumns } from "./ReportsView";
 
 // useMoneyFx pulls in useQuery, which needs a QueryClientProvider; mock it the
@@ -105,6 +105,14 @@ const base = {
   dayTradesError: false,
   onSelectTrade: vi.fn<(...args: any[]) => any>(),
   onOpenFullPage: vi.fn<(...args: any[]) => any>(),
+  goalYear: 2026,
+  goalAmount: null,
+  goalLoading: false,
+  goalSaving: false,
+  ytdNetPnl: undefined,
+  ytdLoading: false,
+  onSaveGoal: vi.fn<(...args: any[]) => any>(async () => {}),
+  onClearGoal: vi.fn<(...args: any[]) => any>(async () => {}),
 };
 
 describe("ReportsView", () => {
@@ -206,14 +214,18 @@ describe("ReportsView", () => {
 
   it("renders the control bar side/duration options", () => {
     render(<ReportsView {...base} dim="symbol" breakdown={[]} />);
-    expect(screen.getByRole("tab", { name: "Long" })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "Swing" })).toBeInTheDocument();
+    const side = screen.getByRole("group", { name: "Side" });
+    const duration = screen.getByRole("group", { name: "Duration" });
+    expect(within(side).getByRole("button", { name: "Long" })).toBeInTheDocument();
+    expect(within(duration).getByRole("button", { name: "Swing" })).toBeInTheDocument();
   });
 
   it("renders the display-mode toggles", () => {
     render(<ReportsView {...base} dim="symbol" breakdown={[]} />);
-    expect(screen.getByRole("tab", { name: "Gross" })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "%" })).toBeInTheDocument();
+    const pnl = screen.getByRole("group", { name: "P&L basis" });
+    const unit = screen.getByRole("group", { name: "Unit" });
+    expect(within(pnl).getByRole("button", { name: "Gross" })).toBeInTheDocument();
+    expect(within(unit).getByRole("button", { name: "%" })).toBeInTheDocument();
   });
 
   it("calls onTabChange when a tab is clicked", async () => {

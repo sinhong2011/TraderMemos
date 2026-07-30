@@ -1,10 +1,10 @@
 import type { ComponentProps } from "react";
-import { cn } from "../lib/cn";
+import { cn } from "@/lib/cn";
 
 const itemVariantClass = {
   default: "border-transparent bg-transparent",
   outline: "border-border bg-transparent",
-  muted: "border-transparent bg-bg-elevated",
+  muted: "border-transparent bg-sidebar",
 } as const;
 
 const itemSizeClass = {
@@ -14,8 +14,8 @@ const itemSizeClass = {
 
 const itemMediaVariantClass = {
   default: "bg-transparent",
-  icon: "size-8 rounded-control bg-bg-hover text-text-muted [&_svg:not([class*='size-'])]:size-4",
-  image: "size-10 overflow-hidden rounded-control [&_img]:size-full [&_img]:object-cover",
+  icon: "size-8 rounded-md bg-accent text-muted-foreground [&_svg:not([class*='size-'])]:size-4",
+  image: "size-10 overflow-hidden rounded-md [&_img]:size-full [&_img]:object-cover",
 } as const;
 
 export function ItemGroup({ className, ...props }: ComponentProps<"div">) {
@@ -45,9 +45,9 @@ export function Item({
       data-variant={variant}
       data-size={size}
       className={cn(
-        "group/item flex flex-wrap items-center rounded-control border text-sm outline-none",
+        "group/item flex flex-wrap items-center rounded-md border text-sm outline-none",
         "transition-colors duration-100",
-        "focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-border-strong",
+        "focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ring",
         itemVariantClass[variant],
         itemSizeClass[size],
         className,
@@ -110,7 +110,7 @@ export function ItemDescription({ className, ...props }: ComponentProps<"p">) {
     <p
       data-slot="item-description"
       className={cn(
-        "line-clamp-2 text-balance text-xs leading-normal font-normal text-text-muted",
+        "line-clamp-2 text-balance text-xs leading-normal font-normal text-muted-foreground",
         className,
       )}
       {...props}

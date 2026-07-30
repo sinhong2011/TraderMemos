@@ -5,10 +5,10 @@ import { EmptyState } from "./EmptyState";
 import { useReportsMoney } from "./ReportsDisplayContext";
 import { Skeleton } from "./Skeleton";
 import { pnlColor } from "./theme-tokens";
-import type { BreakGroup, Summary } from "../lib/api/types";
-import { usePrivacyMode } from "../lib/displayPrefs";
-import { fmtPct, fmtSignedMoney } from "../lib/format";
-import { intlLocale } from "../lib/locale";
+import type { BreakGroup, Summary } from "@/lib/api/types";
+import { usePrivacyMode } from "@/lib/displayPrefs";
+import { fmtPct, fmtSignedMoney } from "@/lib/format";
+import { intlLocale } from "@/lib/locale";
 
 /** Net P&L cell — the only session-table column that honors the Reports
  * net/gross + $/% display mode; PF/avg-trade/expectancy stay net-$ (the API
@@ -38,14 +38,16 @@ function buildSessionColumns(
     {
       accessorKey: "key",
       header: "Session",
-      cell: (info) => <span className="font-medium text-text">{info.getValue<string>()}</span>,
+      cell: (info) => (
+        <span className="font-medium text-foreground">{info.getValue<string>()}</span>
+      ),
     },
     {
       id: "total_trades",
       accessorFn: (row) => row.summary.total_trades,
       header: "Trades",
       cell: (info) => (
-        <span className="tabular-nums text-text-muted">{info.getValue<number>()}</span>
+        <span className="tabular-nums text-muted-foreground">{info.getValue<number>()}</span>
       ),
     },
     {
@@ -53,7 +55,9 @@ function buildSessionColumns(
       accessorFn: (row) => row.summary.win_rate,
       header: "Win %",
       cell: (info) => (
-        <span className="tabular-nums text-text">{fmtPct(info.getValue<number>(), locale)}</span>
+        <span className="tabular-nums text-foreground">
+          {fmtPct(info.getValue<number>(), locale)}
+        </span>
       ),
     },
     {
@@ -81,7 +85,7 @@ function buildSessionColumns(
       header: "PF",
       cell: (info) => {
         const v = info.getValue<number>();
-        return <span className="tabular-nums text-text">{v > 0 ? v.toFixed(2) : "—"}</span>;
+        return <span className="tabular-nums text-foreground">{v > 0 ? v.toFixed(2) : "—"}</span>;
       },
     },
     {
@@ -117,7 +121,7 @@ export function ReportsSessionTable({
           <Skeleton height="160px" />
         </div>
       ) : error ? (
-        <p className="p-4 text-xs text-loss">Failed to load session performance.</p>
+        <p className="p-4 text-xs text-destructive">Failed to load session performance.</p>
       ) : breakdown.length === 0 ? (
         <div className="p-4">
           <EmptyState

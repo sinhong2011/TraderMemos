@@ -1,7 +1,11 @@
 import { Copy, Pencil, Plus, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { cn } from "../../../lib/cn";
-import { Button } from "../../ui/button";
+import { cn } from "@/lib/cn";
+import { Button } from "@/components/ui/button";
+
+/** Icon actions on the selected tab — pinned so they stay inside the 28px row. */
+const tabActionClass =
+  "size-5 shrink-0 rounded p-0 text-muted-foreground hover:bg-transparent hover:text-foreground sm:size-5";
 
 export function SessionRail({
   sessions,
@@ -47,18 +51,24 @@ export function SessionRail({
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-1.5">
-      <span className="mr-1 text-[10px] font-medium uppercase tracking-widest text-text-muted">
-        Positions
-      </span>
-      {sessions.map((s) => {
-        const active = s.id === activeId;
-        const editing = editingId === s.id;
+    <div className="flex flex-wrap items-center gap-2">
+      {/* Track mirrors SegmentedControl so the rail reads as tabs, not loose chips. */}
+      <div
+        role="tablist"
+        aria-label="Positions"
+        className={cn(
+          "flex flex-wrap items-center gap-0.5 rounded-lg border border-input bg-muted p-0.5 shadow-xs/5",
+          "dark:bg-input/32",
+        )}
+      >
+        {sessions.map((s) => {
+          const active = s.id === activeId;
+          const editing = editingId === s.id;
 
-        return (
-          <div key={s.id} className="group relative flex items-center">
-            {editing ? (
+          if (editing) {
+            return (
               <input
+                key={s.id}
                 ref={inputRef}
                 type="text"
                 value={draft}
@@ -74,14 +84,24 @@ export function SessionRail({
                     cancelEdit();
                   }
                 }}
-                className="min-w-[5rem] max-w-[10rem] rounded-control border-none bg-bg-input px-2 py-1 text-[11px] font-medium text-text outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-strong"
+                className="h-7 min-w-[6rem] max-w-[10rem] rounded-md border-none bg-background px-2 text-[12px] font-medium text-foreground shadow-xs/5 outline-none focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ring dark:bg-input"
                 aria-label="Rename position"
               />
-            ) : (
-              <Button
+            );
+          }
+
+          return (
+            <div
+              key={s.id}
+              className={cn(
+                "flex items-center rounded-md transition-colors",
+                active && "bg-background shadow-xs/5 dark:bg-input",
+              )}
+            >
+              <button
                 type="button"
-                variant="ghost"
-                size="xs"
+                role="tab"
+                aria-selected={active}
                 onClick={() => onSelect(s.id)}
                 onDoubleClick={(e) => {
                   e.preventDefault();
@@ -89,66 +109,66 @@ export function SessionRail({
                 }}
                 title={onRename ? "Double-click to rename" : undefined}
                 className={cn(
-                  "h-auto px-2.5 py-1",
-                  active
-                    ? "bg-accent/15 text-accent hover:bg-accent/15 hover:text-accent"
-                    : "bg-bg-hover text-text-muted",
+                  "h-7 max-w-[12rem] truncate rounded-md px-2.5 text-[12px] font-medium outline-none transition-colors",
+                  "focus-visible:ring-2 focus-visible:ring-ring",
+                  active ? "pr-1.5 text-foreground" : "text-muted-foreground hover:text-foreground",
                 )}
               >
                 {s.name}
-              </Button>
-            )}
-            {active && !editing ? (
-              <div className="ml-0.5 flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
-                {onRename ? (
+              </button>
+              {active ? (
+                <span className="flex items-center gap-0.5 pr-1">
+                  {onRename ? (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-xs"
+                      aria-label={`Rename ${s.name}`}
+                      onClick={() => startEdit(s.id, s.name)}
+                      className={tabActionClass}
+                    >
+                      <Pencil size={11} />
+                    </Button>
+                  ) : null}
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon-xs"
-                    aria-label="Rename"
-                    onClick={() => startEdit(s.id, s.name)}
-                    className="size-auto rounded p-0.5 text-text-dim hover:bg-transparent hover:text-text"
+                    aria-label={`Duplicate ${s.name}`}
+                    onClick={() => onDuplicate(s.id)}
+                    className={tabActionClass}
                   >
-                    <Pencil size={11} />
+                    <Copy size={11} />
                   </Button>
-                ) : null}
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon-xs"
-                  aria-label="Duplicate"
-                  onClick={() => onDuplicate(s.id)}
-                  className="size-auto rounded p-0.5 text-text-dim hover:bg-transparent hover:text-text"
-                >
-                  <Copy size={11} />
-                </Button>
-                {sessions.length > 1 ? (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon-xs"
-                    aria-label="Delete"
-                    onClick={() => onRemove(s.id)}
-                    className="size-auto rounded p-0.5 text-text-dim hover:bg-transparent hover:text-loss"
-                  >
-                    <X size={11} />
-                  </Button>
-                ) : null}
-              </div>
-            ) : null}
-          </div>
-        );
-      })}
-      <Button
-        type="button"
-        variant="ghost"
-        size="xs"
-        onClick={onAdd}
-        className="h-auto gap-1 bg-bg-hover px-2 py-1 text-text-dim"
-      >
-        <Plus size={11} />
-        Add
-      </Button>
+                  {sessions.length > 1 ? (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-xs"
+                      aria-label={`Delete ${s.name}`}
+                      onClick={() => onRemove(s.id)}
+                      className={cn(tabActionClass, "hover:text-destructive")}
+                    >
+                      <X size={11} />
+                    </Button>
+                  ) : null}
+                </span>
+              ) : null}
+            </div>
+          );
+        })}
+        <span aria-hidden className="mx-0.5 h-4 w-px shrink-0 bg-border" />
+        <Button
+          type="button"
+          variant="ghost"
+          size="xs"
+          onClick={onAdd}
+          className="h-7 gap-1 rounded-md px-2 text-[12px] font-medium text-muted-foreground hover:bg-background hover:text-foreground sm:h-7 sm:text-[12px] dark:hover:bg-input"
+        >
+          <Plus size={12} />
+          Add
+        </Button>
+      </div>
     </div>
   );
 }

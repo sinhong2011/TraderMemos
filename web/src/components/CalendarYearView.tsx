@@ -1,12 +1,12 @@
-import type { DayRecord } from "../lib/calendar";
-import type { Trade } from "../lib/api/types";
-import { monthGrid } from "../lib/calendar";
-import { cn } from "../lib/cn";
-import { fmtSignedMoneyCompact } from "../lib/format";
-import { intlLocale } from "../lib/locale";
+import type { DayRecord } from "@/lib/calendar";
+import type { Trade } from "@/lib/api/types";
+import { monthGrid } from "@/lib/calendar";
+import { cn } from "@/lib/cn";
+import { fmtSignedMoneyCompact } from "@/lib/format";
+import { intlLocale } from "@/lib/locale";
 import { CalendarDayHoverCard } from "./CalendarDayHoverCard";
 import { pnlBgTint, pnlColor } from "./theme-tokens";
-import { usePrivacyMode } from "../lib/displayPrefs";
+import { usePrivacyMode } from "@/lib/displayPrefs";
 
 function shortMonth(year: number, month: number, locale: string): string {
   return new Date(Date.UTC(year, month - 1, 1)).toLocaleDateString(locale, {
@@ -31,15 +31,15 @@ function YearDayCell({
   trades?: Trade[];
 }) {
   const cellClass = cn(
-    "block h-full min-h-0 min-w-0 rounded-sharp transition-[filter,box-shadow,opacity] duration-150",
+    "block h-full min-h-0 min-w-0 rounded-md transition-[filter,box-shadow,opacity] duration-150",
     "group-hover/card:brightness-125",
-    pnl != null && "hover:brightness-150 hover:ring-1 hover:ring-accent/50",
+    pnl != null && "hover:brightness-150 hover:ring-1 hover:ring-primary/50",
   );
   const cellStyle = {
     background:
       pnl != null
         ? pnlBgTint(pnl, { minOpacity: 0.1, maxOpacity: 0.55, scale: 450 })
-        : "var(--color-bg-elevated)",
+        : "var(--sidebar)",
   } as const;
 
   if (pnl == null) {
@@ -111,13 +111,13 @@ function YearMonthCard({
       aria-label={label}
       style={{ animationDelay: `${index * 35}ms` }}
       className={cn(
-        "group/card relative flex h-full min-h-0 cursor-pointer flex-col justify-center overflow-hidden rounded-card bg-bg px-3 py-3 text-left sm:justify-start sm:px-4 sm:py-4",
+        "group/card relative flex h-full min-h-0 cursor-pointer flex-col justify-center overflow-hidden rounded-lg bg-background px-3 py-3 text-left sm:justify-start sm:px-4 sm:py-4",
         "transition-[background-color,box-shadow] duration-150 ease-out",
-        "hover:bg-bg-elevated hover:shadow-[0_12px_32px_-18px_var(--color-accent-glow)]",
-        "active:bg-bg-hover active:shadow-none",
-        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-strong",
+        "hover:bg-sidebar hover:shadow-[0_12px_32px_-18px_color-mix(in oklch, var(--primary) 35%, transparent)]",
+        "active:bg-accent active:shadow-none",
+        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
         "motion-reduce:animate-none",
-        "animate-[year-card-in_250ms_var(--ease-out)_both]",
+        "animate-[year-card-in_250ms_cubic-bezier(0.16, 1, 0.3, 1)_both]",
         isFuture && "opacity-50",
       )}
       data-month={monthKey}
@@ -126,18 +126,20 @@ function YearMonthCard({
         aria-hidden
         className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-200 ease-out group-hover/card:opacity-100"
         style={{
-          background: "radial-gradient(90% 70% at 50% 0%, var(--color-accent-bg), transparent 65%)",
+          background:
+            "radial-gradient(90% 70% at 50% 0%, color-mix(in oklch, var(--primary) 12%, transparent), transparent 65%)",
         }}
       />
       <span
         aria-hidden
         className="pointer-events-none absolute inset-x-3 top-0 h-px opacity-0 transition-opacity duration-200 ease-out group-hover/card:opacity-100 sm:inset-x-4"
         style={{
-          background: "linear-gradient(90deg, transparent, var(--color-accent-glow), transparent)",
+          background:
+            "linear-gradient(90deg, transparent, color-mix(in oklch, var(--primary) 35%, transparent), transparent)",
         }}
       />
 
-      <p className="relative shrink-0 text-center text-[13px] font-medium text-text transition-colors duration-150 group-hover/card:text-accent">
+      <p className="relative shrink-0 text-center text-[13px] font-medium text-foreground transition-colors duration-150 group-hover/card:text-primary">
         {shortMonth(year, month, locale)}
       </p>
 
@@ -172,12 +174,12 @@ function YearMonthCard({
         <p
           className={cn(
             "text-[14px] font-semibold tabular-nums",
-            hasTrades ? pnlColor(total) : "text-text-dim",
+            hasTrades ? pnlColor(total) : "text-muted-foreground",
           )}
         >
           {hasTrades ? fmtSignedMoneyCompact(total * fxRate, currency, locale) : "—"}
         </p>
-        <p className="text-[11px] tabular-nums text-text-muted">
+        <p className="text-[11px] tabular-nums text-muted-foreground">
           {tradeCount > 0 ? `${tradeCount} ${tradeCount === 1 ? "trade" : "trades"}` : "No trades"}
         </p>
       </div>
@@ -216,11 +218,11 @@ export function CalendarYearView({
   return (
     <div className="flex min-h-0 flex-1 flex-col px-3 pb-4 md:px-4">
       {loading ? (
-        <div className="flex flex-1 items-center justify-center text-[12px] text-text-muted">
+        <div className="flex flex-1 items-center justify-center text-[12px] text-muted-foreground">
           Loading…
         </div>
       ) : error ? (
-        <p className="p-4 text-xs text-loss">Failed to load daily P&L.</p>
+        <p className="p-4 text-xs text-destructive">Failed to load daily P&L.</p>
       ) : (
         <div
           key={year}

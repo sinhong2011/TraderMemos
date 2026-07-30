@@ -1,7 +1,7 @@
 import { format, isSameDay } from "date-fns";
 import { useEffect, useState } from "react";
 import type { DateRange } from "react-day-picker";
-import { cn } from "../lib/cn";
+import { cn } from "@/lib/cn";
 import {
   type DateRangePreset,
   PRESET_LABELS,
@@ -9,16 +9,17 @@ import {
   localDateString,
   parseFilterDay,
   presetFromRange,
-} from "../lib/dateRangePresets";
-import { useFilters } from "../lib/filters";
-import { SignalCalendar } from "./SignalCalendar";
+} from "@/lib/dateRangePresets";
+import { useFilters } from "@/lib/filters";
+import { AppCalendar } from "./AppCalendar";
 import { Button } from "./ui/button";
 
 const PRESETS: { key: DateRangePreset; label: string }[] = [
   { key: "7d", label: PRESET_LABELS["7d"] },
   { key: "30d", label: PRESET_LABELS["30d"] },
   { key: "90d", label: PRESET_LABELS["90d"] },
-  { key: "month", label: PRESET_LABELS.month },
+  { key: "mtd", label: PRESET_LABELS.mtd },
+  { key: "ytd", label: PRESET_LABELS.ytd },
   { key: "all", label: PRESET_LABELS.all },
 ];
 
@@ -31,18 +32,22 @@ function toDraft(from?: string, to?: string): DateRange | undefined {
 
 function RangeFooter({ draft }: { draft: DateRange | undefined }) {
   if (draft?.from && !draft.to) {
-    return <p className="m-0 text-[10px] uppercase tracking-widest text-signal">Select end date</p>;
+    return (
+      <p className="m-0 text-[10px] uppercase tracking-widest text-chart-3">Select end date</p>
+    );
   }
   if (draft?.from && draft.to) {
     return (
-      <p className="m-0 text-[11px] tabular-nums text-text-muted">
+      <p className="m-0 text-[11px] tabular-nums text-muted-foreground">
         {format(draft.from, "MMM d, yyyy")}
-        <span className="text-text-dim"> – </span>
+        <span className="text-muted-foreground"> – </span>
         {format(draft.to, "MMM d, yyyy")}
       </p>
     );
   }
-  return <p className="m-0 text-[11px] text-text-muted">Click two dates for a custom range</p>;
+  return (
+    <p className="m-0 text-[11px] text-muted-foreground">Click two dates for a custom range</p>
+  );
 }
 
 export function DateRangePanel({ onApplied }: { onApplied?: () => void }) {
@@ -84,7 +89,15 @@ export function DateRangePanel({ onApplied }: { onApplied?: () => void }) {
   }
 
   const presetList = (
-    <div className="flex flex-col gap-0.5 px-2 pb-3">
+    <div
+      className={cn(
+        "flex gap-1 px-2 pb-3",
+        // Narrow: a 3-up grid. The old horizontal scroller clipped the last
+        // preset mid-word with nothing to signal that it scrolled.
+        "max-sm:grid max-sm:grid-cols-3 max-sm:gap-1.5 max-sm:px-2 max-sm:pb-1",
+        "sm:flex-col sm:gap-0.5",
+      )}
+    >
       {PRESETS.map((p) => {
         const active = activePreset === p.key;
         return (
@@ -94,15 +107,19 @@ export function DateRangePanel({ onApplied }: { onApplied?: () => void }) {
             variant="ghost"
             onClick={() => applyPreset(p.key)}
             className={cn(
-              "relative h-auto w-full justify-start rounded-control py-2 pr-2 pl-2.5 text-left text-[11px]",
-              "focus-visible:ring-2 focus-visible:ring-border-strong focus-visible:outline-none",
-              active && "bg-bg-hover text-text",
+              "relative h-auto justify-start rounded-md text-left text-[11px]",
+              "focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
+              // In the grid each preset is its own chip: a muted surface for
+              // tap affordance, tint instead of a rail for the active one.
+              "max-sm:justify-center max-sm:bg-muted/40 max-sm:px-1.5 max-sm:py-2 max-sm:text-center",
+              "sm:w-full sm:py-2 sm:pr-2 sm:pl-2.5",
+              active && "max-sm:bg-primary/12 max-sm:text-primary sm:bg-accent sm:text-foreground",
             )}
           >
             {active && (
               <span
                 aria-hidden
-                className="absolute top-1/2 left-0 h-4 w-0.5 -translate-y-1/2 rounded-full bg-accent"
+                className="absolute top-1/2 left-0 hidden h-4 w-0.5 -translate-y-1/2 rounded-full bg-primary sm:block"
               />
             )}
             {p.label}
@@ -113,17 +130,33 @@ export function DateRangePanel({ onApplied }: { onApplied?: () => void }) {
   );
 
   return (
-    <div className="flex w-[424px] max-w-[calc(100vw-2rem)]" aria-label="Date range">
-      <aside className="flex w-[148px] shrink-0 flex-col bg-bg">
-        <p className="m-0 px-3 pt-3 pb-2 text-[11px] font-medium uppercase tracking-widest text-text-muted">
+    <div
+      className={cn(
+        // rounded-md keeps the nested surfaces (preset rail + calendar) on the
+        // --radius scale one tier inside the popover's rounded-lg edge.
+        // 448px leaves slack over the 424px min-content (148 rail + 252 day
+        // grid + padding): at exactly min-content, any font-metric or rounding
+        // difference overflowed, and `overflow-y-auto` forces `overflow-x` to
+        // `auto`, so a stray horizontal scrollbar appeared under the panel.
+        // Hiding overflow-x is safe only where the width is fixed — below sm the
+        // panel narrows with the viewport and must still be able to scroll.
+        "flex max-h-[min(100dvh-2rem,100%)] w-[min(100vw-2rem,448px)] flex-col overflow-y-auto overscroll-contain rounded-md",
+        "pb-[env(safe-area-inset-bottom)] sm:w-[448px] sm:flex-row sm:overflow-x-hidden sm:pb-0",
+      )}
+      aria-label="Date range"
+    >
+      {/* Stacked on a phone the two surfaces read as unrelated bands, so the
+          panel goes single-surface there and only splits on sm+. */}
+      <aside className="flex shrink-0 flex-col rounded-md max-sm:pt-1 sm:w-[148px] sm:bg-background">
+        <p className="m-0 px-3 pt-3 pb-2 text-[10px] font-medium uppercase tracking-widest text-muted-foreground max-sm:px-2 max-sm:pt-0 max-sm:pb-1.5">
           Quick range
         </p>
         {presetList}
       </aside>
 
-      <div className="flex min-w-0 flex-1 flex-col bg-bg-panel">
-        <div className="flex justify-center px-3 pt-3 pb-1">
-          <SignalCalendar
+      <div className="flex min-w-0 flex-1 flex-col sm:bg-card">
+        <div className="flex justify-center px-3 pt-3 pb-1 max-sm:pt-2">
+          <AppCalendar
             mode="range"
             selected={draft}
             onSelect={applyCustomRange}

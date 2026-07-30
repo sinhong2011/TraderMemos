@@ -1,11 +1,11 @@
 import { StatBar } from "./StatBar";
 import { pnlColor } from "./theme-tokens";
-import type { Summary, Trade } from "../lib/api/types";
-import { cn } from "../lib/cn";
-import { usePrivacyMode } from "../lib/displayPrefs";
-import { fmtMoney, fmtPct, fmtSignedMoney } from "../lib/format";
-import { intlLocale } from "../lib/locale";
-import type { TradeStatusFilter } from "../lib/tradeFilters";
+import type { Summary, Trade } from "@/lib/api/types";
+import { cn } from "@/lib/cn";
+import { usePrivacyMode } from "@/lib/displayPrefs";
+import { fmtMoney, fmtPct, fmtSignedMoney } from "@/lib/format";
+import { intlLocale } from "@/lib/locale";
+import type { TradeStatusFilter } from "@/lib/tradeFilters";
 
 export interface PerformanceStripProps {
   summary: Summary;
@@ -20,7 +20,7 @@ export interface PerformanceStripProps {
 function Meta({ label, value, className }: { label: string; value: string; className?: string }) {
   return (
     <p className="m-0 flex items-baseline gap-1.5 text-[13px] tabular-nums">
-      <span className="font-medium tracking-wide text-text-muted">{label}</span>
+      <span className="font-medium tracking-wide text-muted-foreground">{label}</span>
       <span className={cn("font-medium", className)}>{value}</span>
     </p>
   );
@@ -40,17 +40,21 @@ export function PerformanceStrip({
   const allTotal = Math.max(trades.length, 1);
   const openCount = trades.filter((t) => t.status === "open").length;
   const toggle = (f: TradeStatusFilter) => onToggleTradeStatus?.(f);
-  const gross = summary.gross_profit + summary.gross_loss;
+  // gross_profit/gross_loss are net-based win/loss buckets, so their difference is
+  // just net_pnl. Real gross P&L is net plus the fees that were deducted from it.
+  const gross = summary.net_pnl + summary.total_fees;
   const money = (v: number) => v * fxRate;
 
   return (
     <div className="flex h-full min-h-0 flex-col gap-3">
       {/* Net hero */}
-      <section className="flex min-h-[133px] flex-1 flex-col rounded-card bg-bg-panel p-5">
-        <p className="self-start text-[12px] font-semibold tracking-wide text-signal">
+      <section className="flex min-h-[133px] flex-1 flex-col rounded-lg bg-card p-5">
+        <p className="self-start text-[12px] font-semibold tracking-wide text-chart-3">
           Performance
         </p>
-        <p className="mt-3 self-start text-[12px] font-medium tracking-wide text-text-muted">Net</p>
+        <p className="mt-3 self-start text-[12px] font-medium tracking-wide text-muted-foreground">
+          Net
+        </p>
         <div className="mt-3 flex flex-1 flex-col items-center justify-center text-center">
           <p
             className={cn(

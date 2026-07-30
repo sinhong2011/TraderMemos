@@ -9,7 +9,7 @@ import {
   type ComponentProps,
   type ReactNode,
 } from "react";
-import { cn } from "../lib/cn";
+import { cn } from "@/lib/cn";
 
 type CollapsibleAnimation = "height" | "fade";
 
@@ -75,7 +75,7 @@ function CollapsibleTrigger({ className, ...props }: CollapsiblePrimitive.Trigge
       data-slot="collapsible-trigger"
       className={cn(
         "group/collapsible-trigger flex cursor-pointer items-center gap-2 border-none bg-transparent p-0 text-left outline-none",
-        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-strong",
+        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
         "disabled:cursor-not-allowed disabled:opacity-50",
         className,
       )}
@@ -166,7 +166,7 @@ function CollapsibleChevron({ className, size = 14 }: { className?: string; size
   return (
     <motion.span
       aria-hidden
-      className={cn("ml-auto inline-flex shrink-0 text-text-muted", className)}
+      className={cn("ml-auto inline-flex shrink-0 text-muted-foreground", className)}
       animate={{ rotate: open ? 180 : 0 }}
       transition={
         instant

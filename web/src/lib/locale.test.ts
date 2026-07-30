@@ -41,6 +41,10 @@ describe("locale", () => {
   });
 
   it("translates settings navigation labels", () => {
+    expect(settingsLabel("en", "theme")).toBe("Appearance");
+    expect(settingsLabel("zh-HK", "themeLight")).toBe("淺色");
+    expect(settingsLabel("ja", "themeDark")).toBe("ダーク");
+    expect(settingsLabel("ko", "themeSystem")).toBe("시스템");
     expect(settingsLabel("ja", "accounts")).toBe("アカウント");
     expect(settingsLabel("zh-HK", "general")).toBe("一般");
     expect(settingsLabel("en", "ai")).toBe("AI");

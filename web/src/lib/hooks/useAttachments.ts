@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { attachmentsApi } from "../api/attachments";
+import { attachmentsApi } from "@/lib/api/attachments";
 
 export function useAttachments(tradeId: string) {
   return useQuery({

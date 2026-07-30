@@ -1,9 +1,9 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
-import type { JournalNote } from "../../lib/api/types";
-import { useNotesPrefs } from "../../lib/notesPrefs";
-import { useUI } from "../../lib/ui";
+import type { JournalNote } from "@/lib/api/types";
+import { useNotesPrefs } from "@/lib/notesPrefs";
+import { useUI } from "@/lib/ui";
 import { NotesView } from "./NotesView";
 
 const notes: JournalNote[] = [
@@ -67,14 +67,74 @@ describe("NotesView", () => {
     );
 
     expect(screen.getByRole("list")).toBeInTheDocument();
-    await user.click(screen.getByRole("tab", { name: /Cards/i }));
+    await user.click(screen.getByRole("button", { name: /Cards/i }));
     expect(useNotesPrefs.getState().layout).toBe("cards");
     expect(screen.queryByRole("list")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Open AM session" })).toBeInTheDocument();
 
-    await user.click(screen.getByRole("tab", { name: /List/i }));
+    await user.click(screen.getByRole("button", { name: /List/i }));
     expect(useNotesPrefs.getState().layout).toBe("list");
     expect(screen.getByRole("list")).toBeInTheDocument();
+  });
+
+  it("filters notes by search query across title, body and symbols", async () => {
+    const user = userEvent.setup();
+    render(
+      <NotesView
+        notes={notes}
+        loading={false}
+        error={false}
+        onDelete={vi.fn<(id: string) => Promise<void>>()}
+      />,
+    );
+
+    const search = screen.getByRole("searchbox", { name: "Search notes" });
+    await user.type(search, "revenge");
+    expect(screen.getByText("Discipline check")).toBeInTheDocument();
+    expect(screen.queryByText("AM session")).not.toBeInTheDocument();
+
+    await user.clear(search);
+    await user.type(search, "nvda");
+    expect(screen.getByText("AM session")).toBeInTheDocument();
+    expect(screen.queryByText("Discipline check")).not.toBeInTheDocument();
+
+    await user.clear(search);
+    await user.type(search, "zzz");
+    expect(screen.getByText("No matching notes")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Clear filters" }));
+    expect(screen.getByText("AM session")).toBeInTheDocument();
+  });
+
+  it("filters notes by type", async () => {
+    const user = userEvent.setup();
+    render(
+      <NotesView
+        notes={notes}
+        loading={false}
+        error={false}
+        onDelete={vi.fn<(id: string) => Promise<void>>()}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Logs" }));
+    expect(screen.getByText("AM session")).toBeInTheDocument();
+    expect(screen.queryByText("Discipline check")).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Notes" }));
+    expect(screen.getByText("Discipline check")).toBeInTheDocument();
+    expect(screen.queryByText("AM session")).not.toBeInTheDocument();
+  });
+
+  it("shows checklist progress from the note body", () => {
+    render(
+      <NotesView
+        notes={notes}
+        loading={false}
+        error={false}
+        onDelete={vi.fn<(id: string) => Promise<void>>()}
+      />,
+    );
+    expect(screen.getByTitle("1 of 1 checks done")).toBeInTheDocument();
   });
 
   it("shows empty state when there are no notes", () => {

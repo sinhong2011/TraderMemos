@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it } from "vite-plus/test";
-import { useFilters } from "../lib/filters";
+import { useFilters } from "@/lib/filters";
 import { DateRangePicker } from "./DateRangePicker";
 
 afterEach(() => useFilters.getState().reset());

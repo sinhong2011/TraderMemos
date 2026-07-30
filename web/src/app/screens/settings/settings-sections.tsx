@@ -2,63 +2,57 @@ import { useForm } from "@tanstack/react-form";
 import {
   Check,
   Download,
+  LogOut,
   Pencil,
   Plus,
   Settings,
   Shield,
+  Target,
   Tag,
   Upload,
   Wallet,
   X,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { EmptyState } from "../../../components/EmptyState";
-import { LlmApiSettingsForm } from "../../../components/LlmApiSettingsForm";
-import { Modal } from "../../../components/Modal";
-import { SignalAmountInput } from "../../../components/SignalAmountInput";
-import { SignalDatePicker } from "../../../components/SignalDatePicker";
-import { SignalEditor } from "../../../components/SignalEditor";
-import { fieldError, SignalField } from "../../../components/SignalField";
-import { SignalInput } from "../../../components/SignalInput";
-import { Skeleton } from "../../../components/Skeleton";
-import { useToastManager } from "../../../components/Toast";
-import { Button } from "../../../components/ui/button";
-import { NativeSelect, NativeSelectOption } from "../../../components/ui/native-select";
-import {
-  ApiError,
-  editableApiBaseUrl,
-  getCustomApiBaseUrl,
-  setBaseUrl,
-} from "../../../lib/api/client";
-import { applyParsedAppConfig, buildAppConfigExport, parseAppConfig } from "../../../lib/appConfig";
-import type { RiskRules } from "../../../lib/api/settings";
+import { EmptyState } from "@/components/EmptyState";
+import { LlmApiSettingsForm } from "@/components/LlmApiSettingsForm";
+import { ModeToggle } from "@/components/ModeToggle";
+import { Modal } from "@/components/Modal";
+import { AmountInput } from "@/components/AmountInput";
+import { DatePicker } from "@/components/DatePicker";
+import { RichTextEditor } from "@/components/RichTextEditor";
+import { fieldError, Field } from "@/components/Field";
+import { FormInput } from "@/components/FormInput";
+import { FormSkeleton } from "@/components/skeletons/form-skeleton";
+import { ListSkeleton } from "@/components/skeletons/list-skeleton";
+import { useToastManager } from "@/components/Toast";
+import { Button } from "@/components/ui/button";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
+import { ApiError, editableApiBaseUrl, getCustomApiBaseUrl, setBaseUrl } from "@/lib/api/client";
+import { applyParsedAppConfig, buildAppConfigExport, parseAppConfig } from "@/lib/appConfig";
+import type { AnnualGoal, RiskRules } from "@/lib/api/settings";
 import {
   useCoachSettings,
   useListCoachModels,
   useSaveCoachSettings,
   useTestCoachSettings,
-} from "../../../lib/hooks/useCoachSettings";
-import type { Account, CashTransaction, Tag as TagType } from "../../../lib/api/types";
+} from "@/lib/hooks/useCoachSettings";
+import type { Account, CashTransaction, Tag as TagType } from "@/lib/api/types";
 import {
   useListOcrModels,
   useOcrSettings,
   useSaveOcrSettings,
   useTestOcrSettings,
-} from "../../../lib/hooks/useOcrSettings";
-import { useTrades } from "../../../lib/hooks/useTrades";
-import { formatCashDisplay, signedCashAmount } from "../../../lib/cashAmount";
-import { parseAmountToNumber } from "../../../lib/amountInput";
-import { fmtDate, fmtMoney, fmtSignedMoney } from "../../../lib/format";
-import {
-  intlLocale,
-  LOCALE_OPTIONS,
-  settingsLabel,
-  type SettingsLabelKey,
-} from "../../../lib/locale";
-import type { LlmApiSettingsLabels } from "../../../lib/llmApiSettings";
-import { useAuth } from "../../../lib/auth";
-import { useJournalPrefs } from "../../../lib/journalPrefs";
-import { useLocale } from "../../../i18n";
+} from "@/lib/hooks/useOcrSettings";
+import { useTrades } from "@/lib/hooks/useTrades";
+import { formatCashDisplay, signedCashAmount } from "@/lib/cashAmount";
+import { parseAmountToNumber } from "@/lib/amountInput";
+import { fmtDate, fmtMoney, fmtSignedMoney } from "@/lib/format";
+import { intlLocale, LOCALE_OPTIONS, settingsLabel, type SettingsLabelKey } from "@/lib/locale";
+import type { LlmApiSettingsLabels } from "@/lib/llmApiSettings";
+import { useAuth } from "@/lib/auth";
+import { useJournalPrefs } from "@/lib/journalPrefs";
+import { useLocale } from "@/i18n";
 import {
   TIME_FORMAT_OPTIONS,
   TRADE_DATE_BASIS_OPTIONS,
@@ -68,7 +62,7 @@ import {
   type TradeDateBasis,
   usePrivacyMode,
   useDisplayPrefs,
-} from "../../../lib/displayPrefs";
+} from "@/lib/displayPrefs";
 import {
   activeRiskRuleEntries,
   availableRiskRuleKeys,
@@ -85,7 +79,7 @@ import {
   validateRiskRuleValue,
   validateStartingBalance,
   type RiskRuleKey,
-} from "../../../lib/settingsFormSchema";
+} from "@/lib/settingsFormSchema";
 import {
   AccountRow,
   BtnGhost,
@@ -139,6 +133,15 @@ const POPULAR_BROKERS = [
   "FUTU NIU NIU",
 ] as const;
 const OTHER_BROKER_VALUE = "__other__";
+
+const CASH_TYPE_OPTIONS = [
+  { value: "deposit", label: "Deposit" },
+  { value: "withdrawal", label: "Withdrawal" },
+  { value: "fee", label: "Fee" },
+  { value: "dividend", label: "Dividend" },
+  { value: "interest", label: "Interest" },
+  { value: "adjustment", label: "Adjustment" },
+] as const;
 
 // ---------------------------------------------------------------------------
 // Accounts & funding
@@ -385,6 +388,7 @@ export function AccountsTab({
   }
 
   const accountForm = useForm({
+    formId: "settings-account",
     defaultValues: defaultAccountFormValues(),
     onSubmit: async ({ value }) => {
       setAccountFormError(null);
@@ -405,6 +409,7 @@ export function AccountsTab({
   });
 
   const cashForm = useForm({
+    formId: "settings-cash",
     defaultValues: defaultCashFormValues(accounts[0]?.id ?? ""),
     onSubmit: async ({ value }) => {
       const amt = parseAmountToNumber(value.amount);
@@ -433,6 +438,19 @@ export function AccountsTab({
       cashForm.setFieldValue("accountId", accounts[0].id);
     }
   }, [accounts, cashForm]);
+
+  function openCashForm() {
+    setCashFormError(null);
+    setFilterAccountId(null);
+    cashForm.reset(defaultCashFormValues(accounts[0]?.id ?? ""));
+    setShowCashForm(true);
+  }
+
+  function closeCashForm() {
+    setShowCashForm(false);
+    setCashFormError(null);
+    cashForm.reset(defaultCashFormValues(accounts[0]?.id ?? ""));
+  }
 
   const sortedTx = useMemo(
     () =>
@@ -524,12 +542,12 @@ export function AccountsTab({
               }}
             >
               {(field) => (
-                <SignalField
+                <Field
                   label="Account name"
                   htmlFor="acct-name"
                   error={fieldError(field.state.meta.errors)}
                 >
-                  <SignalInput
+                  <FormInput
                     id="acct-name"
                     value={field.state.value}
                     onBlur={field.handleBlur}
@@ -537,7 +555,7 @@ export function AccountsTab({
                     placeholder="e.g. Main Account"
                     autoFocus
                   />
-                </SignalField>
+                </Field>
               )}
             </accountForm.Field>
             <accountForm.Field
@@ -554,7 +572,7 @@ export function AccountsTab({
                 const brokerSelectValue = brokerIsOther ? OTHER_BROKER_VALUE : field.state.value;
                 return (
                   <>
-                    <SignalField
+                    <Field
                       label="Broker"
                       error={brokerIsOther ? undefined : fieldError(field.state.meta.errors)}
                     >
@@ -576,14 +594,14 @@ export function AccountsTab({
                         ))}
                         <NativeSelectOption value={OTHER_BROKER_VALUE}>Other</NativeSelectOption>
                       </NativeSelect>
-                    </SignalField>
+                    </Field>
                     {brokerSelectValue === OTHER_BROKER_VALUE ? (
-                      <SignalField
+                      <Field
                         label="Custom broker"
                         htmlFor="acct-broker-other"
                         error={fieldError(field.state.meta.errors)}
                       >
-                        <SignalInput
+                        <FormInput
                           id="acct-broker-other"
                           value={field.state.value}
                           onBlur={field.handleBlur}
@@ -591,7 +609,7 @@ export function AccountsTab({
                           placeholder="Type broker name"
                           autoFocus
                         />
-                      </SignalField>
+                      </Field>
                     ) : null}
                   </>
                 );
@@ -600,7 +618,7 @@ export function AccountsTab({
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               <accountForm.Field name="accountType">
                 {(field) => (
-                  <SignalField label="Account type">
+                  <Field label="Account type">
                     <NativeSelect
                       value={field.state.value}
                       onChange={(e) => field.handleChange(e.target.value)}
@@ -611,20 +629,20 @@ export function AccountsTab({
                       <NativeSelectOption value="margin">Margin</NativeSelectOption>
                       <NativeSelectOption value="prop">Prop</NativeSelectOption>
                     </NativeSelect>
-                  </SignalField>
+                  </Field>
                 )}
               </accountForm.Field>
               <accountForm.Field name="baseCurrency">
                 {(field) => (
-                  <SignalField label="Base currency" htmlFor="acct-currency">
-                    <SignalInput
+                  <Field label="Base currency" htmlFor="acct-currency">
+                    <FormInput
                       id="acct-currency"
                       value={field.state.value}
                       onBlur={field.handleBlur}
                       onChange={(e) => field.handleChange(e.target.value)}
                       placeholder="USD"
                     />
-                  </SignalField>
+                  </Field>
                 )}
               </accountForm.Field>
               <accountForm.Field
@@ -635,13 +653,13 @@ export function AccountsTab({
                 }}
               >
                 {(field) => (
-                  <SignalField
+                  <Field
                     label="Starting balance"
                     htmlFor="acct-balance"
                     description="Saved as the first deposit in the cash ledger."
                     error={fieldError(field.state.meta.errors)}
                   >
-                    <SignalAmountInput
+                    <AmountInput
                       id="acct-balance"
                       value={field.state.value}
                       onValueChange={field.handleChange}
@@ -649,7 +667,7 @@ export function AccountsTab({
                       placeholder="0.00"
                       allowNegative
                     />
-                  </SignalField>
+                  </Field>
                 )}
               </accountForm.Field>
             </div>
@@ -659,15 +677,11 @@ export function AccountsTab({
 
         {accountsLoading ? (
           <SettingsPanelBody>
-            <div className="flex flex-col gap-2">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <Skeleton key={i} height="40px" />
-              ))}
-            </div>
+            <ListSkeleton rows={3} />
           </SettingsPanelBody>
         ) : accountsError ? (
           <SettingsPanelBody>
-            <p className="text-[12px] text-loss">Failed to load accounts.</p>
+            <p className="text-[12px] text-destructive">Failed to load accounts.</p>
           </SettingsPanelBody>
         ) : accounts.length === 0 ? (
           <SettingsPanelBody className="py-8">
@@ -681,13 +695,13 @@ export function AccountsTab({
           <>
             <div className="flex flex-col gap-3">
               {accountDeleteError ? (
-                <p className="text-[11px] text-loss">{accountDeleteError}</p>
+                <p className="text-[11px] text-destructive">{accountDeleteError}</p>
               ) : null}
               {accountEditError ? (
-                <p className="text-[11px] text-loss">{accountEditError}</p>
+                <p className="text-[11px] text-destructive">{accountEditError}</p>
               ) : null}
               {clearTradesError ? (
-                <p className="text-[11px] text-loss">{clearTradesError}</p>
+                <p className="text-[11px] text-destructive">{clearTradesError}</p>
               ) : null}
               <div className="flex flex-col gap-2">
                 {accounts.map((acc) => {
@@ -734,7 +748,7 @@ export function AccountsTab({
                             title="Edit account"
                             onClick={() => startEditAccount(acc)}
                             disabled={editingAccount}
-                            className="border-border-strong bg-transparent text-text hover:bg-bg-hover"
+                            className="border-border bg-transparent text-foreground hover:bg-accent"
                           >
                             <Pencil size={14} strokeWidth={1.5} />
                           </Button>
@@ -789,15 +803,15 @@ export function AccountsTab({
               }
             >
               <div className="flex flex-col gap-3">
-                <SignalField label="Account name" htmlFor="edit-account-name">
-                  <SignalInput
+                <Field label="Account name" htmlFor="edit-account-name">
+                  <FormInput
                     id="edit-account-name"
                     value={editName}
                     onChange={(e) => setEditName(e.target.value)}
                     placeholder="e.g. Main Account"
                   />
-                </SignalField>
-                <SignalField label="Broker">
+                </Field>
+                <Field label="Broker">
                   <NativeSelect
                     value={editBrokerChoice}
                     onChange={(e) => setEditBrokerChoice(e.target.value)}
@@ -811,16 +825,16 @@ export function AccountsTab({
                     ))}
                     <NativeSelectOption value={OTHER_BROKER_VALUE}>Other</NativeSelectOption>
                   </NativeSelect>
-                </SignalField>
+                </Field>
                 {editBrokerChoice === OTHER_BROKER_VALUE ? (
-                  <SignalField label="Custom broker" htmlFor="edit-account-broker">
-                    <SignalInput
+                  <Field label="Custom broker" htmlFor="edit-account-broker">
+                    <FormInput
                       id="edit-account-broker"
                       value={editBrokerCustom}
                       onChange={(e) => setEditBrokerCustom(e.target.value)}
                       placeholder="Type broker name"
                     />
-                  </SignalField>
+                  </Field>
                 ) : null}
               </div>
               {accountEditError ? <FormError message={accountEditError} /> : null}
@@ -834,16 +848,7 @@ export function AccountsTab({
         title="Deposits & withdrawals"
         description="Track cash flows that affect your equity curve and header cash stat."
         action={
-          <BtnGhost
-            active={showCashForm}
-            onClick={() => {
-              setShowCashForm((v) => {
-                const next = !v;
-                if (next) setFilterAccountId(null);
-                return next;
-              });
-            }}
-          >
+          <BtnGhost onClick={openCashForm}>
             <Plus size={13} strokeWidth={1.5} />
             Add transaction
           </BtnGhost>
@@ -851,7 +856,7 @@ export function AccountsTab({
       >
         {filterAccountId && filteredAccount && (
           <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-sharp bg-bg-panel px-2 py-1 text-[11px] text-text-muted">
+            <span className="rounded-md bg-card px-2 py-1 text-[11px] text-muted-foreground">
               Filtered to {filteredAccount.name}
             </span>
             <BtnGhost className="px-2 py-1 text-[11px]" onClick={() => setFilterAccountId(null)}>
@@ -859,148 +864,149 @@ export function AccountsTab({
             </BtnGhost>
           </div>
         )}
-        {showCashForm && (
-          <SettingsInsetForm>
-            <form
-              className="flex flex-col gap-3"
-              onSubmit={(e) => {
-                e.preventDefault();
-                void cashForm.handleSubmit();
-              }}
-            >
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <cashForm.Field
-                  name="accountId"
-                  validators={{
-                    onSubmit: ({ value }) => validateAccountId(value),
-                  }}
-                >
-                  {(field) => (
-                    <SignalField label="Account" error={fieldError(field.state.meta.errors)}>
-                      <NativeSelect
-                        size="sm"
-                        value={field.state.value}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        aria-label="Cash account"
-                        className="h-8 w-full text-[12px]"
-                        wrapperClassName="w-full"
-                      >
-                        {accounts.map((a) => (
-                          <NativeSelectOption key={a.id} value={a.id}>
-                            {a.name}
-                          </NativeSelectOption>
-                        ))}
-                      </NativeSelect>
-                    </SignalField>
-                  )}
-                </cashForm.Field>
-                <cashForm.Field name="type">
-                  {(field) => (
-                    <SignalField label="Type">
-                      <NativeSelect
-                        size="sm"
-                        value={field.state.value}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        aria-label="Cash type"
-                        className="h-8 w-full text-[12px]"
-                        wrapperClassName="w-full"
-                      >
-                        <NativeSelectOption value="deposit">Deposit</NativeSelectOption>
-                        <NativeSelectOption value="withdrawal">Withdrawal</NativeSelectOption>
-                        <NativeSelectOption value="fee">Fee</NativeSelectOption>
-                        <NativeSelectOption value="dividend">Dividend</NativeSelectOption>
-                        <NativeSelectOption value="interest">Interest</NativeSelectOption>
-                        <NativeSelectOption value="adjustment">Adjustment</NativeSelectOption>
-                      </NativeSelect>
-                    </SignalField>
-                  )}
-                </cashForm.Field>
-              </div>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <cashForm.Field
-                  name="amount"
-                  validators={{
-                    onBlur: ({ value }) => validatePositiveAmount(value),
-                    onSubmit: ({ value }) => validatePositiveAmount(value),
-                  }}
-                >
-                  {(field) => (
-                    <SignalField
-                      label="Amount"
-                      htmlFor="cash-amount"
-                      error={fieldError(field.state.meta.errors)}
-                    >
-                      <SignalAmountInput
-                        id="cash-amount"
-                        value={field.state.value}
-                        onValueChange={field.handleChange}
-                        onBlur={field.handleBlur}
-                        placeholder="0.00"
-                      />
-                    </SignalField>
-                  )}
-                </cashForm.Field>
-                <cashForm.Field name="occurredAt">
-                  {(field) => (
-                    <SignalField label="Date">
-                      <SignalDatePicker
-                        aria-label="Date"
-                        value={field.state.value}
-                        onChange={field.handleChange}
-                        onBlur={field.handleBlur}
-                      />
-                    </SignalField>
-                  )}
-                </cashForm.Field>
-              </div>
-              <cashForm.Field name="note">
+        <Modal
+          open={showCashForm}
+          onOpenChange={(open) => {
+            if (!open) closeCashForm();
+          }}
+          title="Add transaction"
+          className="max-w-[min(500px,94vw)]"
+          footer={
+            <cashForm.Subscribe selector={(s) => s.isSubmitting}>
+              {(cashSaving) => (
+                <>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={closeCashForm}
+                    disabled={cashSaving}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={() => void cashForm.handleSubmit()}
+                    disabled={cashSaving}
+                  >
+                    {cashSaving ? "Adding…" : "Add transaction"}
+                  </Button>
+                </>
+              )}
+            </cashForm.Subscribe>
+          }
+        >
+          <form
+            className="flex flex-col gap-3"
+            onSubmit={(e) => {
+              e.preventDefault();
+              void cashForm.handleSubmit();
+            }}
+          >
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <cashForm.Field
+                name="accountId"
+                validators={{
+                  onSubmit: ({ value }) => validateAccountId(value),
+                }}
+              >
                 {(field) => (
-                  <SignalField label="Note" htmlFor="cash-note">
-                    <SignalInput
-                      id="cash-note"
+                  <Field label="Account" error={fieldError(field.state.meta.errors)}>
+                    <NativeSelect
                       value={field.state.value}
-                      onBlur={field.handleBlur}
                       onChange={(e) => field.handleChange(e.target.value)}
-                      placeholder="Optional note"
-                    />
-                  </SignalField>
+                      aria-label="Cash account"
+                      wrapperClassName="w-full"
+                    >
+                      {accounts.map((a) => (
+                        <NativeSelectOption key={a.id} value={a.id}>
+                          {a.name}
+                        </NativeSelectOption>
+                      ))}
+                    </NativeSelect>
+                  </Field>
                 )}
               </cashForm.Field>
-              <FormError message={cashFormError} />
-              <div className="flex items-center gap-2">
-                <cashForm.Subscribe selector={(s) => s.isSubmitting}>
-                  {(cashSaving) => (
-                    <BtnPrimary type="submit" disabled={cashSaving}>
-                      <Check size={12} strokeWidth={1.5} />
-                      {cashSaving ? "Adding…" : "Add"}
-                    </BtnPrimary>
-                  )}
-                </cashForm.Subscribe>
-                <BtnGhost
-                  onClick={() => {
-                    setShowCashForm(false);
-                    setCashFormError(null);
-                  }}
-                >
-                  <X size={12} strokeWidth={1.5} />
-                  Cancel
-                </BtnGhost>
-              </div>
-            </form>
-          </SettingsInsetForm>
-        )}
+              <cashForm.Field name="type">
+                {(field) => (
+                  <Field label="Type">
+                    <NativeSelect
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      aria-label="Cash type"
+                      wrapperClassName="w-full"
+                    >
+                      {CASH_TYPE_OPTIONS.map(({ value, label }) => (
+                        <NativeSelectOption key={value} value={value}>
+                          {label}
+                        </NativeSelectOption>
+                      ))}
+                    </NativeSelect>
+                  </Field>
+                )}
+              </cashForm.Field>
+            </div>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <cashForm.Field
+                name="amount"
+                validators={{
+                  onBlur: ({ value }) => validatePositiveAmount(value),
+                  onSubmit: ({ value }) => validatePositiveAmount(value),
+                }}
+              >
+                {(field) => (
+                  <Field
+                    label="Amount"
+                    htmlFor="cash-amount"
+                    error={fieldError(field.state.meta.errors)}
+                  >
+                    <AmountInput
+                      id="cash-amount"
+                      value={field.state.value}
+                      onValueChange={field.handleChange}
+                      onBlur={field.handleBlur}
+                      placeholder="0.00"
+                      autoFocus
+                    />
+                  </Field>
+                )}
+              </cashForm.Field>
+              <cashForm.Field name="occurredAt">
+                {(field) => (
+                  <Field label="Date">
+                    <DatePicker
+                      aria-label="Date"
+                      value={field.state.value}
+                      onChange={field.handleChange}
+                      onBlur={field.handleBlur}
+                    />
+                  </Field>
+                )}
+              </cashForm.Field>
+            </div>
+            <cashForm.Field name="note">
+              {(field) => (
+                <Field label="Note" htmlFor="cash-note">
+                  <FormInput
+                    id="cash-note"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    placeholder="Optional note"
+                  />
+                </Field>
+              )}
+            </cashForm.Field>
+            <FormError message={cashFormError} />
+          </form>
+        </Modal>
 
         {cashLoading ? (
           <SettingsPanelBody>
-            <div className="flex flex-col gap-2">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <Skeleton key={i} height="40px" />
-              ))}
-            </div>
+            <ListSkeleton rows={3} />
           </SettingsPanelBody>
         ) : cashError ? (
           <SettingsPanelBody>
-            <p className="text-[12px] text-loss">Failed to load transactions.</p>
+            <p className="text-[12px] text-destructive">Failed to load transactions.</p>
           </SettingsPanelBody>
         ) : displayedTx.length === 0 ? (
           <SettingsPanelBody className="py-8">
@@ -1028,21 +1034,23 @@ export function AccountsTab({
                     <span className="capitalize">
                       {tx.type}
                       {acct && (
-                        <span className="ml-2 font-normal text-text-muted">· {acct.name}</span>
+                        <span className="ml-2 font-normal text-muted-foreground">
+                          · {acct.name}
+                        </span>
                       )}
                     </span>
                   }
                   secondary={
                     <>
                       {fmtDate(tx.occurred_at)}
-                      {tx.note ? <span className="text-text-dim"> · {tx.note}</span> : null}
+                      {tx.note ? <span className="text-muted-foreground"> · {tx.note}</span> : null}
                     </>
                   }
                   actions={
                     <div className="flex items-center gap-1.5">
                       <span
                         className={`mr-1.5 text-[12px] font-semibold tabular-nums ${
-                          isOutflow ? "text-loss" : "text-profit"
+                          isOutflow ? "text-destructive" : "text-profit"
                         }`}
                       >
                         {display}
@@ -1086,44 +1094,41 @@ export function AccountsTab({
         }
       >
         <div className="flex flex-col gap-3">
-          <SignalField label="Type">
+          <Field label="Type">
             <NativeSelect
-              size="sm"
               value={editCashType}
               onChange={(e) => setEditCashType(e.target.value)}
               aria-label="Cash type"
-              className="h-8 w-full text-[12px]"
               wrapperClassName="w-full"
             >
-              <NativeSelectOption value="deposit">Deposit</NativeSelectOption>
-              <NativeSelectOption value="withdrawal">Withdrawal</NativeSelectOption>
-              <NativeSelectOption value="fee">Fee</NativeSelectOption>
-              <NativeSelectOption value="dividend">Dividend</NativeSelectOption>
-              <NativeSelectOption value="interest">Interest</NativeSelectOption>
-              <NativeSelectOption value="adjustment">Adjustment</NativeSelectOption>
+              {CASH_TYPE_OPTIONS.map(({ value, label }) => (
+                <NativeSelectOption key={value} value={value}>
+                  {label}
+                </NativeSelectOption>
+              ))}
             </NativeSelect>
-          </SignalField>
+          </Field>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <SignalField label="Amount" htmlFor="edit-cash-amount">
-              <SignalAmountInput
+            <Field label="Amount" htmlFor="edit-cash-amount">
+              <AmountInput
                 id="edit-cash-amount"
                 value={editCashAmount}
                 onValueChange={setEditCashAmount}
                 placeholder="0.00"
               />
-            </SignalField>
-            <SignalField label="Date">
-              <SignalDatePicker aria-label="Date" value={editCashDate} onChange={setEditCashDate} />
-            </SignalField>
+            </Field>
+            <Field label="Date">
+              <DatePicker aria-label="Date" value={editCashDate} onChange={setEditCashDate} />
+            </Field>
           </div>
-          <SignalField label="Note" htmlFor="edit-cash-note">
-            <SignalInput
+          <Field label="Note" htmlFor="edit-cash-note">
+            <FormInput
               id="edit-cash-note"
               value={editCashNote}
               onChange={(e) => setEditCashNote(e.target.value)}
               placeholder="Optional note"
             />
-          </SignalField>
+          </Field>
           <FormError message={editCashError} />
         </div>
       </Modal>
@@ -1141,6 +1146,12 @@ export interface RulesTabProps {
   riskRulesError: boolean;
   riskRulesSaving: boolean;
   onSaveRiskRules: (body: RiskRules) => Promise<void>;
+  annualGoal?: AnnualGoal;
+  annualGoalLoading: boolean;
+  annualGoalError: boolean;
+  annualGoalSaving: boolean;
+  onSaveAnnualGoal: (body: { year: number; amount: number }) => Promise<void>;
+  onClearAnnualGoal: (year: number) => Promise<void>;
   checklistItems: string[];
   checklistContent: string;
   checklistLoading: boolean;
@@ -1160,6 +1171,12 @@ export function RulesTab({
   riskRulesError,
   riskRulesSaving,
   onSaveRiskRules,
+  annualGoal,
+  annualGoalLoading,
+  annualGoalError,
+  annualGoalSaving,
+  onSaveAnnualGoal,
+  onClearAnnualGoal,
   checklistItems,
   checklistContent,
   checklistLoading,
@@ -1169,6 +1186,10 @@ export function RulesTab({
 }: RulesTabProps) {
   const toast = useToastManager();
   const locale = intlLocale();
+  const goalYear = annualGoal?.year ?? new Date().getFullYear();
+  const [goalModalOpen, setGoalModalOpen] = useState(false);
+  const [goalDraft, setGoalDraft] = useState("");
+  const [goalError, setGoalError] = useState<string | null>(null);
   const [ruleModal, setRuleModal] = useState<RuleModalState>({ open: false });
   const [ruleKey, setRuleKey] = useState<RiskRuleKey>("max_risk_per_trade");
   const [ruleValue, setRuleValue] = useState("");
@@ -1279,6 +1300,49 @@ export function RulesTab({
     }
   }
 
+  function openGoalModal() {
+    setGoalDraft(annualGoal?.amount != null ? String(annualGoal.amount) : "");
+    setGoalError(null);
+    setGoalModalOpen(true);
+  }
+
+  function closeGoalModal() {
+    if (annualGoalSaving) return;
+    setGoalModalOpen(false);
+    setGoalError(null);
+  }
+
+  async function handleSaveGoal() {
+    const parsed = parseAmountToNumber(goalDraft);
+    if (parsed == null || parsed <= 0) {
+      setGoalError("Enter a goal greater than zero.");
+      return;
+    }
+    setGoalError(null);
+    try {
+      await onSaveAnnualGoal({ year: goalYear, amount: parsed });
+      toast.add({ title: "Annual goal saved" });
+      setGoalModalOpen(false);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Request failed";
+      setGoalError(message);
+      toast.add({ title: "Could not save annual goal", description: message });
+    }
+  }
+
+  async function handleClearGoal() {
+    try {
+      await onClearAnnualGoal(goalYear);
+      toast.add({ title: "Annual goal cleared" });
+      setGoalModalOpen(false);
+    } catch (err) {
+      toast.add({
+        title: "Could not clear annual goal",
+        description: err instanceof Error ? err.message : "Request failed",
+      });
+    }
+  }
+
   const modalDef = riskRuleDef(ruleKey);
   const modalTitle =
     ruleModal.open && ruleModal.mode === "edit" ? "Edit risk rule" : "Add risk rule";
@@ -1300,15 +1364,11 @@ export function RulesTab({
       >
         {riskRulesLoading ? (
           <SettingsPanelBody>
-            <div className="flex flex-col gap-2">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <Skeleton key={i} height="52px" />
-              ))}
-            </div>
+            <ListSkeleton rows={3} />
           </SettingsPanelBody>
         ) : riskRulesError ? (
           <SettingsPanelBody>
-            <p className="text-[12px] text-loss">Failed to load risk rules.</p>
+            <p className="text-[12px] text-destructive">Failed to load risk rules.</p>
           </SettingsPanelBody>
         ) : activeRules.length === 0 ? (
           <SettingsPanelBody className="py-8">
@@ -1328,7 +1388,7 @@ export function RulesTab({
                 secondary={def.detail}
                 actions={
                   <>
-                    <span className="text-[13px] font-medium tabular-nums text-text">
+                    <span className="text-[13px] font-medium tabular-nums text-foreground">
                       {formatRiskRuleValue(key, value, locale)}
                     </span>
                     <Button
@@ -1355,6 +1415,69 @@ export function RulesTab({
       </SettingsSection>
 
       <SettingsSection
+        title="Annual P&L Goal"
+        description={`Net P&L target for ${goalYear}. Shown on Dashboard and Reports with YTD progress.`}
+        action={
+          <BtnGhost
+            onClick={openGoalModal}
+            disabled={annualGoalLoading || annualGoalSaving}
+            aria-label={annualGoal?.amount != null ? "Edit annual goal" : "Set annual goal"}
+          >
+            <Pencil size={13} strokeWidth={1.5} />
+            {annualGoal?.amount != null ? "Edit" : "Set goal"}
+          </BtnGhost>
+        }
+      >
+        {annualGoalLoading ? (
+          <SettingsPanelBody>
+            <ListSkeleton rows={1} />
+          </SettingsPanelBody>
+        ) : annualGoalError ? (
+          <SettingsPanelBody>
+            <p className="text-[12px] text-destructive">Failed to load annual goal.</p>
+          </SettingsPanelBody>
+        ) : annualGoal?.amount == null ? (
+          <SettingsPanelBody className="py-8">
+            <EmptyState
+              title="No annual goal yet"
+              hint="Set a net P&L target for the year — progress appears on Dashboard and Reports."
+              icon={<Target size={28} strokeWidth={1.5} />}
+            />
+          </SettingsPanelBody>
+        ) : (
+          <SettingsGroup>
+            <SettingsRow
+              last
+              primary={`${goalYear} target`}
+              secondary="User-level net P&L goal (respects account filter on Dashboard/Reports)"
+              actions={
+                <>
+                  <span className="text-[13px] font-medium tabular-nums text-foreground">
+                    ${annualGoal.amount.toLocaleString(locale, { maximumFractionDigits: 2 })}
+                  </span>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    aria-label="Edit annual goal"
+                    disabled={annualGoalSaving}
+                    onClick={openGoalModal}
+                  >
+                    Edit
+                  </Button>
+                  <DeleteButton
+                    label="annual goal"
+                    disabled={annualGoalSaving}
+                    onDelete={() => void handleClearGoal()}
+                  />
+                </>
+              }
+            />
+          </SettingsGroup>
+        )}
+      </SettingsSection>
+
+      <SettingsSection
         title="Daily Checklist"
         description="Trading rules and checklist items for New Note. Edit in a modal — task items appear when you create a daily log."
         action={
@@ -1370,15 +1493,11 @@ export function RulesTab({
       >
         {checklistLoading ? (
           <SettingsPanelBody>
-            <div className="flex flex-col gap-2">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <Skeleton key={i} height="40px" />
-              ))}
-            </div>
+            <ListSkeleton rows={3} />
           </SettingsPanelBody>
         ) : checklistError ? (
           <SettingsPanelBody>
-            <p className="text-[12px] text-loss">Failed to load checklist template.</p>
+            <p className="text-[12px] text-destructive">Failed to load checklist template.</p>
           </SettingsPanelBody>
         ) : checklistItems.length === 0 && !checklistContent.trim() ? (
           <SettingsPanelBody className="py-8">
@@ -1400,8 +1519,8 @@ export function RulesTab({
           </SettingsGroup>
         ) : (
           <SettingsPanelBody>
-            <p className="text-[12px] text-text-muted">
-              Checklist text saved — add <code className="text-accent">- [ ]</code> items so they
+            <p className="text-[12px] text-muted-foreground">
+              Checklist text saved — add <code className="text-primary">- [ ]</code> items so they
               appear on New Note.
             </p>
           </SettingsPanelBody>
@@ -1436,7 +1555,7 @@ export function RulesTab({
         }
       >
         <div className="flex flex-col gap-3">
-          <SignalEditor
+          <RichTextEditor
             key={checklistEditorKey}
             value={checklistDraft}
             onChange={setChecklistDraft}
@@ -1445,8 +1564,8 @@ export function RulesTab({
             showHints
             aria-label="Daily checklist and rules"
           />
-          <p className="text-[11px] text-text-dim">
-            Tip: use checklist buttons or type <code className="text-accent">- [ ]</code> for each
+          <p className="text-[11px] text-muted-foreground">
+            Tip: use checklist buttons or type <code className="text-primary">- [ ]</code> for each
             rule.
           </p>
         </div>
@@ -1487,7 +1606,7 @@ export function RulesTab({
       >
         <div className="flex flex-col gap-3">
           {ruleModal.open && ruleModal.mode === "add" ? (
-            <SignalField label="Rule type">
+            <Field label="Rule type">
               <NativeSelect
                 size="sm"
                 value={ruleKey}
@@ -1505,22 +1624,22 @@ export function RulesTab({
                   );
                 })}
               </NativeSelect>
-            </SignalField>
+            </Field>
           ) : (
             <div className="flex flex-col gap-1">
-              <span className="text-[11px] font-medium uppercase tracking-[0.1em] text-text-dim">
+              <span className="text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground">
                 Rule type
               </span>
-              <p className="m-0 text-[13px] font-medium text-text">{modalDef.label}</p>
-              <p className="m-0 text-[12px] text-text-muted">{modalDef.detail}</p>
+              <p className="m-0 text-[13px] font-medium text-foreground">{modalDef.label}</p>
+              <p className="m-0 text-[12px] text-muted-foreground">{modalDef.detail}</p>
             </div>
           )}
-          <SignalField
+          <Field
             label={modalDef.unit === "%" ? "Value (%)" : "Value ($)"}
             htmlFor="risk-rule-value"
             error={ruleError ?? undefined}
           >
-            <SignalAmountInput
+            <AmountInput
               id="risk-rule-value"
               value={ruleValue}
               onValueChange={(v) => {
@@ -1531,7 +1650,74 @@ export function RulesTab({
               aria-label={modalDef.label}
               className="w-full"
             />
-          </SignalField>
+          </Field>
+        </div>
+      </Modal>
+
+      <Modal
+        open={goalModalOpen}
+        onOpenChange={(open) => {
+          if (!open) closeGoalModal();
+        }}
+        title={`${goalYear} P&L goal`}
+        className="max-w-[min(440px,94vw)]"
+        footer={
+          <div className="flex w-full items-center justify-between gap-2">
+            {annualGoal?.amount != null ? (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                disabled={annualGoalSaving}
+                onClick={() => void handleClearGoal()}
+                className="text-destructive hover:text-destructive"
+              >
+                Clear
+              </Button>
+            ) : (
+              <span />
+            )}
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={closeGoalModal}
+                disabled={annualGoalSaving}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                disabled={annualGoalSaving}
+                onClick={() => void handleSaveGoal()}
+              >
+                {annualGoalSaving ? "Saving…" : "Save goal"}
+              </Button>
+            </div>
+          </div>
+        }
+      >
+        <div className="flex flex-col gap-3">
+          <Field
+            label="Target net P&L ($)"
+            htmlFor="annual-goal-amount"
+            error={goalError ?? undefined}
+          >
+            <AmountInput
+              id="annual-goal-amount"
+              value={goalDraft}
+              onValueChange={(v) => {
+                setGoalDraft(v);
+                if (goalError) setGoalError(null);
+              }}
+              placeholder="100000"
+              aria-label="Annual P&L goal amount"
+              className="w-full"
+            />
+          </Field>
+          <p className="m-0 text-[12px] leading-relaxed text-muted-foreground">
+            Progress uses calendar-year net P&L and appears on Dashboard and Reports.
+          </p>
         </div>
       </Modal>
     </>
@@ -1562,6 +1748,7 @@ export function JournalTab({
   const [tagFormError, setTagFormError] = useState<string | null>(null);
 
   const tagForm = useForm({
+    formId: "settings-tag",
     defaultValues: defaultTagFormValues(),
     onSubmit: async ({ value }) => {
       setTagFormError(null);
@@ -1622,37 +1809,37 @@ export function JournalTab({
                   }}
                 >
                   {(field) => (
-                    <SignalField
+                    <Field
                       label="Name"
                       htmlFor="tag-name"
                       error={fieldError(field.state.meta.errors)}
                     >
-                      <SignalInput
+                      <FormInput
                         id="tag-name"
                         value={field.state.value}
                         onBlur={field.handleBlur}
                         onChange={(e) => field.handleChange(e.target.value)}
                         placeholder="e.g. FOMO"
                       />
-                    </SignalField>
+                    </Field>
                   )}
                 </tagForm.Field>
                 <tagForm.Field name="color">
                   {(field) => (
-                    <SignalField label="Color" htmlFor="tag-color">
+                    <Field label="Color" htmlFor="tag-color">
                       <input
                         id="tag-color"
                         type="color"
                         value={field.state.value}
                         onChange={(e) => field.handleChange(e.target.value)}
-                        className="h-8 w-full cursor-pointer rounded-control border-none bg-bg-input p-0.5"
+                        className="h-8 w-full cursor-pointer rounded-md border-none bg-muted p-0.5"
                       />
-                    </SignalField>
+                    </Field>
                   )}
                 </tagForm.Field>
                 <tagForm.Field name="kind">
                   {(field) => (
-                    <SignalField label="Kind">
+                    <Field label="Kind">
                       <NativeSelect
                         size="sm"
                         value={field.state.value}
@@ -1664,7 +1851,7 @@ export function JournalTab({
                         <NativeSelectOption value="custom">Custom</NativeSelectOption>
                         <NativeSelectOption value="mistake">Mistake</NativeSelectOption>
                       </NativeSelect>
-                    </SignalField>
+                    </Field>
                   )}
                 </tagForm.Field>
               </div>
@@ -1695,15 +1882,11 @@ export function JournalTab({
 
         {tagsLoading ? (
           <SettingsPanelBody>
-            <div className="flex flex-col gap-2">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <Skeleton key={i} height="36px" />
-              ))}
-            </div>
+            <ListSkeleton rows={3} />
           </SettingsPanelBody>
         ) : tagsError ? (
           <SettingsPanelBody>
-            <p className="text-[12px] text-loss">Failed to load tags.</p>
+            <p className="text-[12px] text-destructive">Failed to load tags.</p>
           </SettingsPanelBody>
         ) : tags.length === 0 ? (
           <SettingsPanelBody className="py-8">
@@ -1744,7 +1927,7 @@ export function JournalTab({
       >
         <SettingsPanelBody>
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="m-0 max-w-xl text-[12px] leading-relaxed text-text-muted">
+            <p className="m-0 max-w-xl text-[12px] leading-relaxed text-muted-foreground">
               Setups are created and edited in Playbook, then linked when you log a trade.
             </p>
             <Button type="button" variant="outline" render={<a href="/playbook" />}>
@@ -1799,11 +1982,11 @@ function VisionScanSection() {
     >
       {isPending && !data ? (
         <SettingsPanelBody>
-          <Skeleton height="160px" />
+          <FormSkeleton fields={3} />
         </SettingsPanelBody>
       ) : isError || !data ? (
         <SettingsPanelBody>
-          <p className="text-[12px] text-loss">Failed to load vision settings.</p>
+          <p className="text-[12px] text-destructive">Failed to load vision settings.</p>
         </SettingsPanelBody>
       ) : (
         <LlmApiSettingsForm
@@ -1833,11 +2016,11 @@ function CoachSection() {
     >
       {isPending && !data ? (
         <SettingsPanelBody>
-          <Skeleton height="160px" />
+          <FormSkeleton fields={3} />
         </SettingsPanelBody>
       ) : isError || !data ? (
         <SettingsPanelBody>
-          <p className="text-[12px] text-loss">Failed to load coach settings.</p>
+          <p className="text-[12px] text-destructive">Failed to load coach settings.</p>
         </SettingsPanelBody>
       ) : (
         <LlmApiSettingsForm
@@ -1942,6 +2125,21 @@ export function GeneralTab() {
             </NativeSelect>
           </SettingsGroupRow>
           <SettingsGroupRow
+            label={settingsLabel(locale, "theme")}
+            detail={settingsLabel(locale, "themeFooter")}
+          >
+            <ModeToggle
+              labels={{
+                themeLight: settingsLabel(locale, "themeLight"),
+                themeDark: settingsLabel(locale, "themeDark"),
+                themeSystem: settingsLabel(locale, "themeSystem"),
+                themeSelector: settingsLabel(locale, "themeSelector"),
+              }}
+              className="w-full"
+              wrapperClassName="w-full"
+            />
+          </SettingsGroupRow>
+          <SettingsGroupRow
             label={settingsLabel(locale, "timezone")}
             detail={settingsLabel(locale, "timezoneFooter")}
             alignTop
@@ -2002,7 +2200,7 @@ export function GeneralTab() {
             label={settingsLabel(locale, "maxScreenshots")}
             detail={settingsLabel(locale, "screenshotsFooter")}
           >
-            <SignalInput
+            <FormInput
               type="number"
               min={1}
               max={100}
@@ -2026,7 +2224,7 @@ export function GeneralTab() {
             detail={settingsLabel(locale, "serverUrlFooter")}
             alignTop
           >
-            <SignalInput
+            <FormInput
               type="text"
               inputMode="url"
               spellCheck={false}
@@ -2046,6 +2244,7 @@ export function GeneralTab() {
             detail={settingsLabel(locale, "signOutFooter")}
           >
             <Button type="button" variant="outline" onClick={() => signOut()}>
+              <LogOut size={14} strokeWidth={1.75} aria-hidden />
               {settingsLabel(locale, "signOut")}
             </Button>
           </SettingsGroupRow>

@@ -1,4 +1,4 @@
-import { cn } from "../lib/cn";
+import { cn } from "@/lib/cn";
 
 /** Colored win/loss record: green W, red L. */
 export function WinLossRecord({
@@ -14,14 +14,14 @@ export function WinLossRecord({
   separator?: string;
 }) {
   if (wins <= 0 && losses <= 0) {
-    return <span className={cn("tabular-nums text-text-dim", className)}>-</span>;
+    return <span className={cn("tabular-nums text-muted-foreground", className)}>-</span>;
   }
 
   return (
     <span className={cn("tabular-nums", className)}>
       {wins > 0 && <span className="text-profit">{wins}W</span>}
-      {wins > 0 && losses > 0 && <span className="text-text-dim">{separator}</span>}
-      {losses > 0 && <span className="text-loss">{losses}L</span>}
+      {wins > 0 && losses > 0 && <span className="text-muted-foreground">{separator}</span>}
+      {losses > 0 && <span className="text-destructive">{losses}L</span>}
     </span>
   );
 }

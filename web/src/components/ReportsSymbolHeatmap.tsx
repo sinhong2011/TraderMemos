@@ -1,11 +1,11 @@
 import { ResponsiveContainer, Tooltip, Treemap } from "recharts";
 import { Card } from "./Card";
-import { ChartFrame, chartTheme } from "./ChartFrame";
+import { ChartFrame, chartTooltipStyle, pnlTooltipValue } from "./ChartFrame";
 import { EmptyState } from "./EmptyState";
 import { useReportsMoney } from "./ReportsDisplayContext";
 import { Skeleton } from "./Skeleton";
-import type { BreakGroup } from "../lib/api/types";
-import { usePrivacyMode } from "../lib/displayPrefs";
+import type { BreakGroup } from "@/lib/api/types";
+import { usePrivacyMode } from "@/lib/displayPrefs";
 
 export interface ReportsSymbolHeatmapProps {
   breakdown: BreakGroup[];
@@ -38,7 +38,7 @@ export function buildHeatmapNodes(
 /** Diverging fill: profit green / loss rose, opacity by |netPnl| vs the largest mover. */
 export function tileStyle(netPnl: number, maxAbs: number): { fill: string; fillOpacity: number } {
   const fillOpacity = 0.25 + 0.6 * Math.min(1, Math.abs(netPnl) / Math.max(1, maxAbs));
-  return { fill: netPnl >= 0 ? "var(--color-profit)" : "var(--color-loss)", fillOpacity };
+  return { fill: netPnl >= 0 ? "var(--profit)" : "var(--loss)", fillOpacity };
 }
 
 export interface HeatCellProps {
@@ -81,15 +81,15 @@ export function HeatCell({
         height={height}
         fill={fill}
         fillOpacity={fillOpacity}
-        stroke="var(--color-bg-panel)"
+        stroke="var(--card)"
         strokeWidth={1}
       />
       {showText ? (
         <>
-          <text x={x + 6} y={y + 16} fontSize={11} fontWeight={600} fill="var(--color-text)">
+          <text x={x + 6} y={y + 16} fontSize={11} fontWeight={600} fill="var(--foreground)">
             {label}
           </text>
-          <text x={x + 6} y={y + 30} fontSize={10} fill="var(--color-text-muted)">
+          <text x={x + 6} y={y + 30} fontSize={10} fill="var(--muted-foreground)">
             {money.formatCompact(net)}
           </text>
         </>
@@ -109,7 +109,7 @@ export function ReportsSymbolHeatmap({ breakdown, loading, error }: ReportsSymbo
       {loading ? (
         <Skeleton height="220px" />
       ) : error ? (
-        <p className="text-xs text-loss">Failed to load stock P&L.</p>
+        <p className="text-xs text-destructive">Failed to load stock P&L.</p>
       ) : nodes.length === 0 ? (
         <EmptyState title="No data" hint="Add trades or adjust filters to see the heatmap." />
       ) : (
@@ -122,16 +122,17 @@ export function ReportsSymbolHeatmap({ breakdown, loading, error }: ReportsSymbo
               content={<HeatCell maxAbs={maxAbs} />}
             >
               <Tooltip
-                contentStyle={{
-                  background: chartTheme.tooltipBg,
-                  border: `1px solid ${chartTheme.tooltipBorder}`,
-                  color: chartTheme.tooltipText,
-                  fontSize: 11,
-                }}
+                {...chartTooltipStyle}
                 formatter={(_v, _n, item) => {
                   const p = item?.payload as HeatmapNode | undefined;
                   if (!p) return ["", ""];
-                  return [`${money.format(p.netPnl)} · ${p.size} trades`, p.name];
+                  return [
+                    <>
+                      {pnlTooltipValue(p.netPnl, money.format(p.netPnl))}
+                      <span className="text-muted-foreground"> · {p.size} trades</span>
+                    </>,
+                    p.name,
+                  ];
                 }}
               />
             </Treemap>

@@ -2,10 +2,10 @@ import { mergeProps } from "@base-ui/react/merge-props";
 import { useRender } from "@base-ui/react/use-render";
 import { cva, type VariantProps } from "class-variance-authority";
 import type { ComponentProps } from "react";
-import { cn } from "../../lib/cn";
+import { cn } from "@/lib/cn";
 
 /**
- * Signal Terminal Item — shadcn Base UI item adapted to product tokens.
+ * shadcn Item — shadcn Base UI item adapted to theme tokens.
  * @see https://ui.shadcn.com/docs/components/base/item
  */
 
@@ -36,17 +36,17 @@ function ItemSeparator({ className, ...props }: ComponentProps<"div">) {
 
 const itemVariants = cva(
   [
-    "group/item flex w-full flex-wrap items-center rounded-control border text-[12px]",
+    "group/item flex w-full flex-wrap items-center rounded-md border text-[12px]",
     "transition-colors duration-150 outline-none",
-    "focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-border-strong",
-    "[a]:transition-colors [a]:hover:bg-bg-hover",
+    "focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ring",
+    "[a]:transition-colors [a]:hover:bg-accent",
   ].join(" "),
   {
     variants: {
       variant: {
         default: "border-transparent bg-transparent",
         outline: "border-border bg-transparent",
-        muted: "border-transparent bg-bg-panel",
+        muted: "border-transparent bg-card",
       },
       size: {
         default: "gap-2.5 px-3 py-2.5",
@@ -96,9 +96,9 @@ const itemMediaVariants = cva(
     variants: {
       variant: {
         default: "bg-transparent",
-        icon: "size-8 rounded-control bg-bg-hover text-text-muted [&_svg:not([class*='size-'])]:size-4",
+        icon: "size-8 rounded-md bg-accent text-muted-foreground [&_svg:not([class*='size-'])]:size-4",
         image:
-          "size-10 overflow-hidden rounded-control group-data-[size=sm]/item:size-8 group-data-[size=xs]/item:size-6 [&_img]:size-full [&_img]:object-cover",
+          "size-10 overflow-hidden rounded-md group-data-[size=sm]/item:size-8 group-data-[size=xs]/item:size-6 [&_img]:size-full [&_img]:object-cover",
       },
     },
     defaultVariants: {
@@ -140,7 +140,7 @@ function ItemTitle({ className, ...props }: ComponentProps<"div">) {
     <div
       data-slot="item-title"
       className={cn(
-        "line-clamp-1 flex w-fit items-center gap-2 text-[13px] leading-snug font-semibold tracking-tight text-text",
+        "line-clamp-1 flex w-fit items-center gap-2 text-[13px] leading-snug font-semibold tracking-tight text-foreground",
         className,
       )}
       {...props}
@@ -153,9 +153,9 @@ function ItemDescription({ className, ...props }: ComponentProps<"p">) {
     <p
       data-slot="item-description"
       className={cn(
-        "m-0 line-clamp-2 text-left text-[11px] leading-snug font-normal text-text-muted",
+        "m-0 line-clamp-2 text-left text-[11px] leading-snug font-normal text-muted-foreground",
         "group-data-[size=xs]/item:text-[10px]",
-        "[&>a]:text-accent [&>a]:underline [&>a]:underline-offset-4",
+        "[&>a]:text-primary [&>a]:underline [&>a]:underline-offset-4",
         className,
       )}
       {...props}

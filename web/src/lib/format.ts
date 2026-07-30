@@ -55,6 +55,18 @@ export function fmtPct(ratio: number, locale: string): string {
   }).format(ratio);
 }
 
+/** Signed percent for P&L returns, e.g. `+12.4%` / `-3.1%`. */
+export function fmtSignedPct(ratio: number, locale: string): string {
+  const s = new Intl.NumberFormat(locale, {
+    style: "percent",
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  }).format(Math.abs(ratio));
+  if (ratio < 0) return `-${s}`;
+  if (ratio > 0) return `+${s}`;
+  return s;
+}
+
 export function fmtDuration(secs: number | null | undefined): string {
   if (secs == null || secs <= 0) return "-";
   if (secs < 3600) return `${Math.max(1, Math.round(secs / 60))}m`;

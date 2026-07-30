@@ -1,4 +1,4 @@
--- Squashed PostgreSQL schema (final shape of SQLite migrations 000001–000034).
+-- Squashed PostgreSQL schema (final shape of SQLite migrations 000001–000035).
 -- Data backfills (opening deposit, note_type update) intentionally omitted.
 
 CREATE TABLE users (
@@ -188,6 +188,14 @@ CREATE TABLE risk_rules (
     max_open_risk            DOUBLE PRECISION,
     default_account_risk_pct DOUBLE PRECISION,
     updated_at               TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE annual_goals (
+    user_id    TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    year       INTEGER NOT NULL,
+    amount     DOUBLE PRECISION NOT NULL,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_id, year)
 );
 
 CREATE TABLE journal_notes (

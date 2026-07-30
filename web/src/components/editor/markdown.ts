@@ -26,3 +26,16 @@ export function noteExcerpt(body: string, max = 140): string {
 export function isEditorEmpty(markdownOrHtml: string): boolean {
   return noteExcerpt(markdownOrHtml, Number.MAX_SAFE_INTEGER).length === 0;
 }
+
+/** Checked / total task items in a note body, or `null` when it has no checklist. */
+export function checklistProgress(body: string): { done: number; total: number } | null {
+  const markdown = body.match(/^\s*[-*+]\s+\[[ xX]\]/gm) ?? [];
+  // TipTap task lists round-trip as HTML in older notes.
+  const html = body.match(/<li[^>]*\bdata-checked="(?:true|false)"/gi) ?? [];
+  const total = markdown.length + html.length;
+  if (total === 0) return null;
+  const done =
+    markdown.filter((m) => /\[[xX]\]/.test(m)).length +
+    html.filter((m) => /"true"/i.test(m)).length;
+  return { done, total };
+}

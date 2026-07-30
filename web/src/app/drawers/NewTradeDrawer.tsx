@@ -1,67 +1,83 @@
 import { useForm, useStore } from "@tanstack/react-form";
 import { useNavigate } from "@tanstack/react-router";
-import { CircleDashed, FileStack, Loader2, Plus, ScanLine, Trash2, X } from "lucide-react";
+import {
+  ArrowDownRight,
+  ArrowUpRight,
+  CircleDashed,
+  FileStack,
+  Loader2,
+  Plus,
+  ScanLine,
+  Trash2,
+  X,
+} from "lucide-react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import {
   Drawer,
   DrawerBody,
   DrawerClose,
   DrawerContent,
-  DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-} from "../../components/Drawer";
+} from "@/components/Drawer";
 import {
   Collapsible,
   CollapsibleChevron,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "../../components/Collapsible";
-import { GradeControl } from "../../components/GradeControl";
-import { ModalBanner } from "../../components/Modal";
-import { OcrSetupPromptModal } from "../../components/OcrSetupPromptModal";
-import { OcrScanSummary } from "../../components/OcrSymbolGroupList";
-import { Pill } from "../../components/Pill";
-import { SegmentedControl } from "../../components/SegmentedControl";
-import { SignalDatePicker } from "../../components/SignalDatePicker";
-import { SignalDateTimePicker } from "../../components/SignalDateTimePicker";
-import { SignalField, fieldError } from "../../components/SignalField";
-import { SignalAmountInput } from "../../components/SignalAmountInput";
-import { SignalInput, SignalTextarea } from "../../components/SignalInput";
-import { SignalSelect } from "../../components/SignalSelect";
-import { NativeSelect, NativeSelectOption } from "../../components/ui/native-select";
-import { SignalPopover } from "../../components/SignalPopover";
-import { signalInputClass } from "../../components/signal-field-styles";
+} from "@/components/Collapsible";
+import { GradeControl } from "@/components/GradeControl";
+import { ModalBanner } from "@/components/Modal";
+import { OcrSetupPromptModal } from "@/components/OcrSetupPromptModal";
+import { OcrScanSummary } from "@/components/OcrSymbolGroupList";
+import { SegmentedControl } from "@/components/SegmentedControl";
+import { MultiSelectCombobox, type MultiSelectOption } from "@/components/MultiSelectCombobox";
+import { DatePicker } from "@/components/DatePicker";
+import { DateTimePicker } from "@/components/DateTimePicker";
+import { Field, fieldError } from "@/components/Field";
+import { AmountInput } from "@/components/AmountInput";
+import { FormInput, FormTextarea } from "@/components/FormInput";
+import { OptionsSelect } from "@/components/OptionsSelect";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
+import {
+  Accordion,
+  AccordionItem,
+  AccordionPanel,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { ControlledPopover } from "@/components/ControlledPopover";
+import { fieldInputClass } from "@/components/field-styles";
 import {
   fileToScreenshotItem,
   JournalScreenshotUpload,
-} from "../../components/JournalScreenshotUpload";
-import { BatchTradeResultPreview, TradeResultPreview } from "../../components/TradeResultPreview";
-import { useToastManager } from "../../components/Toast";
-import { Button, buttonVariants } from "../../components/ui/button";
-import { ApiError } from "../../lib/api/client";
-import { attachmentsApi } from "../../lib/api/attachments";
-import { cashApi } from "../../lib/api/cash";
-import type { TradeExtract } from "../../lib/api/ocr";
-import { tradesApi } from "../../lib/api/trades";
-import { parseAmountToNumber } from "../../lib/amountInput";
-import { cn } from "../../lib/cn";
-import { usePrivacyMode } from "../../lib/displayPrefs";
-import { fmtMoney, fmtSignedMoney } from "../../lib/format";
-import { useFilters } from "../../lib/filters";
+} from "@/components/JournalScreenshotUpload";
+import { BatchTradeResultPreview, TradeResultPreview } from "@/components/TradeResultPreview";
+import { useToastManager } from "@/components/Toast";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { ApiError } from "@/lib/api/client";
+import { attachmentsApi } from "@/lib/api/attachments";
+import { cashApi } from "@/lib/api/cash";
+import type { TradeExtract } from "@/lib/api/ocr";
+import { tradesApi } from "@/lib/api/trades";
+import { parseAmountToNumber } from "@/lib/amountInput";
+import { cn } from "@/lib/cn";
+import { usePrivacyMode } from "@/lib/displayPrefs";
+import { fmtMoney, fmtSignedMoney } from "@/lib/format";
+import { useFilters } from "@/lib/filters";
 import {
   CUSTOM_PRESET_ID,
   FUTURES_PRESETS,
   multiplierForPreset,
   presetIdForSymbol,
-} from "../../lib/futuresPresets";
-import { capScreenshots, useJournalPrefs } from "../../lib/journalPrefs";
+} from "@/lib/futuresPresets";
+import { capScreenshots, useJournalPrefs } from "@/lib/journalPrefs";
 import {
   buildStructuredJournalNotes,
   computeInitialRisk,
   parseJournalNotes,
   weightedAvgEntry,
-} from "../../lib/newTradeJournal";
+} from "@/lib/newTradeJournal";
 import {
   defaultNewTradeFormValues,
   emptyExecutionRow,
@@ -71,51 +87,49 @@ import {
   validateSymbolTrades,
   type ExecutionRow,
   type SymbolTradeBlock,
-} from "../../lib/newTradeFormSchema";
+} from "@/lib/newTradeFormSchema";
 import {
   flattenSymbolTradesToExecutions,
   rowsFromOcrExtract,
   symbolTradeFromDetail,
   tradesFromOcrExtract,
-} from "../../lib/newTradeBlocks";
-import { detectOptionStrategy } from "../../lib/optionStrategy";
-import { groupOcrBySymbol, ocrScanToastDescription } from "../../lib/ocrSymbolGroups";
-import { pnlColor } from "../../components/theme-tokens";
+} from "@/lib/newTradeBlocks";
+import { detectOptionStrategy } from "@/lib/optionStrategy";
+import { groupOcrBySymbol, ocrScanToastDescription } from "@/lib/ocrSymbolGroups";
+import { pnlColor } from "@/components/theme-tokens";
 import {
   aggregateTradePnlPreviews,
   previewFillNetPnls,
   previewTradePnl,
-} from "../../lib/tradePnlPreview";
+} from "@/lib/tradePnlPreview";
 import {
   EMOTIONAL_STATES,
   TRADE_SESSIONS,
   gradeFromInt,
   intFromGrade,
-} from "../../lib/tradeGrades";
-import { useAccounts } from "../../lib/hooks/useAccounts";
-import { useSummary } from "../../lib/hooks/useAnalytics";
-import { useCash } from "../../lib/hooks/useCash";
+  joinEmotionalStates,
+  parseEmotionalStates,
+} from "@/lib/tradeGrades";
+import { useAccounts } from "@/lib/hooks/useAccounts";
+import { useSummary } from "@/lib/hooks/useAnalytics";
+import { useCash } from "@/lib/hooks/useCash";
 import {
   ExecutionBatchError,
   useCreateExecutions,
   useDeleteExecution,
   useUpdateExecution,
-} from "../../lib/hooks/useExecutions";
-import { useOcrParse } from "../../lib/hooks/useOcrParse";
-import { useOcrSettings } from "../../lib/hooks/useOcrSettings";
-import { isOcrVisionReady } from "../../lib/ocrVisionReady";
-import { useSetups } from "../../lib/hooks/useSetups";
-import { useTags } from "../../lib/hooks/useTags";
-import { useTradeDetail } from "../../lib/hooks/useTradeDetail";
-import { computeHeaderStats } from "../../lib/headerStats";
-import { getIntlLocale, getStoredLocale } from "../../lib/locale";
-import {
-  listTradeTemplates,
-  saveTradeTemplate,
-  type TradeTemplate,
-} from "../../lib/tradeTemplates";
-import { isImportPreviewEditId } from "../../lib/importTradePreview";
-import { useUI } from "../../lib/ui";
+} from "@/lib/hooks/useExecutions";
+import { useOcrParse } from "@/lib/hooks/useOcrParse";
+import { useOcrSettings } from "@/lib/hooks/useOcrSettings";
+import { isOcrVisionReady } from "@/lib/ocrVisionReady";
+import { useSetups } from "@/lib/hooks/useSetups";
+import { useTags } from "@/lib/hooks/useTags";
+import { useTradeDetail } from "@/lib/hooks/useTradeDetail";
+import { computeHeaderStats } from "@/lib/headerStats";
+import { getIntlLocale, getStoredLocale } from "@/lib/locale";
+import { listTradeTemplates, saveTradeTemplate, type TradeTemplate } from "@/lib/tradeTemplates";
+import { isImportPreviewEditId } from "@/lib/importTradePreview";
+import { useUI } from "@/lib/ui";
 
 const MARKETS = [
   { value: "stock", label: "STOCK" },
@@ -124,19 +138,88 @@ const MARKETS = [
   { value: "future", label: "FUTURES" },
   { value: "forex", label: "FOREX" },
 ];
-const FILL_COLS = "72px minmax(120px,200px) 72px 80px 88px 72px 88px 1fr 32px";
-const labelClass = "mb-1 block text-[10px] font-semibold uppercase tracking-widest text-text-muted";
+const EMOTION_OPTIONS: MultiSelectOption[] = EMOTIONAL_STATES.map((s) => ({ value: s, label: s }));
+/**
+ * Fill rows become a table only once the card can show every column in full —
+ * 46rem is where Date / Time (the one flexible track) still fits a whole
+ * timestamp. Below that they stack into a 2-up block with per-cell labels. The
+ * switch is driven by the card's own width (`@container/symbol`), not the
+ * viewport: the drawer caps at 860px however wide the window gets.
+ */
+const FILL_TABLE_COLS =
+  "@min-[46rem]/symbol:grid-cols-[72px_minmax(150px,1fr)_72px_80px_88px_72px_88px_32px]";
+const labelClass =
+  "mb-1 block text-[10px] font-semibold uppercase tracking-widest text-muted-foreground";
+/**
+ * Field type scale for this drawer — 13px instead of the 16px the coss controls
+ * use below `sm`, so a narrow drawer reads at one size. Coarse pointers keep 16px
+ * so iOS Safari doesn't zoom the page on focus.
+ */
+const fieldTextClass = "text-[13px] pointer-coarse:text-base";
 export type Row = ExecutionRow;
 export { rowsFromOcrExtract };
 
+/** Label + optional hint + a control — one shape for every journal taxonomy. */
+function JournalField({
+  label,
+  hint,
+  htmlFor,
+  children,
+}: {
+  label: string;
+  hint?: string;
+  htmlFor?: string;
+  children: ReactNode;
+}) {
+  return (
+    <div>
+      {htmlFor ? (
+        <label className={labelClass} htmlFor={htmlFor}>
+          {label}
+        </label>
+      ) : (
+        <span className={labelClass}>{label}</span>
+      )}
+      {hint ? <p className="mb-2 text-[10px] leading-snug text-muted-foreground">{hint}</p> : null}
+      {children}
+    </div>
+  );
+}
+
 /** Infer the New Trade form API without exploding TanStack Form type params. */
 function createNewTradeFormProbe() {
-  return useForm({ defaultValues: defaultNewTradeFormValues() });
+  return useForm({ formId: "new-trade-probe", defaultValues: defaultNewTradeFormValues() });
 }
 type NewTradeFormApi = ReturnType<typeof createNewTradeFormProbe>;
 
 function num(value: string) {
   return parseAmountToNumber(value);
+}
+
+/**
+ * One cell of a fill row. Carries its own label while the row is stacked; the
+ * shared header row takes over once the card is wide enough for table mode.
+ */
+function FillCell({
+  label,
+  className,
+  children,
+}: {
+  label: string;
+  className?: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className={cn("flex min-w-0 flex-col gap-1", className)}>
+      <span
+        aria-hidden
+        className="truncate text-[10px] font-medium uppercase tracking-widest text-muted-foreground @min-[46rem]/symbol:hidden"
+      >
+        {label}
+      </span>
+      {children}
+    </div>
+  );
 }
 
 /** Per-fill notional (qty × price × multiplier) — same chip surface as amount inputs. */
@@ -160,9 +243,9 @@ function FillAmountCell({
   return (
     <span
       className={cn(
-        signalInputClass,
-        "inline-flex cursor-default items-center px-2 text-[12px] tabular-nums tracking-[-0.01em] hover:bg-bg-input",
-        empty ? "justify-center text-text-dim" : "font-medium",
+        fieldInputClass,
+        "inline-flex cursor-default items-center px-2 text-[12px] tabular-nums tracking-[-0.01em]",
+        empty ? "justify-center text-muted-foreground" : "font-medium",
       )}
       aria-label={empty ? emptyLabel : undefined}
       title={empty ? undefined : "Qty × price × multiplier"}
@@ -192,8 +275,8 @@ function FillPnlCell({
   return (
     <span
       className={cn(
-        "inline-flex h-10 w-full items-center justify-center rounded-control px-2.5 text-[12px] tabular-nums tracking-[-0.01em]",
-        empty ? "text-text-dim" : cn("font-medium", pnlColor(value)),
+        "inline-flex h-8.5 w-full items-center justify-center rounded-lg px-2.5 text-[12px] tabular-nums tracking-[-0.01em] sm:h-7.5",
+        empty ? "text-muted-foreground" : cn("font-medium", pnlColor(value)),
       )}
       aria-label={empty ? emptyLabel : undefined}
     >
@@ -206,32 +289,139 @@ function FillPnlCell({
   );
 }
 
-/** Collapsed-by-default Journal / Dividend section with motion. */
-function CollapsibleSection({
-  title,
-  summary,
-  children,
-  defaultOpen = false,
+/** Nested panels matching coss Input / Card field chrome. */
+const cossPanelClass = cn(
+  "relative overflow-hidden rounded-lg border border-input bg-background not-dark:bg-clip-padding shadow-xs/5",
+  "before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--radius-lg)-1px)]",
+  "before:shadow-[0_1px_--theme(--color-black/4%)]",
+  "dark:bg-input/32 dark:before:shadow-[0_-1px_--theme(--color-white/6%)]",
+);
+
+const FILL_ACTION_SPRING = {
+  type: "spring" as const,
+  stiffness: 520,
+  damping: 34,
+  mass: 0.7,
+};
+
+/** Softer than the fill toggle — a card is a large surface, so it settles slower. */
+/** Snappier than the symbol card — a fill row is a smaller thing to move. */
+const FILL_ROW_SPRING = {
+  type: "spring" as const,
+  stiffness: 420,
+  damping: 34,
+  mass: 0.8,
+};
+
+const SYMBOL_CARD_SPRING = {
+  type: "spring" as const,
+  stiffness: 340,
+  damping: 32,
+  mass: 0.9,
+};
+
+/** Buy / Sell fill toggle — directional swap motion on change. */
+function FillActionToggle({
+  side,
+  onToggle,
+  "aria-label": ariaLabel,
 }: {
-  title: string;
-  summary?: string;
-  children: ReactNode;
-  defaultOpen?: boolean;
+  side: "buy" | "sell";
+  onToggle: () => void;
+  "aria-label": string;
 }) {
-  const [open, setOpen] = useState(defaultOpen);
+  const reduceMotion = useReducedMotion();
+  const isBuy = side === "buy";
+  const Icon = isBuy ? ArrowUpRight : ArrowDownRight;
+
   return (
-    <Collapsible open={open} onOpenChange={(next) => setOpen(next)} className="gap-3 pt-1">
-      <CollapsibleTrigger className="w-full" aria-label={title}>
-        <span className="text-[12px] font-bold uppercase tracking-widest text-text">{title}</span>
-        {!open && summary ? (
-          <span className="truncate text-[10px] text-text-muted">{summary}</span>
-        ) : null}
-        <CollapsibleChevron />
-      </CollapsibleTrigger>
-      <CollapsibleContent animation="height">
-        <div className="flex flex-col gap-4 pt-1">{children}</div>
-      </CollapsibleContent>
-    </Collapsible>
+    <Button
+      type="button"
+      variant="outline"
+      size="sm"
+      aria-label={ariaLabel}
+      onClick={onToggle}
+      className={cn(
+        // 12px matches the numeric fields it sits beside at every width, instead
+        // of the 16px the button base uses below `sm`.
+        "relative h-8.5 w-full overflow-hidden text-[12px] font-semibold tracking-[0.06em] shadow-xs/5 transition-[color,background-color,border-color] duration-200 sm:h-7.5",
+        "active:scale-[0.98] motion-reduce:active:scale-100",
+        isBuy
+          ? "border-profit/35 bg-profit/10 text-profit hover:border-profit/50 hover:bg-profit/15 hover:text-profit dark:bg-profit/12"
+          : "border-destructive/35 bg-destructive/10 text-destructive hover:border-destructive/50 hover:bg-destructive/15 hover:text-destructive dark:bg-destructive/12",
+      )}
+    >
+      <AnimatePresence mode="popLayout" initial={false}>
+        <motion.span
+          key={side}
+          className="inline-flex items-center gap-1"
+          initial={reduceMotion ? false : { opacity: 0, y: isBuy ? 8 : -8, filter: "blur(2px)" }}
+          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          exit={reduceMotion ? undefined : { opacity: 0, y: isBuy ? -8 : 8, filter: "blur(2px)" }}
+          transition={reduceMotion ? { duration: 0 } : FILL_ACTION_SPRING}
+        >
+          <motion.span
+            aria-hidden
+            initial={reduceMotion ? false : { rotate: isBuy ? -45 : 45, scale: 0.7 }}
+            animate={{ rotate: 0, scale: 1 }}
+            transition={reduceMotion ? { duration: 0 } : FILL_ACTION_SPRING}
+            className="inline-flex"
+          >
+            <Icon size={14} strokeWidth={2.25} aria-hidden />
+          </motion.span>
+          {side.toUpperCase()}
+        </motion.span>
+      </AnimatePresence>
+    </Button>
+  );
+}
+
+/** Optional Journal / Dividend panels — coss Accordion for clearer section separation. */
+function SymbolExtrasAccordion({
+  journalSummary,
+  dividendSummary,
+  journal,
+  dividend,
+}: {
+  journalSummary?: string;
+  dividendSummary?: string;
+  journal: ReactNode;
+  dividend: ReactNode;
+}) {
+  return (
+    <Accordion multiple className="relative z-[1] flex flex-col gap-2">
+      <AccordionItem value="journal" className={cn(cossPanelClass, "last:border-b")}>
+        <AccordionTrigger className="group/acc-trigger relative z-[1] px-3 py-2.5 text-foreground hover:no-underline">
+          <span className="flex min-w-0 flex-1 flex-col items-start gap-0.5">
+            <span className="text-[12px] font-semibold tracking-wide">Journal</span>
+            {journalSummary ? (
+              <span className="truncate text-[10px] font-normal text-muted-foreground group-data-panel-open/acc-trigger:hidden">
+                {journalSummary}
+              </span>
+            ) : null}
+          </span>
+        </AccordionTrigger>
+        <AccordionPanel className="relative z-[1] flex flex-col gap-4 px-3 pb-3 text-foreground">
+          {journal}
+        </AccordionPanel>
+      </AccordionItem>
+
+      <AccordionItem value="dividend" className={cn(cossPanelClass, "last:border-b")}>
+        <AccordionTrigger className="group/acc-trigger relative z-[1] px-3 py-2.5 text-foreground hover:no-underline">
+          <span className="flex min-w-0 flex-1 flex-col items-start gap-0.5">
+            <span className="text-[12px] font-semibold tracking-wide">Dividend</span>
+            {dividendSummary ? (
+              <span className="truncate text-[10px] font-normal text-muted-foreground group-data-panel-open/acc-trigger:hidden">
+                {dividendSummary}
+              </span>
+            ) : null}
+          </span>
+        </AccordionTrigger>
+        <AccordionPanel className="relative z-[1] flex flex-col gap-4 px-3 pb-3 text-foreground">
+          {dividend}
+        </AccordionPanel>
+      </AccordionItem>
+    </Accordion>
   );
 }
 
@@ -291,6 +481,7 @@ function SymbolCard({
   maxScreenshots,
   onAddScreenshots,
   onRemoveScreenshot,
+  onRemove,
 }: {
   form: NewTradeFormApi;
   block: SymbolTradeBlock;
@@ -306,8 +497,23 @@ function SymbolCard({
   maxScreenshots: number | null;
   onAddScreenshots: (files: File[]) => void;
   onRemoveScreenshot: (fileIndex: number) => void;
+  onRemove: () => void;
 }) {
   const base = `trades[${index}]` as const;
+  const reduceMotion = useReducedMotion();
+  /**
+   * The fill being removed is pulled from the tree so `AnimatePresence` can
+   * play its exit, and the form array is spliced only once that finishes —
+   * splicing first would re-index the survivors under the exiting clone.
+   */
+  const [removingRow, setRemovingRow] = useState<{ key: string; index: number } | null>(null);
+  const visibleRows = useMemo(
+    () =>
+      block.rows
+        .map((row, rowIndex) => ({ row, rowIndex }))
+        .filter(({ row }) => !removingRow || row.key !== removingRow.key),
+    [block.rows, removingRow],
+  );
   const parsedRows = useMemo(
     () =>
       block.rows.map((r) => ({
@@ -345,6 +551,23 @@ function SymbolCard({
   );
   const set = <K extends keyof SymbolTradeBlock>(key: K, value: SymbolTradeBlock[K]) =>
     form.setFieldValue(`${base}.${key}` as never, value as never);
+  const dropRow = (predicate: (row: ExecutionRow, rowIndex: number) => boolean) => {
+    const next = block.rows.filter((row, rowIndex) => !predicate(row, rowIndex));
+    if (next.length) form.setFieldValue(`${base}.rows` as never, next as never);
+  };
+  const requestRowRemoval = (rowKey: string | undefined, rowIndex: number) => {
+    // Rows hydrated before keys existed, and reduced motion, skip the exit.
+    if (!rowKey || reduceMotion) {
+      dropRow((_row, i) => i === rowIndex);
+      return;
+    }
+    setRemovingRow({ key: rowKey, index: rowIndex });
+  };
+  const commitRowRemoval = () => {
+    if (!removingRow) return;
+    dropRow((row) => row.key === removingRow.key);
+    setRemovingRow(null);
+  };
   const syncContract = (
     next: Partial<Pick<SymbolTradeBlock, "option_right" | "option_strike" | "option_expiry">>,
   ) => {
@@ -361,15 +584,18 @@ function SymbolCard({
       })) as never,
     );
   };
-  const toggleSetupId = (id: string) => {
-    const next = block.setupIds.includes(id)
-      ? block.setupIds.filter((x) => x !== id)
-      : [...block.setupIds, id];
-    set("setupIds", next);
-  };
-  const toggleId = (ids: string[], id: string, field: "selectedTagIds" | "selectedMistakeIds") => {
-    set(field, ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]);
-  };
+  const setupOptions = useMemo<MultiSelectOption[]>(
+    () => setups.map((s) => ({ value: s.id, label: s.name })),
+    [setups],
+  );
+  const tagOptions = useMemo<MultiSelectOption[]>(
+    () => regularTags.map((t) => ({ value: t.id, label: t.name })),
+    [regularTags],
+  );
+  const mistakeOptions = useMemo<MultiSelectOption[]>(
+    () => mistakeTags.map((t) => ({ value: t.id, label: t.name })),
+    [mistakeTags],
+  );
   const suffix = index ? ` ${index + 1}` : "";
   const [open, setOpen] = useState(true);
   const collapsedSummary = [
@@ -378,36 +604,24 @@ function SymbolCard({
     preview.net != null ? fmtSignedMoney(preview.net, currency, locale) : "",
   ]
     .filter(Boolean)
-    .join(" · ");
+    .join(" ·");
   return (
     <Collapsible
       open={open}
       onOpenChange={(next) => setOpen(next)}
-      className="gap-4 rounded-control bg-bg-hover p-4"
-      style={
-        {
-          "--color-bg-input": "var(--color-bg-elevated)",
-          "--color-bg-input-hover": "var(--color-bg-panel)",
-        } as CSSProperties
-      }
+      className={cn("relative z-[1] gap-4 p-3 @container/symbol sm:p-4", cossPanelClass)}
       render={<section aria-label={`Symbol trade ${index + 1}`} />}
     >
-      <div className="flex items-center gap-2">
+      <div className="relative z-[1] flex items-center gap-2">
         <CollapsibleTrigger
           className="min-w-0 flex-1 items-center gap-2.5"
           aria-label={`Toggle symbol ${index + 1}`}
         >
-          <span
-            className="flex size-6 shrink-0 items-center justify-center rounded-control bg-accent-bg text-[11px] font-semibold tabular-nums text-accent"
-            aria-hidden
-          >
-            {index + 1}
-          </span>
           <span className="flex min-w-0 flex-1 flex-col gap-0.5 text-left">
-            <span className="truncate text-[15px] font-semibold leading-none tracking-[-0.02em] text-text">
+            <span className="truncate text-[15px] font-semibold leading-none tracking-[-0.02em] text-foreground">
               {block.symbol || "Untitled"}
             </span>
-            <span className="truncate text-[10px] font-medium uppercase tracking-[0.08em] text-text-dim">
+            <span className="truncate text-[10px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
               {collapsedSummary && !open
                 ? `Symbol ${index + 1} · ${collapsedSummary}`
                 : `Symbol ${index + 1}`}
@@ -422,22 +636,17 @@ function SymbolCard({
             size="icon"
             aria-label={`Remove symbol ${index + 1}`}
             disabled={pending}
-            className="shrink-0 text-loss"
-            onClick={() => {
-              const next = (form.store.state.values.trades as SymbolTradeBlock[]).filter(
-                (_: SymbolTradeBlock, i: number) => i !== index,
-              );
-              form.setFieldValue("trades", next.length ? next : [emptySymbolTrade()]);
-            }}
+            className="shrink-0 text-destructive"
+            onClick={onRemove}
           >
             <Trash2 size={14} />
           </Button>
         ) : null}
       </div>
       <CollapsibleContent animation="fade">
-        <div className="flex flex-col gap-4">
-          <div className="grid grid-cols-2 items-start gap-3 sm:grid-cols-4">
-            <SignalField label="Market">
+        <div className="relative z-[1] flex flex-col gap-4">
+          <div className="grid grid-cols-2 items-start gap-3 @min-[38rem]/symbol:grid-cols-4">
+            <Field label="Market">
               <NativeSelect
                 aria-label={`Market symbol ${index + 1}`}
                 value={block.market}
@@ -458,6 +667,7 @@ function SymbolCard({
                     set("option_expiry", "");
                   }
                 }}
+                className={fieldTextClass}
                 wrapperClassName="w-full"
               >
                 {MARKETS.map((m) => (
@@ -466,10 +676,10 @@ function SymbolCard({
                   </NativeSelectOption>
                 ))}
               </NativeSelect>
-            </SignalField>
+            </Field>
             {block.market === "future" && (
-              <SignalField label="Contract">
-                <SignalSelect
+              <Field label="Contract">
+                <OptionsSelect
                   ariaLabel={`Contract symbol ${index + 1}`}
                   value={block.futuresPresetId}
                   options={[
@@ -485,15 +695,15 @@ function SymbolCard({
                       );
                   }}
                 />
-              </SignalField>
+              </Field>
             )}
             <form.Field
               name={`${base}.symbol` as never}
               validators={{ onBlur: ({ value }) => (value ? undefined : "Symbol is required.") }}
             >
               {(field) => (
-                <SignalField label="Symbol" error={fieldError(field.state.meta.errors)}>
-                  <SignalInput
+                <Field label="Symbol" error={fieldError(field.state.meta.errors)}>
+                  <FormInput
                     aria-label={`Symbol${suffix}`}
                     value={field.state.value as string}
                     onChange={(e) => {
@@ -503,12 +713,12 @@ function SymbolCard({
                     }}
                     onBlur={field.handleBlur}
                     placeholder="Ticker"
-                    className="uppercase"
+                    className={cn("uppercase", fieldTextClass)}
                   />
-                </SignalField>
+                </Field>
               )}
             </form.Field>
-            <SignalField label="Side">
+            <Field label="Side">
               <SegmentedControl
                 ariaLabel={`Side symbol ${index + 1}`}
                 size="md"
@@ -530,18 +740,19 @@ function SymbolCard({
                   );
                 }}
               />
-            </SignalField>
+            </Field>
           </div>
           {block.market === "option" && (
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <SignalField label="Multiplier">
-                <SignalAmountInput
+            <div className="grid grid-cols-2 gap-3 @min-[38rem]/symbol:grid-cols-4">
+              <Field label="Multiplier">
+                <AmountInput
                   aria-label={`Multiplier symbol ${index + 1}`}
                   value={block.multiplier}
                   onValueChange={(v) => set("multiplier", v)}
                   placeholder="100"
+                  className={fieldTextClass}
                 />
-              </SignalField>
+              </Field>
               <div>
                 <span className={labelClass}>Right</span>
                 <SegmentedControl
@@ -560,8 +771,8 @@ function SymbolCard({
                   }}
                 />
               </div>
-              <SignalField label="Strike">
-                <SignalAmountInput
+              <Field label="Strike">
+                <AmountInput
                   aria-label={`Strike symbol ${index + 1}`}
                   value={block.option_strike}
                   onValueChange={(v) => {
@@ -569,11 +780,12 @@ function SymbolCard({
                     syncContract({ option_strike: v });
                   }}
                   placeholder="325"
+                  className={fieldTextClass}
                 />
-              </SignalField>
+              </Field>
               <div>
                 <span className={labelClass}>Expiry</span>
-                <SignalDatePicker
+                <DatePicker
                   aria-label={`Expiry symbol ${index + 1}`}
                   value={block.option_expiry}
                   onChange={(v) => {
@@ -583,29 +795,31 @@ function SymbolCard({
                 />
               </div>
               {optionStrategy && (
-                <p className="col-span-full text-[11px] text-text-muted">
+                <p className="col-span-full text-[11px] text-muted-foreground">
                   {optionStrategy.label} · {optionStrategy.biasLabel}
                 </p>
               )}
             </div>
           )}
           <div className="grid grid-cols-2 gap-3">
-            <SignalField label="Target">
-              <SignalAmountInput
+            <Field label="Target">
+              <AmountInput
                 aria-label={`Target symbol ${index + 1}`}
                 value={block.target}
                 onValueChange={(v) => set("target", v)}
                 placeholder="Optional"
+                className={fieldTextClass}
               />
-            </SignalField>
-            <SignalField label="Stop">
-              <SignalAmountInput
+            </Field>
+            <Field label="Stop">
+              <AmountInput
                 aria-label={`Stop symbol ${index + 1}`}
                 value={block.stop}
                 onValueChange={(v) => set("stop", v)}
                 placeholder="Optional"
+                className={fieldTextClass}
               />
-            </SignalField>
+            </Field>
           </div>
           <form.Field name={`${base}.rows` as never} mode="array">
             {(rowsField) => (
@@ -614,8 +828,10 @@ function SymbolCard({
                   {block.symbol ? `Executions · ${block.symbol}` : "Executions"}
                 </span>
                 <div
-                  className="grid gap-2 text-[10px] font-medium uppercase tracking-widest text-text-muted"
-                  style={{ gridTemplateColumns: FILL_COLS }}
+                  className={cn(
+                    "hidden gap-2 text-[10px] font-medium uppercase tracking-widest text-muted-foreground @min-[46rem]/symbol:grid",
+                    FILL_TABLE_COLS,
+                  )}
                 >
                   <span>Action</span>
                   <span>Date / Time</span>
@@ -625,115 +841,182 @@ function SymbolCard({
                   <span>Fee</span>
                   <span>P&L</span>
                   <span />
-                  <span />
                 </div>
-                {block.rows.map((row, rowIndex) => (
-                  <div
-                    key={`${block.key}-${rowIndex}`}
-                    className="grid items-start gap-2"
-                    style={{ gridTemplateColumns: FILL_COLS }}
-                  >
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="lg"
-                      aria-label={`Toggle action symbol ${index + 1} row ${rowIndex + 1}`}
-                      onClick={() =>
-                        form.setFieldValue(
-                          `${base}.rows[${rowIndex}].side` as never,
-                          (row.side === "buy" ? "sell" : "buy") as never,
-                        )
+                {/* popLayout pulls the removed fill out of flow at once, so the
+                    rows below spring up rather than jump. */}
+                <AnimatePresence initial={false} mode="popLayout" onExitComplete={commitRowRemoval}>
+                  {visibleRows.map(({ row, rowIndex }) => (
+                    <motion.div
+                      key={row.key ?? `${block.key}-${rowIndex}`}
+                      layout={reduceMotion ? false : "position"}
+                      initial={reduceMotion ? false : { opacity: 0, y: 10, scale: 0.98 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={
+                        reduceMotion
+                          ? { opacity: 0 }
+                          : { opacity: 0, y: -6, scale: 0.97, filter: "blur(2px)" }
                       }
+                      transition={reduceMotion ? { duration: 0 } : FILL_ROW_SPRING}
                       className={cn(
-                        "font-bold hover:bg-transparent",
-                        row.side === "buy" ? "bg-profit/15 text-profit" : "bg-loss/15 text-loss",
+                        // Stacked: a self-contained block per fill on an 8-column grid
+                        // — fine enough that Action, Date / Time and the remove button
+                        // always share the first row, with the numeric cells below.
+                        "grid grid-cols-8 items-end gap-2 rounded-lg bg-muted/40 p-2.5",
+                        // Table: one row, no surface of its own.
+                        "@min-[46rem]/symbol:items-center @min-[46rem]/symbol:rounded-none @min-[46rem]/symbol:bg-transparent @min-[46rem]/symbol:p-0",
+                        FILL_TABLE_COLS,
                       )}
                     >
-                      {row.side.toUpperCase()}
-                    </Button>
-                    <form.Field name={`${base}.rows[${rowIndex}].executed_at` as never}>
-                      {(field) => (
-                        <SignalDateTimePicker
-                          aria-label={`Date/time symbol ${index + 1} row ${rowIndex + 1}`}
-                          value={field.state.value as string}
-                          onChange={(v) => field.handleChange(v as never)}
+                      <FillCell
+                        label="Action"
+                        className="col-span-2 @min-[46rem]/symbol:col-span-1"
+                      >
+                        <FillActionToggle
+                          side={row.side}
+                          aria-label={`Toggle action symbol ${index + 1} row ${rowIndex + 1}`}
+                          onToggle={() =>
+                            form.setFieldValue(
+                              `${base}.rows[${rowIndex}].side` as never,
+                              (row.side === "buy" ? "sell" : "buy") as never,
+                            )
+                          }
                         />
-                      )}
-                    </form.Field>
-                    <form.Field
-                      name={`${base}.rows[${rowIndex}].quantity` as never}
-                      validators={{
-                        onBlur: ({ value }) => validatePositiveAmount(value as string, "Qty"),
-                      }}
-                    >
-                      {(field) => (
-                        <SignalAmountInput
-                          aria-label={`Qty${index ? ` symbol ${index + 1}` : ""} row ${rowIndex + 1}`}
-                          value={field.state.value as string}
-                          onValueChange={(v) => field.handleChange(v as never)}
-                          placeholder="Qty"
+                      </FillCell>
+                      <FillCell
+                        label="Date / Time"
+                        // Takes the rest of Action's row — six of eight tracks — so a
+                        // whole timestamp stays readable in the narrowest block.
+                        className="col-span-6 @min-[46rem]/symbol:col-span-1"
+                      >
+                        <form.Field name={`${base}.rows[${rowIndex}].executed_at` as never}>
+                          {(field) => (
+                            <DateTimePicker
+                              aria-label={`Date/time symbol ${index + 1} row ${rowIndex + 1}`}
+                              value={field.state.value as string}
+                              onChange={(v) => field.handleChange(v as never)}
+                              compact
+                            />
+                          )}
+                        </form.Field>
+                      </FillCell>
+                      <FillCell
+                        label="Qty"
+                        className="col-span-4 @min-[34rem]/symbol:col-span-2 @min-[46rem]/symbol:col-span-1"
+                      >
+                        <form.Field
+                          name={`${base}.rows[${rowIndex}].quantity` as never}
+                          validators={{
+                            onBlur: ({ value }) => validatePositiveAmount(value as string, "Qty"),
+                          }}
+                        >
+                          {(field) => (
+                            <AmountInput
+                              aria-label={`Qty${index ? ` symbol ${index + 1}` : ""} row ${rowIndex + 1}`}
+                              value={field.state.value as string}
+                              onValueChange={(v) => field.handleChange(v as never)}
+                              placeholder="Qty"
+                              compact
+                            />
+                          )}
+                        </form.Field>
+                      </FillCell>
+                      <FillCell
+                        label="Price"
+                        className="col-span-4 @min-[34rem]/symbol:col-span-2 @min-[46rem]/symbol:col-span-1"
+                      >
+                        <form.Field
+                          name={`${base}.rows[${rowIndex}].price` as never}
+                          validators={{
+                            onBlur: ({ value }) => validatePositiveAmount(value as string, "Price"),
+                          }}
+                        >
+                          {(field) => (
+                            <AmountInput
+                              aria-label={`Price${index ? ` symbol ${index + 1}` : ""} row ${rowIndex + 1}`}
+                              value={field.state.value as string}
+                              onValueChange={(v) => field.handleChange(v as never)}
+                              placeholder="Price"
+                              compact
+                            />
+                          )}
+                        </form.Field>
+                      </FillCell>
+                      <FillCell
+                        label="Amount"
+                        className="col-span-4 @min-[34rem]/symbol:col-span-2 @min-[46rem]/symbol:col-span-1"
+                      >
+                        <FillAmountCell
+                          quantity={parsedRows[rowIndex]?.quantity ?? 0}
+                          price={parsedRows[rowIndex]?.price ?? 0}
+                          multiplier={multiplier}
+                          currency={currency}
+                          locale={locale}
+                          emptyLabel={`Amount symbol ${index + 1} row ${rowIndex + 1}: empty`}
                         />
-                      )}
-                    </form.Field>
-                    <form.Field
-                      name={`${base}.rows[${rowIndex}].price` as never}
-                      validators={{
-                        onBlur: ({ value }) => validatePositiveAmount(value as string, "Price"),
-                      }}
-                    >
-                      {(field) => (
-                        <SignalAmountInput
-                          aria-label={`Price${index ? ` symbol ${index + 1}` : ""} row ${rowIndex + 1}`}
-                          value={field.state.value as string}
-                          onValueChange={(v) => field.handleChange(v as never)}
-                          placeholder="Price"
+                      </FillCell>
+                      <FillCell
+                        label="Fee"
+                        className="col-span-4 @min-[34rem]/symbol:col-span-2 @min-[46rem]/symbol:col-span-1"
+                      >
+                        <form.Field
+                          name={`${base}.rows[${rowIndex}].fees` as never}
+                          validators={{
+                            onBlur: ({ value }) =>
+                              validateNonNegativeAmount(value as string, "Fee"),
+                          }}
+                        >
+                          {(field) => (
+                            <AmountInput
+                              aria-label={`Fee${index ? ` symbol ${index + 1}` : ""} row ${rowIndex + 1}`}
+                              value={field.state.value as string}
+                              onValueChange={(v) => field.handleChange(v as never)}
+                              placeholder="Fee"
+                              compact
+                            />
+                          )}
+                        </form.Field>
+                      </FillCell>
+                      <FillCell
+                        label="P&L"
+                        // Stacked: owns its whole line so the value reads as the
+                        // block's result rather than a stray cell.
+                        className="col-span-8 @min-[46rem]/symbol:col-span-1"
+                      >
+                        <FillPnlCell
+                          value={fillPnls[rowIndex]}
+                          currency={currency}
+                          locale={locale}
+                          emptyLabel={`P&L symbol ${index + 1} row ${rowIndex + 1}: empty`}
                         />
+                      </FillCell>
+                      {block.rows.length > 1 ? (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon-sm"
+                          aria-label={`Remove row symbol ${index + 1} row ${rowIndex + 1}`}
+                          onClick={() => requestRowRemoval(row.key, rowIndex)}
+                          // Stacked: a full-width block closing out the fill.
+                          // Table: back to a square icon in the row's last column.
+                          className={cn(
+                            "col-span-8 h-8 w-full text-destructive hover:text-destructive",
+                            // Stacked only: soft destructive surface, same chrome family
+                            // as the Buy / Sell toggle above it. Scoped with @max so the
+                            // table tier keeps the plain ghost icon — an unscoped
+                            // `dark:` fill would outrank any @min reset.
+                            "@max-[46rem]/symbol:border-destructive/35 @max-[46rem]/symbol:bg-destructive/10 @max-[46rem]/symbol:hover:border-destructive/50 @max-[46rem]/symbol:hover:bg-destructive/15 @max-[46rem]/symbol:dark:bg-destructive/12",
+                            // Table: back to a bare icon in the row's last column.
+                            "@min-[46rem]/symbol:col-span-1 @min-[46rem]/symbol:size-7.5 @min-[46rem]/symbol:justify-self-end",
+                          )}
+                        >
+                          <Trash2 size={14} />
+                        </Button>
+                      ) : (
+                        <span aria-hidden />
                       )}
-                    </form.Field>
-                    <FillAmountCell
-                      quantity={parsedRows[rowIndex]?.quantity ?? 0}
-                      price={parsedRows[rowIndex]?.price ?? 0}
-                      multiplier={multiplier}
-                      currency={currency}
-                      locale={locale}
-                      emptyLabel={`Amount symbol ${index + 1} row ${rowIndex + 1}: empty`}
-                    />
-                    <form.Field
-                      name={`${base}.rows[${rowIndex}].fees` as never}
-                      validators={{
-                        onBlur: ({ value }) => validateNonNegativeAmount(value as string, "Fee"),
-                      }}
-                    >
-                      {(field) => (
-                        <SignalAmountInput
-                          aria-label={`Fee${index ? ` symbol ${index + 1}` : ""} row ${rowIndex + 1}`}
-                          value={field.state.value as string}
-                          onValueChange={(v) => field.handleChange(v as never)}
-                          placeholder="Fee"
-                          compact
-                        />
-                      )}
-                    </form.Field>
-                    <FillPnlCell
-                      value={fillPnls[rowIndex]}
-                      currency={currency}
-                      locale={locale}
-                      emptyLabel={`P&L symbol ${index + 1} row ${rowIndex + 1}: empty`}
-                    />
-                    <span aria-hidden />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      aria-label={`Remove row symbol ${index + 1} row ${rowIndex + 1}`}
-                      disabled={block.rows.length === 1}
-                      onClick={() => rowsField.removeValue(rowIndex)}
-                      className="justify-self-end"
-                    >
-                      <X size={12} />
-                    </Button>
-                  </div>
-                ))}
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
                 <Button
                   type="button"
                   variant="default"
@@ -748,9 +1031,9 @@ function SymbolCard({
                       }) as never,
                     )
                   }
-                  className="mx-auto size-9"
+                  className="mx-auto mt-2 size-8 rounded-full before:rounded-full sm:size-7.5"
                 >
-                  <Plus size={16} />
+                  <Plus size={15} />
                 </Button>
               </div>
             )}
@@ -762,247 +1045,223 @@ function SymbolCard({
             initialRisk={risk}
           />
 
-          <CollapsibleSection
-            title="Journal"
-            summary={
+          <SymbolExtrasAccordion
+            journalSummary={
               [
                 block.setupIds.length
                   ? `${block.setupIds.length} setup${block.setupIds.length === 1 ? "" : "s"}`
                   : "",
                 block.session,
-                block.emotionalState,
+                block.emotionalStates.length > 2
+                  ? `${block.emotionalStates.slice(0, 2).join(", ")} +${block.emotionalStates.length - 2}`
+                  : joinEmotionalStates(block.emotionalStates),
                 screenshotFiles.length
                   ? `${screenshotFiles.length} shot${screenshotFiles.length === 1 ? "" : "s"}`
                   : "",
               ]
                 .filter(Boolean)
-                .join(" · ") || undefined
+                .join(" ·") || undefined
             }
-          >
-            <div>
-              <span className={labelClass}>Setups (select multiple)</span>
-              <p className="mb-2 text-[10px] text-text-muted">
-                First selected setup becomes the main setup.
-              </p>
-              {setups.length === 0 ? (
-                <p className="text-[11px] text-text-muted">
-                  No setups yet — create some in Playbook.
-                </p>
-              ) : (
-                <div className="flex flex-wrap gap-1.5">
-                  {setups.map((s) => {
-                    const idx = block.setupIds.indexOf(s.id);
-                    const on = idx >= 0;
-                    return (
-                      <Button
-                        key={s.id}
-                        type="button"
-                        variant="ghost"
-                        onClick={() => toggleSetupId(s.id)}
-                        className="h-auto border-none bg-transparent p-0 hover:bg-transparent"
-                        aria-pressed={on}
-                      >
-                        <Pill tone={on ? "accent" : "muted"}>
-                          {on && idx === 0 ? `${s.name} · main` : s.name}
-                        </Pill>
-                      </Button>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-            <div>
-              <span className={labelClass}>Session</span>
-              <div className="flex flex-wrap gap-1.5">
-                {TRADE_SESSIONS.map((s) => {
-                  const on = block.session === s;
-                  return (
-                    <Button
-                      key={s}
-                      type="button"
-                      variant={on ? "soft" : "secondary"}
-                      size="xs"
-                      onClick={() => set("session", on ? "" : s)}
-                      className="tracking-[0.02em]"
-                    >
-                      {s}
-                    </Button>
-                  );
-                })}
-              </div>
-            </div>
-            <div>
-              <label className={labelClass} htmlFor={`nt-emotion-${block.key}`}>
-                Emotion
-              </label>
-              <SignalSelect
-                id={`nt-emotion-${block.key}`}
-                value={block.emotionalState}
-                onValueChange={(v) => set("emotionalState", v)}
-                options={[
-                  { value: "", label: "Not set" },
-                  ...EMOTIONAL_STATES.map((s) => ({ value: s, label: s })),
-                ]}
-                ariaLabel={`Emotion${suffix}`}
-                triggerClassName="h-9 text-[12px]"
-              />
-            </div>
-            {regularTags.length > 0 && (
-              <div>
-                <span className={labelClass}>Tags</span>
-                <div className="flex flex-wrap gap-1.5">
-                  {regularTags.map((t) => {
-                    const on = block.selectedTagIds.includes(t.id);
-                    return (
-                      <Button
-                        key={t.id}
-                        type="button"
-                        variant="ghost"
-                        onClick={() => toggleId(block.selectedTagIds, t.id, "selectedTagIds")}
-                        className="h-auto border-none bg-transparent p-0 hover:bg-transparent"
-                      >
-                        <Pill tone={on ? "accent" : "muted"}>{t.name}</Pill>
-                      </Button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-            {mistakeTags.length > 0 && (
-              <div>
-                <span className={labelClass}>Mistake type</span>
-                <p className="mb-2 text-[10px] text-text-muted">Optional — tap any that apply.</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {mistakeTags.map((t) => {
-                    const on = block.selectedMistakeIds.includes(t.id);
-                    return (
-                      <Button
-                        key={t.id}
-                        type="button"
-                        variant="ghost"
-                        onClick={() =>
-                          toggleId(block.selectedMistakeIds, t.id, "selectedMistakeIds")
-                        }
-                        className="h-auto border-none bg-transparent p-0 hover:bg-transparent"
-                      >
-                        <Pill tone={on ? "neg" : "muted"}>{t.name}</Pill>
-                      </Button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-            <GradeControl
-              label="Setup rating"
-              hint="Rate the setup itself — ignore PnL and emotion."
-              value={block.setupGrade}
-              onChange={(v) => set("setupGrade", v)}
-            />
-            <GradeControl
-              label="Execution rating"
-              hint="Rate your execution — patience, timing, stop discipline."
-              value={block.executionGrade}
-              onChange={(v) => set("executionGrade", v)}
-            />
-            <div>
-              <label className={labelClass} htmlFor={`nt-entry-${block.key}`}>
-                Entry reason
-              </label>
-              <SignalTextarea
-                id={`nt-entry-${block.key}`}
-                aria-label={`Entry reason${suffix}`}
-                value={block.entryReason}
-                onChange={(e) => set("entryReason", e.target.value)}
-                rows={2}
-                placeholder="Why did you enter?"
-              />
-            </div>
-            <div>
-              <label className={labelClass} htmlFor={`nt-exit-${block.key}`}>
-                Exit reason
-              </label>
-              <SignalTextarea
-                id={`nt-exit-${block.key}`}
-                aria-label={`Exit reason${suffix}`}
-                value={block.exitReason}
-                onChange={(e) => set("exitReason", e.target.value)}
-                rows={2}
-                placeholder="Why did you exit?"
-              />
-            </div>
-            <div>
-              <label className={labelClass} htmlFor={`nt-review-${block.key}`}>
-                Review notes
-              </label>
-              <SignalTextarea
-                id={`nt-review-${block.key}`}
-                aria-label={`Review notes${suffix}`}
-                value={block.reviewNotes}
-                onChange={(e) => set("reviewNotes", e.target.value)}
-                rows={3}
-                placeholder="What would you do differently?"
-              />
-            </div>
-            <div>
-              <span className={labelClass}>
-                Screenshots
-                {screenshotFiles.length > 0
-                  ? maxScreenshots != null
-                    ? ` (${screenshotFiles.length}/${maxScreenshots})`
-                    : ` (${screenshotFiles.length})`
-                  : maxScreenshots != null
-                    ? ` (max ${maxScreenshots})`
-                    : ""}
-              </span>
-              <JournalScreenshotUpload
-                className="mt-1"
-                inputTestId={`journal-screenshot-input-${index + 1}`}
-                items={screenshotFiles.map((file, fileIndex) =>
-                  fileToScreenshotItem(file, () => onRemoveScreenshot(fileIndex)),
-                )}
-                onAddFiles={onAddScreenshots}
-                maxCount={maxScreenshots}
-                disabled={pending}
-              />
-            </div>
-          </CollapsibleSection>
-
-          <CollapsibleSection
-            title="Dividend"
-            summary={
+            dividendSummary={
               block.dividendAmount.trim() ? `${block.dividendAmount} ${currency}` : undefined
             }
-          >
-            <p className="m-0 text-[10px] text-text-muted">
-              Optional payout on this symbol. Amount rolls into trade P&amp;L (shorts as a debit).
-            </p>
-            <div className="grid grid-cols-2 gap-3">
-              <SignalField label={`Amount (${currency})`}>
-                <SignalAmountInput
-                  aria-label={`Dividend amount${suffix}`}
-                  value={block.dividendAmount}
-                  onValueChange={(v) => set("dividendAmount", v)}
-                  placeholder="0.00"
+            journal={
+              <>
+                {setups.length === 0 ? (
+                  <div>
+                    <span className={labelClass}>Setups</span>
+                    <p className="text-[11px] text-muted-foreground">
+                      No setups yet — create some in Playbook.
+                    </p>
+                  </div>
+                ) : (
+                  <JournalField
+                    label="Setups"
+                    hint="Select any that apply — the first becomes the main setup."
+                  >
+                    <MultiSelectCombobox
+                      ariaLabel={`Setups${suffix}`}
+                      options={setupOptions}
+                      value={block.setupIds}
+                      onValueChange={(ids) => set("setupIds", ids)}
+                      placeholder="Select setups"
+                      searchPlaceholder="Search setups…"
+                      emptyText="No matching setups."
+                    />
+                  </JournalField>
+                )}
+                <JournalField
+                  label="Session"
+                  hint="One session per trade."
+                  htmlFor={`nt-session-${block.key}`}
+                >
+                  <NativeSelect
+                    id={`nt-session-${block.key}`}
+                    aria-label={`Session${suffix}`}
+                    value={block.session}
+                    onChange={(e) => set("session", e.target.value)}
+                    className={fieldTextClass}
+                    wrapperClassName="w-full"
+                  >
+                    <NativeSelectOption value="">No session</NativeSelectOption>
+                    {TRADE_SESSIONS.map((s) => (
+                      <NativeSelectOption key={s} value={s}>
+                        {s}
+                      </NativeSelectOption>
+                    ))}
+                  </NativeSelect>
+                </JournalField>
+                <JournalField
+                  label="Emotion"
+                  hint="Select every state that applied during the trade."
+                >
+                  <MultiSelectCombobox
+                    ariaLabel={`Emotion${suffix}`}
+                    options={EMOTION_OPTIONS}
+                    value={block.emotionalStates}
+                    onValueChange={(states) => set("emotionalStates", states)}
+                    placeholder="Select emotions"
+                    searchPlaceholder="Search emotions…"
+                    emptyText="No matching emotions."
+                  />
+                </JournalField>
+                {regularTags.length > 0 && (
+                  <JournalField label="Tags">
+                    <MultiSelectCombobox
+                      ariaLabel={`Tags${suffix}`}
+                      options={tagOptions}
+                      value={block.selectedTagIds}
+                      onValueChange={(ids) => set("selectedTagIds", ids)}
+                      placeholder="Select tags"
+                      searchPlaceholder="Search tags…"
+                      emptyText="No matching tags."
+                    />
+                  </JournalField>
+                )}
+                {mistakeTags.length > 0 && (
+                  <JournalField label="Mistake type" hint="Optional — select any that apply.">
+                    <MultiSelectCombobox
+                      ariaLabel={`Mistake type${suffix}`}
+                      options={mistakeOptions}
+                      value={block.selectedMistakeIds}
+                      onValueChange={(ids) => set("selectedMistakeIds", ids)}
+                      placeholder="Select mistakes"
+                      searchPlaceholder="Search mistakes…"
+                      emptyText="No matching mistakes."
+                    />
+                  </JournalField>
+                )}
+                <GradeControl
+                  label="Setup rating"
+                  hint="Rate the setup itself — ignore PnL and emotion."
+                  value={block.setupGrade}
+                  onChange={(v) => set("setupGrade", v)}
                 />
-              </SignalField>
-              <div>
-                <span className={labelClass}>Date</span>
-                <SignalDatePicker
-                  aria-label={`Dividend date${suffix}`}
-                  value={block.dividendDate}
-                  onChange={(v) => set("dividendDate", v)}
+                <GradeControl
+                  label="Execution rating"
+                  hint="Rate your execution — patience, timing, stop discipline."
+                  value={block.executionGrade}
+                  onChange={(v) => set("executionGrade", v)}
                 />
-              </div>
-            </div>
-            <SignalField label="Note">
-              <SignalInput
-                aria-label={`Dividend note${suffix}`}
-                value={block.dividendNote}
-                onChange={(e) => set("dividendNote", e.target.value)}
-                placeholder="Optional"
-              />
-            </SignalField>
-          </CollapsibleSection>
+                <div>
+                  <label className={labelClass} htmlFor={`nt-entry-${block.key}`}>
+                    Entry reason
+                  </label>
+                  <FormTextarea
+                    id={`nt-entry-${block.key}`}
+                    aria-label={`Entry reason${suffix}`}
+                    value={block.entryReason}
+                    onChange={(e) => set("entryReason", e.target.value)}
+                    rows={2}
+                    placeholder="Why did you enter?"
+                  />
+                </div>
+                <div>
+                  <label className={labelClass} htmlFor={`nt-exit-${block.key}`}>
+                    Exit reason
+                  </label>
+                  <FormTextarea
+                    id={`nt-exit-${block.key}`}
+                    aria-label={`Exit reason${suffix}`}
+                    value={block.exitReason}
+                    onChange={(e) => set("exitReason", e.target.value)}
+                    rows={2}
+                    placeholder="Why did you exit?"
+                  />
+                </div>
+                <div>
+                  <label className={labelClass} htmlFor={`nt-review-${block.key}`}>
+                    Review notes
+                  </label>
+                  <FormTextarea
+                    id={`nt-review-${block.key}`}
+                    aria-label={`Review notes${suffix}`}
+                    value={block.reviewNotes}
+                    onChange={(e) => set("reviewNotes", e.target.value)}
+                    rows={3}
+                    placeholder="What would you do differently?"
+                  />
+                </div>
+                <div>
+                  <span className={labelClass}>
+                    Screenshots
+                    {screenshotFiles.length > 0
+                      ? maxScreenshots != null
+                        ? ` (${screenshotFiles.length}/${maxScreenshots})`
+                        : ` (${screenshotFiles.length})`
+                      : maxScreenshots != null
+                        ? ` (max ${maxScreenshots})`
+                        : ""}
+                  </span>
+                  <JournalScreenshotUpload
+                    className="mt-1"
+                    inputTestId={`journal-screenshot-input-${index + 1}`}
+                    items={screenshotFiles.map((file, fileIndex) =>
+                      fileToScreenshotItem(file, () => onRemoveScreenshot(fileIndex)),
+                    )}
+                    onAddFiles={onAddScreenshots}
+                    maxCount={maxScreenshots}
+                    disabled={pending}
+                  />
+                </div>
+              </>
+            }
+            dividend={
+              <>
+                <p className="m-0 text-[10px] leading-snug text-muted-foreground">
+                  Optional payout on this symbol. Amount rolls into trade P&amp;L (shorts as a
+                  debit).
+                </p>
+                <div className="grid grid-cols-2 gap-3">
+                  <JournalField label={`Amount (${currency})`}>
+                    <AmountInput
+                      aria-label={`Dividend amount${suffix}`}
+                      value={block.dividendAmount}
+                      onValueChange={(v) => set("dividendAmount", v)}
+                      placeholder="0.00"
+                      className={fieldTextClass}
+                    />
+                  </JournalField>
+                  <JournalField label="Date">
+                    <DatePicker
+                      aria-label={`Dividend date${suffix}`}
+                      value={block.dividendDate}
+                      onChange={(v) => set("dividendDate", v)}
+                    />
+                  </JournalField>
+                </div>
+                <JournalField label="Note">
+                  <FormInput
+                    aria-label={`Dividend note${suffix}`}
+                    value={block.dividendNote}
+                    onChange={(e) => set("dividendNote", e.target.value)}
+                    placeholder="Optional"
+                    className={fieldTextClass}
+                  />
+                </JournalField>
+              </>
+            }
+          />
         </div>
       </CollapsibleContent>
     </Collapsible>
@@ -1011,6 +1270,7 @@ function SymbolCard({
 
 export function NewTradeDrawer() {
   usePrivacyMode();
+  const reduceMotion = useReducedMotion();
   const navigate = useNavigate();
   const open = useUI((s) => s.modal === "new-trade");
   const editTradeId = useUI((s) => s.editTradeId);
@@ -1036,6 +1296,13 @@ export function NewTradeDrawer() {
   const toast = useToastManager();
   const maxScreenshots = useJournalPrefs((s) => s.maxScreenshotsPerTrade);
   const [pendingFilesByKey, setPendingFilesByKey] = useState<Record<string, File[]>>({});
+  /**
+   * Key of the card currently playing its exit animation. It stays in the form
+   * values until the animation finishes — dropping it up front would leave the
+   * still-mounted card's `form.Field`s reading an out-of-range index, flipping
+   * every input from controlled to uncontrolled mid-exit.
+   */
+  const [removingKey, setRemovingKey] = useState<string | null>(null);
   const [ocrExtract, setOcrExtract] = useState<TradeExtract | null>(null);
   const [ocrWarnings, setOcrWarnings] = useState<string[]>([]);
   const [ocrSetupPromptOpen, setOcrSetupPromptOpen] = useState(false);
@@ -1052,6 +1319,7 @@ export function NewTradeDrawer() {
   const locale = getIntlLocale(getStoredLocale());
   const defaultValuesRef = useRef(defaultNewTradeFormValues());
   const form = useForm({
+    formId: "new-trade",
     defaultValues: defaultValuesRef.current,
     onSubmit: async ({ value }) => {
       setSubmitError("");
@@ -1139,7 +1407,7 @@ export function NewTradeDrawer() {
               }),
               setup_id: block.setupIds[0] ?? "",
               setup_ids: block.setupIds,
-              emotional_state: block.emotionalState || "",
+              emotional_state: joinEmotionalStates(block.emotionalStates),
               confidence: intFromGrade(block.setupGrade),
               trade_quality: intFromGrade(block.executionGrade),
               tag_ids: [...block.selectedTagIds, ...block.selectedMistakeIds],
@@ -1184,7 +1452,7 @@ export function NewTradeDrawer() {
             error instanceof ExecutionBatchError
               ? error.failures
                   .map((f) => `Row ${f.index + 1} (${f.accountId}): ${f.message}`)
-                  .join("; ")
+                  .join(";")
               : error instanceof Error
                 ? error.message
                 : "Save failed";
@@ -1215,7 +1483,7 @@ export function NewTradeDrawer() {
               }),
               setup_id: block.setupIds[0] ?? "",
               setup_ids: block.setupIds,
-              emotional_state: block.emotionalState || "",
+              emotional_state: joinEmotionalStates(block.emotionalStates),
               confidence: intFromGrade(block.setupGrade),
               trade_quality: intFromGrade(block.executionGrade),
               tag_ids: [...block.selectedTagIds, ...block.selectedMistakeIds],
@@ -1253,7 +1521,7 @@ export function NewTradeDrawer() {
           error instanceof ExecutionBatchError
             ? error.failures
                 .map((f) => `Row ${f.index + 1} (${f.accountId}): ${f.message}`)
-                .join("; ")
+                .join(";")
             : error instanceof Error
               ? error.message
               : "Save failed";
@@ -1286,6 +1554,19 @@ export function NewTradeDrawer() {
     deleteExecution.isPending ||
     editSaving;
 
+  /**
+   * Cards to render. The card being removed is pulled from the tree so
+   * `AnimatePresence` plays its exit, while its index is captured beforehand so
+   * the survivors keep pointing at their real `trades[i]` path meanwhile.
+   */
+  const visibleTrades = useMemo(
+    () =>
+      values.trades
+        .map((block, index) => ({ block, index }))
+        .filter(({ block }) => block.key !== removingKey),
+    [values.trades, removingKey],
+  );
+
   const batchPreview = useMemo(
     () =>
       values.trades.length > 1
@@ -1302,9 +1583,24 @@ export function NewTradeDrawer() {
     };
   }, [values.trades]);
 
+  /** Commit the deferred removal once the card has finished animating out. */
+  function commitRemoval() {
+    if (!removingKey) return;
+    const next = (form.store.state.values.trades as SymbolTradeBlock[]).filter(
+      (block) => block.key !== removingKey,
+    );
+    form.setFieldValue("trades", next.length ? next : [emptySymbolTrade()]);
+    setPendingFilesByKey((prev) => {
+      const { [removingKey]: _dropped, ...rest } = prev;
+      return rest;
+    });
+    setRemovingKey(null);
+  }
+
   function reset() {
     form.reset(defaultNewTradeFormValues());
     setPendingFilesByKey({});
+    setRemovingKey(null);
     setOcrExtract(null);
     setOcrWarnings([]);
     setSubmitError("");
@@ -1403,7 +1699,7 @@ export function NewTradeDrawer() {
         entryReason: journal.entryReason || journal.legacy,
         exitReason: journal.exitReason,
         reviewNotes: journal.reviewNotes,
-        emotionalState: template.emotionalState,
+        emotionalStates: parseEmotionalStates(template.emotionalState),
         setupGrade: gradeFromInt(template.confidence),
         executionGrade: gradeFromInt(template.tradeQuality),
         selectedTagIds: template.tagIds,
@@ -1432,7 +1728,7 @@ export function NewTradeDrawer() {
         exitReason: block.exitReason,
         reviewNotes: block.reviewNotes,
       }),
-      emotionalState: block.emotionalState,
+      emotionalState: joinEmotionalStates(block.emotionalStates),
       confidence: intFromGrade(block.setupGrade) ?? 3,
       tradeQuality: intFromGrade(block.executionGrade) ?? 3,
       tagIds: block.selectedTagIds,
@@ -1497,14 +1793,15 @@ export function NewTradeDrawer() {
             </DrawerTitle>
             <div className="ml-auto flex items-center gap-0.5">
               {!isEditMode && (
-                <SignalPopover
+                <ControlledPopover
                   open={templatesOpen}
                   onOpenChange={setTemplatesOpen}
                   triggerAriaLabel="Templates"
-                  className="min-w-[14rem] overflow-hidden p-0 shadow-[0_16px_40px_rgba(18,18,24,0.65)]"
+                  className="min-w-[14rem] overflow-hidden p-0"
                   triggerClassName={cn(
                     buttonVariants({ variant: "outline", size: "sm" }),
-                    templatesOpen && "border-border-strong bg-bg-hover text-text",
+                    "text-sm",
+                    templatesOpen && "border-border bg-accent text-foreground",
                   )}
                   trigger={
                     <>
@@ -1515,7 +1812,7 @@ export function NewTradeDrawer() {
                 >
                   <div className="flex flex-col p-1" role="menu" aria-label="Trade templates">
                     {templates.length === 0 ? (
-                      <p className="m-0 px-2 py-2 text-[11px] text-text-dim">
+                      <p className="m-0 px-2 py-2 text-[11px] text-muted-foreground">
                         No saved templates yet
                       </p>
                     ) : (
@@ -1526,9 +1823,9 @@ export function NewTradeDrawer() {
                           role="menuitem"
                           onClick={() => applyTemplate(t)}
                           className={cn(
-                            "flex min-h-8 cursor-pointer items-center rounded-control px-2 text-left text-[12px] text-text",
-                            "transition-colors hover:bg-white/[0.06]",
-                            "focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-border-strong",
+                            "flex min-h-8 cursor-pointer items-center rounded-md px-2 text-left text-[12px] text-foreground",
+                            "transition-colors hover:bg-accent",
+                            "focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ring",
                           )}
                         >
                           <span className="min-w-0 flex-1 truncate">{t.name}</span>
@@ -1541,22 +1838,22 @@ export function NewTradeDrawer() {
                       role="menuitem"
                       onClick={saveTemplate}
                       className={cn(
-                        "flex min-h-8 cursor-pointer items-center rounded-control px-2 text-left text-[12px] font-medium text-accent",
-                        "transition-colors hover:bg-accent-bg",
-                        "focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-border-strong",
+                        "flex min-h-8 cursor-pointer items-center rounded-md px-2 text-left text-[12px] font-medium text-primary",
+                        "transition-colors hover:bg-primary/10",
+                        "focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ring",
                       )}
                     >
                       Save first symbol as template…
                     </button>
                   </div>
-                </SignalPopover>
+                </ControlledPopover>
               )}
               <DrawerClose
                 aria-label="Close"
                 className={cn(
-                  "inline-flex size-8 cursor-pointer items-center justify-center rounded-control border-none bg-transparent",
-                  "text-text-muted transition-colors hover:bg-bg-hover hover:text-text",
-                  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-strong",
+                  "inline-flex size-8 cursor-pointer items-center justify-center rounded-md border-none bg-transparent",
+                  "text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
+                  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
                 )}
               >
                 <X size={16} strokeWidth={1.5} />
@@ -1572,17 +1869,17 @@ export function NewTradeDrawer() {
                   : "Add one or more symbols — each with fills, journal, and optional dividend. One Save logs every symbol as its own trade."}
             </ModalBanner>
             {isEditMode && !editHydrated && !editSource && editTradeQ.isLoading ? (
-              <p className="mt-6 text-center text-[13px] text-text-muted">Loading trade…</p>
+              <p className="mt-6 text-center text-[13px] text-muted-foreground">Loading trade…</p>
             ) : isEditMode && !editHydrated && !editSource && editTradeQ.isError ? (
-              <p className="mt-6 text-center text-[13px] text-loss">
+              <p className="mt-6 text-center text-[13px] text-destructive">
                 Could not load trade for editing.
               </p>
             ) : isEditMode && !editHydrated ? (
-              <p className="mt-6 text-center text-[13px] text-text-muted">Loading trade…</p>
+              <p className="mt-6 text-center text-[13px] text-muted-foreground">Loading trade…</p>
             ) : (
               <form
                 key={isEditMode ? `edit-${editTradeId}-${editFormKey}` : "new-trade"}
-                className="mt-4 flex flex-col gap-4"
+                className="mt-4 flex flex-col gap-4 @container/form"
                 onSubmit={(event) => {
                   event.preventDefault();
                   void form.handleSubmit();
@@ -1596,7 +1893,7 @@ export function NewTradeDrawer() {
                       value={accountId}
                       onChange={(e) => form.setFieldValue("accountId", e.target.value)}
                       disabled={isEditMode}
-                      className="w-full text-[12px]"
+                      className={cn("w-full", fieldTextClass)}
                       wrapperClassName="w-full"
                     >
                       {accounts.map((a) => (
@@ -1611,12 +1908,14 @@ export function NewTradeDrawer() {
                       <Button
                         type="button"
                         variant="outline"
-                        size="lg"
+                        size="sm"
                         disabled={ocrParse.isPending || ocrSettingsLoading}
                         onClick={onScanClick}
                         className={cn(
-                          "font-medium",
-                          !visionReady && "text-text-dim",
+                          // Field height, not button height — it sits on the
+                          // Account select's baseline (`size="sm"` is 2px short).
+                          "h-8.5 text-sm font-medium sm:h-7.5",
+                          !visionReady && "text-muted-foreground",
                           ocrParse.isPending && "opacity-70",
                         )}
                         aria-label="Prefill trade from screenshot"
@@ -1664,7 +1963,7 @@ export function NewTradeDrawer() {
                           .map((account) => (
                             <label
                               key={account.id}
-                              className="flex cursor-pointer items-center gap-2 rounded-control bg-bg-input px-3 py-2 text-[12px] text-text-muted"
+                              className="flex cursor-pointer items-center gap-2 rounded-md bg-muted px-3 py-2 text-[12px] text-muted-foreground"
                             >
                               <input
                                 type="checkbox"
@@ -1687,103 +1986,140 @@ export function NewTradeDrawer() {
                 {!isEditMode && ocrExtract && (
                   <OcrScanSummary groups={groupOcrBySymbol(ocrExtract)} warnings={ocrWarnings} />
                 )}
-                {values.trades.map((block, index) => (
-                  <SymbolCard
-                    key={block.key}
-                    form={form}
-                    block={block}
-                    index={index}
-                    currency={currency}
-                    locale={locale}
-                    removable={!isEditMode && values.trades.length > 1}
-                    pending={pending}
-                    setups={setups}
-                    regularTags={regularTags}
-                    mistakeTags={mistakeTags}
-                    screenshotFiles={pendingFilesByKey[block.key] ?? []}
-                    maxScreenshots={maxScreenshots}
-                    onAddScreenshots={(incoming) =>
-                      setPendingFilesByKey((prev) => ({
-                        ...prev,
-                        [block.key]: capScreenshots(
-                          [...(prev[block.key] ?? []), ...incoming],
-                          maxScreenshots,
-                        ),
-                      }))
-                    }
-                    onRemoveScreenshot={(fileIndex) =>
-                      setPendingFilesByKey((prev) => ({
-                        ...prev,
-                        [block.key]: (prev[block.key] ?? []).filter((_, i) => i !== fileIndex),
-                      }))
-                    }
-                  />
-                ))}
+                {/* popLayout pulls a removed card out of flow immediately so the
+                    cards below spring up instead of jumping. */}
+                <AnimatePresence initial={false} mode="popLayout" onExitComplete={commitRemoval}>
+                  {visibleTrades.map(({ block, index }) => (
+                    <motion.div
+                      key={block.key}
+                      layout={reduceMotion ? false : "position"}
+                      initial={reduceMotion ? false : { opacity: 0, y: 12, scale: 0.98 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={
+                        reduceMotion
+                          ? { opacity: 0 }
+                          : { opacity: 0, y: -8, scale: 0.96, filter: "blur(2px)" }
+                      }
+                      transition={reduceMotion ? { duration: 0 } : SYMBOL_CARD_SPRING}
+                    >
+                      <SymbolCard
+                        form={form}
+                        block={block}
+                        index={index}
+                        currency={currency}
+                        locale={locale}
+                        removable={!isEditMode && values.trades.length > 1}
+                        pending={pending}
+                        setups={setups}
+                        regularTags={regularTags}
+                        mistakeTags={mistakeTags}
+                        screenshotFiles={pendingFilesByKey[block.key] ?? []}
+                        maxScreenshots={maxScreenshots}
+                        onAddScreenshots={(incoming) =>
+                          setPendingFilesByKey((prev) => ({
+                            ...prev,
+                            [block.key]: capScreenshots(
+                              [...(prev[block.key] ?? []), ...incoming],
+                              maxScreenshots,
+                            ),
+                          }))
+                        }
+                        onRemoveScreenshot={(fileIndex) =>
+                          setPendingFilesByKey((prev) => ({
+                            ...prev,
+                            [block.key]: (prev[block.key] ?? []).filter((_, i) => i !== fileIndex),
+                          }))
+                        }
+                        onRemove={() => setRemovingKey((current) => current ?? block.key)}
+                      />
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
                 {!isEditMode && (
                   <Button
                     type="button"
                     variant="outline"
+                    size="sm"
                     onClick={() =>
                       form.setFieldValue("trades", [...values.trades, emptySymbolTrade()])
                     }
                     disabled={pending}
-                    className="mx-auto"
+                    className="mx-auto text-sm"
                   >
                     <Plus size={15} />
                     Add symbol
                   </Button>
                 )}
-                {submitError && <p className="text-xs text-loss">{submitError}</p>}
+                {submitError && <p className="text-xs text-destructive">{submitError}</p>}
+                {batchPreview ? (
+                  <BatchTradeResultPreview
+                    batch={batchPreview}
+                    currency={currency}
+                    locale={locale}
+                    accountNetPnl={accountBaseline.netPnl}
+                    accountCash={accountBaseline.cash}
+                  />
+                ) : singleFooter ? (
+                  <TradeResultPreview
+                    preview={singleFooter.preview}
+                    currency={currency}
+                    locale={locale}
+                    initialRisk={singleFooter.risk}
+                  />
+                ) : null}
+                <div
+                  className={cn(
+                    // Narrow: full-width stacked block so each action is a whole
+                    // tap target. Wider: the usual inline group, right-aligned.
+                    "flex flex-col gap-2 *:w-full",
+                    "@min-[30rem]/form:flex-row @min-[30rem]/form:flex-wrap @min-[30rem]/form:items-center @min-[30rem]/form:justify-end @min-[30rem]/form:*:w-auto",
+                  )}
+                >
+                  {!isEditMode && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      disabled={pending}
+                      onClick={reset}
+                      className="text-sm"
+                    >
+                      Clear
+                    </Button>
+                  )}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={pending}
+                    onClick={close}
+                    className="text-sm"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    disabled={pending || (isEditMode && !editHydrated)}
+                    onClick={() => {
+                      void form.handleSubmit();
+                    }}
+                    className="text-sm"
+                  >
+                    {pending
+                      ? isImportPreviewEdit
+                        ? "Applying…"
+                        : "Saving…"
+                      : isImportPreviewEdit
+                        ? "Apply"
+                        : isEditMode
+                          ? "Save changes"
+                          : "Save"}
+                  </Button>
+                </div>
               </form>
             )}
           </DrawerBody>
-          <DrawerFooter>
-            <div className="flex w-full flex-col gap-3">
-              {batchPreview ? (
-                <BatchTradeResultPreview
-                  batch={batchPreview}
-                  currency={currency}
-                  locale={locale}
-                  accountNetPnl={accountBaseline.netPnl}
-                  accountCash={accountBaseline.cash}
-                />
-              ) : singleFooter ? (
-                <TradeResultPreview
-                  preview={singleFooter.preview}
-                  currency={currency}
-                  locale={locale}
-                  initialRisk={singleFooter.risk}
-                />
-              ) : null}
-              <div className="flex w-full items-center justify-end gap-2">
-                {!isEditMode && (
-                  <Button type="button" variant="outline" disabled={pending} onClick={reset}>
-                    Clear
-                  </Button>
-                )}
-                <Button type="button" variant="outline" disabled={pending} onClick={close}>
-                  Cancel
-                </Button>
-                <Button
-                  type="button"
-                  disabled={pending || (isEditMode && !editHydrated)}
-                  onClick={() => {
-                    void form.handleSubmit();
-                  }}
-                >
-                  {pending
-                    ? isImportPreviewEdit
-                      ? "Applying…"
-                      : "Saving…"
-                    : isImportPreviewEdit
-                      ? "Apply"
-                      : isEditMode
-                        ? "Save changes"
-                        : "Save"}
-                </Button>
-              </div>
-            </div>
-          </DrawerFooter>
         </DrawerContent>
       </Drawer>
       <OcrSetupPromptModal

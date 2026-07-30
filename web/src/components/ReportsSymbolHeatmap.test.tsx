@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vite-plus/test";
-import type { BreakGroup } from "../lib/api/types";
+import type { BreakGroup } from "@/lib/api/types";
 import { ReportsDisplayProvider } from "./ReportsDisplayContext";
 import {
   HeatCell,
@@ -61,8 +61,8 @@ describe("buildHeatmapNodes", () => {
 
 describe("tileStyle", () => {
   it("colors profit green and loss rose", () => {
-    expect(tileStyle(50, 100).fill).toBe("var(--color-profit)");
-    expect(tileStyle(-50, 100).fill).toBe("var(--color-loss)");
+    expect(tileStyle(50, 100).fill).toBe("var(--profit)");
+    expect(tileStyle(-50, 100).fill).toBe("var(--loss)");
   });
 
   it("scales opacity with magnitude and caps at the max mover", () => {

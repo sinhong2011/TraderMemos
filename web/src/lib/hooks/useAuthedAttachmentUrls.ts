@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { getBaseUrl, getToken } from "../api/client";
+import { getBaseUrl, getToken } from "@/lib/api/client";
 
 /** Stable blob URLs for authenticated attachment previews (revoked on unmount / id removal). */
 export function useAuthedAttachmentUrls(attachmentIds: readonly string[]) {

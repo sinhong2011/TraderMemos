@@ -8,17 +8,17 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import type { Trade } from "../lib/api/types";
-import { useDisplayTimePrefs } from "../lib/displayPrefs";
-import { fmtDayShort, fmtPct } from "../lib/format";
-import { intlLocale } from "../lib/locale";
+import type { Trade } from "@/lib/api/types";
+import { useDisplayTimePrefs } from "@/lib/displayPrefs";
+import { fmtDayShort, fmtPct } from "@/lib/format";
+import { intlLocale } from "@/lib/locale";
 import {
   type EvolutionGranularity,
   type EvolutionPoint,
   metricEvolution,
-} from "../lib/reportsAnalytics";
+} from "@/lib/reportsAnalytics";
 import { Card } from "./Card";
-import { ChartFrame, chartTheme } from "./ChartFrame";
+import { ChartFrame, chartTheme, chartTooltipStyle, pnlTooltipValue } from "./ChartFrame";
 import { EmptyState } from "./EmptyState";
 import { useReportsMoney } from "./ReportsDisplayContext";
 import { SegmentedControl } from "./SegmentedControl";
@@ -74,7 +74,7 @@ export function ReportsMetricEvolution({ trades, loading, error }: ReportsMetric
       : (v: number) => money.formatAxis(v);
   const rightLabel = RIGHT_METRICS.find((m) => m.value === rightMetric)?.label ?? "";
   const lastRightValue = points.length > 0 ? points[points.length - 1][rightMetric] : 0;
-  const rightColor = lastRightValue < 0 ? "var(--color-loss)" : "var(--color-profit)";
+  const rightColor = lastRightValue < 0 ? "var(--loss)" : "var(--profit)";
 
   const action = (
     // Side-by-side once there's room (sm+), stacked below that: "Right axis
@@ -107,7 +107,7 @@ export function ReportsMetricEvolution({ trades, loading, error }: ReportsMetric
       {loading ? (
         <Skeleton height="220px" />
       ) : error ? (
-        <p className="text-xs text-loss">Failed to load metric evolution.</p>
+        <p className="text-xs text-destructive">Failed to load metric evolution.</p>
       ) : points.length === 0 ? (
         <EmptyState title="No data" hint="Add trades or adjust filters to see trends over time." />
       ) : (
@@ -147,19 +147,18 @@ export function ReportsMetricEvolution({ trades, loading, error }: ReportsMetric
                 width={56}
               />
               <Tooltip
-                contentStyle={{
-                  background: chartTheme.tooltipBg,
-                  border: `1px solid ${chartTheme.tooltipBorder}`,
-                  color: chartTheme.tooltipText,
-                  fontSize: 11,
-                }}
+                {...chartTooltipStyle}
                 labelFormatter={(v) => fmtDayShort(String(v), locale)}
-                formatter={(value, name) => [
-                  name === "winRate"
-                    ? fmtPct(Number(value ?? 0), locale)
-                    : fmtRight(Number(value ?? 0)),
-                  name === "winRate" ? "Win rate" : rightLabel,
-                ]}
+                formatter={(value, name) => {
+                  const v = Number(value ?? 0);
+                  if (name === "winRate") return [fmtPct(v, locale), "Win rate"];
+                  // Dollar metrics are signed P&L; profit factor is a ratio, so it stays neutral.
+                  const text = fmtRight(v);
+                  return [
+                    rightMetric === "profitFactor" ? text : pnlTooltipValue(v, text),
+                    rightLabel,
+                  ];
+                }}
               />
               <Line
                 yAxisId="left"

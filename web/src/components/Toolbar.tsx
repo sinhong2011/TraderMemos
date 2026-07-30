@@ -10,8 +10,8 @@ export function Toolbar({ children, className = "" }: ToolbarProps) {
     <div
       className={`flex items-center gap-2 px-4 py-2 ${className}`}
       style={{
-        borderBottom: "1px solid var(--color-border)",
-        background: "var(--color-surface-panel)",
+        borderBottom: "1px solid var(--border)",
+        background: "var(--card)",
       }}
     >
       {children}

@@ -1,10 +1,10 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
-import { render, screen } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vite-plus/test";
-import type { Trade } from "../../lib/api/types";
+import type { Trade } from "@/lib/api/types";
 import { TradesView, sortTrades } from "./TradesView";
 
 vi.mock("../../lib/hooks/useMoneyFx", () => ({
@@ -22,8 +22,8 @@ vi.mock("../../components/Toast", () => ({
   useToastManager: () => ({ add: vi.fn<(...args: any[]) => any>() }),
 }));
 
-vi.mock("../../components/SignalSelect", () => ({
-  SignalSelect: ({
+vi.mock("../../components/OptionsSelect", () => ({
+  OptionsSelect: ({
     value,
     onValueChange,
     ariaLabel,
@@ -140,6 +140,37 @@ const base = {
   onNewTrade: vi.fn<(...args: any[]) => any>(),
 };
 
+// Two jsdom accommodations for the Filters popup:
+// - `pointerEventsCheck: 0` — the popup keeps Base UI's `data-starting-style`
+//   (pointer-events: none) until its enter transition ends, and jsdom runs no
+//   animation frames, so that guard never clears. The clicks are still real.
+// - Field rows are submenu triggers, which Base UI opens on hover; clicking one
+//   races its own open/close toggle and drops the next click ~1 run in 3.
+/**
+ * Click a value in an open Filters submenu.
+ *
+ * These four tests carry `retry: 2`. Base UI opens the submenu on hover and
+ * keeps re-rendering while it positions, and under parallel worker load the
+ * click occasionally still lands before the item is live. The assertions are
+ * exact — only the interaction is timing-sensitive.
+ *
+ * Base UI opens the submenu on hover and keeps re-rendering while it positions.
+ * Waiting for the item to exist is not enough — a click issued in the same task
+ * as the mount is dropped — so yield the macrotask queue once the item is there
+ * and let React flush before clicking.
+ */
+async function pickOption(user: ReturnType<typeof filterUser>, name: string | RegExp) {
+  const option = await screen.findByRole("option", { name });
+  await act(async () => {
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  });
+  await user.click(option);
+}
+
+function filterUser() {
+  return userEvent.setup({ pointerEventsCheck: 0 });
+}
+
 describe("TradesView", () => {
   it("renders trade rows and a count", () => {
     render(
@@ -163,8 +194,10 @@ describe("TradesView", () => {
   it("shows onboarding empty state when journal is empty", () => {
     render(<TradesView {...base} trades={[]} />);
     expect(screen.getByText("No trades yet")).toBeInTheDocument();
-    expect(screen.getAllByRole("button", { name: /import csv/i })).toHaveLength(2);
-    expect(screen.getAllByRole("button", { name: /log trade/i })).toHaveLength(2);
+    // Only the empty-state CTAs — the toolbar no longer duplicates them; logging
+    // and importing live in the nav rail / bottom bar.
+    expect(screen.getAllByRole("button", { name: /import csv/i })).toHaveLength(1);
+    expect(screen.getAllByRole("button", { name: /log trade/i })).toHaveLength(1);
   });
 
   it("shows filtered empty state when scope has trades but list is empty", () => {
@@ -187,8 +220,8 @@ describe("TradesView", () => {
     expect(onNewTrade).toHaveBeenCalledOnce();
   });
 
-  it("wires status faceted filter", async () => {
-    const user = userEvent.setup();
+  it("wires status faceted filter", { retry: 2 }, async () => {
+    const user = filterUser();
     const onToggleTradeStatus = vi.fn<(...args: any[]) => any>();
     render(
       <TradesView
@@ -199,13 +232,14 @@ describe("TradesView", () => {
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: "Status" }));
-    await user.click(screen.getByRole("option", { name: /Wins/i }));
+    await user.click(screen.getByRole("button", { name: "Add filter" }));
+    await user.hover(await screen.findByRole("option", { name: "Status" }));
+    await pickOption(user, /Wins/i);
     expect(onToggleTradeStatus).toHaveBeenCalledWith("win");
   });
 
-  it("wires symbol combobox options", async () => {
-    const user = userEvent.setup();
+  it("wires symbol combobox options", { retry: 2 }, async () => {
+    const user = filterUser();
     const onSymbolsChange = vi.fn<(...args: any[]) => any>();
     render(
       <TradesView
@@ -223,13 +257,14 @@ describe("TradesView", () => {
       />,
     );
 
-    await user.click(screen.getByRole("combobox", { name: "Filter symbol" }));
-    await user.click(screen.getByRole("option", { name: /MSFT/i }));
+    await user.click(screen.getByRole("button", { name: "Add filter" }));
+    await user.hover(await screen.findByRole("option", { name: "Symbol" }));
+    await pickOption(user, /MSFT/i);
     expect(onSymbolsChange).toHaveBeenCalledWith(["MSFT"]);
   });
 
-  it("wires tags faceted filter", async () => {
-    const user = userEvent.setup();
+  it("wires tags faceted filter", { retry: 2 }, async () => {
+    const user = filterUser();
     const onTagIdsChange = vi.fn<(...args: any[]) => any>();
     render(
       <TradesView
@@ -256,13 +291,14 @@ describe("TradesView", () => {
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: "Tags" }));
-    await user.click(screen.getByRole("option", { name: /Breakout/i }));
+    await user.click(screen.getByRole("button", { name: "Add filter" }));
+    await user.hover(await screen.findByRole("option", { name: "Tags" }));
+    await pickOption(user, /Breakout/i);
     expect(onTagIdsChange).toHaveBeenCalledWith(["tag1"]);
   });
 
-  it("wires market faceted filter", async () => {
-    const user = userEvent.setup();
+  it("wires market faceted filter", { retry: 2 }, async () => {
+    const user = filterUser();
     const onMarketsChange = vi.fn<(...args: any[]) => any>();
     render(
       <TradesView
@@ -274,8 +310,9 @@ describe("TradesView", () => {
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: "Market" }));
-    await user.click(screen.getByRole("option", { name: /Stock/i }));
+    await user.click(screen.getByRole("button", { name: "Add filter" }));
+    await user.hover(await screen.findByRole("option", { name: "Market" }));
+    await pickOption(user, /Stock/i);
     expect(onMarketsChange).toHaveBeenCalledWith(["stock"]);
   });
 

@@ -8,6 +8,7 @@ DROP TABLE IF EXISTS trade_setups;
 DROP TABLE IF EXISTS market_bars_cache;
 DROP TABLE IF EXISTS checklist_templates;
 DROP TABLE IF EXISTS journal_notes;
+DROP TABLE IF EXISTS annual_goals;
 DROP TABLE IF EXISTS risk_rules;
 DROP TABLE IF EXISTS trade_attachments;
 DROP TABLE IF EXISTS trade_journal;

@@ -1,8 +1,8 @@
 import type { OnChangeFn, SortingState } from "@tanstack/react-table";
 import { ArrowDownUp, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { cn } from "../lib/cn";
-import { SignalSelect } from "./SignalSelect";
+import { cn } from "@/lib/cn";
+import { OptionsSelect } from "./OptionsSelect";
 import { Button, buttonVariants } from "./ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 
@@ -15,11 +15,14 @@ export type SortColumnOption = {
  * tablecn-style Sort control — outline trigger + multi-sort popover.
  */
 export function SortList({
+  iconOnly = false,
   sorting,
   onSortingChange,
   columns,
   className,
 }: {
+  /** Drop the label to the accessible name only — compact toolbars. */
+  iconOnly?: boolean;
   sorting: SortingState;
   onSortingChange: OnChangeFn<SortingState>;
   columns: readonly SortColumnOption[];
@@ -55,28 +58,27 @@ export function SortList({
         className={cn(
           buttonVariants({ variant: "outline", size: "sm" }),
           "h-8 !bg-transparent hover:!bg-transparent aria-expanded:!bg-transparent",
+          iconOnly && "px-0 [&>svg]:mx-0",
           className,
+          iconOnly && "w-8",
         )}
         aria-label="Sort"
       >
         <ArrowDownUp size={14} strokeWidth={1.75} />
-        Sort
+        {iconOnly ? null : "Sort"}
         {sorting.length > 0 ? (
-          <span className="rounded-control bg-bg-hover px-1.5 py-0.5 text-[10px] font-medium tabular-nums text-text-muted">
+          <span className="rounded-md bg-accent px-1.5 py-0.5 text-[10px] font-medium tabular-nums text-muted-foreground">
             {sorting.length}
           </span>
         ) : null}
       </PopoverTrigger>
-      <PopoverContent
-        align="end"
-        className="w-[22rem] max-w-[calc(100vw-2rem)] p-0 shadow-[0_16px_40px_rgba(18,18,24,0.65)]"
-      >
+      <PopoverContent align="end" className="w-[22rem] max-w-[calc(100vw-2rem)] p-0">
         <div className="flex flex-col gap-3 p-3">
           <div>
-            <p className="m-0 text-[12px] font-medium text-text">
+            <p className="m-0 text-[12px] font-medium text-foreground">
               {sorting.length > 0 ? "Sort by" : "No sorting applied"}
             </p>
-            <p className="m-0 mt-0.5 text-[11px] text-text-dim">
+            <p className="m-0 mt-0.5 text-[11px] text-muted-foreground">
               {sorting.length > 0
                 ? "Modify sorting to organize your rows."
                 : "Add sorting to organize your rows."}
@@ -92,7 +94,7 @@ export function SortList({
                 ];
                 return (
                   <li key={sort.id} className="flex items-center gap-1.5">
-                    <SignalSelect
+                    <OptionsSelect
                       value={sort.id}
                       onValueChange={(id) => updateSort(sort.id, { id })}
                       options={columnOptions}
@@ -100,7 +102,7 @@ export function SortList({
                       className="min-w-0 flex-1"
                       triggerClassName="h-8"
                     />
-                    <SignalSelect
+                    <OptionsSelect
                       value={sort.desc ? "desc" : "asc"}
                       onValueChange={(dir) => updateSort(sort.id, { desc: dir === "desc" })}
                       options={[
@@ -117,7 +119,7 @@ export function SortList({
                       size="icon-sm"
                       aria-label={`Remove ${labelById.get(sort.id) ?? sort.id} sort`}
                       onClick={() => removeSort(sort.id)}
-                      className="shrink-0 text-text-dim hover:text-text"
+                      className="shrink-0 text-muted-foreground hover:text-foreground"
                     >
                       <Trash2 size={14} strokeWidth={1.75} />
                     </Button>

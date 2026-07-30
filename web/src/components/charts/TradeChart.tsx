@@ -10,12 +10,12 @@ import {
 } from "lightweight-charts";
 import { ChartCandlestick, Maximize2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import type { Execution } from "../../lib/api/types";
-import type { MarketBar, BarInterval } from "../../lib/api/market";
-import { cn } from "../../lib/cn";
-import { SegmentedControl } from "../SegmentedControl";
-import { Skeleton } from "../Skeleton";
-import { Button } from "../ui/button";
+import type { Execution } from "@/lib/api/types";
+import type { MarketBar, BarInterval } from "@/lib/api/market";
+import { cn } from "@/lib/cn";
+import { SegmentedControl } from "@/components/SegmentedControl";
+import { Skeleton } from "@/components/Skeleton";
+import { Button } from "@/components/ui/button";
 import { barsToCandlestickData } from "./barsToCandlestickData";
 import { utcSecToChartTime } from "./chartTime";
 import { BAR_INTERVALS, tradeChartTheme } from "./tradeChartTheme";
@@ -30,7 +30,9 @@ function fillMarkers(fills: Execution[]): SeriesMarker<Time>[] {
   }));
 }
 
-const sectionLabelClass = "text-[10px] font-semibold uppercase tracking-widest text-signal";
+// Matches the Card header on the trade detail page — the chart is one of its
+// card blocks, not a differently-branded panel.
+const sectionLabelClass = "text-xs font-medium text-muted-foreground";
 
 export interface TradeChartProps {
   symbol: string;
@@ -226,23 +228,23 @@ export function TradeChart({
           )}
         </div>
       </div>
-      <div className="relative overflow-hidden rounded-sharp bg-bg-inset" style={{ height }}>
+      <div className="relative overflow-hidden rounded-md bg-muted" style={{ height }}>
         {loading && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center bg-bg-inset/80">
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-muted/80">
             <Skeleton height={`${height - 24}px`} className="mx-3 w-[calc(100%-1.5rem)]" />
           </div>
         )}
         {!loading && overlayMessage && (
           <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center px-4">
-            <div className="flex flex-col items-center gap-2 rounded-sharp bg-bg-inset px-4 py-8">
+            <div className="flex flex-col items-center gap-2 rounded-md bg-muted px-4 py-8">
               <ChartCandlestick
                 size={18}
                 strokeWidth={1.5}
-                className="text-text-dim"
+                className="text-muted-foreground"
                 role="img"
                 aria-label="No chart data"
               />
-              <p className="m-0 text-center text-xs text-text-muted">{overlayMessage}</p>
+              <p className="m-0 text-center text-xs text-muted-foreground">{overlayMessage}</p>
             </div>
           </div>
         )}

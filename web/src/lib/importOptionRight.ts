@@ -1,4 +1,4 @@
-import type { JournalTradePreview } from "../lib/api/types";
+import type { JournalTradePreview } from "@/lib/api/types";
 
 export type OptionRightOverride = "call" | "put";
 

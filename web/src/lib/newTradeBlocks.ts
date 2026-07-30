@@ -6,6 +6,7 @@ import {
   emptyExecutionRow,
   emptySymbolTrade,
   executionRowSchema,
+  nextExecutionRowKey,
   parseTradeRows,
   type ExecutionRow,
   type SymbolTradeBlock,
@@ -20,7 +21,7 @@ import {
 import { buildExecutionDetails } from "./optionStrategy";
 import { parseAmountToNumber } from "./amountInput";
 import { defaultOcrSymbol, filterOcrExtractBySymbol, groupOcrBySymbol } from "./ocrSymbolGroups";
-import { gradeFromInt } from "./tradeGrades";
+import { gradeFromInt, parseEmotionalStates } from "./tradeGrades";
 
 function toDatetimeLocal(iso: string): string {
   if (!iso.trim()) return new Date().toISOString().slice(0, 19);
@@ -46,6 +47,7 @@ export function rowsFromOcrExtract(
   return [...extract.rows]
     .sort((a, b) => (a.executed_at ?? "").localeCompare(b.executed_at ?? ""))
     .map((r) => ({
+      key: nextExecutionRowKey(),
       side: r.side === "sell" ? "sell" : "buy",
       executed_at: toDatetimeLocal(r.executed_at ?? ""),
       quantity: r.quantity > 0 ? String(r.quantity) : "",
@@ -155,6 +157,7 @@ export function symbolTradeFromDetail(trade: TradeDetail): SymbolTradeBlock {
           const d = optionContractFromDetails(parseExecutionDetails(f.details));
           return {
             id: f.id,
+            key: nextExecutionRowKey(),
             side: f.side === "sell" ? "sell" : "buy",
             executed_at: toDatetimeLocal(f.executed_at),
             quantity: f.quantity > 0 ? String(f.quantity) : "",
@@ -189,7 +192,7 @@ export function symbolTradeFromDetail(trade: TradeDetail): SymbolTradeBlock {
     entryReason: journal.entryReason || journal.legacy,
     exitReason: journal.exitReason,
     reviewNotes: journal.reviewNotes,
-    emotionalState: trade.emotional_state ?? "",
+    emotionalStates: parseEmotionalStates(trade.emotional_state),
     setupGrade: gradeFromInt(trade.confidence),
     executionGrade: gradeFromInt(trade.trade_quality),
     selectedTagIds: tags.filter((t) => t.kind !== "mistake").map((t) => t.id),

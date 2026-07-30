@@ -1,33 +1,36 @@
-import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
+import { CalendarDays } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
-import { CalendarDayHoverCard } from "../../components/CalendarDayHoverCard";
-import { CalendarYearView } from "../../components/CalendarYearView";
-import { Card } from "../../components/Card";
-import { DayTradesDrawer } from "../../components/DayTradesDrawer";
-import { WinLossRecord } from "../../components/WinLossRecord";
-import { EmptyState } from "../../components/EmptyState";
-import { Modal } from "../../components/Modal";
-import { MonthPicker } from "../../components/MonthPicker";
-import { Page } from "../../components/Page";
-import { SegmentedControl } from "../../components/SegmentedControl";
-import { Skeleton } from "../../components/Skeleton";
-import { Button } from "../../components/ui/button";
-import { pnlBgTint, pnlColor, heroPnlClass } from "../../components/theme-tokens";
+import { CalendarDayHoverCard } from "@/components/CalendarDayHoverCard";
+import { CalendarYearView } from "@/components/CalendarYearView";
+import { Card } from "@/components/Card";
+import { DayTradesDrawer } from "@/components/DayTradesDrawer";
+import { WinLossRecord } from "@/components/WinLossRecord";
+import { EmptyState } from "@/components/EmptyState";
+import { Modal } from "@/components/Modal";
+import { MonthPicker } from "@/components/MonthPicker";
+import { Page } from "@/components/Page";
+import { PeriodNav } from "@/components/PeriodNav";
+import { SegmentedControl } from "@/components/SegmentedControl";
+import { CardSkeleton } from "@/components/skeletons/card-skeleton";
+import { Button } from "@/components/ui/button";
+import { pnlBgTint, pnlColor, heroPnlClass } from "@/components/theme-tokens";
 
-import type { Account, Summary, Trade } from "../../lib/api/types";
-import { type DayRecord, monthGrid, tradeDayKey, weekSummaries } from "../../lib/calendar";
-import { cn } from "../../lib/cn";
-import { fmtPct, fmtSignedMoney, fmtSignedMoneyCompact } from "../../lib/format";
-import { useMoneyFx } from "../../lib/hooks/useMoneyFx";
-import { intlLocale } from "../../lib/locale";
-import { useDisplayPrefs, usePrivacyMode } from "../../lib/displayPrefs";
+import type { Account, Summary, Trade } from "@/lib/api/types";
+import { type DayRecord, monthGrid, tradeDayKey, weekSummaries } from "@/lib/calendar";
+import { cn } from "@/lib/cn";
+import { fmtPct, fmtSignedMoney, fmtSignedMoneyCompact } from "@/lib/format";
+import { useMoneyFx } from "@/lib/hooks/useMoneyFx";
+import { intlLocale } from "@/lib/locale";
+import { useDisplayPrefs, usePrivacyMode } from "@/lib/displayPrefs";
 
 const DOW_HEADERS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 /** Weekend day-of-week indexes (Sun=0, Sat=6) — hidden below `md` in favor of taller Mon–Fri cells. */
 const WEEKEND_DOW = new Set([0, 6]);
 // Below `md`: Mon–Fri + week summary. From `md` up: full 7 days + week summary.
+// The mobile week column is kept narrow so the five day cells keep enough width
+// for the compact P&L figure.
 const GRID_COLS_CLASS =
-  "grid-cols-[repeat(5,minmax(0,1fr))_minmax(4.75rem,0.85fr)] md:[grid-template-columns:repeat(7,minmax(0,1fr))_minmax(7.5rem,0.9fr)]";
+  "grid-cols-[repeat(5,minmax(0,1fr))_minmax(3.5rem,0.75fr)] md:[grid-template-columns:repeat(7,minmax(0,1fr))_minmax(7.5rem,0.9fr)]";
 
 const VIEW_OPTS = [
   { value: "month", label: "Month" },
@@ -44,9 +47,9 @@ export interface CalendarViewProps {
   yearDailyPnl?: Record<string, number>;
   yearDailyLoading?: boolean;
   yearDailyError?: boolean;
-  /** Closed-trade counts keyed by "YYYY-MM". */
+  /** Closed-trade counts keyed by"YYYY-MM". */
   yearTradesByMonth?: Record<string, number>;
-  /** Year-scoped win/loss records keyed by "YYYY-MM-DD". */
+  /** Year-scoped win/loss records keyed by"YYYY-MM-DD". */
   yearDayRecords?: Record<string, DayRecord>;
   records: Record<string, DayRecord>;
   /** Month-scoped trades for hover-card execution rows. */
@@ -76,11 +79,6 @@ export interface CalendarViewProps {
   currency: string;
   /** Quick peek drawer */
   onSelectTrade: (t: Trade) => void;
-  /** Navigate to /trades/:id */
-  onOpenFullPage: (t: Trade) => void;
-  onFilterSymbol?: (symbol: string) => void;
-  /** Called after a successful row delete (e.g. close peek drawer). */
-  onDeleted?: (t: Trade) => void;
 }
 
 /** Softer P&L ink for heatmap cells — teal/rose, less neon than --color-profit/loss. */
@@ -140,9 +138,6 @@ export function CalendarView({
   dayTradesError,
   currency,
   onSelectTrade,
-  onOpenFullPage,
-  onFilterSymbol,
-  onDeleted,
 }: CalendarViewProps) {
   usePrivacyMode();
   const tradeDateBasis = useDisplayPrefs((s) => s.tradeDateBasis);
@@ -243,30 +238,29 @@ export function CalendarView({
 
   return (
     <>
-      <Page fill className="min-h-[calc(100dvh-52px)]">
+      <Page fill className="min-h-[calc(100svh-52px)]">
         <Card fill flush className="min-h-0">
-          <div className="relative grid shrink-0 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-x-2 gap-y-2 px-4 pt-3 pb-5">
-            <div className="justify-self-start">
-              <div className="md:hidden">
-                <SegmentedControl
-                  ariaLabel="Calendar mode"
-                  options={[...VIEW_OPTS]}
-                  value={mode}
-                  onChange={(v) => changeMode(v as CalendarMode)}
-                  size="xs"
-                />
-              </div>
-              <div className="hidden md:block">
-                <SegmentedControl
-                  ariaLabel="Calendar mode"
-                  options={[...VIEW_OPTS]}
-                  value={mode}
-                  onChange={(v) => changeMode(v as CalendarMode)}
-                />
-              </div>
-            </div>
+          {/* One row at every width: mode toggle, period nav, period total. Below
+              `sm` the row is space-between and the nav label shortens/truncates;
+              from `sm` up equal side columns center the nav exactly. All three
+              controls share the same height (`h-8` / `sm:h-7`). */}
+          <div
+            className={cn(
+              "grid shrink-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-1 px-3 pt-3 pb-2",
+              "sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:gap-3 sm:px-4",
+            )}
+          >
+            {/* Tighter segment padding below `sm` buys the nav enough room for the
+                full "Jul 2026" label at 375px. */}
+            <SegmentedControl
+              ariaLabel="Calendar mode"
+              options={[...VIEW_OPTS]}
+              value={mode}
+              onChange={(v) => changeMode(v as CalendarMode)}
+              className="h-8 justify-self-start [&_button]:px-2 sm:h-7 sm:[&_button]:px-2.5"
+            />
 
-            <div className="justify-self-center">
+            <div className="flex min-w-0 justify-center">
               {mode === "month" ? (
                 <MonthPicker
                   year={year}
@@ -278,69 +272,49 @@ export function CalendarView({
                   canGoNext={canGoNextMonth}
                 />
               ) : (
-                <div className="flex items-center gap-1 md:gap-2">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon-sm"
-                    onClick={onPrevYear}
-                    aria-label="Previous year"
-                    className="pointer-coarse:size-11"
-                  >
-                    <ChevronLeft size={14} strokeWidth={1.5} />
-                  </Button>
-                  <span className="min-w-[4.5rem] text-center text-[13px] font-semibold tabular-nums tracking-[-0.02em] text-text md:text-[15px]">
+                <PeriodNav
+                  onPrev={onPrevYear}
+                  onNext={onNextYear}
+                  prevLabel="Previous year"
+                  nextLabel="Next year"
+                  canGoNext={canGoNextYear}
+                >
+                  <span className="w-14 text-center text-[13px] font-semibold tabular-nums tracking-[-0.01em] text-foreground sm:w-16">
                     {year}
                   </span>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon-sm"
-                    onClick={onNextYear}
-                    disabled={!canGoNextYear}
-                    aria-label="Next year"
-                    className="pointer-coarse:size-11"
-                  >
-                    <ChevronRight size={14} strokeWidth={1.5} />
-                  </Button>
-                </div>
+                </PeriodNav>
               )}
             </div>
 
-            <div className="justify-self-end">
-              {mode === "month" ? (
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setMonthSummaryOpen(true)}
-                  className={cn(
-                    "shrink-0 font-semibold tabular-nums",
-                    monthPnl >= 0 ? "text-profit" : "text-loss",
-                  )}
-                >
-                  {fmtSignedMoneyCompact(money(monthPnl), displayCurrency, intlLocale())}
-                </Button>
-              ) : (
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setYearSummaryOpen(true)}
-                  className={cn(
-                    "shrink-0 font-semibold tabular-nums",
-                    yearPnlTotal >= 0 ? "text-profit" : "text-loss",
-                  )}
-                >
-                  {fmtSignedMoneyCompact(money(yearPnlTotal), displayCurrency, intlLocale())}
-                </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              title={mode === "month" ? "Month summary" : "Year summary"}
+              onClick={() =>
+                mode === "month" ? setMonthSummaryOpen(true) : setYearSummaryOpen(true)
+              }
+              className={cn(
+                "h-8 justify-self-end px-2 text-[12px] font-semibold tabular-nums",
+                "sm:h-7 sm:px-2.5 sm:text-[13px]",
+                (mode === "month" ? monthPnl : yearPnlTotal) >= 0
+                  ? "bg-profit/10 text-profit hover:bg-profit/16"
+                  : "bg-destructive/10 text-destructive hover:bg-destructive/16",
               )}
-            </div>
+            >
+              {fmtSignedMoneyCompact(
+                money(mode === "month" ? monthPnl : yearPnlTotal),
+                displayCurrency,
+                intlLocale(),
+              )}
+            </Button>
           </div>
 
           <div
             key={`${mode}-${modeAnimKey.current}`}
             className={cn(
               "flex min-h-0 flex-1 flex-col",
-              "animate-[calendar-mode-in_250ms_var(--ease-out)_both]",
+              "animate-[calendar-mode-in_250ms_cubic-bezier(0.16, 1, 0.3, 1)_both]",
               "motion-reduce:animate-none",
             )}
             style={{ viewTransitionName: "calendar-mode-panel" }}
@@ -362,9 +336,12 @@ export function CalendarView({
                 }}
               />
             ) : dailyLoading ? (
-              <Skeleton height="100%" className="m-4 min-h-[320px] flex-1" />
+              <CardSkeleton
+                className="m-4 min-h-[320px] flex-1"
+                mediaClassName="min-h-[280px] flex-1"
+              />
             ) : dailyError ? (
-              <p className="p-4 text-xs text-loss">Failed to load daily P&L.</p>
+              <p className="p-4 text-xs text-destructive">Failed to load daily P&L.</p>
             ) : !hasAnyPnl ? (
               <div className="flex flex-1 items-center justify-center p-3 md:p-4">
                 <EmptyState
@@ -380,14 +357,14 @@ export function CalendarView({
                     <div
                       key={d}
                       className={cn(
-                        "px-1 py-1 text-center text-[11px] font-medium text-text-muted",
+                        "px-1 py-1 text-center text-[11px] font-medium text-muted-foreground",
                         WEEKEND_DOW.has(di) && "hidden md:block",
                       )}
                     >
                       {d}
                     </div>
                   ))}
-                  <div className="px-1 py-1 text-center text-[11px] font-medium text-text-muted">
+                  <div className="px-1 py-1 text-center text-[11px] font-medium text-muted-foreground">
                     Week
                   </div>
                 </div>
@@ -429,16 +406,23 @@ export function CalendarView({
                                 className={cn(
                                   "self-end text-[11px] font-medium tabular-nums",
                                   isToday
-                                    ? "inline-flex size-5 items-center justify-center rounded-full bg-accent font-semibold text-bg"
-                                    : "text-text-muted",
+                                    ? "inline-flex size-5 items-center justify-center rounded-full bg-primary font-semibold text-background"
+                                    : "text-muted-foreground",
                                 )}
                               >
                                 {dayNum}
                               </span>
                               {hasPnl ? (
-                                <span className="flex min-h-0 flex-1 flex-col items-center justify-center gap-0.5">
+                                <span className="flex min-h-0 w-full min-w-0 flex-1 flex-col items-center justify-center gap-0.5">
                                   <span
-                                    className="text-[11px] font-semibold tabular-nums md:text-base lg:text-lg"
+                                    className={cn(
+                                      // Steps up with the cell: five-column mobile cells leave
+                                      // ~43px of content box, barely wider than `-$213.4` at 10px.
+                                      "max-w-full truncate text-[10px] font-semibold tracking-[-0.04em] tabular-nums",
+                                      "@min-[3rem]/day:text-[11px] @min-[3rem]/day:tracking-[-0.02em]",
+                                      "@min-[5rem]/day:text-[13px]",
+                                      "@min-[6.5rem]/day:text-base @min-[8.5rem]/day:text-lg",
+                                    )}
                                     style={{ color: dayColor(cell.pnl!) }}
                                   >
                                     {fmtSignedMoneyCompact(
@@ -447,19 +431,24 @@ export function CalendarView({
                                       intlLocale(),
                                     )}
                                   </span>
+                                  {/* The count is implied by the W/L record below, so it only
+                                      earns a line once the cell can spell it out unclipped. */}
                                   {trades > 0 && (
-                                    <span className="text-[10px] tabular-nums text-text-muted">
+                                    <span className="hidden max-w-full truncate text-[10px] tabular-nums text-muted-foreground @min-[3rem]/day:block">
                                       {trades} {trades === 1 ? "trade" : "trades"}
                                     </span>
                                   )}
                                   {winRate && (
-                                    <span className="text-[10px] tabular-nums text-text-muted">
+                                    <span className="max-w-full truncate text-[10px] tabular-nums text-muted-foreground">
                                       <WinLossRecord
                                         wins={rec!.wins}
                                         losses={rec!.losses}
                                         className="opacity-90"
                                       />
-                                      <span className="text-text-dim"> · {winRate}</span>
+                                      <span className="hidden text-muted-foreground @min-[4.5rem]/day:inline">
+                                        {" "}
+                                        · {winRate}
+                                      </span>
                                     </span>
                                   )}
                                 </span>
@@ -467,15 +456,19 @@ export function CalendarView({
                             </>
                           );
                           const dayClass = cn(
-                            "relative flex h-full min-h-0 w-full flex-col justify-start rounded-control px-1 py-1 text-left transition-colors duration-150 md:px-2 md:py-1.5",
+                            // `sm:h-full` must beat Button size (`sm:h-8`) so day cells fill the row.
+                            "relative flex h-full min-h-0 w-full flex-col justify-start overflow-hidden rounded-md px-0.5 py-1 text-left transition-colors duration-150 sm:h-full md:px-2 md:py-1.5",
+                            // Cell contents key off the cell's own width: the grid drops to five
+                            // columns below `md`, so viewport breakpoints don't track how much
+                            // room a day actually has. Padding stays viewport-driven — sizing the
+                            // container from its own query would feed back into the query.
+                            "@container/day",
                             hasPnl ? "cursor-pointer" : "cursor-default",
-                            isSelected && "ring-1 ring-accent ring-inset",
+                            isSelected && "ring-1 ring-primary ring-inset",
                             WEEKEND_DOW.has(di) && "hidden md:flex",
                           );
                           const dayStyle = {
-                            background: hasPnl
-                              ? pnlBgTint(cell.pnl!)
-                              : "var(--color-surface-raised)",
+                            background: hasPnl ? pnlBgTint(cell.pnl!) : "var(--sidebar)",
                           };
                           const dayAria = hasPnl
                             ? `${cell.date} ${fmtSignedMoney(money(cell.pnl!), displayCurrency, intlLocale())}`
@@ -528,20 +521,24 @@ export function CalendarView({
 
                         <div
                           className={cn(
-                            "relative flex h-full min-h-0 w-full flex-col rounded-control px-1.5 py-1 md:px-2.5 md:py-1.5",
-                            !ws.hasData && "bg-bg-inset",
+                            "relative flex h-full min-h-0 w-full flex-col overflow-hidden rounded-md px-1.5 py-1 md:px-2.5 md:py-1.5",
+                            "@container/week",
+                            !ws.hasData && "bg-muted",
                           )}
                           style={ws.hasData ? { background: pnlBgTint(ws.pnl) } : undefined}
                         >
                           {ws.weekNumber != null && (
-                            <span className="absolute top-1 right-1.5 z-[1] text-[10px] font-medium text-text-muted md:top-1.5 md:right-2.5 md:text-[11px]">
+                            <span className="max-w-full truncate self-end text-[10px] font-medium text-muted-foreground @min-[6rem]/week:text-[11px]">
                               Week {ws.weekNumber}
                             </span>
                           )}
                           {ws.hasData ? (
-                            <span className="flex h-full min-h-0 w-full flex-col items-center justify-center gap-0.5 md:gap-1.5">
+                            <span className="flex min-h-0 w-full min-w-0 flex-1 flex-col items-center justify-center gap-0.5 @min-[6rem]/week:gap-1.5">
                               <span
-                                className="text-[11px] font-semibold tabular-nums md:text-base lg:text-lg"
+                                className={cn(
+                                  "max-w-full truncate text-[11px] font-semibold tracking-[-0.02em] tabular-nums",
+                                  "@min-[6rem]/week:text-base @min-[7.5rem]/week:text-lg",
+                                )}
                                 style={{ color: dayColor(ws.pnl) }}
                               >
                                 {fmtSignedMoneyCompact(
@@ -551,16 +548,16 @@ export function CalendarView({
                                 )}
                               </span>
                               {ws.wins + ws.losses > 0 ? (
-                                <span className="text-[10px] tabular-nums">
+                                <span className="max-w-full truncate text-[10px] tabular-nums">
                                   <WinLossRecord wins={ws.wins} losses={ws.losses} />
                                 </span>
                               ) : null}
-                              <span className="text-[10px] tabular-nums text-text-muted">
+                              <span className="max-w-full truncate text-[10px] tabular-nums text-muted-foreground">
                                 {ws.daysWithTrades} {ws.daysWithTrades === 1 ? "day" : "days"}
                               </span>
                             </span>
                           ) : (
-                            <span className="flex h-full items-center justify-center text-xs text-text-dim">
+                            <span className="flex h-full items-center justify-center text-xs text-muted-foreground">
                               —
                             </span>
                           )}
@@ -584,9 +581,6 @@ export function CalendarView({
         currency={displayCurrency}
         fxRate={fxRate}
         onSelectTrade={onSelectTrade}
-        onOpenFullPage={onOpenFullPage}
-        onFilterSymbol={onFilterSymbol}
-        onDeleted={onDeleted}
       />
 
       <Modal
@@ -668,20 +662,13 @@ function PeriodSummaryBody({
   return (
     <div className="flex flex-col gap-5">
       <div
-        className="relative overflow-hidden rounded-control px-4 py-7 text-center"
+        className="relative overflow-hidden rounded-md px-4 py-7 text-center"
         style={{ background: pnlBgTint(pnl, { minOpacity: 0.07, maxOpacity: 0.2, scale: 400 }) }}
       >
-        <p className="m-0 text-[11px] font-medium uppercase tracking-[0.12em] text-text-muted">
+        <p className="m-0 text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
           Net P&L
         </p>
-        <p
-          className={cn(
-            "m-0 mt-2.5",
-            heroPnlClass(pnl),
-            pnl > 0 && "hero-glow-profit",
-            pnl < 0 && "hero-glow-loss",
-          )}
-        >
+        <p className={cn("m-0 mt-2.5", heroPnlClass(pnl), pnl > 0 && "", pnl < 0 && "")}>
           {fmtSignedMoneyCompact(pnl, currency, intlLocale())}
         </p>
         {pct != null ? (
@@ -703,11 +690,11 @@ function PeriodSummaryBody({
 
 function PeriodSummaryStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex min-w-0 flex-col gap-1.5 rounded-control bg-bg px-3 py-3">
-      <p className="m-0 truncate text-[10px] font-medium uppercase tracking-[0.1em] text-text-muted">
+    <div className="flex min-w-0 flex-col gap-1.5 rounded-md bg-background px-3 py-3">
+      <p className="m-0 truncate text-[10px] font-medium uppercase tracking-[0.1em] text-muted-foreground">
         {label}
       </p>
-      <p className="m-0 text-[18px] font-semibold tracking-[-0.02em] tabular-nums text-text">
+      <p className="m-0 text-[18px] font-semibold tracking-[-0.02em] tabular-nums text-foreground">
         {value}
       </p>
     </div>

@@ -1,4 +1,4 @@
-import type { TradeDetail } from "../lib/api/types";
+import type { TradeDetail } from "@/lib/api/types";
 import { parseJournalNotes } from "./journalNotes";
 import { computeRiskReward } from "./riskReward";
 import { gradeFromInt, intFromGrade, type TradeGrade } from "./tradeGrades";

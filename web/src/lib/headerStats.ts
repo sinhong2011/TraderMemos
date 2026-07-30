@@ -2,6 +2,8 @@ import type { Account, CashTransaction, Summary, Trade } from "./api/types";
 
 export interface HeaderStats {
   netPnl: number;
+  /** Net P&L as a ratio of deposited capital; `null` when nothing is funded. */
+  netPnlPct: number | null;
   cash: number;
   active: number;
 }
@@ -30,5 +32,8 @@ export function computeHeaderStats(opts: {
       const qty = t.qty_remaining > 0 ? t.qty_remaining : t.qty_opened;
       return s + qty * t.avg_entry_price;
     }, 0);
-  return { netPnl, cash: cashFlow + netPnl, active };
+  // Return is measured against the capital put in (net cash flow), so it stays
+  // stable as P&L moves the balance around.
+  const netPnlPct = cashFlow > 0 ? netPnl / cashFlow : null;
+  return { netPnl, netPnlPct, cash: cashFlow + netPnl, active };
 }

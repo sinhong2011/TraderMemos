@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vite-plus/test";
-import type { JournalTradePreview } from "../lib/api/types";
+import type { JournalTradePreview } from "@/lib/api/types";
 import {
   effectiveOptionRight,
   formatMarketLabel,

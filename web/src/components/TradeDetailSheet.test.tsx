@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
-import type { TradeDetail } from "../lib/api/types";
+import type { TradeDetail } from "@/lib/api/types";
 import { TradeDetailSheet } from "./TradeDetailSheet";
 
 const navigate = vi.fn<(...args: any[]) => any>();
@@ -26,7 +26,7 @@ vi.mock("./charts/TradeChartSection", () => ({
   TradeChartSection: () => <div data-testid="trade-chart-stub" />,
 }));
 
-import { useTradeDetail } from "../lib/hooks/useTradeDetail";
+import { useTradeDetail } from "@/lib/hooks/useTradeDetail";
 
 const mockedDetail = vi.mocked(useTradeDetail);
 
@@ -127,8 +127,8 @@ describe("TradeDetailSheet", () => {
     wrap(<TradeDetailSheet tradeId="t1" onClose={vi.fn<(...args: any[]) => any>()} />);
 
     expect(screen.getByText("WIN")).toBeInTheDocument();
-    // Identity moved into the drawer title: "CL8698 · STK · LONG"
-    expect(screen.getByText(/· STK · LONG/)).toBeInTheDocument();
+    // Identity is the drawer title: symbol on top, contract meta beneath it.
+    expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent(/CL8698\s*STK\s*·\s*LONG/);
     expect(screen.getByText("+$2.50")).toBeInTheDocument();
     // Status line shows opened → closed dates (Jul 13 or 14 depending on TZ)
     expect(screen.getByText(/Jul 1[34].*→.*Jul 1[34]/)).toBeInTheDocument();

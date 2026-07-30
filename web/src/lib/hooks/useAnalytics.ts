@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { analyticsApi } from "../api/analytics";
-import type { Filters } from "../api/types";
+import { analyticsApi } from "@/lib/api/analytics";
+import type { Filters } from "@/lib/api/types";
 
 export function useSummary(filters: Filters) {
   return useQuery({

@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vite-plus/test";
 import { journalTradePreviewColumns } from "./importPreviewColumns";
-import type { JournalTradePreview } from "../lib/api/types";
+import type { JournalTradePreview } from "@/lib/api/types";
 
 const sampleTrade: JournalTradePreview = {
   row: 2,

@@ -1,8 +1,9 @@
 import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
-import { cn } from "../lib/cn";
-import { intlLocale } from "../lib/locale";
-import { SignalPopover } from "./SignalPopover";
+import { cn } from "@/lib/cn";
+import { intlLocale } from "@/lib/locale";
+import { ControlledPopover } from "./ControlledPopover";
+import { PeriodNav } from "./PeriodNav";
 import { Button } from "./ui/button";
 import { NativeSelect, NativeSelectOption } from "./ui/native-select";
 
@@ -22,15 +23,20 @@ function QuickJump({
       variant="ghost"
       onClick={onClick}
       className={cn(
-        "relative h-auto w-full justify-start rounded-control py-2 pr-2 pl-2.5 text-left text-[11px]",
-        "focus-visible:ring-2 focus-visible:ring-border-strong focus-visible:outline-none",
-        active ? "bg-bg-hover text-text" : "text-text-muted",
+        "relative h-auto justify-start rounded-md text-left text-[11px]",
+        "focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
+        "max-sm:shrink-0 max-sm:px-2.5 max-sm:py-2 sm:w-full sm:py-2 sm:pr-2 sm:pl-2.5",
+        active ? "bg-accent text-foreground" : "text-muted-foreground",
       )}
     >
       {active && (
         <span
           aria-hidden
-          className="absolute top-1/2 left-0 h-4 w-0.5 -translate-y-1/2 rounded-full bg-accent"
+          className={cn(
+            "absolute rounded-full bg-primary",
+            "max-sm:inset-x-2 max-sm:bottom-0 max-sm:h-0.5",
+            "sm:top-1/2 sm:left-0 sm:h-4 sm:w-0.5 sm:-translate-y-1/2",
+          )}
         />
       )}
       {children}
@@ -38,9 +44,9 @@ function QuickJump({
   );
 }
 
-function formatMonthYear(date: Date): string {
+function formatMonthYear(date: Date, month: "long" | "short" = "long"): string {
   return date.toLocaleDateString(intlLocale(), {
-    month: "long",
+    month,
     year: "numeric",
   });
 }
@@ -78,6 +84,9 @@ export function MonthPicker({
   }, [open, year]);
 
   const monthLabel = formatMonthYear(new Date(year, month - 1, 1));
+  // Below `sm` the toolbar has to fit mode toggle + nav + P&L on one row, so the
+  // visible label drops to "Jul 2026"; the accessible name stays long.
+  const shortMonthLabel = formatMonthYear(new Date(year, month - 1, 1), "short");
   const shortMonths = monthLabels("short");
   const longMonths = monthLabels("long");
 
@@ -103,40 +112,36 @@ export function MonthPicker({
   }
 
   return (
-    <div className="flex items-center gap-1 md:gap-2">
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon-sm"
-        onClick={onPrevMonth}
-        aria-label="Previous month"
-        className="pointer-coarse:size-11"
-      >
-        <ChevronLeft size={14} strokeWidth={1.5} />
-      </Button>
-
-      <SignalPopover
+    <PeriodNav
+      onPrev={onPrevMonth}
+      onNext={onNextMonth}
+      prevLabel="Previous month"
+      nextLabel="Next month"
+      canGoNext={canGoNext}
+    >
+      <ControlledPopover
         open={open}
         onOpenChange={setOpen}
         align="start"
         triggerAriaLabel={`${monthLabel}, choose month`}
         className="overflow-hidden p-0"
         triggerClassName={cn(
-          "h-8 min-w-[6.5rem] rounded-control border-none bg-bg-input px-2.5 md:h-7 md:min-w-[9.5rem]",
-          "max-md:pointer-coarse:h-8 md:pointer-coarse:h-11",
-          "text-[11px] font-semibold tabular-nums text-text md:text-[13px]",
-          "transition-[background-color] duration-150",
-          "hover:bg-bg-input-hover",
-          open && "bg-bg-input-hover",
+          "h-full min-w-0 flex-1 justify-center gap-1 rounded-md px-1.5 sm:gap-1.5 sm:px-2.5",
+          "text-[12px] font-semibold tabular-nums text-foreground sm:text-[13px]",
+          "transition-colors duration-150 hover:bg-accent",
+          open && "bg-accent",
         )}
         trigger={
           <>
-            <span className="min-w-0 flex-1 truncate text-center">{monthLabel}</span>
+            <span className="min-w-0 truncate sm:hidden">{shortMonthLabel}</span>
+            <span className="hidden min-w-0 truncate sm:inline sm:min-w-[7.5rem]">
+              {monthLabel}
+            </span>
             <ChevronDown
               size={12}
               strokeWidth={1.75}
               className={cn(
-                "shrink-0 text-text-dim transition-transform duration-150",
+                "shrink-0 text-muted-foreground transition-transform duration-150",
                 open && "rotate-180",
               )}
               aria-hidden
@@ -144,12 +149,30 @@ export function MonthPicker({
           </>
         }
       >
-        <div className="flex w-[320px] max-w-[calc(100vw-2rem)]" aria-label="Choose month">
-          <aside className="flex w-[116px] shrink-0 flex-col bg-bg">
-            <p className="m-0 px-3 pt-3 pb-2 text-[11px] font-medium uppercase tracking-widest text-text-muted">
+        <div
+          className={cn(
+            // Matches DateRangePanel: nested surfaces stay on the --radius
+            // scale one tier inside the popover's rounded-lg edge.
+            "flex max-h-[min(100dvh-2rem,100%)] w-[min(100vw-2rem,320px)] flex-col overflow-y-auto overscroll-contain rounded-md",
+            "pb-[env(safe-area-inset-bottom)] sm:w-[320px] sm:flex-row sm:pb-0",
+          )}
+          aria-label="Choose month"
+        >
+          {/* Stacked below the grid on a phone — the month you came to pick is
+              what should meet the thumb first. Ordered rather than moved in the
+              DOM so it stays the left rail, and first in tab order, from `sm` up. */}
+          <aside className="order-last flex shrink-0 flex-col rounded-md bg-background sm:order-first sm:w-[116px]">
+            <p className="m-0 px-3 pt-3 pb-2 text-[11px] font-medium uppercase tracking-widest text-muted-foreground max-sm:pt-1">
               Quick jump
             </p>
-            <div className="flex flex-col gap-0.5 px-2 pb-3">
+            <div
+              className={cn(
+                "flex gap-1 px-2 pb-3",
+                "max-sm:flex-row max-sm:overflow-x-auto max-sm:overscroll-x-contain max-sm:pb-2",
+                "[scrollbar-width:none] max-sm:[&::-webkit-scrollbar]:hidden",
+                "sm:flex-col sm:gap-0.5",
+              )}
+            >
               <QuickJump
                 active={isThisMonth}
                 onClick={() => {
@@ -165,7 +188,7 @@ export function MonthPicker({
             </div>
           </aside>
 
-          <div className="flex min-w-0 flex-1 flex-col bg-bg-panel px-3 pt-3 pb-3">
+          <div className="flex min-w-0 flex-1 flex-col bg-card px-3 pt-3 pb-3 max-sm:pb-1">
             <div className="mb-2 flex items-center justify-between">
               <Button
                 type="button"
@@ -219,7 +242,7 @@ export function MonthPicker({
                     aria-pressed={isActive}
                     className={cn(
                       "h-9 capitalize",
-                      !isActive && isCurrent && "text-signal ring-1 ring-signal/40 ring-inset",
+                      !isActive && isCurrent && "text-chart-3 ring-1 ring-warning/40 ring-inset",
                       isFuture && "opacity-30",
                     )}
                   >
@@ -230,19 +253,7 @@ export function MonthPicker({
             </div>
           </div>
         </div>
-      </SignalPopover>
-
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon-sm"
-        onClick={onNextMonth}
-        disabled={!canGoNext}
-        aria-label="Next month"
-        className="pointer-coarse:size-11"
-      >
-        <ChevronRight size={14} strokeWidth={1.5} />
-      </Button>
-    </div>
+      </ControlledPopover>
+    </PeriodNav>
   );
 }

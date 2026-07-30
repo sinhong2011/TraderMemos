@@ -1,6 +1,6 @@
 import { Drawer as DrawerPrimitive } from "@base-ui/react/drawer";
 import { createContext, useContext, useMemo, type ComponentProps } from "react";
-import { cn } from "../lib/cn";
+import { cn } from "@/lib/cn";
 
 type DrawerContextProps = {
   hasSnapPoints: boolean;
@@ -25,7 +25,7 @@ function Drawer({
   modal = true,
   showSwipeHandle = false,
   snapPoints,
-  // SignalDrawer: right slide-over by default (DESIGN.md), not shadcn's bottom sheet.
+  // Drawer: right slide-over by default (DESIGN.md), not shadcn's bottom sheet.
   swipeDirection = "right",
   ...props
 }: DrawerPrimitive.Root.Props & {
@@ -67,7 +67,7 @@ function DrawerOverlay({ className, ...props }: DrawerPrimitive.Backdrop.Props) 
     <DrawerPrimitive.Backdrop
       data-slot="drawer-overlay"
       className={cn(
-        "fixed inset-0 z-40 min-h-dvh bg-overlay-scrim-soft opacity-[max(var(--drawer-overlay-min-opacity,0),calc(1-var(--drawer-swipe-progress)))] transition-opacity duration-250 ease-out select-none data-ending-style:pointer-events-none data-ending-style:opacity-0 data-ending-style:duration-[calc(var(--drawer-swipe-strength)*250ms)] data-snap-points:[--drawer-overlay-min-opacity:0.5] data-starting-style:opacity-0 data-swiping:duration-0 supports-backdrop-filter:backdrop-blur-[2px] supports-[-webkit-touch-callout:none]:absolute motion-reduce:transition-none",
+        "fixed inset-0 z-40 min-h-dvh bg-black/40 opacity-[max(var(--drawer-overlay-min-opacity,0),calc(1-var(--drawer-swipe-progress)))] transition-opacity duration-250 ease-out select-none data-ending-style:pointer-events-none data-ending-style:opacity-0 data-ending-style:duration-[calc(var(--drawer-swipe-strength)*250ms)] data-snap-points:[--drawer-overlay-min-opacity:0.5] data-starting-style:opacity-0 data-swiping:duration-0 supports-backdrop-filter:backdrop-blur-[2px] supports-[-webkit-touch-callout:none]:absolute motion-reduce:transition-none",
         className,
       )}
       {...props}
@@ -81,7 +81,7 @@ function DrawerSwipeHandle({ className, ...props }: ComponentProps<"div">) {
       data-slot="drawer-swipe-handle"
       aria-hidden="true"
       className={cn(
-        "relative z-10 flex shrink-0 cursor-grab transition-opacity duration-150 group-data-nested-drawer-open/drawer-popup:opacity-0 group-data-nested-drawer-swiping/drawer-popup:opacity-100 group-data-[swipe-axis=x]/drawer-popup:h-full group-data-[swipe-axis=x]/drawer-popup:w-3 group-data-[swipe-axis=x]/drawer-popup:items-center group-data-[swipe-axis=y]/drawer-popup:h-3 group-data-[swipe-axis=y]/drawer-popup:w-full group-data-[swipe-axis=y]/drawer-popup:justify-center group-data-[swipe-direction=down]/drawer-popup:items-end group-data-[swipe-direction=left]/drawer-popup:order-last group-data-[swipe-direction=left]/drawer-popup:justify-start group-data-[swipe-direction=right]/drawer-popup:justify-end group-data-[swipe-direction=up]/drawer-popup:order-last group-data-[swipe-direction=up]/drawer-popup:items-start after:block after:shrink-0 after:rounded-full after:bg-border-strong group-data-[swipe-axis=x]/drawer-popup:after:h-24 group-data-[swipe-axis=x]/drawer-popup:after:w-1 group-data-[swipe-axis=y]/drawer-popup:after:h-1 group-data-[swipe-axis=y]/drawer-popup:after:w-24 active:cursor-grabbing",
+        "relative z-10 flex shrink-0 cursor-grab transition-opacity duration-150 group-data-nested-drawer-open/drawer-popup:opacity-0 group-data-nested-drawer-swiping/drawer-popup:opacity-100 group-data-[swipe-axis=x]/drawer-popup:h-full group-data-[swipe-axis=x]/drawer-popup:w-3 group-data-[swipe-axis=x]/drawer-popup:items-center group-data-[swipe-axis=y]/drawer-popup:h-3 group-data-[swipe-axis=y]/drawer-popup:w-full group-data-[swipe-axis=y]/drawer-popup:justify-center group-data-[swipe-direction=down]/drawer-popup:items-end group-data-[swipe-direction=left]/drawer-popup:order-last group-data-[swipe-direction=left]/drawer-popup:justify-start group-data-[swipe-direction=right]/drawer-popup:justify-end group-data-[swipe-direction=up]/drawer-popup:order-last group-data-[swipe-direction=up]/drawer-popup:items-start after:block after:shrink-0 after:rounded-full after:bg-border group-data-[swipe-axis=x]/drawer-popup:after:h-24 group-data-[swipe-axis=x]/drawer-popup:after:w-1 group-data-[swipe-axis=y]/drawer-popup:after:h-1 group-data-[swipe-axis=y]/drawer-popup:after:w-24 active:cursor-grabbing",
         className,
       )}
       {...props}
@@ -107,7 +107,7 @@ function DrawerContent({ className, children, ...props }: DrawerPrimitive.Popup.
           data-snap-points={hasSnapPoints ? "" : undefined}
           className={cn(
             // Base — floats inset from the window edges with rounded corners on all sides.
-            "group/drawer-popup pointer-events-auto fixed z-50 m-(--drawer-inset,0px) flex h-(--drawer-content-height) max-h-(--drawer-content-max-height,none) min-h-0 w-(--drawer-content-width,auto) transform-[translate3d(var(--translate-x,0px),var(--translate-y,0px),0)_scale(var(--stack-scale))] flex-col rounded-overlay border border-border-strong bg-bg-panel text-sm text-text shadow-[0_12px_32px_rgba(18,18,24,0.55)] transition-[transform,height,opacity,filter] duration-250 ease-out will-change-transform outline-none select-none [interpolate-size:allow-keywords] [--drawer-inset:8px]",
+            "group/drawer-popup pointer-events-auto fixed z-50 m-(--drawer-inset,0px) flex h-(--drawer-content-height) max-h-(--drawer-content-max-height,none) min-h-0 w-(--drawer-content-width,auto) transform-[translate3d(var(--translate-x,0px),var(--translate-y,0px),0)_scale(var(--stack-scale))] flex-col rounded-lg border border-border bg-card text-sm text-foreground shadow-md transition-[transform,height,opacity,filter] duration-250 ease-out will-change-transform outline-none select-none [interpolate-size:allow-keywords] [--drawer-inset:8px]",
             // Nested.
             "data-nested-drawer-open:overflow-hidden data-nested-drawer-open:brightness-95",
             // Sizing.
@@ -149,7 +149,10 @@ function DrawerHeader({ className, ...props }: ComponentProps<"div">) {
   return (
     <div
       data-slot="drawer-header"
-      className={cn("flex shrink-0 items-center justify-between gap-3 px-5 pt-4 pb-3", className)}
+      className={cn(
+        "flex shrink-0 items-center justify-between gap-3 px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-3 sm:px-5",
+        className,
+      )}
       {...props}
     />
   );
@@ -160,7 +163,7 @@ function DrawerBody({ className, ...props }: ComponentProps<"div">) {
   return (
     <div
       data-slot="drawer-body"
-      className={cn("flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-5", className)}
+      className={cn("flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4 sm:p-5", className)}
       {...props}
     />
   );
@@ -171,7 +174,7 @@ function DrawerFooter({ className, ...props }: ComponentProps<"div">) {
     <div
       data-slot="drawer-footer"
       className={cn(
-        "mt-auto flex shrink-0 items-center justify-end gap-2 bg-bg-panel px-5 pt-1 pb-4",
+        "mt-auto flex shrink-0 items-center justify-center gap-2 bg-card px-4 pt-1 pb-[max(1rem,env(safe-area-inset-bottom))] sm:px-5",
         className,
       )}
       {...props}
@@ -183,7 +186,7 @@ function DrawerTitle({ className, ...props }: DrawerPrimitive.Title.Props) {
   return (
     <DrawerPrimitive.Title
       data-slot="drawer-title"
-      className={cn("m-0 text-[15px] font-semibold text-text", className)}
+      className={cn("m-0 text-[15px] font-semibold text-foreground", className)}
       {...props}
     />
   );
@@ -193,7 +196,7 @@ function DrawerDescription({ className, ...props }: DrawerPrimitive.Description.
   return (
     <DrawerPrimitive.Description
       data-slot="drawer-description"
-      className={cn("text-xs text-balance text-text-muted", className)}
+      className={cn("text-xs text-balance text-muted-foreground", className)}
       {...props}
     />
   );

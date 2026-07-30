@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vite-plus/test";
-import type { RSummary } from "../lib/api/types";
+import type { RSummary } from "@/lib/api/types";
 import { ReportsRMultiplePerformance } from "./ReportsRMultiplePerformance";
 
 function rSummary(over: Partial<RSummary>): RSummary {

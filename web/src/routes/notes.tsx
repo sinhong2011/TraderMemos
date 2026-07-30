@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { NotesView } from "../app/screens/NotesView";
-import { useToastManager } from "../components/Toast";
-import { useDeleteNote, useNotes } from "../lib/hooks/useNotes";
+import { NotesView } from "@/app/screens/NotesView";
+import { useToastManager } from "@/components/Toast";
+import { useDeleteNote, useNotes } from "@/lib/hooks/useNotes";
 
 export const Route = createFileRoute("/notes")({
   component: NotesPage,

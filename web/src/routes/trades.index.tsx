@@ -1,11 +1,11 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { TradesView } from "../app/screens/TradesView";
-import { TradeDetailSheet } from "../components/TradeDetailSheet";
-import { accountBaseCurrency } from "../lib/displayPrefs";
-import { useFilterParams, useFilters } from "../lib/filters";
-import { useAccounts } from "../lib/hooks/useAccounts";
-import { useTrades } from "../lib/hooks/useTrades";
+import { TradesView } from "@/app/screens/TradesView";
+import { TradeDetailSheet } from "@/components/TradeDetailSheet";
+import { accountBaseCurrency } from "@/lib/displayPrefs";
+import { useFilterParams, useFilters } from "@/lib/filters";
+import { useAccounts } from "@/lib/hooks/useAccounts";
+import { useTrades } from "@/lib/hooks/useTrades";
 import {
   buildMarketFacetOptions,
   buildSymbolFacetOptions,
@@ -13,8 +13,8 @@ import {
   filterTradesByMarkets,
   filterTradesByStatus,
   filterTradesByTags,
-} from "../lib/tradeFilters";
-import { useUI } from "../lib/ui";
+} from "@/lib/tradeFilters";
+import { useUI } from "@/lib/ui";
 
 export const Route = createFileRoute("/trades/")({
   component: TradesPage,

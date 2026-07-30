@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vite-plus/test";
-import type { Trade } from "../lib/api/types";
+import type { Trade } from "@/lib/api/types";
 import { TradeRowMenu } from "./TradeRowMenu";
 
 const mutateAsync = vi.fn<(id: string) => Promise<void>>();
