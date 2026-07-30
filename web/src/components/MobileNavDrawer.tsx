@@ -1,15 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import {
-  Check,
-  LogOut,
-  Plus,
-  Settings,
-  SlidersHorizontal,
-  StickyNote,
-  Wallet,
-  X,
-  Zap,
-} from "lucide-react";
+import { Check, LogOut, Settings, SlidersHorizontal, Wallet, X } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { Drawer, DrawerClose, DrawerContent, DrawerHeader, DrawerTitle } from "./Drawer";
@@ -25,7 +15,7 @@ import { useFilters } from "@/lib/filters";
 import { useAccounts } from "@/lib/hooks/useAccounts";
 import { useLocale } from "@/i18n";
 import { navLabel } from "@/lib/locale";
-import { isRouteActive, SECONDARY_NAV } from "@/lib/navItems";
+import { CREATE_ACTIONS, isRouteActive, PRIMARY_NAV, SECONDARY_NAV } from "@/lib/navItems";
 import { useUI } from "@/lib/ui";
 
 function NavRow({
@@ -213,6 +203,16 @@ export function MobileNavDrawer() {
           <div className="my-2 h-px bg-border" aria-hidden />
 
           <SectionLabel>More</SectionLabel>
+          {PRIMARY_NAV.filter((item) => item.to === "/reports").map((item) => (
+            <NavRow
+              key={item.to}
+              to={item.to}
+              label={label(item.labelKey)}
+              icon={item.icon}
+              active={isRouteActive(pathname, item.to)}
+              onNavigate={closeMobileNav}
+            />
+          ))}
           {SECONDARY_NAV.map((item) => (
             <NavRow
               key={item.to}
@@ -234,21 +234,14 @@ export function MobileNavDrawer() {
           <div className="my-2 h-px bg-border" aria-hidden />
 
           <SectionLabel>Quick add</SectionLabel>
-          <ActionRow
-            label={label("newTrade")}
-            icon={Plus}
-            onClick={() => runAction(() => openModal("new-trade"))}
-          />
-          <ActionRow
-            label={label("newSetup")}
-            icon={Zap}
-            onClick={() => runAction(() => openModal("new-setup"))}
-          />
-          <ActionRow
-            label={label("newNote")}
-            icon={StickyNote}
-            onClick={() => runAction(() => openModal("new-note"))}
-          />
+          {CREATE_ACTIONS.map((action) => (
+            <ActionRow
+              key={action.modal}
+              label={label(action.labelKey)}
+              icon={action.icon}
+              onClick={() => runAction(() => openModal(action.modal))}
+            />
+          ))}
 
           <div className="my-2 h-px bg-border" aria-hidden />
 

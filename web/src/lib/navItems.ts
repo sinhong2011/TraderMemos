@@ -7,15 +7,36 @@ import {
   PieChart,
   StickyNote,
   Upload,
+  Zap,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { navLabel } from "./locale";
+import type { ModalKind } from "./ui";
 
 export type NavItem = {
   to: string;
   labelKey: Parameters<typeof navLabel>[1];
   icon: LucideIcon;
 };
+
+export type CreateAction = {
+  modal: ModalKind;
+  labelKey: Parameters<typeof navLabel>[1];
+  icon: LucideIcon;
+};
+
+/**
+ * Quick-add targets, shared by the desktop rail, the mobile nav drawer, and the
+ * bottom bar's centre button — one list so the three can't drift apart.
+ *
+ * Icons name the *object* (a trade shares the Trades glyph); the label carries
+ * the verb. A bare `Plus` here would only say "add something".
+ */
+export const CREATE_ACTIONS: CreateAction[] = [
+  { modal: "new-trade", labelKey: "newTrade", icon: List },
+  { modal: "new-setup", labelKey: "newSetup", icon: Zap },
+  { modal: "new-note", labelKey: "newNote", icon: StickyNote },
+];
 
 /** Shown in the desktop/tablet rail top group and the mobile bottom tab bar. */
 export const PRIMARY_NAV: NavItem[] = [

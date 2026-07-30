@@ -1,31 +1,35 @@
-import { Wrench } from "lucide-react";
+import { Command, Wrench } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/cn";
 import { APP_HOTKEYS } from "@/lib/hotkeys";
-import { TOOL_ITEMS } from "@/lib/tools";
+import { TOOL_GROUPS, type ToolItem, toolsInGroup } from "@/lib/tools";
 import { useToolRunner } from "@/lib/useToolRunner";
 import { useUI } from "@/lib/ui";
 import { filterChipClass } from "./field-styles";
+import { RailTooltip } from "./RailTooltip";
 import { Button } from "./ui/button";
 import { Kbd } from "./ui/kbd";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 
-function RailTooltip({ label }: { label: string }) {
+/** Tool row — icon, full name. The icon picks up brand colour as the row lights. */
+function ToolRow({ tool, onRun }: { tool: ToolItem; onRun: (tool: ToolItem) => void }) {
+  const Icon = tool.icon;
   return (
-    <span
-      className={cn(
-        "pointer-events-none absolute top-1/2 left-[calc(100%+8px)] z-50",
-        "-translate-y-1/2 translate-x-1",
-        "rounded-md border border-border bg-popover px-2 py-1",
-        "text-[11px] tracking-wide whitespace-nowrap text-popover-foreground",
-        "opacity-0 transition-[opacity,transform] duration-150 ease-out",
-        "group-hover:translate-x-0 group-hover:opacity-100",
-        "group-focus-visible:translate-x-0 group-focus-visible:opacity-100",
-        "motion-reduce:transition-none motion-reduce:translate-x-0",
-      )}
+    <Button
+      type="button"
+      variant="ghost"
+      onClick={() => onRun(tool)}
+      className="group/row h-8 w-full justify-start gap-2.5 rounded-md px-2 text-[13px] font-normal"
     >
-      {label}
-    </span>
+      <Icon
+        // `opacity-100` overrides the button's default icon dimming so the muted
+        // token alone carries the weight — dimmed *and* muted read as disabled.
+        className="size-4 shrink-0 text-muted-foreground opacity-100 transition-colors duration-150 ease-out group-hover/row:text-primary motion-reduce:transition-none"
+        strokeWidth={1.75}
+        aria-hidden
+      />
+      <span className="min-w-0 flex-1 truncate text-left">{tool.label}</span>
+    </Button>
   );
 }
 
@@ -67,35 +71,42 @@ export function ToolsPopover({ variant = "rail" }: { variant?: "rail" | "header"
         side={isHeader ? "bottom" : "right"}
         align="end"
         sideOffset={isHeader ? 6 : 8}
-        className="w-[248px] p-3"
+        className={cn(
+          "w-[236px]",
+          // The viewport owns the inner padding (p-4 by default) and sets its
+          // own inline-padding var, so it has to be overridden on that element
+          // or the rows float in a 16px moat.
+          "[&_[data-slot=popover-viewport]]:p-1.5",
+        )}
       >
-        <p className="m-0 px-1 text-[10px] font-medium uppercase tracking-widest text-chart-3">
+        <p className="m-0 flex items-center gap-1.5 px-2.5 pt-1 pb-1.5 text-[10px] font-semibold tracking-widest text-chart-3 uppercase">
+          <Wrench size={11} strokeWidth={2} aria-hidden />
           Tools
         </p>
-        <div className="mt-2 grid grid-cols-3 gap-1">
-          {TOOL_ITEMS.map((tool) => {
-            const Icon = tool.icon;
-            return (
-              <Button
-                key={tool.id}
-                type="button"
-                variant="ghost"
-                title={tool.label}
-                onClick={() => {
-                  setOpen(false);
-                  runTool(tool.id);
-                }}
-                className="h-auto flex-col gap-1 px-1 py-2 text-muted-foreground"
-              >
-                <Icon size={18} strokeWidth={1.75} aria-hidden />
-                <span className="max-w-full truncate text-[9px] leading-tight">
-                  {tool.label.split(" ")[0]}
-                </span>
-              </Button>
-            );
-          })}
-        </div>
-        <div className="mt-2 border-t border-border pt-2">
+
+        {TOOL_GROUPS.map((group) => (
+          <section key={group.id} className="pb-0.5 last:pb-0">
+            {/* Sentence case, muted: the one uppercase line above stays the popover's title. */}
+            <p className="m-0 px-2 pt-1 pb-0.5 text-[11px] font-medium text-muted-foreground">
+              {group.label}
+            </p>
+            <div className="flex flex-col gap-0.5">
+              {toolsInGroup(group.id).map((tool) => (
+                <ToolRow
+                  key={tool.id}
+                  tool={tool}
+                  onRun={(item) => {
+                    setOpen(false);
+                    runTool(item.id);
+                  }}
+                />
+              ))}
+            </div>
+          </section>
+        ))}
+
+        {/* Hairline, not spacing: without it the palette reads as an eleventh tool. */}
+        <div className="mt-1.5 border-t border-border pt-1.5">
           <Button
             type="button"
             variant="ghost"
@@ -103,9 +114,12 @@ export function ToolsPopover({ variant = "rail" }: { variant?: "rail" | "header"
               setOpen(false);
               openCommandPalette();
             }}
-            className="h-auto w-full justify-between px-2 py-1.5 text-[11px]"
+            className="group/row h-8 w-full justify-between gap-2 rounded-md px-2 text-[12px] font-normal text-muted-foreground hover:text-foreground"
           >
-            <span>All commands</span>
+            <span className="flex items-center gap-2.5">
+              <Command className="size-4 shrink-0 opacity-100" strokeWidth={1.75} aria-hidden />
+              All commands
+            </span>
             <Kbd>{APP_HOTKEYS.palette.label}</Kbd>
           </Button>
         </div>

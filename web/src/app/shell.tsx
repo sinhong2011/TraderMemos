@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { AppNav } from "@/components/AppNav";
 import { CommandPalette } from "@/components/CommandPalette";
+import { CreateMenu } from "@/components/CreateMenu";
 import { HeaderBar } from "@/components/HeaderBar";
 import { MobileNavDrawer } from "@/components/MobileNavDrawer";
 import { MobileTabBar } from "@/components/MobileTabBar";
@@ -24,15 +25,31 @@ function AuthedShell() {
   const setPositionSizeOpen = useUI((s) => s.setPositionSizeOpen);
   useAppHotkeys();
 
+  // Phones scroll the document (lets Safari collapse its toolbar); ≥md the
+  // shell is viewport-height again and <main> is the scroller.
   return (
-    <div className="relative flex h-full overflow-hidden bg-background pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]">
+    <div className="relative flex min-h-svh bg-background pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)] md:h-full md:min-h-0 md:overflow-hidden">
       <AppNav />
 
-      <div className="relative z-[1] flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-background">
+      <div className="relative z-[1] flex min-w-0 flex-1 flex-col bg-background md:min-h-0 md:overflow-hidden">
         <HeaderBar />
-        <main className="min-h-0 min-w-0 flex-1 overflow-auto bg-background pb-[calc(56px+env(safe-area-inset-bottom))] md:pb-0">
+        {/* Bottom padding clears the floating MobileTabBar (56px capsule + 12px gap). */}
+        {/* Named so route changes animate only the routed page — see the
+            `::view-transition-*(page)` rules in global.css. Without a name here
+            the whole viewport is snapshotted as `root` and the rail, header and
+            tab bar crossfade along with the content. */}
+        <main
+          style={{ viewTransitionName: "page" }}
+          className="flex min-w-0 flex-1 flex-col bg-background pb-[calc(80px+env(safe-area-inset-bottom))] md:min-h-0 md:overflow-auto md:pb-0"
+        >
           <Outlet />
         </main>
+      </div>
+
+      {/* Desktop quick-add. Below md the MobileTabBar's centre FAB owns the
+          same actions, so this corner stays empty there. */}
+      <div className="fixed right-6 bottom-6 z-30 hidden md:block">
+        <CreateMenu variant="floating" />
       </div>
 
       <MobileTabBar />
@@ -86,7 +103,7 @@ function UnauthedGate() {
 
   if (!status) {
     return (
-      <div className="flex min-h-full items-center justify-center bg-background text-[13px] text-muted-foreground">
+      <div className="flex min-h-svh items-center justify-center bg-background text-[13px] text-muted-foreground">
         Checking install status…
       </div>
     );
