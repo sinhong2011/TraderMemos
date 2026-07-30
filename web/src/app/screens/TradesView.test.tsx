@@ -163,8 +163,10 @@ describe("TradesView", () => {
   it("shows onboarding empty state when journal is empty", () => {
     render(<TradesView {...base} trades={[]} />);
     expect(screen.getByText("No trades yet")).toBeInTheDocument();
-    expect(screen.getAllByRole("button", { name: /import csv/i })).toHaveLength(2);
-    expect(screen.getAllByRole("button", { name: /log trade/i })).toHaveLength(2);
+    // Only the empty-state CTAs — the toolbar no longer duplicates them; logging
+    // and importing live in the nav rail / bottom bar.
+    expect(screen.getAllByRole("button", { name: /import csv/i })).toHaveLength(1);
+    expect(screen.getAllByRole("button", { name: /log trade/i })).toHaveLength(1);
   });
 
   it("shows filtered empty state when scope has trades but list is empty", () => {

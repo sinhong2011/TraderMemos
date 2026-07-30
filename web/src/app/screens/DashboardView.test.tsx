@@ -76,15 +76,16 @@ const SUMMARY: Summary = {
   breakeven: 0,
   win_rate: 0.5,
   net_pnl: -61.79,
+  // The API reports loss figures as positive magnitudes (analytics.Summarize).
   gross_profit: 69.48,
-  gross_loss: -131.27,
+  gross_loss: 131.27,
   profit_factor: 0.53,
   expectancy: -15.45,
   avg_win: 34.74,
-  avg_loss: -65.64,
+  avg_loss: 65.64,
   avg_trade: -15.45,
   largest_win: 58.09,
-  largest_loss: -111.24,
+  largest_loss: 111.24,
   total_fees: 12.5,
 };
 
@@ -172,6 +173,9 @@ describe("DashboardView", () => {
     expect(screen.getByText(/Gross/)).toBeInTheDocument();
     expect(screen.getByText(/^Net$/)).toBeInTheDocument();
     expect(screen.getByText(/PF/)).toBeInTheDocument();
+    // Gross must reconcile: gross - fees = net (-49.29 - 12.50 = -61.79), never the
+    // sum of the win/loss buckets (+200.75).
+    expect(screen.getByText("-$49.29")).toBeInTheDocument();
     expect(screen.getAllByText("0.53").length).toBeGreaterThan(0);
     expect(screen.getAllByText(/-\$61\.79/).length).toBeGreaterThan(0);
   });

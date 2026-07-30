@@ -11,7 +11,7 @@ import {
 } from "recharts";
 import { AnnualGoalCard } from "@/components/AnnualGoalCard";
 import { Card } from "@/components/Card";
-import { ChartFrame, chartTheme } from "@/components/ChartFrame";
+import { ChartFrame, chartTheme, chartTooltipStyle } from "@/components/ChartFrame";
 import { DashboardAccountContribution } from "@/components/DashboardAccountContribution";
 import {
   type DashboardBreakdownDim,
@@ -20,6 +20,7 @@ import {
 import { DashboardInsightBento } from "@/components/DashboardInsightBento";
 import { DashboardMiniCalendar } from "@/components/DashboardMiniCalendar";
 import { DataTable } from "@/components/DataTable";
+import { ItemGroup } from "@/components/Item";
 import { EmptyState } from "@/components/EmptyState";
 import { Button } from "@/components/ui/button";
 import { Page } from "@/components/Page";
@@ -29,10 +30,12 @@ import { Skeleton } from "@/components/Skeleton";
 import { CardSkeleton } from "@/components/skeletons/card-skeleton";
 import { TableSkeleton } from "@/components/skeletons/table-skeleton";
 import { tradeColumns } from "@/components/tradeColumns";
+import { TradeListItem } from "@/components/TradeListItem";
 import type { Account, BreakGroup, EquityPoint, Summary, Trade } from "@/lib/api/types";
 import type { DayRecord } from "@/lib/calendar";
 import { uniqueDayTicks } from "@/lib/chartTicks";
 import { accountBaseCurrency, useDisplayTimePrefs, usePrivacyMode } from "@/lib/displayPrefs";
+import { COMPACT_VIEWPORT, useMediaQuery } from "@/lib/hooks/use-mobile";
 import { useMoneyFx } from "@/lib/hooks/useMoneyFx";
 import { fmtDayShort, fmtMoney, fmtMoneyCompact } from "@/lib/format";
 import { intlLocale } from "@/lib/locale";
@@ -171,13 +174,7 @@ function EquityCurveChart({
               domain={["auto", "auto"]}
             />
             <Tooltip
-              contentStyle={{
-                background: chartTheme.tooltipBg,
-                border: `1px solid ${chartTheme.tooltipBorder}`,
-                color: chartTheme.tooltipText,
-                fontSize: 11,
-                borderRadius: "var(--radius)",
-              }}
+              {...chartTooltipStyle}
               labelFormatter={(label) => String(label ?? "").slice(0, 10)}
               formatter={(value) => [
                 fmtMoney(Number(value ?? 0), currency, intlLocale()),
@@ -249,6 +246,7 @@ export function DashboardView({
   const baseCurrency = accountBaseCurrency(accounts, selectedAccountId);
   const { currency, rate } = useMoneyFx(baseCurrency);
   const fxRate = rate ?? 1;
+  const compact = useMediaQuery(COMPACT_VIEWPORT);
   const [range, setRange] = useState("30D");
 
   const recentTrades = useMemo(() => trades.slice(0, DASHBOARD_RECENT_LIMIT), [trades]);
@@ -305,9 +303,13 @@ export function DashboardView({
   );
 
   return (
-    <Page className="min-h-[calc(100dvh-52px)]">
+    <Page className="min-h-[calc(100svh-52px)]">
       {/* Asymmetric hero: tall equity + performance strip (Signal Terminal bento) */}
-      <div className="grid gap-4 lg:grid-cols-5 lg:items-stretch lg:min-h-[320px]">
+      {/* The 320px floor lives on the row track, not as min-h on the container: a
+          min-height here makes the container definite and the single auto row stretches
+          to exactly fill it, capping the performance strip's taller content so it
+          spills out and overlaps the goal card below. minmax() floors without capping. */}
+      <div className="grid gap-4 lg:grid-cols-5 lg:grid-rows-[minmax(320px,auto)] lg:items-stretch">
         <Card
           title="Equity curve"
           className="h-full lg:col-span-3"
@@ -338,7 +340,7 @@ export function DashboardView({
         </Card>
 
         {summary && !summaryLoading && !summaryError ? (
-          <div className="min-h-[265px] lg:col-span-2 lg:min-h-0">
+          <div className="min-h-[265px] lg:col-span-2">
             <PerformanceStrip
               summary={summary}
               trades={trades}
@@ -425,21 +427,38 @@ export function DashboardView({
           />
         ) : (
           <>
-            <DataTable
-              columns={tradeColumns(
-                currency,
-                {
-                  onOpenDrawer: onSelectTrade,
-                  onOpenFullPage,
-                  onFilterSymbol,
-                  onDeleted,
-                },
-                fxRate,
-              )}
-              data={recentTrades}
-              onRowClick={onSelectTrade}
-              maxHeight={360}
-            />
+            {/* Phone: the same list row the trade log uses — the wide table
+                can't fit, and 10 rows don't need virtualizing. */}
+            {compact ? (
+              <ItemGroup className="gap-2 px-4 pb-4">
+                {recentTrades.map((trade) => (
+                  <TradeListItem
+                    key={trade.id}
+                    trade={trade}
+                    currency={currency}
+                    fxRate={fxRate}
+                    showDate
+                    onSelect={onSelectTrade}
+                  />
+                ))}
+              </ItemGroup>
+            ) : (
+              <DataTable
+                columns={tradeColumns(
+                  currency,
+                  {
+                    onOpenDrawer: onSelectTrade,
+                    onOpenFullPage,
+                    onFilterSymbol,
+                    onDeleted,
+                  },
+                  fxRate,
+                )}
+                data={recentTrades}
+                onRowClick={onSelectTrade}
+                maxHeight={360}
+              />
+            )}
             <p className="shrink-0 py-2 text-center text-xs text-muted-foreground">
               {hasMoreTrades
                 ? `Showing ${recentTrades.length} of ${trades.length} trades`
