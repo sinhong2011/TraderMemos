@@ -5,6 +5,13 @@ All notable changes to TraderMemos are documented in this file.
 Release versioning is managed by [release-please](https://github.com/googleapis/release-please).
 See [docs/release.md](docs/release.md) for the release workflow.
 
+## [0.1.5](https://github.com/sinhong2011/TraderMemos/compare/v0.1.4...v0.1.5) (2026-07-30)
+
+
+### Features
+
+* **web:** rebuild the UI on shadcn/ui + coss ui ([#8](https://github.com/sinhong2011/TraderMemos/issues/8)) ([da3f74b](https://github.com/sinhong2011/TraderMemos/commit/da3f74b347344d18ce7caf4dec13d376d6870c77))
+
 ## [0.1.4](https://github.com/sinhong2011/TraderMemos/compare/v0.1.3...v0.1.4) (2026-07-23)
 
 
