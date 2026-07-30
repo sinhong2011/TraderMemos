@@ -1,4 +1,4 @@
-import { ArrowLeft, Loader2, Pencil, RefreshCw, Trash2, Zap } from "lucide-react";
+import { ArrowLeft, Loader2, MoreVertical, Pencil, RefreshCw, Trash2 } from "lucide-react";
 import {
   forwardRef,
   useEffect,
@@ -19,7 +19,7 @@ import {
 import { EmptyState } from "@/components/EmptyState";
 import { Modal } from "@/components/Modal";
 import { Page } from "@/components/Page";
-import { Pill, type PillTone } from "@/components/Pill";
+import { Pill } from "@/components/Pill";
 import { AmountInput } from "@/components/AmountInput";
 import { Field } from "@/components/Field";
 import { FormInput, FormTextarea } from "@/components/FormInput";
@@ -28,13 +28,20 @@ import { ToneToggle } from "@/components/ToneToggle";
 import { fieldLabelClass } from "@/components/field-styles";
 import { Skeleton } from "@/components/Skeleton";
 import { GradeControl } from "@/components/GradeControl";
-import { marketLabel } from "@/components/tradeColumns";
-import { formatOptionMarketChip, optionContractFromFills } from "@/lib/optionContract";
+import { TradeExecutionsCard } from "@/components/TradeExecutionsCard";
+import { TradeJournalCard } from "@/components/TradeJournalCard";
+import { TradePlanCard } from "@/components/TradePlanCard";
+import { TradeSummaryCard } from "@/components/TradeSummaryCard";
 import { Button } from "@/components/ui/button";
-import { heroPnlClass, pnlColor } from "@/components/theme-tokens";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/menu";
 import { cn } from "@/lib/cn";
 import type { Setup, Tag, TradeDetail } from "@/lib/api/types";
-import { fmtDateTime, fmtMoney, fmtSignedMoney, fmtTime } from "@/lib/format";
+import { fmtMoney } from "@/lib/format";
 
 import {
   buildStructuredJournalNotes,
@@ -57,414 +64,10 @@ import {
 } from "@/lib/hooks/useAttachments";
 import { useJournalPrefs } from "@/lib/journalPrefs";
 import { gradeFromInt, intFromGrade, TRADE_SESSIONS, type TradeGrade } from "@/lib/tradeGrades";
-import { getDisplayTimeOpts, useDisplayTimePrefs, usePrivacyMode } from "@/lib/displayPrefs";
 import {
   JournalScreenshotUpload,
   type ScreenshotAttachmentItem,
 } from "@/components/JournalScreenshotUpload";
-
-function tradeOutcome(trade: TradeDetail): { label: string; tone: PillTone } {
-  if (trade.status !== "closed") return { label: "OPEN", tone: "accent" };
-  if (trade.net_pnl == null || trade.net_pnl === 0) return { label: "FLAT", tone: "muted" };
-  return trade.net_pnl > 0 ? { label: "WIN", tone: "pos" } : { label: "LOSS", tone: "neg" };
-}
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-function calendarDayKey(d: Date, timeZone: string): string {
-  return new Intl.DateTimeFormat("en-CA", {
-    timeZone,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(d);
-}
-
-/** Compact open→close line for the header (identity, not a metric dump). */
-function fmtTradeTimeline(trade: TradeDetail, hold: string): string {
-  const opened = new Date(trade.opened_at);
-  if (Number.isNaN(opened.getTime())) return "—";
-
-  const { timeZone } = getDisplayTimeOpts();
-  const day = opened.toLocaleDateString(intlLocale(), {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    timeZone,
-  });
-  const holdPart = hold && hold !== "-" ? ` · ${hold}` : "";
-
-  if (trade.status === "open" || !trade.closed_at) {
-    return `${fmtDateTime(trade.opened_at)} · still open`;
-  }
-
-  const closed = new Date(trade.closed_at);
-  if (Number.isNaN(closed.getTime())) return `${day}${holdPart}`;
-
-  if (calendarDayKey(opened, timeZone) === calendarDayKey(closed, timeZone)) {
-    return `${day} · ${fmtTime(trade.opened_at)} → ${fmtTime(trade.closed_at)}${holdPart}`;
-  }
-
-  return `${fmtDateTime(trade.opened_at)} → ${fmtDateTime(trade.closed_at)}${holdPart}`;
-}
-
-// ---------------------------------------------------------------------------
-// Trade metric cells (header + coach)
-// ---------------------------------------------------------------------------
-
-function InsightCell({
-  label,
-  children,
-  className,
-  valueClassName,
-}: {
-  label: string;
-  children: ReactNode;
-  className?: string;
-  valueClassName?: string;
-}) {
-  return (
-    <section
-      className={cn("flex min-w-0 flex-col gap-1.5 rounded-lg bg-sidebar px-3 py-3", className)}
-    >
-      <p className="m-0 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-        {label}
-      </p>
-      <div
-        className={cn(
-          "text-[15px] font-semibold leading-none tracking-[-0.02em] tabular-nums text-foreground",
-          valueClassName,
-        )}
-      >
-        {children}
-      </div>
-    </section>
-  );
-}
-
-function BentoCell({ className, children }: { className?: string; children: ReactNode }) {
-  return (
-    <section
-      className={cn("flex h-full min-w-0 flex-col rounded-lg bg-sidebar p-3 sm:p-4", className)}
-    >
-      {children}
-    </section>
-  );
-}
-
-function BentoLabel({
-  children,
-  className,
-  tone = "muted",
-}: {
-  children: ReactNode;
-  className?: string;
-  tone?: "signal" | "muted";
-}) {
-  return (
-    <p
-      className={cn(
-        "m-0 text-[10px] font-semibold uppercase tracking-widest",
-        tone === "signal" ? "text-chart-3" : "text-muted-foreground",
-        className,
-      )}
-    >
-      {children}
-    </p>
-  );
-}
-
-function BentoMiniStat({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <div className="flex min-w-0 flex-col gap-1">
-      <BentoLabel>{label}</BentoLabel>
-      <div className="text-[14px] font-semibold leading-none tracking-[-0.02em] tabular-nums text-foreground">
-        {children}
-      </div>
-    </div>
-  );
-}
-
-function TradeMetricsBento({
-  trade,
-  insights,
-  currency,
-  hasPlan,
-  hasContext,
-}: {
-  trade: TradeDetail;
-  insights: TradeInsights;
-  currency: string;
-  hasPlan: boolean;
-  hasContext: boolean;
-}) {
-  const showPlan = hasPlan || insights.rMultiple != null;
-  const net = insights.netPnl;
-
-  return (
-    <div className="flex flex-col gap-3">
-      <div className="grid auto-rows-[minmax(72px,auto)] grid-cols-2 gap-1.5 sm:grid-cols-4 lg:grid-cols-12 lg:auto-rows-[minmax(84px,auto)] lg:gap-3">
-        <BentoCell className="col-span-2 justify-between sm:col-span-4 lg:col-span-4 lg:row-span-2">
-          <BentoLabel tone="signal">P&amp;L</BentoLabel>
-          <div className="flex flex-1 flex-col justify-center py-1">
-            <p
-              className={cn(
-                "m-0 text-[26px] font-semibold leading-none tracking-[-0.03em] tabular-nums sm:text-[30px]",
-                net != null && net > 0 && "text-profit",
-                net != null && net < 0 && "text-destructive",
-                net === 0 && "text-flat",
-                net == null && "text-muted-foreground",
-              )}
-            >
-              {signedOrDash(insights.netPnl, currency)}
-            </p>
-            {insights.returnPct != null && (
-              <p
-                className={cn(
-                  "m-0 mt-2 text-sm font-semibold tabular-nums",
-                  pnlColor(insights.returnPct),
-                )}
-              >
-                {insights.returnPct >= 0 ? "+" : ""}
-                {insights.returnPct.toFixed(2)}%
-              </p>
-            )}
-          </div>
-          <div className="grid grid-cols-2 gap-x-4 gap-y-3 pt-2">
-            <BentoMiniStat label="Gross">{signedOrDash(insights.grossPnl, currency)}</BentoMiniStat>
-            <BentoMiniStat label="Fees">
-              <span className="text-muted-foreground">
-                {moneyOrDash(insights.feesTotal, currency)}
-              </span>
-              {insights.feeDragPct != null && (
-                <span className="ml-1 text-[10px] font-medium text-muted-foreground">
-                  {(insights.feeDragPct * 100).toFixed(1)}%
-                </span>
-              )}
-            </BentoMiniStat>
-          </div>
-        </BentoCell>
-
-        <BentoCell className="col-span-2 sm:col-span-4 lg:col-span-3 lg:row-span-2">
-          <BentoLabel tone="signal">Execution</BentoLabel>
-          <div className="mt-3 grid flex-1 grid-cols-2 content-center gap-x-4 gap-y-4">
-            <BentoMiniStat label="Entry">
-              {fmtMoney(trade.avg_entry_price, currency, intlLocale())}
-            </BentoMiniStat>
-            <BentoMiniStat label="Exit">
-              {trade.avg_exit_price != null
-                ? fmtMoney(trade.avg_exit_price, currency, intlLocale())
-                : "—"}
-            </BentoMiniStat>
-            <BentoMiniStat label="Qty">{insights.qtyOpened}</BentoMiniStat>
-            <BentoMiniStat label="Hold">
-              {insights.holdLabel === "-" ? "—" : insights.holdLabel}
-            </BentoMiniStat>
-            {trade.instrument_type === "option" ? (
-              <BentoMiniStat label="Mult">×{trade.fills[0]?.multiplier || 100}</BentoMiniStat>
-            ) : null}
-          </div>
-        </BentoCell>
-
-        {showPlan ? (
-          <BentoCell className="col-span-2 sm:col-span-4 lg:col-span-5 lg:row-span-2">
-            <BentoLabel tone="signal">Plan</BentoLabel>
-            <div className="mt-3 grid flex-1 grid-cols-2 content-center gap-x-4 gap-y-4 sm:grid-cols-3">
-              <BentoMiniStat label="Risk">
-                {insights.initialRisk != null && insights.initialRisk > 0
-                  ? moneyOrDash(insights.initialRisk, currency)
-                  : "—"}
-              </BentoMiniStat>
-              <BentoMiniStat label="Target">{moneyOrDash(insights.target, currency)}</BentoMiniStat>
-              <BentoMiniStat label="Stop">{moneyOrDash(insights.stop, currency)}</BentoMiniStat>
-              <BentoMiniStat label="Breakeven">
-                {moneyOrDash(insights.breakeven, currency)}
-              </BentoMiniStat>
-              <BentoMiniStat label="Planned R:R">
-                {insights.plannedRR != null ? `${insights.plannedRR.toFixed(2)}:1` : "—"}
-              </BentoMiniStat>
-              <BentoMiniStat label="Actual R">
-                {insights.rMultiple == null ? (
-                  "—"
-                ) : (
-                  <span className={pnlColor(insights.rMultiple)}>
-                    {insights.rMultiple >= 0 ? "+" : ""}
-                    {insights.rMultiple.toFixed(2)}R
-                  </span>
-                )}
-              </BentoMiniStat>
-            </div>
-          </BentoCell>
-        ) : (
-          <InsightCell
-            className="col-span-2 sm:col-span-4 lg:col-span-5 lg:row-span-2"
-            label="Actual R"
-          >
-            {insights.rMultiple == null ? (
-              <span className="text-muted-foreground">—</span>
-            ) : (
-              <span className={pnlColor(insights.rMultiple)}>
-                {insights.rMultiple >= 0 ? "+" : ""}
-                {insights.rMultiple.toFixed(2)}R
-              </span>
-            )}
-          </InsightCell>
-        )}
-      </div>
-
-      {hasContext && (
-        <div className="flex flex-wrap items-center gap-2">
-          {insights.setupName && (
-            <Pill tone="accent">
-              <span className="inline-flex items-center gap-1">
-                <Zap size={11} strokeWidth={1.75} aria-hidden />
-                {insights.setupName}
-              </span>
-            </Pill>
-          )}
-          {insights.emotion && <Pill tone="muted">{insights.emotion}</Pill>}
-          {insights.setupGrade && <Pill tone="accent">Setup {insights.setupGrade}</Pill>}
-          {insights.executionGrade && <Pill tone="accent">Exec {insights.executionGrade}</Pill>}
-          {(trade.tags ?? []).map((tag) => (
-            <Pill key={tag.id} tone={tag.kind === "mistake" ? "neg" : "muted"}>
-              {tag.name}
-            </Pill>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function moneyOrDash(v: number | null, currency: string): string {
-  if (v == null) return "—";
-  return fmtMoney(v, currency, intlLocale());
-}
-
-function signedOrDash(v: number | null, currency: string): ReactNode {
-  if (v == null) return <span className="text-muted-foreground">—</span>;
-  return <span className={pnlColor(v)}>{fmtSignedMoney(v, currency, intlLocale())}</span>;
-}
-
-// ---------------------------------------------------------------------------
-// Header
-// ---------------------------------------------------------------------------
-
-function TradeHeader({ trade, insights }: { trade: TradeDetail; insights: TradeInsights }) {
-  usePrivacyMode();
-  useDisplayTimePrefs();
-  const currency = trade.pnl_currency;
-  const pnl = trade.net_pnl;
-  const rMultiple = trade.r_multiple;
-  const returnPct = trade.return_pct;
-  const outcome = tradeOutcome(trade);
-  const hasDividends = trade.dividend_total != null && trade.dividend_total !== 0;
-  const hold = insights.holdLabel;
-  const timeline = fmtTradeTimeline(trade, hold);
-  const market = formatOptionMarketChip(
-    trade.instrument_type,
-    marketLabel(trade.instrument_type),
-    optionContractFromFills(trade.fills),
-  );
-  const direction = trade.direction.toUpperCase();
-  const hasPlan =
-    insights.target != null ||
-    insights.stop != null ||
-    insights.plannedRR != null ||
-    insights.initialRisk != null ||
-    insights.breakeven != null;
-  const hasContext =
-    insights.setupName != null ||
-    insights.emotion != null ||
-    Boolean(insights.setupGrade) ||
-    Boolean(insights.executionGrade) ||
-    insights.tagNames.length > 0;
-
-  return (
-    <Card>
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-4">
-          <div className="flex min-w-0 flex-col gap-2">
-            <div className="flex flex-wrap items-center gap-2.5">
-              <span className="text-[28px] font-semibold leading-none tracking-[-0.03em] text-foreground">
-                {trade.symbol}
-              </span>
-              <Pill tone={outcome.tone} title={outcome.label === "FLAT" ? "Break-even" : undefined}>
-                {outcome.label}
-              </Pill>
-              <Pill tone="muted">
-                {market} · {direction}
-              </Pill>
-            </div>
-            <p className="m-0 text-xs tabular-nums text-muted-foreground">{timeline}</p>
-          </div>
-
-          <div className="flex flex-col items-end gap-1.5">
-            {pnl != null ? (
-              <span
-                className={cn(heroPnlClass(pnl), pnl > 0 && "", pnl < 0 && "")}
-                title="Price P&L (excludes dividends)"
-              >
-                {fmtSignedMoney(pnl, currency, intlLocale())}
-              </span>
-            ) : (
-              <span className={heroPnlClass(null)}>—</span>
-            )}
-            <div className="flex flex-wrap items-baseline justify-end gap-x-3 gap-y-1">
-              {returnPct != null && (
-                <span className={cn("text-sm font-semibold tabular-nums", pnlColor(returnPct))}>
-                  {returnPct >= 0 ? "+" : ""}
-                  {returnPct.toFixed(2)}%
-                </span>
-              )}
-              {rMultiple != null ? (
-                <span
-                  className={cn("text-sm font-semibold tabular-nums", pnlColor(rMultiple))}
-                  title="R-multiple (price-based)"
-                >
-                  {rMultiple >= 0 ? "+" : ""}
-                  {rMultiple.toFixed(2)}R
-                </span>
-              ) : (
-                trade.initial_risk == null && (
-                  <span className="text-[11px] text-muted-foreground" title="No initial risk set">
-                    No R
-                  </span>
-                )
-              )}
-              {hasDividends && (
-                <span
-                  className="text-sm tabular-nums text-muted-foreground"
-                  title="Dividends linked to this trade"
-                >
-                  Div {fmtSignedMoney(trade.dividend_total!, currency, intlLocale())}
-                </span>
-              )}
-              {hasDividends && trade.total_pnl != null && (
-                <span
-                  className={cn("text-sm tabular-nums", pnlColor(trade.total_pnl))}
-                  title="Total = price P&L + dividends"
-                >
-                  Total {fmtSignedMoney(trade.total_pnl, currency, intlLocale())}
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <TradeMetricsBento
-          trade={trade}
-          insights={insights}
-          currency={currency}
-          hasPlan={hasPlan}
-          hasContext={hasContext}
-        />
-      </div>
-    </Card>
-  );
-}
 
 // ---------------------------------------------------------------------------
 // Coach
@@ -475,7 +78,8 @@ function coachToneClass(tone: CoachTone): string {
     case "neg":
       return "text-destructive";
     case "warn":
-      return "text-chart-3";
+      // `warning` is the semantic alert token; `chart-3` is data-viz paint.
+      return "text-warning";
     case "pos":
       return "text-profit";
     default:
@@ -530,9 +134,7 @@ function toCoachNotes(
 }
 
 function TradeCoachPanel({ trade, insights }: { trade: TradeDetail; insights: TradeInsights }) {
-  usePrivacyMode();
   const [open, setOpen] = useState(true);
-  const currency = trade.pnl_currency;
   const ruleNotes = generateTradeCoachNotes(trade, insights);
   const coach = useTradeCoach(trade.id);
   const { reset: resetCoach } = coach;
@@ -548,12 +150,13 @@ function TradeCoachPanel({ trade, insights }: { trade: TradeDetail; insights: Tr
   const hasGenerated = coach.data != null || coach.isError;
   const coachNotes = llmNotes ?? ruleNotes;
   const usingLlm = llmNotes != null;
-  const hasExcursion = insights.mae != null || insights.mfe != null;
   const showAskAi = coach.coachConfigured;
 
-  if (coachNotes.length === 0 && !hasExcursion && !coach.isPending) return null;
+  // Excursion moved to the plan card — this panel is advice, not measurement,
+  // so with no notes there is nothing left to show.
+  if (coachNotes.length === 0 && !coach.isPending) return null;
 
-  const collapsedSummary = coachNotes[0]?.headline ?? (hasExcursion ? "Excursion data" : undefined);
+  const collapsedSummary = coachNotes[0]?.headline;
   const errorMsg =
     coach.data?.source === "error"
       ? coach.data.error
@@ -569,7 +172,9 @@ function TradeCoachPanel({ trade, insights }: { trade: TradeDetail; insights: Tr
           aria-label="Coach"
         >
           <div className="flex min-w-0 flex-1 items-center gap-2 overflow-hidden">
-            <h2 className="shrink-0 text-[10px] font-semibold tracking-wide text-chart-3">Coach</h2>
+            {/* Same type as a Card title — Coach is a card block that happens to
+                collapse, not a differently-branded panel. */}
+            <h2 className="shrink-0 text-xs font-medium text-muted-foreground">Coach</h2>
             {hasGenerated ? (
               <span
                 className={cn(
@@ -637,40 +242,6 @@ function TradeCoachPanel({ trade, insights }: { trade: TradeDetail; insights: Tr
                 {errorMsg}
               </p>
             ) : null}
-
-            {hasExcursion && (
-              <div>
-                <p className={cn(fieldLabelClass, "mb-2")}>Excursion</p>
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                  <InsightCell label="MAE">{signedOrDash(insights.mae, currency)}</InsightCell>
-                  <InsightCell label="MFE">{signedOrDash(insights.mfe, currency)}</InsightCell>
-                  <InsightCell label="Capture">
-                    {insights.mfeCapturePct == null ? (
-                      <span className="text-muted-foreground">—</span>
-                    ) : (
-                      <span className={pnlColor(insights.mfeCapturePct)}>
-                        {(insights.mfeCapturePct * 100).toFixed(0)}%
-                      </span>
-                    )}
-                  </InsightCell>
-                  <InsightCell label="Left on table">
-                    {insights.leftOnTable == null ? (
-                      <span className="text-muted-foreground">—</span>
-                    ) : (
-                      <span
-                        className={cn(
-                          insights.leftOnTable > 0
-                            ? "text-muted-foreground"
-                            : pnlColor(insights.leftOnTable),
-                        )}
-                      >
-                        {fmtSignedMoney(insights.leftOnTable, currency, intlLocale())}
-                      </span>
-                    )}
-                  </InsightCell>
-                </div>
-              </div>
-            )}
           </div>
         </CollapsibleContent>
       </Collapsible>
@@ -1344,17 +915,19 @@ export function TradeDetailView({
   const [typedConfirm, setTypedConfirm] = useState("");
   const confirmInputId = useId();
 
+  // Placeholder heights mirror the real cards — summary, plan, chart — so the
+  // page does not jump when the trade lands.
   if (loading) {
     return (
       <Page fill>
         <Card>
-          <Skeleton height="96px" />
+          <Skeleton height="132px" />
         </Card>
         <Card>
-          <Skeleton height="280px" />
+          <Skeleton height="180px" />
         </Card>
         <Card>
-          <Skeleton height="420px" />
+          <Skeleton height="320px" />
         </Card>
       </Page>
     );
@@ -1395,33 +968,44 @@ export function TradeDetailView({
         ) : (
           <span />
         )}
+        {/* Edit is the action a review reaches for; delete is rare and
+            irreversible, so it moves into the overflow menu instead of sitting
+            on the page as the loudest element on it. */}
         <div className="flex shrink-0 items-center gap-1.5">
           {onEdit && (
             <Button
               type="button"
-              variant="ghost"
-              size="icon-sm"
-              className="shrink-0"
-              aria-label="Edit trade"
-              title="Edit trade"
+              variant="soft"
+              size="sm"
+              className="shrink-0 gap-1.5"
               onClick={onEdit}
               disabled={deleting}
             >
-              <Pencil size={15} strokeWidth={1.5} aria-hidden />
+              <Pencil size={14} strokeWidth={1.5} aria-hidden />
+              Edit trade
             </Button>
           )}
           {onDelete ? (
-            <Button
-              type="button"
-              variant="destructive"
-              size="icon-sm"
-              aria-label="Remove trade"
-              title="Remove trade"
-              onClick={() => setDeleteOpen(true)}
-              disabled={deleting}
-            >
-              <Trash2 size={15} strokeWidth={1.5} aria-hidden />
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                aria-label="Trade actions"
+                disabled={deleting}
+                className={cn(
+                  "flex size-8 cursor-pointer items-center justify-center rounded-md border-none bg-transparent",
+                  "text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
+                  "outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+                  "disabled:cursor-not-allowed disabled:opacity-50",
+                )}
+              >
+                <MoreVertical size={15} strokeWidth={1.5} aria-hidden />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" side="bottom" sideOffset={4} className="p-1">
+                <DropdownMenuItem variant="destructive" onClick={() => setDeleteOpen(true)}>
+                  <Trash2 size={14} strokeWidth={1.5} aria-hidden />
+                  Remove trade
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : null}
         </div>
       </div>
@@ -1479,17 +1063,26 @@ export function TradeDetailView({
         </Modal>
       ) : null}
 
-      <TradeHeader trade={trade} insights={insights} />
+      {/* Ordered by the questions a review actually asks: what happened, did it
+          follow the plan, what did price do, why did I take it, how was it
+          filled, what should change, what did it look like. */}
+      <TradeSummaryCard trade={trade} insights={insights} />
+
+      <TradePlanCard trade={trade} insights={insights} onEdit={onEdit} />
 
       <Card flush className="pt-4">
         <TradeChartSection trade={trade} />
       </Card>
 
+      <TradeJournalCard trade={trade} onEdit={onEdit} />
+
+      <TradeExecutionsCard trade={trade} />
+
+      <TradeCoachPanel trade={trade} insights={insights} />
+
       <Card title="Screenshots" description="Charts and fills attached to this trade.">
         <TradeScreenshotsSection tradeId={trade.id} />
       </Card>
-
-      <TradeCoachPanel trade={trade} insights={insights} />
     </Page>
   );
 }
