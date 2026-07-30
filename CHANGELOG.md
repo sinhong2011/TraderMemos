@@ -5,6 +5,13 @@ All notable changes to TraderMemos are documented in this file.
 Release versioning is managed by [release-please](https://github.com/googleapis/release-please).
 See [docs/release.md](docs/release.md) for the release workflow.
 
+## [0.1.6](https://github.com/sinhong2011/TraderMemos/compare/v0.1.5...v0.1.6) (2026-07-30)
+
+
+### Bug Fixes
+
+* green the Test API and Test web CI jobs ([#10](https://github.com/sinhong2011/TraderMemos/issues/10)) ([f814488](https://github.com/sinhong2011/TraderMemos/commit/f814488b4d3e019d66e718fcbbb9e7787e83ba78))
+
 ## [0.1.5](https://github.com/sinhong2011/TraderMemos/compare/v0.1.4...v0.1.5) (2026-07-30)
 
 
