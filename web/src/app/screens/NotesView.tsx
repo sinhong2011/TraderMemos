@@ -2,11 +2,13 @@ import {
   CalendarDays,
   LayoutGrid,
   List,
+  ListChecks,
   MoreVertical,
   Plus,
+  Search,
   StickyNote,
-  Tags,
   Trash2,
+  X,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { EmptyState } from "@/components/EmptyState";
@@ -15,15 +17,21 @@ import { Pill } from "@/components/Pill";
 import { SegmentedControl, type SegmentOption } from "@/components/SegmentedControl";
 import { CardGridSkeleton } from "@/components/skeletons/card-skeleton";
 import { ListSkeleton } from "@/components/skeletons/list-skeleton";
-import { noteExcerpt } from "@/components/editor/markdown";
+import { checklistProgress, noteExcerpt } from "@/components/editor/markdown";
 import { Button } from "@/components/ui/button";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/menu";
-import type { JournalNote } from "@/lib/api/types";
+import type { JournalNote, JournalNoteType } from "@/lib/api/types";
 import { cn } from "@/lib/cn";
 import { intlLocale } from "@/lib/locale";
 import { useNotesPrefs, type NotesLayout } from "@/lib/notesPrefs";
@@ -35,6 +43,14 @@ export interface NotesViewProps {
   error: boolean;
   onDelete: (id: string) => Promise<void>;
 }
+
+type TypeFilter = "all" | JournalNoteType;
+
+const TYPE_OPTS: SegmentOption[] = [
+  { value: "all", label: "All" },
+  { value: "note", label: "Notes" },
+  { value: "daily_log", label: "Logs" },
+];
 
 const LAYOUT_OPTS: SegmentOption[] = [
   {
@@ -63,15 +79,39 @@ const menuTriggerClass = cn(
   "outline-none focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ring",
 );
 
+function localIsoDay(d: Date): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+/** "Today" / "Yesterday" for the two most recent days, otherwise a short date. */
 function formatNoteDay(isoDate: string, locale: string): string {
   const d = new Date(`${isoDate}T12:00:00`);
   if (Number.isNaN(d.getTime())) return isoDate;
+
+  const today = new Date();
+  if (isoDate === localIsoDay(today)) return "Today";
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+  if (isoDate === localIsoDay(yesterday)) return "Yesterday";
+
   return new Intl.DateTimeFormat(locale, {
     weekday: "short",
     month: "short",
     day: "numeric",
-    year: "numeric",
+    ...(d.getFullYear() === today.getFullYear() ? {} : { year: "numeric" }),
   }).format(d);
+}
+
+/** Case-insensitive match over title, body text and symbol tickers. */
+function matchesQuery(note: JournalNote, query: string): boolean {
+  const q = query.trim().toLowerCase();
+  if (!q) return true;
+  if (note.title.toLowerCase().includes(q)) return true;
+  if (noteExcerpt(note.body, Number.MAX_SAFE_INTEGER).toLowerCase().includes(q)) return true;
+  return (note.symbols ?? []).some(
+    (s) => s.symbol.toLowerCase().includes(q) || s.body.toLowerCase().includes(q),
+  );
 }
 
 function noteBodyPreview(note: JournalNote): string {
@@ -154,6 +194,7 @@ function NoteTile({
   const isDailyLog = note.type === "daily_log";
   const symbols = note.symbols ?? [];
   const isCard = layout === "cards";
+  const progress = checklistProgress(note.body);
 
   return (
     <div
@@ -168,74 +209,60 @@ function NoteTile({
         }
       }}
       className={cn(
-        "group/note flex cursor-pointer flex-col rounded-lg bg-sidebar text-left outline-none",
-        "transition-colors duration-100 hover:bg-card",
+        "group/note flex cursor-pointer flex-col gap-2.5 rounded-lg bg-card p-4 text-left outline-none",
+        "transition-colors duration-100 hover:bg-accent",
         "focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring",
-        isCard ? "min-h-0" : "w-full",
+        isCard ? "h-full min-h-0" : "w-full",
       )}
     >
-      <header className="flex items-start gap-3 px-4 pt-4 pb-3">
+      <header className="flex items-start gap-3">
         <div className="min-w-0 flex-1">
-          <span className="inline-flex items-center gap-1.5 text-[12px] font-medium text-muted-foreground tabular-nums">
-            <CalendarDays
-              size={13}
-              strokeWidth={1.75}
-              className="text-muted-foreground"
-              aria-hidden
-            />
-            {formatNoteDay(note.occurred_at, locale)}
-          </span>
-          <h3 className="mt-1 truncate text-[14px] font-medium tracking-tight text-foreground">
+          <h3 className="truncate text-[14px] font-semibold tracking-tight text-foreground">
             {note.title}
           </h3>
+          <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-muted-foreground">
+            <span className="inline-flex items-center gap-1.5 font-medium tabular-nums">
+              <CalendarDays size={12} strokeWidth={1.75} aria-hidden />
+              {formatNoteDay(note.occurred_at, locale)}
+            </span>
+            <Pill tone={isDailyLog ? "accent" : "muted"} className="px-1.5 py-0 text-[10px]">
+              {isDailyLog ? "Daily log" : "Note"}
+            </Pill>
+            {progress ? (
+              <span
+                className="inline-flex items-center gap-1 tabular-nums"
+                title={`${progress.done} of ${progress.total} checks done`}
+              >
+                <ListChecks size={12} strokeWidth={1.75} aria-hidden />
+                {progress.done}/{progress.total}
+              </span>
+            ) : null}
+          </div>
         </div>
         <NoteActionsMenu title={note.title} onOpen={onOpen} onDelete={onDelete} />
       </header>
 
-      <div
+      <p
         className={cn(
-          "mx-4 flex flex-col rounded-md bg-background",
-          isCard ? "gap-3.5 p-3.5" : "gap-3 p-3.5 sm:flex-row sm:items-stretch sm:gap-5",
+          "min-w-0 text-[12px] leading-relaxed text-muted-foreground",
+          isCard ? "line-clamp-4 flex-1" : "line-clamp-2",
         )}
       >
-        {isDailyLog && symbols.length > 0 ? (
-          <div className={cn("flex flex-col gap-3", !isCard && "sm:min-w-52 sm:shrink-0")}>
-            <div className="flex items-start gap-2.5">
-              <Tags
-                size={15}
-                strokeWidth={1.75}
-                className="mt-0.5 shrink-0 text-muted-foreground"
-                aria-hidden
-              />
-              <div className="flex min-w-0 flex-1 flex-wrap gap-1">
-                {symbols.map((s) => (
-                  <span
-                    key={s.symbol}
-                    className="rounded-md bg-sidebar px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-primary"
-                  >
-                    {s.symbol}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-        ) : null}
+        {noteBodyPreview(note)}
+      </p>
 
-        <div className={cn("min-w-0", !isCard && "sm:flex-1")}>
-          <p
-            className={cn(
-              "text-[12px] leading-relaxed text-muted-foreground",
-              isCard ? "line-clamp-4" : "line-clamp-2 sm:line-clamp-3",
-            )}
-          >
-            {noteBodyPreview(note)}
-          </p>
+      {symbols.length > 0 ? (
+        <div className="flex flex-wrap gap-1">
+          {symbols.map((s) => (
+            <span
+              key={s.symbol}
+              className="rounded-md bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-primary"
+            >
+              {s.symbol}
+            </span>
+          ))}
         </div>
-      </div>
-
-      <footer className="flex items-center px-4 pt-3 pb-4">
-        <Pill tone={isDailyLog ? "accent" : "muted"}>{isDailyLog ? "Daily log" : "Note"}</Pill>
-      </footer>
+      ) : null}
     </div>
   );
 }
@@ -245,6 +272,8 @@ export function NotesView({ notes, loading, error, onDelete }: NotesViewProps) {
   const openNoteEdit = useUI((s) => s.openNoteEdit);
   const layout = useNotesPrefs((s) => s.layout);
   const setLayout = useNotesPrefs((s) => s.setLayout);
+  const [query, setQuery] = useState("");
+  const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
 
   const sorted = useMemo(
     () =>
@@ -255,6 +284,17 @@ export function NotesView({ notes, loading, error, onDelete }: NotesViewProps) {
       }),
     [notes],
   );
+
+  const visible = useMemo(
+    () =>
+      sorted.filter(
+        (n) =>
+          (typeFilter === "all" || (n.type ?? "note") === typeFilter) && matchesQuery(n, query),
+      ),
+    [sorted, typeFilter, query],
+  );
+
+  const filtered = query.trim().length > 0 || typeFilter !== "all";
 
   function openNote(note: JournalNote) {
     openNoteEdit({
@@ -269,21 +309,53 @@ export function NotesView({ notes, loading, error, onDelete }: NotesViewProps) {
 
   return (
     <Page fill>
-      <header className="flex flex-wrap items-start justify-between gap-4">
+      <header className="flex flex-wrap items-start justify-between gap-x-4 gap-y-3">
         <div className="min-w-0">
-          <h2 className="text-[10px] font-semibold tracking-wide text-chart-3">Notes</h2>
-          <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground">
-            Freeform notes and daily logs. Tap to edit — Shift+N for a new one.
+          <h2 className="text-[15px] font-semibold tracking-tight text-foreground">Notes</h2>
+          <p className="mt-0.5 text-[12px] leading-relaxed text-muted-foreground">
+            {notes.length > 0 && filtered
+              ? `${visible.length} of ${notes.length} note${notes.length === 1 ? "" : "s"}`
+              : "Freeform notes and daily logs. Tap to edit — Shift+N for a new one."}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <SegmentedControl
-            ariaLabel="Notes layout"
-            size="xs"
-            options={LAYOUT_OPTS}
-            value={layout}
-            onChange={(v) => setLayout(v as NotesLayout)}
-          />
+          {notes.length > 0 ? (
+            <>
+              <InputGroup className="h-8.5 w-full sm:h-7.5 sm:w-56">
+                <InputGroupAddon>
+                  <Search size={14} strokeWidth={1.75} aria-hidden />
+                </InputGroupAddon>
+                <InputGroupInput
+                  type="search"
+                  aria-label="Search notes"
+                  placeholder="Search notes…"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                />
+                {query ? (
+                  <InputGroupAddon align="inline-end">
+                    <InputGroupButton aria-label="Clear search" onClick={() => setQuery("")}>
+                      <X size={13} strokeWidth={1.75} />
+                    </InputGroupButton>
+                  </InputGroupAddon>
+                ) : null}
+              </InputGroup>
+              <SegmentedControl
+                ariaLabel="Filter notes by type"
+                size="xs"
+                options={TYPE_OPTS}
+                value={typeFilter}
+                onChange={(v) => setTypeFilter(v as TypeFilter)}
+              />
+              <SegmentedControl
+                ariaLabel="Notes layout"
+                size="xs"
+                options={LAYOUT_OPTS}
+                value={layout}
+                onChange={(v) => setLayout(v as NotesLayout)}
+              />
+            </>
+          ) : null}
           <Button type="button" onClick={() => openModal("new-note")}>
             <Plus size={14} strokeWidth={1.75} />
             New note
@@ -315,9 +387,27 @@ export function NotesView({ notes, loading, error, onDelete }: NotesViewProps) {
             </Button>
           }
         />
+      ) : visible.length === 0 ? (
+        <EmptyState
+          title="No matching notes"
+          hint="Try a different search term or filter."
+          icon={<Search size={28} strokeWidth={1.5} />}
+          actions={
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setQuery("");
+                setTypeFilter("all");
+              }}
+            >
+              Clear filters
+            </Button>
+          }
+        />
       ) : layout === "cards" ? (
         <div className="grid min-h-0 flex-1 grid-cols-1 content-start gap-3 overflow-y-auto sm:grid-cols-2 xl:grid-cols-3">
-          {sorted.map((note) => (
+          {visible.map((note) => (
             <NoteTile
               key={note.id}
               note={note}
@@ -330,8 +420,8 @@ export function NotesView({ notes, loading, error, onDelete }: NotesViewProps) {
           ))}
         </div>
       ) : (
-        <div role="list" className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
-          {sorted.map((note) => (
+        <div role="list" className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto">
+          {visible.map((note) => (
             <div key={note.id} role="listitem">
               <NoteTile
                 note={note}

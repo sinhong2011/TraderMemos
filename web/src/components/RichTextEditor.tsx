@@ -25,6 +25,8 @@ export interface RichTextEditorProps {
   autoFocus?: boolean;
   readOnly?: boolean;
   showHints?: boolean;
+  /** Grow to fill a flex parent (drawer bodies) instead of sitting at `minHeight`. */
+  fill?: boolean;
 }
 
 export function RichTextEditor({
@@ -41,6 +43,7 @@ export function RichTextEditor({
   autoFocus = false,
   readOnly = false,
   showHints = !readOnly,
+  fill = false,
 }: RichTextEditorProps) {
   const [uploadError, setUploadError] = useState<string | null>(null);
   const editorRef = useRef<ReturnType<typeof useEditor>>(null);
@@ -58,6 +61,8 @@ export function RichTextEditor({
         ...(ariaInvalid ? { "aria-invalid": "true" } : {}),
         class: cn(
           "se-content prose-signal px-3 py-2.5 text-[13px] leading-relaxed text-foreground outline-none",
+          // Grow so clicking the empty area below the text still focuses the editor.
+          fill && "flex-1",
           contentClassName,
         ),
         style: `min-height: ${minHeight}px`,
@@ -129,24 +134,30 @@ export function RichTextEditor({
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-md border border-border bg-muted transition-colors duration-150",
+        // `w-full` — Field is `items-start`, so without it the editor shrinks to
+        // its toolbar width instead of matching the inputs above it.
+        "w-full overflow-hidden rounded-md border border-border bg-muted transition-colors duration-150",
         !readOnly &&
           "hover:bg-accent focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-ring",
         readOnly && "border-transparent bg-transparent",
+        fill && "flex min-h-0 flex-1 flex-col",
         className,
       )}
     >
       {!readOnly ? (
         <FormatToolbar editor={editor} onUploadError={(message) => setUploadError(message)} />
       ) : null}
-      <EditorContent editor={editor} />
+      <EditorContent
+        editor={editor}
+        className={cn(fill && "flex min-h-0 flex-1 flex-col overflow-y-auto")}
+      />
       {uploadError ? (
         <p className="px-3 pb-2 text-[10px] text-destructive" role="alert">
           {uploadError}
         </p>
       ) : null}
       {showHints ? (
-        <p className="flex flex-wrap items-center gap-x-2 gap-y-1 px-3 pt-1 pb-2 text-[10px] text-muted-foreground">
+        <p className="flex shrink-0 flex-wrap items-center gap-x-2 gap-y-1 px-3 pt-1 pb-2 text-[10px] text-muted-foreground">
           <span className="inline-flex items-center gap-1">
             <Kbd>#</Kbd> heading
           </span>

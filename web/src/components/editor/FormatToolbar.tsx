@@ -118,7 +118,7 @@ export function FormatToolbar({
   };
 
   return (
-    <div className="flex flex-col gap-1.5 px-2 pt-2 pb-1">
+    <div className="flex shrink-0 flex-col gap-1.5 px-2 pt-2 pb-1">
       <div
         role="toolbar"
         aria-label="Text formatting"

@@ -20,10 +20,13 @@ import { fieldError, Field } from "@/components/Field";
 import { FormInput } from "@/components/FormInput";
 import { useToastManager } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
+import { Kbd } from "@/components/ui/kbd";
 import { fieldLabelClass } from "@/components/field-styles";
 import { notesApi } from "@/lib/api/notes";
 import type { JournalNoteSymbol, JournalNoteType } from "@/lib/api/types";
 import { settingsApi } from "@/lib/api/settings";
+import { cn } from "@/lib/cn";
+import { formatHotkeyLabel } from "@/lib/hotkeys";
 import { useUI } from "@/lib/ui";
 
 function nowLocalDate(): string {
@@ -40,6 +43,8 @@ const NOTE_TYPE_OPTIONS = [
   { value: "note", label: "Note" },
   { value: "daily_log", label: "Daily log" },
 ];
+
+const SAVE_HOTKEY_LABEL = formatHotkeyLabel("mod+enter");
 
 export function NewNoteDrawer() {
   const open = useUI((s) => s.modal === "new-note");
@@ -75,7 +80,9 @@ export function NewNoteDrawer() {
             .filter((c) => c.symbol)
         : [];
       const trimmed = value.body.trim();
-      if (isEditorEmpty(trimmed) && symbols.length === 0) return;
+      // A title on its own is a valid note (a rule, a reminder) — only a fully
+      // blank form is rejected.
+      if (isEditorEmpty(trimmed) && symbols.length === 0 && !value.title.trim()) return;
       setSaving(true);
       try {
         const checklistBlock =
@@ -172,9 +179,13 @@ export function NewNoteDrawer() {
 
   const isEdit = editingId != null;
   const bodyValue = useStore(form.store, (s) => s.values.body);
+  const titleValue = useStore(form.store, (s) => s.values.title);
+  const namedSymbolCount = symbolCards.filter((c) => c.symbol.trim().length > 0).length;
   const canSave =
     !isEditorEmpty(bodyValue) ||
-    (isDailyLog && symbolCards.some((c) => c.symbol.trim().length > 0));
+    titleValue.trim().length > 0 ||
+    (isDailyLog && namedSymbolCount > 0);
+  const checkedCount = checklist.filter((item) => checked[item]).length;
 
   return (
     <Drawer open={open} onOpenChange={(v) => !v && !saving && close()} modal="trap-focus">
@@ -204,11 +215,20 @@ export function NewNoteDrawer() {
               e.preventDefault();
               void form.handleSubmit();
             }}
+            onKeyDown={(e) => {
+              // ⌘/Ctrl+Enter saves from anywhere in the form — the rich-text body
+              // swallows a plain Enter, so there is no other keyboard way out.
+              if (e.key === "Enter" && (e.metaKey || e.ctrlKey) && canSave && !saving) {
+                e.preventDefault();
+                void form.handleSubmit();
+              }
+            }}
           >
             {!isEdit ? (
               <SegmentedControl
                 ariaLabel="Note type"
                 fullWidth
+                className="shrink-0"
                 options={NOTE_TYPE_OPTIONS}
                 value={noteType}
                 onChange={(v) => {
@@ -224,43 +244,53 @@ export function NewNoteDrawer() {
               />
             ) : null}
 
-            <form.Field name="occurredAt">
-              {(field) => (
-                <Field label="Date" htmlFor="note-date">
-                  <DatePicker
-                    id="note-date"
-                    aria-label="Date"
-                    value={field.state.value}
-                    onChange={field.handleChange}
-                    onBlur={field.handleBlur}
-                  />
-                </Field>
-              )}
-            </form.Field>
+            <div className="flex shrink-0 flex-col gap-4 sm:flex-row sm:items-start">
+              <form.Field name="title">
+                {(field) => (
+                  <Field label="Title" htmlFor="note-title" className="sm:flex-1">
+                    <FormInput
+                      id="note-title"
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      placeholder={isDailyLog ? "Daily log, session recap…" : "Untitled note"}
+                      autoFocus={isEdit}
+                    />
+                  </Field>
+                )}
+              </form.Field>
 
-            <form.Field name="title">
-              {(field) => (
-                <Field label="Title" htmlFor="note-title">
-                  <FormInput
-                    id="note-title"
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    placeholder={isDailyLog ? "Daily log, session recap…" : "Untitled note"}
-                    autoFocus={isEdit}
-                  />
-                </Field>
-              )}
-            </form.Field>
+              <form.Field name="occurredAt">
+                {(field) => (
+                  <Field label="Date" htmlFor="note-date" className="sm:w-44 sm:shrink-0">
+                    <DatePicker
+                      id="note-date"
+                      aria-label="Date"
+                      value={field.state.value}
+                      onChange={field.handleChange}
+                      onBlur={field.handleBlur}
+                    />
+                  </Field>
+                )}
+              </form.Field>
+            </div>
 
             {isDailyLog && !isEdit && checklist.length > 0 && (
-              <div>
-                <span className={fieldLabelClass}>Daily checklist</span>
+              <div className="shrink-0">
+                <div className="mb-1.5 flex items-baseline justify-between gap-2">
+                  <span className={cn(fieldLabelClass, "mb-0")}>Daily checklist</span>
+                  <span className="text-[11px] font-medium text-muted-foreground tabular-nums">
+                    {checkedCount}/{checklist.length}
+                  </span>
+                </div>
                 <div className="flex flex-col gap-1.5 rounded-md bg-muted px-3 py-2">
                   {checklist.map((item) => (
                     <label
                       key={item}
-                      className="flex cursor-pointer items-center gap-2 text-[13px] text-foreground"
+                      className={cn(
+                        "flex cursor-pointer items-center gap-2 text-[13px] transition-colors",
+                        checked[item] ? "text-muted-foreground line-through" : "text-foreground",
+                      )}
                     >
                       <input
                         type="checkbox"
@@ -278,12 +308,13 @@ export function NewNoteDrawer() {
             <form.Field
               name="body"
               validators={{
-                onSubmit: ({ value }) => {
+                onSubmit: ({ value, fieldApi }) => {
                   if (!isEditorEmpty(value)) return undefined;
+                  if (fieldApi.form.getFieldValue("title").trim()) return undefined;
                   if (isDailyLog && symbolCards.some((c) => c.symbol.trim())) return undefined;
                   return isDailyLog
-                    ? "Add a day note or at least one symbol."
-                    : "Add some note content.";
+                    ? "Add a day note, a title, or at least one symbol."
+                    : "Add a title or some note content.";
                 },
               }}
             >
@@ -292,6 +323,8 @@ export function NewNoteDrawer() {
                   label={isDailyLog ? "Day notes" : "Notes"}
                   htmlFor="note-body"
                   error={fieldError(field.state.meta.errors)}
+                  // Fills the drawer instead of leaving dead space under a short editor.
+                  className="min-h-[13rem] flex-1"
                 >
                   <RichTextEditor
                     key={`body-${noteType}-${editorKey}`}
@@ -304,19 +337,25 @@ export function NewNoteDrawer() {
                     placeholder={
                       isDailyLog ? "Market read, mindset, lessons for the day…" : "Write your note…"
                     }
-                    minHeight={160}
+                    minHeight={140}
                     autoFocus={!isEdit}
                     showHints
+                    fill
                   />
                 </Field>
               )}
             </form.Field>
 
             {isDailyLog ? (
-              <div className="flex flex-col gap-3">
+              <div className="flex shrink-0 flex-col gap-3">
                 <div className="flex items-center justify-between gap-2">
-                  <span className={fieldLabelClass} style={{ marginBottom: 0 }}>
+                  <span className={cn(fieldLabelClass, "mb-0")}>
                     Symbol cards
+                    {namedSymbolCount > 0 ? (
+                      <span className="ml-1.5 text-foreground tabular-nums">
+                        {namedSymbolCount}
+                      </span>
+                    ) : null}
                   </span>
                   <Button
                     type="button"
@@ -351,18 +390,31 @@ export function NewNoteDrawer() {
             ) : null}
           </form>
         </DrawerBody>
-        <DrawerFooter>
-          <Button type="button" variant="outline" onClick={close} disabled={saving}>
-            Cancel
-          </Button>
-          <Button
-            type="button"
-            variant="default"
-            onClick={() => void form.handleSubmit()}
-            disabled={!canSave || saving}
-          >
-            {saving ? "Saving…" : isEdit ? "Save changes" : isDailyLog ? "Save log" : "Save note"}
-          </Button>
+        <DrawerFooter className="justify-between gap-3">
+          <span className="hidden items-center gap-1.5 text-[11px] text-muted-foreground sm:inline-flex">
+            <Kbd>{SAVE_HOTKEY_LABEL}</Kbd> to save
+          </span>
+          <div className="flex flex-1 items-center gap-2 sm:flex-none">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={close}
+              disabled={saving}
+              className="flex-1 sm:flex-none"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="default"
+              onClick={() => void form.handleSubmit()}
+              loading={saving}
+              disabled={!canSave || saving}
+              className="flex-1 sm:flex-none"
+            >
+              {saving ? "Saving…" : isEdit ? "Save changes" : isDailyLog ? "Save log" : "Save note"}
+            </Button>
+          </div>
         </DrawerFooter>
       </DrawerContent>
     </Drawer>
