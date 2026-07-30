@@ -11,7 +11,7 @@
 */
 @theme inline {
   --font-sans:
-    "Poppins", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     "Helvetica Neue", Arial, sans-serif;
   --font-heading: var(--font-sans);
   --font-mono:
@@ -76,6 +76,8 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 
   --animate-auth-panel-in: auth-panel-in 280ms ease-out;
+  /* Slight overshoot so the create FAB pops in rather than fading on. */
+  --animate-fab-in: fab-in 320ms cubic-bezier(0.34, 1.4, 0.5, 1) backwards;
   --animate-shimmer: shimmer 1.5s ease-in-out infinite;
   --animate-skeleton: skeleton 2s -1s infinite linear;
   @keyframes skeleton {
@@ -203,17 +205,20 @@
     cursor: pointer;
   }
 
-  /* coss Base UI: relative body + isolate root for portaled overlays */
+  /* coss Base UI: relative body + isolate root for portaled overlays.
+     Phones scroll the document so mobile Safari can collapse its toolbar; ≥md
+     pins to the viewport so the shell's panes scroll on their own. svh over dvh
+     keeps the layout from resizing mid-collapse. */
   html {
-    @apply h-full min-h-dvh;
+    @apply min-h-svh md:h-full;
   }
 
   body {
-    @apply relative h-full min-h-dvh bg-background text-foreground font-sans text-sm antialiased;
+    @apply relative min-h-svh bg-background text-foreground font-sans text-sm antialiased md:h-full;
   }
 
   #root {
-    @apply relative isolate flex h-full min-h-dvh flex-col bg-background text-foreground;
+    @apply relative isolate flex min-h-svh flex-col bg-background text-foreground md:h-full;
   }
 }
 
@@ -238,6 +243,17 @@
   }
   to {
     opacity: 1;
+  }
+}
+
+@keyframes fab-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }
 
@@ -272,6 +288,112 @@
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-old(calendar-mode-panel),
   ::view-transition-new(calendar-mode-panel) {
+    animation: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Page transitions
+
+   Driven by the router's `defaultViewTransition` (see main.tsx). The incoming
+   page fades in rising from below; the outgoing one fades out sinking toward the
+   bottom. Only <main> carries a `view-transition-name`, so the rail, header and
+   tab bar stay put while the page swaps.
+
+   Old and new run concurrently rather than in sequence: the outgoing snapshot is
+   an inert image, so overlapping them costs nothing and avoids the out-then-in
+   stacking that reads as lag. The outgoing one clears faster so the incoming
+   page is legible early.
+   --------------------------------------------------------------------------- */
+
+/* The UA names the document element `root` and crossfades the whole viewport.
+   Drop it so only the named page animates. */
+:root {
+  view-transition-name: none;
+}
+
+/* <main> is captured by *any* view transition on the page — the calendar's
+   month/year toggle starts one of its own — but only a route change should move
+   the page. Everything else swaps straight to the new view. */
+::view-transition-old(page) {
+  animation: none;
+  opacity: 0;
+}
+
+::view-transition-new(page) {
+  animation: none;
+  opacity: 1;
+}
+
+/* Route change. The group keeps its UA morph animation (page height varies a lot
+   between routes, so there is real geometry to interpolate) and is only retimed —
+   clearing `animation` here would drop the name and freeze it at the new size. */
+:root:active-view-transition-type(page-nav)::view-transition-group(page) {
+  animation-duration: 200ms;
+}
+
+:root:active-view-transition-type(page-nav)::view-transition-old(page) {
+  animation: page-out 120ms cubic-bezier(0.4, 0, 1, 1) both;
+}
+
+:root:active-view-transition-type(page-nav)::view-transition-new(page) {
+  animation: page-in 200ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Both ends stated explicitly: the implicit end would otherwise inherit the
+   opacity from the non-nav rules above and start the page already invisible. */
+@keyframes page-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* The floating mobile tab bar is `fixed`, so it normally paints *under* the
+   transition overlay and the page snapshot hides it mid-navigation. It has its
+   own name (see MobileTabBar.tsx) purely to be lifted into the overlay — it
+   should not animate. `::view-transition-new` is a live representation of the
+   element rather than a still, so showing only that keeps the bar interactive-
+   looking and lets its active pill slide as usual.
+
+   The `z-index` is load-bearing. Groups stack in the order their names were
+   captured, *not* by the source element's z-index, and <main> is captured first
+   — so without this the page (opaque, and on phones taller than the viewport)
+   paints over the bar and washes it out for the whole transition. */
+::view-transition-group(mobile-tab-bar) {
+  animation: none;
+  z-index: 10;
+}
+
+::view-transition-old(mobile-tab-bar) {
+  animation: none;
+  opacity: 0;
+}
+
+::view-transition-new(mobile-tab-bar) {
+  animation: none;
+  opacity: 1;
+  mix-blend-mode: normal;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(page),
+  ::view-transition-new(page) {
     animation: none;
   }
 }

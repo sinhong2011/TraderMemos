@@ -3,15 +3,12 @@ import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { getSerwist } from "virtual:serwist";
-import "@fontsource/poppins/400.css";
-import "@fontsource/poppins/500.css";
-import "@fontsource/poppins/600.css";
-import "@fontsource/poppins/700.css";
 import { RouteErrorPanel } from "./components/RouteErrorPanel";
 import { ThemeProvider, THEME_STORAGE_KEY } from "./components/theme-provider";
 import { TooltipProvider } from "./components/ui/tooltip";
 import { I18nProvider } from "./i18n";
 import { initAppUpdates } from "./lib/appUpdate";
+import { pageViewTransitionTypes } from "./lib/pageViewTransition";
 import { routeTree } from "./routeTree.gen";
 import "./global.css";
 
@@ -29,6 +26,11 @@ const queryClient = new QueryClient({
 const router = createRouter({
   routeTree,
   defaultErrorComponent: ({ error }) => <RouteErrorPanel error={error} />,
+  // Page transitions run on the View Transition API: the router wraps the
+  // navigation in `document.startViewTransition`, so the outgoing page stays on
+  // screen as a compositor-driven snapshot while React renders the incoming one.
+  // Ignored outright on browsers without the API.
+  defaultViewTransition: { types: pageViewTransitionTypes },
 });
 
 declare module "@tanstack/react-router" {
