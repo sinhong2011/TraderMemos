@@ -16,8 +16,8 @@ function stepLabel(item: (typeof STEPS)[number], format?: string): string {
 
 export function ImportStepIndicator({ current, format }: { current: 1 | 2 | 3; format?: string }) {
   return (
-    <nav aria-label="Import progress" className="mb-6">
-      <ol className="flex w-full items-start rounded-md border border-border bg-background px-3 py-4 sm:px-5">
+    <nav aria-label="Import progress">
+      <ol className="flex w-full items-center gap-2 sm:gap-3">
         {STEPS.map((item, index) => {
           const isActive = item.step === current;
           const isDone = item.step < current;
@@ -27,56 +27,39 @@ export function ImportStepIndicator({ current, format }: { current: 1 | 2 | 3; f
             <li
               key={item.step}
               className={cn(
-                "flex min-w-0 items-start",
+                "flex min-w-0 items-center gap-2",
                 index < STEPS.length - 1 ? "flex-1" : "shrink-0",
               )}
             >
-              <div className="flex w-22 shrink-0 flex-col items-center gap-2 sm:w-24">
-                <span
-                  className={cn(
-                    "relative flex size-7 items-center justify-center rounded-md border text-[11px] font-semibold tabular-nums",
-                    "transition-[transform,background-color,border-color,box-shadow,color] duration-250 ease-out",
-                    "motion-reduce:transition-none",
-                    isActive &&
-                      "scale-105 border-primary bg-primary/10 text-primary shadow-none ring-2 ring-warning/30",
-                    isDone && "border-primary/35 bg-accent/15 text-primary",
-                    !isActive && !isDone && "border-border bg-muted text-muted-foreground",
-                  )}
-                  aria-current={isActive ? "step" : undefined}
-                >
-                  {isDone ? (
-                    <Check
-                      size={13}
-                      strokeWidth={2.25}
-                      className="opacity-100 transition-opacity duration-200 motion-reduce:transition-none"
-                      aria-hidden
-                    />
-                  ) : (
-                    item.step
-                  )}
-                  {isActive ? (
-                    <span
-                      aria-hidden
-                      className="absolute inset-0 rounded-md ring-1 ring-primary/20 motion-reduce:hidden"
-                    />
-                  ) : null}
-                </span>
-                <span
-                  className={cn(
-                    "max-w-full truncate text-center text-[10px] uppercase tracking-widest",
-                    "transition-colors duration-250 ease-out motion-reduce:transition-none",
-                    isActive && "font-semibold text-foreground",
-                    isDone && "text-primary/80",
-                    !isActive && !isDone && "text-muted-foreground",
-                  )}
-                >
-                  {label}
-                </span>
-              </div>
+              <span
+                className={cn(
+                  "flex size-6 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold tabular-nums",
+                  "transition-colors duration-200 ease-out motion-reduce:transition-none",
+                  isActive && "bg-primary text-primary-foreground",
+                  isDone && "bg-primary/15 text-primary",
+                  !isActive && !isDone && "bg-muted text-muted-foreground",
+                )}
+                aria-current={isActive ? "step" : undefined}
+              >
+                {isDone ? <Check size={13} strokeWidth={2.5} aria-hidden /> : item.step}
+              </span>
+              <span
+                className={cn(
+                  "truncate text-xs",
+                  "transition-colors duration-200 ease-out motion-reduce:transition-none",
+                  // Narrow screens only have room for the step you're on.
+                  isActive ? "inline" : "hidden sm:inline",
+                  isActive && "font-medium text-foreground",
+                  isDone && "text-muted-foreground",
+                  !isActive && !isDone && "text-muted-foreground/60",
+                )}
+              >
+                {label}
+              </span>
 
               {index < STEPS.length - 1 ? (
-                <div aria-hidden className="mx-1 mt-3.5 flex min-w-6 flex-1 items-center sm:mx-2">
-                  <div className="relative h-[2px] w-full overflow-hidden rounded-full bg-border">
+                <div aria-hidden className="ml-1 min-w-4 flex-1">
+                  <div className="relative h-px w-full overflow-hidden rounded-full bg-border">
                     <div
                       className={cn(
                         "absolute inset-y-0 left-0 rounded-full bg-primary",

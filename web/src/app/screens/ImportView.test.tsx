@@ -118,7 +118,7 @@ describe("ImportView - Step 1", () => {
       onDone: vi.fn<(...args: any[]) => any>(),
     });
     expect(screen.getByText("Upload file")).toBeInTheDocument();
-    expect(screen.getByText(/Click to upload/i)).toBeInTheDocument();
+    expect(screen.getByText(/Drop a file here/i)).toBeInTheDocument();
     expect(screen.getByText("Supported formats")).toBeInTheDocument();
   });
 
@@ -131,13 +131,14 @@ describe("ImportView - Step 1", () => {
       onCommit: vi.fn<(...args: any[]) => any>(),
       onDone: vi.fn<(...args: any[]) => any>(),
     });
-    await user.click(screen.getByRole("tab", { name: "Export" }));
+    // SegmentedControl is a ToggleGroup — segments are buttons, not tabs.
+    await user.click(screen.getByRole("button", { name: "Export" }));
     expect(screen.getByText("Export account")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /download export/i })).toBeInTheDocument();
     expect(screen.getByLabelText(/omit account details/i)).toBeInTheDocument();
-    await user.click(screen.getByRole("tab", { name: "CSV" }));
+    await user.click(screen.getByRole("button", { name: "CSV" }));
     expect(screen.queryByLabelText(/omit account details/i)).not.toBeInTheDocument();
-    await user.click(screen.getByRole("tab", { name: "ZIP" }));
+    await user.click(screen.getByRole("button", { name: "ZIP" }));
     expect(screen.getByLabelText(/omit account details/i)).toBeInTheDocument();
   });
 });
@@ -159,7 +160,7 @@ describe("ImportView - Step 2 via simulated preview result", () => {
 });
 
 describe("ImportView - Step 3 result", () => {
-  it("renders the result panel after commit", () => {
+  it("stays on upload until a file is committed", () => {
     renderImportView({
       accounts,
       accountsLoading: false,
@@ -169,6 +170,38 @@ describe("ImportView - Step 3 result", () => {
     });
     expect(screen.queryByText("Import complete")).not.toBeInTheDocument();
     expect(screen.getByText("Upload file")).toBeInTheDocument();
+  });
+
+  it("renders the result card after preview and commit", async () => {
+    const user = (await import("@testing-library/user-event")).default.setup();
+    renderImportView({
+      accounts,
+      accountsLoading: false,
+      onPreview: vi.fn<(...args: any[]) => any>().mockResolvedValue(mockPreview),
+      onCommit: vi.fn<(...args: any[]) => any>().mockResolvedValue(mockResult),
+      onDone: vi.fn<(...args: any[]) => any>(),
+    });
+
+    const file = new File(["Date,Symbol\n2026-01-02,AAPL\n"], "fills.csv", { type: "text/csv" });
+    fireEvent.change(screen.getByLabelText("Import file input"), { target: { files: [file] } });
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: /preview import/i })).toBeEnabled(),
+    );
+
+    await user.click(screen.getByRole("button", { name: /preview import/i }));
+    // "Map columns" labels both the step indicator and the card — wait on the step 2 action.
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: /confirm import/i })).toBeInTheDocument(),
+    );
+
+    await user.click(screen.getByRole("button", { name: /confirm import/i }));
+    await waitFor(() => expect(screen.getByText("Import complete")).toBeInTheDocument());
+
+    expect(screen.getByText("Import finished")).toBeInTheDocument();
+    expect(screen.getByText("Inserted")).toBeInTheDocument();
+    expect(screen.getByText("Skipped (duplicates)")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /view dashboard/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /import another/i })).toBeInTheDocument();
   });
 });
 

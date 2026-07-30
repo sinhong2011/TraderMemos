@@ -33,9 +33,6 @@ function ImportPage() {
       onDone={() => {
         void navigate({ to: "/dashboard" });
       }}
-      onBack={() => {
-        void navigate({ to: "/dashboard" });
-      }}
       onLogTrade={() => openModal("new-trade")}
     />
   );
