@@ -9,7 +9,7 @@ import {
   YAxis,
 } from "recharts";
 import { Card } from "./Card";
-import { ChartFrame, chartTheme } from "./ChartFrame";
+import { ChartFrame, chartTheme, chartTooltipStyle } from "./ChartFrame";
 import { EmptyState } from "./EmptyState";
 import { SegmentedControl } from "./SegmentedControl";
 import { Skeleton } from "./Skeleton";
@@ -77,12 +77,7 @@ export function ReportsRollingWinRate({ trades, loading, error }: ReportsRolling
                   domain={[0, 1]}
                 />
                 <Tooltip
-                  contentStyle={{
-                    background: chartTheme.tooltipBg,
-                    border: `1px solid ${chartTheme.tooltipBorder}`,
-                    color: chartTheme.tooltipText,
-                    fontSize: 11,
-                  }}
+                  {...chartTooltipStyle}
                   formatter={(value) => [fmtPct(Number(value ?? 0), locale), "Win rate"]}
                   labelFormatter={(v) => `Trade #${v}`}
                 />

@@ -12,7 +12,7 @@ import { ArrowRight } from "lucide-react";
 import type { BreakGroup } from "@/lib/api/types";
 import { fmtMoneyCompact, fmtSignedMoney } from "@/lib/format";
 import { intlLocale } from "@/lib/locale";
-import { ChartFrame, chartTheme } from "./ChartFrame";
+import { ChartFrame, chartTheme, chartTooltipStyle, pnlTooltipValue } from "./ChartFrame";
 import { SegmentedControl } from "./SegmentedControl";
 import { Skeleton } from "./Skeleton";
 import { Button } from "./ui/button";
@@ -99,16 +99,13 @@ export function DashboardBreakdownChart({
                     width={48}
                   />
                   <Tooltip
-                    contentStyle={{
-                      background: chartTheme.tooltipBg,
-                      border: `1px solid ${chartTheme.tooltipBorder}`,
-                      color: chartTheme.tooltipText,
-                      fontSize: 11,
-                      borderRadius: "var(--radius)",
-                    }}
+                    {...chartTooltipStyle}
                     labelFormatter={(_, payload) => String(payload?.[0]?.payload?.fullKey ?? _)}
                     formatter={(value) => [
-                      fmtSignedMoney(Number(value ?? 0), currency, locale),
+                      pnlTooltipValue(
+                        Number(value ?? 0),
+                        fmtSignedMoney(Number(value ?? 0), currency, locale),
+                      ),
                       "Net P&L",
                     ]}
                     cursor={{ fill: chartTheme.cursorFill }}

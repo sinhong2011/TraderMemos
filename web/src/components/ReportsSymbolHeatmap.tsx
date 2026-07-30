@@ -1,6 +1,6 @@
 import { ResponsiveContainer, Tooltip, Treemap } from "recharts";
 import { Card } from "./Card";
-import { ChartFrame, chartTheme } from "./ChartFrame";
+import { ChartFrame, chartTooltipStyle, pnlTooltipValue } from "./ChartFrame";
 import { EmptyState } from "./EmptyState";
 import { useReportsMoney } from "./ReportsDisplayContext";
 import { Skeleton } from "./Skeleton";
@@ -122,16 +122,17 @@ export function ReportsSymbolHeatmap({ breakdown, loading, error }: ReportsSymbo
               content={<HeatCell maxAbs={maxAbs} />}
             >
               <Tooltip
-                contentStyle={{
-                  background: chartTheme.tooltipBg,
-                  border: `1px solid ${chartTheme.tooltipBorder}`,
-                  color: chartTheme.tooltipText,
-                  fontSize: 11,
-                }}
+                {...chartTooltipStyle}
                 formatter={(_v, _n, item) => {
                   const p = item?.payload as HeatmapNode | undefined;
                   if (!p) return ["", ""];
-                  return [`${money.format(p.netPnl)} · ${p.size} trades`, p.name];
+                  return [
+                    <>
+                      {pnlTooltipValue(p.netPnl, money.format(p.netPnl))}
+                      <span className="text-muted-foreground"> · {p.size} trades</span>
+                    </>,
+                    p.name,
+                  ];
                 }}
               />
             </Treemap>

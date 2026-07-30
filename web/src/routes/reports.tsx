@@ -53,7 +53,6 @@ export const Route = createFileRoute("/reports")({
 function ReportsPage() {
   const filters = useFilterParams();
   const accountId = useFilters((s) => s.accountId);
-  const setSymbol = useFilters((s) => s.setSymbol);
   const [dim, setDim] = useState<BreakdownDim>("setup");
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [selectedTradeId, setSelectedTradeId] = useState<string | null>(null);
@@ -167,11 +166,6 @@ function ReportsPage() {
         dayTradesLoading={Boolean(selectedDay) && tradesQ.isLoading}
         dayTradesError={Boolean(selectedDay) && tradesQ.isError}
         onSelectTrade={(t) => setSelectedTradeId(t.id)}
-        onOpenFullPage={(t) => void navigate({ to: "/trades/$id", params: { id: t.id } })}
-        onFilterSymbol={(symbol) => setSymbol(symbol)}
-        onTradeDeleted={(t) => {
-          if (selectedTradeId === t.id) setSelectedTradeId(null);
-        }}
         goalYear={goalYear}
         goalAmount={annualGoalQ.data?.amount}
         goalLoading={annualGoalQ.isLoading}

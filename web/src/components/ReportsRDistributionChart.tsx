@@ -9,7 +9,7 @@ import {
   YAxis,
 } from "recharts";
 import { Card } from "./Card";
-import { ChartFrame, chartTheme } from "./ChartFrame";
+import { ChartFrame, chartTheme, chartTooltipStyle } from "./ChartFrame";
 import { EmptyState } from "./EmptyState";
 import { Skeleton } from "./Skeleton";
 import type { RBucket } from "@/lib/api/types";
@@ -74,12 +74,7 @@ export function ReportsRDistributionChart({
                   allowDecimals={false}
                 />
                 <Tooltip
-                  contentStyle={{
-                    background: chartTheme.tooltipBg,
-                    border: `1px solid ${chartTheme.tooltipBorder}`,
-                    color: chartTheme.tooltipText,
-                    fontSize: 11,
-                  }}
+                  {...chartTooltipStyle}
                   formatter={(value) => [String(value), "Trades"]}
                   cursor={{ fill: chartTheme.cursorFill }}
                 />

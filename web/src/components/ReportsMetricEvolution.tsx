@@ -18,7 +18,7 @@ import {
   metricEvolution,
 } from "@/lib/reportsAnalytics";
 import { Card } from "./Card";
-import { ChartFrame, chartTheme } from "./ChartFrame";
+import { ChartFrame, chartTheme, chartTooltipStyle, pnlTooltipValue } from "./ChartFrame";
 import { EmptyState } from "./EmptyState";
 import { useReportsMoney } from "./ReportsDisplayContext";
 import { SegmentedControl } from "./SegmentedControl";
@@ -147,19 +147,18 @@ export function ReportsMetricEvolution({ trades, loading, error }: ReportsMetric
                 width={56}
               />
               <Tooltip
-                contentStyle={{
-                  background: chartTheme.tooltipBg,
-                  border: `1px solid ${chartTheme.tooltipBorder}`,
-                  color: chartTheme.tooltipText,
-                  fontSize: 11,
-                }}
+                {...chartTooltipStyle}
                 labelFormatter={(v) => fmtDayShort(String(v), locale)}
-                formatter={(value, name) => [
-                  name === "winRate"
-                    ? fmtPct(Number(value ?? 0), locale)
-                    : fmtRight(Number(value ?? 0)),
-                  name === "winRate" ? "Win rate" : rightLabel,
-                ]}
+                formatter={(value, name) => {
+                  const v = Number(value ?? 0);
+                  if (name === "winRate") return [fmtPct(v, locale), "Win rate"];
+                  // Dollar metrics are signed P&L; profit factor is a ratio, so it stays neutral.
+                  const text = fmtRight(v);
+                  return [
+                    rightMetric === "profitFactor" ? text : pnlTooltipValue(v, text),
+                    rightLabel,
+                  ];
+                }}
               />
               <Line
                 yAxisId="left"

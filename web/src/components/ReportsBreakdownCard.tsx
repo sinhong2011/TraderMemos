@@ -11,7 +11,7 @@ import {
   YAxis,
 } from "recharts";
 import { Card } from "./Card";
-import { ChartFrame, chartTheme } from "./ChartFrame";
+import { ChartFrame, chartTheme, chartTooltipStyle, pnlTooltipValue } from "./ChartFrame";
 import { DataTable } from "./DataTable";
 import { EmptyState } from "./EmptyState";
 import { useReportsMoney } from "./ReportsDisplayContext";
@@ -129,13 +129,11 @@ export function ReportsBreakdownCard({
                 </>
               )}
               <Tooltip
-                contentStyle={{
-                  background: chartTheme.tooltipBg,
-                  border: `1px solid ${chartTheme.tooltipBorder}`,
-                  color: chartTheme.tooltipText,
-                  fontSize: 11,
-                }}
-                formatter={(value) => [money.formatAxis(Number(value ?? 0)), "Net P&L"]}
+                {...chartTooltipStyle}
+                formatter={(value) => [
+                  pnlTooltipValue(Number(value ?? 0), money.formatAxis(Number(value ?? 0))),
+                  "Net P&L",
+                ]}
                 cursor={{ fill: chartTheme.cursorFill }}
               />
               <Bar dataKey="net_pnl" radius={horizontal ? [0, 2, 2, 0] : [2, 2, 0, 0]}>

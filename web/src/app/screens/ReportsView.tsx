@@ -14,7 +14,12 @@ import {
 } from "recharts";
 import { AnnualGoalCard } from "@/components/AnnualGoalCard";
 import { Card } from "@/components/Card";
-import { ChartFrame, chartTheme } from "@/components/ChartFrame";
+import {
+  ChartFrame,
+  chartTheme,
+  chartTooltipStyle,
+  pnlTooltipValue,
+} from "@/components/ChartFrame";
 import { DataTable } from "@/components/DataTable";
 import { DayTradesDrawer } from "@/components/DayTradesDrawer";
 import { EmptyState } from "@/components/EmptyState";
@@ -147,9 +152,6 @@ export interface ReportsViewProps {
   dayTradesLoading: boolean;
   dayTradesError: boolean;
   onSelectTrade: (t: Trade) => void;
-  onOpenFullPage: (t: Trade) => void;
-  onFilterSymbol?: (symbol: string) => void;
-  onTradeDeleted?: (t: Trade) => void;
   goalYear: number;
   goalAmount: number | null | undefined;
   goalLoading: boolean;
@@ -292,13 +294,7 @@ function SummaryMetricsGrid({
                       domain={["auto", "auto"]}
                     />
                     <Tooltip
-                      contentStyle={{
-                        background: chartTheme.tooltipBg,
-                        border: `1px solid ${chartTheme.tooltipBorder}`,
-                        color: chartTheme.tooltipText,
-                        fontSize: 11,
-                        borderRadius: "var(--radius)",
-                      }}
+                      {...chartTooltipStyle}
                       labelFormatter={(label) => String(label ?? "").slice(0, 10)}
                       formatter={(value) => [
                         fmtMoney(Number(value ?? 0), currency, intlLocale()),
@@ -510,13 +506,11 @@ export function PnlBarChart({ data }: PnlBarChartProps) {
             width={72}
           />
           <Tooltip
-            contentStyle={{
-              background: chartTheme.tooltipBg,
-              border: `1px solid ${chartTheme.tooltipBorder}`,
-              color: chartTheme.tooltipText,
-              fontSize: 11,
-            }}
-            formatter={(value) => [money.formatAxis(Number(value ?? 0)), "P&L"]}
+            {...chartTooltipStyle}
+            formatter={(value) => [
+              pnlTooltipValue(Number(value ?? 0), money.formatAxis(Number(value ?? 0))),
+              "P&L",
+            ]}
             cursor={{ fill: chartTheme.cursorFill }}
           />
           <Bar dataKey="pnl" radius={[2, 2, 0, 0]}>
@@ -592,9 +586,6 @@ export function ReportsView({
   dayTradesLoading,
   dayTradesError,
   onSelectTrade,
-  onOpenFullPage,
-  onFilterSymbol,
-  onTradeDeleted,
   goalYear,
   goalAmount,
   goalLoading,
@@ -807,9 +798,6 @@ export function ReportsView({
         currency={displayCurrency}
         fxRate={fxRate}
         onSelectTrade={onSelectTrade}
-        onOpenFullPage={onOpenFullPage}
-        onFilterSymbol={onFilterSymbol}
-        onDeleted={onTradeDeleted}
       />
     </ReportsDisplayProvider>
   );

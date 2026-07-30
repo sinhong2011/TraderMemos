@@ -19,7 +19,7 @@ import {
   maxDrawdownPct,
 } from "@/lib/reportsAnalytics";
 import { Card } from "./Card";
-import { ChartFrame, chartTheme } from "./ChartFrame";
+import { ChartFrame, chartTheme, chartTooltipStyle, pnlTooltipValue } from "./ChartFrame";
 import { EmptyState } from "./EmptyState";
 import { useReportsMoney } from "./ReportsDisplayContext";
 import { Skeleton } from "./Skeleton";
@@ -124,13 +124,11 @@ export function ReportsRiskDrawdown({
                     domain={["auto", 0]}
                   />
                   <Tooltip
-                    contentStyle={{
-                      background: chartTheme.tooltipBg,
-                      border: `1px solid ${chartTheme.tooltipBorder}`,
-                      color: chartTheme.tooltipText,
-                      fontSize: 11,
-                    }}
-                    formatter={(value) => [fmtDrawdownPct(Number(value ?? 0)), "Drawdown"]}
+                    {...chartTooltipStyle}
+                    formatter={(value) => [
+                      pnlTooltipValue(Number(value ?? 0), fmtDrawdownPct(Number(value ?? 0))),
+                      "Drawdown",
+                    ]}
                   />
                   <Area
                     type="monotone"

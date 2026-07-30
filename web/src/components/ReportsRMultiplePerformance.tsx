@@ -11,7 +11,7 @@ import {
 import type { RSummary } from "@/lib/api/types";
 import { usePrivacyMode } from "@/lib/displayPrefs";
 import { Card } from "./Card";
-import { ChartFrame, chartTheme } from "./ChartFrame";
+import { ChartFrame, chartTheme, chartTooltipStyle } from "./ChartFrame";
 import { EmptyState } from "./EmptyState";
 import { Skeleton } from "./Skeleton";
 import { StatCard } from "./StatCard";
@@ -103,12 +103,7 @@ export function ReportsRMultiplePerformance({
                       allowDecimals={false}
                     />
                     <Tooltip
-                      contentStyle={{
-                        background: chartTheme.tooltipBg,
-                        border: `1px solid ${chartTheme.tooltipBorder}`,
-                        color: chartTheme.tooltipText,
-                        fontSize: 11,
-                      }}
+                      {...chartTooltipStyle}
                       formatter={(value) => {
                         const count = Number(value ?? 0);
                         const pct = included > 0 ? ((count / included) * 100).toFixed(0) : "0";

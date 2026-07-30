@@ -30,7 +30,9 @@ function fillMarkers(fills: Execution[]): SeriesMarker<Time>[] {
   }));
 }
 
-const sectionLabelClass = "text-[10px] font-semibold uppercase tracking-widest text-chart-3";
+// Matches the Card header on the trade detail page — the chart is one of its
+// card blocks, not a differently-branded panel.
+const sectionLabelClass = "text-xs font-medium text-muted-foreground";
 
 export interface TradeChartProps {
   symbol: string;
