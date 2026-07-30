@@ -16,7 +16,7 @@ const scalarDocsHTML = `<!doctype html>
     <style>
       html, body { margin: 0; padding: 0; height: 100%; background: #16161c; }
       :root {
-        --scalar-font: "Poppins", system-ui, sans-serif;
+        --scalar-font: system-ui, sans-serif;
       }
     </style>
   </head>
