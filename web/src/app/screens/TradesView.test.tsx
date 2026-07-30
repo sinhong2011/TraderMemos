@@ -1,6 +1,6 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
-import { act, render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vite-plus/test";
@@ -140,31 +140,37 @@ const base = {
   onNewTrade: vi.fn<(...args: any[]) => any>(),
 };
 
-// Two jsdom accommodations for the Filters popup:
-// - `pointerEventsCheck: 0` — the popup keeps Base UI's `data-starting-style`
-//   (pointer-events: none) until its enter transition ends, and jsdom runs no
-//   animation frames, so that guard never clears. The clicks are still real.
-// - Field rows are submenu triggers, which Base UI opens on hover; clicking one
-//   races its own open/close toggle and drops the next click ~1 run in 3.
+// `pointerEventsCheck: 0` — the popup keeps Base UI's `data-starting-style`
+// (pointer-events: none) until its enter transition ends, and jsdom runs no
+// animation frames, so that guard never clears. The clicks are still real.
 /**
- * Click a value in an open Filters submenu.
+ * Click a value in an open Filters submenu, retrying until it takes.
  *
- * These four tests carry `retry: 2`. Base UI opens the submenu on hover and
- * keeps re-rendering while it positions, and under parallel worker load the
- * click occasionally still lands before the item is live. The assertions are
- * exact — only the interaction is timing-sensitive.
+ * Base UI opens the submenu on hover and keeps re-rendering while it positions,
+ * and a click that lands during that window is swallowed — the item exists and
+ * the click dispatches, but no handler runs. A fixed yield before clicking only
+ * guesses at how long that window is: it holds on macOS and missed on every CI
+ * attempt. So re-query and re-click until the handler actually fires, which also
+ * lets real time elapse past the popup's open grace period.
  *
- * Base UI opens the submenu on hover and keeps re-rendering while it positions.
- * Waiting for the item to exist is not enough — a click issued in the same task
- * as the mount is dropped — so yield the macrotask queue once the item is there
- * and let React flush before clicking.
+ * `fired` is the test's own callback mock. Once it has a call the popup is
+ * settled, so we stop clicking rather than toggling the value back off.
  */
-async function pickOption(user: ReturnType<typeof filterUser>, name: string | RegExp) {
-  const option = await screen.findByRole("option", { name });
-  await act(async () => {
-    await new Promise((resolve) => setTimeout(resolve, 0));
-  });
-  await user.click(option);
+async function pickOption(
+  user: ReturnType<typeof filterUser>,
+  name: string | RegExp,
+  fired: ReturnType<typeof vi.fn>,
+) {
+  await screen.findByRole("option", { name });
+  await waitFor(
+    async () => {
+      if (fired.mock.calls.length === 0) {
+        await user.click(screen.getByRole("option", { name }));
+      }
+      expect(fired).toHaveBeenCalled();
+    },
+    { timeout: 5000 },
+  );
 }
 
 function filterUser() {
@@ -234,7 +240,7 @@ describe("TradesView", () => {
 
     await user.click(screen.getByRole("button", { name: "Add filter" }));
     await user.hover(await screen.findByRole("option", { name: "Status" }));
-    await pickOption(user, /Wins/i);
+    await pickOption(user, /Wins/i, onToggleTradeStatus);
     expect(onToggleTradeStatus).toHaveBeenCalledWith("win");
   });
 
@@ -259,7 +265,7 @@ describe("TradesView", () => {
 
     await user.click(screen.getByRole("button", { name: "Add filter" }));
     await user.hover(await screen.findByRole("option", { name: "Symbol" }));
-    await pickOption(user, /MSFT/i);
+    await pickOption(user, /MSFT/i, onSymbolsChange);
     expect(onSymbolsChange).toHaveBeenCalledWith(["MSFT"]);
   });
 
@@ -293,7 +299,7 @@ describe("TradesView", () => {
 
     await user.click(screen.getByRole("button", { name: "Add filter" }));
     await user.hover(await screen.findByRole("option", { name: "Tags" }));
-    await pickOption(user, /Breakout/i);
+    await pickOption(user, /Breakout/i, onTagIdsChange);
     expect(onTagIdsChange).toHaveBeenCalledWith(["tag1"]);
   });
 
@@ -312,7 +318,7 @@ describe("TradesView", () => {
 
     await user.click(screen.getByRole("button", { name: "Add filter" }));
     await user.hover(await screen.findByRole("option", { name: "Market" }));
-    await pickOption(user, /Stock/i);
+    await pickOption(user, /Stock/i, onMarketsChange);
     expect(onMarketsChange).toHaveBeenCalledWith(["stock"]);
   });
 

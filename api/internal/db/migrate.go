@@ -57,6 +57,8 @@ func migrateSQLite(conn *sql.DB) error {
 
 	// air / crash mid-migrate leaves dirty=1 even when DDL mostly applied.
 	// Clear it before Up so startup can re-apply idempotent migrations.
+	// This rewinds one version, so every up migration must be safe to re-run
+	// against a database that already has it (CREATE TABLE/INDEX IF NOT EXISTS).
 	if ver, dirty, vErr := drv.Version(); vErr == nil && dirty {
 		prev := ver - 1
 		if prev < 0 {
