@@ -24,7 +24,19 @@ describe("computeHeaderStats", () => {
     });
     expect(s.netPnl).toBeCloseTo(-61.79);
     expect(s.cash).toBeCloseTo(1238.21);
+    expect(s.netPnlPct).toBeCloseTo(-61.79 / 1300);
     expect(s.active).toBe(0);
+  });
+
+  it("has no return pct without funded capital", () => {
+    const s = computeHeaderStats({
+      accounts: [acct("a1", 0)],
+      accountId: "a1",
+      cashTx: [],
+      summary: summary(120),
+      trades: [],
+    });
+    expect(s.netPnlPct).toBeNull();
   });
 
   it("sums selected accounts cash only and open trade value", () => {

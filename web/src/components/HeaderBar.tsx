@@ -1,7 +1,7 @@
-import { Check, Eye, EyeOff, Menu, Search, Wallet, X } from "lucide-react";
+import { Eye, EyeOff, Search, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/cn";
-import { currencyIcon } from "@/lib/currencyIcon";
+import { currencyIcon, currencyRegion, currencySymbol } from "@/lib/currency";
 import {
   accountBaseCurrency,
   DISPLAY_CURRENCIES,
@@ -10,7 +10,7 @@ import {
 } from "@/lib/displayPrefs";
 import { useFilterParams, useFilters } from "@/lib/filters";
 import { APP_HOTKEYS } from "@/lib/hotkeys";
-import { fmtMoney, fmtPct, fmtSignedMoney } from "@/lib/format";
+import { fmtMoney, fmtPct, fmtSignedMoney, fmtSignedPct } from "@/lib/format";
 import { computeHeaderStats } from "@/lib/headerStats";
 import { useAccounts } from "@/lib/hooks/useAccounts";
 import { useSummary } from "@/lib/hooks/useAnalytics";
@@ -26,7 +26,15 @@ import { OptionsSelect } from "./OptionsSelect";
 import { heroPnlClass } from "./theme-tokens";
 import { Button } from "./ui/button";
 import { Kbd } from "./ui/kbd";
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import {
+  Menu,
+  MenuGroup,
+  MenuGroupLabel,
+  MenuPopup,
+  MenuRadioGroup,
+  MenuRadioItem,
+  MenuTrigger,
+} from "./ui/menu";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 const AUTO_VALUE = "__auto__";
@@ -67,27 +75,32 @@ function SymbolFilterChip({ symbols, onClear }: { symbols: string[]; onClear: ()
   );
 }
 
-function CurrencyOptionLabel({ code, account }: { code: string; account?: boolean }) {
-  const Icon = currencyIcon(code);
+/** `HK$ HKD Hong Kong` — the symbol alone can't separate five dollars and two yen. */
+function CurrencyOptionLabel({ code, detail }: { code: string; detail?: string }) {
   return (
     <span className="inline-flex min-w-0 items-center gap-1.5">
-      <Icon size={12} strokeWidth={1.75} className="shrink-0 text-muted-foreground" aria-hidden />
+      <span className="shrink-0 text-muted-foreground">{currencySymbol(code)}</span>
       <span className="tabular-nums">{code}</span>
-      {account ? (
-        <>
-          <span className="text-muted-foreground" aria-hidden>
-            ·
-          </span>
-          <Wallet
-            size={12}
-            strokeWidth={1.75}
-            className="shrink-0 text-muted-foreground"
-            aria-hidden
-          />
-          <span className="sr-only">account</span>
-        </>
-      ) : null}
+      {detail ? <span className="min-w-0 truncate text-muted-foreground">{detail}</span> : null}
     </span>
+  );
+}
+
+/** Menu row: symbol column, code, then the issuing region as a quiet trailing hint. */
+function CurrencyMenuItem({ value, code }: { value: string; code: string }) {
+  const region = currencyRegion(code);
+  return (
+    <MenuRadioItem value={value} closeOnClick className="pe-2.5">
+      <span className="flex w-full items-center gap-2">
+        <span className="w-8 shrink-0 text-end text-muted-foreground">{currencySymbol(code)}</span>
+        <span className="font-medium tabular-nums">{code}</span>
+        {region ? (
+          <span className="ms-auto min-w-0 truncate text-[11px] text-muted-foreground">
+            {region}
+          </span>
+        ) : null}
+      </span>
+    </MenuRadioItem>
   );
 }
 
@@ -115,15 +128,16 @@ export function DisplayCurrencySelect({
     ? `Display currency · ${activeCode} (account)`
     : `Display currency · ${activeCode}`;
 
+  const convertible = DISPLAY_CURRENCIES.filter((code) => code !== base);
   const options = [
     {
       value: AUTO_VALUE,
-      label: <CurrencyOptionLabel code={base} account />,
+      label: <CurrencyOptionLabel code={base} detail="Account" />,
       shortLabel: <CurrencyOptionLabel code={base} />,
     },
-    ...DISPLAY_CURRENCIES.filter((code) => code !== base).map((code) => ({
+    ...convertible.map((code) => ({
       value: code,
-      label: <CurrencyOptionLabel code={code} />,
+      label: <CurrencyOptionLabel code={code} detail={currencyRegion(code)} />,
       shortLabel: <CurrencyOptionLabel code={code} />,
     })),
   ];
@@ -140,11 +154,11 @@ export function DisplayCurrencySelect({
 
   if (variant === "rail") {
     return (
-      <Popover open={open} onOpenChange={setOpen}>
+      <Menu open={open} onOpenChange={setOpen}>
         <Tooltip>
           <TooltipTrigger
             render={
-              <PopoverTrigger
+              <MenuTrigger
                 aria-label={`Show amounts in (account ledger is ${base})`}
                 className={cn(
                   "group relative flex size-8 cursor-pointer items-center justify-center rounded-md outline-none",
@@ -167,51 +181,29 @@ export function DisplayCurrencySelect({
           </TooltipTrigger>
           <TooltipContent side={tipSide}>{tipLabel}</TooltipContent>
         </Tooltip>
-        <PopoverContent
+        <MenuPopup
           side={popoverSide}
           align="end"
           sideOffset={popoverSide === "right" ? 8 : 6}
-          className="w-[200px] p-1.5"
+          className="w-60"
         >
-          <p className="m-0 px-2.5 pt-1.5 pb-2.5 text-[10px] font-semibold uppercase tracking-widest text-chart-3">
-            Currency
-          </p>
-          <div className="flex flex-col gap-0.5">
-            {options.map((opt) => {
-              const selected =
-                opt.value === AUTO_VALUE ? usingAccount : !usingAccount && opt.value === activeCode;
-              return (
-                <Button
-                  key={opt.value}
-                  type="button"
-                  variant="ghost"
-                  onClick={() => {
-                    applyCurrency(opt.value);
-                    setOpen(false);
-                  }}
-                  className={cn(
-                    "relative h-auto w-full justify-start gap-2 rounded-md py-2 pr-2.5 pl-3",
-                    "text-left text-[12px]",
-                    selected
-                      ? "bg-primary/10 font-medium text-primary hover:bg-primary/10 hover:text-primary"
-                      : "text-foreground",
-                  )}
-                >
-                  <span className="min-w-0 flex-1 truncate">{opt.label}</span>
-                  {selected ? (
-                    <Check
-                      size={13}
-                      strokeWidth={2}
-                      className="shrink-0 text-primary"
-                      aria-hidden
-                    />
-                  ) : null}
-                </Button>
-              );
-            })}
-          </div>
-        </PopoverContent>
-      </Popover>
+          <MenuRadioGroup
+            value={usingAccount ? AUTO_VALUE : activeCode}
+            onValueChange={(value) => applyCurrency(String(value))}
+          >
+            <MenuGroup>
+              <MenuGroupLabel>Account currency</MenuGroupLabel>
+              <CurrencyMenuItem value={AUTO_VALUE} code={base} />
+            </MenuGroup>
+            <MenuGroup>
+              <MenuGroupLabel className="pt-2.5">Convert to</MenuGroupLabel>
+              {convertible.map((code) => (
+                <CurrencyMenuItem key={code} value={code} code={code} />
+              ))}
+            </MenuGroup>
+          </MenuRadioGroup>
+        </MenuPopup>
+      </Menu>
     );
   }
 
@@ -252,22 +244,6 @@ function PrivacyToggle() {
   );
 }
 
-function MobileNavTrigger() {
-  const openMobileNav = useUI((s) => s.openMobileNav);
-  return (
-    <Button
-      type="button"
-      variant="ghost"
-      size="icon"
-      onClick={openMobileNav}
-      aria-label="Open menu"
-      className="shrink-0 pointer-coarse:size-11 text-muted-foreground hover:bg-accent hover:text-foreground md:hidden"
-    >
-      <Menu size={18} strokeWidth={1.75} aria-hidden />
-    </Button>
-  );
-}
-
 export function HeaderBar() {
   usePrivacyMode();
   const filters = useFilterParams();
@@ -303,19 +279,25 @@ export function HeaderBar() {
     }
   }, [accountId, hasSelectedAccount, setAccount]);
 
+  // Sticky pins the strip while the document scrolls on phones; ≥md the shell
+  // is viewport-height so it resolves to a no-op.
   return (
-    <header className="flex h-auto min-h-[52px] shrink-0 items-center gap-2 bg-background px-3 pt-[calc(0.5rem+env(safe-area-inset-top))] pb-2 md:h-[52px] md:gap-3 md:px-4 md:pt-0 md:pb-0">
+    <header className="sticky top-0 z-20 flex h-auto min-h-[52px] shrink-0 items-center gap-2 bg-background px-3 pt-[calc(0.5rem+env(safe-area-inset-top))] pb-2 md:h-[52px] md:gap-3 md:px-4 md:pt-0 md:pb-0">
       {/* Performance strip */}
       <div className="flex min-w-0 flex-1 items-center gap-2 md:gap-3">
-        <MobileNavTrigger />
         <div
           className={cn(
             heroPnlClass(stats.netPnl),
-            "shrink-0 text-[22px] sm:text-[28px]",
+            "flex shrink-0 items-baseline gap-1.5 text-[17px] sm:text-[20px]",
             fxLoading && "opacity-60",
           )}
         >
-          {fmtSignedMoney(toDisplay(stats.netPnl), currency, intlLocale())}
+          <span>{fmtSignedMoney(toDisplay(stats.netPnl), currency, intlLocale())}</span>
+          {stats.netPnlPct != null ? (
+            <span className="text-[12px] font-medium opacity-70 sm:text-[13px]">
+              {fmtSignedPct(stats.netPnlPct, intlLocale())}
+            </span>
+          ) : null}
         </div>
         <div aria-hidden className="hidden h-7 w-px shrink-0 bg-border md:block" />
         <div className="hidden min-w-0 items-center gap-2 md:flex">

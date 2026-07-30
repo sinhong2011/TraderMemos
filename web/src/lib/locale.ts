@@ -32,9 +32,11 @@ type NavLabelKey =
   | "calculator"
   | "import"
   | "settings"
+  | "create"
   | "newTrade"
   | "newSetup"
-  | "newNote";
+  | "newNote"
+  | "more";
 
 const NAV_LABELS: Record<AppLocale, Record<NavLabelKey, string>> = {
   en: {
@@ -47,9 +49,11 @@ const NAV_LABELS: Record<AppLocale, Record<NavLabelKey, string>> = {
     calculator: "Calculator",
     import: "Import",
     settings: "Settings",
+    create: "Create",
     newTrade: "New Trade",
     newSetup: "New Setup",
     newNote: "New Note",
+    more: "More",
   },
   "zh-HK": {
     dashboard: "儀表板",
@@ -61,9 +65,11 @@ const NAV_LABELS: Record<AppLocale, Record<NavLabelKey, string>> = {
     calculator: "計算器",
     import: "匯入",
     settings: "設定",
+    create: "新增",
     newTrade: "新增交易",
     newSetup: "新增策略",
     newNote: "新增筆記",
+    more: "更多",
   },
   ja: {
     dashboard: "ダッシュボード",
@@ -75,9 +81,11 @@ const NAV_LABELS: Record<AppLocale, Record<NavLabelKey, string>> = {
     calculator: "計算機",
     import: "インポート",
     settings: "設定",
+    create: "作成",
     newTrade: "新規トレード",
     newSetup: "新規セットアップ",
     newNote: "新規メモ",
+    more: "もっと",
   },
   ko: {
     dashboard: "대시보드",
@@ -89,9 +97,11 @@ const NAV_LABELS: Record<AppLocale, Record<NavLabelKey, string>> = {
     calculator: "계산기",
     import: "가져오기",
     settings: "설정",
+    create: "만들기",
     newTrade: "새 거래",
     newSetup: "새 셋업",
     newNote: "새 메모",
+    more: "더보기",
   },
 };
 
