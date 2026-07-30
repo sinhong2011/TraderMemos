@@ -1,4 +1,4 @@
-CREATE TABLE annual_goals (
+CREATE TABLE IF NOT EXISTS annual_goals (
     user_id    TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     year       INTEGER NOT NULL,
     amount     REAL NOT NULL,
