@@ -6,7 +6,7 @@ import { CsvDropZone } from "./CsvDropZone";
 describe("CsvDropZone", () => {
   it("renders drop zone when no file selected", () => {
     render(<CsvDropZone file={null} onFileChange={vi.fn<(...args: any[]) => any>()} />);
-    expect(screen.getByText(/Click to upload/i)).toBeInTheDocument();
+    expect(screen.getByText(/Drop a file here/i)).toBeInTheDocument();
     expect(screen.getByLabelText("Import file input")).toBeInTheDocument();
   });
 

@@ -20,6 +20,7 @@
     "hooks": "@/lib/hooks"
   },
   "registries": {
-    "@coss": "https://coss.com/ui/r/{name}.json"
+    "@coss": "https://coss.com/ui/r/{name}.json",
+    "@reui": "https://reui.io/r/{style}/{name}.json"
   }
 }

@@ -1,19 +1,37 @@
-import { FileJson, FileText, Upload, X } from "lucide-react";
-import { useRef, useState } from "react";
+import {
+  CircleAlertIcon,
+  CloudUploadIcon,
+  FileJson,
+  FileText,
+  Trash2Icon,
+  UploadIcon,
+} from "lucide-react";
+import { formatBytes, useFileUpload, type FileWithPreview } from "@/hooks/use-file-upload";
+import { Alert, AlertDescription, AlertTitle } from "@/components/reui/alert";
+import { Badge } from "@/components/reui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { cn } from "@/lib/cn";
 import { Button } from "./ui/button";
-import { Pill } from "./Pill";
+
+/** The import API takes one file per run, so the picker stays single-file. */
+const ACCEPT = ".csv,text/csv,.json,application/json";
+const MAX_SIZE = 50 * 1024 * 1024;
 
 export interface CsvDropZoneProps {
   file: File | null;
   onFileChange: (file: File | null) => void;
   disabled?: boolean;
-}
-
-function formatFileSize(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(bytes < 10 * 1024 ? 1 : 0)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  /** Grow the empty drop target to the parent's height instead of hugging its content. */
+  fill?: boolean;
+  /** Extra classes for the empty drop target (e.g. taller padding). */
+  className?: string;
 }
 
 function fileKind(file: File): "json" | "csv" | "file" {
@@ -23,122 +41,173 @@ function fileKind(file: File): "json" | "csv" | "file" {
   return "file";
 }
 
-export function CsvDropZone({ file, onFileChange, disabled }: CsvDropZoneProps) {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [dragOver, setDragOver] = useState(false);
+/** The hook hands back `File | FileMetadata`; only real Files reach the import. */
+function toFile(entry: FileWithPreview): File | null {
+  return entry.file instanceof File ? entry.file : null;
+}
 
-  function pickFile(next: File | null) {
-    if (!next) {
-      onFileChange(null);
-      if (inputRef.current) inputRef.current.value = "";
-      return;
-    }
-    if (
-      !next.name.toLowerCase().endsWith(".csv") &&
-      next.type !== "text/csv" &&
-      !next.name.toLowerCase().endsWith(".json") &&
-      next.type !== "application/json"
-    ) {
-      return;
-    }
-    onFileChange(next);
-  }
+export function CsvDropZone({ file, onFileChange, disabled, fill, className }: CsvDropZoneProps) {
+  const [
+    { isDragging, errors },
+    {
+      clearFiles,
+      handleDragEnter,
+      handleDragLeave,
+      handleDragOver,
+      handleDrop,
+      openFileDialog,
+      getInputProps,
+    },
+  ] = useFileUpload({
+    accept: ACCEPT,
+    maxSize: MAX_SIZE,
+    multiple: false,
+    // The parent owns the selection — the hook only validates and reports.
+    onFilesChange: (next) => onFileChange(next[0] ? toFile(next[0]) : null),
+  });
 
-  function openPicker() {
-    if (disabled) return;
-    inputRef.current?.click();
-  }
-
-  const kind = file ? fileKind(file) : null;
+  // Render from the prop, not the hook's own list: the parent resets it (e.g.
+  // "Import another") and its handler is async, so hook state trails it.
+  const selected = file;
+  const kind = selected ? fileKind(selected) : null;
   const FileIcon = kind === "json" ? FileJson : FileText;
 
   return (
-    <div className="flex flex-col gap-2">
-      {file ? (
-        <div className="flex items-center gap-3 rounded-md bg-muted px-3 py-3">
-          <div
-            className="flex size-9 shrink-0 items-center justify-center rounded-md bg-card text-muted-foreground"
-            aria-hidden
-          >
-            <FileIcon size={16} strokeWidth={1.75} />
-          </div>
+    // `w-full` — the parent Field is `items-start`, which would otherwise shrink the drop target.
+    <div className={cn("flex w-full min-w-0 flex-col gap-3", fill && "min-h-0 flex-1")}>
+      <div
+        onDragEnter={handleDragEnter}
+        onDragLeave={handleDragLeave}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+        className={cn(
+          "relative flex flex-col items-center justify-center gap-4 rounded-lg border border-dashed",
+          "px-4 py-8 text-center transition-colors duration-150",
+          fill && !selected && "min-h-56 flex-1",
+          isDragging
+            ? "border-primary bg-primary/5"
+            : "border-muted-foreground/25 hover:border-muted-foreground/50",
+          disabled && "pointer-events-none opacity-55",
+          className,
+        )}
+      >
+        <input
+          {...getInputProps({ disabled, "aria-label": "Import file input" })}
+          className="sr-only"
+        />
 
-          <div className="min-w-0 flex-1">
-            <p className="m-0 truncate text-[13px] font-medium tracking-tight text-foreground">
-              {file.name}
-            </p>
-            <div className="mt-1 flex min-w-0 flex-wrap items-center gap-2">
-              {kind === "json" || kind === "csv" ? (
-                <Pill tone="accent">{kind.toUpperCase()}</Pill>
-              ) : null}
-              <p className="m-0 text-[11px] tabular-nums text-muted-foreground">
-                {formatFileSize(file.size)} · ready to preview
-              </p>
-            </div>
-          </div>
-
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-sm"
-            disabled={disabled}
-            onClick={() => pickFile(null)}
-            aria-label="Remove file"
-            className="shrink-0 text-muted-foreground hover:text-destructive"
-          >
-            <X size={14} strokeWidth={2} />
-          </Button>
+        <div
+          className={cn(
+            "flex size-12 items-center justify-center rounded-full transition-colors duration-150",
+            isDragging ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground",
+          )}
+          aria-hidden
+        >
+          <UploadIcon className="size-5" />
         </div>
-      ) : (
+
+        <div className="space-y-2">
+          <p className="m-0 text-sm font-medium">
+            Drop a file here or{" "}
+            <button
+              type="button"
+              onClick={openFileDialog}
+              disabled={disabled}
+              className="cursor-pointer text-primary underline-offset-4 hover:underline"
+            >
+              browse files
+            </button>
+          </p>
+          <p className="m-0 text-xs text-muted-foreground">
+            CSV or JSON · maximum file size {formatBytes(MAX_SIZE)}
+          </p>
+        </div>
+      </div>
+
+      {selected ? (
+        <div className="min-w-0 overflow-hidden rounded-lg border">
+          <Table>
+            <TableHeader>
+              <TableRow className="text-xs">
+                {/* `w-full` + `max-w-0` on Name: it absorbs the leftover width and
+                    truncates, while the fixed columns size to their content. */}
+                <TableHead className="h-9 w-full ps-4">Name</TableHead>
+                {/* The extension is already in the name — drop the chip on phones. */}
+                <TableHead className="hidden h-9 w-px whitespace-nowrap sm:table-cell">
+                  Type
+                </TableHead>
+                <TableHead className="h-9 w-px whitespace-nowrap">Size</TableHead>
+                <TableHead className="h-9 w-px whitespace-nowrap ps-4">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow>
+                <TableCell className="max-w-0 py-2 ps-4">
+                  <div className="flex min-w-0 items-center gap-2">
+                    <FileIcon className="size-4 shrink-0 text-muted-foreground/80" aria-hidden />
+                    <p className="m-0 truncate text-sm font-medium">{selected.name}</p>
+                  </div>
+                </TableCell>
+                <TableCell className="hidden py-2 sm:table-cell">
+                  <Badge variant="secondary" className="text-xs">
+                    {kind === "file" ? "File" : kind?.toUpperCase()}
+                  </Badge>
+                </TableCell>
+                <TableCell className="py-2 text-sm whitespace-nowrap tabular-nums text-muted-foreground">
+                  {formatBytes(selected.size)}
+                </TableCell>
+                <TableCell className="py-2">
+                  <Button
+                    type="button"
+                    // Clearing the hook fires onFilesChange, which nulls the prop.
+                    onClick={() => {
+                      clearFiles();
+                      onFileChange(null);
+                    }}
+                    disabled={disabled}
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label="Remove file"
+                    className="text-muted-foreground hover:text-destructive"
+                  >
+                    <Trash2Icon className="size-3.5" />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </div>
+      ) : null}
+
+      {selected ? (
+        // The empty state already offers "browse files"; once a file is picked
+        // this is the replace affordance the block puts above its table.
         <Button
           type="button"
-          variant="ghost"
+          onClick={openFileDialog}
           disabled={disabled}
-          onClick={openPicker}
-          onDragOver={(e) => {
-            e.preventDefault();
-            if (!disabled) setDragOver(true);
-          }}
-          onDragLeave={() => setDragOver(false)}
-          onDrop={(e) => {
-            e.preventDefault();
-            setDragOver(false);
-            if (disabled) return;
-            pickFile(e.dataTransfer.files?.[0] ?? null);
-          }}
-          className={cn(
-            "h-auto w-full flex-col gap-2 rounded-md border border-dashed px-4 py-8 whitespace-normal",
-            "text-[12px] transition-[border-color,background-color] duration-150",
-            "disabled:opacity-55",
-            dragOver
-              ? "border-primary/40 bg-primary/10"
-              : "border-border bg-muted hover:border-border hover:bg-accent",
-          )}
+          variant="outline"
+          size="sm"
+          className="w-full sm:w-fit"
         >
-          <Upload
-            size={22}
-            strokeWidth={1.5}
-            className={dragOver ? "text-primary" : "text-muted-foreground"}
-            aria-hidden
-          />
-          <span className="text-muted-foreground">
-            <span className="font-medium text-foreground">Click to upload</span> or drag file here
-          </span>
-          <span className="text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
-            CSV · JSON
-          </span>
+          <CloudUploadIcon className="size-4" />
+          Choose a different file
         </Button>
-      )}
+      ) : null}
 
-      <input
-        ref={inputRef}
-        type="file"
-        accept=".csv,text/csv,.json,application/json"
-        aria-label="Import file input"
-        className="sr-only"
-        disabled={disabled}
-        onChange={(e) => pickFile(e.target.files?.[0] ?? null)}
-      />
+      {errors.length > 0 ? (
+        <Alert variant="destructive">
+          <CircleAlertIcon />
+          <AlertTitle>File upload error</AlertTitle>
+          <AlertDescription>
+            {errors.map((error) => (
+              <p key={error} className="last:mb-0">
+                {error}
+              </p>
+            ))}
+          </AlertDescription>
+        </Alert>
+      ) : null}
     </div>
   );
 }
