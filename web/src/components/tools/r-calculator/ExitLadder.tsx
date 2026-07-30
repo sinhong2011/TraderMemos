@@ -1,3 +1,4 @@
+import { Check } from "lucide-react";
 import { EXIT_PRESETS, matchPreset } from "@/lib/r-calculator/exit";
 import { useRCalculatorStore } from "@/lib/r-calculator/useRCalculatorStore";
 import { cn } from "@/lib/cn";
@@ -44,22 +45,33 @@ export function ExitLadder() {
               const isActive = activePreset === preset.id;
               const meta = PRESET_LABELS[preset.id];
               return (
-                <Button
+                // Plain button: the preset is a multi-line card, so it opts out
+                // of the fixed-height coss Button chrome.
+                <button
                   key={preset.id}
                   type="button"
-                  variant="ghost"
                   aria-pressed={isActive}
                   onClick={() => store.applyExitPreset(preset.plan)}
                   className={cn(
-                    "h-auto flex-col items-start rounded-lg px-3 py-2.5 text-left",
+                    "flex cursor-pointer flex-col items-start gap-1 rounded-lg px-3 py-2.5 text-left outline-none transition-colors",
+                    "focus-visible:ring-2 focus-visible:ring-ring",
+                    // Selection reads from the surface + ring; the copy stays on
+                    // foreground/muted so it never fights a tinted fill.
                     isActive
-                      ? "bg-profit/12 text-profit hover:bg-profit/16 hover:text-profit"
-                      : "bg-muted text-muted-foreground hover:text-foreground",
+                      ? "bg-primary/10 ring-1 ring-inset ring-primary/35 hover:bg-primary/14"
+                      : "bg-muted hover:bg-muted/70",
                   )}
                 >
-                  <span className="text-[13px] font-semibold">{meta.label}</span>
-                  <p className="mt-0.5 text-xs leading-tight opacity-70">{meta.sub}</p>
-                </Button>
+                  <span className="flex w-full items-center gap-1.5">
+                    <span className="truncate text-[13px] font-semibold text-foreground">
+                      {meta.label}
+                    </span>
+                    {isActive ? (
+                      <Check size={13} className="ml-auto shrink-0 text-primary" />
+                    ) : null}
+                  </span>
+                  <span className="text-xs leading-snug text-muted-foreground">{meta.sub}</span>
+                </button>
               );
             })}
           </div>
