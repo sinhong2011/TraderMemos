@@ -25,8 +25,8 @@
 
 | Role | Font | Notes |
 |------|------|-------|
-| **All UI** | Poppins → `font-sans` | `@fontsource/poppins`. Fallback: system UI stack. |
-| **Numbers** | Poppins + `tabular-nums` | Applied globally in `@layer base`. |
+| **All UI** | System UI stack → `font-sans` | `ui-sans-serif, system-ui, -apple-system, …`. No custom font. |
+| **Numbers** | System UI + `tabular-nums` | Applied globally in `@layer base`. |
 
 ## Color
 
