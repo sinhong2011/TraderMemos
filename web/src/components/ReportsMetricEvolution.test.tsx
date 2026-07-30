@@ -40,8 +40,8 @@ describe("ReportsMetricEvolution", () => {
     render(
       <ReportsMetricEvolution trades={[trade({})]} loading={false} error={false} currency="USD" />,
     );
-    expect(screen.getByRole("tablist", { name: "Evolution granularity" })).toBeInTheDocument();
-    expect(screen.getByRole("tablist", { name: "Right axis metric" })).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "Evolution granularity" })).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "Right axis metric" })).toBeInTheDocument();
   });
 
   it("re-expresses cumulative P&L as a percentage under unitMode pct", () => {

@@ -17,32 +17,32 @@ const base = {
 describe("ReportsControlBar", () => {
   it("renders the side and duration options", () => {
     render(<ReportsControlBar {...base} />);
-    expect(screen.getByRole("tab", { name: "Long" })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "Short" })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "Scalp" })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "Swing" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Long" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Short" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Scalp" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Swing" })).toBeInTheDocument();
   });
 
   it("calls onSideChange when a side is picked", () => {
     const onSideChange = vi.fn<(...args: any[]) => any>();
     render(<ReportsControlBar {...base} onSideChange={onSideChange} />);
-    screen.getByRole("tab", { name: "Long" }).click();
+    screen.getByRole("button", { name: "Long" }).click();
     expect(onSideChange).toHaveBeenCalledWith("long");
   });
 
   it("calls onDurationChange when a duration is picked", () => {
     const onDurationChange = vi.fn<(...args: any[]) => any>();
     render(<ReportsControlBar {...base} onDurationChange={onDurationChange} />);
-    screen.getByRole("tab", { name: "Swing" }).click();
+    screen.getByRole("button", { name: "Swing" }).click();
     expect(onDurationChange).toHaveBeenCalledWith("swing");
   });
 
   it("renders the Net/Gross and $/% toggles", () => {
     render(<ReportsControlBar {...base} />);
-    expect(screen.getByRole("tab", { name: "Net" })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "Gross" })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "$" })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "%" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Net" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Gross" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "$" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "%" })).toBeInTheDocument();
   });
 
   it("calls onPnlModeChange and onUnitModeChange", () => {
@@ -55,9 +55,9 @@ describe("ReportsControlBar", () => {
         onUnitModeChange={onUnitModeChange}
       />,
     );
-    screen.getByRole("tab", { name: "Gross" }).click();
+    screen.getByRole("button", { name: "Gross" }).click();
     expect(onPnlModeChange).toHaveBeenCalledWith("gross");
-    screen.getByRole("tab", { name: "%" }).click();
+    screen.getByRole("button", { name: "%" }).click();
     expect(onUnitModeChange).toHaveBeenCalledWith("pct");
   });
 });

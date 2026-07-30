@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
@@ -281,11 +281,22 @@ describe("NewTradeDrawer", () => {
       document.querySelector('[data-testid="ocr-scan-input"]') as HTMLInputElement,
       new File(["x"], "fills.png", { type: "image/png" }),
     );
-    await waitFor(() =>
-      expect(screen.getByRole("region", { name: "Symbol trade 2" })).toBeVisible(),
-    );
-    expect(screen.getByLabelText("Symbol")).toHaveValue("AAPL");
-    expect(screen.getByLabelText("Symbol 2")).toHaveValue("TSLA");
+    // The pre-scan block leaves via AnimatePresence, so it stays mounted (and
+    // keeps its "Symbol" label) until the exit finishes. Wait for the list to
+    // settle rather than asserting mid-transition.
+    await waitFor(() => {
+      // Both conditions together: the list passes through a transient count of
+      // two on the way up (old block + first scanned block) before the exit
+      // finishes, and only the settled state has "Symbol trade 2" as well.
+      expect(screen.getByRole("region", { name: "Symbol trade 2" })).toBeVisible();
+      expect(screen.getAllByRole("region", { name: /^Symbol trade/ })).toHaveLength(2);
+    });
+    // Every block labels its field "Symbol" — Base UI's Field sets
+    // aria-labelledby, which outranks the block's own aria-label in the
+    // accessible-name calculation. Scope to each block's region instead.
+    const [firstBlock, secondBlock] = screen.getAllByRole("region", { name: /^Symbol trade/ });
+    expect(within(firstBlock!).getByLabelText("Symbol")).toHaveValue("AAPL");
+    expect(within(secondBlock!).getByLabelText("Symbol")).toHaveValue("TSLA");
     expect(screen.getByTestId("ocr-scan-summary")).toBeVisible();
     expect(screen.getByRole("button", { name: "Scan info" })).toHaveAttribute(
       "aria-expanded",
