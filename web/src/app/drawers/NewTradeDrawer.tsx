@@ -52,7 +52,11 @@ import {
   fileToScreenshotItem,
   JournalScreenshotUpload,
 } from "@/components/JournalScreenshotUpload";
-import { BatchTradeResultPreview, TradeResultPreview } from "@/components/TradeResultPreview";
+import {
+  AfterSaveResultPreview,
+  BatchTradeResultPreview,
+  TradeResultPreview,
+} from "@/components/TradeResultPreview";
 import { useToastManager } from "@/components/Toast";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ApiError } from "@/lib/api/client";
@@ -460,9 +464,15 @@ function blockPnlPreview(block: SymbolTradeBlock) {
     commission: num(r.commission) ?? 0,
   }));
   const risk = blockRisk(block);
+  const multiplier = blockMultiplier(block);
+  const openSide = block.side === "short" ? "sell" : "buy";
+  const entryTotal = parsedRows
+    .filter((r) => r.side === openSide)
+    .reduce((s, r) => s + r.quantity * r.price * multiplier, 0);
   return {
-    preview: previewTradePnl(block.side, parsedRows, blockMultiplier(block), risk),
+    preview: previewTradePnl(block.side, parsedRows, multiplier, risk),
     initialRisk: risk,
+    entryTotal: entryTotal > 0 ? entryTotal : null,
   };
 }
 
@@ -743,7 +753,7 @@ function SymbolCard({
             </Field>
           </div>
           {block.market === "option" && (
-            <div className="grid grid-cols-2 gap-3 @min-[38rem]/symbol:grid-cols-4">
+            <div className="grid grid-cols-2 items-start gap-3 @min-[38rem]/symbol:grid-cols-4">
               <Field label="Multiplier">
                 <AmountInput
                   aria-label={`Multiplier symbol ${index + 1}`}
@@ -753,8 +763,7 @@ function SymbolCard({
                   className={fieldTextClass}
                 />
               </Field>
-              <div>
-                <span className={labelClass}>Right</span>
+              <Field label="Right">
                 <SegmentedControl
                   ariaLabel={`Option right symbol ${index + 1}`}
                   size="md"
@@ -770,7 +779,7 @@ function SymbolCard({
                     syncContract({ option_right: right });
                   }}
                 />
-              </div>
+              </Field>
               <Field label="Strike">
                 <AmountInput
                   aria-label={`Strike symbol ${index + 1}`}
@@ -783,8 +792,7 @@ function SymbolCard({
                   className={fieldTextClass}
                 />
               </Field>
-              <div>
-                <span className={labelClass}>Expiry</span>
+              <Field label="Expiry">
                 <DatePicker
                   aria-label={`Expiry symbol ${index + 1}`}
                   value={block.option_expiry}
@@ -793,7 +801,7 @@ function SymbolCard({
                     syncContract({ option_expiry: v });
                   }}
                 />
-              </div>
+              </Field>
               {optionStrategy && (
                 <p className="col-span-full text-[11px] text-muted-foreground">
                   {optionStrategy.label} · {optionStrategy.biasLabel}
@@ -1537,7 +1545,11 @@ export function NewTradeDrawer() {
   const summaryQ = useSummary(accountFilters);
   const cashQ = useCash(accountFilters);
   const accountBaseline = !accountId
-    ? { netPnl: null as number | null, cash: null as number | null }
+    ? {
+        netPnl: null as number | null,
+        cash: null as number | null,
+        deposited: null as number | null,
+      }
     : (() => {
         const stats = computeHeaderStats({
           accounts,
@@ -1546,7 +1558,8 @@ export function NewTradeDrawer() {
           summary: summaryQ.data,
           trades: [],
         });
-        return { netPnl: stats.netPnl, cash: stats.cash };
+        // cash = deposits + netPnl, so deposits fall out without a second query.
+        return { netPnl: stats.netPnl, cash: stats.cash, deposited: stats.cash - stats.netPnl };
       })();
   const pending =
     createExecutions.isPending ||
@@ -1580,6 +1593,7 @@ export function NewTradeDrawer() {
     return {
       preview: result.preview,
       risk: result.initialRisk,
+      entryTotal: result.entryTotal,
     };
   }, [values.trades]);
 
@@ -2058,10 +2072,15 @@ export function NewTradeDrawer() {
                     locale={locale}
                     accountNetPnl={accountBaseline.netPnl}
                     accountCash={accountBaseline.cash}
+                    depositedCapital={accountBaseline.deposited}
                   />
                 ) : singleFooter ? (
-                  <TradeResultPreview
+                  <AfterSaveResultPreview
                     preview={singleFooter.preview}
+                    entryTotal={singleFooter.entryTotal}
+                    accountNetPnl={accountBaseline.netPnl}
+                    accountCash={accountBaseline.cash}
+                    depositedCapital={accountBaseline.deposited}
                     currency={currency}
                     locale={locale}
                     initialRisk={singleFooter.risk}
