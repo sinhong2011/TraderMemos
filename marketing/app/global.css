@@ -1,0 +1,203 @@
+@import 'tailwindcss';
+@import 'fumadocs-ui/css/neutral.css';
+@import 'fumadocs-ui/css/preset.css';
+
+/* TraderMemos blue primary — matches web/src/global.css.
+   Light mode uses a deeper shade of the brand hue so white-on-primary and
+   primary-as-text both clear WCAG AA (4.5:1); dark mode keeps the bright
+   brand blue and flips primary-foreground to near-black for the same reason. */
+@theme {
+  --color-fd-primary: oklch(0.52 0.1305 235.19);
+  --color-fd-primary-foreground: oklch(0.985 0 0);
+  --color-fd-ring: oklch(0.52 0.1305 235.19);
+  --color-fd-muted-foreground: oklch(0.5 0 0);
+  --radius: 0.625rem;
+}
+
+/* P&L domain colors — mirror web app profit/loss tokens */
+:root {
+  --tm-profit: oklch(0.52 0.14 152);
+  --tm-loss: oklch(0.55 0.19 25);
+}
+
+.dark {
+  --color-fd-primary: oklch(0.617 0.1305 235.19);
+  --color-fd-primary-foreground: oklch(0.145 0 0);
+  --color-fd-ring: oklch(0.617 0.1305 235.19);
+  --color-fd-muted-foreground: oklch(0.708 0 0);
+  --tm-profit: oklch(0.76 0.15 155);
+  --tm-loss: oklch(0.68 0.19 25);
+}
+
+@theme inline {
+  --color-tm-profit: var(--tm-profit);
+  --color-tm-loss: var(--tm-loss);
+  --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+html {
+  scrollbar-gutter: stable;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+}
+
+body {
+  @apply tabular-nums;
+}
+
+html > body[data-scroll-locked] {
+  margin-right: 0px !important;
+  --removed-body-scroll-bar-size: 0px !important;
+}
+
+/* ---------- Marketing landing page ---------- */
+
+@keyframes tm-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes tm-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes tm-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes tm-ticker {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Hero load sequence — stagger with --tm-delay */
+.tm-fade-up {
+  animation: tm-fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--tm-delay, 0s);
+}
+
+/* Equity curve draws itself, then the area fill and annotations appear */
+.tm-curve-path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: tm-draw 2.2s cubic-bezier(0.65, 0, 0.35, 1) 0.25s forwards;
+}
+
+.tm-curve-fill {
+  opacity: 0;
+  animation: tm-fade 1.4s ease-out 1.5s forwards;
+}
+
+.tm-annot {
+  opacity: 0;
+  animation: tm-fade 0.6s ease-out both;
+  animation-delay: var(--tm-delay, 1.8s);
+}
+
+.tm-ticker-track {
+  animation: tm-ticker 40s linear infinite;
+}
+
+/* Chart-axis grid behind the hero */
+.tm-hero-grid {
+  background-image:
+    linear-gradient(
+      to right,
+      color-mix(in oklab, var(--color-fd-foreground) 5%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--color-fd-foreground) 5%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 56px 56px;
+  mask-image: radial-gradient(90% 80% at 55% 10%, black, transparent 78%);
+}
+
+/* Blinking caret for the typed terminal */
+@keyframes tm-blink {
+  0%,
+  55% {
+    opacity: 1;
+  }
+  56%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.tm-caret {
+  display: inline-block;
+  width: 0.55em;
+  height: 1.1em;
+  margin-left: 1px;
+  vertical-align: text-bottom;
+  background: var(--color-fd-primary);
+  animation: tm-blink 1s step-end infinite;
+}
+
+/* Tailwind-site style hatched gutters outside the content frame */
+.tm-gutter {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  z-index: -1;
+  width: calc((100vw - 72rem) / 2);
+  pointer-events: none;
+  background-image: repeating-linear-gradient(
+    315deg,
+    color-mix(in oklab, var(--color-fd-foreground) 5%, transparent) 0,
+    color-mix(in oklab, var(--color-fd-foreground) 5%, transparent) 1px,
+    transparent 1px,
+    transparent 7px
+  );
+}
+
+@media (max-width: 76rem) {
+  .tm-gutter {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tm-fade-up,
+  .tm-curve-fill,
+  .tm-annot {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+  .tm-curve-path {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+  .tm-ticker-track {
+    animation: none;
+  }
+  .tm-caret {
+    animation: none;
+    opacity: 0;
+  }
+}

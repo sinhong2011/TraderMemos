@@ -1,0 +1,48 @@
+---
+title: Quick start
+description: Run the web UI and API in one container, on your own machine.
+---
+
+Web UI and API in one container, on your own machine:
+
+```bash
+git clone https://github.com/sinhong2011/TraderMemos.git
+cd TraderMemos
+make up          # → http://localhost:3000
+```
+
+That's it. Same-origin `/api` — no CORS, leave the **Server** field blank. On first visit the
+**setup wizard** creates your owner account.
+
+## Options and production notes
+
+```bash
+cp .env.example .env   # optional: DOCKERHUB_USERNAME, TM_IMAGE_TAG
+make up                # pull prebuilt images from Docker Hub
+make up-build          # or build both images from this repo
+```
+
+For production, set `TM_JWT_SECRET=$(openssl rand -hex 32)` and put TLS (Caddy/Traefik) in
+front — see [Deploy](/en/docs/deploy).
+
+## Local development
+
+```bash
+git clone https://github.com/sinhong2011/TraderMemos.git
+cd TraderMemos
+make setup && make dev   # API :8080 + web :5173
+```
+
+See [CONTRIBUTING.md](https://github.com/sinhong2011/TraderMemos/blob/main/CONTRIBUTING.md) for
+targets, Vite+ commands, and project structure.
+
+### Demo data
+
+Fill any instance with ~200 generated trades over the last three months:
+
+```bash
+make demo-seed API=http://localhost:3000/api/v1 EMAIL=you@example.com PASSWORD='…'
+```
+
+It talks to the public API only, so it works against a local stack or a deployed demo.
+Re-running is a no-op — fills are deduplicated server-side.

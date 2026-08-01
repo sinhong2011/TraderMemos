@@ -1,0 +1,48 @@
+---
+title: 快速開始
+description: 在你自己的機器上，用一個容器同時運行 Web UI 與 API。
+---
+
+在你自己的機器上，用一個容器同時運行 Web UI 與 API：
+
+```bash
+git clone https://github.com/sinhong2011/TraderMemos.git
+cd TraderMemos
+make up          # → http://localhost:3000
+```
+
+就這麼簡單。同源 `/api`，無需 CORS 配置，登錄時的 **Server** 字段留空即可。首次訪問會出現
+**初始化嚮導**，用於創建你的 owner 賬戶。
+
+## 其他選項與生產環境提示
+
+```bash
+cp .env.example .env   # 可選：DOCKERHUB_USERNAME、TM_IMAGE_TAG
+make up                # 從 Docker Hub 拉取預構建鏡像
+make up-build           # 或者從本倉庫構建兩個鏡像
+```
+
+生產環境請設置 `TM_JWT_SECRET=$(openssl rand -hex 32)`，並在前面加一層 TLS（Caddy/Traefik）——
+詳見[部署](/zh-Hant/docs/deploy)。
+
+## 本地開發
+
+```bash
+git clone https://github.com/sinhong2011/TraderMemos.git
+cd TraderMemos
+make setup && make dev   # API :8080 + web :5173
+```
+
+關於各項 make 目標、Vite+ 命令與項目結構，參見
+[CONTRIBUTING.md](https://github.com/sinhong2011/TraderMemos/blob/main/CONTRIBUTING.md)。
+
+### 演示數據
+
+爲任意實例填充約 200 條最近三個月生成的交易記錄：
+
+```bash
+make demo-seed API=http://localhost:3000/api/v1 EMAIL=you@example.com PASSWORD='…'
+```
+
+該腳本只調用公開 API，因此無論是本地服務棧還是已部署的演示環境都可以使用。重複運行不會產生
+副作用 —— 成交記錄會在服務端自動去重。

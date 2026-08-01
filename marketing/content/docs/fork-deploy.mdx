@@ -1,0 +1,120 @@
+---
+title: Fork & deploy
+description: Get TraderMemos web on your own Vercel, Cloudflare, or Netlify account, and the API on Railway.
+---
+
+Goal: another GitHub user gets **TraderMemos web** on **their** Vercel / Cloudflare / Netlify,
+and/or the **API** on Railway, then connects them.
+
+```
+You                    CDN (Vercel / CF / Netlify)     API (Railway / Docker)
+├─ one-click web ───► SPA                     ──CORS──► Go + SQLite volume
+└─ login "Server" = https://your-api.up.railway.app
+```
+
+## Path A — One-click (easiest)
+
+No manual fork. The platform clones into *your* GitHub and deploys under *your* account.
+
+| Platform | What you get |
+|----------|---------------|
+| **Vercel** | Full monorepo clone; project Root = `web` |
+| **Cloudflare** | New repo from `web/` only; Workers static SPA |
+| **Netlify** | Uses root `netlify.toml` (`base = web`) |
+| **Railway** | Go API via `railway.toml`; attach a Volume at `/data` |
+
+Deploy buttons live on the [project README](https://github.com/sinhong2011/TraderMemos#readme).
+
+Optional env **`VITE_API`**: bake in a default API base (`https://api.example.com/api/v1`).
+Leave blank to type the Server URL at login.
+
+## Path B — You already forked
+
+Use this when you clicked **Fork** on GitHub and want continuous deploys from *your* fork.
+
+### Vercel
+
+1. Open [vercel.com/new](https://vercel.com/new) → **Import** your fork (`youruser/TraderMemos`).
+2. Set **Root Directory** to `web` (important).
+3. Leave build settings alone — `web/vercel.json` supplies install/build/output + SPA rewrites.
+4. Optional: Environment Variable `VITE_API`.
+5. Deploy. Later pushes to your default branch redeploy automatically.
+
+### Cloudflare
+
+**Option 1 — Workers (matches one-click config)**
+
+1. Deploy to Cloudflare Workers, replacing `YOURUSER` in the source URL — or connect the
+   `web/` app in the dashboard.
+2. Uses `web/wrangler.toml` (`assets` + SPA `not_found_handling`).
+
+**Option 2 — Pages Connect to Git**
+
+| Setting | Value |
+|---------|--------|
+| Repository | your fork |
+| Root directory | `web` |
+| Build command | `pnpm run build` |
+| Output directory | `dist` |
+| Env (optional) | `VITE_API` |
+
+Prefer Option 1 (Workers + `web/wrangler.toml`) for SPA routing — Cloudflare rejects a
+`/* /index.html 200` `_redirects` rule on Workers assets.
+
+### Netlify
+
+1. [app.netlify.com/start/deploy](https://app.netlify.com/start/deploy?repository=https://github.com/sinhong2011/TraderMemos) — or **Add new site → Import** your fork.
+2. Root `netlify.toml` already sets `base = web`, build, publish, and SPA redirect.
+3. Optional env: `VITE_API`.
+4. Allow `https://*.netlify.app` in `TM_CORS_ORIGINS`.
+
+### Railway (API)
+
+Railway is the best one-click host for the **Go API** (disk volume for SQLite). Pair it with
+a CDN web deploy above.
+
+1. Deploy on Railway — or New Project → Deploy from GitHub → your fork.
+2. Root `railway.toml` builds `api/Dockerfile` and health-checks `/healthz`.
+3. **Attach a Volume** mounted at `/data` (keeps SQLite + attachments across deploys).
+4. Variables:
+
+   | Variable | Notes |
+   |----------|--------|
+   | `TM_JWT_SECRET` | Required — generate with `openssl rand -hex 32` |
+   | `TM_CORS_ORIGINS` | e.g. `https://*.vercel.app,https://*.netlify.app` |
+   | `TM_DATABASE_URL` | Default `sqlite:///data/tradermemos.db` (matches Dockerfile); or `postgres://user:pass@host:5432/db?sslmode=require` |
+
+5. Generate a public domain (`*.up.railway.app`) → use that as login **Server** / `VITE_API`.
+6. `PORT` is honored automatically when `TM_HTTP_PORT` is unset.
+
+## Path C — Point the UI at your API
+
+The CDN only hosts the SPA. Your journal data stays on a host you control.
+
+```bash
+# On the API host (Docker / binary)
+TM_JWT_SECRET=$(openssl rand -hex 32)
+TM_CORS_ORIGINS=https://*.vercel.app,https://*.pages.dev,https://*.workers.dev,https://*.netlify.app,https://*.up.railway.app,http://localhost:5173
+# add your custom domain exactly, e.g. https://journal.example.com
+```
+
+Then either:
+
+- Leave `VITE_API` empty → open the site → **Server** = `https://api.your.domain` (or full
+  `.../api/v1`), or
+- Set `VITE_API=https://api.your.domain/api/v1` on the CDN project and redeploy.
+
+API Docker / compose: see [Deploy](/en/docs/deploy).
+
+## Checklist for fork deployers
+
+- UI live on your Vercel, Cloudflare, or Netlify account
+- API running (Railway / Docker / VPS) with a public HTTPS URL and persistent SQLite volume
+- `TM_CORS_ORIGINS` includes your CDN host pattern (or exact custom domain)
+- Login works with **Server** set (or `VITE_API` baked in)
+- Changed `TM_JWT_SECRET` from the default
+
+## Why not put the API on Vercel/Workers?
+
+The API is Go + SQLite + uploads. Keep it on Docker/VPS/NAS. The one-click buttons are
+**web-only** by design.
