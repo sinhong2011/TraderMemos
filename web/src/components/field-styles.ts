@@ -21,6 +21,14 @@ export const fieldControlTriggerClass = fieldInputClass;
 export const filterChipClass =
   "inline-flex h-9 shrink-0 items-center gap-2 rounded-md border-none bg-muted/40 px-2.5 text-[12px] font-medium text-foreground transition-colors hover:bg-accent pointer-coarse:h-10";
 
+/**
+ * Auth-screen inputs (login / setup) are the page's focal point — a
+ * comfortable 40px on every breakpoint instead of the dense in-app control
+ * height, with the text bumped to match. Pass to `FormInput` / `PasswordInput`.
+ */
+export const authFieldClass =
+  "h-10 sm:h-10 sm:text-[13.5px] *:data-[slot=input]:px-3.5 has-focus-visible:border-primary/55! has-focus-visible:ring-primary/16!";
+
 export const fieldErrorClass = "mt-1.5 text-xs text-destructive";
 
 export const fieldHintClass =

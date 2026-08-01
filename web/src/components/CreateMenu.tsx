@@ -57,7 +57,7 @@ export function CreateMenu({ variant = "header" }: { variant?: "header" | "fab" 
               )
             : isFab
               ? cn(
-                  "mx-1 flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-full outline-none",
+                  "mx-1 flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-full outline-none",
                   "bg-primary text-primary-foreground shadow-md shadow-primary/25",
                   "transition-[background-color,box-shadow,scale] duration-200 ease-out",
                   "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
@@ -84,7 +84,7 @@ export function CreateMenu({ variant = "header" }: { variant?: "header" | "fab" 
          * the popup would slide as it opened chasing the anchor's moving edge.
          */}
         <Plus
-          size={isFab ? 22 : isFloating ? 20 : 16}
+          size={isFab ? 18 : isFloating ? 20 : 16}
           strokeWidth={2}
           aria-hidden
           className={cn(
