@@ -1,0 +1,74 @@
+---
+title: 備份與恢復
+description: 一切都在一個數據卷裏 —— SQLite 數據庫與附件目錄，必須一起備份。
+---
+
+你的交易日誌在磁盤上就是兩樣東西，且必須**一起備份**：
+
+| 內容 | 默認位置（Docker） |
+|------|---------------------------|
+| 數據庫 | `tm_data` 數據卷中的 `/data/tradermemos.db`（SQLite） |
+| 附件與筆記媒體 | 同一數據卷中的 `/data/attachments` |
+
+附件的元數據保存在數據庫中 —— 只恢復其中之一會造成截圖失效或文件成爲孤兒。
+
+## 方式 1 —— 應用層導出（任何部署都適用）
+
+應用內的**導入 → 導出**（或 `GET /api/v1/exports`）可生成：
+
+| 格式 | 內容 |
+|--------|----------|
+| **ZIP** | `export.json` + `attachments/` 下的全部截圖 —— 完整的可攜帶備份 |
+| **JSON** | 交易、成交、日誌筆記、現金流水、策略手冊（不含圖片） |
+| **CSV** | 已平倉交易的日誌表格，便於在其他工具中分析 |
+
+在任意 TraderMemos 實例導入 ZIP / JSON 即可恢復 —— 全新安裝時初始化嚮導的可選導入步驟
+可以直接接收，之後任何時候也可通過**導入**頁面完成。成交記錄在服務端自動去重，重複導入
+是安全的。
+
+在主機之間遷移、切換數據庫（SQLite ↔ Postgres），或想要一份真正能打開的異地副本時，
+用這種方式最合適。
+
+## 方式 2 —— 數據卷快照（Docker，完整拷貝）
+
+SQLite 運行在 WAL 模式下，不要直接複製正在使用的數據庫文件 —— 請先停止 API
+（僅幾秒停機），否則可能丟失最近的寫入：
+
+```bash
+cd TraderMemos
+docker compose stop api
+docker run --rm --volumes-from "$(docker compose ps -aq api)" -v "$PWD":/backup alpine \
+  tar czf "/backup/tradermemos-$(date +%F).tar.gz" -C /data .
+docker compose start api
+```
+
+在全新主機上恢復：
+
+```bash
+cd TraderMemos
+make up                       # 創建容器與空數據卷
+docker compose stop api
+docker run --rm --volumes-from "$(docker compose ps -aq api)" -v "$PWD":/backup alpine \
+  sh -c "rm -rf /data/* && tar xzf /backup/tradermemos-2026-08-01.tar.gz -C /data"
+docker compose start api
+```
+
+可用 cron 自動化，並將壓縮包同步到異地（rclone、restic 等）。數據卷中的
+`tradermemos.db.migrate.lock` 是臨時文件，可放心排除。
+
+## Postgres
+
+導出數據庫並複製附件數據卷：
+
+```bash
+docker compose exec postgres pg_dump -U tm tradermemos > tradermemos-$(date +%F).sql
+# 附件仍在 tm_data 數據卷中 → 按方式 2 備份 /data/attachments
+```
+
+恢復時用 `psql -U tm tradermemos < backup.sql` 導入空數據庫，再啓動 API
+（遷移會自動對齊）。
+
+## 每次升級前
+
+升級版本前先做一次快照 —— schema 遷移在啓動時自動執行，且不支持自動降級。參見
+[更新升級](/zh-Hant/docs/self-hosting/updating)。
