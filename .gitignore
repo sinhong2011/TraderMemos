@@ -45,7 +45,12 @@ web/.playwright-mcp/
 # shipped image assets are exempt from the artifact ignore
 !brand/*.png
 !web/public/*.png
+!docs/screenshots/*.png
 .gstack/
+
+# Python bytecode (scripts/)
+__pycache__/
+*.pyc
 
 # Local scheduler state
 .claude/scheduled_tasks.lock
