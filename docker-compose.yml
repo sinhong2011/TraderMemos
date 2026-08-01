@@ -34,11 +34,32 @@ services:
       TM_CORS_ORIGINS: ${TM_CORS_ORIGINS:-}
     volumes:
       - tm_data:/data
+    restart: unless-stopped
+    healthcheck:
+      # debian-slim has no curl/wget; bash /dev/tcp reaches /healthz instead.
+      test:
+        [
+          "CMD",
+          "bash",
+          "-c",
+          'exec 3<>/dev/tcp/127.0.0.1/8080; printf "GET /healthz HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n" >&3; grep -q "200 OK" <&3',
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
   web:
     image: ${DOCKERHUB_USERNAME:-sinhong2011}/tradermemos-web:${TM_IMAGE_TAG:-latest}
     ports:
       - "3000:80"
     depends_on:
-      - api
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO", "/dev/null", "http://127.0.0.1/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
 volumes:
   tm_data:
