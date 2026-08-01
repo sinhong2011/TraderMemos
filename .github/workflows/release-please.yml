@@ -31,7 +31,7 @@ jobs:
       # With a RELEASE_PLEASE_TOKEN PAT (contents + pull-requests write), the
       # Release PR triggers CI like a human PR — no per-release run approval.
       # Falls back to GITHUB_TOKEN, whose PRs need manual workflow approval.
-      - uses: googleapis/release-please-action@v4
+      - uses: googleapis/release-please-action@v5
         id: release
         with:
           token: ${{ secrets.RELEASE_PLEASE_TOKEN || secrets.GITHUB_TOKEN }}
