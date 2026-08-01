@@ -311,6 +311,8 @@ export interface ImportPreview {
   headers: string[];
   sample_rows: Record<string, string>[];
   suggested_mapping: Record<string, string>;
+  /** Broker preset name when the header signature matched (e.g. "Webull (Orders)"). */
+  detected_broker?: string;
   /** "journal_trades" for closed-trade journal CSVs; "executions" for fill CSVs */
   format?: "journal_trades" | "executions";
   /** Upload source detected by the API */

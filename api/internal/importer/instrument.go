@@ -64,15 +64,16 @@ func ParseOptionRight(candidates ...string) string {
 func ParseInstrumentType(raw, symbol string) string {
 	raw = strings.TrimSpace(strings.ToUpper(raw))
 	switch raw {
-	case "OPTION", "OPTIONS", "OPT", "OPTION CONTRACT", "OPTN":
+	case "OPTION", "OPTIONS", "OPT", "OPTION CONTRACT", "OPTN",
+		"CALL", "PUT", "FOP": // ThinkOrSwim Type column / IBKR futures options
 		return "option"
 	case "FUTURE", "FUTURES", "FUT":
 		return "future"
-	case "FOREX", "FX":
+	case "FOREX", "FX", "CASH": // IBKR AssetClass CASH = currency pairs
 		return "forex"
-	case "CRYPTO":
+	case "CRYPTO", "CRYPTOCURRENCY":
 		return "crypto"
-	case "STOCK", "EQUITY", "SHARES", "STK", "CS":
+	case "STOCK", "EQUITY", "SHARES", "STK", "CS", "ETF", "ETN":
 		return "stock"
 	case "":
 		return InferInstrumentFromSymbol(symbol)
