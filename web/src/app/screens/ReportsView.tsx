@@ -163,6 +163,7 @@ export interface ReportsViewProps {
   dayTradesLoading: boolean;
   dayTradesError: boolean;
   onSelectTrade: (t: Trade) => void;
+  onOpenDayReview?: (day: string) => void;
   goalYear: number;
   goalAmount: number | null | undefined;
   goalLoading: boolean;
@@ -600,6 +601,7 @@ export function ReportsView({
   dayTradesLoading,
   dayTradesError,
   onSelectTrade,
+  onOpenDayReview,
   goalYear,
   goalAmount,
   goalLoading,
@@ -817,6 +819,7 @@ export function ReportsView({
         currency={displayCurrency}
         fxRate={fxRate}
         onSelectTrade={onSelectTrade}
+        onOpenDayReview={onOpenDayReview}
       />
     </ReportsDisplayProvider>
   );

@@ -176,6 +176,7 @@ function ReportsPage() {
         dayTradesLoading={Boolean(selectedDay) && tradesQ.isLoading}
         dayTradesError={Boolean(selectedDay) && tradesQ.isError}
         onSelectTrade={(t) => setSelectedTradeId(t.id)}
+        onOpenDayReview={(day) => void navigate({ to: "/day/$date", params: { date: day } })}
         goalYear={goalYear}
         goalAmount={annualGoalQ.data?.amount}
         goalLoading={annualGoalQ.isLoading}
