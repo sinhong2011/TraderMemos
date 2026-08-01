@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Question / discussion
+    url: https://github.com/sinhong2011/TraderMemos/discussions
+    about: Ask questions, share setups, or discuss ideas before filing an issue.
+  - name: Security report
+    url: https://github.com/sinhong2011/TraderMemos/security/advisories/new
+    about: Report vulnerabilities privately — please do not open a public issue.

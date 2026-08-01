@@ -1,0 +1,36 @@
+name: Deployment problem
+description: Install, Docker, CORS, reverse proxy, or one-click deploy issues
+labels: [deploy]
+body:
+  - type: dropdown
+    id: mode
+    attributes:
+      label: Deployment mode
+      options:
+        - Docker all-in-one (make up)
+        - Docker + Postgres
+        - One-click web (Vercel/Cloudflare/Netlify)
+        - Railway API
+        - VPS / NAS / homelab
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What's failing?
+      description: Include the exact error (browser console, container logs, deploy logs). Redact secrets.
+    validations:
+      required: true
+  - type: textarea
+    id: env
+    attributes:
+      label: Relevant configuration
+      description: 'TM_* variables in play (values redacted where sensitive), reverse proxy in front, Server field vs VITE_API.'
+      render: text
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checked the docs?
+      options:
+        - label: I've been through the deploy checklist and FAQ in the docs

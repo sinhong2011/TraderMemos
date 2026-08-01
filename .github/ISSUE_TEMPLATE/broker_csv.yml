@@ -1,0 +1,24 @@
+name: Broker CSV support
+description: A broker statement that won't import or maps incorrectly
+labels: [import]
+body:
+  - type: input
+    id: broker
+    attributes:
+      label: Broker / platform
+      placeholder: 'e.g. Interactive Brokers flex report, Futu, moomoo'
+    validations:
+      required: true
+  - type: textarea
+    id: headers
+    attributes:
+      label: CSV header row + 2–3 sample rows
+      description: Paste the header line and a few rows with symbols/prices anonymized. This is what column mapping needs.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: issue
+    attributes:
+      label: What goes wrong?
+      description: Wrong mapping suggestion, unparseable dates, sides not recognized, duplicates, etc.
