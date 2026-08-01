@@ -1,0 +1,105 @@
+{
+  "Home": {
+    "metaTitle": "TraderMemos — 自托管交易日志",
+    "metaDescription": "交易数据由你掌控。TraderMemos 是一款自托管交易日志，内置仪表盘、盈亏日历、交易记录、策略手册与报表 —— 免费、AGPL-3.0，运行在你自己的基础设施上。",
+    "badge": "自托管 · AGPL-3.0 · Go + React",
+    "heroTitleLine1": "数据由你掌控。",
+    "heroTitleLine2": "复盘由你主导。",
+    "heroSubtitle": "TraderMemos 是一款自托管交易日志 —— 仪表盘、盈亏日历、交易记录、策略手册与报表，全部运行在你自己的基础设施上。无需订阅，也不被供应商锁定。",
+    "ctaGetStarted": "开始使用",
+    "ctaGithub": "前往 GitHub",
+    "ticker": [
+      { "label": "净盈亏", "value": "+$8,405.81", "tone": "profit" },
+      { "label": "胜率", "value": "59%", "tone": "neutral" },
+      { "label": "盈利因子", "value": "1.83", "tone": "neutral" },
+      { "label": "期望值", "value": "+$45.44 / 笔", "tone": "profit" },
+      { "label": "最大回撤", "value": "−$1,057.78", "tone": "loss" },
+      { "label": "平均持仓", "value": "1 小时 02 分", "tone": "neutral" },
+      { "label": "交易笔数", "value": "185", "tone": "neutral" },
+      { "label": "目标进度", "value": "84% · 超前", "tone": "profit" }
+    ],
+    "eyebrowWhy": "数据主权",
+    "eyebrowFeatures": "功能总览",
+    "eyebrowInside": "产品导览",
+    "eyebrowStack": "技术底层",
+    "featuresSub": "从券商 CSV 到每日复盘 —— 整个循环的每一步，都在同一套自托管应用中完成。",
+    "whyHeading": "为什么选择 TraderMemos？",
+    "whyBody": "TradeZella、TraderSync 等云端交易日志固然精致 —— 但你的交易优势藏在数据里。TraderMemos 延续 Ghost、Umami、Plane 的自托管理念：运行在你自己的基础设施上，数据库由你掌控，不需任何人许可即可自由扩展。",
+    "comparisonHeaderFeature": "项目",
+    "comparisonHeaderCloud": "云端交易日志",
+    "comparisonHeaderTm": "TraderMemos",
+    "comparison": [
+      { "row": "数据归属", "cloud": "供应商托管", "tm": "你的 SQLite / VPS" },
+      { "row": "费用", "cloud": "按月订阅", "tm": "免费 + 自托管主机成本" },
+      { "row": "AI 密钥", "cloud": "通常由供应商管理", "tm": "你自己的兼容 OpenAI API" },
+      { "row": "定制化", "cloud": "有限", "tm": "可 Fork、修改、自由部署" }
+    ],
+    "featuresHeading": "日常复盘所需的一切",
+    "features": {
+      "dashboard": {
+        "title": "仪表盘",
+        "description": "权益曲线、期望值、连胜连亏、持仓时长与年度目标进度。"
+      },
+      "tradeLog": {
+        "title": "交易记录",
+        "description": "成交明细自动归组为交易 —— 筛选、排序、打标签，并可下钻查看执行细节。"
+      },
+      "calendar": {
+        "title": "盈亏日历",
+        "description": "按日 / 按周热力图，支持下钻查看。"
+      },
+      "reports": {
+        "title": "报表",
+        "description": "胜率、盈利因子、期望值，以及按策略 / 小时 / 交易时段的细分统计。"
+      },
+      "playbook": {
+        "title": "策略手册",
+        "description": "策略库与使用该策略的交易记录相互关联。"
+      },
+      "import": {
+        "title": "导入",
+        "description": "支持券商 CSV 对账单导入，含列映射与去重。"
+      },
+      "tools": {
+        "title": "工具",
+        "description": "仓位计算器、风控规则、现金流水账。"
+      },
+      "ai": {
+        "title": "AI（可选）",
+        "description": "截图自动提取成交信息 + AI 交易教练，基于兼容 OpenAI 的 API —— 使用你自己的密钥。"
+      },
+      "api": {
+        "title": "API 访问",
+        "description": "个人访问令牌（tm_pat_…）可用于 MCP / 脚本；OpenAPI 文档位于 /docs。"
+      },
+      "themes": {
+        "title": "主题",
+        "description": "深色与浅色主题，基于 shadcn/ui + coss ui 设计令牌构建。"
+      }
+    },
+    "lookInsideHeading": "实际画面",
+    "tradeLogCaptionTitle": "交易记录",
+    "tradeLogCaptionBody": "每笔交易的盈亏、持仓时长与标签一目了然。点击任一行即可查看完整执行时间轴。",
+    "calendarCaptionTitle": "盈亏日历",
+    "calendarCaptionBody": "按日 / 按周热力图，一眼看出连胜与失手的日子。",
+    "reportsCaptionTitle": "报表",
+    "reportsCaptionBody": "权益曲线、盈利因子、期望值、胜率与目标进度 —— 并可按策略、小时、交易时段细分。",
+    "techStackHeading": "技术栈",
+    "stackComment": "# 你的数据，跑在你自己的主机上",
+    "stack": [
+      { "layer": "API", "value": "Go · Echo · sqlc · golang-migrate · SQLite" },
+      { "layer": "Web", "value": "React · Vite+ · TanStack Router/Query/Form · Tailwind" },
+      { "layer": "移动端", "value": "Expo（规划中）" },
+      { "layer": "设计", "value": "shadcn/ui + coss ui 设计令牌" }
+    ],
+    "licenseHeading": "采用 AGPL-3.0 许可协议",
+    "licenseBody": "自由自托管、修改，供个人或公司内部使用。",
+    "readDocs": "阅读文档"
+  },
+  "Footer": {
+    "tagline": "自托管交易日志。",
+    "docs": "文档",
+    "github": "GitHub",
+    "license": "许可协议（AGPL-3.0）"
+  }
+}

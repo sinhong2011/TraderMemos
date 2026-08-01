@@ -1,0 +1,57 @@
+---
+title: API 令牌与 OpenAPI
+description: 供 MCP、AI 代理与脚本使用的个人访问令牌（tm_pat_…），以及位于 /docs 的交互式 OpenAPI 文档。
+---
+
+Web 应用的一切操作都通过 JSON API 完成 —— 你也可以自己调用它。个人访问令牌（PAT）让脚本、
+MCP 服务与 AI 代理获得长期访问能力，无需处理登录 / 刷新流程。
+
+## 创建令牌
+
+**设置 → API → 访问令牌 → 生成令牌。** 取一个名字（如 `MCP bot`、`scripts`），并选择
+有效期：**永不过期、30 天、90 天或 1 年**。
+
+完整密钥 —— `tm_pat_…` —— **只展示一次**。请立刻保存；此后 UI 只显示开头几位，以及
+创建 / 过期 / 最近使用时间。吊销令牌会立即切断使用它的客户端。
+
+<Callout type="warn">
+令牌拥有**与你账户同等的权限** —— 没有细分作用域。请像对待密码一样对待它，对可能被遗忘的
+用途优先选择有过期时间的令牌而非“永不过期”。
+</Callout>
+
+## 使用
+
+在任意 `/api/v1` 接口上以 Bearer 令牌发送：
+
+```bash
+curl -H "Authorization: Bearer tm_pat_…" https://your-host/api/v1/accounts
+```
+
+```bash
+# 添加一笔成交（幂等 —— 同一笔成交重复提交会自动去重）
+curl -X POST https://your-host/api/v1/executions \
+  -H "Authorization: Bearer tm_pat_…" -H "Content-Type: application/json" \
+  -d '{"account_id":"…","symbol":"NVDA","side":"buy","quantity":100,"price":190.5,"executed_at":"2026-08-01T14:32:05Z"}'
+```
+
+常用接口：`/trades`、`/executions`、`/imports`、`/exports?format=json|csv|zip`、
+`/analytics/summary`、`/setups`、`/notes`、`/cash-transactions`。
+
+## OpenAPI 参考文档
+
+每个实例都自带交互式 API 文档（Scalar）：
+
+| 部署方式 | 文档地址 |
+|-------|----------|
+| Docker 一体化 | `http://localhost:3000/docs` |
+| API 直连 | `http://localhost:8080/docs` |
+| API 独立部署 | `https://api.example.com/docs` |
+
+原始 spec 位于同一主机的 `/openapi.yaml` —— 可喂给代码生成器或 LLM。这两个路由无需认证
+（它们只描述 API，不暴露数据）；实际的 API 调用仍需要认证。`GET /healthz` 也是公开的，
+返回运行中的版本号。
+
+## MCP / AI 代理
+
+让任何支持 HTTP 的 MCP 服务或代理指向你的实例，PAT 作为 Bearer 头、`/openapi.yaml`
+作为工具描述即可。UI 能做的一切 —— 导入成交、查询统计、批注交易 —— 都可以脚本化。

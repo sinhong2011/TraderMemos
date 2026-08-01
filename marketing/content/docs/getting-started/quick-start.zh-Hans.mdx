@@ -1,0 +1,62 @@
+---
+title: 快速开始
+description: 在你自己的机器上，用一个容器同时运行 Web UI 与 API。
+---
+
+在你自己的机器上，使用已发布的 Docker 镜像同时运行 Web UI 与 API：
+
+```bash
+git clone https://github.com/sinhong2011/TraderMemos.git
+cd TraderMemos
+make up          # → http://localhost:3000
+```
+
+就这么简单。同源 `/api`，无需 CORS 配置，登录时的 **Server** 字段留空即可。首次访问会出现
+**初始化向导**，用于创建你的 owner 账户 —— 接下来请看
+[入门指引](/zh-Hans/docs/getting-started/first-steps)。
+
+## 不克隆仓库的方式
+
+只装了 Docker，没有 `git` 或 `make`？compose 文件会自动拉取预构建镜像，有它就够了：
+
+```bash
+mkdir tradermemos && cd tradermemos
+curl -fsSLO https://raw.githubusercontent.com/sinhong2011/TraderMemos/main/docker-compose.yml
+docker compose up -d       # → http://localhost:3000
+```
+
+## 其他选项与生产环境提示
+
+```bash
+cp .env.example .env   # 可选：DOCKERHUB_USERNAME、TM_IMAGE_TAG
+make up                # 从 Docker Hub 拉取预构建镜像
+make up-build          # 或者从本仓库构建两个镜像
+make up-postgres       # SQLite → Postgres 覆盖配置
+```
+
+生产环境请设置 `TM_JWT_SECRET=$(openssl rand -hex 32)`，并在前面加一层 TLS —— 详见
+[部署](/zh-Hans/docs/self-hosting/deploy)与
+[反向代理](/zh-Hans/docs/self-hosting/reverse-proxy)。全部服务端配置项参见
+[配置参考](/zh-Hans/docs/self-hosting/configuration)。
+
+## 本地开发
+
+```bash
+git clone https://github.com/sinhong2011/TraderMemos.git
+cd TraderMemos
+make setup && make dev   # API :8080 + web :5173
+```
+
+关于各项 make 目标、Vite+ 命令与项目结构，参见
+[CONTRIBUTING.md](https://github.com/sinhong2011/TraderMemos/blob/main/CONTRIBUTING.md)。
+
+### 演示数据
+
+为任意实例填充约 200 条最近三个月生成的交易记录：
+
+```bash
+make demo-seed API=http://localhost:3000/api/v1 EMAIL=you@example.com PASSWORD='…'
+```
+
+该脚本只调用公开 API，因此无论是本地服务栈还是已部署的演示环境都可以使用。重复运行不会产生
+副作用 —— 成交记录会在服务端自动去重。

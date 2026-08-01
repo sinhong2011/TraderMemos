@@ -1,0 +1,67 @@
+---
+title: 导入交易
+description: 把券商成交记录导入 TraderMemos —— 支持列映射的 CSV、日志导出或 JSON 备份，重复记录自动跳过。
+---
+
+在侧边栏打开**导入**（快捷键 `G` `I`）。流程是**上传 → 列映射 → 结果** ——
+选择账户、拖入文件、确认映射、导入完成。文件只在你的服务器上解析，不会发送给任何第三方。
+
+## 支持的格式
+
+格式根据文件的表头自动识别 —— 没有按券商区分的预设，任何券商的成交导出只要完成列映射
+就能导入：
+
+| 格式 | 说明 | 需要映射？ |
+|--------|------------|---------------|
+| **成交 CSV** | 每行一笔成交 —— 多数券商对账单导出的形式 | 需要 |
+| **日志导出** | 每行一笔完整交易，含开平仓（Stonk Journal 风格：`Date, Symbol, Side, Qty, Entry, Exit, …, Tags, Setup, Notes`）。每行生成一笔完整交易及日志批注 | 不需要 |
+| **JSON 备份** | TraderMemos 的[导出文件](/zh-Hans/docs/self-hosting/backup-restore) —— 恢复成交、策略手册、现金流水与账户元数据 | 不需要 |
+
+导入页面提供示例文件下载。
+
+## 列映射（成交 CSV）
+
+每个标准字段映射到你 CSV 中的某一列，或选择**（跳过）**。常见表头会自动建议：
+
+| 字段 | 必填 | 可自动识别的表头示例 |
+|-------|----------|--------------------------------|
+| `symbol` | ✔ | Symbol、Ticker、Instrument |
+| `side` | ✔ | Side、B/S、Action（`buy`/`b`/`bot`、`sell`/`s`/`sld`） |
+| `quantity` | ✔ | Qty、Quantity、Shares、Contracts |
+| `price` | ✔ | Fill Price、Price、Avg Price、Exec Price |
+| `executed_at` | ✔ | Trade Date、Date/Time、Datetime |
+| `fees` / `commission` | — | Fee(s) / Commission、Comm |
+| `instrument_type` | — | Market、Asset Type、Sec Type |
+| `option_right` | — | Call/Put、Option Type、Right |
+
+时间戳支持 ISO 8601（`2026-07-01T15:04:05Z`）、`2026-07-01 15:04:05`、
+`07/01/2026 15:04:05` 以及纯日期 —— 全部归一化为 UTC。期权成交会带上看涨 / 看跌方向
+（显式列或从代码推断）与 ×100 的乘数。
+
+## 去重与重复导入
+
+一笔成交的唯一性由**代码 + 方向 + 数量 + 价格 + 时间戳**共同决定，按账户隔离。同一份
+对账单导两次、或日期范围重叠，重复部分只会计入**已跳过（重复）**。重复导入永远是安全的。
+
+## 成交如何归组为交易
+
+每次导入后账户会自动重新归组：同一代码 / 品种的成交按时间顺序遍历 —— 同向成交加仓、
+反向成交减仓，仓位归零时交易平仓（跨越零点的成交会开启下一笔交易）。日志批注挂在交易上，
+重新归组后依然保留。
+
+导错了？每次导入都是一个批次 —— 导入页面列出历史批次，**删除批次即可回滚**
+（移除该批次的成交并重新归组）。
+
+## 限制
+
+上传大小由 `TM_IMPORT_MAX_BYTES` 限制（默认 **10 MiB**，约数万行）。自托管用户可以调高
+—— 参见[配置参考](/zh-Hans/docs/self-hosting/configuration) —— 同时保持代理的请求体限制
+高于它。超大的历史记录可按年份拆分；去重机制让文件重叠不会造成问题。
+
+## 其他导入途径
+
+- **截图扫描** —— 用 LLM 从券商截图提取成交，参见 [AI 功能](/zh-Hans/docs/guides/ai-features)
+- **手动录入** —— **新建交易**抽屉（快捷键 `n`）
+- **API / 脚本** —— 携带[个人访问令牌](/zh-Hans/docs/guides/api-tokens)调用
+  `POST /api/v1/executions`；同样的去重规则适用
+- **CLI** —— 在 API 容器内执行 `tradermemos import --account … --file …`
