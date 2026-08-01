@@ -13,6 +13,7 @@ import {
   Plug,
   MoonStar,
   ArrowRight,
+  Star,
 } from 'lucide-react';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { appName, gitConfig } from '@/lib/shared';
@@ -343,6 +344,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
   const locale = resolveLocale(lang);
   setRequestLocale(locale);
   const t = await getTranslations('Home');
+  const d = await getTranslations('Deploy');
   const isCjk = locale !== 'en';
   const badgeParts = t('badge')
     .split('·')
@@ -725,6 +727,97 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
                     </div>
                   ))}
                 </dl>
+              </div>
+            </div>
+          </div>
+        </Reveal>
+      </section>
+
+      <SectionRule />
+
+      {/* Deploy strip — one-click buttons + the clone-free compose path */}
+      <section className="px-6 py-24">
+        <Reveal>
+          <div className="grid gap-12 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:gap-16">
+            <div>
+              <Eyebrow label={d('eyebrow')} />
+              <h2 className="mt-4 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+                {d('heading')}
+              </h2>
+              <p className="mt-4 text-pretty leading-relaxed text-fd-muted-foreground">
+                {d('sub')}
+              </p>
+              <div className="mt-8 flex flex-wrap items-center gap-3">
+                {(
+                  [
+                    [
+                      'Vercel',
+                      'https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fsinhong2011%2FTraderMemos&root-directory=web&project-name=tradermemos&repository-name=tradermemos&env=VITE_API',
+                    ],
+                    [
+                      'Cloudflare',
+                      'https://deploy.workers.cloudflare.com/?url=https%3A%2F%2Fgithub.com%2Fsinhong2011%2FTraderMemos%2Ftree%2Fmain%2Fweb',
+                    ],
+                    [
+                      'Netlify',
+                      'https://app.netlify.com/start/deploy?repository=https://github.com/sinhong2011/TraderMemos',
+                    ],
+                    [
+                      'Railway',
+                      'https://railway.com/new/template?template=https%3A%2F%2Fgithub.com%2Fsinhong2011%2FTraderMemos',
+                    ],
+                  ] as const
+                ).map(([name, href]) => (
+                  <a
+                    key={name}
+                    href={href}
+                    rel="noreferrer"
+                    className={`inline-flex items-center gap-2 rounded-lg bg-fd-secondary px-5 py-2.5 text-sm font-medium text-fd-secondary-foreground ring-1 ring-fd-border transition-colors hover:bg-fd-accent ${focusRing}`}
+                  >
+                    {name}
+                    <ArrowRight className="size-3.5 opacity-60" />
+                  </a>
+                ))}
+                <a
+                  href={repoUrl}
+                  rel="noreferrer"
+                  className={`inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium text-fd-muted-foreground transition-colors hover:text-fd-foreground ${focusRing}`}
+                >
+                  <Star className="size-4" />
+                  {d('star')}
+                </a>
+              </div>
+              <p className="mt-4 text-sm text-fd-muted-foreground/80">{d('note')}</p>
+            </div>
+            <div className="relative self-center">
+              <div
+                aria-hidden
+                className="absolute -inset-4 -z-10 rounded-3xl bg-fd-primary/10 blur-2xl"
+              />
+              <div className="overflow-hidden rounded-xl bg-zinc-950 shadow-2xl shadow-black/30 ring-1 ring-white/10">
+                <div className="flex items-center gap-2 px-4 py-2.5">
+                  <span aria-hidden className="size-2.5 rounded-full bg-zinc-700" />
+                  <span aria-hidden className="size-2.5 rounded-full bg-zinc-700" />
+                  <span aria-hidden className="size-2.5 rounded-full bg-zinc-700" />
+                  <span className="mx-auto rounded-md bg-zinc-900 px-6 py-0.5 font-mono text-[11px] text-zinc-500">
+                    deploy.sh
+                  </span>
+                </div>
+                <pre className="overflow-x-auto px-5 pb-6 pt-2 font-mono text-[13px] leading-8 text-zinc-300">
+                  <code>
+                    <span className="text-zinc-600">{d('dockerComment')}</span>
+                    {'\n'}
+                    <span aria-hidden className="select-none text-tm-profit">
+                      ${' '}
+                    </span>
+                    curl -fsSLO https://raw.githubusercontent.com/sinhong2011/TraderMemos/main/docker-compose.yml
+                    {'\n'}
+                    <span aria-hidden className="select-none text-tm-profit">
+                      ${' '}
+                    </span>
+                    docker compose up -d
+                  </code>
+                </pre>
               </div>
             </div>
           </div>
