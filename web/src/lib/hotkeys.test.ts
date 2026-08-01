@@ -23,7 +23,7 @@ describe("formatHotkeyLabel", () => {
 describe("APP_HOTKEYS", () => {
   it("covers palette, navigation, actions, and position size", () => {
     expect(APP_HOTKEYS.palette.keys).toBe("mod+k");
-    expect(APP_HOTKEYS["nav-dashboard"].keys).toBe("g>d");
+    expect(APP_HOTKEYS["nav-home"].keys).toBe("g>h");
     expect(APP_HOTKEYS["nav-settings"].keys).toBe("mod+comma");
     expect(APP_HOTKEYS["action-new-trade"].keys).toBe("n");
     expect(APP_HOTKEYS["tool-size"].keys).toBe("mod+shift+p");

@@ -200,7 +200,7 @@ describe("ImportView - Step 3 result", () => {
     expect(screen.getByText("Import finished")).toBeInTheDocument();
     expect(screen.getByText("Inserted")).toBeInTheDocument();
     expect(screen.getByText("Skipped (duplicates)")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /view dashboard/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /go to home/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /import another/i })).toBeInTheDocument();
   });
 });

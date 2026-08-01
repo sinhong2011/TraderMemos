@@ -1,5 +1,5 @@
 import type { Account, Trade } from "@/lib/api/types";
-import { computeAccountContribution } from "@/lib/dashboardInsights";
+import { computeAccountContribution } from "@/lib/homeInsights";
 import { cn } from "@/lib/cn";
 import { fmtPct, fmtSignedMoney } from "@/lib/format";
 import { intlLocale } from "@/lib/locale";
@@ -7,19 +7,19 @@ import { pnlColor } from "./theme-tokens";
 import { WinLossRecord } from "./WinLossRecord";
 import { usePrivacyMode } from "@/lib/displayPrefs";
 
-export interface DashboardAccountContributionProps {
+export interface HomeAccountContributionProps {
   trades: Trade[];
   accounts: Account[];
   currency: string;
   fxRate?: number;
 }
 
-export function DashboardAccountContribution({
+export function HomeAccountContribution({
   trades,
   accounts,
   currency,
   fxRate = 1,
-}: DashboardAccountContributionProps) {
+}: HomeAccountContributionProps) {
   usePrivacyMode();
   const rows = computeAccountContribution(trades, accounts);
   if (rows.length < 2) return null;

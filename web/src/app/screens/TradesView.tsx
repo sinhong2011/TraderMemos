@@ -351,7 +351,7 @@ export function TradesView({
     </div>
   );
 
-  // Compact rides the shell's <main> scroller like the dashboard: no inner
+  // Compact rides the shell's <main> scroller like the home page: no inner
   // scroll box, toolbar pinned to the top of the page as it goes.
   if (compact) {
     return (

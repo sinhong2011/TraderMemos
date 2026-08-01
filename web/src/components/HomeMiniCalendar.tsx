@@ -10,7 +10,7 @@ import { usePrivacyMode } from "@/lib/displayPrefs";
 
 const DOW = ["S", "M", "T", "W", "T", "F", "S"];
 
-export interface DashboardMiniCalendarProps {
+export interface HomeMiniCalendarProps {
   year: number;
   month: number;
   dailyPnl: Record<string, number>;
@@ -30,7 +30,7 @@ function monthLabel(year: number, month: number, locale: string): string {
   });
 }
 
-export function DashboardMiniCalendar({
+export function HomeMiniCalendar({
   year,
   month,
   dailyPnl,
@@ -40,7 +40,7 @@ export function DashboardMiniCalendar({
   loading,
   error,
   onOpenCalendar,
-}: DashboardMiniCalendarProps) {
+}: HomeMiniCalendarProps) {
   usePrivacyMode();
   const locale = intlLocale();
   const grid = monthGrid(year, month, dailyPnl);

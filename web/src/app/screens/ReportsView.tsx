@@ -250,7 +250,7 @@ function SummaryMetricsGrid({
   return (
     <div className="flex flex-col gap-3">
       <div className="grid auto-rows-[minmax(64px,auto)] grid-cols-1 gap-3">
-        {/* Equity — top full-bleed, area chart like dashboard */}
+        {/* Equity — top full-bleed, area chart like the home page */}
         <BentoCell className="min-h-[180px]">
           <BentoTitle tone="muted">
             Equity curve

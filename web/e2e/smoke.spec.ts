@@ -7,8 +7,8 @@ if (!process.env.E2E_EMAIL || !process.env.E2E_PASSWORD) {
 const EMAIL = process.env.E2E_EMAIL;
 const PASSWORD = process.env.E2E_PASSWORD;
 
-test("login -> dashboard -> calendar -> trades -> detail -> stats", async ({ page }) => {
-  await page.goto("/dashboard");
+test("login -> home -> calendar -> trades -> detail -> stats", async ({ page }) => {
+  await page.goto("/home");
   await page.evaluate(() => {
     localStorage.removeItem("tm_token");
     localStorage.removeItem("tm_refresh");
@@ -21,7 +21,7 @@ test("login -> dashboard -> calendar -> trades -> detail -> stats", async ({ pag
   await page.locator("#password").fill(PASSWORD);
   await page.getByRole("button", { name: "Sign in" }).click();
 
-  // Dashboard: stats strip + range control.
+  // Home: stats strip + range control.
   await expect(page.getByText(/^Wins$/i).first()).toBeVisible();
   await expect(page.getByText(/^Losses$/i).first()).toBeVisible();
   await expect(
@@ -52,7 +52,7 @@ test("login -> dashboard -> calendar -> trades -> detail -> stats", async ({ pag
 });
 
 test("new trade drawer logs a trade", async ({ page }) => {
-  await page.goto("/dashboard");
+  await page.goto("/home");
   await page.evaluate(() => {
     localStorage.removeItem("tm_token");
     localStorage.removeItem("tm_refresh");
@@ -76,7 +76,7 @@ test("new trade drawer logs a trade", async ({ page }) => {
   // Buy-only creates an open position; Phase A lists open trades in the book.
   await page.getByRole("button", { name: "Save" }).click();
 
-  // Drawer closes and the open trade shows up in the dashboard table. Scope to
+  // Drawer closes and the open trade shows up in the home table. Scope to
   // the table body: the success toast can also contain the symbol, which
   // would otherwise trip Playwright's strict-mode duplicate-match check.
   await expect(page.getByText("Log any trade you've entered")).toBeHidden();
@@ -85,7 +85,7 @@ test("new trade drawer logs a trade", async ({ page }) => {
 });
 
 test("new trade can still log a closed round-trip", async ({ page }) => {
-  await page.goto("/dashboard");
+  await page.goto("/home");
   await page.evaluate(() => {
     localStorage.removeItem("tm_token");
     localStorage.removeItem("tm_refresh");

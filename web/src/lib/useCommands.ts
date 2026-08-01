@@ -3,7 +3,7 @@ import {
   BookOpen,
   CalendarDays,
   Calculator,
-  LayoutDashboard,
+  House,
   List,
   PieChart,
   Plus,
@@ -47,10 +47,10 @@ const NAV_COMMANDS: Array<{
   keywords?: string[];
 }> = [
   {
-    id: "nav-dashboard",
-    label: "Dashboard",
-    to: "/dashboard",
-    icon: LayoutDashboard,
+    id: "nav-home",
+    label: "Home",
+    to: "/home",
+    icon: House,
   },
   { id: "nav-trades", label: "Trades", to: "/trades", icon: List },
   {

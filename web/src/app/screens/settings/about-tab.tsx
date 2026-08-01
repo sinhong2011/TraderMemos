@@ -4,7 +4,7 @@ import {
   ExternalLink,
   FileSpreadsheet,
   Github,
-  LayoutDashboard,
+  House,
   ScrollText,
   Sparkles,
 } from "lucide-react";
@@ -30,7 +30,7 @@ import { useLocale } from "@/i18n";
 import { SettingsGroup, SettingsGroupRow, SettingsPanelBody, SettingsSection } from "./settings-ui";
 
 const FEATURE_ICONS: LucideIcon[] = [
-  LayoutDashboard,
+  House,
   ScrollText,
   Calendar,
   BarChart3,

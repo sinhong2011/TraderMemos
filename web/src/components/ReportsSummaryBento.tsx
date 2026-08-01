@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import type { EquityCurve, Summary, Trade } from "@/lib/api/types";
 import { pnlColor } from "./theme-tokens";
 import { cn } from "@/lib/cn";
-import { computeDashboardInsights } from "@/lib/dashboardInsights";
+import { computeHomeInsights } from "@/lib/homeInsights";
 import { usePrivacyMode } from "@/lib/displayPrefs";
 import { fmtDuration, fmtPct } from "@/lib/format";
 import { intlLocale } from "@/lib/locale";
@@ -103,7 +103,7 @@ export function ReportsSummaryBento({ summary, trades, equity }: ReportsSummaryB
   usePrivacyMode();
   const money = useReportsMoney();
   const locale = intlLocale();
-  const insights = computeDashboardInsights(trades);
+  const insights = computeHomeInsights(trades);
   const grossVolume = summary.gross_profit + summary.gross_loss;
   const feePct = grossVolume !== 0 ? (summary.total_fees / Math.abs(grossVolume)) * 100 : 0;
   const openTrades = trades.filter((t) => t.status === "open").length;

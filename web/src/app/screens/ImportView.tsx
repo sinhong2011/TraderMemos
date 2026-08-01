@@ -705,7 +705,7 @@ function Step3Result({ result, onDone, onImportAnother }: Step3Props) {
         <div className="mt-2 flex flex-col items-stretch gap-2 sm:flex-row sm:items-center">
           <Button type="button" variant="default" onClick={onDone} className="w-full sm:w-auto">
             <Check size={13} strokeWidth={1.5} />
-            View dashboard
+            Go to Home
           </Button>
           <Button
             type="button"

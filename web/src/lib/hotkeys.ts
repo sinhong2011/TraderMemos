@@ -70,7 +70,7 @@ export function formatHotkeyLabel(keys: string, apple = isApplePlatform()): stri
 /** Global app hotkeys keyed by command id (or `palette`). */
 export const APP_HOTKEYS = {
   palette: { keys: "mod+k", label: formatHotkeyLabel("mod+k") },
-  "nav-dashboard": { keys: "g>d", label: formatHotkeyLabel("g>d") },
+  "nav-home": { keys: "g>h", label: formatHotkeyLabel("g>h") },
   "nav-trades": { keys: "g>t", label: formatHotkeyLabel("g>t") },
   "nav-calendar": { keys: "g>c", label: formatHotkeyLabel("g>c") },
   "nav-stats": { keys: "g>s", label: formatHotkeyLabel("g>s") },

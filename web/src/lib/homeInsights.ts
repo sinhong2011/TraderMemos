@@ -47,7 +47,7 @@ export interface DayPnl {
   pnl: number;
 }
 
-export interface DashboardInsights {
+export interface HomeInsights {
   bestStreak: number;
   worstStreak: number;
   bestDay: DayPnl | null;
@@ -129,7 +129,7 @@ function mostFrequent(names: string[]): string | null {
   return best;
 }
 
-export function computeDashboardInsights(trades: Trade[]): DashboardInsights {
+export function computeHomeInsights(trades: Trade[]): HomeInsights {
   const closed = chronologicalClosed(trades);
   const { best, worst } = streaks(closed);
   const days = dayPnls(closed);
@@ -184,7 +184,7 @@ export interface InsightPanel {
 
 export function buildInsightPanels(
   summary: Summary,
-  insights: DashboardInsights,
+  insights: HomeInsights,
   currency: string,
   locale: string,
   maxDrawdown: number | undefined,

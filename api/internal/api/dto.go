@@ -142,7 +142,7 @@ func (s *Server) loadClosedTrades(ctx context.Context, userID string, f Filters)
 	return out, nil
 }
 
-// loadTrades fetches open and/or closed trades for the trade log / dashboard.
+// loadTrades fetches open and/or closed trades for the trade log / home page.
 // Date filters default to opened_at (legacy). Pass date_basis=close to filter
 // by closed_at so calendar / realized-day views stay consistent.
 func (s *Server) loadTrades(ctx context.Context, userID string, f Filters) ([]store.Trade, error) {

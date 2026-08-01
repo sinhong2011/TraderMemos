@@ -106,10 +106,10 @@ export function useAppHotkeys() {
 
   // Navigation sequences (g then letter) — skip while typing / overlays
   useHotkeys(
-    APP_HOTKEYS["nav-dashboard"].keys,
+    APP_HOTKEYS["nav-home"].keys,
     () => {
       useUI.getState().setCommandOpen(false);
-      void navigate({ to: "/dashboard" });
+      void navigate({ to: "/home" });
     },
     pageChord,
     [navigate],

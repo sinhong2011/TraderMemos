@@ -94,12 +94,12 @@ describe("useAppHotkeys", () => {
     await waitFor(() => expect(useUI.getState().modal).toBe("new-trade"));
   });
 
-  it("navigates on g then d", async () => {
+  it("navigates on g then h", async () => {
     const user = userEvent.setup();
     render(<HotkeyHost />);
     await user.click(document.body);
-    await user.keyboard("gd");
-    await waitFor(() => expect(navigate).toHaveBeenCalledWith({ to: "/dashboard" }));
+    await user.keyboard("gh");
+    await waitFor(() => expect(navigate).toHaveBeenCalledWith({ to: "/home" }));
   });
 
   it("navigates to settings on mod+comma", async () => {
