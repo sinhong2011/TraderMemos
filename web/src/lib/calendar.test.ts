@@ -1,5 +1,15 @@
 import { describe, expect, it } from "vite-plus/test";
-import { buildDayRecords, monthGrid, tradesOnDay, weekSummaries } from "./calendar";
+import { buildDayRecords, dayKeyInTz, monthGrid, tradesOnDay, weekSummaries } from "./calendar";
+
+describe("dayKeyInTz", () => {
+  it("keys timestamps on the trader's calendar day", () => {
+    // 00:30 UTC on the 22nd is still the evening of the 21st in New York.
+    expect(dayKeyInTz("2026-07-22T00:30:00Z")).toBe("2026-07-22");
+    expect(dayKeyInTz("2026-07-22T00:30:00Z", "America/New_York")).toBe("2026-07-21");
+    expect(dayKeyInTz("2026-07-21T22:30:00Z", "Asia/Hong_Kong")).toBe("2026-07-22");
+    expect(dayKeyInTz("2026-07-22T00:30:00Z", "UTC")).toBe("2026-07-22");
+  });
+});
 
 describe("monthGrid", () => {
   it("builds a 6x7 grid covering the month with pnl mapped by day", () => {
@@ -51,6 +61,17 @@ describe("tradesOnDay", () => {
     ];
     expect(tradesOnDay(trades, "2026-07-22", "close").map((t) => t.id)).toEqual(["a", "d"]);
     expect(tradesOnDay(trades, "2026-07-21", "open").map((t) => t.id)).toEqual(["a", "b", "d"]);
+  });
+
+  it("attributes late-UTC closes to the trader's local day when a timezone is given", () => {
+    const trades = [
+      // 00:30 UTC July 22 = 20:30 ET July 21.
+      { id: "x", opened_at: "2026-07-21T18:00:00Z", closed_at: "2026-07-22T00:30:00Z" },
+    ];
+    expect(tradesOnDay(trades, "2026-07-21", "close", "America/New_York").map((t) => t.id)).toEqual(
+      ["x"],
+    );
+    expect(tradesOnDay(trades, "2026-07-22", "close", "America/New_York")).toEqual([]);
   });
 });
 

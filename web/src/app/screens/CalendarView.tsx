@@ -16,12 +16,12 @@ import { Button } from "@/components/ui/button";
 import { pnlBgTint, pnlColor, heroPnlClass } from "@/components/theme-tokens";
 
 import type { Account, Summary, Trade } from "@/lib/api/types";
-import { type DayRecord, monthGrid, tradeDayKey, weekSummaries } from "@/lib/calendar";
+import { type DayRecord, dayKeyInTz, monthGrid, tradeDayKey, weekSummaries } from "@/lib/calendar";
 import { cn } from "@/lib/cn";
 import { fmtPct, fmtSignedMoney, fmtSignedMoneyCompact } from "@/lib/format";
 import { useMoneyFx } from "@/lib/hooks/useMoneyFx";
 import { intlLocale } from "@/lib/locale";
-import { useDisplayPrefs, usePrivacyMode } from "@/lib/displayPrefs";
+import { resolveDisplayTimezone, useDisplayPrefs, usePrivacyMode } from "@/lib/displayPrefs";
 
 const DOW_HEADERS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 /** Weekend day-of-week indexes (Sun=0, Sat=6) — hidden below `md` in favor of taller Mon–Fri cells. */
@@ -86,10 +86,8 @@ function dayColor(pnl: number): string {
   return pnl >= 0 ? "rgb(82, 202, 150)" : "rgb(235, 75, 104)";
 }
 
-function todayString(): string {
-  const d = new Date();
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+function todayString(tz?: string): string {
+  return dayKeyInTz(new Date().toISOString(), tz);
 }
 
 function dayTradeCount(rec: DayRecord | undefined): number {
@@ -141,6 +139,7 @@ export function CalendarView({
 }: CalendarViewProps) {
   usePrivacyMode();
   const tradeDateBasis = useDisplayPrefs((s) => s.tradeDateBasis);
+  const displayTz = resolveDisplayTimezone(useDisplayPrefs((s) => s.timezone));
   const [monthSummaryOpen, setMonthSummaryOpen] = useState(false);
   const [yearSummaryOpen, setYearSummaryOpen] = useState(false);
   const { currency: displayCurrency, rate } = useMoneyFx(currency);
@@ -148,31 +147,31 @@ export function CalendarView({
   const money = (v: number) => v * fxRate;
   const grid = monthGrid(year, month, dailyPnl);
   const weeks = weekSummaries(grid.weeks, records);
-  const today = todayString();
+  const today = todayString(displayTz);
 
   const monthTradesByDay = useMemo(() => {
     const map = new Map<string, Trade[]>();
     for (const trade of monthTrades) {
-      const key = tradeDayKey(trade, tradeDateBasis);
+      const key = tradeDayKey(trade, tradeDateBasis, displayTz);
       if (!key) continue;
       const list = map.get(key);
       if (list) list.push(trade);
       else map.set(key, [trade]);
     }
     return map;
-  }, [monthTrades, tradeDateBasis]);
+  }, [monthTrades, tradeDateBasis, displayTz]);
 
   const yearTradesByDay = useMemo(() => {
     const map = new Map<string, Trade[]>();
     for (const trade of yearTradeList) {
-      const key = tradeDayKey(trade, tradeDateBasis);
+      const key = tradeDayKey(trade, tradeDateBasis, displayTz);
       if (!key) continue;
       const list = map.get(key);
       if (list) list.push(trade);
       else map.set(key, [trade]);
     }
     return map;
-  }, [yearTradeList, tradeDateBasis]);
+  }, [yearTradeList, tradeDateBasis, displayTz]);
 
   const startingList = selectedAccountId
     ? accounts.filter((a) => a.id === selectedAccountId)

@@ -119,6 +119,7 @@ export function rfc3339OffsetSuffix(timeZone: string, at: Date = new Date()): st
     if (!m) return "Z";
     const hours = String(Number(m[2])).padStart(2, "0");
     const mins = String(m[3] ? Number(m[3]) : 0).padStart(2, "0");
+    if (hours === "00" && mins === "00") return "Z";
     return `${m[1]}${hours}:${mins}`;
   } catch {
     return "Z";

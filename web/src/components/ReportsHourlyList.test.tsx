@@ -58,12 +58,17 @@ describe("ReportsHourlyList", () => {
     expect(hours.map((el) => el.textContent)).toEqual(["14:00", "09:00", "11:00"]);
   });
 
-  it("relabels UTC hour keys into the display timezone", () => {
+  it("renders hour keys as-is — the API already buckets on the trader's clock", () => {
     useDisplayPrefs.getState().setTimezone("Asia/Hong_Kong");
     render(<ReportsHourlyList breakdown={[grp("14:00", -120)]} loading={false} error={false} />);
-    // 14:00 UTC → 22:00 HKT (fixed +8, no DST)
-    expect(screen.getByText("22:00")).toBeInTheDocument();
-    expect(screen.queryByText("14:00")).not.toBeInTheDocument();
+    expect(screen.getByText("14:00")).toBeInTheDocument();
+    expect(screen.queryByText("22:00")).not.toBeInTheDocument();
+  });
+
+  it("applies the 12-hour clock preference to hour keys", () => {
+    useDisplayPrefs.getState().setTimeFormat("h12");
+    render(<ReportsHourlyList breakdown={[grp("14:00", -120)]} loading={false} error={false} />);
+    expect(screen.getByText("2:00 PM")).toBeInTheDocument();
   });
 
   it("shows the gross P&L when pnlMode is gross", () => {
