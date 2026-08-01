@@ -1,0 +1,65 @@
+---
+title: Updating
+description: Upgrade a running TraderMemos instance — pull, restart, done. Migrations run automatically.
+---
+
+Database migrations run **automatically on API startup** — upgrading is pull + restart.
+Still, [back up](/en/docs/self-hosting/backup-restore) before major version jumps.
+
+## Docker (default)
+
+```bash
+cd TraderMemos
+git pull                     # picks up compose/Makefile changes, if any
+docker compose pull          # fetch newer images
+make up                      # recreate containers (docker compose up -d)
+```
+
+If you built from source instead of pulling Hub images:
+
+```bash
+git pull
+make up-build                # rebuild both images from the repo
+```
+
+Verify the running version:
+
+```bash
+curl -s http://localhost:3000/healthz
+# {"status":"ok","version":"0.1.6","go":"go1.26","commit":"…"}
+```
+
+## Pinning versions (recommended for production)
+
+`latest` moves with every release. Pin a release in the root `.env` and bump deliberately:
+
+```bash
+# .env
+TM_IMAGE_TAG=0.1.6
+```
+
+```bash
+# upgrade: edit TM_IMAGE_TAG, then
+docker compose pull && make up
+```
+
+Published tags follow semver: `0.1.6`, `0.1`, `0`, `latest`, plus immutable commit-`sha` tags.
+Images are multi-arch (`amd64` + `arm64`). Releases and notable changes are listed in the
+[CHANGELOG](https://github.com/sinhong2011/TraderMemos/blob/main/CHANGELOG.md) and
+[GitHub Releases](https://github.com/sinhong2011/TraderMemos/releases).
+
+## How migrations behave
+
+- Migrations are embedded in the API binary and applied on boot (SQLite and Postgres chains).
+- A file lock next to the SQLite DB (`tradermemos.db.migrate.lock`) prevents concurrent
+  migration if two processes start at once.
+- There is **no automatic downgrade**. Rolling back to an older image after a schema migration
+  is not supported — restore the [pre-upgrade backup](/en/docs/self-hosting/backup-restore)
+  instead.
+
+## Fork / CDN deployments
+
+- **Vercel / Cloudflare / Netlify web**: pushes to your fork's default branch redeploy
+  automatically; syncing your fork with upstream *is* the update.
+- **Railway API**: redeploys on push. The `/data` volume persists across deploys — keep it
+  attached.
