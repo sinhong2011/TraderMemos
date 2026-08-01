@@ -1,0 +1,105 @@
+{
+  "Home": {
+    "metaTitle": "TraderMemos — self-hosted trading journal",
+    "metaDescription": "Own your trading data. TraderMemos is a self-hosted trading journal with a dashboard, P&L calendar, trade log, playbook, and reports — free, AGPL-3.0, on your own infrastructure.",
+    "badge": "Self-hosted · AGPL-3.0 · Go + React",
+    "heroTitleLine1": "Own your data.",
+    "heroTitleLine2": "Review your edge.",
+    "heroSubtitle": "TraderMemos is a self-hosted trading journal — dashboard, P&L calendar, trade log, playbook, and reports on your own infrastructure. No subscription, no vendor lock-in.",
+    "ctaGetStarted": "Get started",
+    "ctaGithub": "View on GitHub",
+    "ticker": [
+      { "label": "Net P&L", "value": "+$8,405.81", "tone": "profit" },
+      { "label": "Win rate", "value": "59%", "tone": "neutral" },
+      { "label": "Profit factor", "value": "1.83", "tone": "neutral" },
+      { "label": "Expectancy", "value": "+$45.44 / trade", "tone": "profit" },
+      { "label": "Max drawdown", "value": "−$1,057.78", "tone": "loss" },
+      { "label": "Avg hold", "value": "1h 02m", "tone": "neutral" },
+      { "label": "Trades", "value": "185", "tone": "neutral" },
+      { "label": "Goal pace", "value": "84% · ahead", "tone": "profit" }
+    ],
+    "eyebrowWhy": "Own the data",
+    "eyebrowFeatures": "Feature set",
+    "eyebrowInside": "Inside the app",
+    "eyebrowStack": "Under the hood",
+    "featuresSub": "From broker CSV to daily review — every step of the loop lives in one self-hosted app.",
+    "whyHeading": "Why TraderMemos?",
+    "whyBody": "Cloud journals like TradeZella and TraderSync are polished — but your edge lives in the data. TraderMemos follows the same self-hosting philosophy as Ghost, Umami, and Plane: run it on your infrastructure, own the database, extend without permission.",
+    "comparisonHeaderFeature": "Category",
+    "comparisonHeaderCloud": "Cloud journals",
+    "comparisonHeaderTm": "TraderMemos",
+    "comparison": [
+      { "row": "Data ownership", "cloud": "Vendor-hosted", "tm": "Your SQLite / VPS" },
+      { "row": "Cost", "cloud": "Monthly subscription", "tm": "Free + your hosting" },
+      { "row": "AI keys", "cloud": "Often vendor-managed", "tm": "Your OpenAI-compatible API" },
+      { "row": "Customization", "cloud": "Limited", "tm": "Fork, patch, deploy" }
+    ],
+    "featuresHeading": "Everything a daily review needs",
+    "features": {
+      "dashboard": {
+        "title": "Dashboard",
+        "description": "Equity curve, expectancy, streaks, hold times, and annual goal pacing."
+      },
+      "tradeLog": {
+        "title": "Trade log",
+        "description": "Fills grouped into trades — filter, sort, tag, and drill into execution detail."
+      },
+      "calendar": {
+        "title": "P&L calendar",
+        "description": "Daily and weekly heatmap with drill-down."
+      },
+      "reports": {
+        "title": "Reports",
+        "description": "Win rate, profit factor, expectancy, and setup / hourly / session breakdowns."
+      },
+      "playbook": {
+        "title": "Playbook",
+        "description": "Strategy library linked to the trades that used each setup."
+      },
+      "import": {
+        "title": "Import",
+        "description": "CSV broker statements, with column mapping and dedup."
+      },
+      "tools": {
+        "title": "Tools",
+        "description": "Position-size calculator, risk rules, cash ledger."
+      },
+      "ai": {
+        "title": "AI (optional)",
+        "description": "Screenshot fill extraction + trade coach via OpenAI-compatible APIs — your keys."
+      },
+      "api": {
+        "title": "API access",
+        "description": "Personal access tokens (tm_pat_…) for MCP/scripts; OpenAPI docs at /docs."
+      },
+      "themes": {
+        "title": "Themes",
+        "description": "Dark and light, built on shadcn/ui + coss ui tokens."
+      }
+    },
+    "lookInsideHeading": "A look inside",
+    "tradeLogCaptionTitle": "Trade log",
+    "tradeLogCaptionBody": "per-trade P&L, hold time, and tags at a glance. Click any row for the full execution timeline.",
+    "calendarCaptionTitle": "P&L calendar",
+    "calendarCaptionBody": "daily and weekly heatmap. Spot the streaks and the bad days at a glance.",
+    "reportsCaptionTitle": "Reports",
+    "reportsCaptionBody": "equity curve, profit factor, expectancy, win rate, and goal pacing — plus breakdowns by setup, hour, and session.",
+    "techStackHeading": "Tech stack",
+    "stackComment": "# your data, your box",
+    "stack": [
+      { "layer": "API", "value": "Go · Echo · sqlc · golang-migrate · SQLite" },
+      { "layer": "Web", "value": "React · Vite+ · TanStack Router/Query/Form · Tailwind" },
+      { "layer": "Mobile", "value": "Expo (planned)" },
+      { "layer": "Design", "value": "shadcn/ui + coss ui tokens" }
+    ],
+    "licenseHeading": "AGPL-3.0 licensed",
+    "licenseBody": "Self-host it, modify it, and run it for yourself or your firm freely.",
+    "readDocs": "Read the docs"
+  },
+  "Footer": {
+    "tagline": "Self-hosted trading journal.",
+    "docs": "Docs",
+    "github": "GitHub",
+    "license": "License (AGPL-3.0)"
+  }
+}
