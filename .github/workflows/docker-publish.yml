@@ -30,59 +30,13 @@ on:
   workflow_dispatch:
 
 jobs:
+  # Same checks as PR CI — reused so a release can never publish images that
+  # skipped tests.
   test-api:
-    name: Test API
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: api
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-go@v5
-        with:
-          go-version: "1.26.1"
-          cache-dependency-path: api/go.sum
-
-      - name: Test
-        run: go test ./...
-
-      - name: Build
-        run: go build ./...
+    uses: ./.github/workflows/api-ci.yml
 
   test-web:
-    name: Test web
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: web
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 11.16.0
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: web/.node-version
-          cache: pnpm
-          cache-dependency-path: web/pnpm-lock.yaml
-
-      - name: Install
-        run: pnpm install --frozen-lockfile
-
-      - name: Lint and typecheck
-        run: pnpm run check
-
-      - name: Test
-        run: pnpm run test
-
-      - name: Build
-        run: pnpm run build
-        env:
-          # Empty = relative /api/v1 (same-origin Docker / Server field at runtime).
-          VITE_API: ${{ vars.VITE_API }}
+    uses: ./.github/workflows/web-ci.yml
 
   publish:
     name: Push ${{ matrix.image }}
