@@ -1,0 +1,82 @@
+---
+title: Configuration
+description: Every TM_* environment variable the API reads, with defaults and what it controls.
+---
+
+All server configuration is environment variables with the `TM_` prefix. Set them in the shell,
+in Compose `environment:`, or in `api/.env` for local development. Restart the API after
+changing any of them.
+
+## Core
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `TM_HTTP_PORT` | `8080` | API listen port. `PORT` (Railway/Heroku style) is honored only when `TM_HTTP_PORT` is unset |
+| `TM_DATABASE_URL` | *(unset → SQLite)* | Unified DB URL — `sqlite:///data/tradermemos.db` or `postgres://user:pass@host:5432/db?sslmode=require`. Setting it to an **empty string** is a startup error |
+| `TM_DB_PATH` | `data/tradermemos.db` | Legacy SQLite path, used only when `TM_DATABASE_URL` is unset |
+| `TM_ATTACH_DIR` | *(derived)* | Attachment/media disk root. Defaults to `<db dir>/attachments` for SQLite, `data/attachments` for Postgres — set it explicitly for Postgres |
+| `TM_DEFAULT_CURRENCY` | `USD` | Default account currency |
+| `TM_LOG_LEVEL` | `info` | Log level (`debug`, `info`, `warn`, `error`) |
+
+## Auth & security
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `TM_JWT_SECRET` | `dev-insecure-change-me` | JWT signing key, minimum 32 characters. The server **refuses to start** on a known-weak value unless `TM_ALLOW_INSECURE_JWT=true`. Generate with `openssl rand -hex 32` |
+| `TM_ALLOW_INSECURE_JWT` | `false` (`true` in the bundled Compose for first-run convenience) | Permits a weak/short JWT secret. Never enable on a public host |
+| `TM_ALLOW_REGISTRATION` | `false` | Opens `POST /auth/register` after the first-user setup. Off by default — only the owner exists unless you opt in |
+| `TM_CORS_ORIGINS` | *(empty — CORS disabled)* | Comma-separated allowlist for split CDN + API deployments. Supports wildcard hosts like `https://*.vercel.app`. Leave empty for same-origin setups |
+
+## Upload limits
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `TM_ATTACH_MAX_BYTES` | `10485760` (10 MiB) | Per-file cap for trade screenshots and note media |
+| `TM_IMPORT_MAX_BYTES` | `10485760` (10 MiB) | Cap for CSV/JSON import uploads |
+| `TM_OCR_MAX_BYTES` | `10485760` (10 MiB) | Cap for screenshot-scan images (falls back to the attachment cap if ≤ 0) |
+
+The bundled nginx allows `client_max_body_size 20m`. If you raise any cap above 20 MiB, raise
+the nginx value (and any upstream [reverse proxy](/en/docs/self-hosting/reverse-proxy)) too.
+
+## AI — screenshot scan & trade coach
+
+These are **defaults only**: once you save AI settings in **Settings → AI**, the database values
+win. Keys are stored server-side and never sent to the browser. See
+[AI features](/en/docs/guides/ai-features).
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `TM_OCR_ENABLED` | `false` | Enable screenshot fill extraction |
+| `TM_OCR_VISION_BASE_URL` | `https://api.openai.com/v1` | OpenAI-compatible endpoint for vision |
+| `TM_OCR_VISION_API_KEY` | *(empty)* | Vision API key |
+| `TM_OCR_VISION_MODEL` | `gpt-4o-mini` | Vision model |
+| `TM_OCR_VISION_TIMEOUT_SEC` | `90` | Vision request timeout in seconds |
+| `TM_COACH_ENABLED` | `false` | Enable the LLM trade coach |
+| `TM_COACH_BASE_URL` | `https://api.openai.com/v1` | OpenAI-compatible endpoint for the coach |
+| `TM_COACH_API_KEY` | *(empty)* | Coach API key |
+| `TM_COACH_MODEL` | `gpt-4o-mini` | Coach model |
+
+## Market data
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `TM_MARKET_DATA_ENABLED` | `true` | Enable the market-data service |
+| `TM_MARKET_DATA_PROVIDER` | `yahoo` | Provider name |
+| `TM_MARKET_DATA_API_KEY` | *(empty)* | Provider API key, if the provider needs one |
+
+## Web build-time variables
+
+The SPA is static — these are baked in at build time, not read by the server:
+
+| Variable | Purpose |
+|----------|---------|
+| `VITE_API` | Fixed API base (e.g. `https://api.example.com/api/v1`) compiled into the build. Leave empty to use relative `/api/v1`, or let users set the **Server** field at login |
+
+## Compose-only variables
+
+Read by `docker compose` from the root `.env`, never passed into containers:
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `DOCKERHUB_USERNAME` | `sinhong2011` | Docker Hub namespace for `tradermemos-api` / `tradermemos-web` images |
+| `TM_IMAGE_TAG` | `latest` | Image tag — pin a release like `0.1.6` in production |

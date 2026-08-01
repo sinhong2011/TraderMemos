@@ -1,0 +1,80 @@
+---
+title: 配置參考
+description: API 讀取的全部 TM_* 環境變量，含默認值與作用說明。
+---
+
+服務端的所有配置都通過帶 `TM_` 前綴的環境變量完成。可以在 shell、Compose 的
+`environment:`，或本地開發用的 `api/.env` 中設置。修改後需重啓 API 生效。
+
+## 核心
+
+| 變量 | 默認值 | 用途 |
+|----------|---------|---------|
+| `TM_HTTP_PORT` | `8080` | API 監聽端口。僅當 `TM_HTTP_PORT` 未設置時，纔會採用 `PORT`（Railway/Heroku 風格） |
+| `TM_DATABASE_URL` | *（未設置 → SQLite）* | 統一數據庫連接串 —— `sqlite:///data/tradermemos.db` 或 `postgres://user:pass@host:5432/db?sslmode=require`。設置爲**空字符串**會導致啓動報錯 |
+| `TM_DB_PATH` | `data/tradermemos.db` | 舊版 SQLite 路徑，僅在 `TM_DATABASE_URL` 未設置時生效 |
+| `TM_ATTACH_DIR` | *（自動推導）* | 附件 / 媒體文件的磁盤根目錄。SQLite 默認爲 `<數據庫目錄>/attachments`，Postgres 默認爲 `data/attachments` —— Postgres 建議顯式設置 |
+| `TM_DEFAULT_CURRENCY` | `USD` | 賬戶默認貨幣 |
+| `TM_LOG_LEVEL` | `info` | 日誌級別（`debug`、`info`、`warn`、`error`） |
+
+## 認證與安全
+
+| 變量 | 默認值 | 用途 |
+|----------|---------|---------|
+| `TM_JWT_SECRET` | `dev-insecure-change-me` | JWT 簽名密鑰，至少 32 個字符。檢測到已知弱密鑰時服務端會**拒絕啓動**，除非設置 `TM_ALLOW_INSECURE_JWT=true`。生成方式：`openssl rand -hex 32` |
+| `TM_ALLOW_INSECURE_JWT` | `false`（隨附的 Compose 爲方便首次運行設爲 `true`） | 允許使用弱 / 過短的 JWT 密鑰。公網主機上切勿開啓 |
+| `TM_ALLOW_REGISTRATION` | `false` | 初始化完成後開放 `POST /auth/register`。默認關閉 —— 除非主動開啓，否則只存在 owner 賬戶 |
+| `TM_CORS_ORIGINS` | *（空 —— 禁用 CORS）* | CDN + API 分離部署時的來源白名單，逗號分隔。支持 `https://*.vercel.app` 之類的通配符主機。同源部署留空即可 |
+
+## 上傳限制
+
+| 變量 | 默認值 | 用途 |
+|----------|---------|---------|
+| `TM_ATTACH_MAX_BYTES` | `10485760`（10 MiB） | 交易截圖與筆記媒體的單文件上限 |
+| `TM_IMPORT_MAX_BYTES` | `10485760`（10 MiB） | CSV / JSON 導入文件的上限 |
+| `TM_OCR_MAX_BYTES` | `10485760`（10 MiB） | 截圖掃描圖片的上限（≤ 0 時回退到附件上限） |
+
+隨附的 nginx 允許 `client_max_body_size 20m`。若將任一上限提高到 20 MiB 以上，nginx
+的該值（以及上游[反向代理](/zh-Hant/docs/self-hosting/reverse-proxy)的限制）也要一併調高。
+
+## AI —— 截圖掃描與交易教練
+
+這些變量**僅作爲默認值**：一旦在**設置 → AI** 中保存過設置，數據庫中的值優先。密鑰只保存在
+服務端，不會下發到瀏覽器。詳見 [AI 功能](/zh-Hant/docs/guides/ai-features)。
+
+| 變量 | 默認值 | 用途 |
+|----------|---------|---------|
+| `TM_OCR_ENABLED` | `false` | 開啓截圖成交提取 |
+| `TM_OCR_VISION_BASE_URL` | `https://api.openai.com/v1` | 視覺模型的 OpenAI 兼容端點 |
+| `TM_OCR_VISION_API_KEY` | *（空）* | 視覺 API 密鑰 |
+| `TM_OCR_VISION_MODEL` | `gpt-4o-mini` | 視覺模型 |
+| `TM_OCR_VISION_TIMEOUT_SEC` | `90` | 視覺請求超時（秒） |
+| `TM_COACH_ENABLED` | `false` | 開啓 AI 交易教練 |
+| `TM_COACH_BASE_URL` | `https://api.openai.com/v1` | 教練的 OpenAI 兼容端點 |
+| `TM_COACH_API_KEY` | *（空）* | 教練 API 密鑰 |
+| `TM_COACH_MODEL` | `gpt-4o-mini` | 教練模型 |
+
+## 行情數據
+
+| 變量 | 默認值 | 用途 |
+|----------|---------|---------|
+| `TM_MARKET_DATA_ENABLED` | `true` | 啓用行情數據服務 |
+| `TM_MARKET_DATA_PROVIDER` | `yahoo` | 數據源名稱 |
+| `TM_MARKET_DATA_API_KEY` | *（空）* | 數據源 API 密鑰（如需要） |
+
+## Web 構建期變量
+
+SPA 是靜態的 —— 以下變量在構建時打包進產物，服務端不會讀取：
+
+| 變量 | 用途 |
+|----------|---------|
+| `VITE_API` | 固定的 API 基址（如 `https://api.example.com/api/v1`），編譯進構建產物。留空則使用相對路徑 `/api/v1`，或由用戶在登錄時填寫 **Server** 字段 |
+
+## 僅 Compose 使用的變量
+
+由 `docker compose` 從根目錄 `.env` 讀取，不會傳入容器：
+
+| 變量 | 默認值 | 用途 |
+|----------|---------|---------|
+| `DOCKERHUB_USERNAME` | `sinhong2011` | `tradermemos-api` / `tradermemos-web` 鏡像所在的 Docker Hub 命名空間 |
+| `TM_IMAGE_TAG` | `latest` | 鏡像標籤 —— 生產環境建議鎖定具體版本，如 `0.1.6` |
