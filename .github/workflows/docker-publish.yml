@@ -14,7 +14,11 @@
 # Triggers:
 #   - GitHub Release published (semver tags from the release tag)
 #   - workflow_call from release-please (version input)
-#   - workflow_dispatch (latest + sha on main; sha only on other branches)
+#   - workflow_dispatch (latest + sha on main; sha only on other branches;
+#     pass version to also push semver tags, e.g. to backfill a failed release)
+#
+# Semver tags are raw values from the resolved version — type=semver only
+# works on tag refs, and this workflow always runs on a branch ref.
 
 name: Publish Docker images
 
@@ -28,6 +32,11 @@ on:
   release:
     types: [published]
   workflow_dispatch:
+    inputs:
+      version:
+        description: Semver version without v prefix; empty = latest + sha only
+        required: false
+        type: string
 
 jobs:
   # Same checks as PR CI — reused so a release can never publish images that
@@ -42,6 +51,9 @@ jobs:
     name: Push ${{ matrix.image }}
     needs: [test-api, test-web]
     runs-on: ubuntu-latest
+    # QEMU arm64 builds can wedge; a hung job otherwise blocks the
+    # release-please concurrency group indefinitely.
+    timeout-minutes: 90
     strategy:
       fail-fast: false
       matrix:
@@ -58,17 +70,24 @@ jobs:
         id: buildmeta
         env:
           INPUT_VERSION: ${{ inputs.version }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
+          SEMVER=true
           if [ -n "$INPUT_VERSION" ]; then
             VERSION="$INPUT_VERSION"
           elif [ "${{ github.event_name }}" = "release" ]; then
-            VERSION="${{ github.event.release.tag_name }}"
-            VERSION="${VERSION#v}"
+            VERSION="${RELEASE_TAG#v}"
           else
             VERSION=$(cat VERSION 2>/dev/null || echo dev)
+            SEMVER=false
           fi
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "commit=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+          {
+            echo "version=$VERSION"
+            echo "major_minor=${VERSION%.*}"
+            echo "major=${VERSION%%.*}"
+            echo "semver=$SEMVER"
+            echo "commit=${GITHUB_SHA::7}"
+          } >> "$GITHUB_OUTPUT"
 
       - uses: docker/setup-qemu-action@v3
 
@@ -85,10 +104,10 @@ jobs:
         with:
           images: ${{ secrets.DOCKERHUB_USERNAME }}/tradermemos-${{ matrix.image }}
           tags: |
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
-            type=raw,value=latest,enable=${{ inputs.version != '' || github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') }}
+            type=raw,value=${{ steps.buildmeta.outputs.version }},enable=${{ steps.buildmeta.outputs.semver == 'true' }}
+            type=raw,value=${{ steps.buildmeta.outputs.major_minor }},enable=${{ steps.buildmeta.outputs.semver == 'true' }}
+            type=raw,value=${{ steps.buildmeta.outputs.major }},enable=${{ steps.buildmeta.outputs.semver == 'true' }}
+            type=raw,value=latest,enable=${{ steps.buildmeta.outputs.semver == 'true' || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') }}
             type=sha,prefix=,format=short
 
       - uses: docker/build-push-action@v6
