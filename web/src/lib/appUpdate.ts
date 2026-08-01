@@ -42,6 +42,24 @@ type AppUpdateState = {
 let serwistRef: SerwistLike | null = null;
 let controllingReloadBound = false;
 
+const DISMISSED_VERSION_KEY = "tradermemos-update-dismissed-version";
+
+function readDismissedVersion(): string | null {
+  try {
+    return localStorage.getItem(DISMISSED_VERSION_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function writeDismissedVersion(version: string) {
+  try {
+    localStorage.setItem(DISMISSED_VERSION_KEY, version);
+  } catch {
+    // storage unavailable — dismissal lasts for the session only
+  }
+}
+
 function computeBehind(latest: string | null | undefined, current: string | null | undefined) {
   if (!latest || !current) return false;
   return isNewerVersion(latest, current);
@@ -59,7 +77,11 @@ export const useAppUpdate = create<AppUpdateState>((set, get) => ({
   checkError: null,
   dismissed: false,
   setSwReady: (swReady) => set({ swReady, dismissed: swReady ? false : get().dismissed }),
-  dismiss: () => set({ dismissed: true }),
+  dismiss: () => {
+    const version = get().remote?.version;
+    if (version) writeDismissedVersion(version);
+    set({ dismissed: true });
+  },
   snapshot: () => {
     const s = get();
     return {
@@ -94,7 +116,14 @@ export const useAppUpdate = create<AppUpdateState>((set, get) => ({
         remoteNewer: webBehind,
         lastCheckedAt: Date.now(),
         checking: false,
-        dismissed: webBehind || apiBehind || get().swReady ? false : get().dismissed,
+        // A dismissal sticks for the release it was made on (persisted), so
+        // the toast only returns when a newer version ships. A waiting SW is
+        // separately actionable and keeps its own session dismissal.
+        dismissed: get().swReady
+          ? get().dismissed
+          : webBehind || apiBehind
+            ? latestVersion !== null && readDismissedVersion() === latestVersion
+            : get().dismissed,
       });
     } catch (err) {
       set({
