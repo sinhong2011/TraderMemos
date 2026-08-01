@@ -75,7 +75,7 @@ export async function generateMetadata({
     description: t('metaDescription'),
     alternates: {
       canonical: `/${lang}`,
-      languages: { en: '/en', 'zh-Hant': '/zh-Hant' },
+      languages: { en: '/en', 'zh-Hant': '/zh-Hant', 'zh-Hans': '/zh-Hans', ja: '/ja' },
     },
     openGraph: {
       title: t('metaTitle'),
@@ -83,7 +83,14 @@ export async function generateMetadata({
       url: `/${lang}`,
       siteName: appName,
       type: 'website',
-      locale: locale === 'zh-Hant' ? 'zh_TW' : 'en_US',
+      locale:
+        locale === 'zh-Hant'
+          ? 'zh_TW'
+          : locale === 'zh-Hans'
+            ? 'zh_CN'
+            : locale === 'ja'
+              ? 'ja_JP'
+              : 'en_US',
       images: [ogImage],
     },
     twitter: {
@@ -336,7 +343,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
   const locale = resolveLocale(lang);
   setRequestLocale(locale);
   const t = await getTranslations('Home');
-  const isCjk = locale === 'zh-Hant';
+  const isCjk = locale !== 'en';
   const badgeParts = t('badge')
     .split('·')
     .map((s) => s.trim());

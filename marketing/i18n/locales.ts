@@ -1,6 +1,6 @@
 import { hasLocale } from 'next-intl';
 
-export const locales = ['en', 'zh-Hant'] as const;
+export const locales = ['en', 'zh-Hant', 'zh-Hans', 'ja'] as const;
 
 export type AppLocale = (typeof locales)[number];
 
