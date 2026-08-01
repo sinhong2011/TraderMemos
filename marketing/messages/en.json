@@ -99,7 +99,25 @@
   "Footer": {
     "tagline": "Self-hosted trading journal.",
     "docs": "Docs",
+    "changelog": "Changelog",
+    "roadmap": "Roadmap",
     "github": "GitHub",
-    "license": "License (AGPL-3.0)"
+    "discussions": "Discussions",
+    "security": "Security",
+    "license": "License (AGPL-3.0)",
+    "privacyNote": "No telemetry — your data stays on your server."
+  },
+  "Deploy": {
+    "eyebrow": "Ship it",
+    "heading": "Deploy in minutes",
+    "sub": "One-click the web UI to your own Vercel, Cloudflare, or Netlify account — or run the whole stack with Docker on any machine.",
+    "note": "One-click buttons deploy the web UI only — pair them with the API on Railway or Docker.",
+    "dockerComment": "# or self-host everything",
+    "star": "Star on GitHub"
+  },
+  "Changelog": {
+    "title": "Changelog",
+    "intro": "Every release, generated from Conventional Commits.",
+    "viewOnGitHub": "View releases on GitHub →"
   }
 }

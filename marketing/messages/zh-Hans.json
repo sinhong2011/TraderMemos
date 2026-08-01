@@ -99,7 +99,25 @@
   "Footer": {
     "tagline": "自托管交易日志。",
     "docs": "文档",
+    "changelog": "更新日志",
+    "roadmap": "路线图",
     "github": "GitHub",
-    "license": "许可协议（AGPL-3.0）"
+    "discussions": "社区讨论",
+    "security": "安全政策",
+    "license": "许可协议（AGPL-3.0）",
+    "privacyNote": "无遥测 —— 数据只留在你的服务器上。"
+  },
+  "Deploy": {
+    "eyebrow": "立即上线",
+    "heading": "几分钟内完成部署",
+    "sub": "一键将 Web UI 部署到你自己的 Vercel、Cloudflare 或 Netlify 账户 —— 或用 Docker 在任意机器上运行完整服务栈。",
+    "note": "一键按钮只部署 Web UI —— 请搭配 Railway 或 Docker 上的 API 使用。",
+    "dockerComment": "# 或自托管全部服务",
+    "star": "在 GitHub 上加星"
+  },
+  "Changelog": {
+    "title": "更新日志",
+    "intro": "每个版本均由 Conventional Commits 自动生成。",
+    "viewOnGitHub": "在 GitHub 上查看发布 →"
   }
 }

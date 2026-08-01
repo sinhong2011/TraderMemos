@@ -99,7 +99,25 @@
   "Footer": {
     "tagline": "セルフホスト型トレードジャーナル。",
     "docs": "ドキュメント",
+    "changelog": "更新履歴",
+    "roadmap": "ロードマップ",
     "github": "GitHub",
-    "license": "ライセンス（AGPL-3.0）"
+    "discussions": "ディスカッション",
+    "security": "セキュリティ",
+    "license": "ライセンス（AGPL-3.0）",
+    "privacyNote": "テレメトリなし — データはあなたのサーバーにのみ保存されます。"
+  },
+  "Deploy": {
+    "eyebrow": "デプロイ",
+    "heading": "数分でデプロイ",
+    "sub": "ワンクリックで Web UI を自分の Vercel・Cloudflare・Netlify アカウントへ — または Docker でスタック全体を任意のマシンで実行できます。",
+    "note": "ワンクリックボタンがデプロイするのは Web UI のみです。API は Railway または Docker で運用してください。",
+    "dockerComment": "# またはすべてをセルフホスト",
+    "star": "GitHub でスターする"
+  },
+  "Changelog": {
+    "title": "更新履歴",
+    "intro": "すべてのリリースは Conventional Commits から自動生成されています。",
+    "viewOnGitHub": "GitHub でリリースを見る →"
   }
 }

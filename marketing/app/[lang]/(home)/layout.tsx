@@ -13,21 +13,36 @@ async function Footer({ lang }: { lang: string }) {
 
   return (
     <footer className="mt-auto border-t border-fd-border/60">
-      <div className="flex flex-col gap-4 px-6 py-10 text-sm text-fd-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-        <p>
-          <span className="font-medium text-fd-foreground">{appName}</span> — {t('tagline')}
-        </p>
-        <nav aria-label="Footer" className="flex flex-wrap items-center gap-x-6 gap-y-2">
-          <Link href={`/${lang}/docs`} className={link}>
-            {t('docs')}
-          </Link>
-          <Link href={repoUrl} className={link}>
-            {t('github')}
-          </Link>
-          <Link href={`${repoUrl}/blob/main/LICENSE`} className={link}>
-            {t('license')}
-          </Link>
-        </nav>
+      <div className="flex flex-col gap-4 px-6 py-10 text-sm text-fd-muted-foreground">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <p>
+            <span className="font-medium text-fd-foreground">{appName}</span> — {t('tagline')}
+          </p>
+          <nav aria-label="Footer" className="flex flex-wrap items-center gap-x-6 gap-y-2">
+            <Link href={`/${lang}/docs`} className={link}>
+              {t('docs')}
+            </Link>
+            <Link href={`/${lang}/changelog`} className={link}>
+              {t('changelog')}
+            </Link>
+            <Link href={`${repoUrl}/blob/main/docs/competitive-day-trader-roadmap.md`} className={link}>
+              {t('roadmap')}
+            </Link>
+            <Link href={repoUrl} className={link}>
+              {t('github')}
+            </Link>
+            <Link href={`${repoUrl}/discussions`} className={link}>
+              {t('discussions')}
+            </Link>
+            <Link href={`${repoUrl}/blob/main/SECURITY.md`} className={link}>
+              {t('security')}
+            </Link>
+            <Link href={`${repoUrl}/blob/main/LICENSE`} className={link}>
+              {t('license')}
+            </Link>
+          </nav>
+        </div>
+        <p className="text-xs text-fd-muted-foreground/70">{t('privacyNote')}</p>
       </div>
     </footer>
   );

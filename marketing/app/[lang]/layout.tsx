@@ -48,6 +48,14 @@ export default async function Layout({
       className={`${displayFont.variable} ${monoFont.variable}`}
     >
       <body className="flex flex-col min-h-screen">
+        {process.env.NEXT_PUBLIC_UMAMI_SRC && process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID ? (
+          // Privacy-friendly, cookie-less analytics — only loads when explicitly configured.
+          <script
+            defer
+            src={process.env.NEXT_PUBLIC_UMAMI_SRC}
+            data-website-id={process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID}
+          />
+        ) : null}
         <NextIntlClientProvider>
           <RootProvider
             theme={{ defaultTheme: 'dark' }}
