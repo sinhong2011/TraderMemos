@@ -10,6 +10,7 @@ import {
   YAxis,
 } from "recharts";
 import { AnnualGoalCard } from "@/components/AnnualGoalCard";
+import { DailyLossCard } from "@/components/DailyLossCard";
 import { Card } from "@/components/Card";
 import { ChartFrame, chartTheme, chartTooltipStyle } from "@/components/ChartFrame";
 import { HomeAccountContribution } from "@/components/HomeAccountContribution";
@@ -63,6 +64,8 @@ export interface HomeViewProps {
   calendarYear: number;
   calendarMonth: number;
   dailyPnl: Record<string, number>;
+  /** Today's realized net P&L (account base currency) for the daily-loss tracker. */
+  todayNetPnl?: number;
   dayRecords?: Record<string, DayRecord>;
   dailyLoading: boolean;
   dailyError: boolean;
@@ -220,6 +223,7 @@ export function HomeView({
   calendarYear,
   calendarMonth,
   dailyPnl,
+  todayNetPnl = 0,
   dayRecords,
   dailyLoading,
   dailyError,
@@ -353,6 +357,8 @@ export function HomeView({
           </div>
         ) : null}
       </div>
+
+      <DailyLossCard todayNetPnl={todayNetPnl} currency={currency} fxRate={fxRate} />
 
       <AnnualGoalCard
         year={goalYear}

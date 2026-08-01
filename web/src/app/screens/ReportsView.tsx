@@ -42,6 +42,7 @@ import { ReportsHourlyList } from "@/components/ReportsHourlyList";
 import { ReportsSummaryBento } from "@/components/ReportsSummaryBento";
 import { ReportsMetricEvolution } from "@/components/ReportsMetricEvolution";
 import { ReportsRiskDrawdown } from "@/components/ReportsRiskDrawdown";
+import { ReportsRuleCompliance } from "@/components/ReportsRuleCompliance";
 import { ReportsRMultiplePerformance } from "@/components/ReportsRMultiplePerformance";
 import { ReportsRollingWinRate } from "@/components/ReportsRollingWinRate";
 import { ReportsSessionTable } from "@/components/ReportsSessionTable";
@@ -52,7 +53,14 @@ import { TableSkeleton } from "@/components/skeletons/table-skeleton";
 import { Tabs, TabsContent, TabsIndicator, TabsList, TabsTrigger } from "@/components/Tabs";
 import { Button } from "@/components/ui/button";
 import { pnlColor } from "@/components/theme-tokens";
-import type { BreakGroup, EquityCurve, RSummary, Summary, Trade } from "@/lib/api/types";
+import type {
+  BreakGroup,
+  ComplianceReport,
+  EquityCurve,
+  RSummary,
+  Summary,
+  Trade,
+} from "@/lib/api/types";
 import { uniqueDayTicks } from "@/lib/chartTicks";
 import { cn } from "@/lib/cn";
 import { fmtDayShort, fmtMoney, fmtMoneyCompact, fmtPct } from "@/lib/format";
@@ -132,6 +140,9 @@ export interface ReportsViewProps {
   qualityBreakdown: BreakGroup[];
   qualityBreakdownLoading: boolean;
   qualityBreakdownError: boolean;
+  compliance?: ComplianceReport;
+  complianceLoading?: boolean;
+  complianceError?: boolean;
   tab: ReportsTab;
   onTabChange: (t: ReportsTab) => void;
   side: ReportsSide;
@@ -566,6 +577,9 @@ export function ReportsView({
   qualityBreakdown,
   qualityBreakdownLoading,
   qualityBreakdownError,
+  compliance,
+  complianceLoading = false,
+  complianceError = false,
   tab,
   onTabChange,
   side,
@@ -785,6 +799,11 @@ export function ReportsView({
               error={tradesError || equityError}
               currency={displayCurrency}
               fxRate={fxRate}
+            />
+            <ReportsRuleCompliance
+              report={compliance}
+              loading={complianceLoading}
+              error={complianceError}
             />
           </TabsContent>
         </Tabs>

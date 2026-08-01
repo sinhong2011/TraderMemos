@@ -14,7 +14,13 @@ import { tradesOnDay } from "@/lib/calendar";
 import { accountBaseCurrency } from "@/lib/displayPrefs";
 import { useFilterParams, useFilters } from "@/lib/filters";
 import { useAccounts } from "@/lib/hooks/useAccounts";
-import { useBreakdown, useEquityCurve, useRSummary, useSummary } from "@/lib/hooks/useAnalytics";
+import {
+  useBreakdown,
+  useCompliance,
+  useEquityCurve,
+  useRSummary,
+  useSummary,
+} from "@/lib/hooks/useAnalytics";
 import { useAnnualGoal, useClearAnnualGoal, useSaveAnnualGoal } from "@/lib/hooks/useAnnualGoal";
 import { useTrades } from "@/lib/hooks/useTrades";
 
@@ -99,6 +105,7 @@ function ReportsPage() {
   const tagBreakdownQ = useBreakdown("tag", analyticsFilters);
   const sessionBreakdownQ = useBreakdown("session", analyticsFilters);
   const qualityBreakdownQ = useBreakdown("trade_quality", analyticsFilters);
+  const complianceQ = useCompliance(analyticsFilters);
   const accountsQ = useAccounts();
   const annualGoalQ = useAnnualGoal(goalYear);
   const saveAnnualGoalM = useSaveAnnualGoal();
@@ -146,6 +153,9 @@ function ReportsPage() {
         qualityBreakdown={qualityBreakdownQ.data ?? []}
         qualityBreakdownLoading={qualityBreakdownQ.isLoading}
         qualityBreakdownError={qualityBreakdownQ.isError}
+        compliance={complianceQ.data}
+        complianceLoading={complianceQ.isLoading}
+        complianceError={complianceQ.isError}
         currency={currency}
         dim={dim}
         onDimChange={setDim}

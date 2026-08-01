@@ -29,6 +29,11 @@ vi.mock("../../lib/hooks/useMoneyFx", () => ({
   }),
 }));
 
+// DailyLossCard fetches risk rules; no limit configured means it renders null.
+vi.mock("../../lib/hooks/useRiskRules", () => ({
+  useRiskRules: () => ({ data: undefined, isLoading: false, isError: false }),
+}));
+
 // Mock DataTable: the real one uses a virtualizer that needs a sized container
 // (absent in jsdom, so it renders zero rows). Mirrors
 // src/components/tradeColumns.test.tsx, which hits the same jsdom gotcha.
