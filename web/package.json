@@ -81,7 +81,7 @@
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^6.0.2",
     "babel-plugin-react-compiler": "^1.0.0",
-    "jsdom": "^25.0.0",
+    "jsdom": "^30.0.1",
     "serwist": "^9.5.11",
     "tailwindcss": "^4.0.0",
     "typescript": "^5.7.0",
