@@ -27,6 +27,15 @@ By design. After the owner is created, `POST /auth/register` returns 403 unless 
 
 Passwords must be at least **10 characters**.
 
+### I forgot my password
+
+There's no self-service reset (your server has no mail service to send one). The admin CLI
+inside the API container resets it:
+
+```bash
+docker compose exec api /tradermemos reset-password --email you@example.com --password '…'
+```
+
 ## Server & deployment
 
 ### The API refuses to start: "insecure JWT secret"

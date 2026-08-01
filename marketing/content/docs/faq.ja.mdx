@@ -28,6 +28,15 @@ SPA が API に到達できていません。Docker 一体型構成の場合は�
 
 パスワードは**10 文字以上**である必要があります。
 
+### パスワードを忘れた
+
+セルフサービスのリセット機能はありません（サーバーにメール送信手段がないため）。API
+コンテナ内の管理 CLI でリセットしてください：
+
+```bash
+docker compose exec api /tradermemos reset-password --email you@example.com --password '…'
+```
+
 ## サーバーとデプロイ
 
 ### API が「insecure JWT secret」と表示して起動しない

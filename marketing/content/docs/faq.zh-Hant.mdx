@@ -26,6 +26,14 @@ CDN + API 分離部署：將 **Server** 設爲你的 API 源，如 `https://api.
 
 密碼至少需要 **10 個字符**。
 
+### 忘記密碼了
+
+沒有自助重置功能（你的服務器沒有郵件服務可以發送重置郵件）。使用 API 容器內的管理 CLI 重置：
+
+```bash
+docker compose exec api /tradermemos reset-password --email you@example.com --password '…'
+```
+
 ## 服務端與部署
 
 ### API 拒絕啓動：「insecure JWT secret」
