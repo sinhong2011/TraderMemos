@@ -23,7 +23,7 @@ export const LOCALE_OPTIONS = (Object.keys(LOCALES) as AppLocale[]).map((value) 
 }));
 
 type NavLabelKey =
-  | "dashboard"
+  | "home"
   | "trades"
   | "calendar"
   | "reports"
@@ -40,7 +40,7 @@ type NavLabelKey =
 
 const NAV_LABELS: Record<AppLocale, Record<NavLabelKey, string>> = {
   en: {
-    dashboard: "Dashboard",
+    home: "Home",
     trades: "Trades",
     calendar: "Calendar",
     reports: "Reports",
@@ -56,7 +56,7 @@ const NAV_LABELS: Record<AppLocale, Record<NavLabelKey, string>> = {
     more: "More",
   },
   "zh-HK": {
-    dashboard: "儀表板",
+    home: "首頁",
     trades: "交易",
     calendar: "日曆",
     reports: "報表",
@@ -72,7 +72,7 @@ const NAV_LABELS: Record<AppLocale, Record<NavLabelKey, string>> = {
     more: "更多",
   },
   ja: {
-    dashboard: "ダッシュボード",
+    home: "ホーム",
     trades: "トレード",
     calendar: "カレンダー",
     reports: "レポート",
@@ -88,7 +88,7 @@ const NAV_LABELS: Record<AppLocale, Record<NavLabelKey, string>> = {
     more: "もっと",
   },
   ko: {
-    dashboard: "대시보드",
+    home: "홈",
     trades: "거래",
     calendar: "캘린더",
     reports: "리포트",

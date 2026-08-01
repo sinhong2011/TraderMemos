@@ -80,7 +80,7 @@ const ABOUT: Record<AppLocale, AboutContent> = {
     featuresTitle: "What you get",
     features: [
       {
-        title: "Dashboard & equity",
+        title: "Home & equity",
         description:
           "Asymmetric bento stats, glowing P&L hero, step equity curve, and session-aware filters.",
       },

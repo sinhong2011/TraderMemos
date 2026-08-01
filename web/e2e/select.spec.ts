@@ -7,7 +7,7 @@ const EMAIL = process.env.E2E_EMAIL;
 const PASSWORD = process.env.E2E_PASSWORD;
 
 async function signIn(page: import("@playwright/test").Page) {
-  await page.goto("/dashboard");
+  await page.goto("/home");
   await page.evaluate(() => {
     localStorage.removeItem("tm_token");
     localStorage.removeItem("tm_refresh");

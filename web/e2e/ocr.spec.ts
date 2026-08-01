@@ -14,7 +14,7 @@ const FIXTURE = path.join(
 );
 
 async function signIn(page: Page) {
-  await page.goto("/dashboard");
+  await page.goto("/home");
   await page.evaluate(() => {
     localStorage.removeItem("tm_token");
     localStorage.removeItem("tm_refresh");
@@ -28,7 +28,7 @@ async function signIn(page: Page) {
 
 test("scan screenshot prefills new trade and saves", async ({ page }) => {
   const symbol = `OCR${Date.now() % 10000}`;
-  // Use "now" so the saved trade lands in the dashboard's default date window
+  // Use "now" so the saved trade lands in the home page's default date window
   // (same as the manual New Trade smoke path).
   const executedAt = new Date().toISOString();
 

@@ -4,7 +4,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vite-plus/test";
 import type { Summary, Trade } from "@/lib/api/types";
-import { DashboardView } from "./DashboardView";
+import { HomeView } from "./HomeView";
 
 vi.mock("../../components/Toast", () => ({
   useToastManager: () => ({ add: vi.fn<(...args: any[]) => any>() }),
@@ -163,9 +163,9 @@ const BASE = {
   onClearGoal: vi.fn<(...args: any[]) => any>(async () => {}),
 };
 
-describe("DashboardView", () => {
+describe("HomeView", () => {
   it("renders the stats strip from the summary", () => {
-    render(<DashboardView {...BASE} />);
+    render(<HomeView {...BASE} />);
     expect(screen.getByText("Wins")).toBeInTheDocument();
     expect(screen.getByText("Losses")).toBeInTheDocument();
     expect(screen.getByText("Avg win")).toBeInTheDocument();
@@ -183,7 +183,7 @@ describe("DashboardView", () => {
   it("renders recent trades with view-all action", async () => {
     const user = userEvent.setup();
     const onViewAllTrades = vi.fn<(...args: any[]) => any>();
-    render(<DashboardView {...BASE} onViewAllTrades={onViewAllTrades} />);
+    render(<HomeView {...BASE} onViewAllTrades={onViewAllTrades} />);
     expect(screen.getByText("Recent trades")).toBeInTheDocument();
     expect(screen.getAllByText("TSLQ").length).toBeGreaterThan(0);
     expect(screen.getByText("WIN")).toBeInTheDocument();
@@ -193,7 +193,7 @@ describe("DashboardView", () => {
   });
 
   it("renders insight bento panels", () => {
-    render(<DashboardView {...BASE} />);
+    render(<HomeView {...BASE} />);
     expect(screen.getByText("PnL quality")).toBeInTheDocument();
     expect(screen.getByText("Stability")).toBeInTheDocument();
     expect(screen.getByText("Time")).toBeInTheDocument();
@@ -206,9 +206,7 @@ describe("DashboardView", () => {
     const user = userEvent.setup();
     const onOpenCalendar = vi.fn<(...args: any[]) => any>();
     const onOpenReports = vi.fn<(...args: any[]) => any>();
-    render(
-      <DashboardView {...BASE} onOpenCalendar={onOpenCalendar} onOpenReports={onOpenReports} />,
-    );
+    render(<HomeView {...BASE} onOpenCalendar={onOpenCalendar} onOpenReports={onOpenReports} />);
     expect(screen.getByText("Breakdown")).toBeInTheDocument();
     expect(screen.getByText("Month")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /full calendar/i })).toBeInTheDocument();
@@ -220,7 +218,7 @@ describe("DashboardView", () => {
 
   it("shows account contribution when multiple accounts have trades", () => {
     render(
-      <DashboardView
+      <HomeView
         {...BASE}
         accounts={[
           {
@@ -258,12 +256,12 @@ describe("DashboardView", () => {
       id: `t${i}`,
       symbol: i === 0 ? "TSLQ" : `SYM${i}`,
     }));
-    render(<DashboardView {...BASE} trades={many} />);
+    render(<HomeView {...BASE} trades={many} />);
     expect(screen.getByText("Showing 10 of 12 trades")).toBeInTheDocument();
   });
 
   it("renders range segmented control", () => {
-    render(<DashboardView {...BASE} />);
+    render(<HomeView {...BASE} />);
     expect(screen.getByRole("button", { name: "30D" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "ALL" })).toBeInTheDocument();
   });
@@ -282,7 +280,7 @@ describe("DashboardView", () => {
     // Two open trades, zero closed: the closed-only total would yield
     // 2 / max(0, 1) = 200%; against all trades it is 2 / 2 = 100%.
     render(
-      <DashboardView
+      <HomeView
         {...BASE}
         summary={{ ...SUMMARY, total_trades: 0, wins: 0, losses: 0 }}
         trades={[openTrade, { ...openTrade, id: "t3" }]}
@@ -294,7 +292,7 @@ describe("DashboardView", () => {
 
   it("shows the empty state with onboarding actions", () => {
     render(
-      <DashboardView
+      <HomeView
         {...BASE}
         summary={{ ...SUMMARY, total_trades: 0 }}
         trades={[]}
@@ -313,7 +311,7 @@ describe("DashboardView", () => {
 
   it("shows funded-account hint when account has cash", () => {
     render(
-      <DashboardView
+      <HomeView
         {...BASE}
         summary={{ ...SUMMARY, total_trades: 0 }}
         trades={[]}
@@ -333,7 +331,7 @@ describe("DashboardView", () => {
     const onImport = vi.fn<(...args: any[]) => any>();
     const onNewTrade = vi.fn<(...args: any[]) => any>();
     render(
-      <DashboardView
+      <HomeView
         {...BASE}
         summary={{ ...SUMMARY, total_trades: 0 }}
         trades={[]}

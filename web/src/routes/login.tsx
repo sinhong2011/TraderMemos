@@ -4,7 +4,7 @@ import { getToken } from "@/lib/api/client";
 export const Route = createFileRoute("/login")({
   beforeLoad: () => {
     if (getToken()) {
-      throw redirect({ to: "/dashboard" });
+      throw redirect({ to: "/home" });
     }
   },
   component: () => null,

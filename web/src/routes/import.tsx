@@ -31,7 +31,7 @@ function ImportPage() {
         return await commitM.mutateAsync({ id: batchId, formData });
       }}
       onDone={() => {
-        void navigate({ to: "/dashboard" });
+        void navigate({ to: "/home" });
       }}
       onLogTrade={() => openModal("new-trade")}
     />

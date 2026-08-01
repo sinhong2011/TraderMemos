@@ -2,7 +2,7 @@ import {
   BookOpen,
   CalendarDays,
   Calculator,
-  LayoutDashboard,
+  House,
   List,
   PieChart,
   StickyNote,
@@ -40,7 +40,7 @@ export const CREATE_ACTIONS: CreateAction[] = [
 
 /** Shown in the desktop/tablet rail top group and the mobile bottom tab bar. */
 export const PRIMARY_NAV: NavItem[] = [
-  { to: "/dashboard", labelKey: "dashboard", icon: LayoutDashboard },
+  { to: "/home", labelKey: "home", icon: House },
   { to: "/trades", labelKey: "trades", icon: List },
   { to: "/calendar", labelKey: "calendar", icon: CalendarDays },
   { to: "/reports", labelKey: "reports", icon: PieChart },
