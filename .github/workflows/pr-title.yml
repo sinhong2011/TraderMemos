@@ -4,10 +4,15 @@
 # the changelog. "Conventional PR title" is a required status check on main.
 #
 # pull_request_target is safe here: no checkout, no execution of PR code.
+# Both triggers are needed: pull_request_target does not fire for PRs created
+# by release-please's GITHUB_TOKEN (recursion prevention), while pull_request
+# does — without it the required check never reports on Release PRs.
 
 name: PR title
 
 on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
   pull_request_target:
     types: [opened, edited, reopened, synchronize]
 
