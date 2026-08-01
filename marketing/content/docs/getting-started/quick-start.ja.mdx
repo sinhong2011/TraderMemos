@@ -1,0 +1,64 @@
+---
+title: クイックスタート
+description: Web UI と API を 1 つのコンテナで、自分のマシン上で動かします。
+---
+
+公開済みの Docker イメージを使って、Web UI と API を自分のマシンで動かします。
+
+```bash
+git clone https://github.com/sinhong2011/TraderMemos.git
+cd TraderMemos
+make up          # → http://localhost:3000
+```
+
+これだけです。`/api` は同一オリジンなので CORS は不要で、**サーバー**欄は空のままにしてください。
+初回アクセス時には**セットアップウィザード**がオーナーアカウントを作成します。その後は
+[最初の一歩](/ja/docs/getting-started/first-steps)へ進んでください。
+
+## リポジトリをクローンせずに使う
+
+Docker だけがあり、`git` も `make` もない場合。compose ファイルはビルド済みイメージを取得する
+ため、これだけで十分です。
+
+```bash
+mkdir tradermemos && cd tradermemos
+curl -fsSLO https://raw.githubusercontent.com/sinhong2011/TraderMemos/main/docker-compose.yml
+docker compose up -d       # → http://localhost:3000
+```
+
+## オプションと本番運用時の注意
+
+```bash
+cp .env.example .env   # 任意: DOCKERHUB_USERNAME, TM_IMAGE_TAG
+make up                # Docker Hub からビルド済みイメージを取得
+make up-build          # または、このリポジトリから両方のイメージをビルド
+make up-postgres       # SQLite → Postgres オーバーレイ
+```
+
+本番環境では `TM_JWT_SECRET=$(openssl rand -hex 32)` を設定し、前段に TLS を置いてください。
+詳しくは[デプロイ](/ja/docs/self-hosting/deploy)と
+[リバースプロキシ](/ja/docs/self-hosting/reverse-proxy)を参照してください。サーバー設定の一覧は
+[設定リファレンス](/ja/docs/self-hosting/configuration)にあります。
+
+## ローカル開発
+
+```bash
+git clone https://github.com/sinhong2011/TraderMemos.git
+cd TraderMemos
+make setup && make dev   # API :8080 + web :5173
+```
+
+ターゲット、Vite+ コマンド、プロジェクト構成については
+[CONTRIBUTING.md](https://github.com/sinhong2011/TraderMemos/blob/main/CONTRIBUTING.md)
+を参照してください。
+
+### デモデータ
+
+任意のインスタンスに、直近 3 か月分の生成トレード約 200 件を投入します。
+
+```bash
+make demo-seed API=http://localhost:3000/api/v1 EMAIL=you@example.com PASSWORD='…'
+```
+
+公開 API のみを使うため、ローカルスタックでもデプロイ済みのデモ環境でも動作します。
+再実行しても何も起きません — 約定はサーバー側で重複排除されるためです。

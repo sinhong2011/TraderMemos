@@ -1,0 +1,62 @@
+---
+title: API トークンと OpenAPI
+description: MCP・AI エージェント・スクリプト向けのパーソナルアクセストークン（tm_pat_…）と、/docs のインタラクティブな OpenAPI リファレンス。
+---
+
+Web アプリが行うことはすべて JSON API を通しており、それを自分で呼び出すこともできます。
+パーソナルアクセストークン（PAT）を使えば、スクリプト・MCP サーバー・AI エージェントが、
+ログインやリフレッシュのフローを扱うことなく長期的なアクセスを得られます。
+
+## トークンを作成する
+
+**設定 → API → アクセストークン → トークンを生成**。名前（例: `MCP bot`、`scripts`）と有効期限
+（**無期限、30 日、90 日、1 年**）を選びます。
+
+完全なシークレット（`tm_pat_…`）が表示されるのは**一度きり**です。その場で保管してください。
+以降、UI に表示されるのは先頭の数文字と、作成日時／有効期限／最終使用日時だけです。トークンを
+失効させると、そのクライアントのアクセスは即座に遮断されます。
+
+<Callout type="warn">
+トークンは**あなたのアカウントと同じアクセス権**を持ちます — スコープの概念はありません。
+パスワードと同じように扱い、忘れてしまう可能性があるものには「無期限」ではなく有効期限を設定して
+ください。
+</Callout>
+
+## 使い方
+
+任意の `/api/v1` エンドポイントに Bearer トークンとして送信します。
+
+```bash
+curl -H "Authorization: Bearer tm_pat_…" https://your-host/api/v1/accounts
+```
+
+```bash
+# 約定を追加する（冪等 — 同じ約定を 2 回送っても重複排除されます）
+curl -X POST https://your-host/api/v1/executions \
+  -H "Authorization: Bearer tm_pat_…" -H "Content-Type: application/json" \
+  -d '{"account_id":"…","symbol":"NVDA","side":"buy","quantity":100,"price":190.5,"executed_at":"2026-08-01T14:32:05Z"}'
+```
+
+よく使うエンドポイント: `/trades`、`/executions`、`/imports`、
+`/exports?format=json|csv|zip`、`/analytics/summary`、`/setups`、`/notes`、`/cash-transactions`。
+
+## OpenAPI リファレンス
+
+すべてのインスタンスにインタラクティブな API リファレンス（Scalar）が同梱されています。
+
+| 構成 | ドキュメント URL |
+|-------|----------|
+| Docker 一体型 | `http://localhost:3000/docs` |
+| API 直接 | `http://localhost:8080/docs` |
+| API 分離ホスト | `https://api.example.com/docs` |
+
+生の仕様は同じホストの `/openapi.yaml` にあります — コード生成や LLM に読ませることができます。
+どちらの経路も認証不要です（API を説明するだけで、データを公開するものではありません）。実際の
+API 呼び出しには引き続き認証が必要です。`GET /healthz` も公開されており、稼働中のバージョンを
+返します。
+
+## MCP / AI エージェント
+
+HTTP を扱える MCP サーバーやエージェントを、PAT を Bearer ヘッダーに、`/openapi.yaml` をツール
+定義として、自分のインスタンスに向けるだけです。約定のインポート、分析データの取得、トレードへの
+注記など、UI でできることはすべてスクリプトから実行できます。

@@ -1,0 +1,83 @@
+---
+title: 設定
+description: API が読み取るすべての TM_* 環境変数と、その既定値・制御内容の一覧です。
+---
+
+サーバーの設定はすべて `TM_` プレフィックスの環境変数で行います。シェル、Compose の
+`environment:`、またはローカル開発では `api/.env` に設定してください。変更後は API を再起動する
+必要があります。
+
+## 基本
+
+| 変数 | 既定値 | 用途 |
+|----------|---------|---------|
+| `TM_HTTP_PORT` | `8080` | API のリッスンポート。`PORT`（Railway/Heroku 形式）は `TM_HTTP_PORT` が未設定の場合にのみ尊重されます |
+| `TM_DATABASE_URL` | *(未設定 → SQLite)* | 統一 DB URL — `sqlite:///data/tradermemos.db` または `postgres://user:pass@host:5432/db?sslmode=require`。**空文字列**を設定すると起動エラーになります |
+| `TM_DB_PATH` | `data/tradermemos.db` | 旧来の SQLite パス。`TM_DATABASE_URL` が未設定の場合にのみ使われます |
+| `TM_ATTACH_DIR` | *(自動導出)* | 添付ファイル／メディアのディスクルート。SQLite では `<db dir>/attachments`、Postgres では `data/attachments` が既定です。Postgres では明示的に設定してください |
+| `TM_DEFAULT_CURRENCY` | `USD` | 口座の既定通貨 |
+| `TM_LOG_LEVEL` | `info` | ログレベル（`debug`、`info`、`warn`、`error`） |
+
+## 認証とセキュリティ
+
+| 変数 | 既定値 | 用途 |
+|----------|---------|---------|
+| `TM_JWT_SECRET` | `dev-insecure-change-me` | JWT 署名キー、32 文字以上。既知の脆弱な値の場合、`TM_ALLOW_INSECURE_JWT=true` がない限りサーバーは**起動を拒否**します。`openssl rand -hex 32` で生成してください |
+| `TM_ALLOW_INSECURE_JWT` | `false`（同梱の Compose では初回起動の利便性のため `true`） | 脆弱／短い JWT シークレットを許可します。公開ホストでは絶対に有効にしないでください |
+| `TM_ALLOW_REGISTRATION` | `false` | 初回ユーザーのセットアップ後に `POST /auth/register` を開放します。既定は無効で、明示的に有効化しない限りオーナーのみが存在します |
+| `TM_CORS_ORIGINS` | *(空 — CORS 無効)* | CDN + API 分離構成向けのカンマ区切り許可リスト。`https://*.vercel.app` のようなワイルドカードホストに対応します。同一オリジン構成では空のままにしてください |
+
+## アップロード上限
+
+| 変数 | 既定値 | 用途 |
+|----------|---------|---------|
+| `TM_ATTACH_MAX_BYTES` | `10485760`（10 MiB） | トレードのスクリーンショットやノートメディアの 1 ファイルあたり上限 |
+| `TM_IMPORT_MAX_BYTES` | `10485760`（10 MiB） | CSV/JSON インポートのアップロード上限 |
+| `TM_OCR_MAX_BYTES` | `10485760`（10 MiB） | スクリーンショットスキャン画像の上限（0 以下の場合は添付ファイルの上限にフォールバックします） |
+
+同梱の nginx は `client_max_body_size 20m` を許可しています。いずれかの上限を 20 MiB を超えて
+引き上げる場合は、nginx の値（および上流の[リバースプロキシ](/ja/docs/self-hosting/reverse-proxy)）
+も引き上げてください。
+
+## AI — スクリーンショットスキャンとトレードコーチ
+
+これらは**既定値にすぎません**。**設定 → AI** で AI 設定を保存すると、データベースの値が優先
+されます。キーはサーバー側に保存され、ブラウザへ送られることはありません。
+[AI 機能](/ja/docs/guides/ai-features)を参照してください。
+
+| 変数 | 既定値 | 用途 |
+|----------|---------|---------|
+| `TM_OCR_ENABLED` | `false` | スクリーンショットからの約定抽出を有効化 |
+| `TM_OCR_VISION_BASE_URL` | `https://api.openai.com/v1` | 画像入力用の OpenAI 互換エンドポイント |
+| `TM_OCR_VISION_API_KEY` | *(空)* | 画像入力用 API キー |
+| `TM_OCR_VISION_MODEL` | `gpt-4o-mini` | 画像入力モデル |
+| `TM_OCR_VISION_TIMEOUT_SEC` | `90` | 画像入力リクエストのタイムアウト（秒） |
+| `TM_COACH_ENABLED` | `false` | LLM トレードコーチを有効化 |
+| `TM_COACH_BASE_URL` | `https://api.openai.com/v1` | コーチ用の OpenAI 互換エンドポイント |
+| `TM_COACH_API_KEY` | *(空)* | コーチ用 API キー |
+| `TM_COACH_MODEL` | `gpt-4o-mini` | コーチ用モデル |
+
+## マーケットデータ
+
+| 変数 | 既定値 | 用途 |
+|----------|---------|---------|
+| `TM_MARKET_DATA_ENABLED` | `true` | マーケットデータサービスを有効化 |
+| `TM_MARKET_DATA_PROVIDER` | `yahoo` | プロバイダー名 |
+| `TM_MARKET_DATA_API_KEY` | *(空)* | プロバイダーが必要とする場合の API キー |
+
+## Web のビルド時変数
+
+SPA は静的です。以下はビルド時に埋め込まれる値で、サーバーが読み取るものではありません。
+
+| 変数 | 用途 |
+|----------|---------|
+| `VITE_API` | ビルドに埋め込む固定の API ベース（例: `https://api.example.com/api/v1`）。空のままにすると相対パス `/api/v1` を使うか、ログイン時にユーザーが**サーバー**欄を設定します |
+
+## Compose 専用の変数
+
+ルートの `.env` から `docker compose` が読み取るもので、コンテナには渡されません。
+
+| 変数 | 既定値 | 用途 |
+|----------|---------|---------|
+| `DOCKERHUB_USERNAME` | `sinhong2011` | `tradermemos-api` / `tradermemos-web` イメージの Docker Hub ネームスペース |
+| `TM_IMAGE_TAG` | `latest` | イメージタグ — 本番では `0.1.6` のようにリリースを固定してください |

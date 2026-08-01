@@ -1,0 +1,122 @@
+---
+title: フォークしてデプロイ
+description: TraderMemos の Web を自分の Vercel / Cloudflare / Netlify アカウントに、API を Railway に配置します。
+---
+
+目的は、別の GitHub ユーザーが **TraderMemos の Web** を**自分の** Vercel / Cloudflare /
+Netlify に、必要に応じて **API** を Railway に配置し、両者を接続することです。
+
+```
+あなた                  CDN (Vercel / CF / Netlify)     API (Railway / Docker)
+├─ ワンクリック web ─► SPA                     ──CORS──► Go + SQLite ボリューム
+└─ ログインの「サーバー」= https://your-api.up.railway.app
+```
+
+## パス A — ワンクリック（最も簡単）
+
+手動でのフォークは不要です。プラットフォームが*あなたの* GitHub にクローンし、*あなたの*
+アカウントでデプロイします。
+
+| プラットフォーム | 得られるもの |
+|----------|---------------|
+| **Vercel** | モノレポ全体をクローン。プロジェクトの Root = `web` |
+| **Cloudflare** | `web/` のみから新しいリポジトリを作成。Workers の静的 SPA |
+| **Netlify** | ルートの `netlify.toml`（`base = web`）を使用 |
+| **Railway** | `railway.toml` による Go API。`/data` にボリュームをアタッチ |
+
+デプロイボタンは[プロジェクトの README](https://github.com/sinhong2011/TraderMemos#readme)に
+あります。
+
+任意の環境変数 **`VITE_API`**: 既定の API ベース（`https://api.example.com/api/v1`）を埋め込め
+ます。空のままにすると、ログイン時にサーバー URL を入力する方式になります。
+
+## パス B — すでにフォーク済みの場合
+
+GitHub で**フォーク**をクリック済みで、*自分の*フォークから継続的にデプロイしたい場合はこちらです。
+
+### Vercel
+
+1. [vercel.com/new](https://vercel.com/new) を開き、自分のフォーク（`youruser/TraderMemos`）を**インポート**します。
+2. **Root Directory** を `web` に設定します（重要）。
+3. ビルド設定はそのままにしてください — `web/vercel.json` がインストール／ビルド／出力設定と SPA リライトを提供します。
+4. 任意: 環境変数 `VITE_API`。
+5. デプロイします。以降、既定ブランチへのプッシュで自動的に再デプロイされます。
+
+### Cloudflare
+
+**オプション 1 — Workers（ワンクリック構成と同じ）**
+
+1. ソース URL 内の `YOURUSER` を置き換えて Cloudflare Workers にデプロイします。またはダッシュ
+   ボードで `web/` アプリを接続します。
+2. `web/wrangler.toml`（`assets` + SPA の `not_found_handling`）を使用します。
+
+**オプション 2 — Pages の Git 連携**
+
+| 設定項目 | 値 |
+|---------|--------|
+| リポジトリ | 自分のフォーク |
+| ルートディレクトリ | `web` |
+| ビルドコマンド | `pnpm run build` |
+| 出力ディレクトリ | `dist` |
+| 環境変数（任意） | `VITE_API` |
+
+SPA ルーティングにはオプション 1（Workers + `web/wrangler.toml`）を推奨します — Cloudflare は
+Workers アセットにおいて `/* /index.html 200` の `_redirects` ルールを拒否します。
+
+### Netlify
+
+1. [app.netlify.com/start/deploy](https://app.netlify.com/start/deploy?repository=https://github.com/sinhong2011/TraderMemos) を開くか、**Add new site → Import** で自分のフォークを取り込みます。
+2. ルートの `netlify.toml` に `base = web`、ビルド、公開設定、SPA リダイレクトがすでに定義されています。
+3. 任意の環境変数: `VITE_API`。
+4. `TM_CORS_ORIGINS` に `https://*.netlify.app` を許可します。
+
+### Railway（API）
+
+Railway は **Go API** のワンクリックホストとして最適です（SQLite 用のディスクボリュームを
+使えます）。上記の CDN への Web デプロイと組み合わせてください。
+
+1. Railway にデプロイします。または New Project → Deploy from GitHub → 自分のフォークを選択します。
+2. ルートの `railway.toml` が `api/Dockerfile` をビルドし、`/healthz` でヘルスチェックします。
+3. **ボリュームをアタッチ**して `/data` にマウントします（デプロイをまたいで SQLite と添付ファイルを保持します）。
+4. 変数:
+
+   | 変数 | 備考 |
+   |----------|--------|
+   | `TM_JWT_SECRET` | 必須 — `openssl rand -hex 32` で生成します |
+   | `TM_CORS_ORIGINS` | 例: `https://*.vercel.app,https://*.netlify.app` |
+   | `TM_DATABASE_URL` | 既定は `sqlite:///data/tradermemos.db`（Dockerfile と一致）。または `postgres://user:pass@host:5432/db?sslmode=require` |
+
+5. 公開ドメイン（`*.up.railway.app`）を生成し、それをログインの**サーバー**欄または `VITE_API` に使います。
+6. `TM_HTTP_PORT` が未設定の場合、`PORT` が自動的に尊重されます。
+
+## パス C — UI を自分の API に向ける
+
+CDN がホストするのは SPA だけです。ジャーナルのデータは、あなたが管理するホストにとどまります。
+
+```bash
+# API ホスト側（Docker / バイナリ）
+TM_JWT_SECRET=$(openssl rand -hex 32)
+TM_CORS_ORIGINS=https://*.vercel.app,https://*.pages.dev,https://*.workers.dev,https://*.netlify.app,https://*.up.railway.app,http://localhost:5173
+# カスタムドメインは正確に追加してください。例: https://journal.example.com
+```
+
+そのうえで、次のいずれかを行います。
+
+- `VITE_API` を空のままにし、サイトを開いて**サーバー**欄に `https://api.your.domain`
+  （または `.../api/v1` までの完全な URL）を入力する、あるいは
+- CDN プロジェクトに `VITE_API=https://api.your.domain/api/v1` を設定して再デプロイする。
+
+API の Docker / compose 構成は[デプロイ](/ja/docs/self-hosting/deploy)を参照してください。
+
+## フォークしてデプロイする人向けチェックリスト
+
+- UI が自分の Vercel / Cloudflare / Netlify アカウントで稼働している
+- API が公開 HTTPS URL と永続 SQLite ボリュームつきで稼働している（Railway / Docker / VPS）
+- `TM_CORS_ORIGINS` に自分の CDN ホストのパターン（または正確なカスタムドメイン）が含まれている
+- **サーバー**欄を設定した状態（または `VITE_API` を埋め込んだ状態）でログインできる
+- `TM_JWT_SECRET` を既定値から変更した
+
+## なぜ API を Vercel / Workers に置かないのか
+
+API は Go + SQLite + ファイルアップロードという構成です。Docker / VPS / NAS に置いてください。
+ワンクリックボタンは設計上**Web 専用**です。

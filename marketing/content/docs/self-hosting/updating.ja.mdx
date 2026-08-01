@@ -1,0 +1,67 @@
+---
+title: アップデート
+description: 稼働中の TraderMemos インスタンスを更新する方法 — プルして再起動するだけ。マイグレーションは自動実行されます。
+---
+
+データベースのマイグレーションは **API 起動時に自動実行**されるため、アップグレードはプルと
+再起動だけです。とはいえ、メジャーバージョンをまたぐ場合は事前に
+[バックアップ](/ja/docs/self-hosting/backup-restore)を取得してください。
+
+## Docker（既定）
+
+```bash
+cd TraderMemos
+git pull                     # compose/Makefile の変更があれば取り込む
+docker compose pull          # 新しいイメージを取得
+make up                      # コンテナを再作成（docker compose up -d）
+```
+
+Hub のイメージを取得するのではなく、ソースからビルドしている場合は次のとおりです。
+
+```bash
+git pull
+make up-build                # リポジトリから両方のイメージを再ビルド
+```
+
+稼働中のバージョンを確認します。
+
+```bash
+curl -s http://localhost:3000/healthz
+# {"status":"ok","version":"0.1.6","go":"go1.26","commit":"…"}
+```
+
+## バージョンの固定（本番環境で推奨）
+
+`latest` はリリースのたびに移動します。ルートの `.env` でリリースを固定し、意図的に上げていく
+運用にしてください。
+
+```bash
+# .env
+TM_IMAGE_TAG=0.1.6
+```
+
+```bash
+# アップグレード: TM_IMAGE_TAG を編集してから
+docker compose pull && make up
+```
+
+公開されるタグは semver に従います（`0.1.6`、`0.1`、`0`、`latest`、および不変のコミット `sha`
+タグ）。イメージはマルチアーキテクチャ対応です（`amd64` + `arm64`）。リリースと主な変更点は
+[CHANGELOG](https://github.com/sinhong2011/TraderMemos/blob/main/CHANGELOG.md) と
+[GitHub Releases](https://github.com/sinhong2011/TraderMemos/releases) に記載されています。
+
+## マイグレーションの挙動
+
+- マイグレーションは API バイナリに埋め込まれ、起動時に適用されます（SQLite と Postgres の両系統）。
+- SQLite の DB の隣に置かれるファイルロック（`tradermemos.db.migrate.lock`）が、2 つのプロセスが
+  同時に起動した場合の同時マイグレーションを防ぎます。
+- **自動ダウングレードはありません**。スキーマのマイグレーション後に古いイメージへ戻すことは
+  サポートされていません。代わりに[アップグレード前のバックアップ](/ja/docs/self-hosting/backup-restore)
+  から復元してください。
+
+## フォーク / CDN 構成の場合
+
+- **Vercel / Cloudflare / Netlify の Web**: 自分のフォークの既定ブランチへプッシュすると自動的に
+  再デプロイされます。フォークを上流と同期することが、そのままアップデートになります。
+- **Railway の API**: プッシュのたびに再デプロイされます。`/data` ボリュームはデプロイをまたいで
+  永続するため、アタッチしたままにしてください。

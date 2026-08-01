@@ -1,0 +1,183 @@
+---
+title: デプロイ
+description: Docker 一体型、CDN + API 分離、エッジリライト — 自分のインフラに合った構成を選べます。
+---
+
+デプロイ方式は 3 つあります。
+
+1. **Docker 一体型** — 既定のセルフホスト構成。URL 1 つ、ボリューム 1 つ
+2. **静的 SPA + API 別ホスト** — UI は CDN、API は自分のホスト（CORS + サーバー URL）
+3. **静的 SPA + エッジリライト** — UI は CDN、ブラウザから見ると同一オリジン
+
+UI だけを自分の Vercel / Cloudflare / Netlify にワンクリックで置きたい場合は、
+[フォークしてデプロイ](/ja/docs/self-hosting/fork-deploy)を参照してください。
+
+## 1. Docker 一体型（推奨の既定構成）
+
+Docker Hub の公開イメージ（`sinhong2011/tradermemos-api` と `…-web`）を取得します。
+
+```bash
+# 任意: Hub のネームスペース / タグをコピーして編集
+cp .env.example .env
+# DOCKERHUB_USERNAME=sinhong2011   # 自分でイメージを公開する場合は自分の Hub ユーザー名
+# TM_IMAGE_TAG=0.1.1               # 本番ではリリースを固定する（既定: latest）
+
+make up            # docker compose up -d （Hub イメージを取得、SQLite）
+# http://localhost:3000 を開く
+
+make up-postgres   # 同上 + Postgres オーバーレイ
+make up-build      # 取得せず、このリポジトリから api/web をビルド
+```
+
+### Docker Hub ユーザー名はどこから読まれるか
+
+| 場面 | 設定場所 |
+|---------|-----------------|
+| エンドユーザー / セルフホスト | ルートの `.env` → `DOCKERHUB_USERNAME`（Compose が自動で読み込みます）。既定値は `sinhong2011`。 |
+| イメージタグ | ルートの `.env` → `TM_IMAGE_TAG`（`latest` または `0.1.1` のような semver）。 |
+| CI から Hub への公開 | GitHub リポジトリシークレット `DOCKERHUB_USERNAME` と `DOCKERHUB_TOKEN`。 |
+
+構成されるもの:
+
+| URL | サービス |
+|-----|---------|
+| `http://localhost:3000` | nginx SPA |
+| `http://localhost:3000/api/v1/*` | プロキシ → Go API |
+| `http://localhost:8080` | API 直接（任意。ヘルスチェック、デバッグ用） |
+
+ログイン画面や設定の**サーバー**欄は空のままにしてください。SPA は相対パス `/api/v1` を使い、
+nginx が `api` コンテナへプロキシします — CORS は不要です。
+
+重要な環境変数（compose / ホスト）:
+
+| 変数 | 用途 |
+|----------|---------|
+| `TM_JWT_SECRET` | JWT 署名用シークレット — 本番では**必須**（`openssl rand -hex 32`） |
+| `TM_ALLOW_INSECURE_JWT` | Compose は初回起動の利便性のため既定で `true`。本番では `false` にするか設定を解除 |
+| `TM_ALLOW_REGISTRATION` | 既定 `false`。セットアップ後は、明示的に有効化しない限りオーナーのみが存在します |
+| `TM_DATABASE_URL` | 統一 DB URL — SQLite なら `sqlite:///data/tradermemos.db`（既定）、Postgres なら `postgres://user:pass@host:5432/db?sslmode=require` |
+| `TM_ATTACH_DIR` | 添付ファイルのディスクパス。SQLite では既定で `<dbDir>/attachments`。Postgres では明示的に設定してください |
+| `TM_CORS_ORIGINS` | この構成では空のままにします |
+
+**初回起動:** `http://localhost:3000` を開きます。データベースにユーザーがいなければ、
+**セットアップウィザード**がオーナー（管理者）アカウントと、任意のトレード口座を作成します。
+その後、一般登録は閉じたままになります。
+
+```bash
+# 本番相当の compose 例
+cp .env.example .env
+# .env を編集: TM_IMAGE_TAG=0.1.1, TM_JWT_SECRET=…, TM_ALLOW_INSECURE_JWT=false
+export TM_JWT_SECRET=$(openssl rand -hex 32)
+export TM_ALLOW_INSECURE_JWT=false
+make up
+```
+
+データは `tm_data` という Docker ボリュームに保存されます（SQLite + 添付ファイル）。
+
+```bash
+make logs        # compose のログを追跡
+make down        # スタックを停止
+```
+
+本番向けのヒント: **TLS** のために前段に **Caddy / Traefik / nginx** を置き、**web** サービス
+のみに向けてください — `/api` は同一オリジンのままです。TLS なしで API を公開インターネットに
+晒さないでください。コピー&ペーストできる設定は
+[リバースプロキシと TLS](/ja/docs/self-hosting/reverse-proxy)にあります。
+
+### 認証まわりの堅牢化（組み込み済み）
+
+- 初回ユーザー用の**セットアップ**エンドポイント。公開 `/auth/register` は既定で無効
+- パスワードは**10 文字以上**（bcrypt）
+- 認証・セットアップ経路は**レート制限**あり（IP ごとに約 2 req/s）
+- アクセストークンとリフレッシュトークンの JWT は異なる `typ` クレームを使用
+- 既知の脆弱な JWT シークレットの場合、`TM_ALLOW_INSECURE_JWT=true` がない限りサーバーは**起動を拒否**
+
+### API アクセストークンと OpenAPI ドキュメント
+
+すべてのインスタンスには `/docs` にインタラクティブな OpenAPI リファレンスが同梱されており、
+**設定 → API** から MCP、AI エージェント、スクリプト向けのパーソナルアクセストークン
+（`tm_pat_…`）を発行できます。
+[API トークンと OpenAPI](/ja/docs/guides/api-tokens)を参照してください。
+
+## 2. 静的 Web（Vercel / Cloudflare Pages / Netlify）+ API 別ホスト
+
+UI を CDN に置き、ジャーナル API を VPS、Fly、自宅の NAS などで動かす場合に使います。
+
+```
+https://app.example.com     → 静的 SPA（CDN）
+https://api.example.com     → Docker/Go API + SQLite ボリューム
+```
+
+### API 側
+
+1. 到達可能な URL と永続ディスクを備えた API コンテナ（またはバイナリ）を起動します。
+2. SPA のオリジンを許可します。
+
+```bash
+TM_CORS_ORIGINS=https://*.vercel.app,https://*.pages.dev,http://localhost:5173
+TM_JWT_SECRET=$(openssl rand -hex 32)
+# 公開 API では TM_ALLOW_INSECURE_JWT を設定しないでください
+# TM_ALLOW_REGISTRATION=true   # UI からユーザーを追加したい場合のみ
+```
+
+`https://*.vercel.app` や `https://*.pages.dev` といったワイルドカード形式は、プレビュー／本番の
+CDN ホストにマッチします。カスタムドメインには正確なオリジンを指定してください。
+
+### Web 側
+
+SPA をビルドして `web/dist` をデプロイします。
+
+```bash
+cd web && vp install && vp build
+```
+
+SPA を API に向けます。
+
+| 方法 | 適する場面 |
+|--------|------|
+| ログイン / 設定 → **サーバー** / **API サーバー** | ユーザーが自分の API を持ち込む場合（実行時の `tm_api_base`） |
+| ビルド時の `VITE_API=https://api.example.com/api/v1` | 固定の公開／デモ用 API をビルドに埋め込む場合 |
+
+オリジンのみの値（例: `https://api.example.com`）には `/api/v1` が自動で付加されます。
+
+## 3. 静的 Web + エッジリライト（同一オリジン CDN）
+
+ブラウザから見えるオリジンを 1 つに保ち、エッジが `/api` を API へプロキシします。CORS も
+サーバー欄の入力も不要です。
+
+### Vercel
+
+`deploy/vercel.json.example` をコピーし、`destination` を自分の API ホストに設定して
+`web/dist` をデプロイします（または `web/` プロジェクトを `outputDirectory: dist` で接続します）。
+
+### Cloudflare Workers / Pages
+
+`vp build` の前に `deploy/cloudflare/_redirects.example` を `web/public/_redirects` へコピーし、
+API への `200` プロキシを設定します。SPA フォールバックは `web/wrangler.toml`
+（`not_found_handling = "single-page-application"`）に残してください — `/* /index.html 200` は
+**追加しないでください**（Workers は無限ループとして拒否します）。
+
+リライトを使う場合、`TM_CORS_ORIGINS` は空のままにしてください — ブラウザがクロスオリジン通信を
+することはありません。
+
+## 方式の選び方
+
+| 目的 | 方式 |
+|------|------|
+| **自分の** Vercel / CF にフォークしてワンクリックで UI を置く | [フォークしてデプロイ](/ja/docs/self-hosting/fork-deploy) |
+| ホームラボ / VPS / NAS で URL 1 つ | **1. Docker** |
+| マーケティング／デモ UI を CDN に置き、ユーザーが API をセルフホスト | **2. CDN + CORS** |
+| SPA をグローバル CDN に、API は自前ホスト、サーバー欄は空 | **3. エッジリライト** |
+
+Go + SQLite の API を Vercel サーバーレスや Cloudflare Workers で動かさ**ない**でください。
+API は実ディスクを持つマシン／ボリューム上に置いてください。
+
+## チェックリスト
+
+- `TM_JWT_SECRET` を既定値から変更した
+- SQLite と添付ファイルを永続ボリュームに置き、[バックアップ](/ja/docs/self-hosting/backup-restore)をスケジュール済み
+- Docker: **web** のポートを開放し、サーバー欄は空
+- 分離構成: `TM_CORS_ORIGINS` が SPA のオリジンと一致している
+- アップロード: nginx／プロキシの `client_max_body_size` ≥ API の `TM_*_MAX_BYTES`（compose の web イメージは 20m）
+
+環境変数の完全な一覧は[設定](/ja/docs/self-hosting/configuration)にあります。
