@@ -246,6 +246,38 @@
   }
 }
 
+/* Auth brand panel — equity line draws in, memos pin on, cursor blinks. */
+@keyframes auth-equity-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes auth-cursor-blink {
+  0%,
+  55% {
+    opacity: 1;
+  }
+  56%,
+  100% {
+    opacity: 0.25;
+  }
+}
+
+@keyframes auth-memo-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @keyframes fab-in {
   from {
     opacity: 0;

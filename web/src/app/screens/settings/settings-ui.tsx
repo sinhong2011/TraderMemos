@@ -6,6 +6,7 @@ import { Pill } from "@/components/Pill";
 import { FormInput } from "@/components/FormInput";
 import { Button } from "@/components/ui/button";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
+import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/cn";
 import type { UrlScheme } from "@/lib/llmApiSettings";
 import { settingsSectionHash } from "@/lib/settingsSection";
@@ -252,29 +253,14 @@ export function SettingsToggle({
   "aria-label"?: string;
 }) {
   return (
-    <button
+    <Switch
       id={id}
-      type="button"
-      role="switch"
-      aria-checked={checked}
       aria-label={ariaLabel}
       disabled={disabled}
-      onClick={() => onCheckedChange(!checked)}
-      className={cn(
-        "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors duration-150",
-        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
-        "disabled:cursor-not-allowed disabled:opacity-45",
-        checked ? "bg-primary" : "bg-muted",
-      )}
-    >
-      <span
-        aria-hidden
-        className={cn(
-          "pointer-events-none absolute top-0.5 left-0.5 size-5 rounded-full bg-text shadow-sm transition-transform duration-150",
-          checked && "translate-x-5",
-        )}
-      />
-    </button>
+      checked={checked}
+      onCheckedChange={(next) => onCheckedChange(next)}
+      className="cursor-pointer"
+    />
   );
 }
 
@@ -609,11 +595,6 @@ export function BtnGhost({
 export function FormError({ message }: { message?: string | null }) {
   if (!message) return null;
   return <p className="text-[11px] text-destructive">{message}</p>;
-}
-
-export function SavedBadge({ show }: { show: boolean }) {
-  if (!show) return null;
-  return <span className="inline-flex items-center gap-1 text-[11px] text-profit">Saved</span>;
 }
 
 export function DeleteButton({

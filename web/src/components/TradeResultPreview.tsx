@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/cn";
-import { fmtMoney, fmtSignedMoney } from "@/lib/format";
+import { fmtMoney, fmtSignedMoney, fmtSignedPct } from "@/lib/format";
 import type { BatchTradePnlPreview, TradePnlPreview } from "@/lib/tradePnlPreview";
 import { pnlColor } from "./theme-tokens";
 
@@ -115,6 +115,119 @@ export function TradeResultPreview({
   );
 }
 
+export interface AfterSaveResultPreviewProps {
+  preview: TradePnlPreview;
+  /** Opening-side cost basis (qty × price × multiplier) for the trade return %. */
+  entryTotal: number | null;
+  /** Account net P&L before this save. */
+  accountNetPnl: number | null;
+  /** Estimated balance before this save (deposits + realized P&L). */
+  accountCash: number | null;
+  /** Net deposits, the denominator for the account P&L %. */
+  depositedCapital: number | null;
+  currency: string;
+  locale: string;
+  /** Optional planned risk shown as a quiet footnote. */
+  initialRisk?: number | null;
+  className?: string;
+}
+
+/**
+ * Drawer-footer summary: what this save does to the account. The per-symbol
+ * card already shows entry/exit/position, so down here the story is the
+ * estimated P&L and the account balance / net P&L once it lands.
+ */
+export function AfterSaveResultPreview({
+  preview,
+  entryTotal,
+  accountNetPnl,
+  accountCash,
+  depositedCapital,
+  currency,
+  locale,
+  initialRisk,
+  className,
+}: AfterSaveResultPreviewProps) {
+  if (preview.avgEntry == null && preview.net == null) return null;
+
+  const delta = preview.net ?? 0;
+  const returnPct =
+    preview.net != null && entryTotal != null && entryTotal > 0 ? preview.net / entryTotal : null;
+  const pnlAfter = accountNetPnl != null ? accountNetPnl + delta : null;
+  const balanceAfter = accountCash != null ? accountCash + delta : null;
+  const pnlPctAfter =
+    pnlAfter != null && depositedCapital != null && depositedCapital > 0
+      ? pnlAfter / depositedCapital
+      : null;
+
+  return (
+    <div
+      className={cn("flex flex-col gap-2 @container/aftersave", className)}
+      data-testid="after-save-result-preview"
+    >
+      <div className="flex items-baseline justify-between gap-3">
+        <p className="m-0 text-[10px] font-semibold uppercase tracking-widest text-chart-3">
+          After save
+        </p>
+        {initialRisk != null && initialRisk > 0 ? (
+          <p className="m-0 text-[10px] tabular-nums text-muted-foreground">
+            Risk {fmtMoney(initialRisk, currency, locale)}
+          </p>
+        ) : null}
+      </div>
+
+      <div className="grid grid-cols-1 gap-3 @min-[30rem]/aftersave:grid-cols-3">
+        <BentoCell label="Est. P&L">
+          {preview.net == null ? (
+            <span className="text-muted-foreground">—</span>
+          ) : (
+            <span
+              className={cn(
+                pnlColor(preview.net),
+                preview.net > 0 && "drop-shadow-[0_0_18px_rgba(74,222,128,0.28)]",
+                preview.net < 0 && "drop-shadow-[0_0_18px_rgba(251,113,133,0.22)]",
+              )}
+            >
+              {fmtSignedMoney(preview.net, currency, locale)}
+              {returnPct != null ? (
+                <span className="ml-1.5 align-baseline text-[11px] font-medium text-muted-foreground">
+                  {fmtSignedPct(returnPct, locale)}
+                </span>
+              ) : null}
+              {preview.rMultiple != null ? (
+                <span className="ml-1.5 align-baseline text-[11px] font-medium text-muted-foreground">
+                  {preview.rMultiple.toFixed(2)}R
+                </span>
+              ) : null}
+            </span>
+          )}
+        </BentoCell>
+        <BentoCell label="Balance">
+          {balanceAfter == null ? (
+            <span className="text-muted-foreground">—</span>
+          ) : (
+            <span>{fmtMoney(balanceAfter, currency, locale)}</span>
+          )}
+        </BentoCell>
+        <BentoCell label="Account P&L">
+          {pnlAfter == null ? (
+            <span className="text-muted-foreground">—</span>
+          ) : (
+            <span className={cn(pnlColor(pnlAfter))}>
+              {fmtSignedMoney(pnlAfter, currency, locale)}
+              {pnlPctAfter != null ? (
+                <span className="ml-1.5 align-baseline text-[11px] font-medium text-muted-foreground">
+                  {fmtSignedPct(pnlPctAfter, locale)}
+                </span>
+              ) : null}
+            </span>
+          )}
+        </BentoCell>
+      </div>
+    </div>
+  );
+}
+
 export interface BatchTradeResultPreviewProps {
   batch: BatchTradePnlPreview;
   currency: string;
@@ -123,6 +236,8 @@ export interface BatchTradeResultPreviewProps {
   accountNetPnl?: number | null;
   /** Estimated cash before this batch (starting + flows + realized). */
   accountCash?: number | null;
+  /** Net deposits, the denominator for the account P&L %. */
+  depositedCapital?: number | null;
   className?: string;
 }
 
@@ -146,6 +261,7 @@ export function BatchTradeResultPreview({
   locale,
   accountNetPnl,
   accountCash,
+  depositedCapital,
   className,
 }: BatchTradeResultPreviewProps) {
   if (batch.withFills === 0 && batch.net == null) return null;
@@ -154,6 +270,10 @@ export function BatchTradeResultPreview({
   const hasAccountBaseline = accountNetPnl != null || accountCash != null;
   const extTotal = accountNetPnl != null ? accountNetPnl + batchDelta : null;
   const cashAfter = accountCash != null ? accountCash + batchDelta : null;
+  const extPct =
+    extTotal != null && depositedCapital != null && depositedCapital > 0
+      ? extTotal / depositedCapital
+      : null;
   const allClosed = batch.openCount === 0 && batch.closedCount > 0;
 
   return (
@@ -262,11 +382,16 @@ export function BatchTradeResultPreview({
                   {fmtSignedMoney(extTotal, currency, locale)}
                 </span>
               )}
+              {extPct != null ? (
+                <span className="text-[11px] font-medium tabular-nums text-muted-foreground">
+                  {fmtSignedPct(extPct, locale)}
+                </span>
+              ) : null}
             </div>
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-              Cash
+              Balance
             </span>
             <span className="text-[13px] font-semibold tabular-nums tracking-tight text-foreground">
               {cashAfter == null ? "—" : fmtMoney(cashAfter, currency, locale)}

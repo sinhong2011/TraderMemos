@@ -3,6 +3,7 @@ import { useId, useState } from "react";
 import { AuthShell } from "@/components/AuthShell";
 import { Field } from "@/components/Field";
 import { FormInput, PasswordInput } from "@/components/FormInput";
+import { authFieldClass } from "@/components/field-styles";
 import { Modal } from "@/components/Modal";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { SegmentedControl } from "@/components/SegmentedControl";
@@ -120,6 +121,7 @@ export function LoginScreen({
               autoFocus
               required
               spellCheck={false}
+              className={authFieldClass}
             />
           </Field>
 
@@ -139,6 +141,7 @@ export function LoginScreen({
               placeholder={isLogin ? "Enter your password" : `At least ${MIN_PASSWORD} characters`}
               autoComplete={isLogin ? "current-password" : "new-password"}
               required
+              className={authFieldClass}
             />
           </Field>
         </div>

@@ -279,10 +279,33 @@ export function HeaderBar() {
     }
   }, [accountId, hasSelectedAccount, setAccount]);
 
-  // Sticky pins the strip while the document scrolls on phones; ≥md the shell
-  // is viewport-height so it resolves to a no-op.
+  // Phones auto-hide the strip: it slides away scrolling down and returns on
+  // the first upward scroll. Only the document scrolls there, so the window
+  // listener never fires ≥md, where <main> is the scroller and the strip is
+  // pinned by layout anyway.
+  const [hidden, setHidden] = useState(false);
+  useEffect(() => {
+    let last = window.scrollY;
+    const onScroll = () => {
+      const y = window.scrollY;
+      const delta = y - last;
+      // Ignore sub-4px jitter and iOS rubber-band overshoot.
+      if (Math.abs(delta) < 4 || y < 0) return;
+      last = y;
+      setHidden(y > 64 && delta > 0);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
-    <header className="sticky top-0 z-20 flex h-auto min-h-[52px] shrink-0 items-center gap-2 bg-background px-3 pt-[calc(0.5rem+env(safe-area-inset-top))] pb-2 md:h-[52px] md:gap-3 md:px-4 md:pt-0 md:pb-0">
+    <header
+      className={cn(
+        "sticky top-0 z-20 flex h-auto min-h-[52px] shrink-0 items-center gap-2 bg-background px-3 pt-[calc(0.5rem+env(safe-area-inset-top))] pb-2 md:h-[52px] md:gap-3 md:px-4 md:pt-0 md:pb-0",
+        "transition-transform duration-200 ease-out motion-reduce:transition-none md:translate-y-0",
+        hidden && "-translate-y-full",
+      )}
+    >
       {/* Performance strip */}
       <div className="flex min-w-0 flex-1 items-center gap-2 md:gap-3">
         <div

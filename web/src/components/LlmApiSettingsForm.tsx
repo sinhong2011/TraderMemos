@@ -21,13 +21,13 @@ import {
   BtnGhost,
   BtnPrimary,
   FormError,
-  SavedBadge,
   SettingsBadge,
   SettingsGroup,
   SettingsGroupRow,
   SettingsPrefixedInput,
   SettingsToggle,
 } from "@/app/screens/settings/settings-ui";
+import { useLlmModelCache } from "@/lib/llmModelCache";
 
 export function LlmApiSettingsForm({
   settings,
@@ -45,9 +45,9 @@ export function LlmApiSettingsForm({
   onListModels: (body: ReturnType<typeof llmApiModelsBody>) => Promise<LlmApiModelsResult>;
 }) {
   const toast = useToastManager();
-  const [saved, setSaved] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
-  const [modelOptions, setModelOptions] = useState<string[]>([]);
+  const modelsByBaseUrl = useLlmModelCache((s) => s.modelsByBaseUrl);
+  const setCachedModels = useLlmModelCache((s) => s.setModels);
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
   const [fetchingModels, setFetchingModels] = useState(false);
@@ -57,7 +57,6 @@ export function LlmApiSettingsForm({
     defaultValues: llmApiSettingsToFormValues(settings),
     onSubmit: async ({ value }) => {
       setFormError(null);
-      setSaved(false);
       setSaving(true);
       try {
         const body = llmApiSettingsPutBody(value);
@@ -67,7 +66,7 @@ export function LlmApiSettingsForm({
         form.setFieldValue("model", next.model);
         form.setFieldValue("custom_prompt", next.custom_prompt);
         form.setFieldValue("api_key", "");
-        setSaved(true);
+        toast.add({ title: "Saved", description: "Settings updated." });
       } catch (err) {
         setFormError(err instanceof Error ? err.message : saveErrorMessage);
       } finally {
@@ -123,7 +122,7 @@ export function LlmApiSettingsForm({
         });
         return;
       }
-      setModelOptions(result.models);
+      setCachedModels(value.base_url, result.models);
       toast.add({
         title: labels.fetchModels,
         description: `${result.models.length} models`,
@@ -195,18 +194,22 @@ export function LlmApiSettingsForm({
               <form.Field name="model">
                 {(field) => (
                   <SettingsGroupRow label={labels.model} detail={labels.modelDetail}>
-                    <ModelAutocomplete
-                      value={field.state.value}
-                      onValueChange={(next) => field.handleChange(next)}
-                      models={modelOptions}
-                      onFetchModels={() => void onFetchModels()}
-                      fetching={fetchingModels}
-                      fetchLabel={fetchingModels ? labels.fetchingModels : labels.fetchModels}
-                      placeholder="gpt-4o-mini"
-                      className="w-full"
-                      inputClassName="h-10 w-full text-[13px]"
-                      ariaLabel={labels.model}
-                    />
+                    <form.Subscribe selector={(s) => s.values.base_url}>
+                      {(baseUrl) => (
+                        <ModelAutocomplete
+                          value={field.state.value}
+                          onValueChange={(next) => field.handleChange(next)}
+                          models={modelsByBaseUrl[baseUrl] ?? []}
+                          onFetchModels={() => void onFetchModels()}
+                          fetching={fetchingModels}
+                          fetchLabel={fetchingModels ? labels.fetchingModels : labels.fetchModels}
+                          placeholder="gpt-4o-mini"
+                          className="w-full"
+                          inputClassName="h-10 w-full text-[13px]"
+                          ariaLabel={labels.model}
+                        />
+                      )}
+                    </form.Subscribe>
                   </SettingsGroupRow>
                 )}
               </form.Field>
@@ -248,8 +251,8 @@ export function LlmApiSettingsForm({
                       onChange={(e) => field.handleChange(e.target.value)}
                       placeholder={settings.default_prompt || labels.customPromptHint}
                       spellCheck={false}
-                      rows={6}
-                      className="min-h-[8rem] w-full whitespace-pre-wrap text-[12px] leading-relaxed"
+                      rows={2}
+                      className="w-full text-[12px] leading-relaxed whitespace-pre-wrap **:data-[slot=textarea]:max-h-56 **:data-[slot=textarea]:overflow-y-auto"
                       aria-label={labels.customPrompt}
                     />
                   </SettingsGroupRow>
@@ -264,7 +267,6 @@ export function LlmApiSettingsForm({
           </div>
         ) : null}
         <div className="flex flex-wrap items-center justify-end gap-2 px-5 py-4">
-          <SavedBadge show={saved} />
           <BtnGhost
             type="button"
             size="action"

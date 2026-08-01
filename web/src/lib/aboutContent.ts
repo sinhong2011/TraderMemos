@@ -168,14 +168,10 @@ const ABOUT: Record<AppLocale, AboutContent> = {
     updateNeverChecked: "Not checked yet",
     updateBannerTitle: "Update available",
     updateBannerSw: "A new version of TraderMemos is ready. Reload to apply it.",
-    updateBannerRemote:
-      "Version {latest} is available (you have {current}). Pull the latest image or redeploy.",
-    updateBannerWebBehind:
-      "Release {latest} is available. Your web build is {current} — reload or redeploy the web image.",
-    updateBannerApiBehind:
-      "Release {latest} is available. Your API is {apiVersion} — pull the latest API image.",
-    updateBannerBothBehind:
-      "Release {latest} is available. Web ({current}) and API ({apiVersion}) are behind.",
+    updateBannerRemote: "A newer release is available. Pull the latest image or redeploy.",
+    updateBannerWebBehind: "The web app is behind — reload, or redeploy the web image.",
+    updateBannerApiBehind: "The API is behind — pull the latest API image.",
+    updateBannerBothBehind: "Web and API are behind — pull the latest images.",
     updateDismiss: "Dismiss",
     updateReleaseTitle: "Release notes",
     updateReleasePublished: "Published",
@@ -274,11 +270,10 @@ const ABOUT: Record<AppLocale, AboutContent> = {
     updateNeverChecked: "尚未檢查",
     updateBannerTitle: "有可用更新",
     updateBannerSw: "TraderMemos 有新版本就緒。重新載入以套用。",
-    updateBannerRemote: "最新版本為 {latest}（目前為 {current}）。請拉取最新映像或重新部署。",
-    updateBannerWebBehind:
-      "發佈 {latest} 已推出。Web 為 {current} — 請重新載入或重新部署 web 映像。",
-    updateBannerApiBehind: "發佈 {latest} 已推出。API 為 {apiVersion} — 請拉取最新 API 映像。",
-    updateBannerBothBehind: "發佈 {latest} 已推出。Web（{current}）與 API（{apiVersion}）均落後。",
+    updateBannerRemote: "已推出新版本。請拉取最新映像或重新部署。",
+    updateBannerWebBehind: "Web 版本落後 — 請重新載入或重新部署 web 映像。",
+    updateBannerApiBehind: "API 版本落後 — 請拉取最新 API 映像。",
+    updateBannerBothBehind: "Web 與 API 均落後 — 請拉取最新映像。",
     updateDismiss: "關閉",
     updateReleaseTitle: "發佈說明",
     updateReleasePublished: "發佈日期",
@@ -384,13 +379,11 @@ const ABOUT: Record<AppLocale, AboutContent> = {
     updateBannerSw:
       "TraderMemos の新しいバージョンが準備できました。再読み込みして適用してください。",
     updateBannerRemote:
-      "バージョン {latest} が利用可能です（現在は {current}）。最新イメージの取得または再デプロイが必要です。",
+      "新しいリリースが利用可能です。最新イメージを取得するか再デプロイしてください。",
     updateBannerWebBehind:
-      "リリース {latest} が公開されました。Web は {current} です — 再読み込みまたは web イメージを再デプロイしてください。",
-    updateBannerApiBehind:
-      "リリース {latest} が公開されました。API は {apiVersion} です — 最新 API イメージを取得してください。",
-    updateBannerBothBehind:
-      "リリース {latest} が公開されました。Web（{current}）と API（{apiVersion}）が古い状態です。",
+      "Web が古くなっています — 再読み込みか、web イメージを再デプロイしてください。",
+    updateBannerApiBehind: "API が古くなっています — 最新の API イメージを取得してください。",
+    updateBannerBothBehind: "Web と API が古くなっています — 最新イメージを取得してください。",
     updateDismiss: "閉じる",
     updateReleaseTitle: "リリースノート",
     updateReleasePublished: "公開日",
@@ -489,14 +482,10 @@ const ABOUT: Record<AppLocale, AboutContent> = {
     updateNeverChecked: "아직 확인 안 함",
     updateBannerTitle: "업데이트 사용 가능",
     updateBannerSw: "TraderMemos 새 버전이 준비되었습니다. 새로고침하여 적용하세요.",
-    updateBannerRemote:
-      "{latest} 버전을 사용할 수 있습니다(현재 {current}). 최신 이미지를 받거나 다시 배포하세요.",
-    updateBannerWebBehind:
-      "릴리스 {latest}가 있습니다. Web은 {current}입니다 — 새로고침하거나 web 이미지를 다시 배포하세요.",
-    updateBannerApiBehind:
-      "릴리스 {latest}가 있습니다. API는 {apiVersion}입니다 — 최신 API 이미지를 받으세요.",
-    updateBannerBothBehind:
-      "릴리스 {latest}가 있습니다. Web({current})과 API({apiVersion})가 뒤처져 있습니다.",
+    updateBannerRemote: "새 릴리스가 있습니다. 최신 이미지를 받거나 다시 배포하세요.",
+    updateBannerWebBehind: "Web이 뒤처져 있습니다 — 새로고침하거나 web 이미지를 다시 배포하세요.",
+    updateBannerApiBehind: "API가 뒤처져 있습니다 — 최신 API 이미지를 받으세요.",
+    updateBannerBothBehind: "Web과 API가 뒤처져 있습니다 — 최신 이미지를 받으세요.",
     updateDismiss: "닫기",
     updateReleaseTitle: "릴리스 노트",
     updateReleasePublished: "게시일",
