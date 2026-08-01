@@ -1,0 +1,486 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-08-01 17:34+0800\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: ko\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#. placeholder {0}: formatPercent(progress, 0)
+#: src/components/goal-card.tsx:39
+msgid "{0} of goal · YTD net P&L"
+msgstr "목표의 {0} · 연초 대비 순손익"
+
+#. placeholder {0}: summary.total_trades
+#: src/components/insights-card.tsx:73
+msgid "{0} trades"
+msgstr "트레이드 {0}건"
+
+#: src/app/(tabs)/(trades)/index.tsx:100
+msgid "{count} trades"
+msgstr "트레이드 {count}건"
+
+#: src/components/goal-card.tsx:29
+msgid "{year} goal"
+msgstr "{year}년 목표"
+
+#: src/app/(tabs)/(settings)/index.tsx:61
+msgid "About"
+msgstr "정보"
+
+#: src/app/(tabs)/(settings)/index.tsx:44
+msgid "Accounts"
+msgstr "계좌"
+
+#: src/app/login.tsx:253
+#: src/app/login.tsx:257
+msgid "Advanced"
+msgstr "고급 설정"
+
+#: src/app/(tabs)/(trades)/index.tsx:69
+msgid "All"
+msgstr "전체"
+
+#: src/app/login.tsx:295
+msgid "API server"
+msgstr "API 서버"
+
+#: src/app/(tabs)/(trades)/[id].tsx:136
+msgid "Avg entry"
+msgstr "평균 진입가"
+
+#: src/app/(tabs)/(trades)/[id].tsx:137
+msgid "Avg exit"
+msgstr "평균 청산가"
+
+#: src/components/insights-card.tsx:71
+msgid "Avg hold"
+msgstr "평균 보유 시간"
+
+#: src/components/performance-card.tsx:89
+msgid "Avg loss"
+msgstr "평균 손실"
+
+#: src/components/performance-card.tsx:88
+msgid "Avg win"
+msgstr "평균 수익"
+
+#: src/app/(tabs)/(trades)/[id].tsx:40
+msgid "BE"
+msgstr "본전"
+
+#: src/app/(tabs)/(settings)/index.tsx:53
+msgid "Behavior"
+msgstr "동작"
+
+#: src/components/insights-card.tsx:59
+msgid "Best day"
+msgstr "최고의 날"
+
+#: src/components/insights-card.tsx:47
+msgid "Best streak"
+msgstr "최장 연승"
+
+#: src/components/insights-card.tsx:32
+msgid "Best trade"
+msgstr "최고 수익 트레이드"
+
+#: src/components/breakdown-card.tsx:34
+msgid "Breakdown"
+msgstr "분석"
+
+#: src/app/(tabs)/(settings)/index.tsx:32
+msgid "Cancel"
+msgstr "취소"
+
+#: src/app/(tabs)/(trades)/[id].tsx:123
+msgid "Closed"
+msgstr "청산"
+
+#: src/app/(tabs)/(settings)/index.tsx:55
+msgid "Confirm before disconnecting"
+msgstr "연결 해제 전에 확인"
+
+#: src/app/login.tsx:109
+msgid "Could not reach {normalized}"
+msgstr "{normalized} 에 연결할 수 없습니다"
+
+#: src/app/(tabs)/_layout.tsx:27
+#: src/app/(tabs)/(dashboard)/_layout.tsx:21
+msgid "Dashboard"
+msgstr "대시보드"
+
+#: src/components/breakdown-card.tsx:21
+msgid "Day"
+msgstr "요일"
+
+#: src/app/(tabs)/(settings)/index.tsx:33
+#: src/app/(tabs)/(settings)/index.tsx:66
+msgid "Disconnect"
+msgstr "연결 해제"
+
+#: src/app/(tabs)/(settings)/index.tsx:31
+msgid "Disconnect?"
+msgstr "연결을 해제할까요?"
+
+#: src/app/login.tsx:335
+msgid "Done"
+msgstr "완료"
+
+#: src/app/login.tsx:209
+msgid "Enter your password"
+msgstr "비밀번호 입력"
+
+#: src/app/login.tsx:100
+msgid "Enter your TraderMemos server URL"
+msgstr "TraderMemos 서버 URL을 입력하세요"
+
+#: src/app/login.tsx:187
+msgid "Enter your username"
+msgstr "사용자 이름 입력"
+
+#: src/app/login.tsx:95
+msgid "Enter your username and password"
+msgstr "사용자 이름과 비밀번호를 입력하세요"
+
+#: src/app/(tabs)/(dashboard)/index.tsx:99
+#: src/components/equity-card.tsx:56
+#: src/components/equity-card.tsx:70
+msgid "Equity curve"
+msgstr "자산 곡선"
+
+#: src/components/performance-card.tsx:53
+msgid "Expect"
+msgstr "기대값"
+
+#: src/components/breakdown-card.tsx:40
+msgid "Failed to load breakdown."
+msgstr "분석을 불러오지 못했습니다."
+
+#: src/app/(tabs)/(dashboard)/index.tsx:100
+msgid "Failed to load equity curve."
+msgstr "자산 곡선을 불러오지 못했습니다."
+
+#: src/app/(tabs)/(trades)/[id].tsx:147
+#: src/components/performance-card.tsx:50
+msgid "Fees"
+msgstr "수수료"
+
+#: src/components/performance-card.tsx:49
+msgid "Gross"
+msgstr "총손익"
+
+#: src/app/(tabs)/(trades)/[id].tsx:143
+msgid "Gross P&L"
+msgstr "총손익"
+
+#: src/components/password-input.tsx:35
+msgid "Hide password"
+msgstr "비밀번호 숨기기"
+
+#: src/app/(tabs)/(dashboard)/index.tsx:81
+msgid "Import broker history or log a trade on the web app to see performance here."
+msgstr "웹 앱에서 브로커 내역을 가져오거나 트레이드를 기록하면 여기에 성과가 표시됩니다."
+
+#: src/app/(tabs)/(trades)/[id].tsx:150
+msgid "Initial risk"
+msgstr "초기 리스크"
+
+#: src/components/insights-card.tsx:29
+msgid "Insights"
+msgstr "인사이트"
+
+#: src/components/trade-row.tsx:69
+msgid "Long"
+msgstr "롱"
+
+#: src/app/(tabs)/(trades)/[id].tsx:97
+msgid "LONG"
+msgstr "롱"
+
+#: src/components/insights-card.tsx:76
+msgid "Losing hold"
+msgstr "손실 보유 시간"
+
+#: src/app/(tabs)/(trades)/[id].tsx:36
+msgid "LOSS"
+msgstr "손실"
+
+#: src/components/insights-card.tsx:55
+msgid "losses"
+msgstr "연패"
+
+#: src/app/(tabs)/(trades)/index.tsx:71
+#: src/components/performance-card.tsx:68
+msgid "Losses"
+msgstr "손실"
+
+#: src/components/insights-card.tsx:84
+msgid "Main leak"
+msgstr "주요 실수"
+
+#: src/components/equity-card.tsx:95
+#: src/components/insights-card.tsx:42
+msgid "Max drawdown"
+msgstr "최대 낙폭"
+
+#: src/components/mini-calendar-card.tsx:43
+msgid "Month"
+msgstr "이번 달"
+
+#: src/components/insights-card.tsx:80
+msgid "most traded"
+msgstr "최다 거래"
+
+#: src/components/performance-card.tsx:44
+msgid "Net"
+msgstr "순손익"
+
+#: src/app/(tabs)/(trades)/[id].tsx:148
+msgid "Net P&L"
+msgstr "순손익"
+
+#: src/app/(tabs)/(settings)/index.tsx:50
+msgid "No accounts yet"
+msgstr "아직 계좌가 없습니다"
+
+#: src/components/breakdown-card.tsx:42
+msgid "No breakdown data yet."
+msgstr "아직 분석 데이터가 없습니다."
+
+#: src/components/equity-card.tsx:59
+msgid "No equity data in this range."
+msgstr "이 기간의 자산 데이터가 없습니다."
+
+#: src/app/(tabs)/(dashboard)/index.tsx:134
+msgid "No trades in this range."
+msgstr "이 기간의 트레이드가 없습니다."
+
+#: src/app/(tabs)/(trades)/index.tsx:118
+msgid "No trades match this filter."
+msgstr "이 필터에 해당하는 트레이드가 없습니다."
+
+#: src/app/(tabs)/(trades)/index.tsx:116
+msgid "No trades matching \"{search}\""
+msgstr "\"{search}\" 와 일치하는 거래가 없습니다"
+
+#: src/app/(tabs)/(dashboard)/index.tsx:79
+msgid "No trades yet"
+msgstr "아직 트레이드가 없습니다"
+
+#: src/app/(tabs)/(trades)/index.tsx:119
+msgid "No trades yet — import a broker CSV to get started."
+msgstr "아직 거래가 없습니다 — 브로커 CSV를 가져와 시작하세요."
+
+#: src/components/insights-card.tsx:85
+msgid "None tagged"
+msgstr "태그 없음"
+
+#: src/app/(tabs)/(settings)/index.tsx:41
+msgid "Not connected"
+msgstr "연결되지 않음"
+
+#: src/app/(tabs)/(trades)/[id].tsx:168
+msgid "Notes"
+msgstr "메모"
+
+#: src/app/(tabs)/(trades)/[id].tsx:138
+msgid "Notional"
+msgstr "명목 금액"
+
+#. placeholder {0}: formatCurrency(goalAmount, currency)
+#: src/components/goal-card.tsx:34
+msgid "of {0}"
+msgstr "/ {0}"
+
+#: src/app/(tabs)/(trades)/[id].tsx:103
+#: src/app/(tabs)/(trades)/index.tsx:72
+#: src/components/performance-card.tsx:74
+#: src/components/trade-row.tsx:39
+msgid "Open"
+msgstr "오픈"
+
+#: src/app/(tabs)/(trades)/[id].tsx:38
+msgid "OPEN"
+msgstr "진행 중"
+
+#: src/app/(tabs)/(trades)/[id].tsx:119
+msgid "Opened"
+msgstr "진입"
+
+#: src/app/(tabs)/(trades)/[id].tsx:141
+msgid "P&L"
+msgstr "손익"
+
+#: src/app/login.tsx:201
+msgid "Password"
+msgstr "비밀번호"
+
+#: src/components/performance-card.tsx:42
+msgid "Performance"
+msgstr "성과"
+
+#: src/components/performance-card.tsx:51
+msgid "PF"
+msgstr "PF"
+
+#: src/app/login.tsx:305
+msgid ""
+"Point the app at your own TraderMemos instance.\n"
+"Origin only — /api/v1 is added automatically."
+msgstr "내 TraderMemos 인스턴스에 연결하세요."
+
+#: src/app/(tabs)/(trades)/[id].tsx:131
+msgid "Position"
+msgstr "포지션"
+
+#: src/app/(tabs)/(trades)/[id].tsx:132
+msgid "Quantity"
+msgstr "수량"
+
+#: src/app/(tabs)/(trades)/[id].tsx:152
+msgid "R multiple"
+msgstr "R 배수"
+
+#: src/app/(tabs)/(dashboard)/index.tsx:128
+msgid "Recent trades"
+msgstr "최근 트레이드"
+
+#: src/app/(tabs)/(trades)/[id].tsx:134
+msgid "Remaining"
+msgstr "잔여 수량"
+
+#: src/app/(tabs)/(trades)/index.tsx:81
+msgid "Search symbol or tag"
+msgstr "종목 또는 태그 검색"
+
+#: src/app/login.tsx:265
+msgid "Self-hosted — your trade data stays on your stack."
+msgstr "셀프 호스팅 — 거래 데이터는 내 서버에 저장됩니다."
+
+#: src/app/(tabs)/(settings)/index.tsx:40
+msgid "Server"
+msgstr "서버"
+
+#: src/app/(tabs)/_layout.tsx:35
+#: src/app/(tabs)/(settings)/_layout.tsx:21
+msgid "Settings"
+msgstr "설정"
+
+#: src/components/breakdown-card.tsx:22
+msgid "Setup"
+msgstr "셋업"
+
+#: src/components/trade-row.tsx:69
+msgid "Short"
+msgstr "숏"
+
+#: src/app/(tabs)/(trades)/[id].tsx:97
+msgid "SHORT"
+msgstr "숏"
+
+#: src/components/password-input.tsx:35
+msgid "Show password"
+msgstr "비밀번호 표시"
+
+#: src/app/login.tsx:174
+#: src/app/login.tsx:244
+msgid "Sign in"
+msgstr "로그인"
+
+#: src/app/login.tsx:123
+msgid "Sign in failed"
+msgstr "로그인에 실패했습니다"
+
+#: src/components/breakdown-card.tsx:23
+msgid "Symbol"
+msgstr "종목"
+
+#: src/app/(tabs)/(trades)/[id].tsx:156
+msgid "Tags"
+msgstr "태그"
+
+#: src/app/(tabs)/(trades)/[id].tsx:128
+msgid "Time in trade"
+msgstr "보유 시간"
+
+#: src/app/(tabs)/(trades)/[id].tsx:117
+msgid "Timing"
+msgstr "타이밍"
+
+#: src/components/insights-card.tsx:78
+msgid "Top symbol"
+msgstr "주요 종목"
+
+#: src/components/mini-calendar-card.tsx:96
+msgid "Total"
+msgstr "합계"
+
+#: src/app/(tabs)/(trades)/[id].tsx:61
+msgid "Trade not found"
+msgstr "거래를 찾을 수 없습니다"
+
+#: src/app/(tabs)/_layout.tsx:31
+#: src/app/(tabs)/(trades)/_layout.tsx:21
+msgid "Trades"
+msgstr "거래"
+
+#: src/app/login.tsx:180
+msgid "Username"
+msgstr "사용자 이름"
+
+#: src/app/(tabs)/(settings)/index.tsx:62
+msgid "Version {appVersion}"
+msgstr "버전 {appVersion}"
+
+#: src/app/(tabs)/(dashboard)/index.tsx:130
+msgid "View all"
+msgstr "모두 보기"
+
+#: src/components/performance-card.tsx:80
+msgid "Wash"
+msgstr "무승부"
+
+#: src/app/login.tsx:175
+msgid "Welcome back."
+msgstr "다시 오신 것을 환영합니다."
+
+#: src/app/(tabs)/(trades)/[id].tsx:34
+msgid "WIN"
+msgstr "수익"
+
+#: src/components/insights-card.tsx:75
+msgid "Winning hold"
+msgstr "수익 보유 시간"
+
+#: src/components/insights-card.tsx:49
+msgid "wins"
+msgstr "연승"
+
+#: src/app/(tabs)/(trades)/index.tsx:70
+#: src/components/performance-card.tsx:62
+msgid "Wins"
+msgstr "수익"
+
+#: src/components/insights-card.tsx:65
+msgid "Worst day"
+msgstr "최악의 날"
+
+#: src/components/insights-card.tsx:53
+msgid "Worst streak"
+msgstr "최장 연패"
+
+#: src/components/insights-card.tsx:37
+msgid "Worst trade"
+msgstr "최대 손실 트레이드"
+
+#: src/app/(tabs)/(settings)/index.tsx:31
+msgid "You will need to sign in again to reach this server."
+msgstr "이 서버에 다시 접속하려면 로그인해야 합니다."

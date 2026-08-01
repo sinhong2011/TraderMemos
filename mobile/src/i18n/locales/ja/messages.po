@@ -1,0 +1,486 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-08-01 17:34+0800\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: ja\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#. placeholder {0}: formatPercent(progress, 0)
+#: src/components/goal-card.tsx:39
+msgid "{0} of goal · YTD net P&L"
+msgstr "目標の{0} · 年初来純損益"
+
+#. placeholder {0}: summary.total_trades
+#: src/components/insights-card.tsx:73
+msgid "{0} trades"
+msgstr "{0}件のトレード"
+
+#: src/app/(tabs)/(trades)/index.tsx:100
+msgid "{count} trades"
+msgstr "{count}件のトレード"
+
+#: src/components/goal-card.tsx:29
+msgid "{year} goal"
+msgstr "{year}年の目標"
+
+#: src/app/(tabs)/(settings)/index.tsx:61
+msgid "About"
+msgstr "このアプリについて"
+
+#: src/app/(tabs)/(settings)/index.tsx:44
+msgid "Accounts"
+msgstr "口座"
+
+#: src/app/login.tsx:253
+#: src/app/login.tsx:257
+msgid "Advanced"
+msgstr "詳細設定"
+
+#: src/app/(tabs)/(trades)/index.tsx:69
+msgid "All"
+msgstr "すべて"
+
+#: src/app/login.tsx:295
+msgid "API server"
+msgstr "API サーバー"
+
+#: src/app/(tabs)/(trades)/[id].tsx:136
+msgid "Avg entry"
+msgstr "平均エントリー価格"
+
+#: src/app/(tabs)/(trades)/[id].tsx:137
+msgid "Avg exit"
+msgstr "平均エグジット価格"
+
+#: src/components/insights-card.tsx:71
+msgid "Avg hold"
+msgstr "平均保有時間"
+
+#: src/components/performance-card.tsx:89
+msgid "Avg loss"
+msgstr "平均損失"
+
+#: src/components/performance-card.tsx:88
+msgid "Avg win"
+msgstr "平均利益"
+
+#: src/app/(tabs)/(trades)/[id].tsx:40
+msgid "BE"
+msgstr "引き分け"
+
+#: src/app/(tabs)/(settings)/index.tsx:53
+msgid "Behavior"
+msgstr "動作"
+
+#: src/components/insights-card.tsx:59
+msgid "Best day"
+msgstr "最高の日"
+
+#: src/components/insights-card.tsx:47
+msgid "Best streak"
+msgstr "最長連勝"
+
+#: src/components/insights-card.tsx:32
+msgid "Best trade"
+msgstr "最高のトレード"
+
+#: src/components/breakdown-card.tsx:34
+msgid "Breakdown"
+msgstr "内訳"
+
+#: src/app/(tabs)/(settings)/index.tsx:32
+msgid "Cancel"
+msgstr "キャンセル"
+
+#: src/app/(tabs)/(trades)/[id].tsx:123
+msgid "Closed"
+msgstr "クローズ"
+
+#: src/app/(tabs)/(settings)/index.tsx:55
+msgid "Confirm before disconnecting"
+msgstr "切断する前に確認"
+
+#: src/app/login.tsx:109
+msgid "Could not reach {normalized}"
+msgstr "{normalized} に接続できませんでした"
+
+#: src/app/(tabs)/_layout.tsx:27
+#: src/app/(tabs)/(dashboard)/_layout.tsx:21
+msgid "Dashboard"
+msgstr "ダッシュボード"
+
+#: src/components/breakdown-card.tsx:21
+msgid "Day"
+msgstr "曜日"
+
+#: src/app/(tabs)/(settings)/index.tsx:33
+#: src/app/(tabs)/(settings)/index.tsx:66
+msgid "Disconnect"
+msgstr "切断"
+
+#: src/app/(tabs)/(settings)/index.tsx:31
+msgid "Disconnect?"
+msgstr "切断しますか？"
+
+#: src/app/login.tsx:335
+msgid "Done"
+msgstr "完了"
+
+#: src/app/login.tsx:209
+msgid "Enter your password"
+msgstr "パスワードを入力"
+
+#: src/app/login.tsx:100
+msgid "Enter your TraderMemos server URL"
+msgstr "TraderMemos サーバーの URL を入力してください"
+
+#: src/app/login.tsx:187
+msgid "Enter your username"
+msgstr "ユーザー名を入力"
+
+#: src/app/login.tsx:95
+msgid "Enter your username and password"
+msgstr "ユーザー名とパスワードを入力してください"
+
+#: src/app/(tabs)/(dashboard)/index.tsx:99
+#: src/components/equity-card.tsx:56
+#: src/components/equity-card.tsx:70
+msgid "Equity curve"
+msgstr "資産曲線"
+
+#: src/components/performance-card.tsx:53
+msgid "Expect"
+msgstr "期待値"
+
+#: src/components/breakdown-card.tsx:40
+msgid "Failed to load breakdown."
+msgstr "内訳を読み込めませんでした。"
+
+#: src/app/(tabs)/(dashboard)/index.tsx:100
+msgid "Failed to load equity curve."
+msgstr "資産曲線を読み込めませんでした。"
+
+#: src/app/(tabs)/(trades)/[id].tsx:147
+#: src/components/performance-card.tsx:50
+msgid "Fees"
+msgstr "手数料"
+
+#: src/components/performance-card.tsx:49
+msgid "Gross"
+msgstr "グロス"
+
+#: src/app/(tabs)/(trades)/[id].tsx:143
+msgid "Gross P&L"
+msgstr "総損益"
+
+#: src/components/password-input.tsx:35
+msgid "Hide password"
+msgstr "パスワードを隠す"
+
+#: src/app/(tabs)/(dashboard)/index.tsx:81
+msgid "Import broker history or log a trade on the web app to see performance here."
+msgstr "ウェブアプリで取引履歴をインポートするかトレードを記録すると、ここにパフォーマンスが表示されます。"
+
+#: src/app/(tabs)/(trades)/[id].tsx:150
+msgid "Initial risk"
+msgstr "初期リスク"
+
+#: src/components/insights-card.tsx:29
+msgid "Insights"
+msgstr "インサイト"
+
+#: src/components/trade-row.tsx:69
+msgid "Long"
+msgstr "ロング"
+
+#: src/app/(tabs)/(trades)/[id].tsx:97
+msgid "LONG"
+msgstr "ロング"
+
+#: src/components/insights-card.tsx:76
+msgid "Losing hold"
+msgstr "負け保有時間"
+
+#: src/app/(tabs)/(trades)/[id].tsx:36
+msgid "LOSS"
+msgstr "負け"
+
+#: src/components/insights-card.tsx:55
+msgid "losses"
+msgstr "連敗"
+
+#: src/app/(tabs)/(trades)/index.tsx:71
+#: src/components/performance-card.tsx:68
+msgid "Losses"
+msgstr "負け"
+
+#: src/components/insights-card.tsx:84
+msgid "Main leak"
+msgstr "主な失敗"
+
+#: src/components/equity-card.tsx:95
+#: src/components/insights-card.tsx:42
+msgid "Max drawdown"
+msgstr "最大ドローダウン"
+
+#: src/components/mini-calendar-card.tsx:43
+msgid "Month"
+msgstr "今月"
+
+#: src/components/insights-card.tsx:80
+msgid "most traded"
+msgstr "最多取引"
+
+#: src/components/performance-card.tsx:44
+msgid "Net"
+msgstr "ネット"
+
+#: src/app/(tabs)/(trades)/[id].tsx:148
+msgid "Net P&L"
+msgstr "純損益"
+
+#: src/app/(tabs)/(settings)/index.tsx:50
+msgid "No accounts yet"
+msgstr "口座がまだありません"
+
+#: src/components/breakdown-card.tsx:42
+msgid "No breakdown data yet."
+msgstr "内訳データはまだありません。"
+
+#: src/components/equity-card.tsx:59
+msgid "No equity data in this range."
+msgstr "この期間の資産データはありません。"
+
+#: src/app/(tabs)/(dashboard)/index.tsx:134
+msgid "No trades in this range."
+msgstr "この期間のトレードはありません。"
+
+#: src/app/(tabs)/(trades)/index.tsx:118
+msgid "No trades match this filter."
+msgstr "このフィルターに一致するトレードはありません。"
+
+#: src/app/(tabs)/(trades)/index.tsx:116
+msgid "No trades matching \"{search}\""
+msgstr "「{search}」に一致するトレードはありません"
+
+#: src/app/(tabs)/(dashboard)/index.tsx:79
+msgid "No trades yet"
+msgstr "トレードはまだありません"
+
+#: src/app/(tabs)/(trades)/index.tsx:119
+msgid "No trades yet — import a broker CSV to get started."
+msgstr "トレードはまだありません — ブローカーの CSV をインポートして始めましょう。"
+
+#: src/components/insights-card.tsx:85
+msgid "None tagged"
+msgstr "タグなし"
+
+#: src/app/(tabs)/(settings)/index.tsx:41
+msgid "Not connected"
+msgstr "未接続"
+
+#: src/app/(tabs)/(trades)/[id].tsx:168
+msgid "Notes"
+msgstr "メモ"
+
+#: src/app/(tabs)/(trades)/[id].tsx:138
+msgid "Notional"
+msgstr "想定元本"
+
+#. placeholder {0}: formatCurrency(goalAmount, currency)
+#: src/components/goal-card.tsx:34
+msgid "of {0}"
+msgstr "/ {0}"
+
+#: src/app/(tabs)/(trades)/[id].tsx:103
+#: src/app/(tabs)/(trades)/index.tsx:72
+#: src/components/performance-card.tsx:74
+#: src/components/trade-row.tsx:39
+msgid "Open"
+msgstr "オープン"
+
+#: src/app/(tabs)/(trades)/[id].tsx:38
+msgid "OPEN"
+msgstr "オープン"
+
+#: src/app/(tabs)/(trades)/[id].tsx:119
+msgid "Opened"
+msgstr "エントリー"
+
+#: src/app/(tabs)/(trades)/[id].tsx:141
+msgid "P&L"
+msgstr "損益"
+
+#: src/app/login.tsx:201
+msgid "Password"
+msgstr "パスワード"
+
+#: src/components/performance-card.tsx:42
+msgid "Performance"
+msgstr "パフォーマンス"
+
+#: src/components/performance-card.tsx:51
+msgid "PF"
+msgstr "PF"
+
+#: src/app/login.tsx:305
+msgid ""
+"Point the app at your own TraderMemos instance.\n"
+"Origin only — /api/v1 is added automatically."
+msgstr "自分の TraderMemos インスタンスに接続します。"
+
+#: src/app/(tabs)/(trades)/[id].tsx:131
+msgid "Position"
+msgstr "ポジション"
+
+#: src/app/(tabs)/(trades)/[id].tsx:132
+msgid "Quantity"
+msgstr "数量"
+
+#: src/app/(tabs)/(trades)/[id].tsx:152
+msgid "R multiple"
+msgstr "R倍率"
+
+#: src/app/(tabs)/(dashboard)/index.tsx:128
+msgid "Recent trades"
+msgstr "最近のトレード"
+
+#: src/app/(tabs)/(trades)/[id].tsx:134
+msgid "Remaining"
+msgstr "残数量"
+
+#: src/app/(tabs)/(trades)/index.tsx:81
+msgid "Search symbol or tag"
+msgstr "銘柄またはタグを検索"
+
+#: src/app/login.tsx:265
+msgid "Self-hosted — your trade data stays on your stack."
+msgstr "セルフホスト型 — トレードデータはあなたのサーバーに保存されます。"
+
+#: src/app/(tabs)/(settings)/index.tsx:40
+msgid "Server"
+msgstr "サーバー"
+
+#: src/app/(tabs)/_layout.tsx:35
+#: src/app/(tabs)/(settings)/_layout.tsx:21
+msgid "Settings"
+msgstr "設定"
+
+#: src/components/breakdown-card.tsx:22
+msgid "Setup"
+msgstr "セットアップ"
+
+#: src/components/trade-row.tsx:69
+msgid "Short"
+msgstr "ショート"
+
+#: src/app/(tabs)/(trades)/[id].tsx:97
+msgid "SHORT"
+msgstr "ショート"
+
+#: src/components/password-input.tsx:35
+msgid "Show password"
+msgstr "パスワードを表示"
+
+#: src/app/login.tsx:174
+#: src/app/login.tsx:244
+msgid "Sign in"
+msgstr "サインイン"
+
+#: src/app/login.tsx:123
+msgid "Sign in failed"
+msgstr "サインインに失敗しました"
+
+#: src/components/breakdown-card.tsx:23
+msgid "Symbol"
+msgstr "銘柄"
+
+#: src/app/(tabs)/(trades)/[id].tsx:156
+msgid "Tags"
+msgstr "タグ"
+
+#: src/app/(tabs)/(trades)/[id].tsx:128
+msgid "Time in trade"
+msgstr "保有時間"
+
+#: src/app/(tabs)/(trades)/[id].tsx:117
+msgid "Timing"
+msgstr "タイミング"
+
+#: src/components/insights-card.tsx:78
+msgid "Top symbol"
+msgstr "最多銘柄"
+
+#: src/components/mini-calendar-card.tsx:96
+msgid "Total"
+msgstr "合計"
+
+#: src/app/(tabs)/(trades)/[id].tsx:61
+msgid "Trade not found"
+msgstr "トレードが見つかりません"
+
+#: src/app/(tabs)/_layout.tsx:31
+#: src/app/(tabs)/(trades)/_layout.tsx:21
+msgid "Trades"
+msgstr "トレード"
+
+#: src/app/login.tsx:180
+msgid "Username"
+msgstr "ユーザー名"
+
+#: src/app/(tabs)/(settings)/index.tsx:62
+msgid "Version {appVersion}"
+msgstr "バージョン {appVersion}"
+
+#: src/app/(tabs)/(dashboard)/index.tsx:130
+msgid "View all"
+msgstr "すべて表示"
+
+#: src/components/performance-card.tsx:80
+msgid "Wash"
+msgstr "引き分け"
+
+#: src/app/login.tsx:175
+msgid "Welcome back."
+msgstr "おかえりなさい。"
+
+#: src/app/(tabs)/(trades)/[id].tsx:34
+msgid "WIN"
+msgstr "勝ち"
+
+#: src/components/insights-card.tsx:75
+msgid "Winning hold"
+msgstr "勝ち保有時間"
+
+#: src/components/insights-card.tsx:49
+msgid "wins"
+msgstr "連勝"
+
+#: src/app/(tabs)/(trades)/index.tsx:70
+#: src/components/performance-card.tsx:62
+msgid "Wins"
+msgstr "勝ち"
+
+#: src/components/insights-card.tsx:65
+msgid "Worst day"
+msgstr "最悪の日"
+
+#: src/components/insights-card.tsx:53
+msgid "Worst streak"
+msgstr "最長連敗"
+
+#: src/components/insights-card.tsx:37
+msgid "Worst trade"
+msgstr "最悪のトレード"
+
+#: src/app/(tabs)/(settings)/index.tsx:31
+msgid "You will need to sign in again to reach this server."
+msgstr "このサーバーに再度アクセスするにはサインインし直す必要があります。"
