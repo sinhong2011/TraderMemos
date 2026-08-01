@@ -1,0 +1,103 @@
+---
+title: FAQ & troubleshooting
+description: Answers to the questions new self-hosters actually hit — login, CORS, ports, uploads, data.
+---
+
+## Setup & login
+
+### The login screen says "Could not reach API — check Server URL"
+
+The SPA can't reach the API. Docker all-in-one: leave the **Server** field **blank** (the UI
+uses same-origin `/api/v1`). Split CDN + API: set **Server** to your API origin, e.g.
+`https://api.example.com` — `/api/v1` is appended automatically.
+
+### I never saw the setup wizard / it says "setup already complete"
+
+The wizard only appears while the database has **zero users**. If a user exists, sign in
+normally. Starting truly fresh means wiping the data volume
+(`docker compose down -v` — this **deletes your journal**).
+
+### Why can't anyone register?
+
+By design. After the owner is created, `POST /auth/register` returns 403 unless you set
+`TM_ALLOW_REGISTRATION=true`. Admins can also add users from the CLI:
+`docker compose exec api /tradermemos create-user --email … --password …`
+
+### My password is rejected
+
+Passwords must be at least **10 characters**.
+
+## Server & deployment
+
+### The API refuses to start: "insecure JWT secret"
+
+Intentional. Set a real secret — `TM_JWT_SECRET=$(openssl rand -hex 32)` — or, for throwaway
+local runs only, `TM_ALLOW_INSECURE_JWT=true` (the bundled Compose does this for first-run
+convenience; unset it in production).
+
+### Port 3000 (or 8080) is already in use
+
+Change the host-side port mapping in `docker-compose.yml` (e.g. `"3001:80"` on `web`). The
+API's own port is `TM_HTTP_PORT`.
+
+### Browser console shows CORS errors
+
+Only split deployments (UI and API on different origins) need CORS. Set `TM_CORS_ORIGINS` on
+the API to your exact SPA origin(s) — wildcards like `https://*.vercel.app` work. Same-origin
+setups (Docker all-in-one, edge rewrites) should leave it **empty**.
+
+### Can I run the API on Vercel or Cloudflare Workers?
+
+No — it's Go + SQLite + file uploads and needs a real disk. Host the API on Docker, a VPS,
+NAS, or Railway (with a volume); the one-click buttons deploy the **web UI only**.
+See [Fork & deploy](/en/docs/self-hosting/fork-deploy).
+
+### Where exactly is my data?
+
+Docker: the `tm_data` volume — `/data/tradermemos.db` plus `/data/attachments`. That volume
+is your journal; see [Backup & restore](/en/docs/self-hosting/backup-restore).
+
+### SQLite or Postgres?
+
+SQLite (default) is right for a personal instance — zero extra moving parts, one file to back
+up. Postgres (`make up-postgres`) suits multi-user or existing-infra setups. Moving between
+them: export ZIP, re-import.
+
+## Features
+
+### Uploads fail with 413
+
+The file exceeds a cap. API caps default to 10 MiB each (`TM_ATTACH_MAX_BYTES`,
+`TM_IMPORT_MAX_BYTES`, `TM_OCR_MAX_BYTES`); the bundled nginx allows 20 MB. Raise the
+relevant cap — and your reverse proxy's `client_max_body_size` —
+see [Configuration](/en/docs/self-hosting/configuration).
+
+### I imported the same file twice — do I have duplicates?
+
+No. Fills are deduplicated by symbol + side + quantity + price + timestamp; repeats count as
+*Skipped*. A bad import can also be reversed as a batch from the Import page.
+
+### My broker isn't listed as supported
+
+There's no broker list — any CSV with symbol / side / quantity / price / date columns imports
+via [column mapping](/en/docs/guides/importing-trades). Auto-detection recognizes most common
+header names.
+
+### Screenshot scan times out or errors
+
+Check **Settings → AI → Test**, confirm the model supports vision, and for slow/local models
+raise `TM_OCR_VISION_TIMEOUT_SEC` plus your proxy's read timeout
+(see [Reverse proxy](/en/docs/self-hosting/reverse-proxy)). "503 not configured" means
+enable + base URL + key haven't all been saved.
+
+### Is my trading data sent anywhere?
+
+No. Everything stays on your server. The two opt-in exceptions: AI features call the endpoint
+**you** configure, and market data (on by default, `TM_MARKET_DATA_ENABLED`) fetches quotes
+from the configured provider.
+
+## Still stuck?
+
+- Check the API logs: `make logs` (or `docker compose logs -f api`)
+- `curl http://localhost:3000/healthz` — confirms the API is up and shows the version
+- [Open an issue](https://github.com/sinhong2011/TraderMemos/issues) with the log output
