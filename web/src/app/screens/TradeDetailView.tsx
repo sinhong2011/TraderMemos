@@ -56,6 +56,8 @@ import {
   type TradeCoachNote,
   type TradeInsights,
 } from "@/lib/tradeInsights";
+import { useToastManager } from "@/components/Toast";
+import { useComputeExcursion } from "@/lib/hooks/useTradeDetail";
 import { useTradeCoach } from "@/lib/hooks/useTradeCoach";
 import {
   useAttachments,
@@ -914,6 +916,8 @@ export function TradeDetailView({
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [typedConfirm, setTypedConfirm] = useState("");
   const confirmInputId = useId();
+  const computeExcursion = useComputeExcursion();
+  const toast = useToastManager();
 
   // Placeholder heights mirror the real cards — summary, plan, chart — so the
   // page does not jump when the trade lands.
@@ -946,6 +950,26 @@ export function TradeDetailView({
 
   const insights = computeTradeInsights(trade);
   const canDelete = typedConfirm.trim().toUpperCase() === trade.symbol.trim().toUpperCase();
+
+  // Options chart their underlying, so bar-derived excursion would mislead.
+  const canAutoExcursion = trade.status === "closed" && trade.instrument_type !== "option";
+  const onAutoExcursion = () => {
+    computeExcursion.mutate(trade.id, {
+      onSuccess: (res) => {
+        const bars = res.interval === "D" ? "daily" : `${res.interval}-minute`;
+        toast.add({
+          title: "Excursion updated",
+          description: `MAE/MFE computed from ${res.bars_used} ${bars} bars.`,
+        });
+      },
+      onError: (err) => {
+        toast.add({
+          title: "Could not compute MAE/MFE",
+          description: err instanceof Error ? err.message : "Market data unavailable.",
+        });
+      },
+    });
+  };
 
   const closeDeleteModal = (open: boolean) => {
     setDeleteOpen(open);
@@ -1068,7 +1092,13 @@ export function TradeDetailView({
           filled, what should change, what did it look like. */}
       <TradeSummaryCard trade={trade} insights={insights} />
 
-      <TradePlanCard trade={trade} insights={insights} onEdit={onEdit} />
+      <TradePlanCard
+        trade={trade}
+        insights={insights}
+        onEdit={onEdit}
+        onAutoExcursion={canAutoExcursion ? onAutoExcursion : undefined}
+        autoExcursionPending={computeExcursion.isPending}
+      />
 
       <Card flush className="pt-4">
         <TradeChartSection trade={trade} />

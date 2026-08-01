@@ -14,6 +14,7 @@ func (s *Server) tradeRoutes(g *echo.Group) {
 	g.GET("/trades", s.handleListTrades)
 	g.GET("/trades/:id", s.handleGetTrade)
 	g.POST("/trades/:id/coach", s.handleTradeCoach)
+	g.POST("/trades/:id/excursion", s.handleTradeExcursion)
 	g.PATCH("/trades/:id", s.handlePatchTrade)
 	g.DELETE("/trades/:id", s.handleDeleteTrade)
 	g.POST("/trades/regroup", s.handleRegroup)

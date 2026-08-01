@@ -1,5 +1,6 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Toaster } from "@/components/Toaster";
 import { type ColumnDef, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import userEvent from "@testing-library/user-event";
 import type { ReactElement } from "react";
@@ -96,7 +97,11 @@ function renderView(ui: ReactElement) {
   const qc = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   });
-  return render(<QueryClientProvider client={qc}>{ui}</QueryClientProvider>);
+  return render(
+    <QueryClientProvider client={qc}>
+      <Toaster>{ui}</Toaster>
+    </QueryClientProvider>,
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -332,6 +337,41 @@ describe("TradeDetailView", () => {
     );
     expect(screen.getByText(/No plan recorded/i)).toBeInTheDocument();
     expect(screen.queryByText("Planned R:R")).not.toBeInTheDocument();
+    // A closed stock trade can still auto-fill excursion from bars.
+    expect(
+      screen.getByRole("button", { name: /Auto-fill MAE\/MFE from market data/i }),
+    ).toBeInTheDocument();
+  });
+
+  it("computes MAE/MFE from bars via the plan card", async () => {
+    const { apiFetch } = await import("../../lib/api/client");
+    // Route only the excursion call; other queries (attachments…) keep the
+    // undefined default so this stub cannot leak into later tests.
+    vi.mocked(apiFetch).mockImplementation(async (path: unknown) =>
+      String(path).endsWith("/excursion")
+        ? { mae: 120, mfe: 300, interval: "1", bars_used: 42, provider: "yahoo" }
+        : undefined,
+    );
+    renderView(<TradeDetailView {...defaultProps} />);
+    await userEvent.click(screen.getByRole("button", { name: /Recompute from bars/i }));
+    expect(vi.mocked(apiFetch).mock.calls).toContainEqual([
+      "/trades/t1/excursion",
+      { method: "POST" },
+    ]);
+    expect(await screen.findByText("Excursion updated")).toBeInTheDocument();
+    vi.mocked(apiFetch).mockReset();
+  });
+
+  it("hides auto excursion for open trades and options", () => {
+    const { unmount } = renderView(
+      <TradeDetailView {...defaultProps} trade={{ ...mockTrade, status: "open" }} />,
+    );
+    expect(screen.queryByRole("button", { name: /from bars/i })).not.toBeInTheDocument();
+    unmount();
+    renderView(
+      <TradeDetailView {...defaultProps} trade={{ ...mockTrade, instrument_type: "option" }} />,
+    );
+    expect(screen.queryByRole("button", { name: /from bars/i })).not.toBeInTheDocument();
   });
 
   it("collapses coach when the header is clicked", async () => {
