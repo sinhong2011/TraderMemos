@@ -11,6 +11,7 @@ import {
 } from "recharts";
 import { AnnualGoalCard } from "@/components/AnnualGoalCard";
 import { DailyLossCard } from "@/components/DailyLossCard";
+import { PropStatusCard } from "@/components/PropStatusCard";
 import { Card } from "@/components/Card";
 import { ChartFrame, chartTheme, chartTooltipStyle } from "@/components/ChartFrame";
 import { HomeAccountContribution } from "@/components/HomeAccountContribution";
@@ -359,6 +360,8 @@ export function HomeView({
       </div>
 
       <DailyLossCard todayNetPnl={todayNetPnl} currency={currency} fxRate={fxRate} />
+
+      <PropStatusCard accounts={accounts} selectedAccountId={selectedAccountId} />
 
       <AnnualGoalCard
         year={goalYear}

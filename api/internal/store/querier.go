@@ -30,6 +30,7 @@ type Querier interface {
 	DeleteExecutionsForTrade(ctx context.Context, arg DeleteExecutionsForTradeParams) error
 	DeleteJournalNote(ctx context.Context, arg DeleteJournalNoteParams) (int64, error)
 	DeleteMediaFile(ctx context.Context, arg DeleteMediaFileParams) (int64, error)
+	DeletePropSettings(ctx context.Context, arg DeletePropSettingsParams) error
 	DeleteSetup(ctx context.Context, arg DeleteSetupParams) (int64, error)
 	DeleteTag(ctx context.Context, arg DeleteTagParams) (int64, error)
 	DeleteTrade(ctx context.Context, arg DeleteTradeParams) (int64, error)
@@ -51,6 +52,7 @@ type Querier interface {
 	GetMarketBarsCache(ctx context.Context, cacheKey string) (MarketBarsCache, error)
 	GetMediaFile(ctx context.Context, arg GetMediaFileParams) (MediaFile, error)
 	GetOcrSettings(ctx context.Context) (GetOcrSettingsRow, error)
+	GetPropSettings(ctx context.Context, arg GetPropSettingsParams) (PropSetting, error)
 	GetRiskRules(ctx context.Context, userID string) (RiskRule, error)
 	GetSetup(ctx context.Context, arg GetSetupParams) (Setup, error)
 	GetTrade(ctx context.Context, arg GetTradeParams) (Trade, error)
@@ -103,6 +105,7 @@ type Querier interface {
 	UpsertInstrumentSpec(ctx context.Context, arg UpsertInstrumentSpecParams) error
 	UpsertMarketBarsCache(ctx context.Context, arg UpsertMarketBarsCacheParams) error
 	UpsertOcrSettings(ctx context.Context, arg UpsertOcrSettingsParams) (OcrSetting, error)
+	UpsertPropSettings(ctx context.Context, arg UpsertPropSettingsParams) (PropSetting, error)
 	UpsertRiskRules(ctx context.Context, arg UpsertRiskRulesParams) (RiskRule, error)
 	UpsertTrade(ctx context.Context, arg UpsertTradeParams) error
 	UpsertTradeJournal(ctx context.Context, arg UpsertTradeJournalParams) error

@@ -17,6 +17,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { EmptyState } from "@/components/EmptyState";
 import { LlmApiSettingsForm } from "@/components/LlmApiSettingsForm";
 import { ModeToggle } from "@/components/ModeToggle";
+import { PropRulesButton } from "@/components/PropRulesModal";
 import { Modal } from "@/components/Modal";
 import { AmountInput } from "@/components/AmountInput";
 import { DatePicker } from "@/components/DatePicker";
@@ -762,11 +763,16 @@ export function AccountsTab({
                         </div>
                       }
                       footerActions={
-                        <ClearTradesButton
-                          accountName={acc.name}
-                          tradeCount={tradeCount}
-                          onClear={() => void handleClearAccountTrades(acc.id)}
-                        />
+                        <>
+                          {acc.account_type === "prop" ? (
+                            <PropRulesButton accountId={acc.id} accountName={acc.name} />
+                          ) : null}
+                          <ClearTradesButton
+                            accountName={acc.name}
+                            tradeCount={tradeCount}
+                            onClear={() => void handleClearAccountTrades(acc.id)}
+                          />
+                        </>
                       }
                     />
                   );
