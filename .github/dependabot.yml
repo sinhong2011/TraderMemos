@@ -1,0 +1,40 @@
+# Weekly grouped dependency updates. chore(deps) prefix keeps release-please
+# from version-bumping for dependency PRs.
+version: 2
+updates:
+  - package-ecosystem: gomod
+    directory: /api
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: chore
+      include: scope
+    groups:
+      go-deps:
+        patterns:
+          - "*"
+
+  - package-ecosystem: npm
+    directory: /web
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: chore
+      include: scope
+    groups:
+      web-deps-minor:
+        update-types:
+          - minor
+          - patch
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: chore
+      include: scope
+    groups:
+      actions:
+        patterns:
+          - "*"
