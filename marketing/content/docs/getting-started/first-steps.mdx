@@ -1,0 +1,73 @@
+---
+title: First steps
+description: From the setup wizard to your first reviewed trade — a tour of the app for new users.
+---
+
+You've [got it running](/en/docs/getting-started/quick-start) — here's the path from empty
+instance to a journal that tells you something.
+
+## 1. The setup wizard
+
+On first visit, TraderMemos detects an empty database and shows a one-time setup:
+
+1. **Owner account** — a login name and password (min 10 characters). This is the admin;
+   public registration stays closed afterwards unless you enable `TM_ALLOW_REGISTRATION`.
+2. **Trading account** — name (default *Main*), currency, and starting balance. The balance
+   becomes an *Opening balance* deposit in your cash ledger.
+3. **Optional import** — drop a CSV or a TraderMemos JSON backup to seed the journal, or skip
+   and start empty. You can always import later.
+
+Every new user starts with nine common playbook setups (Pullback, Breakout, Reversal, …) —
+rename or replace them under **Playbook**.
+
+## 2. Get trades in
+
+Three ways, mix freely:
+
+- **Import a broker CSV** — the fastest way to a populated journal.
+  See [Importing trades](/en/docs/guides/importing-trades).
+- **New Trade** (hotkey `n`) — manual entry with execution rows, setup, tags, emotion,
+  screenshots, and notes. With [AI features](/en/docs/guides/ai-features) enabled,
+  **Scan to fill** extracts the fills from a broker screenshot.
+- **Just exploring?** Seed ~200 realistic demo trades:
+  ```bash
+  make demo-seed API=http://localhost:3000/api/v1 EMAIL=you@example.com PASSWORD='…'
+  ```
+
+Fills are grouped into trades automatically (scale-ins and scale-outs included), and
+duplicates are always skipped — so nothing here can double-count.
+
+## 3. Find your way around
+
+| Page | Hotkey | What it's for |
+|------|--------|---------------|
+| **Dashboard** | `G` `D` | Equity curve, P&L hero, streaks, expectancy, goal pacing |
+| **Trades** | `G` `T` | The trade log — filter, sort, drill into fills and journal detail |
+| **Calendar** | `G` `C` | Daily/weekly P&L heatmap with drill-down |
+| **Reports** | `G` `S` | Win rate, profit factor, expectancy; setup / hourly / session breakdowns |
+| **Notes** | `G` `N` | Freeform notes and daily logs |
+| **Playbook** | `G` `P` | Your setups, each linked to the trades that used it |
+| **Import** | `G` `I` | Import & export |
+| **Settings** | `⌘` `,` | Accounts, risk rules, AI, API tokens |
+
+`⌘K` opens the command palette from anywhere.
+
+## 4. Build the review habit
+
+The journal pays off in the loop, not the log:
+
+1. **Tag every trade** with a setup from your playbook (plus mistakes and emotion when
+   relevant) — untagged trades can't teach you anything.
+2. **Check Reports weekly** — the setup breakdown shows which patterns actually make money;
+   Playbook ranks them by expectancy and profit factor.
+3. **Set guardrails** — **Settings → Rules** holds risk limits (max risk per trade, max daily
+   loss) that the New Trade compliance check enforces, and an annual goal the Dashboard paces.
+4. **Size consistently** — the position-size calculator (`⌘⇧P`) works off your account equity
+   and default risk %.
+
+## 5. Before you rely on it
+
+Two minutes of ops hygiene for real data:
+
+- Production hardening — JWT secret and TLS: [Deploy](/en/docs/self-hosting/deploy)
+- Automatic backups: [Backup & restore](/en/docs/self-hosting/backup-restore)
