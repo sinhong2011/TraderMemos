@@ -1,31 +1,36 @@
+# Lint, typecheck, test, and build the SPA. Runs on every PR and push to main,
+# and is reused by docker-publish.yml so release builds run the exact same
+# checks. The "Test web" job is a required status check on main (repo ruleset).
+
 name: Web CI
 
 on:
   push:
-    paths:
-      - "web/**"
-      - ".github/workflows/web-ci.yml"
+    branches:
+      - main
   pull_request:
-    paths:
-      - "web/**"
-      - ".github/workflows/web-ci.yml"
+  workflow_call:
+
+concurrency:
+  group: web-ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 defaults:
   run:
     working-directory: web
 
 jobs:
-  build:
-    name: Build SPA
+  test-web:
+    name: Test web
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         with:
           version: 11.16.0
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version-file: web/.node-version
           cache: pnpm
@@ -33,6 +38,12 @@ jobs:
 
       - name: Install
         run: pnpm install --frozen-lockfile
+
+      - name: Lint and typecheck
+        run: pnpm run check
+
+      - name: Test
+        run: pnpm run test
 
       - name: Build
         run: pnpm run build

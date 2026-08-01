@@ -36,9 +36,10 @@ describe("ytdFiltersForYear", () => {
     expect(f.to?.startsWith("2026-07-25")).toBe(true);
   });
 
-  it("uses full calendar year for past years", () => {
+  it("uses full calendar year for past years, bounded on the trader's clock", () => {
     const f = ytdFiltersForYear({}, 2024, new Date(2026, 0, 1));
-    expect(f.from).toBe("2024-01-01T00:00:00Z");
-    expect(f.to).toBe("2024-12-31T23:59:59Z");
+    // Default display timezone is US Eastern (EST in Jan/Dec).
+    expect(f.from).toBe("2024-01-01T00:00:00-05:00");
+    expect(f.to).toBe("2024-12-31T23:59:59-05:00");
   });
 });

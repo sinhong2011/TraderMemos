@@ -163,7 +163,12 @@ function DrawerBody({ className, ...props }: ComponentProps<"div">) {
   return (
     <div
       data-slot="drawer-body"
-      className={cn("flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4 sm:p-5", className)}
+      // scrollbar-gutter keeps fields from shifting sideways when typing grows
+      // the content past the fold and a classic scrollbar appears.
+      className={cn(
+        "flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4 [scrollbar-gutter:stable] sm:p-5",
+        className,
+      )}
       {...props}
     />
   );

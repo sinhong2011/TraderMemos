@@ -4,7 +4,9 @@ TraderMemos uses [release-please](https://github.com/googleapis/release-please) 
 
 ## Day to day
 
-1. Merge PRs to `main` with **Conventional Commit** titles (squash-merge recommended).
+1. Merge PRs to `main` with **Conventional Commit** titles. Merges are
+   squash-only and the PR title becomes the commit subject; the
+   "Conventional PR title" check blocks non-conventional titles.
 2. release-please opens or updates a **Release PR** (`chore: release X.Y.Z`).
 3. Review the changelog and version bumps (`VERSION`, `web/package.json`, `CHANGELOG.md`).
 4. Merge the Release PR → GitHub Release `vX.Y.Z` is created and Docker images are published.
@@ -22,11 +24,17 @@ Pre-1.0, `feat:` bumps **patch** (`0.1.0` → `0.1.1`) via `bump-patch-for-minor
 
 ### Force a version
 
-Add to the squash-merge commit body:
+Add to the PR description (it becomes the squash-merge commit body):
 
 ```text
 Release-As: 0.2.0
 ```
+
+### Release notes granularity
+
+Each release lists the conventional commits merged since the previous tag.
+Merging the Release PR after every feature PR yields one-line releases;
+letting a few PRs accumulate before merging it yields fuller notes.
 
 ## Version files
 
@@ -43,6 +51,8 @@ On release, `.github/workflows/release-please.yml` chains `docker-publish.yml` w
 
 You can still run **Publish Docker images** manually via `workflow_dispatch`.
 
-## Bootstrap note
+## CI gates
 
-`release-please-config.json` includes `bootstrap-sha` so the first automated release only includes commits **after** release-please was added. Remove that key after the first merged Release PR.
+`Test API`, `Test web`, and `Conventional PR title` are required status checks
+on `main`. The same test jobs are reused by `docker-publish.yml`, so a release
+can never publish images that skipped tests.

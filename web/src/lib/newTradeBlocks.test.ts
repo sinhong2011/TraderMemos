@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vite-plus/test";
+import type { TradeExtract } from "./api/ocr";
 import type { Execution, TradeDetail } from "./api/types";
-import { flattenSymbolTradesToExecutions, symbolTradeFromDetail } from "./newTradeBlocks";
+import {
+  flattenSymbolTradesToExecutions,
+  rowsFromOcrExtract,
+  symbolTradeFromDetail,
+} from "./newTradeBlocks";
 
 const fillBuy: Execution = {
   id: "f1",
@@ -71,6 +76,48 @@ const trade: TradeDetail = {
   total_pnl: 60.57,
   attachments: [],
 };
+
+describe("rowsFromOcrExtract", () => {
+  const extract = (executed_at: string): TradeExtract => ({
+    symbol: "INTC",
+    instrument_type: "option",
+    side: "long",
+    confidence: 0.9,
+    raw_text: "",
+    warnings: [],
+    rows: [
+      {
+        symbol: "INTC",
+        side: "buy",
+        quantity: 4,
+        price: 1.95,
+        fees: 2.73,
+        commission: 0,
+        executed_at,
+        option_right: "put",
+        strike: 92,
+        expiry: "2026-08-03",
+      },
+    ],
+  });
+
+  it("keeps OCR wall-clock time literal even when the model appends Z", () => {
+    // Broker screenshots show local wall-clock time; the fabricated UTC offset
+    // must not shift it (22:06 was becoming 06:06 next day in UTC+8).
+    const rows = rowsFromOcrExtract(extract("2026-07-31T22:06:33Z"), "long");
+    expect(rows[0]?.executed_at).toBe("2026-07-31T22:06:33");
+  });
+
+  it("keeps wall-clock time when the model appends a numeric offset", () => {
+    const rows = rowsFromOcrExtract(extract("2026-07-31T22:06:33-04:00"), "long");
+    expect(rows[0]?.executed_at).toBe("2026-07-31T22:06:33");
+  });
+
+  it("fills missing seconds", () => {
+    const rows = rowsFromOcrExtract(extract("2026-07-31 22:06"), "long");
+    expect(rows[0]?.executed_at).toBe("2026-07-31T22:06:00");
+  });
+});
 
 describe("symbolTradeFromDetail", () => {
   it("maps fills, option contract, and journal into a symbol block", () => {

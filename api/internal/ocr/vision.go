@@ -154,7 +154,7 @@ Return ONLY JSON with this shape:
       "price": 0,
       "fees": 0,
       "commission": 0,
-      "executed_at": "RFC3339 or empty",
+      "executed_at": "YYYY-MM-DDTHH:MM:SS or empty",
       "option_right": "call|put|",
       "strike": 0,
       "expiry": "YYYY-MM-DD or empty"
@@ -165,6 +165,7 @@ Return ONLY JSON with this shape:
 Rules:
 - Works for any broker UI — do not assume a specific layout.
 - Prefer fill/execution price over limit price.
+- executed_at is the date/time exactly as shown on screen — never convert timezones or append an offset/"Z".
 - Map broker commission into fees when only one cost is shown; leave commission 0.
 - Include every distinct fill visible — when multiple underlyings appear, emit a row per fill with that row's symbol.
 - Set top-level "symbol" to the majority underlying; still keep every ticker on its rows.

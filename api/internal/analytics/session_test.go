@@ -29,6 +29,16 @@ func TestSessionName(t *testing.T) {
 func TestHourBucketUTC(t *testing.T) {
 	ts, err := time.Parse(time.RFC3339, "2026-01-02T14:45:00Z")
 	require.NoError(t, err)
-	require.Equal(t, "14:00", HourBucket(ts))
-	require.Equal(t, "Friday", WeekdayName(ts))
+	require.Equal(t, "14:00", HourBucket(ts, nil))
+	require.Equal(t, "Friday", WeekdayName(ts, nil))
+}
+
+func TestHourBucketTraderClock(t *testing.T) {
+	hk, err := time.LoadLocation("Asia/Hong_Kong")
+	require.NoError(t, err)
+	// 2026-01-02 23:45 UTC = 2026-01-03 07:45 in Hong Kong (UTC+8).
+	ts, err := time.Parse(time.RFC3339, "2026-01-02T23:45:00Z")
+	require.NoError(t, err)
+	require.Equal(t, "07:00", HourBucket(ts, hk))
+	require.Equal(t, "Saturday", WeekdayName(ts, hk))
 }

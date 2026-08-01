@@ -28,10 +28,13 @@ jobs:
       releases_created: ${{ steps.release.outputs.releases_created }}
       version: ${{ steps.release.outputs.version }}
     steps:
-      - uses: googleapis/release-please-action@v4
+      # With a RELEASE_PLEASE_TOKEN PAT (contents + pull-requests write), the
+      # Release PR triggers CI like a human PR — no per-release run approval.
+      # Falls back to GITHUB_TOKEN, whose PRs need manual workflow approval.
+      - uses: googleapis/release-please-action@v5
         id: release
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN || secrets.GITHUB_TOKEN }}
 
   publish-docker:
     name: Publish Docker images

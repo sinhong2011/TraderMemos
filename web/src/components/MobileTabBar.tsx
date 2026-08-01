@@ -39,14 +39,14 @@ function TabLink({
       aria-current={active ? "page" : undefined}
       // z-[1] keeps the glyph and label above the sliding pill behind them.
       className={cn(
-        "relative z-[1] flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-full py-1.5 no-underline",
+        "relative z-[1] flex min-w-0 flex-1 flex-col items-center justify-center gap-px rounded-full py-0.5 no-underline",
         "transition-[color,scale] duration-200 ease-out",
         "active:scale-95 motion-reduce:transition-none motion-reduce:active:scale-100",
         active ? "text-primary" : "text-muted-foreground",
       )}
     >
       <Icon
-        size={19}
+        size={17}
         strokeWidth={active ? 2 : 1.75}
         className={cn(
           "transition-transform motion-reduce:transition-none",
@@ -56,7 +56,7 @@ function TabLink({
       />
       <span
         className={cn(
-          "max-w-full truncate text-[10px] tracking-wide",
+          "max-w-full truncate text-[10px] leading-tight tracking-wide",
           "transition-[font-weight,opacity] duration-200 ease-out motion-reduce:transition-none",
           active ? "font-semibold" : "font-medium opacity-80",
         )}
@@ -76,7 +76,7 @@ function MoreButton({ label }: { label: string }) {
       aria-label={label}
       onClick={openMobileNav}
       className={cn(
-        "relative z-[1] flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-full py-1.5 no-underline",
+        "relative z-[1] flex min-w-0 flex-1 flex-col items-center justify-center gap-px rounded-full py-0.5 no-underline",
         "transition-[color,scale] duration-200 ease-out",
         "active:scale-95 motion-reduce:transition-none motion-reduce:active:scale-100",
         "text-muted-foreground hover:text-foreground",
@@ -84,13 +84,16 @@ function MoreButton({ label }: { label: string }) {
       )}
     >
       <Menu
-        size={19}
+        size={17}
         strokeWidth={1.75}
         className="transition-transform motion-reduce:transition-none"
         style={{ transitionDuration: TAB_DURATION, transitionTimingFunction: TAB_EASE }}
       />
       <span
-        className={cn("max-w-full truncate text-[10px] tracking-wide", "font-medium opacity-80")}
+        className={cn(
+          "max-w-full truncate text-[10px] leading-tight tracking-wide",
+          "font-medium opacity-80",
+        )}
       >
         {label}
       </span>
@@ -167,7 +170,7 @@ export function MobileTabBar() {
         ref={navRef}
         aria-label="Main navigation"
         className={cn(
-          "pointer-events-auto relative flex min-w-0 flex-1 items-stretch gap-0.5 rounded-full p-1.5",
+          "pointer-events-auto relative flex min-w-0 flex-1 items-stretch gap-0.5 rounded-full p-1",
           floatingSurfaceClass,
         )}
       >

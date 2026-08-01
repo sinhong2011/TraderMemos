@@ -1,4 +1,3 @@
-import { Autocomplete as AutocompletePrimitive } from "@base-ui/react/autocomplete";
 import { ChevronDown, Loader2, RefreshCw, X } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import {
@@ -7,6 +6,7 @@ import {
   AutocompleteEmpty,
   AutocompleteInput,
   AutocompleteItem as AutocompleteOption,
+  AutocompleteList,
   AutocompletePopup,
   AutocompleteTrigger,
 } from "@/components/ui/autocomplete";
@@ -111,7 +111,10 @@ export function Autocomplete({
           />
           <div className="absolute top-1/2 right-1 z-10 flex -translate-y-1/2 items-center gap-0.5">
             {showClear ? (
-              <AutocompleteClear className={autocompleteActionClass} aria-label="Clear">
+              <AutocompleteClear
+                className={cn(autocompleteActionClass, "static end-auto top-auto translate-y-0")}
+                aria-label="Clear"
+              >
                 <X size={13} strokeWidth={1.75} aria-hidden />
               </AutocompleteClear>
             ) : null}
@@ -145,13 +148,13 @@ export function Autocomplete({
           <AutocompleteEmpty className="px-3 py-2.5 text-center text-[12px] text-muted-foreground">
             {emptyText}
           </AutocompleteEmpty>
-          <AutocompletePrimitive.List className={overlayListClass}>
+          <AutocompleteList className={overlayListClass}>
             {(item: AutocompleteItem) => (
               <AutocompleteOption key={item.value} value={item} className={overlayItemClass}>
                 <span className="min-w-0 flex-1 truncate">{item.label}</span>
               </AutocompleteOption>
             )}
-          </AutocompletePrimitive.List>
+          </AutocompleteList>
         </AutocompletePopup>
       </AutocompleteRoot>
     </div>

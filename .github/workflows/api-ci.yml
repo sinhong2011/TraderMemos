@@ -1,0 +1,40 @@
+# Vet, test, and build the Go API. Runs on every PR and push to main, and is
+# reused by docker-publish.yml so release builds run the exact same checks.
+# The "Test API" job is a required status check on main (repo ruleset).
+
+name: API CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_call:
+
+concurrency:
+  group: api-ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  test-api:
+    name: Test API
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-go@v7
+        with:
+          go-version: "1.26.1"
+          cache-dependency-path: api/go.sum
+
+      - name: Vet
+        run: go vet ./...
+
+      - name: Test
+        run: go test ./...
+
+      - name: Build
+        run: go build ./...

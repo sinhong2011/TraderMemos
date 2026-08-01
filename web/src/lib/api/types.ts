@@ -10,6 +10,8 @@ export interface Filters {
   duration?: string;
   /** Attribute date filters / daily buckets by close or open timestamp. */
   date_basis?: "close" | "open";
+  /** IANA timezone for day / hour / weekday bucketing (server-side). */
+  tz?: string;
 }
 
 export interface Tokens {

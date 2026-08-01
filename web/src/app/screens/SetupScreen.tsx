@@ -3,7 +3,7 @@ import { useId, useState } from "react";
 import { AuthShell } from "@/components/AuthShell";
 import { CsvDropZone } from "@/components/CsvDropZone";
 import { Field } from "@/components/Field";
-import { fieldLabelClass } from "@/components/field-styles";
+import { authFieldClass, fieldLabelClass } from "@/components/field-styles";
 import { FormInput, PasswordInput } from "@/components/FormInput";
 import { Modal } from "@/components/Modal";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -215,6 +215,7 @@ export function SetupScreen() {
                 autoFocus
                 required
                 spellCheck={false}
+                className={authFieldClass}
               />
             </Field>
 
@@ -230,6 +231,7 @@ export function SetupScreen() {
                 placeholder={`At least ${MIN_PASSWORD} characters`}
                 autoComplete="new-password"
                 required
+                className={authFieldClass}
               />
             </Field>
 
@@ -241,6 +243,7 @@ export function SetupScreen() {
                 placeholder="Repeat password"
                 autoComplete="new-password"
                 required
+                className={authFieldClass}
               />
             </Field>
 
@@ -257,6 +260,7 @@ export function SetupScreen() {
                 placeholder="Main"
                 required
                 spellCheck={false}
+                className={authFieldClass}
               />
             </Field>
 
@@ -269,6 +273,7 @@ export function SetupScreen() {
                   onChange={(e) => setCurrency(e.target.value)}
                   placeholder="USD"
                   spellCheck={false}
+                  className={authFieldClass}
                 />
               </Field>
               <Field
@@ -284,6 +289,7 @@ export function SetupScreen() {
                   onChange={(e) => setBalance(e.target.value)}
                   placeholder="10000"
                   spellCheck={false}
+                  className={authFieldClass}
                 />
               </Field>
             </div>

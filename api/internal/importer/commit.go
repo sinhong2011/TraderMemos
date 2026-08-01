@@ -42,10 +42,7 @@ func Commit(ctx context.Context, q store.Querier, userID, accountID string, batc
 	skippedLots := map[string]bool{}
 
 	for _, pe := range parsed.Executions {
-		mult := pe.Multiplier
-		if mult == 0 {
-			mult = DefaultMultiplier(pe.InstrumentType)
-		}
+		mult := ResolveMultiplier(ctx, q, pe.InstrumentType, pe.Symbol, pe.Multiplier)
 		if pe.LotKey != "" && skippedLots[pe.LotKey] {
 			res.Skipped++
 			continue

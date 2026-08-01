@@ -90,8 +90,8 @@ function ReportsPage() {
   const tradesQ = useTrades(analyticsFilters);
   const dayTrades = useMemo(() => {
     if (!selectedDay) return [];
-    return tradesOnDay(tradesQ.data ?? [], selectedDay, "close");
-  }, [selectedDay, tradesQ.data]);
+    return tradesOnDay(tradesQ.data ?? [], selectedDay, "close", analyticsFilters.tz);
+  }, [selectedDay, tradesQ.data, analyticsFilters.tz]);
   const breakdownQ = useBreakdown(dim, analyticsFilters);
   const dayOfWeekBreakdownQ = useBreakdown("day_of_week", analyticsFilters);
   const hourOfDayBreakdownQ = useBreakdown("hour_of_day", analyticsFilters);

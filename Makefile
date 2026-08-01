@@ -1,6 +1,6 @@
 export PATH := $(HOME)/.local/share/pnpm:$(HOME)/go/bin:$(PATH)
 
-.PHONY: help setup setup-mobile dev dev-api dev-web dev-mobile run-ios build test test-api test-web lint lint-api lint-web lint-mobile check check-web check-mobile e2e sqlc kill up up-build up-postgres up-postgres-build down logs
+.PHONY: help setup setup-mobile dev dev-api dev-web dev-mobile run-ios build test test-api test-web lint lint-api lint-web lint-mobile check check-web check-mobile e2e sqlc kill up up-build up-postgres up-postgres-build down logs demo-seed
 
 # Default: show available targets
 help: ## List available targets
@@ -111,3 +111,15 @@ down: ## Stop docker compose stack
 
 logs: ## Tail docker compose logs
 	docker compose logs -f
+
+## --- demo ---
+
+# Seeds ~200 generated trades over the last ~3 months through the public API.
+# Override API/EMAIL/PASSWORD for a deployed instance, e.g.
+#   make demo-seed API=https://demo.example.com/api/v1 EMAIL=demo@example.com PASSWORD=…
+API      ?= http://localhost:3000/api/v1
+EMAIL    ?= demo@example.com
+PASSWORD ?= demo-password-change-me
+
+demo-seed: ## Seed an instance with the demo dataset (API/EMAIL/PASSWORD overridable)
+	python3 scripts/seed-demo.py --api "$(API)" --email "$(EMAIL)" --password "$(PASSWORD)"

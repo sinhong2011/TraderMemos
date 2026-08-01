@@ -1,0 +1,29 @@
+# Enforce Conventional Commit PR titles. Squash merges use the PR title as the
+# commit subject (repo setting), and release-please derives versions and the
+# changelog from those subjects — a non-conventional title would silently skip
+# the changelog. "Conventional PR title" is a required status check on main.
+#
+# pull_request_target is safe here: no checkout, no execution of PR code.
+# Both triggers are needed: pull_request_target does not fire for PRs created
+# by release-please's GITHUB_TOKEN (recursion prevention), while pull_request
+# does — without it the required check never reports on Release PRs.
+
+name: PR title
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+  pull_request_target:
+    types: [opened, edited, reopened, synchronize]
+
+permissions:
+  pull-requests: read
+
+jobs:
+  lint:
+    name: Conventional PR title
+    runs-on: ubuntu-latest
+    steps:
+      - uses: amannn/action-semantic-pull-request@v6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

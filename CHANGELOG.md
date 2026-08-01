@@ -5,6 +5,20 @@ All notable changes to TraderMemos are documented in this file.
 Release versioning is managed by [release-please](https://github.com/googleapis/release-please).
 See [docs/release.md](docs/release.md) for the release workflow.
 
+## [0.1.8](https://github.com/sinhong2011/TraderMemos/compare/v0.1.7...v0.1.8) (2026-08-01)
+
+
+### Bug Fixes
+
+* **web:** pin the clock in DateRangePicker tests ([#14](https://github.com/sinhong2011/TraderMemos/issues/14)) ([6240556](https://github.com/sinhong2011/TraderMemos/commit/6240556b2cb8c70d3d8b9d13aa21aebfb28eef71))
+
+## [0.1.7](https://github.com/sinhong2011/TraderMemos/compare/v0.1.6...v0.1.7) (2026-08-01)
+
+
+### Documentation
+
+* rebuild the README around product screenshots ([#12](https://github.com/sinhong2011/TraderMemos/issues/12)) ([2fa2c4d](https://github.com/sinhong2011/TraderMemos/commit/2fa2c4d92ad1061fd1378b4fa80cbbb448622d89))
+
 ## [0.1.6](https://github.com/sinhong2011/TraderMemos/compare/v0.1.5...v0.1.6) (2026-07-30)
 
 

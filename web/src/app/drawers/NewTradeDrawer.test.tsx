@@ -194,13 +194,14 @@ describe("NewTradeDrawer", () => {
     );
   });
 
-  it("renders a per-symbol result preview plus a rolled-up one at the form bottom", async () => {
+  it("renders a per-symbol result preview plus an after-save summary at the form bottom", async () => {
     const user = userEvent.setup();
     wrap(<NewTradeDrawer />);
     await user.type(screen.getByLabelText("Symbol"), "AAPL");
     await user.type(screen.getByLabelText(/Qty row 1/), "10");
     await user.type(screen.getByLabelText(/Price row 1/), "100");
-    expect((await screen.findAllByTestId("trade-result-preview")).length).toBeGreaterThanOrEqual(2);
+    expect(await screen.findByTestId("trade-result-preview")).toBeVisible();
+    expect(await screen.findByTestId("after-save-result-preview")).toBeVisible();
     await user.click(screen.getByRole("button", { name: "Add symbol" }));
     expect(await screen.findByTestId("batch-trade-result-preview")).toBeVisible();
   });

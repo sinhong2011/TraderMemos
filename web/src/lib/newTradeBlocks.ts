@@ -23,12 +23,29 @@ import { parseAmountToNumber } from "./amountInput";
 import { defaultOcrSymbol, filterOcrExtractBySymbol, groupOcrBySymbol } from "./ocrSymbolGroups";
 import { gradeFromInt, parseEmotionalStates } from "./tradeGrades";
 
+const pad2 = (n: number) => String(n).padStart(2, "0");
+
+function nowDatetimeLocal(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}T${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`;
+}
+
 function toDatetimeLocal(iso: string): string {
-  if (!iso.trim()) return new Date().toISOString().slice(0, 19);
+  if (!iso.trim()) return nowDatetimeLocal();
   const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return new Date().toISOString().slice(0, 19);
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  if (Number.isNaN(d.getTime())) return nowDatetimeLocal();
+  return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}T${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`;
+}
+
+/**
+ * OCR timestamps are the broker's on-screen wall-clock time; any offset the
+ * vision model appends (RFC3339 forces one, so it invents "Z") is fiction.
+ * Keep the literal date/time digits instead of converting between zones.
+ */
+function ocrWallClockToDatetimeLocal(raw: string): string {
+  const m = raw.trim().match(/^(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2})(:\d{2})?/);
+  if (m) return `${m[1]}T${m[2]}${m[3] ?? ":00"}`;
+  return toDatetimeLocal(raw);
 }
 
 function formatNumField(n: number | undefined | null): string {
@@ -49,7 +66,7 @@ export function rowsFromOcrExtract(
     .map((r) => ({
       key: nextExecutionRowKey(),
       side: r.side === "sell" ? "sell" : "buy",
-      executed_at: toDatetimeLocal(r.executed_at ?? ""),
+      executed_at: ocrWallClockToDatetimeLocal(r.executed_at ?? ""),
       quantity: r.quantity > 0 ? String(r.quantity) : "",
       price: r.price > 0 ? String(r.price) : "",
       fees: formatNumField((Number(r.fees) || 0) + (Number(r.commission) || 0)),

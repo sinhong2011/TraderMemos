@@ -5,7 +5,7 @@ import type { DashboardBreakdownDim } from "@/components/DashboardBreakdownChart
 import { TradeDetailSheet } from "@/components/TradeDetailSheet";
 import { ytdFiltersForYear } from "@/lib/annualGoal";
 import { buildDayRecords } from "@/lib/calendar";
-import { useFilterParams, useFilters } from "@/lib/filters";
+import { normalizeFilterDate, useFilterParams, useFilters } from "@/lib/filters";
 import { computeHeaderStats } from "@/lib/headerStats";
 import { useAccounts } from "@/lib/hooks/useAccounts";
 import { useBreakdown, useDailyPnl, useEquityCurve, useSummary } from "@/lib/hooks/useAnalytics";
@@ -19,12 +19,12 @@ export const Route = createFileRoute("/dashboard")({
   component: DashboardPage,
 });
 
-function monthRange(year: number, month: number) {
+function monthRange(year: number, month: number, tz: string) {
   const pad = (n: number) => String(n).padStart(2, "0");
   const lastDay = new Date(Date.UTC(year, month, 0)).getUTCDate();
   return {
-    from: `${year}-${pad(month)}-01T00:00:00Z`,
-    to: `${year}-${pad(month)}-${pad(lastDay)}T23:59:59Z`,
+    from: normalizeFilterDate(`${year}-${pad(month)}-01`, "start", tz),
+    to: normalizeFilterDate(`${year}-${pad(month)}-${pad(lastDay)}`, "end", tz),
   };
 }
 
@@ -42,7 +42,7 @@ function DashboardPage() {
   const now = new Date();
   const calendarYear = now.getFullYear();
   const calendarMonth = now.getMonth() + 1;
-  const range = monthRange(calendarYear, calendarMonth);
+  const range = monthRange(calendarYear, calendarMonth, filters.tz);
   const monthFilters = { ...filters, from: range.from, to: range.to };
   const ytdFilters = useMemo(
     () => ytdFiltersForYear(filters, calendarYear),
@@ -69,8 +69,8 @@ function DashboardPage() {
     tradeStatusFilter,
   );
   const calendarDayRecords = useMemo(
-    () => buildDayRecords(monthTradesQ.data ?? []),
-    [monthTradesQ.data],
+    () => buildDayRecords(monthTradesQ.data ?? [], "close", filters.tz),
+    [monthTradesQ.data, filters.tz],
   );
 
   const headerStats = computeHeaderStats({

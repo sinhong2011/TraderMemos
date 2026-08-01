@@ -33,14 +33,14 @@ function AuthedShell() {
 
       <div className="relative z-[1] flex min-w-0 flex-1 flex-col bg-background md:min-h-0 md:overflow-hidden">
         <HeaderBar />
-        {/* Bottom padding clears the floating MobileTabBar (56px capsule + 12px gap). */}
+        {/* Bottom padding clears the floating MobileTabBar (~44px capsule + 12px gap). */}
         {/* Named so route changes animate only the routed page — see the
             `::view-transition-*(page)` rules in global.css. Without a name here
             the whole viewport is snapshotted as `root` and the rail, header and
             tab bar crossfade along with the content. */}
         <main
           style={{ viewTransitionName: "page" }}
-          className="flex min-w-0 flex-1 flex-col bg-background pb-[calc(80px+env(safe-area-inset-bottom))] md:min-h-0 md:overflow-auto md:pb-0"
+          className="flex min-w-0 flex-1 flex-col bg-background pb-[calc(64px+env(safe-area-inset-bottom))] md:min-h-0 md:overflow-auto md:pb-0"
         >
           <Outlet />
         </main>

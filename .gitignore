@@ -52,7 +52,13 @@ web/.playwright-mcp/
 # app icons / splash are build inputs, not verification artifacts
 !mobile/assets/images/*.png
 !mobile/assets/expo.icon/Assets/*.png
+!web/src/assets/*.png
+!docs/screenshots/*.png
 .gstack/
+
+# Python bytecode (scripts/)
+__pycache__/
+*.pyc
 
 # Local scheduler state
 .claude/scheduled_tasks.lock
