@@ -1,10 +1,21 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, describe, expect, it } from "vite-plus/test";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import { useFilters } from "@/lib/filters";
 import { DateRangePicker } from "./DateRangePicker";
 
-afterEach(() => useFilters.getState().reset());
+// The calendar opens on the current month, and the custom-range cases click
+// specific July 2026 days — pin the clock so they don't start failing once
+// the real date moves past July.
+beforeEach(() => {
+  vi.useFakeTimers({ toFake: ["Date"] });
+  vi.setSystemTime(new Date(2026, 6, 13));
+});
+
+afterEach(() => {
+  vi.useRealTimers();
+  useFilters.getState().reset();
+});
 
 describe("DateRangePicker", () => {
   it("applies Last 30 days preset from the popover", async () => {
