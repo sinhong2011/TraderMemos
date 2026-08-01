@@ -1,3 +1,6 @@
+> [!NOTE]
+> **Canonical version:** the docs site sources in [`marketing/content/docs/`](../marketing/content/docs/) — this copy is kept as a convenience and may lag behind.
+
 # TraderMemos deployment
 #
 # Supported shapes:
