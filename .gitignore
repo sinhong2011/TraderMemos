@@ -48,5 +48,9 @@ web/.playwright-mcp/
 !docs/screenshots/*.png
 .gstack/
 
+# Python bytecode (scripts/)
+__pycache__/
+*.pyc
+
 # Local scheduler state
 .claude/scheduled_tasks.lock
