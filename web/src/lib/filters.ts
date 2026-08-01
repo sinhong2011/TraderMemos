@@ -1,20 +1,32 @@
 import { create } from "zustand";
 import { useShallow } from "zustand/react/shallow";
 import { persist } from "zustand/middleware";
-import { useDisplayPrefs } from "./displayPrefs";
+import { resolveDisplayTimezone, rfc3339OffsetSuffix, useDisplayPrefs } from "./displayPrefs";
 import type { TradeStatusFilter } from "./tradeFilters";
 
 const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/;
 const FILTERS_STORAGE_KEY = "tm_filters";
 
-/** API filter dates must be RFC3339; accept legacy YYYY-MM-DD from the picker. */
+/** Resolved IANA display timezone from the current prefs. */
+export function displayTz(): string {
+  return resolveDisplayTimezone(useDisplayPrefs.getState().timezone);
+}
+
+/**
+ * API filter dates must be RFC3339; accept legacy YYYY-MM-DD from the picker.
+ * Day boundaries are built in the display timezone (pass `tz` as a resolved
+ * IANA name to override) so "June 1" means the trader's June 1, not UTC's.
+ */
 export function normalizeFilterDate(
   v: string | undefined,
   bound: "start" | "end",
+  tz?: string,
 ): string | undefined {
   if (!v) return undefined;
   if (DATE_ONLY.test(v)) {
-    return bound === "start" ? `${v}T00:00:00Z` : `${v}T23:59:59Z`;
+    // Offset in effect around midday of that date (DST transitions run at night).
+    const offset = rfc3339OffsetSuffix(tz ?? displayTz(), new Date(`${v}T12:00:00Z`));
+    return bound === "start" ? `${v}T00:00:00${offset}` : `${v}T23:59:59${offset}`;
   }
   return v;
 }
@@ -108,13 +120,16 @@ export const useFilters = create<FilterState>()(
 // render loop. useShallow fixes that by comparing the object's keys.
 export function useFilterParams() {
   const tradeDateBasis = useDisplayPrefs((s) => s.tradeDateBasis);
+  const timezonePref = useDisplayPrefs((s) => s.timezone);
+  const tz = resolveDisplayTimezone(timezonePref);
   return useFilters(
     useShallow((s) => ({
       account_id: s.accountId,
-      from: normalizeFilterDate(s.from, "start"),
-      to: normalizeFilterDate(s.to, "end"),
+      from: normalizeFilterDate(s.from, "start", tz),
+      to: normalizeFilterDate(s.to, "end", tz),
       symbol: symbolsToParam(s.symbols),
       date_basis: tradeDateBasis,
+      tz,
     })),
   );
 }

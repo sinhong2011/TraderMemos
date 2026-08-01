@@ -40,25 +40,46 @@ type DatedTrade = {
   net_pnl?: number | null;
 };
 
-/** UTC calendar day key for a trade under the chosen date basis. */
+/**
+ * Calendar day key ("YYYY-MM-DD") for a timestamp in the given IANA zone.
+ * No zone (or an invalid one) falls back to the UTC date — the legacy keying.
+ */
+export function dayKeyInTz(iso: string, timeZone?: string): string {
+  if (!timeZone) return iso.slice(0, 10);
+  try {
+    // en-CA formats as YYYY-MM-DD.
+    return new Intl.DateTimeFormat("en-CA", {
+      timeZone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(new Date(iso));
+  } catch {
+    return iso.slice(0, 10);
+  }
+}
+
+/** Calendar day key for a trade under the chosen date basis, on the trader's clock. */
 export function tradeDayKey(
   trade: Pick<DatedTrade, "opened_at" | "closed_at">,
   basis: TradeDateBasis = "close",
+  timeZone?: string,
 ): string | null {
-  if (basis === "open") return trade.opened_at.slice(0, 10);
+  if (basis === "open") return dayKeyInTz(trade.opened_at, timeZone);
   if (!trade.closed_at) return null;
-  return trade.closed_at.slice(0, 10);
+  return dayKeyInTz(trade.closed_at, timeZone);
 }
 
 // Derives per-day win/loss counts from closed trades, keyed "YYYY-MM-DD".
 export function buildDayRecords(
   trades: { opened_at: string; closed_at: string | null; net_pnl: number | null }[],
   basis: TradeDateBasis = "close",
+  timeZone?: string,
 ): Record<string, DayRecord> {
   const out: Record<string, DayRecord> = {};
   for (const t of trades) {
     if (t.net_pnl == null || t.net_pnl === 0) continue;
-    const date = tradeDayKey(t, basis);
+    const date = tradeDayKey(t, basis, timeZone);
     if (!date) continue;
     if (!(date in out)) out[date] = { wins: 0, losses: 0 };
     const rec = out[date];
@@ -68,13 +89,14 @@ export function buildDayRecords(
   return out;
 }
 
-/** Trades attributed to a UTC calendar day under the chosen date basis. */
+/** Trades attributed to a calendar day (trader's clock) under the chosen date basis. */
 export function tradesOnDay<T extends { opened_at: string; closed_at: string | null }>(
   trades: readonly T[],
   day: string,
   basis: TradeDateBasis = "close",
+  timeZone?: string,
 ): T[] {
-  return trades.filter((t) => tradeDayKey(t, basis) === day);
+  return trades.filter((t) => tradeDayKey(t, basis, timeZone) === day);
 }
 
 export interface WeekSummary {

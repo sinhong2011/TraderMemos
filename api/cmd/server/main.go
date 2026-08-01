@@ -18,6 +18,10 @@ import (
 	"github.com/tradermemos/api/internal/store"
 	"github.com/tradermemos/api/internal/trades"
 	"golang.org/x/time/rate"
+
+	// Embed the IANA tz database so `tz` query params and the ET session clock
+	// resolve inside minimal containers without a tzdata package.
+	_ "time/tzdata"
 )
 
 func main() {
@@ -47,6 +51,9 @@ func main() {
 	logger.Info("auth policy", "detail", cfg.AuthSummary())
 
 	q := store.NewForDriver(conn, cfg.Driver)
+	if err := store.SeedInstrumentSpecs(context.Background(), q); err != nil {
+		logger.Warn("could not seed instrument specs", "err", err)
+	}
 	jwt := auth.NewJWT(cfg.JWTSecret)
 	attachDir := cfg.AttachDir
 	if attachDir == "" {

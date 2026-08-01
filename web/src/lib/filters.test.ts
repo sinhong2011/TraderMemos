@@ -38,9 +38,26 @@ describe("filter store", () => {
     expect(useFilters.getState().symbols).toBeUndefined();
   });
 
-  it("normalizes date-only filter values to RFC3339", () => {
-    expect(normalizeFilterDate("2026-06-01", "start")).toBe("2026-06-01T00:00:00Z");
-    expect(normalizeFilterDate("2026-06-30", "end")).toBe("2026-06-30T23:59:59Z");
-    expect(normalizeFilterDate("2026-06-01T00:00:00Z", "start")).toBe("2026-06-01T00:00:00Z");
+  it("normalizes date-only filter values to RFC3339 in the given timezone", () => {
+    expect(normalizeFilterDate("2026-06-01", "start", "UTC")).toBe("2026-06-01T00:00:00Z");
+    expect(normalizeFilterDate("2026-06-30", "end", "UTC")).toBe("2026-06-30T23:59:59Z");
+    // June = EDT; day boundaries carry the trader's offset.
+    expect(normalizeFilterDate("2026-06-01", "start", "America/New_York")).toBe(
+      "2026-06-01T00:00:00-04:00",
+    );
+    expect(normalizeFilterDate("2026-01-15", "end", "America/New_York")).toBe(
+      "2026-01-15T23:59:59-05:00",
+    );
+    expect(normalizeFilterDate("2026-06-01", "start", "Asia/Hong_Kong")).toBe(
+      "2026-06-01T00:00:00+08:00",
+    );
+    // Already-normalized values pass through untouched.
+    expect(normalizeFilterDate("2026-06-01T00:00:00Z", "start", "Asia/Hong_Kong")).toBe(
+      "2026-06-01T00:00:00Z",
+    );
+  });
+
+  it("defaults day boundaries to the display timezone preference (Eastern)", () => {
+    expect(normalizeFilterDate("2026-06-01", "start")).toBe("2026-06-01T00:00:00-04:00");
   });
 });

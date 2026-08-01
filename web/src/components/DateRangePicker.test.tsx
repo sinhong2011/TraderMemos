@@ -29,8 +29,9 @@ describe("DateRangePicker", () => {
 
     expect(trigger).toHaveTextContent("Last 30 days");
     const { from, to } = useFilters.getState();
-    expect(from).toMatch(/T00:00:00Z$/);
-    expect(to).toMatch(/T23:59:59Z$/);
+    // Day boundaries carry the display-timezone offset (or Z for UTC).
+    expect(from).toMatch(/T00:00:00(Z|[+-]\d{2}:\d{2})$/);
+    expect(to).toMatch(/T23:59:59(Z|[+-]\d{2}:\d{2})$/);
     expect(useFilters.getState().toParams().from).toBe(from);
   });
 

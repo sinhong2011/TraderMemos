@@ -63,9 +63,9 @@ func (s *Server) handleCreateExecution(c echo.Context) error {
 	if in.InstrumentType == "" {
 		in.InstrumentType = "stock"
 	}
-	if in.Multiplier == 0 {
-		in.Multiplier = importer.DefaultMultiplier(in.InstrumentType)
-	}
+	in.Multiplier = importer.ResolveMultiplier(
+		c.Request().Context(), s.deps.Store, in.InstrumentType, in.Symbol, in.Multiplier,
+	)
 	hash := importer.DedupHash(in.Symbol, in.Side, in.Quantity, in.Price, in.ExecutedAt)
 
 	// Idempotent: same fill already logged → return existing trade link.

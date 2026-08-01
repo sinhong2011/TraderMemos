@@ -94,7 +94,7 @@ func (s *Server) handleDaily(c echo.Context) error {
 	if err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not compute daily pnl", nil)
 	}
-	return c.JSON(http.StatusOK, analytics.DailyPnl(toClosedTrades(rows), f.DateBasis))
+	return c.JSON(http.StatusOK, analytics.DailyPnl(toClosedTrades(rows), f.DateBasis, f.Loc))
 }
 
 func (s *Server) handleEquityCurve(c echo.Context) error {

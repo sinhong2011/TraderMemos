@@ -2,10 +2,11 @@ import { describe, expect, it, beforeEach } from "vite-plus/test";
 import {
   accountBaseCurrency,
   DISPLAY_PREFS_STORAGE_KEY,
-  formatUtcHourLabel,
+  formatHourKeyLabel,
   formatUtcOffsetPrefix,
   resolveDisplayTimezone,
   resolveDisplayCurrency,
+  rfc3339OffsetSuffix,
   timezoneSelectOptions,
   useDisplayPrefs,
 } from "./displayPrefs";
@@ -109,18 +110,23 @@ describe("timezone preference", () => {
     expect(opts.find((o) => o.value === "local")?.label).toMatch(/^UTC[+-]\d{2} Local \(.+\)$/);
   });
 
-  it("relabels UTC hour keys for display without changing the key semantics", () => {
-    const winter = new Date("2026-01-15T12:00:00Z");
-    // 14:00 UTC → 22:00 HKT (24h)
-    expect(formatUtcHourLabel("14:00", "Asia/Hong_Kong", winter, "h23")).toBe("22:00");
-    // 14:00 UTC → 09:00 ET (winter)
-    expect(formatUtcHourLabel("14:00", "America/New_York", winter, "h23")).toBe("09:00");
-    expect(formatUtcHourLabel("14:00", "UTC", winter, "h23")).toBe("14:00");
+  it("formats hour keys with the clock preference (keys are already trader-local)", () => {
+    expect(formatHourKeyLabel("14:00", "h23")).toBe("14:00");
+    expect(formatHourKeyLabel("09:00", "h23")).toBe("09:00");
+    expect(formatHourKeyLabel("14:00", "h12")).toBe("2:00 PM");
+    expect(formatHourKeyLabel("00:00", "h12")).toBe("12:00 AM");
+    expect(formatHourKeyLabel("12:00", "h12")).toBe("12:00 PM");
+    expect(formatHourKeyLabel("not-an-hour", "h23")).toBe("not-an-hour");
   });
 
-  it("relabels UTC hour keys in 12-hour format", () => {
+  it("builds RFC3339 offset suffixes for day boundaries", () => {
     const winter = new Date("2026-01-15T12:00:00Z");
-    expect(formatUtcHourLabel("14:00", "Asia/Hong_Kong", winter, "h12")).toMatch(/10:00\s*PM/i);
+    const summer = new Date("2026-06-15T12:00:00Z");
+    expect(rfc3339OffsetSuffix("UTC", winter)).toBe("Z");
+    expect(rfc3339OffsetSuffix("Asia/Hong_Kong", winter)).toBe("+08:00");
+    expect(rfc3339OffsetSuffix("America/New_York", winter)).toBe("-05:00");
+    expect(rfc3339OffsetSuffix("America/New_York", summer)).toBe("-04:00");
+    expect(rfc3339OffsetSuffix("Asia/Kolkata", winter)).toBe("+05:30");
   });
 });
 

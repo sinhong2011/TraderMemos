@@ -36,13 +36,18 @@ func SessionName(t time.Time) string {
 	}
 }
 
-// WeekdayName returns Monday..Sunday in UTC (analytics storage clock).
-func WeekdayName(t time.Time) string {
-	return t.UTC().Weekday().String()
+// WeekdayName returns Monday..Sunday on the trader's clock (nil loc = UTC).
+func WeekdayName(t time.Time, loc *time.Location) string {
+	if loc == nil {
+		loc = time.UTC
+	}
+	return t.In(loc).Weekday().String()
 }
 
-// HourBucket returns "HH:00" in UTC (analytics storage clock).
-// Clients may relabel these keys into a display timezone; bucketing stays UTC.
-func HourBucket(t time.Time) string {
-	return fmt.Sprintf("%02d:00", t.UTC().Hour())
+// HourBucket returns "HH:00" on the trader's clock (nil loc = UTC).
+func HourBucket(t time.Time, loc *time.Location) string {
+	if loc == nil {
+		loc = time.UTC
+	}
+	return fmt.Sprintf("%02d:00", t.In(loc).Hour())
 }

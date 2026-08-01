@@ -46,9 +46,9 @@ func (s *Server) handleBreakdown(c echo.Context) error {
 		case "symbol":
 			add(t.Symbol, ct)
 		case "day_of_week":
-			add(analytics.WeekdayName(at), ct)
+			add(analytics.WeekdayName(at, f.Loc), ct)
 		case "hour_of_day":
-			add(analytics.HourBucket(at), ct)
+			add(analytics.HourBucket(at, f.Loc), ct)
 		case "session":
 			add(analytics.SessionName(at), ct)
 		case "setup":

@@ -126,16 +126,20 @@ func EquityCurve(startingBalance float64, flows []CashFlow, ts []ClosedTrade) Eq
 	return out
 }
 
-// DailyPnl aggregates net P&L per calendar day (UTC). Feeds the calendar heatmap.
-// basis "open" keys by opened_at; anything else (including "") keys by closed_at.
-func DailyPnl(ts []ClosedTrade, basis string) map[string]float64 {
+// DailyPnl aggregates net P&L per calendar day in loc (nil = UTC). Feeds the
+// calendar heatmap. basis "open" keys by opened_at; anything else (including
+// "") keys by closed_at.
+func DailyPnl(ts []ClosedTrade, basis string, loc *time.Location) map[string]float64 {
+	if loc == nil {
+		loc = time.UTC
+	}
 	out := map[string]float64{}
 	for _, t := range ts {
 		at := t.ClosedAt
 		if basis == "open" {
 			at = t.OpenedAt
 		}
-		day := at.UTC().Format("2006-01-02")
+		day := at.In(loc).Format("2006-01-02")
 		out[day] = money.Round2(out[day] + t.NetPnl)
 	}
 	return out
