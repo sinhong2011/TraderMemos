@@ -17,13 +17,24 @@ func TestDailyPnlDateBasis(t *testing.T) {
 	closed, _ := time.Parse(time.RFC3339, "2026-07-22T14:00:00Z")
 	in := []ClosedTrade{{NetPnl: 88.3, FeesTotal: 1, OpenedAt: opened, ClosedAt: closed}}
 
-	byClose := DailyPnl(in, "close")
+	byClose := DailyPnl(in, "close", nil)
 	require.Equal(t, 88.3, byClose["2026-07-22"])
 	require.Equal(t, 0.0, byClose["2026-07-21"])
 
-	byOpen := DailyPnl(in, "open")
+	byOpen := DailyPnl(in, "open", nil)
 	require.Equal(t, 88.3, byOpen["2026-07-21"])
 	require.Equal(t, 0.0, byOpen["2026-07-22"])
+}
+
+func TestDailyPnlTraderClock(t *testing.T) {
+	ny, err := time.LoadLocation("America/New_York")
+	require.NoError(t, err)
+	// Closed 2026-07-22 00:30 UTC = still 2026-07-21 evening in New York.
+	closed, _ := time.Parse(time.RFC3339, "2026-07-22T00:30:00Z")
+	in := []ClosedTrade{{NetPnl: 50, OpenedAt: closed, ClosedAt: closed}}
+
+	require.Equal(t, 50.0, DailyPnl(in, "close", ny)["2026-07-21"])
+	require.Equal(t, 50.0, DailyPnl(in, "close", nil)["2026-07-22"])
 }
 
 func TestSummary(t *testing.T) {

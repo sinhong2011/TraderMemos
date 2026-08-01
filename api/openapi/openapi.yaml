@@ -600,6 +600,7 @@ paths:
         - $ref: "#/components/parameters/AccountIdQuery"
         - $ref: "#/components/parameters/FromQuery"
         - $ref: "#/components/parameters/ToQuery"
+        - $ref: "#/components/parameters/TzQuery"
       responses:
         "200":
           description: Daily rows
@@ -727,6 +728,15 @@ components:
       schema:
         type: string
         format: date-time
+    TzQuery:
+      name: tz
+      in: query
+      description: >
+        IANA timezone for day / hour-of-day / weekday bucketing
+        (e.g. `America/New_York`). Defaults to UTC. Session bucketing
+        always uses the US-equity clock (Eastern).
+      schema:
+        type: string
   responses:
     Error:
       description: Error

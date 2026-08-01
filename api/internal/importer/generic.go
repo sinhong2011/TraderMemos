@@ -77,7 +77,16 @@ func (g *Generic) parseRow(row map[string]string) (ParsedExecution, error) {
 			p.OptionRight = InferOptionRight(p.Symbol)
 		}
 	}
-	p.Multiplier = DefaultMultiplier(p.InstrumentType)
+	if m := g.col(row, "multiplier"); m != "" {
+		if v, err := strconv.ParseFloat(m, 64); err == nil && v > 0 {
+			p.Multiplier = v
+		}
+	}
+	// Futures stay 0 so Commit can resolve the contract multiplier from
+	// instrument_specs (ES → 50); other types take the conventional default.
+	if p.Multiplier == 0 && p.InstrumentType != "future" {
+		p.Multiplier = DefaultMultiplier(p.InstrumentType)
+	}
 	return p, nil
 }
 

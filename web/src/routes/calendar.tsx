@@ -4,7 +4,7 @@ import { CalendarView, type CalendarMode } from "@/app/screens/CalendarView";
 import { TradeDetailSheet } from "@/components/TradeDetailSheet";
 import { buildDayRecords, tradeDayKey, tradesOnDay } from "@/lib/calendar";
 import { accountBaseCurrency, useDisplayPrefs } from "@/lib/displayPrefs";
-import { useFilterParams, useFilters } from "@/lib/filters";
+import { normalizeFilterDate, useFilterParams, useFilters } from "@/lib/filters";
 import { useAccounts } from "@/lib/hooks/useAccounts";
 import { useDailyPnl, useSummary } from "@/lib/hooks/useAnalytics";
 import { useTrades } from "@/lib/hooks/useTrades";
@@ -13,19 +13,19 @@ export const Route = createFileRoute("/calendar")({
   component: CalendarPage,
 });
 
-function monthRange(year: number, month: number) {
+function monthRange(year: number, month: number, tz: string) {
   const pad = (n: number) => String(n).padStart(2, "0");
   const lastDay = new Date(Date.UTC(year, month, 0)).getUTCDate();
   return {
-    from: `${year}-${pad(month)}-01T00:00:00Z`,
-    to: `${year}-${pad(month)}-${pad(lastDay)}T23:59:59Z`,
+    from: normalizeFilterDate(`${year}-${pad(month)}-01`, "start", tz),
+    to: normalizeFilterDate(`${year}-${pad(month)}-${pad(lastDay)}`, "end", tz),
   };
 }
 
-function yearRange(year: number) {
+function yearRange(year: number, tz: string) {
   return {
-    from: `${year}-01-01T00:00:00Z`,
-    to: `${year}-12-31T23:59:59Z`,
+    from: normalizeFilterDate(`${year}-01-01`, "start", tz),
+    to: normalizeFilterDate(`${year}-12-31`, "end", tz),
   };
 }
 
@@ -33,11 +33,12 @@ function yearRange(year: number) {
 function tradesByMonthKey(
   trades: { opened_at: string; closed_at: string | null; status: string }[],
   basis: "close" | "open",
+  tz: string,
 ): Record<string, number> {
   const out: Record<string, number> = {};
   for (const t of trades) {
     if (t.status === "open") continue;
-    const day = tradeDayKey(t, basis);
+    const day = tradeDayKey(t, basis, tz);
     if (!day) continue;
     const key = day.slice(0, 7);
     out[key] = (out[key] ?? 0) + 1;
@@ -58,35 +59,36 @@ function CalendarPage() {
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [selectedTradeId, setSelectedTradeId] = useState<string | null>(null);
 
-  const range = monthRange(year, month);
+  const tz = filters.tz;
+  const range = monthRange(year, month, tz);
   const monthFilters = { ...filters, from: range.from, to: range.to };
   const dailyQ = useDailyPnl(monthFilters);
   const monthSummaryQ = useSummary(monthFilters);
   const monthTradesQ = useTrades(monthFilters);
   const records = useMemo(
-    () => buildDayRecords(monthTradesQ.data ?? [], tradeDateBasis),
-    [monthTradesQ.data, tradeDateBasis],
+    () => buildDayRecords(monthTradesQ.data ?? [], tradeDateBasis, tz),
+    [monthTradesQ.data, tradeDateBasis, tz],
   );
 
-  const yRange = yearRange(year);
+  const yRange = yearRange(year, tz);
   const yearFilters = { ...filters, from: yRange.from, to: yRange.to };
   const yearDailyQ = useDailyPnl(yearFilters);
   const yearTradesQ = useTrades(yearFilters);
   const yearTradesByMonth = useMemo(
-    () => tradesByMonthKey(yearTradesQ.data ?? [], tradeDateBasis),
-    [yearTradesQ.data, tradeDateBasis],
+    () => tradesByMonthKey(yearTradesQ.data ?? [], tradeDateBasis, tz),
+    [yearTradesQ.data, tradeDateBasis, tz],
   );
   const yearDayRecords = useMemo(
-    () => buildDayRecords(yearTradesQ.data ?? [], tradeDateBasis),
-    [yearTradesQ.data, tradeDateBasis],
+    () => buildDayRecords(yearTradesQ.data ?? [], tradeDateBasis, tz),
+    [yearTradesQ.data, tradeDateBasis, tz],
   );
 
   // Drawer uses the same date basis as heatmap / "N trades" counts.
   const scopeTradesQ = mode === "year" ? yearTradesQ : monthTradesQ;
   const dayTrades = useMemo(() => {
     if (!selectedDay) return [];
-    return tradesOnDay(scopeTradesQ.data ?? [], selectedDay, tradeDateBasis);
-  }, [selectedDay, scopeTradesQ.data, tradeDateBasis]);
+    return tradesOnDay(scopeTradesQ.data ?? [], selectedDay, tradeDateBasis, tz);
+  }, [selectedDay, scopeTradesQ.data, tradeDateBasis, tz]);
 
   const accounts = accountsQ.data ?? [];
   const currency = accountBaseCurrency(accounts, accountId);

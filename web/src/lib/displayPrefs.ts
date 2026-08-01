@@ -104,6 +104,27 @@ export function formatUtcOffsetPrefix(timeZone: string, at: Date = new Date()): 
   }
 }
 
+/**
+ * RFC3339 offset suffix (`"+08:00"`, `"-05:00"`, `"Z"`) for a zone at a given
+ * instant. Used to build day-boundary timestamps in the display timezone.
+ */
+export function rfc3339OffsetSuffix(timeZone: string, at: Date = new Date()): string {
+  try {
+    const raw =
+      new Intl.DateTimeFormat("en-US", { timeZone, timeZoneName: "longOffset" })
+        .formatToParts(at)
+        .find((p) => p.type === "timeZoneName")?.value ?? "GMT";
+    if (raw === "GMT" || raw === "UTC") return "Z";
+    const m = raw.match(/GMT([+-])(\d+)(?::(\d+))?/i);
+    if (!m) return "Z";
+    const hours = String(Number(m[2])).padStart(2, "0");
+    const mins = String(m[3] ? Number(m[3]) : 0).padStart(2, "0");
+    return `${m[1]}${hours}:${mins}`;
+  } catch {
+    return "Z";
+  }
+}
+
 export const PRIVACY_MASK = "••••";
 
 function isDisplayCurrencyCode(value: string): value is DisplayCurrencyCode {
@@ -160,44 +181,17 @@ export function getDisplayTimeOpts(): {
 }
 
 /**
- * Relabel a UTC hour bucket key (`"14:00"`) into the display timezone / clock.
- * Analytics bucketing stays UTC; this does not re-group trades.
+ * Format an hour bucket key (`"14:00"`) for display. The API now buckets
+ * hours on the trader's clock (`tz` filter param), so keys are already in the
+ * display timezone — this only applies the 12/24-hour clock preference.
  */
-export function formatUtcHourLabel(
-  utcHourKey: string,
-  displayTz?: string,
-  at: Date = new Date(),
-  hourCycle?: TimeFormatPref,
-): string {
-  const hour = Number.parseInt(utcHourKey.slice(0, 2), 10);
-  if (!Number.isFinite(hour) || hour < 0 || hour > 23) return utcHourKey;
-  const opts = getDisplayTimeOpts();
-  const tz = displayTz ?? opts.timeZone;
-  const cycle = hourCycle ?? opts.hourCycle;
-  const utc = new Date(
-    Date.UTC(at.getUTCFullYear(), at.getUTCMonth(), at.getUTCDate(), hour, 0, 0),
-  );
-  try {
-    if (cycle === "h12") {
-      return new Intl.DateTimeFormat("en-US", {
-        timeZone: tz,
-        hour: "numeric",
-        minute: "2-digit",
-        hour12: true,
-      }).format(utc);
-    }
-    const parts = new Intl.DateTimeFormat("en-GB", {
-      timeZone: tz,
-      hour: "2-digit",
-      minute: "2-digit",
-      hourCycle: "h23",
-    }).formatToParts(utc);
-    const h = parts.find((p) => p.type === "hour")?.value ?? String(hour).padStart(2, "0");
-    const m = parts.find((p) => p.type === "minute")?.value ?? "00";
-    return `${h}:${m}`;
-  } catch {
-    return utcHourKey;
-  }
+export function formatHourKeyLabel(hourKey: string, hourCycle?: TimeFormatPref): string {
+  const hour = Number.parseInt(hourKey.slice(0, 2), 10);
+  if (!Number.isFinite(hour) || hour < 0 || hour > 23) return hourKey;
+  const cycle = hourCycle ?? getDisplayTimeOpts().hourCycle;
+  if (cycle === "h23") return `${String(hour).padStart(2, "0")}:00`;
+  const h12 = hour % 12 === 0 ? 12 : hour % 12;
+  return `${h12}:00 ${hour < 12 ? "AM" : "PM"}`;
 }
 
 interface DisplayPrefsState {

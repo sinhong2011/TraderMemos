@@ -22,6 +22,10 @@ type Filters struct {
 	Side       string // "" = all, "long" | "short"
 	Duration   string // "" = all, "scalp" | "day" | "swing"
 	DateBasis  string // "" = legacy defaults, "close" | "open"
+	// Loc is the trader's clock for day / hour-of-day / weekday bucketing
+	// (`tz` query param, IANA name). UTC when unset — the legacy behavior.
+	// Session bucketing stays on the exchange clock (US Eastern) regardless.
+	Loc *time.Location
 }
 
 // parseFilters reads the shared filter query params. Malformed from/to dates
@@ -45,6 +49,14 @@ func parseFilters(c echo.Context) (Filters, error) {
 	f.DateBasis = c.QueryParam("date_basis")
 	if f.DateBasis != "" && f.DateBasis != "close" && f.DateBasis != "open" {
 		return f, fmt.Errorf("invalid 'date_basis' (want close|open)")
+	}
+	f.Loc = time.UTC
+	if v := c.QueryParam("tz"); v != "" {
+		loc, err := time.LoadLocation(v)
+		if err != nil {
+			return f, fmt.Errorf("invalid 'tz' (want IANA timezone name)")
+		}
+		f.Loc = loc
 	}
 	if v := c.QueryParam("from"); v != "" {
 		t, err := time.Parse(time.RFC3339, v)

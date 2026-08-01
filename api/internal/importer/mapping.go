@@ -13,6 +13,7 @@ var fieldHints = map[string][]string{
 	"commission":      {"commission", "comm"},
 	"instrument_type": {"market", "instrument type", "asset type", "sec type", "product type", "asset class"},
 	"option_right":    {"call/put", "option right", "option type", "right", "cp"},
+	"multiplier":      {"multiplier", "contract size", "point value"},
 }
 
 // SuggestMapping returns canonicalField -> originalHeader best guesses.
