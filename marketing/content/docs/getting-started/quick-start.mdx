@@ -3,7 +3,7 @@ title: Quick start
 description: Run the web UI and API in one container, on your own machine.
 ---
 
-Web UI and API in one container, on your own machine:
+Web UI and API on your own machine, using the published Docker images:
 
 ```bash
 git clone https://github.com/sinhong2011/TraderMemos.git
@@ -12,7 +12,19 @@ make up          # → http://localhost:3000
 ```
 
 That's it. Same-origin `/api` — no CORS, leave the **Server** field blank. On first visit the
-**setup wizard** creates your owner account.
+**setup wizard** creates your owner account — then head to
+[First steps](/en/docs/getting-started/first-steps).
+
+## Without cloning the repo
+
+Only Docker installed, no `git` or `make`? The compose file pulls prebuilt images, so it's
+all you need:
+
+```bash
+mkdir tradermemos && cd tradermemos
+curl -fsSLO https://raw.githubusercontent.com/sinhong2011/TraderMemos/main/docker-compose.yml
+docker compose up -d       # → http://localhost:3000
+```
 
 ## Options and production notes
 
@@ -20,10 +32,13 @@ That's it. Same-origin `/api` — no CORS, leave the **Server** field blank. On 
 cp .env.example .env   # optional: DOCKERHUB_USERNAME, TM_IMAGE_TAG
 make up                # pull prebuilt images from Docker Hub
 make up-build          # or build both images from this repo
+make up-postgres       # SQLite → Postgres overlay
 ```
 
-For production, set `TM_JWT_SECRET=$(openssl rand -hex 32)` and put TLS (Caddy/Traefik) in
-front — see [Deploy](/en/docs/deploy).
+For production, set `TM_JWT_SECRET=$(openssl rand -hex 32)` and put TLS in front — see
+[Deploy](/en/docs/self-hosting/deploy) and
+[Reverse proxy](/en/docs/self-hosting/reverse-proxy). All server settings are in the
+[Configuration reference](/en/docs/self-hosting/configuration).
 
 ## Local development
 

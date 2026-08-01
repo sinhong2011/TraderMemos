@@ -3,7 +3,7 @@ title: 快速開始
 description: 在你自己的機器上，用一個容器同時運行 Web UI 與 API。
 ---
 
-在你自己的機器上，用一個容器同時運行 Web UI 與 API：
+在你自己的機器上，使用已發佈的 Docker 鏡像同時運行 Web UI 與 API：
 
 ```bash
 git clone https://github.com/sinhong2011/TraderMemos.git
@@ -12,18 +12,32 @@ make up          # → http://localhost:3000
 ```
 
 就這麼簡單。同源 `/api`，無需 CORS 配置，登錄時的 **Server** 字段留空即可。首次訪問會出現
-**初始化嚮導**，用於創建你的 owner 賬戶。
+**初始化嚮導**，用於創建你的 owner 賬戶 —— 接下來請看
+[入門指引](/zh-Hant/docs/getting-started/first-steps)。
+
+## 不克隆倉庫的方式
+
+只裝了 Docker，沒有 `git` 或 `make`？compose 文件會自動拉取預構建鏡像，有它就夠了：
+
+```bash
+mkdir tradermemos && cd tradermemos
+curl -fsSLO https://raw.githubusercontent.com/sinhong2011/TraderMemos/main/docker-compose.yml
+docker compose up -d       # → http://localhost:3000
+```
 
 ## 其他選項與生產環境提示
 
 ```bash
 cp .env.example .env   # 可選：DOCKERHUB_USERNAME、TM_IMAGE_TAG
 make up                # 從 Docker Hub 拉取預構建鏡像
-make up-build           # 或者從本倉庫構建兩個鏡像
+make up-build          # 或者從本倉庫構建兩個鏡像
+make up-postgres       # SQLite → Postgres 覆蓋配置
 ```
 
-生產環境請設置 `TM_JWT_SECRET=$(openssl rand -hex 32)`，並在前面加一層 TLS（Caddy/Traefik）——
-詳見[部署](/zh-Hant/docs/deploy)。
+生產環境請設置 `TM_JWT_SECRET=$(openssl rand -hex 32)`，並在前面加一層 TLS —— 詳見
+[部署](/zh-Hant/docs/self-hosting/deploy)與
+[反向代理](/zh-Hant/docs/self-hosting/reverse-proxy)。全部服務端配置項參見
+[配置參考](/zh-Hant/docs/self-hosting/configuration)。
 
 ## 本地開發
 

@@ -3,12 +3,14 @@ title: Deploy
 description: Docker all-in-one, split CDN + API, or edge rewrite — pick the shape that fits your infrastructure.
 ---
 
-Supported shapes:
+Three deployment modes:
 
-0. Fork / one-click web on your Vercel or Cloudflare — see [Fork & deploy](/en/docs/fork-deploy)
-1. Docker all-in-one (default / self-host)
-2. Static SPA + API elsewhere (CORS + Server URL)
-3. Static SPA with edge rewrite to API (same-origin from the browser)
+1. **Docker all-in-one** — default self-host: one URL, one volume
+2. **Static SPA + API elsewhere** — UI on a CDN, API on your host (CORS + Server URL)
+3. **Static SPA + edge rewrite** — UI on a CDN, same-origin from the browser
+
+Just want the UI on your own Vercel / Cloudflare / Netlify with one click? See
+[Fork & deploy](/en/docs/self-hosting/fork-deploy).
 
 ## 1. Docker all-in-one (recommended default)
 
@@ -79,7 +81,7 @@ make down        # stop stack
 
 Production tip: put **Caddy / Traefik / nginx** in front for **TLS** and point it at the
 `web` service only — `/api` stays same-origin. Do not expose the API without TLS on the
-public internet.
+public internet. Copy-paste configs: [Reverse proxy & TLS](/en/docs/self-hosting/reverse-proxy).
 
 ### Auth hardening (built-in)
 
@@ -91,24 +93,9 @@ public internet.
 
 ### API access tokens & OpenAPI docs
 
-Create long-lived tokens in **Settings → API** for MCP, AI agents, or scripts. They have the
-same API power as your user account.
-
-```bash
-# Call any protected route with the token shown once at create time
-curl -H "Authorization: Bearer tm_pat_…" https://your-host/api/v1/accounts
-```
-
-Browse the interactive OpenAPI reference (Scalar):
-
-| Setup | Docs URL |
-|-------|----------|
-| Docker all-in-one (`web` nginx) | `http://localhost:3000/docs` |
-| API directly | `http://localhost:8080/docs` |
-| Split API host | `https://api.example.com/docs` |
-
-Raw spec: `/openapi.yaml` on the same host. Docs are public; protect the host with TLS and
-network controls as usual.
+Every instance ships an interactive OpenAPI reference at `/docs`, and **Settings → API**
+issues personal access tokens (`tm_pat_…`) for MCP, AI agents, and scripts — see
+[API tokens & OpenAPI](/en/docs/guides/api-tokens).
 
 ## 2. Static web (Vercel / Cloudflare Pages / Netlify) + API elsewhere
 
@@ -174,7 +161,7 @@ Leave `TM_CORS_ORIGINS` empty when using rewrites — the browser never talks cr
 
 | Goal | Mode |
 |------|------|
-| Fork / one-click UI on **your** Vercel or CF | [Fork & deploy](/en/docs/fork-deploy) |
+| Fork / one-click UI on **your** Vercel or CF | [Fork & deploy](/en/docs/self-hosting/fork-deploy) |
 | Homelab / VPS / NAS, one URL | **1. Docker** |
 | Marketing/demo UI on CDN, users self-host API | **2. CDN + CORS** |
 | Global SPA CDN, your hosted API, blank Server field | **3. Edge rewrite** |
@@ -185,7 +172,9 @@ on a machine/volume with a real disk.
 ## Checklist
 
 - Changed `TM_JWT_SECRET` from the default
-- SQLite/attachments on a persistent volume
+- SQLite/attachments on a persistent volume, with [backups](/en/docs/self-hosting/backup-restore) scheduled
 - Docker: open the **web** port; Server field blank
 - Split host: `TM_CORS_ORIGINS` matches the SPA origin(s)
 - Uploads: nginx/proxy `client_max_body_size` ≥ API `TM_*_MAX_BYTES` (compose web image uses 20m)
+
+Full environment-variable list: [Configuration](/en/docs/self-hosting/configuration).

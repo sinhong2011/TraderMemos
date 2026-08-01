@@ -3,12 +3,14 @@ title: 部署
 description: Docker 一體化部署、CDN + API 分離，或邊緣重寫 —— 選擇適合你基礎設施的方式。
 ---
 
-支持的部署形態：
+三種部署方式：
 
-0. Fork 後一鍵部署到你自己的 Vercel 或 Cloudflare —— 參見 [Fork 並部署](/zh-Hant/docs/fork-deploy)
-1. Docker 一體化部署（默認 / 自託管推薦）
-2. 靜態 SPA + 獨立部署的 API（CORS + Server URL）
-3. 靜態 SPA + 邊緣重寫到 API（瀏覽器同源）
+1. **Docker 一體化部署** —— 默認自託管方式：一個 URL、一個數據卷
+2. **靜態 SPA + 獨立部署的 API** —— UI 放在 CDN，API 在你的主機上（CORS + Server URL）
+3. **靜態 SPA + 邊緣重寫** —— UI 放在 CDN，瀏覽器保持同源
+
+只想一鍵把 UI 部署到你自己的 Vercel / Cloudflare / Netlify？參見
+[Fork 並部署](/zh-Hant/docs/self-hosting/fork-deploy)。
 
 ## 1. Docker 一體化部署（推薦默認方式）
 
@@ -77,7 +79,8 @@ make down        # 停止服務棧
 ```
 
 生產環境建議：在前面加一層 **Caddy / Traefik / nginx** 提供 **TLS**，並只將其指向 `web`
-服務 —— `/api` 保持同源。切勿在沒有 TLS 的情況下將 API 直接暴露到公網。
+服務 —— `/api` 保持同源。切勿在沒有 TLS 的情況下將 API 直接暴露到公網。可直接複製的配置：
+[反向代理與 TLS](/zh-Hant/docs/self-hosting/reverse-proxy)。
 
 ### 內置的認證加固
 
@@ -89,23 +92,9 @@ make down        # 停止服務棧
 
 ### API 訪問令牌與 OpenAPI 文檔
 
-在**設置 → API** 中爲 MCP、AI 代理或腳本創建長期有效的訪問令牌。它們擁有與你賬戶同等的 API 權限。
-
-```bash
-# 使用創建時展示的一次性令牌調用任意受保護接口
-curl -H "Authorization: Bearer tm_pat_…" https://your-host/api/v1/accounts
-```
-
-瀏覽交互式 OpenAPI 參考文檔（基於 Scalar）：
-
-| 部署方式 | 文檔地址 |
-|-------|----------|
-| Docker 一體化（`web` nginx） | `http://localhost:3000/docs` |
-| API 直連 | `http://localhost:8080/docs` |
-| API 獨立部署 | `https://api.example.com/docs` |
-
-原始 spec 文件位於同一主機的 `/openapi.yaml`。文檔本身是公開的；請按常規方式用 TLS 與網絡
-策略保護主機安全。
+每個實例都在 `/docs` 提供交互式 OpenAPI 參考文檔，並可在**設置 → API** 中爲 MCP、AI 代理
+與腳本創建個人訪問令牌（`tm_pat_…`）—— 參見
+[API 令牌與 OpenAPI](/zh-Hant/docs/guides/api-tokens)。
 
 ## 2. 靜態 Web（Vercel / Cloudflare Pages / Netlify）+ 獨立部署的 API
 
@@ -170,7 +159,7 @@ cd web && vp install && vp build
 
 | 目標 | 方式 |
 |------|------|
-| Fork 後一鍵將 UI 部署到**你自己的** Vercel 或 CF | [Fork 並部署](/zh-Hant/docs/fork-deploy) |
+| Fork 後一鍵將 UI 部署到**你自己的** Vercel 或 CF | [Fork 並部署](/zh-Hant/docs/self-hosting/fork-deploy) |
 | Homelab / VPS / NAS，單一 URL | **方式 1：Docker** |
 | 營銷 / 演示用 UI 放在 CDN，用戶自託管 API | **方式 2：CDN + CORS** |
 | 全球 SPA CDN，自建託管 API，Server 字段留空 | **方式 3：邊緣重寫** |
@@ -181,7 +170,9 @@ cd web && vp install && vp build
 ## 檢查清單
 
 - 已將 `TM_JWT_SECRET` 從默認值修改
-- SQLite / 附件存儲在持久化數據捲上
+- SQLite / 附件存儲在持久化數據捲上，並已安排[備份](/zh-Hant/docs/self-hosting/backup-restore)
 - Docker 部署：已開放 **web** 端口；Server 字段留空
 - 分離部署：`TM_CORS_ORIGINS` 匹配 SPA 的源
 - 上傳：nginx / 代理的 `client_max_body_size` ≥ API 的 `TM_*_MAX_BYTES`（compose web 鏡像使用 20m）
+
+完整環境變量列表：[配置參考](/zh-Hant/docs/self-hosting/configuration)。

@@ -1,4 +1,4 @@
 {
   "title": "Docs",
-  "pages": ["index", "quick-start", "deploy", "fork-deploy"]
+  "pages": ["index", "getting-started", "self-hosting", "guides", "faq"]
 }
