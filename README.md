@@ -1,34 +1,68 @@
 <div align="center">
 
+<img src="brand/app-icon-1024.png" width="88" alt="TraderMemos" />
+
 # TraderMemos
 
-**Self-hosted trading journal** — own your data, review your edge
+### Own your data. Review your edge.
+
+**A self-hosted trading journal for traders who want their performance data on their own infrastructure** — dashboard, P&L calendar, trade log, playbook, and reports. No subscription, no vendor lock-in.
 
 <br/>
 
-[![Go](https://img.shields.io/badge/Go-1.26+-00ADD8?logo=go&logoColor=white)](api/go.mod)
-[![React](https://img.shields.io/badge/React-Vite+-61DAFB?logo=react&logoColor=black)](web/)
-[![SQLite](https://img.shields.io/badge/SQLite-embedded-003B57?logo=sqlite&logoColor=white)](api/)
-[![Self-hosted](https://img.shields.io/badge/Self--hosted-ready-8b5cf6)](docs/fork-deploy.md)
+[![Release](https://img.shields.io/github/v/release/sinhong2011/TraderMemos?color=8b5cf6&label=release)](https://github.com/sinhong2011/TraderMemos/releases) [![Web CI](https://github.com/sinhong2011/TraderMemos/actions/workflows/web-ci.yml/badge.svg)](https://github.com/sinhong2011/TraderMemos/actions/workflows/web-ci.yml) [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue)](LICENSE)
+
+[![Go](https://img.shields.io/badge/Go-1.26+-00ADD8?logo=go&logoColor=white)](api/go.mod) [![React](https://img.shields.io/badge/React-Vite+-61DAFB?logo=react&logoColor=black)](web/) [![SQLite](https://img.shields.io/badge/SQLite-embedded-003B57?logo=sqlite&logoColor=white)](api/) [![Self-hosted](https://img.shields.io/badge/Self--hosted-ready-8b5cf6)](docs/fork-deploy.md)
 
 <br/>
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fsinhong2011%2FTraderMemos&root-directory=web&project-name=tradermemos&repository-name=tradermemos&env=VITE_API&envDescription=Optional%20API%20base%20URL%20(e.g.%20https%3A%2F%2Fapi.example.com%2Fapi%2Fv1).%20Leave%20empty%20to%20set%20Server%20at%20login.&envLink=https%3A%2F%2Fgithub.com%2Fsinhong2011%2FTraderMemos%2Fblob%2Fmain%2Fdocs%2Ffork-deploy.md)
-[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https%3A%2F%2Fgithub.com%2Fsinhong2011%2FTraderMemos%2Ftree%2Fmain%2Fweb)
-[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/sinhong2011/TraderMemos)
-[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/new/template?template=https%3A%2F%2Fgithub.com%2Fsinhong2011%2FTraderMemos&utm_medium=integration&utm_source=button&utm_campaign=tradermemos)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fsinhong2011%2FTraderMemos&root-directory=web&project-name=tradermemos&repository-name=tradermemos&env=VITE_API&envDescription=Optional%20API%20base%20URL%20(e.g.%20https%3A%2F%2Fapi.example.com%2Fapi%2Fv1).%20Leave%20empty%20to%20set%20Server%20at%20login.&envLink=https%3A%2F%2Fgithub.com%2Fsinhong2011%2FTraderMemos%2Fblob%2Fmain%2Fdocs%2Ffork-deploy.md) [![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https%3A%2F%2Fgithub.com%2Fsinhong2011%2FTraderMemos%2Ftree%2Fmain%2Fweb) [![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/sinhong2011/TraderMemos) [![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/new/template?template=https%3A%2F%2Fgithub.com%2Fsinhong2011%2FTraderMemos&utm_medium=integration&utm_source=button&utm_campaign=tradermemos)
 
 <br/>
 
-[Fork guide](docs/fork-deploy.md)
-·
-[Docker](#docker-all-in-one)
-·
-[Contributing](CONTRIBUTING.md)
-·
-[Design](DESIGN.md)
+[Quick start](#quick-start) · [Fork guide](docs/fork-deploy.md) · [Contributing](CONTRIBUTING.md) · [Design](DESIGN.md) · [License](LICENSE)
+
+<br/>
+
+<img src="docs/screenshots/dashboard.png" alt="TraderMemos dashboard — equity curve, annual P&L goal, expectancy and win-rate stats" width="100%" />
 
 </div>
+
+---
+
+## A look inside
+
+<table>
+<tr>
+<td width="50%">
+<img src="docs/screenshots/trades.png" alt="Trade log with per-trade P&L, hold time, and tags" />
+<p align="center"><strong>Trade log</strong><br/><sub>Every fill grouped into trades — filter, sort, tag, and drill into execution detail.</sub></p>
+</td>
+<td width="50%">
+<img src="docs/screenshots/calendar.png" alt="P&L calendar heatmap by day and week" />
+<p align="center"><strong>P&L calendar</strong><br/><sub>Daily and weekly heatmap. Spot the streaks and the bad days at a glance.</sub></p>
+</td>
+</tr>
+</table>
+
+<img src="docs/screenshots/reports.png" alt="Reports — equity curve, profit factor gauge, win-rate donut, annual goal pacing" width="100%" />
+
+<p align="center"><strong>Reports</strong><br/><sub>Equity curve, profit factor, expectancy, win rate, and goal pacing — plus breakdowns by setup, hour, and session.</sub></p>
+
+<table>
+<tr>
+<td width="74%" valign="top">
+<img src="docs/screenshots/dashboard-light.png" alt="The same dashboard rendered in the light theme" />
+<p align="center"><strong>Light theme</strong><br/><sub>Dark by default; both themes ship from the same token set.</sub></p>
+</td>
+<td width="26%" valign="top">
+<img src="docs/screenshots/mobile-calendar.png" alt="P&L calendar on a phone-width viewport with a bottom tab bar" />
+<p align="center"><strong>Responsive</strong><br/><sub>Every screen works at phone widths.</sub></p>
+</td>
+</tr>
+</table>
+
+<p align="center"><sub><em>Screenshots show a generated demo dataset, not real trading results. Reproduce it with <code>scripts/seed-demo.py</code>.</em></sub></p>
 
 ---
 
@@ -36,7 +70,7 @@
 
 Cloud journals like **TradeZella** and **TraderSync** are polished — but your edge lives in the data.
 
-TraderMemos follows the same self-hosting philosophy as **[Ghost](https://github.com/TryGhost/Ghost)**, **[Umami](https://github.com/umami-software/umami)**, and **[Plane](https://github.com/makeplane/plane)**: run it on your infrastructure, own the database, extend without permission. Inspired by the polish of **[Linear](https://linear.app)** and **[Cal.com](https://github.com/calcom/cal.com)'s** open-core clarity — applied to a trading terminal.
+TraderMemos brings to performance review what **[Ghost](https://github.com/TryGhost/Ghost)** did for publishing, **[Umami](https://github.com/umami-software/umami)** for analytics, and **[Plane](https://github.com/makeplane/plane)** for project tracking: run it on your infrastructure, own the database, extend it without asking permission. The interaction bar is set by **[Linear](https://linear.app)** and **[Cal.com](https://github.com/calcom/cal.com)** — applied to a trading terminal.
 
 | | Cloud journals | TraderMemos |
 |---|---|---|
@@ -47,15 +81,18 @@ TraderMemos follows the same self-hosting philosophy as **[Ghost](https://github
 
 ## Features
 
-- **Dashboard** — asymmetric bento stats, glowing P&L hero, step equity curve
-- **Trade log** — virtualized table, execution detail, tags, setups, journal notes
-- **P&L calendar** — daily heatmap with drill-down
-- **Reports** — win rate, expectancy, setup/hourly/session breakdown
-- **Playbook** — linked strategy library
-- **Import** — CSV broker statements
-- **Tools** — position-size calculator, risk rules, cash ledger
-- **AI (optional)** — screenshot fill extraction + trade coach via OpenAI-compatible APIs
-- **API access** — personal access tokens (`tm_pat_…`) for MCP/scripts; OpenAPI docs at `/docs`
+| Feature | What it does |
+|---|---|
+| 📊&nbsp; **Dashboard** | Equity curve, expectancy, streaks, hold times, and annual goal pacing |
+| 📒&nbsp; **Trade log** | Fills grouped into trades — filter, sort, tag, and drill into execution detail |
+| 🗓&nbsp; **P&L calendar** | Daily and weekly heatmap with drill-down |
+| 📈&nbsp; **Reports** | Win rate, profit factor, expectancy, and setup / hourly / session breakdowns |
+| 📖&nbsp; **Playbook** | Strategy library linked to the trades that used each setup |
+| 📥&nbsp; **Import** | CSV broker statements, with column mapping and dedup |
+| 🧮&nbsp; **Tools** | Position-size calculator, risk rules, cash ledger |
+| 🤖&nbsp; **AI** *(optional)* | Screenshot fill extraction + trade coach via OpenAI-compatible APIs — your keys |
+| 🔌&nbsp; **API access** | Personal access tokens (`tm_pat_…`) for MCP/scripts; OpenAPI docs at `/docs` |
+| 🌗&nbsp; **Themes** | Dark and light, built on shadcn/ui + [coss ui](https://coss.com/ui/docs) tokens |
 
 ## Tech stack
 
@@ -64,52 +101,57 @@ TraderMemos follows the same self-hosting philosophy as **[Ghost](https://github
 | **API** | Go · Echo · sqlc · golang-migrate · SQLite |
 | **Web** | React · Vite+ · TanStack Router/Query/Form · Tailwind |
 | **Mobile** | Expo (planned) |
-| **Design** | Signal Terminal — see [DESIGN.md](DESIGN.md) |
+| **Design** | shadcn/ui + coss ui tokens — see [DESIGN.md](DESIGN.md) |
 
 ## Quick start
 
-### 1. Deploy the web UI
-
-Click a **Deploy** button above — hosts the SPA on **your** Vercel / Cloudflare / Netlify account.
-
-### 2. Run the API
+Web UI and API in one container, on your own machine:
 
 ```bash
-make up   # local all-in-one → http://localhost:3000
+git clone https://github.com/sinhong2011/TraderMemos.git
+cd TraderMemos
+make up          # → http://localhost:3000
 ```
 
-Or use the **Railway** button (attach a Volume at `/data` for persistence).
+That's it. Same-origin `/api` — no CORS, leave the **Server** field blank. On first visit the **setup wizard** creates your owner account.
 
-### 3. Connect web → API
+<details>
+<summary><strong>Options and production notes</strong></summary>
 
-Allow your CDN origin on the API:
+<br/>
+
+```bash
+cp .env.example .env   # optional: DOCKERHUB_USERNAME, TM_IMAGE_TAG
+make up                # pull prebuilt images from Docker Hub
+make up-build          # or build both images from this repo
+```
+
+For production, set `TM_JWT_SECRET=$(openssl rand -hex 32)` and put TLS (Caddy/Traefik) in front — see [docs/deploy.md](docs/deploy.md).
+
+</details>
+
+## Deploy to the cloud
+
+Prefer a hosted SPA with the API elsewhere? The buttons at the top split the app across two hosts:
+
+| Button | Deploys |
+|--------|---------|
+| Vercel / Cloudflare / Netlify | Web SPA (`web/`) |
+| Railway | Go API ([`railway.toml`](railway.toml) → `api/Dockerfile`) — attach a Volume at `/data` |
+
+**1. Deploy the web UI** — click a button above; it hosts the SPA on **your** account.
+
+**2. Run the API** — use the Railway button, or point it at any host running `api/Dockerfile`.
+
+**3. Connect them** — allow your CDN origin on the API:
 
 ```bash
 TM_CORS_ORIGINS=https://*.vercel.app,https://*.pages.dev,https://*.workers.dev,https://*.netlify.app,https://*.up.railway.app,http://localhost:5173
 ```
 
-Open the web app → set **Server** to your API URL (or set `VITE_API` at build time). Leave **Server** blank only for same-origin Docker.
-
-| Button | Deploys |
-|--------|---------|
-| Vercel / Cloudflare / Netlify | Web SPA (`web/`) |
-| Railway | Go API ([`railway.toml`](railway.toml) → `api/Dockerfile`) |
-
-> CDN hosts the **web UI**. Railway/Docker hosts the **API** (SQLite + uploads).
+Then open the web app and set **Server** to your API URL (or bake it in with `VITE_API` at build time).
 
 Already forked? Import your fork → Root **`web`** (Vercel/CF) or [`netlify.toml`](netlify.toml) / [`railway.toml`](railway.toml). Details: [docs/fork-deploy.md](docs/fork-deploy.md).
-
-## Docker all-in-one
-
-```bash
-cp .env.example .env   # optional: DOCKERHUB_USERNAME, TM_IMAGE_TAG
-make up                # pull Hub images → http://localhost:3000
-# make up-build        # or build from this repo
-```
-
-Same-origin `/api` — no CORS, blank Server field.
-
-On first visit with an empty database, the **setup wizard** creates the owner account. For production, set `TM_JWT_SECRET=$(openssl rand -hex 32)` and put TLS (Caddy/Traefik) in front — see [docs/deploy.md](docs/deploy.md).
 
 ## Development
 
@@ -121,6 +163,16 @@ make setup && make dev   # API :8080 + web :5173
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for targets, Vite+ commands, and project structure.
 
+### Demo data
+
+Fill any instance with ~200 generated trades over the last three months — the dataset in the screenshots above:
+
+```bash
+make demo-seed API=http://localhost:3000/api/v1 EMAIL=you@example.com PASSWORD='…'
+```
+
+It talks to the public API only, so it works against a local stack or a deployed demo. Re-running is a no-op — fills are deduplicated server-side.
+
 ## Docs
 
 | Doc | Topic |
@@ -129,15 +181,20 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for targets, Vite+ commands, and project 
 | [docs/deploy.md](docs/deploy.md) | Docker, CORS, edge rewrite |
 | [docs/release.md](docs/release.md) | Versioning, changelogs, GitHub Releases |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Local dev (`make dev`) |
-| [DESIGN.md](DESIGN.md) | Signal Terminal UI system |
+| [DESIGN.md](DESIGN.md) | UI system — shadcn/ui + coss ui tokens |
 
-## Similar projects
+## Star history
 
-TraderMemos sits alongside other self-hosted tools traders and builders reach for:
+<div align="center">
+<a href="https://www.star-history.com/#sinhong2011/TraderMemos&Date">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=sinhong2011/TraderMemos&type=Date&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=sinhong2011/TraderMemos&type=Date" />
+    <img alt="Star history chart for TraderMemos" src="https://api.star-history.com/svg?repos=sinhong2011/TraderMemos&type=Date" width="600" />
+  </picture>
+</a>
+</div>
 
-- **[Ghost](https://github.com/TryGhost/Ghost)** — publishing you own
-- **[Umami](https://github.com/umami-software/umami)** — analytics you own
-- **[Plane](https://github.com/makeplane/plane)** — project tracking you own
-- **[Cal.com](https://github.com/calcom/cal.com)** — scheduling you own
+## License
 
-TraderMemos brings that same sovereignty to **performance review**.
+[AGPL-3.0](LICENSE). Self-host it, modify it, and run it for yourself or your firm freely. If you run a modified version as a network service for others, you have to publish those changes.
