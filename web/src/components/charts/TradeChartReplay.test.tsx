@@ -10,6 +10,7 @@ const createSeriesMarkers = vi.fn<(...args: any[]) => any>(() => ({ setMarkers }
 vi.mock("lightweight-charts", () => {
   const series = {
     setData: (...args: any[]) => setData(...args),
+    applyOptions: vi.fn<(...args: any[]) => any>(),
     createPriceLine: vi.fn<(...args: any[]) => any>(),
     priceLines: () => [],
     removePriceLine: vi.fn<(...args: any[]) => any>(),
@@ -67,15 +68,19 @@ describe("TradeChart replay mode", () => {
     createSeriesMarkers.mockClear();
   });
 
-  it("whitespaces bars past the cursor and hides not-yet-passed fill markers", () => {
+  it("hides bars past the cursor (transparent, keeping the time axis) and their fill markers", () => {
     render(
       <TradeChart symbol="AAPL" bars={bars} fills={fills} interval="1" replayUpTo={T0 + 60} />,
     );
     const points = setData.mock.calls.at(-1)![0];
+    // All bars stay in the series — trailing whitespace would be dropped by
+    // lightweight-charts and collapse the axis — but future ones are painted
+    // transparent.
     expect(points).toHaveLength(3);
     expect(points[0]).toHaveProperty("open");
-    expect(points[1]).not.toHaveProperty("open");
-    expect(points[2]).not.toHaveProperty("open");
+    expect(points[0]).not.toHaveProperty("color");
+    expect(points[1].color).toBe("rgba(0,0,0,0)");
+    expect(points[2].wickColor).toBe("rgba(0,0,0,0)");
     // The only fill sits in the second bar, which the cursor hasn't reached.
     expect(createSeriesMarkers).not.toHaveBeenCalled();
   });
@@ -85,15 +90,15 @@ describe("TradeChart replay mode", () => {
       <TradeChart symbol="AAPL" bars={bars} fills={fills} interval="1" replayUpTo={T0 + 180} />,
     );
     const points = setData.mock.calls.at(-1)![0];
-    expect(points[2]).toHaveProperty("open");
+    expect(points[2]).not.toHaveProperty("color");
     expect(createSeriesMarkers).toHaveBeenCalledTimes(1);
     expect(createSeriesMarkers.mock.calls[0]![1]).toHaveLength(1);
   });
 
-  it("shows all candles when replay is off", () => {
+  it("shows all candles untinted when replay is off", () => {
     render(<TradeChart symbol="AAPL" bars={bars} fills={[]} interval="1" />);
     const points = setData.mock.calls.at(-1)![0];
-    expect(points.every((p: object) => "open" in p)).toBe(true);
+    expect(points.every((p: object) => "open" in p && !("color" in p))).toBe(true);
   });
 
   it("renders the replay toggle with a state-dependent label", () => {
