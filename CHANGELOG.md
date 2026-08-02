@@ -5,6 +5,20 @@ All notable changes to TraderMemos are documented in this file.
 Release versioning is managed by [release-please](https://github.com/googleapis/release-please).
 See [docs/release.md](docs/release.md) for the release workflow.
 
+## [0.1.10](https://github.com/sinhong2011/TraderMemos/compare/v0.1.9...v0.1.10) (2026-08-02)
+
+
+### Features
+
+* auto-compute MAE/MFE from market bars ([#33](https://github.com/sinhong2011/TraderMemos/issues/33)) ([c3aaa61](https://github.com/sinhong2011/TraderMemos/commit/c3aaa61f9de5aed570219580ff414aded81f97ab))
+* behavioral analytics — revenge, overconfidence, loss aversion detection ([#39](https://github.com/sinhong2011/TraderMemos/issues/39)) ([1714326](https://github.com/sinhong2011/TraderMemos/commit/17143267718189214176d8a37b1844bf6b6067ff))
+* economic calendar — ForexFactory feed + week-timeline events page ([#36](https://github.com/sinhong2011/TraderMemos/issues/36)) ([895cff0](https://github.com/sinhong2011/TraderMemos/commit/895cff007c012566393a83188636d3035bb071a5))
+* IBKR Flex auto-sync — scheduled broker import via Flex Web Service ([#41](https://github.com/sinhong2011/TraderMemos/issues/41)) ([ffd4985](https://github.com/sinhong2011/TraderMemos/commit/ffd49852db20f71b5d0c32b8ef563747d0807b11))
+* in-process background job runner with MAE/MFE excursion backfill ([#40](https://github.com/sinhong2011/TraderMemos/issues/40)) ([fe0c548](https://github.com/sinhong2011/TraderMemos/commit/fe0c5488495b68e906e0be92fa222f9dc8dc6f50))
+* pro day-trader suite — rule compliance, day review, broker presets, prop mode ([#38](https://github.com/sinhong2011/TraderMemos/issues/38)) ([0fa4ce2](https://github.com/sinhong2011/TraderMemos/commit/0fa4ce24871852ff1dfb2427cb0da61c6f784d23))
+* **web:** replace app icon with new blue candlestick T artwork ([#42](https://github.com/sinhong2011/TraderMemos/issues/42)) ([cdc0970](https://github.com/sinhong2011/TraderMemos/commit/cdc09707d224499346afa6a09251a4b3d1559aac))
+* **web:** trade replay — bar-by-bar playback on the trade chart ([#43](https://github.com/sinhong2011/TraderMemos/issues/43)) ([11190e0](https://github.com/sinhong2011/TraderMemos/commit/11190e0de267a93cdf484736109e4f2829a3f8b5))
+
 ## [0.1.9](https://github.com/sinhong2011/TraderMemos/compare/v0.1.8...v0.1.9) (2026-08-01)
 
 
