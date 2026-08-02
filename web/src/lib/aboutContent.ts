@@ -70,6 +70,13 @@ export type AboutContent = {
   updateBothBehind: string;
   updateApiVersionLabel: string;
   updateApiUnreachable: string;
+  updateMismatch: string;
+  updateBannerMismatch: string;
+  apiBuildTimeLabel: string;
+  apiUptimeLabel: string;
+  apiDbLabel: string;
+  apiFeaturesLabel: string;
+  featureNames: Record<string, string>;
 };
 
 const ABOUT: Record<AppLocale, AboutContent> = {
@@ -91,17 +98,18 @@ const ABOUT: Record<AppLocale, AboutContent> = {
       },
       {
         title: "P&L calendar",
-        description: "Heatmap calendar with daily realized P&L, trade counts, and drill-down.",
+        description:
+          "Heatmap calendar with daily realized P&L, trade counts, drill-down, and a macro economic event timeline.",
       },
       {
         title: "Reports & playbook",
         description:
-          "Win rate, expectancy, setup breakdown, hourly/session stats, and a linked strategy playbook.",
+          "Win rate, expectancy, setup breakdown, MAE/MFE excursions, behavior insights, and a linked strategy playbook.",
       },
       {
         title: "Import & tools",
         description:
-          "CSV import, position-size calculator, risk rules, and cash ledger per account.",
+          "CSV import, IBKR Flex auto-sync, position-size calculator, risk rules, and cash ledger per account.",
       },
       {
         title: "AI (optional)",
@@ -110,7 +118,7 @@ const ABOUT: Record<AppLocale, AboutContent> = {
       },
     ],
     stackTitle: "Built with",
-    stack: ["Go · Echo · SQLite", "React · Vite+ · TanStack", "Tailwind · shadcn UI"],
+    stack: ["Go · Echo · SQLite / Postgres", "React · Vite+ · TanStack", "Tailwind · shadcn UI"],
     linksTitle: "Resources",
     links: [
       {
@@ -180,6 +188,20 @@ const ABOUT: Record<AppLocale, AboutContent> = {
     updateBothBehind: "Web and API are behind the latest release",
     updateApiVersionLabel: "API version",
     updateApiUnreachable: "Could not read API version",
+    updateMismatch: "Web and API versions don't match",
+    updateBannerMismatch:
+      "Web and API are running different versions — update the older side so they match.",
+    apiBuildTimeLabel: "Built",
+    apiUptimeLabel: "Uptime",
+    apiDbLabel: "Database",
+    apiFeaturesLabel: "Server features",
+    featureNames: {
+      market_data: "Market data",
+      econ_calendar: "Economic calendar",
+      ocr: "OCR",
+      coach: "AI coach",
+      background_jobs: "Background jobs",
+    },
   },
   "zh-HK": {
     tagline: "自架交易日誌",
@@ -197,15 +219,15 @@ const ABOUT: Record<AppLocale, AboutContent> = {
       },
       {
         title: "P&L 日曆",
-        description: "熱力圖日曆顯示每日已實現 P&L、交易筆數，並可深入查看。",
+        description: "熱力圖日曆顯示每日已實現 P&L、交易筆數、可深入查看，並附宏觀經濟事件時間軸。",
       },
       {
         title: "報表與策略庫",
-        description: "勝率、期望值、策略分解、小時/盤段統計，以及連結的策略庫。",
+        description: "勝率、期望值、策略分解、MAE/MFE 走勢、行為洞察，以及連結的策略庫。",
       },
       {
         title: "匯入與工具",
-        description: "CSV 匯入、倉位計算器、風險規則，以及每帳戶現金分錄。",
+        description: "CSV 匯入、IBKR Flex 自動同步、倉位計算器、風險規則，以及每帳戶現金分錄。",
       },
       {
         title: "AI（可選）",
@@ -213,7 +235,7 @@ const ABOUT: Record<AppLocale, AboutContent> = {
       },
     ],
     stackTitle: "技術棧",
-    stack: ["Go · Echo · SQLite", "React · Vite+ · TanStack", "Tailwind · shadcn UI"],
+    stack: ["Go · Echo · SQLite / Postgres", "React · Vite+ · TanStack", "Tailwind · shadcn UI"],
     linksTitle: "資源",
     links: [
       {
@@ -282,6 +304,19 @@ const ABOUT: Record<AppLocale, AboutContent> = {
     updateBothBehind: "Web 與 API 均落後於最新發佈",
     updateApiVersionLabel: "API 版本",
     updateApiUnreachable: "無法讀取 API 版本",
+    updateMismatch: "Web 與 API 版本不一致",
+    updateBannerMismatch: "Web 與 API 版本不同 — 請更新較舊的一方使其一致。",
+    apiBuildTimeLabel: "建置時間",
+    apiUptimeLabel: "運行時間",
+    apiDbLabel: "資料庫",
+    apiFeaturesLabel: "伺服器功能",
+    featureNames: {
+      market_data: "市場資料",
+      econ_calendar: "經濟日曆",
+      ocr: "OCR",
+      coach: "AI 教練",
+      background_jobs: "背景工作",
+    },
   },
   ja: {
     tagline: "セルフホスト型トレードジャーナル",
@@ -301,17 +336,18 @@ const ABOUT: Record<AppLocale, AboutContent> = {
       },
       {
         title: "P&L カレンダー",
-        description: "日次実現 P&L とトレード数のヒートマップカレンダー、ドリルダウン対応。",
+        description:
+          "日次実現 P&L とトレード数のヒートマップカレンダー、ドリルダウンとマクロ経済イベントのタイムライン対応。",
       },
       {
         title: "レポート & プレイブック",
         description:
-          "勝率、期待値、セットアップ内訳、時間帯/セッション統計、リンクされたプレイブック。",
+          "勝率、期待値、セットアップ内訳、MAE/MFE、行動インサイト、リンクされたプレイブック。",
       },
       {
         title: "インポート & ツール",
         description:
-          "CSV インポート、ポジションサイズ計算、リスクルール、アカウント別キャッシュ台帳。",
+          "CSV インポート、IBKR Flex 自動同期、ポジションサイズ計算、リスクルール、アカウント別キャッシュ台帳。",
       },
       {
         title: "AI（任意）",
@@ -320,7 +356,7 @@ const ABOUT: Record<AppLocale, AboutContent> = {
       },
     ],
     stackTitle: "技術スタック",
-    stack: ["Go · Echo · SQLite", "React · Vite+ · TanStack", "Tailwind · shadcn UI"],
+    stack: ["Go · Echo · SQLite / Postgres", "React · Vite+ · TanStack", "Tailwind · shadcn UI"],
     linksTitle: "リソース",
     links: [
       {
@@ -392,6 +428,20 @@ const ABOUT: Record<AppLocale, AboutContent> = {
     updateBothBehind: "Web と API が最新リリースより古い",
     updateApiVersionLabel: "API バージョン",
     updateApiUnreachable: "API バージョンを取得できません",
+    updateMismatch: "Web と API のバージョンが一致しません",
+    updateBannerMismatch:
+      "Web と API が異なるバージョンで動作しています — 古い側を更新してください。",
+    apiBuildTimeLabel: "ビルド日時",
+    apiUptimeLabel: "稼働時間",
+    apiDbLabel: "データベース",
+    apiFeaturesLabel: "サーバー機能",
+    featureNames: {
+      market_data: "市場データ",
+      econ_calendar: "経済カレンダー",
+      ocr: "OCR",
+      coach: "AI コーチ",
+      background_jobs: "バックグラウンドジョブ",
+    },
   },
   ko: {
     tagline: "셀프호스팅 트레이딩 저널",
@@ -409,15 +459,16 @@ const ABOUT: Record<AppLocale, AboutContent> = {
       },
       {
         title: "P&L 캘린더",
-        description: "일별 실현 P&L, 거래 수 히트맵 캘린더 및 드릴다운.",
+        description: "일별 실현 P&L, 거래 수 히트맵 캘린더, 드릴다운 및 거시 경제 이벤트 타임라인.",
       },
       {
         title: "리포트 & 플레이북",
-        description: "승률, 기대값, 셋업 분석, 시간대/세션 통계, 연결된 플레이북.",
+        description: "승률, 기대값, 셋업 분석, MAE/MFE, 행동 인사이트, 연결된 플레이북.",
       },
       {
         title: "가져오기 & 도구",
-        description: "CSV 가져오기, 포지션 크기 계산기, 리스크 규칙, 계정별 현금 원장.",
+        description:
+          "CSV 가져오기, IBKR Flex 자동 동기화, 포지션 크기 계산기, 리스크 규칙, 계정별 현금 원장.",
       },
       {
         title: "AI (선택)",
@@ -425,7 +476,7 @@ const ABOUT: Record<AppLocale, AboutContent> = {
       },
     ],
     stackTitle: "기술 스택",
-    stack: ["Go · Echo · SQLite", "React · Vite+ · TanStack", "Tailwind · shadcn UI"],
+    stack: ["Go · Echo · SQLite / Postgres", "React · Vite+ · TanStack", "Tailwind · shadcn UI"],
     linksTitle: "리소스",
     links: [
       {
@@ -494,6 +545,20 @@ const ABOUT: Record<AppLocale, AboutContent> = {
     updateBothBehind: "Web과 API가 최신 릴리스보다 이전",
     updateApiVersionLabel: "API 버전",
     updateApiUnreachable: "API 버전을 읽을 수 없음",
+    updateMismatch: "Web과 API 버전이 일치하지 않음",
+    updateBannerMismatch:
+      "Web과 API가 서로 다른 버전으로 실행 중입니다 — 이전 버전 쪽을 업데이트하세요.",
+    apiBuildTimeLabel: "빌드 시간",
+    apiUptimeLabel: "가동 시간",
+    apiDbLabel: "데이터베이스",
+    apiFeaturesLabel: "서버 기능",
+    featureNames: {
+      market_data: "시장 데이터",
+      econ_calendar: "경제 캘린더",
+      ocr: "OCR",
+      coach: "AI 코치",
+      background_jobs: "백그라운드 작업",
+    },
   },
 };
 

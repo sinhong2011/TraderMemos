@@ -77,6 +77,23 @@ vi.mock("../../lib/hooks/useApiHealth", () => ({
   }),
 }));
 
+vi.mock("../../lib/hooks/useSystemInfo", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../../lib/hooks/useSystemInfo")>()),
+  useSystemInfo: () => ({
+    data: {
+      version: "0.1.0",
+      go: "go1.26.1",
+      started_at: "2026-01-01T00:00:00Z",
+      uptime_sec: 3600,
+      db_driver: "sqlite",
+      features: { econ_calendar: true },
+    },
+    isPending: false,
+    isSuccess: true,
+    isError: false,
+  }),
+}));
+
 vi.mock("../../lib/hooks/useAccessTokens", () => ({
   useAccessTokens: () => ({
     data: [],

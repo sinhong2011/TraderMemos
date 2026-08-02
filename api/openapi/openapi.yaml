@@ -52,6 +52,42 @@ paths:
                   commit:
                     type: string
 
+  /api/v1/system/info:
+    get:
+      tags: [Health]
+      summary: Server build and runtime info
+      operationId: getSystemInfo
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  version:
+                    type: string
+                    example: 0.1.10
+                  commit:
+                    type: string
+                  build_time:
+                    type: string
+                    format: date-time
+                  go:
+                    type: string
+                  started_at:
+                    type: string
+                    format: date-time
+                  uptime_sec:
+                    type: integer
+                  db_driver:
+                    type: string
+                    enum: [sqlite, postgres]
+                  features:
+                    type: object
+                    additionalProperties:
+                      type: boolean
+
   /api/v1/setup/status:
     get:
       tags: [Auth]

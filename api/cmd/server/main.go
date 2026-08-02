@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"runtime"
 	"time"
 
 	"github.com/tradermemos/api/internal/api"
@@ -20,6 +21,7 @@ import (
 	"github.com/tradermemos/api/internal/storage"
 	"github.com/tradermemos/api/internal/store"
 	"github.com/tradermemos/api/internal/trades"
+	"github.com/tradermemos/api/internal/version"
 	"golang.org/x/time/rate"
 
 	// Embed the IANA tz database so `tz` query params and the ET session clock
@@ -48,6 +50,9 @@ func main() {
 		log.Fatal(err)
 	}
 	logger := logging.New(cfg.LogLevel)
+	logger.Info("starting tradermemos api",
+		"version", version.Version, "commit", version.Commit,
+		"build_time", version.BuildTime, "go", runtime.Version())
 	if config.IsInsecureJWTSecret(cfg.JWTSecret) {
 		logger.Warn("TM_JWT_SECRET is insecure — acceptable only for local/dev; set openssl rand -hex 32 for production")
 	}
@@ -124,6 +129,14 @@ func main() {
 		FlexClient:     flexClient,
 		CORSOrigins:    cfg.CORSOrigins,
 		AuthRateLimit:  rate.Limit(2), // 2 req/s per IP on auth + setup
+		Driver:         cfg.Driver,
+		Features: map[string]bool{
+			"market_data":     cfg.MarketDataEnabled,
+			"econ_calendar":   cfg.EconCalendarEnabled,
+			"ocr":             cfg.OCREnabled,
+			"coach":           cfg.CoachEnabled,
+			"background_jobs": cfg.JobsEnabled,
+		},
 	})
 	if len(cfg.CORSOrigins) > 0 {
 		logger.Info("cors enabled", "origins", cfg.CORSOrigins)
@@ -149,6 +162,6 @@ func main() {
 			logger.Info("background jobs started", "jobs", names)
 		}
 	}
-	logger.Info("tradermemos api listening", "port", cfg.HTTPPort, "db", db.RedactDatabaseURL(cfg.DatabaseURL), "log_level", cfg.LogLevel)
+	logger.Info("tradermemos api listening", "port", cfg.HTTPPort, "version", version.Version, "db", db.RedactDatabaseURL(cfg.DatabaseURL), "log_level", cfg.LogLevel)
 	log.Fatal(s.Echo.Start(":" + cfg.HTTPPort))
 }
