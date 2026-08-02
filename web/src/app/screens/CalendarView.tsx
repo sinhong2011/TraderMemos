@@ -21,7 +21,7 @@ import { cn } from "@/lib/cn";
 import { fmtPct, fmtSignedMoney, fmtSignedMoneyCompact } from "@/lib/format";
 import { useMoneyFx } from "@/lib/hooks/useMoneyFx";
 import { intlLocale } from "@/lib/locale";
-import { resolveDisplayTimezone, useDisplayPrefs, usePrivacyMode } from "@/lib/displayPrefs";
+import { resolveMarketTimezone, useDisplayPrefs, usePrivacyMode } from "@/lib/displayPrefs";
 
 const DOW_HEADERS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 /** Weekend day-of-week indexes (Sun=0, Sat=6) — hidden below `md` in favor of taller Mon–Fri cells. */
@@ -141,7 +141,7 @@ export function CalendarView({
 }: CalendarViewProps) {
   usePrivacyMode();
   const tradeDateBasis = useDisplayPrefs((s) => s.tradeDateBasis);
-  const displayTz = resolveDisplayTimezone(useDisplayPrefs((s) => s.timezone));
+  const marketTz = resolveMarketTimezone(useDisplayPrefs((s) => s.marketTimezone));
   const [monthSummaryOpen, setMonthSummaryOpen] = useState(false);
   const [yearSummaryOpen, setYearSummaryOpen] = useState(false);
   const { currency: displayCurrency, rate } = useMoneyFx(currency);
@@ -149,31 +149,31 @@ export function CalendarView({
   const money = (v: number) => v * fxRate;
   const grid = monthGrid(year, month, dailyPnl);
   const weeks = weekSummaries(grid.weeks, records);
-  const today = todayString(displayTz);
+  const today = todayString(marketTz);
 
   const monthTradesByDay = useMemo(() => {
     const map = new Map<string, Trade[]>();
     for (const trade of monthTrades) {
-      const key = tradeDayKey(trade, tradeDateBasis, displayTz);
+      const key = tradeDayKey(trade, tradeDateBasis, marketTz);
       if (!key) continue;
       const list = map.get(key);
       if (list) list.push(trade);
       else map.set(key, [trade]);
     }
     return map;
-  }, [monthTrades, tradeDateBasis, displayTz]);
+  }, [monthTrades, tradeDateBasis, marketTz]);
 
   const yearTradesByDay = useMemo(() => {
     const map = new Map<string, Trade[]>();
     for (const trade of yearTradeList) {
-      const key = tradeDayKey(trade, tradeDateBasis, displayTz);
+      const key = tradeDayKey(trade, tradeDateBasis, marketTz);
       if (!key) continue;
       const list = map.get(key);
       if (list) list.push(trade);
       else map.set(key, [trade]);
     }
     return map;
-  }, [yearTradeList, tradeDateBasis, displayTz]);
+  }, [yearTradeList, tradeDateBasis, marketTz]);
 
   const startingList = selectedAccountId
     ? accounts.filter((a) => a.id === selectedAccountId)

@@ -4,8 +4,10 @@ import {
   DISPLAY_PREFS_STORAGE_KEY,
   formatHourKeyLabel,
   formatUtcOffsetPrefix,
+  marketTimezoneSelectOptions,
   resolveDisplayTimezone,
   resolveDisplayCurrency,
+  resolveMarketTimezone,
   rfc3339OffsetSuffix,
   timezoneSelectOptions,
   useDisplayPrefs,
@@ -127,6 +129,42 @@ describe("timezone preference", () => {
     expect(rfc3339OffsetSuffix("America/New_York", winter)).toBe("-05:00");
     expect(rfc3339OffsetSuffix("America/New_York", summer)).toBe("-04:00");
     expect(rfc3339OffsetSuffix("Asia/Kolkata", winter)).toBe("+05:30");
+  });
+});
+
+describe("market timezone preference", () => {
+  beforeEach(() => {
+    localStorage.removeItem(DISPLAY_PREFS_STORAGE_KEY);
+    useDisplayPrefs.setState({
+      displayCurrency: null,
+      privacyMode: false,
+      timezone: "America/New_York",
+      marketTimezone: "America/New_York",
+      timeFormat: "h12",
+      tradeDateBasis: "close",
+    });
+  });
+
+  it("defaults to US Eastern and is independent of the display timezone", () => {
+    expect(useDisplayPrefs.getState().marketTimezone).toBe("America/New_York");
+    useDisplayPrefs.getState().setTimezone("Asia/Hong_Kong");
+    expect(useDisplayPrefs.getState().marketTimezone).toBe("America/New_York");
+    useDisplayPrefs.getState().setMarketTimezone("Asia/Tokyo");
+    expect(useDisplayPrefs.getState().marketTimezone).toBe("Asia/Tokyo");
+  });
+
+  it("never resolves to the browser clock — 'local' falls back to Eastern", () => {
+    expect(resolveMarketTimezone("local")).toBe("America/New_York");
+    expect(resolveMarketTimezone("not-a-zone")).toBe("America/New_York");
+    expect(resolveMarketTimezone("Asia/Hong_Kong")).toBe("Asia/Hong_Kong");
+  });
+
+  it("omits the Local (browser) option from market timezone choices", () => {
+    const opts = marketTimezoneSelectOptions(new Date("2026-01-15T12:00:00Z"));
+    expect(opts.some((o) => (o.value as string) === "local")).toBe(false);
+    expect(opts.find((o) => o.value === "America/New_York")?.label).toBe(
+      "UTC-05 Eastern (New York)",
+    );
   });
 });
 

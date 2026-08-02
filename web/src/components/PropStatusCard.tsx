@@ -2,7 +2,7 @@ import type { Account } from "@/lib/api/types";
 import { usePropStatus } from "@/lib/hooks/useProp";
 import { cn } from "@/lib/cn";
 import { usePrivacyMode } from "@/lib/displayPrefs";
-import { displayTz } from "@/lib/filters";
+import { marketTz } from "@/lib/filters";
 import { fmtMoney, fmtSignedMoney } from "@/lib/format";
 import { intlLocale } from "@/lib/locale";
 import { Card } from "./Card";
@@ -59,7 +59,7 @@ export function PropStatusCard({ accounts, selectedAccountId }: PropStatusCardPr
   const locale = intlLocale();
   const account = accounts.find((a) => a.id === selectedAccountId);
   const isProp = account?.account_type === "prop";
-  const statusQ = usePropStatus(account?.id, displayTz(), isProp);
+  const statusQ = usePropStatus(account?.id, marketTz(), isProp);
 
   if (!isProp || !statusQ.data?.configured || !statusQ.data.status) return null;
   const st = statusQ.data.status;
