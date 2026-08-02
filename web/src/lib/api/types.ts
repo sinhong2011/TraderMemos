@@ -226,6 +226,8 @@ export interface Summary {
   breakeven: number;
   win_rate: number;
   net_pnl: number;
+  /** Before-fees P&L; optional to tolerate an older API without it. */
+  gross_pnl?: number;
   gross_profit: number;
   gross_loss: number;
   profit_factor: number;

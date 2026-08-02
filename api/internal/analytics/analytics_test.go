@@ -9,7 +9,7 @@ import (
 
 func tr(net float64, closed string) ClosedTrade {
 	tt, _ := time.Parse(time.RFC3339, closed)
-	return ClosedTrade{NetPnl: net, FeesTotal: 1, OpenedAt: tt, ClosedAt: tt}
+	return ClosedTrade{NetPnl: net, GrossPnl: net + 1, FeesTotal: 1, OpenedAt: tt, ClosedAt: tt}
 }
 
 func TestDailyPnlDateBasis(t *testing.T) {
@@ -48,8 +48,9 @@ func TestSummary(t *testing.T) {
 	require.Equal(t, 2, s.Wins)
 	require.Equal(t, 1, s.Losses)
 	require.InDelta(t, 0.6667, s.WinRate, 0.001)
-	require.Equal(t, 400.0, s.NetPnl)          // 200-100+300
-	require.Equal(t, 5.0, s.ProfitFactor)      // (200+300)/100
+	require.Equal(t, 400.0, s.NetPnl)     // 200-100+300
+	require.Equal(t, 403.0, s.GrossPnl)   // net + 1 fee per trade
+	require.Equal(t, 5.0, s.ProfitFactor) // (200+300)/100
 	require.Equal(t, 250.0, s.AvgWin)
 	require.Equal(t, 100.0, s.AvgLoss)
 }

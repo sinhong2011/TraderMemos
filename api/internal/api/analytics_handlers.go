@@ -20,6 +20,15 @@ func (s *Server) analyticsRoutes(g *echo.Group) {
 	g.GET("/analytics/behavior", s.handleBehavior)
 }
 
+// grossPnlOf reads the stored gross P&L, reconstructing it from net + fees
+// for rows imported before gross was recorded.
+func grossPnlOf(t store.Trade) float64 {
+	if t.GrossPnl.Valid {
+		return t.GrossPnl.Float64
+	}
+	return t.NetPnl.Float64 + t.FeesTotal
+}
+
 func toClosedTrades(rows []store.Trade) []analytics.ClosedTrade {
 	out := make([]analytics.ClosedTrade, 0, len(rows))
 	for _, t := range rows {
@@ -28,6 +37,7 @@ func toClosedTrades(rows []store.Trade) []analytics.ClosedTrade {
 		}
 		out = append(out, analytics.ClosedTrade{
 			NetPnl:    t.NetPnl.Float64,
+			GrossPnl:  grossPnlOf(t),
 			FeesTotal: t.FeesTotal,
 			OpenedAt:  t.OpenedAt,
 			ClosedAt:  t.ClosedAt.Time,
