@@ -12,6 +12,7 @@ import (
 	"github.com/tradermemos/api/internal/config"
 	"github.com/tradermemos/api/internal/db"
 	"github.com/tradermemos/api/internal/econdata"
+	"github.com/tradermemos/api/internal/flexsync"
 	"github.com/tradermemos/api/internal/jobs"
 	"github.com/tradermemos/api/internal/logging"
 	"github.com/tradermemos/api/internal/marketdata"
@@ -104,6 +105,7 @@ func main() {
 		APIKey:  cfg.CoachAPIKey,
 		Model:   cfg.CoachModel,
 	}
+	flexClient := &flexsync.Client{}
 	s := api.New(api.Deps{
 		JWTSecret:      cfg.JWTSecret,
 		JWT:            jwt,
@@ -119,6 +121,7 @@ func main() {
 		Econ:           econSvc,
 		OCR:            ocrSvc,
 		CoachDefaults:  coachDefaults,
+		FlexClient:     flexClient,
 		CORSOrigins:    cfg.CORSOrigins,
 		AuthRateLimit:  rate.Limit(2), // 2 req/s per IP on auth + setup
 	})
@@ -132,6 +135,13 @@ func main() {
 				q, marketSvc,
 				time.Duration(cfg.JobExcursionIntervalMin)*time.Minute,
 				cfg.JobExcursionLimit, time.Second, logger,
+			))
+		}
+		if cfg.JobFlexSyncIntervalMin > 0 {
+			runner.Register(jobs.NewFlexSync(
+				q, flexClient,
+				time.Duration(cfg.JobFlexSyncIntervalMin)*time.Minute,
+				logger,
 			))
 		}
 		if names := runner.Names(); len(names) > 0 {

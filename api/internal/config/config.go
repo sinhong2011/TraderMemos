@@ -72,6 +72,9 @@ type Config struct {
 	// JobExcursionLimit caps trades attempted per pass (each attempt may call
 	// the market data provider); 0 disables the job.
 	JobExcursionLimit int
+	// JobFlexSyncIntervalMin is minutes between IBKR Flex sync passes;
+	// 0 disables the scheduled job (manual sync stays available).
+	JobFlexSyncIntervalMin int
 }
 
 func Load() (Config, error) {
@@ -107,6 +110,7 @@ func Load() (Config, error) {
 		"jobs_enabled":               true,
 		"job_excursion_interval_min": 360,
 		"job_excursion_limit":        10,
+		"job_flex_sync_interval_min": 360,
 	}, "."), nil)
 
 	// TM_HTTP_PORT -> http_port
@@ -152,6 +156,7 @@ func Load() (Config, error) {
 		JobsEnabled:             k.Bool("jobs_enabled"),
 		JobExcursionIntervalMin: k.Int("job_excursion_interval_min"),
 		JobExcursionLimit:       k.Int("job_excursion_limit"),
+		JobFlexSyncIntervalMin:  k.Int("job_flex_sync_interval_min"),
 	}
 	if err := cfg.resolveDatabase(k.String("database_url"), k.String("db_path")); err != nil {
 		return Config{}, err

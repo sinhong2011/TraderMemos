@@ -17,6 +17,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { EmptyState } from "@/components/EmptyState";
 import { LlmApiSettingsForm } from "@/components/LlmApiSettingsForm";
 import { ModeToggle } from "@/components/ModeToggle";
+import { FlexSyncButton } from "@/components/FlexSyncModal";
 import { PropRulesButton } from "@/components/PropRulesModal";
 import { Modal } from "@/components/Modal";
 import { AmountInput } from "@/components/AmountInput";
@@ -767,6 +768,8 @@ export function AccountsTab({
                           {acc.account_type === "prop" ? (
                             <PropRulesButton accountId={acc.id} accountName={acc.name} />
                           ) : null}
+                          <FlexSyncButton accountId={acc.id} accountName={acc.name} />
+
                           <ClearTradesButton
                             accountName={acc.name}
                             tradeCount={tradeCount}

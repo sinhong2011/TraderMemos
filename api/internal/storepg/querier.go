@@ -28,6 +28,7 @@ type Querier interface {
 	DeleteExecutionsForAccount(ctx context.Context, arg DeleteExecutionsForAccountParams) error
 	DeleteExecutionsForBatch(ctx context.Context, arg DeleteExecutionsForBatchParams) error
 	DeleteExecutionsForTrade(ctx context.Context, arg DeleteExecutionsForTradeParams) error
+	DeleteFlexSyncSettings(ctx context.Context, arg DeleteFlexSyncSettingsParams) (int64, error)
 	DeleteFutureEconomicEvents(ctx context.Context, arg DeleteFutureEconomicEventsParams) error
 	DeleteJournalNote(ctx context.Context, arg DeleteJournalNoteParams) (int64, error)
 	DeleteMediaFile(ctx context.Context, arg DeleteMediaFileParams) (int64, error)
@@ -50,6 +51,7 @@ type Querier interface {
 	GetEconomicEventsLastFetch(ctx context.Context, provider string) (string, error)
 	GetExecution(ctx context.Context, arg GetExecutionParams) (Execution, error)
 	GetExecutionByDedup(ctx context.Context, arg GetExecutionByDedupParams) (Execution, error)
+	GetFlexSyncSettings(ctx context.Context, arg GetFlexSyncSettingsParams) (FlexSyncSetting, error)
 	GetImportBatch(ctx context.Context, arg GetImportBatchParams) (ImportBatch, error)
 	GetInstrumentSpec(ctx context.Context, arg GetInstrumentSpecParams) (InstrumentSpec, error)
 	GetJournalNote(ctx context.Context, arg GetJournalNoteParams) (JournalNote, error)
@@ -78,6 +80,7 @@ type Querier interface {
 	ListCashTransactions(ctx context.Context, arg ListCashTransactionsParams) ([]CashTransaction, error)
 	ListClosedTrades(ctx context.Context, arg ListClosedTradesParams) ([]Trade, error)
 	ListEconomicEvents(ctx context.Context, arg ListEconomicEventsParams) ([]EconomicEvent, error)
+	ListEnabledFlexSyncSettings(ctx context.Context) ([]FlexSyncSetting, error)
 	ListExecutionsForAccount(ctx context.Context, arg ListExecutionsForAccountParams) ([]Execution, error)
 	ListExecutionsForTrade(ctx context.Context, tradeID string) ([]Execution, error)
 	ListImportBatches(ctx context.Context, userID string) ([]ImportBatch, error)
@@ -103,6 +106,7 @@ type Querier interface {
 	UpdateAccount(ctx context.Context, arg UpdateAccountParams) (Account, error)
 	UpdateCashTransaction(ctx context.Context, arg UpdateCashTransactionParams) (CashTransaction, error)
 	UpdateExecution(ctx context.Context, arg UpdateExecutionParams) (int64, error)
+	UpdateFlexSyncStatus(ctx context.Context, arg UpdateFlexSyncStatusParams) error
 	UpdateJournalNote(ctx context.Context, arg UpdateJournalNoteParams) (JournalNote, error)
 	UpdateSetup(ctx context.Context, arg UpdateSetupParams) error
 	UpdateTag(ctx context.Context, arg UpdateTagParams) (int64, error)
@@ -112,6 +116,7 @@ type Querier interface {
 	UpsertChecklistTemplate(ctx context.Context, arg UpsertChecklistTemplateParams) (ChecklistTemplate, error)
 	UpsertCoachSettings(ctx context.Context, arg UpsertCoachSettingsParams) (CoachSetting, error)
 	UpsertEconomicEvent(ctx context.Context, arg UpsertEconomicEventParams) error
+	UpsertFlexSyncSettings(ctx context.Context, arg UpsertFlexSyncSettingsParams) (FlexSyncSetting, error)
 	UpsertInstrumentSpec(ctx context.Context, arg UpsertInstrumentSpecParams) error
 	UpsertMarketBarsCache(ctx context.Context, arg UpsertMarketBarsCacheParams) error
 	UpsertOcrSettings(ctx context.Context, arg UpsertOcrSettingsParams) (OcrSetting, error)

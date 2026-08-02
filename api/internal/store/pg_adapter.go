@@ -584,6 +584,36 @@ func (p *PG) ListTrades(ctx context.Context, arg ListTradesParams) ([]Trade, err
 	return func() []Trade { in := v; out := make([]Trade, len(in)); for i := range in { out[i] = Trade(in[i]) }; return out }(), nil
 }
 
+func (p *PG) GetFlexSyncSettings(ctx context.Context, arg GetFlexSyncSettingsParams) (FlexSyncSetting, error) {
+	v, err := p.q.GetFlexSyncSettings(ctx, storepg.GetFlexSyncSettingsParams(arg))
+	return FlexSyncSetting(v), err
+}
+
+func (p *PG) UpsertFlexSyncSettings(ctx context.Context, arg UpsertFlexSyncSettingsParams) (FlexSyncSetting, error) {
+	v, err := p.q.UpsertFlexSyncSettings(ctx, storepg.UpsertFlexSyncSettingsParams(arg))
+	return FlexSyncSetting(v), err
+}
+
+func (p *PG) DeleteFlexSyncSettings(ctx context.Context, arg DeleteFlexSyncSettingsParams) (int64, error) {
+	return p.q.DeleteFlexSyncSettings(ctx, storepg.DeleteFlexSyncSettingsParams(arg))
+}
+
+func (p *PG) ListEnabledFlexSyncSettings(ctx context.Context) ([]FlexSyncSetting, error) {
+	v, err := p.q.ListEnabledFlexSyncSettings(ctx)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]FlexSyncSetting, len(v))
+	for i := range v {
+		out[i] = FlexSyncSetting(v[i])
+	}
+	return out, nil
+}
+
+func (p *PG) UpdateFlexSyncStatus(ctx context.Context, arg UpdateFlexSyncStatusParams) error {
+	return p.q.UpdateFlexSyncStatus(ctx, storepg.UpdateFlexSyncStatusParams(arg))
+}
+
 func (p *PG) ListTradesMissingExcursion(ctx context.Context, limit int64) ([]Trade, error) {
 	v, err := p.q.ListTradesMissingExcursion(ctx, int32(limit))
 	if err != nil {

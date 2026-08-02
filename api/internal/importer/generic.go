@@ -110,11 +110,16 @@ func (g *Generic) parseRow(row map[string]string) (ParsedExecution, error) {
 		return p, fmt.Errorf("invalid date %q", g.col(row, "executed_at"))
 	}
 	p.ExecutedAt = ts
+	// Costs are stored as positive magnitudes: brokers disagree on sign
+	// (IBKR reports IBCommission negative), and the P&L engine subtracts
+	// fees_total from gross either way.
 	if c := g.col(row, "commission"); c != "" {
-		p.Commission, _ = strconv.ParseFloat(c, 64)
+		v, _ := strconv.ParseFloat(c, 64)
+		p.Commission = math.Abs(v)
 	}
 	if f := g.col(row, "fees"); f != "" {
-		p.Fees, _ = strconv.ParseFloat(f, 64)
+		v, _ := strconv.ParseFloat(f, 64)
+		p.Fees = math.Abs(v)
 	}
 	p.InstrumentType = ParseInstrumentType(g.col(row, "instrument_type"), p.Symbol)
 	if p.InstrumentType == "option" {
