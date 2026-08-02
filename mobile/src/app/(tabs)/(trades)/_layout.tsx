@@ -1,6 +1,7 @@
 import { Stack } from 'expo-router/stack';
 import { useUnistyles } from 'react-native-unistyles';
 
+import { AddMenu } from '@/components/add-menu';
 import { t } from '@lingui/core/macro';
 
 export default function TradesLayout() {
@@ -18,7 +19,10 @@ export default function TradesLayout() {
         headerBackButtonDisplayMode: 'minimal',
       }}
     >
-      <Stack.Screen name="index" options={{ title: t`Trades` }} />
+      <Stack.Screen
+        name="index"
+        options={{ title: t`Trades`, headerRight: () => <AddMenu /> }}
+      />
       <Stack.Screen name="[id]" options={{ headerLargeTitle: false }} />
     </Stack>
   );

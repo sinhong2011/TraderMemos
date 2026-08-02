@@ -4,6 +4,7 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
 import { Stack } from 'expo-router/stack';
 import { useMemo } from 'react';
 import { useColorScheme } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { useUnistyles } from 'react-native-unistyles';
 
@@ -22,7 +23,9 @@ export default function RootLayout() {
       ...base,
       colors: {
         ...base.colors,
-        primary: theme.colors.primary,
+        // Nav "primary" tints interactive text/icons (back button, header
+        // actions) — brand blue is reserved for fills, so keep chrome neutral.
+        primary: theme.colors.foreground,
         background: theme.colors.background,
         card: theme.colors.card,
         text: theme.colors.foreground,
@@ -46,6 +49,7 @@ export default function RootLayout() {
   );
 
   return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
     <I18nProvider i18n={i18n}>
       <SessionProvider>
         <QueryClientProvider client={queryClient}>
@@ -53,10 +57,33 @@ export default function RootLayout() {
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="login" options={{ presentation: 'modal', headerShown: false }} />
+            <Stack.Screen name="new-trade" options={{ presentation: 'modal' }} />
+            <Stack.Screen name="edit-trade" options={{ presentation: 'modal' }} />
+            <Stack.Screen
+              name="manage-tags"
+              options={{
+                presentation: 'formSheet',
+                sheetAllowedDetents: [0.6, 1],
+                sheetGrabberVisible: true,
+                sheetCornerRadius: 24,
+              }}
+            />
+            <Stack.Screen
+              name="quick-journal"
+              options={{
+                presentation: 'formSheet',
+                sheetAllowedDetents: [0.75, 1],
+                sheetGrabberVisible: true,
+                sheetCornerRadius: 24,
+              }}
+            />
+            <Stack.Screen name="new-note" options={{ presentation: 'modal' }} />
+            <Stack.Screen name="new-setup" options={{ presentation: 'modal' }} />
           </Stack>
         </ThemeProvider>
         </QueryClientProvider>
       </SessionProvider>
     </I18nProvider>
+    </GestureHandlerRootView>
   );
 }

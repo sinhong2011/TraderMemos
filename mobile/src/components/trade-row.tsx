@@ -39,9 +39,7 @@ function OutcomeBadge({ trade }: { trade: Trade }) {
       ? t`Open`
       : trade.return_pct != null
         ? `${trade.return_pct >= 0 ? '+' : ''}${trade.return_pct.toFixed(2)}%`
-        : status.label === 'BE'
-          ? '0.00%'
-          : '—';
+        : '0.00%';
 
   return (
     <View style={[styles.badge, { backgroundColor: BadgeColor[tone] }]}>
@@ -106,7 +104,7 @@ export function TradeRow({ trade, showDate = true }: { trade: Trade; showDate?: 
                 style={[styles.pnl, trade.net_pnl == null && styles.pnlMuted]}
                 numberOfLines={1}
               >
-                {trade.net_pnl != null ? formatPnl(trade.net_pnl, currency) : '—'}
+                {formatPnl(trade.net_pnl, currency)}
               </Text>
               <OutcomeBadge trade={trade} />
             </View>

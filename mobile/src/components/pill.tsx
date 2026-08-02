@@ -16,9 +16,12 @@ export function Pill({ tone = 'muted', children }: { tone?: PillTone; children: 
   };
   const color = toneColor[tone];
 
+  // Primary is a fill-only color: accent pills tint the surface but keep
+  // neutral text; P&L tones still color their text.
+  const textColor = tone === 'accent' ? theme.colors.foreground : color;
   return (
     <View style={[styles.pill, color ? { backgroundColor: `${color}1F` } : styles.mutedPill]}>
-      <Text style={[styles.text, color ? { color } : styles.mutedText]} numberOfLines={1}>
+      <Text style={[styles.text, textColor ? { color: textColor } : styles.mutedText]} numberOfLines={1}>
         {children}
       </Text>
     </View>
