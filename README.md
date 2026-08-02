@@ -83,7 +83,7 @@ TraderMemos brings to performance review what **[Ghost](https://github.com/TryGh
 
 | Feature | What it does |
 |---|---|
-| 📊&nbsp; **Dashboard** | Equity curve, expectancy, streaks, hold times, and annual goal pacing |
+| 📊&nbsp; **Home** | Equity curve, expectancy, streaks, hold times, and annual goal pacing |
 | 📒&nbsp; **Trade log** | Fills grouped into trades — filter, sort, tag, and drill into execution detail |
 | 🗓&nbsp; **P&L calendar** | Daily and weekly heatmap with drill-down |
 | 📈&nbsp; **Reports** | Win rate, profit factor, expectancy, and setup / hourly / session breakdowns |

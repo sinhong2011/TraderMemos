@@ -2,8 +2,9 @@ import {
   BookOpen,
   CalendarDays,
   Calculator,
-  LayoutDashboard,
+  House,
   List,
+  Newspaper,
   PieChart,
   StickyNote,
   Upload,
@@ -40,7 +41,7 @@ export const CREATE_ACTIONS: CreateAction[] = [
 
 /** Shown in the desktop/tablet rail top group and the mobile bottom tab bar. */
 export const PRIMARY_NAV: NavItem[] = [
-  { to: "/dashboard", labelKey: "dashboard", icon: LayoutDashboard },
+  { to: "/home", labelKey: "home", icon: House },
   { to: "/trades", labelKey: "trades", icon: List },
   { to: "/calendar", labelKey: "calendar", icon: CalendarDays },
   { to: "/reports", labelKey: "reports", icon: PieChart },
@@ -48,6 +49,7 @@ export const PRIMARY_NAV: NavItem[] = [
 
 /** Shown in the desktop/tablet rail bottom group and the mobile nav drawer. */
 export const SECONDARY_NAV: NavItem[] = [
+  { to: "/events", labelKey: "events", icon: Newspaper },
   { to: "/notes", labelKey: "notes", icon: StickyNote },
   { to: "/playbook", labelKey: "playbook", icon: BookOpen },
   { to: "/calculator", labelKey: "calculator", icon: Calculator },

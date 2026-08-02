@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vite-plus/test";
 import type { Trade } from "./api/types";
-import { computeAccountContribution, computeDashboardInsights } from "./dashboardInsights";
+import { computeAccountContribution, computeHomeInsights } from "./homeInsights";
 
 function trade(over: Partial<Trade>): Trade {
   return {
@@ -28,7 +28,7 @@ function trade(over: Partial<Trade>): Trade {
   };
 }
 
-describe("computeDashboardInsights", () => {
+describe("computeHomeInsights", () => {
   it("computes win/loss streaks in chronological order", () => {
     const trades = [
       trade({ id: "1", closed_at: "2026-07-03T12:00:00Z", net_pnl: 10 }),
@@ -37,7 +37,7 @@ describe("computeDashboardInsights", () => {
       trade({ id: "4", closed_at: "2026-07-04T12:00:00Z", net_pnl: -3 }),
       trade({ id: "5", closed_at: "2026-07-05T12:00:00Z", net_pnl: -2 }),
     ];
-    const out = computeDashboardInsights(trades);
+    const out = computeHomeInsights(trades);
     expect(out.bestStreak).toBe(3);
     expect(out.worstStreak).toBe(2);
   });
@@ -63,7 +63,7 @@ describe("computeDashboardInsights", () => {
         time_in_trade_secs: 1200,
       }),
     ];
-    const out = computeDashboardInsights(trades);
+    const out = computeHomeInsights(trades);
     expect(out.bestDay).toEqual({ date: "2026-07-01", pnl: 150 });
     expect(out.worstDay).toEqual({ date: "2026-07-02", pnl: -80 });
   });
@@ -99,7 +99,7 @@ describe("computeDashboardInsights", () => {
         ],
       }),
     ];
-    const out = computeDashboardInsights(trades);
+    const out = computeHomeInsights(trades);
     expect(out.mainMistake).toBe("FOMO");
     expect(out.topSymbol).toBe("NQ");
   });
@@ -110,7 +110,7 @@ describe("computeDashboardInsights", () => {
       trade({ id: "2", net_pnl: 20, time_in_trade_secs: 1200 }),
       trade({ id: "3", net_pnl: -5, time_in_trade_secs: 300 }),
     ];
-    const out = computeDashboardInsights(trades);
+    const out = computeHomeInsights(trades);
     expect(out.avgHoldSecs).toBe(700);
     expect(out.winHoldSecs).toBe(900);
     expect(out.lossHoldSecs).toBe(300);

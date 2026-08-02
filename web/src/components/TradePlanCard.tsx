@@ -70,6 +70,9 @@ export interface TradePlanCardProps {
   insights: TradeInsights;
   /** Opens the edit drawer — the only place plan values can be set. */
   onEdit?: () => void;
+  /** Computes MAE/MFE from market bars; offered only for closed, chartable trades. */
+  onAutoExcursion?: () => void;
+  autoExcursionPending?: boolean;
 }
 
 /**
@@ -82,7 +85,13 @@ export interface TradePlanCardProps {
  * without arithmetic. Excursion sits alongside rather than buried in Coach:
  * MAE/MFE describe how the trade was managed, not what to do next time.
  */
-export function TradePlanCard({ trade, insights, onEdit }: TradePlanCardProps) {
+export function TradePlanCard({
+  trade,
+  insights,
+  onEdit,
+  onAutoExcursion,
+  autoExcursionPending = false,
+}: TradePlanCardProps) {
   usePrivacyMode();
   const locale = intlLocale();
   const currency = trade.pnl_currency;
@@ -114,6 +123,17 @@ export function TradePlanCard({ trade, insights, onEdit }: TradePlanCardProps) {
         <p className="m-0 text-[13px] leading-relaxed text-muted-foreground">
           No plan recorded. Add a stop, target, or risk amount to score this trade in R.
         </p>
+        {onAutoExcursion && (
+          <Button
+            type="button"
+            variant="link"
+            onClick={onAutoExcursion}
+            disabled={autoExcursionPending}
+            className="mt-2 h-auto self-start p-0 text-xs"
+          >
+            {autoExcursionPending ? "Computing…" : "Auto-fill MAE/MFE from market data"}
+          </Button>
+        )}
       </Card>
     );
   }
@@ -197,9 +217,26 @@ export function TradePlanCard({ trade, insights, onEdit }: TradePlanCardProps) {
           </>
         ) : null}
 
-        {hasExcursion && (
+        {(hasExcursion || onAutoExcursion) && (
           <div className="flex flex-col gap-3">
-            <p className={cardSectionLabelClass}>Excursion</p>
+            <div className="flex items-center justify-between">
+              <p className={cardSectionLabelClass}>Excursion</p>
+              {onAutoExcursion && (
+                <Button
+                  type="button"
+                  variant="link"
+                  onClick={onAutoExcursion}
+                  disabled={autoExcursionPending}
+                  className="h-auto text-xs"
+                >
+                  {autoExcursionPending
+                    ? "Computing…"
+                    : hasExcursion
+                      ? "Recompute from bars"
+                      : "Auto-fill from bars"}
+                </Button>
+              )}
+            </div>
             <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
               <StatCell
                 label="MAE"

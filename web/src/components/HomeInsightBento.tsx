@@ -1,17 +1,13 @@
 import type { ReactNode } from "react";
 import type { Summary, Trade } from "@/lib/api/types";
 import { cn } from "@/lib/cn";
-import {
-  type InsightRow,
-  buildInsightPanels,
-  computeDashboardInsights,
-} from "@/lib/dashboardInsights";
+import { type InsightRow, buildInsightPanels, computeHomeInsights } from "@/lib/homeInsights";
 import { fmtDuration, fmtMoney, fmtPct, fmtSignedMoney } from "@/lib/format";
 import { intlLocale } from "@/lib/locale";
 import { WinLossRecord } from "./WinLossRecord";
 import { usePrivacyMode } from "@/lib/displayPrefs";
 
-export interface DashboardInsightBentoProps {
+export interface HomeInsightBentoProps {
   summary: Summary;
   trades: Trade[];
   currency: string;
@@ -115,16 +111,16 @@ function StatTile({ row, className }: { row: InsightRow; className?: string }) {
   );
 }
 
-export function DashboardInsightBento({
+export function HomeInsightBento({
   summary,
   trades,
   currency,
   fxRate = 1,
   maxDrawdown,
-}: DashboardInsightBentoProps) {
+}: HomeInsightBentoProps) {
   usePrivacyMode();
   const locale = intlLocale();
-  const insights = computeDashboardInsights(trades);
+  const insights = computeHomeInsights(trades);
   const panels = buildInsightPanels(summary, insights, currency, locale, maxDrawdown, {
     money: (v) => fmtMoney(v * fxRate, currency, locale),
     signed: (v) => fmtSignedMoney(v * fxRate, currency, locale),

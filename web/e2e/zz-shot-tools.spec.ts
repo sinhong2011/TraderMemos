@@ -10,7 +10,7 @@ const PASSWORD = process.env.E2E_PASSWORD;
 const OUT = process.env.SHOT_DIR ?? ".";
 
 async function login(page: import("@playwright/test").Page) {
-  await page.goto("/dashboard");
+  await page.goto("/home");
   await page.evaluate(() => {
     localStorage.removeItem("tm_token");
     localStorage.removeItem("tm_refresh");

@@ -124,6 +124,10 @@ func (p *PG) DeleteExecutionsForTrade(ctx context.Context, arg DeleteExecutionsF
 	return p.q.DeleteExecutionsForTrade(ctx, storepg.DeleteExecutionsForTradeParams(arg))
 }
 
+func (p *PG) DeleteFutureEconomicEvents(ctx context.Context, arg DeleteFutureEconomicEventsParams) error {
+	return p.q.DeleteFutureEconomicEvents(ctx, storepg.DeleteFutureEconomicEventsParams(arg))
+}
+
 func (p *PG) DeleteJournalNote(ctx context.Context, arg DeleteJournalNoteParams) (int64, error) {
 	return p.q.DeleteJournalNote(ctx, storepg.DeleteJournalNoteParams(arg))
 }
@@ -212,6 +216,10 @@ func (p *PG) GetCoachSettings(ctx context.Context) (CoachSetting, error) {
 	return CoachSetting(v), nil
 }
 
+func (p *PG) GetEconomicEventsLastFetch(ctx context.Context, provider string) (string, error) {
+	return p.q.GetEconomicEventsLastFetch(ctx, provider)
+}
+
 func (p *PG) GetExecution(ctx context.Context, arg GetExecutionParams) (Execution, error) {
 	v, err := p.q.GetExecution(ctx, storepg.GetExecutionParams(arg))
 	if err != nil {
@@ -274,6 +282,26 @@ func (p *PG) GetOcrSettings(ctx context.Context) (GetOcrSettingsRow, error) {
 		return GetOcrSettingsRow{}, err
 	}
 	return GetOcrSettingsRow(v), nil
+}
+
+func (p *PG) GetPropSettings(ctx context.Context, arg GetPropSettingsParams) (PropSetting, error) {
+	v, err := p.q.GetPropSettings(ctx, storepg.GetPropSettingsParams(arg))
+	if err != nil {
+		return PropSetting{}, err
+	}
+	return PropSetting(v), nil
+}
+
+func (p *PG) UpsertPropSettings(ctx context.Context, arg UpsertPropSettingsParams) (PropSetting, error) {
+	v, err := p.q.UpsertPropSettings(ctx, storepg.UpsertPropSettingsParams(arg))
+	if err != nil {
+		return PropSetting{}, err
+	}
+	return PropSetting(v), nil
+}
+
+func (p *PG) DeletePropSettings(ctx context.Context, arg DeletePropSettingsParams) error {
+	return p.q.DeletePropSettings(ctx, storepg.DeletePropSettingsParams(arg))
 }
 
 func (p *PG) GetRiskRules(ctx context.Context, userID string) (RiskRule, error) {
@@ -436,6 +464,14 @@ func (p *PG) ListClosedTrades(ctx context.Context, arg ListClosedTradesParams) (
 	return func() []Trade { in := v; out := make([]Trade, len(in)); for i := range in { out[i] = Trade(in[i]) }; return out }(), nil
 }
 
+func (p *PG) ListEconomicEvents(ctx context.Context, arg ListEconomicEventsParams) ([]EconomicEvent, error) {
+	v, err := p.q.ListEconomicEvents(ctx, storepg.ListEconomicEventsParams(arg))
+	if err != nil {
+		return nil, err
+	}
+	return func() []EconomicEvent { in := v; out := make([]EconomicEvent, len(in)); for i := range in { out[i] = EconomicEvent(in[i]) }; return out }(), nil
+}
+
 func (p *PG) ListExecutionsForAccount(ctx context.Context, arg ListExecutionsForAccountParams) ([]Execution, error) {
 	v, err := p.q.ListExecutionsForAccount(ctx, storepg.ListExecutionsForAccountParams(arg))
 	if err != nil {
@@ -548,6 +584,44 @@ func (p *PG) ListTrades(ctx context.Context, arg ListTradesParams) ([]Trade, err
 	return func() []Trade { in := v; out := make([]Trade, len(in)); for i := range in { out[i] = Trade(in[i]) }; return out }(), nil
 }
 
+func (p *PG) GetFlexSyncSettings(ctx context.Context, arg GetFlexSyncSettingsParams) (FlexSyncSetting, error) {
+	v, err := p.q.GetFlexSyncSettings(ctx, storepg.GetFlexSyncSettingsParams(arg))
+	return FlexSyncSetting(v), err
+}
+
+func (p *PG) UpsertFlexSyncSettings(ctx context.Context, arg UpsertFlexSyncSettingsParams) (FlexSyncSetting, error) {
+	v, err := p.q.UpsertFlexSyncSettings(ctx, storepg.UpsertFlexSyncSettingsParams(arg))
+	return FlexSyncSetting(v), err
+}
+
+func (p *PG) DeleteFlexSyncSettings(ctx context.Context, arg DeleteFlexSyncSettingsParams) (int64, error) {
+	return p.q.DeleteFlexSyncSettings(ctx, storepg.DeleteFlexSyncSettingsParams(arg))
+}
+
+func (p *PG) ListEnabledFlexSyncSettings(ctx context.Context) ([]FlexSyncSetting, error) {
+	v, err := p.q.ListEnabledFlexSyncSettings(ctx)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]FlexSyncSetting, len(v))
+	for i := range v {
+		out[i] = FlexSyncSetting(v[i])
+	}
+	return out, nil
+}
+
+func (p *PG) UpdateFlexSyncStatus(ctx context.Context, arg UpdateFlexSyncStatusParams) error {
+	return p.q.UpdateFlexSyncStatus(ctx, storepg.UpdateFlexSyncStatusParams(arg))
+}
+
+func (p *PG) ListTradesMissingExcursion(ctx context.Context, limit int64) ([]Trade, error) {
+	v, err := p.q.ListTradesMissingExcursion(ctx, int32(limit))
+	if err != nil {
+		return nil, err
+	}
+	return func() []Trade { in := v; out := make([]Trade, len(in)); for i := range in { out[i] = Trade(in[i]) }; return out }(), nil
+}
+
 func (p *PG) RevokeAccessToken(ctx context.Context, arg RevokeAccessTokenParams) (int64, error) {
 	return p.q.RevokeAccessToken(ctx, storepg.RevokeAccessTokenParams(arg))
 }
@@ -638,6 +712,10 @@ func (p *PG) UpsertCoachSettings(ctx context.Context, arg UpsertCoachSettingsPar
 		return CoachSetting{}, err
 	}
 	return CoachSetting(v), nil
+}
+
+func (p *PG) UpsertEconomicEvent(ctx context.Context, arg UpsertEconomicEventParams) error {
+	return p.q.UpsertEconomicEvent(ctx, storepg.UpsertEconomicEventParams(arg))
 }
 
 func (p *PG) UpsertInstrumentSpec(ctx context.Context, arg UpsertInstrumentSpecParams) error {

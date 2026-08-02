@@ -17,6 +17,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { EmptyState } from "@/components/EmptyState";
 import { LlmApiSettingsForm } from "@/components/LlmApiSettingsForm";
 import { ModeToggle } from "@/components/ModeToggle";
+import { FlexSyncButton } from "@/components/FlexSyncModal";
+import { PropRulesButton } from "@/components/PropRulesModal";
 import { Modal } from "@/components/Modal";
 import { AmountInput } from "@/components/AmountInput";
 import { DatePicker } from "@/components/DatePicker";
@@ -762,11 +764,18 @@ export function AccountsTab({
                         </div>
                       }
                       footerActions={
-                        <ClearTradesButton
-                          accountName={acc.name}
-                          tradeCount={tradeCount}
-                          onClear={() => void handleClearAccountTrades(acc.id)}
-                        />
+                        <>
+                          {acc.account_type === "prop" ? (
+                            <PropRulesButton accountId={acc.id} accountName={acc.name} />
+                          ) : null}
+                          <FlexSyncButton accountId={acc.id} accountName={acc.name} />
+
+                          <ClearTradesButton
+                            accountName={acc.name}
+                            tradeCount={tradeCount}
+                            onClear={() => void handleClearAccountTrades(acc.id)}
+                          />
+                        </>
                       }
                     />
                   );
@@ -1416,7 +1425,7 @@ export function RulesTab({
 
       <SettingsSection
         title="Annual P&L Goal"
-        description={`Net P&L target for ${goalYear}. Shown on Dashboard and Reports with YTD progress.`}
+        description={`Net P&L target for ${goalYear}. Shown on Home and Reports with YTD progress.`}
         action={
           <BtnGhost
             onClick={openGoalModal}
@@ -1440,7 +1449,7 @@ export function RulesTab({
           <SettingsPanelBody className="py-8">
             <EmptyState
               title="No annual goal yet"
-              hint="Set a net P&L target for the year — progress appears on Dashboard and Reports."
+              hint="Set a net P&L target for the year — progress appears on Home and Reports."
               icon={<Target size={28} strokeWidth={1.5} />}
             />
           </SettingsPanelBody>
@@ -1449,7 +1458,7 @@ export function RulesTab({
             <SettingsRow
               last
               primary={`${goalYear} target`}
-              secondary="User-level net P&L goal (respects account filter on Dashboard/Reports)"
+              secondary="User-level net P&L goal (respects account filter on Home/Reports)"
               actions={
                 <>
                   <span className="text-[13px] font-medium tabular-nums text-foreground">
@@ -1716,7 +1725,7 @@ export function RulesTab({
             />
           </Field>
           <p className="m-0 text-[12px] leading-relaxed text-muted-foreground">
-            Progress uses calendar-year net P&L and appears on Dashboard and Reports.
+            Progress uses calendar-year net P&L and appears on Home and Reports.
           </p>
         </div>
       </Modal>

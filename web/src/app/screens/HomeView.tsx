@@ -10,15 +10,14 @@ import {
   YAxis,
 } from "recharts";
 import { AnnualGoalCard } from "@/components/AnnualGoalCard";
+import { DailyLossCard } from "@/components/DailyLossCard";
+import { PropStatusCard } from "@/components/PropStatusCard";
 import { Card } from "@/components/Card";
 import { ChartFrame, chartTheme, chartTooltipStyle } from "@/components/ChartFrame";
-import { DashboardAccountContribution } from "@/components/DashboardAccountContribution";
-import {
-  type DashboardBreakdownDim,
-  DashboardBreakdownChart,
-} from "@/components/DashboardBreakdownChart";
-import { DashboardInsightBento } from "@/components/DashboardInsightBento";
-import { DashboardMiniCalendar } from "@/components/DashboardMiniCalendar";
+import { HomeAccountContribution } from "@/components/HomeAccountContribution";
+import { type HomeBreakdownDim, HomeBreakdownChart } from "@/components/HomeBreakdownChart";
+import { HomeInsightBento } from "@/components/HomeInsightBento";
+import { HomeMiniCalendar } from "@/components/HomeMiniCalendar";
 import { DataTable } from "@/components/DataTable";
 import { ItemGroup } from "@/components/Item";
 import { EmptyState } from "@/components/EmptyState";
@@ -41,7 +40,7 @@ import { fmtDayShort, fmtMoney, fmtMoneyCompact } from "@/lib/format";
 import { intlLocale } from "@/lib/locale";
 import type { TradeStatusFilter } from "@/lib/tradeFilters";
 
-export interface DashboardViewProps {
+export interface HomeViewProps {
   summaryLoading: boolean;
   summaryError: boolean;
   summary: Summary | undefined;
@@ -66,11 +65,13 @@ export interface DashboardViewProps {
   calendarYear: number;
   calendarMonth: number;
   dailyPnl: Record<string, number>;
+  /** Today's realized net P&L (account base currency) for the daily-loss tracker. */
+  todayNetPnl?: number;
   dayRecords?: Record<string, DayRecord>;
   dailyLoading: boolean;
   dailyError: boolean;
-  breakdownDim: DashboardBreakdownDim;
-  onBreakdownDimChange: (dim: DashboardBreakdownDim) => void;
+  breakdownDim: HomeBreakdownDim;
+  onBreakdownDimChange: (dim: HomeBreakdownDim) => void;
   breakdown: BreakGroup[];
   breakdownLoading: boolean;
   breakdownError: boolean;
@@ -94,7 +95,7 @@ const RANGES = [
 ];
 
 /** Recent trades shown on the overview — full log lives on Trades. */
-export const DASHBOARD_RECENT_LIMIT = 10;
+export const HOME_RECENT_LIMIT = 10;
 
 function rangeCutoff(range: string): number | null {
   if (range === "ALL") return null;
@@ -198,7 +199,7 @@ function EquityCurveChart({
   );
 }
 
-export function DashboardView({
+export function HomeView({
   summaryLoading,
   summaryError,
   summary,
@@ -223,6 +224,7 @@ export function DashboardView({
   calendarYear,
   calendarMonth,
   dailyPnl,
+  todayNetPnl = 0,
   dayRecords,
   dailyLoading,
   dailyError,
@@ -242,15 +244,15 @@ export function DashboardView({
   ytdLoading,
   onSaveGoal,
   onClearGoal,
-}: DashboardViewProps) {
+}: HomeViewProps) {
   const baseCurrency = accountBaseCurrency(accounts, selectedAccountId);
   const { currency, rate } = useMoneyFx(baseCurrency);
   const fxRate = rate ?? 1;
   const compact = useMediaQuery(COMPACT_VIEWPORT);
   const [range, setRange] = useState("30D");
 
-  const recentTrades = useMemo(() => trades.slice(0, DASHBOARD_RECENT_LIMIT), [trades]);
-  const hasMoreTrades = trades.length > DASHBOARD_RECENT_LIMIT;
+  const recentTrades = useMemo(() => trades.slice(0, HOME_RECENT_LIMIT), [trades]);
+  const hasMoreTrades = trades.length > HOME_RECENT_LIMIT;
 
   const noData =
     !summaryLoading &&
@@ -357,6 +359,10 @@ export function DashboardView({
         ) : null}
       </div>
 
+      <DailyLossCard todayNetPnl={todayNetPnl} currency={currency} fxRate={fxRate} />
+
+      <PropStatusCard accounts={accounts} selectedAccountId={selectedAccountId} />
+
       <AnnualGoalCard
         year={goalYear}
         goalAmount={goalAmount}
@@ -371,7 +377,7 @@ export function DashboardView({
       />
 
       {summary && !summaryLoading && !summaryError ? (
-        <DashboardInsightBento
+        <HomeInsightBento
           summary={summary}
           trades={trades}
           currency={currency}
@@ -380,7 +386,7 @@ export function DashboardView({
         />
       ) : null}
 
-      <DashboardAccountContribution
+      <HomeAccountContribution
         trades={trades}
         accounts={accounts}
         currency={currency}
@@ -389,7 +395,7 @@ export function DashboardView({
 
       <div className="grid gap-4 lg:grid-cols-5">
         <div className="lg:col-span-3">
-          <DashboardBreakdownChart
+          <HomeBreakdownChart
             dim={breakdownDim}
             onDimChange={onBreakdownDimChange}
             breakdown={breakdown}
@@ -401,7 +407,7 @@ export function DashboardView({
           />
         </div>
         <div className="lg:col-span-2">
-          <DashboardMiniCalendar
+          <HomeMiniCalendar
             year={calendarYear}
             month={calendarMonth}
             dailyPnl={dailyPnl}

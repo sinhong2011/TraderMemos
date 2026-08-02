@@ -3,7 +3,7 @@ import { cn } from "@/lib/cn";
 
 /**
  * One label/value stat, as a bordered tile with a confident number — the same
- * treatment the dashboard gives its metrics, so a stat reads the same wherever
+ * treatment the home page gives its metrics, so a stat reads the same wherever
  * it appears. The `border-border` hairline (rather than a second `bg-card`
  * fill) is what separates it from the card underneath, which already carries
  * the elevation.

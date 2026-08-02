@@ -11,6 +11,9 @@ import (
 	"github.com/tradermemos/api/internal/auth"
 	"github.com/tradermemos/api/internal/config"
 	"github.com/tradermemos/api/internal/db"
+	"github.com/tradermemos/api/internal/econdata"
+	"github.com/tradermemos/api/internal/flexsync"
+	"github.com/tradermemos/api/internal/jobs"
 	"github.com/tradermemos/api/internal/logging"
 	"github.com/tradermemos/api/internal/marketdata"
 	"github.com/tradermemos/api/internal/ocr"
@@ -69,6 +72,15 @@ func main() {
 		marketSvc = marketdata.NewService(q, provider)
 		logger.Info("market data enabled", "provider", provider.Name())
 	}
+	var econSvc *econdata.Service
+	if cfg.EconCalendarEnabled {
+		econProvider := econdata.NewFairEconomyProvider(cfg.EconCalendarFeedURL)
+		econSvc = econdata.NewService(q, econProvider)
+		if cfg.EconCalendarRefreshMin > 0 {
+			econSvc.TTL = time.Duration(cfg.EconCalendarRefreshMin) * time.Minute
+		}
+		logger.Info("economic calendar enabled", "provider", econProvider.Name())
+	}
 	var ocrSvc *ocr.Service
 	defaults := ocr.VisionConfig{
 		Enabled: cfg.OCREnabled,
@@ -93,6 +105,7 @@ func main() {
 		APIKey:  cfg.CoachAPIKey,
 		Model:   cfg.CoachModel,
 	}
+	flexClient := &flexsync.Client{}
 	s := api.New(api.Deps{
 		JWTSecret:      cfg.JWTSecret,
 		JWT:            jwt,
@@ -105,13 +118,36 @@ func main() {
 		ImportMaxBytes: cfg.ImportMaxBytes,
 		OCRMaxBytes:    cfg.OCRMaxBytes,
 		Market:         marketSvc,
+		Econ:           econSvc,
 		OCR:            ocrSvc,
 		CoachDefaults:  coachDefaults,
+		FlexClient:     flexClient,
 		CORSOrigins:    cfg.CORSOrigins,
 		AuthRateLimit:  rate.Limit(2), // 2 req/s per IP on auth + setup
 	})
 	if len(cfg.CORSOrigins) > 0 {
 		logger.Info("cors enabled", "origins", cfg.CORSOrigins)
+	}
+	if cfg.JobsEnabled {
+		runner := jobs.NewRunner(logger)
+		if marketSvc != nil && cfg.JobExcursionIntervalMin > 0 && cfg.JobExcursionLimit > 0 {
+			runner.Register(jobs.NewExcursionBackfill(
+				q, marketSvc,
+				time.Duration(cfg.JobExcursionIntervalMin)*time.Minute,
+				cfg.JobExcursionLimit, time.Second, logger,
+			))
+		}
+		if cfg.JobFlexSyncIntervalMin > 0 {
+			runner.Register(jobs.NewFlexSync(
+				q, flexClient,
+				time.Duration(cfg.JobFlexSyncIntervalMin)*time.Minute,
+				logger,
+			))
+		}
+		if names := runner.Names(); len(names) > 0 {
+			runner.Start(context.Background())
+			logger.Info("background jobs started", "jobs", names)
+		}
 	}
 	logger.Info("tradermemos api listening", "port", cfg.HTTPPort, "db", db.RedactDatabaseURL(cfg.DatabaseURL), "log_level", cfg.LogLevel)
 	log.Fatal(s.Echo.Start(":" + cfg.HTTPPort))

@@ -70,6 +70,19 @@ type CoachSetting struct {
 	UpdatedAt    time.Time `json:"updated_at"`
 }
 
+type EconomicEvent struct {
+	ID        int64  `json:"id"`
+	Provider  string `json:"provider"`
+	Title     string `json:"title"`
+	Country   string `json:"country"`
+	Impact    string `json:"impact"`
+	EventTs   string `json:"event_ts"`
+	Forecast  string `json:"forecast"`
+	Previous  string `json:"previous"`
+	Actual    string `json:"actual"`
+	FetchedAt string `json:"fetched_at"`
+}
+
 type Execution struct {
 	ID             string         `json:"id"`
 	UserID         string         `json:"user_id"`
@@ -88,6 +101,18 @@ type Execution struct {
 	ImportBatchID  sql.NullString `json:"import_batch_id"`
 	DedupHash      string         `json:"dedup_hash"`
 	CreatedAt      time.Time      `json:"created_at"`
+}
+
+type FlexSyncSetting struct {
+	AccountID    string       `json:"account_id"`
+	UserID       string       `json:"user_id"`
+	Token        string       `json:"token"`
+	QueryID      string       `json:"query_id"`
+	Enabled      int64        `json:"enabled"`
+	LastSyncedAt sql.NullTime `json:"last_synced_at"`
+	LastStatus   string       `json:"last_status"`
+	LastError    string       `json:"last_error"`
+	UpdatedAt    time.Time    `json:"updated_at"`
 }
 
 type ImportBatch struct {
@@ -154,6 +179,17 @@ type OcrSetting struct {
 	Model        string    `json:"model"`
 	UpdatedAt    time.Time `json:"updated_at"`
 	CustomPrompt string    `json:"custom_prompt"`
+}
+
+type PropSetting struct {
+	AccountID      string          `json:"account_id"`
+	UserID         string          `json:"user_id"`
+	ProfitTarget   sql.NullFloat64 `json:"profit_target"`
+	MaxDrawdown    sql.NullFloat64 `json:"max_drawdown"`
+	DrawdownMode   string          `json:"drawdown_mode"`
+	DailyLossLimit sql.NullFloat64 `json:"daily_loss_limit"`
+	ConsistencyPct sql.NullFloat64 `json:"consistency_pct"`
+	UpdatedAt      time.Time       `json:"updated_at"`
 }
 
 type RiskRule struct {

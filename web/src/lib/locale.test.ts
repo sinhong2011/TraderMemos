@@ -35,7 +35,7 @@ describe("locale", () => {
   });
 
   it("translates navigation labels", () => {
-    expect(navLabel("ja", "dashboard")).toBe("ダッシュボード");
+    expect(navLabel("ja", "home")).toBe("ホーム");
     expect(navLabel("ko", "trades")).toBe("거래");
     expect(navLabel("zh-HK", "settings")).toBe("設定");
   });

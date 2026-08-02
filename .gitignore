@@ -48,6 +48,7 @@ web/.playwright-mcp/
 
 # shipped image assets are exempt from the artifact ignore
 !brand/*.png
+!brand/mobile/*.png
 !web/public/*.png
 # app icons / splash are build inputs, not verification artifacts
 !mobile/assets/images/*.png

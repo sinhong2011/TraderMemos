@@ -8,7 +8,6 @@ package storepg
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"strings"
 	"time"
 )
@@ -54,7 +53,7 @@ func (q *Queries) DeleteTradesForAccount(ctx context.Context, arg DeleteTradesFo
 }
 
 const deleteTradesNotInAccount = `-- name: DeleteTradesNotInAccount :exec
-DELETE FROM trades WHERE user_id = $1 AND account_id = $2 AND id NOT IN (/*SLICE:keep*/$3)
+DELETE FROM trades WHERE user_id = $1 AND account_id = $2 AND id NOT IN ($3)
 `
 
 type DeleteTradesNotInAccountParams struct {
@@ -63,24 +62,22 @@ type DeleteTradesNotInAccountParams struct {
 	Keep      []string `json:"keep"`
 }
 
+// NOTE: sqlc+database/sql emits a broken single-$3 slice expand for Postgres.
+// storepg/trades.sql.go implements placeholder expansion manually; re-check after `make sqlc`.
 func (q *Queries) DeleteTradesNotInAccount(ctx context.Context, arg DeleteTradesNotInAccountParams) error {
-	if len(arg.Keep) == 0 {
-		_, err := q.db.ExecContext(ctx,
-			`DELETE FROM trades WHERE user_id = $1 AND account_id = $2`,
-			arg.UserID, arg.AccountID,
-		)
-		return err
+	query := deleteTradesNotInAccount
+	var queryParams []interface{}
+	queryParams = append(queryParams, arg.UserID)
+	queryParams = append(queryParams, arg.AccountID)
+	if len(arg.Keep) > 0 {
+		for _, v := range arg.Keep {
+			queryParams = append(queryParams, v)
+		}
+		query = strings.Replace(query, "/*SLICE:keep*/?", strings.Repeat(",?", len(arg.Keep))[1:], 1)
+	} else {
+		query = strings.Replace(query, "/*SLICE:keep*/?", "NULL", 1)
 	}
-	params := make([]interface{}, 0, 2+len(arg.Keep))
-	params = append(params, arg.UserID, arg.AccountID)
-	placeholders := make([]string, len(arg.Keep))
-	for i, id := range arg.Keep {
-		placeholders[i] = fmt.Sprintf("$%d", i+3)
-		params = append(params, id)
-	}
-	query := `DELETE FROM trades WHERE user_id = $1 AND account_id = $2 AND id NOT IN (` +
-		strings.Join(placeholders, ",") + `)`
-	_, err := q.db.ExecContext(ctx, query, params...)
+	_, err := q.db.ExecContext(ctx, query, queryParams...)
 	return err
 }
 

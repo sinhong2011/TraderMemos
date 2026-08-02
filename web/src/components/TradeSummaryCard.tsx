@@ -147,7 +147,7 @@ export function TradeSummaryCard({
 
         {/* One row of tiles instead of the three stacked bento blocks: same
             numbers, a third of the height, and the same tile treatment the
-            dashboard gives its metrics. */}
+            home page gives its metrics. */}
         <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-6">
           <StatCell label="Entry">{fmtMoney(trade.avg_entry_price, currency, locale)}</StatCell>
           <StatCell label="Exit">

@@ -7,7 +7,7 @@ import type { BreakGroup } from "@/lib/api/types";
 import { PnlBarChart, ReportsView, buildColumns } from "./ReportsView";
 
 // useMoneyFx pulls in useQuery, which needs a QueryClientProvider; mock it the
-// same way DashboardView.test.tsx does so ReportsView can render standalone.
+// same way HomeView.test.tsx does so ReportsView can render standalone.
 vi.mock("../../lib/hooks/useMoneyFx", () => ({
   useMoneyFx: (baseCurrency: string) => ({
     baseCurrency,

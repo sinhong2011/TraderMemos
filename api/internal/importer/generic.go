@@ -2,6 +2,8 @@ package importer
 
 import (
 	"fmt"
+	"math"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -18,9 +20,19 @@ func NewGeneric(mapping map[string]string) *Generic {
 func (g *Generic) Name() string           { return "generic" }
 func (g *Generic) Detect(_ []string) bool { return true } // fallback importer
 
+// Order-status values that mean "this row is not a fill". Broker order
+// exports (Webull, Schwab) mix cancelled/working orders into the same file.
+var skipStatuses = map[string]bool{
+	"cancelled": true, "canceled": true, "rejected": true,
+	"failed": true, "working": true, "pending": true, "expired": true,
+}
+
 func (g *Generic) ParseRows(rows []map[string]string) ParseResult {
 	var res ParseResult
 	for i, row := range rows {
+		if rowHasSkipStatus(row) {
+			continue
+		}
 		ex, err := g.parseRow(row)
 		if err != nil {
 			res.Errors = append(res.Errors, RowError{Row: i + 1, Message: err.Error()})
@@ -31,8 +43,44 @@ func (g *Generic) ParseRows(rows []map[string]string) ParseResult {
 	return res
 }
 
+func rowHasSkipStatus(row map[string]string) bool {
+	for h, v := range row {
+		if strings.EqualFold(strings.TrimSpace(h), "status") {
+			return skipStatuses[strings.ToLower(strings.TrimSpace(v))]
+		}
+	}
+	return false
+}
+
+// col resolves a canonical field. A mapping value prefixed with "=" is a
+// constant (broker presets use this, e.g. instrument_type -> "=future").
 func (g *Generic) col(row map[string]string, field string) string {
-	return strings.TrimSpace(row[g.mapping[field]])
+	h := g.mapping[field]
+	if strings.HasPrefix(h, "=") {
+		return strings.TrimPrefix(h, "=")
+	}
+	return strings.TrimSpace(row[h])
+}
+
+// ParseSideToken normalizes broker side vocabulary: BOT/SLD (IBKR/ToS),
+// Buy to Open / Sell to Close (options), Short (Webull), BTO/STC etc.
+func ParseSideToken(raw string) string {
+	s := strings.ToLower(strings.TrimSpace(raw))
+	switch s {
+	case "buy", "b", "bot", "bto", "btc", "cover", "buy to open", "buy to close", "buy to cover":
+		return "buy"
+	case "sell", "s", "sld", "sto", "stc", "short", "sell short",
+		"sell to open", "sell to close":
+		return "sell"
+	}
+	switch {
+	case strings.HasPrefix(s, "buy"), strings.HasPrefix(s, "bot"):
+		return "buy"
+	case strings.HasPrefix(s, "sell"), strings.HasPrefix(s, "sold"), strings.HasPrefix(s, "sld"),
+		strings.HasPrefix(s, "short"):
+		return "sell"
+	}
+	return ""
 }
 
 func (g *Generic) parseRow(row map[string]string) (ParsedExecution, error) {
@@ -41,19 +89,17 @@ func (g *Generic) parseRow(row map[string]string) (ParsedExecution, error) {
 	if p.Symbol == "" {
 		return p, fmt.Errorf("missing symbol")
 	}
-	switch strings.ToLower(g.col(row, "side")) {
-	case "buy", "b", "bot":
-		p.Side = "buy"
-	case "sell", "s", "sld":
-		p.Side = "sell"
-	default:
+	p.Side = ParseSideToken(g.col(row, "side"))
+	if p.Side == "" {
 		return p, fmt.Errorf("invalid side %q", g.col(row, "side"))
 	}
-	qty, err := strconv.ParseFloat(g.col(row, "quantity"), 64)
+	qty, err := strconv.ParseFloat(strings.ReplaceAll(g.col(row, "quantity"), ",", ""), 64)
 	if err != nil {
 		return p, fmt.Errorf("invalid quantity")
 	}
-	p.Quantity = qty
+	// Some brokers (IBKR, ThinkOrSwim) sign the quantity instead of, or as
+	// well as, the side column; the side column is authoritative here.
+	p.Quantity = math.Abs(qty)
 	price, err := strconv.ParseFloat(g.col(row, "price"), 64)
 	if err != nil {
 		return p, fmt.Errorf("invalid price")
@@ -64,11 +110,16 @@ func (g *Generic) parseRow(row map[string]string) (ParsedExecution, error) {
 		return p, fmt.Errorf("invalid date %q", g.col(row, "executed_at"))
 	}
 	p.ExecutedAt = ts
+	// Costs are stored as positive magnitudes: brokers disagree on sign
+	// (IBKR reports IBCommission negative), and the P&L engine subtracts
+	// fees_total from gross either way.
 	if c := g.col(row, "commission"); c != "" {
-		p.Commission, _ = strconv.ParseFloat(c, 64)
+		v, _ := strconv.ParseFloat(c, 64)
+		p.Commission = math.Abs(v)
 	}
 	if f := g.col(row, "fees"); f != "" {
-		p.Fees, _ = strconv.ParseFloat(f, 64)
+		v, _ := strconv.ParseFloat(f, 64)
+		p.Fees = math.Abs(v)
 	}
 	p.InstrumentType = ParseInstrumentType(g.col(row, "instrument_type"), p.Symbol)
 	if p.InstrumentType == "option" {
@@ -90,8 +141,26 @@ func (g *Generic) parseRow(row map[string]string) (ParsedExecution, error) {
 	return p, nil
 }
 
+// US timezone abbreviations brokers stamp on export times (Webull "EDT").
+// Fixed offsets keep parsing deterministic.
+var usTzOffsets = map[string]int{
+	"EDT": -4 * 3600, "EST": -5 * 3600,
+	"CDT": -5 * 3600, "CST": -6 * 3600,
+	"MDT": -6 * 3600, "MST": -7 * 3600,
+	"PDT": -7 * 3600, "PST": -8 * 3600,
+}
+
+var trailingTzAbbrev = regexp.MustCompile(`\s+([A-Z]{2,4})$`)
+
 func parseTime(s string) (time.Time, error) {
 	s = strings.TrimSpace(s)
+	loc := time.UTC
+	if m := trailingTzAbbrev.FindStringSubmatch(s); m != nil {
+		if off, ok := usTzOffsets[m[1]]; ok {
+			loc = time.FixedZone(m[1], off)
+			s = strings.TrimSpace(strings.TrimSuffix(s, m[0]))
+		}
+	}
 	layouts := []string{
 		time.RFC3339Nano,
 		time.RFC3339,
@@ -99,10 +168,17 @@ func parseTime(s string) (time.Time, error) {
 		"2006-01-02T15:04:05",
 		"2006-01-02T15:04:05.000Z",
 		"01/02/2006 15:04:05",
+		"1/2/2006 15:04:05",
+		"1/2/06 15:04:05",
+		"01/02/2006 15:04",
+		"1/2/2006 15:04",
+		"20060102;150405", // IBKR Flex DateTime
+		"2006-01-02 15:04",
+		"01/02/2006",
 		"2006-01-02",
 	}
 	for _, l := range layouts {
-		if t, err := time.Parse(l, s); err == nil {
+		if t, err := time.ParseInLocation(l, s, loc); err == nil {
 			return t.UTC(), nil
 		}
 	}

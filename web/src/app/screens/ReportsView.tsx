@@ -13,6 +13,9 @@ import {
   YAxis,
 } from "recharts";
 import { AnnualGoalCard } from "@/components/AnnualGoalCard";
+import { BehaviorLossAversionCard } from "@/components/BehaviorLossAversionCard";
+import { BehaviorOverconfidenceCard } from "@/components/BehaviorOverconfidenceCard";
+import { BehaviorRevengeCard } from "@/components/BehaviorRevengeCard";
 import { Card } from "@/components/Card";
 import {
   ChartFrame,
@@ -42,6 +45,7 @@ import { ReportsHourlyList } from "@/components/ReportsHourlyList";
 import { ReportsSummaryBento } from "@/components/ReportsSummaryBento";
 import { ReportsMetricEvolution } from "@/components/ReportsMetricEvolution";
 import { ReportsRiskDrawdown } from "@/components/ReportsRiskDrawdown";
+import { ReportsRuleCompliance } from "@/components/ReportsRuleCompliance";
 import { ReportsRMultiplePerformance } from "@/components/ReportsRMultiplePerformance";
 import { ReportsRollingWinRate } from "@/components/ReportsRollingWinRate";
 import { ReportsSessionTable } from "@/components/ReportsSessionTable";
@@ -52,7 +56,15 @@ import { TableSkeleton } from "@/components/skeletons/table-skeleton";
 import { Tabs, TabsContent, TabsIndicator, TabsList, TabsTrigger } from "@/components/Tabs";
 import { Button } from "@/components/ui/button";
 import { pnlColor } from "@/components/theme-tokens";
-import type { BreakGroup, EquityCurve, RSummary, Summary, Trade } from "@/lib/api/types";
+import type {
+  BehaviorReport,
+  BreakGroup,
+  ComplianceReport,
+  EquityCurve,
+  RSummary,
+  Summary,
+  Trade,
+} from "@/lib/api/types";
 import { uniqueDayTicks } from "@/lib/chartTicks";
 import { cn } from "@/lib/cn";
 import { fmtDayShort, fmtMoney, fmtMoneyCompact, fmtPct } from "@/lib/format";
@@ -89,13 +101,14 @@ const DIM_LABELS: Record<BreakdownDim, string> = {
 // always-visible card above; this selector only covers the two dims without one.
 const SELECTOR_DIMS: BreakdownDim[] = ["setup", "mistake"];
 
-export type ReportsTab = "overview" | "win-loss" | "detailed" | "risk";
+export type ReportsTab = "overview" | "win-loss" | "detailed" | "risk" | "behavior";
 
 export const REPORT_TABS: { value: ReportsTab; label: string }[] = [
   { value: "overview", label: "Overview" },
   { value: "win-loss", label: "Win / Loss" },
   { value: "detailed", label: "Detailed" },
   { value: "risk", label: "Risk" },
+  { value: "behavior", label: "Behavior" },
 ];
 
 export interface ReportsViewProps {
@@ -132,6 +145,13 @@ export interface ReportsViewProps {
   qualityBreakdown: BreakGroup[];
   qualityBreakdownLoading: boolean;
   qualityBreakdownError: boolean;
+  compliance?: ComplianceReport;
+  complianceLoading?: boolean;
+  complianceError?: boolean;
+  behavior?: BehaviorReport;
+  behaviorLoading?: boolean;
+  behaviorError?: boolean;
+  onSelectTradeId?: (id: string) => void;
   tab: ReportsTab;
   onTabChange: (t: ReportsTab) => void;
   side: ReportsSide;
@@ -152,6 +172,7 @@ export interface ReportsViewProps {
   dayTradesLoading: boolean;
   dayTradesError: boolean;
   onSelectTrade: (t: Trade) => void;
+  onOpenDayReview?: (day: string) => void;
   goalYear: number;
   goalAmount: number | null | undefined;
   goalLoading: boolean;
@@ -250,7 +271,7 @@ function SummaryMetricsGrid({
   return (
     <div className="flex flex-col gap-3">
       <div className="grid auto-rows-[minmax(64px,auto)] grid-cols-1 gap-3">
-        {/* Equity — top full-bleed, area chart like dashboard */}
+        {/* Equity — top full-bleed, area chart like the home page */}
         <BentoCell className="min-h-[180px]">
           <BentoTitle tone="muted">
             Equity curve
@@ -566,6 +587,13 @@ export function ReportsView({
   qualityBreakdown,
   qualityBreakdownLoading,
   qualityBreakdownError,
+  compliance,
+  complianceLoading = false,
+  complianceError = false,
+  behavior,
+  behaviorLoading = false,
+  behaviorError = false,
+  onSelectTradeId,
   tab,
   onTabChange,
   side,
@@ -586,6 +614,7 @@ export function ReportsView({
   dayTradesLoading,
   dayTradesError,
   onSelectTrade,
+  onOpenDayReview,
   goalYear,
   goalAmount,
   goalLoading,
@@ -786,6 +815,32 @@ export function ReportsView({
               currency={displayCurrency}
               fxRate={fxRate}
             />
+            <ReportsRuleCompliance
+              report={compliance}
+              loading={complianceLoading}
+              error={complianceError}
+            />
+          </TabsContent>
+
+          <TabsContent value="behavior" className="flex flex-col gap-4">
+            <BehaviorRevengeCard
+              report={behavior}
+              loading={behaviorLoading}
+              error={behaviorError}
+              onSelectTradeId={onSelectTradeId}
+            />
+            <BehaviorOverconfidenceCard
+              report={behavior}
+              loading={behaviorLoading}
+              error={behaviorError}
+              onSelectTradeId={onSelectTradeId}
+            />
+            <BehaviorLossAversionCard
+              report={behavior}
+              loading={behaviorLoading}
+              error={behaviorError}
+              onSelectTradeId={onSelectTradeId}
+            />
           </TabsContent>
         </Tabs>
       </Page>
@@ -798,6 +853,7 @@ export function ReportsView({
         currency={displayCurrency}
         fxRate={fxRate}
         onSelectTrade={onSelectTrade}
+        onOpenDayReview={onOpenDayReview}
       />
     </ReportsDisplayProvider>
   );

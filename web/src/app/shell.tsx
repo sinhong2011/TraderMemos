@@ -126,7 +126,7 @@ export function AppShell() {
   useEffect(() => {
     if (!authed) return;
     if (!AUTH_ENTRY_PATHS.has(location.pathname)) return;
-    void navigate({ to: "/dashboard", replace: true });
+    void navigate({ to: "/home", replace: true });
   }, [authed, location.pathname, navigate]);
 
   return (

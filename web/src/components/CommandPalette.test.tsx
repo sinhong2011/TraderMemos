@@ -19,7 +19,7 @@ describe("CommandPalette", () => {
     render(<CommandPalette />);
     expect(screen.getByPlaceholderText(/Pages, tools/i)).toBeInTheDocument();
     expect(screen.getByText("Navigate")).toBeInTheDocument();
-    expect(screen.getByText("Dashboard")).toBeInTheDocument();
+    expect(screen.getByText("Home")).toBeInTheDocument();
     expect(screen.getByText("New Trade")).toBeInTheDocument();
     expect(screen.getByText("Position size")).toBeInTheDocument();
     expect(screen.getAllByText("G").length).toBeGreaterThan(0);
@@ -32,7 +32,7 @@ describe("CommandPalette", () => {
     render(<CommandPalette />);
     await user.type(screen.getByPlaceholderText(/Pages, tools/i), "position");
     expect(screen.getByText("Position size")).toBeInTheDocument();
-    expect(screen.queryByText("Dashboard")).not.toBeInTheDocument();
+    expect(screen.queryByText("Home")).not.toBeInTheDocument();
   });
 
   it("runs New Trade when N is pressed with an empty query", async () => {

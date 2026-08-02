@@ -1,7 +1,7 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/cn";
 
-/** KPI strip — Dashboard / Reports summary cards. */
+/** KPI strip — Home / Reports summary cards. */
 export function StatsRowSkeleton({ count = 3, className }: { count?: number; className?: string }) {
   return (
     <div className={cn("grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4", className)}>

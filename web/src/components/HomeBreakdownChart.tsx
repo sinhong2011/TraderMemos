@@ -18,9 +18,9 @@ import { Skeleton } from "./Skeleton";
 import { Button } from "./ui/button";
 import { usePrivacyMode } from "@/lib/displayPrefs";
 
-export type DashboardBreakdownDim = "day_of_week" | "setup" | "symbol";
+export type HomeBreakdownDim = "day_of_week" | "setup" | "symbol";
 
-const DIM_OPTIONS: { value: DashboardBreakdownDim; label: string }[] = [
+const DIM_OPTIONS: { value: HomeBreakdownDim; label: string }[] = [
   { value: "day_of_week", label: "Day" },
   { value: "setup", label: "Setup" },
   { value: "symbol", label: "Symbol" },
@@ -29,9 +29,9 @@ const DIM_OPTIONS: { value: DashboardBreakdownDim; label: string }[] = [
 const POS = "var(--profit)";
 const NEG = "var(--loss)";
 
-export interface DashboardBreakdownChartProps {
-  dim: DashboardBreakdownDim;
-  onDimChange: (dim: DashboardBreakdownDim) => void;
+export interface HomeBreakdownChartProps {
+  dim: HomeBreakdownDim;
+  onDimChange: (dim: HomeBreakdownDim) => void;
   breakdown: BreakGroup[];
   loading: boolean;
   error: boolean;
@@ -40,7 +40,7 @@ export interface DashboardBreakdownChartProps {
   onOpenReports: () => void;
 }
 
-export function DashboardBreakdownChart({
+export function HomeBreakdownChart({
   dim,
   onDimChange,
   breakdown,
@@ -49,7 +49,7 @@ export function DashboardBreakdownChart({
   currency,
   fxRate = 1,
   onOpenReports,
-}: DashboardBreakdownChartProps) {
+}: HomeBreakdownChartProps) {
   usePrivacyMode();
   const locale = intlLocale();
   const chartData = breakdown.slice(0, 8).map((g) => ({
@@ -66,7 +66,7 @@ export function DashboardBreakdownChart({
           ariaLabel="Breakdown dimension"
           options={DIM_OPTIONS}
           value={dim}
-          onChange={(v) => onDimChange(v as DashboardBreakdownDim)}
+          onChange={(v) => onDimChange(v as HomeBreakdownDim)}
         />
       </header>
 

@@ -1,5 +1,5 @@
 import type { EquityPoint, Trade } from "./api/types";
-import { chronologicalClosed } from "./dashboardInsights";
+import { chronologicalClosed } from "./homeInsights";
 
 export interface RollingWinRatePoint {
   index: number;

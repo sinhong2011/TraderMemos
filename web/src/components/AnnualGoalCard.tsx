@@ -174,7 +174,7 @@ export function AnnualGoalCard({
   // below its content height.
   const cardClass = cn("shrink-0", className);
 
-  // Passed as a node rather than a plain string so the dashboard's amber section
+  // Passed as a node rather than a plain string so the home page's amber section
   // heading survives the move onto Card (whose string titles are muted grey).
   const cardTitle = (
     <h2 className="m-0 text-[12px] font-semibold tracking-wide text-chart-3">

@@ -13,6 +13,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as CalculatorRouteImport } from './routes/calculator'
 import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as EventsRouteImport } from './routes/events'
+import { Route as HomeRouteImport } from './routes/home'
 import { Route as ImportRouteImport } from './routes/import'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as NotesRouteImport } from './routes/notes'
@@ -21,6 +23,7 @@ import { Route as ReportsRouteImport } from './routes/reports'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SetupRouteImport } from './routes/setup'
 import { Route as TradesRouteImport } from './routes/trades'
+import { Route as DayDateRouteImport } from './routes/day.$date'
 import { Route as TradesIndexRouteImport } from './routes/trades.index'
 import { Route as TradesIdRouteImport } from './routes/trades.$id'
 
@@ -42,6 +45,16 @@ const CalendarRoute = CalendarRouteImport.update({
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventsRoute = EventsRouteImport.update({
+  id: '/events',
+  path: '/events',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HomeRoute = HomeRouteImport.update({
+  id: '/home',
+  path: '/home',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ImportRoute = ImportRouteImport.update({
@@ -84,6 +97,11 @@ const TradesRoute = TradesRouteImport.update({
   path: '/trades',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DayDateRoute = DayDateRouteImport.update({
+  id: '/day/$date',
+  path: '/day/$date',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TradesIndexRoute = TradesIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -100,6 +118,8 @@ export interface FileRoutesByFullPath {
   '/calculator': typeof CalculatorRoute
   '/calendar': typeof CalendarRoute
   '/dashboard': typeof DashboardRoute
+  '/events': typeof EventsRoute
+  '/home': typeof HomeRoute
   '/import': typeof ImportRoute
   '/login': typeof LoginRoute
   '/notes': typeof NotesRoute
@@ -108,6 +128,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/setup': typeof SetupRoute
   '/trades': typeof TradesRouteWithChildren
+  '/day/$date': typeof DayDateRoute
   '/trades/$id': typeof TradesIdRoute
   '/trades/': typeof TradesIndexRoute
 }
@@ -116,6 +137,8 @@ export interface FileRoutesByTo {
   '/calculator': typeof CalculatorRoute
   '/calendar': typeof CalendarRoute
   '/dashboard': typeof DashboardRoute
+  '/events': typeof EventsRoute
+  '/home': typeof HomeRoute
   '/import': typeof ImportRoute
   '/login': typeof LoginRoute
   '/notes': typeof NotesRoute
@@ -123,6 +146,7 @@ export interface FileRoutesByTo {
   '/reports': typeof ReportsRoute
   '/settings': typeof SettingsRoute
   '/setup': typeof SetupRoute
+  '/day/$date': typeof DayDateRoute
   '/trades/$id': typeof TradesIdRoute
   '/trades': typeof TradesIndexRoute
 }
@@ -132,6 +156,8 @@ export interface FileRoutesById {
   '/calculator': typeof CalculatorRoute
   '/calendar': typeof CalendarRoute
   '/dashboard': typeof DashboardRoute
+  '/events': typeof EventsRoute
+  '/home': typeof HomeRoute
   '/import': typeof ImportRoute
   '/login': typeof LoginRoute
   '/notes': typeof NotesRoute
@@ -140,6 +166,7 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/setup': typeof SetupRoute
   '/trades': typeof TradesRouteWithChildren
+  '/day/$date': typeof DayDateRoute
   '/trades/$id': typeof TradesIdRoute
   '/trades/': typeof TradesIndexRoute
 }
@@ -150,6 +177,8 @@ export interface FileRouteTypes {
     | '/calculator'
     | '/calendar'
     | '/dashboard'
+    | '/events'
+    | '/home'
     | '/import'
     | '/login'
     | '/notes'
@@ -158,6 +187,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/setup'
     | '/trades'
+    | '/day/$date'
     | '/trades/$id'
     | '/trades/'
   fileRoutesByTo: FileRoutesByTo
@@ -166,6 +196,8 @@ export interface FileRouteTypes {
     | '/calculator'
     | '/calendar'
     | '/dashboard'
+    | '/events'
+    | '/home'
     | '/import'
     | '/login'
     | '/notes'
@@ -173,6 +205,7 @@ export interface FileRouteTypes {
     | '/reports'
     | '/settings'
     | '/setup'
+    | '/day/$date'
     | '/trades/$id'
     | '/trades'
   id:
@@ -181,6 +214,8 @@ export interface FileRouteTypes {
     | '/calculator'
     | '/calendar'
     | '/dashboard'
+    | '/events'
+    | '/home'
     | '/import'
     | '/login'
     | '/notes'
@@ -189,6 +224,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/setup'
     | '/trades'
+    | '/day/$date'
     | '/trades/$id'
     | '/trades/'
   fileRoutesById: FileRoutesById
@@ -198,6 +234,8 @@ export interface RootRouteChildren {
   CalculatorRoute: typeof CalculatorRoute
   CalendarRoute: typeof CalendarRoute
   DashboardRoute: typeof DashboardRoute
+  EventsRoute: typeof EventsRoute
+  HomeRoute: typeof HomeRoute
   ImportRoute: typeof ImportRoute
   LoginRoute: typeof LoginRoute
   NotesRoute: typeof NotesRoute
@@ -206,6 +244,7 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   SetupRoute: typeof SetupRoute
   TradesRoute: typeof TradesRouteWithChildren
+  DayDateRoute: typeof DayDateRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -236,6 +275,20 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/events': {
+      id: '/events'
+      path: '/events'
+      fullPath: '/events'
+      preLoaderRoute: typeof EventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/home': {
+      id: '/home'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof HomeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/import': {
@@ -294,6 +347,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TradesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/day/$date': {
+      id: '/day/$date'
+      path: '/day/$date'
+      fullPath: '/day/$date'
+      preLoaderRoute: typeof DayDateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/trades/': {
       id: '/trades/'
       path: '/'
@@ -329,6 +389,8 @@ const rootRouteChildren: RootRouteChildren = {
   CalculatorRoute: CalculatorRoute,
   CalendarRoute: CalendarRoute,
   DashboardRoute: DashboardRoute,
+  EventsRoute: EventsRoute,
+  HomeRoute: HomeRoute,
   ImportRoute: ImportRoute,
   LoginRoute: LoginRoute,
   NotesRoute: NotesRoute,
@@ -337,6 +399,7 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   SetupRoute: SetupRoute,
   TradesRoute: TradesRouteWithChildren,
+  DayDateRoute: DayDateRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

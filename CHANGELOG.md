@@ -5,6 +5,21 @@ All notable changes to TraderMemos are documented in this file.
 Release versioning is managed by [release-please](https://github.com/googleapis/release-please).
 See [docs/release.md](docs/release.md) for the release workflow.
 
+## [0.1.9](https://github.com/sinhong2011/TraderMemos/compare/v0.1.8...v0.1.9) (2026-08-01)
+
+
+### Features
+
+* **web:** replace the hand-drawn app icon with new raster artwork ([#16](https://github.com/sinhong2011/TraderMemos/issues/16)) ([4a009f1](https://github.com/sinhong2011/TraderMemos/commit/4a009f19888b884e3287a021f9130f08afc1c767))
+
+
+### Bug Fixes
+
+* **ci:** let the PR title check report on bot-created Release PRs ([#31](https://github.com/sinhong2011/TraderMemos/issues/31)) ([6748660](https://github.com/sinhong2011/TraderMemos/commit/67486605ba32d5ae24832632d2fe5d0acb0a1b91))
+* **ci:** publish semver Docker tags and time-limit image builds ([#30](https://github.com/sinhong2011/TraderMemos/issues/30)) ([e42b3fb](https://github.com/sinhong2011/TraderMemos/commit/e42b3fb901f048390af42049a1bd9042efa58d40))
+* correct futures P&L multipliers and bucket analytics on the trader's clock ([#18](https://github.com/sinhong2011/TraderMemos/issues/18)) ([4177046](https://github.com/sinhong2011/TraderMemos/commit/4177046828a1b98d00cbe440c93a42450bda2a52))
+* **web:** persist update-toast dismissal per release ([#17](https://github.com/sinhong2011/TraderMemos/issues/17)) ([2a8ad32](https://github.com/sinhong2011/TraderMemos/commit/2a8ad328b6605ff7e0909325c82c6902c2a8fe9e))
+
 ## [0.1.8](https://github.com/sinhong2011/TraderMemos/compare/v0.1.7...v0.1.8) (2026-08-01)
 
 

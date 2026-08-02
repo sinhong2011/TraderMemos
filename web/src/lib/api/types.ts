@@ -14,6 +14,92 @@ export interface Filters {
   tz?: string;
 }
 
+/** One calendar day scored against the user's risk rules. */
+export interface ComplianceDay {
+  date: string;
+  net_pnl: number;
+  trades: number;
+  risk_violations: number;
+  unknown_risk: number;
+  daily_loss_breach: boolean;
+  compliant: boolean;
+}
+
+export interface ComplianceReport {
+  rules_configured: boolean;
+  days: ComplianceDay[];
+  compliant_days: number;
+  breach_days: number;
+  compliant_pnl: number;
+  breach_pnl: number;
+  risk_violations: number;
+  unknown_risk: number;
+  daily_loss_breaches: number;
+}
+
+/** One trade flagged by a behavioral detector, with the evidence. */
+export interface BehaviorEvent {
+  date: string;
+  trade_id: string;
+  symbol: string;
+  trigger_trade_id?: string;
+  reason: "quick_reentry" | "size_escalation";
+  size_ratio?: number;
+  net_pnl: number;
+}
+
+/** Outcome comparison for one group of trades. */
+export interface OutcomeSplit {
+  trades: number;
+  wins: number;
+  win_rate: number;
+  net_pnl: number;
+}
+
+export interface RevengeSection {
+  insufficient_data: boolean;
+  events: BehaviorEvent[];
+  flagged: OutcomeSplit;
+  baseline: OutcomeSplit;
+}
+
+export interface OverconfidenceSection {
+  insufficient_data: boolean;
+  streaks: number;
+  events: BehaviorEvent[];
+  flagged: OutcomeSplit;
+  baseline: OutcomeSplit;
+}
+
+/** A losing trade that was profitable at its peak (recorded MFE > 0). */
+export interface GiveBack {
+  date: string;
+  trade_id: string;
+  symbol: string;
+  mfe: number;
+  net_pnl: number;
+}
+
+export interface LossAversionSection {
+  insufficient_data: boolean;
+  avg_win_hold_secs: number;
+  avg_loss_hold_secs: number;
+  median_win_hold_secs: number;
+  median_loss_hold_secs: number;
+  hold_ratio: number;
+  give_backs: GiveBack[];
+  give_back_count: number;
+  missed_profit: number;
+  excluded: number;
+}
+
+export interface BehaviorReport {
+  trades: number;
+  revenge: RevengeSection;
+  overconfidence: OverconfidenceSection;
+  loss_aversion: LossAversionSection;
+}
+
 export interface Tokens {
   access_token: string;
   refresh_token: string;
@@ -288,6 +374,8 @@ export interface ImportPreview {
   headers: string[];
   sample_rows: Record<string, string>[];
   suggested_mapping: Record<string, string>;
+  /** Broker preset name when the header signature matched (e.g. "Webull (Orders)"). */
+  detected_broker?: string;
   /** "journal_trades" for closed-trade journal CSVs; "executions" for fill CSVs */
   format?: "journal_trades" | "executions";
   /** Upload source detected by the API */
