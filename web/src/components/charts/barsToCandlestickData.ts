@@ -2,7 +2,7 @@ import type { CandlestickData, UTCTimestamp, WhitespaceData } from "lightweight-
 import type { BarInterval, MarketBar } from "@/lib/api/market";
 import { CHART_TIME_ZONE, utcSecToChartTime } from "./chartTime";
 
-const INTERVAL_SEC: Record<BarInterval, number> = {
+export const INTERVAL_SEC: Record<BarInterval, number> = {
   "1": 60,
   "5": 300,
   "15": 900,
