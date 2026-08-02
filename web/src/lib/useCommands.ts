@@ -5,6 +5,7 @@ import {
   Calculator,
   House,
   List,
+  Newspaper,
   PieChart,
   Plus,
   Settings,
@@ -60,6 +61,13 @@ const NAV_COMMANDS: Array<{
     icon: CalendarDays,
   },
   { id: "nav-stats", label: "Stats", to: "/reports", icon: PieChart },
+  {
+    id: "nav-events",
+    label: "Economic Events",
+    to: "/events",
+    icon: Newspaper,
+    keywords: ["news", "economic calendar", "cpi", "nfp", "fomc"],
+  },
   { id: "nav-playbook", label: "Playbook", to: "/playbook", icon: BookOpen },
   {
     id: "nav-notes",
