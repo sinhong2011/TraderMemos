@@ -79,6 +79,7 @@ export interface CalendarViewProps {
   currency: string;
   /** Quick peek drawer */
   onSelectTrade: (t: Trade) => void;
+  onOpenDayReview?: (day: string) => void;
 }
 
 /** Softer P&L ink for heatmap cells — teal/rose, less neon than --color-profit/loss. */
@@ -136,6 +137,7 @@ export function CalendarView({
   dayTradesError,
   currency,
   onSelectTrade,
+  onOpenDayReview,
 }: CalendarViewProps) {
   usePrivacyMode();
   const tradeDateBasis = useDisplayPrefs((s) => s.tradeDateBasis);
@@ -583,6 +585,7 @@ export function CalendarView({
         currency={displayCurrency}
         fxRate={fxRate}
         onSelectTrade={onSelectTrade}
+        onOpenDayReview={onOpenDayReview}
       />
 
       <Modal

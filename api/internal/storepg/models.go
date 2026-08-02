@@ -169,6 +169,17 @@ type OcrSetting struct {
 	CustomPrompt string    `json:"custom_prompt"`
 }
 
+type PropSetting struct {
+	AccountID      string          `json:"account_id"`
+	UserID         string          `json:"user_id"`
+	ProfitTarget   sql.NullFloat64 `json:"profit_target"`
+	MaxDrawdown    sql.NullFloat64 `json:"max_drawdown"`
+	DrawdownMode   string          `json:"drawdown_mode"`
+	DailyLossLimit sql.NullFloat64 `json:"daily_loss_limit"`
+	ConsistencyPct sql.NullFloat64 `json:"consistency_pct"`
+	UpdatedAt      time.Time       `json:"updated_at"`
+}
+
 type RiskRule struct {
 	UserID                string          `json:"user_id"`
 	MaxRiskPerTrade       sql.NullFloat64 `json:"max_risk_per_trade"`

@@ -25,7 +25,8 @@ test.describe("SignalSelect", () => {
 
     const account = page.getByRole("button", { name: /Account:/i });
     await account.click();
-    await expect(page.getByRole("button", { name: "All accounts", exact: true })).toBeVisible();
+    // Account entries are menu radio items inside the popover menu.
+    await expect(page.getByRole("menuitemradio", { name: /All accounts/ })).toBeVisible();
     await page.keyboard.press("Escape");
 
     const dateRange = page
@@ -41,21 +42,14 @@ test.describe("SignalSelect", () => {
 
   test("select inside New Trade modal expands and selects an option", async ({ page }) => {
     await signIn(page);
+    await page.getByRole("button", { name: "Create", exact: true }).first().click();
     await page.getByRole("button", { name: "New Trade" }).click();
     await expect(page.getByRole("heading", { name: "New Trade" })).toBeVisible();
 
-    const market = page.getByRole("combobox", { name: "Market" });
-    await market.click();
-
-    const listbox = page.getByRole("listbox").last();
-    await expect(listbox).toBeVisible();
-
-    const box = await listbox.boundingBox();
-    expect(box).not.toBeNull();
-    expect(box!.width).toBeGreaterThan(40);
-    expect(box!.height).toBeGreaterThan(40);
-
-    await listbox.getByRole("option").first().click();
-    await expect(market).not.toHaveText("Select…");
+    // Market is a native select now — assert it renders and takes a choice.
+    const market = page.getByRole("combobox", { name: /Market symbol 1/ });
+    await expect(market).toBeVisible();
+    await market.selectOption({ index: 1 });
+    await expect(market).not.toHaveValue("");
   });
 });

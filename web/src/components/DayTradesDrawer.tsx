@@ -14,6 +14,7 @@ import {
 } from "./Drawer";
 import { EmptyState } from "./EmptyState";
 import { ItemGroup } from "./Item";
+import { Button } from "./ui/button";
 import { Skeleton } from "./Skeleton";
 import { pnlColor } from "./theme-tokens";
 import { TradeListItem } from "./TradeListItem";
@@ -106,6 +107,8 @@ export interface DayTradesDrawerProps {
   currency: string;
   fxRate?: number;
   onSelectTrade: (t: Trade) => void;
+  /** Navigates to the full-page day review when provided. */
+  onOpenDayReview?: (day: string) => void;
 }
 
 export function DayTradesDrawer({
@@ -117,6 +120,7 @@ export function DayTradesDrawer({
   currency,
   fxRate = 1,
   onSelectTrade,
+  onOpenDayReview,
 }: DayTradesDrawerProps) {
   const open = Boolean(selectedDay);
   const title = selectedDay ? `Trades — ${formatDayTitle(selectedDay)}` : "Day trades";
@@ -140,6 +144,19 @@ export function DayTradesDrawer({
           </DrawerClose>
         </DrawerHeader>
         <DrawerBody className="gap-0 p-0">
+          {onOpenDayReview && selectedDay ? (
+            <div className="px-4 pt-1 pb-2">
+              <Button
+                type="button"
+                variant="soft"
+                size="sm"
+                className="w-full"
+                onClick={() => onOpenDayReview(selectedDay)}
+              >
+                Open day review
+              </Button>
+            </div>
+          ) : null}
           {dayTradesLoading ? (
             <Skeleton height="160px" className="m-4" />
           ) : dayTradesError ? (

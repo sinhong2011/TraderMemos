@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { CalendarView, type CalendarMode } from "@/app/screens/CalendarView";
 import { TradeDetailSheet } from "@/components/TradeDetailSheet";
@@ -47,6 +47,7 @@ function tradesByMonthKey(
 }
 
 function CalendarPage() {
+  const navigate = useNavigate();
   const filters = useFilterParams();
   const accountId = useFilters((s) => s.accountId);
   const tradeDateBasis = useDisplayPrefs((s) => s.tradeDateBasis);
@@ -154,6 +155,7 @@ function CalendarPage() {
         dayTradesError={Boolean(selectedDay) && scopeTradesQ.isError}
         currency={currency}
         onSelectTrade={(t) => setSelectedTradeId(t.id)}
+        onOpenDayReview={(day) => void navigate({ to: "/day/$date", params: { date: day } })}
       />
       <TradeDetailSheet tradeId={selectedTradeId} onClose={() => setSelectedTradeId(null)} />
     </>

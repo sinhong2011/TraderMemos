@@ -14,6 +14,29 @@ export interface Filters {
   tz?: string;
 }
 
+/** One calendar day scored against the user's risk rules. */
+export interface ComplianceDay {
+  date: string;
+  net_pnl: number;
+  trades: number;
+  risk_violations: number;
+  unknown_risk: number;
+  daily_loss_breach: boolean;
+  compliant: boolean;
+}
+
+export interface ComplianceReport {
+  rules_configured: boolean;
+  days: ComplianceDay[];
+  compliant_days: number;
+  breach_days: number;
+  compliant_pnl: number;
+  breach_pnl: number;
+  risk_violations: number;
+  unknown_risk: number;
+  daily_loss_breaches: number;
+}
+
 export interface Tokens {
   access_token: string;
   refresh_token: string;
@@ -288,6 +311,8 @@ export interface ImportPreview {
   headers: string[];
   sample_rows: Record<string, string>[];
   suggested_mapping: Record<string, string>;
+  /** Broker preset name when the header signature matched (e.g. "Webull (Orders)"). */
+  detected_broker?: string;
   /** "journal_trades" for closed-trade journal CSVs; "executions" for fill CSVs */
   format?: "journal_trades" | "executions";
   /** Upload source detected by the API */
