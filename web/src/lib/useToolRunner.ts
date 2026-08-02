@@ -8,6 +8,7 @@ export function useToolRunner() {
   const toast = useToastManager();
   const navigate = useNavigate();
   const openPositionSize = useUI((s) => s.openPositionSize);
+  const openKelly = useUI((s) => s.openKelly);
 
   return useCallback(
     (id: ToolId) => {
@@ -15,8 +16,11 @@ export function useToolRunner() {
         case "size":
           openPositionSize();
           return;
+        case "kelly":
+          openKelly();
+          return;
         case "today":
-          navigate({ to: "/calendar" });
+          void navigate({ to: "/calendar" });
           return;
         case "wallet":
           toast.add({
@@ -33,6 +37,6 @@ export function useToolRunner() {
         }
       }
     },
-    [navigate, openPositionSize, toast],
+    [navigate, openKelly, openPositionSize, toast],
   );
 }

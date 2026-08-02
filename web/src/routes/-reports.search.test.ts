@@ -9,6 +9,7 @@ describe("validateReportsSearch", () => {
       dur: "all",
       pnl: "net",
       unit: "abs",
+      avg: "mean",
     });
   });
 
@@ -19,6 +20,7 @@ describe("validateReportsSearch", () => {
       dur: "all",
       pnl: "net",
       unit: "abs",
+      avg: "mean",
     });
   });
 
@@ -29,6 +31,7 @@ describe("validateReportsSearch", () => {
       dur: "all",
       pnl: "net",
       unit: "abs",
+      avg: "mean",
     });
   });
 
@@ -39,6 +42,7 @@ describe("validateReportsSearch", () => {
       dur: "all",
       pnl: "net",
       unit: "abs",
+      avg: "mean",
     });
   });
 
@@ -49,6 +53,7 @@ describe("validateReportsSearch", () => {
       dur: "swing",
       pnl: "net",
       unit: "abs",
+      avg: "mean",
     });
     expect(validateReportsSearch({ side: "bogus", dur: "nope" })).toEqual({
       tab: "overview",
@@ -56,6 +61,7 @@ describe("validateReportsSearch", () => {
       dur: "all",
       pnl: "net",
       unit: "abs",
+      avg: "mean",
     });
   });
 
@@ -69,5 +75,11 @@ describe("validateReportsSearch", () => {
       pnl: "net",
       unit: "abs",
     });
+  });
+
+  it("defaults and coerces avg", () => {
+    expect(validateReportsSearch({})).toMatchObject({ avg: "mean" });
+    expect(validateReportsSearch({ avg: "median" })).toMatchObject({ avg: "median" });
+    expect(validateReportsSearch({ avg: "mode" })).toMatchObject({ avg: "mean" });
   });
 });

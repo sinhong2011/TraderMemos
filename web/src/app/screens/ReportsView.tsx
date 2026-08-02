@@ -37,6 +37,7 @@ import { ReportsDayStrip } from "@/components/ReportsDayStrip";
 import {
   ReportsDisplayProvider,
   useReportsMoney,
+  type AvgMode,
   type PnlMode,
   type UnitMode,
 } from "@/components/ReportsDisplayContext";
@@ -160,9 +161,11 @@ export interface ReportsViewProps {
   onDurationChange: (d: ReportsDuration) => void;
   pnlMode: PnlMode;
   unitMode: UnitMode;
+  avgMode: AvgMode;
   denominator: number;
   onPnlModeChange: (m: PnlMode) => void;
   onUnitModeChange: (m: UnitMode) => void;
+  onAvgModeChange: (m: AvgMode) => void;
   currency: string;
   dim: BreakdownDim;
   onDimChange: (dim: BreakdownDim) => void;
@@ -602,9 +605,11 @@ export function ReportsView({
   onDurationChange,
   pnlMode,
   unitMode,
+  avgMode,
   denominator,
   onPnlModeChange,
   onUnitModeChange,
+  onAvgModeChange,
   currency,
   dim,
   onDimChange,
@@ -663,7 +668,7 @@ export function ReportsView({
 
   return (
     <ReportsDisplayProvider
-      value={{ pnlMode, unitMode, denominator, currency: displayCurrency, fxRate }}
+      value={{ pnlMode, unitMode, avgMode, denominator, currency: displayCurrency, fxRate }}
     >
       <Page>
         <Tabs
@@ -696,8 +701,10 @@ export function ReportsView({
             onDurationChange={onDurationChange}
             pnlMode={pnlMode}
             unitMode={unitMode}
+            avgMode={avgMode}
             onPnlModeChange={onPnlModeChange}
             onUnitModeChange={onUnitModeChange}
+            onAvgModeChange={onAvgModeChange}
             pctEnabled={pctEnabled}
           />
 

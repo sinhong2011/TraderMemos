@@ -1,4 +1,4 @@
-import type { PnlMode, UnitMode } from "./ReportsDisplayContext";
+import type { AvgMode, PnlMode, UnitMode } from "./ReportsDisplayContext";
 import { SegmentedControl } from "./SegmentedControl";
 
 export type ReportsSide = "all" | "long" | "short";
@@ -11,8 +11,10 @@ export interface ReportsControlBarProps {
   onDurationChange: (d: ReportsDuration) => void;
   pnlMode: PnlMode;
   unitMode: UnitMode;
+  avgMode: AvgMode;
   onPnlModeChange: (m: PnlMode) => void;
   onUnitModeChange: (m: UnitMode) => void;
+  onAvgModeChange: (m: AvgMode) => void;
   pctEnabled: boolean;
 }
 
@@ -39,6 +41,11 @@ const UNIT_OPTS = [
   { value: "pct", label: "%" },
 ];
 
+const AVG_OPTS = [
+  { value: "mean", label: "Mean" },
+  { value: "median", label: "Median" },
+];
+
 export function ReportsControlBar({
   side,
   duration,
@@ -46,8 +53,10 @@ export function ReportsControlBar({
   onDurationChange,
   pnlMode,
   unitMode,
+  avgMode,
   onPnlModeChange,
   onUnitModeChange,
+  onAvgModeChange,
   pctEnabled,
 }: ReportsControlBarProps) {
   return (
@@ -82,6 +91,13 @@ export function ReportsControlBar({
           onChange={(v) => onUnitModeChange(v as UnitMode)}
         />
       </div>
+      <SegmentedControl
+        ariaLabel="Average basis"
+        size="xs"
+        options={AVG_OPTS}
+        value={avgMode}
+        onChange={(v) => onAvgModeChange(v as AvgMode)}
+      />
     </div>
   );
 }

@@ -138,7 +138,7 @@ export function useAppHotkeys() {
       useUI.getState().setCommandOpen(false);
       void navigate({
         to: "/reports",
-        search: { tab: "overview", side: "all", dur: "all", pnl: "net", unit: "abs" },
+        search: { tab: "overview", side: "all", dur: "all", pnl: "net", unit: "abs", avg: "mean" },
       });
     },
     pageChord,
