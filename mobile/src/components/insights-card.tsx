@@ -30,40 +30,40 @@ export function InsightsCard({
       <View style={styles.grid}>
         <StatBar
           label={t`Best trade`}
-          value={summary.largest_win > 0 ? formatPnl(summary.largest_win, currency) : '—'}
+          value={formatPnl(summary.largest_win, currency)}
           tone="pos"
         />
         <StatBar
           label={t`Worst trade`}
-          value={summary.largest_loss > 0 ? formatPnl(-summary.largest_loss, currency) : '—'}
+          value={formatPnl(-summary.largest_loss, currency)}
           tone="neg"
         />
         <StatBar
           label={t`Max drawdown`}
-          value={maxDrawdown != null && maxDrawdown > 0 ? formatPnl(-maxDrawdown, currency) : '—'}
+          value={formatPnl(-(maxDrawdown ?? 0), currency)}
           tone="neg"
         />
         <StatBar
           label={t`Best streak`}
-          value={insights.bestStreak > 0 ? String(insights.bestStreak) : '—'}
-          sub={insights.bestStreak > 0 ? t`wins` : undefined}
+          value={String(insights.bestStreak)}
+          sub={t`wins`}
           tone="pos"
         />
         <StatBar
           label={t`Worst streak`}
-          value={insights.worstStreak > 0 ? String(insights.worstStreak) : '—'}
-          sub={insights.worstStreak > 0 ? t`losses` : undefined}
+          value={String(insights.worstStreak)}
+          sub={t`losses`}
           tone={insights.worstStreak > 0 ? 'neg' : 'muted'}
         />
         <StatBar
           label={t`Best day`}
-          value={insights.bestDay ? formatPnl(insights.bestDay.pnl, currency) : '—'}
+          value={formatPnl(insights.bestDay?.pnl ?? 0, currency)}
           sub={insights.bestDay ? formatDate(insights.bestDay.date) : undefined}
           tone={insights.bestDay && insights.bestDay.pnl > 0 ? 'pos' : 'muted'}
         />
         <StatBar
           label={t`Worst day`}
-          value={insights.worstDay ? formatPnl(insights.worstDay.pnl, currency) : '—'}
+          value={formatPnl(insights.worstDay?.pnl ?? 0, currency)}
           sub={insights.worstDay ? formatDate(insights.worstDay.date) : undefined}
           tone={insights.worstDay && insights.worstDay.pnl < 0 ? 'neg' : 'muted'}
         />
@@ -76,9 +76,9 @@ export function InsightsCard({
         <StatBar label={t`Losing hold`} value={formatDuration(insights.lossHoldSecs)} tone="neg" />
         <StatBar
           label={t`Top symbol`}
-          value={insights.topSymbol ?? '—'}
+          value={insights.topSymbol ?? t`None`}
           sub={insights.topSymbol ? t`most traded` : undefined}
-          tone="accent"
+          tone={insights.topSymbol ? 'accent' : 'muted'}
         />
         <StatBar
           label={t`Main leak`}
