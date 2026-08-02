@@ -111,6 +111,20 @@ export function pnlColor(colors: ThemeColors, value: number | null | undefined):
 export function pnlBgTint(colors: ThemeColors, value: number, maxAbs: number): string {
   const base = value > 0 ? colors.profit : colors.loss;
   const intensity = maxAbs > 0 ? Math.min(1, Math.abs(value) / maxAbs) : 0;
-  const alpha = Math.round((0.12 + 0.26 * intensity) * 255);
+  // Capped so profit/loss text keeps ~4.5:1 on the deepest wash; green is
+  // damped for luminance parity — at equal alpha it reads far louder than red.
+  const parity = value > 0 ? 0.85 : 1;
+  const alpha = Math.round((0.08 + 0.16 * intensity) * parity * 255);
+  return `${base}${alpha.toString(16).padStart(2, '0')}`;
+}
+
+/**
+ * Vivid P&L fill for heatmap dots that never carry text — the quiet
+ * `pnlBgTint` ramp reads as noise at dot size, so these run much hotter.
+ */
+export function pnlDotTint(colors: ThemeColors, value: number, maxAbs: number): string {
+  const base = value > 0 ? colors.profit : colors.loss;
+  const intensity = maxAbs > 0 ? Math.min(1, Math.abs(value) / maxAbs) : 0;
+  const alpha = Math.round((0.3 + 0.6 * intensity) * 255);
   return `${base}${alpha.toString(16).padStart(2, '0')}`;
 }

@@ -22,12 +22,14 @@ export function MiniCalendarCard({
   month,
   dailyPnl,
   currency,
+  onOpenCalendar,
 }: {
   year: number;
   /** 1-based. */
   month: number;
   dailyPnl: DailyPnl;
   currency: string;
+  onOpenCalendar?: () => void;
 }) {
   const { theme } = useUnistyles();
   const grid = monthGrid(year, month, dailyPnl);
@@ -40,7 +42,10 @@ export function MiniCalendarCard({
   });
 
   return (
-    <DashboardCard title={t`Month`}>
+    <DashboardCard
+      title={t`Month`}
+      action={onOpenCalendar ? { label: t`Full calendar`, onPress: onOpenCalendar } : undefined}
+    >
       <Text style={styles.monthLabel}>{monthLabel}</Text>
 
       <View>

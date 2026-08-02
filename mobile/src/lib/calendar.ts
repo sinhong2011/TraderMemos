@@ -13,6 +13,11 @@ export interface MonthGrid {
   maxAbs: number;
 }
 
+/** UTC day key ("YYYY-MM-DD") a closed trade lands on — close basis, like web. */
+export function tradeDayKey(trade: { closed_at: string | null }): string | null {
+  return trade.closed_at ? trade.closed_at.slice(0, 10) : null;
+}
+
 /** month is 1-based. Builds a Sun-first grid of full weeks with daily P&L. */
 export function monthGrid(year: number, month: number, pnl: Record<string, number>): MonthGrid {
   const first = new Date(Date.UTC(year, month - 1, 1));
