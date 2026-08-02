@@ -337,7 +337,14 @@ export function YearWrappedView({
           </div>
           <Link
             to="/reports"
-            search={{ tab: "overview", side: "all", dur: "all", pnl: "net", unit: "abs" }}
+            search={{
+              tab: "overview",
+              side: "all",
+              dur: "all",
+              pnl: "net",
+              unit: "abs",
+              avg: "mean",
+            }}
             className="mt-5 inline-flex text-[12px] font-medium text-primary no-underline hover:underline"
           >
             Dig into the full reports →
