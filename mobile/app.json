@@ -13,13 +13,18 @@
       "supportsTablet": true,
       "infoPlist": {
         "CFBundleAllowMixedLocalizations": true,
-        "CFBundleLocalizations": ["en", "ja", "ko", "zh-Hant-HK"]
+        "CFBundleLocalizations": [
+          "en",
+          "ja",
+          "ko",
+          "zh-Hant-HK"
+        ]
       }
     },
     "android": {
       "package": "com.tradermemos.app",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#0D6CEE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
@@ -36,7 +41,7 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#2E9BD4",
+          "backgroundColor": "#001340",
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
         }
