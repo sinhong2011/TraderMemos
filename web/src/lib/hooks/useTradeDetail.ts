@@ -39,6 +39,17 @@ export function usePatchTrade() {
   });
 }
 
+export function useComputeExcursion() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => tradesApi.computeExcursion(id),
+    onSuccess: (_data, id) => {
+      void queryClient.invalidateQueries({ queryKey: ["trades"] });
+      void queryClient.invalidateQueries({ queryKey: ["trade", id] });
+    },
+  });
+}
+
 export function useDeleteTrade() {
   const queryClient = useQueryClient();
   return useMutation({

@@ -4,6 +4,14 @@ import type { Filters, Trade, TradeDetail } from "./types";
 
 export type { TradeCoachApiNote, TradeCoachReview, TradeCoachSource } from "./trades.coach.types";
 
+export interface TradeExcursion {
+  mae: number;
+  mfe: number;
+  interval: string;
+  bars_used: number;
+  provider: string;
+}
+
 export const tradesApi = {
   list: (f: Filters) => apiFetch<Trade[]>(`/trades${qs(f as Record<string, string | undefined>)}`),
   get: (id: string) => apiFetch<TradeDetail>(`/trades/${id}`),
@@ -32,6 +40,11 @@ export const tradesApi = {
     apiFetch<TradeDetail>(`/trades/${id}`, {
       method: "PATCH",
       body: JSON.stringify(body),
+    }),
+  /** Compute MAE/MFE from market bars and save them into the journal. */
+  computeExcursion: (id: string) =>
+    apiFetch<TradeExcursion>(`/trades/${id}/excursion`, {
+      method: "POST",
     }),
   regroup: (account_id: string) =>
     apiFetch<void>("/trades/regroup", {
