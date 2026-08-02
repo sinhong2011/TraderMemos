@@ -5,6 +5,24 @@ All notable changes to TraderMemos are documented in this file.
 Release versioning is managed by [release-please](https://github.com/googleapis/release-please).
 See [docs/release.md](docs/release.md) for the release workflow.
 
+## [0.1.12](https://github.com/sinhong2011/TraderMemos/compare/v0.1.11...v0.1.12) (2026-08-02)
+
+
+### Features
+
+* Kelly %, SQN, and mean/median toggle for Reports ([#48](https://github.com/sinhong2011/TraderMemos/issues/48)) ([992407d](https://github.com/sinhong2011/TraderMemos/commit/992407dce9ca2a5d9a6285026e9d5a968e780f23))
+* **web:** opt-in trade share cards — private-by-default PNG export ([#50](https://github.com/sinhong2011/TraderMemos/issues/50)) ([da1d885](https://github.com/sinhong2011/TraderMemos/commit/da1d88508d1ec7b5348890ab0a03fc0efd4efd20))
+* **web:** setting to disable the update notification toast ([#46](https://github.com/sinhong2011/TraderMemos/issues/46)) ([d7d1d25](https://github.com/sinhong2011/TraderMemos/commit/d7d1d25a01b298a9e72c184dfb6e2651f1d5fd19))
+* **web:** Year Wrapped — annual trading recap page ([#49](https://github.com/sinhong2011/TraderMemos/issues/49)) ([a4b7428](https://github.com/sinhong2011/TraderMemos/commit/a4b7428276eaefc1a88442b328c13bd45ce89e05))
+
+
+### Bug Fixes
+
+* make the Reports gross P&L toggle real — add before-fees gross_pnl ([#52](https://github.com/sinhong2011/TraderMemos/issues/52)) ([ecd8f6e](https://github.com/sinhong2011/TraderMemos/commit/ecd8f6e1bba1e94953a16bcbe6f61c8e42d95146))
+* trading days follow the market timezone — end-to-end date pipeline fix ([#53](https://github.com/sinhong2011/TraderMemos/issues/53)) ([cc91028](https://github.com/sinhong2011/TraderMemos/commit/cc910286f53cce12ce315c0eadf8d931d7dc917b))
+* **web:** rule-compliance breach dates render a day early west of UTC ([#51](https://github.com/sinhong2011/TraderMemos/issues/51)) ([73e5615](https://github.com/sinhong2011/TraderMemos/commit/73e561517f03a18d95ab4677f65d68175c295e7a))
+* **web:** Year Wrapped reports link missing required avg search param ([#55](https://github.com/sinhong2011/TraderMemos/issues/55)) ([d216874](https://github.com/sinhong2011/TraderMemos/commit/d2168746ad6ca36fc7719a25027cb9ac17ed381c))
+
 ## [0.1.11](https://github.com/sinhong2011/TraderMemos/compare/v0.1.10...v0.1.11) (2026-08-02)
 
 
