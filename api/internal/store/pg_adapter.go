@@ -124,6 +124,10 @@ func (p *PG) DeleteExecutionsForTrade(ctx context.Context, arg DeleteExecutionsF
 	return p.q.DeleteExecutionsForTrade(ctx, storepg.DeleteExecutionsForTradeParams(arg))
 }
 
+func (p *PG) DeleteFutureEconomicEvents(ctx context.Context, arg DeleteFutureEconomicEventsParams) error {
+	return p.q.DeleteFutureEconomicEvents(ctx, storepg.DeleteFutureEconomicEventsParams(arg))
+}
+
 func (p *PG) DeleteJournalNote(ctx context.Context, arg DeleteJournalNoteParams) (int64, error) {
 	return p.q.DeleteJournalNote(ctx, storepg.DeleteJournalNoteParams(arg))
 }
@@ -210,6 +214,10 @@ func (p *PG) GetCoachSettings(ctx context.Context) (CoachSetting, error) {
 		return CoachSetting{}, err
 	}
 	return CoachSetting(v), nil
+}
+
+func (p *PG) GetEconomicEventsLastFetch(ctx context.Context, provider string) (string, error) {
+	return p.q.GetEconomicEventsLastFetch(ctx, provider)
 }
 
 func (p *PG) GetExecution(ctx context.Context, arg GetExecutionParams) (Execution, error) {
@@ -456,6 +464,14 @@ func (p *PG) ListClosedTrades(ctx context.Context, arg ListClosedTradesParams) (
 	return func() []Trade { in := v; out := make([]Trade, len(in)); for i := range in { out[i] = Trade(in[i]) }; return out }(), nil
 }
 
+func (p *PG) ListEconomicEvents(ctx context.Context, arg ListEconomicEventsParams) ([]EconomicEvent, error) {
+	v, err := p.q.ListEconomicEvents(ctx, storepg.ListEconomicEventsParams(arg))
+	if err != nil {
+		return nil, err
+	}
+	return func() []EconomicEvent { in := v; out := make([]EconomicEvent, len(in)); for i := range in { out[i] = EconomicEvent(in[i]) }; return out }(), nil
+}
+
 func (p *PG) ListExecutionsForAccount(ctx context.Context, arg ListExecutionsForAccountParams) ([]Execution, error) {
 	v, err := p.q.ListExecutionsForAccount(ctx, storepg.ListExecutionsForAccountParams(arg))
 	if err != nil {
@@ -658,6 +674,10 @@ func (p *PG) UpsertCoachSettings(ctx context.Context, arg UpsertCoachSettingsPar
 		return CoachSetting{}, err
 	}
 	return CoachSetting(v), nil
+}
+
+func (p *PG) UpsertEconomicEvent(ctx context.Context, arg UpsertEconomicEventParams) error {
+	return p.q.UpsertEconomicEvent(ctx, storepg.UpsertEconomicEventParams(arg))
 }
 
 func (p *PG) UpsertInstrumentSpec(ctx context.Context, arg UpsertInstrumentSpecParams) error {

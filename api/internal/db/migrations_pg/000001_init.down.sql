@@ -1,5 +1,6 @@
 -- Drop in reverse FK dependency order.
 
+DROP TABLE IF EXISTS economic_events;
 DROP TABLE IF EXISTS prop_settings;
 DROP TABLE IF EXISTS media_files;
 DROP TABLE IF EXISTS access_tokens;

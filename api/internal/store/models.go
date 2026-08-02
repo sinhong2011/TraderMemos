@@ -70,6 +70,19 @@ type CoachSetting struct {
 	UpdatedAt    time.Time `json:"updated_at"`
 }
 
+type EconomicEvent struct {
+	ID        int64  `json:"id"`
+	Provider  string `json:"provider"`
+	Title     string `json:"title"`
+	Country   string `json:"country"`
+	Impact    string `json:"impact"`
+	EventTs   string `json:"event_ts"`
+	Forecast  string `json:"forecast"`
+	Previous  string `json:"previous"`
+	Actual    string `json:"actual"`
+	FetchedAt string `json:"fetched_at"`
+}
+
 type Execution struct {
 	ID             string         `json:"id"`
 	UserID         string         `json:"user_id"`
