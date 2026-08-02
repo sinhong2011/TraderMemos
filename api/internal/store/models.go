@@ -103,6 +103,18 @@ type Execution struct {
 	CreatedAt      time.Time      `json:"created_at"`
 }
 
+type FlexSyncSetting struct {
+	AccountID    string       `json:"account_id"`
+	UserID       string       `json:"user_id"`
+	Token        string       `json:"token"`
+	QueryID      string       `json:"query_id"`
+	Enabled      int64        `json:"enabled"`
+	LastSyncedAt sql.NullTime `json:"last_synced_at"`
+	LastStatus   string       `json:"last_status"`
+	LastError    string       `json:"last_error"`
+	UpdatedAt    time.Time    `json:"updated_at"`
+}
+
 type ImportBatch struct {
 	ID            string         `json:"id"`
 	UserID        string         `json:"user_id"`

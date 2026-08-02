@@ -11,6 +11,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/tradermemos/api/internal/auth"
 	"github.com/tradermemos/api/internal/econdata"
+	"github.com/tradermemos/api/internal/flexsync"
 	"github.com/tradermemos/api/internal/marketdata"
 	"github.com/tradermemos/api/internal/ocr"
 	"github.com/tradermemos/api/internal/storage"
@@ -36,6 +37,8 @@ type Deps struct {
 	Econ           *econdata.Service
 	OCR            *ocr.Service
 	CoachDefaults  ocr.VisionConfig
+	// FlexClient talks to IBKR's Flex Web Service; nil disables manual sync.
+	FlexClient *flexsync.Client
 	// CORSOrigins enable browser cross-origin access when the SPA is hosted
 	// separately (Vercel, Cloudflare Pages, etc.). Empty disables CORS.
 	CORSOrigins []string
@@ -149,6 +152,7 @@ func (s *Server) routes() {
 	}
 	s.accountRoutes(protected)
 	s.propRoutes(protected)
+	s.flexSyncRoutes(protected)
 	s.executionRoutes(protected)
 	s.cashRoutes(protected)
 	s.importRoutes(protected)

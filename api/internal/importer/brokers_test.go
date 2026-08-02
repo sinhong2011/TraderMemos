@@ -30,6 +30,8 @@ func TestMatchBrokerIBKR(t *testing.T) {
 	require.Equal(t, 231.5, ex.Price)
 	require.Equal(t, "stock", ex.InstrumentType)
 	require.Equal(t, time.Date(2026, 7, 10, 9, 31, 22, 0, time.UTC), ex.ExecutedAt)
+	// IBKR reports commissions negative; they must land as positive cost.
+	require.Equal(t, 1.02, ex.Commission)
 }
 
 func TestMatchBrokerThinkOrSwim(t *testing.T) {
