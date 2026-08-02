@@ -22,6 +22,9 @@ export function useToolRunner() {
         case "today":
           void navigate({ to: "/calendar" });
           return;
+        case "wrapped":
+          void navigate({ to: "/wrapped", search: { year: new Date().getFullYear() } });
+          return;
         case "wallet":
           toast.add({
             title: "Wallet",
