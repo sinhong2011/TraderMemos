@@ -5,6 +5,14 @@ All notable changes to TraderMemos are documented in this file.
 Release versioning is managed by [release-please](https://github.com/googleapis/release-please).
 See [docs/release.md](docs/release.md) for the release workflow.
 
+## [0.1.11](https://github.com/sinhong2011/TraderMemos/compare/v0.1.10...v0.1.11) (2026-08-02)
+
+
+### Features
+
+* post-exit MAE/MFE — measure the move after the exit ([#44](https://github.com/sinhong2011/TraderMemos/issues/44)) ([391e9ef](https://github.com/sinhong2011/TraderMemos/commit/391e9efe75972ccf92ba29a7ac55dfcad7d646ca))
+* version boot logging, /system/info endpoint, and web/API mismatch banner ([#47](https://github.com/sinhong2011/TraderMemos/issues/47)) ([d22d6b9](https://github.com/sinhong2011/TraderMemos/commit/d22d6b95f7c2f165c7c11af1e656cb48e1b1ae5d))
+
 ## [0.1.10](https://github.com/sinhong2011/TraderMemos/compare/v0.1.9...v0.1.10) (2026-08-02)
 
 
