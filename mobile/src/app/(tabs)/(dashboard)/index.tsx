@@ -1,7 +1,7 @@
 import { ContentUnavailableView, Host } from '@expo/ui/swift-ui';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
-import { ActivityIndicator, RefreshControl, ScrollView, Text, View } from 'react-native';
+import { RefreshControl, ScrollView, Text, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import {
@@ -19,6 +19,7 @@ import { GoalCard } from '@/components/goal-card';
 import { InsightsCard } from '@/components/insights-card';
 import { MiniCalendarCard } from '@/components/mini-calendar-card';
 import { PerformanceCard } from '@/components/performance-card';
+import { Skeleton } from '@/components/skeleton';
 import { TradeRow } from '@/components/trade-row';
 import { t } from '@lingui/core/macro';
 
@@ -48,10 +49,18 @@ export default function DashboardScreen() {
   const refreshAll = () => void queryClient.invalidateQueries();
 
   if (summary.isLoading) {
+    // Card-shaped skeletons standing in for the performance, equity, and
+    // breakdown blocks.
     return (
-      <View style={styles.centered}>
-        <ActivityIndicator />
-      </View>
+      <ScrollView
+        style={styles.page}
+        contentInsetAdjustmentBehavior="automatic"
+        contentContainerStyle={styles.content}
+      >
+        <Skeleton style={styles.skeletonCardTall} />
+        <Skeleton style={styles.skeletonCard} />
+        <Skeleton style={styles.skeletonCard} />
+      </ScrollView>
     );
   }
 
@@ -95,7 +104,9 @@ export default function DashboardScreen() {
     >
       <PerformanceCard summary={summary.data} trades={tradeList} currency={currency} />
 
-      {equity.isLoading ? null : equity.error ? (
+      {equity.isLoading ? (
+        <Skeleton style={styles.skeletonCard} />
+      ) : equity.error ? (
         <DashboardCard title={t`Equity curve`}>
           <Text style={styles.cardError}>{t`Failed to load equity curve.`}</Text>
         </DashboardCard>
@@ -119,7 +130,13 @@ export default function DashboardScreen() {
         maxDrawdown={equity.data?.max_drawdown}
       />
 
-      <MiniCalendarCard year={year} month={month} dailyPnl={daily.data ?? {}} currency={currency} />
+      <MiniCalendarCard
+        year={year}
+        month={month}
+        dailyPnl={daily.data ?? {}}
+        currency={currency}
+        onOpenCalendar={() => router.navigate('/(tabs)/(calendar)')}
+      />
 
       <BreakdownCard />
 
@@ -154,6 +171,8 @@ const styles = StyleSheet.create((theme) => ({
     padding: theme.spacing.xl,
   },
   error: { color: theme.colors.mutedForeground, textAlign: 'center' },
+  skeletonCardTall: { height: 240, borderRadius: theme.radius.lg + 4 },
+  skeletonCard: { height: 180, borderRadius: theme.radius.lg + 4 },
   cardError: { fontSize: 13, color: theme.colors.mutedForeground },
   recent: { gap: theme.spacing.sm },
   recentHeader: {
@@ -164,5 +183,5 @@ const styles = StyleSheet.create((theme) => ({
     paddingTop: theme.spacing.sm,
   },
   recentTitle: { fontSize: 15, fontWeight: '600', color: theme.colors.foreground },
-  recentAction: { fontSize: 13, fontWeight: '500', color: theme.colors.primary },
+  recentAction: { fontSize: 13, fontWeight: '500', color: theme.colors.foreground },
 }));

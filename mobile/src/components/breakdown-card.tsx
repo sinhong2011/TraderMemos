@@ -1,11 +1,12 @@
 import { Chart, Host } from '@expo/ui/swift-ui';
 import { useState } from 'react';
-import { ActivityIndicator, Text } from 'react-native';
+import { Text } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { useBreakdown, type BreakdownDim } from '@/api/hooks';
 import { DashboardCard } from '@/components/dashboard-card';
 import { Segmented } from '@/components/segmented';
+import { Skeleton } from '@/components/skeleton';
 import { t } from '@lingui/core/macro';
 
 /** Net P&L per group, best → worst, like the web chart. */
@@ -35,7 +36,7 @@ export function BreakdownCard() {
       control={<Segmented options={dims} value={dim} onChange={setDim} />}
     >
       {isLoading ? (
-        <ActivityIndicator style={styles.placeholder} />
+        <Skeleton style={styles.chart} />
       ) : error ? (
         <Text style={styles.empty}>{t`Failed to load breakdown.`}</Text>
       ) : chartData.length === 0 ? (
@@ -51,6 +52,5 @@ export function BreakdownCard() {
 
 const styles = StyleSheet.create((theme) => ({
   chart: { height: 200 },
-  placeholder: { paddingVertical: theme.spacing.xl * 2 },
   empty: { fontSize: 13, color: theme.colors.mutedForeground, paddingVertical: theme.spacing.lg },
 }));
