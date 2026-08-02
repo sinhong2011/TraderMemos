@@ -59,6 +59,13 @@ type tradeDTO struct {
 	Notes           string      `json:"notes"`
 	Tags            []store.Tag `json:"tags"`
 	InitialRisk     *float64    `json:"initial_risk,omitempty"`
+	// Journal quick-filter fields, filled on list rows so clients can filter by
+	// setup/emotion/ratings without a detail fetch. The detail DTO's own fields
+	// shadow the emotion/rating ones (same JSON keys at shallower depth).
+	SetupID        *string `json:"setup_id,omitempty"`
+	EmotionalState string  `json:"emotional_state,omitempty"`
+	Confidence     *int64  `json:"confidence,omitempty"`
+	TradeQuality   *int64  `json:"trade_quality,omitempty"`
 }
 
 func toTradeDTO(t store.Trade, tags []store.Tag) tradeDTO {

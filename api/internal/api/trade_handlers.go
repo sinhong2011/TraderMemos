@@ -44,6 +44,14 @@ func (s *Server) handleListTrades(c echo.Context) error {
 	if err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not load tags", nil)
 	}
+	journals, err := s.deps.Store.ListTradeJournalsForUser(ctx, uid)
+	if err != nil {
+		return Fail(http.StatusInternalServerError, "internal", "could not load journals", nil)
+	}
+	journalByTrade := make(map[string]store.TradeJournal, len(journals))
+	for _, j := range journals {
+		journalByTrade[j.TradeID] = j
+	}
 	tagsByTrade := make(map[string][]store.Tag)
 	for _, r := range tagRows {
 		tagsByTrade[r.TradeID] = append(tagsByTrade[r.TradeID], store.Tag{
@@ -56,6 +64,15 @@ func (s *Server) handleListTrades(c echo.Context) error {
 		dto := toTradeDTO(t, tagsByTrade[t.ID])
 		if risk, ok := riskByTrade[t.ID]; ok {
 			dto.InitialRisk = &risk
+		}
+		if j, ok := journalByTrade[t.ID]; ok {
+			if j.SetupID.Valid {
+				setupID := j.SetupID.String
+				dto.SetupID = &setupID
+			}
+			dto.EmotionalState = j.EmotionalState
+			dto.Confidence = iptr(j.Confidence)
+			dto.TradeQuality = iptr(j.TradeQuality)
 		}
 		out = append(out, dto)
 	}
