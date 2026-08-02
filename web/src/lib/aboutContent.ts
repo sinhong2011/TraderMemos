@@ -98,17 +98,18 @@ const ABOUT: Record<AppLocale, AboutContent> = {
       },
       {
         title: "P&L calendar",
-        description: "Heatmap calendar with daily realized P&L, trade counts, and drill-down.",
+        description:
+          "Heatmap calendar with daily realized P&L, trade counts, drill-down, and a macro economic event timeline.",
       },
       {
         title: "Reports & playbook",
         description:
-          "Win rate, expectancy, setup breakdown, hourly/session stats, and a linked strategy playbook.",
+          "Win rate, expectancy, setup breakdown, MAE/MFE excursions, behavior insights, and a linked strategy playbook.",
       },
       {
         title: "Import & tools",
         description:
-          "CSV import, position-size calculator, risk rules, and cash ledger per account.",
+          "CSV import, IBKR Flex auto-sync, position-size calculator, risk rules, and cash ledger per account.",
       },
       {
         title: "AI (optional)",
@@ -117,7 +118,7 @@ const ABOUT: Record<AppLocale, AboutContent> = {
       },
     ],
     stackTitle: "Built with",
-    stack: ["Go · Echo · SQLite", "React · Vite+ · TanStack", "Tailwind · shadcn UI"],
+    stack: ["Go · Echo · SQLite / Postgres", "React · Vite+ · TanStack", "Tailwind · shadcn UI"],
     linksTitle: "Resources",
     links: [
       {
@@ -218,15 +219,15 @@ const ABOUT: Record<AppLocale, AboutContent> = {
       },
       {
         title: "P&L 日曆",
-        description: "熱力圖日曆顯示每日已實現 P&L、交易筆數，並可深入查看。",
+        description: "熱力圖日曆顯示每日已實現 P&L、交易筆數、可深入查看，並附宏觀經濟事件時間軸。",
       },
       {
         title: "報表與策略庫",
-        description: "勝率、期望值、策略分解、小時/盤段統計，以及連結的策略庫。",
+        description: "勝率、期望值、策略分解、MAE/MFE 走勢、行為洞察，以及連結的策略庫。",
       },
       {
         title: "匯入與工具",
-        description: "CSV 匯入、倉位計算器、風險規則，以及每帳戶現金分錄。",
+        description: "CSV 匯入、IBKR Flex 自動同步、倉位計算器、風險規則，以及每帳戶現金分錄。",
       },
       {
         title: "AI（可選）",
@@ -234,7 +235,7 @@ const ABOUT: Record<AppLocale, AboutContent> = {
       },
     ],
     stackTitle: "技術棧",
-    stack: ["Go · Echo · SQLite", "React · Vite+ · TanStack", "Tailwind · shadcn UI"],
+    stack: ["Go · Echo · SQLite / Postgres", "React · Vite+ · TanStack", "Tailwind · shadcn UI"],
     linksTitle: "資源",
     links: [
       {
@@ -335,17 +336,18 @@ const ABOUT: Record<AppLocale, AboutContent> = {
       },
       {
         title: "P&L カレンダー",
-        description: "日次実現 P&L とトレード数のヒートマップカレンダー、ドリルダウン対応。",
+        description:
+          "日次実現 P&L とトレード数のヒートマップカレンダー、ドリルダウンとマクロ経済イベントのタイムライン対応。",
       },
       {
         title: "レポート & プレイブック",
         description:
-          "勝率、期待値、セットアップ内訳、時間帯/セッション統計、リンクされたプレイブック。",
+          "勝率、期待値、セットアップ内訳、MAE/MFE、行動インサイト、リンクされたプレイブック。",
       },
       {
         title: "インポート & ツール",
         description:
-          "CSV インポート、ポジションサイズ計算、リスクルール、アカウント別キャッシュ台帳。",
+          "CSV インポート、IBKR Flex 自動同期、ポジションサイズ計算、リスクルール、アカウント別キャッシュ台帳。",
       },
       {
         title: "AI（任意）",
@@ -354,7 +356,7 @@ const ABOUT: Record<AppLocale, AboutContent> = {
       },
     ],
     stackTitle: "技術スタック",
-    stack: ["Go · Echo · SQLite", "React · Vite+ · TanStack", "Tailwind · shadcn UI"],
+    stack: ["Go · Echo · SQLite / Postgres", "React · Vite+ · TanStack", "Tailwind · shadcn UI"],
     linksTitle: "リソース",
     links: [
       {
@@ -457,15 +459,16 @@ const ABOUT: Record<AppLocale, AboutContent> = {
       },
       {
         title: "P&L 캘린더",
-        description: "일별 실현 P&L, 거래 수 히트맵 캘린더 및 드릴다운.",
+        description: "일별 실현 P&L, 거래 수 히트맵 캘린더, 드릴다운 및 거시 경제 이벤트 타임라인.",
       },
       {
         title: "리포트 & 플레이북",
-        description: "승률, 기대값, 셋업 분석, 시간대/세션 통계, 연결된 플레이북.",
+        description: "승률, 기대값, 셋업 분석, MAE/MFE, 행동 인사이트, 연결된 플레이북.",
       },
       {
         title: "가져오기 & 도구",
-        description: "CSV 가져오기, 포지션 크기 계산기, 리스크 규칙, 계정별 현금 원장.",
+        description:
+          "CSV 가져오기, IBKR Flex 자동 동기화, 포지션 크기 계산기, 리스크 규칙, 계정별 현금 원장.",
       },
       {
         title: "AI (선택)",
@@ -473,7 +476,7 @@ const ABOUT: Record<AppLocale, AboutContent> = {
       },
     ],
     stackTitle: "기술 스택",
-    stack: ["Go · Echo · SQLite", "React · Vite+ · TanStack", "Tailwind · shadcn UI"],
+    stack: ["Go · Echo · SQLite / Postgres", "React · Vite+ · TanStack", "Tailwind · shadcn UI"],
     linksTitle: "리소스",
     links: [
       {

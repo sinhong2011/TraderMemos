@@ -9,6 +9,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import type { ReactNode } from "react";
 import { AppLogo } from "@/components/AppLogo";
 import { Pill } from "@/components/Pill";
 import { Skeleton } from "@/components/Skeleton";
@@ -28,7 +29,7 @@ import { useApiHealth } from "@/lib/hooks/useApiHealth";
 import { formatUptime, useSystemInfo } from "@/lib/hooks/useSystemInfo";
 import { APP_BUILD, APP_VERSION, formatVersion } from "@/lib/version";
 import { useLocale } from "@/i18n";
-import { SettingsGroup, SettingsGroupRow, SettingsPanelBody, SettingsSection } from "./settings-ui";
+import { SettingsSection } from "./settings-ui";
 
 const FEATURE_ICONS: LucideIcon[] = [
   House,
@@ -38,6 +39,47 @@ const FEATURE_ICONS: LucideIcon[] = [
   FileSpreadsheet,
   Sparkles,
 ];
+
+/** Borderless elevated block — About-page section surface. */
+function AboutCard({ children, className }: { children: ReactNode; className?: string }) {
+  return <div className={cn("rounded-xl bg-card", className)}>{children}</div>;
+}
+
+/** Compact stat: uppercase label on top, prominent value, optional subline. */
+function StatTile({
+  label,
+  value,
+  sub,
+  tone = "default",
+  loading,
+}: {
+  label: string;
+  value?: ReactNode;
+  sub?: ReactNode;
+  tone?: "default" | "warn";
+  loading?: boolean;
+}) {
+  return (
+    <div className="min-w-0 rounded-lg bg-sidebar/60 px-4 py-3.5">
+      <p className="m-0 text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
+        {label}
+      </p>
+      {loading ? (
+        <Skeleton height="20px" width="4.5rem" className="mt-1.5" />
+      ) : (
+        <p
+          className={cn(
+            "m-0 mt-1 truncate text-[17px] font-semibold tabular-nums tracking-tight",
+            tone === "warn" ? "text-chart-3" : "text-foreground",
+          )}
+        >
+          {value}
+        </p>
+      )}
+      {sub ? <p className="m-0 mt-0.5 truncate text-[11px] text-muted-foreground">{sub}</p> : null}
+    </div>
+  );
+}
 
 function AboutFeatureCard({
   icon: Icon,
@@ -49,7 +91,7 @@ function AboutFeatureCard({
   description: string;
 }) {
   return (
-    <div className="flex gap-3 rounded-md bg-sidebar/60 px-4 py-3.5">
+    <div className="flex gap-3 rounded-lg bg-sidebar/60 px-4 py-3.5 transition-colors duration-150 hover:bg-sidebar motion-reduce:transition-none">
       <div
         className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-md bg-accent/10 text-primary"
         aria-hidden
@@ -68,12 +110,10 @@ function AboutLinkRow({
   label,
   href,
   description,
-  last,
 }: {
   label: string;
   href: string;
   description: string;
-  last?: boolean;
 }) {
   const isGithub = href.includes("github.com");
   const TrailIcon = isGithub ? Github : ExternalLink;
@@ -83,10 +123,7 @@ function AboutLinkRow({
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className={cn(
-        "group flex items-start justify-between gap-4 px-5 py-4 no-underline transition-colors duration-150 hover:bg-accent/50",
-        !last && "border-b border-border/40",
-      )}
+      className="group flex items-start justify-between gap-4 rounded-lg px-4 py-3.5 no-underline transition-colors duration-150 hover:bg-accent/50 motion-reduce:transition-none"
     >
       <div className="flex min-w-0 items-start gap-3">
         {isGithub ? (
@@ -111,14 +148,6 @@ function AboutLinkRow({
         aria-hidden
       />
     </a>
-  );
-}
-
-function AboutInfoValue({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="text-right text-[13px] font-medium tabular-nums tracking-tight text-foreground">
-      {children}
-    </span>
   );
 }
 
@@ -171,6 +200,8 @@ export function AboutTab() {
   const checkForUpdates = useAppUpdate((s) => s.checkForUpdates);
   const applyUpdate = useAppUpdate((s) => s.applyUpdate);
 
+  const attention = swReady || webBehind || apiBehind || versionMismatch;
+
   const updateStatus = swReady
     ? content.updateStatusSwReady
     : webBehind && apiBehind
@@ -185,160 +216,282 @@ export function AboutTab() {
               ? content.updateStatusAvailable
               : content.updateStatusCurrent;
 
-  const releasePublished = remote?.publishedAt ? fmtDateTime(remote.publishedAt) : null;
-
-  const apiVersionLabel =
+  const apiVersionValue =
     storeApiVersion ?? (healthOk && health.data?.version ? health.data.version : null);
+  const apiCommit = health.data?.commit?.slice(0, 7);
 
   const lastCheckedLabel = lastCheckedAt
     ? fmtDateTime(new Date(lastCheckedAt).toISOString())
     : content.updateNeverChecked;
 
+  const enabledFeatures = systemInfo.data?.features
+    ? Object.entries(systemInfo.data.features).filter(([, enabled]) => enabled)
+    : [];
+
   return (
     <>
-      <SettingsSection title="TraderMemos" description={content.tagline}>
-        <SettingsPanelBody className="space-y-5">
-          <div className="flex items-start gap-4">
-            <AppLogo
-              size={52}
-              className="shadow-[0_0_24px_color-mix(in oklch, var(--primary) 35%, transparent)]"
-              title="TraderMemos"
-            />
-            <div className="min-w-0 pt-0.5">
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                <span className="text-[28px] font-bold tracking-[-0.03em] text-foreground">
-                  TraderMemos
-                </span>
-                <Pill tone="muted">{formatVersion(APP_VERSION, APP_BUILD || undefined)}</Pill>
-                <a
-                  href={REPO_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="GitHub repository"
-                  className="inline-flex size-8 items-center justify-center rounded-md text-muted-foreground no-underline transition-colors duration-150 hover:bg-accent hover:text-foreground"
-                >
-                  <Github size={18} strokeWidth={1.5} />
-                </a>
-              </div>
+      {/* Hero */}
+      <AboutCard className="relative overflow-hidden px-6 py-6">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -top-28 -right-16 size-72 rounded-full bg-primary/10 blur-3xl"
+        />
+        <div className="relative flex flex-col gap-5 sm:flex-row sm:items-start">
+          <AppLogo
+            size={64}
+            className="shrink-0 shadow-[0_0_32px_color-mix(in oklch, var(--primary) 35%, transparent)]"
+            title="TraderMemos"
+          />
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+              <h2 className="m-0 text-[26px] font-bold tracking-[-0.03em] text-foreground">
+                TraderMemos
+              </h2>
+              <Pill tone="muted">{formatVersion(APP_VERSION, APP_BUILD || undefined)}</Pill>
             </div>
-          </div>
-          <p className="max-w-2xl text-[13px] leading-relaxed text-muted-foreground">
-            {content.intro}
-          </p>
-        </SettingsPanelBody>
-      </SettingsSection>
-
-      <SettingsSection title={content.updatesTitle} description={content.updatesDescription}>
-        <SettingsGroup>
-          <SettingsGroupRow label={content.updateCurrentLabel}>
-            <AboutInfoValue>{formatVersion(APP_VERSION, APP_BUILD || undefined)}</AboutInfoValue>
-          </SettingsGroupRow>
-          <SettingsGroupRow label={content.updateApiVersionLabel}>
-            {checking && !apiVersionLabel ? (
-              <Skeleton height="18px" width="4rem" />
-            ) : apiVersionLabel ? (
-              <AboutInfoValue>
-                {formatVersion(apiVersionLabel, health.data?.commit?.slice(0, 7) || undefined)}
-              </AboutInfoValue>
-            ) : (
-              <span className="text-[12px] text-muted-foreground">
-                {content.updateApiUnreachable}
-              </span>
-            )}
-          </SettingsGroupRow>
-          <SettingsGroupRow label={content.updateLatestLabel}>
-            {checking && !remote ? (
-              <Skeleton height="18px" width="4rem" />
-            ) : remote ? (
-              <div className="text-right">
-                <AboutInfoValue>{formatVersion(remote.version)}</AboutInfoValue>
-                {remote.name !== remote.tag ? (
-                  <p className="mt-0.5 text-[11px] text-muted-foreground">{remote.name}</p>
-                ) : null}
-              </div>
-            ) : (
-              <span className="text-[12px] text-muted-foreground">—</span>
-            )}
-          </SettingsGroupRow>
-          {remote?.publishedAt ? (
-            <SettingsGroupRow label={content.updateReleasePublished}>
-              <span className="text-right text-[12px] text-muted-foreground">
-                {releasePublished}
-                {remote.prerelease ? (
-                  <span className="ml-2 text-[11px] uppercase tracking-wide text-chart-3">pre</span>
-                ) : null}
-              </span>
-            </SettingsGroupRow>
-          ) : null}
-          <SettingsGroupRow label={content.updateStatusLabel}>
-            <span
-              className={cn(
-                "text-[12px] font-medium",
-                swReady || webBehind || apiBehind || versionMismatch
-                  ? "text-chart-3"
-                  : "text-profit",
-              )}
-            >
-              {updateStatus}
-            </span>
-          </SettingsGroupRow>
-          <SettingsGroupRow label={content.updateLastChecked}>
-            <span className="text-right text-[12px] text-muted-foreground">{lastCheckedLabel}</span>
-          </SettingsGroupRow>
-          {remote?.excerpt ? (
-            <div className="space-y-2 px-5 py-4">
-              <h3 className="text-[12px] font-semibold tracking-tight text-foreground">
-                {content.updateReleaseTitle}
-              </h3>
-              <p className="text-[12px] leading-relaxed text-muted-foreground">{remote.excerpt}</p>
-              {remote.url ? (
-                <a
-                  href={remote.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-[12px] font-medium text-primary no-underline hover:underline"
-                >
-                  {content.updateViewRelease}
-                  <ExternalLink size={12} strokeWidth={1.5} aria-hidden />
-                </a>
-              ) : null}
-            </div>
-          ) : null}
-          <div className="flex flex-wrap items-center gap-2 px-5 py-4">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              disabled={checking}
-              onClick={() => void checkForUpdates()}
-            >
-              {checking ? content.updateChecking : content.updateCheck}
-            </Button>
-            {swReady ? (
-              <Button type="button" size="sm" onClick={() => applyUpdate()}>
-                {content.updateReload}
-              </Button>
-            ) : null}
-            {(webBehind || apiBehind) && remote?.url ? (
+            <p className="m-0 mt-0.5 text-[13px] text-muted-foreground">{content.tagline}</p>
+            <p className="m-0 mt-3 max-w-2xl text-[13px] leading-relaxed text-muted-foreground">
+              {content.intro}
+            </p>
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <a
+                href={REPO_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="GitHub repository"
+                className="inline-flex items-center gap-1.5 rounded-md bg-sidebar px-3 py-2 text-[12px] font-medium text-foreground no-underline transition-colors duration-150 hover:bg-accent hover:text-primary"
+              >
+                <Github size={14} strokeWidth={1.5} aria-hidden />
+                GitHub
+              </a>
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => window.open(remote.url, "_blank", "noopener,noreferrer")}
+                disabled={checking}
+                onClick={() => void checkForUpdates()}
               >
-                {content.updateViewRelease}
-                <ExternalLink size={13} strokeWidth={1.5} aria-hidden />
+                {checking ? content.updateChecking : content.updateCheck}
               </Button>
-            ) : null}
-            {checkError ? (
-              <p className="w-full text-[11px] text-destructive">{checkError}</p>
-            ) : null}
+            </div>
           </div>
-        </SettingsGroup>
+        </div>
+      </AboutCard>
+
+      {/* Versions & updates */}
+      <SettingsSection title={content.updatesTitle} description={content.updatesDescription}>
+        <AboutCard className="px-5 py-5">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <StatTile
+              label={content.apiWebVersionLabel}
+              value={formatVersion(APP_VERSION)}
+              sub={APP_BUILD || undefined}
+            />
+            <StatTile
+              label={content.apiVersionLabel}
+              loading={health.isPending && !apiVersionValue}
+              tone={versionMismatch ? "warn" : "default"}
+              value={
+                apiVersionValue ? (
+                  formatVersion(apiVersionValue)
+                ) : (
+                  <span className="text-[12px] font-normal text-muted-foreground">
+                    {content.updateApiUnreachable}
+                  </span>
+                )
+              }
+              sub={apiCommit}
+            />
+            <StatTile
+              label={content.updateLatestLabel}
+              loading={checking && !remote}
+              value={
+                remote ? (
+                  formatVersion(remote.version)
+                ) : (
+                  <span className="text-[12px] font-normal text-muted-foreground">
+                    {content.updateNeverChecked}
+                  </span>
+                )
+              }
+              sub={
+                remote?.publishedAt ? (
+                  <>
+                    {content.updateReleasePublished} {fmtDateTime(remote.publishedAt)}
+                    {remote.prerelease ? (
+                      <span className="ml-1.5 text-[10px] uppercase tracking-wide text-chart-3">
+                        pre
+                      </span>
+                    ) : null}
+                  </>
+                ) : undefined
+              }
+            />
+          </div>
+
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+            <span
+              className={cn(
+                "inline-flex items-center gap-1.5 text-[12px] font-medium",
+                attention ? "text-chart-3" : "text-profit",
+              )}
+            >
+              <span
+                className={cn("size-1.5 rounded-full", attention ? "bg-chart-3" : "bg-profit")}
+                aria-hidden
+              />
+              {updateStatus}
+            </span>
+            <span className="text-[11px] text-muted-foreground">
+              {lastCheckedAt
+                ? `${content.updateLastChecked} · ${lastCheckedLabel}`
+                : lastCheckedLabel}
+            </span>
+          </div>
+
+          {remote?.excerpt ? (
+            <div className="mt-4 space-y-2 rounded-lg bg-sidebar/60 px-4 py-3.5">
+              <h3 className="m-0 text-[12px] font-semibold tracking-tight text-foreground">
+                {content.updateReleaseTitle}
+              </h3>
+              <p className="m-0 text-[12px] leading-relaxed text-muted-foreground">
+                {remote.excerpt}
+              </p>
+            </div>
+          ) : null}
+
+          {swReady || ((webBehind || apiBehind) && remote?.url) || checkError ? (
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              {swReady ? (
+                <Button type="button" size="sm" onClick={() => applyUpdate()}>
+                  {content.updateReload}
+                </Button>
+              ) : null}
+              {(webBehind || apiBehind) && remote?.url ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.open(remote.url, "_blank", "noopener,noreferrer")}
+                >
+                  {content.updateViewRelease}
+                  <ExternalLink size={13} strokeWidth={1.5} aria-hidden />
+                </Button>
+              ) : null}
+              {checkError ? (
+                <p className="m-0 w-full text-[11px] text-destructive">{checkError}</p>
+              ) : null}
+            </div>
+          ) : null}
+        </AboutCard>
       </SettingsSection>
 
+      {/* Backend API */}
+      <SettingsSection title={content.apiTitle} description={content.apiDescription}>
+        <AboutCard className="px-5 py-5">
+          <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+            <ApiHealthStatus
+              loading={health.isPending}
+              ok={healthOk}
+              okLabel={content.apiStatusOk}
+              errorLabel={content.apiStatusError}
+              checkingLabel={content.apiStatusChecking}
+            />
+            <code className="min-w-0 break-all text-[12px] text-muted-foreground">{apiBase}</code>
+          </div>
+
+          <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
+            <StatTile
+              label={content.apiUptimeLabel}
+              loading={systemInfo.isPending}
+              value={
+                systemInfo.data ? (
+                  formatUptime(systemInfo.data.uptime_sec)
+                ) : (
+                  <span className="text-[12px] font-normal text-muted-foreground">
+                    {content.updateApiUnreachable}
+                  </span>
+                )
+              }
+            />
+            {systemInfo.data?.db_driver ? (
+              <StatTile label={content.apiDbLabel} value={systemInfo.data.db_driver} />
+            ) : null}
+            {healthOk && health.data?.go ? (
+              <StatTile label={content.apiGoLabel} value={health.data.go} />
+            ) : null}
+            {systemInfo.data?.build_time ? (
+              <StatTile
+                label={content.apiBuildTimeLabel}
+                value={
+                  <span className="text-[13px]">{fmtDateTime(systemInfo.data.build_time)}</span>
+                }
+              />
+            ) : null}
+          </div>
+
+          {enabledFeatures.length > 0 ? (
+            <div className="mt-4">
+              <p className="m-0 text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
+                {content.apiFeaturesLabel}
+              </p>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {enabledFeatures.map(([key]) => (
+                  <Pill key={key} tone="muted">
+                    {content.featureNames[key] ?? key}
+                  </Pill>
+                ))}
+              </div>
+            </div>
+          ) : null}
+        </AboutCard>
+      </SettingsSection>
+
+      {/* Features */}
+      <SettingsSection title={content.featuresTitle}>
+        <AboutCard className="px-5 py-5">
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+            {content.features.map((feature, index) => (
+              <AboutFeatureCard
+                key={feature.title}
+                icon={FEATURE_ICONS[index] ?? Sparkles}
+                title={feature.title}
+                description={feature.description}
+              />
+            ))}
+          </div>
+        </AboutCard>
+      </SettingsSection>
+
+      {/* Stack */}
+      <SettingsSection title={content.stackTitle}>
+        <AboutCard className="px-5 py-4">
+          <div className="flex flex-wrap gap-2">
+            {content.stack.map((item) => (
+              <span
+                key={item}
+                className="rounded-md bg-sidebar px-3 py-1.5 text-[12px] font-medium text-muted-foreground"
+              >
+                {item}
+              </span>
+            ))}
+          </div>
+        </AboutCard>
+      </SettingsSection>
+
+      {/* Philosophy */}
+      <SettingsSection title={content.philosophyTitle}>
+        <AboutCard className="px-5 py-4">
+          <p className="m-0 max-w-2xl text-[13px] leading-relaxed text-muted-foreground">
+            {content.philosophy}
+          </p>
+          <p className="m-0 mt-3 text-[12px] text-muted-foreground">{content.licenseNote}</p>
+        </AboutCard>
+      </SettingsSection>
+
+      {/* Developer */}
       <SettingsSection title={content.developerTitle}>
-        <SettingsPanelBody>
+        <AboutCard className="px-5 py-4">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
               <img
@@ -352,7 +505,9 @@ export function AboutTab() {
                 <div className="text-[14px] font-semibold tracking-tight text-foreground">
                   {DEVELOPER_NAME}
                 </div>
-                <p className="mt-0.5 text-[12px] text-muted-foreground">{content.developerRole}</p>
+                <p className="m-0 mt-0.5 text-[12px] text-muted-foreground">
+                  {content.developerRole}
+                </p>
               </div>
             </div>
             <a
@@ -365,142 +520,21 @@ export function AboutTab() {
               {content.developerGithubLabel}
             </a>
           </div>
-        </SettingsPanelBody>
+        </AboutCard>
       </SettingsSection>
 
-      <SettingsSection title={content.apiTitle} description={content.apiDescription}>
-        <SettingsGroup>
-          <SettingsGroupRow label={content.apiBaseUrlLabel} alignTop>
-            <AboutInfoValue>
-              <code className="break-all text-[12px] font-normal text-muted-foreground">
-                {apiBase}
-              </code>
-            </AboutInfoValue>
-          </SettingsGroupRow>
-          <SettingsGroupRow label={content.apiHealthLabel}>
-            <ApiHealthStatus
-              loading={health.isPending}
-              ok={healthOk}
-              okLabel={content.apiStatusOk}
-              errorLabel={content.apiStatusError}
-              checkingLabel={content.apiStatusChecking}
-            />
-          </SettingsGroupRow>
-          <SettingsGroupRow label={content.apiWebVersionLabel}>
-            <AboutInfoValue>{formatVersion(APP_VERSION, APP_BUILD || undefined)}</AboutInfoValue>
-          </SettingsGroupRow>
-          <SettingsGroupRow label={content.apiVersionLabel}>
-            {health.isPending ? (
-              <Skeleton height="18px" width="4rem" />
-            ) : healthOk && health.data?.version ? (
-              <AboutInfoValue>
-                {formatVersion(health.data.version, health.data.commit?.slice(0, 7) || undefined)}
-              </AboutInfoValue>
-            ) : (
-              <span className="text-[12px] text-muted-foreground">—</span>
-            )}
-          </SettingsGroupRow>
-          <SettingsGroupRow label={content.apiGoLabel}>
-            {health.isPending ? (
-              <Skeleton height="18px" width="6rem" />
-            ) : healthOk && health.data?.go ? (
-              <AboutInfoValue>{health.data.go}</AboutInfoValue>
-            ) : (
-              <span className="text-[12px] text-muted-foreground">—</span>
-            )}
-          </SettingsGroupRow>
-          {systemInfo.data?.build_time ? (
-            <SettingsGroupRow label={content.apiBuildTimeLabel}>
-              <span className="text-right text-[12px] text-muted-foreground">
-                {fmtDateTime(systemInfo.data.build_time)}
-              </span>
-            </SettingsGroupRow>
-          ) : null}
-          <SettingsGroupRow label={content.apiUptimeLabel}>
-            {systemInfo.isPending ? (
-              <Skeleton height="18px" width="4rem" />
-            ) : systemInfo.data ? (
-              <AboutInfoValue>{formatUptime(systemInfo.data.uptime_sec)}</AboutInfoValue>
-            ) : (
-              <span className="text-[12px] text-muted-foreground">—</span>
-            )}
-          </SettingsGroupRow>
-          <SettingsGroupRow label={content.apiDbLabel} last={!systemInfo.data?.features}>
-            {systemInfo.isPending ? (
-              <Skeleton height="18px" width="4rem" />
-            ) : systemInfo.data?.db_driver ? (
-              <AboutInfoValue>{systemInfo.data.db_driver}</AboutInfoValue>
-            ) : (
-              <span className="text-[12px] text-muted-foreground">—</span>
-            )}
-          </SettingsGroupRow>
-          {systemInfo.data?.features ? (
-            <SettingsGroupRow label={content.apiFeaturesLabel} last alignTop>
-              <div className="flex flex-wrap justify-end gap-1.5">
-                {Object.entries(systemInfo.data.features)
-                  .filter(([, enabled]) => enabled)
-                  .map(([key]) => (
-                    <Pill key={key} tone="muted">
-                      {content.featureNames[key] ?? key}
-                    </Pill>
-                  ))}
-              </div>
-            </SettingsGroupRow>
-          ) : null}
-        </SettingsGroup>
-      </SettingsSection>
-
-      <SettingsSection title={content.featuresTitle}>
-        <SettingsPanelBody>
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-            {content.features.map((feature, index) => (
-              <AboutFeatureCard
-                key={feature.title}
-                icon={FEATURE_ICONS[index] ?? Sparkles}
-                title={feature.title}
-                description={feature.description}
-              />
-            ))}
-          </div>
-        </SettingsPanelBody>
-      </SettingsSection>
-
-      <SettingsSection title={content.stackTitle}>
-        <SettingsPanelBody>
-          <div className="flex flex-wrap gap-2">
-            {content.stack.map((item) => (
-              <span
-                key={item}
-                className="rounded-md bg-sidebar px-3 py-1.5 text-[12px] font-medium text-muted-foreground"
-              >
-                {item}
-              </span>
-            ))}
-          </div>
-        </SettingsPanelBody>
-      </SettingsSection>
-
-      <SettingsSection title={content.philosophyTitle}>
-        <SettingsPanelBody>
-          <p className="max-w-2xl text-[13px] leading-relaxed text-muted-foreground">
-            {content.philosophy}
-          </p>
-          <p className="mt-3 text-[12px] text-muted-foreground">{content.licenseNote}</p>
-        </SettingsPanelBody>
-      </SettingsSection>
-
+      {/* Links */}
       <SettingsSection title={content.linksTitle}>
-        <SettingsGroup>
-          {content.links.map((link, index) => (
+        <AboutCard className="p-2">
+          {content.links.map((link) => (
             <AboutLinkRow
               key={link.href}
               label={link.label}
               href={link.href}
               description={link.description}
-              last={index === content.links.length - 1}
             />
           ))}
-        </SettingsGroup>
+        </AboutCard>
       </SettingsSection>
     </>
   );
