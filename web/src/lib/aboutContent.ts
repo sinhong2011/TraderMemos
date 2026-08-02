@@ -70,6 +70,13 @@ export type AboutContent = {
   updateBothBehind: string;
   updateApiVersionLabel: string;
   updateApiUnreachable: string;
+  updateMismatch: string;
+  updateBannerMismatch: string;
+  apiBuildTimeLabel: string;
+  apiUptimeLabel: string;
+  apiDbLabel: string;
+  apiFeaturesLabel: string;
+  featureNames: Record<string, string>;
 };
 
 const ABOUT: Record<AppLocale, AboutContent> = {
@@ -180,6 +187,20 @@ const ABOUT: Record<AppLocale, AboutContent> = {
     updateBothBehind: "Web and API are behind the latest release",
     updateApiVersionLabel: "API version",
     updateApiUnreachable: "Could not read API version",
+    updateMismatch: "Web and API versions don't match",
+    updateBannerMismatch:
+      "Web and API are running different versions — update the older side so they match.",
+    apiBuildTimeLabel: "Built",
+    apiUptimeLabel: "Uptime",
+    apiDbLabel: "Database",
+    apiFeaturesLabel: "Server features",
+    featureNames: {
+      market_data: "Market data",
+      econ_calendar: "Economic calendar",
+      ocr: "OCR",
+      coach: "AI coach",
+      background_jobs: "Background jobs",
+    },
   },
   "zh-HK": {
     tagline: "自架交易日誌",
@@ -282,6 +303,19 @@ const ABOUT: Record<AppLocale, AboutContent> = {
     updateBothBehind: "Web 與 API 均落後於最新發佈",
     updateApiVersionLabel: "API 版本",
     updateApiUnreachable: "無法讀取 API 版本",
+    updateMismatch: "Web 與 API 版本不一致",
+    updateBannerMismatch: "Web 與 API 版本不同 — 請更新較舊的一方使其一致。",
+    apiBuildTimeLabel: "建置時間",
+    apiUptimeLabel: "運行時間",
+    apiDbLabel: "資料庫",
+    apiFeaturesLabel: "伺服器功能",
+    featureNames: {
+      market_data: "市場資料",
+      econ_calendar: "經濟日曆",
+      ocr: "OCR",
+      coach: "AI 教練",
+      background_jobs: "背景工作",
+    },
   },
   ja: {
     tagline: "セルフホスト型トレードジャーナル",
@@ -392,6 +426,20 @@ const ABOUT: Record<AppLocale, AboutContent> = {
     updateBothBehind: "Web と API が最新リリースより古い",
     updateApiVersionLabel: "API バージョン",
     updateApiUnreachable: "API バージョンを取得できません",
+    updateMismatch: "Web と API のバージョンが一致しません",
+    updateBannerMismatch:
+      "Web と API が異なるバージョンで動作しています — 古い側を更新してください。",
+    apiBuildTimeLabel: "ビルド日時",
+    apiUptimeLabel: "稼働時間",
+    apiDbLabel: "データベース",
+    apiFeaturesLabel: "サーバー機能",
+    featureNames: {
+      market_data: "市場データ",
+      econ_calendar: "経済カレンダー",
+      ocr: "OCR",
+      coach: "AI コーチ",
+      background_jobs: "バックグラウンドジョブ",
+    },
   },
   ko: {
     tagline: "셀프호스팅 트레이딩 저널",
@@ -494,6 +542,20 @@ const ABOUT: Record<AppLocale, AboutContent> = {
     updateBothBehind: "Web과 API가 최신 릴리스보다 이전",
     updateApiVersionLabel: "API 버전",
     updateApiUnreachable: "API 버전을 읽을 수 없음",
+    updateMismatch: "Web과 API 버전이 일치하지 않음",
+    updateBannerMismatch:
+      "Web과 API가 서로 다른 버전으로 실행 중입니다 — 이전 버전 쪽을 업데이트하세요.",
+    apiBuildTimeLabel: "빌드 시간",
+    apiUptimeLabel: "가동 시간",
+    apiDbLabel: "데이터베이스",
+    apiFeaturesLabel: "서버 기능",
+    featureNames: {
+      market_data: "시장 데이터",
+      econ_calendar: "경제 캘린더",
+      ocr: "OCR",
+      coach: "AI 코치",
+      background_jobs: "백그라운드 작업",
+    },
   },
 };
 

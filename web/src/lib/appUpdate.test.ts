@@ -1,5 +1,10 @@
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
-import { initAppUpdates, type SerwistLike, useAppUpdate } from "./appUpdate";
+import {
+  computeVersionMismatch,
+  initAppUpdates,
+  type SerwistLike,
+  useAppUpdate,
+} from "./appUpdate";
 import type { GitHubRelease } from "./releases";
 
 vi.mock("./releases", async (importOriginal) => {
@@ -37,12 +42,28 @@ afterEach(() => {
     apiVersion: null,
     webBehind: false,
     apiBehind: false,
+    versionMismatch: false,
     remoteNewer: false,
     checkError: null,
     dismissed: false,
   });
   localStorage.clear();
   vi.restoreAllMocks();
+});
+
+describe("computeVersionMismatch", () => {
+  it("flags differing web and api versions", () => {
+    expect(computeVersionMismatch("0.1.9", "0.1.10")).toBe(true);
+    expect(computeVersionMismatch("v0.1.10", "0.1.10")).toBe(false);
+    expect(computeVersionMismatch("0.1.10", "0.1.10")).toBe(false);
+  });
+
+  it("ignores missing or dev versions", () => {
+    expect(computeVersionMismatch(null, "0.1.10")).toBe(false);
+    expect(computeVersionMismatch("dev", "0.1.10")).toBe(false);
+    expect(computeVersionMismatch("0.1.10", "dev")).toBe(false);
+    expect(computeVersionMismatch("", "0.1.10")).toBe(false);
+  });
 });
 
 describe("dismiss", () => {

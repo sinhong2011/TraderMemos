@@ -25,6 +25,7 @@ import { useAppUpdate } from "@/lib/appUpdate";
 import { cn } from "@/lib/cn";
 import { fmtDateTime } from "@/lib/format";
 import { useApiHealth } from "@/lib/hooks/useApiHealth";
+import { formatUptime, useSystemInfo } from "@/lib/hooks/useSystemInfo";
 import { APP_BUILD, APP_VERSION, formatVersion } from "@/lib/version";
 import { useLocale } from "@/i18n";
 import { SettingsGroup, SettingsGroupRow, SettingsPanelBody, SettingsSection } from "./settings-ui";
@@ -156,10 +157,12 @@ export function AboutTab() {
   const apiBase = getBaseUrl();
   const health = useApiHealth();
   const healthOk = health.isSuccess && health.data?.status === "ok";
+  const systemInfo = useSystemInfo();
   const swReady = useAppUpdate((s) => s.swReady);
   const remoteNewer = useAppUpdate((s) => s.remoteNewer);
   const webBehind = useAppUpdate((s) => s.webBehind);
   const apiBehind = useAppUpdate((s) => s.apiBehind);
+  const versionMismatch = useAppUpdate((s) => s.versionMismatch);
   const storeApiVersion = useAppUpdate((s) => s.apiVersion);
   const remote = useAppUpdate((s) => s.remote);
   const checking = useAppUpdate((s) => s.checking);
@@ -176,9 +179,11 @@ export function AboutTab() {
         ? content.updateWebBehind
         : apiBehind
           ? content.updateApiBehind
-          : remoteNewer
-            ? content.updateStatusAvailable
-            : content.updateStatusCurrent;
+          : versionMismatch
+            ? content.updateMismatch
+            : remoteNewer
+              ? content.updateStatusAvailable
+              : content.updateStatusCurrent;
 
   const releasePublished = remote?.publishedAt ? fmtDateTime(remote.publishedAt) : null;
 
@@ -269,7 +274,9 @@ export function AboutTab() {
             <span
               className={cn(
                 "text-[12px] font-medium",
-                swReady || webBehind || apiBehind ? "text-chart-3" : "text-profit",
+                swReady || webBehind || apiBehind || versionMismatch
+                  ? "text-chart-3"
+                  : "text-profit",
               )}
             >
               {updateStatus}
@@ -393,7 +400,7 @@ export function AboutTab() {
               <span className="text-[12px] text-muted-foreground">—</span>
             )}
           </SettingsGroupRow>
-          <SettingsGroupRow label={content.apiGoLabel} last>
+          <SettingsGroupRow label={content.apiGoLabel}>
             {health.isPending ? (
               <Skeleton height="18px" width="6rem" />
             ) : healthOk && health.data?.go ? (
@@ -402,6 +409,44 @@ export function AboutTab() {
               <span className="text-[12px] text-muted-foreground">—</span>
             )}
           </SettingsGroupRow>
+          {systemInfo.data?.build_time ? (
+            <SettingsGroupRow label={content.apiBuildTimeLabel}>
+              <span className="text-right text-[12px] text-muted-foreground">
+                {fmtDateTime(systemInfo.data.build_time)}
+              </span>
+            </SettingsGroupRow>
+          ) : null}
+          <SettingsGroupRow label={content.apiUptimeLabel}>
+            {systemInfo.isPending ? (
+              <Skeleton height="18px" width="4rem" />
+            ) : systemInfo.data ? (
+              <AboutInfoValue>{formatUptime(systemInfo.data.uptime_sec)}</AboutInfoValue>
+            ) : (
+              <span className="text-[12px] text-muted-foreground">—</span>
+            )}
+          </SettingsGroupRow>
+          <SettingsGroupRow label={content.apiDbLabel} last={!systemInfo.data?.features}>
+            {systemInfo.isPending ? (
+              <Skeleton height="18px" width="4rem" />
+            ) : systemInfo.data?.db_driver ? (
+              <AboutInfoValue>{systemInfo.data.db_driver}</AboutInfoValue>
+            ) : (
+              <span className="text-[12px] text-muted-foreground">—</span>
+            )}
+          </SettingsGroupRow>
+          {systemInfo.data?.features ? (
+            <SettingsGroupRow label={content.apiFeaturesLabel} last alignTop>
+              <div className="flex flex-wrap justify-end gap-1.5">
+                {Object.entries(systemInfo.data.features)
+                  .filter(([, enabled]) => enabled)
+                  .map(([key]) => (
+                    <Pill key={key} tone="muted">
+                      {content.featureNames[key] ?? key}
+                    </Pill>
+                  ))}
+              </div>
+            </SettingsGroupRow>
+          ) : null}
         </SettingsGroup>
       </SettingsSection>
 
