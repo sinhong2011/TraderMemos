@@ -605,6 +605,25 @@ paths:
         "200":
           description: Daily rows
 
+  /api/v1/analytics/behavior:
+    get:
+      tags: [Analytics]
+      summary: Behavioral pattern report (revenge trading, overconfidence, loss aversion)
+      operationId: analyticsBehavior
+      parameters:
+        - $ref: "#/components/parameters/AccountIdQuery"
+        - $ref: "#/components/parameters/FromQuery"
+        - $ref: "#/components/parameters/ToQuery"
+        - $ref: "#/components/parameters/TzQuery"
+      responses:
+        "200":
+          description: Behavior report
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+
   /api/v1/analytics/equity-curve:
     get:
       tags: [Analytics]

@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   Area,
@@ -23,7 +24,13 @@ import { Skeleton } from "@/components/Skeleton";
 import { StatCard } from "@/components/StatCard";
 import { TradeListItem } from "@/components/TradeListItem";
 import { Button } from "@/components/ui/button";
-import type { ComplianceReport, JournalNote, Summary, Trade } from "@/lib/api/types";
+import type {
+  BehaviorReport,
+  ComplianceReport,
+  JournalNote,
+  Summary,
+  Trade,
+} from "@/lib/api/types";
 import { noteExcerpt } from "@/components/editor/markdown";
 import { usePrivacyMode } from "@/lib/displayPrefs";
 import { fmtMoneyCompact, fmtSignedMoney, fmtTime } from "@/lib/format";
@@ -38,6 +45,7 @@ export interface DayReviewViewProps {
   summary?: Summary;
   summaryLoading: boolean;
   compliance?: ComplianceReport;
+  behavior?: BehaviorReport;
   notes: JournalNote[];
   notesLoading: boolean;
   currency: string;
@@ -154,6 +162,7 @@ export function DayReviewView({
   summary,
   summaryLoading,
   compliance,
+  behavior,
   notes,
   notesLoading,
   currency,
@@ -252,6 +261,34 @@ export function DayReviewView({
                 )}
               </div>
             )}
+            {behavior != null &&
+              behavior.revenge.events.length +
+                behavior.overconfidence.events.length +
+                behavior.loss_aversion.give_back_count >
+                0 && (
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {behavior.revenge.events.length > 0 && (
+                    <Pill tone="amber">revenge trades ×{behavior.revenge.events.length}</Pill>
+                  )}
+                  {behavior.overconfidence.events.length > 0 && (
+                    <Pill tone="amber">
+                      oversized after streak ×{behavior.overconfidence.events.length}
+                    </Pill>
+                  )}
+                  {behavior.loss_aversion.give_back_count > 0 && (
+                    <Pill tone="amber">
+                      profit given back ×{behavior.loss_aversion.give_back_count}
+                    </Pill>
+                  )}
+                  <Link
+                    to="/reports"
+                    search={{ tab: "behavior", side: "all", dur: "all", pnl: "net", unit: "abs" }}
+                    className="text-[11px] font-medium text-primary hover:underline"
+                  >
+                    Behavior report →
+                  </Link>
+                </div>
+              )}
           </div>
         )}
       </Card>
