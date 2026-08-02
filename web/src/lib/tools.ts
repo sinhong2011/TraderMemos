@@ -5,6 +5,7 @@ import {
   Flame,
   Globe,
   LayoutGrid,
+  PartyPopper,
   RefreshCw,
   Scale,
   TrendingUp,
@@ -22,7 +23,8 @@ export type ToolId =
   | "econ"
   | "rating"
   | "heatmap"
-  | "wallet";
+  | "wallet"
+  | "wrapped";
 
 export type ToolGroupId = "calculators" | "markets" | "journal";
 
@@ -110,6 +112,13 @@ export const TOOL_ITEMS: ToolItem[] = [
     label: "Wallet",
     icon: Wallet,
     keywords: ["cash", "balance", "account"],
+    group: "journal",
+  },
+  {
+    id: "wrapped",
+    label: "Year Wrapped",
+    icon: PartyPopper,
+    keywords: ["recap", "annual", "year", "review"],
     group: "journal",
   },
 ];

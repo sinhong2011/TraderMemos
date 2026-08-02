@@ -109,7 +109,14 @@ function HomePage() {
         onOpenReports={() =>
           void navigate({
             to: "/reports",
-            search: { tab: "overview", side: "all", dur: "all", pnl: "net", unit: "abs" },
+            search: {
+              tab: "overview",
+              side: "all",
+              dur: "all",
+              pnl: "net",
+              unit: "abs",
+              avg: "mean",
+            },
           })
         }
         calendarYear={calendarYear}

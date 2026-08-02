@@ -98,6 +98,16 @@ function ContextItem({
   );
 }
 
+/** Van Tharp SQN quality bands (computed on per-trade net P&L). */
+function sqnLabel(sqn: number): string {
+  if (sqn >= 5) return "superb";
+  if (sqn >= 3) return "excellent";
+  if (sqn >= 2.5) return "good";
+  if (sqn >= 2) return "average";
+  if (sqn >= 1) return "below average";
+  return "poor";
+}
+
 /** Unified performance overview — hero, edge charts, key stats, context strip. */
 export function ReportsSummaryBento({ summary, trades, equity }: ReportsSummaryBentoProps) {
   usePrivacyMode();
@@ -110,8 +120,16 @@ export function ReportsSummaryBento({ summary, trades, equity }: ReportsSummaryB
   const maxDrawdown = equity?.max_drawdown;
   const heroPnl = money.pnl(summary);
 
-  const avgWin = summary.avg_win;
-  const avgLoss = summary.avg_loss;
+  // median_*/kelly_pct/sqn fall back gracefully when the API predates them.
+  const useMedian = money.avgMode === "median";
+  const statLabel = useMedian ? "Median" : "Avg";
+  const avgWin = useMedian ? (summary.median_win ?? summary.avg_win) : summary.avg_win;
+  const avgLoss = useMedian ? (summary.median_loss ?? summary.avg_loss) : summary.avg_loss;
+  const avgTrade = useMedian ? (summary.median_trade ?? summary.avg_trade) : summary.avg_trade;
+  const kelly = summary.kelly_pct ?? 0;
+  const kellyDefined = summary.kelly_pct != null && summary.wins > 0 && summary.losses > 0;
+  const sqn = summary.sqn ?? 0;
+  const sqnDefined = summary.total_trades >= 2 && sqn !== 0;
   const payoff = avgLoss > 0 ? avgWin / avgLoss : avgWin > 0 ? Infinity : 0;
   const pf = summary.profit_factor;
   const pfFraction = pf <= 0 ? 0 : Math.min(1, pf / 3);
@@ -216,19 +234,21 @@ export function ReportsSummaryBento({ summary, trades, equity }: ReportsSummaryB
               >
                 {payoff === Infinity ? "∞" : payoff > 0 ? `${payoff.toFixed(2)}×` : "—"}
               </p>
-              <p className="mt-1 text-[10px] text-muted-foreground">avg win ÷ avg loss</p>
+              <p className="mt-1 text-[10px] text-muted-foreground">
+                {useMedian ? "median win ÷ median loss" : "avg win ÷ avg loss"}
+              </p>
             </div>
 
             <div className="flex flex-col justify-center">
               <div className="flex items-baseline justify-between gap-2">
                 <div className="min-w-0">
-                  <p className="text-[10px] text-muted-foreground">Avg win</p>
+                  <p className="text-[10px] text-muted-foreground">{statLabel} win</p>
                   <p className="mt-0.5 truncate text-[14px] font-semibold tabular-nums text-profit">
                     {money.format(avgWin)}
                   </p>
                 </div>
                 <div className="min-w-0 text-right">
-                  <p className="text-[10px] text-muted-foreground">Avg loss</p>
+                  <p className="text-[10px] text-muted-foreground">{statLabel} loss</p>
                   <p className="mt-0.5 truncate text-[14px] font-semibold tabular-nums text-destructive">
                     {money.format(avgLoss)}
                   </p>
@@ -261,17 +281,56 @@ export function ReportsSummaryBento({ summary, trades, equity }: ReportsSummaryB
         </BentoCell>
       </div>
 
-      {/* Band 2 — four key secondary stats */}
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      {/* Band 2 — key secondary stats */}
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
         <BentoCell>
-          <Eyebrow tone="muted">Avg trade</Eyebrow>
+          <Eyebrow tone="muted">{statLabel} trade</Eyebrow>
           <p
             className={cn(
               "mt-3 text-center text-[24px] font-semibold leading-none tracking-[-0.03em] tabular-nums sm:text-[26px]",
-              pnlColor(summary.avg_trade),
+              pnlColor(avgTrade),
             )}
           >
-            {money.format(summary.avg_trade)}
+            {money.format(avgTrade)}
+          </p>
+        </BentoCell>
+
+        <BentoCell>
+          <Eyebrow tone="muted">Kelly %</Eyebrow>
+          <p
+            className={cn(
+              "mt-3 text-center text-[24px] font-semibold leading-none tracking-[-0.03em] tabular-nums sm:text-[26px]",
+              kellyDefined && kelly > 0 && "text-profit",
+              kellyDefined && kelly < 0 && "text-destructive",
+              (!kellyDefined || kelly === 0) && "text-muted-foreground",
+            )}
+          >
+            {kellyDefined ? `${kelly.toFixed(1)}%` : "—"}
+          </p>
+          <p className="mt-2 text-center text-[10px] text-muted-foreground">
+            {kellyDefined
+              ? kelly > 0
+                ? `optimal risk · half Kelly ${(kelly / 2).toFixed(1)}%`
+                : "negative edge — size down"
+              : "needs a win and a loss"}
+          </p>
+        </BentoCell>
+
+        <BentoCell>
+          <Eyebrow tone="muted">SQN</Eyebrow>
+          <p
+            className={cn(
+              "mt-3 text-center text-[24px] font-semibold leading-none tracking-[-0.03em] tabular-nums sm:text-[26px]",
+              sqnDefined && sqn >= 2.5 && "text-profit",
+              sqnDefined && sqn < 1 && "text-destructive",
+              sqnDefined && sqn >= 1 && sqn < 2.5 && "text-foreground",
+              !sqnDefined && "text-muted-foreground",
+            )}
+          >
+            {sqnDefined ? sqn.toFixed(2) : "—"}
+          </p>
+          <p className="mt-2 text-center text-[10px] text-muted-foreground">
+            {sqnDefined ? `system quality: ${sqnLabel(sqn)}` : "needs 2+ varied trades"}
           </p>
         </BentoCell>
 

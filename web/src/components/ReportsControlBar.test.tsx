@@ -9,8 +9,10 @@ const base = {
   onDurationChange: vi.fn<(...args: any[]) => any>(),
   pnlMode: "net" as const,
   unitMode: "abs" as const,
+  avgMode: "mean" as const,
   onPnlModeChange: vi.fn<(...args: any[]) => any>(),
   onUnitModeChange: vi.fn<(...args: any[]) => any>(),
+  onAvgModeChange: vi.fn<(...args: any[]) => any>(),
   pctEnabled: true,
 };
 

@@ -1,6 +1,7 @@
 package analytics
 
 import (
+	"math"
 	"sort"
 	"time"
 
@@ -38,25 +39,42 @@ type Summary struct {
 	LargestWin   float64 `json:"largest_win"`
 	LargestLoss  float64 `json:"largest_loss"`
 	TotalFees    float64 `json:"total_fees"`
+	// Medians mirror the avg_* fields (median_loss is a positive magnitude,
+	// like avg_loss) so the UI can swap outlier-resistant stats in place.
+	MedianWin   float64 `json:"median_win"`
+	MedianLoss  float64 `json:"median_loss"`
+	MedianTrade float64 `json:"median_trade"`
+	// KellyPct is the full-Kelly fraction as a percentage of capital,
+	// W - (1-W)/R on win rate and payoff. Negative means no edge; zero when
+	// there is not at least one win and one loss.
+	KellyPct float64 `json:"kelly_pct"`
+	// Sqn is Van Tharp's System Quality Number over per-trade net P&L:
+	// sqrt(N) * mean / sample stddev. Zero when undefined (N < 2 or flat).
+	Sqn float64 `json:"sqn"`
 }
 
 func Summarize(ts []ClosedTrade) Summary {
 	var s Summary
+	all := make([]float64, 0, len(ts))
+	var winPnls, lossPnls []float64
 	for _, t := range ts {
 		s.TotalTrades++
 		s.NetPnl += t.NetPnl
 		s.GrossPnl += t.GrossPnl
 		s.TotalFees += t.FeesTotal
+		all = append(all, t.NetPnl)
 		switch {
 		case t.NetPnl > 0:
 			s.Wins++
 			s.GrossProfit += t.NetPnl
+			winPnls = append(winPnls, t.NetPnl)
 			if t.NetPnl > s.LargestWin {
 				s.LargestWin = t.NetPnl
 			}
 		case t.NetPnl < 0:
 			s.Losses++
 			s.GrossLoss += -t.NetPnl
+			lossPnls = append(lossPnls, -t.NetPnl)
 			if -t.NetPnl > s.LargestLoss {
 				s.LargestLoss = -t.NetPnl
 			}
@@ -82,12 +100,47 @@ func Summarize(ts []ClosedTrade) Summary {
 		lossRate = float64(s.Losses) / float64(s.TotalTrades)
 	}
 	s.Expectancy = money.Round2(s.WinRate*s.AvgWin - lossRate*s.AvgLoss)
+	if s.TotalTrades > 0 {
+		s.MedianTrade = money.Round2(median(all))
+	}
+	if s.Wins > 0 {
+		s.MedianWin = money.Round2(median(winPnls))
+	}
+	if s.Losses > 0 {
+		s.MedianLoss = money.Round2(median(lossPnls))
+	}
+	if s.Wins > 0 && s.Losses > 0 && s.AvgLoss > 0 {
+		payoff := s.AvgWin / s.AvgLoss
+		s.KellyPct = money.Round2(100 * (s.WinRate - (1-s.WinRate)/payoff))
+	}
+	if sd := sampleStddev(all); sd > 0 {
+		mean := s.NetPnl / float64(s.TotalTrades)
+		s.Sqn = money.Round2(math.Sqrt(float64(s.TotalTrades)) * mean / sd)
+	}
 	s.NetPnl = money.Round2(s.NetPnl)
 	s.GrossPnl = money.Round2(s.GrossPnl)
 	s.GrossProfit = money.Round2(s.GrossProfit)
 	s.GrossLoss = money.Round2(s.GrossLoss)
 	s.TotalFees = money.Round2(s.TotalFees)
 	return s
+}
+
+func sampleStddev(xs []float64) float64 {
+	n := len(xs)
+	if n < 2 {
+		return 0
+	}
+	var sum float64
+	for _, x := range xs {
+		sum += x
+	}
+	mean := sum / float64(n)
+	var ss float64
+	for _, x := range xs {
+		d := x - mean
+		ss += d * d
+	}
+	return math.Sqrt(ss / float64(n-1))
 }
 
 type EquityPoint struct {
