@@ -9,6 +9,7 @@ import (
 
 type ClosedTrade struct {
 	NetPnl    float64
+	GrossPnl  float64 // before fees; NetPnl + FeesTotal when the row lacks it
 	FeesTotal float64
 	OpenedAt  time.Time
 	ClosedAt  time.Time
@@ -26,6 +27,7 @@ type Summary struct {
 	Breakeven    int     `json:"breakeven"`
 	WinRate      float64 `json:"win_rate"`
 	NetPnl       float64 `json:"net_pnl"`
+	GrossPnl     float64 `json:"gross_pnl"`
 	GrossProfit  float64 `json:"gross_profit"`
 	GrossLoss    float64 `json:"gross_loss"`
 	ProfitFactor float64 `json:"profit_factor"`
@@ -43,6 +45,7 @@ func Summarize(ts []ClosedTrade) Summary {
 	for _, t := range ts {
 		s.TotalTrades++
 		s.NetPnl += t.NetPnl
+		s.GrossPnl += t.GrossPnl
 		s.TotalFees += t.FeesTotal
 		switch {
 		case t.NetPnl > 0:
@@ -80,6 +83,7 @@ func Summarize(ts []ClosedTrade) Summary {
 	}
 	s.Expectancy = money.Round2(s.WinRate*s.AvgWin - lossRate*s.AvgLoss)
 	s.NetPnl = money.Round2(s.NetPnl)
+	s.GrossPnl = money.Round2(s.GrossPnl)
 	s.GrossProfit = money.Round2(s.GrossProfit)
 	s.GrossLoss = money.Round2(s.GrossLoss)
 	s.TotalFees = money.Round2(s.TotalFees)

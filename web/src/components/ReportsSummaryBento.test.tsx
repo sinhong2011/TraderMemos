@@ -87,8 +87,7 @@ describe("ReportsSummaryBento", () => {
     const s: Summary = {
       ...summary,
       net_pnl: 100,
-      gross_profit: 260,
-      gross_loss: 60, // gross P&L = 200
+      gross_pnl: 200,
     };
     render(
       <ReportsDisplayProvider
