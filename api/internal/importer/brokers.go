@@ -10,6 +10,10 @@ import "strings"
 type BrokerPreset struct {
 	Key  string
 	Name string
+	// IANA zone the broker's offset-less export times are written in.
+	// Equity brokers export US Eastern; futures platforms exchange (Chicago)
+	// time. Timestamps that carry their own offset/abbreviation ignore this.
+	TZ string
 	// All of these (lowercased) must be present for the preset to match.
 	// Chosen to be distinctive enough that generic CSVs never collide.
 	signature []string
@@ -20,6 +24,7 @@ var brokerPresets = []BrokerPreset{
 	{
 		Key:       "ibkr",
 		Name:      "Interactive Brokers (Flex/Activity)",
+		TZ:        "America/New_York",
 		signature: []string{"buy/sell", "tradeprice"},
 		fields: map[string][]string{
 			"symbol":          {"symbol"},
@@ -36,6 +41,7 @@ var brokerPresets = []BrokerPreset{
 	{
 		Key:       "thinkorswim",
 		Name:      "ThinkOrSwim (Account Trade History)",
+		TZ:        "America/New_York",
 		signature: []string{"exec time", "pos effect"},
 		fields: map[string][]string{
 			"symbol":          {"symbol"},
@@ -50,6 +56,7 @@ var brokerPresets = []BrokerPreset{
 	{
 		Key:       "webull",
 		Name:      "Webull (Orders)",
+		TZ:        "America/New_York",
 		signature: []string{"avg price", "placed time"},
 		fields: map[string][]string{
 			"symbol":      {"symbol"},
@@ -62,6 +69,7 @@ var brokerPresets = []BrokerPreset{
 	{
 		Key:       "schwab",
 		Name:      "Charles Schwab (Transactions)",
+		TZ:        "America/New_York",
 		signature: []string{"fees & comm", "action"},
 		fields: map[string][]string{
 			"symbol":      {"symbol"},
@@ -75,6 +83,7 @@ var brokerPresets = []BrokerPreset{
 	{
 		Key:       "tradovate",
 		Name:      "Tradovate (Fills)",
+		TZ:        "America/Chicago",
 		signature: []string{"b/s", "avgprice"},
 		fields: map[string][]string{
 			"symbol":          {"contract"},
@@ -88,6 +97,7 @@ var brokerPresets = []BrokerPreset{
 	{
 		Key:       "ninjatrader",
 		Name:      "NinjaTrader (Executions)",
+		TZ:        "America/New_York",
 		signature: []string{"instrument", "e/x"},
 		fields: map[string][]string{
 			"symbol":          {"instrument"},
@@ -102,8 +112,9 @@ var brokerPresets = []BrokerPreset{
 }
 
 // MatchBroker returns the first preset whose full signature appears in the
-// headers, with its field map resolved to the file's original header strings.
-func MatchBroker(headers []string) (name string, mapping map[string]string, ok bool) {
+// headers, with its field map resolved to the file's original header strings
+// and the IANA zone its offset-less timestamps should be interpreted in.
+func MatchBroker(headers []string) (name string, mapping map[string]string, tz string, ok bool) {
 	byLower := make(map[string]string, len(headers))
 	for _, h := range headers {
 		byLower[strings.ToLower(strings.TrimSpace(h))] = h
@@ -132,7 +143,7 @@ func MatchBroker(headers []string) (name string, mapping map[string]string, ok b
 				}
 			}
 		}
-		return p.Name, m, true
+		return p.Name, m, p.TZ, true
 	}
-	return "", nil, false
+	return "", nil, "", false
 }

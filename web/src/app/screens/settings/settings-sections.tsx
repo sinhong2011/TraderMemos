@@ -58,7 +58,9 @@ import { useLocale } from "@/i18n";
 import {
   TIME_FORMAT_OPTIONS,
   TRADE_DATE_BASIS_OPTIONS,
+  marketTimezoneSelectOptions,
   timezoneSelectOptions,
+  type MarketTimezonePref,
   type TimeFormatPref,
   type TimezonePref,
   type TradeDateBasis,
@@ -2066,6 +2068,8 @@ export function GeneralTab() {
   const setMaxScreenshots = useJournalPrefs((s) => s.setMaxScreenshotsPerTrade);
   const timezone = useDisplayPrefs((s) => s.timezone);
   const setTimezone = useDisplayPrefs((s) => s.setTimezone);
+  const marketTimezone = useDisplayPrefs((s) => s.marketTimezone);
+  const setMarketTimezone = useDisplayPrefs((s) => s.setMarketTimezone);
   const timeFormat = useDisplayPrefs((s) => s.timeFormat);
   const setTimeFormat = useDisplayPrefs((s) => s.setTimeFormat);
   const tradeDateBasis = useDisplayPrefs((s) => s.tradeDateBasis);
@@ -2161,6 +2165,25 @@ export function GeneralTab() {
               wrapperClassName="w-full"
             >
               {timezoneSelectOptions().map((o) => (
+                <NativeSelectOption key={o.value} value={o.value}>
+                  {o.label}
+                </NativeSelectOption>
+              ))}
+            </NativeSelect>
+          </SettingsGroupRow>
+          <SettingsGroupRow
+            label={settingsLabel(locale, "marketTimezone")}
+            detail={settingsLabel(locale, "marketTimezoneFooter")}
+            alignTop
+          >
+            <NativeSelect
+              value={marketTimezone}
+              onChange={(e) => setMarketTimezone(e.target.value as MarketTimezonePref)}
+              aria-label={settingsLabel(locale, "marketTimezoneSelector")}
+              className="w-full"
+              wrapperClassName="w-full"
+            >
+              {marketTimezoneSelectOptions().map((o) => (
                 <NativeSelectOption key={o.value} value={o.value}>
                   {o.label}
                 </NativeSelectOption>

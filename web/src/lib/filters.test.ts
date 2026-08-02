@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it } from "vite-plus/test";
+import { useDisplayPrefs } from "./displayPrefs";
 import { normalizeFilterDate, useFilters } from "./filters";
 
 describe("filter store", () => {
@@ -57,7 +58,16 @@ describe("filter store", () => {
     );
   });
 
-  it("defaults day boundaries to the display timezone preference (Eastern)", () => {
+  it("defaults day boundaries to the market timezone preference (Eastern)", () => {
     expect(normalizeFilterDate("2026-06-01", "start")).toBe("2026-06-01T00:00:00-04:00");
+  });
+
+  it("ignores the display timezone for day boundaries — market timezone owns the trading day", () => {
+    useDisplayPrefs.getState().setTimezone("Asia/Hong_Kong");
+    try {
+      expect(normalizeFilterDate("2026-06-01", "start")).toBe("2026-06-01T00:00:00-04:00");
+    } finally {
+      useDisplayPrefs.getState().setTimezone("America/New_York");
+    }
   });
 });
