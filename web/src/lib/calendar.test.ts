@@ -9,6 +9,12 @@ describe("dayKeyInTz", () => {
     expect(dayKeyInTz("2026-07-21T22:30:00Z", "Asia/Hong_Kong")).toBe("2026-07-22");
     expect(dayKeyInTz("2026-07-22T00:30:00Z", "UTC")).toBe("2026-07-22");
   });
+
+  it("keeps a Friday New York close on Friday regardless of viewer offset", () => {
+    // 21:59 UTC Friday = 5:59 PM ET Friday, but 5:59 AM Saturday in Hong Kong.
+    // Trading-day attribution uses the market zone, so it must stay Friday.
+    expect(dayKeyInTz("2026-07-31T21:59:00Z", "America/New_York")).toBe("2026-07-31");
+  });
 });
 
 describe("monthGrid", () => {

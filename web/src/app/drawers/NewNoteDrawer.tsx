@@ -26,13 +26,12 @@ import { notesApi } from "@/lib/api/notes";
 import type { JournalNoteSymbol, JournalNoteType } from "@/lib/api/types";
 import { settingsApi } from "@/lib/api/settings";
 import { cn } from "@/lib/cn";
+import { isoToWallClock } from "@/lib/displayPrefs";
 import { formatHotkeyLabel } from "@/lib/hotkeys";
 import { useUI } from "@/lib/ui";
 
 function nowLocalDate(): string {
-  const d = new Date();
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  return isoToWallClock(new Date()).slice(0, 10);
 }
 
 function emptySymbolCard(): JournalNoteSymbol & { key: string } {

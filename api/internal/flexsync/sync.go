@@ -41,7 +41,7 @@ func Sync(ctx context.Context, q store.Querier, client *Client, s store.FlexSync
 	if err != nil {
 		return Result{}, fmt.Errorf("statement is not parseable CSV — set the Flex Query format to CSV: %w", err)
 	}
-	name, mapping, ok := importer.MatchBroker(headers)
+	name, mapping, sourceTZ, ok := importer.MatchBroker(headers)
 	if !ok || !strings.Contains(strings.ToLower(name), "interactive brokers") {
 		return Result{}, errors.New("statement did not match the IBKR executions layout — include the Trades → Executions section in the Flex Query")
 	}
@@ -62,7 +62,7 @@ func Sync(ctx context.Context, q store.Querier, client *Client, s store.FlexSync
 		return Result{}, fmt.Errorf("create batch: %w", err)
 	}
 
-	parsed := importer.NewGeneric(mapping).ParseRows(rows)
+	parsed := importer.NewGeneric(mapping).WithSourceTZ(sourceTZ).ParseRows(rows)
 	parsed.Format = "executions"
 	committed, err := importer.Commit(ctx, q, s.UserID, s.AccountID,
 		sql.NullString{String: batch.ID, Valid: true}, parsed)

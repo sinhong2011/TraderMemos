@@ -11,10 +11,27 @@ import (
 
 type Generic struct {
 	mapping map[string]string // canonicalField -> header
+	// Zone offset-less timestamps are interpreted in. Broker exports rarely
+	// carry an offset — a naive "Fri 16:30" from a US broker is Eastern wall
+	// time, and reading it as UTC shifts every fill by 4-5h (late-Friday fills
+	// even onto Saturday). Timestamps with their own offset are unaffected.
+	loc *time.Location
 }
 
 func NewGeneric(mapping map[string]string) *Generic {
-	return &Generic{mapping: mapping}
+	return &Generic{mapping: mapping, loc: time.UTC}
+}
+
+// WithSourceTZ sets the IANA zone for offset-less timestamps. Empty or
+// unknown names keep the previous location (UTC by default).
+func (g *Generic) WithSourceTZ(tz string) *Generic {
+	if tz == "" {
+		return g
+	}
+	if loc, err := time.LoadLocation(tz); err == nil {
+		g.loc = loc
+	}
+	return g
 }
 
 func (g *Generic) Name() string           { return "generic" }
@@ -105,7 +122,7 @@ func (g *Generic) parseRow(row map[string]string) (ParsedExecution, error) {
 		return p, fmt.Errorf("invalid price")
 	}
 	p.Price = price
-	ts, err := parseTime(g.col(row, "executed_at"))
+	ts, err := parseTimeIn(g.col(row, "executed_at"), g.loc)
 	if err != nil {
 		return p, fmt.Errorf("invalid date %q", g.col(row, "executed_at"))
 	}
@@ -153,8 +170,16 @@ var usTzOffsets = map[string]int{
 var trailingTzAbbrev = regexp.MustCompile(`\s+([A-Z]{2,4})$`)
 
 func parseTime(s string) (time.Time, error) {
+	return parseTimeIn(s, time.UTC)
+}
+
+// parseTimeIn parses a broker timestamp. Offset-less layouts are read in loc;
+// a trailing US tz abbreviation (Webull "EDT") or an RFC3339 offset wins.
+func parseTimeIn(s string, loc *time.Location) (time.Time, error) {
 	s = strings.TrimSpace(s)
-	loc := time.UTC
+	if loc == nil {
+		loc = time.UTC
+	}
 	if m := trailingTzAbbrev.FindStringSubmatch(s); m != nil {
 		if off, ok := usTzOffsets[m[1]]; ok {
 			loc = time.FixedZone(m[1], off)

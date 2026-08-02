@@ -34,7 +34,7 @@ import type {
   JournalTradePreview,
 } from "@/lib/api/types";
 import { cn } from "@/lib/cn";
-import { usePrivacyMode } from "@/lib/displayPrefs";
+import { marketTimezoneSelectOptions, usePrivacyMode } from "@/lib/displayPrefs";
 import { fmtSignedMoney } from "@/lib/format";
 import {
   effectiveOptionRight,
@@ -493,6 +493,7 @@ interface Step2Props {
   onCommit: (
     mapping: Record<string, string>,
     optionOverrides?: Record<number, OptionRightOverride>,
+    sourceTz?: string,
   ) => Promise<void>;
   onBack: () => void;
   error: string | null;
@@ -510,6 +511,9 @@ function Step2Map({ preview, currency, accountId, onCommit, onBack, error, loadi
     return initial;
   });
   const [optionOverrides, setOptionOverrides] = useState<Record<number, OptionRightOverride>>({});
+  // Zone the file's offset-less timestamps were written in. Broker presets
+  // suggest their export zone; "UTC" is the legacy interpretation.
+  const [sourceTz, setSourceTz] = useState(() => preview.suggested_source_tz || "UTC");
 
   function setField(field: string, value: string) {
     setMapping((prev) => ({ ...prev, [field]: value }));
@@ -520,7 +524,7 @@ function Step2Map({ preview, currency, accountId, onCommit, onBack, error, loadi
   }
 
   async function handleCommit() {
-    await onCommit(isJournal ? {} : mapping, optionOverrides);
+    await onCommit(isJournal ? {} : mapping, optionOverrides, skipMapping ? undefined : sourceTz);
   }
 
   return (
@@ -605,6 +609,27 @@ function Step2Map({ preview, currency, accountId, onCommit, onBack, error, loadi
                   />
                 </Field>
               ))}
+            </div>
+          )}
+
+          {!skipMapping && (
+            <div className="flex flex-col gap-1.5">
+              <Field label="Timestamps timezone" className="w-full items-stretch sm:max-w-xs">
+                <OptionsSelect
+                  value={sourceTz}
+                  onValueChange={setSourceTz}
+                  ariaLabel="Timestamps timezone"
+                  options={marketTimezoneSelectOptions().map((o) => ({
+                    value: o.value,
+                    label: o.label,
+                  }))}
+                  triggerClassName="h-8 w-full text-[12px]"
+                />
+              </Field>
+              <p className="m-0 text-[11px] leading-relaxed text-muted-foreground">
+                Zone the file&apos;s times were exported in — most US broker exports are Eastern.
+                Times that carry their own offset are unaffected.
+              </p>
             </div>
           )}
 
@@ -1024,6 +1049,7 @@ export function ImportView({
   async function handleCommit(
     mapping: Record<string, string>,
     optionOverrides: Record<number, OptionRightOverride> = {},
+    sourceTz?: string,
   ) {
     if (!preview || !stagedFile) return;
     setLoading(true);
@@ -1032,6 +1058,7 @@ export function ImportView({
       const fd = new FormData();
       fd.append("file", stagedFile);
       fd.append("column_mapping", JSON.stringify(mapping));
+      if (sourceTz) fd.append("source_tz", sourceTz);
       // Confirm is the only write — always use fresh commit (no preview batch).
       if (stagedAccountId) fd.append("account_id", stagedAccountId);
       if (preview.format === "journal_trades" && Object.keys(optionOverrides).length > 0) {

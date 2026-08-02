@@ -391,6 +391,11 @@ export interface ImportPreview {
   suggested_mapping: Record<string, string>;
   /** Broker preset name when the header signature matched (e.g. "Webull (Orders)"). */
   detected_broker?: string;
+  /**
+   * IANA zone the file's offset-less timestamps are assumed to be in
+   * (from the broker preset). Override with `source_tz` on commit.
+   */
+  suggested_source_tz?: string;
   /** "journal_trades" for closed-trade journal CSVs; "executions" for fill CSVs */
   format?: "journal_trades" | "executions";
   /** Upload source detected by the API */

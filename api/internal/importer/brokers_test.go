@@ -12,7 +12,7 @@ func TestMatchBrokerIBKR(t *testing.T) {
 		"ClientAccountID", "Symbol", "Buy/Sell", "Quantity", "TradePrice",
 		"DateTime", "IBCommission", "AssetClass", "Multiplier", "Put/Call",
 	}
-	name, mapping, ok := MatchBroker(headers)
+	name, mapping, _, ok := MatchBroker(headers)
 	require.True(t, ok)
 	require.Contains(t, name, "Interactive Brokers")
 
@@ -39,7 +39,7 @@ func TestMatchBrokerThinkOrSwim(t *testing.T) {
 		"Exec Time", "Spread", "Side", "Qty", "Pos Effect", "Symbol",
 		"Exp", "Strike", "Type", "Price", "Net Price", "Order Type",
 	}
-	name, mapping, ok := MatchBroker(headers)
+	name, mapping, _, ok := MatchBroker(headers)
 	require.True(t, ok)
 	require.Contains(t, name, "ThinkOrSwim")
 
@@ -68,7 +68,7 @@ func TestMatchBrokerWebullSkipsCancelled(t *testing.T) {
 		"Name", "Symbol", "Side", "Status", "Filled", "Total Qty",
 		"Price", "Avg Price", "Time-in-Force", "Placed Time", "Filled Time",
 	}
-	name, mapping, ok := MatchBroker(headers)
+	name, mapping, _, ok := MatchBroker(headers)
 	require.True(t, ok)
 	require.Contains(t, name, "Webull")
 
@@ -96,7 +96,7 @@ func TestMatchBrokerWebullSkipsCancelled(t *testing.T) {
 
 func TestMatchBrokerTradovateForcesFutures(t *testing.T) {
 	headers := []string{"Timestamp", "B/S", "Contract", "Product", "avgPrice", "filledQty"}
-	name, mapping, ok := MatchBroker(headers)
+	name, mapping, _, ok := MatchBroker(headers)
 	require.True(t, ok)
 	require.Contains(t, name, "Tradovate")
 	require.Equal(t, "=future", mapping["instrument_type"])
@@ -114,7 +114,7 @@ func TestMatchBrokerTradovateForcesFutures(t *testing.T) {
 
 func TestMatchBrokerSchwab(t *testing.T) {
 	headers := []string{"Date", "Action", "Symbol", "Description", "Quantity", "Price", "Fees & Comm", "Amount"}
-	name, mapping, ok := MatchBroker(headers)
+	name, mapping, _, ok := MatchBroker(headers)
 	require.True(t, ok)
 	require.Contains(t, name, "Schwab")
 
@@ -129,6 +129,6 @@ func TestMatchBrokerSchwab(t *testing.T) {
 }
 
 func TestMatchBrokerNoFalsePositiveOnGenericHeaders(t *testing.T) {
-	_, _, ok := MatchBroker([]string{"symbol", "side", "quantity", "price", "executed_at"})
+	_, _, _, ok := MatchBroker([]string{"symbol", "side", "quantity", "price", "executed_at"})
 	require.False(t, ok)
 }

@@ -50,6 +50,15 @@ export const TIMEZONE_CHOICES = [
 
 export type TimezonePref = (typeof TIMEZONE_CHOICES)[number]["value"];
 
+/**
+ * Exchange clock that defines the trading day. Grouping a Friday New York
+ * close under the viewer's Saturday is never correct, so `"local"` is not
+ * offered here — a market's day cannot follow the browser.
+ */
+export type MarketTimezonePref = Exclude<TimezonePref, typeof TIMEZONE_LOCAL>;
+
+export const MARKET_TIMEZONE_DEFAULT: MarketTimezonePref = TIMEZONE_DEFAULT;
+
 /** 12-hour vs 24-hour clock for displayed times (Tradervue-style). */
 export type TimeFormatPref = "h12" | "h23";
 
@@ -126,6 +135,38 @@ export function rfc3339OffsetSuffix(timeZone: string, at: Date = new Date()): st
   }
 }
 
+/**
+ * Interpret an offsetless wall-clock string (`YYYY-MM-DDTHH:mm[:ss]`) in the
+ * display timezone and return the UTC instant (ISO). Entry forms use this so
+ * a typed time round-trips exactly to what every timestamp formatter shows
+ * back — the browser's OS clock never touches stored instants.
+ */
+export function wallClockToIso(v: string, timeZone?: string): string {
+  const tz = timeZone ?? resolveDisplayTimezone(useDisplayPrefs.getState().timezone);
+  // Offset in effect around midday of that date (DST transitions run at night).
+  const offset = rfc3339OffsetSuffix(tz, new Date(`${v.slice(0, 10)}T12:00:00Z`));
+  const d = new Date(`${v}${offset}`);
+  return Number.isNaN(d.getTime()) ? new Date().toISOString() : d.toISOString();
+}
+
+/** Format an instant as an offsetless wall-clock string in the display timezone. */
+export function isoToWallClock(at: string | Date, timeZone?: string): string {
+  const tz = timeZone ?? resolveDisplayTimezone(useDisplayPrefs.getState().timezone);
+  const d = typeof at === "string" ? new Date(at) : at;
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: tz,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(d);
+  const get = (t: Intl.DateTimeFormatPartTypes) => parts.find((p) => p.type === t)?.value ?? "00";
+  return `${get("year")}-${get("month")}-${get("day")}T${get("hour")}:${get("minute")}:${get("second")}`;
+}
+
 export const PRIVACY_MASK = "••••";
 
 function isDisplayCurrencyCode(value: string): value is DisplayCurrencyCode {
@@ -134,6 +175,19 @@ function isDisplayCurrencyCode(value: string): value is DisplayCurrencyCode {
 
 function isTimezonePref(value: string): value is TimezonePref {
   return (TIMEZONE_CHOICES as readonly { value: string }[]).some((o) => o.value === value);
+}
+
+function isMarketTimezonePref(value: string): value is MarketTimezonePref {
+  return value !== TIMEZONE_LOCAL && isTimezonePref(value);
+}
+
+/**
+ * Resolve the market timezone pref to an IANA name. This zone owns everything
+ * date-shaped: calendar day attribution, date-range filter boundaries, and the
+ * API `tz` bucketing param. The display timezone only formats clock times.
+ */
+export function resolveMarketTimezone(pref: string = MARKET_TIMEZONE_DEFAULT): string {
+  return isMarketTimezonePref(pref) ? pref : MARKET_TIMEZONE_DEFAULT;
 }
 
 /** Resolve a stored prefs value to an IANA name for display formatting. */
@@ -148,9 +202,6 @@ export function resolveDisplayTimezone(pref: string = TIMEZONE_DEFAULT): string 
   return isTimezonePref(pref) ? pref : TIMEZONE_DEFAULT;
 }
 
-/** @deprecated Use resolveDisplayTimezone — same behavior. */
-export const resolveAnalyticsTimezone = resolveDisplayTimezone;
-
 /** Select options with live `UTC±XX` prefixes. */
 export function timezoneSelectOptions(
   at: Date = new Date(),
@@ -164,6 +215,15 @@ export function timezoneSelectOptions(
     }
     return { value, label: `${offset} ${name}` };
   });
+}
+
+/** Market timezone select options — same list minus "Local (browser)". */
+export function marketTimezoneSelectOptions(
+  at: Date = new Date(),
+): { value: MarketTimezonePref; label: string }[] {
+  return timezoneSelectOptions(at).filter(
+    (o): o is { value: MarketTimezonePref; label: string } => o.value !== TIMEZONE_LOCAL,
+  );
 }
 
 /** Current display clock options for Intl date/time formatting. */
@@ -182,9 +242,9 @@ export function getDisplayTimeOpts(): {
 }
 
 /**
- * Format an hour bucket key (`"14:00"`) for display. The API now buckets
- * hours on the trader's clock (`tz` filter param), so keys are already in the
- * display timezone — this only applies the 12/24-hour clock preference.
+ * Format an hour bucket key (`"14:00"`) for display. The API buckets hours in
+ * the market timezone (`tz` filter param), so keys are already on the market
+ * clock — this only applies the 12/24-hour clock preference.
  */
 export function formatHourKeyLabel(hourKey: string, hourCycle?: TimeFormatPref): string {
   const hour = Number.parseInt(hourKey.slice(0, 2), 10);
@@ -205,11 +265,16 @@ interface DisplayPrefsState {
   /** When true, money formatters render a mask instead of amounts. */
   privacyMode: boolean;
   /**
-   * Display timezone for timestamps and Hourly labels.
-   * `"local"` follows the browser; default is US Eastern.
-   * Does not change analytics bucketing (UTC) or Session (US Eastern).
+   * Display timezone for formatted timestamps. `"local"` follows the browser;
+   * default is US Eastern. Does not change trading-day grouping or analytics
+   * bucketing — those follow `marketTimezone`.
    */
   timezone: TimezonePref;
+  /**
+   * Exchange clock that defines the trading day. Drives calendar day
+   * attribution, date-range filter boundaries, and API day/hour bucketing.
+   */
+  marketTimezone: MarketTimezonePref;
   /** 12-hour vs 24-hour for displayed times (and picker labels). */
   timeFormat: TimeFormatPref;
   /**
@@ -226,6 +291,7 @@ interface DisplayPrefsState {
   setPrivacyMode: (on: boolean) => void;
   togglePrivacyMode: () => void;
   setTimezone: (tz: TimezonePref) => void;
+  setMarketTimezone: (tz: MarketTimezonePref) => void;
   setTimeFormat: (fmt: TimeFormatPref) => void;
   setTradeDateBasis: (basis: TradeDateBasis) => void;
   setUpdateNotices: (on: boolean) => void;
@@ -237,6 +303,7 @@ export const useDisplayPrefs = create<DisplayPrefsState>()(
       displayCurrency: null,
       privacyMode: false,
       timezone: TIMEZONE_DEFAULT,
+      marketTimezone: MARKET_TIMEZONE_DEFAULT,
       timeFormat: TIME_FORMAT_DEFAULT,
       tradeDateBasis: TRADE_DATE_BASIS_DEFAULT,
       updateNotices: true,
@@ -245,6 +312,12 @@ export const useDisplayPrefs = create<DisplayPrefsState>()(
       togglePrivacyMode: () => set((s) => ({ privacyMode: !s.privacyMode })),
       setTimezone: (timezone) =>
         set({ timezone: isTimezonePref(timezone) ? timezone : TIMEZONE_DEFAULT }),
+      setMarketTimezone: (marketTimezone) =>
+        set({
+          marketTimezone: isMarketTimezonePref(marketTimezone)
+            ? marketTimezone
+            : MARKET_TIMEZONE_DEFAULT,
+        }),
       setTimeFormat: (timeFormat) =>
         set({ timeFormat: isTimeFormatPref(timeFormat) ? timeFormat : TIME_FORMAT_DEFAULT }),
       setTradeDateBasis: (tradeDateBasis) =>
@@ -261,6 +334,7 @@ export const useDisplayPrefs = create<DisplayPrefsState>()(
         displayCurrency: s.displayCurrency,
         privacyMode: s.privacyMode,
         timezone: s.timezone,
+        marketTimezone: s.marketTimezone,
         timeFormat: s.timeFormat,
         tradeDateBasis: s.tradeDateBasis,
         updateNotices: s.updateNotices,
@@ -281,6 +355,10 @@ export const useDisplayPrefs = create<DisplayPrefsState>()(
         }
         const timezone =
           raw?.timezone && isTimezonePref(raw.timezone) ? raw.timezone : current.timezone;
+        const marketTimezone =
+          raw?.marketTimezone && isMarketTimezonePref(raw.marketTimezone)
+            ? raw.marketTimezone
+            : current.marketTimezone;
         const timeFormat =
           raw?.timeFormat && isTimeFormatPref(raw.timeFormat) ? raw.timeFormat : current.timeFormat;
         const tradeDateBasis =
@@ -293,6 +371,7 @@ export const useDisplayPrefs = create<DisplayPrefsState>()(
           privacyMode:
             typeof raw?.privacyMode === "boolean" ? raw.privacyMode : current.privacyMode,
           timezone,
+          marketTimezone,
           timeFormat,
           tradeDateBasis,
           updateNotices:
