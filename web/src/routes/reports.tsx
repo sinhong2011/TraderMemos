@@ -15,6 +15,7 @@ import { accountBaseCurrency } from "@/lib/displayPrefs";
 import { useFilterParams, useFilters } from "@/lib/filters";
 import { useAccounts } from "@/lib/hooks/useAccounts";
 import {
+  useBehavior,
   useBreakdown,
   useCompliance,
   useEquityCurve,
@@ -106,6 +107,7 @@ function ReportsPage() {
   const sessionBreakdownQ = useBreakdown("session", analyticsFilters);
   const qualityBreakdownQ = useBreakdown("trade_quality", analyticsFilters);
   const complianceQ = useCompliance(analyticsFilters);
+  const behaviorQ = useBehavior(analyticsFilters);
   const accountsQ = useAccounts();
   const annualGoalQ = useAnnualGoal(goalYear);
   const saveAnnualGoalM = useSaveAnnualGoal();
@@ -156,6 +158,10 @@ function ReportsPage() {
         compliance={complianceQ.data}
         complianceLoading={complianceQ.isLoading}
         complianceError={complianceQ.isError}
+        behavior={behaviorQ.data}
+        behaviorLoading={behaviorQ.isLoading}
+        behaviorError={behaviorQ.isError}
+        onSelectTradeId={setSelectedTradeId}
         currency={currency}
         dim={dim}
         onDimChange={setDim}

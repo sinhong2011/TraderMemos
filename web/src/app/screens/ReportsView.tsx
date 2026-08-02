@@ -13,6 +13,9 @@ import {
   YAxis,
 } from "recharts";
 import { AnnualGoalCard } from "@/components/AnnualGoalCard";
+import { BehaviorLossAversionCard } from "@/components/BehaviorLossAversionCard";
+import { BehaviorOverconfidenceCard } from "@/components/BehaviorOverconfidenceCard";
+import { BehaviorRevengeCard } from "@/components/BehaviorRevengeCard";
 import { Card } from "@/components/Card";
 import {
   ChartFrame,
@@ -54,6 +57,7 @@ import { Tabs, TabsContent, TabsIndicator, TabsList, TabsTrigger } from "@/compo
 import { Button } from "@/components/ui/button";
 import { pnlColor } from "@/components/theme-tokens";
 import type {
+  BehaviorReport,
   BreakGroup,
   ComplianceReport,
   EquityCurve,
@@ -97,13 +101,14 @@ const DIM_LABELS: Record<BreakdownDim, string> = {
 // always-visible card above; this selector only covers the two dims without one.
 const SELECTOR_DIMS: BreakdownDim[] = ["setup", "mistake"];
 
-export type ReportsTab = "overview" | "win-loss" | "detailed" | "risk";
+export type ReportsTab = "overview" | "win-loss" | "detailed" | "risk" | "behavior";
 
 export const REPORT_TABS: { value: ReportsTab; label: string }[] = [
   { value: "overview", label: "Overview" },
   { value: "win-loss", label: "Win / Loss" },
   { value: "detailed", label: "Detailed" },
   { value: "risk", label: "Risk" },
+  { value: "behavior", label: "Behavior" },
 ];
 
 export interface ReportsViewProps {
@@ -143,6 +148,10 @@ export interface ReportsViewProps {
   compliance?: ComplianceReport;
   complianceLoading?: boolean;
   complianceError?: boolean;
+  behavior?: BehaviorReport;
+  behaviorLoading?: boolean;
+  behaviorError?: boolean;
+  onSelectTradeId?: (id: string) => void;
   tab: ReportsTab;
   onTabChange: (t: ReportsTab) => void;
   side: ReportsSide;
@@ -581,6 +590,10 @@ export function ReportsView({
   compliance,
   complianceLoading = false,
   complianceError = false,
+  behavior,
+  behaviorLoading = false,
+  behaviorError = false,
+  onSelectTradeId,
   tab,
   onTabChange,
   side,
@@ -806,6 +819,27 @@ export function ReportsView({
               report={compliance}
               loading={complianceLoading}
               error={complianceError}
+            />
+          </TabsContent>
+
+          <TabsContent value="behavior" className="flex flex-col gap-4">
+            <BehaviorRevengeCard
+              report={behavior}
+              loading={behaviorLoading}
+              error={behaviorError}
+              onSelectTradeId={onSelectTradeId}
+            />
+            <BehaviorOverconfidenceCard
+              report={behavior}
+              loading={behaviorLoading}
+              error={behaviorError}
+              onSelectTradeId={onSelectTradeId}
+            />
+            <BehaviorLossAversionCard
+              report={behavior}
+              loading={behaviorLoading}
+              error={behaviorError}
+              onSelectTradeId={onSelectTradeId}
             />
           </TabsContent>
         </Tabs>

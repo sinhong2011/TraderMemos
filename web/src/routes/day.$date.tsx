@@ -5,7 +5,7 @@ import { TradeDetailSheet } from "@/components/TradeDetailSheet";
 import { accountBaseCurrency } from "@/lib/displayPrefs";
 import { normalizeFilterDate, useFilterParams, useFilters } from "@/lib/filters";
 import { useAccounts } from "@/lib/hooks/useAccounts";
-import { useCompliance, useSummary } from "@/lib/hooks/useAnalytics";
+import { useBehavior, useCompliance, useSummary } from "@/lib/hooks/useAnalytics";
 import { useMoneyFx } from "@/lib/hooks/useMoneyFx";
 import { useNotes } from "@/lib/hooks/useNotes";
 import { useTrades } from "@/lib/hooks/useTrades";
@@ -48,6 +48,7 @@ function DayReviewPage() {
   const tradesQ = useTrades(dayFilters);
   const summaryQ = useSummary(dayFilters);
   const complianceQ = useCompliance(dayFilters);
+  const behaviorQ = useBehavior(dayFilters);
   const notesQ = useNotes({ from: dayFilters.from, to: dayFilters.to });
   const accountsQ = useAccounts();
   const baseCurrency = accountBaseCurrency(accountsQ.data ?? [], accountId);
@@ -65,6 +66,7 @@ function DayReviewPage() {
         summary={summaryQ.data}
         summaryLoading={summaryQ.isLoading}
         compliance={complianceQ.data}
+        behavior={behaviorQ.data}
         notes={notesQ.data ?? []}
         notesLoading={notesQ.isLoading}
         currency={currency}

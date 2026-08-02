@@ -1,5 +1,6 @@
 import { apiFetch, qs } from "./client";
 import type {
+  BehaviorReport,
   BreakGroup,
   ComplianceReport,
   EquityCurve,
@@ -23,6 +24,8 @@ export const analyticsApi = {
     apiFetch<ComplianceReport>(
       `/analytics/compliance${qs(f as Record<string, string | undefined>)}`,
     ),
+  behavior: (f: Filters) =>
+    apiFetch<BehaviorReport>(`/analytics/behavior${qs(f as Record<string, string | undefined>)}`),
   breakdown: (by: string, f: Filters) =>
     apiFetch<BreakGroup[]>(
       `/analytics/breakdown${qs({ by, ...(f as Record<string, string | undefined>) })}`,

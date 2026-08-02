@@ -38,6 +38,14 @@ export function useCompliance(filters: Filters, enabled = true) {
   });
 }
 
+export function useBehavior(filters: Filters, enabled = true) {
+  return useQuery({
+    queryKey: ["analytics", "behavior", filters],
+    queryFn: () => analyticsApi.behavior(filters),
+    enabled,
+  });
+}
+
 export function useBreakdown(by: string, filters: Filters) {
   return useQuery({
     queryKey: ["analytics", "breakdown", by, filters],
