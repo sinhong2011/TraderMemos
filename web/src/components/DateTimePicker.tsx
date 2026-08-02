@@ -1,6 +1,7 @@
 import { CalendarDays, ChevronDown, Clock } from "lucide-react";
 import { Fragment, useMemo, useState } from "react";
 import { cn } from "@/lib/cn";
+import { isoToWallClock } from "@/lib/displayPrefs";
 import { fieldControlTriggerClass, fieldInputClass } from "./field-styles";
 import { AppCalendar } from "./AppCalendar";
 import { ControlledPopover } from "./ControlledPopover";
@@ -49,8 +50,7 @@ export function formatDatetimeLocal(
 }
 
 function nowDatetimeLocal(): string {
-  const d = new Date();
-  return formatDatetimeLocal(d, d.getHours(), d.getMinutes(), d.getSeconds());
+  return isoToWallClock(new Date());
 }
 
 /** Closed-trigger label — `yyyy-MM-dd HH:mm:ss` (wall-clock from datetime-local). */
@@ -204,13 +204,14 @@ export function DateTimePicker({
   };
 
   const setNow = () => {
-    const d = new Date();
-    const day = calendarDay(d);
-    setDraftDate(day);
-    setDraftHours(d.getHours());
-    setDraftMinutes(d.getMinutes());
-    setDraftSeconds(d.getSeconds());
-    setMonth(day);
+    // "Now" on the display clock, so the draft matches what apply() stores.
+    const parsed = parseDatetimeLocal(nowDatetimeLocal());
+    if (!parsed) return;
+    setDraftDate(parsed.date);
+    setDraftHours(parsed.hours);
+    setDraftMinutes(parsed.minutes);
+    setDraftSeconds(parsed.seconds);
+    setMonth(parsed.date);
   };
 
   return (

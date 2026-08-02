@@ -135,6 +135,38 @@ export function rfc3339OffsetSuffix(timeZone: string, at: Date = new Date()): st
   }
 }
 
+/**
+ * Interpret an offsetless wall-clock string (`YYYY-MM-DDTHH:mm[:ss]`) in the
+ * display timezone and return the UTC instant (ISO). Entry forms use this so
+ * a typed time round-trips exactly to what every timestamp formatter shows
+ * back — the browser's OS clock never touches stored instants.
+ */
+export function wallClockToIso(v: string, timeZone?: string): string {
+  const tz = timeZone ?? resolveDisplayTimezone(useDisplayPrefs.getState().timezone);
+  // Offset in effect around midday of that date (DST transitions run at night).
+  const offset = rfc3339OffsetSuffix(tz, new Date(`${v.slice(0, 10)}T12:00:00Z`));
+  const d = new Date(`${v}${offset}`);
+  return Number.isNaN(d.getTime()) ? new Date().toISOString() : d.toISOString();
+}
+
+/** Format an instant as an offsetless wall-clock string in the display timezone. */
+export function isoToWallClock(at: string | Date, timeZone?: string): string {
+  const tz = timeZone ?? resolveDisplayTimezone(useDisplayPrefs.getState().timezone);
+  const d = typeof at === "string" ? new Date(at) : at;
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: tz,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(d);
+  const get = (t: Intl.DateTimeFormatPartTypes) => parts.find((p) => p.type === t)?.value ?? "00";
+  return `${get("year")}-${get("month")}-${get("day")}T${get("hour")}:${get("minute")}:${get("second")}`;
+}
+
 export const PRIVACY_MASK = "••••";
 
 function isDisplayCurrencyCode(value: string): value is DisplayCurrencyCode {

@@ -1,3 +1,4 @@
+import { isoToWallClock } from "./displayPrefs";
 import { parseAmountToNumber } from "./amountInput";
 import type { RiskRules } from "./api/settings";
 
@@ -81,7 +82,7 @@ export function defaultCashFormValues(accountId = ""): CashFormValues {
     accountId,
     type: "deposit",
     amount: "",
-    occurredAt: new Date().toISOString().slice(0, 10),
+    occurredAt: isoToWallClock(new Date()).slice(0, 10),
     note: "",
   };
 }

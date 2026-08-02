@@ -11,6 +11,8 @@ import {
   rfc3339OffsetSuffix,
   timezoneSelectOptions,
   useDisplayPrefs,
+  wallClockToIso,
+  isoToWallClock,
 } from "./displayPrefs";
 
 describe("accountBaseCurrency", () => {
@@ -203,5 +205,31 @@ describe("trade date basis preference", () => {
     expect(useDisplayPrefs.getState().tradeDateBasis).toBe("close");
     useDisplayPrefs.getState().setTradeDateBasis("open");
     expect(useDisplayPrefs.getState().tradeDateBasis).toBe("open");
+  });
+});
+
+describe("wall clock round trip", () => {
+  beforeEach(() => {
+    localStorage.removeItem(DISPLAY_PREFS_STORAGE_KEY);
+    useDisplayPrefs.setState({ timezone: "America/New_York" });
+  });
+
+  it("interprets typed wall clocks in the display timezone, not the OS clock", () => {
+    // 9:31 AM typed while displaying Eastern = 13:31 UTC (July = EDT).
+    expect(wallClockToIso("2026-07-10T09:31:00")).toBe("2026-07-10T13:31:00.000Z");
+    useDisplayPrefs.setState({ timezone: "Asia/Hong_Kong" });
+    expect(wallClockToIso("2026-07-10T09:31:00")).toBe("2026-07-10T01:31:00.000Z");
+  });
+
+  it("renders instants back at the same wall clock (edit prefill)", () => {
+    expect(isoToWallClock("2026-07-10T13:31:00Z")).toBe("2026-07-10T09:31:00");
+    expect(isoToWallClock(wallClockToIso("2026-01-15T16:00:00"))).toBe("2026-01-15T16:00:00");
+  });
+
+  it("respects an explicit zone and handles winter offsets", () => {
+    expect(wallClockToIso("2026-01-15T09:31:00", "America/New_York")).toBe(
+      "2026-01-15T14:31:00.000Z",
+    );
+    expect(isoToWallClock("2026-01-15T14:31:00Z", "America/New_York")).toBe("2026-01-15T09:31:00");
   });
 });
