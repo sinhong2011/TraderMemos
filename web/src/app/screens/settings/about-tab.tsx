@@ -23,11 +23,18 @@ import {
 import { getBaseUrl } from "@/lib/api/client";
 import { useAppUpdate } from "@/lib/appUpdate";
 import { cn } from "@/lib/cn";
+import { useDisplayPrefs } from "@/lib/displayPrefs";
 import { fmtDateTime } from "@/lib/format";
 import { useApiHealth } from "@/lib/hooks/useApiHealth";
 import { APP_BUILD, APP_VERSION, formatVersion } from "@/lib/version";
 import { useLocale } from "@/i18n";
-import { SettingsGroup, SettingsGroupRow, SettingsPanelBody, SettingsSection } from "./settings-ui";
+import {
+  SettingsGroup,
+  SettingsGroupRow,
+  SettingsPanelBody,
+  SettingsSection,
+  SettingsToggle,
+} from "./settings-ui";
 
 const FEATURE_ICONS: LucideIcon[] = [
   House,
@@ -167,6 +174,8 @@ export function AboutTab() {
   const lastCheckedAt = useAppUpdate((s) => s.lastCheckedAt);
   const checkForUpdates = useAppUpdate((s) => s.checkForUpdates);
   const applyUpdate = useAppUpdate((s) => s.applyUpdate);
+  const updateNotices = useDisplayPrefs((s) => s.updateNotices);
+  const setUpdateNotices = useDisplayPrefs((s) => s.setUpdateNotices);
 
   const updateStatus = swReady
     ? content.updateStatusSwReady
@@ -225,6 +234,13 @@ export function AboutTab() {
 
       <SettingsSection title={content.updatesTitle} description={content.updatesDescription}>
         <SettingsGroup>
+          <SettingsGroupRow label={content.updateNoticesLabel} detail={content.updateNoticesDetail}>
+            <SettingsToggle
+              checked={updateNotices}
+              onCheckedChange={setUpdateNotices}
+              aria-label={content.updateNoticesLabel}
+            />
+          </SettingsGroupRow>
           <SettingsGroupRow label={content.updateCurrentLabel}>
             <AboutInfoValue>{formatVersion(APP_VERSION, APP_BUILD || undefined)}</AboutInfoValue>
           </SettingsGroupRow>

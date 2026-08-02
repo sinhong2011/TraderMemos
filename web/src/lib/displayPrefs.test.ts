@@ -76,6 +76,21 @@ describe("privacy mode", () => {
   });
 });
 
+describe("update notices", () => {
+  beforeEach(() => {
+    localStorage.removeItem(DISPLAY_PREFS_STORAGE_KEY);
+    useDisplayPrefs.setState({ updateNotices: true });
+  });
+
+  it("defaults on and can be disabled", () => {
+    expect(useDisplayPrefs.getState().updateNotices).toBe(true);
+    useDisplayPrefs.getState().setUpdateNotices(false);
+    expect(useDisplayPrefs.getState().updateNotices).toBe(false);
+    useDisplayPrefs.getState().setUpdateNotices(true);
+    expect(useDisplayPrefs.getState().updateNotices).toBe(true);
+  });
+});
+
 describe("timezone preference", () => {
   beforeEach(() => {
     localStorage.removeItem(DISPLAY_PREFS_STORAGE_KEY);
