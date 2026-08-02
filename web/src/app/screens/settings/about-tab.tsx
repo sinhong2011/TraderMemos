@@ -29,7 +29,8 @@ import { useApiHealth } from "@/lib/hooks/useApiHealth";
 import { formatUptime, useSystemInfo } from "@/lib/hooks/useSystemInfo";
 import { APP_BUILD, APP_VERSION, formatVersion } from "@/lib/version";
 import { useLocale } from "@/i18n";
-import { SettingsSection } from "./settings-ui";
+import { SettingsGroup, SettingsGroupRow, SettingsSection, SettingsToggle } from "./settings-ui";
+import { useDisplayPrefs } from "@/lib/displayPrefs";
 
 const FEATURE_ICONS: LucideIcon[] = [
   House,
@@ -183,6 +184,8 @@ function ApiHealthStatus({
 export function AboutTab() {
   const { locale } = useLocale();
   const content = aboutContent(locale);
+  const updateNotices = useDisplayPrefs((s) => s.updateNotices);
+  const setUpdateNotices = useDisplayPrefs((s) => s.setUpdateNotices);
   const apiBase = getBaseUrl();
   const health = useApiHealth();
   const healthOk = health.isSuccess && health.data?.status === "ok";
@@ -280,7 +283,16 @@ export function AboutTab() {
 
       {/* Versions & updates */}
       <SettingsSection title={content.updatesTitle} description={content.updatesDescription}>
-        <AboutCard className="px-5 py-5">
+        <SettingsGroup>
+          <SettingsGroupRow label={content.updateNoticesLabel} detail={content.updateNoticesDetail}>
+            <SettingsToggle
+              checked={updateNotices}
+              onCheckedChange={setUpdateNotices}
+              aria-label={content.updateNoticesLabel}
+            />
+          </SettingsGroupRow>
+        </SettingsGroup>
+        <AboutCard className="mt-3 px-5 py-5">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <StatTile
               label={content.apiWebVersionLabel}

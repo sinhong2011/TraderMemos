@@ -1,6 +1,7 @@
 import { RefreshCw, X } from "lucide-react";
 import { aboutContent } from "@/lib/aboutContent";
 import { useAppUpdate } from "@/lib/appUpdate";
+import { useDisplayPrefs } from "@/lib/displayPrefs";
 import { useLocale } from "@/i18n";
 import { APP_VERSION } from "@/lib/version";
 import { Button } from "./ui/button";
@@ -21,9 +22,10 @@ export function AppUpdateBanner() {
   const dismissed = useAppUpdate((s) => s.dismissed);
   const applyUpdate = useAppUpdate((s) => s.applyUpdate);
   const dismiss = useAppUpdate((s) => s.dismiss);
+  const updateNotices = useDisplayPrefs((s) => s.updateNotices);
 
   const updateAvailable = swReady || webBehind || apiBehind || versionMismatch;
-  const visible = !dismissed && updateAvailable;
+  const visible = updateNotices && !dismissed && updateAvailable;
   if (!visible) return null;
 
   const description = swReady

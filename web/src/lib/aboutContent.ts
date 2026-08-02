@@ -70,6 +70,8 @@ export type AboutContent = {
   updateBothBehind: string;
   updateApiVersionLabel: string;
   updateApiUnreachable: string;
+  updateNoticesLabel: string;
+  updateNoticesDetail: string;
   updateMismatch: string;
   updateBannerMismatch: string;
   apiBuildTimeLabel: string;
@@ -188,6 +190,9 @@ const ABOUT: Record<AppLocale, AboutContent> = {
     updateBothBehind: "Web and API are behind the latest release",
     updateApiVersionLabel: "API version",
     updateApiUnreachable: "Could not read API version",
+    updateNoticesLabel: "Update notifications",
+    updateNoticesDetail:
+      "Show a notice in the corner when a newer version is available. Update status stays visible here either way.",
     updateMismatch: "Web and API versions don't match",
     updateBannerMismatch:
       "Web and API are running different versions — update the older side so they match.",
@@ -304,6 +309,8 @@ const ABOUT: Record<AppLocale, AboutContent> = {
     updateBothBehind: "Web 與 API 均落後於最新發佈",
     updateApiVersionLabel: "API 版本",
     updateApiUnreachable: "無法讀取 API 版本",
+    updateNoticesLabel: "更新通知",
+    updateNoticesDetail: "有新版本時在角落顯示提示。關閉後這裡仍會顯示更新狀態。",
     updateMismatch: "Web 與 API 版本不一致",
     updateBannerMismatch: "Web 與 API 版本不同 — 請更新較舊的一方使其一致。",
     apiBuildTimeLabel: "建置時間",
@@ -428,6 +435,9 @@ const ABOUT: Record<AppLocale, AboutContent> = {
     updateBothBehind: "Web と API が最新リリースより古い",
     updateApiVersionLabel: "API バージョン",
     updateApiUnreachable: "API バージョンを取得できません",
+    updateNoticesLabel: "アップデート通知",
+    updateNoticesDetail:
+      "新しいバージョンがあるときに画面隅に通知を表示します。オフでもここで更新状況を確認できます。",
     updateMismatch: "Web と API のバージョンが一致しません",
     updateBannerMismatch:
       "Web と API が異なるバージョンで動作しています — 古い側を更新してください。",
@@ -545,6 +555,9 @@ const ABOUT: Record<AppLocale, AboutContent> = {
     updateBothBehind: "Web과 API가 최신 릴리스보다 이전",
     updateApiVersionLabel: "API 버전",
     updateApiUnreachable: "API 버전을 읽을 수 없음",
+    updateNoticesLabel: "업데이트 알림",
+    updateNoticesDetail:
+      "새 버전이 있을 때 화면 모서리에 알림을 표시합니다. 꺼도 여기에서 업데이트 상태를 확인할 수 있습니다.",
     updateMismatch: "Web과 API 버전이 일치하지 않음",
     updateBannerMismatch:
       "Web과 API가 서로 다른 버전으로 실행 중입니다 — 이전 버전 쪽을 업데이트하세요.",
