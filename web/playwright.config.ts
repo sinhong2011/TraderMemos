@@ -15,7 +15,7 @@ export default defineConfig({
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
-    command: "pnpm run dev",
+    command: "VITE_E2E=1 pnpm run dev",
     url: "http://localhost:5173",
     reuseExistingServer: true,
     timeout: 60_000,
