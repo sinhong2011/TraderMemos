@@ -111,7 +111,7 @@ export function ReportsRuleCompliance({ report, loading, error }: ReportsRuleCom
                 >
                   <span className="flex items-center gap-2">
                     <span className="tabular-nums text-foreground">
-                      {fmtDayShort(d.date, locale)}
+                      {fmtDayShort(`${d.date}T12:00:00Z`, locale)}
                     </span>
                     {d.risk_violations > 0 && (
                       <Pill tone="neg">over-risked ×{d.risk_violations}</Pill>
