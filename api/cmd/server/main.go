@@ -12,6 +12,7 @@ import (
 	"github.com/tradermemos/api/internal/config"
 	"github.com/tradermemos/api/internal/db"
 	"github.com/tradermemos/api/internal/econdata"
+	"github.com/tradermemos/api/internal/jobs"
 	"github.com/tradermemos/api/internal/logging"
 	"github.com/tradermemos/api/internal/marketdata"
 	"github.com/tradermemos/api/internal/ocr"
@@ -123,6 +124,20 @@ func main() {
 	})
 	if len(cfg.CORSOrigins) > 0 {
 		logger.Info("cors enabled", "origins", cfg.CORSOrigins)
+	}
+	if cfg.JobsEnabled {
+		runner := jobs.NewRunner(logger)
+		if marketSvc != nil && cfg.JobExcursionIntervalMin > 0 && cfg.JobExcursionLimit > 0 {
+			runner.Register(jobs.NewExcursionBackfill(
+				q, marketSvc,
+				time.Duration(cfg.JobExcursionIntervalMin)*time.Minute,
+				cfg.JobExcursionLimit, time.Second, logger,
+			))
+		}
+		if names := runner.Names(); len(names) > 0 {
+			runner.Start(context.Background())
+			logger.Info("background jobs started", "jobs", names)
+		}
 	}
 	logger.Info("tradermemos api listening", "port", cfg.HTTPPort, "db", db.RedactDatabaseURL(cfg.DatabaseURL), "log_level", cfg.LogLevel)
 	log.Fatal(s.Echo.Start(":" + cfg.HTTPPort))
