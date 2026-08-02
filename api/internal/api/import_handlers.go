@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
@@ -155,20 +156,25 @@ func (s *Server) handleImportPreview(c echo.Context) error {
 	}
 	suggested := importer.SuggestMapping(loaded.Headers)
 	detectedBroker := ""
+	suggestedTZ := ""
 	if loaded.Format == "journal_trades" {
 		suggested = map[string]string{}
-	} else if name, presetMap, ok := importer.MatchBroker(loaded.Headers); ok {
+	} else if name, presetMap, presetTZ, ok := importer.MatchBroker(loaded.Headers); ok {
 		// A recognized broker export beats header-substring guessing.
 		for field, header := range presetMap {
 			suggested[field] = header
 		}
 		detectedBroker = name
+		suggestedTZ = presetTZ
 	}
 	resp := map[string]any{
 		"headers":           loaded.Headers,
 		"sample_rows":       sample,
 		"suggested_mapping": suggested,
 		"detected_broker":   detectedBroker,
+		// IANA zone the file's offset-less timestamps are assumed to be in;
+		// clients may override with the source_tz form value on commit.
+		"suggested_source_tz": suggestedTZ,
 		"format":            loaded.Format,
 		"source":            source,
 		"row_count":         rowCount,
@@ -383,7 +389,17 @@ func (s *Server) finishImportCommit(c echo.Context, uid string, batch store.Impo
 		} else {
 			return Fail(http.StatusBadRequest, "bad_request", "column_mapping (JSON) is required", nil)
 		}
-		parsed = importer.NewGeneric(mapping).ParseRows(loaded.Rows)
+		sourceTZ := strings.TrimSpace(c.FormValue("source_tz"))
+		if sourceTZ != "" {
+			if _, err := time.LoadLocation(sourceTZ); err != nil {
+				return Fail(http.StatusBadRequest, "bad_request", "invalid 'source_tz' (want IANA timezone name)", nil)
+			}
+		} else if _, _, presetTZ, ok := importer.MatchBroker(loaded.Headers); ok {
+			// No explicit override: naive broker times are the broker's wall
+			// clock (US Eastern / exchange time), not UTC.
+			sourceTZ = presetTZ
+		}
+		parsed = importer.NewGeneric(mapping).WithSourceTZ(sourceTZ).ParseRows(loaded.Rows)
 		parsed.Format = "executions"
 	}
 
