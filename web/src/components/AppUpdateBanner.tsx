@@ -16,6 +16,7 @@ export function AppUpdateBanner() {
   const swReady = useAppUpdate((s) => s.swReady);
   const webBehind = useAppUpdate((s) => s.webBehind);
   const apiBehind = useAppUpdate((s) => s.apiBehind);
+  const versionMismatch = useAppUpdate((s) => s.versionMismatch);
   const apiVersion = useAppUpdate((s) => s.apiVersion);
   const remote = useAppUpdate((s) => s.remote);
   const dismissed = useAppUpdate((s) => s.dismissed);
@@ -23,7 +24,7 @@ export function AppUpdateBanner() {
   const dismiss = useAppUpdate((s) => s.dismiss);
   const updateNotices = useDisplayPrefs((s) => s.updateNotices);
 
-  const updateAvailable = swReady || webBehind || apiBehind;
+  const updateAvailable = swReady || webBehind || apiBehind || versionMismatch;
   const visible = updateNotices && !dismissed && updateAvailable;
   if (!visible) return null;
 
@@ -35,10 +36,14 @@ export function AppUpdateBanner() {
         ? content.updateBannerWebBehind
         : apiBehind
           ? content.updateBannerApiBehind
-          : content.updateBannerRemote;
+          : versionMismatch
+            ? content.updateBannerMismatch
+            : content.updateBannerRemote;
 
-  // Versions live in a compact chip instead of the sentence.
-  const latest = remote?.version;
+  // Versions live in a compact chip instead of the sentence. A pure mismatch
+  // (no release info) compares web against API instead of against latest.
+  const mismatchOnly = !swReady && !webBehind && !apiBehind && versionMismatch;
+  const latest = mismatchOnly ? apiVersion : remote?.version;
   const fromVersion = !webBehind && apiBehind ? (apiVersion ?? APP_VERSION) : APP_VERSION;
   const showVersions = !swReady && Boolean(latest) && latest !== fromVersion;
 

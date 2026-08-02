@@ -5,10 +5,13 @@ import { intlLocale } from "@/lib/locale";
 
 export type PnlMode = "net" | "gross";
 export type UnitMode = "abs" | "pct";
+export type AvgMode = "mean" | "median";
 
 export interface ReportsDisplay {
   pnlMode: PnlMode;
   unitMode: UnitMode;
+  /** Mean vs outlier-resistant median for per-trade stats; defaults to mean. */
+  avgMode?: AvgMode;
   denominator: number; // % basis (starting balance); 0 disables %
   currency: string;
   fxRate: number;
@@ -17,6 +20,7 @@ export interface ReportsDisplay {
 const DEFAULT: ReportsDisplay = {
   pnlMode: "net",
   unitMode: "abs",
+  avgMode: "mean",
   denominator: 0,
   currency: "USD",
   fxRate: 1,
@@ -40,7 +44,11 @@ export function useReportsMoney() {
   const pctEnabled = d.denominator > 0;
   const usePct = d.unitMode === "pct" && pctEnabled;
 
-  const pnl = (s: Summary) => (d.pnlMode === "gross" ? s.gross_profit - s.gross_loss : s.net_pnl);
+  // Gross = before fees. Do NOT use gross_profit - gross_loss here: those are
+  // net-classified win/loss sums, so their difference is identically net_pnl
+  // and the toggle would be a no-op. Fall back to net + fees for older APIs.
+  const pnl = (s: Summary) =>
+    d.pnlMode === "gross" ? (s.gross_pnl ?? s.net_pnl + s.total_fees) : s.net_pnl;
   const tradePnl = (t: Trade) =>
     d.pnlMode === "gross" ? (t.gross_pnl ?? t.net_pnl ?? 0) : (t.net_pnl ?? 0);
 
@@ -59,6 +67,7 @@ export function useReportsMoney() {
 
   return {
     pnlMode: d.pnlMode,
+    avgMode: d.avgMode ?? "mean",
     unitMode: usePct ? "pct" : "abs",
     pctEnabled,
     pnl,

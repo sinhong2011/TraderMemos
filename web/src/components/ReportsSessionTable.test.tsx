@@ -86,8 +86,8 @@ describe("SessionPnlCell", () => {
   }
 
   it("shows the gross P&L when pnlMode is gross", () => {
-    // net_pnl (100) differs from gross (gross_profit - gross_loss = 260 - 60 = 200).
-    const s = summary({ net_pnl: 100, gross_profit: 260, gross_loss: 60 });
+    // net_pnl (100) differs from before-fees gross_pnl (200).
+    const s = summary({ net_pnl: 100, gross_pnl: 200 });
     render(
       <ReportsDisplayProvider
         value={{ pnlMode: "gross", unitMode: "abs", denominator: 0, currency: "USD", fxRate: 1 }}

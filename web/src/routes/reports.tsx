@@ -7,7 +7,7 @@ import {
   ReportsView,
 } from "@/app/screens/ReportsView";
 import type { ReportsDuration, ReportsSide } from "@/components/ReportsControlBar";
-import type { PnlMode, UnitMode } from "@/components/ReportsDisplayContext";
+import type { AvgMode, PnlMode, UnitMode } from "@/components/ReportsDisplayContext";
 import { TradeDetailSheet } from "@/components/TradeDetailSheet";
 import { ytdFiltersForYear } from "@/lib/annualGoal";
 import { tradesOnDay } from "@/lib/calendar";
@@ -30,6 +30,7 @@ const SIDE_VALUES: ReportsSide[] = ["all", "long", "short"];
 const DUR_VALUES: ReportsDuration[] = ["all", "scalp", "day", "swing"];
 const PNL_VALUES: PnlMode[] = ["net", "gross"];
 const UNIT_VALUES: UnitMode[] = ["abs", "pct"];
+const AVG_VALUES: AvgMode[] = ["mean", "median"];
 
 export function validateReportsSearch(search: Record<string, unknown>): {
   tab: ReportsTab;
@@ -37,18 +38,21 @@ export function validateReportsSearch(search: Record<string, unknown>): {
   dur: ReportsDuration;
   pnl: PnlMode;
   unit: UnitMode;
+  avg: AvgMode;
 } {
   const tab = search.tab;
   const side = search.side;
   const dur = search.dur;
   const pnl = search.pnl;
   const unit = search.unit;
+  const avg = search.avg;
   return {
     tab: REPORT_TAB_VALUES.includes(tab as ReportsTab) ? (tab as ReportsTab) : "overview",
     side: SIDE_VALUES.includes(side as ReportsSide) ? (side as ReportsSide) : "all",
     dur: DUR_VALUES.includes(dur as ReportsDuration) ? (dur as ReportsDuration) : "all",
     pnl: PNL_VALUES.includes(pnl as PnlMode) ? (pnl as PnlMode) : "net",
     unit: UNIT_VALUES.includes(unit as UnitMode) ? (unit as UnitMode) : "abs",
+    avg: AVG_VALUES.includes(avg as AvgMode) ? (avg as AvgMode) : "mean",
   };
 }
 
@@ -63,7 +67,7 @@ function ReportsPage() {
   const [dim, setDim] = useState<BreakdownDim>("setup");
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [selectedTradeId, setSelectedTradeId] = useState<string | null>(null);
-  const { tab, side, dur, pnl, unit } = Route.useSearch();
+  const { tab, side, dur, pnl, unit, avg } = Route.useSearch();
   const navigate = Route.useNavigate();
   const goalYear = new Date().getFullYear();
   const onTabChange = (next: ReportsTab) =>
@@ -76,6 +80,8 @@ function ReportsPage() {
     void navigate({ to: "/reports", search: (prev) => ({ ...prev, pnl: next }) });
   const onUnitModeChange = (next: UnitMode) =>
     void navigate({ to: "/reports", search: (prev) => ({ ...prev, unit: next }) });
+  const onAvgModeChange = (next: AvgMode) =>
+    void navigate({ to: "/reports", search: (prev) => ({ ...prev, avg: next }) });
 
   const analyticsFilters = useMemo(
     () => ({
@@ -173,9 +179,11 @@ function ReportsPage() {
         onDurationChange={onDurationChange}
         pnlMode={pnl}
         unitMode={unit}
+        avgMode={avg}
         denominator={denominator}
         onPnlModeChange={onPnlModeChange}
         onUnitModeChange={onUnitModeChange}
+        onAvgModeChange={onAvgModeChange}
         selectedDay={selectedDay}
         onSelectDay={setSelectedDay}
         dayTrades={dayTrades}

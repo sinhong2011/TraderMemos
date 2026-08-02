@@ -226,6 +226,8 @@ export interface Summary {
   breakeven: number;
   win_rate: number;
   net_pnl: number;
+  /** Before-fees P&L; optional to tolerate an older API without it. */
+  gross_pnl?: number;
   gross_profit: number;
   gross_loss: number;
   profit_factor: number;
@@ -236,6 +238,17 @@ export interface Summary {
   largest_win: number;
   largest_loss: number;
   total_fees: number;
+  /**
+   * Medians mirror avg_* (median_loss is a positive magnitude). Optional so a
+   * newer web build degrades gracefully against an older API.
+   */
+  median_win?: number;
+  median_loss?: number;
+  median_trade?: number;
+  /** Full-Kelly % of capital; 0 when there isn't at least one win and one loss. */
+  kelly_pct?: number;
+  /** System Quality Number on per-trade net P&L; 0 when undefined. */
+  sqn?: number;
 }
 
 export interface RBucket {

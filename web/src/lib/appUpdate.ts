@@ -28,6 +28,8 @@ type AppUpdateState = {
   apiVersion: string | null;
   webBehind: boolean;
   apiBehind: boolean;
+  /** Web and API versions differ from each other (deployment out of sync). */
+  versionMismatch: boolean;
   /** GitHub release is newer than the running web build. */
   remoteNewer: boolean;
   checkError: string | null;
@@ -65,6 +67,17 @@ function computeBehind(latest: string | null | undefined, current: string | null
   return isNewerVersion(latest, current);
 }
 
+/** Web and API report different versions — the deployment is out of sync. */
+export function computeVersionMismatch(apiVersion: string | null, webVersion: string): boolean {
+  if (!apiVersion) return false;
+  const norm = (v: string) => v.trim().replace(/^v/i, "");
+  const api = norm(apiVersion);
+  const web = norm(webVersion);
+  // Dev builds carry no meaningful semver — don't flag them.
+  if (!api || !web || api === "dev" || web === "dev") return false;
+  return api !== web;
+}
+
 export const useAppUpdate = create<AppUpdateState>((set, get) => ({
   swReady: false,
   checking: false,
@@ -73,6 +86,7 @@ export const useAppUpdate = create<AppUpdateState>((set, get) => ({
   apiVersion: null,
   webBehind: false,
   apiBehind: false,
+  versionMismatch: false,
   remoteNewer: false,
   checkError: null,
   dismissed: false,
@@ -107,12 +121,14 @@ export const useAppUpdate = create<AppUpdateState>((set, get) => ({
       const latestVersion = remote?.version ?? null;
       const webBehind = computeBehind(latestVersion, APP_VERSION);
       const apiBehind = computeBehind(latestVersion, apiVersion);
+      const versionMismatch = computeVersionMismatch(apiVersion, APP_VERSION);
 
       set({
         remote,
         apiVersion,
         webBehind,
         apiBehind,
+        versionMismatch,
         remoteNewer: webBehind,
         lastCheckedAt: Date.now(),
         checking: false,

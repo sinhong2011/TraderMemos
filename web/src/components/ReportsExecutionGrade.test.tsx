@@ -76,6 +76,7 @@ describe("ReportsExecutionGrade", () => {
         breakeven: 0,
         win_rate: 1,
         net_pnl: 100,
+        gross_pnl: 200,
         gross_profit: 260,
         gross_loss: 60,
         profit_factor: 1,

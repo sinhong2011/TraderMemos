@@ -282,7 +282,14 @@ export function DayReviewView({
                   )}
                   <Link
                     to="/reports"
-                    search={{ tab: "behavior", side: "all", dur: "all", pnl: "net", unit: "abs" }}
+                    search={{
+                      tab: "behavior",
+                      side: "all",
+                      dur: "all",
+                      pnl: "net",
+                      unit: "abs",
+                      avg: "mean",
+                    }}
                     className="text-[11px] font-medium text-primary hover:underline"
                   >
                     Behavior report →

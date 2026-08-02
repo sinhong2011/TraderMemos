@@ -39,7 +39,10 @@ func (s *Server) handleBreakdown(c echo.Context) error {
 		if !t.NetPnl.Valid || !t.ClosedAt.Valid {
 			continue
 		}
-		ct := analytics.ClosedTrade{NetPnl: t.NetPnl.Float64, FeesTotal: t.FeesTotal, ClosedAt: t.ClosedAt.Time}
+		ct := analytics.ClosedTrade{
+			NetPnl: t.NetPnl.Float64, GrossPnl: grossPnlOf(t),
+			FeesTotal: t.FeesTotal, ClosedAt: t.ClosedAt.Time,
+		}
 		// Day-trader leak analysis uses entry (opened_at), not close.
 		at := t.OpenedAt
 		switch by {

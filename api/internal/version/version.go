@@ -9,8 +9,9 @@ import (
 // Version and Commit are set via -ldflags in release builds.
 // When unset, Version falls back to repo root VERSION if present (local dev).
 var (
-	Version = "dev"
-	Commit  = ""
+	Version   = "dev"
+	Commit    = ""
+	BuildTime = ""
 )
 
 func init() {

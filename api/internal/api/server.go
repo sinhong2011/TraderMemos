@@ -44,12 +44,17 @@ type Deps struct {
 	CORSOrigins []string
 	// AuthRateLimit is requests/second per IP for auth + setup routes. 0 disables.
 	AuthRateLimit rate.Limit
+	// Driver is the database driver name ("sqlite" or "postgres") for /system/info.
+	Driver string
+	// Features reports which optional subsystems this deployment has enabled.
+	Features map[string]bool
 }
 
 type Server struct {
-	Echo   *echo.Echo
-	deps   Deps
-	logger *slog.Logger
+	Echo      *echo.Echo
+	deps      Deps
+	logger    *slog.Logger
+	startedAt time.Time
 }
 
 func New(deps Deps) *Server {
@@ -95,7 +100,7 @@ func New(deps Deps) *Server {
 		e.Use(middleware.BodyLimit(strconv.FormatInt(lim, 10) + "B"))
 	}
 
-	s := &Server{Echo: e, deps: deps, logger: lg}
+	s := &Server{Echo: e, deps: deps, logger: lg, startedAt: time.Now()}
 	e.GET("/healthz", func(c echo.Context) error {
 		payload := map[string]string{
 			"status":  "ok",
@@ -169,4 +174,5 @@ func (s *Server) routes() {
 	s.economicEventRoutes(protected)
 	s.ocrRoutes(protected)
 	s.accessTokenRoutes(protected)
+	s.systemRoutes(protected)
 }

@@ -87,6 +87,7 @@ jobs:
             echo "major=${VERSION%%.*}"
             echo "semver=$SEMVER"
             echo "commit=${GITHUB_SHA::7}"
+            echo "build_time=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           } >> "$GITHUB_OUTPUT"
 
       - uses: docker/setup-qemu-action@v4
@@ -123,5 +124,6 @@ jobs:
           build-args: |
             VERSION=${{ steps.buildmeta.outputs.version }}
             COMMIT=${{ steps.buildmeta.outputs.commit }}
+            BUILD_TIME=${{ steps.buildmeta.outputs.build_time }}
             APP_VERSION=${{ steps.buildmeta.outputs.version }}
             APP_BUILD=${{ steps.buildmeta.outputs.commit }}
