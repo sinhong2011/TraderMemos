@@ -282,6 +282,11 @@ interface DisplayPrefsState {
    * Default close matches realized-P&L calendar semantics.
    */
   tradeDateBasis: TradeDateBasis;
+  /**
+   * Show the floating update toast when a newer web build / release is
+   * detected. Settings → About still reports update status when off.
+   */
+  updateNotices: boolean;
   setDisplayCurrency: (currency: DisplayCurrencyOverride) => void;
   setPrivacyMode: (on: boolean) => void;
   togglePrivacyMode: () => void;
@@ -289,6 +294,7 @@ interface DisplayPrefsState {
   setMarketTimezone: (tz: MarketTimezonePref) => void;
   setTimeFormat: (fmt: TimeFormatPref) => void;
   setTradeDateBasis: (basis: TradeDateBasis) => void;
+  setUpdateNotices: (on: boolean) => void;
 }
 
 export const useDisplayPrefs = create<DisplayPrefsState>()(
@@ -300,6 +306,7 @@ export const useDisplayPrefs = create<DisplayPrefsState>()(
       marketTimezone: MARKET_TIMEZONE_DEFAULT,
       timeFormat: TIME_FORMAT_DEFAULT,
       tradeDateBasis: TRADE_DATE_BASIS_DEFAULT,
+      updateNotices: true,
       setDisplayCurrency: (displayCurrency) => set({ displayCurrency }),
       setPrivacyMode: (privacyMode) => set({ privacyMode }),
       togglePrivacyMode: () => set((s) => ({ privacyMode: !s.privacyMode })),
@@ -319,6 +326,7 @@ export const useDisplayPrefs = create<DisplayPrefsState>()(
             ? tradeDateBasis
             : TRADE_DATE_BASIS_DEFAULT,
         }),
+      setUpdateNotices: (updateNotices) => set({ updateNotices }),
     }),
     {
       name: DISPLAY_PREFS_STORAGE_KEY,
@@ -329,6 +337,7 @@ export const useDisplayPrefs = create<DisplayPrefsState>()(
         marketTimezone: s.marketTimezone,
         timeFormat: s.timeFormat,
         tradeDateBasis: s.tradeDateBasis,
+        updateNotices: s.updateNotices,
       }),
       merge: (persisted, current) => {
         const raw = persisted as (Partial<DisplayPrefsState> & { currency?: string }) | undefined;
@@ -365,6 +374,8 @@ export const useDisplayPrefs = create<DisplayPrefsState>()(
           marketTimezone,
           timeFormat,
           tradeDateBasis,
+          updateNotices:
+            typeof raw?.updateNotices === "boolean" ? raw.updateNotices : current.updateNotices,
         };
       },
     },
