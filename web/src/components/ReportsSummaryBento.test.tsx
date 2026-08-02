@@ -21,6 +21,11 @@ const summary: Summary = {
   largest_win: 200,
   largest_loss: 150,
   total_fees: 20,
+  median_win: 90,
+  median_loss: 80,
+  median_trade: 10,
+  kelly_pct: 25,
+  sqn: 2.6,
 };
 
 describe("ReportsSummaryBento", () => {
@@ -104,6 +109,54 @@ describe("ReportsSummaryBento", () => {
     // Ratios stay unchanged.
     expect(screen.getByText("1.71")).toBeInTheDocument();
     expect(screen.getByText("60%")).toBeInTheDocument();
+  });
+
+  it("renders Kelly % and SQN tiles from the summary", () => {
+    render(<ReportsSummaryBento summary={summary} trades={[]} currency="USD" />);
+    expect(screen.getByText("Kelly %")).toBeInTheDocument();
+    expect(screen.getByText("25.0%")).toBeInTheDocument();
+    expect(screen.getByText("SQN")).toBeInTheDocument();
+    expect(screen.getByText("2.60")).toBeInTheDocument();
+    expect(screen.getByText("system quality: good")).toBeInTheDocument();
+  });
+
+  it("falls back to placeholders when kelly/sqn are unavailable", () => {
+    const legacy: Summary = {
+      ...summary,
+      median_win: undefined,
+      median_loss: undefined,
+      median_trade: undefined,
+      kelly_pct: undefined,
+      sqn: undefined,
+    };
+    render(<ReportsSummaryBento summary={legacy} trades={[]} currency="USD" />);
+    expect(screen.getByText("needs a win and a loss")).toBeInTheDocument();
+    expect(screen.getByText("needs 2+ varied trades")).toBeInTheDocument();
+  });
+
+  it("swaps avg stats for medians when avgMode is median", () => {
+    render(
+      <ReportsDisplayProvider
+        value={{
+          pnlMode: "net",
+          unitMode: "abs",
+          avgMode: "median",
+          denominator: 0,
+          currency: "USD",
+          fxRate: 1,
+        }}
+      >
+        <ReportsSummaryBento summary={summary} trades={[]} />
+      </ReportsDisplayProvider>,
+    );
+    expect(screen.getByText("Median win")).toBeInTheDocument();
+    expect(screen.getByText("Median loss")).toBeInTheDocument();
+    expect(screen.getByText("Median trade")).toBeInTheDocument();
+    expect(screen.getByText("+$90.00")).toBeInTheDocument();
+    expect(screen.getByText("+$80.00")).toBeInTheDocument();
+    expect(screen.getByText("median win ÷ median loss")).toBeInTheDocument();
+    // Payoff recomputes from medians: 90/80 = 1.13×
+    expect(screen.getByText("1.13×")).toBeInTheDocument();
   });
 
   it("shows a percentage of the denominator when unitMode is pct", () => {
