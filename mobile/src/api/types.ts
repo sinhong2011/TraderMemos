@@ -58,7 +58,106 @@ export type Trade = {
   time_in_trade_secs: number | null;
   notes: string;
   tags: Tag[];
-  initial_risk?: number;
+  initial_risk?: number | null;
+  /** Journal quick-filter fields on list rows (absent until the API is current). */
+  setup_id?: string | null;
+  emotional_state?: string;
+  confidence?: number | null;
+  trade_quality?: number | null;
+};
+
+/** One fill (api/internal/api/dto.go executionDTO). */
+export type Execution = {
+  id: string;
+  user_id: string;
+  account_id: string;
+  external_id: string | null;
+  symbol: string;
+  instrument_type: string;
+  side: string;
+  quantity: number;
+  price: number;
+  fees: number;
+  commission: number;
+  executed_at: string;
+  multiplier: number;
+  /** Option contract fields: option_right, strike, expiry (and optional lot). */
+  details: Record<string, string> | null;
+  import_batch_id: string | null;
+  dedup_hash: string;
+  created_at: string;
+};
+
+export type Setup = {
+  id: string;
+  user_id: string;
+  name: string;
+  description: string;
+  created_at: string;
+  thesis: string;
+  symbol: string;
+  direction: string;
+  target_price: number | null;
+  stop_price: number | null;
+  checklist: string[];
+};
+
+export type TradeAttachment = {
+  id: string;
+  user_id: string;
+  trade_id: string;
+  filename: string;
+  content_type: string;
+  size_bytes: number;
+  storage_key: string;
+  created_at: string;
+};
+
+/**
+ * GET /trades/{id} — the enriched payload (tradeDetailDTO in
+ * api/internal/api/trade_detail.go): trade plus fills, journal, and attachments.
+ */
+export type TradeDetail = Omit<Trade, 'initial_risk'> & {
+  fills: Execution[];
+  /** Main setup; additional linked setup ids are in setup_ids (first = main). */
+  setup: Setup | null;
+  setup_ids: string[];
+  initial_risk: number | null;
+  target_price: number | null;
+  stop_price: number | null;
+  r_multiple: number | null;
+  emotional_state: string;
+  confidence: number | null;
+  trade_quality: number | null;
+  mae: number | null;
+  mfe: number | null;
+  dividend_total: number;
+  total_pnl: number | null;
+  attachments: TradeAttachment[];
+};
+
+/** GET /market/bars (api/internal/marketdata/types.go). Wire intervals: 1|5|15|60|240|D. */
+export type BarInterval = '1' | '5' | '15' | '60' | '240' | 'D';
+
+export type MarketBar = {
+  /** Unix seconds, UTC. */
+  time: number;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  volume: number;
+};
+
+export type MarketBarsResponse = {
+  symbol: string;
+  interval: BarInterval;
+  from: string;
+  to: string;
+  /** "yahoo" | "finnhub" | "skipped" | "unavailable" — empty bars degrade gracefully. */
+  provider: string;
+  cached: boolean;
+  bars: MarketBar[];
 };
 
 export type Summary = {
@@ -103,6 +202,14 @@ export type DailyPnl = Record<string, number>;
 export type AnnualGoal = {
   year: number;
   amount: number | null;
+};
+
+/** GET/PUT /settings/risk-rules (riskRulesDTO) — null clears a rule. */
+export type RiskRules = {
+  max_risk_per_trade: number | null;
+  max_daily_loss: number | null;
+  max_open_risk: number | null;
+  default_account_risk_pct: number | null;
 };
 
 export type Account = {

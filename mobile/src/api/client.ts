@@ -55,24 +55,42 @@ function buildUrl(serverUrl: string, path: string, params?: QueryParams): string
   return url.toString();
 }
 
+/**
+ * One refresh at a time: when the access token expires, every in-flight query
+ * 401s at once — they must all await the same exchange instead of racing.
+ */
+let refreshInFlight: Promise<TokenPair> | null = null;
+
 /** Exchanges the refresh token for a new pair, persisting the result. */
-async function refreshTokens(serverUrl: string, refreshToken: string): Promise<TokenPair> {
-  const response = await fetch(buildUrl(serverUrl, '/auth/refresh'), {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ refresh_token: refreshToken }),
-  });
-  if (!response.ok) {
-    await clearTokens();
-    throw new UnauthorizedError('Could not refresh session');
-  }
-  const tokens = (await response.json()) as TokenPair;
-  await saveTokens(tokens);
-  return tokens;
+function refreshTokens(serverUrl: string, refreshToken: string): Promise<TokenPair> {
+  refreshInFlight ??= (async () => {
+    try {
+      const response = await fetch(buildUrl(serverUrl, '/auth/refresh'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh_token: refreshToken }),
+      });
+      if (!response.ok) {
+        // Only a definitive rejection invalidates the stored session. Wiping on
+        // transient failures (5xx, proxies) logged users out on the next boot.
+        if (response.status === 401 || response.status === 403) {
+          await clearTokens();
+          throw new UnauthorizedError('Could not refresh session');
+        }
+        throw await toApiError(response);
+      }
+      const tokens = (await response.json()) as TokenPair;
+      await saveTokens(tokens);
+      return tokens;
+    } finally {
+      refreshInFlight = null;
+    }
+  })();
+  return refreshInFlight;
 }
 
-type RequestOptions = {
-  method?: 'GET' | 'POST' | 'PATCH' | 'DELETE';
+export type RequestOptions = {
+  method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
   params?: QueryParams;
   body?: unknown;
 };
