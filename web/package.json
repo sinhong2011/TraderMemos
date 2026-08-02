@@ -84,7 +84,7 @@
     "jsdom": "^25.0.0",
     "serwist": "^9.5.11",
     "tailwindcss": "^4.0.0",
-    "typescript": "^5.7.0",
+    "typescript": "^7.0.2",
     "vite": "catalog:",
     "vite-plus": "catalog:",
     "vitest": "catalog:",
