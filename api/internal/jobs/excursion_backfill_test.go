@@ -2,6 +2,7 @@ package jobs_test
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"io"
 	"log/slog"
@@ -41,6 +42,16 @@ func (p *barProvider) FetchBars(_ context.Context, req marketdata.Request) ([]ma
 	return bars, nil
 }
 
+// missingParams mirrors the production cutoffs for ListTradesMissingExcursion.
+func missingParams(limit int64) store.ListTradesMissingExcursionParams {
+	now := time.Now().UTC()
+	return store.ListTradesMissingExcursionParams{
+		PostCutoff: sql.NullTime{Time: now.Add(-time.Hour), Valid: true},
+		PostFloor:  sql.NullTime{Time: now.Add(-60 * 24 * time.Hour), Valid: true},
+		RowLimit:   limit,
+	}
+}
+
 // seedClosedTrade builds one closed round-trip (100 @ 10 → 12, 30-minute
 // hold, opened two days ago) through the real grouping engine.
 func seedClosedTrade(t *testing.T, q *store.Queries, symbol string) (userID, tradeID string) {
@@ -73,7 +84,7 @@ func seedClosedTrade(t *testing.T, q *store.Queries, symbol string) (userID, tra
 	}
 	require.NoError(t, trades.NewService(q).Regroup(ctx, u.ID, acc.ID))
 
-	rows, err := q.ListTradesMissingExcursion(ctx, 10)
+	rows, err := q.ListTradesMissingExcursion(ctx, missingParams(10))
 	require.NoError(t, err)
 	require.Len(t, rows, 1)
 	return u.ID, rows[0].ID
@@ -103,9 +114,13 @@ func TestExcursionBackfillFillsMissingMfe(t *testing.T) {
 	require.InDelta(t, 300, j.Mfe.Float64, 0.01) // (13 − 10) × 100 at the bar high
 	require.True(t, j.Mae.Valid)
 	require.InDelta(t, 100, j.Mae.Float64, 0.01) // (10 − 9) × 100 at the bar low
+	require.True(t, j.PostExitMfe.Valid)
+	require.InDelta(t, 100, j.PostExitMfe.Float64, 0.01) // (13 − 12) × 100 past the exit
+	require.True(t, j.PostExitMae.Valid)
+	require.InDelta(t, 300, j.PostExitMae.Float64, 0.01) // (12 − 9) × 100 past the exit
 
 	// Nothing left to backfill.
-	rows, err := q.ListTradesMissingExcursion(context.Background(), 10)
+	rows, err := q.ListTradesMissingExcursion(context.Background(), missingParams(10))
 	require.NoError(t, err)
 	require.Empty(t, rows)
 }

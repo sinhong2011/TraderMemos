@@ -614,8 +614,12 @@ func (p *PG) UpdateFlexSyncStatus(ctx context.Context, arg UpdateFlexSyncStatusP
 	return p.q.UpdateFlexSyncStatus(ctx, storepg.UpdateFlexSyncStatusParams(arg))
 }
 
-func (p *PG) ListTradesMissingExcursion(ctx context.Context, limit int64) ([]Trade, error) {
-	v, err := p.q.ListTradesMissingExcursion(ctx, int32(limit))
+func (p *PG) ListTradesMissingExcursion(ctx context.Context, arg ListTradesMissingExcursionParams) ([]Trade, error) {
+	v, err := p.q.ListTradesMissingExcursion(ctx, storepg.ListTradesMissingExcursionParams{
+		PostCutoff: arg.PostCutoff,
+		PostFloor:  arg.PostFloor,
+		RowLimit:   int32(arg.RowLimit),
+	})
 	if err != nil {
 		return nil, err
 	}

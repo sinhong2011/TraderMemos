@@ -48,6 +48,8 @@ function baseTrade(over: Partial<TradeDetail> = {}): TradeDetail {
     trade_quality: 5,
     mae: 40,
     mfe: 1200,
+    post_exit_mae: null,
+    post_exit_mfe: null,
     dividend_total: 0,
     total_pnl: 950,
     attachments: [],
@@ -72,9 +74,35 @@ describe("computeTradeInsights", () => {
     expect(i.mfeCapturePct).toBeNull();
     expect(i.leftOnTable).toBeNull();
   });
+
+  it("passes post-exit excursion through", () => {
+    const i = computeTradeInsights(baseTrade({ post_exit_mfe: 320, post_exit_mae: 45 }));
+    expect(i.postExitMfe).toBe(320);
+    expect(i.postExitMae).toBe(45);
+    expect(computeTradeInsights(baseTrade()).postExitMfe).toBeNull();
+  });
 });
 
 describe("generateTradeCoachNotes", () => {
+  it("notes a missed run after the exit in R terms", () => {
+    const trade = baseTrade({ post_exit_mfe: 400, post_exit_mae: 30 });
+    const notes = generateTradeCoachNotes(trade, computeTradeInsights(trade));
+    expect(notes.some((n) => n.headline === "~2.0R more ran after your exit")).toBe(true);
+  });
+
+  it("credits a well-timed exit when price dropped after the close", () => {
+    const trade = baseTrade({ post_exit_mfe: 50, post_exit_mae: 300 });
+    const notes = generateTradeCoachNotes(trade, computeTradeInsights(trade));
+    const note = notes.find((n) => n.headline === "Exit dodged ~1.5R of drawdown");
+    expect(note?.tone).toBe("pos");
+  });
+
+  it("stays quiet on post-exit when the excursion is unremarkable", () => {
+    const trade = baseTrade({ post_exit_mfe: 100, post_exit_mae: 120 });
+    const notes = generateTradeCoachNotes(trade, computeTradeInsights(trade));
+    expect(notes.some((n) => n.id === "exited-early" || n.id === "well-timed-exit")).toBe(false);
+  });
+
   it("flags no plan, overconfidence, and fee drag on a losing scratch trade", () => {
     const trade = baseTrade({
       net_pnl: -171.83,

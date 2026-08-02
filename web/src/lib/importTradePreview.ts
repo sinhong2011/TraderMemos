@@ -122,6 +122,8 @@ export function tradeDetailFromJournalPreview(
     trade_quality: null,
     mae: null,
     mfe: null,
+    post_exit_mae: null,
+    post_exit_mfe: null,
     dividend_total: trade.dividends ?? 0,
     total_pnl: trade.return_usd,
     attachments: [],
