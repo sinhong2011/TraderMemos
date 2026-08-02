@@ -13,7 +13,9 @@ function RootComponent() {
   return (
     <>
       <AppShell />
-      {import.meta.env.DEV ? (
+      {/* VITE_E2E hides the devtools trigger — its overlay intercepts clicks
+          and breaks Playwright runs. */}
+      {import.meta.env.DEV && !import.meta.env.VITE_E2E ? (
         <TanStackDevtools
           config={{ position: "bottom-right" }}
           plugins={[

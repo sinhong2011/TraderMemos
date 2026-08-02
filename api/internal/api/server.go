@@ -146,6 +146,7 @@ func (s *Server) routes() {
 		protected.Use(auth.Middleware(s.deps.JWT, s.deps.Store, s.deps.Store))
 	}
 	s.accountRoutes(protected)
+	s.propRoutes(protected)
 	s.executionRoutes(protected)
 	s.cashRoutes(protected)
 	s.importRoutes(protected)

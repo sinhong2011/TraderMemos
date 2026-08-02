@@ -554,10 +554,23 @@ function Step2Map({ preview, currency, accountId, onCommit, onBack, error, loadi
               TraderMemos JSON execution export — fills import directly, no column mapping needed.
             </p>
           ) : (
-            <p className="m-0 text-[12px] leading-relaxed text-muted-foreground">
-              Match each field to a CSV column. Instrument type is optional — map Market/Asset Type
-              for mixed files, or skip to infer from each symbol.
-            </p>
+            <div className="flex flex-col gap-2">
+              {preview.detected_broker ? (
+                <p className="m-0 text-[12px] leading-relaxed">
+                  <span className="rounded-md bg-primary/10 px-1.5 py-0.5 font-medium text-primary">
+                    Detected: {preview.detected_broker}
+                  </span>{" "}
+                  <span className="text-muted-foreground">
+                    Columns are pre-mapped from this broker&apos;s export format — review and adjust
+                    if needed.
+                  </span>
+                </p>
+              ) : null}
+              <p className="m-0 text-[12px] leading-relaxed text-muted-foreground">
+                Match each field to a CSV column. Instrument type is optional — map Market/Asset
+                Type for mixed files, or skip to infer from each symbol.
+              </p>
+            </div>
           )}
 
           {!skipMapping && (
@@ -576,6 +589,16 @@ function Step2Map({ preview, currency, accountId, onCommit, onBack, error, loadi
                     ariaLabel={`Map ${field}`}
                     options={[
                       { value: "", label: "(skip)" },
+                      // Broker presets can pin a constant (e.g. "=future");
+                      // surface it as a selectable option so it isn't blank.
+                      ...(mapping[field]?.startsWith("=")
+                        ? [
+                            {
+                              value: mapping[field],
+                              label: `always "${mapping[field].slice(1)}"`,
+                            },
+                          ]
+                        : []),
                       ...preview.headers.map((h) => ({ value: h, label: h })),
                     ]}
                     triggerClassName="h-8 w-full text-[12px] normal-case"

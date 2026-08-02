@@ -1,5 +1,12 @@
 import { apiFetch, qs } from "./client";
-import type { BreakGroup, EquityCurve, Filters, RSummary, Summary } from "./types";
+import type {
+  BreakGroup,
+  ComplianceReport,
+  EquityCurve,
+  Filters,
+  RSummary,
+  Summary,
+} from "./types";
 
 export const analyticsApi = {
   summary: (f: Filters) =>
@@ -11,6 +18,10 @@ export const analyticsApi = {
   daily: (f: Filters) =>
     apiFetch<Record<string, number>>(
       `/analytics/daily${qs(f as Record<string, string | undefined>)}`,
+    ),
+  compliance: (f: Filters) =>
+    apiFetch<ComplianceReport>(
+      `/analytics/compliance${qs(f as Record<string, string | undefined>)}`,
     ),
   breakdown: (by: string, f: Filters) =>
     apiFetch<BreakGroup[]>(

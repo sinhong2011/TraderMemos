@@ -4,7 +4,7 @@ import { HomeView } from "@/app/screens/HomeView";
 import type { HomeBreakdownDim } from "@/components/HomeBreakdownChart";
 import { TradeDetailSheet } from "@/components/TradeDetailSheet";
 import { ytdFiltersForYear } from "@/lib/annualGoal";
-import { buildDayRecords } from "@/lib/calendar";
+import { buildDayRecords, dayKeyInTz } from "@/lib/calendar";
 import { normalizeFilterDate, useFilterParams, useFilters } from "@/lib/filters";
 import { computeHeaderStats } from "@/lib/headerStats";
 import { useAccounts } from "@/lib/hooks/useAccounts";
@@ -115,6 +115,7 @@ function HomePage() {
         calendarYear={calendarYear}
         calendarMonth={calendarMonth}
         dailyPnl={dailyQ.data ?? {}}
+        todayNetPnl={dailyQ.data?.[dayKeyInTz(now.toISOString(), filters.tz)] ?? 0}
         dayRecords={calendarDayRecords}
         dailyLoading={dailyQ.isLoading}
         dailyError={dailyQ.isError}

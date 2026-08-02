@@ -276,6 +276,26 @@ func (p *PG) GetOcrSettings(ctx context.Context) (GetOcrSettingsRow, error) {
 	return GetOcrSettingsRow(v), nil
 }
 
+func (p *PG) GetPropSettings(ctx context.Context, arg GetPropSettingsParams) (PropSetting, error) {
+	v, err := p.q.GetPropSettings(ctx, storepg.GetPropSettingsParams(arg))
+	if err != nil {
+		return PropSetting{}, err
+	}
+	return PropSetting(v), nil
+}
+
+func (p *PG) UpsertPropSettings(ctx context.Context, arg UpsertPropSettingsParams) (PropSetting, error) {
+	v, err := p.q.UpsertPropSettings(ctx, storepg.UpsertPropSettingsParams(arg))
+	if err != nil {
+		return PropSetting{}, err
+	}
+	return PropSetting(v), nil
+}
+
+func (p *PG) DeletePropSettings(ctx context.Context, arg DeletePropSettingsParams) error {
+	return p.q.DeletePropSettings(ctx, storepg.DeletePropSettingsParams(arg))
+}
+
 func (p *PG) GetRiskRules(ctx context.Context, userID string) (RiskRule, error) {
 	v, err := p.q.GetRiskRules(ctx, userID)
 	if err != nil {

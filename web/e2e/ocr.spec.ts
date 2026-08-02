@@ -60,20 +60,29 @@ test("scan screenshot prefills new trade and saves", async ({ page }) => {
   });
 
   await signIn(page);
+  await page.getByRole("button", { name: "Create", exact: true }).first().click();
   await page.getByRole("button", { name: "New Trade" }).click();
-  await expect(page.getByText("Log any trade you've entered")).toBeVisible();
+  await expect(page.getByRole("dialog", { name: "New Trade" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Prefill trade from screenshot" })).toBeVisible();
 
   await page.getByTestId("ocr-scan-input").setInputFiles(FIXTURE);
 
-  await expect(page.getByLabel("Symbol", { exact: true })).toHaveValue(symbol);
-  await expect(page.getByLabel("Qty row 1")).toHaveValue("8");
-  await expect(page.getByLabel("Price row 1")).toHaveValue("12.34");
-  await expect(page.getByLabel("Commission row 1")).toHaveValue("0.5");
-  await expect(page.getByRole("button", { name: /Toggle action row 1/i })).toHaveText(/BUY/i);
+  // The scan may append its own symbol block; every Symbol input gets the ticker.
+  await expect(page.getByRole("textbox", { name: "Symbol", exact: true }).first()).toHaveValue(
+    symbol,
+  );
+  await expect(page.getByLabel("Qty row 1").first()).toHaveValue("8");
+  await expect(page.getByLabel("Price row 1").first()).toHaveValue("12.34");
+  // Fees and commission merged into a single Fee input per row.
+  await expect(page.getByLabel("Fee row 1").first()).toHaveValue("0.5");
+  await expect(page.getByRole("button", { name: /Toggle action.*row 1/i }).first()).toHaveText(
+    /BUY/i,
+  );
 
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByText("Log any trade you've entered")).toBeHidden();
+  await expect(page.getByRole("dialog", { name: "New Trade" })).toBeHidden();
+  // Home's recent-trades card caps its rows, so assert on the full trades log.
+  await page.getByRole("link", { name: "Trades" }).click();
   await expect(page.locator("tbody").getByText(symbol)).toBeVisible({ timeout: 10_000 });
   await expect(page.locator("tbody").getByText("OPEN").first()).toBeVisible();
 });
@@ -90,13 +99,14 @@ test("scan screenshot surfaces OCR unavailable without crashing the drawer", asy
   });
 
   await signIn(page);
+  await page.getByRole("button", { name: "Create", exact: true }).first().click();
   await page.getByRole("button", { name: "New Trade" }).click();
-  await expect(page.getByText("Log any trade you've entered")).toBeVisible();
+  await expect(page.getByRole("dialog", { name: "New Trade" })).toBeVisible();
 
   await page.getByTestId("ocr-scan-input").setInputFiles(FIXTURE);
 
   // Toast + drawer stay usable so the trader can still type the trade.
   await expect(page.getByText(/ocr not configured|OCR failed/i).first()).toBeVisible();
-  await expect(page.getByText("Log any trade you've entered")).toBeVisible();
-  await expect(page.getByLabel("Symbol", { exact: true })).toBeVisible();
+  await expect(page.getByRole("dialog", { name: "New Trade" })).toBeVisible();
+  await expect(page.getByRole("textbox", { name: "Symbol", exact: true })).toBeVisible();
 });

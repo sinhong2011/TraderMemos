@@ -154,13 +154,21 @@ func (s *Server) handleImportPreview(c echo.Context) error {
 		sample = sample[:5]
 	}
 	suggested := importer.SuggestMapping(loaded.Headers)
+	detectedBroker := ""
 	if loaded.Format == "journal_trades" {
 		suggested = map[string]string{}
+	} else if name, presetMap, ok := importer.MatchBroker(loaded.Headers); ok {
+		// A recognized broker export beats header-substring guessing.
+		for field, header := range presetMap {
+			suggested[field] = header
+		}
+		detectedBroker = name
 	}
 	resp := map[string]any{
 		"headers":           loaded.Headers,
 		"sample_rows":       sample,
 		"suggested_mapping": suggested,
+		"detected_broker":   detectedBroker,
 		"format":            loaded.Format,
 		"source":            source,
 		"row_count":         rowCount,
