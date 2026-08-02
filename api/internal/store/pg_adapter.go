@@ -584,6 +584,14 @@ func (p *PG) ListTrades(ctx context.Context, arg ListTradesParams) ([]Trade, err
 	return func() []Trade { in := v; out := make([]Trade, len(in)); for i := range in { out[i] = Trade(in[i]) }; return out }(), nil
 }
 
+func (p *PG) ListTradesMissingExcursion(ctx context.Context, limit int64) ([]Trade, error) {
+	v, err := p.q.ListTradesMissingExcursion(ctx, int32(limit))
+	if err != nil {
+		return nil, err
+	}
+	return func() []Trade { in := v; out := make([]Trade, len(in)); for i := range in { out[i] = Trade(in[i]) }; return out }(), nil
+}
+
 func (p *PG) RevokeAccessToken(ctx context.Context, arg RevokeAccessTokenParams) (int64, error) {
 	return p.q.RevokeAccessToken(ctx, storepg.RevokeAccessTokenParams(arg))
 }

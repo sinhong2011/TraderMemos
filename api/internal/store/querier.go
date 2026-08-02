@@ -89,6 +89,10 @@ type Querier interface {
 	ListTradeJournalsForUser(ctx context.Context, userID string) ([]TradeJournal, error)
 	ListTradeTagsForUser(ctx context.Context, userID string) ([]ListTradeTagsForUserRow, error)
 	ListTrades(ctx context.Context, arg ListTradesParams) ([]Trade, error)
+	// Closed, chart-eligible trades with no recorded MFE, newest first. Options
+	// are excluded up front: bars for OCC symbols chart the underlying, so auto
+	// excursion would mislead (same rule as the excursion endpoint).
+	ListTradesMissingExcursion(ctx context.Context, limit int64) ([]Trade, error)
 	RevokeAccessToken(ctx context.Context, arg RevokeAccessTokenParams) (int64, error)
 	SetImportBatchStatus(ctx context.Context, arg SetImportBatchStatusParams) error
 	SetTradeSetup(ctx context.Context, arg SetTradeSetupParams) error

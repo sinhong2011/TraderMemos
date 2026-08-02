@@ -63,38 +63,50 @@ type Config struct {
 	// another origin (e.g. Vercel/Cloudflare Pages). Empty = CORS off
 	// (same-origin Docker / reverse-proxy default).
 	CORSOrigins []string
+	// JobsEnabled is the global background-job kill switch (TM_JOBS_ENABLED).
+	// Disable on extra replicas so scheduled work runs on one instance only.
+	JobsEnabled bool
+	// JobExcursionIntervalMin is minutes between MAE/MFE backfill passes;
+	// 0 disables the job.
+	JobExcursionIntervalMin int
+	// JobExcursionLimit caps trades attempted per pass (each attempt may call
+	// the market data provider); 0 disables the job.
+	JobExcursionLimit int
 }
 
 func Load() (Config, error) {
 	k := koanf.New(".")
 	_ = k.Load(confmap.Provider(map[string]interface{}{
-		"http_port":                 "8080",
-		"database_url":              "",
-		"db_path":                   "data/tradermemos.db",
-		"jwt_secret":                DefaultInsecureJWTSecret,
-		"allow_insecure_jwt":        false,
-		"allow_registration":        false,
-		"default_currency":          "USD",
-		"log_level":                 "info",
-		"attach_max_bytes":          int64(10 << 20),
-		"attach_dir":                "",
-		"import_max_bytes":          int64(10 << 20),
-		"market_data_provider":      "yahoo",
-		"market_data_enabled":       true,
-		"econ_calendar_enabled":     true,
-		"econ_calendar_feed_url":    "",
-		"econ_calendar_refresh_min": 60,
-		"ocr_enabled":               false,
-		"ocr_max_bytes":             int64(10 << 20),
-		"ocr_vision_base_url":       "https://api.openai.com/v1",
-		"ocr_vision_api_key":        "",
-		"ocr_vision_model":          "gpt-4o-mini",
-		"ocr_vision_timeout_sec":    90,
-		"coach_enabled":             false,
-		"coach_base_url":            "https://api.openai.com/v1",
-		"coach_api_key":             "",
-		"coach_model":               "gpt-4o-mini",
-		"cors_origins":              "",
+		"http_port":                  "8080",
+		"database_url":               "",
+		"db_path":                    "data/tradermemos.db",
+		"jwt_secret":                 DefaultInsecureJWTSecret,
+		"allow_insecure_jwt":         false,
+		"allow_registration":         false,
+		"default_currency":           "USD",
+		"log_level":                  "info",
+		"attach_max_bytes":           int64(10 << 20),
+		"attach_dir":                 "",
+		"import_max_bytes":           int64(10 << 20),
+		"market_data_provider":       "yahoo",
+		"market_data_enabled":        true,
+		"econ_calendar_enabled":      true,
+		"econ_calendar_feed_url":     "",
+		"econ_calendar_refresh_min":  60,
+		"ocr_enabled":                false,
+		"ocr_max_bytes":              int64(10 << 20),
+		"ocr_vision_base_url":        "https://api.openai.com/v1",
+		"ocr_vision_api_key":         "",
+		"ocr_vision_model":           "gpt-4o-mini",
+		"ocr_vision_timeout_sec":     90,
+		"coach_enabled":              false,
+		"coach_base_url":             "https://api.openai.com/v1",
+		"coach_api_key":              "",
+		"coach_model":                "gpt-4o-mini",
+		"cors_origins":               "",
+		"jobs_enabled":               true,
+		"job_excursion_interval_min": 360,
+		"job_excursion_limit":        10,
 	}, "."), nil)
 
 	// TM_HTTP_PORT -> http_port
@@ -111,32 +123,35 @@ func Load() (Config, error) {
 	}
 
 	cfg := Config{
-		HTTPPort:               httpPort,
-		JWTSecret:              k.String("jwt_secret"),
-		AllowInsecureJWT:       k.Bool("allow_insecure_jwt"),
-		AllowRegistration:      k.Bool("allow_registration"),
-		DefaultCurrency:        k.String("default_currency"),
-		LogLevel:               k.String("log_level"),
-		AttachMaxBytes:         k.Int64("attach_max_bytes"),
-		AttachDir:              k.String("attach_dir"),
-		ImportMaxBytes:         k.Int64("import_max_bytes"),
-		MarketDataProvider:     k.String("market_data_provider"),
-		MarketDataAPIKey:       k.String("market_data_api_key"),
-		MarketDataEnabled:      k.Bool("market_data_enabled"),
-		EconCalendarEnabled:    k.Bool("econ_calendar_enabled"),
-		EconCalendarFeedURL:    k.String("econ_calendar_feed_url"),
-		EconCalendarRefreshMin: k.Int("econ_calendar_refresh_min"),
-		OCREnabled:             k.Bool("ocr_enabled"),
-		OCRMaxBytes:            k.Int64("ocr_max_bytes"),
-		OCRVisionBaseURL:       k.String("ocr_vision_base_url"),
-		OCRVisionAPIKey:        k.String("ocr_vision_api_key"),
-		OCRVisionModel:         k.String("ocr_vision_model"),
-		OCRVisionTimeoutSec:    k.Int("ocr_vision_timeout_sec"),
-		CoachEnabled:           k.Bool("coach_enabled"),
-		CoachBaseURL:           k.String("coach_base_url"),
-		CoachAPIKey:            k.String("coach_api_key"),
-		CoachModel:             k.String("coach_model"),
-		CORSOrigins:            SplitCSV(k.String("cors_origins")),
+		HTTPPort:                httpPort,
+		JWTSecret:               k.String("jwt_secret"),
+		AllowInsecureJWT:        k.Bool("allow_insecure_jwt"),
+		AllowRegistration:       k.Bool("allow_registration"),
+		DefaultCurrency:         k.String("default_currency"),
+		LogLevel:                k.String("log_level"),
+		AttachMaxBytes:          k.Int64("attach_max_bytes"),
+		AttachDir:               k.String("attach_dir"),
+		ImportMaxBytes:          k.Int64("import_max_bytes"),
+		MarketDataProvider:      k.String("market_data_provider"),
+		MarketDataAPIKey:        k.String("market_data_api_key"),
+		MarketDataEnabled:       k.Bool("market_data_enabled"),
+		EconCalendarEnabled:     k.Bool("econ_calendar_enabled"),
+		EconCalendarFeedURL:     k.String("econ_calendar_feed_url"),
+		EconCalendarRefreshMin:  k.Int("econ_calendar_refresh_min"),
+		OCREnabled:              k.Bool("ocr_enabled"),
+		OCRMaxBytes:             k.Int64("ocr_max_bytes"),
+		OCRVisionBaseURL:        k.String("ocr_vision_base_url"),
+		OCRVisionAPIKey:         k.String("ocr_vision_api_key"),
+		OCRVisionModel:          k.String("ocr_vision_model"),
+		OCRVisionTimeoutSec:     k.Int("ocr_vision_timeout_sec"),
+		CoachEnabled:            k.Bool("coach_enabled"),
+		CoachBaseURL:            k.String("coach_base_url"),
+		CoachAPIKey:             k.String("coach_api_key"),
+		CoachModel:              k.String("coach_model"),
+		CORSOrigins:             SplitCSV(k.String("cors_origins")),
+		JobsEnabled:             k.Bool("jobs_enabled"),
+		JobExcursionIntervalMin: k.Int("job_excursion_interval_min"),
+		JobExcursionLimit:       k.Int("job_excursion_limit"),
 	}
 	if err := cfg.resolveDatabase(k.String("database_url"), k.String("db_path")); err != nil {
 		return Config{}, err
