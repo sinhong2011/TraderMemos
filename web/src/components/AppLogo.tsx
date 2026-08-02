@@ -9,11 +9,10 @@ type AppLogoProps = {
 };
 
 /**
- * TraderMemos app-icon tile — glowing glass T over a violet gradient, with a
- * rising equity line and mini P&L bars. Rendered from the raster master;
- * keep web/public icons and brand/app-icon-1024.png cut from the same source
- * (brand/app-icon-source.png). The small master drops the P&L bars, which
- * are an illegible smudge below ~32px.
+ * TraderMemos app-icon tile — white T over a blue gradient with rising
+ * candlesticks and mini P&L bars. Rendered from the raster master; keep
+ * web/public icons and brand/app-icon-1024.png cut from the same source
+ * (brand/app-icon-source.png).
  */
 export function AppLogo({ size = 32, className, title = "TraderMemos" }: AppLogoProps) {
   return (
