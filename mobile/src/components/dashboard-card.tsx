@@ -52,6 +52,6 @@ const styles = StyleSheet.create((theme) => ({
     gap: theme.spacing.md,
   },
   title: { fontSize: 12, fontWeight: '600', letterSpacing: 0.4, color: theme.colors.accent },
-  actionLabel: { fontSize: 13, fontWeight: '500', color: theme.colors.primary },
+  actionLabel: { fontSize: 13, fontWeight: '500', color: theme.colors.foreground },
   pressed: { opacity: 0.6 },
 }));

@@ -270,7 +270,7 @@ export default function LoginScreen() {
               <UIImage
                 systemName="externaldrive.badge.wifi"
                 size={28}
-                color={theme.colors.primary}
+                color={theme.colors.foreground}
                 modifiers={[
                   frame({ width: 60, height: 60 }),
                   background('rgba(4, 144, 200, 0.15)'),
@@ -369,7 +369,7 @@ const styles = StyleSheet.create((theme) => ({
     borderRadius: 12.5,
     borderCurve: 'continuous',
   },
-  intro: { gap: theme.spacing.xs, paddingTop: theme.spacing.sm },
+  intro: { gap: theme.spacing.xs, paddingTop: theme.spacing.sm, paddingBottom: theme.spacing.lg },
   title: { fontSize: 28, fontWeight: '700', color: theme.colors.foreground },
   subtitle: { fontSize: 15, color: theme.colors.mutedForeground },
   fields: { gap: theme.spacing.lg },
