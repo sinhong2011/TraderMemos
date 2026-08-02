@@ -211,6 +211,8 @@ export interface TradeDetail extends Trade {
   trade_quality: number | null;
   mae: number | null;
   mfe: number | null;
+  post_exit_mae: number | null;
+  post_exit_mfe: number | null;
   dividend_total: number;
   total_pnl: number | null;
   attachments: TradeAttachment[];

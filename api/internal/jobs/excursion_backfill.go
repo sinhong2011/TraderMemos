@@ -2,6 +2,7 @@ package jobs
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"log/slog"
 	"time"
@@ -9,6 +10,14 @@ import (
 	"github.com/tradermemos/api/internal/excursion"
 	"github.com/tradermemos/api/internal/marketdata"
 	"github.com/tradermemos/api/internal/store"
+)
+
+// Post-exit backfill bounds: wait an hour after the close so the window has
+// plausibly traded, and give up on trades older than 60 days (their fine bars
+// are gone anyway) so the queue converges.
+const (
+	postExitMinAge = time.Hour
+	postExitMaxAge = 60 * 24 * time.Hour
 )
 
 // NewExcursionBackfill returns a job that fills in missing MAE/MFE for closed
@@ -31,7 +40,12 @@ func NewExcursionBackfill(
 ) Job {
 	skip := make(map[string]struct{})
 	run := func(ctx context.Context) error {
-		rows, err := q.ListTradesMissingExcursion(ctx, int64(limit+len(skip)))
+		now := time.Now().UTC()
+		rows, err := q.ListTradesMissingExcursion(ctx, store.ListTradesMissingExcursionParams{
+			PostCutoff: sql.NullTime{Time: now.Add(-postExitMinAge), Valid: true},
+			PostFloor:  sql.NullTime{Time: now.Add(-postExitMaxAge), Valid: true},
+			RowLimit:   int64(limit + len(skip)),
+		})
 		if err != nil {
 			return err
 		}

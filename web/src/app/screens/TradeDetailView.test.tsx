@@ -225,6 +225,8 @@ const mockTrade: TradeDetail = {
   trade_quality: 5,
   mae: 50,
   mfe: 200,
+  post_exit_mae: null,
+  post_exit_mfe: null,
   dividend_total: 0,
   total_pnl: 747,
   attachments: [mockAttachment],

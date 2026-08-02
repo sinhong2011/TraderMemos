@@ -251,6 +251,8 @@ func (s *Server) handlePatchTrade(c echo.Context) error {
 			TargetPrice: target, StopPrice: stop,
 			EmotionalState: emotion, Confidence: confidence, TradeQuality: quality,
 			Mae: mae, Mfe: mfe,
+			// Auto-computed only — carried through so a journal PATCH keeps them.
+			PostExitMae: cur.PostExitMae, PostExitMfe: cur.PostExitMfe,
 		}); err != nil {
 			return Fail(http.StatusInternalServerError, "internal", "could not update journal", nil)
 		}

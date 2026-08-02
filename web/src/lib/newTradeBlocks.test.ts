@@ -72,6 +72,8 @@ const trade: TradeDetail = {
   trade_quality: 5,
   mae: null,
   mfe: null,
+  post_exit_mae: null,
+  post_exit_mfe: null,
   dividend_total: 0,
   total_pnl: 60.57,
   attachments: [],

@@ -280,6 +280,8 @@ type TradeJournal struct {
 	TradeQuality   sql.NullInt64   `json:"trade_quality"`
 	Mae            sql.NullFloat64 `json:"mae"`
 	Mfe            sql.NullFloat64 `json:"mfe"`
+	PostExitMae    sql.NullFloat64 `json:"post_exit_mae"`
+	PostExitMfe    sql.NullFloat64 `json:"post_exit_mfe"`
 }
 
 type TradeSetup struct {

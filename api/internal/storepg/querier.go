@@ -94,10 +94,14 @@ type Querier interface {
 	ListTradeJournalsForUser(ctx context.Context, userID string) ([]TradeJournal, error)
 	ListTradeTagsForUser(ctx context.Context, userID string) ([]ListTradeTagsForUserRow, error)
 	ListTrades(ctx context.Context, arg ListTradesParams) ([]Trade, error)
-	// Closed, chart-eligible trades with no recorded MFE, newest first. Options
-	// are excluded up front: bars for OCC symbols chart the underlying, so auto
-	// excursion would mislead (same rule as the excursion endpoint).
-	ListTradesMissingExcursion(ctx context.Context, limit int32) ([]Trade, error)
+	// Closed, chart-eligible trades with no recorded MFE -- or with MFE but no
+	// post-exit excursion yet -- newest first. Options are excluded up front: bars
+	// for OCC symbols chart the underlying, so auto excursion would mislead (same
+	// rule as the excursion endpoint). The post-exit arm waits until the window
+	// has plausibly traded (post_cutoff ~= now-1h) and gives up on trades older
+	// than post_floor, so the queue converges instead of retrying bar-less
+	// symbols forever.
+	ListTradesMissingExcursion(ctx context.Context, arg ListTradesMissingExcursionParams) ([]Trade, error)
 	RevokeAccessToken(ctx context.Context, arg RevokeAccessTokenParams) (int64, error)
 	SetImportBatchStatus(ctx context.Context, arg SetImportBatchStatusParams) error
 	SetTradeSetup(ctx context.Context, arg SetTradeSetupParams) error

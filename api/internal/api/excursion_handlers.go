@@ -17,6 +17,9 @@ type excursionResp struct {
 	Interval string  `json:"interval"`
 	BarsUsed int     `json:"bars_used"`
 	Provider string  `json:"provider"`
+	// Post-exit values are null until the window after the close has traded.
+	PostExitMae *float64 `json:"post_exit_mae"`
+	PostExitMfe *float64 `json:"post_exit_mfe"`
 }
 
 // handleTradeExcursion computes MAE/MFE for a closed trade from market bars
@@ -56,5 +59,6 @@ func (s *Server) handleTradeExcursion(c echo.Context) error {
 	return c.JSON(http.StatusOK, excursionResp{
 		Mae: res.Mae, Mfe: res.Mfe,
 		Interval: res.Interval, BarsUsed: res.BarsUsed, Provider: res.Provider,
+		PostExitMae: res.PostExitMae, PostExitMfe: res.PostExitMfe,
 	})
 }

@@ -11,7 +11,7 @@ import (
 )
 
 const getTradeJournal = `-- name: GetTradeJournal :one
-SELECT trade_id, user_id, notes, setup_id, initial_risk, updated_at, target_price, stop_price, emotional_state, confidence, trade_quality, mae, mfe FROM trade_journal WHERE trade_id = ? AND user_id = ?
+SELECT trade_id, user_id, notes, setup_id, initial_risk, updated_at, target_price, stop_price, emotional_state, confidence, trade_quality, mae, mfe, post_exit_mae, post_exit_mfe FROM trade_journal WHERE trade_id = ? AND user_id = ?
 `
 
 type GetTradeJournalParams struct {
@@ -36,12 +36,14 @@ func (q *Queries) GetTradeJournal(ctx context.Context, arg GetTradeJournalParams
 		&i.TradeQuality,
 		&i.Mae,
 		&i.Mfe,
+		&i.PostExitMae,
+		&i.PostExitMfe,
 	)
 	return i, err
 }
 
 const listTradeJournalsForUser = `-- name: ListTradeJournalsForUser :many
-SELECT trade_id, user_id, notes, setup_id, initial_risk, updated_at, target_price, stop_price, emotional_state, confidence, trade_quality, mae, mfe FROM trade_journal WHERE user_id = ?
+SELECT trade_id, user_id, notes, setup_id, initial_risk, updated_at, target_price, stop_price, emotional_state, confidence, trade_quality, mae, mfe, post_exit_mae, post_exit_mfe FROM trade_journal WHERE user_id = ?
 `
 
 func (q *Queries) ListTradeJournalsForUser(ctx context.Context, userID string) ([]TradeJournal, error) {
@@ -67,6 +69,8 @@ func (q *Queries) ListTradeJournalsForUser(ctx context.Context, userID string) (
 			&i.TradeQuality,
 			&i.Mae,
 			&i.Mfe,
+			&i.PostExitMae,
+			&i.PostExitMfe,
 		); err != nil {
 			return nil, err
 		}
@@ -84,9 +88,10 @@ func (q *Queries) ListTradeJournalsForUser(ctx context.Context, userID string) (
 const upsertTradeJournal = `-- name: UpsertTradeJournal :exec
 INSERT INTO trade_journal (
     trade_id, user_id, notes, setup_id, initial_risk, target_price, stop_price,
-    emotional_state, confidence, trade_quality, mae, mfe, updated_at
+    emotional_state, confidence, trade_quality, mae, mfe,
+    post_exit_mae, post_exit_mfe, updated_at
 )
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
 ON CONFLICT(trade_id) DO UPDATE SET
     notes = excluded.notes,
     setup_id = excluded.setup_id,
@@ -98,6 +103,8 @@ ON CONFLICT(trade_id) DO UPDATE SET
     trade_quality = excluded.trade_quality,
     mae = excluded.mae,
     mfe = excluded.mfe,
+    post_exit_mae = excluded.post_exit_mae,
+    post_exit_mfe = excluded.post_exit_mfe,
     updated_at = CURRENT_TIMESTAMP
 `
 
@@ -114,6 +121,8 @@ type UpsertTradeJournalParams struct {
 	TradeQuality   sql.NullInt64   `json:"trade_quality"`
 	Mae            sql.NullFloat64 `json:"mae"`
 	Mfe            sql.NullFloat64 `json:"mfe"`
+	PostExitMae    sql.NullFloat64 `json:"post_exit_mae"`
+	PostExitMfe    sql.NullFloat64 `json:"post_exit_mfe"`
 }
 
 func (q *Queries) UpsertTradeJournal(ctx context.Context, arg UpsertTradeJournalParams) error {
@@ -130,6 +139,8 @@ func (q *Queries) UpsertTradeJournal(ctx context.Context, arg UpsertTradeJournal
 		arg.TradeQuality,
 		arg.Mae,
 		arg.Mfe,
+		arg.PostExitMae,
+		arg.PostExitMfe,
 	)
 	return err
 }

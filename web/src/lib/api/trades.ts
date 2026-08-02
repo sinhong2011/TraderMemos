@@ -10,6 +10,8 @@ export interface TradeExcursion {
   interval: string;
   bars_used: number;
   provider: string;
+  post_exit_mae: number | null;
+  post_exit_mfe: number | null;
 }
 
 export const tradesApi = {

@@ -7,22 +7,36 @@ package storepg
 
 import (
 	"context"
+	"database/sql"
 )
 
 const listTradesMissingExcursion = `-- name: ListTradesMissingExcursion :many
 SELECT t.id, t.user_id, t.account_id, t.symbol, t.instrument_type, t.direction, t.status, t.opened_at, t.closed_at, t.qty_opened, t.avg_entry_price, t.avg_exit_price, t.gross_pnl, t.fees_total, t.net_pnl, t.pnl_currency, t.return_pct, t.r_multiple, t.time_in_trade_secs, t.notes, t.created_at, t.updated_at, t.qty_remaining FROM trades t
 LEFT JOIN trade_journal j ON j.trade_id = t.id
 WHERE t.status = 'closed' AND t.instrument_type != 'option'
-  AND (j.trade_id IS NULL OR j.mfe IS NULL)
+  AND (j.trade_id IS NULL OR j.mfe IS NULL
+       OR (j.post_exit_mfe IS NULL
+           AND t.closed_at <= $1
+           AND t.closed_at >= $2))
 ORDER BY t.closed_at DESC
-LIMIT $1
+LIMIT $3
 `
 
-// Closed, chart-eligible trades with no recorded MFE, newest first. Options
-// are excluded up front: bars for OCC symbols chart the underlying, so auto
-// excursion would mislead (same rule as the excursion endpoint).
-func (q *Queries) ListTradesMissingExcursion(ctx context.Context, limit int32) ([]Trade, error) {
-	rows, err := q.db.QueryContext(ctx, listTradesMissingExcursion, limit)
+type ListTradesMissingExcursionParams struct {
+	PostCutoff sql.NullTime `json:"post_cutoff"`
+	PostFloor  sql.NullTime `json:"post_floor"`
+	RowLimit   int32        `json:"row_limit"`
+}
+
+// Closed, chart-eligible trades with no recorded MFE -- or with MFE but no
+// post-exit excursion yet -- newest first. Options are excluded up front: bars
+// for OCC symbols chart the underlying, so auto excursion would mislead (same
+// rule as the excursion endpoint). The post-exit arm waits until the window
+// has plausibly traded (post_cutoff ~= now-1h) and gives up on trades older
+// than post_floor, so the queue converges instead of retrying bar-less
+// symbols forever.
+func (q *Queries) ListTradesMissingExcursion(ctx context.Context, arg ListTradesMissingExcursionParams) ([]Trade, error) {
+	rows, err := q.db.QueryContext(ctx, listTradesMissingExcursion, arg.PostCutoff, arg.PostFloor, arg.RowLimit)
 	if err != nil {
 		return nil, err
 	}
