@@ -1,6 +1,6 @@
 export PATH := $(HOME)/.local/share/pnpm:$(HOME)/go/bin:$(PATH)
 
-.PHONY: help setup setup-mobile dev dev-api dev-web dev-mobile run-ios build test test-api test-web lint lint-api lint-web lint-mobile check check-web check-mobile e2e sqlc kill up up-build up-postgres up-postgres-build down logs demo-seed
+.PHONY: help setup setup-mobile dev dev-api dev-web dev-mobile run-ios prebuild-ios rebuild-ios build test test-api test-web lint lint-api lint-web lint-mobile check check-web check-mobile e2e sqlc kill up up-build up-postgres up-postgres-build down logs demo-seed
 
 # Default: show available targets
 help: ## List available targets
@@ -43,6 +43,15 @@ dev-mobile: ## Run Metro for the mobile dev build (open the TraderMemos app in t
 
 run-ios: ## Build + install the iOS dev client (needed after native dep / app.json changes)
 	cd mobile && $(NO_PROXY_ENV) npx expo run:ios
+
+# `expo prebuild --clean` wipes the hand-applied UIScene adoption (expo/expo#46663) and
+# the app would trap at launch — the patch script restores it right after regeneration.
+# Never run a bare `expo prebuild --clean`; always go through this target.
+prebuild-ios: ## Regenerate ios/ from scratch (prebuild --clean + re-apply UIScene patch)
+	cd mobile && $(NO_PROXY_ENV) npx expo prebuild --clean --platform ios
+	mobile/scripts/apply-ios-scene-patch.sh
+
+rebuild-ios: prebuild-ios run-ios ## Full native rebuild: clean prebuild, patch, build + install
 
 kill: ## Free API/web ports (air + listeners on 8080/5173)
 	@./scripts/release-ports.sh

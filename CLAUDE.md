@@ -46,16 +46,18 @@ components driven from React.
   URL and the simulator can't load the app. The `make` targets already strip them — if
   running `pnpm start` / `expo run:ios` by hand, prefix with
   `env -u HTTP_PROXY -u HTTPS_PROXY`.
-- **Don't run `expo prebuild --clean`.** The iOS 27 SDK requires the UIScene lifecycle, which
+- **Never run a bare `expo prebuild --clean` — use `make prebuild-ios`** (or `make rebuild-ios`
+  for prebuild + build + install). The iOS 27 SDK requires the UIScene lifecycle, which
   Expo's template doesn't generate yet (expo/expo#46663), so `ios/TraderMemos/AppDelegate.swift`
   and `Info.plist` carry hand-applied scene adoption (a `SceneDelegate` class +
   `UIApplicationSceneManifest`). A clean prebuild wipes those edits and the app will trap at
-  launch (`EXC_BREAKPOINT` in `UIApplicationEvaluateRuntimeIssueForNoSceneLifecycleAdoption`)
-  until they're re-applied. When re-applying: in `scene(_:willConnectTo:options:)` a
-  cold-launch deep link must be merged into `launchOptions[.url]` *before*
-  `startReactNative` — dispatching it as an open-url event afterwards makes
-  expo-dev-launcher start a second React instance concurrently with the first and
-  Hermes segfaults (`EXC_BAD_ACCESS` in `AppContext.prepareRuntime`).
+  launch (`EXC_BREAKPOINT` in `UIApplicationEvaluateRuntimeIssueForNoSceneLifecycleAdoption`).
+  The make target restores them via `mobile/scripts/apply-ios-scene-patch.sh` (canonical
+  patched AppDelegate lives in `mobile/patches/ios-scene/`). Key invariant if editing the
+  patch: in `scene(_:willConnectTo:options:)` a cold-launch deep link must be merged into
+  `launchOptions[.url]` *before* `startReactNative` — dispatching it as an open-url event
+  afterwards makes expo-dev-launcher start a second React instance concurrently with the
+  first and Hermes segfaults (`EXC_BAD_ACCESS` in `AppContext.prepareRuntime`).
 
 ### Upgrading dependencies
 

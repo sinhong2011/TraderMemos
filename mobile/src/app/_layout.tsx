@@ -2,15 +2,32 @@ import { I18nProvider } from '@lingui/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
 import { Stack } from 'expo-router/stack';
-import { useMemo } from 'react';
+import * as SplashScreen from 'expo-splash-screen';
+import { useEffect, useMemo } from 'react';
 import { useColorScheme } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { useUnistyles } from 'react-native-unistyles';
 
 import { UnauthorizedError } from '@/api/client';
+import { useSession } from '@/api/session';
 import { SessionProvider } from '@/api/session-provider';
 import { i18n } from '@/i18n';
+
+// Hold the native splash through the SecureStore session read so cold start
+// goes splash → first real screen (tabs or login), never a spinner or a flash
+// of the wrong route. Must run at module scope — inside a component it can
+// race the auto-hide.
+SplashScreen.preventAutoHideAsync();
+SplashScreen.setOptions({ fade: true, duration: 350 });
+
+function SplashGate() {
+  const { isLoading } = useSession();
+  useEffect(() => {
+    if (!isLoading) SplashScreen.hide();
+  }, [isLoading]);
+  return null;
+}
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -52,6 +69,7 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
     <I18nProvider i18n={i18n}>
       <SessionProvider>
+        <SplashGate />
         <QueryClientProvider client={queryClient}>
         <ThemeProvider value={navTheme}>
           <Stack screenOptions={{ headerShown: false }}>

@@ -43,7 +43,7 @@
         {
           "backgroundColor": "#001340",
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "imageWidth": 120
         }
       ],
       "expo-localization"
