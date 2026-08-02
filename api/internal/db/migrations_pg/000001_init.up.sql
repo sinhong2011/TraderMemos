@@ -283,3 +283,18 @@ CREATE TABLE media_files (
     created_at   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX idx_media_files_user ON media_files(user_id);
+
+CREATE TABLE economic_events (
+    id         BIGSERIAL PRIMARY KEY,
+    provider   TEXT NOT NULL DEFAULT 'forexfactory',
+    title      TEXT NOT NULL,
+    country    TEXT NOT NULL,
+    impact     TEXT NOT NULL,
+    event_ts   TEXT NOT NULL,
+    forecast   TEXT NOT NULL DEFAULT '',
+    previous   TEXT NOT NULL DEFAULT '',
+    actual     TEXT NOT NULL DEFAULT '',
+    fetched_at TEXT NOT NULL,
+    UNIQUE (provider, country, title, event_ts)
+);
+CREATE INDEX idx_economic_events_ts ON economic_events(event_ts);

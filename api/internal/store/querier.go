@@ -28,6 +28,7 @@ type Querier interface {
 	DeleteExecutionsForAccount(ctx context.Context, arg DeleteExecutionsForAccountParams) error
 	DeleteExecutionsForBatch(ctx context.Context, arg DeleteExecutionsForBatchParams) error
 	DeleteExecutionsForTrade(ctx context.Context, arg DeleteExecutionsForTradeParams) error
+	DeleteFutureEconomicEvents(ctx context.Context, arg DeleteFutureEconomicEventsParams) error
 	DeleteJournalNote(ctx context.Context, arg DeleteJournalNoteParams) (int64, error)
 	DeleteMediaFile(ctx context.Context, arg DeleteMediaFileParams) (int64, error)
 	DeleteSetup(ctx context.Context, arg DeleteSetupParams) (int64, error)
@@ -43,6 +44,7 @@ type Querier interface {
 	GetAttachment(ctx context.Context, arg GetAttachmentParams) (TradeAttachment, error)
 	GetChecklistTemplate(ctx context.Context, userID string) (ChecklistTemplate, error)
 	GetCoachSettings(ctx context.Context) (CoachSetting, error)
+	GetEconomicEventsLastFetch(ctx context.Context, provider string) (string, error)
 	GetExecution(ctx context.Context, arg GetExecutionParams) (Execution, error)
 	GetExecutionByDedup(ctx context.Context, arg GetExecutionByDedupParams) (Execution, error)
 	GetImportBatch(ctx context.Context, arg GetImportBatchParams) (ImportBatch, error)
@@ -71,6 +73,7 @@ type Querier interface {
 	ListCashForTrade(ctx context.Context, arg ListCashForTradeParams) ([]CashTransaction, error)
 	ListCashTransactions(ctx context.Context, arg ListCashTransactionsParams) ([]CashTransaction, error)
 	ListClosedTrades(ctx context.Context, arg ListClosedTradesParams) ([]Trade, error)
+	ListEconomicEvents(ctx context.Context, arg ListEconomicEventsParams) ([]EconomicEvent, error)
 	ListExecutionsForAccount(ctx context.Context, arg ListExecutionsForAccountParams) ([]Execution, error)
 	ListExecutionsForTrade(ctx context.Context, tradeID string) ([]Execution, error)
 	ListImportBatches(ctx context.Context, userID string) ([]ImportBatch, error)
@@ -100,6 +103,7 @@ type Querier interface {
 	UpsertAnnualGoal(ctx context.Context, arg UpsertAnnualGoalParams) (AnnualGoal, error)
 	UpsertChecklistTemplate(ctx context.Context, arg UpsertChecklistTemplateParams) (ChecklistTemplate, error)
 	UpsertCoachSettings(ctx context.Context, arg UpsertCoachSettingsParams) (CoachSetting, error)
+	UpsertEconomicEvent(ctx context.Context, arg UpsertEconomicEventParams) error
 	UpsertInstrumentSpec(ctx context.Context, arg UpsertInstrumentSpecParams) error
 	UpsertMarketBarsCache(ctx context.Context, arg UpsertMarketBarsCacheParams) error
 	UpsertOcrSettings(ctx context.Context, arg UpsertOcrSettingsParams) (OcrSetting, error)

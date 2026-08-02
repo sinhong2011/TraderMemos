@@ -11,6 +11,7 @@ import (
 	"github.com/tradermemos/api/internal/auth"
 	"github.com/tradermemos/api/internal/config"
 	"github.com/tradermemos/api/internal/db"
+	"github.com/tradermemos/api/internal/econdata"
 	"github.com/tradermemos/api/internal/logging"
 	"github.com/tradermemos/api/internal/marketdata"
 	"github.com/tradermemos/api/internal/ocr"
@@ -69,6 +70,15 @@ func main() {
 		marketSvc = marketdata.NewService(q, provider)
 		logger.Info("market data enabled", "provider", provider.Name())
 	}
+	var econSvc *econdata.Service
+	if cfg.EconCalendarEnabled {
+		econProvider := econdata.NewFairEconomyProvider(cfg.EconCalendarFeedURL)
+		econSvc = econdata.NewService(q, econProvider)
+		if cfg.EconCalendarRefreshMin > 0 {
+			econSvc.TTL = time.Duration(cfg.EconCalendarRefreshMin) * time.Minute
+		}
+		logger.Info("economic calendar enabled", "provider", econProvider.Name())
+	}
 	var ocrSvc *ocr.Service
 	defaults := ocr.VisionConfig{
 		Enabled: cfg.OCREnabled,
@@ -105,6 +115,7 @@ func main() {
 		ImportMaxBytes: cfg.ImportMaxBytes,
 		OCRMaxBytes:    cfg.OCRMaxBytes,
 		Market:         marketSvc,
+		Econ:           econSvc,
 		OCR:            ocrSvc,
 		CoachDefaults:  coachDefaults,
 		CORSOrigins:    cfg.CORSOrigins,
