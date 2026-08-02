@@ -44,3 +44,18 @@ if (typeof Element !== "undefined" && !Element.prototype.scrollIntoView) {
 if (typeof Element !== "undefined" && !Element.prototype.getAnimations) {
   Element.prototype.getAnimations = () => [];
 }
+
+// jsdom has no PointerEvent constructor; base-ui's Switch re-dispatches click
+// activation as a pointer event.
+if (typeof globalThis.PointerEvent === "undefined") {
+  class PointerEventPolyfill extends MouseEvent {
+    pointerId: number;
+    pointerType: string;
+    constructor(type: string, init: PointerEventInit = {}) {
+      super(type, init);
+      this.pointerId = init.pointerId ?? 0;
+      this.pointerType = init.pointerType ?? "";
+    }
+  }
+  globalThis.PointerEvent = PointerEventPolyfill as unknown as typeof PointerEvent;
+}
