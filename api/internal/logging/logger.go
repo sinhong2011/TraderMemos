@@ -17,20 +17,15 @@ func New(level string) *slog.Logger {
 	return slog.New(slogzerolog.Option{Level: lvl, Logger: &zl}.NewZerologHandler())
 }
 
+// The slog-zerolog handler stamps each event with the record's time, so the
+// zerolog logger must not add its own Timestamp() — that duplicates the
+// "time" key in every JSON line.
 func newZerolog(level string) zerolog.Logger {
 	lvl := parseZerologLevel(level)
 	if isTerminal() {
-		return zerolog.New(zerolog.ConsoleWriter{Out: os.Stderr}).
-			Level(lvl).
-			With().
-			Timestamp().
-			Logger()
+		return zerolog.New(zerolog.ConsoleWriter{Out: os.Stderr}).Level(lvl)
 	}
-	return zerolog.New(os.Stderr).
-		Level(lvl).
-		With().
-		Timestamp().
-		Logger()
+	return zerolog.New(os.Stderr).Level(lvl)
 }
 
 func parseZerologLevel(level string) zerolog.Level {
