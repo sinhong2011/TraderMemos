@@ -51,6 +51,12 @@ jobs:
     name: Push ${{ matrix.image }}
     needs: [test-api, test-web]
     runs-on: ubuntu-latest
+    # Manual gate: pushing to Docker Hub is the only irreversible step here, so
+    # it waits for approval instead of firing as a side effect of a merge. The
+    # test jobs above still run ungated, so the approval prompt arrives with CI
+    # already green. Reviewers are configured on the environment itself
+    # (Settings → Environments → docker-hub).
+    environment: docker-hub
     # QEMU arm64 builds can wedge; a hung job otherwise blocks the
     # release-please concurrency group indefinitely.
     timeout-minutes: 90
@@ -87,6 +93,7 @@ jobs:
             echo "major=${VERSION%%.*}"
             echo "semver=$SEMVER"
             echo "commit=${GITHUB_SHA::7}"
+            echo "build_time=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           } >> "$GITHUB_OUTPUT"
 
       - uses: docker/setup-qemu-action@v4
@@ -123,5 +130,6 @@ jobs:
           build-args: |
             VERSION=${{ steps.buildmeta.outputs.version }}
             COMMIT=${{ steps.buildmeta.outputs.commit }}
+            BUILD_TIME=${{ steps.buildmeta.outputs.build_time }}
             APP_VERSION=${{ steps.buildmeta.outputs.version }}
             APP_BUILD=${{ steps.buildmeta.outputs.commit }}

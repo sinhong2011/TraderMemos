@@ -13,7 +13,13 @@ import { PeriodNav } from "@/components/PeriodNav";
 import { SegmentedControl } from "@/components/SegmentedControl";
 import { CardSkeleton } from "@/components/skeletons/card-skeleton";
 import { Button } from "@/components/ui/button";
-import { pnlBgTint, pnlColor, heroPnlClass } from "@/components/theme-tokens";
+import {
+  heroPnlClass,
+  pnlBgTint,
+  pnlColor,
+  TINTED_LABEL,
+  TINTED_LABEL_SUBTLE,
+} from "@/components/theme-tokens";
 
 import type { Account, Summary, Trade } from "@/lib/api/types";
 import { type DayRecord, dayKeyInTz, monthGrid, tradeDayKey, weekSummaries } from "@/lib/calendar";
@@ -21,7 +27,7 @@ import { cn } from "@/lib/cn";
 import { fmtPct, fmtSignedMoney, fmtSignedMoneyCompact } from "@/lib/format";
 import { useMoneyFx } from "@/lib/hooks/useMoneyFx";
 import { intlLocale } from "@/lib/locale";
-import { resolveDisplayTimezone, useDisplayPrefs, usePrivacyMode } from "@/lib/displayPrefs";
+import { resolveMarketTimezone, useDisplayPrefs, usePrivacyMode } from "@/lib/displayPrefs";
 
 const DOW_HEADERS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 /** Weekend day-of-week indexes (Sun=0, Sat=6) — hidden below `md` in favor of taller Mon–Fri cells. */
@@ -141,7 +147,7 @@ export function CalendarView({
 }: CalendarViewProps) {
   usePrivacyMode();
   const tradeDateBasis = useDisplayPrefs((s) => s.tradeDateBasis);
-  const displayTz = resolveDisplayTimezone(useDisplayPrefs((s) => s.timezone));
+  const marketTz = resolveMarketTimezone(useDisplayPrefs((s) => s.marketTimezone));
   const [monthSummaryOpen, setMonthSummaryOpen] = useState(false);
   const [yearSummaryOpen, setYearSummaryOpen] = useState(false);
   const { currency: displayCurrency, rate } = useMoneyFx(currency);
@@ -149,31 +155,31 @@ export function CalendarView({
   const money = (v: number) => v * fxRate;
   const grid = monthGrid(year, month, dailyPnl);
   const weeks = weekSummaries(grid.weeks, records);
-  const today = todayString(displayTz);
+  const today = todayString(marketTz);
 
   const monthTradesByDay = useMemo(() => {
     const map = new Map<string, Trade[]>();
     for (const trade of monthTrades) {
-      const key = tradeDayKey(trade, tradeDateBasis, displayTz);
+      const key = tradeDayKey(trade, tradeDateBasis, marketTz);
       if (!key) continue;
       const list = map.get(key);
       if (list) list.push(trade);
       else map.set(key, [trade]);
     }
     return map;
-  }, [monthTrades, tradeDateBasis, displayTz]);
+  }, [monthTrades, tradeDateBasis, marketTz]);
 
   const yearTradesByDay = useMemo(() => {
     const map = new Map<string, Trade[]>();
     for (const trade of yearTradeList) {
-      const key = tradeDayKey(trade, tradeDateBasis, displayTz);
+      const key = tradeDayKey(trade, tradeDateBasis, marketTz);
       if (!key) continue;
       const list = map.get(key);
       if (list) list.push(trade);
       else map.set(key, [trade]);
     }
     return map;
-  }, [yearTradeList, tradeDateBasis, displayTz]);
+  }, [yearTradeList, tradeDateBasis, marketTz]);
 
   const startingList = selectedAccountId
     ? accounts.filter((a) => a.id === selectedAccountId)
@@ -408,7 +414,7 @@ export function CalendarView({
                                   "self-end text-[11px] font-medium tabular-nums",
                                   isToday
                                     ? "inline-flex size-5 items-center justify-center rounded-full bg-primary font-semibold text-background"
-                                    : "text-muted-foreground",
+                                    : TINTED_LABEL_SUBTLE,
                                 )}
                               >
                                 {dayNum}
@@ -435,18 +441,33 @@ export function CalendarView({
                                   {/* The count is implied by the W/L record below, so it only
                                       earns a line once the cell can spell it out unclipped. */}
                                   {trades > 0 && (
-                                    <span className="hidden max-w-full truncate text-[10px] tabular-nums text-muted-foreground @min-[3rem]/day:block">
+                                    <span
+                                      className={cn(
+                                        "hidden max-w-full truncate text-[10px] tabular-nums @min-[3rem]/day:block",
+                                        TINTED_LABEL,
+                                      )}
+                                    >
                                       {trades} {trades === 1 ? "trade" : "trades"}
                                     </span>
                                   )}
                                   {winRate && (
-                                    <span className="max-w-full truncate text-[10px] tabular-nums text-muted-foreground">
+                                    <span
+                                      className={cn(
+                                        "max-w-full truncate text-[10px] tabular-nums",
+                                        TINTED_LABEL_SUBTLE,
+                                      )}
+                                    >
                                       <WinLossRecord
                                         wins={rec!.wins}
                                         losses={rec!.losses}
                                         className="opacity-90"
                                       />
-                                      <span className="hidden text-muted-foreground @min-[4.5rem]/day:inline">
+                                      <span
+                                        className={cn(
+                                          "hidden @min-[4.5rem]/day:inline",
+                                          TINTED_LABEL_SUBTLE,
+                                        )}
+                                      >
                                         {" "}
                                         · {winRate}
                                       </span>
@@ -529,7 +550,12 @@ export function CalendarView({
                           style={ws.hasData ? { background: pnlBgTint(ws.pnl) } : undefined}
                         >
                           {ws.weekNumber != null && (
-                            <span className="max-w-full truncate self-end text-[10px] font-medium text-muted-foreground @min-[6rem]/week:text-[11px]">
+                            <span
+                              className={cn(
+                                "max-w-full truncate self-end text-[10px] font-medium @min-[6rem]/week:text-[11px]",
+                                TINTED_LABEL_SUBTLE,
+                              )}
+                            >
                               <span className="@min-[6rem]/week:hidden">W{ws.weekNumber}</span>
                               <span className="hidden @min-[6rem]/week:inline">
                                 Week {ws.weekNumber}
@@ -556,7 +582,12 @@ export function CalendarView({
                                   <WinLossRecord wins={ws.wins} losses={ws.losses} />
                                 </span>
                               ) : null}
-                              <span className="max-w-full truncate text-[10px] tabular-nums text-muted-foreground">
+                              <span
+                                className={cn(
+                                  "max-w-full truncate text-[10px] tabular-nums",
+                                  TINTED_LABEL_SUBTLE,
+                                )}
+                              >
                                 {ws.daysWithTrades} {ws.daysWithTrades === 1 ? "day" : "days"}
                               </span>
                             </span>

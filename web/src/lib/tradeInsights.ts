@@ -35,6 +35,10 @@ export interface TradeInsights {
   mfeCapturePct: number | null;
   /** MFE − net when both set — dollars left on the table (winners). */
   leftOnTable: number | null;
+  /** Favorable continuation after the exit — what holding longer was worth. */
+  postExitMfe: number | null;
+  /** Adverse move after the exit — what exiting avoided. */
+  postExitMae: number | null;
   holdLabel: string;
   fillCount: number;
   qtyOpened: number;
@@ -85,6 +89,8 @@ export function computeTradeInsights(trade: TradeDetail): TradeInsights {
     mfe,
     mfeCapturePct,
     leftOnTable,
+    postExitMfe: trade.post_exit_mfe,
+    postExitMae: trade.post_exit_mae,
     holdLabel: rr.holdLabel,
     fillCount: trade.fills.length,
     qtyOpened: trade.qty_opened,
@@ -261,9 +267,33 @@ export function generateTradeCoachNotes(
         id: "left-on-table",
         tone: "tip",
         priority: 8,
-        headline: `~${leftR.toFixed(1)}R left after exit`,
+        headline: `~${leftR.toFixed(1)}R given back from the peak`,
         detail:
-          "The trade worked but you exited before the move finished. Note what would have kept you in for the next similar setup.",
+          "The trade worked but closed well off its best point. Note what would have kept you in for the next similar setup.",
+      });
+    }
+  }
+
+  if (insights.postExitMfe != null && insights.initialRisk != null && insights.initialRisk > 0) {
+    const postR = insights.postExitMfe / insights.initialRisk;
+    const avoidedR = (insights.postExitMae ?? 0) / insights.initialRisk;
+    if (postR >= 1) {
+      pushNote(notes, {
+        id: "exited-early",
+        tone: "tip",
+        priority: 8,
+        headline: `~${postR.toFixed(1)}R more ran after your exit`,
+        detail:
+          "Price kept going your way in the window after the close. If this repeats on this setup, consider a runner or a trailing stop.",
+      });
+    } else if (avoidedR >= 1 && postR < 0.5) {
+      pushNote(notes, {
+        id: "well-timed-exit",
+        tone: "pos",
+        priority: 9,
+        headline: `Exit dodged ~${avoidedR.toFixed(1)}R of drawdown`,
+        detail:
+          "Price moved against the position soon after you closed. Whatever triggered this exit is worth writing down.",
       });
     }
   }

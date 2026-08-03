@@ -5,6 +5,63 @@ All notable changes to TraderMemos are documented in this file.
 Release versioning is managed by [release-please](https://github.com/googleapis/release-please).
 See [docs/release.md](docs/release.md) for the release workflow.
 
+## [0.1.13](https://github.com/sinhong2011/TraderMemos/compare/v0.1.12...v0.1.13) (2026-08-03)
+
+
+### Features
+
+* **web:** advanced chart — standalone market chart for any symbol ([#61](https://github.com/sinhong2011/TraderMemos/issues/61)) ([c604148](https://github.com/sinhong2011/TraderMemos/commit/c6041481f618fa0eb570b9b2f0b135d3aace7cc0))
+* **web:** currency converter tool — live FX modal ([#64](https://github.com/sinhong2011/TraderMemos/issues/64)) ([7e4a15c](https://github.com/sinhong2011/TraderMemos/commit/7e4a15ce75a90d88e4783b3c41b23fb713789d68))
+* **web:** personal P&L heatmap tool; drop Technical rating ([#62](https://github.com/sinhong2011/TraderMemos/issues/62)) ([f327677](https://github.com/sinhong2011/TraderMemos/commit/f327677dd1d426a2fc3096a7440dceb710fa3227))
+* **web:** Year Wrapped share card ([#57](https://github.com/sinhong2011/TraderMemos/issues/57)) ([fe50bd8](https://github.com/sinhong2011/TraderMemos/commit/fe50bd8cba7a3d612adec270174e328c2035268f))
+
+
+### Bug Fixes
+
+* **web:** clearer trade replay readout — Closed label + price-mismatch hint ([#58](https://github.com/sinhong2011/TraderMemos/issues/58)) ([e7b22f1](https://github.com/sinhong2011/TraderMemos/commit/e7b22f1ca0c17da4e451650c2484924743998ba2))
+* **web:** one-row events toolbar, wider 12h time column, legible calendar labels ([#65](https://github.com/sinhong2011/TraderMemos/issues/65)) ([3974285](https://github.com/sinhong2011/TraderMemos/commit/3974285f6fadf4c0116f457c3439f43e612d6e70))
+* **web:** Tools menu — remove Wallet, wire Economic calendar and Trade planner ([#59](https://github.com/sinhong2011/TraderMemos/issues/59)) ([76a1db1](https://github.com/sinhong2011/TraderMemos/commit/76a1db1d2b2548f86092dab93f1d79d1e08eebcb))
+
+## [0.1.12](https://github.com/sinhong2011/TraderMemos/compare/v0.1.11...v0.1.12) (2026-08-02)
+
+
+### Features
+
+* Kelly %, SQN, and mean/median toggle for Reports ([#48](https://github.com/sinhong2011/TraderMemos/issues/48)) ([992407d](https://github.com/sinhong2011/TraderMemos/commit/992407dce9ca2a5d9a6285026e9d5a968e780f23))
+* **web:** opt-in trade share cards — private-by-default PNG export ([#50](https://github.com/sinhong2011/TraderMemos/issues/50)) ([da1d885](https://github.com/sinhong2011/TraderMemos/commit/da1d88508d1ec7b5348890ab0a03fc0efd4efd20))
+* **web:** setting to disable the update notification toast ([#46](https://github.com/sinhong2011/TraderMemos/issues/46)) ([d7d1d25](https://github.com/sinhong2011/TraderMemos/commit/d7d1d25a01b298a9e72c184dfb6e2651f1d5fd19))
+* **web:** Year Wrapped — annual trading recap page ([#49](https://github.com/sinhong2011/TraderMemos/issues/49)) ([a4b7428](https://github.com/sinhong2011/TraderMemos/commit/a4b7428276eaefc1a88442b328c13bd45ce89e05))
+
+
+### Bug Fixes
+
+* make the Reports gross P&L toggle real — add before-fees gross_pnl ([#52](https://github.com/sinhong2011/TraderMemos/issues/52)) ([ecd8f6e](https://github.com/sinhong2011/TraderMemos/commit/ecd8f6e1bba1e94953a16bcbe6f61c8e42d95146))
+* trading days follow the market timezone — end-to-end date pipeline fix ([#53](https://github.com/sinhong2011/TraderMemos/issues/53)) ([cc91028](https://github.com/sinhong2011/TraderMemos/commit/cc910286f53cce12ce315c0eadf8d931d7dc917b))
+* **web:** rule-compliance breach dates render a day early west of UTC ([#51](https://github.com/sinhong2011/TraderMemos/issues/51)) ([73e5615](https://github.com/sinhong2011/TraderMemos/commit/73e561517f03a18d95ab4677f65d68175c295e7a))
+* **web:** Year Wrapped reports link missing required avg search param ([#55](https://github.com/sinhong2011/TraderMemos/issues/55)) ([d216874](https://github.com/sinhong2011/TraderMemos/commit/d2168746ad6ca36fc7719a25027cb9ac17ed381c))
+
+## [0.1.11](https://github.com/sinhong2011/TraderMemos/compare/v0.1.10...v0.1.11) (2026-08-02)
+
+
+### Features
+
+* post-exit MAE/MFE — measure the move after the exit ([#44](https://github.com/sinhong2011/TraderMemos/issues/44)) ([391e9ef](https://github.com/sinhong2011/TraderMemos/commit/391e9efe75972ccf92ba29a7ac55dfcad7d646ca))
+* version boot logging, /system/info endpoint, and web/API mismatch banner ([#47](https://github.com/sinhong2011/TraderMemos/issues/47)) ([d22d6b9](https://github.com/sinhong2011/TraderMemos/commit/d22d6b95f7c2f165c7c11af1e656cb48e1b1ae5d))
+
+## [0.1.10](https://github.com/sinhong2011/TraderMemos/compare/v0.1.9...v0.1.10) (2026-08-02)
+
+
+### Features
+
+* auto-compute MAE/MFE from market bars ([#33](https://github.com/sinhong2011/TraderMemos/issues/33)) ([c3aaa61](https://github.com/sinhong2011/TraderMemos/commit/c3aaa61f9de5aed570219580ff414aded81f97ab))
+* behavioral analytics — revenge, overconfidence, loss aversion detection ([#39](https://github.com/sinhong2011/TraderMemos/issues/39)) ([1714326](https://github.com/sinhong2011/TraderMemos/commit/17143267718189214176d8a37b1844bf6b6067ff))
+* economic calendar — ForexFactory feed + week-timeline events page ([#36](https://github.com/sinhong2011/TraderMemos/issues/36)) ([895cff0](https://github.com/sinhong2011/TraderMemos/commit/895cff007c012566393a83188636d3035bb071a5))
+* IBKR Flex auto-sync — scheduled broker import via Flex Web Service ([#41](https://github.com/sinhong2011/TraderMemos/issues/41)) ([ffd4985](https://github.com/sinhong2011/TraderMemos/commit/ffd49852db20f71b5d0c32b8ef563747d0807b11))
+* in-process background job runner with MAE/MFE excursion backfill ([#40](https://github.com/sinhong2011/TraderMemos/issues/40)) ([fe0c548](https://github.com/sinhong2011/TraderMemos/commit/fe0c5488495b68e906e0be92fa222f9dc8dc6f50))
+* pro day-trader suite — rule compliance, day review, broker presets, prop mode ([#38](https://github.com/sinhong2011/TraderMemos/issues/38)) ([0fa4ce2](https://github.com/sinhong2011/TraderMemos/commit/0fa4ce24871852ff1dfb2427cb0da61c6f784d23))
+* **web:** replace app icon with new blue candlestick T artwork ([#42](https://github.com/sinhong2011/TraderMemos/issues/42)) ([cdc0970](https://github.com/sinhong2011/TraderMemos/commit/cdc09707d224499346afa6a09251a4b3d1559aac))
+* **web:** trade replay — bar-by-bar playback on the trade chart ([#43](https://github.com/sinhong2011/TraderMemos/issues/43)) ([11190e0](https://github.com/sinhong2011/TraderMemos/commit/11190e0de267a93cdf484736109e4f2829a3f8b5))
+
 ## [0.1.9](https://github.com/sinhong2011/TraderMemos/compare/v0.1.8...v0.1.9) (2026-08-01)
 
 

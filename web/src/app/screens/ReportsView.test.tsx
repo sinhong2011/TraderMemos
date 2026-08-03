@@ -95,9 +95,11 @@ const base = {
   onDurationChange: vi.fn<(...args: any[]) => any>(),
   pnlMode: "net" as const,
   unitMode: "abs" as const,
+  avgMode: "mean" as const,
   denominator: 0,
   onPnlModeChange: vi.fn<(...args: any[]) => any>(),
   onUnitModeChange: vi.fn<(...args: any[]) => any>(),
+  onAvgModeChange: vi.fn<(...args: any[]) => any>(),
   selectedDay: null,
   onSelectDay: vi.fn<(...args: any[]) => any>(),
   dayTrades: [],
@@ -261,10 +263,9 @@ describe("buildColumns net_pnl cell", () => {
   }
 
   it("shows the gross P&L when pnlMode is gross", () => {
-    // net_pnl (100) differs from gross (gross_profit - gross_loss = 260 - 60 = 200).
+    // net_pnl (100) differs from before-fees gross_pnl (200).
     const g = grp("AAPL", 100);
-    g.summary.gross_profit = 260;
-    g.summary.gross_loss = 60;
+    g.summary.gross_pnl = 200;
     render(
       <ReportsDisplayProvider
         value={{ pnlMode: "gross", unitMode: "abs", denominator: 0, currency: "USD", fxRate: 1 }}
@@ -291,8 +292,7 @@ describe("buildColumns net_pnl cell", () => {
 describe("PnlBarChart display modes", () => {
   it("plots gross P&L values when pnlMode is gross", () => {
     const g = grp("AAPL", 100);
-    g.summary.gross_profit = 260;
-    g.summary.gross_loss = 60; // gross = 200
+    g.summary.gross_pnl = 200;
     const { container } = render(
       <ReportsDisplayProvider
         value={{ pnlMode: "gross", unitMode: "abs", denominator: 0, currency: "USD", fxRate: 1 }}

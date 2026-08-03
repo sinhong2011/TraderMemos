@@ -25,6 +25,8 @@ type tradeDetailDTO struct {
 	TradeQuality   *int64                  `json:"trade_quality"`
 	Mae            *float64                `json:"mae"`
 	Mfe            *float64                `json:"mfe"`
+	PostExitMae    *float64                `json:"post_exit_mae"`
+	PostExitMfe    *float64                `json:"post_exit_mfe"`
 	DividendTotal  float64                 `json:"dividend_total"`
 	TotalPnl       *float64                `json:"total_pnl"`
 	Attachments    []store.TradeAttachment `json:"attachments"`
@@ -92,6 +94,8 @@ func (s *Server) buildTradeDetail(ctx context.Context, userID string, t store.Tr
 		d.TradeQuality = iptr(j.TradeQuality)
 		d.Mae = fptr(j.Mae)
 		d.Mfe = fptr(j.Mfe)
+		d.PostExitMae = fptr(j.PostExitMae)
+		d.PostExitMfe = fptr(j.PostExitMfe)
 		if j.SetupID.Valid {
 			setup, serr := s.deps.Store.GetSetup(ctx, store.GetSetupParams{ID: j.SetupID.String, UserID: userID})
 			if serr == nil {

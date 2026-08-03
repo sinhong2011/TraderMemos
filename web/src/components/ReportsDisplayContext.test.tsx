@@ -36,10 +36,19 @@ function wrapper(value: ReportsDisplay) {
   );
 }
 
-const s = summary({ net_pnl: 100, gross_profit: 150, gross_loss: 30 }); // gross = 120
+// Realistic summary: fees make gross > net. gross_profit/gross_loss are
+// net-classified sums whose difference is identically net_pnl — never a
+// gross basis.
+const s = summary({
+  net_pnl: 100,
+  gross_pnl: 112,
+  total_fees: 12,
+  gross_profit: 130,
+  gross_loss: 30,
+});
 
 describe("useReportsMoney", () => {
-  it("net mode returns net_pnl; gross mode returns gross_profit - gross_loss", () => {
+  it("net mode returns net_pnl; gross mode returns before-fees gross_pnl", () => {
     const net = renderHook(() => useReportsMoney(), {
       wrapper: wrapper({
         pnlMode: "net",
@@ -59,7 +68,21 @@ describe("useReportsMoney", () => {
         fxRate: 1,
       }),
     });
-    expect(gross.result.current.pnl(s)).toBe(120);
+    expect(gross.result.current.pnl(s)).toBe(112);
+  });
+
+  it("gross mode reconstructs net + fees when the API predates gross_pnl", () => {
+    const gross = renderHook(() => useReportsMoney(), {
+      wrapper: wrapper({
+        pnlMode: "gross",
+        unitMode: "abs",
+        denominator: 0,
+        currency: "USD",
+        fxRate: 1,
+      }),
+    });
+    const older = summary({ net_pnl: 100, total_fees: 12 });
+    expect(gross.result.current.pnl(older)).toBe(112);
   });
 
   it("abs mode formats money; pct mode divides by the denominator", () => {

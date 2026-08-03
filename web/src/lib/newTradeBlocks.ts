@@ -20,21 +20,23 @@ import {
 } from "./optionContract";
 import { buildExecutionDetails } from "./optionStrategy";
 import { parseAmountToNumber } from "./amountInput";
+import { isoToWallClock, wallClockToIso } from "./displayPrefs";
 import { defaultOcrSymbol, filterOcrExtractBySymbol, groupOcrBySymbol } from "./ocrSymbolGroups";
 import { gradeFromInt, parseEmotionalStates } from "./tradeGrades";
 
-const pad2 = (n: number) => String(n).padStart(2, "0");
-
+// Fill times are wall clocks in the display timezone, both directions:
+// stored UTC instants render at the display clock for editing, and the
+// edited wall clock converts back through the same zone. The browser's OS
+// clock is never consulted, so entry and display always agree.
 function nowDatetimeLocal(): string {
-  const d = new Date();
-  return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}T${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`;
+  return isoToWallClock(new Date());
 }
 
 function toDatetimeLocal(iso: string): string {
   if (!iso.trim()) return nowDatetimeLocal();
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return nowDatetimeLocal();
-  return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}T${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`;
+  return isoToWallClock(d);
 }
 
 /**
@@ -130,7 +132,7 @@ export function flattenSymbolTradesToExecutions(trades: SymbolTradeBlock[]): Fla
         price: r.price,
         fees: r.fees,
         commission: r.commission,
-        executed_at: new Date(r.executed_at).toISOString(),
+        executed_at: wallClockToIso(r.executed_at),
         multiplier,
         details,
       });

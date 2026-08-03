@@ -1,13 +1,13 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useCallback } from "react";
-import { useToastManager } from "@/components/Toast";
-import { TOOL_ITEMS, type ToolId } from "./tools";
+import type { ToolId } from "./tools";
 import { useUI } from "./ui";
 
 export function useToolRunner() {
-  const toast = useToastManager();
   const navigate = useNavigate();
   const openPositionSize = useUI((s) => s.openPositionSize);
+  const openKelly = useUI((s) => s.openKelly);
+  const openFx = useUI((s) => s.openFx);
 
   return useCallback(
     (id: ToolId) => {
@@ -15,24 +15,32 @@ export function useToolRunner() {
         case "size":
           openPositionSize();
           return;
+        case "kelly":
+          openKelly();
+          return;
+        case "fx":
+          openFx();
+          return;
+        case "planner":
+          void navigate({ to: "/calculator" });
+          return;
+        case "chart":
+          void navigate({ to: "/chart", search: { iv: "D" } });
+          return;
+        case "heatmap":
+          void navigate({ to: "/heatmap" });
+          return;
+        case "econ":
+          void navigate({ to: "/events", search: { wk: 0 } });
+          return;
         case "today":
-          navigate({ to: "/calendar" });
+          void navigate({ to: "/calendar" });
           return;
-        case "wallet":
-          toast.add({
-            title: "Wallet",
-            description: "Account cash is shown in the header stat strip.",
-          });
+        case "wrapped":
+          void navigate({ to: "/wrapped", search: { year: new Date().getFullYear() } });
           return;
-        default: {
-          const tool = TOOL_ITEMS.find((item) => item.id === id);
-          toast.add({
-            title: tool?.label ?? "Tool",
-            description: "Coming soon in TraderMemos.",
-          });
-        }
       }
     },
-    [navigate, openPositionSize, toast],
+    [navigate, openFx, openKelly, openPositionSize],
   );
 }

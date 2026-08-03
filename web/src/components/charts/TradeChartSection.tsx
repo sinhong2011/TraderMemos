@@ -7,8 +7,17 @@ import {
   isChartableSymbol,
   useMarketBars,
 } from "@/lib/hooks/useMarketBars";
+import { intlLocale } from "@/lib/locale";
 import { Modal } from "@/components/Modal";
+import { ReplayControls } from "./ReplayControls";
+import {
+  computeReplayPnl,
+  detectFillBarMismatch,
+  formatReplayBarTime,
+  replayCutoff,
+} from "./replayPnl";
 import { TradeChart } from "./TradeChart";
+import { useReplayController } from "./useReplayController";
 
 function modalChartHeight(): number {
   if (typeof globalThis.window === "undefined") return 480;
@@ -40,6 +49,21 @@ export function TradeChartSection({ trade }: { trade: TradeDetail }) {
   const showEmpty = chartable && !barsQ.isLoading && (barsQ.data?.bars.length ?? 0) === 0;
   const canExpand = chartable && !showUnavailable;
 
+  const bars = barsQ.data?.bars;
+  const replay = useReplayController(bars?.length ?? 0);
+  const canReplay = chartable && !showEmpty && (bars?.length ?? 0) > 1;
+  const cursorBar = replay.active ? bars?.[replay.cursor] : undefined;
+  const replayUpTo = cursorBar && bars ? replayCutoff(bars, replay.cursor, interval) : null;
+  const replayPnl = useMemo(
+    () =>
+      replay.active && bars ? computeReplayPnl(trade.fills, bars, replay.cursor, interval) : null,
+    [replay.active, replay.cursor, bars, trade.fills, interval],
+  );
+  const priceMismatch = useMemo(
+    () => (replay.active && bars ? detectFillBarMismatch(trade.fills, bars, interval) : false),
+    [replay.active, bars, trade.fills, interval],
+  );
+
   useEffect(() => {
     if (!expanded) return;
     setExpandedHeight(modalChartHeight());
@@ -52,7 +76,7 @@ export function TradeChartSection({ trade }: { trade: TradeDetail }) {
 
   const chartProps = {
     symbol: trade.symbol,
-    bars: barsQ.data?.bars,
+    bars,
     fills: trade.fills,
     loading: barsQ.isLoading,
     error: barsQ.isError,
@@ -70,11 +94,27 @@ export function TradeChartSection({ trade }: { trade: TradeDetail }) {
     onIntervalChange: setInterval,
     empty: showUnavailable || showEmpty,
     hideIntervalWhenEmpty: showUnavailable,
+    replayUpTo,
+    replayActive: replay.active,
+    onToggleReplay: canReplay ? () => (replay.active ? replay.exit() : replay.start()) : undefined,
   };
 
+  const replayControls = replay.active && cursorBar && bars && (
+    <ReplayControls
+      controller={replay}
+      barCount={bars.length}
+      timeLabel={formatReplayBarTime(cursorBar.time, interval, intlLocale())}
+      pnl={replayPnl}
+      fillTotal={trade.fills.length}
+      currency={trade.pnl_currency}
+      priceMismatch={priceMismatch}
+    />
+  );
+
   return (
-    <div className="px-4 pb-4">
+    <div className="flex flex-col gap-3 px-4 pb-4">
       <TradeChart {...chartProps} onExpand={canExpand ? () => setExpanded(true) : undefined} />
+      {!expanded && replayControls}
       <Modal
         open={expanded}
         onOpenChange={setExpanded}
@@ -83,7 +123,10 @@ export function TradeChartSection({ trade }: { trade: TradeDetail }) {
         overlayClassName="z-[60]"
         bodyClassName="p-4"
       >
-        <TradeChart {...chartProps} height={expandedHeight} hideHeaderLabel />
+        <div className="flex flex-col gap-3">
+          <TradeChart {...chartProps} height={expandedHeight} hideHeaderLabel />
+          {expanded && replayControls}
+        </div>
       </Modal>
     </div>
   );

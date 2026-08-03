@@ -158,6 +158,9 @@ export type SettingsLabelKey =
   | "timezone"
   | "timezoneFooter"
   | "timezoneSelector"
+  | "marketTimezone"
+  | "marketTimezoneFooter"
+  | "marketTimezoneSelector"
   | "timeFormat"
   | "timeFormatFooter"
   | "timeFormatSelector"
@@ -289,8 +292,12 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     themeSystem: "System",
     timezone: "Timezone",
     timezoneFooter:
-      "Applies to all displayed times (trade timestamps, Hourly labels, charts). Doesn’t change how trades are grouped (UTC) or Session (Premarket/RTH stays US Eastern).",
+      "Applies to displayed times (trade timestamps, charts). Doesn’t change how trades are grouped into days — that follows the Market timezone below.",
     timezoneSelector: "Timezone selector",
+    marketTimezone: "Market timezone",
+    marketTimezoneFooter:
+      "Exchange clock that defines the trading day. Calendar days, date filters, and daily/hourly analytics group trades on this market’s day — a Friday New York close never lands on your Saturday.",
+    marketTimezoneSelector: "Market timezone selector",
     timeFormat: "Time format",
     timeFormatFooter: "12-hour or 24-hour clock for displayed times.",
     timeFormatSelector: "Time format selector",
@@ -431,8 +438,12 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     themeSystem: "系統",
     timezone: "時區",
     timezoneFooter:
-      "套用到所有顯示時間（交易時間戳、小時標籤、圖表）。不會改變交易分組（仍以 UTC）或盤前/盤中/盤後（仍以美東為準）。",
+      "套用到顯示時間（交易時間戳、圖表）。不會改變交易日分組——分組依下方的市場時區。",
     timezoneSelector: "時區選擇器",
+    marketTimezone: "市場時區",
+    marketTimezoneFooter:
+      "定義交易日的交易所時區。日曆、日期篩選與每日/每小時分析都以此市場的日期分組——紐約週五收盤不會落到你的週六。",
+    marketTimezoneSelector: "市場時區選擇器",
     timeFormat: "時間格式",
     timeFormatFooter: "顯示時間使用 12 小時制或 24 小時制。",
     timeFormatSelector: "時間格式選擇器",
@@ -568,8 +579,12 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     themeSystem: "システム",
     timezone: "タイムゾーン",
     timezoneFooter:
-      "表示されるすべての時刻（トレード時刻、Hourly ラベル、チャート）に適用。取引の集計（UTC）やプレマーケット／RTH（米東部）は変わりません。",
+      "表示される時刻（トレード時刻、チャート）に適用。取引日の集計は変わりません——下のマーケットタイムゾーンに従います。",
     timezoneSelector: "タイムゾーンセレクター",
+    marketTimezone: "マーケットタイムゾーン",
+    marketTimezoneFooter:
+      "取引日を定める取引所のタイムゾーン。カレンダー、日付フィルタ、日次／時間別分析はこの市場の日付で集計されます。ニューヨーク金曜のクローズが土曜になることはありません。",
+    marketTimezoneSelector: "マーケットタイムゾーンセレクター",
     timeFormat: "時刻形式",
     timeFormatFooter: "表示時刻の 12 時間制 / 24 時間制。",
     timeFormatSelector: "時刻形式セレクター",
@@ -709,8 +724,12 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     themeSystem: "시스템",
     timezone: "시간대",
     timezoneFooter:
-      "표시되는 모든 시간(거래 타임스탬프, Hourly 라벨, 차트)에 적용됩니다. 거래 그룹(UTC)이나 프리마켓/RTH(미국 동부)는 바꾸지 않습니다.",
+      "표시되는 시간(거래 타임스탬프, 차트)에 적용됩니다. 거래일 그룹화는 바꾸지 않으며 아래의 시장 시간대를 따릅니다.",
     timezoneSelector: "시간대 선택",
+    marketTimezone: "시장 시간대",
+    marketTimezoneFooter:
+      "거래일을 정의하는 거래소 시간대입니다. 캘린더, 날짜 필터, 일별/시간별 분석이 이 시장의 날짜로 그룹화됩니다. 뉴욕 금요일 마감이 토요일로 표시되지 않습니다.",
+    marketTimezoneSelector: "시장 시간대 선택",
     timeFormat: "시간 형식",
     timeFormatFooter: "표시 시간의 12시간제 / 24시간제.",
     timeFormatSelector: "시간 형식 선택",

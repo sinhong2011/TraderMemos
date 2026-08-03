@@ -12,8 +12,10 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CalculatorRouteImport } from './routes/calculator'
 import { Route as CalendarRouteImport } from './routes/calendar'
+import { Route as ChartRouteImport } from './routes/chart'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as EventsRouteImport } from './routes/events'
+import { Route as HeatmapRouteImport } from './routes/heatmap'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as ImportRouteImport } from './routes/import'
 import { Route as LoginRouteImport } from './routes/login'
@@ -23,6 +25,7 @@ import { Route as ReportsRouteImport } from './routes/reports'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SetupRouteImport } from './routes/setup'
 import { Route as TradesRouteImport } from './routes/trades'
+import { Route as WrappedRouteImport } from './routes/wrapped'
 import { Route as DayDateRouteImport } from './routes/day.$date'
 import { Route as TradesIndexRouteImport } from './routes/trades.index'
 import { Route as TradesIdRouteImport } from './routes/trades.$id'
@@ -42,6 +45,11 @@ const CalendarRoute = CalendarRouteImport.update({
   path: '/calendar',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ChartRoute = ChartRouteImport.update({
+  id: '/chart',
+  path: '/chart',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -50,6 +58,11 @@ const DashboardRoute = DashboardRouteImport.update({
 const EventsRoute = EventsRouteImport.update({
   id: '/events',
   path: '/events',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HeatmapRoute = HeatmapRouteImport.update({
+  id: '/heatmap',
+  path: '/heatmap',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HomeRoute = HomeRouteImport.update({
@@ -97,6 +110,11 @@ const TradesRoute = TradesRouteImport.update({
   path: '/trades',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WrappedRoute = WrappedRouteImport.update({
+  id: '/wrapped',
+  path: '/wrapped',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DayDateRoute = DayDateRouteImport.update({
   id: '/day/$date',
   path: '/day/$date',
@@ -117,8 +135,10 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/calculator': typeof CalculatorRoute
   '/calendar': typeof CalendarRoute
+  '/chart': typeof ChartRoute
   '/dashboard': typeof DashboardRoute
   '/events': typeof EventsRoute
+  '/heatmap': typeof HeatmapRoute
   '/home': typeof HomeRoute
   '/import': typeof ImportRoute
   '/login': typeof LoginRoute
@@ -128,6 +148,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/setup': typeof SetupRoute
   '/trades': typeof TradesRouteWithChildren
+  '/wrapped': typeof WrappedRoute
   '/day/$date': typeof DayDateRoute
   '/trades/$id': typeof TradesIdRoute
   '/trades/': typeof TradesIndexRoute
@@ -136,8 +157,10 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/calculator': typeof CalculatorRoute
   '/calendar': typeof CalendarRoute
+  '/chart': typeof ChartRoute
   '/dashboard': typeof DashboardRoute
   '/events': typeof EventsRoute
+  '/heatmap': typeof HeatmapRoute
   '/home': typeof HomeRoute
   '/import': typeof ImportRoute
   '/login': typeof LoginRoute
@@ -146,6 +169,7 @@ export interface FileRoutesByTo {
   '/reports': typeof ReportsRoute
   '/settings': typeof SettingsRoute
   '/setup': typeof SetupRoute
+  '/wrapped': typeof WrappedRoute
   '/day/$date': typeof DayDateRoute
   '/trades/$id': typeof TradesIdRoute
   '/trades': typeof TradesIndexRoute
@@ -155,8 +179,10 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/calculator': typeof CalculatorRoute
   '/calendar': typeof CalendarRoute
+  '/chart': typeof ChartRoute
   '/dashboard': typeof DashboardRoute
   '/events': typeof EventsRoute
+  '/heatmap': typeof HeatmapRoute
   '/home': typeof HomeRoute
   '/import': typeof ImportRoute
   '/login': typeof LoginRoute
@@ -166,6 +192,7 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/setup': typeof SetupRoute
   '/trades': typeof TradesRouteWithChildren
+  '/wrapped': typeof WrappedRoute
   '/day/$date': typeof DayDateRoute
   '/trades/$id': typeof TradesIdRoute
   '/trades/': typeof TradesIndexRoute
@@ -176,8 +203,10 @@ export interface FileRouteTypes {
     | '/'
     | '/calculator'
     | '/calendar'
+    | '/chart'
     | '/dashboard'
     | '/events'
+    | '/heatmap'
     | '/home'
     | '/import'
     | '/login'
@@ -187,6 +216,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/setup'
     | '/trades'
+    | '/wrapped'
     | '/day/$date'
     | '/trades/$id'
     | '/trades/'
@@ -195,8 +225,10 @@ export interface FileRouteTypes {
     | '/'
     | '/calculator'
     | '/calendar'
+    | '/chart'
     | '/dashboard'
     | '/events'
+    | '/heatmap'
     | '/home'
     | '/import'
     | '/login'
@@ -205,6 +237,7 @@ export interface FileRouteTypes {
     | '/reports'
     | '/settings'
     | '/setup'
+    | '/wrapped'
     | '/day/$date'
     | '/trades/$id'
     | '/trades'
@@ -213,8 +246,10 @@ export interface FileRouteTypes {
     | '/'
     | '/calculator'
     | '/calendar'
+    | '/chart'
     | '/dashboard'
     | '/events'
+    | '/heatmap'
     | '/home'
     | '/import'
     | '/login'
@@ -224,6 +259,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/setup'
     | '/trades'
+    | '/wrapped'
     | '/day/$date'
     | '/trades/$id'
     | '/trades/'
@@ -233,8 +269,10 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CalculatorRoute: typeof CalculatorRoute
   CalendarRoute: typeof CalendarRoute
+  ChartRoute: typeof ChartRoute
   DashboardRoute: typeof DashboardRoute
   EventsRoute: typeof EventsRoute
+  HeatmapRoute: typeof HeatmapRoute
   HomeRoute: typeof HomeRoute
   ImportRoute: typeof ImportRoute
   LoginRoute: typeof LoginRoute
@@ -244,6 +282,7 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   SetupRoute: typeof SetupRoute
   TradesRoute: typeof TradesRouteWithChildren
+  WrappedRoute: typeof WrappedRoute
   DayDateRoute: typeof DayDateRoute
 }
 
@@ -270,6 +309,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CalendarRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/chart': {
+      id: '/chart'
+      path: '/chart'
+      fullPath: '/chart'
+      preLoaderRoute: typeof ChartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
@@ -282,6 +328,13 @@ declare module '@tanstack/react-router' {
       path: '/events'
       fullPath: '/events'
       preLoaderRoute: typeof EventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/heatmap': {
+      id: '/heatmap'
+      path: '/heatmap'
+      fullPath: '/heatmap'
+      preLoaderRoute: typeof HeatmapRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/home': {
@@ -347,6 +400,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TradesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/wrapped': {
+      id: '/wrapped'
+      path: '/wrapped'
+      fullPath: '/wrapped'
+      preLoaderRoute: typeof WrappedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/day/$date': {
       id: '/day/$date'
       path: '/day/$date'
@@ -388,8 +448,10 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CalculatorRoute: CalculatorRoute,
   CalendarRoute: CalendarRoute,
+  ChartRoute: ChartRoute,
   DashboardRoute: DashboardRoute,
   EventsRoute: EventsRoute,
+  HeatmapRoute: HeatmapRoute,
   HomeRoute: HomeRoute,
   ImportRoute: ImportRoute,
   LoginRoute: LoginRoute,
@@ -399,6 +461,7 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   SetupRoute: SetupRoute,
   TradesRoute: TradesRouteWithChildren,
+  WrappedRoute: WrappedRoute,
   DayDateRoute: DayDateRoute,
 }
 export const routeTree = rootRouteImport

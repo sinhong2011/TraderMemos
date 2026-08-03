@@ -1,9 +1,10 @@
 -- name: UpsertTradeJournal :exec
 INSERT INTO trade_journal (
     trade_id, user_id, notes, setup_id, initial_risk, target_price, stop_price,
-    emotional_state, confidence, trade_quality, mae, mfe, updated_at
+    emotional_state, confidence, trade_quality, mae, mfe,
+    post_exit_mae, post_exit_mfe, updated_at
 )
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
 ON CONFLICT(trade_id) DO UPDATE SET
     notes = excluded.notes,
     setup_id = excluded.setup_id,
@@ -15,6 +16,8 @@ ON CONFLICT(trade_id) DO UPDATE SET
     trade_quality = excluded.trade_quality,
     mae = excluded.mae,
     mfe = excluded.mfe,
+    post_exit_mae = excluded.post_exit_mae,
+    post_exit_mfe = excluded.post_exit_mfe,
     updated_at = CURRENT_TIMESTAMP;
 
 -- name: GetTradeJournal :one

@@ -268,6 +268,24 @@ export function TradePlanCard({
                   ? fmtSignedMoney(insights.leftOnTable, currency, locale)
                   : "—"}
               </StatCell>
+              {insights.postExitMfe != null && (
+                <StatCell
+                  label="Post-exit MFE"
+                  hint="run after exit"
+                  valueClassName={pnlColor(Math.abs(insights.postExitMfe))}
+                >
+                  {fmtSignedMoney(insights.postExitMfe, currency, locale)}
+                </StatCell>
+              )}
+              {insights.postExitMae != null && (
+                <StatCell
+                  label="Post-exit MAE"
+                  hint="dip after exit"
+                  valueClassName={pnlColor(-Math.abs(insights.postExitMae))}
+                >
+                  {fmtSignedMoney(insights.postExitMae, currency, locale)}
+                </StatCell>
+              )}
             </div>
           </div>
         )}

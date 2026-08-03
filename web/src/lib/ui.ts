@@ -52,6 +52,8 @@ interface UIState {
   sidebarCollapsed: boolean;
   commandOpen: boolean;
   positionSizeOpen: boolean;
+  kellyOpen: boolean;
+  fxOpen: boolean;
   /** Off-canvas nav drawer shown below the `md` breakpoint (phones). */
   mobileNavOpen: boolean;
   openModal: (d: ModalKind) => void;
@@ -72,6 +74,10 @@ interface UIState {
   setCommandOpen: (open: boolean) => void;
   openPositionSize: () => void;
   setPositionSizeOpen: (open: boolean) => void;
+  openKelly: () => void;
+  setKellyOpen: (open: boolean) => void;
+  openFx: () => void;
+  setFxOpen: (open: boolean) => void;
   /** @deprecated Use openModal */
   openDrawer: (d: ModalKind) => void;
   /** @deprecated Use closeModal */
@@ -99,6 +105,8 @@ export const useUI = create<UIState>((set, get) => ({
   sidebarCollapsed: false,
   commandOpen: false,
   positionSizeOpen: false,
+  kellyOpen: false,
+  fxOpen: false,
   mobileNavOpen: false,
   openModal: (modal) =>
     set((s) =>
@@ -156,6 +164,10 @@ export const useUI = create<UIState>((set, get) => ({
   setCommandOpen: (commandOpen) => set({ commandOpen }),
   openPositionSize: () => set({ positionSizeOpen: true }),
   setPositionSizeOpen: (positionSizeOpen) => set({ positionSizeOpen }),
+  openKelly: () => set({ kellyOpen: true }),
+  setKellyOpen: (kellyOpen) => set({ kellyOpen }),
+  openFx: () => set({ fxOpen: true }),
+  setFxOpen: (fxOpen) => set({ fxOpen }),
   openDrawer: (modal) =>
     set({
       modal,

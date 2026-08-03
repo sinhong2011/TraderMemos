@@ -81,6 +81,7 @@ describe("ReportsHourlyList", () => {
         breakeven: 0,
         win_rate: 0.5,
         net_pnl: 100,
+        gross_pnl: 280,
         gross_profit: 300,
         gross_loss: 20,
         profit_factor: 1,

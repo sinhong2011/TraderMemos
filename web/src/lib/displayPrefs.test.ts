@@ -4,11 +4,15 @@ import {
   DISPLAY_PREFS_STORAGE_KEY,
   formatHourKeyLabel,
   formatUtcOffsetPrefix,
+  marketTimezoneSelectOptions,
   resolveDisplayTimezone,
   resolveDisplayCurrency,
+  resolveMarketTimezone,
   rfc3339OffsetSuffix,
   timezoneSelectOptions,
   useDisplayPrefs,
+  wallClockToIso,
+  isoToWallClock,
 } from "./displayPrefs";
 
 describe("accountBaseCurrency", () => {
@@ -76,6 +80,21 @@ describe("privacy mode", () => {
   });
 });
 
+describe("update notices", () => {
+  beforeEach(() => {
+    localStorage.removeItem(DISPLAY_PREFS_STORAGE_KEY);
+    useDisplayPrefs.setState({ updateNotices: true });
+  });
+
+  it("defaults on and can be disabled", () => {
+    expect(useDisplayPrefs.getState().updateNotices).toBe(true);
+    useDisplayPrefs.getState().setUpdateNotices(false);
+    expect(useDisplayPrefs.getState().updateNotices).toBe(false);
+    useDisplayPrefs.getState().setUpdateNotices(true);
+    expect(useDisplayPrefs.getState().updateNotices).toBe(true);
+  });
+});
+
 describe("timezone preference", () => {
   beforeEach(() => {
     localStorage.removeItem(DISPLAY_PREFS_STORAGE_KEY);
@@ -130,6 +149,42 @@ describe("timezone preference", () => {
   });
 });
 
+describe("market timezone preference", () => {
+  beforeEach(() => {
+    localStorage.removeItem(DISPLAY_PREFS_STORAGE_KEY);
+    useDisplayPrefs.setState({
+      displayCurrency: null,
+      privacyMode: false,
+      timezone: "America/New_York",
+      marketTimezone: "America/New_York",
+      timeFormat: "h12",
+      tradeDateBasis: "close",
+    });
+  });
+
+  it("defaults to US Eastern and is independent of the display timezone", () => {
+    expect(useDisplayPrefs.getState().marketTimezone).toBe("America/New_York");
+    useDisplayPrefs.getState().setTimezone("Asia/Hong_Kong");
+    expect(useDisplayPrefs.getState().marketTimezone).toBe("America/New_York");
+    useDisplayPrefs.getState().setMarketTimezone("Asia/Tokyo");
+    expect(useDisplayPrefs.getState().marketTimezone).toBe("Asia/Tokyo");
+  });
+
+  it("never resolves to the browser clock — 'local' falls back to Eastern", () => {
+    expect(resolveMarketTimezone("local")).toBe("America/New_York");
+    expect(resolveMarketTimezone("not-a-zone")).toBe("America/New_York");
+    expect(resolveMarketTimezone("Asia/Hong_Kong")).toBe("Asia/Hong_Kong");
+  });
+
+  it("omits the Local (browser) option from market timezone choices", () => {
+    const opts = marketTimezoneSelectOptions(new Date("2026-01-15T12:00:00Z"));
+    expect(opts.some((o) => (o.value as string) === "local")).toBe(false);
+    expect(opts.find((o) => o.value === "America/New_York")?.label).toBe(
+      "UTC-05 Eastern (New York)",
+    );
+  });
+});
+
 describe("time format preference", () => {
   beforeEach(() => {
     localStorage.removeItem(DISPLAY_PREFS_STORAGE_KEY);
@@ -165,5 +220,31 @@ describe("trade date basis preference", () => {
     expect(useDisplayPrefs.getState().tradeDateBasis).toBe("close");
     useDisplayPrefs.getState().setTradeDateBasis("open");
     expect(useDisplayPrefs.getState().tradeDateBasis).toBe("open");
+  });
+});
+
+describe("wall clock round trip", () => {
+  beforeEach(() => {
+    localStorage.removeItem(DISPLAY_PREFS_STORAGE_KEY);
+    useDisplayPrefs.setState({ timezone: "America/New_York" });
+  });
+
+  it("interprets typed wall clocks in the display timezone, not the OS clock", () => {
+    // 9:31 AM typed while displaying Eastern = 13:31 UTC (July = EDT).
+    expect(wallClockToIso("2026-07-10T09:31:00")).toBe("2026-07-10T13:31:00.000Z");
+    useDisplayPrefs.setState({ timezone: "Asia/Hong_Kong" });
+    expect(wallClockToIso("2026-07-10T09:31:00")).toBe("2026-07-10T01:31:00.000Z");
+  });
+
+  it("renders instants back at the same wall clock (edit prefill)", () => {
+    expect(isoToWallClock("2026-07-10T13:31:00Z")).toBe("2026-07-10T09:31:00");
+    expect(isoToWallClock(wallClockToIso("2026-01-15T16:00:00"))).toBe("2026-01-15T16:00:00");
+  });
+
+  it("respects an explicit zone and handles winter offsets", () => {
+    expect(wallClockToIso("2026-01-15T09:31:00", "America/New_York")).toBe(
+      "2026-01-15T14:31:00.000Z",
+    );
+    expect(isoToWallClock("2026-01-15T14:31:00Z", "America/New_York")).toBe("2026-01-15T09:31:00");
   });
 });

@@ -5,10 +5,9 @@ import {
   Flame,
   Globe,
   LayoutGrid,
+  PartyPopper,
   RefreshCw,
   Scale,
-  TrendingUp,
-  Wallet,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -20,9 +19,8 @@ export type ToolId =
   | "today"
   | "chart"
   | "econ"
-  | "rating"
   | "heatmap"
-  | "wallet";
+  | "wrapped";
 
 export type ToolGroupId = "calculators" | "markets" | "journal";
 
@@ -92,24 +90,17 @@ export const TOOL_ITEMS: ToolItem[] = [
     group: "markets",
   },
   {
-    id: "rating",
-    label: "Technical rating",
-    icon: TrendingUp,
-    keywords: ["rating", "signal"],
-    group: "markets",
-  },
-  {
     id: "heatmap",
-    label: "Heatmap",
+    label: "P&L heatmap",
     icon: Flame,
-    keywords: ["sector", "market"],
-    group: "markets",
+    keywords: ["hour", "weekday", "session", "when"],
+    group: "journal",
   },
   {
-    id: "wallet",
-    label: "Wallet",
-    icon: Wallet,
-    keywords: ["cash", "balance", "account"],
+    id: "wrapped",
+    label: "Year Wrapped",
+    icon: PartyPopper,
+    keywords: ["recap", "annual", "year", "review"],
     group: "journal",
   },
 ];

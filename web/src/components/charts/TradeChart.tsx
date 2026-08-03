@@ -8,7 +8,7 @@ import {
   type SeriesMarker,
   type Time,
 } from "lightweight-charts";
-import { ChartCandlestick, Maximize2 } from "lucide-react";
+import { ChartCandlestick, Maximize2, Play, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { Execution } from "@/lib/api/types";
 import type { MarketBar, BarInterval } from "@/lib/api/market";
@@ -55,6 +55,15 @@ export interface TradeChartProps {
   onExpand?: () => void;
   /** Hide the CHART label + expand row chrome (modal embeds its own title). */
   hideHeaderLabel?: boolean;
+  /**
+   * Replay cursor — exclusive end in unix seconds (UTC). Bars opening at or
+   * after it are painted transparent and their fill markers hidden, so the
+   * time axis stays full-width while candles reveal progressively.
+   */
+  replayUpTo?: number | null;
+  /** Toggles replay mode; renders a play/exit button in the header. */
+  onToggleReplay?: () => void;
+  replayActive?: boolean;
 }
 
 export function TradeChart({
@@ -75,11 +84,17 @@ export function TradeChart({
   hideIntervalWhenEmpty = false,
   onExpand,
   hideHeaderLabel = false,
+  replayUpTo = null,
+  onToggleReplay,
+  replayActive = false,
 }: TradeChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const seriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
   const markersRef = useRef<ReturnType<typeof createSeriesMarkers<Time>> | null>(null);
+  const fitKeyRef = useRef<string | null>(null);
+  // Price range of the bars revealed so far; null when not replaying.
+  const replayRangeRef = useRef<{ lo: number; hi: number } | null>(null);
   const [ready, setReady] = useState(false);
 
   const showInterval = Boolean(onIntervalChange) && !(hideIntervalWhenEmpty && empty);
@@ -120,10 +135,20 @@ export function TradeChart({
       borderDownColor: tradeChartTheme.down,
       wickUpColor: tradeChartTheme.up,
       wickDownColor: tradeChartTheme.down,
+      // During replay, scale to the revealed bars only — the full-series
+      // default would leak the not-yet-shown price range.
+      autoscaleInfoProvider: (
+        base: () => { priceRange: { minValue: number; maxValue: number } } | null,
+      ) => {
+        const r = replayRangeRef.current;
+        if (!r) return base();
+        return { priceRange: { minValue: r.lo, maxValue: r.hi } };
+      },
     });
 
     chartRef.current = chart;
     seriesRef.current = series;
+    fitKeyRef.current = null;
     setReady(true);
 
     const ro = new ResizeObserver((entries) => {
@@ -151,7 +176,41 @@ export function TradeChart({
       return;
     }
 
-    series.setData(barsToCandlestickData(bars, interval));
+    let points = barsToCandlestickData(bars, interval);
+    let visibleFills = fills;
+    if (replayUpTo != null) {
+      // Hide not-yet-reached bars by painting them transparent. Lightweight
+      // Charts drops trailing whitespace points, so swapping them for
+      // whitespace would collapse the time axis instead of holding it steady.
+      const cut = utcSecToChartTime(replayUpTo) as number;
+      const hidden = "rgba(0,0,0,0)";
+      points = points.map((p) =>
+        "open" in p && (p.time as number) >= cut
+          ? { ...p, color: hidden, borderColor: hidden, wickColor: hidden }
+          : p,
+      );
+      visibleFills = fills.filter(
+        (f) => Math.floor(new Date(f.executed_at).getTime() / 1000) < replayUpTo,
+      );
+      let lo = Number.POSITIVE_INFINITY;
+      let hi = Number.NEGATIVE_INFINITY;
+      for (const b of bars) {
+        if (b.time < replayUpTo) {
+          lo = Math.min(lo, b.low);
+          hi = Math.max(hi, b.high);
+        }
+      }
+      replayRangeRef.current = lo <= hi ? { lo, hi } : null;
+    } else {
+      replayRangeRef.current = null;
+    }
+    // The last-value label and price line track the final bar's close, which
+    // would spoil the replay ending.
+    series.applyOptions({
+      lastValueVisible: replayUpTo == null,
+      priceLineVisible: replayUpTo == null,
+    });
+    series.setData(points);
 
     for (const line of series.priceLines()) {
       series.removePriceLine(line);
@@ -187,8 +246,8 @@ export function TradeChart({
       });
     }
 
-    if (fills.length > 0) {
-      const markers = fillMarkers(fills);
+    if (visibleFills.length > 0) {
+      const markers = fillMarkers(visibleFills);
       if (markersRef.current) {
         markersRef.current.setMarkers(markers);
       } else {
@@ -198,8 +257,15 @@ export function TradeChart({
       markersRef.current?.setMarkers([]);
     }
 
-    chart.timeScale().fitContent();
-  }, [ready, bars, fills, interval, targetPrice, stopPrice, entryPrice]);
+    // Fit only when the bar set changes, not on every replay tick — the
+    // whitespaced series keeps the axis full-width, so refitting mid-replay
+    // would only clobber the user's zoom.
+    const fitKey = `${interval}:${bars.length}:${bars[0]!.time}:${bars.at(-1)!.time}`;
+    if (fitKeyRef.current !== fitKey) {
+      fitKeyRef.current = fitKey;
+      chart.timeScale().fitContent();
+    }
+  }, [ready, bars, fills, interval, targetPrice, stopPrice, entryPrice, replayUpTo]);
 
   return (
     <div className={cn("flex flex-col gap-2", className)}>
@@ -214,6 +280,21 @@ export function TradeChart({
               onChange={(v) => onIntervalChange?.(v as BarInterval)}
               options={BAR_INTERVALS}
             />
+          )}
+          {onToggleReplay && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label={replayActive ? "Exit replay" : "Replay trade"}
+              onClick={onToggleReplay}
+            >
+              {replayActive ? (
+                <X size={14} strokeWidth={1.5} aria-hidden />
+              ) : (
+                <Play size={14} strokeWidth={1.5} aria-hidden />
+              )}
+            </Button>
           )}
           {onExpand && (
             <Button

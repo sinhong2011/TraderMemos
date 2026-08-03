@@ -1,4 +1,4 @@
-import { ArrowLeft, Loader2, MoreVertical, Pencil, RefreshCw, Trash2 } from "lucide-react";
+import { ArrowLeft, Loader2, MoreVertical, Pencil, RefreshCw, Share2, Trash2 } from "lucide-react";
 import {
   forwardRef,
   useEffect,
@@ -57,6 +57,7 @@ import {
   type TradeInsights,
 } from "@/lib/tradeInsights";
 import { useToastManager } from "@/components/Toast";
+import { TradeShareModal } from "@/components/TradeShareCard";
 import { useComputeExcursion } from "@/lib/hooks/useTradeDetail";
 import { useTradeCoach } from "@/lib/hooks/useTradeCoach";
 import {
@@ -914,6 +915,7 @@ export function TradeDetailView({
   deleting = false,
 }: TradeDetailViewProps) {
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
   const [typedConfirm, setTypedConfirm] = useState("");
   const confirmInputId = useId();
   const computeExcursion = useComputeExcursion();
@@ -1009,28 +1011,32 @@ export function TradeDetailView({
               Edit trade
             </Button>
           )}
-          {onDelete ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger
-                aria-label="Trade actions"
-                disabled={deleting}
-                className={cn(
-                  "flex size-8 cursor-pointer items-center justify-center rounded-md border-none bg-transparent",
-                  "text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
-                  "outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
-                  "disabled:cursor-not-allowed disabled:opacity-50",
-                )}
-              >
-                <MoreVertical size={15} strokeWidth={1.5} aria-hidden />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" side="bottom" sideOffset={4} className="p-1">
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              aria-label="Trade actions"
+              disabled={deleting}
+              className={cn(
+                "flex size-8 cursor-pointer items-center justify-center rounded-md border-none bg-transparent",
+                "text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
+                "outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+                "disabled:cursor-not-allowed disabled:opacity-50",
+              )}
+            >
+              <MoreVertical size={15} strokeWidth={1.5} aria-hidden />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" side="bottom" sideOffset={4} className="p-1">
+              <DropdownMenuItem onClick={() => setShareOpen(true)}>
+                <Share2 size={14} strokeWidth={1.5} aria-hidden />
+                Share card
+              </DropdownMenuItem>
+              {onDelete ? (
                 <DropdownMenuItem variant="destructive" onClick={() => setDeleteOpen(true)}>
                   <Trash2 size={14} strokeWidth={1.5} aria-hidden />
                   Remove trade
                 </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : null}
+              ) : null}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
@@ -1086,6 +1092,13 @@ export function TradeDetailView({
           </div>
         </Modal>
       ) : null}
+
+      <TradeShareModal
+        trade={trade}
+        insights={insights}
+        open={shareOpen}
+        onOpenChange={setShareOpen}
+      />
 
       {/* Ordered by the questions a review actually asks: what happened, did it
           follow the plan, what did price do, why did I take it, how was it
