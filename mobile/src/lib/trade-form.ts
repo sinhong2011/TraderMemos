@@ -33,6 +33,8 @@ export interface FillDraft {
 }
 
 export interface TradeFormValues {
+  /** Stable client key for pager pages / tab rendering and animations. */
+  key: string;
   accountId: string;
   market: Market;
   symbol: string;
@@ -69,6 +71,12 @@ export function nextFillKey(): string {
   return `f${keySeq}`;
 }
 
+let blockSeq = 0;
+export function nextBlockKey(): string {
+  blockSeq += 1;
+  return `b${blockSeq}`;
+}
+
 export function emptyFill(side: 'buy' | 'sell'): FillDraft {
   return {
     key: nextFillKey(),
@@ -83,6 +91,7 @@ export function emptyFill(side: 'buy' | 'sell'): FillDraft {
 
 export function emptyTradeForm(accountId = ''): TradeFormValues {
   return {
+    key: nextBlockKey(),
     accountId,
     market: 'stock',
     symbol: '',
@@ -123,6 +132,7 @@ export function tradeFormFromDetail(trade: TradeDetail): TradeFormValues {
   }
 
   return {
+    key: nextBlockKey(),
     accountId: trade.account_id,
     market: (MARKETS as readonly string[]).includes(trade.instrument_type)
       ? (trade.instrument_type as Market)

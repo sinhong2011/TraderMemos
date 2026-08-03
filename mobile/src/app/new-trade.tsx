@@ -19,9 +19,10 @@ import {
 } from '@/lib/trade-form';
 
 /**
- * Full manual trade entry, mirroring the web NewTradeDrawer submit path: one
- * POST /executions per fill (the server regroups automatically), then the
- * journal PATCH and optional dividend against the resulting trade.
+ * Manual trade entry, mirroring the web NewTradeDrawer submit path for every
+ * symbol block: one POST /executions per fill (the server groups executions
+ * into one trade per symbol), then the journal PATCH and optional dividend
+ * against each resulting trade.
  */
 export default function NewTradeScreen() {
   const router = useRouter();
@@ -32,20 +33,22 @@ export default function NewTradeScreen() {
   const { data: tags } = useTags();
 
   const save = useMutation({
-    mutationFn: async (values: TradeFormValues) => {
-      let tradeId = '';
-      for (const fill of values.fills.filter(isValidFill)) {
-        const res = await api<{ execution_id: string; trade_id: string }>('/executions', {
-          method: 'POST',
-          body: executionBody(values, fill),
-        });
-        if (res.trade_id) tradeId = res.trade_id;
-      }
-      if (tradeId) {
-        await api(`/trades/${tradeId}`, { method: 'PATCH', body: journalPatchBody(values) });
-        const account = accounts?.find((a) => a.id === values.accountId);
-        const dividend = dividendBody(values, tradeId, account?.base_currency ?? 'USD');
-        if (dividend) await api('/cash-transactions', { method: 'POST', body: dividend });
+    mutationFn: async (blocks: TradeFormValues[]) => {
+      for (const values of blocks) {
+        let tradeId = '';
+        for (const fill of values.fills.filter(isValidFill)) {
+          const res = await api<{ execution_id: string; trade_id: string }>('/executions', {
+            method: 'POST',
+            body: executionBody(values, fill),
+          });
+          if (res.trade_id) tradeId = res.trade_id;
+        }
+        if (tradeId) {
+          await api(`/trades/${tradeId}`, { method: 'PATCH', body: journalPatchBody(values) });
+          const account = accounts?.find((a) => a.id === values.accountId);
+          const dividend = dividendBody(values, tradeId, account?.base_currency ?? 'USD');
+          if (dividend) await api('/cash-transactions', { method: 'POST', body: dividend });
+        }
       }
     },
     onSuccess: () => {
@@ -55,17 +58,26 @@ export default function NewTradeScreen() {
     onError: (err) => Alert.alert(t`Could not save`, err.message),
   });
 
-  function handleSave(values: TradeFormValues) {
-    switch (validateTradeForm(values)) {
-      case 'account':
-        return Alert.alert(t`Could not save`, t`No account found — create one on the web app first.`);
-      case 'symbol':
-        return Alert.alert(t`Could not save`, t`Enter a symbol.`);
-      case 'fills':
-        return Alert.alert(t`Could not save`, t`Add at least one fill with quantity and price.`);
-      default:
-        save.mutate(values);
+  function handleSave(blocks: TradeFormValues[]) {
+    for (const [index, values] of blocks.entries()) {
+      const label = values.symbol.trim().toUpperCase() || t`symbol ${index + 1}`;
+      switch (validateTradeForm(values)) {
+        case 'account':
+          return Alert.alert(
+            t`Could not save`,
+            t`No account found — create one on the web app first.`,
+          );
+        case 'symbol':
+          return Alert.alert(t`Could not save`, t`Enter a symbol for block ${index + 1}.`);
+        case 'fills':
+          return Alert.alert(
+            t`Could not save`,
+            t`Add at least one fill with quantity and price for ${label}.`,
+          );
+      }
     }
+    if (blocks.length === 0) return;
+    save.mutate(blocks);
   }
 
   if (!accounts || !setups || !tags) {
@@ -86,7 +98,7 @@ export default function NewTradeScreen() {
   return (
     <TradeForm
       title={t`New trade`}
-      initial={emptyTradeForm(accounts[0].id)}
+      initialBlocks={[emptyTradeForm(accounts[0].id)]}
       accounts={accounts}
       setups={setups}
       tags={tags}

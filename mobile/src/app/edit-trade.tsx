@@ -82,7 +82,9 @@ export default function EditTradeScreen() {
     onError: (err) => Alert.alert(t`Could not save`, err.message),
   });
 
-  function handleSave(values: TradeFormValues) {
+  function handleSave(blocks: TradeFormValues[]) {
+    const values = blocks[0];
+    if (!values) return;
     if (validateTradeForm(values) === 'fills') {
       return Alert.alert(t`Could not save`, t`Add at least one fill with quantity and price.`);
     }
@@ -109,7 +111,7 @@ export default function EditTradeScreen() {
   return (
     <TradeForm
       title={addExit === '1' ? t`Close position` : t`Edit trade`}
-      initial={initial}
+      initialBlocks={[initial]}
       accounts={accounts}
       setups={setups}
       tags={tags}
