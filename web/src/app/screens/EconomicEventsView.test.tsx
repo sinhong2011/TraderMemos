@@ -1,7 +1,12 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vite-plus/test";
 import type { EconomicEvent } from "@/lib/api/economicEvents";
-import { addDaysKey, EconomicEventsView, weekStartKey } from "./EconomicEventsView";
+import {
+  addDaysKey,
+  EconomicEventsView,
+  formatWeekLabel,
+  weekStartKey,
+} from "./EconomicEventsView";
 
 function ev(overrides: Partial<EconomicEvent>): EconomicEvent {
   return {
@@ -90,5 +95,15 @@ describe("week helpers", () => {
     expect(addDaysKey("2026-08-02", -1)).toBe("2026-08-01");
     // Offset weeks land exactly 7 days apart.
     expect(addDaysKey(weekStartKey(1, "UTC"), -7)).toBe(start);
+  });
+
+  it("formats the week range without leaking the year inside the current year", () => {
+    // Intl separates range parts with thin spaces — compare on plain spaces.
+    const label = (weekStart: string) =>
+      formatWeekLabel(weekStart, "en-US", "2026-08-03").replace(/\s/g, " ");
+    expect(label("2026-08-02")).toBe("Aug 2 – 8");
+    expect(label("2026-07-26")).toBe("Jul 26 – Aug 1");
+    // Weeks outside the current year keep the year for disambiguation.
+    expect(label("2025-12-28")).toBe("Dec 28, 2025 – Jan 3, 2026");
   });
 });

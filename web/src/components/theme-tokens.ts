@@ -22,6 +22,24 @@ export function pnlBgTint(
   return `color-mix(in srgb, ${LOSS_WASH} ${pct}%, transparent)`;
 }
 
+/**
+ * Label tiers for text sitting on a P&L wash (calendar cells).
+ *
+ * `muted-foreground` is a fixed neutral gray: over a saturated red/green tint it
+ * loses contrast and reads muddy, and it drifts differently on each tint level.
+ * Alpha-derived labels inherit the surface underneath, so the hierarchy holds at
+ * every wash opacity and in both themes — the same reason platform design systems
+ * define secondary/tertiary labels as alpha, not a second gray.
+ *
+ * The per-theme alpha follows the washes: light tints are pale, so the label has
+ * to stay dark to clear AA, while dark tints reach it sooner. Hierarchy comes
+ * from size and weight, not from dimming below legibility — worst case on the
+ * month grid, the flat gray measured 1.9:1 (dark) / 3.3:1 (light); these land at
+ * 4.7:1 / 5.6:1.
+ */
+export const TINTED_LABEL = "text-foreground/90 dark:text-foreground/85";
+export const TINTED_LABEL_SUBTLE = "text-foreground/80 dark:text-foreground/75";
+
 // Semantic P&L color by sign (green/red on dark, flat for zero).
 export function pnlColor(v: number | null | undefined): string {
   if (v == null || v === 0) return "text-flat";

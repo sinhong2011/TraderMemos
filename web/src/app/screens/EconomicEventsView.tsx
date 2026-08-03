@@ -41,17 +41,25 @@ export function addDaysKey(key: string, days: number): string {
   return d.toISOString().slice(0, 10);
 }
 
-function formatWeekLabel(weekStart: string, locale: string): string {
+/**
+ * "Aug 2 – 8" (or "Jul 26 – Aug 1, 2025" outside the current year) — `formatRange`
+ * collapses the shared month/year per locale rules. Formatting the two ends
+ * separately and dropping `month` by hand yields garbage in en-US
+ * ("2026 (day: 8)"), so let Intl own the range. The year is dropped inside the
+ * current year to keep the stepper narrow enough for the mobile toolbar row.
+ */
+export function formatWeekLabel(weekStart: string, locale: string, todayKey: string): string {
   const start = new Date(`${weekStart}T12:00:00Z`);
   const end = new Date(`${addDaysKey(weekStart, 6)}T12:00:00Z`);
-  const opts = { month: "short", day: "numeric", timeZone: "UTC" } as const;
-  const startLabel = start.toLocaleDateString(locale, opts);
-  const endLabel = end.toLocaleDateString(locale, {
-    ...opts,
-    ...(start.getUTCMonth() === end.getUTCMonth() ? { month: undefined } : {}),
-    year: "numeric",
-  });
-  return `${startLabel} – ${endLabel}`;
+  const currentYear = todayKey.slice(0, 4);
+  const showYear =
+    weekStart.slice(0, 4) !== currentYear || addDaysKey(weekStart, 6).slice(0, 4) !== currentYear;
+  return new Intl.DateTimeFormat(locale, {
+    month: "short",
+    day: "numeric",
+    ...(showYear ? { year: "numeric" as const } : {}),
+    timeZone: "UTC",
+  }).formatRange(start, end);
 }
 
 function formatDayHeader(dayKey: string, locale: string): string {
@@ -63,9 +71,25 @@ function formatDayHeader(dayKey: string, locale: string): string {
   });
 }
 
-const ROW_GRID =
-  "grid grid-cols-[3.25rem_2.5rem_4.5rem_minmax(0,1fr)] items-center gap-2 px-4 " +
-  "sm:grid-cols-[3.25rem_2.5rem_4.5rem_minmax(0,1fr)_4.5rem_4.5rem]";
+/**
+ * Row template. The time column is sized per locale/preference: a 24h "15:19"
+ * fits 3.25rem, while a day period ("05:15 PM", "오후 3:19") needs 4.5rem or it
+ * wraps onto a second line and doubles the row height on mobile.
+ */
+const ROW_GRID_BASE = "grid items-center gap-2 px-4";
+const ROW_GRID_COLS = {
+  narrow:
+    "grid-cols-[3.25rem_2.5rem_4.5rem_minmax(0,1fr)] " +
+    "sm:grid-cols-[3.25rem_2.5rem_4.5rem_minmax(0,1fr)_4.5rem_4.5rem]",
+  wide:
+    "grid-cols-[4.5rem_2.5rem_4.5rem_minmax(0,1fr)] " +
+    "sm:grid-cols-[4.5rem_2.5rem_4.5rem_minmax(0,1fr)_4.5rem_4.5rem]",
+} as const;
+
+/** True when formatted times carry a day period (12h) and need the wider column. */
+function needsWideTimeColumn(locale: string): boolean {
+  return fmtTime("2026-01-05T15:19:00Z", locale).length > 5;
+}
 
 export interface EconomicEventsViewProps {
   /** Events already clipped to the visible week, sorted by time. */
@@ -130,6 +154,11 @@ export function EconomicEventsView({
 
   const hasActual = filtered.some((ev) => ev.actual !== "");
   const filtersActive = impactSet != null || currencySet != null;
+  const label = formatWeekLabel(weekStart, locale, todayKey);
+  const rowGrid = cn(
+    ROW_GRID_BASE,
+    needsWideTimeColumn(locale) ? ROW_GRID_COLS.wide : ROW_GRID_COLS.narrow,
+  );
 
   function renderContent() {
     if (loading) {
@@ -162,7 +191,7 @@ export function EconomicEventsView({
         <div
           role="row"
           className={cn(
-            ROW_GRID,
+            rowGrid,
             "pt-3 pb-1 text-[10px] font-medium uppercase tracking-wide text-muted-foreground",
           )}
         >
@@ -199,12 +228,12 @@ export function EconomicEventsView({
                   key={ev.id}
                   role="row"
                   className={cn(
-                    ROW_GRID,
+                    rowGrid,
                     "min-h-9 rounded-md py-1.5 transition-colors",
                     "hover:bg-accent",
                   )}
                 >
-                  <span className="text-[12px] tabular-nums text-muted-foreground">
+                  <span className="whitespace-nowrap text-[12px] tabular-nums text-muted-foreground">
                     {fmtTime(ev.time, locale)}
                   </span>
                   <span className="text-[12px] font-medium text-foreground">{ev.country}</span>
@@ -237,16 +266,37 @@ export function EconomicEventsView({
 
   return (
     <Page>
-      <div className="flex flex-wrap items-center gap-2">
+      {/* Single toolbar row on every width: the week stepper takes the slack and
+          truncates, the filters keep their natural size. */}
+      <div className="flex items-center gap-1.5 sm:gap-2">
         <PeriodNav
           onPrev={onPrevWeek}
           onNext={onNextWeek}
           prevLabel="Previous week"
           nextLabel="Next week"
+          className="min-w-0"
         >
-          <span className="min-w-28 px-1 text-center text-[13px] font-semibold tabular-nums tracking-[-0.01em] text-foreground">
-            {formatWeekLabel(weekStart, locale)}
-          </span>
+          {isCurrentWeek ? (
+            <span className="min-w-0 truncate px-1 text-center text-[13px] font-semibold tabular-nums tracking-[-0.01em] text-foreground">
+              {label}
+            </span>
+          ) : (
+            // Below `sm` the explicit "This week" button is dropped for row width,
+            // so the label itself is the way back to the current week.
+            <button
+              type="button"
+              onClick={onThisWeek}
+              title="Back to this week"
+              aria-label={`Back to this week (showing ${label})`}
+              className={cn(
+                "min-w-0 truncate rounded-md px-1 text-center text-[13px] font-semibold tabular-nums",
+                "tracking-[-0.01em] text-foreground transition-colors hover:text-primary",
+                "focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ring",
+              )}
+            >
+              {label}
+            </button>
+          )}
         </PeriodNav>
         {!isCurrentWeek ? (
           <Button
@@ -254,12 +304,12 @@ export function EconomicEventsView({
             variant="ghost"
             size="sm"
             onClick={onThisWeek}
-            className="h-8 px-2.5 text-[12px] sm:h-7"
+            className="hidden h-8 shrink-0 px-2 text-[12px] sm:inline-flex sm:h-7 sm:px-2.5"
           >
             This week
           </Button>
         ) : null}
-        <div className="ml-auto flex flex-wrap items-center gap-2">
+        <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
           <FacetedFilter
             title="Impact"
             multiple
@@ -268,6 +318,7 @@ export function EconomicEventsView({
             onChange={(next) =>
               onImpactChange(Array.isArray(next) ? next : next ? [next] : undefined)
             }
+            className="px-2 sm:px-3"
           />
           <FacetedFilter
             title="Currency"
@@ -277,6 +328,7 @@ export function EconomicEventsView({
             onChange={(next) =>
               onCurrenciesChange(Array.isArray(next) ? next : next ? [next] : undefined)
             }
+            className="px-2 sm:px-3"
           />
         </div>
       </div>
