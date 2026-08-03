@@ -1,6 +1,9 @@
 import { useState } from 'react';
 
+import { BehaviorSection } from '@/components/reports/behavior-section';
+import { DetailedSection } from '@/components/reports/detailed-section';
 import { OverviewSection } from '@/components/reports/overview-section';
+import { RiskSection } from '@/components/reports/risk-section';
 import { WinLossSection } from '@/components/reports/winloss-section';
 import { t } from '@lingui/core/macro';
 
@@ -18,12 +21,23 @@ export default function ReportsScreen() {
   const sections: { value: ReportsSection; label: string }[] = [
     { value: 'overview', label: t`Overview` },
     { value: 'winloss', label: t`Win / Loss` },
+    { value: 'detailed', label: t`Detailed` },
+    { value: 'risk', label: t`Risk` },
+    { value: 'behavior', label: t`Behavior` },
   ];
+
+  const props = { sections, section, onSection: setSection };
 
   switch (section) {
     case 'winloss':
-      return <WinLossSection sections={sections} section={section} onSection={setSection} />;
+      return <WinLossSection {...props} />;
+    case 'detailed':
+      return <DetailedSection {...props} />;
+    case 'risk':
+      return <RiskSection {...props} />;
+    case 'behavior':
+      return <BehaviorSection {...props} />;
     default:
-      return <OverviewSection sections={sections} section={section} onSection={setSection} />;
+      return <OverviewSection {...props} />;
   }
 }
