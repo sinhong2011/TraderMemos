@@ -6,6 +6,7 @@ import { StyleSheet } from 'react-native-unistyles';
 import { FormSkeleton } from '@/components/skeleton';
 
 import { useAccounts, useApiRequest, useSetups, useTags, useTrade } from '@/api/hooks';
+import { AttachmentsCard } from '@/components/attachments-card';
 import { TradeForm } from '@/components/trade-form';
 import { t } from '@lingui/core/macro';
 import {
@@ -117,6 +118,9 @@ export default function EditTradeScreen() {
       tags={tags}
       saving={save.isPending}
       lockInstrument
+      // Live card, not part of the draft: uploads/removals apply immediately,
+      // independent of Save/Cancel.
+      footer={<AttachmentsCard trade={trade} />}
       onSave={handleSave}
     />
   );

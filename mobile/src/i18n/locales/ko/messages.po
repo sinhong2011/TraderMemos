@@ -365,9 +365,9 @@ msgstr "TraderMemos 정보"
 #: src/app/(tabs)/(settings)/export-trades.tsx:86
 #: src/app/(tabs)/(settings)/export-trades.tsx:89
 #: src/app/(tabs)/(settings)/import-trades.tsx:408
-#: src/components/account-menu.tsx:35
-#: src/components/trade-form.tsx:839
-#: src/components/trade-form.tsx:876
+#: src/components/account-menu.tsx:36
+#: src/components/trade-form.tsx:854
+#: src/components/trade-form.tsx:892
 msgid "Account"
 msgstr "계좌"
 
@@ -446,15 +446,15 @@ msgstr "설정 → AI에서 OpenAI 호환 비전 엔드포인트와 API 키를 �
 msgid "Add another account before deleting this one."
 msgstr "이 계좌를 삭제하기 전에 다른 계좌를 추가하세요."
 
-#: src/app/new-trade.tsx:75
+#: src/app/new-trade.tsx:89
 msgid "Add at least one fill with quantity and price for {label}."
 msgstr "{label}에 수량과 가격이 있는 체결을 1개 이상 추가하세요."
 
-#: src/app/edit-trade.tsx:89
+#: src/app/edit-trade.tsx:90
 msgid "Add at least one fill with quantity and price."
 msgstr "수량과 가격이 입력된 체결을 1건 이상 추가하세요."
 
-#: src/components/trade-form.tsx:608
+#: src/components/trade-form.tsx:609
 msgid "Add fill"
 msgstr "체결 추가"
 
@@ -467,11 +467,12 @@ msgid "Add position"
 msgstr "포지션 추가"
 
 #: src/components/attachments-card.tsx:183
+#: src/components/screenshot-queue.tsx:112
 msgid "Add screenshot"
 msgstr "스크린샷 추가"
 
 #: src/components/note-form.tsx:118
-#: src/components/trade-form.tsx:368
+#: src/components/trade-form.tsx:369
 msgid "Add symbol"
 msgstr "종목 추가"
 
@@ -547,8 +548,8 @@ msgstr "AI 리뷰"
 msgid "All"
 msgstr "전체"
 
-#: src/components/account-menu.tsx:38
-#: src/components/account-menu.tsx:67
+#: src/components/account-menu.tsx:39
+#: src/components/account-menu.tsx:68
 msgid "All accounts"
 msgstr "모든 계좌"
 
@@ -571,7 +572,7 @@ msgstr "항상 \"{0}\""
 
 #: src/app/(tabs)/(settings)/cash-form.tsx:178
 #: src/app/tool-fx.tsx:36
-#: src/components/trade-form.tsx:729
+#: src/components/trade-form.tsx:730
 msgid "Amount"
 msgstr "금액"
 
@@ -828,7 +829,7 @@ msgstr "예산 {0}"
 msgid "Busiest month: {0} with {1} trades."
 msgstr "가장 활발한 달: {0} ({1}건)."
 
-#: src/components/trade-form.tsx:388
+#: src/components/trade-form.tsx:389
 msgid "Buy"
 msgstr "매수"
 
@@ -845,7 +846,7 @@ msgstr "캘린더"
 msgid "Calendar not configured"
 msgstr "캘린더 미설정"
 
-#: src/components/trade-form.tsx:486
+#: src/components/trade-form.tsx:487
 msgid "Call"
 msgstr "콜"
 
@@ -873,7 +874,7 @@ msgstr "콜 / 풋"
 #: src/app/(tabs)/(trades)/[id].tsx:162
 #: src/app/edit-note.tsx:68
 #: src/app/new-setup.tsx:106
-#: src/components/account-menu.tsx:43
+#: src/components/account-menu.tsx:44
 #: src/components/attachments-card.tsx:143
 #: src/components/form-sheet.tsx:71
 #: src/components/swipeable-trade-row.tsx:83
@@ -988,7 +989,7 @@ msgstr "청산일 (마지막 활동)"
 msgid "Close date matches realized P&L; open date groups by entry day."
 msgstr "청산일은 실현 손익과 일치하고, 진입일은 진입한 날짜로 묶습니다."
 
-#: src/app/edit-trade.tsx:113
+#: src/app/edit-trade.tsx:114
 msgid "Close position"
 msgstr "포지션 청산"
 
@@ -1009,7 +1010,7 @@ msgid "Color"
 msgstr "색상"
 
 #: src/app/(tabs)/(settings)/import-trades.tsx:45
-#: src/components/trade-form.tsx:439
+#: src/components/trade-form.tsx:440
 msgid "Commission"
 msgstr "커미션"
 
@@ -1055,7 +1056,7 @@ msgstr "일관성 규칙"
 msgid "consistency rule at risk"
 msgstr "일관성 규칙 위험"
 
-#: src/components/trade-form.tsx:536
+#: src/components/trade-form.tsx:537
 msgid "Contract"
 msgstr "계약"
 
@@ -1168,17 +1169,17 @@ msgstr "토큰을 폐기하지 못했습니다"
 #: src/app/(tabs)/(settings)/risk-rules.tsx:58
 #: src/app/edit-note.tsx:40
 #: src/app/edit-note.tsx:54
-#: src/app/edit-trade.tsx:82
-#: src/app/edit-trade.tsx:89
+#: src/app/edit-trade.tsx:83
+#: src/app/edit-trade.tsx:90
 #: src/app/new-note.tsx:34
 #: src/app/new-note.tsx:41
 #: src/app/new-setup.tsx:67
 #: src/app/new-setup.tsx:81
 #: src/app/new-setup.tsx:87
-#: src/app/new-trade.tsx:58
-#: src/app/new-trade.tsx:67
-#: src/app/new-trade.tsx:71
-#: src/app/new-trade.tsx:74
+#: src/app/new-trade.tsx:72
+#: src/app/new-trade.tsx:81
+#: src/app/new-trade.tsx:85
+#: src/app/new-trade.tsx:88
 #: src/app/quick-journal.tsx:65
 msgid "Could not save"
 msgstr "저장하지 못했습니다"
@@ -1226,7 +1227,7 @@ msgstr "만드는 중…"
 
 #: src/app/(tabs)/(dashboard)/advanced-chart.tsx:93
 #: src/app/(tabs)/(trades)/index.tsx:275
-#: src/components/trade-form.tsx:476
+#: src/components/trade-form.tsx:477
 msgid "Crypto"
 msgstr "암호화폐"
 
@@ -1309,7 +1310,7 @@ msgstr "데이터"
 #: src/app/(tabs)/(settings)/cash-form.tsx:189
 #: src/app/(tabs)/(trades)/index.tsx:331
 #: src/components/note-form.tsx:65
-#: src/components/trade-form.tsx:736
+#: src/components/trade-form.tsx:737
 msgid "Date"
 msgstr "날짜"
 
@@ -1416,7 +1417,7 @@ msgstr "개발자"
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:307
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:520
-#: src/components/trade-form.tsx:528
+#: src/components/trade-form.tsx:529
 msgid "Direction"
 msgstr "방향"
 
@@ -1449,7 +1450,7 @@ msgstr "표시 시간대"
 msgid "Distance from the running equity peak, as a percentage."
 msgstr "자산 곡선 고점 대비 하락률입니다."
 
-#: src/components/trade-form.tsx:726
+#: src/components/trade-form.tsx:727
 #: src/lib/cash.ts:14
 msgid "Dividend"
 msgstr "배당"
@@ -1536,13 +1537,13 @@ msgid "Edit setup"
 msgstr "셋업 편집"
 
 #: src/app/(tabs)/(trades)/[id].tsx:220
-#: src/app/edit-trade.tsx:113
+#: src/app/edit-trade.tsx:114
 msgid "Edit trade"
 msgstr "트레이드 수정"
 
 #: src/app/(tabs)/(trades)/[id].tsx:399
 #: src/app/manage-tags.tsx:107
-#: src/components/trade-form.tsx:661
+#: src/components/trade-form.tsx:662
 msgid "Emotion"
 msgstr "감정"
 
@@ -1563,7 +1564,7 @@ msgid "Enter a setup name."
 msgstr "셋업 이름을 입력하세요."
 
 #. placeholder {0}: index + 1
-#: src/app/new-trade.tsx:71
+#: src/app/new-trade.tsx:85
 msgid "Enter a symbol for block {0}."
 msgstr "블록 {0}의 종목 코드를 입력하세요."
 
@@ -1653,7 +1654,7 @@ msgstr "진입 가격"
 
 #: src/app/(tabs)/(trades)/[id].tsx:413
 #: src/app/quick-journal.tsx:77
-#: src/components/trade-form.tsx:685
+#: src/components/trade-form.tsx:686
 msgid "Entry reason"
 msgstr "진입 이유"
 
@@ -1695,7 +1696,7 @@ msgid "Exec {grade}"
 msgstr "실행 {grade}"
 
 #: src/app/(tabs)/(settings)/import-trades.tsx:41
-#: src/components/trade-form.tsx:412
+#: src/components/trade-form.tsx:413
 msgid "Executed at"
 msgstr "체결 시각"
 
@@ -1706,7 +1707,7 @@ msgstr "실행 등급"
 #: src/app/(tabs)/(trades)/[id].tsx:410
 #: src/app/manage-tags.tsx:130
 #: src/app/quick-journal.tsx:90
-#: src/components/trade-form.tsx:694
+#: src/components/trade-form.tsx:695
 msgid "Execution rating"
 msgstr "실행 평가"
 
@@ -1723,7 +1724,7 @@ msgid "Exit ladder"
 msgstr "청산 래더"
 
 #: src/app/(tabs)/(trades)/[id].tsx:414
-#: src/components/trade-form.tsx:712
+#: src/components/trade-form.tsx:713
 msgid "Exit reason"
 msgstr "청산 이유"
 
@@ -1758,7 +1759,7 @@ msgid "Expires {expires} · Last used {lastUsed}"
 msgstr "만료 {expires} · 마지막 사용 {lastUsed}"
 
 #: src/app/(tabs)/(settings)/api-tokens.tsx:128
-#: src/components/trade-form.tsx:556
+#: src/components/trade-form.tsx:557
 msgid "Expiry"
 msgstr "만기일"
 
@@ -1814,7 +1815,7 @@ msgstr "수수료"
 #: src/app/(tabs)/(trades)/[id].tsx:285
 #: src/components/performance-card.tsx:57
 #: src/components/reports/overview-section.tsx:183
-#: src/components/trade-form.tsx:432
+#: src/components/trade-form.tsx:433
 msgid "Fees"
 msgstr "수수료"
 
@@ -1841,7 +1842,7 @@ msgid "File"
 msgstr "파일"
 
 #. placeholder {0}: index + 1
-#: src/components/trade-form.tsx:395
+#: src/components/trade-form.tsx:396
 msgid "Fill {0}"
 msgstr "체결 {0}"
 
@@ -1854,7 +1855,7 @@ msgid "Fill prices disagree with the tape — replay P&L is approximate until th
 msgstr "체결 가격이 차트와 일치하지 않습니다 — 청산 전까지 리플레이 손익은 근사치입니다."
 
 #: src/app/(tabs)/(settings)/import-trades.tsx:282
-#: src/components/trade-form.tsx:593
+#: src/components/trade-form.tsx:594
 msgid "Fills"
 msgstr "체결"
 
@@ -1897,7 +1898,7 @@ msgstr "예상 {0}"
 
 #: src/app/(tabs)/(dashboard)/advanced-chart.tsx:94
 #: src/app/(tabs)/(trades)/index.tsx:277
-#: src/components/trade-form.tsx:478
+#: src/components/trade-form.tsx:479
 msgid "Forex"
 msgstr "외환"
 
@@ -1941,7 +1942,7 @@ msgstr "자금"
 
 #: src/app/(tabs)/(dashboard)/advanced-chart.tsx:95
 #: src/app/(tabs)/(trades)/index.tsx:276
-#: src/components/trade-form.tsx:477
+#: src/components/trade-form.tsx:478
 msgid "Futures"
 msgstr "선물"
 
@@ -2070,6 +2071,7 @@ msgid "IBKR Flex sync"
 msgstr "IBKR Flex 동기화"
 
 #: src/components/attachments-card.tsx:200
+#: src/components/screenshot-queue.tsx:128
 #: src/components/trade-prefill-bar.tsx:167
 msgid "Image files"
 msgstr "이미지 파일"
@@ -2162,7 +2164,7 @@ msgstr "문제"
 #: src/app/(tabs)/(trades)/[id].tsx:378
 #: src/app/(tabs)/(trades)/[id].tsx:420
 #: src/components/swipeable-trade-row.tsx:117
-#: src/components/trade-form.tsx:643
+#: src/components/trade-form.tsx:644
 msgid "Journal"
 msgstr "저널"
 
@@ -2278,7 +2280,7 @@ msgstr "로그"
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:499
 #: src/app/new-setup.tsx:112
 #: src/components/reports-filter-menu.tsx:40
-#: src/components/trade-form.tsx:481
+#: src/components/trade-form.tsx:482
 #: src/components/trade-row.tsx:62
 msgid "Long"
 msgstr "롱"
@@ -2376,7 +2378,7 @@ msgid "Margin"
 msgstr "마진"
 
 #: src/app/(tabs)/(trades)/index.tsx:347
-#: src/components/trade-form.tsx:512
+#: src/components/trade-form.tsx:513
 msgid "Market"
 msgstr "시장"
 
@@ -2478,7 +2480,7 @@ msgstr "실수"
 
 #: src/app/manage-tags.tsx:80
 #: src/app/quick-journal.tsx:99
-#: src/components/trade-form.tsx:702
+#: src/components/trade-form.tsx:703
 msgid "Mistake type"
 msgstr "실수 유형"
 
@@ -2524,7 +2526,7 @@ msgstr "손실 거래에서 청산 전 여러 번 추가 — 전형적인 물타
 msgid "Multiple fills increase fee drag and slippage. Make sure each add had a defined reason."
 msgstr "체결이 많을수록 수수료와 슬리피지가 커집니다. 각 추가에 분명한 이유가 있었는지 확인하세요."
 
-#: src/components/trade-form.tsx:568
+#: src/components/trade-form.tsx:569
 msgid "Multiplier"
 msgstr "승수"
 
@@ -2601,7 +2603,7 @@ msgstr "새 태그"
 msgid "New token"
 msgstr "새 토큰"
 
-#: src/app/new-trade.tsx:100
+#: src/app/new-trade.tsx:114
 #: src/components/add-menu.tsx:21
 msgid "New trade"
 msgstr "새 트레이드"
@@ -2622,8 +2624,8 @@ msgstr "다음 주"
 msgid "Next year"
 msgstr "다음 해"
 
-#: src/app/new-trade.tsx:68
-#: src/app/new-trade.tsx:93
+#: src/app/new-trade.tsx:82
+#: src/app/new-trade.tsx:107
 msgid "No account found — create one on the web app first."
 msgstr "계좌가 없습니다 — 먼저 웹 앱에서 만들어 주세요."
 
@@ -2780,7 +2782,7 @@ msgid "No usable fills found — rows need a positive quantity and price."
 msgstr "사용할 수 있는 체결이 없습니다 — 각 행에 양수 수량과 가격이 필요합니다."
 
 #: src/components/insights-card.tsx:86
-#: src/components/trade-form.tsx:485
+#: src/components/trade-form.tsx:486
 msgid "None"
 msgstr "없음"
 
@@ -2814,7 +2816,7 @@ msgstr "유효한 JSON이 아닙니다."
 #: src/app/(tabs)/(settings)/cash-form.tsx:194
 #: src/components/note-form.tsx:44
 #: src/components/note-form.tsx:88
-#: src/components/trade-form.tsx:742
+#: src/components/trade-form.tsx:743
 msgid "Note"
 msgstr "노트"
 
@@ -2909,11 +2911,11 @@ msgid "Opened"
 msgstr "진입"
 
 #: src/app/(tabs)/(trades)/index.tsx:274
-#: src/components/trade-form.tsx:475
+#: src/components/trade-form.tsx:476
 msgid "Option"
 msgstr "옵션"
 
-#: src/components/trade-form.tsx:745
+#: src/components/trade-form.tsx:746
 msgid "Optional"
 msgstr "선택 사항"
 
@@ -3054,6 +3056,7 @@ msgid "PF"
 msgstr "PF"
 
 #: src/components/attachments-card.tsx:195
+#: src/components/screenshot-queue.tsx:123
 #: src/components/trade-prefill-bar.tsx:162
 msgid "Photo Library"
 msgstr "사진 보관함"
@@ -3067,7 +3070,7 @@ msgid "Pick an account first."
 msgstr "먼저 계좌를 선택하세요."
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:592
-#: src/components/trade-form.tsx:619
+#: src/components/trade-form.tsx:620
 msgid "Plan"
 msgstr "계획"
 
@@ -3100,7 +3103,7 @@ msgid ""
 "Origin only — /api/v1 is added automatically."
 msgstr "내 TraderMemos 인스턴스에 연결하세요."
 
-#: src/components/trade-form.tsx:565
+#: src/components/trade-form.tsx:566
 msgid "Point value"
 msgstr "포인트 가치"
 
@@ -3161,7 +3164,7 @@ msgid "Previous year"
 msgstr "이전 해"
 
 #: src/app/(tabs)/(settings)/import-trades.tsx:40
-#: src/components/trade-form.tsx:425
+#: src/components/trade-form.tsx:426
 msgid "Price"
 msgstr "가격"
 
@@ -3224,13 +3227,13 @@ msgstr "프랍 평가"
 msgid "Prop rules"
 msgstr "프랍 규칙"
 
-#: src/components/trade-form.tsx:487
+#: src/components/trade-form.tsx:488
 msgid "Put"
 msgstr "풋"
 
 #: src/app/(tabs)/(settings)/import-trades.tsx:39
 #: src/app/(tabs)/(trades)/[id].tsx:367
-#: src/components/trade-form.tsx:418
+#: src/components/trade-form.tsx:419
 msgid "Quantity"
 msgstr "수량"
 
@@ -3273,7 +3276,11 @@ msgstr "R 배수"
 msgid "R-Multiple"
 msgstr "R 배수"
 
-#: src/components/trade-form.tsx:724
+#: src/components/screenshot-queue.tsx:42
+msgid "Raise the cap under Settings → Display to queue more."
+msgstr "더 추가하려면 설정 → 표시에서 한도를 올리세요."
+
+#: src/components/trade-form.tsx:725
 msgid "Rate how you executed, not how it paid — a disciplined trade can still lose."
 msgstr "손익이 아니라 실행의 질을 평가하세요. 원칙을 지킨 매매도 손실이 날 수 있습니다."
 
@@ -3343,8 +3350,10 @@ msgstr "잔여 수량"
 msgid "Remove"
 msgstr "삭제"
 
+#. placeholder {0}: shot.name
 #. placeholder {0}: symbol.symbol
 #: src/components/note-form.tsx:135
+#: src/components/screenshot-queue.tsx:99
 msgid "Remove {0}"
 msgstr "{0} 제거"
 
@@ -3353,7 +3362,7 @@ msgstr "{0} 제거"
 msgid "Remove {0}?"
 msgstr "{0}을(를) 삭제할까요?"
 
-#: src/components/trade-form.tsx:401
+#: src/components/trade-form.tsx:402
 msgid "Remove fill"
 msgstr "체결 삭제"
 
@@ -3381,7 +3390,7 @@ msgstr "규칙을 삭제할까요?"
 msgid "Remove screenshot?"
 msgstr "스크린샷을 제거할까요?"
 
-#: src/components/trade-form.tsx:304
+#: src/components/trade-form.tsx:305
 msgid "Remove symbol"
 msgstr "종목 삭제"
 
@@ -3453,13 +3462,13 @@ msgstr "복수 매매"
 
 #: src/app/(tabs)/(trades)/[id].tsx:380
 #: src/app/quick-journal.tsx:71
-#: src/components/trade-form.tsx:692
+#: src/components/trade-form.tsx:693
 msgid "Review"
 msgstr "리뷰"
 
 #: src/app/(tabs)/(trades)/[id].tsx:415
 #: src/app/quick-journal.tsx:81
-#: src/components/trade-form.tsx:718
+#: src/components/trade-form.tsx:719
 msgid "Review notes"
 msgstr "리뷰 노트"
 
@@ -3630,10 +3639,17 @@ msgstr "본전 거래"
 
 #: src/components/attachments-card.tsx:62
 #: src/components/attachments-card.tsx:128
+#: src/components/screenshot-queue.tsx:41
 msgid "Screenshot limit reached"
 msgstr "스크린샷 한도 도달"
 
+#. placeholder {0}: response.status
+#: src/app/new-trade.tsx:62
+msgid "Screenshot upload failed ({0})"
+msgstr "스크린샷 업로드 실패 ({0})"
+
 #: src/components/attachments-card.tsx:151
+#: src/components/trade-form.tsx:752
 msgid "Screenshots"
 msgstr "스크린샷"
 
@@ -3666,7 +3682,7 @@ msgstr "종목 또는 태그 검색"
 msgid "Self-hosted — your trade data stays on your stack."
 msgstr "셀프 호스팅 — 거래 데이터는 내 서버에 저장됩니다."
 
-#: src/components/trade-form.tsx:389
+#: src/components/trade-form.tsx:390
 msgid "Sell"
 msgstr "매도"
 
@@ -3687,7 +3703,7 @@ msgid "Server URL"
 msgstr "서버 URL"
 
 #: src/app/(tabs)/(trades)/[id].tsx:394
-#: src/components/trade-form.tsx:654
+#: src/components/trade-form.tsx:655
 msgid "Session"
 msgstr "세션"
 
@@ -3730,12 +3746,12 @@ msgstr "셋업 {grade}"
 
 #: src/app/(tabs)/(trades)/[id].tsx:409
 #: src/app/manage-tags.tsx:117
-#: src/components/trade-form.tsx:668
+#: src/components/trade-form.tsx:669
 msgid "Setup rating"
 msgstr "셋업 평가"
 
 #: src/app/manage-tags.tsx:93
-#: src/components/trade-form.tsx:646
+#: src/components/trade-form.tsx:647
 msgid "Setups"
 msgstr "셋업"
 
@@ -3765,7 +3781,7 @@ msgstr "주식 수"
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:500
 #: src/app/new-setup.tsx:113
 #: src/components/reports-filter-menu.tsx:41
-#: src/components/trade-form.tsx:482
+#: src/components/trade-form.tsx:483
 #: src/components/trade-row.tsx:62
 msgid "Short"
 msgstr "숏"
@@ -3782,7 +3798,7 @@ msgstr "비밀번호 표시"
 
 #: src/app/(tabs)/(settings)/import-trades.tsx:38
 #: src/components/reports-filter-menu.tsx:36
-#: src/components/trade-form.tsx:408
+#: src/components/trade-form.tsx:409
 msgid "Side"
 msgstr "매매 구분"
 
@@ -3859,7 +3875,7 @@ msgstr "한 봉 앞으로"
 #: src/app/(tabs)/(dashboard)/advanced-chart.tsx:92
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:245
 #: src/app/(tabs)/(trades)/index.tsx:273
-#: src/components/trade-form.tsx:474
+#: src/components/trade-form.tsx:475
 msgid "Stock"
 msgstr "주식"
 
@@ -3872,7 +3888,7 @@ msgstr "주식 / 옵션"
 #: src/app/(tabs)/(trades)/[id].tsx:309
 #: src/app/new-setup.tsx:162
 #: src/app/tool-position-size.tsx:87
-#: src/components/trade-form.tsx:629
+#: src/components/trade-form.tsx:630
 msgid "Stop"
 msgstr "손절가"
 
@@ -3908,7 +3924,7 @@ msgstr "오늘 실현 손실이 이 금액에 도달하면 중단합니다."
 msgid "Strength"
 msgstr "강점"
 
-#: src/components/trade-form.tsx:547
+#: src/components/trade-form.tsx:548
 msgid "Strike"
 msgstr "행사가"
 
@@ -3948,26 +3964,26 @@ msgstr "통화 바꾸기"
 msgid "Swing"
 msgstr "스윙"
 
-#: src/components/account-menu.tsx:49
-#: src/components/account-menu.tsx:62
+#: src/components/account-menu.tsx:50
+#: src/components/account-menu.tsx:63
 msgid "Switch account"
 msgstr "계좌 전환"
 
 #: src/app/(tabs)/(settings)/import-trades.tsx:37
 #: src/app/new-setup.tsx:141
 #: src/components/breakdown-card.tsx:25
-#: src/components/trade-form.tsx:521
-#: src/components/trade-form.tsx:587
+#: src/components/trade-form.tsx:522
+#: src/components/trade-form.tsx:588
 msgid "Symbol"
 msgstr "종목"
 
 #. placeholder {0}: index + 1
-#: src/app/new-trade.tsx:63
+#: src/app/new-trade.tsx:77
 msgid "symbol {0}"
 msgstr "종목 {0}"
 
 #. placeholder {0}: index + 1
-#: src/components/trade-form.tsx:358
+#: src/components/trade-form.tsx:359
 msgid "Symbol {0}"
 msgstr "종목 {0}"
 
@@ -4014,7 +4030,7 @@ msgstr "태그 이름을 입력하세요."
 #: src/app/(tabs)/(trades)/[id].tsx:439
 #: src/app/manage-tags.tsx:70
 #: src/components/reports/detailed-section.tsx:239
-#: src/components/trade-form.tsx:676
+#: src/components/trade-form.tsx:677
 msgid "Tags"
 msgstr "태그"
 
@@ -4033,7 +4049,7 @@ msgstr "토큰을 탭하면 폐기할 수 있습니다."
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:598
 #: src/app/(tabs)/(trades)/[id].tsx:306
 #: src/app/new-setup.tsx:152
-#: src/components/trade-form.tsx:622
+#: src/components/trade-form.tsx:623
 msgid "Target"
 msgstr "목표가"
 
@@ -4252,7 +4268,7 @@ msgid "Trade history cleared"
 msgstr "거래 기록을 지웠습니다"
 
 #: src/app/(tabs)/(trades)/[id].tsx:113
-#: src/app/edit-trade.tsx:101
+#: src/app/edit-trade.tsx:102
 #: src/app/quick-journal.tsx:159
 msgid "Trade not found"
 msgstr "거래를 찾을 수 없습니다"
@@ -4348,6 +4364,10 @@ msgstr "제목 없음"
 msgid "Upload failed ({0})"
 msgstr "업로드 실패 ({0})"
 
+#: src/components/trade-form.tsx:757
+msgid "Uploaded to this symbol's trade when it saves. Tap a thumbnail to remove it."
+msgstr "저장 시 이 종목의 거래에 업로드됩니다. 썸네일을 탭하면 제거됩니다."
+
 #: src/app/(tabs)/(settings)/checklist.tsx:60
 msgid "Use \"- [ ]\" for each rule — those lines appear as task items when you create a daily log on New Note."
 msgstr "각 규칙에 \"- [ ]\"를 사용하세요 — 새 노트에서 데일리 로그를 만들면 작업 항목으로 표시됩니다."
@@ -4422,15 +4442,15 @@ msgid "What happened today?"
 msgstr "오늘은 어땠나요?"
 
 #: src/app/quick-journal.tsx:85
-#: src/components/trade-form.tsx:721
+#: src/components/trade-form.tsx:722
 msgid "What would you do differently?"
 msgstr "다음에는 무엇을 다르게 하시겠습니까?"
 
-#: src/components/trade-form.tsx:688
+#: src/components/trade-form.tsx:689
 msgid "Why did you enter?"
 msgstr "왜 진입했습니까?"
 
-#: src/components/trade-form.tsx:715
+#: src/components/trade-form.tsx:716
 msgid "Why did you exit?"
 msgstr "왜 청산했습니까?"
 

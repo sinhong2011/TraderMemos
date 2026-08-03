@@ -6,7 +6,7 @@ import { useRef, useState } from 'react';
 import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { Segmented } from '@/components/segmented';
+import { PagerTabs } from '@/components/pager-tabs';
 import { BehaviorSection } from '@/components/reports/behavior-section';
 import { DetailedSection } from '@/components/reports/detailed-section';
 import { OverviewSection } from '@/components/reports/overview-section';
@@ -47,7 +47,7 @@ export default function ReportsScreen() {
       <Stack.Screen options={{ title: scrolled ? t`Reports` : '' }} />
       <View style={styles.page}>
         <View style={styles.segment}>
-          <Segmented options={sections} value={section} onChange={selectSection} />
+          <PagerTabs options={sections} value={section} onChange={selectSection} />
         </View>
         <PagerView
           ref={pagerRef}
@@ -81,7 +81,6 @@ const styles = StyleSheet.create((theme) => ({
   segment: {
     paddingHorizontal: theme.spacing.lg,
     paddingTop: theme.spacing.sm,
-    alignItems: 'center',
   },
   pager: { flex: 1 },
   fill: { flex: 1 },

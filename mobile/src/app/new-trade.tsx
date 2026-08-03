@@ -5,7 +5,7 @@ import { StyleSheet } from 'react-native-unistyles';
 
 import { FormSkeleton } from '@/components/skeleton';
 
-import { useAccounts, useApiRequest, useSetups, useTags } from '@/api/hooks';
+import { useAccounts, useApiRaw, useApiRequest, useSetups, useTags } from '@/api/hooks';
 import { TradeForm } from '@/components/trade-form';
 import { t } from '@lingui/core/macro';
 import {
@@ -28,6 +28,7 @@ export default function NewTradeScreen() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const api = useApiRequest();
+  const apiRaw = useApiRaw();
   const { data: accounts } = useAccounts();
   const { data: setups } = useSetups();
   const { data: tags } = useTags();
@@ -48,6 +49,19 @@ export default function NewTradeScreen() {
           const account = accounts?.find((a) => a.id === values.accountId);
           const dividend = dividendBody(values, tradeId, account?.base_currency ?? 'USD');
           if (dividend) await api('/cash-transactions', { method: 'POST', body: dividend });
+          // Queued screenshots attach once the trade exists — one at a time,
+          // like the detail-screen uploader, so partial success sticks.
+          for (const shot of values.screenshots) {
+            const formData = new FormData();
+            formData.append('file', shot as unknown as Blob);
+            const response = await apiRaw(`/trades/${tradeId}/attachments`, {
+              method: 'POST',
+              formData,
+            });
+            if (!response.ok) {
+              throw new Error(t`Screenshot upload failed (${response.status})`);
+            }
+          }
         }
       }
     },

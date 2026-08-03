@@ -20,9 +20,10 @@ export function AccountMenu() {
   const accounts = useAccounts();
   const selectedId = useSelectedAccountId();
 
-  // Nothing to switch between — a lone account is always the scope anyway.
+  // Always render: iOS 26 wraps every bar item in a glass circle, so a null
+  // here still leaves an empty, dead-looking circle in the bar. With a lone
+  // account the menu simply shows it checked under "All accounts".
   const list = accounts.data ?? [];
-  if (list.length < 2) return null;
 
   const scoped = selectedId != null && list.some((account) => account.id === selectedId);
   const icon = scoped ? 'person.crop.circle.fill' : 'person.crop.circle';

@@ -63,6 +63,15 @@ export interface TradeFormValues {
   dividendAmount: string;
   dividendDate: Date;
   dividendNote: string;
+  /** Locally-picked screenshots, uploaded to the created trade after save. */
+  screenshots: QueuedScreenshot[];
+}
+
+/** A picked-but-not-yet-uploaded image (RN FormData file part shape). */
+export interface QueuedScreenshot {
+  uri: string;
+  name: string;
+  type: string;
 }
 
 let keySeq = 0;
@@ -117,6 +126,7 @@ export function emptyTradeForm(accountId = ''): TradeFormValues {
     dividendAmount: '',
     dividendDate: new Date(),
     dividendNote: '',
+    screenshots: [],
   };
 }
 
@@ -171,6 +181,8 @@ export function tradeFormFromDetail(trade: TradeDetail): TradeFormValues {
     dividendAmount: '',
     dividendDate: new Date(),
     dividendNote: '',
+    // Existing attachments are managed live on the detail screen / edit footer.
+    screenshots: [],
   };
 }
 
