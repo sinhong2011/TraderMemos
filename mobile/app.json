@@ -41,12 +41,24 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#001340",
+          "backgroundColor": "#FFFFFF",
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 120
+          "imageWidth": 120,
+          "dark": {
+            "backgroundColor": "#161616"
+          }
         }
       ],
-      "expo-localization"
+      "expo-localization",
+      "expo-sharing",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "TraderMemos reads the screenshots you pick to prefill trade entries.",
+          "cameraPermission": false,
+          "microphonePermission": false
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
