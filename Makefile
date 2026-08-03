@@ -1,6 +1,6 @@
 export PATH := $(HOME)/.local/share/pnpm:$(HOME)/go/bin:$(PATH)
 
-.PHONY: help setup dev dev-api dev-web build test test-api test-web lint lint-api lint-web check check-web e2e sqlc kill up down logs demo-seed
+.PHONY: help setup setup-mobile dev dev-api dev-web dev-mobile run-ios prebuild-ios rebuild-ios build test test-api test-web lint lint-api lint-web lint-mobile check check-web check-mobile e2e sqlc kill up up-build up-postgres up-postgres-build down logs demo-seed
 
 # Default: show available targets
 help: ## List available targets
@@ -16,6 +16,10 @@ setup: ## Install toolchains (mise) + air + web deps; seed api/.env
 	@./scripts/ensure-pnpm.sh
 	cd web && vp install
 
+setup-mobile: ## Install Expo app deps (pnpm, hoisted node_modules for RN)
+	@./scripts/ensure-pnpm.sh
+	cd mobile && pnpm install
+
 ## --- dev ---
 
 dev: ## Run API (air :8080) + web (Vite+ :5173) together
@@ -29,6 +33,25 @@ dev-api: ## Run the Go API with air hot reload (:8080)
 
 dev-web: ## Run the Vite+ dev server (:5173) on all interfaces (--host)
 	cd web && pnpm run dev -- --host
+
+# Strip proxy vars for Expo commands: the xray proxy on 127.0.0.1:10808 otherwise leaks
+# into the dev-server URLs Expo advertises and breaks simulator connections.
+NO_PROXY_ENV := env -u HTTP_PROXY -u HTTPS_PROXY -u http_proxy -u https_proxy -u ALL_PROXY -u all_proxy
+
+dev-mobile: ## Run Metro for the mobile dev build (open the TraderMemos app in the simulator)
+	cd mobile && $(NO_PROXY_ENV) pnpm start
+
+run-ios: ## Build + install the iOS dev client (needed after native dep / app.json changes)
+	cd mobile && $(NO_PROXY_ENV) npx expo run:ios
+
+# `expo prebuild --clean` wipes the hand-applied UIScene adoption (expo/expo#46663) and
+# the app would trap at launch — the patch script restores it right after regeneration.
+# Never run a bare `expo prebuild --clean`; always go through this target.
+prebuild-ios: ## Regenerate ios/ from scratch (prebuild --clean + re-apply UIScene patch)
+	cd mobile && $(NO_PROXY_ENV) npx expo prebuild --clean --platform ios
+	mobile/scripts/apply-ios-scene-patch.sh
+
+rebuild-ios: prebuild-ios run-ios ## Full native rebuild: clean prebuild, patch, build + install
 
 kill: ## Free API/web ports (air + listeners on 8080/5173)
 	@./scripts/release-ports.sh
@@ -54,7 +77,7 @@ e2e: ## Web end-to-end tests (playwright)
 
 ## --- lint ---
 
-lint: lint-api lint-web ## Lint everything
+lint: lint-api lint-web lint-mobile ## Lint everything
 
 lint-api: ## go vet
 	cd api && go vet ./...
@@ -62,10 +85,16 @@ lint-api: ## go vet
 lint-web: ## vp check (oxlint + oxfmt + typecheck)
 	cd web && pnpm run lint
 
-check: lint-api check-web ## Lint/typecheck everything
+lint-mobile: ## eslint via expo lint
+	cd mobile && pnpm run lint
+
+check: lint-api check-web check-mobile ## Lint/typecheck everything
 
 check-web: ## Vite+ check for web
 	cd web && pnpm run check
+
+check-mobile: ## tsc typecheck for the Expo app
+	cd mobile && pnpm run check
 
 ## --- codegen ---
 

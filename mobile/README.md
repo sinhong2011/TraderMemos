@@ -1,0 +1,82 @@
+# TraderMemos Mobile
+
+Expo SDK 57 client for a self-hosted [TraderMemos](../README.md) server.
+
+Built on **[`@expo/ui`](https://docs.expo.dev/versions/latest/sdk/ui/)** — the settings form is a
+real SwiftUI `Form`, and the tab bar is a native `UITabBarController` via Expo Router's
+`NativeTabs`. Platform chrome comes from the platform, not from restyled `View`s.
+
+## Requirements
+
+- Node 25.6.1 (pinned in `.mise.toml`), pnpm 11 (via `../scripts/ensure-pnpm.sh`)
+- Xcode with an iOS simulator runtime (the app runs as a **development build**, not Expo Go)
+
+## Getting started
+
+```bash
+pnpm install
+npx expo run:ios   # first time: builds + installs the dev client on the simulator
+pnpm start         # every day after: starts Metro; open the TraderMemos app in the simulator
+```
+
+Rebuild (`npx expo run:ios`) only when native dependencies or `app.json` change — JS-only
+changes hot-reload through Metro like always.
+
+> **Why not Expo Go?** The Expo Go 57.0.5 binary embeds native worklets 0.10.0 while SDK 57
+> pins the JS at 0.10.1; the mismatch segfaults Expo Go the moment it loads this project.
+> The dev build compiles native modules from our own package.json, so versions always match —
+> and it unblocks native-code libraries (charts) that Expo Go can never run.
+
+`pnpm-workspace.yaml` sets `nodeLinker: hoisted`: Metro and Expo autolinking walk a flat
+`node_modules`, which pnpm's default symlinked store does not provide.
+
+The app has no bundled server address. On first launch you supply your own instance URL
+(e.g. `http://192.168.1.10:8080`) along with your credentials — the same "Set Server at login"
+model the web app uses. The host is probed at `/healthz` before the login attempt so an
+unreachable server reports as such rather than as bad credentials.
+
+Tokens are stored in **SecureStore** (Keychain / Keystore), never AsyncStorage. A 401 triggers
+one refresh against `POST /api/v1/auth/refresh` and a replay; a second 401 returns you to login.
+
+## Checks
+
+```bash
+pnpm run check     # tsc --noEmit
+pnpm run lint      # eslint
+pnpm run doctor    # expo-doctor
+```
+
+## Upgrading
+
+Use `pnpm exec expo install --check`, never `pnpm update --latest` — runtime packages are
+pinned by the SDK, and `outdated` reports versions outside SDK 57's compatibility window.
+
+## Layout
+
+```
+src/
+  api/         client, session (SecureStore), TanStack Query hooks, wire types
+  app/         Expo Router routes only — never co-locate components here
+    (tabs)/
+      (dashboard)/   P&L summary
+      (trades)/      list + detail
+      (settings)/    @expo/ui Form
+    login.tsx        server URL + credentials
+  components/  shared views (stat-card, trade-row)
+  constants/   design tokens mirrored from ../DESIGN.md
+  lib/         formatting helpers
+```
+
+## Native builds
+
+`ios/` and `android/` are **generated** by Continuous Native Generation and are gitignored:
+
+```bash
+npx expo prebuild --clean
+npx expo run:ios
+```
+
+Charts are the notable gap — the web app's `lightweight-charts` and `recharts` are DOM
+libraries and do not run here. An equity curve will need `victory-native` (Skia) or
+`react-native-wagmi-charts`; now that the app is a development build, either can be added
+with `pnpm exec expo install` plus a rebuild.
