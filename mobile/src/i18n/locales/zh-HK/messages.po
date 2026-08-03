@@ -450,7 +450,11 @@ msgstr "請先新增帳戶。"
 msgid "Add an AI endpoint under Settings → AI for a model-written review."
 msgstr "在設定 → AI 加入端點，即可獲得模型撰寫的評語。"
 
-#: src/components/trade-prefill-bar.tsx:67
+#: src/app/new-trade.tsx:69
+msgid "Add an OpenAI-compatible vision endpoint and API key under Settings → AI, then open this shortcut again."
+msgstr "先在 設定 → AI 加入相容 OpenAI 的視覺 API 端點與 API 金鑰，然後再執行一次捷徑。"
+
+#: src/components/trade-prefill-bar.tsx:64
 msgid "Add an OpenAI-compatible vision endpoint and API key under Settings → AI, then scan broker screenshots straight into this form."
 msgstr "先在 設定 → AI 加入相容 OpenAI 的視覺 API 端點與 API 金鑰，即可將券商截圖直接掃描填入此表單。"
 
@@ -458,7 +462,7 @@ msgstr "先在 設定 → AI 加入相容 OpenAI 的視覺 API 端點與 API 金
 msgid "Add another account before deleting this one."
 msgstr "刪除此帳戶前請先新增另一個帳戶。"
 
-#: src/app/new-trade.tsx:89
+#: src/app/new-trade.tsx:160
 msgid "Add at least one fill with quantity and price for {label}."
 msgstr "請為 {label} 加入至少一筆有數量與價格的成交。"
 
@@ -940,7 +944,8 @@ msgstr "受現金限制"
 msgid "Chart"
 msgstr "圖表"
 
-#: src/components/trade-prefill-bar.tsx:59
+#: src/app/new-trade.tsx:78
+#: src/components/trade-prefill-bar.tsx:56
 msgid "Check the fills"
 msgstr "請確認成交內容"
 
@@ -1132,9 +1137,17 @@ msgstr "無法匯出設定"
 msgid "Could not fetch the rate — is market data configured?"
 msgstr "無法取得匯率 — 已設定市場數據嗎？"
 
+#: src/app/new-trade.tsx:81
+msgid "Could not import"
+msgstr "無法匯入"
+
 #: src/app/(tabs)/(settings)/index.tsx:130
 msgid "Could not import config"
 msgstr "無法匯入設定"
+
+#: src/app/_layout.tsx:67
+msgid "Could not open file"
+msgstr "無法開啟檔案"
 
 #: src/app/(tabs)/(settings)/import-trades.tsx:145
 #: src/app/(tabs)/(settings)/import-trades.tsx:479
@@ -1146,7 +1159,7 @@ msgstr "無法預覽"
 msgid "Could not reach {normalized}"
 msgstr "無法連接 {normalized}"
 
-#: src/components/trade-prefill-bar.tsx:141
+#: src/components/trade-prefill-bar.tsx:134
 msgid "Could not read file"
 msgstr "無法讀取檔案"
 
@@ -1189,10 +1202,10 @@ msgstr "無法撤銷權杖"
 #: src/app/new-setup.tsx:67
 #: src/app/new-setup.tsx:81
 #: src/app/new-setup.tsx:87
-#: src/app/new-trade.tsx:72
-#: src/app/new-trade.tsx:81
-#: src/app/new-trade.tsx:85
-#: src/app/new-trade.tsx:88
+#: src/app/new-trade.tsx:143
+#: src/app/new-trade.tsx:152
+#: src/app/new-trade.tsx:156
+#: src/app/new-trade.tsx:159
 #: src/app/quick-journal.tsx:65
 msgid "Could not save"
 msgstr "無法儲存"
@@ -1201,7 +1214,7 @@ msgstr "無法儲存"
 msgid "Could not save checklist"
 msgstr "無法儲存清單"
 
-#: src/components/trade-prefill-bar.tsx:87
+#: src/components/trade-prefill-bar.tsx:76
 msgid "Could not scan"
 msgstr "無法掃描"
 
@@ -1244,7 +1257,7 @@ msgstr "建立中…"
 msgid "Crypto"
 msgstr "加密貨幣"
 
-#: src/components/trade-prefill-bar.tsx:172
+#: src/components/trade-prefill-bar.tsx:165
 msgid "CSV / JSON file"
 msgstr "CSV / JSON 檔案"
 
@@ -1578,7 +1591,7 @@ msgid "Enter a setup name."
 msgstr "請輸入策略名稱。"
 
 #. placeholder {0}: index + 1
-#: src/app/new-trade.tsx:85
+#: src/app/new-trade.tsx:156
 msgid "Enter a symbol for block {0}."
 msgstr "請輸入第 {0} 個區塊的代號。"
 
@@ -2094,11 +2107,11 @@ msgstr "IBKR Flex 同步"
 
 #: src/components/attachments-card.tsx:200
 #: src/components/screenshot-queue.tsx:128
-#: src/components/trade-prefill-bar.tsx:167
+#: src/components/trade-prefill-bar.tsx:160
 msgid "Image files"
 msgstr "圖片檔案"
 
-#: src/components/trade-prefill-bar.tsx:157
+#: src/components/trade-prefill-bar.tsx:150
 msgid "Import"
 msgstr "匯入"
 
@@ -2630,7 +2643,7 @@ msgstr "新標籤"
 msgid "New token"
 msgstr "新權杖"
 
-#: src/app/new-trade.tsx:114
+#: src/app/new-trade.tsx:185
 #: src/components/add-menu.tsx:21
 msgid "New trade"
 msgstr "新交易"
@@ -2651,8 +2664,8 @@ msgstr "下週"
 msgid "Next year"
 msgstr "下一年"
 
-#: src/app/new-trade.tsx:82
-#: src/app/new-trade.tsx:107
+#: src/app/new-trade.tsx:153
+#: src/app/new-trade.tsx:178
 msgid "No account found — create one on the web app first."
 msgstr "搵唔到帳戶 — 請先喺網頁版建立。"
 
@@ -3089,7 +3102,7 @@ msgstr "PF"
 
 #: src/components/attachments-card.tsx:195
 #: src/components/screenshot-queue.tsx:123
-#: src/components/trade-prefill-bar.tsx:162
+#: src/components/trade-prefill-bar.tsx:155
 msgid "Photo Library"
 msgstr "照片圖庫"
 
@@ -3678,7 +3691,7 @@ msgid "Screenshot limit reached"
 msgstr "已達截圖上限"
 
 #. placeholder {0}: response.status
-#: src/app/new-trade.tsx:62
+#: src/app/new-trade.tsx:133
 msgid "Screenshot upload failed ({0})"
 msgstr "截圖上載失敗（{0}）"
 
@@ -3759,7 +3772,8 @@ msgstr "交易時段以紐約時間為準。"
 msgid "Set up rules"
 msgstr "設定規則"
 
-#: src/components/trade-prefill-bar.tsx:66
+#: src/app/new-trade.tsx:68
+#: src/components/trade-prefill-bar.tsx:63
 msgid "Set up Vision scan first"
 msgstr "請先設定影像掃描"
 
@@ -4021,7 +4035,7 @@ msgid "Symbol"
 msgstr "代號"
 
 #. placeholder {0}: index + 1
-#: src/app/new-trade.tsx:77
+#: src/app/new-trade.tsx:148
 msgid "symbol {0}"
 msgstr "代號 {0}"
 

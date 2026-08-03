@@ -1,13 +1,29 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useEffect, useRef, useState } from 'react';
 import { Alert, Text, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { FormSkeleton } from '@/components/skeleton';
 
-import { useAccounts, useApiRaw, useApiRequest, useSetups, useTags } from '@/api/hooks';
+import { useSession } from '@/api/session';
+import {
+  useAccounts,
+  useApiRaw,
+  useApiRequest,
+  useLlmSettings,
+  useSetups,
+  useTags,
+} from '@/api/hooks';
 import { TradeForm } from '@/components/trade-form';
 import { t } from '@lingui/core/macro';
+import {
+  clearDroppedSources,
+  extractFromSources,
+  isVisionReady,
+  listDroppedSources,
+} from '@/lib/trade-import';
+import { blocksFromExtract } from '@/lib/trade-prefill';
 import {
   dividendBody,
   emptyTradeForm,
@@ -17,6 +33,66 @@ import {
   validateTradeForm,
   type TradeFormValues,
 } from '@/lib/trade-form';
+
+/**
+ * Drains the drop folder when the form is opened with `?import=1` — the
+ * hand-off an iOS Shortcut or a share-sheet "Open in TraderMemos" leaves
+ * behind (see lib/trade-import). Runs once per mount, and the form waits for
+ * the result rather than prefilling afterwards, because TradeForm seeds its
+ * block state from `initialBlocks` on mount.
+ */
+function useDroppedPrefill(
+  accountId: string | undefined,
+  api: ReturnType<typeof useApiRaw>,
+): { importing: boolean; blocks: TradeFormValues[] | null } {
+  const { import: requested } = useLocalSearchParams<{ import?: string }>();
+  const { session, isLoading: sessionLoading } = useSession();
+  const ocrSettings = useLlmSettings('ocr');
+  const wanted = requested === '1';
+  const [done, setDone] = useState(false);
+  const [blocks, setBlocks] = useState<TradeFormValues[] | null>(null);
+  const started = useRef(false);
+  // Screenshots need the vision endpoint, so the settings query has to have
+  // landed before the folder is read — otherwise a cold open scans blind.
+  const ocrSettled = !ocrSettings.isPending;
+  // Deep-linked while signed out: the drop stays in the folder for the next
+  // run rather than being spent against a session that can't upload it.
+  const signedOut = !sessionLoading && !session;
+
+  useEffect(() => {
+    if (!wanted || started.current || sessionLoading || signedOut) return;
+    if (!accountId || !ocrSettled) return;
+    started.current = true;
+    void (async () => {
+      try {
+        const sources = listDroppedSources();
+        if (sources.length === 0) return;
+        // Leave the files in place when the scan can't run — the user can set
+        // the endpoint up and re-run the shortcut against the same drop.
+        if (sources.some((s) => s.type.startsWith('image/')) && !isVisionReady(ocrSettings.data)) {
+          Alert.alert(
+            t`Set up Vision scan first`,
+            t`Add an OpenAI-compatible vision endpoint and API key under Settings → AI, then open this shortcut again.`,
+          );
+          return;
+        }
+        const extract = await extractFromSources(sources, api);
+        clearDroppedSources(sources);
+        const prefilled = blocksFromExtract(extract, accountId);
+        setBlocks(prefilled.blocks);
+        if (prefilled.warnings.length > 0) {
+          Alert.alert(t`Check the fills`, prefilled.warnings.join('\n\n'));
+        }
+      } catch (err) {
+        Alert.alert(t`Could not import`, err instanceof Error ? err.message : String(err));
+      } finally {
+        setDone(true);
+      }
+    })();
+  }, [wanted, signedOut, sessionLoading, accountId, ocrSettled, ocrSettings.data, api]);
+
+  return { importing: wanted && !done && !signedOut, blocks };
+}
 
 /**
  * Manual trade entry, mirroring the web NewTradeDrawer submit path for every
@@ -32,6 +108,7 @@ export default function NewTradeScreen() {
   const { data: accounts } = useAccounts();
   const { data: setups } = useSetups();
   const { data: tags } = useTags();
+  const prefill = useDroppedPrefill(accounts?.[0]?.id, apiRaw);
 
   const save = useMutation({
     mutationFn: async (blocks: TradeFormValues[]) => {
@@ -94,7 +171,7 @@ export default function NewTradeScreen() {
     save.mutate(blocks);
   }
 
-  if (!accounts || !setups || !tags) {
+  if (!accounts || !setups || !tags || prefill.importing) {
     return (
       <View style={styles.loading}>
         <FormSkeleton />
@@ -112,7 +189,7 @@ export default function NewTradeScreen() {
   return (
     <TradeForm
       title={t`New trade`}
-      initialBlocks={[emptyTradeForm(accounts[0].id)]}
+      initialBlocks={prefill.blocks ?? [emptyTradeForm(accounts[0].id)]}
       accounts={accounts}
       setups={setups}
       tags={tags}

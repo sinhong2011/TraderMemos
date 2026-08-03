@@ -18,6 +18,26 @@
           "ja",
           "ko",
           "zh-Hant-HK"
+        ],
+        "UIFileSharingEnabled": true,
+        "LSSupportsOpeningDocumentsInPlace": true,
+        "CFBundleDocumentTypes": [
+          {
+            "CFBundleTypeName": "Broker screenshot",
+            "CFBundleTypeRole": "Viewer",
+            "LSHandlerRank": "Alternate",
+            "LSItemContentTypes": ["public.image"]
+          },
+          {
+            "CFBundleTypeName": "Fill file",
+            "CFBundleTypeRole": "Viewer",
+            "LSHandlerRank": "Alternate",
+            "LSItemContentTypes": [
+              "public.comma-separated-values-text",
+              "public.json",
+              "public.plain-text"
+            ]
+          }
         ]
       }
     },
