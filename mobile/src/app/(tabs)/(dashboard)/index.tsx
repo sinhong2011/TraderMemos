@@ -22,6 +22,10 @@ import { PerformanceCard } from '@/components/performance-card';
 import { Skeleton } from '@/components/skeleton';
 import { TradeRow } from '@/components/trade-row';
 import { t } from '@lingui/core/macro';
+import { useSelectedAccountId } from '@/lib/account-store';
+import { useGlobalFilters } from '@/lib/filters';
+import { useMoneyFx } from '@/lib/money';
+import { accountBaseCurrency } from '@/lib/prefs';
 
 /** Recent trades shown on the overview — the full log lives on the Trades tab. */
 const RECENT_LIMIT = 5;
@@ -36,15 +40,20 @@ export default function DashboardScreen() {
   const monthStart = `${year}-${String(month).padStart(2, '0')}-01T00:00:00Z`;
   const yearStart = `${year}-01-01T00:00:00Z`;
 
-  const summary = useSummary();
-  const equity = useEquityCurve();
-  const trades = useTrades();
+  const filters = useGlobalFilters();
+  const summary = useSummary(filters);
+  const equity = useEquityCurve(filters);
+  const trades = useTrades(filters);
   const accounts = useAccounts();
-  const daily = useDaily({ from: monthStart });
+  const daily = useDaily({ ...filters, from: monthStart });
   const goal = useAnnualGoal(year);
-  const ytd = useSummary({ from: yearStart });
+  const ytd = useSummary({ ...filters, from: yearStart });
 
-  const currency = accounts.data?.[0]?.base_currency ?? 'USD';
+  const selectedAccountId = useSelectedAccountId();
+  const baseCurrency = accountBaseCurrency(accounts.data, selectedAccountId);
+  const fx = useMoneyFx(baseCurrency);
+  const currency = fx.currency;
+  const fxRate = fx.rate ?? 1;
   const refreshing = summary.isRefetching || trades.isRefetching || equity.isRefetching;
   const refreshAll = () => void queryClient.invalidateQueries();
 
@@ -102,7 +111,12 @@ export default function DashboardScreen() {
       contentContainerStyle={styles.content}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refreshAll} />}
     >
-      <PerformanceCard summary={summary.data} trades={tradeList} currency={currency} />
+      <PerformanceCard
+        summary={summary.data}
+        trades={tradeList}
+        currency={currency}
+        fxRate={fxRate}
+      />
 
       {equity.isLoading ? (
         <Skeleton style={styles.skeletonCard} />
@@ -111,7 +125,7 @@ export default function DashboardScreen() {
           <Text style={styles.cardError}>{t`Failed to load equity curve.`}</Text>
         </DashboardCard>
       ) : equity.data ? (
-        <EquityCard curve={equity.data} currency={currency} />
+        <EquityCard curve={equity.data} currency={currency} fxRate={fxRate} />
       ) : null}
 
       {goal.data?.amount != null && ytd.data ? (
@@ -120,6 +134,7 @@ export default function DashboardScreen() {
           goalAmount={goal.data.amount}
           ytdNetPnl={ytd.data.net_pnl}
           currency={currency}
+          fxRate={fxRate}
         />
       ) : null}
 
@@ -128,6 +143,7 @@ export default function DashboardScreen() {
         trades={tradeList}
         currency={currency}
         maxDrawdown={equity.data?.max_drawdown}
+        fxRate={fxRate}
       />
 
       <MiniCalendarCard
@@ -135,6 +151,7 @@ export default function DashboardScreen() {
         month={month}
         dailyPnl={daily.data ?? {}}
         currency={currency}
+        fxRate={fxRate}
         onOpenCalendar={() => router.navigate('/(tabs)/(calendar)')}
       />
 

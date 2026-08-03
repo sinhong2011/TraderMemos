@@ -34,6 +34,10 @@ export default function SettingsLayout() {
         options={{ title: t`Daily checklist`, headerLargeTitle: false }}
       />
       <Stack.Screen name="risk-rules" options={{ title: t`Risk rules` }} />
+      <Stack.Screen
+        name="display"
+        options={{ title: t`Display`, headerLargeTitle: false }}
+      />
       <Stack.Screen name="ai" options={{ title: t`AI`, headerLargeTitle: false }} />
       <Stack.Screen
         name="api-tokens"

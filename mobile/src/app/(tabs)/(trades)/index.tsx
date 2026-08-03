@@ -8,12 +8,15 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { useTags, useTrades } from '@/api/hooks';
 import type { Trade } from '@/api/types';
+import { AccountMenu } from '@/components/account-menu';
 import { Skeleton } from '@/components/skeleton';
 import { SwipeableTradeRow } from '@/components/swipeable-trade-row';
 import { TradeFilterMenu } from '@/components/trade-filter-menu';
 import { t } from '@lingui/core/macro';
+import { useGlobalFilters } from '@/lib/filters';
 import { formatPnl } from '@/lib/format';
 import { parseEmotionalStates } from '@/lib/journal';
+import { useDisplayPrefs } from '@/lib/prefs';
 import { useTagBarState } from '@/lib/tag-bar';
 import { pnlColor } from '@/styles/unistyles';
 
@@ -194,7 +197,13 @@ export default function TradesScreen() {
   // Captured once per mount so the query key doesn't churn between renders.
   const [nowMs] = useState(() => Date.now());
   const from = rangeStart(dateFilter, nowMs);
-  const { data, isLoading, error, refetch, isRefetching } = useTrades(from ? { from } : {});
+  const globalFilters = useGlobalFilters();
+  const { data, isLoading, error, refetch, isRefetching } = useTrades({
+    ...globalFilters,
+    ...(from ? { from } : {}),
+  });
+  // Re-render when privacy mode flips — the net summary formats money.
+  useDisplayPrefs();
   const { data: tags } = useTags();
   const { hiddenTagIds, extras } = useTagBarState();
 
@@ -358,6 +367,7 @@ export default function TradesScreen() {
                   },
                 ]}
               />
+              <AccountMenu />
             </View>
           ),
           headerSearchBarOptions: {

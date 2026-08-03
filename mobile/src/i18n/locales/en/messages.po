@@ -27,17 +27,17 @@ msgstr "(skip)"
 #~ msgstr "{0, plural, one {# day} other {# days}}"
 
 #. placeholder {0}: traded.length
-#: src/app/(tabs)/(calendar)/index.tsx:607
+#: src/app/(tabs)/(calendar)/index.tsx:624
 msgid "{0} days"
 msgstr "{0} days"
 
 #. placeholder {0}: formatPercent(progress, 0)
-#: src/components/goal-card.tsx:39
+#: src/components/goal-card.tsx:45
 msgid "{0} of goal · YTD net P&L"
 msgstr "{0} of goal · YTD net P&L"
 
 #. placeholder {0}: summary.total_trades
-#: src/components/insights-card.tsx:73
+#: src/components/insights-card.tsx:80
 msgid "{0} trades"
 msgstr "{0} trades"
 
@@ -45,15 +45,15 @@ msgstr "{0} trades"
 #~ msgid "{count, plural, one {# trade} other {# trades}}"
 #~ msgstr "{count, plural, one {# trade} other {# trades}}"
 
-#: src/app/(tabs)/(calendar)/index.tsx:548
-#: src/app/(tabs)/(calendar)/index.tsx:772
-#: src/app/(tabs)/(calendar)/index.tsx:928
-#: src/app/(tabs)/(trades)/index.tsx:396
+#: src/app/(tabs)/(calendar)/index.tsx:565
+#: src/app/(tabs)/(calendar)/index.tsx:789
+#: src/app/(tabs)/(calendar)/index.tsx:945
+#: src/app/(tabs)/(trades)/index.tsx:406
 msgid "{count} trades"
 msgstr "{count} trades"
 
-#: src/app/(tabs)/(calendar)/index.tsx:677
-#: src/app/(tabs)/(calendar)/index.tsx:681
+#: src/app/(tabs)/(calendar)/index.tsx:694
+#: src/app/(tabs)/(calendar)/index.tsx:698
 msgid "{daysTraded} days"
 msgstr "{daysTraded} days"
 
@@ -65,12 +65,12 @@ msgstr "{title} settings updated."
 #~ msgid "{weekCount, plural, one {# trade} other {# trades}}"
 #~ msgstr "{weekCount, plural, one {# trade} other {# trades}}"
 
-#: src/app/(tabs)/(calendar)/index.tsx:736
+#: src/app/(tabs)/(calendar)/index.tsx:753
 msgid "{weekCount} trades"
 msgstr "{weekCount} trades"
 
 #: src/app/(tabs)/(settings)/index.tsx:203
-#: src/components/goal-card.tsx:29
+#: src/components/goal-card.tsx:35
 msgid "{year} goal"
 msgstr "{year} goal"
 
@@ -82,7 +82,7 @@ msgstr "{year} P&L goal"
 #~ msgid "{yearCount, plural, one {# trade} other {# trades}}"
 #~ msgstr "{yearCount, plural, one {# trade} other {# trades}}"
 
-#: src/app/(tabs)/(calendar)/index.tsx:853
+#: src/app/(tabs)/(calendar)/index.tsx:870
 msgid "{yearCount} trades"
 msgstr "{yearCount} trades"
 
@@ -96,22 +96,30 @@ msgstr "+{0} more"
 msgid "+{0} more trades in this file."
 msgstr "+{0} more trades in this file."
 
-#: src/app/(tabs)/(calendar)/index.tsx:607
-#: src/app/(tabs)/(calendar)/index.tsx:677
+#: src/app/(tabs)/(calendar)/index.tsx:624
+#: src/app/(tabs)/(calendar)/index.tsx:694
 msgid "1 day"
 msgstr "1 day"
 
-#: src/app/(tabs)/(calendar)/index.tsx:548
-#: src/app/(tabs)/(calendar)/index.tsx:736
-#: src/app/(tabs)/(calendar)/index.tsx:772
-#: src/app/(tabs)/(calendar)/index.tsx:853
-#: src/app/(tabs)/(calendar)/index.tsx:928
+#: src/app/(tabs)/(calendar)/index.tsx:565
+#: src/app/(tabs)/(calendar)/index.tsx:753
+#: src/app/(tabs)/(calendar)/index.tsx:789
+#: src/app/(tabs)/(calendar)/index.tsx:870
+#: src/app/(tabs)/(calendar)/index.tsx:945
 msgid "1 trade"
 msgstr "1 trade"
 
 #: src/app/(tabs)/(settings)/api-tokens.tsx:36
 msgid "1 year"
 msgstr "1 year"
+
+#: src/app/(tabs)/(settings)/display.tsx:142
+msgid "12-hour (1:30 PM)"
+msgstr "12-hour (1:30 PM)"
+
+#: src/app/(tabs)/(settings)/display.tsx:145
+msgid "24-hour (13:30)"
+msgstr "24-hour (13:30)"
 
 #: src/app/(tabs)/(settings)/api-tokens.tsx:34
 msgid "30 days"
@@ -121,11 +129,11 @@ msgstr "30 days"
 msgid "90 days"
 msgstr "90 days"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:50
+#: src/app/(tabs)/(settings)/_layout.tsx:54
 msgid "About"
 msgstr "About"
 
-#: src/app/(tabs)/(settings)/index.tsx:311
+#: src/app/(tabs)/(settings)/index.tsx:316
 msgid "About TraderMemos"
 msgstr "About TraderMemos"
 
@@ -135,6 +143,7 @@ msgstr "About TraderMemos"
 #: src/app/(tabs)/(settings)/export-trades.tsx:86
 #: src/app/(tabs)/(settings)/export-trades.tsx:89
 #: src/app/(tabs)/(settings)/import-trades.tsx:408
+#: src/components/account-menu.tsx:35
 #: src/components/trade-form.tsx:839
 #: src/components/trade-form.tsx:876
 msgid "Account"
@@ -148,6 +157,10 @@ msgstr "Account \"{0}\" will be created on import."
 #: src/app/(tabs)/(settings)/import-trades.tsx:411
 msgid "Account \"{jsonAccountName}\" from the JSON file will be matched or created."
 msgstr "Account \"{jsonAccountName}\" from the JSON file will be matched or created."
+
+#: src/app/(tabs)/(settings)/display.tsx:96
+msgid "Account currency"
+msgstr "Account currency"
 
 #: src/app/(tabs)/(settings)/account-form.tsx:166
 msgid "Account name is required."
@@ -228,7 +241,7 @@ msgstr "Adjustment"
 msgid "Advanced"
 msgstr "Advanced"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:37
+#: src/app/(tabs)/(settings)/_layout.tsx:41
 msgid "AI"
 msgstr "AI"
 
@@ -240,16 +253,21 @@ msgstr "AI — vision scan & coach"
 msgid "AI coach"
 msgstr "AI coach"
 
-#: src/app/(tabs)/(trades)/index.tsx:166
-#: src/app/(tabs)/(trades)/index.tsx:249
+#: src/app/(tabs)/(trades)/index.tsx:169
+#: src/app/(tabs)/(trades)/index.tsx:258
 msgid "All"
 msgstr "All"
 
-#: src/app/(tabs)/(trades)/index.tsx:263
+#: src/components/account-menu.tsx:38
+#: src/components/account-menu.tsx:69
+msgid "All accounts"
+msgstr "All accounts"
+
+#: src/app/(tabs)/(trades)/index.tsx:272
 msgid "All markets"
 msgstr "All markets"
 
-#: src/app/(tabs)/(trades)/index.tsx:255
+#: src/app/(tabs)/(trades)/index.tsx:264
 msgid "All time"
 msgstr "All time"
 
@@ -283,7 +301,7 @@ msgstr "API key"
 msgid "API server"
 msgstr "API server"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:40
+#: src/app/(tabs)/(settings)/_layout.tsx:44
 #: src/app/(tabs)/(settings)/index.tsx:252
 msgid "API tokens"
 msgstr "API tokens"
@@ -300,7 +318,7 @@ msgstr "App"
 msgid "App config imported"
 msgstr "App config imported"
 
-#: src/app/(tabs)/(settings)/index.tsx:293
+#: src/app/(tabs)/(settings)/index.tsx:298
 msgid "App configuration"
 msgstr "App configuration"
 
@@ -312,15 +330,15 @@ msgstr "Avg entry"
 msgid "Avg exit"
 msgstr "Avg exit"
 
-#: src/components/insights-card.tsx:71
+#: src/components/insights-card.tsx:78
 msgid "Avg hold"
 msgstr "Avg hold"
 
-#: src/components/performance-card.tsx:89
+#: src/components/performance-card.tsx:101
 msgid "Avg loss"
 msgstr "Avg loss"
 
-#: src/components/performance-card.tsx:88
+#: src/components/performance-card.tsx:96
 msgid "Avg win"
 msgstr "Avg win"
 
@@ -328,7 +346,7 @@ msgstr "Avg win"
 msgid "Back"
 msgstr "Back"
 
-#: src/app/(tabs)/(settings)/index.tsx:294
+#: src/app/(tabs)/(settings)/index.tsx:299
 msgid "Backup or restore local app preferences."
 msgstr "Backup or restore local app preferences."
 
@@ -348,19 +366,19 @@ msgstr "BE"
 msgid "Behavior"
 msgstr "Behavior"
 
-#: src/components/insights-card.tsx:59
+#: src/components/insights-card.tsx:66
 msgid "Best day"
 msgstr "Best day"
 
-#: src/components/insights-card.tsx:47
+#: src/components/insights-card.tsx:54
 msgid "Best streak"
 msgstr "Best streak"
 
-#: src/components/insights-card.tsx:32
+#: src/components/insights-card.tsx:39
 msgid "Best trade"
 msgstr "Best trade"
 
-#: src/components/breakdown-card.tsx:35
+#: src/components/breakdown-card.tsx:36
 msgid "Breakdown"
 msgstr "Breakdown"
 
@@ -401,12 +419,14 @@ msgstr "Call / Put"
 #: src/app/(tabs)/(settings)/account-form.tsx:207
 #: src/app/(tabs)/(settings)/api-tokens.tsx:89
 #: src/app/(tabs)/(settings)/cash-form.tsx:153
+#: src/app/(tabs)/(settings)/display.tsx:42
 #: src/app/(tabs)/(settings)/index.tsx:76
 #: src/app/(tabs)/(settings)/index.tsx:149
 #: src/app/(tabs)/(settings)/risk-rules.tsx:51
 #: src/app/(tabs)/(settings)/risk-rules.tsx:73
 #: src/app/(tabs)/(settings)/risk-rules.tsx:84
 #: src/app/(tabs)/(settings)/tags.tsx:82
+#: src/components/account-menu.tsx:43
 #: src/components/form-sheet.tsx:71
 #: src/components/swipeable-trade-row.tsx:83
 msgid "Cancel"
@@ -480,6 +500,14 @@ msgstr "Clearing…"
 msgid "Close"
 msgstr "Close"
 
+#: src/app/(tabs)/(settings)/display.tsx:164
+msgid "Close date (last activity)"
+msgstr "Close date (last activity)"
+
+#: src/app/(tabs)/(settings)/display.tsx:154
+msgid "Close date matches realized P&L; open date groups by entry day."
+msgstr "Close date matches realized P&L; open date groups by entry day."
+
 #: src/app/edit-trade.tsx:113
 msgid "Close position"
 msgstr "Close position"
@@ -498,7 +526,7 @@ msgstr "Color"
 msgid "Commission"
 msgstr "Commission"
 
-#: src/app/(tabs)/(settings)/index.tsx:278
+#: src/app/(tabs)/(settings)/index.tsx:283
 msgid "Confirm before disconnecting"
 msgstr "Confirm before disconnecting"
 
@@ -514,6 +542,10 @@ msgstr "Connection OK"
 #: src/components/trade-form.tsx:536
 msgid "Contract"
 msgstr "Contract"
+
+#: src/app/(tabs)/(settings)/display.tsx:84
+msgid "Converts read-only amounts with the latest FX rate. Forms keep the account currency."
+msgstr "Converts read-only amounts with the latest FX rate. Forms keep the account currency."
 
 #: src/app/(tabs)/(settings)/api-tokens.tsx:102
 msgid "Copy it now — the secret is shown only once and cannot be recovered."
@@ -583,6 +615,7 @@ msgstr "Could not revoke token"
 #: src/app/(tabs)/(settings)/cash-form.tsx:118
 #: src/app/(tabs)/(settings)/cash-form.tsx:133
 #: src/app/(tabs)/(settings)/cash-form.tsx:138
+#: src/app/(tabs)/(settings)/display.tsx:53
 #: src/app/(tabs)/(settings)/index.tsx:67
 #: src/app/(tabs)/(settings)/index.tsx:82
 #: src/app/(tabs)/(settings)/risk-rules.tsx:42
@@ -634,7 +667,7 @@ msgstr "Create token"
 msgid "Creating…"
 msgstr "Creating…"
 
-#: src/app/(tabs)/(trades)/index.tsx:266
+#: src/app/(tabs)/(trades)/index.tsx:275
 #: src/components/trade-form.tsx:476
 msgid "Crypto"
 msgstr "Crypto"
@@ -654,6 +687,10 @@ msgstr "CSV journal"
 #: src/lib/fill-file.ts:137
 msgid "CSV needs a header row and at least one fill row."
 msgstr "CSV needs a header row and at least one fill row."
+
+#: src/app/(tabs)/(settings)/display.tsx:81
+msgid "Currency"
+msgstr "Currency"
 
 #: src/app/(tabs)/(settings)/tags.tsx:29
 msgid "Custom"
@@ -677,12 +714,12 @@ msgid "Data"
 msgstr "Data"
 
 #: src/app/(tabs)/(settings)/cash-form.tsx:189
-#: src/app/(tabs)/(trades)/index.tsx:322
+#: src/app/(tabs)/(trades)/index.tsx:331
 #: src/components/trade-form.tsx:736
 msgid "Date"
 msgstr "Date"
 
-#: src/components/breakdown-card.tsx:22
+#: src/components/breakdown-card.tsx:23
 msgid "Day"
 msgstr "Day"
 
@@ -748,13 +785,29 @@ msgid "Direction"
 msgstr "Direction"
 
 #: src/app/(tabs)/(settings)/index.tsx:150
-#: src/app/(tabs)/(settings)/index.tsx:317
+#: src/app/(tabs)/(settings)/index.tsx:322
 msgid "Disconnect"
 msgstr "Disconnect"
 
 #: src/app/(tabs)/(settings)/index.tsx:148
 msgid "Disconnect?"
 msgstr "Disconnect?"
+
+#: src/app/(tabs)/(settings)/_layout.tsx:39
+msgid "Display"
+msgstr "Display"
+
+#: src/app/(tabs)/(settings)/index.tsx:279
+msgid "Display — privacy, currency, timezones"
+msgstr "Display — privacy, currency, timezones"
+
+#: src/app/(tabs)/(settings)/display.tsx:89
+msgid "Display currency"
+msgstr "Display currency"
+
+#: src/app/(tabs)/(settings)/display.tsx:126
+msgid "Display timezone"
+msgstr "Display timezone"
 
 #: src/components/trade-form.tsx:726
 #: src/lib/cash.ts:14
@@ -807,6 +860,10 @@ msgstr "Emotion"
 #: src/app/(tabs)/(settings)/ai.tsx:127
 msgid "Enabled"
 msgstr "Enabled"
+
+#: src/app/(tabs)/(settings)/display.tsx:53
+msgid "Enter a number of 1 or more."
+msgstr "Enter a number of 1 or more."
 
 #: src/app/new-setup.tsx:39
 msgid "Enter a setup name."
@@ -876,9 +933,9 @@ msgstr "Entry reason"
 msgid "Equity"
 msgstr "Equity"
 
-#: src/app/(tabs)/(dashboard)/index.tsx:110
-#: src/components/equity-card.tsx:56
-#: src/components/equity-card.tsx:70
+#: src/app/(tabs)/(dashboard)/index.tsx:124
+#: src/components/equity-card.tsx:68
+#: src/components/equity-card.tsx:82
 msgid "Equity curve"
 msgstr "Equity curve"
 
@@ -916,7 +973,7 @@ msgstr "Executions"
 msgid "Exit reason"
 msgstr "Exit reason"
 
-#: src/components/performance-card.tsx:53
+#: src/components/performance-card.tsx:60
 msgid "Expect"
 msgstr "Expect"
 
@@ -929,11 +986,11 @@ msgstr "Expires {expires} · Last used {lastUsed}"
 msgid "Expiry"
 msgstr "Expiry"
 
-#: src/app/(tabs)/(settings)/index.tsx:298
+#: src/app/(tabs)/(settings)/index.tsx:303
 msgid "Export config"
 msgstr "Export config"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:48
+#: src/app/(tabs)/(settings)/_layout.tsx:52
 #: src/app/(tabs)/(settings)/index.tsx:268
 msgid "Export data"
 msgstr "Export data"
@@ -947,11 +1004,11 @@ msgstr "Export failed"
 msgid "export.json plus trade screenshots under attachments/."
 msgstr "export.json plus trade screenshots under attachments/."
 
-#: src/components/breakdown-card.tsx:41
+#: src/components/breakdown-card.tsx:42
 msgid "Failed to load breakdown."
 msgstr "Failed to load breakdown."
 
-#: src/app/(tabs)/(dashboard)/index.tsx:111
+#: src/app/(tabs)/(dashboard)/index.tsx:125
 msgid "Failed to load equity curve."
 msgstr "Failed to load equity curve."
 
@@ -965,7 +1022,7 @@ msgstr "Fee"
 
 #: src/app/(tabs)/(settings)/import-trades.tsx:44
 #: src/app/(tabs)/(trades)/[id].tsx:212
-#: src/components/performance-card.tsx:50
+#: src/components/performance-card.tsx:57
 #: src/components/trade-form.tsx:432
 msgid "Fees"
 msgstr "Fees"
@@ -1002,7 +1059,7 @@ msgstr "Fills, journal data, cash, and setups are read directly from the JSON fi
 msgid "Filter"
 msgstr "Filter"
 
-#: src/app/(tabs)/(trades)/index.tsx:268
+#: src/app/(tabs)/(trades)/index.tsx:277
 #: src/components/trade-form.tsx:478
 msgid "Forex"
 msgstr "Forex"
@@ -1016,7 +1073,7 @@ msgstr "Format"
 msgid "From file"
 msgstr "From file"
 
-#: src/components/mini-calendar-card.tsx:47
+#: src/components/mini-calendar-card.tsx:53
 msgid "Full calendar"
 msgstr "Full calendar"
 
@@ -1025,7 +1082,7 @@ msgstr "Full calendar"
 msgid "Funding"
 msgstr "Funding"
 
-#: src/app/(tabs)/(trades)/index.tsx:267
+#: src/app/(tabs)/(trades)/index.tsx:276
 #: src/components/trade-form.tsx:477
 msgid "Futures"
 msgstr "Futures"
@@ -1042,7 +1099,7 @@ msgstr "GitHub repository"
 msgid "Go runtime"
 msgstr "Go runtime"
 
-#: src/components/performance-card.tsx:49
+#: src/components/performance-card.tsx:56
 msgid "Gross"
 msgstr "Gross"
 
@@ -1054,11 +1111,15 @@ msgstr "Gross P&L"
 #~ msgid "Group trades under a custom tag."
 #~ msgstr "Group trades under a custom tag."
 
+#: src/app/(tabs)/(settings)/display.tsx:71
+msgid "Hide amounts everywhere — stats and ratios stay visible."
+msgstr "Hide amounts everywhere — stats and ratios stay visible."
+
 #: src/components/password-input.tsx:35
 msgid "Hide password"
 msgstr "Hide password"
 
-#: src/app/(tabs)/(trades)/index.tsx:273
+#: src/app/(tabs)/(trades)/index.tsx:282
 msgid "Highest P&L"
 msgstr "Highest P&L"
 
@@ -1067,7 +1128,7 @@ msgid "History"
 msgstr "History"
 
 #: src/app/(tabs)/_layout.tsx:36
-#: src/app/(tabs)/(dashboard)/_layout.tsx:31
+#: src/app/(tabs)/(dashboard)/_layout.tsx:33
 msgid "Home"
 msgstr "Home"
 
@@ -1097,7 +1158,7 @@ msgstr "Import another file"
 msgid "Import broker fills or a backup; export trades as JSON, CSV, or ZIP."
 msgstr "Import broker fills or a backup; export trades as JSON, CSV, or ZIP."
 
-#: src/app/(tabs)/(dashboard)/index.tsx:90
+#: src/app/(tabs)/(dashboard)/index.tsx:99
 msgid "Import broker history or log a trade on the web app to see performance here."
 msgstr "Import broker history or log a trade on the web app to see performance here."
 
@@ -1105,7 +1166,7 @@ msgstr "Import broker history or log a trade on the web app to see performance h
 msgid "Import complete"
 msgstr "Import complete"
 
-#: src/app/(tabs)/(settings)/index.tsx:303
+#: src/app/(tabs)/(settings)/index.tsx:308
 msgid "Import config"
 msgstr "Import config"
 
@@ -1117,7 +1178,7 @@ msgstr "Import failed"
 msgid "Import into"
 msgstr "Import into"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:44
+#: src/app/(tabs)/(settings)/_layout.tsx:48
 #: src/app/(tabs)/(settings)/index.tsx:263
 msgid "Import trades"
 msgstr "Import trades"
@@ -1134,7 +1195,7 @@ msgstr "Initial risk"
 msgid "Inserted"
 msgstr "Inserted"
 
-#: src/components/insights-card.tsx:29
+#: src/components/insights-card.tsx:36
 msgid "Insights"
 msgstr "Insights"
 
@@ -1178,7 +1239,7 @@ msgstr "JSON must be an array of fills, or an object with a fills/rows/execution
 msgid "Kind"
 msgstr "Kind"
 
-#: src/app/(tabs)/(settings)/index.tsx:287
+#: src/app/(tabs)/(settings)/index.tsx:292
 msgid "Language"
 msgstr "Language"
 
@@ -1186,9 +1247,13 @@ msgstr "Language"
 msgid "Language is set per app in iOS Settings."
 msgstr "Language is set per app in iOS Settings."
 
-#: src/app/(tabs)/(trades)/index.tsx:259
+#: src/app/(tabs)/(trades)/index.tsx:268
 msgid "Last 30 days"
 msgstr "Last 30 days"
+
+#: src/app/(tabs)/(settings)/display.tsx:40
+msgid "Leave blank for no limit."
+msgstr "Leave blank for no limit."
 
 #: src/app/(tabs)/(settings)/index.tsx:74
 msgid "Leave blank to clear the goal."
@@ -1213,7 +1278,7 @@ msgid "Loading…"
 msgstr "Loading…"
 
 #: src/components/trade-form.tsx:481
-#: src/components/trade-row.tsx:59
+#: src/components/trade-row.tsx:62
 msgid "Long"
 msgstr "Long"
 
@@ -1222,7 +1287,7 @@ msgstr "Long"
 msgid "LONG"
 msgstr "LONG"
 
-#: src/components/insights-card.tsx:76
+#: src/components/insights-card.tsx:83
 msgid "Losing hold"
 msgstr "Losing hold"
 
@@ -1230,16 +1295,16 @@ msgstr "Losing hold"
 msgid "LOSS"
 msgstr "LOSS"
 
-#: src/components/insights-card.tsx:55
+#: src/components/insights-card.tsx:62
 msgid "losses"
 msgstr "losses"
 
-#: src/app/(tabs)/(trades)/index.tsx:251
-#: src/components/performance-card.tsx:68
+#: src/app/(tabs)/(trades)/index.tsx:260
+#: src/components/performance-card.tsx:75
 msgid "Losses"
 msgstr "Losses"
 
-#: src/app/(tabs)/(trades)/index.tsx:274
+#: src/app/(tabs)/(trades)/index.tsx:283
 msgid "Lowest P&L"
 msgstr "Lowest P&L"
 
@@ -1247,11 +1312,11 @@ msgstr "Lowest P&L"
 msgid "MAE"
 msgstr "MAE"
 
-#: src/components/insights-card.tsx:84
+#: src/components/insights-card.tsx:91
 msgid "Main leak"
 msgstr "Main leak"
 
-#: src/app/(tabs)/(trades)/index.tsx:172
+#: src/app/(tabs)/(trades)/index.tsx:175
 msgid "Manage tags"
 msgstr "Manage tags"
 
@@ -1263,10 +1328,14 @@ msgstr "Map columns"
 msgid "Margin"
 msgstr "Margin"
 
-#: src/app/(tabs)/(trades)/index.tsx:338
+#: src/app/(tabs)/(trades)/index.tsx:347
 #: src/components/trade-form.tsx:512
 msgid "Market"
 msgstr "Market"
+
+#: src/app/(tabs)/(settings)/display.tsx:115
+msgid "Market timezone"
+msgstr "Market timezone"
 
 #: src/app/(tabs)/(settings)/import-trades.tsx:341
 msgid "Match each field to a column from the file."
@@ -1276,8 +1345,8 @@ msgstr "Match each field to a column from the file."
 msgid "Max daily loss"
 msgstr "Max daily loss"
 
-#: src/components/equity-card.tsx:95
-#: src/components/insights-card.tsx:42
+#: src/components/equity-card.tsx:107
+#: src/components/insights-card.tsx:49
 msgid "Max drawdown"
 msgstr "Max drawdown"
 
@@ -1311,12 +1380,12 @@ msgstr "Mistake type"
 msgid "Model"
 msgstr "Model"
 
-#: src/app/(tabs)/(calendar)/index.tsx:184
-#: src/components/mini-calendar-card.tsx:46
+#: src/app/(tabs)/(calendar)/index.tsx:196
+#: src/components/mini-calendar-card.tsx:52
 msgid "Month"
 msgstr "Month"
 
-#: src/components/insights-card.tsx:80
+#: src/components/insights-card.tsx:87
 msgid "most traded"
 msgstr "most traded"
 
@@ -1331,14 +1400,14 @@ msgstr "Multiplier"
 msgid "Name"
 msgstr "Name"
 
-#: src/app/(tabs)/(trades)/index.tsx:398
-#: src/components/performance-card.tsx:44
+#: src/app/(tabs)/(trades)/index.tsx:408
+#: src/components/performance-card.tsx:51
 msgid "Net"
 msgstr "Net"
 
-#: src/app/(tabs)/(calendar)/index.tsx:596
-#: src/app/(tabs)/(calendar)/index.tsx:725
-#: src/app/(tabs)/(calendar)/index.tsx:842
+#: src/app/(tabs)/(calendar)/index.tsx:613
+#: src/app/(tabs)/(calendar)/index.tsx:742
+#: src/app/(tabs)/(calendar)/index.tsx:859
 #: src/app/(tabs)/(trades)/[id].tsx:220
 msgid "Net P&L"
 msgstr "Net P&L"
@@ -1379,11 +1448,11 @@ msgstr "New token"
 msgid "New trade"
 msgstr "New trade"
 
-#: src/app/(tabs)/(trades)/index.tsx:271
+#: src/app/(tabs)/(trades)/index.tsx:280
 msgid "Newest first"
 msgstr "Newest first"
 
-#: src/app/(tabs)/(calendar)/index.tsx:321
+#: src/app/(tabs)/(calendar)/index.tsx:338
 msgid "Next"
 msgstr "Next"
 
@@ -1401,7 +1470,7 @@ msgstr "No accounts yet"
 msgid "No accounts yet — pick a JSON backup with account details, or add an account first."
 msgstr "No accounts yet — pick a JSON backup with account details, or add an account first."
 
-#: src/components/breakdown-card.tsx:43
+#: src/components/breakdown-card.tsx:44
 msgid "No breakdown data yet."
 msgstr "No breakdown data yet."
 
@@ -1409,11 +1478,11 @@ msgstr "No breakdown data yet."
 msgid "No chart data for this symbol."
 msgstr "No chart data for this symbol."
 
-#: src/app/(tabs)/(calendar)/day/[date].tsx:52
+#: src/app/(tabs)/(calendar)/day/[date].tsx:62
 msgid "No closed trades on this day."
 msgstr "No closed trades on this day."
 
-#: src/components/equity-card.tsx:59
+#: src/components/equity-card.tsx:71
 msgid "No equity data in this range."
 msgstr "No equity data in this range."
 
@@ -1437,28 +1506,28 @@ msgstr "No tags yet"
 msgid "No tokens yet"
 msgstr "No tokens yet"
 
-#: src/app/(tabs)/(calendar)/index.tsx:783
-#: src/app/(tabs)/(calendar)/index.tsx:928
+#: src/app/(tabs)/(calendar)/index.tsx:800
+#: src/app/(tabs)/(calendar)/index.tsx:945
 msgid "No trades"
 msgstr "No trades"
 
-#: src/app/(tabs)/(dashboard)/index.tsx:151
+#: src/app/(tabs)/(dashboard)/index.tsx:168
 msgid "No trades in this range."
 msgstr "No trades in this range."
 
-#: src/app/(tabs)/(trades)/index.tsx:413
+#: src/app/(tabs)/(trades)/index.tsx:423
 msgid "No trades match this filter."
 msgstr "No trades match this filter."
 
-#: src/app/(tabs)/(trades)/index.tsx:411
+#: src/app/(tabs)/(trades)/index.tsx:421
 msgid "No trades matching \"{search}\""
 msgstr "No trades matching \"{search}\""
 
-#: src/app/(tabs)/(dashboard)/index.tsx:88
+#: src/app/(tabs)/(dashboard)/index.tsx:97
 msgid "No trades yet"
 msgstr "No trades yet"
 
-#: src/app/(tabs)/(trades)/index.tsx:414
+#: src/app/(tabs)/(trades)/index.tsx:424
 msgid "No trades yet — import a broker CSV to get started."
 msgstr "No trades yet — import a broker CSV to get started."
 
@@ -1470,12 +1539,12 @@ msgstr "No transactions yet"
 msgid "No usable fills found — rows need a positive quantity and price."
 msgstr "No usable fills found — rows need a positive quantity and price."
 
-#: src/components/insights-card.tsx:79
+#: src/components/insights-card.tsx:86
 #: src/components/trade-form.tsx:485
 msgid "None"
 msgstr "None"
 
-#: src/components/insights-card.tsx:85
+#: src/components/insights-card.tsx:92
 msgid "None tagged"
 msgstr "None tagged"
 
@@ -1517,12 +1586,12 @@ msgstr "Notional"
 #~ msgid "OCR, AI coach, and API tokens are managed on the web app."
 #~ msgstr "OCR, AI coach, and API tokens are managed on the web app."
 
-#. placeholder {0}: formatCurrency(goalAmount, currency)
-#: src/components/goal-card.tsx:34
+#. placeholder {0}: formatCurrency(goalAmount * fxRate, currency)
+#: src/components/goal-card.tsx:40
 msgid "of {0}"
 msgstr "of {0}"
 
-#: src/app/(tabs)/(trades)/index.tsx:272
+#: src/app/(tabs)/(trades)/index.tsx:281
 msgid "Oldest first"
 msgstr "Oldest first"
 
@@ -1540,10 +1609,10 @@ msgstr "Online"
 
 #: src/app/(tabs)/(trades)/[id].tsx:192
 #: src/app/(tabs)/(trades)/[id].tsx:273
-#: src/app/(tabs)/(trades)/index.tsx:252
+#: src/app/(tabs)/(trades)/index.tsx:261
 #: src/app/quick-journal.tsx:136
-#: src/components/performance-card.tsx:74
-#: src/components/trade-row.tsx:31
+#: src/components/performance-card.tsx:81
+#: src/components/trade-row.tsx:32
 msgid "Open"
 msgstr "Open"
 
@@ -1551,11 +1620,15 @@ msgstr "Open"
 msgid "OPEN"
 msgstr "OPEN"
 
+#: src/app/(tabs)/(settings)/display.tsx:167
+msgid "Open date (entry)"
+msgstr "Open date (entry)"
+
 #: src/app/(tabs)/(trades)/[id].tsx:265
 msgid "Opened"
 msgstr "Opened"
 
-#: src/app/(tabs)/(trades)/index.tsx:265
+#: src/app/(tabs)/(trades)/index.tsx:274
 #: src/components/trade-form.tsx:475
 msgid "Option"
 msgstr "Option"
@@ -1589,7 +1662,7 @@ msgid "Percent must be between 0 and 100."
 msgstr "Percent must be between 0 and 100."
 
 #: src/app/(tabs)/(settings)/account-form.tsx:294
-#: src/components/performance-card.tsx:42
+#: src/components/performance-card.tsx:49
 msgid "Performance"
 msgstr "Performance"
 
@@ -1607,7 +1680,7 @@ msgstr "Permanently deletes {tradeCount} trades and their executions from {0}."
 msgid "Permanently deletes this trade and all of its fills. This cannot be undone."
 msgstr "Permanently deletes this trade and all of its fills. This cannot be undone."
 
-#: src/components/performance-card.tsx:51
+#: src/components/performance-card.tsx:58
 msgid "PF"
 msgstr "PF"
 
@@ -1651,7 +1724,7 @@ msgstr "Preparing…"
 msgid "Preview import"
 msgstr "Preview import"
 
-#: src/app/(tabs)/(calendar)/index.tsx:312
+#: src/app/(tabs)/(calendar)/index.tsx:329
 msgid "Previous"
 msgstr "Previous"
 
@@ -1659,6 +1732,14 @@ msgstr "Previous"
 #: src/components/trade-form.tsx:425
 msgid "Price"
 msgstr "Price"
+
+#: src/app/(tabs)/(settings)/display.tsx:70
+msgid "Privacy"
+msgstr "Privacy"
+
+#: src/app/(tabs)/(settings)/display.tsx:74
+msgid "Privacy mode"
+msgstr "Privacy mode"
 
 #: src/app/(tabs)/(settings)/account-form.tsx:49
 msgid "Prop"
@@ -1702,7 +1783,7 @@ msgstr "Reads broker screenshots into executions on Import. Works with any OpenA
 msgid "Realized P&L"
 msgstr "Realized P&L"
 
-#: src/app/(tabs)/(dashboard)/index.tsx:145
+#: src/app/(tabs)/(dashboard)/index.tsx:162
 msgid "Recent trades"
 msgstr "Recent trades"
 
@@ -1829,6 +1910,7 @@ msgid "Rules & checklist"
 msgstr "Rules & checklist"
 
 #: src/app/(tabs)/(settings)/ai.tsx:170
+#: src/app/(tabs)/(settings)/display.tsx:44
 #: src/app/(tabs)/(settings)/index.tsx:78
 #: src/app/(tabs)/(settings)/risk-rules.tsx:53
 #: src/components/form-sheet.tsx:81
@@ -1882,7 +1964,20 @@ msgstr "Saving…"
 msgid "Screenshots"
 msgstr "Screenshots"
 
-#: src/app/(tabs)/(trades)/index.tsx:364
+#: src/app/(tabs)/(settings)/display.tsx:39
+msgid "Screenshots per trade"
+msgstr "Screenshots per trade"
+
+#. placeholder {0}: prefs.maxScreenshotsPerTrade
+#: src/app/(tabs)/(settings)/display.tsx:174
+msgid "Screenshots per trade — {0}"
+msgstr "Screenshots per trade — {0}"
+
+#: src/app/(tabs)/(settings)/display.tsx:175
+msgid "Screenshots per trade — No limit"
+msgstr "Screenshots per trade — No limit"
+
+#: src/app/(tabs)/(trades)/index.tsx:374
 msgid "Search symbol or tag"
 msgstr "Search symbol or tag"
 
@@ -1921,7 +2016,7 @@ msgid "Settings"
 msgstr "Settings"
 
 #: src/app/(tabs)/(trades)/[id].tsx:299
-#: src/components/breakdown-card.tsx:23
+#: src/components/breakdown-card.tsx:24
 msgid "Setup"
 msgstr "Setup"
 
@@ -1949,7 +2044,7 @@ msgid "Share token"
 msgstr "Share token"
 
 #: src/components/trade-form.tsx:482
-#: src/components/trade-row.tsx:59
+#: src/components/trade-row.tsx:62
 msgid "Short"
 msgstr "Short"
 
@@ -1988,7 +2083,7 @@ msgstr "Skipped (duplicates)"
 msgid "Skipped {skipped} row(s) without quantity/price."
 msgstr "Skipped {skipped} row(s) without quantity/price."
 
-#: src/app/(tabs)/(trades)/index.tsx:348
+#: src/app/(tabs)/(trades)/index.tsx:357
 msgid "Sort"
 msgstr "Sort"
 
@@ -1997,11 +2092,11 @@ msgid "Starting balance"
 msgstr "Starting balance"
 
 #: src/app/(tabs)/(settings)/about.tsx:69
-#: src/app/(tabs)/(trades)/index.tsx:330
+#: src/app/(tabs)/(trades)/index.tsx:339
 msgid "Status"
 msgstr "Status"
 
-#: src/app/(tabs)/(trades)/index.tsx:264
+#: src/app/(tabs)/(trades)/index.tsx:273
 #: src/components/trade-form.tsx:474
 msgid "Stock"
 msgstr "Stock"
@@ -2035,8 +2130,13 @@ msgstr "Suggested size as a percent of account equity."
 msgid "Summary"
 msgstr "Summary"
 
+#: src/components/account-menu.tsx:49
+#: src/components/account-menu.tsx:65
+msgid "Switch account"
+msgstr "Switch account"
+
 #: src/app/(tabs)/(settings)/import-trades.tsx:37
-#: src/components/breakdown-card.tsx:24
+#: src/components/breakdown-card.tsx:25
 #: src/components/trade-form.tsx:521
 #: src/components/trade-form.tsx:587
 msgid "Symbol"
@@ -2052,7 +2152,7 @@ msgstr "symbol {0}"
 msgid "Symbol {0}"
 msgstr "Symbol {0}"
 
-#: src/app/(tabs)/(trades)/index.tsx:275
+#: src/app/(tabs)/(trades)/index.tsx:284
 msgid "Symbol A–Z"
 msgstr "Symbol A–Z"
 
@@ -2115,6 +2215,10 @@ msgstr "The endpoint did not answer."
 msgid "The file's server URL ({0}) was not applied — disconnect and sign in to switch servers."
 msgstr "The file's server URL ({0}) was not applied — disconnect and sign in to switch servers."
 
+#: src/app/(tabs)/(settings)/display.tsx:110
+msgid "The market timezone defines the trading day — calendar days and hourly stats follow it. The display timezone only formats clock times."
+msgstr "The market timezone defines the trading day — calendar days and hourly stats follow it. The display timezone only formats clock times."
+
 #: src/app/(tabs)/(settings)/account-form.tsx:255
 msgid "The starting balance is saved as the first deposit in the cash ledger."
 msgstr "The starting balance is saved as the first deposit in the cash ledger."
@@ -2123,7 +2227,7 @@ msgstr "The starting balance is saved as the first deposit in the cash ledger."
 #~ msgid "The tag is removed from every trade that uses it."
 #~ msgstr "The tag is removed from every trade that uses it."
 
-#: src/app/(tabs)/(trades)/index.tsx:258
+#: src/app/(tabs)/(trades)/index.tsx:267
 msgid "This month"
 msgstr "This month"
 
@@ -2131,13 +2235,21 @@ msgstr "This month"
 msgid "This permanently deletes the ledger entry."
 msgstr "This permanently deletes the ledger entry."
 
-#: src/app/(tabs)/(trades)/index.tsx:257
+#: src/app/(tabs)/(trades)/index.tsx:266
 msgid "This week"
 msgstr "This week"
 
-#: src/app/(tabs)/(trades)/index.tsx:260
+#: src/app/(tabs)/(trades)/index.tsx:269
 msgid "This year"
 msgstr "This year"
+
+#: src/app/(tabs)/(settings)/display.tsx:107
+msgid "Time"
+msgstr "Time"
+
+#: src/app/(tabs)/(settings)/display.tsx:137
+msgid "Time format"
+msgstr "Time format"
 
 #: src/app/(tabs)/(trades)/[id].tsx:276
 msgid "Time in trade"
@@ -2151,7 +2263,7 @@ msgstr "Timing"
 msgid "Title"
 msgstr "Title"
 
-#: src/app/(tabs)/(trades)/index.tsx:256
+#: src/app/(tabs)/(trades)/index.tsx:265
 msgid "Today"
 msgstr "Today"
 
@@ -2163,17 +2275,21 @@ msgstr "Token name is required."
 msgid "Tokens authenticate scripts and integrations against your server's API."
 msgstr "Tokens authenticate scripts and integrations against your server's API."
 
-#: src/components/insights-card.tsx:78
+#: src/components/insights-card.tsx:85
 msgid "Top symbol"
 msgstr "Top symbol"
 
-#: src/components/mini-calendar-card.tsx:101
+#: src/components/mini-calendar-card.tsx:107
 msgid "Total"
 msgstr "Total"
 
 #: src/app/(tabs)/(trades)/[id].tsx:223
 msgid "Total P&L"
 msgstr "Total P&L"
+
+#: src/app/(tabs)/(settings)/display.tsx:159
+msgid "Trade date basis"
+msgstr "Trade date basis"
 
 #: src/app/(tabs)/(settings)/account-form.tsx:145
 msgid "Trade history cleared"
@@ -2191,6 +2307,7 @@ msgstr "TraderMemos is a self-hosted trading journal — your data stays on your
 
 #: src/app/(tabs)/_layout.tsx:40
 #: src/app/(tabs)/(settings)/account-form.tsx:325
+#: src/app/(tabs)/(settings)/display.tsx:151
 #: src/app/(tabs)/(settings)/import-trades.tsx:276
 #: src/app/(tabs)/(settings)/import-trades.tsx:308
 #: src/app/(tabs)/(trades)/_layout.tsx:24
@@ -2246,7 +2363,7 @@ msgstr "Value ($)"
 msgid "Version"
 msgstr "Version"
 
-#: src/app/(tabs)/(dashboard)/index.tsx:147
+#: src/app/(tabs)/(dashboard)/index.tsx:164
 msgid "View all"
 msgstr "View all"
 
@@ -2254,12 +2371,12 @@ msgstr "View all"
 msgid "Vision scan"
 msgstr "Vision scan"
 
-#: src/components/performance-card.tsx:80
+#: src/components/performance-card.tsx:87
 msgid "Wash"
 msgstr "Wash"
 
-#: src/app/(tabs)/(calendar)/index.tsx:183
-#: src/app/(tabs)/(calendar)/index.tsx:623
+#: src/app/(tabs)/(calendar)/index.tsx:195
+#: src/app/(tabs)/(calendar)/index.tsx:640
 msgid "Week"
 msgstr "Week"
 
@@ -2288,16 +2405,16 @@ msgstr "Why did you exit?"
 msgid "WIN"
 msgstr "WIN"
 
-#: src/components/insights-card.tsx:75
+#: src/components/insights-card.tsx:82
 msgid "Winning hold"
 msgstr "Winning hold"
 
-#: src/components/insights-card.tsx:49
+#: src/components/insights-card.tsx:56
 msgid "wins"
 msgstr "wins"
 
-#: src/app/(tabs)/(trades)/index.tsx:250
-#: src/components/performance-card.tsx:62
+#: src/app/(tabs)/(trades)/index.tsx:259
+#: src/components/performance-card.tsx:69
 msgid "Wins"
 msgstr "Wins"
 
@@ -2305,15 +2422,15 @@ msgstr "Wins"
 msgid "Withdrawal"
 msgstr "Withdrawal"
 
-#: src/components/insights-card.tsx:65
+#: src/components/insights-card.tsx:72
 msgid "Worst day"
 msgstr "Worst day"
 
-#: src/components/insights-card.tsx:53
+#: src/components/insights-card.tsx:60
 msgid "Worst streak"
 msgstr "Worst streak"
 
-#: src/components/insights-card.tsx:37
+#: src/components/insights-card.tsx:44
 msgid "Worst trade"
 msgstr "Worst trade"
 
@@ -2325,7 +2442,7 @@ msgstr "Write review"
 msgid "Write something first."
 msgstr "Write something first."
 
-#: src/app/(tabs)/(calendar)/index.tsx:185
+#: src/app/(tabs)/(calendar)/index.tsx:197
 msgid "Year"
 msgstr "Year"
 

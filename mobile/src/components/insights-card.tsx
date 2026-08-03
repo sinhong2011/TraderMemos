@@ -7,6 +7,7 @@ import { StatBar } from '@/components/stat-bar';
 import { t } from '@lingui/core/macro';
 import { computeDashboardInsights } from '@/lib/insights';
 import { formatDate, formatDuration, formatPnl } from '@/lib/format';
+import { useDisplayPrefs } from '@/lib/prefs';
 
 /**
  * The web dashboard's insight bento, folded into a phone-width tile grid:
@@ -17,30 +18,36 @@ export function InsightsCard({
   trades,
   currency,
   maxDrawdown,
+  fxRate = 1,
 }: {
   summary: Summary;
   trades: Trade[];
   currency: string;
   maxDrawdown?: number;
+  /** Base→display conversion applied before formatting (1 = account currency). */
+  fxRate?: number;
 }) {
+  // Re-render when privacy mode flips — formatters read it at call time.
+  useDisplayPrefs();
   const insights = computeDashboardInsights(trades);
+  const fx = (v: number) => v * fxRate;
 
   return (
     <DashboardCard title={t`Insights`}>
       <View style={styles.grid}>
         <StatBar
           label={t`Best trade`}
-          value={formatPnl(summary.largest_win, currency)}
+          value={formatPnl(fx(summary.largest_win), currency)}
           tone="pos"
         />
         <StatBar
           label={t`Worst trade`}
-          value={formatPnl(-summary.largest_loss, currency)}
+          value={formatPnl(fx(-summary.largest_loss), currency)}
           tone="neg"
         />
         <StatBar
           label={t`Max drawdown`}
-          value={formatPnl(-(maxDrawdown ?? 0), currency)}
+          value={formatPnl(fx(-(maxDrawdown ?? 0)), currency)}
           tone="neg"
         />
         <StatBar
@@ -57,13 +64,13 @@ export function InsightsCard({
         />
         <StatBar
           label={t`Best day`}
-          value={formatPnl(insights.bestDay?.pnl ?? 0, currency)}
+          value={formatPnl(fx(insights.bestDay?.pnl ?? 0), currency)}
           sub={insights.bestDay ? formatDate(insights.bestDay.date) : undefined}
           tone={insights.bestDay && insights.bestDay.pnl > 0 ? 'pos' : 'muted'}
         />
         <StatBar
           label={t`Worst day`}
-          value={formatPnl(insights.worstDay?.pnl ?? 0, currency)}
+          value={formatPnl(fx(insights.worstDay?.pnl ?? 0), currency)}
           sub={insights.worstDay ? formatDate(insights.worstDay.date) : undefined}
           tone={insights.worstDay && insights.worstDay.pnl < 0 ? 'neg' : 'muted'}
         />

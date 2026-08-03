@@ -8,6 +8,7 @@ import { DashboardCard } from '@/components/dashboard-card';
 import { Segmented } from '@/components/segmented';
 import { Skeleton } from '@/components/skeleton';
 import { t } from '@lingui/core/macro';
+import { useGlobalFilters } from '@/lib/filters';
 
 /** Net P&L per group, best → worst, like the web chart. */
 const MAX_GROUPS = 8;
@@ -16,7 +17,7 @@ const MAX_GROUPS = 8;
 export function BreakdownCard() {
   const { theme } = useUnistyles();
   const [dim, setDim] = useState<BreakdownDim>('day_of_week');
-  const { data, isLoading, error } = useBreakdown(dim);
+  const { data, isLoading, error } = useBreakdown(dim, useGlobalFilters());
 
   const dims = [
     { value: 'day_of_week' as const, label: t`Day` },

@@ -7,8 +7,12 @@ import { useAccounts, useDaily, useTrades } from '@/api/hooks';
 import { SwipeableTradeRow } from '@/components/swipeable-trade-row';
 import { t } from '@lingui/core/macro';
 import { locale } from '@/i18n';
+import { useSelectedAccountId } from '@/lib/account-store';
 import { tradeDayKey } from '@/lib/calendar';
+import { useGlobalFilters } from '@/lib/filters';
 import { formatPnl } from '@/lib/format';
+import { useMoneyFx } from '@/lib/money';
+import { accountBaseCurrency, useDisplayPrefs } from '@/lib/prefs';
 import { pnlColor } from '@/styles/unistyles';
 
 /** Day-detail form sheet: net P&L header over the day's closed trades. */
@@ -18,19 +22,25 @@ export default function CalendarDayScreen() {
   const year = Number(date?.slice(0, 4));
 
   // Same ranges as the calendar screen so both screens share the cached queries.
+  const globalFilters = useGlobalFilters();
   const daily = useDaily({
+    ...globalFilters,
     from: `${year}-01-01T00:00:00Z`,
     to: `${year + 1}-01-01T00:00:00Z`,
   });
-  const trades = useTrades();
+  const trades = useTrades(globalFilters);
   const accounts = useAccounts();
-  const currency = accounts.data?.[0]?.base_currency ?? 'USD';
+  const selectedAccountId = useSelectedAccountId();
+  const fx = useMoneyFx(accountBaseCurrency(accounts.data, selectedAccountId));
+  const currency = fx.currency;
+  // Re-render when privacy mode flips — the header formats money.
+  useDisplayPrefs();
 
   const dayTrades = useMemo(
     () => (trades.data ?? []).filter((tr) => tradeDayKey(tr) === date),
     [date, trades.data],
   );
-  const pnl = daily.data?.[date ?? ''] ?? 0;
+  const pnl = (daily.data?.[date ?? ''] ?? 0) * (fx.rate ?? 1);
   const label = date
     ? new Date(`${date}T00:00:00Z`).toLocaleDateString(locale, {
         weekday: 'long',

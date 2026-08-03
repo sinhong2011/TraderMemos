@@ -131,6 +131,8 @@ export type TradeDetail = Omit<Trade, 'initial_risk'> & {
   trade_quality: number | null;
   mae: number | null;
   mfe: number | null;
+  post_exit_mae: number | null;
+  post_exit_mfe: number | null;
   dividend_total: number;
   total_pnl: number | null;
   attachments: TradeAttachment[];
@@ -167,6 +169,7 @@ export type Summary = {
   breakeven: number;
   win_rate: number;
   net_pnl: number;
+  gross_pnl: number;
   gross_profit: number;
   gross_loss: number;
   profit_factor: number;
@@ -174,9 +177,15 @@ export type Summary = {
   avg_win: number;
   avg_loss: number;
   avg_trade: number;
+  median_win: number;
+  /** Positive magnitude, like avg_loss. */
+  median_loss: number;
+  median_trade: number;
   largest_win: number;
   largest_loss: number;
   total_fees: number;
+  kelly_pct: number;
+  sqn: number;
 };
 
 export type EquityPoint = {
@@ -279,13 +288,22 @@ export type ApiHealth = {
   go?: string;
 };
 
-/** Shared query filters accepted by the trades and analytics endpoints. */
+/** Shared query filters accepted by the trades and analytics endpoints (parseFilters). */
 export type Filters = {
   account_id?: string;
   /** RFC3339 */
   from?: string;
   /** RFC3339 */
   to?: string;
+  /** Ticker, or a comma-separated list (analytics OR-match; /trades is exact). */
+  symbol?: string;
+  status?: TradeStatus;
+  side?: TradeDirection;
+  duration?: 'scalp' | 'day' | 'swing';
+  /** Which timestamp attributes a trade to a day / range. Default close. */
+  date_basis?: 'close' | 'open';
+  /** IANA market timezone driving day/hour/weekday bucketing. */
+  tz?: string;
 };
 
 /** Per-row failure reported by import preview/commit. */
@@ -399,4 +417,340 @@ export type TradeExtract = {
   warnings: string[];
   /** Present when a scan contains more than one underlying. */
   symbols?: string[];
+};
+
+// ---------------------------------------------------------------------------
+// Analytics: R-summary, compliance, behavior (api/internal/analytics/*.go)
+// ---------------------------------------------------------------------------
+
+/** One bucket of the R-multiple distribution (analytics.RBucket). */
+export type RBucket = {
+  /** e.g. "< -2R" | "-1R to 0" | "≥ 2R" */
+  label: string;
+  count: number;
+  from: number;
+  to: number;
+};
+
+/**
+ * GET /analytics/r-summary — Summary fields are promoted inline (Go embedding)
+ * and are denominated in R units, not dollars.
+ */
+export type RSummary = Summary & {
+  /** Closed trades without a knowable initial risk (no stop) — not in the stats. */
+  excluded: number;
+  avg_r: number;
+  avg_win_r: number;
+  avg_loss_r: number;
+  best_r: number;
+  worst_r: number;
+  distribution: RBucket[];
+};
+
+/** One trading day in the compliance report (analytics.ComplianceDay). */
+export type ComplianceDay = {
+  /** YYYY-MM-DD in the market tz. */
+  date: string;
+  net_pnl: number;
+  trades: number;
+  risk_violations: number;
+  unknown_risk: number;
+  daily_loss_breach: boolean;
+  compliant: boolean;
+};
+
+/** GET /analytics/compliance — rules come from /settings/risk-rules. */
+export type ComplianceReport = {
+  rules_configured: boolean;
+  days: ComplianceDay[];
+  compliant_days: number;
+  breach_days: number;
+  compliant_pnl: number;
+  breach_pnl: number;
+  risk_violations: number;
+  unknown_risk: number;
+  daily_loss_breaches: number;
+};
+
+/** One flagged trade in a behavior section (analytics.BehaviorEvent). */
+export type BehaviorEvent = {
+  /** YYYY-MM-DD in the market tz. */
+  date: string;
+  trade_id: string;
+  symbol: string;
+  trigger_trade_id?: string;
+  /** "quick_reentry" | "size_escalation" */
+  reason: string;
+  size_ratio?: number;
+  net_pnl: number;
+};
+
+/** Win/loss aggregate for flagged-vs-baseline comparison (analytics.OutcomeSplit). */
+export type OutcomeSplit = {
+  trades: number;
+  wins: number;
+  /** Fraction 0–1. */
+  win_rate: number;
+  net_pnl: number;
+};
+
+export type RevengeSection = {
+  insufficient_data: boolean;
+  events: BehaviorEvent[];
+  flagged: OutcomeSplit;
+  baseline: OutcomeSplit;
+};
+
+export type OverconfidenceSection = {
+  insufficient_data: boolean;
+  streaks: number;
+  events: BehaviorEvent[];
+  flagged: OutcomeSplit;
+  baseline: OutcomeSplit;
+};
+
+/** A winner that peaked well above its final P&L (analytics.GiveBack). */
+export type GiveBack = {
+  date: string;
+  trade_id: string;
+  symbol: string;
+  mfe: number;
+  net_pnl: number;
+};
+
+export type LossAversionSection = {
+  insufficient_data: boolean;
+  avg_win_hold_secs: number;
+  avg_loss_hold_secs: number;
+  median_win_hold_secs: number;
+  median_loss_hold_secs: number;
+  hold_ratio: number;
+  /** Max 5, sorted by MFE desc. */
+  give_backs: GiveBack[];
+  give_back_count: number;
+  missed_profit: number;
+  /** Trades without MAE/MFE, excluded from the give-back scan. */
+  excluded: number;
+};
+
+/** GET /analytics/behavior (analytics.BehaviorReport). */
+export type BehaviorReport = {
+  trades: number;
+  revenge: RevengeSection;
+  overconfidence: OverconfidenceSection;
+  loss_aversion: LossAversionSection;
+};
+
+// ---------------------------------------------------------------------------
+// Economic events, FX (econ_handlers.go, marketdata/fx.go)
+// ---------------------------------------------------------------------------
+
+export type EconomicImpact = 'high' | 'medium' | 'low' | 'holiday';
+
+/** GET /economic-events row (economicEventDTO). */
+export type EconomicEvent = {
+  id: number;
+  provider: string;
+  title: string;
+  /** Currency code, e.g. "USD". */
+  country: string;
+  impact: EconomicImpact | string;
+  /** RFC3339 UTC. */
+  time: string;
+  forecast: string;
+  previous: string;
+  actual: string;
+};
+
+/** GET /market/fx — 1 `from` = `rate` `to`. */
+export type FxRate = {
+  from: string;
+  to: string;
+  rate: number;
+  as_of: string;
+  provider: string;
+  cached: boolean;
+};
+
+// ---------------------------------------------------------------------------
+// Coach (coach_handlers.go, coach/generate.go)
+// ---------------------------------------------------------------------------
+
+export type CoachNoteTone = 'neg' | 'warn' | 'pos' | 'tip';
+
+export type CoachNote = {
+  id: string;
+  tone: CoachNoteTone;
+  headline: string;
+  detail: string;
+  priority: number;
+};
+
+/** POST /trades/{id}/coach (no body). */
+export type CoachReview = {
+  source: 'llm' | 'off' | 'error';
+  notes: CoachNote[];
+  error?: string;
+};
+
+/** POST /settings/{ocr,coach}/models result. */
+export type LlmModelsResult = {
+  models: string[];
+  error?: string;
+};
+
+// ---------------------------------------------------------------------------
+// Excursion (excursion_handlers.go)
+// ---------------------------------------------------------------------------
+
+/** POST /trades/{id}/excursion — also persists MAE/MFE into the journal. */
+export type ExcursionResult = {
+  mae: number;
+  mfe: number;
+  interval: string;
+  bars_used: number;
+  provider: string;
+  post_exit_mae: number | null;
+  post_exit_mfe: number | null;
+};
+
+// ---------------------------------------------------------------------------
+// Prop mode (prop_handlers.go, prop/prop.go)
+// ---------------------------------------------------------------------------
+
+export type DrawdownMode = 'trailing' | 'eod' | 'static';
+
+/** GET/PUT /accounts/{id}/prop-settings — null skips that rule. */
+export type PropSettings = {
+  profit_target: number | null;
+  max_drawdown: number | null;
+  drawdown_mode: DrawdownMode;
+  daily_loss_limit: number | null;
+  /** 0 < x <= 1. */
+  consistency_pct: number | null;
+};
+
+/** Server-computed evaluation (prop.Status) — never re-derive client-side. */
+export type PropStatus = {
+  equity: number;
+  start_balance: number;
+  realized_pnl: number;
+  trading_days: number;
+  profit_target?: number;
+  target_pct?: number;
+  max_drawdown?: number;
+  drawdown_mode?: DrawdownMode;
+  equity_floor?: number;
+  floor_distance?: number;
+  drawdown_hit: boolean;
+  daily_loss_hits: number;
+  best_day_pnl: number;
+  best_day_share?: number;
+  consistency_ok?: boolean;
+  target_reached: boolean;
+};
+
+/** GET /accounts/{id}/prop-status?tz=… */
+export type PropStatusResponse = {
+  configured: boolean;
+  settings?: PropSettings;
+  status?: PropStatus;
+};
+
+// ---------------------------------------------------------------------------
+// IBKR Flex sync (flex_sync_handlers.go, flexsync/sync.go)
+// ---------------------------------------------------------------------------
+
+/** GET/PUT /accounts/{id}/flex-sync. Unconfigured GET = {configured:false}. */
+export type FlexSyncSettings = {
+  configured: boolean;
+  enabled: boolean;
+  query_id?: string;
+  token_set: boolean;
+  /** "…abcd" */
+  token_hint?: string;
+  /** RFC3339 */
+  last_synced_at?: string;
+  last_status?: string;
+  last_error?: string;
+};
+
+/** PUT body — omit/empty token keeps the stored one (required on first create). */
+export type FlexSyncPut = {
+  query_id: string;
+  enabled: boolean;
+  token?: string;
+};
+
+/** POST /accounts/{id}/flex-sync/run result. */
+export type FlexSyncResult = {
+  inserted: number;
+  skipped: number;
+  trades: number;
+  rows: number;
+};
+
+// ---------------------------------------------------------------------------
+// Notes (notes_handlers.go)
+// ---------------------------------------------------------------------------
+
+export type NoteType = 'note' | 'daily_log';
+
+/** Per-symbol journal block — only present on daily logs. */
+export type NoteSymbol = {
+  symbol: string;
+  body: string;
+};
+
+/** GET /notes row (noteDTO). */
+export type Note = {
+  id: string;
+  type: NoteType;
+  /** Opaque date string as stored (not normalized by the server). */
+  occurred_at: string;
+  title: string;
+  body: string;
+  symbols: NoteSymbol[];
+  created_at: string;
+  updated_at: string;
+};
+
+/** POST /notes and PATCH /notes/{id} body — PATCH is a full replace. */
+export type NoteBody = {
+  /** Empty defaults to "note". */
+  type?: NoteType;
+  occurred_at: string;
+  /** Empty defaults to "Untitled" / "Daily log". */
+  title?: string;
+  body: string;
+  symbols?: NoteSymbol[];
+};
+
+// ---------------------------------------------------------------------------
+// Trade patch (trade_handlers.go patchTradeReq)
+// ---------------------------------------------------------------------------
+
+/** PATCH /trades/{id} — only the provided fields change; returns TradeDetail. */
+export type PatchTradeRequest = {
+  notes?: string;
+  setup_id?: string | null;
+  setup_ids?: string[];
+  initial_risk?: number | null;
+  target_price?: number | null;
+  stop_price?: number | null;
+  emotional_state?: string;
+  confidence?: number | null;
+  trade_quality?: number | null;
+  mae?: number | null;
+  mfe?: number | null;
+  tag_ids?: string[];
+};
+
+/** POST /media row (mediaDTO) — generic rich-text images, not trade attachments. */
+export type MediaFile = {
+  id: string;
+  filename: string;
+  content_type: string;
+  size_bytes: number;
+  created_at: string;
 };
