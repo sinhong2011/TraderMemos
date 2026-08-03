@@ -18,6 +18,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import type { Account, Setup, Tag } from '@/api/types';
 import { ChipGroup } from '@/components/chips';
 import { FormScrollArea, FormSheet } from '@/components/form-sheet';
+import { ScreenshotQueue } from '@/components/screenshot-queue';
 import { GlassButton, GlassIconButton } from '@/components/glass-button';
 import { Segmented } from '@/components/segmented';
 import { TradePrefillBar } from '@/components/trade-prefill-bar';
@@ -209,18 +210,20 @@ const TAB_TRANSITION = LinearTransition.springify()
   .dampingRatio(TAB_SPRING.dampingRatio);
 
 /**
- * Entering tabs swell the last few percent into place on that spring while they
- * fade in, so the strip grows like liquid instead of blinking on at full size.
- * Hand-rolled rather than `ZoomIn` because ZoomIn starts at scale 0, and that
- * big a jump is exactly the pop this replaces. Appending doesn't move existing
- * tabs, so without this the layout spring has nothing to animate.
+ * Entering tabs grow open from zero width on the strip's spring while they
+ * fade in — the exact mirror of `tabCollapse`, so add and remove read as the
+ * same liquid motion. Fade/scale alone left the width to snap in one frame:
+ * the capsule jumped wider, then a ghost faded into the already-open gap.
+ * `targetWidth` seeds the spring's destination; the slot wrapper clips the
+ * label while the capsule is still opening.
  */
-function tabEnter() {
+function tabEnter(values: { targetWidth: number }) {
   'worklet';
   return {
-    initialValues: { opacity: 0, transform: [{ scale: 0.92 }] },
+    initialValues: { opacity: 0, width: 0, transform: [{ scale: 0.92 }] },
     animations: {
       opacity: withTiming(1, { duration: 200 }),
+      width: withSpring(values.targetWidth, TAB_SPRING),
       transform: [{ scale: withSpring(1, TAB_SPRING) }],
     },
   };
@@ -344,6 +347,10 @@ function SymbolPagerBar({
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.tabList}
         style={styles.tabScroll}
+        // The capsule's own frame rides the same spring as the tabs inside it —
+        // without this the bordered track snaps to its new width in one frame
+        // while the pills glide, and the strip reads as two motions.
+        layout={TAB_TRANSITION}
       >
         {blocks.map((block, index) => (
           <Animated.View
@@ -745,6 +752,17 @@ function SymbolBlock({
           placeholder={t`Optional`}
         />
       </Card>
+
+      {isNew ? (
+        <>
+          <SectionHeader label={t`Screenshots`} />
+          <ScreenshotQueue
+            screenshots={values.screenshots}
+            onChange={(screenshots) => set('screenshots', screenshots)}
+          />
+          <SectionFooter label={t`Uploaded to this symbol's trade when it saves. Tap a thumbnail to remove it.`} />
+        </>
+      ) : null}
     </>
   );
 }
@@ -764,6 +782,7 @@ export function TradeForm({
   tags,
   saving,
   lockInstrument = false,
+  footer,
   onSave,
 }: {
   title: string;
@@ -774,6 +793,8 @@ export function TradeForm({
   saving: boolean;
   /** Editing: single block; market/symbol/option/multiplier are not patchable server-side. */
   lockInstrument?: boolean;
+  /** Edit-mode extra rendered after the block (e.g. the live attachments card). */
+  footer?: ReactNode;
   onSave: (blocks: TradeFormValues[]) => void;
 }) {
   const [blocks, setBlocks] = useState<TradeFormValues[]>(initialBlocks);
@@ -850,6 +871,7 @@ export function TradeForm({
             onChange={(next) => updateBlock(0, next)}
           />
         ) : null}
+        {footer}
       </FormSheet>
     );
   }
@@ -1013,6 +1035,9 @@ const styles = StyleSheet.create((theme) => ({
     flexShrink: 1,
     borderRadius: theme.radius.full,
     borderCurve: 'continuous',
+    // iOS 26 bordered capsule — the hairline carries the affordance (chips.tsx).
+    borderWidth: 1,
+    borderColor: theme.colors.border,
     backgroundColor: theme.colors.card,
   },
   tabList: {

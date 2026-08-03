@@ -14,7 +14,6 @@ import { CoachCard } from '@/components/coach-card';
 import { DashboardCard } from '@/components/dashboard-card';
 import { GlassButton } from '@/components/glass-button';
 import { Pill } from '@/components/pill';
-import { useTradeShare } from '@/components/share-card';
 import { Skeleton } from '@/components/skeleton';
 import { TradeChart } from '@/components/trade-chart';
 import { t } from '@lingui/core/macro';
@@ -133,7 +132,6 @@ function TradeDetailBody({
   const router = useRouter();
   const queryClient = useQueryClient();
   const api = useApiRequest();
-  const { shareView, share } = useTradeShare(trade);
 
   // MAE/MFE from market bars — the server persists the result into the journal.
   const excursion = useMutation({
@@ -223,7 +221,13 @@ function TradeDetailBody({
                     router.push({ pathname: '/edit-trade', params: { id: trade.id } })
                   }
                 />
-                <UIButton label={t`Share card`} systemImage="square.and.arrow.up" onPress={share} />
+                <UIButton
+                  label={t`Share card`}
+                  systemImage="square.and.arrow.up"
+                  onPress={() =>
+                    router.push({ pathname: '/share-trade', params: { id: trade.id } })
+                  }
+                />
                 {canExcursion ? (
                   <UIButton
                     label={t`Recompute MAE/MFE`}
@@ -491,7 +495,6 @@ function TradeDetailBody({
 
         <AttachmentsCard trade={trade} />
       </ScrollView>
-      {shareView}
     </>
   );
 }

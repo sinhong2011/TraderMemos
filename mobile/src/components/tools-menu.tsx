@@ -8,9 +8,10 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { t } from '@lingui/core/macro';
 
 /**
- * Reports-header wrench menu fanning out to the calculators — the phone home
- * of the web Tools popover. Sheets for the one-shot calculators; the
- * R-calculator is dense enough to earn a pushed screen.
+ * Home-header wrench menu fanning out to the calculators — the phone home of
+ * the web Tools popover, placed where the trading day starts. Sheets for the
+ * one-shot calculators; the R-calculator and advanced chart push in the Home
+ * stack.
  */
 export function ToolsMenu() {
   const { theme } = useUnistyles();
@@ -31,7 +32,12 @@ export function ToolsMenu() {
     {
       label: t`R calculator`,
       systemImage: 'plus.forwardslash.minus',
-      href: '/(tabs)/(reports)/r-calculator',
+      href: '/(tabs)/(dashboard)/r-calculator',
+    },
+    {
+      label: t`Advanced chart`,
+      systemImage: 'chart.xyaxis.line',
+      href: '/(tabs)/(dashboard)/advanced-chart',
     },
   ];
 

@@ -15,6 +15,8 @@ type SegmentedProps<T extends string> = {
   variant?: 'segmented' | 'menu' | 'wheel';
   /** Fixes a tight frame for nav bars instead of hugging content. */
   compact?: boolean;
+  /** Stretches to the container width — form rows, where hugging leaves dead space. */
+  fill?: boolean;
 };
 
 /** Native SwiftUI Picker — segmented control on cards, a pull-down menu, or a wheel. */
@@ -24,6 +26,7 @@ export function Segmented<T extends string>({
   onChange,
   variant = 'segmented',
   compact,
+  fill,
 }: SegmentedProps<T>) {
   const { theme } = useUnistyles();
   // Menu triggers render in the accent color by default — keep the
@@ -44,7 +47,9 @@ export function Segmented<T extends string>({
         ? { style: { flex: 1, height: 190 } }
         : compact
           ? { style: { width: allIcons ? 140 : 185, height: 30 } }
-          : { matchContents: true })}
+          : fill
+            ? { style: { alignSelf: 'stretch', height: 34 } }
+            : { matchContents: true })}
     >
       <Picker
         selection={value}

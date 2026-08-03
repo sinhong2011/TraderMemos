@@ -148,7 +148,8 @@ const styles = StyleSheet.create((theme) => ({
     color: theme.colors.mutedForeground,
     paddingTop: theme.spacing.xs,
   },
-  action: { alignItems: 'flex-start', paddingTop: theme.spacing.xs },
+  // Standalone actions center (the CenteredButton idiom).
+  action: { alignItems: 'center', paddingTop: theme.spacing.xs },
   muted: { fontSize: 13, color: theme.colors.mutedForeground },
   footnote: { fontSize: 12, color: theme.colors.mutedForeground },
 }));

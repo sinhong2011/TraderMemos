@@ -141,6 +141,24 @@ export default function RootLayout() {
                 sheetCornerRadius: 24,
               }}
             />
+            <Stack.Screen
+              name="share-trade"
+              options={{
+                presentation: 'formSheet',
+                sheetAllowedDetents: [0.75, 1],
+                sheetGrabberVisible: true,
+                sheetCornerRadius: 24,
+              }}
+            />
+            <Stack.Screen
+              name="new-token"
+              options={{
+                presentation: 'formSheet',
+                sheetAllowedDetents: [0.55, 1],
+                sheetGrabberVisible: true,
+                sheetCornerRadius: 24,
+              }}
+            />
           </Stack>
         </ThemeProvider>
         </PersistQueryClientProvider>

@@ -1,12 +1,9 @@
 import { Stack } from 'expo-router/stack';
 import { useUnistyles } from 'react-native-unistyles';
 
-import { View } from 'react-native';
-
 import { useAccounts } from '@/api/hooks';
 import { AccountMenu } from '@/components/account-menu';
 import { ReportsFilterMenu } from '@/components/reports-filter-menu';
-import { ToolsMenu } from '@/components/tools-menu';
 import { t } from '@lingui/core/macro';
 
 /** The % unit needs a balance to divide by — probed here to label the menu row. */
@@ -31,17 +28,20 @@ export default function ReportsLayout() {
         headerBackButtonDisplayMode: 'minimal',
       }}
     >
+      {/* No large title — the tab bar already says Reports, and the segmented
+          section switcher wants the vertical room. The bar goes opaque here
+          because the pager root is a plain View, not an inset-aware ScrollView;
+          the title fades in from the screen once a page scrolls under it. */}
       <Stack.Screen
         name="index"
         options={{
-          title: t`Reports`,
+          title: '',
+          headerLargeTitle: false,
+          headerTransparent: false,
+          headerStyle: { backgroundColor: theme.colors.background },
           headerLeft: () => <AccountMenu />,
-          headerRight: () => (
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-              <ToolsMenu />
-              <HeaderFilterMenu />
-            </View>
-          ),
+          // Tools moved to the Home header — Reports keeps its display filters.
+          headerRight: () => <HeaderFilterMenu />,
         }}
       />
       <Stack.Screen
@@ -50,10 +50,6 @@ export default function ReportsLayout() {
       />
       <Stack.Screen name="heatmap" options={{ title: t`P&L heatmap`, headerLargeTitle: false }} />
       <Stack.Screen name="wrapped" options={{ title: t`Year Wrapped`, headerLargeTitle: false }} />
-      <Stack.Screen
-        name="r-calculator"
-        options={{ title: t`R calculator`, headerLargeTitle: false }}
-      />
     </Stack>
   );
 }

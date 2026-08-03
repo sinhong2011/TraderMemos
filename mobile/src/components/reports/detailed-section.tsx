@@ -12,10 +12,8 @@ import {
   useReportsFilters,
   useReportsMoney,
   type ReportsMoneyContext,
-  type SectionOption,
 } from '@/components/reports/section-scaffold';
 import { t } from '@lingui/core/macro';
-import type { ReportsSection } from '@/app/(tabs)/(reports)/index';
 import { formatPercent, formatRatio } from '@/lib/format';
 import { formatHourKeyLabel } from '@/lib/prefs';
 import { pnlColor } from '@/styles/unistyles';
@@ -220,13 +218,9 @@ function SessionCard({ ctx }: { ctx: ReportsMoneyContext }) {
 }
 
 export function DetailedSection({
-  sections,
-  section,
-  onSection,
+  onScrolledChange,
 }: {
-  sections: SectionOption[];
-  section: ReportsSection;
-  onSection: (section: ReportsSection) => void;
+  onScrolledChange?: (scrolled: boolean) => void;
 }) {
   const ctx = useReportsMoney();
   const filters = useReportsFilters();
@@ -234,12 +228,7 @@ export function DetailedSection({
   const symbols = useBreakdown('symbol', filters);
 
   return (
-    <SectionScaffold
-      sections={sections}
-      section={section}
-      onSection={onSection}
-      refreshing={symbols.isRefetching}
-    >
+    <SectionScaffold refreshing={symbols.isRefetching} onScrolledChange={onScrolledChange}>
       <RankedBreakdownCard
         title={t`Symbols`}
         dim="symbol"

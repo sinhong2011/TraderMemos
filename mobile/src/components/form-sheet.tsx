@@ -49,6 +49,9 @@ export function FormSheet({
   saving,
   scroll = true,
   headerAccessory,
+  saveLabel,
+  savingLabel,
+  hideClose = false,
   onSave,
   children,
 }: {
@@ -57,6 +60,11 @@ export function FormSheet({
   scroll?: boolean;
   /** Extra control rendered beside Save (e.g. the trade form's Import menu). */
   headerAccessory?: ReactNode;
+  /** Names the commit for flows where "Save" is wrong (Generate, Done…). */
+  saveLabel?: string;
+  savingLabel?: string;
+  /** Drops the cancel affordance when the work is already committed. */
+  hideClose?: boolean;
   onSave: () => void;
   children: ReactNode;
 }) {
@@ -66,11 +74,13 @@ export function FormSheet({
     <View style={styles.page}>
       <View style={styles.header}>
         <View style={styles.headerSide}>
-          <GlassIconButton
-            systemImage="xmark"
-            label={t`Cancel`}
-            onPress={() => router.back()}
-          />
+          {hideClose ? null : (
+            <GlassIconButton
+              systemImage="xmark"
+              label={t`Cancel`}
+              onPress={() => router.back()}
+            />
+          )}
         </View>
         <Text style={styles.title} numberOfLines={1}>
           {title}
@@ -78,7 +88,7 @@ export function FormSheet({
         <View style={[styles.headerSide, styles.headerEnd]}>
           {headerAccessory}
           <GlassButton
-            label={saving ? t`Saving…` : t`Save`}
+            label={saving ? (savingLabel ?? t`Saving…`) : (saveLabel ?? t`Save`)}
             prominent
             disabled={saving}
             onPress={onSave}

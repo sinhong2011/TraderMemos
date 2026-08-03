@@ -1,5 +1,5 @@
-import { Button as UIButton, Host, Image as UIImage, Menu } from '@expo/ui/swift-ui';
-import { accessibilityLabel, buttonStyle, tint } from '@expo/ui/swift-ui/modifiers';
+import { Button as UIButton, Host, Menu } from '@expo/ui/swift-ui';
+import { labelStyle, tint } from '@expo/ui/swift-ui/modifiers';
 import { SymbolView } from 'expo-symbols';
 import { Alert, Platform, Pressable } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -20,9 +20,10 @@ export function AccountMenu() {
   const accounts = useAccounts();
   const selectedId = useSelectedAccountId();
 
-  // Nothing to switch between — a lone account is always the scope anyway.
+  // Always render: iOS 26 wraps every bar item in a glass circle, so a null
+  // here still leaves an empty, dead-looking circle in the bar. With a lone
+  // account the menu simply shows it checked under "All accounts".
   const list = accounts.data ?? [];
-  if (list.length < 2) return null;
 
   const scoped = selectedId != null && list.some((account) => account.id === selectedId);
   const icon = scoped ? 'person.crop.circle.fill' : 'person.crop.circle';
@@ -56,14 +57,12 @@ export function AccountMenu() {
 
   return (
     <Host matchContents>
+      {/* String label + iconOnly, like TradeFilterMenu — a UIImage label
+          measured to zero in headerLeft and never took taps. */}
       <Menu
-        label={<UIImage systemName={icon} size={17} />}
-        modifiers={[
-          buttonStyle('plain'),
-          // Menu triggers default to the accent tint — keep the glyph neutral.
-          tint(theme.colors.foreground),
-          accessibilityLabel(t`Switch account`),
-        ]}
+        label={t`Switch account`}
+        systemImage={icon}
+        modifiers={[labelStyle('iconOnly'), tint(theme.colors.foreground)]}
       >
         <UIButton
           label={t`All accounts`}

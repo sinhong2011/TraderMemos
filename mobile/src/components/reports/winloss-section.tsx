@@ -11,10 +11,8 @@ import {
   SectionScaffold,
   useReportsFilters,
   useReportsMoney,
-  type SectionOption,
 } from '@/components/reports/section-scaffold';
 import { t } from '@lingui/core/macro';
-import type { ReportsSection } from '@/app/(tabs)/(reports)/index';
 import { formatPercent, formatRatio } from '@/lib/format';
 import {
   metricEvolution,
@@ -40,13 +38,9 @@ function sample<T>(points: T[]): T[] {
 }
 
 export function WinLossSection({
-  sections,
-  section,
-  onSection,
+  onScrolledChange,
 }: {
-  sections: SectionOption[];
-  section: ReportsSection;
-  onSection: (section: ReportsSection) => void;
+  onScrolledChange?: (scrolled: boolean) => void;
 }) {
   const { theme } = useUnistyles();
   const filters = useReportsFilters();
@@ -96,12 +90,7 @@ export function WinLossSection({
   const latest = evolution.length > 0 ? evolution[evolution.length - 1] : null;
 
   return (
-    <SectionScaffold
-      sections={sections}
-      section={section}
-      onSection={onSection}
-      refreshing={trades.isRefetching}
-    >
+    <SectionScaffold refreshing={trades.isRefetching} onScrolledChange={onScrolledChange}>
       {trades.isLoading ? (
         <>
           <Skeleton style={styles.skeletonCard} />

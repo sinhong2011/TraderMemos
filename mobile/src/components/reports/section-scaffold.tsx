@@ -1,13 +1,14 @@
 /**
- * Shared chrome and data plumbing for the Reports sections: the horizontal
- * section chip switcher, the page scroll scaffold, and the hooks that combine
- * the global scope with the reports controls into query filters + money
- * helpers. Each section is its own ScrollView so switching stays cheap.
+ * Shared chrome and data plumbing for the Reports sections: the per-page
+ * scroll scaffold, and the hooks that combine the global scope with the
+ * reports controls into query filters + money helpers. The segmented
+ * switcher and the pager live on the index screen — each section is one
+ * pager page wrapping its own ScrollView.
  */
 
 import { useQueryClient } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
-import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
+import { RefreshControl, ScrollView, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { useAccounts } from '@/api/hooks';
@@ -63,108 +64,43 @@ export function useReportsMoney(): ReportsMoneyContext {
 
 export type SectionOption = { value: ReportsSection; label: string };
 
-/** Horizontal single-select chip rail — the section switcher. */
-function SectionChips({
-  sections,
-  section,
-  onSection,
-}: {
-  sections: SectionOption[];
-  section: ReportsSection;
-  onSection: (section: ReportsSection) => void;
-}) {
-  return (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={styles.chipRow}
-      style={styles.chipRail}
-    >
-      {sections.map((option) => {
-        const active = option.value === section;
-        return (
-          <Pressable
-            key={option.value}
-            onPress={() => onSection(option.value)}
-            hitSlop={{ top: 6, bottom: 6 }}
-            accessibilityRole="radio"
-            accessibilityState={{ selected: active }}
-            style={({ pressed }) => [
-              styles.chip,
-              active && styles.chipActive,
-              pressed && styles.pressed,
-            ]}
-          >
-            <Text style={[styles.chipLabel, active && styles.chipLabelActive]} numberOfLines={1}>
-              {option.label}
-            </Text>
-          </Pressable>
-        );
-      })}
-    </ScrollView>
-  );
-}
-
-/** Page scaffold: chip rail on top of a pull-to-refresh card stack. */
+/** One pager page: a pull-to-refresh card stack. */
 export function SectionScaffold({
-  sections,
-  section,
-  onSection,
   refreshing,
+  onScrolledChange,
   children,
 }: {
-  sections: SectionOption[];
-  section: ReportsSection;
-  onSection: (section: ReportsSection) => void;
   refreshing: boolean;
+  /** Fires when content crosses under the bar — the index shows the title then. */
+  onScrolledChange?: (scrolled: boolean) => void;
   children: ReactNode;
 }) {
   const queryClient = useQueryClient();
   return (
     <ScrollView
       style={styles.page}
-      contentInsetAdjustmentBehavior="automatic"
       contentContainerStyle={styles.content}
+      scrollEventThrottle={32}
+      onScroll={
+        onScrolledChange
+          ? (event) => onScrolledChange(event.nativeEvent.contentOffset.y > 24)
+          : undefined
+      }
       refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={() => void queryClient.invalidateQueries()} />
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={() => void queryClient.invalidateQueries()}
+        />
       }
     >
-      <SectionChips sections={sections} section={section} onSection={onSection} />
       <View style={styles.stack}>{children}</View>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create((theme) => ({
-  page: { backgroundColor: theme.colors.background },
-  content: {
-    paddingTop: theme.spacing.sm,
-    paddingBottom: theme.spacing.xl * 2,
-  },
-  // The rail bleeds to the screen edge; chips keep the page gutter.
-  chipRail: { flexGrow: 0 },
-  chipRow: {
-    flexDirection: 'row',
-    gap: theme.spacing.sm,
-    paddingHorizontal: theme.spacing.lg,
-    paddingBottom: theme.spacing.xs,
-  },
-  chip: {
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: 7,
-    borderRadius: theme.radius.full,
-    borderCurve: 'continuous',
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    backgroundColor: 'transparent',
-  },
-  chipActive: {
-    backgroundColor: theme.colors.card,
-    borderColor: theme.colors.input,
-  },
-  pressed: { opacity: 0.6 },
-  chipLabel: { fontSize: 13, fontWeight: '500', color: theme.colors.mutedForeground },
-  chipLabelActive: { color: theme.colors.foreground, fontWeight: '600' },
+  page: { flex: 1, backgroundColor: theme.colors.background },
+  content: { paddingBottom: theme.spacing.xl * 2 },
   stack: {
     padding: theme.spacing.lg,
     paddingTop: theme.spacing.md,
