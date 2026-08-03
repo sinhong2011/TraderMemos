@@ -3,6 +3,8 @@ import type { Trade } from "./api/types";
 export interface HeatmapCell {
   pnl: number;
   trades: number;
+  /** Closed trades bucketed into this cell, in input order. */
+  items: Trade[];
 }
 
 export interface PnlHeatmap {
@@ -35,30 +37,35 @@ const DAY_INDEX: Record<string, number> = {
  * grouping stays on the market clock like the rest of the app; the display
  * timezone only ever formats. Hours outside the traded range are trimmed by
  * the returned [hourStart, hourEnd] so quiet sessions don't flatten the grid.
+ * `pnlOf` defaults to net_pnl; Reports passes a net/gross-aware accessor.
  */
-export function computePnlHeatmap(trades: Trade[], timeZone: string): PnlHeatmap {
+export function computePnlHeatmap(
+  trades: Trade[],
+  timeZone: string,
+  pnlOf: (t: Trade) => number = (t) => t.net_pnl ?? 0,
+): PnlHeatmap {
   const grid: HeatmapCell[][] = Array.from({ length: 7 }, () =>
-    Array.from({ length: 24 }, () => ({ pnl: 0, trades: 0 })),
+    Array.from({ length: 24 }, () => ({ pnl: 0, trades: 0, items: [] as Trade[] })),
   );
-  const fmt = new Intl.DateTimeFormat("en-US", {
-    timeZone,
-    weekday: "short",
-    hour: "numeric",
-    hour12: false,
-  });
+  // Two dedicated formatters instead of one formatToParts pass: Hermes (the
+  // mobile port shares this file) tags the weekday part as "literal", so part
+  // types can't be trusted across engines — plain format() output can.
+  const dayFmt = new Intl.DateTimeFormat("en-US", { timeZone, weekday: "short" });
+  const hourFmt = new Intl.DateTimeFormat("en-US", { timeZone, hour: "numeric", hour12: false });
 
   let total = 0;
   for (const t of trades) {
     if (t.status !== "closed" || t.net_pnl == null) continue;
-    const parts = fmt.formatToParts(new Date(t.opened_at));
-    const day = DAY_INDEX[parts.find((p) => p.type === "weekday")?.value ?? ""];
-    const rawHour = Number(parts.find((p) => p.type === "hour")?.value);
+    const opened = new Date(t.opened_at);
+    const day = DAY_INDEX[dayFmt.format(opened)];
+    const rawHour = Number(hourFmt.format(opened));
     if (day == null || !Number.isFinite(rawHour)) continue;
     // Some engines report midnight as "24" with hour12: false.
     const hour = rawHour % 24;
     const cell = grid[day][hour];
-    cell.pnl += t.net_pnl;
+    cell.pnl += pnlOf(t);
     cell.trades += 1;
+    cell.items.push(t);
     total += 1;
   }
 

@@ -2,7 +2,6 @@ import {
   Calculator,
   CalendarDays,
   ChartLine,
-  Flame,
   Globe,
   LayoutGrid,
   PartyPopper,
@@ -11,16 +10,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-export type ToolId =
-  | "size"
-  | "planner"
-  | "kelly"
-  | "fx"
-  | "today"
-  | "chart"
-  | "econ"
-  | "heatmap"
-  | "wrapped";
+export type ToolId = "size" | "planner" | "kelly" | "fx" | "today" | "chart" | "econ" | "wrapped";
 
 export type ToolGroupId = "calculators" | "markets" | "journal";
 
@@ -88,13 +78,6 @@ export const TOOL_ITEMS: ToolItem[] = [
     icon: Globe,
     keywords: ["news", "events", "macro"],
     group: "markets",
-  },
-  {
-    id: "heatmap",
-    label: "P&L heatmap",
-    icon: Flame,
-    keywords: ["hour", "weekday", "session", "when"],
-    group: "journal",
   },
   {
     id: "wrapped",

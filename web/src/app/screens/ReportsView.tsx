@@ -49,6 +49,7 @@ import { ReportsRiskDrawdown } from "@/components/ReportsRiskDrawdown";
 import { ReportsRuleCompliance } from "@/components/ReportsRuleCompliance";
 import { ReportsRMultiplePerformance } from "@/components/ReportsRMultiplePerformance";
 import { ReportsRollingWinRate } from "@/components/ReportsRollingWinRate";
+import { ReportsPnlHeatmap } from "@/components/ReportsPnlHeatmap";
 import { ReportsSessionTable } from "@/components/ReportsSessionTable";
 import { ReportsSymbolHeatmap } from "@/components/ReportsSymbolHeatmap";
 import { Skeleton } from "@/components/Skeleton";
@@ -797,6 +798,13 @@ export function ReportsView({
                 error={hourOfDayBreakdownError}
               />
             </div>
+
+            <ReportsPnlHeatmap
+              trades={trades}
+              loading={tradesLoading}
+              error={tradesError}
+              onSelectTradeId={onSelectTradeId}
+            />
 
             <ReportsSessionTable
               breakdown={sessionBreakdown}

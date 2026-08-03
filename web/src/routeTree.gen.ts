@@ -15,7 +15,6 @@ import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as ChartRouteImport } from './routes/chart'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as EventsRouteImport } from './routes/events'
-import { Route as HeatmapRouteImport } from './routes/heatmap'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as ImportRouteImport } from './routes/import'
 import { Route as LoginRouteImport } from './routes/login'
@@ -58,11 +57,6 @@ const DashboardRoute = DashboardRouteImport.update({
 const EventsRoute = EventsRouteImport.update({
   id: '/events',
   path: '/events',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HeatmapRoute = HeatmapRouteImport.update({
-  id: '/heatmap',
-  path: '/heatmap',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HomeRoute = HomeRouteImport.update({
@@ -138,7 +132,6 @@ export interface FileRoutesByFullPath {
   '/chart': typeof ChartRoute
   '/dashboard': typeof DashboardRoute
   '/events': typeof EventsRoute
-  '/heatmap': typeof HeatmapRoute
   '/home': typeof HomeRoute
   '/import': typeof ImportRoute
   '/login': typeof LoginRoute
@@ -160,7 +153,6 @@ export interface FileRoutesByTo {
   '/chart': typeof ChartRoute
   '/dashboard': typeof DashboardRoute
   '/events': typeof EventsRoute
-  '/heatmap': typeof HeatmapRoute
   '/home': typeof HomeRoute
   '/import': typeof ImportRoute
   '/login': typeof LoginRoute
@@ -182,7 +174,6 @@ export interface FileRoutesById {
   '/chart': typeof ChartRoute
   '/dashboard': typeof DashboardRoute
   '/events': typeof EventsRoute
-  '/heatmap': typeof HeatmapRoute
   '/home': typeof HomeRoute
   '/import': typeof ImportRoute
   '/login': typeof LoginRoute
@@ -206,7 +197,6 @@ export interface FileRouteTypes {
     | '/chart'
     | '/dashboard'
     | '/events'
-    | '/heatmap'
     | '/home'
     | '/import'
     | '/login'
@@ -228,7 +218,6 @@ export interface FileRouteTypes {
     | '/chart'
     | '/dashboard'
     | '/events'
-    | '/heatmap'
     | '/home'
     | '/import'
     | '/login'
@@ -249,7 +238,6 @@ export interface FileRouteTypes {
     | '/chart'
     | '/dashboard'
     | '/events'
-    | '/heatmap'
     | '/home'
     | '/import'
     | '/login'
@@ -272,7 +260,6 @@ export interface RootRouteChildren {
   ChartRoute: typeof ChartRoute
   DashboardRoute: typeof DashboardRoute
   EventsRoute: typeof EventsRoute
-  HeatmapRoute: typeof HeatmapRoute
   HomeRoute: typeof HomeRoute
   ImportRoute: typeof ImportRoute
   LoginRoute: typeof LoginRoute
@@ -328,13 +315,6 @@ declare module '@tanstack/react-router' {
       path: '/events'
       fullPath: '/events'
       preLoaderRoute: typeof EventsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/heatmap': {
-      id: '/heatmap'
-      path: '/heatmap'
-      fullPath: '/heatmap'
-      preLoaderRoute: typeof HeatmapRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/home': {
@@ -451,7 +431,6 @@ const rootRouteChildren: RootRouteChildren = {
   ChartRoute: ChartRoute,
   DashboardRoute: DashboardRoute,
   EventsRoute: EventsRoute,
-  HeatmapRoute: HeatmapRoute,
   HomeRoute: HomeRoute,
   ImportRoute: ImportRoute,
   LoginRoute: LoginRoute,

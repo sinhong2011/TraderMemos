@@ -27,9 +27,6 @@ export function useToolRunner() {
         case "chart":
           void navigate({ to: "/chart", search: { iv: "D" } });
           return;
-        case "heatmap":
-          void navigate({ to: "/heatmap" });
-          return;
         case "econ":
           void navigate({ to: "/events", search: { wk: 0 } });
           return;
