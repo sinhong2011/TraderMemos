@@ -6,19 +6,11 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import type { Trade } from '@/api/types';
 import { t } from '@lingui/core/macro';
 import { formatCurrency, formatDate, formatDuration, formatPnl } from '@/lib/format';
+import { PnlFill } from '@/styles/unistyles';
 import { marketLabel, tradePriceLine, tradeStatus } from '@/lib/trades';
 
-/**
- * Badge colors are the vivid light-scheme P&L hues in both themes — white text
- * needs the saturated fill, and a same-in-both-modes badge is the Stocks-app
- * signature this row borrows. Deliberately not theme tokens.
- */
-const BadgeColor = {
-  pos: '#098926',
-  neg: '#E7000B',
-  flat: '#737373',
-  open: '#0490C8',
-} as const;
+/** Shared with the trade form's directional toggles — see `PnlFill`. */
+const BadgeColor = PnlFill;
 
 /**
  * Stocks-style outcome badge: the row's single colored element. Return % for

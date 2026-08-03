@@ -98,6 +98,21 @@ StyleSheet.configure({
   settings: { adaptiveThemes: true },
 });
 
+/**
+ * Saturated P&L fills for solid, white-on-color surfaces (outcome badges, the
+ * Long/Short and Buy/Sell toggles) — the light-scheme hues in both themes,
+ * because white text needs the saturation and a same-in-both-modes fill is the
+ * Stocks-app signature those surfaces borrow. Deliberately not theme tokens:
+ * `colors.profit`/`colors.loss` lighten in the dark theme for *text*, where
+ * that is what keeps them legible.
+ */
+export const PnlFill = {
+  pos: '#098926',
+  neg: '#E7000B',
+  flat: '#737373',
+  open: '#0490C8',
+} as const;
+
 /** Returns the P&L color for a value, honoring the flat/zero case. */
 export function pnlColor(colors: ThemeColors, value: number | null | undefined): string {
   if (value == null || value === 0) return colors.flat;

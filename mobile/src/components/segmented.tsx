@@ -28,6 +28,8 @@ export function Segmented<T extends string>({
   const { theme } = useUnistyles();
   // Menu triggers render in the accent color by default — keep the
   // label neutral (primary is fill-only).
+  // A `tint` here would not reach a segmented picker's selection — SwiftUI
+  // paints that itself. Color-coded toggles use `ValueToggle` instead.
   const modifiers = [
     pickerStyle(variant),
     ...(variant === 'menu' ? [tint(theme.colors.foreground)] : []),

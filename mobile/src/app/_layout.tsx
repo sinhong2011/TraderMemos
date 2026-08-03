@@ -91,6 +91,9 @@ export default function RootLayout() {
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="login" options={{ presentation: 'modal', headerShown: false }} />
+            {/* Page sheets, not formSheet: react-native-screens' formSheet
+                lays the ScrollView out over the header (content overlaps the
+                chrome) with these full-height forms — see worktree notes. */}
             <Stack.Screen name="new-trade" options={{ presentation: 'modal' }} />
             <Stack.Screen name="edit-trade" options={{ presentation: 'modal' }} />
             <Stack.Screen
@@ -102,15 +105,10 @@ export default function RootLayout() {
                 sheetCornerRadius: 24,
               }}
             />
-            <Stack.Screen
-              name="quick-journal"
-              options={{
-                presentation: 'formSheet',
-                sheetAllowedDetents: [0.75, 1],
-                sheetGrabberVisible: true,
-                sheetCornerRadius: 24,
-              }}
-            />
+            {/* Was a formSheet, and hit the same overlap as the trade forms
+                above: the ScrollView drew "Review notes" straight over the
+                Cancel/Save chrome, leaving no way to save the entry. */}
+            <Stack.Screen name="quick-journal" options={{ presentation: 'modal' }} />
             <Stack.Screen name="new-note" options={{ presentation: 'modal' }} />
             <Stack.Screen name="new-setup" options={{ presentation: 'modal' }} />
           </Stack>

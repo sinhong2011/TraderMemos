@@ -1,10 +1,7 @@
 import { useRouter } from 'expo-router';
 import type { ReactNode } from 'react';
 import {
-  ActivityIndicator,
   Keyboard,
-  KeyboardAvoidingView,
-  Platform,
   Pressable,
   ScrollView,
   Text,
@@ -15,62 +12,84 @@ import {
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { t } from '@lingui/core/macro';
+import { GlassButton, GlassIconButton } from '@/components/glass-button';
 
-/** Modal creation-form scaffold: Cancel · title · Save header over scrollable fields. */
+/**
+ * Vertical form scroll area with native keyboard insets and tap-to-dismiss.
+ * No KeyboardAvoidingView: inside a sheet it measures against window
+ * coordinates and shifts the content up under the header even with the
+ * keyboard closed — the scroll view's own insets behave correctly.
+ */
+export function FormScrollArea({ children }: { children: ReactNode }) {
+  return (
+    <ScrollView
+      style={styles.flex}
+      contentContainerStyle={styles.grow}
+      automaticallyAdjustKeyboardInsets
+      keyboardDismissMode="on-drag"
+      keyboardShouldPersistTaps="handled"
+    >
+      {/* Decimal pads have no return key — tapping any empty space dismisses.
+          Inputs and controls handle their own taps, so this never intercepts. */}
+      <Pressable onPress={Keyboard.dismiss} accessible={false} style={styles.content}>
+        {children}
+      </Pressable>
+    </ScrollView>
+  );
+}
+
+/**
+ * Creation-form sheet scaffold, iOS 26 chrome: circular glass close on the
+ * left, glassProminent Save on the right. `scroll` (default) wraps children
+ * in a FormScrollArea; pass `scroll={false}` when the screen manages its own
+ * scrolling (e.g. the trade form's symbol pager owns one scroll per page).
+ */
 export function FormSheet({
   title,
   saving,
+  scroll = true,
+  headerAccessory,
   onSave,
   children,
 }: {
   title: string;
   saving?: boolean;
+  scroll?: boolean;
+  /** Extra control rendered beside Save (e.g. the trade form's Import menu). */
+  headerAccessory?: ReactNode;
   onSave: () => void;
   children: ReactNode;
 }) {
-  const { theme } = useUnistyles();
   const router = useRouter();
 
   return (
     <View style={styles.page}>
       <View style={styles.header}>
-        <Pressable
-          onPress={() => router.back()}
-          hitSlop={8}
-          style={({ pressed }) => pressed && styles.pressed}
-        >
-          <Text style={styles.cancel}>{t`Cancel`}</Text>
-        </Pressable>
-        <Text style={styles.title}>{title}</Text>
-        <Pressable
-          onPress={onSave}
-          disabled={saving}
-          hitSlop={8}
-          style={({ pressed }) => pressed && styles.pressed}
-        >
-          {saving ? (
-            <ActivityIndicator size="small" color={theme.colors.mutedForeground} />
-          ) : (
-            <Text style={styles.save}>{t`Save`}</Text>
-          )}
-        </Pressable>
+        <View style={styles.headerSide}>
+          <GlassIconButton
+            systemImage="xmark"
+            label={t`Cancel`}
+            onPress={() => router.back()}
+          />
+        </View>
+        <Text style={styles.title} numberOfLines={1}>
+          {title}
+        </Text>
+        <View style={[styles.headerSide, styles.headerEnd]}>
+          {headerAccessory}
+          <GlassButton
+            label={saving ? t`Saving…` : t`Save`}
+            prominent
+            disabled={saving}
+            onPress={onSave}
+          />
+        </View>
       </View>
-      <KeyboardAvoidingView
-        style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
-        <ScrollView
-          contentContainerStyle={styles.grow}
-          keyboardDismissMode="on-drag"
-          keyboardShouldPersistTaps="handled"
-        >
-          {/* Decimal pads have no return key — tapping any empty space dismisses.
-              Inputs and controls handle their own taps, so this never intercepts. */}
-          <Pressable onPress={Keyboard.dismiss} accessible={false} style={styles.content}>
-            {children}
-          </Pressable>
-        </ScrollView>
-      </KeyboardAvoidingView>
+      {scroll ? (
+        <FormScrollArea>{children}</FormScrollArea>
+      ) : (
+        <View style={styles.flex}>{children}</View>
+      )}
     </View>
   );
 }
@@ -105,16 +124,21 @@ const styles = StyleSheet.create((theme) => ({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     gap: theme.spacing.md,
     paddingHorizontal: theme.spacing.lg,
-    paddingTop: theme.spacing.xl,
+    // Sheets show the grabber above — keep the chrome tight beneath it.
+    paddingTop: theme.spacing.lg,
     paddingBottom: theme.spacing.md,
   },
-  title: { fontSize: 17, fontWeight: '600', color: theme.colors.foreground },
-  cancel: { fontSize: 16, color: theme.colors.mutedForeground },
-  save: { fontSize: 16, fontWeight: '600', color: theme.colors.foreground },
-  pressed: { opacity: 0.6 },
+  headerSide: { flex: 1, flexDirection: 'row', alignItems: 'center' },
+  headerEnd: { justifyContent: 'flex-end', gap: theme.spacing.sm },
+  title: {
+    flexShrink: 1,
+    maxWidth: '55%',
+    fontSize: 17,
+    fontWeight: '600',
+    color: theme.colors.foreground,
+  },
   grow: { flexGrow: 1 },
   content: {
     flexGrow: 1,
