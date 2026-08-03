@@ -518,11 +518,6 @@ function ExploreCard() {
       label: t`Economic calendar`,
     },
     {
-      href: '/(tabs)/(reports)/heatmap' as const,
-      icon: 'square.grid.3x3' as const,
-      label: t`P&L heatmap`,
-    },
-    {
       href: '/(tabs)/(reports)/wrapped' as const,
       icon: 'sparkles' as const,
       label: t`Year Wrapped`,
