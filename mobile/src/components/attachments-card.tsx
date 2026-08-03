@@ -1,27 +1,40 @@
+import { Button as UIButton, Host, Menu } from '@expo/ui/swift-ui';
+import {
+  buttonBorderShape,
+  buttonStyle,
+  controlSize,
+  disabled as disabledModifier,
+  tint,
+} from '@expo/ui/swift-ui/modifiers';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import * as DocumentPicker from 'expo-document-picker';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { queryKeys, useApiRaw, useApiRequest } from '@/api/hooks';
 import { useSession } from '@/api/session';
 import type { TradeDetail } from '@/api/types';
 import { DashboardCard } from '@/components/dashboard-card';
-import { GlassButton } from '@/components/glass-button';
 import { t } from '@lingui/core/macro';
 import { getPrefs } from '@/lib/prefs';
 
-/** The server only accepts these; the picker can hand back HEIC on iOS. */
-const ALLOWED_TYPES = new Set(['image/png', 'image/jpeg', 'image/webp']);
+/** The server only accepts these (content-sniffed); HEIC from Photos gets
+ *  re-encoded to jpeg by the picker, but a HEIC *file* would be rejected. */
+const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/webp'] as const;
+
+type PickedImage = { uri: string; name: string; type: string };
 
 /**
  * Trade screenshots — the read-only gallery grown into full manage: add from
- * Photos (multipart POST, field "file"), long-press to remove. Respects the
- * max-screenshots display pref like the web uploader.
+ * Photos or image files (SwiftUI glass menu, like the trade form's Import),
+ * long-press to remove. Respects the max-screenshots display pref like the
+ * web uploader.
  */
 export function AttachmentsCard({ trade }: { trade: TradeDetail }) {
+  const { theme } = useUnistyles();
   const { session } = useSession();
   const queryClient = useQueryClient();
   const apiRaw = useApiRaw();
@@ -40,7 +53,8 @@ export function AttachmentsCard({ trade }: { trade: TradeDetail }) {
     onError: (err) => Alert.alert(t`Could not delete`, err.message),
   });
 
-  async function pickAndUpload() {
+  /** Remaining slots under the max-screenshots pref, or Infinity. */
+  function remainingRoom(): number {
     const max = getPrefs().maxScreenshotsPerTrade;
     const room = max != null ? max - trade.attachments.length : Number.POSITIVE_INFINITY;
     if (room <= 0) {
@@ -48,26 +62,19 @@ export function AttachmentsCard({ trade }: { trade: TradeDetail }) {
         t`Screenshot limit reached`,
         t`This trade already has ${trade.attachments.length} screenshots — raise the cap under Settings → Display.`,
       );
-      return;
     }
+    return room;
+  }
 
-    const picked = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: 'images',
-      allowsMultipleSelection: true,
-      selectionLimit: Number.isFinite(room) ? room : 0,
-      quality: 0.9,
-    });
-    if (picked.canceled || picked.assets.length === 0) return;
-
+  async function uploadImages(files: PickedImage[]) {
+    if (files.length === 0) return;
     setUploading(true);
     try {
       // One at a time, like the web uploader — partial success stays visible.
-      for (const asset of picked.assets) {
-        const type = ALLOWED_TYPES.has(asset.mimeType ?? '') ? asset.mimeType! : 'image/jpeg';
-        const name = asset.fileName ?? `screenshot-${asset.assetId ?? 'img'}.jpg`;
+      for (const file of files) {
         const formData = new FormData();
         // RN FormData file part; never set Content-Type manually (boundary).
-        formData.append('file', { uri: asset.uri, name, type } as unknown as Blob);
+        formData.append('file', file as unknown as Blob);
         const response = await apiRaw(`/trades/${trade.id}/attachments`, {
           method: 'POST',
           formData,
@@ -82,6 +89,53 @@ export function AttachmentsCard({ trade }: { trade: TradeDetail }) {
     } finally {
       setUploading(false);
     }
+  }
+
+  async function pickFromPhotos() {
+    const room = remainingRoom();
+    if (room <= 0) return;
+    const picked = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: 'images',
+      allowsMultipleSelection: true,
+      selectionLimit: Number.isFinite(room) ? room : 0,
+      quality: 0.9,
+    });
+    if (picked.canceled) return;
+    await uploadImages(
+      picked.assets.map((asset) => ({
+        uri: asset.uri,
+        name: asset.fileName ?? `screenshot-${asset.assetId ?? 'img'}.jpg`,
+        type: (ALLOWED_TYPES as readonly string[]).includes(asset.mimeType ?? '')
+          ? asset.mimeType!
+          : 'image/jpeg',
+      })),
+    );
+  }
+
+  async function pickFromFiles() {
+    const room = remainingRoom();
+    if (room <= 0) return;
+    // Original bytes get uploaded, so only offer types the server accepts.
+    const picked = await DocumentPicker.getDocumentAsync({
+      type: [...ALLOWED_TYPES],
+      copyToCacheDirectory: true,
+      multiple: true,
+    });
+    if (picked.canceled) return;
+    const assets = Number.isFinite(room) ? picked.assets.slice(0, room) : picked.assets;
+    if (assets.length < picked.assets.length) {
+      Alert.alert(
+        t`Screenshot limit reached`,
+        t`Only the first ${assets.length} files fit under the cap.`,
+      );
+    }
+    await uploadImages(
+      assets.map((asset) => ({
+        uri: asset.uri,
+        name: asset.name,
+        type: asset.mimeType ?? 'image/jpeg',
+      })),
+    );
   }
 
   function confirmDelete(attachmentId: string, filename: string) {
@@ -124,11 +178,31 @@ export function AttachmentsCard({ trade }: { trade: TradeDetail }) {
         {uploading ? (
           <ActivityIndicator />
         ) : (
-          <GlassButton
-            label={t`Add from Photos`}
-            systemImage="photo.badge.plus"
-            onPress={() => void pickAndUpload()}
-          />
+          <Host matchContents>
+            <Menu
+              label={t`Add screenshot`}
+              systemImage="photo.badge.plus"
+              modifiers={[
+                buttonStyle('glass'),
+                buttonBorderShape('capsule'),
+                controlSize('regular'),
+                // Menu triggers default to the accent tint — keep it neutral.
+                tint(theme.colors.foreground),
+                ...(uploading ? [disabledModifier(true)] : []),
+              ]}
+            >
+              <UIButton
+                label={t`Photo Library`}
+                systemImage="photo.on.rectangle"
+                onPress={() => void pickFromPhotos()}
+              />
+              <UIButton
+                label={t`Image files`}
+                systemImage="folder"
+                onPress={() => void pickFromFiles()}
+              />
+            </Menu>
+          </Host>
         )}
       </View>
     </DashboardCard>

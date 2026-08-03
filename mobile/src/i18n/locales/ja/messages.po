@@ -459,12 +459,16 @@ msgid "Add fill"
 msgstr "約定を追加"
 
 #: src/components/attachments-card.tsx:128
-msgid "Add from Photos"
-msgstr "写真から追加"
+#~ msgid "Add from Photos"
+#~ msgstr "写真から追加"
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:225
 msgid "Add position"
 msgstr "ポジションを追加"
+
+#: src/components/attachments-card.tsx:183
+msgid "Add screenshot"
+msgstr "スクリーンショットを追加"
 
 #: src/components/note-form.tsx:118
 #: src/components/trade-form.tsx:368
@@ -870,7 +874,7 @@ msgstr "コール / プット"
 #: src/app/edit-note.tsx:68
 #: src/app/new-setup.tsx:106
 #: src/components/account-menu.tsx:43
-#: src/components/attachments-card.tsx:89
+#: src/components/attachments-card.tsx:143
 #: src/components/form-sheet.tsx:71
 #: src/components/swipeable-trade-row.tsx:83
 msgid "Cancel"
@@ -1093,7 +1097,7 @@ msgstr "トークンを作成できませんでした"
 #: src/app/(tabs)/(trades)/[id].tsx:154
 #: src/app/edit-note.tsx:49
 #: src/app/new-setup.tsx:76
-#: src/components/attachments-card.tsx:40
+#: src/components/attachments-card.tsx:53
 #: src/components/swipeable-trade-row.tsx:75
 msgid "Could not delete"
 msgstr "削除できませんでした"
@@ -1191,7 +1195,7 @@ msgstr "スキャンできませんでした"
 msgid "Could not share"
 msgstr "共有できませんでした"
 
-#: src/components/attachments-card.tsx:81
+#: src/components/attachments-card.tsx:88
 msgid "Could not upload"
 msgstr "アップロードできませんでした"
 
@@ -2065,6 +2069,7 @@ msgstr "セッションはどうでしたか？「- [ ]」でチェック項目�
 msgid "IBKR Flex sync"
 msgstr "IBKR Flex同期"
 
+#: src/components/attachments-card.tsx:200
 #: src/components/trade-prefill-bar.tsx:167
 msgid "Image files"
 msgstr "画像ファイル"
@@ -2284,7 +2289,7 @@ msgstr "ロング"
 msgid "LONG"
 msgstr "ロング"
 
-#: src/components/attachments-card.tsx:105
+#: src/components/attachments-card.tsx:159
 msgid "Long-press to remove"
 msgstr "長押しで削除"
 
@@ -2873,6 +2878,11 @@ msgstr "オンライン"
 #~ msgid "Only {0} was filled in — the file also had {others}. Load those separately."
 #~ msgstr "{0} のみ入力しました — ファイルには {others} も含まれています。別途読み込んでください。"
 
+#. placeholder {0}: assets.length
+#: src/components/attachments-card.tsx:129
+msgid "Only the first {0} files fit under the cap."
+msgstr "上限内に収まるのは最初の{0}件のみです。"
+
 #: src/app/(tabs)/(trades)/[id].tsx:265
 #: src/app/(tabs)/(trades)/[id].tsx:360
 #: src/app/(tabs)/(trades)/index.tsx:261
@@ -3043,6 +3053,7 @@ msgstr "このトレードとすべての約定を完全に削除します。元
 msgid "PF"
 msgstr "PF"
 
+#: src/components/attachments-card.tsx:195
 #: src/components/trade-prefill-bar.tsx:162
 msgid "Photo Library"
 msgstr "写真ライブラリ"
@@ -3326,7 +3337,7 @@ msgstr "残数量"
 #: src/app/(tabs)/(settings)/risk-rules.tsx:75
 #: src/app/(tabs)/(settings)/risk-rules.tsx:86
 #: src/app/(tabs)/(trades)/[id].tsx:163
-#: src/components/attachments-card.tsx:90
+#: src/components/attachments-card.tsx:144
 #: src/components/swipeable-trade-row.tsx:84
 #: src/components/swipeable-trade-row.tsx:136
 msgid "Remove"
@@ -3366,7 +3377,7 @@ msgstr "プロップルールを削除しますか？"
 msgid "Remove rule?"
 msgstr "ルールを削除しますか？"
 
-#: src/components/attachments-card.tsx:88
+#: src/components/attachments-card.tsx:142
 msgid "Remove screenshot?"
 msgstr "スクリーンショットを削除しますか？"
 
@@ -3617,11 +3628,12 @@ msgstr "定期同期"
 msgid "Scratch trade"
 msgstr "スクラッチトレード"
 
-#: src/components/attachments-card.tsx:48
+#: src/components/attachments-card.tsx:62
+#: src/components/attachments-card.tsx:128
 msgid "Screenshot limit reached"
 msgstr "スクリーンショット上限に到達"
 
-#: src/components/attachments-card.tsx:97
+#: src/components/attachments-card.tsx:151
 msgid "Screenshots"
 msgstr "スクリーンショット"
 
@@ -4119,7 +4131,7 @@ msgid "This permanently deletes the ledger entry."
 msgstr "この台帳エントリを完全に削除します。"
 
 #. placeholder {0}: trade.attachments.length
-#: src/components/attachments-card.tsx:49
+#: src/components/attachments-card.tsx:63
 msgid "This trade already has {0} screenshots — raise the cap under Settings → Display."
 msgstr "このトレードには既に{0}枚のスクリーンショットがあります — 設定 → 表示で上限を上げてください。"
 
@@ -4332,7 +4344,7 @@ msgstr "無題"
 #~ msgstr "CSV / JSONをアップロード"
 
 #. placeholder {0}: response.status
-#: src/components/attachments-card.tsx:76
+#: src/components/attachments-card.tsx:83
 msgid "Upload failed ({0})"
 msgstr "アップロード失敗（{0}）"
 

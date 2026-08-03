@@ -459,12 +459,16 @@ msgid "Add fill"
 msgstr "체결 추가"
 
 #: src/components/attachments-card.tsx:128
-msgid "Add from Photos"
-msgstr "사진에서 추가"
+#~ msgid "Add from Photos"
+#~ msgstr "사진에서 추가"
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:225
 msgid "Add position"
 msgstr "포지션 추가"
+
+#: src/components/attachments-card.tsx:183
+msgid "Add screenshot"
+msgstr "스크린샷 추가"
 
 #: src/components/note-form.tsx:118
 #: src/components/trade-form.tsx:368
@@ -870,7 +874,7 @@ msgstr "콜 / 풋"
 #: src/app/edit-note.tsx:68
 #: src/app/new-setup.tsx:106
 #: src/components/account-menu.tsx:43
-#: src/components/attachments-card.tsx:89
+#: src/components/attachments-card.tsx:143
 #: src/components/form-sheet.tsx:71
 #: src/components/swipeable-trade-row.tsx:83
 msgid "Cancel"
@@ -1093,7 +1097,7 @@ msgstr "토큰을 만들지 못했습니다"
 #: src/app/(tabs)/(trades)/[id].tsx:154
 #: src/app/edit-note.tsx:49
 #: src/app/new-setup.tsx:76
-#: src/components/attachments-card.tsx:40
+#: src/components/attachments-card.tsx:53
 #: src/components/swipeable-trade-row.tsx:75
 msgid "Could not delete"
 msgstr "삭제하지 못했습니다"
@@ -1191,7 +1195,7 @@ msgstr "스캔하지 못했습니다"
 msgid "Could not share"
 msgstr "공유할 수 없습니다"
 
-#: src/components/attachments-card.tsx:81
+#: src/components/attachments-card.tsx:88
 msgid "Could not upload"
 msgstr "업로드할 수 없습니다"
 
@@ -2065,6 +2069,7 @@ msgstr "세션은 어땠나요? \"- [ ]\"로 체크 항목을 만들 수 있습�
 msgid "IBKR Flex sync"
 msgstr "IBKR Flex 동기화"
 
+#: src/components/attachments-card.tsx:200
 #: src/components/trade-prefill-bar.tsx:167
 msgid "Image files"
 msgstr "이미지 파일"
@@ -2284,7 +2289,7 @@ msgstr "롱"
 msgid "LONG"
 msgstr "롱"
 
-#: src/components/attachments-card.tsx:105
+#: src/components/attachments-card.tsx:159
 msgid "Long-press to remove"
 msgstr "길게 눌러 제거"
 
@@ -2873,6 +2878,11 @@ msgstr "온라인"
 #~ msgid "Only {0} was filled in — the file also had {others}. Load those separately."
 #~ msgstr "{0}만 입력했습니다 — 파일에 {others}도 있습니다. 따로 불러오세요."
 
+#. placeholder {0}: assets.length
+#: src/components/attachments-card.tsx:129
+msgid "Only the first {0} files fit under the cap."
+msgstr "한도 내에는 처음 {0}개 파일만 들어갑니다."
+
 #: src/app/(tabs)/(trades)/[id].tsx:265
 #: src/app/(tabs)/(trades)/[id].tsx:360
 #: src/app/(tabs)/(trades)/index.tsx:261
@@ -3043,6 +3053,7 @@ msgstr "이 트레이드와 모든 체결이 영구 삭제됩니다. 되돌릴 �
 msgid "PF"
 msgstr "PF"
 
+#: src/components/attachments-card.tsx:195
 #: src/components/trade-prefill-bar.tsx:162
 msgid "Photo Library"
 msgstr "사진 보관함"
@@ -3326,7 +3337,7 @@ msgstr "잔여 수량"
 #: src/app/(tabs)/(settings)/risk-rules.tsx:75
 #: src/app/(tabs)/(settings)/risk-rules.tsx:86
 #: src/app/(tabs)/(trades)/[id].tsx:163
-#: src/components/attachments-card.tsx:90
+#: src/components/attachments-card.tsx:144
 #: src/components/swipeable-trade-row.tsx:84
 #: src/components/swipeable-trade-row.tsx:136
 msgid "Remove"
@@ -3366,7 +3377,7 @@ msgstr "프랍 규칙을 제거할까요?"
 msgid "Remove rule?"
 msgstr "규칙을 삭제할까요?"
 
-#: src/components/attachments-card.tsx:88
+#: src/components/attachments-card.tsx:142
 msgid "Remove screenshot?"
 msgstr "스크린샷을 제거할까요?"
 
@@ -3617,11 +3628,12 @@ msgstr "예약 동기화"
 msgid "Scratch trade"
 msgstr "본전 거래"
 
-#: src/components/attachments-card.tsx:48
+#: src/components/attachments-card.tsx:62
+#: src/components/attachments-card.tsx:128
 msgid "Screenshot limit reached"
 msgstr "스크린샷 한도 도달"
 
-#: src/components/attachments-card.tsx:97
+#: src/components/attachments-card.tsx:151
 msgid "Screenshots"
 msgstr "스크린샷"
 
@@ -4119,7 +4131,7 @@ msgid "This permanently deletes the ledger entry."
 msgstr "이 원장 항목이 영구적으로 삭제됩니다."
 
 #. placeholder {0}: trade.attachments.length
-#: src/components/attachments-card.tsx:49
+#: src/components/attachments-card.tsx:63
 msgid "This trade already has {0} screenshots — raise the cap under Settings → Display."
 msgstr "이 거래에는 이미 스크린샷이 {0}장 있습니다 — 설정 → 표시에서 한도를 올리세요."
 
@@ -4332,7 +4344,7 @@ msgstr "제목 없음"
 #~ msgstr "CSV / JSON 업로드"
 
 #. placeholder {0}: response.status
-#: src/components/attachments-card.tsx:76
+#: src/components/attachments-card.tsx:83
 msgid "Upload failed ({0})"
 msgstr "업로드 실패 ({0})"
 

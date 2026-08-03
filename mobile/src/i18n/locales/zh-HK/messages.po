@@ -459,12 +459,16 @@ msgid "Add fill"
 msgstr "新增成交"
 
 #: src/components/attachments-card.tsx:128
-msgid "Add from Photos"
-msgstr "從相簿加入"
+#~ msgid "Add from Photos"
+#~ msgstr "從相簿加入"
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:225
 msgid "Add position"
 msgstr "新增部位"
+
+#: src/components/attachments-card.tsx:183
+msgid "Add screenshot"
+msgstr "新增截圖"
 
 #: src/components/note-form.tsx:118
 #: src/components/trade-form.tsx:368
@@ -870,7 +874,7 @@ msgstr "Call / Put"
 #: src/app/edit-note.tsx:68
 #: src/app/new-setup.tsx:106
 #: src/components/account-menu.tsx:43
-#: src/components/attachments-card.tsx:89
+#: src/components/attachments-card.tsx:143
 #: src/components/form-sheet.tsx:71
 #: src/components/swipeable-trade-row.tsx:83
 msgid "Cancel"
@@ -1093,7 +1097,7 @@ msgstr "無法建立權杖"
 #: src/app/(tabs)/(trades)/[id].tsx:154
 #: src/app/edit-note.tsx:49
 #: src/app/new-setup.tsx:76
-#: src/components/attachments-card.tsx:40
+#: src/components/attachments-card.tsx:53
 #: src/components/swipeable-trade-row.tsx:75
 msgid "Could not delete"
 msgstr "無法刪除"
@@ -1191,7 +1195,7 @@ msgstr "無法掃描"
 msgid "Could not share"
 msgstr "無法分享"
 
-#: src/components/attachments-card.tsx:81
+#: src/components/attachments-card.tsx:88
 msgid "Could not upload"
 msgstr "無法上載"
 
@@ -2065,6 +2069,7 @@ msgstr "今日交易如何？用「- [ ]」建立清單項目。"
 msgid "IBKR Flex sync"
 msgstr "IBKR Flex 同步"
 
+#: src/components/attachments-card.tsx:200
 #: src/components/trade-prefill-bar.tsx:167
 msgid "Image files"
 msgstr "圖片檔案"
@@ -2284,7 +2289,7 @@ msgstr "做多"
 msgid "LONG"
 msgstr "做多"
 
-#: src/components/attachments-card.tsx:105
+#: src/components/attachments-card.tsx:159
 msgid "Long-press to remove"
 msgstr "長按移除"
 
@@ -2873,6 +2878,11 @@ msgstr "已連線"
 #~ msgid "Only {0} was filled in — the file also had {others}. Load those separately."
 #~ msgstr "只填入了 {0} — 檔案中還有 {others}，請另外載入。"
 
+#. placeholder {0}: assets.length
+#: src/components/attachments-card.tsx:129
+msgid "Only the first {0} files fit under the cap."
+msgstr "上限內只容納最先的 {0} 個檔案。"
+
 #: src/app/(tabs)/(trades)/[id].tsx:265
 #: src/app/(tabs)/(trades)/[id].tsx:360
 #: src/app/(tabs)/(trades)/index.tsx:261
@@ -3043,6 +3053,7 @@ msgstr "將永久刪除此交易及其所有成交，無法復原。"
 msgid "PF"
 msgstr "PF"
 
+#: src/components/attachments-card.tsx:195
 #: src/components/trade-prefill-bar.tsx:162
 msgid "Photo Library"
 msgstr "照片圖庫"
@@ -3326,7 +3337,7 @@ msgstr "剩餘數量"
 #: src/app/(tabs)/(settings)/risk-rules.tsx:75
 #: src/app/(tabs)/(settings)/risk-rules.tsx:86
 #: src/app/(tabs)/(trades)/[id].tsx:163
-#: src/components/attachments-card.tsx:90
+#: src/components/attachments-card.tsx:144
 #: src/components/swipeable-trade-row.tsx:84
 #: src/components/swipeable-trade-row.tsx:136
 msgid "Remove"
@@ -3366,7 +3377,7 @@ msgstr "移除 Prop 規則？"
 msgid "Remove rule?"
 msgstr "移除規則？"
 
-#: src/components/attachments-card.tsx:88
+#: src/components/attachments-card.tsx:142
 msgid "Remove screenshot?"
 msgstr "移除截圖？"
 
@@ -3617,11 +3628,12 @@ msgstr "定時同步"
 msgid "Scratch trade"
 msgstr "打和交易"
 
-#: src/components/attachments-card.tsx:48
+#: src/components/attachments-card.tsx:62
+#: src/components/attachments-card.tsx:128
 msgid "Screenshot limit reached"
 msgstr "已達截圖上限"
 
-#: src/components/attachments-card.tsx:97
+#: src/components/attachments-card.tsx:151
 msgid "Screenshots"
 msgstr "截圖"
 
@@ -4119,7 +4131,7 @@ msgid "This permanently deletes the ledger entry."
 msgstr "將永久刪除此帳目紀錄。"
 
 #. placeholder {0}: trade.attachments.length
-#: src/components/attachments-card.tsx:49
+#: src/components/attachments-card.tsx:63
 msgid "This trade already has {0} screenshots — raise the cap under Settings → Display."
 msgstr "此交易已有 {0} 張截圖 — 在設定 → 顯示調高上限。"
 
@@ -4332,7 +4344,7 @@ msgstr "未命名"
 #~ msgstr "上載 CSV / JSON"
 
 #. placeholder {0}: response.status
-#: src/components/attachments-card.tsx:76
+#: src/components/attachments-card.tsx:83
 msgid "Upload failed ({0})"
 msgstr "上載失敗（{0}）"
 
