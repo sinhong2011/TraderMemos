@@ -450,7 +450,11 @@ msgstr "Add an account first."
 msgid "Add an AI endpoint under Settings → AI for a model-written review."
 msgstr "Add an AI endpoint under Settings → AI for a model-written review."
 
-#: src/components/trade-prefill-bar.tsx:67
+#: src/app/new-trade.tsx:69
+msgid "Add an OpenAI-compatible vision endpoint and API key under Settings → AI, then open this shortcut again."
+msgstr "Add an OpenAI-compatible vision endpoint and API key under Settings → AI, then open this shortcut again."
+
+#: src/components/trade-prefill-bar.tsx:64
 msgid "Add an OpenAI-compatible vision endpoint and API key under Settings → AI, then scan broker screenshots straight into this form."
 msgstr "Add an OpenAI-compatible vision endpoint and API key under Settings → AI, then scan broker screenshots straight into this form."
 
@@ -458,7 +462,7 @@ msgstr "Add an OpenAI-compatible vision endpoint and API key under Settings → 
 msgid "Add another account before deleting this one."
 msgstr "Add another account before deleting this one."
 
-#: src/app/new-trade.tsx:89
+#: src/app/new-trade.tsx:160
 msgid "Add at least one fill with quantity and price for {label}."
 msgstr "Add at least one fill with quantity and price for {label}."
 
@@ -940,7 +944,8 @@ msgstr "cash-limited"
 msgid "Chart"
 msgstr "Chart"
 
-#: src/components/trade-prefill-bar.tsx:59
+#: src/app/new-trade.tsx:78
+#: src/components/trade-prefill-bar.tsx:56
 msgid "Check the fills"
 msgstr "Check the fills"
 
@@ -1132,9 +1137,17 @@ msgstr "Could not export config"
 msgid "Could not fetch the rate — is market data configured?"
 msgstr "Could not fetch the rate — is market data configured?"
 
+#: src/app/new-trade.tsx:81
+msgid "Could not import"
+msgstr "Could not import"
+
 #: src/app/(tabs)/(settings)/index.tsx:130
 msgid "Could not import config"
 msgstr "Could not import config"
+
+#: src/app/_layout.tsx:67
+msgid "Could not open file"
+msgstr "Could not open file"
 
 #: src/app/(tabs)/(settings)/import-trades.tsx:145
 #: src/app/(tabs)/(settings)/import-trades.tsx:479
@@ -1146,7 +1159,7 @@ msgstr "Could not preview"
 msgid "Could not reach {normalized}"
 msgstr "Could not reach {normalized}"
 
-#: src/components/trade-prefill-bar.tsx:141
+#: src/components/trade-prefill-bar.tsx:134
 msgid "Could not read file"
 msgstr "Could not read file"
 
@@ -1189,10 +1202,10 @@ msgstr "Could not revoke token"
 #: src/app/new-setup.tsx:67
 #: src/app/new-setup.tsx:81
 #: src/app/new-setup.tsx:87
-#: src/app/new-trade.tsx:72
-#: src/app/new-trade.tsx:81
-#: src/app/new-trade.tsx:85
-#: src/app/new-trade.tsx:88
+#: src/app/new-trade.tsx:143
+#: src/app/new-trade.tsx:152
+#: src/app/new-trade.tsx:156
+#: src/app/new-trade.tsx:159
 #: src/app/quick-journal.tsx:65
 msgid "Could not save"
 msgstr "Could not save"
@@ -1201,7 +1214,7 @@ msgstr "Could not save"
 msgid "Could not save checklist"
 msgstr "Could not save checklist"
 
-#: src/components/trade-prefill-bar.tsx:87
+#: src/components/trade-prefill-bar.tsx:76
 msgid "Could not scan"
 msgstr "Could not scan"
 
@@ -1244,7 +1257,7 @@ msgstr "Creating…"
 msgid "Crypto"
 msgstr "Crypto"
 
-#: src/components/trade-prefill-bar.tsx:172
+#: src/components/trade-prefill-bar.tsx:165
 msgid "CSV / JSON file"
 msgstr "CSV / JSON file"
 
@@ -1578,7 +1591,7 @@ msgid "Enter a setup name."
 msgstr "Enter a setup name."
 
 #. placeholder {0}: index + 1
-#: src/app/new-trade.tsx:85
+#: src/app/new-trade.tsx:156
 msgid "Enter a symbol for block {0}."
 msgstr "Enter a symbol for block {0}."
 
@@ -2094,11 +2107,11 @@ msgstr "IBKR Flex sync"
 
 #: src/components/attachments-card.tsx:200
 #: src/components/screenshot-queue.tsx:128
-#: src/components/trade-prefill-bar.tsx:167
+#: src/components/trade-prefill-bar.tsx:160
 msgid "Image files"
 msgstr "Image files"
 
-#: src/components/trade-prefill-bar.tsx:157
+#: src/components/trade-prefill-bar.tsx:150
 msgid "Import"
 msgstr "Import"
 
@@ -2630,7 +2643,7 @@ msgstr "New tag"
 msgid "New token"
 msgstr "New token"
 
-#: src/app/new-trade.tsx:114
+#: src/app/new-trade.tsx:185
 #: src/components/add-menu.tsx:21
 msgid "New trade"
 msgstr "New trade"
@@ -2651,8 +2664,8 @@ msgstr "Next week"
 msgid "Next year"
 msgstr "Next year"
 
-#: src/app/new-trade.tsx:82
-#: src/app/new-trade.tsx:107
+#: src/app/new-trade.tsx:153
+#: src/app/new-trade.tsx:178
 msgid "No account found — create one on the web app first."
 msgstr "No account found — create one on the web app first."
 
@@ -3089,7 +3102,7 @@ msgstr "PF"
 
 #: src/components/attachments-card.tsx:195
 #: src/components/screenshot-queue.tsx:123
-#: src/components/trade-prefill-bar.tsx:162
+#: src/components/trade-prefill-bar.tsx:155
 msgid "Photo Library"
 msgstr "Photo Library"
 
@@ -3680,7 +3693,7 @@ msgid "Screenshot limit reached"
 msgstr "Screenshot limit reached"
 
 #. placeholder {0}: response.status
-#: src/app/new-trade.tsx:62
+#: src/app/new-trade.tsx:133
 msgid "Screenshot upload failed ({0})"
 msgstr "Screenshot upload failed ({0})"
 
@@ -3761,7 +3774,8 @@ msgstr "Sessions follow the New York clock."
 msgid "Set up rules"
 msgstr "Set up rules"
 
-#: src/components/trade-prefill-bar.tsx:66
+#: src/app/new-trade.tsx:68
+#: src/components/trade-prefill-bar.tsx:63
 msgid "Set up Vision scan first"
 msgstr "Set up Vision scan first"
 
@@ -4023,7 +4037,7 @@ msgid "Symbol"
 msgstr "Symbol"
 
 #. placeholder {0}: index + 1
-#: src/app/new-trade.tsx:77
+#: src/app/new-trade.tsx:148
 msgid "symbol {0}"
 msgstr "symbol {0}"
 

@@ -2,11 +2,12 @@ import { I18nProvider } from '@lingui/react';
 import { QueryClient } from '@tanstack/react-query';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import * as Application from 'expo-application';
-import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
+import * as Linking from 'expo-linking';
+import { DarkTheme, DefaultTheme, ThemeProvider, useRootNavigationState, useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect, useMemo } from 'react';
-import { useColorScheme } from 'react-native';
+import { useEffect, useMemo, useRef } from 'react';
+import { Alert, useColorScheme } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { useUnistyles } from 'react-native-unistyles';
@@ -15,6 +16,8 @@ import { UnauthorizedError } from '@/api/client';
 import { useSession } from '@/api/session';
 import { SessionProvider } from '@/api/session-provider';
 import { i18n } from '@/i18n';
+import { t } from '@lingui/core/macro';
+import { ensureDropFolder, stageDroppedFile } from '@/lib/trade-import';
 import { queryPersister } from '@/storage/mmkv';
 
 // Hold the native splash through the SecureStore session read so cold start
@@ -29,6 +32,50 @@ function SplashGate() {
   useEffect(() => {
     if (!isLoading) SplashScreen.hide();
   }, [isLoading]);
+  return null;
+}
+
+/**
+ * Files handed to the app by another app — a share-sheet "Open in
+ * TraderMemos", or an iOS Shortcut that saves a broker screenshot into the
+ * app's Import folder — arrive as `file://` URLs that match no route. Stage
+ * them in the drop folder and open the trade form on them instead; the folder
+ * itself is created up front so Shortcuts can pick it as a save destination
+ * before the first import.
+ */
+function ImportLinkGate() {
+  const router = useRouter();
+  const { session, isLoading } = useSession();
+  const navigationState = useRootNavigationState();
+  const ready = navigationState?.key != null && !isLoading;
+  // getInitialURL resolves again whenever the session settles; a URL is a
+  // one-shot hand-off, so remember what has already been staged.
+  const staged = useRef(new Set<string>());
+
+  useEffect(() => {
+    ensureDropFolder();
+  }, []);
+
+  useEffect(() => {
+    if (!ready) return;
+    const handle = (url: string | null) => {
+      if (!url?.startsWith('file://') || staged.current.has(url)) return;
+      staged.current.add(url);
+      try {
+        if (!stageDroppedFile(url)) return;
+      } catch (err) {
+        Alert.alert(t`Could not open file`, err instanceof Error ? err.message : String(err));
+        return;
+      }
+      if (session) router.push({ pathname: '/new-trade', params: { import: '1' } });
+      // Signed out the drop keeps: the form drains the folder after login.
+      else router.push('/login');
+    };
+    void Linking.getInitialURL().then(handle);
+    const subscription = Linking.addEventListener('url', (event) => handle(event.url));
+    return () => subscription.remove();
+  }, [ready, router, session]);
+
   return null;
 }
 
@@ -88,6 +135,7 @@ export default function RootLayout() {
         <SplashGate />
         <PersistQueryClientProvider client={queryClient} persistOptions={persistOptions}>
         <ThemeProvider value={navTheme}>
+          <ImportLinkGate />
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="login" options={{ presentation: 'modal', headerShown: false }} />

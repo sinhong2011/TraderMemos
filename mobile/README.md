@@ -67,6 +67,33 @@ src/
   lib/         formatting helpers
 ```
 
+## iOS Shortcuts / share sheet
+
+The new-trade form can be opened with files already scanned into it. A URL scheme carries
+text only, so the file travels through a drop folder instead:
+
+- **`Documents/Import`** — created at launch and exposed in Files as *On My iPhone →
+  TraderMemos → Import* (`UIFileSharingEnabled` + `LSSupportsOpeningDocumentsInPlace`).
+- **`Documents/Inbox`** — where iOS copies documents handed over by another app's share
+  sheet (`CFBundleDocumentTypes` claims images and CSV/JSON as *Viewer*).
+
+Both are drained by `tradermemos://new-trade?import=1`: images go through `POST /ocr/parse`,
+CSV/JSON parses on-device, and the merged extract becomes the form's blocks
+(`src/lib/trade-import.ts`). Consumed files are deleted; a drop that can't be imported yet
+(no vision endpoint, signed out) stays put for the next run.
+
+A shortcut that files a broker screenshot is then:
+
+```
+Take Screenshot                    ← run it from Back Tap / Action Button, not
+Save File → TraderMemos/Import        from inside the Shortcuts app
+   (turn "Ask Where To Save" off)
+Open URL → tradermemos://new-trade?import=1
+```
+
+Sharing a screenshot or a CSV to TraderMemos from Photos/Files reaches the same place —
+`ImportLinkGate` in `app/_layout.tsx` stages the incoming `file://` URL and opens the form.
+
 ## Native builds
 
 `ios/` and `android/` are **generated** by Continuous Native Generation and are gitignored:

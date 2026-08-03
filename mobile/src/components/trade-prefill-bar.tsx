@@ -8,7 +8,6 @@ import {
   tint,
 } from '@expo/ui/swift-ui/modifiers';
 import * as DocumentPicker from 'expo-document-picker';
-import { File } from 'expo-file-system';
 import * as ImagePicker from 'expo-image-picker';
 import { useState } from 'react';
 import { Alert } from 'react-native';
@@ -17,12 +16,14 @@ import { useUnistyles } from 'react-native-unistyles';
 import { useApiRaw, useLlmSettings } from '@/api/hooks';
 import type { TradeExtract } from '@/api/types';
 import { t } from '@lingui/core/macro';
-import { parseFillFile } from '@/lib/fill-file';
+import {
+  extractFromSources,
+  isVisionReady,
+  SCAN_MAX_IMAGES,
+  type ImportSource,
+} from '@/lib/trade-import';
 import type { TradeFormValues } from '@/lib/trade-form';
-import { blocksFromExtract, mergeTradeExtracts } from '@/lib/trade-prefill';
-
-/** Cap multi-select screenshots so a single scan stays affordable (web parity). */
-const SCAN_MAX_IMAGES = 8;
+import { blocksFromExtract } from '@/lib/trade-prefill';
 
 function errorMessage(err: unknown): string {
   return err instanceof Error ? err.message : String(err);
@@ -47,11 +48,7 @@ export function TradePrefillBar({
   const ocrSettings = useLlmSettings('ocr');
   const [busy, setBusy] = useState<'scan' | 'file' | null>(null);
 
-  const visionReady =
-    ocrSettings.data != null &&
-    ocrSettings.data.enabled &&
-    ocrSettings.data.base_url.trim() !== '' &&
-    ocrSettings.data.api_key_set;
+  const visionReady = isVisionReady(ocrSettings.data);
 
   function apply(extract: TradeExtract) {
     const { blocks, warnings } = blocksFromExtract(extract, accountId);
@@ -70,19 +67,11 @@ export function TradePrefillBar({
   }
 
   /** OCR the picked images through the server, then prefill. */
-  async function scanImages(images: { uri: string; name: string; type: string }[]) {
+  async function scanImages(images: ImportSource[]) {
     if (images.length === 0) return;
     setBusy('scan');
     try {
-      const extracts: TradeExtract[] = [];
-      for (const image of images.slice(0, SCAN_MAX_IMAGES)) {
-        const formData = new FormData();
-        // React Native FormData takes a {uri,name,type} descriptor for file parts.
-        formData.append('file', image as unknown as Blob);
-        const response = await api('/ocr/parse', { method: 'POST', formData });
-        extracts.push((await response.json()) as TradeExtract);
-      }
-      apply(mergeTradeExtracts(extracts));
+      apply(await extractFromSources(images, api));
     } catch (err) {
       Alert.alert(t`Could not scan`, errorMessage(err));
     } finally {
@@ -135,8 +124,12 @@ export function TradePrefillBar({
     setBusy('file');
     try {
       const asset = picked.assets[0];
-      const text = await new File(asset.uri).text();
-      apply(parseFillFile(asset.name, text));
+      apply(
+        await extractFromSources(
+          [{ uri: asset.uri, name: asset.name, type: asset.mimeType ?? 'text/csv' }],
+          api,
+        ),
+      );
     } catch (err) {
       Alert.alert(t`Could not read file`, errorMessage(err));
     } finally {
