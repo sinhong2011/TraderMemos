@@ -88,6 +88,29 @@ export function computeReplayPnl(
   };
 }
 
+/** Fractional slack beyond a bar's range before a fill counts as mismatched. */
+const FILL_BAR_TOLERANCE = 0.01;
+
+/**
+ * True when any fill's price lands far outside its containing bar's range —
+ * the chart tape and the recorded fills disagree (hand-entered or seeded
+ * prices), so mark-to-market replay P&L is unreliable until the exit.
+ */
+export function detectFillBarMismatch(
+  fills: Execution[],
+  bars: MarketBar[],
+  interval: BarInterval,
+): boolean {
+  const step = INTERVAL_SEC[interval];
+  return fills.some((f) => {
+    const t = Math.floor(new Date(f.executed_at).getTime() / 1000);
+    const bar = bars.find((b) => t >= b.time && t < b.time + step);
+    if (!bar) return false;
+    const slack = Math.max(bar.high - bar.low, bar.high * FILL_BAR_TOLERANCE);
+    return f.price < bar.low - slack || f.price > bar.high + slack;
+  });
+}
+
 /** Cursor bar timestamp for the replay readout, on the chart's Eastern clock. */
 export function formatReplayBarTime(utcSec: number, interval: BarInterval, locale: string): string {
   const opts: Intl.DateTimeFormatOptions =

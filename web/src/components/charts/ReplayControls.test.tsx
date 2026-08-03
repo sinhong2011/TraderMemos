@@ -40,6 +40,7 @@ describe("ReplayControls", () => {
         barCount={10}
         timeLabel="Jul 15, 14:30"
         pnl={pnl}
+        fillTotal={2}
         currency="USD"
       />,
     );
@@ -59,12 +60,54 @@ describe("ReplayControls", () => {
         barCount={10}
         timeLabel="Jul 15, 14:30"
         pnl={{ ...pnl, position: 0, unrealized: 0, net: -2 }}
+        fillTotal={2}
         currency="USD"
       />,
     );
     expect(screen.getByLabelText("Pause replay")).toBeInTheDocument();
     expect(screen.getByText("Flat")).toBeInTheDocument();
     expect(screen.getByText("-$2.00")).toBeInTheDocument();
+  });
+
+  it("labels a zero position Closed once every fill is consumed", () => {
+    render(
+      <ReplayControls
+        controller={controller()}
+        barCount={10}
+        timeLabel="Jul 15, 15:58"
+        pnl={{ ...pnl, position: 0, unrealized: 0, net: 123.41, fillCount: 2 }}
+        fillTotal={2}
+        currency="USD"
+      />,
+    );
+    expect(screen.getByText("Closed")).toBeInTheDocument();
+    expect(screen.queryByText("Flat")).not.toBeInTheDocument();
+  });
+
+  it("shows the price-mismatch hint only when flagged", () => {
+    const { rerender } = render(
+      <ReplayControls
+        controller={controller()}
+        barCount={10}
+        timeLabel="Jul 15, 14:30"
+        pnl={pnl}
+        fillTotal={2}
+        currency="USD"
+        priceMismatch
+      />,
+    );
+    expect(screen.getByText(/Chart data disagrees/)).toBeInTheDocument();
+    rerender(
+      <ReplayControls
+        controller={controller()}
+        barCount={10}
+        timeLabel="Jul 15, 14:30"
+        pnl={pnl}
+        fillTotal={2}
+        currency="USD"
+      />,
+    );
+    expect(screen.queryByText(/Chart data disagrees/)).not.toBeInTheDocument();
   });
 
   it("wires the transport buttons to the controller", async () => {
@@ -76,6 +119,7 @@ describe("ReplayControls", () => {
         barCount={10}
         timeLabel="Jul 15, 14:30"
         pnl={pnl}
+        fillTotal={2}
         currency="USD"
       />,
     );

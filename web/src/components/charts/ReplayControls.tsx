@@ -8,10 +8,12 @@ import { intlLocale } from "@/lib/locale";
 import type { ReplayPnl } from "./replayPnl";
 import { REPLAY_SPEEDS, type ReplayController } from "./useReplayController";
 
-function positionLabel(pnl: ReplayPnl): string {
+function positionLabel(pnl: ReplayPnl, fillTotal: number): string {
   if (pnl.position > 0) return `Long ${pnl.position}`;
   if (pnl.position < 0) return `Short ${Math.abs(pnl.position)}`;
-  return "Flat";
+  // Zero position: distinguish "closed out" (all fills consumed) from flat
+  // moments before entry or between round trips.
+  return pnl.fillCount > 0 && pnl.fillCount >= fillTotal ? "Closed" : "Flat";
 }
 
 export function ReplayControls({
@@ -19,13 +21,17 @@ export function ReplayControls({
   barCount,
   timeLabel,
   pnl,
+  fillTotal,
   currency,
+  priceMismatch = false,
 }: {
   controller: ReplayController;
   barCount: number;
   timeLabel: string;
   pnl: ReplayPnl | null;
+  fillTotal: number;
   currency: string;
+  priceMismatch?: boolean;
 }) {
   const { cursor, playing, speed } = controller;
   const net = pnl?.net ?? 0;
@@ -85,7 +91,7 @@ export function ReplayControls({
           <span className="text-muted-foreground">{timeLabel}</span>
           {pnl && (
             <>
-              <span className="text-muted-foreground">{positionLabel(pnl)}</span>
+              <span className="text-muted-foreground">{positionLabel(pnl, fillTotal)}</span>
               <span
                 className={cn(
                   "font-medium",
@@ -98,6 +104,12 @@ export function ReplayControls({
           )}
         </div>
       </div>
+      {priceMismatch && (
+        <p className="text-right text-[11px] text-warning">
+          Chart data disagrees with the recorded fill prices — in-flight replay P&amp;L is marked to
+          the chart and may look off; the final figure comes from the fills.
+        </p>
+      )}
     </div>
   );
 }
