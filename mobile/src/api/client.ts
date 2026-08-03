@@ -93,7 +93,46 @@ export type RequestOptions = {
   method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
   params?: QueryParams;
   body?: unknown;
+  /** Multipart upload — wins over `body`; fetch sets the boundary header itself. */
+  formData?: FormData;
 };
+
+/**
+ * Authenticated request returning the raw `Response`, refreshing once on 401.
+ * For payloads that aren't JSON bodies (file downloads that need headers like
+ * Content-Disposition). Non-2xx still surfaces as ApiError.
+ */
+export async function requestRaw(
+  session: Session,
+  path: string,
+  options: RequestOptions = {},
+  onTokensRefreshed?: (tokens: TokenPair) => void,
+): Promise<Response> {
+  const { method = 'GET', params, body, formData } = options;
+  const url = buildUrl(session.serverUrl, path, params);
+
+  const send = (accessToken: string) =>
+    fetch(url, {
+      method,
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        ...(body === undefined || formData != null ? {} : { 'Content-Type': 'application/json' }),
+      },
+      body: formData ?? (body === undefined ? undefined : JSON.stringify(body)),
+    });
+
+  let response = await send(session.accessToken);
+
+  if (response.status === 401) {
+    const tokens = await refreshTokens(session.serverUrl, session.refreshToken);
+    onTokensRefreshed?.(tokens);
+    response = await send(tokens.access_token);
+    if (response.status === 401) throw new UnauthorizedError();
+  }
+
+  if (!response.ok) throw await toApiError(response);
+  return response;
+}
 
 /**
  * Performs an authenticated request, refreshing once on 401.
@@ -107,29 +146,7 @@ export async function request<T>(
   options: RequestOptions = {},
   onTokensRefreshed?: (tokens: TokenPair) => void,
 ): Promise<T> {
-  const { method = 'GET', params, body } = options;
-  const url = buildUrl(session.serverUrl, path, params);
-
-  const send = (accessToken: string) =>
-    fetch(url, {
-      method,
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        ...(body === undefined ? {} : { 'Content-Type': 'application/json' }),
-      },
-      body: body === undefined ? undefined : JSON.stringify(body),
-    });
-
-  let response = await send(session.accessToken);
-
-  if (response.status === 401) {
-    const tokens = await refreshTokens(session.serverUrl, session.refreshToken);
-    onTokensRefreshed?.(tokens);
-    response = await send(tokens.access_token);
-    if (response.status === 401) throw new UnauthorizedError();
-  }
-
-  if (!response.ok) throw await toApiError(response);
+  const response = await requestRaw(session, path, options, onTokensRefreshed);
   if (response.status === 204) return undefined as T;
   return (await response.json()) as T;
 }

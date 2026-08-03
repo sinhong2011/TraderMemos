@@ -8,11 +8,13 @@
 import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 import { useCallback } from 'react';
 
-import { request, type QueryParams, type RequestOptions } from './client';
+import { request, requestRaw, type QueryParams, type RequestOptions } from './client';
 import { useSession } from './session';
 import type {
+  AccessToken,
   Account,
   AnnualGoal,
+  ApiHealth,
   BreakGroup,
   DailyPnl,
   EquityCurve,
@@ -20,6 +22,9 @@ import type {
   RiskRules,
   Summary,
   BarInterval,
+  CashTransaction,
+  ChecklistTemplate,
+  LlmApiSettings,
   MarketBarsResponse,
   Setup,
   Tag,
@@ -45,7 +50,15 @@ export const queryKeys = {
     ['market', 'bars', symbol, instrumentType, interval, from, to] as const,
   annualGoal: (year: number) => ['settings', 'annual-goal', year] as const,
   riskRules: () => ['settings', 'risk-rules'] as const,
+  cash: (filters: Filters) => ['cash', filters] as const,
+  checklistTemplate: () => ['settings', 'checklist-template'] as const,
+  llmSettings: (kind: LlmKind) => ['settings', kind] as const,
+  accessTokens: () => ['access-tokens'] as const,
+  health: () => ['health'] as const,
 };
+
+/** The two LLM integrations share one settings shape and endpoint family. */
+export type LlmKind = 'ocr' | 'coach';
 
 /**
  * Session-bound request for mutations — same token-rotation plumbing as
@@ -56,6 +69,25 @@ export function useApiRequest() {
   return useCallback(
     <T>(path: string, options?: RequestOptions) =>
       request<T>(session!, path, options, (tokens) => {
+        void signIn({
+          ...session!,
+          accessToken: tokens.access_token,
+          refreshToken: tokens.refresh_token,
+        });
+      }),
+    [session, signIn],
+  );
+}
+
+/**
+ * Session-bound raw request (returns the `Response`) — for multipart uploads
+ * and downloads that need response headers (import preview/commit, exports).
+ */
+export function useApiRaw() {
+  const { session, signIn } = useSession();
+  return useCallback(
+    (path: string, options?: RequestOptions) =>
+      requestRaw(session!, path, options, (tokens) => {
         void signIn({
           ...session!,
           accessToken: tokens.access_token,
@@ -170,4 +202,42 @@ export function useTags() {
 
 export function useAccounts() {
   return useApiQuery<Account[]>(queryKeys.accounts(), '/accounts');
+}
+
+export function useLlmSettings(kind: LlmKind) {
+  return useApiQuery<LlmApiSettings>(queryKeys.llmSettings(kind), `/settings/${kind}`);
+}
+
+export function useAccessTokens() {
+  return useApiQuery<AccessToken[]>(queryKeys.accessTokens(), '/access-tokens');
+}
+
+/**
+ * Unauthenticated server probe — /healthz lives at the server root, outside
+ * /api/v1, so it bypasses the session-bound `request` plumbing.
+ */
+export function useApiHealth() {
+  const { session } = useSession();
+  const serverUrl = session?.serverUrl;
+  return useQuery({
+    queryKey: queryKeys.health(),
+    enabled: serverUrl != null,
+    staleTime: 60_000,
+    queryFn: async (): Promise<ApiHealth> => {
+      const response = await fetch(new URL('/healthz', serverUrl).toString());
+      if (!response.ok) throw new Error(`Health check failed (${response.status})`);
+      return (await response.json()) as ApiHealth;
+    },
+  });
+}
+
+export function useCash(filters: Filters = {}) {
+  return useApiQuery<CashTransaction[]>(queryKeys.cash(filters), '/cash-transactions', filters);
+}
+
+export function useChecklistTemplate() {
+  return useApiQuery<ChecklistTemplate>(
+    queryKeys.checklistTemplate(),
+    '/settings/checklist-template',
+  );
 }

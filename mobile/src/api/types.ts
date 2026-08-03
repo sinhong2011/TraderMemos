@@ -212,6 +212,27 @@ export type RiskRules = {
   default_account_risk_pct: number | null;
 };
 
+/** One cash ledger entry (api dto) — amount is signed; outflows are negative. */
+export type CashTransaction = {
+  id: string;
+  user_id: string;
+  account_id: string;
+  type: string;
+  amount: number;
+  currency: string;
+  occurred_at: string;
+  note: string;
+  trade_id: string | null;
+  import_batch_id?: string | null;
+  created_at: string;
+};
+
+/** GET/PUT /settings/checklist-template — `items` are the parsed `- [ ]` lines. */
+export type ChecklistTemplate = {
+  items: string[];
+  content?: string;
+};
+
 export type Account = {
   id: string;
   name: string;
@@ -221,6 +242,43 @@ export type Account = {
   starting_balance: number;
 };
 
+/** GET /settings/ocr | /settings/coach (web llmApiSettings.ts). */
+export type LlmApiSettings = {
+  enabled: boolean;
+  base_url: string;
+  model: string;
+  custom_prompt: string;
+  default_prompt?: string;
+  api_key_set: boolean;
+  api_key_hint?: string;
+};
+
+/** POST /settings/{ocr,coach}/test result. */
+export type LlmApiTestResult = {
+  ok: boolean;
+  error?: string;
+};
+
+/** GET /access-tokens row; POST additionally returns the one-time `token`. */
+export type AccessToken = {
+  id: string;
+  name: string;
+  token_prefix: string;
+  created_at: string;
+  expires_at: string | null;
+  last_used_at: string | null;
+};
+
+export type CreatedAccessToken = AccessToken & { token: string };
+
+/** GET /healthz (unauthenticated, at the server root — not under /api/v1). */
+export type ApiHealth = {
+  status: string;
+  version?: string;
+  commit?: string;
+  go?: string;
+};
+
 /** Shared query filters accepted by the trades and analytics endpoints. */
 export type Filters = {
   account_id?: string;
@@ -228,4 +286,117 @@ export type Filters = {
   from?: string;
   /** RFC3339 */
   to?: string;
+};
+
+/** Per-row failure reported by import preview/commit. */
+export type RowError = {
+  row: number;
+  message: string;
+};
+
+/** Closed-trade row synthesized from a journal CSV/JSON by POST /imports. */
+export type JournalTradePreview = {
+  row: number;
+  symbol: string;
+  market: string;
+  instrument_type?: string;
+  option_right?: string;
+  side: string;
+  status?: string;
+  qty: number;
+  entry: number;
+  exit: number;
+  return_usd: number;
+  return_pct?: number;
+  open_date: string;
+  close_date: string;
+  tags?: string;
+  setup?: string;
+  notes?: string;
+};
+
+/** Aggregate stats for a journal-format upload. */
+export type JournalPreviewSummary = {
+  row_count: number;
+  trade_count: number;
+  execution_count: number;
+  net_pnl: number;
+  stock_trades: number;
+  option_trades: number;
+  error_count: number;
+};
+
+/** Account metadata embedded in a JSON export — created only on confirm. */
+export type PendingImportAccount = {
+  name: string;
+  broker?: string;
+  account_type?: string;
+  base_currency?: string;
+  starting_balance?: number;
+};
+
+/** Response from POST /imports (parse-only preview; nothing is written). */
+export type ImportPreview = {
+  /** Always empty — the batch is created on confirm only. */
+  import_batch_id: string;
+  /** Matched/selected account, or empty when pending_account is set. */
+  account_id?: string;
+  /** Proposed new account from JSON metadata. */
+  pending_account?: PendingImportAccount;
+  headers: string[];
+  sample_rows: Record<string, string>[];
+  suggested_mapping: Record<string, string>;
+  /** Broker preset name when the header signature matched (e.g. "Webull (Orders)"). */
+  detected_broker?: string;
+  /** "journal_trades" = closed-trade journal; "executions" = fill rows; "account_backup" = JSON meta only. */
+  format?: 'journal_trades' | 'executions' | 'account_backup';
+  source?: 'csv' | 'json';
+  row_count?: number;
+  journal_summary?: JournalPreviewSummary;
+  sample_trades?: JournalTradePreview[];
+};
+
+/** Response from POST /imports/commit. */
+export type ImportResult = {
+  inserted: number;
+  skipped: number;
+  annotated?: number;
+  /** Journal imports: closed round-trip count (fills = inserted). */
+  trades?: number;
+  cash_inserted?: number;
+  setups_upserted?: number;
+  format?: string;
+  account_id?: string;
+  errors: RowError[];
+};
+
+/** GET /exports formats — json/zip are the canonical backup, csv is the closed-trade journal. */
+export type ExportFormat = 'json' | 'csv' | 'zip';
+
+/** One fill row inside a POST /ocr/parse extract (web api/ocr.ts). */
+export type ExtractedFill = {
+  symbol?: string;
+  side: string;
+  quantity: number;
+  price: number;
+  fees: number;
+  commission: number;
+  /** Broker on-screen wall-clock time — the offset the model appends is fiction. */
+  executed_at: string;
+  option_right?: string;
+  strike?: number;
+  expiry?: string;
+};
+
+/** Response from POST /ocr/parse (vision scan of a broker screenshot). */
+export type TradeExtract = {
+  symbol: string;
+  instrument_type: string;
+  side: string;
+  confidence: number;
+  raw_text: string;
+  rows: ExtractedFill[];
+  warnings: string[];
+  /** Present when a scan contains more than one underlying. */
+  symbols?: string[];
 };
