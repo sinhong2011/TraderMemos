@@ -1,5 +1,7 @@
 import { I18nProvider } from '@lingui/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient } from '@tanstack/react-query';
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
+import * as Application from 'expo-application';
 import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
 import { Stack } from 'expo-router/stack';
 import * as SplashScreen from 'expo-splash-screen';
@@ -13,6 +15,7 @@ import { UnauthorizedError } from '@/api/client';
 import { useSession } from '@/api/session';
 import { SessionProvider } from '@/api/session-provider';
 import { i18n } from '@/i18n';
+import { queryPersister } from '@/storage/mmkv';
 
 // Hold the native splash through the SecureStore session read so cold start
 // goes splash → first real screen (tabs or login), never a spinner or a flash
@@ -56,6 +59,9 @@ export default function RootLayout() {
         defaultOptions: {
           queries: {
             staleTime: 30_000,
+            // Keep entries alive long enough to be worth persisting — must be
+            // >= the persister maxAge or restored data is GC'd immediately.
+            gcTime: 24 * 60 * 60 * 1000,
             // A dead session won't recover by retrying — the gate redirects instead.
             retry: (failureCount, error) =>
               !(error instanceof UnauthorizedError) && failureCount < 2,
@@ -64,13 +70,23 @@ export default function RootLayout() {
       }),
     [],
   );
+  const persistOptions = useMemo(
+    () => ({
+      persister: queryPersister,
+      maxAge: 24 * 60 * 60 * 1000,
+      // Drop the snapshot across app updates — the hand-written API types can
+      // drift between versions and stale shapes would render garbage.
+      buster: Application.nativeApplicationVersion ?? 'dev',
+    }),
+    [],
+  );
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
     <I18nProvider i18n={i18n}>
       <SessionProvider>
         <SplashGate />
-        <QueryClientProvider client={queryClient}>
+        <PersistQueryClientProvider client={queryClient} persistOptions={persistOptions}>
         <ThemeProvider value={navTheme}>
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="(tabs)" />
@@ -99,7 +115,7 @@ export default function RootLayout() {
             <Stack.Screen name="new-setup" options={{ presentation: 'modal' }} />
           </Stack>
         </ThemeProvider>
-        </QueryClientProvider>
+        </PersistQueryClientProvider>
       </SessionProvider>
     </I18nProvider>
     </GestureHandlerRootView>
