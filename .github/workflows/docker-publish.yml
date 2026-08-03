@@ -51,6 +51,12 @@ jobs:
     name: Push ${{ matrix.image }}
     needs: [test-api, test-web]
     runs-on: ubuntu-latest
+    # Manual gate: pushing to Docker Hub is the only irreversible step here, so
+    # it waits for approval instead of firing as a side effect of a merge. The
+    # test jobs above still run ungated, so the approval prompt arrives with CI
+    # already green. Reviewers are configured on the environment itself
+    # (Settings → Environments → docker-hub).
+    environment: docker-hub
     # QEMU arm64 builds can wedge; a hung job otherwise blocks the
     # release-please concurrency group indefinitely.
     timeout-minutes: 90
