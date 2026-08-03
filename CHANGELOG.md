@@ -5,6 +5,32 @@ All notable changes to TraderMemos are documented in this file.
 Release versioning is managed by [release-please](https://github.com/googleapis/release-please).
 See [docs/release.md](docs/release.md) for the release workflow.
 
+## [0.2.0](https://github.com/sinhong2011/TraderMemos/compare/v0.1.13...v0.2.0) (2026-08-03)
+
+
+### Features
+
+* **mobile:** advanced chart and bar-by-bar trade replay ([#75](https://github.com/sinhong2011/TraderMemos/issues/75)) ([f78910f](https://github.com/sinhong2011/TraderMemos/commit/f78910f3c7cf5934a0ad267d612219aa35adbec5))
+* **mobile:** foundation — display prefs, account scope, FX, full API types ([#68](https://github.com/sinhong2011/TraderMemos/issues/68)) ([9aa71ef](https://github.com/sinhong2011/TraderMemos/commit/9aa71ef58031552a5e0068d4dee1530861e4fa83))
+* **mobile:** native iOS app — Expo SDK 57 development build ([#67](https://github.com/sinhong2011/TraderMemos/issues/67)) ([b75af88](https://github.com/sinhong2011/TraderMemos/commit/b75af88c84dd9a65b559232c174a9552d7144040))
+* **mobile:** Notes, Playbook, economic calendar, P&L heatmap, Year Wrapped ([#71](https://github.com/sinhong2011/TraderMemos/issues/71)) ([52c4b26](https://github.com/sinhong2011/TraderMemos/commit/52c4b263c450114bf9541665bd4c3c2e365f9262))
+* **mobile:** open the trade form on files dropped by a Shortcut ([#80](https://github.com/sinhong2011/TraderMemos/issues/80)) ([cfadedf](https://github.com/sinhong2011/TraderMemos/commit/cfadedfab3022aa9e330dd27f8e8c1ef0c70f996))
+* **mobile:** P&L heatmap moves into Reports Detailed, cell tap opens a details sheet ([#78](https://github.com/sinhong2011/TraderMemos/issues/78)) ([882a2e2](https://github.com/sinhong2011/TraderMemos/commit/882a2e2f95fdb0749d3e2adcc1b820e93aa5878e))
+* **mobile:** prop evaluation, daily-loss limit, and IBKR Flex sync ([#74](https://github.com/sinhong2011/TraderMemos/issues/74)) ([1a433b8](https://github.com/sinhong2011/TraderMemos/commit/1a433b80f9b870855e8f8ebced86d87b1e9e86a2))
+* **mobile:** Reports — Detailed, Risk, and Behavior sections ([#70](https://github.com/sinhong2011/TraderMemos/issues/70)) ([23e7a83](https://github.com/sinhong2011/TraderMemos/commit/23e7a83d4ed06a5f3ecfffbf5dc32b24cb15a4ba))
+* **mobile:** Reports tab — Overview and Win/Loss analytics ([#69](https://github.com/sinhong2011/TraderMemos/issues/69)) ([4110aff](https://github.com/sinhong2011/TraderMemos/commit/4110aff1001ca8312694ecd0c4c27d3e3883e5d7))
+* **mobile:** trade detail — coach, attachments, share card, excursion ([#73](https://github.com/sinhong2011/TraderMemos/issues/73)) ([804a278](https://github.com/sinhong2011/TraderMemos/commit/804a278a734a58c47b771f9d5953f9a446af97de))
+* **mobile:** trader tools — position size, Kelly, FX converter, R calculator ([#72](https://github.com/sinhong2011/TraderMemos/issues/72)) ([dfd5eb2](https://github.com/sinhong2011/TraderMemos/commit/dfd5eb2cef546fde076994614d796afeef11b5be))
+* **web:** CSV/JSON file import prefills the New Trade form ([#82](https://github.com/sinhong2011/TraderMemos/issues/82)) ([4e120a8](https://github.com/sinhong2011/TraderMemos/commit/4e120a8cc5d8fa986f0ff8109c6e55a1a62c4420))
+* **web:** move P&L heatmap into Reports, add hover tooltips + cell drill-down ([#76](https://github.com/sinhong2011/TraderMemos/issues/76)) ([e1163c4](https://github.com/sinhong2011/TraderMemos/commit/e1163c401b2297dc229420e74b45ad3c48d95e68))
+
+
+### Bug Fixes
+
+* **api:** drop duplicate "time" key from JSON log lines ([#79](https://github.com/sinhong2011/TraderMemos/issues/79)) ([555b36c](https://github.com/sinhong2011/TraderMemos/commit/555b36cb4c41be542545aa8e9579449088cad768))
+* **api:** log error causes on request lines, panics via slog, numeric latency ([#81](https://github.com/sinhong2011/TraderMemos/issues/81)) ([e71befd](https://github.com/sinhong2011/TraderMemos/commit/e71befdc49bb518550a486bb496e993133a37b27))
+* **web:** file trade days under the market timezone everywhere ([#77](https://github.com/sinhong2011/TraderMemos/issues/77)) ([fce7a54](https://github.com/sinhong2011/TraderMemos/commit/fce7a54d366bb00098f9750ef221a3175a807e13))
+
 ## [0.1.13](https://github.com/sinhong2011/TraderMemos/compare/v0.1.12...v0.1.13) (2026-08-03)
 
 
