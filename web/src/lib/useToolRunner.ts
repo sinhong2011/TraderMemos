@@ -19,17 +19,17 @@ export function useToolRunner() {
         case "kelly":
           openKelly();
           return;
+        case "planner":
+          void navigate({ to: "/calculator" });
+          return;
+        case "econ":
+          void navigate({ to: "/events", search: { wk: 0 } });
+          return;
         case "today":
           void navigate({ to: "/calendar" });
           return;
         case "wrapped":
           void navigate({ to: "/wrapped", search: { year: new Date().getFullYear() } });
-          return;
-        case "wallet":
-          toast.add({
-            title: "Wallet",
-            description: "Account cash is shown in the header stat strip.",
-          });
           return;
         default: {
           const tool = TOOL_ITEMS.find((item) => item.id === id);

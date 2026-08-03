@@ -9,7 +9,6 @@ import {
   RefreshCw,
   Scale,
   TrendingUp,
-  Wallet,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -23,7 +22,6 @@ export type ToolId =
   | "econ"
   | "rating"
   | "heatmap"
-  | "wallet"
   | "wrapped";
 
 export type ToolGroupId = "calculators" | "markets" | "journal";
@@ -106,13 +104,6 @@ export const TOOL_ITEMS: ToolItem[] = [
     icon: Flame,
     keywords: ["sector", "market"],
     group: "markets",
-  },
-  {
-    id: "wallet",
-    label: "Wallet",
-    icon: Wallet,
-    keywords: ["cash", "balance", "account"],
-    group: "journal",
   },
   {
     id: "wrapped",
