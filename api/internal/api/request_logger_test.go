@@ -2,6 +2,7 @@ package api_test
 
 import (
 	"bytes"
+	"errors"
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
@@ -55,4 +56,46 @@ func TestRequestLoggerOmitsEmptyParamsAndQuery(t *testing.T) {
 	require.Contains(t, out, "route=/api/v1/setup/status")
 	require.NotContains(t, out, "params=")
 	require.NotContains(t, out, "query=")
+}
+
+func TestRequestLoggerIncludesErrorCause(t *testing.T) {
+	var buf bytes.Buffer
+	lg := slog.New(slog.NewTextHandler(&buf, &slog.HandlerOptions{Level: slog.LevelInfo}))
+
+	e := echo.New()
+	e.HideBanner = true
+	e.Use(api.RequestLogger(lg))
+	e.POST("/api/v1/import", func(c echo.Context) error {
+		return api.Fail(http.StatusInternalServerError, "internal", "could not import", "disk full")
+	})
+
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/import", nil)
+	rec := httptest.NewRecorder()
+	e.ServeHTTP(rec, req)
+	require.Equal(t, http.StatusInternalServerError, rec.Code)
+
+	out := buf.String()
+	require.Contains(t, out, "level=ERROR")
+	require.Contains(t, out, "err_code=internal")
+	require.Contains(t, out, `err="could not import"`)
+	require.Contains(t, out, `err_details="disk full"`)
+	require.Contains(t, out, "latency_ms=")
+}
+
+func TestRequestLoggerIncludesPlainErrors(t *testing.T) {
+	var buf bytes.Buffer
+	lg := slog.New(slog.NewTextHandler(&buf, &slog.HandlerOptions{Level: slog.LevelInfo}))
+
+	e := echo.New()
+	e.HideBanner = true
+	e.Use(api.RequestLogger(lg))
+	e.GET("/api/v1/boom", func(c echo.Context) error {
+		return errors.New("kaput")
+	})
+
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/boom", nil)
+	rec := httptest.NewRecorder()
+	e.ServeHTTP(rec, req)
+	require.Equal(t, http.StatusInternalServerError, rec.Code)
+	require.Contains(t, buf.String(), "err=kaput")
 }

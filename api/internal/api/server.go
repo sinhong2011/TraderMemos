@@ -68,7 +68,17 @@ func New(deps Deps) *Server {
 	e.HTTPErrorHandler = errorHandler
 	e.Use(middleware.RequestID())
 	e.Use(RequestLogger(lg))
-	e.Use(middleware.Recover())
+	// Panics must land in the structured log, not echo's own gommon logger.
+	e.Use(middleware.RecoverWithConfig(middleware.RecoverConfig{
+		LogErrorFunc: func(c echo.Context, err error, stack []byte) error {
+			lg.Error("panic recovered",
+				"err", err.Error(),
+				"stack", string(stack),
+				"id", c.Response().Header().Get(echo.HeaderXRequestID),
+			)
+			return err
+		},
+	}))
 	if len(deps.CORSOrigins) > 0 {
 		origins := deps.CORSOrigins
 		e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
