@@ -2,6 +2,28 @@
 
 TraderMemos uses [release-please](https://github.com/googleapis/release-please) for semver, changelogs, and GitHub Releases.
 
+```mermaid
+flowchart TD
+    A["feat/… · fix/… branch"] -->|"PR, squash only"| B{"Required checks"}
+    B -->|"fail"| A
+    B -->|"Test API · Test web · Conventional PR title"| C["main"]
+    C -->|"every push re-runs release-please"| D["release-please--branches--main<br/>the release branch, bot-maintained<br/>CHANGELOG.md · VERSION · web/package.json"]
+    D -->|"stays open, accumulating PRs"| G{"Ready to ship?"}
+    G -->|"not yet"| C
+    G -->|"merge the Release PR"| E["tag vX.Y.Z<br/>GitHub Release published"]
+    E --> F["docker-publish.yml"]
+```
+
+There is no hand-cut release branch: `release-please--branches--main` **is** the
+release branch, rebuilt from scratch on every push to `main`. Merging it is the
+release. Nothing else tags or publishes.
+
+A GitFlow-style `release/x.y.z` merged into `main` is not possible here and is
+not wanted — the ruleset requires linear history and squash-only merges, so the
+merge commit it depends on is blocked. Squashing a release branch would also
+collapse its commits into one subject, destroying the individual `feat:` / `fix:`
+lines release-please reads to build the changelog.
+
 ## Day to day
 
 1. Merge PRs to `main` with **Conventional Commit** titles. Merges are
@@ -59,6 +81,16 @@ On release, `.github/workflows/release-please.yml` chains `docker-publish.yml` w
 You can still run **Publish Docker images** manually via `workflow_dispatch`.
 
 ### Approval gate
+
+```mermaid
+flowchart TD
+    A["Release published<br/>· workflow_call from release-please<br/>· workflow_dispatch"] --> B["Test API"]
+    A --> C["Test web"]
+    B --> D{"docker-hub environment<br/>required reviewer"}
+    C --> D
+    D -->|"approve"| E["Docker Hub<br/>X.Y.Z · X.Y · X · latest · sha"]
+    D -->|"no approval in 30 days"| F["run expires<br/>backfill via workflow_dispatch"]
+```
 
 The `publish` job runs in the **`docker-hub`** environment, which has a required
 reviewer. Every path into it — release, `workflow_call`, `workflow_dispatch` —
