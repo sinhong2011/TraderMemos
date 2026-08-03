@@ -416,7 +416,7 @@ msgstr "帳戶"
 msgid "Active limits"
 msgstr "生效上限"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:190
+#: src/app/(tabs)/(settings)/api-tokens.tsx:197
 msgid "Active tokens"
 msgstr "有效權杖"
 
@@ -617,7 +617,7 @@ msgstr "API 伺服器"
 msgid "API tokens"
 msgstr "API 權杖"
 
-#: src/app/(tabs)/(settings)/about.tsx:85
+#: src/app/(tabs)/(settings)/about.tsx:94
 msgid "API version"
 msgstr "API 版本"
 
@@ -944,7 +944,7 @@ msgstr "圖表"
 msgid "Check the fills"
 msgstr "請確認成交內容"
 
-#: src/app/(tabs)/(settings)/about.tsx:81
+#: src/app/(tabs)/(settings)/about.tsx:90
 msgid "Checking…"
 msgstr "檢查中…"
 
@@ -1085,7 +1085,7 @@ msgstr "合約數"
 msgid "Converts read-only amounts with the latest FX rate. Forms keep the account currency."
 msgstr "以最新匯率換算唯讀金額。表單仍使用帳戶貨幣。"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:144
+#: src/app/(tabs)/(settings)/api-tokens.tsx:141
 msgid "Copy it now — the secret is shown only once and cannot be recovered."
 msgstr "請立即複製 — 密鑰只會顯示一次，無法復原。"
 
@@ -1229,11 +1229,11 @@ msgstr "請先建立帳戶。"
 msgid "Create tag"
 msgstr "建立標籤"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:157
+#: src/app/(tabs)/(settings)/api-tokens.tsx:159
 msgid "Create token"
 msgstr "建立權杖"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:179
+#: src/app/(tabs)/(settings)/api-tokens.tsx:189
 #: src/app/(tabs)/(settings)/tags.tsx:117
 msgid "Creating…"
 msgstr "建立中…"
@@ -1424,7 +1424,7 @@ msgstr "詳細"
 msgid "Detected broker"
 msgstr "偵測到的券商"
 
-#: src/app/(tabs)/(settings)/about.tsx:101
+#: src/app/(tabs)/(settings)/about.tsx:110
 msgid "Developer"
 msgstr "開發者"
 
@@ -1513,7 +1513,7 @@ msgstr "回撤模式"
 msgid "Duration"
 msgstr "持倉時長"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:162
+#: src/app/(tabs)/(settings)/api-tokens.tsx:168
 msgid "e.g. CLI import"
 msgstr "例如：CLI 匯入"
 
@@ -1772,7 +1772,7 @@ msgstr "期望值"
 msgid "Expires {expires} · Last used {lastUsed}"
 msgstr "到期 {expires} · 最後使用 {lastUsed}"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:166
+#: src/app/(tabs)/(settings)/api-tokens.tsx:175
 #: src/components/trade-form.tsx:563
 msgid "Expiry"
 msgstr "到期日"
@@ -1976,19 +1976,19 @@ msgstr "缺口頂"
 msgid "Gap top must sit above the bottom — check the edges"
 msgstr "缺口頂必須高於缺口底 — 請檢查邊界"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:223
+#: src/app/(tabs)/(settings)/api-tokens.tsx:230
 msgid "Generate one above to authenticate scripts against your server."
 msgstr "在上方產生一個，即可讓腳本驗證你的伺服器 API。"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:179
+#: src/app/(tabs)/(settings)/api-tokens.tsx:189
 msgid "Generate token"
 msgstr "產生權杖"
 
-#: src/app/(tabs)/(settings)/about.tsx:51
+#: src/app/(tabs)/(settings)/about.tsx:59
 msgid "GitHub repository"
 msgstr "GitHub 儲存庫"
 
-#: src/app/(tabs)/(settings)/about.tsx:94
+#: src/app/(tabs)/(settings)/about.tsx:103
 msgid "Go runtime"
 msgstr "Go 執行環境"
 
@@ -2550,7 +2550,7 @@ msgstr "乘數"
 
 #: src/app/(tabs)/(dashboard)/playbook.tsx:128
 #: src/app/(tabs)/(settings)/account-form.tsx:221
-#: src/app/(tabs)/(settings)/api-tokens.tsx:158
+#: src/app/(tabs)/(settings)/api-tokens.tsx:164
 #: src/app/(tabs)/(settings)/tags.tsx:94
 #: src/app/new-setup.tsx:122
 msgid "Name"
@@ -2758,7 +2758,7 @@ msgstr "尚未有標籤"
 #~ msgid "No tags yet — create them in the trade form."
 #~ msgstr "尚無標籤 — 請在交易表單中建立。"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:221
+#: src/app/(tabs)/(settings)/api-tokens.tsx:228
 msgid "No tokens yet"
 msgstr "尚未有權杖"
 
@@ -2813,7 +2813,7 @@ msgstr "無"
 msgid "None tagged"
 msgstr "未標記"
 
-#: src/app/(tabs)/(settings)/about.tsx:67
+#: src/app/(tabs)/(settings)/about.tsx:76
 msgid "Not connected"
 msgstr "未連接"
 
@@ -2898,7 +2898,7 @@ msgstr "略去帳戶資料"
 msgid "One check per line"
 msgstr "每行一項"
 
-#: src/app/(tabs)/(settings)/about.tsx:81
+#: src/app/(tabs)/(settings)/about.tsx:90
 msgid "Online"
 msgstr "已連線"
 
@@ -3470,7 +3470,7 @@ msgstr "重播"
 msgid "Replay trade"
 msgstr "重播交易"
 
-#: src/app/(tabs)/(settings)/about.tsx:58
+#: src/app/(tabs)/(settings)/about.tsx:67
 msgid "Report an issue"
 msgstr "回報問題"
 
@@ -3723,11 +3723,11 @@ msgstr "賣出"
 msgid "Sell %"
 msgstr "賣出 %"
 
-#: src/app/(tabs)/(settings)/about.tsx:65
+#: src/app/(tabs)/(settings)/about.tsx:74
 msgid "Server"
 msgstr "伺服器"
 
-#: src/app/(tabs)/(settings)/about.tsx:66
+#: src/app/(tabs)/(settings)/about.tsx:75
 msgid "Server URL"
 msgstr "伺服器 URL"
 
@@ -3896,7 +3896,7 @@ msgstr "固定"
 msgid "Static — fixed floor"
 msgstr "固定 — 下限不變"
 
-#: src/app/(tabs)/(settings)/about.tsx:69
+#: src/app/(tabs)/(settings)/about.tsx:78
 #: src/app/(tabs)/(settings)/flex-sync.tsx:152
 #: src/app/(tabs)/(trades)/index.tsx:339
 msgid "Status"
@@ -4259,7 +4259,7 @@ msgstr "權杖"
 msgid "Token name is required."
 msgstr "請輸入權杖名稱。"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:185
+#: src/app/(tabs)/(settings)/api-tokens.tsx:161
 msgid "Tokens authenticate scripts and integrations against your server's API."
 msgstr "權杖用於讓腳本與整合向你的伺服器 API 進行驗證。"
 
@@ -4316,7 +4316,7 @@ msgstr "找不到交易"
 msgid "Traded in this range"
 msgstr "此範圍內已交易"
 
-#: src/app/(tabs)/(settings)/about.tsx:103
+#: src/app/(tabs)/(settings)/about.tsx:112
 msgid "TraderMemos is a self-hosted trading journal — your data stays on your server."
 msgstr "TraderMemos 是自架的交易日誌 — 資料只保存在你的伺服器上。"
 
@@ -4386,7 +4386,7 @@ msgstr "單位"
 msgid "Unrated"
 msgstr "未評級"
 
-#: src/app/(tabs)/(settings)/about.tsx:81
+#: src/app/(tabs)/(settings)/about.tsx:90
 msgid "Unreachable"
 msgstr "無法連線"
 

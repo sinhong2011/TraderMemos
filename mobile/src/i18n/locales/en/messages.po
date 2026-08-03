@@ -416,7 +416,7 @@ msgstr "Accounts"
 msgid "Active limits"
 msgstr "Active limits"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:190
+#: src/app/(tabs)/(settings)/api-tokens.tsx:197
 msgid "Active tokens"
 msgstr "Active tokens"
 
@@ -617,7 +617,7 @@ msgstr "API server"
 msgid "API tokens"
 msgstr "API tokens"
 
-#: src/app/(tabs)/(settings)/about.tsx:85
+#: src/app/(tabs)/(settings)/about.tsx:94
 msgid "API version"
 msgstr "API version"
 
@@ -944,7 +944,7 @@ msgstr "Chart"
 msgid "Check the fills"
 msgstr "Check the fills"
 
-#: src/app/(tabs)/(settings)/about.tsx:81
+#: src/app/(tabs)/(settings)/about.tsx:90
 msgid "Checking…"
 msgstr "Checking…"
 
@@ -1085,7 +1085,7 @@ msgstr "Contracts"
 msgid "Converts read-only amounts with the latest FX rate. Forms keep the account currency."
 msgstr "Converts read-only amounts with the latest FX rate. Forms keep the account currency."
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:144
+#: src/app/(tabs)/(settings)/api-tokens.tsx:141
 msgid "Copy it now — the secret is shown only once and cannot be recovered."
 msgstr "Copy it now — the secret is shown only once and cannot be recovered."
 
@@ -1229,11 +1229,11 @@ msgstr "Create an account first."
 msgid "Create tag"
 msgstr "Create tag"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:157
+#: src/app/(tabs)/(settings)/api-tokens.tsx:159
 msgid "Create token"
 msgstr "Create token"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:179
+#: src/app/(tabs)/(settings)/api-tokens.tsx:189
 #: src/app/(tabs)/(settings)/tags.tsx:117
 msgid "Creating…"
 msgstr "Creating…"
@@ -1424,7 +1424,7 @@ msgstr "Detailed"
 msgid "Detected broker"
 msgstr "Detected broker"
 
-#: src/app/(tabs)/(settings)/about.tsx:101
+#: src/app/(tabs)/(settings)/about.tsx:110
 msgid "Developer"
 msgstr "Developer"
 
@@ -1513,7 +1513,7 @@ msgstr "Drawdown model"
 msgid "Duration"
 msgstr "Duration"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:162
+#: src/app/(tabs)/(settings)/api-tokens.tsx:168
 msgid "e.g. CLI import"
 msgstr "e.g. CLI import"
 
@@ -1772,7 +1772,7 @@ msgstr "Expectancy"
 msgid "Expires {expires} · Last used {lastUsed}"
 msgstr "Expires {expires} · Last used {lastUsed}"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:166
+#: src/app/(tabs)/(settings)/api-tokens.tsx:175
 #: src/components/trade-form.tsx:563
 msgid "Expiry"
 msgstr "Expiry"
@@ -1976,19 +1976,19 @@ msgstr "Gap top"
 msgid "Gap top must sit above the bottom — check the edges"
 msgstr "Gap top must sit above the bottom — check the edges"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:223
+#: src/app/(tabs)/(settings)/api-tokens.tsx:230
 msgid "Generate one above to authenticate scripts against your server."
 msgstr "Generate one above to authenticate scripts against your server."
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:179
+#: src/app/(tabs)/(settings)/api-tokens.tsx:189
 msgid "Generate token"
 msgstr "Generate token"
 
-#: src/app/(tabs)/(settings)/about.tsx:51
+#: src/app/(tabs)/(settings)/about.tsx:59
 msgid "GitHub repository"
 msgstr "GitHub repository"
 
-#: src/app/(tabs)/(settings)/about.tsx:94
+#: src/app/(tabs)/(settings)/about.tsx:103
 msgid "Go runtime"
 msgstr "Go runtime"
 
@@ -2550,7 +2550,7 @@ msgstr "Multiplier"
 
 #: src/app/(tabs)/(dashboard)/playbook.tsx:128
 #: src/app/(tabs)/(settings)/account-form.tsx:221
-#: src/app/(tabs)/(settings)/api-tokens.tsx:158
+#: src/app/(tabs)/(settings)/api-tokens.tsx:164
 #: src/app/(tabs)/(settings)/tags.tsx:94
 #: src/app/new-setup.tsx:122
 msgid "Name"
@@ -2758,7 +2758,7 @@ msgstr "No tags yet"
 #~ msgid "No tags yet — create them in the trade form."
 #~ msgstr "No tags yet — create them in the trade form."
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:221
+#: src/app/(tabs)/(settings)/api-tokens.tsx:228
 msgid "No tokens yet"
 msgstr "No tokens yet"
 
@@ -2813,7 +2813,7 @@ msgstr "None"
 msgid "None tagged"
 msgstr "None tagged"
 
-#: src/app/(tabs)/(settings)/about.tsx:67
+#: src/app/(tabs)/(settings)/about.tsx:76
 msgid "Not connected"
 msgstr "Not connected"
 
@@ -2898,7 +2898,7 @@ msgstr "Omit account details"
 msgid "One check per line"
 msgstr "One check per line"
 
-#: src/app/(tabs)/(settings)/about.tsx:81
+#: src/app/(tabs)/(settings)/about.tsx:90
 msgid "Online"
 msgstr "Online"
 
@@ -3472,7 +3472,7 @@ msgstr "Replay"
 msgid "Replay trade"
 msgstr "Replay trade"
 
-#: src/app/(tabs)/(settings)/about.tsx:58
+#: src/app/(tabs)/(settings)/about.tsx:67
 msgid "Report an issue"
 msgstr "Report an issue"
 
@@ -3725,11 +3725,11 @@ msgstr "SELL"
 msgid "Sell %"
 msgstr "Sell %"
 
-#: src/app/(tabs)/(settings)/about.tsx:65
+#: src/app/(tabs)/(settings)/about.tsx:74
 msgid "Server"
 msgstr "Server"
 
-#: src/app/(tabs)/(settings)/about.tsx:66
+#: src/app/(tabs)/(settings)/about.tsx:75
 msgid "Server URL"
 msgstr "Server URL"
 
@@ -3898,7 +3898,7 @@ msgstr "static"
 msgid "Static — fixed floor"
 msgstr "Static — fixed floor"
 
-#: src/app/(tabs)/(settings)/about.tsx:69
+#: src/app/(tabs)/(settings)/about.tsx:78
 #: src/app/(tabs)/(settings)/flex-sync.tsx:152
 #: src/app/(tabs)/(trades)/index.tsx:339
 msgid "Status"
@@ -4261,7 +4261,7 @@ msgstr "Token"
 msgid "Token name is required."
 msgstr "Token name is required."
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:185
+#: src/app/(tabs)/(settings)/api-tokens.tsx:161
 msgid "Tokens authenticate scripts and integrations against your server's API."
 msgstr "Tokens authenticate scripts and integrations against your server's API."
 
@@ -4318,7 +4318,7 @@ msgstr "Trade not found"
 msgid "Traded in this range"
 msgstr "Traded in this range"
 
-#: src/app/(tabs)/(settings)/about.tsx:103
+#: src/app/(tabs)/(settings)/about.tsx:112
 msgid "TraderMemos is a self-hosted trading journal — your data stays on your server."
 msgstr "TraderMemos is a self-hosted trading journal — your data stays on your server."
 
@@ -4388,7 +4388,7 @@ msgstr "Unit"
 msgid "Unrated"
 msgstr "Unrated"
 
-#: src/app/(tabs)/(settings)/about.tsx:81
+#: src/app/(tabs)/(settings)/about.tsx:90
 msgid "Unreachable"
 msgstr "Unreachable"
 

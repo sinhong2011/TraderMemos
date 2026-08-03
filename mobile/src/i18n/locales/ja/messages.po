@@ -416,7 +416,7 @@ msgstr "口座"
 msgid "Active limits"
 msgstr "有効な上限"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:190
+#: src/app/(tabs)/(settings)/api-tokens.tsx:197
 msgid "Active tokens"
 msgstr "有効なトークン"
 
@@ -617,7 +617,7 @@ msgstr "API サーバー"
 msgid "API tokens"
 msgstr "APIトークン"
 
-#: src/app/(tabs)/(settings)/about.tsx:85
+#: src/app/(tabs)/(settings)/about.tsx:94
 msgid "API version"
 msgstr "APIバージョン"
 
@@ -944,7 +944,7 @@ msgstr "チャート"
 msgid "Check the fills"
 msgstr "約定内容を確認"
 
-#: src/app/(tabs)/(settings)/about.tsx:81
+#: src/app/(tabs)/(settings)/about.tsx:90
 msgid "Checking…"
 msgstr "確認中…"
 
@@ -1085,7 +1085,7 @@ msgstr "枚数"
 msgid "Converts read-only amounts with the latest FX rate. Forms keep the account currency."
 msgstr "表示専用の金額を最新の為替レートで換算します。入力フォームは口座通貨のままです。"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:144
+#: src/app/(tabs)/(settings)/api-tokens.tsx:141
 msgid "Copy it now — the secret is shown only once and cannot be recovered."
 msgstr "今すぐコピーしてください — シークレットは一度しか表示されず、復元できません。"
 
@@ -1229,11 +1229,11 @@ msgstr "まずアカウントを作成してください。"
 msgid "Create tag"
 msgstr "タグを作成"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:157
+#: src/app/(tabs)/(settings)/api-tokens.tsx:159
 msgid "Create token"
 msgstr "トークンを作成"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:179
+#: src/app/(tabs)/(settings)/api-tokens.tsx:189
 #: src/app/(tabs)/(settings)/tags.tsx:117
 msgid "Creating…"
 msgstr "作成中…"
@@ -1424,7 +1424,7 @@ msgstr "詳細"
 msgid "Detected broker"
 msgstr "検出したブローカー"
 
-#: src/app/(tabs)/(settings)/about.tsx:101
+#: src/app/(tabs)/(settings)/about.tsx:110
 msgid "Developer"
 msgstr "開発者"
 
@@ -1513,7 +1513,7 @@ msgstr "ドローダウン方式"
 msgid "Duration"
 msgstr "保有期間"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:162
+#: src/app/(tabs)/(settings)/api-tokens.tsx:168
 msgid "e.g. CLI import"
 msgstr "例: CLIインポート"
 
@@ -1772,7 +1772,7 @@ msgstr "期待値"
 msgid "Expires {expires} · Last used {lastUsed}"
 msgstr "有効期限 {expires} · 最終使用 {lastUsed}"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:166
+#: src/app/(tabs)/(settings)/api-tokens.tsx:175
 #: src/components/trade-form.tsx:563
 msgid "Expiry"
 msgstr "満期日"
@@ -1976,19 +1976,19 @@ msgstr "ギャップ上端"
 msgid "Gap top must sit above the bottom — check the edges"
 msgstr "ギャップ上端は下端より上に — 端の値を確認してください"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:223
+#: src/app/(tabs)/(settings)/api-tokens.tsx:230
 msgid "Generate one above to authenticate scripts against your server."
 msgstr "上で生成すると、スクリプトからサーバーAPIを認証できます。"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:179
+#: src/app/(tabs)/(settings)/api-tokens.tsx:189
 msgid "Generate token"
 msgstr "トークンを生成"
 
-#: src/app/(tabs)/(settings)/about.tsx:51
+#: src/app/(tabs)/(settings)/about.tsx:59
 msgid "GitHub repository"
 msgstr "GitHubリポジトリ"
 
-#: src/app/(tabs)/(settings)/about.tsx:94
+#: src/app/(tabs)/(settings)/about.tsx:103
 msgid "Go runtime"
 msgstr "Goランタイム"
 
@@ -2550,7 +2550,7 @@ msgstr "乗数"
 
 #: src/app/(tabs)/(dashboard)/playbook.tsx:128
 #: src/app/(tabs)/(settings)/account-form.tsx:221
-#: src/app/(tabs)/(settings)/api-tokens.tsx:158
+#: src/app/(tabs)/(settings)/api-tokens.tsx:164
 #: src/app/(tabs)/(settings)/tags.tsx:94
 #: src/app/new-setup.tsx:122
 msgid "Name"
@@ -2758,7 +2758,7 @@ msgstr "タグがまだありません"
 #~ msgid "No tags yet — create them in the trade form."
 #~ msgstr "タグがまだありません — トレードフォームで作成してください。"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:221
+#: src/app/(tabs)/(settings)/api-tokens.tsx:228
 msgid "No tokens yet"
 msgstr "トークンがまだありません"
 
@@ -2813,7 +2813,7 @@ msgstr "なし"
 msgid "None tagged"
 msgstr "タグなし"
 
-#: src/app/(tabs)/(settings)/about.tsx:67
+#: src/app/(tabs)/(settings)/about.tsx:76
 msgid "Not connected"
 msgstr "未接続"
 
@@ -2898,7 +2898,7 @@ msgstr "アカウント情報を除外"
 msgid "One check per line"
 msgstr "1行に1項目"
 
-#: src/app/(tabs)/(settings)/about.tsx:81
+#: src/app/(tabs)/(settings)/about.tsx:90
 msgid "Online"
 msgstr "オンライン"
 
@@ -3470,7 +3470,7 @@ msgstr "リプレイ"
 msgid "Replay trade"
 msgstr "トレードをリプレイ"
 
-#: src/app/(tabs)/(settings)/about.tsx:58
+#: src/app/(tabs)/(settings)/about.tsx:67
 msgid "Report an issue"
 msgstr "問題を報告"
 
@@ -3723,11 +3723,11 @@ msgstr "売"
 msgid "Sell %"
 msgstr "売却 %"
 
-#: src/app/(tabs)/(settings)/about.tsx:65
+#: src/app/(tabs)/(settings)/about.tsx:74
 msgid "Server"
 msgstr "サーバー"
 
-#: src/app/(tabs)/(settings)/about.tsx:66
+#: src/app/(tabs)/(settings)/about.tsx:75
 msgid "Server URL"
 msgstr "サーバーURL"
 
@@ -3896,7 +3896,7 @@ msgstr "固定"
 msgid "Static — fixed floor"
 msgstr "固定 — フロアは動かない"
 
-#: src/app/(tabs)/(settings)/about.tsx:69
+#: src/app/(tabs)/(settings)/about.tsx:78
 #: src/app/(tabs)/(settings)/flex-sync.tsx:152
 #: src/app/(tabs)/(trades)/index.tsx:339
 msgid "Status"
@@ -4259,7 +4259,7 @@ msgstr "トークン"
 msgid "Token name is required."
 msgstr "トークン名を入力してください。"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:185
+#: src/app/(tabs)/(settings)/api-tokens.tsx:161
 msgid "Tokens authenticate scripts and integrations against your server's API."
 msgstr "トークンはスクリプトや連携をサーバーAPIに認証させます。"
 
@@ -4316,7 +4316,7 @@ msgstr "トレードが見つかりません"
 msgid "Traded in this range"
 msgstr "この範囲で取引"
 
-#: src/app/(tabs)/(settings)/about.tsx:103
+#: src/app/(tabs)/(settings)/about.tsx:112
 msgid "TraderMemos is a self-hosted trading journal — your data stays on your server."
 msgstr "TraderMemosはセルフホスト型のトレードジャーナルです — データはあなたのサーバーに保存されます。"
 
@@ -4386,7 +4386,7 @@ msgstr "単位"
 msgid "Unrated"
 msgstr "未評価"
 
-#: src/app/(tabs)/(settings)/about.tsx:81
+#: src/app/(tabs)/(settings)/about.tsx:90
 msgid "Unreachable"
 msgstr "接続できません"
 

@@ -48,6 +48,14 @@ export default function AboutScreen() {
           </LabeledContent>
           <Link destination={REPO_URL}>
             <HStack spacing={8}>
+              {/* SF Symbols ships no brand logos, so the repo row wears the
+                  code glyph Apple's own UI uses for source links rather than
+                  bundling GitHub's trademark asset. */}
+              <Image
+                systemName="chevron.left.forwardslash.chevron.right"
+                size={15}
+                color={theme.colors.mutedForeground}
+              />
               <UIText>{t`GitHub repository`}</UIText>
               <Spacer />
               <Image systemName="arrow.up.right" size={12} color={theme.colors.mutedForeground} />
@@ -55,6 +63,7 @@ export default function AboutScreen() {
           </Link>
           <Link destination={`${REPO_URL}/issues`}>
             <HStack spacing={8}>
+              <Image systemName="ladybug" size={15} color={theme.colors.mutedForeground} />
               <UIText>{t`Report an issue`}</UIText>
               <Spacer />
               <Image systemName="arrow.up.right" size={12} color={theme.colors.mutedForeground} />
@@ -105,6 +114,11 @@ export default function AboutScreen() {
         >
           <Link destination={DEVELOPER_GITHUB}>
             <HStack spacing={8}>
+              <Image
+                systemName="person.crop.circle"
+                size={15}
+                color={theme.colors.mutedForeground}
+              />
               <UIText>{DEVELOPER_NAME}</UIText>
               <Spacer />
               <Image systemName="arrow.up.right" size={12} color={theme.colors.mutedForeground} />

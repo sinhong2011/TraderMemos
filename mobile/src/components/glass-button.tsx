@@ -13,12 +13,15 @@ export function GlassButton({
   label,
   systemImage,
   prominent,
+  fill,
   disabled,
   onPress,
 }: {
   label: string;
   systemImage?: SFSymbol;
   prominent?: boolean;
+  /** Stretch to the container width — form actions, not inline chrome. */
+  fill?: boolean;
   disabled?: boolean;
   onPress: () => void;
 }) {
@@ -29,7 +32,7 @@ export function GlassButton({
       onPress={onPress}
       disabled={disabled}
       accessibilityRole="button"
-      style={({ pressed }) => [(pressed || disabled) && styles.dimmed]}
+      style={({ pressed }) => [fill && styles.fill, (pressed || disabled) && styles.dimmed]}
     >
       <GlassView
         style={styles.capsule}
@@ -95,5 +98,6 @@ const styles = StyleSheet.create((theme) => ({
     overflow: 'hidden',
   },
   label: { fontSize: 15, fontWeight: '600' },
+  fill: { alignSelf: 'stretch' },
   dimmed: { opacity: 0.5 },
 }));

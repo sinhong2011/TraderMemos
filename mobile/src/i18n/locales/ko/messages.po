@@ -416,7 +416,7 @@ msgstr "계좌"
 msgid "Active limits"
 msgstr "활성 한도"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:190
+#: src/app/(tabs)/(settings)/api-tokens.tsx:197
 msgid "Active tokens"
 msgstr "활성 토큰"
 
@@ -617,7 +617,7 @@ msgstr "API 서버"
 msgid "API tokens"
 msgstr "API 토큰"
 
-#: src/app/(tabs)/(settings)/about.tsx:85
+#: src/app/(tabs)/(settings)/about.tsx:94
 msgid "API version"
 msgstr "API 버전"
 
@@ -944,7 +944,7 @@ msgstr "차트"
 msgid "Check the fills"
 msgstr "체결 내용 확인"
 
-#: src/app/(tabs)/(settings)/about.tsx:81
+#: src/app/(tabs)/(settings)/about.tsx:90
 msgid "Checking…"
 msgstr "확인 중…"
 
@@ -1085,7 +1085,7 @@ msgstr "계약 수"
 msgid "Converts read-only amounts with the latest FX rate. Forms keep the account currency."
 msgstr "표시용 금액을 최신 환율로 환산합니다. 입력 양식은 계좌 통화를 유지합니다."
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:144
+#: src/app/(tabs)/(settings)/api-tokens.tsx:141
 msgid "Copy it now — the secret is shown only once and cannot be recovered."
 msgstr "지금 복사하세요 — 시크릿은 한 번만 표시되며 복구할 수 없습니다."
 
@@ -1229,11 +1229,11 @@ msgstr "먼저 계좌를 만드세요."
 msgid "Create tag"
 msgstr "태그 만들기"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:157
+#: src/app/(tabs)/(settings)/api-tokens.tsx:159
 msgid "Create token"
 msgstr "토큰 만들기"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:179
+#: src/app/(tabs)/(settings)/api-tokens.tsx:189
 #: src/app/(tabs)/(settings)/tags.tsx:117
 msgid "Creating…"
 msgstr "만드는 중…"
@@ -1424,7 +1424,7 @@ msgstr "상세"
 msgid "Detected broker"
 msgstr "감지된 증권사"
 
-#: src/app/(tabs)/(settings)/about.tsx:101
+#: src/app/(tabs)/(settings)/about.tsx:110
 msgid "Developer"
 msgstr "개발자"
 
@@ -1513,7 +1513,7 @@ msgstr "드로다운 방식"
 msgid "Duration"
 msgstr "보유 기간"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:162
+#: src/app/(tabs)/(settings)/api-tokens.tsx:168
 msgid "e.g. CLI import"
 msgstr "예: CLI 가져오기"
 
@@ -1772,7 +1772,7 @@ msgstr "기대값"
 msgid "Expires {expires} · Last used {lastUsed}"
 msgstr "만료 {expires} · 마지막 사용 {lastUsed}"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:166
+#: src/app/(tabs)/(settings)/api-tokens.tsx:175
 #: src/components/trade-form.tsx:563
 msgid "Expiry"
 msgstr "만기일"
@@ -1976,19 +1976,19 @@ msgstr "갭 상단"
 msgid "Gap top must sit above the bottom — check the edges"
 msgstr "갭 상단은 하단보다 위여야 합니다 — 값을 확인하세요"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:223
+#: src/app/(tabs)/(settings)/api-tokens.tsx:230
 msgid "Generate one above to authenticate scripts against your server."
 msgstr "위에서 생성하면 스크립트로 서버 API를 인증할 수 있습니다."
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:179
+#: src/app/(tabs)/(settings)/api-tokens.tsx:189
 msgid "Generate token"
 msgstr "토큰 생성"
 
-#: src/app/(tabs)/(settings)/about.tsx:51
+#: src/app/(tabs)/(settings)/about.tsx:59
 msgid "GitHub repository"
 msgstr "GitHub 저장소"
 
-#: src/app/(tabs)/(settings)/about.tsx:94
+#: src/app/(tabs)/(settings)/about.tsx:103
 msgid "Go runtime"
 msgstr "Go 런타임"
 
@@ -2550,7 +2550,7 @@ msgstr "승수"
 
 #: src/app/(tabs)/(dashboard)/playbook.tsx:128
 #: src/app/(tabs)/(settings)/account-form.tsx:221
-#: src/app/(tabs)/(settings)/api-tokens.tsx:158
+#: src/app/(tabs)/(settings)/api-tokens.tsx:164
 #: src/app/(tabs)/(settings)/tags.tsx:94
 #: src/app/new-setup.tsx:122
 msgid "Name"
@@ -2758,7 +2758,7 @@ msgstr "아직 태그가 없습니다"
 #~ msgid "No tags yet — create them in the trade form."
 #~ msgstr "아직 태그가 없습니다 — 트레이드 폼에서 생성하세요."
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:221
+#: src/app/(tabs)/(settings)/api-tokens.tsx:228
 msgid "No tokens yet"
 msgstr "아직 토큰이 없습니다"
 
@@ -2813,7 +2813,7 @@ msgstr "없음"
 msgid "None tagged"
 msgstr "태그 없음"
 
-#: src/app/(tabs)/(settings)/about.tsx:67
+#: src/app/(tabs)/(settings)/about.tsx:76
 msgid "Not connected"
 msgstr "연결되지 않음"
 
@@ -2898,7 +2898,7 @@ msgstr "계좌 정보 제외"
 msgid "One check per line"
 msgstr "한 줄에 하나씩"
 
-#: src/app/(tabs)/(settings)/about.tsx:81
+#: src/app/(tabs)/(settings)/about.tsx:90
 msgid "Online"
 msgstr "온라인"
 
@@ -3470,7 +3470,7 @@ msgstr "리플레이"
 msgid "Replay trade"
 msgstr "거래 리플레이"
 
-#: src/app/(tabs)/(settings)/about.tsx:58
+#: src/app/(tabs)/(settings)/about.tsx:67
 msgid "Report an issue"
 msgstr "문제 신고"
 
@@ -3723,11 +3723,11 @@ msgstr "매도"
 msgid "Sell %"
 msgstr "매도 %"
 
-#: src/app/(tabs)/(settings)/about.tsx:65
+#: src/app/(tabs)/(settings)/about.tsx:74
 msgid "Server"
 msgstr "서버"
 
-#: src/app/(tabs)/(settings)/about.tsx:66
+#: src/app/(tabs)/(settings)/about.tsx:75
 msgid "Server URL"
 msgstr "서버 URL"
 
@@ -3896,7 +3896,7 @@ msgstr "고정"
 msgid "Static — fixed floor"
 msgstr "고정 — 하한이 움직이지 않음"
 
-#: src/app/(tabs)/(settings)/about.tsx:69
+#: src/app/(tabs)/(settings)/about.tsx:78
 #: src/app/(tabs)/(settings)/flex-sync.tsx:152
 #: src/app/(tabs)/(trades)/index.tsx:339
 msgid "Status"
@@ -4259,7 +4259,7 @@ msgstr "토큰"
 msgid "Token name is required."
 msgstr "토큰 이름을 입력하세요."
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:185
+#: src/app/(tabs)/(settings)/api-tokens.tsx:161
 msgid "Tokens authenticate scripts and integrations against your server's API."
 msgstr "토큰은 스크립트와 연동을 서버 API에 인증합니다."
 
@@ -4316,7 +4316,7 @@ msgstr "거래를 찾을 수 없습니다"
 msgid "Traded in this range"
 msgstr "이 범위에서 거래됨"
 
-#: src/app/(tabs)/(settings)/about.tsx:103
+#: src/app/(tabs)/(settings)/about.tsx:112
 msgid "TraderMemos is a self-hosted trading journal — your data stays on your server."
 msgstr "TraderMemos는 셀프 호스팅 트레이딩 저널입니다 — 데이터는 내 서버에 남습니다."
 
@@ -4386,7 +4386,7 @@ msgstr "단위"
 msgid "Unrated"
 msgstr "미평가"
 
-#: src/app/(tabs)/(settings)/about.tsx:81
+#: src/app/(tabs)/(settings)/about.tsx:90
 msgid "Unreachable"
 msgstr "연결할 수 없음"
 

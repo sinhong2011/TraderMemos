@@ -12,7 +12,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { queryKeys, useAccessTokens, useApiRequest } from '@/api/hooks';
 import type { AccessToken, CreatedAccessToken } from '@/api/types';
 import { DashboardCard } from '@/components/dashboard-card';
-import { FormField, FormInput } from '@/components/form-sheet';
+import { FormInput } from '@/components/form-sheet';
 import { GlassButton } from '@/components/glass-button';
 import { Segmented } from '@/components/segmented';
 import { Skeleton } from '@/components/skeleton';
@@ -137,11 +137,11 @@ export default function ApiTokensScreen() {
     <View style={styles.header}>
       {created ? (
         <DashboardCard title={t`New token`}>
-          <Text selectable style={styles.secret}>
-            {created.token}
-          </Text>
           <Text style={styles.footnote}>
             {t`Copy it now — the secret is shown only once and cannot be recovered.`}
+          </Text>
+          <Text selectable style={styles.secret}>
+            {created.token}
           </Text>
           <View style={styles.actions}>
             <GlassButton
@@ -154,17 +154,27 @@ export default function ApiTokensScreen() {
           </View>
         </DashboardCard>
       ) : (
+        // Description first, then inputs, then the action — the card reads
+        // top-down: what this is, what to fill, what to tap.
         <DashboardCard title={t`Create token`}>
-          <FormField label={t`Name`}>
+          <Text style={styles.footnote}>
+            {t`Tokens authenticate scripts and integrations against your server's API.`}
+          </Text>
+          <View style={styles.field}>
+            <Text style={styles.fieldLabel}>{t`Name`}</Text>
             <FormInput
               value={name}
               onChangeText={setName}
               placeholder={t`e.g. CLI import`}
               autoCorrect={false}
+              returnKeyType="done"
+              onSubmitEditing={handleCreate}
             />
-          </FormField>
-          <FormField label={t`Expiry`}>
+          </View>
+          <View style={styles.field}>
+            <Text style={styles.fieldLabel}>{t`Expiry`}</Text>
             <Segmented
+              fill
               options={EXPIRY_OPTIONS.map((option) => ({
                 value: option.value,
                 label: option.label(),
@@ -172,18 +182,15 @@ export default function ApiTokensScreen() {
               value={expiry}
               onChange={setExpiry}
             />
-          </FormField>
-          <View style={styles.actions}>
-            <GlassButton
-              prominent
-              label={create.isPending ? t`Creating…` : t`Generate token`}
-              systemImage="key"
-              onPress={handleCreate}
-            />
           </View>
-          <Text style={styles.footnote}>
-            {t`Tokens authenticate scripts and integrations against your server's API.`}
-          </Text>
+          <GlassButton
+            prominent
+            fill
+            label={create.isPending ? t`Creating…` : t`Generate token`}
+            systemImage="key"
+            disabled={create.isPending}
+            onPress={handleCreate}
+          />
         </DashboardCard>
       )}
       {(tokens.data ?? []).length > 0 ? (
@@ -244,6 +251,14 @@ const styles = StyleSheet.create((theme) => ({
     paddingHorizontal: theme.spacing.xs,
   },
   actions: { flexDirection: 'row', justifyContent: 'center', gap: theme.spacing.sm },
+  field: { gap: theme.spacing.xs + 2 },
+  // Quiet field labels — the accent card title is the only shout in a card.
+  fieldLabel: {
+    fontSize: 12,
+    fontWeight: '500',
+    letterSpacing: 0.3,
+    color: theme.colors.mutedForeground,
+  },
   secret: {
     fontSize: 13,
     color: theme.colors.foreground,
