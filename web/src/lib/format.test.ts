@@ -13,6 +13,7 @@ import {
   fmtSignedMoney,
   fmtSignedMoneyCompact,
   fmtTime,
+  fmtTradeDay,
 } from "./format";
 
 describe("formatters", () => {
@@ -73,6 +74,29 @@ describe("fmtDateShort", () => {
     expect(fmtDateShort("2026-07-02T14:30:00Z")).toBe("2026-07-02");
     expect(fmtDateShort("2026-07-09T12:00:00")).toBe("2026-07-09");
     expect(fmtDateShort(null)).toBe("-");
+  });
+});
+
+describe("fmtTradeDay", () => {
+  beforeEach(() => {
+    localStorage.removeItem(DISPLAY_PREFS_STORAGE_KEY);
+    useDisplayPrefs.setState({ marketTimezone: "America/New_York" });
+  });
+
+  it("files evening ET fills under the market day, not the UTC date", () => {
+    // 21:52 ET on Aug 3 is already Aug 4 in UTC — the trading day is still Aug 3.
+    expect(fmtTradeDay("2026-08-04T01:52:28Z")).toBe("2026-08-03");
+    expect(fmtTradeDay("2026-08-03T13:52:28Z")).toBe("2026-08-03");
+  });
+
+  it("follows the market timezone pref", () => {
+    useDisplayPrefs.setState({ marketTimezone: "Asia/Hong_Kong" });
+    expect(fmtTradeDay("2026-08-03T20:00:00Z")).toBe("2026-08-04");
+  });
+
+  it("handles null and garbage", () => {
+    expect(fmtTradeDay(null)).toBe("-");
+    expect(fmtTradeDay("not-a-date")).toBe("-");
   });
 });
 

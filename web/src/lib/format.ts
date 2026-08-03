@@ -1,4 +1,11 @@
-import { getDisplayTimeOpts, isPrivacyMode, PRIVACY_MASK } from "./displayPrefs";
+import { dayKeyInTz } from "./calendar";
+import {
+  getDisplayTimeOpts,
+  isPrivacyMode,
+  PRIVACY_MASK,
+  resolveMarketTimezone,
+  useDisplayPrefs,
+} from "./displayPrefs";
 import { intlLocale } from "./locale";
 
 function maskedMoney(): string | null {
@@ -85,6 +92,17 @@ export function fmtDateShort(iso: string | null): string {
   const mo = String(d.getUTCMonth() + 1).padStart(2, "0");
   const day = String(d.getUTCDate()).padStart(2, "0");
   return `${y}-${mo}-${day}`;
+}
+
+/**
+ * Trading-day key (`YYYY-MM-DD`) in the market timezone — the same day the
+ * calendar files the trade under. Every day-shaped label or grouping of a
+ * trade timestamp goes through this, never through the raw UTC date.
+ */
+export function fmtTradeDay(iso: string | null | undefined): string {
+  if (!iso) return "-";
+  if (Number.isNaN(new Date(iso).getTime())) return "-";
+  return dayKeyInTz(iso, resolveMarketTimezone(useDisplayPrefs.getState().marketTimezone));
 }
 
 /** Calendar date for timestamps (honors display timezone + app locale). */

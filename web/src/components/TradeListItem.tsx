@@ -2,7 +2,7 @@ import { ArrowDownRight, ArrowUpRight, NotebookPen } from "lucide-react";
 import type { Trade } from "@/lib/api/types";
 import { cn } from "@/lib/cn";
 import { usePrivacyMode } from "@/lib/displayPrefs";
-import { fmtDateShort, fmtDuration, fmtMoney, fmtSignedMoney } from "@/lib/format";
+import { fmtDuration, fmtMoney, fmtSignedMoney, fmtTradeDay } from "@/lib/format";
 import { intlLocale } from "@/lib/locale";
 import { resolveTradeDirection } from "@/lib/tradeDirection";
 import { DIR_TONE_CLASS } from "./DirCell";
@@ -24,12 +24,12 @@ export interface TradeMetaPart {
 
 /**
  * "Jul 22" — or "Jul 22, 2025" off the current year. Reads the calendar date off
- * `fmtDateShort`'s ISO output so the day matches the table's Date column exactly,
+ * `fmtTradeDay`'s ISO output so the day matches the table's Date column exactly,
  * then builds a local Date from the parts so nothing shifts across a timezone.
  */
 function listDate(iso: string | null): string {
-  const parts = /^(\d{4})-(\d{2})-(\d{2})$/.exec(fmtDateShort(iso));
-  if (!parts) return fmtDateShort(iso);
+  const parts = /^(\d{4})-(\d{2})-(\d{2})$/.exec(fmtTradeDay(iso));
+  if (!parts) return fmtTradeDay(iso);
   const [, y, m, d] = parts.map(Number) as [unknown, number, number, number];
   return new Date(y, m - 1, d).toLocaleDateString(intlLocale(), {
     month: "short",

@@ -1,4 +1,5 @@
 import type { Trade } from "./api/types";
+import { fmtTradeDay } from "./format";
 import { chronologicalClosed, computeHomeInsights, type DayPnl } from "./homeInsights";
 
 export const MONTH_LABELS = [
@@ -71,9 +72,9 @@ export interface YearWrapped {
   mainMistake: string | null;
 }
 
-/** UTC calendar day of the trade's close (fallback open). */
+/** Market-timezone trading day of the trade's close (fallback open). */
 function isoDay(t: Trade): string {
-  return (t.closed_at ?? t.opened_at).slice(0, 10);
+  return fmtTradeDay(t.closed_at ?? t.opened_at);
 }
 
 /**
