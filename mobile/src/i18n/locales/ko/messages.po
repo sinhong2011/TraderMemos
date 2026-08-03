@@ -33,6 +33,16 @@ msgstr "(건너뛰기)"
 msgid "{0} {1} — {2} trades"
 msgstr "{0} {1} — {2}건"
 
+#. placeholder {0}: insights.emotion
+#: src/lib/trade-insights.ts:191
+msgid "{0} but the trade still won"
+msgstr "{0} 상태였지만 수익 거래였습니다"
+
+#. placeholder {0}: insights.emotion
+#: src/lib/trade-insights.ts:182
+msgid "{0} can push size or timing. Compare this trade to your playbook rules before taking the next similar signal."
+msgstr "{0}은(는) 규모나 타이밍을 흔들 수 있습니다. 다음 유사 신호 전에 이 거래를 플레이북 규칙과 비교하세요."
+
 #. placeholder {0}: checks.length
 #: src/app/(tabs)/(dashboard)/playbook.tsx:85
 msgid "{0} checks"
@@ -54,6 +64,11 @@ msgstr "청산 거래 {0}건 제외 (스톱 미기록)."
 #: src/app/(tabs)/(calendar)/index.tsx:624
 msgid "{0} days"
 msgstr "{0}일"
+
+#. placeholder {0}: insights.fillCount
+#: src/lib/trade-insights.ts:309
+msgid "{0} executions on one trade"
+msgstr "한 거래에 체결 {0}건"
 
 #. placeholder {0}: lossAversion.give_back_count
 #: src/components/reports/behavior-section.tsx:219
@@ -91,6 +106,11 @@ msgstr "리스크 초과 {0} · 일일 손실 {1}"
 #: src/app/(tabs)/(reports)/r-calculator.tsx:475
 msgid "{0} per +1R"
 msgstr "+1R당 {0}"
+
+#. placeholder {0}: insights.emotion
+#: src/lib/trade-insights.ts:178
+msgid "{0} state paired with a loss"
+msgstr "{0} 상태와 손실이 겹쳤습니다"
 
 #. placeholder {0}: baseline.trades
 #. placeholder {0}: day.trades
@@ -162,6 +182,11 @@ msgstr "이벤트 {events}건"
 msgid "{included} of {total} trades"
 msgstr "{total}건 중 {included}건"
 
+#. placeholder {0}: insights.fillCount
+#: src/lib/trade-insights.ts:212
+msgid "{pct}% of gross went to fees across {0} fills. Consider whether every add was worth the cost."
+msgstr "총손익의 {pct}%가 체결 {0}건의 수수료로 나갔습니다. 각 추가 진입이 비용만큼 가치 있었는지 따져보세요."
+
 #: src/app/(tabs)/(settings)/ai.tsx:104
 msgid "{title} settings updated."
 msgstr "{title} 설정이 업데이트되었습니다."
@@ -225,6 +250,14 @@ msgstr "+2R 목표"
 #: src/app/(tabs)/(reports)/r-calculator.tsx:381
 msgid "+3R target"
 msgstr "+3R 목표"
+
+#: src/lib/trade-insights.ts:246
+msgid "~{r}R given back from the peak"
+msgstr "고점에서 약 {r}R 반납"
+
+#: src/lib/trade-insights.ts:261
+msgid "~{r}R more ran after your exit"
+msgstr "청산 후 약 {r}R 더 진행"
 
 #. placeholder {0}: (rate ?? 1).toFixed(4)
 #: src/app/tool-fx.tsx:79
@@ -356,6 +389,10 @@ msgstr "계좌 추가"
 msgid "Add an account first."
 msgstr "먼저 계좌를 추가하세요."
 
+#: src/components/coach-card.tsx:117
+msgid "Add an AI endpoint under Settings → AI for a model-written review."
+msgstr "설정 → AI에서 엔드포인트를 추가하면 모델이 작성한 리뷰를 받을 수 있습니다."
+
 #: src/components/trade-prefill-bar.tsx:67
 msgid "Add an OpenAI-compatible vision endpoint and API key under Settings → AI, then scan broker screenshots straight into this form."
 msgstr "설정 → AI에서 OpenAI 호환 비전 엔드포인트와 API 키를 추가하면 브로커 스크린샷을 이 양식으로 바로 스캔해 넣을 수 있습니다."
@@ -375,6 +412,10 @@ msgstr "수량과 가격이 입력된 체결을 1건 이상 추가하세요."
 #: src/components/trade-form.tsx:608
 msgid "Add fill"
 msgstr "체결 추가"
+
+#: src/components/attachments-card.tsx:128
+msgid "Add from Photos"
+msgstr "사진에서 추가"
 
 #: src/app/(tabs)/(reports)/r-calculator.tsx:225
 msgid "Add position"
@@ -415,6 +456,10 @@ msgstr "조정"
 msgid "Advanced"
 msgstr "고급 설정"
 
+#: src/lib/trade-insights.ts:295
+msgid "Adverse excursion exceeded planned risk"
+msgstr "역행 폭이 계획 리스크를 초과"
+
 #: src/components/reports/detailed-section.tsx:187
 msgid "After hours"
 msgstr "애프터마켓"
@@ -434,6 +479,14 @@ msgstr "AI — 비전 스캔 & 코치"
 #: src/app/(tabs)/(settings)/ai.tsx:45
 msgid "AI coach"
 msgstr "AI 코치"
+
+#: src/components/coach-card.tsx:96
+msgid "AI coach is turned off — enable it under Settings → AI."
+msgstr "AI 코치가 꺼져 있습니다 — 설정 → AI에서 켜세요."
+
+#: src/components/coach-card.tsx:84
+msgid "AI review"
+msgstr "AI 리뷰"
 
 #: src/app/(tabs)/(dashboard)/notes.tsx:95
 #: src/app/(tabs)/(trades)/index.tsx:169
@@ -514,6 +567,10 @@ msgstr "앱 설정을 가져왔습니다"
 msgid "App configuration"
 msgstr "앱 설정"
 
+#: src/components/coach-card.tsx:109
+msgid "Ask AI"
+msgstr "AI에게 묻기"
+
 #. placeholder {0}: rLabel(exitResult.trailerTargetR)
 #: src/app/(tabs)/(reports)/r-calculator.tsx:478
 msgid "At {0}"
@@ -543,11 +600,11 @@ msgstr "평균 보유 시간"
 msgid "avg"
 msgstr "평균"
 
-#: src/app/(tabs)/(trades)/[id].tsx:284
+#: src/app/(tabs)/(trades)/[id].tsx:371
 msgid "Avg entry"
 msgstr "평균 진입가"
 
-#: src/app/(tabs)/(trades)/[id].tsx:285
+#: src/app/(tabs)/(trades)/[id].tsx:372
 msgid "Avg exit"
 msgstr "평균 청산가"
 
@@ -623,7 +680,7 @@ msgstr "기준선 {0}"
 msgid "Baseline P&L"
 msgstr "기준선 손익"
 
-#: src/app/(tabs)/(trades)/[id].tsx:84
+#: src/app/(tabs)/(trades)/[id].tsx:88
 msgid "BE"
 msgstr "본전"
 
@@ -682,6 +739,10 @@ msgstr "하단"
 msgid "Bottom line"
 msgstr "결론"
 
+#: src/lib/trade-insights.ts:368
+msgid "Break-even after fees is still a process check: did you follow the plan, and was the setup worth the mental capital?"
+msgstr "수수료 포함 본전도 프로세스 점검거리입니다. 계획을 따랐는지, 이 셋업에 정신력을 쓸 가치가 있었는지 돌아보세요."
+
 #: src/components/breakdown-card.tsx:36
 msgid "Breakdown"
 msgstr "분석"
@@ -717,7 +778,7 @@ msgstr "가장 활발한 달: {0} ({1}건)."
 msgid "Buy"
 msgstr "매수"
 
-#: src/app/(tabs)/(trades)/[id].tsx:386
+#: src/app/(tabs)/(trades)/[id].tsx:475
 msgid "BUY"
 msgstr "매수"
 
@@ -751,9 +812,11 @@ msgstr "콜 / 풋"
 #: src/app/(tabs)/(settings)/risk-rules.tsx:73
 #: src/app/(tabs)/(settings)/risk-rules.tsx:84
 #: src/app/(tabs)/(settings)/tags.tsx:82
+#: src/app/(tabs)/(trades)/[id].tsx:162
 #: src/app/edit-note.tsx:68
 #: src/app/new-setup.tsx:106
 #: src/components/account-menu.tsx:43
+#: src/components/attachments-card.tsx:89
 #: src/components/form-sheet.tsx:71
 #: src/components/swipeable-trade-row.tsx:83
 msgid "Cancel"
@@ -869,13 +932,17 @@ msgstr "청산일은 실현 손익과 일치하고, 진입일은 진입한 날�
 msgid "Close position"
 msgstr "포지션 청산"
 
-#: src/app/(tabs)/(trades)/[id].tsx:269
+#: src/app/(tabs)/(trades)/[id].tsx:356
 msgid "Closed"
 msgstr "청산"
 
 #: src/app/(tabs)/(reports)/heatmap.tsx:142
 msgid "Closed-trade P&L by entry time on the market clock. Tap a cell for its numbers."
 msgstr "시장 시간 기준 진입 시각별 청산 손익입니다. 셀을 탭하면 수치가 표시됩니다."
+
+#: src/components/coach-card.tsx:77
+msgid "Coach"
+msgstr "코치"
 
 #: src/app/(tabs)/(settings)/tags.tsx:111
 msgid "Color"
@@ -885,6 +952,10 @@ msgstr "색상"
 #: src/components/trade-form.tsx:439
 msgid "Commission"
 msgstr "커미션"
+
+#: src/lib/trade-insights.ts:203
+msgid "Commissions and fees were {pct}% of gross — that materially changes the outcome. Fewer legs or lower-cost fills would help."
+msgstr "수수료가 총손익의 {pct}%를 차지해 결과를 크게 바꿨습니다. 레그를 줄이거나 저비용 체결을 고려하세요."
 
 #: src/app/(tabs)/(settings)/index.tsx:283
 msgid "Confirm before disconnecting"
@@ -927,6 +998,10 @@ msgstr "지금 복사하세요 — 시크릿은 한 번만 표시되며 복구�
 msgid "Could not clear trades"
 msgstr "거래를 지우지 못했습니다"
 
+#: src/app/(tabs)/(trades)/[id].tsx:144
+msgid "Could not compute excursion"
+msgstr "익스커전을 계산할 수 없습니다"
+
 #: src/app/(tabs)/(settings)/tags.tsx:62
 #: src/app/(tabs)/(settings)/tags.tsx:74
 msgid "Could not create tag"
@@ -937,8 +1012,10 @@ msgstr "태그를 만들지 못했습니다"
 msgid "Could not create token"
 msgstr "토큰을 만들지 못했습니다"
 
+#: src/app/(tabs)/(trades)/[id].tsx:154
 #: src/app/edit-note.tsx:49
 #: src/app/new-setup.tsx:76
+#: src/components/attachments-card.tsx:40
 #: src/components/swipeable-trade-row.tsx:75
 msgid "Could not delete"
 msgstr "삭제하지 못했습니다"
@@ -1022,6 +1099,14 @@ msgstr "체크리스트를 저장하지 못했습니다"
 #: src/components/trade-prefill-bar.tsx:87
 msgid "Could not scan"
 msgstr "스캔하지 못했습니다"
+
+#: src/components/share-card.tsx:82
+msgid "Could not share"
+msgstr "공유할 수 없습니다"
+
+#: src/components/attachments-card.tsx:81
+msgid "Could not upload"
+msgstr "업로드할 수 없습니다"
 
 #: src/app/(tabs)/(trades)/index.tsx:296
 #~ msgid "Create"
@@ -1258,9 +1343,13 @@ msgstr "자산 곡선 고점 대비 하락률입니다."
 msgid "Dividend"
 msgstr "배당"
 
-#: src/app/(tabs)/(trades)/[id].tsx:215
+#: src/app/(tabs)/(trades)/[id].tsx:288
 msgid "Dividends"
 msgstr "배당금"
+
+#: src/lib/trade-insights.ts:169
+msgid "Document why you closed — stop hit, thesis broken, or emotion — so you can spot repeat patterns."
+msgstr "청산 이유를 기록하세요 — 스톱 도달, 가설 붕괴, 감정 — 반복 패턴이 보이기 시작합니다."
 
 #: src/components/reports-filter-menu.tsx:75
 msgid "Dollars"
@@ -1323,12 +1412,12 @@ msgstr "노트 편집"
 msgid "Edit setup"
 msgstr "셋업 편집"
 
-#: src/app/(tabs)/(trades)/[id].tsx:164
+#: src/app/(tabs)/(trades)/[id].tsx:220
 #: src/app/edit-trade.tsx:113
 msgid "Edit trade"
 msgstr "트레이드 수정"
 
-#: src/app/(tabs)/(trades)/[id].tsx:312
+#: src/app/(tabs)/(trades)/[id].tsx:399
 #: src/app/manage-tags.tsx:107
 #: src/components/trade-form.tsx:661
 msgid "Emotion"
@@ -1430,7 +1519,7 @@ msgstr "진입 프리미엄"
 msgid "Entry price"
 msgstr "진입 가격"
 
-#: src/app/(tabs)/(trades)/[id].tsx:326
+#: src/app/(tabs)/(trades)/[id].tsx:413
 #: src/app/quick-journal.tsx:77
 #: src/components/trade-form.tsx:685
 msgid "Entry reason"
@@ -1473,22 +1562,26 @@ msgstr "체결 시각"
 msgid "Execution grade"
 msgstr "실행 등급"
 
-#: src/app/(tabs)/(trades)/[id].tsx:323
+#: src/app/(tabs)/(trades)/[id].tsx:410
 #: src/app/manage-tags.tsx:130
 #: src/app/quick-journal.tsx:90
 #: src/components/trade-form.tsx:694
 msgid "Execution rating"
 msgstr "실행 평가"
 
-#: src/app/(tabs)/(trades)/[id].tsx:372
+#: src/app/(tabs)/(trades)/[id].tsx:461
 msgid "Executions"
 msgstr "체결 내역"
+
+#: src/lib/trade-insights.ts:270
+msgid "Exit dodged ~{r}R of drawdown"
+msgstr "청산으로 약 {r}R 하락 회피"
 
 #: src/app/(tabs)/(reports)/r-calculator.tsx:389
 msgid "Exit ladder"
 msgstr "청산 래더"
 
-#: src/app/(tabs)/(trades)/[id].tsx:327
+#: src/app/(tabs)/(trades)/[id].tsx:414
 #: src/components/trade-form.tsx:712
 msgid "Exit reason"
 msgstr "청산 이유"
@@ -1573,16 +1666,24 @@ msgid "Fee"
 msgstr "수수료"
 
 #: src/app/(tabs)/(settings)/import-trades.tsx:44
-#: src/app/(tabs)/(trades)/[id].tsx:212
+#: src/app/(tabs)/(trades)/[id].tsx:285
 #: src/components/performance-card.tsx:57
 #: src/components/reports/overview-section.tsx:185
 #: src/components/trade-form.tsx:432
 msgid "Fees"
 msgstr "수수료"
 
+#: src/lib/trade-insights.ts:211
+msgid "Fees amplified a small loss"
+msgstr "수수료가 작은 손실을 키움"
+
 #: src/app/(tabs)/(reports)/wrapped.tsx:261
 msgid "Fees paid"
 msgstr "지불 수수료"
+
+#: src/lib/trade-insights.ts:202
+msgid "Fees took a large bite of gross P&L"
+msgstr "수수료가 총손익을 크게 깎았습니다"
 
 #: src/app/tool-fx.tsx:70
 msgid "Fetching rate…"
@@ -1713,6 +1814,14 @@ msgstr "Go 런타임"
 msgid "good"
 msgstr "양호"
 
+#: src/lib/trade-insights.ts:358
+msgid "Good outcome — still log your plan next time so wins are reproducible, not lucky."
+msgstr "좋은 결과입니다 — 다음엔 계획도 기록해 승리를 운이 아닌 재현 가능한 것으로 만드세요."
+
+#: src/lib/trade-insights.ts:324
+msgid "Good setup, weak execution"
+msgstr "좋은 셋업, 약한 실행"
+
 #: src/app/(tabs)/(reports)/wrapped.tsx:155
 msgid "Green days"
 msgstr "수익일"
@@ -1725,7 +1834,7 @@ msgstr "총손익"
 msgid "Gross (before fees)"
 msgstr "총액 (수수료 전)"
 
-#: src/app/(tabs)/(trades)/[id].tsx:208
+#: src/app/(tabs)/(trades)/[id].tsx:281
 msgid "Gross P&L"
 msgstr "총손익"
 
@@ -1744,6 +1853,11 @@ msgstr "보장 하한"
 #: src/app/tool-kelly.tsx:65
 msgid "Half Kelly"
 msgstr "하프 켈리"
+
+#. placeholder {0}: insights.holdLabel
+#: src/lib/trade-insights.ts:345
+msgid "Held only {0}. That can be good risk control if the stop was planned; bad if you panic-exited before the setup developed."
+msgstr "보유 시간은 {0}뿐. 계획된 스톱이면 좋은 리스크 관리, 셋업이 무르익기 전의 패닉 청산이면 문제입니다."
 
 #: src/app/(tabs)/(settings)/display.tsx:71
 msgid "Hide amounts everywhere — stats and ratios stay visible."
@@ -1845,7 +1959,7 @@ msgstr "가져오는 중…"
 msgid "in progress"
 msgstr "진행 중"
 
-#: src/app/(tabs)/(trades)/[id].tsx:239
+#: src/app/(tabs)/(trades)/[id].tsx:312
 msgid "Initial risk"
 msgstr "초기 리스크"
 
@@ -1869,9 +1983,13 @@ msgstr "연동"
 msgid "Interest"
 msgstr "이자"
 
+#: src/components/coach-card.tsx:21
+msgid "Issue"
+msgstr "문제"
+
 #: src/app/(tabs)/(settings)/index.tsx:235
-#: src/app/(tabs)/(trades)/[id].tsx:291
-#: src/app/(tabs)/(trades)/[id].tsx:333
+#: src/app/(tabs)/(trades)/[id].tsx:378
+#: src/app/(tabs)/(trades)/[id].tsx:420
 #: src/components/swipeable-trade-row.tsx:117
 #: src/components/trade-form.tsx:643
 msgid "Journal"
@@ -1973,10 +2091,15 @@ msgstr "로그"
 msgid "Long"
 msgstr "롱"
 
-#: src/app/(tabs)/(trades)/[id].tsx:186
+#: src/app/(tabs)/(trades)/[id].tsx:259
 #: src/app/quick-journal.tsx:140
+#: src/components/share-card.tsx:39
 msgid "LONG"
 msgstr "롱"
+
+#: src/components/attachments-card.tsx:105
+msgid "Long-press to remove"
+msgstr "길게 눌러 제거"
 
 #: src/app/(tabs)/(reports)/wrapped.tsx:180
 msgid "Longest loss streak"
@@ -1994,13 +2117,17 @@ msgstr "손실 vs 수익"
 msgid "Losing hold"
 msgstr "손실 보유 시간"
 
-#: src/app/(tabs)/(trades)/[id].tsx:80
+#: src/app/(tabs)/(trades)/[id].tsx:84
 msgid "LOSS"
 msgstr "손실"
 
 #: src/components/reports/behavior-section.tsx:188
 msgid "Loss aversion"
 msgstr "손실 회피"
+
+#: src/lib/trade-insights.ts:282
+msgid "Loss exceeded plan at {r}R"
+msgstr "손실이 계획 초과 ({r}R)"
 
 #: src/components/insights-card.tsx:62
 msgid "losses"
@@ -2020,13 +2147,21 @@ msgstr "연패"
 msgid "Low"
 msgstr "낮음"
 
+#: src/lib/trade-insights.ts:334
+msgid "Low setup grade on a loser"
+msgstr "손실 거래의 셋업 등급이 낮음"
+
 #: src/app/(tabs)/(trades)/index.tsx:283
 msgid "Lowest P&L"
 msgstr "손익 낮은 순"
 
-#: src/app/(tabs)/(trades)/[id].tsx:246
+#: src/app/(tabs)/(trades)/[id].tsx:319
 msgid "MAE"
 msgstr "MAE"
+
+#: src/lib/trade-insights.ts:296
+msgid "MAE was ~{r}× your recorded risk. Either the stop was widened or the plan wasn't followed."
+msgstr "MAE가 기록 리스크의 약 {r}배였습니다. 스톱을 넓혔거나 계획을 따르지 않았을 수 있습니다."
 
 #: src/components/insights-card.tsx:91
 msgid "Main leak"
@@ -2118,13 +2253,21 @@ msgstr "보통"
 msgid "Metric evolution"
 msgstr "지표 추이"
 
-#: src/app/(tabs)/(trades)/[id].tsx:253
+#: src/app/(tabs)/(trades)/[id].tsx:326
 msgid "MFE"
 msgstr "MFE"
 
 #: src/app/(tabs)/(reports)/r-calculator.tsx:504
 msgid "Mid"
 msgstr "중간"
+
+#: src/lib/trade-insights.ts:158
+msgid "Missing entry reason"
+msgstr "진입 이유 미기록"
+
+#: src/lib/trade-insights.ts:168
+msgid "Missing exit reason on a loser"
+msgstr "손실 거래의 청산 이유 미기록"
 
 #: src/app/(tabs)/(settings)/tags.tsx:30
 #: src/components/reports/overview-section.tsx:312
@@ -2136,6 +2279,10 @@ msgstr "실수"
 #: src/components/trade-form.tsx:702
 msgid "Mistake type"
 msgstr "실수 유형"
+
+#: src/lib/trade-insights.ts:378
+msgid "Mistake: {tag}"
+msgstr "실수: {tag}"
 
 #: src/app/(tabs)/(settings)/ai.tsx:142
 msgid "Model"
@@ -2151,6 +2298,10 @@ msgstr "월"
 msgid "Month"
 msgstr "이번 달"
 
+#: src/lib/trade-insights.ts:227
+msgid "Most of the move was left on the table"
+msgstr "움직임의 대부분을 놓쳤습니다"
+
 #: src/components/insights-card.tsx:87
 msgid "most traded"
 msgstr "최다 거래"
@@ -2162,6 +2313,14 @@ msgstr "최다 거래"
 #: src/app/(tabs)/(reports)/wrapped.tsx:192
 msgid "Most-tagged mistake"
 msgstr "최다 태그 실수"
+
+#: src/lib/trade-insights.ts:312
+msgid "Multiple adds before exit on a loser — classic averaging behavior. Decide in advance whether scaling in is allowed for this setup."
+msgstr "손실 거래에서 청산 전 여러 번 추가 — 전형적인 물타기입니다. 이 셋업에서 분할 진입 허용 여부를 미리 정하세요."
+
+#: src/lib/trade-insights.ts:313
+msgid "Multiple fills increase fee drag and slippage. Make sure each add had a defined reason."
+msgstr "체결이 많을수록 수수료와 슬리피지가 커집니다. 각 추가에 분명한 이유가 있었는지 확인하세요."
 
 #: src/components/trade-form.tsx:568
 msgid "Multiplier"
@@ -2201,7 +2360,7 @@ msgstr "순액 (수수료 후)"
 #: src/app/(tabs)/(calendar)/index.tsx:859
 #: src/app/(tabs)/(dashboard)/playbook.tsx:123
 #: src/app/(tabs)/(dashboard)/playbook.tsx:198
-#: src/app/(tabs)/(trades)/[id].tsx:220
+#: src/app/(tabs)/(trades)/[id].tsx:293
 msgid "Net P&L"
 msgstr "순손익"
 
@@ -2319,6 +2478,10 @@ msgstr "태그된 실수가 없습니다."
 #: src/app/(tabs)/(dashboard)/notes.tsx:157
 msgid "No notes yet"
 msgstr "아직 노트가 없습니다"
+
+#: src/lib/trade-insights.ts:146
+msgid "No plan was recorded before the trade"
+msgstr "거래 전에 계획이 기록되지 않았습니다"
 
 #: src/components/reports/behavior-section.tsx:142
 msgid "No revenge patterns detected — flags trades opened within an hour of a losing close: same-symbol re-entries inside 15 minutes, or entries sized 1.5× above your recent median."
@@ -2456,15 +2619,15 @@ msgstr "노트를 찾을 수 없습니다"
 #: src/app/(tabs)/(dashboard)/index.tsx:170
 #: src/app/(tabs)/(dashboard)/notes.tsx:96
 #: src/app/(tabs)/(dashboard)/notes.tsx:114
-#: src/app/(tabs)/(trades)/[id].tsx:364
+#: src/app/(tabs)/(trades)/[id].tsx:451
 msgid "Notes"
 msgstr "메모"
 
-#: src/app/(tabs)/(trades)/[id].tsx:337
+#: src/app/(tabs)/(trades)/[id].tsx:424
 msgid "Nothing logged yet. A minute of review now is what makes this trade worth something later."
 msgstr "아직 기록이 없습니다. 지금의 1분 리뷰가 이 매매를 나중에 값지게 만듭니다."
 
-#: src/app/(tabs)/(trades)/[id].tsx:336
+#: src/app/(tabs)/(trades)/[id].tsx:423
 msgid "Nothing logged yet. Note the setup and why you took it while it's fresh."
 msgstr "아직 기록이 없습니다. 기억이 생생할 때 셋업과 진입 이유를 남기세요."
 
@@ -2472,7 +2635,7 @@ msgstr "아직 기록이 없습니다. 기억이 생생할 때 셋업과 진입 
 msgid "Nothing matches the filters this week."
 msgstr "이번 주에는 필터에 맞는 항목이 없습니다."
 
-#: src/app/(tabs)/(trades)/[id].tsx:286
+#: src/app/(tabs)/(trades)/[id].tsx:373
 msgid "Notional"
 msgstr "명목 금액"
 
@@ -2508,8 +2671,8 @@ msgstr "온라인"
 #~ msgid "Only {0} was filled in — the file also had {others}. Load those separately."
 #~ msgstr "{0}만 입력했습니다 — 파일에 {others}도 있습니다. 따로 불러오세요."
 
-#: src/app/(tabs)/(trades)/[id].tsx:192
-#: src/app/(tabs)/(trades)/[id].tsx:273
+#: src/app/(tabs)/(trades)/[id].tsx:265
+#: src/app/(tabs)/(trades)/[id].tsx:360
 #: src/app/(tabs)/(trades)/index.tsx:261
 #: src/app/quick-journal.tsx:136
 #: src/components/performance-card.tsx:81
@@ -2517,7 +2680,7 @@ msgstr "온라인"
 msgid "Open"
 msgstr "오픈"
 
-#: src/app/(tabs)/(trades)/[id].tsx:82
+#: src/app/(tabs)/(trades)/[id].tsx:86
 msgid "OPEN"
 msgstr "진행 중"
 
@@ -2529,7 +2692,7 @@ msgstr "진입일 (엔트리)"
 msgid "Open risk rules"
 msgstr "리스크 규칙 열기"
 
-#: src/app/(tabs)/(trades)/[id].tsx:265
+#: src/app/(tabs)/(trades)/[id].tsx:352
 msgid "Opened"
 msgstr "진입"
 
@@ -2579,6 +2742,10 @@ msgstr "리스크 초과 ×{0}"
 msgid "Overconfidence"
 msgstr "과신"
 
+#: src/lib/trade-insights.ts:181
+msgid "Overconfidence often shows up as oversizing or ignoring your stop. Check whether conviction exceeded your edge on this setup."
+msgstr "과신은 과도한 규모나 스톱 무시로 나타납니다. 확신이 우위를 넘어서지 않았는지 확인하세요."
+
 #: src/components/reports/detailed-section.tsx:189
 msgid "Overnight"
 msgstr "오버나이트"
@@ -2587,7 +2754,7 @@ msgstr "오버나이트"
 msgid "Overview"
 msgstr "개요"
 
-#: src/app/(tabs)/(trades)/[id].tsx:206
+#: src/app/(tabs)/(trades)/[id].tsx:279
 #: src/components/reports/winloss-section.tsx:78
 msgid "P&L"
 msgstr "손익"
@@ -2660,6 +2827,7 @@ msgstr "{0} 계좌를 거래 및 입출금 기록과 함께 영구 삭제합니�
 msgid "Permanently deletes {tradeCount} trades and their executions from {0}."
 msgstr "{0}에서 거래 {tradeCount}건과 체결 내역을 영구 삭제합니다."
 
+#: src/app/(tabs)/(trades)/[id].tsx:160
 #: src/components/swipeable-trade-row.tsx:81
 msgid "Permanently deletes this trade and all of its fills. This cannot be undone."
 msgstr "이 트레이드와 모든 체결이 영구 삭제됩니다. 되돌릴 수 없습니다."
@@ -2682,7 +2850,7 @@ msgstr "먼저 계좌를 선택하세요."
 msgid "Plan"
 msgstr "계획"
 
-#: src/app/(tabs)/(trades)/[id].tsx:231
+#: src/app/(tabs)/(trades)/[id].tsx:304
 msgid "Plan & risk"
 msgstr "계획 및 리스크"
 
@@ -2716,7 +2884,7 @@ msgid "poor"
 msgstr "미흡"
 
 #: src/app/(tabs)/(reports)/r-calculator.tsx:271
-#: src/app/(tabs)/(trades)/[id].tsx:279
+#: src/app/(tabs)/(trades)/[id].tsx:366
 msgid "Position"
 msgstr "포지션"
 
@@ -2729,6 +2897,14 @@ msgstr "포지션 크기"
 #: src/app/(tabs)/(reports)/r-calculator.tsx:605
 msgid "Position value"
 msgstr "포지션 가치"
+
+#: src/app/(tabs)/(trades)/[id].tsx:340
+msgid "Post-exit MAE"
+msgstr "청산 후 MAE"
+
+#: src/app/(tabs)/(trades)/[id].tsx:333
+msgid "Post-exit MFE"
+msgstr "청산 후 MFE"
 
 #: src/components/reports/detailed-section.tsx:183
 msgid "Premarket"
@@ -2764,6 +2940,14 @@ msgstr "이전 해"
 msgid "Price"
 msgstr "가격"
 
+#: src/lib/trade-insights.ts:262
+msgid "Price kept going your way in the window after the close. If this repeats on this setup, consider a runner or a trailing stop."
+msgstr "청산 후에도 가격이 유리한 방향으로 이어졌습니다. 반복된다면 러너나 트레일링 스톱을 고려하세요."
+
+#: src/lib/trade-insights.ts:271
+msgid "Price moved against the position soon after you closed. Whatever triggered this exit is worth writing down."
+msgstr "청산 직후 가격이 불리하게 움직였습니다. 이 청산을 촉발한 요인을 기록해 둘 가치가 있습니다."
+
 #: src/app/(tabs)/(settings)/display.tsx:70
 msgid "Privacy"
 msgstr "개인정보 보호"
@@ -2771,6 +2955,10 @@ msgstr "개인정보 보호"
 #: src/app/(tabs)/(settings)/display.tsx:74
 msgid "Privacy mode"
 msgstr "프라이버시 모드"
+
+#: src/lib/trade-insights.ts:357
+msgid "Process and outcome aligned. Capture what you did right in review notes so you can repeat it."
+msgstr "프로세스와 결과가 일치했습니다. 잘한 점을 리뷰 노트에 남겨 재현하세요."
 
 #: src/app/(tabs)/(reports)/r-calculator.tsx:604
 msgid "Profit at target"
@@ -2795,7 +2983,7 @@ msgid "Put"
 msgstr "풋"
 
 #: src/app/(tabs)/(settings)/import-trades.tsx:39
-#: src/app/(tabs)/(trades)/[id].tsx:280
+#: src/app/(tabs)/(trades)/[id].tsx:367
 #: src/components/trade-form.tsx:418
 msgid "Quantity"
 msgstr "수량"
@@ -2812,13 +3000,17 @@ msgstr "빠른 필터"
 #~ msgid "Quick journal · {0}"
 #~ msgstr "빠른 저널 · {0}"
 
+#: src/lib/trade-insights.ts:344
+msgid "Quick loss — thesis failed fast"
+msgstr "빠른 손실 — 가설이 빠르게 무너짐"
+
 #: src/app/(tabs)/(reports)/_layout.tsx:55
 #: src/app/(tabs)/(reports)/r-calculator.tsx:624
 #: src/components/tools-menu.tsx:32
 msgid "R calculator"
 msgstr "R 계산기"
 
-#: src/app/(tabs)/(trades)/[id].tsx:242
+#: src/app/(tabs)/(trades)/[id].tsx:315
 msgid "R multiple"
 msgstr "R 배수"
 
@@ -2863,15 +3055,23 @@ msgstr "최근 이벤트"
 msgid "Recent trades"
 msgstr "최근 트레이드"
 
+#: src/app/(tabs)/(trades)/[id].tsx:229
+msgid "Recompute MAE/MFE"
+msgstr "MAE/MFE 다시 계산"
+
 #: src/app/(tabs)/(reports)/wrapped.tsx:186
 msgid "Red days"
 msgstr "손실일"
+
+#: src/components/coach-card.tsx:109
+msgid "Regenerate"
+msgstr "다시 생성"
 
 #: src/components/reports/detailed-section.tsx:185
 msgid "Regular hours"
 msgstr "정규장"
 
-#: src/app/(tabs)/(trades)/[id].tsx:282
+#: src/app/(tabs)/(trades)/[id].tsx:369
 msgid "Remaining"
 msgstr "잔여 수량"
 
@@ -2879,6 +3079,8 @@ msgstr "잔여 수량"
 #: src/app/(tabs)/(settings)/cash-form.tsx:154
 #: src/app/(tabs)/(settings)/risk-rules.tsx:75
 #: src/app/(tabs)/(settings)/risk-rules.tsx:86
+#: src/app/(tabs)/(trades)/[id].tsx:163
+#: src/components/attachments-card.tsx:90
 #: src/components/swipeable-trade-row.tsx:84
 #: src/components/swipeable-trade-row.tsx:136
 msgid "Remove"
@@ -2902,6 +3104,10 @@ msgstr "체결 삭제"
 msgid "Remove rule?"
 msgstr "규칙을 삭제할까요?"
 
+#: src/components/attachments-card.tsx:88
+msgid "Remove screenshot?"
+msgstr "스크린샷을 제거할까요?"
+
 #: src/components/trade-form.tsx:304
 msgid "Remove symbol"
 msgstr "종목 삭제"
@@ -2910,9 +3116,13 @@ msgstr "종목 삭제"
 msgid "Remove tier"
 msgstr "티어 제거"
 
-#: src/app/(tabs)/(trades)/index.tsx:115
-#~ msgid "Remove trade"
-#~ msgstr "트레이드 삭제"
+#: src/app/(tabs)/(trades)/[id].tsx:236
+msgid "Remove trade"
+msgstr "트레이드 삭제"
+
+#: src/app/(tabs)/(trades)/[id].tsx:159
+msgid "Remove trade?"
+msgstr "거래를 제거할까요?"
 
 #: src/app/(tabs)/(settings)/cash-form.tsx:216
 msgid "Remove transaction"
@@ -2958,13 +3168,13 @@ msgstr "수익률"
 msgid "Revenge trading"
 msgstr "복수 매매"
 
-#: src/app/(tabs)/(trades)/[id].tsx:293
+#: src/app/(tabs)/(trades)/[id].tsx:380
 #: src/app/quick-journal.tsx:71
 #: src/components/trade-form.tsx:692
 msgid "Review"
 msgstr "리뷰"
 
-#: src/app/(tabs)/(trades)/[id].tsx:328
+#: src/app/(tabs)/(trades)/[id].tsx:415
 #: src/app/quick-journal.tsx:81
 #: src/components/trade-form.tsx:718
 msgid "Review notes"
@@ -3011,6 +3221,14 @@ msgstr "리스크 규칙"
 #: src/app/(tabs)/(reports)/r-calculator.tsx:360
 msgid "risk-limited"
 msgstr "리스크 제한"
+
+#: src/lib/trade-insights.ts:149
+msgid "Risk, target, and stop are all empty. Without a plan you can't judge whether the loss was bad luck or bad process."
+msgstr "리스크·목표·스톱이 모두 비어 있습니다. 계획이 없으면 손실이 불운인지 나쁜 프로세스인지 판단할 수 없습니다."
+
+#: src/lib/trade-insights.ts:148
+msgid "Risk, target, and stop are blank — and you tagged this as no plan. Define all three before entry next time so you can measure R and review honestly."
+msgstr "리스크·목표·스톱이 비어 있고 스스로 '무계획' 태그를 달았습니다. 다음엔 진입 전에 셋 다 정해 R을 측정하고 정직하게 복기하세요."
 
 #: src/components/reports/winloss-section.tsx:117
 msgid "Rolling win rate"
@@ -3110,7 +3328,15 @@ msgstr "스캘핑"
 #~ msgid "Scanning…"
 #~ msgstr "스캔 중…"
 
-#: src/app/(tabs)/(trades)/[id].tsx:404
+#: src/lib/trade-insights.ts:367
+msgid "Scratch trade"
+msgstr "본전 거래"
+
+#: src/components/attachments-card.tsx:48
+msgid "Screenshot limit reached"
+msgstr "스크린샷 한도 도달"
+
+#: src/components/attachments-card.tsx:97
 msgid "Screenshots"
 msgstr "스크린샷"
 
@@ -3143,7 +3369,7 @@ msgstr "셀프 호스팅 — 거래 데이터는 내 서버에 저장됩니다."
 msgid "Sell"
 msgstr "매도"
 
-#: src/app/(tabs)/(trades)/[id].tsx:386
+#: src/app/(tabs)/(trades)/[id].tsx:475
 msgid "SELL"
 msgstr "매도"
 
@@ -3159,7 +3385,7 @@ msgstr "서버"
 msgid "Server URL"
 msgstr "서버 URL"
 
-#: src/app/(tabs)/(trades)/[id].tsx:307
+#: src/app/(tabs)/(trades)/[id].tsx:394
 #: src/components/trade-form.tsx:654
 msgid "Session"
 msgstr "세션"
@@ -3187,7 +3413,7 @@ msgstr "먼저 비전 스캔을 설정하세요"
 msgid "Settings"
 msgstr "설정"
 
-#: src/app/(tabs)/(trades)/[id].tsx:299
+#: src/app/(tabs)/(trades)/[id].tsx:386
 #: src/components/breakdown-card.tsx:24
 #: src/components/reports/overview-section.tsx:311
 msgid "Setup"
@@ -3197,7 +3423,7 @@ msgstr "셋업"
 msgid "Setup {grade}"
 msgstr "셋업 {grade}"
 
-#: src/app/(tabs)/(trades)/[id].tsx:322
+#: src/app/(tabs)/(trades)/[id].tsx:409
 #: src/app/manage-tags.tsx:117
 #: src/components/trade-form.tsx:668
 msgid "Setup rating"
@@ -3212,9 +3438,17 @@ msgstr "셋업"
 msgid "Setups restored"
 msgstr "복원된 셋업"
 
+#: src/app/(tabs)/(trades)/[id].tsx:226
+msgid "Share card"
+msgstr "카드 공유"
+
 #: src/app/(tabs)/(settings)/api-tokens.tsx:107
 msgid "Share token"
 msgstr "토큰 공유"
+
+#: src/components/share-card.tsx:79
+msgid "Share trade"
+msgstr "거래 공유"
 
 #: src/app/(tabs)/(reports)/r-calculator.tsx:354
 #: src/app/(tabs)/(reports)/r-calculator.tsx:594
@@ -3231,8 +3465,9 @@ msgstr "주식 수"
 msgid "Short"
 msgstr "숏"
 
-#: src/app/(tabs)/(trades)/[id].tsx:186
+#: src/app/(tabs)/(trades)/[id].tsx:259
 #: src/app/quick-journal.tsx:140
+#: src/components/share-card.tsx:39
 msgid "SHORT"
 msgstr "숏"
 
@@ -3311,7 +3546,7 @@ msgstr "주식 / 옵션"
 
 #: src/app/(tabs)/(reports)/r-calculator.tsx:324
 #: src/app/(tabs)/(reports)/r-calculator.tsx:596
-#: src/app/(tabs)/(trades)/[id].tsx:236
+#: src/app/(tabs)/(trades)/[id].tsx:309
 #: src/app/new-setup.tsx:162
 #: src/app/tool-position-size.tsx:87
 #: src/components/trade-form.tsx:629
@@ -3346,6 +3581,10 @@ msgstr "스톱 프리미엄은 진입 프리미엄보다 낮아야 합니다"
 msgid "Stop when today's realized loss hits this amount."
 msgstr "오늘 실현 손실이 이 금액에 도달하면 중단합니다."
 
+#: src/components/coach-card.tsx:25
+msgid "Strength"
+msgstr "강점"
+
 #: src/components/trade-form.tsx:547
 msgid "Strike"
 msgstr "행사가"
@@ -3353,6 +3592,10 @@ msgstr "행사가"
 #: src/app/(tabs)/(settings)/export-trades.tsx:128
 msgid "Strips the account name, broker, and IDs from the export — useful for sharing."
 msgstr "내보내기에서 계좌 이름, 증권사, ID를 제거합니다 — 공유할 때 유용합니다."
+
+#: src/lib/trade-insights.ts:355
+msgid "Strong +{r}R result"
+msgstr "+{r}R의 좋은 결과"
 
 #: src/components/reports/overview-section.tsx:175
 msgid "suggested risk"
@@ -3425,7 +3668,7 @@ msgstr "태그 이름을 입력하세요."
 #: src/app/(tabs)/(settings)/_layout.tsx:31
 #: src/app/(tabs)/(settings)/index.tsx:236
 #: src/app/(tabs)/(settings)/tags.tsx:122
-#: src/app/(tabs)/(trades)/[id].tsx:352
+#: src/app/(tabs)/(trades)/[id].tsx:439
 #: src/app/manage-tags.tsx:70
 #: src/components/reports/detailed-section.tsx:250
 #: src/components/trade-form.tsx:676
@@ -3445,7 +3688,7 @@ msgid "Tap a token to revoke it."
 msgstr "토큰을 탭하면 폐기할 수 있습니다."
 
 #: src/app/(tabs)/(reports)/r-calculator.tsx:598
-#: src/app/(tabs)/(trades)/[id].tsx:233
+#: src/app/(tabs)/(trades)/[id].tsx:306
 #: src/app/new-setup.tsx:152
 #: src/components/trade-form.tsx:622
 msgid "Target"
@@ -3466,6 +3709,10 @@ msgstr "연결 테스트"
 #: src/app/(tabs)/(settings)/ai.tsx:174
 msgid "Testing…"
 msgstr "테스트 중…"
+
+#: src/components/coach-card.tsx:92
+msgid "The AI review failed — try again."
+msgstr "AI 리뷰에 실패했습니다 — 다시 시도하세요."
 
 #: src/app/(tabs)/(settings)/ai.tsx:115
 msgid "The endpoint answered successfully."
@@ -3504,6 +3751,10 @@ msgstr "시작 잔고는 현금 원장의 첫 입금으로 저장됩니다."
 #~ msgid "The tag is removed from every trade that uses it."
 #~ msgstr "이 태그를 사용하는 모든 트레이드에서 제거됩니다."
 
+#: src/lib/trade-insights.ts:247
+msgid "The trade worked but closed well off its best point. Note what would have kept you in for the next similar setup."
+msgstr "거래는 통했지만 최고점에서 한참 떨어져 청산했습니다. 다음 유사 셋업에서 버틸 수 있었을 조건을 메모하세요."
+
 #: src/app/new-setup.tsx:130
 msgid "Thesis"
 msgstr "가설"
@@ -3512,6 +3763,10 @@ msgstr "가설"
 msgid "This cannot be undone."
 msgstr "이 작업은 되돌릴 수 없습니다."
 
+#: src/lib/trade-insights.ts:283
+msgid "This is more than a normal stop-out. Check for oversizing, moving the stop, or averaging down against your rules."
+msgstr "일반적인 스톱아웃을 넘어섰습니다. 과도한 규모, 스톱 이동, 규칙 위반 물타기가 없었는지 확인하세요."
+
 #: src/app/(tabs)/(trades)/index.tsx:267
 msgid "This month"
 msgstr "이번 달"
@@ -3519,6 +3774,11 @@ msgstr "이번 달"
 #: src/app/(tabs)/(settings)/cash-form.tsx:152
 msgid "This permanently deletes the ledger entry."
 msgstr "이 원장 항목이 영구적으로 삭제됩니다."
+
+#. placeholder {0}: trade.attachments.length
+#: src/components/attachments-card.tsx:49
+msgid "This trade already has {0} screenshots — raise the cap under Settings → Display."
+msgstr "이 거래에는 이미 스크린샷이 {0}장 있습니다 — 설정 → 표시에서 한도를 올리세요."
 
 #: src/app/(tabs)/(trades)/index.tsx:266
 msgid "This week"
@@ -3549,13 +3809,17 @@ msgstr "시간 형식"
 msgid "Time in the market"
 msgstr "시장 체류 시간"
 
-#: src/app/(tabs)/(trades)/[id].tsx:276
+#: src/app/(tabs)/(trades)/[id].tsx:363
 msgid "Time in trade"
 msgstr "보유 시간"
 
-#: src/app/(tabs)/(trades)/[id].tsx:263
+#: src/app/(tabs)/(trades)/[id].tsx:350
 msgid "Timing"
 msgstr "타이밍"
+
+#: src/components/coach-card.tsx:27
+msgid "Tip"
+msgstr "팁"
 
 #: src/components/note-form.tsx:80
 msgid "Title"
@@ -3612,9 +3876,13 @@ msgstr "주요 종목"
 msgid "Total"
 msgstr "합계"
 
-#: src/app/(tabs)/(trades)/[id].tsx:223
+#: src/app/(tabs)/(trades)/[id].tsx:296
 msgid "Total P&L"
 msgstr "총 손익"
+
+#: src/app/(tabs)/(trades)/[id].tsx:216
+msgid "Trade actions"
+msgstr "거래 작업"
 
 #: src/app/(tabs)/(settings)/display.tsx:159
 msgid "Trade date basis"
@@ -3624,7 +3892,7 @@ msgstr "거래 날짜 기준"
 msgid "Trade history cleared"
 msgstr "거래 기록을 지웠습니다"
 
-#: src/app/(tabs)/(trades)/[id].tsx:112
+#: src/app/(tabs)/(trades)/[id].tsx:113
 #: src/app/edit-trade.tsx:101
 #: src/app/quick-journal.tsx:159
 msgid "Trade not found"
@@ -3707,6 +3975,11 @@ msgstr "제목 없음"
 #~ msgid "Upload CSV / JSON"
 #~ msgstr "CSV / JSON 업로드"
 
+#. placeholder {0}: response.status
+#: src/components/attachments-card.tsx:76
+msgid "Upload failed ({0})"
+msgstr "업로드 실패 ({0})"
+
 #: src/app/(tabs)/(settings)/checklist.tsx:60
 msgid "Use \"- [ ]\" for each rule — those lines appear as task items when you create a daily log on New Note."
 msgstr "각 규칙에 \"- [ ]\"를 사용하세요 — 새 노트에서 데일리 로그를 만들면 작업 항목으로 표시됩니다."
@@ -3749,6 +4022,10 @@ msgstr "비전 스캔"
 msgid "Wash"
 msgstr "무승부"
 
+#: src/components/coach-card.tsx:23
+msgid "Watch"
+msgstr "주의"
+
 #: src/app/(tabs)/(reports)/heatmap.tsx:30
 msgid "Wed"
 msgstr "수"
@@ -3785,7 +4062,7 @@ msgstr "왜 진입했습니까?"
 msgid "Why did you exit?"
 msgstr "왜 청산했습니까?"
 
-#: src/app/(tabs)/(trades)/[id].tsx:78
+#: src/app/(tabs)/(trades)/[id].tsx:82
 msgid "WIN"
 msgstr "수익"
 
@@ -3846,7 +4123,7 @@ msgstr "최장 연패"
 msgid "Worst trade"
 msgstr "최대 손실 트레이드"
 
-#: src/app/(tabs)/(trades)/[id].tsx:341
+#: src/app/(tabs)/(trades)/[id].tsx:428
 msgid "Write review"
 msgstr "리뷰 작성"
 
@@ -3854,6 +4131,10 @@ msgstr "리뷰 작성"
 #: src/app/new-note.tsx:41
 msgid "Write something first."
 msgstr "먼저 내용을 작성하세요."
+
+#: src/lib/trade-insights.ts:159
+msgid "Write why you entered while it's fresh. Future you needs the thesis, not just the P&L."
+msgstr "기억이 생생할 때 진입 이유를 쓰세요. 미래의 나에게 필요한 건 손익이 아니라 가설입니다."
 
 #: src/app/(tabs)/(calendar)/index.tsx:197
 msgid "Year"
@@ -3868,6 +4149,29 @@ msgstr "Year Wrapped"
 #: src/app/(tabs)/(dashboard)/notes.tsx:39
 msgid "Yesterday"
 msgstr "어제"
+
+#: src/lib/trade-insights.ts:228
+msgid "You captured {pct}% of MFE. Review your exit trigger — trailing stop or partial targets may fit this setup better."
+msgstr "MFE의 {pct}%만 가져갔습니다. 청산 트리거를 점검하세요 — 트레일링 스톱이나 부분 청산이 더 맞을 수 있습니다."
+
+#: src/lib/trade-insights.ts:379
+msgid "You flagged this yourself — add one concrete rule in review notes to prevent the same mistake."
+msgstr "스스로 표시한 실수입니다 — 같은 실수를 막을 구체적 규칙 하나를 리뷰 노트에 추가하세요."
+
+#. placeholder {0}: insights.setupGrade
+#: src/lib/trade-insights.ts:335
+msgid "You marked setup {0}. Filter similar B/C setups from your playbook or tighten entry criteria."
+msgstr "셋업을 {0}으로 평가했습니다. 유사한 B/C 셋업을 플레이북에서 거르거나 진입 기준을 조이세요."
+
+#: src/lib/trade-insights.ts:192
+msgid "You may have cut a winner early. Check MFE vs net — if you left meaningful profit, work on hold rules for this setup."
+msgstr "수익 거래를 일찍 끊었을 수 있습니다. MFE와 순손익을 비교해 의미 있는 이익을 남겼다면 보유 규칙을 다듬으세요."
+
+#. placeholder {0}: insights.setupGrade
+#. placeholder {1}: insights.executionGrade
+#: src/lib/trade-insights.ts:325
+msgid "You rated the setup {0} but execution {1}. The idea may be fine — focus on entries, sizing, and stop discipline."
+msgstr "셋업은 {0}, 실행은 {1}로 평가했습니다. 아이디어는 좋을 수 있으니 진입·규모·스톱 규율에 집중하세요."
 
 #: src/app/(tabs)/(settings)/index.tsx:148
 msgid "You will need to sign in again to reach this server."

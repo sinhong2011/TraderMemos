@@ -1,16 +1,20 @@
-import { Image } from 'expo-image';
-import { SymbolView } from 'expo-symbols';
+import { Button as UIButton, Host, Image as UIImage, Menu } from '@expo/ui/swift-ui';
+import { accessibilityLabel, buttonStyle, tint as tintModifier } from '@expo/ui/swift-ui/modifiers';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
 import type { ReactNode } from 'react';
-import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
+import { Alert, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
-import { useTrade } from '@/api/hooks';
-import { useSession } from '@/api/session';
+import { queryKeys, useApiRequest, useTrade } from '@/api/hooks';
+import type { ExcursionResult, TradeDetail } from '@/api/types';
+import { AttachmentsCard } from '@/components/attachments-card';
+import { CoachCard } from '@/components/coach-card';
 import { DashboardCard } from '@/components/dashboard-card';
 import { GlassButton } from '@/components/glass-button';
 import { Pill } from '@/components/pill';
+import { useTradeShare } from '@/components/share-card';
 import { Skeleton } from '@/components/skeleton';
 import { TradeChart } from '@/components/trade-chart';
 import { t } from '@lingui/core/macro';
@@ -87,9 +91,6 @@ function statusLabel(label: ReturnType<typeof tradeStatus>['label']): string {
 
 export default function TradeDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { theme } = useUnistyles();
-  const { session } = useSession();
-  const router = useRouter();
   const { data: trade, isLoading, error, refetch, isRefetching } = useTrade(id);
 
   if (isLoading) {
@@ -112,6 +113,55 @@ export default function TradeDetailScreen() {
           {error?.message ?? t`Trade not found`}
         </Text>
       </View>
+    );
+  }
+
+  return <TradeDetailBody trade={trade} refetch={refetch} isRefetching={isRefetching} />;
+}
+
+/** Inner body — mutations and share plumbing need the loaded trade in scope. */
+function TradeDetailBody({
+  trade,
+  refetch,
+  isRefetching,
+}: {
+  trade: TradeDetail;
+  refetch: () => Promise<unknown>;
+  isRefetching: boolean;
+}) {
+  const { theme } = useUnistyles();
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const api = useApiRequest();
+  const { shareView, share } = useTradeShare(trade);
+
+  // MAE/MFE from market bars — the server persists the result into the journal.
+  const excursion = useMutation({
+    mutationFn: () => api<ExcursionResult>(`/trades/${trade.id}/excursion`, { method: 'POST' }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.trade(trade.id) });
+    },
+    onError: (err) => Alert.alert(t`Could not compute excursion`, err.message),
+  });
+  const canExcursion = trade.status === 'closed' && trade.instrument_type !== 'option';
+
+  const remove = useMutation({
+    mutationFn: () => api<void>(`/trades/${trade.id}`, { method: 'DELETE' }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries();
+      router.back();
+    },
+    onError: (err) => Alert.alert(t`Could not delete`, err.message),
+  });
+
+  function confirmDelete() {
+    Alert.alert(
+      t`Remove trade?`,
+      t`Permanently deletes this trade and all of its fills. This cannot be undone.`,
+      [
+        { text: t`Cancel`, style: 'cancel' },
+        { text: t`Remove`, style: 'destructive', onPress: () => remove.mutate() },
+      ],
     );
   }
 
@@ -157,15 +207,38 @@ export default function TradeDetailScreen() {
         options={{
           title: trade.symbol,
           headerRight: () => (
-            <Pressable
-              onPress={() => router.push({ pathname: '/edit-trade', params: { id: trade.id } })}
-              hitSlop={10}
-              accessibilityRole="button"
-              accessibilityLabel={t`Edit trade`}
-              style={({ pressed }) => [styles.editButton, pressed && styles.pressed]}
-            >
-              <SymbolView name="pencil" size={15} tintColor={theme.colors.foreground} />
-            </Pressable>
+            <Host matchContents>
+              <Menu
+                label={<UIImage systemName="ellipsis.circle" size={17} />}
+                modifiers={[
+                  buttonStyle('plain'),
+                  tintModifier(theme.colors.foreground),
+                  accessibilityLabel(t`Trade actions`),
+                ]}
+              >
+                <UIButton
+                  label={t`Edit trade`}
+                  systemImage="pencil"
+                  onPress={() =>
+                    router.push({ pathname: '/edit-trade', params: { id: trade.id } })
+                  }
+                />
+                <UIButton label={t`Share card`} systemImage="square.and.arrow.up" onPress={share} />
+                {canExcursion ? (
+                  <UIButton
+                    label={t`Recompute MAE/MFE`}
+                    systemImage="waveform.path.ecg"
+                    onPress={() => excursion.mutate()}
+                  />
+                ) : null}
+                <UIButton
+                  role="destructive"
+                  label={t`Remove trade`}
+                  systemImage="trash"
+                  onPress={confirmDelete}
+                />
+              </Menu>
+            </Host>
           ),
         }}
       />
@@ -253,6 +326,20 @@ export default function TradeDetailScreen() {
                 label={t`MFE`}
                 value={formatCurrency(trade.mfe, currency)}
                 tint={theme.colors.profit}
+              />
+            ) : null}
+            {trade.post_exit_mfe != null ? (
+              <Row
+                label={t`Post-exit MFE`}
+                value={formatCurrency(trade.post_exit_mfe, currency)}
+                tint={theme.colors.profit}
+              />
+            ) : null}
+            {trade.post_exit_mae != null ? (
+              <Row
+                label={t`Post-exit MAE`}
+                value={formatCurrency(trade.post_exit_mae, currency)}
+                tint={theme.colors.loss}
               />
             ) : null}
           </DashboardCard>
@@ -368,6 +455,8 @@ export default function TradeDetailScreen() {
           </DashboardCard>
         ) : null}
 
+        <CoachCard trade={trade} />
+
         {trade.fills.length > 0 ? (
           <DashboardCard title={t`Executions`}>
             {trade.fills.map((fill) => {
@@ -400,26 +489,9 @@ export default function TradeDetailScreen() {
           </DashboardCard>
         ) : null}
 
-        {trade.attachments.length > 0 && session ? (
-          <DashboardCard title={t`Screenshots`}>
-            <View style={styles.shots}>
-              {trade.attachments.map((att) => (
-                <Image
-                  key={att.id}
-                  source={{
-                    uri: new URL(`/api/v1/attachments/${att.id}/file`, session.serverUrl).toString(),
-                    headers: { Authorization: `Bearer ${session.accessToken}` },
-                  }}
-                  style={styles.shot}
-                  contentFit="cover"
-                  transition={150}
-                  accessibilityLabel={att.filename}
-                />
-              ))}
-            </View>
-          </DashboardCard>
-        ) : null}
+        <AttachmentsCard trade={trade} />
       </ScrollView>
+      {shareView}
     </>
   );
 }
