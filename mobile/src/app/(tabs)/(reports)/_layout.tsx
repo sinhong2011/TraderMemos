@@ -31,10 +31,14 @@ export default function ReportsLayout() {
         headerBackButtonDisplayMode: 'minimal',
       }}
     >
+      {/* No large title — the tab bar already says Reports, and the segmented
+          section switcher wants the vertical room. The bar still hosts the
+          account scope and the tools / display menus. */}
       <Stack.Screen
         name="index"
         options={{
-          title: t`Reports`,
+          title: '',
+          headerLargeTitle: false,
           headerLeft: () => <AccountMenu />,
           headerRight: () => (
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>

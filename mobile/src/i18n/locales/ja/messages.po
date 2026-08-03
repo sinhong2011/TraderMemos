@@ -544,7 +544,7 @@ msgid "All"
 msgstr "すべて"
 
 #: src/components/account-menu.tsx:38
-#: src/components/account-menu.tsx:69
+#: src/components/account-menu.tsx:67
 msgid "All accounts"
 msgstr "すべての口座"
 
@@ -916,7 +916,7 @@ msgstr "入出金"
 msgid "cash-limited"
 msgstr "資金制約"
 
-#: src/app/(tabs)/(reports)/_layout.tsx:59
+#: src/app/(tabs)/(reports)/_layout.tsx:63
 #: src/app/(tabs)/(reports)/advanced-chart.tsx:111
 #: src/components/trade-chart.tsx:112
 msgid "Chart"
@@ -1510,7 +1510,7 @@ msgstr "例: メイン口座"
 msgid "Each point is the win rate across the trailing {windowSize} closed trades."
 msgstr "各ポイントは直近{windowSize}件の決済済みトレードの勝率です。"
 
-#: src/app/(tabs)/(reports)/_layout.tsx:49
+#: src/app/(tabs)/(reports)/_layout.tsx:53
 #: src/app/(tabs)/(reports)/economic-events.tsx:103
 #: src/components/reports/overview-section.tsx:529
 msgid "Economic calendar"
@@ -2965,7 +2965,7 @@ msgstr "損益"
 msgid "P&L basis"
 msgstr "損益基準"
 
-#: src/app/(tabs)/(reports)/_layout.tsx:51
+#: src/app/(tabs)/(reports)/_layout.tsx:55
 #: src/app/(tabs)/(reports)/heatmap.tsx:72
 #: src/components/reports/overview-section.tsx:534
 msgid "P&L heatmap"
@@ -3243,7 +3243,7 @@ msgstr "クイックフィルター"
 msgid "Quick loss — thesis failed fast"
 msgstr "即損切り — シナリオが早期に崩壊"
 
-#: src/app/(tabs)/(reports)/_layout.tsx:55
+#: src/app/(tabs)/(reports)/_layout.tsx:59
 #: src/app/(tabs)/(reports)/r-calculator.tsx:624
 #: src/components/tools-menu.tsx:32
 msgid "R calculator"
@@ -3428,7 +3428,6 @@ msgid "Report an issue"
 msgstr "問題を報告"
 
 #: src/app/(tabs)/_layout.tsx:50
-#: src/app/(tabs)/(reports)/_layout.tsx:37
 msgid "Reports"
 msgstr "レポート"
 
@@ -3937,7 +3936,7 @@ msgid "Swing"
 msgstr "スイング"
 
 #: src/components/account-menu.tsx:49
-#: src/components/account-menu.tsx:65
+#: src/components/account-menu.tsx:62
 msgid "Switch account"
 msgstr "口座を切り替え"
 
@@ -4500,7 +4499,7 @@ msgstr "記憶が新しいうちにエントリー理由を書きましょう。
 msgid "Year"
 msgstr "年"
 
-#: src/app/(tabs)/(reports)/_layout.tsx:52
+#: src/app/(tabs)/(reports)/_layout.tsx:56
 #: src/app/(tabs)/(reports)/wrapped.tsx:62
 #: src/components/reports/overview-section.tsx:539
 msgid "Year Wrapped"

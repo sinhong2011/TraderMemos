@@ -1,5 +1,5 @@
-import { Button as UIButton, Host, Image as UIImage, Menu } from '@expo/ui/swift-ui';
-import { accessibilityLabel, buttonStyle, tint } from '@expo/ui/swift-ui/modifiers';
+import { Button as UIButton, Host, Menu } from '@expo/ui/swift-ui';
+import { labelStyle, tint } from '@expo/ui/swift-ui/modifiers';
 import { SymbolView } from 'expo-symbols';
 import { Alert, Platform, Pressable } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -56,14 +56,12 @@ export function AccountMenu() {
 
   return (
     <Host matchContents>
+      {/* String label + iconOnly, like TradeFilterMenu — a UIImage label
+          measured to zero in headerLeft and never took taps. */}
       <Menu
-        label={<UIImage systemName={icon} size={17} />}
-        modifiers={[
-          buttonStyle('plain'),
-          // Menu triggers default to the accent tint — keep the glyph neutral.
-          tint(theme.colors.foreground),
-          accessibilityLabel(t`Switch account`),
-        ]}
+        label={t`Switch account`}
+        systemImage={icon}
+        modifiers={[labelStyle('iconOnly'), tint(theme.colors.foreground)]}
       >
         <UIButton
           label={t`All accounts`}

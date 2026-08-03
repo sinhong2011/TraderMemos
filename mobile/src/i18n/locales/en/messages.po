@@ -544,7 +544,7 @@ msgid "All"
 msgstr "All"
 
 #: src/components/account-menu.tsx:38
-#: src/components/account-menu.tsx:69
+#: src/components/account-menu.tsx:67
 msgid "All accounts"
 msgstr "All accounts"
 
@@ -916,7 +916,7 @@ msgstr "Cash transactions"
 msgid "cash-limited"
 msgstr "cash-limited"
 
-#: src/app/(tabs)/(reports)/_layout.tsx:59
+#: src/app/(tabs)/(reports)/_layout.tsx:63
 #: src/app/(tabs)/(reports)/advanced-chart.tsx:111
 #: src/components/trade-chart.tsx:112
 msgid "Chart"
@@ -1510,7 +1510,7 @@ msgstr "e.g. Main Account"
 msgid "Each point is the win rate across the trailing {windowSize} closed trades."
 msgstr "Each point is the win rate across the trailing {windowSize} closed trades."
 
-#: src/app/(tabs)/(reports)/_layout.tsx:49
+#: src/app/(tabs)/(reports)/_layout.tsx:53
 #: src/app/(tabs)/(reports)/economic-events.tsx:103
 #: src/components/reports/overview-section.tsx:529
 msgid "Economic calendar"
@@ -2965,7 +2965,7 @@ msgstr "P&L"
 msgid "P&L basis"
 msgstr "P&L basis"
 
-#: src/app/(tabs)/(reports)/_layout.tsx:51
+#: src/app/(tabs)/(reports)/_layout.tsx:55
 #: src/app/(tabs)/(reports)/heatmap.tsx:72
 #: src/components/reports/overview-section.tsx:534
 msgid "P&L heatmap"
@@ -3245,7 +3245,7 @@ msgstr "Quick filters"
 msgid "Quick loss — thesis failed fast"
 msgstr "Quick loss — thesis failed fast"
 
-#: src/app/(tabs)/(reports)/_layout.tsx:55
+#: src/app/(tabs)/(reports)/_layout.tsx:59
 #: src/app/(tabs)/(reports)/r-calculator.tsx:624
 #: src/components/tools-menu.tsx:32
 msgid "R calculator"
@@ -3430,7 +3430,6 @@ msgid "Report an issue"
 msgstr "Report an issue"
 
 #: src/app/(tabs)/_layout.tsx:50
-#: src/app/(tabs)/(reports)/_layout.tsx:37
 msgid "Reports"
 msgstr "Reports"
 
@@ -3939,7 +3938,7 @@ msgid "Swing"
 msgstr "Swing"
 
 #: src/components/account-menu.tsx:49
-#: src/components/account-menu.tsx:65
+#: src/components/account-menu.tsx:62
 msgid "Switch account"
 msgstr "Switch account"
 
@@ -4502,7 +4501,7 @@ msgstr "Write why you entered while it's fresh. Future you needs the thesis, not
 msgid "Year"
 msgstr "Year"
 
-#: src/app/(tabs)/(reports)/_layout.tsx:52
+#: src/app/(tabs)/(reports)/_layout.tsx:56
 #: src/app/(tabs)/(reports)/wrapped.tsx:62
 #: src/components/reports/overview-section.tsx:539
 msgid "Year Wrapped"

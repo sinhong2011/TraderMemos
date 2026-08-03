@@ -7,10 +7,11 @@
 
 import { useQueryClient } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
-import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
+import { RefreshControl, ScrollView, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { useAccounts } from '@/api/hooks';
+import { Segmented } from '@/components/segmented';
 import type { Filters } from '@/api/types';
 import type { ReportsSection } from '@/app/(tabs)/(reports)/index';
 import { useSelectedAccountId } from '@/lib/account-store';
@@ -63,49 +64,7 @@ export function useReportsMoney(): ReportsMoneyContext {
 
 export type SectionOption = { value: ReportsSection; label: string };
 
-/** Horizontal single-select chip rail — the section switcher. */
-function SectionChips({
-  sections,
-  section,
-  onSection,
-}: {
-  sections: SectionOption[];
-  section: ReportsSection;
-  onSection: (section: ReportsSection) => void;
-}) {
-  return (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={styles.chipRow}
-      style={styles.chipRail}
-    >
-      {sections.map((option) => {
-        const active = option.value === section;
-        return (
-          <Pressable
-            key={option.value}
-            onPress={() => onSection(option.value)}
-            hitSlop={{ top: 6, bottom: 6 }}
-            accessibilityRole="radio"
-            accessibilityState={{ selected: active }}
-            style={({ pressed }) => [
-              styles.chip,
-              active && styles.chipActive,
-              pressed && styles.pressed,
-            ]}
-          >
-            <Text style={[styles.chipLabel, active && styles.chipLabelActive]} numberOfLines={1}>
-              {option.label}
-            </Text>
-          </Pressable>
-        );
-      })}
-    </ScrollView>
-  );
-}
-
-/** Page scaffold: chip rail on top of a pull-to-refresh card stack. */
+/** Page scaffold: native segmented switcher over a pull-to-refresh card stack. */
 export function SectionScaffold({
   sections,
   section,
@@ -129,7 +88,11 @@ export function SectionScaffold({
         <RefreshControl refreshing={refreshing} onRefresh={() => void queryClient.invalidateQueries()} />
       }
     >
-      <SectionChips sections={sections} section={section} onSection={onSection} />
+      {/* iOS 26 segmented control — SwiftUI compresses five labels cleanly,
+          where a chip rail read as tag buttons and scrolled off-screen. */}
+      <View style={styles.segment}>
+        <Segmented options={sections} value={section} onChange={onSection} />
+      </View>
       <View style={styles.stack}>{children}</View>
     </ScrollView>
   );
@@ -141,30 +104,10 @@ const styles = StyleSheet.create((theme) => ({
     paddingTop: theme.spacing.sm,
     paddingBottom: theme.spacing.xl * 2,
   },
-  // The rail bleeds to the screen edge; chips keep the page gutter.
-  chipRail: { flexGrow: 0 },
-  chipRow: {
-    flexDirection: 'row',
-    gap: theme.spacing.sm,
+  segment: {
     paddingHorizontal: theme.spacing.lg,
-    paddingBottom: theme.spacing.xs,
+    alignItems: 'center',
   },
-  chip: {
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: 7,
-    borderRadius: theme.radius.full,
-    borderCurve: 'continuous',
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    backgroundColor: 'transparent',
-  },
-  chipActive: {
-    backgroundColor: theme.colors.card,
-    borderColor: theme.colors.input,
-  },
-  pressed: { opacity: 0.6 },
-  chipLabel: { fontSize: 13, fontWeight: '500', color: theme.colors.mutedForeground },
-  chipLabelActive: { color: theme.colors.foreground, fontWeight: '600' },
   stack: {
     padding: theme.spacing.lg,
     paddingTop: theme.spacing.md,

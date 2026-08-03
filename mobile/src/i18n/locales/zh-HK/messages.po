@@ -544,7 +544,7 @@ msgid "All"
 msgstr "全部"
 
 #: src/components/account-menu.tsx:38
-#: src/components/account-menu.tsx:69
+#: src/components/account-menu.tsx:67
 msgid "All accounts"
 msgstr "所有帳戶"
 
@@ -916,7 +916,7 @@ msgstr "資金往來"
 msgid "cash-limited"
 msgstr "受現金限制"
 
-#: src/app/(tabs)/(reports)/_layout.tsx:59
+#: src/app/(tabs)/(reports)/_layout.tsx:63
 #: src/app/(tabs)/(reports)/advanced-chart.tsx:111
 #: src/components/trade-chart.tsx:112
 msgid "Chart"
@@ -1510,7 +1510,7 @@ msgstr "例如：主帳戶"
 msgid "Each point is the win rate across the trailing {windowSize} closed trades."
 msgstr "每點代表最近 {windowSize} 筆已平倉交易的勝率。"
 
-#: src/app/(tabs)/(reports)/_layout.tsx:49
+#: src/app/(tabs)/(reports)/_layout.tsx:53
 #: src/app/(tabs)/(reports)/economic-events.tsx:103
 #: src/components/reports/overview-section.tsx:529
 msgid "Economic calendar"
@@ -2965,7 +2965,7 @@ msgstr "損益"
 msgid "P&L basis"
 msgstr "盈虧基準"
 
-#: src/app/(tabs)/(reports)/_layout.tsx:51
+#: src/app/(tabs)/(reports)/_layout.tsx:55
 #: src/app/(tabs)/(reports)/heatmap.tsx:72
 #: src/components/reports/overview-section.tsx:534
 msgid "P&L heatmap"
@@ -3243,7 +3243,7 @@ msgstr "快速篩選"
 msgid "Quick loss — thesis failed fast"
 msgstr "快速虧損 — 論點迅速失效"
 
-#: src/app/(tabs)/(reports)/_layout.tsx:55
+#: src/app/(tabs)/(reports)/_layout.tsx:59
 #: src/app/(tabs)/(reports)/r-calculator.tsx:624
 #: src/components/tools-menu.tsx:32
 msgid "R calculator"
@@ -3428,7 +3428,6 @@ msgid "Report an issue"
 msgstr "回報問題"
 
 #: src/app/(tabs)/_layout.tsx:50
-#: src/app/(tabs)/(reports)/_layout.tsx:37
 msgid "Reports"
 msgstr "報表"
 
@@ -3937,7 +3936,7 @@ msgid "Swing"
 msgstr "波段"
 
 #: src/components/account-menu.tsx:49
-#: src/components/account-menu.tsx:65
+#: src/components/account-menu.tsx:62
 msgid "Switch account"
 msgstr "切換帳戶"
 
@@ -4500,7 +4499,7 @@ msgstr "趁記憶猶新寫下入場原因。未來的你需要的是論點，不
 msgid "Year"
 msgstr "年"
 
-#: src/app/(tabs)/(reports)/_layout.tsx:52
+#: src/app/(tabs)/(reports)/_layout.tsx:56
 #: src/app/(tabs)/(reports)/wrapped.tsx:62
 #: src/components/reports/overview-section.tsx:539
 msgid "Year Wrapped"
