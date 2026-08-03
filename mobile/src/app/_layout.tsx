@@ -110,6 +110,7 @@ export default function RootLayout() {
                 Cancel/Save chrome, leaving no way to save the entry. */}
             <Stack.Screen name="quick-journal" options={{ presentation: 'modal' }} />
             <Stack.Screen name="new-note" options={{ presentation: 'modal' }} />
+            <Stack.Screen name="edit-note" options={{ presentation: 'modal' }} />
             <Stack.Screen name="new-setup" options={{ presentation: 'modal' }} />
           </Stack>
         </ThemeProvider>

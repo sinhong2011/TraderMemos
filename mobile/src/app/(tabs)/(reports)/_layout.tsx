@@ -36,6 +36,12 @@ export default function ReportsLayout() {
           headerRight: () => <HeaderFilterMenu />,
         }}
       />
+      <Stack.Screen
+        name="economic-events"
+        options={{ title: t`Economic calendar`, headerLargeTitle: false }}
+      />
+      <Stack.Screen name="heatmap" options={{ title: t`P&L heatmap`, headerLargeTitle: false }} />
+      <Stack.Screen name="wrapped" options={{ title: t`Year Wrapped`, headerLargeTitle: false }} />
     </Stack>
   );
 }
