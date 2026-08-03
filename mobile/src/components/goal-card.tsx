@@ -4,6 +4,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { DashboardCard } from '@/components/dashboard-card';
 import { t } from '@lingui/core/macro';
 import { formatCurrency, formatPercent, formatPnl } from '@/lib/format';
+import { useDisplayPrefs } from '@/lib/prefs';
 import { pnlColor } from '@/styles/unistyles';
 
 /**
@@ -15,13 +16,18 @@ export function GoalCard({
   goalAmount,
   ytdNetPnl,
   currency,
+  fxRate = 1,
 }: {
   year: number;
   goalAmount: number;
   ytdNetPnl: number;
   currency: string;
+  /** Base→display conversion applied before formatting (1 = account currency). */
+  fxRate?: number;
 }) {
   const { theme } = useUnistyles();
+  // Re-render when privacy mode flips — formatters read it at call time.
+  useDisplayPrefs();
   const progress = goalAmount > 0 ? ytdNetPnl / goalAmount : 0;
   const clamped = Math.min(1, Math.max(0, progress));
 
@@ -29,9 +35,9 @@ export function GoalCard({
     <DashboardCard title={t`${year} goal`}>
       <View style={styles.row}>
         <Text selectable style={[styles.ytd, { color: pnlColor(theme.colors, ytdNetPnl) }]}>
-          {formatPnl(ytdNetPnl, currency)}
+          {formatPnl(ytdNetPnl * fxRate, currency)}
         </Text>
-        <Text style={styles.target}>{t`of ${formatCurrency(goalAmount, currency)}`}</Text>
+        <Text style={styles.target}>{t`of ${formatCurrency(goalAmount * fxRate, currency)}`}</Text>
       </View>
       <View style={styles.track}>
         <View style={[styles.fill, { width: `${clamped * 100}%` }]} />

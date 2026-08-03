@@ -7,6 +7,7 @@ import { t } from '@lingui/core/macro';
 import { locale } from '@/i18n';
 import { monthGrid } from '@/lib/calendar';
 import { formatPnlCompact } from '@/lib/format';
+import { useDisplayPrefs } from '@/lib/prefs';
 import { pnlBgTint, pnlColor } from '@/styles/unistyles';
 
 /** Sun-first narrow weekday letters in the app locale (avoids S/T msgid collisions). */
@@ -22,6 +23,7 @@ export function MiniCalendarCard({
   month,
   dailyPnl,
   currency,
+  fxRate = 1,
   onOpenCalendar,
 }: {
   year: number;
@@ -29,9 +31,13 @@ export function MiniCalendarCard({
   month: number;
   dailyPnl: DailyPnl;
   currency: string;
+  /** Base→display conversion applied before formatting (1 = account currency). */
+  fxRate?: number;
   onOpenCalendar?: () => void;
 }) {
   const { theme } = useUnistyles();
+  // Re-render when privacy mode flips — formatters read it at call time.
+  useDisplayPrefs();
   const grid = monthGrid(year, month, dailyPnl);
   const now = new Date();
   const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
@@ -87,7 +93,7 @@ export function MiniCalendarCard({
                       numberOfLines={1}
                       adjustsFontSizeToFit
                     >
-                      {formatPnlCompact(cell.pnl, currency)}
+                      {formatPnlCompact(cell.pnl! * fxRate, currency)}
                     </Text>
                   ) : null}
                 </View>
@@ -100,7 +106,7 @@ export function MiniCalendarCard({
       <Text style={styles.total}>
         {t`Total`}{' '}
         <Text style={[styles.totalValue, { color: pnlColor(theme.colors, grid.monthTotal) }]}>
-          {formatPnlCompact(grid.monthTotal, currency)}
+          {formatPnlCompact(grid.monthTotal * fxRate, currency)}
         </Text>
       </Text>
     </DashboardCard>

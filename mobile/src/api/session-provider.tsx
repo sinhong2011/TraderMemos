@@ -10,6 +10,7 @@ import {
   type Session,
   type SessionContextValue,
 } from './session';
+import { clearSelectedAccount } from '@/lib/account-store';
 
 export function SessionProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
@@ -36,6 +37,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
   const signOut = useCallback(async () => {
     await clearTokens();
+    // The account scope belongs to the session that picked it.
+    clearSelectedAccount();
     setSession(null);
   }, []);
 

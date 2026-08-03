@@ -274,6 +274,11 @@ export default function SettingsScreen() {
           title={t`Behavior`}
           footer={<UIText>{t`Language is set per app in iOS Settings.`}</UIText>}
         >
+          <Button
+            systemImage="slider.horizontal.3"
+            label={t`Display — privacy, currency, timezones`}
+            onPress={() => router.push('/display')}
+          />
           <Toggle
             label={t`Confirm before disconnecting`}
             isOn={confirmDestructive}

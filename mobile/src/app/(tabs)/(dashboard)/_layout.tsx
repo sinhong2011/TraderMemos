@@ -1,6 +1,7 @@
 import { Stack } from 'expo-router/stack';
 import { useUnistyles } from 'react-native-unistyles';
 
+import { AccountMenu } from '@/components/account-menu';
 import { AddMenu } from '@/components/add-menu';
 import { t } from '@lingui/core/macro';
 
@@ -28,7 +29,11 @@ export default function DashboardLayout() {
     >
       <Stack.Screen
         name="index"
-        options={{ title: t`Home`, headerRight: () => <AddMenu /> }}
+        options={{
+          title: t`Home`,
+          headerLeft: () => <AccountMenu />,
+          headerRight: () => <AddMenu />,
+        }}
       />
     </Stack>
   );

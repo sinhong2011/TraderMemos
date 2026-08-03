@@ -15,25 +15,43 @@ import type {
   Account,
   AnnualGoal,
   ApiHealth,
+  BehaviorReport,
   BreakGroup,
+  ComplianceReport,
   DailyPnl,
+  EconomicEvent,
   EquityCurve,
   Filters,
+  FlexSyncSettings,
+  FxRate,
+  Note,
+  PropStatusResponse,
   RiskRules,
+  RSummary,
   Summary,
   BarInterval,
   CashTransaction,
   ChecklistTemplate,
   LlmApiSettings,
   MarketBarsResponse,
+  PropSettings,
   Setup,
   Tag,
   Trade,
+  TradeAttachment,
   TradeDetail,
 } from './types';
 
-/** The breakdown dimensions the dashboard offers (the API accepts more). */
-export type BreakdownDim = 'day_of_week' | 'setup' | 'symbol';
+/** All breakdown dimensions GET /analytics/breakdown accepts (breakdown_handler.go). */
+export type BreakdownDim =
+  | 'symbol'
+  | 'setup'
+  | 'day_of_week'
+  | 'hour_of_day'
+  | 'session'
+  | 'tag'
+  | 'mistake'
+  | 'trade_quality';
 
 export const queryKeys = {
   summary: (filters: Filters) => ['analytics', 'summary', filters] as const,
@@ -41,11 +59,19 @@ export const queryKeys = {
   daily: (filters: Filters) => ['analytics', 'daily', filters] as const,
   breakdown: (by: BreakdownDim, filters: Filters) =>
     ['analytics', 'breakdown', by, filters] as const,
+  rSummary: (filters: Filters) => ['analytics', 'r-summary', filters] as const,
+  compliance: (filters: Filters) => ['analytics', 'compliance', filters] as const,
+  behavior: (filters: Filters) => ['analytics', 'behavior', filters] as const,
   trades: (filters: Filters) => ['trades', filters] as const,
   trade: (id: string) => ['trades', id] as const,
+  attachments: (tradeId: string) => ['trades', tradeId, 'attachments'] as const,
   accounts: () => ['accounts'] as const,
   setups: () => ['setups'] as const,
   tags: () => ['tags'] as const,
+  notes: (filters: Pick<Filters, 'from' | 'to'>) => ['notes', filters] as const,
+  note: (id: string) => ['notes', id] as const,
+  economicEvents: (from: string, to: string) => ['economic-events', from, to] as const,
+  fxRate: (from: string, to: string) => ['market', 'fx', from, to] as const,
   marketBars: (symbol: string, instrumentType: string, interval: string, from: string, to: string) =>
     ['market', 'bars', symbol, instrumentType, interval, from, to] as const,
   annualGoal: (year: number) => ['settings', 'annual-goal', year] as const,
@@ -54,6 +80,10 @@ export const queryKeys = {
   checklistTemplate: () => ['settings', 'checklist-template'] as const,
   llmSettings: (kind: LlmKind) => ['settings', kind] as const,
   accessTokens: () => ['access-tokens'] as const,
+  propSettings: (accountId: string) => ['accounts', accountId, 'prop-settings'] as const,
+  propStatus: (accountId: string, filters: Filters) =>
+    ['accounts', accountId, 'prop-status', filters] as const,
+  flexSync: (accountId: string) => ['accounts', accountId, 'flex-sync'] as const,
   health: () => ['health'] as const,
 };
 
@@ -103,11 +133,14 @@ function useApiQuery<T>(
   key: readonly unknown[],
   path: string,
   params?: QueryParams,
+  options?: { enabled?: boolean; staleTime?: number; retry?: number | boolean },
 ): UseQueryResult<T> {
   const { session, signIn } = useSession();
   return useQuery({
     queryKey: key,
-    enabled: session != null,
+    enabled: session != null && (options?.enabled ?? true),
+    staleTime: options?.staleTime,
+    retry: options?.retry,
     queryFn: () =>
       request<T>(session!, path, { params }, (tokens) => {
         void signIn({
@@ -239,5 +272,116 @@ export function useChecklistTemplate() {
   return useApiQuery<ChecklistTemplate>(
     queryKeys.checklistTemplate(),
     '/settings/checklist-template',
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Analytics: R-summary, compliance, behavior
+// ---------------------------------------------------------------------------
+
+export function useRSummary(filters: Filters = {}) {
+  return useApiQuery<RSummary>(queryKeys.rSummary(filters), '/analytics/r-summary', filters);
+}
+
+export function useCompliance(filters: Filters = {}) {
+  return useApiQuery<ComplianceReport>(
+    queryKeys.compliance(filters),
+    '/analytics/compliance',
+    filters,
+  );
+}
+
+export function useBehavior(filters: Filters = {}) {
+  return useApiQuery<BehaviorReport>(queryKeys.behavior(filters), '/analytics/behavior', filters);
+}
+
+// ---------------------------------------------------------------------------
+// Notes
+// ---------------------------------------------------------------------------
+
+/** GET /notes only filters by occurred_at range — type filtering is client-side. */
+export function useNotes(filters: Pick<Filters, 'from' | 'to'> = {}) {
+  return useApiQuery<Note[]>(queryKeys.notes(filters), '/notes', filters);
+}
+
+export function useNote(id: string) {
+  return useApiQuery<Note>(queryKeys.note(id), `/notes/${id}`, undefined, {
+    enabled: id.length > 0,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Markets: economic events, FX
+// ---------------------------------------------------------------------------
+
+/**
+ * GET /economic-events — `from`/`to` are required (max 366 days); impact and
+ * currency filtering is client-side so one fetch serves every filter combo.
+ * 503 means the server has no calendar provider configured.
+ */
+export function useEconomicEvents(from: string, to: string) {
+  return useApiQuery<EconomicEvent[]>(
+    queryKeys.economicEvents(from, to),
+    '/economic-events',
+    { from, to },
+    { enabled: from.length > 0 && to.length > 0, staleTime: 5 * 60_000, retry: false },
+  );
+}
+
+/** Latest FX: 1 `from` = `rate` `to`. Skips the network when currencies match. */
+export function useFxRate(from: string, to: string) {
+  const base = from.trim().toUpperCase();
+  const quote = to.trim().toUpperCase();
+  const same = base.length > 0 && base === quote;
+  return useApiQuery<FxRate>(
+    queryKeys.fxRate(base, quote),
+    '/market/fx',
+    { from: base, to: quote },
+    { enabled: base.length > 0 && quote.length > 0 && !same, staleTime: 15 * 60_000, retry: 1 },
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Attachments
+// ---------------------------------------------------------------------------
+
+export function useAttachments(tradeId: string) {
+  return useApiQuery<TradeAttachment[]>(
+    queryKeys.attachments(tradeId),
+    `/trades/${tradeId}/attachments`,
+    undefined,
+    { enabled: tradeId.length > 0 },
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Prop mode + Flex sync (per account)
+// ---------------------------------------------------------------------------
+
+export function usePropSettings(accountId: string, enabled = true) {
+  return useApiQuery<PropSettings>(
+    queryKeys.propSettings(accountId),
+    `/accounts/${accountId}/prop-settings`,
+    undefined,
+    { enabled: enabled && accountId.length > 0 },
+  );
+}
+
+/** Server-computed prop evaluation; only the `tz` filter matters. */
+export function usePropStatus(accountId: string, filters: Filters = {}, enabled = true) {
+  return useApiQuery<PropStatusResponse>(
+    queryKeys.propStatus(accountId, filters),
+    `/accounts/${accountId}/prop-status`,
+    filters,
+    { enabled: enabled && accountId.length > 0 },
+  );
+}
+
+export function useFlexSync(accountId: string, enabled = true) {
+  return useApiQuery<FlexSyncSettings>(
+    queryKeys.flexSync(accountId),
+    `/accounts/${accountId}/flex-sync`,
+    undefined,
+    { enabled: enabled && accountId.length > 0 },
   );
 }

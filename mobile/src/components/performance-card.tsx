@@ -6,6 +6,7 @@ import { DashboardCard } from '@/components/dashboard-card';
 import { StatBar } from '@/components/stat-bar';
 import { t } from '@lingui/core/macro';
 import { formatCurrency, formatPercent, formatPnl, formatRatio } from '@/lib/format';
+import { useDisplayPrefs } from '@/lib/prefs';
 import { pnlColor } from '@/styles/unistyles';
 
 function Meta({ label, value, tint }: { label: string; value: string; tint?: string }) {
@@ -25,13 +26,19 @@ export function PerformanceCard({
   summary,
   trades,
   currency,
+  fxRate = 1,
 }: {
   summary: Summary;
   trades: Trade[];
   currency: string;
+  /** Base→display conversion applied before formatting (1 = account currency). */
+  fxRate?: number;
 }) {
   const { theme } = useUnistyles();
+  // Re-render when privacy mode flips — formatters read it at call time.
+  useDisplayPrefs();
   const pnl = (v: number | null | undefined) => pnlColor(theme.colors, v);
+  const fx = (v: number) => v * fxRate;
   // gross_profit/gross_loss are net-based buckets; real gross adds back fees.
   const gross = summary.net_pnl + summary.total_fees;
   const total = Math.max(summary.total_trades, 1);
@@ -43,15 +50,15 @@ export function PerformanceCard({
       <View style={styles.hero}>
         <Text style={styles.heroLabel}>{t`Net`}</Text>
         <Text selectable style={[styles.heroValue, { color: pnl(summary.net_pnl) }]}>
-          {formatPnl(summary.net_pnl, currency)}
+          {formatPnl(fx(summary.net_pnl), currency)}
         </Text>
         <View style={styles.metaRow}>
-          <Meta label={t`Gross`} value={formatPnl(gross, currency)} tint={pnl(gross)} />
-          <Meta label={t`Fees`} value={formatCurrency(summary.total_fees, currency)} />
+          <Meta label={t`Gross`} value={formatPnl(fx(gross), currency)} tint={pnl(gross)} />
+          <Meta label={t`Fees`} value={formatCurrency(fx(summary.total_fees), currency)} />
           <Meta label={t`PF`} value={formatRatio(summary.profit_factor)} />
           <Meta
             label={t`Expect`}
-            value={formatPnl(summary.expectancy, currency)}
+            value={formatPnl(fx(summary.expectancy), currency)}
             tint={pnl(summary.expectancy)}
           />
         </View>
@@ -85,8 +92,16 @@ export function PerformanceCard({
       </View>
 
       <View style={styles.grid}>
-        <StatBar label={t`Avg win`} value={formatCurrency(summary.avg_win, currency)} tone="pos" />
-        <StatBar label={t`Avg loss`} value={formatCurrency(summary.avg_loss, currency)} tone="neg" />
+        <StatBar
+          label={t`Avg win`}
+          value={formatCurrency(fx(summary.avg_win), currency)}
+          tone="pos"
+        />
+        <StatBar
+          label={t`Avg loss`}
+          value={formatCurrency(fx(summary.avg_loss), currency)}
+          tone="neg"
+        />
       </View>
     </DashboardCard>
   );

@@ -8,6 +8,7 @@ import { DashboardCard } from '@/components/dashboard-card';
 import { Segmented } from '@/components/segmented';
 import { t } from '@lingui/core/macro';
 import { formatCurrency, formatPnl } from '@/lib/format';
+import { useDisplayPrefs } from '@/lib/prefs';
 import { pnlColor } from '@/styles/unistyles';
 
 type Range = '30D' | '90D' | 'ALL';
@@ -28,8 +29,19 @@ function rangeCutoff(range: Range): number | null {
 const MAX_POINTS = 120;
 
 /** Equity curve card with the web's 30D/90D/ALL range switcher, drawn by Swift Charts. */
-export function EquityCard({ curve, currency }: { curve: EquityCurve; currency: string }) {
+export function EquityCard({
+  curve,
+  currency,
+  fxRate = 1,
+}: {
+  curve: EquityCurve;
+  currency: string;
+  /** Base→display conversion applied before formatting (1 = account currency). */
+  fxRate?: number;
+}) {
   const { theme } = useUnistyles();
+  // Re-render when privacy mode flips — formatters read it at call time.
+  useDisplayPrefs();
   const [range, setRange] = useState<Range>('30D');
 
   const visible = useMemo(() => {
@@ -46,8 +58,8 @@ export function EquityCard({ curve, currency }: { curve: EquityCurve; currency: 
   }, [curve.points, range]);
 
   const data = useMemo(
-    () => visible.map((point, index) => ({ x: index, y: point.equity })),
-    [visible],
+    () => visible.map((point, index) => ({ x: index, y: point.equity * fxRate })),
+    [visible, fxRate],
   );
 
   if (visible.length === 0) {
@@ -61,8 +73,8 @@ export function EquityCard({ curve, currency }: { curve: EquityCurve; currency: 
     );
   }
 
-  const first = visible[0].equity;
-  const last = visible[visible.length - 1].equity;
+  const first = visible[0].equity * fxRate;
+  const last = visible[visible.length - 1].equity * fxRate;
   const delta = last - first;
 
   return (
@@ -94,7 +106,7 @@ export function EquityCard({ curve, currency }: { curve: EquityCurve; currency: 
         <Text style={styles.caption}>
           {t`Max drawdown`}{' '}
           <Text style={[styles.captionValue, { color: pnlColor(theme.colors, -curve.max_drawdown) }]}>
-            {formatPnl(-curve.max_drawdown, currency)}
+            {formatPnl(-curve.max_drawdown * fxRate, currency)}
           </Text>
         </Text>
       ) : null}

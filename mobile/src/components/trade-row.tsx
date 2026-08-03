@@ -6,6 +6,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import type { Trade } from '@/api/types';
 import { t } from '@lingui/core/macro';
 import { formatCurrency, formatDate, formatDuration, formatPnl } from '@/lib/format';
+import { useDisplayPrefs } from '@/lib/prefs';
 import { PnlFill } from '@/styles/unistyles';
 import { marketLabel, tradePriceLine, tradeStatus } from '@/lib/trades';
 
@@ -49,6 +50,8 @@ function OutcomeBadge({ trade }: { trade: Trade }) {
  */
 export function TradeRow({ trade, showDate = true }: { trade: Trade; showDate?: boolean }) {
   const { theme } = useUnistyles();
+  // Re-render when privacy mode flips — formatters read it at call time.
+  useDisplayPrefs();
   const currency = trade.pnl_currency;
   const money = (v: number) => formatCurrency(v, currency);
   const hold = trade.time_in_trade_secs != null ? formatDuration(trade.time_in_trade_secs) : null;

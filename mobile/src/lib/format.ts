@@ -4,10 +4,18 @@
  * Missing numeric values render as formatted zeros ("$0.00", "0.0%") — never a
  * dash placeholder. Truly-absent data (open trade's close time, no top symbol)
  * gets a contextual word at the call site instead.
+ *
+ * Money formatters read privacy mode and date/time formatters read the display
+ * timezone + clock prefs at call time (web fmtMoney* convention). Under React
+ * Compiler a parent's subscription does not re-render memoized children, so
+ * any component that calls these must itself subscribe via `useDisplayPrefs()`.
  */
+
+import { getDisplayTimeOpts, getPrefs, PRIVACY_MASK } from '@/lib/prefs';
 
 /** Signed currency, e.g. `+$1,240.50` / `-$310.00`. */
 export function formatPnl(value: number | null | undefined, currency = 'USD'): string {
+  if (getPrefs().privacyMode) return PRIVACY_MASK;
   const v = value ?? 0;
   const formatted = new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -24,6 +32,7 @@ export function formatPnl(value: number | null | undefined, currency = 'USD'): s
  * abbreviation is hand-rolled.
  */
 export function formatPnlCompact(value: number | null | undefined, currency = 'USD'): string {
+  if (getPrefs().privacyMode) return PRIVACY_MASK;
   const v = value ?? 0;
   const abs = Math.abs(v);
   const sign = v > 0 ? '+' : v < 0 ? '-' : '';
@@ -40,6 +49,7 @@ export function formatPnlCompact(value: number | null | undefined, currency = 'U
 }
 
 export function formatCurrency(value: number | null | undefined, currency = 'USD'): string {
+  if (getPrefs().privacyMode) return PRIVACY_MASK;
   return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(value ?? 0);
 }
 
@@ -69,16 +79,24 @@ export function formatCompact(value: number): string {
 
 export function formatDate(iso: string | null | undefined): string {
   if (!iso) return '';
+  const { timeZone } = getDisplayTimeOpts();
   return new Date(iso).toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
+    timeZone,
   });
 }
 
 export function formatTime(iso: string | null | undefined): string {
   if (!iso) return '';
-  return new Date(iso).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  const { timeZone, hour12 } = getDisplayTimeOpts();
+  return new Date(iso).toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12,
+    timeZone,
+  });
 }
 
 /** `time_in_trade_secs` -> `1h 12m` / `4m 30s`. */

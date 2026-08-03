@@ -20,8 +20,12 @@ import { Segmented } from '@/components/segmented';
 import { Skeleton } from '@/components/skeleton';
 import { t } from '@lingui/core/macro';
 import { locale } from '@/i18n';
+import { useSelectedAccountId } from '@/lib/account-store';
 import { monthGrid, tradeDayKey } from '@/lib/calendar';
+import { useGlobalFilters } from '@/lib/filters';
 import { formatPercentPoints, formatPnl, formatPnlCompact } from '@/lib/format';
+import { useMoneyFx } from '@/lib/money';
+import { accountBaseCurrency, useDisplayPrefs } from '@/lib/prefs';
 import { pnlBgTint, pnlColor, pnlDotTint } from '@/styles/unistyles';
 
 type Mode = 'week' | 'month' | 'year';
@@ -156,13 +160,21 @@ export default function CalendarScreen() {
 
   // Neighbor years included so the pager's off-screen pages (Dec↔Jan edges,
   // year mode) render populated instead of blank while you drag.
+  const globalFilters = useGlobalFilters();
   const daily = useDaily({
+    ...globalFilters,
     from: `${year - 1}-01-01T00:00:00Z`,
     to: `${year + 2}-01-01T00:00:00Z`,
   });
-  const trades = useTrades();
+  const trades = useTrades(globalFilters);
   const accounts = useAccounts();
-  const currency = accounts.data?.[0]?.base_currency ?? 'USD';
+  const selectedAccountId = useSelectedAccountId();
+  const baseCurrency = accountBaseCurrency(accounts.data, selectedAccountId);
+  const fx = useMoneyFx(baseCurrency);
+  const currency = fx.currency;
+  const fxRate = fx.rate ?? 1;
+  // Re-render when privacy mode flips — day cells format money.
+  useDisplayPrefs();
 
   const dayStats = useMemo(() => {
     const stats = new Map<string, DayStats>();
@@ -210,7 +222,12 @@ export default function CalendarScreen() {
             return `${start.toLocaleDateString(locale, opt)} – ${end.toLocaleDateString(locale, opt)}`;
           })();
 
-  const data = daily.data ?? {};
+  // FX-scale the day map once here — every board below formats from it.
+  const data = useMemo(() => {
+    const raw = daily.data ?? {};
+    if (fxRate === 1) return raw;
+    return Object.fromEntries(Object.entries(raw).map(([key, pnl]) => [key, pnl * fxRate]));
+  }, [daily.data, fxRate]);
   const openDay = (date: string) => router.push(`/(tabs)/(calendar)/day/${date}`);
 
   // Flicker-free infinite paging. Landing on a side page kicks off a
@@ -395,10 +412,10 @@ export default function CalendarScreen() {
                           data={data}
                           dayStats={dayStats}
                           currency={currency}
-                          startingBalance={(accounts.data ?? []).reduce(
-                            (s, a) => s + a.starting_balance,
-                            0,
-                          )}
+                          startingBalance={
+                            (accounts.data ?? []).reduce((s, a) => s + a.starting_balance, 0) *
+                            fxRate
+                          }
                           onSelectMonth={(m) => {
                             const key = `${pageYear}-${pad(m)}-01`;
                             setAnim('drillIn');
