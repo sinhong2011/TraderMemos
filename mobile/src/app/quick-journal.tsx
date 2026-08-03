@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Alert, Text, View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { FormSkeleton } from '@/components/skeleton';
 
@@ -10,6 +10,9 @@ import { useApiRequest, useTags, useTrade } from '@/api/hooks';
 import type { Tag, TradeDetail } from '@/api/types';
 import { ChipGroup } from '@/components/chips';
 import { FormField, FormInput, FormSheet } from '@/components/form-sheet';
+import { Pill } from '@/components/pill';
+import { formatDate, formatPnl } from '@/lib/format';
+import { pnlColor } from '@/styles/unistyles';
 import { t } from '@lingui/core/macro';
 import {
   TRADE_GRADES,
@@ -30,6 +33,7 @@ function QuickJournalForm({ trade, mistakeTags }: { trade: TradeDetail; mistakeT
   const api = useApiRequest();
 
   const notes = parseJournalNotes(trade.notes);
+  const entryReason = notes.entryReason.trim();
   const [reviewNotes, setReviewNotes] = useState(notes.reviewNotes);
   const [mistakeIds, setMistakeIds] = useState<string[]>(
     trade.tags.filter((tag) => tag.kind === 'mistake').map((tag) => tag.id),
@@ -62,11 +66,18 @@ function QuickJournalForm({ trade, mistakeTags }: { trade: TradeDetail; mistakeT
   });
 
   return (
-    <FormSheet
-      title={t`Quick journal · ${trade.symbol}`}
-      saving={save.isPending}
-      onSave={() => save.mutate()}
-    >
+    // Title is just "Review": the sheet header truncates at 55% width, and the
+    // trade it belongs to is stated properly in the summary below anyway.
+    <FormSheet title={t`Review`} saving={save.isPending} onSave={() => save.mutate()}>
+      <TradeSummary trade={trade} />
+      {entryReason ? (
+        // What you told yourself at entry — the thing the review is measured
+        // against. Read-only here; editing it belongs in the full trade form.
+        <View style={styles.recall}>
+          <Text style={styles.recallLabel}>{t`Entry reason`}</Text>
+          <Text style={styles.recallBody}>{entryReason}</Text>
+        </View>
+      ) : null}
       <FormField label={t`Review notes`}>
         <FormInput
           value={reviewNotes}
@@ -74,6 +85,14 @@ function QuickJournalForm({ trade, mistakeTags }: { trade: TradeDetail; mistakeT
           placeholder={t`What would you do differently?`}
           multiline
           autoFocus
+        />
+      </FormField>
+      <FormField label={t`Execution rating`}>
+        <ChipGroup
+          options={TRADE_GRADES.map((g) => ({ value: g, label: g }))}
+          selected={grade ? [grade] : []}
+          onToggle={(g) => setGrade(g === grade ? '' : g)}
+          select="single"
         />
       </FormField>
       {mistakeTags.length > 0 ? (
@@ -90,14 +109,38 @@ function QuickJournalForm({ trade, mistakeTags }: { trade: TradeDetail; mistakeT
           />
         </FormField>
       ) : null}
-      <FormField label={t`Execution rating`}>
-        <ChipGroup
-          options={TRADE_GRADES.map((g) => ({ value: g, label: g }))}
-          selected={grade ? [grade] : []}
-          onToggle={(g) => setGrade(g === grade ? '' : g)}
-        />
-      </FormField>
     </FormSheet>
+  );
+}
+
+/**
+ * What am I reviewing? The sheet opens from a swipe on a list row, so without
+ * this the only anchor was a symbol in a truncating title.
+ */
+function TradeSummary({ trade }: { trade: TradeDetail }) {
+  const { theme } = useUnistyles();
+  const isOpen = trade.status === 'open';
+  const isLong = trade.direction === 'long';
+  return (
+    <View style={styles.summary}>
+      <View style={styles.summaryTop}>
+        <Text style={styles.symbol} numberOfLines={1}>
+          {trade.symbol}
+        </Text>
+        <Text
+          style={[
+            styles.pnl,
+            { color: isOpen ? theme.colors.mutedForeground : pnlColor(theme.colors, trade.net_pnl) },
+          ]}
+        >
+          {isOpen ? t`Open` : formatPnl(trade.net_pnl, trade.pnl_currency)}
+        </Text>
+      </View>
+      <View style={styles.summaryMeta}>
+        <Pill tone={isLong ? 'pos' : 'neg'}>{isLong ? t`LONG` : t`SHORT`}</Pill>
+        <Text style={styles.summaryDate}>{formatDate(trade.opened_at)}</Text>
+      </View>
+    </View>
   );
 }
 
@@ -124,6 +167,26 @@ export default function QuickJournalScreen() {
 }
 
 const styles = StyleSheet.create((theme) => ({
+  summary: {
+    gap: theme.spacing.sm,
+    padding: theme.spacing.lg,
+    borderRadius: theme.radius.lg,
+    borderCurve: 'continuous',
+    backgroundColor: theme.colors.card,
+  },
+  summaryTop: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    justifyContent: 'space-between',
+    gap: theme.spacing.md,
+  },
+  symbol: { flexShrink: 1, fontSize: 20, fontWeight: '700', color: theme.colors.foreground },
+  pnl: { fontSize: 20, fontWeight: '700', letterSpacing: -0.4, ...theme.numeric },
+  summaryMeta: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
+  summaryDate: { fontSize: 13, color: theme.colors.mutedForeground, ...theme.numeric },
+  recall: { gap: theme.spacing.xs },
+  recallLabel: { fontSize: 12, color: theme.colors.mutedForeground },
+  recallBody: { fontSize: 14, lineHeight: 20, color: theme.colors.mutedForeground },
   loading: { flex: 1, backgroundColor: theme.colors.background },
   centered: {
     flex: 1,

@@ -2,12 +2,14 @@ import { Image } from 'expo-image';
 import { SymbolView } from 'expo-symbols';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
+import type { ReactNode } from 'react';
 import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { useTrade } from '@/api/hooks';
 import { useSession } from '@/api/session';
 import { DashboardCard } from '@/components/dashboard-card';
+import { GlassButton } from '@/components/glass-button';
 import { Pill } from '@/components/pill';
 import { Skeleton } from '@/components/skeleton';
 import { TradeChart } from '@/components/trade-chart';
@@ -19,7 +21,7 @@ import {
   formatPnl,
   formatTime,
 } from '@/lib/format';
-import { gradeFromInt, parseJournalNotes } from '@/lib/journal';
+import { gradeFromInt, parseEmotionalStates, parseJournalNotes } from '@/lib/journal';
 import { marketLabel, tradeNotional, tradeRMultiple, tradeStatus } from '@/lib/trades';
 import { pnlColor } from '@/styles/unistyles';
 
@@ -43,6 +45,29 @@ function TextBlock({ label, value }: { label: string; value: string }) {
       <Text selectable style={styles.notes}>
         {value}
       </Text>
+    </View>
+  );
+}
+
+/**
+ * Labeled wrap of pills. Journal taxonomy is a set, not a value — read as a
+ * right-aligned `Row` the emotions truncated to "Calm, Confid…" on one line.
+ */
+function PillBlock({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <View style={styles.block}>
+      <Text style={styles.blockLabel}>{label}</Text>
+      <View style={styles.tags}>{children}</View>
+    </View>
+  );
+}
+
+/** Grade tile — the two ratings are the card's scannable verdict, not a row pair. */
+function GradeTile({ label, grade }: { label: string; grade: string }) {
+  return (
+    <View style={styles.gradeTile}>
+      <Text style={styles.blockLabel}>{label}</Text>
+      <Text style={styles.gradeValue}>{grade}</Text>
     </View>
   );
 }
@@ -104,6 +129,7 @@ export default function TradeDetailScreen() {
   ];
 
   const journal = parseJournalNotes(trade.notes);
+  const emotions = parseEmotionalStates(trade.emotional_state);
   const setupGrade = gradeFromInt(trade.confidence);
   const execGrade = gradeFromInt(trade.trade_quality);
   const hasDividends = trade.dividend_total !== 0;
@@ -117,7 +143,7 @@ export default function TradeDetailScreen() {
   const hasJournal = Boolean(
     trade.setup ||
       journal.session ||
-      trade.emotional_state ||
+      emotions.length > 0 ||
       setupGrade ||
       execGrade ||
       journal.entryReason ||
@@ -261,29 +287,66 @@ export default function TradeDetailScreen() {
         </DashboardCard>
 
         {hasJournal ? (
-          <DashboardCard title={t`Journal`}>
+          <DashboardCard
+            title={t`Journal`}
+            action={{
+              label: t`Review`,
+              onPress: () =>
+                router.push({ pathname: '/quick-journal', params: { id: trade.id } }),
+            }}
+          >
             {trade.setup ? (
-              <View style={styles.block}>
-                <Text style={styles.blockLabel}>{t`Setup`}</Text>
-                <View style={styles.tags}>
-                  <Pill tone="accent">{trade.setup.name}</Pill>
-                  {trade.setup_ids.length > 1 ? (
-                    <Pill tone="muted">+{trade.setup_ids.length - 1}</Pill>
-                  ) : null}
-                </View>
+              <PillBlock label={t`Setup`}>
+                <Pill tone="accent">{trade.setup.name}</Pill>
+                {trade.setup_ids.length > 1 ? (
+                  <Pill tone="muted">+{trade.setup_ids.length - 1}</Pill>
+                ) : null}
+              </PillBlock>
+            ) : null}
+            {journal.session ? (
+              <PillBlock label={t`Session`}>
+                <Pill tone="muted">{journal.session}</Pill>
+              </PillBlock>
+            ) : null}
+            {emotions.length > 0 ? (
+              <PillBlock label={t`Emotion`}>
+                {emotions.map((emotion) => (
+                  <Pill key={emotion} tone="muted">
+                    {emotion}
+                  </Pill>
+                ))}
+              </PillBlock>
+            ) : null}
+            {setupGrade || execGrade ? (
+              <View style={styles.grades}>
+                {setupGrade ? <GradeTile label={t`Setup rating`} grade={setupGrade} /> : null}
+                {execGrade ? <GradeTile label={t`Execution rating`} grade={execGrade} /> : null}
               </View>
             ) : null}
-            {journal.session ? <Row label={t`Session`} value={journal.session} /> : null}
-            {trade.emotional_state ? (
-              <Row label={t`Emotion`} value={trade.emotional_state} />
-            ) : null}
-            {setupGrade ? <Row label={t`Setup rating`} value={setupGrade} /> : null}
-            {execGrade ? <Row label={t`Execution rating`} value={execGrade} /> : null}
             <TextBlock label={t`Entry reason`} value={journal.entryReason} />
             <TextBlock label={t`Exit reason`} value={journal.exitReason} />
             <TextBlock label={t`Review notes`} value={journal.reviewNotes} />
           </DashboardCard>
-        ) : null}
+        ) : (
+          // An unjournaled closed trade is the one thing this app exists to fix,
+          // so the card stays — as the prompt to write it — instead of vanishing.
+          <DashboardCard title={t`Journal`}>
+            <Text style={styles.emptyNote}>
+              {isOpen
+                ? t`Nothing logged yet. Note the setup and why you took it while it's fresh.`
+                : t`Nothing logged yet. A minute of review now is what makes this trade worth something later.`}
+            </Text>
+            <View style={styles.emptyAction}>
+              <GlassButton
+                label={t`Write review`}
+                systemImage="square.and.pencil"
+                onPress={() =>
+                  router.push({ pathname: '/quick-journal', params: { id: trade.id } })
+                }
+              />
+            </View>
+          </DashboardCard>
+        )}
 
         {trade.tags.length > 0 ? (
           <DashboardCard title={t`Tags`}>
@@ -379,13 +442,12 @@ const styles = StyleSheet.create((theme) => ({
     padding: theme.spacing.xl,
   },
   muted: { color: theme.colors.mutedForeground, textAlign: 'center' },
+  // Bare glyph — the sizing stays for the tap target, not for a visible chip.
   editButton: {
     width: 32,
     height: 32,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: theme.radius.full,
-    backgroundColor: theme.colors.muted,
   },
   pressed: { opacity: 0.6 },
   hero: { gap: theme.spacing.sm },
@@ -404,6 +466,25 @@ const styles = StyleSheet.create((theme) => ({
   block: { gap: theme.spacing.xs },
   blockLabel: { fontSize: 12, color: theme.colors.mutedForeground },
   notes: { fontSize: 15, lineHeight: 22, color: theme.colors.foreground },
+  grades: { flexDirection: 'row', gap: theme.spacing.sm },
+  gradeTile: {
+    flex: 1,
+    gap: theme.spacing.xs,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
+    borderRadius: theme.radius.md,
+    borderCurve: 'continuous',
+    backgroundColor: theme.colors.muted,
+  },
+  gradeValue: {
+    fontSize: 22,
+    fontWeight: '700',
+    letterSpacing: -0.5,
+    color: theme.colors.foreground,
+    ...theme.numeric,
+  },
+  emptyNote: { fontSize: 14, lineHeight: 20, color: theme.colors.mutedForeground },
+  emptyAction: { alignItems: 'center', paddingTop: theme.spacing.xs },
   tags: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
   fillRow: {
     flexDirection: 'row',
