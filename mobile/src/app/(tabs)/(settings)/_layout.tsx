@@ -38,6 +38,14 @@ export default function SettingsLayout() {
         name="display"
         options={{ title: t`Display`, headerLargeTitle: false }}
       />
+      <Stack.Screen
+        name="prop-settings"
+        options={{ title: t`Prop rules`, headerLargeTitle: false }}
+      />
+      <Stack.Screen
+        name="flex-sync"
+        options={{ title: t`IBKR Flex sync`, headerLargeTitle: false }}
+      />
       <Stack.Screen name="ai" options={{ title: t`AI`, headerLargeTitle: false }} />
       <Stack.Screen
         name="api-tokens"
