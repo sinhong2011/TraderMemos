@@ -33,8 +33,9 @@ function trade(over: Partial<Trade>): Trade {
 describe("computePnlHeatmap", () => {
   it("buckets by entry weekday and hour on the market clock", () => {
     // 2026-01-05 is a Monday; 15:30Z is 10:30 ET (winter, UTC-5).
-    const h = computePnlHeatmap([trade({ net_pnl: 100 })], ET);
-    expect(h.grid[0][10]).toEqual({ pnl: 100, trades: 1 });
+    const t = trade({ net_pnl: 100 });
+    const h = computePnlHeatmap([t], ET);
+    expect(h.grid[0][10]).toEqual({ pnl: 100, trades: 1, items: [t] });
     expect(h.days).toEqual([0]);
     expect(h.hourStart).toBe(10);
     expect(h.hourEnd).toBe(10);
@@ -47,7 +48,7 @@ describe("computePnlHeatmap", () => {
     expect(h.grid[0][9].trades).toBe(1);
   });
 
-  it("aggregates cells and tracks the absolute max", () => {
+  it("aggregates cells, keeps their trades, and tracks the absolute max", () => {
     const h = computePnlHeatmap(
       [
         trade({ id: "1", net_pnl: 100 }),
@@ -56,11 +57,21 @@ describe("computePnlHeatmap", () => {
       ],
       ET,
     );
-    expect(h.grid[0][10]).toEqual({ pnl: 150, trades: 2 });
-    expect(h.grid[1][10]).toEqual({ pnl: -400, trades: 1 });
+    expect(h.grid[0][10]).toMatchObject({ pnl: 150, trades: 2 });
+    expect(h.grid[0][10].items.map((t) => t.id)).toEqual(["1", "2"]);
+    expect(h.grid[1][10]).toMatchObject({ pnl: -400, trades: 1 });
     expect(h.maxAbsPnl).toBe(400);
     expect(h.total).toBe(3);
     expect(h.days).toEqual([0, 1]);
+  });
+
+  it("honors a custom pnl accessor (gross mode)", () => {
+    const h = computePnlHeatmap(
+      [trade({ gross_pnl: 25, net_pnl: 10 })],
+      ET,
+      (t) => t.gross_pnl ?? t.net_pnl ?? 0,
+    );
+    expect(h.grid[0][10].pnl).toBe(25);
   });
 
   it("skips open trades and defaults the hour range when empty", () => {

@@ -3,6 +3,8 @@ import type { Trade } from "./api/types";
 export interface HeatmapCell {
   pnl: number;
   trades: number;
+  /** Closed trades bucketed into this cell, in input order. */
+  items: Trade[];
 }
 
 export interface PnlHeatmap {
@@ -35,10 +37,15 @@ const DAY_INDEX: Record<string, number> = {
  * grouping stays on the market clock like the rest of the app; the display
  * timezone only ever formats. Hours outside the traded range are trimmed by
  * the returned [hourStart, hourEnd] so quiet sessions don't flatten the grid.
+ * `pnlOf` defaults to net_pnl; Reports passes a net/gross-aware accessor.
  */
-export function computePnlHeatmap(trades: Trade[], timeZone: string): PnlHeatmap {
+export function computePnlHeatmap(
+  trades: Trade[],
+  timeZone: string,
+  pnlOf: (t: Trade) => number = (t) => t.net_pnl ?? 0,
+): PnlHeatmap {
   const grid: HeatmapCell[][] = Array.from({ length: 7 }, () =>
-    Array.from({ length: 24 }, () => ({ pnl: 0, trades: 0 })),
+    Array.from({ length: 24 }, () => ({ pnl: 0, trades: 0, items: [] as Trade[] })),
   );
   const fmt = new Intl.DateTimeFormat("en-US", {
     timeZone,
@@ -57,8 +64,9 @@ export function computePnlHeatmap(trades: Trade[], timeZone: string): PnlHeatmap
     // Some engines report midnight as "24" with hour12: false.
     const hour = rawHour % 24;
     const cell = grid[day][hour];
-    cell.pnl += t.net_pnl;
+    cell.pnl += pnlOf(t);
     cell.trades += 1;
+    cell.items.push(t);
     total += 1;
   }
 
