@@ -653,10 +653,12 @@ function useFieldOptions<T = unknown>(
   }, [searchInput, isAsync]);
 
   const requestIdRef = useRef(0);
-  // Keep the latest loader in a ref so an unmemoized `loadOptions` identity does
+  // Keep the latest loader and field in refs so an unmemoized identity does
   // not cancel and refire the in-flight request on every parent re-render.
   const loaderRef = useRef(field.loadOptions);
   loaderRef.current = field.loadOptions;
+  const fieldRef = useRef(field);
+  fieldRef.current = field;
   useEffect(() => {
     if (!isAsync || !enabled) return;
     const loader = loaderRef.current;
@@ -671,7 +673,7 @@ function useFieldOptions<T = unknown>(
       .then((result) => {
         // Ignore stale responses (out-of-order guard).
         if (cancelled || requestId !== requestIdRef.current) return;
-        const cache = getFieldOptionCache(field);
+        const cache = getFieldOptionCache(fieldRef.current);
         for (const opt of result) cache.set(opt.value, opt);
         setState({ options: result, loading: false, error: false });
       })

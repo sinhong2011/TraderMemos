@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { readdir, readFile, writeFile, unlink } from "node:fs/promises";
-import { join, dirname, relative, normalize, extname } from "node:path";
+import { join, dirname, relative, normalize } from "node:path";
 import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
