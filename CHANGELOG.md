@@ -5,6 +5,23 @@ All notable changes to TraderMemos are documented in this file.
 Release versioning is managed by [release-please](https://github.com/googleapis/release-please).
 See [docs/release.md](docs/release.md) for the release workflow.
 
+## [0.1.13](https://github.com/sinhong2011/TraderMemos/compare/v0.1.12...v0.1.13) (2026-08-03)
+
+
+### Features
+
+* **web:** advanced chart — standalone market chart for any symbol ([#61](https://github.com/sinhong2011/TraderMemos/issues/61)) ([c604148](https://github.com/sinhong2011/TraderMemos/commit/c6041481f618fa0eb570b9b2f0b135d3aace7cc0))
+* **web:** currency converter tool — live FX modal ([#64](https://github.com/sinhong2011/TraderMemos/issues/64)) ([7e4a15c](https://github.com/sinhong2011/TraderMemos/commit/7e4a15ce75a90d88e4783b3c41b23fb713789d68))
+* **web:** personal P&L heatmap tool; drop Technical rating ([#62](https://github.com/sinhong2011/TraderMemos/issues/62)) ([f327677](https://github.com/sinhong2011/TraderMemos/commit/f327677dd1d426a2fc3096a7440dceb710fa3227))
+* **web:** Year Wrapped share card ([#57](https://github.com/sinhong2011/TraderMemos/issues/57)) ([fe50bd8](https://github.com/sinhong2011/TraderMemos/commit/fe50bd8cba7a3d612adec270174e328c2035268f))
+
+
+### Bug Fixes
+
+* **web:** clearer trade replay readout — Closed label + price-mismatch hint ([#58](https://github.com/sinhong2011/TraderMemos/issues/58)) ([e7b22f1](https://github.com/sinhong2011/TraderMemos/commit/e7b22f1ca0c17da4e451650c2484924743998ba2))
+* **web:** one-row events toolbar, wider 12h time column, legible calendar labels ([#65](https://github.com/sinhong2011/TraderMemos/issues/65)) ([3974285](https://github.com/sinhong2011/TraderMemos/commit/3974285f6fadf4c0116f457c3439f43e612d6e70))
+* **web:** Tools menu — remove Wallet, wire Economic calendar and Trade planner ([#59](https://github.com/sinhong2011/TraderMemos/issues/59)) ([76a1db1](https://github.com/sinhong2011/TraderMemos/commit/76a1db1d2b2548f86092dab93f1d79d1e08eebcb))
+
 ## [0.1.12](https://github.com/sinhong2011/TraderMemos/compare/v0.1.11...v0.1.12) (2026-08-02)
 
 
