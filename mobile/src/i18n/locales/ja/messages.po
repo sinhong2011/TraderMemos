@@ -889,7 +889,7 @@ msgstr "コール / プット"
 #: src/app/new-setup.tsx:106
 #: src/components/account-menu.tsx:44
 #: src/components/attachments-card.tsx:143
-#: src/components/form-sheet.tsx:71
+#: src/components/form-sheet.tsx:80
 #: src/components/swipeable-trade-row.tsx:83
 msgid "Cancel"
 msgstr "キャンセル"
@@ -1085,7 +1085,7 @@ msgstr "枚数"
 msgid "Converts read-only amounts with the latest FX rate. Forms keep the account currency."
 msgstr "表示専用の金額を最新の為替レートで換算します。入力フォームは口座通貨のままです。"
 
-#: src/app/new-token.tsx:60
+#: src/app/new-token.tsx:67
 msgid "Copy it now — the secret is shown only once and cannot be recovered."
 msgstr "今すぐコピーしてください — シークレットは一度しか表示されず、復元できません。"
 
@@ -1102,8 +1102,8 @@ msgstr "エクスカーションを計算できませんでした"
 msgid "Could not create tag"
 msgstr "タグを作成できませんでした"
 
-#: src/app/new-token.tsx:42
-#: src/app/new-token.tsx:48
+#: src/app/new-token.tsx:44
+#: src/app/new-token.tsx:50
 msgid "Could not create token"
 msgstr "トークンを作成できませんでした"
 
@@ -1234,7 +1234,7 @@ msgstr "タグを作成"
 #~ msgstr "トークンを作成"
 
 #: src/app/(tabs)/(settings)/tags.tsx:117
-#: src/app/new-token.tsx:108
+#: src/app/new-token.tsx:87
 msgid "Creating…"
 msgstr "作成中…"
 
@@ -1483,6 +1483,7 @@ msgstr "金額"
 #: src/app/(tabs)/(settings)/import-trades.tsx:233
 #: src/app/login.tsx:323
 #: src/app/manage-tags.tsx:62
+#: src/app/new-token.tsx:62
 #: src/app/share-trade.tsx:56
 #: src/components/tool-sheet.tsx:30
 msgid "Done"
@@ -1512,7 +1513,7 @@ msgstr "ドローダウン方式"
 msgid "Duration"
 msgstr "保有期間"
 
-#: src/app/new-token.tsx:86
+#: src/app/new-token.tsx:98
 msgid "e.g. CLI import"
 msgstr "例: CLIインポート"
 
@@ -1771,7 +1772,7 @@ msgstr "期待値"
 msgid "Expires {expires} · Last used {lastUsed}"
 msgstr "有効期限 {expires} · 最終使用 {lastUsed}"
 
-#: src/app/new-token.tsx:94
+#: src/app/new-token.tsx:106
 #: src/components/trade-form.tsx:563
 msgid "Expiry"
 msgstr "満期日"
@@ -1975,13 +1976,17 @@ msgstr "ギャップ上端"
 msgid "Gap top must sit above the bottom — check the edges"
 msgstr "ギャップ上端は下端より上に — 端の値を確認してください"
 
+#: src/app/new-token.tsx:86
+msgid "Generate"
+msgstr "生成"
+
 #: src/app/(tabs)/(settings)/api-tokens.tsx:230
 #~ msgid "Generate one above to authenticate scripts against your server."
 #~ msgstr "上で生成すると、スクリプトからサーバーAPIを認証できます。"
 
 #: src/app/new-token.tsx:108
-msgid "Generate token"
-msgstr "トークンを生成"
+#~ msgid "Generate token"
+#~ msgstr "トークンを生成"
 
 #: src/app/(tabs)/(settings)/about.tsx:59
 msgid "GitHub repository"
@@ -2551,7 +2556,7 @@ msgstr "乗数"
 #: src/app/(tabs)/(settings)/account-form.tsx:221
 #: src/app/(tabs)/(settings)/tags.tsx:94
 #: src/app/new-setup.tsx:122
-#: src/app/new-token.tsx:82
+#: src/app/new-token.tsx:94
 msgid "Name"
 msgstr "名前"
 
@@ -2621,7 +2626,7 @@ msgid "New tag"
 msgstr "新しいタグ"
 
 #: src/app/(tabs)/(settings)/api-tokens.tsx:104
-#: src/app/new-token.tsx:77
+#: src/app/new-token.tsx:84
 msgid "New token"
 msgstr "新しいトークン"
 
@@ -3606,7 +3611,7 @@ msgstr "土"
 #: src/app/(tabs)/(settings)/prop-settings.tsx:67
 #: src/app/(tabs)/(settings)/prop-settings.tsx:91
 #: src/app/(tabs)/(settings)/risk-rules.tsx:53
-#: src/components/form-sheet.tsx:81
+#: src/components/form-sheet.tsx:91
 msgid "Save"
 msgstr "保存"
 
@@ -3641,7 +3646,7 @@ msgstr "保存済み — 空欄のままで維持"
 #: src/app/(tabs)/(settings)/checklist.tsx:77
 #: src/app/(tabs)/(settings)/flex-sync.tsx:145
 #: src/app/(tabs)/(settings)/index.tsx:214
-#: src/components/form-sheet.tsx:81
+#: src/components/form-sheet.tsx:91
 msgid "Saving…"
 msgstr "保存中…"
 
@@ -3797,7 +3802,7 @@ msgstr "共有"
 msgid "Share card"
 msgstr "カードを共有"
 
-#: src/app/new-token.tsx:68
+#: src/app/new-token.tsx:74
 msgid "Share token"
 msgstr "トークンを共有"
 
@@ -4259,15 +4264,15 @@ msgstr "今日"
 msgid "Token"
 msgstr "トークン"
 
-#: src/app/new-token.tsx:58
+#: src/app/new-token.tsx:61
 msgid "Token created"
 msgstr "トークンを作成しました"
 
-#: src/app/new-token.tsx:48
+#: src/app/new-token.tsx:50
 msgid "Token name is required."
 msgstr "トークン名を入力してください。"
 
-#: src/app/new-token.tsx:79
+#: src/app/new-token.tsx:91
 msgid "Tokens authenticate scripts and integrations against your server's API."
 msgstr "トークンはスクリプトや連携をサーバーAPIに認証させます。"
 

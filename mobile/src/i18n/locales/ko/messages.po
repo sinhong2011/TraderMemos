@@ -889,7 +889,7 @@ msgstr "콜 / 풋"
 #: src/app/new-setup.tsx:106
 #: src/components/account-menu.tsx:44
 #: src/components/attachments-card.tsx:143
-#: src/components/form-sheet.tsx:71
+#: src/components/form-sheet.tsx:80
 #: src/components/swipeable-trade-row.tsx:83
 msgid "Cancel"
 msgstr "취소"
@@ -1085,7 +1085,7 @@ msgstr "계약 수"
 msgid "Converts read-only amounts with the latest FX rate. Forms keep the account currency."
 msgstr "표시용 금액을 최신 환율로 환산합니다. 입력 양식은 계좌 통화를 유지합니다."
 
-#: src/app/new-token.tsx:60
+#: src/app/new-token.tsx:67
 msgid "Copy it now — the secret is shown only once and cannot be recovered."
 msgstr "지금 복사하세요 — 시크릿은 한 번만 표시되며 복구할 수 없습니다."
 
@@ -1102,8 +1102,8 @@ msgstr "익스커전을 계산할 수 없습니다"
 msgid "Could not create tag"
 msgstr "태그를 만들지 못했습니다"
 
-#: src/app/new-token.tsx:42
-#: src/app/new-token.tsx:48
+#: src/app/new-token.tsx:44
+#: src/app/new-token.tsx:50
 msgid "Could not create token"
 msgstr "토큰을 만들지 못했습니다"
 
@@ -1234,7 +1234,7 @@ msgstr "태그 만들기"
 #~ msgstr "토큰 만들기"
 
 #: src/app/(tabs)/(settings)/tags.tsx:117
-#: src/app/new-token.tsx:108
+#: src/app/new-token.tsx:87
 msgid "Creating…"
 msgstr "만드는 중…"
 
@@ -1483,6 +1483,7 @@ msgstr "금액"
 #: src/app/(tabs)/(settings)/import-trades.tsx:233
 #: src/app/login.tsx:323
 #: src/app/manage-tags.tsx:62
+#: src/app/new-token.tsx:62
 #: src/app/share-trade.tsx:56
 #: src/components/tool-sheet.tsx:30
 msgid "Done"
@@ -1512,7 +1513,7 @@ msgstr "드로다운 방식"
 msgid "Duration"
 msgstr "보유 기간"
 
-#: src/app/new-token.tsx:86
+#: src/app/new-token.tsx:98
 msgid "e.g. CLI import"
 msgstr "예: CLI 가져오기"
 
@@ -1771,7 +1772,7 @@ msgstr "기대값"
 msgid "Expires {expires} · Last used {lastUsed}"
 msgstr "만료 {expires} · 마지막 사용 {lastUsed}"
 
-#: src/app/new-token.tsx:94
+#: src/app/new-token.tsx:106
 #: src/components/trade-form.tsx:563
 msgid "Expiry"
 msgstr "만기일"
@@ -1975,13 +1976,17 @@ msgstr "갭 상단"
 msgid "Gap top must sit above the bottom — check the edges"
 msgstr "갭 상단은 하단보다 위여야 합니다 — 값을 확인하세요"
 
+#: src/app/new-token.tsx:86
+msgid "Generate"
+msgstr "생성"
+
 #: src/app/(tabs)/(settings)/api-tokens.tsx:230
 #~ msgid "Generate one above to authenticate scripts against your server."
 #~ msgstr "위에서 생성하면 스크립트로 서버 API를 인증할 수 있습니다."
 
 #: src/app/new-token.tsx:108
-msgid "Generate token"
-msgstr "토큰 생성"
+#~ msgid "Generate token"
+#~ msgstr "토큰 생성"
 
 #: src/app/(tabs)/(settings)/about.tsx:59
 msgid "GitHub repository"
@@ -2551,7 +2556,7 @@ msgstr "승수"
 #: src/app/(tabs)/(settings)/account-form.tsx:221
 #: src/app/(tabs)/(settings)/tags.tsx:94
 #: src/app/new-setup.tsx:122
-#: src/app/new-token.tsx:82
+#: src/app/new-token.tsx:94
 msgid "Name"
 msgstr "이름"
 
@@ -2621,7 +2626,7 @@ msgid "New tag"
 msgstr "새 태그"
 
 #: src/app/(tabs)/(settings)/api-tokens.tsx:104
-#: src/app/new-token.tsx:77
+#: src/app/new-token.tsx:84
 msgid "New token"
 msgstr "새 토큰"
 
@@ -3606,7 +3611,7 @@ msgstr "토"
 #: src/app/(tabs)/(settings)/prop-settings.tsx:67
 #: src/app/(tabs)/(settings)/prop-settings.tsx:91
 #: src/app/(tabs)/(settings)/risk-rules.tsx:53
-#: src/components/form-sheet.tsx:81
+#: src/components/form-sheet.tsx:91
 msgid "Save"
 msgstr "저장"
 
@@ -3641,7 +3646,7 @@ msgstr "저장됨 — 비워 두면 유지됩니다"
 #: src/app/(tabs)/(settings)/checklist.tsx:77
 #: src/app/(tabs)/(settings)/flex-sync.tsx:145
 #: src/app/(tabs)/(settings)/index.tsx:214
-#: src/components/form-sheet.tsx:81
+#: src/components/form-sheet.tsx:91
 msgid "Saving…"
 msgstr "저장 중…"
 
@@ -3797,7 +3802,7 @@ msgstr "공유"
 msgid "Share card"
 msgstr "카드 공유"
 
-#: src/app/new-token.tsx:68
+#: src/app/new-token.tsx:74
 msgid "Share token"
 msgstr "토큰 공유"
 
@@ -4259,15 +4264,15 @@ msgstr "오늘"
 msgid "Token"
 msgstr "토큰"
 
-#: src/app/new-token.tsx:58
+#: src/app/new-token.tsx:61
 msgid "Token created"
 msgstr "토큰 생성됨"
 
-#: src/app/new-token.tsx:48
+#: src/app/new-token.tsx:50
 msgid "Token name is required."
 msgstr "토큰 이름을 입력하세요."
 
-#: src/app/new-token.tsx:79
+#: src/app/new-token.tsx:91
 msgid "Tokens authenticate scripts and integrations against your server's API."
 msgstr "토큰은 스크립트와 연동을 서버 API에 인증합니다."
 

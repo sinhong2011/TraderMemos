@@ -889,7 +889,7 @@ msgstr "Call / Put"
 #: src/app/new-setup.tsx:106
 #: src/components/account-menu.tsx:44
 #: src/components/attachments-card.tsx:143
-#: src/components/form-sheet.tsx:71
+#: src/components/form-sheet.tsx:80
 #: src/components/swipeable-trade-row.tsx:83
 msgid "Cancel"
 msgstr "Cancel"
@@ -1085,7 +1085,7 @@ msgstr "Contracts"
 msgid "Converts read-only amounts with the latest FX rate. Forms keep the account currency."
 msgstr "Converts read-only amounts with the latest FX rate. Forms keep the account currency."
 
-#: src/app/new-token.tsx:60
+#: src/app/new-token.tsx:67
 msgid "Copy it now — the secret is shown only once and cannot be recovered."
 msgstr "Copy it now — the secret is shown only once and cannot be recovered."
 
@@ -1102,8 +1102,8 @@ msgstr "Could not compute excursion"
 msgid "Could not create tag"
 msgstr "Could not create tag"
 
-#: src/app/new-token.tsx:42
-#: src/app/new-token.tsx:48
+#: src/app/new-token.tsx:44
+#: src/app/new-token.tsx:50
 msgid "Could not create token"
 msgstr "Could not create token"
 
@@ -1234,7 +1234,7 @@ msgstr "Create tag"
 #~ msgstr "Create token"
 
 #: src/app/(tabs)/(settings)/tags.tsx:117
-#: src/app/new-token.tsx:108
+#: src/app/new-token.tsx:87
 msgid "Creating…"
 msgstr "Creating…"
 
@@ -1483,6 +1483,7 @@ msgstr "Dollars"
 #: src/app/(tabs)/(settings)/import-trades.tsx:233
 #: src/app/login.tsx:323
 #: src/app/manage-tags.tsx:62
+#: src/app/new-token.tsx:62
 #: src/app/share-trade.tsx:56
 #: src/components/tool-sheet.tsx:30
 msgid "Done"
@@ -1512,7 +1513,7 @@ msgstr "Drawdown model"
 msgid "Duration"
 msgstr "Duration"
 
-#: src/app/new-token.tsx:86
+#: src/app/new-token.tsx:98
 msgid "e.g. CLI import"
 msgstr "e.g. CLI import"
 
@@ -1771,7 +1772,7 @@ msgstr "Expectancy"
 msgid "Expires {expires} · Last used {lastUsed}"
 msgstr "Expires {expires} · Last used {lastUsed}"
 
-#: src/app/new-token.tsx:94
+#: src/app/new-token.tsx:106
 #: src/components/trade-form.tsx:563
 msgid "Expiry"
 msgstr "Expiry"
@@ -1975,13 +1976,17 @@ msgstr "Gap top"
 msgid "Gap top must sit above the bottom — check the edges"
 msgstr "Gap top must sit above the bottom — check the edges"
 
+#: src/app/new-token.tsx:86
+msgid "Generate"
+msgstr "Generate"
+
 #: src/app/(tabs)/(settings)/api-tokens.tsx:230
 #~ msgid "Generate one above to authenticate scripts against your server."
 #~ msgstr "Generate one above to authenticate scripts against your server."
 
 #: src/app/new-token.tsx:108
-msgid "Generate token"
-msgstr "Generate token"
+#~ msgid "Generate token"
+#~ msgstr "Generate token"
 
 #: src/app/(tabs)/(settings)/about.tsx:59
 msgid "GitHub repository"
@@ -2551,7 +2556,7 @@ msgstr "Multiplier"
 #: src/app/(tabs)/(settings)/account-form.tsx:221
 #: src/app/(tabs)/(settings)/tags.tsx:94
 #: src/app/new-setup.tsx:122
-#: src/app/new-token.tsx:82
+#: src/app/new-token.tsx:94
 msgid "Name"
 msgstr "Name"
 
@@ -2621,7 +2626,7 @@ msgid "New tag"
 msgstr "New tag"
 
 #: src/app/(tabs)/(settings)/api-tokens.tsx:104
-#: src/app/new-token.tsx:77
+#: src/app/new-token.tsx:84
 msgid "New token"
 msgstr "New token"
 
@@ -3608,7 +3613,7 @@ msgstr "Sat"
 #: src/app/(tabs)/(settings)/prop-settings.tsx:67
 #: src/app/(tabs)/(settings)/prop-settings.tsx:91
 #: src/app/(tabs)/(settings)/risk-rules.tsx:53
-#: src/components/form-sheet.tsx:81
+#: src/components/form-sheet.tsx:91
 msgid "Save"
 msgstr "Save"
 
@@ -3643,7 +3648,7 @@ msgstr "Saved — leave blank to keep"
 #: src/app/(tabs)/(settings)/checklist.tsx:77
 #: src/app/(tabs)/(settings)/flex-sync.tsx:145
 #: src/app/(tabs)/(settings)/index.tsx:214
-#: src/components/form-sheet.tsx:81
+#: src/components/form-sheet.tsx:91
 msgid "Saving…"
 msgstr "Saving…"
 
@@ -3799,7 +3804,7 @@ msgstr "Share"
 msgid "Share card"
 msgstr "Share card"
 
-#: src/app/new-token.tsx:68
+#: src/app/new-token.tsx:74
 msgid "Share token"
 msgstr "Share token"
 
@@ -4261,15 +4266,15 @@ msgstr "Today"
 msgid "Token"
 msgstr "Token"
 
-#: src/app/new-token.tsx:58
+#: src/app/new-token.tsx:61
 msgid "Token created"
 msgstr "Token created"
 
-#: src/app/new-token.tsx:48
+#: src/app/new-token.tsx:50
 msgid "Token name is required."
 msgstr "Token name is required."
 
-#: src/app/new-token.tsx:79
+#: src/app/new-token.tsx:91
 msgid "Tokens authenticate scripts and integrations against your server's API."
 msgstr "Tokens authenticate scripts and integrations against your server's API."
 

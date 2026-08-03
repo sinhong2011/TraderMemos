@@ -889,7 +889,7 @@ msgstr "Call / Put"
 #: src/app/new-setup.tsx:106
 #: src/components/account-menu.tsx:44
 #: src/components/attachments-card.tsx:143
-#: src/components/form-sheet.tsx:71
+#: src/components/form-sheet.tsx:80
 #: src/components/swipeable-trade-row.tsx:83
 msgid "Cancel"
 msgstr "取消"
@@ -1085,7 +1085,7 @@ msgstr "合約數"
 msgid "Converts read-only amounts with the latest FX rate. Forms keep the account currency."
 msgstr "以最新匯率換算唯讀金額。表單仍使用帳戶貨幣。"
 
-#: src/app/new-token.tsx:60
+#: src/app/new-token.tsx:67
 msgid "Copy it now — the secret is shown only once and cannot be recovered."
 msgstr "請立即複製 — 密鑰只會顯示一次，無法復原。"
 
@@ -1102,8 +1102,8 @@ msgstr "無法計算波幅"
 msgid "Could not create tag"
 msgstr "無法建立標籤"
 
-#: src/app/new-token.tsx:42
-#: src/app/new-token.tsx:48
+#: src/app/new-token.tsx:44
+#: src/app/new-token.tsx:50
 msgid "Could not create token"
 msgstr "無法建立權杖"
 
@@ -1234,7 +1234,7 @@ msgstr "建立標籤"
 #~ msgstr "建立權杖"
 
 #: src/app/(tabs)/(settings)/tags.tsx:117
-#: src/app/new-token.tsx:108
+#: src/app/new-token.tsx:87
 msgid "Creating…"
 msgstr "建立中…"
 
@@ -1483,6 +1483,7 @@ msgstr "金額"
 #: src/app/(tabs)/(settings)/import-trades.tsx:233
 #: src/app/login.tsx:323
 #: src/app/manage-tags.tsx:62
+#: src/app/new-token.tsx:62
 #: src/app/share-trade.tsx:56
 #: src/components/tool-sheet.tsx:30
 msgid "Done"
@@ -1512,7 +1513,7 @@ msgstr "回撤模式"
 msgid "Duration"
 msgstr "持倉時長"
 
-#: src/app/new-token.tsx:86
+#: src/app/new-token.tsx:98
 msgid "e.g. CLI import"
 msgstr "例如：CLI 匯入"
 
@@ -1771,7 +1772,7 @@ msgstr "期望值"
 msgid "Expires {expires} · Last used {lastUsed}"
 msgstr "到期 {expires} · 最後使用 {lastUsed}"
 
-#: src/app/new-token.tsx:94
+#: src/app/new-token.tsx:106
 #: src/components/trade-form.tsx:563
 msgid "Expiry"
 msgstr "到期日"
@@ -1975,13 +1976,17 @@ msgstr "缺口頂"
 msgid "Gap top must sit above the bottom — check the edges"
 msgstr "缺口頂必須高於缺口底 — 請檢查邊界"
 
+#: src/app/new-token.tsx:86
+msgid "Generate"
+msgstr "產生"
+
 #: src/app/(tabs)/(settings)/api-tokens.tsx:230
 #~ msgid "Generate one above to authenticate scripts against your server."
 #~ msgstr "在上方產生一個，即可讓腳本驗證你的伺服器 API。"
 
 #: src/app/new-token.tsx:108
-msgid "Generate token"
-msgstr "產生權杖"
+#~ msgid "Generate token"
+#~ msgstr "產生權杖"
 
 #: src/app/(tabs)/(settings)/about.tsx:59
 msgid "GitHub repository"
@@ -2551,7 +2556,7 @@ msgstr "乘數"
 #: src/app/(tabs)/(settings)/account-form.tsx:221
 #: src/app/(tabs)/(settings)/tags.tsx:94
 #: src/app/new-setup.tsx:122
-#: src/app/new-token.tsx:82
+#: src/app/new-token.tsx:94
 msgid "Name"
 msgstr "名稱"
 
@@ -2621,7 +2626,7 @@ msgid "New tag"
 msgstr "新標籤"
 
 #: src/app/(tabs)/(settings)/api-tokens.tsx:104
-#: src/app/new-token.tsx:77
+#: src/app/new-token.tsx:84
 msgid "New token"
 msgstr "新權杖"
 
@@ -3606,7 +3611,7 @@ msgstr "六"
 #: src/app/(tabs)/(settings)/prop-settings.tsx:67
 #: src/app/(tabs)/(settings)/prop-settings.tsx:91
 #: src/app/(tabs)/(settings)/risk-rules.tsx:53
-#: src/components/form-sheet.tsx:81
+#: src/components/form-sheet.tsx:91
 msgid "Save"
 msgstr "儲存"
 
@@ -3641,7 +3646,7 @@ msgstr "已儲存 — 留空以保留"
 #: src/app/(tabs)/(settings)/checklist.tsx:77
 #: src/app/(tabs)/(settings)/flex-sync.tsx:145
 #: src/app/(tabs)/(settings)/index.tsx:214
-#: src/components/form-sheet.tsx:81
+#: src/components/form-sheet.tsx:91
 msgid "Saving…"
 msgstr "儲存中…"
 
@@ -3797,7 +3802,7 @@ msgstr "分享"
 msgid "Share card"
 msgstr "分享卡片"
 
-#: src/app/new-token.tsx:68
+#: src/app/new-token.tsx:74
 msgid "Share token"
 msgstr "分享權杖"
 
@@ -4259,15 +4264,15 @@ msgstr "今日"
 msgid "Token"
 msgstr "權杖"
 
-#: src/app/new-token.tsx:58
+#: src/app/new-token.tsx:61
 msgid "Token created"
 msgstr "已建立權杖"
 
-#: src/app/new-token.tsx:48
+#: src/app/new-token.tsx:50
 msgid "Token name is required."
 msgstr "請輸入權杖名稱。"
 
-#: src/app/new-token.tsx:79
+#: src/app/new-token.tsx:91
 msgid "Tokens authenticate scripts and integrations against your server's API."
 msgstr "權杖用於讓腳本與整合向你的伺服器 API 進行驗證。"
 
