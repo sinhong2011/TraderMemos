@@ -5,6 +5,7 @@ import {
   ArrowUpRight,
   CircleDashed,
   FileStack,
+  FileUp,
   Loader2,
   Plus,
   ScanLine,
@@ -67,6 +68,7 @@ import { tradesApi } from "@/lib/api/trades";
 import { parseAmountToNumber } from "@/lib/amountInput";
 import { cn } from "@/lib/cn";
 import { usePrivacyMode } from "@/lib/displayPrefs";
+import { parseFillFile } from "@/lib/fillFile";
 import { fmtMoney, fmtSignedMoney } from "@/lib/format";
 import { useFilters } from "@/lib/filters";
 import {
@@ -1322,6 +1324,7 @@ export function NewTradeDrawer() {
   const [templates, setTemplates] = useState<TradeTemplate[]>([]);
   const [templatesOpen, setTemplatesOpen] = useState(false);
   const ocrFileRef = useRef<HTMLInputElement>(null);
+  const fillFileRef = useRef<HTMLInputElement>(null);
   const wasOpen = useRef(false);
   const prefilledEditId = useRef<string | null>(null);
   const locale = getIntlLocale(getStoredLocale());
@@ -1776,6 +1779,26 @@ export function NewTradeDrawer() {
     }
   };
 
+  const importFillFile = async (file: File) => {
+    try {
+      const extract = parseFillFile(file.name, await file.text());
+      form.setFieldValue("trades", tradesFromOcrExtract(extract));
+      setPendingFilesByKey({});
+      setOcrExtract(extract);
+      setOcrWarnings(extract.warnings ?? []);
+      toast.add({
+        title: "Fills loaded",
+        description: ocrScanToastDescription(extract),
+      });
+    } catch (error) {
+      toast.add({
+        title: "Import failed",
+        description: error instanceof Error ? error.message : "Could not read file",
+        type: "error",
+      });
+    }
+  };
+
   const openVisionSettings = () => {
     close();
     void navigate({ to: "/settings" });
@@ -1962,6 +1985,30 @@ export function NewTradeDrawer() {
                           const files = Array.from(event.target.files ?? []);
                           event.target.value = "";
                           if (files.length) void scan(files);
+                        }}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => fillFileRef.current?.click()}
+                        className="h-8.5 text-sm font-medium sm:h-7.5"
+                        aria-label="Prefill trade from a CSV or JSON file"
+                        title="Select a CSV or JSON file of fills"
+                      >
+                        <FileUp size={14} aria-hidden />
+                        Import file
+                      </Button>
+                      <input
+                        ref={fillFileRef}
+                        type="file"
+                        accept=".csv,.json,text/csv,text/comma-separated-values,application/json,text/plain"
+                        data-testid="fill-file-input"
+                        className="sr-only"
+                        onChange={(event) => {
+                          const file = event.target.files?.[0];
+                          event.target.value = "";
+                          if (file) void importFillFile(file);
                         }}
                       />
                     </>
