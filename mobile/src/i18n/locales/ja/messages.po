@@ -26,6 +26,11 @@ msgstr "（スキップ）"
 #~ msgid "{0, plural, one {# day} other {# days}}"
 #~ msgstr "{0, plural, other {#日}}"
 
+#. placeholder {0}: rSummary.excluded
+#: src/components/reports/overview-section.tsx:377
+msgid "{0} closed trades excluded (no stop recorded)."
+msgstr "{0}件の決済済みトレードを除外（ストップ未記録）。"
+
 #. placeholder {0}: traded.length
 #: src/app/(tabs)/(calendar)/index.tsx:624
 msgid "{0} days"
@@ -36,10 +41,30 @@ msgstr "{0}日"
 msgid "{0} of goal · YTD net P&L"
 msgstr "目標の{0} · 年初来純損益"
 
+#. placeholder {0}: day.trades
+#. placeholder {0}: group.summary.total_trades
 #. placeholder {0}: summary.total_trades
 #: src/components/insights-card.tsx:80
+#: src/components/reports/overview-section.tsx:233
+#: src/components/reports/overview-section.tsx:292
 msgid "{0} trades"
 msgstr "{0}件のトレード"
+
+#. placeholder {0}: summary.total_trades
+#. placeholder {1}: money.format(-summary.total_fees)
+#. placeholder {2}: money.format(summary.expectancy)
+#: src/components/reports/overview-section.tsx:97
+msgid "{0} trades · Fees {1} · Expectancy {2}"
+msgstr "{0}件 · 手数料 {1} · 期待値 {2}"
+
+#. placeholder {0}: group.summary.wins
+#. placeholder {0}: summary.wins
+#. placeholder {1}: group.summary.losses
+#. placeholder {1}: summary.losses
+#: src/components/reports/overview-section.tsx:133
+#: src/components/reports/overview-section.tsx:430
+msgid "{0}W {1}L"
+msgstr "{0}勝 {1}敗"
 
 #: src/app/(tabs)/(calendar)/index.tsx:489
 #~ msgid "{count, plural, one {# trade} other {# trades}}"
@@ -56,6 +81,10 @@ msgstr "{count}件のトレード"
 #: src/app/(tabs)/(calendar)/index.tsx:698
 msgid "{daysTraded} days"
 msgstr "{daysTraded}日"
+
+#: src/components/reports/overview-section.tsx:361
+msgid "{included} of {total} trades"
+msgstr "{total}件中{included}件"
 
 #: src/app/(tabs)/(settings)/ai.tsx:104
 msgid "{title} settings updated."
@@ -85,6 +114,14 @@ msgstr "{year}年の損益目標"
 #: src/app/(tabs)/(calendar)/index.tsx:870
 msgid "{yearCount} trades"
 msgstr "{yearCount}件のトレード"
+
+#: src/components/reports-filter-menu.tsx:77
+msgid "% of balance"
+msgstr "残高比 %"
+
+#: src/components/reports-filter-menu.tsx:77
+msgid "% of balance (needs balance)"
+msgstr "残高比 %（開始残高が必要）"
 
 #. placeholder {0}: result.errors.length - 10
 #: src/app/(tabs)/(settings)/import-trades.tsx:228
@@ -267,6 +304,10 @@ msgstr "すべての口座"
 msgid "All markets"
 msgstr "すべての市場"
 
+#: src/components/reports-filter-menu.tsx:39
+msgid "All sides"
+msgstr "全サイド"
+
 #: src/app/(tabs)/(trades)/index.tsx:264
 msgid "All time"
 msgstr "すべての期間"
@@ -292,6 +333,10 @@ msgstr "ミス・習慣・カスタムラベルでトレードに注釈を付け
 #: src/app/(tabs)/(settings)/index.tsx:209
 msgid "Annual P&L goal"
 msgstr "年間損益目標"
+
+#: src/components/reports-filter-menu.tsx:51
+msgid "Any duration"
+msgstr "全期間タイプ"
 
 #: src/app/(tabs)/(settings)/ai.tsx:152
 msgid "API key"
@@ -322,6 +367,14 @@ msgstr "アプリ設定をインポートしました"
 msgid "App configuration"
 msgstr "アプリ設定"
 
+#: src/components/reports/overview-section.tsx:52
+msgid "average"
+msgstr "平均的"
+
+#: src/components/reports-filter-menu.tsx:84
+msgid "Average"
+msgstr "平均"
+
 #: src/app/(tabs)/(trades)/[id].tsx:284
 msgid "Avg entry"
 msgstr "平均エントリー価格"
@@ -334,13 +387,31 @@ msgstr "平均エグジット価格"
 msgid "Avg hold"
 msgstr "平均保有時間"
 
+#: src/components/reports/overview-section.tsx:365
+msgid "Avg losing R"
+msgstr "平均損失R"
+
 #: src/components/performance-card.tsx:101
+#: src/components/reports/overview-section.tsx:145
 msgid "Avg loss"
 msgstr "平均損失"
 
+#: src/components/reports/overview-section.tsx:359
+msgid "Avg R / trade"
+msgstr "平均R/トレード"
+
+#: src/components/reports/overview-section.tsx:156
+msgid "Avg trade"
+msgstr "平均トレード"
+
 #: src/components/performance-card.tsx:96
+#: src/components/reports/overview-section.tsx:140
 msgid "Avg win"
 msgstr "平均利益"
+
+#: src/components/reports/overview-section.tsx:364
+msgid "Avg winning R"
+msgstr "平均利益R"
 
 #: src/app/(tabs)/(settings)/import-trades.tsx:390
 msgid "Back"
@@ -365,6 +436,14 @@ msgstr "引き分け"
 #: src/app/(tabs)/(settings)/index.tsx:274
 msgid "Behavior"
 msgstr "動作"
+
+#: src/components/reports/overview-section.tsx:54
+msgid "below average"
+msgstr "平均以下"
+
+#: src/components/reports/overview-section.tsx:367
+msgid "Best / worst"
+msgstr "最高 / 最低"
 
 #: src/components/insights-card.tsx:66
 msgid "Best day"
@@ -720,6 +799,8 @@ msgid "Date"
 msgstr "日付"
 
 #: src/components/breakdown-card.tsx:23
+#: src/components/reports-filter-menu.tsx:53
+#: src/components/reports/winloss-section.tsx:73
 msgid "Day"
 msgstr "曜日"
 
@@ -818,6 +899,10 @@ msgstr "配当"
 msgid "Dividends"
 msgstr "配当"
 
+#: src/components/reports-filter-menu.tsx:75
+msgid "Dollars"
+msgstr "金額"
+
 #: src/app/(tabs)/(settings)/api-tokens.tsx:110
 #: src/app/(tabs)/(settings)/import-trades.tsx:233
 #: src/app/login.tsx:323
@@ -828,6 +913,10 @@ msgstr "完了"
 #: src/app/(tabs)/(settings)/export-trades.tsx:134
 msgid "Download & share"
 msgstr "ダウンロードして共有"
+
+#: src/components/reports-filter-menu.tsx:48
+msgid "Duration"
+msgstr "保有期間"
 
 #: src/app/(tabs)/(settings)/api-tokens.tsx:121
 msgid "e.g. CLI import"
@@ -840,6 +929,10 @@ msgstr "例: FOMO"
 #: src/app/(tabs)/(settings)/account-form.tsx:222
 msgid "e.g. Main Account"
 msgstr "例: メイン口座"
+
+#: src/components/reports/winloss-section.tsx:141
+msgid "Each point is the win rate across the trailing {windowSize} closed trades."
+msgstr "各ポイントは直近{windowSize}件の決済済みトレードの勝率です。"
 
 #: src/app/(tabs)/(settings)/risk-rules.tsx:85
 #: src/components/swipeable-trade-row.tsx:130
@@ -948,6 +1041,10 @@ msgstr "エラー（{0}）"
 msgid "Est. net P&L"
 msgstr "推定純損益"
 
+#: src/components/reports/overview-section.tsx:48
+msgid "excellent"
+msgstr "優秀"
+
 #: src/app/manage-tags.tsx:138
 msgid "Exec {grade}"
 msgstr "執行 {grade}"
@@ -956,6 +1053,10 @@ msgstr "執行 {grade}"
 #: src/components/trade-form.tsx:412
 msgid "Executed at"
 msgstr "約定日時"
+
+#: src/components/reports/overview-section.tsx:406
+msgid "Execution grade"
+msgstr "執行グレード"
 
 #: src/app/(tabs)/(trades)/[id].tsx:323
 #: src/app/manage-tags.tsx:130
@@ -974,6 +1075,7 @@ msgid "Exit reason"
 msgstr "決済理由"
 
 #: src/components/performance-card.tsx:60
+#: src/components/reports/winloss-section.tsx:80
 msgid "Expect"
 msgstr "期待値"
 
@@ -1005,6 +1107,7 @@ msgid "export.json plus trade screenshots under attachments/."
 msgstr "export.jsonに加え、attachments/配下にトレードのスクリーンショットを含みます。"
 
 #: src/components/breakdown-card.tsx:42
+#: src/components/reports/overview-section.tsx:264
 msgid "Failed to load breakdown."
 msgstr "内訳を読み込めませんでした。"
 
@@ -1023,6 +1126,7 @@ msgstr "手数料"
 #: src/app/(tabs)/(settings)/import-trades.tsx:44
 #: src/app/(tabs)/(trades)/[id].tsx:212
 #: src/components/performance-card.tsx:57
+#: src/components/reports/overview-section.tsx:183
 #: src/components/trade-form.tsx:432
 msgid "Fees"
 msgstr "手数料"
@@ -1099,13 +1203,25 @@ msgstr "GitHubリポジトリ"
 msgid "Go runtime"
 msgstr "Goランタイム"
 
+#: src/components/reports/overview-section.tsx:50
+msgid "good"
+msgstr "良好"
+
 #: src/components/performance-card.tsx:56
 msgid "Gross"
 msgstr "グロス"
 
+#: src/components/reports-filter-menu.tsx:65
+msgid "Gross (before fees)"
+msgstr "グロス（手数料前）"
+
 #: src/app/(tabs)/(trades)/[id].tsx:208
 msgid "Gross P&L"
 msgstr "総損益"
+
+#: src/components/reports/overview-section.tsx:120
+msgid "gross profit ÷ gross loss"
+msgstr "総利益 ÷ 総損失"
 
 #: src/app/(tabs)/(trades)/index.tsx:293
 #~ msgid "Group trades under a custom tag."
@@ -1235,6 +1351,10 @@ msgstr "JSONバックアップ"
 msgid "JSON must be an array of fills, or an object with a fills/rows/executions array."
 msgstr "JSONは約定の配列、または fills/rows/executions 配列を持つオブジェクトである必要があります。"
 
+#: src/components/reports/overview-section.tsx:171
+msgid "Kelly (half)"
+msgstr "ケリー（半分）"
+
 #: src/app/(tabs)/(settings)/tags.tsx:103
 msgid "Kind"
 msgstr "種類"
@@ -1246,6 +1366,14 @@ msgstr "言語"
 #: src/app/(tabs)/(settings)/index.tsx:275
 msgid "Language is set per app in iOS Settings."
 msgstr "言語はiOSの設定でアプリごとに変更できます。"
+
+#: src/components/reports/overview-section.tsx:166
+msgid "Largest loss"
+msgstr "最大損失"
+
+#: src/components/reports/overview-section.tsx:161
+msgid "Largest win"
+msgstr "最大利益"
 
 #: src/app/(tabs)/(trades)/index.tsx:268
 msgid "Last 30 days"
@@ -1277,6 +1405,7 @@ msgstr "新規トレードのコンプライアンスチェックで使う上限
 msgid "Loading…"
 msgstr "読み込み中…"
 
+#: src/components/reports-filter-menu.tsx:40
 #: src/components/trade-form.tsx:481
 #: src/components/trade-row.tsx:62
 msgid "Long"
@@ -1301,6 +1430,7 @@ msgstr "連敗"
 
 #: src/app/(tabs)/(trades)/index.tsx:260
 #: src/components/performance-card.tsx:75
+#: src/components/reports/overview-section.tsx:84
 msgid "Losses"
 msgstr "負け"
 
@@ -1362,11 +1492,36 @@ msgstr "1トレードの最大リスク"
 #~ msgid "Max risk per trade"
 #~ msgstr "1トレードの最大リスク"
 
+#: src/components/reports-filter-menu.tsx:87
+msgid "Mean"
+msgstr "平均値"
+
+#: src/components/reports-filter-menu.tsx:88
+msgid "Median"
+msgstr "中央値"
+
+#: src/components/reports/overview-section.tsx:145
+msgid "Median loss"
+msgstr "損失中央値"
+
+#: src/components/reports/overview-section.tsx:156
+msgid "Median trade"
+msgstr "トレード中央値"
+
+#: src/components/reports/overview-section.tsx:140
+msgid "Median win"
+msgstr "利益中央値"
+
+#: src/components/reports/winloss-section.tsx:148
+msgid "Metric evolution"
+msgstr "指標の推移"
+
 #: src/app/(tabs)/(trades)/[id].tsx:253
 msgid "MFE"
 msgstr "MFE"
 
 #: src/app/(tabs)/(settings)/tags.tsx:30
+#: src/components/reports/overview-section.tsx:310
 msgid "Mistake"
 msgstr "ミス"
 
@@ -1382,6 +1537,7 @@ msgstr "モデル"
 
 #: src/app/(tabs)/(calendar)/index.tsx:196
 #: src/components/mini-calendar-card.tsx:52
+#: src/components/reports/winloss-section.tsx:75
 msgid "Month"
 msgstr "今月"
 
@@ -1400,10 +1556,22 @@ msgstr "乗数"
 msgid "Name"
 msgstr "名前"
 
+#: src/components/reports/winloss-section.tsx:122
+msgid "Need at least {windowSize} closed trades to fill the window."
+msgstr "ウィンドウを満たすには決済済みトレードが{windowSize}件以上必要です。"
+
+#: src/components/reports/overview-section.tsx:179
+msgid "needs 2+ trades"
+msgstr "2件以上必要"
+
 #: src/app/(tabs)/(trades)/index.tsx:408
 #: src/components/performance-card.tsx:51
 msgid "Net"
 msgstr "ネット"
+
+#: src/components/reports-filter-menu.tsx:64
+msgid "Net (after fees)"
+msgstr "ネット（手数料後）"
 
 #: src/app/(tabs)/(calendar)/index.tsx:613
 #: src/app/(tabs)/(calendar)/index.tsx:742
@@ -1478,6 +1646,10 @@ msgstr "内訳データはまだありません。"
 msgid "No chart data for this symbol."
 msgstr "このシンボルのチャートデータがありません。"
 
+#: src/components/reports/winloss-section.tsx:154
+msgid "No closed trades in this range."
+msgstr "この範囲に決済済みトレードはありません。"
+
 #: src/app/(tabs)/(calendar)/day/[date].tsx:62
 msgid "No closed trades on this day."
 msgstr "この日に決済したトレードはありません。"
@@ -1486,9 +1658,17 @@ msgstr "この日に決済したトレードはありません。"
 msgid "No equity data in this range."
 msgstr "この期間の資産データはありません。"
 
+#: src/components/reports/overview-section.tsx:320
+msgid "No mistakes tagged."
+msgstr "ミスのタグ付けはありません。"
+
 #: src/app/(tabs)/(settings)/risk-rules.tsx:127
 msgid "No risk rules yet"
 msgstr "リスクルールがまだありません"
+
+#: src/components/reports/overview-section.tsx:320
+msgid "No setups traded in this range."
+msgstr "この範囲で取引されたセットアップはありません。"
 
 #: src/app/(tabs)/(settings)/tags.tsx:144
 msgid "No tags yet"
@@ -1522,6 +1702,10 @@ msgstr "このフィルターに一致するトレードはありません。"
 #: src/app/(tabs)/(trades)/index.tsx:421
 msgid "No trades matching \"{search}\""
 msgstr "「{search}」に一致するトレードはありません"
+
+#: src/components/reports/overview-section.tsx:343
+msgid "No trades with a knowable initial risk — set stops to unlock R analytics."
+msgstr "初期リスクが判明しているトレードがありません — ストップを設定するとR分析が有効になります。"
 
 #: src/app/(tabs)/(dashboard)/index.tsx:97
 msgid "No trades yet"
@@ -1649,13 +1833,30 @@ msgstr "タイトル（任意）"
 msgid "Other"
 msgstr "その他"
 
+#: src/components/reports/winloss-section.tsx:128
+msgid "over the last {windowSize} trades"
+msgstr "直近{windowSize}件"
+
+#: src/app/(tabs)/(reports)/index.tsx:19
+msgid "Overview"
+msgstr "概要"
+
 #: src/app/(tabs)/(trades)/[id].tsx:206
+#: src/components/reports/winloss-section.tsx:78
 msgid "P&L"
 msgstr "損益"
+
+#: src/components/reports-filter-menu.tsx:61
+msgid "P&L basis"
+msgstr "損益基準"
 
 #: src/app/login.tsx:194
 msgid "Password"
 msgstr "パスワード"
+
+#: src/components/reports/overview-section.tsx:150
+msgid "Payoff ratio"
+msgstr "ペイオフレシオ"
 
 #: src/lib/risk-rules.ts:94
 msgid "Percent must be between 0 and 100."
@@ -1663,8 +1864,13 @@ msgstr "パーセントは0〜100の範囲で入力してください。"
 
 #: src/app/(tabs)/(settings)/account-form.tsx:294
 #: src/components/performance-card.tsx:49
+#: src/components/reports/overview-section.tsx:91
 msgid "Performance"
 msgstr "パフォーマンス"
+
+#: src/components/reports/overview-section.tsx:91
+msgid "Performance — gross"
+msgstr "パフォーマンス — グロス"
 
 #. placeholder {0}: account?.name ?? ''
 #: src/app/(tabs)/(settings)/account-form.tsx:205
@@ -1681,6 +1887,7 @@ msgid "Permanently deletes this trade and all of its fills. This cannot be undon
 msgstr "このトレードとすべての約定を完全に削除します。元に戻せません。"
 
 #: src/components/performance-card.tsx:58
+#: src/components/reports/winloss-section.tsx:79
 msgid "PF"
 msgstr "PF"
 
@@ -1700,6 +1907,10 @@ msgstr "プラン"
 msgid "Plan & risk"
 msgstr "プランとリスク"
 
+#: src/components/reports/overview-section.tsx:314
+msgid "Playbook & leaks"
+msgstr "プレイブックとリーク"
+
 #: src/app/login.tsx:293
 msgid ""
 "Point the app at your own TraderMemos instance.\n"
@@ -1709,6 +1920,10 @@ msgstr "自分の TraderMemos インスタンスに接続します。"
 #: src/components/trade-form.tsx:565
 msgid "Point value"
 msgstr "ポイント価値"
+
+#: src/components/reports/overview-section.tsx:56
+msgid "poor"
+msgstr "不良"
 
 #: src/app/(tabs)/(trades)/[id].tsx:279
 msgid "Position"
@@ -1739,6 +1954,10 @@ msgstr "プライバシー"
 msgid "Privacy mode"
 msgstr "プライバシーモード"
 
+#: src/components/reports/overview-section.tsx:104
+msgid "Profit factor"
+msgstr "プロフィットファクター"
+
 #: src/app/(tabs)/(settings)/account-form.tsx:49
 msgid "Prop"
 msgstr "プロップ"
@@ -1764,6 +1983,11 @@ msgstr "クイックフィルター"
 #: src/app/(tabs)/(trades)/[id].tsx:242
 msgid "R multiple"
 msgstr "R倍率"
+
+#: src/components/reports/overview-section.tsx:341
+#: src/components/reports/overview-section.tsx:356
+msgid "R-multiple"
+msgstr "Rマルチプル"
 
 #: src/components/trade-form.tsx:724
 msgid "Rate how you executed, not how it paid — a disciplined trade can still lose."
@@ -1848,6 +2072,11 @@ msgstr "削除中…"
 msgid "Report an issue"
 msgstr "問題を報告"
 
+#: src/app/(tabs)/_layout.tsx:50
+#: src/app/(tabs)/(reports)/_layout.tsx:34
+msgid "Reports"
+msgstr "レポート"
+
 #: src/app/(tabs)/(settings)/account-form.tsx:321
 msgid "Return"
 msgstr "リターン"
@@ -1884,6 +2113,10 @@ msgstr "リスクルール"
 #: src/app/(tabs)/(settings)/index.tsx:126
 #~ msgid "Risk rules updated."
 #~ msgstr "リスクルールを更新しました。"
+
+#: src/components/reports/winloss-section.tsx:117
+msgid "Rolling win rate"
+msgstr "ローリング勝率"
 
 #. placeholder {0}: error.row
 #. placeholder {1}: error.message
@@ -1949,6 +2182,10 @@ msgstr "保存済み — 空欄のままで維持"
 msgid "Saving…"
 msgstr "保存中…"
 
+#: src/components/reports-filter-menu.tsx:52
+msgid "Scalp"
+msgstr "スキャル"
+
 #: src/components/trade-prefill-bar.tsx:149
 #: src/components/trade-prefill-bar.tsx:169
 #~ msgid "Scan to fill"
@@ -2008,13 +2245,14 @@ msgstr "セッション"
 msgid "Set up Vision scan first"
 msgstr "先に画像スキャンを設定してください"
 
-#: src/app/(tabs)/_layout.tsx:50
+#: src/app/(tabs)/_layout.tsx:54
 #: src/app/(tabs)/(settings)/_layout.tsx:21
 msgid "Settings"
 msgstr "設定"
 
 #: src/app/(tabs)/(trades)/[id].tsx:299
 #: src/components/breakdown-card.tsx:24
+#: src/components/reports/overview-section.tsx:309
 msgid "Setup"
 msgstr "セットアップ"
 
@@ -2041,6 +2279,7 @@ msgstr "復元されたセットアップ"
 msgid "Share token"
 msgstr "トークンを共有"
 
+#: src/components/reports-filter-menu.tsx:41
 #: src/components/trade-form.tsx:482
 #: src/components/trade-row.tsx:62
 msgid "Short"
@@ -2056,6 +2295,7 @@ msgid "Show password"
 msgstr "パスワードを表示"
 
 #: src/app/(tabs)/(settings)/import-trades.tsx:38
+#: src/components/reports-filter-menu.tsx:36
 #: src/components/trade-form.tsx:408
 msgid "Side"
 msgstr "売買"
@@ -2084,6 +2324,10 @@ msgstr "数量・価格のない{skipped}行をスキップしました。"
 #: src/app/(tabs)/(trades)/index.tsx:357
 msgid "Sort"
 msgstr "並び替え"
+
+#: src/components/reports/overview-section.tsx:177
+msgid "SQN"
+msgstr "SQN"
 
 #: src/app/(tabs)/(settings)/account-form.tsx:280
 msgid "Starting balance"
@@ -2120,6 +2364,10 @@ msgstr "権利行使価格"
 msgid "Strips the account name, broker, and IDs from the export — useful for sharing."
 msgstr "アカウント名・ブローカー・IDをエクスポートから除外します — 共有時に便利です。"
 
+#: src/components/reports/overview-section.tsx:173
+msgid "suggested risk"
+msgstr "推奨リスク"
+
 #: src/lib/risk-rules.ts:45
 msgid "Suggested size as a percent of account equity."
 msgstr "口座エクイティに対する推奨サイズ（%）。"
@@ -2127,6 +2375,14 @@ msgstr "口座エクイティに対する推奨サイズ（%）。"
 #: src/app/(tabs)/(settings)/import-trades.tsx:275
 msgid "Summary"
 msgstr "概要"
+
+#: src/components/reports/overview-section.tsx:46
+msgid "superb"
+msgstr "卓越"
+
+#: src/components/reports-filter-menu.tsx:54
+msgid "Swing"
+msgstr "スイング"
 
 #: src/components/account-menu.tsx:49
 #: src/components/account-menu.tsx:65
@@ -2261,6 +2517,13 @@ msgstr "タイミング"
 msgid "Title"
 msgstr "タイトル"
 
+#. placeholder {0}: formatPercent(latest.winRate)
+#. placeholder {1}: formatRatio(latest.profitFactor)
+#. placeholder {2}: ctx.money.format(latest.cumulativePnl)
+#: src/components/reports/winloss-section.tsx:182
+msgid "To date: {0} win rate · PF {1} · {2} cumulative"
+msgstr "累計: 勝率 {0} · PF {1} · 累積 {2}"
+
 #: src/app/(tabs)/(trades)/index.tsx:265
 msgid "Today"
 msgstr "今日"
@@ -2316,6 +2579,10 @@ msgstr "トレード"
 msgid "Trades created"
 msgstr "作成されたトレード"
 
+#: src/components/reports/overview-section.tsx:208
+msgid "Trading days"
+msgstr "取引日"
+
 #: src/app/(tabs)/(settings)/_layout.tsx:29
 #: src/app/(tabs)/(settings)/cash-form.tsx:161
 msgid "Transaction"
@@ -2328,6 +2595,14 @@ msgstr "種別"
 #: src/app/(tabs)/(settings)/account-form.tsx:240
 msgid "Type broker name"
 msgstr "ブローカー名を入力"
+
+#: src/components/reports-filter-menu.tsx:72
+msgid "Unit"
+msgstr "単位"
+
+#: src/components/reports/overview-section.tsx:413
+msgid "Unrated"
+msgstr "未評価"
 
 #: src/app/(tabs)/(settings)/about.tsx:81
 msgid "Unreachable"
@@ -2370,11 +2645,14 @@ msgid "Vision scan"
 msgstr "画像スキャン"
 
 #: src/components/performance-card.tsx:87
+#: src/components/reports/overview-section.tsx:86
+#: src/components/reports/overview-section.tsx:188
 msgid "Wash"
 msgstr "引き分け"
 
 #: src/app/(tabs)/(calendar)/index.tsx:195
 #: src/app/(tabs)/(calendar)/index.tsx:640
+#: src/components/reports/winloss-section.tsx:74
 msgid "Week"
 msgstr "週"
 
@@ -2403,6 +2681,22 @@ msgstr "なぜ決済しましたか？"
 msgid "WIN"
 msgstr "勝ち"
 
+#: src/app/(tabs)/(reports)/index.tsx:20
+msgid "Win / Loss"
+msgstr "勝敗"
+
+#: src/components/reports/overview-section.tsx:152
+msgid "win ÷ loss"
+msgstr "平均利益 ÷ 平均損失"
+
+#: src/components/reports/overview-section.tsx:123
+msgid "Win rate"
+msgstr "勝率"
+
+#: src/components/reports/winloss-section.tsx:157
+msgid "Win rate (%)"
+msgstr "勝率 (%)"
+
 #: src/components/insights-card.tsx:82
 msgid "Winning hold"
 msgstr "勝ち保有時間"
@@ -2413,6 +2707,7 @@ msgstr "連勝"
 
 #: src/app/(tabs)/(trades)/index.tsx:259
 #: src/components/performance-card.tsx:69
+#: src/components/reports/overview-section.tsx:83
 msgid "Wins"
 msgstr "勝ち"
 
