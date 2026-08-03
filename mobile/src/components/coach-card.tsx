@@ -1,0 +1,154 @@
+import { useMutation } from '@tanstack/react-query';
+import { useState } from 'react';
+import { ActivityIndicator, Text, View } from 'react-native';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+
+import { useApiRequest, useLlmSettings } from '@/api/hooks';
+import type { CoachReview, TradeDetail } from '@/api/types';
+import { DashboardCard } from '@/components/dashboard-card';
+import { GlassButton } from '@/components/glass-button';
+import { t } from '@lingui/core/macro';
+import {
+  computeTradeInsights,
+  generateTradeCoachNotes,
+  type CoachTone,
+  type TradeCoachNote,
+} from '@/lib/trade-insights';
+
+function toneLabel(tone: CoachTone): string {
+  switch (tone) {
+    case 'neg':
+      return t`Issue`;
+    case 'warn':
+      return t`Watch`;
+    case 'pos':
+      return t`Strength`;
+    default:
+      return t`Tip`;
+  }
+}
+
+function NoteRow({ note }: { note: TradeCoachNote }) {
+  const { theme } = useUnistyles();
+  const toneColor: Record<CoachTone, string> = {
+    neg: theme.colors.destructive,
+    warn: theme.colors.accent,
+    pos: theme.colors.profit,
+    tip: theme.colors.primary,
+  };
+  return (
+    <View style={styles.note}>
+      <Text style={styles.noteHead}>
+        <Text style={[styles.noteTone, { color: toneColor[note.tone] }]}>
+          {toneLabel(note.tone)}
+        </Text>
+        <Text style={styles.noteDot}> · </Text>
+        {note.headline}
+      </Text>
+      <Text style={styles.noteDetail}>{note.detail}</Text>
+    </View>
+  );
+}
+
+/**
+ * Trade coach — deterministic rule notes always render (offline, instant);
+ * the LLM review is an explicit opt-in tap that layers extra notes on top,
+ * mirroring the web TradeCoachPanel.
+ */
+export function CoachCard({ trade }: { trade: TradeDetail }) {
+  const api = useApiRequest();
+  const coachSettings = useLlmSettings('coach');
+  const coachConfigured = coachSettings.data?.enabled === true;
+
+  const [review, setReview] = useState<CoachReview | null>(null);
+
+  const generate = useMutation({
+    mutationFn: () => api<CoachReview>(`/trades/${trade.id}/coach`, { method: 'POST' }),
+    onSuccess: setReview,
+  });
+
+  const insights = computeTradeInsights(trade);
+  const localNotes = generateTradeCoachNotes(trade, insights);
+  const llmNotes = review?.source === 'llm' ? review.notes : [];
+
+  if (localNotes.length === 0 && !coachConfigured) return null;
+
+  return (
+    <DashboardCard title={t`Coach`}>
+      {localNotes.map((note) => (
+        <NoteRow key={note.id} note={note} />
+      ))}
+
+      {llmNotes.length > 0 ? (
+        <>
+          <Text style={styles.sectionLabel}>{t`AI review`}</Text>
+          {llmNotes.map((note) => (
+            <NoteRow key={note.id} note={note} />
+          ))}
+        </>
+      ) : null}
+
+      {review?.source === 'error' ? (
+        <Text style={styles.muted}>{review.error || t`The AI review failed — try again.`}</Text>
+      ) : null}
+      {review?.source === 'off' ? (
+        <Text style={styles.muted}>
+          {t`AI coach is turned off — enable it under Settings → AI.`}
+        </Text>
+      ) : null}
+      {generate.isError ? (
+        <Text style={styles.muted}>{generate.error.message}</Text>
+      ) : null}
+
+      {coachConfigured ? (
+        <View style={styles.action}>
+          {generate.isPending ? (
+            <ActivityIndicator />
+          ) : (
+            <GlassButton
+              label={llmNotes.length > 0 ? t`Regenerate` : t`Ask AI`}
+              systemImage="sparkles"
+              onPress={() => generate.mutate()}
+            />
+          )}
+        </View>
+      ) : localNotes.length > 0 ? (
+        <Text style={styles.footnote}>
+          {t`Add an AI endpoint under Settings → AI for a model-written review.`}
+        </Text>
+      ) : null}
+    </DashboardCard>
+  );
+}
+
+const styles = StyleSheet.create((theme) => ({
+  note: {
+    gap: 4,
+    backgroundColor: theme.colors.muted,
+    borderRadius: theme.radius.md,
+    borderCurve: 'continuous',
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm + 2,
+  },
+  noteHead: {
+    fontSize: 12,
+    fontWeight: '600',
+    letterSpacing: 0.4,
+    color: theme.colors.mutedForeground,
+    textTransform: 'uppercase',
+  },
+  noteTone: { fontWeight: '700' },
+  noteDot: { color: theme.colors.mutedForeground },
+  noteDetail: { fontSize: 13, lineHeight: 18, color: theme.colors.mutedForeground },
+  sectionLabel: {
+    fontSize: 11,
+    fontWeight: '600',
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
+    color: theme.colors.mutedForeground,
+    paddingTop: theme.spacing.xs,
+  },
+  action: { alignItems: 'flex-start', paddingTop: theme.spacing.xs },
+  muted: { fontSize: 13, color: theme.colors.mutedForeground },
+  footnote: { fontSize: 12, color: theme.colors.mutedForeground },
+}));
