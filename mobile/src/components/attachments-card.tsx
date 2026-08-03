@@ -218,5 +218,6 @@ const styles = StyleSheet.create((theme) => ({
     borderCurve: 'continuous',
     backgroundColor: theme.colors.muted,
   },
-  action: { alignItems: 'flex-start' },
+  // Standalone actions center (the CenteredButton idiom).
+  action: { alignItems: 'center' },
 }));

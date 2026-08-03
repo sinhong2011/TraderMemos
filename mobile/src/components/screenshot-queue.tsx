@@ -136,8 +136,15 @@ export function ScreenshotQueue({
 }
 
 const styles = StyleSheet.create((theme) => ({
-  wrap: { gap: theme.spacing.sm, alignItems: 'flex-start' },
-  thumbs: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
+  // Standalone actions center (the CenteredButton idiom); thumbnails keep
+  // their left-aligned grid above.
+  wrap: { gap: theme.spacing.sm, alignItems: 'center' },
+  thumbs: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: theme.spacing.sm,
+    alignSelf: 'stretch',
+  },
   thumb: {
     width: 72,
     height: 72,
