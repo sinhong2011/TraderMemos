@@ -14,7 +14,7 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. placeholder {0}: token.name
-#: src/app/(tabs)/(settings)/api-tokens.tsx:128
+#: src/app/(tabs)/(settings)/api-tokens.tsx:91
 msgid "“{0}” stops working immediately. This cannot be undone."
 msgstr "“{0}”이(가) 즉시 작동을 멈춥니다. 되돌릴 수 없습니다."
 
@@ -334,7 +334,7 @@ msgstr "12시간제 (1:30 PM)"
 msgid "1R"
 msgstr "1R"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:26
+#: src/app/new-token.tsx:18
 msgid "1y"
 msgstr "1년"
 
@@ -346,7 +346,7 @@ msgstr "24시간제 (13:30)"
 #~ msgid "30 days"
 #~ msgstr "30일"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:24
+#: src/app/new-token.tsx:16
 msgid "30d"
 msgstr "30일"
 
@@ -354,7 +354,7 @@ msgstr "30일"
 #~ msgid "90 days"
 #~ msgstr "90일"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:25
+#: src/app/new-token.tsx:17
 msgid "90d"
 msgstr "90일"
 
@@ -417,8 +417,8 @@ msgid "Active limits"
 msgstr "활성 한도"
 
 #: src/app/(tabs)/(settings)/api-tokens.tsx:197
-msgid "Active tokens"
-msgstr "활성 토큰"
+#~ msgid "Active tokens"
+#~ msgstr "활성 토큰"
 
 #. placeholder {0}: event.actual
 #: src/app/(tabs)/(reports)/economic-events.tsx:218
@@ -871,7 +871,7 @@ msgstr "콜 / 풋"
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:190
 #: src/app/(tabs)/(settings)/account-form.tsx:197
 #: src/app/(tabs)/(settings)/account-form.tsx:208
-#: src/app/(tabs)/(settings)/api-tokens.tsx:130
+#: src/app/(tabs)/(settings)/api-tokens.tsx:93
 #: src/app/(tabs)/(settings)/cash-form.tsx:153
 #: src/app/(tabs)/(settings)/display.tsx:42
 #: src/app/(tabs)/(settings)/flex-sync.tsx:104
@@ -1085,7 +1085,7 @@ msgstr "계약 수"
 msgid "Converts read-only amounts with the latest FX rate. Forms keep the account currency."
 msgstr "표시용 금액을 최신 환율로 환산합니다. 입력 양식은 계좌 통화를 유지합니다."
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:141
+#: src/app/new-token.tsx:60
 msgid "Copy it now — the secret is shown only once and cannot be recovered."
 msgstr "지금 복사하세요 — 시크릿은 한 번만 표시되며 복구할 수 없습니다."
 
@@ -1102,8 +1102,8 @@ msgstr "익스커전을 계산할 수 없습니다"
 msgid "Could not create tag"
 msgstr "태그를 만들지 못했습니다"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:105
-#: src/app/(tabs)/(settings)/api-tokens.tsx:117
+#: src/app/new-token.tsx:42
+#: src/app/new-token.tsx:48
 msgid "Could not create token"
 msgstr "토큰을 만들지 못했습니다"
 
@@ -1158,7 +1158,7 @@ msgstr "제거할 수 없습니다"
 msgid "Could not remove transaction"
 msgstr "입출금 내역을 삭제하지 못했습니다"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:111
+#: src/app/(tabs)/(settings)/api-tokens.tsx:85
 msgid "Could not revoke token"
 msgstr "토큰을 폐기하지 못했습니다"
 
@@ -1230,11 +1230,11 @@ msgid "Create tag"
 msgstr "태그 만들기"
 
 #: src/app/(tabs)/(settings)/api-tokens.tsx:159
-msgid "Create token"
-msgstr "토큰 만들기"
+#~ msgid "Create token"
+#~ msgstr "토큰 만들기"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:189
 #: src/app/(tabs)/(settings)/tags.tsx:117
+#: src/app/new-token.tsx:108
 msgid "Creating…"
 msgstr "만드는 중…"
 
@@ -1480,7 +1480,6 @@ msgstr "청산 이유를 기록하세요 — 스톱 도달, 가설 붕괴, 감�
 msgid "Dollars"
 msgstr "금액"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:153
 #: src/app/(tabs)/(settings)/import-trades.tsx:233
 #: src/app/login.tsx:323
 #: src/app/manage-tags.tsx:62
@@ -1513,7 +1512,7 @@ msgstr "드로다운 방식"
 msgid "Duration"
 msgstr "보유 기간"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:168
+#: src/app/new-token.tsx:86
 msgid "e.g. CLI import"
 msgstr "예: CLI 가져오기"
 
@@ -1768,11 +1767,11 @@ msgstr "기대값"
 msgid "Expectancy"
 msgstr "기대값"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:69
+#: src/app/(tabs)/(settings)/api-tokens.tsx:60
 msgid "Expires {expires} · Last used {lastUsed}"
 msgstr "만료 {expires} · 마지막 사용 {lastUsed}"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:175
+#: src/app/new-token.tsx:94
 #: src/components/trade-form.tsx:563
 msgid "Expiry"
 msgstr "만기일"
@@ -1977,10 +1976,10 @@ msgid "Gap top must sit above the bottom — check the edges"
 msgstr "갭 상단은 하단보다 위여야 합니다 — 값을 확인하세요"
 
 #: src/app/(tabs)/(settings)/api-tokens.tsx:230
-msgid "Generate one above to authenticate scripts against your server."
-msgstr "위에서 생성하면 스크립트로 서버 API를 인증할 수 있습니다."
+#~ msgid "Generate one above to authenticate scripts against your server."
+#~ msgstr "위에서 생성하면 스크립트로 서버 API를 인증할 수 있습니다."
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:189
+#: src/app/new-token.tsx:108
 msgid "Generate token"
 msgstr "토큰 생성"
 
@@ -2550,9 +2549,9 @@ msgstr "승수"
 
 #: src/app/(tabs)/(dashboard)/playbook.tsx:128
 #: src/app/(tabs)/(settings)/account-form.tsx:221
-#: src/app/(tabs)/(settings)/api-tokens.tsx:164
 #: src/app/(tabs)/(settings)/tags.tsx:94
 #: src/app/new-setup.tsx:122
+#: src/app/new-token.tsx:82
 msgid "Name"
 msgstr "이름"
 
@@ -2590,12 +2589,12 @@ msgstr "순손익"
 msgid "Net P&L target — progress shows on the dashboard."
 msgstr "순손익 목표 — 진행 상황은 대시보드에 표시됩니다."
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:33
-#: src/app/(tabs)/(settings)/api-tokens.tsx:34
+#: src/app/(tabs)/(settings)/api-tokens.tsx:24
+#: src/app/(tabs)/(settings)/api-tokens.tsx:25
 msgid "never"
 msgstr "없음"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:23
+#: src/app/new-token.tsx:15
 msgid "Never"
 msgstr "무기한"
 
@@ -2621,7 +2620,8 @@ msgstr "새 셋업"
 msgid "New tag"
 msgstr "새 태그"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:139
+#: src/app/(tabs)/(settings)/api-tokens.tsx:104
+#: src/app/new-token.tsx:77
 msgid "New token"
 msgstr "새 토큰"
 
@@ -2758,7 +2758,7 @@ msgstr "아직 태그가 없습니다"
 #~ msgid "No tags yet — create them in the trade form."
 #~ msgstr "아직 태그가 없습니다 — 트레이드 폼에서 생성하세요."
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:228
+#: src/app/(tabs)/(settings)/api-tokens.tsx:144
 msgid "No tokens yet"
 msgstr "아직 토큰이 없습니다"
 
@@ -3503,13 +3503,13 @@ msgstr "리뷰 노트"
 msgid "Reviews your journal and trades to surface patterns. Works with any OpenAI-compatible API."
 msgstr "저널과 거래를 검토해 패턴을 찾아냅니다. OpenAI 호환 API에서 작동합니다."
 
+#: src/app/(tabs)/(settings)/api-tokens.tsx:40
 #: src/app/(tabs)/(settings)/api-tokens.tsx:49
-#: src/app/(tabs)/(settings)/api-tokens.tsx:58
-#: src/app/(tabs)/(settings)/api-tokens.tsx:131
+#: src/app/(tabs)/(settings)/api-tokens.tsx:94
 msgid "Revoke"
 msgstr "폐기"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:127
+#: src/app/(tabs)/(settings)/api-tokens.tsx:90
 msgid "Revoke token?"
 msgstr "토큰을 폐기할까요?"
 
@@ -3797,7 +3797,7 @@ msgstr "공유"
 msgid "Share card"
 msgstr "카드 공유"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:149
+#: src/app/new-token.tsx:68
 msgid "Share token"
 msgstr "토큰 공유"
 
@@ -4072,6 +4072,10 @@ msgstr "태그 이름을 입력하세요."
 msgid "Tags"
 msgstr "태그"
 
+#: src/app/(tabs)/(settings)/api-tokens.tsx:146
+msgid "Tap + to generate one and authenticate scripts against your server."
+msgstr "+ 를 눌러 생성하면 스크립트로 서버를 인증할 수 있습니다."
+
 #: src/app/(tabs)/(calendar)/index.tsx:210
 #~ msgid "Tap a day to see its trades."
 #~ msgstr "날짜를 탭하면 해당 일의 트레이드가 표시됩니다."
@@ -4255,13 +4259,21 @@ msgstr "오늘"
 msgid "Token"
 msgstr "토큰"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:117
+#: src/app/new-token.tsx:58
+msgid "Token created"
+msgstr "토큰 생성됨"
+
+#: src/app/new-token.tsx:48
 msgid "Token name is required."
 msgstr "토큰 이름을 입력하세요."
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:161
+#: src/app/new-token.tsx:79
 msgid "Tokens authenticate scripts and integrations against your server's API."
 msgstr "토큰은 스크립트와 연동을 서버 API에 인증합니다."
+
+#: src/app/(tabs)/(settings)/api-tokens.tsx:137
+msgid "Tokens authenticate scripts and integrations against your server's API. Swipe a row to revoke."
+msgstr "토큰은 스크립트와 연동이 서버 API를 인증하는 데 쓰입니다. 행을 스와이프하면 취소됩니다."
 
 #: src/components/tools-menu.tsx:50
 #: src/components/tools-menu.tsx:62

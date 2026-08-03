@@ -14,7 +14,7 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. placeholder {0}: token.name
-#: src/app/(tabs)/(settings)/api-tokens.tsx:128
+#: src/app/(tabs)/(settings)/api-tokens.tsx:91
 msgid "“{0}” stops working immediately. This cannot be undone."
 msgstr "「{0}」は直ちに使用できなくなります。この操作は取り消せません。"
 
@@ -334,7 +334,7 @@ msgstr "12時間表示 (1:30 PM)"
 msgid "1R"
 msgstr "1R"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:26
+#: src/app/new-token.tsx:18
 msgid "1y"
 msgstr "1年"
 
@@ -346,7 +346,7 @@ msgstr "24時間表示 (13:30)"
 #~ msgid "30 days"
 #~ msgstr "30日間"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:24
+#: src/app/new-token.tsx:16
 msgid "30d"
 msgstr "30日"
 
@@ -354,7 +354,7 @@ msgstr "30日"
 #~ msgid "90 days"
 #~ msgstr "90日間"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:25
+#: src/app/new-token.tsx:17
 msgid "90d"
 msgstr "90日"
 
@@ -417,8 +417,8 @@ msgid "Active limits"
 msgstr "有効な上限"
 
 #: src/app/(tabs)/(settings)/api-tokens.tsx:197
-msgid "Active tokens"
-msgstr "有効なトークン"
+#~ msgid "Active tokens"
+#~ msgstr "有効なトークン"
 
 #. placeholder {0}: event.actual
 #: src/app/(tabs)/(reports)/economic-events.tsx:218
@@ -871,7 +871,7 @@ msgstr "コール / プット"
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:190
 #: src/app/(tabs)/(settings)/account-form.tsx:197
 #: src/app/(tabs)/(settings)/account-form.tsx:208
-#: src/app/(tabs)/(settings)/api-tokens.tsx:130
+#: src/app/(tabs)/(settings)/api-tokens.tsx:93
 #: src/app/(tabs)/(settings)/cash-form.tsx:153
 #: src/app/(tabs)/(settings)/display.tsx:42
 #: src/app/(tabs)/(settings)/flex-sync.tsx:104
@@ -1085,7 +1085,7 @@ msgstr "枚数"
 msgid "Converts read-only amounts with the latest FX rate. Forms keep the account currency."
 msgstr "表示専用の金額を最新の為替レートで換算します。入力フォームは口座通貨のままです。"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:141
+#: src/app/new-token.tsx:60
 msgid "Copy it now — the secret is shown only once and cannot be recovered."
 msgstr "今すぐコピーしてください — シークレットは一度しか表示されず、復元できません。"
 
@@ -1102,8 +1102,8 @@ msgstr "エクスカーションを計算できませんでした"
 msgid "Could not create tag"
 msgstr "タグを作成できませんでした"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:105
-#: src/app/(tabs)/(settings)/api-tokens.tsx:117
+#: src/app/new-token.tsx:42
+#: src/app/new-token.tsx:48
 msgid "Could not create token"
 msgstr "トークンを作成できませんでした"
 
@@ -1158,7 +1158,7 @@ msgstr "削除できませんでした"
 msgid "Could not remove transaction"
 msgstr "入出金を削除できませんでした"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:111
+#: src/app/(tabs)/(settings)/api-tokens.tsx:85
 msgid "Could not revoke token"
 msgstr "トークンを失効できませんでした"
 
@@ -1230,11 +1230,11 @@ msgid "Create tag"
 msgstr "タグを作成"
 
 #: src/app/(tabs)/(settings)/api-tokens.tsx:159
-msgid "Create token"
-msgstr "トークンを作成"
+#~ msgid "Create token"
+#~ msgstr "トークンを作成"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:189
 #: src/app/(tabs)/(settings)/tags.tsx:117
+#: src/app/new-token.tsx:108
 msgid "Creating…"
 msgstr "作成中…"
 
@@ -1480,7 +1480,6 @@ msgstr "決済理由を記録しましょう — ストップ到達、シナリ�
 msgid "Dollars"
 msgstr "金額"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:153
 #: src/app/(tabs)/(settings)/import-trades.tsx:233
 #: src/app/login.tsx:323
 #: src/app/manage-tags.tsx:62
@@ -1513,7 +1512,7 @@ msgstr "ドローダウン方式"
 msgid "Duration"
 msgstr "保有期間"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:168
+#: src/app/new-token.tsx:86
 msgid "e.g. CLI import"
 msgstr "例: CLIインポート"
 
@@ -1768,11 +1767,11 @@ msgstr "期待値"
 msgid "Expectancy"
 msgstr "期待値"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:69
+#: src/app/(tabs)/(settings)/api-tokens.tsx:60
 msgid "Expires {expires} · Last used {lastUsed}"
 msgstr "有効期限 {expires} · 最終使用 {lastUsed}"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:175
+#: src/app/new-token.tsx:94
 #: src/components/trade-form.tsx:563
 msgid "Expiry"
 msgstr "満期日"
@@ -1977,10 +1976,10 @@ msgid "Gap top must sit above the bottom — check the edges"
 msgstr "ギャップ上端は下端より上に — 端の値を確認してください"
 
 #: src/app/(tabs)/(settings)/api-tokens.tsx:230
-msgid "Generate one above to authenticate scripts against your server."
-msgstr "上で生成すると、スクリプトからサーバーAPIを認証できます。"
+#~ msgid "Generate one above to authenticate scripts against your server."
+#~ msgstr "上で生成すると、スクリプトからサーバーAPIを認証できます。"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:189
+#: src/app/new-token.tsx:108
 msgid "Generate token"
 msgstr "トークンを生成"
 
@@ -2550,9 +2549,9 @@ msgstr "乗数"
 
 #: src/app/(tabs)/(dashboard)/playbook.tsx:128
 #: src/app/(tabs)/(settings)/account-form.tsx:221
-#: src/app/(tabs)/(settings)/api-tokens.tsx:164
 #: src/app/(tabs)/(settings)/tags.tsx:94
 #: src/app/new-setup.tsx:122
+#: src/app/new-token.tsx:82
 msgid "Name"
 msgstr "名前"
 
@@ -2590,12 +2589,12 @@ msgstr "純損益"
 msgid "Net P&L target — progress shows on the dashboard."
 msgstr "純損益の目標 — 進捗はダッシュボードに表示されます。"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:33
-#: src/app/(tabs)/(settings)/api-tokens.tsx:34
+#: src/app/(tabs)/(settings)/api-tokens.tsx:24
+#: src/app/(tabs)/(settings)/api-tokens.tsx:25
 msgid "never"
 msgstr "なし"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:23
+#: src/app/new-token.tsx:15
 msgid "Never"
 msgstr "無期限"
 
@@ -2621,7 +2620,8 @@ msgstr "新規セットアップ"
 msgid "New tag"
 msgstr "新しいタグ"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:139
+#: src/app/(tabs)/(settings)/api-tokens.tsx:104
+#: src/app/new-token.tsx:77
 msgid "New token"
 msgstr "新しいトークン"
 
@@ -2758,7 +2758,7 @@ msgstr "タグがまだありません"
 #~ msgid "No tags yet — create them in the trade form."
 #~ msgstr "タグがまだありません — トレードフォームで作成してください。"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:228
+#: src/app/(tabs)/(settings)/api-tokens.tsx:144
 msgid "No tokens yet"
 msgstr "トークンがまだありません"
 
@@ -3503,13 +3503,13 @@ msgstr "振り返りメモ"
 msgid "Reviews your journal and trades to surface patterns. Works with any OpenAI-compatible API."
 msgstr "ジャーナルとトレードを分析してパターンを見つけます。OpenAI互換APIで動作します。"
 
+#: src/app/(tabs)/(settings)/api-tokens.tsx:40
 #: src/app/(tabs)/(settings)/api-tokens.tsx:49
-#: src/app/(tabs)/(settings)/api-tokens.tsx:58
-#: src/app/(tabs)/(settings)/api-tokens.tsx:131
+#: src/app/(tabs)/(settings)/api-tokens.tsx:94
 msgid "Revoke"
 msgstr "失効"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:127
+#: src/app/(tabs)/(settings)/api-tokens.tsx:90
 msgid "Revoke token?"
 msgstr "トークンを失効しますか？"
 
@@ -3797,7 +3797,7 @@ msgstr "共有"
 msgid "Share card"
 msgstr "カードを共有"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:149
+#: src/app/new-token.tsx:68
 msgid "Share token"
 msgstr "トークンを共有"
 
@@ -4072,6 +4072,10 @@ msgstr "タグ名を入力してください。"
 msgid "Tags"
 msgstr "タグ"
 
+#: src/app/(tabs)/(settings)/api-tokens.tsx:146
+msgid "Tap + to generate one and authenticate scripts against your server."
+msgstr "＋をタップして生成すると、スクリプトからサーバーを認証できます。"
+
 #: src/app/(tabs)/(calendar)/index.tsx:210
 #~ msgid "Tap a day to see its trades."
 #~ msgstr "日付をタップするとその日のトレードが表示されます。"
@@ -4255,13 +4259,21 @@ msgstr "今日"
 msgid "Token"
 msgstr "トークン"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:117
+#: src/app/new-token.tsx:58
+msgid "Token created"
+msgstr "トークンを作成しました"
+
+#: src/app/new-token.tsx:48
 msgid "Token name is required."
 msgstr "トークン名を入力してください。"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:161
+#: src/app/new-token.tsx:79
 msgid "Tokens authenticate scripts and integrations against your server's API."
 msgstr "トークンはスクリプトや連携をサーバーAPIに認証させます。"
+
+#: src/app/(tabs)/(settings)/api-tokens.tsx:137
+msgid "Tokens authenticate scripts and integrations against your server's API. Swipe a row to revoke."
+msgstr "トークンはスクリプトや連携からサーバーAPIを認証します。行をスワイプで失効。"
 
 #: src/components/tools-menu.tsx:50
 #: src/components/tools-menu.tsx:62

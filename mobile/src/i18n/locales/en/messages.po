@@ -14,7 +14,7 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. placeholder {0}: token.name
-#: src/app/(tabs)/(settings)/api-tokens.tsx:128
+#: src/app/(tabs)/(settings)/api-tokens.tsx:91
 msgid "“{0}” stops working immediately. This cannot be undone."
 msgstr "“{0}” stops working immediately. This cannot be undone."
 
@@ -334,7 +334,7 @@ msgstr "12-hour (1:30 PM)"
 msgid "1R"
 msgstr "1R"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:26
+#: src/app/new-token.tsx:18
 msgid "1y"
 msgstr "1y"
 
@@ -346,7 +346,7 @@ msgstr "24-hour (13:30)"
 #~ msgid "30 days"
 #~ msgstr "30 days"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:24
+#: src/app/new-token.tsx:16
 msgid "30d"
 msgstr "30d"
 
@@ -354,7 +354,7 @@ msgstr "30d"
 #~ msgid "90 days"
 #~ msgstr "90 days"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:25
+#: src/app/new-token.tsx:17
 msgid "90d"
 msgstr "90d"
 
@@ -417,8 +417,8 @@ msgid "Active limits"
 msgstr "Active limits"
 
 #: src/app/(tabs)/(settings)/api-tokens.tsx:197
-msgid "Active tokens"
-msgstr "Active tokens"
+#~ msgid "Active tokens"
+#~ msgstr "Active tokens"
 
 #. placeholder {0}: event.actual
 #: src/app/(tabs)/(reports)/economic-events.tsx:218
@@ -871,7 +871,7 @@ msgstr "Call / Put"
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:190
 #: src/app/(tabs)/(settings)/account-form.tsx:197
 #: src/app/(tabs)/(settings)/account-form.tsx:208
-#: src/app/(tabs)/(settings)/api-tokens.tsx:130
+#: src/app/(tabs)/(settings)/api-tokens.tsx:93
 #: src/app/(tabs)/(settings)/cash-form.tsx:153
 #: src/app/(tabs)/(settings)/display.tsx:42
 #: src/app/(tabs)/(settings)/flex-sync.tsx:104
@@ -1085,7 +1085,7 @@ msgstr "Contracts"
 msgid "Converts read-only amounts with the latest FX rate. Forms keep the account currency."
 msgstr "Converts read-only amounts with the latest FX rate. Forms keep the account currency."
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:141
+#: src/app/new-token.tsx:60
 msgid "Copy it now — the secret is shown only once and cannot be recovered."
 msgstr "Copy it now — the secret is shown only once and cannot be recovered."
 
@@ -1102,8 +1102,8 @@ msgstr "Could not compute excursion"
 msgid "Could not create tag"
 msgstr "Could not create tag"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:105
-#: src/app/(tabs)/(settings)/api-tokens.tsx:117
+#: src/app/new-token.tsx:42
+#: src/app/new-token.tsx:48
 msgid "Could not create token"
 msgstr "Could not create token"
 
@@ -1158,7 +1158,7 @@ msgstr "Could not remove"
 msgid "Could not remove transaction"
 msgstr "Could not remove transaction"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:111
+#: src/app/(tabs)/(settings)/api-tokens.tsx:85
 msgid "Could not revoke token"
 msgstr "Could not revoke token"
 
@@ -1230,11 +1230,11 @@ msgid "Create tag"
 msgstr "Create tag"
 
 #: src/app/(tabs)/(settings)/api-tokens.tsx:159
-msgid "Create token"
-msgstr "Create token"
+#~ msgid "Create token"
+#~ msgstr "Create token"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:189
 #: src/app/(tabs)/(settings)/tags.tsx:117
+#: src/app/new-token.tsx:108
 msgid "Creating…"
 msgstr "Creating…"
 
@@ -1480,7 +1480,6 @@ msgstr "Document why you closed — stop hit, thesis broken, or emotion — so y
 msgid "Dollars"
 msgstr "Dollars"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:153
 #: src/app/(tabs)/(settings)/import-trades.tsx:233
 #: src/app/login.tsx:323
 #: src/app/manage-tags.tsx:62
@@ -1513,7 +1512,7 @@ msgstr "Drawdown model"
 msgid "Duration"
 msgstr "Duration"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:168
+#: src/app/new-token.tsx:86
 msgid "e.g. CLI import"
 msgstr "e.g. CLI import"
 
@@ -1768,11 +1767,11 @@ msgstr "Expect"
 msgid "Expectancy"
 msgstr "Expectancy"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:69
+#: src/app/(tabs)/(settings)/api-tokens.tsx:60
 msgid "Expires {expires} · Last used {lastUsed}"
 msgstr "Expires {expires} · Last used {lastUsed}"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:175
+#: src/app/new-token.tsx:94
 #: src/components/trade-form.tsx:563
 msgid "Expiry"
 msgstr "Expiry"
@@ -1977,10 +1976,10 @@ msgid "Gap top must sit above the bottom — check the edges"
 msgstr "Gap top must sit above the bottom — check the edges"
 
 #: src/app/(tabs)/(settings)/api-tokens.tsx:230
-msgid "Generate one above to authenticate scripts against your server."
-msgstr "Generate one above to authenticate scripts against your server."
+#~ msgid "Generate one above to authenticate scripts against your server."
+#~ msgstr "Generate one above to authenticate scripts against your server."
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:189
+#: src/app/new-token.tsx:108
 msgid "Generate token"
 msgstr "Generate token"
 
@@ -2550,9 +2549,9 @@ msgstr "Multiplier"
 
 #: src/app/(tabs)/(dashboard)/playbook.tsx:128
 #: src/app/(tabs)/(settings)/account-form.tsx:221
-#: src/app/(tabs)/(settings)/api-tokens.tsx:164
 #: src/app/(tabs)/(settings)/tags.tsx:94
 #: src/app/new-setup.tsx:122
+#: src/app/new-token.tsx:82
 msgid "Name"
 msgstr "Name"
 
@@ -2590,12 +2589,12 @@ msgstr "Net P&L"
 msgid "Net P&L target — progress shows on the dashboard."
 msgstr "Net P&L target — progress shows on the dashboard."
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:33
-#: src/app/(tabs)/(settings)/api-tokens.tsx:34
+#: src/app/(tabs)/(settings)/api-tokens.tsx:24
+#: src/app/(tabs)/(settings)/api-tokens.tsx:25
 msgid "never"
 msgstr "never"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:23
+#: src/app/new-token.tsx:15
 msgid "Never"
 msgstr "Never"
 
@@ -2621,7 +2620,8 @@ msgstr "New setup"
 msgid "New tag"
 msgstr "New tag"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:139
+#: src/app/(tabs)/(settings)/api-tokens.tsx:104
+#: src/app/new-token.tsx:77
 msgid "New token"
 msgstr "New token"
 
@@ -2758,7 +2758,7 @@ msgstr "No tags yet"
 #~ msgid "No tags yet — create them in the trade form."
 #~ msgstr "No tags yet — create them in the trade form."
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:228
+#: src/app/(tabs)/(settings)/api-tokens.tsx:144
 msgid "No tokens yet"
 msgstr "No tokens yet"
 
@@ -3505,13 +3505,13 @@ msgstr "Review notes"
 msgid "Reviews your journal and trades to surface patterns. Works with any OpenAI-compatible API."
 msgstr "Reviews your journal and trades to surface patterns. Works with any OpenAI-compatible API."
 
+#: src/app/(tabs)/(settings)/api-tokens.tsx:40
 #: src/app/(tabs)/(settings)/api-tokens.tsx:49
-#: src/app/(tabs)/(settings)/api-tokens.tsx:58
-#: src/app/(tabs)/(settings)/api-tokens.tsx:131
+#: src/app/(tabs)/(settings)/api-tokens.tsx:94
 msgid "Revoke"
 msgstr "Revoke"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:127
+#: src/app/(tabs)/(settings)/api-tokens.tsx:90
 msgid "Revoke token?"
 msgstr "Revoke token?"
 
@@ -3799,7 +3799,7 @@ msgstr "Share"
 msgid "Share card"
 msgstr "Share card"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:149
+#: src/app/new-token.tsx:68
 msgid "Share token"
 msgstr "Share token"
 
@@ -4074,6 +4074,10 @@ msgstr "Tag name is required."
 msgid "Tags"
 msgstr "Tags"
 
+#: src/app/(tabs)/(settings)/api-tokens.tsx:146
+msgid "Tap + to generate one and authenticate scripts against your server."
+msgstr "Tap + to generate one and authenticate scripts against your server."
+
 #: src/app/(tabs)/(calendar)/index.tsx:210
 #~ msgid "Tap a day to see its trades."
 #~ msgstr "Tap a day to see its trades."
@@ -4257,13 +4261,21 @@ msgstr "Today"
 msgid "Token"
 msgstr "Token"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:117
+#: src/app/new-token.tsx:58
+msgid "Token created"
+msgstr "Token created"
+
+#: src/app/new-token.tsx:48
 msgid "Token name is required."
 msgstr "Token name is required."
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:161
+#: src/app/new-token.tsx:79
 msgid "Tokens authenticate scripts and integrations against your server's API."
 msgstr "Tokens authenticate scripts and integrations against your server's API."
+
+#: src/app/(tabs)/(settings)/api-tokens.tsx:137
+msgid "Tokens authenticate scripts and integrations against your server's API. Swipe a row to revoke."
+msgstr "Tokens authenticate scripts and integrations against your server's API. Swipe a row to revoke."
 
 #: src/components/tools-menu.tsx:50
 #: src/components/tools-menu.tsx:62

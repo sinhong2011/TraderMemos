@@ -14,7 +14,7 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. placeholder {0}: token.name
-#: src/app/(tabs)/(settings)/api-tokens.tsx:128
+#: src/app/(tabs)/(settings)/api-tokens.tsx:91
 msgid "“{0}” stops working immediately. This cannot be undone."
 msgstr "「{0}」將立即失效。此操作無法復原。"
 
@@ -334,7 +334,7 @@ msgstr "12小時制 (1:30 PM)"
 msgid "1R"
 msgstr "1R"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:26
+#: src/app/new-token.tsx:18
 msgid "1y"
 msgstr "1年"
 
@@ -346,7 +346,7 @@ msgstr "24小時制 (13:30)"
 #~ msgid "30 days"
 #~ msgstr "30 日"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:24
+#: src/app/new-token.tsx:16
 msgid "30d"
 msgstr "30日"
 
@@ -354,7 +354,7 @@ msgstr "30日"
 #~ msgid "90 days"
 #~ msgstr "90 日"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:25
+#: src/app/new-token.tsx:17
 msgid "90d"
 msgstr "90日"
 
@@ -417,8 +417,8 @@ msgid "Active limits"
 msgstr "生效上限"
 
 #: src/app/(tabs)/(settings)/api-tokens.tsx:197
-msgid "Active tokens"
-msgstr "有效權杖"
+#~ msgid "Active tokens"
+#~ msgstr "有效權杖"
 
 #. placeholder {0}: event.actual
 #: src/app/(tabs)/(reports)/economic-events.tsx:218
@@ -871,7 +871,7 @@ msgstr "Call / Put"
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:190
 #: src/app/(tabs)/(settings)/account-form.tsx:197
 #: src/app/(tabs)/(settings)/account-form.tsx:208
-#: src/app/(tabs)/(settings)/api-tokens.tsx:130
+#: src/app/(tabs)/(settings)/api-tokens.tsx:93
 #: src/app/(tabs)/(settings)/cash-form.tsx:153
 #: src/app/(tabs)/(settings)/display.tsx:42
 #: src/app/(tabs)/(settings)/flex-sync.tsx:104
@@ -1085,7 +1085,7 @@ msgstr "合約數"
 msgid "Converts read-only amounts with the latest FX rate. Forms keep the account currency."
 msgstr "以最新匯率換算唯讀金額。表單仍使用帳戶貨幣。"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:141
+#: src/app/new-token.tsx:60
 msgid "Copy it now — the secret is shown only once and cannot be recovered."
 msgstr "請立即複製 — 密鑰只會顯示一次，無法復原。"
 
@@ -1102,8 +1102,8 @@ msgstr "無法計算波幅"
 msgid "Could not create tag"
 msgstr "無法建立標籤"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:105
-#: src/app/(tabs)/(settings)/api-tokens.tsx:117
+#: src/app/new-token.tsx:42
+#: src/app/new-token.tsx:48
 msgid "Could not create token"
 msgstr "無法建立權杖"
 
@@ -1158,7 +1158,7 @@ msgstr "無法移除"
 msgid "Could not remove transaction"
 msgstr "無法移除資金交易"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:111
+#: src/app/(tabs)/(settings)/api-tokens.tsx:85
 msgid "Could not revoke token"
 msgstr "無法撤銷權杖"
 
@@ -1230,11 +1230,11 @@ msgid "Create tag"
 msgstr "建立標籤"
 
 #: src/app/(tabs)/(settings)/api-tokens.tsx:159
-msgid "Create token"
-msgstr "建立權杖"
+#~ msgid "Create token"
+#~ msgstr "建立權杖"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:189
 #: src/app/(tabs)/(settings)/tags.tsx:117
+#: src/app/new-token.tsx:108
 msgid "Creating…"
 msgstr "建立中…"
 
@@ -1480,7 +1480,6 @@ msgstr "記低平倉原因 — 觸及止蝕、論點失效或情緒 — 方能�
 msgid "Dollars"
 msgstr "金額"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:153
 #: src/app/(tabs)/(settings)/import-trades.tsx:233
 #: src/app/login.tsx:323
 #: src/app/manage-tags.tsx:62
@@ -1513,7 +1512,7 @@ msgstr "回撤模式"
 msgid "Duration"
 msgstr "持倉時長"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:168
+#: src/app/new-token.tsx:86
 msgid "e.g. CLI import"
 msgstr "例如：CLI 匯入"
 
@@ -1768,11 +1767,11 @@ msgstr "期望值"
 msgid "Expectancy"
 msgstr "期望值"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:69
+#: src/app/(tabs)/(settings)/api-tokens.tsx:60
 msgid "Expires {expires} · Last used {lastUsed}"
 msgstr "到期 {expires} · 最後使用 {lastUsed}"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:175
+#: src/app/new-token.tsx:94
 #: src/components/trade-form.tsx:563
 msgid "Expiry"
 msgstr "到期日"
@@ -1977,10 +1976,10 @@ msgid "Gap top must sit above the bottom — check the edges"
 msgstr "缺口頂必須高於缺口底 — 請檢查邊界"
 
 #: src/app/(tabs)/(settings)/api-tokens.tsx:230
-msgid "Generate one above to authenticate scripts against your server."
-msgstr "在上方產生一個，即可讓腳本驗證你的伺服器 API。"
+#~ msgid "Generate one above to authenticate scripts against your server."
+#~ msgstr "在上方產生一個，即可讓腳本驗證你的伺服器 API。"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:189
+#: src/app/new-token.tsx:108
 msgid "Generate token"
 msgstr "產生權杖"
 
@@ -2550,9 +2549,9 @@ msgstr "乘數"
 
 #: src/app/(tabs)/(dashboard)/playbook.tsx:128
 #: src/app/(tabs)/(settings)/account-form.tsx:221
-#: src/app/(tabs)/(settings)/api-tokens.tsx:164
 #: src/app/(tabs)/(settings)/tags.tsx:94
 #: src/app/new-setup.tsx:122
+#: src/app/new-token.tsx:82
 msgid "Name"
 msgstr "名稱"
 
@@ -2590,12 +2589,12 @@ msgstr "淨損益"
 msgid "Net P&L target — progress shows on the dashboard."
 msgstr "淨損益目標 — 進度會顯示於主頁。"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:33
-#: src/app/(tabs)/(settings)/api-tokens.tsx:34
+#: src/app/(tabs)/(settings)/api-tokens.tsx:24
+#: src/app/(tabs)/(settings)/api-tokens.tsx:25
 msgid "never"
 msgstr "無"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:23
+#: src/app/new-token.tsx:15
 msgid "Never"
 msgstr "永不過期"
 
@@ -2621,7 +2620,8 @@ msgstr "新策略"
 msgid "New tag"
 msgstr "新標籤"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:139
+#: src/app/(tabs)/(settings)/api-tokens.tsx:104
+#: src/app/new-token.tsx:77
 msgid "New token"
 msgstr "新權杖"
 
@@ -2758,7 +2758,7 @@ msgstr "尚未有標籤"
 #~ msgid "No tags yet — create them in the trade form."
 #~ msgstr "尚無標籤 — 請在交易表單中建立。"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:228
+#: src/app/(tabs)/(settings)/api-tokens.tsx:144
 msgid "No tokens yet"
 msgstr "尚未有權杖"
 
@@ -3503,13 +3503,13 @@ msgstr "檢討筆記"
 msgid "Reviews your journal and trades to surface patterns. Works with any OpenAI-compatible API."
 msgstr "分析你的日誌與交易以找出模式。支援任何相容 OpenAI 的 API。"
 
+#: src/app/(tabs)/(settings)/api-tokens.tsx:40
 #: src/app/(tabs)/(settings)/api-tokens.tsx:49
-#: src/app/(tabs)/(settings)/api-tokens.tsx:58
-#: src/app/(tabs)/(settings)/api-tokens.tsx:131
+#: src/app/(tabs)/(settings)/api-tokens.tsx:94
 msgid "Revoke"
 msgstr "撤銷"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:127
+#: src/app/(tabs)/(settings)/api-tokens.tsx:90
 msgid "Revoke token?"
 msgstr "撤銷權杖？"
 
@@ -3797,7 +3797,7 @@ msgstr "分享"
 msgid "Share card"
 msgstr "分享卡片"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:149
+#: src/app/new-token.tsx:68
 msgid "Share token"
 msgstr "分享權杖"
 
@@ -4072,6 +4072,10 @@ msgstr "請輸入標籤名稱。"
 msgid "Tags"
 msgstr "標籤"
 
+#: src/app/(tabs)/(settings)/api-tokens.tsx:146
+msgid "Tap + to generate one and authenticate scripts against your server."
+msgstr "點 + 產生一個，即可讓腳本驗證你的伺服器。"
+
 #: src/app/(tabs)/(calendar)/index.tsx:210
 #~ msgid "Tap a day to see its trades."
 #~ msgstr "㩒一日即可查看當日交易。"
@@ -4255,13 +4259,21 @@ msgstr "今日"
 msgid "Token"
 msgstr "權杖"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:117
+#: src/app/new-token.tsx:58
+msgid "Token created"
+msgstr "已建立權杖"
+
+#: src/app/new-token.tsx:48
 msgid "Token name is required."
 msgstr "請輸入權杖名稱。"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:161
+#: src/app/new-token.tsx:79
 msgid "Tokens authenticate scripts and integrations against your server's API."
 msgstr "權杖用於讓腳本與整合向你的伺服器 API 進行驗證。"
+
+#: src/app/(tabs)/(settings)/api-tokens.tsx:137
+msgid "Tokens authenticate scripts and integrations against your server's API. Swipe a row to revoke."
+msgstr "權杖讓腳本與整合驗證你的伺服器 API。滑動一列即可撤銷。"
 
 #: src/components/tools-menu.tsx:50
 #: src/components/tools-menu.tsx:62
