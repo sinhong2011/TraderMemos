@@ -1,4 +1,5 @@
 import {
+  Button,
   Host,
   LabeledContent,
   Picker,
@@ -325,6 +326,27 @@ function AccountForm({ account, accountCount }: { account?: Account; accountCoun
             <LabeledContent label={t`Trades`}>
               <UIText modifiers={[secondary]}>{String(tradeCount)}</UIText>
             </LabeledContent>
+          </Section>
+        ) : null}
+
+        {isEdit ? (
+          <Section title={t`Integrations`}>
+            {account.account_type === 'prop' ? (
+              <Button
+                systemImage="flag.checkered"
+                label={t`Prop rules`}
+                onPress={() =>
+                  router.push({ pathname: '/prop-settings', params: { accountId: account.id } })
+                }
+              />
+            ) : null}
+            <Button
+              systemImage="arrow.triangle.2.circlepath"
+              label={t`IBKR Flex sync`}
+              onPress={() =>
+                router.push({ pathname: '/flex-sync', params: { accountId: account.id } })
+              }
+            />
           </Section>
         ) : null}
 

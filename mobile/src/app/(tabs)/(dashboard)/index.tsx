@@ -14,19 +14,22 @@ import {
   useTrades,
 } from '@/api/hooks';
 import { BreakdownCard } from '@/components/breakdown-card';
+import { DailyLossCard } from '@/components/daily-loss-card';
 import { DashboardCard } from '@/components/dashboard-card';
 import { EquityCard } from '@/components/equity-card';
 import { GoalCard } from '@/components/goal-card';
 import { InsightsCard } from '@/components/insights-card';
 import { MiniCalendarCard } from '@/components/mini-calendar-card';
 import { PerformanceCard } from '@/components/performance-card';
+import { PropStatusCard } from '@/components/prop-status-card';
 import { Skeleton } from '@/components/skeleton';
 import { TradeRow } from '@/components/trade-row';
 import { t } from '@lingui/core/macro';
 import { useSelectedAccountId } from '@/lib/account-store';
+import { dayKeyInTz } from '@/lib/events';
 import { useGlobalFilters } from '@/lib/filters';
 import { useMoneyFx } from '@/lib/money';
-import { accountBaseCurrency } from '@/lib/prefs';
+import { accountBaseCurrency, resolveMarketTimezone, useDisplayPrefs } from '@/lib/prefs';
 
 /** Recent trades shown on the overview — the full log lives on the Trades tab. */
 const RECENT_LIMIT = 5;
@@ -56,6 +59,15 @@ export default function DashboardScreen() {
   const fx = useMoneyFx(baseCurrency);
   const currency = fx.currency;
   const fxRate = fx.rate ?? 1;
+
+  // Today on the market clock — the same day key /analytics/daily buckets by.
+  const { marketTimezone } = useDisplayPrefs();
+  const todayKey = dayKeyInTz(new Date().toISOString(), resolveMarketTimezone(marketTimezone));
+  const todayNetPnl = daily.data?.[todayKey] ?? 0;
+  const selectedAccount = selectedAccountId
+    ? accounts.data?.find((account) => account.id === selectedAccountId)
+    : undefined;
+  const propAccountId = selectedAccount?.account_type === 'prop' ? selectedAccount.id : null;
   const refreshing = summary.isRefetching || trades.isRefetching || equity.isRefetching;
   const refreshAll = () => void queryClient.invalidateQueries();
 
@@ -119,6 +131,12 @@ export default function DashboardScreen() {
         currency={currency}
         fxRate={fxRate}
       />
+
+      <DailyLossCard todayNetPnl={todayNetPnl} currency={currency} fxRate={fxRate} />
+
+      {propAccountId ? (
+        <PropStatusCard accountId={propAccountId} currency={currency} fxRate={fxRate} />
+      ) : null}
 
       {equity.isLoading ? (
         <Skeleton style={styles.skeletonCard} />
