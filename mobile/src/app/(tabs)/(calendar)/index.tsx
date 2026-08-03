@@ -1,4 +1,6 @@
-import { PagerView, type PagerViewRef } from '@expo/ui/community/pager-view';
+// See the note in trade-form.tsx: @expo/ui's SwiftUI pager swallows taps on RN
+// views inside its pages, which killed day-cell selection on these boards.
+import PagerView from 'react-native-pager-view';
 import { Stack, useRouter } from 'expo-router';
 import { SymbolView } from 'expo-symbols';
 import { useMemo, useRef, useState } from 'react';
@@ -146,7 +148,7 @@ export default function CalendarScreen() {
   const [pickerOpen, setPickerOpen] = useState(false);
   // Finger-tracked paging: a 3-page native pager windowed on [prev, current,
   // next] that re-centers after every settle, so the timeline is endless.
-  const pagerRef = useRef<PagerViewRef>(null);
+  const pagerRef = useRef<PagerView>(null);
 
   const anchorDate = new Date(`${anchor}T00:00:00Z`);
   const year = anchorDate.getUTCFullYear();

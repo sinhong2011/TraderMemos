@@ -6,8 +6,10 @@ import { useUnistyles } from 'react-native-unistyles';
 import { useSession } from '@/api/session';
 import { t } from '@lingui/core/macro';
 
-// Without an explicit anchor the initial tab falls back to the alphabetically
-// first group — which became (calendar) the day it was added. Home is home.
+// Anchor deep links so (dashboard) is the tab beneath them. Note this alone
+// does NOT pick the cold-start tab: the "/" URL match happens on leaf routes,
+// so (dashboard)/_layout also declares `initialRouteName: 'index'` — without
+// that, the alphabetically first group (calendar) wins the tie. Home is home.
 export const unstable_settings = { anchor: '(dashboard)' };
 
 export default function TabsLayout() {
