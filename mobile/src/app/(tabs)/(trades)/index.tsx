@@ -309,21 +309,34 @@ export default function TradesScreen() {
             <View style={styles.headerButtons}>
               <TradeFilterMenu
                 active={filtersActive}
+                onReset={() => {
+                  setStatus('all');
+                  setDateFilter('all');
+                  setMarket('all');
+                }}
+                // Ordered by how often a trader narrows on it: the date range
+                // moves constantly, outcome less so, instrument rarely.
                 groups={[
                   {
-                    key: 'status',
-                    options: filters,
-                    value: status,
-                    onChange: (v) => setStatus(v as StatusFilter),
-                  },
-                  {
                     key: 'date',
+                    title: t`Date`,
+                    icon: 'calendar',
                     options: dateFilters,
                     value: dateFilter,
                     onChange: (v) => setDateFilter(v as DateFilter),
                   },
                   {
+                    key: 'status',
+                    title: t`Status`,
+                    icon: 'flag',
+                    options: filters,
+                    value: status,
+                    onChange: (v) => setStatus(v as StatusFilter),
+                  },
+                  {
                     key: 'market',
+                    title: t`Market`,
+                    icon: 'chart.bar',
                     options: markets,
                     value: market,
                     onChange: (v) => setMarket(v as MarketFilter),
@@ -336,6 +349,8 @@ export default function TradesScreen() {
                 systemImage="arrow.up.arrow.down"
                 groups={[
                   {
+                    // Single group — listed straight into the menu, so no
+                    // submenu row exists to carry a title.
                     key: 'sort',
                     options: sortOrders,
                     value: sortOrder,

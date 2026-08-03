@@ -1,51 +1,63 @@
+import { Button as UIButton, Host, Image as UIImage, Menu } from '@expo/ui/swift-ui';
+import { accessibilityLabel, buttonStyle, tint } from '@expo/ui/swift-ui/modifiers';
 import { useRouter } from 'expo-router';
 import { SymbolView } from 'expo-symbols';
-import { ActionSheetIOS, Platform, Pressable } from 'react-native';
+import { Platform, Pressable } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { t } from '@lingui/core/macro';
 
 /**
- * Header-right "+" — native action sheet fanning out to the creation flows.
- * Just a primary-tinted glyph: iOS 26 wraps every bar item in its own Liquid
- * Glass circle, so any custom filled background renders as a shape nested
- * inside that capsule instead of being the button.
+ * Header-right "+" — SwiftUI Menu (iOS 26 glass popover anchored to the bar
+ * item) fanning out to the creation flows. The trigger stays a plain tinted
+ * glyph: iOS 26 wraps every bar item in its own Liquid Glass circle, so any
+ * custom chrome would render as a shape nested inside that capsule.
  */
 export function AddMenu() {
   const { theme } = useUnistyles();
   const router = useRouter();
 
-  function open() {
-    const actions = [
-      { label: t`New trade`, href: '/new-trade' as const },
-      { label: t`New note`, href: '/new-note' as const },
-      { label: t`New setup`, href: '/new-setup' as const },
-    ];
-    if (Platform.OS !== 'ios') {
-      router.push(actions[0].href);
-      return;
-    }
-    ActionSheetIOS.showActionSheetWithOptions(
-      {
-        options: [...actions.map((a) => a.label), t`Cancel`],
-        cancelButtonIndex: actions.length,
-      },
-      (index) => {
-        if (index < actions.length) router.push(actions[index].href);
-      },
+  const actions = [
+    { label: t`New trade`, systemImage: 'chart.line.uptrend.xyaxis', href: '/new-trade' },
+    { label: t`New note`, systemImage: 'note.text', href: '/new-note' },
+    { label: t`New setup`, systemImage: 'checklist', href: '/new-setup' },
+  ] as const;
+
+  if (Platform.OS !== 'ios') {
+    return (
+      <Pressable
+        onPress={() => router.push(actions[0].href)}
+        hitSlop={10}
+        accessibilityRole="button"
+        accessibilityLabel={t`Add`}
+        style={({ pressed }) => [styles.button, pressed && styles.pressed]}
+      >
+        <SymbolView name="plus" size={18} tintColor={theme.colors.foreground} weight="semibold" />
+      </Pressable>
     );
   }
 
   return (
-    <Pressable
-      onPress={open}
-      hitSlop={10}
-      accessibilityRole="button"
-      accessibilityLabel={t`Add`}
-      style={({ pressed }) => [styles.button, pressed && styles.pressed]}
-    >
-      <SymbolView name="plus" size={18} tintColor={theme.colors.foreground} weight="semibold" />
-    </Pressable>
+    <Host matchContents>
+      <Menu
+        label={<UIImage systemName="plus" size={17} />}
+        modifiers={[
+          buttonStyle('plain'),
+          // Menu triggers default to the accent tint — keep the glyph neutral.
+          tint(theme.colors.foreground),
+          accessibilityLabel(t`Add`),
+        ]}
+      >
+        {actions.map((action) => (
+          <UIButton
+            key={action.href}
+            label={action.label}
+            systemImage={action.systemImage}
+            onPress={() => router.push(action.href)}
+          />
+        ))}
+      </Menu>
+    </Host>
   );
 }
 
