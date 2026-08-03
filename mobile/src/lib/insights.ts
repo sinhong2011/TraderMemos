@@ -29,7 +29,7 @@ function mean(values: number[]): number | null {
 }
 
 /** Closed trades only, oldest → newest by close (fallback open). */
-function chronologicalClosed(trades: Trade[]): Trade[] {
+export function chronologicalClosed(trades: Trade[]): Trade[] {
   return trades
     .filter((t) => t.status !== 'open' && t.net_pnl != null)
     .slice()
