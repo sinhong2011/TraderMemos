@@ -1,7 +1,9 @@
 import { Chart, Gauge, Host, Text as UIText } from '@expo/ui/swift-ui';
 import { font, gaugeStyle, tint } from '@expo/ui/swift-ui/modifiers';
+import { useRouter } from 'expo-router';
+import { SymbolView } from 'expo-symbols';
 import { useState } from 'react';
-import { ScrollView, Text, View } from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import {
@@ -508,9 +510,52 @@ export function OverviewSection({
           {rSummary.data ? <RMultipleCard rSummary={rSummary.data} /> : null}
 
           <ExecutionGradeCard ctx={ctx} />
+
+          <ExploreCard />
         </>
       ) : null}
     </SectionScaffold>
+  );
+}
+
+/** Deep-dive screens pushed from Reports — one row each, App Store style. */
+function ExploreCard() {
+  const { theme } = useUnistyles();
+  const router = useRouter();
+  const links = [
+    {
+      href: '/(tabs)/(reports)/economic-events' as const,
+      icon: 'newspaper' as const,
+      label: t`Economic calendar`,
+    },
+    {
+      href: '/(tabs)/(reports)/heatmap' as const,
+      icon: 'square.grid.3x3' as const,
+      label: t`P&L heatmap`,
+    },
+    {
+      href: '/(tabs)/(reports)/wrapped' as const,
+      icon: 'sparkles' as const,
+      label: t`Year Wrapped`,
+    },
+  ];
+  return (
+    <DashboardCard title={t`Explore`}>
+      <View style={styles.exploreRows}>
+        {links.map((link) => (
+          <Pressable
+            key={link.href}
+            onPress={() => router.push(link.href)}
+            accessibilityRole="button"
+            style={({ pressed }) => [styles.exploreRow, pressed && styles.explorePressed]}
+          >
+            <SymbolView name={link.icon} size={18} tintColor={theme.colors.accent} />
+            <Text style={styles.exploreLabel}>{link.label}</Text>
+            <SymbolView name="chevron.right" size={12} tintColor={theme.colors.mutedForeground} />
+          </Pressable>
+        ))}
+      </View>
+    </DashboardCard>
   );
 }
 
@@ -575,6 +620,15 @@ const styles = StyleSheet.create((theme) => ({
   gradeBarFill: { height: '100%', borderRadius: 3 },
   gradeMeta: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
   gradeSkeleton: { height: 160, borderRadius: theme.radius.lg },
+  exploreRows: { gap: 2 },
+  exploreRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.md,
+    paddingVertical: theme.spacing.sm + 2,
+  },
+  explorePressed: { opacity: 0.6 },
+  exploreLabel: { flex: 1, fontSize: 15, fontWeight: '500', color: theme.colors.foreground },
   skeletonTall: { height: 320, borderRadius: theme.radius.lg + 4 },
   skeletonCard: { height: 200, borderRadius: theme.radius.lg + 4 },
   pageError: {

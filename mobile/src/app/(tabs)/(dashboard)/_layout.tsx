@@ -35,6 +35,8 @@ export default function DashboardLayout() {
           headerRight: () => <AddMenu />,
         }}
       />
+      <Stack.Screen name="notes" options={{ title: t`Notes` }} />
+      <Stack.Screen name="playbook" options={{ title: t`Playbook` }} />
     </Stack>
   );
 }

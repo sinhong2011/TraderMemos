@@ -1,8 +1,9 @@
 import { ContentUnavailableView, Host } from '@expo/ui/swift-ui';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
-import { RefreshControl, ScrollView, Text, View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
+import { SymbolView } from 'expo-symbols';
+import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import {
   useAccounts,
@@ -33,6 +34,7 @@ const RECENT_LIMIT = 5;
 export default function DashboardScreen() {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { theme } = useUnistyles();
 
   const now = new Date();
   const year = now.getFullYear();
@@ -157,6 +159,26 @@ export default function DashboardScreen() {
 
       <BreakdownCard />
 
+      {/* Journal quick links — Notes and Playbook live behind Home, not a tab. */}
+      <View style={styles.quickLinks}>
+        <Pressable
+          onPress={() => router.push('/(tabs)/(dashboard)/notes')}
+          accessibilityRole="button"
+          style={({ pressed }) => [styles.quickLink, pressed && styles.quickLinkPressed]}
+        >
+          <SymbolView name="note.text" size={20} tintColor={theme.colors.accent} />
+          <Text style={styles.quickLinkLabel}>{t`Notes`}</Text>
+        </Pressable>
+        <Pressable
+          onPress={() => router.push('/(tabs)/(dashboard)/playbook')}
+          accessibilityRole="button"
+          style={({ pressed }) => [styles.quickLink, pressed && styles.quickLinkPressed]}
+        >
+          <SymbolView name="book" size={20} tintColor={theme.colors.accent} />
+          <Text style={styles.quickLinkLabel}>{t`Playbook`}</Text>
+        </Pressable>
+      </View>
+
       <View style={styles.recent}>
         <View style={styles.recentHeader}>
           <Text style={styles.recentTitle}>{t`Recent trades`}</Text>
@@ -191,6 +213,20 @@ const styles = StyleSheet.create((theme) => ({
   skeletonCardTall: { height: 240, borderRadius: theme.radius.lg + 4 },
   skeletonCard: { height: 180, borderRadius: theme.radius.lg + 4 },
   cardError: { fontSize: 13, color: theme.colors.mutedForeground },
+  quickLinks: { flexDirection: 'row', gap: theme.spacing.sm },
+  quickLink: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: theme.spacing.sm,
+    backgroundColor: theme.colors.card,
+    borderRadius: theme.radius.lg,
+    borderCurve: 'continuous',
+    paddingVertical: theme.spacing.lg,
+  },
+  quickLinkPressed: { opacity: 0.7 },
+  quickLinkLabel: { fontSize: 15, fontWeight: '600', color: theme.colors.foreground },
   recent: { gap: theme.spacing.sm },
   recentHeader: {
     flexDirection: 'row',
