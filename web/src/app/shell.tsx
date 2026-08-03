@@ -9,6 +9,7 @@ import { MobileTabBar } from "@/components/MobileTabBar";
 import { AppUpdateBanner } from "@/components/AppUpdateBanner";
 import { Toaster } from "@/components/Toaster";
 import { UnauthorizedHandler } from "@/components/UnauthorizedHandler";
+import { FxConverterModal } from "@/components/tools/FxConverterModal";
 import { KellyModal } from "@/components/tools/KellyModal";
 import { PositionSizeModal } from "@/components/tools/PositionSizeModal";
 import { authApi, type SetupStatus } from "@/lib/api/auth";
@@ -26,6 +27,8 @@ function AuthedShell() {
   const setPositionSizeOpen = useUI((s) => s.setPositionSizeOpen);
   const kellyOpen = useUI((s) => s.kellyOpen);
   const setKellyOpen = useUI((s) => s.setKellyOpen);
+  const fxOpen = useUI((s) => s.fxOpen);
+  const setFxOpen = useUI((s) => s.setFxOpen);
   useAppHotkeys();
 
   // Phones scroll the document (lets Safari collapse its toolbar); ≥md the
@@ -60,6 +63,7 @@ function AuthedShell() {
       <CommandPalette />
       <PositionSizeModal open={positionSizeOpen} onOpenChange={setPositionSizeOpen} />
       <KellyModal open={kellyOpen} onOpenChange={setKellyOpen} />
+      <FxConverterModal open={fxOpen} onOpenChange={setFxOpen} />
       <NewTradeDrawer />
       <NewSetupDrawer />
       <NewNoteDrawer />

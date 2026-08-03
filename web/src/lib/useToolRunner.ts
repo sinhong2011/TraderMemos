@@ -9,6 +9,7 @@ export function useToolRunner() {
   const navigate = useNavigate();
   const openPositionSize = useUI((s) => s.openPositionSize);
   const openKelly = useUI((s) => s.openKelly);
+  const openFx = useUI((s) => s.openFx);
 
   return useCallback(
     (id: ToolId) => {
@@ -18,6 +19,9 @@ export function useToolRunner() {
           return;
         case "kelly":
           openKelly();
+          return;
+        case "fx":
+          openFx();
           return;
         case "planner":
           void navigate({ to: "/calculator" });
@@ -40,6 +44,6 @@ export function useToolRunner() {
         }
       }
     },
-    [navigate, openKelly, openPositionSize, toast],
+    [navigate, openFx, openKelly, openPositionSize, toast],
   );
 }
