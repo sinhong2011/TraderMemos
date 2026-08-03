@@ -1,7 +1,7 @@
 import type { ColumnDef, ColumnPinningState } from "@tanstack/react-table";
 import type { Trade } from "@/lib/api/types";
 import { usePrivacyMode } from "@/lib/displayPrefs";
-import { fmtDateShort, fmtDuration, fmtMoney, fmtSignedMoney } from "@/lib/format";
+import { fmtDuration, fmtMoney, fmtSignedMoney, fmtTradeDay } from "@/lib/format";
 import { intlLocale } from "@/lib/locale";
 import { resolveTradeDirection } from "@/lib/tradeDirection";
 import { DirCell } from "./DirCell";
@@ -101,7 +101,7 @@ export function tradeColumns(
       accessorKey: "opened_at",
       header: "Date",
       meta: { label: "Created At", headerTitle: "Date opened", minWidth: 96 },
-      cell: (i) => muted(fmtDateShort(i.getValue<string>())),
+      cell: (i) => muted(fmtTradeDay(i.getValue<string>())),
     },
     {
       accessorKey: "closed_at",
@@ -109,7 +109,7 @@ export function tradeColumns(
       meta: { label: "Close date", headerTitle: "Date closed (last activity)", minWidth: 96 },
       cell: (i) => {
         const v = i.getValue<string | null>();
-        return v ? muted(fmtDateShort(v)) : muted("-");
+        return v ? muted(fmtTradeDay(v)) : muted("-");
       },
     },
     {

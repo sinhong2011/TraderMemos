@@ -1,5 +1,5 @@
 import type { Summary, Trade } from "./api/types";
-import { fmtDateShort } from "./format";
+import { fmtTradeDay } from "./format";
 
 export interface AccountContribution {
   accountId: string;
@@ -66,7 +66,7 @@ function mean(values: number[]): number | null {
 
 function dayKey(iso: string | null | undefined): string | null {
   if (!iso) return null;
-  return fmtDateShort(iso);
+  return fmtTradeDay(iso);
 }
 
 /** Closed trades only, oldest → newest by close (fallback open). */

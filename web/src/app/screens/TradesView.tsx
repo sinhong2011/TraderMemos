@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/button";
 import { ViewOptions } from "@/components/ViewOptions";
 import type { Trade } from "@/lib/api/types";
 import { cn } from "@/lib/cn";
+import { useDisplayTimePrefs } from "@/lib/displayPrefs";
 import { COMPACT_VIEWPORT, useMediaQuery } from "@/lib/hooks/use-mobile";
 import { useMoneyFx } from "@/lib/hooks/useMoneyFx";
 import { clampPage, pageCountFor, slicePage } from "@/lib/pagination";
@@ -120,6 +121,7 @@ export function TradesView({
   onNewTrade,
   onRetry,
 }: TradesViewProps) {
+  useDisplayTimePrefs();
   const { currency: displayCurrency, rate } = useMoneyFx(currency);
   const fxRate = rate ?? 1;
   const compact = useMediaQuery(COMPACT_VIEWPORT);

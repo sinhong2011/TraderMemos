@@ -382,11 +382,16 @@ export const useDisplayPrefs = create<DisplayPrefsState>()(
   ),
 );
 
-/** Subscribe so components re-render when timezone / time format change. */
-export function useDisplayTimePrefs(): { timezone: TimezonePref; timeFormat: TimeFormatPref } {
+/** Subscribe so components re-render when timezone / time format / market timezone change. */
+export function useDisplayTimePrefs(): {
+  timezone: TimezonePref;
+  timeFormat: TimeFormatPref;
+  marketTimezone: MarketTimezonePref;
+} {
   const timezone = useDisplayPrefs((s) => s.timezone);
   const timeFormat = useDisplayPrefs((s) => s.timeFormat);
-  return { timezone, timeFormat };
+  const marketTimezone = useDisplayPrefs((s) => s.marketTimezone);
+  return { timezone, timeFormat, marketTimezone };
 }
 
 /** Account ledger currency — source of truth for stored amounts / forms. */
