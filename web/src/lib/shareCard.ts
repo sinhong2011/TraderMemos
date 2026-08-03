@@ -1,18 +1,28 @@
 import type { TradeDetail } from "@/lib/api/types";
 import { getDisplayTimeOpts } from "@/lib/displayPrefs";
-import { fmtSignedMoney } from "@/lib/format";
+import { fmtPct, fmtSignedMoney } from "@/lib/format";
 import type { TradeInsights } from "@/lib/tradeInsights";
+import type { YearWrapped } from "@/lib/wrapped";
 
 export interface ShareCardStat {
   label: string;
   value: string;
 }
 
+export type ShareCardTone = "profit" | "loss" | "flat";
+export type ShareCardChipTone = ShareCardTone | "muted" | "brand";
+
+export interface ShareCardChip {
+  text: string;
+  tone: ShareCardChipTone;
+}
+
 export interface ShareCardData {
-  symbol: string;
-  directionLabel: "LONG" | "SHORT";
-  outcome: "WIN" | "LOSS" | "FLAT" | "OPEN";
-  tone: "profit" | "loss" | "flat";
+  title: string;
+  /** Accessible name for the rendered SVG. */
+  ariaLabel: string;
+  chips: ShareCardChip[];
+  tone: ShareCardTone;
   dateLabel: string;
   hero: ShareCardStat;
   stats: ShareCardStat[];
@@ -75,12 +85,71 @@ export function buildTradeShareCard(
   const stats = candidates.filter((s): s is ShareCardStat => s != null).slice(0, 3);
 
   return {
-    symbol: trade.symbol,
-    directionLabel: trade.direction === "short" ? "SHORT" : "LONG",
-    outcome,
+    title: trade.symbol,
+    ariaLabel: `${trade.symbol} trade card`,
+    chips: [
+      { text: trade.direction === "short" ? "SHORT" : "LONG", tone: "muted" },
+      { text: outcome, tone: outcome === "OPEN" ? "brand" : tone },
+    ],
     tone,
     dateLabel,
     hero,
     stats,
+  };
+}
+
+/**
+ * Build the data for a shareable Year Wrapped card. Same privacy stance as
+ * the trade card: the default speaks in win rate and ratios — dollars appear
+ * only when showAmounts is explicitly on.
+ */
+export function buildWrappedShareCard(
+  wrapped: YearWrapped,
+  opts: {
+    showAmounts: boolean;
+    locale: string;
+    currency: string;
+    fxRate: number;
+    /** True while the year is still running (current year → "Year to date"). */
+    inProgress?: boolean;
+  },
+): ShareCardData {
+  const tone: ShareCardTone = wrapped.netPnl > 0 ? "profit" : wrapped.netPnl < 0 ? "loss" : "flat";
+  const money = (v: number) => fmtSignedMoney(v * opts.fxRate, opts.currency, opts.locale);
+  const winRate = fmtPct(wrapped.winRate, opts.locale);
+  const profitFactor = wrapped.profitFactor > 0 ? wrapped.profitFactor.toFixed(2) : "0.00";
+
+  const hero: ShareCardStat = opts.showAmounts
+    ? { label: "Net P&L", value: money(wrapped.netPnl) }
+    : { label: "Win rate", value: winRate };
+
+  const candidates: (ShareCardStat | null)[] = [
+    opts.showAmounts ? { label: "Win rate", value: winRate } : null,
+    { label: "Profit factor", value: profitFactor },
+    opts.showAmounts && wrapped.bestDay
+      ? { label: "Best day", value: money(wrapped.bestDay.pnl) }
+      : null,
+    !opts.showAmounts
+      ? { label: "Green days", value: `${wrapped.greenDays} of ${wrapped.tradingDays}` }
+      : null,
+    !opts.showAmounts && wrapped.bestStreak > 0
+      ? { label: "Best streak", value: `${wrapped.bestStreak} wins` }
+      : null,
+  ];
+
+  return {
+    title: `${wrapped.year} Wrapped`,
+    ariaLabel: `${wrapped.year} Wrapped share card`,
+    chips: [
+      { text: `${wrapped.totalTrades} TRADES`, tone: "muted" },
+      {
+        text: tone === "profit" ? "GREEN YEAR" : tone === "loss" ? "RED YEAR" : "FLAT YEAR",
+        tone,
+      },
+    ],
+    tone,
+    dateLabel: opts.inProgress ? "Year to date" : "Full year",
+    hero,
+    stats: candidates.filter((s): s is ShareCardStat => s != null).slice(0, 3),
   };
 }
