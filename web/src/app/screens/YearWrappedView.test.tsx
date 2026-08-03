@@ -1,8 +1,10 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vite-plus/test";
 import type { ReactNode } from "react";
 import type { Trade } from "@/lib/api/types";
 import { computeYearWrapped } from "@/lib/wrapped";
+import { Toaster } from "@/components/Toaster";
 import { YearWrappedView } from "./YearWrappedView";
 
 vi.mock("@tanstack/react-router", () => ({
@@ -53,7 +55,11 @@ describe("YearWrappedView", () => {
       trade({ id: "3", closed_at: "2026-03-11T12:00:00Z", net_pnl: -50 }),
     ];
     const wrapped = computeYearWrapped(trades, 2026);
-    render(<YearWrappedView {...baseProps} wrapped={wrapped} />);
+    render(
+      <Toaster>
+        <YearWrappedView {...baseProps} wrapped={wrapped} />
+      </Toaster>,
+    );
 
     expect(screen.getByText("2026 Wrapped")).toBeInTheDocument();
     expect(screen.getByText("+$300.00")).toBeInTheDocument();
@@ -72,14 +78,47 @@ describe("YearWrappedView", () => {
 
   it("shows an empty state when the year has no closed trades", () => {
     const wrapped = computeYearWrapped([], 2026);
-    render(<YearWrappedView {...baseProps} wrapped={wrapped} />);
+    render(
+      <Toaster>
+        <YearWrappedView {...baseProps} wrapped={wrapped} />
+      </Toaster>,
+    );
     expect(screen.getByText("No closed trades in 2026")).toBeInTheDocument();
   });
 
   it("disables the next-year arrow at the current year", () => {
     const wrapped = computeYearWrapped([], 2026);
-    render(<YearWrappedView {...baseProps} wrapped={wrapped} />);
+    render(
+      <Toaster>
+        <YearWrappedView {...baseProps} wrapped={wrapped} />
+      </Toaster>,
+    );
     expect(screen.getByRole("button", { name: "Next year" })).toBeDisabled();
     expect(screen.getByRole("button", { name: "Previous year" })).toBeEnabled();
+  });
+
+  it("opens the share card modal from the header, disabled on empty years", async () => {
+    const empty = computeYearWrapped([], 2026);
+    const { unmount } = render(
+      <Toaster>
+        <YearWrappedView {...baseProps} wrapped={empty} />
+      </Toaster>,
+    );
+    expect(screen.getByRole("button", { name: "Share card" })).toBeDisabled();
+    unmount();
+
+    const wrapped = computeYearWrapped(
+      [trade({ id: "1", closed_at: "2026-01-05T12:00:00Z", net_pnl: 100 })],
+      2026,
+    );
+    render(
+      <Toaster>
+        <YearWrappedView {...baseProps} wrapped={wrapped} />
+      </Toaster>,
+    );
+    const share = screen.getByRole("button", { name: "Share card" });
+    expect(share).toBeEnabled();
+    await userEvent.setup().click(share);
+    expect(screen.getByRole("img", { name: "2026 Wrapped share card" })).toBeInTheDocument();
   });
 });

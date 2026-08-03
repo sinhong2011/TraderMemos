@@ -1,7 +1,8 @@
 import { Link } from "@tanstack/react-router";
-import { ChevronLeft, ChevronRight, PartyPopper } from "lucide-react";
-import type { ReactNode } from "react";
+import { ChevronLeft, ChevronRight, PartyPopper, Share2 } from "lucide-react";
+import { type ReactNode, useState } from "react";
 import { EmptyState } from "@/components/EmptyState";
+import { WrappedShareModal } from "@/components/WrappedShareCard";
 import { Page } from "@/components/Page";
 import { Skeleton } from "@/components/Skeleton";
 import { pnlColor } from "@/components/theme-tokens";
@@ -83,6 +84,7 @@ export function YearWrappedView({
   usePrivacyMode();
   const locale = intlLocale();
   const money = (v: number) => fmtSignedMoney(v * fxRate, currency, locale);
+  const [shareOpen, setShareOpen] = useState(false);
 
   const header = (
     <div className="mx-auto flex w-full max-w-2xl items-center justify-between">
@@ -93,6 +95,16 @@ export function YearWrappedView({
         ) : null}
       </h1>
       <div className="flex items-center gap-1">
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          aria-label="Share card"
+          disabled={loading || error || wrapped.totalTrades === 0}
+          onClick={() => setShareOpen(true)}
+        >
+          <Share2 aria-hidden />
+        </Button>
         <Button
           type="button"
           variant="ghost"
@@ -351,6 +363,14 @@ export function YearWrappedView({
           </Link>
         </WrappedCard>
       </div>
+      <WrappedShareModal
+        wrapped={wrapped}
+        currency={currency}
+        fxRate={fxRate}
+        inProgress={year === currentYear}
+        open={shareOpen}
+        onOpenChange={setShareOpen}
+      />
     </Page>
   );
 }
