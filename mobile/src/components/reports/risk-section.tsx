@@ -13,10 +13,8 @@ import {
   SectionScaffold,
   useReportsFilters,
   useReportsMoney,
-  type SectionOption,
 } from '@/components/reports/section-scaffold';
 import { t } from '@lingui/core/macro';
-import type { ReportsSection } from '@/app/(tabs)/(reports)/index';
 import { formatPercentPoints } from '@/lib/format';
 import {
   avgRiskPerTrade,
@@ -30,13 +28,9 @@ import { pnlColor } from '@/styles/unistyles';
 const MAX_POINTS = 120;
 
 export function RiskSection({
-  sections,
-  section,
-  onSection,
+  onScrolledChange,
 }: {
-  sections: SectionOption[];
-  section: ReportsSection;
-  onSection: (section: ReportsSection) => void;
+  onScrolledChange?: (scrolled: boolean) => void;
 }) {
   const { theme } = useUnistyles();
   const router = useRouter();
@@ -74,10 +68,8 @@ export function RiskSection({
 
   return (
     <SectionScaffold
-      sections={sections}
-      section={section}
-      onSection={onSection}
       refreshing={equity.isRefetching || compliance.isRefetching}
+      onScrolledChange={onScrolledChange}
     >
       <DashboardCard title={t`Drawdown`}>
         {equity.isLoading ? (

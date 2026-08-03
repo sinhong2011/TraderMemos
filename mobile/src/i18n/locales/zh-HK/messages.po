@@ -61,7 +61,7 @@ msgid "{0} closed trades · {1} win rate · {2} trading days"
 msgstr "已平倉 {0} 筆 · 勝率 {1} · 交易 {2} 日"
 
 #. placeholder {0}: rSummary.excluded
-#: src/components/reports/overview-section.tsx:379
+#: src/components/reports/overview-section.tsx:377
 msgid "{0} closed trades excluded (no stop recorded)."
 msgstr "已排除 {0} 筆已平倉交易（未記錄止蝕）。"
 
@@ -81,12 +81,12 @@ msgid "{0} fills"
 msgstr "{0} 次成交"
 
 #. placeholder {0}: lossAversion.give_back_count
-#: src/components/reports/behavior-section.tsx:219
+#: src/components/reports/behavior-section.tsx:208
 msgid "{0} green at peak"
 msgstr "{0} 筆於高位時獲利"
 
 #. placeholder {0}: lossAversion.excluded
-#: src/components/reports/behavior-section.tsx:226
+#: src/components/reports/behavior-section.tsx:215
 msgid "{0} losers without recorded MAE/MFE could not be checked — recompute excursion on the trade to fill them."
 msgstr "{0} 筆未記錄 MAE/MFE 的虧損交易無法檢查 — 在交易頁重新計算波幅以補回。"
 
@@ -98,12 +98,12 @@ msgstr "{1} 中的 {0}"
 
 #. placeholder {0}: risk.included
 #. placeholder {1}: risk.included + risk.excluded
-#: src/components/reports/risk-section.tsx:106
+#: src/components/reports/risk-section.tsx:98
 msgid "{0} of {1} trades"
 msgstr "{1} 筆中的 {0} 筆"
 
 #. placeholder {0}: report.compliant_days
-#: src/components/reports/risk-section.tsx:147
+#: src/components/reports/risk-section.tsx:139
 msgid "{0} of {scoredDays} days"
 msgstr "{scoredDays} 日中的 {0} 日"
 
@@ -125,12 +125,12 @@ msgstr "持倉 {0} @ {1}"
 
 #. placeholder {0}: report.risk_violations
 #. placeholder {1}: report.daily_loss_breaches
-#: src/components/reports/risk-section.tsx:163
+#: src/components/reports/risk-section.tsx:155
 msgid "{0} over-risked · {1} daily-loss"
 msgstr "風險超標 {0} · 單日虧損 {1}"
 
 #. placeholder {0}: money(exitResult.perR)
-#: src/app/(tabs)/(reports)/r-calculator.tsx:475
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:475
 msgid "{0} per +1R"
 msgstr "每 +1R {0}"
 
@@ -145,18 +145,18 @@ msgstr "{0} 狀態伴隨虧損"
 #: src/app/(tabs)/(dashboard)/playbook.tsx:238
 #: src/app/(tabs)/(reports)/heatmap.tsx:135
 #: src/components/insights-card.tsx:80
-#: src/components/reports/behavior-section.tsx:53
-#: src/components/reports/detailed-section.tsx:206
-#: src/components/reports/overview-section.tsx:235
-#: src/components/reports/overview-section.tsx:294
-#: src/components/reports/risk-section.tsx:181
+#: src/components/reports/behavior-section.tsx:51
+#: src/components/reports/detailed-section.tsx:204
+#: src/components/reports/overview-section.tsx:233
+#: src/components/reports/overview-section.tsx:292
+#: src/components/reports/risk-section.tsx:173
 msgid "{0} trades"
 msgstr "{0} 筆交易"
 
 #. placeholder {0}: summary.total_trades
 #. placeholder {1}: money.format(-summary.total_fees)
 #. placeholder {2}: money.format(summary.expectancy)
-#: src/components/reports/overview-section.tsx:99
+#: src/components/reports/overview-section.tsx:97
 msgid "{0} trades · Fees {1} · Expectancy {2}"
 msgstr "{0} 筆 · 費用 {1} · 期望值 {2}"
 
@@ -169,12 +169,12 @@ msgid "{0} trades from {1} rows — {2} fills inserted, {3} duplicates skipped."
 msgstr "從 {1} 行取得 {0} 筆交易 — 已插入 {2} 筆成交，略過 {3} 筆重複。"
 
 #. placeholder {0}: report.unknown_risk
-#: src/components/reports/risk-section.tsx:170
+#: src/components/reports/risk-section.tsx:162
 msgid "{0} trades had no recorded initial risk and could not be scored against the per-trade rule."
 msgstr "{0} 筆交易未記錄初始風險，無法按每筆風險規則評分。"
 
 #. placeholder {0}: streaks.streaks
-#: src/components/reports/behavior-section.tsx:176
+#: src/components/reports/behavior-section.tsx:165
 msgid "{0} winning streaks scanned."
 msgstr "已掃描 {0} 次連勝。"
 
@@ -198,8 +198,8 @@ msgstr "已用去單日虧損預算的 {0}%。"
 #. placeholder {0}: summary.wins
 #. placeholder {1}: group.summary.losses
 #. placeholder {1}: summary.losses
-#: src/components/reports/overview-section.tsx:135
-#: src/components/reports/overview-section.tsx:432
+#: src/components/reports/overview-section.tsx:133
+#: src/components/reports/overview-section.tsx:430
 msgid "{0}W {1}L"
 msgstr "{0}勝 {1}負"
 
@@ -219,11 +219,11 @@ msgstr "{count} 筆交易"
 msgid "{daysTraded} days"
 msgstr "{daysTraded} 日"
 
-#: src/components/reports/behavior-section.tsx:38
+#: src/components/reports/behavior-section.tsx:36
 msgid "{events} events"
 msgstr "{events} 個事件"
 
-#: src/components/reports/overview-section.tsx:363
+#: src/components/reports/overview-section.tsx:361
 msgid "{included} of {total} trades"
 msgstr "{total} 筆中的 {included} 筆"
 
@@ -288,11 +288,11 @@ msgstr "還有 {0} 個"
 msgid "+{0} more trades in this file."
 msgstr "此檔案還有 {0} 筆交易。"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:375
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:375
 msgid "+2R target"
 msgstr "+2R 目標"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:381
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:381
 msgid "+3R target"
 msgstr "+3R 目標"
 
@@ -330,7 +330,7 @@ msgstr "1 年"
 msgid "12-hour (1:30 PM)"
 msgstr "12小時制 (1:30 PM)"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:365
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:365
 msgid "1R"
 msgstr "1R"
 
@@ -358,7 +358,7 @@ msgstr "關於"
 msgid "About TraderMemos"
 msgstr "關於 TraderMemos"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:576
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:576
 #: src/app/(tabs)/(settings)/_layout.tsx:24
 #: src/app/(tabs)/(settings)/account-form.tsx:220
 #: src/app/(tabs)/(settings)/cash-form.tsx:163
@@ -384,7 +384,7 @@ msgstr "將比對或建立 JSON 檔案中的帳戶「{jsonAccountName}」。"
 msgid "Account currency"
 msgstr "帳戶貨幣"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:58
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:58
 msgid "Account is too small to take even one share at this risk"
 msgstr "以此風險計算，帳戶連一股也買不起"
 
@@ -413,7 +413,7 @@ msgstr "有效權杖"
 msgid "Actual {0}"
 msgstr "實際 {0}"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:40
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:40
 msgid "Actual risk is below your target."
 msgstr "實際風險低於你的目標。"
 
@@ -462,7 +462,7 @@ msgstr "新增成交"
 msgid "Add from Photos"
 msgstr "從相簿加入"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:225
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:225
 msgid "Add position"
 msgstr "新增部位"
 
@@ -479,7 +479,7 @@ msgstr "新增標的（例如 AAPL）"
 #~ msgid "Add tag"
 #~ msgstr "新增標籤"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:438
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:438
 msgid "Add tier"
 msgstr "新增層級"
 
@@ -488,7 +488,7 @@ msgstr "新增層級"
 msgid "Add transaction"
 msgstr "新增資金交易"
 
-#: src/components/reports/risk-section.tsx:145
+#: src/components/reports/risk-section.tsx:137
 msgid "Adherence"
 msgstr "遵守率"
 
@@ -501,7 +501,7 @@ msgstr "調整"
 msgid "Advanced"
 msgstr "進階設定"
 
-#: src/components/tools-menu.tsx:37
+#: src/components/tools-menu.tsx:38
 msgid "Advanced chart"
 msgstr "進階圖表"
 
@@ -509,11 +509,11 @@ msgstr "進階圖表"
 msgid "Adverse excursion exceeded planned risk"
 msgstr "不利波幅超過計劃風險"
 
-#: src/components/reports/detailed-section.tsx:187
+#: src/components/reports/detailed-section.tsx:185
 msgid "After hours"
 msgstr "盤後"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:399
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:399
 msgid "Aggressive"
 msgstr "進取"
 
@@ -621,11 +621,11 @@ msgid "Ask AI"
 msgstr "詢問 AI"
 
 #. placeholder {0}: rLabel(exitResult.trailerTargetR)
-#: src/app/(tabs)/(reports)/r-calculator.tsx:478
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:478
 msgid "At {0}"
 msgstr "到達 {0} 時"
 
-#: src/components/reports/risk-section.tsx:98
+#: src/components/reports/risk-section.tsx:90
 msgid "at the highs"
 msgstr "處於高位"
 
@@ -633,7 +633,7 @@ msgstr "處於高位"
 msgid "at the stop"
 msgstr "止蝕時"
 
-#: src/components/reports/overview-section.tsx:54
+#: src/components/reports/overview-section.tsx:52
 msgid "average"
 msgstr "一般"
 
@@ -645,7 +645,7 @@ msgstr "平均"
 msgid "Average hold"
 msgstr "平均持倉時間"
 
-#: src/components/reports/detailed-section.tsx:207
+#: src/components/reports/detailed-section.tsx:205
 msgid "avg"
 msgstr "平均"
 
@@ -661,41 +661,41 @@ msgstr "平均平倉價"
 msgid "Avg hold"
 msgstr "平均持倉時間"
 
-#: src/components/reports/behavior-section.tsx:203
+#: src/components/reports/behavior-section.tsx:192
 msgid "Avg loser hold"
 msgstr "虧損平均持倉"
 
-#: src/components/reports/overview-section.tsx:367
+#: src/components/reports/overview-section.tsx:365
 msgid "Avg losing R"
 msgstr "平均虧損 R"
 
 #: src/components/performance-card.tsx:101
-#: src/components/reports/overview-section.tsx:147
+#: src/components/reports/overview-section.tsx:145
 msgid "Avg loss"
 msgstr "平均虧損"
 
-#: src/components/reports/overview-section.tsx:361
+#: src/components/reports/overview-section.tsx:359
 msgid "Avg R / trade"
 msgstr "每筆平均 R"
 
-#: src/components/reports/risk-section.tsx:102
+#: src/components/reports/risk-section.tsx:94
 msgid "Avg risk / trade"
 msgstr "每筆平均風險"
 
-#: src/components/reports/overview-section.tsx:158
+#: src/components/reports/overview-section.tsx:156
 msgid "Avg trade"
 msgstr "平均每筆"
 
 #: src/components/performance-card.tsx:96
-#: src/components/reports/overview-section.tsx:142
+#: src/components/reports/overview-section.tsx:140
 msgid "Avg win"
 msgstr "平均獲利"
 
-#: src/components/reports/behavior-section.tsx:197
+#: src/components/reports/behavior-section.tsx:186
 msgid "Avg winner hold"
 msgstr "獲利平均持倉"
 
-#: src/components/reports/overview-section.tsx:366
+#: src/components/reports/overview-section.tsx:364
 msgid "Avg winning R"
 msgstr "平均獲利 R"
 
@@ -721,11 +721,11 @@ msgid "Base URL"
 msgstr "基礎 URL"
 
 #. placeholder {0}: formatPercent(baseline.win_rate, 0)
-#: src/components/reports/behavior-section.tsx:47
+#: src/components/reports/behavior-section.tsx:45
 msgid "baseline {0}"
 msgstr "基準 {0}"
 
-#: src/components/reports/behavior-section.tsx:51
+#: src/components/reports/behavior-section.tsx:49
 msgid "Baseline P&L"
 msgstr "基準盈虧"
 
@@ -733,16 +733,16 @@ msgstr "基準盈虧"
 msgid "BE"
 msgstr "打和"
 
-#: src/app/(tabs)/(reports)/index.tsx:26
+#: src/app/(tabs)/(reports)/index.tsx:37
 #: src/app/(tabs)/(settings)/index.tsx:274
 msgid "Behavior"
 msgstr "行為"
 
-#: src/components/reports/overview-section.tsx:56
+#: src/components/reports/overview-section.tsx:54
 msgid "below average"
 msgstr "低於平均"
 
-#: src/components/reports/overview-section.tsx:369
+#: src/components/reports/overview-section.tsx:367
 msgid "Best / worst"
 msgstr "最佳 / 最差"
 
@@ -764,7 +764,7 @@ msgstr "最佳交易"
 msgid "Bias"
 msgstr "方向"
 
-#: src/components/reports/behavior-section.tsx:232
+#: src/components/reports/behavior-section.tsx:221
 msgid "Biggest give-backs"
 msgstr "最大回吐"
 
@@ -777,11 +777,11 @@ msgid "Biggest win"
 msgstr "最大盈利"
 
 #. placeholder {0}: rLabel(exitResult.blendedRAtTarget)
-#: src/app/(tabs)/(reports)/r-calculator.tsx:480
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:480
 msgid "blended {0}"
 msgstr "混合 {0}"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:505
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:505
 msgid "Bottom"
 msgstr "底部"
 
@@ -797,7 +797,7 @@ msgstr "扣費後打和也值得檢視流程：有跟計劃嗎？這個策略值
 msgid "Breakdown"
 msgstr "分項分析"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:254
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:254
 msgid "Breakeven"
 msgstr "打和"
 
@@ -814,7 +814,7 @@ msgid "Broker is required."
 msgstr "請輸入券商。"
 
 #. placeholder {0}: money(result.riskAmt)
-#: src/app/(tabs)/(reports)/r-calculator.tsx:369
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:369
 msgid "budget {0}"
 msgstr "預算 {0}"
 
@@ -849,8 +849,8 @@ msgstr "認購 (Call)"
 msgid "Call / Put"
 msgstr "Call / Put"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:166
-#: src/app/(tabs)/(reports)/r-calculator.tsx:190
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:166
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:190
 #: src/app/(tabs)/(settings)/account-form.tsx:197
 #: src/app/(tabs)/(settings)/account-form.tsx:208
 #: src/app/(tabs)/(settings)/api-tokens.tsx:89
@@ -884,15 +884,15 @@ msgstr "完整備份 — 交易、成交、日誌、資金及策略設定，可�
 msgid "Cap planned risk on a single trade."
 msgstr "為單筆交易的計劃風險設定上限。"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:335
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:335
 msgid "Capital"
 msgstr "資金"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:44
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:44
 msgid "Capital can't buy 1 contract — lower the premium or add capital"
 msgstr "資金買不起一張合約 — 降低權利金或增加資金"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:38
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:38
 msgid "Capital can't buy 1 share — pick a cheaper instrument or add capital"
 msgstr "資金買不起一股 — 選較便宜的標的或增加資金"
 
@@ -904,7 +904,7 @@ msgstr "從 + 選單記錄市場想法或每日日誌。"
 msgid "Cash"
 msgstr "現金"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:373
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:373
 msgid "Cash left"
 msgstr "剩餘現金"
 
@@ -912,12 +912,12 @@ msgstr "剩餘現金"
 msgid "Cash transactions"
 msgstr "資金往來"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:358
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:358
 msgid "cash-limited"
 msgstr "受現金限制"
 
-#: src/app/(tabs)/(reports)/_layout.tsx:63
-#: src/app/(tabs)/(reports)/advanced-chart.tsx:111
+#: src/app/(tabs)/(dashboard)/_layout.tsx:55
+#: src/app/(tabs)/(dashboard)/advanced-chart.tsx:111
 #: src/components/trade-chart.tsx:112
 msgid "Chart"
 msgstr "圖表"
@@ -1026,7 +1026,7 @@ msgstr "連線失敗"
 msgid "Connection OK"
 msgstr "連線正常"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:399
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:399
 msgid "Conservative"
 msgstr "保守"
 
@@ -1055,11 +1055,11 @@ msgstr "一致性規則告急"
 msgid "Contract"
 msgstr "合約"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:300
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:300
 msgid "Contract size"
 msgstr "合約乘數"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:354
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:354
 msgid "Contracts"
 msgstr "合約數"
 
@@ -1220,7 +1220,7 @@ msgstr "建立權杖"
 msgid "Creating…"
 msgstr "建立中…"
 
-#: src/app/(tabs)/(reports)/advanced-chart.tsx:93
+#: src/app/(tabs)/(dashboard)/advanced-chart.tsx:93
 #: src/app/(tabs)/(trades)/index.tsx:275
 #: src/components/trade-form.tsx:476
 msgid "Crypto"
@@ -1247,15 +1247,15 @@ msgid "Currency"
 msgstr "貨幣"
 
 #: src/app/tool-fx.tsx:35
-#: src/components/tools-menu.tsx:27
+#: src/components/tools-menu.tsx:28
 msgid "Currency converter"
 msgstr "貨幣換算"
 
-#: src/components/reports/risk-section.tsx:96
+#: src/components/reports/risk-section.tsx:88
 msgid "Current drawdown"
 msgstr "目前回撤"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:256
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:256
 #: src/app/(tabs)/(settings)/tags.tsx:29
 msgid "Custom"
 msgstr "自訂"
@@ -1279,7 +1279,7 @@ msgstr "每日清單"
 msgid "Daily log"
 msgstr "每日日誌"
 
-#: src/components/reports/risk-section.tsx:184
+#: src/components/reports/risk-section.tsx:176
 msgid "daily loss"
 msgstr "單日虧損"
 
@@ -1311,13 +1311,13 @@ msgstr "日期"
 
 #: src/components/breakdown-card.tsx:23
 #: src/components/reports-filter-menu.tsx:53
-#: src/components/reports/winloss-section.tsx:73
+#: src/components/reports/winloss-section.tsx:67
 msgid "Day"
 msgstr "星期"
 
-#: src/components/reports/detailed-section.tsx:109
-#: src/components/reports/detailed-section.tsx:117
-#: src/components/reports/detailed-section.tsx:136
+#: src/components/reports/detailed-section.tsx:107
+#: src/components/reports/detailed-section.tsx:115
+#: src/components/reports/detailed-section.tsx:134
 msgid "Day of week"
 msgstr "星期"
 
@@ -1398,7 +1398,7 @@ msgstr "存取款與費用會影響資產曲線。"
 #~ msgid "Description"
 #~ msgstr "描述"
 
-#: src/app/(tabs)/(reports)/index.tsx:24
+#: src/app/(tabs)/(reports)/index.tsx:35
 msgid "Detailed"
 msgstr "詳細"
 
@@ -1410,8 +1410,8 @@ msgstr "偵測到的券商"
 msgid "Developer"
 msgstr "開發者"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:307
-#: src/app/(tabs)/(reports)/r-calculator.tsx:520
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:307
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:520
 #: src/components/trade-form.tsx:528
 msgid "Direction"
 msgstr "方向"
@@ -1441,7 +1441,7 @@ msgstr "顯示貨幣"
 msgid "Display timezone"
 msgstr "顯示時區"
 
-#: src/components/reports/risk-section.tsx:121
+#: src/components/reports/risk-section.tsx:113
 msgid "Distance from the running equity peak, as a percentage."
 msgstr "與資金曲線高位的距離百分比。"
 
@@ -1474,7 +1474,7 @@ msgstr "完成"
 msgid "Download & share"
 msgstr "下載並分享"
 
-#: src/components/reports/risk-section.tsx:82
+#: src/components/reports/risk-section.tsx:74
 msgid "Drawdown"
 msgstr "回撤"
 
@@ -1506,13 +1506,13 @@ msgstr "例如：FOMO"
 msgid "e.g. Main Account"
 msgstr "例如：主帳戶"
 
-#: src/components/reports/winloss-section.tsx:141
+#: src/components/reports/winloss-section.tsx:130
 msgid "Each point is the win rate across the trailing {windowSize} closed trades."
 msgstr "每點代表最近 {windowSize} 筆已平倉交易的勝率。"
 
-#: src/app/(tabs)/(reports)/_layout.tsx:53
+#: src/app/(tabs)/(reports)/_layout.tsx:49
 #: src/app/(tabs)/(reports)/economic-events.tsx:103
-#: src/components/reports/overview-section.tsx:529
+#: src/components/reports/overview-section.tsx:518
 msgid "Economic calendar"
 msgstr "經濟日曆"
 
@@ -1617,17 +1617,17 @@ msgstr "輸入用戶名稱"
 msgid "Enter your username and password"
 msgstr "請輸入使用者名稱同密碼"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:317
-#: src/app/(tabs)/(reports)/r-calculator.tsx:595
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:317
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:595
 #: src/app/tool-position-size.tsx:77
 msgid "Entry"
 msgstr "入場"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:56
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:56
 msgid "Entry and stop collapse to no risk — move the entry or add a stop buffer"
 msgstr "入場與止蝕之間沒有風險空間 — 移動入場價或加上止蝕緩衝"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:543
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:543
 msgid "Entry at"
 msgstr "入場位置"
 
@@ -1639,11 +1639,11 @@ msgstr "入場條件、失效位、目標…"
 msgid "Entry hour × weekday"
 msgstr "入場時刻 × 星期"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:286
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:286
 msgid "Entry premium"
 msgstr "入場權利金"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:552
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:552
 msgid "Entry price"
 msgstr "入場價"
 
@@ -1682,7 +1682,7 @@ msgstr "錯誤（{0}）"
 msgid "Est. net P&L"
 msgstr "預估淨損益"
 
-#: src/components/reports/overview-section.tsx:50
+#: src/components/reports/overview-section.tsx:48
 msgid "excellent"
 msgstr "優秀"
 
@@ -1695,7 +1695,7 @@ msgstr "執行 {grade}"
 msgid "Executed at"
 msgstr "成交時間"
 
-#: src/components/reports/overview-section.tsx:408
+#: src/components/reports/overview-section.tsx:406
 msgid "Execution grade"
 msgstr "執行評級"
 
@@ -1714,7 +1714,7 @@ msgstr "成交紀錄"
 msgid "Exit dodged ~{r}R of drawdown"
 msgstr "離場避開約 {r}R 回撤"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:389
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:389
 msgid "Exit ladder"
 msgstr "出場階梯"
 
@@ -1727,11 +1727,11 @@ msgstr "出場原因"
 msgid "Exit replay"
 msgstr "退出重播"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:50
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:50
 msgid "Exit tier R must be greater than 0"
 msgstr "層級 R 必須大於 0"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:48
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:48
 msgid "Exit tiers exceed 100% — lower the percentages"
 msgstr "層級合計超過 100% — 請調低百分比"
 
@@ -1740,7 +1740,7 @@ msgid "exp"
 msgstr "期望"
 
 #: src/components/performance-card.tsx:60
-#: src/components/reports/winloss-section.tsx:80
+#: src/components/reports/winloss-section.tsx:74
 msgid "Expect"
 msgstr "期望值"
 
@@ -1758,7 +1758,7 @@ msgstr "到期 {expires} · 最後使用 {lastUsed}"
 msgid "Expiry"
 msgstr "到期日"
 
-#: src/components/reports/overview-section.tsx:543
+#: src/components/reports/overview-section.tsx:532
 msgid "Explore"
 msgstr "探索"
 
@@ -1781,12 +1781,12 @@ msgid "export.json plus trade screenshots under attachments/."
 msgstr "包含 export.json 以及 attachments/ 內的交易截圖。"
 
 #: src/components/breakdown-card.tsx:42
-#: src/components/reports/detailed-section.tsx:56
-#: src/components/reports/overview-section.tsx:266
+#: src/components/reports/detailed-section.tsx:54
+#: src/components/reports/overview-section.tsx:264
 msgid "Failed to load breakdown."
 msgstr "無法載入分項分析。"
 
-#: src/components/reports/risk-section.tsx:131
+#: src/components/reports/risk-section.tsx:123
 msgid "Failed to load compliance."
 msgstr "無法載入合規報告。"
 
@@ -1798,7 +1798,7 @@ msgstr "無法載入資金曲線。"
 msgid "Failed to load settings."
 msgstr "無法載入設定。"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:519
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:519
 msgid "Fair value gap"
 msgstr "公允價值缺口"
 
@@ -1809,7 +1809,7 @@ msgstr "費用"
 #: src/app/(tabs)/(settings)/import-trades.tsx:44
 #: src/app/(tabs)/(trades)/[id].tsx:285
 #: src/components/performance-card.tsx:57
-#: src/components/reports/overview-section.tsx:185
+#: src/components/reports/overview-section.tsx:183
 #: src/components/trade-form.tsx:432
 msgid "Fees"
 msgstr "手續費"
@@ -1866,15 +1866,15 @@ msgstr "成交、日誌、資金及策略設定會直接從 JSON 檔案讀取 �
 msgid "Filter"
 msgstr "篩選"
 
-#: src/components/reports/behavior-section.tsx:40
+#: src/components/reports/behavior-section.tsx:38
 msgid "Flagged P&L"
 msgstr "被標記盈虧"
 
-#: src/components/reports/behavior-section.tsx:38
+#: src/components/reports/behavior-section.tsx:36
 msgid "Flagged trades"
 msgstr "被標記交易"
 
-#: src/components/reports/behavior-section.tsx:45
+#: src/components/reports/behavior-section.tsx:43
 msgid "Flagged win rate"
 msgstr "被標記勝率"
 
@@ -1891,7 +1891,7 @@ msgstr "觸及下限"
 msgid "Forecast {0}"
 msgstr "預測 {0}"
 
-#: src/app/(tabs)/(reports)/advanced-chart.tsx:94
+#: src/app/(tabs)/(dashboard)/advanced-chart.tsx:94
 #: src/app/(tabs)/(trades)/index.tsx:277
 #: src/components/trade-form.tsx:478
 msgid "Forex"
@@ -1935,25 +1935,25 @@ msgstr "全凱利"
 msgid "Funding"
 msgstr "資金"
 
-#: src/app/(tabs)/(reports)/advanced-chart.tsx:95
+#: src/app/(tabs)/(dashboard)/advanced-chart.tsx:95
 #: src/app/(tabs)/(trades)/index.tsx:276
 #: src/components/trade-form.tsx:477
 msgid "Futures"
 msgstr "期貨"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:617
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:617
 msgid "FVG"
 msgstr "FVG"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:537
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:537
 msgid "Gap bottom"
 msgstr "缺口底"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:530
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:530
 msgid "Gap top"
 msgstr "缺口頂"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:54
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:54
 msgid "Gap top must sit above the bottom — check the edges"
 msgstr "缺口頂必須高於缺口底 — 請檢查邊界"
 
@@ -1969,7 +1969,7 @@ msgstr "GitHub 儲存庫"
 msgid "Go runtime"
 msgstr "Go 執行環境"
 
-#: src/components/reports/overview-section.tsx:52
+#: src/components/reports/overview-section.tsx:50
 msgid "good"
 msgstr "良好"
 
@@ -1997,7 +1997,7 @@ msgstr "毛額（未扣費用）"
 msgid "Gross P&L"
 msgstr "總損益"
 
-#: src/components/reports/overview-section.tsx:122
+#: src/components/reports/overview-section.tsx:120
 msgid "gross profit ÷ gross loss"
 msgstr "總盈利 ÷ 總虧損"
 
@@ -2005,7 +2005,7 @@ msgstr "總盈利 ÷ 總虧損"
 #~ msgid "Group trades under a custom tag."
 #~ msgstr "用自訂標籤將交易分組。"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:467
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:467
 msgid "Guaranteed floor"
 msgstr "保證下限"
 
@@ -2038,7 +2038,7 @@ msgstr "損益最高"
 msgid "History"
 msgstr "紀錄"
 
-#: src/components/reports/behavior-section.tsx:209
+#: src/components/reports/behavior-section.tsx:198
 msgid "Hold ratio"
 msgstr "持倉時間比"
 
@@ -2047,11 +2047,11 @@ msgid "Holiday"
 msgstr "假期"
 
 #: src/app/(tabs)/_layout.tsx:36
-#: src/app/(tabs)/(dashboard)/_layout.tsx:33
+#: src/app/(tabs)/(dashboard)/_layout.tsx:35
 msgid "Home"
 msgstr "主頁"
 
-#: src/components/reports/detailed-section.tsx:148
+#: src/components/reports/detailed-section.tsx:146
 msgid "Hour of day"
 msgstr "時段"
 
@@ -2177,12 +2177,12 @@ msgstr "JSON 備份"
 msgid "JSON must be an array of fills, or an object with a fills/rows/executions array."
 msgstr "JSON 必須是成交陣列，或含有 fills/rows/executions 陣列的物件。"
 
-#: src/components/reports/overview-section.tsx:173
+#: src/components/reports/overview-section.tsx:171
 msgid "Kelly (half)"
 msgstr "凱利（一半）"
 
 #: src/app/tool-kelly.tsx:33
-#: src/components/tools-menu.tsx:25
+#: src/components/tools-menu.tsx:26
 msgid "Kelly criterion"
 msgstr "凱利公式"
 
@@ -2198,11 +2198,11 @@ msgstr "語言"
 msgid "Language is set per app in iOS Settings."
 msgstr "語言可在 iOS 設定中按應用程式設定。"
 
-#: src/components/reports/overview-section.tsx:168
+#: src/components/reports/overview-section.tsx:166
 msgid "Largest loss"
 msgstr "最大虧損"
 
-#: src/components/reports/overview-section.tsx:163
+#: src/components/reports/overview-section.tsx:161
 msgid "Largest win"
 msgstr "最大盈利"
 
@@ -2257,7 +2257,7 @@ msgstr "「新增交易」合規檢查所用的上限。"
 msgid "Loading…"
 msgstr "載入中…"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:462
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:462
 msgid "Locked at tiers"
 msgstr "層級鎖定利潤"
 
@@ -2269,8 +2269,8 @@ msgstr "日誌"
 msgid "Logs"
 msgstr "日誌"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:249
-#: src/app/(tabs)/(reports)/r-calculator.tsx:499
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:249
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:499
 #: src/app/new-setup.tsx:112
 #: src/components/reports-filter-menu.tsx:40
 #: src/components/trade-form.tsx:481
@@ -2296,7 +2296,7 @@ msgstr "最長連敗"
 msgid "Longest win streak"
 msgstr "最長連勝"
 
-#: src/components/reports/behavior-section.tsx:213
+#: src/components/reports/behavior-section.tsx:202
 msgid "losers vs winners"
 msgstr "虧損 vs 獲利"
 
@@ -2308,7 +2308,7 @@ msgstr "虧損持倉時間"
 msgid "LOSS"
 msgstr "虧損"
 
-#: src/components/reports/behavior-section.tsx:188
+#: src/components/reports/behavior-section.tsx:177
 msgid "Loss aversion"
 msgstr "損失趨避"
 
@@ -2322,7 +2322,7 @@ msgstr "連敗"
 
 #: src/app/(tabs)/(trades)/index.tsx:260
 #: src/components/performance-card.tsx:75
-#: src/components/reports/overview-section.tsx:86
+#: src/components/reports/overview-section.tsx:84
 msgid "Losses"
 msgstr "虧損"
 
@@ -2358,7 +2358,7 @@ msgstr "主要漏洞"
 msgid "Manage tags"
 msgstr "管理標籤"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:506
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:506
 msgid "Manual"
 msgstr "手動"
 
@@ -2390,7 +2390,7 @@ msgstr "每日最大虧損"
 #: src/app/(tabs)/(settings)/prop-settings.tsx:138
 #: src/components/equity-card.tsx:107
 #: src/components/insights-card.tsx:49
-#: src/components/reports/risk-section.tsx:91
+#: src/components/reports/risk-section.tsx:83
 msgid "Max drawdown"
 msgstr "最大回撤"
 
@@ -2425,20 +2425,20 @@ msgstr "中位數"
 
 #. placeholder {0}: formatDuration(lossAversion.median_loss_hold_secs)
 #. placeholder {0}: formatDuration(lossAversion.median_win_hold_secs)
-#: src/components/reports/behavior-section.tsx:199
-#: src/components/reports/behavior-section.tsx:205
+#: src/components/reports/behavior-section.tsx:188
+#: src/components/reports/behavior-section.tsx:194
 msgid "median {0}"
 msgstr "中位數 {0}"
 
-#: src/components/reports/overview-section.tsx:147
+#: src/components/reports/overview-section.tsx:145
 msgid "Median loss"
 msgstr "虧損中位數"
 
-#: src/components/reports/overview-section.tsx:158
+#: src/components/reports/overview-section.tsx:156
 msgid "Median trade"
 msgstr "每筆中位數"
 
-#: src/components/reports/overview-section.tsx:142
+#: src/components/reports/overview-section.tsx:140
 msgid "Median win"
 msgstr "盈利中位數"
 
@@ -2446,7 +2446,7 @@ msgstr "盈利中位數"
 msgid "Medium"
 msgstr "中"
 
-#: src/components/reports/winloss-section.tsx:148
+#: src/components/reports/winloss-section.tsx:137
 msgid "Metric evolution"
 msgstr "指標演變"
 
@@ -2454,7 +2454,7 @@ msgstr "指標演變"
 msgid "MFE"
 msgstr "MFE"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:504
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:504
 msgid "Mid"
 msgstr "中間"
 
@@ -2467,7 +2467,7 @@ msgid "Missing exit reason on a loser"
 msgstr "虧損交易未記錄離場原因"
 
 #: src/app/(tabs)/(settings)/tags.tsx:30
-#: src/components/reports/overview-section.tsx:312
+#: src/components/reports/overview-section.tsx:310
 msgid "Mistake"
 msgstr "錯誤"
 
@@ -2491,7 +2491,7 @@ msgstr "一"
 
 #: src/app/(tabs)/(calendar)/index.tsx:196
 #: src/components/mini-calendar-card.tsx:52
-#: src/components/reports/winloss-section.tsx:75
+#: src/components/reports/winloss-section.tsx:69
 msgid "Month"
 msgstr "本月"
 
@@ -2531,11 +2531,11 @@ msgstr "乘數"
 msgid "Name"
 msgstr "名稱"
 
-#: src/components/reports/winloss-section.tsx:122
+#: src/components/reports/winloss-section.tsx:111
 msgid "Need at least {windowSize} closed trades to fill the window."
 msgstr "需要至少 {windowSize} 筆已平倉交易才能填滿視窗。"
 
-#: src/components/reports/overview-section.tsx:181
+#: src/components/reports/overview-section.tsx:179
 msgid "needs 2+ trades"
 msgstr "需要 2 筆以上"
 
@@ -2631,7 +2631,7 @@ msgstr "尚未有帳戶"
 msgid "No accounts yet — pick a JSON backup with account details, or add an account first."
 msgstr "尚未有帳戶 — 請選擇包含帳戶資料的 JSON 備份，或先新增帳戶。"
 
-#: src/app/(tabs)/(reports)/advanced-chart.tsx:179
+#: src/app/(tabs)/(dashboard)/advanced-chart.tsx:179
 msgid "No bars for {symbol} in this window — try a coarser interval."
 msgstr "此時段沒有 {symbol} 的 K 線 — 試試較粗的週期。"
 
@@ -2647,7 +2647,7 @@ msgstr "此代號沒有圖表數據。"
 msgid "No closed trades in {year}"
 msgstr "{year} 年沒有已平倉交易"
 
-#: src/components/reports/winloss-section.tsx:154
+#: src/components/reports/winloss-section.tsx:143
 msgid "No closed trades in this range."
 msgstr "此範圍內沒有已平倉交易。"
 
@@ -2660,7 +2660,7 @@ msgid "No closed trades yet"
 msgstr "尚無已平倉交易"
 
 #: src/components/equity-card.tsx:71
-#: src/components/reports/risk-section.tsx:86
+#: src/components/reports/risk-section.tsx:78
 msgid "No equity data in this range."
 msgstr "此範圍內無資金數據。"
 
@@ -2672,7 +2672,7 @@ msgstr "沒有事件"
 msgid "No matching notes"
 msgstr "沒有符合的筆記"
 
-#: src/components/reports/overview-section.tsx:322
+#: src/components/reports/overview-section.tsx:320
 msgid "No mistakes tagged."
 msgstr "沒有標記錯誤。"
 
@@ -2684,11 +2684,11 @@ msgstr "尚無筆記"
 msgid "No plan was recorded before the trade"
 msgstr "交易前沒有記錄計劃"
 
-#: src/components/reports/behavior-section.tsx:142
+#: src/components/reports/behavior-section.tsx:131
 msgid "No revenge patterns detected — flags trades opened within an hour of a losing close: same-symbol re-entries inside 15 minutes, or entries sized 1.5× above your recent median."
 msgstr "未偵測到報復性交易 — 標記虧損平倉後一小時內開倉的交易：15 分鐘內同一標的再入場，或倉位超過近期中位數 1.5 倍。"
 
-#: src/components/reports/risk-section.tsx:135
+#: src/components/reports/risk-section.tsx:127
 msgid "No risk rules configured — set max risk per trade and max daily loss to score every trading day against your own process."
 msgstr "未設定風險規則 — 設定每筆最大風險及單日最大虧損，即可按自己的流程為每個交易日評分。"
 
@@ -2697,7 +2697,7 @@ msgid "No risk rules yet"
 msgstr "尚未有風險規則"
 
 #: src/app/(tabs)/(dashboard)/playbook.tsx:215
-#: src/components/reports/overview-section.tsx:322
+#: src/components/reports/overview-section.tsx:320
 msgid "No setups traded in this range."
 msgstr "此範圍內沒有交易過的策略。"
 
@@ -2705,15 +2705,15 @@ msgstr "此範圍內沒有交易過的策略。"
 msgid "No setups yet"
 msgstr "尚無策略"
 
-#: src/components/reports/risk-section.tsx:107
+#: src/components/reports/risk-section.tsx:99
 msgid "no stops recorded"
 msgstr "未記錄止蝕"
 
-#: src/components/reports/behavior-section.tsx:165
+#: src/components/reports/behavior-section.tsx:154
 msgid "No streak patterns detected — flags trades sized up right after a winning streak."
 msgstr "未偵測到連勝模式 — 標記連勝後即加大倉位的交易。"
 
-#: src/components/reports/detailed-section.tsx:253
+#: src/components/reports/detailed-section.tsx:242
 msgid "No tagged trades in this range."
 msgstr "此範圍內沒有已標籤的交易。"
 
@@ -2739,10 +2739,10 @@ msgid "No trades"
 msgstr "無交易"
 
 #: src/app/(tabs)/(dashboard)/index.tsx:208
-#: src/components/reports/detailed-section.tsx:118
-#: src/components/reports/detailed-section.tsx:151
-#: src/components/reports/detailed-section.tsx:175
-#: src/components/reports/detailed-section.tsx:247
+#: src/components/reports/detailed-section.tsx:116
+#: src/components/reports/detailed-section.tsx:149
+#: src/components/reports/detailed-section.tsx:173
+#: src/components/reports/detailed-section.tsx:236
 msgid "No trades in this range."
 msgstr "此範圍內無交易。"
 
@@ -2754,7 +2754,7 @@ msgstr "沒有符合此篩選的交易。"
 msgid "No trades matching \"{search}\""
 msgstr "沒有符合「{search}」的交易"
 
-#: src/components/reports/overview-section.tsx:345
+#: src/components/reports/overview-section.tsx:343
 msgid "No trades with a knowable initial risk — set stops to unlock R analytics."
 msgstr "沒有可得知初始風險的交易 — 設定止蝕即可解鎖 R 分析。"
 
@@ -2788,7 +2788,7 @@ msgstr "未標記"
 msgid "Not connected"
 msgstr "未連接"
 
-#: src/components/reports/behavior-section.tsx:191
+#: src/components/reports/behavior-section.tsx:180
 msgid "Not enough closed trades yet — compares how long winners and losers are held, and finds losers that were green at their peak."
 msgstr "已平倉交易仍不足 — 比較獲利與虧損的持倉時間，並找出高位時曾獲利的虧損交易。"
 
@@ -2817,7 +2817,7 @@ msgstr "筆記"
 msgid "Note not found"
 msgstr "找不到筆記"
 
-#: src/app/(tabs)/(dashboard)/_layout.tsx:38
+#: src/app/(tabs)/(dashboard)/_layout.tsx:47
 #: src/app/(tabs)/(dashboard)/index.tsx:188
 #: src/app/(tabs)/(dashboard)/notes.tsx:96
 #: src/app/(tabs)/(dashboard)/notes.tsx:114
@@ -2890,7 +2890,7 @@ msgstr "持倉中"
 msgid "Open date (entry)"
 msgstr "開倉日（入場）"
 
-#: src/components/reports/risk-section.tsx:138
+#: src/components/reports/risk-section.tsx:130
 msgid "Open risk rules"
 msgstr "開啟風險規則"
 
@@ -2919,11 +2919,11 @@ msgstr "備註（可選）"
 msgid "Optional title"
 msgstr "標題（可選）"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:246
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:246
 msgid "Options"
 msgstr "期權"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:255
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:255
 msgid "Original"
 msgstr "原止蝕"
 
@@ -2931,16 +2931,16 @@ msgstr "原止蝕"
 msgid "Other"
 msgstr "其他"
 
-#: src/components/reports/winloss-section.tsx:128
+#: src/components/reports/winloss-section.tsx:117
 msgid "over the last {windowSize} trades"
 msgstr "最近 {windowSize} 筆"
 
 #. placeholder {0}: day.risk_violations
-#: src/components/reports/risk-section.tsx:185
+#: src/components/reports/risk-section.tsx:177
 msgid "over-risked ×{0}"
 msgstr "風險超標 ×{0}"
 
-#: src/components/reports/behavior-section.tsx:162
+#: src/components/reports/behavior-section.tsx:151
 msgid "Overconfidence"
 msgstr "過度自信"
 
@@ -2948,16 +2948,16 @@ msgstr "過度自信"
 msgid "Overconfidence often shows up as oversizing or ignoring your stop. Check whether conviction exceeded your edge on this setup."
 msgstr "過度自信常表現為倉位過大或無視止蝕。檢查信心是否超越了實際優勢。"
 
-#: src/components/reports/detailed-section.tsx:189
+#: src/components/reports/detailed-section.tsx:187
 msgid "Overnight"
 msgstr "隔夜"
 
-#: src/app/(tabs)/(reports)/index.tsx:22
+#: src/app/(tabs)/(reports)/index.tsx:33
 msgid "Overview"
 msgstr "總覽"
 
 #: src/app/(tabs)/(trades)/[id].tsx:279
-#: src/components/reports/winloss-section.tsx:78
+#: src/components/reports/winloss-section.tsx:72
 msgid "P&L"
 msgstr "損益"
 
@@ -2965,17 +2965,17 @@ msgstr "損益"
 msgid "P&L basis"
 msgstr "盈虧基準"
 
-#: src/app/(tabs)/(reports)/_layout.tsx:55
+#: src/app/(tabs)/(reports)/_layout.tsx:51
 #: src/app/(tabs)/(reports)/heatmap.tsx:72
-#: src/components/reports/overview-section.tsx:534
+#: src/components/reports/overview-section.tsx:523
 msgid "P&L heatmap"
 msgstr "盈虧熱力圖"
 
-#: src/components/reports/risk-section.tsx:156
+#: src/components/reports/risk-section.tsx:148
 msgid "P&L, rules broken"
 msgstr "盈虧（違規日）"
 
-#: src/components/reports/risk-section.tsx:151
+#: src/components/reports/risk-section.tsx:143
 msgid "P&L, rules followed"
 msgstr "盈虧（遵守日）"
 
@@ -2988,16 +2988,16 @@ msgid "Pause"
 msgstr "暫停"
 
 #: src/app/tool-kelly.tsx:46
-#: src/components/reports/overview-section.tsx:152
+#: src/components/reports/overview-section.tsx:150
 msgid "Payoff ratio"
 msgstr "盈虧比"
 
 #. placeholder {0}: money.formatCompact(giveBack.mfe)
-#: src/components/reports/behavior-section.tsx:238
+#: src/components/reports/behavior-section.tsx:227
 msgid "peak {0}"
 msgstr "高位 {0}"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:365
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:365
 msgid "per share"
 msgstr "每股"
 
@@ -3015,11 +3015,11 @@ msgstr "百分比必須介乎 0 至 100。"
 
 #: src/app/(tabs)/(settings)/account-form.tsx:295
 #: src/components/performance-card.tsx:49
-#: src/components/reports/overview-section.tsx:93
+#: src/components/reports/overview-section.tsx:91
 msgid "Performance"
 msgstr "表現"
 
-#: src/components/reports/overview-section.tsx:93
+#: src/components/reports/overview-section.tsx:91
 msgid "Performance — gross"
 msgstr "表現 — 毛額"
 
@@ -3039,7 +3039,7 @@ msgid "Permanently deletes this trade and all of its fills. This cannot be undon
 msgstr "將永久刪除此交易及其所有成交，無法復原。"
 
 #: src/components/performance-card.tsx:58
-#: src/components/reports/winloss-section.tsx:79
+#: src/components/reports/winloss-section.tsx:73
 msgid "PF"
 msgstr "PF"
 
@@ -3047,7 +3047,7 @@ msgstr "PF"
 msgid "Photo Library"
 msgstr "照片圖庫"
 
-#: src/app/(tabs)/(reports)/advanced-chart.tsx:157
+#: src/app/(tabs)/(dashboard)/advanced-chart.tsx:157
 msgid "Pick a symbol"
 msgstr "選擇標的"
 
@@ -3055,7 +3055,7 @@ msgstr "選擇標的"
 msgid "Pick an account first."
 msgstr "請先選擇帳戶。"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:592
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:592
 #: src/components/trade-form.tsx:619
 msgid "Plan"
 msgstr "計劃"
@@ -3068,14 +3068,14 @@ msgstr "計劃與風險"
 msgid "Play"
 msgstr "播放"
 
-#: src/app/(tabs)/(dashboard)/_layout.tsx:39
+#: src/app/(tabs)/(dashboard)/_layout.tsx:48
 #: src/app/(tabs)/(dashboard)/index.tsx:196
 #: src/app/(tabs)/(dashboard)/playbook.tsx:137
 #: src/app/(tabs)/(dashboard)/playbook.tsx:184
 msgid "Playbook"
 msgstr "策略手冊"
 
-#: src/components/reports/overview-section.tsx:316
+#: src/components/reports/overview-section.tsx:314
 msgid "Playbook & leaks"
 msgstr "策略手冊與漏洞"
 
@@ -3093,22 +3093,22 @@ msgstr "連接你自己的 TraderMemos 伺服器。"
 msgid "Point value"
 msgstr "點值"
 
-#: src/components/reports/overview-section.tsx:58
+#: src/components/reports/overview-section.tsx:56
 msgid "poor"
 msgstr "欠佳"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:271
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:271
 #: src/app/(tabs)/(trades)/[id].tsx:366
 msgid "Position"
 msgstr "倉位"
 
 #: src/app/tool-position-size.tsx:52
-#: src/components/tools-menu.tsx:21
+#: src/components/tools-menu.tsx:22
 msgid "Position size"
 msgstr "倉位大小"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:372
-#: src/app/(tabs)/(reports)/r-calculator.tsx:605
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:372
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:605
 msgid "Position value"
 msgstr "倉位價值"
 
@@ -3120,7 +3120,7 @@ msgstr "離場後 MAE"
 msgid "Post-exit MFE"
 msgstr "離場後 MFE"
 
-#: src/components/reports/detailed-section.tsx:183
+#: src/components/reports/detailed-section.tsx:181
 msgid "Premarket"
 msgstr "盤前"
 
@@ -3174,17 +3174,17 @@ msgstr "私隱模式"
 msgid "Process and outcome aligned. Capture what you did right in review notes so you can repeat it."
 msgstr "流程與結果一致。在回顧筆記記下做對的地方，方便重複。"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:604
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:604
 msgid "Profit at target"
 msgstr "到達目標利潤"
 
 #: src/app/(tabs)/(dashboard)/playbook.tsx:126
 #: src/app/(tabs)/(reports)/wrapped.tsx:250
-#: src/components/reports/overview-section.tsx:106
+#: src/components/reports/overview-section.tsx:104
 msgid "Profit factor"
 msgstr "獲利因子"
 
-#: src/components/reports/behavior-section.tsx:217
+#: src/components/reports/behavior-section.tsx:206
 msgid "Profit given back"
 msgstr "回吐利潤"
 
@@ -3243,9 +3243,9 @@ msgstr "快速篩選"
 msgid "Quick loss — thesis failed fast"
 msgstr "快速虧損 — 論點迅速失效"
 
-#: src/app/(tabs)/(reports)/_layout.tsx:59
-#: src/app/(tabs)/(reports)/r-calculator.tsx:624
-#: src/components/tools-menu.tsx:32
+#: src/app/(tabs)/(dashboard)/_layout.tsx:51
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:624
+#: src/components/tools-menu.tsx:33
 msgid "R calculator"
 msgstr "R 計算機"
 
@@ -3253,12 +3253,12 @@ msgstr "R 計算機"
 msgid "R multiple"
 msgstr "R 倍數"
 
-#: src/components/reports/overview-section.tsx:343
-#: src/components/reports/overview-section.tsx:358
+#: src/components/reports/overview-section.tsx:341
+#: src/components/reports/overview-section.tsx:356
 msgid "R-multiple"
 msgstr "R 倍數"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:616
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:616
 msgid "R-Multiple"
 msgstr "R 倍數"
 
@@ -3266,7 +3266,7 @@ msgstr "R 倍數"
 msgid "Rate how you executed, not how it paid — a disciplined trade can still lose."
 msgstr "評的是執行質素，唔係盈虧——守紀律嘅交易一樣可以蝕錢。"
 
-#: src/components/reports/behavior-section.tsx:82
+#: src/components/reports/behavior-section.tsx:80
 msgid "re-entry"
 msgstr "再入場"
 
@@ -3287,11 +3287,11 @@ msgstr "在匯入時將券商截圖辨識為成交紀錄。支援任何相容 Op
 msgid "Realized P&L"
 msgstr "已實現損益"
 
-#: src/components/reports/risk-section.tsx:176
+#: src/components/reports/risk-section.tsx:168
 msgid "Recent breach days"
 msgstr "最近違規日"
 
-#: src/components/reports/behavior-section.tsx:74
+#: src/components/reports/behavior-section.tsx:72
 msgid "Recent events"
 msgstr "最近事件"
 
@@ -3311,7 +3311,7 @@ msgstr "虧損日"
 msgid "Regenerate"
 msgstr "重新生成"
 
-#: src/components/reports/detailed-section.tsx:185
+#: src/components/reports/detailed-section.tsx:183
 msgid "Regular hours"
 msgstr "正常交易時段"
 
@@ -3319,7 +3319,7 @@ msgstr "正常交易時段"
 msgid "Remaining"
 msgstr "剩餘數量"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:184
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:184
 #: src/app/(tabs)/(settings)/cash-form.tsx:154
 #: src/app/(tabs)/(settings)/flex-sync.tsx:105
 #: src/app/(tabs)/(settings)/prop-settings.tsx:116
@@ -3374,7 +3374,7 @@ msgstr "移除截圖？"
 msgid "Remove symbol"
 msgstr "移除代號"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:425
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:425
 msgid "Remove tier"
 msgstr "移除層級"
 
@@ -3405,8 +3405,8 @@ msgstr "將從所有已標註的交易中移除「{0}」。"
 msgid "Removing…"
 msgstr "移除中…"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:160
-#: src/app/(tabs)/(reports)/r-calculator.tsx:163
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:160
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:163
 msgid "Rename"
 msgstr "重新命名"
 
@@ -3415,7 +3415,7 @@ msgstr "重新命名"
 #~ msgid "Rename tag"
 #~ msgstr "重新命名標籤"
 
-#: src/app/(tabs)/(reports)/advanced-chart.tsx:196
+#: src/app/(tabs)/(dashboard)/advanced-chart.tsx:196
 msgid "Replay"
 msgstr "重播"
 
@@ -3428,6 +3428,7 @@ msgid "Report an issue"
 msgstr "回報問題"
 
 #: src/app/(tabs)/_layout.tsx:50
+#: src/app/(tabs)/(reports)/index.tsx:47
 msgid "Reports"
 msgstr "報表"
 
@@ -3435,7 +3436,7 @@ msgstr "報表"
 msgid "Return"
 msgstr "回報率"
 
-#: src/components/reports/behavior-section.tsx:139
+#: src/components/reports/behavior-section.tsx:128
 msgid "Revenge trading"
 msgstr "報復性交易"
 
@@ -3463,20 +3464,20 @@ msgstr "撤銷"
 msgid "Revoke token?"
 msgstr "撤銷權杖？"
 
-#: src/app/(tabs)/(reports)/index.tsx:25
-#: src/app/(tabs)/(reports)/r-calculator.tsx:367
-#: src/app/(tabs)/(reports)/r-calculator.tsx:603
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:367
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:603
+#: src/app/(tabs)/(reports)/index.tsx:36
 #: src/app/tool-position-size.tsx:102
 msgid "Risk"
 msgstr "風險"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:342
-#: src/app/(tabs)/(reports)/r-calculator.tsx:583
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:342
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:583
 #: src/app/tool-position-size.tsx:65
 msgid "Risk %"
 msgstr "風險 %"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:46
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:46
 msgid "Risk budget under 1 contract — raise Risk% or tighten the stop"
 msgstr "風險預算不足一張合約 — 提高風險%或收窄止蝕"
 
@@ -3489,7 +3490,7 @@ msgstr "風險規則"
 #~ msgid "Risk rules updated."
 #~ msgstr "已更新風險規則。"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:360
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:360
 msgid "risk-limited"
 msgstr "受風險限制"
 
@@ -3501,7 +3502,7 @@ msgstr "風險、目標、止蝕全部空白。沒有計劃，就無法判斷虧
 msgid "Risk, target, and stop are blank — and you tagged this as no plan. Define all three before entry next time so you can measure R and review honestly."
 msgstr "風險、目標、止蝕空白 — 你亦自行標記為無計劃。下次入場前三者都先定好，才能量度 R 並誠實回顧。"
 
-#: src/components/reports/winloss-section.tsx:117
+#: src/components/reports/winloss-section.tsx:106
 msgid "Rolling win rate"
 msgstr "滾動勝率"
 
@@ -3519,7 +3520,7 @@ msgstr "列數"
 msgid "Rows with errors"
 msgstr "有錯誤的列"
 
-#: src/components/reports/risk-section.tsx:127
+#: src/components/reports/risk-section.tsx:119
 msgid "Rule compliance"
 msgstr "規則遵守"
 
@@ -3536,11 +3537,11 @@ msgstr "規則與清單"
 msgid "Rules the firm scores this evaluation on. Blank rules are skipped."
 msgstr "Prop 公司評分此評估所用的規則。空白規則會被略過。"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:473
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:473
 msgid "Runner"
 msgstr "留倉部分"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:441
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:441
 msgid "Runner stop"
 msgstr "留倉止蝕"
 
@@ -3548,7 +3549,7 @@ msgstr "留倉止蝕"
 msgid "Sat"
 msgstr "六"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:168
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:168
 #: src/app/(tabs)/(settings)/ai.tsx:170
 #: src/app/(tabs)/(settings)/display.tsx:44
 #: src/app/(tabs)/(settings)/flex-sync.tsx:145
@@ -3637,7 +3638,7 @@ msgstr "每筆交易截圖 — {0} 張"
 msgid "Screenshots per trade — No limit"
 msgstr "每筆交易截圖 — 不設上限"
 
-#: src/app/(tabs)/(reports)/advanced-chart.tsx:159
+#: src/app/(tabs)/(dashboard)/advanced-chart.tsx:159
 msgid "Search a ticker above to load its chart."
 msgstr "在上方搜尋代號即可載入圖表。"
 
@@ -3661,7 +3662,7 @@ msgstr "賣出"
 msgid "SELL"
 msgstr "賣出"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:416
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:416
 msgid "Sell %"
 msgstr "賣出 %"
 
@@ -3682,13 +3683,13 @@ msgstr "時段"
 msgid "Session recap"
 msgstr "當日回顧"
 
-#: src/components/reports/detailed-section.tsx:166
-#: src/components/reports/detailed-section.tsx:174
-#: src/components/reports/detailed-section.tsx:215
+#: src/components/reports/detailed-section.tsx:164
+#: src/components/reports/detailed-section.tsx:172
+#: src/components/reports/detailed-section.tsx:213
 msgid "Sessions"
 msgstr "交易時段"
 
-#: src/components/reports/detailed-section.tsx:217
+#: src/components/reports/detailed-section.tsx:215
 msgid "Sessions follow the New York clock."
 msgstr "交易時段以紐約時間為準。"
 
@@ -3707,7 +3708,7 @@ msgstr "設定"
 
 #: src/app/(tabs)/(trades)/[id].tsx:386
 #: src/components/breakdown-card.tsx:24
-#: src/components/reports/overview-section.tsx:311
+#: src/components/reports/overview-section.tsx:309
 msgid "Setup"
 msgstr "策略"
 
@@ -3742,14 +3743,14 @@ msgstr "分享權杖"
 msgid "Share trade"
 msgstr "分享交易"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:354
-#: src/app/(tabs)/(reports)/r-calculator.tsx:594
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:354
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:594
 #: src/app/tool-position-size.tsx:100
 msgid "Shares"
 msgstr "股數"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:250
-#: src/app/(tabs)/(reports)/r-calculator.tsx:500
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:250
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:500
 #: src/app/new-setup.tsx:113
 #: src/components/reports-filter-menu.tsx:41
 #: src/components/trade-form.tsx:482
@@ -3782,12 +3783,12 @@ msgstr "登入"
 msgid "Sign in failed"
 msgstr "登入失敗"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:351
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:351
 msgid "Size"
 msgstr "倉位"
 
 #. placeholder {0}: (event.size_ratio ?? 0).toFixed(1)
-#: src/components/reports/behavior-section.tsx:83
+#: src/components/reports/behavior-section.tsx:81
 msgid "size ×{0}"
 msgstr "倉位 ×{0}"
 
@@ -3803,8 +3804,8 @@ msgstr "略過（重複）"
 msgid "Skipped {skipped} row(s) without quantity/price."
 msgstr "已略過 {skipped} 行沒有數量/價格的資料。"
 
-#: src/components/reports/behavior-section.tsx:154
-#: src/components/reports/behavior-section.tsx:180
+#: src/components/reports/behavior-section.tsx:143
+#: src/components/reports/behavior-section.tsx:169
 msgid "Small sample — patterns firm up as more closed trades accumulate."
 msgstr "樣本較少 — 隨已平倉交易累積，模式會更清晰。"
 
@@ -3813,7 +3814,7 @@ msgstr "樣本較少 — 隨已平倉交易累積，模式會更清晰。"
 msgid "Sort"
 msgstr "排序"
 
-#: src/components/reports/overview-section.tsx:179
+#: src/components/reports/overview-section.tsx:177
 msgid "SQN"
 msgstr "SQN"
 
@@ -3843,8 +3844,8 @@ msgstr "上一根"
 msgid "Step forward"
 msgstr "下一根"
 
-#: src/app/(tabs)/(reports)/advanced-chart.tsx:92
-#: src/app/(tabs)/(reports)/r-calculator.tsx:245
+#: src/app/(tabs)/(dashboard)/advanced-chart.tsx:92
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:245
 #: src/app/(tabs)/(trades)/index.tsx:273
 #: src/components/trade-form.tsx:474
 msgid "Stock"
@@ -3854,8 +3855,8 @@ msgstr "股票"
 msgid "Stocks / options"
 msgstr "股票 / 期權"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:324
-#: src/app/(tabs)/(reports)/r-calculator.tsx:596
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:324
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:596
 #: src/app/(tabs)/(trades)/[id].tsx:309
 #: src/app/new-setup.tsx:162
 #: src/app/tool-position-size.tsx:87
@@ -3863,27 +3864,27 @@ msgstr "股票 / 期權"
 msgid "Stop"
 msgstr "止損價"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:454
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:454
 msgid "Stop at R"
 msgstr "止蝕 R"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:560
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:560
 msgid "Stop buffer"
 msgstr "止蝕緩衝"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:36
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:36
 msgid "Stop must be above entry for a short"
 msgstr "造淡止蝕必須高於入場價"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:34
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:34
 msgid "Stop must be below entry for a long"
 msgstr "造好止蝕必須低於入場價"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:293
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:293
 msgid "Stop premium"
 msgstr "止蝕權利金"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:42
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:42
 msgid "Stop premium must be below entry premium"
 msgstr "止蝕權利金必須低於入場權利金"
 
@@ -3907,7 +3908,7 @@ msgstr "從匯出檔中移除帳戶名稱、券商及 ID — 方便分享。"
 msgid "Strong +{r}R result"
 msgstr "+{r}R 的強勁結果"
 
-#: src/components/reports/overview-section.tsx:175
+#: src/components/reports/overview-section.tsx:173
 msgid "suggested risk"
 msgstr "建議風險"
 
@@ -3923,7 +3924,7 @@ msgstr "摘要"
 msgid "Sun"
 msgstr "日"
 
-#: src/components/reports/overview-section.tsx:48
+#: src/components/reports/overview-section.tsx:46
 msgid "superb"
 msgstr "卓越"
 
@@ -3962,12 +3963,12 @@ msgstr "代號 {0}"
 msgid "Symbol A–Z"
 msgstr "代號 A–Z"
 
-#: src/app/(tabs)/(reports)/advanced-chart.tsx:114
+#: src/app/(tabs)/(dashboard)/advanced-chart.tsx:114
 msgid "Symbol, e.g. SPY"
 msgstr "代號（例如 SPY）"
 
 #: src/components/note-form.tsx:102
-#: src/components/reports/detailed-section.tsx:244
+#: src/components/reports/detailed-section.tsx:233
 msgid "Symbols"
 msgstr "標的"
 
@@ -4000,7 +4001,7 @@ msgstr "請輸入標籤名稱。"
 #: src/app/(tabs)/(settings)/tags.tsx:122
 #: src/app/(tabs)/(trades)/[id].tsx:439
 #: src/app/manage-tags.tsx:70
-#: src/components/reports/detailed-section.tsx:250
+#: src/components/reports/detailed-section.tsx:239
 #: src/components/trade-form.tsx:676
 msgid "Tags"
 msgstr "標籤"
@@ -4017,7 +4018,7 @@ msgstr "點一下標籤即可刪除。"
 msgid "Tap a token to revoke it."
 msgstr "點一下權杖即可撤銷。"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:598
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:598
 #: src/app/(tabs)/(trades)/[id].tsx:306
 #: src/app/new-setup.tsx:152
 #: src/components/trade-form.tsx:622
@@ -4028,7 +4029,7 @@ msgstr "目標價"
 #~ msgid "Target net P&L (blank to clear)"
 #~ msgstr "目標淨損益（留空即清除）"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:567
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:567
 msgid "Target R"
 msgstr "目標 R"
 
@@ -4135,7 +4136,7 @@ msgid "Thu"
 msgstr "四"
 
 #. placeholder {0}: index + 1
-#: src/app/(tabs)/(reports)/r-calculator.tsx:409
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:409
 msgid "Tier {0} — R"
 msgstr "層級 {0} — R"
 
@@ -4174,7 +4175,7 @@ msgstr "至"
 #. placeholder {0}: formatPercent(latest.winRate)
 #. placeholder {1}: formatRatio(latest.profitFactor)
 #. placeholder {2}: ctx.money.format(latest.cumulativePnl)
-#: src/components/reports/winloss-section.tsx:182
+#: src/components/reports/winloss-section.tsx:171
 msgid "To date: {0} win rate · PF {1} · {2} cumulative"
 msgstr "至今：勝率 {0} · PF {1} · 累計 {2}"
 
@@ -4196,17 +4197,17 @@ msgstr "請輸入權杖名稱。"
 msgid "Tokens authenticate scripts and integrations against your server's API."
 msgstr "權杖用於讓腳本與整合向你的伺服器 API 進行驗證。"
 
-#: src/components/tools-menu.tsx:49
-#: src/components/tools-menu.tsx:61
+#: src/components/tools-menu.tsx:50
+#: src/components/tools-menu.tsx:62
 msgid "Tools"
 msgstr "工具"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:503
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:503
 msgid "Top"
 msgstr "頂部"
 
 #. placeholder {0}: groups.length
-#: src/components/reports/detailed-section.tsx:94
+#: src/components/reports/detailed-section.tsx:92
 msgid "Top {MAX_ROWS} of {0} by magnitude."
 msgstr "按變動幅度排列的前 {MAX_ROWS} 項（共 {0} 項）。"
 
@@ -4272,7 +4273,7 @@ msgid "Trades keep their journal — only the playbook entry goes."
 msgstr "交易日誌會保留 — 只會刪除策略手冊項目。"
 
 #: src/components/prop-status-card.tsx:124
-#: src/components/reports/overview-section.tsx:210
+#: src/components/reports/overview-section.tsx:208
 msgid "Trading days"
 msgstr "交易日"
 
@@ -4284,7 +4285,7 @@ msgstr "移動"
 msgid "Trailing — ratchets on every high"
 msgstr "移動 — 每創新高即上調"
 
-#: src/app/(tabs)/(reports)/r-calculator.tsx:52
+#: src/app/(tabs)/(dashboard)/r-calculator.tsx:52
 msgid "Trailing stop should sit below the first tier"
 msgstr "移動止蝕應低於第一層級"
 
@@ -4314,7 +4315,7 @@ msgstr "輸入券商名稱"
 msgid "Unit"
 msgstr "單位"
 
-#: src/components/reports/overview-section.tsx:415
+#: src/components/reports/overview-section.tsx:413
 msgid "Unrated"
 msgstr "未評級"
 
@@ -4363,7 +4364,7 @@ msgstr "版本"
 msgid "View all"
 msgstr "查看全部"
 
-#: src/components/reports/risk-section.tsx:161
+#: src/components/reports/risk-section.tsx:153
 msgid "Violations"
 msgstr "違規"
 
@@ -4372,8 +4373,8 @@ msgid "Vision scan"
 msgstr "影像掃描"
 
 #: src/components/performance-card.tsx:87
-#: src/components/reports/overview-section.tsx:88
-#: src/components/reports/overview-section.tsx:190
+#: src/components/reports/overview-section.tsx:86
+#: src/components/reports/overview-section.tsx:188
 msgid "Wash"
 msgstr "打和"
 
@@ -4391,7 +4392,7 @@ msgstr "三"
 
 #: src/app/(tabs)/(calendar)/index.tsx:195
 #: src/app/(tabs)/(calendar)/index.tsx:640
-#: src/components/reports/winloss-section.tsx:74
+#: src/components/reports/winloss-section.tsx:68
 msgid "Week"
 msgstr "週"
 
@@ -4425,21 +4426,21 @@ msgstr "為何出場？"
 msgid "WIN"
 msgstr "獲利"
 
-#: src/app/(tabs)/(reports)/index.tsx:23
+#: src/app/(tabs)/(reports)/index.tsx:34
 msgid "Win / Loss"
 msgstr "勝負"
 
-#: src/components/reports/overview-section.tsx:154
+#: src/components/reports/overview-section.tsx:152
 msgid "win ÷ loss"
 msgstr "平均盈利 ÷ 平均虧損"
 
 #: src/app/(tabs)/(dashboard)/playbook.tsx:125
 #: src/app/(tabs)/(dashboard)/playbook.tsx:193
-#: src/components/reports/overview-section.tsx:125
+#: src/components/reports/overview-section.tsx:123
 msgid "Win rate"
 msgstr "勝率"
 
-#: src/components/reports/winloss-section.tsx:157
+#: src/components/reports/winloss-section.tsx:146
 msgid "Win rate (%)"
 msgstr "勝率 (%)"
 
@@ -4457,7 +4458,7 @@ msgstr "連勝"
 
 #: src/app/(tabs)/(trades)/index.tsx:259
 #: src/components/performance-card.tsx:69
-#: src/components/reports/overview-section.tsx:85
+#: src/components/reports/overview-section.tsx:83
 msgid "Wins"
 msgstr "獲利"
 
@@ -4499,9 +4500,9 @@ msgstr "趁記憶猶新寫下入場原因。未來的你需要的是論點，不
 msgid "Year"
 msgstr "年"
 
-#: src/app/(tabs)/(reports)/_layout.tsx:56
+#: src/app/(tabs)/(reports)/_layout.tsx:52
 #: src/app/(tabs)/(reports)/wrapped.tsx:62
-#: src/components/reports/overview-section.tsx:539
+#: src/components/reports/overview-section.tsx:528
 msgid "Year Wrapped"
 msgstr "年度回顧"
 

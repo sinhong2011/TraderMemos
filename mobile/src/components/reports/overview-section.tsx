@@ -28,10 +28,8 @@ import {
   useReportsFilters,
   useReportsMoney,
   type ReportsMoneyContext,
-  type SectionOption,
 } from '@/components/reports/section-scaffold';
 import { t } from '@lingui/core/macro';
-import type { ReportsSection } from '@/app/(tabs)/(reports)/index';
 import { locale } from '@/i18n';
 import { formatPercent, formatRatio } from '@/lib/format';
 import { gradeFromInt } from '@/lib/journal';
@@ -446,13 +444,9 @@ function ExecutionGradeCard({ ctx }: { ctx: ReportsMoneyContext }) {
 // ---------------------------------------------------------------------------
 
 export function OverviewSection({
-  sections,
-  section,
-  onSection,
+  onScrolledChange,
 }: {
-  sections: SectionOption[];
-  section: ReportsSection;
-  onSection: (section: ReportsSection) => void;
+  onScrolledChange?: (scrolled: boolean) => void;
 }) {
   const filters = useReportsFilters();
   const ctx = useReportsMoney();
@@ -468,12 +462,7 @@ export function OverviewSection({
   const refreshing = summary.isRefetching || equity.isRefetching;
 
   return (
-    <SectionScaffold
-      sections={sections}
-      section={section}
-      onSection={onSection}
-      refreshing={refreshing}
-    >
+    <SectionScaffold refreshing={refreshing} onScrolledChange={onScrolledChange}>
       {summary.isLoading ? (
         <>
           <Skeleton style={styles.skeletonTall} />

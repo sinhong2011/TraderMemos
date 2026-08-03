@@ -13,10 +13,8 @@ import {
   useReportsFilters,
   useReportsMoney,
   type ReportsMoneyContext,
-  type SectionOption,
 } from '@/components/reports/section-scaffold';
 import { t } from '@lingui/core/macro';
-import type { ReportsSection } from '@/app/(tabs)/(reports)/index';
 import { formatDuration, formatPercent } from '@/lib/format';
 import { pnlColor } from '@/styles/unistyles';
 
@@ -92,13 +90,9 @@ function EventList({
 }
 
 export function BehaviorSection({
-  sections,
-  section,
-  onSection,
+  onScrolledChange,
 }: {
-  sections: SectionOption[];
-  section: ReportsSection;
-  onSection: (section: ReportsSection) => void;
+  onScrolledChange?: (scrolled: boolean) => void;
 }) {
   const { theme } = useUnistyles();
   const router = useRouter();
@@ -118,12 +112,7 @@ export function BehaviorSection({
     (lossAversion.avg_win_hold_secs > 0 || lossAversion.avg_loss_hold_secs > 0);
 
   return (
-    <SectionScaffold
-      sections={sections}
-      section={section}
-      onSection={onSection}
-      refreshing={behavior.isRefetching}
-    >
+    <SectionScaffold refreshing={behavior.isRefetching} onScrolledChange={onScrolledChange}>
       {behavior.isLoading ? (
         <>
           <Skeleton style={styles.skeletonCard} />

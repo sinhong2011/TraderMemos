@@ -1,8 +1,9 @@
 /**
- * Shared chrome and data plumbing for the Reports sections: the horizontal
- * section chip switcher, the page scroll scaffold, and the hooks that combine
- * the global scope with the reports controls into query filters + money
- * helpers. Each section is its own ScrollView so switching stays cheap.
+ * Shared chrome and data plumbing for the Reports sections: the per-page
+ * scroll scaffold, and the hooks that combine the global scope with the
+ * reports controls into query filters + money helpers. The segmented
+ * switcher and the pager live on the index screen — each section is one
+ * pager page wrapping its own ScrollView.
  */
 
 import { useQueryClient } from '@tanstack/react-query';
@@ -11,7 +12,6 @@ import { RefreshControl, ScrollView, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { useAccounts } from '@/api/hooks';
-import { Segmented } from '@/components/segmented';
 import type { Filters } from '@/api/types';
 import type { ReportsSection } from '@/app/(tabs)/(reports)/index';
 import { useSelectedAccountId } from '@/lib/account-store';
@@ -64,50 +64,43 @@ export function useReportsMoney(): ReportsMoneyContext {
 
 export type SectionOption = { value: ReportsSection; label: string };
 
-/** Page scaffold: native segmented switcher over a pull-to-refresh card stack. */
+/** One pager page: a pull-to-refresh card stack. */
 export function SectionScaffold({
-  sections,
-  section,
-  onSection,
   refreshing,
+  onScrolledChange,
   children,
 }: {
-  sections: SectionOption[];
-  section: ReportsSection;
-  onSection: (section: ReportsSection) => void;
   refreshing: boolean;
+  /** Fires when content crosses under the bar — the index shows the title then. */
+  onScrolledChange?: (scrolled: boolean) => void;
   children: ReactNode;
 }) {
   const queryClient = useQueryClient();
   return (
     <ScrollView
       style={styles.page}
-      contentInsetAdjustmentBehavior="automatic"
       contentContainerStyle={styles.content}
+      scrollEventThrottle={32}
+      onScroll={
+        onScrolledChange
+          ? (event) => onScrolledChange(event.nativeEvent.contentOffset.y > 24)
+          : undefined
+      }
       refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={() => void queryClient.invalidateQueries()} />
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={() => void queryClient.invalidateQueries()}
+        />
       }
     >
-      {/* iOS 26 segmented control — SwiftUI compresses five labels cleanly,
-          where a chip rail read as tag buttons and scrolled off-screen. */}
-      <View style={styles.segment}>
-        <Segmented options={sections} value={section} onChange={onSection} />
-      </View>
       <View style={styles.stack}>{children}</View>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create((theme) => ({
-  page: { backgroundColor: theme.colors.background },
-  content: {
-    paddingTop: theme.spacing.sm,
-    paddingBottom: theme.spacing.xl * 2,
-  },
-  segment: {
-    paddingHorizontal: theme.spacing.lg,
-    alignItems: 'center',
-  },
+  page: { flex: 1, backgroundColor: theme.colors.background },
+  content: { paddingBottom: theme.spacing.xl * 2 },
   stack: {
     padding: theme.spacing.lg,
     paddingTop: theme.spacing.md,
