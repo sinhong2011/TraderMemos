@@ -47,19 +47,18 @@ export function computePnlHeatmap(
   const grid: HeatmapCell[][] = Array.from({ length: 7 }, () =>
     Array.from({ length: 24 }, () => ({ pnl: 0, trades: 0, items: [] as Trade[] })),
   );
-  const fmt = new Intl.DateTimeFormat("en-US", {
-    timeZone,
-    weekday: "short",
-    hour: "numeric",
-    hour12: false,
-  });
+  // Two dedicated formatters instead of one formatToParts pass: Hermes (the
+  // mobile port shares this file) tags the weekday part as "literal", so part
+  // types can't be trusted across engines — plain format() output can.
+  const dayFmt = new Intl.DateTimeFormat("en-US", { timeZone, weekday: "short" });
+  const hourFmt = new Intl.DateTimeFormat("en-US", { timeZone, hour: "numeric", hour12: false });
 
   let total = 0;
   for (const t of trades) {
     if (t.status !== "closed" || t.net_pnl == null) continue;
-    const parts = fmt.formatToParts(new Date(t.opened_at));
-    const day = DAY_INDEX[parts.find((p) => p.type === "weekday")?.value ?? ""];
-    const rawHour = Number(parts.find((p) => p.type === "hour")?.value);
+    const opened = new Date(t.opened_at);
+    const day = DAY_INDEX[dayFmt.format(opened)];
+    const rawHour = Number(hourFmt.format(opened));
     if (day == null || !Number.isFinite(rawHour)) continue;
     // Some engines report midnight as "24" with hour12: false.
     const hour = rawHour % 24;
