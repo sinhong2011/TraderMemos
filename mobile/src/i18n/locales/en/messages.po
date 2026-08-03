@@ -87,6 +87,11 @@ msgstr "{0} of goal · YTD net P&L"
 msgid "{0} over-risked · {1} daily-loss"
 msgstr "{0} over-risked · {1} daily-loss"
 
+#. placeholder {0}: money(exitResult.perR)
+#: src/app/(tabs)/(reports)/r-calculator.tsx:475
+msgid "{0} per +1R"
+msgstr "{0} per +1R"
+
 #. placeholder {0}: baseline.trades
 #. placeholder {0}: day.trades
 #. placeholder {0}: group.summary.total_trades
@@ -213,6 +218,19 @@ msgstr "+{0} more"
 msgid "+{0} more trades in this file."
 msgstr "+{0} more trades in this file."
 
+#: src/app/(tabs)/(reports)/r-calculator.tsx:375
+msgid "+2R target"
+msgstr "+2R target"
+
+#: src/app/(tabs)/(reports)/r-calculator.tsx:381
+msgid "+3R target"
+msgstr "+3R target"
+
+#. placeholder {0}: (rate ?? 1).toFixed(4)
+#: src/app/tool-fx.tsx:79
+msgid "1 {from} = {0} {to}"
+msgstr "1 {from} = {0} {to}"
+
 #: src/app/(tabs)/(calendar)/index.tsx:624
 #: src/app/(tabs)/(calendar)/index.tsx:694
 msgid "1 day"
@@ -233,6 +251,10 @@ msgstr "1 year"
 #: src/app/(tabs)/(settings)/display.tsx:142
 msgid "12-hour (1:30 PM)"
 msgstr "12-hour (1:30 PM)"
+
+#: src/app/(tabs)/(reports)/r-calculator.tsx:365
+msgid "1R"
+msgstr "1R"
 
 #: src/app/(tabs)/(settings)/display.tsx:145
 msgid "24-hour (13:30)"
@@ -258,6 +280,7 @@ msgstr "About"
 msgid "About TraderMemos"
 msgstr "About TraderMemos"
 
+#: src/app/(tabs)/(reports)/r-calculator.tsx:576
 #: src/app/(tabs)/(settings)/_layout.tsx:24
 #: src/app/(tabs)/(settings)/account-form.tsx:219
 #: src/app/(tabs)/(settings)/cash-form.tsx:163
@@ -283,6 +306,10 @@ msgstr "Account \"{jsonAccountName}\" from the JSON file will be matched or crea
 msgid "Account currency"
 msgstr "Account currency"
 
+#: src/app/(tabs)/(reports)/r-calculator.tsx:58
+msgid "Account is too small to take even one share at this risk"
+msgstr "Account is too small to take even one share at this risk"
+
 #: src/app/(tabs)/(settings)/account-form.tsx:166
 msgid "Account name is required."
 msgstr "Account name is required."
@@ -307,6 +334,10 @@ msgstr "Active tokens"
 #: src/app/(tabs)/(reports)/economic-events.tsx:218
 msgid "Actual {0}"
 msgstr "Actual {0}"
+
+#: src/app/(tabs)/(reports)/r-calculator.tsx:40
+msgid "Actual risk is below your target."
+msgstr "Actual risk is below your target."
 
 #: src/components/add-menu.tsx:32
 #: src/components/add-menu.tsx:48
@@ -345,6 +376,10 @@ msgstr "Add at least one fill with quantity and price."
 msgid "Add fill"
 msgstr "Add fill"
 
+#: src/app/(tabs)/(reports)/r-calculator.tsx:225
+msgid "Add position"
+msgstr "Add position"
+
 #: src/components/note-form.tsx:118
 #: src/components/trade-form.tsx:368
 msgid "Add symbol"
@@ -357,6 +392,10 @@ msgstr "Add symbol, e.g. AAPL"
 #: src/app/manage-tags.tsx:121
 #~ msgid "Add tag"
 #~ msgstr "Add tag"
+
+#: src/app/(tabs)/(reports)/r-calculator.tsx:438
+msgid "Add tier"
+msgstr "Add tier"
 
 #: src/app/(tabs)/(settings)/cash-form.tsx:207
 #: src/app/(tabs)/(settings)/funding.tsx:46
@@ -379,6 +418,10 @@ msgstr "Advanced"
 #: src/components/reports/detailed-section.tsx:187
 msgid "After hours"
 msgstr "After hours"
+
+#: src/app/(tabs)/(reports)/r-calculator.tsx:399
+msgid "Aggressive"
+msgstr "Aggressive"
 
 #: src/app/(tabs)/(settings)/_layout.tsx:41
 msgid "AI"
@@ -421,6 +464,7 @@ msgid "Always \"{0}\""
 msgstr "Always \"{0}\""
 
 #: src/app/(tabs)/(settings)/cash-form.tsx:178
+#: src/app/tool-fx.tsx:36
 #: src/components/trade-form.tsx:729
 msgid "Amount"
 msgstr "Amount"
@@ -470,9 +514,18 @@ msgstr "App config imported"
 msgid "App configuration"
 msgstr "App configuration"
 
+#. placeholder {0}: rLabel(exitResult.trailerTargetR)
+#: src/app/(tabs)/(reports)/r-calculator.tsx:478
+msgid "At {0}"
+msgstr "At {0}"
+
 #: src/components/reports/risk-section.tsx:98
 msgid "at the highs"
 msgstr "at the highs"
+
+#: src/app/tool-position-size.tsx:104
+msgid "at the stop"
+msgstr "at the stop"
 
 #: src/components/reports/overview-section.tsx:54
 msgid "average"
@@ -616,6 +669,15 @@ msgstr "Biggest loss"
 msgid "Biggest win"
 msgstr "Biggest win"
 
+#. placeholder {0}: rLabel(exitResult.blendedRAtTarget)
+#: src/app/(tabs)/(reports)/r-calculator.tsx:480
+msgid "blended {0}"
+msgstr "blended {0}"
+
+#: src/app/(tabs)/(reports)/r-calculator.tsx:505
+msgid "Bottom"
+msgstr "Bottom"
+
 #: src/app/(tabs)/(reports)/wrapped.tsx:247
 msgid "Bottom line"
 msgstr "Bottom line"
@@ -623,6 +685,10 @@ msgstr "Bottom line"
 #: src/components/breakdown-card.tsx:36
 msgid "Breakdown"
 msgstr "Breakdown"
+
+#: src/app/(tabs)/(reports)/r-calculator.tsx:254
+msgid "Breakeven"
+msgstr "Breakeven"
 
 #: src/app/new-setup.tsx:126
 msgid "Breakout pullback"
@@ -635,6 +701,11 @@ msgstr "Broker"
 #: src/app/(tabs)/(settings)/account-form.tsx:170
 msgid "Broker is required."
 msgstr "Broker is required."
+
+#. placeholder {0}: money(result.riskAmt)
+#: src/app/(tabs)/(reports)/r-calculator.tsx:369
+msgid "budget {0}"
+msgstr "budget {0}"
 
 #. placeholder {0}: monthShort(wrapped.busiestMonth.month)
 #. placeholder {1}: wrapped.busiestMonth.trades
@@ -667,6 +738,8 @@ msgstr "Call"
 msgid "Call / Put"
 msgstr "Call / Put"
 
+#: src/app/(tabs)/(reports)/r-calculator.tsx:166
+#: src/app/(tabs)/(reports)/r-calculator.tsx:190
 #: src/app/(tabs)/(settings)/account-form.tsx:196
 #: src/app/(tabs)/(settings)/account-form.tsx:207
 #: src/app/(tabs)/(settings)/api-tokens.tsx:89
@@ -694,6 +767,18 @@ msgstr "Canonical backup — trades, fills, journal, cash, and playbook setups. 
 msgid "Cap planned risk on a single trade."
 msgstr "Cap planned risk on a single trade."
 
+#: src/app/(tabs)/(reports)/r-calculator.tsx:335
+msgid "Capital"
+msgstr "Capital"
+
+#: src/app/(tabs)/(reports)/r-calculator.tsx:44
+msgid "Capital can't buy 1 contract — lower the premium or add capital"
+msgstr "Capital can't buy 1 contract — lower the premium or add capital"
+
+#: src/app/(tabs)/(reports)/r-calculator.tsx:38
+msgid "Capital can't buy 1 share — pick a cheaper instrument or add capital"
+msgstr "Capital can't buy 1 share — pick a cheaper instrument or add capital"
+
 #: src/app/(tabs)/(dashboard)/notes.tsx:162
 msgid "Capture market thoughts or a daily log from the + menu."
 msgstr "Capture market thoughts or a daily log from the + menu."
@@ -702,9 +787,17 @@ msgstr "Capture market thoughts or a daily log from the + menu."
 msgid "Cash"
 msgstr "Cash"
 
+#: src/app/(tabs)/(reports)/r-calculator.tsx:373
+msgid "Cash left"
+msgstr "Cash left"
+
 #: src/app/(tabs)/(settings)/import-trades.tsx:207
 msgid "Cash transactions"
 msgstr "Cash transactions"
+
+#: src/app/(tabs)/(reports)/r-calculator.tsx:358
+msgid "cash-limited"
+msgstr "cash-limited"
 
 #: src/components/trade-chart.tsx:175
 msgid "Chart"
@@ -806,9 +899,21 @@ msgstr "Connection failed"
 msgid "Connection OK"
 msgstr "Connection OK"
 
+#: src/app/(tabs)/(reports)/r-calculator.tsx:399
+msgid "Conservative"
+msgstr "Conservative"
+
 #: src/components/trade-form.tsx:536
 msgid "Contract"
 msgstr "Contract"
+
+#: src/app/(tabs)/(reports)/r-calculator.tsx:300
+msgid "Contract size"
+msgstr "Contract size"
+
+#: src/app/(tabs)/(reports)/r-calculator.tsx:354
+msgid "Contracts"
+msgstr "Contracts"
 
 #: src/app/(tabs)/(settings)/display.tsx:84
 msgid "Converts read-only amounts with the latest FX rate. Forms keep the account currency."
@@ -849,6 +954,10 @@ msgstr "Could not delete tag"
 #: src/app/(tabs)/(settings)/index.tsx:105
 msgid "Could not export config"
 msgstr "Could not export config"
+
+#: src/app/tool-fx.tsx:72
+msgid "Could not fetch the rate — is market data configured?"
+msgstr "Could not fetch the rate — is market data configured?"
 
 #: src/app/(tabs)/(settings)/index.tsx:130
 msgid "Could not import config"
@@ -964,10 +1073,16 @@ msgstr "CSV needs a header row and at least one fill row."
 msgid "Currency"
 msgstr "Currency"
 
+#: src/app/tool-fx.tsx:35
+#: src/components/tools-menu.tsx:27
+msgid "Currency converter"
+msgstr "Currency converter"
+
 #: src/components/reports/risk-section.tsx:96
 msgid "Current drawdown"
 msgstr "Current drawdown"
 
+#: src/app/(tabs)/(reports)/r-calculator.tsx:256
 #: src/app/(tabs)/(settings)/tags.tsx:29
 msgid "Custom"
 msgstr "Custom"
@@ -1103,6 +1218,8 @@ msgstr "Detected broker"
 msgid "Developer"
 msgstr "Developer"
 
+#: src/app/(tabs)/(reports)/r-calculator.tsx:307
+#: src/app/(tabs)/(reports)/r-calculator.tsx:520
 #: src/components/trade-form.tsx:528
 msgid "Direction"
 msgstr "Direction"
@@ -1153,6 +1270,7 @@ msgstr "Dollars"
 #: src/app/(tabs)/(settings)/import-trades.tsx:233
 #: src/app/login.tsx:323
 #: src/app/manage-tags.tsx:62
+#: src/components/tool-sheet.tsx:30
 msgid "Done"
 msgstr "Done"
 
@@ -1184,7 +1302,7 @@ msgstr "e.g. Main Account"
 msgid "Each point is the win rate across the trailing {windowSize} closed trades."
 msgstr "Each point is the win rate across the trailing {windowSize} closed trades."
 
-#: src/app/(tabs)/(reports)/_layout.tsx:41
+#: src/app/(tabs)/(reports)/_layout.tsx:49
 #: src/app/(tabs)/(reports)/economic-events.tsx:103
 #: src/components/reports/overview-section.tsx:529
 msgid "Economic calendar"
@@ -1282,6 +1400,20 @@ msgstr "Enter your username"
 msgid "Enter your username and password"
 msgstr "Enter your username and password"
 
+#: src/app/(tabs)/(reports)/r-calculator.tsx:317
+#: src/app/(tabs)/(reports)/r-calculator.tsx:595
+#: src/app/tool-position-size.tsx:77
+msgid "Entry"
+msgstr "Entry"
+
+#: src/app/(tabs)/(reports)/r-calculator.tsx:56
+msgid "Entry and stop collapse to no risk — move the entry or add a stop buffer"
+msgstr "Entry and stop collapse to no risk — move the entry or add a stop buffer"
+
+#: src/app/(tabs)/(reports)/r-calculator.tsx:543
+msgid "Entry at"
+msgstr "Entry at"
+
 #: src/app/new-setup.tsx:134
 msgid "Entry criteria, invalidation, targets…"
 msgstr "Entry criteria, invalidation, targets…"
@@ -1290,6 +1422,14 @@ msgstr "Entry criteria, invalidation, targets…"
 msgid "Entry hour × weekday"
 msgstr "Entry hour × weekday"
 
+#: src/app/(tabs)/(reports)/r-calculator.tsx:286
+msgid "Entry premium"
+msgstr "Entry premium"
+
+#: src/app/(tabs)/(reports)/r-calculator.tsx:552
+msgid "Entry price"
+msgstr "Entry price"
+
 #: src/app/(tabs)/(trades)/[id].tsx:326
 #: src/app/quick-journal.tsx:77
 #: src/components/trade-form.tsx:685
@@ -1297,6 +1437,7 @@ msgid "Entry reason"
 msgstr "Entry reason"
 
 #: src/app/(tabs)/(settings)/account-form.tsx:300
+#: src/app/tool-position-size.tsx:55
 msgid "Equity"
 msgstr "Equity"
 
@@ -1343,10 +1484,22 @@ msgstr "Execution rating"
 msgid "Executions"
 msgstr "Executions"
 
+#: src/app/(tabs)/(reports)/r-calculator.tsx:389
+msgid "Exit ladder"
+msgstr "Exit ladder"
+
 #: src/app/(tabs)/(trades)/[id].tsx:327
 #: src/components/trade-form.tsx:712
 msgid "Exit reason"
 msgstr "Exit reason"
+
+#: src/app/(tabs)/(reports)/r-calculator.tsx:50
+msgid "Exit tier R must be greater than 0"
+msgstr "Exit tier R must be greater than 0"
+
+#: src/app/(tabs)/(reports)/r-calculator.tsx:48
+msgid "Exit tiers exceed 100% — lower the percentages"
+msgstr "Exit tiers exceed 100% — lower the percentages"
 
 #: src/app/(tabs)/(dashboard)/playbook.tsx:239
 msgid "exp"
@@ -1411,6 +1564,10 @@ msgstr "Failed to load equity curve."
 msgid "Failed to load settings."
 msgstr "Failed to load settings."
 
+#: src/app/(tabs)/(reports)/r-calculator.tsx:519
+msgid "Fair value gap"
+msgstr "Fair value gap"
+
 #: src/lib/cash.ts:13
 msgid "Fee"
 msgstr "Fee"
@@ -1426,6 +1583,10 @@ msgstr "Fees"
 #: src/app/(tabs)/(reports)/wrapped.tsx:261
 msgid "Fees paid"
 msgstr "Fees paid"
+
+#: src/app/tool-fx.tsx:70
+msgid "Fetching rate…"
+msgstr "Fetching rate…"
 
 #: src/app/(tabs)/(settings)/import-trades.tsx:254
 #: src/app/(tabs)/(settings)/import-trades.tsx:261
@@ -1486,9 +1647,17 @@ msgstr "Forex"
 msgid "Format"
 msgstr "Format"
 
+#: src/app/tool-kelly.tsx:70
+msgid "Fraction of capital to risk per trade. Half Kelly is the common practical pick — full Kelly assumes perfect estimates."
+msgstr "Fraction of capital to risk per trade. Half Kelly is the common practical pick — full Kelly assumes perfect estimates."
+
 #: src/app/(tabs)/(reports)/heatmap.tsx:34
 msgid "Fri"
 msgstr "Fri"
+
+#: src/app/tool-fx.tsx:45
+msgid "From"
+msgstr "From"
 
 #: src/app/(tabs)/(settings)/import-trades.tsx:422
 msgid "From file"
@@ -1497,6 +1666,10 @@ msgstr "From file"
 #: src/components/mini-calendar-card.tsx:53
 msgid "Full calendar"
 msgstr "Full calendar"
+
+#: src/app/tool-kelly.tsx:61
+msgid "Full Kelly"
+msgstr "Full Kelly"
 
 #: src/app/(tabs)/(settings)/_layout.tsx:26
 #: src/app/(tabs)/(settings)/account-form.tsx:252
@@ -1507,6 +1680,22 @@ msgstr "Funding"
 #: src/components/trade-form.tsx:477
 msgid "Futures"
 msgstr "Futures"
+
+#: src/app/(tabs)/(reports)/r-calculator.tsx:617
+msgid "FVG"
+msgstr "FVG"
+
+#: src/app/(tabs)/(reports)/r-calculator.tsx:537
+msgid "Gap bottom"
+msgstr "Gap bottom"
+
+#: src/app/(tabs)/(reports)/r-calculator.tsx:530
+msgid "Gap top"
+msgstr "Gap top"
+
+#: src/app/(tabs)/(reports)/r-calculator.tsx:54
+msgid "Gap top must sit above the bottom — check the edges"
+msgstr "Gap top must sit above the bottom — check the edges"
 
 #: src/app/(tabs)/(settings)/api-tokens.tsx:136
 msgid "Generate token"
@@ -1547,6 +1736,14 @@ msgstr "gross profit ÷ gross loss"
 #: src/app/(tabs)/(trades)/index.tsx:293
 #~ msgid "Group trades under a custom tag."
 #~ msgstr "Group trades under a custom tag."
+
+#: src/app/(tabs)/(reports)/r-calculator.tsx:467
+msgid "Guaranteed floor"
+msgstr "Guaranteed floor"
+
+#: src/app/tool-kelly.tsx:65
+msgid "Half Kelly"
+msgstr "Half Kelly"
 
 #: src/app/(tabs)/(settings)/display.tsx:71
 msgid "Hide amounts everywhere — stats and ratios stay visible."
@@ -1700,6 +1897,11 @@ msgstr "JSON must be an array of fills, or an object with a fills/rows/execution
 msgid "Kelly (half)"
 msgstr "Kelly (half)"
 
+#: src/app/tool-kelly.tsx:33
+#: src/components/tools-menu.tsx:25
+msgid "Kelly criterion"
+msgstr "Kelly criterion"
+
 #: src/app/(tabs)/(settings)/tags.tsx:103
 msgid "Kind"
 msgstr "Kind"
@@ -1750,6 +1952,10 @@ msgstr "Limits used by Check compliance on New Trade."
 msgid "Loading…"
 msgstr "Loading…"
 
+#: src/app/(tabs)/(reports)/r-calculator.tsx:462
+msgid "Locked at tiers"
+msgstr "Locked at tiers"
+
 #: src/app/(tabs)/(dashboard)/notes.tsx:65
 msgid "Log"
 msgstr "Log"
@@ -1758,6 +1964,8 @@ msgstr "Log"
 msgid "Logs"
 msgstr "Logs"
 
+#: src/app/(tabs)/(reports)/r-calculator.tsx:249
+#: src/app/(tabs)/(reports)/r-calculator.tsx:499
 #: src/app/new-setup.tsx:112
 #: src/components/reports-filter-menu.tsx:40
 #: src/components/trade-form.tsx:481
@@ -1827,6 +2035,10 @@ msgstr "Main leak"
 #: src/app/(tabs)/(trades)/index.tsx:175
 msgid "Manage tags"
 msgstr "Manage tags"
+
+#: src/app/(tabs)/(reports)/r-calculator.tsx:506
+msgid "Manual"
+msgstr "Manual"
 
 #: src/app/(tabs)/(settings)/import-trades.tsx:340
 msgid "Map columns"
@@ -1910,6 +2122,10 @@ msgstr "Metric evolution"
 msgid "MFE"
 msgstr "MFE"
 
+#: src/app/(tabs)/(reports)/r-calculator.tsx:504
+msgid "Mid"
+msgstr "Mid"
+
 #: src/app/(tabs)/(settings)/tags.tsx:30
 #: src/components/reports/overview-section.tsx:312
 msgid "Mistake"
@@ -1966,6 +2182,10 @@ msgstr "Need at least {windowSize} closed trades to fill the window."
 #: src/components/reports/overview-section.tsx:181
 msgid "needs 2+ trades"
 msgstr "needs 2+ trades"
+
+#: src/app/tool-kelly.tsx:71
+msgid "Negative Kelly means this win rate and payoff have no positive edge."
+msgstr "Negative Kelly means this win rate and payoff have no positive edge."
 
 #: src/app/(tabs)/(trades)/index.tsx:408
 #: src/components/performance-card.tsx:51
@@ -2334,6 +2554,14 @@ msgstr "Optional note"
 msgid "Optional title"
 msgstr "Optional title"
 
+#: src/app/(tabs)/(reports)/r-calculator.tsx:246
+msgid "Options"
+msgstr "Options"
+
+#: src/app/(tabs)/(reports)/r-calculator.tsx:255
+msgid "Original"
+msgstr "Original"
+
 #: src/app/(tabs)/(settings)/account-form.tsx:235
 msgid "Other"
 msgstr "Other"
@@ -2368,7 +2596,7 @@ msgstr "P&L"
 msgid "P&L basis"
 msgstr "P&L basis"
 
-#: src/app/(tabs)/(reports)/_layout.tsx:43
+#: src/app/(tabs)/(reports)/_layout.tsx:51
 #: src/app/(tabs)/(reports)/heatmap.tsx:72
 #: src/components/reports/overview-section.tsx:534
 msgid "P&L heatmap"
@@ -2386,6 +2614,7 @@ msgstr "P&L, rules followed"
 msgid "Password"
 msgstr "Password"
 
+#: src/app/tool-kelly.tsx:46
 #: src/components/reports/overview-section.tsx:152
 msgid "Payoff ratio"
 msgstr "Payoff ratio"
@@ -2395,9 +2624,17 @@ msgstr "Payoff ratio"
 msgid "peak {0}"
 msgstr "peak {0}"
 
+#: src/app/(tabs)/(reports)/r-calculator.tsx:365
+msgid "per share"
+msgstr "per share"
+
 #: src/app/(tabs)/(reports)/wrapped.tsx:257
 msgid "per trade"
 msgstr "per trade"
+
+#: src/app/tool-position-size.tsx:108
+msgid "Per-share risk"
+msgstr "Per-share risk"
 
 #: src/lib/risk-rules.ts:94
 msgid "Percent must be between 0 and 100."
@@ -2440,6 +2677,7 @@ msgstr "Photo Library"
 msgid "Pick an account first."
 msgstr "Pick an account first."
 
+#: src/app/(tabs)/(reports)/r-calculator.tsx:592
 #: src/components/trade-form.tsx:619
 msgid "Plan"
 msgstr "Plan"
@@ -2479,9 +2717,20 @@ msgstr "Point value"
 msgid "poor"
 msgstr "poor"
 
+#: src/app/(tabs)/(reports)/r-calculator.tsx:271
 #: src/app/(tabs)/(trades)/[id].tsx:279
 msgid "Position"
 msgstr "Position"
+
+#: src/app/tool-position-size.tsx:52
+#: src/components/tools-menu.tsx:21
+msgid "Position size"
+msgstr "Position size"
+
+#: src/app/(tabs)/(reports)/r-calculator.tsx:372
+#: src/app/(tabs)/(reports)/r-calculator.tsx:605
+msgid "Position value"
+msgstr "Position value"
 
 #: src/components/reports/detailed-section.tsx:183
 msgid "Premarket"
@@ -2525,6 +2774,10 @@ msgstr "Privacy"
 msgid "Privacy mode"
 msgstr "Privacy mode"
 
+#: src/app/(tabs)/(reports)/r-calculator.tsx:604
+msgid "Profit at target"
+msgstr "Profit at target"
+
 #: src/app/(tabs)/(dashboard)/playbook.tsx:126
 #: src/app/(tabs)/(reports)/wrapped.tsx:250
 #: src/components/reports/overview-section.tsx:106
@@ -2549,6 +2802,10 @@ msgstr "Put"
 msgid "Quantity"
 msgstr "Quantity"
 
+#: src/app/tool-kelly.tsx:66
+msgid "Quarter Kelly"
+msgstr "Quarter Kelly"
+
 #: src/app/manage-tags.tsx:56
 msgid "Quick filters"
 msgstr "Quick filters"
@@ -2556,6 +2813,12 @@ msgstr "Quick filters"
 #: src/app/quick-journal.tsx:66
 #~ msgid "Quick journal · {0}"
 #~ msgstr "Quick journal · {0}"
+
+#: src/app/(tabs)/(reports)/_layout.tsx:55
+#: src/app/(tabs)/(reports)/r-calculator.tsx:624
+#: src/components/tools-menu.tsx:32
+msgid "R calculator"
+msgstr "R calculator"
 
 #: src/app/(tabs)/(trades)/[id].tsx:242
 msgid "R multiple"
@@ -2565,6 +2828,10 @@ msgstr "R multiple"
 #: src/components/reports/overview-section.tsx:358
 msgid "R-multiple"
 msgstr "R-multiple"
+
+#: src/app/(tabs)/(reports)/r-calculator.tsx:616
+msgid "R-Multiple"
+msgstr "R-Multiple"
 
 #: src/components/trade-form.tsx:724
 msgid "Rate how you executed, not how it paid — a disciplined trade can still lose."
@@ -2610,6 +2877,7 @@ msgstr "Regular hours"
 msgid "Remaining"
 msgstr "Remaining"
 
+#: src/app/(tabs)/(reports)/r-calculator.tsx:184
 #: src/app/(tabs)/(settings)/cash-form.tsx:154
 #: src/app/(tabs)/(settings)/risk-rules.tsx:75
 #: src/app/(tabs)/(settings)/risk-rules.tsx:86
@@ -2640,6 +2908,10 @@ msgstr "Remove rule?"
 msgid "Remove symbol"
 msgstr "Remove symbol"
 
+#: src/app/(tabs)/(reports)/r-calculator.tsx:425
+msgid "Remove tier"
+msgstr "Remove tier"
+
 #: src/app/(tabs)/(trades)/index.tsx:115
 #~ msgid "Remove trade"
 #~ msgstr "Remove trade"
@@ -2661,9 +2933,10 @@ msgstr "Removes “{0}” from every trade it annotates."
 msgid "Removing…"
 msgstr "Removing…"
 
-#: src/app/manage-tags.tsx:68
-#~ msgid "Rename"
-#~ msgstr "Rename"
+#: src/app/(tabs)/(reports)/r-calculator.tsx:160
+#: src/app/(tabs)/(reports)/r-calculator.tsx:163
+msgid "Rename"
+msgstr "Rename"
 
 #: src/app/manage-tags.tsx:63
 #: src/app/manage-tags.tsx:154
@@ -2675,7 +2948,7 @@ msgid "Report an issue"
 msgstr "Report an issue"
 
 #: src/app/(tabs)/_layout.tsx:50
-#: src/app/(tabs)/(reports)/_layout.tsx:34
+#: src/app/(tabs)/(reports)/_layout.tsx:37
 msgid "Reports"
 msgstr "Reports"
 
@@ -2712,8 +2985,21 @@ msgid "Revoke token?"
 msgstr "Revoke token?"
 
 #: src/app/(tabs)/(reports)/index.tsx:25
+#: src/app/(tabs)/(reports)/r-calculator.tsx:367
+#: src/app/(tabs)/(reports)/r-calculator.tsx:603
+#: src/app/tool-position-size.tsx:102
 msgid "Risk"
 msgstr "Risk"
+
+#: src/app/(tabs)/(reports)/r-calculator.tsx:342
+#: src/app/(tabs)/(reports)/r-calculator.tsx:583
+#: src/app/tool-position-size.tsx:65
+msgid "Risk %"
+msgstr "Risk %"
+
+#: src/app/(tabs)/(reports)/r-calculator.tsx:46
+msgid "Risk budget under 1 contract — raise Risk% or tighten the stop"
+msgstr "Risk budget under 1 contract — raise Risk% or tighten the stop"
 
 #: src/app/(tabs)/(settings)/_layout.tsx:36
 #: src/app/(tabs)/(settings)/index.tsx:230
@@ -2723,6 +3009,10 @@ msgstr "Risk rules"
 #: src/app/(tabs)/(settings)/index.tsx:126
 #~ msgid "Risk rules updated."
 #~ msgstr "Risk rules updated."
+
+#: src/app/(tabs)/(reports)/r-calculator.tsx:360
+msgid "risk-limited"
+msgstr "risk-limited"
 
 #: src/components/reports/winloss-section.tsx:117
 msgid "Rolling win rate"
@@ -2754,10 +3044,19 @@ msgstr "Rules"
 msgid "Rules & checklist"
 msgstr "Rules & checklist"
 
+#: src/app/(tabs)/(reports)/r-calculator.tsx:473
+msgid "Runner"
+msgstr "Runner"
+
+#: src/app/(tabs)/(reports)/r-calculator.tsx:441
+msgid "Runner stop"
+msgstr "Runner stop"
+
 #: src/app/(tabs)/(reports)/heatmap.tsx:36
 msgid "Sat"
 msgstr "Sat"
 
+#: src/app/(tabs)/(reports)/r-calculator.tsx:168
 #: src/app/(tabs)/(settings)/ai.tsx:170
 #: src/app/(tabs)/(settings)/display.tsx:44
 #: src/app/(tabs)/(settings)/index.tsx:78
@@ -2850,6 +3149,10 @@ msgstr "Sell"
 msgid "SELL"
 msgstr "SELL"
 
+#: src/app/(tabs)/(reports)/r-calculator.tsx:416
+msgid "Sell %"
+msgstr "Sell %"
+
 #: src/app/(tabs)/(settings)/about.tsx:65
 msgid "Server"
 msgstr "Server"
@@ -2915,6 +3218,14 @@ msgstr "Setups restored"
 msgid "Share token"
 msgstr "Share token"
 
+#: src/app/(tabs)/(reports)/r-calculator.tsx:354
+#: src/app/(tabs)/(reports)/r-calculator.tsx:594
+#: src/app/tool-position-size.tsx:100
+msgid "Shares"
+msgstr "Shares"
+
+#: src/app/(tabs)/(reports)/r-calculator.tsx:250
+#: src/app/(tabs)/(reports)/r-calculator.tsx:500
 #: src/app/new-setup.tsx:113
 #: src/components/reports-filter-menu.tsx:41
 #: src/components/trade-form.tsx:482
@@ -2945,6 +3256,10 @@ msgstr "Sign in"
 #: src/app/login.tsx:123
 msgid "Sign in failed"
 msgstr "Sign in failed"
+
+#: src/app/(tabs)/(reports)/r-calculator.tsx:351
+msgid "Size"
+msgstr "Size"
 
 #. placeholder {0}: (event.size_ratio ?? 0).toFixed(1)
 #: src/components/reports/behavior-section.tsx:83
@@ -2986,6 +3301,7 @@ msgstr "Starting balance"
 msgid "Status"
 msgstr "Status"
 
+#: src/app/(tabs)/(reports)/r-calculator.tsx:245
 #: src/app/(tabs)/(trades)/index.tsx:273
 #: src/components/trade-form.tsx:474
 msgid "Stock"
@@ -2995,11 +3311,38 @@ msgstr "Stock"
 msgid "Stocks / options"
 msgstr "Stocks / options"
 
+#: src/app/(tabs)/(reports)/r-calculator.tsx:324
+#: src/app/(tabs)/(reports)/r-calculator.tsx:596
 #: src/app/(tabs)/(trades)/[id].tsx:236
 #: src/app/new-setup.tsx:162
+#: src/app/tool-position-size.tsx:87
 #: src/components/trade-form.tsx:629
 msgid "Stop"
 msgstr "Stop"
+
+#: src/app/(tabs)/(reports)/r-calculator.tsx:454
+msgid "Stop at R"
+msgstr "Stop at R"
+
+#: src/app/(tabs)/(reports)/r-calculator.tsx:560
+msgid "Stop buffer"
+msgstr "Stop buffer"
+
+#: src/app/(tabs)/(reports)/r-calculator.tsx:36
+msgid "Stop must be above entry for a short"
+msgstr "Stop must be above entry for a short"
+
+#: src/app/(tabs)/(reports)/r-calculator.tsx:34
+msgid "Stop must be below entry for a long"
+msgstr "Stop must be below entry for a long"
+
+#: src/app/(tabs)/(reports)/r-calculator.tsx:293
+msgid "Stop premium"
+msgstr "Stop premium"
+
+#: src/app/(tabs)/(reports)/r-calculator.tsx:42
+msgid "Stop premium must be below entry premium"
+msgstr "Stop premium must be below entry premium"
 
 #: src/lib/risk-rules.ts:31
 msgid "Stop when today's realized loss hits this amount."
@@ -3032,6 +3375,10 @@ msgstr "Sun"
 #: src/components/reports/overview-section.tsx:48
 msgid "superb"
 msgstr "superb"
+
+#: src/app/tool-fx.tsx:57
+msgid "Swap currencies"
+msgstr "Swap currencies"
 
 #: src/components/reports-filter-menu.tsx:54
 msgid "Swing"
@@ -3099,6 +3446,7 @@ msgstr "Tap a tag to delete it."
 msgid "Tap a token to revoke it."
 msgstr "Tap a token to revoke it."
 
+#: src/app/(tabs)/(reports)/r-calculator.tsx:598
 #: src/app/(tabs)/(trades)/[id].tsx:233
 #: src/app/new-setup.tsx:152
 #: src/components/trade-form.tsx:622
@@ -3108,6 +3456,10 @@ msgstr "Target"
 #: src/app/(tabs)/(settings)/index.tsx:204
 #~ msgid "Target net P&L (blank to clear)"
 #~ msgstr "Target net P&L (blank to clear)"
+
+#: src/app/(tabs)/(reports)/r-calculator.tsx:567
+msgid "Target R"
+msgstr "Target R"
 
 #: src/app/(tabs)/(settings)/ai.tsx:174
 msgid "Test connection"
@@ -3182,6 +3534,11 @@ msgstr "This year"
 msgid "Thu"
 msgstr "Thu"
 
+#. placeholder {0}: index + 1
+#: src/app/(tabs)/(reports)/r-calculator.tsx:409
+msgid "Tier {0} — R"
+msgstr "Tier {0} — R"
+
 #: src/app/(tabs)/(settings)/display.tsx:107
 msgid "Time"
 msgstr "Time"
@@ -3206,6 +3563,10 @@ msgstr "Timing"
 msgid "Title"
 msgstr "Title"
 
+#: src/app/tool-fx.tsx:64
+msgid "To"
+msgstr "To"
+
 #. placeholder {0}: formatPercent(latest.winRate)
 #. placeholder {1}: formatRatio(latest.profitFactor)
 #. placeholder {2}: ctx.money.format(latest.cumulativePnl)
@@ -3226,6 +3587,15 @@ msgstr "Token name is required."
 #: src/app/(tabs)/(settings)/api-tokens.tsx:116
 msgid "Tokens authenticate scripts and integrations against your server's API."
 msgstr "Tokens authenticate scripts and integrations against your server's API."
+
+#: src/components/tools-menu.tsx:44
+#: src/components/tools-menu.tsx:56
+msgid "Tools"
+msgstr "Tools"
+
+#: src/app/(tabs)/(reports)/r-calculator.tsx:503
+msgid "Top"
+msgstr "Top"
 
 #. placeholder {0}: groups.length
 #: src/components/reports/detailed-section.tsx:94
@@ -3292,6 +3662,10 @@ msgstr "Trades keep their journal — only the playbook entry goes."
 #: src/components/reports/overview-section.tsx:210
 msgid "Trading days"
 msgstr "Trading days"
+
+#: src/app/(tabs)/(reports)/r-calculator.tsx:52
+msgid "Trailing stop should sit below the first tier"
+msgstr "Trailing stop should sit below the first tier"
 
 #: src/app/(tabs)/(settings)/_layout.tsx:29
 #: src/app/(tabs)/(settings)/cash-form.tsx:161
@@ -3435,6 +3809,10 @@ msgstr "Win rate"
 msgid "Win rate (%)"
 msgstr "Win rate (%)"
 
+#: src/app/tool-kelly.tsx:36
+msgid "Win rate %"
+msgstr "Win rate %"
+
 #: src/components/insights-card.tsx:82
 msgid "Winning hold"
 msgstr "Winning hold"
@@ -3483,7 +3861,7 @@ msgstr "Write something first."
 msgid "Year"
 msgstr "Year"
 
-#: src/app/(tabs)/(reports)/_layout.tsx:44
+#: src/app/(tabs)/(reports)/_layout.tsx:52
 #: src/app/(tabs)/(reports)/wrapped.tsx:62
 #: src/components/reports/overview-section.tsx:539
 msgid "Year Wrapped"
