@@ -26,12 +26,9 @@ msgstr "（スキップ）"
 #~ msgid "{0, plural, one {# day} other {# days}}"
 #~ msgstr "{0, plural, other {#日}}"
 
-#. placeholder {0}: dayLabel(day)
-#. placeholder {1}: formatHourKeyLabel(`${String(hour).padStart(2, '0')}:00`)
-#. placeholder {2}: cell.trades
 #: src/app/(tabs)/(reports)/heatmap.tsx:117
-msgid "{0} {1} — {2} trades"
-msgstr "{0} {1} — {2}件"
+#~ msgid "{0} {1} — {2} trades"
+#~ msgstr "{0} {1} — {2}件"
 
 #. placeholder {0}: formatCurrency(fx(s.floor_distance), currency)
 #: src/components/prop-status-card.tsx:155
@@ -143,10 +140,9 @@ msgstr "{0}の状態と損失が重なりました"
 #. placeholder {0}: day.trades
 #. placeholder {0}: group.summary.total_trades
 #: src/app/(tabs)/(dashboard)/playbook.tsx:238
-#: src/app/(tabs)/(reports)/heatmap.tsx:135
 #: src/components/insights-card.tsx:80
 #: src/components/reports/behavior-section.tsx:51
-#: src/components/reports/detailed-section.tsx:204
+#: src/components/reports/detailed-section.tsx:205
 #: src/components/reports/overview-section.tsx:233
 #: src/components/reports/overview-section.tsx:292
 #: src/components/reports/risk-section.tsx:173
@@ -227,6 +223,16 @@ msgstr "{events}件のイベント"
 msgid "{included} of {total} trades"
 msgstr "{total}件中{included}件"
 
+#. placeholder {0}: money.format(cell.pnl)
+#. placeholder {1}: cell.trades
+#: src/components/reports/pnl-heatmap-card.tsx:115
+msgid "{label} — {0} · {1} trades"
+msgstr "{label} — {0} · {1}件の取引"
+
+#: src/components/reports/pnl-heatmap-card.tsx:116
+msgid "{label} — no trades"
+msgstr "{label} — 取引なし"
+
 #. placeholder {0}: insights.fillCount
 #: src/lib/trade-insights.ts:212
 msgid "{pct}% of gross went to fees across {0} fills. Consider whether every add was worth the cost."
@@ -243,6 +249,10 @@ msgstr "{title}の設定を更新しました。"
 #: src/app/(tabs)/(calendar)/index.tsx:753
 msgid "{weekCount} trades"
 msgstr "{weekCount}件のトレード"
+
+#: src/app/(tabs)/(reports)/heatmap-cell.tsx:70
+msgid "{wins} wins · {losses} losses"
+msgstr "{wins}勝 · {losses}敗"
 
 #: src/app/(tabs)/(settings)/index.tsx:203
 #: src/components/goal-card.tsx:35
@@ -450,7 +460,7 @@ msgstr "まず口座を追加してください。"
 msgid "Add an AI endpoint under Settings → AI for a model-written review."
 msgstr "設定 → AIでエンドポイントを追加すると、モデルによるレビューが受けられます。"
 
-#: src/app/new-trade.tsx:69
+#: src/app/new-trade.tsx:75
 msgid "Add an OpenAI-compatible vision endpoint and API key under Settings → AI, then open this shortcut again."
 msgstr "設定 → AI でOpenAI互換のビジョンエンドポイントとAPIキーを設定してから、ショートカットをもう一度実行してください。"
 
@@ -462,7 +472,7 @@ msgstr "設定 → AI でOpenAI互換のビジョンエンドポイントとAPI�
 msgid "Add another account before deleting this one."
 msgstr "この口座を削除する前に別の口座を追加してください。"
 
-#: src/app/new-trade.tsx:160
+#: src/app/new-trade.tsx:166
 msgid "Add at least one fill with quantity and price for {label}."
 msgstr "{label} に数量と価格のある約定を1件以上追加してください。"
 
@@ -530,7 +540,7 @@ msgstr "高度なチャート"
 msgid "Adverse excursion exceeded planned risk"
 msgstr "逆行が計画リスクを超えました"
 
-#: src/components/reports/detailed-section.tsx:185
+#: src/components/reports/detailed-section.tsx:186
 msgid "After hours"
 msgstr "アフターアワーズ"
 
@@ -666,7 +676,7 @@ msgstr "平均"
 msgid "Average hold"
 msgstr "平均保有時間"
 
-#: src/components/reports/detailed-section.tsx:205
+#: src/components/reports/detailed-section.tsx:206
 msgid "avg"
 msgstr "平均"
 
@@ -944,7 +954,7 @@ msgstr "資金制約"
 msgid "Chart"
 msgstr "チャート"
 
-#: src/app/new-trade.tsx:78
+#: src/app/new-trade.tsx:84
 #: src/components/trade-prefill-bar.tsx:56
 msgid "Check the fills"
 msgstr "約定内容を確認"
@@ -1016,8 +1026,12 @@ msgid "Closed"
 msgstr "クローズ"
 
 #: src/app/(tabs)/(reports)/heatmap.tsx:142
-msgid "Closed-trade P&L by entry time on the market clock. Tap a cell for its numbers."
-msgstr "市場時間のエントリー時刻別の決済損益。セルをタップすると数値が表示されます。"
+#~ msgid "Closed-trade P&L by entry time on the market clock. Tap a cell for its numbers."
+#~ msgstr "市場時間のエントリー時刻別の決済損益。セルをタップすると数値が表示されます。"
+
+#: src/components/reports/pnl-heatmap-card.tsx:131
+msgid "Closed-trade P&L by entry time on the market clock. Tap a cell for its trades."
+msgstr "市場時間のエントリー時刻別の確定損益。セルをタップすると取引を表示します。"
 
 #: src/components/coach-card.tsx:77
 msgid "Coach"
@@ -1137,7 +1151,7 @@ msgstr "設定をエクスポートできませんでした"
 msgid "Could not fetch the rate — is market data configured?"
 msgstr "レートを取得できません — マーケットデータは設定されていますか？"
 
-#: src/app/new-trade.tsx:81
+#: src/app/new-trade.tsx:87
 msgid "Could not import"
 msgstr "インポートできませんでした"
 
@@ -1202,10 +1216,10 @@ msgstr "トークンを失効できませんでした"
 #: src/app/new-setup.tsx:67
 #: src/app/new-setup.tsx:81
 #: src/app/new-setup.tsx:87
-#: src/app/new-trade.tsx:143
-#: src/app/new-trade.tsx:152
-#: src/app/new-trade.tsx:156
-#: src/app/new-trade.tsx:159
+#: src/app/new-trade.tsx:149
+#: src/app/new-trade.tsx:158
+#: src/app/new-trade.tsx:162
+#: src/app/new-trade.tsx:165
 #: src/app/quick-journal.tsx:65
 msgid "Could not save"
 msgstr "保存できませんでした"
@@ -1346,9 +1360,9 @@ msgstr "日付"
 msgid "Day"
 msgstr "曜日"
 
-#: src/components/reports/detailed-section.tsx:107
-#: src/components/reports/detailed-section.tsx:115
-#: src/components/reports/detailed-section.tsx:134
+#: src/components/reports/detailed-section.tsx:108
+#: src/components/reports/detailed-section.tsx:116
+#: src/components/reports/detailed-section.tsx:135
 msgid "Day of week"
 msgstr "曜日"
 
@@ -1591,7 +1605,7 @@ msgid "Enter a setup name."
 msgstr "セットアップ名を入力してください。"
 
 #. placeholder {0}: index + 1
-#: src/app/new-trade.tsx:156
+#: src/app/new-trade.tsx:162
 msgid "Enter a symbol for block {0}."
 msgstr "ブロック {0} の銘柄を入力してください。"
 
@@ -1649,6 +1663,10 @@ msgstr "ユーザー名を入力"
 msgid "Enter your username and password"
 msgstr "ユーザー名とパスワードを入力してください"
 
+#: src/app/(tabs)/(reports)/heatmap-cell.tsx:72
+msgid "entries on the market clock"
+msgstr "市場時間のエントリー"
+
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:317
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:595
 #: src/app/tool-position-size.tsx:77
@@ -1668,8 +1686,8 @@ msgid "Entry criteria, invalidation, targets…"
 msgstr "エントリー条件、無効化、ターゲット…"
 
 #: src/app/(tabs)/(reports)/heatmap.tsx:95
-msgid "Entry hour × weekday"
-msgstr "エントリー時刻 × 曜日"
+#~ msgid "Entry hour × weekday"
+#~ msgstr "エントリー時刻 × 曜日"
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:286
 msgid "Entry premium"
@@ -1790,7 +1808,7 @@ msgstr "有効期限 {expires} · 最終使用 {lastUsed}"
 msgid "Expiry"
 msgstr "満期日"
 
-#: src/components/reports/overview-section.tsx:532
+#: src/components/reports/overview-section.tsx:527
 msgid "Explore"
 msgstr "その他の分析"
 
@@ -1813,7 +1831,7 @@ msgid "export.json plus trade screenshots under attachments/."
 msgstr "export.jsonに加え、attachments/配下にトレードのスクリーンショットを含みます。"
 
 #: src/components/breakdown-card.tsx:42
-#: src/components/reports/detailed-section.tsx:54
+#: src/components/reports/detailed-section.tsx:55
 #: src/components/reports/overview-section.tsx:264
 msgid "Failed to load breakdown."
 msgstr "内訳を読み込めませんでした。"
@@ -1829,6 +1847,10 @@ msgstr "資産曲線を読み込めませんでした。"
 #: src/app/(tabs)/(settings)/ai.tsx:59
 msgid "Failed to load settings."
 msgstr "設定を読み込めませんでした。"
+
+#: src/components/reports/pnl-heatmap-card.tsx:75
+msgid "Failed to load trades."
+msgstr "取引の読み込みに失敗しました。"
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:519
 msgid "Fair value gap"
@@ -1938,7 +1960,7 @@ msgstr "形式"
 msgid "Fraction of capital to risk per trade. Half Kelly is the common practical pick — full Kelly assumes perfect estimates."
 msgstr "1トレードでリスクに晒す資金の割合です。実務ではハーフケリーが一般的 — フルケリーは推定が完璧である前提です。"
 
-#: src/app/(tabs)/(reports)/heatmap.tsx:34
+#: src/components/reports/pnl-heatmap-card.tsx:29
 msgid "Fri"
 msgstr "金"
 
@@ -2091,7 +2113,7 @@ msgstr "祝日"
 msgid "Home"
 msgstr "ホーム"
 
-#: src/components/reports/detailed-section.tsx:146
+#: src/components/reports/detailed-section.tsx:147
 msgid "Hour of day"
 msgstr "時間帯"
 
@@ -2527,7 +2549,7 @@ msgstr "ミス: {tag}"
 msgid "Model"
 msgstr "モデル"
 
-#: src/app/(tabs)/(reports)/heatmap.tsx:26
+#: src/components/reports/pnl-heatmap-card.tsx:21
 msgid "Mon"
 msgstr "月"
 
@@ -2643,7 +2665,7 @@ msgstr "新しいタグ"
 msgid "New token"
 msgstr "新しいトークン"
 
-#: src/app/new-trade.tsx:185
+#: src/app/new-trade.tsx:191
 #: src/components/add-menu.tsx:21
 msgid "New trade"
 msgstr "新規トレード"
@@ -2664,8 +2686,8 @@ msgstr "翌週"
 msgid "Next year"
 msgstr "翌年"
 
-#: src/app/new-trade.tsx:153
-#: src/app/new-trade.tsx:178
+#: src/app/new-trade.tsx:159
+#: src/app/new-trade.tsx:184
 msgid "No account found — create one on the web app first."
 msgstr "口座が見つかりません — まずウェブアプリで作成してください。"
 
@@ -2694,6 +2716,10 @@ msgstr "このシンボルのチャートデータがありません。"
 msgid "No closed trades in {year}"
 msgstr "{year}年に決済済みトレードはありません"
 
+#: src/app/(tabs)/(reports)/heatmap-cell.tsx:76
+msgid "No closed trades in this hour."
+msgstr "この時間帯に確定した取引はありません。"
+
 #: src/components/reports/winloss-section.tsx:143
 msgid "No closed trades in this range."
 msgstr "この範囲に決済済みトレードはありません。"
@@ -2703,8 +2729,8 @@ msgid "No closed trades on this day."
 msgstr "この日に決済したトレードはありません。"
 
 #: src/app/(tabs)/(reports)/heatmap.tsx:89
-msgid "No closed trades yet"
-msgstr "決済済みトレードはまだありません"
+#~ msgid "No closed trades yet"
+#~ msgstr "決済済みトレードはまだありません"
 
 #: src/components/equity-card.tsx:71
 #: src/components/reports/risk-section.tsx:78
@@ -2760,7 +2786,7 @@ msgstr "ストップ未記録"
 msgid "No streak patterns detected — flags trades sized up right after a winning streak."
 msgstr "連勝パターンは検出されませんでした — 連勝直後にサイズを上げたトレードをフラグします。"
 
-#: src/components/reports/detailed-section.tsx:242
+#: src/components/reports/detailed-section.tsx:243
 msgid "No tagged trades in this range."
 msgstr "この範囲にタグ付きトレードはありません。"
 
@@ -2786,10 +2812,11 @@ msgid "No trades"
 msgstr "取引なし"
 
 #: src/app/(tabs)/(dashboard)/index.tsx:208
-#: src/components/reports/detailed-section.tsx:116
-#: src/components/reports/detailed-section.tsx:149
-#: src/components/reports/detailed-section.tsx:173
-#: src/components/reports/detailed-section.tsx:236
+#: src/components/reports/detailed-section.tsx:117
+#: src/components/reports/detailed-section.tsx:150
+#: src/components/reports/detailed-section.tsx:174
+#: src/components/reports/detailed-section.tsx:237
+#: src/components/reports/pnl-heatmap-card.tsx:75
 msgid "No trades in this range."
 msgstr "この期間のトレードはありません。"
 
@@ -3005,7 +3032,7 @@ msgstr "過信"
 msgid "Overconfidence often shows up as oversizing or ignoring your stop. Check whether conviction exceeded your edge on this setup."
 msgstr "過信はサイズ過大やストップ無視に現れがちです。確信が優位性を上回っていなかったか確認しましょう。"
 
-#: src/components/reports/detailed-section.tsx:187
+#: src/components/reports/detailed-section.tsx:188
 msgid "Overnight"
 msgstr "オーバーナイト"
 
@@ -3022,9 +3049,9 @@ msgstr "損益"
 msgid "P&L basis"
 msgstr "損益基準"
 
-#: src/app/(tabs)/(reports)/_layout.tsx:51
-#: src/app/(tabs)/(reports)/heatmap.tsx:72
-#: src/components/reports/overview-section.tsx:523
+#: src/components/reports/pnl-heatmap-card.tsx:66
+#: src/components/reports/pnl-heatmap-card.tsx:73
+#: src/components/reports/pnl-heatmap-card.tsx:87
 msgid "P&L heatmap"
 msgstr "損益ヒートマップ"
 
@@ -3179,7 +3206,7 @@ msgstr "決済後MAE"
 msgid "Post-exit MFE"
 msgstr "決済後MFE"
 
-#: src/components/reports/detailed-section.tsx:181
+#: src/components/reports/detailed-section.tsx:182
 msgid "Premarket"
 msgstr "プレマーケット"
 
@@ -3374,7 +3401,7 @@ msgstr "マイナスの日"
 msgid "Regenerate"
 msgstr "再生成"
 
-#: src/components/reports/detailed-section.tsx:183
+#: src/components/reports/detailed-section.tsx:184
 msgid "Regular hours"
 msgstr "通常取引時間"
 
@@ -3612,7 +3639,7 @@ msgstr "ランナー"
 msgid "Runner stop"
 msgstr "ランナーのストップ"
 
-#: src/app/(tabs)/(reports)/heatmap.tsx:36
+#: src/components/reports/pnl-heatmap-card.tsx:31
 msgid "Sat"
 msgstr "土"
 
@@ -3691,7 +3718,7 @@ msgid "Screenshot limit reached"
 msgstr "スクリーンショット上限に到達"
 
 #. placeholder {0}: response.status
-#: src/app/new-trade.tsx:133
+#: src/app/new-trade.tsx:139
 msgid "Screenshot upload failed ({0})"
 msgstr "スクリーンショットのアップロード失敗（{0}）"
 
@@ -3758,13 +3785,13 @@ msgstr "セッション"
 msgid "Session recap"
 msgstr "セッションの振り返り"
 
-#: src/components/reports/detailed-section.tsx:164
-#: src/components/reports/detailed-section.tsx:172
-#: src/components/reports/detailed-section.tsx:213
+#: src/components/reports/detailed-section.tsx:165
+#: src/components/reports/detailed-section.tsx:173
+#: src/components/reports/detailed-section.tsx:214
 msgid "Sessions"
 msgstr "セッション"
 
-#: src/components/reports/detailed-section.tsx:215
+#: src/components/reports/detailed-section.tsx:216
 msgid "Sessions follow the New York clock."
 msgstr "セッションはニューヨーク時間に従います。"
 
@@ -3772,7 +3799,7 @@ msgstr "セッションはニューヨーク時間に従います。"
 msgid "Set up rules"
 msgstr "ルールを設定"
 
-#: src/app/new-trade.tsx:68
+#: src/app/new-trade.tsx:74
 #: src/components/trade-prefill-bar.tsx:63
 msgid "Set up Vision scan first"
 msgstr "先に画像スキャンを設定してください"
@@ -4005,7 +4032,7 @@ msgstr "口座エクイティに対する推奨サイズ（%）。"
 msgid "Summary"
 msgstr "概要"
 
-#: src/app/(tabs)/(reports)/heatmap.tsx:38
+#: src/components/reports/pnl-heatmap-card.tsx:33
 msgid "Sun"
 msgstr "日"
 
@@ -4035,7 +4062,7 @@ msgid "Symbol"
 msgstr "銘柄"
 
 #. placeholder {0}: index + 1
-#: src/app/new-trade.tsx:148
+#: src/app/new-trade.tsx:154
 msgid "symbol {0}"
 msgstr "銘柄 {0}"
 
@@ -4053,7 +4080,7 @@ msgid "Symbol, e.g. SPY"
 msgstr "銘柄（例: SPY）"
 
 #: src/components/note-form.tsx:102
-#: src/components/reports/detailed-section.tsx:233
+#: src/components/reports/detailed-section.tsx:234
 msgid "Symbols"
 msgstr "銘柄"
 
@@ -4086,7 +4113,7 @@ msgstr "タグ名を入力してください。"
 #: src/app/(tabs)/(settings)/tags.tsx:122
 #: src/app/(tabs)/(trades)/[id].tsx:443
 #: src/app/manage-tags.tsx:70
-#: src/components/reports/detailed-section.tsx:239
+#: src/components/reports/detailed-section.tsx:240
 #: src/components/trade-form.tsx:683
 msgid "Tags"
 msgstr "タグ"
@@ -4156,8 +4183,8 @@ msgid "The file's server URL ({0}) was not applied — disconnect and sign in to
 msgstr "ファイルのサーバーURL（{0}）は適用されませんでした — サーバーを切り替えるには接続を解除して再度サインインしてください。"
 
 #: src/app/(tabs)/(reports)/heatmap.tsx:91
-msgid "The grid fills in as closed trades accumulate."
-msgstr "決済済みトレードが増えるとグリッドが埋まっていきます。"
+#~ msgid "The grid fills in as closed trades accumulate."
+#~ msgstr "決済済みトレードが増えるとグリッドが埋まっていきます。"
 
 #: src/app/(tabs)/(settings)/display.tsx:110
 msgid "The market timezone defines the trading day — calendar days and hourly stats follow it. The display timezone only formats clock times."
@@ -4220,7 +4247,7 @@ msgstr "今週"
 msgid "This year"
 msgstr "今年"
 
-#: src/app/(tabs)/(reports)/heatmap.tsx:32
+#: src/components/reports/pnl-heatmap-card.tsx:27
 msgid "Thu"
 msgstr "木"
 
@@ -4304,7 +4331,7 @@ msgid "Top"
 msgstr "上端"
 
 #. placeholder {0}: groups.length
-#: src/components/reports/detailed-section.tsx:92
+#: src/components/reports/detailed-section.tsx:93
 msgid "Top {MAX_ROWS} of {0} by magnitude."
 msgstr "変動額上位{MAX_ROWS}件（全{0}件）。"
 
@@ -4396,7 +4423,7 @@ msgstr "入出金"
 msgid "Try a different search."
 msgstr "別のキーワードで検索してください。"
 
-#: src/app/(tabs)/(reports)/heatmap.tsx:28
+#: src/components/reports/pnl-heatmap-card.tsx:23
 msgid "Tue"
 msgstr "火"
 
@@ -4488,7 +4515,7 @@ msgstr "注意"
 msgid "Web Service token"
 msgstr "Web Serviceトークン"
 
-#: src/app/(tabs)/(reports)/heatmap.tsx:30
+#: src/components/reports/pnl-heatmap-card.tsx:25
 msgid "Wed"
 msgstr "水"
 
@@ -4603,9 +4630,9 @@ msgstr "記憶が新しいうちにエントリー理由を書きましょう。
 msgid "Year"
 msgstr "年"
 
-#: src/app/(tabs)/(reports)/_layout.tsx:52
+#: src/app/(tabs)/(reports)/_layout.tsx:61
 #: src/app/(tabs)/(reports)/wrapped.tsx:62
-#: src/components/reports/overview-section.tsx:528
+#: src/components/reports/overview-section.tsx:523
 msgid "Year Wrapped"
 msgstr "Year Wrapped"
 

@@ -6,6 +6,7 @@ import { useBreakdown, type BreakdownDim } from '@/api/hooks';
 import type { BreakGroup } from '@/api/types';
 import { DashboardCard } from '@/components/dashboard-card';
 import { Skeleton } from '@/components/skeleton';
+import { PnlHeatmapCard } from '@/components/reports/pnl-heatmap-card';
 import { MagnitudeRow } from '@/components/reports/shared';
 import {
   SectionScaffold,
@@ -243,6 +244,7 @@ export function DetailedSection({
       />
       <DayOfWeekCard ctx={ctx} />
       <HourOfDayCard ctx={ctx} />
+      <PnlHeatmapCard ctx={ctx} />
       <SessionCard ctx={ctx} />
     </SectionScaffold>
   );

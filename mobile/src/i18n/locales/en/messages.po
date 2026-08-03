@@ -26,12 +26,9 @@ msgstr "(skip)"
 #~ msgid "{0, plural, one {# day} other {# days}}"
 #~ msgstr "{0, plural, one {# day} other {# days}}"
 
-#. placeholder {0}: dayLabel(day)
-#. placeholder {1}: formatHourKeyLabel(`${String(hour).padStart(2, '0')}:00`)
-#. placeholder {2}: cell.trades
 #: src/app/(tabs)/(reports)/heatmap.tsx:117
-msgid "{0} {1} — {2} trades"
-msgstr "{0} {1} — {2} trades"
+#~ msgid "{0} {1} — {2} trades"
+#~ msgstr "{0} {1} — {2} trades"
 
 #. placeholder {0}: formatCurrency(fx(s.floor_distance), currency)
 #: src/components/prop-status-card.tsx:155
@@ -143,10 +140,9 @@ msgstr "{0} state paired with a loss"
 #. placeholder {0}: day.trades
 #. placeholder {0}: group.summary.total_trades
 #: src/app/(tabs)/(dashboard)/playbook.tsx:238
-#: src/app/(tabs)/(reports)/heatmap.tsx:135
 #: src/components/insights-card.tsx:80
 #: src/components/reports/behavior-section.tsx:51
-#: src/components/reports/detailed-section.tsx:204
+#: src/components/reports/detailed-section.tsx:205
 #: src/components/reports/overview-section.tsx:233
 #: src/components/reports/overview-section.tsx:292
 #: src/components/reports/risk-section.tsx:173
@@ -227,6 +223,16 @@ msgstr "{events} events"
 msgid "{included} of {total} trades"
 msgstr "{included} of {total} trades"
 
+#. placeholder {0}: money.format(cell.pnl)
+#. placeholder {1}: cell.trades
+#: src/components/reports/pnl-heatmap-card.tsx:115
+msgid "{label} — {0} · {1} trades"
+msgstr "{label} — {0} · {1} trades"
+
+#: src/components/reports/pnl-heatmap-card.tsx:116
+msgid "{label} — no trades"
+msgstr "{label} — no trades"
+
 #. placeholder {0}: insights.fillCount
 #: src/lib/trade-insights.ts:212
 msgid "{pct}% of gross went to fees across {0} fills. Consider whether every add was worth the cost."
@@ -243,6 +249,10 @@ msgstr "{title} settings updated."
 #: src/app/(tabs)/(calendar)/index.tsx:753
 msgid "{weekCount} trades"
 msgstr "{weekCount} trades"
+
+#: src/app/(tabs)/(reports)/heatmap-cell.tsx:70
+msgid "{wins} wins · {losses} losses"
+msgstr "{wins} wins · {losses} losses"
 
 #: src/app/(tabs)/(settings)/index.tsx:203
 #: src/components/goal-card.tsx:35
@@ -450,7 +460,7 @@ msgstr "Add an account first."
 msgid "Add an AI endpoint under Settings → AI for a model-written review."
 msgstr "Add an AI endpoint under Settings → AI for a model-written review."
 
-#: src/app/new-trade.tsx:69
+#: src/app/new-trade.tsx:75
 msgid "Add an OpenAI-compatible vision endpoint and API key under Settings → AI, then open this shortcut again."
 msgstr "Add an OpenAI-compatible vision endpoint and API key under Settings → AI, then open this shortcut again."
 
@@ -462,7 +472,7 @@ msgstr "Add an OpenAI-compatible vision endpoint and API key under Settings → 
 msgid "Add another account before deleting this one."
 msgstr "Add another account before deleting this one."
 
-#: src/app/new-trade.tsx:160
+#: src/app/new-trade.tsx:166
 msgid "Add at least one fill with quantity and price for {label}."
 msgstr "Add at least one fill with quantity and price for {label}."
 
@@ -530,7 +540,7 @@ msgstr "Advanced chart"
 msgid "Adverse excursion exceeded planned risk"
 msgstr "Adverse excursion exceeded planned risk"
 
-#: src/components/reports/detailed-section.tsx:185
+#: src/components/reports/detailed-section.tsx:186
 msgid "After hours"
 msgstr "After hours"
 
@@ -666,7 +676,7 @@ msgstr "Average"
 msgid "Average hold"
 msgstr "Average hold"
 
-#: src/components/reports/detailed-section.tsx:205
+#: src/components/reports/detailed-section.tsx:206
 msgid "avg"
 msgstr "avg"
 
@@ -944,7 +954,7 @@ msgstr "cash-limited"
 msgid "Chart"
 msgstr "Chart"
 
-#: src/app/new-trade.tsx:78
+#: src/app/new-trade.tsx:84
 #: src/components/trade-prefill-bar.tsx:56
 msgid "Check the fills"
 msgstr "Check the fills"
@@ -1016,8 +1026,12 @@ msgid "Closed"
 msgstr "Closed"
 
 #: src/app/(tabs)/(reports)/heatmap.tsx:142
-msgid "Closed-trade P&L by entry time on the market clock. Tap a cell for its numbers."
-msgstr "Closed-trade P&L by entry time on the market clock. Tap a cell for its numbers."
+#~ msgid "Closed-trade P&L by entry time on the market clock. Tap a cell for its numbers."
+#~ msgstr "Closed-trade P&L by entry time on the market clock. Tap a cell for its numbers."
+
+#: src/components/reports/pnl-heatmap-card.tsx:131
+msgid "Closed-trade P&L by entry time on the market clock. Tap a cell for its trades."
+msgstr "Closed-trade P&L by entry time on the market clock. Tap a cell for its trades."
 
 #: src/components/coach-card.tsx:77
 msgid "Coach"
@@ -1137,7 +1151,7 @@ msgstr "Could not export config"
 msgid "Could not fetch the rate — is market data configured?"
 msgstr "Could not fetch the rate — is market data configured?"
 
-#: src/app/new-trade.tsx:81
+#: src/app/new-trade.tsx:87
 msgid "Could not import"
 msgstr "Could not import"
 
@@ -1202,10 +1216,10 @@ msgstr "Could not revoke token"
 #: src/app/new-setup.tsx:67
 #: src/app/new-setup.tsx:81
 #: src/app/new-setup.tsx:87
-#: src/app/new-trade.tsx:143
-#: src/app/new-trade.tsx:152
-#: src/app/new-trade.tsx:156
-#: src/app/new-trade.tsx:159
+#: src/app/new-trade.tsx:149
+#: src/app/new-trade.tsx:158
+#: src/app/new-trade.tsx:162
+#: src/app/new-trade.tsx:165
 #: src/app/quick-journal.tsx:65
 msgid "Could not save"
 msgstr "Could not save"
@@ -1346,9 +1360,9 @@ msgstr "Date"
 msgid "Day"
 msgstr "Day"
 
-#: src/components/reports/detailed-section.tsx:107
-#: src/components/reports/detailed-section.tsx:115
-#: src/components/reports/detailed-section.tsx:134
+#: src/components/reports/detailed-section.tsx:108
+#: src/components/reports/detailed-section.tsx:116
+#: src/components/reports/detailed-section.tsx:135
 msgid "Day of week"
 msgstr "Day of week"
 
@@ -1591,7 +1605,7 @@ msgid "Enter a setup name."
 msgstr "Enter a setup name."
 
 #. placeholder {0}: index + 1
-#: src/app/new-trade.tsx:156
+#: src/app/new-trade.tsx:162
 msgid "Enter a symbol for block {0}."
 msgstr "Enter a symbol for block {0}."
 
@@ -1649,6 +1663,10 @@ msgstr "Enter your username"
 msgid "Enter your username and password"
 msgstr "Enter your username and password"
 
+#: src/app/(tabs)/(reports)/heatmap-cell.tsx:72
+msgid "entries on the market clock"
+msgstr "entries on the market clock"
+
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:317
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:595
 #: src/app/tool-position-size.tsx:77
@@ -1668,8 +1686,8 @@ msgid "Entry criteria, invalidation, targets…"
 msgstr "Entry criteria, invalidation, targets…"
 
 #: src/app/(tabs)/(reports)/heatmap.tsx:95
-msgid "Entry hour × weekday"
-msgstr "Entry hour × weekday"
+#~ msgid "Entry hour × weekday"
+#~ msgstr "Entry hour × weekday"
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:286
 msgid "Entry premium"
@@ -1790,7 +1808,7 @@ msgstr "Expires {expires} · Last used {lastUsed}"
 msgid "Expiry"
 msgstr "Expiry"
 
-#: src/components/reports/overview-section.tsx:532
+#: src/components/reports/overview-section.tsx:527
 msgid "Explore"
 msgstr "Explore"
 
@@ -1813,7 +1831,7 @@ msgid "export.json plus trade screenshots under attachments/."
 msgstr "export.json plus trade screenshots under attachments/."
 
 #: src/components/breakdown-card.tsx:42
-#: src/components/reports/detailed-section.tsx:54
+#: src/components/reports/detailed-section.tsx:55
 #: src/components/reports/overview-section.tsx:264
 msgid "Failed to load breakdown."
 msgstr "Failed to load breakdown."
@@ -1829,6 +1847,10 @@ msgstr "Failed to load equity curve."
 #: src/app/(tabs)/(settings)/ai.tsx:59
 msgid "Failed to load settings."
 msgstr "Failed to load settings."
+
+#: src/components/reports/pnl-heatmap-card.tsx:75
+msgid "Failed to load trades."
+msgstr "Failed to load trades."
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:519
 msgid "Fair value gap"
@@ -1938,7 +1960,7 @@ msgstr "Format"
 msgid "Fraction of capital to risk per trade. Half Kelly is the common practical pick — full Kelly assumes perfect estimates."
 msgstr "Fraction of capital to risk per trade. Half Kelly is the common practical pick — full Kelly assumes perfect estimates."
 
-#: src/app/(tabs)/(reports)/heatmap.tsx:34
+#: src/components/reports/pnl-heatmap-card.tsx:29
 msgid "Fri"
 msgstr "Fri"
 
@@ -2091,7 +2113,7 @@ msgstr "Holiday"
 msgid "Home"
 msgstr "Home"
 
-#: src/components/reports/detailed-section.tsx:146
+#: src/components/reports/detailed-section.tsx:147
 msgid "Hour of day"
 msgstr "Hour of day"
 
@@ -2527,7 +2549,7 @@ msgstr "Mistake: {tag}"
 msgid "Model"
 msgstr "Model"
 
-#: src/app/(tabs)/(reports)/heatmap.tsx:26
+#: src/components/reports/pnl-heatmap-card.tsx:21
 msgid "Mon"
 msgstr "Mon"
 
@@ -2643,7 +2665,7 @@ msgstr "New tag"
 msgid "New token"
 msgstr "New token"
 
-#: src/app/new-trade.tsx:185
+#: src/app/new-trade.tsx:191
 #: src/components/add-menu.tsx:21
 msgid "New trade"
 msgstr "New trade"
@@ -2664,8 +2686,8 @@ msgstr "Next week"
 msgid "Next year"
 msgstr "Next year"
 
-#: src/app/new-trade.tsx:153
-#: src/app/new-trade.tsx:178
+#: src/app/new-trade.tsx:159
+#: src/app/new-trade.tsx:184
 msgid "No account found — create one on the web app first."
 msgstr "No account found — create one on the web app first."
 
@@ -2694,6 +2716,10 @@ msgstr "No chart data for this symbol."
 msgid "No closed trades in {year}"
 msgstr "No closed trades in {year}"
 
+#: src/app/(tabs)/(reports)/heatmap-cell.tsx:76
+msgid "No closed trades in this hour."
+msgstr "No closed trades in this hour."
+
 #: src/components/reports/winloss-section.tsx:143
 msgid "No closed trades in this range."
 msgstr "No closed trades in this range."
@@ -2703,8 +2729,8 @@ msgid "No closed trades on this day."
 msgstr "No closed trades on this day."
 
 #: src/app/(tabs)/(reports)/heatmap.tsx:89
-msgid "No closed trades yet"
-msgstr "No closed trades yet"
+#~ msgid "No closed trades yet"
+#~ msgstr "No closed trades yet"
 
 #: src/components/equity-card.tsx:71
 #: src/components/reports/risk-section.tsx:78
@@ -2760,7 +2786,7 @@ msgstr "no stops recorded"
 msgid "No streak patterns detected — flags trades sized up right after a winning streak."
 msgstr "No streak patterns detected — flags trades sized up right after a winning streak."
 
-#: src/components/reports/detailed-section.tsx:242
+#: src/components/reports/detailed-section.tsx:243
 msgid "No tagged trades in this range."
 msgstr "No tagged trades in this range."
 
@@ -2786,10 +2812,11 @@ msgid "No trades"
 msgstr "No trades"
 
 #: src/app/(tabs)/(dashboard)/index.tsx:208
-#: src/components/reports/detailed-section.tsx:116
-#: src/components/reports/detailed-section.tsx:149
-#: src/components/reports/detailed-section.tsx:173
-#: src/components/reports/detailed-section.tsx:236
+#: src/components/reports/detailed-section.tsx:117
+#: src/components/reports/detailed-section.tsx:150
+#: src/components/reports/detailed-section.tsx:174
+#: src/components/reports/detailed-section.tsx:237
+#: src/components/reports/pnl-heatmap-card.tsx:75
 msgid "No trades in this range."
 msgstr "No trades in this range."
 
@@ -3005,7 +3032,7 @@ msgstr "Overconfidence"
 msgid "Overconfidence often shows up as oversizing or ignoring your stop. Check whether conviction exceeded your edge on this setup."
 msgstr "Overconfidence often shows up as oversizing or ignoring your stop. Check whether conviction exceeded your edge on this setup."
 
-#: src/components/reports/detailed-section.tsx:187
+#: src/components/reports/detailed-section.tsx:188
 msgid "Overnight"
 msgstr "Overnight"
 
@@ -3022,9 +3049,9 @@ msgstr "P&L"
 msgid "P&L basis"
 msgstr "P&L basis"
 
-#: src/app/(tabs)/(reports)/_layout.tsx:51
-#: src/app/(tabs)/(reports)/heatmap.tsx:72
-#: src/components/reports/overview-section.tsx:523
+#: src/components/reports/pnl-heatmap-card.tsx:66
+#: src/components/reports/pnl-heatmap-card.tsx:73
+#: src/components/reports/pnl-heatmap-card.tsx:87
 msgid "P&L heatmap"
 msgstr "P&L heatmap"
 
@@ -3181,7 +3208,7 @@ msgstr "Post-exit MAE"
 msgid "Post-exit MFE"
 msgstr "Post-exit MFE"
 
-#: src/components/reports/detailed-section.tsx:181
+#: src/components/reports/detailed-section.tsx:182
 msgid "Premarket"
 msgstr "Premarket"
 
@@ -3376,7 +3403,7 @@ msgstr "Red days"
 msgid "Regenerate"
 msgstr "Regenerate"
 
-#: src/components/reports/detailed-section.tsx:183
+#: src/components/reports/detailed-section.tsx:184
 msgid "Regular hours"
 msgstr "Regular hours"
 
@@ -3614,7 +3641,7 @@ msgstr "Runner"
 msgid "Runner stop"
 msgstr "Runner stop"
 
-#: src/app/(tabs)/(reports)/heatmap.tsx:36
+#: src/components/reports/pnl-heatmap-card.tsx:31
 msgid "Sat"
 msgstr "Sat"
 
@@ -3693,7 +3720,7 @@ msgid "Screenshot limit reached"
 msgstr "Screenshot limit reached"
 
 #. placeholder {0}: response.status
-#: src/app/new-trade.tsx:133
+#: src/app/new-trade.tsx:139
 msgid "Screenshot upload failed ({0})"
 msgstr "Screenshot upload failed ({0})"
 
@@ -3760,13 +3787,13 @@ msgstr "Session"
 msgid "Session recap"
 msgstr "Session recap"
 
-#: src/components/reports/detailed-section.tsx:164
-#: src/components/reports/detailed-section.tsx:172
-#: src/components/reports/detailed-section.tsx:213
+#: src/components/reports/detailed-section.tsx:165
+#: src/components/reports/detailed-section.tsx:173
+#: src/components/reports/detailed-section.tsx:214
 msgid "Sessions"
 msgstr "Sessions"
 
-#: src/components/reports/detailed-section.tsx:215
+#: src/components/reports/detailed-section.tsx:216
 msgid "Sessions follow the New York clock."
 msgstr "Sessions follow the New York clock."
 
@@ -3774,7 +3801,7 @@ msgstr "Sessions follow the New York clock."
 msgid "Set up rules"
 msgstr "Set up rules"
 
-#: src/app/new-trade.tsx:68
+#: src/app/new-trade.tsx:74
 #: src/components/trade-prefill-bar.tsx:63
 msgid "Set up Vision scan first"
 msgstr "Set up Vision scan first"
@@ -4007,7 +4034,7 @@ msgstr "Suggested size as a percent of account equity."
 msgid "Summary"
 msgstr "Summary"
 
-#: src/app/(tabs)/(reports)/heatmap.tsx:38
+#: src/components/reports/pnl-heatmap-card.tsx:33
 msgid "Sun"
 msgstr "Sun"
 
@@ -4037,7 +4064,7 @@ msgid "Symbol"
 msgstr "Symbol"
 
 #. placeholder {0}: index + 1
-#: src/app/new-trade.tsx:148
+#: src/app/new-trade.tsx:154
 msgid "symbol {0}"
 msgstr "symbol {0}"
 
@@ -4055,7 +4082,7 @@ msgid "Symbol, e.g. SPY"
 msgstr "Symbol, e.g. SPY"
 
 #: src/components/note-form.tsx:102
-#: src/components/reports/detailed-section.tsx:233
+#: src/components/reports/detailed-section.tsx:234
 msgid "Symbols"
 msgstr "Symbols"
 
@@ -4088,7 +4115,7 @@ msgstr "Tag name is required."
 #: src/app/(tabs)/(settings)/tags.tsx:122
 #: src/app/(tabs)/(trades)/[id].tsx:443
 #: src/app/manage-tags.tsx:70
-#: src/components/reports/detailed-section.tsx:239
+#: src/components/reports/detailed-section.tsx:240
 #: src/components/trade-form.tsx:683
 msgid "Tags"
 msgstr "Tags"
@@ -4158,8 +4185,8 @@ msgid "The file's server URL ({0}) was not applied — disconnect and sign in to
 msgstr "The file's server URL ({0}) was not applied — disconnect and sign in to switch servers."
 
 #: src/app/(tabs)/(reports)/heatmap.tsx:91
-msgid "The grid fills in as closed trades accumulate."
-msgstr "The grid fills in as closed trades accumulate."
+#~ msgid "The grid fills in as closed trades accumulate."
+#~ msgstr "The grid fills in as closed trades accumulate."
 
 #: src/app/(tabs)/(settings)/display.tsx:110
 msgid "The market timezone defines the trading day — calendar days and hourly stats follow it. The display timezone only formats clock times."
@@ -4222,7 +4249,7 @@ msgstr "This week"
 msgid "This year"
 msgstr "This year"
 
-#: src/app/(tabs)/(reports)/heatmap.tsx:32
+#: src/components/reports/pnl-heatmap-card.tsx:27
 msgid "Thu"
 msgstr "Thu"
 
@@ -4306,7 +4333,7 @@ msgid "Top"
 msgstr "Top"
 
 #. placeholder {0}: groups.length
-#: src/components/reports/detailed-section.tsx:92
+#: src/components/reports/detailed-section.tsx:93
 msgid "Top {MAX_ROWS} of {0} by magnitude."
 msgstr "Top {MAX_ROWS} of {0} by magnitude."
 
@@ -4398,7 +4425,7 @@ msgstr "Transaction"
 msgid "Try a different search."
 msgstr "Try a different search."
 
-#: src/app/(tabs)/(reports)/heatmap.tsx:28
+#: src/components/reports/pnl-heatmap-card.tsx:23
 msgid "Tue"
 msgstr "Tue"
 
@@ -4490,7 +4517,7 @@ msgstr "Watch"
 msgid "Web Service token"
 msgstr "Web Service token"
 
-#: src/app/(tabs)/(reports)/heatmap.tsx:30
+#: src/components/reports/pnl-heatmap-card.tsx:25
 msgid "Wed"
 msgstr "Wed"
 
@@ -4605,9 +4632,9 @@ msgstr "Write why you entered while it's fresh. Future you needs the thesis, not
 msgid "Year"
 msgstr "Year"
 
-#: src/app/(tabs)/(reports)/_layout.tsx:52
+#: src/app/(tabs)/(reports)/_layout.tsx:61
 #: src/app/(tabs)/(reports)/wrapped.tsx:62
-#: src/components/reports/overview-section.tsx:528
+#: src/components/reports/overview-section.tsx:523
 msgid "Year Wrapped"
 msgstr "Year Wrapped"
 

@@ -26,12 +26,9 @@ msgstr "（略過）"
 #~ msgid "{0, plural, one {# day} other {# days}}"
 #~ msgstr "{0, plural, other {# 日}}"
 
-#. placeholder {0}: dayLabel(day)
-#. placeholder {1}: formatHourKeyLabel(`${String(hour).padStart(2, '0')}:00`)
-#. placeholder {2}: cell.trades
 #: src/app/(tabs)/(reports)/heatmap.tsx:117
-msgid "{0} {1} — {2} trades"
-msgstr "{0} {1} — {2} 筆"
+#~ msgid "{0} {1} — {2} trades"
+#~ msgstr "{0} {1} — {2} 筆"
 
 #. placeholder {0}: formatCurrency(fx(s.floor_distance), currency)
 #: src/components/prop-status-card.tsx:155
@@ -143,10 +140,9 @@ msgstr "{0} 狀態伴隨虧損"
 #. placeholder {0}: day.trades
 #. placeholder {0}: group.summary.total_trades
 #: src/app/(tabs)/(dashboard)/playbook.tsx:238
-#: src/app/(tabs)/(reports)/heatmap.tsx:135
 #: src/components/insights-card.tsx:80
 #: src/components/reports/behavior-section.tsx:51
-#: src/components/reports/detailed-section.tsx:204
+#: src/components/reports/detailed-section.tsx:205
 #: src/components/reports/overview-section.tsx:233
 #: src/components/reports/overview-section.tsx:292
 #: src/components/reports/risk-section.tsx:173
@@ -227,6 +223,16 @@ msgstr "{events} 個事件"
 msgid "{included} of {total} trades"
 msgstr "{total} 筆中的 {included} 筆"
 
+#. placeholder {0}: money.format(cell.pnl)
+#. placeholder {1}: cell.trades
+#: src/components/reports/pnl-heatmap-card.tsx:115
+msgid "{label} — {0} · {1} trades"
+msgstr "{label} — {0} · {1} 筆交易"
+
+#: src/components/reports/pnl-heatmap-card.tsx:116
+msgid "{label} — no trades"
+msgstr "{label} — 無交易"
+
 #. placeholder {0}: insights.fillCount
 #: src/lib/trade-insights.ts:212
 msgid "{pct}% of gross went to fees across {0} fills. Consider whether every add was worth the cost."
@@ -243,6 +249,10 @@ msgstr "已更新{title}設定。"
 #: src/app/(tabs)/(calendar)/index.tsx:753
 msgid "{weekCount} trades"
 msgstr "{weekCount} 筆交易"
+
+#: src/app/(tabs)/(reports)/heatmap-cell.tsx:70
+msgid "{wins} wins · {losses} losses"
+msgstr "{wins} 勝 · {losses} 負"
 
 #: src/app/(tabs)/(settings)/index.tsx:203
 #: src/components/goal-card.tsx:35
@@ -450,7 +460,7 @@ msgstr "請先新增帳戶。"
 msgid "Add an AI endpoint under Settings → AI for a model-written review."
 msgstr "在設定 → AI 加入端點，即可獲得模型撰寫的評語。"
 
-#: src/app/new-trade.tsx:69
+#: src/app/new-trade.tsx:75
 msgid "Add an OpenAI-compatible vision endpoint and API key under Settings → AI, then open this shortcut again."
 msgstr "先在 設定 → AI 加入相容 OpenAI 的視覺 API 端點與 API 金鑰，然後再執行一次捷徑。"
 
@@ -462,7 +472,7 @@ msgstr "先在 設定 → AI 加入相容 OpenAI 的視覺 API 端點與 API 金
 msgid "Add another account before deleting this one."
 msgstr "刪除此帳戶前請先新增另一個帳戶。"
 
-#: src/app/new-trade.tsx:160
+#: src/app/new-trade.tsx:166
 msgid "Add at least one fill with quantity and price for {label}."
 msgstr "請為 {label} 加入至少一筆有數量與價格的成交。"
 
@@ -530,7 +540,7 @@ msgstr "進階圖表"
 msgid "Adverse excursion exceeded planned risk"
 msgstr "不利波幅超過計劃風險"
 
-#: src/components/reports/detailed-section.tsx:185
+#: src/components/reports/detailed-section.tsx:186
 msgid "After hours"
 msgstr "盤後"
 
@@ -666,7 +676,7 @@ msgstr "平均"
 msgid "Average hold"
 msgstr "平均持倉時間"
 
-#: src/components/reports/detailed-section.tsx:205
+#: src/components/reports/detailed-section.tsx:206
 msgid "avg"
 msgstr "平均"
 
@@ -944,7 +954,7 @@ msgstr "受現金限制"
 msgid "Chart"
 msgstr "圖表"
 
-#: src/app/new-trade.tsx:78
+#: src/app/new-trade.tsx:84
 #: src/components/trade-prefill-bar.tsx:56
 msgid "Check the fills"
 msgstr "請確認成交內容"
@@ -1016,8 +1026,12 @@ msgid "Closed"
 msgstr "已平倉"
 
 #: src/app/(tabs)/(reports)/heatmap.tsx:142
-msgid "Closed-trade P&L by entry time on the market clock. Tap a cell for its numbers."
-msgstr "按市場時間入場時刻統計的已平倉盈虧。點一格查看數字。"
+#~ msgid "Closed-trade P&L by entry time on the market clock. Tap a cell for its numbers."
+#~ msgstr "按市場時間入場時刻統計的已平倉盈虧。點一格查看數字。"
+
+#: src/components/reports/pnl-heatmap-card.tsx:131
+msgid "Closed-trade P&L by entry time on the market clock. Tap a cell for its trades."
+msgstr "按市場時間入場時刻統計的已平倉損益。點一下方格查看交易。"
 
 #: src/components/coach-card.tsx:77
 msgid "Coach"
@@ -1137,7 +1151,7 @@ msgstr "無法匯出設定"
 msgid "Could not fetch the rate — is market data configured?"
 msgstr "無法取得匯率 — 已設定市場數據嗎？"
 
-#: src/app/new-trade.tsx:81
+#: src/app/new-trade.tsx:87
 msgid "Could not import"
 msgstr "無法匯入"
 
@@ -1202,10 +1216,10 @@ msgstr "無法撤銷權杖"
 #: src/app/new-setup.tsx:67
 #: src/app/new-setup.tsx:81
 #: src/app/new-setup.tsx:87
-#: src/app/new-trade.tsx:143
-#: src/app/new-trade.tsx:152
-#: src/app/new-trade.tsx:156
-#: src/app/new-trade.tsx:159
+#: src/app/new-trade.tsx:149
+#: src/app/new-trade.tsx:158
+#: src/app/new-trade.tsx:162
+#: src/app/new-trade.tsx:165
 #: src/app/quick-journal.tsx:65
 msgid "Could not save"
 msgstr "無法儲存"
@@ -1346,9 +1360,9 @@ msgstr "日期"
 msgid "Day"
 msgstr "星期"
 
-#: src/components/reports/detailed-section.tsx:107
-#: src/components/reports/detailed-section.tsx:115
-#: src/components/reports/detailed-section.tsx:134
+#: src/components/reports/detailed-section.tsx:108
+#: src/components/reports/detailed-section.tsx:116
+#: src/components/reports/detailed-section.tsx:135
 msgid "Day of week"
 msgstr "星期"
 
@@ -1591,7 +1605,7 @@ msgid "Enter a setup name."
 msgstr "請輸入策略名稱。"
 
 #. placeholder {0}: index + 1
-#: src/app/new-trade.tsx:156
+#: src/app/new-trade.tsx:162
 msgid "Enter a symbol for block {0}."
 msgstr "請輸入第 {0} 個區塊的代號。"
 
@@ -1649,6 +1663,10 @@ msgstr "輸入用戶名稱"
 msgid "Enter your username and password"
 msgstr "請輸入使用者名稱同密碼"
 
+#: src/app/(tabs)/(reports)/heatmap-cell.tsx:72
+msgid "entries on the market clock"
+msgstr "以市場時間計的入場"
+
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:317
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:595
 #: src/app/tool-position-size.tsx:77
@@ -1668,8 +1686,8 @@ msgid "Entry criteria, invalidation, targets…"
 msgstr "入場條件、失效位、目標…"
 
 #: src/app/(tabs)/(reports)/heatmap.tsx:95
-msgid "Entry hour × weekday"
-msgstr "入場時刻 × 星期"
+#~ msgid "Entry hour × weekday"
+#~ msgstr "入場時刻 × 星期"
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:286
 msgid "Entry premium"
@@ -1790,7 +1808,7 @@ msgstr "到期 {expires} · 最後使用 {lastUsed}"
 msgid "Expiry"
 msgstr "到期日"
 
-#: src/components/reports/overview-section.tsx:532
+#: src/components/reports/overview-section.tsx:527
 msgid "Explore"
 msgstr "探索"
 
@@ -1813,7 +1831,7 @@ msgid "export.json plus trade screenshots under attachments/."
 msgstr "包含 export.json 以及 attachments/ 內的交易截圖。"
 
 #: src/components/breakdown-card.tsx:42
-#: src/components/reports/detailed-section.tsx:54
+#: src/components/reports/detailed-section.tsx:55
 #: src/components/reports/overview-section.tsx:264
 msgid "Failed to load breakdown."
 msgstr "無法載入分項分析。"
@@ -1829,6 +1847,10 @@ msgstr "無法載入資金曲線。"
 #: src/app/(tabs)/(settings)/ai.tsx:59
 msgid "Failed to load settings."
 msgstr "無法載入設定。"
+
+#: src/components/reports/pnl-heatmap-card.tsx:75
+msgid "Failed to load trades."
+msgstr "無法載入交易。"
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:519
 msgid "Fair value gap"
@@ -1938,7 +1960,7 @@ msgstr "格式"
 msgid "Fraction of capital to risk per trade. Half Kelly is the common practical pick — full Kelly assumes perfect estimates."
 msgstr "每筆交易投入風險的資金比例。實戰常用一半凱利 — 全凱利假設估計完全準確。"
 
-#: src/app/(tabs)/(reports)/heatmap.tsx:34
+#: src/components/reports/pnl-heatmap-card.tsx:29
 msgid "Fri"
 msgstr "五"
 
@@ -2091,7 +2113,7 @@ msgstr "假期"
 msgid "Home"
 msgstr "主頁"
 
-#: src/components/reports/detailed-section.tsx:146
+#: src/components/reports/detailed-section.tsx:147
 msgid "Hour of day"
 msgstr "時段"
 
@@ -2527,7 +2549,7 @@ msgstr "錯誤：{tag}"
 msgid "Model"
 msgstr "模型"
 
-#: src/app/(tabs)/(reports)/heatmap.tsx:26
+#: src/components/reports/pnl-heatmap-card.tsx:21
 msgid "Mon"
 msgstr "一"
 
@@ -2643,7 +2665,7 @@ msgstr "新標籤"
 msgid "New token"
 msgstr "新權杖"
 
-#: src/app/new-trade.tsx:185
+#: src/app/new-trade.tsx:191
 #: src/components/add-menu.tsx:21
 msgid "New trade"
 msgstr "新交易"
@@ -2664,8 +2686,8 @@ msgstr "下週"
 msgid "Next year"
 msgstr "下一年"
 
-#: src/app/new-trade.tsx:153
-#: src/app/new-trade.tsx:178
+#: src/app/new-trade.tsx:159
+#: src/app/new-trade.tsx:184
 msgid "No account found — create one on the web app first."
 msgstr "搵唔到帳戶 — 請先喺網頁版建立。"
 
@@ -2694,6 +2716,10 @@ msgstr "此代號沒有圖表數據。"
 msgid "No closed trades in {year}"
 msgstr "{year} 年沒有已平倉交易"
 
+#: src/app/(tabs)/(reports)/heatmap-cell.tsx:76
+msgid "No closed trades in this hour."
+msgstr "此時段沒有已平倉的交易。"
+
 #: src/components/reports/winloss-section.tsx:143
 msgid "No closed trades in this range."
 msgstr "此範圍內沒有已平倉交易。"
@@ -2703,8 +2729,8 @@ msgid "No closed trades on this day."
 msgstr "呢日冇已平倉嘅交易。"
 
 #: src/app/(tabs)/(reports)/heatmap.tsx:89
-msgid "No closed trades yet"
-msgstr "尚無已平倉交易"
+#~ msgid "No closed trades yet"
+#~ msgstr "尚無已平倉交易"
 
 #: src/components/equity-card.tsx:71
 #: src/components/reports/risk-section.tsx:78
@@ -2760,7 +2786,7 @@ msgstr "未記錄止蝕"
 msgid "No streak patterns detected — flags trades sized up right after a winning streak."
 msgstr "未偵測到連勝模式 — 標記連勝後即加大倉位的交易。"
 
-#: src/components/reports/detailed-section.tsx:242
+#: src/components/reports/detailed-section.tsx:243
 msgid "No tagged trades in this range."
 msgstr "此範圍內沒有已標籤的交易。"
 
@@ -2786,10 +2812,11 @@ msgid "No trades"
 msgstr "無交易"
 
 #: src/app/(tabs)/(dashboard)/index.tsx:208
-#: src/components/reports/detailed-section.tsx:116
-#: src/components/reports/detailed-section.tsx:149
-#: src/components/reports/detailed-section.tsx:173
-#: src/components/reports/detailed-section.tsx:236
+#: src/components/reports/detailed-section.tsx:117
+#: src/components/reports/detailed-section.tsx:150
+#: src/components/reports/detailed-section.tsx:174
+#: src/components/reports/detailed-section.tsx:237
+#: src/components/reports/pnl-heatmap-card.tsx:75
 msgid "No trades in this range."
 msgstr "此範圍內無交易。"
 
@@ -3005,7 +3032,7 @@ msgstr "過度自信"
 msgid "Overconfidence often shows up as oversizing or ignoring your stop. Check whether conviction exceeded your edge on this setup."
 msgstr "過度自信常表現為倉位過大或無視止蝕。檢查信心是否超越了實際優勢。"
 
-#: src/components/reports/detailed-section.tsx:187
+#: src/components/reports/detailed-section.tsx:188
 msgid "Overnight"
 msgstr "隔夜"
 
@@ -3022,9 +3049,9 @@ msgstr "損益"
 msgid "P&L basis"
 msgstr "盈虧基準"
 
-#: src/app/(tabs)/(reports)/_layout.tsx:51
-#: src/app/(tabs)/(reports)/heatmap.tsx:72
-#: src/components/reports/overview-section.tsx:523
+#: src/components/reports/pnl-heatmap-card.tsx:66
+#: src/components/reports/pnl-heatmap-card.tsx:73
+#: src/components/reports/pnl-heatmap-card.tsx:87
 msgid "P&L heatmap"
 msgstr "盈虧熱力圖"
 
@@ -3179,7 +3206,7 @@ msgstr "離場後 MAE"
 msgid "Post-exit MFE"
 msgstr "離場後 MFE"
 
-#: src/components/reports/detailed-section.tsx:181
+#: src/components/reports/detailed-section.tsx:182
 msgid "Premarket"
 msgstr "盤前"
 
@@ -3374,7 +3401,7 @@ msgstr "虧損日"
 msgid "Regenerate"
 msgstr "重新生成"
 
-#: src/components/reports/detailed-section.tsx:183
+#: src/components/reports/detailed-section.tsx:184
 msgid "Regular hours"
 msgstr "正常交易時段"
 
@@ -3612,7 +3639,7 @@ msgstr "留倉部分"
 msgid "Runner stop"
 msgstr "留倉止蝕"
 
-#: src/app/(tabs)/(reports)/heatmap.tsx:36
+#: src/components/reports/pnl-heatmap-card.tsx:31
 msgid "Sat"
 msgstr "六"
 
@@ -3691,7 +3718,7 @@ msgid "Screenshot limit reached"
 msgstr "已達截圖上限"
 
 #. placeholder {0}: response.status
-#: src/app/new-trade.tsx:133
+#: src/app/new-trade.tsx:139
 msgid "Screenshot upload failed ({0})"
 msgstr "截圖上載失敗（{0}）"
 
@@ -3758,13 +3785,13 @@ msgstr "時段"
 msgid "Session recap"
 msgstr "當日回顧"
 
-#: src/components/reports/detailed-section.tsx:164
-#: src/components/reports/detailed-section.tsx:172
-#: src/components/reports/detailed-section.tsx:213
+#: src/components/reports/detailed-section.tsx:165
+#: src/components/reports/detailed-section.tsx:173
+#: src/components/reports/detailed-section.tsx:214
 msgid "Sessions"
 msgstr "交易時段"
 
-#: src/components/reports/detailed-section.tsx:215
+#: src/components/reports/detailed-section.tsx:216
 msgid "Sessions follow the New York clock."
 msgstr "交易時段以紐約時間為準。"
 
@@ -3772,7 +3799,7 @@ msgstr "交易時段以紐約時間為準。"
 msgid "Set up rules"
 msgstr "設定規則"
 
-#: src/app/new-trade.tsx:68
+#: src/app/new-trade.tsx:74
 #: src/components/trade-prefill-bar.tsx:63
 msgid "Set up Vision scan first"
 msgstr "請先設定影像掃描"
@@ -4005,7 +4032,7 @@ msgstr "以帳戶權益百分比建議的倉位大小。"
 msgid "Summary"
 msgstr "摘要"
 
-#: src/app/(tabs)/(reports)/heatmap.tsx:38
+#: src/components/reports/pnl-heatmap-card.tsx:33
 msgid "Sun"
 msgstr "日"
 
@@ -4035,7 +4062,7 @@ msgid "Symbol"
 msgstr "代號"
 
 #. placeholder {0}: index + 1
-#: src/app/new-trade.tsx:148
+#: src/app/new-trade.tsx:154
 msgid "symbol {0}"
 msgstr "代號 {0}"
 
@@ -4053,7 +4080,7 @@ msgid "Symbol, e.g. SPY"
 msgstr "代號（例如 SPY）"
 
 #: src/components/note-form.tsx:102
-#: src/components/reports/detailed-section.tsx:233
+#: src/components/reports/detailed-section.tsx:234
 msgid "Symbols"
 msgstr "標的"
 
@@ -4086,7 +4113,7 @@ msgstr "請輸入標籤名稱。"
 #: src/app/(tabs)/(settings)/tags.tsx:122
 #: src/app/(tabs)/(trades)/[id].tsx:443
 #: src/app/manage-tags.tsx:70
-#: src/components/reports/detailed-section.tsx:239
+#: src/components/reports/detailed-section.tsx:240
 #: src/components/trade-form.tsx:683
 msgid "Tags"
 msgstr "標籤"
@@ -4156,8 +4183,8 @@ msgid "The file's server URL ({0}) was not applied — disconnect and sign in to
 msgstr "檔案中的伺服器 URL（{0}）未套用 — 如要切換伺服器，請先中斷連線並重新登入。"
 
 #: src/app/(tabs)/(reports)/heatmap.tsx:91
-msgid "The grid fills in as closed trades accumulate."
-msgstr "隨著已平倉交易累積，格子會逐漸填滿。"
+#~ msgid "The grid fills in as closed trades accumulate."
+#~ msgstr "隨著已平倉交易累積，格子會逐漸填滿。"
 
 #: src/app/(tabs)/(settings)/display.tsx:110
 msgid "The market timezone defines the trading day — calendar days and hourly stats follow it. The display timezone only formats clock times."
@@ -4220,7 +4247,7 @@ msgstr "本週"
 msgid "This year"
 msgstr "今年"
 
-#: src/app/(tabs)/(reports)/heatmap.tsx:32
+#: src/components/reports/pnl-heatmap-card.tsx:27
 msgid "Thu"
 msgstr "四"
 
@@ -4304,7 +4331,7 @@ msgid "Top"
 msgstr "頂部"
 
 #. placeholder {0}: groups.length
-#: src/components/reports/detailed-section.tsx:92
+#: src/components/reports/detailed-section.tsx:93
 msgid "Top {MAX_ROWS} of {0} by magnitude."
 msgstr "按變動幅度排列的前 {MAX_ROWS} 項（共 {0} 項）。"
 
@@ -4396,7 +4423,7 @@ msgstr "資金交易"
 msgid "Try a different search."
 msgstr "試試其他搜尋字詞。"
 
-#: src/app/(tabs)/(reports)/heatmap.tsx:28
+#: src/components/reports/pnl-heatmap-card.tsx:23
 msgid "Tue"
 msgstr "二"
 
@@ -4488,7 +4515,7 @@ msgstr "留意"
 msgid "Web Service token"
 msgstr "Web Service 權杖"
 
-#: src/app/(tabs)/(reports)/heatmap.tsx:30
+#: src/components/reports/pnl-heatmap-card.tsx:25
 msgid "Wed"
 msgstr "三"
 
@@ -4603,9 +4630,9 @@ msgstr "趁記憶猶新寫下入場原因。未來的你需要的是論點，不
 msgid "Year"
 msgstr "年"
 
-#: src/app/(tabs)/(reports)/_layout.tsx:52
+#: src/app/(tabs)/(reports)/_layout.tsx:61
 #: src/app/(tabs)/(reports)/wrapped.tsx:62
-#: src/components/reports/overview-section.tsx:528
+#: src/components/reports/overview-section.tsx:523
 msgid "Year Wrapped"
 msgstr "年度回顧"
 

@@ -48,7 +48,16 @@ export default function ReportsLayout() {
         name="economic-events"
         options={{ title: t`Economic calendar`, headerLargeTitle: false }}
       />
-      <Stack.Screen name="heatmap" options={{ title: t`P&L heatmap`, headerLargeTitle: false }} />
+      <Stack.Screen
+        name="heatmap-cell"
+        options={{
+          presentation: 'formSheet',
+          headerShown: false,
+          sheetAllowedDetents: [0.55, 1],
+          sheetGrabberVisible: true,
+          sheetCornerRadius: 24,
+        }}
+      />
       <Stack.Screen name="wrapped" options={{ title: t`Year Wrapped`, headerLargeTitle: false }} />
     </Stack>
   );

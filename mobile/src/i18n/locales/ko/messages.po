@@ -26,12 +26,9 @@ msgstr "(건너뛰기)"
 #~ msgid "{0, plural, one {# day} other {# days}}"
 #~ msgstr "{0, plural, other {#일}}"
 
-#. placeholder {0}: dayLabel(day)
-#. placeholder {1}: formatHourKeyLabel(`${String(hour).padStart(2, '0')}:00`)
-#. placeholder {2}: cell.trades
 #: src/app/(tabs)/(reports)/heatmap.tsx:117
-msgid "{0} {1} — {2} trades"
-msgstr "{0} {1} — {2}건"
+#~ msgid "{0} {1} — {2} trades"
+#~ msgstr "{0} {1} — {2}건"
 
 #. placeholder {0}: formatCurrency(fx(s.floor_distance), currency)
 #: src/components/prop-status-card.tsx:155
@@ -143,10 +140,9 @@ msgstr "{0} 상태와 손실이 겹쳤습니다"
 #. placeholder {0}: day.trades
 #. placeholder {0}: group.summary.total_trades
 #: src/app/(tabs)/(dashboard)/playbook.tsx:238
-#: src/app/(tabs)/(reports)/heatmap.tsx:135
 #: src/components/insights-card.tsx:80
 #: src/components/reports/behavior-section.tsx:51
-#: src/components/reports/detailed-section.tsx:204
+#: src/components/reports/detailed-section.tsx:205
 #: src/components/reports/overview-section.tsx:233
 #: src/components/reports/overview-section.tsx:292
 #: src/components/reports/risk-section.tsx:173
@@ -227,6 +223,16 @@ msgstr "이벤트 {events}건"
 msgid "{included} of {total} trades"
 msgstr "{total}건 중 {included}건"
 
+#. placeholder {0}: money.format(cell.pnl)
+#. placeholder {1}: cell.trades
+#: src/components/reports/pnl-heatmap-card.tsx:115
+msgid "{label} — {0} · {1} trades"
+msgstr "{label} — {0} · 거래 {1}건"
+
+#: src/components/reports/pnl-heatmap-card.tsx:116
+msgid "{label} — no trades"
+msgstr "{label} — 거래 없음"
+
 #. placeholder {0}: insights.fillCount
 #: src/lib/trade-insights.ts:212
 msgid "{pct}% of gross went to fees across {0} fills. Consider whether every add was worth the cost."
@@ -243,6 +249,10 @@ msgstr "{title} 설정이 업데이트되었습니다."
 #: src/app/(tabs)/(calendar)/index.tsx:753
 msgid "{weekCount} trades"
 msgstr "트레이드 {weekCount}건"
+
+#: src/app/(tabs)/(reports)/heatmap-cell.tsx:70
+msgid "{wins} wins · {losses} losses"
+msgstr "{wins}승 · {losses}패"
 
 #: src/app/(tabs)/(settings)/index.tsx:203
 #: src/components/goal-card.tsx:35
@@ -450,7 +460,7 @@ msgstr "먼저 계좌를 추가하세요."
 msgid "Add an AI endpoint under Settings → AI for a model-written review."
 msgstr "설정 → AI에서 엔드포인트를 추가하면 모델이 작성한 리뷰를 받을 수 있습니다."
 
-#: src/app/new-trade.tsx:69
+#: src/app/new-trade.tsx:75
 msgid "Add an OpenAI-compatible vision endpoint and API key under Settings → AI, then open this shortcut again."
 msgstr "설정 → AI에서 OpenAI 호환 비전 엔드포인트와 API 키를 추가한 뒤 단축어를 다시 실행하세요."
 
@@ -462,7 +472,7 @@ msgstr "설정 → AI에서 OpenAI 호환 비전 엔드포인트와 API 키를 �
 msgid "Add another account before deleting this one."
 msgstr "이 계좌를 삭제하기 전에 다른 계좌를 추가하세요."
 
-#: src/app/new-trade.tsx:160
+#: src/app/new-trade.tsx:166
 msgid "Add at least one fill with quantity and price for {label}."
 msgstr "{label}에 수량과 가격이 있는 체결을 1개 이상 추가하세요."
 
@@ -530,7 +540,7 @@ msgstr "고급 차트"
 msgid "Adverse excursion exceeded planned risk"
 msgstr "역행 폭이 계획 리스크를 초과"
 
-#: src/components/reports/detailed-section.tsx:185
+#: src/components/reports/detailed-section.tsx:186
 msgid "After hours"
 msgstr "애프터마켓"
 
@@ -666,7 +676,7 @@ msgstr "평균"
 msgid "Average hold"
 msgstr "평균 보유 시간"
 
-#: src/components/reports/detailed-section.tsx:205
+#: src/components/reports/detailed-section.tsx:206
 msgid "avg"
 msgstr "평균"
 
@@ -944,7 +954,7 @@ msgstr "현금 제한"
 msgid "Chart"
 msgstr "차트"
 
-#: src/app/new-trade.tsx:78
+#: src/app/new-trade.tsx:84
 #: src/components/trade-prefill-bar.tsx:56
 msgid "Check the fills"
 msgstr "체결 내용 확인"
@@ -1016,8 +1026,12 @@ msgid "Closed"
 msgstr "청산"
 
 #: src/app/(tabs)/(reports)/heatmap.tsx:142
-msgid "Closed-trade P&L by entry time on the market clock. Tap a cell for its numbers."
-msgstr "시장 시간 기준 진입 시각별 청산 손익입니다. 셀을 탭하면 수치가 표시됩니다."
+#~ msgid "Closed-trade P&L by entry time on the market clock. Tap a cell for its numbers."
+#~ msgstr "시장 시간 기준 진입 시각별 청산 손익입니다. 셀을 탭하면 수치가 표시됩니다."
+
+#: src/components/reports/pnl-heatmap-card.tsx:131
+msgid "Closed-trade P&L by entry time on the market clock. Tap a cell for its trades."
+msgstr "시장 시간 기준 진입 시각별 확정 손익입니다. 셀을 탭하면 거래를 볼 수 있습니다."
 
 #: src/components/coach-card.tsx:77
 msgid "Coach"
@@ -1137,7 +1151,7 @@ msgstr "설정을 내보내지 못했습니다"
 msgid "Could not fetch the rate — is market data configured?"
 msgstr "환율을 가져올 수 없습니다 — 시장 데이터가 설정되어 있나요?"
 
-#: src/app/new-trade.tsx:81
+#: src/app/new-trade.tsx:87
 msgid "Could not import"
 msgstr "가져오지 못했습니다"
 
@@ -1202,10 +1216,10 @@ msgstr "토큰을 폐기하지 못했습니다"
 #: src/app/new-setup.tsx:67
 #: src/app/new-setup.tsx:81
 #: src/app/new-setup.tsx:87
-#: src/app/new-trade.tsx:143
-#: src/app/new-trade.tsx:152
-#: src/app/new-trade.tsx:156
-#: src/app/new-trade.tsx:159
+#: src/app/new-trade.tsx:149
+#: src/app/new-trade.tsx:158
+#: src/app/new-trade.tsx:162
+#: src/app/new-trade.tsx:165
 #: src/app/quick-journal.tsx:65
 msgid "Could not save"
 msgstr "저장하지 못했습니다"
@@ -1346,9 +1360,9 @@ msgstr "날짜"
 msgid "Day"
 msgstr "요일"
 
-#: src/components/reports/detailed-section.tsx:107
-#: src/components/reports/detailed-section.tsx:115
-#: src/components/reports/detailed-section.tsx:134
+#: src/components/reports/detailed-section.tsx:108
+#: src/components/reports/detailed-section.tsx:116
+#: src/components/reports/detailed-section.tsx:135
 msgid "Day of week"
 msgstr "요일"
 
@@ -1591,7 +1605,7 @@ msgid "Enter a setup name."
 msgstr "셋업 이름을 입력하세요."
 
 #. placeholder {0}: index + 1
-#: src/app/new-trade.tsx:156
+#: src/app/new-trade.tsx:162
 msgid "Enter a symbol for block {0}."
 msgstr "블록 {0}의 종목 코드를 입력하세요."
 
@@ -1649,6 +1663,10 @@ msgstr "사용자 이름 입력"
 msgid "Enter your username and password"
 msgstr "사용자 이름과 비밀번호를 입력하세요"
 
+#: src/app/(tabs)/(reports)/heatmap-cell.tsx:72
+msgid "entries on the market clock"
+msgstr "시장 시간 기준 진입"
+
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:317
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:595
 #: src/app/tool-position-size.tsx:77
@@ -1668,8 +1686,8 @@ msgid "Entry criteria, invalidation, targets…"
 msgstr "진입 조건, 무효화, 목표…"
 
 #: src/app/(tabs)/(reports)/heatmap.tsx:95
-msgid "Entry hour × weekday"
-msgstr "진입 시각 × 요일"
+#~ msgid "Entry hour × weekday"
+#~ msgstr "진입 시각 × 요일"
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:286
 msgid "Entry premium"
@@ -1790,7 +1808,7 @@ msgstr "만료 {expires} · 마지막 사용 {lastUsed}"
 msgid "Expiry"
 msgstr "만기일"
 
-#: src/components/reports/overview-section.tsx:532
+#: src/components/reports/overview-section.tsx:527
 msgid "Explore"
 msgstr "더 살펴보기"
 
@@ -1813,7 +1831,7 @@ msgid "export.json plus trade screenshots under attachments/."
 msgstr "export.json과 attachments/ 폴더의 매매 스크린샷을 포함합니다."
 
 #: src/components/breakdown-card.tsx:42
-#: src/components/reports/detailed-section.tsx:54
+#: src/components/reports/detailed-section.tsx:55
 #: src/components/reports/overview-section.tsx:264
 msgid "Failed to load breakdown."
 msgstr "분석을 불러오지 못했습니다."
@@ -1829,6 +1847,10 @@ msgstr "자산 곡선을 불러오지 못했습니다."
 #: src/app/(tabs)/(settings)/ai.tsx:59
 msgid "Failed to load settings."
 msgstr "설정을 불러오지 못했습니다."
+
+#: src/components/reports/pnl-heatmap-card.tsx:75
+msgid "Failed to load trades."
+msgstr "거래를 불러오지 못했습니다."
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:519
 msgid "Fair value gap"
@@ -1938,7 +1960,7 @@ msgstr "형식"
 msgid "Fraction of capital to risk per trade. Half Kelly is the common practical pick — full Kelly assumes perfect estimates."
 msgstr "거래당 리스크에 노출할 자본 비율입니다. 실전에서는 하프 켈리가 일반적 — 풀 켈리는 추정이 완벽하다고 가정합니다."
 
-#: src/app/(tabs)/(reports)/heatmap.tsx:34
+#: src/components/reports/pnl-heatmap-card.tsx:29
 msgid "Fri"
 msgstr "금"
 
@@ -2091,7 +2113,7 @@ msgstr "휴일"
 msgid "Home"
 msgstr "홈"
 
-#: src/components/reports/detailed-section.tsx:146
+#: src/components/reports/detailed-section.tsx:147
 msgid "Hour of day"
 msgstr "시간대"
 
@@ -2527,7 +2549,7 @@ msgstr "실수: {tag}"
 msgid "Model"
 msgstr "모델"
 
-#: src/app/(tabs)/(reports)/heatmap.tsx:26
+#: src/components/reports/pnl-heatmap-card.tsx:21
 msgid "Mon"
 msgstr "월"
 
@@ -2643,7 +2665,7 @@ msgstr "새 태그"
 msgid "New token"
 msgstr "새 토큰"
 
-#: src/app/new-trade.tsx:185
+#: src/app/new-trade.tsx:191
 #: src/components/add-menu.tsx:21
 msgid "New trade"
 msgstr "새 트레이드"
@@ -2664,8 +2686,8 @@ msgstr "다음 주"
 msgid "Next year"
 msgstr "다음 해"
 
-#: src/app/new-trade.tsx:153
-#: src/app/new-trade.tsx:178
+#: src/app/new-trade.tsx:159
+#: src/app/new-trade.tsx:184
 msgid "No account found — create one on the web app first."
 msgstr "계좌가 없습니다 — 먼저 웹 앱에서 만들어 주세요."
 
@@ -2694,6 +2716,10 @@ msgstr "이 종목의 차트 데이터가 없습니다."
 msgid "No closed trades in {year}"
 msgstr "{year}년에 청산된 거래가 없습니다"
 
+#: src/app/(tabs)/(reports)/heatmap-cell.tsx:76
+msgid "No closed trades in this hour."
+msgstr "이 시간대에 확정된 거래가 없습니다."
+
 #: src/components/reports/winloss-section.tsx:143
 msgid "No closed trades in this range."
 msgstr "이 범위에 청산된 거래가 없습니다."
@@ -2703,8 +2729,8 @@ msgid "No closed trades on this day."
 msgstr "이 날 청산한 트레이드가 없습니다."
 
 #: src/app/(tabs)/(reports)/heatmap.tsx:89
-msgid "No closed trades yet"
-msgstr "아직 청산된 거래가 없습니다"
+#~ msgid "No closed trades yet"
+#~ msgstr "아직 청산된 거래가 없습니다"
 
 #: src/components/equity-card.tsx:71
 #: src/components/reports/risk-section.tsx:78
@@ -2760,7 +2786,7 @@ msgstr "스톱 기록 없음"
 msgid "No streak patterns detected — flags trades sized up right after a winning streak."
 msgstr "연승 패턴이 감지되지 않았습니다 — 연승 직후 규모를 키운 거래를 플래그합니다."
 
-#: src/components/reports/detailed-section.tsx:242
+#: src/components/reports/detailed-section.tsx:243
 msgid "No tagged trades in this range."
 msgstr "이 범위에 태그된 거래가 없습니다."
 
@@ -2786,10 +2812,11 @@ msgid "No trades"
 msgstr "거래 없음"
 
 #: src/app/(tabs)/(dashboard)/index.tsx:208
-#: src/components/reports/detailed-section.tsx:116
-#: src/components/reports/detailed-section.tsx:149
-#: src/components/reports/detailed-section.tsx:173
-#: src/components/reports/detailed-section.tsx:236
+#: src/components/reports/detailed-section.tsx:117
+#: src/components/reports/detailed-section.tsx:150
+#: src/components/reports/detailed-section.tsx:174
+#: src/components/reports/detailed-section.tsx:237
+#: src/components/reports/pnl-heatmap-card.tsx:75
 msgid "No trades in this range."
 msgstr "이 기간의 트레이드가 없습니다."
 
@@ -3005,7 +3032,7 @@ msgstr "과신"
 msgid "Overconfidence often shows up as oversizing or ignoring your stop. Check whether conviction exceeded your edge on this setup."
 msgstr "과신은 과도한 규모나 스톱 무시로 나타납니다. 확신이 우위를 넘어서지 않았는지 확인하세요."
 
-#: src/components/reports/detailed-section.tsx:187
+#: src/components/reports/detailed-section.tsx:188
 msgid "Overnight"
 msgstr "오버나이트"
 
@@ -3022,9 +3049,9 @@ msgstr "손익"
 msgid "P&L basis"
 msgstr "손익 기준"
 
-#: src/app/(tabs)/(reports)/_layout.tsx:51
-#: src/app/(tabs)/(reports)/heatmap.tsx:72
-#: src/components/reports/overview-section.tsx:523
+#: src/components/reports/pnl-heatmap-card.tsx:66
+#: src/components/reports/pnl-heatmap-card.tsx:73
+#: src/components/reports/pnl-heatmap-card.tsx:87
 msgid "P&L heatmap"
 msgstr "손익 히트맵"
 
@@ -3179,7 +3206,7 @@ msgstr "청산 후 MAE"
 msgid "Post-exit MFE"
 msgstr "청산 후 MFE"
 
-#: src/components/reports/detailed-section.tsx:181
+#: src/components/reports/detailed-section.tsx:182
 msgid "Premarket"
 msgstr "프리마켓"
 
@@ -3374,7 +3401,7 @@ msgstr "손실일"
 msgid "Regenerate"
 msgstr "다시 생성"
 
-#: src/components/reports/detailed-section.tsx:183
+#: src/components/reports/detailed-section.tsx:184
 msgid "Regular hours"
 msgstr "정규장"
 
@@ -3612,7 +3639,7 @@ msgstr "러너"
 msgid "Runner stop"
 msgstr "러너 스톱"
 
-#: src/app/(tabs)/(reports)/heatmap.tsx:36
+#: src/components/reports/pnl-heatmap-card.tsx:31
 msgid "Sat"
 msgstr "토"
 
@@ -3691,7 +3718,7 @@ msgid "Screenshot limit reached"
 msgstr "스크린샷 한도 도달"
 
 #. placeholder {0}: response.status
-#: src/app/new-trade.tsx:133
+#: src/app/new-trade.tsx:139
 msgid "Screenshot upload failed ({0})"
 msgstr "스크린샷 업로드 실패 ({0})"
 
@@ -3758,13 +3785,13 @@ msgstr "세션"
 msgid "Session recap"
 msgstr "세션 요약"
 
-#: src/components/reports/detailed-section.tsx:164
-#: src/components/reports/detailed-section.tsx:172
-#: src/components/reports/detailed-section.tsx:213
+#: src/components/reports/detailed-section.tsx:165
+#: src/components/reports/detailed-section.tsx:173
+#: src/components/reports/detailed-section.tsx:214
 msgid "Sessions"
 msgstr "세션"
 
-#: src/components/reports/detailed-section.tsx:215
+#: src/components/reports/detailed-section.tsx:216
 msgid "Sessions follow the New York clock."
 msgstr "세션은 뉴욕 시간을 따릅니다."
 
@@ -3772,7 +3799,7 @@ msgstr "세션은 뉴욕 시간을 따릅니다."
 msgid "Set up rules"
 msgstr "규칙 설정"
 
-#: src/app/new-trade.tsx:68
+#: src/app/new-trade.tsx:74
 #: src/components/trade-prefill-bar.tsx:63
 msgid "Set up Vision scan first"
 msgstr "먼저 비전 스캔을 설정하세요"
@@ -4005,7 +4032,7 @@ msgstr "계좌 자산 대비 권장 포지션 크기(%)입니다."
 msgid "Summary"
 msgstr "요약"
 
-#: src/app/(tabs)/(reports)/heatmap.tsx:38
+#: src/components/reports/pnl-heatmap-card.tsx:33
 msgid "Sun"
 msgstr "일"
 
@@ -4035,7 +4062,7 @@ msgid "Symbol"
 msgstr "종목"
 
 #. placeholder {0}: index + 1
-#: src/app/new-trade.tsx:148
+#: src/app/new-trade.tsx:154
 msgid "symbol {0}"
 msgstr "종목 {0}"
 
@@ -4053,7 +4080,7 @@ msgid "Symbol, e.g. SPY"
 msgstr "종목 (예: SPY)"
 
 #: src/components/note-form.tsx:102
-#: src/components/reports/detailed-section.tsx:233
+#: src/components/reports/detailed-section.tsx:234
 msgid "Symbols"
 msgstr "종목"
 
@@ -4086,7 +4113,7 @@ msgstr "태그 이름을 입력하세요."
 #: src/app/(tabs)/(settings)/tags.tsx:122
 #: src/app/(tabs)/(trades)/[id].tsx:443
 #: src/app/manage-tags.tsx:70
-#: src/components/reports/detailed-section.tsx:239
+#: src/components/reports/detailed-section.tsx:240
 #: src/components/trade-form.tsx:683
 msgid "Tags"
 msgstr "태그"
@@ -4156,8 +4183,8 @@ msgid "The file's server URL ({0}) was not applied — disconnect and sign in to
 msgstr "파일의 서버 URL({0})은 적용되지 않았습니다 — 서버를 변경하려면 연결을 해제하고 다시 로그인하세요."
 
 #: src/app/(tabs)/(reports)/heatmap.tsx:91
-msgid "The grid fills in as closed trades accumulate."
-msgstr "청산 거래가 쌓일수록 그리드가 채워집니다."
+#~ msgid "The grid fills in as closed trades accumulate."
+#~ msgstr "청산 거래가 쌓일수록 그리드가 채워집니다."
 
 #: src/app/(tabs)/(settings)/display.tsx:110
 msgid "The market timezone defines the trading day — calendar days and hourly stats follow it. The display timezone only formats clock times."
@@ -4220,7 +4247,7 @@ msgstr "이번 주"
 msgid "This year"
 msgstr "올해"
 
-#: src/app/(tabs)/(reports)/heatmap.tsx:32
+#: src/components/reports/pnl-heatmap-card.tsx:27
 msgid "Thu"
 msgstr "목"
 
@@ -4304,7 +4331,7 @@ msgid "Top"
 msgstr "상단"
 
 #. placeholder {0}: groups.length
-#: src/components/reports/detailed-section.tsx:92
+#: src/components/reports/detailed-section.tsx:93
 msgid "Top {MAX_ROWS} of {0} by magnitude."
 msgstr "변동폭 상위 {MAX_ROWS}건 (전체 {0}건)."
 
@@ -4396,7 +4423,7 @@ msgstr "입출금"
 msgid "Try a different search."
 msgstr "다른 검색어를 시도해 보세요."
 
-#: src/app/(tabs)/(reports)/heatmap.tsx:28
+#: src/components/reports/pnl-heatmap-card.tsx:23
 msgid "Tue"
 msgstr "화"
 
@@ -4488,7 +4515,7 @@ msgstr "주의"
 msgid "Web Service token"
 msgstr "Web Service 토큰"
 
-#: src/app/(tabs)/(reports)/heatmap.tsx:30
+#: src/components/reports/pnl-heatmap-card.tsx:25
 msgid "Wed"
 msgstr "수"
 
@@ -4603,9 +4630,9 @@ msgstr "기억이 생생할 때 진입 이유를 쓰세요. 미래의 나에게 
 msgid "Year"
 msgstr "연"
 
-#: src/app/(tabs)/(reports)/_layout.tsx:52
+#: src/app/(tabs)/(reports)/_layout.tsx:61
 #: src/app/(tabs)/(reports)/wrapped.tsx:62
-#: src/components/reports/overview-section.tsx:528
+#: src/components/reports/overview-section.tsx:523
 msgid "Year Wrapped"
 msgstr "Year Wrapped"
 
