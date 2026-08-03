@@ -1,11 +1,9 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useCallback } from "react";
-import { useToastManager } from "@/components/Toast";
-import { TOOL_ITEMS, type ToolId } from "./tools";
+import type { ToolId } from "./tools";
 import { useUI } from "./ui";
 
 export function useToolRunner() {
-  const toast = useToastManager();
   const navigate = useNavigate();
   const openPositionSize = useUI((s) => s.openPositionSize);
   const openKelly = useUI((s) => s.openKelly);
@@ -29,6 +27,9 @@ export function useToolRunner() {
         case "chart":
           void navigate({ to: "/chart", search: { iv: "D" } });
           return;
+        case "heatmap":
+          void navigate({ to: "/heatmap" });
+          return;
         case "econ":
           void navigate({ to: "/events", search: { wk: 0 } });
           return;
@@ -38,15 +39,8 @@ export function useToolRunner() {
         case "wrapped":
           void navigate({ to: "/wrapped", search: { year: new Date().getFullYear() } });
           return;
-        default: {
-          const tool = TOOL_ITEMS.find((item) => item.id === id);
-          toast.add({
-            title: tool?.label ?? "Tool",
-            description: "Coming soon in TraderMemos.",
-          });
-        }
       }
     },
-    [navigate, openFx, openKelly, openPositionSize, toast],
+    [navigate, openFx, openKelly, openPositionSize],
   );
 }
