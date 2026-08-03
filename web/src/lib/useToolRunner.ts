@@ -26,6 +26,9 @@ export function useToolRunner() {
         case "planner":
           void navigate({ to: "/calculator" });
           return;
+        case "chart":
+          void navigate({ to: "/chart", search: { iv: "D" } });
+          return;
         case "econ":
           void navigate({ to: "/events", search: { wk: 0 } });
           return;
