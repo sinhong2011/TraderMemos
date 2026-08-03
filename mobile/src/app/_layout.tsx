@@ -112,6 +112,35 @@ export default function RootLayout() {
             <Stack.Screen name="new-note" options={{ presentation: 'modal' }} />
             <Stack.Screen name="edit-note" options={{ presentation: 'modal' }} />
             <Stack.Screen name="new-setup" options={{ presentation: 'modal' }} />
+            {/* One-shot calculators ride in half sheets; the R calculator is a
+                pushed screen under (reports). */}
+            <Stack.Screen
+              name="tool-position-size"
+              options={{
+                presentation: 'formSheet',
+                sheetAllowedDetents: [0.6, 1],
+                sheetGrabberVisible: true,
+                sheetCornerRadius: 24,
+              }}
+            />
+            <Stack.Screen
+              name="tool-kelly"
+              options={{
+                presentation: 'formSheet',
+                sheetAllowedDetents: [0.6, 1],
+                sheetGrabberVisible: true,
+                sheetCornerRadius: 24,
+              }}
+            />
+            <Stack.Screen
+              name="tool-fx"
+              options={{
+                presentation: 'formSheet',
+                sheetAllowedDetents: [0.6, 1],
+                sheetGrabberVisible: true,
+                sheetCornerRadius: 24,
+              }}
+            />
           </Stack>
         </ThemeProvider>
         </PersistQueryClientProvider>
