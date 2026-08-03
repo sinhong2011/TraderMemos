@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vite-plus/test";
 import type { Execution } from "@/lib/api/types";
 import type { MarketBar } from "@/lib/api/market";
-import { computeReplayPnl, formatReplayBarTime, replayCutoff } from "./replayPnl";
+import {
+  computeReplayPnl,
+  detectFillBarMismatch,
+  formatReplayBarTime,
+  replayCutoff,
+} from "./replayPnl";
 
 const T0 = 1_752_600_000; // arbitrary recent unix second, minute-aligned
 
@@ -125,6 +130,31 @@ describe("replayCutoff", () => {
   it("is the cursor bar open plus one interval", () => {
     expect(replayCutoff(bars, 1, "1")).toBe(T0 + 120);
     expect(replayCutoff(bars, 0, "5")).toBe(T0 + 300);
+  });
+});
+
+describe("detectFillBarMismatch", () => {
+  it("accepts fills at or near their containing bar's prices", () => {
+    expect(detectFillBarMismatch([fill({ executed_at: at(T0), price: 10 })], bars, "1")).toBe(
+      false,
+    );
+    // Within the 1% slack around the bar range.
+    expect(detectFillBarMismatch([fill({ executed_at: at(T0), price: 10.05 })], bars, "1")).toBe(
+      false,
+    );
+  });
+
+  it("flags a fill priced far outside its containing bar", () => {
+    expect(detectFillBarMismatch([fill({ executed_at: at(T0), price: 12 })], bars, "1")).toBe(true);
+    expect(detectFillBarMismatch([fill({ executed_at: at(T0 + 90), price: 8.5 })], bars, "1")).toBe(
+      true,
+    );
+  });
+
+  it("ignores fills outside the chart window", () => {
+    expect(detectFillBarMismatch([fill({ executed_at: at(T0 - 600), price: 99 })], bars, "1")).toBe(
+      false,
+    );
   });
 });
 
