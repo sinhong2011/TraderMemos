@@ -75,6 +75,11 @@ msgstr "{0} days"
 msgid "{0} executions on one trade"
 msgstr "{0} executions on one trade"
 
+#. placeholder {0}: replayPnl.fillCount
+#: src/components/trade-chart.tsx:160
+msgid "{0} fills"
+msgstr "{0} fills"
+
 #. placeholder {0}: lossAversion.give_back_count
 #: src/components/reports/behavior-section.tsx:219
 msgid "{0} green at peak"
@@ -111,6 +116,12 @@ msgstr "{0} of goal · YTD net P&L"
 #: src/components/prop-status-card.tsx:128
 msgid "{0} of profit"
 msgstr "{0} of profit"
+
+#. placeholder {0}: replayPnl.position
+#. placeholder {1}: replayPnl.avgCost.toFixed(2)
+#: src/components/trade-chart.tsx:158
+msgid "{0} open @ {1}"
+msgstr "{0} open @ {1}"
 
 #. placeholder {0}: report.risk_violations
 #. placeholder {1}: report.daily_loss_breaches
@@ -489,6 +500,10 @@ msgstr "Adjustment"
 #: src/app/login.tsx:250
 msgid "Advanced"
 msgstr "Advanced"
+
+#: src/components/tools-menu.tsx:37
+msgid "Advanced chart"
+msgstr "Advanced chart"
 
 #: src/lib/trade-insights.ts:295
 msgid "Adverse excursion exceeded planned risk"
@@ -901,7 +916,9 @@ msgstr "Cash transactions"
 msgid "cash-limited"
 msgstr "cash-limited"
 
-#: src/components/trade-chart.tsx:175
+#: src/app/(tabs)/(reports)/_layout.tsx:59
+#: src/app/(tabs)/(reports)/advanced-chart.tsx:111
+#: src/components/trade-chart.tsx:112
 msgid "Chart"
 msgstr "Chart"
 
@@ -1203,6 +1220,7 @@ msgstr "Create token"
 msgid "Creating…"
 msgstr "Creating…"
 
+#: src/app/(tabs)/(reports)/advanced-chart.tsx:93
 #: src/app/(tabs)/(trades)/index.tsx:275
 #: src/components/trade-form.tsx:476
 msgid "Crypto"
@@ -1705,6 +1723,10 @@ msgstr "Exit ladder"
 msgid "Exit reason"
 msgstr "Exit reason"
 
+#: src/components/replay-controls.tsx:93
+msgid "Exit replay"
+msgstr "Exit replay"
+
 #: src/app/(tabs)/(reports)/r-calculator.tsx:50
 msgid "Exit tier R must be greater than 0"
 msgstr "Exit tier R must be greater than 0"
@@ -1823,6 +1845,10 @@ msgstr "Fill {0}"
 msgid "Fill CSVs from your broker, journal CSV exports, or a TraderMemos JSON backup."
 msgstr "Fill CSVs from your broker, journal CSV exports, or a TraderMemos JSON backup."
 
+#: src/components/trade-chart.tsx:165
+msgid "Fill prices disagree with the tape — replay P&L is approximate until the exit."
+msgstr "Fill prices disagree with the tape — replay P&L is approximate until the exit."
+
 #: src/app/(tabs)/(settings)/import-trades.tsx:282
 #: src/components/trade-form.tsx:593
 msgid "Fills"
@@ -1852,6 +1878,10 @@ msgstr "Flagged trades"
 msgid "Flagged win rate"
 msgstr "Flagged win rate"
 
+#: src/components/trade-chart.tsx:159
+msgid "flat"
+msgstr "flat"
+
 #: src/components/prop-status-card.tsx:153
 msgid "floor hit"
 msgstr "floor hit"
@@ -1861,6 +1891,7 @@ msgstr "floor hit"
 msgid "Forecast {0}"
 msgstr "Forecast {0}"
 
+#: src/app/(tabs)/(reports)/advanced-chart.tsx:94
 #: src/app/(tabs)/(trades)/index.tsx:277
 #: src/components/trade-form.tsx:478
 msgid "Forex"
@@ -1904,6 +1935,7 @@ msgstr "Full Kelly"
 msgid "Funding"
 msgstr "Funding"
 
+#: src/app/(tabs)/(reports)/advanced-chart.tsx:95
 #: src/app/(tabs)/(trades)/index.tsx:276
 #: src/components/trade-form.tsx:477
 msgid "Futures"
@@ -2599,11 +2631,15 @@ msgstr "No accounts yet"
 msgid "No accounts yet — pick a JSON backup with account details, or add an account first."
 msgstr "No accounts yet — pick a JSON backup with account details, or add an account first."
 
+#: src/app/(tabs)/(reports)/advanced-chart.tsx:179
+msgid "No bars for {symbol} in this window — try a coarser interval."
+msgstr "No bars for {symbol} in this window — try a coarser interval."
+
 #: src/components/breakdown-card.tsx:44
 msgid "No breakdown data yet."
 msgstr "No breakdown data yet."
 
-#: src/components/trade-chart.tsx:191
+#: src/components/trade-chart.tsx:128
 msgid "No chart data for this symbol."
 msgstr "No chart data for this symbol."
 
@@ -2947,6 +2983,10 @@ msgstr "P&L, rules followed"
 msgid "Password"
 msgstr "Password"
 
+#: src/components/replay-controls.tsx:59
+msgid "Pause"
+msgstr "Pause"
+
 #: src/app/tool-kelly.tsx:46
 #: src/components/reports/overview-section.tsx:152
 msgid "Payoff ratio"
@@ -3007,6 +3047,10 @@ msgstr "PF"
 msgid "Photo Library"
 msgstr "Photo Library"
 
+#: src/app/(tabs)/(reports)/advanced-chart.tsx:157
+msgid "Pick a symbol"
+msgstr "Pick a symbol"
+
 #: src/app/(tabs)/(settings)/import-trades.tsx:483
 msgid "Pick an account first."
 msgstr "Pick an account first."
@@ -3019,6 +3063,10 @@ msgstr "Plan"
 #: src/app/(tabs)/(trades)/[id].tsx:304
 msgid "Plan & risk"
 msgstr "Plan & risk"
+
+#: src/components/replay-controls.tsx:59
+msgid "Play"
+msgstr "Play"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:39
 #: src/app/(tabs)/(dashboard)/index.tsx:196
@@ -3369,6 +3417,14 @@ msgstr "Rename"
 #~ msgid "Rename tag"
 #~ msgstr "Rename tag"
 
+#: src/app/(tabs)/(reports)/advanced-chart.tsx:196
+msgid "Replay"
+msgstr "Replay"
+
+#: src/components/trade-chart.tsx:146
+msgid "Replay trade"
+msgstr "Replay trade"
+
 #: src/app/(tabs)/(settings)/about.tsx:58
 msgid "Report an issue"
 msgstr "Report an issue"
@@ -3584,6 +3640,10 @@ msgstr "Screenshots per trade — {0}"
 msgid "Screenshots per trade — No limit"
 msgstr "Screenshots per trade — No limit"
 
+#: src/app/(tabs)/(reports)/advanced-chart.tsx:159
+msgid "Search a ticker above to load its chart."
+msgstr "Search a ticker above to load its chart."
+
 #: src/app/(tabs)/(dashboard)/notes.tsx:116
 msgid "Search notes"
 msgstr "Search notes"
@@ -3778,6 +3838,15 @@ msgstr "Static — fixed floor"
 msgid "Status"
 msgstr "Status"
 
+#: src/components/replay-controls.tsx:55
+msgid "Step back"
+msgstr "Step back"
+
+#: src/components/replay-controls.tsx:64
+msgid "Step forward"
+msgstr "Step forward"
+
+#: src/app/(tabs)/(reports)/advanced-chart.tsx:92
 #: src/app/(tabs)/(reports)/r-calculator.tsx:245
 #: src/app/(tabs)/(trades)/index.tsx:273
 #: src/components/trade-form.tsx:474
@@ -3895,6 +3964,10 @@ msgstr "Symbol {0}"
 #: src/app/(tabs)/(trades)/index.tsx:284
 msgid "Symbol A–Z"
 msgstr "Symbol A–Z"
+
+#: src/app/(tabs)/(reports)/advanced-chart.tsx:114
+msgid "Symbol, e.g. SPY"
+msgstr "Symbol, e.g. SPY"
 
 #: src/components/note-form.tsx:102
 #: src/components/reports/detailed-section.tsx:244
@@ -4126,8 +4199,8 @@ msgstr "Token name is required."
 msgid "Tokens authenticate scripts and integrations against your server's API."
 msgstr "Tokens authenticate scripts and integrations against your server's API."
 
-#: src/components/tools-menu.tsx:44
-#: src/components/tools-menu.tsx:56
+#: src/components/tools-menu.tsx:49
+#: src/components/tools-menu.tsx:61
 msgid "Tools"
 msgstr "Tools"
 

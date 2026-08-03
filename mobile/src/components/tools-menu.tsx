@@ -33,6 +33,11 @@ export function ToolsMenu() {
       systemImage: 'plus.forwardslash.minus',
       href: '/(tabs)/(reports)/r-calculator',
     },
+    {
+      label: t`Advanced chart`,
+      systemImage: 'chart.xyaxis.line',
+      href: '/(tabs)/(reports)/advanced-chart',
+    },
   ];
 
   if (Platform.OS !== 'ios') {

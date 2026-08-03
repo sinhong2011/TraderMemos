@@ -75,6 +75,11 @@ msgstr "{0} 日"
 msgid "{0} executions on one trade"
 msgstr "一筆交易有 {0} 次成交"
 
+#. placeholder {0}: replayPnl.fillCount
+#: src/components/trade-chart.tsx:160
+msgid "{0} fills"
+msgstr "{0} 次成交"
+
 #. placeholder {0}: lossAversion.give_back_count
 #: src/components/reports/behavior-section.tsx:219
 msgid "{0} green at peak"
@@ -111,6 +116,12 @@ msgstr "目標的{0} · 年初至今淨損益"
 #: src/components/prop-status-card.tsx:128
 msgid "{0} of profit"
 msgstr "佔利潤 {0}"
+
+#. placeholder {0}: replayPnl.position
+#. placeholder {1}: replayPnl.avgCost.toFixed(2)
+#: src/components/trade-chart.tsx:158
+msgid "{0} open @ {1}"
+msgstr "持倉 {0} @ {1}"
 
 #. placeholder {0}: report.risk_violations
 #. placeholder {1}: report.daily_loss_breaches
@@ -489,6 +500,10 @@ msgstr "調整"
 #: src/app/login.tsx:250
 msgid "Advanced"
 msgstr "進階設定"
+
+#: src/components/tools-menu.tsx:37
+msgid "Advanced chart"
+msgstr "進階圖表"
 
 #: src/lib/trade-insights.ts:295
 msgid "Adverse excursion exceeded planned risk"
@@ -901,7 +916,9 @@ msgstr "資金往來"
 msgid "cash-limited"
 msgstr "受現金限制"
 
-#: src/components/trade-chart.tsx:175
+#: src/app/(tabs)/(reports)/_layout.tsx:59
+#: src/app/(tabs)/(reports)/advanced-chart.tsx:111
+#: src/components/trade-chart.tsx:112
 msgid "Chart"
 msgstr "圖表"
 
@@ -1203,6 +1220,7 @@ msgstr "建立權杖"
 msgid "Creating…"
 msgstr "建立中…"
 
+#: src/app/(tabs)/(reports)/advanced-chart.tsx:93
 #: src/app/(tabs)/(trades)/index.tsx:275
 #: src/components/trade-form.tsx:476
 msgid "Crypto"
@@ -1705,6 +1723,10 @@ msgstr "出場階梯"
 msgid "Exit reason"
 msgstr "出場原因"
 
+#: src/components/replay-controls.tsx:93
+msgid "Exit replay"
+msgstr "退出重播"
+
 #: src/app/(tabs)/(reports)/r-calculator.tsx:50
 msgid "Exit tier R must be greater than 0"
 msgstr "層級 R 必須大於 0"
@@ -1823,6 +1845,10 @@ msgstr "成交 {0}"
 msgid "Fill CSVs from your broker, journal CSV exports, or a TraderMemos JSON backup."
 msgstr "支援券商成交 CSV、日誌 CSV 匯出檔，或 TraderMemos JSON 備份。"
 
+#: src/components/trade-chart.tsx:165
+msgid "Fill prices disagree with the tape — replay P&L is approximate until the exit."
+msgstr "成交價與行情不符 — 平倉前的重播盈虧只屬約數。"
+
 #: src/app/(tabs)/(settings)/import-trades.tsx:282
 #: src/components/trade-form.tsx:593
 msgid "Fills"
@@ -1852,6 +1878,10 @@ msgstr "被標記交易"
 msgid "Flagged win rate"
 msgstr "被標記勝率"
 
+#: src/components/trade-chart.tsx:159
+msgid "flat"
+msgstr "無持倉"
+
 #: src/components/prop-status-card.tsx:153
 msgid "floor hit"
 msgstr "觸及下限"
@@ -1861,6 +1891,7 @@ msgstr "觸及下限"
 msgid "Forecast {0}"
 msgstr "預測 {0}"
 
+#: src/app/(tabs)/(reports)/advanced-chart.tsx:94
 #: src/app/(tabs)/(trades)/index.tsx:277
 #: src/components/trade-form.tsx:478
 msgid "Forex"
@@ -1904,6 +1935,7 @@ msgstr "全凱利"
 msgid "Funding"
 msgstr "資金"
 
+#: src/app/(tabs)/(reports)/advanced-chart.tsx:95
 #: src/app/(tabs)/(trades)/index.tsx:276
 #: src/components/trade-form.tsx:477
 msgid "Futures"
@@ -2599,11 +2631,15 @@ msgstr "尚未有帳戶"
 msgid "No accounts yet — pick a JSON backup with account details, or add an account first."
 msgstr "尚未有帳戶 — 請選擇包含帳戶資料的 JSON 備份，或先新增帳戶。"
 
+#: src/app/(tabs)/(reports)/advanced-chart.tsx:179
+msgid "No bars for {symbol} in this window — try a coarser interval."
+msgstr "此時段沒有 {symbol} 的 K 線 — 試試較粗的週期。"
+
 #: src/components/breakdown-card.tsx:44
 msgid "No breakdown data yet."
 msgstr "尚無分項數據。"
 
-#: src/components/trade-chart.tsx:191
+#: src/components/trade-chart.tsx:128
 msgid "No chart data for this symbol."
 msgstr "此代號沒有圖表數據。"
 
@@ -2947,6 +2983,10 @@ msgstr "盈虧（遵守日）"
 msgid "Password"
 msgstr "密碼"
 
+#: src/components/replay-controls.tsx:59
+msgid "Pause"
+msgstr "暫停"
+
 #: src/app/tool-kelly.tsx:46
 #: src/components/reports/overview-section.tsx:152
 msgid "Payoff ratio"
@@ -3007,6 +3047,10 @@ msgstr "PF"
 msgid "Photo Library"
 msgstr "照片圖庫"
 
+#: src/app/(tabs)/(reports)/advanced-chart.tsx:157
+msgid "Pick a symbol"
+msgstr "選擇標的"
+
 #: src/app/(tabs)/(settings)/import-trades.tsx:483
 msgid "Pick an account first."
 msgstr "請先選擇帳戶。"
@@ -3019,6 +3063,10 @@ msgstr "計劃"
 #: src/app/(tabs)/(trades)/[id].tsx:304
 msgid "Plan & risk"
 msgstr "計劃與風險"
+
+#: src/components/replay-controls.tsx:59
+msgid "Play"
+msgstr "播放"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:39
 #: src/app/(tabs)/(dashboard)/index.tsx:196
@@ -3367,6 +3415,14 @@ msgstr "重新命名"
 #~ msgid "Rename tag"
 #~ msgstr "重新命名標籤"
 
+#: src/app/(tabs)/(reports)/advanced-chart.tsx:196
+msgid "Replay"
+msgstr "重播"
+
+#: src/components/trade-chart.tsx:146
+msgid "Replay trade"
+msgstr "重播交易"
+
 #: src/app/(tabs)/(settings)/about.tsx:58
 msgid "Report an issue"
 msgstr "回報問題"
@@ -3582,6 +3638,10 @@ msgstr "每筆交易截圖 — {0} 張"
 msgid "Screenshots per trade — No limit"
 msgstr "每筆交易截圖 — 不設上限"
 
+#: src/app/(tabs)/(reports)/advanced-chart.tsx:159
+msgid "Search a ticker above to load its chart."
+msgstr "在上方搜尋代號即可載入圖表。"
+
 #: src/app/(tabs)/(dashboard)/notes.tsx:116
 msgid "Search notes"
 msgstr "搜尋筆記"
@@ -3776,6 +3836,15 @@ msgstr "固定 — 下限不變"
 msgid "Status"
 msgstr "狀態"
 
+#: src/components/replay-controls.tsx:55
+msgid "Step back"
+msgstr "上一根"
+
+#: src/components/replay-controls.tsx:64
+msgid "Step forward"
+msgstr "下一根"
+
+#: src/app/(tabs)/(reports)/advanced-chart.tsx:92
 #: src/app/(tabs)/(reports)/r-calculator.tsx:245
 #: src/app/(tabs)/(trades)/index.tsx:273
 #: src/components/trade-form.tsx:474
@@ -3893,6 +3962,10 @@ msgstr "代號 {0}"
 #: src/app/(tabs)/(trades)/index.tsx:284
 msgid "Symbol A–Z"
 msgstr "代號 A–Z"
+
+#: src/app/(tabs)/(reports)/advanced-chart.tsx:114
+msgid "Symbol, e.g. SPY"
+msgstr "代號（例如 SPY）"
 
 #: src/components/note-form.tsx:102
 #: src/components/reports/detailed-section.tsx:244
@@ -4124,8 +4197,8 @@ msgstr "請輸入權杖名稱。"
 msgid "Tokens authenticate scripts and integrations against your server's API."
 msgstr "權杖用於讓腳本與整合向你的伺服器 API 進行驗證。"
 
-#: src/components/tools-menu.tsx:44
-#: src/components/tools-menu.tsx:56
+#: src/components/tools-menu.tsx:49
+#: src/components/tools-menu.tsx:61
 msgid "Tools"
 msgstr "工具"
 

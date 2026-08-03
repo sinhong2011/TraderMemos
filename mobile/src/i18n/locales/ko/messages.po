@@ -75,6 +75,11 @@ msgstr "{0}일"
 msgid "{0} executions on one trade"
 msgstr "한 거래에 체결 {0}건"
 
+#. placeholder {0}: replayPnl.fillCount
+#: src/components/trade-chart.tsx:160
+msgid "{0} fills"
+msgstr "체결 {0}건"
+
 #. placeholder {0}: lossAversion.give_back_count
 #: src/components/reports/behavior-section.tsx:219
 msgid "{0} green at peak"
@@ -111,6 +116,12 @@ msgstr "목표의 {0} · 연초 대비 순손익"
 #: src/components/prop-status-card.tsx:128
 msgid "{0} of profit"
 msgstr "이익의 {0}"
+
+#. placeholder {0}: replayPnl.position
+#. placeholder {1}: replayPnl.avgCost.toFixed(2)
+#: src/components/trade-chart.tsx:158
+msgid "{0} open @ {1}"
+msgstr "{0} 보유 @ {1}"
 
 #. placeholder {0}: report.risk_violations
 #. placeholder {1}: report.daily_loss_breaches
@@ -489,6 +500,10 @@ msgstr "조정"
 #: src/app/login.tsx:250
 msgid "Advanced"
 msgstr "고급 설정"
+
+#: src/components/tools-menu.tsx:37
+msgid "Advanced chart"
+msgstr "고급 차트"
 
 #: src/lib/trade-insights.ts:295
 msgid "Adverse excursion exceeded planned risk"
@@ -901,7 +916,9 @@ msgstr "현금 거래"
 msgid "cash-limited"
 msgstr "현금 제한"
 
-#: src/components/trade-chart.tsx:175
+#: src/app/(tabs)/(reports)/_layout.tsx:59
+#: src/app/(tabs)/(reports)/advanced-chart.tsx:111
+#: src/components/trade-chart.tsx:112
 msgid "Chart"
 msgstr "차트"
 
@@ -1203,6 +1220,7 @@ msgstr "토큰 만들기"
 msgid "Creating…"
 msgstr "만드는 중…"
 
+#: src/app/(tabs)/(reports)/advanced-chart.tsx:93
 #: src/app/(tabs)/(trades)/index.tsx:275
 #: src/components/trade-form.tsx:476
 msgid "Crypto"
@@ -1705,6 +1723,10 @@ msgstr "청산 래더"
 msgid "Exit reason"
 msgstr "청산 이유"
 
+#: src/components/replay-controls.tsx:93
+msgid "Exit replay"
+msgstr "리플레이 종료"
+
 #: src/app/(tabs)/(reports)/r-calculator.tsx:50
 msgid "Exit tier R must be greater than 0"
 msgstr "티어 R은 0보다 커야 합니다"
@@ -1823,6 +1845,10 @@ msgstr "체결 {0}"
 msgid "Fill CSVs from your broker, journal CSV exports, or a TraderMemos JSON backup."
 msgstr "증권사 체결 CSV, 일지 CSV 내보내기, 또는 TraderMemos JSON 백업을 지원합니다."
 
+#: src/components/trade-chart.tsx:165
+msgid "Fill prices disagree with the tape — replay P&L is approximate until the exit."
+msgstr "체결 가격이 차트와 일치하지 않습니다 — 청산 전까지 리플레이 손익은 근사치입니다."
+
 #: src/app/(tabs)/(settings)/import-trades.tsx:282
 #: src/components/trade-form.tsx:593
 msgid "Fills"
@@ -1852,6 +1878,10 @@ msgstr "플래그된 거래"
 msgid "Flagged win rate"
 msgstr "플래그된 승률"
 
+#: src/components/trade-chart.tsx:159
+msgid "flat"
+msgstr "무포지션"
+
 #: src/components/prop-status-card.tsx:153
 msgid "floor hit"
 msgstr "하한 도달"
@@ -1861,6 +1891,7 @@ msgstr "하한 도달"
 msgid "Forecast {0}"
 msgstr "예상 {0}"
 
+#: src/app/(tabs)/(reports)/advanced-chart.tsx:94
 #: src/app/(tabs)/(trades)/index.tsx:277
 #: src/components/trade-form.tsx:478
 msgid "Forex"
@@ -1904,6 +1935,7 @@ msgstr "풀 켈리"
 msgid "Funding"
 msgstr "자금"
 
+#: src/app/(tabs)/(reports)/advanced-chart.tsx:95
 #: src/app/(tabs)/(trades)/index.tsx:276
 #: src/components/trade-form.tsx:477
 msgid "Futures"
@@ -2599,11 +2631,15 @@ msgstr "아직 계좌가 없습니다"
 msgid "No accounts yet — pick a JSON backup with account details, or add an account first."
 msgstr "계좌가 없습니다 — 계좌 정보가 포함된 JSON 백업을 선택하거나 먼저 계좌를 추가하세요."
 
+#: src/app/(tabs)/(reports)/advanced-chart.tsx:179
+msgid "No bars for {symbol} in this window — try a coarser interval."
+msgstr "이 기간에 {symbol}의 봉이 없습니다 — 더 굵은 봉을 시도하세요."
+
 #: src/components/breakdown-card.tsx:44
 msgid "No breakdown data yet."
 msgstr "아직 분석 데이터가 없습니다."
 
-#: src/components/trade-chart.tsx:191
+#: src/components/trade-chart.tsx:128
 msgid "No chart data for this symbol."
 msgstr "이 종목의 차트 데이터가 없습니다."
 
@@ -2947,6 +2983,10 @@ msgstr "손익 (규칙 준수일)"
 msgid "Password"
 msgstr "비밀번호"
 
+#: src/components/replay-controls.tsx:59
+msgid "Pause"
+msgstr "일시정지"
+
 #: src/app/tool-kelly.tsx:46
 #: src/components/reports/overview-section.tsx:152
 msgid "Payoff ratio"
@@ -3007,6 +3047,10 @@ msgstr "PF"
 msgid "Photo Library"
 msgstr "사진 보관함"
 
+#: src/app/(tabs)/(reports)/advanced-chart.tsx:157
+msgid "Pick a symbol"
+msgstr "종목 선택"
+
 #: src/app/(tabs)/(settings)/import-trades.tsx:483
 msgid "Pick an account first."
 msgstr "먼저 계좌를 선택하세요."
@@ -3019,6 +3063,10 @@ msgstr "계획"
 #: src/app/(tabs)/(trades)/[id].tsx:304
 msgid "Plan & risk"
 msgstr "계획 및 리스크"
+
+#: src/components/replay-controls.tsx:59
+msgid "Play"
+msgstr "재생"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:39
 #: src/app/(tabs)/(dashboard)/index.tsx:196
@@ -3367,6 +3415,14 @@ msgstr "이름 변경"
 #~ msgid "Rename tag"
 #~ msgstr "태그 이름 변경"
 
+#: src/app/(tabs)/(reports)/advanced-chart.tsx:196
+msgid "Replay"
+msgstr "리플레이"
+
+#: src/components/trade-chart.tsx:146
+msgid "Replay trade"
+msgstr "거래 리플레이"
+
 #: src/app/(tabs)/(settings)/about.tsx:58
 msgid "Report an issue"
 msgstr "문제 신고"
@@ -3582,6 +3638,10 @@ msgstr "거래당 스크린샷 — {0}장"
 msgid "Screenshots per trade — No limit"
 msgstr "거래당 스크린샷 — 제한 없음"
 
+#: src/app/(tabs)/(reports)/advanced-chart.tsx:159
+msgid "Search a ticker above to load its chart."
+msgstr "위에서 티커를 검색하면 차트가 표시됩니다."
+
 #: src/app/(tabs)/(dashboard)/notes.tsx:116
 msgid "Search notes"
 msgstr "노트 검색"
@@ -3776,6 +3836,15 @@ msgstr "고정 — 하한이 움직이지 않음"
 msgid "Status"
 msgstr "상태"
 
+#: src/components/replay-controls.tsx:55
+msgid "Step back"
+msgstr "한 봉 뒤로"
+
+#: src/components/replay-controls.tsx:64
+msgid "Step forward"
+msgstr "한 봉 앞으로"
+
+#: src/app/(tabs)/(reports)/advanced-chart.tsx:92
 #: src/app/(tabs)/(reports)/r-calculator.tsx:245
 #: src/app/(tabs)/(trades)/index.tsx:273
 #: src/components/trade-form.tsx:474
@@ -3893,6 +3962,10 @@ msgstr "종목 {0}"
 #: src/app/(tabs)/(trades)/index.tsx:284
 msgid "Symbol A–Z"
 msgstr "종목 A–Z"
+
+#: src/app/(tabs)/(reports)/advanced-chart.tsx:114
+msgid "Symbol, e.g. SPY"
+msgstr "종목 (예: SPY)"
 
 #: src/components/note-form.tsx:102
 #: src/components/reports/detailed-section.tsx:244
@@ -4124,8 +4197,8 @@ msgstr "토큰 이름을 입력하세요."
 msgid "Tokens authenticate scripts and integrations against your server's API."
 msgstr "토큰은 스크립트와 연동을 서버 API에 인증합니다."
 
-#: src/components/tools-menu.tsx:44
-#: src/components/tools-menu.tsx:56
+#: src/components/tools-menu.tsx:49
+#: src/components/tools-menu.tsx:61
 msgid "Tools"
 msgstr "도구"
 

@@ -75,6 +75,11 @@ msgstr "{0}日"
 msgid "{0} executions on one trade"
 msgstr "1トレードに{0}回の約定"
 
+#. placeholder {0}: replayPnl.fillCount
+#: src/components/trade-chart.tsx:160
+msgid "{0} fills"
+msgstr "{0}回の約定"
+
 #. placeholder {0}: lossAversion.give_back_count
 #: src/components/reports/behavior-section.tsx:219
 msgid "{0} green at peak"
@@ -111,6 +116,12 @@ msgstr "目標の{0} · 年初来純損益"
 #: src/components/prop-status-card.tsx:128
 msgid "{0} of profit"
 msgstr "利益の{0}"
+
+#. placeholder {0}: replayPnl.position
+#. placeholder {1}: replayPnl.avgCost.toFixed(2)
+#: src/components/trade-chart.tsx:158
+msgid "{0} open @ {1}"
+msgstr "{0}保有 @ {1}"
 
 #. placeholder {0}: report.risk_violations
 #. placeholder {1}: report.daily_loss_breaches
@@ -489,6 +500,10 @@ msgstr "調整"
 #: src/app/login.tsx:250
 msgid "Advanced"
 msgstr "詳細設定"
+
+#: src/components/tools-menu.tsx:37
+msgid "Advanced chart"
+msgstr "高度なチャート"
 
 #: src/lib/trade-insights.ts:295
 msgid "Adverse excursion exceeded planned risk"
@@ -901,7 +916,9 @@ msgstr "入出金"
 msgid "cash-limited"
 msgstr "資金制約"
 
-#: src/components/trade-chart.tsx:175
+#: src/app/(tabs)/(reports)/_layout.tsx:59
+#: src/app/(tabs)/(reports)/advanced-chart.tsx:111
+#: src/components/trade-chart.tsx:112
 msgid "Chart"
 msgstr "チャート"
 
@@ -1203,6 +1220,7 @@ msgstr "トークンを作成"
 msgid "Creating…"
 msgstr "作成中…"
 
+#: src/app/(tabs)/(reports)/advanced-chart.tsx:93
 #: src/app/(tabs)/(trades)/index.tsx:275
 #: src/components/trade-form.tsx:476
 msgid "Crypto"
@@ -1705,6 +1723,10 @@ msgstr "出口ラダー"
 msgid "Exit reason"
 msgstr "決済理由"
 
+#: src/components/replay-controls.tsx:93
+msgid "Exit replay"
+msgstr "リプレイを終了"
+
 #: src/app/(tabs)/(reports)/r-calculator.tsx:50
 msgid "Exit tier R must be greater than 0"
 msgstr "ティアのRは0より大きくしてください"
@@ -1823,6 +1845,10 @@ msgstr "約定 {0}"
 msgid "Fill CSVs from your broker, journal CSV exports, or a TraderMemos JSON backup."
 msgstr "ブローカーの約定CSV、ジャーナルCSVエクスポート、またはTraderMemosのJSONバックアップに対応。"
 
+#: src/components/trade-chart.tsx:165
+msgid "Fill prices disagree with the tape — replay P&L is approximate until the exit."
+msgstr "約定価格がチャートと一致しません — 決済までのリプレイ損益は概算です。"
+
 #: src/app/(tabs)/(settings)/import-trades.tsx:282
 #: src/components/trade-form.tsx:593
 msgid "Fills"
@@ -1852,6 +1878,10 @@ msgstr "フラグ付きトレード"
 msgid "Flagged win rate"
 msgstr "フラグ付き勝率"
 
+#: src/components/trade-chart.tsx:159
+msgid "flat"
+msgstr "ノーポジ"
+
 #: src/components/prop-status-card.tsx:153
 msgid "floor hit"
 msgstr "フロア到達"
@@ -1861,6 +1891,7 @@ msgstr "フロア到達"
 msgid "Forecast {0}"
 msgstr "予想 {0}"
 
+#: src/app/(tabs)/(reports)/advanced-chart.tsx:94
 #: src/app/(tabs)/(trades)/index.tsx:277
 #: src/components/trade-form.tsx:478
 msgid "Forex"
@@ -1904,6 +1935,7 @@ msgstr "フルケリー"
 msgid "Funding"
 msgstr "資金"
 
+#: src/app/(tabs)/(reports)/advanced-chart.tsx:95
 #: src/app/(tabs)/(trades)/index.tsx:276
 #: src/components/trade-form.tsx:477
 msgid "Futures"
@@ -2599,11 +2631,15 @@ msgstr "口座がまだありません"
 msgid "No accounts yet — pick a JSON backup with account details, or add an account first."
 msgstr "アカウントがありません — アカウント情報を含むJSONバックアップを選ぶか、先にアカウントを追加してください。"
 
+#: src/app/(tabs)/(reports)/advanced-chart.tsx:179
+msgid "No bars for {symbol} in this window — try a coarser interval."
+msgstr "この期間に{symbol}のバーがありません — もっと粗い足を試してください。"
+
 #: src/components/breakdown-card.tsx:44
 msgid "No breakdown data yet."
 msgstr "内訳データはまだありません。"
 
-#: src/components/trade-chart.tsx:191
+#: src/components/trade-chart.tsx:128
 msgid "No chart data for this symbol."
 msgstr "このシンボルのチャートデータがありません。"
 
@@ -2947,6 +2983,10 @@ msgstr "損益（ルール遵守日）"
 msgid "Password"
 msgstr "パスワード"
 
+#: src/components/replay-controls.tsx:59
+msgid "Pause"
+msgstr "一時停止"
+
 #: src/app/tool-kelly.tsx:46
 #: src/components/reports/overview-section.tsx:152
 msgid "Payoff ratio"
@@ -3007,6 +3047,10 @@ msgstr "PF"
 msgid "Photo Library"
 msgstr "写真ライブラリ"
 
+#: src/app/(tabs)/(reports)/advanced-chart.tsx:157
+msgid "Pick a symbol"
+msgstr "銘柄を選択"
+
 #: src/app/(tabs)/(settings)/import-trades.tsx:483
 msgid "Pick an account first."
 msgstr "まずアカウントを選択してください。"
@@ -3019,6 +3063,10 @@ msgstr "プラン"
 #: src/app/(tabs)/(trades)/[id].tsx:304
 msgid "Plan & risk"
 msgstr "プランとリスク"
+
+#: src/components/replay-controls.tsx:59
+msgid "Play"
+msgstr "再生"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:39
 #: src/app/(tabs)/(dashboard)/index.tsx:196
@@ -3367,6 +3415,14 @@ msgstr "名前を変更"
 #~ msgid "Rename tag"
 #~ msgstr "タグ名を変更"
 
+#: src/app/(tabs)/(reports)/advanced-chart.tsx:196
+msgid "Replay"
+msgstr "リプレイ"
+
+#: src/components/trade-chart.tsx:146
+msgid "Replay trade"
+msgstr "トレードをリプレイ"
+
 #: src/app/(tabs)/(settings)/about.tsx:58
 msgid "Report an issue"
 msgstr "問題を報告"
@@ -3582,6 +3638,10 @@ msgstr "スクリーンショット上限 — {0}枚"
 msgid "Screenshots per trade — No limit"
 msgstr "スクリーンショット上限 — 無制限"
 
+#: src/app/(tabs)/(reports)/advanced-chart.tsx:159
+msgid "Search a ticker above to load its chart."
+msgstr "上でティッカーを検索するとチャートが表示されます。"
+
 #: src/app/(tabs)/(dashboard)/notes.tsx:116
 msgid "Search notes"
 msgstr "ノートを検索"
@@ -3776,6 +3836,15 @@ msgstr "固定 — フロアは動かない"
 msgid "Status"
 msgstr "ステータス"
 
+#: src/components/replay-controls.tsx:55
+msgid "Step back"
+msgstr "1本戻る"
+
+#: src/components/replay-controls.tsx:64
+msgid "Step forward"
+msgstr "1本進む"
+
+#: src/app/(tabs)/(reports)/advanced-chart.tsx:92
 #: src/app/(tabs)/(reports)/r-calculator.tsx:245
 #: src/app/(tabs)/(trades)/index.tsx:273
 #: src/components/trade-form.tsx:474
@@ -3893,6 +3962,10 @@ msgstr "銘柄 {0}"
 #: src/app/(tabs)/(trades)/index.tsx:284
 msgid "Symbol A–Z"
 msgstr "シンボル A–Z"
+
+#: src/app/(tabs)/(reports)/advanced-chart.tsx:114
+msgid "Symbol, e.g. SPY"
+msgstr "銘柄（例: SPY）"
 
 #: src/components/note-form.tsx:102
 #: src/components/reports/detailed-section.tsx:244
@@ -4124,8 +4197,8 @@ msgstr "トークン名を入力してください。"
 msgid "Tokens authenticate scripts and integrations against your server's API."
 msgstr "トークンはスクリプトや連携をサーバーAPIに認証させます。"
 
-#: src/components/tools-menu.tsx:44
-#: src/components/tools-menu.tsx:56
+#: src/components/tools-menu.tsx:49
+#: src/components/tools-menu.tsx:61
 msgid "Tools"
 msgstr "ツール"
 
