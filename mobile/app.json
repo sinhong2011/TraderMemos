@@ -26,7 +26,9 @@
             "CFBundleTypeName": "Broker screenshot",
             "CFBundleTypeRole": "Viewer",
             "LSHandlerRank": "Alternate",
-            "LSItemContentTypes": ["public.image"]
+            "LSItemContentTypes": [
+              "public.image"
+            ]
           },
           {
             "CFBundleTypeName": "Fill file",
@@ -84,6 +86,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "a8bda1dd-0562-412f-ad9f-cc8834002930"
+      }
+    },
+    "owner": "sinhong2011"
   }
 }
