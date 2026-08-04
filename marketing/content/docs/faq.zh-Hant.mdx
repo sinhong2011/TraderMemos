@@ -1,0 +1,106 @@
+---
+title: 常見問題與排查
+description: 新自託管用戶真正會遇到的問題 —— 登錄、CORS、端口、上傳與數據。
+---
+
+## 初始化與登錄
+
+### 登錄頁提示「Could not reach API — check Server URL」
+
+SPA 連不上 API。Docker 一體化部署：**Server** 字段**留空**（UI 使用同源 `/api/v1`）。
+CDN + API 分離部署：將 **Server** 設爲你的 API 源，如 `https://api.example.com` ——
+`/api/v1` 會自動追加。
+
+### 沒看到初始化嚮導 / 提示「setup already complete」
+
+嚮導只在數據庫**沒有任何用戶**時出現。已有用戶就直接登錄。想真正從零開始需要清空數據卷
+（`docker compose down -v` —— 這會**刪除你的交易日誌**）。
+
+### 爲什麼別人無法註冊？
+
+有意如此。Owner 創建後，`POST /auth/register` 返回 403，除非設置
+`TM_ALLOW_REGISTRATION=true`。管理員也可以通過 CLI 添加用戶：
+`docker compose exec api /tradermemos create-user --email … --password …`
+
+### 密碼被拒絕
+
+密碼至少需要 **10 個字符**。
+
+### 忘記密碼了
+
+沒有自助重置功能（你的服務器沒有郵件服務可以發送重置郵件）。使用 API 容器內的管理 CLI 重置：
+
+```bash
+docker compose exec api /tradermemos reset-password --email you@example.com --password '…'
+```
+
+## 服務端與部署
+
+### API 拒絕啓動：「insecure JWT secret」
+
+這是有意設計。請設置真正的密鑰 —— `TM_JWT_SECRET=$(openssl rand -hex 32)` ——
+或者僅限本地一次性測試時設置 `TM_ALLOW_INSECURE_JWT=true`（隨附的 Compose 爲方便首次
+運行已這樣設置；生產環境務必移除）。
+
+### 3000（或 8080）端口被佔用
+
+修改 `docker-compose.yml` 中宿主機側的端口映射（如 `web` 服務改爲 `"3001:80"`）。API
+自身端口由 `TM_HTTP_PORT` 控制。
+
+### 瀏覽器控制台出現 CORS 錯誤
+
+只有分離部署（UI 與 API 不同源）才需要 CORS。在 API 上設置 `TM_CORS_ORIGINS`
+爲 SPA 的精確來源 —— 支持 `https://*.vercel.app` 之類的通配符。同源部署
+（Docker 一體化、邊緣重寫）應保持**留空**。
+
+### 能把 API 跑在 Vercel 或 Cloudflare Workers 上嗎？
+
+不能 —— 它是 Go + SQLite + 文件上傳，需要真實磁盤。API 請放在 Docker、VPS、NAS 或
+Railway（掛數據卷）上；一鍵按鈕只部署 **Web UI**。參見
+[Fork 並部署](/zh-Hant/docs/self-hosting/fork-deploy)。
+
+### 我的數據到底在哪裏？
+
+Docker：`tm_data` 數據卷 —— `/data/tradermemos.db` 加上 `/data/attachments`。這個數據卷
+就是你的日誌本體；參見[備份與恢復](/zh-Hant/docs/self-hosting/backup-restore)。
+
+### 選 SQLite 還是 Postgres？
+
+個人實例選 SQLite（默認）—— 零額外組件，備份就是一個文件。多用戶或已有數據庫設施的
+場景適合 Postgres（`make up-postgres`）。兩者之間遷移：導出 ZIP，再導入即可。
+
+## 功能
+
+### 上傳返回 413
+
+文件超過了上限。API 各上限默認 10 MiB（`TM_ATTACH_MAX_BYTES`、`TM_IMPORT_MAX_BYTES`、
+`TM_OCR_MAX_BYTES`）；隨附 nginx 允許 20 MB。調高對應上限 —— 以及反向代理的
+`client_max_body_size` —— 參見[配置參考](/zh-Hant/docs/self-hosting/configuration)。
+
+### 同一個文件導了兩次 —— 會有重複嗎？
+
+不會。成交按代碼 + 方向 + 數量 + 價格 + 時間戳去重；重複部分計入*已跳過*。導錯的批次
+也可以在導入頁面整批回滾。
+
+### 支持列表裏沒有我的券商
+
+沒有券商列表 —— 任何包含代碼 / 方向 / 數量 / 價格 / 日期列的 CSV 都能通過
+[列映射](/zh-Hant/docs/guides/importing-trades)導入。常見表頭會被自動識別。
+
+### 截圖掃描超時或報錯
+
+用**設置 → AI → 測試**檢查連通性，確認模型支持視覺；本地 / 較慢的模型請調高
+`TM_OCR_VISION_TIMEOUT_SEC` 及代理的讀取超時
+（參見[反向代理](/zh-Hant/docs/self-hosting/reverse-proxy)）。「503 not configured」
+表示啓用開關、基址與密鑰尚未全部保存。
+
+### 我的交易數據會被發送到哪裏嗎？
+
+不會。一切都留在你的服務器上。兩個需主動開啓的例外：AI 功能會調用**你**配置的端點；
+行情數據（默認開啓，`TM_MARKET_DATA_ENABLED`）會從配置的數據源獲取報價。
+
+## 還是沒解決？
+
+- 查看 API 日誌：`make logs`（或 `docker compose logs -f api`）
+- `curl http://localhost:3000/healthz` —— 確認 API 存活並查看版本
+- 帶上日誌輸出[提交 issue](https://github.com/sinhong2011/TraderMemos/issues)

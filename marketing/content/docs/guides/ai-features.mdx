@@ -1,0 +1,54 @@
+---
+title: AI features
+description: Optional screenshot fill extraction and an LLM trade coach — any OpenAI-compatible API, your keys, stored on your server.
+---
+
+Both AI features are **off by default** and entirely optional — TraderMemos works fully
+without them. They talk to any **OpenAI-compatible** `chat/completions` endpoint: OpenAI,
+OpenRouter, Azure OpenAI, or a local server like Ollama / LM Studio. You bring the keys.
+
+Configure both in **Settings → AI**. Two things to know up front:
+
+- Settings are **server-wide** (one config per instance, not per user).
+- API keys are stored on the server only — after saving, the browser sees just a masked hint.
+
+## Screenshot scan (fill extraction)
+
+Extracts fills from a broker-app screenshot so you don't retype them. In the **New Trade**
+drawer, **Scan to fill** accepts one or more PNG / JPEG / WebP images and returns editable
+execution rows (symbol, side, qty, price, fees, time — multi-symbol screenshots work).
+
+Setup in **Settings → AI → Screenshot scan**:
+
+| Field | Notes |
+|-------|-------|
+| Enabled | Turn the feature on |
+| API base URL | e.g. `https://api.openai.com/v1`, `https://openrouter.ai/api/v1`, `http://localhost:11434/v1` |
+| Model | Must support **vision** — default `gpt-4o-mini`. **Fetch models** lists what your endpoint offers |
+| API key | Leave blank on later edits to keep the current key |
+| Custom prompt | Optional — blank uses the built-in fill-extraction prompt |
+
+Use **Test** to verify connectivity before saving. Images are capped at 10 MiB
+(`TM_OCR_MAX_BYTES`) and requests time out after 90 s (`TM_OCR_VISION_TIMEOUT_SEC`) — slow
+local models may need a higher timeout, and your
+[reverse proxy](/en/docs/self-hosting/reverse-proxy) must allow ≥ 120 s.
+
+## Trade coach
+
+On any trade's detail view, **Ask AI** sends the full trade context — fills, P&L, R-multiple,
+MAE/MFE, setup, emotion, tags, your notes — to your model and returns coaching notes. When the
+coach is off or unreachable, the panel falls back to built-in rule-based notes.
+
+Setup in **Settings → AI → Trade coach**: same fields as above (any chat model works — vision
+not required), plus an optional **System prompt** to change the coaching style.
+
+## Headless defaults via environment
+
+For scripted deploys you can pre-seed both features with `TM_OCR_*` / `TM_COACH_*` variables —
+see [Configuration](/en/docs/self-hosting/configuration). Env values act as defaults only:
+once settings are saved in the UI, the database wins.
+
+## Privacy
+
+Trade data and screenshots go **only** to the endpoint you configure. Point it at a local
+model and nothing leaves your machine.

@@ -1,0 +1,123 @@
+{
+  "Home": {
+    "metaTitle": "TraderMemos — 自架交易日誌",
+    "metaDescription": "交易資料由你掌控。TraderMemos 是一款自架交易日誌，內建儀表板、盈虧日曆、交易紀錄、策略手冊與報表 —— 免費、AGPL-3.0，執行於你自己的基礎設施。",
+    "badge": "自架 · AGPL-3.0 · Go + React",
+    "heroTitleLine1": "資料由你掌控。",
+    "heroTitleLine2": "復盤由你主導。",
+    "heroSubtitle": "TraderMemos 是一款自架交易日誌 —— 儀表板、盈虧日曆、交易紀錄、策略手冊與報表，全部執行於你自己的基礎設施。免訂閱，也不被廠商綁定。",
+    "ctaGetStarted": "開始使用",
+    "ctaGithub": "前往 GitHub",
+    "ticker": [
+      { "label": "淨盈虧", "value": "+$8,405.81", "tone": "profit" },
+      { "label": "勝率", "value": "59%", "tone": "neutral" },
+      { "label": "獲利因子", "value": "1.83", "tone": "neutral" },
+      { "label": "期望值", "value": "+$45.44 / 筆", "tone": "profit" },
+      { "label": "最大回撤", "value": "−$1,057.78", "tone": "loss" },
+      { "label": "平均持倉", "value": "1 小時 02 分", "tone": "neutral" },
+      { "label": "交易筆數", "value": "185", "tone": "neutral" },
+      { "label": "目標進度", "value": "84% · 超前", "tone": "profit" }
+    ],
+    "eyebrowWhy": "資料主權",
+    "eyebrowFeatures": "功能總覽",
+    "eyebrowInside": "產品導覽",
+    "eyebrowStack": "技術底層",
+    "featuresSub": "從券商 CSV 到每日復盤 —— 整個循環的每一步，都在同一套自架應用中完成。",
+    "whyHeading": "為什麼選擇 TraderMemos？",
+    "whyBody": "TradeZella、TraderSync 等雲端交易日誌固然精緻 —— 但你的交易優勢藏在資料裡。TraderMemos 延續 Ghost、Umami、Plane 的自架理念：執行於你自己的基礎設施，資料庫由你掌控，不需任何人許可即可自由擴充。",
+    "comparisonHeaderFeature": "項目",
+    "comparisonHeaderCloud": "雲端交易日誌",
+    "comparisonHeaderTm": "TraderMemos",
+    "comparison": [
+      { "row": "資料歸屬", "cloud": "廠商託管", "tm": "你的 SQLite / VPS" },
+      { "row": "費用", "cloud": "按月訂閱", "tm": "免費 + 自架主機成本" },
+      { "row": "AI 金鑰", "cloud": "通常由廠商管理", "tm": "你自己的相容 OpenAI API" },
+      { "row": "客製化", "cloud": "有限", "tm": "可 Fork、修改、自由部署" }
+    ],
+    "featuresHeading": "日常復盤所需的一切",
+    "features": {
+      "dashboard": {
+        "title": "儀表板",
+        "description": "權益曲線、期望值、連勝連虧、持倉時間與年度目標進度。"
+      },
+      "tradeLog": {
+        "title": "交易紀錄",
+        "description": "成交明細自動彙整為交易 —— 篩選、排序、加標籤，並可深入檢視執行細節。"
+      },
+      "calendar": {
+        "title": "盈虧日曆",
+        "description": "按日 / 按週熱力圖，支援逐層檢視。"
+      },
+      "reports": {
+        "title": "報表",
+        "description": "勝率、獲利因子、期望值，以及按策略 / 小時 / 交易時段的細分統計。"
+      },
+      "playbook": {
+        "title": "策略手冊",
+        "description": "策略庫與使用該策略的交易紀錄相互連結。"
+      },
+      "import": {
+        "title": "匯入",
+        "description": "支援券商 CSV 對帳單匯入，含欄位對應與去除重複。"
+      },
+      "tools": {
+        "title": "工具",
+        "description": "部位計算器、風控規則、現金流水帳。"
+      },
+      "ai": {
+        "title": "AI（選用）",
+        "description": "截圖自動擷取成交資訊 + AI 交易教練，透過相容 OpenAI 的 API —— 使用你自己的金鑰。"
+      },
+      "api": {
+        "title": "API 存取",
+        "description": "個人存取權杖（tm_pat_…）可用於 MCP / 指令稿；OpenAPI 文件位於 /docs。"
+      },
+      "themes": {
+        "title": "主題",
+        "description": "深色與淺色主題，以 shadcn/ui + coss ui 設計 token 建構。"
+      }
+    },
+    "lookInsideHeading": "實際畫面",
+    "tradeLogCaptionTitle": "交易紀錄",
+    "tradeLogCaptionBody": "每筆交易的盈虧、持倉時間與標籤一目了然。點選任一列即可檢視完整執行時間軸。",
+    "calendarCaptionTitle": "盈虧日曆",
+    "calendarCaptionBody": "按日 / 按週熱力圖，一眼看出連勝與失手的日子。",
+    "reportsCaptionTitle": "報表",
+    "reportsCaptionBody": "權益曲線、獲利因子、期望值、勝率與目標進度 —— 並可按策略、小時、交易時段細分。",
+    "techStackHeading": "技術堆疊",
+    "stackComment": "# 你的資料，跑在你自己的主機上",
+    "stack": [
+      { "layer": "API", "value": "Go · Echo · sqlc · golang-migrate · SQLite" },
+      { "layer": "Web", "value": "React · Vite+ · TanStack Router/Query/Form · Tailwind" },
+      { "layer": "行動裝置", "value": "Expo（規劃中）" },
+      { "layer": "設計", "value": "shadcn/ui + coss ui 設計 token" }
+    ],
+    "licenseHeading": "採用 AGPL-3.0 授權",
+    "licenseBody": "自由自架、修改，供個人或公司內部使用。",
+    "readDocs": "閱讀文件"
+  },
+  "Footer": {
+    "tagline": "自架交易日誌。",
+    "docs": "文件",
+    "changelog": "更新日誌",
+    "roadmap": "路線圖",
+    "github": "GitHub",
+    "discussions": "社群討論",
+    "security": "安全政策",
+    "license": "授權條款（AGPL-3.0）",
+    "privacyNote": "無遙測 —— 資料只留在你的伺服器上。"
+  },
+  "Deploy": {
+    "eyebrow": "立即上線",
+    "heading": "幾分鐘內完成部署",
+    "sub": "一鍵將 Web UI 部署到你自己的 Vercel、Cloudflare 或 Netlify 帳戶 —— 或用 Docker 在任意機器上執行完整服務。",
+    "note": "一鍵按鈕僅部署 Web UI —— 請搭配 Railway 或 Docker 上的 API 使用。",
+    "dockerComment": "# 或自架全部服務",
+    "star": "在 GitHub 上加星"
+  },
+  "Changelog": {
+    "title": "更新日誌",
+    "intro": "每個版本均由 Conventional Commits 自動產生。",
+    "viewOnGitHub": "在 GitHub 上查看發布 →"
+  }
+}

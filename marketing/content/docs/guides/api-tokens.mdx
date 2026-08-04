@@ -1,0 +1,60 @@
+---
+title: API tokens & OpenAPI
+description: Personal access tokens (tm_pat_…) for MCP, AI agents, and scripts, plus the interactive OpenAPI reference at /docs.
+---
+
+Everything the web app does goes through the JSON API — and you can call it yourself.
+Personal access tokens (PATs) give scripts, MCP servers, and AI agents long-lived access
+without juggling login/refresh flows.
+
+## Create a token
+
+**Settings → API → Access tokens → Generate token.** Pick a name (e.g. `MCP bot`, `scripts`)
+and an expiration: **never, 30 days, 90 days, or 1 year**.
+
+The full secret — `tm_pat_…` — is shown **once**. Store it now; afterwards the UI only shows
+the first characters, plus created / expires / last-used times. Revoking a token cuts off its
+clients immediately.
+
+<Callout type="warn">
+A token has the **same access as your account** — there are no scopes. Treat it like your
+password, and prefer an expiry over "never" for anything you might forget about.
+</Callout>
+
+## Use it
+
+Send it as a Bearer token on any `/api/v1` route:
+
+```bash
+curl -H "Authorization: Bearer tm_pat_…" https://your-host/api/v1/accounts
+```
+
+```bash
+# add a fill (idempotent — same fill twice is deduplicated)
+curl -X POST https://your-host/api/v1/executions \
+  -H "Authorization: Bearer tm_pat_…" -H "Content-Type: application/json" \
+  -d '{"account_id":"…","symbol":"NVDA","side":"buy","quantity":100,"price":190.5,"executed_at":"2026-08-01T14:32:05Z"}'
+```
+
+Useful surfaces: `/trades`, `/executions`, `/imports`, `/exports?format=json|csv|zip`,
+`/analytics/summary`, `/setups`, `/notes`, `/cash-transactions`.
+
+## OpenAPI reference
+
+An interactive API reference (Scalar) ships with every instance:
+
+| Setup | Docs URL |
+|-------|----------|
+| Docker all-in-one | `http://localhost:3000/docs` |
+| API directly | `http://localhost:8080/docs` |
+| Split API host | `https://api.example.com/docs` |
+
+The raw spec is at `/openapi.yaml` on the same host — feed it to codegen or an LLM. Both
+routes are unauthenticated (they describe the API, they don't expose data); actual API calls
+still require auth. `GET /healthz` is also public and returns the running version.
+
+## MCP / AI agents
+
+Point any HTTP-capable MCP server or agent at your instance with the PAT as a Bearer header
+and `/openapi.yaml` as the tool description. Everything the UI can do — importing fills,
+querying analytics, annotating trades — is scriptable.

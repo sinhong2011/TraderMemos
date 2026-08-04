@@ -1,0 +1,120 @@
+---
+title: Fork 並部署
+description: 將 TraderMemos Web UI 部署到你自己的 Vercel、Cloudflare 或 Netlify 賬戶，並將 API 部署到 Railway。
+---
+
+目標：讓另一位 GitHub 用戶將 **TraderMemos Web** 部署到**他們自己的** Vercel / Cloudflare /
+Netlify 賬戶，並 / 或將 **API** 部署到 Railway，然後將兩者連接起來。
+
+```
+你                     CDN（Vercel / CF / Netlify）      API（Railway / Docker）
+├─ 一鍵部署 Web ───► SPA                        ──CORS──► Go + SQLite 數據卷
+└─ 登錄時 "Server" = https://your-api.up.railway.app
+```
+
+## 方式 A —— 一鍵部署（最簡單）
+
+無需手動 Fork。平臺會直接將倉庫克隆到*你自己*的 GitHub 並部署到*你自己*的賬戶下。
+
+| 平臺 | 你將獲得 |
+|----------|---------------|
+| **Vercel** | 完整 monorepo 克隆；項目 Root 設爲 `web` |
+| **Cloudflare** | 僅從 `web/` 新建倉庫；Workers 靜態 SPA |
+| **Netlify** | 使用根目錄 `netlify.toml`（`base = web`） |
+| **Railway** | 通過 `railway.toml` 部署 Go API；需掛載數據捲到 `/data` |
+
+部署按鈕位於[項目 README](https://github.com/sinhong2011/TraderMemos#readme)。
+
+可選環境變量 **`VITE_API`**：將默認 API 地址（`https://api.example.com/api/v1`）打包進構建產物。
+留空則登錄時手動填寫 Server URL。
+
+## 方式 B —— 已經 Fork 過倉庫
+
+當你已經在 GitHub 上點擊了 **Fork**，並希望從*你自己的* fork 持續部署時，使用此方式。
+
+### Vercel
+
+1. 打開 [vercel.com/new](https://vercel.com/new) → **Import** 你的 fork（`youruser/TraderMemos`）。
+2. 將 **Root Directory** 設爲 `web`（重要）。
+3. 構建設置保持默認 —— `web/vercel.json` 已提供 install/build/output 及 SPA 重寫規則。
+4. 可選：設置環境變量 `VITE_API`。
+5. 部署。之後每次推送到默認分支都會自動重新部署。
+
+### Cloudflare
+
+**方式 1 —— Workers（與一鍵部署配置一致）**
+
+1. 部署到 Cloudflare Workers，將源地址中的 `YOURUSER` 替換爲你的用戶名 —— 或直接在控制台中
+   連接 `web/` 應用。
+2. 使用 `web/wrangler.toml`（`assets` + SPA 的 `not_found_handling`）。
+
+**方式 2 —— Pages Connect to Git**
+
+| 設置項 | 值 |
+|---------|--------|
+| Repository | 你的 fork |
+| Root directory | `web` |
+| Build command | `pnpm run build` |
+| Output directory | `dist` |
+| 環境變量（可選） | `VITE_API` |
+
+SPA 路由推薦使用方式 1（Workers + `web/wrangler.toml`）——
+Cloudflare 會拒絕 Workers assets 上的 `/* /index.html 200` `_redirects` 規則。
+
+### Netlify
+
+1. 打開 [app.netlify.com/start/deploy](https://app.netlify.com/start/deploy?repository=https://github.com/sinhong2011/TraderMemos) —— 或 **Add new site → Import** 你的 fork。
+2. 根目錄 `netlify.toml` 已設置好 `base = web`、構建、發佈目錄與 SPA 重定向。
+3. 可選環境變量：`VITE_API`。
+4. 在 `TM_CORS_ORIGINS` 中允許 `https://*.netlify.app`。
+
+### Railway（API）
+
+Railway 是部署 **Go API**（含 SQLite 磁盤卷）最簡便的一鍵託管平臺。可搭配上面任意一種
+CDN Web 部署方式使用。
+
+1. 部署到 Railway —— 或 New Project → Deploy from GitHub → 選擇你的 fork。
+2. 根目錄 `railway.toml` 會構建 `api/Dockerfile`，並對 `/healthz` 做健康檢查。
+3. **掛載一個數據卷**到 `/data`（保證 SQLite + 附件在每次部署間持久保存）。
+4. 環境變量：
+
+   | 變量 | 說明 |
+   |----------|--------|
+   | `TM_JWT_SECRET` | 必填 —— 使用 `openssl rand -hex 32` 生成 |
+   | `TM_CORS_ORIGINS` | 例如 `https://*.vercel.app,https://*.netlify.app` |
+   | `TM_DATABASE_URL` | 默認 `sqlite:///data/tradermemos.db`（與 Dockerfile 匹配）；或
+     `postgres://user:pass@host:5432/db?sslmode=require` |
+
+5. 生成一個公開域名（`*.up.railway.app`）→ 將其作爲登錄時的 **Server** / `VITE_API`。
+6. 未設置 `TM_HTTP_PORT` 時，會自動使用平臺提供的 `PORT`。
+
+## 方式 C —— 讓 UI 指向你自己的 API
+
+CDN 只託管 SPA，你的日誌數據始終留在你自己掌控的主機上。
+
+```bash
+# 在 API 主機上（Docker / 二進制）
+TM_JWT_SECRET=$(openssl rand -hex 32)
+TM_CORS_ORIGINS=https://*.vercel.app,https://*.pages.dev,https://*.workers.dev,https://*.netlify.app,https://*.up.railway.app,http://localhost:5173
+# 精確添加你的自定義域名，例如 https://journal.example.com
+```
+
+之後二選一：
+
+- 留空 `VITE_API` → 打開站點 → 將 **Server** 設爲 `https://api.your.domain`
+  （或完整的 `.../api/v1`），或者
+- 在 CDN 項目上設置 `VITE_API=https://api.your.domain/api/v1` 並重新部署。
+
+API 的 Docker / compose 部署方式參見[部署](/zh-Hant/docs/self-hosting/deploy)。
+
+## Fork 部署者檢查清單
+
+- UI 已部署到你自己的 Vercel、Cloudflare 或 Netlify 賬戶
+- API 正常運行（Railway / Docker / VPS），擁有公開的 HTTPS 地址與持久化 SQLite 數據卷
+- `TM_CORS_ORIGINS` 包含你的 CDN 主機模式（或精確的自定義域名）
+- 設置好 **Server** 後登錄可正常使用（或已內置 `VITE_API`）
+- 已將 `TM_JWT_SECRET` 從默認值修改
+
+## 爲什麼不把 API 放在 Vercel/Workers 上？
+
+API 基於 Go + SQLite + 文件上傳，需要放在 Docker/VPS/NAS 上。一鍵部署按鈕設計上**僅用於 Web**。

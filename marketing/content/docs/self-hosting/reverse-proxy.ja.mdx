@@ -1,0 +1,84 @@
+---
+title: リバースプロキシと TLS
+description: TraderMemos を HTTPS の背後に置くための、コピー&ペーストできる Caddy / Traefik / nginx 設定。
+---
+
+Docker スタックはポート `3000` で平文 HTTP を提供します。`localhost` の外から到達可能にする
+場合は、TLS を終端するプロキシを前段に置き、**web** サービスのみに向けてください。`/api`、
+`/docs`、`/healthz` は同梱の nginx がすでに API へプロキシしているため、すべてが同一オリジンに
+とどまり、CORS は不要です。
+
+```
+ブラウザ ──HTTPS──► Caddy / Traefik / nginx ──HTTP :3000──► web (nginx) ──► api :8080
+```
+
+理由がない限り、API のポート（`8080`）を公開しないでください。Compose からポートマッピングを
+完全に削除しても構いません。
+
+## Caddy（最も簡単）
+
+`Caddyfile` — Let's Encrypt 証明書を自動取得します。
+
+```
+journal.example.com {
+    reverse_proxy localhost:3000
+}
+```
+
+```bash
+caddy run --config Caddyfile
+```
+
+## Traefik（Docker ラベル）
+
+Compose のオーバーライドで `web` サービスにラベルを追加します。
+
+```yaml
+services:
+  web:
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.tradermemos.rule=Host(`journal.example.com`)
+      - traefik.http.routers.tradermemos.entrypoints=websecure
+      - traefik.http.routers.tradermemos.tls.certresolver=letsencrypt
+      - traefik.http.services.tradermemos.loadbalancer.server.port=80
+```
+
+## nginx（ホストレベル）
+
+```nginx
+server {
+    listen 443 ssl;
+    server_name journal.example.com;
+
+    ssl_certificate     /etc/letsencrypt/live/journal.example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/journal.example.com/privkey.pem;
+
+    client_max_body_size 20m;
+
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 120s;
+        proxy_send_timeout 120s;
+    }
+}
+```
+
+## 揃えておくべき上限とタイムアウト
+
+| 設定項目 | 同梱の値 | なぜ重要か |
+|---------|---------------|----------------|
+| ボディサイズ | `client_max_body_size 20m`（web の nginx） | API のアップロード上限（`TM_*_MAX_BYTES`、既定はそれぞれ 10 MiB）以上である必要があります。上限を 20 MiB より大きくする場合は、ここと外側のプロキシの両方で引き上げてください |
+| プロキシのタイムアウト | 読み取り／送信ともに 120 秒（web の nginx） | AI のスクリーンショットスキャンは `TM_OCR_VISION_TIMEOUT_SEC`（既定 90 秒）までかかることがあります。既定が 60 秒の外側プロキシではリクエストが切断されるため、120 秒以上に設定してください |
+
+## チェックリスト
+
+- HTTPS を自分のプロキシで終端し、転送するのはポート `3000`（web）のみ
+- API のポート `8080` をインターネットに公開していない
+- `TM_JWT_SECRET` を変更し、`TM_ALLOW_INSECURE_JWT` は未設定または `false`
+- `TM_CORS_ORIGINS` は空のまま（同一オリジン — プロキシがオリジンを 1 つに保ちます）
+- 外側プロキシのボディサイズ 20 MB 以上、タイムアウト 120 秒以上

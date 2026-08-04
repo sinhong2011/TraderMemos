@@ -1,0 +1,77 @@
+---
+title: バックアップと復元
+description: データはすべて 1 つのボリュームにあります — SQLite データベースと添付ファイルディレクトリを、必ずまとめてバックアップしてください。
+---
+
+あなたのジャーナルはディスク上の 2 つの要素で構成されており、**まとめて**バックアップする必要が
+あります。
+
+| 対象 | 既定の場所（Docker） |
+|------|---------------------------|
+| データベース | `tm_data` ボリューム内の `/data/tradermemos.db`（SQLite） |
+| 添付ファイル・ノートメディア | 同じボリューム内の `/data/attachments` |
+
+添付ファイルのメタデータはデータベースに保存されています。どちらか一方だけを復元すると、
+スクリーンショットが壊れたり、孤立したファイルが残ったりします。
+
+## 方法 1 — アプリからのエクスポート（どの環境でも使えます）
+
+アプリの**インポート → エクスポート**（または `GET /api/v1/exports`）は、次を生成します。
+
+| 形式 | 内容 |
+|--------|----------|
+| **ZIP** | `export.json` と `attachments/` 配下のすべてのスクリーンショット — 完全に持ち運べるバックアップ |
+| **JSON** | トレード、約定、ジャーナルのノート、資金取引、プレイブックのセットアップ（画像は含まれません） |
+| **CSV** | 決済済みトレードのジャーナル表。別のツールでの分析用 |
+
+復元は、任意の TraderMemos インスタンスで ZIP／JSON をインポートするだけです。新規インストール
+ではセットアップウィザードの任意インポートステップが受け付け、それ以降はいつでも**インポート**
+から取り込めます。約定はサーバー側で重複排除されるため、再インポートしても安全です。
+
+ホスト間の移行、データベースの切り替え（SQLite ↔ Postgres）、あるいは実際に中身を開けるオフ
+サイトコピーが必要な場合は、この方法が適しています。
+
+## 方法 2 — ボリュームのスナップショット（Docker、完全なコピー）
+
+SQLite は WAL モードで動作するため、稼働中のデータベースファイルをそのままコピーしないでください。
+先に API を停止するか（数秒のダウンタイム）、直近の書き込みを失う可能性があります。
+
+```bash
+cd TraderMemos
+docker compose stop api
+docker run --rm --volumes-from "$(docker compose ps -aq api)" -v "$PWD":/backup alpine \
+  tar czf "/backup/tradermemos-$(date +%F).tar.gz" -C /data .
+docker compose start api
+```
+
+新しいホストへ復元する場合:
+
+```bash
+cd TraderMemos
+make up                       # コンテナと空のボリュームを作成
+docker compose stop api
+docker run --rm --volumes-from "$(docker compose ps -aq api)" -v "$PWD":/backup alpine \
+  sh -c "rm -rf /data/* && tar xzf /backup/tradermemos-2026-08-01.tar.gz -C /data"
+docker compose start api
+```
+
+cron で自動化し、tarball をオフサイトへ転送してください（rclone、restic など）。ボリューム内の
+`tradermemos.db.migrate.lock` ファイルは一時的なもので、除外して問題ありません。
+
+## Postgres の場合
+
+データベースをダンプし、添付ファイルのボリュームをコピーします。
+
+```bash
+docker compose exec postgres pg_dump -U tm tradermemos > tradermemos-$(date +%F).sql
+# 添付ファイルは引き続き tm_data ボリューム内にあります → 方法 2 と同様に /data/attachments をバックアップしてください
+```
+
+復元は、空のデータベースに `psql -U tm tradermemos < backup.sql` を実行してから API を起動します
+（マイグレーションが自動的に整合を取ります）。
+
+## アップグレードのたびに
+
+バージョンを上げる前にスナップショットを取得してください。スキーママイグレーションは起動時に自動
+実行され、自動ダウングレードは存在しません。[アップデート](/ja/docs/self-hosting/updating)を
+参照してください。

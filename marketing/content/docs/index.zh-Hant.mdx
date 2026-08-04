@@ -1,0 +1,51 @@
+---
+title: 簡介
+description: TraderMemos 是一款自託管交易日誌 —— 數據由你掌控，復盤由你主導。
+---
+
+## 什麼是 TraderMemos？
+
+TraderMemos 是一款**自託管交易日誌**，面向希望將自己的交易表現數據保留在自有基礎設施上的交易者
+—— 提供儀表盤、盈虧日曆、交易記錄、策略手冊與報表。無需訂閱，不被供應商鎖定。
+
+TradeZella、TraderSync 等雲端交易日誌固然精緻，但你的交易優勢藏在數據裏。TraderMemos 延續了
+[Ghost](https://github.com/TryGhost/Ghost)、[Umami](https://github.com/umami-software/umami) 與
+[Plane](https://github.com/makeplane/plane) 的自託管理念：運行在你自己的基礎設施上，掌控數據庫，
+無需許可即可自由擴展。
+
+## 功能
+
+- **儀表盤** —— 權益曲線、期望值、連勝連虧、持倉時長與年度目標進度
+- **交易記錄** —— 成交明細自動歸組爲交易，可篩選、排序、打標籤，並下鑽查看執行細節
+- **盈虧日曆** —— 按日 / 按周熱力圖，支持下鑽查看
+- **報表** —— 勝率、盈利因子、期望值，以及按策略 / 小時 / 交易時段的細分統計
+- **策略手冊** —— 策略庫與使用該策略的交易記錄相互關聯
+- **導入** —— 支持券商 CSV 對賬單導入，含列映射與去重
+- **工具** —— 倉位計算器、風控規則、現金流水賬
+- **AI**（可選）—— 截圖自動提取成交信息 + AI 交易教練，基於兼容 OpenAI 的 API，使用你自己的密鑰
+- **API 訪問** —— 個人訪問令牌（`tm_pat_…`）可用於 MCP / 腳本；OpenAPI 文檔位於 `/docs`
+
+## 技術棧
+
+| 層級 | 技術棧 |
+|-------|-------|
+| **API** | Go · Echo · sqlc · golang-migrate · SQLite |
+| **Web** | React · Vite+ · TanStack Router/Query/Form · Tailwind |
+| **移動端** | Expo（規劃中） |
+| **設計** | shadcn/ui + coss ui 設計令牌 |
+
+## 下一步
+
+<Cards>
+  <Card title="快速開始" href="/zh-Hant/docs/getting-started/quick-start" description="通過一條 Docker 命令在本地運行完整服務棧。" />
+  <Card title="入門指引" href="/zh-Hant/docs/getting-started/first-steps" description="初始化嚮導、第一批交易，以及面向新用戶的功能導覽。" />
+  <Card title="部署" href="/zh-Hant/docs/self-hosting/deploy" description="Docker、CDN + API 分離，或邊緣重寫等部署方式。" />
+  <Card title="Fork 並部署" href="/zh-Hant/docs/self-hosting/fork-deploy" description="一鍵將 Web UI 部署到你自己的 Vercel、Cloudflare 或 Netlify 賬戶。" />
+  <Card title="導入交易" href="/zh-Hant/docs/guides/importing-trades" description="通過列映射導入券商 CSV —— 重複記錄自動跳過。" />
+  <Card title="常見問題" href="/zh-Hant/docs/faq" description="登錄、CORS、端口、上傳與數據等問題的排查。" />
+</Cards>
+
+## 許可協議
+
+[AGPL-3.0](https://github.com/sinhong2011/TraderMemos/blob/main/LICENSE)。你可以自由地自託管、
+修改，並將其用於個人或公司內部使用。如果你以網絡服務的形式向他人提供修改後的版本，則必須公開這些修改。

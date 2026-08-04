@@ -1,0 +1,4 @@
+{
+  "title": "セルフホスティング",
+  "pages": ["deploy", "fork-deploy", "configuration", "reverse-proxy", "updating", "backup-restore"]
+}

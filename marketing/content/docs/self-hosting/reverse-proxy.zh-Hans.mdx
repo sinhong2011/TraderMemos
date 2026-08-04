@@ -1,0 +1,82 @@
+---
+title: 反向代理与 TLS
+description: 可直接复制的 Caddy、Traefik、nginx 配置，让 TraderMemos 运行在 HTTPS 之后。
+---
+
+Docker 服务栈在 `3000` 端口提供明文 HTTP。只要不是仅限 `localhost` 访问，就应在前面加一层
+负责 TLS 的代理，并只将其指向 **web** 服务 —— 随附的 nginx 已将 `/api`、`/docs` 与
+`/healthz` 代理到 API，因此一切保持同源，无需 CORS。
+
+```
+浏览器 ──HTTPS──► Caddy / Traefik / nginx ──HTTP :3000──► web (nginx) ──► api :8080
+```
+
+没有特殊需要就不要将 API 端口（`8080`）暴露到公网；也可以直接从 Compose 中删除它的端口映射。
+
+## Caddy（最简单）
+
+`Caddyfile` —— 自动申请 Let's Encrypt 证书：
+
+```
+journal.example.com {
+    reverse_proxy localhost:3000
+}
+```
+
+```bash
+caddy run --config Caddyfile
+```
+
+## Traefik（Docker 标签）
+
+在 Compose 覆盖文件中为 `web` 服务添加标签：
+
+```yaml
+services:
+  web:
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.tradermemos.rule=Host(`journal.example.com`)
+      - traefik.http.routers.tradermemos.entrypoints=websecure
+      - traefik.http.routers.tradermemos.tls.certresolver=letsencrypt
+      - traefik.http.services.tradermemos.loadbalancer.server.port=80
+```
+
+## nginx（宿主机层）
+
+```nginx
+server {
+    listen 443 ssl;
+    server_name journal.example.com;
+
+    ssl_certificate     /etc/letsencrypt/live/journal.example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/journal.example.com/privkey.pem;
+
+    client_max_body_size 20m;
+
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 120s;
+        proxy_send_timeout 120s;
+    }
+}
+```
+
+## 需要保持一致的限制与超时
+
+| 配置项 | 随附值 | 为什么重要 |
+|---------|---------------|----------------|
+| 请求体大小 | `client_max_body_size 20m`（web nginx） | 必须 ≥ API 的上传上限（`TM_*_MAX_BYTES`，默认各 10 MiB）。若上限调到 20 MiB 以上，此处与外层代理都要同步调高 |
+| 代理超时 | 读 / 写各 120 秒（web nginx） | AI 截图扫描最长可达 `TM_OCR_VISION_TIMEOUT_SEC`（默认 90 秒）。外层代理若采用 60 秒默认值会截断这些请求 —— 请设为 ≥ 120 秒 |
+
+## 检查清单
+
+- HTTPS 在你的代理处终止；只转发 `3000`（web）端口
+- API 端口 `8080` 未暴露到互联网
+- 已修改 `TM_JWT_SECRET`，且 `TM_ALLOW_INSECURE_JWT` 未设置或为 false
+- `TM_CORS_ORIGINS` 留空（同源 —— 代理保证单一来源）
+- 外层代理请求体 ≥ 20 MB，超时 ≥ 120 秒

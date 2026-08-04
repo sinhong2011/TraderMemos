@@ -1,0 +1,178 @@
+---
+title: 部署
+description: Docker 一體化部署、CDN + API 分離，或邊緣重寫 —— 選擇適合你基礎設施的方式。
+---
+
+三種部署方式：
+
+1. **Docker 一體化部署** —— 默認自託管方式：一個 URL、一個數據卷
+2. **靜態 SPA + 獨立部署的 API** —— UI 放在 CDN，API 在你的主機上（CORS + Server URL）
+3. **靜態 SPA + 邊緣重寫** —— UI 放在 CDN，瀏覽器保持同源
+
+只想一鍵把 UI 部署到你自己的 Vercel / Cloudflare / Netlify？參見
+[Fork 並部署](/zh-Hant/docs/self-hosting/fork-deploy)。
+
+## 1. Docker 一體化部署（推薦默認方式）
+
+拉取 Docker Hub 上已發佈的鏡像（`sinhong2011/tradermemos-api` + `…-web`）。
+
+```bash
+# 可選：複製並編輯 Hub 命名空間 / 標籤
+cp .env.example .env
+# DOCKERHUB_USERNAME=sinhong2011   # 如果你發佈自己的鏡像，填你的 Hub 用戶名
+# TM_IMAGE_TAG=0.1.1               # 生產環境建議鎖定具體版本（默認：latest）
+
+make up            # docker compose up -d（拉取 Hub 鏡像，使用 SQLite）
+# 打開 http://localhost:3000
+
+make up-postgres   # 同上 + Postgres 覆蓋配置
+make up-build      # 從本倉庫構建 api/web，而非拉取鏡像
+```
+
+### Docker Hub 用戶名的來源
+
+| 場景 | 設置位置 |
+|---------|-----------------|
+| 終端用戶 / 自託管 | 根目錄 `.env` → `DOCKERHUB_USERNAME`（Compose 會自動加載）。默認爲 `sinhong2011`。 |
+| 鏡像標籤 | 根目錄 `.env` → `TM_IMAGE_TAG`（`latest` 或語義化版本號，如 `0.1.1`）。 |
+| CI 發佈到 Hub | GitHub 倉庫密鑰 `DOCKERHUB_USERNAME` + `DOCKERHUB_TOKEN`。 |
+
+你將獲得：
+
+| URL | 服務 |
+|-----|---------|
+| `http://localhost:3000` | nginx SPA |
+| `http://localhost:3000/api/v1/*` | 代理轉發到 Go API |
+| `http://localhost:8080` | API 直連（可選；健康檢查、調試用） |
+
+登錄 / 設置中的 **Server** 字段留空即可。SPA 使用相對路徑 `/api/v1`，nginx 會將請求代理到
+`api` 容器 —— 無需 CORS 配置。
+
+關鍵環境變量（compose / 宿主機）：
+
+| 變量 | 用途 |
+|----------|---------|
+| `TM_JWT_SECRET` | JWT 簽名密鑰 —— 生產環境**必須設置**（`openssl rand -hex 32`） |
+| `TM_ALLOW_INSECURE_JWT` | Compose 默認設爲 `true` 以方便首次運行；生產環境應設爲 `false` 或留空 |
+| `TM_ALLOW_REGISTRATION` | 默認 `false`。初始化完成後，除非主動開啓，否則只存在 owner 賬戶 |
+| `TM_DATABASE_URL` | 統一數據庫連接串 —— SQLite `sqlite:///data/tradermemos.db`（默認）或 `postgres://user:pass@host:5432/db?sslmode=require` |
+| `TM_ATTACH_DIR` | 附件存儲路徑。SQLite 默認使用 `<dbDir>/attachments`；Postgres 需顯式設置 |
+| `TM_CORS_ORIGINS` | 此模式下留空即可 |
+
+**首次啓動：** 打開 `http://localhost:3000` —— 若數據庫中還沒有用戶，會出現**初始化嚮導**，
+用於創建 owner（管理員）賬戶及可選的交易賬戶。初始化完成後，公開註冊將保持關閉。
+
+```bash
+# 類生產環境的 compose 示例
+cp .env.example .env
+# 編輯 .env：TM_IMAGE_TAG=0.1.1、TM_JWT_SECRET=…、TM_ALLOW_INSECURE_JWT=false
+export TM_JWT_SECRET=$(openssl rand -hex 32)
+export TM_ALLOW_INSECURE_JWT=false
+make up
+```
+
+數據保存在 `tm_data` Docker 數據卷中（SQLite + 附件）。
+
+```bash
+make logs        # 跟蹤 compose 日誌
+make down        # 停止服務棧
+```
+
+生產環境建議：在前面加一層 **Caddy / Traefik / nginx** 提供 **TLS**，並只將其指向 `web`
+服務 —— `/api` 保持同源。切勿在沒有 TLS 的情況下將 API 直接暴露到公網。可直接複製的配置：
+[反向代理與 TLS](/zh-Hant/docs/self-hosting/reverse-proxy)。
+
+### 內置的認證加固
+
+- 首用戶**初始化**接口；開放註冊 `/auth/register` 默認關閉
+- 密碼長度需 **≥ 10** 位（bcrypt）
+- 認證與初始化路由均有**限流**（每 IP 約 2 請求/秒）
+- Access 與 Refresh JWT 使用不同的 `typ` 聲明
+- 若檢測到已知的不安全 JWT 密鑰，服務端會**拒絕啓動**，除非設置 `TM_ALLOW_INSECURE_JWT=true`
+
+### API 訪問令牌與 OpenAPI 文檔
+
+每個實例都在 `/docs` 提供交互式 OpenAPI 參考文檔，並可在**設置 → API** 中爲 MCP、AI 代理
+與腳本創建個人訪問令牌（`tm_pat_…`）—— 參見
+[API 令牌與 OpenAPI](/zh-Hant/docs/guides/api-tokens)。
+
+## 2. 靜態 Web（Vercel / Cloudflare Pages / Netlify）+ 獨立部署的 API
+
+適用於 UI 部署在 CDN、日誌 API 運行在 VPS、Fly、家庭 NAS 等場景。
+
+```
+https://app.example.com     → 靜態 SPA（CDN）
+https://api.example.com     → Docker/Go API + SQLite 數據卷
+```
+
+### API
+
+1. 運行 API 容器（或二進制文件），確保有可訪問的 URL 與持久化磁盤。
+2. 允許 SPA 的源：
+
+```bash
+TM_CORS_ORIGINS=https://*.vercel.app,https://*.pages.dev,http://localhost:5173
+TM_JWT_SECRET=$(openssl rand -hex 32)
+# 公網 API 請不要設置 TM_ALLOW_INSECURE_JWT
+# TM_ALLOW_REGISTRATION=true   # 僅當你希望通過 UI 添加額外用戶時纔開啓
+```
+
+通配符形式 `https://*.vercel.app` 與 `https://*.pages.dev` 可匹配預覽 / 生產環境的 CDN 主機。
+自定義域名請使用精確的源。
+
+### Web
+
+構建 SPA 並部署 `web/dist`：
+
+```bash
+cd web && vp install && vp build
+```
+
+配置 SPA 指向的 API：
+
+| 方式 | 適用場景 |
+|--------|------|
+| 登錄 / 設置 → **Server** / **API server** | 用戶自帶 API（運行時 `tm_api_base`） |
+| 構建期 `VITE_API=https://api.example.com/api/v1` | 固定的公開 / 演示 API，直接打包進構建產物 |
+
+僅填源（如 `https://api.example.com`）時會自動追加 `/api/v1`。
+
+## 3. 靜態 Web + 邊緣重寫（同源 CDN）
+
+瀏覽器只訪問一個源，由邊緣節點將 `/api` 代理到你的 API。無需 CORS，也無需填寫 Server 字段。
+
+### Vercel
+
+複製 `deploy/vercel.json.example`，將 `destination` 設爲你的 API 主機，部署 `web/dist`
+（或將 `web/` 項目的 `outputDirectory` 設爲 `dist` 並連接）。
+
+### Cloudflare Workers / Pages
+
+在 `vp build` 之前，將 `deploy/cloudflare/_redirects.example` 複製爲 `web/public/_redirects`，
+並配置一條指向你 API 的 `200` 代理規則。SPA 兜底仍由 `web/wrangler.toml`
+（`not_found_handling = "single-page-application"`）負責 —— 不要額外添加
+`/* /index.html 200`（Workers 會將其判定爲無限循環並拒絕）。
+
+使用重寫方案時，`TM_CORS_ORIGINS` 留空即可 —— 瀏覽器不會發起跨源請求。
+
+## 如何選擇部署方式
+
+| 目標 | 方式 |
+|------|------|
+| Fork 後一鍵將 UI 部署到**你自己的** Vercel 或 CF | [Fork 並部署](/zh-Hant/docs/self-hosting/fork-deploy) |
+| Homelab / VPS / NAS，單一 URL | **方式 1：Docker** |
+| 營銷 / 演示用 UI 放在 CDN，用戶自託管 API | **方式 2：CDN + CORS** |
+| 全球 SPA CDN，自建託管 API，Server 字段留空 | **方式 3：邊緣重寫** |
+
+**不要**在 Vercel Serverless 或 Cloudflare Workers 上運行 Go + SQLite 的 API —— 請將 API
+放在帶有真實磁盤的機器 / 數據捲上。
+
+## 檢查清單
+
+- 已將 `TM_JWT_SECRET` 從默認值修改
+- SQLite / 附件存儲在持久化數據捲上，並已安排[備份](/zh-Hant/docs/self-hosting/backup-restore)
+- Docker 部署：已開放 **web** 端口；Server 字段留空
+- 分離部署：`TM_CORS_ORIGINS` 匹配 SPA 的源
+- 上傳：nginx / 代理的 `client_max_body_size` ≥ API 的 `TM_*_MAX_BYTES`（compose web 鏡像使用 20m）
+
+完整環境變量列表：[配置參考](/zh-Hant/docs/self-hosting/configuration)。

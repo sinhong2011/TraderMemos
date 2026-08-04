@@ -1,0 +1,180 @@
+---
+title: Deploy
+description: Docker all-in-one, split CDN + API, or edge rewrite — pick the shape that fits your infrastructure.
+---
+
+Three deployment modes:
+
+1. **Docker all-in-one** — default self-host: one URL, one volume
+2. **Static SPA + API elsewhere** — UI on a CDN, API on your host (CORS + Server URL)
+3. **Static SPA + edge rewrite** — UI on a CDN, same-origin from the browser
+
+Just want the UI on your own Vercel / Cloudflare / Netlify with one click? See
+[Fork & deploy](/en/docs/self-hosting/fork-deploy).
+
+## 1. Docker all-in-one (recommended default)
+
+Pulls published images from Docker Hub (`sinhong2011/tradermemos-api` + `…-web`).
+
+```bash
+# Optional: copy and edit Hub namespace / tag
+cp .env.example .env
+# DOCKERHUB_USERNAME=sinhong2011   # your Hub user if you publish your own images
+# TM_IMAGE_TAG=0.1.1               # pin a release in production (default: latest)
+
+make up            # docker compose up -d  (pull Hub images, SQLite)
+# open http://localhost:3000
+
+make up-postgres   # same + Postgres overlay
+make up-build      # build api/web from this repo instead of pulling
+```
+
+### Where the Docker Hub username comes from
+
+| Context | Where to set it |
+|---------|-----------------|
+| End users / self-host | Root `.env` → `DOCKERHUB_USERNAME` (Compose loads it automatically). Defaults to `sinhong2011`. |
+| Image tag | Root `.env` → `TM_IMAGE_TAG` (`latest` or a semver like `0.1.1`). |
+| CI publish to Hub | GitHub repo secrets `DOCKERHUB_USERNAME` + `DOCKERHUB_TOKEN`. |
+
+What you get:
+
+| URL | Service |
+|-----|---------|
+| `http://localhost:3000` | nginx SPA |
+| `http://localhost:3000/api/v1/*` | proxied → Go API |
+| `http://localhost:8080` | API direct (optional; health, debug) |
+
+Leave the login/settings **Server** field blank. The SPA uses relative `/api/v1`, and nginx
+proxies to the `api` container — no CORS required.
+
+Important env (compose / host):
+
+| Variable | Purpose |
+|----------|---------|
+| `TM_JWT_SECRET` | JWT signing secret — **required** for production (`openssl rand -hex 32`) |
+| `TM_ALLOW_INSECURE_JWT` | Compose defaults `true` for first-run convenience; set `false`/unset in production |
+| `TM_ALLOW_REGISTRATION` | Default `false`. After setup, only the owner exists unless you opt in |
+| `TM_DATABASE_URL` | Unified DB URL — SQLite `sqlite:///data/tradermemos.db` (default) or `postgres://user:pass@host:5432/db?sslmode=require` |
+| `TM_ATTACH_DIR` | Attachment disk path. Defaults to `<dbDir>/attachments` for SQLite; set explicitly for Postgres |
+| `TM_CORS_ORIGINS` | Leave empty for this mode |
+
+**First boot:** open `http://localhost:3000` — if the database has no users, the **setup
+wizard** creates the owner (admin) account and an optional trading account. Public
+registration stays closed afterward.
+
+```bash
+# Production-ish compose example
+cp .env.example .env
+# edit .env: TM_IMAGE_TAG=0.1.1, TM_JWT_SECRET=…, TM_ALLOW_INSECURE_JWT=false
+export TM_JWT_SECRET=$(openssl rand -hex 32)
+export TM_ALLOW_INSECURE_JWT=false
+make up
+```
+
+Data lives in the `tm_data` Docker volume (SQLite + attachments).
+
+```bash
+make logs        # follow compose logs
+make down        # stop stack
+```
+
+Production tip: put **Caddy / Traefik / nginx** in front for **TLS** and point it at the
+`web` service only — `/api` stays same-origin. Do not expose the API without TLS on the
+public internet. Copy-paste configs: [Reverse proxy & TLS](/en/docs/self-hosting/reverse-proxy).
+
+### Auth hardening (built-in)
+
+- First-user **setup** endpoint; open `/auth/register` is disabled by default
+- Passwords must be **≥ 10** characters (bcrypt)
+- Auth + setup routes are **rate-limited** (~2 req/s per IP)
+- Access vs refresh JWTs use distinct `typ` claims
+- Server **refuses to start** on a known-insecure JWT secret unless `TM_ALLOW_INSECURE_JWT=true`
+
+### API access tokens & OpenAPI docs
+
+Every instance ships an interactive OpenAPI reference at `/docs`, and **Settings → API**
+issues personal access tokens (`tm_pat_…`) for MCP, AI agents, and scripts — see
+[API tokens & OpenAPI](/en/docs/guides/api-tokens).
+
+## 2. Static web (Vercel / Cloudflare Pages / Netlify) + API elsewhere
+
+Use when the UI is on a CDN and the journal API runs on a VPS, Fly, home NAS, etc.
+
+```
+https://app.example.com     → static SPA (CDN)
+https://api.example.com     → Docker/Go API + SQLite volume
+```
+
+### API
+
+1. Run the API container (or binary) with a reachable URL and persistent disk.
+2. Allow the SPA origin:
+
+```bash
+TM_CORS_ORIGINS=https://*.vercel.app,https://*.pages.dev,http://localhost:5173
+TM_JWT_SECRET=$(openssl rand -hex 32)
+# Do not set TM_ALLOW_INSECURE_JWT on public APIs
+# TM_ALLOW_REGISTRATION=true   # only if you want extra users via the UI
+```
+
+Wildcard forms `https://*.vercel.app` and `https://*.pages.dev` match preview/production CDN
+hosts. Use exact origins for custom domains.
+
+### Web
+
+Build the SPA and deploy `web/dist`:
+
+```bash
+cd web && vp install && vp build
+```
+
+Point the SPA at the API:
+
+| Method | When |
+|--------|------|
+| Login / Settings → **Server** / **API server** | User brings their own API (runtime `tm_api_base`) |
+| Build-time `VITE_API=https://api.example.com/api/v1` | Fixed public/demo API baked into the build |
+
+Origin-only values (e.g. `https://api.example.com`) get `/api/v1` appended automatically.
+
+## 3. Static web + edge rewrite (same-origin CDN)
+
+Keep the browser on one origin; the edge proxies `/api` to your API. No CORS and no Server
+field.
+
+### Vercel
+
+Copy `deploy/vercel.json.example`, set `destination` to your API host, deploy `web/dist` (or
+connect the `web/` project with `outputDirectory: dist`).
+
+### Cloudflare Workers / Pages
+
+Copy `deploy/cloudflare/_redirects.example` into `web/public/_redirects` before `vp build`,
+with a `200` proxy to your API. Keep SPA fallback in `web/wrangler.toml`
+(`not_found_handling = "single-page-application"`) — do not add `/* /index.html 200`
+(Workers rejects it as an infinite loop).
+
+Leave `TM_CORS_ORIGINS` empty when using rewrites — the browser never talks cross-origin.
+
+## Choosing a mode
+
+| Goal | Mode |
+|------|------|
+| Fork / one-click UI on **your** Vercel or CF | [Fork & deploy](/en/docs/self-hosting/fork-deploy) |
+| Homelab / VPS / NAS, one URL | **1. Docker** |
+| Marketing/demo UI on CDN, users self-host API | **2. CDN + CORS** |
+| Global SPA CDN, your hosted API, blank Server field | **3. Edge rewrite** |
+
+Do **not** run the Go + SQLite API on Vercel serverless or Cloudflare Workers — keep the API
+on a machine/volume with a real disk.
+
+## Checklist
+
+- Changed `TM_JWT_SECRET` from the default
+- SQLite/attachments on a persistent volume, with [backups](/en/docs/self-hosting/backup-restore) scheduled
+- Docker: open the **web** port; Server field blank
+- Split host: `TM_CORS_ORIGINS` matches the SPA origin(s)
+- Uploads: nginx/proxy `client_max_body_size` ≥ API `TM_*_MAX_BYTES` (compose web image uses 20m)
+
+Full environment-variable list: [Configuration](/en/docs/self-hosting/configuration).

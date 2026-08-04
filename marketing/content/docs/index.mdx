@@ -1,0 +1,53 @@
+---
+title: Introduction
+description: TraderMemos is a self-hosted trading journal — own your data, review your edge.
+---
+
+## What is TraderMemos?
+
+TraderMemos is a **self-hosted trading journal** for traders who want their performance data on
+their own infrastructure — dashboard, P&L calendar, trade log, playbook, and reports. No
+subscription, no vendor lock-in.
+
+Cloud journals like TradeZella and TraderSync are polished, but your edge lives in the data.
+TraderMemos follows the same self-hosting philosophy as [Ghost](https://github.com/TryGhost/Ghost),
+[Umami](https://github.com/umami-software/umami), and [Plane](https://github.com/makeplane/plane):
+run it on your infrastructure, own the database, extend it without asking permission.
+
+## Features
+
+- **Dashboard** — equity curve, expectancy, streaks, hold times, and annual goal pacing
+- **Trade log** — fills grouped into trades, filter, sort, tag, and drill into execution detail
+- **P&L calendar** — daily and weekly heatmap with drill-down
+- **Reports** — win rate, profit factor, expectancy, and setup / hourly / session breakdowns
+- **Playbook** — strategy library linked to the trades that used each setup
+- **Import** — CSV broker statements, with column mapping and dedup
+- **Tools** — position-size calculator, risk rules, cash ledger
+- **AI** *(optional)* — screenshot fill extraction + trade coach via OpenAI-compatible APIs, your keys
+- **API access** — personal access tokens (`tm_pat_…`) for MCP/scripts; OpenAPI docs at `/docs`
+
+## Tech stack
+
+| Layer | Stack |
+|-------|-------|
+| **API** | Go · Echo · sqlc · golang-migrate · SQLite |
+| **Web** | React · Vite+ · TanStack Router/Query/Form · Tailwind |
+| **Mobile** | Expo (planned) |
+| **Design** | shadcn/ui + coss ui tokens |
+
+## Next steps
+
+<Cards>
+  <Card title="Quick start" href="/en/docs/getting-started/quick-start" description="Run the whole stack locally with Docker in one command." />
+  <Card title="First steps" href="/en/docs/getting-started/first-steps" description="Setup wizard, first trades, and a tour of the app for new users." />
+  <Card title="Deploy" href="/en/docs/self-hosting/deploy" description="Docker, split CDN + API, or edge rewrite deployment modes." />
+  <Card title="Fork & deploy" href="/en/docs/self-hosting/fork-deploy" description="One-click deploy the web UI to your own Vercel, Cloudflare, or Netlify account." />
+  <Card title="Importing trades" href="/en/docs/guides/importing-trades" description="Broker CSV imports with column mapping — duplicates are skipped automatically." />
+  <Card title="FAQ" href="/en/docs/faq" description="Troubleshooting login, CORS, ports, uploads, and data questions." />
+</Cards>
+
+## License
+
+[AGPL-3.0](https://github.com/sinhong2011/TraderMemos/blob/main/LICENSE). Self-host it, modify
+it, and run it for yourself or your firm freely. If you run a modified version as a network
+service for others, you have to publish those changes.

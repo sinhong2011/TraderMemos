@@ -1,0 +1,123 @@
+{
+  "Home": {
+    "metaTitle": "TraderMemos — セルフホスト型トレードジャーナル",
+    "metaDescription": "トレードデータを自分の手に。TraderMemos は、ダッシュボード・損益カレンダー・トレードログ・プレイブック・レポートを備えたセルフホスト型のトレードジャーナルです。無料、AGPL-3.0、あなた自身のインフラで動作します。",
+    "badge": "セルフホスト · AGPL-3.0 · Go + React",
+    "heroTitleLine1": "データは、自分のものに。",
+    "heroTitleLine2": "エッジを、検証する。",
+    "heroSubtitle": "TraderMemos はセルフホスト型のトレードジャーナルです。ダッシュボード、損益カレンダー、トレードログ、プレイブック、レポートを、すべてあなた自身のインフラ上で。サブスクリプションもベンダーロックインもありません。",
+    "ctaGetStarted": "使ってみる",
+    "ctaGithub": "GitHub で見る",
+    "ticker": [
+      { "label": "純損益", "value": "+$8,405.81", "tone": "profit" },
+      { "label": "勝率", "value": "59%", "tone": "neutral" },
+      { "label": "プロフィットファクター", "value": "1.83", "tone": "neutral" },
+      { "label": "期待値", "value": "+$45.44 / トレード", "tone": "profit" },
+      { "label": "最大ドローダウン", "value": "−$1,057.78", "tone": "loss" },
+      { "label": "平均保有時間", "value": "1時間02分", "tone": "neutral" },
+      { "label": "トレード数", "value": "185", "tone": "neutral" },
+      { "label": "目標進捗", "value": "84% · 前倒し", "tone": "profit" }
+    ],
+    "eyebrowWhy": "データを自分の手に",
+    "eyebrowFeatures": "機能一覧",
+    "eyebrowInside": "アプリの中身",
+    "eyebrowStack": "技術的な裏側",
+    "featuresSub": "証券会社の CSV から日次レビューまで — 振り返りサイクルのすべてが、ひとつのセルフホストアプリに収まります。",
+    "whyHeading": "なぜ TraderMemos なのか",
+    "whyBody": "TradeZella や TraderSync のようなクラウド型ジャーナルは洗練されています。しかし、あなたのエッジはデータの中にあります。TraderMemos は Ghost、Umami、Plane と同じセルフホストの哲学に従います。自分のインフラで動かし、データベースを自分で所有し、誰の許可も得ずに拡張できます。",
+    "comparisonHeaderFeature": "項目",
+    "comparisonHeaderCloud": "クラウド型ジャーナル",
+    "comparisonHeaderTm": "TraderMemos",
+    "comparison": [
+      { "row": "データの所有権", "cloud": "ベンダーがホスト", "tm": "あなたの SQLite / VPS" },
+      { "row": "コスト", "cloud": "月額サブスクリプション", "tm": "無料 + ホスティング費用のみ" },
+      { "row": "AI キー", "cloud": "多くはベンダー管理", "tm": "あなたの OpenAI 互換 API" },
+      { "row": "カスタマイズ性", "cloud": "限定的", "tm": "フォーク・改変・デプロイ自由" }
+    ],
+    "featuresHeading": "日々のレビューに必要なすべて",
+    "features": {
+      "dashboard": {
+        "title": "ダッシュボード",
+        "description": "資産曲線、期待値、連勝・連敗、保有時間、年間目標の進捗ペース。"
+      },
+      "tradeLog": {
+        "title": "トレードログ",
+        "description": "約定をトレード単位にグループ化 — フィルタ、並べ替え、タグ付け、約定明細へのドリルダウン。"
+      },
+      "calendar": {
+        "title": "損益カレンダー",
+        "description": "日次・週次のヒートマップとドリルダウン。"
+      },
+      "reports": {
+        "title": "レポート",
+        "description": "勝率、プロフィットファクター、期待値、セットアップ別／時間帯別／セッション別の内訳。"
+      },
+      "playbook": {
+        "title": "プレイブック",
+        "description": "各セットアップを使ったトレードに紐づく戦略ライブラリ。"
+      },
+      "import": {
+        "title": "インポート",
+        "description": "証券会社の CSV 明細を、列マッピングと重複排除つきで取り込み。"
+      },
+      "tools": {
+        "title": "ツール",
+        "description": "ポジションサイズ計算機、リスクルール、資金台帳。"
+      },
+      "ai": {
+        "title": "AI（任意）",
+        "description": "OpenAI 互換 API によるスクリーンショットからの約定抽出とトレードコーチ — キーはあなたのもの。"
+      },
+      "api": {
+        "title": "API アクセス",
+        "description": "MCP／スクリプト向けのパーソナルアクセストークン（tm_pat_…）。OpenAPI ドキュメントは /docs にあります。"
+      },
+      "themes": {
+        "title": "テーマ",
+        "description": "shadcn/ui + coss ui トークンで構築したダーク／ライトテーマ。"
+      }
+    },
+    "lookInsideHeading": "中を見てみる",
+    "tradeLogCaptionTitle": "トレードログ",
+    "tradeLogCaptionBody": "トレードごとの損益、保有時間、タグをひと目で。任意の行をクリックすれば、約定のタイムライン全体を確認できます。",
+    "calendarCaptionTitle": "損益カレンダー",
+    "calendarCaptionBody": "日次・週次のヒートマップ。好調の連続も、崩れた日も、ひと目で見つかります。",
+    "reportsCaptionTitle": "レポート",
+    "reportsCaptionBody": "資産曲線、プロフィットファクター、期待値、勝率、目標進捗 — さらにセットアップ別・時間帯別・セッション別の内訳も。",
+    "techStackHeading": "技術スタック",
+    "stackComment": "# あなたのデータは、あなたのマシンに",
+    "stack": [
+      { "layer": "API", "value": "Go · Echo · sqlc · golang-migrate · SQLite" },
+      { "layer": "Web", "value": "React · Vite+ · TanStack Router/Query/Form · Tailwind" },
+      { "layer": "モバイル", "value": "Expo（予定）" },
+      { "layer": "デザイン", "value": "shadcn/ui + coss ui トークン" }
+    ],
+    "licenseHeading": "AGPL-3.0 ライセンス",
+    "licenseBody": "セルフホストし、改変し、個人でも会社でも自由に運用できます。",
+    "readDocs": "ドキュメントを読む"
+  },
+  "Footer": {
+    "tagline": "セルフホスト型トレードジャーナル。",
+    "docs": "ドキュメント",
+    "changelog": "更新履歴",
+    "roadmap": "ロードマップ",
+    "github": "GitHub",
+    "discussions": "ディスカッション",
+    "security": "セキュリティ",
+    "license": "ライセンス（AGPL-3.0）",
+    "privacyNote": "テレメトリなし — データはあなたのサーバーにのみ保存されます。"
+  },
+  "Deploy": {
+    "eyebrow": "デプロイ",
+    "heading": "数分でデプロイ",
+    "sub": "ワンクリックで Web UI を自分の Vercel・Cloudflare・Netlify アカウントへ — または Docker でスタック全体を任意のマシンで実行できます。",
+    "note": "ワンクリックボタンがデプロイするのは Web UI のみです。API は Railway または Docker で運用してください。",
+    "dockerComment": "# またはすべてをセルフホスト",
+    "star": "GitHub でスターする"
+  },
+  "Changelog": {
+    "title": "更新履歴",
+    "intro": "すべてのリリースは Conventional Commits から自動生成されています。",
+    "viewOnGitHub": "GitHub でリリースを見る →"
+  }
+}

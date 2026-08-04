@@ -1,0 +1,54 @@
+---
+title: はじめに
+description: TraderMemos はセルフホスト型のトレードジャーナルです。データを自分の手に、エッジを自分で検証しましょう。
+---
+
+## TraderMemos とは
+
+TraderMemos は、パフォーマンスデータを自分自身のインフラ上に置きたいトレーダーのための
+**セルフホスト型トレードジャーナル**です。ダッシュボード、損益カレンダー、トレードログ、
+プレイブック、レポートを備えています。サブスクリプションもベンダーロックインもありません。
+
+TradeZella や TraderSync のようなクラウド型ジャーナルは洗練されていますが、あなたのエッジは
+データの中にあります。TraderMemos は [Ghost](https://github.com/TryGhost/Ghost)、
+[Umami](https://github.com/umami-software/umami)、[Plane](https://github.com/makeplane/plane)
+と同じセルフホストの哲学に従います。自分のインフラで動かし、データベースを自分で所有し、
+誰の許可も得ずに拡張できます。
+
+## 主な機能
+
+- **ダッシュボード** — 資産曲線、期待値、連勝・連敗、保有時間、年間目標の進捗ペース
+- **トレードログ** — 約定をトレード単位にグループ化し、フィルタ・並べ替え・タグ付け・約定明細へのドリルダウン
+- **損益カレンダー** — 日次・週次のヒートマップとドリルダウン
+- **レポート** — 勝率、プロフィットファクター、期待値、セットアップ別／時間帯別／セッション別の内訳
+- **プレイブック** — 各セットアップを使ったトレードに紐づく戦略ライブラリ
+- **インポート** — 証券会社の CSV 明細を、列マッピングと重複排除つきで取り込み
+- **ツール** — ポジションサイズ計算機、リスクルール、資金台帳
+- **AI** *(任意)* — OpenAI 互換 API によるスクリーンショットからの約定抽出とトレードコーチ（キーはあなたのもの）
+- **API アクセス** — MCP／スクリプト向けのパーソナルアクセストークン（`tm_pat_…`）、OpenAPI ドキュメントは `/docs`
+
+## 技術スタック
+
+| レイヤー | スタック |
+|-------|-------|
+| **API** | Go · Echo · sqlc · golang-migrate · SQLite |
+| **Web** | React · Vite+ · TanStack Router/Query/Form · Tailwind |
+| **モバイル** | Expo（予定） |
+| **デザイン** | shadcn/ui + coss ui トークン |
+
+## 次のステップ
+
+<Cards>
+  <Card title="クイックスタート" href="/ja/docs/getting-started/quick-start" description="Docker のコマンド 1 つで、スタック全体をローカルで起動します。" />
+  <Card title="最初の一歩" href="/ja/docs/getting-started/first-steps" description="セットアップウィザード、最初のトレード、初めての方向けのアプリ案内。" />
+  <Card title="デプロイ" href="/ja/docs/self-hosting/deploy" description="Docker 一体型、CDN + API 分離、エッジリライトの 3 つのデプロイ方式。" />
+  <Card title="フォークしてデプロイ" href="/ja/docs/self-hosting/fork-deploy" description="Web UI をあなた自身の Vercel / Cloudflare / Netlify アカウントにワンクリックでデプロイ。" />
+  <Card title="トレードのインポート" href="/ja/docs/guides/importing-trades" description="列マッピング対応の証券会社 CSV インポート — 重複は自動的にスキップされます。" />
+  <Card title="FAQ" href="/ja/docs/faq" description="ログイン、CORS、ポート、アップロード、データに関するトラブルシューティング。" />
+</Cards>
+
+## ライセンス
+
+[AGPL-3.0](https://github.com/sinhong2011/TraderMemos/blob/main/LICENSE)。セルフホストし、
+改変し、個人でも会社でも自由に運用できます。改変版をネットワークサービスとして他者に提供する
+場合は、その変更内容を公開する必要があります。

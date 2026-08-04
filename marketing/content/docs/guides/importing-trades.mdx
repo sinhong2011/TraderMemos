@@ -1,0 +1,73 @@
+---
+title: Importing trades
+description: Bring broker fills into TraderMemos — CSV with column mapping, journal exports, or JSON backups. Duplicates are skipped automatically.
+---
+
+Open **Import** in the sidebar (hotkey `G` `I`). The flow is
+**Upload → Map columns → Result** — pick an account, drop a file, confirm the mapping,
+import. Your file is parsed on your server; nothing goes to third parties.
+
+## Supported formats
+
+Format is auto-detected from the file's headers — there are no per-broker presets, so any
+broker's fill export works once its columns are mapped:
+
+| Format | What it is | Mapping step? |
+|--------|------------|---------------|
+| **Fill CSV** | One row per execution/fill — the shape most broker statement exports have | Yes |
+| **Journal export** | One row per finished trade with entry/exit (Stonk Journal-style: `Date, Symbol, Side, Qty, Entry, Exit, …, Tags, Setup, Notes`). Each row becomes a round-trip trade plus journal annotations | No |
+| **JSON backup** | A TraderMemos [export](/en/docs/self-hosting/backup-restore) — restores fills, playbook setups, cash transactions, and account metadata | No |
+
+Sample files are downloadable on the Import page.
+
+## Column mapping (fill CSV)
+
+Each canonical field maps to one of your CSV's headers, or **(skip)**. Common header names are
+suggested automatically:
+
+| Field | Required | Auto-detected from headers like |
+|-------|----------|--------------------------------|
+| `symbol` | ✔ | Symbol, Ticker, Instrument |
+| `side` | ✔ | Side, B/S, Action (`buy`/`b`/`bot`, `sell`/`s`/`sld`) |
+| `quantity` | ✔ | Qty, Quantity, Shares, Contracts |
+| `price` | ✔ | Fill Price, Price, Avg Price, Exec Price |
+| `executed_at` | ✔ | Trade Date, Date/Time, Datetime |
+| `fees` / `commission` | — | Fee(s) / Commission, Comm |
+| `instrument_type` | — | Market, Asset Type, Sec Type |
+| `option_right` | — | Call/Put, Option Type, Right |
+
+Timestamps accept ISO 8601 (`2026-07-01T15:04:05Z`), `2026-07-01 15:04:05`,
+`07/01/2026 15:04:05`, and plain dates — all normalized to UTC. Option fills get the
+call/put right (explicit column or inferred from the symbol) and a ×100 multiplier.
+
+## Duplicates & re-importing
+
+A fill's identity is the combination **symbol + side + quantity + price + timestamp**, scoped
+to the account. Importing the same statement twice — or overlapping date ranges — just counts
+the repeats as **Skipped (duplicates)**. Re-importing is always safe.
+
+## How fills become trades
+
+After every import the account is regrouped automatically: fills for the same
+symbol/instrument are walked in time order — same-direction fills scale in, opposite fills
+reduce, and the trade closes when the position returns to zero (a crossing fill opens the next
+trade). Journal notes attach to the trade and survive regrouping.
+
+Made a mess? Every import is a batch — the Import page lists past batches and **deleting a
+batch reverses it** (removes its fills and regroups).
+
+## Limits
+
+Uploads are capped by `TM_IMPORT_MAX_BYTES` (default **10 MiB**, roughly tens of thousands of
+rows). Self-hosters can raise it — see [Configuration](/en/docs/self-hosting/configuration) —
+and should keep the proxy body-size limit above it. Split giant histories by year if needed;
+dedup makes overlapping files harmless.
+
+## Other ways in
+
+- **Screenshot scan** — extract fills from a broker screenshot with an LLM,
+  see [AI features](/en/docs/guides/ai-features)
+- **Manual entry** — the **New Trade** drawer (hotkey `n`)
+- **API / scripts** — `POST /api/v1/executions` with a
+  [personal access token](/en/docs/guides/api-tokens); the same dedup applies
+- **CLI** — `tradermemos import --account … --file …` inside the API container

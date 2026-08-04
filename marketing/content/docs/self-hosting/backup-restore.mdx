@@ -1,0 +1,75 @@
+---
+title: Backup & restore
+description: Everything lives in one volume — the SQLite database and the attachments directory. Back them up together.
+---
+
+Your journal is two things on disk, and they must be backed up **together**:
+
+| What | Default location (Docker) |
+|------|---------------------------|
+| Database | `/data/tradermemos.db` (SQLite) in the `tm_data` volume |
+| Attachments & note media | `/data/attachments` in the same volume |
+
+Attachment metadata lives in the database — restoring one without the other leaves broken
+screenshots or orphaned files.
+
+## Option 1 — App-level export (works everywhere)
+
+**Import → Export** in the app (or `GET /api/v1/exports`) produces:
+
+| Format | Contents |
+|--------|----------|
+| **ZIP** | `export.json` + all screenshots under `attachments/` — the complete portable backup |
+| **JSON** | Trades, fills, journal notes, cash transactions, playbook setups (no images) |
+| **CSV** | Closed-trade journal spreadsheet, for analysis elsewhere |
+
+Restore by importing the ZIP/JSON on any TraderMemos instance — the setup wizard's optional
+import step accepts it on a fresh install, and **Import** handles it any time after. Fills are
+deduplicated server-side, so re-importing is safe.
+
+This is the right choice for moving between hosts, switching databases
+(SQLite ↔ Postgres), or an offsite copy you can actually open.
+
+## Option 2 — Volume snapshot (Docker, exact copy)
+
+SQLite runs in WAL mode, so don't copy the live database file — stop the API first (a few
+seconds of downtime), or you may lose the most recent writes:
+
+```bash
+cd TraderMemos
+docker compose stop api
+docker run --rm --volumes-from "$(docker compose ps -aq api)" -v "$PWD":/backup alpine \
+  tar czf "/backup/tradermemos-$(date +%F).tar.gz" -C /data .
+docker compose start api
+```
+
+Restore onto a fresh host:
+
+```bash
+cd TraderMemos
+make up                       # creates containers + empty volume
+docker compose stop api
+docker run --rm --volumes-from "$(docker compose ps -aq api)" -v "$PWD":/backup alpine \
+  sh -c "rm -rf /data/* && tar xzf /backup/tradermemos-2026-08-01.tar.gz -C /data"
+docker compose start api
+```
+
+Automate it with cron and ship the tarball offsite (rclone, restic, etc.). The
+`tradermemos.db.migrate.lock` file in the volume is transient and safe to exclude.
+
+## Postgres
+
+Dump the database and copy the attachments volume:
+
+```bash
+docker compose exec postgres pg_dump -U tm tradermemos > tradermemos-$(date +%F).sql
+# attachments still live in the tm_data volume → back up /data/attachments as in Option 2
+```
+
+Restore with `psql -U tm tradermemos < backup.sql` into an empty database, then start the API
+(migrations reconcile automatically).
+
+## Before every upgrade
+
+Take a snapshot before bumping versions — schema migrations run automatically on boot and
+there is no automatic downgrade. See [Updating](/en/docs/self-hosting/updating).

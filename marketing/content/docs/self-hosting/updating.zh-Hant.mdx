@@ -1,0 +1,62 @@
+---
+title: 更新升級
+description: 升級運行中的 TraderMemos 實例 —— 拉取、重啓即可，數據庫遷移自動完成。
+---
+
+數據庫遷移在 **API 啓動時自動執行** —— 升級就是拉取 + 重啓。不過大版本跳躍前仍建議先
+[備份](/zh-Hant/docs/self-hosting/backup-restore)。
+
+## Docker（默認方式）
+
+```bash
+cd TraderMemos
+git pull                     # 獲取 compose / Makefile 的變更（如有）
+docker compose pull          # 拉取新版鏡像
+make up                      # 重建容器（docker compose up -d）
+```
+
+如果你是從源碼構建而非拉取 Hub 鏡像：
+
+```bash
+git pull
+make up-build                # 從倉庫重新構建兩個鏡像
+```
+
+驗證運行中的版本：
+
+```bash
+curl -s http://localhost:3000/healthz
+# {"status":"ok","version":"0.1.6","go":"go1.26","commit":"…"}
+```
+
+## 鎖定版本（生產環境推薦）
+
+`latest` 會隨每次發版變動。在根目錄 `.env` 中鎖定版本，並有意識地手動升級：
+
+```bash
+# .env
+TM_IMAGE_TAG=0.1.6
+```
+
+```bash
+# 升級：修改 TM_IMAGE_TAG，然後
+docker compose pull && make up
+```
+
+已發佈的標籤遵循語義化版本：`0.1.6`、`0.1`、`0`、`latest`，以及不可變的 commit `sha` 標籤。
+鏡像爲多架構（`amd64` + `arm64`）。版本與變更記錄見
+[CHANGELOG](https://github.com/sinhong2011/TraderMemos/blob/main/CHANGELOG.md) 與
+[GitHub Releases](https://github.com/sinhong2011/TraderMemos/releases)。
+
+## 遷移的行爲
+
+- 遷移腳本內嵌在 API 二進制中，啓動時自動應用（SQLite 與 Postgres 各有一條遷移鏈）。
+- SQLite 數據庫旁的文件鎖（`tradermemos.db.migrate.lock`）可防止兩個進程同時執行遷移。
+- **不支持自動降級**。schema 遷移完成後回退到舊版鏡像是不受支持的 —— 請改用
+  [升級前的備份](/zh-Hant/docs/self-hosting/backup-restore)進行恢復。
+
+## Fork / CDN 部署
+
+- **Vercel / Cloudflare / Netlify 的 Web**：推送到 fork 默認分支即自動重新部署；把 fork
+  與上游同步就完成了更新。
+- **Railway 的 API**：推送即重新部署。`/data` 數據卷跨部署持久保留 —— 保持掛載即可。

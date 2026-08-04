@@ -1,0 +1,80 @@
+---
+title: 配置参考
+description: API 读取的全部 TM_* 环境变量，含默认值与作用说明。
+---
+
+服务端的所有配置都通过带 `TM_` 前缀的环境变量完成。可以在 shell、Compose 的
+`environment:`，或本地开发用的 `api/.env` 中设置。修改后需重启 API 生效。
+
+## 核心
+
+| 变量 | 默认值 | 用途 |
+|----------|---------|---------|
+| `TM_HTTP_PORT` | `8080` | API 监听端口。仅当 `TM_HTTP_PORT` 未设置时，才会采用 `PORT`（Railway/Heroku 风格） |
+| `TM_DATABASE_URL` | *（未设置 → SQLite）* | 统一数据库连接串 —— `sqlite:///data/tradermemos.db` 或 `postgres://user:pass@host:5432/db?sslmode=require`。设置为**空字符串**会导致启动报错 |
+| `TM_DB_PATH` | `data/tradermemos.db` | 旧版 SQLite 路径，仅在 `TM_DATABASE_URL` 未设置时生效 |
+| `TM_ATTACH_DIR` | *（自动推导）* | 附件 / 媒体文件的磁盘根目录。SQLite 默认为 `<数据库目录>/attachments`，Postgres 默认为 `data/attachments` —— Postgres 建议显式设置 |
+| `TM_DEFAULT_CURRENCY` | `USD` | 账户默认货币 |
+| `TM_LOG_LEVEL` | `info` | 日志级别（`debug`、`info`、`warn`、`error`） |
+
+## 认证与安全
+
+| 变量 | 默认值 | 用途 |
+|----------|---------|---------|
+| `TM_JWT_SECRET` | `dev-insecure-change-me` | JWT 签名密钥，至少 32 个字符。检测到已知弱密钥时服务端会**拒绝启动**，除非设置 `TM_ALLOW_INSECURE_JWT=true`。生成方式：`openssl rand -hex 32` |
+| `TM_ALLOW_INSECURE_JWT` | `false`（随附的 Compose 为方便首次运行设为 `true`） | 允许使用弱 / 过短的 JWT 密钥。公网主机上切勿开启 |
+| `TM_ALLOW_REGISTRATION` | `false` | 初始化完成后开放 `POST /auth/register`。默认关闭 —— 除非主动开启，否则只存在 owner 账户 |
+| `TM_CORS_ORIGINS` | *（空 —— 禁用 CORS）* | CDN + API 分离部署时的来源白名单，逗号分隔。支持 `https://*.vercel.app` 之类的通配符主机。同源部署留空即可 |
+
+## 上传限制
+
+| 变量 | 默认值 | 用途 |
+|----------|---------|---------|
+| `TM_ATTACH_MAX_BYTES` | `10485760`（10 MiB） | 交易截图与笔记媒体的单文件上限 |
+| `TM_IMPORT_MAX_BYTES` | `10485760`（10 MiB） | CSV / JSON 导入文件的上限 |
+| `TM_OCR_MAX_BYTES` | `10485760`（10 MiB） | 截图扫描图片的上限（≤ 0 时回退到附件上限） |
+
+随附的 nginx 允许 `client_max_body_size 20m`。若将任一上限提高到 20 MiB 以上，nginx
+的该值（以及上游[反向代理](/zh-Hans/docs/self-hosting/reverse-proxy)的限制）也要一并调高。
+
+## AI —— 截图扫描与交易教练
+
+这些变量**仅作为默认值**：一旦在**设置 → AI** 中保存过设置，数据库中的值优先。密钥只保存在
+服务端，不会下发到浏览器。详见 [AI 功能](/zh-Hans/docs/guides/ai-features)。
+
+| 变量 | 默认值 | 用途 |
+|----------|---------|---------|
+| `TM_OCR_ENABLED` | `false` | 开启截图成交提取 |
+| `TM_OCR_VISION_BASE_URL` | `https://api.openai.com/v1` | 视觉模型的 OpenAI 兼容端点 |
+| `TM_OCR_VISION_API_KEY` | *（空）* | 视觉 API 密钥 |
+| `TM_OCR_VISION_MODEL` | `gpt-4o-mini` | 视觉模型 |
+| `TM_OCR_VISION_TIMEOUT_SEC` | `90` | 视觉请求超时（秒） |
+| `TM_COACH_ENABLED` | `false` | 开启 AI 交易教练 |
+| `TM_COACH_BASE_URL` | `https://api.openai.com/v1` | 教练的 OpenAI 兼容端点 |
+| `TM_COACH_API_KEY` | *（空）* | 教练 API 密钥 |
+| `TM_COACH_MODEL` | `gpt-4o-mini` | 教练模型 |
+
+## 行情数据
+
+| 变量 | 默认值 | 用途 |
+|----------|---------|---------|
+| `TM_MARKET_DATA_ENABLED` | `true` | 启用行情数据服务 |
+| `TM_MARKET_DATA_PROVIDER` | `yahoo` | 数据源名称 |
+| `TM_MARKET_DATA_API_KEY` | *（空）* | 数据源 API 密钥（如需要） |
+
+## Web 构建期变量
+
+SPA 是静态的 —— 以下变量在构建时打包进产物，服务端不会读取：
+
+| 变量 | 用途 |
+|----------|---------|
+| `VITE_API` | 固定的 API 基址（如 `https://api.example.com/api/v1`），编译进构建产物。留空则使用相对路径 `/api/v1`，或由用户在登录时填写 **Server** 字段 |
+
+## 仅 Compose 使用的变量
+
+由 `docker compose` 从根目录 `.env` 读取，不会传入容器：
+
+| 变量 | 默认值 | 用途 |
+|----------|---------|---------|
+| `DOCKERHUB_USERNAME` | `sinhong2011` | `tradermemos-api` / `tradermemos-web` 镜像所在的 Docker Hub 命名空间 |
+| `TM_IMAGE_TAG` | `latest` | 镜像标签 —— 生产环境建议锁定具体版本，如 `0.1.6` |
