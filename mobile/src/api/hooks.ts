@@ -5,7 +5,7 @@
  * the session themselves — the root layout already redirects unauthenticated users.
  */
 
-import { useQuery, type UseQueryResult } from '@tanstack/react-query';
+import { keepPreviousData, useQuery, type UseQueryResult } from '@tanstack/react-query';
 import { useCallback } from 'react';
 
 import { request, requestRaw, type QueryParams, type RequestOptions } from './client';
@@ -133,7 +133,14 @@ function useApiQuery<T>(
   key: readonly unknown[],
   path: string,
   params?: QueryParams,
-  options?: { enabled?: boolean; staleTime?: number; retry?: number | boolean },
+  options?: {
+    enabled?: boolean;
+    staleTime?: number;
+    retry?: number | boolean;
+    /** Hold the last result while a new key loads — for keys that change as you
+     *  page through a range and shouldn't blank the screen on every step. */
+    keepPrevious?: boolean;
+  },
 ): UseQueryResult<T> {
   const { session, signIn } = useSession();
   return useQuery({
@@ -141,6 +148,9 @@ function useApiQuery<T>(
     enabled: session != null && (options?.enabled ?? true),
     staleTime: options?.staleTime,
     retry: options?.retry,
+    // Cast: TanStack's NonFunctionGuard can't see that no API response type is
+    // itself a function, so the generic helper never type-checks against it.
+    placeholderData: options?.keepPrevious ? (keepPreviousData as never) : undefined,
     queryFn: () =>
       request<T>(session!, path, { params }, (tokens) => {
         void signIn({
@@ -324,7 +334,15 @@ export function useEconomicEvents(from: string, to: string) {
     queryKeys.economicEvents(from, to),
     '/economic-events',
     { from, to },
-    { enabled: from.length > 0 && to.length > 0, staleTime: 5 * 60_000, retry: false },
+    {
+      enabled: from.length > 0 && to.length > 0,
+      staleTime: 5 * 60_000,
+      retry: false,
+      // Stepping the week changes the range, and so the key: without this the
+      // calendar drops to skeletons mid-transition and the week animation plays
+      // against an empty screen.
+      keepPrevious: true,
+    },
   );
 }
 

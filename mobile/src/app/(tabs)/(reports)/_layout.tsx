@@ -49,10 +49,6 @@ export default function ReportsLayout() {
         }}
       />
       <Stack.Screen
-        name="economic-events"
-        options={{ title: t`Economic calendar`, headerLargeTitle: false }}
-      />
-      <Stack.Screen
         name="heatmap-cell"
         options={{
           presentation: 'formSheet',

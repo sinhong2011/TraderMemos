@@ -8,10 +8,10 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { t } from '@lingui/core/macro';
 
 /**
- * Home-header wrench menu fanning out to the calculators — the phone home of
- * the web Tools popover, placed where the trading day starts. Sheets for the
- * one-shot calculators; the R-calculator and advanced chart push in the Home
- * stack.
+ * Home-header wrench menu fanning out to the calculators and market lookups —
+ * the phone home of the web Tools popover, placed where the trading day starts.
+ * Sheets for the one-shot calculators; the R-calculator, advanced chart and
+ * economic calendar push in the Home stack.
  */
 export function ToolsMenu() {
   const { theme } = useUnistyles();
@@ -38,6 +38,11 @@ export function ToolsMenu() {
       label: t`Advanced chart`,
       systemImage: 'chart.xyaxis.line',
       href: '/(tabs)/(dashboard)/advanced-chart',
+    },
+    {
+      label: t`Economic calendar`,
+      systemImage: 'newspaper',
+      href: '/(tabs)/(dashboard)/economic-events',
     },
   ];
 

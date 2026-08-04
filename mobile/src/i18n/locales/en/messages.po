@@ -238,9 +238,17 @@ msgstr "{label} — no trades"
 msgid "{pct}% of gross went to fees across {0} fills. Consider whether every add was worth the cost."
 msgstr "{pct}% of gross went to fees across {0} fills. Consider whether every add was worth the cost."
 
+#: src/app/(tabs)/(dashboard)/economic-events.tsx:825
+msgid "{shown} of {total} events"
+msgstr "{shown} of {total} events"
+
 #: src/app/(tabs)/(settings)/ai.tsx:104
 msgid "{title} settings updated."
 msgstr "{title} settings updated."
+
+#: src/app/(tabs)/(dashboard)/economic-events.tsx:243
+#~ msgid "{total} events"
+#~ msgstr "{total} events"
 
 #: src/app/(tabs)/(calendar)/index.tsx:454
 #~ msgid "{weekCount, plural, one {# trade} other {# trades}}"
@@ -324,6 +332,10 @@ msgstr "1 {from} = {0} {to}"
 msgid "1 day"
 msgstr "1 day"
 
+#: src/app/(tabs)/(dashboard)/economic-events.tsx:242
+#~ msgid "1 event"
+#~ msgstr "1 event"
+
 #: src/app/(tabs)/(calendar)/index.tsx:565
 #: src/app/(tabs)/(calendar)/index.tsx:753
 #: src/app/(tabs)/(calendar)/index.tsx:789
@@ -368,9 +380,9 @@ msgstr "30d"
 msgid "90d"
 msgstr "90d"
 
-#: src/app/(tabs)/(reports)/economic-events.tsx:189
-msgid "A quiet week."
-msgstr "A quiet week."
+#: src/app/(tabs)/(dashboard)/economic-events.tsx:801
+#~ msgid "A quiet week."
+#~ msgstr "A quiet week."
 
 #: src/app/(tabs)/(settings)/_layout.tsx:62
 msgid "About"
@@ -430,10 +442,13 @@ msgstr "Active limits"
 #~ msgid "Active tokens"
 #~ msgstr "Active tokens"
 
-#. placeholder {0}: event.actual
-#: src/app/(tabs)/(reports)/economic-events.tsx:218
-msgid "Actual {0}"
-msgstr "Actual {0}"
+#: src/app/(tabs)/(dashboard)/economic-events.tsx:371
+msgid "Actual"
+msgstr "Actual"
+
+#: src/app/(tabs)/(dashboard)/economic-events.tsx:218
+#~ msgid "Actual {0}"
+#~ msgstr "Actual {0}"
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:40
 msgid "Actual risk is below your target."
@@ -591,6 +606,10 @@ msgstr "All sides"
 msgid "All time"
 msgstr "All time"
 
+#: src/app/(tabs)/(dashboard)/economic-events.tsx:718
+msgid "Allow TraderMemos to add reminders in Settings › Privacy › Reminders."
+msgstr "Allow TraderMemos to add reminders in Settings › Privacy › Reminders."
+
 #. placeholder {0}: pinned.slice(1)
 #: src/app/(tabs)/(settings)/import-trades.tsx:361
 msgid "Always \"{0}\""
@@ -734,10 +753,10 @@ msgstr "Avg winning R"
 msgid "Back"
 msgstr "Back"
 
-#: src/app/(tabs)/(reports)/economic-events.tsx:130
-#: src/app/(tabs)/(reports)/economic-events.tsx:134
-msgid "Back to this week"
-msgstr "Back to this week"
+#: src/app/(tabs)/(dashboard)/economic-events.tsx:130
+#: src/app/(tabs)/(dashboard)/economic-events.tsx:134
+#~ msgid "Back to this week"
+#~ msgstr "Back to this week"
 
 #: src/app/(tabs)/(settings)/index.tsx:299
 msgid "Backup or restore local app preferences."
@@ -765,7 +784,7 @@ msgstr "Baseline P&L"
 msgid "BE"
 msgstr "BE"
 
-#: src/app/(tabs)/(reports)/index.tsx:37
+#: src/app/(tabs)/(reports)/index.tsx:63
 #: src/app/(tabs)/(settings)/index.tsx:274
 msgid "Behavior"
 msgstr "Behavior"
@@ -869,7 +888,7 @@ msgstr "BUY"
 msgid "Calendar"
 msgstr "Calendar"
 
-#: src/app/(tabs)/(reports)/economic-events.tsx:172
+#: src/app/(tabs)/(dashboard)/economic-events.tsx:866
 msgid "Calendar not configured"
 msgstr "Calendar not configured"
 
@@ -985,6 +1004,11 @@ msgstr "Choose which journal options show as filter chips on the trades list."
 #~ msgid "Choose which journal tags show as quick filters. Tags are created in the trade form."
 #~ msgstr "Choose which journal tags show as quick filters. Tags are created in the trade form."
 
+#: src/app/(tabs)/(dashboard)/economic-events.tsx:827
+msgid "Clear"
+msgstr "Clear"
+
+#: src/components/event-filter-menu.tsx:82
 #: src/components/trade-filter-menu.tsx:94
 msgid "Clear filters"
 msgstr "Clear filters"
@@ -1240,6 +1264,10 @@ msgstr "Could not share"
 msgid "Could not upload"
 msgstr "Could not upload"
 
+#: src/app/(tabs)/(dashboard)/economic-events.tsx:721
+msgid "Couldn't add the reminder"
+msgstr "Couldn't add the reminder"
+
 #: src/app/(tabs)/(trades)/index.tsx:296
 #~ msgid "Create"
 #~ msgstr "Create"
@@ -1287,6 +1315,7 @@ msgstr "CSV journal"
 msgid "CSV needs a header row and at least one fill row."
 msgstr "CSV needs a header row and at least one fill row."
 
+#: src/app/(tabs)/(dashboard)/economic-events.tsx:765
 #: src/app/(tabs)/(settings)/display.tsx:81
 msgid "Currency"
 msgstr "Currency"
@@ -1443,7 +1472,7 @@ msgstr "Deposits, withdrawals, and fees feed the equity curve."
 #~ msgid "Description"
 #~ msgstr "Description"
 
-#: src/app/(tabs)/(reports)/index.tsx:35
+#: src/app/(tabs)/(reports)/index.tsx:61
 msgid "Detailed"
 msgstr "Detailed"
 
@@ -1556,9 +1585,9 @@ msgstr "e.g. Main Account"
 msgid "Each point is the win rate across the trailing {windowSize} closed trades."
 msgstr "Each point is the win rate across the trailing {windowSize} closed trades."
 
-#: src/app/(tabs)/(reports)/_layout.tsx:49
-#: src/app/(tabs)/(reports)/economic-events.tsx:103
-#: src/components/reports/overview-section.tsx:518
+#: src/app/(tabs)/(dashboard)/_layout.tsx:59
+#: src/app/(tabs)/(dashboard)/economic-events.tsx:729
+#: src/components/tools-menu.tsx:43
 msgid "Economic calendar"
 msgstr "Economic calendar"
 
@@ -1808,7 +1837,7 @@ msgstr "Expires {expires} · Last used {lastUsed}"
 msgid "Expiry"
 msgstr "Expiry"
 
-#: src/components/reports/overview-section.tsx:527
+#: src/components/reports/overview-section.tsx:524
 msgid "Explore"
 msgstr "Explore"
 
@@ -1916,6 +1945,7 @@ msgstr "Fills inserted"
 msgid "Fills, journal data, cash, and setups are read directly from the JSON file — nothing to map."
 msgstr "Fills, journal data, cash, and setups are read directly from the JSON file — nothing to map."
 
+#: src/components/event-filter-menu.tsx:51
 #: src/components/trade-filter-menu.tsx:77
 msgid "Filter"
 msgstr "Filter"
@@ -1940,10 +1970,13 @@ msgstr "flat"
 msgid "floor hit"
 msgstr "floor hit"
 
-#. placeholder {0}: event.forecast
-#: src/app/(tabs)/(reports)/economic-events.tsx:220
-msgid "Forecast {0}"
-msgstr "Forecast {0}"
+#: src/app/(tabs)/(dashboard)/economic-events.tsx:372
+msgid "Forecast"
+msgstr "Forecast"
+
+#: src/app/(tabs)/(dashboard)/economic-events.tsx:220
+#~ msgid "Forecast {0}"
+#~ msgstr "Forecast {0}"
 
 #: src/app/(tabs)/(dashboard)/advanced-chart.tsx:94
 #: src/app/(tabs)/(trades)/index.tsx:277
@@ -2027,6 +2060,10 @@ msgstr "Generate"
 msgid "GitHub repository"
 msgstr "GitHub repository"
 
+#: src/app/(tabs)/(dashboard)/economic-events.tsx:224
+msgid "Global"
+msgstr "Global"
+
 #: src/app/(tabs)/(settings)/about.tsx:103
 msgid "Go runtime"
 msgstr "Go runtime"
@@ -2088,7 +2125,7 @@ msgstr "Hide amounts everywhere — stats and ratios stay visible."
 msgid "Hide password"
 msgstr "Hide password"
 
-#: src/app/(tabs)/(reports)/economic-events.tsx:32
+#: src/app/(tabs)/(dashboard)/economic-events.tsx:209
 msgid "High"
 msgstr "High"
 
@@ -2104,7 +2141,7 @@ msgstr "History"
 msgid "Hold ratio"
 msgstr "Hold ratio"
 
-#: src/app/(tabs)/(reports)/economic-events.tsx:38
+#: src/app/(tabs)/(dashboard)/economic-events.tsx:215
 msgid "Holiday"
 msgstr "Holiday"
 
@@ -2132,6 +2169,10 @@ msgstr "IBKR Flex sync"
 #: src/components/trade-prefill-bar.tsx:160
 msgid "Image files"
 msgstr "Image files"
+
+#: src/app/(tabs)/(dashboard)/economic-events.tsx:754
+msgid "Impact"
+msgstr "Impact"
 
 #: src/components/trade-prefill-bar.tsx:150
 msgid "Import"
@@ -2394,7 +2435,7 @@ msgstr "Losses"
 msgid "losses in a row"
 msgstr "losses in a row"
 
-#: src/app/(tabs)/(reports)/economic-events.tsx:36
+#: src/app/(tabs)/(dashboard)/economic-events.tsx:213
 msgid "Low"
 msgstr "Low"
 
@@ -2506,7 +2547,7 @@ msgstr "Median trade"
 msgid "Median win"
 msgstr "Median win"
 
-#: src/app/(tabs)/(reports)/economic-events.tsx:34
+#: src/app/(tabs)/(dashboard)/economic-events.tsx:211
 msgid "Medium"
 msgstr "Medium"
 
@@ -2678,9 +2719,9 @@ msgstr "Newest first"
 msgid "Next"
 msgstr "Next"
 
-#: src/app/(tabs)/(reports)/economic-events.tsx:140
-msgid "Next week"
-msgstr "Next week"
+#: src/app/(tabs)/(dashboard)/economic-events.tsx:290
+#~ msgid "Next week"
+#~ msgstr "Next week"
 
 #: src/app/(tabs)/(reports)/wrapped.tsx:94
 msgid "Next year"
@@ -2737,7 +2778,7 @@ msgstr "No closed trades on this day."
 msgid "No equity data in this range."
 msgstr "No equity data in this range."
 
-#: src/app/(tabs)/(reports)/economic-events.tsx:184
+#: src/app/(tabs)/(dashboard)/economic-events.tsx:906
 msgid "No events"
 msgstr "No events"
 
@@ -2848,6 +2889,10 @@ msgstr "No transactions yet"
 msgid "No usable fills found — rows need a positive quantity and price."
 msgstr "No usable fills found — rows need a positive quantity and price."
 
+#: src/app/(tabs)/(dashboard)/economic-events.tsx:721
+msgid "No writable list was found in Reminders."
+msgstr "No writable list was found in Reminders."
+
 #: src/components/insights-card.tsx:86
 #: src/components/trade-form.tsx:492
 msgid "None"
@@ -2907,9 +2952,9 @@ msgstr "Nothing logged yet. A minute of review now is what makes this trade wort
 msgid "Nothing logged yet. Note the setup and why you took it while it's fresh."
 msgstr "Nothing logged yet. Note the setup and why you took it while it's fresh."
 
-#: src/app/(tabs)/(reports)/economic-events.tsx:188
-msgid "Nothing matches the filters this week."
-msgstr "Nothing matches the filters this week."
+#: src/app/(tabs)/(dashboard)/economic-events.tsx:801
+#~ msgid "Nothing matches the filters this week."
+#~ msgstr "Nothing matches the filters this week."
 
 #: src/app/(tabs)/(trades)/[id].tsx:377
 msgid "Notional"
@@ -3036,7 +3081,7 @@ msgstr "Overconfidence often shows up as oversizing or ignoring your stop. Check
 msgid "Overnight"
 msgstr "Overnight"
 
-#: src/app/(tabs)/(reports)/index.tsx:33
+#: src/app/(tabs)/(reports)/index.tsx:59
 msgid "Overview"
 msgstr "Overview"
 
@@ -3216,10 +3261,13 @@ msgstr "Premarket"
 msgid "Preparing…"
 msgstr "Preparing…"
 
-#. placeholder {0}: event.previous
-#: src/app/(tabs)/(reports)/economic-events.tsx:222
-msgid "Prev {0}"
-msgstr "Prev {0}"
+#: src/app/(tabs)/(dashboard)/economic-events.tsx:373
+msgid "Prev"
+msgstr "Prev"
+
+#: src/app/(tabs)/(dashboard)/economic-events.tsx:222
+#~ msgid "Prev {0}"
+#~ msgstr "Prev {0}"
 
 #: src/app/(tabs)/(settings)/import-trades.tsx:475
 msgid "Preview import"
@@ -3229,9 +3277,9 @@ msgstr "Preview import"
 msgid "Previous"
 msgstr "Previous"
 
-#: src/app/(tabs)/(reports)/economic-events.tsx:121
-msgid "Previous week"
-msgstr "Previous week"
+#: src/app/(tabs)/(dashboard)/economic-events.tsx:278
+#~ msgid "Previous week"
+#~ msgstr "Previous week"
 
 #: src/app/(tabs)/(reports)/wrapped.tsx:80
 msgid "Previous year"
@@ -3411,6 +3459,18 @@ msgstr "Regular hours"
 msgid "Remaining"
 msgstr "Remaining"
 
+#: src/app/(tabs)/(dashboard)/economic-events.tsx:357
+msgid "Remind me"
+msgstr "Remind me"
+
+#: src/app/(tabs)/(dashboard)/economic-events.tsx:717
+msgid "Reminders access needed"
+msgstr "Reminders access needed"
+
+#: src/app/(tabs)/(dashboard)/economic-events.tsx:712
+msgid "Reminders need a rebuild"
+msgstr "Reminders need a rebuild"
+
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:184
 #: src/app/(tabs)/(settings)/cash-form.tsx:154
 #: src/app/(tabs)/(settings)/flex-sync.tsx:105
@@ -3455,6 +3515,10 @@ msgstr "Remove prop rules"
 #: src/app/(tabs)/(settings)/prop-settings.tsx:114
 msgid "Remove prop rules?"
 msgstr "Remove prop rules?"
+
+#: src/app/(tabs)/(dashboard)/economic-events.tsx:357
+msgid "Remove reminder"
+msgstr "Remove reminder"
 
 #: src/app/(tabs)/(settings)/risk-rules.tsx:72
 msgid "Remove rule?"
@@ -3522,7 +3586,7 @@ msgid "Report an issue"
 msgstr "Report an issue"
 
 #: src/app/(tabs)/_layout.tsx:50
-#: src/app/(tabs)/(reports)/index.tsx:47
+#: src/app/(tabs)/(reports)/index.tsx:73
 msgid "Reports"
 msgstr "Reports"
 
@@ -3562,7 +3626,7 @@ msgstr "Revoke token?"
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:367
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:603
-#: src/app/(tabs)/(reports)/index.tsx:36
+#: src/app/(tabs)/(reports)/index.tsx:62
 #: src/app/tool-position-size.tsx:102
 msgid "Risk"
 msgstr "Risk"
@@ -3745,6 +3809,11 @@ msgstr "Screenshots per trade — No limit"
 #: src/app/(tabs)/(dashboard)/advanced-chart.tsx:159
 msgid "Search a ticker above to load its chart."
 msgstr "Search a ticker above to load its chart."
+
+#: src/app/(tabs)/(dashboard)/economic-events.tsx:160
+#: src/app/(tabs)/(dashboard)/economic-events.tsx:740
+msgid "Search events"
+msgstr "Search events"
 
 #: src/app/(tabs)/(dashboard)/notes.tsx:116
 msgid "Search notes"
@@ -4196,7 +4265,7 @@ msgstr "The market timezone defines the trading day — calendar days and hourly
 msgid "The recap appears once the year has closed trades."
 msgstr "The recap appears once the year has closed trades."
 
-#: src/app/(tabs)/(reports)/economic-events.tsx:174
+#: src/app/(tabs)/(dashboard)/economic-events.tsx:868
 msgid "The server has no economic-calendar provider configured."
 msgstr "The server has no economic-calendar provider configured."
 
@@ -4223,6 +4292,10 @@ msgstr "Thesis"
 #: src/app/edit-note.tsx:67
 msgid "This cannot be undone."
 msgstr "This cannot be undone."
+
+#: src/app/(tabs)/(dashboard)/economic-events.tsx:713
+msgid "This development build predates the Reminders module — run make rebuild-ios."
+msgstr "This development build predates the Reminders module — run make rebuild-ios."
 
 #: src/lib/trade-insights.ts:283
 msgid "This is more than a normal stop-out. Check for oversizing, moving the stop, or averaging down against your rules."
@@ -4297,8 +4370,9 @@ msgstr "To"
 msgid "To date: {0} win rate · PF {1} · {2} cumulative"
 msgstr "To date: {0} win rate · PF {1} · {2} cumulative"
 
+#: src/app/(tabs)/(dashboard)/economic-events.tsx:105
+#: src/app/(tabs)/(dashboard)/economic-events.tsx:185
 #: src/app/(tabs)/(dashboard)/notes.tsx:35
-#: src/app/(tabs)/(reports)/economic-events.tsx:200
 #: src/app/(tabs)/(trades)/index.tsx:265
 msgid "Today"
 msgstr "Today"
@@ -4323,8 +4397,8 @@ msgstr "Tokens authenticate scripts and integrations against your server's API."
 msgid "Tokens authenticate scripts and integrations against your server's API. Swipe a row to revoke."
 msgstr "Tokens authenticate scripts and integrations against your server's API. Swipe a row to revoke."
 
-#: src/components/tools-menu.tsx:50
-#: src/components/tools-menu.tsx:62
+#: src/components/tools-menu.tsx:55
+#: src/components/tools-menu.tsx:67
 msgid "Tools"
 msgstr "Tools"
 
@@ -4558,7 +4632,7 @@ msgstr "Why did you exit?"
 msgid "WIN"
 msgstr "WIN"
 
-#: src/app/(tabs)/(reports)/index.tsx:34
+#: src/app/(tabs)/(reports)/index.tsx:60
 msgid "Win / Loss"
 msgstr "Win / Loss"
 
@@ -4632,9 +4706,9 @@ msgstr "Write why you entered while it's fresh. Future you needs the thesis, not
 msgid "Year"
 msgstr "Year"
 
-#: src/app/(tabs)/(reports)/_layout.tsx:61
+#: src/app/(tabs)/(reports)/_layout.tsx:57
 #: src/app/(tabs)/(reports)/wrapped.tsx:62
-#: src/components/reports/overview-section.tsx:523
+#: src/components/reports/overview-section.tsx:520
 msgid "Year Wrapped"
 msgstr "Year Wrapped"
 

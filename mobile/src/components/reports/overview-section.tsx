@@ -512,11 +512,8 @@ function ExploreCard() {
   const { theme } = useUnistyles();
   const router = useRouter();
   const links = [
-    {
-      href: '/(tabs)/(reports)/economic-events' as const,
-      icon: 'newspaper' as const,
-      label: t`Economic calendar`,
-    },
+    // The economic calendar lives on the Home tools menu — it's a start-of-day
+    // lookup, not a review of what already happened.
     {
       href: '/(tabs)/(reports)/wrapped' as const,
       icon: 'sparkles' as const,
