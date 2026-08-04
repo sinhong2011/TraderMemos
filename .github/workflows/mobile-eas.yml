@@ -5,8 +5,9 @@
 #   eas init         links mobile/app.json to an EAS project (writes extra.eas.projectId)
 #   eas credentials  uploads the distribution cert, provisioning profile, and the
 #                    App Store Connect API key EAS Submit uses
-#   eas.json         fill in submit.production.ios.ascAppId + appleTeamId (they are read
-#                    literally — only the ascApiKey* fields expand $VARIABLES)
+#   eas.json         submit.production.ios.ascAppId + appleTeamId are literal values
+#                    (only the ascApiKey* fields expand $VARIABLES) — change them only
+#                    if the app moves to a different Apple account
 #
 # Triggers:
 #   - workflow_call from release-please (profile: production, submit: true)

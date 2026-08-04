@@ -34,8 +34,8 @@
   "submit": {
     "production": {
       "ios": {
-        "ascAppId": "FILL_IN_ASC_APP_ID",
-        "appleTeamId": "FILL_IN_APPLE_TEAM_ID",
+        "ascAppId": "6797427206",
+        "appleTeamId": "FX3VR69P5K",
         "language": "en-US"
       }
     }

@@ -136,12 +136,14 @@ flowchart TD
 | `preview` | internal | ad-hoc install on registered devices |
 | `production` | store | release builds; `autoIncrement` bumps the EAS-side build number |
 
-`submit.production.ios` ships with `FILL_IN_…` placeholders for `ascAppId` and
-`appleTeamId`. Both must be replaced with literal values — EAS expands `$VAR`
-references only in the `ascApiKey*` fields, so an env var would be submitted
-verbatim and rejected. Neither is a secret (the ASC app ID is the number in an
-App Store URL). The workflow's preflight step refuses to start a submitting
-build while the placeholders are still there.
+`submit.production.ios` carries `ascAppId` (the App Store Connect app record for
+`com.tradermemos.app`) and `appleTeamId` as literal values. They have to be
+literal — EAS expands `$VAR` references only in the `ascApiKey*` fields, so an
+env var would be submitted verbatim and rejected. Neither is a secret: the ASC
+app ID is the number in an App Store URL and the team ID ships inside every
+signed binary. Change them only if the app moves to a different Apple account;
+the workflow's preflight step refuses to start a submitting build if either is
+missing or malformed.
 
 ### One-time setup
 
@@ -153,11 +155,8 @@ Nothing below is in the repo — it lives in the Expo and GitHub accounts.
 2. `npx eas-cli credentials` — upload (or let EAS generate) the iOS distribution
    certificate and provisioning profile, plus the App Store Connect API key that
    EAS Submit uses. Nothing Apple-related is stored in this repo.
-3. Replace the two `FILL_IN_…` placeholders in `mobile/eas.json`
-   (`submit.production.ios`) with the real ASC app ID and Apple Team ID, and
-   commit.
-4. GitHub repo secret `EXPO_TOKEN` (expo.dev → Account → Access tokens).
-5. Settings → Environments → **`app-store`**: add yourself as a required
+3. GitHub repo secret `EXPO_TOKEN` (expo.dev → Account → Access tokens).
+4. Settings → Environments → **`app-store`**: add yourself as a required
    reviewer. Same shape as the `docker-hub` gate — nothing reaches TestFlight
    without an explicit approval.
 
