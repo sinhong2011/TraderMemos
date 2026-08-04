@@ -1,3 +1,6 @@
+> [!NOTE]
+> **Canonical version:** the docs site sources in [`marketing/content/docs/`](../marketing/content/docs/) — this copy is kept as a convenience and may lag behind.
+
 # Fork → deploy the web UI on your account
 
 Goal: another GitHub user gets **TraderMemos web** on **their** Vercel / Cloudflare / Netlify, and/or the **API** on Railway, then connects them.

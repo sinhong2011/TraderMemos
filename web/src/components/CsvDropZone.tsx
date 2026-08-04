@@ -22,7 +22,9 @@ import { Button } from "./ui/button";
 
 /** The import API takes one file per run, so the picker stays single-file. */
 const ACCEPT = ".csv,text/csv,.json,application/json";
-const MAX_SIZE = 50 * 1024 * 1024;
+// Must not exceed the API's TM_IMPORT_MAX_BYTES (default 10 MiB) — a larger
+// client cap lets uploads through that the server then rejects with a 413.
+const MAX_SIZE = 10 * 1024 * 1024;
 
 export interface CsvDropZoneProps {
   file: File | null;

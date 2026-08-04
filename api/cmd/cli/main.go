@@ -102,6 +102,39 @@ func main() {
 	cu.Flags().StringVar(&password, "password", "", "password")
 	root.AddCommand(cu)
 
+	rp := &cobra.Command{
+		Use: "reset-password", Short: "reset a user's password",
+		RunE: func(*cobra.Command, []string) error {
+			if email == "" || password == "" {
+				return fmt.Errorf("--email and --password are required")
+			}
+			if err := auth.ValidatePassword(password); err != nil {
+				return fmt.Errorf("password must be at least %d characters", auth.MinPasswordLen)
+			}
+			q, err := openStore()
+			if err != nil {
+				return err
+			}
+			ctx := context.Background()
+			u, err := q.GetUserByEmail(ctx, email)
+			if err != nil {
+				return fmt.Errorf("user not found: %w", err)
+			}
+			h, err := auth.HashPassword(password)
+			if err != nil {
+				return err
+			}
+			if _, err := q.UpdateUserPassword(ctx, store.UpdateUserPasswordParams{PasswordHash: h, ID: u.ID}); err != nil {
+				return err
+			}
+			fmt.Println("password reset for", u.Email)
+			return nil
+		},
+	}
+	rp.Flags().StringVar(&email, "email", "", "user email")
+	rp.Flags().StringVar(&password, "password", "", "new password")
+	root.AddCommand(rp)
+
 	seedSetups := &cobra.Command{
 		Use: "seed-setups", Short: "ensure default playbook setups exist for a user",
 		RunE: func(*cobra.Command, []string) error {
