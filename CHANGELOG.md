@@ -5,6 +5,14 @@ All notable changes to TraderMemos are documented in this file.
 Release versioning is managed by [release-please](https://github.com/googleapis/release-please).
 See [docs/release.md](docs/release.md) for the release workflow.
 
+## [0.3.0](https://github.com/sinhong2011/TraderMemos/compare/v0.2.0...v0.3.0) (2026-08-04)
+
+
+### Features
+
+* docker healthchecks, reset-password CLI, import-cap fix, repo hygiene ([#84](https://github.com/sinhong2011/TraderMemos/issues/84)) ([84c12d4](https://github.com/sinhong2011/TraderMemos/commit/84c12d45eb6d1a222644f2542fb2ff6219ae86a9))
+* **marketing:** Next.js + Fumadocs marketing and docs site ([#85](https://github.com/sinhong2011/TraderMemos/issues/85)) ([ad4661f](https://github.com/sinhong2011/TraderMemos/commit/ad4661fffbcb4aebb3d7459d3c09124021253af0))
+
 ## [0.2.0](https://github.com/sinhong2011/TraderMemos/compare/v0.1.13...v0.2.0) (2026-08-03)
 
 
