@@ -1,0 +1,151 @@
+# Build the iOS app on EAS Build, optionally submitting the result to TestFlight.
+#
+# One-time setup (see docs/release.md → "Mobile releases"):
+#   EXPO_TOKEN       repo secret — Expo access token (expo.dev → Account → Access tokens)
+#   eas init         links mobile/app.json to an EAS project (writes extra.eas.projectId)
+#   eas credentials  uploads the distribution cert, provisioning profile, and the
+#                    App Store Connect API key EAS Submit uses
+#   eas.json         fill in submit.production.ios.ascAppId + appleTeamId (they are read
+#                    literally — only the ascApiKey* fields expand $VARIABLES)
+#
+# Triggers:
+#   - workflow_call from release-please (profile: production, submit: true)
+#   - workflow_dispatch (pick the profile; submit is opt-in)
+#
+# Submitting is the irreversible step, so any run with submit=true goes through the
+# app-store environment and waits for a reviewer — same gate shape as Docker Hub
+# publishing. Plain builds run in eas-build, which needs no approval.
+
+name: EAS Build
+
+# Never cancel in flight: a killed job leaves the EAS-side build running anyway,
+# and a release build is not something to interrupt.
+concurrency:
+  group: mobile-eas-${{ github.ref }}
+  cancel-in-progress: false
+
+on:
+  workflow_call:
+    inputs:
+      profile:
+        description: eas.json build profile
+        required: true
+        type: string
+      submit:
+        description: Submit the finished build to App Store Connect
+        default: false
+        type: boolean
+      message:
+        description: Build message shown in the EAS dashboard
+        required: false
+        type: string
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: eas.json build profile
+        type: choice
+        default: preview
+        options:
+          - development
+          - preview
+          - production
+      submit:
+        description: Submit the finished build to App Store Connect (TestFlight)
+        type: boolean
+        default: false
+      wait:
+        description: Keep the job running until EAS finishes the build
+        type: boolean
+        default: true
+
+jobs:
+  # Same checks as PR CI — reused so a release can never build code that skipped them.
+  test-mobile:
+    uses: ./.github/workflows/mobile-ci.yml
+
+  build:
+    name: EAS build (ios · ${{ inputs.profile }})
+    needs: test-mobile
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.submit && 'app-store' || 'eas-build' }}
+    # EAS queues can be long; the cap keeps a stuck run from pinning the
+    # release-please concurrency group.
+    timeout-minutes: 120
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v7
+
+      # Fail in five seconds with a pointer to the fix, instead of after a
+      # dependency install with an EAS CLI stack trace.
+      - name: Preflight
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          PROFILE: ${{ inputs.profile }}
+          SUBMIT: ${{ inputs.submit }}
+        run: |
+          # shellcheck disable=SC2016  # the single-quoted node script is JS, not shell
+          [ -n "$EXPO_TOKEN" ] || { echo "::error::EXPO_TOKEN secret is not set (expo.dev → Account → Access tokens)."; exit 1; }
+          node -e '
+            const { expo } = require("./app.json");
+            if (!expo?.extra?.eas?.projectId) {
+              console.error("::error::app.json has no extra.eas.projectId — run \"npx eas-cli init\" in mobile/ and commit the result.");
+              process.exit(1);
+            }
+            if (process.env.SUBMIT !== "true") process.exit(0);
+            const profile = process.env.PROFILE;
+            const ios = require("./eas.json").submit?.[profile]?.ios;
+            if (!ios) {
+              console.error("::error::eas.json has no submit profile named \"" + profile + "\" — only production can be submitted.");
+              process.exit(1);
+            }
+            for (const [field, shape] of [["ascAppId", /^[0-9]+$/], ["appleTeamId", /^[A-Z0-9]+$/]]) {
+              if (!shape.test(ios[field] ?? "")) {
+                console.error(
+                  "::error::eas.json submit." + profile + ".ios." + field + " is not set to a real value " +
+                    "(it reads literally — only the ascApiKey* fields expand environment variables)."
+                );
+                process.exit(1);
+              }
+            }
+          '
+
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 11.16.0
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: mobile/.node-version
+          cache: pnpm
+          cache-dependency-path: mobile/pnpm-lock.yaml
+
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+          packager: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      # eas.json pins appVersionSource: remote, so EAS owns the build number and
+      # nothing here writes back to the repo. The marketing version still comes
+      # from app.json, which release-please bumps.
+      - name: Build
+        env:
+          PROFILE: ${{ inputs.profile }}
+          SUBMIT: ${{ inputs.submit }}
+          # Unset on workflow_call, where waiting is always what we want.
+          WAIT: ${{ inputs.wait }}
+          MESSAGE: ${{ inputs.message || github.sha }}
+        run: |
+          args=(--platform ios --profile "$PROFILE" --non-interactive --message "$MESSAGE")
+          if [ "$SUBMIT" = "true" ]; then
+            args+=(--auto-submit)
+          fi
+          if [ "$WAIT" = "false" ]; then
+            args+=(--no-wait)
+          fi
+          eas build "${args[@]}"

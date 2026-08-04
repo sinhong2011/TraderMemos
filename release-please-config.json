@@ -13,6 +13,16 @@
           "type": "json",
           "path": "web/package.json",
           "jsonpath": "$.version"
+        },
+        {
+          "type": "json",
+          "path": "mobile/package.json",
+          "jsonpath": "$.version"
+        },
+        {
+          "type": "json",
+          "path": "mobile/app.json",
+          "jsonpath": "$.expo.version"
         }
       ]
     }

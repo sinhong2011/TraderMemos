@@ -12,6 +12,7 @@ flowchart TD
     G -->|"not yet"| C
     G -->|"merge the Release PR"| E["tag vX.Y.Z<br/>GitHub Release published"]
     E --> F["docker-publish.yml"]
+    E --> H["mobile-eas.yml<br/>EAS build + TestFlight"]
 ```
 
 There is no hand-cut release branch: `release-please--branches--main` **is** the
@@ -35,6 +36,8 @@ lines release-please reads to build the changelog.
 3. Review the changelog and version bumps (`VERSION`, `web/package.json`, `CHANGELOG.md`).
 4. Merge the Release PR → GitHub Release `vX.Y.Z` is created.
 5. Approve the `docker-hub` deployment → Docker images are published.
+6. Approve the `app-store` deployment → the iOS app builds on EAS and goes to
+   TestFlight (see [Mobile releases](#mobile-releases)).
 
 ## Commit messages
 
@@ -71,8 +74,14 @@ accumulate yields fuller notes and a readable `main` history. Prefer the latter.
 |------|---------|
 | `VERSION` | Source of truth for API + web builds |
 | `web/package.json` | Kept in sync by release-please |
+| `mobile/package.json` | Kept in sync by release-please |
+| `mobile/app.json` (`expo.version`) | Marketing version of the iOS build — kept in sync by release-please |
 | `CHANGELOG.md` | Human-readable release notes |
 | `.release-please-manifest.json` | Last released version (managed by release-please) |
+
+The iOS **build number** is not in this table: `eas.json` sets
+`appVersionSource: "remote"`, so EAS owns it and auto-increments it per
+production build. Only the marketing version comes from the repo.
 
 ## Docker images
 
@@ -105,11 +114,80 @@ via `workflow_dispatch` with the version to backfill.
 Reviewers live in **Settings → Environments → docker-hub**, not in the workflow
 file. `DOCKERHUB_USERNAME` / `DOCKERHUB_TOKEN` remain repo secrets.
 
+## Mobile releases
+
+The Expo app builds on [EAS Build](https://docs.expo.dev/build/introduction/)
+and is submitted by EAS Submit — no local Xcode archive, no manual upload.
+
+```mermaid
+flowchart TD
+    A["Release published<br/>· workflow_call from release-please<br/>· workflow_dispatch"] --> B["Test mobile<br/>lint · tsc · catalogs · prebuild"]
+    B --> C{"app-store environment<br/>required reviewer<br/>(only when submitting)"}
+    C -->|"approve"| D["eas build --profile production --auto-submit"]
+    D --> E["EAS: prebuild → archive → sign"]
+    E --> F["App Store Connect · TestFlight"]
+```
+
+### Build profiles (`mobile/eas.json`)
+
+| Profile | Distribution | Used for |
+|---------|--------------|----------|
+| `development` | internal, simulator | dev-client build without a local Xcode toolchain |
+| `preview` | internal | ad-hoc install on registered devices |
+| `production` | store | release builds; `autoIncrement` bumps the EAS-side build number |
+
+`submit.production.ios` ships with `FILL_IN_…` placeholders for `ascAppId` and
+`appleTeamId`. Both must be replaced with literal values — EAS expands `$VAR`
+references only in the `ascApiKey*` fields, so an env var would be submitted
+verbatim and rejected. Neither is a secret (the ASC app ID is the number in an
+App Store URL). The workflow's preflight step refuses to start a submitting
+build while the placeholders are still there.
+
+### One-time setup
+
+Nothing below is in the repo — it lives in the Expo and GitHub accounts.
+
+1. `cd mobile && npx eas-cli login && npx eas-cli init` — links the app to an EAS
+   project and writes `extra.eas.projectId` into `app.json`. **Commit that.**
+   Until it exists, every EAS command fails with "project not configured".
+2. `npx eas-cli credentials` — upload (or let EAS generate) the iOS distribution
+   certificate and provisioning profile, plus the App Store Connect API key that
+   EAS Submit uses. Nothing Apple-related is stored in this repo.
+3. Replace the two `FILL_IN_…` placeholders in `mobile/eas.json`
+   (`submit.production.ios`) with the real ASC app ID and Apple Team ID, and
+   commit.
+4. GitHub repo secret `EXPO_TOKEN` (expo.dev → Account → Access tokens).
+5. Settings → Environments → **`app-store`**: add yourself as a required
+   reviewer. Same shape as the `docker-hub` gate — nothing reaches TestFlight
+   without an explicit approval.
+
+### Manual builds
+
+**EAS Build** via `workflow_dispatch` — pick a profile, tick *submit* only when
+the build should also go to TestFlight. Locally: `make eas-build-preview`,
+`make eas-build-ios`, `make eas-submit-ios`.
+
+`cli.requireCommit` is on, so EAS builds from committed state only; a dirty tree
+is rejected rather than silently building something that is not in git.
+
+### Why prebuild is a CI step
+
+EAS runs its own `expo prebuild` on the build worker, so `ios/` as generated
+locally never reaches it. The UIScene lifecycle adoption iOS 27 requires
+(expo/expo#46663) therefore lives in the `with-ios-scene-lifecycle` config
+plugin rather than in `scripts/apply-ios-scene-patch.sh` alone. Mobile CI runs
+the same prebuild and asserts the `SceneDelegate` landed — without it the app
+builds fine and traps on launch.
+
 ## CI gates
 
 `Test API`, `Test web`, and `Conventional PR title` are required status checks
 on `main`. The same test jobs are reused by `docker-publish.yml`, so a release
 can never publish images that skipped tests.
+
+`Test mobile` runs only on PRs touching `mobile/**`, so it is not a required
+check (a required check that never runs blocks every other PR). `mobile-eas.yml`
+reuses it, so a release build still cannot skip it.
 
 `main` also carries an active ruleset with no bypass actors: PRs required,
 squash-only, linear history, no force-push or deletion. Approvals are set to 0

@@ -103,6 +103,29 @@ npx expo prebuild --clean
 npx expo run:ios
 ```
 
+UIScene adoption for the iOS 27 SDK (expo/expo#46663) is applied by the
+`plugins/with-ios-scene-lifecycle.js` config plugin, so a clean prebuild no longer loses it —
+locally or on an EAS worker.
+
+## Cloud builds (EAS)
+
+`eas.json` defines three iOS profiles: `development` (simulator dev client), `preview`
+(internal distribution) and `production` (store). From the repo root:
+
+```bash
+make eas-build-dev       # simulator dev client, no local Xcode toolchain needed
+make eas-build-preview   # ad-hoc build for registered devices
+make eas-build-ios       # store build
+make eas-submit-ios      # push the latest store build to App Store Connect
+```
+
+CI does the same through `.github/workflows/mobile-eas.yml` — manually via
+*workflow_dispatch*, or automatically when a release ships (build + TestFlight submit,
+behind the `app-store` approval gate). The marketing version comes from `app.json`
+(release-please bumps it); the build number is assigned by EAS
+(`cli.appVersionSource: "remote"`). One-time account setup is in
+[`docs/release.md`](../docs/release.md#mobile-releases).
+
 Charts are the notable gap — the web app's `lightweight-charts` and `recharts` are DOM
 libraries and do not run here. An equity curve will need `victory-native` (Skia) or
 `react-native-wagmi-charts`; now that the app is a development build, either can be added

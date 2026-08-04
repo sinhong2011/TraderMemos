@@ -1,10 +1,10 @@
 export PATH := $(HOME)/.local/share/pnpm:$(HOME)/go/bin:$(PATH)
 
-.PHONY: help setup setup-mobile dev dev-api dev-web dev-mobile run-ios prebuild-ios rebuild-ios build test test-api test-web lint lint-api lint-web lint-mobile check check-web check-mobile e2e sqlc kill up up-build up-postgres up-postgres-build down logs demo-seed
+.PHONY: help setup setup-mobile dev dev-api dev-web dev-mobile run-ios prebuild-ios rebuild-ios build test test-api test-web lint lint-api lint-web lint-mobile check check-web check-mobile e2e eas-build-dev eas-build-preview eas-build-ios eas-submit-ios sqlc kill up up-build up-postgres up-postgres-build down logs demo-seed
 
 # Default: show available targets
 help: ## List available targets
-	@grep -hE '^[a-zA-Z_-]+:.*##' $(MAKEFILE_LIST) | sort | awk 'BEGIN{FS=":.*##"}{printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
+	@grep -hE '^[a-zA-Z_-]+:.*##' $(MAKEFILE_LIST) | sort | awk 'BEGIN{FS=":.*##"}{printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}'
 
 ## --- setup ---
 
@@ -44,10 +44,10 @@ dev-mobile: ## Run Metro for the mobile dev build (open the TraderMemos app in t
 run-ios: ## Build + install the iOS dev client (needed after native dep / app.json changes)
 	cd mobile && $(NO_PROXY_ENV) npx expo run:ios
 
-# `expo prebuild --clean` wipes the hand-applied UIScene adoption (expo/expo#46663) and
-# the app would trap at launch — the patch script restores it right after regeneration.
-# Never run a bare `expo prebuild --clean`; always go through this target.
-prebuild-ios: ## Regenerate ios/ from scratch (prebuild --clean + re-apply UIScene patch)
+# UIScene adoption (expo/expo#46663) is applied by the with-ios-scene-lifecycle config
+# plugin, so a bare `expo prebuild --clean` is now safe. The script below re-runs as a
+# no-op belt-and-braces check that the plugin actually landed the patch.
+prebuild-ios: ## Regenerate ios/ from scratch (prebuild --clean + verify UIScene patch)
 	cd mobile && $(NO_PROXY_ENV) npx expo prebuild --clean --platform ios
 	mobile/scripts/apply-ios-scene-patch.sh
 
@@ -95,6 +95,24 @@ check-web: ## Vite+ check for web
 
 check-mobile: ## tsc typecheck for the Expo app
 	cd mobile && pnpm run check
+
+## --- eas ---
+
+# Cloud builds on EAS. One-time setup: `cd mobile && npx eas-cli login && npx eas-cli init`,
+# then `npx eas-cli credentials` for the signing assets and the ASC API key.
+# CI does the same thing via .github/workflows/mobile-eas.yml.
+
+eas-build-dev: ## EAS: simulator dev-client build (development profile)
+	cd mobile && npx eas-cli build --platform ios --profile development
+
+eas-build-preview: ## EAS: internal-distribution build (preview profile)
+	cd mobile && npx eas-cli build --platform ios --profile preview
+
+eas-build-ios: ## EAS: store build (production profile, no submit)
+	cd mobile && npx eas-cli build --platform ios --profile production
+
+eas-submit-ios: ## EAS: submit the latest production build to App Store Connect
+	cd mobile && npx eas-cli submit --platform ios --profile production --latest
 
 ## --- codegen ---
 

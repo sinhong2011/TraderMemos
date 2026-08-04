@@ -1,0 +1,80 @@
+# Lint, typecheck, and prebuild-validate the Expo app. Runs on every PR and push
+# to main that touches mobile/, and is reused by mobile-eas.yml so EAS builds run
+# the exact same checks first.
+#
+# The prebuild step is the guard that matters for EAS: EAS Build runs its own
+# `expo prebuild` on a remote worker, so anything the config plugins get wrong
+# there produces an app that fails to launch rather than a red build. Running the
+# same prebuild here catches it on the PR.
+
+name: Mobile CI
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - mobile/**
+      - .github/workflows/mobile-ci.yml
+  pull_request:
+    paths:
+      - mobile/**
+      - .github/workflows/mobile-ci.yml
+  workflow_call:
+
+concurrency:
+  group: mobile-ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+defaults:
+  run:
+    working-directory: mobile
+
+jobs:
+  test-mobile:
+    name: Test mobile
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 11.16.0
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: mobile/.node-version
+          cache: pnpm
+          cache-dependency-path: mobile/pnpm-lock.yaml
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm run lint
+
+      - name: Typecheck
+        run: pnpm run check
+
+      # A .po edited without recompiling silently ships English (the compiled
+      # catalogs are what the app imports), so the diff has to stay clean.
+      - name: Catalogs compiled
+        run: |
+          pnpm run i18n:compile
+          if ! git diff --quiet -- src/i18n/locales; then
+            echo "::error::Compiled catalogs are stale — run 'pnpm i18n:compile' in mobile/ and commit the result."
+            git diff --stat -- src/i18n/locales
+            exit 1
+          fi
+
+      # Same prebuild EAS Build runs remotely. --no-install skips CocoaPods,
+      # which needs macOS; everything the config plugins do is plain file writes.
+      - name: Prebuild iOS
+        run: npx expo prebuild --platform ios --no-install --clean
+
+      # iOS 27 traps at launch without scene lifecycle adoption (expo/expo#46663);
+      # plugins/with-ios-scene-lifecycle.js is what puts it there.
+      - name: UIScene adoption present
+        run: |
+          grep -q 'class SceneDelegate' ios/TraderMemos/AppDelegate.swift
+          grep -q 'UIApplicationSceneManifest' ios/TraderMemos/Info.plist
