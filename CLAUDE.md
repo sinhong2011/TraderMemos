@@ -46,18 +46,22 @@ components driven from React.
   URL and the simulator can't load the app. The `make` targets already strip them — if
   running `pnpm start` / `expo run:ios` by hand, prefix with
   `env -u HTTP_PROXY -u HTTPS_PROXY`.
-- **Never run a bare `expo prebuild --clean` — use `make prebuild-ios`** (or `make rebuild-ios`
-  for prebuild + build + install). The iOS 27 SDK requires the UIScene lifecycle, which
-  Expo's template doesn't generate yet (expo/expo#46663), so `ios/TraderMemos/AppDelegate.swift`
-  and `Info.plist` carry hand-applied scene adoption (a `SceneDelegate` class +
-  `UIApplicationSceneManifest`). A clean prebuild wipes those edits and the app will trap at
-  launch (`EXC_BREAKPOINT` in `UIApplicationEvaluateRuntimeIssueForNoSceneLifecycleAdoption`).
-  The make target restores them via `mobile/scripts/apply-ios-scene-patch.sh` (canonical
-  patched AppDelegate lives in `mobile/patches/ios-scene/`). Key invariant if editing the
+- The iOS 27 SDK requires the UIScene lifecycle, which Expo's template doesn't generate yet
+  (expo/expo#46663) — without it the app traps at launch (`EXC_BREAKPOINT` in
+  `UIApplicationEvaluateRuntimeIssueForNoSceneLifecycleAdoption`). Scene adoption is applied
+  by the **`mobile/plugins/with-ios-scene-lifecycle.js` config plugin**, so every prebuild
+  gets it — local *and* the remote prebuild EAS Build runs. The canonical patched
+  AppDelegate lives in `mobile/patches/ios-scene/`; `scripts/apply-ios-scene-patch.sh` (run
+  by `make prebuild-ios`) is now just a no-op verification pass. Key invariant if editing the
   patch: in `scene(_:willConnectTo:options:)` a cold-launch deep link must be merged into
   `launchOptions[.url]` *before* `startReactNative` — dispatching it as an open-url event
   afterwards makes expo-dev-launcher start a second React instance concurrently with the
   first and Hermes segfaults (`EXC_BAD_ACCESS` in `AppContext.prepareRuntime`).
+- **Cloud builds run on EAS** (`mobile/eas.json`, `.github/workflows/mobile-eas.yml`).
+  Profiles: `development` (simulator dev client), `preview` (internal), `production`
+  (store, auto-submits to TestFlight on release). Marketing version comes from
+  `app.json`, which release-please bumps; EAS owns the build number
+  (`appVersionSource: "remote"`). See `docs/release.md` → Mobile releases.
 
 ### Upgrading dependencies
 
