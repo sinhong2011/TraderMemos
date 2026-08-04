@@ -100,6 +100,7 @@
     "tagline": "Self-hosted trading journal.",
     "docs": "Docs",
     "changelog": "Changelog",
+    "privacy": "Privacy",
     "roadmap": "Roadmap",
     "github": "GitHub",
     "discussions": "Discussions",
@@ -119,5 +120,97 @@
     "title": "Changelog",
     "intro": "Every release, generated from Conventional Commits.",
     "viewOnGitHub": "View releases on GitHub →"
+  },
+  "Privacy": {
+    "metaTitle": "Privacy Policy",
+    "metaDescription": "TraderMemos collects nothing. Your trades live on the server you run — here is exactly what the apps store, send, and ask permission for.",
+    "title": "Privacy Policy",
+    "updated": "Last updated: 4 August 2026",
+    "intro": "TraderMemos is open-source, self-hosted software. There is no TraderMemos cloud — the mobile and web apps talk only to a server that you, or whoever set up your instance, control. We run no service that receives your trading data, and the apps ship with no analytics, advertising, or crash-reporting SDKs.",
+    "sections": {
+      "scope": {
+        "title": "What this policy covers",
+        "body": [
+          "This policy applies to the TraderMemos apps for iOS and Android, the TraderMemos web app, and this website.",
+          "It does not cover the server you connect to. That server is run by you, or by the person who set it up for you, under their own arrangements for hosting, backups, and security."
+        ]
+      },
+      "controller": {
+        "title": "Who is responsible for your data",
+        "body": [
+          "Because TraderMemos is self-hosted, the operator of your instance is responsible for the data in it. If you run your own server, that is you.",
+          "The publisher of the apps has no access to your instance, no credentials for it, and no way to read, export, or delete anything stored there."
+        ]
+      },
+      "device": {
+        "title": "What the app stores on your device",
+        "body": [
+          "Your sign-in token is stored in the iOS Keychain or the Android Keystore.",
+          "Your server address, your app preferences, and a cache of recently loaded trades and reports are kept in the app's private storage, so screens open instantly and stay readable offline.",
+          "All of it stays on the device. Deleting the app removes it."
+        ]
+      },
+      "permissions": {
+        "title": "Device permissions",
+        "body": [
+          "Photos — only if you use screenshot import. The images you pick are sent to your own server to extract fills; the app never scans your library.",
+          "Reminders — only if you bookmark an economic release. The event title and time are written to your Reminders app; nothing is read back.",
+          "Files — only when you import a CSV or JSON fill file that you choose yourself.",
+          "Each permission is requested at the moment you use the feature, and every one is optional. The app does not use the camera, location, contacts, microphone, or health data."
+        ]
+      },
+      "server": {
+        "title": "What the app sends to your server",
+        "body": [
+          "Everything you enter — trades, executions, notes, tags, playbook rules, attachments, and your account email and password — is sent to the server address you configure, over HTTPS when your server is set up with TLS.",
+          "It is stored in that server's database, under the control of whoever operates it. No copy is sent anywhere else."
+        ]
+      },
+      "ai": {
+        "title": "Optional AI features",
+        "body": [
+          "Screenshot fill extraction and the trade coach are off by default and are configured server-side by whoever runs your instance.",
+          "When they are switched on, the screenshots or trade details involved are sent from your server to the OpenAI-compatible endpoint that operator configured — which may be a commercial provider such as OpenAI or OpenRouter, or a model running on their own machine. That provider's own privacy terms then apply to what it receives.",
+          "If the features are left off, nothing leaves your server."
+        ]
+      },
+      "thirdParties": {
+        "title": "No trackers, no telemetry",
+        "body": [
+          "The apps contain no advertising SDKs, no analytics SDKs, and no crash-reporting SDKs. Nothing is shared with data brokers.",
+          "The apps never contact a server operated by TraderMemos — there is no telemetry, no usage reporting, no remote configuration, and no account with us to create."
+        ]
+      },
+      "website": {
+        "title": "This website",
+        "body": [
+          "This site is a static documentation and marketing site. It sets no advertising or tracking cookies, and fonts are served from this domain rather than a third party.",
+          "It may run Umami, a cookie-less, privacy-preserving analytics tool that records aggregate page views without profiling visitors or storing personal data. Requesting a page also involves your IP address reaching our hosting provider, as with any website."
+        ]
+      },
+      "children": {
+        "title": "Children",
+        "body": [
+          "TraderMemos is a tool for adults journaling their own trading. It is not directed at children, and since we collect no data at all, we hold none belonging to a child."
+        ]
+      },
+      "rights": {
+        "title": "Your data, your control",
+        "body": [
+          "Because your data lives on your own server, you do not need to ask us for access, correction, export, or deletion — you already hold it. Trades can be edited or deleted in the app, and the whole database can be exported or destroyed directly.",
+          "Uninstalling the app removes everything it stored on your device, including your sign-in token. To close an account on an instance run by someone else, contact that operator.",
+          "We cannot fulfil data requests for a server we do not operate, because we hold no copy of your data."
+        ]
+      },
+      "changes": {
+        "title": "Changes to this policy",
+        "body": [
+          "If this policy changes materially, the date at the top of this page is updated. Because the site is open source, the full revision history of this page is public in the Git repository."
+        ]
+      }
+    },
+    "contactTitle": "Contact",
+    "contactBody": "Questions about this policy, or about how the apps handle data, are welcome in the public repository:",
+    "contactLink": "Open a discussion on GitHub →"
   }
 }
