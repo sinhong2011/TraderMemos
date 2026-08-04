@@ -12,6 +12,7 @@
       "bundleIdentifier": "com.tradermemos.app",
       "supportsTablet": true,
       "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
         "CFBundleAllowMixedLocalizations": true,
         "CFBundleLocalizations": [
           "en",

@@ -145,6 +145,15 @@ signed binary. Change them only if the app moves to a different Apple account;
 the workflow's preflight step refuses to start a submitting build if either is
 missing or malformed.
 
+### Export compliance
+
+`app.json` declares `ios.infoPlist.ITSAppUsesNonExemptEncryption: false`. Without
+it, every uploaded build parks in App Store Connect waiting for the encryption
+question to be answered by hand, which would stall the automated TestFlight
+hand-off on each release. The declaration is the standard exemption for an app
+whose only cryptography is HTTPS/TLS and the system Keychain (via
+expo-secure-store) — revisit it if the app ever ships its own crypto.
+
 ### One-time setup
 
 Nothing below is in the repo — it lives in the Expo and GitHub accounts.
