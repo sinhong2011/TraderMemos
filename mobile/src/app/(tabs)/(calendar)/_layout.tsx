@@ -21,16 +21,11 @@ export default function CalendarLayout() {
       {/* Compact bar: the screen swaps the title for the period label and mounts
           the view-mode menu + pagers as bar buttons, so the grid gets the screen. */}
       <Stack.Screen name="index" options={{ title: t`Calendar`, headerLargeTitle: false }} />
-      <Stack.Screen
-        name="day/[date]"
-        options={{
-          presentation: 'formSheet',
-          headerShown: false,
-          sheetAllowedDetents: [0.55, 1],
-          sheetGrabberVisible: true,
-          sheetCornerRadius: 24,
-        }}
-      />
+      {/* Day review is a pushed screen with a compact bar: the screen sets the
+          date as the title and mounts the ±1-day chevrons as bar buttons. A
+          large title here would leak the RefreshControl's inset into the stack
+          on every push (see notes/funding). */}
+      <Stack.Screen name="day/[date]" options={{ headerLargeTitle: false }} />
     </Stack>
   );
 }
