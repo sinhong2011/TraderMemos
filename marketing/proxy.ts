@@ -37,6 +37,11 @@ export default function proxy(request: NextRequest, event: NextFetchEvent) {
 }
 
 export const config = {
-  // exclude api routes, Next internals, and public/ static assets (favicon, icon, screenshots)
-  matcher: ['/((?!api|_next/static|_next/image|favicon\\.ico|icon\\.svg|screenshots).*)'],
+  // Exclude api routes, Next internals, public/ static assets (favicon, icon, screenshots),
+  // and the root metadata routes. The latter are locale-agnostic and have no `/[lang]`
+  // counterpart — without the exemption the i18n middleware redirects `/sitemap.xml` to
+  // `/en/sitemap.xml`, which 404s, hiding the sitemap and robots.txt from crawlers.
+  matcher: [
+    '/((?!api|_next/static|_next/image|favicon\\.ico|icon\\.svg|screenshots|sitemap\\.xml|robots\\.txt|llms\\.txt|llms-full\\.txt).*)',
+  ],
 };
