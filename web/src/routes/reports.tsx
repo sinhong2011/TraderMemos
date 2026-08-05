@@ -23,7 +23,9 @@ import {
   useSummary,
 } from "@/lib/hooks/useAnalytics";
 import { useAnnualGoal, useClearAnnualGoal, useSaveAnnualGoal } from "@/lib/hooks/useAnnualGoal";
+import { useCash } from "@/lib/hooks/useCash";
 import { useTrades } from "@/lib/hooks/useTrades";
+import { netDeposits } from "@/lib/headerStats";
 
 const REPORT_TAB_VALUES: ReportsTab[] = REPORT_TABS.map((t) => t.value);
 const SIDE_VALUES: ReportsSide[] = ["all", "long", "short"];
@@ -115,15 +117,17 @@ function ReportsPage() {
   const complianceQ = useCompliance(analyticsFilters);
   const behaviorQ = useBehavior(analyticsFilters);
   const accountsQ = useAccounts();
+  const cashQ = useCash(filters);
   const annualGoalQ = useAnnualGoal(goalYear);
   const saveAnnualGoalM = useSaveAnnualGoal();
   const clearAnnualGoalM = useClearAnnualGoal();
   const currency = accountBaseCurrency(accountsQ.data ?? [], accountId);
-  const denominator = useMemo(() => {
-    const accts = accountsQ.data ?? [];
-    const scope = accountId ? accts.filter((a) => a.id === accountId) : accts;
-    return scope.reduce((sum, a) => sum + (a.starting_balance || 0), 0);
-  }, [accountsQ.data, accountId]);
+  // %-basis is the capital actually put in (net deposits), read off the cash
+  // ledger rather than the starting_balance metadata.
+  const denominator = useMemo(
+    () => netDeposits({ accounts: accountsQ.data ?? [], accountId, cashTx: cashQ.data ?? [] }),
+    [accountsQ.data, accountId, cashQ.data],
+  );
 
   return (
     <>

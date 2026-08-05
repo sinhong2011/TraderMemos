@@ -61,6 +61,7 @@ const BASE = {
   },
   monthSummary: MONTH_SUMMARY,
   accounts: [],
+  cashTx: [],
   selectedAccountId: undefined,
   year: 2026,
   month: 7,

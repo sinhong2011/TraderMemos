@@ -21,7 +21,8 @@ import {
   TINTED_LABEL_SUBTLE,
 } from "@/components/theme-tokens";
 
-import type { Account, Summary, Trade } from "@/lib/api/types";
+import type { Account, CashTransaction, Summary, Trade } from "@/lib/api/types";
+import { netDeposits } from "@/lib/headerStats";
 import { type DayRecord, dayKeyInTz, monthGrid, tradeDayKey, weekSummaries } from "@/lib/calendar";
 import { cn } from "@/lib/cn";
 import { fmtPct, fmtSignedMoney, fmtSignedMoneyCompact } from "@/lib/format";
@@ -64,6 +65,8 @@ export interface CalendarViewProps {
   yearTradeList?: Trade[];
   monthSummary: Summary | undefined;
   accounts: Account[];
+  /** Full cash ledger for the scope; funds the %-of-account basis. */
+  cashTx: CashTransaction[];
   selectedAccountId: string | undefined;
   year: number;
   month: number;
@@ -123,6 +126,7 @@ export function CalendarView({
   yearTradeList = [],
   monthSummary,
   accounts,
+  cashTx,
   selectedAccountId,
   year,
   month,
@@ -181,10 +185,9 @@ export function CalendarView({
     return map;
   }, [yearTradeList, tradeDateBasis, marketTz]);
 
-  const startingList = selectedAccountId
-    ? accounts.filter((a) => a.id === selectedAccountId)
-    : accounts;
-  const starting = startingList.reduce((s, a) => s + a.starting_balance, 0);
+  // %-basis is net deposits from the cash ledger — starting_balance is metadata
+  // that already lives in the ledger as the "Opening balance" deposit.
+  const starting = netDeposits({ accounts, accountId: selectedAccountId, cashTx });
   const monthPnl = monthSummary?.net_pnl ?? grid.monthTotal;
   const monthPct = starting > 0 ? (monthPnl / starting) * 100 : null;
 

@@ -1,7 +1,6 @@
 package api
 
 import (
-	"context"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -121,10 +120,6 @@ func (s *Server) handleEquityCurve(c echo.Context) error {
 	if err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not compute equity curve", nil)
 	}
-	startBal, err := s.startingBalance(ctx, uid, f.AccountID)
-	if err != nil {
-		return Fail(http.StatusInternalServerError, "internal", "could not load balances", nil)
-	}
 	cashRows, err := s.deps.Store.ListCashTransactions(ctx, store.ListCashTransactionsParams{
 		UserID: uid, AccountID: accountArg(f.AccountID),
 	})
@@ -135,20 +130,8 @@ func (s *Server) handleEquityCurve(c echo.Context) error {
 	for _, ct := range cashRows {
 		flows = append(flows, analytics.CashFlow{Amount: ct.Amount, OccurredAt: ct.OccurredAt})
 	}
-	return c.JSON(http.StatusOK, analytics.EquityCurve(startBal, flows, toClosedTrades(rows)))
-}
-
-// startingBalance returns the sum of starting balances for the user (or one account).
-func (s *Server) startingBalance(ctx context.Context, userID, accountID string) (float64, error) {
-	accs, err := s.deps.Store.ListAccounts(ctx, userID)
-	if err != nil {
-		return 0, err
-	}
-	var sum float64
-	for _, a := range accs {
-		if accountID == "" || a.ID == accountID {
-			sum += a.StartingBalance
-		}
-	}
-	return sum, nil
+	// The curve starts at zero: accounts.starting_balance is metadata only, it is
+	// already seeded into the ledger as the "Opening balance" deposit
+	// (ensureOpeningDeposit), so adding it here would count that money twice.
+	return c.JSON(http.StatusOK, analytics.EquityCurve(0, flows, toClosedTrades(rows)))
 }

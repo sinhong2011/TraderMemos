@@ -8,6 +8,24 @@ export interface HeaderStats {
   active: number;
 }
 
+// Capital put into the scoped accounts: the cash ledger is the single source of
+// truth for funding. `accounts.starting_balance` is metadata only — it is seeded
+// into the ledger as the "Opening balance" deposit when an account is created,
+// so summing it here as well would count that money twice.
+export function netDeposits(opts: {
+  accounts: Account[];
+  accountId?: string;
+  cashTx: CashTransaction[];
+}): number {
+  const scope = opts.accountId
+    ? opts.accounts.filter((a) => a.id === opts.accountId)
+    : opts.accounts;
+  const accountIds = new Set(scope.map((a) => a.id));
+  return opts.cashTx
+    .filter((c) => accountIds.has(c.account_id))
+    .reduce((sum, c) => sum + c.amount, 0);
+}
+
 // Header account block: net P&L for the current filter scope, an estimated
 // cash balance (cash ledger + realized P&L), and the entry value of open
 // positions ("Active"). Opening balance is seeded as the first deposit.
