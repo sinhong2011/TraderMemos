@@ -1,9 +1,8 @@
 "use no memo";
 
-import { useEffect } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useHotkeys } from "react-hotkeys-hook";
-import { APP_HOTKEYS } from "./hotkeys";
+import { useHotkeyBindings } from "./keybindings";
 import { useToolRunner } from "./useToolRunner";
 import { useUI } from "./ui";
 
@@ -62,31 +61,35 @@ function drawerOrModalOpen(): boolean {
   return modal !== null || positionSizeOpen;
 }
 
-function isPlainLetter(e: KeyboardEvent, letter: string): boolean {
-  const lower = letter.toLowerCase();
-  if (e.key.toLowerCase() === lower) return true;
-  return e.code.toLowerCase() === `key${lower}`;
-}
-
 /**
- * Global command shortcuts. Listeners stay attached; we gate with
- * ignoreEventWhen so chords work both on the page and inside an empty palette.
- *
- * Single-letter actions (`n`, ⇧S, ⇧N) use a native capture listener so they
- * keep working when react-hotkeys-hook sequence state / code matching flakes
- * (common after chart focus or mixed mod chords).
+ * Global command shortcuts, resolved from the user's keybindings (Settings →
+ * Shortcuts) with the built-in defaults as fallback. Listeners stay attached
+ * and every gated command runs behind `guarded`, so shortcuts work on the page
+ * and inside an empty palette but never while typing or over an open drawer.
  */
 export function useAppHotkeys() {
   const navigate = useNavigate();
   const openModal = useUI((s) => s.openModal);
   const setCommandOpen = useUI((s) => s.setCommandOpen);
   const runTool = useToolRunner();
+  const keys = useHotkeyBindings();
 
   const blockWhenTypingOrOverlay = (e: KeyboardEvent) => drawerOrModalOpen() || isTypingContext(e);
 
-  // ⌘K / Ctrl+K — always available, including while typing
+  /**
+   * react-hotkeys-hook only consults `ignoreEventWhen` on the combo branch — its
+   * sequence branch fires with no gate at all (v5.3.3), so `g` `h` would trigger
+   * on the "gh" inside a word like "bought". Every gated command re-checks the
+   * guard here, where it applies to sequences too.
+   */
+  const guarded = (run: () => void) => (e: KeyboardEvent) => {
+    if (blockWhenTypingOrOverlay(e)) return;
+    run();
+  };
+
+  // Palette — always available, including while typing
   useHotkeys(
-    APP_HOTKEYS.palette.keys,
+    keys.palette.keys,
     () => setCommandOpen(!useUI.getState().commandOpen),
     {
       enableOnFormTags: true,
@@ -94,7 +97,7 @@ export function useAppHotkeys() {
       preventDefault: true,
       eventListenerOptions: CAPTURE,
     },
-    [setCommandOpen],
+    [setCommandOpen, keys.palette.keys],
   );
 
   const pageChord = {
@@ -104,141 +107,82 @@ export function useAppHotkeys() {
     ignoreEventWhen: blockWhenTypingOrOverlay,
   } as const;
 
-  // Navigation sequences (g then letter) — skip while typing / overlays
-  useHotkeys(
-    APP_HOTKEYS["nav-home"].keys,
-    () => {
+  const go = (to: string, search?: Record<string, string>) =>
+    guarded(() => {
       useUI.getState().setCommandOpen(false);
-      void navigate({ to: "/home" });
-    },
-    pageChord,
-    [navigate],
-  );
-  useHotkeys(
-    APP_HOTKEYS["nav-trades"].keys,
-    () => {
-      useUI.getState().setCommandOpen(false);
-      void navigate({ to: "/trades" });
-    },
-    pageChord,
-    [navigate],
-  );
-  useHotkeys(
-    APP_HOTKEYS["nav-calendar"].keys,
-    () => {
-      useUI.getState().setCommandOpen(false);
-      void navigate({ to: "/calendar" });
-    },
-    pageChord,
-    [navigate],
-  );
-  useHotkeys(
-    APP_HOTKEYS["nav-stats"].keys,
-    () => {
-      useUI.getState().setCommandOpen(false);
-      void navigate({
-        to: "/reports",
-        search: { tab: "overview", side: "all", dur: "all", pnl: "net", unit: "abs", avg: "mean" },
-      });
-    },
-    pageChord,
-    [navigate],
-  );
-  useHotkeys(
-    APP_HOTKEYS["nav-playbook"].keys,
-    () => {
-      useUI.getState().setCommandOpen(false);
-      void navigate({ to: "/playbook" });
-    },
-    pageChord,
-    [navigate],
-  );
-  useHotkeys(
-    APP_HOTKEYS["nav-notes"].keys,
-    () => {
-      useUI.getState().setCommandOpen(false);
-      void navigate({ to: "/notes" });
-    },
-    pageChord,
-    [navigate],
-  );
-  useHotkeys(
-    APP_HOTKEYS["nav-calculator"].keys,
-    () => {
-      useUI.getState().setCommandOpen(false);
-      void navigate({ to: "/calculator" });
-    },
-    pageChord,
-    [navigate],
-  );
-  useHotkeys(
-    APP_HOTKEYS["nav-import "].keys,
-    () => {
-      useUI.getState().setCommandOpen(false);
-      void navigate({ to: "/import" });
-    },
-    pageChord,
-    [navigate],
-  );
-  useHotkeys(
-    APP_HOTKEYS["nav-settings"].keys,
-    () => {
-      useUI.getState().setCommandOpen(false);
-      void navigate({ to: "/settings" });
-    },
-    {
-      enableOnFormTags: true,
-      preventDefault: true,
-      eventListenerOptions: CAPTURE,
-      ignoreEventWhen: (e) => drawerOrModalOpen() || isTypingContext(e),
-    },
-    [navigate],
-  );
+      void navigate(search ? { to, search } : { to });
+    });
 
-  // Actions — native capture listener (more reliable than useHotkeys for bare letters)
-  useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.metaKey || e.ctrlKey || e.altKey) return;
-      if (e.repeat) return;
+  // Navigation — skip while typing / overlays
+  useHotkeys(keys["nav-home"].keys, go("/home"), pageChord, [navigate, keys["nav-home"].keys]);
+  useHotkeys(keys["nav-trades"].keys, go("/trades"), pageChord, [
+    navigate,
+    keys["nav-trades"].keys,
+  ]);
+  useHotkeys(keys["nav-calendar"].keys, go("/calendar"), pageChord, [
+    navigate,
+    keys["nav-calendar"].keys,
+  ]);
+  useHotkeys(
+    keys["nav-stats"].keys,
+    go("/reports", {
+      tab: "overview",
+      side: "all",
+      dur: "all",
+      pnl: "net",
+      unit: "abs",
+      avg: "mean",
+    }),
+    pageChord,
+    [navigate, keys["nav-stats"].keys],
+  );
+  useHotkeys(keys["nav-playbook"].keys, go("/playbook"), pageChord, [
+    navigate,
+    keys["nav-playbook"].keys,
+  ]);
+  useHotkeys(keys["nav-notes"].keys, go("/notes"), pageChord, [navigate, keys["nav-notes"].keys]);
+  useHotkeys(keys["nav-calculator"].keys, go("/calculator"), pageChord, [
+    navigate,
+    keys["nav-calculator"].keys,
+  ]);
+  useHotkeys(keys["nav-import "].keys, go("/import"), pageChord, [
+    navigate,
+    keys["nav-import "].keys,
+  ]);
+  useHotkeys(keys["nav-settings"].keys, go("/settings"), pageChord, [
+    navigate,
+    keys["nav-settings"].keys,
+  ]);
 
-      const isNewTrade = !e.shiftKey && isPlainLetter(e, "n");
-      const isNewSetup = e.shiftKey && isPlainLetter(e, "s");
-      const isNewNote = e.shiftKey && isPlainLetter(e, "n");
-      if (!isNewTrade && !isNewSetup && !isNewNote) return;
-
-      // Drawer already open: swallow the key so it never toggles/closes or leaks to chrome.
-      if (drawerOrModalOpen()) {
-        e.preventDefault();
-        e.stopPropagation();
-        return;
-      }
-
-      if (isTypingContext(e)) return;
-
-      e.preventDefault();
-      e.stopPropagation();
+  // Create actions. `openModal` is a no-op toggle guard in the store, and the
+  // guard already blocks these while a drawer is open, so a repeat press can
+  // never close the drawer the user is filling in.
+  const openFromHotkey = (modal: "new-trade" | "new-setup" | "new-note") =>
+    guarded(() => {
       useUI.getState().setCommandOpen(false);
-      if (isNewTrade) openModal("new-trade");
-      else if (isNewSetup) openModal("new-setup");
-      else openModal("new-note");
-    };
+      openModal(modal);
+    });
 
-    document.addEventListener("keydown", onKeyDown, CAPTURE);
-    return () => document.removeEventListener("keydown", onKeyDown, CAPTURE);
-  }, [openModal]);
+  useHotkeys(keys["action-new-trade"].keys, openFromHotkey("new-trade"), pageChord, [
+    openModal,
+    keys["action-new-trade"].keys,
+  ]);
+  useHotkeys(keys["action-new-note"].keys, openFromHotkey("new-note"), pageChord, [
+    openModal,
+    keys["action-new-note"].keys,
+  ]);
+  useHotkeys(keys["action-new-setup"].keys, openFromHotkey("new-setup"), pageChord, [
+    openModal,
+    keys["action-new-setup"].keys,
+  ]);
 
   useHotkeys(
-    APP_HOTKEYS["tool-size"].keys,
-    () => {
+    keys["tool-size"].keys,
+    guarded(() => {
       useUI.getState().setCommandOpen(false);
       runTool("size");
-    },
-    {
-      enableOnFormTags: true,
-      preventDefault: true,
-      eventListenerOptions: CAPTURE,
-      ignoreEventWhen: blockWhenTypingOrOverlay,
-    },
-    [runTool],
+    }),
+    pageChord,
+    [runTool, keys["tool-size"].keys],
   );
 }

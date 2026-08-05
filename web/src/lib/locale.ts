@@ -121,6 +121,7 @@ export type SettingsSectionId =
   | "journal"
   | "ai"
   | "general"
+  | "shortcuts"
   | "api"
   | "about";
 
@@ -130,6 +131,7 @@ export type SettingsLabelKey =
   | "journal"
   | "ai"
   | "general"
+  | "shortcuts"
   | "api"
   | "about"
   | "accountsTitle"
@@ -146,6 +148,8 @@ export type SettingsLabelKey =
   | "apiDescription"
   | "aboutTitle"
   | "aboutDescription"
+  | "shortcutsTitle"
+  | "shortcutsDescription"
   | "language"
   | "languageFooter"
   | "languageSelector"
@@ -265,6 +269,7 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     journal: "Journal",
     ai: "AI",
     general: "General",
+    shortcuts: "Shortcuts",
     api: "API",
     about: "About",
     accountsTitle: "Accounts & funding",
@@ -281,6 +286,9 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     apiDescription: "Personal access tokens and OpenAPI docs for external tools, MCP, and scripts.",
     aboutTitle: "About TraderMemos",
     aboutDescription: "Project info, features, and links to docs and source.",
+    shortcutsTitle: "Keyboard shortcuts",
+    shortcutsDescription:
+      "Rebind any command. Two-key sequences are typed in order, like G then H.",
     language: "Language",
     languageFooter: "Interface language for TraderMemos.",
     languageSelector: "Language selector",
@@ -411,6 +419,7 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     journal: "日誌",
     ai: "AI",
     general: "一般",
+    shortcuts: "快捷鍵",
     api: "API",
     about: "關於",
     accountsTitle: "帳戶與資金",
@@ -427,6 +436,8 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     apiDescription: "個人存取權杖與 OpenAPI 文件，供外部工具、MCP 及腳本使用。",
     aboutTitle: "關於 TraderMemos",
     aboutDescription: "專案資訊、功能概覽，以及文件與原始碼連結。",
+    shortcutsTitle: "鍵盤快捷鍵",
+    shortcutsDescription: "重新設定任何指令。兩鍵組合須依序按下，例如先按 G 再按 H。",
     language: "語言",
     languageFooter: "TraderMemos 的介面語言。",
     languageSelector: "語言選擇器",
@@ -551,6 +562,7 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     journal: "ジャーナル",
     ai: "AI",
     general: "一般",
+    shortcuts: "ショートカット",
     api: "API",
     about: "について",
     accountsTitle: "アカウントと資金",
@@ -568,6 +580,9 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
       "外部ツール、MCP、スクリプト向けの個人アクセストークンと OpenAPI ドキュメント。",
     aboutTitle: "TraderMemos について",
     aboutDescription: "プロジェクト情報、機能、ドキュメントとソースへのリンク。",
+    shortcutsTitle: "キーボードショートカット",
+    shortcutsDescription:
+      "任意のコマンドを再割り当てできます。2 キーの組み合わせは G → H のように順番に押します。",
     language: "言語",
     languageFooter: "TraderMemos の表示言語。",
     languageSelector: "言語セレクター",
@@ -697,6 +712,7 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     journal: "저널",
     ai: "AI",
     general: "일반",
+    shortcuts: "단축키",
     api: "API",
     about: "정보",
     accountsTitle: "계정 및 자금",
@@ -713,6 +729,9 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     apiDescription: "외부 도구, MCP, 스크립트용 개인 액세스 토큰과 OpenAPI 문서.",
     aboutTitle: "TraderMemos 정보",
     aboutDescription: "프로젝트 정보, 기능, 문서 및 소스 링크.",
+    shortcutsTitle: "키보드 단축키",
+    shortcutsDescription:
+      "모든 명령을 다시 지정할 수 있습니다. 두 키 조합은 G 다음 H처럼 순서대로 누릅니다.",
     language: "언어",
     languageFooter: "TraderMemos 인터페이스 언어입니다.",
     languageSelector: "언어 선택",
@@ -860,6 +879,7 @@ export function settingsNavItems(locale: string): {
   return (
     [
       { id: "general", key: "general" },
+      { id: "shortcuts", key: "shortcuts" },
       { id: "accounts", key: "accounts" },
       { id: "rules", key: "rules" },
       { id: "journal", key: "journal" },

@@ -2,6 +2,7 @@ import { render, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import { useAppHotkeys } from "./useAppHotkeys";
+import { useKeybindings } from "./keybindings";
 import { useUI } from "./ui";
 
 const navigate = vi.fn<(...args: any[]) => any>();
@@ -27,6 +28,7 @@ function HotkeyHost() {
 describe("useAppHotkeys", () => {
   beforeEach(() => {
     navigate.mockReset();
+    useKeybindings.setState({ overrides: {} });
     useUI.setState({
       commandOpen: false,
       modal: null,
@@ -34,33 +36,29 @@ describe("useAppHotkeys", () => {
     });
   });
 
-  it("opens new trade on n", async () => {
+  it("opens new trade on the c t sequence", async () => {
     const user = userEvent.setup();
     render(<HotkeyHost />);
     await user.click(document.body);
-    await user.keyboard("n");
+    await user.keyboard("ct");
     await waitFor(() => expect(useUI.getState().modal).toBe("new-trade"));
   });
 
-  it("does not close new trade when n is pressed again", async () => {
+  it("does not close new trade when the sequence is typed again", async () => {
     const user = userEvent.setup();
     useUI.setState({ modal: "new-trade" });
     render(<HotkeyHost />);
     await user.click(document.body);
-    await user.keyboard("n");
+    await user.keyboard("ct");
     expect(useUI.getState().modal).toBe("new-trade");
   });
 
-  it("opens new trade on KeyN even when event.key is empty", async () => {
+  it("honours a custom binding from settings", async () => {
+    const user = userEvent.setup();
+    useKeybindings.getState().setBinding("action-new-trade", "c>d");
     render(<HotkeyHost />);
-    document.dispatchEvent(
-      new KeyboardEvent("keydown", {
-        key: "",
-        code: "KeyN",
-        bubbles: true,
-        cancelable: true,
-      }),
-    );
+    await user.click(document.body);
+    await user.keyboard("cd");
     await waitFor(() => expect(useUI.getState().modal).toBe("new-trade"));
   });
 
@@ -71,15 +69,47 @@ describe("useAppHotkeys", () => {
     await waitFor(() => expect(useUI.getState().commandOpen).toBe(true));
   });
 
-  it("does not fire n while typing in a text field", async () => {
+  it("does not fire while typing in a text field", async () => {
     const user = userEvent.setup();
     render(<HotkeyHost />);
     await user.click(document.querySelector('[data-testid="field"]')!);
-    await user.keyboard("n");
+    await user.keyboard("ct");
     expect(useUI.getState().modal).toBeNull();
   });
 
-  it("opens new trade on n inside empty command palette input", async () => {
+  it("does not navigate on letter pairs inside ordinary words", async () => {
+    // react-hotkeys-hook does not apply ignoreEventWhen to sequences, so the
+    // "gh" in "bought" reached the nav handler and navigated Home mid-sentence.
+    const user = userEvent.setup();
+    render(<HotkeyHost />);
+    await user.click(document.querySelector('[data-testid="field"]')!);
+    await user.keyboard("bought a contract");
+    expect(navigate).not.toHaveBeenCalled();
+    expect(useUI.getState().modal).toBeNull();
+  });
+
+  it("does not fire create sequences typed into a field", async () => {
+    const user = userEvent.setup();
+    render(<HotkeyHost />);
+    await user.click(document.querySelector('[data-testid="field"]')!);
+    await user.keyboard("act");
+    expect(useUI.getState().modal).toBeNull();
+  });
+
+  it("lets every letter be typed into a form field while a drawer is open", async () => {
+    const user = userEvent.setup();
+    useUI.setState({ modal: "new-trade" });
+    render(<HotkeyHost />);
+    const field = document.querySelector('[data-testid="field"]') as HTMLInputElement;
+    await user.click(field);
+    await user.keyboard("nNSct");
+    expect(field.value).toBe("nNSct");
+  });
+
+  it("types into the command palette instead of firing a sequence", async () => {
+    // The palette exception only applies while the box is empty, so the first
+    // key of a sequence lands as a search character and the second is treated
+    // as typing. Searching for a symbol like "CT" beats a hidden shortcut.
     const user = userEvent.setup();
     useUI.setState({ commandOpen: false, modal: null });
     render(
@@ -90,8 +120,9 @@ describe("useAppHotkeys", () => {
     );
     const input = document.querySelector('[data-testid="palette"]') as HTMLInputElement;
     await user.click(input);
-    await user.keyboard("n");
-    await waitFor(() => expect(useUI.getState().modal).toBe("new-trade"));
+    await user.keyboard("ct");
+    expect(input.value).toBe("ct");
+    expect(useUI.getState().modal).toBeNull();
   });
 
   it("navigates on g then h", async () => {

@@ -1,7 +1,7 @@
 import { Command, Wrench } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/cn";
-import { APP_HOTKEYS } from "@/lib/hotkeys";
+import { useHotkeyLabel } from "@/lib/keybindings";
 import { TOOL_GROUPS, type ToolItem, toolsInGroup } from "@/lib/tools";
 import { useToolRunner } from "@/lib/useToolRunner";
 import { useUI } from "@/lib/ui";
@@ -34,6 +34,7 @@ function ToolRow({ tool, onRun }: { tool: ToolItem; onRun: (tool: ToolItem) => v
 }
 
 export function ToolsPopover({ variant = "rail" }: { variant?: "rail" | "header" }) {
+  const paletteLabel = useHotkeyLabel("palette");
   const [open, setOpen] = useState(false);
   const runTool = useToolRunner();
   const openCommandPalette = useUI((s) => s.openCommandPalette);
@@ -120,7 +121,7 @@ export function ToolsPopover({ variant = "rail" }: { variant?: "rail" | "header"
               <Command className="size-4 shrink-0 opacity-100" strokeWidth={1.75} aria-hidden />
               All commands
             </span>
-            <Kbd>{APP_HOTKEYS.palette.label}</Kbd>
+            <Kbd>{paletteLabel}</Kbd>
           </Button>
         </div>
       </PopoverContent>

@@ -36,6 +36,7 @@ export type SettingsSectionId =
   | "journal"
   | "ai"
   | "general"
+  | "shortcuts"
   | "api"
   | "about";
 

@@ -9,7 +9,7 @@ import {
   usePrivacyMode,
 } from "@/lib/displayPrefs";
 import { useFilterParams, useFilters } from "@/lib/filters";
-import { APP_HOTKEYS } from "@/lib/hotkeys";
+import { useHotkeyLabel } from "@/lib/keybindings";
 import { fmtMoney, fmtPct, fmtSignedMoney, fmtSignedPct } from "@/lib/format";
 import { computeHeaderStats } from "@/lib/headerStats";
 import { useAccounts } from "@/lib/hooks/useAccounts";
@@ -245,6 +245,7 @@ function PrivacyToggle() {
 }
 
 export function HeaderBar() {
+  const paletteLabel = useHotkeyLabel("palette");
   usePrivacyMode();
   const filters = useFilterParams();
   const accountId = useFilters((s) => s.accountId);
@@ -352,7 +353,7 @@ export function HeaderBar() {
         >
           <Search size={14} strokeWidth={1.75} aria-hidden data-icon="inline-start" />
           <span className="min-w-0 flex-1 truncate text-left">Search…</span>
-          <Kbd data-icon="inline-end">{APP_HOTKEYS.palette.label}</Kbd>
+          <Kbd data-icon="inline-end">{paletteLabel}</Kbd>
         </Button>
       </div>
 
