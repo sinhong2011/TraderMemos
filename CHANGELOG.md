@@ -5,6 +5,22 @@ All notable changes to TraderMemos are documented in this file.
 Release versioning is managed by [release-please](https://github.com/googleapis/release-please).
 See [docs/release.md](docs/release.md) for the release workflow.
 
+## [0.4.0](https://github.com/sinhong2011/TraderMemos/compare/v0.3.0...v0.4.0) (2026-08-05)
+
+
+### Features
+
+* **mobile:** checklist, replay, note images, day review and the SDK 57 bumps ([#99](https://github.com/sinhong2011/TraderMemos/issues/99)) ([06bd1b4](https://github.com/sinhong2011/TraderMemos/commit/06bd1b42eeaea55355413ba90aa4edcec31e49a2))
+* **web:** customizable keyboard shortcuts + fix chords firing while typing ([#90](https://github.com/sinhong2011/TraderMemos/issues/90)) ([abf6e1a](https://github.com/sinhong2011/TraderMemos/commit/abf6e1a7f849cb50c6d4d3290ff67c1485559a39))
+
+
+### Bug Fixes
+
+* **marketing:** default siteUrl to the production origin ([#92](https://github.com/sinhong2011/TraderMemos/issues/92)) ([a21bd56](https://github.com/sinhong2011/TraderMemos/commit/a21bd56162dd198f1dc9c98039eaeb73af0d0d85))
+* **mobile:** drop the abstract base build profile ([#94](https://github.com/sinhong2011/TraderMemos/issues/94)) ([93c94a4](https://github.com/sinhong2011/TraderMemos/commit/93c94a4ca42a8bc3a5af11da7eaa277a3cf56e0b))
+* stop double-counting the opening balance in equity ([#95](https://github.com/sinhong2011/TraderMemos/issues/95)) ([63bcbe1](https://github.com/sinhong2011/TraderMemos/commit/63bcbe15e4015d1bd0fed43d567dfc5bd4e2cbfd))
+* **web:** keep pinned table cells opaque on row hover ([#93](https://github.com/sinhong2011/TraderMemos/issues/93)) ([9dfef08](https://github.com/sinhong2011/TraderMemos/commit/9dfef086c2034dd04e33526d3946f120c3af8a12))
+
 ## [0.3.0](https://github.com/sinhong2011/TraderMemos/compare/v0.2.0...v0.3.0) (2026-08-04)
 
 
