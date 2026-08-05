@@ -1,179 +1,122 @@
 import {
+  Button,
   Host,
-  LabeledContent,
+  HStack,
+  Image,
   Section,
-  SecureField,
+  Spacer,
   Text as UIText,
-  TextField,
-  Toggle,
-  useNativeState,
+  VStack,
 } from '@expo/ui/swift-ui';
-import {
-  autocorrectionDisabled,
-  foregroundStyle,
-  keyboardType,
-  scrollDismissesKeyboard,
-  textInputAutocapitalization,
-} from '@expo/ui/swift-ui/modifiers';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useRef, useState } from 'react';
-import { Alert } from 'react-native';
+import { font, foregroundStyle, lineLimit, truncationMode } from '@expo/ui/swift-ui/modifiers';
+import { useRouter } from 'expo-router';
+import { useUnistyles } from 'react-native-unistyles';
 
-import { queryKeys, useApiRequest, useLlmSettings, type LlmKind } from '@/api/hooks';
-import type { LlmApiSettings, LlmApiTestResult } from '@/api/types';
-import { CenteredButton } from '@/components/centered-button';
-import { t } from '@lingui/core/macro';
+import { useLlmSettings, type LlmKind } from '@/api/hooks';
+import type { LlmApiSettings } from '@/api/types';
 import { SettingsForm } from '@/components/settings-form';
+import { t } from '@lingui/core/macro';
 
 /**
- * AI integrations (web AiTab parity): the vision-scan (OCR) and AI-coach LLM
- * endpoints share one settings shape, so each renders through the same form.
- * The API key is write-only — the server returns just a hint once set.
- * (Model discovery via /models stays on web; the model here is a text field.)
+ * AI hub. The two integrations (vision scan, AI coach) take the same six
+ * settings, so listing both on one screen meant a duplicated wall of URL and
+ * key fields — instead each is one status row that pushes its own form
+ * (`ai/[kind]`), the iOS Settings depth idiom. The row answers the only
+ * questions worth answering at a glance: is it on, and on which model.
  */
 export default function AiSettingsScreen() {
   return (
     <Host style={{ flex: 1 }}>
-      <SettingsForm modifiers={[scrollDismissesKeyboard('immediately')]}>
-        <LlmSection
-          kind="ocr"
-          title={t`Vision scan`}
-          footer={t`Reads broker screenshots into executions on Import. Works with any OpenAI-compatible API.`}
-        />
-        <LlmSection
-          kind="coach"
-          title={t`AI coach`}
-          footer={t`Reviews your journal and trades to surface patterns. Works with any OpenAI-compatible API.`}
-        />
+      <SettingsForm>
+        <Section
+          title={t`Intelligence`}
+          footer={
+            <UIText>
+              {t`Vision scan reads broker screenshots into executions on Import. AI coach reviews your journal and trades to surface patterns. Both work with any OpenAI-compatible API, and keys stay on your server.`}
+            </UIText>
+          }
+        >
+          <ProviderRow kind="ocr" title={t`Vision scan`} systemImage="text.viewfinder" />
+          <ProviderRow kind="coach" title={t`AI coach`} systemImage="brain" />
+        </Section>
       </SettingsForm>
     </Host>
   );
 }
 
-function LlmSection({ kind, title, footer }: { kind: LlmKind; title: string; footer: string }) {
-  const settings = useLlmSettings(kind);
-  if (!settings.data) {
-    return (
-      <Section title={title}>
-        <UIText modifiers={[foregroundStyle({ type: 'hierarchical', style: 'secondary' })]}>
-          {settings.isError ? t`Failed to load settings.` : t`Loading…`}
-        </UIText>
-      </Section>
-    );
+/** Trailing state word plus the detail line under the title. */
+function rowState(
+  settings: LlmApiSettings,
+  mutedColor: string,
+  onColor: string,
+  actionColor: string,
+) {
+  // Unconfigured is an invitation, not an error — brand tint, not destructive.
+  if (!settings.api_key_set) {
+    return { status: t`Set up`, statusColor: actionColor, detail: t`No API key yet` };
   }
-  return <LlmSectionForm kind={kind} title={title} footer={footer} settings={settings.data} />;
+  const model = settings.model.trim();
+  const detail = model || t`Default model`;
+  return settings.enabled
+    ? { status: t`On`, statusColor: onColor, detail }
+    : { status: t`Off`, statusColor: mutedColor, detail };
 }
 
-function LlmSectionForm({
+function ProviderRow({
   kind,
   title,
-  footer,
-  settings,
+  systemImage,
 }: {
   kind: LlmKind;
   title: string;
-  footer: string;
-  settings: LlmApiSettings;
+  systemImage: 'text.viewfinder' | 'brain';
 }) {
-  const queryClient = useQueryClient();
-  const api = useApiRequest();
+  const router = useRouter();
+  const { theme } = useUnistyles();
+  const settings = useLlmSettings(kind);
 
-  const [enabled, setEnabled] = useState(settings.enabled);
-  const initialBaseUrl = settings.base_url.trim() || 'https://api.openai.com/v1';
-  const baseUrlState = useNativeState(initialBaseUrl);
-  const baseUrlText = useRef(initialBaseUrl);
-  const modelState = useNativeState(settings.model);
-  const modelText = useRef(settings.model);
-  const apiKeyState = useNativeState('');
-  const apiKeyText = useRef('');
-  const promptState = useNativeState(settings.custom_prompt ?? '');
-  const promptText = useRef(settings.custom_prompt ?? '');
-
-  const body = () => ({
-    enabled,
-    base_url: baseUrlText.current.trim(),
-    model: modelText.current.trim() || 'gpt-4o-mini',
-    custom_prompt: promptText.current.trim(),
-    ...(apiKeyText.current.trim() ? { api_key: apiKeyText.current.trim() } : {}),
-  });
-
-  const save = useMutation({
-    mutationFn: () => api(`/settings/${kind}`, { method: 'PUT', body: body() }),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.llmSettings(kind) });
-      Alert.alert(t`Saved`, t`${title} settings updated.`);
-    },
-    onError: (err) => Alert.alert(t`Could not save`, err.message),
-  });
-
-  const test = useMutation({
-    mutationFn: () => {
-      const { enabled: _enabled, custom_prompt: _prompt, ...connection } = body();
-      return api<LlmApiTestResult>(`/settings/${kind}/test`, { method: 'POST', body: connection });
-    },
-    onSuccess: (result) => {
-      if (result.ok) Alert.alert(t`Connection OK`, t`The endpoint answered successfully.`);
-      else Alert.alert(t`Connection failed`, result.error ?? t`The endpoint did not answer.`);
-    },
-    onError: (err) => Alert.alert(t`Connection failed`, err.message),
-  });
-
-  const apiKeyPlaceholder = settings.api_key_set
-    ? (settings.api_key_hint ?? t`Saved — leave blank to keep`)
-    : t`sk-…`;
+  const state = settings.data
+    ? rowState(
+        settings.data,
+        theme.colors.mutedForeground,
+        theme.colors.profit,
+        theme.colors.primary,
+      )
+    : {
+        status: '',
+        statusColor: theme.colors.mutedForeground,
+        detail: settings.isError ? t`Unavailable` : t`Loading…`,
+      };
 
   return (
-    <Section title={title} footer={<UIText>{footer}</UIText>}>
-      <Toggle label={t`Enabled`} isOn={enabled} onIsOnChange={setEnabled} />
-      <LabeledContent label={t`Base URL`}>
-        <TextField
-          placeholder="https://api.openai.com/v1"
-          text={baseUrlState}
-          onTextChange={(text) => {
-            baseUrlText.current = text;
-          }}
-          modifiers={[
-            keyboardType('url'),
-            textInputAutocapitalization('never'),
-            autocorrectionDisabled(),
-          ]}
-        />
-      </LabeledContent>
-      <LabeledContent label={t`Model`}>
-        <TextField
-          placeholder="gpt-4o-mini"
-          text={modelState}
-          onTextChange={(text) => {
-            modelText.current = text;
-          }}
-          modifiers={[textInputAutocapitalization('never'), autocorrectionDisabled()]}
-        />
-      </LabeledContent>
-      <LabeledContent label={t`API key`}>
-        <SecureField
-          placeholder={apiKeyPlaceholder}
-          text={apiKeyState}
-          onTextChange={(text) => {
-            apiKeyText.current = text;
-          }}
-        />
-      </LabeledContent>
-      <TextField
-        placeholder={t`Custom prompt (optional)`}
-        text={promptState}
-        axis="vertical"
-        onTextChange={(text) => {
-          promptText.current = text;
-        }}
-      />
-      <CenteredButton
-        label={save.isPending ? t`Saving…` : t`Save`}
-        onPress={() => save.mutate()}
-      />
-      <CenteredButton
-        label={test.isPending ? t`Testing…` : t`Test connection`}
-        onPress={() => test.mutate()}
-      />
-    </Section>
+    <Button onPress={() => router.push({ pathname: '/ai/[kind]', params: { kind } })}>
+      <HStack spacing={10}>
+        <Image systemName={systemImage} size={20} color={theme.colors.primary} />
+        <VStack alignment="leading" spacing={2}>
+          <UIText modifiers={[foregroundStyle({ type: 'hierarchical', style: 'primary' })]}>
+            {title}
+          </UIText>
+          {/* Single string child — the SwiftUI Text bridge can't mount an
+              array of interpolations (RawText crash). */}
+          <UIText
+            modifiers={[
+              font({ size: 13 }),
+              foregroundStyle({ type: 'hierarchical', style: 'secondary' }),
+              lineLimit(1),
+              truncationMode('middle'),
+            ]}
+          >
+            {state.detail}
+          </UIText>
+        </VStack>
+        <Spacer />
+        {state.status ? (
+          <UIText modifiers={[font({ size: 15 }), foregroundStyle(state.statusColor)]}>
+            {state.status}
+          </UIText>
+        ) : null}
+        <Image systemName="chevron.right" size={12} color={theme.colors.mutedForeground} />
+      </HStack>
+    </Button>
   );
 }

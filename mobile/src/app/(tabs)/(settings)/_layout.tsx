@@ -23,16 +23,8 @@ export default function SettingsLayout() {
         name="account-form"
         options={{ title: t`Account`, headerLargeTitle: false }}
       />
-      <Stack.Screen name="funding" options={{ title: t`Funding` }} />
-      <Stack.Screen
-        name="cash-form"
-        options={{ title: t`Transaction`, headerLargeTitle: false }}
-      />
+      <Stack.Screen name="funding" options={{ title: t`Funding`, headerLargeTitle: false }} />
       <Stack.Screen name="tags" options={{ title: t`Tags` }} />
-      <Stack.Screen
-        name="checklist"
-        options={{ title: t`Daily checklist`, headerLargeTitle: false }}
-      />
       <Stack.Screen name="risk-rules" options={{ title: t`Risk rules` }} />
       <Stack.Screen
         name="display"
@@ -46,7 +38,9 @@ export default function SettingsLayout() {
         name="flex-sync"
         options={{ title: t`IBKR Flex sync`, headerLargeTitle: false }}
       />
-      <Stack.Screen name="ai" options={{ title: t`AI`, headerLargeTitle: false }} />
+      <Stack.Screen name="ai" options={{ title: t`AI` }} />
+      {/* Title comes from the screen — it names the integration being edited. */}
+      <Stack.Screen name="ai/[kind]" options={{ headerLargeTitle: false }} />
       <Stack.Screen
         name="api-tokens"
         options={{ title: t`API tokens`, headerLargeTitle: false }}
