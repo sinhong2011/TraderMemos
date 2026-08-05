@@ -25,6 +25,9 @@ async function Footer({ lang }: { lang: string }) {
             <Link href={`/${lang}/changelog`} className={link}>
               {t('changelog')}
             </Link>
+            <Link href={`/${lang}/privacy`} className={link}>
+              {t('privacy')}
+            </Link>
             <Link href={`${repoUrl}/blob/main/docs/competitive-day-trader-roadmap.md`} className={link}>
               {t('roadmap')}
             </Link>
