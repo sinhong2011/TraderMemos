@@ -1,18 +1,19 @@
 import { ContentUnavailableView, Host } from '@expo/ui/swift-ui';
+import { useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
+import { SymbolView } from 'expo-symbols';
 import { useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { useMarketBars } from '@/api/hooks';
 import type { BarInterval } from '@/api/types';
-import { ChartCanvas } from '@/components/chart-canvas';
+import { AXIS_WIDTH, ChartCanvas } from '@/components/chart-canvas';
 import { DashboardCard } from '@/components/dashboard-card';
-import { ReplayControls } from '@/components/replay-controls';
+import { FloatingSearchBar, SearchToggle } from '@/components/search-bar';
 import { Segmented } from '@/components/segmented';
 import { Skeleton } from '@/components/skeleton';
 import { t } from '@lingui/core/macro';
-import { useReplayController } from '@/lib/replay';
 import { storage } from '@/storage/mmkv';
 
 type Market = 'stock' | 'crypto' | 'forex' | 'future';
@@ -55,8 +56,11 @@ function snapToMinute(ms: number): string {
  * no fills here).
  */
 export default function AdvancedChartScreen() {
+  const { theme } = useUnistyles();
+  const router = useRouter();
   const [symbol, setSymbol] = useState(() => loadRecents()[0] ?? '');
   const [pendingSymbol, setPendingSymbol] = useState('');
+  const [searching, setSearching] = useState(false);
   const [market, setMarket] = useState<Market>('stock');
   const [range, setRange] = useState<RangeKey>('1M');
   const [interval, setBarInterval] = useState<BarInterval>('60');
@@ -86,7 +90,6 @@ export default function AdvancedChartScreen() {
     to: snapToMinute(nowMs),
   });
   const data = bars.data?.bars ?? [];
-  const replay = useReplayController(data.length);
 
   const markets = [
     { value: 'stock' as const, label: t`Stock` },
@@ -110,13 +113,17 @@ export default function AdvancedChartScreen() {
         options={{
           title: symbol || t`Chart`,
           headerLargeTitle: false,
-          headerSearchBarOptions: {
-            placeholder: t`Symbol, e.g. SPY`,
-            autoCapitalize: 'characters',
-            hideWhenScrolling: false,
-            onChangeText: (event) => setPendingSymbol(event.nativeEvent.text),
-            onSearchButtonPress: () => commitSymbol(pendingSymbol),
-          },
+          headerRight: () => (
+            <SearchToggle
+              open={searching}
+              active={false}
+              label={t`Search symbol`}
+              onPress={() => {
+                if (searching) setPendingSymbol('');
+                setSearching((open) => !open);
+              }}
+            />
+          ),
         }}
       />
       <ScrollView
@@ -165,7 +172,6 @@ export default function AdvancedChartScreen() {
             control={<Segmented compact options={ranges} value={range} onChange={pickRange} />}
           >
             <Segmented options={markets} value={market} onChange={setMarket} />
-            <Segmented options={intervals} value={interval} onChange={setBarInterval} />
 
             {bars.isLoading ? (
               <Skeleton style={styles.placeholder} />
@@ -180,30 +186,63 @@ export default function AdvancedChartScreen() {
                 </Text>
               </View>
             ) : (
-              <>
-                <ChartCanvas
-                  bars={data}
-                  interval={interval}
-                  cursor={replay.active ? replay.cursor : null}
-                />
-                {!replay.active && data.length > 1 ? (
-                  <Pressable
-                    onPress={replay.start}
-                    hitSlop={8}
-                    accessibilityRole="button"
-                    style={({ pressed }) => [styles.replayLink, pressed && styles.pressed]}
-                  >
-                    <Text style={styles.replayLabel}>{t`Replay`} ›</Text>
-                  </Pressable>
-                ) : null}
-                {replay.active ? (
-                  <ReplayControls controller={replay} barCount={data.length} />
-                ) : null}
-              </>
+              // Tapping the plot plays it back, same affordance as the trade
+              // chart — the replay itself is the full-screen route.
+              <Pressable
+                  onPress={() =>
+                    router.push({
+                      pathname: '/replay',
+                      params: {
+                        symbol,
+                        market,
+                        interval,
+                        from: String(nowMs - RANGES[range].ms),
+                        to: String(nowMs),
+                      },
+                    })
+                  }
+                  disabled={data.length <= 1}
+                  accessibilityRole="button"
+                  accessibilityLabel={t`Replay ${symbol}`}
+                  style={({ pressed }) => pressed && styles.pressed}
+                >
+                  <ChartCanvas bars={data} interval={interval} />
+                  {data.length > 1 ? (
+                    <View style={styles.replayBadge}>
+                      <SymbolView name="play.fill" size={10} tintColor={theme.colors.background} />
+                      <Text style={styles.replayLabel}>{t`Replay`}</Text>
+                    </View>
+                  ) : null}
+                </Pressable>
             )}
+
+            {/* Interval sits under the candles it re-cuts, matching the trade
+                chart card — and outside the branch above, since the empty state
+                tells you to reach for it. */}
+            <View style={styles.intervalRow}>
+              <Segmented options={intervals} value={interval} onChange={setBarInterval} />
+            </View>
           </DashboardCard>
         )}
       </ScrollView>
+      <FloatingSearchBar
+        open={searching}
+        value={pendingSymbol}
+        placeholder={t`Symbol, e.g. SPY`}
+        autoCapitalize="characters"
+        onChangeText={setPendingSymbol}
+        // A ticker field commits on return rather than filtering as you type —
+        // close the bar once it lands so the chart it just loaded is visible.
+        onSubmit={() => {
+          commitSymbol(pendingSymbol);
+          setPendingSymbol('');
+          setSearching(false);
+        }}
+        onClose={() => {
+          setPendingSymbol('');
+          setSearching(false);
+        }}
+      />
     </>
   );
 }
@@ -231,6 +270,20 @@ const styles = StyleSheet.create((theme) => ({
   placeholder: { height: 220, alignItems: 'center', justifyContent: 'center' },
   empty: { fontSize: 13, color: theme.colors.mutedForeground },
   emptyHost: { minHeight: 320 },
-  replayLink: { alignSelf: 'flex-start' },
-  replayLabel: { fontSize: 13, fontWeight: '500', color: theme.colors.foreground },
+  intervalRow: { alignItems: 'center' },
+  replayBadge: {
+    position: 'absolute',
+    top: 0,
+    // Clear of the price gutter, so the badge never covers an axis label.
+    right: AXIS_WIDTH + 6,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    paddingHorizontal: 9,
+    paddingVertical: 5,
+    borderRadius: theme.radius.full,
+    borderCurve: 'continuous',
+    backgroundColor: theme.colors.foreground,
+  },
+  replayLabel: { fontSize: 11, fontWeight: '600', color: theme.colors.background },
 }));

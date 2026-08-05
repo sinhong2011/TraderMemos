@@ -18,6 +18,13 @@ import { StyleSheet } from 'react-native-unistyles';
 const scale = {
   spacing: { xs: 4, sm: 8, md: 12, lg: 16, xl: 24 } as const,
   radius: { sm: 6, md: 10, lg: 14, full: 999 } as const,
+  /**
+   * Max width of a content column. Phones never reach these, but on iPad a
+   * form stretched across 1024pt is unusable — fields cap here and centre.
+   * `auth` is the narrower sign-in measure; `form` fits the two-column tool
+   * rows the calculators use.
+   */
+  measure: { auth: 420, form: 560 } as const,
   /** DESIGN.md applies tabular-nums globally — numbers must not jitter. */
   numeric: { fontVariant: ['tabular-nums'] } as Pick<TextStyle, 'fontVariant'>,
 };

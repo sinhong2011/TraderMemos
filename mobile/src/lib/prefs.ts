@@ -41,21 +41,26 @@ export const TIMEZONE_LOCAL = 'local';
 /** Default analytics / session clock (US equity). */
 export const TIMEZONE_DEFAULT = 'America/New_York';
 
-/** Curated IANA zones (plus Local). Labels omit offsets — use timezoneOptions(). */
+/**
+ * Curated IANA zones (plus Local). `name` mirrors the web catalog; `short` is
+ * the phone label — a picker row shows label *and* value on one line, and
+ * "UTC-04 Eastern (New York)" wraps onto a second line at body size.
+ * Labels omit offsets — use timezoneOptions().
+ */
 export const TIMEZONE_CHOICES = [
-  { value: TIMEZONE_LOCAL, name: 'Local (device)' },
-  { value: 'America/New_York', name: 'Eastern (New York)' },
-  { value: 'America/Chicago', name: 'Central (Chicago)' },
-  { value: 'America/Denver', name: 'Mountain (Denver)' },
-  { value: 'America/Los_Angeles', name: 'Pacific (Los Angeles)' },
-  { value: 'Europe/London', name: 'London' },
-  { value: 'Europe/Berlin', name: 'Berlin' },
-  { value: 'Asia/Hong_Kong', name: 'Hong Kong' },
-  { value: 'Asia/Taipei', name: 'Taipei' },
-  { value: 'Asia/Shanghai', name: 'Shanghai' },
-  { value: 'Asia/Singapore', name: 'Singapore' },
-  { value: 'Asia/Tokyo', name: 'Tokyo' },
-  { value: 'UTC', name: 'UTC' },
+  { value: TIMEZONE_LOCAL, name: 'Local (device)', short: 'Local' },
+  { value: 'America/New_York', name: 'Eastern (New York)', short: 'New York' },
+  { value: 'America/Chicago', name: 'Central (Chicago)', short: 'Chicago' },
+  { value: 'America/Denver', name: 'Mountain (Denver)', short: 'Denver' },
+  { value: 'America/Los_Angeles', name: 'Pacific (Los Angeles)', short: 'Los Angeles' },
+  { value: 'Europe/London', name: 'London', short: 'London' },
+  { value: 'Europe/Berlin', name: 'Berlin', short: 'Berlin' },
+  { value: 'Asia/Hong_Kong', name: 'Hong Kong', short: 'Hong Kong' },
+  { value: 'Asia/Taipei', name: 'Taipei', short: 'Taipei' },
+  { value: 'Asia/Shanghai', name: 'Shanghai', short: 'Shanghai' },
+  { value: 'Asia/Singapore', name: 'Singapore', short: 'Singapore' },
+  { value: 'Asia/Tokyo', name: 'Tokyo', short: 'Tokyo' },
+  { value: 'UTC', name: 'UTC', short: 'UTC' },
 ] as const;
 
 export type TimezonePref = (typeof TIMEZONE_CHOICES)[number]['value'];
@@ -223,6 +228,18 @@ export function setMaxScreenshotsPerTrade(max: number | null) {
   });
 }
 
+/** Back to the shipped defaults — the escape hatch from the Display screen. */
+export function resetDisplayPrefs() {
+  setPrefs(DEFAULTS);
+}
+
+/** True when every pref still matches its default (hides the reset row). */
+export function isDefaultDisplayPrefs(prefs: DisplayPrefs = getPrefs()): boolean {
+  return (Object.keys(DEFAULTS) as (keyof DisplayPrefs)[]).every(
+    (key) => prefs[key] === DEFAULTS[key],
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Resolution helpers
 // ---------------------------------------------------------------------------
@@ -254,44 +271,102 @@ export function getDisplayTimeOpts(): { timeZone: string; hour12: boolean } {
 }
 
 /**
+ * Zone offsets are derived arithmetically — one instant read on two clocks —
+ * rather than from `timeZoneName: 'longOffset'`. Hermes' Foundation-backed Intl
+ * mislabels non-numeric `formatToParts` entries (the weekday-as-literal quirk),
+ * so the offset lookup silently fell through to its `GMT` fallback and every
+ * zone in the settings pickers rendered as `UTC+00`.
+ */
+
+/** First number in a formatted field (`"08"`, `"08 PM"`, `":15"` → 8, 8, 15). */
+function firstNumber(value: string): number | null {
+  const digits = value.match(/\d+/);
+  return digits ? Number(digits[0]) : null;
+}
+
+/** Hour options this engine honours, probed once against a known UTC instant. */
+let hourOptions: Intl.DateTimeFormatOptions | null | undefined;
+
+function resolveHourOptions(): Intl.DateTimeFormatOptions | null {
+  if (hourOptions !== undefined) return hourOptions;
+  // 13:00Z reads "13" on a 24-hour clock and "01" on a 12-hour one, so the
+  // probe rejects any option set the engine quietly downgrades.
+  const probe = new Date(Date.UTC(2026, 0, 1, 13, 0, 0));
+  const candidates: Intl.DateTimeFormatOptions[] = [
+    { hour: '2-digit', hourCycle: 'h23' },
+    { hour: '2-digit', hour12: false },
+    { hour: 'numeric', hour12: false },
+  ];
+  hourOptions =
+    candidates.find((options) => {
+      try {
+        const formatted = new Intl.DateTimeFormat('en-US', {
+          timeZone: 'UTC',
+          ...options,
+        }).format(probe);
+        return firstNumber(formatted) === 13;
+      } catch {
+        return false;
+      }
+    }) ?? null;
+  return hourOptions;
+}
+
+/** Minutes past midnight for `at` on the given zone's clock. */
+function zoneClockMinutes(timeZone: string, at: Date): number | null {
+  const options = resolveHourOptions();
+  if (!options) return null;
+  try {
+    const hour = firstNumber(
+      new Intl.DateTimeFormat('en-US', { timeZone, ...options }).format(at),
+    );
+    const minute = firstNumber(
+      new Intl.DateTimeFormat('en-US', { timeZone, minute: '2-digit' }).format(at),
+    );
+    if (hour == null || minute == null || hour > 23 || minute > 59) return null;
+    return hour * 60 + minute;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Current offset from UTC in minutes (`-240` for New York in summer), or `null`
+ * when the engine can't report the zone's clock. DST-aware for that instant.
+ * Wrapped into ±12h, which covers every zone the app offers (Tokyo +9 … LA -8).
+ */
+export function zoneOffsetMinutes(timeZone: string, at: Date = new Date()): number | null {
+  const zoneMinutes = zoneClockMinutes(timeZone, at);
+  if (zoneMinutes == null) return null;
+  let diff = (zoneMinutes - (at.getUTCHours() * 60 + at.getUTCMinutes())) % 1440;
+  if (diff > 720) diff -= 1440;
+  if (diff <= -720) diff += 1440;
+  return diff;
+}
+
+/**
  * Format the current offset for an IANA zone as `UTC+08` / `UTC-05` / `UTC+05:30`.
- * DST-aware for the given instant.
+ * DST-aware for the given instant; empty when the offset can't be determined —
+ * callers drop the prefix rather than print a wrong one.
  */
 export function formatUtcOffsetPrefix(timeZone: string, at: Date = new Date()): string {
-  try {
-    const raw =
-      new Intl.DateTimeFormat('en-US', { timeZone, timeZoneName: 'longOffset' })
-        .formatToParts(at)
-        .find((p) => p.type === 'timeZoneName')?.value ?? 'GMT';
-    if (raw === 'GMT' || raw === 'UTC') return 'UTC+00';
-    const m = raw.match(/GMT([+-])(\d+)(?::(\d+))?/i);
-    if (!m) return raw.replace(/^GMT/i, 'UTC');
-    const hours = String(Number(m[2])).padStart(2, '0');
-    const mins = m[3] ? Number(m[3]) : 0;
-    if (mins === 0) return `UTC${m[1]}${hours}`;
-    return `UTC${m[1]}${hours}:${String(mins).padStart(2, '0')}`;
-  } catch {
-    return 'UTC';
-  }
+  const minutes = zoneOffsetMinutes(timeZone, at);
+  if (minutes == null) return '';
+  const abs = Math.abs(minutes);
+  const hours = String(Math.floor(abs / 60)).padStart(2, '0');
+  const mins = abs % 60;
+  const sign = minutes < 0 ? '-' : '+';
+  return mins === 0 ? `UTC${sign}${hours}` : `UTC${sign}${hours}:${String(mins).padStart(2, '0')}`;
 }
 
 /** RFC3339 offset suffix (`"+08:00"`, `"Z"`) for a zone at a given instant. */
 export function rfc3339OffsetSuffix(timeZone: string, at: Date = new Date()): string {
-  try {
-    const raw =
-      new Intl.DateTimeFormat('en-US', { timeZone, timeZoneName: 'longOffset' })
-        .formatToParts(at)
-        .find((p) => p.type === 'timeZoneName')?.value ?? 'GMT';
-    if (raw === 'GMT' || raw === 'UTC') return 'Z';
-    const m = raw.match(/GMT([+-])(\d+)(?::(\d+))?/i);
-    if (!m) return 'Z';
-    const hours = String(Number(m[2])).padStart(2, '0');
-    const mins = String(m[3] ? Number(m[3]) : 0).padStart(2, '0');
-    if (hours === '00' && mins === '00') return 'Z';
-    return `${m[1]}${hours}:${mins}`;
-  } catch {
-    return 'Z';
-  }
+  const minutes = zoneOffsetMinutes(timeZone, at);
+  if (!minutes) return 'Z';
+  const abs = Math.abs(minutes);
+  const hours = String(Math.floor(abs / 60)).padStart(2, '0');
+  const mins = String(abs % 60).padStart(2, '0');
+  return `${minutes < 0 ? '-' : '+'}${hours}:${mins}`;
 }
 
 /**
@@ -324,16 +399,19 @@ export function isoToWallClock(at: string | Date, timeZone?: string): string {
   return `${get('year')}-${get('month')}-${get('day')}T${get('hour')}:${get('minute')}:${get('second')}`;
 }
 
-/** Timezone options with live `UTC±XX` prefixes for the settings pickers. */
+/**
+ * Timezone options for the settings pickers, as `Tokyo · UTC+09` — place first,
+ * offset second, because the place is what a trader picks by. The offset is
+ * dropped rather than guessed if the engine can't report it.
+ */
 export function timezoneOptions(
   at: Date = new Date(),
 ): { value: TimezonePref; label: string }[] {
-  return TIMEZONE_CHOICES.map(({ value, name }) => {
+  return TIMEZONE_CHOICES.map(({ value, short }) => {
+    if (value === 'UTC') return { value, label: 'UTC+00' };
     const iana = value === TIMEZONE_LOCAL ? resolveDisplayTimezone(TIMEZONE_LOCAL) : value;
     const offset = formatUtcOffsetPrefix(iana, at);
-    if (value === 'UTC') return { value, label: 'UTC+00' };
-    if (value === TIMEZONE_LOCAL) return { value, label: `${offset} ${name}` };
-    return { value, label: `${offset} ${name}` };
+    return { value, label: offset ? `${short} · ${offset}` : short };
   });
 }
 

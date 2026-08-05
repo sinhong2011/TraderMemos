@@ -57,7 +57,7 @@ export default function PositionSizeToolScreen() {
               value={seededEquity}
               onChangeText={setEquity}
               placeholder="10000"
-              keyboardType="decimal-pad"
+              numeric
             />
           </FormField>
         </ToolCol>
@@ -67,7 +67,7 @@ export default function PositionSizeToolScreen() {
               value={seededRisk}
               onChangeText={setRiskPct}
               placeholder="1"
-              keyboardType="decimal-pad"
+              numeric
             />
           </FormField>
         </ToolCol>
@@ -79,7 +79,7 @@ export default function PositionSizeToolScreen() {
               value={entry}
               onChangeText={setEntry}
               placeholder="100.00"
-              keyboardType="decimal-pad"
+              numeric
             />
           </FormField>
         </ToolCol>
@@ -89,7 +89,7 @@ export default function PositionSizeToolScreen() {
               value={stop}
               onChangeText={setStop}
               placeholder="98.00"
-              keyboardType="decimal-pad"
+              numeric
             />
           </FormField>
         </ToolCol>

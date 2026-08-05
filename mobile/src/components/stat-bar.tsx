@@ -28,15 +28,37 @@ export function StatBar({
   };
 
   return (
-    <View style={styles.tile}>
-      <Text style={styles.label} numberOfLines={1}>
+    // Grouped for VoiceOver — read as one "label, value, sub" phrase rather
+    // than three orphaned fragments swiped past in sequence.
+    <View
+      style={styles.tile}
+      accessible
+      accessibilityLabel={[label, value, sub].filter(Boolean).join(', ')}
+    >
+      <Text style={styles.label} numberOfLines={1} maxFontSizeMultiplier={1.6}>
         {label}
       </Text>
-      <View style={styles.valueRow}>
-        <Text selectable style={[styles.value, { color: toneColor[tone] }]} numberOfLines={1}>
-          {value}
-        </Text>
-        {sub ? <Text style={styles.sub}>{sub}</Text> : null}
+      <View style={styles.valueBlock}>
+        <View style={styles.valueRow}>
+          <Text
+            selectable
+            style={[styles.value, { color: toneColor[tone] }]}
+            // Money and durations can't wrap (no spaces), so they shrink a
+            // little instead of ellipsizing mid-number; word values ("Early
+            // exit", a mistake tag) get the second line.
+            numberOfLines={2}
+            adjustsFontSizeToFit
+            minimumFontScale={0.8}
+            maxFontSizeMultiplier={1.4}
+          >
+            {value}
+          </Text>
+          {sub ? (
+            <Text style={styles.sub} numberOfLines={1} maxFontSizeMultiplier={1.4}>
+              {sub}
+            </Text>
+          ) : null}
+        </View>
       </View>
     </View>
   );
@@ -46,6 +68,9 @@ const styles = StyleSheet.create((theme) => ({
   tile: {
     flexGrow: 1,
     flexBasis: 140,
+    // Matches the web tile's min-h so a wrapped sub doesn't make one column
+    // taller than its neighbour on the first row it appears in.
+    minHeight: 88,
     gap: theme.spacing.sm,
     paddingVertical: theme.spacing.md,
     paddingHorizontal: theme.spacing.md,
@@ -54,12 +79,23 @@ const styles = StyleSheet.create((theme) => ({
     backgroundColor: theme.colors.muted,
   },
   label: { fontSize: 12, fontWeight: '500', color: theme.colors.mutedForeground },
+  valueBlock: { flex: 1, justifyContent: 'center' },
   valueRow: {
     flexDirection: 'row',
+    // Wrapping is what keeps a long sub (a date) inside the tile: it drops
+    // under the value instead of pushing the centered row past both edges.
+    flexWrap: 'wrap',
     alignItems: 'baseline',
     justifyContent: 'center',
-    gap: theme.spacing.xs + 2,
+    columnGap: theme.spacing.xs + 2,
+    rowGap: theme.spacing.xs / 2,
   },
-  value: { fontSize: 18, fontWeight: '600', ...theme.numeric },
-  sub: { fontSize: 13, color: theme.colors.mutedForeground, ...theme.numeric },
+  value: { flexShrink: 1, fontSize: 18, fontWeight: '600', textAlign: 'center', ...theme.numeric },
+  sub: {
+    flexShrink: 1,
+    fontSize: 13,
+    textAlign: 'center',
+    color: theme.colors.mutedForeground,
+    ...theme.numeric,
+  },
 }));

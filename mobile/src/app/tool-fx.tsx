@@ -4,14 +4,20 @@ import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { useFxRate } from '@/api/hooks';
-import { FormField, FormInput } from '@/components/form-sheet';
+import { NumericField } from '@/components/numeric-field';
 import { Segmented } from '@/components/segmented';
 import { ToolSheet } from '@/components/tool-sheet';
 import { t } from '@lingui/core/macro';
 import { formatDate } from '@/lib/format';
 import { DISPLAY_CURRENCIES, useDisplayPrefs } from '@/lib/prefs';
 
-/** Currency converter over the server's latest FX rate (GET /market/fx). */
+/**
+ * Currency converter over the server's latest FX rate (GET /market/fx),
+ * shaped like the iOS 26 Calculator's convert mode: two stacked panels, each
+ * one currency — you type in the top one, the bottom one answers — with the
+ * swap sitting on the seam and the rate stated underneath. No Convert button:
+ * the result is live, so the form is the result.
+ */
 export default function FxToolScreen() {
   const { theme } = useUnistyles();
   useDisplayPrefs();
@@ -33,78 +39,116 @@ export default function FxToolScreen() {
 
   return (
     <ToolSheet title={t`Currency converter`}>
-      <FormField label={t`Amount`}>
-        <FormInput
-          value={amount}
-          onChangeText={setAmount}
-          placeholder="100"
-          keyboardType="decimal-pad"
-        />
-      </FormField>
+      <View style={styles.stack}>
+        <View style={styles.panel}>
+          <View style={styles.panelHead}>
+            <Text style={styles.caption}>{t`From`}</Text>
+            <Segmented variant="menu" options={currencyOptions} value={from} onChange={setFrom} />
+          </View>
+          <NumericField
+            value={amount}
+            onChangeText={setAmount}
+            placeholder="0"
+            align="trailing"
+            layout="stretch"
+            size={34}
+            weight="semibold"
+          />
+        </View>
 
-      <FormField label={t`From`}>
-        <Segmented variant="menu" options={currencyOptions} value={from} onChange={setFrom} />
-      </FormField>
+        {/* Zero-height so the button floats on the seam between the panels,
+            the converter idiom — a row of its own would push them apart. */}
+        <View style={styles.seam} pointerEvents="box-none">
+          <Pressable
+            onPress={() => {
+              setFrom(to);
+              setTo(from);
+            }}
+            hitSlop={10}
+            accessibilityRole="button"
+            accessibilityLabel={t`Swap currencies`}
+            style={({ pressed }) => [styles.swapButton, pressed && styles.pressed]}
+          >
+            <SymbolView name="arrow.up.arrow.down" size={16} tintColor={theme.colors.foreground} />
+          </Pressable>
+        </View>
 
-      <View style={styles.swapRow}>
-        <Pressable
-          onPress={() => {
-            setFrom(to);
-            setTo(from);
-          }}
-          hitSlop={10}
-          accessibilityRole="button"
-          accessibilityLabel={t`Swap currencies`}
-          style={({ pressed }) => [styles.swapButton, pressed && styles.pressed]}
-        >
-          <SymbolView name="arrow.up.arrow.down" size={15} tintColor={theme.colors.foreground} />
-        </Pressable>
-      </View>
-
-      <FormField label={t`To`}>
-        <Segmented variant="menu" options={currencyOptions} value={to} onChange={setTo} />
-      </FormField>
-
-      <View style={styles.result}>
-        {fx.isLoading && !same ? (
-          <Text style={styles.muted}>{t`Fetching rate…`}</Text>
-        ) : fx.isError && !same ? (
-          <Text style={styles.muted}>{t`Could not fetch the rate — is market data configured?`}</Text>
-        ) : converted != null ? (
-          <>
-            <Text selectable style={styles.converted}>
+        <View style={styles.panel}>
+          <View style={styles.panelHead}>
+            <Text style={styles.caption}>{t`To`}</Text>
+            <Segmented variant="menu" options={currencyOptions} value={to} onChange={setTo} />
+          </View>
+          {converted != null ? (
+            <Text selectable numberOfLines={1} adjustsFontSizeToFit style={styles.result}>
               {money(converted, to)}
             </Text>
-            <Text style={styles.rateLine}>
-              {t`1 ${from} = ${(rate ?? 1).toFixed(4)} ${to}`}
-              {!same && fx.data ? ` · ${formatDate(fx.data.as_of)}` : null}
+          ) : (
+            <Text style={styles.resultPending}>
+              {fx.isError ? t`Rate unavailable` : t`Fetching rate…`}
             </Text>
-          </>
-        ) : null}
+          )}
+        </View>
       </View>
+
+      <Text style={styles.rateLine}>
+        {fx.isError && !same
+          ? t`Could not fetch the rate — is market data configured?`
+          : converted != null
+            ? `${t`1 ${from} = ${(rate ?? 1).toFixed(4)} ${to}`}${
+                !same && fx.data ? ` · ${formatDate(fx.data.as_of)}` : ''
+              }`
+            : t`Rates come from your server's market data provider.`}
+      </Text>
     </ToolSheet>
   );
 }
 
+const SWAP_SIZE = 44;
+
 const styles = StyleSheet.create((theme) => ({
-  swapRow: { alignItems: 'center' },
+  stack: { gap: theme.spacing.xs },
+  panel: {
+    gap: theme.spacing.xs,
+    paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.md,
+    borderRadius: theme.radius.lg + 4,
+    borderCurve: 'continuous',
+    backgroundColor: theme.colors.card,
+  },
+  panelHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  caption: { fontSize: 13, fontWeight: '600', color: theme.colors.mutedForeground },
+  seam: { height: 0, alignItems: 'flex-end', paddingRight: theme.spacing.lg, zIndex: 2 },
   swapButton: {
-    width: 36,
-    height: 36,
+    width: SWAP_SIZE,
+    height: SWAP_SIZE,
+    marginTop: -SWAP_SIZE / 2,
     borderRadius: theme.radius.full,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: theme.colors.muted,
+    // Ring in the page color so the button reads as punched through the seam.
+    borderWidth: 4,
+    borderColor: theme.colors.background,
   },
   pressed: { opacity: 0.6 },
-  result: { alignItems: 'center', gap: theme.spacing.xs, paddingTop: theme.spacing.md },
-  converted: {
+  result: {
     fontSize: 34,
     fontWeight: '600',
     letterSpacing: -1,
+    textAlign: 'right',
     color: theme.colors.foreground,
     ...theme.numeric,
   },
-  rateLine: { fontSize: 12, color: theme.colors.mutedForeground, ...theme.numeric },
-  muted: { fontSize: 13, color: theme.colors.mutedForeground },
+  resultPending: {
+    fontSize: 17,
+    textAlign: 'right',
+    paddingVertical: theme.spacing.sm,
+    color: theme.colors.mutedForeground,
+  },
+  rateLine: {
+    fontSize: 12,
+    textAlign: 'center',
+    color: theme.colors.mutedForeground,
+    ...theme.numeric,
+  },
 }));

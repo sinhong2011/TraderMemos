@@ -2,8 +2,8 @@
 // views inside its pages, so section paging rides react-native-pager-view.
 import PagerView from 'react-native-pager-view';
 import { Stack } from 'expo-router/stack';
-import { useRef, useState } from 'react';
-import { View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Animated, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { PagerTabs } from '@/components/pager-tabs';
@@ -11,6 +11,7 @@ import { BehaviorSection } from '@/components/reports/behavior-section';
 import { DetailedSection } from '@/components/reports/detailed-section';
 import { OverviewSection } from '@/components/reports/overview-section';
 import { RiskSection } from '@/components/reports/risk-section';
+import { ReportsScrollProvider } from '@/components/reports/section-scaffold';
 import { WinLossSection } from '@/components/reports/winloss-section';
 import { t } from '@lingui/core/macro';
 
@@ -29,6 +30,31 @@ export default function ReportsScreen() {
   const [scrolled, setScrolled] = useState(false);
   const pagerRef = useRef<PagerView>(null);
 
+  // Measured rather than assumed: the switcher's height is also the top inset
+  // every page scrolls under, and it changes with the text size.
+  const [headerHeight, setHeaderHeight] = useState(0);
+  // Held in state, not a ref: the interpolations read it during render, which
+  // is exactly what a ref is not allowed to be used for.
+  const [offset] = useState(() => new Animated.Value(0));
+
+  // Each page keeps its own scroll position but they share one switcher, so a
+  // page change brings it back rather than leaving it hidden by the last page.
+  useEffect(() => {
+    Animated.timing(offset, { toValue: 0, duration: 160, useNativeDriver: true }).start();
+  }, [section, offset]);
+
+  // `1` guards the first frame, before the switcher has been measured.
+  const travel = offset.interpolate({
+    inputRange: [0, Math.max(1, headerHeight)],
+    outputRange: [0, -headerHeight],
+    extrapolate: 'clamp',
+  });
+  const fade = offset.interpolate({
+    inputRange: [0, Math.max(1, headerHeight)],
+    outputRange: [1, 0],
+    extrapolate: 'clamp',
+  });
+
   const sections: { value: ReportsSection; label: string }[] = [
     { value: 'overview', label: t`Overview` },
     { value: 'winloss', label: t`Win / Loss` },
@@ -46,31 +72,38 @@ export default function ReportsScreen() {
     <>
       <Stack.Screen options={{ title: scrolled ? t`Reports` : '' }} />
       <View style={styles.page}>
-        <View style={styles.segment}>
-          <PagerTabs options={sections} value={section} onChange={selectSection} />
-        </View>
-        <PagerView
-          ref={pagerRef}
-          initialPage={0}
-          style={styles.pager}
-          onPageSelected={(event) => setSection(SECTION_VALUES[event.nativeEvent.position])}
+        {/* Floats over the pages and slides out with the content — the sections
+            are long, and the switcher only matters between reads. */}
+        <Animated.View
+          style={[styles.segment, { opacity: fade, transform: [{ translateY: travel }] }]}
+          onLayout={(e) => setHeaderHeight(e.nativeEvent.layout.height)}
         >
-          <View key="overview" style={styles.fill}>
-            <OverviewSection onScrolledChange={setScrolled} />
-          </View>
-          <View key="winloss" style={styles.fill}>
-            <WinLossSection onScrolledChange={setScrolled} />
-          </View>
-          <View key="detailed" style={styles.fill}>
-            <DetailedSection onScrolledChange={setScrolled} />
-          </View>
-          <View key="risk" style={styles.fill}>
-            <RiskSection onScrolledChange={setScrolled} />
-          </View>
-          <View key="behavior" style={styles.fill}>
-            <BehaviorSection onScrolledChange={setScrolled} />
-          </View>
-        </PagerView>
+          <PagerTabs options={sections} value={section} onChange={selectSection} />
+        </Animated.View>
+        <ReportsScrollProvider value={{ offset, headerHeight }}>
+          <PagerView
+            ref={pagerRef}
+            initialPage={0}
+            style={styles.pager}
+            onPageSelected={(event) => setSection(SECTION_VALUES[event.nativeEvent.position])}
+          >
+            <View key="overview" style={styles.fill}>
+              <OverviewSection onScrolledChange={setScrolled} />
+            </View>
+            <View key="winloss" style={styles.fill}>
+              <WinLossSection onScrolledChange={setScrolled} />
+            </View>
+            <View key="detailed" style={styles.fill}>
+              <DetailedSection onScrolledChange={setScrolled} />
+            </View>
+            <View key="risk" style={styles.fill}>
+              <RiskSection onScrolledChange={setScrolled} />
+            </View>
+            <View key="behavior" style={styles.fill}>
+              <BehaviorSection onScrolledChange={setScrolled} />
+            </View>
+          </PagerView>
+        </ReportsScrollProvider>
       </View>
     </>
   );
@@ -78,9 +111,17 @@ export default function ReportsScreen() {
 
 const styles = StyleSheet.create((theme) => ({
   page: { flex: 1, backgroundColor: theme.colors.background },
+  // Opaque and above the pages: the rows sliding under it have to disappear.
   segment: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 2,
     paddingHorizontal: theme.spacing.lg,
     paddingTop: theme.spacing.sm,
+    paddingBottom: theme.spacing.sm,
+    backgroundColor: theme.colors.background,
   },
   pager: { flex: 1 },
   fill: { flex: 1 },

@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import * as Clipboard from 'expo-clipboard';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Alert, Share, Text, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
@@ -20,10 +21,11 @@ const EXPIRY_OPTIONS = [
 
 /**
  * New personal access token — a two-step sheet: the form, then the secret.
- * Each step has exactly one bar action (Generate, then Done); the only body
- * button is Share, which does something else entirely. The secret is shown
- * once and never again, so it earns the whole sheet, and step two drops the
- * cancel affordance — the token already exists by then.
+ * Step one has one bar action (Generate). Step two is where the design earns
+ * its keep: the secret is shown once and never again, so Copy is the body's
+ * prominent action, Share sits under it as the alternative, and Done in the
+ * bar is only dismissal. Step two drops the cancel affordance — the token
+ * already exists by then.
  */
 export default function NewTokenScreen() {
   const router = useRouter();
@@ -33,6 +35,20 @@ export default function NewTokenScreen() {
   const [name, setName] = useState('');
   const [expiry, setExpiry] = useState('never');
   const [created, setCreated] = useState<CreatedAccessToken | null>(null);
+  const [copied, setCopied] = useState(false);
+  const copiedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // The confirmation is a timed label swap, so it must not fire after unmount.
+  useEffect(() => () => {
+    if (copiedTimer.current) clearTimeout(copiedTimer.current);
+  }, []);
+
+  async function copyToken(token: string) {
+    await Clipboard.setStringAsync(token);
+    setCopied(true);
+    if (copiedTimer.current) clearTimeout(copiedTimer.current);
+    copiedTimer.current = setTimeout(() => setCopied(false), 2000);
+  }
 
   const create = useMutation({
     mutationFn: (body: { name: string; expires_in_days?: number }) =>
@@ -44,20 +60,21 @@ export default function NewTokenScreen() {
     onError: (err) => Alert.alert(t`Could not create token`, err.message),
   });
 
+  const trimmedName = name.trim();
+
   function handleCreate() {
-    const trimmed = name.trim();
-    if (!trimmed) {
-      Alert.alert(t`Could not create token`, t`Token name is required.`);
-      return;
-    }
+    if (!trimmedName) return;
     create.mutate(
-      expiry === 'never' ? { name: trimmed } : { name: trimmed, expires_in_days: Number(expiry) },
+      expiry === 'never'
+        ? { name: trimmedName }
+        : { name: trimmedName, expires_in_days: Number(expiry) },
     );
   }
 
   if (created) {
     return (
       <FormSheet
+        inSheet
         title={t`Token created`}
         saveLabel={t`Done`}
         hideClose
@@ -69,22 +86,35 @@ export default function NewTokenScreen() {
         <Text selectable style={styles.secret}>
           {created.token}
         </Text>
-        <GlassButton
-          fill
-          label={t`Share token`}
-          systemImage="square.and.arrow.up"
-          onPress={() => void Share.share({ message: created.token })}
-        />
+        <View style={styles.actions}>
+          <GlassButton
+            fill
+            prominent
+            label={copied ? t`Copied` : t`Copy token`}
+            systemImage={copied ? 'checkmark' : 'doc.on.doc'}
+            onPress={() => void copyToken(created.token)}
+          />
+          <GlassButton
+            fill
+            label={t`Share token`}
+            systemImage="square.and.arrow.up"
+            onPress={() => void Share.share({ message: created.token })}
+          />
+        </View>
       </FormSheet>
     );
   }
 
   return (
     <FormSheet
+      inSheet
       title={t`New token`}
       saving={create.isPending}
       saveLabel={t`Generate`}
       savingLabel={t`Creating…`}
+      // Nothing to generate without a name — grey the action instead of
+      // letting the tap raise an alert.
+      saveDisabled={!trimmedName}
       onSave={handleCreate}
     >
       <Text style={styles.footnote}>
@@ -128,6 +158,7 @@ const styles = StyleSheet.create((theme) => ({
     letterSpacing: 0.3,
     color: theme.colors.mutedForeground,
   },
+  actions: { gap: theme.spacing.sm },
   secret: {
     fontSize: 14,
     color: theme.colors.foreground,

@@ -17,6 +17,8 @@ export interface DashboardInsights {
   bestDay: DayPnl | null;
   worstDay: DayPnl | null;
   avgHoldSecs: number | null;
+  /** Closed trades that actually carried a hold time — the avg's sample size. */
+  holdCount: number;
   winHoldSecs: number | null;
   lossHoldSecs: number | null;
   mainMistake: string | null;
@@ -120,6 +122,7 @@ export function computeDashboardInsights(trades: Trade[]): DashboardInsights {
     bestDay,
     worstDay,
     avgHoldSecs: mean(holds),
+    holdCount: holds.length,
     winHoldSecs: mean(winHolds),
     lossHoldSecs: mean(lossHolds),
     mainMistake: mostFrequent(mistakes),

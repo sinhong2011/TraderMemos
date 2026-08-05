@@ -24,9 +24,10 @@ import { useUnistyles } from 'react-native-unistyles';
 import { queryKeys, useAccounts, useApiRequest, useCash, useTrades } from '@/api/hooks';
 import type { Account } from '@/api/types';
 import { CenteredButton } from '@/components/centered-button';
+import { useNumericState } from '@/components/numeric-field';
 import { t } from '@lingui/core/macro';
 import { SettingsForm } from '@/components/settings-form';
-import { parseAmount } from '@/lib/amount';
+import { numericText, parseAmount } from '@/lib/amount';
 import { ledgerBalance } from '@/lib/cash';
 import { formatCurrency, formatPercent, formatPnl } from '@/lib/format';
 
@@ -102,7 +103,8 @@ function AccountForm({ account, accountCount }: { account?: Account; accountCoun
   const [accountType, setAccountType] = useState('cash');
   const currencyState = useNativeState('USD');
   const currencyText = useRef('USD');
-  const balanceState = useNativeState('');
+  // Number field: the state itself rejects anything but digits (worklet guard).
+  const balanceState = useNumericState('');
   const balanceText = useRef('');
 
   // Stats for the edit summary (both lists are cached app-wide already).
@@ -283,7 +285,7 @@ function AccountForm({ account, accountCount }: { account?: Account; accountCoun
                 placeholder="0.00"
                 text={balanceState}
                 onTextChange={(text) => {
-                  balanceText.current = text;
+                  balanceText.current = numericText(text);
                 }}
                 modifiers={[keyboardType('decimal-pad')]}
               />

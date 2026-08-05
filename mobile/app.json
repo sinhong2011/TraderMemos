@@ -52,7 +52,11 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.READ_CALENDAR",
+        "android.permission.WRITE_CALENDAR"
+      ]
     },
     "web": {
       "output": "static",
@@ -82,7 +86,15 @@
           "microphonePermission": false
         }
       ],
-      "./plugins/with-ios-scene-lifecycle"
+      "./plugins/with-ios-scene-lifecycle",
+      [
+        "expo-calendar",
+        {
+          "calendarPermission": false,
+          "remindersPermission": "TraderMemos adds your daily checklist and the economic releases you bookmark to your Reminders."
+        }
+      ],
+      "expo-image"
     ],
     "experiments": {
       "typedRoutes": true,

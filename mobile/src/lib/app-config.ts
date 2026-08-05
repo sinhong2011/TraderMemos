@@ -10,7 +10,9 @@ import { storage } from '@/storage/mmkv';
 export const APP_CONFIG_FORMAT = 'tradermemos.app_config';
 export const APP_CONFIG_EXPORT_VERSION = 1;
 
-/** MMKV key for the disconnect-confirmation preference (default on). */
+/** MMKV key for the sign-out-confirmation preference (default on). The key
+ *  string is storage, not copy — it stays `confirm-destructive` so existing
+ *  installs and web's app-config files keep round-tripping. */
 export const CONFIRM_DESTRUCTIVE_KEY = 'settings.confirm-destructive';
 
 export type ParsedAppConfig = {

@@ -1,26 +1,32 @@
 import { SymbolView } from 'expo-symbols';
+import { useHeaderHeight } from 'expo-router/react-navigation';
 import { Stack } from 'expo-router/stack';
-import { useState } from 'react';
-import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
+import { Children, Fragment, useState, type ReactNode } from 'react';
+import { Alert, Keyboard, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { DashboardCard } from '@/components/dashboard-card';
-import { FormField, FormInput } from '@/components/form-sheet';
+import { GlassButton } from '@/components/glass-button';
+import { NumericField } from '@/components/numeric-field';
 import { Pill } from '@/components/pill';
 import { Segmented } from '@/components/segmented';
 import { StatBar } from '@/components/stat-bar';
+import { SymbolPager } from '@/components/symbol-pager';
 import { t } from '@lingui/core/macro';
 import type { Direction, Warning, WarningKey } from '@/lib/r-calculator/calc';
 import { EXIT_PRESETS, matchPreset, type TrailerStop } from '@/lib/r-calculator/exit';
 import { money, rLabel, shares as fmtShares } from '@/lib/r-calculator/format';
 import type { EntryAt } from '@/lib/r-calculator/fvg';
+import type { FvgSession } from '@/lib/r-calculator/fvgSessions';
 import {
+  deriveFvgSession,
+  deriveSession,
   fvgActions,
   rCalcActions,
   useFvg,
   useRCalc,
 } from '@/lib/r-calculator/store';
-import type { Instrument } from '@/lib/r-calculator/sessions';
+import type { Instrument, OptionType, Session } from '@/lib/r-calculator/sessions';
 
 type Mode = 'r' | 'fvg';
 
@@ -86,8 +92,45 @@ function WarningList({ warns }: { warns: Warning[] }) {
   );
 }
 
-/** Numeric field bound to a store setter — keeps typing loose, math strict. */
-function NumField({
+// ---------------------------------------------------------------------------
+// Field vocabulary — label leading, value trailing
+// ---------------------------------------------------------------------------
+
+/**
+ * Hairline-separated run of rows inside a dashboard card. The card is the
+ * surface (`form-rows.tsx` draws its own), so this only carries the rules
+ * between rows and cancels the card's gap: a grouped list reads as one block,
+ * not a stack of floating lines.
+ */
+function FieldGroup({ children }: { children: ReactNode }) {
+  const rows = Children.toArray(children);
+  return (
+    <View style={styles.group}>
+      {rows.map((row, index) => (
+        <Fragment key={index}>
+          {index > 0 ? <View style={styles.separator} /> : null}
+          {row}
+        </Fragment>
+      ))}
+    </View>
+  );
+}
+
+/** Label leading, control trailing — the settings-row idiom (`form-rows.tsx`). */
+function ControlField({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <View style={styles.fieldRow}>
+      <Text style={styles.fieldLabel}>{label}</Text>
+      <View style={styles.fieldControl}>{children}</View>
+    </View>
+  );
+}
+
+/**
+ * Number row. Local text mirrors the store number so "1." and "" survive
+ * mid-typing, and outside changes (preset, page switch) still adopt.
+ */
+function NumberRow({
   label,
   value,
   onChange,
@@ -96,138 +139,109 @@ function NumField({
   value: number;
   onChange: (value: number) => void;
 }) {
-  // Local text mirrors the store number so "1." and "" survive mid-typing.
   const [text, setText] = useState(() => String(value));
-  const [focusedValue, setFocusedValue] = useState(value);
-  // Adopt outside changes (session switch) without fighting the keyboard.
-  if (value !== focusedValue) {
-    setFocusedValue(value);
+  const [adopted, setAdopted] = useState(value);
+  if (value !== adopted) {
+    setAdopted(value);
     setText(String(value));
   }
   return (
-    <FormField label={label}>
-      <FormInput
-        value={text}
-        onChangeText={(next) => {
-          setText(next);
-          const parsed = Number(next);
-          if (Number.isFinite(parsed)) {
-            setFocusedValue(parsed);
-            onChange(parsed);
-          }
-        }}
-        keyboardType="decimal-pad"
-        placeholder="0"
-      />
-    </FormField>
+    <View style={styles.fieldRow}>
+      <Text style={styles.fieldLabel}>{label}</Text>
+      {/* A definite box for the hosted field: left to size itself it drifts
+          above the label's centre line in some rows. */}
+      <View style={styles.fieldValue}>
+        <NumericField
+          align="trailing"
+          value={text}
+          placeholder="0"
+          onChangeText={(next) => {
+            setText(next);
+            const parsed = Number(next);
+            if (Number.isFinite(parsed)) {
+              setAdopted(parsed);
+              onChange(parsed);
+            }
+          }}
+        />
+      </View>
+    </View>
   );
 }
 
-function Row({ children }: { children: React.ReactNode }) {
-  return <View style={styles.row}>{children}</View>;
-}
-
-function Col({ children }: { children: React.ReactNode }) {
-  return <View style={styles.col}>{children}</View>;
-}
-
-// ---------------------------------------------------------------------------
-// Session rail (shared shape for both calculators)
-// ---------------------------------------------------------------------------
-
-function SessionRail({
-  sessions,
-  activeId,
-  onSelect,
-  onAdd,
-  onRemove,
-  onRename,
+/** The ticker that names this page — see `pageLabel`. */
+function SymbolField({
+  value,
+  onChange,
 }: {
-  sessions: { id: string; name: string }[];
-  activeId: string;
-  onSelect: (id: string) => void;
-  onAdd: () => void;
-  onRemove?: (id: string) => void;
-  onRename?: (id: string, name: string) => void;
+  value: string;
+  onChange: (symbol: string) => void;
 }) {
   const { theme } = useUnistyles();
+  return (
+    <View style={styles.fieldRow}>
+      <Text style={styles.fieldLabel}>{t`Symbol`}</Text>
+      <TextInput
+        value={value}
+        onChangeText={onChange}
+        placeholder="AAPL"
+        placeholderTextColor={theme.colors.mutedForeground}
+        autoCapitalize="characters"
+        autoCorrect={false}
+        style={styles.fieldInput}
+      />
+    </View>
+  );
+}
 
-  function longPress(session: { id: string; name: string }) {
-    Alert.alert(session.name, undefined, [
-      ...(onRename
-        ? [
-            {
-              text: t`Rename`,
-              onPress: () => {
-                Alert.prompt(
-                  t`Rename`,
-                  undefined,
-                  [
-                    { text: t`Cancel`, style: 'cancel' as const },
-                    {
-                      text: t`Save`,
-                      onPress: (name?: string) => {
-                        if (name?.trim()) onRename(session.id, name.trim());
-                      },
-                    },
-                  ],
-                  'plain-text',
-                  session.name,
-                );
-              },
-            },
-          ]
-        : []),
-      ...(onRemove && sessions.length > 1
-        ? [
-            {
-              text: t`Remove`,
-              style: 'destructive' as const,
-              onPress: () => onRemove(session.id),
-            },
-          ]
-        : []),
-      { text: t`Cancel`, style: 'cancel' as const },
-    ]);
-  }
-
+/**
+ * One page of the pager. Owns its own scrolling — the tab strip stays pinned
+ * while each position scrolls independently, so swiping between them doesn't
+ * jump you to someone else's scroll offset.
+ */
+function CalcPage({ children }: { children: ReactNode }) {
   return (
     <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={styles.rail}
-      style={styles.railScroll}
+      style={styles.flex}
+      contentContainerStyle={styles.content}
+      // The pinned strip above already clears the transparent nav bar; the
+      // automatic behaviour would inset this page by it a second time.
+      contentInsetAdjustmentBehavior="never"
+      keyboardDismissMode="on-drag"
+      keyboardShouldPersistTaps="handled"
+      automaticallyAdjustKeyboardInsets
     >
-      {sessions.map((session) => {
-        const active = session.id === activeId;
-        return (
-          <Pressable
-            key={session.id}
-            onPress={() => onSelect(session.id)}
-            onLongPress={() => longPress(session)}
-            accessibilityRole="radio"
-            accessibilityState={{ selected: active }}
-            style={({ pressed }) => [
-              styles.railChip,
-              active && styles.railChipActive,
-              pressed && styles.pressed,
-            ]}
-          >
-            <Text style={[styles.railLabel, active && styles.railLabelActive]} numberOfLines={1}>
-              {session.name}
-            </Text>
-          </Pressable>
-        );
-      })}
-      <Pressable
-        onPress={onAdd}
-        accessibilityRole="button"
-        accessibilityLabel={t`Add position`}
-        style={({ pressed }) => [styles.railChip, pressed && styles.pressed]}
-      >
-        <SymbolView name="plus" size={13} tintColor={theme.colors.foreground} />
+      {/* Decimal pads have no return key — tapping any empty space dismisses. */}
+      <Pressable onPress={Keyboard.dismiss} accessible={false} style={styles.pageBody}>
+        {children}
       </Pressable>
     </ScrollView>
+  );
+}
+
+/** A page's tab label: its ticker, or the numbered placeholder until you type one. */
+function pageLabel(symbol: string, index: number): string {
+  return symbol.trim() ? symbol.trim().toUpperCase() : t`Symbol ${index + 1}`;
+}
+
+/**
+ * Retitle a page from its tab — the same edit as the Symbol field, reachable
+ * without scrolling back to it. `Alert.prompt` is iOS-only, which this screen
+ * already is: the single-value idiom the settings forms use.
+ */
+function promptRename(symbol: string, onRename: (symbol: string) => void) {
+  Alert.prompt(
+    t`Symbol`,
+    undefined,
+    [
+      { text: t`Cancel`, style: 'cancel' },
+      {
+        text: t`Save`,
+        onPress: (next?: string) => onRename((next ?? '').trim()),
+      },
+    ],
+    'plain-text',
+    symbol,
   );
 }
 
@@ -235,11 +249,11 @@ function SessionRail({
 // R-multiple panel
 // ---------------------------------------------------------------------------
 
-function RPanel() {
+function RPanel({ session }: { session: Session }) {
   const { theme } = useUnistyles();
-  const snap = useRCalc();
-  const { active, result, exitResult, warns, exitWarns } = snap;
-  const isOptions = active.instrument === 'options';
+  const { result, riskPerUnit, exitResult, warns, exitWarns } = deriveSession(session);
+  const id = session.id;
+  const isOptions = session.instrument === 'options';
 
   const instruments = [
     { value: 'stock' as const, label: t`Stock` },
@@ -249,7 +263,63 @@ function RPanel() {
     { value: 'long' as const, label: t`Long` },
     { value: 'short' as const, label: t`Short` },
   ];
-  const presetId = matchPreset(active.exitPlan);
+  // Buying an option is always long the premium — the engine sizes it that way
+  // — so the directional call lives in the contract itself, not in Long/Short.
+  const optionTypes = [
+    { value: 'call' as const, label: t`Call` },
+    { value: 'put' as const, label: t`Put` },
+  ];
+  const perUnit = isOptions ? t`per contract` : t`per share`;
+  const instrumentRows = isOptions
+    ? [
+        <ControlField key="type" label={t`Contract`}>
+          <Segmented
+            options={optionTypes}
+            value={session.optionType}
+            onChange={(value: OptionType) => rCalcActions.setField(id, 'optionType', value)}
+          />
+        </ControlField>,
+        <NumberRow
+          key="entryPrem"
+          label={t`Entry premium`}
+          value={session.entryPrem}
+          onChange={(v) => rCalcActions.setField(id, 'entryPrem', v)}
+        />,
+        <NumberRow
+          key="stopPrem"
+          label={t`Stop premium`}
+          value={session.stopPrem}
+          onChange={(v) => rCalcActions.setField(id, 'stopPrem', v)}
+        />,
+        <NumberRow
+          key="contractSize"
+          label={t`Contract size`}
+          value={session.contractSize}
+          onChange={(v) => rCalcActions.setField(id, 'contractSize', v)}
+        />,
+      ]
+    : [
+        <ControlField key="direction" label={t`Direction`}>
+          <Segmented
+            options={directions}
+            value={session.direction}
+            onChange={(value: Direction) => rCalcActions.setField(id, 'direction', value)}
+          />
+        </ControlField>,
+        <NumberRow
+          key="entry"
+          label={t`Entry`}
+          value={session.entry}
+          onChange={(v) => rCalcActions.setField(id, 'entry', v)}
+        />,
+        <NumberRow
+          key="stop"
+          label={t`Stop`}
+          value={session.stop}
+          onChange={(v) => rCalcActions.setField(id, 'stop', v)}
+        />,
+      ];
+  const presetId = matchPreset(session.exitPlan);
   const trailerKinds = [
     { value: 'breakeven' as const, label: t`Breakeven` },
     { value: 'original' as const, label: t`Original` },
@@ -258,93 +328,34 @@ function RPanel() {
 
   return (
     <>
-      <SessionRail
-        sessions={snap.sessions}
-        activeId={snap.activeId}
-        onSelect={rCalcActions.setActive}
-        onAdd={rCalcActions.addSession}
-        onRemove={rCalcActions.removeSession}
-        onRename={rCalcActions.renameSession}
-      />
-
       <DashboardCard
         title={t`Position`}
         control={
           <Segmented
             compact
             options={instruments}
-            value={active.instrument}
-            onChange={(value: Instrument) => rCalcActions.setField('instrument', value)}
+            value={session.instrument}
+            onChange={(value: Instrument) => rCalcActions.setField(id, 'instrument', value)}
           />
         }
       >
-        {isOptions ? (
-          <>
-            <Row>
-              <Col>
-                <NumField
-                  label={t`Entry premium`}
-                  value={active.entryPrem}
-                  onChange={(v) => rCalcActions.setField('entryPrem', v)}
-                />
-              </Col>
-              <Col>
-                <NumField
-                  label={t`Stop premium`}
-                  value={active.stopPrem}
-                  onChange={(v) => rCalcActions.setField('stopPrem', v)}
-                />
-              </Col>
-            </Row>
-            <NumField
-              label={t`Contract size`}
-              value={active.contractSize}
-              onChange={(v) => rCalcActions.setField('contractSize', v)}
-            />
-          </>
-        ) : (
-          <>
-            <FormField label={t`Direction`}>
-              <Segmented
-                options={directions}
-                value={active.direction}
-                onChange={(value: Direction) => rCalcActions.setField('direction', value)}
-              />
-            </FormField>
-            <Row>
-              <Col>
-                <NumField
-                  label={t`Entry`}
-                  value={active.entry}
-                  onChange={(v) => rCalcActions.setField('entry', v)}
-                />
-              </Col>
-              <Col>
-                <NumField
-                  label={t`Stop`}
-                  value={active.stop}
-                  onChange={(v) => rCalcActions.setField('stop', v)}
-                />
-              </Col>
-            </Row>
-          </>
-        )}
-        <Row>
-          <Col>
-            <NumField
-              label={t`Capital`}
-              value={active.capital}
-              onChange={(v) => rCalcActions.setField('capital', v)}
-            />
-          </Col>
-          <Col>
-            <NumField
-              label={t`Risk %`}
-              value={active.riskPct}
-              onChange={(v) => rCalcActions.setField('riskPct', v)}
-            />
-          </Col>
-        </Row>
+        <FieldGroup>
+          <SymbolField
+            value={session.symbol}
+            onChange={(symbol) => rCalcActions.setSymbol(id, symbol)}
+          />
+          {instrumentRows}
+          <NumberRow
+            label={t`Capital`}
+            value={session.capital}
+            onChange={(v) => rCalcActions.setField(id, 'capital', v)}
+          />
+          <NumberRow
+            label={t`Risk %`}
+            value={session.riskPct}
+            onChange={(v) => rCalcActions.setField(id, 'riskPct', v)}
+          />
+        </FieldGroup>
         <WarningList warns={warns} />
       </DashboardCard>
 
@@ -362,14 +373,21 @@ function RPanel() {
             }
             tone="accent"
           />
-          <StatBar label={t`1R`} value={money(result.r1)} sub={t`per share`} />
+          {/* One unit's cash risk: the premium difference alone understates an
+              option, where a contract carries `contract size` of it. */}
+          <StatBar label={t`1R`} value={money(riskPerUnit)} sub={perUnit} />
           <StatBar
             label={t`Risk`}
             value={money(result.realRisk)}
             sub={t`budget ${money(result.riskAmt)}`}
             tone="neg"
           />
-          <StatBar label={t`Position value`} value={money(result.posValue)} />
+          {/* An option buyer's position value is the debit paid — and it is
+              also the whole of what can be lost, which "Position value" hides. */}
+          <StatBar
+            label={isOptions ? t`Premium paid` : t`Position value`}
+            value={money(result.posValue)}
+          />
           <StatBar label={t`Cash left`} value={money(result.remainingCash)} />
           <StatBar
             label={t`+2R target`}
@@ -386,83 +404,86 @@ function RPanel() {
         </View>
       </DashboardCard>
 
-      <DashboardCard title={t`Exit ladder`}>
-        <View style={styles.presetRow}>
-          {EXIT_PRESETS.map((preset) => (
-            <Pressable
-              key={preset.id}
-              onPress={() => rCalcActions.applyExitPreset(preset.plan)}
-              accessibilityRole="button"
-              style={({ pressed }) => pressed && styles.pressed}
-            >
-              <Pill tone={presetId === preset.id ? 'accent' : 'muted'}>
-                {preset.id === 'aggressive' ? t`Aggressive` : t`Conservative`}
-              </Pill>
-            </Pressable>
-          ))}
+      <DashboardCard
+        title={t`Exit ladder`}
+        control={
+          <View style={styles.presetRow}>
+            {EXIT_PRESETS.map((preset) => (
+              <Pressable
+                key={preset.id}
+                onPress={() => rCalcActions.applyExitPreset(id, preset.plan)}
+                accessibilityRole="button"
+                style={({ pressed }) => pressed && styles.pressed}
+              >
+                <Pill tone={presetId === preset.id ? 'accent' : 'muted'}>
+                  {preset.id === 'aggressive' ? t`Aggressive` : t`Conservative`}
+                </Pill>
+              </Pressable>
+            ))}
+          </View>
+        }
+      >
+        {/* One group per tier: the R and the size belong to each other, and a
+            single run of rows would leave nothing to hang "Tier 2" off. */}
+        {session.exitPlan.tiers.map((tier, index) => (
+          <FieldGroup key={index}>
+            <View style={styles.fieldRow}>
+              <Text style={styles.tierTitle}>{t`Tier ${index + 1}`}</Text>
+              <Pressable
+                onPress={() => rCalcActions.removeTier(id, index)}
+                hitSlop={10}
+                accessibilityRole="button"
+                accessibilityLabel={t`Remove tier`}
+                style={({ pressed }) => [styles.fieldControl, pressed && styles.pressed]}
+              >
+                <SymbolView name="minus.circle" size={18} tintColor={theme.colors.destructive} />
+              </Pressable>
+            </View>
+            <NumberRow
+              label={t`Target R`}
+              value={tier.r}
+              onChange={(v) => rCalcActions.setTier(id, index, { r: v })}
+            />
+            <NumberRow
+              label={t`Sell %`}
+              value={tier.pct}
+              onChange={(v) => rCalcActions.setTier(id, index, { pct: v })}
+            />
+          </FieldGroup>
+        ))}
+        <View style={styles.actionRow}>
+          <GlassButton
+            label={t`Add tier`}
+            systemImage="plus"
+            onPress={() => rCalcActions.addTier(id)}
+          />
         </View>
 
-        {active.exitPlan.tiers.map((tier, index) => (
-          <View key={index} style={styles.tierRow}>
-            <Col>
-              <NumField
-                label={t`Tier ${index + 1} — R`}
-                value={tier.r}
-                onChange={(v) => rCalcActions.setTier(index, { r: v })}
-              />
-            </Col>
-            <Col>
-              <NumField
-                label={t`Sell %`}
-                value={tier.pct}
-                onChange={(v) => rCalcActions.setTier(index, { pct: v })}
-              />
-            </Col>
-            <Pressable
-              onPress={() => rCalcActions.removeTier(index)}
-              hitSlop={8}
-              accessibilityRole="button"
-              accessibilityLabel={t`Remove tier`}
-              style={({ pressed }) => [styles.tierRemove, pressed && styles.pressed]}
-            >
-              <SymbolView name="minus.circle" size={18} tintColor={theme.colors.destructive} />
-            </Pressable>
-          </View>
-        ))}
-        <Pressable
-          onPress={rCalcActions.addTier}
-          accessibilityRole="button"
-          style={({ pressed }) => [styles.addTier, pressed && styles.pressed]}
-        >
-          <SymbolView name="plus.circle" size={16} tintColor={theme.colors.foreground} />
-          <Text style={styles.addTierLabel}>{t`Add tier`}</Text>
-        </Pressable>
-
-        <FormField label={t`Runner stop`}>
-          <Segmented
-            options={trailerKinds}
-            value={active.exitPlan.trailerStop.kind}
-            onChange={(kind) =>
-              rCalcActions.setTrailerStop(
-                kind === 'custom' ? { kind, r: 0.5 } : ({ kind } as TrailerStop),
-              )
-            }
-          />
-        </FormField>
-        {active.exitPlan.trailerStop.kind === 'custom' ? (
-          <NumField
-            label={t`Stop at R`}
-            value={active.exitPlan.trailerStop.r}
-            onChange={(v) => rCalcActions.setTrailerStop({ kind: 'custom', r: v })}
-          />
-        ) : null}
+        <FieldGroup>
+          <ControlField label={t`Runner stop`}>
+            <Segmented
+              variant="menu"
+              options={trailerKinds}
+              value={session.exitPlan.trailerStop.kind}
+              onChange={(kind) =>
+                rCalcActions.setTrailerStop(
+                  id,
+                  kind === 'custom' ? { kind, r: 0.5 } : ({ kind } as TrailerStop),
+                )
+              }
+            />
+          </ControlField>
+          {session.exitPlan.trailerStop.kind === 'custom' ? (
+            <NumberRow
+              label={t`Stop at R`}
+              value={session.exitPlan.trailerStop.r}
+              onChange={(v) => rCalcActions.setTrailerStop(id, { kind: 'custom', r: v })}
+            />
+          ) : null}
+        </FieldGroup>
 
         <View style={styles.grid}>
-          <StatBar
-            label={t`Locked at tiers`}
-            value={money(exitResult.locked)}
-            tone="pos"
-          />
+          <StatBar label={t`Locked at tiers`} value={money(exitResult.locked)} tone="pos" />
           <StatBar
             label={t`Guaranteed floor`}
             value={money(exitResult.floor)}
@@ -487,13 +508,48 @@ function RPanel() {
   );
 }
 
+/** Every saved sizing as a swipeable page, one tab per symbol (trade-form shape). */
+function RPager({ topStyle }: { topStyle: { paddingTop: number } }) {
+  const { sessions, activeId } = useRCalc();
+  const active = Math.max(
+    0,
+    sessions.findIndex((session) => session.id === activeId),
+  );
+
+  return (
+    <SymbolPager
+      tabs={sessions.map((session, index) => ({
+        key: session.id,
+        label: pageLabel(session.symbol, index),
+      }))}
+      active={active}
+      addLabel={t`Add symbol`}
+      removeLabel={t`Remove symbol`}
+      topStyle={topStyle}
+      onSelect={(index) => rCalcActions.setActive(sessions[index].id)}
+      onLongPressTab={(index) =>
+        promptRename(sessions[index].symbol, (symbol) =>
+          rCalcActions.setSymbol(sessions[index].id, symbol),
+        )
+      }
+      onAdd={rCalcActions.addSession}
+      onRemoveActive={() => rCalcActions.removeSession(activeId)}
+      renderPage={(index) => (
+        <CalcPage>
+          <RPanel session={sessions[index]} />
+        </CalcPage>
+      )}
+    />
+  );
+}
+
 // ---------------------------------------------------------------------------
 // FVG panel
 // ---------------------------------------------------------------------------
 
-function FvgPanel() {
-  const snap = useFvg();
-  const { active, result, warns } = snap;
+function FvgPanel({ session }: { session: FvgSession }) {
+  const { result, warns } = deriveFvgSession(session);
+  const id = session.id;
 
   const directions = [
     { value: 'long' as const, label: t`Long` },
@@ -508,84 +564,65 @@ function FvgPanel() {
 
   return (
     <>
-      <SessionRail
-        sessions={snap.sessions}
-        activeId={snap.activeId}
-        onSelect={fvgActions.setActive}
-        onAdd={fvgActions.addSession}
-        onRemove={fvgActions.removeSession}
-      />
-
       <DashboardCard title={t`Fair value gap`}>
-        <FormField label={t`Direction`}>
-          <Segmented
-            options={directions}
-            value={active.direction}
-            onChange={(value) => fvgActions.setField('direction', value)}
+        <FieldGroup>
+          <SymbolField
+            value={session.symbol}
+            onChange={(symbol) => fvgActions.setSymbol(id, symbol)}
           />
-        </FormField>
-        <Row>
-          <Col>
-            <NumField
-              label={t`Gap top`}
-              value={active.zoneTop}
-              onChange={(v) => fvgActions.setField('zoneTop', v)}
+          <ControlField label={t`Direction`}>
+            <Segmented
+              options={directions}
+              value={session.direction}
+              onChange={(value) => fvgActions.setField(id, 'direction', value)}
             />
-          </Col>
-          <Col>
-            <NumField
-              label={t`Gap bottom`}
-              value={active.zoneBottom}
-              onChange={(v) => fvgActions.setField('zoneBottom', v)}
-            />
-          </Col>
-        </Row>
-        <FormField label={t`Entry at`}>
-          <Segmented
-            options={entryAts}
-            value={active.entryAt}
-            onChange={(value: EntryAt) => fvgActions.setField('entryAt', value)}
+          </ControlField>
+          <NumberRow
+            label={t`Gap top`}
+            value={session.zoneTop}
+            onChange={(v) => fvgActions.setField(id, 'zoneTop', v)}
           />
-        </FormField>
-        {active.entryAt === 'manual' ? (
-          <NumField
-            label={t`Entry price`}
-            value={active.entryPrice}
-            onChange={(v) => fvgActions.setField('entryPrice', v)}
+          <NumberRow
+            label={t`Gap bottom`}
+            value={session.zoneBottom}
+            onChange={(v) => fvgActions.setField(id, 'zoneBottom', v)}
           />
-        ) : null}
-        <Row>
-          <Col>
-            <NumField
-              label={t`Stop buffer`}
-              value={active.stopBuffer}
-              onChange={(v) => fvgActions.setField('stopBuffer', v)}
+          <ControlField label={t`Entry at`}>
+            <Segmented
+              variant="menu"
+              options={entryAts}
+              value={session.entryAt}
+              onChange={(value: EntryAt) => fvgActions.setField(id, 'entryAt', value)}
             />
-          </Col>
-          <Col>
-            <NumField
-              label={t`Target R`}
-              value={active.rMultiple}
-              onChange={(v) => fvgActions.setField('rMultiple', v)}
+          </ControlField>
+          {session.entryAt === 'manual' ? (
+            <NumberRow
+              label={t`Entry price`}
+              value={session.entryPrice}
+              onChange={(v) => fvgActions.setField(id, 'entryPrice', v)}
             />
-          </Col>
-        </Row>
-        <Row>
-          <Col>
-            <NumField
-              label={t`Account`}
-              value={active.account}
-              onChange={(v) => fvgActions.setField('account', v)}
-            />
-          </Col>
-          <Col>
-            <NumField
-              label={t`Risk %`}
-              value={active.riskPct}
-              onChange={(v) => fvgActions.setField('riskPct', v)}
-            />
-          </Col>
-        </Row>
+          ) : null}
+          <NumberRow
+            label={t`Stop buffer`}
+            value={session.stopBuffer}
+            onChange={(v) => fvgActions.setField(id, 'stopBuffer', v)}
+          />
+          <NumberRow
+            label={t`Target R`}
+            value={session.rMultiple}
+            onChange={(v) => fvgActions.setField(id, 'rMultiple', v)}
+          />
+          <NumberRow
+            label={t`Capital`}
+            value={session.account}
+            onChange={(v) => fvgActions.setField(id, 'account', v)}
+          />
+          <NumberRow
+            label={t`Risk %`}
+            value={session.riskPct}
+            onChange={(v) => fvgActions.setField(id, 'riskPct', v)}
+          />
+        </FieldGroup>
         <WarningList warns={warns} />
       </DashboardCard>
 
@@ -609,9 +646,46 @@ function FvgPanel() {
   );
 }
 
+function FvgPager({ topStyle }: { topStyle: { paddingTop: number } }) {
+  const { sessions, activeId } = useFvg();
+  const active = Math.max(
+    0,
+    sessions.findIndex((session) => session.id === activeId),
+  );
+
+  return (
+    <SymbolPager
+      tabs={sessions.map((session, index) => ({
+        key: session.id,
+        label: pageLabel(session.symbol, index),
+      }))}
+      active={active}
+      addLabel={t`Add symbol`}
+      removeLabel={t`Remove symbol`}
+      topStyle={topStyle}
+      onSelect={(index) => fvgActions.setActive(sessions[index].id)}
+      onLongPressTab={(index) =>
+        promptRename(sessions[index].symbol, (symbol) =>
+          fvgActions.setSymbol(sessions[index].id, symbol),
+        )
+      }
+      onAdd={fvgActions.addSession}
+      onRemoveActive={() => fvgActions.removeSession(activeId)}
+      renderPage={(index) => (
+        <CalcPage>
+          <FvgPanel session={sessions[index]} />
+        </CalcPage>
+      )}
+    />
+  );
+}
+
 /** R-multiple / FVG position calculator — pure engine ported from the web app. */
 export default function RCalculatorScreen() {
   const [mode, setMode] = useState<Mode>('r');
+  // The tab strip sits outside the scroll views, so it clears the transparent
+  // nav bar with padding of its own instead of a content inset.
+  const headerHeight = useHeaderHeight();
   const modes = [
     { value: 'r' as const, label: t`R-Multiple` },
     { value: 'fvg' as const, label: t`FVG` },
@@ -628,61 +702,65 @@ export default function RCalculatorScreen() {
           ),
         }}
       />
-      <ScrollView
-        style={styles.page}
-        contentInsetAdjustmentBehavior="automatic"
-        contentContainerStyle={styles.content}
-        keyboardDismissMode="on-drag"
-        automaticallyAdjustKeyboardInsets
-      >
-        {mode === 'r' ? <RPanel /> : <FvgPanel />}
-      </ScrollView>
+      <View style={styles.screen}>
+        {mode === 'r' ? (
+          <RPager topStyle={{ paddingTop: headerHeight }} />
+        ) : (
+          <FvgPager topStyle={{ paddingTop: headerHeight }} />
+        )}
+      </View>
     </>
   );
 }
 
 const styles = StyleSheet.create((theme) => ({
-  page: { backgroundColor: theme.colors.background },
-  content: {
+  flex: { flex: 1 },
+  screen: { flex: 1, backgroundColor: theme.colors.background },
+  content: { flexGrow: 1 },
+  pageBody: {
+    flexGrow: 1,
     padding: theme.spacing.lg,
     gap: theme.spacing.lg,
-    paddingBottom: theme.spacing.xl * 2,
+    // Clears the tab bar — this page's scroll view opts out of the automatic
+    // content insets that would otherwise carry it.
+    paddingBottom: theme.spacing.xl * 3,
   },
-  row: { flexDirection: 'row', gap: theme.spacing.md },
-  col: { flex: 1 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
-  railScroll: { flexGrow: 0, marginHorizontal: -theme.spacing.lg },
-  rail: {
-    flexDirection: 'row',
-    gap: theme.spacing.sm,
-    paddingHorizontal: theme.spacing.lg,
-    alignItems: 'center',
-  },
-  railChip: {
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: 7,
-    borderRadius: theme.radius.full,
-    borderCurve: 'continuous',
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    minWidth: 44,
-    alignItems: 'center',
-  },
-  railChipActive: { backgroundColor: theme.colors.card, borderColor: theme.colors.input },
-  railLabel: { fontSize: 13, fontWeight: '500', color: theme.colors.mutedForeground },
-  railLabelActive: { color: theme.colors.foreground, fontWeight: '600' },
   pressed: { opacity: 0.6 },
+  // Rows sit flush against each other; the hairline is the only divider, so
+  // the group needs the card's own gap cancelled.
+  group: { marginVertical: -theme.spacing.xs },
+  separator: { height: 0.5, backgroundColor: theme.colors.border },
+  fieldRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.md,
+    minHeight: 48,
+    paddingVertical: theme.spacing.xs,
+  },
+  fieldLabel: { fontSize: 15, fontWeight: '600', color: theme.colors.foreground },
+  // Trailing controls hug their content; the text field takes the rest of the
+  // row and right-aligns, so its value lands on the same edge as theirs. The
+  // definite height is what keeps a hosted SwiftUI picker on the label's centre
+  // line — sizing itself, it draws towards the top of the row instead.
+  fieldControl: { marginLeft: 'auto', flexShrink: 1 },
+  fieldValue: { flex: 1, height: 24, justifyContent: 'center' },
+  fieldInput: {
+    flex: 1,
+    textAlign: 'right',
+    fontSize: 16,
+    color: theme.colors.foreground,
+    paddingVertical: theme.spacing.sm,
+  },
+  tierTitle: {
+    fontSize: 13,
+    fontWeight: '600',
+    letterSpacing: 0.3,
+    color: theme.colors.mutedForeground,
+  },
+  actionRow: { alignItems: 'center' },
+  presetRow: { flexDirection: 'row', gap: theme.spacing.sm },
   warnings: { gap: theme.spacing.xs },
   warningRow: { flexDirection: 'row', alignItems: 'flex-start', gap: theme.spacing.xs + 2 },
   warningText: { flex: 1, fontSize: 12, lineHeight: 17 },
-  presetRow: { flexDirection: 'row', gap: theme.spacing.sm },
-  tierRow: { flexDirection: 'row', gap: theme.spacing.md, alignItems: 'flex-end' },
-  tierRemove: { paddingBottom: 14 },
-  addTier: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing.xs + 2,
-    alignSelf: 'flex-start',
-  },
-  addTierLabel: { fontSize: 13, fontWeight: '500', color: theme.colors.foreground },
 }));

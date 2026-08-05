@@ -1,4 +1,4 @@
-import { Button as UIButton, Host, Image as UIImage, Menu } from '@expo/ui/swift-ui';
+import { Button as UIButton, Host, Image as UIImage, Menu, Section } from '@expo/ui/swift-ui';
 import { accessibilityLabel, buttonStyle, tint } from '@expo/ui/swift-ui/modifiers';
 import { useRouter, type Href } from 'expo-router';
 import { SymbolView, type SFSymbol } from 'expo-symbols';
@@ -8,10 +8,14 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { t } from '@lingui/core/macro';
 
 /**
- * Home-header wrench menu fanning out to the calculators — the phone home of
- * the web Tools popover, placed where the trading day starts. Sheets for the
- * one-shot calculators; the R-calculator and advanced chart push in the Home
- * stack.
+ * Home-header wrench menu — everywhere you go from Home that isn't a tab.
+ *
+ * Two sections: the calculators and market lookups (the phone home of the web
+ * Tools popover), then the journal sections. Notes and Playbook live here as
+ * well as on their dashboard cards because the cards sit below every analytics
+ * block — reaching your own journal should not mean scrolling past the whole
+ * dashboard. Sheets for the one-shot calculators; everything else pushes in
+ * the Home stack.
  */
 export function ToolsMenu() {
   const { theme } = useUnistyles();
@@ -39,6 +43,24 @@ export function ToolsMenu() {
       systemImage: 'chart.xyaxis.line',
       href: '/(tabs)/(dashboard)/advanced-chart',
     },
+    {
+      label: t`Economic calendar`,
+      systemImage: 'newspaper',
+      href: '/(tabs)/(dashboard)/economic-events',
+    },
+  ];
+
+  const journal: { label: string; systemImage: SFSymbol; href: Href }[] = [
+    { label: t`Notes`, systemImage: 'note.text', href: '/(tabs)/(dashboard)/notes' },
+    { label: t`Playbook`, systemImage: 'bookmark', href: '/(tabs)/(dashboard)/playbook' },
+    // The routine is a start-of-day thing and this menu is where the day
+    // starts, so the editor lives in the Home stack rather than in Settings —
+    // back returns you to Home, not to a settings list you never opened.
+    {
+      label: t`Daily checklist`,
+      systemImage: 'checklist',
+      href: '/(tabs)/(dashboard)/checklist',
+    },
   ];
 
   if (Platform.OS !== 'ios') {
@@ -61,14 +83,26 @@ export function ToolsMenu() {
         label={<UIImage systemName="wrench.and.screwdriver" size={16} />}
         modifiers={[buttonStyle('plain'), tint(theme.colors.foreground), accessibilityLabel(t`Tools`)]}
       >
-        {actions.map((action) => (
-          <UIButton
-            key={action.label}
-            label={action.label}
-            systemImage={action.systemImage}
-            onPress={() => router.push(action.href)}
-          />
-        ))}
+        <Section title={t`Journal`}>
+          {journal.map((action) => (
+            <UIButton
+              key={action.label}
+              label={action.label}
+              systemImage={action.systemImage}
+              onPress={() => router.push(action.href)}
+            />
+          ))}
+        </Section>
+        <Section title={t`Tools`}>
+          {actions.map((action) => (
+            <UIButton
+              key={action.label}
+              label={action.label}
+              systemImage={action.systemImage}
+              onPress={() => router.push(action.href)}
+            />
+          ))}
+        </Section>
       </Menu>
     </Host>
   );

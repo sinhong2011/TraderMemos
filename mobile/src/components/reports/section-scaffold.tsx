@@ -7,8 +7,8 @@
  */
 
 import { useQueryClient } from '@tanstack/react-query';
-import type { ReactNode } from 'react';
-import { RefreshControl, ScrollView, View } from 'react-native';
+import { createContext, useContext, type ReactNode } from 'react';
+import { Animated, RefreshControl, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { useAccounts, useCash } from '@/api/hooks';
@@ -64,7 +64,27 @@ export function useReportsMoney(): ReportsMoneyContext {
 
 export type SectionOption = { value: ReportsSection; label: string };
 
-/** One pager page: a pull-to-refresh card stack. */
+/**
+ * The segmented switcher floats above the pages and slides out of the way as
+ * you read, so every section reports its scroll to one shared value instead of
+ * carrying its own copy of the bar.
+ */
+export type ReportsScroll = {
+  /**
+   * Live offset of whichever page is on screen. RN's `Animated` rather than
+   * Reanimated: the value is written by a native-driven scroll event, so no
+   * component ever assigns to it — which is the only form the React Compiler
+   * accepts for a value handed down through context.
+   */
+  offset: Animated.Value;
+  /** Measured height of the floating switcher — the pages' top inset. */
+  headerHeight: number;
+};
+
+const ReportsScrollContext = createContext<ReportsScroll | null>(null);
+export const ReportsScrollProvider = ReportsScrollContext.Provider;
+
+/** One pager page: a pull-to-refresh card stack under the floating switcher. */
 export function SectionScaffold({
   refreshing,
   onScrolledChange,
@@ -76,25 +96,38 @@ export function SectionScaffold({
   children: ReactNode;
 }) {
   const queryClient = useQueryClient();
+  const reportsScroll = useContext(ReportsScrollContext);
+  const headerHeight = reportsScroll?.headerHeight ?? 0;
+
+  const onScroll = reportsScroll
+    ? Animated.event([{ nativeEvent: { contentOffset: { y: reportsScroll.offset } } }], {
+        useNativeDriver: true,
+        // Same boolean the index has always used for its title; setState with
+        // an unchanged value is a no-op, so it needn't be de-duped here.
+        listener: (event) => {
+          const { y } = (event.nativeEvent as { contentOffset: { y: number } }).contentOffset;
+          onScrolledChange?.(y > 24);
+        },
+      })
+    : undefined;
+
   return (
-    <ScrollView
+    <Animated.ScrollView
       style={styles.page}
-      contentContainerStyle={styles.content}
-      scrollEventThrottle={32}
-      onScroll={
-        onScrolledChange
-          ? (event) => onScrolledChange(event.nativeEvent.contentOffset.y > 24)
-          : undefined
-      }
+      contentContainerStyle={[styles.content, { paddingTop: headerHeight }]}
+      scrollEventThrottle={16}
+      onScroll={onScroll}
       refreshControl={
         <RefreshControl
           refreshing={refreshing}
+          // Clears the switcher instead of spinning behind it.
+          progressViewOffset={headerHeight}
           onRefresh={() => void queryClient.invalidateQueries()}
         />
       }
     >
       <View style={styles.stack}>{children}</View>
-    </ScrollView>
+    </Animated.ScrollView>
   );
 }
 
@@ -103,7 +136,7 @@ const styles = StyleSheet.create((theme) => ({
   content: { paddingBottom: theme.spacing.xl * 2 },
   stack: {
     padding: theme.spacing.lg,
-    paddingTop: theme.spacing.md,
+    paddingTop: theme.spacing.sm,
     gap: theme.spacing.lg,
   },
 }));

@@ -14,6 +14,7 @@ import {
   useTrades,
 } from '@/api/hooks';
 import { BreakdownCard } from '@/components/breakdown-card';
+import { ChecklistCard } from '@/components/checklist-card';
 import { DailyLossCard } from '@/components/daily-loss-card';
 import { DashboardCard } from '@/components/dashboard-card';
 import { EquityCard } from '@/components/equity-card';
@@ -131,6 +132,10 @@ export default function DashboardScreen() {
         currency={currency}
         fxRate={fxRate}
       />
+
+      {/* Today's discipline, above the day's numbers: the checklist is the
+          first thing to clear, the loss limit the line not to cross. */}
+      <ChecklistCard />
 
       <DailyLossCard todayNetPnl={todayNetPnl} currency={currency} fxRate={fxRate} />
 

@@ -222,6 +222,11 @@ function TradeDetailBody({
                   }
                 />
                 <UIButton
+                  label={t`Replay trade`}
+                  systemImage="play.rectangle"
+                  onPress={() => router.push({ pathname: '/replay', params: { id: trade.id } })}
+                />
+                <UIButton
                   label={t`Share card`}
                   systemImage="square.and.arrow.up"
                   onPress={() =>

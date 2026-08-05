@@ -28,6 +28,14 @@ export function weekStartKey(offsetWeeks: number, timeZone?: string): string {
   return base.toISOString().slice(0, 10);
 }
 
+/** Sunday of the week a day-key falls in — the inverse of [weekStartKey] for a
+ *  day you already have, used to say which week a scrolled-to row belongs to. */
+export function weekStartOf(dayKey: string): string {
+  const d = new Date(`${dayKey}T12:00:00Z`);
+  d.setUTCDate(d.getUTCDate() - d.getUTCDay());
+  return d.toISOString().slice(0, 10);
+}
+
 export function addDaysKey(key: string, days: number): string {
   const d = new Date(`${key}T12:00:00Z`);
   d.setUTCDate(d.getUTCDate() + days);
@@ -35,20 +43,53 @@ export function addDaysKey(key: string, days: number): string {
 }
 
 /**
- * "Aug 2 – 8" (or "Jul 26 – Aug 1, 2025" outside the current year) — Intl's
- * `formatRange` collapses the shared month/year per locale rules; formatting
- * the two ends separately yields garbage in some locales, so let Intl own it.
+ * "Aug 2 – 8" (or "Dec 28, 2025 – Jan 3, 2026" outside the current year).
+ *
+ * Intl's `formatRange` collapses the shared month/year per locale rules, but
+ * Hermes doesn't implement it (`undefined is not a function`), so fall back to
+ * formatting each end and collapsing the month ourselves. Never combine `day`
+ * with `year` alone — Intl has no such skeleton and emits "2025 (day: 8)".
  */
-export function formatWeekLabel(weekStart: string, locale: string, todayKey: string): string {
-  const start = new Date(`${weekStart}T12:00:00Z`);
-  const end = new Date(`${addDaysKey(weekStart, 6)}T12:00:00Z`);
+/**
+ * "Aug", "Jul – Aug", or "Dec 2025 – Jan 2026" — the month scale of a week, for
+ * places that already show the day numbers separately and only need to say
+ * which month those numbers belong to.
+ */
+export function formatWeekMonths(weekStart: string, locale: string, todayKey: string): string {
+  const endKey = addDaysKey(weekStart, 6);
   const currentYear = todayKey.slice(0, 4);
-  const showYear =
-    weekStart.slice(0, 4) !== currentYear || addDaysKey(weekStart, 6).slice(0, 4) !== currentYear;
-  return new Intl.DateTimeFormat(locale, {
+  const showYear = weekStart.slice(0, 4) !== currentYear || endKey.slice(0, 4) !== currentYear;
+  const month = (key: string) =>
+    new Date(`${key}T12:00:00Z`).toLocaleDateString(locale, {
+      month: 'short',
+      ...(showYear ? { year: 'numeric' as const } : {}),
+      timeZone: 'UTC',
+    });
+  const from = month(weekStart);
+  const to = month(endKey);
+  return from === to ? from : `${from} – ${to}`;
+}
+
+export function formatWeekLabel(weekStart: string, locale: string, todayKey: string): string {
+  const endKey = addDaysKey(weekStart, 6);
+  const start = new Date(`${weekStart}T12:00:00Z`);
+  const end = new Date(`${endKey}T12:00:00Z`);
+  const currentYear = todayKey.slice(0, 4);
+  const showYear = weekStart.slice(0, 4) !== currentYear || endKey.slice(0, 4) !== currentYear;
+  const opts: Intl.DateTimeFormatOptions = {
     month: 'short',
     day: 'numeric',
     ...(showYear ? { year: 'numeric' as const } : {}),
     timeZone: 'UTC',
-  }).formatRange(start, end);
+  };
+
+  const dtf = new Intl.DateTimeFormat(locale, opts);
+  if (typeof dtf.formatRange === 'function') return dtf.formatRange(start, end);
+
+  // Same month and no year to place → drop the repeated month from the end.
+  const sameMonth = !showYear && weekStart.slice(0, 7) === endKey.slice(0, 7);
+  const endLabel = sameMonth
+    ? new Intl.DateTimeFormat(locale, { day: 'numeric', timeZone: 'UTC' }).format(end)
+    : dtf.format(end);
+  return `${dtf.format(start)} – ${endLabel}`;
 }

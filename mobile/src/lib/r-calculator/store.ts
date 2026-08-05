@@ -48,9 +48,14 @@ function genId(): string {
 export type RCalcSnapshot = {
   sessions: Session[];
   activeId: string;
-  active: Session;
+};
+
+/** Everything the engine says about one session. */
+export type CalcDerived = {
   input: CalcInput;
   result: CalcResult;
+  /** Cash at risk per unit — `r1` for a share, `r1 × contract size` for an option. */
+  riskPerUnit: number;
   exitResult: ExitPlanResult;
   warns: Warning[];
   exitWarns: Warning[];
@@ -77,30 +82,39 @@ function buildCalcInput(session: Session): CalcInput {
   };
 }
 
-function deriveCalc(sessions: Session[], activeId: string): RCalcSnapshot {
-  const active = sessions.find((s) => s.id === activeId) ?? sessions[0];
-  const input = buildCalcInput(active);
+/**
+ * Pure per-session derivation. Every page of the calculator's pager shows its
+ * own numbers, so this runs per rendered session rather than once for the
+ * active one — the engine is a handful of arithmetic passes, cheap enough to
+ * belong in render.
+ */
+export function deriveSession(session: Session): CalcDerived {
+  const input = buildCalcInput(session);
   const result = calc(input);
-  const exitResult = computeExitPlan(active.exitPlan, {
+  const riskPerUnit = result.r1 * (input.multiplier ?? 1);
+  const exitResult = computeExitPlan(session.exitPlan, {
     shares: result.shares,
-    riskPerUnit: result.r1 * (input.multiplier ?? 1),
+    riskPerUnit,
     entry: input.entry,
     r1: result.r1,
     direction: input.direction,
     initialRisk: result.realRisk,
   });
   const warns =
-    active.instrument === 'options' ? optionWarnings(input, result) : warnings(input, result);
+    session.instrument === 'options' ? optionWarnings(input, result) : warnings(input, result);
   return {
-    sessions,
-    activeId: active.id,
-    active,
     input,
     result,
+    riskPerUnit,
     exitResult,
     warns,
-    exitWarns: exitWarnings(active.exitPlan),
+    exitWarns: exitWarnings(session.exitPlan),
   };
+}
+
+function snapshotCalc(sessions: Session[], activeId: string): RCalcSnapshot {
+  const active = sessions.find((s) => s.id === activeId) ?? sessions[0];
+  return { sessions, activeId: active.id };
 }
 
 function loadCalc(): RCalcSnapshot {
@@ -113,23 +127,28 @@ function loadCalc(): RCalcSnapshot {
       parsed = null;
     }
   }
-  const normalized = normalizeV3(parsed, genId, 'Position 1');
-  return deriveCalc(normalized.sessions, normalized.activeId);
+  const normalized = normalizeV3(parsed, genId);
+  return snapshotCalc(normalized.sessions, normalized.activeId);
 }
 
 let calcSnapshot = loadCalc();
 const calcListeners = new Set<() => void>();
 
 function commitCalc(sessions: Session[], activeId: string) {
-  calcSnapshot = deriveCalc(sessions, activeId);
+  calcSnapshot = snapshotCalc(sessions, activeId);
   storage.set(CALC_KEY, JSON.stringify({ sessions, activeId: calcSnapshot.activeId }));
   for (const listener of calcListeners) listener();
 }
 
-function updateActive(updater: (s: Session) => Session) {
+/**
+ * Edits name a session by id rather than assuming the active one: the pager
+ * keeps neighbouring pages mounted and interactive, so a field can commit from
+ * a page that is mid-swipe and not yet the active one.
+ */
+function updateSession(id: string, updater: (s: Session) => Session) {
   const { sessions, activeId } = calcSnapshot;
   commitCalc(
-    sessions.map((s) => (s.id === activeId ? updater(s) : s)),
+    sessions.map((s) => (s.id === id ? updater(s) : s)),
     activeId,
   );
 }
@@ -149,22 +168,18 @@ export const rCalcActions = {
     if (!calcSnapshot.sessions.some((s) => s.id === id)) return;
     commitCalc(calcSnapshot.sessions, id);
   },
-  setField<K extends keyof Session>(key: K, value: Session[K]) {
-    updateActive((s) => ({ ...s, [key]: value }));
+  setField<K extends keyof Session>(id: string, key: K, value: Session[K]) {
+    updateSession(id, (s) => ({ ...s, [key]: value }));
   },
   addSession() {
     const id = genId();
-    const name = `Position ${calcSnapshot.sessions.length + 1}`;
-    commitCalc([...calcSnapshot.sessions, createDefaultSession(name, id)], id);
+    commitCalc([...calcSnapshot.sessions, createDefaultSession(id)], id);
   },
   duplicateSession(id: string) {
     const src = calcSnapshot.sessions.find((s) => s.id === id);
     if (!src) return;
     const newId = genId();
-    commitCalc(
-      [...calcSnapshot.sessions, cloneSession(src, newId, `${src.name} copy`)],
-      newId,
-    );
+    commitCalc([...calcSnapshot.sessions, cloneSession(src, newId, src.symbol)], newId);
   },
   removeSession(id: string) {
     const { sessions, activeId } = calcSnapshot;
@@ -174,15 +189,11 @@ export const rCalcActions = {
     const next = sessions.filter((s) => s.id !== id);
     commitCalc(next, activeId === id ? next[Math.max(0, idx - 1)].id : activeId);
   },
-  renameSession(id: string, name: string) {
-    const { sessions, activeId } = calcSnapshot;
-    commitCalc(
-      sessions.map((s) => (s.id === id ? { ...s, name } : s)),
-      activeId,
-    );
+  setSymbol(id: string, symbol: string) {
+    updateSession(id, (s) => ({ ...s, symbol }));
   },
-  addTier() {
-    updateActive((s) => {
+  addTier(id: string) {
+    updateSession(id, (s) => {
       const topR = s.exitPlan.tiers.length ? Math.max(...s.exitPlan.tiers.map((t) => t.r)) : 1;
       return {
         ...s,
@@ -190,14 +201,14 @@ export const rCalcActions = {
       };
     });
   },
-  removeTier(index: number) {
-    updateActive((s) => ({
+  removeTier(id: string, index: number) {
+    updateSession(id, (s) => ({
       ...s,
       exitPlan: { ...s.exitPlan, tiers: s.exitPlan.tiers.filter((_, i) => i !== index) },
     }));
   },
-  setTier(index: number, patch: Partial<ExitTier>) {
-    updateActive((s) => ({
+  setTier(id: string, index: number, patch: Partial<ExitTier>) {
+    updateSession(id, (s) => ({
       ...s,
       exitPlan: {
         ...s.exitPlan,
@@ -205,11 +216,11 @@ export const rCalcActions = {
       },
     }));
   },
-  setTrailerStop(stop: TrailerStop) {
-    updateActive((s) => ({ ...s, exitPlan: { ...s.exitPlan, trailerStop: stop } }));
+  setTrailerStop(id: string, stop: TrailerStop) {
+    updateSession(id, (s) => ({ ...s, exitPlan: { ...s.exitPlan, trailerStop: stop } }));
   },
-  applyExitPreset(plan: ExitPlan) {
-    updateActive((s) => ({ ...s, exitPlan: structuredClone(plan) }));
+  applyExitPreset(id: string, plan: ExitPlan) {
+    updateSession(id, (s) => ({ ...s, exitPlan: structuredClone(plan) }));
   },
 };
 
@@ -220,15 +231,19 @@ export const rCalcActions = {
 export type FvgSnapshot = {
   sessions: FvgSession[];
   activeId: string;
-  active: FvgSession;
-  result: FvgResult;
-  warns: Warning[];
 };
 
-function deriveFvg(sessions: FvgSession[], activeId: string): FvgSnapshot {
+export type FvgDerived = { result: FvgResult; warns: Warning[] };
+
+/** Pure per-session derivation — see `deriveSession`. */
+export function deriveFvgSession(session: FvgSession): FvgDerived {
+  const result = computeFvg(session);
+  return { result, warns: fvgWarnings(session, result) };
+}
+
+function snapshotFvg(sessions: FvgSession[], activeId: string): FvgSnapshot {
   const active = sessions.find((s) => s.id === activeId) ?? sessions[0];
-  const result = computeFvg(active);
-  return { sessions, activeId: active.id, active, result, warns: fvgWarnings(active, result) };
+  return { sessions, activeId: active.id };
 }
 
 function loadFvg(): FvgSnapshot {
@@ -241,15 +256,15 @@ function loadFvg(): FvgSnapshot {
       parsed = null;
     }
   }
-  const normalized = normalizeFvg(parsed, genId, 'FVG 1');
-  return deriveFvg(normalized.sessions, normalized.activeId);
+  const normalized = normalizeFvg(parsed, genId);
+  return snapshotFvg(normalized.sessions, normalized.activeId);
 }
 
 let fvgSnapshot = loadFvg();
 const fvgListeners = new Set<() => void>();
 
 function commitFvg(sessions: FvgSession[], activeId: string) {
-  fvgSnapshot = deriveFvg(sessions, activeId);
+  fvgSnapshot = snapshotFvg(sessions, activeId);
   storage.set(FVG_KEY, JSON.stringify({ sessions, activeId: fvgSnapshot.activeId }));
   for (const listener of fvgListeners) listener();
 }
@@ -269,19 +284,16 @@ export const fvgActions = {
     if (!fvgSnapshot.sessions.some((s) => s.id === id)) return;
     commitFvg(fvgSnapshot.sessions, id);
   },
-  setField<K extends keyof FvgInput>(key: K, value: FvgInput[K]) {
+  setField<K extends keyof FvgInput>(id: string, key: K, value: FvgInput[K]) {
     const { sessions, activeId } = fvgSnapshot;
     commitFvg(
-      sessions.map((s) => (s.id === activeId ? { ...s, [key]: value } : s)),
+      sessions.map((s) => (s.id === id ? { ...s, [key]: value } : s)),
       activeId,
     );
   },
   addSession() {
     const id = genId();
-    commitFvg(
-      [...fvgSnapshot.sessions, createDefaultFvgSession(`FVG ${fvgSnapshot.sessions.length + 1}`, id)],
-      id,
-    );
+    commitFvg([...fvgSnapshot.sessions, createDefaultFvgSession(id)], id);
   },
   removeSession(id: string) {
     const { sessions, activeId } = fvgSnapshot;
@@ -290,5 +302,12 @@ export const fvgActions = {
     if (idx < 0) return;
     const next = sessions.filter((s) => s.id !== id);
     commitFvg(next, activeId === id ? next[Math.max(0, idx - 1)].id : activeId);
+  },
+  setSymbol(id: string, symbol: string) {
+    const { sessions, activeId } = fvgSnapshot;
+    commitFvg(
+      sessions.map((s) => (s.id === id ? { ...s, symbol } : s)),
+      activeId,
+    );
   },
 };

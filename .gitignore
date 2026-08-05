@@ -55,6 +55,14 @@ web/.playwright-mcp/
 !mobile/assets/expo.icon/Assets/*.png
 !web/src/assets/*.png
 !docs/screenshots/*.png
+# ...except the Expo starter-template art the exemption above lets back in
+mobile/assets/images/expo-badge.png
+mobile/assets/images/expo-badge-white.png
+mobile/assets/images/expo-logo.png
+mobile/assets/images/logo-glow.png
+mobile/assets/images/react-logo*.png
+mobile/assets/images/tutorial-web.png
+mobile/assets/expo.icon/Assets/grid.png
 .gstack/
 
 # Python bytecode (scripts/)
@@ -63,3 +71,12 @@ __pycache__/
 
 # Local scheduler state
 .claude/scheduled_tasks.lock
+
+# Per-machine agent/IDE scratch dropped into mobile/ by Blitz, Codex, OpenCode
+mobile/.agents/
+mobile/.blitz/
+mobile/.claude/
+mobile/.codex/
+mobile/.mcp.json
+mobile/CLAUDE.md
+mobile/opencode.json

@@ -160,6 +160,12 @@ export default function RootLayout() {
             <Stack.Screen name="new-note" options={{ presentation: 'modal' }} />
             <Stack.Screen name="edit-note" options={{ presentation: 'modal' }} />
             <Stack.Screen name="new-setup" options={{ presentation: 'modal' }} />
+            {/* Replay is a thing you watch, not a form you fill: full screen so
+                the chart gets the height, with its own header for the actions. */}
+            <Stack.Screen
+              name="replay"
+              options={{ presentation: 'fullScreenModal', headerShown: true }}
+            />
             {/* One-shot calculators ride in half sheets; the R calculator is a
                 pushed screen under (reports). */}
             <Stack.Screen
@@ -194,6 +200,17 @@ export default function RootLayout() {
               options={{
                 presentation: 'formSheet',
                 sheetAllowedDetents: [0.75, 1],
+                sheetGrabberVisible: true,
+                sheetCornerRadius: 24,
+              }}
+            />
+            {/* Add/edit cash transaction — a creation sheet like new-token,
+                launched from the Funding list's + button. */}
+            <Stack.Screen
+              name="cash-form"
+              options={{
+                presentation: 'formSheet',
+                sheetAllowedDetents: [0.55, 1],
                 sheetGrabberVisible: true,
                 sheetCornerRadius: 24,
               }}

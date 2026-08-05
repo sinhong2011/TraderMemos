@@ -12,7 +12,8 @@ export type OptionType = "call" | "put";
 
 export interface Session {
   id: string;
-  name: string;
+  /** Ticker this position sizes — labels its page. Empty until you type one. */
+  symbol: string;
   instrument: Instrument;
   direction: Direction;
   entry: number;
@@ -32,7 +33,7 @@ export interface PersistedV3 {
 }
 
 /** Per-session field defaults (everything but identity). */
-export const SESSION_DEFAULTS: Omit<Session, "id" | "name"> = {
+export const SESSION_DEFAULTS: Omit<Session, "id" | "symbol"> = {
   instrument: "stock",
   direction: "long",
   entry: 100.35,
@@ -50,43 +51,53 @@ export const SESSION_DEFAULTS: Omit<Session, "id" | "name"> = {
  *  untrusted persisted/legacy blobs. */
 const FIELD_KEYS = Object.keys(SESSION_DEFAULTS) as (keyof typeof SESSION_DEFAULTS)[];
 
+/**
+ * The names this screen used to generate for you ("Position 3", "FVG 2") before
+ * pages labelled themselves from their ticker. They were never typed, so they
+ * migrate to empty and the page falls back to its numbered placeholder; a name
+ * you actually chose survives as the symbol.
+ */
+const AUTO_NAME = /^(position|fvg)\s*\d+$/i;
+
+/** Symbol of a persisted session, reading the pre-symbol `name` field. */
+export function pageSymbol(src: Record<string, unknown>): string {
+  const stored =
+    typeof src.symbol === "string" ? src.symbol : typeof src.name === "string" ? src.name : "";
+  return AUTO_NAME.test(stored.trim()) ? "" : stored;
+}
+
 /** Build a Session from defaults + any subset of valid fields from `src`. */
-function fromPartial(src: Record<string, unknown>, id: string, name: string): Session {
-  const out = { ...structuredClone(SESSION_DEFAULTS), id, name } as Session;
+function fromPartial(src: Record<string, unknown>, id: string, symbol: string): Session {
+  const out = { ...structuredClone(SESSION_DEFAULTS), id, symbol } as Session;
   for (const k of FIELD_KEYS) {
     if (src[k] !== undefined) (out as unknown as Record<string, unknown>)[k] = src[k];
   }
   return out;
 }
 
-export function createDefaultSession(name: string, id: string): Session {
-  return { ...structuredClone(SESSION_DEFAULTS), id, name };
+export function createDefaultSession(id: string, symbol = ""): Session {
+  return { ...structuredClone(SESSION_DEFAULTS), id, symbol };
 }
 
-export function cloneSession(src: Session, id: string, name: string): Session {
-  return { ...structuredClone(src), id, name };
+export function cloneSession(src: Session, id: string, symbol: string): Session {
+  return { ...structuredClone(src), id, symbol };
 }
 
-export function migrateV2(v2: unknown, id: string, defaultName: string): PersistedV3 {
+export function migrateV2(v2: unknown, id: string): PersistedV3 {
   const src = v2 && typeof v2 === "object" ? (v2 as Record<string, unknown>) : {};
-  return { sessions: [fromPartial(src, id, defaultName)], activeId: id };
+  return { sessions: [fromPartial(src, id, pageSymbol(src))], activeId: id };
 }
 
-export function normalizeV3(
-  parsed: unknown,
-  nextId: () => string,
-  defaultName: string,
-): PersistedV3 {
+export function normalizeV3(parsed: unknown, nextId: () => string): PersistedV3 {
   const obj = parsed && typeof parsed === "object" ? (parsed as Record<string, unknown>) : {};
   const raw = Array.isArray(obj.sessions) ? obj.sessions : [];
   let sessions = raw
     .filter((s): s is Record<string, unknown> => !!s && typeof s === "object")
     .map((s) => {
       const id = typeof s.id === "string" && s.id ? s.id : nextId();
-      const name = typeof s.name === "string" && s.name ? s.name : defaultName;
-      return fromPartial(s, id, name);
+      return fromPartial(s, id, pageSymbol(s));
     });
-  if (sessions.length === 0) sessions = [createDefaultSession(defaultName, nextId())];
+  if (sessions.length === 0) sessions = [createDefaultSession(nextId())];
   const activeId = sessions.some((s) => s.id === obj.activeId)
     ? (obj.activeId as string)
     : sessions[0].id;

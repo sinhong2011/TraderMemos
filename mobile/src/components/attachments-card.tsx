@@ -8,6 +8,7 @@ import {
 } from '@expo/ui/swift-ui/modifiers';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import * as DocumentPicker from 'expo-document-picker';
+import { File as FsFile } from 'expo-file-system';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { useState } from 'react';
@@ -73,8 +74,11 @@ export function AttachmentsCard({ trade }: { trade: TradeDetail }) {
       // One at a time, like the web uploader — partial success stays visible.
       for (const file of files) {
         const formData = new FormData();
-        // RN FormData file part; never set Content-Type manually (boundary).
-        formData.append('file', file as unknown as Blob);
+        // An expo-file-system `File`, not RN's `{uri,name,type}` descriptor —
+        // Expo's fetch polyfill owns the global `fetch` and serialises a part
+        // only from a string, a Blob, or something with `bytes()`. See
+        // components/note-images.tsx.
+        formData.append('file', new FsFile(file.uri) as unknown as Blob, file.name);
         const response = await apiRaw(`/trades/${trade.id}/attachments`, {
           method: 'POST',
           formData,
@@ -99,6 +103,10 @@ export function AttachmentsCard({ trade }: { trade: TradeDetail }) {
       allowsMultipleSelection: true,
       selectionLimit: Number.isFinite(room) ? room : 0,
       quality: 0.9,
+      // An iPhone library is HEIC and the server takes only png/jpeg/webp;
+      // multi-select hands back the original representation untranscoded.
+      preferredAssetRepresentationMode:
+        ImagePicker.UIImagePickerPreferredAssetRepresentationMode.Compatible,
     });
     if (picked.canceled) return;
     await uploadImages(

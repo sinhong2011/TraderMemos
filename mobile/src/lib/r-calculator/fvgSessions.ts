@@ -3,10 +3,12 @@
  * FVG sizing inputs. The reactive store (fvgStore.tsx) wires these into Solid.
  */
 import type { FvgInput } from "./fvg";
+import { pageSymbol } from "./sessions";
 
 export interface FvgSession extends FvgInput {
   id: string;
-  name: string;
+  /** Ticker the gap sits on — labels its page. Empty until you type one. */
+  symbol: string;
 }
 
 export interface PersistedFvg {
@@ -29,37 +31,32 @@ export const FVG_DEFAULTS: FvgInput = {
 
 const FIELD_KEYS = Object.keys(FVG_DEFAULTS) as (keyof FvgInput)[];
 
-function fromPartial(src: Record<string, unknown>, id: string, name: string): FvgSession {
-  const out = { ...structuredClone(FVG_DEFAULTS), id, name } as FvgSession;
+function fromPartial(src: Record<string, unknown>, id: string, symbol: string): FvgSession {
+  const out = { ...structuredClone(FVG_DEFAULTS), id, symbol } as FvgSession;
   for (const k of FIELD_KEYS) {
     if (src[k] !== undefined) (out as unknown as Record<string, unknown>)[k] = src[k];
   }
   return out;
 }
 
-export function createDefaultFvgSession(name: string, id: string): FvgSession {
-  return { ...structuredClone(FVG_DEFAULTS), id, name };
+export function createDefaultFvgSession(id: string, symbol = ""): FvgSession {
+  return { ...structuredClone(FVG_DEFAULTS), id, symbol };
 }
 
-export function cloneFvgSession(src: FvgSession, id: string, name: string): FvgSession {
-  return { ...structuredClone(src), id, name };
+export function cloneFvgSession(src: FvgSession, id: string, symbol: string): FvgSession {
+  return { ...structuredClone(src), id, symbol };
 }
 
-export function normalizeFvg(
-  parsed: unknown,
-  nextId: () => string,
-  defaultName: string,
-): PersistedFvg {
+export function normalizeFvg(parsed: unknown, nextId: () => string): PersistedFvg {
   const obj = parsed && typeof parsed === "object" ? (parsed as Record<string, unknown>) : {};
   const raw = Array.isArray(obj.sessions) ? obj.sessions : [];
   let sessions = raw
     .filter((s): s is Record<string, unknown> => !!s && typeof s === "object")
     .map((s) => {
       const id = typeof s.id === "string" && s.id ? s.id : nextId();
-      const name = typeof s.name === "string" && s.name ? s.name : defaultName;
-      return fromPartial(s, id, name);
+      return fromPartial(s, id, pageSymbol(s));
     });
-  if (sessions.length === 0) sessions = [createDefaultFvgSession(defaultName, nextId())];
+  if (sessions.length === 0) sessions = [createDefaultFvgSession(nextId())];
   const activeId = sessions.some((s) => s.id === obj.activeId)
     ? (obj.activeId as string)
     : sessions[0].id;

@@ -1,37 +1,23 @@
 import { useRouter } from 'expo-router';
 import type { ReactNode } from 'react';
-import { Pressable, ScrollView, Text , View } from 'react-native';
+import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
+import { FormSheet } from '@/components/form-sheet';
 import { t } from '@lingui/core/macro';
 
 /**
- * Scaffold for the calculator form sheets: title + Done over the inputs.
- * Form sheets lay non-scroll children on top of each other — the content
- * root must be a ScrollView (see manage-tags.tsx).
+ * Scaffold for the calculator sheets. Same chrome as every other sheet in the
+ * app (`FormSheet`, iOS 26 glass): a calculator has nothing to cancel — the
+ * numbers are the result — so it drops the close affordance and names its one
+ * action Done.
  */
 export function ToolSheet({ title, children }: { title: string; children: ReactNode }) {
   const router = useRouter();
   return (
-    <ScrollView
-      style={styles.page}
-      contentContainerStyle={styles.content}
-      keyboardDismissMode="on-drag"
-      automaticallyAdjustKeyboardInsets
-    >
-      <View style={styles.header}>
-        <Text style={styles.title}>{title}</Text>
-        <Pressable
-          onPress={() => router.back()}
-          hitSlop={8}
-          accessibilityRole="button"
-          style={({ pressed }) => [styles.doneButton, pressed && styles.pressed]}
-        >
-          <Text style={styles.doneLabel}>{t`Done`}</Text>
-        </Pressable>
-      </View>
+    <FormSheet inSheet hideClose title={title} saveLabel={t`Done`} onSave={() => router.back()}>
       {children}
-    </ScrollView>
+    </FormSheet>
   );
 }
 
@@ -45,23 +31,6 @@ export function ToolCol({ children }: { children: ReactNode }) {
 }
 
 const styles = StyleSheet.create((theme) => ({
-  page: { flex: 1, backgroundColor: theme.colors.background },
-  content: {
-    padding: theme.spacing.lg,
-    paddingTop: theme.spacing.xl,
-    gap: theme.spacing.md,
-    paddingBottom: theme.spacing.xl * 2,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: theme.spacing.xs,
-  },
-  title: { fontSize: 20, fontWeight: '700', color: theme.colors.foreground },
-  doneButton: { paddingVertical: 4, paddingHorizontal: 4 },
-  pressed: { opacity: 0.6 },
-  doneLabel: { fontSize: 15, fontWeight: '600', color: theme.colors.foreground },
   row: { flexDirection: 'row', gap: theme.spacing.md },
   col: { flex: 1 },
 }));

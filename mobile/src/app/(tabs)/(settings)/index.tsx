@@ -14,11 +14,18 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import * as DocumentPicker from 'expo-document-picker';
 import { File } from 'expo-file-system';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Alert, Linking } from 'react-native';
 import { useUnistyles } from 'react-native-unistyles';
 
-import { useAccounts, useAnnualGoal, useApiRequest, queryKeys } from '@/api/hooks';
+import {
+  useAccounts,
+  useAnnualGoal,
+  useApiRequest,
+  useCash,
+  useTrades,
+  queryKeys,
+} from '@/api/hooks';
 import { CenteredButton } from '@/components/centered-button';
 import { SettingsForm } from '@/components/settings-form';
 import { useSession } from '@/api/session';
@@ -29,14 +36,19 @@ import {
   CONFIRM_DESTRUCTIVE_KEY,
   parseAppConfig,
 } from '@/lib/app-config';
+import { ledgerBalance } from '@/lib/cash';
 import { shareFile } from '@/lib/file-transfer';
-import { formatCurrency } from '@/lib/format';
+import { formatCurrency, formatPnl } from '@/lib/format';
+import { useDisplayPrefs } from '@/lib/prefs';
 import { clearPersistedQueryCache, storage } from '@/storage/mmkv';
 
 /**
- * Native SwiftUI settings hub, covering the web settings tabs on the phone:
- * accounts + funding, annual goal, risk rules, journal (tags, daily
- * checklist), AI integrations, API tokens, behavior, about. Sub-screens are
+ * Native SwiftUI settings hub, covering the web settings tabs on the phone.
+ * Sections read top-down as "my money → how I trade → how I journal → what
+ * it talks to → what I take out → how the app behaves": Accounts (incl.
+ * funding), Trading (goal + risk rules), Journal, Integrations, Preferences,
+ * Data & backup, then About and Sign out. One section per topic — no
+ * single-row orphans, and every import/export lives together. Sub-screens are
  * pushed; the annual goal edits in place via a native prompt.
  */
 export default function SettingsScreen() {
@@ -46,6 +58,30 @@ export default function SettingsScreen() {
   const { theme } = useUnistyles();
   const { session, signOut } = useSession();
   const { data: accounts } = useAccounts();
+  // Account rows show live equity, so they need the whole ledger and every
+  // account's trades — unscoped on purpose (the global account filter would
+  // blank out the rows you aren't currently scoped to).
+  const cash = useCash();
+  const trades = useTrades();
+  // Money formatters read privacy mode at call time; subscribe so a flip
+  // re-renders the rows.
+  useDisplayPrefs();
+
+  const pnlByAccount = useMemo(() => {
+    const totals = new Map<string, number>();
+    for (const trade of trades.data ?? []) {
+      totals.set(trade.account_id, (totals.get(trade.account_id) ?? 0) + (trade.net_pnl ?? 0));
+    }
+    return totals;
+  }, [trades.data]);
+
+  const tradeCountByAccount = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const trade of trades.data ?? []) {
+      counts.set(trade.account_id, (counts.get(trade.account_id) ?? 0) + 1);
+    }
+    return counts;
+  }, [trades.data]);
 
   const year = new Date().getFullYear();
   const goal = useAnnualGoal(year);
@@ -123,7 +159,7 @@ export default function SettingsScreen() {
       // api_base is reported rather than applied.
       const serverNote =
         parsed.apiBase !== undefined && parsed.apiBase !== session?.serverUrl
-          ? t`The file's server URL (${parsed.apiBase}) was not applied — disconnect and sign in to switch servers.`
+          ? t`The file's server URL (${parsed.apiBase}) was not applied — sign out and sign in again to switch servers.`
           : undefined;
       Alert.alert(t`App config imported`, serverNote);
     } catch (err) {
@@ -132,7 +168,9 @@ export default function SettingsScreen() {
   }
 
   function handleSignOut() {
-    const disconnect = () => {
+    // Tokens only — the server URL survives, so signing back in doesn't mean
+    // retyping the host. That's why this is "Sign out", not "Disconnect".
+    const signOutNow = () => {
       void signOut().then(() => {
         // The query cache now persists to MMKV — wipe both the live cache and
         // the snapshot so the next account never sees this account's data.
@@ -142,12 +180,12 @@ export default function SettingsScreen() {
       });
     };
     if (!confirmDestructive) {
-      disconnect();
+      signOutNow();
       return;
     }
-    Alert.alert(t`Disconnect?`, t`You will need to sign in again to reach this server.`, [
+    Alert.alert(t`Sign out?`, t`You will need to sign in again to reach this server.`, [
       { text: t`Cancel`, style: 'cancel' },
-      { text: t`Disconnect`, style: 'destructive', onPress: disconnect },
+      { text: t`Sign out`, style: 'destructive', onPress: signOutNow },
     ]);
   }
 
@@ -155,43 +193,83 @@ export default function SettingsScreen() {
     <Host style={{ flex: 1, backgroundColor: theme.colors.background }}>
       <SettingsForm>
         <Section title={t`Accounts`}>
-          {(accounts ?? []).map((account) => (
-            <Button
-              key={account.id}
-              onPress={() => router.push({ pathname: '/account-form', params: { id: account.id } })}
-            >
-              <HStack spacing={8}>
-                <VStack alignment="leading" spacing={2}>
-                  <UIText
-                    modifiers={[foregroundStyle({ type: 'hierarchical', style: 'primary' })]}
-                  >
-                    {account.name}
-                  </UIText>
-                  {/* Single string child — the SwiftUI Text bridge can't mount an
-                      array of interpolations (RawText crash). */}
-                  <UIText
-                    modifiers={[
-                      font({ size: 13 }),
-                      foregroundStyle({ type: 'hierarchical', style: 'secondary' }),
-                    ]}
-                  >
-                    {`${account.broker ? `${account.broker} · ` : ''}${account.base_currency} · ${formatCurrency(account.starting_balance, account.base_currency)}`}
-                  </UIText>
-                </VStack>
-                <Spacer />
-                <Image systemName="chevron.right" size={12} color={theme.colors.mutedForeground} />
-              </HStack>
-            </Button>
-          ))}
+          {(accounts ?? []).map((account) => {
+            // Equity is the funded base (cash ledger) plus realized P&L, the
+            // same figure the account form and web's AccountRow show.
+            // `starting_balance` is metadata — it's seeded as the ledger's
+            // first deposit, so showing it here would go stale on the first
+            // deposit, withdrawal or trade.
+            const deposited = ledgerBalance(account.id, cash.data ?? []);
+            const netPnl = pnlByAccount.get(account.id) ?? 0;
+            const tradeCount = tradeCountByAccount.get(account.id) ?? 0;
+            const meta = [
+              account.broker || null,
+              account.account_type && account.account_type !== 'cash'
+                ? account.account_type.toUpperCase()
+                : null,
+              account.base_currency,
+              tradeCount > 0 ? t`${tradeCount} trades` : null,
+            ]
+              .filter(Boolean)
+              .join(' · ');
+            return (
+              <Button
+                key={account.id}
+                onPress={() =>
+                  router.push({ pathname: '/account-form', params: { id: account.id } })
+                }
+              >
+                <HStack spacing={8}>
+                  <VStack alignment="leading" spacing={2}>
+                    <UIText
+                      modifiers={[foregroundStyle({ type: 'hierarchical', style: 'primary' })]}
+                    >
+                      {account.name}
+                    </UIText>
+                    {/* Single string child — the SwiftUI Text bridge can't mount an
+                        array of interpolations (RawText crash). */}
+                    <UIText
+                      modifiers={[
+                        font({ size: 13 }),
+                        foregroundStyle({ type: 'hierarchical', style: 'secondary' }),
+                      ]}
+                    >
+                      {meta}
+                    </UIText>
+                  </VStack>
+                  <Spacer />
+                  <VStack alignment="trailing" spacing={2}>
+                    <UIText
+                      modifiers={[foregroundStyle({ type: 'hierarchical', style: 'primary' })]}
+                    >
+                      {formatCurrency(deposited + netPnl, account.base_currency)}
+                    </UIText>
+                    <UIText
+                      modifiers={[
+                        font({ size: 13 }),
+                        foregroundStyle(
+                          netPnl > 0
+                            ? theme.colors.profit
+                            : netPnl < 0
+                              ? theme.colors.loss
+                              : theme.colors.mutedForeground,
+                        ),
+                      ]}
+                    >
+                      {formatPnl(netPnl, account.base_currency)}
+                    </UIText>
+                  </VStack>
+                  <Image systemName="chevron.right" size={12} color={theme.colors.mutedForeground} />
+                </HStack>
+              </Button>
+            );
+          })}
           {accounts?.length === 0 ? <UIText>{t`No accounts yet`}</UIText> : null}
           <Button
             systemImage="plus.circle.fill"
             label={t`Add account`}
             onPress={() => router.push('/account-form')}
           />
-        </Section>
-
-        <Section footer={<UIText>{t`Deposits, withdrawals, and fees feed the equity curve.`}</UIText>}>
           <Button
             systemImage="banknote"
             label={t`Deposits & withdrawals`}
@@ -200,13 +278,15 @@ export default function SettingsScreen() {
         </Section>
 
         <Section
-          title={t`${year} goal`}
-          footer={<UIText>{t`Net P&L target — progress shows on the dashboard.`}</UIText>}
+          title={t`Trading`}
+          footer={
+            <UIText>{t`Your P&L target shows on the dashboard; risk limits drive Check compliance on New Trade.`}</UIText>
+          }
         >
           <Button onPress={editGoal}>
             <HStack spacing={8}>
               <UIText modifiers={[foregroundStyle({ type: 'hierarchical', style: 'primary' })]}>
-                {t`Annual P&L goal`}
+                {t`${year} P&L goal`}
               </UIText>
               <Spacer />
               <UIText modifiers={[foregroundStyle({ type: 'hierarchical', style: 'secondary' })]}>
@@ -219,12 +299,6 @@ export default function SettingsScreen() {
               <Image systemName="chevron.right" size={12} color={theme.colors.mutedForeground} />
             </HStack>
           </Button>
-        </Section>
-
-        <Section
-          title={t`Rules`}
-          footer={<UIText>{t`Limits used by Check compliance on New Trade.`}</UIText>}
-        >
           <Button
             systemImage="shield"
             label={t`Risk rules`}
@@ -234,11 +308,6 @@ export default function SettingsScreen() {
 
         <Section title={t`Journal`}>
           <Button systemImage="tag" label={t`Tags`} onPress={() => router.push('/tags')} />
-          <Button
-            systemImage="checklist"
-            label={t`Daily checklist`}
-            onPress={() => router.push('/checklist')}
-          />
         </Section>
 
         <Section title={t`Integrations`}>
@@ -255,8 +324,36 @@ export default function SettingsScreen() {
         </Section>
 
         <Section
-          title={t`Data`}
-          footer={<UIText>{t`Import broker fills or a backup; export trades as JSON, CSV, or ZIP.`}</UIText>}
+          title={t`Preferences`}
+          footer={<UIText>{t`Language is set per app in iOS Settings.`}</UIText>}
+        >
+          <Button
+            systemImage="slider.horizontal.3"
+            label={t`Display — privacy, currency, timezones`}
+            onPress={() => router.push('/display')}
+          />
+          <Button
+            systemImage="globe"
+            label={t`Language`}
+            onPress={() => void Linking.openSettings()}
+          />
+          <Toggle
+            label={t`Confirm before signing out`}
+            isOn={confirmDestructive}
+            onIsOnChange={(value) => {
+              setConfirmDestructive(value);
+              storage.set(CONFIRM_DESTRUCTIVE_KEY, value);
+            }}
+          />
+        </Section>
+
+        {/* Every import/export in one place — trades go to the server, config
+            files carry local preferences only. */}
+        <Section
+          title={t`Data & backup`}
+          footer={
+            <UIText>{t`Import broker fills or a backup; export trades as JSON, CSV, or ZIP. Config files carry app preferences only.`}</UIText>
+          }
         >
           <Button
             systemImage="square.and.arrow.down"
@@ -268,45 +365,15 @@ export default function SettingsScreen() {
             label={t`Export data`}
             onPress={() => router.push('/export-trades')}
           />
-        </Section>
-
-        <Section
-          title={t`Behavior`}
-          footer={<UIText>{t`Language is set per app in iOS Settings.`}</UIText>}
-        >
-          <Button
-            systemImage="slider.horizontal.3"
-            label={t`Display — privacy, currency, timezones`}
-            onPress={() => router.push('/display')}
-          />
-          <Toggle
-            label={t`Confirm before disconnecting`}
-            isOn={confirmDestructive}
-            onIsOnChange={(value) => {
-              setConfirmDestructive(value);
-              storage.set(CONFIRM_DESTRUCTIVE_KEY, value);
-            }}
-          />
-          <Button
-            systemImage="globe"
-            label={t`Language`}
-            onPress={() => void Linking.openSettings()}
-          />
-        </Section>
-
-        <Section
-          title={t`App configuration`}
-          footer={<UIText>{t`Backup or restore local app preferences.`}</UIText>}
-        >
-          <Button
-            systemImage="arrow.down.doc"
-            label={t`Export config`}
-            onPress={() => void exportAppConfig()}
-          />
           <Button
             systemImage="arrow.up.doc"
-            label={t`Import config`}
+            label={t`Import app config`}
             onPress={() => void importAppConfig()}
+          />
+          <Button
+            systemImage="arrow.down.doc"
+            label={t`Export app config`}
+            onPress={() => void exportAppConfig()}
           />
         </Section>
 
@@ -319,7 +386,7 @@ export default function SettingsScreen() {
         </Section>
 
         <Section>
-          <CenteredButton role="destructive" label={t`Disconnect`} onPress={handleSignOut} />
+          <CenteredButton role="destructive" label={t`Sign out`} onPress={handleSignOut} />
         </Section>
       </SettingsForm>
     </Host>
