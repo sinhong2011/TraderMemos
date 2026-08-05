@@ -23,7 +23,7 @@ describe("CommandPalette", () => {
     expect(screen.getByText("New Trade")).toBeInTheDocument();
     expect(screen.getByText("Position size")).toBeInTheDocument();
     expect(screen.getAllByText("G").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("N").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("C").length).toBeGreaterThan(0);
   });
 
   it("filters commands by query", async () => {
@@ -35,7 +35,7 @@ describe("CommandPalette", () => {
     expect(screen.queryByText("Home")).not.toBeInTheDocument();
   });
 
-  it("runs New Trade when N is pressed with an empty query", async () => {
+  it("searches on letters rather than firing a shortcut, then runs the match", async () => {
     const user = userEvent.setup();
     useUI.setState({ commandOpen: true, modal: null });
     render(
@@ -45,7 +45,11 @@ describe("CommandPalette", () => {
         <CommandPalette />
       </>,
     );
-    await user.keyboard("n");
+    // Typing must reach the search box — no command may steal these keystrokes.
+    await user.type(screen.getByPlaceholderText(/Pages, tools/i), "new trade");
+    expect(useUI.getState().modal).toBeNull();
+
+    await user.keyboard("{Enter}");
     await waitFor(() => expect(useUI.getState().modal).toBe("new-trade"));
     expect(useUI.getState().commandOpen).toBe(false);
   });

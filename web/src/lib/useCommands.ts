@@ -15,7 +15,8 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useMemo } from "react";
-import { APP_HOTKEYS, type AppHotkeyId } from "./hotkeys";
+import { isAppHotkeyId } from "./hotkeys";
+import { useHotkeyBindings } from "./keybindings";
 import { TOOL_ITEMS } from "./tools";
 import { useToolRunner } from "./useToolRunner";
 import { useUI, type ModalKind } from "./ui";
@@ -31,13 +32,6 @@ export interface CommandItem {
   /** UI badge for the bound hotkey, when one exists. */
   shortcut?: string;
   run: () => void;
-}
-
-function shortcutFor(id: string): string | undefined {
-  if (id in APP_HOTKEYS) {
-    return APP_HOTKEYS[id as AppHotkeyId].label;
-  }
-  return undefined;
 }
 
 const NAV_COMMANDS: Array<{
@@ -127,7 +121,13 @@ export function useCommands(onRun?: () => void) {
   const openModal = useUI((s) => s.openModal);
   const runTool = useToolRunner();
 
+  const bindings = useHotkeyBindings();
+
   return useMemo(() => {
+    // Labels follow the user's custom bindings (Settings → Shortcuts).
+    const shortcutFor = (id: string): string | undefined =>
+      isAppHotkeyId(id) ? bindings[id].label : undefined;
+
     const wrap = (run: () => void) => () => {
       run();
       onRun?.();
@@ -167,5 +167,5 @@ export function useCommands(onRun?: () => void) {
     });
 
     return [...navigateCommands, ...actionCommands, ...toolCommands];
-  }, [navigate, onRun, openModal, runTool]);
+  }, [bindings, navigate, onRun, openModal, runTool]);
 }

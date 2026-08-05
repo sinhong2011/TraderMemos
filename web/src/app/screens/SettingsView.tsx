@@ -1,4 +1,4 @@
-import { Globe, Github, KeyRound, Shield, Sparkles, Tag, Wallet } from "lucide-react";
+import { Globe, Github, Keyboard, KeyRound, Shield, Sparkles, Tag, Wallet } from "lucide-react";
 import type { AnnualGoal, RiskRules } from "@/lib/api/settings";
 import { useLocale } from "@/i18n";
 import { useSettingsSection } from "@/lib/hooks/useSettingsSection";
@@ -7,6 +7,7 @@ import type { Account, CashTransaction, Tag as TagType } from "@/lib/api/types";
 import { AboutTab } from "./settings/about-tab";
 import { ApiTab } from "./settings/api-tab";
 import { AccountsTab, AiTab, GeneralTab, JournalTab, RulesTab } from "./settings/settings-sections";
+import { ShortcutsTab } from "./settings/shortcuts-tab";
 import { SettingsNav, SettingsPageHeader, SettingsShell } from "./settings/settings-ui";
 import { Page } from "@/components/Page";
 
@@ -81,6 +82,7 @@ const NAV_ICONS: Record<SettingsSectionId, typeof Wallet> = {
   journal: Tag,
   ai: Sparkles,
   general: Globe,
+  shortcuts: Keyboard,
   api: KeyRound,
   about: Github,
 };
@@ -147,6 +149,7 @@ export function SettingsView(props: SettingsViewProps) {
         )}
         {section === "ai" && <AiTab />}
         {section === "general" && <GeneralTab />}
+        {section === "shortcuts" && <ShortcutsTab />}
         {section === "api" && <ApiTab />}
         {section === "about" && <AboutTab />}
       </Page>

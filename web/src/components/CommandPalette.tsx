@@ -4,7 +4,7 @@ import { Filter, Search, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/cn";
 import { useFilters } from "@/lib/filters";
-import { APP_HOTKEYS } from "@/lib/hotkeys";
+import { useHotkeyLabel } from "@/lib/keybindings";
 import { type CommandGroup, useCommands } from "@/lib/useCommands";
 import { useUI } from "@/lib/ui";
 import { Kbd, KbdGroup } from "./ui/kbd";
@@ -27,6 +27,7 @@ function CommandShortcut({ children }: { children: string }) {
 }
 
 export function CommandPalette() {
+  const paletteLabel = useHotkeyLabel("palette");
   const open = useUI((s) => s.commandOpen);
   const setCommandOpen = useUI((s) => s.setCommandOpen);
   const symbols = useFilters((s) => s.symbols);
@@ -174,7 +175,7 @@ export function CommandPalette() {
               </Command.List>
               <div className="flex items-center justify-between gap-3 px-3 py-2 text-[10px] text-muted-foreground">
                 <span>Navigate with ↑↓ · Enter to run · shortcuts when empty</span>
-                <CommandShortcut>{APP_HOTKEYS.palette.label}</CommandShortcut>
+                <CommandShortcut>{paletteLabel}</CommandShortcut>
               </div>
             </Command>
           </Dialog.Popup>

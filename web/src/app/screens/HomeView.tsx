@@ -144,12 +144,7 @@ function EquityCurveChart({
     <div className="relative min-h-[240px] w-full flex-1 sm:min-h-[280px] lg:min-h-0">
       <ChartFrame inset className="absolute inset-0 rounded-none border-0 bg-transparent">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart
-            data={visible}
-            margin={{ top: 8, right: 8, bottom: 0, left: 4 }}
-            // Keep focus off the chart so single-letter app hotkeys (n, g …) still fire after a click.
-            accessibilityLayer={false}
-          >
+          <AreaChart data={visible} margin={{ top: 8, right: 8, bottom: 0, left: 4 }}>
             <defs>
               <linearGradient id="eq-fill" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor={chartTheme.accentStroke} stopOpacity={0.25} />
