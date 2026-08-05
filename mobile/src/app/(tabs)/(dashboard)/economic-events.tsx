@@ -10,7 +10,6 @@ import {
   RefreshControl,
   ScrollView,
   Text,
-  TextInput,
   View,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
@@ -22,6 +21,7 @@ import { ApiError } from '@/api/client';
 import type { EconomicEvent } from '@/api/types';
 import { EventFilterMenu } from '@/components/event-filter-menu';
 import { Pill, type PillTone } from '@/components/pill';
+import { FloatingSearchBar, SearchToggle } from '@/components/search-bar';
 import { Skeleton } from '@/components/skeleton';
 import { t } from '@lingui/core/macro';
 import { locale } from '@/i18n';
@@ -71,8 +71,6 @@ const GROW_WEEKS = 2;
 
 /** iOS 26 sheet feel — settles quickly, barely overshoots. */
 const SEARCH_SPRING = { damping: 22, stiffness: 240, mass: 0.9, overshootClamping: false };
-/** Height of the search row, so it can be animated open from nothing. */
-const SEARCH_HEIGHT = 36;
 
 /**
  * The jump back to this week. Kept mounted and scaled to nothing when you're
@@ -104,73 +102,6 @@ function TodayButton({ visible, onPress }: { visible: boolean; onPress: () => vo
       >
         <Text style={styles.todayLabel}>{t`Today`}</Text>
       </Pressable>
-    </Animated.View>
-  );
-}
-
-/**
- * Search row that springs open from the header button. Kept mounted at zero
- * height rather than conditionally rendered, so opening and closing both
- * animate instead of only appearing.
- */
-function SearchBar({
-  open,
-  value,
-  onChangeText,
-}: {
-  open: boolean;
-  value: string;
-  onChangeText: (next: string) => void;
-}) {
-  const { theme } = useUnistyles();
-  const [progress] = useState(() => new Animated.Value(open ? 1 : 0));
-
-  useEffect(() => {
-    // Height can't ride the native driver, so this one animates on the JS
-    // thread — it's one 36pt row, not a scroll.
-    Animated.spring(progress, {
-      toValue: open ? 1 : 0,
-      ...SEARCH_SPRING,
-      useNativeDriver: false,
-    }).start();
-  }, [open, progress]);
-
-  // Clamped: the spring overshoots both ends, and height/opacity can't follow.
-  const height = progress.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, SEARCH_HEIGHT],
-    extrapolate: 'clamp',
-  });
-  const opacity = progress.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, 1],
-    extrapolate: 'clamp',
-  });
-
-  return (
-    <Animated.View style={[styles.searchRow, { height, opacity }]}>
-      <View style={styles.searchField}>
-        <SymbolView name="magnifyingglass" size={15} tintColor={theme.colors.mutedForeground} />
-        <TextInput
-          value={value}
-          onChangeText={onChangeText}
-          autoCorrect={false}
-          autoCapitalize="none"
-          returnKeyType="search"
-          placeholder={t`Search events`}
-          placeholderTextColor={theme.colors.mutedForeground}
-          style={styles.searchInput}
-        />
-        {value.length > 0 ? (
-          <Pressable onPress={() => onChangeText('')} hitSlop={10}>
-            <SymbolView
-              name="xmark.circle.fill"
-              size={15}
-              tintColor={theme.colors.mutedForeground}
-            />
-          </Pressable>
-        ) : null}
-      </View>
     </Animated.View>
   );
 }
@@ -484,8 +415,8 @@ function WeekPage({
   );
 }
 
-/** Week timeline of macro events — impact and currency filters are client-side. */export default function EconomicEventsScreen() {
-  const { theme } = useUnistyles();
+/** Week timeline of macro events — impact and currency filters are client-side. */
+export default function EconomicEventsScreen() {
   const { timezone } = useDisplayPrefs();
   const tz = resolveDisplayTimezone(timezone);
   // The controls sit outside the scroll view, so they clear the transparent
@@ -606,9 +537,6 @@ function WeekPage({
     const day = dayKeyInTz(event.time, tz);
     return day >= visibleWeek && day < visibleWeekEnd;
   };
-  const total = fetched.filter(inVisibleWeek).length;
-  const shown = weekDays(visibleWeek).reduce((sum, day) => sum + day.count, 0);
-  const filtered = impacts.length > 0 || currencies.length > 0 || needle.length > 0;
 
   const weekCurrencies = (() => {
     const counts = new Map<string, number>();
@@ -730,22 +658,15 @@ function WeekPage({
           headerLargeTitle: false,
           headerRight: () => (
             <View style={styles.headerActions}>
-              <Pressable
+              <SearchToggle
+                open={searching}
+                active={needle.length > 0}
+                label={t`Search events`}
                 onPress={() => {
                   if (searching) setQuery('');
                   setSearching((open) => !open);
                 }}
-                hitSlop={10}
-                accessibilityRole="button"
-                accessibilityLabel={t`Search events`}
-                style={({ pressed }) => pressed && styles.pressed}
-              >
-                <SymbolView
-                  name={searching ? 'xmark' : 'magnifyingglass'}
-                  size={17}
-                  tintColor={needle.length > 0 ? theme.colors.primary : theme.colors.foreground}
-                />
-              </Pressable>
+              />
               <EventFilterMenu
                 onReset={clearFilters}
                 groups={[
@@ -781,10 +702,6 @@ function WeekPage({
       {/* Pinned. It reports where the timeline is rather than deciding what the
           timeline shows — swiping it scrolls the list to that week. */}
       <View style={styles.controls} onLayout={(e) => setPageWidth(e.nativeEvent.layout.width)}>
-        {/* Behind a button rather than always on: searching a week you can see
-            is the rare case, and the row costs the timeline its first event. */}
-        <SearchBar open={searching} value={query} onChangeText={setQuery} />
-
         <View style={styles.pager}>
           <ScrollView
             ref={pagerRef}
@@ -813,21 +730,9 @@ function WeekPage({
             })}
           </ScrollView>
 
-          {/* Rides the pager's own box so it lines up with the week label,
-              wherever the search row has pushed that to. */}
+          {/* Rides the pager's own box so it lines up with the week label. */}
           <TodayButton visible={visibleWeek !== todayWeek} onPress={() => jumpToWeek(todayWeek)} />
         </View>
-
-        {/* The strip already counts an unfiltered week — this line only earns
-            its space once a filter is hiding something. */}
-        {filtered && !loading && !events.error ? (
-          <View style={styles.summary}>
-            <Text style={styles.summaryText}>{t`${shown} of ${total} events`}</Text>
-            <Pressable onPress={clearFilters} hitSlop={10}>
-              <Text style={styles.clear}>{t`Clear`}</Text>
-            </Pressable>
-          </View>
-        ) : null}
       </View>
 
       <View style={styles.list}>
@@ -924,6 +829,16 @@ function WeekPage({
           )}
         </ScrollView>
       </View>
+      <FloatingSearchBar
+        open={searching}
+        value={query}
+        placeholder={t`Search events`}
+        onChangeText={setQuery}
+        onClose={() => {
+          setQuery('');
+          setSearching(false);
+        }}
+      />
     </View>
   );
 }
@@ -954,21 +869,6 @@ const styles = StyleSheet.create((theme) => ({
 
   controls: { paddingBottom: theme.spacing.sm, gap: theme.spacing.sm },
   headerActions: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md },
-  // The animated row clips to zero; the field inside keeps its full height so
-  // the contents slide up under the pager instead of squashing.
-  searchRow: { overflow: 'hidden', justifyContent: 'flex-end' },
-  searchField: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing.sm,
-    marginHorizontal: theme.spacing.lg,
-    paddingHorizontal: theme.spacing.md,
-    height: SEARCH_HEIGHT,
-    borderRadius: theme.radius.full,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.muted,
-  },
-  searchInput: { flex: 1, fontSize: 15, color: theme.colors.foreground },
   pager: { justifyContent: 'flex-start' },
   page: { gap: theme.spacing.xs, paddingHorizontal: theme.spacing.lg },
   weekLabel: {
@@ -1014,16 +914,6 @@ const styles = StyleSheet.create((theme) => ({
     marginBottom: 1,
     backgroundColor: theme.colors.input,
   },
-
-  summary: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: theme.spacing.sm,
-    paddingTop: theme.spacing.xs,
-  },
-  summaryText: { fontSize: 12, color: theme.colors.mutedForeground, ...theme.numeric },
-  clear: { fontSize: 12, fontWeight: '600', color: theme.colors.primary },
 
   // Full-bleed backdrop, so rows passing under the pinned header are hidden…
   dayHeader: {

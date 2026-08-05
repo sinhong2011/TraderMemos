@@ -9,6 +9,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { useTags, useTrades } from '@/api/hooks';
 import type { Trade } from '@/api/types';
 import { AccountMenu } from '@/components/account-menu';
+import { FloatingSearchBar, SearchToggle } from '@/components/search-bar';
 import { Skeleton } from '@/components/skeleton';
 import { SwipeableTradeRow } from '@/components/swipeable-trade-row';
 import { TradeFilterMenu } from '@/components/trade-filter-menu';
@@ -189,6 +190,7 @@ export default function TradesScreen() {
   const { theme } = useUnistyles();
   const router = useRouter();
   const [search, setSearch] = useState('');
+  const [searching, setSearching] = useState(false);
   const [status, setStatus] = useState<StatusFilter>('all');
   const [dateFilter, setDateFilter] = useState<DateFilter>('all');
   const [market, setMarket] = useState<MarketFilter>('all');
@@ -367,15 +369,18 @@ export default function TradesScreen() {
                   },
                 ]}
               />
+              <SearchToggle
+                open={searching}
+                active={search.trim().length > 0}
+                label={t`Search symbol or tag`}
+                onPress={() => {
+                  if (searching) setSearch('');
+                  setSearching((open) => !open);
+                }}
+              />
               <AccountMenu />
             </View>
           ),
-          headerSearchBarOptions: {
-            placeholder: t`Search symbol or tag`,
-            // Tucked under the title until the user pulls down — standard iOS.
-            hideWhenScrolling: true,
-            onChangeText: (event) => setSearch(event.nativeEvent.text),
-          },
         }}
       />
       {/* FlashList recycles row instances — TradeRow must stay stateless-from-props. */}
@@ -425,6 +430,16 @@ export default function TradesScreen() {
             </Text>
           </View>
         }
+      />
+      <FloatingSearchBar
+        open={searching}
+        value={search}
+        placeholder={t`Search symbol or tag`}
+        onChangeText={setSearch}
+        onClose={() => {
+          setSearch('');
+          setSearching(false);
+        }}
       />
     </>
   );
