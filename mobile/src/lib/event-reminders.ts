@@ -11,35 +11,10 @@
  * a bookmark and the rows re-rendered by it live in different subtrees.
  */
 
-import { requireOptionalNativeModule } from 'expo-modules-core';
 import { useSyncExternalStore } from 'react';
 
+import { loadCalendar, traderMemosList } from '@/lib/ios-reminders';
 import { storage } from '@/storage/mmkv';
-
-/**
- * Loaded on first use, never at module scope: `expo-calendar` throws
- * "Cannot find native module 'CalendarNext'" while evaluating, so a static
- * import takes the whole calendar screen down in any dev build made before the
- * dependency was added. Lazy, the screen keeps working and only the bell has to
- * explain itself.
- *
- * The import is checked rather than trusted — under Metro's async require the
- * failed evaluation still *resolves*, handing back a namespace whose functions
- * are all undefined, so a bare try/catch sails past it and dies one line later
- * on `requestRemindersPermissions is not a function`.
- */
-async function loadCalendar(): Promise<typeof import('expo-calendar') | null> {
-  // Asked for optionally first: importing the package when the native module is
-  // missing throws while evaluating, and LogBox reports that as an uncaught
-  // error over the app even though the failure is handled.
-  if (requireOptionalNativeModule('CalendarNext') == null) return null;
-  try {
-    const module = await import('expo-calendar');
-    return typeof module?.requestRemindersPermissions === 'function' ? module : null;
-  } catch {
-    return null;
-  }
-}
 
 const STORAGE_KEY = 'events:reminders';
 
@@ -97,9 +72,9 @@ async function add(event: ReminderTarget): Promise<ReminderResult> {
     if (status !== 'granted') return 'denied';
 
     // The Reminders app keeps its own lists — the default *calendar* is an
-    // events calendar and can't hold a reminder.
-    const lists = await Calendar.getCalendars(Calendar.EntityTypes.REMINDER);
-    const list = lists.find((candidate) => candidate.allowsModifications) ?? lists[0];
+    // events calendar and can't hold a reminder. Releases go in the app's own
+    // list alongside the checklist, not scattered through a personal one.
+    const list = await traderMemosList(Calendar);
     if (!list) return 'failed';
 
     const due = new Date(event.time);

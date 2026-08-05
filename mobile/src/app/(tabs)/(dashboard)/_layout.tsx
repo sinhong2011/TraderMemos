@@ -44,8 +44,12 @@ export default function DashboardLayout() {
           headerRight: () => <AddMenu />,
         }}
       />
-      <Stack.Screen name="notes" options={{ title: t`Notes` }} />
-      <Stack.Screen name="playbook" options={{ title: t`Playbook` }} />
+      <Stack.Screen name="notes" options={{ title: t`Notes`, headerLargeTitle: false }} />
+      <Stack.Screen
+        name="checklist"
+        options={{ title: t`Daily checklist`, headerLargeTitle: false }}
+      />
+      <Stack.Screen name="playbook" options={{ title: t`Playbook`, headerLargeTitle: false }} />
       <Stack.Screen
         name="r-calculator"
         options={{ title: t`R calculator`, headerLargeTitle: false }}
