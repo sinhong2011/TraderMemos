@@ -140,6 +140,7 @@ msgstr "{0} 狀態伴隨虧損"
 #. placeholder {0}: day.trades
 #. placeholder {0}: group.summary.total_trades
 #: src/app/(tabs)/(dashboard)/playbook.tsx:238
+#: src/components/day-review/intraday-card.tsx:67
 #: src/components/insights-card.tsx:80
 #: src/components/reports/behavior-section.tsx:51
 #: src/components/reports/detailed-section.tsx:205
@@ -174,9 +175,15 @@ msgstr "{0} 筆交易未記錄初始風險，無法按每筆風險規則評分�
 msgid "{0} winning streaks scanned."
 msgstr "已掃描 {0} 次連勝。"
 
+#. placeholder {0}: day.unknown_risk
+#: src/components/day-review/session-card.tsx:84
+msgid "{0} without recorded risk"
+msgstr "{0} 筆未記錄風險"
+
 #. placeholder {0}: progress.done
 #. placeholder {1}: progress.total
 #: src/app/(tabs)/(dashboard)/notes.tsx:69
+#: src/components/day-review/log-card.tsx:26
 msgid "{0}/{1} checks"
 msgstr "已完成 {0}/{1}"
 
@@ -963,8 +970,8 @@ msgstr "請確認成交內容"
 msgid "Checking…"
 msgstr "檢查中…"
 
-#: src/app/new-note.tsx:48
-#: src/app/new-note.tsx:48
+#: src/app/new-note.tsx:59
+#: src/app/new-note.tsx:59
 #: src/app/new-setup.tsx:172
 msgid "Checklist"
 msgstr "清單"
@@ -1211,8 +1218,8 @@ msgstr "無法撤銷權杖"
 #: src/app/edit-note.tsx:54
 #: src/app/edit-trade.tsx:83
 #: src/app/edit-trade.tsx:90
-#: src/app/new-note.tsx:34
-#: src/app/new-note.tsx:41
+#: src/app/new-note.tsx:45
+#: src/app/new-note.tsx:52
 #: src/app/new-setup.tsx:67
 #: src/app/new-setup.tsx:81
 #: src/app/new-setup.tsx:87
@@ -1319,6 +1326,8 @@ msgid "Daily checklist"
 msgstr "每日清單"
 
 #: src/app/(tabs)/(dashboard)/notes.tsx:59
+#: src/components/day-review/log-card.tsx:22
+#: src/components/day-review/log-card.tsx:58
 #: src/components/note-form.tsx:45
 #: src/components/note-form.tsx:84
 msgid "Daily log"
@@ -1332,6 +1341,10 @@ msgstr "單日虧損"
 #: src/components/prop-status-card.tsx:165
 msgid "daily loss ×{0}"
 msgstr "單日虧損 ×{0}"
+
+#: src/components/day-review/session-card.tsx:80
+msgid "daily loss breached"
+msgstr "已超單日虧損上限"
 
 #: src/app/(tabs)/(settings)/prop-settings.tsx:160
 #: src/components/daily-loss-card.tsx:38
@@ -1520,6 +1533,7 @@ msgstr "完成"
 msgid "Download & share"
 msgstr "下載並分享"
 
+#: src/components/day-review/intraday-card.tsx:87
 #: src/components/reports/risk-section.tsx:74
 msgid "Drawdown"
 msgstr "回撤"
@@ -1848,6 +1862,7 @@ msgstr "無法載入資金曲線。"
 msgid "Failed to load settings."
 msgstr "無法載入設定。"
 
+#: src/app/(tabs)/(calendar)/day/[date].tsx:175
 #: src/components/reports/pnl-heatmap-card.tsx:75
 msgid "Failed to load trades."
 msgstr "無法載入交易。"
@@ -1862,6 +1877,7 @@ msgstr "費用"
 
 #: src/app/(tabs)/(settings)/import-trades.tsx:44
 #: src/app/(tabs)/(trades)/[id].tsx:289
+#: src/components/day-review/session-card.tsx:64
 #: src/components/performance-card.tsx:57
 #: src/components/reports/overview-section.tsx:183
 #: src/components/trade-form.tsx:439
@@ -2026,6 +2042,10 @@ msgstr "產生"
 #: src/app/(tabs)/(settings)/about.tsx:59
 msgid "GitHub repository"
 msgstr "GitHub 儲存庫"
+
+#: src/components/day-review/intraday-card.tsx:89
+#~ msgid "Given back"
+#~ msgstr "回吐"
 
 #: src/app/(tabs)/(settings)/about.tsx:103
 msgid "Go runtime"
@@ -2212,6 +2232,12 @@ msgstr "整合"
 #: src/lib/cash.ts:15
 msgid "Interest"
 msgstr "利息"
+
+#: src/components/day-review/intraday-card.tsx:43
+#: src/components/day-review/intraday-card.tsx:51
+#: src/components/day-review/intraday-card.tsx:62
+msgid "Intraday P&L"
+msgstr "日內盈虧"
 
 #: src/components/coach-card.tsx:21
 msgid "Issue"
@@ -2622,6 +2648,7 @@ msgstr "淨額（已扣費用）"
 #: src/app/(tabs)/(dashboard)/playbook.tsx:123
 #: src/app/(tabs)/(dashboard)/playbook.tsx:198
 #: src/app/(tabs)/(trades)/[id].tsx:297
+#: src/components/day-review/session-card.tsx:57
 msgid "Net P&L"
 msgstr "淨損益"
 
@@ -2642,11 +2669,15 @@ msgstr "永不過期"
 #~ msgid "Never expires"
 #~ msgstr "永不過期"
 
-#: src/app/new-note.tsx:61
+#: src/app/new-note.tsx:72
 msgid "New daily log"
 msgstr "新增每日日誌"
 
-#: src/app/new-note.tsx:61
+#: src/components/day-review/log-card.tsx:58
+msgid "New log"
+msgstr "新增日誌"
+
+#: src/app/new-note.tsx:72
 #: src/components/add-menu.tsx:22
 msgid "New note"
 msgstr "新筆記"
@@ -2677,6 +2708,10 @@ msgstr "最新優先"
 #: src/app/(tabs)/(calendar)/index.tsx:338
 msgid "Next"
 msgstr "下一個"
+
+#: src/app/(tabs)/(calendar)/day/[date].tsx:147
+msgid "Next day"
+msgstr "下一日"
 
 #: src/app/(tabs)/(reports)/economic-events.tsx:140
 msgid "Next week"
@@ -2724,9 +2759,13 @@ msgstr "此時段沒有已平倉的交易。"
 msgid "No closed trades in this range."
 msgstr "此範圍內沒有已平倉交易。"
 
-#: src/app/(tabs)/(calendar)/day/[date].tsx:62
+#: src/app/(tabs)/(calendar)/day/[date].tsx:177
 msgid "No closed trades on this day."
 msgstr "呢日冇已平倉嘅交易。"
+
+#: src/components/day-review/session-card.tsx:72
+msgid "no closed trades scored"
+msgstr "冇已平倉交易可評分"
 
 #: src/app/(tabs)/(reports)/heatmap.tsx:89
 #~ msgid "No closed trades yet"
@@ -2862,6 +2901,10 @@ msgstr "未標記"
 msgid "Not connected"
 msgstr "未連接"
 
+#: src/components/day-review/intraday-card.tsx:52
+msgid "Not enough closed trades to draw a session curve."
+msgstr "已平倉交易太少，畫唔到當日曲線。"
+
 #: src/components/reports/behavior-section.tsx:180
 msgid "Not enough closed trades yet — compares how long winners and losers are held, and finds losers that were green at their peak."
 msgstr "已平倉交易仍不足 — 比較獲利與虧損的持倉時間，並找出高位時曾獲利的虧損交易。"
@@ -2898,6 +2941,14 @@ msgstr "找不到筆記"
 #: src/app/(tabs)/(trades)/[id].tsx:455
 msgid "Notes"
 msgstr "筆記"
+
+#: src/components/day-review/session-card.tsx:102
+#~ msgid "Nothing closed on this day."
+#~ msgstr "呢日冇平倉。"
+
+#: src/components/day-review/log-card.tsx:63
+msgid "Nothing journaled for this day yet. A two-minute recap while it's fresh beats a perfect writeup never written."
+msgstr "呢日仲未有任何記錄。趁記憶新鮮寫兩分鐘回顧，好過一份永遠寫唔成嘅完美檢討。"
 
 #: src/app/(tabs)/(trades)/[id].tsx:428
 msgid "Nothing logged yet. A minute of review now is what makes this trade worth something later."
@@ -3020,6 +3071,7 @@ msgid "over the last {windowSize} trades"
 msgstr "最近 {windowSize} 筆"
 
 #. placeholder {0}: day.risk_violations
+#: src/components/day-review/session-card.tsx:78
 #: src/components/reports/risk-section.tsx:177
 msgid "over-risked ×{0}"
 msgstr "風險超標 ×{0}"
@@ -3035,6 +3087,10 @@ msgstr "過度自信常表現為倉位過大或無視止蝕。檢查信心是否
 #: src/components/reports/detailed-section.tsx:188
 msgid "Overnight"
 msgstr "隔夜"
+
+#: src/components/day-review/session-card.tsx:93
+msgid "oversized after streak ×{oversized}"
+msgstr "連勝後加大注碼 ×{oversized}"
 
 #: src/app/(tabs)/(reports)/index.tsx:33
 msgid "Overview"
@@ -3075,6 +3131,10 @@ msgstr "暫停"
 #: src/components/reports/overview-section.tsx:150
 msgid "Payoff ratio"
 msgstr "盈虧比"
+
+#: src/components/day-review/intraday-card.tsx:82
+msgid "Peak"
+msgstr "高峰"
 
 #. placeholder {0}: money.formatCompact(giveBack.mfe)
 #: src/components/reports/behavior-section.tsx:227
@@ -3227,6 +3287,10 @@ msgstr "預覽匯入"
 msgid "Previous"
 msgstr "上一個"
 
+#: src/app/(tabs)/(calendar)/day/[date].tsx:142
+msgid "Previous day"
+msgstr "上一日"
+
 #: src/app/(tabs)/(reports)/economic-events.tsx:121
 msgid "Previous week"
 msgstr "上週"
@@ -3273,6 +3337,10 @@ msgstr "獲利因子"
 #: src/components/reports/behavior-section.tsx:206
 msgid "Profit given back"
 msgstr "回吐利潤"
+
+#: src/components/day-review/session-card.tsx:96
+msgid "profit given back ×{givenBack}"
+msgstr "回吐利潤 ×{givenBack}"
 
 #: src/app/(tabs)/(settings)/prop-settings.tsx:133
 #: src/components/prop-status-card.tsx:135
@@ -3528,6 +3596,10 @@ msgstr "報表"
 msgid "Return"
 msgstr "回報率"
 
+#: src/components/day-review/session-card.tsx:91
+msgid "revenge trades ×{revenge}"
+msgstr "報復性交易 ×{revenge}"
+
 #: src/components/reports/behavior-section.tsx:128
 msgid "Revenge trading"
 msgstr "報復性交易"
@@ -3626,6 +3698,10 @@ msgstr "規則"
 #: src/app/(tabs)/(settings)/checklist.tsx:57
 msgid "Rules & checklist"
 msgstr "規則與清單"
+
+#: src/components/day-review/session-card.tsx:74
+msgid "rules followed"
+msgstr "遵守規則"
 
 #: src/app/(tabs)/(settings)/prop-settings.tsx:128
 msgid "Rules the firm scores this evaluation on. Blank rules are skipped."
@@ -3784,6 +3860,11 @@ msgstr "時段"
 #: src/components/note-form.tsx:88
 msgid "Session recap"
 msgstr "當日回顧"
+
+#: src/components/day-review/session-card.tsx:47
+#: src/components/day-review/session-card.tsx:54
+msgid "Session summary"
+msgstr "當日摘要"
 
 #: src/components/reports/detailed-section.tsx:165
 #: src/components/reports/detailed-section.tsx:173
@@ -4161,6 +4242,10 @@ msgstr "測試連線"
 msgid "Testing…"
 msgstr "測試中…"
 
+#: src/app/(tabs)/(calendar)/day/[date].tsx:118
+msgid "That day could not be read."
+msgstr "讀唔到呢個日期。"
+
 #: src/components/coach-card.tsx:92
 msgid "The AI review failed — try again."
 msgstr "AI 評語失敗 — 請再試。"
@@ -4379,6 +4464,7 @@ msgid "TraderMemos is a self-hosted trading journal — your data stays on your 
 msgstr "TraderMemos 是自架的交易日誌 — 資料只保存在你的伺服器上。"
 
 #: src/app/(tabs)/_layout.tsx:40
+#: src/app/(tabs)/(calendar)/day/[date].tsx:171
 #: src/app/(tabs)/(dashboard)/playbook.tsx:124
 #: src/app/(tabs)/(dashboard)/playbook.tsx:191
 #: src/app/(tabs)/(settings)/account-form.tsx:326
@@ -4386,6 +4472,7 @@ msgstr "TraderMemos 是自架的交易日誌 — 資料只保存在你的伺服�
 #: src/app/(tabs)/(settings)/import-trades.tsx:276
 #: src/app/(tabs)/(settings)/import-trades.tsx:308
 #: src/app/(tabs)/(trades)/_layout.tsx:24
+#: src/components/day-review/session-card.tsx:61
 msgid "Trades"
 msgstr "交易"
 
@@ -4449,6 +4536,7 @@ msgid "Unreachable"
 msgstr "無法連線"
 
 #: src/app/(tabs)/(dashboard)/notes.tsx:59
+#: src/components/day-review/log-card.tsx:22
 msgid "Untitled"
 msgstr "未命名"
 
@@ -4566,6 +4654,7 @@ msgstr "平均盈利 ÷ 平均虧損"
 
 #: src/app/(tabs)/(dashboard)/playbook.tsx:125
 #: src/app/(tabs)/(dashboard)/playbook.tsx:193
+#: src/components/day-review/session-card.tsx:62
 #: src/components/reports/overview-section.tsx:123
 msgid "Win rate"
 msgstr "勝率"
@@ -4618,7 +4707,7 @@ msgid "Write review"
 msgstr "撰寫覆盤"
 
 #: src/app/edit-note.tsx:54
-#: src/app/new-note.tsx:41
+#: src/app/new-note.tsx:52
 msgid "Write something first."
 msgstr "請先寫啲內容。"
 

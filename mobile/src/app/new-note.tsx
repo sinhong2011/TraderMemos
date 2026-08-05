@@ -1,10 +1,10 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Alert } from 'react-native';
 
 import { useApiRequest, useChecklistTemplate } from '@/api/hooks';
-import type { NoteBody } from '@/api/types';
+import type { NoteBody, NoteType } from '@/api/types';
 import { FormSheet } from '@/components/form-sheet';
 import { emptyNoteValues, NoteFormFields, type NoteFormValues } from '@/components/note-form';
 import { t } from '@lingui/core/macro';
@@ -14,14 +14,25 @@ import { checklistProgress } from '@/lib/markdown';
  * New note / daily log. Creating a daily log appends the checklist template
  * as markdown task items (create only — edits never re-append), mirroring the
  * web NewNoteDrawer.
+ *
+ * Optional `date` / `type` params prefill the form — the day review opens it
+ * as a log already filed to the day being reviewed.
  */
 export default function NewNoteScreen() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const api = useApiRequest();
   const checklist = useChecklistTemplate();
+  const params = useLocalSearchParams<{ date?: string; type?: NoteType }>();
 
-  const [values, setValues] = useState<NoteFormValues>(emptyNoteValues);
+  const [values, setValues] = useState<NoteFormValues>(() => {
+    const empty = emptyNoteValues();
+    return {
+      ...empty,
+      type: params.type === 'daily_log' || params.type === 'note' ? params.type : empty.type,
+      occurredAt: params.date ?? empty.occurredAt,
+    };
+  });
   const onChange = (patch: Partial<NoteFormValues>) =>
     setValues((prev) => ({ ...prev, ...patch }));
 

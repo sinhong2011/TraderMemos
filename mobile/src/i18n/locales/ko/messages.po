@@ -140,6 +140,7 @@ msgstr "{0} 상태와 손실이 겹쳤습니다"
 #. placeholder {0}: day.trades
 #. placeholder {0}: group.summary.total_trades
 #: src/app/(tabs)/(dashboard)/playbook.tsx:238
+#: src/components/day-review/intraday-card.tsx:67
 #: src/components/insights-card.tsx:80
 #: src/components/reports/behavior-section.tsx:51
 #: src/components/reports/detailed-section.tsx:205
@@ -174,9 +175,15 @@ msgstr "초기 리스크가 기록되지 않은 거래 {0}건은 거래당 리�
 msgid "{0} winning streaks scanned."
 msgstr "연승 {0}회를 검사했습니다."
 
+#. placeholder {0}: day.unknown_risk
+#: src/components/day-review/session-card.tsx:84
+msgid "{0} without recorded risk"
+msgstr "{0}건 리스크 미기록"
+
 #. placeholder {0}: progress.done
 #. placeholder {1}: progress.total
 #: src/app/(tabs)/(dashboard)/notes.tsx:69
+#: src/components/day-review/log-card.tsx:26
 msgid "{0}/{1} checks"
 msgstr "{0}/{1} 완료"
 
@@ -963,8 +970,8 @@ msgstr "체결 내용 확인"
 msgid "Checking…"
 msgstr "확인 중…"
 
-#: src/app/new-note.tsx:48
-#: src/app/new-note.tsx:48
+#: src/app/new-note.tsx:59
+#: src/app/new-note.tsx:59
 #: src/app/new-setup.tsx:172
 msgid "Checklist"
 msgstr "체크리스트"
@@ -1211,8 +1218,8 @@ msgstr "토큰을 폐기하지 못했습니다"
 #: src/app/edit-note.tsx:54
 #: src/app/edit-trade.tsx:83
 #: src/app/edit-trade.tsx:90
-#: src/app/new-note.tsx:34
-#: src/app/new-note.tsx:41
+#: src/app/new-note.tsx:45
+#: src/app/new-note.tsx:52
 #: src/app/new-setup.tsx:67
 #: src/app/new-setup.tsx:81
 #: src/app/new-setup.tsx:87
@@ -1319,6 +1326,8 @@ msgid "Daily checklist"
 msgstr "데일리 체크리스트"
 
 #: src/app/(tabs)/(dashboard)/notes.tsx:59
+#: src/components/day-review/log-card.tsx:22
+#: src/components/day-review/log-card.tsx:58
 #: src/components/note-form.tsx:45
 #: src/components/note-form.tsx:84
 msgid "Daily log"
@@ -1332,6 +1341,10 @@ msgstr "일일 손실"
 #: src/components/prop-status-card.tsx:165
 msgid "daily loss ×{0}"
 msgstr "일일 손실 ×{0}"
+
+#: src/components/day-review/session-card.tsx:80
+msgid "daily loss breached"
+msgstr "일일 손실 한도 초과"
 
 #: src/app/(tabs)/(settings)/prop-settings.tsx:160
 #: src/components/daily-loss-card.tsx:38
@@ -1520,6 +1533,7 @@ msgstr "완료"
 msgid "Download & share"
 msgstr "다운로드 및 공유"
 
+#: src/components/day-review/intraday-card.tsx:87
 #: src/components/reports/risk-section.tsx:74
 msgid "Drawdown"
 msgstr "드로다운"
@@ -1848,6 +1862,7 @@ msgstr "자산 곡선을 불러오지 못했습니다."
 msgid "Failed to load settings."
 msgstr "설정을 불러오지 못했습니다."
 
+#: src/app/(tabs)/(calendar)/day/[date].tsx:175
 #: src/components/reports/pnl-heatmap-card.tsx:75
 msgid "Failed to load trades."
 msgstr "거래를 불러오지 못했습니다."
@@ -1862,6 +1877,7 @@ msgstr "수수료"
 
 #: src/app/(tabs)/(settings)/import-trades.tsx:44
 #: src/app/(tabs)/(trades)/[id].tsx:289
+#: src/components/day-review/session-card.tsx:64
 #: src/components/performance-card.tsx:57
 #: src/components/reports/overview-section.tsx:183
 #: src/components/trade-form.tsx:439
@@ -2026,6 +2042,10 @@ msgstr "생성"
 #: src/app/(tabs)/(settings)/about.tsx:59
 msgid "GitHub repository"
 msgstr "GitHub 저장소"
+
+#: src/components/day-review/intraday-card.tsx:89
+#~ msgid "Given back"
+#~ msgstr "반납"
 
 #: src/app/(tabs)/(settings)/about.tsx:103
 msgid "Go runtime"
@@ -2212,6 +2232,12 @@ msgstr "연동"
 #: src/lib/cash.ts:15
 msgid "Interest"
 msgstr "이자"
+
+#: src/components/day-review/intraday-card.tsx:43
+#: src/components/day-review/intraday-card.tsx:51
+#: src/components/day-review/intraday-card.tsx:62
+msgid "Intraday P&L"
+msgstr "장중 손익"
 
 #: src/components/coach-card.tsx:21
 msgid "Issue"
@@ -2622,6 +2648,7 @@ msgstr "순액 (수수료 후)"
 #: src/app/(tabs)/(dashboard)/playbook.tsx:123
 #: src/app/(tabs)/(dashboard)/playbook.tsx:198
 #: src/app/(tabs)/(trades)/[id].tsx:297
+#: src/components/day-review/session-card.tsx:57
 msgid "Net P&L"
 msgstr "순손익"
 
@@ -2642,11 +2669,15 @@ msgstr "무기한"
 #~ msgid "Never expires"
 #~ msgstr "만료 없음"
 
-#: src/app/new-note.tsx:61
+#: src/app/new-note.tsx:72
 msgid "New daily log"
 msgstr "새 일일 로그"
 
-#: src/app/new-note.tsx:61
+#: src/components/day-review/log-card.tsx:58
+msgid "New log"
+msgstr "로그 추가"
+
+#: src/app/new-note.tsx:72
 #: src/components/add-menu.tsx:22
 msgid "New note"
 msgstr "새 노트"
@@ -2677,6 +2708,10 @@ msgstr "최신순"
 #: src/app/(tabs)/(calendar)/index.tsx:338
 msgid "Next"
 msgstr "다음"
+
+#: src/app/(tabs)/(calendar)/day/[date].tsx:147
+msgid "Next day"
+msgstr "다음 날"
 
 #: src/app/(tabs)/(reports)/economic-events.tsx:140
 msgid "Next week"
@@ -2724,9 +2759,13 @@ msgstr "이 시간대에 확정된 거래가 없습니다."
 msgid "No closed trades in this range."
 msgstr "이 범위에 청산된 거래가 없습니다."
 
-#: src/app/(tabs)/(calendar)/day/[date].tsx:62
+#: src/app/(tabs)/(calendar)/day/[date].tsx:177
 msgid "No closed trades on this day."
 msgstr "이 날 청산한 트레이드가 없습니다."
+
+#: src/components/day-review/session-card.tsx:72
+msgid "no closed trades scored"
+msgstr "채점된 청산 트레이드 없음"
 
 #: src/app/(tabs)/(reports)/heatmap.tsx:89
 #~ msgid "No closed trades yet"
@@ -2862,6 +2901,10 @@ msgstr "태그 없음"
 msgid "Not connected"
 msgstr "연결되지 않음"
 
+#: src/components/day-review/intraday-card.tsx:52
+msgid "Not enough closed trades to draw a session curve."
+msgstr "세션 곡선을 그리기에 청산 트레이드가 부족합니다."
+
 #: src/components/reports/behavior-section.tsx:180
 msgid "Not enough closed trades yet — compares how long winners and losers are held, and finds losers that were green at their peak."
 msgstr "아직 청산된 거래가 부족합니다 — 수익·손실 보유 시간을 비교하고 고점에서 수익이었던 손실 거래를 찾습니다."
@@ -2898,6 +2941,14 @@ msgstr "노트를 찾을 수 없습니다"
 #: src/app/(tabs)/(trades)/[id].tsx:455
 msgid "Notes"
 msgstr "메모"
+
+#: src/components/day-review/session-card.tsx:102
+#~ msgid "Nothing closed on this day."
+#~ msgstr "이 날은 청산이 없었습니다."
+
+#: src/components/day-review/log-card.tsx:63
+msgid "Nothing journaled for this day yet. A two-minute recap while it's fresh beats a perfect writeup never written."
+msgstr "이 날에 대한 기록이 아직 없습니다. 기억이 생생할 때의 2분 요약이, 끝내 쓰지 않을 완벽한 리뷰보다 낫습니다."
 
 #: src/app/(tabs)/(trades)/[id].tsx:428
 msgid "Nothing logged yet. A minute of review now is what makes this trade worth something later."
@@ -3020,6 +3071,7 @@ msgid "over the last {windowSize} trades"
 msgstr "최근 {windowSize}건 기준"
 
 #. placeholder {0}: day.risk_violations
+#: src/components/day-review/session-card.tsx:78
 #: src/components/reports/risk-section.tsx:177
 msgid "over-risked ×{0}"
 msgstr "리스크 초과 ×{0}"
@@ -3035,6 +3087,10 @@ msgstr "과신은 과도한 규모나 스톱 무시로 나타납니다. 확신�
 #: src/components/reports/detailed-section.tsx:188
 msgid "Overnight"
 msgstr "오버나이트"
+
+#: src/components/day-review/session-card.tsx:93
+msgid "oversized after streak ×{oversized}"
+msgstr "연승 후 과대 사이즈 ×{oversized}"
 
 #: src/app/(tabs)/(reports)/index.tsx:33
 msgid "Overview"
@@ -3075,6 +3131,10 @@ msgstr "일시정지"
 #: src/components/reports/overview-section.tsx:150
 msgid "Payoff ratio"
 msgstr "손익비"
+
+#: src/components/day-review/intraday-card.tsx:82
+msgid "Peak"
+msgstr "최고점"
 
 #. placeholder {0}: money.formatCompact(giveBack.mfe)
 #: src/components/reports/behavior-section.tsx:227
@@ -3227,6 +3287,10 @@ msgstr "가져오기 미리보기"
 msgid "Previous"
 msgstr "이전"
 
+#: src/app/(tabs)/(calendar)/day/[date].tsx:142
+msgid "Previous day"
+msgstr "이전 날"
+
 #: src/app/(tabs)/(reports)/economic-events.tsx:121
 msgid "Previous week"
 msgstr "지난 주"
@@ -3273,6 +3337,10 @@ msgstr "프로핏 팩터"
 #: src/components/reports/behavior-section.tsx:206
 msgid "Profit given back"
 msgstr "반납한 이익"
+
+#: src/components/day-review/session-card.tsx:96
+msgid "profit given back ×{givenBack}"
+msgstr "이익 반납 ×{givenBack}"
 
 #: src/app/(tabs)/(settings)/prop-settings.tsx:133
 #: src/components/prop-status-card.tsx:135
@@ -3528,6 +3596,10 @@ msgstr "리포트"
 msgid "Return"
 msgstr "수익률"
 
+#: src/components/day-review/session-card.tsx:91
+msgid "revenge trades ×{revenge}"
+msgstr "복수 매매 ×{revenge}"
+
 #: src/components/reports/behavior-section.tsx:128
 msgid "Revenge trading"
 msgstr "복수 매매"
@@ -3626,6 +3698,10 @@ msgstr "규칙"
 #: src/app/(tabs)/(settings)/checklist.tsx:57
 msgid "Rules & checklist"
 msgstr "규칙 & 체크리스트"
+
+#: src/components/day-review/session-card.tsx:74
+msgid "rules followed"
+msgstr "규칙 준수"
 
 #: src/app/(tabs)/(settings)/prop-settings.tsx:128
 msgid "Rules the firm scores this evaluation on. Blank rules are skipped."
@@ -3784,6 +3860,11 @@ msgstr "세션"
 #: src/components/note-form.tsx:88
 msgid "Session recap"
 msgstr "세션 요약"
+
+#: src/components/day-review/session-card.tsx:47
+#: src/components/day-review/session-card.tsx:54
+msgid "Session summary"
+msgstr "세션 개요"
 
 #: src/components/reports/detailed-section.tsx:165
 #: src/components/reports/detailed-section.tsx:173
@@ -4161,6 +4242,10 @@ msgstr "연결 테스트"
 msgid "Testing…"
 msgstr "테스트 중…"
 
+#: src/app/(tabs)/(calendar)/day/[date].tsx:118
+msgid "That day could not be read."
+msgstr "해당 날짜를 읽을 수 없습니다."
+
 #: src/components/coach-card.tsx:92
 msgid "The AI review failed — try again."
 msgstr "AI 리뷰에 실패했습니다 — 다시 시도하세요."
@@ -4379,6 +4464,7 @@ msgid "TraderMemos is a self-hosted trading journal — your data stays on your 
 msgstr "TraderMemos는 셀프 호스팅 트레이딩 저널입니다 — 데이터는 내 서버에 남습니다."
 
 #: src/app/(tabs)/_layout.tsx:40
+#: src/app/(tabs)/(calendar)/day/[date].tsx:171
 #: src/app/(tabs)/(dashboard)/playbook.tsx:124
 #: src/app/(tabs)/(dashboard)/playbook.tsx:191
 #: src/app/(tabs)/(settings)/account-form.tsx:326
@@ -4386,6 +4472,7 @@ msgstr "TraderMemos는 셀프 호스팅 트레이딩 저널입니다 — 데이�
 #: src/app/(tabs)/(settings)/import-trades.tsx:276
 #: src/app/(tabs)/(settings)/import-trades.tsx:308
 #: src/app/(tabs)/(trades)/_layout.tsx:24
+#: src/components/day-review/session-card.tsx:61
 msgid "Trades"
 msgstr "거래"
 
@@ -4449,6 +4536,7 @@ msgid "Unreachable"
 msgstr "연결할 수 없음"
 
 #: src/app/(tabs)/(dashboard)/notes.tsx:59
+#: src/components/day-review/log-card.tsx:22
 msgid "Untitled"
 msgstr "제목 없음"
 
@@ -4566,6 +4654,7 @@ msgstr "평균 수익 ÷ 평균 손실"
 
 #: src/app/(tabs)/(dashboard)/playbook.tsx:125
 #: src/app/(tabs)/(dashboard)/playbook.tsx:193
+#: src/components/day-review/session-card.tsx:62
 #: src/components/reports/overview-section.tsx:123
 msgid "Win rate"
 msgstr "승률"
@@ -4618,7 +4707,7 @@ msgid "Write review"
 msgstr "리뷰 작성"
 
 #: src/app/edit-note.tsx:54
-#: src/app/new-note.tsx:41
+#: src/app/new-note.tsx:52
 msgid "Write something first."
 msgstr "먼저 내용을 작성하세요."
 

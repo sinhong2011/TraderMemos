@@ -140,6 +140,7 @@ msgstr "{0} state paired with a loss"
 #. placeholder {0}: day.trades
 #. placeholder {0}: group.summary.total_trades
 #: src/app/(tabs)/(dashboard)/playbook.tsx:238
+#: src/components/day-review/intraday-card.tsx:67
 #: src/components/insights-card.tsx:80
 #: src/components/reports/behavior-section.tsx:51
 #: src/components/reports/detailed-section.tsx:205
@@ -174,9 +175,15 @@ msgstr "{0} trades had no recorded initial risk and could not be scored against 
 msgid "{0} winning streaks scanned."
 msgstr "{0} winning streaks scanned."
 
+#. placeholder {0}: day.unknown_risk
+#: src/components/day-review/session-card.tsx:84
+msgid "{0} without recorded risk"
+msgstr "{0} without recorded risk"
+
 #. placeholder {0}: progress.done
 #. placeholder {1}: progress.total
 #: src/app/(tabs)/(dashboard)/notes.tsx:69
+#: src/components/day-review/log-card.tsx:26
 msgid "{0}/{1} checks"
 msgstr "{0}/{1} checks"
 
@@ -963,8 +970,8 @@ msgstr "Check the fills"
 msgid "Checking…"
 msgstr "Checking…"
 
-#: src/app/new-note.tsx:48
-#: src/app/new-note.tsx:48
+#: src/app/new-note.tsx:59
+#: src/app/new-note.tsx:59
 #: src/app/new-setup.tsx:172
 msgid "Checklist"
 msgstr "Checklist"
@@ -1211,8 +1218,8 @@ msgstr "Could not revoke token"
 #: src/app/edit-note.tsx:54
 #: src/app/edit-trade.tsx:83
 #: src/app/edit-trade.tsx:90
-#: src/app/new-note.tsx:34
-#: src/app/new-note.tsx:41
+#: src/app/new-note.tsx:45
+#: src/app/new-note.tsx:52
 #: src/app/new-setup.tsx:67
 #: src/app/new-setup.tsx:81
 #: src/app/new-setup.tsx:87
@@ -1319,6 +1326,8 @@ msgid "Daily checklist"
 msgstr "Daily checklist"
 
 #: src/app/(tabs)/(dashboard)/notes.tsx:59
+#: src/components/day-review/log-card.tsx:22
+#: src/components/day-review/log-card.tsx:58
 #: src/components/note-form.tsx:45
 #: src/components/note-form.tsx:84
 msgid "Daily log"
@@ -1332,6 +1341,10 @@ msgstr "daily loss"
 #: src/components/prop-status-card.tsx:165
 msgid "daily loss ×{0}"
 msgstr "daily loss ×{0}"
+
+#: src/components/day-review/session-card.tsx:80
+msgid "daily loss breached"
+msgstr "daily loss breached"
 
 #: src/app/(tabs)/(settings)/prop-settings.tsx:160
 #: src/components/daily-loss-card.tsx:38
@@ -1520,6 +1533,7 @@ msgstr "Done"
 msgid "Download & share"
 msgstr "Download & share"
 
+#: src/components/day-review/intraday-card.tsx:87
 #: src/components/reports/risk-section.tsx:74
 msgid "Drawdown"
 msgstr "Drawdown"
@@ -1848,6 +1862,7 @@ msgstr "Failed to load equity curve."
 msgid "Failed to load settings."
 msgstr "Failed to load settings."
 
+#: src/app/(tabs)/(calendar)/day/[date].tsx:175
 #: src/components/reports/pnl-heatmap-card.tsx:75
 msgid "Failed to load trades."
 msgstr "Failed to load trades."
@@ -1862,6 +1877,7 @@ msgstr "Fee"
 
 #: src/app/(tabs)/(settings)/import-trades.tsx:44
 #: src/app/(tabs)/(trades)/[id].tsx:289
+#: src/components/day-review/session-card.tsx:64
 #: src/components/performance-card.tsx:57
 #: src/components/reports/overview-section.tsx:183
 #: src/components/trade-form.tsx:439
@@ -2026,6 +2042,10 @@ msgstr "Generate"
 #: src/app/(tabs)/(settings)/about.tsx:59
 msgid "GitHub repository"
 msgstr "GitHub repository"
+
+#: src/components/day-review/intraday-card.tsx:89
+#~ msgid "Given back"
+#~ msgstr "Given back"
 
 #: src/app/(tabs)/(settings)/about.tsx:103
 msgid "Go runtime"
@@ -2212,6 +2232,12 @@ msgstr "Integrations"
 #: src/lib/cash.ts:15
 msgid "Interest"
 msgstr "Interest"
+
+#: src/components/day-review/intraday-card.tsx:43
+#: src/components/day-review/intraday-card.tsx:51
+#: src/components/day-review/intraday-card.tsx:62
+msgid "Intraday P&L"
+msgstr "Intraday P&L"
 
 #: src/components/coach-card.tsx:21
 msgid "Issue"
@@ -2622,6 +2648,7 @@ msgstr "Net (after fees)"
 #: src/app/(tabs)/(dashboard)/playbook.tsx:123
 #: src/app/(tabs)/(dashboard)/playbook.tsx:198
 #: src/app/(tabs)/(trades)/[id].tsx:297
+#: src/components/day-review/session-card.tsx:57
 msgid "Net P&L"
 msgstr "Net P&L"
 
@@ -2642,11 +2669,15 @@ msgstr "Never"
 #~ msgid "Never expires"
 #~ msgstr "Never expires"
 
-#: src/app/new-note.tsx:61
+#: src/app/new-note.tsx:72
 msgid "New daily log"
 msgstr "New daily log"
 
-#: src/app/new-note.tsx:61
+#: src/components/day-review/log-card.tsx:58
+msgid "New log"
+msgstr "New log"
+
+#: src/app/new-note.tsx:72
 #: src/components/add-menu.tsx:22
 msgid "New note"
 msgstr "New note"
@@ -2677,6 +2708,10 @@ msgstr "Newest first"
 #: src/app/(tabs)/(calendar)/index.tsx:338
 msgid "Next"
 msgstr "Next"
+
+#: src/app/(tabs)/(calendar)/day/[date].tsx:147
+msgid "Next day"
+msgstr "Next day"
 
 #: src/app/(tabs)/(reports)/economic-events.tsx:140
 msgid "Next week"
@@ -2724,9 +2759,13 @@ msgstr "No closed trades in this hour."
 msgid "No closed trades in this range."
 msgstr "No closed trades in this range."
 
-#: src/app/(tabs)/(calendar)/day/[date].tsx:62
+#: src/app/(tabs)/(calendar)/day/[date].tsx:177
 msgid "No closed trades on this day."
 msgstr "No closed trades on this day."
+
+#: src/components/day-review/session-card.tsx:72
+msgid "no closed trades scored"
+msgstr "no closed trades scored"
 
 #: src/app/(tabs)/(reports)/heatmap.tsx:89
 #~ msgid "No closed trades yet"
@@ -2862,6 +2901,10 @@ msgstr "None tagged"
 msgid "Not connected"
 msgstr "Not connected"
 
+#: src/components/day-review/intraday-card.tsx:52
+msgid "Not enough closed trades to draw a session curve."
+msgstr "Not enough closed trades to draw a session curve."
+
 #: src/components/reports/behavior-section.tsx:180
 msgid "Not enough closed trades yet — compares how long winners and losers are held, and finds losers that were green at their peak."
 msgstr "Not enough closed trades yet — compares how long winners and losers are held, and finds losers that were green at their peak."
@@ -2898,6 +2941,14 @@ msgstr "Note not found"
 #: src/app/(tabs)/(trades)/[id].tsx:455
 msgid "Notes"
 msgstr "Notes"
+
+#: src/components/day-review/session-card.tsx:102
+#~ msgid "Nothing closed on this day."
+#~ msgstr "Nothing closed on this day."
+
+#: src/components/day-review/log-card.tsx:63
+msgid "Nothing journaled for this day yet. A two-minute recap while it's fresh beats a perfect writeup never written."
+msgstr "Nothing journaled for this day yet. A two-minute recap while it's fresh beats a perfect writeup never written."
 
 #: src/app/(tabs)/(trades)/[id].tsx:428
 msgid "Nothing logged yet. A minute of review now is what makes this trade worth something later."
@@ -3020,6 +3071,7 @@ msgid "over the last {windowSize} trades"
 msgstr "over the last {windowSize} trades"
 
 #. placeholder {0}: day.risk_violations
+#: src/components/day-review/session-card.tsx:78
 #: src/components/reports/risk-section.tsx:177
 msgid "over-risked ×{0}"
 msgstr "over-risked ×{0}"
@@ -3035,6 +3087,10 @@ msgstr "Overconfidence often shows up as oversizing or ignoring your stop. Check
 #: src/components/reports/detailed-section.tsx:188
 msgid "Overnight"
 msgstr "Overnight"
+
+#: src/components/day-review/session-card.tsx:93
+msgid "oversized after streak ×{oversized}"
+msgstr "oversized after streak ×{oversized}"
 
 #: src/app/(tabs)/(reports)/index.tsx:33
 msgid "Overview"
@@ -3075,6 +3131,10 @@ msgstr "Pause"
 #: src/components/reports/overview-section.tsx:150
 msgid "Payoff ratio"
 msgstr "Payoff ratio"
+
+#: src/components/day-review/intraday-card.tsx:82
+msgid "Peak"
+msgstr "Peak"
 
 #. placeholder {0}: money.formatCompact(giveBack.mfe)
 #: src/components/reports/behavior-section.tsx:227
@@ -3229,6 +3289,10 @@ msgstr "Preview import"
 msgid "Previous"
 msgstr "Previous"
 
+#: src/app/(tabs)/(calendar)/day/[date].tsx:142
+msgid "Previous day"
+msgstr "Previous day"
+
 #: src/app/(tabs)/(reports)/economic-events.tsx:121
 msgid "Previous week"
 msgstr "Previous week"
@@ -3275,6 +3339,10 @@ msgstr "Profit factor"
 #: src/components/reports/behavior-section.tsx:206
 msgid "Profit given back"
 msgstr "Profit given back"
+
+#: src/components/day-review/session-card.tsx:96
+msgid "profit given back ×{givenBack}"
+msgstr "profit given back ×{givenBack}"
 
 #: src/app/(tabs)/(settings)/prop-settings.tsx:133
 #: src/components/prop-status-card.tsx:135
@@ -3530,6 +3598,10 @@ msgstr "Reports"
 msgid "Return"
 msgstr "Return"
 
+#: src/components/day-review/session-card.tsx:91
+msgid "revenge trades ×{revenge}"
+msgstr "revenge trades ×{revenge}"
+
 #: src/components/reports/behavior-section.tsx:128
 msgid "Revenge trading"
 msgstr "Revenge trading"
@@ -3628,6 +3700,10 @@ msgstr "Rules"
 #: src/app/(tabs)/(settings)/checklist.tsx:57
 msgid "Rules & checklist"
 msgstr "Rules & checklist"
+
+#: src/components/day-review/session-card.tsx:74
+msgid "rules followed"
+msgstr "rules followed"
 
 #: src/app/(tabs)/(settings)/prop-settings.tsx:128
 msgid "Rules the firm scores this evaluation on. Blank rules are skipped."
@@ -3786,6 +3862,11 @@ msgstr "Session"
 #: src/components/note-form.tsx:88
 msgid "Session recap"
 msgstr "Session recap"
+
+#: src/components/day-review/session-card.tsx:47
+#: src/components/day-review/session-card.tsx:54
+msgid "Session summary"
+msgstr "Session summary"
 
 #: src/components/reports/detailed-section.tsx:165
 #: src/components/reports/detailed-section.tsx:173
@@ -4163,6 +4244,10 @@ msgstr "Test connection"
 msgid "Testing…"
 msgstr "Testing…"
 
+#: src/app/(tabs)/(calendar)/day/[date].tsx:118
+msgid "That day could not be read."
+msgstr "That day could not be read."
+
 #: src/components/coach-card.tsx:92
 msgid "The AI review failed — try again."
 msgstr "The AI review failed — try again."
@@ -4381,6 +4466,7 @@ msgid "TraderMemos is a self-hosted trading journal — your data stays on your 
 msgstr "TraderMemos is a self-hosted trading journal — your data stays on your server."
 
 #: src/app/(tabs)/_layout.tsx:40
+#: src/app/(tabs)/(calendar)/day/[date].tsx:171
 #: src/app/(tabs)/(dashboard)/playbook.tsx:124
 #: src/app/(tabs)/(dashboard)/playbook.tsx:191
 #: src/app/(tabs)/(settings)/account-form.tsx:326
@@ -4388,6 +4474,7 @@ msgstr "TraderMemos is a self-hosted trading journal — your data stays on your
 #: src/app/(tabs)/(settings)/import-trades.tsx:276
 #: src/app/(tabs)/(settings)/import-trades.tsx:308
 #: src/app/(tabs)/(trades)/_layout.tsx:24
+#: src/components/day-review/session-card.tsx:61
 msgid "Trades"
 msgstr "Trades"
 
@@ -4451,6 +4538,7 @@ msgid "Unreachable"
 msgstr "Unreachable"
 
 #: src/app/(tabs)/(dashboard)/notes.tsx:59
+#: src/components/day-review/log-card.tsx:22
 msgid "Untitled"
 msgstr "Untitled"
 
@@ -4568,6 +4656,7 @@ msgstr "win ÷ loss"
 
 #: src/app/(tabs)/(dashboard)/playbook.tsx:125
 #: src/app/(tabs)/(dashboard)/playbook.tsx:193
+#: src/components/day-review/session-card.tsx:62
 #: src/components/reports/overview-section.tsx:123
 msgid "Win rate"
 msgstr "Win rate"
@@ -4620,7 +4709,7 @@ msgid "Write review"
 msgstr "Write review"
 
 #: src/app/edit-note.tsx:54
-#: src/app/new-note.tsx:41
+#: src/app/new-note.tsx:52
 msgid "Write something first."
 msgstr "Write something first."
 
