@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { File as FsFile } from 'expo-file-system';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { Alert, Text, View } from 'react-native';
@@ -130,7 +131,9 @@ export default function NewTradeScreen() {
           // like the detail-screen uploader, so partial success sticks.
           for (const shot of values.screenshots) {
             const formData = new FormData();
-            formData.append('file', shot as unknown as Blob);
+            // See components/note-images.tsx — Expo's fetch polyfill rejects
+            // RN's `{uri,name,type}` file descriptor.
+            formData.append('file', new FsFile(shot.uri) as unknown as Blob, shot.name);
             const response = await apiRaw(`/trades/${tradeId}/attachments`, {
               method: 'POST',
               formData,

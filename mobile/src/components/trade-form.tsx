@@ -1,26 +1,25 @@
-import { DatePicker, Host } from '@expo/ui/swift-ui';
 import { SymbolView } from 'expo-symbols';
-import { Children, Fragment, useEffect, useRef, useState, type ReactNode } from 'react';
-import { Pressable, Text, TextInput, View, type TextInputProps } from 'react-native';
-// react-native-pager-view, not @expo/ui's SwiftUI drop-in: the hosted-SwiftUI
-// pager never wires RN's touch handler into its pages, so every Pressable and
-// TextInput inside a page (chips, Add fill, the toggles, every amount field)
-// silently ignored taps. Same imperative API, so the swap is the import.
-import PagerView from 'react-native-pager-view';
-import Animated, {
-  LinearTransition,
-  useAnimatedStyle,
-  withSpring,
-  withTiming,
-} from 'react-native-reanimated';
+import { useState, type ReactNode } from 'react';
+import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import type { Account, Setup, Tag } from '@/api/types';
 import { ChipGroup } from '@/components/chips';
+import {
+  Card,
+  ControlRow,
+  DateRow,
+  InputRow,
+  NotesRow,
+  SectionFooter,
+  SectionHeader,
+  StackRow,
+} from '@/components/form-rows';
 import { FormScrollArea, FormSheet } from '@/components/form-sheet';
 import { ScreenshotQueue } from '@/components/screenshot-queue';
-import { GlassButton, GlassIconButton } from '@/components/glass-button';
+import { GlassButton } from '@/components/glass-button';
 import { Segmented } from '@/components/segmented';
+import { SymbolPager } from '@/components/symbol-pager';
 import { TradePrefillBar } from '@/components/trade-prefill-bar';
 import { ValueToggle } from '@/components/value-toggle';
 import { PnlFill } from '@/styles/unistyles';
@@ -39,137 +38,6 @@ import {
   type Market,
   type TradeFormValues,
 } from '@/lib/trade-form';
-
-/** Muted uppercase grouped-section header. */
-function SectionHeader({ label }: { label: string }) {
-  return <Text style={styles.section}>{label}</Text>;
-}
-
-/** Grouped-list footer — the iOS place for a rule the fields can't state. */
-function SectionFooter({ label }: { label: string }) {
-  return <Text style={styles.sectionFooter}>{label}</Text>;
-}
-
-/** iOS inset-grouped card — children become rows split by inset hairlines. */
-function Card({ children }: { children: ReactNode }) {
-  const rows = Children.toArray(children);
-  return (
-    <View style={styles.card}>
-      {rows.map((row, index) => (
-        <Fragment key={index}>
-          {index > 0 ? <View style={styles.separator} /> : null}
-          {row}
-        </Fragment>
-      ))}
-    </View>
-  );
-}
-
-/** Native settings-row idiom: label left, right-aligned input. */
-function InputRow({ label, ...props }: { label: string } & TextInputProps) {
-  const { theme } = useUnistyles();
-  return (
-    <View style={styles.row}>
-      <Text style={styles.rowLabel}>{label}</Text>
-      <TextInput
-        placeholderTextColor={theme.colors.mutedForeground}
-        style={styles.rowInput}
-        {...props}
-      />
-    </View>
-  );
-}
-
-/** Label left, any control (segmented / menu picker / text) right. */
-function ControlRow({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <View style={styles.row}>
-      <Text style={styles.rowLabel}>{label}</Text>
-      <View style={styles.rowControl}>{children}</View>
-    </View>
-  );
-}
-
-/** Stacked label + full-width content (chip groups). */
-function StackRow({ label, children }: { label?: string; children: ReactNode }) {
-  return (
-    <View style={styles.stackRow}>
-      {label ? <Text style={styles.rowLabel}>{label}</Text> : null}
-      {children}
-    </View>
-  );
-}
-
-/** Borderless multiline row — the native notes-field idiom, no boxed input. */
-function NotesRow({
-  label,
-  value,
-  onChangeText,
-  placeholder,
-}: {
-  label: string;
-  value: string;
-  onChangeText: (text: string) => void;
-  placeholder: string;
-}) {
-  const { theme } = useUnistyles();
-  return (
-    <View style={styles.stackRow}>
-      <Text style={styles.rowLabel}>{label}</Text>
-      <TextInput
-        multiline
-        value={value}
-        onChangeText={onChangeText}
-        placeholder={placeholder}
-        placeholderTextColor={theme.colors.mutedForeground}
-        style={styles.notesInput}
-      />
-    </View>
-  );
-}
-
-/**
- * Date/time row — same shape as every other row: our label leading, the
- * SwiftUI picker pinned trailing. The label has to be ours: passing `title`
- * makes SwiftUI draw its own leading label, and since the `Host` only hugs its
- * content, the pills end up parked mid-row with the right half empty.
- * Omitting `title` is what opts the picker into `.labelsHidden()`.
- */
-function DateRow({
-  label,
-  selection,
-  displayedComponents,
-  onDateChange,
-}: {
-  label: string;
-  selection: Date;
-  displayedComponents: ('date' | 'hourAndMinute')[];
-  onDateChange: (date: Date) => void;
-}) {
-  return (
-    <View style={styles.row}>
-      <Text style={styles.rowLabel} numberOfLines={1}>
-        {label}
-      </Text>
-      <View style={styles.rowControl}>
-        {/*
-          `ignoreSafeArea` is load-bearing: a hosted SwiftUI view still insets
-          its content by the container safe area, so a picker sitting inside
-          the home-indicator band — the dividend Date row, last card on the
-          page — drew its pill ~20pt above its own frame, over the row divider.
-          'all' also keeps the keyboard inset out of it while a field is open.
-        */}
-        <Host matchContents ignoreSafeArea="all">
-          <DatePicker
-            selection={selection}
-            displayedComponents={displayedComponents}
-            onDateChange={onDateChange}
-          />
-        </Host>
-      </View>
-    </View>
-  );
-}
 
 /** Single-select chip row: tapping the active chip clears it. */
 function SingleChips({
@@ -196,185 +64,6 @@ function SingleChips({
 
 function toggleIn(list: string[], value: string): string[] {
   return list.includes(value) ? list.filter((v) => v !== value) : [...list, value];
-}
-
-/**
- * One fluid motion for the whole tab strip: SwiftUI's `.smooth` spring model
- * (perceptual duration + damping ratio rather than stiffness/mass), damped just
- * under critical so everything glides to rest without a bounce. DESIGN.md's
- * 150ms ease-out rule is written for the web; iOS motion is springs.
- */
-const TAB_SPRING = { duration: 420, dampingRatio: 0.85 } as const;
-const TAB_TRANSITION = LinearTransition.springify()
-  .duration(TAB_SPRING.duration)
-  .dampingRatio(TAB_SPRING.dampingRatio);
-
-/**
- * Entering tabs grow open from zero width on the strip's spring while they
- * fade in — the exact mirror of `tabCollapse`, so add and remove read as the
- * same liquid motion. Fade/scale alone left the width to snap in one frame:
- * the capsule jumped wider, then a ghost faded into the already-open gap.
- * `targetWidth` seeds the spring's destination; the slot wrapper clips the
- * label while the capsule is still opening.
- */
-function tabEnter(values: { targetWidth: number }) {
-  'worklet';
-  return {
-    initialValues: { opacity: 0, width: 0, transform: [{ scale: 0.92 }] },
-    animations: {
-      opacity: withTiming(1, { duration: 200 }),
-      width: withSpring(values.targetWidth, TAB_SPRING),
-      transform: [{ scale: withSpring(1, TAB_SPRING) }],
-    },
-  };
-}
-
-/** Mirror of the entrance, quicker — a removed glyph shouldn't linger. */
-function tabExit() {
-  'worklet';
-  return {
-    initialValues: { opacity: 1, transform: [{ scale: 1 }] },
-    animations: {
-      opacity: withTiming(0, { duration: 140 }),
-      transform: [{ scale: withTiming(0.92, { duration: 140 }) }],
-    },
-  };
-}
-
-/**
- * Removing a symbol: the tab squeezes shut on the very spring that carries its
- * neighbours into the gap, so the strip closes as one motion. Previously the
- * chip blinked out in 140ms and left a hole that the 420ms layout spring then
- * spent three times as long closing — two animations, visibly out of step.
- * `currentWidth` is what makes it possible: an exiting view is detached from
- * layout, so without seeding its measured width there is nothing to animate
- * from. The wrapper clips (`tabSlot`) so the label is wiped rather than
- * spilling out of the shrinking capsule.
- */
-function tabCollapse(values: { currentWidth: number }) {
-  'worklet';
-  return {
-    initialValues: { opacity: 1, width: values.currentWidth, transform: [{ scale: 1 }] },
-    animations: {
-      // Fades well before the width lands, so the ghost never sits on top of
-      // the neighbour sliding underneath it.
-      opacity: withTiming(0, { duration: 160 }),
-      width: withSpring(0, TAB_SPRING),
-      transform: [{ scale: withSpring(0.9, TAB_SPRING) }],
-    },
-  };
-}
-
-/**
- * One symbol tab. The selection fill is an animated layer rather than a
- * conditional background: removing the active tab hands the highlight to its
- * neighbour, and swapping that on instantly reads as a second jump landing on
- * top of the collapse.
- */
-function SymbolTab({
-  label,
-  isActive,
-  removable,
-  onPress,
-  onRemove,
-}: {
-  label: string;
-  isActive: boolean;
-  removable: boolean;
-  onPress: () => void;
-  onRemove: () => void;
-}) {
-  const { theme } = useUnistyles();
-  const fill = useAnimatedStyle(() => ({ opacity: withSpring(isActive ? 1 : 0, TAB_SPRING) }));
-
-  return (
-    <Pressable
-      onPress={onPress}
-      accessibilityRole="tab"
-      accessibilityState={{ selected: isActive }}
-      style={({ pressed }) => [styles.tab, pressed && styles.pressed]}
-    >
-      <Animated.View pointerEvents="none" style={[styles.tabFill, fill]} />
-      <Text style={[styles.tabLabel, isActive && styles.tabLabelActive]} numberOfLines={1}>
-        {label}
-      </Text>
-      {isActive && removable ? (
-        <Animated.View entering={tabEnter} exiting={tabExit}>
-          <Pressable
-            onPress={onRemove}
-            hitSlop={10}
-            accessibilityRole="button"
-            accessibilityLabel={t`Remove symbol`}
-            style={({ pressed }) => pressed && styles.pressed}
-          >
-            <SymbolView
-              name="xmark.circle.fill"
-              size={15}
-              tintColor={theme.colors.mutedForeground}
-            />
-          </Pressable>
-        </Animated.View>
-      ) : null}
-    </Pressable>
-  );
-}
-
-/**
- * Symbol tab list — a filled segmented capsule (deliberately distinct from
- * the bordered tag chips: this switches pages, it doesn't toggle values).
- * Follows the iOS token-field idiom: the selected tab reveals its own inline
- * clear glyph, and appending lives in a separate glass button pinned right of
- * the capsule so it stays reachable once the tabs overflow and scroll.
- */
-function SymbolPagerBar({
-  blocks,
-  active,
-  onSelect,
-  onAdd,
-  onRemoveActive,
-}: {
-  blocks: TradeFormValues[];
-  active: number;
-  onSelect: (index: number) => void;
-  onAdd: () => void;
-  onRemoveActive: () => void;
-}) {
-  const removable = blocks.length > 1;
-  return (
-    <View style={styles.pagerRow}>
-      <Animated.ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.tabList}
-        style={styles.tabScroll}
-        // The capsule's own frame rides the same spring as the tabs inside it —
-        // without this the bordered track snaps to its new width in one frame
-        // while the pills glide, and the strip reads as two motions.
-        layout={TAB_TRANSITION}
-      >
-        {blocks.map((block, index) => (
-          <Animated.View
-            key={block.key}
-            style={styles.tabSlot}
-            entering={tabEnter}
-            exiting={tabCollapse}
-            layout={TAB_TRANSITION}
-          >
-            <SymbolTab
-              label={
-                block.symbol.trim() ? block.symbol.trim().toUpperCase() : t`Symbol ${index + 1}`
-              }
-              isActive={index === active}
-              removable={removable}
-              onPress={() => onSelect(index)}
-              onRemove={onRemoveActive}
-            />
-          </Animated.View>
-        ))}
-      </Animated.ScrollView>
-      <GlassIconButton systemImage="plus" label={t`Add symbol`} onPress={onAdd} />
-    </View>
-  );
 }
 
 function FillCard({
@@ -426,28 +115,28 @@ function FillCard({
         value={fill.quantity}
         onChangeText={(quantity) => onChange({ quantity })}
         placeholder="100"
-        keyboardType="decimal-pad"
+        numeric
       />
       <InputRow
         label={t`Price`}
         value={fill.price}
         onChangeText={(price) => onChange({ price })}
         placeholder="10.50"
-        keyboardType="decimal-pad"
+        numeric
       />
       <InputRow
         label={t`Fees`}
         value={fill.fees}
         onChangeText={(fees) => onChange({ fees })}
         placeholder="0.00"
-        keyboardType="decimal-pad"
+        numeric
       />
       <InputRow
         label={t`Commission`}
         value={fill.commission}
         onChangeText={(commission) => onChange({ commission })}
         placeholder="0.00"
-        keyboardType="decimal-pad"
+        numeric
       />
     </Card>
   );
@@ -555,7 +244,7 @@ function SymbolBlock({
               value={values.optionStrike}
               onChangeText={(optionStrike) => set('optionStrike', optionStrike)}
               placeholder="705"
-              keyboardType="decimal-pad"
+              numeric
             />
           ) : null}
           {values.market === 'option' ? (
@@ -573,7 +262,7 @@ function SymbolBlock({
               value={values.multiplier}
               onChangeText={(multiplier) => set('multiplier', multiplier)}
               placeholder={t`Multiplier`}
-              keyboardType="decimal-pad"
+              numeric
             />
           ) : null}
           {values.market === 'future' ? (
@@ -630,14 +319,14 @@ function SymbolBlock({
           value={values.target}
           onChangeText={(target) => set('target', target)}
           placeholder="0.00"
-          keyboardType="decimal-pad"
+          numeric
         />
         <InputRow
           label={t`Stop`}
           value={values.stop}
           onChangeText={(stop) => set('stop', stop)}
           placeholder="0.00"
-          keyboardType="decimal-pad"
+          numeric
         />
       </Card>
 
@@ -737,7 +426,7 @@ function SymbolBlock({
           value={values.dividendAmount}
           onChangeText={(dividendAmount) => set('dividendAmount', dividendAmount)}
           placeholder="0.00"
-          keyboardType="decimal-pad"
+          numeric
         />
         <DateRow
           label={t`Date`}
@@ -802,7 +491,6 @@ export function TradeForm({
   const [accountId, setAccountId] = useState(
     initialBlocks[0]?.accountId || (accounts[0]?.id ?? ''),
   );
-  const pagerRef = useRef<PagerView>(null);
   const isNew = !lockInstrument;
 
   const updateBlock = (index: number, next: TradeFormValues) =>
@@ -810,47 +498,6 @@ export function TradeForm({
 
   const accountName = accounts.find((a) => a.id === accountId)?.name ?? '';
   const clampedActive = Math.min(active, blocks.length - 1);
-
-  // Tab taps / add / prefill drive `active`; swipes report back through
-  // onPageSelected (re-asserting the page they landed on is a no-op).
-  // Neighbours slide, so adding a symbol carries the form across instead of
-  // cutting to it — the pager's own motion, which keeps content on screen the
-  // whole way and needs no opacity (see the page comment below). Longer jumps
-  // cut, because animating them smears through every symbol in between.
-  const shownPage = useRef(0);
-  useEffect(() => {
-    const pager = pagerRef.current;
-    if (!pager) return;
-    const previous = shownPage.current;
-    shownPage.current = clampedActive;
-    if (Math.abs(clampedActive - previous) === 1) pager.setPage(clampedActive);
-    else pager.setPageWithoutAnimation(clampedActive);
-  }, [clampedActive, blocks.length]);
-
-  // Appending a symbol can't move the pager in the same commit that mounts the
-  // page. The pager is a SwiftUI ScrollView over a LazyHStack driven by
-  // `.scrollPosition(id:)`: the id has to name a page the stack has already
-  // materialised, and the RN form inside it is still rendering for a frame or
-  // two after the commit. Writing the id straight away lands the scroll on an
-  // empty page and the form pops in afterwards — the flash. So append first,
-  // let the page lay out, and only then hand it to the pager, which is when the
-  // effect above sees a one-step move and slides.
-  const pendingPage = useRef<number | null>(null);
-  const pendingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const revealPending = () => {
-    const target = pendingPage.current;
-    if (target == null) return;
-    pendingPage.current = null;
-    if (pendingTimer.current) clearTimeout(pendingTimer.current);
-    pendingTimer.current = null;
-    setActive(target);
-  };
-  useEffect(
-    () => () => {
-      if (pendingTimer.current) clearTimeout(pendingTimer.current);
-    },
-    [],
-  );
 
   if (!isNew) {
     return (
@@ -892,54 +539,40 @@ export function TradeForm({
       }
       onSave={() => onSave(blocks.map((block) => ({ ...block, accountId })))}
     >
-      <View style={styles.pagerTop}>
-        {accounts.length > 1 ? (
-          <Card>
-            <ControlRow label={t`Account`}>
-              <Segmented
-                variant="menu"
-                options={accounts.map((a) => ({ value: a.id, label: a.name }))}
-                value={accountId}
-                onChange={setAccountId}
-              />
-            </ControlRow>
-          </Card>
-        ) : null}
-        <SymbolPagerBar
-          blocks={blocks}
-          active={clampedActive}
-          onSelect={setActive}
-          onAdd={() => {
-            pendingPage.current = blocks.length;
-            setBlocks((current) => [...current, emptyTradeForm(accountId)]);
-            // Safety net: a page the pager keeps fully off-screen may never
-            // report layout, and a symbol you can't reach is worse than a cut.
-            pendingTimer.current = setTimeout(revealPending, 160);
-          }}
-          onRemoveActive={() => {
-            setBlocks((current) => current.filter((_, i) => i !== clampedActive));
-            setActive((current) => Math.max(0, current - 1));
-          }}
-        />
-      </View>
-      <PagerView
-        ref={pagerRef}
-        style={styles.pager}
-        initialPage={0}
-        onPageSelected={(event) => setActive(event.nativeEvent.position)}
-      >
-        {blocks.map((block, index) => (
-          // Plain View, never an opacity-animated one: these pages host
-          // GlassView buttons, and iOS drops a visual-effect view's backdrop
-          // for good once an ancestor's opacity leaves 1. Page motion has to
-          // come from the pager itself.
-          <View
-            key={block.key}
-            style={styles.page}
-            onLayout={() => {
-              if (index === pendingPage.current) revealPending();
-            }}
-          >
+      <SymbolPager
+        tabs={blocks.map((block, index) => ({
+          key: block.key,
+          label: block.symbol.trim() ? block.symbol.trim().toUpperCase() : t`Symbol ${index + 1}`,
+        }))}
+        active={clampedActive}
+        addLabel={t`Add symbol`}
+        removeLabel={t`Remove symbol`}
+        header={
+          accounts.length > 1 ? (
+            <Card>
+              <ControlRow label={t`Account`}>
+                <Segmented
+                  variant="menu"
+                  options={accounts.map((a) => ({ value: a.id, label: a.name }))}
+                  value={accountId}
+                  onChange={setAccountId}
+                />
+              </ControlRow>
+            </Card>
+          ) : null
+        }
+        onSelect={setActive}
+        onAdd={() => {
+          setBlocks((current) => [...current, emptyTradeForm(accountId)]);
+          setActive(blocks.length);
+        }}
+        onRemoveActive={() => {
+          setBlocks((current) => current.filter((_, i) => i !== clampedActive));
+          setActive((current) => Math.max(0, current - 1));
+        }}
+        renderPage={(index) => {
+          const block = blocks[index];
+          return (
             <FormScrollArea>
               <SymbolBlock
                 values={block}
@@ -949,71 +582,15 @@ export function TradeForm({
                 onChange={(next) => updateBlock(index, next)}
               />
             </FormScrollArea>
-          </View>
-        ))}
-      </PagerView>
+          );
+        }}
+      />
     </FormSheet>
   );
 }
 
 const styles = StyleSheet.create((theme) => ({
-  section: {
-    fontSize: 12,
-    fontWeight: '600',
-    letterSpacing: 0.6,
-    textTransform: 'uppercase',
-    color: theme.colors.mutedForeground,
-    marginTop: theme.spacing.sm,
-    paddingLeft: theme.spacing.lg,
-  },
-  sectionFooter: {
-    fontSize: 12,
-    lineHeight: 17,
-    color: theme.colors.mutedForeground,
-    marginTop: -theme.spacing.sm,
-    paddingHorizontal: theme.spacing.lg,
-  },
-  card: {
-    borderRadius: theme.radius.lg + 6,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.card,
-    overflow: 'hidden',
-  },
-  separator: {
-    height: 0.5,
-    marginLeft: theme.spacing.lg,
-    backgroundColor: theme.colors.border,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing.md,
-    minHeight: 48,
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.xs,
-  },
-  rowLabel: { fontSize: 15, color: theme.colors.foreground },
   rowValue: { fontSize: 15, color: theme.colors.mutedForeground },
-  rowInput: {
-    flex: 1,
-    textAlign: 'right',
-    fontSize: 16,
-    color: theme.colors.foreground,
-    paddingVertical: theme.spacing.sm,
-  },
-  rowControl: { marginLeft: 'auto', flexShrink: 1 },
-  stackRow: {
-    gap: theme.spacing.sm,
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.md,
-  },
-  notesInput: {
-    minHeight: 56,
-    fontSize: 16,
-    color: theme.colors.foreground,
-    textAlignVertical: 'top',
-    padding: 0,
-  },
   fillHeader: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1023,72 +600,6 @@ const styles = StyleSheet.create((theme) => ({
     paddingBottom: theme.spacing.xs,
   },
   fillTitle: { fontSize: 13, fontWeight: '600', color: theme.colors.mutedForeground },
-  pagerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing.md,
-  },
-  // Filled tab capsule — the page-switcher family (segmented control), kept
-  // visually apart from the bordered tag chips which toggle values.
-  tabScroll: {
-    flexGrow: 0,
-    flexShrink: 1,
-    borderRadius: theme.radius.full,
-    borderCurve: 'continuous',
-    // iOS 26 bordered capsule — the hairline carries the affordance (chips.tsx).
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    backgroundColor: theme.colors.card,
-  },
-  tabList: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 2,
-    padding: 3,
-  },
-  // 34 + 3pt of capsule padding either side lines the tab strip up with the
-  // 40pt glass "+" button beside it.
-  tab: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: theme.spacing.xs + 2,
-    minWidth: 44,
-    minHeight: 34,
-    paddingHorizontal: theme.spacing.md,
-    borderRadius: theme.radius.full,
-    borderCurve: 'continuous',
-  },
-  // Clips the label while `tabCollapse` squeezes the slot shut.
-  tabSlot: { overflow: 'hidden' },
-  tabFill: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    borderRadius: theme.radius.full,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.input,
-    // Start hidden so the animated opacity has a defined origin — otherwise a
-    // freshly mounted inactive tab paints one filled frame before settling.
-    opacity: 0,
-  },
-  tabLabel: {
-    fontSize: 13,
-    fontWeight: '500',
-    maxWidth: 140,
-    color: theme.colors.mutedForeground,
-  },
-  tabLabelActive: { color: theme.colors.foreground, fontWeight: '600' },
-  pagerTop: {
-    gap: theme.spacing.md,
-    paddingHorizontal: theme.spacing.lg,
-    paddingTop: theme.spacing.xs,
-    paddingBottom: theme.spacing.sm,
-  },
-  pager: { flex: 1 },
-  page: { flex: 1 },
   actionRow: { alignItems: 'center' },
   lockedSymbol: { fontSize: 17, fontWeight: '700', color: theme.colors.foreground },
   pressed: { opacity: 0.6 },
