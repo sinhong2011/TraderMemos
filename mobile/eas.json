@@ -41,7 +41,8 @@
       "ios": {
         "ascAppId": "6797427206",
         "appleTeamId": "FX3VR69P5K",
-        "language": "en-US"
+        "language": "en-US",
+        "groups": ["Internal Testers"]
       }
     }
   }

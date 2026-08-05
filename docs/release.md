@@ -141,6 +141,12 @@ The three profiles repeat their `node`/`corepack`/`env` lines rather than sharin
 `eas` prompt, and picking it in `eas credentials` configures credentials against a
 profile nothing ever builds — the duplication is cheaper than that footgun.
 
+`groups: ["Internal Testers"]` makes EAS Submit attach every submitted build to
+that TestFlight group, so a release reaches testers without anyone opening App
+Store Connect. The workflow also passes `--what-to-test`: a release build gets
+that version's `CHANGELOG.md` section (markdown stripped, since TestFlight
+renders plain text), any other build gets the commit subject.
+
 `submit.production.ios` carries `ascAppId` (the App Store Connect app record for
 `com.tradermemos.app`) and `appleTeamId` as literal values. They have to be
 literal — EAS expands `$VAR` references only in the `ascApiKey*` fields, so an

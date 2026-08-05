@@ -131,6 +131,52 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
+      # TestFlight shows "What to Test" verbatim; left unset every tester sees a
+      # blank panel. A release build gets that version's CHANGELOG section, any
+      # other build gets the commit subject.
+      - name: Compose What to Test
+        id: notes
+        env:
+          MESSAGE: ${{ inputs.message || '' }}
+        run: |
+          {
+            echo "text<<WHAT_TO_TEST_EOF"
+            python3 - <<'PY'
+          import os, pathlib, re, subprocess
+
+          notes = ""
+          release = re.fullmatch(r"v?(\d+\.\d+\.\d+)", os.environ.get("MESSAGE", "").strip())
+          if release:
+              changelog = pathlib.Path("../CHANGELOG.md")
+              if changelog.exists():
+                  text = changelog.read_text(encoding="utf-8")
+                  # release-please writes "## [0.3.0](compare-url) (2026-08-04)".
+                  # Only "## " ends a section — "### Features" is inside one.
+                  heading = re.search(
+                      rf"^## \[?{re.escape(release.group(1))}\]?.*$", text, re.M
+                  )
+                  if heading:
+                      rest = text[heading.end():]
+                      following = re.search(r"^## ", rest, re.M)
+                      notes = (rest[: following.start()] if following else rest).strip()
+          if not notes:
+              notes = subprocess.run(
+                  ["git", "log", "-1", "--pretty=%s"], capture_output=True, text=True
+              ).stdout.strip()
+
+          # TestFlight renders this as plain text, so markdown would ship literally.
+          notes = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", notes)  # links -> label
+          notes = re.sub(r"\s*\(\b[0-9a-f]{7,40}\b\)", "", notes)  # commit sha refs
+          notes = notes.replace("**", "")
+          notes = re.sub(r"^#+\s*", "", notes, flags=re.M)  # heading markers
+          notes = re.sub(r"^\* ", "• ", notes, flags=re.M)  # bullets
+
+          # Apple caps whatToTest at 4000 characters.
+          print(notes.strip()[:4000])
+          PY
+            echo "WHAT_TO_TEST_EOF"
+          } >> "$GITHUB_OUTPUT"
+
       # eas.json pins appVersionSource: remote, so EAS owns the build number and
       # nothing here writes back to the repo. The marketing version still comes
       # from app.json, which release-please bumps.
@@ -141,10 +187,12 @@ jobs:
           # Unset on workflow_call, where waiting is always what we want.
           WAIT: ${{ inputs.wait }}
           MESSAGE: ${{ inputs.message || github.sha }}
+          WHAT_TO_TEST: ${{ steps.notes.outputs.text }}
         run: |
           args=(--platform ios --profile "$PROFILE" --non-interactive --message "$MESSAGE")
           if [ "$SUBMIT" = "true" ]; then
-            args+=(--auto-submit)
+            # --what-to-test is only accepted alongside --auto-submit.
+            args+=(--auto-submit --what-to-test "$WHAT_TO_TEST")
           fi
           if [ "$WAIT" = "false" ]; then
             args+=(--no-wait)
