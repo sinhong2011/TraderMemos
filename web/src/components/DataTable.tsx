@@ -109,7 +109,10 @@ function pinningCellClass<T>(
   return cn(
     // Opaque so scrolled cells never show through the pin — same token as thead.
     surfaceClassName,
-    kind === "body" && "group-hover:bg-accent",
+    // Row hover has to *layer* over that surface, not replace it: `--accent` is 4% alpha, so
+    // `group-hover:bg-accent` would swap the opaque fill for a near-transparent one and the
+    // cells scrolling underneath would bleed through. A gradient paints on top of it instead.
+    kind === "body" && "group-hover:bg-[image:linear-gradient(var(--accent),var(--accent))]",
   );
 }
 
