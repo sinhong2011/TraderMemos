@@ -6,15 +6,12 @@
     "requireCommit": true
   },
   "build": {
-    "base": {
+    "development": {
       "node": "25.6.1",
       "corepack": true,
       "env": {
         "EXPO_NO_TELEMETRY": "1"
-      }
-    },
-    "development": {
-      "extends": "base",
+      },
       "developmentClient": true,
       "distribution": "internal",
       "ios": {
@@ -22,11 +19,19 @@
       }
     },
     "preview": {
-      "extends": "base",
+      "node": "25.6.1",
+      "corepack": true,
+      "env": {
+        "EXPO_NO_TELEMETRY": "1"
+      },
       "distribution": "internal"
     },
     "production": {
-      "extends": "base",
+      "node": "25.6.1",
+      "corepack": true,
+      "env": {
+        "EXPO_NO_TELEMETRY": "1"
+      },
       "distribution": "store",
       "autoIncrement": true
     }
