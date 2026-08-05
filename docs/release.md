@@ -136,6 +136,11 @@ flowchart TD
 | `preview` | internal | ad-hoc install on registered devices |
 | `production` | store | release builds; `autoIncrement` bumps the EAS-side build number |
 
+The three profiles repeat their `node`/`corepack`/`env` lines rather than sharing an
+`extends: base` parent. An abstract parent is still a selectable profile in every
+`eas` prompt, and picking it in `eas credentials` configures credentials against a
+profile nothing ever builds — the duplication is cheaper than that footgun.
+
 `submit.production.ios` carries `ascAppId` (the App Store Connect app record for
 `com.tradermemos.app`) and `appleTeamId` as literal values. They have to be
 literal — EAS expands `$VAR` references only in the `ascApiKey*` fields, so an
