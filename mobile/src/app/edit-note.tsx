@@ -1,14 +1,22 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { SymbolView } from 'expo-symbols';
 import { useState } from 'react';
-import { Alert, Pressable, Text, View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
+import { Alert, Pressable, Text } from 'react-native';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { useApiRequest, useNote } from '@/api/hooks';
 import type { Note, NoteBody } from '@/api/types';
 import { FormSheet } from '@/components/form-sheet';
 import { FormSkeleton } from '@/components/skeleton';
-import { NoteFormFields, type NoteFormValues } from '@/components/note-form';
+import {
+  noteHasContent,
+  NoteEditor,
+  noteSymbolsFor,
+  NoteTypeSwitch,
+  symbolDrafts,
+  type NoteFormValues,
+} from '@/components/note-form';
 import { t } from '@lingui/core/macro';
 
 function valuesFromNote(note: Note): NoteFormValues {
@@ -17,7 +25,7 @@ function valuesFromNote(note: Note): NoteFormValues {
     occurredAt: note.occurred_at.slice(0, 10),
     title: note.title,
     body: note.body,
-    symbols: note.symbols,
+    symbols: symbolDrafts(note.symbols),
   };
 }
 
@@ -25,6 +33,7 @@ function EditNoteForm({ note }: { note: Note }) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const api = useApiRequest();
+  const { theme } = useUnistyles();
 
   const [values, setValues] = useState<NoteFormValues>(() => valuesFromNote(note));
   const onChange = (patch: Partial<NoteFormValues>) =>
@@ -50,16 +59,12 @@ function EditNoteForm({ note }: { note: Note }) {
   });
 
   function handleSave() {
-    if (!values.body.trim() && !values.title.trim() && values.symbols.length === 0) {
-      Alert.alert(t`Could not save`, t`Write something first.`);
-      return;
-    }
     save.mutate({
       type: values.type,
       occurred_at: values.occurredAt,
       title: values.title.trim(),
       body: values.body,
-      symbols: values.type === 'daily_log' ? values.symbols.filter((s) => s.symbol.trim()) : [],
+      symbols: noteSymbolsFor(values),
     });
   }
 
@@ -71,20 +76,35 @@ function EditNoteForm({ note }: { note: Note }) {
   }
 
   return (
-    <FormSheet title={t`Edit note`} saving={save.isPending} onSave={handleSave}>
-      <NoteFormFields values={values} onChange={onChange} />
-      <View style={styles.dangerZone}>
-        <Pressable
-          onPress={confirmDelete}
-          disabled={remove.isPending}
-          accessibilityRole="button"
-          style={({ pressed }) => [styles.deleteButton, pressed && styles.pressed]}
-        >
-          <Text style={styles.deleteLabel}>
-            {remove.isPending ? t`Deleting…` : t`Delete note`}
-          </Text>
-        </Pressable>
-      </View>
+    <FormSheet
+      title={t`Edit note`}
+      titleControl={
+        <NoteTypeSwitch value={values.type} onChange={(type) => onChange({ type })} />
+      }
+      saving={save.isPending}
+      // Emptying a note is a delete, not a save — the toolbar button says so.
+      saveDisabled={!noteHasContent(values)}
+      scroll={false}
+      onSave={handleSave}
+    >
+      <NoteEditor
+        values={values}
+        onChange={onChange}
+        // Delete rides the editor's toolbar rather than a "danger zone" below
+        // the fields: the editor fills the screen, so there is no below.
+        trailingAction={
+          <Pressable
+            onPress={confirmDelete}
+            disabled={remove.isPending}
+            hitSlop={10}
+            accessibilityRole="button"
+            accessibilityLabel={t`Delete note`}
+            style={({ pressed }) => pressed && styles.pressed}
+          >
+            <SymbolView name="trash" size={20} tintColor={theme.colors.destructive} />
+          </Pressable>
+        }
+      />
     </FormSheet>
   );
 }
@@ -113,9 +133,6 @@ export default function EditNoteScreen() {
 }
 
 const styles = StyleSheet.create((theme) => ({
-  dangerZone: { paddingTop: theme.spacing.xl, alignItems: 'center' },
-  deleteButton: { paddingVertical: theme.spacing.sm, paddingHorizontal: theme.spacing.lg },
   pressed: { opacity: 0.6 },
-  deleteLabel: { fontSize: 15, fontWeight: '500', color: theme.colors.destructive },
   muted: { color: theme.colors.mutedForeground, textAlign: 'center' },
 }));
