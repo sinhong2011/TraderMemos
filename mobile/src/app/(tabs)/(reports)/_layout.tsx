@@ -1,15 +1,19 @@
 import { Stack } from 'expo-router/stack';
 import { useUnistyles } from 'react-native-unistyles';
 
-import { useAccounts } from '@/api/hooks';
+import { useAccounts, useCash } from '@/api/hooks';
 import { AccountMenu } from '@/components/account-menu';
 import { ReportsFilterMenu } from '@/components/reports-filter-menu';
+import { useSelectedAccountId } from '@/lib/account-store';
+import { netDeposits } from '@/lib/cash';
 import { t } from '@lingui/core/macro';
 
 /** The % unit needs a balance to divide by — probed here to label the menu row. */
 function HeaderFilterMenu() {
   const accounts = useAccounts();
-  const denominator = (accounts.data ?? []).reduce((sum, a) => sum + a.starting_balance, 0);
+  const cash = useCash();
+  const selectedId = useSelectedAccountId();
+  const denominator = netDeposits(accounts.data ?? [], selectedId, cash.data ?? []);
   return <ReportsFilterMenu pctEnabled={denominator > 0} />;
 }
 

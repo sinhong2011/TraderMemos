@@ -7,6 +7,7 @@ import { accountBaseCurrency, useDisplayPrefs } from "@/lib/displayPrefs";
 import { normalizeFilterDate, useFilterParams, useFilters } from "@/lib/filters";
 import { useAccounts } from "@/lib/hooks/useAccounts";
 import { useDailyPnl, useSummary } from "@/lib/hooks/useAnalytics";
+import { useCash } from "@/lib/hooks/useCash";
 import { useTrades } from "@/lib/hooks/useTrades";
 
 export const Route = createFileRoute("/calendar")({
@@ -52,6 +53,7 @@ function CalendarPage() {
   const accountId = useFilters((s) => s.accountId);
   const tradeDateBasis = useDisplayPrefs((s) => s.tradeDateBasis);
   const accountsQ = useAccounts();
+  const cashQ = useCash(filters);
 
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
@@ -126,6 +128,7 @@ function CalendarPage() {
         yearTradeList={yearTradesQ.data ?? []}
         monthSummary={monthSummaryQ.data}
         accounts={accounts}
+        cashTx={cashQ.data ?? []}
         selectedAccountId={accountId}
         year={year}
         month={month}

@@ -77,7 +77,7 @@ export function SetupScreen() {
   const [serverUrl, setServerUrl] = useState(() => editableApiBaseUrl(getCustomApiBaseUrl()));
   const [accountName, setAccountName] = useState("Main");
   const [currency, setCurrency] = useState("USD");
-  const [balance, setBalance] = useState("10000");
+  const [balance, setBalance] = useState("");
   const [importFile, setImportFile] = useState<File | null>(null);
   const [step, setStep] = useState<1 | 2>(1);
   const [error, setError] = useState("");
@@ -279,7 +279,7 @@ export function SetupScreen() {
               <Field
                 label="Starting balance"
                 htmlFor="setup-balance"
-                description="First deposit in your cash ledger."
+                description="Recorded as the first deposit in your cash ledger. Leave blank to start at zero and add deposits later."
               >
                 <FormInput
                   id="setup-balance"
@@ -287,7 +287,7 @@ export function SetupScreen() {
                   inputMode="decimal"
                   value={balance}
                   onChange={(e) => setBalance(e.target.value)}
-                  placeholder="10000"
+                  placeholder="0"
                   spellCheck={false}
                   className={authFieldClass}
                 />

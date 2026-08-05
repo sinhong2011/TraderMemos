@@ -11,10 +11,11 @@ import type { ReactNode } from 'react';
 import { RefreshControl, ScrollView, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { useAccounts } from '@/api/hooks';
+import { useAccounts, useCash } from '@/api/hooks';
 import type { Filters } from '@/api/types';
 import type { ReportsSection } from '@/app/(tabs)/(reports)/index';
 import { useSelectedAccountId } from '@/lib/account-store';
+import { netDeposits } from '@/lib/cash';
 import { useGlobalFilters } from '@/lib/filters';
 import { useMoneyFx } from '@/lib/money';
 import { accountBaseCurrency, useDisplayPrefs } from '@/lib/prefs';
@@ -39,7 +40,7 @@ export type ReportsMoneyContext = {
   money: ReportsMoney;
   currency: string;
   fxRate: number;
-  /** %-basis: the scoped account's starting balance (or all accounts summed). */
+  /** %-basis: net deposits on the scoped account (or all accounts summed). */
   denominator: number;
 };
 
@@ -49,9 +50,8 @@ export function useReportsMoney(): ReportsMoneyContext {
   const controls = useReportsControls();
   const accounts = useAccounts();
   const selectedId = useSelectedAccountId();
-  const list = accounts.data ?? [];
-  const scoped = selectedId ? list.filter((account) => account.id === selectedId) : list;
-  const denominator = scoped.reduce((sum, account) => sum + account.starting_balance, 0);
+  const cash = useCash();
+  const denominator = netDeposits(accounts.data ?? [], selectedId, cash.data ?? []);
   const fx = useMoneyFx(accountBaseCurrency(accounts.data, selectedId));
   const fxRate = fx.rate ?? 1;
   return {

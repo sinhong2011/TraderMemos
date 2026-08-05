@@ -15,13 +15,14 @@ import Animated, {
 import { SafeAreaView } from 'react-native-screens/experimental';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
-import { useAccounts, useDaily, useTrades } from '@/api/hooks';
+import { useAccounts, useCash, useDaily, useTrades } from '@/api/hooks';
 import { Segmented } from '@/components/segmented';
 import { Skeleton } from '@/components/skeleton';
 import { t } from '@lingui/core/macro';
 import { locale } from '@/i18n';
 import { useSelectedAccountId } from '@/lib/account-store';
 import { monthGrid, tradeDayKey } from '@/lib/calendar';
+import { netDeposits } from '@/lib/cash';
 import { useGlobalFilters } from '@/lib/filters';
 import { formatPercentPoints, formatPnl, formatPnlCompact } from '@/lib/format';
 import { useMoneyFx } from '@/lib/money';
@@ -168,6 +169,7 @@ export default function CalendarScreen() {
   });
   const trades = useTrades(globalFilters);
   const accounts = useAccounts();
+  const cash = useCash();
   const selectedAccountId = useSelectedAccountId();
   const baseCurrency = accountBaseCurrency(accounts.data, selectedAccountId);
   const fx = useMoneyFx(baseCurrency);
@@ -413,7 +415,7 @@ export default function CalendarScreen() {
                           dayStats={dayStats}
                           currency={currency}
                           startingBalance={
-                            (accounts.data ?? []).reduce((s, a) => s + a.starting_balance, 0) *
+                            netDeposits(accounts.data ?? [], selectedAccountId, cash.data ?? []) *
                             fxRate
                           }
                           onSelectMonth={(m) => {

@@ -43,3 +43,23 @@ export function ledgerBalance(
     .filter((tx) => tx.account_id === accountId)
     .reduce((sum, tx) => sum + tx.amount, 0);
 }
+
+/**
+ * Capital put into the scoped accounts — the %-of-account basis (web netDeposits).
+ *
+ * The cash ledger is the single source of truth for funding.
+ * `accounts.starting_balance` is metadata only: the API seeds it into the ledger
+ * as the "Opening balance" deposit when an account is created, so summing it
+ * here as well would count that money twice.
+ */
+export function netDeposits(
+  accounts: { id: string }[],
+  accountId: string | null | undefined,
+  transactions: { account_id: string; amount: number }[],
+): number {
+  const scope = accountId ? accounts.filter((a) => a.id === accountId) : accounts;
+  const ids = new Set(scope.map((a) => a.id));
+  return transactions
+    .filter((tx) => ids.has(tx.account_id))
+    .reduce((sum, tx) => sum + tx.amount, 0);
+}
