@@ -74,6 +74,10 @@ function AuthGridPattern() {
 export default function LoginScreen() {
   const { theme } = useUnistyles();
   const router = useRouter();
+  // iPad (and landscape phones) get a centered column instead of an edge-to-edge
+  // form — a 1024pt-wide input row reads as a broken layout, not a sign-in card.
+  const { width: windowWidth } = useWindowDimensions();
+  const wide = windowWidth >= 600;
   const { signIn } = useSession();
   const [error, setError] = useState<string | null>(null);
   const [advancedOpen, setAdvancedOpen] = useState(false);
@@ -149,108 +153,110 @@ export default function LoginScreen() {
       >
         <ScrollView
           contentInsetAdjustmentBehavior="automatic"
-          contentContainerStyle={styles.content}
+          contentContainerStyle={[styles.content, wide && styles.contentWide]}
           keyboardDismissMode="on-drag"
           keyboardShouldPersistTaps="handled"
         >
-          <View style={styles.identity}>
-            <Image
-              source={require('../../assets/images/icon.png')}
-              style={styles.appIcon}
-              accessibilityIgnoresInvertColors
-            />
-            <Text style={styles.wordmark}>TraderMemos</Text>
-          </View>
-
-          {/* Title block stays left-aligned with the form column. */}
-          <View style={styles.intro}>
-            <Text style={styles.title}>{t`Sign in`}</Text>
-            <Text style={styles.subtitle}>{t`Welcome back.`}</Text>
-          </View>
-
-          <View style={styles.fields}>
-            <View style={styles.field}>
-              <Text style={styles.label}>{t`Username`}</Text>
-              <form.Field name="username">
-                {(field) => (
-                  <View style={styles.inputShell}>
-                    <TextInput
-                      value={field.state.value}
-                      onChangeText={field.handleChange}
-                      placeholder={t`Enter your username`}
-                      placeholderTextColor={theme.colors.mutedForeground}
-                      autoCapitalize="none"
-                      autoCorrect={false}
-                      textContentType="username"
-                      returnKeyType="next"
-                      onSubmitEditing={() => passwordRef.current?.focus()}
-                      style={styles.input}
-                    />
-                  </View>
-                )}
-              </form.Field>
-            </View>
-            <View style={styles.field}>
-              <Text style={styles.label}>{t`Password`}</Text>
-              <form.Field name="password">
-                {(field) => (
-                  <View style={styles.inputShell}>
-                    <PasswordInput
-                      ref={passwordRef}
-                      value={field.state.value}
-                      onChangeText={field.handleChange}
-                      placeholder={t`Enter your password`}
-                      onSubmitEditing={() => void form.handleSubmit()}
-                      returnKeyType="go"
-                    />
-                  </View>
-                )}
-              </form.Field>
-            </View>
-          </View>
-
-          {error ? (
-            <View style={[styles.card, styles.alert]}>
-              <SymbolView
-                name="exclamationmark.circle"
-                size={18}
-                tintColor={theme.colors.destructive}
+          <View style={styles.column}>
+            <View style={styles.identity}>
+              <Image
+                source={require('../../assets/images/icon.png')}
+                style={styles.appIcon}
+                accessibilityIgnoresInvertColors
               />
-              <Text selectable style={styles.alertText}>
-                {error}
-              </Text>
+              <Text style={styles.wordmark}>TraderMemos</Text>
             </View>
-          ) : null}
 
-          <form.Subscribe selector={(state) => state.isSubmitting}>
-            {(submitting) => (
-              <Pressable
-                onPress={() => void form.handleSubmit()}
-                disabled={submitting}
-                accessibilityRole="button"
-                accessibilityState={{ busy: submitting }}
-                style={({ pressed }) => [styles.submit, pressed && styles.submitPressed]}
-              >
-                {submitting ? (
-                  <ActivityIndicator color={theme.colors.background} />
-                ) : (
-                  <Text style={styles.submitText}>{t`Sign in`}</Text>
-                )}
-              </Pressable>
-            )}
-          </form.Subscribe>
+            {/* Title block stays left-aligned with the form column. */}
+            <View style={styles.intro}>
+              <Text style={styles.title}>{t`Sign in`}</Text>
+              <Text style={styles.subtitle}>{t`Welcome back.`}</Text>
+            </View>
 
-          <Pressable
-            onPress={() => setAdvancedOpen(true)}
-            accessibilityRole="button"
-            accessibilityLabel={t`Advanced`}
-            style={({ pressed }) => [styles.advanced, pressed && styles.advancedPressed]}
-          >
-            <SymbolView name="gearshape" size={13} tintColor={theme.colors.mutedForeground} />
-            <Text style={styles.advancedText}>{t`Advanced`}</Text>
-          </Pressable>
+            <View style={styles.fields}>
+              <View style={styles.field}>
+                <Text style={styles.label}>{t`Username`}</Text>
+                <form.Field name="username">
+                  {(field) => (
+                    <View style={styles.inputShell}>
+                      <TextInput
+                        value={field.state.value}
+                        onChangeText={field.handleChange}
+                        placeholder={t`Enter your username`}
+                        placeholderTextColor={theme.colors.mutedForeground}
+                        autoCapitalize="none"
+                        autoCorrect={false}
+                        textContentType="username"
+                        returnKeyType="next"
+                        onSubmitEditing={() => passwordRef.current?.focus()}
+                        style={styles.input}
+                      />
+                    </View>
+                  )}
+                </form.Field>
+              </View>
+              <View style={styles.field}>
+                <Text style={styles.label}>{t`Password`}</Text>
+                <form.Field name="password">
+                  {(field) => (
+                    <View style={styles.inputShell}>
+                      <PasswordInput
+                        ref={passwordRef}
+                        value={field.state.value}
+                        onChangeText={field.handleChange}
+                        placeholder={t`Enter your password`}
+                        onSubmitEditing={() => void form.handleSubmit()}
+                        returnKeyType="go"
+                      />
+                    </View>
+                  )}
+                </form.Field>
+              </View>
+            </View>
 
-          <Text style={styles.selfHostedNote}>{t`Self-hosted — your trade data stays on your stack.`}</Text>
+            {error ? (
+              <View style={[styles.card, styles.alert]}>
+                <SymbolView
+                  name="exclamationmark.circle"
+                  size={18}
+                  tintColor={theme.colors.destructive}
+                />
+                <Text selectable style={styles.alertText}>
+                  {error}
+                </Text>
+              </View>
+            ) : null}
+
+            <form.Subscribe selector={(state) => state.isSubmitting}>
+              {(submitting) => (
+                <Pressable
+                  onPress={() => void form.handleSubmit()}
+                  disabled={submitting}
+                  accessibilityRole="button"
+                  accessibilityState={{ busy: submitting }}
+                  style={({ pressed }) => [styles.submit, pressed && styles.submitPressed]}
+                >
+                  {submitting ? (
+                    <ActivityIndicator color={theme.colors.background} />
+                  ) : (
+                    <Text style={styles.submitText}>{t`Sign in`}</Text>
+                  )}
+                </Pressable>
+              )}
+            </form.Subscribe>
+
+            <Pressable
+              onPress={() => setAdvancedOpen(true)}
+              accessibilityRole="button"
+              accessibilityLabel={t`Advanced`}
+              style={({ pressed }) => [styles.advanced, pressed && styles.advancedPressed]}
+            >
+              <SymbolView name="gearshape" size={13} tintColor={theme.colors.mutedForeground} />
+              <Text style={styles.advancedText}>{t`Advanced`}</Text>
+            </Pressable>
+
+            <Text style={styles.selfHostedNote}>{t`Self-hosted — your trade data stays on your stack.`}</Text>
+          </View>
         </ScrollView>
       </KeyboardAvoidingView>
 
@@ -359,7 +365,18 @@ const styles = StyleSheet.create((theme) => ({
     experimental_backgroundImage:
       'radial-gradient(circle at 50% 18%, rgba(4, 144, 200, 0.10) 0%, rgba(4, 144, 200, 0) 45%)',
   },
-  content: { padding: theme.spacing.lg, gap: theme.spacing.lg },
+  content: { padding: theme.spacing.lg },
+  // On a regular-width canvas the form floats as a centered block instead of
+  // sitting in the top-left corner of a mostly empty page.
+  contentWide: { flexGrow: 1, justifyContent: 'center', paddingVertical: theme.spacing.xl },
+  // Fields track the reading measure, not the screen — an iPad-wide input row
+  // is unusable and reads as a layout bug.
+  column: {
+    width: '100%',
+    maxWidth: theme.measure.auth,
+    alignSelf: 'center',
+    gap: theme.spacing.lg,
+  },
   identity: { alignItems: 'center', gap: theme.spacing.sm, paddingTop: theme.spacing.xl },
   wordmark: { fontSize: 16, fontWeight: '600', color: theme.colors.foreground },
   appIcon: {

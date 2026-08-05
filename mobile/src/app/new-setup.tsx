@@ -154,7 +154,7 @@ export default function NewSetupScreen() {
               value={target}
               onChangeText={setTarget}
               placeholder="0.00"
-              keyboardType="decimal-pad"
+              numeric
             />
           </FormField>
         </View>
@@ -164,7 +164,7 @@ export default function NewSetupScreen() {
               value={stop}
               onChangeText={setStop}
               placeholder="0.00"
-              keyboardType="decimal-pad"
+              numeric
             />
           </FormField>
         </View>

@@ -156,6 +156,10 @@ export default function PlaybookScreen() {
         style={styles.page}
         contentInsetAdjustmentBehavior="automatic"
         contentContainerStyle={styles.content}
+        // Inline title, not large — see the note in (settings)/funding.tsx. A
+        // native RefreshControl on a pushed `headerLargeTitle` screen leaks its
+        // 60pt height into the stack's top inset on every push, so the content
+        // starts lower each time the screen is entered.
         refreshControl={
           <RefreshControl
             refreshing={setups.isRefetching || breakdown.isRefetching}
