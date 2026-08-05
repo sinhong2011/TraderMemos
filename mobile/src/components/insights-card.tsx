@@ -6,7 +6,7 @@ import { DashboardCard } from '@/components/dashboard-card';
 import { StatBar } from '@/components/stat-bar';
 import { t } from '@lingui/core/macro';
 import { computeDashboardInsights } from '@/lib/insights';
-import { formatDate, formatDuration, formatPnl } from '@/lib/format';
+import { formatDayKey, formatDuration, formatPnl } from '@/lib/format';
 import { useDisplayPrefs } from '@/lib/prefs';
 
 /**
@@ -31,30 +31,42 @@ export function InsightsCard({
   useDisplayPrefs();
   const insights = computeDashboardInsights(trades);
   const fx = (v: number) => v * fxRate;
+  const drawdown = maxDrawdown ?? 0;
+  /** A hold only exists once a trade closes with a timestamped fill. */
+  const hold = (secs: number | null) => (secs == null ? t`Not timed` : formatDuration(secs));
 
+  // Tiles run as best/worst contrast pairs (one pair per row at phone width),
+  // then the two lone aggregates, then the qualitative read.
   return (
     <DashboardCard title={t`Insights`}>
       <View style={styles.grid}>
         <StatBar
           label={t`Best trade`}
           value={formatPnl(fx(summary.largest_win), currency)}
-          tone="pos"
+          tone={summary.largest_win > 0 ? 'pos' : 'muted'}
         />
         <StatBar
           label={t`Worst trade`}
           value={formatPnl(fx(-summary.largest_loss), currency)}
-          tone="neg"
+          tone={summary.largest_loss > 0 ? 'neg' : 'muted'}
         />
         <StatBar
-          label={t`Max drawdown`}
-          value={formatPnl(fx(-(maxDrawdown ?? 0)), currency)}
-          tone="neg"
+          label={t`Best day`}
+          value={formatPnl(fx(insights.bestDay?.pnl ?? 0), currency)}
+          sub={insights.bestDay ? formatDayKey(insights.bestDay.date) : undefined}
+          tone={insights.bestDay && insights.bestDay.pnl > 0 ? 'pos' : 'muted'}
+        />
+        <StatBar
+          label={t`Worst day`}
+          value={formatPnl(fx(insights.worstDay?.pnl ?? 0), currency)}
+          sub={insights.worstDay ? formatDayKey(insights.worstDay.date) : undefined}
+          tone={insights.worstDay && insights.worstDay.pnl < 0 ? 'neg' : 'muted'}
         />
         <StatBar
           label={t`Best streak`}
           value={String(insights.bestStreak)}
           sub={t`wins`}
-          tone="pos"
+          tone={insights.bestStreak > 0 ? 'pos' : 'muted'}
         />
         <StatBar
           label={t`Worst streak`}
@@ -63,24 +75,27 @@ export function InsightsCard({
           tone={insights.worstStreak > 0 ? 'neg' : 'muted'}
         />
         <StatBar
-          label={t`Best day`}
-          value={formatPnl(fx(insights.bestDay?.pnl ?? 0), currency)}
-          sub={insights.bestDay ? formatDate(insights.bestDay.date) : undefined}
-          tone={insights.bestDay && insights.bestDay.pnl > 0 ? 'pos' : 'muted'}
+          label={t`Winning hold`}
+          value={hold(insights.winHoldSecs)}
+          tone={insights.winHoldSecs == null ? 'muted' : 'pos'}
         />
         <StatBar
-          label={t`Worst day`}
-          value={formatPnl(fx(insights.worstDay?.pnl ?? 0), currency)}
-          sub={insights.worstDay ? formatDate(insights.worstDay.date) : undefined}
-          tone={insights.worstDay && insights.worstDay.pnl < 0 ? 'neg' : 'muted'}
+          label={t`Losing hold`}
+          value={hold(insights.lossHoldSecs)}
+          tone={insights.lossHoldSecs == null ? 'muted' : 'neg'}
         />
         <StatBar
           label={t`Avg hold`}
-          value={formatDuration(insights.avgHoldSecs)}
-          sub={t`${summary.total_trades} trades`}
+          value={hold(insights.avgHoldSecs)}
+          // Counts the timed closed trades the average actually averages, not
+          // every trade in range (open and untimed ones contribute nothing).
+          sub={insights.holdCount > 0 ? t`${insights.holdCount} trades` : undefined}
         />
-        <StatBar label={t`Winning hold`} value={formatDuration(insights.winHoldSecs)} tone="pos" />
-        <StatBar label={t`Losing hold`} value={formatDuration(insights.lossHoldSecs)} tone="neg" />
+        <StatBar
+          label={t`Max drawdown`}
+          value={formatPnl(fx(-drawdown), currency)}
+          tone={drawdown > 0 ? 'neg' : 'muted'}
+        />
         <StatBar
           label={t`Top symbol`}
           value={insights.topSymbol ?? t`None`}

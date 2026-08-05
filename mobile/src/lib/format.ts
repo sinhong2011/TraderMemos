@@ -88,6 +88,16 @@ export function formatDate(iso: string | null | undefined): string {
   });
 }
 
+/**
+ * Formats a bare `YYYY-MM-DD` trading day. Anchored at noon UTC first, because
+ * `new Date('2026-05-20')` parses as UTC midnight and the display timezone then
+ * pulls it back a day (`May 19` in ET) — same guard as `lib/events.ts`.
+ */
+export function formatDayKey(day: string | null | undefined): string {
+  if (!day) return '';
+  return formatDate(`${day.slice(0, 10)}T12:00:00Z`);
+}
+
 export function formatTime(iso: string | null | undefined): string {
   if (!iso) return '';
   const { timeZone, hour12 } = getDisplayTimeOpts();
