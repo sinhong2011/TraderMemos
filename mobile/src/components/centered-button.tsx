@@ -3,7 +3,7 @@ import type { ButtonRole } from '@expo/ui/swift-ui';
 
 /**
  * Form action button with a centered label — the iOS-settings idiom for
- * standalone actions (Save / Disconnect / Delete …). SwiftUI left-aligns
+ * standalone actions (Save / Sign out / Delete …). SwiftUI left-aligns
  * plain Button rows like navigation links, so the label is centered with
  * flanking Spacers; the role still tints custom label content.
  */

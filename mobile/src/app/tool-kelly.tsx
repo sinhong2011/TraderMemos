@@ -38,7 +38,7 @@ export default function KellyToolScreen() {
               value={seededWinRate}
               onChangeText={setWinRate}
               placeholder="55"
-              keyboardType="decimal-pad"
+              numeric
             />
           </FormField>
         </ToolCol>
@@ -48,7 +48,7 @@ export default function KellyToolScreen() {
               value={seededPayoff}
               onChangeText={setPayoff}
               placeholder="1.5"
-              keyboardType="decimal-pad"
+              numeric
             />
           </FormField>
         </ToolCol>
