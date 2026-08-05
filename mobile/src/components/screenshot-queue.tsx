@@ -53,6 +53,10 @@ export function ScreenshotQueue({
       allowsMultipleSelection: true,
       selectionLimit: Number.isFinite(room) ? room : 0,
       quality: 0.9,
+      // An iPhone library is HEIC and the server takes only png/jpeg/webp;
+      // multi-select hands back the original representation untranscoded.
+      preferredAssetRepresentationMode:
+        ImagePicker.UIImagePickerPreferredAssetRepresentationMode.Compatible,
     });
     if (picked.canceled) return;
     onChange([

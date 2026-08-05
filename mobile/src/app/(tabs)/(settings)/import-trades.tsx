@@ -117,12 +117,10 @@ export default function ImportTradesScreen() {
 
   function buildFormData(): FormData {
     const fd = new FormData();
-    // React Native FormData takes a {uri,name,type} descriptor for file parts.
-    fd.append('file', {
-      uri: file!.uri,
-      name: file!.name,
-      type: file!.mimeType,
-    } as unknown as Blob);
+    // An expo-file-system `File`, not RN's `{uri,name,type}` descriptor — Expo's
+    // fetch polyfill owns the global `fetch` and serialises a part only from a
+    // string, a Blob, or something with `bytes()`.
+    fd.append('file', new File(file!.uri) as unknown as Blob, file!.name);
     if (!usesFileAccount && selectedAccount !== '') fd.append('account_id', selectedAccount);
     return fd;
   }
