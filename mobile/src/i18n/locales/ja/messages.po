@@ -420,6 +420,10 @@ msgstr "1件"
 #~ msgid "1 year"
 #~ msgstr "1年"
 
+#: src/app/(tabs)/(settings)/two-factor.tsx:162
+msgid "1. Add to your authenticator"
+msgstr "1. 認証アプリに追加"
+
 #: src/app/(tabs)/(settings)/display.tsx:219
 msgid "12-hour"
 msgstr "12時間制"
@@ -436,6 +440,10 @@ msgstr "1R"
 msgid "1y"
 msgstr "1年"
 
+#: src/app/(tabs)/(settings)/two-factor.tsx:186
+msgid "2. Enter a code to confirm"
+msgstr "2. コードを入力して確認"
+
 #: src/app/(tabs)/(settings)/display.tsx:222
 msgid "24-hour"
 msgstr "24時間制"
@@ -451,6 +459,12 @@ msgstr "24時間制"
 #: src/app/new-token.tsx:17
 msgid "30d"
 msgstr "30日"
+
+#: src/app/(tabs)/(settings)/two-factor.tsx:115
+#: src/app/(tabs)/(settings)/two-factor.tsx:192
+#: src/app/login.tsx:248
+msgid "6-digit code"
+msgstr "6桁のコード"
 
 #: src/app/(tabs)/(settings)/api-tokens.tsx:35
 #~ msgid "90 days"
@@ -476,7 +490,7 @@ msgstr "下の設定を適用した金額と、取引終了後の時刻のサン
 msgid "A symbol pins the play to one ticker — leave it on Any for a pattern you trade anywhere."
 msgstr "銘柄を入れるとこのプレイはその1銘柄に固定されます。どの銘柄でも使うパターンなら「指定なし」のままに。"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:78
+#: src/app/(tabs)/(settings)/_layout.tsx:82
 msgid "About"
 msgstr "このアプリについて"
 
@@ -657,10 +671,18 @@ msgstr "銘柄を追加"
 msgid "Add tier"
 msgstr "ティアを追加"
 
+#: src/app/(tabs)/(settings)/two-factor.tsx:171
+msgid "Add to authenticator"
+msgstr "認証アプリに追加"
+
 #: src/app/(tabs)/(settings)/funding.tsx:146
 #: src/app/cash-form.tsx:156
 msgid "Add transaction"
 msgstr "入出金を追加"
+
+#: src/app/(tabs)/(settings)/two-factor.tsx:149
+msgid "Adds a 6-digit code from an authenticator app to your password at sign-in."
+msgstr "サインイン時に、パスワードへ認証アプリの6桁コードを追加します。"
 
 #: src/components/reports/risk-section.tsx:138
 msgid "Adherence"
@@ -670,8 +692,8 @@ msgstr "遵守率"
 msgid "Adjustment"
 msgstr "調整"
 
-#: src/app/login.tsx:251
-#: src/app/login.tsx:255
+#: src/app/login.tsx:300
+#: src/app/login.tsx:304
 msgid "Advanced"
 msgstr "詳細設定"
 
@@ -695,7 +717,7 @@ msgstr "保存後"
 msgid "Aggressive"
 msgstr "アグレッシブ"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:59
+#: src/app/(tabs)/(settings)/_layout.tsx:63
 msgid "AI"
 msgstr "AI"
 
@@ -801,11 +823,11 @@ msgstr "OpenAI互換のエンドポイントなら何でも使えます。テス
 msgid "API key"
 msgstr "APIキー"
 
-#: src/app/login.tsx:289
+#: src/app/login.tsx:338
 msgid "API server"
 msgstr "API サーバー"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:64
+#: src/app/(tabs)/(settings)/_layout.tsx:68
 #: src/app/(tabs)/(settings)/index.tsx:171
 #: src/app/(tabs)/(settings)/integrations.tsx:30
 msgid "API tokens"
@@ -869,6 +891,10 @@ msgstr "高値圏"
 #: src/app/tool-position-size.tsx:104
 msgid "at the stop"
 msgstr "ストップ時"
+
+#: src/app/login.tsx:240
+msgid "Authenticator code"
+msgstr "認証コード"
 
 #: src/components/reports/overview-section.tsx:57
 msgid "average"
@@ -1143,6 +1169,7 @@ msgstr "コール / プット"
 #: src/app/(tabs)/(settings)/tags.tsx:91
 #: src/app/(tabs)/(settings)/trading-journal.tsx:55
 #: src/app/(tabs)/(settings)/trading-journal.tsx:79
+#: src/app/(tabs)/(settings)/two-factor.tsx:203
 #: src/app/(tabs)/(trades)/[id].tsx:165
 #: src/app/cash-form.tsx:143
 #: src/app/edit-note.tsx:73
@@ -1205,15 +1232,19 @@ msgstr "入出金"
 msgid "cash-limited"
 msgstr "資金制約"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:35
+#: src/app/(tabs)/(settings)/_layout.tsx:39
 #: src/app/(tabs)/(settings)/index.tsx:123
-#: src/app/(tabs)/(settings)/profile.tsx:95
+#: src/app/(tabs)/(settings)/profile.tsx:93
 msgid "Change password"
 msgstr "パスワードを変更"
 
+#: src/app/(tabs)/(settings)/profile.tsx:87
+msgid "Changing your password signs out your other devices."
+msgstr "パスワードを変更すると、他の端末はサインアウトされます。"
+
 #: src/app/(tabs)/(settings)/profile.tsx:89
-msgid "Changing your password signs out your other devices. Two-factor authentication isn't available yet."
-msgstr "パスワードを変更すると、他の端末はサインアウトされます。二要素認証はまだ利用できません。"
+#~ msgid "Changing your password signs out your other devices. Two-factor authentication isn't available yet."
+#~ msgstr "パスワードを変更すると、他の端末はサインアウトされます。二要素認証はまだ利用できません。"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:52
 #: src/app/(tabs)/(dashboard)/advanced-chart.tsx:115
@@ -1367,6 +1398,10 @@ msgstr "新しいパスワード（確認）"
 msgid "Confirm trade rules"
 msgstr "取引ルールを確認"
 
+#: src/app/(tabs)/(settings)/two-factor.tsx:199
+msgid "Confirming…"
+msgstr "確認中…"
+
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:318
 msgid "Connection"
 msgstr "接続"
@@ -1435,6 +1470,10 @@ msgstr "コピーしました"
 msgid "Copy it now — the secret is shown only once and cannot be recovered."
 msgstr "今すぐコピーしてください — シークレットは一度しか表示されず、復元できません。"
 
+#: src/app/(tabs)/(settings)/two-factor.tsx:176
+msgid "Copy setup key"
+msgstr "セットアップキーをコピー"
+
 #: src/app/new-token.tsx:93
 msgid "Copy token"
 msgstr "トークンをコピー"
@@ -1483,6 +1522,10 @@ msgstr "ノートを削除できませんでした"
 msgid "Could not delete tag"
 msgstr "タグを削除できませんでした"
 
+#: src/app/(tabs)/(settings)/two-factor.tsx:69
+msgid "Could not enable"
+msgstr "有効にできませんでした"
+
 #: src/app/(tabs)/(settings)/data-backup.tsx:40
 msgid "Could not export config"
 msgstr "設定をエクスポートできませんでした"
@@ -1521,7 +1564,7 @@ msgstr "ファイルを開けませんでした"
 msgid "Could not preview"
 msgstr "プレビューできませんでした"
 
-#: src/app/login.tsx:113
+#: src/app/login.tsx:118
 msgid "Could not reach {normalized}"
 msgstr "{normalized} に接続できませんでした"
 
@@ -1591,6 +1634,14 @@ msgstr "サンプルを保存できませんでした"
 #: src/app/share-trade.tsx:38
 msgid "Could not share"
 msgstr "共有できませんでした"
+
+#: src/app/(tabs)/(settings)/two-factor.tsx:47
+msgid "Could not start setup"
+msgstr "セットアップを開始できませんでした"
+
+#: src/app/(tabs)/(settings)/two-factor.tsx:90
+msgid "Could not turn off"
+msgstr "無効にできませんでした"
 
 #: src/components/attachments-card.tsx:96
 #: src/components/note-images.tsx:90
@@ -1737,7 +1788,7 @@ msgstr "ダーク"
 #~ msgid "Data"
 #~ msgstr "データ"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:68
+#: src/app/(tabs)/(settings)/_layout.tsx:72
 #: src/app/(tabs)/(settings)/general.tsx:45
 #: src/app/(tabs)/(settings)/index.tsx:196
 msgid "Data & backup"
@@ -1892,7 +1943,7 @@ msgstr "方向"
 #~ msgid "Disconnect?"
 #~ msgstr "切断しますか？"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:49
+#: src/app/(tabs)/(settings)/_layout.tsx:53
 #: src/app/(tabs)/(settings)/general.tsx:27
 #: src/app/(tabs)/(settings)/index.tsx:184
 msgid "Display"
@@ -1936,7 +1987,7 @@ msgstr "金額"
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:236
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:258
 #: src/app/(tabs)/(settings)/import-trades.tsx:270
-#: src/app/login.tsx:329
+#: src/app/login.tsx:378
 #: src/app/manage-tags.tsx:60
 #: src/app/new-token.tsx:79
 #: src/app/share-trade.tsx:56
@@ -2110,19 +2161,19 @@ msgstr "Flex Query IDを入力してください。"
 msgid "Enter valid prices."
 msgstr "有効な価格を入力してください。"
 
-#: src/app/login.tsx:207
+#: src/app/login.tsx:227
 msgid "Enter your password"
 msgstr "パスワードを入力"
 
-#: src/app/login.tsx:104
+#: src/app/login.tsx:109
 msgid "Enter your TraderMemos server URL"
 msgstr "TraderMemos サーバーの URL を入力してください"
 
-#: src/app/login.tsx:185
+#: src/app/login.tsx:205
 msgid "Enter your username"
 msgstr "ユーザー名を入力"
 
-#: src/app/login.tsx:99
+#: src/app/login.tsx:104
 msgid "Enter your username and password"
 msgstr "ユーザー名とパスワードを入力してください"
 
@@ -2315,7 +2366,7 @@ msgstr "アプリ設定をエクスポート"
 #~ msgid "Export config"
 #~ msgstr "設定をエクスポート"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:76
+#: src/app/(tabs)/(settings)/_layout.tsx:80
 #: src/app/(tabs)/(settings)/data-backup.tsx:87
 #: src/app/(tabs)/(settings)/index.tsx:208
 msgid "Export data"
@@ -2581,7 +2632,7 @@ msgstr "ギャップ上端"
 msgid "Gap top must sit above the bottom — check the edges"
 msgstr "ギャップ上端は下端より上に — 端の値を確認してください"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:45
+#: src/app/(tabs)/(settings)/_layout.tsx:49
 #: src/app/(tabs)/(settings)/index.tsx:407
 msgid "General"
 msgstr "一般"
@@ -2708,11 +2759,15 @@ msgstr "時間帯"
 msgid "How did the session go? Use \"- [ ]\" for checklist items."
 msgstr "セッションはどうでしたか？「- [ ]」でチェック項目を作れます。"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:57
+#: src/app/(tabs)/(settings)/_layout.tsx:61
 #: src/app/(tabs)/(settings)/account-form.tsx:375
 #: src/app/(tabs)/(settings)/flex-sync.tsx:114
 msgid "IBKR Flex sync"
 msgstr "IBKR Flex同期"
+
+#: src/app/(tabs)/(settings)/two-factor.tsx:131
+msgid "If you lose your authenticator"
+msgstr "認証アプリを紛失した場合"
 
 #: src/components/attachments-card.tsx:212
 #: src/components/note-images.tsx:229
@@ -2787,7 +2842,7 @@ msgstr "インポートに失敗しました"
 msgid "Import into"
 msgstr "インポート先"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:72
+#: src/app/(tabs)/(settings)/_layout.tsx:76
 #: src/app/(tabs)/(settings)/data-backup.tsx:82
 #: src/app/(tabs)/(settings)/index.tsx:202
 msgid "Import trades"
@@ -2821,7 +2876,7 @@ msgstr "インサイト"
 msgid "Instrument"
 msgstr "商品種別"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:43
+#: src/app/(tabs)/(settings)/_layout.tsx:47
 #: src/app/(tabs)/(settings)/account-form.tsx:363
 #: src/app/(tabs)/(settings)/index.tsx:402
 msgid "Integrations"
@@ -3751,6 +3806,7 @@ msgid "of {0}"
 msgstr "/ {0}"
 
 #: src/app/(tabs)/(settings)/ai.tsx:62
+#: src/app/(tabs)/(settings)/profile.tsx:99
 msgid "Off"
 msgstr "オフ"
 
@@ -3767,6 +3823,7 @@ msgid "Omit account details"
 msgstr "アカウント情報を除外"
 
 #: src/app/(tabs)/(settings)/ai.tsx:61
+#: src/app/(tabs)/(settings)/profile.tsx:99
 msgid "On"
 msgstr "オン"
 
@@ -3837,6 +3894,10 @@ msgstr "OpenAI モデル スクリーンショット スキャン コーチ キ�
 #: src/app/(tabs)/(trades)/[id].tsx:366
 msgid "Opened"
 msgstr "エントリー"
+
+#: src/app/(tabs)/(settings)/two-factor.tsx:165
+msgid "Opens iOS Passwords or whichever authenticator you use. Nothing is saved until you enter a code below."
+msgstr "iOS の「パスワード」など、お使いの認証アプリを開きます。下でコードを入力するまで何も保存されません。"
 
 #: src/app/(tabs)/(trades)/index.tsx:278
 #: src/components/trade-form.tsx:250
@@ -3939,7 +4000,8 @@ msgstr "損益（ルール遵守日）"
 msgid "Parsed"
 msgstr "解析済み"
 
-#: src/app/login.tsx:199
+#: src/app/(tabs)/(settings)/two-factor.tsx:108
+#: src/app/login.tsx:219
 msgid "Password"
 msgstr "パスワード"
 
@@ -4084,7 +4146,7 @@ msgstr "プレイブックとリーク"
 msgid "Plays traded"
 msgstr "取引したプレイ"
 
-#: src/app/login.tsx:299
+#: src/app/login.tsx:348
 msgid ""
 "Point the app at your own TraderMemos instance.\n"
 "Origin only — /api/v1 is added automatically."
@@ -4139,6 +4201,7 @@ msgid "Premium paid"
 msgstr "支払プレミアム"
 
 #: src/app/(tabs)/(settings)/export-trades.tsx:140
+#: src/app/(tabs)/(settings)/two-factor.tsx:154
 msgid "Preparing…"
 msgstr "準備中…"
 
@@ -4266,7 +4329,7 @@ msgstr "プロップ"
 msgid "Prop evaluation"
 msgstr "プロップ評価"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:53
+#: src/app/(tabs)/(settings)/_layout.tsx:57
 #: src/app/(tabs)/(settings)/account-form.tsx:367
 #: src/app/(tabs)/(settings)/prop-settings.tsx:133
 msgid "Prop rules"
@@ -4688,7 +4751,7 @@ msgstr "リスク %"
 msgid "Risk budget under 1 contract — raise Risk% or tighten the stop"
 msgstr "リスク予算が1枚分未満 — リスク%を上げるかストップを近づけてください"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:46
+#: src/app/(tabs)/(settings)/_layout.tsx:50
 #: src/app/(tabs)/(settings)/index.tsx:147
 #: src/app/(tabs)/(settings)/trading-journal.tsx:134
 msgid "Risk rules"
@@ -4751,6 +4814,11 @@ msgstr "ルール遵守"
 #: src/app/(tabs)/(settings)/prop-settings.tsx:134
 msgid "Rules the firm scores this evaluation on. Blank rules are skipped."
 msgstr "プロップファームがこの評価を採点するルールです。空欄のルールは対象外になります。"
+
+#. placeholder {0}: me.data?.email ?? ''
+#: src/app/(tabs)/(settings)/two-factor.tsx:133
+msgid "Run \"tradermemos disable-totp --email {0}\" on the server. There are no recovery codes to lose."
+msgstr "サーバーで「tradermemos disable-totp --email {0}」を実行してください。紛失するリカバリコードはありません。"
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:494
 msgid "Runner"
@@ -4940,7 +5008,7 @@ msgstr "セキュリティ 認証情報 リセット パスワード"
 msgid "Self-hosted — your journal never leaves this server."
 msgstr "セルフホスト — ジャーナルはこのサーバーの外に出ません。"
 
-#: src/app/login.tsx:258
+#: src/app/login.tsx:307
 msgid "Self-hosted — your trade data stays on your stack."
 msgstr "セルフホスト型 — トレードデータはあなたのサーバーに保存されます。"
 
@@ -5000,6 +5068,10 @@ msgstr "未設定"
 #: src/components/prop-status-card.tsx:81
 msgid "Set up rules"
 msgstr "ルールを設定"
+
+#: src/app/(tabs)/(settings)/two-factor.tsx:154
+msgid "Set up two-factor"
+msgstr "二要素認証を設定"
 
 #: src/app/new-trade.tsx:59
 #: src/components/trade-prefill-bar.tsx:44
@@ -5104,12 +5176,12 @@ msgstr "パスワードを表示"
 msgid "Side"
 msgstr "売買"
 
-#: src/app/login.tsx:172
-#: src/app/login.tsx:242
+#: src/app/login.tsx:192
+#: src/app/login.tsx:291
 msgid "Sign in"
 msgstr "サインイン"
 
-#: src/app/login.tsx:127
+#: src/app/login.tsx:147
 msgid "Sign in failed"
 msgstr "サインインに失敗しました"
 
@@ -5471,6 +5543,10 @@ msgstr "テスト中…"
 #~ msgid "Textbook"
 #~ msgstr ""
 
+#: src/app/login.tsx:144
+msgid "That code is not valid. Codes change every 30 seconds."
+msgstr "コードが正しくありません。コードは30秒ごとに変わります。"
+
 #: src/app/(tabs)/(settings)/change-password.tsx:97
 msgid "That is already your password."
 msgstr "現在と同じパスワードです。"
@@ -5609,6 +5685,10 @@ msgstr "今月"
 #: src/app/cash-form.tsx:142
 msgid "This permanently deletes the ledger entry."
 msgstr "この台帳エントリを完全に削除します。"
+
+#: src/app/(tabs)/(settings)/two-factor.tsx:188
+msgid "This proves the authenticator was added before it's required."
+msgstr "必須になる前に、認証アプリが追加されたことを確認します。"
 
 #. placeholder {0}: trade.attachments.length
 #: src/components/attachments-card.tsx:68
@@ -5804,7 +5884,7 @@ msgstr "トレードのジャーナルは残ります — プレイブックの�
 #~ msgid "Trading"
 #~ msgstr "トレード"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:39
+#: src/app/(tabs)/(settings)/_layout.tsx:43
 #: src/app/(tabs)/(settings)/index.tsx:397
 msgid "Trading & journal"
 msgstr "トレードとジャーナル"
@@ -5851,9 +5931,42 @@ msgstr "別のキーワードで検索してください。"
 msgid "Tue"
 msgstr "火"
 
+#: src/app/(tabs)/(settings)/two-factor.tsx:105
+#: src/app/(tabs)/(settings)/two-factor.tsx:122
+msgid "Turn off two-factor"
+msgstr "二要素認証をオフ"
+
+#: src/app/(tabs)/(settings)/two-factor.tsx:199
+msgid "Turn on two-factor"
+msgstr "二要素認証をオン"
+
+#: src/app/(tabs)/(settings)/two-factor.tsx:102
+msgid "Turning it off needs your password and a current code, so a borrowed unlocked phone can't remove it."
+msgstr "オフにするにはパスワードと現在のコードが必要です。ロック解除された端末を借りただけでは解除できません。"
+
+#: src/app/(tabs)/(settings)/two-factor.tsx:122
+msgid "Turning off…"
+msgstr "無効化中…"
+
+#: src/app/(tabs)/(settings)/_layout.tsx:35
+msgid "Two-factor"
+msgstr "二要素認証"
+
+#: src/app/(tabs)/(settings)/profile.tsx:98
+msgid "Two-factor authentication"
+msgstr "二要素認証"
+
 #: src/app/(tabs)/(settings)/profile.tsx:88
-msgid "Two-factor authentication is on."
-msgstr "二要素認証は有効です。"
+#~ msgid "Two-factor authentication is on."
+#~ msgstr "二要素認証は有効です。"
+
+#: src/app/(tabs)/(settings)/two-factor.tsx:86
+msgid "Two-factor is off"
+msgstr "二要素認証をオフにしました"
+
+#: src/app/(tabs)/(settings)/two-factor.tsx:63
+msgid "Two-factor is on"
+msgstr "二要素認証を有効にしました"
 
 #: src/app/cash-form.tsx:195
 msgid "Type"
@@ -5919,7 +6032,7 @@ msgstr "{MIN_LENGTH} 文字以上で入力してください。"
 msgid "Used by Check compliance on New Trade. Add only the limits you want enforced."
 msgstr "新規トレードのコンプライアンスチェックで使用されます。適用したい上限だけを追加してください。"
 
-#: src/app/login.tsx:178
+#: src/app/login.tsx:198
 msgid "Username"
 msgstr "ユーザー名"
 
@@ -5992,7 +6105,7 @@ msgstr "平日のみ"
 msgid "Weekends hide the card on Home. Turn this off if you trade Saturday or Sunday sessions."
 msgstr "週末はホームのカードを非表示にします。土日のセッションでトレードする場合はオフにしてください。"
 
-#: src/app/login.tsx:173
+#: src/app/login.tsx:193
 msgid "Welcome back."
 msgstr "おかえりなさい。"
 
@@ -6143,6 +6256,10 @@ msgstr "セットアップ{0}に対し執行は{1}。アイデアは良いはず
 msgid "You will need to sign in again to reach this server."
 msgstr "このサーバーに再度アクセスするにはサインインし直す必要があります。"
 
+#: src/app/(tabs)/(settings)/two-factor.tsx:64
+msgid "You'll need a code from your authenticator the next time you sign in."
+msgstr "次回サインイン時から認証アプリのコードが必要になります。"
+
 #: src/app/(tabs)/(settings)/_layout.tsx:32
 #: src/app/(tabs)/(settings)/index.tsx:117
 #: src/app/(tabs)/(settings)/index.tsx:277
@@ -6168,6 +6285,10 @@ msgstr "他の端末は次回接続時にサインアウトされます。"
 #: src/app/(tabs)/(settings)/trading-journal.tsx:110
 msgid "Your P&L target shows on the dashboard; risk limits drive Check compliance on New Trade."
 msgstr "損益目標の進捗はダッシュボードに表示され、リスク上限は新規トレードのコンプライアンスチェックで使われます。"
+
+#: src/app/(tabs)/(settings)/two-factor.tsx:86
+msgid "Your password alone signs you in again."
+msgstr "以降はパスワードだけでサインインできます。"
 
 #: src/app/(tabs)/(reports)/wrapped.tsx:200
 msgid "Your rhythm"

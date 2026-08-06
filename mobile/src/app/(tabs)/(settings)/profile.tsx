@@ -84,9 +84,7 @@ export default function ProfileScreen() {
           title={t`Security`}
           footer={
             <UIText>
-              {me.data.totp_enabled
-                ? t`Two-factor authentication is on.`
-                : t`Changing your password signs out your other devices. Two-factor authentication isn't available yet.`}
+              {t`Changing your password signs out your other devices.`}
             </UIText>
           }
         >
@@ -94,6 +92,12 @@ export default function ProfileScreen() {
             systemImage="lock.rotation"
             label={t`Change password`}
             onPress={() => router.push('/change-password')}
+          />
+          <NavRow
+            systemImage="lock.shield"
+            label={t`Two-factor authentication`}
+            value={me.data.totp_enabled ? t`On` : t`Off`}
+            onPress={() => router.push('/two-factor')}
           />
         </Section>
       </SettingsForm>
