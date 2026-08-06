@@ -14,7 +14,6 @@ import { UnistylesRuntime, useUnistyles } from 'react-native-unistyles';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-import { DISPLAY_PERSIST_KEY, migrateLegacyPrefs } from '@/lib/prefs-migration';
 import { mmkvStorage } from '@/storage/zustand-mmkv';
 
 // ---------------------------------------------------------------------------
@@ -169,11 +168,11 @@ function sanitize(raw: unknown): DisplayPrefs {
   };
 }
 
-migrateLegacyPrefs();
+const PERSIST_KEY = 'store:display-prefs';
 
 const useDisplayStore = create<DisplayPrefs>()(
   persist((): DisplayPrefs => DEFAULTS, {
-    name: DISPLAY_PERSIST_KEY,
+    name: PERSIST_KEY,
     storage: mmkvStorage<DisplayPrefs>(),
     merge: (persisted) => sanitize(persisted),
   }),

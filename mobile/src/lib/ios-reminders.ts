@@ -43,7 +43,7 @@ export async function loadCalendar(): Promise<CalendarModule | null> {
 const LIST_ID_KEY = 'reminders:listId';
 const LIST_TITLE = 'TraderMemos';
 /** Signature blue (`theme.colors.primary`) so the list is recognisable. */
-const LIST_COLOR = '#0490C8';
+const LIST_COLOR = '#1264B2';
 
 /**
  * The app's own Reminders list, created on first use.

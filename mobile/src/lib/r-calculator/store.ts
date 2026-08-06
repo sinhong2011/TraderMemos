@@ -12,7 +12,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-import { adoptLegacyValue, legacyJSON, mmkvStorage } from '@/storage/zustand-mmkv';
+import { mmkvStorage } from '@/storage/zustand-mmkv';
 import {
   calc,
   optionWarnings,
@@ -40,10 +40,6 @@ import {
 
 const CALC_PERSIST_KEY = 'store:r-calc';
 const FVG_PERSIST_KEY = 'store:r-calc-fvg';
-/** Pre-zustand keys: bare `{ sessions, activeId }` blobs.
- *  Removable — see lib/prefs-migration.ts. */
-const CALC_KEY = 'r-calc:sessions';
-const FVG_KEY = 'r-calc:fvg-sessions';
 
 function genId(): string {
   return `s${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
@@ -131,11 +127,6 @@ function normalizeCalc(parsed: unknown): RCalcSnapshot {
   const normalized = normalizeV3(parsed, genId);
   return snapshotCalc(normalized.sessions, normalized.activeId);
 }
-
-adoptLegacyValue<RCalcSnapshot>(CALC_PERSIST_KEY, [CALC_KEY], () => {
-  const parsed = legacyJSON(CALC_KEY);
-  return parsed == null ? undefined : normalizeCalc(parsed);
-});
 
 const useCalcStore = create<RCalcSnapshot>()(
   persist((): RCalcSnapshot => normalizeCalc(null), {
@@ -259,11 +250,6 @@ function normalizeFvgState(parsed: unknown): FvgSnapshot {
   const normalized = normalizeFvg(parsed, genId);
   return snapshotFvg(normalized.sessions, normalized.activeId);
 }
-
-adoptLegacyValue<FvgSnapshot>(FVG_PERSIST_KEY, [FVG_KEY], () => {
-  const parsed = legacyJSON(FVG_KEY);
-  return parsed == null ? undefined : normalizeFvgState(parsed);
-});
 
 const useFvgStore = create<FvgSnapshot>()(
   persist((): FvgSnapshot => normalizeFvgState(null), {

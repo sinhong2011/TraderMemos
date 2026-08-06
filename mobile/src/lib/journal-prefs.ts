@@ -9,7 +9,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-import { JOURNAL_PERSIST_KEY, migrateLegacyPrefs } from '@/lib/prefs-migration';
 import { mmkvStorage } from '@/storage/zustand-mmkv';
 
 export type JournalPrefs = {
@@ -19,7 +18,7 @@ export type JournalPrefs = {
 
 const DEFAULTS: JournalPrefs = { maxScreenshotsPerTrade: null };
 
-migrateLegacyPrefs();
+const PERSIST_KEY = 'store:journal-prefs';
 
 /** A cap below 1 would block every attachment — treat it as "no cap". */
 function sanitize(raw: unknown): JournalPrefs {
@@ -32,7 +31,7 @@ function sanitize(raw: unknown): JournalPrefs {
 
 const useJournalStore = create<JournalPrefs>()(
   persist((): JournalPrefs => DEFAULTS, {
-    name: JOURNAL_PERSIST_KEY,
+    name: PERSIST_KEY,
     storage: mmkvStorage<JournalPrefs>(),
     merge: (persisted) => sanitize(persisted),
   }),
