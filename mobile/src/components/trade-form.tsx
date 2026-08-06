@@ -18,6 +18,7 @@ import {
 import { FormScrollArea, FormSheet } from '@/components/form-sheet';
 import { ScreenshotQueue } from '@/components/screenshot-queue';
 import { GlassButton } from '@/components/glass-button';
+import { RatingIndicator } from '@/components/rating-indicator';
 import { Segmented } from '@/components/segmented';
 import { SymbolPager } from '@/components/symbol-pager';
 import { TradePrefillBar } from '@/components/trade-prefill-bar';
@@ -27,9 +28,10 @@ import { t } from '@lingui/core/macro';
 import {
   EMOTIONAL_STATES,
   FUTURES_PRESETS,
-  TRADE_GRADES,
   TRADE_SESSIONS,
   futuresMultiplierForSymbol,
+  gradeFromInt,
+  intFromGrade,
 } from '@/lib/journal';
 import {
   emptyFill,
@@ -182,7 +184,6 @@ function SymbolBlock({
     { value: 'call' as const, label: t`Call` },
     { value: 'put' as const, label: t`Put` },
   ];
-  const grades = TRADE_GRADES.map((g) => ({ value: g, label: g }));
 
   function onSymbolChange(symbol: string) {
     const next = { ...values, symbol };
@@ -333,8 +334,8 @@ function SymbolBlock({
       {/*
         Journal splits in two because the trade does: everything you knew at
         entry, then everything you learned after. Kept as one card it ran ten
-        rows deep and put the two identical A+…C rating pickers back to back,
-        where the only thing telling them apart was a label.
+        rows deep and put the two rating pickers back to back, where the only
+        thing telling them apart was a label.
       */}
       <SectionHeader label={t`Journal`} />
       <Card>
@@ -361,11 +362,18 @@ function SymbolBlock({
             onToggle={(s) => set('emotions', toggleIn(values.emotions, s))}
           />
         </StackRow>
+        {/*
+          Both ratings are ranks, so they get the rank control: five stars over
+          the same A+ … C ints (see rating-indicator.tsx). The letter still rides
+          along beside them because everything downstream speaks it — the detail
+          screen's grade tile, the coach copy ("You marked setup B").
+        */}
         <StackRow label={t`Setup rating`}>
-          <SingleChips
-            options={grades}
-            value={values.setupGrade}
-            onChange={(setupGrade) => set('setupGrade', setupGrade)}
+          <RatingIndicator
+            label={t`Setup rating`}
+            value={intFromGrade(values.setupGrade) ?? 0}
+            caption={values.setupGrade}
+            onChange={(stars) => set('setupGrade', gradeFromInt(stars))}
           />
         </StackRow>
         {customTags.length > 0 ? (
@@ -388,10 +396,11 @@ function SymbolBlock({
       <SectionHeader label={t`Review`} />
       <Card>
         <StackRow label={t`Execution rating`}>
-          <SingleChips
-            options={grades}
-            value={values.executionGrade}
-            onChange={(executionGrade) => set('executionGrade', executionGrade)}
+          <RatingIndicator
+            label={t`Execution rating`}
+            value={intFromGrade(values.executionGrade) ?? 0}
+            caption={values.executionGrade}
+            onChange={(stars) => set('executionGrade', gradeFromInt(stars))}
           />
         </StackRow>
         {mistakeTags.length > 0 ? (
