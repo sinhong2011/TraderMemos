@@ -6,9 +6,15 @@ packages:
 # `hoisted` keeps pnpm's CLI and lockfile with an npm-shaped layout on disk.
 nodeLinker: hoisted
 
+# pnpm 11 fails the install outright (ERR_PNPM_IGNORED_BUILDS) when a dependency has an
+# undeclared build script, so every one has to be answered here — including the ones we
+# say no to. `dtrace-provider` arrives with the eas-cli that expo/expo-github-action
+# installs into this directory in CI; it is bunyan's optional DTrace binding, unused on
+# Linux runners and unbuildable there.
 allowBuilds:
   esbuild: true
   unrs-resolver: true
+  dtrace-provider: false
 
 minimumReleaseAgeExclude:
   - '@expo/cli@57.0.12'
