@@ -439,7 +439,7 @@ msgstr "1 筆"
 msgid "1. Add to your authenticator"
 msgstr "1. 加入驗證器"
 
-#: src/app/(tabs)/(settings)/display.tsx:219
+#: src/app/(tabs)/(settings)/display.tsx:221
 msgid "12-hour"
 msgstr "12 小時制"
 
@@ -459,7 +459,7 @@ msgstr "1年"
 msgid "2. Enter a code to confirm"
 msgstr "2. 輸入驗證碼確認"
 
-#: src/app/(tabs)/(settings)/display.tsx:222
+#: src/app/(tabs)/(settings)/display.tsx:224
 msgid "24-hour"
 msgstr "24 小時制"
 
@@ -1612,7 +1612,7 @@ msgstr "無法載入用戶。"
 msgid "Could not load your account."
 msgstr "無法載入帳戶資料。"
 
-#: src/app/_layout.tsx:68
+#: src/app/_layout.tsx:69
 msgid "Could not open file"
 msgstr "無法開啟檔案"
 
@@ -2030,7 +2030,7 @@ msgstr "顯示"
 msgid "Display currency"
 msgstr "顯示貨幣"
 
-#: src/app/(tabs)/(settings)/display.tsx:201
+#: src/app/(tabs)/(settings)/display.tsx:203
 msgid "Display timezone"
 msgstr "顯示時區"
 
@@ -2637,13 +2637,21 @@ msgstr "格式"
 #~ msgstr "只影響時間的顯示方式，不會改變交易屬於哪一天。"
 
 #: src/app/(tabs)/(settings)/display.tsx:196
-msgid "Formats clock times only — never which day a trade belongs to. 12-hour reads 1:30 PM, 24-hour reads 13:30."
-msgstr "只影響時間的顯示方式，不會改變交易屬於哪一天。12 小時制顯示 1:30 PM，24 小時制顯示 13:30。"
+#~ msgid "Formats clock times only — never which day a trade belongs to. 12-hour reads 1:30 PM, 24-hour reads 13:30."
+#~ msgstr "只影響時間的顯示方式，不會改變交易屬於哪一天。12 小時制顯示 1:30 PM，24 小時制顯示 13:30。"
+
+#: src/app/(tabs)/(settings)/display.tsx:195
+#~ msgid "Formats clock times only — never which day a trade belongs to. 12-hour reads 1:30 PM, 24-hour reads 13:30. This device is on {0}."
+#~ msgstr "只影響時間的顯示方式，不會改變交易屬於哪一天。12 小時制顯示 1:30 PM，24 小時制顯示 13:30。此裝置目前為 {0}。"
 
 #. placeholder {0}: resolveDisplayTimezone(TIMEZONE_LOCAL)
-#: src/app/(tabs)/(settings)/display.tsx:195
-msgid "Formats clock times only — never which day a trade belongs to. 12-hour reads 1:30 PM, 24-hour reads 13:30. This device is on {0}."
-msgstr "只影響時間的顯示方式，不會改變交易屬於哪一天。12 小時制顯示 1:30 PM，24 小時制顯示 13:30。此裝置目前為 {0}。"
+#: src/app/(tabs)/(settings)/display.tsx:197
+msgid "Formats clock times only — never which day a trade belongs to. 12-hour reads 1:30 PM, 24-hour reads 13:30. This device is on {0}. Timezones, time format and display currency follow your account and apply on every device; privacy mode and theme stay on this phone."
+msgstr "只影響時間顯示，不會改變交易屬於哪一天。12 小時制顯示 1:30 PM，24 小時制顯示 13:30。這部裝置使用 {0}。時區、時間格式和顯示貨幣跟隨你的帳戶，在所有裝置上都一樣；私隱模式和主題只留在這部手機。"
+
+#: src/app/(tabs)/(settings)/display.tsx:198
+msgid "Formats clock times only — never which day a trade belongs to. 12-hour reads 1:30 PM, 24-hour reads 13:30. Timezones, time format and display currency follow your account and apply on every device; privacy mode and theme stay on this phone."
+msgstr "只影響時間顯示，不會改變交易屬於哪一天。12 小時制顯示 1:30 PM，24 小時制顯示 13:30。時區、時間格式和顯示貨幣跟隨你的帳戶，在所有裝置上都一樣；私隱模式和主題只留在這部手機。"
 
 #: src/app/(tabs)/(settings)/display.tsx:222
 #~ msgid "Formats clock times only — never which day a trade belongs to. This device is on {0}."
@@ -4805,7 +4813,7 @@ msgstr "重設顯示設定？"
 msgid "Reset password"
 msgstr "重設密碼"
 
-#: src/app/(tabs)/(settings)/display.tsx:231
+#: src/app/(tabs)/(settings)/display.tsx:233
 msgid "Reset to defaults"
 msgstr "回復預設值"
 
@@ -5876,7 +5884,7 @@ msgstr "第{0}層"
 #~ msgid "Time"
 #~ msgstr "時間"
 
-#: src/app/(tabs)/(settings)/display.tsx:213
+#: src/app/(tabs)/(settings)/display.tsx:215
 msgid "Time format"
 msgstr "時間格式"
 

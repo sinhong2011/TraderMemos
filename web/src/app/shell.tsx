@@ -19,6 +19,7 @@ import { useUI } from "@/lib/ui";
 import { NewNoteDrawer } from "./drawers/NewNoteDrawer";
 import { NewSetupDrawer } from "./drawers/NewSetupDrawer";
 import { NewTradeDrawer } from "./drawers/NewTradeDrawer";
+import { usePrefsSync } from "@/lib/hooks/usePrefsSync";
 import { LoginScreen } from "./screens/LoginScreen";
 import { SetupScreen } from "./screens/SetupScreen";
 
@@ -30,6 +31,9 @@ function AuthedShell() {
   const fxOpen = useUI((s) => s.fxOpen);
   const setFxOpen = useUI((s) => s.setFxOpen);
   useAppHotkeys();
+  // Account-level preferences (timezones, clock, currency, screenshots cap)
+  // pull on sign-in and push on change — see lib/prefsSync.ts for what syncs.
+  usePrefsSync();
 
   // Phones scroll the document (lets Safari collapse its toolbar); ≥md the
   // shell is viewport-height again and <main> is the scroller.

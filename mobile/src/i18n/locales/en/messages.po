@@ -439,7 +439,7 @@ msgstr "1 trade"
 msgid "1. Add to your authenticator"
 msgstr "1. Add to your authenticator"
 
-#: src/app/(tabs)/(settings)/display.tsx:219
+#: src/app/(tabs)/(settings)/display.tsx:221
 msgid "12-hour"
 msgstr "12-hour"
 
@@ -459,7 +459,7 @@ msgstr "1y"
 msgid "2. Enter a code to confirm"
 msgstr "2. Enter a code to confirm"
 
-#: src/app/(tabs)/(settings)/display.tsx:222
+#: src/app/(tabs)/(settings)/display.tsx:224
 msgid "24-hour"
 msgstr "24-hour"
 
@@ -1612,7 +1612,7 @@ msgstr "Could not load users."
 msgid "Could not load your account."
 msgstr "Could not load your account."
 
-#: src/app/_layout.tsx:68
+#: src/app/_layout.tsx:69
 msgid "Could not open file"
 msgstr "Could not open file"
 
@@ -2030,7 +2030,7 @@ msgstr "Display"
 msgid "Display currency"
 msgstr "Display currency"
 
-#: src/app/(tabs)/(settings)/display.tsx:201
+#: src/app/(tabs)/(settings)/display.tsx:203
 msgid "Display timezone"
 msgstr "Display timezone"
 
@@ -2637,13 +2637,21 @@ msgstr "Format"
 #~ msgstr "Formats clock times only — never which day a trade belongs to."
 
 #: src/app/(tabs)/(settings)/display.tsx:196
-msgid "Formats clock times only — never which day a trade belongs to. 12-hour reads 1:30 PM, 24-hour reads 13:30."
-msgstr "Formats clock times only — never which day a trade belongs to. 12-hour reads 1:30 PM, 24-hour reads 13:30."
+#~ msgid "Formats clock times only — never which day a trade belongs to. 12-hour reads 1:30 PM, 24-hour reads 13:30."
+#~ msgstr "Formats clock times only — never which day a trade belongs to. 12-hour reads 1:30 PM, 24-hour reads 13:30."
+
+#: src/app/(tabs)/(settings)/display.tsx:195
+#~ msgid "Formats clock times only — never which day a trade belongs to. 12-hour reads 1:30 PM, 24-hour reads 13:30. This device is on {0}."
+#~ msgstr "Formats clock times only — never which day a trade belongs to. 12-hour reads 1:30 PM, 24-hour reads 13:30. This device is on {0}."
 
 #. placeholder {0}: resolveDisplayTimezone(TIMEZONE_LOCAL)
-#: src/app/(tabs)/(settings)/display.tsx:195
-msgid "Formats clock times only — never which day a trade belongs to. 12-hour reads 1:30 PM, 24-hour reads 13:30. This device is on {0}."
-msgstr "Formats clock times only — never which day a trade belongs to. 12-hour reads 1:30 PM, 24-hour reads 13:30. This device is on {0}."
+#: src/app/(tabs)/(settings)/display.tsx:197
+msgid "Formats clock times only — never which day a trade belongs to. 12-hour reads 1:30 PM, 24-hour reads 13:30. This device is on {0}. Timezones, time format and display currency follow your account and apply on every device; privacy mode and theme stay on this phone."
+msgstr "Formats clock times only — never which day a trade belongs to. 12-hour reads 1:30 PM, 24-hour reads 13:30. This device is on {0}. Timezones, time format and display currency follow your account and apply on every device; privacy mode and theme stay on this phone."
+
+#: src/app/(tabs)/(settings)/display.tsx:198
+msgid "Formats clock times only — never which day a trade belongs to. 12-hour reads 1:30 PM, 24-hour reads 13:30. Timezones, time format and display currency follow your account and apply on every device; privacy mode and theme stay on this phone."
+msgstr "Formats clock times only — never which day a trade belongs to. 12-hour reads 1:30 PM, 24-hour reads 13:30. Timezones, time format and display currency follow your account and apply on every device; privacy mode and theme stay on this phone."
 
 #: src/app/(tabs)/(settings)/display.tsx:222
 #~ msgid "Formats clock times only — never which day a trade belongs to. This device is on {0}."
@@ -4807,7 +4815,7 @@ msgstr "Reset display settings?"
 msgid "Reset password"
 msgstr "Reset password"
 
-#: src/app/(tabs)/(settings)/display.tsx:231
+#: src/app/(tabs)/(settings)/display.tsx:233
 msgid "Reset to defaults"
 msgstr "Reset to defaults"
 
@@ -5878,7 +5886,7 @@ msgstr "Tier {0}"
 #~ msgid "Time"
 #~ msgstr "Time"
 
-#: src/app/(tabs)/(settings)/display.tsx:213
+#: src/app/(tabs)/(settings)/display.tsx:215
 msgid "Time format"
 msgstr "Time format"
 

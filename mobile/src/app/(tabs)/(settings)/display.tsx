@@ -190,10 +190,12 @@ export default function DisplaySettingsScreen() {
         <Section
           title={t`Clock`}
           footer={
+            // Last section on the screen, so its footer also says which of the
+            // rows above travel with the account — this screen mixes both kinds.
             <UIText>
               {prefs.timezone === TIMEZONE_LOCAL
-                ? t`Formats clock times only — never which day a trade belongs to. 12-hour reads 1:30 PM, 24-hour reads 13:30. This device is on ${resolveDisplayTimezone(TIMEZONE_LOCAL)}.`
-                : t`Formats clock times only — never which day a trade belongs to. 12-hour reads 1:30 PM, 24-hour reads 13:30.`}
+                ? t`Formats clock times only — never which day a trade belongs to. 12-hour reads 1:30 PM, 24-hour reads 13:30. This device is on ${resolveDisplayTimezone(TIMEZONE_LOCAL)}. Timezones, time format and display currency follow your account and apply on every device; privacy mode and theme stay on this phone.`
+                : t`Formats clock times only — never which day a trade belongs to. 12-hour reads 1:30 PM, 24-hour reads 13:30. Timezones, time format and display currency follow your account and apply on every device; privacy mode and theme stay on this phone.`}
             </UIText>
           }
         >

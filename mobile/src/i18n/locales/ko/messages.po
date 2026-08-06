@@ -439,7 +439,7 @@ msgstr "1건"
 msgid "1. Add to your authenticator"
 msgstr "1. 인증 앱에 추가"
 
-#: src/app/(tabs)/(settings)/display.tsx:219
+#: src/app/(tabs)/(settings)/display.tsx:221
 msgid "12-hour"
 msgstr "12시간제"
 
@@ -459,7 +459,7 @@ msgstr "1년"
 msgid "2. Enter a code to confirm"
 msgstr "2. 코드를 입력해 확인"
 
-#: src/app/(tabs)/(settings)/display.tsx:222
+#: src/app/(tabs)/(settings)/display.tsx:224
 msgid "24-hour"
 msgstr "24시간제"
 
@@ -1612,7 +1612,7 @@ msgstr "사용자를 불러올 수 없습니다."
 msgid "Could not load your account."
 msgstr "계정 정보를 불러올 수 없습니다."
 
-#: src/app/_layout.tsx:68
+#: src/app/_layout.tsx:69
 msgid "Could not open file"
 msgstr "파일을 열지 못했습니다"
 
@@ -2030,7 +2030,7 @@ msgstr "표시"
 msgid "Display currency"
 msgstr "표시 통화"
 
-#: src/app/(tabs)/(settings)/display.tsx:201
+#: src/app/(tabs)/(settings)/display.tsx:203
 msgid "Display timezone"
 msgstr "표시 시간대"
 
@@ -2637,13 +2637,21 @@ msgstr "형식"
 #~ msgstr "시각 표시만 바꿉니다. 거래가 어느 날에 속하는지는 바뀌지 않습니다."
 
 #: src/app/(tabs)/(settings)/display.tsx:196
-msgid "Formats clock times only — never which day a trade belongs to. 12-hour reads 1:30 PM, 24-hour reads 13:30."
-msgstr "시각 표시만 바꿉니다. 거래가 어느 날에 속하는지는 바뀌지 않습니다. 12시간제는 1:30 PM, 24시간제는 13:30으로 표시됩니다."
+#~ msgid "Formats clock times only — never which day a trade belongs to. 12-hour reads 1:30 PM, 24-hour reads 13:30."
+#~ msgstr "시각 표시만 바꿉니다. 거래가 어느 날에 속하는지는 바뀌지 않습니다. 12시간제는 1:30 PM, 24시간제는 13:30으로 표시됩니다."
+
+#: src/app/(tabs)/(settings)/display.tsx:195
+#~ msgid "Formats clock times only — never which day a trade belongs to. 12-hour reads 1:30 PM, 24-hour reads 13:30. This device is on {0}."
+#~ msgstr "시각 표시만 바꿉니다. 거래가 어느 날에 속하는지는 바뀌지 않습니다. 12시간제는 1:30 PM, 24시간제는 13:30으로 표시됩니다. 이 기기는 현재 {0}입니다."
 
 #. placeholder {0}: resolveDisplayTimezone(TIMEZONE_LOCAL)
-#: src/app/(tabs)/(settings)/display.tsx:195
-msgid "Formats clock times only — never which day a trade belongs to. 12-hour reads 1:30 PM, 24-hour reads 13:30. This device is on {0}."
-msgstr "시각 표시만 바꿉니다. 거래가 어느 날에 속하는지는 바뀌지 않습니다. 12시간제는 1:30 PM, 24시간제는 13:30으로 표시됩니다. 이 기기는 현재 {0}입니다."
+#: src/app/(tabs)/(settings)/display.tsx:197
+msgid "Formats clock times only — never which day a trade belongs to. 12-hour reads 1:30 PM, 24-hour reads 13:30. This device is on {0}. Timezones, time format and display currency follow your account and apply on every device; privacy mode and theme stay on this phone."
+msgstr "시각 표시에만 영향을 주며, 매매가 어느 날짜에 속하는지는 바뀌지 않습니다. 12시간제는 1:30 PM, 24시간제는 13:30으로 표시합니다.이 기기는 {0} 입니다.시간대, 시간 형식, 표시 통화는 계정을 따라 모든 기기에 적용됩니다. 프라이버시 모드와 테마는 이 기기에만 적용됩니다."
+
+#: src/app/(tabs)/(settings)/display.tsx:198
+msgid "Formats clock times only — never which day a trade belongs to. 12-hour reads 1:30 PM, 24-hour reads 13:30. Timezones, time format and display currency follow your account and apply on every device; privacy mode and theme stay on this phone."
+msgstr "시각 표시에만 영향을 주며, 매매가 어느 날짜에 속하는지는 바뀌지 않습니다. 12시간제는 1:30 PM, 24시간제는 13:30으로 표시합니다.시간대, 시간 형식, 표시 통화는 계정을 따라 모든 기기에 적용됩니다. 프라이버시 모드와 테마는 이 기기에만 적용됩니다."
 
 #: src/app/(tabs)/(settings)/display.tsx:222
 #~ msgid "Formats clock times only — never which day a trade belongs to. This device is on {0}."
@@ -4805,7 +4813,7 @@ msgstr "표시 설정을 초기화할까요?"
 msgid "Reset password"
 msgstr "비밀번호 재설정"
 
-#: src/app/(tabs)/(settings)/display.tsx:231
+#: src/app/(tabs)/(settings)/display.tsx:233
 msgid "Reset to defaults"
 msgstr "기본값으로 초기화"
 
@@ -5876,7 +5884,7 @@ msgstr "티어 {0}"
 #~ msgid "Time"
 #~ msgstr "시간"
 
-#: src/app/(tabs)/(settings)/display.tsx:213
+#: src/app/(tabs)/(settings)/display.tsx:215
 msgid "Time format"
 msgstr "시간 형식"
 

@@ -2227,7 +2227,7 @@ export function GeneralTab() {
 
   return (
     <>
-      <SettingsSection>
+      <SettingsSection description={settingsLabel(locale, "syncedPrefsNote")}>
         <SettingsGroup>
           <SettingsGroupRow
             label={settingsLabel(locale, "language")}

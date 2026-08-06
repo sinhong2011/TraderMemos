@@ -32,6 +32,10 @@ func (p *PG) ClearTradeTags(ctx context.Context, tradeID string) error {
 	return p.q.ClearTradeTags(ctx, tradeID)
 }
 
+func (p *PG) CountAdmins(ctx context.Context) (int64, error) {
+	return p.q.CountAdmins(ctx)
+}
+
 func (p *PG) CountUsers(ctx context.Context) (int64, error) {
 	return p.q.CountUsers(ctx)
 }
@@ -124,6 +128,10 @@ func (p *PG) DeleteExecutionsForTrade(ctx context.Context, arg DeleteExecutionsF
 	return p.q.DeleteExecutionsForTrade(ctx, storepg.DeleteExecutionsForTradeParams(arg))
 }
 
+func (p *PG) DeleteFlexSyncSettings(ctx context.Context, arg DeleteFlexSyncSettingsParams) (int64, error) {
+	return p.q.DeleteFlexSyncSettings(ctx, storepg.DeleteFlexSyncSettingsParams(arg))
+}
+
 func (p *PG) DeleteFutureEconomicEvents(ctx context.Context, arg DeleteFutureEconomicEventsParams) error {
 	return p.q.DeleteFutureEconomicEvents(ctx, storepg.DeleteFutureEconomicEventsParams(arg))
 }
@@ -134,6 +142,10 @@ func (p *PG) DeleteJournalNote(ctx context.Context, arg DeleteJournalNoteParams)
 
 func (p *PG) DeleteMediaFile(ctx context.Context, arg DeleteMediaFileParams) (int64, error) {
 	return p.q.DeleteMediaFile(ctx, storepg.DeleteMediaFileParams(arg))
+}
+
+func (p *PG) DeletePropSettings(ctx context.Context, arg DeletePropSettingsParams) error {
+	return p.q.DeletePropSettings(ctx, storepg.DeletePropSettingsParams(arg))
 }
 
 func (p *PG) DeleteSetup(ctx context.Context, arg DeleteSetupParams) (int64, error) {
@@ -154,6 +166,10 @@ func (p *PG) DeleteTradesForAccount(ctx context.Context, arg DeleteTradesForAcco
 
 func (p *PG) DeleteTradesNotInAccount(ctx context.Context, arg DeleteTradesNotInAccountParams) error {
 	return p.q.DeleteTradesNotInAccount(ctx, storepg.DeleteTradesNotInAccountParams(arg))
+}
+
+func (p *PG) DeleteUser(ctx context.Context, id string) (int64, error) {
+	return p.q.DeleteUser(ctx, id)
 }
 
 func (p *PG) ExecutionExists(ctx context.Context, arg ExecutionExistsParams) (int64, error) {
@@ -236,6 +252,14 @@ func (p *PG) GetExecutionByDedup(ctx context.Context, arg GetExecutionByDedupPar
 	return Execution(v), nil
 }
 
+func (p *PG) GetFlexSyncSettings(ctx context.Context, arg GetFlexSyncSettingsParams) (FlexSyncSetting, error) {
+	v, err := p.q.GetFlexSyncSettings(ctx, storepg.GetFlexSyncSettingsParams(arg))
+	if err != nil {
+		return FlexSyncSetting{}, err
+	}
+	return FlexSyncSetting(v), nil
+}
+
 func (p *PG) GetImportBatch(ctx context.Context, arg GetImportBatchParams) (ImportBatch, error) {
 	v, err := p.q.GetImportBatch(ctx, storepg.GetImportBatchParams(arg))
 	if err != nil {
@@ -292,18 +316,6 @@ func (p *PG) GetPropSettings(ctx context.Context, arg GetPropSettingsParams) (Pr
 	return PropSetting(v), nil
 }
 
-func (p *PG) UpsertPropSettings(ctx context.Context, arg UpsertPropSettingsParams) (PropSetting, error) {
-	v, err := p.q.UpsertPropSettings(ctx, storepg.UpsertPropSettingsParams(arg))
-	if err != nil {
-		return PropSetting{}, err
-	}
-	return PropSetting(v), nil
-}
-
-func (p *PG) DeletePropSettings(ctx context.Context, arg DeletePropSettingsParams) error {
-	return p.q.DeletePropSettings(ctx, storepg.DeletePropSettingsParams(arg))
-}
-
 func (p *PG) GetRiskRules(ctx context.Context, userID string) (RiskRule, error) {
 	v, err := p.q.GetRiskRules(ctx, userID)
 	if err != nil {
@@ -356,6 +368,14 @@ func (p *PG) GetUserByID(ctx context.Context, id string) (User, error) {
 	return User(v), nil
 }
 
+func (p *PG) GetUserPreferences(ctx context.Context, userID string) (UserPreference, error) {
+	v, err := p.q.GetUserPreferences(ctx, userID)
+	if err != nil {
+		return UserPreference{}, err
+	}
+	return UserPreference(v), nil
+}
+
 func (p *PG) InsertAttachment(ctx context.Context, arg InsertAttachmentParams) (TradeAttachment, error) {
 	v, err := p.q.InsertAttachment(ctx, storepg.InsertAttachmentParams(arg))
 	if err != nil {
@@ -396,8 +416,35 @@ func (p *PG) InsertTrade(ctx context.Context, arg InsertTradeParams) (Trade, err
 	return Trade(v), nil
 }
 
+func (p *PG) LatestAccessTokenUse(ctx context.Context, tokenID string) (AccessTokenUse, error) {
+	v, err := p.q.LatestAccessTokenUse(ctx, tokenID)
+	if err != nil {
+		return AccessTokenUse{}, err
+	}
+	return AccessTokenUse(v), nil
+}
+
 func (p *PG) LinkTradeExecution(ctx context.Context, arg LinkTradeExecutionParams) error {
 	return p.q.LinkTradeExecution(ctx, storepg.LinkTradeExecutionParams(arg))
+}
+
+// HAND-PATCHED: sqlc types LIMIT as int64 for SQLite and int32 for Postgres,
+// so this cannot be the generator's struct conversion. `make sqlc` overwrites
+// this file — re-apply after regenerating.
+func (p *PG) ListAccessTokenUses(ctx context.Context, arg ListAccessTokenUsesParams) ([]AccessTokenUse, error) {
+	rows, err := p.q.ListAccessTokenUses(ctx, storepg.ListAccessTokenUsesParams{
+		TokenID: arg.TokenID,
+		UserID:  arg.UserID,
+		Limit:   int32(arg.Limit),
+	})
+	if err != nil {
+		return nil, err
+	}
+	out := make([]AccessTokenUse, 0, len(rows))
+	for _, r := range rows {
+		out = append(out, AccessTokenUse(r))
+	}
+	return out, nil
 }
 
 func (p *PG) ListAccessTokensByUser(ctx context.Context, userID string) ([]AccessToken, error) {
@@ -523,6 +570,21 @@ func (p *PG) ListEconomicEvents(ctx context.Context, arg ListEconomicEventsParam
 		out := make([]EconomicEvent, len(in))
 		for i := range in {
 			out[i] = EconomicEvent(in[i])
+		}
+		return out
+	}(), nil
+}
+
+func (p *PG) ListEnabledFlexSyncSettings(ctx context.Context) ([]FlexSyncSetting, error) {
+	v, err := p.q.ListEnabledFlexSyncSettings(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return func() []FlexSyncSetting {
+		in := v
+		out := make([]FlexSyncSetting, len(in))
+		for i := range in {
+			out[i] = FlexSyncSetting(in[i])
 		}
 		return out
 	}(), nil
@@ -731,36 +793,9 @@ func (p *PG) ListTrades(ctx context.Context, arg ListTradesParams) ([]Trade, err
 	}(), nil
 }
 
-func (p *PG) GetFlexSyncSettings(ctx context.Context, arg GetFlexSyncSettingsParams) (FlexSyncSetting, error) {
-	v, err := p.q.GetFlexSyncSettings(ctx, storepg.GetFlexSyncSettingsParams(arg))
-	return FlexSyncSetting(v), err
-}
-
-func (p *PG) UpsertFlexSyncSettings(ctx context.Context, arg UpsertFlexSyncSettingsParams) (FlexSyncSetting, error) {
-	v, err := p.q.UpsertFlexSyncSettings(ctx, storepg.UpsertFlexSyncSettingsParams(arg))
-	return FlexSyncSetting(v), err
-}
-
-func (p *PG) DeleteFlexSyncSettings(ctx context.Context, arg DeleteFlexSyncSettingsParams) (int64, error) {
-	return p.q.DeleteFlexSyncSettings(ctx, storepg.DeleteFlexSyncSettingsParams(arg))
-}
-
-func (p *PG) ListEnabledFlexSyncSettings(ctx context.Context) ([]FlexSyncSetting, error) {
-	v, err := p.q.ListEnabledFlexSyncSettings(ctx)
-	if err != nil {
-		return nil, err
-	}
-	out := make([]FlexSyncSetting, len(v))
-	for i := range v {
-		out[i] = FlexSyncSetting(v[i])
-	}
-	return out, nil
-}
-
-func (p *PG) UpdateFlexSyncStatus(ctx context.Context, arg UpdateFlexSyncStatusParams) error {
-	return p.q.UpdateFlexSyncStatus(ctx, storepg.UpdateFlexSyncStatusParams(arg))
-}
-
+// HAND-PATCHED: sqlc types LIMIT as int64 for SQLite and int32 for Postgres,
+// so this cannot be the generator's struct conversion. `make sqlc` overwrites
+// this file — re-apply after regenerating.
 func (p *PG) ListTradesMissingExcursion(ctx context.Context, arg ListTradesMissingExcursionParams) ([]Trade, error) {
 	v, err := p.q.ListTradesMissingExcursion(ctx, storepg.ListTradesMissingExcursionParams{
 		PostCutoff: arg.PostCutoff,
@@ -780,6 +815,36 @@ func (p *PG) ListTradesMissingExcursion(ctx context.Context, arg ListTradesMissi
 	}(), nil
 }
 
+func (p *PG) ListUsers(ctx context.Context) ([]User, error) {
+	v, err := p.q.ListUsers(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return func() []User {
+		in := v
+		out := make([]User, len(in))
+		for i := range in {
+			out[i] = User(in[i])
+		}
+		return out
+	}(), nil
+}
+
+// HAND-PATCHED: sqlc types LIMIT as int64 for SQLite and int32 for Postgres,
+// so this cannot be the generator's struct conversion. `make sqlc` overwrites
+// this file — re-apply after regenerating.
+func (p *PG) PruneAccessTokenUses(ctx context.Context, arg PruneAccessTokenUsesParams) error {
+	return p.q.PruneAccessTokenUses(ctx, storepg.PruneAccessTokenUsesParams{
+		TokenID:   arg.TokenID,
+		TokenID_2: arg.TokenID_2,
+		Limit:     int32(arg.Limit),
+	})
+}
+
+func (p *PG) RecordAccessTokenUse(ctx context.Context, arg RecordAccessTokenUseParams) error {
+	return p.q.RecordAccessTokenUse(ctx, storepg.RecordAccessTokenUseParams(arg))
+}
+
 func (p *PG) RevokeAccessToken(ctx context.Context, arg RevokeAccessTokenParams) (int64, error) {
 	return p.q.RevokeAccessToken(ctx, storepg.RevokeAccessTokenParams(arg))
 }
@@ -796,46 +861,16 @@ func (p *PG) SetTradeTags(ctx context.Context, arg SetTradeTagsParams) error {
 	return p.q.SetTradeTags(ctx, storepg.SetTradeTagsParams(arg))
 }
 
+func (p *PG) SetUserAdmin(ctx context.Context, arg SetUserAdminParams) (User, error) {
+	v, err := p.q.SetUserAdmin(ctx, storepg.SetUserAdminParams(arg))
+	if err != nil {
+		return User{}, err
+	}
+	return User(v), nil
+}
+
 func (p *PG) TouchAccessTokenLastUsed(ctx context.Context, id string) error {
 	return p.q.TouchAccessTokenLastUsed(ctx, id)
-}
-
-func (p *PG) RecordAccessTokenUse(ctx context.Context, arg RecordAccessTokenUseParams) error {
-	return p.q.RecordAccessTokenUse(ctx, storepg.RecordAccessTokenUseParams(arg))
-}
-
-func (p *PG) LatestAccessTokenUse(ctx context.Context, tokenID string) (AccessTokenUse, error) {
-	v, err := p.q.LatestAccessTokenUse(ctx, tokenID)
-	if err != nil {
-		return AccessTokenUse{}, err
-	}
-	return AccessTokenUse(v), nil
-}
-
-func (p *PG) ListAccessTokenUses(ctx context.Context, arg ListAccessTokenUsesParams) ([]AccessTokenUse, error) {
-	// Field-by-field, not a struct conversion: sqlc types LIMIT as int64 for
-	// SQLite and int32 for Postgres.
-	rows, err := p.q.ListAccessTokenUses(ctx, storepg.ListAccessTokenUsesParams{
-		TokenID: arg.TokenID,
-		UserID:  arg.UserID,
-		Limit:   int32(arg.Limit),
-	})
-	if err != nil {
-		return nil, err
-	}
-	out := make([]AccessTokenUse, 0, len(rows))
-	for _, r := range rows {
-		out = append(out, AccessTokenUse(r))
-	}
-	return out, nil
-}
-
-func (p *PG) PruneAccessTokenUses(ctx context.Context, arg PruneAccessTokenUsesParams) error {
-	return p.q.PruneAccessTokenUses(ctx, storepg.PruneAccessTokenUsesParams{
-		TokenID:   arg.TokenID,
-		TokenID_2: arg.TokenID_2,
-		Limit:     int32(arg.Limit),
-	})
 }
 
 func (p *PG) UpdateAccount(ctx context.Context, arg UpdateAccountParams) (Account, error) {
@@ -856,6 +891,10 @@ func (p *PG) UpdateCashTransaction(ctx context.Context, arg UpdateCashTransactio
 
 func (p *PG) UpdateExecution(ctx context.Context, arg UpdateExecutionParams) (int64, error) {
 	return p.q.UpdateExecution(ctx, storepg.UpdateExecutionParams(arg))
+}
+
+func (p *PG) UpdateFlexSyncStatus(ctx context.Context, arg UpdateFlexSyncStatusParams) error {
+	return p.q.UpdateFlexSyncStatus(ctx, storepg.UpdateFlexSyncStatusParams(arg))
 }
 
 func (p *PG) UpdateJournalNote(ctx context.Context, arg UpdateJournalNoteParams) (JournalNote, error) {
@@ -884,34 +923,6 @@ func (p *PG) UpdateUserPassword(ctx context.Context, arg UpdateUserPasswordParam
 		return User{}, err
 	}
 	return User(v), nil
-}
-
-func (p *PG) ListUsers(ctx context.Context) ([]User, error) {
-	rows, err := p.q.ListUsers(ctx)
-	if err != nil {
-		return nil, err
-	}
-	out := make([]User, 0, len(rows))
-	for _, r := range rows {
-		out = append(out, User(r))
-	}
-	return out, nil
-}
-
-func (p *PG) CountAdmins(ctx context.Context) (int64, error) {
-	return p.q.CountAdmins(ctx)
-}
-
-func (p *PG) SetUserAdmin(ctx context.Context, arg SetUserAdminParams) (User, error) {
-	v, err := p.q.SetUserAdmin(ctx, storepg.SetUserAdminParams(arg))
-	if err != nil {
-		return User{}, err
-	}
-	return User(v), nil
-}
-
-func (p *PG) DeleteUser(ctx context.Context, id string) (int64, error) {
-	return p.q.DeleteUser(ctx, id)
 }
 
 func (p *PG) UpdateUserTotpSecret(ctx context.Context, arg UpdateUserTotpSecretParams) (User, error) {
@@ -950,6 +961,14 @@ func (p *PG) UpsertEconomicEvent(ctx context.Context, arg UpsertEconomicEventPar
 	return p.q.UpsertEconomicEvent(ctx, storepg.UpsertEconomicEventParams(arg))
 }
 
+func (p *PG) UpsertFlexSyncSettings(ctx context.Context, arg UpsertFlexSyncSettingsParams) (FlexSyncSetting, error) {
+	v, err := p.q.UpsertFlexSyncSettings(ctx, storepg.UpsertFlexSyncSettingsParams(arg))
+	if err != nil {
+		return FlexSyncSetting{}, err
+	}
+	return FlexSyncSetting(v), nil
+}
+
 func (p *PG) UpsertInstrumentSpec(ctx context.Context, arg UpsertInstrumentSpecParams) error {
 	return p.q.UpsertInstrumentSpec(ctx, storepg.UpsertInstrumentSpecParams(arg))
 }
@@ -966,6 +985,14 @@ func (p *PG) UpsertOcrSettings(ctx context.Context, arg UpsertOcrSettingsParams)
 	return OcrSetting(v), nil
 }
 
+func (p *PG) UpsertPropSettings(ctx context.Context, arg UpsertPropSettingsParams) (PropSetting, error) {
+	v, err := p.q.UpsertPropSettings(ctx, storepg.UpsertPropSettingsParams(arg))
+	if err != nil {
+		return PropSetting{}, err
+	}
+	return PropSetting(v), nil
+}
+
 func (p *PG) UpsertRiskRules(ctx context.Context, arg UpsertRiskRulesParams) (RiskRule, error) {
 	v, err := p.q.UpsertRiskRules(ctx, storepg.UpsertRiskRulesParams(arg))
 	if err != nil {
@@ -980,4 +1007,12 @@ func (p *PG) UpsertTrade(ctx context.Context, arg UpsertTradeParams) error {
 
 func (p *PG) UpsertTradeJournal(ctx context.Context, arg UpsertTradeJournalParams) error {
 	return p.q.UpsertTradeJournal(ctx, storepg.UpsertTradeJournalParams(arg))
+}
+
+func (p *PG) UpsertUserPreferences(ctx context.Context, arg UpsertUserPreferencesParams) (UserPreference, error) {
+	v, err := p.q.UpsertUserPreferences(ctx, storepg.UpsertUserPreferencesParams(arg))
+	if err != nil {
+		return UserPreference{}, err
+	}
+	return UserPreference(v), nil
 }
