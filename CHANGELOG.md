@@ -5,6 +5,21 @@ All notable changes to TraderMemos are documented in this file.
 Release versioning is managed by [release-please](https://github.com/googleapis/release-please).
 See [docs/release.md](docs/release.md) for the release workflow.
 
+## [0.5.0](https://github.com/sinhong2011/TraderMemos/compare/v0.4.2...v0.5.0) (2026-08-06)
+
+
+### Features
+
+* account-level preferences synced across devices ([#114](https://github.com/sinhong2011/TraderMemos/issues/114)) ([a55c93f](https://github.com/sinhong2011/TraderMemos/commit/a55c93f58e8b9f17da3b93bec02c1154da97c12b))
+* accounts, two-factor, token activity, and user administration ([#113](https://github.com/sinhong2011/TraderMemos/issues/113)) ([8b418f7](https://github.com/sinhong2011/TraderMemos/commit/8b418f7698984288cef9ac1694c6dae059a7d756))
+* **mobile:** appearance setting, settings reorganisation, and trade preview ([#109](https://github.com/sinhong2011/TraderMemos/issues/109)) ([b8c3852](https://github.com/sinhong2011/TraderMemos/commit/b8c38525d9938be54a0faa2c7b852926b100f490))
+* **mobile:** star ratings and a folded trades filter menu ([#106](https://github.com/sinhong2011/TraderMemos/issues/106)) ([c4fff6c](https://github.com/sinhong2011/TraderMemos/commit/c4fff6c47b6956a1e4044103ef67fc5e3900b2eb))
+
+
+### Bug Fixes
+
+* follow-ups from testing on a device ([#115](https://github.com/sinhong2011/TraderMemos/issues/115)) ([9ed0e3c](https://github.com/sinhong2011/TraderMemos/commit/9ed0e3c96485a975f6b46024ca6d159f477124c4))
+
 ## [0.4.2](https://github.com/sinhong2011/TraderMemos/compare/v0.4.1...v0.4.2) (2026-08-06)
 
 
