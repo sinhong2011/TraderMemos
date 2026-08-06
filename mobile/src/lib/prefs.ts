@@ -196,6 +196,11 @@ export function useDisplayPrefs(): DisplayPrefs {
   return useDisplayStore();
 }
 
+/** Non-React subscription — the server sync watches for local edits. */
+export function subscribeDisplayPrefs(listener: () => void): () => void {
+  return useDisplayStore.subscribe(listener);
+}
+
 /**
  * Push the pref into Unistyles. `adaptiveThemes` is what makes the app follow
  * iOS, so a pinned scheme has to switch it off first — with it on, `setTheme`

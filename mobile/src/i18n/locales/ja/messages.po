@@ -439,7 +439,7 @@ msgstr "1件"
 msgid "1. Add to your authenticator"
 msgstr "1. 認証アプリに追加"
 
-#: src/app/(tabs)/(settings)/display.tsx:219
+#: src/app/(tabs)/(settings)/display.tsx:221
 msgid "12-hour"
 msgstr "12時間制"
 
@@ -459,7 +459,7 @@ msgstr "1年"
 msgid "2. Enter a code to confirm"
 msgstr "2. コードを入力して確認"
 
-#: src/app/(tabs)/(settings)/display.tsx:222
+#: src/app/(tabs)/(settings)/display.tsx:224
 msgid "24-hour"
 msgstr "24時間制"
 
@@ -1612,7 +1612,7 @@ msgstr "ユーザーを読み込めませんでした。"
 msgid "Could not load your account."
 msgstr "アカウント情報を読み込めませんでした。"
 
-#: src/app/_layout.tsx:68
+#: src/app/_layout.tsx:69
 msgid "Could not open file"
 msgstr "ファイルを開けませんでした"
 
@@ -2030,7 +2030,7 @@ msgstr "表示"
 msgid "Display currency"
 msgstr "表示通貨"
 
-#: src/app/(tabs)/(settings)/display.tsx:201
+#: src/app/(tabs)/(settings)/display.tsx:203
 msgid "Display timezone"
 msgstr "表示タイムゾーン"
 
@@ -2637,13 +2637,21 @@ msgstr "形式"
 #~ msgstr "時刻の表示だけを変えます。トレードがどの日に属するかは変わりません。"
 
 #: src/app/(tabs)/(settings)/display.tsx:196
-msgid "Formats clock times only — never which day a trade belongs to. 12-hour reads 1:30 PM, 24-hour reads 13:30."
-msgstr "時刻の表示だけを変えます。トレードがどの日に属するかは変わりません。12時間制は 1:30 PM、24時間制は 13:30 と表示されます。"
+#~ msgid "Formats clock times only — never which day a trade belongs to. 12-hour reads 1:30 PM, 24-hour reads 13:30."
+#~ msgstr "時刻の表示だけを変えます。トレードがどの日に属するかは変わりません。12時間制は 1:30 PM、24時間制は 13:30 と表示されます。"
+
+#: src/app/(tabs)/(settings)/display.tsx:195
+#~ msgid "Formats clock times only — never which day a trade belongs to. 12-hour reads 1:30 PM, 24-hour reads 13:30. This device is on {0}."
+#~ msgstr "時刻の表示だけを変えます。トレードがどの日に属するかは変わりません。12時間制は 1:30 PM、24時間制は 13:30 と表示されます。この端末は現在 {0} です。"
 
 #. placeholder {0}: resolveDisplayTimezone(TIMEZONE_LOCAL)
-#: src/app/(tabs)/(settings)/display.tsx:195
-msgid "Formats clock times only — never which day a trade belongs to. 12-hour reads 1:30 PM, 24-hour reads 13:30. This device is on {0}."
-msgstr "時刻の表示だけを変えます。トレードがどの日に属するかは変わりません。12時間制は 1:30 PM、24時間制は 13:30 と表示されます。この端末は現在 {0} です。"
+#: src/app/(tabs)/(settings)/display.tsx:197
+msgid "Formats clock times only — never which day a trade belongs to. 12-hour reads 1:30 PM, 24-hour reads 13:30. This device is on {0}. Timezones, time format and display currency follow your account and apply on every device; privacy mode and theme stay on this phone."
+msgstr "時計の表示のみに影響し、トレードがどの日に属するかは変わりません。12時間制は 1:30 PM、24時間制は 13:30 と表示します。この端末は {0} です。タイムゾーン、時刻表示、表示通貨はアカウントに従い、すべてのデバイスに適用されます。プライバシーモードとテーマはこの端末だけの設定です。"
+
+#: src/app/(tabs)/(settings)/display.tsx:198
+msgid "Formats clock times only — never which day a trade belongs to. 12-hour reads 1:30 PM, 24-hour reads 13:30. Timezones, time format and display currency follow your account and apply on every device; privacy mode and theme stay on this phone."
+msgstr "時計の表示のみに影響し、トレードがどの日に属するかは変わりません。12時間制は 1:30 PM、24時間制は 13:30 と表示します。タイムゾーン、時刻表示、表示通貨はアカウントに従い、すべてのデバイスに適用されます。プライバシーモードとテーマはこの端末だけの設定です。"
 
 #: src/app/(tabs)/(settings)/display.tsx:222
 #~ msgid "Formats clock times only — never which day a trade belongs to. This device is on {0}."
@@ -4805,7 +4813,7 @@ msgstr "表示設定をリセットしますか？"
 msgid "Reset password"
 msgstr "パスワードをリセット"
 
-#: src/app/(tabs)/(settings)/display.tsx:231
+#: src/app/(tabs)/(settings)/display.tsx:233
 msgid "Reset to defaults"
 msgstr "初期設定に戻す"
 
@@ -5876,7 +5884,7 @@ msgstr "ティア{0}"
 #~ msgid "Time"
 #~ msgstr "時間"
 
-#: src/app/(tabs)/(settings)/display.tsx:213
+#: src/app/(tabs)/(settings)/display.tsx:215
 msgid "Time format"
 msgstr "時刻表示形式"
 

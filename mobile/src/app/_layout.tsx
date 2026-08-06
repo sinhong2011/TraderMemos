@@ -18,6 +18,7 @@ import { SessionProvider } from '@/api/session-provider';
 import { i18n } from '@/i18n';
 import { t } from '@lingui/core/macro';
 import { useResolvedScheme } from '@/lib/prefs';
+import { usePrefsSync } from '@/lib/use-prefs-sync';
 import { ensureDropFolder, stageDroppedFile } from '@/lib/trade-import';
 import { queryPersister } from '@/storage/mmkv';
 
@@ -77,6 +78,16 @@ function ImportLinkGate() {
     return () => subscription.remove();
   }, [ready, router, session]);
 
+  return null;
+}
+
+/**
+ * Account-level preferences (timezones, clock, currency, screenshots cap)
+ * pull on sign-in and push on change — see `lib/prefs-sync.ts` for what
+ * syncs and why the rest stays on this device.
+ */
+function PrefsSyncGate() {
+  usePrefsSync();
   return null;
 }
 
@@ -140,6 +151,7 @@ export default function RootLayout() {
         <PersistQueryClientProvider client={queryClient} persistOptions={persistOptions}>
         <ThemeProvider value={navTheme}>
           <ImportLinkGate />
+          <PrefsSyncGate />
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="login" options={{ presentation: 'modal', headerShown: false }} />

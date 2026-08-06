@@ -46,6 +46,11 @@ export function useJournalPrefs(): JournalPrefs {
   return useJournalStore();
 }
 
+/** Non-React subscription — the server sync watches for local edits. */
+export function subscribeJournalPrefs(listener: () => void): () => void {
+  return useJournalStore.subscribe(listener);
+}
+
 export function setMaxScreenshotsPerTrade(max: number | null) {
   useJournalStore.setState(sanitize({ maxScreenshotsPerTrade: max }));
 }
