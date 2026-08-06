@@ -3845,7 +3845,7 @@ msgstr "미측정"
 msgid "Not traded in this range"
 msgstr "이 범위에서 미거래"
 
-#: src/app/(tabs)/(settings)/token-uses.tsx:95
+#: src/app/(tabs)/(settings)/token-uses.tsx:97
 msgid "Not used yet"
 msgstr "아직 사용되지 않음"
 
@@ -3942,7 +3942,7 @@ msgstr "켬"
 #~ msgid "One check per line"
 #~ msgstr "한 줄에 하나씩"
 
-#: src/app/(tabs)/(settings)/token-uses.tsx:88
+#: src/app/(tabs)/(settings)/token-uses.tsx:90
 msgid "One entry per client, not per request — a repeat from the same IP and app is folded in for ten minutes. The 50 most recent are kept."
 msgstr "요청이 아니라 클라이언트 단위로 한 건씩입니다. 같은 IP와 앱에서의 재사용은 10분 동안 하나로 묶입니다. 최근 50건을 보관합니다."
 
@@ -5934,7 +5934,7 @@ msgstr "오늘"
 msgid "Token"
 msgstr "토큰"
 
-#: src/app/(tabs)/(settings)/token-uses.tsx:67
+#: src/app/(tabs)/(settings)/token-uses.tsx:69
 msgid "Token activity"
 msgstr "토큰 사용 기록"
 
@@ -6320,7 +6320,7 @@ msgstr "이 플레이가 성립하려면 무엇이 필요합니까? 언제 무�
 msgid "What would you do differently?"
 msgstr "다음에는 무엇을 다르게 하시겠습니까?"
 
-#: src/app/(tabs)/(settings)/token-uses.tsx:97
+#: src/app/(tabs)/(settings)/token-uses.tsx:99
 msgid "When something authenticates with this token, the IP and app it used show up here."
 msgstr "이 토큰으로 인증이 일어나면 사용된 IP와 앱이 여기에 표시됩니다."
 

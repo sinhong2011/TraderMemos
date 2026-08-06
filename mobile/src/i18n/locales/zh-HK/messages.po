@@ -3845,7 +3845,7 @@ msgstr "未計時"
 msgid "Not traded in this range"
 msgstr "此範圍內未交易"
 
-#: src/app/(tabs)/(settings)/token-uses.tsx:95
+#: src/app/(tabs)/(settings)/token-uses.tsx:97
 msgid "Not used yet"
 msgstr "尚未使用"
 
@@ -3942,7 +3942,7 @@ msgstr "開啟"
 #~ msgid "One check per line"
 #~ msgstr "每行一項"
 
-#: src/app/(tabs)/(settings)/token-uses.tsx:88
+#: src/app/(tabs)/(settings)/token-uses.tsx:90
 msgid "One entry per client, not per request — a repeat from the same IP and app is folded in for ten minutes. The 50 most recent are kept."
 msgstr "以用戶端計算，而非每個請求；相同 IP 與應用程式在十分鐘內會合併為一筆。只保留最近 50 筆。"
 
@@ -5934,7 +5934,7 @@ msgstr "今日"
 msgid "Token"
 msgstr "權杖"
 
-#: src/app/(tabs)/(settings)/token-uses.tsx:67
+#: src/app/(tabs)/(settings)/token-uses.tsx:69
 msgid "Token activity"
 msgstr "權杖使用紀錄"
 
@@ -6320,7 +6320,7 @@ msgstr "這個形態成立需要什麼條件？什麼情況下就算失效？"
 msgid "What would you do differently?"
 msgstr "下次會如何改進？"
 
-#: src/app/(tabs)/(settings)/token-uses.tsx:97
+#: src/app/(tabs)/(settings)/token-uses.tsx:99
 msgid "When something authenticates with this token, the IP and app it used show up here."
 msgstr "當有程式使用此權杖驗證時，其 IP 與應用程式會顯示在這裡。"
 

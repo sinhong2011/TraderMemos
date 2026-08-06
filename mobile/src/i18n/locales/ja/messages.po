@@ -3845,7 +3845,7 @@ msgstr "計測なし"
 msgid "Not traded in this range"
 msgstr "この範囲で未取引"
 
-#: src/app/(tabs)/(settings)/token-uses.tsx:95
+#: src/app/(tabs)/(settings)/token-uses.tsx:97
 msgid "Not used yet"
 msgstr "まだ使用されていません"
 
@@ -3942,7 +3942,7 @@ msgstr "オン"
 #~ msgid "One check per line"
 #~ msgstr "1行に1項目"
 
-#: src/app/(tabs)/(settings)/token-uses.tsx:88
+#: src/app/(tabs)/(settings)/token-uses.tsx:90
 msgid "One entry per client, not per request — a repeat from the same IP and app is folded in for ten minutes. The 50 most recent are kept."
 msgstr "リクエストごとではなくクライアントごとに1件です。同じ IP とアプリからの再利用は10分間まとめられます。最新50件を保持します。"
 
@@ -5934,7 +5934,7 @@ msgstr "今日"
 msgid "Token"
 msgstr "トークン"
 
-#: src/app/(tabs)/(settings)/token-uses.tsx:67
+#: src/app/(tabs)/(settings)/token-uses.tsx:69
 msgid "Token activity"
 msgstr "トークンの利用状況"
 
@@ -6320,7 +6320,7 @@ msgstr "このプレイが成立する条件は？ どうなったら無効で�
 msgid "What would you do differently?"
 msgstr "次はどう改善しますか？"
 
-#: src/app/(tabs)/(settings)/token-uses.tsx:97
+#: src/app/(tabs)/(settings)/token-uses.tsx:99
 msgid "When something authenticates with this token, the IP and app it used show up here."
 msgstr "このトークンで認証が行われると、その IP とアプリがここに表示されます。"
 

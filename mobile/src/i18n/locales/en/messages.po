@@ -3845,7 +3845,7 @@ msgstr "Not timed"
 msgid "Not traded in this range"
 msgstr "Not traded in this range"
 
-#: src/app/(tabs)/(settings)/token-uses.tsx:95
+#: src/app/(tabs)/(settings)/token-uses.tsx:97
 msgid "Not used yet"
 msgstr "Not used yet"
 
@@ -3942,7 +3942,7 @@ msgstr "On"
 #~ msgid "One check per line"
 #~ msgstr "One check per line"
 
-#: src/app/(tabs)/(settings)/token-uses.tsx:88
+#: src/app/(tabs)/(settings)/token-uses.tsx:90
 msgid "One entry per client, not per request — a repeat from the same IP and app is folded in for ten minutes. The 50 most recent are kept."
 msgstr "One entry per client, not per request — a repeat from the same IP and app is folded in for ten minutes. The 50 most recent are kept."
 
@@ -5936,7 +5936,7 @@ msgstr "Today"
 msgid "Token"
 msgstr "Token"
 
-#: src/app/(tabs)/(settings)/token-uses.tsx:67
+#: src/app/(tabs)/(settings)/token-uses.tsx:69
 msgid "Token activity"
 msgstr "Token activity"
 
@@ -6322,7 +6322,7 @@ msgstr "What has to be happening for this play to be on? Where is it wrong?"
 msgid "What would you do differently?"
 msgstr "What would you do differently?"
 
-#: src/app/(tabs)/(settings)/token-uses.tsx:97
+#: src/app/(tabs)/(settings)/token-uses.tsx:99
 msgid "When something authenticates with this token, the IP and app it used show up here."
 msgstr "When something authenticates with this token, the IP and app it used show up here."
 
