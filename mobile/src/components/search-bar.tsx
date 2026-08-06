@@ -5,6 +5,7 @@ import { Pressable, TextInput, View } from 'react-native';
 import Reanimated, {
   useAnimatedKeyboard,
   useAnimatedStyle,
+  useSharedValue,
   withSpring,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -115,9 +116,17 @@ export function FloatingSearchBar({
     else input.current?.blur();
   }, [open]);
 
+  // Seeded at the current state so a closed bar is simply parked off-screen on
+  // the first frame. Springing straight from `useAnimatedStyle` starts at the
+  // view's default translateY of 0, so on every mount the bar sat in view and
+  // then slid itself away. The spring belongs to *toggling*, hence the effect.
+  const offset = useSharedValue(open ? 0 : FLOAT_HIDDEN_OFFSET);
+  useEffect(() => {
+    offset.value = withSpring(open ? 0 : FLOAT_HIDDEN_OFFSET, FLOAT_SPRING);
+  }, [open, offset]);
   const animated = useAnimatedStyle(() => ({
     transform: [
-      { translateY: withSpring(open ? 0 : FLOAT_HIDDEN_OFFSET, FLOAT_SPRING) },
+      { translateY: offset.value },
       // The bar already clears the home indicator, so only the keyboard height
       // beyond that inset is a lift it still owes.
       { translateY: -Math.max(0, keyboard.height.value - insets.bottom) },

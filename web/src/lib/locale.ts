@@ -116,6 +116,8 @@ export function navLabel(locale: string, key: NavLabelKey): string {
 }
 
 export type SettingsSectionId =
+  | "profile"
+  | "users"
   | "accounts"
   | "rules"
   | "journal"
@@ -126,6 +128,12 @@ export type SettingsSectionId =
   | "about";
 
 export type SettingsLabelKey =
+  | "profile"
+  | "profileTitle"
+  | "profileDescription"
+  | "users"
+  | "usersTitle"
+  | "usersDescription"
   | "accounts"
   | "rules"
   | "journal"
@@ -280,6 +288,12 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     journalDescription: "Tags used when logging trades. Manage setups in Playbook.",
     aiTitle: "AI & LLM",
     aiDescription: "Screenshot scan, trade coach, and OpenAI-compatible API keys.",
+    profile: "Profile",
+    profileTitle: "Your account",
+    profileDescription: "Who you are signed in as, and your password.",
+    users: "Users",
+    usersTitle: "Users",
+    usersDescription: "Everyone with an account on this server.",
     generalTitle: "General",
     generalDescription: "Preferences and session.",
     apiTitle: "API access",
@@ -430,6 +444,12 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     journalDescription: "記錄交易時使用的標籤。策略庫設定請到 Playbook 管理。",
     aiTitle: "AI 與 LLM",
     aiDescription: "截圖掃描、交易教練及 OpenAI 相容 API 金鑰。",
+    profile: "個人檔案",
+    profileTitle: "我的帳戶",
+    profileDescription: "目前登入的身分，以及密碼設定。",
+    users: "使用者",
+    usersTitle: "使用者",
+    usersDescription: "此伺服器上所有擁有帳戶的人。",
     generalTitle: "一般",
     generalDescription: "偏好設定及工作階段。",
     apiTitle: "API 存取",
@@ -573,6 +593,12 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     journalDescription: "トレード記録時に使うタグ。セットアップは Playbook で管理します。",
     aiTitle: "AI & LLM",
     aiDescription: "スクショ解析、トレードコーチ、OpenAI 互換 API キー。",
+    profile: "プロフィール",
+    profileTitle: "アカウント",
+    profileDescription: "サインイン中のアカウントとパスワード。",
+    users: "ユーザー",
+    usersTitle: "ユーザー",
+    usersDescription: "このサーバーにアカウントを持つすべての人。",
     generalTitle: "一般",
     generalDescription: "設定とセッション。",
     apiTitle: "API アクセス",
@@ -723,6 +749,12 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     journalDescription: "거래 기록 시 사용하는 태그. 셋업은 Playbook에서 관리합니다.",
     aiTitle: "AI & LLM",
     aiDescription: "스크린샷 스캔, 트레이드 코치, OpenAI 호환 API 키.",
+    profile: "프로필",
+    profileTitle: "내 계정",
+    profileDescription: "로그인한 계정과 비밀번호.",
+    users: "사용자",
+    usersTitle: "사용자",
+    usersDescription: "이 서버에 계정이 있는 모든 사람.",
     generalTitle: "일반",
     generalDescription: "환경설정 및 세션.",
     apiTitle: "API 접근",
@@ -878,6 +910,8 @@ export function settingsNavItems(locale: string): {
 }[] {
   return (
     [
+      { id: "profile", key: "profile" },
+      { id: "users", key: "users" },
       { id: "general", key: "general" },
       { id: "shortcuts", key: "shortcuts" },
       { id: "accounts", key: "accounts" },

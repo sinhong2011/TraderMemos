@@ -1,5 +1,6 @@
+import { useEffect } from 'react';
 import { Pressable, Text, View } from 'react-native';
-import Animated, { useAnimatedStyle, withSpring } from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { StyleSheet } from 'react-native-unistyles';
 
 /** The app's one tab/page spring (trade-form conventions). */
@@ -16,7 +17,17 @@ function Tab({
   isActive: boolean;
   onPress: () => void;
 }) {
-  const fill = useAnimatedStyle(() => ({ opacity: withSpring(isActive ? 1 : 0, TAB_SPRING) }));
+  /**
+   * Seeded at the tab's current selection so the fill is there on the first
+   * frame. Springing straight from `useAnimatedStyle` starts at the static
+   * style's `opacity: 0` and fades the active tab in over 420ms on every mount
+   * — the spring belongs to a *change* of selection, so it lives in the effect.
+   */
+  const selected = useSharedValue(isActive ? 1 : 0);
+  useEffect(() => {
+    selected.value = withSpring(isActive ? 1 : 0, TAB_SPRING);
+  }, [isActive, selected]);
+  const fill = useAnimatedStyle(() => ({ opacity: selected.value }));
   return (
     <Pressable
       onPress={onPress}

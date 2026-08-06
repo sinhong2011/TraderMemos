@@ -122,6 +122,7 @@ const styles = StyleSheet.create((theme) => ({
     borderRadius: theme.radius.lg,
     borderCurve: 'continuous',
     backgroundColor: theme.colors.card,
+    boxShadow: theme.shadows.card,
   },
   left: { flex: 1, gap: 3 },
   symbol: { fontSize: 17, fontWeight: '600', color: theme.colors.foreground },

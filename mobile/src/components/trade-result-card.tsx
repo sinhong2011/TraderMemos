@@ -95,6 +95,7 @@ const styles = StyleSheet.create((theme) => ({
     borderRadius: theme.radius.lg + 6,
     borderCurve: 'continuous',
     backgroundColor: theme.colors.card,
+    boxShadow: theme.shadows.card,
     padding: theme.spacing.lg,
     gap: theme.spacing.md,
   },

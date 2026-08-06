@@ -12,7 +12,9 @@ import { request, requestRaw, type QueryParams, type RequestOptions } from './cl
 import { useSession } from './session';
 import type {
   AccessToken,
+  AccessTokenUse,
   Account,
+  AdminUser,
   AnnualGoal,
   ApiHealth,
   BehaviorReport,
@@ -34,6 +36,7 @@ import type {
   ChecklistTemplate,
   LlmApiSettings,
   MarketBarsResponse,
+  Me,
   PropSettings,
   Setup,
   Tag,
@@ -80,6 +83,9 @@ export const queryKeys = {
   checklistTemplate: () => ['settings', 'checklist-template'] as const,
   llmSettings: (kind: LlmKind) => ['settings', kind] as const,
   accessTokens: () => ['access-tokens'] as const,
+  accessTokenUses: (id: string) => ['access-tokens', id, 'uses'] as const,
+  me: () => ['me'] as const,
+  adminUsers: () => ['admin', 'users'] as const,
   propSettings: (accountId: string) => ['accounts', accountId, 'prop-settings'] as const,
   propStatus: (accountId: string, filters: Filters) =>
     ['accounts', accountId, 'prop-status', filters] as const,
@@ -251,8 +257,30 @@ export function useLlmSettings(kind: LlmKind) {
   return useApiQuery<LlmApiSettings>(queryKeys.llmSettings(kind), `/settings/${kind}`);
 }
 
+/** The signed-in account. Cheap and rarely changes — the settings hub, the
+ *  profile screen and anything gating on `is_admin` all read this one query. */
+export function useMe() {
+  return useApiQuery<Me>(queryKeys.me(), '/me');
+}
+
+/**
+ * Every account on the server. Owner-only — the API answers 403 to anyone
+ * else, so callers gate on `me.is_admin` rather than firing a request that
+ * can only fail.
+ */
+export function useAdminUsers(enabled = true) {
+  return useApiQuery<AdminUser[]>(queryKeys.adminUsers(), '/admin/users', undefined, { enabled });
+}
+
 export function useAccessTokens() {
   return useApiQuery<AccessToken[]>(queryKeys.accessTokens(), '/access-tokens');
+}
+
+export function useAccessTokenUses(id: string) {
+  return useApiQuery<AccessTokenUse[]>(
+    queryKeys.accessTokenUses(id),
+    `/access-tokens/${id}/uses`,
+  );
 }
 
 /**

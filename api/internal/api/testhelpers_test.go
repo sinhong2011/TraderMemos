@@ -22,6 +22,13 @@ import (
 
 func testServer(t *testing.T) *api.Server {
 	t.Helper()
+	return testServerWithRegistration(t, true)
+}
+
+// testServerWithRegistration builds a server with open sign-up on or off — the
+// shipped default is off, which is what the admin routes have to work against.
+func testServerWithRegistration(t *testing.T, allowRegistration bool) *api.Server {
+	t.Helper()
 	conn, err := db.Open(filepath.Join(t.TempDir(), "t.db"))
 	require.NoError(t, err)
 	require.NoError(t, db.Migrate(conn))
@@ -30,7 +37,7 @@ func testServer(t *testing.T) *api.Server {
 	provider := marketdata.NewYahooProvider()
 	market := marketdata.NewService(q, provider)
 	return api.New(api.Deps{
-		JWT: j, Auth: auth.NewService(q, j, true), Store: q, Trades: trades.NewService(q),
+		JWT: j, Auth: auth.NewService(q, j, allowRegistration), Store: q, Trades: trades.NewService(q),
 		Storage: storage.NewLocalDisk(filepath.Join(t.TempDir(), "attach")), AttachMaxBytes: 10 << 20,
 		Market: market,
 	})

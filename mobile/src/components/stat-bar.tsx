@@ -5,7 +5,17 @@ export type StatTone = 'pos' | 'neg' | 'accent' | 'amber' | 'muted';
 
 /**
  * Metric chip for dense strips (web `StatBar`): label top-left, value centered.
- * Sits on `muted` inside a card, so it reads as a nested tile.
+ *
+ * The tile is a `card` surface, not a `muted` fill inside a card. A grey box
+ * nested in a white card is a card-inside-a-card — iOS puts stat tiles directly
+ * on the grouped background (Health, Fitness, Stocks) and lets the page do the
+ * separating, which is what the `flush` DashboardCard is for.
+ *
+ * Carries no border: against the page the card/background contrast and the
+ * shadow are the whole point of the surface, and a hairline on top of them read
+ * as an outlined box. That does mean a grid still nested inside a solid
+ * DashboardCard has card-on-card and no separation — such a grid needs its
+ * parent switched to `flush`, not a border added back here.
  */
 export function StatBar({
   label,
@@ -76,7 +86,8 @@ const styles = StyleSheet.create((theme) => ({
     paddingHorizontal: theme.spacing.md,
     borderRadius: theme.radius.md,
     borderCurve: 'continuous',
-    backgroundColor: theme.colors.muted,
+    backgroundColor: theme.colors.card,
+    boxShadow: theme.shadows.card,
   },
   label: { fontSize: 12, fontWeight: '500', color: theme.colors.mutedForeground },
   valueBlock: { flex: 1, justifyContent: 'center' },

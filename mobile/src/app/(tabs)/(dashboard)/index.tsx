@@ -127,23 +127,8 @@ export default function DashboardScreen() {
       contentContainerStyle={styles.content}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refreshAll} />}
     >
-      <PerformanceCard
-        summary={summary.data}
-        trades={tradeList}
-        currency={currency}
-        fxRate={fxRate}
-      />
-
-      {/* Today's discipline, above the day's numbers: the checklist is the
-          first thing to clear, the loss limit the line not to cross. */}
-      <ChecklistCard />
-
-      <DailyLossCard todayNetPnl={todayNetPnl} currency={currency} fxRate={fxRate} />
-
-      {propAccountId ? (
-        <PropStatusCard accountId={propAccountId} currency={currency} fxRate={fxRate} />
-      ) : null}
-
+      {/* The curve leads: the shape of the account answers "how am I doing"
+          faster than the aggregates below it, which read as its detail. */}
       {equity.isLoading ? (
         <Skeleton style={styles.skeletonCard} />
       ) : equity.error ? (
@@ -152,6 +137,24 @@ export default function DashboardScreen() {
         </DashboardCard>
       ) : equity.data ? (
         <EquityCard curve={equity.data} currency={currency} fxRate={fxRate} />
+      ) : null}
+
+      {/* Today's discipline sits right under the curve: the checklist is the
+          first thing to clear, before any of the aggregates below. */}
+      <ChecklistCard />
+
+      <PerformanceCard
+        summary={summary.data}
+        trades={tradeList}
+        currency={currency}
+        fxRate={fxRate}
+      />
+
+      {/* The loss limit is the line not to cross. */}
+      <DailyLossCard todayNetPnl={todayNetPnl} currency={currency} fxRate={fxRate} />
+
+      {propAccountId ? (
+        <PropStatusCard accountId={propAccountId} currency={currency} fxRate={fxRate} />
       ) : null}
 
       {goal.data?.amount != null && ytd.data ? (
@@ -245,6 +248,7 @@ const styles = StyleSheet.create((theme) => ({
     justifyContent: 'center',
     gap: theme.spacing.sm,
     backgroundColor: theme.colors.card,
+    boxShadow: theme.shadows.card,
     borderRadius: theme.radius.lg,
     borderCurve: 'continuous',
     paddingVertical: theme.spacing.lg,
@@ -259,6 +263,14 @@ const styles = StyleSheet.create((theme) => ({
     paddingHorizontal: theme.spacing.xs,
     paddingTop: theme.spacing.sm,
   },
-  recentTitle: { fontSize: 15, fontWeight: '600', color: theme.colors.foreground },
+  // Matches DashboardCard's section header — this is the one heading on Home
+  // that isn't drawn by that component, and it read as a different rank.
+  recentTitle: {
+    fontSize: 11,
+    fontWeight: '600',
+    letterSpacing: 0.7,
+    textTransform: 'uppercase',
+    color: theme.colors.mutedForeground,
+  },
   recentAction: { fontSize: 13, fontWeight: '500', color: theme.colors.foreground },
 }));

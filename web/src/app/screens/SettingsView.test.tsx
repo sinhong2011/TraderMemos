@@ -94,6 +94,23 @@ vi.mock("../../lib/hooks/useSystemInfo", async (importOriginal) => ({
   }),
 }));
 
+// SettingsView reads `me` to decide whether the owner-only Users section
+// belongs in the nav. Everything else in this file renders without a
+// QueryClient, so the whole module is stubbed rather than provided for.
+vi.mock("../../lib/hooks/useMe", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../../lib/hooks/useMe")>()),
+  useMe: () => ({
+    data: {
+      id: "u1",
+      email: "owner",
+      is_admin: true,
+      created_at: "2026-01-01T00:00:00Z",
+      totp_enabled: false,
+    },
+    isLoading: false,
+  }),
+}));
+
 vi.mock("../../lib/hooks/useAccessTokens", () => ({
   useAccessTokens: () => ({
     data: [],
@@ -155,6 +172,7 @@ const baseProps = {
   tagsLoading: false,
   tagsError: false,
   onCreateTag: vi.fn<(...args: any[]) => any>(noop),
+  onUpdateTag: vi.fn<(...args: any[]) => any>(noop),
   onDeleteTag: vi.fn<(...args: any[]) => any>(noop),
 
   riskRules: {

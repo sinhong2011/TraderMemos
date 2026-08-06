@@ -24,12 +24,12 @@ import { AppHost } from '@/components/app-host';
  * behind it, so inside a sheet it flattens to a plain dark fill with none of
  * the material or the press highlight.
  *
- * The material is `.glassEffect` with the **clear** variant, not the `.glass`
- * *buttonStyle*: that style fills its capsule with an opaque-reading grey on a
- * dark background, which is the flat "filled pill" look. Clear glass keeps the
- * rim and the refraction and lets the surface behind it through, so the button
- * reads as glass instead of as a swatch. `interactive` is what gives the press
- * bloom. The shape lives on the effect, so no `buttonBorderShape` is needed.
+ * The material is `.glassEffect`, not the `.glass` *buttonStyle*: that style
+ * fills its capsule with an opaque-reading grey on a dark background, which is
+ * the flat "filled pill" look. The variant is scheme-dependent and comes from
+ * `theme.materials.glass` — see the token for why. `interactive` is what gives
+ * the press bloom. The shape lives on the effect, so no `buttonBorderShape` is
+ * needed.
  *
  * `Host matchContents` sizes the host to the SwiftUI content, which is what
  * keeps these usable inside flex rows (the sheet header, nav bars).
@@ -62,7 +62,7 @@ export function GlassButton({
     padding({ horizontal: 18, vertical: 11 }),
     glassEffect({
       glass: {
-        variant: 'clear',
+        variant: theme.materials.glass,
         interactive: true,
         // Prominent is the one brand action per sheet — a tinted glass, still
         // see-through, rather than a solid fill.
@@ -115,7 +115,10 @@ export function GlassIconButton({
           foregroundStyle(theme.colors.foreground),
           // Even padding around a square glyph is what makes the circle round.
           padding({ all: 11 }),
-          glassEffect({ glass: { variant: 'clear', interactive: true }, shape: 'circle' }),
+          glassEffect({
+            glass: { variant: theme.materials.glass, interactive: true },
+            shape: 'circle',
+          }),
           accessibilityLabel(label),
           ...(disabled ? [disabledModifier(true)] : []),
         ]}

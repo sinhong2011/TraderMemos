@@ -28,6 +28,20 @@ export default function SettingsLayout() {
           on a pushed `headerLargeTitle` screen leaks 60pt of top inset per
           push (see the note in funding.tsx). */}
       <Stack.Screen name="tags" options={{ title: t`Tags`, headerLargeTitle: false }} />
+      {/* "Account" is taken by account-form, the broker-account editor. */}
+      <Stack.Screen name="profile" options={{ title: t`Your account`, headerLargeTitle: false }} />
+      <Stack.Screen
+        name="two-factor"
+        options={{ title: t`Two-factor`, headerLargeTitle: false }}
+      />
+      <Stack.Screen
+        name="change-password"
+        options={{ title: t`Change password`, headerLargeTitle: false }}
+      />
+      <Stack.Screen name="users" options={{ title: t`Users`, headerLargeTitle: false }} />
+      <Stack.Screen name="user-form" options={{ title: t`Add user`, headerLargeTitle: false }} />
+      {/* Title comes from the screen — it names the account being managed. */}
+      <Stack.Screen name="user-detail" options={{ headerLargeTitle: false }} />
       <Stack.Screen
         name="trading-journal"
         options={{ title: t`Trading & journal`, headerLargeTitle: false }}
@@ -61,6 +75,8 @@ export default function SettingsLayout() {
         name="data-backup"
         options={{ title: t`Data & backup`, headerLargeTitle: false }}
       />
+      {/* Title comes from the screen — it names the token being inspected. */}
+      <Stack.Screen name="token-uses" options={{ headerLargeTitle: false }} />
       <Stack.Screen
         name="import-trades"
         options={{ title: t`Import trades`, headerLargeTitle: false }}

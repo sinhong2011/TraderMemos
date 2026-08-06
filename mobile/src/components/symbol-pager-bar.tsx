@@ -1,8 +1,10 @@
 import { SymbolView } from 'expo-symbols';
+import { useEffect } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import Animated, {
-  LinearTransition,
+  LayoutAnimationConfig,
   useAnimatedStyle,
+  useSharedValue,
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
@@ -17,9 +19,6 @@ import { GlassIconButton } from '@/components/glass-button';
  * 150ms ease-out rule is written for the web; iOS motion is springs.
  */
 export const TAB_SPRING = { duration: 420, dampingRatio: 0.85 } as const;
-const TAB_TRANSITION = LinearTransition.springify()
-  .duration(TAB_SPRING.duration)
-  .dampingRatio(TAB_SPRING.dampingRatio);
 
 /**
  * Entering tabs grow open from zero width on the strip's spring while they
@@ -101,7 +100,19 @@ function SymbolTab({
   onRemove: () => void;
 }) {
   const { theme } = useUnistyles();
-  const fill = useAnimatedStyle(() => ({ opacity: withSpring(isActive ? 1 : 0, TAB_SPRING) }));
+  /**
+   * Seeded at the tab's *current* selection so the fill is simply there on the
+   * first frame. Springing straight from `useAnimatedStyle` instead — the
+   * previous form — starts from the static style's `opacity: 0` and fades the
+   * active tab's fill in over 420ms every single time the bar mounts, which on
+   * a freshly opened form reads as the chip arriving late. The spring belongs
+   * to a *change* of selection, so it lives in the effect.
+   */
+  const selected = useSharedValue(isActive ? 1 : 0);
+  useEffect(() => {
+    selected.value = withSpring(isActive ? 1 : 0, TAB_SPRING);
+  }, [isActive, selected]);
+  const fill = useAnimatedStyle(() => ({ opacity: selected.value }));
 
   return (
     <Pressable
@@ -190,40 +201,57 @@ export function SymbolPagerBar({
   const removable = tabs.filter((tab) => !tab.fixed).length > (keepLast ? 1 : 0);
   return (
     <View style={styles.pagerRow}>
-      <Animated.ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.tabList}
-        style={styles.tabScroll}
-        // Without this a scroll view eats the first tap while a field is open —
-        // switching pages mid-typing took two taps, the first one going nowhere
-        // but the keyboard.
-        keyboardShouldPersistTaps="handled"
-        // The capsule's own frame rides the same spring as the tabs inside it —
-        // without this the bordered track snaps to its new width in one frame
-        // while the pills glide, and the strip reads as two motions.
-        layout={TAB_TRANSITION}
-      >
-        {tabs.map((tab, index) => (
-          <Animated.View
-            key={tab.key}
-            style={styles.tabSlot}
-            entering={tabEnter}
-            exiting={tabCollapse}
-            layout={TAB_TRANSITION}
-          >
-            <SymbolTab
-              label={tab.label}
-              isActive={index === active}
-              removable={removable && !tab.fixed}
-              removeLabel={removeLabel}
-              onPress={() => onSelect(index)}
-              onLongPress={onLongPressTab ? () => onLongPressTab(index) : undefined}
-              onRemove={onRemoveActive}
-            />
-          </Animated.View>
-        ))}
-      </Animated.ScrollView>
+      {/*
+       * `tabEnter` describes a tab being *added* — it opens from zero width. On
+       * mount there is nothing being added, so `skipEntering` suppresses it for
+       * the tabs already present when the bar appears; tabs added later still
+       * animate, which is the case the animation was written for.
+       */}
+      <LayoutAnimationConfig skipEntering>
+        <Animated.ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.tabList}
+          style={styles.tabScroll}
+          // Without this a scroll view eats the first tap while a field is open —
+          // switching pages mid-typing took two taps, the first one going nowhere
+          // but the keyboard.
+          keyboardShouldPersistTaps="handled"
+          // Deliberately *no* `layout` here, nor on the tabs below. A
+          // `LinearTransition` interpolates from the view's previous frame, and
+          // on mount there isn't one, so it animates out of an empty rect: on
+          // the track that dragged the chip ~23pt downwards, and on each tab it
+          // grew the capsule open from zero width. Both were measured
+          // frame-by-frame on a freshly pushed form, and the strip is supposed
+          // to be simply *there* when the screen arrives.
+          //
+          // The cost is that neighbours no longer glide into a gap on
+          // add/remove — the tab being added still opens via `tabEnter` and the
+          // one leaving still collapses via `tabCollapse`, but the others snap.
+          // Re-adding `layout` reintroduces the on-open motion; gating it behind
+          // a mount flag does not help either, because `onLayout` fires before
+          // the layout pass that actually misfires.
+        >
+          {tabs.map((tab, index) => (
+            <Animated.View
+              key={tab.key}
+              style={styles.tabSlot}
+              entering={tabEnter}
+              exiting={tabCollapse}
+            >
+              <SymbolTab
+                label={tab.label}
+                isActive={index === active}
+                removable={removable && !tab.fixed}
+                removeLabel={removeLabel}
+                onPress={() => onSelect(index)}
+                onLongPress={onLongPressTab ? () => onLongPressTab(index) : undefined}
+                onRemove={onRemoveActive}
+              />
+            </Animated.View>
+          ))}
+        </Animated.ScrollView>
+      </LayoutAnimationConfig>
       <GlassIconButton systemImage="plus" label={addLabel} onPress={onAdd} />
     </View>
   );

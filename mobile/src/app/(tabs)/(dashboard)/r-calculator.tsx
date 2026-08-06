@@ -359,7 +359,7 @@ function RPanel({ session }: { session: Session }) {
         <WarningList warns={warns} />
       </DashboardCard>
 
-      <DashboardCard title={t`Size`}>
+      <DashboardCard title={t`Size`} flush>
         <View style={styles.grid}>
           <StatBar
             label={isOptions ? t`Contracts` : t`Shares`}
@@ -626,7 +626,7 @@ function FvgPanel({ session }: { session: FvgSession }) {
         <WarningList warns={warns} />
       </DashboardCard>
 
-      <DashboardCard title={t`Plan`}>
+      <DashboardCard title={t`Plan`} flush>
         <View style={styles.grid}>
           <StatBar label={t`Shares`} value={fmtShares(result.shares)} tone="accent" />
           <StatBar label={t`Entry`} value={money(result.entryPrice)} />

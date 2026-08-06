@@ -45,7 +45,7 @@ import {
 } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
-import { login, ping } from '@/api/client';
+import { ApiError, login, ping } from '@/api/client';
 import { PasswordInput } from '@/components/password-input';
 import { loadServerUrl, normalizeServerUrl, useSession } from '@/api/session';
 import { t } from '@lingui/core/macro';
@@ -87,12 +87,17 @@ export default function LoginScreen() {
   const serverState = useNativeState('');
 
   const passwordRef = useRef<TextInput>(null);
+  const totpRef = useRef<TextInput>(null);
+  // Set once the server answers `totp_required`: the password was right, the
+  // account just has a second factor. Revealing the field only at that point
+  // keeps the first screen to two inputs for the accounts that don't.
+  const [needsTotp, setNeedsTotp] = useState(false);
 
   // TanStack Form, same stack as web — the reference pattern for upcoming
   // forms (new trade, settings, notes). Server-side failures stay in local
   // state since they come from the API, not field validation.
   const form = useForm({
-    defaultValues: { serverUrl: '', username: '', password: '' },
+    defaultValues: { serverUrl: '', username: '', password: '', totpCode: '' },
     onSubmit: async ({ value }) => {
       // The CTA stays enabled and validates on tap — feedback beats a dead button.
       if (!value.username.trim() || !value.password) {
@@ -116,6 +121,7 @@ export default function LoginScreen() {
         const tokens = await login(normalized, {
           email: value.username.trim(),
           password: value.password,
+          ...(value.totpCode.trim() ? { totp_code: value.totpCode.trim() } : {}),
         });
         await signIn({
           serverUrl: normalized,
@@ -124,6 +130,20 @@ export default function LoginScreen() {
         });
         router.replace('/');
       } catch (caught) {
+        // `totp_required` is not a failure to report as one — the password was
+        // accepted and the server is asking for the second factor.
+        if (caught instanceof ApiError && caught.code === 'totp_required') {
+          setNeedsTotp(true);
+          setError(null);
+          // The field mounts on this render; focus lands on the next tick.
+          setTimeout(() => totpRef.current?.focus(), 0);
+          return;
+        }
+        if (caught instanceof ApiError && caught.code === 'totp_invalid') {
+          setNeedsTotp(true);
+          setError(t`That code is not valid. Codes change every 30 seconds.`);
+          return;
+        }
         setError(caught instanceof Error ? caught.message : t`Sign in failed`);
       }
     },
@@ -213,6 +233,35 @@ export default function LoginScreen() {
                 </form.Field>
               </View>
             </View>
+
+            {needsTotp ? (
+              <View style={styles.card}>
+                <View style={styles.field}>
+                  <Text style={styles.label}>{t`Authenticator code`}</Text>
+                  <form.Field name="totpCode">
+                    {(field) => (
+                      <View style={styles.inputShell}>
+                        <TextInput
+                          ref={totpRef}
+                          value={field.state.value}
+                          onChangeText={field.handleChange}
+                          placeholder={t`6-digit code`}
+                          placeholderTextColor={theme.colors.mutedForeground}
+                          keyboardType="number-pad"
+                          // iOS fills this straight from the Passwords app.
+                          textContentType="oneTimeCode"
+                          autoComplete="one-time-code"
+                          maxLength={6}
+                          onSubmitEditing={() => void form.handleSubmit()}
+                          returnKeyType="go"
+                          style={styles.input}
+                        />
+                      </View>
+                    )}
+                  </form.Field>
+                </View>
+              </View>
+            ) : null}
 
             {error ? (
               <View style={[styles.card, styles.alert]}>
@@ -309,7 +358,10 @@ export default function LoginScreen() {
                   textInputAutocapitalization('never'),
                   autocorrectionDisabled(),
                   padding({ horizontal: 14, vertical: 13 }),
-                  background('rgba(120, 120, 128, 0.16)'),
+                  // Was a flat rgba(120,120,128,0.16) — the *dark*-scheme
+                  // `tertiarySystemFill` alpha, which made this field read
+                  // heavier than the system controls beside it in light.
+                  background(theme.colors.fill),
                   cornerRadius(12),
                   padding({ top: 24 }),
                 ]}

@@ -16,7 +16,7 @@ import { Alert, Linking } from 'react-native';
 import { useUnistyles } from 'react-native-unistyles';
 import type { SFSymbol } from 'sf-symbols-typescript';
 
-import { useAccounts, useCash, useTrades } from '@/api/hooks';
+import { useAccounts, useCash, useMe, useTrades } from '@/api/hooks';
 import { CenteredButton } from '@/components/centered-button';
 import { NavRow } from '@/components/nav-row';
 import { SettingsForm } from '@/components/settings-form';
@@ -50,6 +50,7 @@ export default function SettingsScreen() {
   const { theme } = useUnistyles();
   const { signOut } = useSession();
   const { data: accounts } = useAccounts();
+  const me = useMe();
   // Account rows show live equity, so they need the whole ledger and every
   // account's trades — unscoped on purpose (the global account filter would
   // blank out the rows you aren't currently scoped to).
@@ -111,6 +112,24 @@ export default function SettingsScreen() {
     terms: string;
     onPress: () => void;
   }[] = [
+    {
+      icon: 'person.crop.circle',
+      label: t`Your account`,
+      terms: t`profile email password sign in owner admin security`,
+      onPress: () => router.push('/profile'),
+    },
+    {
+      icon: 'lock.rotation',
+      label: t`Change password`,
+      terms: t`security credentials reset`,
+      onPress: () => router.push('/change-password'),
+    },
+    {
+      icon: 'person.2',
+      label: t`Users`,
+      terms: t`accounts people members owner admin invite add remove password reset`,
+      onPress: () => router.push('/users'),
+    },
     {
       icon: 'banknote',
       label: t`Deposits & withdrawals`,
@@ -256,6 +275,17 @@ export default function SettingsScreen() {
           </SettingsForm>
         ) : (
           <SettingsForm>
+          {/* Who is signed in, which nothing showed before /me existed. First
+              on the page: it identifies everything below it. */}
+          <Section>
+            <NavRow
+              systemImage="person.crop.circle"
+              label={me.data?.email ?? t`Your account`}
+              value={me.data?.is_admin ? t`Owner` : undefined}
+              onPress={() => router.push('/profile')}
+            />
+          </Section>
+
           <Section title={t`Accounts`}>
             {(accounts ?? []).map((account) => {
               // Equity is the funded base (cash ledger) plus realized P&L, the

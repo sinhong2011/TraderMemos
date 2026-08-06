@@ -93,7 +93,10 @@ function SummaryCard({ summary, ctx }: { summary: Summary; ctx: ReportsMoneyCont
   ].filter((slice) => slice.y > 0);
 
   return (
-    <DashboardCard title={money.pnlMode === 'gross' ? t`Performance — gross` : t`Performance`}>
+    <DashboardCard
+      title={money.pnlMode === 'gross' ? t`Performance — gross` : t`Performance`}
+      flush
+    >
       <View style={styles.hero}>
         <Text selectable style={[styles.heroValue, { color: pnlColor(theme.colors, pnl) }]}>
           {money.format(pnl)}
@@ -358,7 +361,7 @@ function RMultipleCard({ rSummary }: { rSummary: RSummary }) {
   }));
 
   return (
-    <DashboardCard title={t`R-multiple`}>
+    <DashboardCard title={t`R-multiple`} flush>
       <View style={styles.grid}>
         <StatBar
           label={t`Avg R / trade`}
@@ -479,13 +482,15 @@ export function OverviewSection({
         </Text>
       ) : summary.data ? (
         <>
-          <SummaryCard summary={summary.data} ctx={ctx} />
-
+          {/* The curve leads, as on Home: the shape of the account answers
+              "how am I doing" faster than the aggregates below it. */}
           {equity.data ? (
             <EquityCard curve={equity.data} currency={ctx.currency} fxRate={ctx.fxRate} />
           ) : equity.isLoading ? (
             <Skeleton style={styles.skeletonCard} />
           ) : null}
+
+          <SummaryCard summary={summary.data} ctx={ctx} />
 
           <DayStripCard ctx={ctx} />
 
@@ -546,15 +551,28 @@ function ExploreCard() {
 }
 
 const styles = StyleSheet.create((theme) => ({
-  hero: { alignItems: 'center', gap: theme.spacing.xs, paddingVertical: theme.spacing.sm },
+  // Own surface: the card around it is `flush` so the tiles below sit on the
+  // page, but the headline is a statement rather than a tile.
+  hero: {
+    alignItems: 'center',
+    gap: theme.spacing.xs,
+    padding: theme.spacing.lg,
+    borderRadius: theme.radius.lg,
+    borderCurve: 'continuous',
+    backgroundColor: theme.colors.card,
+    boxShadow: theme.shadows.card,
+  },
   heroValue: { fontSize: 34, fontWeight: '600', letterSpacing: -1, ...theme.numeric },
   heroCaption: { fontSize: 12, color: theme.colors.mutedForeground, ...theme.numeric },
   edgeRow: { flexDirection: 'row', gap: theme.spacing.sm },
+  // Same surface as StatBar — these sit in the same grid, and a grey fill here
+  // against white tiles below split the screen down the middle.
   edgeCell: {
     flex: 1,
     alignItems: 'center',
     gap: theme.spacing.xs,
-    backgroundColor: theme.colors.muted,
+    backgroundColor: theme.colors.card,
+    boxShadow: theme.shadows.card,
     borderRadius: theme.radius.md,
     borderCurve: 'continuous',
     paddingVertical: theme.spacing.md,

@@ -23,6 +23,8 @@ export type Credentials = {
   email: string;
   /** Server enforces minLength 10. */
   password: string;
+  /** Second leg of sign-in, sent after the server answers `totp_required`. */
+  totp_code?: string;
 };
 
 export type Tag = {
@@ -279,6 +281,33 @@ export type AccessToken = {
 };
 
 export type CreatedAccessToken = AccessToken & { token: string };
+
+/** GET /access-tokens/:id/uses — newest first, capped server-side at 50. */
+export type AccessTokenUse = {
+  used_at: string;
+  ip: string;
+  /** Raw and unparsed; matching your own tooling is the point. */
+  user_agent: string;
+};
+
+/** POST /me/totp/start — a candidate secret, not yet stored server-side. */
+export type TotpSetup = {
+  secret: string;
+  otpauth_url: string;
+};
+
+/** GET /me — the signed-in account. */
+export type Me = {
+  id: string;
+  email: string;
+  is_admin: boolean;
+  created_at: string;
+  /** Whether an authenticator app is enrolled — see POST /me/totp/start. */
+  totp_enabled: boolean;
+};
+
+/** GET /admin/users — every account on the server. Owner-only; 403 otherwise. */
+export type AdminUser = Me;
 
 /** GET /healthz (unauthenticated, at the server root — not under /api/v1). */
 export type ApiHealth = {

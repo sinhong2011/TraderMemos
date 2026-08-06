@@ -405,7 +405,14 @@ func (p *PG) ListAccessTokensByUser(ctx context.Context, userID string) ([]Acces
 	if err != nil {
 		return nil, err
 	}
-	return func() []AccessToken { in := v; out := make([]AccessToken, len(in)); for i := range in { out[i] = AccessToken(in[i]) }; return out }(), nil
+	return func() []AccessToken {
+		in := v
+		out := make([]AccessToken, len(in))
+		for i := range in {
+			out[i] = AccessToken(in[i])
+		}
+		return out
+	}(), nil
 }
 
 func (p *PG) ListAccounts(ctx context.Context, userID string) ([]Account, error) {
@@ -413,7 +420,14 @@ func (p *PG) ListAccounts(ctx context.Context, userID string) ([]Account, error)
 	if err != nil {
 		return nil, err
 	}
-	return func() []Account { in := v; out := make([]Account, len(in)); for i := range in { out[i] = Account(in[i]) }; return out }(), nil
+	return func() []Account {
+		in := v
+		out := make([]Account, len(in))
+		for i := range in {
+			out[i] = Account(in[i])
+		}
+		return out
+	}(), nil
 }
 
 func (p *PG) ListAttachmentsForAccount(ctx context.Context, arg ListAttachmentsForAccountParams) ([]TradeAttachment, error) {
@@ -421,7 +435,14 @@ func (p *PG) ListAttachmentsForAccount(ctx context.Context, arg ListAttachmentsF
 	if err != nil {
 		return nil, err
 	}
-	return func() []TradeAttachment { in := v; out := make([]TradeAttachment, len(in)); for i := range in { out[i] = TradeAttachment(in[i]) }; return out }(), nil
+	return func() []TradeAttachment {
+		in := v
+		out := make([]TradeAttachment, len(in))
+		for i := range in {
+			out[i] = TradeAttachment(in[i])
+		}
+		return out
+	}(), nil
 }
 
 func (p *PG) ListAttachmentsForTrade(ctx context.Context, arg ListAttachmentsForTradeParams) ([]TradeAttachment, error) {
@@ -429,7 +450,14 @@ func (p *PG) ListAttachmentsForTrade(ctx context.Context, arg ListAttachmentsFor
 	if err != nil {
 		return nil, err
 	}
-	return func() []TradeAttachment { in := v; out := make([]TradeAttachment, len(in)); for i := range in { out[i] = TradeAttachment(in[i]) }; return out }(), nil
+	return func() []TradeAttachment {
+		in := v
+		out := make([]TradeAttachment, len(in))
+		for i := range in {
+			out[i] = TradeAttachment(in[i])
+		}
+		return out
+	}(), nil
 }
 
 func (p *PG) ListCashForTrade(ctx context.Context, arg ListCashForTradeParams) ([]CashTransaction, error) {
@@ -437,31 +465,52 @@ func (p *PG) ListCashForTrade(ctx context.Context, arg ListCashForTradeParams) (
 	if err != nil {
 		return nil, err
 	}
-	return func() []CashTransaction { in := v; out := make([]CashTransaction, len(in)); for i := range in { out[i] = CashTransaction(in[i]) }; return out }(), nil
+	return func() []CashTransaction {
+		in := v
+		out := make([]CashTransaction, len(in))
+		for i := range in {
+			out[i] = CashTransaction(in[i])
+		}
+		return out
+	}(), nil
 }
 
 func (p *PG) ListCashTransactions(ctx context.Context, arg ListCashTransactionsParams) ([]CashTransaction, error) {
 	v, err := p.q.ListCashTransactions(ctx, storepg.ListCashTransactionsParams{
-		UserID: arg.UserID,
+		UserID:    arg.UserID,
 		AccountID: ifaceToNullString(arg.AccountID),
 	})
 	if err != nil {
 		return nil, err
 	}
-	return func() []CashTransaction { in := v; out := make([]CashTransaction, len(in)); for i := range in { out[i] = CashTransaction(in[i]) }; return out }(), nil
+	return func() []CashTransaction {
+		in := v
+		out := make([]CashTransaction, len(in))
+		for i := range in {
+			out[i] = CashTransaction(in[i])
+		}
+		return out
+	}(), nil
 }
 
 func (p *PG) ListClosedTrades(ctx context.Context, arg ListClosedTradesParams) ([]Trade, error) {
 	v, err := p.q.ListClosedTrades(ctx, storepg.ListClosedTradesParams{
-		UserID: arg.UserID,
+		UserID:    arg.UserID,
 		AccountID: ifaceToNullString(arg.AccountID),
-		From: ifaceToNullTime(arg.From),
-		To: ifaceToNullTime(arg.To),
+		From:      ifaceToNullTime(arg.From),
+		To:        ifaceToNullTime(arg.To),
 	})
 	if err != nil {
 		return nil, err
 	}
-	return func() []Trade { in := v; out := make([]Trade, len(in)); for i := range in { out[i] = Trade(in[i]) }; return out }(), nil
+	return func() []Trade {
+		in := v
+		out := make([]Trade, len(in))
+		for i := range in {
+			out[i] = Trade(in[i])
+		}
+		return out
+	}(), nil
 }
 
 func (p *PG) ListEconomicEvents(ctx context.Context, arg ListEconomicEventsParams) ([]EconomicEvent, error) {
@@ -469,7 +518,14 @@ func (p *PG) ListEconomicEvents(ctx context.Context, arg ListEconomicEventsParam
 	if err != nil {
 		return nil, err
 	}
-	return func() []EconomicEvent { in := v; out := make([]EconomicEvent, len(in)); for i := range in { out[i] = EconomicEvent(in[i]) }; return out }(), nil
+	return func() []EconomicEvent {
+		in := v
+		out := make([]EconomicEvent, len(in))
+		for i := range in {
+			out[i] = EconomicEvent(in[i])
+		}
+		return out
+	}(), nil
 }
 
 func (p *PG) ListExecutionsForAccount(ctx context.Context, arg ListExecutionsForAccountParams) ([]Execution, error) {
@@ -477,7 +533,14 @@ func (p *PG) ListExecutionsForAccount(ctx context.Context, arg ListExecutionsFor
 	if err != nil {
 		return nil, err
 	}
-	return func() []Execution { in := v; out := make([]Execution, len(in)); for i := range in { out[i] = Execution(in[i]) }; return out }(), nil
+	return func() []Execution {
+		in := v
+		out := make([]Execution, len(in))
+		for i := range in {
+			out[i] = Execution(in[i])
+		}
+		return out
+	}(), nil
 }
 
 func (p *PG) ListExecutionsForTrade(ctx context.Context, tradeID string) ([]Execution, error) {
@@ -485,7 +548,14 @@ func (p *PG) ListExecutionsForTrade(ctx context.Context, tradeID string) ([]Exec
 	if err != nil {
 		return nil, err
 	}
-	return func() []Execution { in := v; out := make([]Execution, len(in)); for i := range in { out[i] = Execution(in[i]) }; return out }(), nil
+	return func() []Execution {
+		in := v
+		out := make([]Execution, len(in))
+		for i := range in {
+			out[i] = Execution(in[i])
+		}
+		return out
+	}(), nil
 }
 
 func (p *PG) ListImportBatches(ctx context.Context, userID string) ([]ImportBatch, error) {
@@ -493,19 +563,33 @@ func (p *PG) ListImportBatches(ctx context.Context, userID string) ([]ImportBatc
 	if err != nil {
 		return nil, err
 	}
-	return func() []ImportBatch { in := v; out := make([]ImportBatch, len(in)); for i := range in { out[i] = ImportBatch(in[i]) }; return out }(), nil
+	return func() []ImportBatch {
+		in := v
+		out := make([]ImportBatch, len(in))
+		for i := range in {
+			out[i] = ImportBatch(in[i])
+		}
+		return out
+	}(), nil
 }
 
 func (p *PG) ListJournalNotes(ctx context.Context, arg ListJournalNotesParams) ([]JournalNote, error) {
 	v, err := p.q.ListJournalNotes(ctx, storepg.ListJournalNotesParams{
-		UserID: arg.UserID,
+		UserID:   arg.UserID,
 		FromDate: ifaceToNullString(arg.FromDate),
-		ToDate: ifaceToNullString(arg.ToDate),
+		ToDate:   ifaceToNullString(arg.ToDate),
 	})
 	if err != nil {
 		return nil, err
 	}
-	return func() []JournalNote { in := v; out := make([]JournalNote, len(in)); for i := range in { out[i] = JournalNote(in[i]) }; return out }(), nil
+	return func() []JournalNote {
+		in := v
+		out := make([]JournalNote, len(in))
+		for i := range in {
+			out[i] = JournalNote(in[i])
+		}
+		return out
+	}(), nil
 }
 
 func (p *PG) ListJournalRisks(ctx context.Context, userID string) ([]ListJournalRisksRow, error) {
@@ -513,7 +597,14 @@ func (p *PG) ListJournalRisks(ctx context.Context, userID string) ([]ListJournal
 	if err != nil {
 		return nil, err
 	}
-	return func() []ListJournalRisksRow { in := v; out := make([]ListJournalRisksRow, len(in)); for i := range in { out[i] = ListJournalRisksRow(in[i]) }; return out }(), nil
+	return func() []ListJournalRisksRow {
+		in := v
+		out := make([]ListJournalRisksRow, len(in))
+		for i := range in {
+			out[i] = ListJournalRisksRow(in[i])
+		}
+		return out
+	}(), nil
 }
 
 func (p *PG) ListMediaFilesForUser(ctx context.Context, userID string) ([]MediaFile, error) {
@@ -521,7 +612,14 @@ func (p *PG) ListMediaFilesForUser(ctx context.Context, userID string) ([]MediaF
 	if err != nil {
 		return nil, err
 	}
-	return func() []MediaFile { in := v; out := make([]MediaFile, len(in)); for i := range in { out[i] = MediaFile(in[i]) }; return out }(), nil
+	return func() []MediaFile {
+		in := v
+		out := make([]MediaFile, len(in))
+		for i := range in {
+			out[i] = MediaFile(in[i])
+		}
+		return out
+	}(), nil
 }
 
 func (p *PG) ListSetups(ctx context.Context, userID string) ([]Setup, error) {
@@ -529,7 +627,14 @@ func (p *PG) ListSetups(ctx context.Context, userID string) ([]Setup, error) {
 	if err != nil {
 		return nil, err
 	}
-	return func() []Setup { in := v; out := make([]Setup, len(in)); for i := range in { out[i] = Setup(in[i]) }; return out }(), nil
+	return func() []Setup {
+		in := v
+		out := make([]Setup, len(in))
+		for i := range in {
+			out[i] = Setup(in[i])
+		}
+		return out
+	}(), nil
 }
 
 func (p *PG) ListSetupsForTrade(ctx context.Context, tradeID string) ([]Setup, error) {
@@ -537,7 +642,14 @@ func (p *PG) ListSetupsForTrade(ctx context.Context, tradeID string) ([]Setup, e
 	if err != nil {
 		return nil, err
 	}
-	return func() []Setup { in := v; out := make([]Setup, len(in)); for i := range in { out[i] = Setup(in[i]) }; return out }(), nil
+	return func() []Setup {
+		in := v
+		out := make([]Setup, len(in))
+		for i := range in {
+			out[i] = Setup(in[i])
+		}
+		return out
+	}(), nil
 }
 
 func (p *PG) ListTags(ctx context.Context, userID string) ([]Tag, error) {
@@ -545,7 +657,14 @@ func (p *PG) ListTags(ctx context.Context, userID string) ([]Tag, error) {
 	if err != nil {
 		return nil, err
 	}
-	return func() []Tag { in := v; out := make([]Tag, len(in)); for i := range in { out[i] = Tag(in[i]) }; return out }(), nil
+	return func() []Tag {
+		in := v
+		out := make([]Tag, len(in))
+		for i := range in {
+			out[i] = Tag(in[i])
+		}
+		return out
+	}(), nil
 }
 
 func (p *PG) ListTagsForTrade(ctx context.Context, tradeID string) ([]Tag, error) {
@@ -553,7 +672,14 @@ func (p *PG) ListTagsForTrade(ctx context.Context, tradeID string) ([]Tag, error
 	if err != nil {
 		return nil, err
 	}
-	return func() []Tag { in := v; out := make([]Tag, len(in)); for i := range in { out[i] = Tag(in[i]) }; return out }(), nil
+	return func() []Tag {
+		in := v
+		out := make([]Tag, len(in))
+		for i := range in {
+			out[i] = Tag(in[i])
+		}
+		return out
+	}(), nil
 }
 
 func (p *PG) ListTradeJournalsForUser(ctx context.Context, userID string) ([]TradeJournal, error) {
@@ -561,7 +687,14 @@ func (p *PG) ListTradeJournalsForUser(ctx context.Context, userID string) ([]Tra
 	if err != nil {
 		return nil, err
 	}
-	return func() []TradeJournal { in := v; out := make([]TradeJournal, len(in)); for i := range in { out[i] = TradeJournal(in[i]) }; return out }(), nil
+	return func() []TradeJournal {
+		in := v
+		out := make([]TradeJournal, len(in))
+		for i := range in {
+			out[i] = TradeJournal(in[i])
+		}
+		return out
+	}(), nil
 }
 
 func (p *PG) ListTradeTagsForUser(ctx context.Context, userID string) ([]ListTradeTagsForUserRow, error) {
@@ -569,19 +702,33 @@ func (p *PG) ListTradeTagsForUser(ctx context.Context, userID string) ([]ListTra
 	if err != nil {
 		return nil, err
 	}
-	return func() []ListTradeTagsForUserRow { in := v; out := make([]ListTradeTagsForUserRow, len(in)); for i := range in { out[i] = ListTradeTagsForUserRow(in[i]) }; return out }(), nil
+	return func() []ListTradeTagsForUserRow {
+		in := v
+		out := make([]ListTradeTagsForUserRow, len(in))
+		for i := range in {
+			out[i] = ListTradeTagsForUserRow(in[i])
+		}
+		return out
+	}(), nil
 }
 
 func (p *PG) ListTrades(ctx context.Context, arg ListTradesParams) ([]Trade, error) {
 	v, err := p.q.ListTrades(ctx, storepg.ListTradesParams{
-		UserID: arg.UserID,
+		UserID:    arg.UserID,
 		AccountID: ifaceToNullString(arg.AccountID),
-		Status: ifaceToNullString(arg.Status),
+		Status:    ifaceToNullString(arg.Status),
 	})
 	if err != nil {
 		return nil, err
 	}
-	return func() []Trade { in := v; out := make([]Trade, len(in)); for i := range in { out[i] = Trade(in[i]) }; return out }(), nil
+	return func() []Trade {
+		in := v
+		out := make([]Trade, len(in))
+		for i := range in {
+			out[i] = Trade(in[i])
+		}
+		return out
+	}(), nil
 }
 
 func (p *PG) GetFlexSyncSettings(ctx context.Context, arg GetFlexSyncSettingsParams) (FlexSyncSetting, error) {
@@ -623,7 +770,14 @@ func (p *PG) ListTradesMissingExcursion(ctx context.Context, arg ListTradesMissi
 	if err != nil {
 		return nil, err
 	}
-	return func() []Trade { in := v; out := make([]Trade, len(in)); for i := range in { out[i] = Trade(in[i]) }; return out }(), nil
+	return func() []Trade {
+		in := v
+		out := make([]Trade, len(in))
+		for i := range in {
+			out[i] = Trade(in[i])
+		}
+		return out
+	}(), nil
 }
 
 func (p *PG) RevokeAccessToken(ctx context.Context, arg RevokeAccessTokenParams) (int64, error) {
@@ -644,6 +798,44 @@ func (p *PG) SetTradeTags(ctx context.Context, arg SetTradeTagsParams) error {
 
 func (p *PG) TouchAccessTokenLastUsed(ctx context.Context, id string) error {
 	return p.q.TouchAccessTokenLastUsed(ctx, id)
+}
+
+func (p *PG) RecordAccessTokenUse(ctx context.Context, arg RecordAccessTokenUseParams) error {
+	return p.q.RecordAccessTokenUse(ctx, storepg.RecordAccessTokenUseParams(arg))
+}
+
+func (p *PG) LatestAccessTokenUse(ctx context.Context, tokenID string) (AccessTokenUse, error) {
+	v, err := p.q.LatestAccessTokenUse(ctx, tokenID)
+	if err != nil {
+		return AccessTokenUse{}, err
+	}
+	return AccessTokenUse(v), nil
+}
+
+func (p *PG) ListAccessTokenUses(ctx context.Context, arg ListAccessTokenUsesParams) ([]AccessTokenUse, error) {
+	// Field-by-field, not a struct conversion: sqlc types LIMIT as int64 for
+	// SQLite and int32 for Postgres.
+	rows, err := p.q.ListAccessTokenUses(ctx, storepg.ListAccessTokenUsesParams{
+		TokenID: arg.TokenID,
+		UserID:  arg.UserID,
+		Limit:   int32(arg.Limit),
+	})
+	if err != nil {
+		return nil, err
+	}
+	out := make([]AccessTokenUse, 0, len(rows))
+	for _, r := range rows {
+		out = append(out, AccessTokenUse(r))
+	}
+	return out, nil
+}
+
+func (p *PG) PruneAccessTokenUses(ctx context.Context, arg PruneAccessTokenUsesParams) error {
+	return p.q.PruneAccessTokenUses(ctx, storepg.PruneAccessTokenUsesParams{
+		TokenID:   arg.TokenID,
+		TokenID_2: arg.TokenID_2,
+		Limit:     int32(arg.Limit),
+	})
 }
 
 func (p *PG) UpdateAccount(ctx context.Context, arg UpdateAccountParams) (Account, error) {
@@ -688,6 +880,42 @@ func (p *PG) UpdateTradeNotes(ctx context.Context, arg UpdateTradeNotesParams) e
 
 func (p *PG) UpdateUserPassword(ctx context.Context, arg UpdateUserPasswordParams) (User, error) {
 	v, err := p.q.UpdateUserPassword(ctx, storepg.UpdateUserPasswordParams(arg))
+	if err != nil {
+		return User{}, err
+	}
+	return User(v), nil
+}
+
+func (p *PG) ListUsers(ctx context.Context) ([]User, error) {
+	rows, err := p.q.ListUsers(ctx)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]User, 0, len(rows))
+	for _, r := range rows {
+		out = append(out, User(r))
+	}
+	return out, nil
+}
+
+func (p *PG) CountAdmins(ctx context.Context) (int64, error) {
+	return p.q.CountAdmins(ctx)
+}
+
+func (p *PG) SetUserAdmin(ctx context.Context, arg SetUserAdminParams) (User, error) {
+	v, err := p.q.SetUserAdmin(ctx, storepg.SetUserAdminParams(arg))
+	if err != nil {
+		return User{}, err
+	}
+	return User(v), nil
+}
+
+func (p *PG) DeleteUser(ctx context.Context, id string) (int64, error) {
+	return p.q.DeleteUser(ctx, id)
+}
+
+func (p *PG) UpdateUserTotpSecret(ctx context.Context, arg UpdateUserTotpSecretParams) (User, error) {
+	v, err := p.q.UpdateUserTotpSecret(ctx, storepg.UpdateUserTotpSecretParams(arg))
 	if err != nil {
 		return User{}, err
 	}

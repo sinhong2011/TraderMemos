@@ -175,9 +175,9 @@ func (s *Server) handleImportPreview(c echo.Context) error {
 		// IANA zone the file's offset-less timestamps are assumed to be in;
 		// clients may override with the source_tz form value on commit.
 		"suggested_source_tz": suggestedTZ,
-		"format":            loaded.Format,
-		"source":            source,
-		"row_count":         rowCount,
+		"format":              loaded.Format,
+		"source":              source,
+		"row_count":           rowCount,
 		// Preview is parse-only — batch is created on confirm.
 		"import_batch_id": "",
 	}

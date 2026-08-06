@@ -1,6 +1,8 @@
 import type { SettingsSectionId } from "@/app/screens/settings/settings-ui";
 
 export const SETTINGS_SECTION_IDS: SettingsSectionId[] = [
+  "profile",
+  "users",
   "general",
   "shortcuts",
   "accounts",

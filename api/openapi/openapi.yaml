@@ -194,6 +194,171 @@ paths:
         "403":
           $ref: "#/components/responses/Error"
 
+  /api/v1/access-tokens/{id}/uses:
+    get:
+      tags: [Access tokens]
+      summary: Where a token has been used from
+      description: >-
+        `last_used_at` on the token answers "recently?"; this answers "by
+        what?", which is the question you ask when a token might have leaked.
+
+
+        Rows are appended when the client looks new — a different IP or
+        user-agent, or the same one after ten minutes — so a token driving a
+        cron writes one row, not one per request. The newest 50 per token are
+        kept. Scoped to the calling user: another user's token id returns an
+        empty list, not an error.
+      operationId: listAccessTokenUses
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Newest first
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required: [used_at, ip, user_agent]
+                  properties:
+                    used_at: { type: string, format: date-time }
+                    ip: { type: string }
+                    user_agent:
+                      type: string
+                      description: Raw and unparsed — the full string is what you match your own tooling against.
+
+  /api/v1/me:
+    get:
+      tags: [Auth]
+      summary: The signed-in user
+      operationId: getMe
+      responses:
+        "200":
+          description: Profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Me"
+        "401":
+          $ref: "#/components/responses/Error"
+
+  /api/v1/me/password:
+    put:
+      tags: [Auth]
+      summary: Change your own password
+      description: >-
+        Re-hashes after verifying the current password. Every refresh token
+        minted against the old password stops working, so other devices are
+        signed out at their next refresh; a fresh pair is returned so the
+        caller is not. Access tokens already issued remain valid until they
+        expire (15 minutes).
+      operationId: changePassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [current_password, new_password]
+              properties:
+                current_password:
+                  type: string
+                new_password:
+                  type: string
+      responses:
+        "200":
+          description: New token pair for this caller
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenPair"
+        "400":
+          $ref: "#/components/responses/Error"
+        "403":
+          $ref: "#/components/responses/Error"
+
+  /api/v1/me/totp/start:
+    post:
+      tags: [Auth]
+      summary: Begin authenticator setup
+      description: >-
+        Mints a candidate secret and its otpauth:// URL. Nothing is stored
+        until /me/totp/confirm proves a code can be read from it, so the
+        client holds the candidate between the two calls.
+      operationId: startTotp
+      responses:
+        "200":
+          description: Candidate secret
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [secret, otpauth_url]
+                properties:
+                  secret:
+                    type: string
+                    description: Base32, for manual entry when a QR cannot be scanned.
+                  otpauth_url: { type: string }
+        "409":
+          $ref: "#/components/responses/Error"
+
+  /api/v1/me/totp/confirm:
+    post:
+      tags: [Auth]
+      summary: Finish authenticator setup
+      operationId: confirmTotp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [secret, code]
+              properties:
+                secret: { type: string }
+                code: { type: string }
+      responses:
+        "204": { description: Enabled }
+        "400":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+
+  /api/v1/me/totp/disable:
+    post:
+      tags: [Auth]
+      summary: Turn off two-factor
+      description: >-
+        Requires the password as well as a current code, so a borrowed
+        unlocked session cannot strip the factor. POST rather than DELETE
+        because it carries a body.
+
+
+        If the authenticator is lost, the recovery path is shell access to
+        the server: `tradermemos disable-totp --email you@example.com`.
+        There are deliberately no recovery codes to store or lose.
+      operationId: disableTotp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [password, code]
+              properties:
+                password: { type: string }
+                code: { type: string }
+      responses:
+        "204": { description: Disabled }
+        "400":
+          $ref: "#/components/responses/Error"
+        "403":
+          $ref: "#/components/responses/Error"
+
   /api/v1/access-tokens:
     get:
       tags: [Access tokens]
@@ -821,6 +986,25 @@ components:
         password:
           type: string
           minLength: 10
+        totp_code:
+          type: string
+          description: >-
+            Sent on the second leg of sign-in, after a login answered 401 with
+            code `totp_required`. A wrong password answers a plain
+            `unauthorized` whether or not the account has an authenticator, so
+            the response never reveals that it does.
+    Me:
+      type: object
+      required: [id, email, is_admin, created_at, totp_enabled]
+      properties:
+        id: { type: string }
+        email: { type: string, format: email }
+        is_admin: { type: boolean }
+        created_at: { type: string, format: date-time }
+        totp_enabled:
+          type: boolean
+          description: Always false today — the column exists but nothing writes it.
+
     TokenPair:
       type: object
       properties:

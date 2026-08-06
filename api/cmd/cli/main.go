@@ -135,6 +135,42 @@ func main() {
 	rp.Flags().StringVar(&password, "password", "", "new password")
 	root.AddCommand(rp)
 
+	// Break-glass for a lost authenticator. There are no recovery codes to
+	// print or lose: on a self-hosted box, shell access *is* the recovery path,
+	// and a code list would just be one more secret to mislay.
+	var totpEmail string
+	disableTotp := &cobra.Command{
+		Use: "disable-totp", Short: "turn off two-factor for a user who lost their authenticator",
+		RunE: func(*cobra.Command, []string) error {
+			if totpEmail == "" {
+				return fmt.Errorf("--email is required")
+			}
+			q, err := openStore()
+			if err != nil {
+				return err
+			}
+			ctx := context.Background()
+			u, err := q.GetUserByEmail(ctx, totpEmail)
+			if err != nil {
+				return fmt.Errorf("user not found: %w", err)
+			}
+			if !auth.TotpEnabled(u) {
+				fmt.Println("two-factor is already off for", u.Email)
+				return nil
+			}
+			if _, err := q.UpdateUserTotpSecret(ctx, store.UpdateUserTotpSecretParams{
+				TotpSecret: sql.NullString{Valid: false},
+				ID:         u.ID,
+			}); err != nil {
+				return err
+			}
+			fmt.Println("two-factor disabled for", u.Email)
+			return nil
+		},
+	}
+	disableTotp.Flags().StringVar(&totpEmail, "email", "", "user email")
+	root.AddCommand(disableTotp)
+
 	seedSetups := &cobra.Command{
 		Use: "seed-setups", Short: "ensure default playbook setups exist for a user",
 		RunE: func(*cobra.Command, []string) error {

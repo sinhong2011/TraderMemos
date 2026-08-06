@@ -12,6 +12,7 @@ type Querier interface {
 	ClearTradeExecutions(ctx context.Context, tradeID string) error
 	ClearTradeSetups(ctx context.Context, tradeID string) error
 	ClearTradeTags(ctx context.Context, tradeID string) error
+	CountAdmins(ctx context.Context) (int64, error)
 	CountUsers(ctx context.Context) (int64, error)
 	CreateAccessToken(ctx context.Context, arg CreateAccessTokenParams) (AccessToken, error)
 	CreateAccount(ctx context.Context, arg CreateAccountParams) (Account, error)
@@ -38,6 +39,7 @@ type Querier interface {
 	DeleteTrade(ctx context.Context, arg DeleteTradeParams) (int64, error)
 	DeleteTradesForAccount(ctx context.Context, arg DeleteTradesForAccountParams) error
 	DeleteTradesNotInAccount(ctx context.Context, arg DeleteTradesNotInAccountParams) error
+	DeleteUser(ctx context.Context, id string) (int64, error)
 	ExecutionExists(ctx context.Context, arg ExecutionExistsParams) (int64, error)
 	GetAccessTokenByHash(ctx context.Context, tokenHash string) (AccessToken, error)
 	GetAccount(ctx context.Context, arg GetAccountParams) (Account, error)
@@ -69,7 +71,9 @@ type Querier interface {
 	InsertExecution(ctx context.Context, arg InsertExecutionParams) (Execution, error)
 	InsertMediaFile(ctx context.Context, arg InsertMediaFileParams) (MediaFile, error)
 	InsertTrade(ctx context.Context, arg InsertTradeParams) (Trade, error)
+	LatestAccessTokenUse(ctx context.Context, tokenID string) (AccessTokenUse, error)
 	LinkTradeExecution(ctx context.Context, arg LinkTradeExecutionParams) error
+	ListAccessTokenUses(ctx context.Context, arg ListAccessTokenUsesParams) ([]AccessTokenUse, error)
 	ListAccessTokensByUser(ctx context.Context, userID string) ([]AccessToken, error)
 	ListAccounts(ctx context.Context, userID string) ([]Account, error)
 	ListAttachmentsForAccount(ctx context.Context, arg ListAttachmentsForAccountParams) ([]TradeAttachment, error)
@@ -100,10 +104,14 @@ type Querier interface {
 	// than post_floor, so the queue converges instead of retrying bar-less
 	// symbols forever.
 	ListTradesMissingExcursion(ctx context.Context, arg ListTradesMissingExcursionParams) ([]Trade, error)
+	ListUsers(ctx context.Context) ([]User, error)
+	PruneAccessTokenUses(ctx context.Context, arg PruneAccessTokenUsesParams) error
+	RecordAccessTokenUse(ctx context.Context, arg RecordAccessTokenUseParams) error
 	RevokeAccessToken(ctx context.Context, arg RevokeAccessTokenParams) (int64, error)
 	SetImportBatchStatus(ctx context.Context, arg SetImportBatchStatusParams) error
 	SetTradeSetup(ctx context.Context, arg SetTradeSetupParams) error
 	SetTradeTags(ctx context.Context, arg SetTradeTagsParams) error
+	SetUserAdmin(ctx context.Context, arg SetUserAdminParams) (User, error)
 	TouchAccessTokenLastUsed(ctx context.Context, id string) error
 	UpdateAccount(ctx context.Context, arg UpdateAccountParams) (Account, error)
 	UpdateCashTransaction(ctx context.Context, arg UpdateCashTransactionParams) (CashTransaction, error)
@@ -114,6 +122,7 @@ type Querier interface {
 	UpdateTag(ctx context.Context, arg UpdateTagParams) (int64, error)
 	UpdateTradeNotes(ctx context.Context, arg UpdateTradeNotesParams) error
 	UpdateUserPassword(ctx context.Context, arg UpdateUserPasswordParams) (User, error)
+	UpdateUserTotpSecret(ctx context.Context, arg UpdateUserTotpSecretParams) (User, error)
 	UpsertAnnualGoal(ctx context.Context, arg UpsertAnnualGoalParams) (AnnualGoal, error)
 	UpsertChecklistTemplate(ctx context.Context, arg UpsertChecklistTemplateParams) (ChecklistTemplate, error)
 	UpsertCoachSettings(ctx context.Context, arg UpsertCoachSettingsParams) (CoachSetting, error)

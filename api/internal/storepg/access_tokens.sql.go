@@ -74,6 +74,71 @@ func (q *Queries) GetAccessTokenByHash(ctx context.Context, tokenHash string) (A
 	return i, err
 }
 
+const latestAccessTokenUse = `-- name: LatestAccessTokenUse :one
+SELECT id, token_id, used_at, ip, user_agent
+FROM access_token_uses
+WHERE token_id = $1
+ORDER BY used_at DESC
+LIMIT 1
+`
+
+func (q *Queries) LatestAccessTokenUse(ctx context.Context, tokenID string) (AccessTokenUse, error) {
+	row := q.db.QueryRowContext(ctx, latestAccessTokenUse, tokenID)
+	var i AccessTokenUse
+	err := row.Scan(
+		&i.ID,
+		&i.TokenID,
+		&i.UsedAt,
+		&i.Ip,
+		&i.UserAgent,
+	)
+	return i, err
+}
+
+const listAccessTokenUses = `-- name: ListAccessTokenUses :many
+SELECT u.id, u.token_id, u.used_at, u.ip, u.user_agent
+FROM access_token_uses u
+JOIN access_tokens t ON t.id = u.token_id
+WHERE u.token_id = $1 AND t.user_id = $2
+ORDER BY u.used_at DESC
+LIMIT $3
+`
+
+type ListAccessTokenUsesParams struct {
+	TokenID string `json:"token_id"`
+	UserID  string `json:"user_id"`
+	Limit   int32  `json:"limit"`
+}
+
+func (q *Queries) ListAccessTokenUses(ctx context.Context, arg ListAccessTokenUsesParams) ([]AccessTokenUse, error) {
+	rows, err := q.db.QueryContext(ctx, listAccessTokenUses, arg.TokenID, arg.UserID, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []AccessTokenUse
+	for rows.Next() {
+		var i AccessTokenUse
+		if err := rows.Scan(
+			&i.ID,
+			&i.TokenID,
+			&i.UsedAt,
+			&i.Ip,
+			&i.UserAgent,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listAccessTokensByUser = `-- name: ListAccessTokensByUser :many
 SELECT id, user_id, name, token_prefix, token_hash, expires_at, last_used_at, created_at, revoked_at
 FROM access_tokens
@@ -112,6 +177,50 @@ func (q *Queries) ListAccessTokensByUser(ctx context.Context, userID string) ([]
 		return nil, err
 	}
 	return items, nil
+}
+
+const pruneAccessTokenUses = `-- name: PruneAccessTokenUses :exec
+DELETE FROM access_token_uses
+WHERE access_token_uses.token_id = $1
+  AND access_token_uses.id NOT IN (
+      SELECT keep.id FROM access_token_uses keep
+      WHERE keep.token_id = $2
+      ORDER BY keep.used_at DESC
+      LIMIT $3
+  )
+`
+
+type PruneAccessTokenUsesParams struct {
+	TokenID   string `json:"token_id"`
+	TokenID_2 string `json:"token_id_2"`
+	Limit     int32  `json:"limit"`
+}
+
+func (q *Queries) PruneAccessTokenUses(ctx context.Context, arg PruneAccessTokenUsesParams) error {
+	_, err := q.db.ExecContext(ctx, pruneAccessTokenUses, arg.TokenID, arg.TokenID_2, arg.Limit)
+	return err
+}
+
+const recordAccessTokenUse = `-- name: RecordAccessTokenUse :exec
+INSERT INTO access_token_uses (id, token_id, ip, user_agent)
+VALUES ($1, $2, $3, $4)
+`
+
+type RecordAccessTokenUseParams struct {
+	ID        string `json:"id"`
+	TokenID   string `json:"token_id"`
+	Ip        string `json:"ip"`
+	UserAgent string `json:"user_agent"`
+}
+
+func (q *Queries) RecordAccessTokenUse(ctx context.Context, arg RecordAccessTokenUseParams) error {
+	_, err := q.db.ExecContext(ctx, recordAccessTokenUse,
+		arg.ID,
+		arg.TokenID,
+		arg.Ip,
+		arg.UserAgent,
+	)
+	return err
 }
 
 const revokeAccessToken = `-- name: RevokeAccessToken :execrows

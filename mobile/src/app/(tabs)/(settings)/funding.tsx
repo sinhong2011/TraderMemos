@@ -227,6 +227,7 @@ const styles = StyleSheet.create((theme) => ({
     alignItems: 'center',
     gap: theme.spacing.md,
     backgroundColor: theme.colors.card,
+    boxShadow: theme.shadows.card,
     borderRadius: theme.radius.lg,
     borderCurve: 'continuous',
     padding: theme.spacing.lg,

@@ -223,6 +223,24 @@ function SymbolBlock({
   // animation, not the initial render (or paging back to this symbol).
   const [initialFillKeys] = useState(() => new Set(values.fills.map((fill) => fill.key)));
 
+  /**
+   * `FILL_LAYOUT` describes the list *changing* — a card added, removed or
+   * duplicated. A `LinearTransition` interpolates from the view's previous
+   * frame and has none on mount, so leaving it always-on animated the fills and
+   * the whole block beneath them out of an empty rect every time this form
+   * mounted, which read as the form sliding in from the top.
+   *
+   * It only showed from the *second* entry onward: on the first, the account /
+   * setup / tag queries are cold, `FormSkeleton` covers the push, and the form
+   * mounts onto an already-settled screen. Warm cache on later entries means it
+   * mounts mid-push, where the same animation is plainly visible.
+   *
+   * Armed by the mutations themselves, so the glide still happens for exactly
+   * the case it was written for — and `setState` in an event handler is fine,
+   * unlike the effect-based gate this repo's lint rejects.
+   */
+  const [fillsMoved, setFillsMoved] = useState(false);
+
   const customTags = tags.filter((tag) => tag.kind !== 'mistake');
   const mistakeTags = tags.filter((tag) => tag.kind === 'mistake');
 
@@ -281,6 +299,7 @@ function SymbolBlock({
 
   /** Insert a copy right below its source — same leg, ready to tweak. */
   function duplicateFill(key: string) {
+    setFillsMoved(true);
     onChange({
       ...values,
       fills: values.fills.flatMap((fill) =>
@@ -380,36 +399,38 @@ function SymbolBlock({
           key={fill.key}
           entering={initialFillKeys.has(fill.key) ? undefined : FILL_ENTER}
           exiting={FILL_EXIT}
-          layout={FILL_LAYOUT}
+          layout={fillsMoved ? FILL_LAYOUT : undefined}
         >
           <FillCard
             fill={fill}
             index={index}
             removable={values.fills.length > 1}
             onChange={(patch) => updateFill(fill.key, patch)}
-            onRemove={() =>
+            onRemove={() => {
+              setFillsMoved(true);
               onChange({
                 ...values,
                 fills: values.fills.filter((f) => f.key !== fill.key),
-              })
-            }
+              });
+            }}
             onDuplicate={() => duplicateFill(fill.key)}
           />
         </Animated.View>
       ))}
       {/* One layout-animated wrapper: everything below the fills glides into
           place when a card is added or removed instead of snapping. */}
-      <Animated.View layout={FILL_LAYOUT} style={styles.afterFills}>
+      <Animated.View layout={fillsMoved ? FILL_LAYOUT : undefined} style={styles.afterFills}>
         <View style={styles.actionRow}>
           <GlassButton
             label={t`Add fill`}
             systemImage="plus"
-            onPress={() =>
+            onPress={() => {
+              setFillsMoved(true);
               onChange({
                 ...values,
                 fills: [...values.fills, emptyFill(values.direction === 'long' ? 'sell' : 'buy')],
-              })
-            }
+              });
+            }}
           />
         </View>
 
