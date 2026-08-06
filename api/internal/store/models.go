@@ -21,6 +21,14 @@ type AccessToken struct {
 	RevokedAt   sql.NullTime `json:"revoked_at"`
 }
 
+type AccessTokenUse struct {
+	ID        string    `json:"id"`
+	TokenID   string    `json:"token_id"`
+	UsedAt    time.Time `json:"used_at"`
+	Ip        string    `json:"ip"`
+	UserAgent string    `json:"user_agent"`
+}
+
 type Account struct {
 	ID              string    `json:"id"`
 	UserID          string    `json:"user_id"`

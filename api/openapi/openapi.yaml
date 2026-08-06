@@ -194,6 +194,43 @@ paths:
         "403":
           $ref: "#/components/responses/Error"
 
+  /api/v1/access-tokens/{id}/uses:
+    get:
+      tags: [Access tokens]
+      summary: Where a token has been used from
+      description: >-
+        `last_used_at` on the token answers "recently?"; this answers "by
+        what?", which is the question you ask when a token might have leaked.
+
+
+        Rows are appended when the client looks new — a different IP or
+        user-agent, or the same one after ten minutes — so a token driving a
+        cron writes one row, not one per request. The newest 50 per token are
+        kept. Scoped to the calling user: another user's token id returns an
+        empty list, not an error.
+      operationId: listAccessTokenUses
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Newest first
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required: [used_at, ip, user_agent]
+                  properties:
+                    used_at: { type: string, format: date-time }
+                    ip: { type: string }
+                    user_agent:
+                      type: string
+                      description: Raw and unparsed — the full string is what you match your own tooling against.
+
   /api/v1/me:
     get:
       tags: [Auth]

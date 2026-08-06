@@ -16,6 +16,7 @@ func (s *Server) accessTokenRoutes(g *echo.Group) {
 	g.GET("/access-tokens", s.handleListAccessTokens)
 	g.POST("/access-tokens", s.handleCreateAccessToken)
 	g.DELETE("/access-tokens/:id", s.handleRevokeAccessToken)
+	g.GET("/access-tokens/:id/uses", s.handleListAccessTokenUses)
 }
 
 type createAccessTokenReq struct {
@@ -126,4 +127,42 @@ func (s *Server) handleRevokeAccessToken(c echo.Context) error {
 		return Fail(http.StatusNotFound, "not_found", "access token not found", nil)
 	}
 	return c.NoContent(http.StatusNoContent)
+}
+
+type accessTokenUseDTO struct {
+	UsedAt string `json:"used_at"`
+	IP     string `json:"ip"`
+	// Raw and unparsed. Turning "curl/8.4.0" into "curl" is guesswork, and the
+	// point of this screen is recognising your own tooling — the full string is
+	// what you actually match against.
+	UserAgent string `json:"user_agent"`
+}
+
+// Where a token has been used from. `last_used_at` answers "recently?"; this
+// answers "by what?", which is the question you ask when a token might have
+// leaked.
+func (s *Server) handleListAccessTokenUses(c echo.Context) error {
+	if s.deps.Store == nil {
+		return Fail(http.StatusServiceUnavailable, "unavailable", "store not configured", nil)
+	}
+	// Scoped by user_id in the query, so one user cannot read another's
+	// history by guessing a token id.
+	rows, err := s.deps.Store.ListAccessTokenUses(c.Request().Context(),
+		store.ListAccessTokenUsesParams{
+			TokenID: c.Param("id"),
+			UserID:  auth.UserID(c),
+			Limit:   50,
+		})
+	if err != nil {
+		return Fail(http.StatusInternalServerError, "internal", "could not list uses", nil)
+	}
+	out := make([]accessTokenUseDTO, 0, len(rows))
+	for _, r := range rows {
+		out = append(out, accessTokenUseDTO{
+			UsedAt:    r.UsedAt.UTC().Format(time.RFC3339),
+			IP:        r.Ip,
+			UserAgent: r.UserAgent,
+		})
+	}
+	return c.JSON(http.StatusOK, out)
 }
