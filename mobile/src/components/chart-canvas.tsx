@@ -50,9 +50,9 @@ function nearestBarIndex(bars: MarketBar[], unixSec: number): number {
  * the replay cursor are plain positioned Views, so no chart library or native
  * module is needed (there is no SVG dependency in this app).
  *
- * Replay: with a `cursor`, bars after it render dimmed and markers past it
- * hide; the price scale stays fixed to the full range so the frame is stable
- * while it plays. Pass `onScrub` to make the plot itself the scrubber.
+ * Replay: with a `cursor`, bars after it are hidden and markers past it too;
+ * the price scale stays fixed to the full range so the frame is stable while
+ * it plays. Pass `onScrub` to make the plot itself the scrubber.
  */
 export function ChartCanvas({
   bars,
@@ -226,9 +226,9 @@ export function ChartCanvas({
         <View key={line.value} style={[styles.gridline, { top: line.top }]} />
       ))}
       {candles}
-      {/* The unplayed tape is veiled by one moving pane rather than by an
-          opacity on every future candle: playback moves this View instead of
-          re-styling several hundred, which is what keeps 10× smooth. */}
+      {/* The unplayed tape is covered by one moving pane rather than by
+          slicing the candle list: playback moves this View instead of
+          rebuilding several hundred, which is what keeps 10× smooth. */}
       {cursorBar ? (
         <View
           style={[
@@ -345,7 +345,9 @@ const styles = StyleSheet.create((theme) => ({
   body: { position: 'absolute', borderRadius: 1 },
   // 0.75 over the surface leaves the future tape at the same quarter-strength
   // the per-candle opacity used to give it.
-  curtain: { position: 'absolute', top: 0, right: 0, opacity: 0.75 },
+  // Opaque, not tinted: a replay whose next candles are legible through the
+  // veil answers the question before you have played it.
+  curtain: { position: 'absolute', top: 0, right: 0 },
   cursorLine: { position: 'absolute', top: 0, width: 1, opacity: 0.5 },
   cursorDot: { position: 'absolute', width: 6, height: 6, borderRadius: 3 },
   priceLine: { position: 'absolute', left: 0, right: 0, height: 1, opacity: 0.55 },

@@ -17,7 +17,7 @@ import type { RequestOptions } from '@/api/client';
 import { parseFillFile } from './fill-file';
 import { mergeTradeExtracts } from './trade-prefill';
 
-/** A file to import, in the `{uri,name,type}` shape RN's FormData takes. */
+/** A file queued for import: local uri plus the name and mime the pickers report. */
 export type ImportSource = { uri: string; name: string; type: string };
 
 /** Cap multi-select screenshots so a single scan stays affordable (web parity). */
@@ -44,7 +44,7 @@ export function mimeForFilename(name: string): string | null {
   return IMAGE_MIME[extension] ?? DATA_MIME[extension] ?? null;
 }
 
-function isImage(source: ImportSource): boolean {
+export function isImageSource(source: ImportSource): boolean {
   return source.type.startsWith('image/');
 }
 
@@ -59,6 +59,32 @@ export function isVisionReady(settings: LlmApiSettings | undefined): boolean {
 }
 
 /**
+ * Parse one source into an extract: screenshots go through `POST /ocr/parse`,
+ * CSV/JSON fill files parse on-device.
+ */
+export async function extractFromSource(
+  source: ImportSource,
+  api: (path: string, options?: RequestOptions) => Promise<Response>,
+): Promise<TradeExtract> {
+  if (isImageSource(source)) {
+    const formData = new FormData();
+    // An expo-file-system `File`, not RN's `{uri,name,type}` descriptor — Expo's
+    // fetch polyfill owns the global `fetch` and serialises a part only from a
+    // string, a Blob, or something with `bytes()` (see components/note-images.tsx).
+    formData.append('file', new File(source.uri) as unknown as Blob, source.name);
+    const response = await api('/ocr/parse', { method: 'POST', formData });
+    return (await response.json()) as TradeExtract;
+  }
+  return parseFillFile(source.name, await new File(source.uri).text());
+}
+
+/** Images capped to SCAN_MAX_IMAGES, fill files always kept. */
+export function capScanSources(sources: ImportSource[]): ImportSource[] {
+  const images = sources.filter(isImageSource).slice(0, SCAN_MAX_IMAGES);
+  return [...images, ...sources.filter((source) => !isImageSource(source))];
+}
+
+/**
  * Screenshots through `POST /ocr/parse` (one call each), fill files parsed
  * locally, all merged into a single extract.
  */
@@ -67,15 +93,8 @@ export async function extractFromSources(
   api: (path: string, options?: RequestOptions) => Promise<Response>,
 ): Promise<TradeExtract> {
   const extracts: TradeExtract[] = [];
-  for (const image of sources.filter(isImage).slice(0, SCAN_MAX_IMAGES)) {
-    const formData = new FormData();
-    // React Native FormData takes a {uri,name,type} descriptor for file parts.
-    formData.append('file', image as unknown as Blob);
-    const response = await api('/ocr/parse', { method: 'POST', formData });
-    extracts.push((await response.json()) as TradeExtract);
-  }
-  for (const data of sources.filter((source) => !isImage(source))) {
-    extracts.push(parseFillFile(data.name, await new File(data.uri).text()));
+  for (const source of capScanSources(sources)) {
+    extracts.push(await extractFromSource(source, api));
   }
   return mergeTradeExtracts(extracts);
 }

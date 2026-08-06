@@ -1,5 +1,3 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { File as FsFile } from 'expo-file-system';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { Alert, Text, View } from 'react-native';
@@ -8,14 +6,7 @@ import { StyleSheet } from 'react-native-unistyles';
 import { FormSkeleton } from '@/components/skeleton';
 
 import { useSession } from '@/api/session';
-import {
-  useAccounts,
-  useApiRaw,
-  useApiRequest,
-  useLlmSettings,
-  useSetups,
-  useTags,
-} from '@/api/hooks';
+import { useAccounts, useApiRaw, useLlmSettings, useSetups, useTags } from '@/api/hooks';
 import { TradeForm } from '@/components/trade-form';
 import { t } from '@lingui/core/macro';
 import {
@@ -25,15 +16,8 @@ import {
   listDroppedSources,
 } from '@/lib/trade-import';
 import { blocksFromExtract } from '@/lib/trade-prefill';
-import {
-  dividendBody,
-  emptyTradeForm,
-  executionBody,
-  isValidFill,
-  journalPatchBody,
-  validateTradeForm,
-  type TradeFormValues,
-} from '@/lib/trade-form';
+import { stashTradeDraft } from '@/lib/trade-draft';
+import { emptyTradeForm, validateTradeForm, type TradeFormValues } from '@/lib/trade-form';
 
 /**
  * Drains the drop folder when the form is opened with `?import=1` — the
@@ -103,75 +87,48 @@ function useDroppedPrefill(
  */
 export default function NewTradeScreen() {
   const router = useRouter();
-  const queryClient = useQueryClient();
-  const api = useApiRequest();
   const apiRaw = useApiRaw();
   const { data: accounts } = useAccounts();
   const { data: setups } = useSetups();
   const { data: tags } = useTags();
   const prefill = useDroppedPrefill(accounts?.[0]?.id, apiRaw);
 
-  const save = useMutation({
-    mutationFn: async (blocks: TradeFormValues[]) => {
-      for (const values of blocks) {
-        let tradeId = '';
-        for (const fill of values.fills.filter(isValidFill)) {
-          const res = await api<{ execution_id: string; trade_id: string }>('/executions', {
-            method: 'POST',
-            body: executionBody(values, fill),
-          });
-          if (res.trade_id) tradeId = res.trade_id;
-        }
-        if (tradeId) {
-          await api(`/trades/${tradeId}`, { method: 'PATCH', body: journalPatchBody(values) });
-          const account = accounts?.find((a) => a.id === values.accountId);
-          const dividend = dividendBody(values, tradeId, account?.base_currency ?? 'USD');
-          if (dividend) await api('/cash-transactions', { method: 'POST', body: dividend });
-          // Queued screenshots attach once the trade exists — one at a time,
-          // like the detail-screen uploader, so partial success sticks.
-          for (const shot of values.screenshots) {
-            const formData = new FormData();
-            // See components/note-images.tsx — Expo's fetch polyfill rejects
-            // RN's `{uri,name,type}` file descriptor.
-            formData.append('file', new FsFile(shot.uri) as unknown as Blob, shot.name);
-            const response = await apiRaw(`/trades/${tradeId}/attachments`, {
-              method: 'POST',
-              formData,
-            });
-            if (!response.ok) {
-              throw new Error(t`Screenshot upload failed (${response.status})`);
-            }
-          }
-        }
-      }
-    },
-    onSuccess: () => {
-      void queryClient.invalidateQueries();
-      router.back();
-    },
-    onError: (err) => Alert.alert(t`Could not save`, err.message),
-  });
-
-  function handleSave(blocks: TradeFormValues[]) {
+  /**
+   * "Preview" on the form: validate, stash the draft, and push the
+   * /trade-preview page — Save (and the actual mutation) lives there.
+   */
+  function handlePreview(blocks: TradeFormValues[]) {
+    // Nothing is written here — Save lives on the preview page — so the alerts
+    // name the missing field, and the tab chip ("Symbol 2") rather than an
+    // internal "block", so the user knows which page to swipe back to.
     for (const [index, values] of blocks.entries()) {
-      const label = values.symbol.trim().toUpperCase() || t`symbol ${index + 1}`;
+      const label = values.symbol.trim().toUpperCase() || t`Symbol ${index + 1}`;
       switch (validateTradeForm(values)) {
         case 'account':
           return Alert.alert(
-            t`Could not save`,
+            t`Trade not ready`,
             t`No account found — create one on the web app first.`,
           );
         case 'symbol':
-          return Alert.alert(t`Could not save`, t`Enter a symbol for block ${index + 1}.`);
+          return Alert.alert(t`Trade not ready`, t`Enter a symbol for ${label}.`);
         case 'fills':
           return Alert.alert(
-            t`Could not save`,
+            t`Trade not ready`,
             t`Add at least one fill with quantity and price for ${label}.`,
           );
       }
     }
     if (blocks.length === 0) return;
-    save.mutate(blocks);
+    const account = accounts?.find((a) => a.id === blocks[0].accountId);
+    stashTradeDraft({
+      blocks,
+      accountId: blocks[0].accountId,
+      accountName: account?.name ?? '',
+      currency: account?.base_currency ?? 'USD',
+      setups: setups ?? [],
+      tags: tags ?? [],
+    });
+    router.push('/trade-preview');
   }
 
   if (!accounts || !setups || !tags || prefill.importing) {
@@ -196,8 +153,9 @@ export default function NewTradeScreen() {
       accounts={accounts}
       setups={setups}
       tags={tags}
-      saving={save.isPending}
-      onSave={handleSave}
+      saving={false}
+      pushed
+      onSave={handlePreview}
     />
   );
 }

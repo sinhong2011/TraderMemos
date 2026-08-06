@@ -1,9 +1,7 @@
 import { Stack } from 'expo-router/stack';
-import { View } from 'react-native';
 import { useUnistyles } from 'react-native-unistyles';
 
 import { AccountMenu } from '@/components/account-menu';
-import { AddMenu } from '@/components/add-menu';
 import { ToolsMenu } from '@/components/tools-menu';
 import { t } from '@lingui/core/macro';
 
@@ -33,15 +31,10 @@ export default function DashboardLayout() {
         name="index"
         options={{
           title: t`Home`,
-          // Start-of-day actions live left: scope the account, open a
-          // calculator. Creation stays right on the + menu.
-          headerLeft: () => (
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-              <AccountMenu />
-              <ToolsMenu />
-            </View>
-          ),
-          headerRight: () => <AddMenu />,
+          // Account scope leads left; the calculators live right. Creation
+          // moved off Home — the Trades tab owns the + menu.
+          headerLeft: () => <AccountMenu />,
+          headerRight: () => <ToolsMenu />,
         }}
       />
       <Stack.Screen name="notes" options={{ title: t`Notes`, headerLargeTitle: false }} />
