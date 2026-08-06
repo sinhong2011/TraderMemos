@@ -134,6 +134,7 @@ export type SettingsLabelKey =
   | "users"
   | "usersTitle"
   | "usersDescription"
+  | "syncedPrefsNote"
   | "accounts"
   | "rules"
   | "journal"
@@ -294,6 +295,8 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     users: "Users",
     usersTitle: "Users",
     usersDescription: "Everyone with an account on this server.",
+    syncedPrefsNote:
+      "Timezones, clock format, display currency and the screenshots cap follow your account — they apply on every device you sign in on. Language and theme stay on this one.",
     generalTitle: "General",
     generalDescription: "Preferences and session.",
     apiTitle: "API access",
@@ -450,6 +453,8 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     users: "使用者",
     usersTitle: "使用者",
     usersDescription: "此伺服器上所有擁有帳戶的人。",
+    syncedPrefsNote:
+      "時區、時間格式、顯示貨幣和截圖上限跟隨你的帳戶，在你登入的每部裝置上都一樣。語言和主題只留在這部裝置。",
     generalTitle: "一般",
     generalDescription: "偏好設定及工作階段。",
     apiTitle: "API 存取",
@@ -599,6 +604,8 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     users: "ユーザー",
     usersTitle: "ユーザー",
     usersDescription: "このサーバーにアカウントを持つすべての人。",
+    syncedPrefsNote:
+      "タイムゾーン、時刻表示、表示通貨、スクリーンショット上限はアカウントに従い、サインインしたすべてのデバイスに適用されます。言語とテーマはこのデバイスだけの設定です。",
     generalTitle: "一般",
     generalDescription: "設定とセッション。",
     apiTitle: "API アクセス",
@@ -755,6 +762,8 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     users: "사용자",
     usersTitle: "사용자",
     usersDescription: "이 서버에 계정이 있는 모든 사람.",
+    syncedPrefsNote:
+      "시간대, 시간 형식, 표시 통화, 스크린샷 상한은 계정을 따라가며 로그인한 모든 기기에 적용됩니다. 언어와 테마는 이 기기에만 적용됩니다.",
     generalTitle: "일반",
     generalDescription: "환경설정 및 세션.",
     apiTitle: "API 접근",
