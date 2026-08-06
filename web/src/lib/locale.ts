@@ -116,6 +116,7 @@ export function navLabel(locale: string, key: NavLabelKey): string {
 }
 
 export type SettingsSectionId =
+  | "account"
   | "accounts"
   | "rules"
   | "journal"
@@ -126,6 +127,9 @@ export type SettingsSectionId =
   | "about";
 
 export type SettingsLabelKey =
+  | "account"
+  | "accountTitle"
+  | "accountDescription"
   | "accounts"
   | "rules"
   | "journal"
@@ -280,6 +284,9 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     journalDescription: "Tags used when logging trades. Manage setups in Playbook.",
     aiTitle: "AI & LLM",
     aiDescription: "Screenshot scan, trade coach, and OpenAI-compatible API keys.",
+    account: "Account",
+    accountTitle: "Your account",
+    accountDescription: "Who you are signed in as, and your password.",
     generalTitle: "General",
     generalDescription: "Preferences and session.",
     apiTitle: "API access",
@@ -430,6 +437,9 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     journalDescription: "記錄交易時使用的標籤。策略庫設定請到 Playbook 管理。",
     aiTitle: "AI 與 LLM",
     aiDescription: "截圖掃描、交易教練及 OpenAI 相容 API 金鑰。",
+    account: "帳戶",
+    accountTitle: "我的帳戶",
+    accountDescription: "目前登入的身分，以及密碼設定。",
     generalTitle: "一般",
     generalDescription: "偏好設定及工作階段。",
     apiTitle: "API 存取",
@@ -573,6 +583,9 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     journalDescription: "トレード記録時に使うタグ。セットアップは Playbook で管理します。",
     aiTitle: "AI & LLM",
     aiDescription: "スクショ解析、トレードコーチ、OpenAI 互換 API キー。",
+    account: "アカウント",
+    accountTitle: "アカウント",
+    accountDescription: "サインイン中のアカウントとパスワード。",
     generalTitle: "一般",
     generalDescription: "設定とセッション。",
     apiTitle: "API アクセス",
@@ -723,6 +736,9 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     journalDescription: "거래 기록 시 사용하는 태그. 셋업은 Playbook에서 관리합니다.",
     aiTitle: "AI & LLM",
     aiDescription: "스크린샷 스캔, 트레이드 코치, OpenAI 호환 API 키.",
+    account: "계정",
+    accountTitle: "내 계정",
+    accountDescription: "로그인한 계정과 비밀번호.",
     generalTitle: "일반",
     generalDescription: "환경설정 및 세션.",
     apiTitle: "API 접근",
@@ -878,6 +894,7 @@ export function settingsNavItems(locale: string): {
 }[] {
   return (
     [
+      { id: "account", key: "account" },
       { id: "general", key: "general" },
       { id: "shortcuts", key: "shortcuts" },
       { id: "accounts", key: "accounts" },
