@@ -28,6 +28,12 @@ export default function SettingsLayout() {
           on a pushed `headerLargeTitle` screen leaks 60pt of top inset per
           push (see the note in funding.tsx). */}
       <Stack.Screen name="tags" options={{ title: t`Tags`, headerLargeTitle: false }} />
+      {/* "Account" is taken by account-form, the broker-account editor. */}
+      <Stack.Screen name="profile" options={{ title: t`Your account`, headerLargeTitle: false }} />
+      <Stack.Screen
+        name="change-password"
+        options={{ title: t`Change password`, headerLargeTitle: false }}
+      />
       <Stack.Screen
         name="trading-journal"
         options={{ title: t`Trading & journal`, headerLargeTitle: false }}

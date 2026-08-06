@@ -280,6 +280,16 @@ export type AccessToken = {
 
 export type CreatedAccessToken = AccessToken & { token: string };
 
+/** GET /me — the signed-in account. */
+export type Me = {
+  id: string;
+  email: string;
+  is_admin: boolean;
+  created_at: string;
+  /** Always false today: the column exists server-side but nothing writes it. */
+  totp_enabled: boolean;
+};
+
 /** GET /healthz (unauthenticated, at the server root — not under /api/v1). */
 export type ApiHealth = {
   status: string;

@@ -34,6 +34,7 @@ import type {
   ChecklistTemplate,
   LlmApiSettings,
   MarketBarsResponse,
+  Me,
   PropSettings,
   Setup,
   Tag,
@@ -80,6 +81,7 @@ export const queryKeys = {
   checklistTemplate: () => ['settings', 'checklist-template'] as const,
   llmSettings: (kind: LlmKind) => ['settings', kind] as const,
   accessTokens: () => ['access-tokens'] as const,
+  me: () => ['me'] as const,
   propSettings: (accountId: string) => ['accounts', accountId, 'prop-settings'] as const,
   propStatus: (accountId: string, filters: Filters) =>
     ['accounts', accountId, 'prop-status', filters] as const,
@@ -249,6 +251,12 @@ export function useAccounts() {
 
 export function useLlmSettings(kind: LlmKind) {
   return useApiQuery<LlmApiSettings>(queryKeys.llmSettings(kind), `/settings/${kind}`);
+}
+
+/** The signed-in account. Cheap and rarely changes — the settings hub, the
+ *  profile screen and anything gating on `is_admin` all read this one query. */
+export function useMe() {
+  return useApiQuery<Me>(queryKeys.me(), '/me');
 }
 
 export function useAccessTokens() {
