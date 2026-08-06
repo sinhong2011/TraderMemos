@@ -40,8 +40,10 @@ function UseRow({ use }: { use: AccessTokenUse }) {
           </Text>
         </View>
         {/* The full agent, selectable: this is the string you paste into a
-            search when you don't recognise it. */}
-        {use.user_agent.trim() ? (
+            search when you don't recognise it. Skipped when it adds nothing —
+            a one-word agent like "curl/8.4.0" is already the heading, and
+            printing it twice reads like a rendering bug. */}
+        {use.user_agent.trim() && use.user_agent.trim() !== shortAgent(use.user_agent) ? (
           <Text selectable style={styles.fullAgent} numberOfLines={2}>
             {use.user_agent}
           </Text>

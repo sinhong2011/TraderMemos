@@ -1274,11 +1274,11 @@ msgstr "현금 제한"
 
 #: src/app/(tabs)/(settings)/_layout.tsx:39
 #: src/app/(tabs)/(settings)/index.tsx:123
-#: src/app/(tabs)/(settings)/profile.tsx:103
+#: src/app/(tabs)/(settings)/profile.tsx:106
 msgid "Change password"
 msgstr "비밀번호 변경"
 
-#: src/app/(tabs)/(settings)/profile.tsx:97
+#: src/app/(tabs)/(settings)/profile.tsx:100
 msgid "Changing your password signs out your other devices."
 msgstr "비밀번호를 변경하면 다른 기기가 로그아웃됩니다."
 
@@ -2167,8 +2167,8 @@ msgid "Edit transaction"
 msgstr "거래 편집"
 
 #: src/app/(tabs)/(settings)/profile.tsx:63
-msgid "Email"
-msgstr "이메일"
+#~ msgid "Email"
+#~ msgstr "이메일"
 
 #: src/app/(tabs)/(trades)/[id].tsx:413
 #: src/app/manage-tags.tsx:104
@@ -2835,7 +2835,7 @@ msgstr "휴일"
 msgid "Home"
 msgstr "홈"
 
-#: src/app/(tabs)/(settings)/profile.tsx:78
+#: src/app/(tabs)/(settings)/profile.tsx:81
 msgid "Host"
 msgstr "호스트"
 
@@ -3358,12 +3358,12 @@ msgstr "수익 중앙값"
 msgid "Medium"
 msgstr "보통"
 
-#: src/app/(tabs)/(settings)/profile.tsx:67
+#: src/app/(tabs)/(settings)/profile.tsx:70
 #: src/app/(tabs)/(settings)/users.tsx:53
 msgid "Member"
 msgstr "멤버"
 
-#: src/app/(tabs)/(settings)/profile.tsx:69
+#: src/app/(tabs)/(settings)/profile.tsx:72
 #: src/app/(tabs)/(settings)/user-detail.tsx:159
 msgid "Member since"
 msgstr "가입일"
@@ -3845,7 +3845,7 @@ msgstr "미측정"
 msgid "Not traded in this range"
 msgstr "이 범위에서 미거래"
 
-#: src/app/(tabs)/(settings)/token-uses.tsx:95
+#: src/app/(tabs)/(settings)/token-uses.tsx:97
 msgid "Not used yet"
 msgstr "아직 사용되지 않음"
 
@@ -3915,7 +3915,7 @@ msgid "of {0}"
 msgstr "/ {0}"
 
 #: src/app/(tabs)/(settings)/ai.tsx:62
-#: src/app/(tabs)/(settings)/profile.tsx:109
+#: src/app/(tabs)/(settings)/profile.tsx:112
 #: src/app/(tabs)/(settings)/user-detail.tsx:163
 msgid "Off"
 msgstr "끔"
@@ -3933,7 +3933,7 @@ msgid "Omit account details"
 msgstr "계좌 정보 제외"
 
 #: src/app/(tabs)/(settings)/ai.tsx:61
-#: src/app/(tabs)/(settings)/profile.tsx:109
+#: src/app/(tabs)/(settings)/profile.tsx:112
 #: src/app/(tabs)/(settings)/user-detail.tsx:163
 msgid "On"
 msgstr "켬"
@@ -3942,7 +3942,7 @@ msgstr "켬"
 #~ msgid "One check per line"
 #~ msgstr "한 줄에 하나씩"
 
-#: src/app/(tabs)/(settings)/token-uses.tsx:88
+#: src/app/(tabs)/(settings)/token-uses.tsx:90
 msgid "One entry per client, not per request — a repeat from the same IP and app is folded in for ten minutes. The 50 most recent are kept."
 msgstr "요청이 아니라 클라이언트 단위로 한 건씩입니다. 같은 IP와 앱에서의 재사용은 10분 동안 하나로 묶입니다. 최근 50건을 보관합니다."
 
@@ -4088,7 +4088,7 @@ msgid "Overview"
 msgstr "개요"
 
 #: src/app/(tabs)/(settings)/index.tsx:284
-#: src/app/(tabs)/(settings)/profile.tsx:67
+#: src/app/(tabs)/(settings)/profile.tsx:70
 #: src/app/(tabs)/(settings)/user-detail.tsx:177
 #: src/app/(tabs)/(settings)/user-form.tsx:132
 #: src/app/(tabs)/(settings)/users.tsx:53
@@ -4919,7 +4919,7 @@ msgstr "리스크·목표·스톱이 모두 비어 있습니다. 계획이 없�
 msgid "Risk, target, and stop are blank — and you tagged this as no plan. Define all three before entry next time so you can measure R and review honestly."
 msgstr "리스크·목표·스톱이 비어 있고 스스로 '무계획' 태그를 달았습니다. 다음엔 진입 전에 셋 다 정해 R을 측정하고 정직하게 복기하세요."
 
-#: src/app/(tabs)/(settings)/profile.tsx:66
+#: src/app/(tabs)/(settings)/profile.tsx:69
 msgid "Role"
 msgstr "역할"
 
@@ -5142,7 +5142,7 @@ msgstr "종목 검색"
 msgid "Search symbol or tag"
 msgstr "종목 또는 태그 검색"
 
-#: src/app/(tabs)/(settings)/profile.tsx:94
+#: src/app/(tabs)/(settings)/profile.tsx:97
 #: src/app/(tabs)/(settings)/user-detail.tsx:184
 msgid "Security"
 msgstr "보안"
@@ -5151,7 +5151,7 @@ msgstr "보안"
 msgid "security credentials reset"
 msgstr "보안 자격 증명 재설정 비밀번호"
 
-#: src/app/(tabs)/(settings)/profile.tsx:76
+#: src/app/(tabs)/(settings)/profile.tsx:79
 msgid "Self-hosted — your journal never leaves this server."
 msgstr "셀프 호스팅 — 저널은 이 서버를 벗어나지 않습니다."
 
@@ -5173,7 +5173,7 @@ msgid "Sell %"
 msgstr "매도 %"
 
 #: src/app/(tabs)/(settings)/about.tsx:74
-#: src/app/(tabs)/(settings)/profile.tsx:75
+#: src/app/(tabs)/(settings)/profile.tsx:78
 msgid "Server"
 msgstr "서버"
 
@@ -5934,7 +5934,7 @@ msgstr "오늘"
 msgid "Token"
 msgstr "토큰"
 
-#: src/app/(tabs)/(settings)/token-uses.tsx:67
+#: src/app/(tabs)/(settings)/token-uses.tsx:69
 msgid "Token activity"
 msgstr "토큰 사용 기록"
 
@@ -6121,7 +6121,7 @@ msgstr "끄는 중…"
 msgid "Two-factor"
 msgstr "2단계 인증"
 
-#: src/app/(tabs)/(settings)/profile.tsx:108
+#: src/app/(tabs)/(settings)/profile.tsx:111
 msgid "Two-factor authentication"
 msgstr "2단계 인증"
 
@@ -6211,6 +6211,7 @@ msgstr "새 거래의 규칙 준수 검사에 사용됩니다. 적용할 한도�
 msgid "User added"
 msgstr "사용자를 추가했습니다"
 
+#: src/app/(tabs)/(settings)/profile.tsx:66
 #: src/app/(tabs)/(settings)/user-detail.tsx:156
 #: src/app/(tabs)/(settings)/user-form.tsx:103
 #: src/app/login.tsx:198
@@ -6219,7 +6220,7 @@ msgstr "사용자 이름"
 
 #: src/app/(tabs)/(settings)/_layout.tsx:41
 #: src/app/(tabs)/(settings)/index.tsx:129
-#: src/app/(tabs)/(settings)/profile.tsx:87
+#: src/app/(tabs)/(settings)/profile.tsx:90
 #: src/app/(tabs)/(settings)/users.tsx:33
 msgid "Users"
 msgstr "사용자"
@@ -6319,7 +6320,7 @@ msgstr "이 플레이가 성립하려면 무엇이 필요합니까? 언제 무�
 msgid "What would you do differently?"
 msgstr "다음에는 무엇을 다르게 하시겠습니까?"
 
-#: src/app/(tabs)/(settings)/token-uses.tsx:97
+#: src/app/(tabs)/(settings)/token-uses.tsx:99
 msgid "When something authenticates with this token, the IP and app it used show up here."
 msgstr "이 토큰으로 인증이 일어나면 사용된 IP와 앱이 여기에 표시됩니다."
 

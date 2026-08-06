@@ -1274,11 +1274,11 @@ msgstr "受現金限制"
 
 #: src/app/(tabs)/(settings)/_layout.tsx:39
 #: src/app/(tabs)/(settings)/index.tsx:123
-#: src/app/(tabs)/(settings)/profile.tsx:103
+#: src/app/(tabs)/(settings)/profile.tsx:106
 msgid "Change password"
 msgstr "變更密碼"
 
-#: src/app/(tabs)/(settings)/profile.tsx:97
+#: src/app/(tabs)/(settings)/profile.tsx:100
 msgid "Changing your password signs out your other devices."
 msgstr "變更密碼會令其他裝置登出。"
 
@@ -2167,8 +2167,8 @@ msgid "Edit transaction"
 msgstr "編輯交易"
 
 #: src/app/(tabs)/(settings)/profile.tsx:63
-msgid "Email"
-msgstr "電郵"
+#~ msgid "Email"
+#~ msgstr "電郵"
 
 #: src/app/(tabs)/(trades)/[id].tsx:413
 #: src/app/manage-tags.tsx:104
@@ -2835,7 +2835,7 @@ msgstr "假期"
 msgid "Home"
 msgstr "主頁"
 
-#: src/app/(tabs)/(settings)/profile.tsx:78
+#: src/app/(tabs)/(settings)/profile.tsx:81
 msgid "Host"
 msgstr "主機"
 
@@ -3358,12 +3358,12 @@ msgstr "盈利中位數"
 msgid "Medium"
 msgstr "中"
 
-#: src/app/(tabs)/(settings)/profile.tsx:67
+#: src/app/(tabs)/(settings)/profile.tsx:70
 #: src/app/(tabs)/(settings)/users.tsx:53
 msgid "Member"
 msgstr "成員"
 
-#: src/app/(tabs)/(settings)/profile.tsx:69
+#: src/app/(tabs)/(settings)/profile.tsx:72
 #: src/app/(tabs)/(settings)/user-detail.tsx:159
 msgid "Member since"
 msgstr "加入日期"
@@ -3845,7 +3845,7 @@ msgstr "未計時"
 msgid "Not traded in this range"
 msgstr "此範圍內未交易"
 
-#: src/app/(tabs)/(settings)/token-uses.tsx:95
+#: src/app/(tabs)/(settings)/token-uses.tsx:97
 msgid "Not used yet"
 msgstr "尚未使用"
 
@@ -3915,7 +3915,7 @@ msgid "of {0}"
 msgstr "/ {0}"
 
 #: src/app/(tabs)/(settings)/ai.tsx:62
-#: src/app/(tabs)/(settings)/profile.tsx:109
+#: src/app/(tabs)/(settings)/profile.tsx:112
 #: src/app/(tabs)/(settings)/user-detail.tsx:163
 msgid "Off"
 msgstr "關閉"
@@ -3933,7 +3933,7 @@ msgid "Omit account details"
 msgstr "略去帳戶資料"
 
 #: src/app/(tabs)/(settings)/ai.tsx:61
-#: src/app/(tabs)/(settings)/profile.tsx:109
+#: src/app/(tabs)/(settings)/profile.tsx:112
 #: src/app/(tabs)/(settings)/user-detail.tsx:163
 msgid "On"
 msgstr "開啟"
@@ -3942,7 +3942,7 @@ msgstr "開啟"
 #~ msgid "One check per line"
 #~ msgstr "每行一項"
 
-#: src/app/(tabs)/(settings)/token-uses.tsx:88
+#: src/app/(tabs)/(settings)/token-uses.tsx:90
 msgid "One entry per client, not per request — a repeat from the same IP and app is folded in for ten minutes. The 50 most recent are kept."
 msgstr "以用戶端計算，而非每個請求；相同 IP 與應用程式在十分鐘內會合併為一筆。只保留最近 50 筆。"
 
@@ -4088,7 +4088,7 @@ msgid "Overview"
 msgstr "總覽"
 
 #: src/app/(tabs)/(settings)/index.tsx:284
-#: src/app/(tabs)/(settings)/profile.tsx:67
+#: src/app/(tabs)/(settings)/profile.tsx:70
 #: src/app/(tabs)/(settings)/user-detail.tsx:177
 #: src/app/(tabs)/(settings)/user-form.tsx:132
 #: src/app/(tabs)/(settings)/users.tsx:53
@@ -4919,7 +4919,7 @@ msgstr "風險、目標、止蝕全部空白。沒有計劃，就無法判斷虧
 msgid "Risk, target, and stop are blank — and you tagged this as no plan. Define all three before entry next time so you can measure R and review honestly."
 msgstr "風險、目標、止蝕空白 — 你亦自行標記為無計劃。下次入場前三者都先定好，才能量度 R 並誠實回顧。"
 
-#: src/app/(tabs)/(settings)/profile.tsx:66
+#: src/app/(tabs)/(settings)/profile.tsx:69
 msgid "Role"
 msgstr "角色"
 
@@ -5142,7 +5142,7 @@ msgstr "搜尋代號"
 msgid "Search symbol or tag"
 msgstr "搜尋代號或標籤"
 
-#: src/app/(tabs)/(settings)/profile.tsx:94
+#: src/app/(tabs)/(settings)/profile.tsx:97
 #: src/app/(tabs)/(settings)/user-detail.tsx:184
 msgid "Security"
 msgstr "保安"
@@ -5151,7 +5151,7 @@ msgstr "保安"
 msgid "security credentials reset"
 msgstr "保安 憑證 重設 密碼"
 
-#: src/app/(tabs)/(settings)/profile.tsx:76
+#: src/app/(tabs)/(settings)/profile.tsx:79
 msgid "Self-hosted — your journal never leaves this server."
 msgstr "自主託管 — 你的日誌不會離開這台伺服器。"
 
@@ -5173,7 +5173,7 @@ msgid "Sell %"
 msgstr "賣出 %"
 
 #: src/app/(tabs)/(settings)/about.tsx:74
-#: src/app/(tabs)/(settings)/profile.tsx:75
+#: src/app/(tabs)/(settings)/profile.tsx:78
 msgid "Server"
 msgstr "伺服器"
 
@@ -5934,7 +5934,7 @@ msgstr "今日"
 msgid "Token"
 msgstr "權杖"
 
-#: src/app/(tabs)/(settings)/token-uses.tsx:67
+#: src/app/(tabs)/(settings)/token-uses.tsx:69
 msgid "Token activity"
 msgstr "權杖使用紀錄"
 
@@ -6121,7 +6121,7 @@ msgstr "關閉中…"
 msgid "Two-factor"
 msgstr "雙重認證"
 
-#: src/app/(tabs)/(settings)/profile.tsx:108
+#: src/app/(tabs)/(settings)/profile.tsx:111
 msgid "Two-factor authentication"
 msgstr "雙重認證"
 
@@ -6211,6 +6211,7 @@ msgstr "供「新增交易」的合規檢查使用。只新增你想執行的上
 msgid "User added"
 msgstr "已新增用戶"
 
+#: src/app/(tabs)/(settings)/profile.tsx:66
 #: src/app/(tabs)/(settings)/user-detail.tsx:156
 #: src/app/(tabs)/(settings)/user-form.tsx:103
 #: src/app/login.tsx:198
@@ -6219,7 +6220,7 @@ msgstr "用戶名稱"
 
 #: src/app/(tabs)/(settings)/_layout.tsx:41
 #: src/app/(tabs)/(settings)/index.tsx:129
-#: src/app/(tabs)/(settings)/profile.tsx:87
+#: src/app/(tabs)/(settings)/profile.tsx:90
 #: src/app/(tabs)/(settings)/users.tsx:33
 msgid "Users"
 msgstr "用戶"
@@ -6319,7 +6320,7 @@ msgstr "這個形態成立需要什麼條件？什麼情況下就算失效？"
 msgid "What would you do differently?"
 msgstr "下次會如何改進？"
 
-#: src/app/(tabs)/(settings)/token-uses.tsx:97
+#: src/app/(tabs)/(settings)/token-uses.tsx:99
 msgid "When something authenticates with this token, the IP and app it used show up here."
 msgstr "當有程式使用此權杖驗證時，其 IP 與應用程式會顯示在這裡。"
 

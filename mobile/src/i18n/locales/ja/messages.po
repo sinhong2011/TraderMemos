@@ -1274,11 +1274,11 @@ msgstr "資金制約"
 
 #: src/app/(tabs)/(settings)/_layout.tsx:39
 #: src/app/(tabs)/(settings)/index.tsx:123
-#: src/app/(tabs)/(settings)/profile.tsx:103
+#: src/app/(tabs)/(settings)/profile.tsx:106
 msgid "Change password"
 msgstr "パスワードを変更"
 
-#: src/app/(tabs)/(settings)/profile.tsx:97
+#: src/app/(tabs)/(settings)/profile.tsx:100
 msgid "Changing your password signs out your other devices."
 msgstr "パスワードを変更すると、他の端末はサインアウトされます。"
 
@@ -2167,8 +2167,8 @@ msgid "Edit transaction"
 msgstr "取引を編集"
 
 #: src/app/(tabs)/(settings)/profile.tsx:63
-msgid "Email"
-msgstr "メールアドレス"
+#~ msgid "Email"
+#~ msgstr "メールアドレス"
 
 #: src/app/(tabs)/(trades)/[id].tsx:413
 #: src/app/manage-tags.tsx:104
@@ -2835,7 +2835,7 @@ msgstr "祝日"
 msgid "Home"
 msgstr "ホーム"
 
-#: src/app/(tabs)/(settings)/profile.tsx:78
+#: src/app/(tabs)/(settings)/profile.tsx:81
 msgid "Host"
 msgstr "ホスト"
 
@@ -3358,12 +3358,12 @@ msgstr "利益中央値"
 msgid "Medium"
 msgstr "中"
 
-#: src/app/(tabs)/(settings)/profile.tsx:67
+#: src/app/(tabs)/(settings)/profile.tsx:70
 #: src/app/(tabs)/(settings)/users.tsx:53
 msgid "Member"
 msgstr "メンバー"
 
-#: src/app/(tabs)/(settings)/profile.tsx:69
+#: src/app/(tabs)/(settings)/profile.tsx:72
 #: src/app/(tabs)/(settings)/user-detail.tsx:159
 msgid "Member since"
 msgstr "登録日"
@@ -3845,7 +3845,7 @@ msgstr "計測なし"
 msgid "Not traded in this range"
 msgstr "この範囲で未取引"
 
-#: src/app/(tabs)/(settings)/token-uses.tsx:95
+#: src/app/(tabs)/(settings)/token-uses.tsx:97
 msgid "Not used yet"
 msgstr "まだ使用されていません"
 
@@ -3915,7 +3915,7 @@ msgid "of {0}"
 msgstr "/ {0}"
 
 #: src/app/(tabs)/(settings)/ai.tsx:62
-#: src/app/(tabs)/(settings)/profile.tsx:109
+#: src/app/(tabs)/(settings)/profile.tsx:112
 #: src/app/(tabs)/(settings)/user-detail.tsx:163
 msgid "Off"
 msgstr "オフ"
@@ -3933,7 +3933,7 @@ msgid "Omit account details"
 msgstr "アカウント情報を除外"
 
 #: src/app/(tabs)/(settings)/ai.tsx:61
-#: src/app/(tabs)/(settings)/profile.tsx:109
+#: src/app/(tabs)/(settings)/profile.tsx:112
 #: src/app/(tabs)/(settings)/user-detail.tsx:163
 msgid "On"
 msgstr "オン"
@@ -3942,7 +3942,7 @@ msgstr "オン"
 #~ msgid "One check per line"
 #~ msgstr "1行に1項目"
 
-#: src/app/(tabs)/(settings)/token-uses.tsx:88
+#: src/app/(tabs)/(settings)/token-uses.tsx:90
 msgid "One entry per client, not per request — a repeat from the same IP and app is folded in for ten minutes. The 50 most recent are kept."
 msgstr "リクエストごとではなくクライアントごとに1件です。同じ IP とアプリからの再利用は10分間まとめられます。最新50件を保持します。"
 
@@ -4088,7 +4088,7 @@ msgid "Overview"
 msgstr "概要"
 
 #: src/app/(tabs)/(settings)/index.tsx:284
-#: src/app/(tabs)/(settings)/profile.tsx:67
+#: src/app/(tabs)/(settings)/profile.tsx:70
 #: src/app/(tabs)/(settings)/user-detail.tsx:177
 #: src/app/(tabs)/(settings)/user-form.tsx:132
 #: src/app/(tabs)/(settings)/users.tsx:53
@@ -4919,7 +4919,7 @@ msgstr "リスク・目標・ストップがすべて未記入です。計画が
 msgid "Risk, target, and stop are blank — and you tagged this as no plan. Define all three before entry next time so you can measure R and review honestly."
 msgstr "リスク・目標・ストップが空欄で、自ら「計画なし」とタグ付けしています。次回はエントリー前に3つとも決め、Rを測って正直に振り返れるように。"
 
-#: src/app/(tabs)/(settings)/profile.tsx:66
+#: src/app/(tabs)/(settings)/profile.tsx:69
 msgid "Role"
 msgstr "権限"
 
@@ -5142,7 +5142,7 @@ msgstr "銘柄を検索"
 msgid "Search symbol or tag"
 msgstr "銘柄またはタグを検索"
 
-#: src/app/(tabs)/(settings)/profile.tsx:94
+#: src/app/(tabs)/(settings)/profile.tsx:97
 #: src/app/(tabs)/(settings)/user-detail.tsx:184
 msgid "Security"
 msgstr "セキュリティ"
@@ -5151,7 +5151,7 @@ msgstr "セキュリティ"
 msgid "security credentials reset"
 msgstr "セキュリティ 認証情報 リセット パスワード"
 
-#: src/app/(tabs)/(settings)/profile.tsx:76
+#: src/app/(tabs)/(settings)/profile.tsx:79
 msgid "Self-hosted — your journal never leaves this server."
 msgstr "セルフホスト — ジャーナルはこのサーバーの外に出ません。"
 
@@ -5173,7 +5173,7 @@ msgid "Sell %"
 msgstr "売却 %"
 
 #: src/app/(tabs)/(settings)/about.tsx:74
-#: src/app/(tabs)/(settings)/profile.tsx:75
+#: src/app/(tabs)/(settings)/profile.tsx:78
 msgid "Server"
 msgstr "サーバー"
 
@@ -5934,7 +5934,7 @@ msgstr "今日"
 msgid "Token"
 msgstr "トークン"
 
-#: src/app/(tabs)/(settings)/token-uses.tsx:67
+#: src/app/(tabs)/(settings)/token-uses.tsx:69
 msgid "Token activity"
 msgstr "トークンの利用状況"
 
@@ -6121,7 +6121,7 @@ msgstr "無効化中…"
 msgid "Two-factor"
 msgstr "二要素認証"
 
-#: src/app/(tabs)/(settings)/profile.tsx:108
+#: src/app/(tabs)/(settings)/profile.tsx:111
 msgid "Two-factor authentication"
 msgstr "二要素認証"
 
@@ -6211,6 +6211,7 @@ msgstr "新規トレードのコンプライアンスチェックで使用され
 msgid "User added"
 msgstr "ユーザーを追加しました"
 
+#: src/app/(tabs)/(settings)/profile.tsx:66
 #: src/app/(tabs)/(settings)/user-detail.tsx:156
 #: src/app/(tabs)/(settings)/user-form.tsx:103
 #: src/app/login.tsx:198
@@ -6219,7 +6220,7 @@ msgstr "ユーザー名"
 
 #: src/app/(tabs)/(settings)/_layout.tsx:41
 #: src/app/(tabs)/(settings)/index.tsx:129
-#: src/app/(tabs)/(settings)/profile.tsx:87
+#: src/app/(tabs)/(settings)/profile.tsx:90
 #: src/app/(tabs)/(settings)/users.tsx:33
 msgid "Users"
 msgstr "ユーザー"
@@ -6319,7 +6320,7 @@ msgstr "このプレイが成立する条件は？ どうなったら無効で�
 msgid "What would you do differently?"
 msgstr "次はどう改善しますか？"
 
-#: src/app/(tabs)/(settings)/token-uses.tsx:97
+#: src/app/(tabs)/(settings)/token-uses.tsx:99
 msgid "When something authenticates with this token, the IP and app it used show up here."
 msgstr "このトークンで認証が行われると、その IP とアプリがここに表示されます。"
 
