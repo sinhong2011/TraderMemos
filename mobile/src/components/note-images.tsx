@@ -1,4 +1,7 @@
-import { Button as UIButton, Host, Menu } from '@expo/ui/swift-ui';
+import {
+  Button as UIButton,
+  Menu,
+} from '@expo/ui/swift-ui';
 import {
   buttonBorderShape,
   buttonStyle,
@@ -19,6 +22,7 @@ import { useSession } from '@/api/session';
 import type { MediaFile } from '@/api/types';
 import { t } from '@lingui/core/macro';
 import { appendNoteImage, noteMediaIds, removeNoteImage } from '@/lib/note-media';
+import { AppHost } from '@/components/app-host';
 
 /** The server only accepts these (content-sniffed); Photos picks re-encode to jpeg. */
 const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/webp'] as const;
@@ -204,7 +208,7 @@ export function NoteImageButton({ images }: { images: NoteImagesController }) {
     );
   }
   return (
-    <Host matchContents>
+    <AppHost matchContents>
       <Menu
         label={t`Chart`}
         systemImage="photo.badge.plus"
@@ -227,7 +231,7 @@ export function NoteImageButton({ images }: { images: NoteImagesController }) {
           onPress={() => void images.pickFromFiles()}
         />
       </Menu>
-    </Host>
+    </AppHost>
   );
 }
 

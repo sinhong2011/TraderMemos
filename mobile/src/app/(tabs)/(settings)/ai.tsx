@@ -1,6 +1,5 @@
 import {
   Button,
-  Host,
   HStack,
   Image,
   Section,
@@ -16,6 +15,7 @@ import { useLlmSettings, type LlmKind } from '@/api/hooks';
 import type { LlmApiSettings } from '@/api/types';
 import { SettingsForm } from '@/components/settings-form';
 import { t } from '@lingui/core/macro';
+import { AppHost } from '@/components/app-host';
 
 /**
  * AI hub. The two integrations (vision scan, AI coach) take the same six
@@ -26,7 +26,7 @@ import { t } from '@lingui/core/macro';
  */
 export default function AiSettingsScreen() {
   return (
-    <Host style={{ flex: 1 }}>
+    <AppHost style={{ flex: 1 }}>
       <SettingsForm>
         <Section
           title={t`Intelligence`}
@@ -40,7 +40,7 @@ export default function AiSettingsScreen() {
           <ProviderRow kind="coach" title={t`AI coach`} systemImage="brain" />
         </Section>
       </SettingsForm>
-    </Host>
+    </AppHost>
   );
 }
 
@@ -91,7 +91,7 @@ function ProviderRow({
   return (
     <Button onPress={() => router.push({ pathname: '/ai/[kind]', params: { kind } })}>
       <HStack spacing={10}>
-        <Image systemName={systemImage} size={20} color={theme.colors.primary} />
+        <Image systemName={systemImage} size={20} color={theme.colors.foreground} />
         <VStack alignment="leading" spacing={2}>
           <UIText modifiers={[foregroundStyle({ type: 'hierarchical', style: 'primary' })]}>
             {title}

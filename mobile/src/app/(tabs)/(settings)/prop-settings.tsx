@@ -1,4 +1,9 @@
-import { Button, Host, Picker, Section, Text as UIText } from '@expo/ui/swift-ui';
+import {
+  Button,
+  Picker,
+  Section,
+  Text as UIText,
+} from '@expo/ui/swift-ui';
 import { tag } from '@expo/ui/swift-ui/modifiers';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -11,6 +16,7 @@ import { SettingsForm } from '@/components/settings-form';
 import { t } from '@lingui/core/macro';
 import { parseAmount } from '@/lib/amount';
 import { formatCurrency, formatPercent } from '@/lib/format';
+import { AppHost } from '@/components/app-host';
 
 /**
  * Prop-firm evaluation rules for one account. Every edit PUTs the whole DTO
@@ -121,7 +127,7 @@ export default function PropSettingsScreen() {
     value != null ? formatCurrency(value, currency) : t`Not set`;
 
   return (
-    <Host style={{ flex: 1 }}>
+    <AppHost style={{ flex: 1 }}>
       <SettingsForm>
         <Section
           title={account ? account.name : t`Prop rules`}
@@ -178,6 +184,6 @@ export default function PropSettingsScreen() {
           />
         </Section>
       </SettingsForm>
-    </Host>
+    </AppHost>
   );
 }

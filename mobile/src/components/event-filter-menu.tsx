@@ -1,9 +1,14 @@
-import { Button, Host, Menu, Toggle } from '@expo/ui/swift-ui';
+import {
+  Button,
+  Menu,
+  Toggle,
+} from '@expo/ui/swift-ui';
 import { labelStyle, menuActionDismissBehavior, tint } from '@expo/ui/swift-ui/modifiers';
 import type { SFSymbol } from 'sf-symbols-typescript';
 import { useUnistyles } from 'react-native-unistyles';
 
 import { t } from '@lingui/core/macro';
+import { AppHost } from '@/components/app-host';
 
 export type FilterToggleGroup = {
   key: string;
@@ -46,7 +51,7 @@ export function EventFilterMenu({
   const active = groups.some((group) => group.selected.length > 0);
 
   return (
-    <Host matchContents>
+    <AppHost matchContents>
       <Menu
         label={t`Filter`}
         systemImage={
@@ -85,6 +90,6 @@ export function EventFilterMenu({
           />
         ) : null}
       </Menu>
-    </Host>
+    </AppHost>
   );
 }

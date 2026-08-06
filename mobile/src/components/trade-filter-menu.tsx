@@ -1,10 +1,16 @@
-import { Button, Host, Menu, Picker, Text as UIText } from '@expo/ui/swift-ui';
+import {
+  Button,
+  Menu,
+  Picker,
+  Text as UIText,
+} from '@expo/ui/swift-ui';
 import { labelStyle, pickerStyle, tag, tint } from '@expo/ui/swift-ui/modifiers';
 import { Fragment } from 'react';
 import type { SFSymbol } from 'sf-symbols-typescript';
 import { useUnistyles } from 'react-native-unistyles';
 
 import { t } from '@lingui/core/macro';
+import { AppHost } from '@/components/app-host';
 
 export type FilterGroup = {
   key: string;
@@ -72,7 +78,7 @@ export function TradeFilterMenu({
   );
 
   return (
-    <Host matchContents>
+    <AppHost matchContents>
       <Menu
         label={label ?? t`Filter`}
         systemImage={active ? activeSystemImage : systemImage}
@@ -97,6 +103,6 @@ export function TradeFilterMenu({
           />
         ) : null}
       </Menu>
-    </Host>
+    </AppHost>
   );
 }

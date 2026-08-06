@@ -1,4 +1,9 @@
-import { Host, Picker, Section, Text as UIText, Toggle } from '@expo/ui/swift-ui';
+import {
+  Picker,
+  Section,
+  Text as UIText,
+  Toggle,
+} from '@expo/ui/swift-ui';
 import { tag } from '@expo/ui/swift-ui/modifiers';
 import { useState } from 'react';
 import { Alert } from 'react-native';
@@ -10,6 +15,7 @@ import { CenteredButton } from '@/components/centered-button';
 import { SettingsForm } from '@/components/settings-form';
 import { filenameFromDisposition, shareFile } from '@/lib/file-transfer';
 import { t } from '@lingui/core/macro';
+import { AppHost } from '@/components/app-host';
 
 const EXPORT_MIME: Record<ExportFormat, string> = {
   json: 'application/json',
@@ -81,7 +87,7 @@ export default function ExportTradesScreen() {
   }
 
   return (
-    <Host style={{ flex: 1, backgroundColor: theme.colors.background }}>
+    <AppHost style={{ flex: 1, backgroundColor: theme.colors.background }}>
       <SettingsForm>
         <Section title={t`Account`}>
           {(accounts ?? []).length > 0 ? (
@@ -138,6 +144,6 @@ export default function ExportTradesScreen() {
           />
         </Section>
       </SettingsForm>
-    </Host>
+    </AppHost>
   );
 }

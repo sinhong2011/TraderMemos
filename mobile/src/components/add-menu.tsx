@@ -1,4 +1,8 @@
-import { Button as UIButton, Host, Image as UIImage, Menu } from '@expo/ui/swift-ui';
+import {
+  Button as UIButton,
+  Image as UIImage,
+  Menu,
+} from '@expo/ui/swift-ui';
 import { accessibilityLabel, buttonStyle, tint } from '@expo/ui/swift-ui/modifiers';
 import { useRouter } from 'expo-router';
 import { SymbolView } from 'expo-symbols';
@@ -6,6 +10,7 @@ import { Platform, Pressable } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { t } from '@lingui/core/macro';
+import { AppHost } from '@/components/app-host';
 
 /**
  * Header-right "+" — SwiftUI Menu (iOS 26 glass popover anchored to the bar
@@ -38,7 +43,7 @@ export function AddMenu() {
   }
 
   return (
-    <Host matchContents>
+    <AppHost matchContents>
       <Menu
         label={<UIImage systemName="plus" size={17} />}
         modifiers={[
@@ -57,7 +62,7 @@ export function AddMenu() {
           />
         ))}
       </Menu>
-    </Host>
+    </AppHost>
   );
 }
 

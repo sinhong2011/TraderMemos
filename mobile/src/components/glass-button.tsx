@@ -1,4 +1,9 @@
-import { Button, HStack, Host, Image as UIImage, Text as UIText } from '@expo/ui/swift-ui';
+import {
+  Button,
+  HStack,
+  Image as UIImage,
+  Text as UIText,
+} from '@expo/ui/swift-ui';
 import {
   accessibilityLabel,
   buttonStyle,
@@ -11,6 +16,7 @@ import {
 } from '@expo/ui/swift-ui/modifiers';
 import { type SFSymbol } from 'expo-symbols';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { AppHost } from '@/components/app-host';
 
 /**
  * iOS 26 Liquid Glass buttons — real SwiftUI hosted in RN, not a `GlassView`
@@ -72,7 +78,7 @@ export function GlassButton({
   // button leaves the glass hugging its content, so a full-width action has to
   // expand its content instead (the login.tsx idiom).
   return (
-    <Host
+    <AppHost
       matchContents={fill ? { vertical: true } : true}
       style={fill ? styles.fill : undefined}
     >
@@ -82,7 +88,7 @@ export function GlassButton({
           <UIText modifiers={[labelFont]}>{label}</UIText>
         </HStack>
       </Button>
-    </Host>
+    </AppHost>
   );
 }
 
@@ -101,7 +107,7 @@ export function GlassIconButton({
 }) {
   const { theme } = useUnistyles();
   return (
-    <Host matchContents>
+    <AppHost matchContents>
       <Button
         onPress={onPress}
         modifiers={[
@@ -116,7 +122,7 @@ export function GlassIconButton({
       >
         <UIImage systemName={systemImage} size={16} />
       </Button>
-    </Host>
+    </AppHost>
   );
 }
 

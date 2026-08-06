@@ -1,4 +1,4 @@
-import { Chart, Host } from '@expo/ui/swift-ui';
+import { Chart } from '@expo/ui/swift-ui';
 import { useState } from 'react';
 import { Text } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -9,6 +9,7 @@ import { Segmented } from '@/components/segmented';
 import { Skeleton } from '@/components/skeleton';
 import { t } from '@lingui/core/macro';
 import { useGlobalFilters } from '@/lib/filters';
+import { AppHost } from '@/components/app-host';
 
 /** Net P&L per group, best → worst, like the web chart. */
 const MAX_GROUPS = 8;
@@ -43,9 +44,9 @@ export function BreakdownCard() {
       ) : chartData.length === 0 ? (
         <Text style={styles.empty}>{t`No breakdown data yet.`}</Text>
       ) : (
-        <Host style={styles.chart}>
+        <AppHost style={styles.chart}>
           <Chart data={chartData} type="bar" showGrid animate barStyle={{ cornerRadius: 2 }} />
-        </Host>
+        </AppHost>
       )}
     </DashboardCard>
   );

@@ -1,4 +1,8 @@
-import { Button as UIButton, Host, Image as UIImage, Menu } from '@expo/ui/swift-ui';
+import {
+  Button as UIButton,
+  Image as UIImage,
+  Menu,
+} from '@expo/ui/swift-ui';
 import { accessibilityLabel, buttonStyle, tint as tintModifier } from '@expo/ui/swift-ui/modifiers';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -27,6 +31,7 @@ import {
 import { gradeFromInt, parseEmotionalStates, parseJournalNotes } from '@/lib/journal';
 import { marketLabel, tradeNotional, tradeRMultiple, tradeStatus } from '@/lib/trades';
 import { pnlColor } from '@/styles/unistyles';
+import { AppHost } from '@/components/app-host';
 
 function Row({ label, value, tint }: { label: string; value: string; tint?: string }) {
   return (
@@ -205,7 +210,7 @@ function TradeDetailBody({
         options={{
           title: trade.symbol,
           headerRight: () => (
-            <Host matchContents>
+            <AppHost matchContents>
               <Menu
                 label={<UIImage systemName="ellipsis.circle" size={17} />}
                 modifiers={[
@@ -247,7 +252,7 @@ function TradeDetailBody({
                   onPress={confirmDelete}
                 />
               </Menu>
-            </Host>
+            </AppHost>
           ),
         }}
       />
