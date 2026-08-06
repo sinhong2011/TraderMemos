@@ -5,6 +5,14 @@ All notable changes to TraderMemos are documented in this file.
 Release versioning is managed by [release-please](https://github.com/googleapis/release-please).
 See [docs/release.md](docs/release.md) for the release workflow.
 
+## [0.4.1](https://github.com/sinhong2011/TraderMemos/compare/v0.4.0...v0.4.1) (2026-08-06)
+
+
+### Bug Fixes
+
+* **ci:** let a dispatched EAS build carry a release version ([#102](https://github.com/sinhong2011/TraderMemos/issues/102)) ([fb3c2bf](https://github.com/sinhong2011/TraderMemos/commit/fb3c2bfcda2e827196d9d743f1f4f40d28732211))
+* **mobile:** unblock the EAS build's eas-cli install ([#100](https://github.com/sinhong2011/TraderMemos/issues/100)) ([c4bd8d4](https://github.com/sinhong2011/TraderMemos/commit/c4bd8d4584afbc9abb42681a5625723b93233200))
+
 ## [0.4.0](https://github.com/sinhong2011/TraderMemos/compare/v0.3.0...v0.4.0) (2026-08-05)
 
 
