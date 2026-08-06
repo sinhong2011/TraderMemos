@@ -282,6 +282,14 @@ export type AccessToken = {
 
 export type CreatedAccessToken = AccessToken & { token: string };
 
+/** GET /access-tokens/:id/uses — newest first, capped server-side at 50. */
+export type AccessTokenUse = {
+  used_at: string;
+  ip: string;
+  /** Raw and unparsed; matching your own tooling is the point. */
+  user_agent: string;
+};
+
 /** GET /me — the signed-in account. */
 /** POST /me/totp/start — a candidate secret, not yet stored server-side. */
 export type TotpSetup = {

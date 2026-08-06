@@ -12,6 +12,7 @@ import { request, requestRaw, type QueryParams, type RequestOptions } from './cl
 import { useSession } from './session';
 import type {
   AccessToken,
+  AccessTokenUse,
   Account,
   AnnualGoal,
   ApiHealth,
@@ -81,6 +82,7 @@ export const queryKeys = {
   checklistTemplate: () => ['settings', 'checklist-template'] as const,
   llmSettings: (kind: LlmKind) => ['settings', kind] as const,
   accessTokens: () => ['access-tokens'] as const,
+  accessTokenUses: (id: string) => ['access-tokens', id, 'uses'] as const,
   me: () => ['me'] as const,
   propSettings: (accountId: string) => ['accounts', accountId, 'prop-settings'] as const,
   propStatus: (accountId: string, filters: Filters) =>
@@ -261,6 +263,13 @@ export function useMe() {
 
 export function useAccessTokens() {
   return useApiQuery<AccessToken[]>(queryKeys.accessTokens(), '/access-tokens');
+}
+
+export function useAccessTokenUses(id: string) {
+  return useApiQuery<AccessTokenUse[]>(
+    queryKeys.accessTokenUses(id),
+    `/access-tokens/${id}/uses`,
+  );
 }
 
 /**

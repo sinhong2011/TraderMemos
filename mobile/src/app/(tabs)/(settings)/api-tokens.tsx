@@ -19,7 +19,15 @@ import { formatDate } from '@/lib/format';
 import { AppHost } from '@/components/app-host';
 
 /** One token, with a trailing swipe to revoke (the trades-list idiom). */
-function TokenRow({ token, onRevoke }: { token: AccessToken; onRevoke: () => void }) {
+function TokenRow({
+  token,
+  onRevoke,
+  onPress,
+}: {
+  token: AccessToken;
+  onRevoke: () => void;
+  onPress: () => void;
+}) {
   const { theme } = useUnistyles();
   const swipeable = useRef<SwipeableMethods>(null);
   const lastUsed = token.last_used_at ? formatDate(token.last_used_at) : t`never`;
@@ -66,7 +74,12 @@ function TokenRow({ token, onRevoke }: { token: AccessToken; onRevoke: () => voi
           as one — loose grey text next to prose looks like a caption. Last
           used sits with it on the same baseline: both answer "which token is
           this and is it live". */}
-      <View style={styles.row}>
+      <Pressable
+        onPress={onPress}
+        accessibilityRole="button"
+        accessibilityLabel={t`${token.name} activity`}
+        style={({ pressed }) => [styles.row, pressed && styles.pressed]}
+      >
         <View style={styles.rowTop}>
           <SymbolView
             name="key.horizontal.fill"
@@ -82,6 +95,8 @@ function TokenRow({ token, onRevoke }: { token: AccessToken; onRevoke: () => voi
               {expiry.label}
             </Text>
           </View>
+          {/* The row pushes now, so it says so. */}
+          <SymbolView name="chevron.right" size={12} tintColor={theme.colors.mutedForeground} />
         </View>
         <View style={styles.rowBottom}>
           <View style={styles.chip}>
@@ -93,7 +108,7 @@ function TokenRow({ token, onRevoke }: { token: AccessToken; onRevoke: () => voi
             {t`Last used ${lastUsed}`}
           </Text>
         </View>
-      </View>
+      </Pressable>
     </ReanimatedSwipeable>
   );
 }
@@ -161,12 +176,23 @@ export default function ApiTokensScreen() {
               onRefresh={() => void tokens.refetch()}
             />
           }
-          renderItem={({ item }) => <TokenRow token={item} onRevoke={() => confirmRevoke(item)} />}
+          renderItem={({ item }) => (
+            <TokenRow
+              token={item}
+              onRevoke={() => confirmRevoke(item)}
+              onPress={() =>
+                router.push({
+                  pathname: '/token-uses',
+                  params: { id: item.id, name: item.name },
+                })
+              }
+            />
+          )}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
           ListFooterComponent={
             (tokens.data ?? []).length > 0 ? (
               <Text style={styles.footnote}>
-                {t`Tokens authenticate scripts and integrations against your server's API. Swipe a row to revoke.`}
+                {t`Tokens authenticate scripts and integrations against your server's API. Tap one to see where it has been used; swipe to revoke.`}
               </Text>
             ) : null
           }
@@ -203,6 +229,7 @@ const styles = StyleSheet.create((theme) => ({
   row: {
     gap: 6,
     backgroundColor: theme.colors.card,
+    boxShadow: theme.shadows.card,
     borderRadius: theme.radius.lg,
     borderCurve: 'continuous',
     padding: theme.spacing.lg,
