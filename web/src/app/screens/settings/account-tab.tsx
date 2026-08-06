@@ -402,10 +402,13 @@ export function AccountTab() {
         </SettingsGroup>
       </SettingsSection>
 
+      {/* Both stay mounted and are driven by `open`. Mounting a Base UI Dialog
+          that is already open renders nothing — it needs the false→true
+          transition — so a conditional mount silently does nothing at all.
+          TwoFactorModal resets itself when `open` flips instead, which is what
+          keeps a reopen from reusing a stale candidate secret. */}
       <ChangePasswordModal open={passwordOpen} onOpenChange={setPasswordOpen} />
-      {/* Remounted per open so a reopen starts a fresh enrolment instead of
-          reusing a stale candidate secret. */}
-      {totpOpen ? <TwoFactorModal open onOpenChange={setTotpOpen} enabled={enabled} /> : null}
+      <TwoFactorModal open={totpOpen} onOpenChange={setTotpOpen} enabled={enabled} />
     </div>
   );
 }
