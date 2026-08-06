@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/pquerna/otp/totp"
 	"github.com/tradermemos/api/internal/store"
 )
 
@@ -118,10 +119,24 @@ func (s *Service) createUser(ctx context.Context, email, password string, isAdmi
 	return u, nil
 }
 
-func (s *Service) Login(ctx context.Context, email, password string) (Tokens, store.User, error) {
+// Login checks the password and, when the account has an authenticator, the
+// code. `totpCode` is empty on the first leg of a two-step sign-in: the caller
+// gets ErrTotpRequired and asks for it.
+//
+// The password is verified *before* the code so a wrong password never reveals
+// whether an account has a second factor.
+func (s *Service) Login(ctx context.Context, email, password, totpCode string) (Tokens, store.User, error) {
 	u, err := s.q.GetUserByEmail(ctx, email)
 	if err != nil || !VerifyPassword(u.PasswordHash, password) {
 		return Tokens{}, store.User{}, ErrInvalidCredentials
+	}
+	if TotpEnabled(u) {
+		if totpCode == "" {
+			return Tokens{}, store.User{}, ErrTotpRequired
+		}
+		if !totp.Validate(totpCode, u.TotpSecret.String) {
+			return Tokens{}, store.User{}, ErrTotpInvalid
+		}
 	}
 	return s.mint(u.ID, u.PasswordHash), u, nil
 }

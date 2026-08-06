@@ -7,6 +7,7 @@ package storepg
 
 import (
 	"context"
+	"database/sql"
 )
 
 const countUsers = `-- name: CountUsers :one
@@ -97,6 +98,29 @@ type UpdateUserPasswordParams struct {
 
 func (q *Queries) UpdateUserPassword(ctx context.Context, arg UpdateUserPasswordParams) (User, error) {
 	row := q.db.QueryRowContext(ctx, updateUserPassword, arg.PasswordHash, arg.ID)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.PasswordHash,
+		&i.TotpSecret,
+		&i.CreatedAt,
+		&i.IsAdmin,
+	)
+	return i, err
+}
+
+const updateUserTotpSecret = `-- name: UpdateUserTotpSecret :one
+UPDATE users SET totp_secret = $1 WHERE id = $2 RETURNING id, email, password_hash, totp_secret, created_at, is_admin
+`
+
+type UpdateUserTotpSecretParams struct {
+	TotpSecret sql.NullString `json:"totp_secret"`
+	ID         string         `json:"id"`
+}
+
+func (q *Queries) UpdateUserTotpSecret(ctx context.Context, arg UpdateUserTotpSecretParams) (User, error) {
+	row := q.db.QueryRowContext(ctx, updateUserTotpSecret, arg.TotpSecret, arg.ID)
 	var i User
 	err := row.Scan(
 		&i.ID,

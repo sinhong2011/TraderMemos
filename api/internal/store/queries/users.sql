@@ -12,3 +12,6 @@ SELECT COUNT(*) FROM users;
 
 -- name: UpdateUserPassword :one
 UPDATE users SET password_hash = ? WHERE id = ? RETURNING *;
+
+-- name: UpdateUserTotpSecret :one
+UPDATE users SET totp_secret = ? WHERE id = ? RETURNING *;
