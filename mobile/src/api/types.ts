@@ -23,6 +23,8 @@ export type Credentials = {
   email: string;
   /** Server enforces minLength 10. */
   password: string;
+  /** Second leg of sign-in, sent after the server answers `totp_required`. */
+  totp_code?: string;
 };
 
 export type Tag = {
@@ -281,6 +283,12 @@ export type AccessToken = {
 export type CreatedAccessToken = AccessToken & { token: string };
 
 /** GET /me — the signed-in account. */
+/** POST /me/totp/start — a candidate secret, not yet stored server-side. */
+export type TotpSetup = {
+  secret: string;
+  otpauth_url: string;
+};
+
 export type Me = {
   id: string;
   email: string;

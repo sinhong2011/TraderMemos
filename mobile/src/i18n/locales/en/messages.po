@@ -420,6 +420,10 @@ msgstr "1 trade"
 #~ msgid "1 year"
 #~ msgstr "1 year"
 
+#: src/app/(tabs)/(settings)/two-factor.tsx:162
+msgid "1. Add to your authenticator"
+msgstr "1. Add to your authenticator"
+
 #: src/app/(tabs)/(settings)/display.tsx:219
 msgid "12-hour"
 msgstr "12-hour"
@@ -436,6 +440,10 @@ msgstr "1R"
 msgid "1y"
 msgstr "1y"
 
+#: src/app/(tabs)/(settings)/two-factor.tsx:186
+msgid "2. Enter a code to confirm"
+msgstr "2. Enter a code to confirm"
+
 #: src/app/(tabs)/(settings)/display.tsx:222
 msgid "24-hour"
 msgstr "24-hour"
@@ -451,6 +459,12 @@ msgstr "24-hour"
 #: src/app/new-token.tsx:17
 msgid "30d"
 msgstr "30d"
+
+#: src/app/(tabs)/(settings)/two-factor.tsx:115
+#: src/app/(tabs)/(settings)/two-factor.tsx:192
+#: src/app/login.tsx:248
+msgid "6-digit code"
+msgstr "6-digit code"
 
 #: src/app/(tabs)/(settings)/api-tokens.tsx:35
 #~ msgid "90 days"
@@ -476,7 +490,7 @@ msgstr "A sample amount and a late-session timestamp, rendered with the settings
 msgid "A symbol pins the play to one ticker — leave it on Any for a pattern you trade anywhere."
 msgstr "A symbol pins the play to one ticker — leave it on Any for a pattern you trade anywhere."
 
-#: src/app/(tabs)/(settings)/_layout.tsx:78
+#: src/app/(tabs)/(settings)/_layout.tsx:82
 msgid "About"
 msgstr "About"
 
@@ -657,10 +671,18 @@ msgstr "Add symbol"
 msgid "Add tier"
 msgstr "Add tier"
 
+#: src/app/(tabs)/(settings)/two-factor.tsx:171
+msgid "Add to authenticator"
+msgstr "Add to authenticator"
+
 #: src/app/(tabs)/(settings)/funding.tsx:146
 #: src/app/cash-form.tsx:156
 msgid "Add transaction"
 msgstr "Add transaction"
+
+#: src/app/(tabs)/(settings)/two-factor.tsx:149
+msgid "Adds a 6-digit code from an authenticator app to your password at sign-in."
+msgstr "Adds a 6-digit code from an authenticator app to your password at sign-in."
 
 #: src/components/reports/risk-section.tsx:138
 msgid "Adherence"
@@ -670,8 +692,8 @@ msgstr "Adherence"
 msgid "Adjustment"
 msgstr "Adjustment"
 
-#: src/app/login.tsx:251
-#: src/app/login.tsx:255
+#: src/app/login.tsx:300
+#: src/app/login.tsx:304
 msgid "Advanced"
 msgstr "Advanced"
 
@@ -695,7 +717,7 @@ msgstr "After save"
 msgid "Aggressive"
 msgstr "Aggressive"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:59
+#: src/app/(tabs)/(settings)/_layout.tsx:63
 msgid "AI"
 msgstr "AI"
 
@@ -801,11 +823,11 @@ msgstr "Any OpenAI-compatible endpoint works. Test uses the values above, saved 
 msgid "API key"
 msgstr "API key"
 
-#: src/app/login.tsx:289
+#: src/app/login.tsx:338
 msgid "API server"
 msgstr "API server"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:64
+#: src/app/(tabs)/(settings)/_layout.tsx:68
 #: src/app/(tabs)/(settings)/index.tsx:171
 #: src/app/(tabs)/(settings)/integrations.tsx:30
 msgid "API tokens"
@@ -869,6 +891,10 @@ msgstr "at the highs"
 #: src/app/tool-position-size.tsx:104
 msgid "at the stop"
 msgstr "at the stop"
+
+#: src/app/login.tsx:240
+msgid "Authenticator code"
+msgstr "Authenticator code"
 
 #: src/components/reports/overview-section.tsx:57
 msgid "average"
@@ -1143,6 +1169,7 @@ msgstr "Call / Put"
 #: src/app/(tabs)/(settings)/tags.tsx:91
 #: src/app/(tabs)/(settings)/trading-journal.tsx:55
 #: src/app/(tabs)/(settings)/trading-journal.tsx:79
+#: src/app/(tabs)/(settings)/two-factor.tsx:203
 #: src/app/(tabs)/(trades)/[id].tsx:165
 #: src/app/cash-form.tsx:143
 #: src/app/edit-note.tsx:73
@@ -1205,15 +1232,19 @@ msgstr "Cash transactions"
 msgid "cash-limited"
 msgstr "cash-limited"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:35
+#: src/app/(tabs)/(settings)/_layout.tsx:39
 #: src/app/(tabs)/(settings)/index.tsx:123
-#: src/app/(tabs)/(settings)/profile.tsx:95
+#: src/app/(tabs)/(settings)/profile.tsx:93
 msgid "Change password"
 msgstr "Change password"
 
+#: src/app/(tabs)/(settings)/profile.tsx:87
+msgid "Changing your password signs out your other devices."
+msgstr "Changing your password signs out your other devices."
+
 #: src/app/(tabs)/(settings)/profile.tsx:89
-msgid "Changing your password signs out your other devices. Two-factor authentication isn't available yet."
-msgstr "Changing your password signs out your other devices. Two-factor authentication isn't available yet."
+#~ msgid "Changing your password signs out your other devices. Two-factor authentication isn't available yet."
+#~ msgstr "Changing your password signs out your other devices. Two-factor authentication isn't available yet."
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:52
 #: src/app/(tabs)/(dashboard)/advanced-chart.tsx:115
@@ -1367,6 +1398,10 @@ msgstr "Confirm new password"
 msgid "Confirm trade rules"
 msgstr "Confirm trade rules"
 
+#: src/app/(tabs)/(settings)/two-factor.tsx:199
+msgid "Confirming…"
+msgstr "Confirming…"
+
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:318
 msgid "Connection"
 msgstr "Connection"
@@ -1435,6 +1470,10 @@ msgstr "Copied"
 msgid "Copy it now — the secret is shown only once and cannot be recovered."
 msgstr "Copy it now — the secret is shown only once and cannot be recovered."
 
+#: src/app/(tabs)/(settings)/two-factor.tsx:176
+msgid "Copy setup key"
+msgstr "Copy setup key"
+
 #: src/app/new-token.tsx:93
 msgid "Copy token"
 msgstr "Copy token"
@@ -1483,6 +1522,10 @@ msgstr "Could not delete note"
 msgid "Could not delete tag"
 msgstr "Could not delete tag"
 
+#: src/app/(tabs)/(settings)/two-factor.tsx:69
+msgid "Could not enable"
+msgstr "Could not enable"
+
 #: src/app/(tabs)/(settings)/data-backup.tsx:40
 msgid "Could not export config"
 msgstr "Could not export config"
@@ -1521,7 +1564,7 @@ msgstr "Could not open file"
 msgid "Could not preview"
 msgstr "Could not preview"
 
-#: src/app/login.tsx:113
+#: src/app/login.tsx:118
 msgid "Could not reach {normalized}"
 msgstr "Could not reach {normalized}"
 
@@ -1591,6 +1634,14 @@ msgstr "Could not save the sample"
 #: src/app/share-trade.tsx:38
 msgid "Could not share"
 msgstr "Could not share"
+
+#: src/app/(tabs)/(settings)/two-factor.tsx:47
+msgid "Could not start setup"
+msgstr "Could not start setup"
+
+#: src/app/(tabs)/(settings)/two-factor.tsx:90
+msgid "Could not turn off"
+msgstr "Could not turn off"
 
 #: src/components/attachments-card.tsx:96
 #: src/components/note-images.tsx:90
@@ -1737,7 +1788,7 @@ msgstr "Dark"
 #~ msgid "Data"
 #~ msgstr "Data"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:68
+#: src/app/(tabs)/(settings)/_layout.tsx:72
 #: src/app/(tabs)/(settings)/general.tsx:45
 #: src/app/(tabs)/(settings)/index.tsx:196
 msgid "Data & backup"
@@ -1892,7 +1943,7 @@ msgstr "Direction"
 #~ msgid "Disconnect?"
 #~ msgstr "Disconnect?"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:49
+#: src/app/(tabs)/(settings)/_layout.tsx:53
 #: src/app/(tabs)/(settings)/general.tsx:27
 #: src/app/(tabs)/(settings)/index.tsx:184
 msgid "Display"
@@ -1936,7 +1987,7 @@ msgstr "Dollars"
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:236
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:258
 #: src/app/(tabs)/(settings)/import-trades.tsx:270
-#: src/app/login.tsx:329
+#: src/app/login.tsx:378
 #: src/app/manage-tags.tsx:60
 #: src/app/new-token.tsx:79
 #: src/app/share-trade.tsx:56
@@ -2110,19 +2161,19 @@ msgstr "Enter the Flex Query ID."
 msgid "Enter valid prices."
 msgstr "Enter valid prices."
 
-#: src/app/login.tsx:207
+#: src/app/login.tsx:227
 msgid "Enter your password"
 msgstr "Enter your password"
 
-#: src/app/login.tsx:104
+#: src/app/login.tsx:109
 msgid "Enter your TraderMemos server URL"
 msgstr "Enter your TraderMemos server URL"
 
-#: src/app/login.tsx:185
+#: src/app/login.tsx:205
 msgid "Enter your username"
 msgstr "Enter your username"
 
-#: src/app/login.tsx:99
+#: src/app/login.tsx:104
 msgid "Enter your username and password"
 msgstr "Enter your username and password"
 
@@ -2315,7 +2366,7 @@ msgstr "Export app config"
 #~ msgid "Export config"
 #~ msgstr "Export config"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:76
+#: src/app/(tabs)/(settings)/_layout.tsx:80
 #: src/app/(tabs)/(settings)/data-backup.tsx:87
 #: src/app/(tabs)/(settings)/index.tsx:208
 msgid "Export data"
@@ -2581,7 +2632,7 @@ msgstr "Gap top"
 msgid "Gap top must sit above the bottom — check the edges"
 msgstr "Gap top must sit above the bottom — check the edges"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:45
+#: src/app/(tabs)/(settings)/_layout.tsx:49
 #: src/app/(tabs)/(settings)/index.tsx:407
 msgid "General"
 msgstr "General"
@@ -2708,11 +2759,15 @@ msgstr "Hour of day"
 msgid "How did the session go? Use \"- [ ]\" for checklist items."
 msgstr "How did the session go? Use \"- [ ]\" for checklist items."
 
-#: src/app/(tabs)/(settings)/_layout.tsx:57
+#: src/app/(tabs)/(settings)/_layout.tsx:61
 #: src/app/(tabs)/(settings)/account-form.tsx:375
 #: src/app/(tabs)/(settings)/flex-sync.tsx:114
 msgid "IBKR Flex sync"
 msgstr "IBKR Flex sync"
+
+#: src/app/(tabs)/(settings)/two-factor.tsx:131
+msgid "If you lose your authenticator"
+msgstr "If you lose your authenticator"
 
 #: src/components/attachments-card.tsx:212
 #: src/components/note-images.tsx:229
@@ -2787,7 +2842,7 @@ msgstr "Import failed"
 msgid "Import into"
 msgstr "Import into"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:72
+#: src/app/(tabs)/(settings)/_layout.tsx:76
 #: src/app/(tabs)/(settings)/data-backup.tsx:82
 #: src/app/(tabs)/(settings)/index.tsx:202
 msgid "Import trades"
@@ -2821,7 +2876,7 @@ msgstr "Insights"
 msgid "Instrument"
 msgstr "Instrument"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:43
+#: src/app/(tabs)/(settings)/_layout.tsx:47
 #: src/app/(tabs)/(settings)/account-form.tsx:363
 #: src/app/(tabs)/(settings)/index.tsx:402
 msgid "Integrations"
@@ -3751,6 +3806,7 @@ msgid "of {0}"
 msgstr "of {0}"
 
 #: src/app/(tabs)/(settings)/ai.tsx:62
+#: src/app/(tabs)/(settings)/profile.tsx:99
 msgid "Off"
 msgstr "Off"
 
@@ -3767,6 +3823,7 @@ msgid "Omit account details"
 msgstr "Omit account details"
 
 #: src/app/(tabs)/(settings)/ai.tsx:61
+#: src/app/(tabs)/(settings)/profile.tsx:99
 msgid "On"
 msgstr "On"
 
@@ -3837,6 +3894,10 @@ msgstr "openai model screenshot scan coach key"
 #: src/app/(tabs)/(trades)/[id].tsx:366
 msgid "Opened"
 msgstr "Opened"
+
+#: src/app/(tabs)/(settings)/two-factor.tsx:165
+msgid "Opens iOS Passwords or whichever authenticator you use. Nothing is saved until you enter a code below."
+msgstr "Opens iOS Passwords or whichever authenticator you use. Nothing is saved until you enter a code below."
 
 #: src/app/(tabs)/(trades)/index.tsx:278
 #: src/components/trade-form.tsx:250
@@ -3939,7 +4000,8 @@ msgstr "P&L, rules followed"
 msgid "Parsed"
 msgstr "Parsed"
 
-#: src/app/login.tsx:199
+#: src/app/(tabs)/(settings)/two-factor.tsx:108
+#: src/app/login.tsx:219
 msgid "Password"
 msgstr "Password"
 
@@ -4084,7 +4146,7 @@ msgstr "Playbook & leaks"
 msgid "Plays traded"
 msgstr "Plays traded"
 
-#: src/app/login.tsx:299
+#: src/app/login.tsx:348
 msgid ""
 "Point the app at your own TraderMemos instance.\n"
 "Origin only — /api/v1 is added automatically."
@@ -4141,6 +4203,7 @@ msgid "Premium paid"
 msgstr "Premium paid"
 
 #: src/app/(tabs)/(settings)/export-trades.tsx:140
+#: src/app/(tabs)/(settings)/two-factor.tsx:154
 msgid "Preparing…"
 msgstr "Preparing…"
 
@@ -4268,7 +4331,7 @@ msgstr "Prop"
 msgid "Prop evaluation"
 msgstr "Prop evaluation"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:53
+#: src/app/(tabs)/(settings)/_layout.tsx:57
 #: src/app/(tabs)/(settings)/account-form.tsx:367
 #: src/app/(tabs)/(settings)/prop-settings.tsx:133
 msgid "Prop rules"
@@ -4690,7 +4753,7 @@ msgstr "Risk %"
 msgid "Risk budget under 1 contract — raise Risk% or tighten the stop"
 msgstr "Risk budget under 1 contract — raise Risk% or tighten the stop"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:46
+#: src/app/(tabs)/(settings)/_layout.tsx:50
 #: src/app/(tabs)/(settings)/index.tsx:147
 #: src/app/(tabs)/(settings)/trading-journal.tsx:134
 msgid "Risk rules"
@@ -4753,6 +4816,11 @@ msgstr "rules followed"
 #: src/app/(tabs)/(settings)/prop-settings.tsx:134
 msgid "Rules the firm scores this evaluation on. Blank rules are skipped."
 msgstr "Rules the firm scores this evaluation on. Blank rules are skipped."
+
+#. placeholder {0}: me.data?.email ?? ''
+#: src/app/(tabs)/(settings)/two-factor.tsx:133
+msgid "Run \"tradermemos disable-totp --email {0}\" on the server. There are no recovery codes to lose."
+msgstr "Run \"tradermemos disable-totp --email {0}\" on the server. There are no recovery codes to lose."
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:494
 msgid "Runner"
@@ -4942,7 +5010,7 @@ msgstr "security credentials reset"
 msgid "Self-hosted — your journal never leaves this server."
 msgstr "Self-hosted — your journal never leaves this server."
 
-#: src/app/login.tsx:258
+#: src/app/login.tsx:307
 msgid "Self-hosted — your trade data stays on your stack."
 msgstr "Self-hosted — your trade data stays on your stack."
 
@@ -5002,6 +5070,10 @@ msgstr "Set up"
 #: src/components/prop-status-card.tsx:81
 msgid "Set up rules"
 msgstr "Set up rules"
+
+#: src/app/(tabs)/(settings)/two-factor.tsx:154
+msgid "Set up two-factor"
+msgstr "Set up two-factor"
 
 #: src/app/new-trade.tsx:59
 #: src/components/trade-prefill-bar.tsx:44
@@ -5106,12 +5178,12 @@ msgstr "Show password"
 msgid "Side"
 msgstr "Side"
 
-#: src/app/login.tsx:172
-#: src/app/login.tsx:242
+#: src/app/login.tsx:192
+#: src/app/login.tsx:291
 msgid "Sign in"
 msgstr "Sign in"
 
-#: src/app/login.tsx:127
+#: src/app/login.tsx:147
 msgid "Sign in failed"
 msgstr "Sign in failed"
 
@@ -5473,6 +5545,10 @@ msgstr "Testing…"
 #~ msgid "Textbook"
 #~ msgstr "Textbook"
 
+#: src/app/login.tsx:144
+msgid "That code is not valid. Codes change every 30 seconds."
+msgstr "That code is not valid. Codes change every 30 seconds."
+
 #: src/app/(tabs)/(settings)/change-password.tsx:97
 msgid "That is already your password."
 msgstr "That is already your password."
@@ -5611,6 +5687,10 @@ msgstr "This month"
 #: src/app/cash-form.tsx:142
 msgid "This permanently deletes the ledger entry."
 msgstr "This permanently deletes the ledger entry."
+
+#: src/app/(tabs)/(settings)/two-factor.tsx:188
+msgid "This proves the authenticator was added before it's required."
+msgstr "This proves the authenticator was added before it's required."
 
 #. placeholder {0}: trade.attachments.length
 #: src/components/attachments-card.tsx:68
@@ -5806,7 +5886,7 @@ msgstr "Trades keep their journal — only the playbook entry goes."
 #~ msgid "Trading"
 #~ msgstr "Trading"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:39
+#: src/app/(tabs)/(settings)/_layout.tsx:43
 #: src/app/(tabs)/(settings)/index.tsx:397
 msgid "Trading & journal"
 msgstr "Trading & journal"
@@ -5853,9 +5933,42 @@ msgstr "Try a different search."
 msgid "Tue"
 msgstr "Tue"
 
+#: src/app/(tabs)/(settings)/two-factor.tsx:105
+#: src/app/(tabs)/(settings)/two-factor.tsx:122
+msgid "Turn off two-factor"
+msgstr "Turn off two-factor"
+
+#: src/app/(tabs)/(settings)/two-factor.tsx:199
+msgid "Turn on two-factor"
+msgstr "Turn on two-factor"
+
+#: src/app/(tabs)/(settings)/two-factor.tsx:102
+msgid "Turning it off needs your password and a current code, so a borrowed unlocked phone can't remove it."
+msgstr "Turning it off needs your password and a current code, so a borrowed unlocked phone can't remove it."
+
+#: src/app/(tabs)/(settings)/two-factor.tsx:122
+msgid "Turning off…"
+msgstr "Turning off…"
+
+#: src/app/(tabs)/(settings)/_layout.tsx:35
+msgid "Two-factor"
+msgstr "Two-factor"
+
+#: src/app/(tabs)/(settings)/profile.tsx:98
+msgid "Two-factor authentication"
+msgstr "Two-factor authentication"
+
 #: src/app/(tabs)/(settings)/profile.tsx:88
-msgid "Two-factor authentication is on."
-msgstr "Two-factor authentication is on."
+#~ msgid "Two-factor authentication is on."
+#~ msgstr "Two-factor authentication is on."
+
+#: src/app/(tabs)/(settings)/two-factor.tsx:86
+msgid "Two-factor is off"
+msgstr "Two-factor is off"
+
+#: src/app/(tabs)/(settings)/two-factor.tsx:63
+msgid "Two-factor is on"
+msgstr "Two-factor is on"
 
 #: src/app/cash-form.tsx:195
 msgid "Type"
@@ -5921,7 +6034,7 @@ msgstr "Use at least {MIN_LENGTH} characters."
 msgid "Used by Check compliance on New Trade. Add only the limits you want enforced."
 msgstr "Used by Check compliance on New Trade. Add only the limits you want enforced."
 
-#: src/app/login.tsx:178
+#: src/app/login.tsx:198
 msgid "Username"
 msgstr "Username"
 
@@ -5994,7 +6107,7 @@ msgstr "Weekdays only"
 msgid "Weekends hide the card on Home. Turn this off if you trade Saturday or Sunday sessions."
 msgstr "Weekends hide the card on Home. Turn this off if you trade Saturday or Sunday sessions."
 
-#: src/app/login.tsx:173
+#: src/app/login.tsx:193
 msgid "Welcome back."
 msgstr "Welcome back."
 
@@ -6145,6 +6258,10 @@ msgstr "You rated the setup {0} but execution {1}. The idea may be fine — focu
 msgid "You will need to sign in again to reach this server."
 msgstr "You will need to sign in again to reach this server."
 
+#: src/app/(tabs)/(settings)/two-factor.tsx:64
+msgid "You'll need a code from your authenticator the next time you sign in."
+msgstr "You'll need a code from your authenticator the next time you sign in."
+
 #: src/app/(tabs)/(settings)/_layout.tsx:32
 #: src/app/(tabs)/(settings)/index.tsx:117
 #: src/app/(tabs)/(settings)/index.tsx:277
@@ -6170,6 +6287,10 @@ msgstr "Your other devices will be signed out the next time they reconnect."
 #: src/app/(tabs)/(settings)/trading-journal.tsx:110
 msgid "Your P&L target shows on the dashboard; risk limits drive Check compliance on New Trade."
 msgstr "Your P&L target shows on the dashboard; risk limits drive Check compliance on New Trade."
+
+#: src/app/(tabs)/(settings)/two-factor.tsx:86
+msgid "Your password alone signs you in again."
+msgstr "Your password alone signs you in again."
 
 #: src/app/(tabs)/(reports)/wrapped.tsx:200
 msgid "Your rhythm"

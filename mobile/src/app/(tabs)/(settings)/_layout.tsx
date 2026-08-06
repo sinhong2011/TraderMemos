@@ -31,6 +31,10 @@ export default function SettingsLayout() {
       {/* "Account" is taken by account-form, the broker-account editor. */}
       <Stack.Screen name="profile" options={{ title: t`Your account`, headerLargeTitle: false }} />
       <Stack.Screen
+        name="two-factor"
+        options={{ title: t`Two-factor`, headerLargeTitle: false }}
+      />
+      <Stack.Screen
         name="change-password"
         options={{ title: t`Change password`, headerLargeTitle: false }}
       />

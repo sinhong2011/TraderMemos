@@ -420,6 +420,10 @@ msgstr "1건"
 #~ msgid "1 year"
 #~ msgstr "1년"
 
+#: src/app/(tabs)/(settings)/two-factor.tsx:162
+msgid "1. Add to your authenticator"
+msgstr "1. 인증 앱에 추가"
+
 #: src/app/(tabs)/(settings)/display.tsx:219
 msgid "12-hour"
 msgstr "12시간제"
@@ -436,6 +440,10 @@ msgstr "1R"
 msgid "1y"
 msgstr "1년"
 
+#: src/app/(tabs)/(settings)/two-factor.tsx:186
+msgid "2. Enter a code to confirm"
+msgstr "2. 코드를 입력해 확인"
+
 #: src/app/(tabs)/(settings)/display.tsx:222
 msgid "24-hour"
 msgstr "24시간제"
@@ -451,6 +459,12 @@ msgstr "24시간제"
 #: src/app/new-token.tsx:17
 msgid "30d"
 msgstr "30일"
+
+#: src/app/(tabs)/(settings)/two-factor.tsx:115
+#: src/app/(tabs)/(settings)/two-factor.tsx:192
+#: src/app/login.tsx:248
+msgid "6-digit code"
+msgstr "6자리 코드"
 
 #: src/app/(tabs)/(settings)/api-tokens.tsx:35
 #~ msgid "90 days"
@@ -476,7 +490,7 @@ msgstr "아래 설정을 적용한 금액과 장 마감 후 시각의 샘플입�
 msgid "A symbol pins the play to one ticker — leave it on Any for a pattern you trade anywhere."
 msgstr "종목을 넣으면 이 플레이는 해당 종목에만 묶입니다. 어디서나 쓰는 패턴이면 ‘지정 없음’으로 두세요."
 
-#: src/app/(tabs)/(settings)/_layout.tsx:78
+#: src/app/(tabs)/(settings)/_layout.tsx:82
 msgid "About"
 msgstr "정보"
 
@@ -657,10 +671,18 @@ msgstr "종목 추가"
 msgid "Add tier"
 msgstr "티어 추가"
 
+#: src/app/(tabs)/(settings)/two-factor.tsx:171
+msgid "Add to authenticator"
+msgstr "인증 앱에 추가"
+
 #: src/app/(tabs)/(settings)/funding.tsx:146
 #: src/app/cash-form.tsx:156
 msgid "Add transaction"
 msgstr "입출금 내역 추가"
+
+#: src/app/(tabs)/(settings)/two-factor.tsx:149
+msgid "Adds a 6-digit code from an authenticator app to your password at sign-in."
+msgstr "로그인 시 비밀번호에 인증 앱의 6자리 코드를 추가합니다."
 
 #: src/components/reports/risk-section.tsx:138
 msgid "Adherence"
@@ -670,8 +692,8 @@ msgstr "준수율"
 msgid "Adjustment"
 msgstr "조정"
 
-#: src/app/login.tsx:251
-#: src/app/login.tsx:255
+#: src/app/login.tsx:300
+#: src/app/login.tsx:304
 msgid "Advanced"
 msgstr "고급 설정"
 
@@ -695,7 +717,7 @@ msgstr "저장 후"
 msgid "Aggressive"
 msgstr "공격적"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:59
+#: src/app/(tabs)/(settings)/_layout.tsx:63
 msgid "AI"
 msgstr "AI"
 
@@ -801,11 +823,11 @@ msgstr "OpenAI 호환 엔드포인트면 무엇이든 사용할 수 있습니다
 msgid "API key"
 msgstr "API 키"
 
-#: src/app/login.tsx:289
+#: src/app/login.tsx:338
 msgid "API server"
 msgstr "API 서버"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:64
+#: src/app/(tabs)/(settings)/_layout.tsx:68
 #: src/app/(tabs)/(settings)/index.tsx:171
 #: src/app/(tabs)/(settings)/integrations.tsx:30
 msgid "API tokens"
@@ -869,6 +891,10 @@ msgstr "고점 부근"
 #: src/app/tool-position-size.tsx:104
 msgid "at the stop"
 msgstr "스톱 기준"
+
+#: src/app/login.tsx:240
+msgid "Authenticator code"
+msgstr "인증 코드"
 
 #: src/components/reports/overview-section.tsx:57
 msgid "average"
@@ -1143,6 +1169,7 @@ msgstr "콜 / 풋"
 #: src/app/(tabs)/(settings)/tags.tsx:91
 #: src/app/(tabs)/(settings)/trading-journal.tsx:55
 #: src/app/(tabs)/(settings)/trading-journal.tsx:79
+#: src/app/(tabs)/(settings)/two-factor.tsx:203
 #: src/app/(tabs)/(trades)/[id].tsx:165
 #: src/app/cash-form.tsx:143
 #: src/app/edit-note.tsx:73
@@ -1205,15 +1232,19 @@ msgstr "현금 거래"
 msgid "cash-limited"
 msgstr "현금 제한"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:35
+#: src/app/(tabs)/(settings)/_layout.tsx:39
 #: src/app/(tabs)/(settings)/index.tsx:123
-#: src/app/(tabs)/(settings)/profile.tsx:95
+#: src/app/(tabs)/(settings)/profile.tsx:93
 msgid "Change password"
 msgstr "비밀번호 변경"
 
+#: src/app/(tabs)/(settings)/profile.tsx:87
+msgid "Changing your password signs out your other devices."
+msgstr "비밀번호를 변경하면 다른 기기가 로그아웃됩니다."
+
 #: src/app/(tabs)/(settings)/profile.tsx:89
-msgid "Changing your password signs out your other devices. Two-factor authentication isn't available yet."
-msgstr "비밀번호를 변경하면 다른 기기가 로그아웃됩니다. 2단계 인증은 아직 제공되지 않습니다."
+#~ msgid "Changing your password signs out your other devices. Two-factor authentication isn't available yet."
+#~ msgstr "비밀번호를 변경하면 다른 기기가 로그아웃됩니다. 2단계 인증은 아직 제공되지 않습니다."
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:52
 #: src/app/(tabs)/(dashboard)/advanced-chart.tsx:115
@@ -1367,6 +1398,10 @@ msgstr "새 비밀번호 확인"
 msgid "Confirm trade rules"
 msgstr "매매 규칙 확인"
 
+#: src/app/(tabs)/(settings)/two-factor.tsx:199
+msgid "Confirming…"
+msgstr "확인 중…"
+
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:318
 msgid "Connection"
 msgstr "연결"
@@ -1435,6 +1470,10 @@ msgstr "복사됨"
 msgid "Copy it now — the secret is shown only once and cannot be recovered."
 msgstr "지금 복사하세요 — 시크릿은 한 번만 표시되며 복구할 수 없습니다."
 
+#: src/app/(tabs)/(settings)/two-factor.tsx:176
+msgid "Copy setup key"
+msgstr "설정 키 복사"
+
 #: src/app/new-token.tsx:93
 msgid "Copy token"
 msgstr "토큰 복사"
@@ -1483,6 +1522,10 @@ msgstr "노트를 삭제하지 못했습니다"
 msgid "Could not delete tag"
 msgstr "태그를 삭제하지 못했습니다"
 
+#: src/app/(tabs)/(settings)/two-factor.tsx:69
+msgid "Could not enable"
+msgstr "활성화할 수 없습니다"
+
 #: src/app/(tabs)/(settings)/data-backup.tsx:40
 msgid "Could not export config"
 msgstr "설정을 내보내지 못했습니다"
@@ -1521,7 +1564,7 @@ msgstr "파일을 열지 못했습니다"
 msgid "Could not preview"
 msgstr "미리보기를 할 수 없습니다"
 
-#: src/app/login.tsx:113
+#: src/app/login.tsx:118
 msgid "Could not reach {normalized}"
 msgstr "{normalized} 에 연결할 수 없습니다"
 
@@ -1591,6 +1634,14 @@ msgstr "샘플을 저장할 수 없습니다"
 #: src/app/share-trade.tsx:38
 msgid "Could not share"
 msgstr "공유할 수 없습니다"
+
+#: src/app/(tabs)/(settings)/two-factor.tsx:47
+msgid "Could not start setup"
+msgstr "설정을 시작할 수 없습니다"
+
+#: src/app/(tabs)/(settings)/two-factor.tsx:90
+msgid "Could not turn off"
+msgstr "끌 수 없습니다"
 
 #: src/components/attachments-card.tsx:96
 #: src/components/note-images.tsx:90
@@ -1737,7 +1788,7 @@ msgstr "다크"
 #~ msgid "Data"
 #~ msgstr "데이터"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:68
+#: src/app/(tabs)/(settings)/_layout.tsx:72
 #: src/app/(tabs)/(settings)/general.tsx:45
 #: src/app/(tabs)/(settings)/index.tsx:196
 msgid "Data & backup"
@@ -1892,7 +1943,7 @@ msgstr "방향"
 #~ msgid "Disconnect?"
 #~ msgstr "연결을 해제할까요?"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:49
+#: src/app/(tabs)/(settings)/_layout.tsx:53
 #: src/app/(tabs)/(settings)/general.tsx:27
 #: src/app/(tabs)/(settings)/index.tsx:184
 msgid "Display"
@@ -1936,7 +1987,7 @@ msgstr "금액"
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:236
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:258
 #: src/app/(tabs)/(settings)/import-trades.tsx:270
-#: src/app/login.tsx:329
+#: src/app/login.tsx:378
 #: src/app/manage-tags.tsx:60
 #: src/app/new-token.tsx:79
 #: src/app/share-trade.tsx:56
@@ -2110,19 +2161,19 @@ msgstr "Flex Query ID를 입력하세요."
 msgid "Enter valid prices."
 msgstr "유효한 가격을 입력하세요."
 
-#: src/app/login.tsx:207
+#: src/app/login.tsx:227
 msgid "Enter your password"
 msgstr "비밀번호 입력"
 
-#: src/app/login.tsx:104
+#: src/app/login.tsx:109
 msgid "Enter your TraderMemos server URL"
 msgstr "TraderMemos 서버 URL을 입력하세요"
 
-#: src/app/login.tsx:185
+#: src/app/login.tsx:205
 msgid "Enter your username"
 msgstr "사용자 이름 입력"
 
-#: src/app/login.tsx:99
+#: src/app/login.tsx:104
 msgid "Enter your username and password"
 msgstr "사용자 이름과 비밀번호를 입력하세요"
 
@@ -2315,7 +2366,7 @@ msgstr "앱 설정 내보내기"
 #~ msgid "Export config"
 #~ msgstr "설정 내보내기"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:76
+#: src/app/(tabs)/(settings)/_layout.tsx:80
 #: src/app/(tabs)/(settings)/data-backup.tsx:87
 #: src/app/(tabs)/(settings)/index.tsx:208
 msgid "Export data"
@@ -2581,7 +2632,7 @@ msgstr "갭 상단"
 msgid "Gap top must sit above the bottom — check the edges"
 msgstr "갭 상단은 하단보다 위여야 합니다 — 값을 확인하세요"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:45
+#: src/app/(tabs)/(settings)/_layout.tsx:49
 #: src/app/(tabs)/(settings)/index.tsx:407
 msgid "General"
 msgstr "일반"
@@ -2708,11 +2759,15 @@ msgstr "시간대"
 msgid "How did the session go? Use \"- [ ]\" for checklist items."
 msgstr "세션은 어땠나요? \"- [ ]\"로 체크 항목을 만들 수 있습니다."
 
-#: src/app/(tabs)/(settings)/_layout.tsx:57
+#: src/app/(tabs)/(settings)/_layout.tsx:61
 #: src/app/(tabs)/(settings)/account-form.tsx:375
 #: src/app/(tabs)/(settings)/flex-sync.tsx:114
 msgid "IBKR Flex sync"
 msgstr "IBKR Flex 동기화"
+
+#: src/app/(tabs)/(settings)/two-factor.tsx:131
+msgid "If you lose your authenticator"
+msgstr "인증 앱을 분실한 경우"
 
 #: src/components/attachments-card.tsx:212
 #: src/components/note-images.tsx:229
@@ -2787,7 +2842,7 @@ msgstr "가져오기 실패"
 msgid "Import into"
 msgstr "가져올 계좌"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:72
+#: src/app/(tabs)/(settings)/_layout.tsx:76
 #: src/app/(tabs)/(settings)/data-backup.tsx:82
 #: src/app/(tabs)/(settings)/index.tsx:202
 msgid "Import trades"
@@ -2821,7 +2876,7 @@ msgstr "인사이트"
 msgid "Instrument"
 msgstr "상품 유형"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:43
+#: src/app/(tabs)/(settings)/_layout.tsx:47
 #: src/app/(tabs)/(settings)/account-form.tsx:363
 #: src/app/(tabs)/(settings)/index.tsx:402
 msgid "Integrations"
@@ -3751,6 +3806,7 @@ msgid "of {0}"
 msgstr "/ {0}"
 
 #: src/app/(tabs)/(settings)/ai.tsx:62
+#: src/app/(tabs)/(settings)/profile.tsx:99
 msgid "Off"
 msgstr "끔"
 
@@ -3767,6 +3823,7 @@ msgid "Omit account details"
 msgstr "계좌 정보 제외"
 
 #: src/app/(tabs)/(settings)/ai.tsx:61
+#: src/app/(tabs)/(settings)/profile.tsx:99
 msgid "On"
 msgstr "켬"
 
@@ -3837,6 +3894,10 @@ msgstr "OpenAI 모델 스크린샷 스캔 코치 키 AI"
 #: src/app/(tabs)/(trades)/[id].tsx:366
 msgid "Opened"
 msgstr "진입"
+
+#: src/app/(tabs)/(settings)/two-factor.tsx:165
+msgid "Opens iOS Passwords or whichever authenticator you use. Nothing is saved until you enter a code below."
+msgstr "iOS 암호 앱이나 사용 중인 인증 앱을 엽니다. 아래에 코드를 입력하기 전까지 아무것도 저장되지 않습니다."
 
 #: src/app/(tabs)/(trades)/index.tsx:278
 #: src/components/trade-form.tsx:250
@@ -3939,7 +4000,8 @@ msgstr "손익 (규칙 준수일)"
 msgid "Parsed"
 msgstr "해석 완료"
 
-#: src/app/login.tsx:199
+#: src/app/(tabs)/(settings)/two-factor.tsx:108
+#: src/app/login.tsx:219
 msgid "Password"
 msgstr "비밀번호"
 
@@ -4084,7 +4146,7 @@ msgstr "플레이북과 누수"
 msgid "Plays traded"
 msgstr "거래한 전략"
 
-#: src/app/login.tsx:299
+#: src/app/login.tsx:348
 msgid ""
 "Point the app at your own TraderMemos instance.\n"
 "Origin only — /api/v1 is added automatically."
@@ -4139,6 +4201,7 @@ msgid "Premium paid"
 msgstr "지불 프리미엄"
 
 #: src/app/(tabs)/(settings)/export-trades.tsx:140
+#: src/app/(tabs)/(settings)/two-factor.tsx:154
 msgid "Preparing…"
 msgstr "준비 중…"
 
@@ -4266,7 +4329,7 @@ msgstr "프랍"
 msgid "Prop evaluation"
 msgstr "프랍 평가"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:53
+#: src/app/(tabs)/(settings)/_layout.tsx:57
 #: src/app/(tabs)/(settings)/account-form.tsx:367
 #: src/app/(tabs)/(settings)/prop-settings.tsx:133
 msgid "Prop rules"
@@ -4688,7 +4751,7 @@ msgstr "리스크 %"
 msgid "Risk budget under 1 contract — raise Risk% or tighten the stop"
 msgstr "리스크 예산이 1계약 미만 — 리스크%를 높이거나 스톱을 좁히세요"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:46
+#: src/app/(tabs)/(settings)/_layout.tsx:50
 #: src/app/(tabs)/(settings)/index.tsx:147
 #: src/app/(tabs)/(settings)/trading-journal.tsx:134
 msgid "Risk rules"
@@ -4751,6 +4814,11 @@ msgstr "규칙 준수"
 #: src/app/(tabs)/(settings)/prop-settings.tsx:134
 msgid "Rules the firm scores this evaluation on. Blank rules are skipped."
 msgstr "프랍 회사가 이 평가를 채점하는 규칙입니다. 빈 규칙은 건너뜁니다."
+
+#. placeholder {0}: me.data?.email ?? ''
+#: src/app/(tabs)/(settings)/two-factor.tsx:133
+msgid "Run \"tradermemos disable-totp --email {0}\" on the server. There are no recovery codes to lose."
+msgstr "서버에서 \"tradermemos disable-totp --email {0}\"을(를) 실행하세요. 분실할 복구 코드는 없습니다."
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:494
 msgid "Runner"
@@ -4940,7 +5008,7 @@ msgstr "보안 자격 증명 재설정 비밀번호"
 msgid "Self-hosted — your journal never leaves this server."
 msgstr "셀프 호스팅 — 저널은 이 서버를 벗어나지 않습니다."
 
-#: src/app/login.tsx:258
+#: src/app/login.tsx:307
 msgid "Self-hosted — your trade data stays on your stack."
 msgstr "셀프 호스팅 — 거래 데이터는 내 서버에 저장됩니다."
 
@@ -5000,6 +5068,10 @@ msgstr "설정 필요"
 #: src/components/prop-status-card.tsx:81
 msgid "Set up rules"
 msgstr "규칙 설정"
+
+#: src/app/(tabs)/(settings)/two-factor.tsx:154
+msgid "Set up two-factor"
+msgstr "2단계 인증 설정"
 
 #: src/app/new-trade.tsx:59
 #: src/components/trade-prefill-bar.tsx:44
@@ -5104,12 +5176,12 @@ msgstr "비밀번호 표시"
 msgid "Side"
 msgstr "매매 구분"
 
-#: src/app/login.tsx:172
-#: src/app/login.tsx:242
+#: src/app/login.tsx:192
+#: src/app/login.tsx:291
 msgid "Sign in"
 msgstr "로그인"
 
-#: src/app/login.tsx:127
+#: src/app/login.tsx:147
 msgid "Sign in failed"
 msgstr "로그인에 실패했습니다"
 
@@ -5471,6 +5543,10 @@ msgstr "테스트 중…"
 #~ msgid "Textbook"
 #~ msgstr ""
 
+#: src/app/login.tsx:144
+msgid "That code is not valid. Codes change every 30 seconds."
+msgstr "코드가 올바르지 않습니다. 코드는 30초마다 바뀝니다."
+
 #: src/app/(tabs)/(settings)/change-password.tsx:97
 msgid "That is already your password."
 msgstr "현재 비밀번호와 동일합니다."
@@ -5609,6 +5685,10 @@ msgstr "이번 달"
 #: src/app/cash-form.tsx:142
 msgid "This permanently deletes the ledger entry."
 msgstr "이 원장 항목이 영구적으로 삭제됩니다."
+
+#: src/app/(tabs)/(settings)/two-factor.tsx:188
+msgid "This proves the authenticator was added before it's required."
+msgstr "필수가 되기 전에 인증 앱이 추가되었는지 확인합니다."
 
 #. placeholder {0}: trade.attachments.length
 #: src/components/attachments-card.tsx:68
@@ -5804,7 +5884,7 @@ msgstr "거래 일지는 유지됩니다 — 플레이북 항목만 삭제됩니
 #~ msgid "Trading"
 #~ msgstr "트레이딩"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:39
+#: src/app/(tabs)/(settings)/_layout.tsx:43
 #: src/app/(tabs)/(settings)/index.tsx:397
 msgid "Trading & journal"
 msgstr "트레이딩과 저널"
@@ -5851,9 +5931,42 @@ msgstr "다른 검색어를 시도해 보세요."
 msgid "Tue"
 msgstr "화"
 
+#: src/app/(tabs)/(settings)/two-factor.tsx:105
+#: src/app/(tabs)/(settings)/two-factor.tsx:122
+msgid "Turn off two-factor"
+msgstr "2단계 인증 끄기"
+
+#: src/app/(tabs)/(settings)/two-factor.tsx:199
+msgid "Turn on two-factor"
+msgstr "2단계 인증 켜기"
+
+#: src/app/(tabs)/(settings)/two-factor.tsx:102
+msgid "Turning it off needs your password and a current code, so a borrowed unlocked phone can't remove it."
+msgstr "끄려면 비밀번호와 현재 코드가 필요합니다. 잠금 해제된 기기를 빌린 것만으로는 해제할 수 없습니다."
+
+#: src/app/(tabs)/(settings)/two-factor.tsx:122
+msgid "Turning off…"
+msgstr "끄는 중…"
+
+#: src/app/(tabs)/(settings)/_layout.tsx:35
+msgid "Two-factor"
+msgstr "2단계 인증"
+
+#: src/app/(tabs)/(settings)/profile.tsx:98
+msgid "Two-factor authentication"
+msgstr "2단계 인증"
+
 #: src/app/(tabs)/(settings)/profile.tsx:88
-msgid "Two-factor authentication is on."
-msgstr "2단계 인증이 켜져 있습니다."
+#~ msgid "Two-factor authentication is on."
+#~ msgstr "2단계 인증이 켜져 있습니다."
+
+#: src/app/(tabs)/(settings)/two-factor.tsx:86
+msgid "Two-factor is off"
+msgstr "2단계 인증을 껐습니다"
+
+#: src/app/(tabs)/(settings)/two-factor.tsx:63
+msgid "Two-factor is on"
+msgstr "2단계 인증이 켜졌습니다"
 
 #: src/app/cash-form.tsx:195
 msgid "Type"
@@ -5919,7 +6032,7 @@ msgstr "{MIN_LENGTH}자 이상 입력하세요."
 msgid "Used by Check compliance on New Trade. Add only the limits you want enforced."
 msgstr "새 거래의 규칙 준수 검사에 사용됩니다. 적용할 한도만 추가하세요."
 
-#: src/app/login.tsx:178
+#: src/app/login.tsx:198
 msgid "Username"
 msgstr "사용자 이름"
 
@@ -5992,7 +6105,7 @@ msgstr "평일만"
 msgid "Weekends hide the card on Home. Turn this off if you trade Saturday or Sunday sessions."
 msgstr "주말에는 홈 카드를 숨깁니다. 토요일이나 일요일에도 거래한다면 끄세요."
 
-#: src/app/login.tsx:173
+#: src/app/login.tsx:193
 msgid "Welcome back."
 msgstr "다시 오신 것을 환영합니다."
 
@@ -6143,6 +6256,10 @@ msgstr "셋업은 {0}, 실행은 {1}로 평가했습니다. 아이디어는 좋�
 msgid "You will need to sign in again to reach this server."
 msgstr "이 서버에 다시 접속하려면 로그인해야 합니다."
 
+#: src/app/(tabs)/(settings)/two-factor.tsx:64
+msgid "You'll need a code from your authenticator the next time you sign in."
+msgstr "다음 로그인부터 인증 앱의 코드가 필요합니다."
+
 #: src/app/(tabs)/(settings)/_layout.tsx:32
 #: src/app/(tabs)/(settings)/index.tsx:117
 #: src/app/(tabs)/(settings)/index.tsx:277
@@ -6168,6 +6285,10 @@ msgstr "다른 기기는 다음 연결 시 로그아웃됩니다."
 #: src/app/(tabs)/(settings)/trading-journal.tsx:110
 msgid "Your P&L target shows on the dashboard; risk limits drive Check compliance on New Trade."
 msgstr "손익 목표는 대시보드에 표시되고, 리스크 한도는 새 거래의 규칙 준수 검사에 사용됩니다."
+
+#: src/app/(tabs)/(settings)/two-factor.tsx:86
+msgid "Your password alone signs you in again."
+msgstr "이제 비밀번호만으로 로그인합니다."
 
 #: src/app/(tabs)/(reports)/wrapped.tsx:200
 msgid "Your rhythm"
