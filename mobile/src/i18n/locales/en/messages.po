@@ -1274,11 +1274,11 @@ msgstr "cash-limited"
 
 #: src/app/(tabs)/(settings)/_layout.tsx:39
 #: src/app/(tabs)/(settings)/index.tsx:123
-#: src/app/(tabs)/(settings)/profile.tsx:103
+#: src/app/(tabs)/(settings)/profile.tsx:106
 msgid "Change password"
 msgstr "Change password"
 
-#: src/app/(tabs)/(settings)/profile.tsx:97
+#: src/app/(tabs)/(settings)/profile.tsx:100
 msgid "Changing your password signs out your other devices."
 msgstr "Changing your password signs out your other devices."
 
@@ -2167,8 +2167,8 @@ msgid "Edit transaction"
 msgstr "Edit transaction"
 
 #: src/app/(tabs)/(settings)/profile.tsx:63
-msgid "Email"
-msgstr "Email"
+#~ msgid "Email"
+#~ msgstr "Email"
 
 #: src/app/(tabs)/(trades)/[id].tsx:413
 #: src/app/manage-tags.tsx:104
@@ -2835,7 +2835,7 @@ msgstr "Holiday"
 msgid "Home"
 msgstr "Home"
 
-#: src/app/(tabs)/(settings)/profile.tsx:78
+#: src/app/(tabs)/(settings)/profile.tsx:81
 msgid "Host"
 msgstr "Host"
 
@@ -3358,12 +3358,12 @@ msgstr "Median win"
 msgid "Medium"
 msgstr "Medium"
 
-#: src/app/(tabs)/(settings)/profile.tsx:67
+#: src/app/(tabs)/(settings)/profile.tsx:70
 #: src/app/(tabs)/(settings)/users.tsx:53
 msgid "Member"
 msgstr "Member"
 
-#: src/app/(tabs)/(settings)/profile.tsx:69
+#: src/app/(tabs)/(settings)/profile.tsx:72
 #: src/app/(tabs)/(settings)/user-detail.tsx:159
 msgid "Member since"
 msgstr "Member since"
@@ -3915,7 +3915,7 @@ msgid "of {0}"
 msgstr "of {0}"
 
 #: src/app/(tabs)/(settings)/ai.tsx:62
-#: src/app/(tabs)/(settings)/profile.tsx:109
+#: src/app/(tabs)/(settings)/profile.tsx:112
 #: src/app/(tabs)/(settings)/user-detail.tsx:163
 msgid "Off"
 msgstr "Off"
@@ -3933,7 +3933,7 @@ msgid "Omit account details"
 msgstr "Omit account details"
 
 #: src/app/(tabs)/(settings)/ai.tsx:61
-#: src/app/(tabs)/(settings)/profile.tsx:109
+#: src/app/(tabs)/(settings)/profile.tsx:112
 #: src/app/(tabs)/(settings)/user-detail.tsx:163
 msgid "On"
 msgstr "On"
@@ -4088,7 +4088,7 @@ msgid "Overview"
 msgstr "Overview"
 
 #: src/app/(tabs)/(settings)/index.tsx:284
-#: src/app/(tabs)/(settings)/profile.tsx:67
+#: src/app/(tabs)/(settings)/profile.tsx:70
 #: src/app/(tabs)/(settings)/user-detail.tsx:177
 #: src/app/(tabs)/(settings)/user-form.tsx:132
 #: src/app/(tabs)/(settings)/users.tsx:53
@@ -4921,7 +4921,7 @@ msgstr "Risk, target, and stop are all empty. Without a plan you can't judge whe
 msgid "Risk, target, and stop are blank — and you tagged this as no plan. Define all three before entry next time so you can measure R and review honestly."
 msgstr "Risk, target, and stop are blank — and you tagged this as no plan. Define all three before entry next time so you can measure R and review honestly."
 
-#: src/app/(tabs)/(settings)/profile.tsx:66
+#: src/app/(tabs)/(settings)/profile.tsx:69
 msgid "Role"
 msgstr "Role"
 
@@ -5144,7 +5144,7 @@ msgstr "Search symbol"
 msgid "Search symbol or tag"
 msgstr "Search symbol or tag"
 
-#: src/app/(tabs)/(settings)/profile.tsx:94
+#: src/app/(tabs)/(settings)/profile.tsx:97
 #: src/app/(tabs)/(settings)/user-detail.tsx:184
 msgid "Security"
 msgstr "Security"
@@ -5153,7 +5153,7 @@ msgstr "Security"
 msgid "security credentials reset"
 msgstr "security credentials reset"
 
-#: src/app/(tabs)/(settings)/profile.tsx:76
+#: src/app/(tabs)/(settings)/profile.tsx:79
 msgid "Self-hosted — your journal never leaves this server."
 msgstr "Self-hosted — your journal never leaves this server."
 
@@ -5175,7 +5175,7 @@ msgid "Sell %"
 msgstr "Sell %"
 
 #: src/app/(tabs)/(settings)/about.tsx:74
-#: src/app/(tabs)/(settings)/profile.tsx:75
+#: src/app/(tabs)/(settings)/profile.tsx:78
 msgid "Server"
 msgstr "Server"
 
@@ -6123,7 +6123,7 @@ msgstr "Turning off…"
 msgid "Two-factor"
 msgstr "Two-factor"
 
-#: src/app/(tabs)/(settings)/profile.tsx:108
+#: src/app/(tabs)/(settings)/profile.tsx:111
 msgid "Two-factor authentication"
 msgstr "Two-factor authentication"
 
@@ -6213,6 +6213,7 @@ msgstr "Used by Check compliance on New Trade. Add only the limits you want enfo
 msgid "User added"
 msgstr "User added"
 
+#: src/app/(tabs)/(settings)/profile.tsx:66
 #: src/app/(tabs)/(settings)/user-detail.tsx:156
 #: src/app/(tabs)/(settings)/user-form.tsx:103
 #: src/app/login.tsx:198
@@ -6221,7 +6222,7 @@ msgstr "Username"
 
 #: src/app/(tabs)/(settings)/_layout.tsx:41
 #: src/app/(tabs)/(settings)/index.tsx:129
-#: src/app/(tabs)/(settings)/profile.tsx:87
+#: src/app/(tabs)/(settings)/profile.tsx:90
 #: src/app/(tabs)/(settings)/users.tsx:33
 msgid "Users"
 msgstr "Users"

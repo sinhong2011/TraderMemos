@@ -60,7 +60,10 @@ export default function ProfileScreen() {
             ) : undefined
           }
         >
-          <LabeledContent label={t`Email`}>
+          {/* "Username", not "Email": the wire field is `email`, but nothing
+              validates it as one and the sign-in screen asks for a username,
+              so that is what this account actually has. */}
+          <LabeledContent label={t`Username`}>
             <UIText>{me.data.email}</UIText>
           </LabeledContent>
           <LabeledContent label={t`Role`}>
