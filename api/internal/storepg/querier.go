@@ -71,7 +71,9 @@ type Querier interface {
 	InsertExecution(ctx context.Context, arg InsertExecutionParams) (Execution, error)
 	InsertMediaFile(ctx context.Context, arg InsertMediaFileParams) (MediaFile, error)
 	InsertTrade(ctx context.Context, arg InsertTradeParams) (Trade, error)
+	LatestAccessTokenUse(ctx context.Context, tokenID string) (AccessTokenUse, error)
 	LinkTradeExecution(ctx context.Context, arg LinkTradeExecutionParams) error
+	ListAccessTokenUses(ctx context.Context, arg ListAccessTokenUsesParams) ([]AccessTokenUse, error)
 	ListAccessTokensByUser(ctx context.Context, userID string) ([]AccessToken, error)
 	ListAccounts(ctx context.Context, userID string) ([]Account, error)
 	ListAttachmentsForAccount(ctx context.Context, arg ListAttachmentsForAccountParams) ([]TradeAttachment, error)
@@ -102,6 +104,8 @@ type Querier interface {
 	// than post_floor, so the queue converges instead of retrying bar-less
 	// symbols forever.
 	ListTradesMissingExcursion(ctx context.Context, arg ListTradesMissingExcursionParams) ([]Trade, error)
+	PruneAccessTokenUses(ctx context.Context, arg PruneAccessTokenUsesParams) error
+	RecordAccessTokenUse(ctx context.Context, arg RecordAccessTokenUseParams) error
 	RevokeAccessToken(ctx context.Context, arg RevokeAccessTokenParams) (int64, error)
 	SetImportBatchStatus(ctx context.Context, arg SetImportBatchStatusParams) error
 	SetTradeSetup(ctx context.Context, arg SetTradeSetupParams) error

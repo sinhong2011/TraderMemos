@@ -800,6 +800,44 @@ func (p *PG) TouchAccessTokenLastUsed(ctx context.Context, id string) error {
 	return p.q.TouchAccessTokenLastUsed(ctx, id)
 }
 
+func (p *PG) RecordAccessTokenUse(ctx context.Context, arg RecordAccessTokenUseParams) error {
+	return p.q.RecordAccessTokenUse(ctx, storepg.RecordAccessTokenUseParams(arg))
+}
+
+func (p *PG) LatestAccessTokenUse(ctx context.Context, tokenID string) (AccessTokenUse, error) {
+	v, err := p.q.LatestAccessTokenUse(ctx, tokenID)
+	if err != nil {
+		return AccessTokenUse{}, err
+	}
+	return AccessTokenUse(v), nil
+}
+
+func (p *PG) ListAccessTokenUses(ctx context.Context, arg ListAccessTokenUsesParams) ([]AccessTokenUse, error) {
+	// Field-by-field, not a struct conversion: sqlc types LIMIT as int64 for
+	// SQLite and int32 for Postgres.
+	rows, err := p.q.ListAccessTokenUses(ctx, storepg.ListAccessTokenUsesParams{
+		TokenID: arg.TokenID,
+		UserID:  arg.UserID,
+		Limit:   int32(arg.Limit),
+	})
+	if err != nil {
+		return nil, err
+	}
+	out := make([]AccessTokenUse, 0, len(rows))
+	for _, r := range rows {
+		out = append(out, AccessTokenUse(r))
+	}
+	return out, nil
+}
+
+func (p *PG) PruneAccessTokenUses(ctx context.Context, arg PruneAccessTokenUsesParams) error {
+	return p.q.PruneAccessTokenUses(ctx, storepg.PruneAccessTokenUsesParams{
+		TokenID:   arg.TokenID,
+		TokenID_2: arg.TokenID_2,
+		Limit:     int32(arg.Limit),
+	})
+}
+
 func (p *PG) UpdateAccount(ctx context.Context, arg UpdateAccountParams) (Account, error) {
 	v, err := p.q.UpdateAccount(ctx, storepg.UpdateAccountParams(arg))
 	if err != nil {
