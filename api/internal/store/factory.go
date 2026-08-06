@@ -7,9 +7,10 @@ import (
 )
 
 // NewForDriver returns a Querier for the given database driver.
+// The returned store also implements TxRunner.
 func NewForDriver(conn *sql.DB, driver string) Querier {
 	if driver == db.DriverPostgres {
-		return NewPG(conn)
+		return &pgStore{PG: NewPG(conn), conn: conn}
 	}
-	return New(conn)
+	return &sqliteStore{Queries: New(conn), conn: conn}
 }

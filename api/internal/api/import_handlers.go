@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/csv"
 	"encoding/json"
+	"fmt"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -269,7 +270,7 @@ func (s *Server) createAccountFromJSONMeta(ctx context.Context, userID string, m
 	if err != nil {
 		return store.Account{}, Fail(http.StatusInternalServerError, "internal", "could not create account from import", nil)
 	}
-	if err := s.ensureOpeningDeposit(ctx, userID, acc); err != nil {
+	if err := s.ensureOpeningDeposit(ctx, s.deps.Store, userID, acc); err != nil {
 		return store.Account{}, Fail(http.StatusInternalServerError, "internal", "account created but opening deposit failed", nil)
 	}
 	return acc, nil
@@ -366,7 +367,10 @@ func (s *Server) handleImportCommit(c echo.Context) error {
 }
 
 func (s *Server) finishImportCommit(c echo.Context, uid string, batch store.ImportBatch, loaded loadedImport) error {
-	ctx := c.Request().Context()
+	// The upload is fully read by now. Detach from the request context so a
+	// client or proxy disconnect (e.g. a 120s proxy timeout on a large file)
+	// cannot cancel the import halfway through.
+	ctx := context.WithoutCancel(c.Request().Context())
 
 	var parsed importer.ParseResult
 	switch {
@@ -403,43 +407,54 @@ func (s *Server) finishImportCommit(c echo.Context, uid string, batch store.Impo
 		parsed.Format = "executions"
 	}
 
+	var committed importer.CommitResult
 	setupsUpserted := 0
-	if loaded.Source == "json" {
-		// Restore playbook catalog first so trade annotations link to full setups.
-		n, err := importer.UpsertSetups(ctx, s.deps.Store, uid, loaded.JSON.Setups)
-		if err != nil {
-			return Fail(http.StatusInternalServerError, "internal", "could not import setups", err.Error())
-		}
-		setupsUpserted = n
-	}
-
-	committed, err := importer.Commit(ctx, s.deps.Store, uid, batch.AccountID,
-		sql.NullString{String: batch.ID, Valid: true}, parsed)
-	if err != nil {
-		return Fail(http.StatusInternalServerError, "internal", "could not import", err.Error())
-	}
-
 	cashInserted := 0
-	if loaded.Source == "json" {
-		if err := s.applyJSONAccountMeta(ctx, uid, batch.AccountID, loaded.JSON.Account); err != nil {
-			return Fail(http.StatusInternalServerError, "internal", "could not apply account metadata", err.Error())
+	// One transaction for the whole commit: a failure anywhere leaves no
+	// partial rows behind, and SQLite pays a single fsync instead of one per row.
+	err := store.InTx(ctx, s.deps.Store, func(q store.Querier) error {
+		if loaded.Source == "json" {
+			// Restore playbook catalog first so trade annotations link to full setups.
+			n, err := importer.UpsertSetups(ctx, q, uid, loaded.JSON.Setups)
+			if err != nil {
+				return fmt.Errorf("upsert setups: %w", err)
+			}
+			setupsUpserted = n
 		}
-		cashN, err := s.applyJSONCashTransactions(ctx, uid, batch.AccountID,
-			sql.NullString{String: batch.ID, Valid: true}, loaded.JSON.Cash)
+
+		var err error
+		committed, err = importer.Commit(ctx, q, uid, batch.AccountID,
+			sql.NullString{String: batch.ID, Valid: true}, parsed)
 		if err != nil {
-			return Fail(http.StatusInternalServerError, "internal", "could not import cash transactions", err.Error())
+			return fmt.Errorf("commit executions: %w", err)
 		}
-		cashInserted = cashN
-		acc, err := s.deps.Store.GetAccount(ctx, store.GetAccountParams{ID: batch.AccountID, UserID: uid})
-		if err == nil {
-			if err := s.ensureOpeningDeposit(ctx, uid, acc); err != nil {
-				return Fail(http.StatusInternalServerError, "internal", "could not seed opening deposit", err.Error())
+
+		if loaded.Source == "json" {
+			if err := s.applyJSONAccountMeta(ctx, q, uid, batch.AccountID, loaded.JSON.Account); err != nil {
+				return fmt.Errorf("apply account metadata: %w", err)
+			}
+			cashInserted, err = s.applyJSONCashTransactions(ctx, q, uid, batch.AccountID,
+				sql.NullString{String: batch.ID, Valid: true}, loaded.JSON.Cash)
+			if err != nil {
+				return fmt.Errorf("import cash transactions: %w", err)
+			}
+			acc, err := q.GetAccount(ctx, store.GetAccountParams{ID: batch.AccountID, UserID: uid})
+			if err == nil {
+				if err := s.ensureOpeningDeposit(ctx, q, uid, acc); err != nil {
+					return fmt.Errorf("seed opening deposit: %w", err)
+				}
 			}
 		}
-	}
 
-	if err := s.deps.Store.SetImportBatchStatus(ctx, store.SetImportBatchStatusParams{Status: "committed", ID: batch.ID, UserID: uid}); err != nil {
-		return Fail(http.StatusInternalServerError, "internal", "could not finalize batch", nil)
+		if err := q.SetImportBatchStatus(ctx, store.SetImportBatchStatusParams{Status: "committed", ID: batch.ID, UserID: uid}); err != nil {
+			return fmt.Errorf("finalize batch: %w", err)
+		}
+		return nil
+	})
+	if err != nil {
+		// The transaction rolled back; leave a marker so the batch is not retried as pending.
+		_ = s.deps.Store.SetImportBatchStatus(ctx, store.SetImportBatchStatusParams{Status: "failed", ID: batch.ID, UserID: uid})
+		return Fail(http.StatusInternalServerError, "internal", "could not import", err.Error())
 	}
 	return c.JSON(http.StatusOK, importResult{
 		Inserted: committed.Inserted, Skipped: committed.Skipped,
@@ -450,11 +465,11 @@ func (s *Server) finishImportCommit(c echo.Context, uid string, batch store.Impo
 	})
 }
 
-func (s *Server) applyJSONAccountMeta(ctx context.Context, userID, accountID string, meta *importer.JSONAccountMeta) error {
+func (s *Server) applyJSONAccountMeta(ctx context.Context, q store.Querier, userID, accountID string, meta *importer.JSONAccountMeta) error {
 	if meta == nil {
 		return nil
 	}
-	acc, err := s.deps.Store.GetAccount(ctx, store.GetAccountParams{ID: accountID, UserID: userID})
+	acc, err := q.GetAccount(ctx, store.GetAccountParams{ID: accountID, UserID: userID})
 	if err != nil {
 		return err
 	}
@@ -488,7 +503,7 @@ func (s *Server) applyJSONAccountMeta(ctx context.Context, userID, accountID str
 	if !changed {
 		return nil
 	}
-	_, err = s.deps.Store.UpdateAccount(ctx, store.UpdateAccountParams{
+	_, err = q.UpdateAccount(ctx, store.UpdateAccountParams{
 		Name: name, Broker: broker, AccountType: accountType,
 		BaseCurrency: baseCurrency, StartingBalance: startingBalance,
 		ID: accountID, UserID: userID,
@@ -498,6 +513,7 @@ func (s *Server) applyJSONAccountMeta(ctx context.Context, userID, accountID str
 
 func (s *Server) applyJSONCashTransactions(
 	ctx context.Context,
+	q store.Querier,
 	userID, accountID string,
 	batchID sql.NullString,
 	rows []importer.JSONCashTx,
@@ -510,7 +526,7 @@ func (s *Server) applyJSONCashTransactions(
 		if !validCashTypes[row.Type] {
 			continue
 		}
-		if _, err := s.deps.Store.InsertCashTransaction(ctx, store.InsertCashTransactionParams{
+		if _, err := q.InsertCashTransaction(ctx, store.InsertCashTransactionParams{
 			ID: uuid.NewString(), UserID: userID, AccountID: accountID,
 			Type: row.Type, Amount: row.Amount, Currency: row.Currency,
 			OccurredAt: row.OccurredAt, Note: row.Note, ImportBatchID: batchID,

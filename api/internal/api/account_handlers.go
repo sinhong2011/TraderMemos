@@ -58,7 +58,7 @@ func (s *Server) handleCreateAccount(c echo.Context) error {
 	if err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not create account", nil)
 	}
-	if err := s.ensureOpeningDeposit(ctx, uid, acc); err != nil {
+	if err := s.ensureOpeningDeposit(ctx, s.deps.Store, uid, acc); err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "account created but opening deposit failed", nil)
 	}
 	return c.JSON(http.StatusCreated, acc)
@@ -66,11 +66,11 @@ func (s *Server) handleCreateAccount(c echo.Context) error {
 
 // ensureOpeningDeposit writes starting_balance as the account's first deposit
 // when the cash ledger is still empty. Idempotent.
-func (s *Server) ensureOpeningDeposit(ctx context.Context, userID string, acc store.Account) error {
-	if acc.StartingBalance <= 0 || s.deps.Store == nil {
+func (s *Server) ensureOpeningDeposit(ctx context.Context, q store.Querier, userID string, acc store.Account) error {
+	if acc.StartingBalance <= 0 || q == nil {
 		return nil
 	}
-	existing, err := s.deps.Store.ListCashTransactions(ctx, store.ListCashTransactionsParams{
+	existing, err := q.ListCashTransactions(ctx, store.ListCashTransactionsParams{
 		UserID: userID, AccountID: accountArg(acc.ID),
 	})
 	if err != nil {
@@ -87,7 +87,7 @@ func (s *Server) ensureOpeningDeposit(ctx context.Context, userID string, acc st
 	if occurred.IsZero() {
 		occurred = time.Now().UTC()
 	}
-	_, err = s.deps.Store.InsertCashTransaction(ctx, store.InsertCashTransactionParams{
+	_, err = q.InsertCashTransaction(ctx, store.InsertCashTransactionParams{
 		ID: uuid.NewString(), UserID: userID, AccountID: acc.ID,
 		Type: "deposit", Amount: acc.StartingBalance, Currency: currency,
 		OccurredAt: occurred, Note: "Opening balance",

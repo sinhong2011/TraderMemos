@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"strings"
 
 	"github.com/google/uuid"
@@ -50,7 +51,7 @@ func Commit(ctx context.Context, q store.Querier, userID, accountID string, batc
 		hash := DedupHash(pe.Symbol, pe.Side, pe.Quantity, pe.Price, pe.ExecutedAt)
 		exists, err := q.ExecutionExists(ctx, store.ExecutionExistsParams{AccountID: accountID, DedupHash: hash})
 		if err != nil {
-			return res, err
+			return res, fmt.Errorf("dedup check %s %s @ %s: %w", pe.Symbol, pe.Side, pe.ExecutedAt, err)
 		}
 		if exists == 1 {
 			if pe.LotKey != "" {
@@ -84,7 +85,7 @@ func Commit(ctx context.Context, q store.Querier, userID, accountID string, batc
 			ExecutedAt: pe.ExecutedAt, Multiplier: mult, Details: details,
 			ImportBatchID: batchID, DedupHash: hash,
 		}); err != nil {
-			return res, err
+			return res, fmt.Errorf("insert execution %s %s @ %s (row %d): %w", pe.Symbol, pe.Side, pe.ExecutedAt, res.Inserted+res.Skipped+1, err)
 		}
 		res.Inserted++
 		if pe.Annotation != nil {
@@ -93,7 +94,7 @@ func Commit(ctx context.Context, q store.Querier, userID, accountID string, batc
 	}
 
 	if err := trades.NewService(q).Regroup(ctx, userID, accountID); err != nil {
-		return res, err
+		return res, fmt.Errorf("regroup trades after %d inserts: %w", res.Inserted, err)
 	}
 
 	for _, p := range pendingAnns {

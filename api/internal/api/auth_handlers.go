@@ -102,7 +102,7 @@ func (s *Server) handleSetupComplete(c echo.Context) error {
 		if aerr != nil {
 			return Fail(http.StatusInternalServerError, "internal", "owner created but account failed", nil)
 		}
-		if err := s.ensureOpeningDeposit(c.Request().Context(), u.ID, acc); err != nil {
+		if err := s.ensureOpeningDeposit(c.Request().Context(), s.deps.Store, u.ID, acc); err != nil {
 			return Fail(http.StatusInternalServerError, "internal", "owner created but opening deposit failed", nil)
 		}
 		account = acc
