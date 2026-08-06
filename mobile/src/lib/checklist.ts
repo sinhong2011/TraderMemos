@@ -17,7 +17,7 @@ import { persist } from 'zustand/middleware';
 
 import { t } from '@lingui/core/macro';
 import { storage } from '@/storage/mmkv';
-import { adoptLegacyValue, mmkvStorage } from '@/storage/zustand-mmkv';
+import { mmkvStorage } from '@/storage/zustand-mmkv';
 
 export type ChecklistTask = { text: string; done: boolean };
 
@@ -108,15 +108,8 @@ export function appendTaskBlock(body: string, block: string, label: string): str
  * a routine to clear.
  */
 const PERSIST_KEY = 'store:checklist-schedule';
-/** Pre-zustand key: a bare MMKV boolean. Removable — see lib/prefs-migration.ts. */
-const WEEKDAYS_ONLY_KEY = 'checklist:weekdaysOnly';
 
 type ScheduleState = { weekdaysOnly: boolean };
-
-adoptLegacyValue<ScheduleState>(PERSIST_KEY, [WEEKDAYS_ONLY_KEY], () => {
-  const stored = storage.getBoolean(WEEKDAYS_ONLY_KEY);
-  return stored === undefined ? undefined : { weekdaysOnly: stored };
-});
 
 const useScheduleStore = create<ScheduleState>()(
   // Default on: a trading routine belongs to a trading day. Anyone who works

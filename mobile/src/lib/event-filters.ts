@@ -8,7 +8,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-import { adoptLegacyValue, legacyJSON, mmkvStorage } from '@/storage/zustand-mmkv';
+import { mmkvStorage } from '@/storage/zustand-mmkv';
 
 export type EventFilters = {
   /** Empty means "all" for both — the menu shows nothing checked. */
@@ -19,18 +19,10 @@ export type EventFilters = {
 const EMPTY: EventFilters = { impacts: [], currencies: [] };
 
 const PERSIST_KEY = 'store:event-filters';
-/** Pre-zustand key. Removable — see lib/prefs-migration.ts. */
-const LEGACY_KEY = 'events:filters';
 
 function strings(value: unknown): string[] {
   return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : [];
 }
-
-adoptLegacyValue<EventFilters>(PERSIST_KEY, [LEGACY_KEY], () => {
-  const parsed = legacyJSON(LEGACY_KEY) as Record<string, unknown> | undefined;
-  if (parsed == null) return undefined;
-  return { impacts: strings(parsed.impacts), currencies: strings(parsed.currencies) };
-});
 
 const useEventFilterStore = create<EventFilters>()(
   persist((): EventFilters => EMPTY, {

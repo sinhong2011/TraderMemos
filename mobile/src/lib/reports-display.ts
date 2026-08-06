@@ -11,7 +11,7 @@ import { persist } from 'zustand/middleware';
 
 import type { Summary, Trade } from '@/api/types';
 import { formatPercent, formatPnl, formatPnlCompact } from '@/lib/format';
-import { adoptLegacyValue, legacyJSON, mmkvStorage } from '@/storage/zustand-mmkv';
+import { mmkvStorage } from '@/storage/zustand-mmkv';
 
 export type ReportsSide = 'all' | 'long' | 'short';
 export type ReportsDuration = 'all' | 'scalp' | 'day' | 'swing';
@@ -37,9 +37,6 @@ const DEFAULTS: ReportsControls = {
 };
 
 const PERSIST_KEY = 'store:reports-controls';
-/** Pre-zustand key: the bare ReportsControls object.
- *  Removable — see lib/prefs-migration.ts. */
-const LEGACY_KEY = 'reports:controls';
 
 function pick<T extends string>(value: unknown, allowed: readonly T[], fallback: T): T {
   return typeof value === 'string' && (allowed as readonly string[]).includes(value)
@@ -58,11 +55,6 @@ function sanitize(raw: unknown): ReportsControls {
     avgMode: pick(parsed.avgMode, ['mean', 'median'], DEFAULTS.avgMode),
   };
 }
-
-adoptLegacyValue<ReportsControls>(PERSIST_KEY, [LEGACY_KEY], () => {
-  const parsed = legacyJSON(LEGACY_KEY);
-  return parsed == null ? undefined : sanitize(parsed);
-});
 
 const useReportsStore = create<ReportsControls>()(
   persist((): ReportsControls => DEFAULTS, {

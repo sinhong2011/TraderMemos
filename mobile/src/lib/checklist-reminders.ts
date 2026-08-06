@@ -35,17 +35,13 @@ import {
   type Reminder,
 } from '@/lib/ios-reminders';
 import { storage } from '@/storage/mmkv';
-import { adoptLegacyValue, mmkvStorage } from '@/storage/zustand-mmkv';
+import { mmkvStorage } from '@/storage/zustand-mmkv';
 
 // ---------------------------------------------------------------------------
 // Settings
 // ---------------------------------------------------------------------------
 
 const PERSIST_KEY = 'store:checklist-reminders';
-/** Pre-zustand keys: a bare boolean and a bare `HH:MM` string.
- *  Removable — see lib/prefs-migration.ts. */
-const ENABLED_KEY = 'checklist:reminders:on';
-const TIME_KEY = 'checklist:reminders:time';
 
 // The day-keyed `day -> item -> reminder id` map the one-off reminders needed.
 // Titles carry that job now; the key is dropped rather than left to rot.
@@ -57,13 +53,6 @@ type ReminderSettings = {
   /** `HH:MM` on the device clock — the clock the run day is keyed by. */
   time: string;
 };
-
-adoptLegacyValue<ReminderSettings>(PERSIST_KEY, [ENABLED_KEY, TIME_KEY], () => {
-  const enabled = storage.getBoolean(ENABLED_KEY);
-  const time = storage.getString(TIME_KEY);
-  if (enabled === undefined && time === undefined) return undefined;
-  return { enabled: enabled ?? false, time: time ?? '09:00' };
-});
 
 const useReminderSettings = create<ReminderSettings>()(
   persist((): ReminderSettings => ({ enabled: false, time: '09:00' }), {
