@@ -1,12 +1,18 @@
 import { SymbolView } from 'expo-symbols';
-import { useState, type ReactNode } from 'react';
+import { useRef, useState, type ReactNode } from 'react';
 import { Pressable, Text, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import ReanimatedSwipeable, {
+  type SwipeableMethods,
+} from 'react-native-gesture-handler/ReanimatedSwipeable';
+import Animated, { FadeInDown, LinearTransition, SlideOutLeft } from 'react-native-reanimated';
+import { StyleSheet } from 'react-native-unistyles';
 
 import type { Account, Setup, Tag } from '@/api/types';
+import { AccountPill } from '@/components/account-pill';
 import { ChipGroup } from '@/components/chips';
 import {
   Card,
+  CollapsibleSection,
   ControlRow,
   DateRow,
   InputRow,
@@ -22,6 +28,8 @@ import { RatingIndicator } from '@/components/rating-indicator';
 import { Segmented } from '@/components/segmented';
 import { SymbolPager } from '@/components/symbol-pager';
 import { TradePrefillBar } from '@/components/trade-prefill-bar';
+import { TradeResultCard } from '@/components/trade-result-card';
+import { TradeScanOverlay } from '@/components/trade-scan-overlay';
 import { ValueToggle } from '@/components/value-toggle';
 import { PnlFill } from '@/styles/unistyles';
 import { t } from '@lingui/core/macro';
@@ -36,10 +44,13 @@ import {
 import {
   emptyFill,
   emptyTradeForm,
+  nextFillKey,
   type FillDraft,
   type Market,
   type TradeFormValues,
 } from '@/lib/trade-form';
+import type { ImportSource } from '@/lib/trade-import';
+import { blockPnlPreview } from '@/lib/trade-pnl-preview';
 
 /** Single-select chip row: tapping the active chip clears it. */
 function SingleChips({
@@ -68,40 +79,42 @@ function toggleIn(list: string[], value: string): string[] {
   return list.includes(value) ? list.filter((v) => v !== value) : [...list, value];
 }
 
+/** The app's one spring (see symbol-pager-bar.tsx) — fill-list motion matches. */
+const FILL_SPRING = { duration: 420, dampingRatio: 0.85 } as const;
+const FILL_ENTER = FadeInDown.springify()
+  .duration(FILL_SPRING.duration)
+  .dampingRatio(FILL_SPRING.dampingRatio);
+// A deleted card continues out the way the swipe was already heading.
+const FILL_EXIT = SlideOutLeft.duration(220);
+const FILL_LAYOUT = LinearTransition.springify()
+  .duration(FILL_SPRING.duration)
+  .dampingRatio(FILL_SPRING.dampingRatio);
+
 function FillCard({
   fill,
   index,
   removable,
   onChange,
   onRemove,
+  onDuplicate,
 }: {
   fill: FillDraft;
   index: number;
   removable: boolean;
   onChange: (patch: Partial<FillDraft>) => void;
   onRemove: () => void;
+  onDuplicate: () => void;
 }) {
-  const { theme } = useUnistyles();
+  const swipeable = useRef<SwipeableMethods>(null);
   const sides = [
     { value: 'buy' as const, label: t`Buy`, fill: PnlFill.pos },
     { value: 'sell' as const, label: t`Sell`, fill: PnlFill.neg },
   ] as const;
 
-  return (
+  const card = (
     <Card>
       <View style={styles.fillHeader}>
         <Text style={styles.fillTitle}>{t`Fill ${index + 1}`}</Text>
-        {removable ? (
-          <Pressable
-            onPress={onRemove}
-            hitSlop={10}
-            accessibilityRole="button"
-            accessibilityLabel={t`Remove fill`}
-            style={({ pressed }) => pressed && styles.pressed}
-          >
-            <SymbolView name="trash" size={15} tintColor={theme.colors.loss} />
-          </Pressable>
-        ) : null}
       </View>
       <ControlRow label={t`Side`}>
         <ValueToggle options={sides} value={fill.side} onChange={(side) => onChange({ side })} />
@@ -126,6 +139,8 @@ function FillCard({
         placeholder="10.50"
         numeric
       />
+      {/* One combined cost field, like the web drawer's Fee cell; imports that
+          carry a separate commission keep it in the draft and it still posts. */}
       <InputRow
         label={t`Fees`}
         value={fill.fees}
@@ -133,14 +148,51 @@ function FillCard({
         placeholder="0.00"
         numeric
       />
-      <InputRow
-        label={t`Commission`}
-        value={fill.commission}
-        onChangeText={(commission) => onChange({ commission })}
-        placeholder="0.00"
-        numeric
-      />
     </Card>
+  );
+
+  // List-style swipe actions on the whole card, like every iOS grouped list:
+  // trailing swipe deletes (the one delete affordance), leading swipe
+  // duplicates — a scale-out leg is usually the last fill with one field
+  // changed, so copy-and-tweak beats retyping.
+  return (
+    <ReanimatedSwipeable
+      ref={swipeable}
+      friction={2}
+      leftThreshold={40}
+      rightThreshold={40}
+      overshootLeft={false}
+      overshootRight={false}
+      renderLeftActions={() => (
+        <Pressable
+          onPress={() => {
+            swipeable.current?.close();
+            onDuplicate();
+          }}
+          accessibilityRole="button"
+          accessibilityLabel={t`Duplicate fill`}
+          style={({ pressed }) => [styles.swipeDuplicate, pressed && styles.pressed]}
+        >
+          <SymbolView name="plus.square.on.square" size={18} tintColor="#FFFFFF" />
+        </Pressable>
+      )}
+      renderRightActions={
+        removable
+          ? () => (
+              <Pressable
+                onPress={onRemove}
+                accessibilityRole="button"
+                accessibilityLabel={t`Remove fill`}
+                style={({ pressed }) => [styles.swipeDelete, pressed && styles.pressed]}
+              >
+                <SymbolView name="trash.fill" size={18} tintColor="#FFFFFF" />
+              </Pressable>
+            )
+          : undefined
+      }
+    >
+      {card}
+    </ReanimatedSwipeable>
   );
 }
 
@@ -154,19 +206,44 @@ function SymbolBlock({
   isNew,
   setups,
   tags,
+  currency,
   onChange,
 }: {
   values: TradeFormValues;
   isNew: boolean;
   setups: Setup[];
   tags: Tag[];
+  currency: string;
   onChange: (next: TradeFormValues) => void;
 }) {
   const set = <K extends keyof TradeFormValues>(key: K, value: TradeFormValues[K]) =>
     onChange({ ...values, [key]: value });
 
+  // The fills present at mount — only genuinely new cards play the entering
+  // animation, not the initial render (or paging back to this symbol).
+  const [initialFillKeys] = useState(() => new Set(values.fills.map((fill) => fill.key)));
+
   const customTags = tags.filter((tag) => tag.kind !== 'mistake');
   const mistakeTags = tags.filter((tag) => tag.kind === 'mistake');
+
+  // Journal, review and dividend fold closed on a fresh entry so logging the
+  // trade stays one screen; anything already holding data (editing, prefill)
+  // must never hide behind a chevron.
+  const journalOpen =
+    !isNew ||
+    values.setupIds.length > 0 ||
+    values.session !== '' ||
+    values.emotions.length > 0 ||
+    values.setupGrade !== '' ||
+    values.tagIds.length > 0 ||
+    values.entryReason !== '';
+  const reviewOpen =
+    !isNew ||
+    values.executionGrade !== '' ||
+    values.mistakeIds.length > 0 ||
+    values.exitReason !== '' ||
+    values.reviewNotes !== '';
+  const dividendOpen = !isNew || values.dividendAmount !== '';
 
   const markets: { value: Market; label: string }[] = [
     { value: 'stock', label: t`Stock` },
@@ -199,6 +276,16 @@ function SymbolBlock({
     onChange({
       ...values,
       fills: values.fills.map((fill) => (fill.key === key ? { ...fill, ...patch } : fill)),
+    });
+  }
+
+  /** Insert a copy right below its source — same leg, ready to tweak. */
+  function duplicateFill(key: string) {
+    onChange({
+      ...values,
+      fills: values.fills.flatMap((fill) =>
+        fill.key === key ? [fill, { ...fill, id: undefined, key: nextFillKey() }] : [fill],
+      ),
     });
   }
 
@@ -289,178 +376,203 @@ function SymbolBlock({
 
       <SectionHeader label={t`Fills`} />
       {values.fills.map((fill, index) => (
-        <FillCard
+        <Animated.View
           key={fill.key}
-          fill={fill}
-          index={index}
-          removable={values.fills.length > 1}
-          onChange={(patch) => updateFill(fill.key, patch)}
-          onRemove={() =>
-            onChange({ ...values, fills: values.fills.filter((f) => f.key !== fill.key) })
-          }
-        />
+          entering={initialFillKeys.has(fill.key) ? undefined : FILL_ENTER}
+          exiting={FILL_EXIT}
+          layout={FILL_LAYOUT}
+        >
+          <FillCard
+            fill={fill}
+            index={index}
+            removable={values.fills.length > 1}
+            onChange={(patch) => updateFill(fill.key, patch)}
+            onRemove={() =>
+              onChange({
+                ...values,
+                fills: values.fills.filter((f) => f.key !== fill.key),
+              })
+            }
+            onDuplicate={() => duplicateFill(fill.key)}
+          />
+        </Animated.View>
       ))}
-      <View style={styles.actionRow}>
-        <GlassButton
-          label={t`Add fill`}
-          systemImage="plus"
-          onPress={() =>
-            onChange({
-              ...values,
-              fills: [...values.fills, emptyFill(values.direction === 'long' ? 'sell' : 'buy')],
-            })
-          }
-        />
-      </View>
+      {/* One layout-animated wrapper: everything below the fills glides into
+          place when a card is added or removed instead of snapping. */}
+      <Animated.View layout={FILL_LAYOUT} style={styles.afterFills}>
+        <View style={styles.actionRow}>
+          <GlassButton
+            label={t`Add fill`}
+            systemImage="plus"
+            onPress={() =>
+              onChange({
+                ...values,
+                fills: [...values.fills, emptyFill(values.direction === 'long' ? 'sell' : 'buy')],
+              })
+            }
+          />
+        </View>
 
-      <SectionHeader label={t`Plan`} />
-      <Card>
-        <InputRow
-          label={t`Target`}
-          value={values.target}
-          onChangeText={(target) => set('target', target)}
-          placeholder="0.00"
-          numeric
-        />
-        <InputRow
-          label={t`Stop`}
-          value={values.stop}
-          onChangeText={(stop) => set('stop', stop)}
-          placeholder="0.00"
-          numeric
-        />
-      </Card>
+        <TradeResultCard preview={blockPnlPreview(values)} currency={currency} />
 
-      {/*
+        <SectionHeader label={t`Plan`} />
+        <Card>
+          <InputRow
+            label={t`Target`}
+            value={values.target}
+            onChangeText={(target) => set('target', target)}
+            placeholder="0.00"
+            numeric
+          />
+          <InputRow
+            label={t`Stop`}
+            value={values.stop}
+            onChangeText={(stop) => set('stop', stop)}
+            placeholder="0.00"
+            numeric
+          />
+        </Card>
+
+        {/*
         Journal splits in two because the trade does: everything you knew at
         entry, then everything you learned after. Kept as one card it ran ten
         rows deep and put the two rating pickers back to back, where the only
         thing telling them apart was a label.
       */}
-      <SectionHeader label={t`Journal`} />
-      <Card>
-        {setups.length > 0 ? (
-          <StackRow label={t`Setups`}>
-            <ChipGroup
-              options={setups.map((s) => ({ value: s.id, label: s.name }))}
-              selected={values.setupIds}
-              onToggle={(id) => set('setupIds', toggleIn(values.setupIds, id))}
-            />
-          </StackRow>
-        ) : null}
-        <StackRow label={t`Session`}>
-          <SingleChips
-            options={TRADE_SESSIONS.map((s) => ({ value: s, label: s }))}
-            value={values.session}
-            onChange={(session) => set('session', session)}
-          />
-        </StackRow>
-        <StackRow label={t`Emotion`}>
-          <ChipGroup
-            options={EMOTIONAL_STATES.map((s) => ({ value: s, label: s }))}
-            selected={values.emotions}
-            onToggle={(s) => set('emotions', toggleIn(values.emotions, s))}
-          />
-        </StackRow>
-        {/*
+        <CollapsibleSection label={t`Journal`} defaultOpen={journalOpen}>
+          <Card>
+            {setups.length > 0 ? (
+              <StackRow label={t`Setups`}>
+                <ChipGroup
+                  options={setups.map((s) => ({ value: s.id, label: s.name }))}
+                  selected={values.setupIds}
+                  onToggle={(id) => set('setupIds', toggleIn(values.setupIds, id))}
+                />
+              </StackRow>
+            ) : null}
+            <StackRow label={t`Session`}>
+              <SingleChips
+                options={TRADE_SESSIONS.map((s) => ({ value: s, label: s }))}
+                value={values.session}
+                onChange={(session) => set('session', session)}
+              />
+            </StackRow>
+            <StackRow label={t`Emotion`}>
+              <ChipGroup
+                options={EMOTIONAL_STATES.map((s) => ({ value: s, label: s }))}
+                selected={values.emotions}
+                onToggle={(s) => set('emotions', toggleIn(values.emotions, s))}
+              />
+            </StackRow>
+            {/*
           Both ratings are ranks, so they get the rank control: five stars over
           the same A+ … C ints (see rating-indicator.tsx). The letter still rides
           along beside them because everything downstream speaks it — the detail
           screen's grade tile, the coach copy ("You marked setup B").
         */}
-        <StackRow label={t`Setup rating`}>
-          <RatingIndicator
-            label={t`Setup rating`}
-            value={intFromGrade(values.setupGrade) ?? 0}
-            caption={values.setupGrade}
-            onChange={(stars) => set('setupGrade', gradeFromInt(stars))}
-          />
-        </StackRow>
-        {customTags.length > 0 ? (
-          <StackRow label={t`Tags`}>
-            <ChipGroup
-              options={customTags.map((tag) => ({ value: tag.id, label: tag.name }))}
-              selected={values.tagIds}
-              onToggle={(id) => set('tagIds', toggleIn(values.tagIds, id))}
+            <StackRow label={t`Setup rating`}>
+              <RatingIndicator
+                label={t`Setup rating`}
+                value={intFromGrade(values.setupGrade) ?? 0}
+                caption={values.setupGrade}
+                onChange={(stars) => set('setupGrade', gradeFromInt(stars))}
+              />
+            </StackRow>
+            {customTags.length > 0 ? (
+              <StackRow label={t`Tags`}>
+                <ChipGroup
+                  options={customTags.map((tag) => ({
+                    value: tag.id,
+                    label: tag.name,
+                  }))}
+                  selected={values.tagIds}
+                  onToggle={(id) => set('tagIds', toggleIn(values.tagIds, id))}
+                />
+              </StackRow>
+            ) : null}
+            <NotesRow
+              label={t`Entry reason`}
+              value={values.entryReason}
+              onChangeText={(entryReason) => set('entryReason', entryReason)}
+              placeholder={t`Why did you enter?`}
             />
-          </StackRow>
-        ) : null}
-        <NotesRow
-          label={t`Entry reason`}
-          value={values.entryReason}
-          onChangeText={(entryReason) => set('entryReason', entryReason)}
-          placeholder={t`Why did you enter?`}
-        />
-      </Card>
+          </Card>
+        </CollapsibleSection>
 
-      <SectionHeader label={t`Review`} />
-      <Card>
-        <StackRow label={t`Execution rating`}>
-          <RatingIndicator
-            label={t`Execution rating`}
-            value={intFromGrade(values.executionGrade) ?? 0}
-            caption={values.executionGrade}
-            onChange={(stars) => set('executionGrade', gradeFromInt(stars))}
-          />
-        </StackRow>
-        {mistakeTags.length > 0 ? (
-          <StackRow label={t`Mistake type`}>
-            <ChipGroup
-              options={mistakeTags.map((tag) => ({ value: tag.id, label: tag.name }))}
-              selected={values.mistakeIds}
-              onToggle={(id) => set('mistakeIds', toggleIn(values.mistakeIds, id))}
-              tone="neg"
+        <CollapsibleSection label={t`Review`} defaultOpen={reviewOpen}>
+          <Card>
+            <StackRow label={t`Execution rating`}>
+              <RatingIndicator
+                label={t`Execution rating`}
+                value={intFromGrade(values.executionGrade) ?? 0}
+                caption={values.executionGrade}
+                onChange={(stars) => set('executionGrade', gradeFromInt(stars))}
+              />
+            </StackRow>
+            {mistakeTags.length > 0 ? (
+              <StackRow label={t`Mistake type`}>
+                <ChipGroup
+                  options={mistakeTags.map((tag) => ({
+                    value: tag.id,
+                    label: tag.name,
+                  }))}
+                  selected={values.mistakeIds}
+                  onToggle={(id) => set('mistakeIds', toggleIn(values.mistakeIds, id))}
+                  tone="neg"
+                />
+              </StackRow>
+            ) : null}
+            <NotesRow
+              label={t`Exit reason`}
+              value={values.exitReason}
+              onChangeText={(exitReason) => set('exitReason', exitReason)}
+              placeholder={t`Why did you exit?`}
             />
-          </StackRow>
+            <NotesRow
+              label={t`Review notes`}
+              value={values.reviewNotes}
+              onChangeText={(reviewNotes) => set('reviewNotes', reviewNotes)}
+              placeholder={t`What would you do differently?`}
+            />
+          </Card>
+          <SectionFooter label={t`Rate how you executed, not how it paid — a disciplined trade can still lose.`} />
+        </CollapsibleSection>
+
+        <CollapsibleSection label={t`Dividend`} defaultOpen={dividendOpen}>
+          <Card>
+            <InputRow
+              label={t`Amount`}
+              value={values.dividendAmount}
+              onChangeText={(dividendAmount) => set('dividendAmount', dividendAmount)}
+              placeholder="0.00"
+              numeric
+            />
+            <DateRow
+              label={t`Date`}
+              selection={values.dividendDate}
+              displayedComponents={['date']}
+              onDateChange={(dividendDate) => set('dividendDate', dividendDate)}
+            />
+            <InputRow
+              label={t`Note`}
+              value={values.dividendNote}
+              onChangeText={(dividendNote) => set('dividendNote', dividendNote)}
+              placeholder={t`Optional`}
+            />
+          </Card>
+        </CollapsibleSection>
+
+        {isNew ? (
+          <>
+            <SectionHeader label={t`Screenshots`} />
+            <ScreenshotQueue
+              screenshots={values.screenshots}
+              onChange={(screenshots) => set('screenshots', screenshots)}
+            />
+            <SectionFooter label={t`Uploaded to this symbol's trade when it saves. Tap a thumbnail to remove it.`} />
+          </>
         ) : null}
-        <NotesRow
-          label={t`Exit reason`}
-          value={values.exitReason}
-          onChangeText={(exitReason) => set('exitReason', exitReason)}
-          placeholder={t`Why did you exit?`}
-        />
-        <NotesRow
-          label={t`Review notes`}
-          value={values.reviewNotes}
-          onChangeText={(reviewNotes) => set('reviewNotes', reviewNotes)}
-          placeholder={t`What would you do differently?`}
-        />
-      </Card>
-      <SectionFooter label={t`Rate how you executed, not how it paid — a disciplined trade can still lose.`} />
-
-      <SectionHeader label={t`Dividend`} />
-      <Card>
-        <InputRow
-          label={t`Amount`}
-          value={values.dividendAmount}
-          onChangeText={(dividendAmount) => set('dividendAmount', dividendAmount)}
-          placeholder="0.00"
-          numeric
-        />
-        <DateRow
-          label={t`Date`}
-          selection={values.dividendDate}
-          displayedComponents={['date']}
-          onDateChange={(dividendDate) => set('dividendDate', dividendDate)}
-        />
-        <InputRow
-          label={t`Note`}
-          value={values.dividendNote}
-          onChangeText={(dividendNote) => set('dividendNote', dividendNote)}
-          placeholder={t`Optional`}
-        />
-      </Card>
-
-      {isNew ? (
-        <>
-          <SectionHeader label={t`Screenshots`} />
-          <ScreenshotQueue
-            screenshots={values.screenshots}
-            onChange={(screenshots) => set('screenshots', screenshots)}
-          />
-          <SectionFooter label={t`Uploaded to this symbol's trade when it saves. Tap a thumbnail to remove it.`} />
-        </>
-      ) : null}
+      </Animated.View>
     </>
   );
 }
@@ -480,6 +592,7 @@ export function TradeForm({
   tags,
   saving,
   lockInstrument = false,
+  pushed = false,
   footer,
   onSave,
 }: {
@@ -491,6 +604,8 @@ export function TradeForm({
   saving: boolean;
   /** Editing: single block; market/symbol/option/multiplier are not patchable server-side. */
   lockInstrument?: boolean;
+  /** The screen is pushed as a card, not presented — see FormSheet. */
+  pushed?: boolean;
   /** Edit-mode extra rendered after the block (e.g. the live attachments card). */
   footer?: ReactNode;
   onSave: (blocks: TradeFormValues[]) => void;
@@ -500,12 +615,17 @@ export function TradeForm({
   const [accountId, setAccountId] = useState(
     initialBlocks[0]?.accountId || (accounts[0]?.id ?? ''),
   );
+  // Files picked from the Import menu, awaiting the scan overlay's parse +
+  // review pass; the form only changes when the user confirms "Fill form".
+  const [scanSources, setScanSources] = useState<ImportSource[] | null>(null);
   const isNew = !lockInstrument;
 
   const updateBlock = (index: number, next: TradeFormValues) =>
     setBlocks((current) => current.map((block, i) => (i === index ? next : block)));
 
-  const accountName = accounts.find((a) => a.id === accountId)?.name ?? '';
+  const account = accounts.find((a) => a.id === accountId);
+  const accountName = account?.name ?? '';
+  const currency = account?.base_currency ?? 'USD';
   const clampedActive = Math.min(active, blocks.length - 1);
 
   if (!isNew) {
@@ -524,6 +644,7 @@ export function TradeForm({
             isNew={false}
             setups={setups}
             tags={tags}
+            currency={currency}
             onChange={(next) => updateBlock(0, next)}
           />
         ) : null}
@@ -533,73 +654,88 @@ export function TradeForm({
   }
 
   return (
-    <FormSheet
-      title={title}
-      saving={saving}
-      scroll={false}
-      headerAccessory={
-        <TradePrefillBar
-          accountId={accountId}
-          onPrefill={(prefilled) => {
-            setBlocks(prefilled);
-            setActive(0);
+    <View style={styles.flexRoot}>
+      <FormSheet
+        title={title}
+        saving={saving}
+        scroll={false}
+        pushed={pushed}
+        saveLabel={t`Preview`}
+        saveIcon="eye"
+        onSave={() => onSave(blocks.map((block) => ({ ...block, accountId })))}
+      >
+        <SymbolPager
+          tabs={blocks.map((block, index) => ({
+            key: block.key,
+            label: block.symbol.trim() ? block.symbol.trim().toUpperCase() : t`Symbol ${index + 1}`,
+          }))}
+          active={clampedActive}
+          addLabel={t`Add symbol`}
+          removeLabel={t`Remove symbol`}
+          header={
+            // One shallow pinned row: account (always named, picker when there
+            // is a choice) left, the scan trigger as an icon on the right.
+            <View style={styles.headerRow}>
+              <AccountPill accounts={accounts} value={accountId} onChange={setAccountId} />
+              <View style={styles.headerEnd}>
+                <TradePrefillBar onSources={setScanSources} />
+              </View>
+            </View>
+          }
+          onSelect={setActive}
+          onAdd={() => {
+            setBlocks((current) => [...current, emptyTradeForm(accountId)]);
+            setActive(blocks.length);
+          }}
+          onRemoveActive={() => {
+            setBlocks((current) => current.filter((_, i) => i !== clampedActive));
+            setActive((current) => Math.max(0, current - 1));
+          }}
+          renderPage={(index) => {
+            const block = blocks[index];
+            return (
+              <FormScrollArea>
+                <SymbolBlock
+                  values={block}
+                  isNew
+                  setups={setups}
+                  tags={tags}
+                  currency={currency}
+                  onChange={(next) => updateBlock(index, next)}
+                />
+              </FormScrollArea>
+            );
           }}
         />
-      }
-      onSave={() => onSave(blocks.map((block) => ({ ...block, accountId })))}
-    >
-      <SymbolPager
-        tabs={blocks.map((block, index) => ({
-          key: block.key,
-          label: block.symbol.trim() ? block.symbol.trim().toUpperCase() : t`Symbol ${index + 1}`,
-        }))}
-        active={clampedActive}
-        addLabel={t`Add symbol`}
-        removeLabel={t`Remove symbol`}
-        header={
-          accounts.length > 1 ? (
-            <Card>
-              <ControlRow label={t`Account`}>
-                <Segmented
-                  variant="menu"
-                  options={accounts.map((a) => ({ value: a.id, label: a.name }))}
-                  value={accountId}
-                  onChange={setAccountId}
-                />
-              </ControlRow>
-            </Card>
-          ) : null
-        }
-        onSelect={setActive}
-        onAdd={() => {
-          setBlocks((current) => [...current, emptyTradeForm(accountId)]);
-          setActive(blocks.length);
-        }}
-        onRemoveActive={() => {
-          setBlocks((current) => current.filter((_, i) => i !== clampedActive));
-          setActive((current) => Math.max(0, current - 1));
-        }}
-        renderPage={(index) => {
-          const block = blocks[index];
-          return (
-            <FormScrollArea>
-              <SymbolBlock
-                values={block}
-                isNew
-                setups={setups}
-                tags={tags}
-                onChange={(next) => updateBlock(index, next)}
-              />
-            </FormScrollArea>
-          );
-        }}
-      />
-    </FormSheet>
+      </FormSheet>
+      {scanSources ? (
+        <TradeScanOverlay
+          sources={scanSources}
+          accountId={accountId}
+          currency={currency}
+          onApply={(prefilled) => {
+            setBlocks(prefilled);
+            setActive(0);
+            setScanSources(null);
+          }}
+          onClose={() => setScanSources(null)}
+        />
+      ) : null}
+    </View>
   );
 }
 
 const styles = StyleSheet.create((theme) => ({
+  flexRoot: { flex: 1 },
   rowValue: { fontSize: 15, color: theme.colors.mutedForeground },
+  // No left inset: the account capsule now starts on the same edge as the tab
+  // strip's capsule below it, so the pinned area reads as two stacked controls.
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
+  },
+  headerEnd: { marginLeft: 'auto' },
   fillHeader: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -608,8 +744,37 @@ const styles = StyleSheet.create((theme) => ({
     paddingTop: theme.spacing.md,
     paddingBottom: theme.spacing.xs,
   },
-  fillTitle: { fontSize: 13, fontWeight: '600', color: theme.colors.mutedForeground },
+  fillTitle: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: theme.colors.mutedForeground,
+  },
   actionRow: { alignItems: 'center' },
-  lockedSymbol: { fontSize: 17, fontWeight: '700', color: theme.colors.foreground },
+  // Mirrors the form column's gap — this wrapper exists purely so the tail of
+  // the block rides one layout transition when the fill list changes height.
+  afterFills: { gap: theme.spacing.lg },
+  swipeDelete: {
+    width: 72,
+    marginLeft: theme.spacing.sm,
+    borderRadius: theme.radius.lg + 6,
+    borderCurve: 'continuous',
+    backgroundColor: theme.colors.destructive,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  swipeDuplicate: {
+    width: 72,
+    marginRight: theme.spacing.sm,
+    borderRadius: theme.radius.lg + 6,
+    borderCurve: 'continuous',
+    backgroundColor: theme.colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  lockedSymbol: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: theme.colors.foreground,
+  },
   pressed: { opacity: 0.6 },
 }));

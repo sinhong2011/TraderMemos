@@ -1,10 +1,11 @@
 import { useRouter } from 'expo-router';
 import { SymbolView, type SFSymbol } from 'expo-symbols';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { useSetups, useTags } from '@/api/hooks';
 import { ChipGroup } from '@/components/chips';
+import { GlassIconButton } from '@/components/glass-button';
 import { t } from '@lingui/core/macro';
 import { EMOTIONAL_STATES, TRADE_GRADES, intFromGrade } from '@/lib/journal';
 import { toggleExtraChip, toggleTagHidden, useTagBarState } from '@/lib/tag-bar';
@@ -54,13 +55,9 @@ export default function ManageTagsScreen() {
     <ScrollView style={styles.page} contentContainerStyle={styles.content}>
       <View style={styles.header}>
         <Text style={styles.title}>{t`Quick filters`}</Text>
-        <Pressable
-          onPress={() => router.back()}
-          hitSlop={8}
-          style={({ pressed }) => [styles.doneButton, pressed && styles.pressed]}
-        >
-          <Text style={styles.done}>{t`Done`}</Text>
-        </Pressable>
+        {/* Same glass checkmark every other sheet commits with — a labelled
+            "Done" pill was the one bespoke button in the set. */}
+        <GlassIconButton systemImage="checkmark" label={t`Done`} onPress={() => router.back()} />
       </View>
       <Text style={styles.hint}>
         {t`Choose which journal options show as filter chips on the trades list.`}
@@ -157,15 +154,6 @@ const styles = StyleSheet.create((theme) => ({
     paddingTop: theme.spacing.sm,
   },
   title: { fontSize: 22, fontWeight: '700', letterSpacing: -0.3, color: theme.colors.foreground },
-  doneButton: {
-    paddingHorizontal: theme.spacing.md + 2,
-    paddingVertical: 7,
-    borderRadius: theme.radius.full,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.muted,
-  },
-  done: { fontSize: 15, fontWeight: '600', color: theme.colors.foreground },
-  pressed: { opacity: 0.6 },
   hint: { fontSize: 13, lineHeight: 18, color: theme.colors.mutedForeground },
   // Borderless card blocks (DESIGN.md) — each taxonomy gets its own surface.
   sectionCard: {

@@ -9,9 +9,11 @@ import {
   View,
   type TextInputProps,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { t } from '@lingui/core/macro';
+import type { SFSymbol } from 'expo-symbols';
 import { GlassButton, GlassIconButton } from '@/components/glass-button';
 import { NumericField } from '@/components/numeric-field';
 
@@ -42,7 +44,8 @@ export function FormScrollArea({ children }: { children: ReactNode }) {
 
 /**
  * Creation-form sheet scaffold, iOS 26 chrome: circular glass close on the
- * left, glassProminent Save on the right. `scroll` (default) wraps children
+ * left, matching circular glass checkmark on the right (or a glass capsule
+ * when `saveLabel` names the commit). `scroll` (default) wraps children
  * in a FormScrollArea; pass `scroll={false}` when the screen manages its own
  * scrolling (e.g. the trade form's symbol pager owns one scroll per page).
  *
@@ -60,8 +63,10 @@ export function FormSheet({
   saving,
   scroll = true,
   inSheet = false,
+  pushed = false,
   headerAccessory,
   saveLabel,
+  saveIcon,
   savingLabel,
   saveDisabled = false,
   hideClose = false,
@@ -80,10 +85,22 @@ export function FormSheet({
   scroll?: boolean;
   /** Set on screens presented as `formSheet` — see the note above. */
   inSheet?: boolean;
+  /**
+   * Set on screens pushed as a card (not presented as a sheet): the leading
+   * control becomes a back chevron and the chrome clears the status bar,
+   * which a modal's detent already does for free.
+   */
+  pushed?: boolean;
   /** Extra control rendered beside Save (e.g. the trade form's Import menu). */
   headerAccessory?: ReactNode;
   /** Names the commit for flows where "Save" is wrong (Generate, Done…). */
   saveLabel?: string;
+  /**
+   * Draws the commit as the circular glass icon instead of a labelled capsule,
+   * with `saveLabel` demoted to the accessibility label — for verbs that have a
+   * settled glyph (Preview → `eye`) and don't need a word in the chrome.
+   */
+  saveIcon?: SFSymbol;
   savingLabel?: string;
   /** Greys the commit while the form is incomplete — no error alert needed. */
   saveDisabled?: boolean;
@@ -93,12 +110,24 @@ export function FormSheet({
   children: ReactNode;
 }) {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const { theme } = useUnistyles();
 
   const header = (
-    <View style={[styles.header, inSheet && styles.headerInSheet]}>
+    <View
+      style={[
+        styles.header,
+        inSheet && styles.headerInSheet,
+        pushed && { paddingTop: insets.top + theme.spacing.md },
+      ]}
+    >
       <View style={styles.headerSide}>
         {hideClose ? null : (
-          <GlassIconButton systemImage="xmark" label={t`Cancel`} onPress={() => router.back()} />
+          <GlassIconButton
+            systemImage={pushed ? 'chevron.backward' : 'xmark'}
+            label={pushed ? t`Back` : t`Cancel`}
+            onPress={() => router.back()}
+          />
         )}
       </View>
       {titleControl ? (
@@ -112,12 +141,24 @@ export function FormSheet({
       )}
       <View style={[styles.headerSide, styles.headerEnd]}>
         {headerAccessory}
-        <GlassButton
-          label={saving ? (savingLabel ?? t`Saving…`) : (saveLabel ?? t`Save`)}
-          prominent
-          disabled={saving || saveDisabled}
-          onPress={onSave}
-        />
+        {/* A plain save is a checkmark in the same glass circle as the close
+            button; a caller that passes `saveLabel` chose a distinct verb
+            (Generate / Done) and keeps it as a glass capsule, unless
+            `saveIcon` gives that verb a glyph and puts it back in the circle. */}
+        {saveLabel && !saveIcon ? (
+          <GlassButton
+            label={saving ? (savingLabel ?? t`Saving…`) : saveLabel}
+            disabled={saving || saveDisabled}
+            onPress={onSave}
+          />
+        ) : (
+          <GlassIconButton
+            systemImage={saveIcon ?? 'checkmark'}
+            label={saving ? (savingLabel ?? t`Saving…`) : (saveLabel ?? t`Save`)}
+            disabled={saving || saveDisabled}
+            onPress={onSave}
+          />
+        )}
       </View>
     </View>
   );
@@ -182,6 +223,32 @@ export function FormField({
 }
 
 /**
+ * The `FormInput` shell around a control that isn't a text field — a menu
+ * picker, a static value. Without it a hosted SwiftUI menu is naked text on the
+ * sheet background and reads as a label, not something you can tap.
+ */
+export function FormControl({ children }: { children: ReactNode }) {
+  return <View style={styles.controlShell}>{children}</View>;
+}
+
+/**
+ * Field as a borderless row: label left, control right. For controls that draw
+ * their own affordance — a menu picker's chevron, the date pill — where a box
+ * around them would be a second frame inside the first. Everything you type
+ * into keeps the stacked caption over a bordered field.
+ */
+export function FormRow({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <View style={styles.row}>
+      <Text style={styles.rowLabel} numberOfLines={1}>
+        {label}
+      </Text>
+      <View style={styles.rowControl}>{children}</View>
+    </View>
+  );
+}
+
+/**
  * Muted lead-in line for a sheet — one sentence on what the form is for,
  * above the first field (the token sheet's shape).
  */
@@ -211,6 +278,9 @@ export function FormInput({
           onChangeText={onChangeText ?? (() => {})}
           placeholder={props.placeholder}
           decimals={decimals}
+          // SwiftUI field, not a TextInput — RN's autoFocus is dropped unless
+          // it's forwarded (see numeric-field.tsx).
+          autoFocus={props.autoFocus}
         />
       </View>
     );
@@ -289,6 +359,32 @@ const styles = StyleSheet.create((theme) => ({
   shell: {
     minHeight: 50,
     justifyContent: 'center',
+    paddingHorizontal: theme.spacing.lg,
+    borderRadius: theme.radius.lg + 2,
+    borderCurve: 'continuous',
+    borderWidth: 1,
+    borderColor: theme.colors.input,
+    backgroundColor: theme.colors.card,
+  },
+  // No border and no inset of its own: the label lines up with the captions of
+  // the boxed fields above and below it, not with their text.
+  row: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md },
+  rowLabel: { flexShrink: 1, fontSize: 16, color: theme.colors.foreground },
+  // Takes the rest of the shell so the control lands on the trailing edge.
+  rowControl: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
+  },
+  // The input shell around a non-text control: same box as `shell`, but laid
+  // out as a row so a hosted picker is positioned by flexbox rather than by a
+  // centred text baseline.
+  controlShell: {
+    minHeight: 50,
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingHorizontal: theme.spacing.lg,
     borderRadius: theme.radius.lg + 2,
     borderCurve: 'continuous',

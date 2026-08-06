@@ -21,7 +21,7 @@ const EXPIRY_OPTIONS = [
 
 /**
  * New personal access token — a two-step sheet: the form, then the secret.
- * Step one has one bar action (Generate). Step two is where the design earns
+ * Step one has one bar action (the glass checkmark). Step two is where the design earns
  * its keep: the secret is shown once and never again, so Copy is the body's
  * prominent action, Share sits under it as the alternative, and Done in the
  * bar is only dismissal. Step two drops the cancel affordance — the token
@@ -110,8 +110,8 @@ export default function NewTokenScreen() {
       inSheet
       title={t`New token`}
       saving={create.isPending}
-      saveLabel={t`Generate`}
-      savingLabel={t`Creating…`}
+      // Commit is the glass checkmark every other creation sheet uses — a
+      // named capsule here read as a second title beside "New token".
       // Nothing to generate without a name — grey the action instead of
       // letting the tap raise an alert.
       saveDisabled={!trimmedName}
