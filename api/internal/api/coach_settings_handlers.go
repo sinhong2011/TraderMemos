@@ -24,10 +24,10 @@ type coachSettingsDTO struct {
 }
 
 type coachSettingsPutDTO struct {
-	Enabled      bool   `json:"enabled"`
-	BaseURL      string `json:"base_url"`
-	Model        string `json:"model"`
-	CustomPrompt string `json:"custom_prompt"`
+	Enabled      bool    `json:"enabled"`
+	BaseURL      string  `json:"base_url"`
+	Model        string  `json:"model"`
+	CustomPrompt string  `json:"custom_prompt"`
 	APIKey       *string `json:"api_key"`
 }
 

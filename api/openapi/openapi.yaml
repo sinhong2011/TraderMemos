@@ -194,6 +194,56 @@ paths:
         "403":
           $ref: "#/components/responses/Error"
 
+  /api/v1/me:
+    get:
+      tags: [Auth]
+      summary: The signed-in user
+      operationId: getMe
+      responses:
+        "200":
+          description: Profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Me"
+        "401":
+          $ref: "#/components/responses/Error"
+
+  /api/v1/me/password:
+    put:
+      tags: [Auth]
+      summary: Change your own password
+      description: >-
+        Re-hashes after verifying the current password. Every refresh token
+        minted against the old password stops working, so other devices are
+        signed out at their next refresh; a fresh pair is returned so the
+        caller is not. Access tokens already issued remain valid until they
+        expire (15 minutes).
+      operationId: changePassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [current_password, new_password]
+              properties:
+                current_password:
+                  type: string
+                new_password:
+                  type: string
+      responses:
+        "200":
+          description: New token pair for this caller
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenPair"
+        "400":
+          $ref: "#/components/responses/Error"
+        "403":
+          $ref: "#/components/responses/Error"
+
   /api/v1/access-tokens:
     get:
       tags: [Access tokens]
@@ -821,6 +871,18 @@ components:
         password:
           type: string
           minLength: 10
+    Me:
+      type: object
+      required: [id, email, is_admin, created_at, totp_enabled]
+      properties:
+        id: { type: string }
+        email: { type: string, format: email }
+        is_admin: { type: boolean }
+        created_at: { type: string, format: date-time }
+        totp_enabled:
+          type: boolean
+          description: Always false today — the column exists but nothing writes it.
+
     TokenPair:
       type: object
       properties:

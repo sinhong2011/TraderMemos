@@ -39,9 +39,9 @@ func (s *Server) handleSetupStatus(c echo.Context) error {
 		return Fail(http.StatusInternalServerError, "internal", "could not count users", nil)
 	}
 	return c.JSON(http.StatusOK, map[string]any{
-		"needs_setup":        needs,
-		"registration_open":  open,
-		"user_count":         n,
+		"needs_setup":         needs,
+		"registration_open":   open,
+		"user_count":          n,
 		"min_password_length": auth.MinPasswordLen,
 	})
 }

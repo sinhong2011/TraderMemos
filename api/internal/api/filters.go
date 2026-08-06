@@ -14,14 +14,14 @@ import (
 // Account filtering is pushed to SQL; symbol/date filtering is applied in Go
 // to avoid timestamp-binding fragility across the sqlite driver.
 type Filters struct {
-	AccountID  string // "" = all accounts
-	From       *time.Time
-	To         *time.Time
-	Symbol     string
-	Status     string // "" = all, "open" | "closed"
-	Side       string // "" = all, "long" | "short"
-	Duration   string // "" = all, "scalp" | "day" | "swing"
-	DateBasis  string // "" = legacy defaults, "close" | "open"
+	AccountID string // "" = all accounts
+	From      *time.Time
+	To        *time.Time
+	Symbol    string
+	Status    string // "" = all, "open" | "closed"
+	Side      string // "" = all, "long" | "short"
+	Duration  string // "" = all, "scalp" | "day" | "swing"
+	DateBasis string // "" = legacy defaults, "close" | "open"
 	// Loc is the trader's clock for day / hour-of-day / weekday bucketing
 	// (`tz` query param, IANA name). UTC when unset — the legacy behavior.
 	// Session bucketing stays on the exchange clock (US Eastern) regardless.

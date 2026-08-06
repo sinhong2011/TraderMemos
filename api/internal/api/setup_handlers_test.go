@@ -79,4 +79,3 @@ func TestRegisterRejectsShortPassword(t *testing.T) {
 		`{"email":"short@x.com","password":"short"}`, "")
 	require.Equal(t, http.StatusBadRequest, rec.Code)
 }
-
