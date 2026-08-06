@@ -21,8 +21,10 @@
  */
 
 import type { DayOfTheWeek, RecurrenceRule } from 'expo-calendar';
-import { useEffect, useRef, useSyncExternalStore } from 'react';
+import { useEffect, useRef } from 'react';
 import { AppState } from 'react-native';
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 import { runsWeekdaysOnly, useWeekdaysOnly, type ChecklistTask } from '@/lib/checklist';
 import {
@@ -33,11 +35,14 @@ import {
   type Reminder,
 } from '@/lib/ios-reminders';
 import { storage } from '@/storage/mmkv';
+import { adoptLegacyValue, mmkvStorage } from '@/storage/zustand-mmkv';
 
 // ---------------------------------------------------------------------------
 // Settings
 // ---------------------------------------------------------------------------
 
+const PERSIST_KEY = 'store:checklist-reminders';
+/** Pre-zustand keys: a bare boolean and a bare `HH:MM` string. */
 const ENABLED_KEY = 'checklist:reminders:on';
 const TIME_KEY = 'checklist:reminders:time';
 
@@ -45,34 +50,42 @@ const TIME_KEY = 'checklist:reminders:time';
 // Titles carry that job now; the key is dropped rather than left to rot.
 storage.remove('checklist:reminders:map');
 
-/** Off until asked for: writing into someone's Reminders is not a default. */
-let enabled = storage.getBoolean(ENABLED_KEY) ?? false;
-/** `HH:MM` on the device clock — the clock the run day is keyed by. */
-let time = storage.getString(TIME_KEY) ?? '09:00';
+type ReminderSettings = {
+  /** Off until asked for: writing into someone's Reminders is not a default. */
+  enabled: boolean;
+  /** `HH:MM` on the device clock — the clock the run day is keyed by. */
+  time: string;
+};
 
-const listeners = new Set<() => void>();
+adoptLegacyValue<ReminderSettings>(PERSIST_KEY, [ENABLED_KEY, TIME_KEY], () => {
+  const enabled = storage.getBoolean(ENABLED_KEY);
+  const time = storage.getString(TIME_KEY);
+  if (enabled === undefined && time === undefined) return undefined;
+  return { enabled: enabled ?? false, time: time ?? '09:00' };
+});
 
-function publish() {
-  for (const listener of listeners) listener();
-}
+const useReminderSettings = create<ReminderSettings>()(
+  persist((): ReminderSettings => ({ enabled: false, time: '09:00' }), {
+    name: PERSIST_KEY,
+    storage: mmkvStorage<ReminderSettings>(),
+  }),
+);
 
-function subscribe(callback: () => void) {
-  listeners.add(callback);
-  return () => listeners.delete(callback);
+/** Non-reactive read for the sync routines below. */
+function settings(): ReminderSettings {
+  return useReminderSettings.getState();
 }
 
 export function useRemindersEnabled(): boolean {
-  return useSyncExternalStore(subscribe, () => enabled);
+  return useReminderSettings((state) => state.enabled);
 }
 
 export function useRemindersTime(): string {
-  return useSyncExternalStore(subscribe, () => time);
+  return useReminderSettings((state) => state.time);
 }
 
 export function setRemindersTime(next: string): void {
-  time = next;
-  storage.set(TIME_KEY, next);
-  publish();
+  useReminderSettings.setState({ time: next });
 }
 
 export type EnableResult = 'on' | 'off' | 'denied' | 'unavailable';
@@ -83,9 +96,7 @@ export type EnableResult = 'on' | 'off' | 'denied' | 'unavailable';
  */
 export async function setRemindersSync(next: boolean): Promise<EnableResult> {
   if (!next) {
-    enabled = false;
-    storage.set(ENABLED_KEY, false);
-    publish();
+    useReminderSettings.setState({ enabled: false });
     // The reminders repeat, so switching the mirror off has to take them with
     // it — otherwise they keep ringing every morning for a routine nothing is
     // syncing any more, and the only way to stop them is the Reminders app.
@@ -95,9 +106,7 @@ export async function setRemindersSync(next: boolean): Promise<EnableResult> {
   }
   const access = await remindersAccess(await loadCalendar());
   if (access !== 'granted') return access === 'denied' ? 'denied' : 'unavailable';
-  enabled = true;
-  storage.set(ENABLED_KEY, true);
-  publish();
+  useReminderSettings.setState({ enabled: true });
   return 'on';
 }
 
@@ -186,7 +195,7 @@ export async function syncChecklistReminders(
   tasks: ChecklistTask[],
   at: string,
 ): Promise<string[] | null> {
-  if (!enabled || tasks.length === 0) return null;
+  if (!settings().enabled || tasks.length === 0) return null;
   const Calendar = await loadCalendar();
   if (!Calendar || (await remindersAccess(Calendar)) !== 'granted') return null;
   const list = await traderMemosList(Calendar);

@@ -12,10 +12,12 @@
  * read-only, and a body with none simply has the block appended.
  */
 
-import { useSyncExternalStore } from 'react';
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 import { t } from '@lingui/core/macro';
 import { storage } from '@/storage/mmkv';
+import { adoptLegacyValue, mmkvStorage } from '@/storage/zustand-mmkv';
 
 export type ChecklistTask = { text: string; done: boolean };
 
@@ -100,37 +102,42 @@ export function appendTaskBlock(body: string, block: string, label: string): str
 // ---------------------------------------------------------------------------
 
 /**
- * Which days the card runs. MMKV-backed module store (reports-display.ts
- * pattern) rather than a server setting: the template row holds items only,
- * and a per-device answer is the right one anyway — the same account read on a
- * weekend machine shouldn't be told it has a routine to clear.
+ * Which days the card runs. MMKV-persisted rather than a server setting: the
+ * template row holds items only, and a per-device answer is the right one
+ * anyway — the same account read on a weekend machine shouldn't be told it has
+ * a routine to clear.
  */
+const PERSIST_KEY = 'store:checklist-schedule';
+/** Pre-zustand key: a bare MMKV boolean. */
 const WEEKDAYS_ONLY_KEY = 'checklist:weekdaysOnly';
 
-// Default on: a trading routine belongs to a trading day. Anyone who works
-// weekend sessions turns it off once.
-let weekdaysOnly = storage.getBoolean(WEEKDAYS_ONLY_KEY) ?? true;
-const scheduleListeners = new Set<() => void>();
+type ScheduleState = { weekdaysOnly: boolean };
+
+adoptLegacyValue<ScheduleState>(PERSIST_KEY, [WEEKDAYS_ONLY_KEY], () => {
+  const stored = storage.getBoolean(WEEKDAYS_ONLY_KEY);
+  return stored === undefined ? undefined : { weekdaysOnly: stored };
+});
+
+const useScheduleStore = create<ScheduleState>()(
+  // Default on: a trading routine belongs to a trading day. Anyone who works
+  // weekend sessions turns it off once.
+  persist((): ScheduleState => ({ weekdaysOnly: true }), {
+    name: PERSIST_KEY,
+    storage: mmkvStorage<ScheduleState>(),
+  }),
+);
 
 export function useWeekdaysOnly(): boolean {
-  return useSyncExternalStore(
-    (callback) => {
-      scheduleListeners.add(callback);
-      return () => scheduleListeners.delete(callback);
-    },
-    () => weekdaysOnly,
-  );
+  return useScheduleStore((state) => state.weekdaysOnly);
 }
 
 /** The same answer outside a render — the Reminders repeat rule follows it. */
 export function runsWeekdaysOnly(): boolean {
-  return weekdaysOnly;
+  return useScheduleStore.getState().weekdaysOnly;
 }
 
 export function setWeekdaysOnly(next: boolean): void {
-  weekdaysOnly = next;
-  storage.set(WEEKDAYS_ONLY_KEY, next);
-  for (const listener of scheduleListeners) listener();
+  useScheduleStore.setState({ weekdaysOnly: next });
 }
 
 /**

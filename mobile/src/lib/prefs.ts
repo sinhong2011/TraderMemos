@@ -1,17 +1,21 @@
 /**
  * Display preferences — privacy mode, display currency override, timezones,
- * clock format, trade date basis, and screenshot cap. Module-level
- * `useSyncExternalStore` store (same pattern as tag-bar.ts) persisted to MMKV,
- * mirroring web/src/lib/displayPrefs.ts.
+ * clock format, trade date basis. MMKV-persisted zustand store, mirroring
+ * web/src/lib/displayPrefs.ts. Formatting only: the screenshots cap is a
+ * journaling rule and lives in journal-prefs.ts, so the reset here can take
+ * the whole store.
  *
  * Two clocks, two jobs: the *market* timezone owns everything date-shaped
  * (calendar day attribution, filter boundaries, the API `tz` bucketing param);
  * the *display* timezone only formats clock times.
  */
 
-import { useSyncExternalStore } from 'react';
+import { UnistylesRuntime, useUnistyles } from 'react-native-unistyles';
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
-import { storage } from '@/storage/mmkv';
+import { DISPLAY_PERSIST_KEY, migrateLegacyPrefs } from '@/lib/prefs-migration';
+import { mmkvStorage } from '@/storage/zustand-mmkv';
 
 // ---------------------------------------------------------------------------
 // Constants (mirrored from web displayPrefs.ts)
@@ -79,6 +83,16 @@ export type TimeFormatPref = 'h12' | 'h23';
 
 export const TIME_FORMAT_DEFAULT: TimeFormatPref = 'h12';
 
+/**
+ * Light / dark / follow-iOS. `system` is the default and the only value that
+ * tracks the device — the other two pin the app regardless of what iOS is
+ * doing, which is the whole point of offering the control (web's ModeToggle
+ * has the same three).
+ */
+export type AppearancePref = 'system' | 'light' | 'dark';
+
+export const APPEARANCE_DEFAULT: AppearancePref = 'system';
+
 /** Which timestamp attributes a trade to a calendar day / date filter. */
 export type TradeDateBasis = 'close' | 'open';
 
@@ -91,6 +105,8 @@ export const PRIVACY_MASK = '••••';
 // ---------------------------------------------------------------------------
 
 export type DisplayPrefs = {
+  /** Light / dark / follow-iOS. */
+  appearance: AppearancePref;
   /** When true, money formatters render a mask instead of amounts. */
   privacyMode: boolean;
   /** Override for read-only surfaces; `null` follows the account base currency. */
@@ -101,21 +117,17 @@ export type DisplayPrefs = {
   marketTimezone: MarketTimezonePref;
   timeFormat: TimeFormatPref;
   tradeDateBasis: TradeDateBasis;
-  /** Cap on screenshots per trade; `null` = unlimited. */
-  maxScreenshotsPerTrade: number | null;
 };
 
 const DEFAULTS: DisplayPrefs = {
+  appearance: APPEARANCE_DEFAULT,
   privacyMode: false,
   displayCurrency: null,
   timezone: TIMEZONE_DEFAULT,
   marketTimezone: MARKET_TIMEZONE_DEFAULT,
   timeFormat: TIME_FORMAT_DEFAULT,
   tradeDateBasis: TRADE_DATE_BASIS_DEFAULT,
-  maxScreenshotsPerTrade: null,
 };
-
-const STORAGE_KEY = 'prefs:display';
 
 function isDisplayCurrencyCode(value: unknown): value is DisplayCurrencyCode {
   return typeof value === 'string' && (DISPLAY_CURRENCIES as readonly string[]).includes(value);
@@ -133,10 +145,15 @@ function isMarketTimezonePref(value: unknown): value is MarketTimezonePref {
 }
 
 /** Validate every persisted field — a stale or hand-edited blob never wedges the app. */
+function isAppearance(value: unknown): value is AppearancePref {
+  return value === 'system' || value === 'light' || value === 'dark';
+}
+
 function sanitize(raw: unknown): DisplayPrefs {
   if (typeof raw !== 'object' || raw == null) return DEFAULTS;
   const r = raw as Record<string, unknown>;
   return {
+    appearance: isAppearance(r.appearance) ? r.appearance : DEFAULTS.appearance,
     privacyMode: typeof r.privacyMode === 'boolean' ? r.privacyMode : DEFAULTS.privacyMode,
     displayCurrency: isDisplayCurrencyCode(r.displayCurrency) ? r.displayCurrency : null,
     timezone: isTimezonePref(r.timezone) ? r.timezone : DEFAULTS.timezone,
@@ -149,37 +166,26 @@ function sanitize(raw: unknown): DisplayPrefs {
       r.tradeDateBasis === 'close' || r.tradeDateBasis === 'open'
         ? r.tradeDateBasis
         : DEFAULTS.tradeDateBasis,
-    maxScreenshotsPerTrade:
-      typeof r.maxScreenshotsPerTrade === 'number' &&
-      Number.isFinite(r.maxScreenshotsPerTrade) &&
-      r.maxScreenshotsPerTrade >= 1
-        ? Math.floor(r.maxScreenshotsPerTrade)
-        : null,
   };
 }
 
-function load(): DisplayPrefs {
-  const raw = storage.getString(STORAGE_KEY);
-  if (!raw) return DEFAULTS;
-  try {
-    return sanitize(JSON.parse(raw));
-  } catch {
-    return DEFAULTS;
-  }
-}
+migrateLegacyPrefs();
 
-let snapshot: DisplayPrefs = load();
-const listeners = new Set<() => void>();
+const useDisplayStore = create<DisplayPrefs>()(
+  persist((): DisplayPrefs => DEFAULTS, {
+    name: DISPLAY_PERSIST_KEY,
+    storage: mmkvStorage<DisplayPrefs>(),
+    merge: (persisted) => sanitize(persisted),
+  }),
+);
 
 function setPrefs(patch: Partial<DisplayPrefs>) {
-  snapshot = { ...snapshot, ...patch };
-  storage.set(STORAGE_KEY, JSON.stringify(snapshot));
-  for (const listener of listeners) listener();
+  useDisplayStore.setState(patch);
 }
 
 /** Non-reactive read for formatters — components subscribe via useDisplayPrefs. */
 export function getPrefs(): DisplayPrefs {
-  return snapshot;
+  return useDisplayStore.getState();
 }
 
 /**
@@ -188,13 +194,57 @@ export function getPrefs(): DisplayPrefs {
  * re-render memoized children.
  */
 export function useDisplayPrefs(): DisplayPrefs {
-  return useSyncExternalStore(
-    (callback) => {
-      listeners.add(callback);
-      return () => listeners.delete(callback);
-    },
-    () => snapshot,
-  );
+  return useDisplayStore();
+}
+
+/**
+ * Push the pref into Unistyles. `adaptiveThemes` is what makes the app follow
+ * iOS, so a pinned scheme has to switch it off first — with it on, `setTheme`
+ * is overridden the next time the system scheme is read.
+ */
+function applyAppearanceToRuntime(pref: AppearancePref) {
+  // Each call is guarded on the current runtime value. Re-asserting a setting
+  // Unistyles already holds re-applies the default theme rather than being a
+  // no-op, which flashes the app light on every module re-evaluation — and
+  // this runs at module scope, so that is every Fast Refresh.
+  if (pref === 'system') {
+    if (!UnistylesRuntime.hasAdaptiveThemes) UnistylesRuntime.setAdaptiveThemes(true);
+    return;
+  }
+  if (UnistylesRuntime.hasAdaptiveThemes) UnistylesRuntime.setAdaptiveThemes(false);
+  if (UnistylesRuntime.themeName !== pref) UnistylesRuntime.setTheme(pref);
+}
+
+// The stored pref only reaches Unistyles when something applies it, and the
+// store is created above with whatever was persisted — so apply once on load.
+applyAppearanceToRuntime(useDisplayStore.getState().appearance);
+
+export function setAppearance(pref: AppearancePref) {
+  setPrefs({ appearance: isAppearance(pref) ? pref : APPEARANCE_DEFAULT });
+  applyAppearanceToRuntime(pref);
+}
+
+/**
+ * The scheme actually being rendered. SwiftUI views are native and don't read
+ * Unistyles, so every `Host` has to be told this explicitly — see
+ * `components/app-host.tsx`. Subscribes to both the pref and the system scheme
+ * because either can move it.
+ */
+/**
+ * The scheme actually being painted, for the SwiftUI `Host`s (see
+ * `components/app-host.tsx`).
+ *
+ * Reads Unistyles' live theme, deliberately — not the pref and not RN's
+ * `useColorScheme`. Those are three separate signals: the pref is intent,
+ * `useColorScheme` is the device, and Unistyles is what the RN surfaces are
+ * *currently* painted with. Driving SwiftUI from either of the first two lets
+ * it disagree with the background it sits on, and the result isn't subtle —
+ * dark-scheme section headers land on a light background as unreadable grey.
+ * Reading the applied theme makes divergence impossible by construction.
+ */
+export function useResolvedScheme(): 'light' | 'dark' {
+  const { rt } = useUnistyles();
+  return rt.themeName === 'dark' ? 'dark' : 'light';
 }
 
 export function setPrivacyMode(on: boolean) {
@@ -221,16 +271,47 @@ export function setTradeDateBasis(basis: TradeDateBasis) {
   setPrefs({ tradeDateBasis: basis === 'open' ? 'open' : 'close' });
 }
 
-export function setMaxScreenshotsPerTrade(max: number | null) {
-  setPrefs({
-    maxScreenshotsPerTrade:
-      max != null && Number.isFinite(max) && max >= 1 ? Math.floor(max) : null,
-  });
-}
-
-/** Back to the shipped defaults — the escape hatch from the Display screen. */
+/**
+ * Back to the shipped defaults — the escape hatch from the Display screen.
+ * Every key here is a formatting pref, so the reset can take the whole store:
+ * the screenshots cap lives in `journal-prefs.ts` and is out of reach.
+ */
 export function resetDisplayPrefs() {
   setPrefs(DEFAULTS);
+  applyAppearanceToRuntime(DEFAULTS.appearance);
+}
+
+/**
+ * Pick the valid prefs out of a hand-written or cross-platform blob (an
+ * app-config file). Unlike `sanitize`, absent keys are *omitted* rather than
+ * defaulted — a web export only carries three of these fields, and defaulting
+ * the rest would silently reset the phone's currency and market timezone.
+ */
+export function parseDisplayPrefsPatch(raw: unknown): Partial<DisplayPrefs> {
+  if (typeof raw !== 'object' || raw == null) return {};
+  const r = raw as Record<string, unknown>;
+  const patch: Partial<DisplayPrefs> = {};
+  if (isAppearance(r.appearance)) patch.appearance = r.appearance;
+  if (typeof r.privacyMode === 'boolean') patch.privacyMode = r.privacyMode;
+  if (r.displayCurrency === null || isDisplayCurrencyCode(r.displayCurrency)) {
+    patch.displayCurrency = r.displayCurrency as DisplayCurrencyOverride;
+  }
+  if (isTimezonePref(r.timezone)) patch.timezone = r.timezone;
+  if (isMarketTimezonePref(r.marketTimezone)) patch.marketTimezone = r.marketTimezone;
+  if (r.timeFormat === 'h12' || r.timeFormat === 'h23') patch.timeFormat = r.timeFormat;
+  if (r.tradeDateBasis === 'close' || r.tradeDateBasis === 'open') {
+    patch.tradeDateBasis = r.tradeDateBasis;
+  }
+  return patch;
+}
+
+/** Apply a validated patch (app-config import). */
+export function applyDisplayPrefs(patch: Partial<DisplayPrefs>) {
+  if (Object.keys(patch).length === 0) return;
+  setPrefs(patch);
+  // Storing `appearance` doesn't repaint anything on its own — Unistyles has
+  // to be told, exactly as `setAppearance` does.
+  if (patch.appearance != null) applyAppearanceToRuntime(patch.appearance);
 }
 
 /** True when every pref still matches its default (hides the reset row). */

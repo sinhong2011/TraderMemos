@@ -1,13 +1,14 @@
 /**
  * Economic-calendar filters (impact, currency), persisted so the trader who
  * only ever watches high-impact USD doesn't rebuild that selection on every
- * visit. MMKV-backed module store (reports-display.ts pattern) because the
- * nav-bar filter menu and the screen live in different subtrees.
+ * visit. A store rather than screen state because the nav-bar filter menu and
+ * the screen live in different subtrees.
  */
 
-import { useSyncExternalStore } from 'react';
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
-import { storage } from '@/storage/mmkv';
+import { adoptLegacyValue, legacyJSON, mmkvStorage } from '@/storage/zustand-mmkv';
 
 export type EventFilters = {
   /** Empty means "all" for both — the menu shows nothing checked. */
@@ -17,53 +18,45 @@ export type EventFilters = {
 
 const EMPTY: EventFilters = { impacts: [], currencies: [] };
 
-const STORAGE_KEY = 'events:filters';
+const PERSIST_KEY = 'store:event-filters';
+const LEGACY_KEY = 'events:filters';
 
 function strings(value: unknown): string[] {
   return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : [];
 }
 
-function load(): EventFilters {
-  const raw = storage.getString(STORAGE_KEY);
-  if (!raw) return EMPTY;
-  try {
-    const parsed = JSON.parse(raw) as Record<string, unknown>;
-    return { impacts: strings(parsed.impacts), currencies: strings(parsed.currencies) };
-  } catch {
-    return EMPTY;
-  }
-}
+adoptLegacyValue<EventFilters>(PERSIST_KEY, [LEGACY_KEY], () => {
+  const parsed = legacyJSON(LEGACY_KEY) as Record<string, unknown> | undefined;
+  if (parsed == null) return undefined;
+  return { impacts: strings(parsed.impacts), currencies: strings(parsed.currencies) };
+});
 
-let snapshot: EventFilters = load();
-const listeners = new Set<() => void>();
-
-function publish(next: EventFilters) {
-  snapshot = next;
-  storage.set(STORAGE_KEY, JSON.stringify(next));
-  for (const listener of listeners) listener();
-}
+const useEventFilterStore = create<EventFilters>()(
+  persist((): EventFilters => EMPTY, {
+    name: PERSIST_KEY,
+    storage: mmkvStorage<EventFilters>(),
+    // A hand-edited or half-written blob must not wedge the filter menu.
+    merge: (persisted, current) => {
+      const raw = (persisted ?? {}) as Record<string, unknown>;
+      return { ...current, impacts: strings(raw.impacts), currencies: strings(raw.currencies) };
+    },
+  }),
+);
 
 /** Add or remove one value from a dimension. */
 export function toggleEventFilter(dimension: keyof EventFilters, value: string) {
-  const current = snapshot[dimension];
-  publish({
-    ...snapshot,
+  const current = useEventFilterStore.getState()[dimension];
+  useEventFilterStore.setState({
     [dimension]: current.includes(value)
       ? current.filter((item) => item !== value)
       : [...current, value],
-  });
+  } as Partial<EventFilters>);
 }
 
 export function clearEventFilters() {
-  publish(EMPTY);
+  useEventFilterStore.setState(EMPTY);
 }
 
 export function useEventFilters(): EventFilters {
-  return useSyncExternalStore(
-    (callback) => {
-      listeners.add(callback);
-      return () => listeners.delete(callback);
-    },
-    () => snapshot,
-  );
+  return useEventFilterStore();
 }
