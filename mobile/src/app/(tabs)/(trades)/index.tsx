@@ -6,14 +6,14 @@ import { useMemo, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
-import { useTags, useTrades } from '@/api/hooks';
+import { useAccounts, useTags, useTrades } from '@/api/hooks';
 import type { Trade } from '@/api/types';
-import { AccountMenu } from '@/components/account-menu';
 import { FloatingSearchBar, SearchToggle } from '@/components/search-bar';
 import { Skeleton } from '@/components/skeleton';
 import { SwipeableTradeRow } from '@/components/swipeable-trade-row';
 import { TradeFilterMenu } from '@/components/trade-filter-menu';
 import { t } from '@lingui/core/macro';
+import { setSelectedAccountId, useSelectedAccountId } from '@/lib/account-store';
 import { useGlobalFilters } from '@/lib/filters';
 import { formatPnl } from '@/lib/format';
 import { parseEmotionalStates } from '@/lib/journal';
@@ -207,6 +207,8 @@ export default function TradesScreen() {
   // Re-render when privacy mode flips — the net summary formats money.
   useDisplayPrefs();
   const { data: tags } = useTags();
+  const { data: accounts } = useAccounts();
+  const selectedAccountId = useSelectedAccountId();
   const { hiddenTagIds, extras } = useTagBarState();
 
   const chipDefs = useMemo<ChipDef[]>(
@@ -285,7 +287,21 @@ export default function TradesScreen() {
     { value: 'pnl-asc' as const, label: t`Lowest P&L` },
     { value: 'symbol' as const, label: t`Symbol A–Z` },
   ];
-  const filtersActive = status !== 'all' || dateFilter !== 'all' || market !== 'all';
+  // The scope is app-wide state, so a deleted or still-loading account has to
+  // fall back to "All accounts" rather than show an unmatched checkmark.
+  const accountList = accounts ?? [];
+  const scopedAccount =
+    selectedAccountId != null && accountList.some((account) => account.id === selectedAccountId)
+      ? selectedAccountId
+      : 'all';
+  const accountOptions = [
+    { value: 'all', label: t`All accounts` },
+    ...accountList.map((account) => ({ value: account.id, label: account.name })),
+  ];
+  // Sort is deliberately not in here: it reorders the list, it never hides a
+  // trade, so it must not fill the icon or get swept up by "Clear filters".
+  const filtersActive =
+    status !== 'all' || dateFilter !== 'all' || market !== 'all' || scopedAccount !== 'all';
 
   if (isLoading) {
     // Row-shaped skeletons standing in for the trade list.
@@ -314,8 +330,11 @@ export default function TradesScreen() {
     <>
       <Stack.Screen
         options={{
-          // Filters and sort are separate bar buttons (iOS Mail/Files pattern):
-          // each a pull-down with checkmark groups, filter icon filled when active.
+          // One pull-down for everything that shapes the list (iOS Mail/Files
+          // pattern): account scope, the three filters and sort order, each its
+          // own checkmark submenu, icon filled while anything narrows the list.
+          // Three bar buttons for one job left the row crowded and made you
+          // guess which pull-down held what.
           headerLeft: () => (
             <View style={styles.headerButtons}>
               <TradeFilterMenu
@@ -324,10 +343,22 @@ export default function TradesScreen() {
                   setStatus('all');
                   setDateFilter('all');
                   setMarket('all');
+                  setSelectedAccountId(null);
                 }}
-                // Ordered by how often a trader narrows on it: the date range
-                // moves constantly, outcome less so, instrument rarely.
+                // Ordered by how often a trader narrows on it: account scope
+                // frames everything, the date range moves constantly, outcome
+                // less so, instrument rarely. Sort trails the filters it sorts.
                 groups={[
+                  {
+                    key: 'account',
+                    title: t`Account`,
+                    icon: 'person.crop.circle',
+                    options: accountOptions,
+                    value: scopedAccount,
+                    // App-wide scope (see lib/account-store) — switching here
+                    // also moves the dashboard and reports.
+                    onChange: (v) => setSelectedAccountId(v === 'all' ? null : v),
+                  },
                   {
                     key: 'date',
                     title: t`Date`,
@@ -352,17 +383,10 @@ export default function TradesScreen() {
                     value: market,
                     onChange: (v) => setMarket(v as MarketFilter),
                   },
-                ]}
-              />
-              <TradeFilterMenu
-                active={false}
-                label={t`Sort`}
-                systemImage="arrow.up.arrow.down"
-                groups={[
                   {
-                    // Single group — listed straight into the menu, so no
-                    // submenu row exists to carry a title.
                     key: 'sort',
+                    title: t`Sort`,
+                    icon: 'arrow.up.arrow.down',
                     options: sortOrders,
                     value: sortOrder,
                     onChange: (v) => setSortOrder(v as SortOrder),
@@ -378,7 +402,6 @@ export default function TradesScreen() {
                   setSearching((open) => !open);
                 }}
               />
-              <AccountMenu />
             </View>
           ),
         }}
