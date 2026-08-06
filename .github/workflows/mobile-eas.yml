@@ -144,16 +144,19 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
-      # TestFlight shows "What to Test" verbatim; left unset every tester sees a
-      # blank panel. A release build gets that version's CHANGELOG section, any
+      # TestFlight's "What to Test" panel can't be filled from here: EAS Submit's
+      # changelog parameter (the --what-to-test flag) is Enterprise-plan-only and
+      # fails the whole submission on any other plan. Compose the notes anyway and
+      # publish them in the job summary, so pasting them into App Store Connect is
+      # a copy away. A release build gets that version's CHANGELOG section, any
       # other build gets the commit subject.
       - name: Compose What to Test
-        id: notes
         env:
           MESSAGE: ${{ inputs.message || '' }}
         run: |
           {
-            echo "text<<WHAT_TO_TEST_EOF"
+            echo '## What to Test (paste into TestFlight)'
+            echo '```'
             python3 - <<'PY'
           import os, pathlib, re, subprocess
 
@@ -187,8 +190,8 @@ jobs:
           # Apple caps whatToTest at 4000 characters.
           print(notes.strip()[:4000])
           PY
-            echo "WHAT_TO_TEST_EOF"
-          } >> "$GITHUB_OUTPUT"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
 
       # eas.json pins appVersionSource: remote, so EAS owns the build number and
       # nothing here writes back to the repo. The marketing version still comes
@@ -200,12 +203,13 @@ jobs:
           # Unset on workflow_call, where waiting is always what we want.
           WAIT: ${{ inputs.wait }}
           MESSAGE: ${{ inputs.message || github.sha }}
-          WHAT_TO_TEST: ${{ steps.notes.outputs.text }}
         run: |
           args=(--platform ios --profile "$PROFILE" --non-interactive --message "$MESSAGE")
           if [ "$SUBMIT" = "true" ]; then
-            # --what-to-test is only accepted alongside --auto-submit.
-            args+=(--auto-submit --what-to-test "$WHAT_TO_TEST")
+            # No --what-to-test here: it maps to EAS Submit's Enterprise-only
+            # changelog parameter and fails submission scheduling outright on
+            # other plans. The notes land in the job summary instead.
+            args+=(--auto-submit)
           fi
           if [ "$WAIT" = "false" ]; then
             args+=(--no-wait)
