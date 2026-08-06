@@ -46,7 +46,7 @@ export function PerformanceCard({
   const openCount = trades.filter((trade) => trade.status === 'open').length;
 
   return (
-    <DashboardCard title={t`Performance`}>
+    <DashboardCard title={t`Performance`} flush>
       <View style={styles.hero}>
         <Text style={styles.heroLabel}>{t`Net`}</Text>
         <Text selectable style={[styles.heroValue, { color: pnl(summary.net_pnl) }]}>
@@ -87,7 +87,10 @@ export function PerformanceCard({
           label={t`Wash`}
           value={String(summary.breakeven)}
           sub={formatPercent(summary.breakeven / total)}
-          tone="amber"
+          // Breakeven is a neutral outcome, not a warning — it had been tinted
+          // with the section-header hue, which read as arbitrary once that hue
+          // stopped appearing anywhere else on the screen.
+          tone="muted"
         />
       </View>
 
@@ -108,7 +111,18 @@ export function PerformanceCard({
 }
 
 const styles = StyleSheet.create((theme) => ({
-  hero: { alignItems: 'center', gap: theme.spacing.sm, paddingVertical: theme.spacing.sm },
+  // The Net headline keeps a card of its own — it is the one block on Home that
+  // is a statement rather than a tile, so it gets the full-width white surface
+  // the tiles below sit apart from.
+  hero: {
+    alignItems: 'center',
+    gap: theme.spacing.sm,
+    padding: theme.spacing.lg,
+    borderRadius: theme.radius.lg,
+    borderCurve: 'continuous',
+    backgroundColor: theme.colors.card,
+    boxShadow: theme.shadows.card,
+  },
   heroLabel: {
     alignSelf: 'flex-start',
     fontSize: 12,

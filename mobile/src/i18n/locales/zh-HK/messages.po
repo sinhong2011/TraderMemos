@@ -58,6 +58,11 @@ msgstr "{0} 狀態下交易仍獲利"
 msgid "{0} can push size or timing. Compare this trade to your playbook rules before taking the next similar signal."
 msgstr "{0} 會影響倉位或時機。下次類似訊號前，先將此交易對照策略手冊的規則。"
 
+#. placeholder {0}: user.email
+#: src/app/(tabs)/(settings)/user-form.tsx:63
+msgid "{0} can sign in to this server with the password you set."
+msgstr "{0} 可以用你設定的密碼登入這個伺服器。"
+
 #. placeholder {0}: checks.length
 #: src/app/(tabs)/(dashboard)/playbook.tsx:87
 msgid "{0} checks"
@@ -141,6 +146,11 @@ msgstr "風險超標 {0} · 單日虧損 {1}"
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:496
 msgid "{0} per +1R"
 msgstr "每 +1R {0}"
+
+#. placeholder {0}: user?.email ?? ''
+#: src/app/(tabs)/(settings)/user-detail.tsx:75
+msgid "{0} signs in with the new password. Their other devices are signed out."
+msgstr "{0} 之後用新密碼登入，其他裝置會被登出。"
 
 #. placeholder {0}: insights.emotion
 #: src/lib/trade-insights.ts:178
@@ -302,7 +312,7 @@ msgstr "{symbol} 重播（{barClock}）— {0}"
 #~ msgid "{total} events"
 #~ msgstr "{total} 項事件"
 
-#: src/app/(tabs)/(settings)/index.tsx:299
+#: src/app/(tabs)/(settings)/index.tsx:305
 msgid "{tradeCount} trades"
 msgstr "{tradeCount} 筆交易"
 
@@ -326,7 +336,7 @@ msgstr "{year}年目標"
 msgid "{year} in one number"
 msgstr "一個數字看 {year} 年"
 
-#: src/app/(tabs)/(settings)/index.tsx:141
+#: src/app/(tabs)/(settings)/index.tsx:147
 #: src/app/(tabs)/(settings)/trading-journal.tsx:52
 #: src/app/(tabs)/(settings)/trading-journal.tsx:119
 msgid "{year} P&L goal"
@@ -487,6 +497,10 @@ msgstr "90日"
 #~ msgid "A quiet week."
 #~ msgstr "平靜的一週。"
 
+#: src/app/(tabs)/(settings)/user-detail.tsx:185
+msgid "A reset signs out that user's other devices."
+msgstr "重設會登出該用戶的其他裝置。"
+
 #: src/app/(tabs)/(settings)/display.tsx:104
 msgid "A sample amount and a late-session timestamp, rendered with the settings below."
 msgstr "下方設定套用後的金額與收市後時間示例。"
@@ -495,16 +509,16 @@ msgstr "下方設定套用後的金額與收市後時間示例。"
 msgid "A symbol pins the play to one ticker — leave it on Any for a pattern you trade anywhere."
 msgstr "填上代號會把這個計劃綁定到單一標的；任何標的都適用的形態就留在「不限」。"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:84
+#: src/app/(tabs)/(settings)/_layout.tsx:88
 msgid "About"
 msgstr "關於"
 
-#: src/app/(tabs)/(settings)/index.tsx:214
-#: src/app/(tabs)/(settings)/index.tsx:417
+#: src/app/(tabs)/(settings)/index.tsx:220
+#: src/app/(tabs)/(settings)/index.tsx:423
 msgid "About TraderMemos"
 msgstr "關於 TraderMemos"
 
-#: src/app/(tabs)/(settings)/index.tsx:172
+#: src/app/(tabs)/(settings)/index.tsx:178
 msgid "access token integration webhook"
 msgstr "存取權杖 API 整合 webhook"
 
@@ -513,6 +527,7 @@ msgstr "存取權杖 API 整合 webhook"
 #: src/app/(tabs)/(settings)/export-trades.tsx:92
 #: src/app/(tabs)/(settings)/export-trades.tsx:95
 #: src/app/(tabs)/(settings)/import-trades.tsx:445
+#: src/app/(tabs)/(settings)/user-detail.tsx:155
 #: src/app/(tabs)/(trades)/index.tsx:354
 #: src/app/cash-form.tsx:169
 #: src/app/cash-form.tsx:187
@@ -552,9 +567,13 @@ msgstr "帳戶盈虧"
 msgid "Account type"
 msgstr "帳戶類型"
 
-#: src/app/(tabs)/(settings)/index.tsx:283
+#: src/app/(tabs)/(settings)/index.tsx:289
 msgid "Accounts"
 msgstr "帳戶"
+
+#: src/app/(tabs)/(settings)/index.tsx:130
+msgid "accounts people members owner admin invite add remove password reset"
+msgstr "帳戶 用戶 成員 擁有者 管理員 邀請 新增 移除 密碼 重設"
 
 #: src/app/(tabs)/(settings)/risk-rules.tsx:97
 msgid "Active limits"
@@ -578,6 +597,7 @@ msgstr "實際風險低於你的目標。"
 
 #: src/app/(tabs)/(dashboard)/checklist.tsx:145
 #: src/app/(tabs)/(settings)/account-form.tsx:240
+#: src/app/(tabs)/(settings)/user-form.tsx:90
 #: src/components/add-menu.tsx:37
 #: src/components/add-menu.tsx:53
 msgid "Add"
@@ -591,8 +611,8 @@ msgstr "新增檢查項"
 msgid "Add a limit"
 msgstr "新增上限"
 
-#: src/app/(tabs)/(settings)/index.tsx:135
-#: src/app/(tabs)/(settings)/index.tsx:358
+#: src/app/(tabs)/(settings)/index.tsx:141
+#: src/app/(tabs)/(settings)/index.tsx:364
 msgid "Add account"
 msgstr "新增帳戶"
 
@@ -685,6 +705,15 @@ msgstr "加入驗證器"
 msgid "Add transaction"
 msgstr "新增資金交易"
 
+#: src/app/(tabs)/(settings)/_layout.tsx:42
+#: src/app/(tabs)/(settings)/users.tsx:67
+msgid "Add user"
+msgstr "新增用戶"
+
+#: src/app/(tabs)/(settings)/user-form.tsx:90
+msgid "Adding…"
+msgstr "新增中…"
+
 #: src/app/(tabs)/(settings)/two-factor.tsx:149
 msgid "Adds a 6-digit code from an authenticator app to your password at sign-in."
 msgstr "登入時，除密碼外再要求驗證器的 6 位數驗證碼。"
@@ -722,11 +751,11 @@ msgstr "儲存後"
 msgid "Aggressive"
 msgstr "進取"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:63
+#: src/app/(tabs)/(settings)/_layout.tsx:67
 msgid "AI"
 msgstr "AI"
 
-#: src/app/(tabs)/(settings)/index.tsx:165
+#: src/app/(tabs)/(settings)/index.tsx:171
 #: src/app/(tabs)/(settings)/integrations.tsx:25
 msgid "AI — vision scan & coach"
 msgstr "AI — 影像掃描與教練"
@@ -807,7 +836,7 @@ msgstr "以錯誤、習慣及自訂標籤為交易加註。"
 #~ msgid "Annual P&L goal"
 #~ msgstr "年度損益目標"
 
-#: src/app/(tabs)/(settings)/index.tsx:142
+#: src/app/(tabs)/(settings)/index.tsx:148
 msgid "annual target profit"
 msgstr "年度 目標 盈利"
 
@@ -832,8 +861,8 @@ msgstr "API 金鑰"
 msgid "API server"
 msgstr "API 伺服器"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:68
-#: src/app/(tabs)/(settings)/index.tsx:171
+#: src/app/(tabs)/(settings)/_layout.tsx:72
+#: src/app/(tabs)/(settings)/index.tsx:177
 #: src/app/(tabs)/(settings)/integrations.tsx:30
 msgid "API tokens"
 msgstr "API 權杖"
@@ -863,7 +892,7 @@ msgstr "已匯入應用程式設定"
 #~ msgid "Appearance"
 #~ msgstr "外觀"
 
-#: src/app/(tabs)/(settings)/index.tsx:178
+#: src/app/(tabs)/(settings)/index.tsx:184
 msgid "appearance dark light mode system"
 msgstr "外觀 深色 淺色 模式 系統 主題"
 
@@ -884,6 +913,10 @@ msgstr "詢問 AI"
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:499
 msgid "At {0}"
 msgstr "到達 {0} 時"
+
+#: src/app/(tabs)/(settings)/user-form.tsx:116
+msgid "At least {MIN_LENGTH} characters"
+msgstr "至少 {MIN_LENGTH} 個字元"
 
 #: src/app/(tabs)/(settings)/change-password.tsx:133
 msgid "At least {MIN_LENGTH} characters. Changing it signs out your other devices — this one stays signed in."
@@ -1097,7 +1130,7 @@ msgstr "券商"
 msgid "Broker execution exports. Map a Market/Asset Type column for mixed stock/option files, or let the symbol decide."
 msgstr "券商成交紀錄匯出。股票與期權混合的檔案請對應 Market / Asset Type 欄位，或交由代號判斷。"
 
-#: src/app/(tabs)/(settings)/index.tsx:203
+#: src/app/(tabs)/(settings)/index.tsx:209
 msgid "broker fills csv json backup restore"
 msgstr "券商 成交 CSV JSON 備份 還原 匯入"
 
@@ -1105,7 +1138,7 @@ msgstr "券商 成交 CSV JSON 備份 還原 匯入"
 msgid "Broker is required."
 msgstr "請輸入券商。"
 
-#: src/app/(tabs)/(settings)/index.tsx:136
+#: src/app/(tabs)/(settings)/index.tsx:142
 msgid "broker new account"
 msgstr "券商 新增 帳戶"
 
@@ -1175,6 +1208,8 @@ msgstr "Call / Put"
 #: src/app/(tabs)/(settings)/trading-journal.tsx:55
 #: src/app/(tabs)/(settings)/trading-journal.tsx:79
 #: src/app/(tabs)/(settings)/two-factor.tsx:203
+#: src/app/(tabs)/(settings)/user-detail.tsx:106
+#: src/app/(tabs)/(settings)/user-detail.tsx:131
 #: src/app/(tabs)/(trades)/[id].tsx:165
 #: src/app/cash-form.tsx:143
 #: src/app/edit-note.tsx:73
@@ -1221,7 +1256,7 @@ msgstr "從 + 選單記錄市場想法或每日日誌。"
 msgid "Cash"
 msgstr "現金"
 
-#: src/app/(tabs)/(settings)/index.tsx:130
+#: src/app/(tabs)/(settings)/index.tsx:136
 msgid "cash funding ledger balance transfer"
 msgstr "入金 出金 資金 結餘 轉帳"
 
@@ -1239,11 +1274,11 @@ msgstr "受現金限制"
 
 #: src/app/(tabs)/(settings)/_layout.tsx:39
 #: src/app/(tabs)/(settings)/index.tsx:123
-#: src/app/(tabs)/(settings)/profile.tsx:93
+#: src/app/(tabs)/(settings)/profile.tsx:103
 msgid "Change password"
 msgstr "變更密碼"
 
-#: src/app/(tabs)/(settings)/profile.tsx:87
+#: src/app/(tabs)/(settings)/profile.tsx:97
 msgid "Changing your password signs out your other devices."
 msgstr "變更密碼會令其他裝置登出。"
 
@@ -1483,12 +1518,21 @@ msgstr "複製設定金鑰"
 msgid "Copy token"
 msgstr "複製權杖"
 
+#: src/app/(tabs)/(settings)/user-form.tsx:68
+#: src/app/(tabs)/(settings)/user-form.tsx:74
+msgid "Could not add user"
+msgstr "無法新增用戶"
+
 #: src/app/(tabs)/(settings)/change-password.tsx:80
 #: src/app/(tabs)/(settings)/change-password.tsx:86
 #: src/app/(tabs)/(settings)/change-password.tsx:91
 #: src/app/(tabs)/(settings)/change-password.tsx:97
 msgid "Could not change password"
 msgstr "無法變更密碼"
+
+#: src/app/(tabs)/(settings)/user-detail.tsx:60
+msgid "Could not change role"
+msgstr "無法更改角色"
 
 #: src/app/(tabs)/(settings)/account-form.tsx:157
 msgid "Could not clear trades"
@@ -1527,6 +1571,10 @@ msgstr "無法刪除筆記"
 msgid "Could not delete tag"
 msgstr "無法刪除標籤"
 
+#: src/app/(tabs)/(settings)/user-detail.tsx:93
+msgid "Could not delete user"
+msgstr "無法刪除用戶"
+
 #: src/app/(tabs)/(settings)/two-factor.tsx:69
 msgid "Could not enable"
 msgstr "無法啟用"
@@ -1555,6 +1603,10 @@ msgstr "無法載入模型"
 #: src/app/(tabs)/(calendar)/day/[date].tsx:342
 msgid "Could not load this day's trades."
 msgstr "無法載入這天的交易。"
+
+#: src/app/(tabs)/(settings)/users.tsx:62
+msgid "Could not load users."
+msgstr "無法載入用戶。"
 
 #: src/app/(tabs)/(settings)/profile.tsx:44
 msgid "Could not load your account."
@@ -1585,6 +1637,11 @@ msgstr "無法移除"
 #: src/app/cash-form.tsx:120
 msgid "Could not remove transaction"
 msgstr "無法移除資金交易"
+
+#: src/app/(tabs)/(settings)/user-detail.tsx:80
+#: src/app/(tabs)/(settings)/user-detail.tsx:112
+msgid "Could not reset password"
+msgstr "無法重設密碼"
 
 #: src/app/(tabs)/(settings)/api-tokens.tsx:132
 msgid "Could not revoke token"
@@ -1785,7 +1842,7 @@ msgstr "單日虧損上限 — {0}"
 #~ msgid "dark"
 #~ msgstr ""
 
-#: src/app/(tabs)/(settings)/index.tsx:392
+#: src/app/(tabs)/(settings)/index.tsx:398
 msgid "Dark"
 msgstr "深色"
 
@@ -1793,9 +1850,9 @@ msgstr "深色"
 #~ msgid "Data"
 #~ msgstr "資料"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:72
+#: src/app/(tabs)/(settings)/_layout.tsx:76
 #: src/app/(tabs)/(settings)/general.tsx:45
-#: src/app/(tabs)/(settings)/index.tsx:196
+#: src/app/(tabs)/(settings)/index.tsx:202
 msgid "Data & backup"
 msgstr "資料與備份"
 
@@ -1845,10 +1902,16 @@ msgstr "設定利潤目標、回撤及單日虧損規則，即可追蹤此評估
 #: src/app/(tabs)/(settings)/tags.tsx:39
 #: src/app/(tabs)/(settings)/tags.tsx:48
 #: src/app/(tabs)/(settings)/tags.tsx:92
+#: src/app/(tabs)/(settings)/user-detail.tsx:132
 #: src/app/edit-note.tsx:74
 #: src/app/new-setup.tsx:149
 msgid "Delete"
 msgstr "刪除"
+
+#. placeholder {0}: user?.email ?? ''
+#: src/app/(tabs)/(settings)/user-detail.tsx:128
+msgid "Delete {0}?"
+msgstr "刪除 {0}？"
 
 #: src/app/(tabs)/(settings)/account-form.tsx:400
 msgid "Delete account"
@@ -1879,6 +1942,10 @@ msgstr "刪除策略？"
 msgid "Delete tag?"
 msgstr "刪除標籤？"
 
+#: src/app/(tabs)/(settings)/user-detail.tsx:201
+msgid "Delete user"
+msgstr "刪除用戶"
+
 #: src/app/(tabs)/(settings)/account-form.tsx:400
 #: src/app/new-setup.tsx:276
 msgid "Deleting…"
@@ -1892,8 +1959,8 @@ msgstr "存款"
 msgid "Deposited"
 msgstr "已存入"
 
-#: src/app/(tabs)/(settings)/index.tsx:129
-#: src/app/(tabs)/(settings)/index.tsx:363
+#: src/app/(tabs)/(settings)/index.tsx:135
+#: src/app/(tabs)/(settings)/index.tsx:369
 msgid "Deposits & withdrawals"
 msgstr "存取款"
 
@@ -1948,9 +2015,9 @@ msgstr "方向"
 #~ msgid "Disconnect?"
 #~ msgstr "中斷連接？"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:53
+#: src/app/(tabs)/(settings)/_layout.tsx:57
 #: src/app/(tabs)/(settings)/general.tsx:27
-#: src/app/(tabs)/(settings)/index.tsx:184
+#: src/app/(tabs)/(settings)/index.tsx:190
 msgid "Display"
 msgstr "顯示"
 
@@ -2004,7 +2071,7 @@ msgstr "完成"
 msgid "Download & share"
 msgstr "下載並分享"
 
-#: src/app/(tabs)/(settings)/index.tsx:209
+#: src/app/(tabs)/(settings)/index.tsx:215
 msgid "download backup csv json zip share"
 msgstr "下載 備份 CSV JSON ZIP 分享 匯出"
 
@@ -2035,6 +2102,10 @@ msgstr "複製成交"
 #: src/components/reports-filter-menu.tsx:48
 msgid "Duration"
 msgstr "持倉時長"
+
+#: src/app/(tabs)/(settings)/user-form.tsx:105
+msgid "e.g. alex"
+msgstr "例如：alex"
 
 #: src/app/new-token.tsx:128
 msgid "e.g. CLI import"
@@ -2371,9 +2442,9 @@ msgstr "匯出應用程式設定"
 #~ msgid "Export config"
 #~ msgstr "匯出設定"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:82
+#: src/app/(tabs)/(settings)/_layout.tsx:86
 #: src/app/(tabs)/(settings)/data-backup.tsx:87
-#: src/app/(tabs)/(settings)/index.tsx:208
+#: src/app/(tabs)/(settings)/index.tsx:214
 msgid "Export data"
 msgstr "匯出資料"
 
@@ -2637,8 +2708,8 @@ msgstr "缺口頂"
 msgid "Gap top must sit above the bottom — check the edges"
 msgstr "缺口頂必須高於缺口底 — 請檢查邊界"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:49
-#: src/app/(tabs)/(settings)/index.tsx:407
+#: src/app/(tabs)/(settings)/_layout.tsx:53
+#: src/app/(tabs)/(settings)/index.tsx:413
 msgid "General"
 msgstr "一般"
 
@@ -2710,6 +2781,10 @@ msgstr "保證下限"
 msgid "Half Kelly"
 msgstr "一半凱利"
 
+#: src/app/(tabs)/(settings)/user-form.tsx:100
+msgid "Hand the password over out of band — they can change it from their own account screen."
+msgstr "請以其他方式把密碼交給對方，他們可以在自己的帳戶頁面更改。"
+
 #. placeholder {0}: insights.holdLabel
 #: src/lib/trade-insights.ts:345
 msgid "Held only {0}. That can be good risk control if the stop was planned; bad if you panic-exited before the setup developed."
@@ -2764,7 +2839,7 @@ msgstr "時段"
 msgid "How did the session go? Use \"- [ ]\" for checklist items."
 msgstr "今日交易如何？用「- [ ]」建立清單項目。"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:61
+#: src/app/(tabs)/(settings)/_layout.tsx:65
 #: src/app/(tabs)/(settings)/account-form.tsx:375
 #: src/app/(tabs)/(settings)/flex-sync.tsx:114
 msgid "IBKR Flex sync"
@@ -2781,7 +2856,7 @@ msgstr "如遺失驗證器"
 msgid "Image files"
 msgstr "圖片檔案"
 
-#: src/app/(tabs)/(settings)/index.tsx:160
+#: src/app/(tabs)/(settings)/index.tsx:166
 msgid "images cap limit attachments charts"
 msgstr "圖片 上限 限制 附件 圖表 截圖"
 
@@ -2835,7 +2910,7 @@ msgstr "匯入完成"
 #~ msgid "Import config"
 #~ msgstr "匯入設定"
 
-#: src/app/(tabs)/(settings)/index.tsx:197
+#: src/app/(tabs)/(settings)/index.tsx:203
 msgid "import export backup restore csv json zip"
 msgstr "匯入 匯出 備份 還原 CSV JSON ZIP"
 
@@ -2847,9 +2922,9 @@ msgstr "匯入失敗"
 msgid "Import into"
 msgstr "匯入至"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:78
+#: src/app/(tabs)/(settings)/_layout.tsx:82
 #: src/app/(tabs)/(settings)/data-backup.tsx:82
-#: src/app/(tabs)/(settings)/index.tsx:202
+#: src/app/(tabs)/(settings)/index.tsx:208
 msgid "Import trades"
 msgstr "匯入交易"
 
@@ -2881,9 +2956,9 @@ msgstr "洞察"
 msgid "Instrument"
 msgstr "商品類型"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:47
+#: src/app/(tabs)/(settings)/_layout.tsx:51
 #: src/app/(tabs)/(settings)/account-form.tsx:363
-#: src/app/(tabs)/(settings)/index.tsx:402
+#: src/app/(tabs)/(settings)/index.tsx:408
 msgid "Integrations"
 msgstr "整合"
 
@@ -2958,12 +3033,12 @@ msgstr "金鑰只儲存在你的伺服器，不會留在裝置或交給第三方
 msgid "Kind"
 msgstr "類型"
 
-#: src/app/(tabs)/(settings)/index.tsx:154
+#: src/app/(tabs)/(settings)/index.tsx:160
 msgid "labels mistakes setups journal"
 msgstr "標籤 錯誤 設定 日誌"
 
 #: src/app/(tabs)/(settings)/general.tsx:32
-#: src/app/(tabs)/(settings)/index.tsx:190
+#: src/app/(tabs)/(settings)/index.tsx:196
 msgid "Language"
 msgstr "語言"
 
@@ -3019,7 +3094,7 @@ msgstr "留空則使用內建提示"
 #~ msgid "light"
 #~ msgstr ""
 
-#: src/app/(tabs)/(settings)/index.tsx:389
+#: src/app/(tabs)/(settings)/index.tsx:395
 msgid "Light"
 msgstr "淺色"
 
@@ -3036,7 +3111,7 @@ msgstr "已達上限 — 今日的優勢已經消失。關掉應用程式吧。"
 msgid "Limit total risk across open positions."
 msgstr "限制所有持倉的總風險。"
 
-#: src/app/(tabs)/(settings)/index.tsx:148
+#: src/app/(tabs)/(settings)/index.tsx:154
 msgid "limits daily loss compliance position size"
 msgstr "上限 每日 虧損 合規 倉位大小 風險"
 
@@ -3058,10 +3133,12 @@ msgstr "載入模型中…"
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:99
 #: src/app/(tabs)/(settings)/profile.tsx:44
 #: src/app/(tabs)/(settings)/risk-rules.tsx:127
+#: src/app/(tabs)/(settings)/user-detail.tsx:143
+#: src/app/(tabs)/(settings)/users.tsx:60
 msgid "Loading…"
 msgstr "載入中…"
 
-#: src/app/(tabs)/(settings)/index.tsx:191
+#: src/app/(tabs)/(settings)/index.tsx:197
 msgid "locale translation region"
 msgstr "地區 翻譯 語言"
 
@@ -3274,12 +3351,18 @@ msgid "Medium"
 msgstr "中"
 
 #: src/app/(tabs)/(settings)/profile.tsx:67
+#: src/app/(tabs)/(settings)/users.tsx:53
 msgid "Member"
 msgstr "成員"
 
 #: src/app/(tabs)/(settings)/profile.tsx:69
+#: src/app/(tabs)/(settings)/user-detail.tsx:159
 msgid "Member since"
 msgstr "加入日期"
+
+#: src/app/(tabs)/(settings)/users.tsx:44
+msgid "Members see only their own trades. Owners can also add and remove accounts here."
+msgstr "成員只看到自己的交易；擁有者還可以在這裡新增和移除帳戶。"
 
 #: src/lib/checklist.ts:46
 msgid "Mental state self-score"
@@ -3474,6 +3557,10 @@ msgstr "新權杖"
 msgid "New trade"
 msgstr "新交易"
 
+#: src/app/(tabs)/(settings)/user-form.tsx:98
+msgid "New user"
+msgstr "新用戶"
+
 #: src/app/(tabs)/(trades)/index.tsx:284
 msgid "Newest first"
 msgstr "最新優先"
@@ -3500,7 +3587,8 @@ msgid "No account found — create one on the web app first."
 msgstr "搵唔到帳戶 — 請先喺網頁版建立。"
 
 #: src/app/(tabs)/(settings)/export-trades.tsx:106
-#: src/app/(tabs)/(settings)/index.tsx:355
+#: src/app/(tabs)/(settings)/index.tsx:361
+#: src/app/(tabs)/(settings)/users.tsx:58
 msgid "No accounts yet"
 msgstr "尚未有帳戶"
 
@@ -3610,7 +3698,7 @@ msgid "No risk rules yet"
 msgstr "尚未有風險規則"
 
 #. placeholder {0}: query.trim()
-#: src/app/(tabs)/(settings)/index.tsx:265
+#: src/app/(tabs)/(settings)/index.tsx:271
 msgid "No settings match “{0}”."
 msgstr "沒有符合「{0}」的設定。"
 
@@ -3819,7 +3907,8 @@ msgid "of {0}"
 msgstr "/ {0}"
 
 #: src/app/(tabs)/(settings)/ai.tsx:62
-#: src/app/(tabs)/(settings)/profile.tsx:99
+#: src/app/(tabs)/(settings)/profile.tsx:109
+#: src/app/(tabs)/(settings)/user-detail.tsx:163
 msgid "Off"
 msgstr "關閉"
 
@@ -3836,7 +3925,8 @@ msgid "Omit account details"
 msgstr "略去帳戶資料"
 
 #: src/app/(tabs)/(settings)/ai.tsx:61
-#: src/app/(tabs)/(settings)/profile.tsx:99
+#: src/app/(tabs)/(settings)/profile.tsx:109
+#: src/app/(tabs)/(settings)/user-detail.tsx:163
 msgid "On"
 msgstr "開啟"
 
@@ -3863,6 +3953,10 @@ msgstr "已連線"
 #: src/components/trade-prefill-bar.tsx:50
 #~ msgid "Only {0} was filled in — the file also had {others}. Load those separately."
 #~ msgstr "只填入了 {0} — 檔案中還有 {others}，請另外載入。"
+
+#: src/app/(tabs)/(settings)/users.tsx:35
+msgid "Only an owner can manage the accounts on this server."
+msgstr "只有擁有者可以管理這個伺服器上的帳戶。"
 
 #. placeholder {0}: assets.length
 #: src/components/attachments-card.tsx:141
@@ -3904,7 +3998,7 @@ msgstr "開倉日"
 msgid "Open risk rules"
 msgstr "開啟風險規則"
 
-#: src/app/(tabs)/(settings)/index.tsx:166
+#: src/app/(tabs)/(settings)/index.tsx:172
 msgid "openai model screenshot scan coach key"
 msgstr "OpenAI 模型 截圖 掃描 教練 金鑰 AI"
 
@@ -3985,10 +4079,22 @@ msgstr "連勝後加大注碼 ×{0}"
 msgid "Overview"
 msgstr "總覽"
 
-#: src/app/(tabs)/(settings)/index.tsx:278
+#: src/app/(tabs)/(settings)/index.tsx:284
 #: src/app/(tabs)/(settings)/profile.tsx:67
+#: src/app/(tabs)/(settings)/user-detail.tsx:177
+#: src/app/(tabs)/(settings)/user-form.tsx:132
+#: src/app/(tabs)/(settings)/users.tsx:53
 msgid "Owner"
 msgstr "擁有者"
+
+#: src/app/(tabs)/(settings)/user-form.tsx:129
+#~ msgid "Owners can add, remove and reset every account on this server — including yours."
+#~ msgstr ""
+
+#: src/app/(tabs)/(settings)/user-detail.tsx:172
+#: src/app/(tabs)/(settings)/user-form.tsx:129
+msgid "Owners can add, remove and reset every account on this server, including yours."
+msgstr "擁有者可以新增、移除和重設這個伺服器上的所有帳戶，包括你的。"
 
 #: src/app/(tabs)/(trades)/[id].tsx:293
 #: src/components/reports/winloss-section.tsx:73
@@ -4018,6 +4124,7 @@ msgid "Parsed"
 msgstr "已解析"
 
 #: src/app/(tabs)/(settings)/two-factor.tsx:108
+#: src/app/(tabs)/(settings)/user-form.tsx:114
 #: src/app/login.tsx:219
 msgid "Password"
 msgstr "密碼"
@@ -4025,6 +4132,10 @@ msgstr "密碼"
 #: src/app/(tabs)/(settings)/change-password.tsx:74
 msgid "Password changed"
 msgstr "密碼已變更"
+
+#: src/app/(tabs)/(settings)/user-detail.tsx:74
+msgid "Password reset"
+msgstr "密碼已重設"
 
 #: src/components/replay-controls.tsx:169
 msgid "Pause"
@@ -4047,6 +4158,10 @@ msgstr "高位 {0}"
 #: src/app/(tabs)/(calendar)/day/[date].tsx:108
 msgid "Peaked at"
 msgstr "高位"
+
+#: src/app/(tabs)/(settings)/users.tsx:41
+msgid "People"
+msgstr "用戶"
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:272
 msgid "per contract"
@@ -4272,7 +4387,7 @@ msgstr "平倉後不久價格轉向不利。值得記下促使你離場的原因
 #~ msgid "Privacy"
 #~ msgstr "私隱"
 
-#: src/app/(tabs)/(settings)/index.tsx:185
+#: src/app/(tabs)/(settings)/index.tsx:191
 msgid "privacy hide amounts market timezone clock currency formatting"
 msgstr "私隱 隱藏金額 市場 時區 時鐘 貨幣 顯示格式"
 
@@ -4346,7 +4461,7 @@ msgstr "自營"
 msgid "Prop evaluation"
 msgstr "Prop 評估"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:57
+#: src/app/(tabs)/(settings)/_layout.tsx:61
 #: src/app/(tabs)/(settings)/account-form.tsx:367
 #: src/app/(tabs)/(settings)/prop-settings.tsx:133
 msgid "Prop rules"
@@ -4677,12 +4792,18 @@ msgid "Reports"
 msgstr "報表"
 
 #: src/app/(tabs)/(settings)/display.tsx:90
+#: src/app/(tabs)/(settings)/user-detail.tsx:108
 msgid "Reset"
 msgstr "重設"
 
 #: src/app/(tabs)/(settings)/display.tsx:86
 msgid "Reset display settings?"
 msgstr "重設顯示設定？"
+
+#: src/app/(tabs)/(settings)/user-detail.tsx:103
+#: src/app/(tabs)/(settings)/user-detail.tsx:189
+msgid "Reset password"
+msgstr "重設密碼"
 
 #: src/app/(tabs)/(settings)/display.tsx:231
 msgid "Reset to defaults"
@@ -4696,7 +4817,7 @@ msgstr "重新開始"
 msgid "Result"
 msgstr "結果"
 
-#: src/app/(tabs)/(settings)/index.tsx:252
+#: src/app/(tabs)/(settings)/index.tsx:258
 msgid "Results"
 msgstr "搜尋結果"
 
@@ -4768,8 +4889,8 @@ msgstr "風險 %"
 msgid "Risk budget under 1 contract — raise Risk% or tighten the stop"
 msgstr "風險預算不足一張合約 — 提高風險%或收窄止蝕"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:50
-#: src/app/(tabs)/(settings)/index.tsx:147
+#: src/app/(tabs)/(settings)/_layout.tsx:54
+#: src/app/(tabs)/(settings)/index.tsx:153
 #: src/app/(tabs)/(settings)/trading-journal.tsx:134
 msgid "Risk rules"
 msgstr "風險規則"
@@ -4968,7 +5089,7 @@ msgstr "截圖上載失敗（{0}）"
 msgid "Screenshots"
 msgstr "截圖"
 
-#: src/app/(tabs)/(settings)/index.tsx:159
+#: src/app/(tabs)/(settings)/index.tsx:165
 #: src/app/(tabs)/(settings)/trading-journal.tsx:76
 #: src/app/(tabs)/(settings)/trading-journal.tsx:144
 msgid "Screenshots per trade"
@@ -4982,7 +5103,7 @@ msgstr "每筆交易截圖數"
 #~ msgid "Screenshots per trade — No limit"
 #~ msgstr "每筆交易截圖 — 不設上限"
 
-#: src/app/(tabs)/(settings)/index.tsx:240
+#: src/app/(tabs)/(settings)/index.tsx:246
 msgid "Search"
 msgstr "搜尋"
 
@@ -4995,7 +5116,7 @@ msgstr "在上方搜尋代號即可載入圖表。"
 msgid "Search events"
 msgstr "搜尋事件"
 
-#: src/app/(tabs)/(settings)/index.tsx:376
+#: src/app/(tabs)/(settings)/index.tsx:382
 msgid "Search finds any setting directly, without opening its page."
 msgstr "使用搜尋可直接前往任何設定，毋須先開啟其頁面。"
 
@@ -5013,7 +5134,8 @@ msgstr "搜尋代號"
 msgid "Search symbol or tag"
 msgstr "搜尋代號或標籤"
 
-#: src/app/(tabs)/(settings)/profile.tsx:84
+#: src/app/(tabs)/(settings)/profile.tsx:94
+#: src/app/(tabs)/(settings)/user-detail.tsx:184
 msgid "Security"
 msgstr "保安"
 
@@ -5094,6 +5216,11 @@ msgstr "設定雙重認證"
 #: src/components/trade-prefill-bar.tsx:44
 msgid "Set up Vision scan first"
 msgstr "請先設定影像掃描"
+
+#. placeholder {0}: user?.email ?? ''
+#: src/app/(tabs)/(settings)/user-detail.tsx:104
+msgid "Sets a new password for {0} without their current one."
+msgstr "毋須現有密碼，直接為 {0} 設定新密碼。"
 
 #: src/app/(tabs)/_layout.tsx:54
 #: src/app/(tabs)/(settings)/_layout.tsx:21
@@ -5203,7 +5330,7 @@ msgid "Sign in failed"
 msgstr "登入失敗"
 
 #: src/app/(tabs)/(settings)/index.tsx:89
-#: src/app/(tabs)/(settings)/index.tsx:423
+#: src/app/(tabs)/(settings)/index.tsx:429
 msgid "Sign out"
 msgstr "登出"
 
@@ -5457,7 +5584,7 @@ msgstr "同步至提醒事項"
 msgid "Syncing…"
 msgstr "同步中…"
 
-#: src/app/(tabs)/(settings)/index.tsx:386
+#: src/app/(tabs)/(settings)/index.tsx:392
 msgid "System"
 msgstr "系統"
 
@@ -5470,7 +5597,7 @@ msgstr "系統"
 #~ msgstr "請輸入標籤名稱。"
 
 #: src/app/(tabs)/(settings)/_layout.tsx:30
-#: src/app/(tabs)/(settings)/index.tsx:153
+#: src/app/(tabs)/(settings)/index.tsx:159
 #: src/app/(tabs)/(settings)/trading-journal.tsx:137
 #: src/app/(tabs)/(trades)/[id].tsx:453
 #: src/app/manage-tags.tsx:67
@@ -5657,8 +5784,8 @@ msgstr "已儲存的權杖會從伺服器刪除。"
 msgid "The trade worked but closed well off its best point. Note what would have kept you in for the next similar setup."
 msgstr "交易有效但離最佳點位甚遠才平倉。記下下次類似策略如何能守得更久。"
 
-#: src/app/(tabs)/(settings)/index.tsx:177
-#: src/app/(tabs)/(settings)/index.tsx:380
+#: src/app/(tabs)/(settings)/index.tsx:183
+#: src/app/(tabs)/(settings)/index.tsx:386
 msgid "Theme"
 msgstr "主題"
 
@@ -5677,6 +5804,14 @@ msgstr "這些項目每天早上顯示在主頁，並會帶入每份新的每日
 #: src/app/new-setup.tsx:130
 #~ msgid "Thesis"
 #~ msgstr "論點"
+
+#: src/app/(tabs)/(settings)/user-detail.tsx:143
+msgid "This account no longer exists."
+msgstr "這個帳戶已不存在。"
+
+#: src/app/(tabs)/(settings)/user-detail.tsx:129
+msgid "This also deletes every account, trade, note and screenshot they own. There is no undo."
+msgstr "同時會刪除他們的所有帳戶、交易、筆記和截圖，無法復原。"
 
 #: src/app/(tabs)/(dashboard)/checklist.tsx:91
 msgid "This build can't reach the Reminders app. Rebuild the dev client and try again."
@@ -5909,8 +6044,8 @@ msgstr "交易日誌會保留 — 只會刪除策略手冊項目。"
 #~ msgid "Trading"
 #~ msgstr "交易"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:43
-#: src/app/(tabs)/(settings)/index.tsx:397
+#: src/app/(tabs)/(settings)/_layout.tsx:47
+#: src/app/(tabs)/(settings)/index.tsx:403
 msgid "Trading & journal"
 msgstr "交易與日誌"
 
@@ -5974,10 +6109,11 @@ msgid "Turning off…"
 msgstr "關閉中…"
 
 #: src/app/(tabs)/(settings)/_layout.tsx:35
+#: src/app/(tabs)/(settings)/user-detail.tsx:162
 msgid "Two-factor"
 msgstr "雙重認證"
 
-#: src/app/(tabs)/(settings)/profile.tsx:98
+#: src/app/(tabs)/(settings)/profile.tsx:108
 msgid "Two-factor authentication"
 msgstr "雙重認證"
 
@@ -6054,6 +6190,8 @@ msgstr "儲存時會上載到此標的的交易。點一下縮圖即可移除。
 #~ msgstr "每條規則請使用「- [ ]」 — 在「新增筆記」建立每日日誌時會顯示為任務項目。"
 
 #: src/app/(tabs)/(settings)/change-password.tsx:92
+#: src/app/(tabs)/(settings)/user-detail.tsx:112
+#: src/app/(tabs)/(settings)/user-form.tsx:74
 msgid "Use at least {MIN_LENGTH} characters."
 msgstr "請輸入至少 {MIN_LENGTH} 個字元。"
 
@@ -6061,9 +6199,22 @@ msgstr "請輸入至少 {MIN_LENGTH} 個字元。"
 msgid "Used by Check compliance on New Trade. Add only the limits you want enforced."
 msgstr "供「新增交易」的合規檢查使用。只新增你想執行的上限。"
 
+#: src/app/(tabs)/(settings)/user-form.tsx:62
+msgid "User added"
+msgstr "已新增用戶"
+
+#: src/app/(tabs)/(settings)/user-detail.tsx:156
+#: src/app/(tabs)/(settings)/user-form.tsx:103
 #: src/app/login.tsx:198
 msgid "Username"
 msgstr "用戶名稱"
+
+#: src/app/(tabs)/(settings)/_layout.tsx:41
+#: src/app/(tabs)/(settings)/index.tsx:129
+#: src/app/(tabs)/(settings)/profile.tsx:87
+#: src/app/(tabs)/(settings)/users.tsx:33
+msgid "Users"
+msgstr "用戶"
 
 #: src/app/(tabs)/(settings)/risk-rules.tsx:46
 msgid "Value (%)"
@@ -6077,7 +6228,7 @@ msgstr "數值（$）"
 msgid "Version"
 msgstr "版本"
 
-#: src/app/(tabs)/(settings)/index.tsx:215
+#: src/app/(tabs)/(settings)/index.tsx:221
 msgid "version build server licence"
 msgstr "版本 組建 伺服器 授權"
 
@@ -6262,6 +6413,14 @@ msgstr "年度回顧"
 msgid "Yesterday"
 msgstr "昨天"
 
+#: src/app/(tabs)/(settings)/users.tsx:53
+msgid "You"
+msgstr "你"
+
+#: src/app/(tabs)/(settings)/user-detail.tsx:171
+msgid "You are an owner. The last owner cannot be demoted — promote someone else first."
+msgstr "你是擁有者。最後一位擁有者不能降級，請先把其他人設為擁有者。"
+
 #: src/lib/trade-insights.ts:228
 msgid "You captured {pct}% of MFE. Review your exit trigger — trailing stop or partial targets may fit this setup better."
 msgstr "你只捕捉了 MFE 的 {pct}%。檢視離場觸發 — 移動止蝕或分段目標可能更適合此策略。"
@@ -6295,7 +6454,7 @@ msgstr "下次登入時需要驗證器的驗證碼。"
 
 #: src/app/(tabs)/(settings)/_layout.tsx:32
 #: src/app/(tabs)/(settings)/index.tsx:117
-#: src/app/(tabs)/(settings)/index.tsx:277
+#: src/app/(tabs)/(settings)/index.tsx:283
 msgid "Your account"
 msgstr "我的帳戶"
 

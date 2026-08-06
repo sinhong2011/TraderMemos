@@ -113,6 +113,7 @@ export function PropStatusCard({
         label: t`Rules`,
         onPress: () => router.push({ pathname: '/prop-settings', params: { accountId } }),
       }}
+      flush
     >
       <View style={styles.grid}>
         <StatBar label={t`Equity`} value={formatCurrency(fx(s.equity), currency)} tone="accent" />

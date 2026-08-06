@@ -358,7 +358,10 @@ export default function LoginScreen() {
                   textInputAutocapitalization('never'),
                   autocorrectionDisabled(),
                   padding({ horizontal: 14, vertical: 13 }),
-                  background('rgba(120, 120, 128, 0.16)'),
+                  // Was a flat rgba(120,120,128,0.16) — the *dark*-scheme
+                  // `tertiarySystemFill` alpha, which made this field read
+                  // heavier than the system controls beside it in light.
+                  background(theme.colors.fill),
                   cornerRadius(12),
                   padding({ top: 24 }),
                 ]}

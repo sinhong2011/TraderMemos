@@ -14,6 +14,7 @@ import type {
   AccessToken,
   AccessTokenUse,
   Account,
+  AdminUser,
   AnnualGoal,
   ApiHealth,
   BehaviorReport,
@@ -84,6 +85,7 @@ export const queryKeys = {
   accessTokens: () => ['access-tokens'] as const,
   accessTokenUses: (id: string) => ['access-tokens', id, 'uses'] as const,
   me: () => ['me'] as const,
+  adminUsers: () => ['admin', 'users'] as const,
   propSettings: (accountId: string) => ['accounts', accountId, 'prop-settings'] as const,
   propStatus: (accountId: string, filters: Filters) =>
     ['accounts', accountId, 'prop-status', filters] as const,
@@ -259,6 +261,15 @@ export function useLlmSettings(kind: LlmKind) {
  *  profile screen and anything gating on `is_admin` all read this one query. */
 export function useMe() {
   return useApiQuery<Me>(queryKeys.me(), '/me');
+}
+
+/**
+ * Every account on the server. Owner-only — the API answers 403 to anyone
+ * else, so callers gate on `me.is_admin` rather than firing a request that
+ * can only fail.
+ */
+export function useAdminUsers(enabled = true) {
+  return useApiQuery<AdminUser[]>(queryKeys.adminUsers(), '/admin/users', undefined, { enabled });
 }
 
 export function useAccessTokens() {

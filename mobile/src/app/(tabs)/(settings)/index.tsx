@@ -125,6 +125,12 @@ export default function SettingsScreen() {
       onPress: () => router.push('/change-password'),
     },
     {
+      icon: 'person.2',
+      label: t`Users`,
+      terms: t`accounts people members owner admin invite add remove password reset`,
+      onPress: () => router.push('/users'),
+    },
+    {
       icon: 'banknote',
       label: t`Deposits & withdrawals`,
       terms: t`cash funding ledger balance transfer`,

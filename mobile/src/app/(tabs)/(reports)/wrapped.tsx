@@ -132,7 +132,7 @@ export default function WrappedScreen() {
               </View>
             </DashboardCard>
 
-            <DashboardCard title={t`Your highs`}>
+            <DashboardCard title={t`Your highs`} flush>
               <View style={styles.grid}>
                 <StatBar
                   label={t`Best day`}
@@ -161,7 +161,7 @@ export default function WrappedScreen() {
               </View>
             </DashboardCard>
 
-            <DashboardCard title={t`Your lows`}>
+            <DashboardCard title={t`Your lows`} flush>
               <View style={styles.grid}>
                 <StatBar
                   label={t`Worst day`}
@@ -226,7 +226,7 @@ export default function WrappedScreen() {
               ) : null}
             </DashboardCard>
 
-            <DashboardCard title={t`Your habits`}>
+            <DashboardCard title={t`Your habits`} flush>
               <View style={styles.grid}>
                 {wrapped.topSymbols.map((symbol, index) => (
                   <StatBar
@@ -245,7 +245,7 @@ export default function WrappedScreen() {
               </View>
             </DashboardCard>
 
-            <DashboardCard title={t`Bottom line`}>
+            <DashboardCard title={t`Bottom line`} flush>
               <View style={styles.grid}>
                 <StatBar
                   label={t`Profit factor`}

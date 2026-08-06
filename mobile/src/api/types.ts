@@ -290,21 +290,24 @@ export type AccessTokenUse = {
   user_agent: string;
 };
 
-/** GET /me — the signed-in account. */
 /** POST /me/totp/start — a candidate secret, not yet stored server-side. */
 export type TotpSetup = {
   secret: string;
   otpauth_url: string;
 };
 
+/** GET /me — the signed-in account. */
 export type Me = {
   id: string;
   email: string;
   is_admin: boolean;
   created_at: string;
-  /** Always false today: the column exists server-side but nothing writes it. */
+  /** Whether an authenticator app is enrolled — see POST /me/totp/start. */
   totp_enabled: boolean;
 };
+
+/** GET /admin/users — every account on the server. Owner-only; 403 otherwise. */
+export type AdminUser = Me;
 
 /** GET /healthz (unauthenticated, at the server root — not under /api/v1). */
 export type ApiHealth = {

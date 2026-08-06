@@ -24,8 +24,8 @@ function serverHost(url: string): string {
  * The signed-in account. Until /me existed the app could not say who you were:
  * the session holds a server URL and two opaque tokens, nothing more.
  *
- * Read-only apart from the password — email changes and 2FA need server work
- * that does not exist yet.
+ * Read-only apart from the password and the second factor; an owner also
+ * reaches the server's other accounts from here.
  */
 export default function ProfileScreen() {
   const { theme } = useUnistyles();
@@ -78,6 +78,16 @@ export default function ProfileScreen() {
           <LabeledContent label={t`Host`}>
             <UIText>{serverHost(session?.serverUrl ?? '')}</UIText>
           </LabeledContent>
+          {/* Owner-only: managing other people's accounts is a property of the
+              server, not of your profile, but this is the only screen that
+              already knows which one you are signed in to. */}
+          {me.data.is_admin ? (
+            <NavRow
+              systemImage="person.2"
+              label={t`Users`}
+              onPress={() => router.push('/users')}
+            />
+          ) : null}
         </Section>
 
         <Section

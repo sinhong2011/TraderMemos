@@ -202,7 +202,7 @@ export default function PlaybookScreen() {
           </AppHost>
         ) : (
           <>
-            <DashboardCard title={t`Playbook`}>
+            <DashboardCard title={t`Playbook`} flush>
               <View style={styles.grid}>
                 <StatBar
                   label={t`Plays traded`}

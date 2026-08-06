@@ -22,10 +22,7 @@ export function ControlPill({ children }: { children: ReactNode }) {
   return <View style={styles.pill}>{children}</View>;
 }
 
-const styles = StyleSheet.create((theme, rt) => ({
-  // The fill is iOS `tertiarySystemFill` (one grey, two alphas); no theme token
-  // is that strong — `muted` at 4% would leave the pill invisible next to a
-  // system-drawn one.
+const styles = StyleSheet.create((theme) => ({
   pill: {
     height: CONTROL_PILL_HEIGHT,
     justifyContent: 'center',
@@ -33,7 +30,8 @@ const styles = StyleSheet.create((theme, rt) => ({
     // the ceiling: anything past half of 34pt draws the same shape.
     borderRadius: theme.radius.full,
     borderCurve: 'continuous',
-    backgroundColor:
-      rt.themeName === 'light' ? 'rgba(118, 118, 128, 0.12)' : 'rgba(118, 118, 128, 0.24)',
+    // iOS `tertiarySystemFill`; `muted` is too faint to hold its own beside a
+    // system-drawn pill in the same row.
+    backgroundColor: theme.colors.fill,
   },
 }));

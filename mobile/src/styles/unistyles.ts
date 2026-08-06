@@ -29,6 +29,29 @@ const scale = {
   numeric: { fontVariant: ['tabular-nums'] } as Pick<TextStyle, 'fontVariant'>,
 };
 
+export interface ThemeMaterials {
+  /**
+   * Liquid Glass variant for chrome buttons. Not a color, but scheme-dependent
+   * for the same reason one would be: the effect can only refract what sits
+   * behind it. On dark, **clear** keeps the rim and lets the surface through so
+   * the control reads as glass rather than a swatch; on the light theme's
+   * near-flat page there is nothing to refract and clear collapses to an almost
+   * invisible rim, so light takes **regular**, which carries its own tint.
+   */
+  glass: 'regular' | 'clear';
+}
+
+export interface ThemeShadows {
+  /**
+   * Elevation for a floating content card. Light mode needs this: `card` is
+   * #FFFFFF against a #F2F2F7 page — 1.12:1, far too little to read as an edge
+   * on its own, and it is the shadow (not a tint) that the web theme uses to
+   * separate its white card from its white page. Dark leaves it off: there
+   * `card` is *lighter* than the page, so luminance already carries elevation.
+   */
+  card?: string;
+}
+
 export interface ThemeColors {
   background: string;
   foreground: string;
@@ -38,6 +61,15 @@ export interface ThemeColors {
   border: string;
   /** Outline for interactive controls (inputs, outlined buttons) — web `--input`. */
   input: string;
+  /**
+   * iOS `tertiarySystemFill` — the filled capsule/field the system paints
+   * behind a compact picker or a plain text field. One grey, two alphas, and
+   * deliberately stronger than `muted`: it has to hold its own next to a
+   * SwiftUI-drawn control in the same row, which `muted` is too faint to do.
+   * A token rather than a per-component `rt.themeName` ternary, so the scheme
+   * swap happens where every other color's does.
+   */
+  fill: string;
   primary: string;
   primaryForeground: string;
   destructive: string;
@@ -49,19 +81,33 @@ export interface ThemeColors {
 
 export const lightTheme = {
   colors: {
-    // Web separates a white card from a white page with a shadow; RN has no
-    // shadow stack, so the page is tinted and the card left white. The earlier
-    // fix darkened the *card* instead, which inverted elevation against this
-    // app's own dark theme (there, card is lighter than page) and read as a
-    // recessed well. It also erased grouping in every SwiftUI Form, whose
-    // light-mode cells are white — white cells on a white page.
-    background: '#F5F5F5',
+    // The iOS grouped-table pair, taken exactly: `background` is
+    // systemGroupedBackground and `card` is secondarySystemGroupedBackground.
+    // Matching the system values (rather than a neutral grey of our own) is what
+    // lets the real SwiftUI surfaces agree with the RN ones they abut — the
+    // Settings Forms, whose cells are system-drawn and cannot be restyled, the
+    // `systemChromeMaterial` nav bar, and the native tab bar. Note the faint
+    // blue cast: this pair is not neutral, unlike the dark theme's #161616.
+    //
+    // Web separates its white card from a white page with a shadow; the page is
+    // tinted here *as well*, but `shadows.card` is what actually draws the edge.
+    // (An earlier pass darkened the *card* to solve the same problem; that
+    // inverted elevation against the dark theme, where card is lighter.)
+    background: '#F2F2F7',
     foreground: '#262626',
     card: '#FFFFFF',
-    muted: 'rgba(0, 0, 0, 0.04)',
+    // 8%, not 4%: 4% black over the white card composites to exactly #F5F5F5 —
+    // the old page color — so every nested tile, progress track and heatmap
+    // idle cell was invisible against the page showing past the card. 8% lands
+    // on #EBEBEB, within a hair of iOS `tertiarySystemFill`.
+    muted: 'rgba(0, 0, 0, 0.08)',
     mutedForeground: '#686868',
-    border: 'rgba(0, 0, 0, 0.08)',
-    input: 'rgba(0, 0, 0, 0.10)',
+    // Hairlines at 8% resolved to #EBEBEB — identical to the new `muted` fill,
+    // and far lighter than iOS's own #C6C6C8 separator. 12%/18% keep a divider
+    // and a field outline distinct from each other and from a filled row.
+    border: 'rgba(0, 0, 0, 0.12)',
+    input: 'rgba(0, 0, 0, 0.18)',
+    fill: 'rgba(118, 118, 128, 0.12)',
     /** TraderMemos brand — web `--primary` oklch(0.5013 0.1428 252.49). */
     primary: '#1264B2',
     primaryForeground: '#FFFFFF',
@@ -71,14 +117,22 @@ export const lightTheme = {
     loss: '#E7000B',
     flat: '#737373',
     /**
-     * Section-title accent. Deliberately *not* web's `--chart-3`, which is
-     * teal in light and amber in dark — that ramp is shadcn's chart palette,
-     * where the two ends were never meant to be a light/dark pair of one hue.
-     * Mirroring it made section titles change colour with the theme. Amber-700
-     * is the light-mode partner of the dark theme's amber.
+     * Section-title accent — web `--chart-3` oklch(0.398 0.07 227.392).
+     *
+     * The hue deliberately does *not* match the dark theme's amber. An earlier
+     * pass read the teal/amber split as a shadcn accident and "corrected" it to
+     * amber-700 for consistency, which put a saturated rust-brown heading on
+     * every card in a blue-brand app — it read as a warning state, and at
+     * 5.02:1 it was also the weakest text on the card. The split is the point:
+     * a warm heading needs a dark ground, so light gets this cool, low-chroma
+     * tone (9.15:1, a relative of `primary`) and dark gets amber.
      */
-    accent: '#B45309',
+    accent: '#104E64',
   } satisfies ThemeColors as ThemeColors,
+  shadows: {
+    card: '0px 1px 2px rgba(0, 0, 0, 0.04), 0px 6px 16px rgba(0, 0, 0, 0.06)',
+  } satisfies ThemeShadows as ThemeShadows,
+  materials: { glass: 'regular' } satisfies ThemeMaterials as ThemeMaterials,
   ...scale,
 };
 
@@ -91,6 +145,7 @@ export const darkTheme = {
     mutedForeground: '#818181',
     border: 'rgba(255, 255, 255, 0.06)',
     input: 'rgba(255, 255, 255, 0.08)',
+    fill: 'rgba(118, 118, 128, 0.24)',
     primary: '#1264B2',
     primaryForeground: '#FFFFFF',
     destructive: '#FB414A',
@@ -99,6 +154,9 @@ export const darkTheme = {
     flat: '#A1A1A1',
     accent: '#F59E0B',
   } satisfies ThemeColors as ThemeColors,
+  /** Undefined, not 'none' — `processBoxShadow` short-circuits on nullish. */
+  shadows: { card: undefined } satisfies ThemeShadows as ThemeShadows,
+  materials: { glass: 'clear' } satisfies ThemeMaterials as ThemeMaterials,
   ...scale,
 };
 

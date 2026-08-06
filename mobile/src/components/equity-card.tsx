@@ -99,6 +99,10 @@ export function EquityCard({
           animate
           lineStyle={{ color: theme.colors.primary, width: 2 }}
           referenceLines={[{ x: 'start', y: first }]}
+          // Scheme-neutral by construction, not a stray literal: mid-grey at 33%
+          // resolves to #D5D5D5 on the light card and #3D3D3D on the dark one —
+          // a correct gridline in both. A `border` token is too faint here
+          // (dark would drop to #292929).
           ruleStyle={{ color: '#80808055', lineWidth: 1, dashArray: [4, 4] }}
         />
       </AppHost>

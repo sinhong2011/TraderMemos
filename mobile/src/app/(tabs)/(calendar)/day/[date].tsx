@@ -295,7 +295,7 @@ export default function CalendarDayScreen() {
           />
         }
       >
-        <DashboardCard title={t`Session summary`}>
+        <DashboardCard title={t`Session summary`} flush>
           {summary.isLoading ? (
             <Skeleton style={styles.statsSkeleton} />
           ) : (

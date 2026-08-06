@@ -38,7 +38,7 @@ export function InsightsCard({
   // Tiles run as best/worst contrast pairs (one pair per row at phone width),
   // then the two lone aggregates, then the qualitative read.
   return (
-    <DashboardCard title={t`Insights`}>
+    <DashboardCard title={t`Insights`} flush>
       <View style={styles.grid}>
         <StatBar
           label={t`Best trade`}

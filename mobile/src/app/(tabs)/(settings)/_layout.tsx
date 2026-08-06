@@ -38,6 +38,10 @@ export default function SettingsLayout() {
         name="change-password"
         options={{ title: t`Change password`, headerLargeTitle: false }}
       />
+      <Stack.Screen name="users" options={{ title: t`Users`, headerLargeTitle: false }} />
+      <Stack.Screen name="user-form" options={{ title: t`Add user`, headerLargeTitle: false }} />
+      {/* Title comes from the screen — it names the account being managed. */}
+      <Stack.Screen name="user-detail" options={{ headerLargeTitle: false }} />
       <Stack.Screen
         name="trading-journal"
         options={{ title: t`Trading & journal`, headerLargeTitle: false }}

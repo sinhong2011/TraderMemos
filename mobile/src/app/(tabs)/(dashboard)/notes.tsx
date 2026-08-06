@@ -311,6 +311,7 @@ const styles = StyleSheet.create((theme) => ({
   row: {
     gap: theme.spacing.xs + 2,
     backgroundColor: theme.colors.card,
+    boxShadow: theme.shadows.card,
     borderRadius: theme.radius.lg,
     borderCurve: 'continuous',
     padding: theme.spacing.lg,

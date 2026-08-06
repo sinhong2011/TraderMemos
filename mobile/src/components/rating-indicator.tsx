@@ -1,5 +1,6 @@
 import { t } from '@lingui/core/macro';
 import { SymbolView } from 'expo-symbols';
+import { useEffect } from 'react';
 import { Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
@@ -32,9 +33,14 @@ const STAR_SPRING = { duration: 260, dampingRatio: 0.62 } as const;
 
 function Star({ filled, tint }: { filled: boolean; tint: string }) {
   // Empty stars sit slightly small so filling one reads as a pop, not a recolor.
-  const pop = useAnimatedStyle(() => ({
-    transform: [{ scale: withSpring(filled ? 1 : 0.88, STAR_SPRING) }],
-  }));
+  // Seeded at the current state: springing straight from `useAnimatedStyle`
+  // starts at the view's default scale of 1, so every empty star shrank itself
+  // on mount. The pop belongs to a *change*, so it lives in the effect.
+  const scale = useSharedValue(filled ? 1 : 0.88);
+  useEffect(() => {
+    scale.value = withSpring(filled ? 1 : 0.88, STAR_SPRING);
+  }, [filled, scale]);
+  const pop = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
   return (
     <Animated.View style={pop}>
       <SymbolView name={filled ? 'star.fill' : 'star'} size={STAR_SIZE} tintColor={tint} />
