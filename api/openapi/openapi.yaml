@@ -27,6 +27,7 @@ tags:
   - name: Tags
   - name: Setups
   - name: Notes
+  - name: Admin
 paths:
   /healthz:
     get:
@@ -914,6 +915,142 @@ paths:
       responses:
         "201":
           description: Created
+
+  /api/v1/me/preferences:
+    get:
+      tags: [Auth]
+      summary: Account-level client preferences
+      description: |
+        An opaque JSON object owned by the clients — timezones, clock format,
+        display currency, trade date basis, screenshots cap. The server never
+        reads inside it. Empty until something is stored.
+      operationId: getPreferences
+      responses:
+        "200":
+          description: Preferences
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  prefs:
+                    type: object
+                    additionalProperties: true
+                  updated_at: { type: string, format: date-time }
+    patch:
+      tags: [Auth]
+      summary: Merge preferences
+      description: |
+        Merges per key: keys not sent are left alone, so two devices editing
+        different preferences do not clobber each other. An explicit null is
+        stored as null (`displayCurrency: null` means "follow the account").
+      operationId: patchPreferences
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: The merged result
+        "413":
+          description: Too many keys, or the blob exceeds 16 KiB
+
+  /api/v1/admin/users:
+    get:
+      tags: [Admin]
+      summary: List every account on this server
+      description: Owner-only; anyone else gets 403.
+      operationId: listUsers
+      responses:
+        "200":
+          description: Users
+        "403":
+          description: Owner access required
+    post:
+      tags: [Admin]
+      summary: Create a user
+      description: Bypasses the registration gate — an owner inviting someone is not open sign-up.
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string }
+                password: { type: string, minLength: 10 }
+                is_admin: { type: boolean }
+      responses:
+        "201":
+          description: Created
+        "409":
+          description: That username is taken
+
+  /api/v1/admin/users/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string }
+    patch:
+      tags: [Admin]
+      summary: Promote or demote a user
+      operationId: setUserAdmin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [is_admin]
+              properties:
+                is_admin: { type: boolean }
+      responses:
+        "200":
+          description: Updated
+        "409":
+          description: Refused — this is the last owner
+    delete:
+      tags: [Admin]
+      summary: Delete a user
+      description: Cascades every account, trade, note and attachment they own. No undo.
+      operationId: deleteUser
+      responses:
+        "204":
+          description: Deleted
+        "400":
+          description: You cannot delete your own account here
+        "409":
+          description: Refused — this is the last owner
+
+  /api/v1/admin/users/{id}/password:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string }
+    post:
+      tags: [Admin]
+      summary: Reset a user's password
+      description: No current password — the point is that the user does not have it. Invalidates their refresh tokens.
+      operationId: adminResetPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [new_password]
+              properties:
+                new_password: { type: string, minLength: 10 }
+      responses:
+        "204":
+          description: Reset
 
 components:
   securitySchemes:
