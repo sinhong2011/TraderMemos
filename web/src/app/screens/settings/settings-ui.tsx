@@ -31,7 +31,7 @@ export function SettingsPageHeader({
 }
 
 export type SettingsSectionId =
-  | "account"
+  | "profile"
   | "accounts"
   | "rules"
   | "journal"
