@@ -42,7 +42,13 @@ export function usePrefsSync() {
   const remote = useQuery({
     queryKey: preferencesQueryKey,
     enabled: session != null,
-    staleTime: 5 * 60_000,
+    // Always ask on launch. The query cache is persisted to MMKV, so any
+    // staleTime at all means a cold start replays the copy this phone already
+    // had and never learns what another device changed — which is exactly the
+    // thing this sync exists to do. The cached copy still serves an offline
+    // launch; it just no longer suppresses the request.
+    staleTime: 0,
+    refetchOnMount: 'always',
     queryFn: () => api<PreferencesResponse>('/me/preferences'),
   });
 

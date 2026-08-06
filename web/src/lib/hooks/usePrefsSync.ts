@@ -38,7 +38,11 @@ export function usePrefsSync() {
     queryKey: preferencesQueryKey,
     queryFn: () => preferencesApi.get(),
     enabled: authed,
-    staleTime: 5 * 60_000,
+    // Always revalidate on mount rather than trusting a cached copy: the point
+    // of the pull is to adopt what another device changed. (The phone's cache
+    // is persisted, where any staleTime silently skips the request entirely.)
+    staleTime: 0,
+    refetchOnMount: "always",
   });
 
   const remotePrefs = remote.data?.prefs;
