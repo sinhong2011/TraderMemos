@@ -49,25 +49,35 @@ export interface ThemeColors {
 
 export const lightTheme = {
   colors: {
-    background: '#FFFFFF',
+    // Web separates a white card from a white page with a shadow; RN has no
+    // shadow stack, so the page is tinted and the card left white. The earlier
+    // fix darkened the *card* instead, which inverted elevation against this
+    // app's own dark theme (there, card is lighter than page) and read as a
+    // recessed well. It also erased grouping in every SwiftUI Form, whose
+    // light-mode cells are white — white cells on a white page.
+    background: '#F5F5F5',
     foreground: '#262626',
-    // Nudged off web's pure white-on-white — RN has no shadow stack, so a
-    // flat white card on a white page would vanish.
-    card: '#F7F7F7',
+    card: '#FFFFFF',
     muted: 'rgba(0, 0, 0, 0.04)',
     mutedForeground: '#686868',
     border: 'rgba(0, 0, 0, 0.08)',
     input: 'rgba(0, 0, 0, 0.10)',
-    /** TraderMemos brand — web `--primary` oklch(0.617 0.1305 235.19). */
-    primary: '#0490C8',
+    /** TraderMemos brand — web `--primary` oklch(0.5013 0.1428 252.49). */
+    primary: '#1264B2',
     primaryForeground: '#FFFFFF',
     destructive: '#FB2C36',
     /** Domain P&L hues (web --profit/--loss/--flat) — not error colors. */
     profit: '#098926',
     loss: '#E7000B',
     flat: '#737373',
-    /** Section-title accent — web `--chart-3`. */
-    accent: '#164E63',
+    /**
+     * Section-title accent. Deliberately *not* web's `--chart-3`, which is
+     * teal in light and amber in dark — that ramp is shadcn's chart palette,
+     * where the two ends were never meant to be a light/dark pair of one hue.
+     * Mirroring it made section titles change colour with the theme. Amber-700
+     * is the light-mode partner of the dark theme's amber.
+     */
+    accent: '#B45309',
   } satisfies ThemeColors as ThemeColors,
   ...scale,
 };
@@ -81,7 +91,7 @@ export const darkTheme = {
     mutedForeground: '#818181',
     border: 'rgba(255, 255, 255, 0.06)',
     input: 'rgba(255, 255, 255, 0.08)',
-    primary: '#0490C8',
+    primary: '#1264B2',
     primaryForeground: '#FFFFFF',
     destructive: '#FB414A',
     profit: '#54BF5C',
