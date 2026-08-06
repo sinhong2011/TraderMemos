@@ -58,6 +58,13 @@ on:
         description: Keep the job running until EAS finishes the build
         type: boolean
         default: true
+      # Re-running a release by hand is the main reason to dispatch this workflow, and a
+      # bare version number here ("0.4.0") is what makes "What to Test" pick up that
+      # version's CHANGELOG section instead of the last commit subject.
+      message:
+        description: Build message — a bare version like 0.4.0 sources release notes from CHANGELOG.md
+        required: false
+        type: string
 
 jobs:
   # Same checks as PR CI — reused so a release can never build code that skipped them.
