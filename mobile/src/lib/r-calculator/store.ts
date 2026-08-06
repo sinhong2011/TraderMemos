@@ -40,7 +40,8 @@ import {
 
 const CALC_PERSIST_KEY = 'store:r-calc';
 const FVG_PERSIST_KEY = 'store:r-calc-fvg';
-/** Pre-zustand keys: bare `{ sessions, activeId }` blobs. */
+/** Pre-zustand keys: bare `{ sessions, activeId }` blobs.
+ *  Removable — see lib/prefs-migration.ts. */
 const CALC_KEY = 'r-calc:sessions';
 const FVG_KEY = 'r-calc:fvg-sessions';
 

@@ -18,7 +18,8 @@ import { loadCalendar, traderMemosList } from '@/lib/ios-reminders';
 import { adoptLegacyValue, legacyJSON, mmkvStorage } from '@/storage/zustand-mmkv';
 
 const PERSIST_KEY = 'store:event-reminders';
-/** Pre-zustand key: the bare `event id → reminder id` map. */
+/** Pre-zustand key: the bare `event id → reminder id` map.
+ *  Removable — see lib/prefs-migration.ts. */
 const LEGACY_KEY = 'events:reminders';
 
 /** Minutes before the release the alarm fires — enough to get to the desk. */
