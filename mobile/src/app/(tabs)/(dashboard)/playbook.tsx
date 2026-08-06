@@ -1,6 +1,7 @@
-import { ContentUnavailableView, Host } from '@expo/ui/swift-ui';
+import { ContentUnavailableView } from '@expo/ui/swift-ui';
 import { useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
+import { SymbolView } from 'expo-symbols';
 import { useMemo, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -19,6 +20,7 @@ import { formatPercent, formatPnlCompact, formatRatio } from '@/lib/format';
 import { useMoneyFx } from '@/lib/money';
 import { accountBaseCurrency, useDisplayPrefs } from '@/lib/prefs';
 import { pnlColor } from '@/styles/unistyles';
+import { AppHost } from '@/components/app-host';
 
 type SortKey = 'name' | 'trades' | 'winRate' | 'pf' | 'exp' | 'pnl';
 
@@ -130,28 +132,43 @@ export default function PlaybookScreen() {
 
   const loading = setups.isLoading || breakdown.isLoading;
 
+  /*
+    Creating a play belongs on the screen that holds them, not only in the
+    global + on Trades: this is where you come to work on the playbook, and the
+    empty state was sending people to another tab to fill it. The editor itself
+    stays its own screen (new-setup.tsx) — a name, a thesis, levels and a
+    checklist is a page, not something to inline under the stats.
+  */
+  const headerActions = (
+    <View style={styles.headerActions}>
+      <TradeFilterMenu
+        active={false}
+        label={t`Sort`}
+        systemImage="arrow.up.arrow.down"
+        groups={[
+          {
+            key: 'sort',
+            options: sortOptions,
+            value: sortKey,
+            onChange: (value) => setSortKey(value as SortKey),
+          },
+        ]}
+      />
+      <Pressable
+        onPress={() => router.push('/new-setup')}
+        hitSlop={10}
+        accessibilityRole="button"
+        accessibilityLabel={t`New setup`}
+        style={({ pressed }) => [styles.addButton, pressed && styles.pressed]}
+      >
+        <SymbolView name="plus" size={18} tintColor={theme.colors.foreground} weight="semibold" />
+      </Pressable>
+    </View>
+  );
+
   return (
     <>
-      <Stack.Screen
-        options={{
-          title: t`Playbook`,
-          headerRight: () => (
-            <TradeFilterMenu
-              active={false}
-              label={t`Sort`}
-              systemImage="arrow.up.arrow.down"
-              groups={[
-                {
-                  key: 'sort',
-                  options: sortOptions,
-                  value: sortKey,
-                  onChange: (value) => setSortKey(value as SortKey),
-                },
-              ]}
-            />
-          ),
-        }}
-      />
+      <Stack.Screen options={{ title: t`Playbook`, headerRight: () => headerActions }} />
       <ScrollView
         style={styles.page}
         contentInsetAdjustmentBehavior="automatic"
@@ -176,13 +193,13 @@ export default function PlaybookScreen() {
             <Skeleton style={styles.skeletonCard} />
           </>
         ) : (setups.data ?? []).length === 0 ? (
-          <Host style={styles.emptyHost}>
+          <AppHost style={styles.emptyHost}>
             <ContentUnavailableView
               title={t`No setups yet`}
               systemImage="book"
-              description={t`Define the plays you trade from the + menu — trades link to them from the trade form.`}
+              description={t`Tap + to write the first play you trade — trades link to it from the trade form.`}
             />
-          </Host>
+          </AppHost>
         ) : (
           <>
             <DashboardCard title={t`Playbook`}>
@@ -286,6 +303,8 @@ const styles = StyleSheet.create((theme) => ({
     gap: theme.spacing.lg,
     paddingBottom: theme.spacing.xl * 2,
   },
+  headerActions: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
+  addButton: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
   rows: { gap: theme.spacing.md },
   row: { gap: 2 },

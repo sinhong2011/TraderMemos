@@ -1,4 +1,4 @@
-import { Chart, Host } from '@expo/ui/swift-ui';
+import { Chart } from '@expo/ui/swift-ui';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
 import { SymbolView } from 'expo-symbols';
@@ -29,6 +29,7 @@ import { noteExcerpt } from '@/lib/markdown';
 import { useMoneyFx } from '@/lib/money';
 import { accountBaseCurrency, useDisplayPrefs } from '@/lib/prefs';
 import { pnlColor } from '@/styles/unistyles';
+import { AppHost } from '@/components/app-host';
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -92,7 +93,7 @@ function IntradayCurve({
         </Text>
         <Text style={styles.headlineMeta}>{t`over ${series.length} closes`}</Text>
       </View>
-      <Host style={styles.chart}>
+      <AppHost style={styles.chart}>
         <Chart
           data={series.map(({ x, y }) => ({ x, y }))}
           type="line"
@@ -101,7 +102,7 @@ function IntradayCurve({
           referenceLines={[{ x: 'start', y: 0 }]}
           ruleStyle={{ color: '#80808055', lineWidth: 1, dashArray: [4, 4] }}
         />
-      </Host>
+      </AppHost>
       {peak.y > final ? (
         <Text style={styles.caption}>
           {t`Peaked at`}{' '}

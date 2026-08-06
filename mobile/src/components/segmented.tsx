@@ -1,7 +1,15 @@
-import { Host, Image as UIImage, Picker, Text as UIText } from '@expo/ui/swift-ui';
-import { pickerStyle, tag, tint } from '@expo/ui/swift-ui/modifiers';
+import {
+  Image as UIImage,
+  Picker,
+  Text as UIText,
+} from '@expo/ui/swift-ui';
+import { padding, pickerStyle, tag, tint } from '@expo/ui/swift-ui/modifiers';
 import type { SFSymbol } from 'expo-symbols';
 import { useUnistyles } from 'react-native-unistyles';
+import { AppHost } from '@/components/app-host';
+
+/** SwiftUI's own inset around a menu Picker's label — see `flush` below. */
+const MENU_LABEL_PADDING = 12;
 
 type SegmentedProps<T extends string> = {
   /** With `icon` set the segment shows only the SF Symbol; `label` stays for menus. */
@@ -17,6 +25,11 @@ type SegmentedProps<T extends string> = {
   compact?: boolean;
   /** Stretches to the container width — form rows, where hugging leaves dead space. */
   fill?: boolean;
+  /**
+   * Cancels the menu's own label padding so it lands on the same edge as a
+   * plain value beside it (form rows, boxed fields). Menu variant only.
+   */
+  flush?: boolean;
 };
 
 /** Native SwiftUI Picker — segmented control on cards, a pull-down menu, or a wheel. */
@@ -27,6 +40,7 @@ export function Segmented<T extends string>({
   variant = 'segmented',
   compact,
   fill,
+  flush,
 }: SegmentedProps<T>) {
   const { theme } = useUnistyles();
   // Menu triggers render in the accent color by default — keep the
@@ -36,13 +50,17 @@ export function Segmented<T extends string>({
   const modifiers = [
     pickerStyle(variant),
     ...(variant === 'menu' ? [tint(theme.colors.foreground)] : []),
+    // A menu Picker reserves ~12pt around its label, so beside a plain value
+    // (a static name, a date pill) it reads as if it were indented. `flush`
+    // takes that back so the label sits on the frame's edge either way.
+    ...(flush && variant === 'menu' ? [padding({ horizontal: -MENU_LABEL_PADDING })] : []),
   ];
   const allIcons = options.every((option) => option.icon != null);
   return (
     // Wheels have no useful intrinsic width — let the parent's flexbox size
     // them; compact fixes a tight frame (icon segments pack much narrower than
     // text ones); everything else hugs its content.
-    <Host
+    <AppHost
       {...(variant === 'wheel'
         ? { style: { flex: 1, height: 190 } }
         : compact
@@ -68,6 +86,6 @@ export function Segmented<T extends string>({
           ),
         )}
       </Picker>
-    </Host>
+    </AppHost>
   );
 }

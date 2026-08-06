@@ -1,4 +1,7 @@
-import { Host, TextField, useNativeState } from '@expo/ui/swift-ui';
+import {
+  TextField,
+  useNativeState,
+} from '@expo/ui/swift-ui';
 import {
   autocorrectionDisabled,
   font,
@@ -11,6 +14,7 @@ import { useEffect, useRef } from 'react';
 import { useUnistyles } from 'react-native-unistyles';
 
 import { numericText } from '@/lib/amount';
+import { AppHost } from '@/components/app-host';
 
 /**
  * Native text state that can only hold a number.
@@ -62,10 +66,13 @@ export function NumericField({
   weight,
   layout = 'flex',
   decimals = true,
+  autoFocus,
 }: {
   value: string;
   onChangeText: (text: string) => void;
   placeholder?: string;
+  /** Takes first responder on mount — the sheet's primary field. */
+  autoFocus?: boolean;
   /** `trailing` for grouped rows (label left, value right). */
   align?: 'leading' | 'trailing';
   size?: number;
@@ -88,13 +95,14 @@ export function NumericField({
   }, [state, value]);
 
   return (
-    <Host
+    <AppHost
       matchContents={{ vertical: true }}
       style={[layout === 'flex' ? styles.flex : styles.stretch, { minHeight: size * 1.5 }]}
     >
       <TextField
         text={state}
         placeholder={placeholder}
+        autoFocus={autoFocus}
         onTextChange={(text) => {
           // The listener already cleaned the field; clean again for the value
           // that leaves this component — JS never sees the rejected keystroke.
@@ -112,7 +120,7 @@ export function NumericField({
           foregroundStyle(theme.colors.foreground),
         ]}
       />
-    </Host>
+    </AppHost>
   );
 }
 

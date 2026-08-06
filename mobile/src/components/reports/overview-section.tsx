@@ -1,4 +1,8 @@
-import { Chart, Gauge, Host, Text as UIText } from '@expo/ui/swift-ui';
+import {
+  Chart,
+  Gauge,
+  Text as UIText,
+} from '@expo/ui/swift-ui';
 import { font, gaugeStyle, tint } from '@expo/ui/swift-ui/modifiers';
 import { useRouter } from 'expo-router';
 import { SymbolView } from 'expo-symbols';
@@ -35,6 +39,7 @@ import { formatPercent, formatRatio } from '@/lib/format';
 import { gradeFromInt } from '@/lib/journal';
 import { buildReportsDayStrip, sqnBand } from '@/lib/reports-display';
 import { pnlColor } from '@/styles/unistyles';
+import { AppHost } from '@/components/app-host';
 
 // ---------------------------------------------------------------------------
 // Summary bento
@@ -102,7 +107,7 @@ function SummaryCard({ summary, ctx }: { summary: Summary; ctx: ReportsMoneyCont
       <View style={styles.edgeRow}>
         <View style={styles.edgeCell}>
           <Text style={styles.edgeLabel}>{t`Profit factor`}</Text>
-          <Host style={styles.donut}>
+          <AppHost style={styles.donut}>
             {/* A PF of 3 fills the ring — beyond that the edge is proven. */}
             <Gauge
               value={Math.min(1, Number.isFinite(pf) ? pf / 3 : 1)}
@@ -116,15 +121,15 @@ function SummaryCard({ summary, ctx }: { summary: Summary; ctx: ReportsMoneyCont
                 </UIText>
               }
             />
-          </Host>
+          </AppHost>
           <Text style={styles.edgeSubCaption}>{t`gross profit ÷ gross loss`}</Text>
         </View>
         <View style={styles.edgeCell}>
           <Text style={styles.edgeLabel}>{t`Win rate`}</Text>
           {donutData.length > 0 ? (
-            <Host style={styles.donut}>
+            <AppHost style={styles.donut}>
               <Chart data={donutData} type="pie" pieStyle={{ innerRadius: 0.62, angularInset: 1.5 }} />
-            </Host>
+            </AppHost>
           ) : (
             <View style={styles.donut} />
           )}
@@ -277,9 +282,9 @@ function BreakdownRows({
 
   return (
     <>
-      <Host style={styles.chart}>
+      <AppHost style={styles.chart}>
         <Chart data={chartData} type="bar" showGrid animate barStyle={{ cornerRadius: 2 }} />
-      </Host>
+      </AppHost>
       <View style={styles.rows}>
         {groups.slice(0, MAX_ROWS).map((group) => {
           const value = money.pnl(group.summary);
@@ -369,9 +374,9 @@ function RMultipleCard({ rSummary }: { rSummary: RSummary }) {
           sub={fmtR(rSummary.worst_r)}
         />
       </View>
-      <Host style={styles.chart}>
+      <AppHost style={styles.chart}>
         <Chart data={distribution} type="bar" showGrid animate barStyle={{ cornerRadius: 2 }} />
-      </Host>
+      </AppHost>
       {rSummary.excluded > 0 ? (
         <Text style={styles.footnote}>
           {t`${rSummary.excluded} closed trades excluded (no stop recorded).`}

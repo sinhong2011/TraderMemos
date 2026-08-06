@@ -1,6 +1,5 @@
 import {
   Button,
-  Host,
   HStack,
   Section,
   Spacer,
@@ -24,6 +23,7 @@ import {
   validateRiskRuleValue,
   type RiskRuleDef,
 } from '@/lib/risk-rules';
+import { AppHost } from '@/components/app-host';
 
 /**
  * Risk rules (web RulesTab parity): only active limits are listed — tap one to
@@ -91,7 +91,7 @@ export default function RiskRulesScreen() {
   const available = availableRiskRules(rules.data);
 
   return (
-    <Host style={{ flex: 1 }}>
+    <AppHost style={{ flex: 1 }}>
       <SettingsForm>
         <Section
           title={t`Active limits`}
@@ -142,6 +142,6 @@ export default function RiskRulesScreen() {
           </Section>
         ) : null}
       </SettingsForm>
-    </Host>
+    </AppHost>
   );
 }

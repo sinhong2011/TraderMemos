@@ -1,6 +1,5 @@
 import {
-  Button,
-  Host,
+  HStack,
   LabeledContent,
   Picker,
   Section,
@@ -11,12 +10,12 @@ import {
 import {
   foregroundStyle,
   keyboardType,
+  multilineTextAlignment,
   scrollDismissesKeyboard,
   tag,
-  textInputAutocapitalization,
 } from '@expo/ui/swift-ui/modifiers';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useRef, useState } from 'react';
 import { Alert } from 'react-native';
 import { useUnistyles } from 'react-native-unistyles';
@@ -24,12 +23,16 @@ import { useUnistyles } from 'react-native-unistyles';
 import { queryKeys, useAccounts, useApiRequest, useCash, useTrades } from '@/api/hooks';
 import type { Account } from '@/api/types';
 import { CenteredButton } from '@/components/centered-button';
+import { HeaderIconButton } from '@/components/header-icon-button';
+import { NavRow } from '@/components/nav-row';
 import { useNumericState } from '@/components/numeric-field';
 import { t } from '@lingui/core/macro';
 import { SettingsForm } from '@/components/settings-form';
 import { numericText, parseAmount } from '@/lib/amount';
 import { ledgerBalance } from '@/lib/cash';
 import { formatCurrency, formatPercent, formatPnl } from '@/lib/format';
+import { DISPLAY_CURRENCIES } from '@/lib/prefs';
+import { AppHost } from '@/components/app-host';
 
 /** Mirrors the web settings broker dropdown; anything else is a custom entry. */
 const POPULAR_BROKERS = [
@@ -66,7 +69,7 @@ export default function AccountFormScreen() {
 
   if (id != null && !account) {
     return (
-      <Host style={{ flex: 1 }}>
+      <AppHost style={{ flex: 1 }}>
         <SettingsForm>
           <Section>
             <UIText modifiers={[foregroundStyle({ type: 'hierarchical', style: 'secondary' })]}>
@@ -74,7 +77,7 @@ export default function AccountFormScreen() {
             </UIText>
           </Section>
         </SettingsForm>
-      </Host>
+      </AppHost>
     );
   }
 
@@ -94,6 +97,9 @@ function AccountForm({ account, accountCount }: { account?: Account; accountCoun
   // the native field, a ref mirror captures keystrokes for submit-time reads.
   const nameState = useNativeState(account?.name ?? '');
   const nameText = useRef(account?.name ?? '');
+  // The ref holds the value; this boolean is the only part the header action
+  // needs, so it re-renders on empty↔filled rather than on every keystroke.
+  const [hasName, setHasName] = useState((account?.name ?? '').trim() !== '');
   const [brokerChoice, setBrokerChoice] = useState<string>(
     account == null ? POPULAR_BROKERS[0] : knownBroker ? account.broker.trim() : OTHER_BROKER,
   );
@@ -101,8 +107,9 @@ function AccountForm({ account, accountCount }: { account?: Account; accountCoun
   const customBrokerState = useNativeState(initialCustomBroker);
   const customBrokerText = useRef(initialCustomBroker);
   const [accountType, setAccountType] = useState('cash');
-  const currencyState = useNativeState('USD');
-  const currencyText = useRef('USD');
+  // Picker, not a text field: the balance row echoes the choice, and a free
+  // text code would let "usd" / "US$" through `toUpperCase` untouched.
+  const [currency, setCurrency] = useState<string>('USD');
   // Number field: the state itself rejects anything but digits (worklet guard).
   const balanceState = useNumericState('');
   const balanceText = useRef('');
@@ -186,7 +193,7 @@ function AccountForm({ account, accountCount }: { account?: Account; accountCoun
       name,
       broker,
       account_type: accountType,
-      base_currency: currencyText.current.trim().toUpperCase() || 'USD',
+      base_currency: currency,
       starting_balance: balance ?? 0,
     });
   }
@@ -215,18 +222,38 @@ function AccountForm({ account, accountCount }: { account?: Account; accountCoun
 
   const isOnlyAccount = accountCount <= 1;
   const secondary = foregroundStyle({ type: 'hierarchical', style: 'secondary' });
+  // Form rows read as one column of values: SwiftUI trails `Picker` selections
+  // but leaves `TextField` text against the label unless told otherwise.
+  const trailing = multilineTextAlignment('trailing');
 
   return (
-    <Host style={{ flex: 1 }}>
+    <AppHost style={{ flex: 1 }}>
+      <Stack.Screen
+        options={{
+          title: isEdit ? t`Account` : t`New account`,
+          // Pushed settings forms put their commit action in the nav bar
+          // (the ai/[kind] idiom), not a row in the list.
+          headerRight: () => (
+            <HeaderIconButton
+              systemImage="checkmark"
+              disabled={!hasName || save.isPending}
+              label={save.isPending ? t`Saving…` : isEdit ? t`Save` : t`Add`}
+              onPress={handleSave}
+            />
+          ),
+        }}
+      />
       <SettingsForm modifiers={[scrollDismissesKeyboard('immediately')]}>
-        <Section title={t`Account`}>
+        <Section title={t`Details`}>
           <LabeledContent label={t`Name`}>
             <TextField
               placeholder={t`e.g. Main Account`}
               text={nameState}
               onTextChange={(text) => {
                 nameText.current = text;
+                setHasName(text.trim() !== '');
               }}
+              modifiers={[trailing]}
             />
           </LabeledContent>
           <Picker label={t`Broker`} selection={brokerChoice} onSelectionChange={setBrokerChoice}>
@@ -245,6 +272,7 @@ function AccountForm({ account, accountCount }: { account?: Account; accountCoun
                 onTextChange={(text) => {
                   customBrokerText.current = text;
                 }}
+                modifiers={[trailing]}
               />
             </LabeledContent>
           ) : null}
@@ -270,25 +298,25 @@ function AccountForm({ account, accountCount }: { account?: Account; accountCoun
                 </UIText>
               ))}
             </Picker>
-            <LabeledContent label={t`Base currency`}>
-              <TextField
-                placeholder="USD"
-                text={currencyState}
-                onTextChange={(text) => {
-                  currencyText.current = text;
-                }}
-                modifiers={[textInputAutocapitalization('characters')]}
-              />
-            </LabeledContent>
+            <Picker label={t`Base currency`} selection={currency} onSelectionChange={setCurrency}>
+              {DISPLAY_CURRENCIES.map((code) => (
+                <UIText key={code} modifiers={[tag(code)]}>
+                  {code}
+                </UIText>
+              ))}
+            </Picker>
             <LabeledContent label={t`Starting balance`}>
-              <TextField
-                placeholder="0.00"
-                text={balanceState}
-                onTextChange={(text) => {
-                  balanceText.current = numericText(text);
-                }}
-                modifiers={[keyboardType('decimal-pad')]}
-              />
+              <HStack spacing={8}>
+                <TextField
+                  placeholder="0.00"
+                  text={balanceState}
+                  onTextChange={(text) => {
+                    balanceText.current = numericText(text);
+                  }}
+                  modifiers={[keyboardType('decimal-pad'), trailing]}
+                />
+                <UIText modifiers={[secondary]}>{currency}</UIText>
+              </HStack>
             </LabeledContent>
           </Section>
         ) : null}
@@ -334,7 +362,7 @@ function AccountForm({ account, accountCount }: { account?: Account; accountCoun
         {isEdit ? (
           <Section title={t`Integrations`}>
             {account.account_type === 'prop' ? (
-              <Button
+              <NavRow
                 systemImage="flag.checkered"
                 label={t`Prop rules`}
                 onPress={() =>
@@ -342,7 +370,7 @@ function AccountForm({ account, accountCount }: { account?: Account; accountCoun
                 }
               />
             ) : null}
-            <Button
+            <NavRow
               systemImage="arrow.triangle.2.circlepath"
               label={t`IBKR Flex sync`}
               onPress={() =>
@@ -351,13 +379,6 @@ function AccountForm({ account, accountCount }: { account?: Account; accountCoun
             />
           </Section>
         ) : null}
-
-        <Section>
-          <CenteredButton
-            label={save.isPending ? t`Saving…` : isEdit ? t`Save changes` : t`Create account`}
-            onPress={handleSave}
-          />
-        </Section>
 
         {isEdit ? (
           <Section
@@ -370,18 +391,20 @@ function AccountForm({ account, accountCount }: { account?: Account; accountCoun
             <CenteredButton
               role="destructive"
               label={clearTrades.isPending ? t`Clearing…` : t`Clear trade history`}
+              disabled={clearTrades.isPending}
               onPress={confirmClearTrades}
             />
             {!isOnlyAccount ? (
               <CenteredButton
                 role="destructive"
                 label={deleteAccount.isPending ? t`Deleting…` : t`Delete account`}
+                disabled={deleteAccount.isPending}
                 onPress={confirmDeleteAccount}
               />
             ) : null}
           </Section>
         ) : null}
       </SettingsForm>
-    </Host>
+    </AppHost>
   );
 }

@@ -1,4 +1,4 @@
-import { ContentUnavailableView, Host } from '@expo/ui/swift-ui';
+import { ContentUnavailableView } from '@expo/ui/swift-ui';
 import { SymbolView } from 'expo-symbols';
 import { Stack } from 'expo-router/stack';
 import { useHeaderHeight } from 'expo-router/react-navigation';
@@ -36,6 +36,7 @@ import { addDaysKey, dayKeyInTz, formatWeekLabel, weekStartKey } from '@/lib/eve
 import { formatTime } from '@/lib/format';
 import { resolveDisplayTimezone, useDisplayPrefs } from '@/lib/prefs';
 import type { AppTheme } from '@/styles/unistyles';
+import { AppHost } from '@/components/app-host';
 
 /** Loudest first — the order the strip bar and the filter menu both read in. */
 const IMPACTS = ['high', 'medium', 'low', 'holiday'] as const;
@@ -766,13 +767,13 @@ export default function EconomicEventsScreen() {
           {loading ? (
             <TimelineSkeleton />
           ) : unconfigured ? (
-            <Host style={styles.emptyHost}>
+            <AppHost style={styles.emptyHost}>
               <ContentUnavailableView
                 title={t`Calendar not configured`}
                 systemImage="newspaper"
                 description={t`The server has no economic-calendar provider configured.`}
               />
-            </Host>
+            </AppHost>
           ) : events.error ? (
             <Text style={styles.muted} selectable>
               {events.error.message}

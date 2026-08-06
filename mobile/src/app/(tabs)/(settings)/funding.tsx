@@ -1,4 +1,4 @@
-import { ContentUnavailableView, Host } from '@expo/ui/swift-ui';
+import { ContentUnavailableView } from '@expo/ui/swift-ui';
 import { FlashList } from '@shopify/flash-list';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
@@ -17,6 +17,7 @@ import { Skeleton } from '@/components/skeleton';
 import { t } from '@lingui/core/macro';
 import { cashTypeLabel } from '@/lib/cash';
 import { formatCurrency, formatDate } from '@/lib/format';
+import { AppHost } from '@/components/app-host';
 
 /** One ledger entry: tap to edit, trailing swipe to remove (the api-tokens idiom). */
 function TransactionRow({
@@ -191,13 +192,13 @@ export default function FundingScreen() {
             ) : null
           }
           ListEmptyComponent={
-            <Host style={styles.empty}>
+            <AppHost style={styles.empty}>
               <ContentUnavailableView
                 title={t`No transactions yet`}
                 systemImage="banknote"
                 description={t`Tap + to log a deposit, withdrawal, or fee — they drive the equity curve alongside trade P&L.`}
               />
-            </Host>
+            </AppHost>
           }
         />
       )}

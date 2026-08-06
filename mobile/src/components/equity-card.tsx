@@ -1,4 +1,4 @@
-import { Chart, Host } from '@expo/ui/swift-ui';
+import { Chart } from '@expo/ui/swift-ui';
 import { useMemo, useState } from 'react';
 import { Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -10,6 +10,7 @@ import { t } from '@lingui/core/macro';
 import { formatCurrency, formatPnl } from '@/lib/format';
 import { useDisplayPrefs } from '@/lib/prefs';
 import { pnlColor } from '@/styles/unistyles';
+import { AppHost } from '@/components/app-host';
 
 type Range = '30D' | '90D' | 'ALL';
 
@@ -91,7 +92,7 @@ export function EquityCard({
         </Text>
       </View>
 
-      <Host style={styles.chart}>
+      <AppHost style={styles.chart}>
         <Chart
           data={data}
           type="line"
@@ -100,7 +101,7 @@ export function EquityCard({
           referenceLines={[{ x: 'start', y: first }]}
           ruleStyle={{ color: '#80808055', lineWidth: 1, dashArray: [4, 4] }}
         />
-      </Host>
+      </AppHost>
 
       {curve.max_drawdown > 0 ? (
         <Text style={styles.caption}>

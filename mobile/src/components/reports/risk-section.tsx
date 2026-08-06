@@ -1,4 +1,4 @@
-import { Chart, Host } from '@expo/ui/swift-ui';
+import { Chart } from '@expo/ui/swift-ui';
 import { useRouter } from 'expo-router';
 import { useMemo } from 'react';
 import { Text, View } from 'react-native';
@@ -23,6 +23,7 @@ import {
   maxDrawdownPct,
 } from '@/lib/reports-analytics';
 import { pnlColor } from '@/styles/unistyles';
+import { AppHost } from '@/components/app-host';
 
 /** Downsampling cap for the drawdown curve. */
 const MAX_POINTS = 120;
@@ -101,14 +102,14 @@ export function RiskSection({
                 tone={risk.avg != null ? 'accent' : 'muted'}
               />
             </View>
-            <Host style={styles.chart}>
+            <AppHost style={styles.chart}>
               <Chart
                 data={ddData}
                 type="area"
                 animate
                 lineStyle={{ color: theme.colors.loss, width: 2 }}
               />
-            </Host>
+            </AppHost>
             <Text style={styles.footnote}>
               {t`Distance from the running equity peak, as a percentage.`}
             </Text>

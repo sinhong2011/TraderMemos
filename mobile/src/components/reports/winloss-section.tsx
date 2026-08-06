@@ -1,4 +1,4 @@
-import { Chart, Host } from '@expo/ui/swift-ui';
+import { Chart } from '@expo/ui/swift-ui';
 import { useMemo, useState } from 'react';
 import { Text } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -19,6 +19,7 @@ import {
   rollingWinRate,
   type EvolutionGranularity,
 } from '@/lib/reports-analytics';
+import { AppHost } from '@/components/app-host';
 
 /** Rolling-window sizes offered by the web SegmentedControl. */
 const WINDOWS = ['10', '20', '50', '100'] as const;
@@ -116,7 +117,7 @@ export function WinLossSection({
                   {formatPercent(latestRate ?? 0)}
                   <Text style={styles.headlineSub}> {t`over the last ${windowSize} trades`}</Text>
                 </Text>
-                <Host style={styles.chart}>
+                <AppHost style={styles.chart}>
                   <Chart
                     data={rollingData}
                     type="line"
@@ -125,7 +126,7 @@ export function WinLossSection({
                     referenceLines={[{ x: 'start', y: 50 }]}
                     ruleStyle={{ color: '#80808055', lineWidth: 1, dashArray: [4, 4] }}
                   />
-                </Host>
+                </AppHost>
                 <Text style={styles.footnote}>
                   {t`Each point is the win rate across the trailing ${windowSize} closed trades.`}
                 </Text>
@@ -144,7 +145,7 @@ export function WinLossSection({
             ) : (
               <>
                 <Text style={styles.chartLabel}>{t`Win rate (%)`}</Text>
-                <Host style={styles.chartShort}>
+                <AppHost style={styles.chartShort}>
                   <Chart
                     data={winRateData}
                     type="line"
@@ -153,19 +154,19 @@ export function WinLossSection({
                     referenceLines={[{ x: 'start', y: 50 }]}
                     ruleStyle={{ color: '#80808055', lineWidth: 1, dashArray: [4, 4] }}
                   />
-                </Host>
+                </AppHost>
 
                 {/* Swift Charts draws one series per host — the second metric
                     gets its own panel instead of a shared dual axis. */}
                 <Segmented options={rightMetrics} value={rightMetric} onChange={setRightMetric} />
-                <Host style={styles.chartShort}>
+                <AppHost style={styles.chartShort}>
                   <Chart
                     data={metricData}
                     type={rightMetric === 'profitFactor' ? 'line' : 'area'}
                     animate
                     lineStyle={{ color: theme.colors.accent, width: 2 }}
                   />
-                </Host>
+                </AppHost>
                 {latest ? (
                   <Text style={styles.footnote}>
                     {t`To date: ${formatPercent(latest.winRate)} win rate · PF ${formatRatio(latest.profitFactor)} · ${ctx.money.format(latest.cumulativePnl)} cumulative`}

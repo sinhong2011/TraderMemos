@@ -1,4 +1,4 @@
-import { ContentUnavailableView, Host } from '@expo/ui/swift-ui';
+import { ContentUnavailableView } from '@expo/ui/swift-ui';
 import { SymbolView } from 'expo-symbols';
 import { Stack } from 'expo-router/stack';
 import { useMemo, useState } from 'react';
@@ -23,6 +23,7 @@ import { useMoneyFx } from '@/lib/money';
 import { accountBaseCurrency, useDisplayPrefs } from '@/lib/prefs';
 import { computeYearWrapped } from '@/lib/wrapped';
 import { pnlColor } from '@/styles/unistyles';
+import { AppHost } from '@/components/app-host';
 
 const MIN_YEAR = 2000;
 
@@ -108,13 +109,13 @@ export default function WrappedScreen() {
             <Skeleton style={styles.skeletonCard} />
           </>
         ) : wrapped.totalTrades === 0 ? (
-          <Host style={styles.emptyHost}>
+          <AppHost style={styles.emptyHost}>
             <ContentUnavailableView
               title={t`No closed trades in ${year}`}
               systemImage="sparkles"
               description={t`The recap appears once the year has closed trades.`}
             />
-          </Host>
+          </AppHost>
         ) : (
           <>
             <DashboardCard title={t`${year} in one number`}>

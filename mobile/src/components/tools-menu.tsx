@@ -1,4 +1,9 @@
-import { Button as UIButton, Host, Image as UIImage, Menu, Section } from '@expo/ui/swift-ui';
+import {
+  Button as UIButton,
+  Image as UIImage,
+  Menu,
+  Section,
+} from '@expo/ui/swift-ui';
 import { accessibilityLabel, buttonStyle, tint } from '@expo/ui/swift-ui/modifiers';
 import { useRouter, type Href } from 'expo-router';
 import { SymbolView, type SFSymbol } from 'expo-symbols';
@@ -6,6 +11,7 @@ import { Platform, Pressable } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { t } from '@lingui/core/macro';
+import { AppHost } from '@/components/app-host';
 
 /**
  * Home-header wrench menu — everywhere you go from Home that isn't a tab.
@@ -78,7 +84,7 @@ export function ToolsMenu() {
   }
 
   return (
-    <Host matchContents>
+    <AppHost matchContents>
       <Menu
         label={<UIImage systemName="wrench.and.screwdriver" size={16} />}
         modifiers={[buttonStyle('plain'), tint(theme.colors.foreground), accessibilityLabel(t`Tools`)]}
@@ -104,7 +110,7 @@ export function ToolsMenu() {
           ))}
         </Section>
       </Menu>
-    </Host>
+    </AppHost>
   );
 }
 
