@@ -40,6 +40,11 @@ export function LoginScreen({
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [advancedOpen, setAdvancedOpen] = useState(false);
+  // Revealed only once the server answers `totp_required`, which means the
+  // password already checked out — so the form stays two fields for accounts
+  // without a second factor.
+  const [totpCode, setTotpCode] = useState("");
+  const [needsTotp, setNeedsTotp] = useState(false);
 
   async function completeSignIn(
     loginEmail: string,
@@ -53,10 +58,20 @@ export function LoginScreen({
       if (asRegister) {
         await authApi.register(loginEmail, loginPassword);
       }
-      const tokens = await authApi.login(loginEmail, loginPassword);
+      const tokens = await authApi.login(loginEmail, loginPassword, totpCode.trim() || undefined);
       signIn(tokens.access_token, tokens.refresh_token);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Something went wrong");
+      // `totp_required` is not a failure to report — the password was accepted
+      // and the server is asking for the second factor.
+      if (err instanceof ApiError && err.code === "totp_required") {
+        setNeedsTotp(true);
+        setError("");
+      } else if (err instanceof ApiError && err.code === "totp_invalid") {
+        setNeedsTotp(true);
+        setError("That code is not valid. Codes change every 30 seconds.");
+      } else {
+        setError(err instanceof ApiError ? err.message : "Something went wrong");
+      }
     } finally {
       setBusy(false);
     }
@@ -71,6 +86,8 @@ export function LoginScreen({
     setMode(next);
     setError("");
     setPassword("");
+    setTotpCode("");
+    setNeedsTotp(false);
     if (next === "register") {
       setEmail("");
     }
@@ -144,6 +161,22 @@ export function LoginScreen({
               className={authFieldClass}
             />
           </Field>
+          {needsTotp ? (
+            <Field label="Authenticator code" htmlFor="totp-code">
+              <FormInput
+                id="totp-code"
+                value={totpCode}
+                onChange={(e) => setTotpCode(e.target.value)}
+                placeholder="6-digit code"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                maxLength={6}
+                autoFocus
+                required
+                className={authFieldClass}
+              />
+            </Field>
+          ) : null}
         </div>
 
         {error ? (

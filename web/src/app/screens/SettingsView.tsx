@@ -92,7 +92,7 @@ export interface SettingsViewProps {
 }
 
 const NAV_ICONS: Record<SettingsSectionId, typeof Wallet> = {
-  account: UserRound,
+  profile: UserRound,
   accounts: Wallet,
   rules: Shield,
   journal: Tag,
@@ -165,7 +165,7 @@ export function SettingsView(props: SettingsViewProps) {
           />
         )}
         {section === "ai" && <AiTab />}
-        {section === "account" && <AccountTab />}
+        {section === "profile" && <AccountTab />}
         {section === "general" && <GeneralTab />}
         {section === "shortcuts" && <ShortcutsTab />}
         {section === "api" && <ApiTab />}
