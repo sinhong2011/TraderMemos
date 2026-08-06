@@ -1,4 +1,7 @@
-import { Button as UIButton, Host, Menu } from '@expo/ui/swift-ui';
+import {
+  Button as UIButton,
+  Menu,
+} from '@expo/ui/swift-ui';
 import {
   buttonBorderShape,
   buttonStyle,
@@ -13,8 +16,9 @@ import { Alert, Pressable, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { t } from '@lingui/core/macro';
-import { getPrefs } from '@/lib/prefs';
+import { getJournalPrefs } from '@/lib/journal-prefs';
 import type { QueuedScreenshot } from '@/lib/trade-form';
+import { AppHost } from '@/components/app-host';
 
 /** The server only accepts these (content-sniffed); Photos picks re-encode to jpeg. */
 const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/webp'] as const;
@@ -34,7 +38,7 @@ export function ScreenshotQueue({
   const { theme } = useUnistyles();
 
   function remainingRoom(): number {
-    const max = getPrefs().maxScreenshotsPerTrade;
+    const max = getJournalPrefs().maxScreenshotsPerTrade;
     const room = max != null ? max - screenshots.length : Number.POSITIVE_INFINITY;
     if (room <= 0) {
       Alert.alert(
@@ -111,7 +115,13 @@ export function ScreenshotQueue({
           ))}
         </View>
       ) : null}
-      <Host matchContents>
+      {/*
+        `ignoreSafeArea` for the same reason as DateRow (see form-rows.tsx):
+        near the bottom of the sheet the hosted SwiftUI view insets its content
+        by the container safe area, drawing the button ~30pt above its frame —
+        up into the section header.
+      */}
+      <AppHost matchContents ignoreSafeArea="all">
         <Menu
           label={t`Add screenshot`}
           systemImage="photo.badge.plus"
@@ -134,7 +144,7 @@ export function ScreenshotQueue({
             onPress={() => void pickFromFiles()}
           />
         </Menu>
-      </Host>
+      </AppHost>
     </View>
   );
 }

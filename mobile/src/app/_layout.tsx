@@ -7,7 +7,7 @@ import { DarkTheme, DefaultTheme, ThemeProvider, useRootNavigationState, useRout
 import { Stack } from 'expo-router/stack';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useMemo, useRef } from 'react';
-import { Alert, useColorScheme } from 'react-native';
+import { Alert } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { useUnistyles } from 'react-native-unistyles';
@@ -17,6 +17,7 @@ import { useSession } from '@/api/session';
 import { SessionProvider } from '@/api/session-provider';
 import { i18n } from '@/i18n';
 import { t } from '@lingui/core/macro';
+import { useResolvedScheme } from '@/lib/prefs';
 import { ensureDropFolder, stageDroppedFile } from '@/lib/trade-import';
 import { queryPersister } from '@/storage/mmkv';
 
@@ -80,12 +81,15 @@ function ImportLinkGate() {
 }
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
+  // The Appearance pref, not the device scheme: pinning the app to Light on a
+  // phone in Dark Mode has to move the navigation chrome too, or the headers
+  // and back buttons stay dark over light screens.
+  const scheme = useResolvedScheme();
   const { theme } = useUnistyles();
   // Feed the design tokens into navigation so every screen background,
   // header, and tint matches the web app instead of the UIKit defaults.
   const navTheme = useMemo(() => {
-    const base = colorScheme === 'dark' ? DarkTheme : DefaultTheme;
+    const base = scheme === 'dark' ? DarkTheme : DefaultTheme;
     return {
       ...base,
       colors: {
@@ -99,7 +103,7 @@ export default function RootLayout() {
         border: theme.colors.border,
       },
     };
-  }, [colorScheme, theme]);
+  }, [scheme, theme]);
   const queryClient = useMemo(
     () =>
       new QueryClient({
@@ -139,10 +143,14 @@ export default function RootLayout() {
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="login" options={{ presentation: 'modal', headerShown: false }} />
-            {/* Page sheets, not formSheet: react-native-screens' formSheet
-                lays the ScrollView out over the header (content overlaps the
-                chrome) with these full-height forms — see worktree notes. */}
-            <Stack.Screen name="new-trade" options={{ presentation: 'modal' }} />
+            {/* New trade is a destination, not an interruption: a real push
+                with the standard back gesture. Edit stays a page sheet (not
+                formSheet: react-native-screens' formSheet lays the ScrollView
+                out over the header with these full-height forms). */}
+            <Stack.Screen name="new-trade" />
+            {/* Review & save rides the same push stack as the form. */}
+            <Stack.Screen name="trade-preview" />
+
             <Stack.Screen name="edit-trade" options={{ presentation: 'modal' }} />
             <Stack.Screen
               name="manage-tags"
@@ -205,12 +213,13 @@ export default function RootLayout() {
               }}
             />
             {/* Add/edit cash transaction — a creation sheet like new-token,
-                launched from the Funding list's + button. */}
+                launched from the Funding list's + button. Taller detent than
+                the token sheet: five stacked fields, not two. */}
             <Stack.Screen
               name="cash-form"
               options={{
                 presentation: 'formSheet',
-                sheetAllowedDetents: [0.55, 1],
+                sheetAllowedDetents: [0.75, 1],
                 sheetGrabberVisible: true,
                 sheetCornerRadius: 24,
               }}
@@ -220,6 +229,17 @@ export default function RootLayout() {
               options={{
                 presentation: 'formSheet',
                 sheetAllowedDetents: [0.55, 1],
+                sheetGrabberVisible: true,
+                sheetCornerRadius: 24,
+              }}
+            />
+            {/* Add/edit tag — the Tags list's + button, same sheet as above;
+                the swatch row makes it one detent taller. */}
+            <Stack.Screen
+              name="tag-form"
+              options={{
+                presentation: 'formSheet',
+                sheetAllowedDetents: [0.6, 1],
                 sheetGrabberVisible: true,
                 sheetCornerRadius: 24,
               }}

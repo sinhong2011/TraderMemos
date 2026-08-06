@@ -1,5 +1,4 @@
 import {
-  Host,
   LabeledContent,
   Section,
   Text as UIText,
@@ -19,6 +18,7 @@ import { CenteredButton } from '@/components/centered-button';
 import { SettingsForm } from '@/components/settings-form';
 import { t } from '@lingui/core/macro';
 import { formatDate, formatTime } from '@/lib/format';
+import { AppHost } from '@/components/app-host';
 
 /**
  * IBKR Flex Web Service sync for one account: query ID + token + scheduled
@@ -108,7 +108,7 @@ export default function FlexSyncScreen() {
 
   return (
     <View style={styles.page}>
-      <Host style={{ flex: 1 }}>
+      <AppHost style={{ flex: 1 }}>
         <SettingsForm>
         <Section
           title={account ? account.name : t`IBKR Flex sync`}
@@ -185,7 +185,7 @@ export default function FlexSyncScreen() {
             </Section>
           ) : null}
         </SettingsForm>
-      </Host>
+      </AppHost>
       {run.isPending ? (
         <View style={styles.syncOverlay} pointerEvents="none">
           <ActivityIndicator />

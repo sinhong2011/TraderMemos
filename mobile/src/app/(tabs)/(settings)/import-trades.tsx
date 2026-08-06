@@ -1,6 +1,5 @@
 import {
   Button,
-  Host,
   HStack,
   Image,
   LabeledContent,
@@ -23,8 +22,16 @@ import { useAccounts, useApiRaw } from '@/api/hooks';
 import type { ImportPreview, ImportResult } from '@/api/types';
 import { CenteredButton } from '@/components/centered-button';
 import { SettingsForm } from '@/components/settings-form';
+import { shareFile } from '@/lib/file-transfer';
 import { formatPnl } from '@/lib/format';
+import {
+  SAMPLE_CSV,
+  SAMPLE_CSV_NAME,
+  SAMPLE_JSON,
+  SAMPLE_JSON_NAME,
+} from '@/lib/import-samples';
 import { t } from '@lingui/core/macro';
+import { AppHost } from '@/components/app-host';
 
 /** Synthetic picker choice: let the JSON's embedded account metadata decide. */
 const ACCOUNT_FROM_FILE = '__from_file__';
@@ -45,13 +52,35 @@ const MAPPABLE_FIELDS = [
   { key: 'commission', label: () => t`Commission` },
 ] as const;
 
+/** The formats the server parses, mirroring the web page's "Supported formats". */
+const IMPORT_FORMATS = [
+  {
+    icon: 'tablecells',
+    name: () => t`Fill CSV`,
+    body: () =>
+      t`Broker execution exports. Map a Market/Asset Type column for mixed stock/option files, or let the symbol decide.`,
+  },
+  {
+    icon: 'list.bullet.rectangle',
+    name: () => t`Journal export`,
+    body: () => t`Closed trades with Entry/Exit columns — setup and tags are preserved.`,
+  },
+  {
+    icon: 'curlybraces',
+    name: () => t`JSON backup`,
+    body: () => t`Full account backup: trades, fills, tags, cash, and the playbook setups catalog.`,
+  },
+] as const;
+
 type PickedFile = { uri: string; name: string; size: number | null; mimeType: string };
+
+function isJsonFile(file: PickedFile): boolean {
+  return file.name.toLowerCase().endsWith('.json') || file.mimeType === 'application/json';
+}
 
 /** Peek at a picked JSON file for embedded account metadata (web parity). */
 async function readJsonAccountName(file: PickedFile): Promise<string | null> {
-  if (!file.name.toLowerCase().endsWith('.json') && file.mimeType !== 'application/json') {
-    return null;
-  }
+  if (!isJsonFile(file)) return null;
   try {
     const raw: unknown = JSON.parse(await new File(file.uri).text());
     if (typeof raw !== 'object' || raw == null) return null;
@@ -168,6 +197,16 @@ export default function ImportTradesScreen() {
     }
   }
 
+  async function saveSample(kind: 'csv' | 'json') {
+    try {
+      await (kind === 'csv'
+        ? shareFile(SAMPLE_CSV_NAME, SAMPLE_CSV, 'text/csv')
+        : shareFile(SAMPLE_JSON_NAME, SAMPLE_JSON, 'application/json'));
+    } catch (err) {
+      Alert.alert(t`Could not save the sample`, err instanceof Error ? err.message : String(err));
+    }
+  }
+
   function reset() {
     setFile(null);
     setJsonAccountName(null);
@@ -182,7 +221,7 @@ export default function ImportTradesScreen() {
   if (result != null) {
     const isJournal = result.format === 'journal_trades';
     return (
-      <Host style={{ flex: 1, backgroundColor: theme.colors.background }}>
+      <AppHost style={{ flex: 1, backgroundColor: theme.colors.background }}>
         <SettingsForm>
           <Section title={t`Import complete`}>
             {isJournal ? (
@@ -232,7 +271,7 @@ export default function ImportTradesScreen() {
             <CenteredButton label={t`Import another file`} onPress={reset} />
           </Section>
         </SettingsForm>
-      </Host>
+      </AppHost>
     );
   }
 
@@ -246,7 +285,7 @@ export default function ImportTradesScreen() {
       ? t`Import ${summary?.trade_count ?? trades.length} trades`
       : t`Import ${preview.row_count ?? 0} rows`;
     return (
-      <Host style={{ flex: 1, backgroundColor: theme.colors.background }}>
+      <AppHost style={{ flex: 1, backgroundColor: theme.colors.background }}>
         <SettingsForm>
           <Section
             title={t`File`}
@@ -392,7 +431,7 @@ export default function ImportTradesScreen() {
             />
           </Section>
         </SettingsForm>
-      </Host>
+      </AppHost>
     );
   }
 
@@ -400,7 +439,7 @@ export default function ImportTradesScreen() {
   const sizeLabel =
     file?.size != null ? `${Math.max(1, Math.round(file.size / 1024))} KB` : undefined;
   return (
-    <Host style={{ flex: 1, backgroundColor: theme.colors.background }}>
+    <AppHost style={{ flex: 1, backgroundColor: theme.colors.background }}>
       <SettingsForm>
         <Section
           title={t`Account`}
@@ -435,21 +474,30 @@ export default function ImportTradesScreen() {
         <Section
           title={t`File`}
           footer={
-            <UIText>
-              {t`Fill CSVs from your broker, journal CSV exports, or a TraderMemos JSON backup.`}
-            </UIText>
+            file == null ? (
+              <UIText>
+                {t`Fill CSVs from your broker, journal CSV exports, or a TraderMemos JSON backup.`}
+              </UIText>
+            ) : (
+              <UIText>{t`Tap the file to swap it for another one.`}</UIText>
+            )
           }
         >
           {file != null ? (
             <Button onPress={() => void pickFile()}>
-              <HStack spacing={8}>
+              <HStack spacing={12}>
+                <Image
+                  systemName={isJsonFile(file) ? 'curlybraces' : 'tablecells'}
+                  size={22}
+                  color={theme.colors.foreground}
+                />
                 <VStack alignment="leading" spacing={2}>
                   <UIText modifiers={[foregroundStyle({ type: 'hierarchical', style: 'primary' })]}>
                     {file.name}
                   </UIText>
-                  {sizeLabel != null ? (
-                    <UIText modifiers={[font({ size: 13 }), secondary]}>{sizeLabel}</UIText>
-                  ) : null}
+                  <UIText modifiers={[font({ size: 13 }), secondary]}>
+                    {sizeLabel ?? (isJsonFile(file) ? t`JSON backup` : t`CSV file`)}
+                  </UIText>
                 </VStack>
                 <Spacer />
                 <Image
@@ -469,14 +517,12 @@ export default function ImportTradesScreen() {
         </Section>
 
         <Section>
+          {/* Disabled rather than alerting: nothing to preview without a file,
+              and a tappable row would fire the upload twice while busy. */}
           <CenteredButton
             label={busy ? t`Reading…` : t`Preview import`}
+            disabled={busy || file == null}
             onPress={() => {
-              if (busy) return;
-              if (file == null) {
-                Alert.alert(t`Could not preview`, t`Choose a file first.`);
-                return;
-              }
               if (!usesFileAccount && selectedAccount === '') {
                 Alert.alert(t`Could not preview`, t`Pick an account first.`);
                 return;
@@ -485,7 +531,43 @@ export default function ImportTradesScreen() {
             }}
           />
         </Section>
+
+        <Section title={t`Supported formats`}>
+          {IMPORT_FORMATS.map((format) => (
+            <HStack key={format.icon} spacing={12} alignment="top">
+              <Image systemName={format.icon} size={16} color={theme.colors.mutedForeground} />
+              <VStack alignment="leading" spacing={3}>
+                <UIText modifiers={[font({ size: 15, weight: 'medium' })]}>{format.name()}</UIText>
+                <UIText modifiers={[font({ size: 13 }), secondary]}>{format.body()}</UIText>
+              </VStack>
+              <Spacer />
+            </HStack>
+          ))}
+        </Section>
+
+        {/* Web parity: the Import page's sample downloads. Saving through the
+            share sheet puts them in Files, where the picker above can reach
+            them. */}
+        <Section
+          title={t`Sample files`}
+          footer={
+            <UIText>
+              {t`Save a starter file to see the expected shape. Your file stays on your server — nothing is sent to third parties.`}
+            </UIText>
+          }
+        >
+          <Button
+            systemImage="tablecells"
+            label={t`Sample CSV`}
+            onPress={() => void saveSample('csv')}
+          />
+          <Button
+            systemImage="curlybraces"
+            label={t`Sample JSON`}
+            onPress={() => void saveSample('json')}
+          />
+        </Section>
       </SettingsForm>
-    </Host>
+    </AppHost>
   );
 }

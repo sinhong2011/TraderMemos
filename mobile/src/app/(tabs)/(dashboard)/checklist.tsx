@@ -1,7 +1,6 @@
 import {
   Button,
   DatePicker,
-  Host,
   HStack,
   Image as UIImage,
   List,
@@ -36,6 +35,7 @@ import {
   useRemindersEnabled,
   useRemindersTime,
 } from '@/lib/checklist-reminders';
+import { AppHost } from '@/components/app-host';
 
 /**
  * Daily checklist template editor.
@@ -203,7 +203,7 @@ export default function ChecklistScreen() {
    */
   const suggestionsMenu =
     suggestions.length === 0 ? null : (
-      <Host matchContents>
+      <AppHost matchContents>
         <Menu
           label={<UIImage systemName="sparkles" size={17} />}
           modifiers={[
@@ -222,13 +222,13 @@ export default function ChecklistScreen() {
             />
           ))}
         </Menu>
-      </Host>
+      </AppHost>
     );
 
   return (
     <>
       <Stack.Screen options={{ headerRight: () => suggestionsMenu }} />
-      <Host style={{ flex: 1 }}>
+      <AppHost style={{ flex: 1 }}>
         <SettingsForm>
           <Section
             title={t`Checklist`}
@@ -314,7 +314,7 @@ export default function ChecklistScreen() {
             ) : null}
           </Section>
         </SettingsForm>
-      </Host>
+      </AppHost>
     </>
   );
 }

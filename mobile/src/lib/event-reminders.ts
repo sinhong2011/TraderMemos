@@ -7,16 +7,17 @@
  * bookmarked row renders filled and can take itself back out again; that
  * mapping has to survive a relaunch or the link to the system reminder is lost.
  *
- * MMKV-backed module store (reports-display.ts pattern) — the row that toggles
- * a bookmark and the rows re-rendered by it live in different subtrees.
+ * MMKV-persisted — the row that toggles a bookmark and the rows re-rendered by
+ * it live in different subtrees.
  */
 
-import { useSyncExternalStore } from 'react';
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 import { loadCalendar, traderMemosList } from '@/lib/ios-reminders';
-import { storage } from '@/storage/mmkv';
+import { mmkvStorage } from '@/storage/zustand-mmkv';
 
-const STORAGE_KEY = 'events:reminders';
+const PERSIST_KEY = 'store:event-reminders';
 
 /** Minutes before the release the alarm fires — enough to get to the desk. */
 const ALARM_LEAD_MINUTES = 15;
@@ -24,39 +25,36 @@ const ALARM_LEAD_MINUTES = 15;
 export type ReminderTarget = { id: number; title: string; time: string; country: string };
 
 type Bookmarks = Record<string, string>;
+type BookmarkState = { bookmarks: Bookmarks };
 
-function load(): Bookmarks {
-  const raw = storage.getString(STORAGE_KEY);
-  if (!raw) return {};
-  try {
-    const parsed = JSON.parse(raw) as Record<string, unknown>;
-    return Object.fromEntries(
-      Object.entries(parsed).filter(
-        (entry): entry is [string, string] => typeof entry[1] === 'string',
-      ),
-    );
-  } catch {
-    return {};
-  }
+/** Drop any entry whose reminder id isn't a string — a half-written map must
+ *  not make a bell tap throw. */
+function sanitize(raw: unknown): Bookmarks {
+  if (typeof raw !== 'object' || raw == null) return {};
+  return Object.fromEntries(
+    Object.entries(raw as Record<string, unknown>).filter(
+      (entry): entry is [string, string] => typeof entry[1] === 'string',
+    ),
+  );
 }
 
-let snapshot: Bookmarks = load();
-const listeners = new Set<() => void>();
+const useReminderStore = create<BookmarkState>()(
+  persist((): BookmarkState => ({ bookmarks: {} }), {
+    name: PERSIST_KEY,
+    storage: mmkvStorage<BookmarkState>(),
+    merge: (persisted, current) => ({
+      ...current,
+      bookmarks: sanitize((persisted as BookmarkState | undefined)?.bookmarks),
+    }),
+  }),
+);
 
-function publish(next: Bookmarks) {
-  snapshot = next;
-  storage.set(STORAGE_KEY, JSON.stringify(next));
-  for (const listener of listeners) listener();
+function bookmarks(): Bookmarks {
+  return useReminderStore.getState().bookmarks;
 }
 
 export function useEventBookmarks(): Bookmarks {
-  return useSyncExternalStore(
-    (callback) => {
-      listeners.add(callback);
-      return () => listeners.delete(callback);
-    },
-    () => snapshot,
-  );
+  return useReminderStore((state) => state.bookmarks);
 }
 
 export type ReminderResult = 'added' | 'removed' | 'denied' | 'failed' | 'unavailable';
@@ -89,7 +87,9 @@ async function add(event: ReminderTarget): Promise<ReminderResult> {
     });
     if (!reminder.id) return 'failed';
 
-    publish({ ...snapshot, [event.id]: reminder.id });
+    useReminderStore.setState((state) => ({
+      bookmarks: { ...state.bookmarks, [event.id]: reminder.id },
+    }));
     return 'added';
   } catch {
     return 'failed';
@@ -97,9 +97,11 @@ async function add(event: ReminderTarget): Promise<ReminderResult> {
 }
 
 async function remove(eventId: number): Promise<ReminderResult> {
-  const reminderId = snapshot[eventId];
-  const { [eventId]: _dropped, ...rest } = snapshot;
-  publish(rest);
+  const reminderId = bookmarks()[eventId];
+  useReminderStore.setState((state) => {
+    const { [eventId]: _dropped, ...rest } = state.bookmarks;
+    return { bookmarks: rest };
+  });
   if (!reminderId) return 'removed';
   try {
     const Calendar = await loadCalendar();
@@ -114,5 +116,5 @@ async function remove(eventId: number): Promise<ReminderResult> {
 /** Bookmark or un-bookmark a release. Callers surface `denied`/`failed`: a
  *  bookmark button that silently does nothing is worse than none at all. */
 export function toggleEventReminder(event: ReminderTarget): Promise<ReminderResult> {
-  return snapshot[event.id] ? remove(event.id) : add(event);
+  return bookmarks()[event.id] ? remove(event.id) : add(event);
 }

@@ -1,4 +1,4 @@
-import { ContentUnavailableView, Host } from '@expo/ui/swift-ui';
+import { ContentUnavailableView } from '@expo/ui/swift-ui';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { SymbolView } from 'expo-symbols';
@@ -31,6 +31,7 @@ import { dayKeyInTz } from '@/lib/events';
 import { useGlobalFilters } from '@/lib/filters';
 import { useMoneyFx } from '@/lib/money';
 import { accountBaseCurrency, resolveMarketTimezone, useDisplayPrefs } from '@/lib/prefs';
+import { AppHost } from '@/components/app-host';
 
 /** Recent trades shown on the overview — the full log lives on the Trades tab. */
 const RECENT_LIMIT = 5;
@@ -107,13 +108,13 @@ export default function DashboardScreen() {
 
   if (noData) {
     return (
-      <Host style={styles.centered}>
+      <AppHost style={styles.centered}>
         <ContentUnavailableView
           title={t`No trades yet`}
           systemImage="chart.line.uptrend.xyaxis"
           description={t`Import broker history or log a trade on the web app to see performance here.`}
         />
-      </Host>
+      </AppHost>
     );
   }
 

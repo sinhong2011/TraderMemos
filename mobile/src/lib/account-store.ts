@@ -1,28 +1,28 @@
 /**
  * Selected-account scope for the whole app. `null` means "All accounts" —
- * queries omit `account_id` and the API aggregates across accounts. Module
- * store (tag-bar.ts pattern) persisted to MMKV so the scope survives relaunch;
- * cleared on sign-out so the next user never inherits it.
+ * queries omit `account_id` and the API aggregates across accounts. Persisted
+ * to MMKV so the scope survives relaunch; cleared on sign-out so the next user
+ * never inherits it.
  */
 
-import { useSyncExternalStore } from 'react';
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
-import { storage } from '@/storage/mmkv';
+import { mmkvStorage } from '@/storage/zustand-mmkv';
 
-const STORAGE_KEY = 'prefs:selected-account';
+const PERSIST_KEY = 'store:selected-account';
 
-let selectedAccountId: string | null = storage.getString(STORAGE_KEY) ?? null;
-const listeners = new Set<() => void>();
+type AccountState = { selectedAccountId: string | null };
 
-function emit() {
-  for (const listener of listeners) listener();
-}
+export const useAccountStore = create<AccountState>()(
+  persist((): AccountState => ({ selectedAccountId: null }), {
+    name: PERSIST_KEY,
+    storage: mmkvStorage<AccountState>(),
+  }),
+);
 
 export function setSelectedAccountId(id: string | null) {
-  selectedAccountId = id;
-  if (id == null) storage.remove(STORAGE_KEY);
-  else storage.set(STORAGE_KEY, id);
-  emit();
+  useAccountStore.setState({ selectedAccountId: id });
 }
 
 /** Sign-out hook — the scope belongs to the session that picked it. */
@@ -31,15 +31,9 @@ export function clearSelectedAccount() {
 }
 
 export function getSelectedAccountId(): string | null {
-  return selectedAccountId;
+  return useAccountStore.getState().selectedAccountId;
 }
 
 export function useSelectedAccountId(): string | null {
-  return useSyncExternalStore(
-    (callback) => {
-      listeners.add(callback);
-      return () => listeners.delete(callback);
-    },
-    () => selectedAccountId,
-  );
+  return useAccountStore((state) => state.selectedAccountId);
 }

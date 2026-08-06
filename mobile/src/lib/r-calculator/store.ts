@@ -1,14 +1,18 @@
 /**
- * R-calculator state — the web zustand stores (useRCalculatorStore /
- * useFvgStore) folded into one MMKV-persisted module store, matching the
- * app-wide useSyncExternalStore pattern (tag-bar.ts). All math stays in the
- * pure engine files; this only owns sessions, the active pick, and derived
- * results.
+ * R-calculator state — the phone port of web's useRCalculatorStore and
+ * useFvgStore, kept as two MMKV-persisted stores like the originals. All math
+ * stays in the pure engine files; this only owns sessions, the active pick,
+ * and derived results.
+ *
+ * `normalizeV3` / `normalizeFvg` run as the `merge` step rather than at load:
+ * they are the schema guard *and* the v1→v3 migration, so a stored blob must
+ * pass through them before any component sees it.
  */
 
-import { useSyncExternalStore } from 'react';
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
-import { storage } from '@/storage/mmkv';
+import { mmkvStorage } from '@/storage/zustand-mmkv';
 import {
   calc,
   optionWarnings,
@@ -34,8 +38,8 @@ import {
   type Session,
 } from './sessions';
 
-const CALC_KEY = 'r-calc:sessions';
-const FVG_KEY = 'r-calc:fvg-sessions';
+const CALC_PERSIST_KEY = 'store:r-calc';
+const FVG_PERSIST_KEY = 'store:r-calc-fvg';
 
 function genId(): string {
   return `s${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
@@ -117,27 +121,27 @@ function snapshotCalc(sessions: Session[], activeId: string): RCalcSnapshot {
   return { sessions, activeId: active.id };
 }
 
-function loadCalc(): RCalcSnapshot {
-  let parsed: unknown = null;
-  const raw = storage.getString(CALC_KEY);
-  if (raw) {
-    try {
-      parsed = JSON.parse(raw);
-    } catch {
-      parsed = null;
-    }
-  }
+/** Normalization is the schema guard *and* the migration — v1/v2 blobs are
+ *  upgraded here, so it runs on the persisted value as well as on nothing. */
+function normalizeCalc(parsed: unknown): RCalcSnapshot {
   const normalized = normalizeV3(parsed, genId);
   return snapshotCalc(normalized.sessions, normalized.activeId);
 }
 
-let calcSnapshot = loadCalc();
-const calcListeners = new Set<() => void>();
+const useCalcStore = create<RCalcSnapshot>()(
+  persist((): RCalcSnapshot => normalizeCalc(null), {
+    name: CALC_PERSIST_KEY,
+    storage: mmkvStorage<RCalcSnapshot>(),
+    merge: (persisted) => normalizeCalc(persisted),
+  }),
+);
+
+function calcState(): RCalcSnapshot {
+  return useCalcStore.getState();
+}
 
 function commitCalc(sessions: Session[], activeId: string) {
-  calcSnapshot = snapshotCalc(sessions, activeId);
-  storage.set(CALC_KEY, JSON.stringify({ sessions, activeId: calcSnapshot.activeId }));
-  for (const listener of calcListeners) listener();
+  useCalcStore.setState(snapshotCalc(sessions, activeId));
 }
 
 /**
@@ -146,7 +150,7 @@ function commitCalc(sessions: Session[], activeId: string) {
  * a page that is mid-swipe and not yet the active one.
  */
 function updateSession(id: string, updater: (s: Session) => Session) {
-  const { sessions, activeId } = calcSnapshot;
+  const { sessions, activeId } = calcState();
   commitCalc(
     sessions.map((s) => (s.id === id ? updater(s) : s)),
     activeId,
@@ -154,35 +158,31 @@ function updateSession(id: string, updater: (s: Session) => Session) {
 }
 
 export function useRCalc(): RCalcSnapshot {
-  return useSyncExternalStore(
-    (callback) => {
-      calcListeners.add(callback);
-      return () => calcListeners.delete(callback);
-    },
-    () => calcSnapshot,
-  );
+  return useCalcStore();
 }
 
 export const rCalcActions = {
   setActive(id: string) {
-    if (!calcSnapshot.sessions.some((s) => s.id === id)) return;
-    commitCalc(calcSnapshot.sessions, id);
+    const { sessions } = calcState();
+    if (!sessions.some((s) => s.id === id)) return;
+    commitCalc(sessions, id);
   },
   setField<K extends keyof Session>(id: string, key: K, value: Session[K]) {
     updateSession(id, (s) => ({ ...s, [key]: value }));
   },
   addSession() {
     const id = genId();
-    commitCalc([...calcSnapshot.sessions, createDefaultSession(id)], id);
+    commitCalc([...calcState().sessions, createDefaultSession(id)], id);
   },
   duplicateSession(id: string) {
-    const src = calcSnapshot.sessions.find((s) => s.id === id);
+    const { sessions } = calcState();
+    const src = sessions.find((s) => s.id === id);
     if (!src) return;
     const newId = genId();
-    commitCalc([...calcSnapshot.sessions, cloneSession(src, newId, src.symbol)], newId);
+    commitCalc([...sessions, cloneSession(src, newId, src.symbol)], newId);
   },
   removeSession(id: string) {
-    const { sessions, activeId } = calcSnapshot;
+    const { sessions, activeId } = calcState();
     if (sessions.length <= 1) return;
     const idx = sessions.findIndex((s) => s.id === id);
     if (idx < 0) return;
@@ -246,46 +246,39 @@ function snapshotFvg(sessions: FvgSession[], activeId: string): FvgSnapshot {
   return { sessions, activeId: active.id };
 }
 
-function loadFvg(): FvgSnapshot {
-  let parsed: unknown = null;
-  const raw = storage.getString(FVG_KEY);
-  if (raw) {
-    try {
-      parsed = JSON.parse(raw);
-    } catch {
-      parsed = null;
-    }
-  }
+function normalizeFvgState(parsed: unknown): FvgSnapshot {
   const normalized = normalizeFvg(parsed, genId);
   return snapshotFvg(normalized.sessions, normalized.activeId);
 }
 
-let fvgSnapshot = loadFvg();
-const fvgListeners = new Set<() => void>();
+const useFvgStore = create<FvgSnapshot>()(
+  persist((): FvgSnapshot => normalizeFvgState(null), {
+    name: FVG_PERSIST_KEY,
+    storage: mmkvStorage<FvgSnapshot>(),
+    merge: (persisted) => normalizeFvgState(persisted),
+  }),
+);
+
+function fvgState(): FvgSnapshot {
+  return useFvgStore.getState();
+}
 
 function commitFvg(sessions: FvgSession[], activeId: string) {
-  fvgSnapshot = snapshotFvg(sessions, activeId);
-  storage.set(FVG_KEY, JSON.stringify({ sessions, activeId: fvgSnapshot.activeId }));
-  for (const listener of fvgListeners) listener();
+  useFvgStore.setState(snapshotFvg(sessions, activeId));
 }
 
 export function useFvg(): FvgSnapshot {
-  return useSyncExternalStore(
-    (callback) => {
-      fvgListeners.add(callback);
-      return () => fvgListeners.delete(callback);
-    },
-    () => fvgSnapshot,
-  );
+  return useFvgStore();
 }
 
 export const fvgActions = {
   setActive(id: string) {
-    if (!fvgSnapshot.sessions.some((s) => s.id === id)) return;
-    commitFvg(fvgSnapshot.sessions, id);
+    const { sessions } = fvgState();
+    if (!sessions.some((s) => s.id === id)) return;
+    commitFvg(sessions, id);
   },
   setField<K extends keyof FvgInput>(id: string, key: K, value: FvgInput[K]) {
-    const { sessions, activeId } = fvgSnapshot;
+    const { sessions, activeId } = fvgState();
     commitFvg(
       sessions.map((s) => (s.id === id ? { ...s, [key]: value } : s)),
       activeId,
@@ -293,10 +286,10 @@ export const fvgActions = {
   },
   addSession() {
     const id = genId();
-    commitFvg([...fvgSnapshot.sessions, createDefaultFvgSession(id)], id);
+    commitFvg([...fvgState().sessions, createDefaultFvgSession(id)], id);
   },
   removeSession(id: string) {
-    const { sessions, activeId } = fvgSnapshot;
+    const { sessions, activeId } = fvgState();
     if (sessions.length <= 1) return;
     const idx = sessions.findIndex((s) => s.id === id);
     if (idx < 0) return;
@@ -304,7 +297,7 @@ export const fvgActions = {
     commitFvg(next, activeId === id ? next[Math.max(0, idx - 1)].id : activeId);
   },
   setSymbol(id: string, symbol: string) {
-    const { sessions, activeId } = fvgSnapshot;
+    const { sessions, activeId } = fvgState();
     commitFvg(
       sessions.map((s) => (s.id === id ? { ...s, symbol } : s)),
       activeId,

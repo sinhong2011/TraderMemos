@@ -1,10 +1,9 @@
-import { SymbolView } from 'expo-symbols';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 export type ChipTone = 'accent' | 'neg';
 
-/** Multi-select groups mark their picks; single-select ones behave like radios. */
+/** Multi-select chips read as checkboxes to assistive tech; single as radios. */
 export type ChipSelect = 'single' | 'multi';
 
 type Option = { value: string; label: string };
@@ -50,11 +49,6 @@ export function ChipGroup({
               pressed && styles.pressed,
             ]}
           >
-            {/* Only multi-select marks its picks — the checkmark is what says
-                "you can choose several here" without a word of copy. */}
-            {select === 'multi' && active ? (
-              <SymbolView name="checkmark" size={11} weight="bold" tintColor={activeColor} />
-            ) : null}
             <Text style={[styles.label, active && styles.labelActive]} numberOfLines={1}>
               {option.label}
             </Text>

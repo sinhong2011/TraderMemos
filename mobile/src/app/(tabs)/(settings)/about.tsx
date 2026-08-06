@@ -1,5 +1,4 @@
 import {
-  Host,
   HStack,
   Image,
   LabeledContent,
@@ -16,6 +15,7 @@ import { useApiHealth } from '@/api/hooks';
 import { useSession } from '@/api/session';
 import { t } from '@lingui/core/macro';
 import { SettingsForm } from '@/components/settings-form';
+import { AppHost } from '@/components/app-host';
 
 /** Same source of truth as web/src/lib/aboutContent.ts. */
 const REPO_URL = 'https://github.com/sinhong2011/TraderMemos';
@@ -38,7 +38,7 @@ export default function AboutScreen() {
   const secondary = foregroundStyle({ type: 'hierarchical', style: 'secondary' });
 
   return (
-    <Host style={{ flex: 1 }}>
+    <AppHost style={{ flex: 1 }}>
       <SettingsForm>
         <Section title={t`App`}>
           <LabeledContent label={t`Version`}>
@@ -126,6 +126,6 @@ export default function AboutScreen() {
           </Link>
         </Section>
       </SettingsForm>
-    </Host>
+    </AppHost>
   );
 }

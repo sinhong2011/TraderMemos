@@ -1,3 +1,4 @@
+import { DatePicker } from '@expo/ui/swift-ui';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
@@ -6,20 +7,21 @@ import { StyleSheet } from 'react-native-unistyles';
 
 import { useAccounts, useApiRequest, useCash } from '@/api/hooks';
 import type { Account, CashTransaction } from '@/api/types';
+import { ControlPill } from '@/components/control-pill';
 import {
-  Card,
-  ControlRow,
-  DateRow,
-  InputRow,
-  SectionFooter,
-  SectionHeader,
-} from '@/components/form-rows';
-import { FormSheet } from '@/components/form-sheet';
+  FormControl,
+  FormField,
+  FormFootnote,
+  FormInput,
+  FormRow,
+  FormSheet,
+} from '@/components/form-sheet';
 import { Segmented } from '@/components/segmented';
 import { FormSkeleton } from '@/components/skeleton';
 import { t } from '@lingui/core/macro';
 import { parseAmount } from '@/lib/amount';
 import { CASH_TYPES, signedCashAmount } from '@/lib/cash';
+import { AppHost } from '@/components/app-host';
 
 /** Noon-UTC anchor keeps the calendar day stable across timezones. */
 function toOccurredAt(date: Date): string {
@@ -34,11 +36,11 @@ function toOccurredAt(date: Date): string {
 /**
  * Create/edit one cash-ledger entry (web "Add/Edit transaction" modals).
  *
- * Built on `FormSheet` + the shared inset-grouped rows, like every other
- * creation sheet (new-token, the tool sheets): glass chrome, one commit in the
- * header, grouped card below. It used to be a SwiftUI `Form` with the native
- * nav bar — correct for a settings *screen*, but this is a creation sheet, and
- * it was the only one wearing the other idiom.
+ * Built on `FormSheet` in the creation-sheet idiom the token and tag sheets
+ * use: glass chrome, one commit in the header, quiet captions over full-width
+ * controls. It wore the inset-grouped rows (label left, value right) until
+ * 2026-08-06 — that vocabulary stays with the multi-section forms (trade,
+ * setup), while the short sheets all read the same way.
  *
  * Edit mode (`?id=`) pins the account — the API's PUT does not move entries
  * between accounts — and adds the destructive action.
@@ -153,17 +155,24 @@ function CashForm({
       inSheet
       title={isEdit ? t`Edit transaction` : t`Add transaction`}
       saving={save.isPending}
-      saveLabel={isEdit ? t`Save` : t`Add`}
+      // Commit is the glass checkmark, like every other creation sheet — the
+      // sheet title already says which verb this is.
       saveDisabled={!canSave}
       onSave={handleSave}
     >
-      <SectionHeader label={t`Transaction`} />
-      <Card>
-        {/* Edit pins the account (the PUT can't move an entry), and with a
-            single account there is nothing to choose — show it as a value. */}
-        {!isEdit && accounts.length > 1 ? (
-          <ControlRow label={t`Account`}>
+      <FormFootnote>
+        {t`Deposits, withdrawals, and fees drive the equity curve alongside trade P&L.`}
+      </FormFootnote>
+      {/* Edit pins the account (the PUT can't move an entry), and with a
+          single account there is nothing to choose — show it as a value. */}
+      {!isEdit && accounts.length > 1 ? (
+        <FormField quiet label={t`Account`}>
+          <FormControl>
+            {/* Hugging, not `fill`: a stretched Host gives the SwiftUI menu a
+                frame it lays its label out against on its own, and the label
+                lands outside the shell (half off-screen). */}
             <Segmented
+              flush
               variant="menu"
               value={accountId}
               onChange={setAccountId}
@@ -172,39 +181,59 @@ function CashForm({
                 label: candidate.name,
               }))}
             />
-          </ControlRow>
-        ) : account ? (
-          <ControlRow label={t`Account`}>
-            <Text style={styles.rowValue}>{account.name}</Text>
-          </ControlRow>
-        ) : null}
-        {/* Six types — a pull-down menu, not a segmented control. */}
-        <ControlRow label={t`Type`}>
+          </FormControl>
+        </FormField>
+      ) : account ? (
+        <FormField quiet label={t`Account`}>
+          <FormControl>
+            <Text style={styles.staticValue}>{account.name}</Text>
+          </FormControl>
+        </FormField>
+      ) : null}
+      {/* Six types — a pull-down menu, not a segmented control. The menu
+          carries its own value, so it rides a row instead of a caption. */}
+      <FormRow label={t`Type`}>
+        {/* Filled pill so the value reads as a control, matching the date
+            picker's own pill in the row below. No `flush` here — the menu's
+            built-in label padding is what fills the pill. */}
+        <ControlPill>
           <Segmented variant="menu" value={type} onChange={setType} options={typeOptions} />
-        </ControlRow>
-        <InputRow
-          label={t`Amount`}
+        </ControlPill>
+      </FormRow>
+      {/* Amount is the only thing a new entry can't default — open on it,
+          keyboard up. Editing starts read-first, so no grab there. */}
+      <FormField quiet label={t`Amount`}>
+        <FormInput
           value={amount}
           onChangeText={setAmount}
           placeholder="0.00"
           numeric
+          autoFocus={!isEdit}
         />
-        <DateRow
-          label={t`Date`}
-          selection={date}
-          displayedComponents={['date']}
-          onDateChange={setDate}
-        />
-        <InputRow
-          label={t`Note`}
+      </FormField>
+      <FormRow label={t`Date`}>
+        {/*
+          `ignoreSafeArea` is load-bearing: a hosted SwiftUI view still insets
+          its content by the container safe area, so a picker near the
+          home-indicator band draws its pill above its own frame.
+        */}
+        <AppHost matchContents ignoreSafeArea="all">
+          <DatePicker selection={date} displayedComponents={['date']} onDateChange={setDate} />
+        </AppHost>
+      </FormRow>
+      {/* A note is prose — "wire from broker, settles Monday" — so it gets a
+          writing box, not a one-line field. */}
+      <FormField quiet label={t`Note`}>
+        <FormInput
+          multiline
           value={note}
           onChangeText={setNote}
           placeholder={t`Optional note`}
         />
-      </Card>
-      {/* A disabled Add needs a reason: with no accounts there is nothing to
-          book the entry against. */}
-      {!isEdit && account == null ? <SectionFooter label={t`Add an account first.`} /> : null}
+      </FormField>
+      {/* A disabled commit needs a reason: with no accounts there is nothing
+          to book the entry against. */}
+      {!isEdit && account == null ? <FormFootnote>{t`Add an account first.`}</FormFootnote> : null}
 
       {/* Remove sits in the body, away from the header's commit — destructive
           actions shouldn't be a thumb-slip from Save. */}
@@ -227,7 +256,7 @@ function CashForm({
 }
 
 const styles = StyleSheet.create((theme) => ({
-  rowValue: { fontSize: 15, color: theme.colors.mutedForeground },
+  staticValue: { fontSize: 16, color: theme.colors.mutedForeground },
   dangerZone: { paddingTop: theme.spacing.xl, alignItems: 'center' },
   deleteButton: { paddingVertical: theme.spacing.sm, paddingHorizontal: theme.spacing.lg },
   pressed: { opacity: 0.6 },

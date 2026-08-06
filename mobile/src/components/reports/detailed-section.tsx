@@ -1,4 +1,4 @@
-import { Chart, Host } from '@expo/ui/swift-ui';
+import { Chart } from '@expo/ui/swift-ui';
 import { Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -18,6 +18,7 @@ import { t } from '@lingui/core/macro';
 import { formatPercent, formatRatio } from '@/lib/format';
 import { formatHourKeyLabel } from '@/lib/prefs';
 import { pnlColor } from '@/styles/unistyles';
+import { AppHost } from '@/components/app-host';
 
 const MAX_ROWS = 10;
 
@@ -133,9 +134,9 @@ function DayOfWeekCard({ ctx }: { ctx: ReportsMoneyContext }) {
 
   return (
     <DashboardCard title={t`Day of week`}>
-      <Host style={styles.chart}>
+      <AppHost style={styles.chart}>
         <Chart data={data} type="bar" showGrid animate barStyle={{ cornerRadius: 2 }} />
-      </Host>
+      </AppHost>
     </DashboardCard>
   );
 }

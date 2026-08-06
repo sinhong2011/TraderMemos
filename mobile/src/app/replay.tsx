@@ -1,4 +1,8 @@
-import { Button as UIButton, Host, Image as UIImage, Menu } from '@expo/ui/swift-ui';
+import {
+  Button as UIButton,
+  Image as UIImage,
+  Menu,
+} from '@expo/ui/swift-ui';
 import { accessibilityLabel, buttonStyle, tint as tintModifier } from '@expo/ui/swift-ui/modifiers';
 import { File as FsFile } from 'expo-file-system';
 import { SymbolView } from 'expo-symbols';
@@ -33,6 +37,7 @@ import { useDisplayPrefs } from '@/lib/prefs';
 import { useReplayController, useReplayRun } from '@/lib/replay';
 import { BAR_INTERVALS, useTradeBars } from '@/lib/trade-bars';
 import { pnlColor } from '@/styles/unistyles';
+import { AppHost } from '@/components/app-host';
 
 /**
  * Floor for the plot. The chart takes whatever the readout and transport leave
@@ -361,7 +366,7 @@ function Stage({
                   value={bars.interval}
                   onChange={bars.pickInterval}
                 />
-                <Host matchContents>
+                <AppHost matchContents>
                   <Menu
                     label={<UIImage systemName="ellipsis.circle" size={17} />}
                     modifiers={[
@@ -381,7 +386,7 @@ function Stage({
                       onPress={() => void shareFrame()}
                     />
                   </Menu>
-                </Host>
+                </AppHost>
               </View>
             ),
         }}

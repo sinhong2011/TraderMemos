@@ -2,15 +2,16 @@
  * Reports display controls (side / duration / P&L basis / unit / average) and
  * the money logic that honors them — the mobile port of web's
  * ReportsDisplayContext plus the ReportsControlBar state, folded into one
- * MMKV-persisted module store (tag-bar.ts pattern) since the nav-bar filter
- * menu and the section components live in different subtrees.
+ * MMKV-persisted store since the nav-bar filter menu and the section
+ * components live in different subtrees.
  */
 
-import { useSyncExternalStore } from 'react';
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 import type { Summary, Trade } from '@/api/types';
 import { formatPercent, formatPnl, formatPnlCompact } from '@/lib/format';
-import { storage } from '@/storage/mmkv';
+import { mmkvStorage } from '@/storage/zustand-mmkv';
 
 export type ReportsSide = 'all' | 'long' | 'short';
 export type ReportsDuration = 'all' | 'scalp' | 'day' | 'swing';
@@ -35,7 +36,7 @@ const DEFAULTS: ReportsControls = {
   avgMode: 'mean',
 };
 
-const STORAGE_KEY = 'reports:controls';
+const PERSIST_KEY = 'store:reports-controls';
 
 function pick<T extends string>(value: unknown, allowed: readonly T[], fallback: T): T {
   return typeof value === 'string' && (allowed as readonly string[]).includes(value)
@@ -43,44 +44,36 @@ function pick<T extends string>(value: unknown, allowed: readonly T[], fallback:
     : fallback;
 }
 
-function load(): ReportsControls {
-  const raw = storage.getString(STORAGE_KEY);
-  if (!raw) return DEFAULTS;
-  try {
-    const parsed = JSON.parse(raw) as Record<string, unknown>;
-    return {
-      side: pick(parsed.side, ['all', 'long', 'short'], DEFAULTS.side),
-      duration: pick(parsed.duration, ['all', 'scalp', 'day', 'swing'], DEFAULTS.duration),
-      pnlMode: pick(parsed.pnlMode, ['net', 'gross'], DEFAULTS.pnlMode),
-      unitMode: pick(parsed.unitMode, ['abs', 'pct'], DEFAULTS.unitMode),
-      avgMode: pick(parsed.avgMode, ['mean', 'median'], DEFAULTS.avgMode),
-    };
-  } catch {
-    return DEFAULTS;
-  }
+/** Validate every field — a stale or hand-edited blob never wedges the menu. */
+function sanitize(raw: unknown): ReportsControls {
+  const parsed = (raw ?? {}) as Record<string, unknown>;
+  return {
+    side: pick(parsed.side, ['all', 'long', 'short'], DEFAULTS.side),
+    duration: pick(parsed.duration, ['all', 'scalp', 'day', 'swing'], DEFAULTS.duration),
+    pnlMode: pick(parsed.pnlMode, ['net', 'gross'], DEFAULTS.pnlMode),
+    unitMode: pick(parsed.unitMode, ['abs', 'pct'], DEFAULTS.unitMode),
+    avgMode: pick(parsed.avgMode, ['mean', 'median'], DEFAULTS.avgMode),
+  };
 }
 
-let snapshot: ReportsControls = load();
-const listeners = new Set<() => void>();
+const useReportsStore = create<ReportsControls>()(
+  persist((): ReportsControls => DEFAULTS, {
+    name: PERSIST_KEY,
+    storage: mmkvStorage<ReportsControls>(),
+    merge: (persisted) => sanitize(persisted),
+  }),
+);
 
 export function setReportsControls(patch: Partial<ReportsControls>) {
-  snapshot = { ...snapshot, ...patch };
-  storage.set(STORAGE_KEY, JSON.stringify(snapshot));
-  for (const listener of listeners) listener();
+  useReportsStore.setState(patch);
 }
 
 export function resetReportsControls() {
-  setReportsControls(DEFAULTS);
+  useReportsStore.setState(DEFAULTS);
 }
 
 export function useReportsControls(): ReportsControls {
-  return useSyncExternalStore(
-    (callback) => {
-      listeners.add(callback);
-      return () => listeners.delete(callback);
-    },
-    () => snapshot,
-  );
+  return useReportsStore();
 }
 
 // ---------------------------------------------------------------------------

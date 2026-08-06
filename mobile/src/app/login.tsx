@@ -2,7 +2,6 @@ import {
   BottomSheet,
   Button as UIButton,
   Group,
-  Host,
   Image as UIImage,
   Text as UIText,
   TextField,
@@ -50,6 +49,7 @@ import { login, ping } from '@/api/client';
 import { PasswordInput } from '@/components/password-input';
 import { loadServerUrl, normalizeServerUrl, useSession } from '@/api/session';
 import { t } from '@lingui/core/macro';
+import { AppHost } from '@/components/app-host';
 
 const GRID_CELL = 44;
 
@@ -260,7 +260,7 @@ export default function LoginScreen() {
         </ScrollView>
       </KeyboardAvoidingView>
 
-      <Host style={styles.sheetHost}>
+      <AppHost style={styles.sheetHost}>
         <BottomSheet isPresented={advancedOpen} onIsPresentedChange={setAdvancedOpen}>
           <Group
             modifiers={[
@@ -332,7 +332,7 @@ export default function LoginScreen() {
             </VStack>
           </Group>
         </BottomSheet>
-      </Host>
+      </AppHost>
     </View>
   );
 }

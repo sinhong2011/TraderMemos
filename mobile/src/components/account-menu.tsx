@@ -1,4 +1,7 @@
-import { Button as UIButton, Host, Menu } from '@expo/ui/swift-ui';
+import {
+  Button as UIButton,
+  Menu,
+} from '@expo/ui/swift-ui';
 import { labelStyle, tint } from '@expo/ui/swift-ui/modifiers';
 import { SymbolView } from 'expo-symbols';
 import { Alert, Platform, Pressable } from 'react-native';
@@ -7,6 +10,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { useAccounts } from '@/api/hooks';
 import { setSelectedAccountId, useSelectedAccountId } from '@/lib/account-store';
 import { t } from '@lingui/core/macro';
+import { AppHost } from '@/components/app-host';
 
 /**
  * Header account scope switcher — SwiftUI Menu listing every account plus
@@ -56,7 +60,7 @@ export function AccountMenu() {
   }
 
   return (
-    <Host matchContents>
+    <AppHost matchContents>
       {/* String label + iconOnly, like TradeFilterMenu — a UIImage label
           measured to zero in headerLeft and never took taps. */}
       <Menu
@@ -78,7 +82,7 @@ export function AccountMenu() {
           />
         ))}
       </Menu>
-    </Host>
+    </AppHost>
   );
 }
 

@@ -1,4 +1,4 @@
-import { ContentUnavailableView, Host } from '@expo/ui/swift-ui';
+import { ContentUnavailableView } from '@expo/ui/swift-ui';
 import { useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
 import { SymbolView } from 'expo-symbols';
@@ -15,6 +15,7 @@ import { Segmented } from '@/components/segmented';
 import { Skeleton } from '@/components/skeleton';
 import { t } from '@lingui/core/macro';
 import { storage } from '@/storage/mmkv';
+import { AppHost } from '@/components/app-host';
 
 type Market = 'stock' | 'crypto' | 'forex' | 'future';
 
@@ -159,13 +160,13 @@ export default function AdvancedChartScreen() {
         ) : null}
 
         {symbol === '' ? (
-          <Host style={styles.emptyHost}>
+          <AppHost style={styles.emptyHost}>
             <ContentUnavailableView
               title={t`Pick a symbol`}
               systemImage="chart.xyaxis.line"
               description={t`Search a ticker above to load its chart.`}
             />
-          </Host>
+          </AppHost>
         ) : (
           <DashboardCard
             title={symbol}

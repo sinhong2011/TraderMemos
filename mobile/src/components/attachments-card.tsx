@@ -1,4 +1,7 @@
-import { Button as UIButton, Host, Menu } from '@expo/ui/swift-ui';
+import {
+  Button as UIButton,
+  Menu,
+} from '@expo/ui/swift-ui';
 import {
   buttonBorderShape,
   buttonStyle,
@@ -20,7 +23,8 @@ import { useSession } from '@/api/session';
 import type { TradeDetail } from '@/api/types';
 import { DashboardCard } from '@/components/dashboard-card';
 import { t } from '@lingui/core/macro';
-import { getPrefs } from '@/lib/prefs';
+import { getJournalPrefs } from '@/lib/journal-prefs';
+import { AppHost } from '@/components/app-host';
 
 /** The server only accepts these (content-sniffed); HEIC from Photos gets
  *  re-encoded to jpeg by the picker, but a HEIC *file* would be rejected. */
@@ -56,7 +60,7 @@ export function AttachmentsCard({ trade }: { trade: TradeDetail }) {
 
   /** Remaining slots under the max-screenshots pref, or Infinity. */
   function remainingRoom(): number {
-    const max = getPrefs().maxScreenshotsPerTrade;
+    const max = getJournalPrefs().maxScreenshotsPerTrade;
     const room = max != null ? max - trade.attachments.length : Number.POSITIVE_INFINITY;
     if (room <= 0) {
       Alert.alert(
@@ -186,7 +190,7 @@ export function AttachmentsCard({ trade }: { trade: TradeDetail }) {
         {uploading ? (
           <ActivityIndicator />
         ) : (
-          <Host matchContents>
+          <AppHost matchContents>
             <Menu
               label={t`Add screenshot`}
               systemImage="photo.badge.plus"
@@ -210,7 +214,7 @@ export function AttachmentsCard({ trade }: { trade: TradeDetail }) {
                 onPress={() => void pickFromFiles()}
               />
             </Menu>
-          </Host>
+          </AppHost>
         )}
       </View>
     </DashboardCard>

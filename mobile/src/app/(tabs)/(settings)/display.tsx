@@ -1,16 +1,11 @@
 import {
-  Button,
-  Host,
-  HStack,
-  Image,
   LabeledContent,
   Picker,
   Section,
-  Spacer,
   Text as UIText,
   Toggle,
 } from '@expo/ui/swift-ui';
-import { foregroundStyle, monospacedDigit, pickerStyle, tag } from '@expo/ui/swift-ui/modifiers';
+import { monospacedDigit, pickerStyle, tag } from '@expo/ui/swift-ui/modifiers';
 import { Alert } from 'react-native';
 import { useUnistyles } from 'react-native-unistyles';
 
@@ -29,7 +24,6 @@ import {
   resolveMarketTimezone,
   setDisplayCurrency,
   setMarketTimezone,
-  setMaxScreenshotsPerTrade,
   setPrivacyMode,
   setTimeFormat,
   setTimezone,
@@ -41,6 +35,7 @@ import {
   type MarketTimezonePref,
   type TimezonePref,
 } from '@/lib/prefs';
+import { AppHost } from '@/components/app-host';
 
 /** Sentinel for the "follow account base currency" picker row. */
 const CURRENCY_BASE = '__base__';
@@ -62,7 +57,8 @@ function sampleInstant(): string {
  * Display preferences — privacy, currency, clocks. Every pref here is abstract
  * until you see it applied, so the screen opens with a live preview of a sample
  * amount and timestamp; the sections below then read as "what money looks like
- * → what a day is → what a clock reads → journaling caps".
+ * → what a day is → what a clock reads". Formatting only: the screenshots cap
+ * is a journaling rule and lives under Trading & journal on the hub.
  *
  * The market timezone is the consequential pick (it re-buckets every calendar
  * day and hourly stat), so it sits with the trade date basis under Trading day;
@@ -85,40 +81,10 @@ export default function DisplaySettingsScreen() {
     timeZone: resolveMarketTimezone(prefs.marketTimezone),
   });
 
-  // iOS idiom: single numeric value edits via a native prompt, not an inline field.
-  function editMaxScreenshots() {
-    Alert.prompt(
-      t`Screenshots per trade`,
-      t`Leave blank for no limit.`,
-      [
-        { text: t`Cancel`, style: 'cancel' },
-        {
-          text: t`Save`,
-          onPress: (text?: string) => {
-            const raw = (text ?? '').trim();
-            if (raw === '') {
-              setMaxScreenshotsPerTrade(null);
-              return;
-            }
-            const parsed = Number(raw);
-            if (!Number.isFinite(parsed) || parsed < 1) {
-              Alert.alert(t`Could not save`, t`Enter a number of 1 or more.`);
-              return;
-            }
-            setMaxScreenshotsPerTrade(parsed);
-          },
-        },
-      ],
-      'plain-text',
-      prefs.maxScreenshotsPerTrade != null ? String(prefs.maxScreenshotsPerTrade) : '',
-      'number-pad',
-    );
-  }
-
   function confirmReset() {
     Alert.alert(
       t`Reset display settings?`,
-      t`Privacy, currency, clocks, and caps go back to their defaults.`,
+      t`Privacy, currency, and clocks go back to their defaults.`,
       [
         { text: t`Cancel`, style: 'cancel' },
         { text: t`Reset`, style: 'destructive', onPress: () => resetDisplayPrefs() },
@@ -127,7 +93,7 @@ export default function DisplaySettingsScreen() {
   }
 
   return (
-    <Host style={{ flex: 1, backgroundColor: theme.colors.background }}>
+    <AppHost style={{ flex: 1, backgroundColor: theme.colors.background }}>
       <SettingsForm>
         {/* Live consequence of every setting below — amounts mask under privacy
             mode, and the trading day drifts off the timestamp when the two
@@ -258,34 +224,6 @@ export default function DisplaySettingsScreen() {
           </Picker>
         </Section>
 
-        {/* Value on the right with a chevron — same row idiom as the P&L goal. */}
-        <Section
-          title={t`Screenshots`}
-          footer={
-            <UIText>{t`Caps how many images one trade keeps, so a busy day of chart grabs doesn't fill the device.`}</UIText>
-          }
-        >
-          <Button onPress={editMaxScreenshots}>
-            <HStack spacing={8}>
-              <UIText modifiers={[foregroundStyle({ type: 'hierarchical', style: 'primary' })]}>
-                {t`Per trade`}
-              </UIText>
-              <Spacer />
-              <UIText
-                modifiers={[
-                  foregroundStyle({ type: 'hierarchical', style: 'secondary' }),
-                  monospacedDigit(),
-                ]}
-              >
-                {prefs.maxScreenshotsPerTrade != null
-                  ? String(prefs.maxScreenshotsPerTrade)
-                  : t`No limit`}
-              </UIText>
-              <Image systemName="chevron.right" size={12} color={theme.colors.mutedForeground} />
-            </HStack>
-          </Button>
-        </Section>
-
         {isDefaultDisplayPrefs(prefs) ? null : (
           <Section>
             <CenteredButton
@@ -296,6 +234,6 @@ export default function DisplaySettingsScreen() {
           </Section>
         )}
       </SettingsForm>
-    </Host>
+    </AppHost>
   );
 }

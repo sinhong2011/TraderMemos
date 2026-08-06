@@ -1,4 +1,4 @@
-import { ContentUnavailableView, Host } from '@expo/ui/swift-ui';
+import { ContentUnavailableView } from '@expo/ui/swift-ui';
 import { FlashList } from '@shopify/flash-list';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
@@ -15,12 +15,13 @@ import { useApiRequest, useNotes } from '@/api/hooks';
 import type { Note } from '@/api/types';
 import { Pill } from '@/components/pill';
 import { FloatingSearchBar, SearchToggle } from '@/components/search-bar';
-import { Segmented } from '@/components/segmented';
 import { Skeleton } from '@/components/skeleton';
+import { TradeFilterMenu } from '@/components/trade-filter-menu';
 import { t } from '@lingui/core/macro';
 import { locale } from '@/i18n';
 import { checklistProgress, noteExcerpt } from '@/lib/markdown';
 import { noteMediaIds } from '@/lib/note-media';
+import { AppHost } from '@/components/app-host';
 
 type TypeFilter = 'all' | 'note' | 'daily_log';
 
@@ -173,8 +174,31 @@ export default function NotesScreen() {
     </Pressable>
   );
 
+  const filters = [
+    { value: 'all', label: t`All` },
+    { value: 'note', label: t`Notes` },
+    { value: 'daily_log', label: t`Logs` },
+  ];
+
+  /*
+    The type filter is a nav-bar pull-down, not a segmented control above the
+    list (the Trades/Reports idiom): three permanent buttons cost a row at the
+    top of a list you mostly scroll, and "All" is the answer nearly every time.
+  */
   const headerActions = (
     <View style={styles.headerActions}>
+      <TradeFilterMenu
+        active={type !== 'all'}
+        onReset={() => setType('all')}
+        groups={[
+          {
+            key: 'type',
+            options: filters,
+            value: type,
+            onChange: (value) => setType(value as TypeFilter),
+          },
+        ]}
+      />
       <SearchToggle
         open={searching}
         active={search.trim().length > 0}
@@ -187,12 +211,6 @@ export default function NotesScreen() {
       {addButton}
     </View>
   );
-
-  const filters = [
-    { value: 'all' as const, label: t`All` },
-    { value: 'note' as const, label: t`Notes` },
-    { value: 'daily_log' as const, label: t`Logs` },
-  ];
 
   const rows = useMemo(() => {
     const q = search.trim();
@@ -248,23 +266,23 @@ export default function NotesScreen() {
             />
           )}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
-          ListHeaderComponent={
-            <View style={styles.header}>
-              <Segmented options={filters} value={type} onChange={setType} />
-            </View>
-          }
           ListEmptyComponent={
-            <Host style={styles.empty}>
+            <AppHost style={styles.empty}>
+              {/* The filter now lives in a pull-down, so an empty list has to
+                  say it is narrowed — otherwise a stray "Logs" filter reads as
+                  having no notes at all. */}
               <ContentUnavailableView
-                title={search ? t`No matching notes` : t`No notes yet`}
+                title={search || type !== 'all' ? t`No matching notes` : t`No notes yet`}
                 systemImage="note.text"
                 description={
                   search
                     ? t`Try a different search.`
-                    : t`Capture market thoughts or a daily log from the + menu.`
+                    : type !== 'all'
+                      ? t`Try a different filter.`
+                      : t`Capture market thoughts or a daily log from the + menu.`
                 }
               />
-            </Host>
+            </AppHost>
           }
         />
       )}
@@ -289,7 +307,6 @@ const styles = StyleSheet.create((theme) => ({
     paddingBottom: theme.spacing.xl * 2,
     backgroundColor: theme.colors.background,
   },
-  header: { paddingBottom: theme.spacing.md, alignItems: 'flex-start' },
   headerActions: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md },
   row: {
     gap: theme.spacing.xs + 2,
