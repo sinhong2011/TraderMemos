@@ -117,6 +117,7 @@ export function navLabel(locale: string, key: NavLabelKey): string {
 
 export type SettingsSectionId =
   | "profile"
+  | "users"
   | "accounts"
   | "rules"
   | "journal"
@@ -130,6 +131,9 @@ export type SettingsLabelKey =
   | "profile"
   | "profileTitle"
   | "profileDescription"
+  | "users"
+  | "usersTitle"
+  | "usersDescription"
   | "accounts"
   | "rules"
   | "journal"
@@ -287,6 +291,9 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     profile: "Profile",
     profileTitle: "Your account",
     profileDescription: "Who you are signed in as, and your password.",
+    users: "Users",
+    usersTitle: "Users",
+    usersDescription: "Everyone with an account on this server.",
     generalTitle: "General",
     generalDescription: "Preferences and session.",
     apiTitle: "API access",
@@ -440,6 +447,9 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     profile: "個人檔案",
     profileTitle: "我的帳戶",
     profileDescription: "目前登入的身分，以及密碼設定。",
+    users: "使用者",
+    usersTitle: "使用者",
+    usersDescription: "此伺服器上所有擁有帳戶的人。",
     generalTitle: "一般",
     generalDescription: "偏好設定及工作階段。",
     apiTitle: "API 存取",
@@ -586,6 +596,9 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     profile: "プロフィール",
     profileTitle: "アカウント",
     profileDescription: "サインイン中のアカウントとパスワード。",
+    users: "ユーザー",
+    usersTitle: "ユーザー",
+    usersDescription: "このサーバーにアカウントを持つすべての人。",
     generalTitle: "一般",
     generalDescription: "設定とセッション。",
     apiTitle: "API アクセス",
@@ -739,6 +752,9 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     profile: "프로필",
     profileTitle: "내 계정",
     profileDescription: "로그인한 계정과 비밀번호.",
+    users: "사용자",
+    usersTitle: "사용자",
+    usersDescription: "이 서버에 계정이 있는 모든 사람.",
     generalTitle: "일반",
     generalDescription: "환경설정 및 세션.",
     apiTitle: "API 접근",
@@ -895,6 +911,7 @@ export function settingsNavItems(locale: string): {
   return (
     [
       { id: "profile", key: "profile" },
+      { id: "users", key: "users" },
       { id: "general", key: "general" },
       { id: "shortcuts", key: "shortcuts" },
       { id: "accounts", key: "accounts" },

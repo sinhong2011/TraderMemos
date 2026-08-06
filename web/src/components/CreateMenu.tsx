@@ -154,7 +154,7 @@ export function CreateMenu({ variant = "header" }: { variant?: "header" | "fab" 
                     aria-hidden
                     className={cn(
                       "flex size-11 shrink-0 items-center justify-center rounded-full",
-                      "bg-invert text-primary shadow-lg shadow-black/25",
+                      "bg-invert text-invert-foreground shadow-lg shadow-black/25",
                       "transition-[background-color,color,box-shadow,scale] duration-150 ease-out",
                       "group-hover/row:scale-105 group-hover/row:bg-primary",
                       "group-hover/row:text-primary-foreground group-hover/row:shadow-primary/30",

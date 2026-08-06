@@ -40,6 +40,7 @@ import {
   useTestCoachSettings,
 } from "@/lib/hooks/useCoachSettings";
 import type { Account, CashTransaction, Tag as TagType } from "@/lib/api/types";
+import { missingMistakePresets } from "@/lib/tagPresets";
 import {
   useListOcrModels,
   useOcrSettings,
@@ -1744,6 +1745,10 @@ export interface JournalTabProps {
   tagsLoading: boolean;
   tagsError: boolean;
   onCreateTag: (body: { name: string; color?: string; kind?: string }) => Promise<void>;
+  onUpdateTag: (
+    id: string,
+    body: { name: string; color: string; description: string; kind: string },
+  ) => Promise<void>;
   onDeleteTag: (id: string) => Promise<void>;
 }
 
@@ -1752,11 +1757,54 @@ export function JournalTab({
   tagsLoading,
   tagsError,
   onCreateTag,
+  onUpdateTag,
   onDeleteTag,
 }: JournalTabProps) {
   const toast = useToastManager();
   const [showTagForm, setShowTagForm] = useState(false);
   const [tagFormError, setTagFormError] = useState<string | null>(null);
+  const [addingPresets, setAddingPresets] = useState(false);
+  const suggestedMistakes = missingMistakePresets(tags);
+
+  /** Sequential, not parallel — the API rejects duplicate names and we want per-name failures. */
+  async function addMistakePresets(names: string[]) {
+    setAddingPresets(true);
+    const added: string[] = [];
+    try {
+      for (const name of names) {
+        try {
+          // Same default the manual create form uses — recolour per tag afterwards.
+          await onCreateTag({ name, color: defaultTagFormValues().color, kind: "mistake" });
+          added.push(name);
+        } catch {
+          // Already taken under a different kind — skip rather than abort the batch.
+        }
+      }
+    } finally {
+      setAddingPresets(false);
+    }
+    toast.add(
+      added.length
+        ? { title: `Added ${added.length} mistake type${added.length === 1 ? "" : "s"}` }
+        : { title: "Nothing to add", description: "Those names are already in use." },
+    );
+  }
+
+  async function changeTagKind(tag: TagType, kind: string) {
+    try {
+      await onUpdateTag(tag.id, {
+        name: tag.name,
+        color: tag.color,
+        description: tag.description,
+        kind,
+      });
+    } catch (err) {
+      toast.add({
+        title: "Could not change tag kind",
+        description: err instanceof Error ? err.message : "Request failed",
+      });
+    }
+  }
 
   const tagForm = useForm({
     formId: "settings-tag",
@@ -1891,6 +1939,48 @@ export function JournalTab({
           </SettingsInsetForm>
         )}
 
+        {/*
+         * Mistake types are just tags, so a journal starts with none and the
+         * New Trade form hides the picker until at least one exists. Offering
+         * the vocabulary here beats seeding it — nothing appears in someone's
+         * journal unless they ask for it.
+         */}
+        {!tagsLoading && !tagsError && suggestedMistakes.length > 0 && (
+          <SettingsPanelBody>
+            <div className="flex flex-col gap-2.5">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="m-0 text-[12px] text-muted-foreground">
+                  Suggested mistake types — these fill the trade form's Mistake type picker.
+                </p>
+                <BtnGhost
+                  disabled={addingPresets}
+                  onClick={() => void addMistakePresets(suggestedMistakes)}
+                >
+                  <Plus size={13} strokeWidth={1.5} />
+                  {addingPresets ? "Adding…" : "Add all"}
+                </BtnGhost>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {suggestedMistakes.map((name) => (
+                  <Button
+                    key={name}
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={addingPresets}
+                    onClick={() => void addMistakePresets([name])}
+                    aria-label={`Add mistake type ${name}`}
+                    className="h-7 gap-1 rounded-md px-2 text-[12px] font-normal"
+                  >
+                    <Plus size={12} strokeWidth={1.5} aria-hidden />
+                    {name}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </SettingsPanelBody>
+        )}
+
         {tagsLoading ? (
           <SettingsPanelBody>
             <ListSkeleton rows={3} />
@@ -1922,9 +2012,31 @@ export function JournalTab({
                     {tag.name}
                   </span>
                 }
-                secondary={<span className="capitalize">{tag.kind}</span>}
+                secondary={
+                  tag.kind === "mistake"
+                    ? "Offered in the trade form's Mistake type picker."
+                    : "Offered in the trade form's Tags picker."
+                }
                 actions={
-                  <DeleteButton label={tag.name} onDelete={() => void handleDeleteTag(tag.id)} />
+                  <>
+                    {/*
+                     * Kind is editable here because it decides which picker the
+                     * tag shows up in, and the create form defaults to Custom —
+                     * without this the only way to re-file a tag is delete and
+                     * recreate, which orphans it on every trade already tagged.
+                     */}
+                    <NativeSelect
+                      size="sm"
+                      value={tag.kind === "mistake" ? "mistake" : "custom"}
+                      onChange={(e) => void changeTagKind(tag, e.target.value)}
+                      aria-label={`Kind for ${tag.name}`}
+                      className="h-8 text-[12px]"
+                    >
+                      <NativeSelectOption value="custom">Custom</NativeSelectOption>
+                      <NativeSelectOption value="mistake">Mistake</NativeSelectOption>
+                    </NativeSelect>
+                    <DeleteButton label={tag.name} onDelete={() => void handleDeleteTag(tag.id)} />
+                  </>
                 }
               />
             ))}

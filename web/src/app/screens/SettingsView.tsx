@@ -7,10 +7,12 @@ import {
   Sparkles,
   Tag,
   UserRound,
+  Users,
   Wallet,
 } from "lucide-react";
 import type { AnnualGoal, RiskRules } from "@/lib/api/settings";
 import { useLocale } from "@/i18n";
+import { useMe } from "@/lib/hooks/useMe";
 import { useSettingsSection } from "@/lib/hooks/useSettingsSection";
 import { settingsNavItems, settingsSectionCopy, type SettingsSectionId } from "@/lib/locale";
 import type { Account, CashTransaction, Tag as TagType } from "@/lib/api/types";
@@ -19,6 +21,7 @@ import { AccountTab } from "./settings/account-tab";
 import { ApiTab } from "./settings/api-tab";
 import { AccountsTab, AiTab, GeneralTab, JournalTab, RulesTab } from "./settings/settings-sections";
 import { ShortcutsTab } from "./settings/shortcuts-tab";
+import { UsersTab } from "./settings/users-tab";
 import { SettingsNav, SettingsPageHeader, SettingsShell } from "./settings/settings-ui";
 import { Page } from "@/components/Page";
 
@@ -93,6 +96,7 @@ export interface SettingsViewProps {
 
 const NAV_ICONS: Record<SettingsSectionId, typeof Wallet> = {
   profile: UserRound,
+  users: Users,
   accounts: Wallet,
   rules: Shield,
   journal: Tag,
@@ -107,10 +111,16 @@ export function SettingsView(props: SettingsViewProps) {
   const { locale } = useLocale();
   const [section, setSection] = useSettingsSection();
   const copy = settingsSectionCopy(locale, section);
-  const navItems = settingsNavItems(locale).map((item) => ({
-    ...item,
-    icon: NAV_ICONS[item.id],
-  }));
+  const me = useMe();
+  // Users is owner-only. It stays out of the nav for a member rather than
+  // sitting there as a 403 waiting to happen; the section itself still
+  // explains itself to anyone who reaches it by hash.
+  const navItems = settingsNavItems(locale)
+    .filter((item) => item.id !== "users" || (me.data?.is_admin ?? false))
+    .map((item) => ({
+      ...item,
+      icon: NAV_ICONS[item.id],
+    }));
 
   return (
     <SettingsShell nav={<SettingsNav active={section} onChange={setSection} items={navItems} />}>
@@ -166,6 +176,7 @@ export function SettingsView(props: SettingsViewProps) {
         )}
         {section === "ai" && <AiTab />}
         {section === "profile" && <AccountTab />}
+        {section === "users" && <UsersTab />}
         {section === "general" && <GeneralTab />}
         {section === "shortcuts" && <ShortcutsTab />}
         {section === "api" && <ApiTab />}

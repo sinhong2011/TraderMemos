@@ -98,7 +98,7 @@
   --popover-foreground: var(--color-neutral-800);
 
   /* Brand primary — TraderMemos blue */
-  --primary: oklch(0.617 0.1305 235.19);
+  --primary: oklch(0.5013 0.1428 252.49);
   --primary-foreground: oklch(0.985 0 0);
 
   --secondary: --alpha(var(--color-black) / 4%);
@@ -151,7 +151,7 @@
   --popover-foreground: var(--color-neutral-100);
 
   /* Brand primary — TraderMemos blue */
-  --primary: oklch(0.617 0.1305 235.19);
+  --primary: oklch(0.5013 0.1428 252.49);
   --primary-foreground: oklch(0.985 0 0);
 
   --secondary: --alpha(var(--color-white) / 4%);

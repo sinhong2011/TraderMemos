@@ -12,7 +12,7 @@ import {
 import { useCash, useCreateCash, useDeleteCash, useUpdateCash } from "@/lib/hooks/useCash";
 import { useRiskRules, useSaveRiskRules } from "@/lib/hooks/useRiskRules";
 import { useAnnualGoal, useClearAnnualGoal, useSaveAnnualGoal } from "@/lib/hooks/useAnnualGoal";
-import { useCreateTag, useDeleteTag, useTags } from "@/lib/hooks/useTags";
+import { useCreateTag, useDeleteTag, useTags, useUpdateTag } from "@/lib/hooks/useTags";
 
 export const Route = createFileRoute("/settings")({
   component: SettingsPage,
@@ -38,6 +38,7 @@ function SettingsPage() {
   // Tags
   const tagsQ = useTags();
   const createTagM = useCreateTag();
+  const updateTagM = useUpdateTag();
   const deleteTagM = useDeleteTag();
 
   // Risk rules
@@ -98,6 +99,9 @@ function SettingsPage() {
       tagsError={tagsQ.isError}
       onCreateTag={async (body) => {
         await createTagM.mutateAsync(body);
+      }}
+      onUpdateTag={async (id, body) => {
+        await updateTagM.mutateAsync({ id, body });
       }}
       onDeleteTag={async (id) => {
         await deleteTagM.mutateAsync(id);

@@ -78,10 +78,17 @@ export function MultiSelectCombobox({
         id={id}
         aria-label={ariaLabel}
       >
+        {/*
+         * Both branches render a `span` so picking the first option only
+         * rewrites text, never swaps an element for a bare text node. React
+         * has to `removeChild` for that swap, which throws NotFoundError when
+         * anything outside React (page translation, extensions) has re-parented
+         * the placeholder's text.
+         */}
         <ComboboxValue>
           {(picked: MultiSelectOption[]) =>
             picked.length ? (
-              picked.map((option) => option.label).join(", ")
+              <span>{picked.map((option) => option.label).join(", ")}</span>
             ) : (
               <span className="text-muted-foreground/72">{placeholder}</span>
             )

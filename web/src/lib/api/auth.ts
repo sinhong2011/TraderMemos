@@ -22,7 +22,7 @@ export interface Me {
   email: string;
   is_admin: boolean;
   created_at: string;
-  /** Always false today: the column exists server-side but nothing writes it. */
+  /** Whether an authenticator app is enrolled — see POST /me/totp/start. */
   totp_enabled: boolean;
 }
 
