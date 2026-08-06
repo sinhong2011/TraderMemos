@@ -29,9 +29,9 @@ func (s *Server) settingsRoutes(g *echo.Group) {
 }
 
 type riskRulesDTO struct {
-	MaxRiskPerTrade      *float64 `json:"max_risk_per_trade"`
-	MaxDailyLoss         *float64 `json:"max_daily_loss"`
-	MaxOpenRisk          *float64 `json:"max_open_risk"`
+	MaxRiskPerTrade       *float64 `json:"max_risk_per_trade"`
+	MaxDailyLoss          *float64 `json:"max_daily_loss"`
+	MaxOpenRisk           *float64 `json:"max_open_risk"`
 	DefaultAccountRiskPct *float64 `json:"default_account_risk_pct"`
 }
 

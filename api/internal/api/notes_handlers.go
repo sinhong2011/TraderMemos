@@ -138,7 +138,7 @@ func toNoteDTO(n store.JournalNote) noteDTO {
 	}
 	return noteDTO{
 		ID: n.ID, Type: noteType, OccurredAt: n.OccurredAt, Title: n.Title, Body: n.Body,
-		Symbols: symbols,
+		Symbols:   symbols,
 		CreatedAt: n.CreatedAt, UpdatedAt: n.UpdatedAt,
 	}
 }
@@ -228,7 +228,7 @@ func (s *Server) handleUpdateNote(c echo.Context) error {
 		OccurredAt: in.OccurredAt, Title: title,
 		Body: strings.TrimSpace(in.Body), Symbols: encodeNoteSymbols(symbols),
 		NoteType: noteType,
-		ID: c.Param("id"), UserID: auth.UserID(c),
+		ID:       c.Param("id"), UserID: auth.UserID(c),
 	})
 	if errors.Is(err, sql.ErrNoRows) {
 		return Fail(http.StatusNotFound, "not_found", "note not found", nil)

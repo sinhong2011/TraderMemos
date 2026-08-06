@@ -17,9 +17,9 @@ var (
 )
 
 type Service struct {
-	q                  store.Querier
-	jwt                *JWT
-	allowRegistration  bool
+	q                 store.Querier
+	jwt               *JWT
+	allowRegistration bool
 }
 
 func NewService(q store.Querier, jwt *JWT, allowRegistration bool) *Service {
@@ -88,7 +88,7 @@ func (s *Service) CompleteSetup(ctx context.Context, email, password string) (st
 	if err != nil {
 		return store.User{}, Tokens{}, err
 	}
-	return u, s.mint(u.ID), nil
+	return u, s.mint(u.ID, u.PasswordHash), nil
 }
 
 func (s *Service) createUser(ctx context.Context, email, password string, isAdmin bool) (store.User, error) {
@@ -123,22 +123,67 @@ func (s *Service) Login(ctx context.Context, email, password string) (Tokens, st
 	if err != nil || !VerifyPassword(u.PasswordHash, password) {
 		return Tokens{}, store.User{}, ErrInvalidCredentials
 	}
-	return s.mint(u.ID), u, nil
+	return s.mint(u.ID, u.PasswordHash), u, nil
 }
 
 func (s *Service) Refresh(ctx context.Context, refresh string) (Tokens, error) {
-	uid, err := s.jwt.Parse(refresh, TokenRefresh)
+	uid, pv, err := s.jwt.ParseWithVersion(refresh, TokenRefresh)
 	if err != nil {
 		return Tokens{}, ErrInvalidCredentials
 	}
-	if _, err := s.q.GetUserByID(ctx, uid); err != nil {
+	u, err := s.q.GetUserByID(ctx, uid)
+	if err != nil {
 		return Tokens{}, ErrInvalidCredentials
 	}
-	return s.mint(uid), nil
+	// A changed password changes the hash, so a token minted against the old
+	// one no longer matches — that is what signs other devices out. Tokens
+	// predating the claim carry an empty `pv` and are grandfathered rather
+	// than rejected, so deploying this does not log everyone out.
+	if pv != "" && pv != PasswordFingerprint(u.PasswordHash) {
+		return Tokens{}, ErrInvalidCredentials
+	}
+	return s.mint(uid, u.PasswordHash), nil
 }
 
-func (s *Service) mint(uid string) Tokens {
-	access, _ := s.jwt.Mint(uid, 15*time.Minute, TokenAccess)
-	refresh, _ := s.jwt.Mint(uid, 30*24*time.Hour, TokenRefresh)
+// ChangePassword re-hashes after checking the current one. The new hash gives
+// every existing refresh token a stale fingerprint, so other sessions die at
+// their next refresh; the access token already in flight survives its 15
+// minutes, which is the usual bearer-token tradeoff.
+func (s *Service) ChangePassword(ctx context.Context, uid, current, next string) (Tokens, error) {
+	u, err := s.q.GetUserByID(ctx, uid)
+	if err != nil {
+		return Tokens{}, ErrInvalidCredentials
+	}
+	if !VerifyPassword(u.PasswordHash, current) {
+		return Tokens{}, ErrInvalidCredentials
+	}
+	if err := ValidatePassword(next); err != nil {
+		return Tokens{}, err
+	}
+	h, err := HashPassword(next)
+	if err != nil {
+		return Tokens{}, err
+	}
+	updated, err := s.q.UpdateUserPassword(ctx, store.UpdateUserPasswordParams{
+		PasswordHash: h,
+		ID:           uid,
+	})
+	if err != nil {
+		return Tokens{}, err
+	}
+	// Hand back a fresh pair so the caller who changed the password is not
+	// signed out along with everyone else.
+	return s.mint(updated.ID, updated.PasswordHash), nil
+}
+
+// Me returns the signed-in user for the profile endpoint.
+func (s *Service) Me(ctx context.Context, uid string) (store.User, error) {
+	return s.q.GetUserByID(ctx, uid)
+}
+
+func (s *Service) mint(uid, passwordHash string) Tokens {
+	pv := PasswordFingerprint(passwordHash)
+	access, _ := s.jwt.Mint(uid, 15*time.Minute, TokenAccess, pv)
+	refresh, _ := s.jwt.Mint(uid, 30*24*time.Hour, TokenRefresh, pv)
 	return Tokens{Access: access, Refresh: refresh}
 }

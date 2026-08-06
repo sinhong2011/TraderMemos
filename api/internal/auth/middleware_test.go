@@ -48,7 +48,7 @@ func TestMiddlewareRejectsMissingToken(t *testing.T) {
 func TestMiddlewareInjectsUserID(t *testing.T) {
 	e := echo.New()
 	m := NewJWT("s")
-	tok, _ := m.Mint("u-1", time.Minute, TokenAccess)
+	tok, _ := m.Mint("u-1", time.Minute, TokenAccess, "")
 	var seen string
 	h := Middleware(m, nil, nil)(func(c echo.Context) error {
 		seen = UserID(c)
@@ -63,7 +63,7 @@ func TestMiddlewareInjectsUserID(t *testing.T) {
 func TestMiddlewareRejectsTokenWhenUserDeleted(t *testing.T) {
 	e := echo.New()
 	m := NewJWT("s")
-	tok, _ := m.Mint("u-missing", time.Minute, TokenAccess)
+	tok, _ := m.Mint("u-missing", time.Minute, TokenAccess, "")
 	users := testUserStore{
 		getUserByID: func(ctx context.Context, id string) (store.User, error) {
 			return store.User{}, errors.New("not found")
