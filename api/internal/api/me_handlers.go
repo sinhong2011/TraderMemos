@@ -16,6 +16,9 @@ import (
 func (s *Server) meRoutes(g *echo.Group) {
 	g.GET("/me", s.handleMe)
 	g.PUT("/me/password", s.handleChangePassword)
+	g.POST("/me/totp/start", s.handleTotpStart)
+	g.POST("/me/totp/confirm", s.handleTotpConfirm)
+	g.POST("/me/totp/disable", s.handleTotpDisable)
 }
 
 type meDTO struct {
@@ -74,4 +77,80 @@ func (s *Server) handleChangePassword(c echo.Context) error {
 	// Fresh pair for this caller: the new hash invalidates every token minted
 	// against the old one, including the ones this request arrived with.
 	return c.JSON(http.StatusOK, toks)
+}
+
+// Enrolment is two calls: start mints a candidate secret, confirm proves the
+// user can read a code from it before anything is stored. Nothing is written
+// in between — see auth.StartTotp for why it is stateless.
+func (s *Server) handleTotpStart(c echo.Context) error {
+	if s.deps.Auth == nil {
+		return Fail(http.StatusServiceUnavailable, "unavailable", "auth not configured", nil)
+	}
+	secret, url, err := s.deps.Auth.StartTotp(c.Request().Context(), auth.UserID(c))
+	if errors.Is(err, auth.ErrTotpAlreadyOn) {
+		return Fail(http.StatusConflict, "conflict", "an authenticator is already set up", nil)
+	}
+	if err != nil {
+		return Fail(http.StatusInternalServerError, "internal", "could not start setup", nil)
+	}
+	// The secret is returned for manual entry when a QR code cannot be scanned
+	// — the phone showing this screen is often the phone holding the app.
+	return c.JSON(http.StatusOK, map[string]any{"secret": secret, "otpauth_url": url})
+}
+
+type totpConfirmReq struct {
+	Secret string `json:"secret"`
+	Code   string `json:"code"`
+}
+
+func (s *Server) handleTotpConfirm(c echo.Context) error {
+	if s.deps.Auth == nil {
+		return Fail(http.StatusServiceUnavailable, "unavailable", "auth not configured", nil)
+	}
+	var in totpConfirmReq
+	if err := c.Bind(&in); err != nil || in.Secret == "" || in.Code == "" {
+		return Fail(http.StatusBadRequest, "bad_request", "secret and code required", nil)
+	}
+	err := s.deps.Auth.ConfirmTotp(c.Request().Context(), auth.UserID(c), in.Secret, in.Code)
+	if errors.Is(err, auth.ErrTotpAlreadyOn) {
+		return Fail(http.StatusConflict, "conflict", "an authenticator is already set up", nil)
+	}
+	if errors.Is(err, auth.ErrTotpInvalid) {
+		return Fail(http.StatusBadRequest, "totp_invalid", "that code is not valid", nil)
+	}
+	if err != nil {
+		return Fail(http.StatusInternalServerError, "internal", "could not enable", nil)
+	}
+	return c.NoContent(http.StatusNoContent)
+}
+
+type totpDisableReq struct {
+	Password string `json:"password"`
+	Code     string `json:"code"`
+}
+
+// POST rather than DELETE: turning a factor off carries a body (password and
+// code), and DELETE with a body is poorly supported across proxies and clients.
+func (s *Server) handleTotpDisable(c echo.Context) error {
+	if s.deps.Auth == nil {
+		return Fail(http.StatusServiceUnavailable, "unavailable", "auth not configured", nil)
+	}
+	var in totpDisableReq
+	if err := c.Bind(&in); err != nil || in.Password == "" || in.Code == "" {
+		return Fail(http.StatusBadRequest, "bad_request", "password and code required", nil)
+	}
+	err := s.deps.Auth.DisableTotp(c.Request().Context(), auth.UserID(c), in.Password, in.Code)
+	if errors.Is(err, auth.ErrTotpNotEnrolled) {
+		return Fail(http.StatusConflict, "conflict", "no authenticator is set up", nil)
+	}
+	if errors.Is(err, auth.ErrTotpInvalid) {
+		return Fail(http.StatusBadRequest, "totp_invalid", "that code is not valid", nil)
+	}
+	if errors.Is(err, auth.ErrInvalidCredentials) {
+		return Fail(http.StatusForbidden, "forbidden", "password is incorrect", nil)
+	}
+	if err != nil {
+		return Fail(http.StatusInternalServerError, "internal", "could not disable", nil)
+	}
+	return c.NoContent(http.StatusNoContent)
 }

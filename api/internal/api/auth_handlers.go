@@ -14,6 +14,8 @@ import (
 type credentials struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
+	// Sent on the second leg of a two-step sign-in, after a `totp_required`.
+	TotpCode string `json:"totp_code"`
 }
 
 func (s *Server) authRoutes(g *echo.Group) {
@@ -140,7 +142,16 @@ func (s *Server) handleLogin(c echo.Context) error {
 	if err := c.Bind(&in); err != nil {
 		return Fail(http.StatusBadRequest, "bad_request", "invalid body", nil)
 	}
-	toks, _, err := s.deps.Auth.Login(c.Request().Context(), in.Email, in.Password)
+	toks, _, err := s.deps.Auth.Login(c.Request().Context(), in.Email, in.Password, in.TotpCode)
+	// A distinct code, not a generic 401: the client has to know to ask for a
+	// code rather than tell the user their password was wrong. Only reachable
+	// once the password has already checked out.
+	if errors.Is(err, auth.ErrTotpRequired) {
+		return Fail(http.StatusUnauthorized, "totp_required", "authenticator code required", nil)
+	}
+	if errors.Is(err, auth.ErrTotpInvalid) {
+		return Fail(http.StatusUnauthorized, "totp_invalid", "that code is not valid", nil)
+	}
 	if err != nil {
 		return Fail(http.StatusUnauthorized, "unauthorized", "invalid credentials", nil)
 	}
