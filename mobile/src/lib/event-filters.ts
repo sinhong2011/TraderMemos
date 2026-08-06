@@ -19,6 +19,7 @@ export type EventFilters = {
 const EMPTY: EventFilters = { impacts: [], currencies: [] };
 
 const PERSIST_KEY = 'store:event-filters';
+/** Pre-zustand key. Removable — see lib/prefs-migration.ts. */
 const LEGACY_KEY = 'events:filters';
 
 function strings(value: unknown): string[] {

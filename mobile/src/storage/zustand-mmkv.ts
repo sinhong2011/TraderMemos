@@ -32,6 +32,10 @@ export const mmkvStorage = <T>() => createJSONStorage<T>(() => mmkv);
  * blob) and returns the partial state it maps to, or `undefined` when there is
  * nothing stored. Call before `create()` so the store's first read already
  * sees the envelope.
+ *
+ * REMOVABLE once no install can still be carrying pre-0.4.3 keys — see the
+ * checklist in `lib/prefs-migration.ts`. This only serves upgrades *across*
+ * 0.4.3; it is inert on every launch after the first.
  */
 export function adoptLegacyValue<T>(
   persistKey: string,

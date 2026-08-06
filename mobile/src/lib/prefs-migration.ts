@@ -1,6 +1,35 @@
 /**
  * One-time split of the pre-zustand `prefs:display` blob.
  *
+ * ---------------------------------------------------------------------------
+ * REMOVE AFTER 0.4.3 HAS BEEN OUT ~3 RELEASES (or ~6 months)
+ *
+ * Added in 0.4.3, when the hand-rolled module stores became zustand + persist.
+ * It exists only for installs upgrading *across* that version: it runs once at
+ * module scope, rewrites the old value under the new `store:*` key, deletes
+ * the old key, and does nothing on every launch after.
+ *
+ * Cutting it early is not dangerous, just rude — anyone who skips 0.4.3
+ * entirely gets defaults back (timezone to New York, account scope to All,
+ * calculator sessions empty). No crash and no trade data is involved; the
+ * stores' `merge` sanitizers already handle an absent key.
+ *
+ * When removing, delete all four pieces:
+ *   1. this file, and the `migrateLegacyPrefs()` calls in prefs.ts and
+ *      journal-prefs.ts
+ *   2. `adoptLegacyValue` / `legacyJSON` in storage/zustand-mmkv.ts
+ *   3. every `LEGACY_KEY` / `adoptLegacyValue(...)` block in account-store.ts,
+ *      tag-bar.ts, event-filters.ts, event-reminders.ts, checklist.ts,
+ *      checklist-reminders.ts, reports-display.ts and r-calculator/store.ts
+ *   4. the orphaned keys themselves: prefs:display, prefs:selected-account,
+ *      events:filters, events:reminders, reports:controls,
+ *      checklist:weekdaysOnly, checklist:reminders:on, checklist:reminders:time,
+ *      r-calc:sessions, r-calc:fvg-sessions
+ *
+ * Keep the `merge` sanitizers. Those are not migration code — they are what
+ * stops a hand-edited or half-written blob from wedging a screen.
+ * ---------------------------------------------------------------------------
+ *
  * That single MMKV entry held the formatting prefs *and* the screenshots cap.
  * They are now two stores — matching web's `displayPrefs` / `journalPrefs` —
  * so the old value has to be dealt out between them before either store reads

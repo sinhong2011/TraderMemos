@@ -108,7 +108,7 @@ export function appendTaskBlock(body: string, block: string, label: string): str
  * a routine to clear.
  */
 const PERSIST_KEY = 'store:checklist-schedule';
-/** Pre-zustand key: a bare MMKV boolean. */
+/** Pre-zustand key: a bare MMKV boolean. Removable — see lib/prefs-migration.ts. */
 const WEEKDAYS_ONLY_KEY = 'checklist:weekdaysOnly';
 
 type ScheduleState = { weekdaysOnly: boolean };

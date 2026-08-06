@@ -42,7 +42,8 @@ import { adoptLegacyValue, mmkvStorage } from '@/storage/zustand-mmkv';
 // ---------------------------------------------------------------------------
 
 const PERSIST_KEY = 'store:checklist-reminders';
-/** Pre-zustand keys: a bare boolean and a bare `HH:MM` string. */
+/** Pre-zustand keys: a bare boolean and a bare `HH:MM` string.
+ *  Removable — see lib/prefs-migration.ts. */
 const ENABLED_KEY = 'checklist:reminders:on';
 const TIME_KEY = 'checklist:reminders:time';
 

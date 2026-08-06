@@ -12,7 +12,8 @@ import { storage } from '@/storage/mmkv';
 import { adoptLegacyValue, mmkvStorage } from '@/storage/zustand-mmkv';
 
 const PERSIST_KEY = 'store:selected-account';
-/** Pre-zustand key: the raw id string, or absent for "All accounts". */
+/** Pre-zustand key: the raw id string, or absent for "All accounts".
+ *  Removable with the rest of the migration — see lib/prefs-migration.ts. */
 const LEGACY_KEY = 'prefs:selected-account';
 
 type AccountState = { selectedAccountId: string | null };

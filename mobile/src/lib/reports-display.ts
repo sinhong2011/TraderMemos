@@ -37,7 +37,8 @@ const DEFAULTS: ReportsControls = {
 };
 
 const PERSIST_KEY = 'store:reports-controls';
-/** Pre-zustand key: the bare ReportsControls object. */
+/** Pre-zustand key: the bare ReportsControls object.
+ *  Removable — see lib/prefs-migration.ts. */
 const LEGACY_KEY = 'reports:controls';
 
 function pick<T extends string>(value: unknown, allowed: readonly T[], fallback: T): T {
