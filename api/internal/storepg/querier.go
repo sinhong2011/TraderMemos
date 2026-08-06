@@ -12,6 +12,7 @@ type Querier interface {
 	ClearTradeExecutions(ctx context.Context, tradeID string) error
 	ClearTradeSetups(ctx context.Context, tradeID string) error
 	ClearTradeTags(ctx context.Context, tradeID string) error
+	CountAdmins(ctx context.Context) (int64, error)
 	CountUsers(ctx context.Context) (int64, error)
 	CreateAccessToken(ctx context.Context, arg CreateAccessTokenParams) (AccessToken, error)
 	CreateAccount(ctx context.Context, arg CreateAccountParams) (Account, error)
@@ -40,6 +41,7 @@ type Querier interface {
 	// NOTE: sqlc+database/sql emits a broken single-$3 slice expand for Postgres.
 	// storepg/trades.sql.go implements placeholder expansion manually; re-check after `make sqlc`.
 	DeleteTradesNotInAccount(ctx context.Context, arg DeleteTradesNotInAccountParams) error
+	DeleteUser(ctx context.Context, id string) (int64, error)
 	ExecutionExists(ctx context.Context, arg ExecutionExistsParams) (int64, error)
 	GetAccessTokenByHash(ctx context.Context, tokenHash string) (AccessToken, error)
 	GetAccount(ctx context.Context, arg GetAccountParams) (Account, error)
@@ -104,12 +106,14 @@ type Querier interface {
 	// than post_floor, so the queue converges instead of retrying bar-less
 	// symbols forever.
 	ListTradesMissingExcursion(ctx context.Context, arg ListTradesMissingExcursionParams) ([]Trade, error)
+	ListUsers(ctx context.Context) ([]User, error)
 	PruneAccessTokenUses(ctx context.Context, arg PruneAccessTokenUsesParams) error
 	RecordAccessTokenUse(ctx context.Context, arg RecordAccessTokenUseParams) error
 	RevokeAccessToken(ctx context.Context, arg RevokeAccessTokenParams) (int64, error)
 	SetImportBatchStatus(ctx context.Context, arg SetImportBatchStatusParams) error
 	SetTradeSetup(ctx context.Context, arg SetTradeSetupParams) error
 	SetTradeTags(ctx context.Context, arg SetTradeTagsParams) error
+	SetUserAdmin(ctx context.Context, arg SetUserAdminParams) (User, error)
 	TouchAccessTokenLastUsed(ctx context.Context, id string) error
 	UpdateAccount(ctx context.Context, arg UpdateAccountParams) (Account, error)
 	UpdateCashTransaction(ctx context.Context, arg UpdateCashTransactionParams) (CashTransaction, error)

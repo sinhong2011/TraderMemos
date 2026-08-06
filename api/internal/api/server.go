@@ -186,4 +186,5 @@ func (s *Server) routes() {
 	s.accessTokenRoutes(protected)
 	s.systemRoutes(protected)
 	s.meRoutes(protected)
+	s.adminRoutes(protected)
 }

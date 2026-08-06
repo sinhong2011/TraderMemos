@@ -886,6 +886,34 @@ func (p *PG) UpdateUserPassword(ctx context.Context, arg UpdateUserPasswordParam
 	return User(v), nil
 }
 
+func (p *PG) ListUsers(ctx context.Context) ([]User, error) {
+	rows, err := p.q.ListUsers(ctx)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]User, 0, len(rows))
+	for _, r := range rows {
+		out = append(out, User(r))
+	}
+	return out, nil
+}
+
+func (p *PG) CountAdmins(ctx context.Context) (int64, error) {
+	return p.q.CountAdmins(ctx)
+}
+
+func (p *PG) SetUserAdmin(ctx context.Context, arg SetUserAdminParams) (User, error) {
+	v, err := p.q.SetUserAdmin(ctx, storepg.SetUserAdminParams(arg))
+	if err != nil {
+		return User{}, err
+	}
+	return User(v), nil
+}
+
+func (p *PG) DeleteUser(ctx context.Context, id string) (int64, error) {
+	return p.q.DeleteUser(ctx, id)
+}
+
 func (p *PG) UpdateUserTotpSecret(ctx context.Context, arg UpdateUserTotpSecretParams) (User, error) {
 	v, err := p.q.UpdateUserTotpSecret(ctx, storepg.UpdateUserTotpSecretParams(arg))
 	if err != nil {

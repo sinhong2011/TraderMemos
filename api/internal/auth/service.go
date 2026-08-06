@@ -191,6 +191,32 @@ func (s *Service) ChangePassword(ctx context.Context, uid, current, next string)
 	return s.mint(updated.ID, updated.PasswordHash), nil
 }
 
+// CreateUserAsAdmin creates a user on the owner's behalf. Unlike Register it
+// ignores the registration-open gate — an owner inviting someone is a
+// deliberate act, not the open sign-up that gate exists to keep shut.
+func (s *Service) CreateUserAsAdmin(ctx context.Context, email, password string, isAdmin bool) (store.User, error) {
+	return s.createUser(ctx, email, password, isAdmin)
+}
+
+// ResetPasswordAsAdmin sets a password without knowing the current one — the
+// owner's answer to a locked-out user. Like ChangePassword it invalidates that
+// user's refresh tokens (the `pv` fingerprint moves), but it mints nothing:
+// whoever ran this is not the account holder.
+func (s *Service) ResetPasswordAsAdmin(ctx context.Context, uid, next string) error {
+	if _, err := s.q.GetUserByID(ctx, uid); err != nil {
+		return err
+	}
+	if err := ValidatePassword(next); err != nil {
+		return err
+	}
+	h, err := HashPassword(next)
+	if err != nil {
+		return err
+	}
+	_, err = s.q.UpdateUserPassword(ctx, store.UpdateUserPasswordParams{PasswordHash: h, ID: uid})
+	return err
+}
+
 // Me returns the signed-in user for the profile endpoint.
 func (s *Service) Me(ctx context.Context, uid string) (store.User, error) {
 	return s.q.GetUserByID(ctx, uid)
