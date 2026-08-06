@@ -1,4 +1,4 @@
-import { ContentUnavailableView, Host } from '@expo/ui/swift-ui';
+import { ContentUnavailableView } from '@expo/ui/swift-ui';
 import { FlashList } from '@shopify/flash-list';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
@@ -16,13 +16,23 @@ import type { AccessToken } from '@/api/types';
 import { Skeleton } from '@/components/skeleton';
 import { t } from '@lingui/core/macro';
 import { formatDate } from '@/lib/format';
+import { AppHost } from '@/components/app-host';
 
 /** One token, with a trailing swipe to revoke (the trades-list idiom). */
 function TokenRow({ token, onRevoke }: { token: AccessToken; onRevoke: () => void }) {
   const { theme } = useUnistyles();
   const swipeable = useRef<SwipeableMethods>(null);
-  const expires = token.expires_at ? formatDate(token.expires_at) : t`never`;
   const lastUsed = token.last_used_at ? formatDate(token.last_used_at) : t`never`;
+  // A token past its expiry still lists, so the badge has to say so — "Expires
+  // Aug 4" reads as live when that date is in the past.
+  const expiry: { label: string; tone: 'quiet' | 'bad' } =
+    token.expires_at == null
+      ? { label: t`No expiry`, tone: 'quiet' }
+      : // `new Date()`, not `Date.now()` — react-hooks/purity rejects the
+        // latter in render, and the rest of the app reads the clock this way.
+        new Date(token.expires_at) < new Date()
+        ? { label: t`Expired`, tone: 'bad' }
+        : { label: t`Expires ${formatDate(token.expires_at)}`, tone: 'quiet' };
 
   return (
     <ReanimatedSwipeable
@@ -51,16 +61,38 @@ function TokenRow({ token, onRevoke }: { token: AccessToken; onRevoke: () => voi
         </Pressable>
       )}
     >
+      {/* Name and a lifecycle badge on the title line; the prefix below as a
+          monospaced chip, because it is a fragment of a credential and reads
+          as one — loose grey text next to prose looks like a caption. Last
+          used sits with it on the same baseline: both answer "which token is
+          this and is it live". */}
       <View style={styles.row}>
-        <View style={styles.rowText}>
+        <View style={styles.rowTop}>
+          <SymbolView
+            name="key.horizontal.fill"
+            size={15}
+            tintColor={theme.colors.mutedForeground}
+            resizeMode="scaleAspectFit"
+          />
           <Text style={styles.rowName} numberOfLines={1}>
             {token.name}
           </Text>
+          <View style={[styles.badge, expiry.tone === 'bad' && styles.badgeBad]}>
+            <Text style={[styles.badgeText, expiry.tone === 'bad' && styles.badgeTextBad]}>
+              {expiry.label}
+            </Text>
+          </View>
+        </View>
+        <View style={styles.rowBottom}>
+          <View style={styles.chip}>
+            <Text style={styles.chipText} numberOfLines={1}>
+              {`${token.token_prefix}…`}
+            </Text>
+          </View>
           <Text style={styles.rowMeta} numberOfLines={1}>
-            {t`Expires ${expires} · Last used ${lastUsed}`}
+            {t`Last used ${lastUsed}`}
           </Text>
         </View>
-        <Text style={styles.rowPrefix}>{`${token.token_prefix}…`}</Text>
       </View>
     </ReanimatedSwipeable>
   );
@@ -139,13 +171,13 @@ export default function ApiTokensScreen() {
             ) : null
           }
           ListEmptyComponent={
-            <Host style={styles.empty}>
+            <AppHost style={styles.empty}>
               <ContentUnavailableView
                 title={t`No tokens yet`}
                 systemImage="key"
                 description={t`Tap + to generate one and authenticate scripts against your server.`}
               />
-            </Host>
+            </AppHost>
           }
         />
       )}
@@ -169,18 +201,43 @@ const styles = StyleSheet.create((theme) => ({
     paddingHorizontal: theme.spacing.xs,
   },
   row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing.md,
+    gap: 6,
     backgroundColor: theme.colors.card,
     borderRadius: theme.radius.lg,
     borderCurve: 'continuous',
     padding: theme.spacing.lg,
   },
-  rowText: { flex: 1, gap: 2 },
-  rowName: { fontSize: 15, fontWeight: '600', color: theme.colors.foreground },
-  rowMeta: { fontSize: 12, color: theme.colors.mutedForeground, ...theme.numeric },
-  rowPrefix: { fontSize: 13, color: theme.colors.mutedForeground, ...theme.numeric },
+  rowTop: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
+  rowName: { flex: 1, fontSize: 15, fontWeight: '600', color: theme.colors.foreground },
+  rowBottom: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
+  badge: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: theme.radius.full,
+    backgroundColor: theme.colors.muted,
+  },
+  badgeBad: { backgroundColor: `${theme.colors.destructive}1F` },
+  badgeText: { fontSize: 11, fontWeight: '600', color: theme.colors.mutedForeground },
+  badgeTextBad: { color: theme.colors.destructive },
+  /** The prefix is a credential fragment — Menlo makes it read as one, and
+   *  keeps `tm_pat_` aligned across rows for scanning against a log. */
+  chip: {
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    borderRadius: theme.radius.sm,
+    borderCurve: 'continuous',
+    backgroundColor: theme.colors.muted,
+  },
+  chipText: { fontFamily: 'Menlo', fontSize: 11.5, color: theme.colors.mutedForeground },
+  /** Pushed to the trailing edge so it sits under the expiry badge — the two
+   *  lifecycle facts form a right-hand column, the identity a left-hand one. */
+  rowMeta: {
+    flex: 1,
+    textAlign: 'right',
+    fontSize: 12,
+    color: theme.colors.mutedForeground,
+    ...theme.numeric,
+  },
   separator: { height: theme.spacing.sm },
   swipeAction: {
     width: 72,
