@@ -5,6 +5,13 @@ All notable changes to TraderMemos are documented in this file.
 Release versioning is managed by [release-please](https://github.com/googleapis/release-please).
 See [docs/release.md](docs/release.md) for the release workflow.
 
+## [0.4.2](https://github.com/sinhong2011/TraderMemos/compare/v0.4.1...v0.4.2) (2026-08-06)
+
+
+### Bug Fixes
+
+* **ci:** stop passing --what-to-test — EAS gates changelog behind Enterprise ([#104](https://github.com/sinhong2011/TraderMemos/issues/104)) ([af3f7b4](https://github.com/sinhong2011/TraderMemos/commit/af3f7b40f831946e81c3cd0c229c7e1a34dccc17))
+
 ## [0.4.1](https://github.com/sinhong2011/TraderMemos/compare/v0.4.0...v0.4.1) (2026-08-06)
 
 
