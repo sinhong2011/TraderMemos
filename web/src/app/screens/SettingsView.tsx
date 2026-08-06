@@ -1,10 +1,21 @@
-import { Globe, Github, Keyboard, KeyRound, Shield, Sparkles, Tag, Wallet } from "lucide-react";
+import {
+  Globe,
+  Github,
+  Keyboard,
+  KeyRound,
+  Shield,
+  Sparkles,
+  Tag,
+  UserRound,
+  Wallet,
+} from "lucide-react";
 import type { AnnualGoal, RiskRules } from "@/lib/api/settings";
 import { useLocale } from "@/i18n";
 import { useSettingsSection } from "@/lib/hooks/useSettingsSection";
 import { settingsNavItems, settingsSectionCopy, type SettingsSectionId } from "@/lib/locale";
 import type { Account, CashTransaction, Tag as TagType } from "@/lib/api/types";
 import { AboutTab } from "./settings/about-tab";
+import { AccountTab } from "./settings/account-tab";
 import { ApiTab } from "./settings/api-tab";
 import { AccountsTab, AiTab, GeneralTab, JournalTab, RulesTab } from "./settings/settings-sections";
 import { ShortcutsTab } from "./settings/shortcuts-tab";
@@ -53,6 +64,10 @@ export interface SettingsViewProps {
   tagsLoading: boolean;
   tagsError: boolean;
   onCreateTag: (body: { name: string; color?: string; kind?: string }) => Promise<void>;
+  onUpdateTag: (
+    id: string,
+    body: { name: string; color: string; description: string; kind: string },
+  ) => Promise<void>;
   onDeleteTag: (id: string) => Promise<void>;
 
   riskRules?: RiskRules;
@@ -77,6 +92,7 @@ export interface SettingsViewProps {
 }
 
 const NAV_ICONS: Record<SettingsSectionId, typeof Wallet> = {
+  account: UserRound,
   accounts: Wallet,
   rules: Shield,
   journal: Tag,
@@ -144,10 +160,12 @@ export function SettingsView(props: SettingsViewProps) {
             tagsLoading={props.tagsLoading}
             tagsError={props.tagsError}
             onCreateTag={props.onCreateTag}
+            onUpdateTag={props.onUpdateTag}
             onDeleteTag={props.onDeleteTag}
           />
         )}
         {section === "ai" && <AiTab />}
+        {section === "account" && <AccountTab />}
         {section === "general" && <GeneralTab />}
         {section === "shortcuts" && <ShortcutsTab />}
         {section === "api" && <ApiTab />}

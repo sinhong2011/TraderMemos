@@ -16,6 +16,16 @@ export interface SetupAccountInput {
   starting_balance?: number;
 }
 
+/** GET /me — the signed-in account. */
+export interface Me {
+  id: string;
+  email: string;
+  is_admin: boolean;
+  created_at: string;
+  /** Always false today: the column exists server-side but nothing writes it. */
+  totp_enabled: boolean;
+}
+
 export interface SetupResult extends Tokens {
   id: string;
   email: string;
@@ -69,6 +79,17 @@ export const authApi = {
     apiFetch<Tokens>("/auth/login", {
       method: "POST",
       body: JSON.stringify({ email, password }),
+    }),
+  me: () => apiFetch<Me>("/me"),
+  /**
+   * Returns a fresh token pair: the change invalidates every token minted
+   * against the old password, including the one this request carried, so the
+   * caller has to adopt the new pair or it signs itself out too.
+   */
+  changePassword: (current_password: string, new_password: string) =>
+    apiFetch<Tokens>("/me/password", {
+      method: "PUT",
+      body: JSON.stringify({ current_password, new_password }),
     }),
   refresh: (refresh_token: string) =>
     apiFetch<Tokens>("/auth/refresh", {
