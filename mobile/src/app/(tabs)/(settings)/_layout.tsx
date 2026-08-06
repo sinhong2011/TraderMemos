@@ -71,6 +71,8 @@ export default function SettingsLayout() {
         name="data-backup"
         options={{ title: t`Data & backup`, headerLargeTitle: false }}
       />
+      {/* Title comes from the screen — it names the token being inspected. */}
+      <Stack.Screen name="token-uses" options={{ headerLargeTitle: false }} />
       <Stack.Screen
         name="import-trades"
         options={{ title: t`Import trades`, headerLargeTitle: false }}
