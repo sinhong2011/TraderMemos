@@ -38,8 +38,6 @@ type Querier interface {
 	DeleteTag(ctx context.Context, arg DeleteTagParams) (int64, error)
 	DeleteTrade(ctx context.Context, arg DeleteTradeParams) (int64, error)
 	DeleteTradesForAccount(ctx context.Context, arg DeleteTradesForAccountParams) error
-	// NOTE: sqlc+database/sql emits a broken single-$3 slice expand for Postgres.
-	// storepg/trades.sql.go implements placeholder expansion manually; re-check after `make sqlc`.
 	DeleteTradesNotInAccount(ctx context.Context, arg DeleteTradesNotInAccountParams) error
 	DeleteUser(ctx context.Context, id string) (int64, error)
 	ExecutionExists(ctx context.Context, arg ExecutionExistsParams) (int64, error)
@@ -68,6 +66,7 @@ type Querier interface {
 	GetTradeJournal(ctx context.Context, arg GetTradeJournalParams) (TradeJournal, error)
 	GetUserByEmail(ctx context.Context, email string) (User, error)
 	GetUserByID(ctx context.Context, id string) (User, error)
+	GetUserPreferences(ctx context.Context, userID string) (UserPreference, error)
 	InsertAttachment(ctx context.Context, arg InsertAttachmentParams) (TradeAttachment, error)
 	InsertCashTransaction(ctx context.Context, arg InsertCashTransactionParams) (CashTransaction, error)
 	InsertExecution(ctx context.Context, arg InsertExecutionParams) (Execution, error)
@@ -137,6 +136,7 @@ type Querier interface {
 	UpsertRiskRules(ctx context.Context, arg UpsertRiskRulesParams) (RiskRule, error)
 	UpsertTrade(ctx context.Context, arg UpsertTradeParams) error
 	UpsertTradeJournal(ctx context.Context, arg UpsertTradeJournalParams) error
+	UpsertUserPreferences(ctx context.Context, arg UpsertUserPreferencesParams) (UserPreference, error)
 }
 
 var _ Querier = (*Queries)(nil)

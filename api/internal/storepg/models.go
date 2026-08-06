@@ -310,3 +310,9 @@ type User struct {
 	CreatedAt    time.Time      `json:"created_at"`
 	IsAdmin      int64          `json:"is_admin"`
 }
+
+type UserPreference struct {
+	UserID    string    `json:"user_id"`
+	Prefs     string    `json:"prefs"`
+	UpdatedAt time.Time `json:"updated_at"`
+}

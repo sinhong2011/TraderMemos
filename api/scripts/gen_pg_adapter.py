@@ -15,7 +15,8 @@ for line in querier.splitlines():
         if line.startswith("}"):
             break
         line = line.strip()
-        if not line:
+        # sqlc copies each query's leading SQL comment above its method.
+        if not line or line.startswith("//"):
             continue
         m = re.match(r"^(\w+)\((.*)\) (.+)$", line)
         if not m:
