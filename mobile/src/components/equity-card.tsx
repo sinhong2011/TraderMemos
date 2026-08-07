@@ -7,8 +7,7 @@ import type { EquityCurve } from '@/api/types';
 import { DashboardCard } from '@/components/dashboard-card';
 import { Segmented } from '@/components/segmented';
 import { t } from '@lingui/core/macro';
-import { formatCurrency, formatPnl } from '@/lib/format';
-import { useDisplayPrefs } from '@/lib/prefs';
+import { useFormatters } from '@/lib/format';
 import { pnlColor } from '@/styles/unistyles';
 import { AppHost } from '@/components/app-host';
 
@@ -41,8 +40,8 @@ export function EquityCard({
   fxRate?: number;
 }) {
   const { theme } = useUnistyles();
-  // Re-render when privacy mode flips — formatters read it at call time.
-  useDisplayPrefs();
+  // Formatters bound to the display prefs (see lib/format.ts).
+  const { formatCurrency, formatPnl } = useFormatters();
   const [range, setRange] = useState<Range>('30D');
 
   const visible = useMemo(() => {

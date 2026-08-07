@@ -23,13 +23,7 @@ import { Pill } from '@/components/pill';
 import { Skeleton } from '@/components/skeleton';
 import { TradeChart } from '@/components/trade-chart';
 import { t } from '@lingui/core/macro';
-import {
-  formatCurrency,
-  formatDate,
-  formatDuration,
-  formatPnl,
-  formatTime,
-} from '@/lib/format';
+import { formatDuration, useFormatters } from '@/lib/format';
 import { gradeFromInt, parseEmotionalStates, parseJournalNotes } from '@/lib/journal';
 import { marketLabel, tradeNotional, tradeRMultiple, tradeStatus } from '@/lib/trades';
 import { pnlColor } from '@/styles/unistyles';
@@ -105,6 +99,7 @@ type TradeLike = Trade & Partial<Pick<TradeDetail, 'r_multiple' | 'dividend_tota
 /** Direction/status/market, the P&L figure, and its return·R caption. */
 function TradeHero({ trade }: { trade: TradeLike }) {
   const { theme } = useUnistyles();
+  const { formatPnl } = useFormatters();
   const status = tradeStatus(trade);
   const isLong = trade.direction === 'long';
   const isOpen = trade.status === 'open';
@@ -145,6 +140,7 @@ function TradeHero({ trade }: { trade: TradeLike }) {
 
 function PnlCard({ trade }: { trade: TradeLike }) {
   const { theme } = useUnistyles();
+  const { formatCurrency, formatPnl } = useFormatters();
   const currency = trade.pnl_currency;
   const tint = pnlColor(theme.colors, trade.net_pnl);
   const dividends = trade.dividend_total ?? 0;
@@ -177,6 +173,7 @@ function PnlCard({ trade }: { trade: TradeLike }) {
 }
 
 function TimingCard({ trade }: { trade: TradeLike }) {
+  const { formatDate, formatTime } = useFormatters();
   return (
     <DashboardCard title={t`Timing`}>
       <Row
@@ -197,6 +194,7 @@ function TimingCard({ trade }: { trade: TradeLike }) {
 }
 
 function PositionCard({ trade }: { trade: TradeLike }) {
+  const { formatCurrency } = useFormatters();
   const currency = trade.pnl_currency;
   return (
     <DashboardCard title={t`Position`}>
@@ -409,6 +407,8 @@ function TradeDetailBody({
   refetch: () => Promise<unknown>;
 }) {
   const { theme } = useUnistyles();
+  // Bound to the display prefs so a privacy flip re-formats every amount here.
+  const { formatCurrency, formatDate, formatTime } = useFormatters();
   const router = useRouter();
   const queryClient = useQueryClient();
   const api = useApiRequest();

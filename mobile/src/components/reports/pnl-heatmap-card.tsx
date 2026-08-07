@@ -11,8 +11,9 @@ import {
 } from '@/components/reports/section-scaffold';
 import { Skeleton } from '@/components/skeleton';
 import { t } from '@lingui/core/macro';
+import { useFormatters } from '@/lib/format';
 import { computePnlHeatmap, HEATMAP_DAY_LABELS } from '@/lib/pnl-heatmap';
-import { formatHourKeyLabel, resolveMarketTimezone, useDisplayPrefs } from '@/lib/prefs';
+import { resolveMarketTimezone, useDisplayPrefs } from '@/lib/prefs';
 import { pnlBgTint } from '@/styles/unistyles';
 
 export function heatmapDayLabel(day: number): string {
@@ -43,6 +44,7 @@ export function PnlHeatmapCard({ ctx }: { ctx: ReportsMoneyContext }) {
   const { theme } = useUnistyles();
   const router = useRouter();
   const prefs = useDisplayPrefs();
+  const { formatHourKeyLabel } = useFormatters();
   const marketTz = resolveMarketTimezone(prefs.marketTimezone);
   const filters = useReportsFilters();
   const trades = useTrades(filters);

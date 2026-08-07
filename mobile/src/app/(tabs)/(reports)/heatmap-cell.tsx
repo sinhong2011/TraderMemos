@@ -8,9 +8,9 @@ import { heatmapDayLabel } from '@/components/reports/pnl-heatmap-card';
 import { useReportsFilters, useReportsMoney } from '@/components/reports/section-scaffold';
 import { SwipeableTradeRow } from '@/components/swipeable-trade-row';
 import { t } from '@lingui/core/macro';
-import { formatPercent } from '@/lib/format';
+import { formatPercent, useFormatters } from '@/lib/format';
 import { computePnlHeatmap } from '@/lib/pnl-heatmap';
-import { formatHourKeyLabel, resolveMarketTimezone, useDisplayPrefs } from '@/lib/prefs';
+import { resolveMarketTimezone, useDisplayPrefs } from '@/lib/prefs';
 import { pnlColor } from '@/styles/unistyles';
 
 /**
@@ -25,6 +25,7 @@ export default function HeatmapCellScreen() {
   const hour = Number(params.hour);
 
   const prefs = useDisplayPrefs();
+  const { formatHourKeyLabel } = useFormatters();
   const marketTz = resolveMarketTimezone(prefs.marketTimezone);
   const filters = useReportsFilters();
   const trades = useTrades(filters);

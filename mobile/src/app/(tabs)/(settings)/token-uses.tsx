@@ -9,7 +9,7 @@ import { useAccessTokenUses } from '@/api/hooks';
 import type { AccessTokenUse } from '@/api/types';
 import { AppHost } from '@/components/app-host';
 import { Skeleton } from '@/components/skeleton';
-import { formatDate, formatTime } from '@/lib/format';
+import { useFormatters } from '@/lib/format';
 import { t } from '@lingui/core/macro';
 
 /**
@@ -23,6 +23,7 @@ function shortAgent(agent: string): string {
 }
 
 function UseRow({ use }: { use: AccessTokenUse }) {
+  const { formatDate, formatTime } = useFormatters();
   return (
     <View style={styles.row}>
       <View style={styles.rowTop}>

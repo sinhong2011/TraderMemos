@@ -8,9 +8,9 @@ import { StatBar } from '@/components/stat-bar';
 import { ToolCol, ToolRow, ToolSheet } from '@/components/tool-sheet';
 import { t } from '@lingui/core/macro';
 import { useSelectedAccountId } from '@/lib/account-store';
-import { formatCompact, formatCurrency } from '@/lib/format';
+import { formatCompact, useFormatters } from '@/lib/format';
 import { positionSizeFromRisk } from '@/lib/position-size';
-import { accountBaseCurrency, useDisplayPrefs } from '@/lib/prefs';
+import { accountBaseCurrency } from '@/lib/prefs';
 
 /**
  * Position-size calculator: equity × risk% ÷ per-share risk. Seeds equity
@@ -21,7 +21,8 @@ export default function PositionSizeToolScreen() {
   const accounts = useAccounts();
   const selectedAccountId = useSelectedAccountId();
   const riskRules = useRiskRules();
-  useDisplayPrefs();
+  // Formatters bound to the display prefs (see lib/format.ts).
+  const { formatCurrency } = useFormatters();
 
   const account = selectedAccountId
     ? accounts.data?.find((a) => a.id === selectedAccountId)

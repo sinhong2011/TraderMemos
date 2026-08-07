@@ -12,7 +12,7 @@ import { AppHost } from '@/components/app-host';
 import { CenteredButton } from '@/components/centered-button';
 import { NavRow } from '@/components/nav-row';
 import { SettingsForm } from '@/components/settings-form';
-import { formatDate } from '@/lib/format';
+import { useFormatters } from '@/lib/format';
 import { notify } from '@/lib/haptics';
 import { t } from '@lingui/core/macro';
 
@@ -27,6 +27,7 @@ const MIN_LENGTH = 10;
  */
 export default function UserDetailScreen() {
   const { theme } = useUnistyles();
+  const { formatDate } = useFormatters();
   const router = useRouter();
   const queryClient = useQueryClient();
   const api = useApiRequest();

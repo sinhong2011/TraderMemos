@@ -100,6 +100,23 @@ Expo Go" until Expo ships a client with worklets 0.10.1.
   directly inside it (the styles silently vanish); wrap the content in an inner `View`
   that carries the surface/layout (see `trade-row.tsx`).
 
+### Display prefs & formatting
+
+- **Never call a prefs-dependent formatter imported from `@/lib/format` inside a component** —
+  take it from `useFormatters()` (`formatPnl`, `formatPnlCompact`, `formatCurrency`,
+  `formatDate`, `formatDayKey`, `formatTime`, `formatHourKeyLabel`). The module-level
+  versions read privacy mode / timezone / clock format from the store at call time, which
+  React Compiler cannot see: it caches `formatPnl(trade.net_pnl, currency)` on the arguments
+  alone, so flipping privacy mode re-renders the component and hands back the pre-flip
+  string. Subscribing with `useDisplayPrefs()` does *not* help — the memo cache still
+  answers. `useFormatters()` rebinds the functions per prefs snapshot, and their identity is
+  a dependency the compiler tracks. An ESLint `no-restricted-imports` rule guards this in
+  `src/app` and `src/components`.
+- Same trap for anything else derived from prefs inside a memoized helper: pass the prefs
+  (or the bound formatters) in as arguments — `reportsMoney(..., fmt)` does.
+- `formatPercent`, `formatPercentPoints`, `formatRatio`, `formatCompact` and `formatDuration`
+  read no prefs and can be imported directly anywhere.
+
 ### i18n (Lingui, same stack as web)
 
 - Strings use the `t` macro from `@lingui/core/macro`; catalogs live in

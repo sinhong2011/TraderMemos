@@ -10,7 +10,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 import type { Summary, Trade } from '@/api/types';
-import { formatPercent, formatPnl, formatPnlCompact } from '@/lib/format';
+import { formatPercent, type Formatters } from '@/lib/format';
 import { mmkvStorage } from '@/storage/zustand-mmkv';
 
 export type ReportsSide = 'all' | 'long' | 'short';
@@ -99,12 +99,17 @@ export type ReportsMoney = {
 /**
  * Build the money helpers for the current controls. `denominator` is the
  * %-basis (sum of starting balances); 0 disables the % unit.
+ *
+ * `fmt` comes from `useFormatters()` rather than the module-level formatters:
+ * the returned closures are memoized by their caller, so the privacy mask has
+ * to reach them as an argument to be seen at all (see `lib/format.ts`).
  */
 export function reportsMoney(
   controls: ReportsControls,
   currency: string,
   fxRate: number,
   denominator: number,
+  fmt: Formatters,
 ): ReportsMoney {
   const pctEnabled = denominator > 0;
   const usePct = controls.unitMode === 'pct' && pctEnabled;
@@ -121,9 +126,9 @@ export function reportsMoney(
   // so converting the numerator alone (as web does) would skew the fraction.
   const display = (rawPnl: number) => (usePct ? rawPnl / denominator : rawPnl * fxRate);
   const format = (rawPnl: number) =>
-    usePct ? formatPercent(rawPnl / denominator) : formatPnl(rawPnl * fxRate, currency);
+    usePct ? formatPercent(rawPnl / denominator) : fmt.formatPnl(rawPnl * fxRate, currency);
   const formatCompact = (rawPnl: number) =>
-    usePct ? formatPercent(rawPnl / denominator) : formatPnlCompact(rawPnl * fxRate, currency);
+    usePct ? formatPercent(rawPnl / denominator) : fmt.formatPnlCompact(rawPnl * fxRate, currency);
 
   return {
     pnlMode: controls.pnlMode,

@@ -346,15 +346,6 @@ export function resolveMarketTimezone(pref: string = getPrefs().marketTimezone):
   return isMarketTimezonePref(pref) ? pref : MARKET_TIMEZONE_DEFAULT;
 }
 
-/** Current display clock options for Intl date/time formatting. */
-export function getDisplayTimeOpts(): { timeZone: string; hour12: boolean } {
-  const prefs = getPrefs();
-  return {
-    timeZone: resolveDisplayTimezone(prefs.timezone),
-    hour12: prefs.timeFormat === 'h12',
-  };
-}
-
 /**
  * Zone offsets are derived arithmetically — one instant read on two clocks —
  * rather than from `timeZoneName: 'longOffset'`. Hermes' Foundation-backed Intl
@@ -513,11 +504,18 @@ export function marketTimezoneOptions(
  * Format an hour bucket key (`"14:00"`) for display. The API buckets hours in
  * the market timezone, so keys are already on the market clock — this only
  * applies the 12/24-hour preference.
+ *
+ * Components get this bound to their prefs from `useFormatters()`; calling it
+ * with the ambient default inside one renders a string React Compiler will
+ * cache past the next clock change (see the note in `lib/format.ts`).
  */
-export function formatHourKeyLabel(hourKey: string): string {
+export function formatHourKeyLabel(
+  hourKey: string,
+  timeFormat: TimeFormatPref = getPrefs().timeFormat,
+): string {
   const hour = Number.parseInt(hourKey.slice(0, 2), 10);
   if (!Number.isFinite(hour) || hour < 0 || hour > 23) return hourKey;
-  if (getPrefs().timeFormat === 'h23') return `${String(hour).padStart(2, '0')}:00`;
+  if (timeFormat === 'h23') return `${String(hour).padStart(2, '0')}:00`;
   const h12 = hour % 12 === 0 ? 12 : hour % 12;
   return `${h12}:00 ${hour < 12 ? 'AM' : 'PM'}`;
 }

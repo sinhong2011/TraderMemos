@@ -33,7 +33,7 @@ import {
 } from '@/lib/event-filters';
 import { toggleEventReminder, useEventBookmarks } from '@/lib/event-reminders';
 import { addDaysKey, dayKeyInTz, formatWeekLabel, weekStartKey } from '@/lib/events';
-import { formatTime } from '@/lib/format';
+import { useFormatters } from '@/lib/format';
 import { resolveDisplayTimezone, useDisplayPrefs } from '@/lib/prefs';
 import type { AppTheme } from '@/styles/unistyles';
 import { AppHost } from '@/components/app-host';
@@ -253,6 +253,8 @@ function EventRow({
   onMeasure: (y: number) => void;
 }) {
   const { theme } = useUnistyles();
+  // Bound to the display clock (see lib/format.ts).
+  const { formatTime } = useFormatters();
   const past = new Date(event.time).getTime() < now;
   const hasActual = event.actual !== '';
 

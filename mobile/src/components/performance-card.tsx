@@ -5,8 +5,7 @@ import type { Summary, Trade } from '@/api/types';
 import { DashboardCard } from '@/components/dashboard-card';
 import { StatBar } from '@/components/stat-bar';
 import { t } from '@lingui/core/macro';
-import { formatCurrency, formatPercent, formatPnl, formatRatio } from '@/lib/format';
-import { useDisplayPrefs } from '@/lib/prefs';
+import { formatPercent, formatRatio, useFormatters } from '@/lib/format';
 import { pnlColor } from '@/styles/unistyles';
 
 function Meta({ label, value, tint }: { label: string; value: string; tint?: string }) {
@@ -35,8 +34,8 @@ export function PerformanceCard({
   fxRate?: number;
 }) {
   const { theme } = useUnistyles();
-  // Re-render when privacy mode flips — formatters read it at call time.
-  useDisplayPrefs();
+  // Formatters bound to the display prefs (see lib/format.ts).
+  const { formatCurrency, formatPnl } = useFormatters();
   const pnl = (v: number | null | undefined) => pnlColor(theme.colors, v);
   const fx = (v: number) => v * fxRate;
   // gross_profit/gross_loss are net-based buckets; real gross adds back fees.

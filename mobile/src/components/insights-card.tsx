@@ -6,8 +6,7 @@ import { DashboardCard } from '@/components/dashboard-card';
 import { StatBar } from '@/components/stat-bar';
 import { t } from '@lingui/core/macro';
 import { computeDashboardInsights } from '@/lib/insights';
-import { formatDayKey, formatDuration, formatPnl } from '@/lib/format';
-import { useDisplayPrefs } from '@/lib/prefs';
+import { formatDuration, useFormatters } from '@/lib/format';
 
 /**
  * The web dashboard's insight bento, folded into a phone-width tile grid:
@@ -28,7 +27,7 @@ export function InsightsCard({
   fxRate?: number;
 }) {
   // Re-render when privacy mode flips — formatters read it at call time.
-  useDisplayPrefs();
+  const { formatDayKey, formatPnl } = useFormatters();
   const insights = computeDashboardInsights(trades);
   const fx = (v: number) => v * fxRate;
   const drawdown = maxDrawdown ?? 0;

@@ -8,7 +8,7 @@ import { Pill } from '@/components/pill';
 import { Skeleton } from '@/components/skeleton';
 import { StatBar } from '@/components/stat-bar';
 import { t } from '@lingui/core/macro';
-import { formatCurrency, formatPercent, formatPnl } from '@/lib/format';
+import { formatPercent, useFormatters } from '@/lib/format';
 import { resolveMarketTimezone, useDisplayPrefs } from '@/lib/prefs';
 import { pnlColor } from '@/styles/unistyles';
 
@@ -65,6 +65,7 @@ export function PropStatusCard({
   const { theme } = useUnistyles();
   const router = useRouter();
   const prefs = useDisplayPrefs();
+  const { formatCurrency, formatPnl } = useFormatters();
   const status = usePropStatus(accountId, { tz: resolveMarketTimezone(prefs.marketTimezone) });
 
   if (status.isLoading) return <Skeleton style={styles.skeleton} />;

@@ -30,7 +30,7 @@ import { t } from '@lingui/core/macro';
 import { SettingsForm } from '@/components/settings-form';
 import { numericText, parseAmount } from '@/lib/amount';
 import { ledgerBalance } from '@/lib/cash';
-import { formatCurrency, formatPercent, formatPnl } from '@/lib/format';
+import { formatPercent, useFormatters } from '@/lib/format';
 import { DISPLAY_CURRENCIES } from '@/lib/prefs';
 import { AppHost } from '@/components/app-host';
 
@@ -89,6 +89,8 @@ function AccountForm({ account, accountCount }: { account?: Account; accountCoun
   const queryClient = useQueryClient();
   const api = useApiRequest();
   const { theme } = useUnistyles();
+  // Formatters bound to the display prefs (see lib/format.ts).
+  const { formatCurrency, formatPnl } = useFormatters();
 
   const isEdit = account != null;
   const knownBroker = account != null && POPULAR_BROKERS.includes(account.broker.trim());

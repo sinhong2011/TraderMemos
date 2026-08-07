@@ -4,7 +4,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { EquityStrip } from '@/components/equity-strip';
 import { t } from '@lingui/core/macro';
-import { formatCurrency, formatPnl } from '@/lib/format';
+import { useFormatters } from '@/lib/format';
 import * as haptics from '@/lib/haptics';
 import {
   REPLAY_SPEEDS,
@@ -65,6 +65,8 @@ export function ReplayControls({
   mode?: 'pnl' | 'price';
 }) {
   const { theme } = useUnistyles();
+  // Formatters bound to the display prefs (see lib/format.ts).
+  const { formatCurrency, formatPnl } = useFormatters();
   const frame = run.frames[controller.cursor];
   const lastIndex = Math.max(run.frames.length - 1, 0);
   const showPnl = mode === 'pnl';

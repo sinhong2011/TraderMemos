@@ -23,7 +23,7 @@ import { SettingsForm } from '@/components/settings-form';
 import { useSession } from '@/api/session';
 import { t } from '@lingui/core/macro';
 import { ledgerBalance } from '@/lib/cash';
-import { formatCurrency, formatPnl } from '@/lib/format';
+import { useFormatters } from '@/lib/format';
 import { setAppearance, useDisplayPrefs, type AppearancePref } from '@/lib/prefs';
 import { clearPersistedQueryCache } from '@/storage/mmkv';
 import { AppHost } from '@/components/app-host';
@@ -56,9 +56,10 @@ export default function SettingsScreen() {
   // blank out the rows you aren't currently scoped to).
   const cash = useCash();
   const trades = useTrades();
-  // Money formatters read privacy mode at call time; subscribe so a flip
-  // re-renders the rows.
   const displayPrefs = useDisplayPrefs();
+  // Formatters bound to those prefs — a privacy flip re-formats the rows
+  // (see lib/format.ts).
+  const { formatCurrency, formatPnl } = useFormatters();
 
   const pnlByAccount = useMemo(() => {
     const totals = new Map<string, number>();

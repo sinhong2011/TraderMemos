@@ -17,8 +17,9 @@ import type { ReportsSection } from '@/app/(tabs)/(reports)/index';
 import { useSelectedAccountId } from '@/lib/account-store';
 import { netDeposits } from '@/lib/cash';
 import { useGlobalFilters } from '@/lib/filters';
+import { useFormatters } from '@/lib/format';
 import { useMoneyFx } from '@/lib/money';
-import { accountBaseCurrency, useDisplayPrefs } from '@/lib/prefs';
+import { accountBaseCurrency } from '@/lib/prefs';
 import {
   reportsMoney,
   useReportsControls,
@@ -46,7 +47,9 @@ export type ReportsMoneyContext = {
 
 export function useReportsMoney(): ReportsMoneyContext {
   // Privacy flips and control changes both re-render money surfaces from here.
-  useDisplayPrefs();
+  // The formatters have to travel *into* reportsMoney: subscribing alone leaves
+  // the memoized `money` object holding pre-flip closures (see lib/format.ts).
+  const fmt = useFormatters();
   const controls = useReportsControls();
   const accounts = useAccounts();
   const selectedId = useSelectedAccountId();
@@ -55,7 +58,7 @@ export function useReportsMoney(): ReportsMoneyContext {
   const fx = useMoneyFx(accountBaseCurrency(accounts.data, selectedId));
   const fxRate = fx.rate ?? 1;
   return {
-    money: reportsMoney(controls, fx.currency, fxRate, denominator),
+    money: reportsMoney(controls, fx.currency, fxRate, denominator, fmt),
     currency: fx.currency,
     fxRate,
     denominator,

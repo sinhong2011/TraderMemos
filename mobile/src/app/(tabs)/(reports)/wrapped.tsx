@@ -12,15 +12,9 @@ import { StatBar } from '@/components/stat-bar';
 import { t } from '@lingui/core/macro';
 import { locale } from '@/i18n';
 import { useSelectedAccountId } from '@/lib/account-store';
-import {
-  formatDuration,
-  formatPercent,
-  formatPnl,
-  formatPnlCompact,
-  formatRatio,
-} from '@/lib/format';
+import { formatDuration, formatPercent, formatRatio, useFormatters } from '@/lib/format';
 import { useMoneyFx } from '@/lib/money';
-import { accountBaseCurrency, useDisplayPrefs } from '@/lib/prefs';
+import { accountBaseCurrency } from '@/lib/prefs';
 import { computeYearWrapped } from '@/lib/wrapped';
 import { pnlColor } from '@/styles/unistyles';
 import { AppHost } from '@/components/app-host';
@@ -50,7 +44,8 @@ export default function WrappedScreen() {
   const fx = useMoneyFx(accountBaseCurrency(accounts.data, selectedAccountId));
   const currency = fx.currency;
   const rate = fx.rate ?? 1;
-  useDisplayPrefs();
+  // Formatters bound to the display prefs (see lib/format.ts).
+  const { formatPnl, formatPnlCompact } = useFormatters();
 
   const wrapped = useMemo(() => computeYearWrapped(trades.data ?? [], year), [trades.data, year]);
   const money = (v: number) => formatPnl(v * rate, currency);

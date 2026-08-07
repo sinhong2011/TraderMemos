@@ -16,9 +16,9 @@ import { TradeFilterMenu } from '@/components/trade-filter-menu';
 import { t } from '@lingui/core/macro';
 import { useSelectedAccountId } from '@/lib/account-store';
 import { useGlobalFilters } from '@/lib/filters';
-import { formatPercent, formatPnlCompact, formatRatio } from '@/lib/format';
+import { formatPercent, formatRatio, useFormatters } from '@/lib/format';
 import { useMoneyFx } from '@/lib/money';
-import { accountBaseCurrency, useDisplayPrefs } from '@/lib/prefs';
+import { accountBaseCurrency } from '@/lib/prefs';
 import { pnlColor } from '@/styles/unistyles';
 import { AppHost } from '@/components/app-host';
 
@@ -100,7 +100,7 @@ export default function PlaybookScreen() {
   const fx = useMoneyFx(accountBaseCurrency(accounts.data, selectedAccountId));
   const currency = fx.currency;
   const fxRate = fx.rate ?? 1;
-  useDisplayPrefs();
+  const { formatPnlCompact } = useFormatters();
 
   const [sortKey, setSortKey] = useState<SortKey>('pnl');
 

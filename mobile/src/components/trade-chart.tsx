@@ -15,7 +15,6 @@ import { DashboardCard } from '@/components/dashboard-card';
 import { Segmented } from '@/components/segmented';
 import { Skeleton } from '@/components/skeleton';
 import { t } from '@lingui/core/macro';
-import { useDisplayPrefs } from '@/lib/prefs';
 import { BAR_INTERVALS, useTradeBars } from '@/lib/trade-bars';
 
 /**
@@ -31,7 +30,6 @@ import { BAR_INTERVALS, useTradeBars } from '@/lib/trade-bars';
 export function TradeChart({ trade }: { trade: TradeDetail }) {
   const { theme } = useUnistyles();
   const router = useRouter();
-  useDisplayPrefs();
   // Open trades chart up to "now", captured once per mount so render stays pure
   // and the query key doesn't churn.
   const [mountedAtMs] = useState(() => Date.now());

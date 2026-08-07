@@ -4,8 +4,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import type { Setup, Tag } from '@/api/types';
 import { t } from '@lingui/core/macro';
-import { formatCurrency, formatPnl } from '@/lib/format';
-import { useDisplayPrefs } from '@/lib/prefs';
+import { useFormatters, type MoneyFormatter } from '@/lib/format';
 import { parseAmount, type FillDraft, type TradeFormValues } from '@/lib/trade-form';
 import { blockPnlPreview } from '@/lib/trade-pnl-preview';
 import { pnlColor } from '@/styles/unistyles';
@@ -25,7 +24,11 @@ function contractLine(block: TradeFormValues): string {
   return parts.join(' · ');
 }
 
-function planLine(block: TradeFormValues, currency: string): string {
+function planLine(
+  block: TradeFormValues,
+  currency: string,
+  formatCurrency: MoneyFormatter,
+): string {
   const target = parseAmount(block.target);
   const stop = parseAmount(block.stop);
   const parts: string[] = [];
@@ -91,15 +94,15 @@ export function BlockSummary({
   tags?: Tag[];
 }) {
   const { theme } = useUnistyles();
-  // Money formatters read privacy mode at call time (see lib/format.ts).
-  useDisplayPrefs();
+  // Formatters bound to the display prefs (see lib/format.ts).
+  const { formatCurrency, formatPnl } = useFormatters();
 
   const shown = block.fills.slice(0, 6);
   const hidden = block.fills.length - shown.length;
   const long = block.direction === 'long';
   const preview = blockPnlPreview(block);
   const contract = contractLine(block);
-  const plan = planLine(block, currency);
+  const plan = planLine(block, currency, formatCurrency);
 
   const chips: { key: string; label: string; tone: 'accent' | 'muted' | 'neg' }[] = [];
   for (const id of block.setupIds) {

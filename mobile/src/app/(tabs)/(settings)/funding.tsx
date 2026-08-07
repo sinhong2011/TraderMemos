@@ -16,7 +16,7 @@ import type { Account, CashTransaction } from '@/api/types';
 import { Skeleton } from '@/components/skeleton';
 import { t } from '@lingui/core/macro';
 import { cashTypeLabel } from '@/lib/cash';
-import { formatCurrency, formatDate } from '@/lib/format';
+import { useFormatters } from '@/lib/format';
 import { AppHost } from '@/components/app-host';
 
 /** One ledger entry: tap to edit, trailing swipe to remove (the api-tokens idiom). */
@@ -32,6 +32,8 @@ function TransactionRow({
   onRemove: () => void;
 }) {
   const { theme } = useUnistyles();
+  // Formatters bound to the display prefs (see lib/format.ts).
+  const { formatCurrency, formatDate } = useFormatters();
   const swipeable = useRef<SwipeableMethods>(null);
   // Withdrawals and fees are stored negative, but older rows can carry a bare
   // positive amount — the type still decides the direction.

@@ -24,9 +24,9 @@ import { useSelectedAccountId } from '@/lib/account-store';
 import { monthGrid, tradeDayKey } from '@/lib/calendar';
 import { netDeposits } from '@/lib/cash';
 import { useGlobalFilters } from '@/lib/filters';
-import { formatPercentPoints, formatPnl, formatPnlCompact } from '@/lib/format';
+import { formatPercentPoints, useFormatters } from '@/lib/format';
 import { useMoneyFx } from '@/lib/money';
-import { accountBaseCurrency, useDisplayPrefs } from '@/lib/prefs';
+import { accountBaseCurrency } from '@/lib/prefs';
 import { pnlBgTint, pnlColor, pnlDotTint } from '@/styles/unistyles';
 
 type Mode = 'week' | 'month' | 'year';
@@ -175,9 +175,6 @@ export default function CalendarScreen() {
   const fx = useMoneyFx(baseCurrency);
   const currency = fx.currency;
   const fxRate = fx.rate ?? 1;
-  // Re-render when privacy mode flips — day cells format money.
-  useDisplayPrefs();
-
   const dayStats = useMemo(() => {
     const stats = new Map<string, DayStats>();
     for (const trade of trades.data ?? []) {
@@ -527,6 +524,7 @@ function DayCell({
   currency: string;
 }) {
   const { theme } = useUnistyles();
+  const { formatPnlCompact } = useFormatters();
   const hasPnl = pnl != null;
   const isToday = date === todayKey;
   const count = stats?.count ?? 0;
@@ -593,6 +591,7 @@ function MonthView({
   currency: string;
 }) {
   const { theme } = useUnistyles();
+  const { formatPnl, formatPnlCompact } = useFormatters();
   const grid = monthGrid(year, month, data);
   const traded = Object.keys(data).filter((k) => k.startsWith(`${year}-${pad(month)}`));
   const green = traded.filter((k) => data[k] > 0).length;
@@ -724,6 +723,7 @@ function WeekView({
   currency: string;
 }) {
   const { theme } = useUnistyles();
+  const { formatPnl } = useFormatters();
   const start = weekStart(anchor);
   const days = Array.from({ length: 7 }, (_, i) => {
     const d = new Date(start);
@@ -841,6 +841,7 @@ function YearView({
   onSelectMonth: (month: number) => void;
 }) {
   const { theme } = useUnistyles();
+  const { formatPnl, formatPnlCompact } = useFormatters();
   const yearTotal = Object.entries(data)
     .filter(([k]) => k.startsWith(`${year}-`))
     .reduce((sum, [, v]) => sum + v, 0);

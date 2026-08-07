@@ -15,7 +15,7 @@ import { CenteredButton } from '@/components/centered-button';
 import { SettingsForm } from '@/components/settings-form';
 import { t } from '@lingui/core/macro';
 import { parseAmount } from '@/lib/amount';
-import { formatCurrency, formatPercent } from '@/lib/format';
+import { formatPercent, useFormatters } from '@/lib/format';
 import { AppHost } from '@/components/app-host';
 
 /**
@@ -24,6 +24,7 @@ import { AppHost } from '@/components/app-host';
  * value, editing happens in native prompts.
  */
 export default function PropSettingsScreen() {
+  const { formatCurrency } = useFormatters();
   const { accountId } = useLocalSearchParams<{ accountId: string }>();
   const router = useRouter();
   const queryClient = useQueryClient();
