@@ -7,7 +7,7 @@ import { t } from '@lingui/core/macro';
 import { formatCurrency, formatPnl } from '@/lib/format';
 import { useDisplayPrefs } from '@/lib/prefs';
 import { parseAmount, type FillDraft, type TradeFormValues } from '@/lib/trade-form';
-import { blockPnlPreview } from '@/lib/trade-pnl-preview';
+import { blockFillPnls, blockPnlPreview } from '@/lib/trade-pnl-preview';
 import { pnlColor } from '@/styles/unistyles';
 
 /** "CALL 102 · Aug 7 · ×100" — the contract facts the header row can't hold. */
@@ -51,7 +51,17 @@ function Chip({ label, tone }: { label: string; tone: 'accent' | 'muted' | 'neg'
   );
 }
 
-function FillLine({ fill }: { fill: FillDraft }) {
+function FillLine({
+  fill,
+  pnl,
+  currency,
+}: {
+  fill: FillDraft;
+  /** Realized net this closing fill locked in; null on opening fills. */
+  pnl: number | null;
+  currency: string;
+}) {
+  const { theme } = useUnistyles();
   const when = fill.executedAt.toLocaleString(undefined, {
     month: 'short',
     day: 'numeric',
@@ -67,6 +77,11 @@ function FillLine({ fill }: { fill: FillDraft }) {
       <Text style={styles.fillQtyPrice} numberOfLines={1}>
         {fill.quantity || '—'} @ {fill.price || '—'}
       </Text>
+      {pnl != null ? (
+        <Text style={[styles.fillPnl, { color: pnlColor(theme.colors, pnl) }]}>
+          {formatPnl(pnl, currency)}
+        </Text>
+      ) : null}
       <Text style={styles.fillWhen}>{when}</Text>
     </View>
   );
@@ -98,6 +113,7 @@ export function BlockSummary({
   const hidden = block.fills.length - shown.length;
   const long = block.direction === 'long';
   const preview = blockPnlPreview(block);
+  const fillPnls = blockFillPnls(block);
   const contract = contractLine(block);
   const plan = planLine(block, currency);
 
@@ -130,8 +146,8 @@ export function BlockSummary({
       {contract ? <Text style={styles.metaLine}>{contract}</Text> : null}
 
       <View style={styles.fills}>
-        {shown.map((fill) => (
-          <FillLine key={fill.key} fill={fill} />
+        {shown.map((fill, index) => (
+          <FillLine key={fill.key} fill={fill} pnl={fillPnls[index] ?? null} currency={currency} />
         ))}
         {hidden > 0 ? <Text style={styles.moreLine}>{t`+${hidden} more fills`}</Text> : null}
       </View>
@@ -248,6 +264,11 @@ const styles = StyleSheet.create((theme) => ({
   fillWhen: {
     fontSize: 12,
     color: theme.colors.mutedForeground,
+    fontVariant: ['tabular-nums'],
+  },
+  fillPnl: {
+    fontSize: 12,
+    fontWeight: '600',
     fontVariant: ['tabular-nums'],
   },
   moreLine: {

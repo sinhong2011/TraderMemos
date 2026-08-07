@@ -50,7 +50,13 @@ function fifoRealize(
   side: 'long' | 'short',
   fills: PreviewFill[],
   multiplier: number,
-): { realizedNet: number; realizedGross: number; positionQty: number } {
+): {
+  realizedNet: number;
+  realizedGross: number;
+  positionQty: number;
+  /** Realized net per input fill; null for opening fills and unmatched closes. */
+  perFillNet: (number | null)[];
+} {
   const mult = multiplier > 0 ? multiplier : 1;
   const openSide = side === 'long' ? 'buy' : 'sell';
   const closeSide = side === 'long' ? 'sell' : 'buy';
@@ -59,8 +65,9 @@ function fifoRealize(
   const lots: FifoLot[] = [];
   let realizedNet = 0;
   let realizedGross = 0;
+  const perFillNet: (number | null)[] = fills.map(() => null);
 
-  for (const f of fills) {
+  for (const [index, f] of fills.entries()) {
     const fee = f.fees + f.commission;
     if (f.side === openSide && f.quantity > 0 && f.price > 0) {
       lots.push({ qty: f.quantity, price: f.price, feeRemaining: fee });
@@ -90,12 +97,13 @@ function fifoRealize(
     const closedQty = f.quantity - left;
     const exitFeeShare = f.quantity > 0 ? (fee * closedQty) / f.quantity : fee;
     const net = round2(gross - exitFeeShare - entryFees);
+    perFillNet[index] = net;
     realizedNet = round2(realizedNet + net);
     realizedGross = round2(realizedGross + gross);
   }
 
   const positionQty = round2(lots.reduce((s, lot) => s + lot.qty, 0));
-  return { realizedNet, realizedGross, positionQty };
+  return { realizedNet, realizedGross, positionQty, perFillNet };
 }
 
 /**
@@ -179,17 +187,34 @@ export function previewTradePnl(
   };
 }
 
-/** Preview for one form block: drafts parsed, blank multiplier resolved. */
-export function blockPnlPreview(values: TradeFormValues): TradePnlPreview {
-  const fills: PreviewFill[] = values.fills.map((fill) => ({
+function parseFills(values: TradeFormValues): PreviewFill[] {
+  return values.fills.map((fill) => ({
     side: fill.side,
     quantity: parseAmount(fill.quantity) ?? 0,
     price: parseAmount(fill.price) ?? 0,
     fees: parseAmount(fill.fees) ?? 0,
     commission: parseAmount(fill.commission) ?? 0,
   }));
+}
+
+/** Preview for one form block: drafts parsed, blank multiplier resolved. */
+export function blockPnlPreview(values: TradeFormValues): TradePnlPreview {
   const multiplier = effectiveMultiplier(values) || 1;
-  return previewTradePnl(values.direction, fills, multiplier, computeInitialRisk(values));
+  return previewTradePnl(
+    values.direction,
+    parseFills(values),
+    multiplier,
+    computeInitialRisk(values),
+  );
+}
+
+/**
+ * Realized net per fill (aligned with `values.fills`): closing fills carry the
+ * FIFO net they locked in, opening and unmatched fills are null.
+ */
+export function blockFillPnls(values: TradeFormValues): (number | null)[] {
+  const multiplier = effectiveMultiplier(values) || 1;
+  return fifoRealize(values.direction, parseFills(values), multiplier).perFillNet;
 }
 
 /** Aggregated preview across multiple symbol trade blocks (one Save batch). */

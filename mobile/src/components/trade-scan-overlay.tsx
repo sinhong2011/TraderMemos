@@ -21,6 +21,8 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { useApiRaw } from '@/api/hooks';
 import type { TradeExtract } from '@/api/types';
+import { AppHost } from '@/components/app-host';
+import { CenteredButton } from '@/components/centered-button';
 import { GlassButton, GlassIconButton } from '@/components/glass-button';
 import { BlockSummary } from '@/components/trade-summary';
 import { t } from '@lingui/core/macro';
@@ -351,13 +353,11 @@ export function TradeScanOverlay({
       <View style={[styles.footer, { paddingBottom: insets.bottom + 12 }]}>
         {prefill ? (
           <Animated.View entering={springUp(260)}>
-            <GlassButton
-              label={t`Fill form`}
-              systemImage="checkmark"
-              prominent
-              fill
-              onPress={() => onApply(prefill.blocks)}
-            />
+            {/* The settings-form action idiom; hosted here since the footer
+                is an RN view, not a Form (width from the stretched host). */}
+            <AppHost matchContents={{ vertical: true }} style={styles.actionHost}>
+              <CenteredButton label={t`Fill form`} onPress={() => onApply(prefill.blocks)} />
+            </AppHost>
           </Animated.View>
         ) : nothingParsed ? (
           <GlassButton label={t`Close`} fill onPress={onClose} />
@@ -503,4 +503,5 @@ const styles = StyleSheet.create((theme) => ({
     paddingHorizontal: theme.spacing.lg,
     paddingTop: theme.spacing.sm,
   },
+  actionHost: { alignSelf: 'stretch' },
 }));
