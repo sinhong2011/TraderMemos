@@ -7,6 +7,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { useAccounts, useTrades } from '@/api/hooks';
 import { DashboardCard } from '@/components/dashboard-card';
+import { ErrorState } from '@/components/error-state';
 import { Skeleton } from '@/components/skeleton';
 import { StatBar } from '@/components/stat-bar';
 import { t } from '@lingui/core/macro';
@@ -103,6 +104,17 @@ export default function WrappedScreen() {
             <Skeleton style={styles.skeletonTall} />
             <Skeleton style={styles.skeletonCard} />
           </>
+        ) : trades.error && trades.data == null ? (
+          // The recap is computed from the trades, so a failed fetch with no
+          // cache produces a zeroed wrapped — indistinguishable from a year you
+          // didn't trade. Cached trades still recap fine.
+          <View style={styles.emptyHost}>
+            <ErrorState
+              error={trades.error}
+              onRetry={() => void trades.refetch()}
+              retrying={trades.isRefetching}
+            />
+          </View>
         ) : wrapped.totalTrades === 0 ? (
           <AppHost style={styles.emptyHost}>
             <ContentUnavailableView

@@ -35,6 +35,7 @@ import {
   useRemindersEnabled,
   useRemindersTime,
 } from '@/lib/checklist-reminders';
+import { errorMessage } from '@/lib/errors';
 import { AppHost } from '@/components/app-host';
 
 /**
@@ -111,7 +112,7 @@ export default function ChecklistScreen() {
     },
     onError: (err, _next, context) => {
       queryClient.setQueryData(queryKeys.checklistTemplate(), context?.previous);
-      Alert.alert(t`Could not save checklist`, err.message);
+      Alert.alert(t`Could not save checklist`, errorMessage(err));
     },
     onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.checklistTemplate() });
@@ -264,9 +265,18 @@ export default function ChecklistScreen() {
               ))}
             </List.ForEach>
 
+            {/* A failed load has to be said out loud here: "No items yet" over
+                a routine that exists on the server invites you to type it all
+                again, and the Add row below is right there. Plain SwiftUI text
+                rather than the app's InlineError — this row lives inside a
+                native Form, which takes no RN children. */}
             {items.length === 0 ? (
               <UIText modifiers={[foregroundStyle({ type: 'hierarchical', style: 'secondary' })]}>
-                {checklist.isLoading ? t`Loading…` : t`No items yet`}
+                {checklist.isLoading
+                  ? t`Loading…`
+                  : checklist.error
+                    ? errorMessage(checklist.error)
+                    : t`No items yet`}
               </UIText>
             ) : null}
 

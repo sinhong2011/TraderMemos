@@ -1,5 +1,5 @@
 import { I18nProvider } from '@lingui/react';
-import { QueryClient } from '@tanstack/react-query';
+import { QueryClient, useQueryClient } from '@tanstack/react-query';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import * as Application from 'expo-application';
 import * as Linking from 'expo-linking';
@@ -7,16 +7,19 @@ import { DarkTheme, DefaultTheme, ThemeProvider, useRootNavigationState, useRout
 import { Stack } from 'expo-router/stack';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useMemo, useRef } from 'react';
-import { Alert } from 'react-native';
+import { Alert, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { useUnistyles } from 'react-native-unistyles';
 
-import { UnauthorizedError } from '@/api/client';
+import { ApiError, UnauthorizedError } from '@/api/client';
 import { useSession } from '@/api/session';
 import { SessionProvider } from '@/api/session-provider';
+import { AppErrorBoundary } from '@/components/error-boundary';
+import { OfflineBanner } from '@/components/error-state';
 import { i18n } from '@/i18n';
 import { t } from '@lingui/core/macro';
+import { useConnectivityStore } from '@/lib/connectivity';
 import { useResolvedScheme } from '@/lib/prefs';
 import { usePrefsSync } from '@/lib/use-prefs-sync';
 import { ensureDropFolder, stageDroppedFile } from '@/lib/trade-import';
@@ -91,6 +94,26 @@ function PrefsSyncGate() {
   return null;
 }
 
+/**
+ * Pulls the app back to life when the server starts answering again.
+ *
+ * The reachability poll in `lib/connectivity` is what notices; without this
+ * the user would be looking at a screen whose queries have already exhausted
+ * their retries, and the banner would vanish while the content stayed dead
+ * until they thought to pull to refresh.
+ */
+function ReachabilityGate() {
+  const queryClient = useQueryClient();
+  const recoveredAt = useConnectivityStore((state) => state.recoveredAt);
+
+  useEffect(() => {
+    if (recoveredAt === 0) return;
+    void queryClient.refetchQueries({ type: 'active' });
+  }, [recoveredAt, queryClient]);
+
+  return null;
+}
+
 export default function RootLayout() {
   // The Appearance pref, not the device scheme: pinning the app to Light on a
   // phone in Dark Mode has to move the navigation chrome too, or the headers
@@ -124,10 +147,29 @@ export default function RootLayout() {
             // Keep entries alive long enough to be worth persisting — must be
             // >= the persister maxAge or restored data is GC'd immediately.
             gcTime: 24 * 60 * 60 * 1000,
-            // A dead session won't recover by retrying — the gate redirects instead.
-            retry: (failureCount, error) =>
-              !(error instanceof UnauthorizedError) && failureCount < 2,
+            retry: (failureCount, error) => {
+              // A dead session won't recover by retrying — the gate redirects instead.
+              if (error instanceof UnauthorizedError) return false;
+              // The server understood and refused; asking again changes nothing,
+              // and each pointless attempt is another second of skeleton.
+              if (error instanceof ApiError && error.status < 500) return false;
+              return failureCount < 2;
+            },
+            // Tighter than the 1s-and-doubling default. These retries sit
+            // between the user and the error state, so they have to be over
+            // fast: an unreachable server should be *shown* as unreachable in
+            // about a second and a half, not five.
+            retryDelay: (attempt) => Math.min(500 * 2 ** attempt, 4_000),
+            // Default staleness rules, with one exception: a query that failed
+            // while the server was down must not stay failed when the user
+            // navigates back to it, even if `staleTime` says it is fresh.
+            refetchOnMount: (query) => (query.state.error != null ? 'always' : true),
           },
+          // Mutations keep TanStack's no-retry default, deliberately. A
+          // `NetworkError` means no response came back — not that the request
+          // never landed — so replaying a POST /trades can book the trade
+          // twice. In a journal whose whole value is an accurate ledger, a
+          // second Save tap is far cheaper than a phantom fill.
         },
       }),
     [],
@@ -152,6 +194,9 @@ export default function RootLayout() {
         <ThemeProvider value={navTheme}>
           <ImportLinkGate />
           <PrefsSyncGate />
+          <ReachabilityGate />
+          <AppErrorBoundary>
+          <View style={{ flex: 1 }}>
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="login" options={{ presentation: 'modal', headerShown: false }} />
@@ -257,6 +302,10 @@ export default function RootLayout() {
               }}
             />
           </Stack>
+          {/* Above the navigator, so it stays put across pushes and sheets. */}
+          <OfflineBanner />
+          </View>
+          </AppErrorBoundary>
         </ThemeProvider>
         </PersistQueryClientProvider>
       </SessionProvider>

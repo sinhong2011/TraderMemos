@@ -13,6 +13,7 @@ import type { TokenPair } from '@/api/types';
 import { AppHost } from '@/components/app-host';
 import { HeaderIconButton } from '@/components/header-icon-button';
 import { SettingsForm } from '@/components/settings-form';
+import { errorMessage } from '@/lib/errors';
 import { notify } from '@/lib/haptics';
 import { t } from '@lingui/core/macro';
 
@@ -77,7 +78,7 @@ export default function ChangePasswordScreen() {
     },
     onError: (err) => {
       notify('error');
-      Alert.alert(t`Could not change password`, err.message);
+      Alert.alert(t`Could not change password`, errorMessage(err));
     },
   });
 

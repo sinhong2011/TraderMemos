@@ -4,6 +4,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { usePropStatus } from '@/api/hooks';
 import { DashboardCard } from '@/components/dashboard-card';
+import { InlineError } from '@/components/error-state';
 import { Pill } from '@/components/pill';
 import { Skeleton } from '@/components/skeleton';
 import { StatBar } from '@/components/stat-bar';
@@ -69,7 +70,17 @@ export function PropStatusCard({
   const status = usePropStatus(accountId, { tz: resolveMarketTimezone(prefs.marketTimezone) });
 
   if (status.isLoading) return <Skeleton style={styles.skeleton} />;
-  if (status.error) return null;
+  // Vanishing was defensible while it was the only blank card on screen; with
+  // the server down every card beside it is blank too, and a trader on an
+  // evaluation is owed a reason rather than a missing drawdown floor. A cached
+  // status still renders — the offline banner is what marks it as behind.
+  if (status.error && status.data == null) {
+    return (
+      <DashboardCard title={t`Prop evaluation`}>
+        <InlineError error={status.error} onRetry={() => void status.refetch()} />
+      </DashboardCard>
+    );
+  }
 
   const data = status.data;
   if (!data) return null;

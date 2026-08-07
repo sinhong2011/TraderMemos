@@ -18,6 +18,7 @@ import { ChecklistCard } from '@/components/checklist-card';
 import { DailyLossCard } from '@/components/daily-loss-card';
 import { DashboardCard } from '@/components/dashboard-card';
 import { EquityCard } from '@/components/equity-card';
+import { ErrorState, InlineError } from '@/components/error-state';
 import { GoalCard } from '@/components/goal-card';
 import { InsightsCard } from '@/components/insights-card';
 import { MiniCalendarCard } from '@/components/mini-calendar-card';
@@ -89,13 +90,21 @@ export default function DashboardScreen() {
     );
   }
 
-  if (summary.error) {
+  // Summary is the screen: every card below either renders it or hangs off it,
+  // so its failure is the whole tab's failure. The per-card errors further down
+  // stay inline — one dead widget shouldn't cost the user the other nine.
+  //
+  // Only when there is nothing cached to fall back on, though. The MMKV
+  // persister exists precisely so a trader on a plane still sees last night's
+  // numbers; throwing them away for an error screen would defeat it. The
+  // offline banner is what admits the figures are stale.
+  if (summary.error && summary.data == null) {
     return (
-      <View style={styles.centered}>
-        <Text selectable style={styles.error}>
-          {summary.error.message}
-        </Text>
-      </View>
+      <ErrorState
+        error={summary.error}
+        onRetry={() => void queryClient.refetchQueries({ type: 'active' })}
+        retrying={summary.isRefetching}
+      />
     );
   }
 
@@ -131,9 +140,9 @@ export default function DashboardScreen() {
           faster than the aggregates below it, which read as its detail. */}
       {equity.isLoading ? (
         <Skeleton style={styles.skeletonCard} />
-      ) : equity.error ? (
+      ) : equity.error && equity.data == null ? (
         <DashboardCard title={t`Equity curve`}>
-          <Text style={styles.cardError}>{t`Failed to load equity curve.`}</Text>
+          <InlineError error={equity.error} onRetry={() => void equity.refetch()} />
         </DashboardCard>
       ) : equity.data ? (
         <EquityCard curve={equity.data} currency={currency} fxRate={fxRate} />
@@ -213,7 +222,12 @@ export default function DashboardScreen() {
             {t`View all`} ›
           </Text>
         </View>
-        {recentTrades.length === 0 ? (
+        {/* An outage must not read as a clean slate: "No trades in this range"
+            is a claim about the data, and we only get to make it once the
+            request actually came back. */}
+        {trades.error && trades.data == null ? (
+          <InlineError error={trades.error} onRetry={() => void trades.refetch()} />
+        ) : recentTrades.length === 0 ? (
           <Text style={styles.cardError}>{t`No trades in this range.`}</Text>
         ) : (
           recentTrades.map((trade) => <TradeRow key={trade.id} trade={trade} />)
@@ -236,7 +250,6 @@ const styles = StyleSheet.create((theme) => ({
     justifyContent: 'center',
     padding: theme.spacing.xl,
   },
-  error: { color: theme.colors.mutedForeground, textAlign: 'center' },
   skeletonCardTall: { height: 240, borderRadius: theme.radius.lg + 4 },
   skeletonCard: { height: 180, borderRadius: theme.radius.lg + 4 },
   cardError: { fontSize: 13, color: theme.colors.mutedForeground },

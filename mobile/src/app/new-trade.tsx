@@ -9,6 +9,7 @@ import { useSession } from '@/api/session';
 import { useAccounts, useApiRaw, useLlmSettings, useSetups, useTags } from '@/api/hooks';
 import { TradeForm } from '@/components/trade-form';
 import { t } from '@lingui/core/macro';
+import { errorMessage } from '@/lib/errors';
 import {
   clearDroppedSources,
   extractFromSources,
@@ -69,7 +70,7 @@ function useDroppedPrefill(
           Alert.alert(t`Check the fills`, prefilled.warnings.join('\n\n'));
         }
       } catch (err) {
-        Alert.alert(t`Could not import`, err instanceof Error ? err.message : String(err));
+        Alert.alert(t`Could not import`, errorMessage(err));
       } finally {
         setDone(true);
       }

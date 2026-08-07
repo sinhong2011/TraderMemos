@@ -11,6 +11,7 @@ import type { TotpSetup } from '@/api/types';
 import { AppHost } from '@/components/app-host';
 import { CenteredButton } from '@/components/centered-button';
 import { SettingsForm } from '@/components/settings-form';
+import { errorMessage } from '@/lib/errors';
 import { notify } from '@/lib/haptics';
 import { t } from '@lingui/core/macro';
 
@@ -44,7 +45,7 @@ export default function TwoFactorScreen() {
   const start = useMutation({
     mutationFn: () => api<TotpSetup>('/me/totp/start', { method: 'POST' }),
     onSuccess: setSetup,
-    onError: (err) => Alert.alert(t`Could not start setup`, err.message),
+    onError: (err) => Alert.alert(t`Could not start setup`, errorMessage(err)),
   });
 
   const confirm = useMutation({
@@ -66,7 +67,7 @@ export default function TwoFactorScreen() {
     },
     onError: (err) => {
       notify('error');
-      Alert.alert(t`Could not enable`, err.message);
+      Alert.alert(t`Could not enable`, errorMessage(err));
     },
   });
 
@@ -87,7 +88,7 @@ export default function TwoFactorScreen() {
     },
     onError: (err) => {
       notify('error');
-      Alert.alert(t`Could not turn off`, err.message);
+      Alert.alert(t`Could not turn off`, errorMessage(err));
     },
   });
 

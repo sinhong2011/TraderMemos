@@ -14,6 +14,7 @@ import { queryKeys, useApiRequest, useRiskRules } from '@/api/hooks';
 import type { RiskRules } from '@/api/types';
 import { t } from '@lingui/core/macro';
 import { SettingsForm } from '@/components/settings-form';
+import { errorMessage } from '@/lib/errors';
 import {
   activeRiskRules,
   availableRiskRules,
@@ -39,7 +40,7 @@ export default function RiskRulesScreen() {
   const save = useMutation({
     mutationFn: (body: RiskRules) => api('/settings/risk-rules', { method: 'PUT', body }),
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: queryKeys.riskRules() }),
-    onError: (err) => Alert.alert(t`Could not save`, err.message),
+    onError: (err) => Alert.alert(t`Could not save`, errorMessage(err)),
   });
 
   function promptForValue(def: RiskRuleDef, current?: number) {

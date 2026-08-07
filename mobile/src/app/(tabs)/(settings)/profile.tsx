@@ -6,6 +6,7 @@ import { useUnistyles } from 'react-native-unistyles';
 import { useMe } from '@/api/hooks';
 import { useSession } from '@/api/session';
 import { AppHost } from '@/components/app-host';
+import { ErrorState } from '@/components/error-state';
 import { NavRow } from '@/components/nav-row';
 import { SettingsForm } from '@/components/settings-form';
 import { useFormatters } from '@/lib/format';
@@ -36,14 +37,20 @@ export default function ProfileScreen() {
 
   const secondary = foregroundStyle({ type: 'hierarchical', style: 'secondary' as const });
 
+  // The whole screen is /me, so a failure has nothing to sit beside — it gets
+  // the full-screen treatment with the retry the old one-liner never offered.
+  if (me.isError && !me.data) {
+    return (
+      <ErrorState error={me.error} onRetry={() => void me.refetch()} retrying={me.isRefetching} />
+    );
+  }
+
   if (!me.data) {
     return (
       <AppHost style={{ flex: 1, backgroundColor: theme.colors.background }}>
         <SettingsForm>
           <Section>
-            <UIText modifiers={[secondary]}>
-              {me.isError ? t`Could not load your account.` : t`Loading…`}
-            </UIText>
+            <UIText modifiers={[secondary]}>{t`Loading…`}</UIText>
           </Section>
         </SettingsForm>
       </AppHost>

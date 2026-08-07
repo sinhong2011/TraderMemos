@@ -7,6 +7,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { useApiRequest, useNote } from '@/api/hooks';
 import type { Note, NoteBody } from '@/api/types';
+import { ErrorState } from '@/components/error-state';
 import { FormSheet } from '@/components/form-sheet';
 import { FormSkeleton } from '@/components/skeleton';
 import {
@@ -18,6 +19,7 @@ import {
   type NoteFormValues,
 } from '@/components/note-form';
 import { t } from '@lingui/core/macro';
+import { errorMessage } from '@/lib/errors';
 
 function valuesFromNote(note: Note): NoteFormValues {
   return {
@@ -46,7 +48,7 @@ function EditNoteForm({ note }: { note: Note }) {
       void queryClient.invalidateQueries({ queryKey: ['notes'] });
       router.back();
     },
-    onError: (err) => Alert.alert(t`Could not save`, err.message),
+    onError: (err) => Alert.alert(t`Could not save`, errorMessage(err)),
   });
 
   const remove = useMutation({
@@ -55,7 +57,7 @@ function EditNoteForm({ note }: { note: Note }) {
       void queryClient.invalidateQueries({ queryKey: ['notes'] });
       router.back();
     },
-    onError: (err) => Alert.alert(t`Could not delete`, err.message),
+    onError: (err) => Alert.alert(t`Could not delete`, errorMessage(err)),
   });
 
   function handleSave() {
@@ -120,12 +122,20 @@ export default function EditNoteScreen() {
       </FormSheet>
     );
   }
-  if (note.error || !note.data) {
+  // A cached note still edits — the save is what will fail, and it says so.
+  if (note.error && !note.data) {
+    return (
+      <ErrorState
+        error={note.error}
+        onRetry={() => void note.refetch()}
+        retrying={note.isRefetching}
+      />
+    );
+  }
+  if (!note.data) {
     return (
       <FormSheet title={t`Edit note`} onSave={() => {}}>
-        <Text style={styles.muted} selectable>
-          {note.error?.message ?? t`Note not found`}
-        </Text>
+        <Text style={styles.muted}>{t`Note not found`}</Text>
       </FormSheet>
     );
   }

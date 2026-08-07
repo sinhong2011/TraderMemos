@@ -11,6 +11,7 @@ import { FormInput, FormSheet } from '@/components/form-sheet';
 import { GlassButton } from '@/components/glass-button';
 import { Segmented } from '@/components/segmented';
 import { t } from '@lingui/core/macro';
+import { errorMessage } from '@/lib/errors';
 
 const EXPIRY_OPTIONS = [
   { value: 'never', label: () => t`Never` },
@@ -57,7 +58,7 @@ export default function NewTokenScreen() {
       void queryClient.invalidateQueries({ queryKey: queryKeys.accessTokens() });
       setCreated(row);
     },
-    onError: (err) => Alert.alert(t`Could not create token`, err.message),
+    onError: (err) => Alert.alert(t`Could not create token`, errorMessage(err)),
   });
 
   const trimmedName = name.trim();

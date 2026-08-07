@@ -8,6 +8,7 @@ import { StyleSheet } from 'react-native-unistyles';
 import { useAccessTokenUses } from '@/api/hooks';
 import type { AccessTokenUse } from '@/api/types';
 import { AppHost } from '@/components/app-host';
+import { ErrorState } from '@/components/error-state';
 import { Skeleton } from '@/components/skeleton';
 import { useFormatters } from '@/lib/format';
 import { t } from '@lingui/core/macro';
@@ -64,6 +65,9 @@ function UseRow({ use }: { use: AccessTokenUse }) {
 export default function TokenUsesScreen() {
   const { id, name } = useLocalSearchParams<{ id: string; name?: string }>();
   const uses = useAccessTokenUses(id ?? '');
+  // Ahead of the empty state: "Not used yet" is a claim about the token, and a
+  // failed load has no business making it.
+  const loadFailed = uses.isError && uses.data == null;
 
   return (
     <>
@@ -74,6 +78,12 @@ export default function TokenUsesScreen() {
             <Skeleton key={i} style={styles.skeletonRow} />
           ))}
         </View>
+      ) : loadFailed ? (
+        <ErrorState
+          error={uses.error}
+          onRetry={() => void uses.refetch()}
+          retrying={uses.isRefetching}
+        />
       ) : (
         <FlashList
           data={uses.data ?? []}

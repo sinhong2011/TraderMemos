@@ -8,6 +8,7 @@ import { NumericField } from '@/components/numeric-field';
 import { Segmented } from '@/components/segmented';
 import { ToolSheet } from '@/components/tool-sheet';
 import { t } from '@lingui/core/macro';
+import { describeError, isUnreachable } from '@/lib/errors';
 import { useFormatters } from '@/lib/format';
 import { DISPLAY_CURRENCIES } from '@/lib/prefs';
 
@@ -32,6 +33,15 @@ export default function FxToolScreen() {
   const rate = same ? 1 : fx.data?.rate;
   const parsed = Number(amount);
   const converted = rate != null && Number.isFinite(parsed) ? parsed * rate : null;
+
+  const fxProblem = fx.isError ? describeError(fx.error) : null;
+  // An unreachable server and an unconfigured provider both land here, and only
+  // one of them is fixed under Settings — the copy has to tell them apart.
+  const fxProblemLine = fxProblem
+    ? isUnreachable(fx.error)
+      ? fxProblem.description
+      : t`Could not fetch the rate — is market data configured?`
+    : null;
 
   const currencyOptions = DISPLAY_CURRENCIES.map((code) => ({ value: code, label: code }));
 
@@ -85,15 +95,15 @@ export default function FxToolScreen() {
             </Text>
           ) : (
             <Text style={styles.resultPending}>
-              {fx.isError ? t`Rate unavailable` : t`Fetching rate…`}
+              {fxProblem ? fxProblem.title : t`Fetching rate…`}
             </Text>
           )}
         </View>
       </View>
 
       <Text style={styles.rateLine}>
-        {fx.isError && !same
-          ? t`Could not fetch the rate — is market data configured?`
+        {fxProblemLine && !same
+          ? fxProblemLine
           : converted != null
             ? `${t`1 ${from} = ${(rate ?? 1).toFixed(4)} ${to}`}${
                 !same && fx.data ? ` · ${formatDate(fx.data.as_of)}` : ''

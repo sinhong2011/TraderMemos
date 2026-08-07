@@ -10,6 +10,7 @@ import { AppHost } from '@/components/app-host';
 import { NavRow } from '@/components/nav-row';
 import { SettingsForm } from '@/components/settings-form';
 import { parseAmount } from '@/lib/amount';
+import { errorMessage } from '@/lib/errors';
 import { useFormatters } from '@/lib/format';
 import { setMaxScreenshotsPerTrade, useJournalPrefs } from '@/lib/journal-prefs';
 import { t } from '@lingui/core/macro';
@@ -45,7 +46,7 @@ export default function TradingJournalScreen() {
       queryClient.setQueryData(queryKeys.annualGoal(year), { year, amount });
       void queryClient.invalidateQueries({ queryKey: queryKeys.annualGoal(year) });
     },
-    onError: (err) => Alert.alert(t`Could not save`, err.message),
+    onError: (err) => Alert.alert(t`Could not save`, errorMessage(err)),
   });
 
   function editGoal() {

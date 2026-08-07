@@ -6,10 +6,12 @@ import { captureRef } from 'react-native-view-shot';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { useTrade } from '@/api/hooks';
+import { ErrorState } from '@/components/error-state';
 import { GlassButton } from '@/components/glass-button';
 import { ShareCardView } from '@/components/share-card';
 import { Skeleton } from '@/components/skeleton';
 import { t } from '@lingui/core/macro';
+import { errorMessage } from '@/lib/errors';
 
 /**
  * Share preview: the actual card, at the size it will be captured, with the
@@ -35,7 +37,7 @@ export default function ShareTradeScreen() {
         dialogTitle: t`Share trade`,
       });
     } catch (err) {
-      Alert.alert(t`Could not share`, err instanceof Error ? err.message : String(err));
+      Alert.alert(t`Could not share`, errorMessage(err));
     } finally {
       setSharing(false);
     }
@@ -59,10 +61,19 @@ export default function ShareTradeScreen() {
 
       {trade.isLoading ? (
         <Skeleton style={styles.cardSkeleton} />
-      ) : trade.error || !trade.data ? (
-        <Text style={styles.muted} selectable>
-          {trade.error?.message ?? t`Trade not found`}
-        </Text>
+      ) : trade.error && !trade.data ? (
+        // Only when the cache has nothing either — a card built from a stale
+        // trade still shares. The sheet's content root is the ScrollView, which
+        // hands children no height, so the failure needs an explicit slot.
+        <View style={styles.failure}>
+          <ErrorState
+            error={trade.error}
+            onRetry={() => void trade.refetch()}
+            retrying={trade.isRefetching}
+          />
+        </View>
+      ) : !trade.data ? (
+        <Text style={styles.muted}>{t`Trade not found`}</Text>
       ) : (
         <>
           <View style={styles.preview}>
@@ -129,5 +140,6 @@ const styles = StyleSheet.create((theme) => ({
   optionHint: { fontSize: 12, color: theme.colors.mutedForeground },
   action: { alignItems: 'center' },
   cardSkeleton: { height: 280, borderRadius: theme.radius.lg + 4 },
+  failure: { height: 280 },
   muted: { color: theme.colors.mutedForeground, textAlign: 'center' },
 }));

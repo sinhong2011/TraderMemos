@@ -26,6 +26,7 @@ import { CenteredButton } from '@/components/centered-button';
 import { GlassButton, GlassIconButton } from '@/components/glass-button';
 import { BlockSummary } from '@/components/trade-summary';
 import { t } from '@lingui/core/macro';
+import { errorMessage } from '@/lib/errors';
 import type { TradeFormValues } from '@/lib/trade-form';
 import {
   capScanSources,
@@ -205,7 +206,9 @@ export function TradeScanOverlay({
           setFiles((current) => current.map((f, i) => (i === index ? { ...f, status: 'done' } : f)));
         } catch (err) {
           if (!alive.current || cancelled) return;
-          const message = err instanceof Error ? err.message : String(err);
+          // Extraction is a server round trip, so this label is where an
+          // unreachable server would otherwise print its raw platform throw.
+          const message = errorMessage(err);
           setFiles((current) =>
             current.map((f, i) => (i === index ? { ...f, status: 'error', error: message } : f)),
           );

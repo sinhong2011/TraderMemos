@@ -23,6 +23,7 @@ import { useSession } from '@/api/session';
 import type { TradeDetail } from '@/api/types';
 import { DashboardCard } from '@/components/dashboard-card';
 import { t } from '@lingui/core/macro';
+import { errorMessage } from '@/lib/errors';
 import { getJournalPrefs } from '@/lib/journal-prefs';
 import { AppHost } from '@/components/app-host';
 
@@ -55,7 +56,7 @@ export function AttachmentsCard({ trade }: { trade: TradeDetail }) {
     mutationFn: (attachmentId: string) =>
       api<void>(`/attachments/${attachmentId}`, { method: 'DELETE' }),
     onSuccess: invalidate,
-    onError: (err) => Alert.alert(t`Could not delete`, err.message),
+    onError: (err) => Alert.alert(t`Could not delete`, errorMessage(err)),
   });
 
   /** Remaining slots under the max-screenshots pref, or Infinity. */
@@ -93,7 +94,7 @@ export function AttachmentsCard({ trade }: { trade: TradeDetail }) {
       }
       invalidate();
     } catch (err) {
-      Alert.alert(t`Could not upload`, err instanceof Error ? err.message : String(err));
+      Alert.alert(t`Could not upload`, errorMessage(err));
     } finally {
       setUploading(false);
     }

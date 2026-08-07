@@ -36,8 +36,10 @@ import { useUnistyles } from 'react-native-unistyles';
 
 import { queryKeys, useApiRequest, useLlmSettings, type LlmKind } from '@/api/hooks';
 import type { LlmApiSettings, LlmApiTestResult, LlmModelsResult } from '@/api/types';
+import { ErrorState } from '@/components/error-state';
 import { HeaderIconButton } from '@/components/header-icon-button';
 import { SettingsForm } from '@/components/settings-form';
+import { errorMessage } from '@/lib/errors';
 import { notify } from '@/lib/haptics';
 import { t } from '@lingui/core/macro';
 import { AppHost } from '@/components/app-host';
@@ -89,6 +91,21 @@ export default function AiProviderScreen() {
   const copy = kindCopy(kind);
   const settings = useLlmSettings(kind);
 
+  // Nothing on this screen exists without the settings, so a failure takes the
+  // whole surface — and carries the retry the old dead-end row didn't.
+  if (settings.isError && !settings.data) {
+    return (
+      <>
+        <Stack.Screen options={{ title: copy.title }} />
+        <ErrorState
+          error={settings.error}
+          onRetry={() => void settings.refetch()}
+          retrying={settings.isRefetching}
+        />
+      </>
+    );
+  }
+
   if (!settings.data) {
     return (
       <AppHost style={{ flex: 1 }}>
@@ -96,7 +113,7 @@ export default function AiProviderScreen() {
         <SettingsForm>
           <Section>
             <UIText modifiers={[foregroundStyle({ type: 'hierarchical', style: 'secondary' })]}>
-              {settings.isError ? t`Failed to load settings.` : t`Loading…`}
+              {t`Loading…`}
             </UIText>
           </Section>
         </SettingsForm>
@@ -145,7 +162,7 @@ function ProviderForm({ kind, settings }: { kind: LlmKind; settings: LlmApiSetti
       setApiKey('');
       setDirty(false);
     },
-    onError: (err) => Alert.alert(t`Could not save`, err.message),
+    onError: (err) => Alert.alert(t`Could not save`, errorMessage(err)),
   });
 
   const test = useMutation({
@@ -171,7 +188,7 @@ function ProviderForm({ kind, settings }: { kind: LlmKind; settings: LlmApiSetti
     },
     onError: (err) => {
       notify('error');
-      setTestResult({ ok: false, message: err.message });
+      setTestResult({ ok: false, message: errorMessage(err) });
     },
   });
 
@@ -192,7 +209,7 @@ function ProviderForm({ kind, settings }: { kind: LlmKind; settings: LlmApiSetti
       setModels(result.models);
       if (result.models.length === 0) Alert.alert(t`No models`, t`The endpoint listed no models.`);
     },
-    onError: (err) => Alert.alert(t`Could not load models`, err.message),
+    onError: (err) => Alert.alert(t`Could not load models`, errorMessage(err)),
   });
 
   function editBaseUrl() {

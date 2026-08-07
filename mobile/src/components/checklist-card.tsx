@@ -19,6 +19,7 @@ import {
   useWeekdaysOnly,
 } from '@/lib/checklist';
 import { useChecklistReminderSync } from '@/lib/checklist-reminders';
+import { errorMessage } from '@/lib/errors';
 
 /**
  * Today's checklist, tickable in place (web has this on the New Note drawer;
@@ -94,7 +95,7 @@ export function ChecklistCard() {
     onMutate: () => {
       inFlight.current += 1;
     },
-    onError: (err) => Alert.alert(t`Could not save`, err.message),
+    onError: (err) => Alert.alert(t`Could not save`, errorMessage(err)),
     // The draft only stands down once the queue has drained and the refetched
     // note carries every tap — dropping it between two queued writes would
     // flash the boxes back to their pre-tap state.

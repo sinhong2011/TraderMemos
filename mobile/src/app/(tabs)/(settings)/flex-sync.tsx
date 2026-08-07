@@ -17,6 +17,7 @@ import type { FlexSyncPut, FlexSyncResult } from '@/api/types';
 import { CenteredButton } from '@/components/centered-button';
 import { SettingsForm } from '@/components/settings-form';
 import { t } from '@lingui/core/macro';
+import { errorMessage } from '@/lib/errors';
 import { useFormatters } from '@/lib/format';
 import { AppHost } from '@/components/app-host';
 
@@ -60,7 +61,7 @@ export default function FlexSyncScreen() {
       tokenState.set('');
       tokenText.current = '';
     },
-    onError: (err) => Alert.alert(t`Could not save`, err.message),
+    onError: (err) => Alert.alert(t`Could not save`, errorMessage(err)),
   });
 
   const remove = useMutation({
@@ -69,7 +70,7 @@ export default function FlexSyncScreen() {
       hydrated.current = false;
       void queryClient.invalidateQueries({ queryKey: queryKeys.flexSync(accountId!) });
     },
-    onError: (err) => Alert.alert(t`Could not remove`, err.message),
+    onError: (err) => Alert.alert(t`Could not remove`, errorMessage(err)),
   });
 
   const run = useMutation({
@@ -82,7 +83,7 @@ export default function FlexSyncScreen() {
         t`${result.trades} trades from ${result.rows} rows — ${result.inserted} fills inserted, ${result.skipped} duplicates skipped.`,
       );
     },
-    onError: (err) => Alert.alert(t`Sync failed`, err.message),
+    onError: (err) => Alert.alert(t`Sync failed`, errorMessage(err)),
   });
 
   function handleSave() {

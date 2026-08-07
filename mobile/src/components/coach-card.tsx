@@ -6,6 +6,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { useApiRequest, useLlmSettings } from '@/api/hooks';
 import type { CoachReview, TradeDetail } from '@/api/types';
 import { DashboardCard } from '@/components/dashboard-card';
+import { InlineError } from '@/components/error-state';
 import { GlassButton } from '@/components/glass-button';
 import { t } from '@lingui/core/macro';
 import {
@@ -96,8 +97,8 @@ export function CoachCard({ trade }: { trade: TradeDetail }) {
           {t`AI coach is turned off — enable it under Settings → AI.`}
         </Text>
       ) : null}
-      {generate.isError ? (
-        <Text style={styles.muted}>{generate.error.message}</Text>
+      {generate.error ? (
+        <InlineError error={generate.error} onRetry={() => generate.mutate()} />
       ) : null}
 
       {coachConfigured ? (
