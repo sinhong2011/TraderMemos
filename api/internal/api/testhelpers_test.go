@@ -32,7 +32,8 @@ func testServerWithRegistration(t *testing.T, allowRegistration bool) *api.Serve
 	conn, err := db.Open(filepath.Join(t.TempDir(), "t.db"))
 	require.NoError(t, err)
 	require.NoError(t, db.Migrate(conn))
-	q := store.New(conn)
+	// NewForDriver (not store.New) so handlers exercise the TxRunner path.
+	q := store.NewForDriver(conn, "sqlite")
 	j := auth.NewJWT("test")
 	provider := marketdata.NewYahooProvider()
 	market := marketdata.NewService(q, provider)
