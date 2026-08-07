@@ -2,6 +2,7 @@ import {
   Button,
   HStack,
   Image as UIImage,
+  ProgressView,
   Text as UIText,
 } from '@expo/ui/swift-ui';
 import {
@@ -97,12 +98,15 @@ export function GlassIconButton({
   systemImage,
   label,
   disabled,
+  loading,
   onPress,
 }: {
   systemImage: SFSymbol;
   /** Accessibility label — the button shows only the symbol. */
   label: string;
   disabled?: boolean;
+  /** Swaps the glyph for a native spinner and disables the button. */
+  loading?: boolean;
   onPress: () => void;
 }) {
   const { theme } = useUnistyles();
@@ -120,10 +124,15 @@ export function GlassIconButton({
             shape: 'circle',
           }),
           accessibilityLabel(label),
-          ...(disabled ? [disabledModifier(true)] : []),
+          ...(disabled || loading ? [disabledModifier(true)] : []),
         ]}
       >
-        <UIImage systemName={systemImage} size={16} />
+        {loading ? (
+          // Pinned to the glyph's box so the circle doesn't resize mid-swap.
+          <ProgressView modifiers={[frame({ width: 16, height: 16 })]} />
+        ) : (
+          <UIImage systemName={systemImage} size={16} />
+        )}
       </Button>
     </AppHost>
   );

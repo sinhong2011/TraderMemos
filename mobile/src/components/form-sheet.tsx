@@ -1,6 +1,7 @@
 import { useRouter } from 'expo-router';
 import type { ReactNode } from 'react';
 import {
+  ActivityIndicator,
   Keyboard,
   Pressable,
   ScrollView,
@@ -9,6 +10,7 @@ import {
   View,
   type TextInputProps,
 } from 'react-native';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -126,6 +128,8 @@ export function FormSheet({
           <GlassIconButton
             systemImage={pushed ? 'chevron.backward' : 'xmark'}
             label={pushed ? t`Back` : t`Cancel`}
+            // Dismissing mid-save races the mutation's own router.back().
+            disabled={saving}
             onPress={() => router.back()}
           />
         )}
@@ -155,7 +159,8 @@ export function FormSheet({
           <GlassIconButton
             systemImage={saveIcon ?? 'checkmark'}
             label={saving ? (savingLabel ?? t`Saving…`) : (saveLabel ?? t`Save`)}
-            disabled={saving || saveDisabled}
+            disabled={saveDisabled}
+            loading={saving}
             onPress={onSave}
           />
         )}
@@ -196,6 +201,19 @@ export function FormSheet({
         // symbol pager needs full-width pages) — it caps its own measure.
         <View style={styles.flex}>{children}</View>
       )}
+      {/* A slow save has to look like the app working, not hanging: the scrim
+          blocks every touch and names the wait. Not rendered in the `inSheet`
+          variant — its content root is the ScrollView, so an absolute overlay
+          would only cover the content extent (those short forms keep the
+          disabled chrome). */}
+      {saving ? (
+        <Animated.View entering={FadeIn.duration(150)} style={styles.savingOverlay}>
+          <View style={styles.savingCard}>
+            <ActivityIndicator color={theme.colors.foreground} />
+            <Text style={styles.savingText}>{savingLabel ?? t`Saving…`}</Text>
+          </View>
+        </Animated.View>
+      ) : null}
     </View>
   );
 }
@@ -392,6 +410,26 @@ const styles = StyleSheet.create((theme) => ({
     borderColor: theme.colors.input,
     backgroundColor: theme.colors.card,
   },
+  // The scrim inherits the page colour at ~70% so the form stays legible
+  // behind it in both schemes; the card is the one elevated surface.
+  savingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: theme.colors.background + 'B3',
+  },
+  savingCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.md,
+    paddingHorizontal: theme.spacing.xl,
+    paddingVertical: theme.spacing.lg,
+    borderRadius: theme.radius.lg,
+    borderCurve: 'continuous',
+    backgroundColor: theme.colors.card,
+    boxShadow: theme.shadows.card,
+  },
+  savingText: { fontSize: 15, fontWeight: '600', color: theme.colors.foreground },
   // An explicit height, not `minHeight`: a multiline TextInput inside the
   // form's scroll view has no bound to measure against and reports an
   // effectively infinite intrinsic height (~477,000pt), which swallowed every
