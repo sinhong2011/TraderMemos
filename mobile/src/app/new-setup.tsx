@@ -19,6 +19,7 @@ import { ValueToggle } from '@/components/value-toggle';
 import { PnlFill } from '@/styles/unistyles';
 import { t } from '@lingui/core/macro';
 import { parseAmount } from '@/lib/amount';
+import { errorMessage } from '@/lib/errors';
 
 type Direction = 'long' | 'short';
 
@@ -103,7 +104,7 @@ export default function NewSetupScreen() {
       void queryClient.invalidateQueries({ queryKey: queryKeys.setups() });
       router.back();
     },
-    onError: (err) => Alert.alert(t`Could not save`, err.message),
+    onError: (err) => Alert.alert(t`Could not save`, errorMessage(err)),
   });
 
   const remove = useMutation({
@@ -112,7 +113,7 @@ export default function NewSetupScreen() {
       void queryClient.invalidateQueries({ queryKey: queryKeys.setups() });
       router.back();
     },
-    onError: (err) => Alert.alert(t`Could not delete`, err.message),
+    onError: (err) => Alert.alert(t`Could not delete`, errorMessage(err)),
   });
 
   function addCheck(afterIndex?: number) {

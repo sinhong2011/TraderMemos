@@ -12,6 +12,7 @@ import { useUnistyles } from 'react-native-unistyles';
 import { useSession } from '@/api/session';
 import { SettingsForm } from '@/components/settings-form';
 import { buildAppConfigExport, parseAppConfig } from '@/lib/app-config';
+import { errorMessage } from '@/lib/errors';
 import { shareFile } from '@/lib/file-transfer';
 import { applyJournalPrefs } from '@/lib/journal-prefs';
 import { applyDisplayPrefs } from '@/lib/prefs';
@@ -37,7 +38,7 @@ export default function DataBackupScreen() {
         'application/json',
       );
     } catch (err) {
-      Alert.alert(t`Could not export config`, err instanceof Error ? err.message : String(err));
+      Alert.alert(t`Could not export config`, errorMessage(err));
     }
   }
 
@@ -62,7 +63,7 @@ export default function DataBackupScreen() {
           : undefined;
       Alert.alert(t`App config imported`, serverNote);
     } catch (err) {
-      Alert.alert(t`Could not import config`, err instanceof Error ? err.message : String(err));
+      Alert.alert(t`Could not import config`, errorMessage(err));
     }
   }
 

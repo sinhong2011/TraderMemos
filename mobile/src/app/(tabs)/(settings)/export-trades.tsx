@@ -13,6 +13,7 @@ import { useAccounts, useApiRaw } from '@/api/hooks';
 import type { ExportFormat } from '@/api/types';
 import { CenteredButton } from '@/components/centered-button';
 import { SettingsForm } from '@/components/settings-form';
+import { errorMessage } from '@/lib/errors';
 import { filenameFromDisposition, shareFile } from '@/lib/file-transfer';
 import { t } from '@lingui/core/macro';
 import { AppHost } from '@/components/app-host';
@@ -80,7 +81,7 @@ export default function ExportTradesScreen() {
             : await response.text();
       await shareFile(name, content, EXPORT_MIME[format]);
     } catch (err) {
-      Alert.alert(t`Export failed`, err instanceof Error ? err.message : String(err));
+      Alert.alert(t`Export failed`, errorMessage(err));
     } finally {
       setExporting(false);
     }

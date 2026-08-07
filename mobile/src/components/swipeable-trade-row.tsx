@@ -12,6 +12,7 @@ import { useApiRequest } from '@/api/hooks';
 import type { Trade } from '@/api/types';
 import { TradeRow } from '@/components/trade-row';
 import { t } from '@lingui/core/macro';
+import { errorMessage } from '@/lib/errors';
 
 function SwipeAction({
   icon,
@@ -72,7 +73,7 @@ export function SwipeableTradeRow({
   const deleteTrade = useMutation({
     mutationFn: (id: string) => api<void>(`/trades/${id}`, { method: 'DELETE' }),
     onSuccess: () => void queryClient.invalidateQueries(),
-    onError: (err) => Alert.alert(t`Could not delete`, err.message),
+    onError: (err) => Alert.alert(t`Could not delete`, errorMessage(err)),
   });
 
   function confirmDelete() {

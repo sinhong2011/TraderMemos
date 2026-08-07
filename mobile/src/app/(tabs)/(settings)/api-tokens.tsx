@@ -13,8 +13,10 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { queryKeys, useAccessTokens, useApiRequest } from '@/api/hooks';
 import type { AccessToken } from '@/api/types';
+import { ErrorState } from '@/components/error-state';
 import { Skeleton } from '@/components/skeleton';
 import { t } from '@lingui/core/macro';
+import { errorMessage } from '@/lib/errors';
 import { useFormatters } from '@/lib/format';
 import { AppHost } from '@/components/app-host';
 
@@ -131,7 +133,7 @@ export default function ApiTokensScreen() {
   const revoke = useMutation({
     mutationFn: (id: string) => api(`/access-tokens/${id}`, { method: 'DELETE' }),
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: queryKeys.accessTokens() }),
-    onError: (err) => Alert.alert(t`Could not revoke token`, err.message),
+    onError: (err) => Alert.alert(t`Could not revoke token`, errorMessage(err)),
   });
 
   function confirmRevoke(token: AccessToken) {
@@ -144,6 +146,11 @@ export default function ApiTokensScreen() {
       ],
     );
   }
+
+  // Takes precedence over the list's empty state: "No tokens yet" on an
+  // unreachable server tells the user their credentials are gone. Cached tokens
+  // still win — a failed refresh is no reason to hide them.
+  const loadFailed = tokens.isError && tokens.data == null;
 
   const addButton = (
     <Pressable
@@ -166,6 +173,12 @@ export default function ApiTokensScreen() {
             <Skeleton key={i} style={styles.skeletonRow} />
           ))}
         </View>
+      ) : loadFailed ? (
+        <ErrorState
+          error={tokens.error}
+          onRetry={() => void tokens.refetch()}
+          retrying={tokens.isRefetching}
+        />
       ) : (
         <FlashList
           data={tokens.data ?? []}

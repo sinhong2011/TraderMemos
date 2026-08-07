@@ -21,6 +21,7 @@ import { FormSkeleton } from '@/components/skeleton';
 import { t } from '@lingui/core/macro';
 import { parseAmount } from '@/lib/amount';
 import { CASH_TYPES, signedCashAmount } from '@/lib/cash';
+import { errorMessage } from '@/lib/errors';
 import { AppHost } from '@/components/app-host';
 
 /** Noon-UTC anchor keeps the calendar day stable across timezones. */
@@ -108,7 +109,7 @@ function CashForm({
       invalidateCash();
       router.back();
     },
-    onError: (err) => Alert.alert(t`Could not save`, err.message),
+    onError: (err) => Alert.alert(t`Could not save`, errorMessage(err)),
   });
 
   const remove = useMutation({
@@ -117,7 +118,7 @@ function CashForm({
       invalidateCash();
       router.back();
     },
-    onError: (err) => Alert.alert(t`Could not remove transaction`, err.message),
+    onError: (err) => Alert.alert(t`Could not remove transaction`, errorMessage(err)),
   });
 
   const account = accounts.find((candidate) => candidate.id === accountId);

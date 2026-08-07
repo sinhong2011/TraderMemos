@@ -19,6 +19,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { useEconomicEvents } from '@/api/hooks';
 import { ApiError } from '@/api/client';
 import type { EconomicEvent } from '@/api/types';
+import { ErrorState } from '@/components/error-state';
 import { EventFilterMenu } from '@/components/event-filter-menu';
 import { Pill, type PillTone } from '@/components/pill';
 import { FloatingSearchBar, SearchToggle } from '@/components/search-bar';
@@ -776,10 +777,17 @@ export default function EconomicEventsScreen() {
                 description={t`The server has no economic-calendar provider configured.`}
               />
             </AppHost>
-          ) : events.error ? (
-            <Text style={styles.muted} selectable>
-              {events.error.message}
-            </Text>
+          ) : events.error && events.data == null ? (
+            // Only when the persisted cache is empty too — a week already
+            // fetched stays readable offline. Sized like the empty host: the
+            // failure sits inside scroll content with no height of its own.
+            <View style={styles.emptyHost}>
+              <ErrorState
+                error={events.error}
+                onRetry={() => void events.refetch()}
+                retrying={events.isRefetching}
+              />
+            </View>
           ) : (
             rows.map((row, index) => {
               if (row.kind === 'day') {
@@ -1053,9 +1061,4 @@ const styles = StyleSheet.create((theme) => ({
     backgroundColor: theme.colors.muted,
   },
   clearButtonLabel: { fontSize: 14, fontWeight: '600', color: theme.colors.foreground },
-  muted: {
-    color: theme.colors.mutedForeground,
-    textAlign: 'center',
-    paddingVertical: theme.spacing.xl,
-  },
 }));

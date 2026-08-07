@@ -7,8 +7,10 @@ import { FormSkeleton } from '@/components/skeleton';
 
 import { useAccounts, useApiRequest, useSetups, useTags, useTrade } from '@/api/hooks';
 import { AttachmentsCard } from '@/components/attachments-card';
+import { ErrorState } from '@/components/error-state';
 import { TradeForm } from '@/components/trade-form';
 import { t } from '@lingui/core/macro';
+import { errorMessage } from '@/lib/errors';
 import {
   dividendBody,
   emptyFill,
@@ -34,7 +36,7 @@ export default function EditTradeScreen() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const api = useApiRequest();
-  const { data: trade, isLoading } = useTrade(id);
+  const { data: trade, isLoading, error, refetch, isRefetching } = useTrade(id);
   const { data: accounts } = useAccounts();
   const { data: setups } = useSetups();
   const { data: tags } = useTags();
@@ -80,7 +82,7 @@ export default function EditTradeScreen() {
       void queryClient.invalidateQueries();
       router.back();
     },
-    onError: (err) => Alert.alert(t`Could not save`, err.message),
+    onError: (err) => Alert.alert(t`Could not save`, errorMessage(err)),
   });
 
   function handleSave(blocks: TradeFormValues[]) {
@@ -92,6 +94,12 @@ export default function EditTradeScreen() {
     save.mutate(values);
   }
 
+  // Only the trade blocks the form: the pickers degrade to empty lists, but
+  // without the trade there is nothing to edit. A cached trade is still worth
+  // opening — the failure surfaces on save, where it can be acted on.
+  if (error && !trade) {
+    return <ErrorState error={error} onRetry={() => void refetch()} retrying={isRefetching} />;
+  }
   if (isLoading || !trade || !accounts || !setups || !tags) {
     return isLoading || !accounts || !setups || !tags ? (
       <View style={styles.loading}>

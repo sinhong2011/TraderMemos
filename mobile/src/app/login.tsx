@@ -49,6 +49,7 @@ import { ApiError, login, ping } from '@/api/client';
 import { PasswordInput } from '@/components/password-input';
 import { loadServerUrl, normalizeServerUrl, useSession } from '@/api/session';
 import { t } from '@lingui/core/macro';
+import { errorMessage } from '@/lib/errors';
 import { AppHost } from '@/components/app-host';
 
 const GRID_CELL = 44;
@@ -115,7 +116,7 @@ export default function LoginScreen() {
         // Probe /healthz first so a bad host reports "unreachable" rather than
         // surfacing as a confusing credentials failure.
         if (!(await ping(normalized))) {
-          setError(t`Could not reach ${normalized}`);
+          setError(t`Could not reach ${normalized}. Check the address, and that the server is running and reachable from this network.`);
           return;
         }
         const tokens = await login(normalized, {
@@ -144,7 +145,10 @@ export default function LoginScreen() {
           setError(t`That code is not valid. Codes change every 30 seconds.`);
           return;
         }
-        setError(caught instanceof Error ? caught.message : t`Sign in failed`);
+        // The /healthz probe above only proves the host answered a moment ago;
+        // a server that dies between the two requests used to put Expo's raw
+        // "UnexpectedException" text in the alert card.
+        setError(errorMessage(caught));
       }
     },
   });

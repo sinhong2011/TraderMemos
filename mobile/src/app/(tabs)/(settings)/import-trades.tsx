@@ -22,6 +22,7 @@ import { useAccounts, useApiRaw } from '@/api/hooks';
 import type { ImportPreview, ImportResult } from '@/api/types';
 import { CenteredButton } from '@/components/centered-button';
 import { SettingsForm } from '@/components/settings-form';
+import { errorMessage } from '@/lib/errors';
 import { shareFile } from '@/lib/file-transfer';
 import { useFormatters } from '@/lib/format';
 import {
@@ -170,7 +171,7 @@ export default function ImportTradesScreen() {
       setMapping(initial);
       setPreview(data);
     } catch (err) {
-      Alert.alert(t`Could not preview`, err instanceof Error ? err.message : String(err));
+      Alert.alert(t`Could not preview`, errorMessage(err));
     } finally {
       setBusy(false);
     }
@@ -192,7 +193,7 @@ export default function ImportTradesScreen() {
       // refetch everything rather than enumerating keys.
       void queryClient.invalidateQueries();
     } catch (err) {
-      Alert.alert(t`Import failed`, err instanceof Error ? err.message : String(err));
+      Alert.alert(t`Import failed`, errorMessage(err));
     } finally {
       setBusy(false);
     }
@@ -204,7 +205,7 @@ export default function ImportTradesScreen() {
         ? shareFile(SAMPLE_CSV_NAME, SAMPLE_CSV, 'text/csv')
         : shareFile(SAMPLE_JSON_NAME, SAMPLE_JSON, 'application/json'));
     } catch (err) {
-      Alert.alert(t`Could not save the sample`, err instanceof Error ? err.message : String(err));
+      Alert.alert(t`Could not save the sample`, errorMessage(err));
     }
   }
 

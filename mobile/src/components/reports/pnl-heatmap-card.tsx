@@ -5,6 +5,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { useTrades } from '@/api/hooks';
 import { DashboardCard } from '@/components/dashboard-card';
+import { InlineError } from '@/components/error-state';
 import {
   useReportsFilters,
   type ReportsMoneyContext,
@@ -70,12 +71,17 @@ export function PnlHeatmapCard({ ctx }: { ctx: ReportsMoneyContext }) {
       </DashboardCard>
     );
   }
-  if (trades.error || heatmap.total === 0) {
+  if (trades.error && trades.data == null) {
     return (
       <DashboardCard title={t`P&L heatmap`}>
-        <Text style={styles.empty}>
-          {trades.error ? t`Failed to load trades.` : t`No trades in this range.`}
-        </Text>
+        <InlineError error={trades.error} onRetry={() => void trades.refetch()} />
+      </DashboardCard>
+    );
+  }
+  if (heatmap.total === 0) {
+    return (
+      <DashboardCard title={t`P&L heatmap`}>
+        <Text style={styles.empty}>{t`No trades in this range.`}</Text>
       </DashboardCard>
     );
   }

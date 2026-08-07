@@ -76,6 +76,8 @@ export default function AboutScreen() {
             <UIText modifiers={[secondary]}>{session?.serverUrl ?? t`Not connected`}</UIText>
           </LabeledContent>
           <LabeledContent label={t`Status`}>
+            {/* The failure word is describeError's, not this screen's — About
+                and the error states must not name the same thing differently. */}
             <UIText
               modifiers={[
                 foregroundStyle(
@@ -87,7 +89,7 @@ export default function AboutScreen() {
                 ),
               ]}
             >
-              {health.isPending ? t`Checking…` : healthOk ? t`Online` : t`Unreachable`}
+              {health.isPending ? t`Checking…` : healthOk ? t`Online` : t`Can't reach the server`}
             </UIText>
           </LabeledContent>
           {health.data?.version ? (

@@ -7,7 +7,6 @@ import { accessibilityLabel, buttonStyle, tint as tintModifier } from '@expo/ui/
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
-import { SymbolView } from 'expo-symbols';
 import { useState, type ReactNode } from 'react';
 import { Alert, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -18,11 +17,13 @@ import type { ExcursionResult, Trade, TradeDetail } from '@/api/types';
 import { AttachmentsCard } from '@/components/attachments-card';
 import { CoachCard } from '@/components/coach-card';
 import { DashboardCard } from '@/components/dashboard-card';
+import { ErrorState } from '@/components/error-state';
 import { GlassButton } from '@/components/glass-button';
 import { Pill } from '@/components/pill';
 import { Skeleton } from '@/components/skeleton';
 import { TradeChart } from '@/components/trade-chart';
 import { t } from '@lingui/core/macro';
+import { errorMessage, isUnreachable } from '@/lib/errors';
 import { formatDuration, useFormatters } from '@/lib/format';
 import { gradeFromInt, parseEmotionalStates, parseJournalNotes } from '@/lib/journal';
 import { marketLabel, tradeNotional, tradeRMultiple, tradeStatus } from '@/lib/trades';
@@ -278,9 +279,9 @@ function TradeDetailPending({
           // missing, so the retry sits where that missing content would be.
           <DashboardCard title={t`Details`}>
             <Text style={styles.emptyNote}>
-              {error instanceof ApiError
-                ? error.message
-                : t`Couldn't reach the server. The figures above are from your last sync.`}
+              {isUnreachable(error)
+                ? t`Couldn't reach the server. The figures above are from your last sync.`
+                : errorMessage(error)}
             </Text>
             <View style={styles.emptyAction}>
               <GlassButton
@@ -336,9 +337,10 @@ function CardSkeleton({ title, rows }: { title: string; rows: number }) {
 }
 
 /**
- * Failed to load. A dead-end line of grey text was the worst thing to hit on a
- * flaky connection — the recoverable cases get the retry that fixes them, and a
- * deleted trade gets told so instead of being offered a pointless one.
+ * Failed to load. Delegates the wording and the icon to `describeError` so this
+ * screen says the same thing about a dead server as every other one; what stays
+ * local is the header title (the cached symbol, so the bar doesn't go blank)
+ * and the way out for a trade that is genuinely gone.
  */
 function TradeDetailError({
   symbol,
@@ -351,49 +353,22 @@ function TradeDetailError({
   retrying: boolean;
   onRetry: () => void;
 }) {
-  const { theme } = useUnistyles();
   const router = useRouter();
   const gone = error instanceof ApiError && error.status === 404;
-  const offline = !(error instanceof ApiError);
 
   return (
     <>
       <Stack.Screen options={{ title: symbol ?? t`Trade`, headerRight: () => null }} />
-      <View style={styles.centered}>
-        <SymbolView
-          name={
-            gone
-              ? 'questionmark.folder'
-              : offline
-                ? 'wifi.exclamationmark'
-                : 'exclamationmark.triangle'
-          }
-          size={44}
-          tintColor={theme.colors.mutedForeground}
-        />
-        <Text style={styles.errorTitle}>
-          {gone ? t`Trade not found` : offline ? t`No connection` : t`Couldn't load this trade`}
-        </Text>
-        <Text selectable style={styles.muted}>
-          {gone ? t`It may have been deleted on another device.` : error.message}
-        </Text>
-        <View style={styles.errorAction}>
-          {gone ? (
-            <GlassButton
-              label={t`Back to trades`}
-              systemImage="chevron.left"
-              onPress={router.back}
-            />
-          ) : (
-            <GlassButton
-              label={retrying ? t`Retrying…` : t`Try again`}
-              systemImage="arrow.clockwise"
-              disabled={retrying}
-              onPress={onRetry}
-            />
-          )}
-        </View>
-      </View>
+      <ErrorState
+        error={error}
+        onRetry={onRetry}
+        retrying={retrying}
+        action={
+          gone
+            ? { label: t`Back to trades`, systemImage: 'chevron.left', onPress: router.back }
+            : undefined
+        }
+      />
     </>
   );
 }
@@ -423,7 +398,7 @@ function TradeDetailBody({
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.trade(trade.id) });
     },
-    onError: (err) => Alert.alert(t`Could not compute excursion`, err.message),
+    onError: (err) => Alert.alert(t`Could not compute excursion`, errorMessage(err)),
   });
   const canExcursion = trade.status === 'closed' && trade.instrument_type !== 'option';
 
@@ -433,7 +408,7 @@ function TradeDetailBody({
       void queryClient.invalidateQueries();
       router.back();
     },
-    onError: (err) => Alert.alert(t`Could not delete`, err.message),
+    onError: (err) => Alert.alert(t`Could not delete`, errorMessage(err)),
   });
 
   function confirmDelete() {
@@ -743,13 +718,6 @@ const styles = StyleSheet.create((theme) => ({
     padding: theme.spacing.xl,
   },
   muted: { color: theme.colors.mutedForeground, textAlign: 'center' },
-  errorTitle: {
-    fontSize: 17,
-    fontWeight: '600',
-    color: theme.colors.foreground,
-    marginTop: theme.spacing.xs,
-  },
-  errorAction: { paddingTop: theme.spacing.md },
   // Bare glyph — the sizing stays for the tap target, not for a visible chip.
   editButton: {
     width: 32,

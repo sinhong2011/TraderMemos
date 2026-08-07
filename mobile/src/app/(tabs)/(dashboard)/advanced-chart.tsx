@@ -10,6 +10,7 @@ import { useMarketBars } from '@/api/hooks';
 import type { BarInterval } from '@/api/types';
 import { AXIS_WIDTH, ChartCanvas } from '@/components/chart-canvas';
 import { DashboardCard } from '@/components/dashboard-card';
+import { InlineError } from '@/components/error-state';
 import { FloatingSearchBar, SearchToggle } from '@/components/search-bar';
 import { Segmented } from '@/components/segmented';
 import { Skeleton } from '@/components/skeleton';
@@ -176,10 +177,8 @@ export default function AdvancedChartScreen() {
 
             {bars.isLoading ? (
               <Skeleton style={styles.placeholder} />
-            ) : bars.error ? (
-              <Text style={styles.empty} selectable>
-                {bars.error.message}
-              </Text>
+            ) : bars.error && bars.data == null ? (
+              <InlineError error={bars.error} onRetry={() => void bars.refetch()} />
             ) : data.length === 0 ? (
               <View style={styles.placeholder}>
                 <Text style={styles.empty}>

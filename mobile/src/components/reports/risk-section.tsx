@@ -6,6 +6,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { useCompliance, useEquityCurve, useTrades } from '@/api/hooks';
 import { DashboardCard } from '@/components/dashboard-card';
+import { InlineError } from '@/components/error-state';
 import { Skeleton } from '@/components/skeleton';
 import { StatBar } from '@/components/stat-bar';
 import { EventRow, MicroHeading } from '@/components/reports/shared';
@@ -75,6 +76,8 @@ export function RiskSection({
       <DashboardCard title={t`Drawdown`}>
         {equity.isLoading ? (
           <Skeleton style={styles.chart} />
+        ) : equity.error && equity.data == null ? (
+          <InlineError error={equity.error} onRetry={() => void equity.refetch()} />
         ) : points.length === 0 ? (
           <Text style={styles.empty}>{t`No equity data in this range.`}</Text>
         ) : (
@@ -120,8 +123,8 @@ export function RiskSection({
       <DashboardCard title={t`Rule compliance`}>
         {compliance.isLoading ? (
           <Skeleton style={styles.listSkeleton} />
-        ) : compliance.error ? (
-          <Text style={styles.empty}>{t`Failed to load compliance.`}</Text>
+        ) : compliance.error && compliance.data == null ? (
+          <InlineError error={compliance.error} onRetry={() => void compliance.refetch()} />
         ) : !report?.rules_configured ? (
           <>
             <Text style={styles.empty}>

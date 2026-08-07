@@ -12,6 +12,7 @@ import { AppHost } from '@/components/app-host';
 import { CenteredButton } from '@/components/centered-button';
 import { NavRow } from '@/components/nav-row';
 import { SettingsForm } from '@/components/settings-form';
+import { errorMessage } from '@/lib/errors';
 import { useFormatters } from '@/lib/format';
 import { notify } from '@/lib/haptics';
 import { t } from '@lingui/core/macro';
@@ -58,7 +59,7 @@ export default function UserDetailScreen() {
       notify('error');
       // The server refuses to strip the last owner — surfacing why beats a
       // toggle that silently springs back.
-      Alert.alert(t`Could not change role`, err.message);
+      Alert.alert(t`Could not change role`, errorMessage(err));
       refreshUsers();
     },
   });
@@ -78,7 +79,7 @@ export default function UserDetailScreen() {
     },
     onError: (err) => {
       notify('error');
-      Alert.alert(t`Could not reset password`, err.message);
+      Alert.alert(t`Could not reset password`, errorMessage(err));
     },
   });
 
@@ -91,7 +92,7 @@ export default function UserDetailScreen() {
     },
     onError: (err) => {
       notify('error');
-      Alert.alert(t`Could not delete user`, err.message);
+      Alert.alert(t`Could not delete user`, errorMessage(err));
     },
   });
 

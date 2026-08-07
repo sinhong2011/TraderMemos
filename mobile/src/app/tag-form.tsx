@@ -11,6 +11,7 @@ import type { Tag } from '@/api/types';
 import { FormField, FormFootnote, FormInput, FormSheet } from '@/components/form-sheet';
 import { Segmented } from '@/components/segmented';
 import { t } from '@lingui/core/macro';
+import { errorMessage } from '@/lib/errors';
 import { DEFAULT_TAG_COLOR, TAG_KINDS, TAG_SWATCHES } from '@/lib/tags';
 import { AppHost } from '@/components/app-host';
 
@@ -43,7 +44,7 @@ export default function NewTagScreen() {
       router.back();
     },
     onError: (err) =>
-      Alert.alert(id ? t`Could not save tag` : t`Could not create tag`, err.message),
+      Alert.alert(id ? t`Could not save tag` : t`Could not create tag`, errorMessage(err)),
   });
 
   const trimmedName = name.trim();

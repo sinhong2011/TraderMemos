@@ -13,12 +13,14 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { useApiRequest, useNotes } from '@/api/hooks';
 import type { Note } from '@/api/types';
+import { ErrorState } from '@/components/error-state';
 import { Pill } from '@/components/pill';
 import { FloatingSearchBar, SearchToggle } from '@/components/search-bar';
 import { Skeleton } from '@/components/skeleton';
 import { TradeFilterMenu } from '@/components/trade-filter-menu';
 import { t } from '@lingui/core/macro';
 import { locale } from '@/i18n';
+import { errorMessage } from '@/lib/errors';
 import { checklistProgress, noteExcerpt } from '@/lib/markdown';
 import { noteMediaIds } from '@/lib/note-media';
 import { AppHost } from '@/components/app-host';
@@ -151,7 +153,7 @@ export default function NotesScreen() {
   const remove = useMutation({
     mutationFn: (id: string) => api<void>(`/notes/${id}`, { method: 'DELETE' }),
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: ['notes'] }),
-    onError: (err) => Alert.alert(t`Could not delete note`, err.message),
+    onError: (err) => Alert.alert(t`Could not delete note`, errorMessage(err)),
   });
 
   function confirmDelete(note: Note) {
@@ -239,12 +241,15 @@ export default function NotesScreen() {
             <Skeleton key={i} style={styles.skeletonRow} />
           ))}
         </View>
-      ) : notes.error ? (
-        <View style={styles.centered}>
-          <Text selectable style={styles.muted}>
-            {notes.error.message}
-          </Text>
-        </View>
+      ) : notes.error && notes.data == null ? (
+        // Only when the persisted cache has nothing either — a dropped
+        // connection over notes you already loaded should still let you read
+        // them, and the offline banner says the list may be behind.
+        <ErrorState
+          error={notes.error}
+          onRetry={() => void notes.refetch()}
+          retrying={notes.isRefetching}
+        />
       ) : (
         <FlashList
           data={rows}
@@ -334,14 +339,6 @@ const styles = StyleSheet.create((theme) => ({
   rowDay: { fontSize: 12, color: theme.colors.mutedForeground, ...theme.numeric },
   rowMeta: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.xs + 2 },
   rowExcerpt: { fontSize: 13, lineHeight: 18, color: theme.colors.mutedForeground },
-  centered: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: theme.spacing.xl,
-    backgroundColor: theme.colors.background,
-  },
-  muted: { color: theme.colors.mutedForeground, textAlign: 'center' },
   empty: { minHeight: 320 },
   skeletonPage: { paddingTop: 120, padding: theme.spacing.lg, gap: theme.spacing.sm },
   skeletonRow: { height: 92, borderRadius: theme.radius.lg },

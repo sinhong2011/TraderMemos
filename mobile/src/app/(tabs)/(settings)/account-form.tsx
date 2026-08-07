@@ -30,6 +30,7 @@ import { t } from '@lingui/core/macro';
 import { SettingsForm } from '@/components/settings-form';
 import { numericText, parseAmount } from '@/lib/amount';
 import { ledgerBalance } from '@/lib/cash';
+import { errorMessage } from '@/lib/errors';
 import { formatPercent, useFormatters } from '@/lib/format';
 import { DISPLAY_CURRENCIES } from '@/lib/prefs';
 import { AppHost } from '@/components/app-host';
@@ -146,7 +147,7 @@ function AccountForm({ account, accountCount }: { account?: Account; accountCoun
       invalidate();
       router.back();
     },
-    onError: (err) => Alert.alert(t`Could not save`, err.message),
+    onError: (err) => Alert.alert(t`Could not save`, errorMessage(err)),
   });
 
   const clearTrades = useMutation({
@@ -156,7 +157,7 @@ function AccountForm({ account, accountCount }: { account?: Account; accountCoun
       void queryClient.invalidateQueries({ queryKey: ['analytics'] });
       Alert.alert(t`Trade history cleared`, account?.name ?? '');
     },
-    onError: (err) => Alert.alert(t`Could not clear trades`, err.message),
+    onError: (err) => Alert.alert(t`Could not clear trades`, errorMessage(err)),
   });
 
   const deleteAccount = useMutation({
@@ -167,7 +168,7 @@ function AccountForm({ account, accountCount }: { account?: Account; accountCoun
       void queryClient.invalidateQueries({ queryKey: ['analytics'] });
       router.back();
     },
-    onError: (err) => Alert.alert(t`Could not delete account`, err.message),
+    onError: (err) => Alert.alert(t`Could not delete account`, errorMessage(err)),
   });
 
   function handleSave() {

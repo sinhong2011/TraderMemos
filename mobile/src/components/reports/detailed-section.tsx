@@ -5,6 +5,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { useBreakdown, type BreakdownDim } from '@/api/hooks';
 import type { BreakGroup } from '@/api/types';
 import { DashboardCard } from '@/components/dashboard-card';
+import { InlineError } from '@/components/error-state';
 import { Skeleton } from '@/components/skeleton';
 import { PnlHeatmapCard } from '@/components/reports/pnl-heatmap-card';
 import { MagnitudeRow } from '@/components/reports/shared';
@@ -49,10 +50,10 @@ function RankedBreakdownCard({
       </DashboardCard>
     );
   }
-  if (breakdown.error) {
+  if (breakdown.error && breakdown.data == null) {
     return (
       <DashboardCard title={title}>
-        <Text style={styles.empty}>{t`Failed to load breakdown.`}</Text>
+        <InlineError error={breakdown.error} onRetry={() => void breakdown.refetch()} />
       </DashboardCard>
     );
   }
@@ -110,8 +111,15 @@ function DayOfWeekCard({ ctx }: { ctx: ReportsMoneyContext }) {
       </DashboardCard>
     );
   }
+  if (breakdown.error && breakdown.data == null) {
+    return (
+      <DashboardCard title={t`Day of week`}>
+        <InlineError error={breakdown.error} onRetry={() => void breakdown.refetch()} />
+      </DashboardCard>
+    );
+  }
   const groups = breakdown.data ?? [];
-  if (breakdown.error || groups.length === 0) {
+  if (groups.length === 0) {
     return (
       <DashboardCard title={t`Day of week`}>
         <Text style={styles.empty}>{t`No trades in this range.`}</Text>
@@ -169,8 +177,15 @@ function SessionCard({ ctx }: { ctx: ReportsMoneyContext }) {
       </DashboardCard>
     );
   }
+  if (breakdown.error && breakdown.data == null) {
+    return (
+      <DashboardCard title={t`Sessions`}>
+        <InlineError error={breakdown.error} onRetry={() => void breakdown.refetch()} />
+      </DashboardCard>
+    );
+  }
   const groups = breakdown.data ?? [];
-  if (breakdown.error || groups.length === 0) {
+  if (groups.length === 0) {
     return (
       <DashboardCard title={t`Sessions`}>
         <Text style={styles.empty}>{t`No trades in this range.`}</Text>

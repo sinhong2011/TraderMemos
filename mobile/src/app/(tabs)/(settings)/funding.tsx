@@ -13,9 +13,11 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { useAccounts, useApiRequest, useCash } from '@/api/hooks';
 import type { Account, CashTransaction } from '@/api/types';
+import { ErrorState } from '@/components/error-state';
 import { Skeleton } from '@/components/skeleton';
 import { t } from '@lingui/core/macro';
 import { cashTypeLabel } from '@/lib/cash';
+import { errorMessage } from '@/lib/errors';
 import { useFormatters } from '@/lib/format';
 import { AppHost } from '@/components/app-host';
 
@@ -130,7 +132,7 @@ export default function FundingScreen() {
       // Funding feeds the dashboard equity/goal cards too.
       void queryClient.invalidateQueries({ queryKey: ['analytics'] });
     },
-    onError: (err) => Alert.alert(t`Could not remove transaction`, err.message),
+    onError: (err) => Alert.alert(t`Could not remove transaction`, errorMessage(err)),
   });
 
   function confirmRemove(transaction: CashTransaction) {
@@ -139,6 +141,10 @@ export default function FundingScreen() {
       { text: t`Remove`, style: 'destructive', onPress: () => remove.mutate(transaction.id) },
     ]);
   }
+
+  // Takes precedence over the list's empty state: an unreachable server would
+  // otherwise claim the ledger is empty, which reads as lost deposits.
+  const loadFailed = cash.isError && cash.data == null;
 
   const addButton = (
     <Pressable
@@ -161,6 +167,12 @@ export default function FundingScreen() {
             <Skeleton key={i} style={styles.skeletonRow} />
           ))}
         </View>
+      ) : loadFailed ? (
+        <ErrorState
+          error={cash.error}
+          onRetry={() => void cash.refetch()}
+          retrying={cash.isRefetching}
+        />
       ) : (
         <FlashList
           data={transactions}

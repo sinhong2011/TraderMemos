@@ -16,6 +16,7 @@ import { SafeAreaView } from 'react-native-screens/experimental';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { useAccounts, useCash, useDaily, useTrades } from '@/api/hooks';
+import { ErrorState } from '@/components/error-state';
 import { Segmented } from '@/components/segmented';
 import { Skeleton } from '@/components/skeleton';
 import { t } from '@lingui/core/macro';
@@ -436,6 +437,20 @@ export default function CalendarScreen() {
               >
                 <BoardSkeleton />
               </Animated.View>
+            ) : daily.error && daily.data == null ? (
+              // The board is built from a P&L map, and an absent map draws the
+              // same grid of flat zero-cells a genuinely flat month does. That
+              // is the one failure mode worth an opaque overlay: a calendar
+              // quietly claiming you broke even every day is worse than no
+              // calendar. Same layer as the skeleton, so the header pager and
+              // pull-to-refresh keep working behind it.
+              <View style={[styles.boardLayer, styles.skeletonOverlay]}>
+                <ErrorState
+                  error={daily.error}
+                  onRetry={() => void daily.refetch()}
+                  retrying={daily.isRefetching}
+                />
+              </View>
             ) : null}
           </View>
         }

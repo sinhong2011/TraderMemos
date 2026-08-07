@@ -23,6 +23,7 @@ import { SettingsForm } from '@/components/settings-form';
 import { useSession } from '@/api/session';
 import { t } from '@lingui/core/macro';
 import { ledgerBalance } from '@/lib/cash';
+import { describeError } from '@/lib/errors';
 import { useFormatters } from '@/lib/format';
 import { setAppearance, useDisplayPrefs, type AppearancePref } from '@/lib/prefs';
 import { clearPersistedQueryCache } from '@/storage/mmkv';
@@ -49,7 +50,8 @@ export default function SettingsScreen() {
   const queryClient = useQueryClient();
   const { theme } = useUnistyles();
   const { signOut } = useSession();
-  const { data: accounts } = useAccounts();
+  const accountsQuery = useAccounts();
+  const accounts = accountsQuery.data;
   const me = useMe();
   // Account rows show live equity, so they need the whole ledger and every
   // account's trades — unscoped on purpose (the global account filter would
@@ -76,6 +78,13 @@ export default function SettingsScreen() {
     }
     return counts;
   }, [trades.data]);
+
+  // The hub stays navigable whatever the server does — Sign out and every
+  // sub-screen are reached from here — so a failure is named in the row it
+  // affects rather than replacing the page, and only when the persisted cache
+  // has nothing to put there instead.
+  const accountsFailure =
+    accountsQuery.isError && accounts == null ? describeError(accountsQuery.error) : null;
 
   // Only the search index needs it — the goal itself lives on Trading & journal.
   const year = new Date().getFullYear();
@@ -359,7 +368,13 @@ export default function SettingsScreen() {
                 </Button>
               );
             })}
-            {accounts?.length === 0 ? <UIText>{t`No accounts yet`}</UIText> : null}
+            {accountsFailure ? (
+              <UIText modifiers={[foregroundStyle({ type: 'hierarchical', style: 'secondary' })]}>
+                {accountsFailure.title}
+              </UIText>
+            ) : accounts?.length === 0 ? (
+              <UIText>{t`No accounts yet`}</UIText>
+            ) : null}
             <Button
               systemImage="plus.circle.fill"
               label={t`Add account`}

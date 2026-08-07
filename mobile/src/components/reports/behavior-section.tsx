@@ -5,6 +5,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { useBehavior } from '@/api/hooks';
 import type { BehaviorEvent, OutcomeSplit } from '@/api/types';
 import { DashboardCard } from '@/components/dashboard-card';
+import { ErrorState } from '@/components/error-state';
 import { Skeleton } from '@/components/skeleton';
 import { StatBar } from '@/components/stat-bar';
 import { EventRow, MicroHeading } from '@/components/reports/shared';
@@ -119,10 +120,16 @@ export function BehaviorSection({
           <Skeleton style={styles.skeletonCard} />
           <Skeleton style={styles.skeletonCard} />
         </>
-      ) : behavior.error ? (
-        <Text style={styles.pageError} selectable>
-          {behavior.error.message}
-        </Text>
+      ) : behavior.error && behavior.data == null ? (
+        // Boxed rather than flexed: the scaffold's scroll content has no height
+        // of its own, so a `flex: 1` failure state would collapse to nothing.
+        <View style={styles.errorHost}>
+          <ErrorState
+            error={behavior.error}
+            onRetry={() => void behavior.refetch()}
+            retrying={behavior.isRefetching}
+          />
+        </View>
       ) : (
         <>
           <DashboardCard title={t`Revenge trading`}>
@@ -247,9 +254,5 @@ const styles = StyleSheet.create((theme) => ({
   empty: { fontSize: 13, color: theme.colors.mutedForeground, paddingVertical: theme.spacing.sm },
   footnote: { fontSize: 12, color: theme.colors.mutedForeground },
   skeletonCard: { height: 220, borderRadius: theme.radius.lg + 4 },
-  pageError: {
-    textAlign: 'center',
-    color: theme.colors.mutedForeground,
-    paddingVertical: theme.spacing.xl,
-  },
+  errorHost: { minHeight: 320 },
 }));

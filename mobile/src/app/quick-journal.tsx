@@ -11,6 +11,7 @@ import type { Tag, TradeDetail } from '@/api/types';
 import { ChipGroup } from '@/components/chips';
 import { FormField, FormInput, FormSheet } from '@/components/form-sheet';
 import { Pill } from '@/components/pill';
+import { errorMessage } from '@/lib/errors';
 import { useFormatters } from '@/lib/format';
 import { pnlColor } from '@/styles/unistyles';
 import { t } from '@lingui/core/macro';
@@ -62,7 +63,7 @@ function QuickJournalForm({ trade, mistakeTags }: { trade: TradeDetail; mistakeT
       void queryClient.invalidateQueries();
       router.back();
     },
-    onError: (err) => Alert.alert(t`Could not save`, err.message),
+    onError: (err) => Alert.alert(t`Could not save`, errorMessage(err)),
   });
 
   return (

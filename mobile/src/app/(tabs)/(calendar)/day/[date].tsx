@@ -16,6 +16,7 @@ import {
 } from '@/api/hooks';
 import type { BehaviorReport, ComplianceReport, Note, Trade } from '@/api/types';
 import { DashboardCard } from '@/components/dashboard-card';
+import { InlineError } from '@/components/error-state';
 import { Pill } from '@/components/pill';
 import { Skeleton } from '@/components/skeleton';
 import { StatBar } from '@/components/stat-bar';
@@ -299,6 +300,12 @@ export default function CalendarDayScreen() {
         <DashboardCard title={t`Session summary`} flush>
           {summary.isLoading ? (
             <Skeleton style={styles.statsSkeleton} />
+          ) : summary.isError && summary.data == null ? (
+            // Every StatBar below falls back to a zero, so without this the
+            // card reports a flat, feeless, tradeless session as fact.
+            <View style={styles.cardError}>
+              <InlineError error={summary.error} onRetry={() => void summary.refetch()} />
+            </View>
           ) : (
             <>
               <View style={styles.grid}>
@@ -331,6 +338,8 @@ export default function CalendarDayScreen() {
         <DashboardCard title={t`Intraday P&L`}>
           {trades.isLoading ? (
             <Skeleton style={styles.chart} />
+          ) : trades.isError && trades.data == null ? (
+            <InlineError error={trades.error} onRetry={() => void trades.refetch()} />
           ) : (
             <IntradayCurve trades={dayTrades} currency={currency} fxRate={fxRate} />
           )}
@@ -339,8 +348,8 @@ export default function CalendarDayScreen() {
         <DashboardCard title={t`Trades`}>
           {trades.isLoading ? (
             <Skeleton style={styles.listSkeleton} />
-          ) : trades.isError ? (
-            <Text style={styles.error}>{t`Could not load this day's trades.`}</Text>
+          ) : trades.isError && trades.data == null ? (
+            <InlineError error={trades.error} onRetry={() => void trades.refetch()} />
           ) : dayTrades.length === 0 ? (
             <Text style={styles.empty}>{t`No trades on this day.`}</Text>
           ) : (
@@ -362,6 +371,8 @@ export default function CalendarDayScreen() {
         >
           {notes.isLoading ? (
             <Skeleton style={styles.notesSkeleton} />
+          ) : notes.isError && notes.data == null ? (
+            <InlineError error={notes.error} onRetry={() => void notes.refetch()} />
           ) : dayNotes.length === 0 ? (
             <Text style={styles.empty}>
               {t`Nothing journaled for this day yet. A two-minute recap while it's fresh beats a perfect writeup never written.`}
@@ -416,5 +427,6 @@ const styles = StyleSheet.create((theme) => ({
   listSkeleton: { height: 160, borderRadius: theme.radius.lg },
   notesSkeleton: { height: 72, borderRadius: theme.radius.lg },
   empty: { fontSize: 13, lineHeight: 19, color: theme.colors.mutedForeground },
-  error: { fontSize: 13, color: theme.colors.destructive },
+  /** The summary card is `flush`, so its error row has to bring its own inset. */
+  cardError: { paddingHorizontal: theme.spacing.lg, paddingVertical: theme.spacing.md },
 }));

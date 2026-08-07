@@ -12,6 +12,7 @@ import type { AdminUser } from '@/api/types';
 import { AppHost } from '@/components/app-host';
 import { HeaderIconButton } from '@/components/header-icon-button';
 import { SettingsForm } from '@/components/settings-form';
+import { errorMessage } from '@/lib/errors';
 import { notify } from '@/lib/haptics';
 import { t } from '@lingui/core/macro';
 
@@ -65,7 +66,7 @@ export default function UserFormScreen() {
     },
     onError: (err) => {
       notify('error');
-      Alert.alert(t`Could not add user`, err.message);
+      Alert.alert(t`Could not add user`, errorMessage(err));
     },
   });
 

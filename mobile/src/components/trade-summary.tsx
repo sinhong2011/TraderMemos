@@ -65,6 +65,7 @@ function FillLine({
   currency: string;
 }) {
   const { theme } = useUnistyles();
+  const { formatPnl } = useFormatters();
   const when = fill.executedAt.toLocaleString(undefined, {
     month: 'short',
     day: 'numeric',

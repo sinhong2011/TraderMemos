@@ -15,6 +15,7 @@ import {
   type NoteFormValues,
 } from '@/components/note-form';
 import { t } from '@lingui/core/macro';
+import { errorMessage } from '@/lib/errors';
 import { checklistProgress } from '@/lib/markdown';
 
 /**
@@ -55,7 +56,7 @@ export default function NewNoteScreen() {
       void queryClient.invalidateQueries({ queryKey: ['notes'] });
       router.back();
     },
-    onError: (err) => Alert.alert(t`Could not save`, err.message),
+    onError: (err) => Alert.alert(t`Could not save`, errorMessage(err)),
   });
 
   function handleSave() {

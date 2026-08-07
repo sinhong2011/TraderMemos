@@ -9,6 +9,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { useAccounts, useBreakdown, useSetups } from '@/api/hooks';
 import type { BreakGroup, Setup } from '@/api/types';
 import { DashboardCard } from '@/components/dashboard-card';
+import { ErrorState } from '@/components/error-state';
 import { Pill } from '@/components/pill';
 import { Skeleton } from '@/components/skeleton';
 import { StatBar } from '@/components/stat-bar';
@@ -192,6 +193,22 @@ export default function PlaybookScreen() {
             <Skeleton style={styles.skeletonCard} />
             <Skeleton style={styles.skeletonCard} />
           </>
+        ) : (setups.error || breakdown.error) && setups.data == null ? (
+          // Ahead of the empty state on purpose: that one tells you to write
+          // your first play, which is the wrong thing to hear when the plays
+          // are on a server this phone can't reach. The setups are what the
+          // screen lists, so cached ones still render — scored by whatever
+          // breakdown the cache holds.
+          <View style={styles.emptyHost}>
+            <ErrorState
+              error={setups.error ?? breakdown.error}
+              onRetry={() => {
+                void setups.refetch();
+                void breakdown.refetch();
+              }}
+              retrying={setups.isRefetching || breakdown.isRefetching}
+            />
+          </View>
         ) : (setups.data ?? []).length === 0 ? (
           <AppHost style={styles.emptyHost}>
             <ContentUnavailableView

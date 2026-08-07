@@ -4,6 +4,7 @@ import { ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { useTrades } from '@/api/hooks';
+import { InlineError } from '@/components/error-state';
 import { heatmapDayLabel } from '@/components/reports/pnl-heatmap-card';
 import { useReportsFilters, useReportsMoney } from '@/components/reports/section-scaffold';
 import { SwipeableTradeRow } from '@/components/swipeable-trade-row';
@@ -73,7 +74,11 @@ export default function HeatmapCellScreen() {
           {t`entries on the market clock`}
         </Text>
       ) : null}
-      {items.length === 0 ? (
+      {trades.error && trades.data == null ? (
+        // The grid behind this sheet is drawn from the same query, so a failure
+        // with nothing cached would otherwise claim the tapped cell is empty.
+        <InlineError error={trades.error} onRetry={() => void trades.refetch()} />
+      ) : items.length === 0 ? (
         <Text style={styles.empty}>{t`No closed trades in this hour.`}</Text>
       ) : (
         items.map((trade) => <SwipeableTradeRow key={trade.id} trade={trade} />)

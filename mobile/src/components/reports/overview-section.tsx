@@ -23,6 +23,7 @@ import {
 import type { RSummary, Summary } from '@/api/types';
 import { DashboardCard } from '@/components/dashboard-card';
 import { EquityCard } from '@/components/equity-card';
+import { ErrorState, InlineError } from '@/components/error-state';
 import { GoalCard } from '@/components/goal-card';
 import { Segmented } from '@/components/segmented';
 import { Skeleton } from '@/components/skeleton';
@@ -210,6 +211,16 @@ function DayStripCard({ ctx }: { ctx: ReportsMoneyContext }) {
   const days = buildReportsDayStrip(trades.data ?? [], ctx.money.tradePnl);
 
   if (trades.isLoading) return <Skeleton style={styles.stripSkeleton} />;
+  // Ahead of the `days.length === 0` bail-out: this card hides itself when there
+  // is genuinely nothing to strip, which would swallow the failure whole. With
+  // trades in the cache the strip still draws, so only a bare failure surfaces.
+  if (trades.error && trades.data == null) {
+    return (
+      <DashboardCard title={t`Trading days`}>
+        <InlineError error={trades.error} onRetry={() => void trades.refetch()} />
+      </DashboardCard>
+    );
+  }
   if (days.length === 0) return null;
 
   return (
@@ -269,7 +280,9 @@ function BreakdownRows({
   const { money } = ctx;
 
   if (breakdown.isLoading) return <Skeleton style={styles.chart} />;
-  if (breakdown.error) return <Text style={styles.empty}>{t`Failed to load breakdown.`}</Text>;
+  if (breakdown.error && breakdown.data == null) {
+    return <InlineError error={breakdown.error} onRetry={() => void breakdown.refetch()} />;
+  }
 
   const groups = breakdown.data ?? [];
   if (groups.length === 0) return <Text style={styles.empty}>{emptyLabel}</Text>;
@@ -400,7 +413,16 @@ function ExecutionGradeCard({ ctx }: { ctx: ReportsMoneyContext }) {
   const { money } = ctx;
 
   if (breakdown.isLoading) return <Skeleton style={styles.gradeSkeleton} />;
-  if (breakdown.error || (breakdown.data ?? []).length === 0) return null;
+  // Split from the length check below: hiding the card is right for "nobody
+  // grades their trades", wrong for "the grades didn't load and weren't cached".
+  if (breakdown.error && breakdown.data == null) {
+    return (
+      <DashboardCard title={t`Execution grade`}>
+        <InlineError error={breakdown.error} onRetry={() => void breakdown.refetch()} />
+      </DashboardCard>
+    );
+  }
+  if ((breakdown.data ?? []).length === 0) return null;
 
   // A+ first, unrated last — grade rank, not P&L, orders this card.
   const rank = (key: string) => {
@@ -476,10 +498,16 @@ export function OverviewSection({
           <Skeleton style={styles.skeletonTall} />
           <Skeleton style={styles.skeletonCard} />
         </>
-      ) : summary.error ? (
-        <Text style={styles.pageError} selectable>
-          {summary.error.message}
-        </Text>
+      ) : summary.error && summary.data == null ? (
+        // Boxed rather than flexed: the scaffold's scroll content has no height
+        // of its own, so a `flex: 1` failure state would collapse to nothing.
+        <View style={styles.errorHost}>
+          <ErrorState
+            error={summary.error}
+            onRetry={() => void summary.refetch()}
+            retrying={summary.isRefetching}
+          />
+        </View>
       ) : summary.data ? (
         <>
           {/* The curve leads, as on Home: the shape of the account answers
@@ -635,9 +663,5 @@ const styles = StyleSheet.create((theme) => ({
   exploreLabel: { flex: 1, fontSize: 15, fontWeight: '500', color: theme.colors.foreground },
   skeletonTall: { height: 320, borderRadius: theme.radius.lg + 4 },
   skeletonCard: { height: 200, borderRadius: theme.radius.lg + 4 },
-  pageError: {
-    textAlign: 'center',
-    color: theme.colors.mutedForeground,
-    paddingVertical: theme.spacing.xl,
-  },
+  errorHost: { minHeight: 320 },
 }));

@@ -1,4 +1,4 @@
-import { Section, Text as UIText } from '@expo/ui/swift-ui';
+import { Button, Section, Text as UIText } from '@expo/ui/swift-ui';
 import { foregroundStyle } from '@expo/ui/swift-ui/modifiers';
 import { useRouter } from 'expo-router';
 import { useUnistyles } from 'react-native-unistyles';
@@ -8,6 +8,7 @@ import { AppHost } from '@/components/app-host';
 import { CenteredButton } from '@/components/centered-button';
 import { NavRow } from '@/components/nav-row';
 import { SettingsForm } from '@/components/settings-form';
+import { describeError } from '@/lib/errors';
 import { t } from '@lingui/core/macro';
 
 /**
@@ -25,6 +26,11 @@ export default function UsersScreen() {
   const users = useAdminUsers(isOwner);
 
   const secondary = foregroundStyle({ type: 'hierarchical', style: 'secondary' as const });
+  // Named rather than hardcoded: a server this phone can't reach and a server
+  // that refused the request are different problems, and only one of them is
+  // worth a Try again. Only when the list is empty though — a persisted cache
+  // outlives the outage, and those accounts are still worth reading.
+  const failure = users.isError && users.data == null ? describeError(users.error) : null;
 
   return (
     <AppHost style={{ flex: 1, backgroundColor: theme.colors.background }}>
@@ -58,8 +64,13 @@ export default function UsersScreen() {
                 <UIText modifiers={[secondary]}>{t`No accounts yet`}</UIText>
               ) : null}
               {users.isLoading ? <UIText modifiers={[secondary]}>{t`Loading…`}</UIText> : null}
-              {users.isError ? (
-                <UIText modifiers={[secondary]}>{t`Could not load users.`}</UIText>
+              {failure ? <UIText modifiers={[secondary]}>{failure.title}</UIText> : null}
+              {failure?.retryable ? (
+                <Button
+                  systemImage="arrow.clockwise"
+                  label={t`Try again`}
+                  onPress={() => void users.refetch()}
+                />
               ) : null}
             </Section>
 

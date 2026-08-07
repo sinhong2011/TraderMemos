@@ -15,6 +15,7 @@ import { useLlmSettings, type LlmKind } from '@/api/hooks';
 import type { LlmApiSettings } from '@/api/types';
 import { SettingsForm } from '@/components/settings-form';
 import { t } from '@lingui/core/macro';
+import { describeError } from '@/lib/errors';
 import { AppHost } from '@/components/app-host';
 
 /**
@@ -85,7 +86,9 @@ function ProviderRow({
     : {
         status: '',
         statusColor: theme.colors.mutedForeground,
-        detail: settings.isError ? t`Unavailable` : t`Loading…`,
+        // "Unavailable" said nothing about which of the two things is
+        // unavailable — the integration or the server holding its settings.
+        detail: settings.isError ? describeError(settings.error).title : t`Loading…`,
       };
 
   return (

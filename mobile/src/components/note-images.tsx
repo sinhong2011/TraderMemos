@@ -21,6 +21,7 @@ import { useApiRaw, useApiRequest } from '@/api/hooks';
 import { useSession } from '@/api/session';
 import type { MediaFile } from '@/api/types';
 import { t } from '@lingui/core/macro';
+import { errorMessage } from '@/lib/errors';
 import { appendNoteImage, noteMediaIds, removeNoteImage } from '@/lib/note-media';
 import { AppHost } from '@/components/app-host';
 
@@ -87,7 +88,7 @@ export function useNoteImages(
         next = appendNoteImage(next, media.id);
       }
     } catch (err) {
-      Alert.alert(t`Could not upload`, err instanceof Error ? err.message : String(err));
+      Alert.alert(t`Could not upload`, errorMessage(err));
     } finally {
       onChangeBody(next);
       setUploading(false);

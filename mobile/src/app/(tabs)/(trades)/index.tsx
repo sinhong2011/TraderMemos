@@ -8,6 +8,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { useAccounts, useTags, useTrades } from '@/api/hooks';
 import type { Trade } from '@/api/types';
+import { ErrorState } from '@/components/error-state';
 import { FloatingSearchBar, SearchToggle } from '@/components/search-bar';
 import { Skeleton } from '@/components/skeleton';
 import { SwipeableTradeRow } from '@/components/swipeable-trade-row';
@@ -314,14 +315,12 @@ export default function TradesScreen() {
     );
   }
 
-  if (error) {
-    return (
-      <View style={styles.centered}>
-        <Text selectable style={styles.muted}>
-          {error.message}
-        </Text>
-      </View>
-    );
+  // Before the filter chrome, not after: with no trades to filter, a header
+  // full of live-looking pull-downs over an error is just noise. A failed
+  // *refresh* over a warm cache is a different thing entirely — the list still
+  // renders and the offline banner carries the bad news.
+  if (error && data == null) {
+    return <ErrorState error={error} onRetry={() => void refetch()} retrying={isRefetching} />;
   }
 
   const count = trades.length;

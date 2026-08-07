@@ -13,7 +13,12 @@ function HeaderFilterMenu() {
   const accounts = useAccounts();
   const cash = useCash();
   const selectedId = useSelectedAccountId();
-  const denominator = netDeposits(accounts.data ?? [], selectedId, cash.data ?? []);
+  // An unreachable server is not a zero balance: `?? []` would have divided the
+  // reports by a made-up denominator rather than leaving the unit inert.
+  const denominator =
+    accounts.data != null && cash.data != null
+      ? netDeposits(accounts.data, selectedId, cash.data)
+      : 0;
   return <ReportsFilterMenu pctEnabled={denominator > 0} />;
 }
 

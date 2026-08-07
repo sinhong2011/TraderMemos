@@ -15,6 +15,7 @@ import { CenteredButton } from '@/components/centered-button';
 import { SettingsForm } from '@/components/settings-form';
 import { t } from '@lingui/core/macro';
 import { parseAmount } from '@/lib/amount';
+import { errorMessage } from '@/lib/errors';
 import { formatPercent, useFormatters } from '@/lib/format';
 import { AppHost } from '@/components/app-host';
 
@@ -49,7 +50,7 @@ export default function PropSettingsScreen() {
       queryClient.setQueryData(queryKeys.propSettings(accountId!), body);
       void queryClient.invalidateQueries({ queryKey: ['accounts', accountId] });
     },
-    onError: (err) => Alert.alert(t`Could not save`, err.message),
+    onError: (err) => Alert.alert(t`Could not save`, errorMessage(err)),
   });
 
   const remove = useMutation({
@@ -58,7 +59,7 @@ export default function PropSettingsScreen() {
       void queryClient.invalidateQueries({ queryKey: ['accounts', accountId] });
       router.back();
     },
-    onError: (err) => Alert.alert(t`Could not delete`, err.message),
+    onError: (err) => Alert.alert(t`Could not delete`, errorMessage(err)),
   });
 
   function editAmount(

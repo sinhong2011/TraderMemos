@@ -1,10 +1,11 @@
 import { Chart } from '@expo/ui/swift-ui';
 import { useMemo, useState } from 'react';
-import { Text } from 'react-native';
+import { Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { useTrades } from '@/api/hooks';
 import { DashboardCard } from '@/components/dashboard-card';
+import { ErrorState } from '@/components/error-state';
 import { Segmented } from '@/components/segmented';
 import { Skeleton } from '@/components/skeleton';
 import {
@@ -97,10 +98,16 @@ export function WinLossSection({
           <Skeleton style={styles.skeletonCard} />
           <Skeleton style={styles.skeletonCard} />
         </>
-      ) : trades.error ? (
-        <Text style={styles.pageError} selectable>
-          {trades.error.message}
-        </Text>
+      ) : trades.error && trades.data == null ? (
+        // Boxed rather than flexed: the scaffold's scroll content has no height
+        // of its own, so a `flex: 1` failure state would collapse to nothing.
+        <View style={styles.errorHost}>
+          <ErrorState
+            error={trades.error}
+            onRetry={() => void trades.refetch()}
+            retrying={trades.isRefetching}
+          />
+        </View>
       ) : (
         <>
           <DashboardCard
@@ -190,9 +197,5 @@ const styles = StyleSheet.create((theme) => ({
   footnote: { fontSize: 12, color: theme.colors.mutedForeground },
   empty: { fontSize: 13, color: theme.colors.mutedForeground, paddingVertical: theme.spacing.lg },
   skeletonCard: { height: 260, borderRadius: theme.radius.lg + 4 },
-  pageError: {
-    textAlign: 'center',
-    color: theme.colors.mutedForeground,
-    paddingVertical: theme.spacing.xl,
-  },
+  errorHost: { minHeight: 320 },
 }));

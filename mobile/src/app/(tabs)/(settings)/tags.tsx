@@ -13,8 +13,10 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { queryKeys, useApiRequest, useTags } from '@/api/hooks';
 import type { Tag } from '@/api/types';
+import { ErrorState } from '@/components/error-state';
 import { Skeleton } from '@/components/skeleton';
 import { t } from '@lingui/core/macro';
+import { errorMessage } from '@/lib/errors';
 import { DEFAULT_TAG_COLOR, kindLabel } from '@/lib/tags';
 import { AppHost } from '@/components/app-host';
 
@@ -83,7 +85,7 @@ export default function TagsScreen() {
   const remove = useMutation({
     mutationFn: (tagId: string) => api(`/tags/${tagId}`, { method: 'DELETE' }),
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: queryKeys.tags() }),
-    onError: (err) => Alert.alert(t`Could not delete tag`, err.message),
+    onError: (err) => Alert.alert(t`Could not delete tag`, errorMessage(err)),
   });
 
   function confirmDelete(tag: Tag) {
@@ -92,6 +94,10 @@ export default function TagsScreen() {
       { text: t`Delete`, style: 'destructive', onPress: () => remove.mutate(tag.id) },
     ]);
   }
+
+  // Takes precedence over the list's empty state: "No tags yet" on an
+  // unreachable server invites the user to recreate tags they already have.
+  const loadFailed = tags.isError && tags.data == null;
 
   const addButton = (
     <Pressable
@@ -114,6 +120,12 @@ export default function TagsScreen() {
             <Skeleton key={i} style={styles.skeletonRow} />
           ))}
         </View>
+      ) : loadFailed ? (
+        <ErrorState
+          error={tags.error}
+          onRetry={() => void tags.refetch()}
+          retrying={tags.isRefetching}
+        />
       ) : (
         <FlashList
           data={tags.data ?? []}

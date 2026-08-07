@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 
+import { setSessionExpiredHandler } from './client';
 import {
   clearTokens,
   loadSession,
@@ -40,6 +41,16 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     // The account scope belongs to the session that picked it.
     clearSelectedAccount();
     setSession(null);
+  }, []);
+
+  // The client can only clear SecureStore; dropping the in-memory session is
+  // what actually sends the user to the login screen (see the handler's doc).
+  useEffect(() => {
+    setSessionExpiredHandler(() => {
+      clearSelectedAccount();
+      setSession(null);
+    });
+    return () => setSessionExpiredHandler(null);
   }, []);
 
   const value = useMemo<SessionContextValue>(

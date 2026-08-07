@@ -12,6 +12,7 @@ import { Alert } from 'react-native';
 import { useApiRaw, useApiRequest } from '@/api/hooks';
 import type { Account } from '@/api/types';
 import { t } from '@lingui/core/macro';
+import { errorMessage } from '@/lib/errors';
 import {
   dividendBody,
   executionBody,
@@ -63,6 +64,6 @@ export function useSaveTradeBlocks(accounts: Account[] | undefined, onSaved: () 
       void queryClient.invalidateQueries();
       onSaved();
     },
-    onError: (err) => Alert.alert(t`Could not save`, err.message),
+    onError: (err) => Alert.alert(t`Could not save`, errorMessage(err)),
   });
 }

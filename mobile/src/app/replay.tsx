@@ -25,11 +25,13 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { useApiRaw, useTrade } from '@/api/hooks';
 import type { BarInterval, MediaFile, TradeDetail } from '@/api/types';
 import { ChartCanvas, type ChartBand, type ChartMarker } from '@/components/chart-canvas';
+import { ErrorState, InlineError } from '@/components/error-state';
 import { ReplayControls } from '@/components/replay-controls';
 import { Segmented } from '@/components/segmented';
 import { Skeleton } from '@/components/skeleton';
 import { t } from '@lingui/core/macro';
 import { locale } from '@/i18n';
+import { errorMessage } from '@/lib/errors';
 import { useFormatters } from '@/lib/format';
 import * as haptics from '@/lib/haptics';
 import { appendNoteImage } from '@/lib/note-media';
@@ -111,8 +113,22 @@ function TradeReplay({ id }: { id: string }) {
       </View>
     );
   }
-  if (trade.error || !trade.data) {
-    return <Failure message={trade.error?.message ?? t`Trade not found`} />;
+  // Only when there is nothing to replay: the persisted query cache usually
+  // still holds the trade the user just tapped, and a stale replay beats none.
+  if (trade.error && !trade.data) {
+    return (
+      <View style={styles.page}>
+        <Stack.Screen options={{ headerShown: true, title: '' }} />
+        <ErrorState
+          error={trade.error}
+          onRetry={() => void trade.refetch()}
+          retrying={trade.isRefetching}
+        />
+      </View>
+    );
+  }
+  if (!trade.data) {
+    return <Failure message={t`Trade not found`} />;
   }
 
   const detail = trade.data;
@@ -154,13 +170,12 @@ function SymbolReplay({
   );
 }
 
+/** Nothing to replay — an empty stage, not a failure, so it stays plain copy. */
 function Failure({ message }: { message: string }) {
   return (
     <View style={[styles.page, styles.centered]}>
       <Stack.Screen options={{ headerShown: true, title: '' }} />
-      <Text selectable style={styles.muted}>
-        {message}
-      </Text>
+      <Text style={styles.muted}>{message}</Text>
     </View>
   );
 }
@@ -284,7 +299,7 @@ function Stage({
         dialogTitle: t`Share replay frame`,
       });
     } catch (err) {
-      Alert.alert(t`Could not share`, err instanceof Error ? err.message : String(err));
+      Alert.alert(t`Could not share`, errorMessage(err));
     } finally {
       setBusy(false);
     }
@@ -322,7 +337,7 @@ function Stage({
         },
       });
     } catch (err) {
-      Alert.alert(t`Could not save`, err instanceof Error ? err.message : String(err));
+      Alert.alert(t`Could not save`, errorMessage(err));
     } finally {
       setBusy(false);
     }
@@ -394,11 +409,11 @@ function Stage({
       <View style={[styles.content, { paddingBottom: theme.spacing.lg + insets.bottom }]}>
         {bars.isLoading ? (
           <Skeleton style={styles.chartSkeleton} />
-        ) : bars.error ? (
+        ) : bars.error && bars.bars.length === 0 ? (
+          // Only when the feed left nothing behind — cached candles still draw,
+          // and a dead feed costs the chart rather than the screen either way.
           <View style={[styles.chartSkeleton, styles.centered]}>
-            <Text selectable style={styles.muted}>
-              {bars.error.message}
-            </Text>
+            <InlineError error={bars.error} />
           </View>
         ) : bars.bars.length === 0 ? (
           <View style={[styles.chartSkeleton, styles.centered]}>

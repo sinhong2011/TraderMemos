@@ -9,6 +9,7 @@
 
 import type { Credentials, TokenPair } from './types';
 import { clearTokens, saveTokens, type Session } from './session';
+import { reportReachable, reportUnreachable } from '@/lib/connectivity';
 
 const API_PREFIX = '/api/v1';
 
@@ -21,6 +22,51 @@ export class ApiError extends Error {
     super(message);
     this.name = 'ApiError';
   }
+}
+
+/**
+ * No HTTP response at all — the request never reached the API. A self-hosted
+ * server makes this the *ordinary* failure, not an edge case: the phone leaves
+ * the LAN, the container is down, the tunnel dropped.
+ *
+ * It exists because `fetch` rejects with whatever the platform throws, and on
+ * iOS that is Expo's `UnexpectedException: Could not connect to the server.
+ * (at ExpoModulesCore/Promise.swift:56)` — a stack trace that screens were
+ * rendering verbatim. Every reachability failure funnels through this one type
+ * so `describeError` can say something a person can act on, and so retry
+ * policy can treat "unreachable" differently from "the server said no".
+ */
+export class NetworkError extends Error {
+  constructor(
+    readonly serverUrl: string,
+    cause?: unknown,
+  ) {
+    super('Could not reach the server');
+    this.name = 'NetworkError';
+    this.cause = cause;
+  }
+}
+
+/**
+ * `fetch` that fails with `NetworkError` instead of a platform throw, and
+ * doubles as the app's reachability probe: every request is already a live
+ * test of whether the server answers, so the banner and the recovery poll are
+ * driven from here rather than from a separate connectivity module.
+ *
+ * A *response* means reachable — including 4xx/5xx. Those are the server
+ * talking, and treating them as "offline" would strand the user on a
+ * connection screen while the API is plainly up.
+ */
+async function netFetch(serverUrl: string, url: string, init?: RequestInit): Promise<Response> {
+  let response: Response;
+  try {
+    response = await fetch(url, init);
+  } catch (cause) {
+    reportUnreachable(serverUrl);
+    throw new NetworkError(serverUrl, cause);
+  }
+  reportReachable();
+  return response;
 }
 
 export class UnauthorizedError extends ApiError {
@@ -61,11 +107,25 @@ function buildUrl(serverUrl: string, path: string, params?: QueryParams): string
  */
 let refreshInFlight: Promise<TokenPair> | null = null;
 
+/**
+ * Registered by the session provider. `clearTokens()` wipes SecureStore, but
+ * the session the app actually renders from lives in React state, and the tabs
+ * gate only redirects when *that* goes null. Without this hand-off an expired
+ * refresh token left the user staring at "Your session expired" on every tab
+ * with no route back to the login screen — the one error state where a retry
+ * button would be a lie and the fix is a redirect.
+ */
+let onSessionExpired: (() => void) | null = null;
+
+export function setSessionExpiredHandler(handler: (() => void) | null) {
+  onSessionExpired = handler;
+}
+
 /** Exchanges the refresh token for a new pair, persisting the result. */
 function refreshTokens(serverUrl: string, refreshToken: string): Promise<TokenPair> {
   refreshInFlight ??= (async () => {
     try {
-      const response = await fetch(buildUrl(serverUrl, '/auth/refresh'), {
+      const response = await netFetch(serverUrl, buildUrl(serverUrl, '/auth/refresh'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ refresh_token: refreshToken }),
@@ -75,6 +135,7 @@ function refreshTokens(serverUrl: string, refreshToken: string): Promise<TokenPa
         // transient failures (5xx, proxies) logged users out on the next boot.
         if (response.status === 401 || response.status === 403) {
           await clearTokens();
+          onSessionExpired?.();
           throw new UnauthorizedError('Could not refresh session');
         }
         throw await toApiError(response);
@@ -112,7 +173,7 @@ export async function requestRaw(
   const url = buildUrl(session.serverUrl, path, params);
 
   const send = (accessToken: string) =>
-    fetch(url, {
+    netFetch(session.serverUrl, url, {
       method,
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -153,7 +214,7 @@ export async function request<T>(
 
 /** Unauthenticated — establishes the session that `request` then carries. */
 export async function login(serverUrl: string, credentials: Credentials): Promise<TokenPair> {
-  const response = await fetch(buildUrl(serverUrl, '/auth/login'), {
+  const response = await netFetch(serverUrl, buildUrl(serverUrl, '/auth/login'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(credentials),
