@@ -5,8 +5,13 @@
  * the session themselves — the root layout already redirects unauthenticated users.
  */
 
-import { keepPreviousData, useQuery, type UseQueryResult } from '@tanstack/react-query';
-import { useCallback } from 'react';
+import {
+  keepPreviousData,
+  useQuery,
+  useQueryClient,
+  type UseQueryResult,
+} from '@tanstack/react-query';
+import { useCallback, useMemo } from 'react';
 
 import { request, requestRaw, type QueryParams, type RequestOptions } from './client';
 import { useSession } from './session';
@@ -205,6 +210,30 @@ export function useTrades(filters: Filters = {}) {
 
 export function useTrade(id: string) {
   return useApiQuery<TradeDetail>(queryKeys.trade(id), `/trades/${id}`);
+}
+
+/**
+ * The list row for a trade, if any cached `['trades', filters]` list still
+ * holds it — everything a detail screen shows above its journal is already on
+ * that row, so the screen can paint itself instead of a wall of skeletons while
+ * `/trades/{id}` is in flight. The list caches are MMKV-persisted, so this
+ * survives a cold start too. Resolved once per mount: the row you tapped is in
+ * the cache before the screen exists.
+ */
+export function useCachedTradeRow(id: string): Trade | undefined {
+  const queryClient = useQueryClient();
+  return useMemo(() => {
+    // ['trades', ...] also covers the detail and attachment caches, hence the
+    // shape check — an array of objects carrying a symbol is a trade list.
+    for (const [, cached] of queryClient.getQueriesData({ queryKey: ['trades'] })) {
+      if (!Array.isArray(cached)) continue;
+      const hit = (cached as Trade[]).find(
+        (row) => row?.id === id && typeof row?.symbol === 'string',
+      );
+      if (hit) return hit;
+    }
+    return undefined;
+  }, [queryClient, id]);
 }
 
 /**

@@ -7,12 +7,14 @@ import { accessibilityLabel, buttonStyle, tint as tintModifier } from '@expo/ui/
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
+import { SymbolView } from 'expo-symbols';
 import { useState, type ReactNode } from 'react';
 import { Alert, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
-import { queryKeys, useApiRequest, useTrade } from '@/api/hooks';
-import type { ExcursionResult, TradeDetail } from '@/api/types';
+import { ApiError } from '@/api/client';
+import { queryKeys, useApiRequest, useCachedTradeRow, useTrade } from '@/api/hooks';
+import type { ExcursionResult, Trade, TradeDetail } from '@/api/types';
 import { AttachmentsCard } from '@/components/attachments-card';
 import { CoachCard } from '@/components/coach-card';
 import { DashboardCard } from '@/components/dashboard-card';
@@ -93,34 +95,309 @@ function statusLabel(label: ReturnType<typeof tradeStatus>['label']): string {
   }
 }
 
+/**
+ * The trade as the list row already knows it, widened with the detail-only
+ * fields when they have arrived — so the hero and the three factual cards can
+ * render from either source without a second copy of their markup.
+ */
+type TradeLike = Trade & Partial<Pick<TradeDetail, 'r_multiple' | 'dividend_total' | 'total_pnl'>>;
+
+/** Direction/status/market, the P&L figure, and its return·R caption. */
+function TradeHero({ trade }: { trade: TradeLike }) {
+  const { theme } = useUnistyles();
+  const status = tradeStatus(trade);
+  const isLong = trade.direction === 'long';
+  const isOpen = trade.status === 'open';
+  const tint = pnlColor(theme.colors, trade.net_pnl);
+  const r = trade.r_multiple ?? tradeRMultiple(trade);
+  const captionParts = [
+    ...(trade.return_pct != null
+      ? [`${trade.return_pct >= 0 ? '+' : ''}${trade.return_pct.toFixed(2)}%`]
+      : []),
+    ...(r != null ? [`${r.toFixed(2)}R`] : []),
+  ];
+
+  return (
+    <View style={styles.hero}>
+      <View style={styles.pillRow}>
+        <Pill tone="muted">
+          <Text style={{ color: isLong ? theme.colors.profit : theme.colors.loss }}>
+            {isLong ? '↗ ' : '↘ '}
+          </Text>
+          {isLong ? t`LONG` : t`SHORT`}
+        </Pill>
+        <Pill tone={status.tone}>{statusLabel(status.label)}</Pill>
+        <Pill tone="muted">{marketLabel(trade.instrument_type)}</Pill>
+      </View>
+      <Text selectable style={[styles.heroValue, isOpen ? styles.heroOpen : { color: tint }]}>
+        {isOpen ? t`Open` : formatPnl(trade.net_pnl, trade.pnl_currency)}
+      </Text>
+      {captionParts.length > 0 ? (
+        <Text
+          style={[styles.heroCaption, { color: isOpen ? theme.colors.mutedForeground : tint }]}
+        >
+          {captionParts.join(' · ')}
+        </Text>
+      ) : null}
+    </View>
+  );
+}
+
+function PnlCard({ trade }: { trade: TradeLike }) {
+  const { theme } = useUnistyles();
+  const currency = trade.pnl_currency;
+  const tint = pnlColor(theme.colors, trade.net_pnl);
+  const dividends = trade.dividend_total ?? 0;
+
+  return (
+    <DashboardCard title={t`P&L`}>
+      <Row
+        label={t`Gross P&L`}
+        value={formatPnl(trade.gross_pnl, currency)}
+        tint={pnlColor(theme.colors, trade.gross_pnl)}
+      />
+      <Row label={t`Fees`} value={formatCurrency(trade.fees_total, currency)} />
+      {dividends !== 0 ? (
+        <Row
+          label={t`Dividends`}
+          value={formatPnl(dividends, currency)}
+          tint={pnlColor(theme.colors, dividends)}
+        />
+      ) : null}
+      <Row label={t`Net P&L`} value={formatPnl(trade.net_pnl, currency)} tint={tint} />
+      {dividends !== 0 && trade.total_pnl != null ? (
+        <Row
+          label={t`Total P&L`}
+          value={formatPnl(trade.total_pnl, currency)}
+          tint={pnlColor(theme.colors, trade.total_pnl)}
+        />
+      ) : null}
+    </DashboardCard>
+  );
+}
+
+function TimingCard({ trade }: { trade: TradeLike }) {
+  return (
+    <DashboardCard title={t`Timing`}>
+      <Row
+        label={t`Opened`}
+        value={`${formatDate(trade.opened_at)} ${formatTime(trade.opened_at)}`}
+      />
+      <Row
+        label={t`Closed`}
+        value={
+          trade.closed_at
+            ? `${formatDate(trade.closed_at)} ${formatTime(trade.closed_at)}`
+            : t`Open`
+        }
+      />
+      <Row label={t`Time in trade`} value={formatDuration(trade.time_in_trade_secs)} />
+    </DashboardCard>
+  );
+}
+
+function PositionCard({ trade }: { trade: TradeLike }) {
+  const currency = trade.pnl_currency;
+  return (
+    <DashboardCard title={t`Position`}>
+      <Row label={t`Quantity`} value={String(trade.qty_opened)} />
+      {trade.qty_remaining > 0 ? (
+        <Row label={t`Remaining`} value={String(trade.qty_remaining)} />
+      ) : null}
+      <Row label={t`Avg entry`} value={formatCurrency(trade.avg_entry_price, currency)} />
+      <Row label={t`Avg exit`} value={formatCurrency(trade.avg_exit_price, currency)} />
+      <Row label={t`Notional`} value={formatCurrency(tradeNotional(trade), currency)} />
+    </DashboardCard>
+  );
+}
+
 export default function TradeDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { data: trade, isLoading, error, refetch } = useTrade(id);
+  // The row that was tapped, straight from the list cache — it carries the
+  // whole top half of this screen, so a slow `/trades/{id}` no longer means an
+  // empty page.
+  const preview = useCachedTradeRow(id);
+  const { data: trade, error, refetch, isFetching } = useTrade(id);
 
-  if (isLoading) {
-    // Hero figure, chart, and stat-row shaped skeletons.
+  const gone = error instanceof ApiError && error.status === 404;
+
+  if (trade) return <TradeDetailBody trade={trade} refetch={refetch} />;
+  // Nothing to show behind the failure — or the trade is genuinely gone, which
+  // no amount of retrying brings back.
+  if (error && (gone || !preview)) {
     return (
-      <View style={[styles.page, styles.skeletonPage]}>
-        <Skeleton style={styles.skeletonHero} />
-        <Skeleton style={styles.skeletonChart} />
-        {Array.from({ length: 4 }, (_, i) => (
-          <Skeleton key={i} style={styles.skeletonLine} />
+      <TradeDetailError
+        symbol={preview?.symbol}
+        error={error}
+        retrying={isFetching}
+        onRetry={() => void refetch()}
+      />
+    );
+  }
+  return (
+    <TradeDetailPending
+      preview={preview}
+      error={error}
+      retrying={isFetching}
+      onRetry={() => void refetch()}
+    />
+  );
+}
+
+/**
+ * Loading, and the landing pad for a failure that still has a cached row to
+ * show. With that row this is the real screen minus the cards only the detail
+ * response can fill; without one it is the same layout in skeletons, so nothing
+ * moves when the data lands. Either way the header shows the symbol (or at
+ * least "Trade") — never the route's `[id]`.
+ */
+function TradeDetailPending({
+  preview,
+  error,
+  retrying,
+  onRetry,
+}: {
+  preview?: Trade;
+  error: Error | null;
+  retrying: boolean;
+  onRetry: () => void;
+}) {
+  return (
+    <>
+      {/* headerRight is cleared explicitly: options merge, so navigating from one
+          trade straight into another would otherwise leave the previous
+          trade's actions menu sitting in the bar, wired to the old id. */}
+      <Stack.Screen options={{ title: preview?.symbol ?? t`Trade`, headerRight: () => null }} />
+      <ScrollView
+        style={styles.page}
+        contentInsetAdjustmentBehavior="automatic"
+        contentContainerStyle={styles.content}
+      >
+        {preview ? <TradeHero trade={preview} /> : <HeroSkeleton />}
+        {preview ? <PnlCard trade={preview} /> : <CardSkeleton title={t`P&L`} rows={3} />}
+        {error ? (
+          // The row's own numbers are all true; only the rest of the trade is
+          // missing, so the retry sits where that missing content would be.
+          <DashboardCard title={t`Details`}>
+            <Text style={styles.emptyNote}>
+              {error instanceof ApiError
+                ? error.message
+                : t`Couldn't reach the server. The figures above are from your last sync.`}
+            </Text>
+            <View style={styles.emptyAction}>
+              <GlassButton
+                label={retrying ? t`Retrying…` : t`Try again`}
+                systemImage="arrow.clockwise"
+                disabled={retrying}
+                onPress={onRetry}
+              />
+            </View>
+          </DashboardCard>
+        ) : (
+          <Skeleton style={styles.skeletonChart} />
+        )}
+        {preview ? <TimingCard trade={preview} /> : <CardSkeleton title={t`Timing`} rows={3} />}
+        {preview ? (
+          <PositionCard trade={preview} />
+        ) : (
+          <CardSkeleton title={t`Position`} rows={4} />
+        )}
+        {error ? null : <CardSkeleton title={t`Journal`} rows={2} />}
+      </ScrollView>
+    </>
+  );
+}
+
+function HeroSkeleton() {
+  return (
+    <View style={styles.hero}>
+      <View style={styles.pillRow}>
+        {Array.from({ length: 3 }, (_, i) => (
+          <Skeleton key={i} style={styles.skeletonPill} />
         ))}
       </View>
-    );
-  }
+      <Skeleton style={styles.skeletonHeroValue} />
+      <Skeleton style={styles.skeletonHeroCaption} />
+    </View>
+  );
+}
 
-  if (error || !trade) {
-    return (
+/** A real card header over label/value shaped rows — the section that is coming. */
+function CardSkeleton({ title, rows }: { title: string; rows: number }) {
+  return (
+    <DashboardCard title={title}>
+      {Array.from({ length: rows }, (_, i) => (
+        <View key={i} style={styles.row}>
+          {/* Uneven label widths: a stack of identical bars looks like a table. */}
+          <Skeleton style={[styles.skeletonLabel, { width: 72 + ((i * 31) % 48) }]} />
+          <Skeleton style={styles.skeletonValue} />
+        </View>
+      ))}
+    </DashboardCard>
+  );
+}
+
+/**
+ * Failed to load. A dead-end line of grey text was the worst thing to hit on a
+ * flaky connection — the recoverable cases get the retry that fixes them, and a
+ * deleted trade gets told so instead of being offered a pointless one.
+ */
+function TradeDetailError({
+  symbol,
+  error,
+  retrying,
+  onRetry,
+}: {
+  symbol?: string;
+  error: Error;
+  retrying: boolean;
+  onRetry: () => void;
+}) {
+  const { theme } = useUnistyles();
+  const router = useRouter();
+  const gone = error instanceof ApiError && error.status === 404;
+  const offline = !(error instanceof ApiError);
+
+  return (
+    <>
+      <Stack.Screen options={{ title: symbol ?? t`Trade`, headerRight: () => null }} />
       <View style={styles.centered}>
-        <Text selectable style={styles.muted}>
-          {error?.message ?? t`Trade not found`}
+        <SymbolView
+          name={
+            gone
+              ? 'questionmark.folder'
+              : offline
+                ? 'wifi.exclamationmark'
+                : 'exclamationmark.triangle'
+          }
+          size={44}
+          tintColor={theme.colors.mutedForeground}
+        />
+        <Text style={styles.errorTitle}>
+          {gone ? t`Trade not found` : offline ? t`No connection` : t`Couldn't load this trade`}
         </Text>
+        <Text selectable style={styles.muted}>
+          {gone ? t`It may have been deleted on another device.` : error.message}
+        </Text>
+        <View style={styles.errorAction}>
+          {gone ? (
+            <GlassButton
+              label={t`Back to trades`}
+              systemImage="chevron.left"
+              onPress={router.back}
+            />
+          ) : (
+            <GlassButton
+              label={retrying ? t`Retrying…` : t`Try again`}
+              systemImage="arrow.clockwise"
+              disabled={retrying}
+              onPress={onRetry}
+            />
+          )}
+        </View>
       </View>
-    );
-  }
-
-  return <TradeDetailBody trade={trade} refetch={refetch} />;
+    </>
+  );
 }
 
 /** Inner body — mutations and share plumbing need the loaded trade in scope. */
@@ -170,24 +447,15 @@ function TradeDetailBody({
     );
   }
 
-  const status = tradeStatus(trade);
-  const isLong = trade.direction === 'long';
   const isOpen = trade.status === 'open';
   const currency = trade.pnl_currency;
   const tint = pnlColor(theme.colors, trade.net_pnl);
   const r = trade.r_multiple ?? tradeRMultiple(trade);
-  const captionParts = [
-    ...(trade.return_pct != null
-      ? [`${trade.return_pct >= 0 ? '+' : ''}${trade.return_pct.toFixed(2)}%`]
-      : []),
-    ...(r != null ? [`${r.toFixed(2)}R`] : []),
-  ];
 
   const journal = parseJournalNotes(trade.notes);
   const emotions = parseEmotionalStates(trade.emotional_state);
   const setupGrade = gradeFromInt(trade.confidence);
   const execGrade = gradeFromInt(trade.trade_quality);
-  const hasDividends = trade.dividend_total !== 0;
   const hasPlan =
     trade.target_price != null ||
     trade.stop_price != null ||
@@ -272,55 +540,9 @@ function TradeDetailBody({
           />
         }
       >
-        <View style={styles.hero}>
-          <View style={styles.pillRow}>
-            <Pill tone="muted">
-              <Text style={{ color: isLong ? theme.colors.profit : theme.colors.loss }}>
-                {isLong ? '↗ ' : '↘ '}
-              </Text>
-              {isLong ? t`LONG` : t`SHORT`}
-            </Pill>
-            <Pill tone={status.tone}>{statusLabel(status.label)}</Pill>
-            <Pill tone="muted">{marketLabel(trade.instrument_type)}</Pill>
-          </View>
-          <Text selectable style={[styles.heroValue, isOpen ? styles.heroOpen : { color: tint }]}>
-            {isOpen ? t`Open` : formatPnl(trade.net_pnl, currency)}
-          </Text>
-          {captionParts.length > 0 ? (
-            <Text
-              style={[
-                styles.heroCaption,
-                { color: isOpen ? theme.colors.mutedForeground : tint },
-              ]}
-            >
-              {captionParts.join(' · ')}
-            </Text>
-          ) : null}
-        </View>
+        <TradeHero trade={trade} />
 
-        <DashboardCard title={t`P&L`}>
-          <Row
-            label={t`Gross P&L`}
-            value={formatPnl(trade.gross_pnl, currency)}
-            tint={pnlColor(theme.colors, trade.gross_pnl)}
-          />
-          <Row label={t`Fees`} value={formatCurrency(trade.fees_total, currency)} />
-          {hasDividends ? (
-            <Row
-              label={t`Dividends`}
-              value={formatPnl(trade.dividend_total, currency)}
-              tint={pnlColor(theme.colors, trade.dividend_total)}
-            />
-          ) : null}
-          <Row label={t`Net P&L`} value={formatPnl(trade.net_pnl, currency)} tint={tint} />
-          {hasDividends && trade.total_pnl != null ? (
-            <Row
-              label={t`Total P&L`}
-              value={formatPnl(trade.total_pnl, currency)}
-              tint={pnlColor(theme.colors, trade.total_pnl)}
-            />
-          ) : null}
-        </DashboardCard>
+        <PnlCard trade={trade} />
 
         {hasPlan ? (
           <DashboardCard title={t`Plan & risk`}>
@@ -369,31 +591,9 @@ function TradeDetailBody({
 
         <TradeChart trade={trade} />
 
-        <DashboardCard title={t`Timing`}>
-          <Row
-            label={t`Opened`}
-            value={`${formatDate(trade.opened_at)} ${formatTime(trade.opened_at)}`}
-          />
-          <Row
-            label={t`Closed`}
-            value={
-              trade.closed_at
-                ? `${formatDate(trade.closed_at)} ${formatTime(trade.closed_at)}`
-                : t`Open`
-            }
-          />
-          <Row label={t`Time in trade`} value={formatDuration(trade.time_in_trade_secs)} />
-        </DashboardCard>
+        <TimingCard trade={trade} />
 
-        <DashboardCard title={t`Position`}>
-          <Row label={t`Quantity`} value={String(trade.qty_opened)} />
-          {trade.qty_remaining > 0 ? (
-            <Row label={t`Remaining`} value={String(trade.qty_remaining)} />
-          ) : null}
-          <Row label={t`Avg entry`} value={formatCurrency(trade.avg_entry_price, currency)} />
-          <Row label={t`Avg exit`} value={formatCurrency(trade.avg_exit_price, currency)} />
-          <Row label={t`Notional`} value={formatCurrency(tradeNotional(trade), currency)} />
-        </DashboardCard>
+        <PositionCard trade={trade} />
 
         {hasJournal ? (
           <DashboardCard
@@ -524,17 +724,32 @@ const styles = StyleSheet.create((theme) => ({
     gap: theme.spacing.lg,
     paddingBottom: theme.spacing.xl * 2,
   },
-  skeletonPage: { flex: 1, padding: theme.spacing.lg, gap: theme.spacing.lg },
-  skeletonHero: { width: 180, height: 34 },
-  skeletonChart: { height: 220, borderRadius: theme.radius.lg + 4 },
-  skeletonLine: { height: 48, borderRadius: theme.radius.lg },
+  // Placeholders mirror the loaded screen's own metrics, so nothing shifts when
+  // the response lands: pills, the 36pt hero figure, its caption, a chart card.
+  skeletonPill: { width: 58, height: 17, borderRadius: theme.radius.sm },
+  skeletonHeroValue: { width: 196, height: 38 },
+  skeletonHeroCaption: { width: 104, height: 15 },
+  // Height of the whole chart card (header, canvas, interval picker), not of
+  // the canvas alone — an under-tall placeholder shoves the cards below it down
+  // the moment the real chart mounts.
+  skeletonChart: { height: 330, borderRadius: theme.radius.lg + 4 },
+  skeletonLabel: { height: 15 },
+  skeletonValue: { width: 84, height: 15 },
   centered: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    gap: theme.spacing.sm,
     padding: theme.spacing.xl,
   },
   muted: { color: theme.colors.mutedForeground, textAlign: 'center' },
+  errorTitle: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: theme.colors.foreground,
+    marginTop: theme.spacing.xs,
+  },
+  errorAction: { paddingTop: theme.spacing.md },
   // Bare glyph — the sizing stays for the tap target, not for a visible chip.
   editButton: {
     width: 32,
