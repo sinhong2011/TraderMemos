@@ -950,13 +950,13 @@ msgstr "平均保有時間"
 msgid "avg"
 msgstr "平均"
 
-#: src/app/(tabs)/(trades)/[id].tsx:385
+#: src/app/(tabs)/(trades)/[id].tsx:207
 #: src/components/trade-result-card.tsx:46
 #: src/components/trade-summary.tsx:152
 msgid "Avg entry"
 msgstr "平均エントリー価格"
 
-#: src/app/(tabs)/(trades)/[id].tsx:386
+#: src/app/(tabs)/(trades)/[id].tsx:208
 #: src/components/trade-result-card.tsx:51
 #: src/components/trade-summary.tsx:158
 msgid "Avg exit"
@@ -1007,7 +1007,7 @@ msgstr "平均利益R"
 #: src/app/(tabs)/(settings)/import-trades.tsx:427
 #: src/app/replay.tsx:348
 #: src/app/trade-preview.tsx:100
-#: src/components/form-sheet.tsx:128
+#: src/components/form-sheet.tsx:130
 msgid "Back"
 msgstr "戻る"
 
@@ -1015,6 +1015,10 @@ msgstr "戻る"
 #: src/app/(tabs)/(dashboard)/economic-events.tsx:134
 #~ msgid "Back to this week"
 #~ msgstr "今週に戻る"
+
+#: src/app/(tabs)/(trades)/[id].tsx:385
+msgid "Back to trades"
+msgstr "トレード一覧に戻る"
 
 #: src/app/(tabs)/(settings)/index.tsx:299
 #~ msgid "Backup or restore local app preferences."
@@ -1042,7 +1046,7 @@ msgstr "ベースライン {0}"
 msgid "Baseline P&L"
 msgstr "ベースライン損益"
 
-#: src/app/(tabs)/(trades)/[id].tsx:92
+#: src/app/(tabs)/(trades)/[id].tsx:94
 #: src/components/share-card.tsx:24
 msgid "BE"
 msgstr "引き分け"
@@ -1162,7 +1166,7 @@ msgstr "最も活発な月: {0}（{1}件）。"
 msgid "Buy"
 msgstr "買い"
 
-#: src/app/(tabs)/(trades)/[id].tsx:489
+#: src/app/(tabs)/(trades)/[id].tsx:697
 msgid "BUY"
 msgstr "買"
 
@@ -1210,13 +1214,13 @@ msgstr "コール / プット"
 #: src/app/(tabs)/(settings)/two-factor.tsx:203
 #: src/app/(tabs)/(settings)/user-detail.tsx:106
 #: src/app/(tabs)/(settings)/user-detail.tsx:131
-#: src/app/(tabs)/(trades)/[id].tsx:165
+#: src/app/(tabs)/(trades)/[id].tsx:444
 #: src/app/cash-form.tsx:143
 #: src/app/edit-note.tsx:73
 #: src/app/new-setup.tsx:148
 #: src/components/account-menu.tsx:48
 #: src/components/attachments-card.tsx:155
-#: src/components/form-sheet.tsx:128
+#: src/components/form-sheet.tsx:130
 #: src/components/note-images.tsx:145
 #: src/components/swipeable-trade-row.tsx:83
 #: src/components/trade-scan-overlay.tsx:237
@@ -1380,7 +1384,7 @@ msgstr "クローズ日"
 msgid "Close position"
 msgstr "ポジションを決済"
 
-#: src/app/(tabs)/(trades)/[id].tsx:370
+#: src/app/(tabs)/(trades)/[id].tsx:187
 #: src/app/trade-preview.tsx:144
 #: src/components/replay-controls.tsx:35
 msgid "Closed"
@@ -1538,7 +1542,7 @@ msgstr "役割を変更できませんでした"
 msgid "Could not clear trades"
 msgstr "トレードを消去できませんでした"
 
-#: src/app/(tabs)/(trades)/[id].tsx:147
+#: src/app/(tabs)/(trades)/[id].tsx:426
 msgid "Could not compute excursion"
 msgstr "エクスカーションを計算できませんでした"
 
@@ -1551,7 +1555,7 @@ msgid "Could not create token"
 msgstr "トークンを作成できませんでした"
 
 #: src/app/(tabs)/(settings)/prop-settings.tsx:60
-#: src/app/(tabs)/(trades)/[id].tsx:157
+#: src/app/(tabs)/(trades)/[id].tsx:436
 #: src/app/edit-note.tsx:58
 #: src/app/new-setup.tsx:115
 #: src/components/attachments-card.tsx:58
@@ -1713,6 +1717,14 @@ msgstr "アップロードできませんでした"
 #: src/app/(tabs)/(dashboard)/economic-events.tsx:650
 msgid "Couldn't add the reminder"
 msgstr "リマインダーを追加できませんでした"
+
+#: src/app/(tabs)/(trades)/[id].tsx:377
+msgid "Couldn't load this trade"
+msgstr "このトレードを読み込めませんでした"
+
+#: src/app/(tabs)/(trades)/[id].tsx:285
+msgid "Couldn't reach the server. The figures above are from your last sync."
+msgstr "サーバーに接続できませんでした。上の数値は最後に同期した時点のものです。"
 
 #: src/app/(tabs)/(settings)/account-form.tsx:240
 #~ msgid "Create"
@@ -1989,6 +2001,7 @@ msgid "Detailed"
 msgstr "詳細"
 
 #: src/app/(tabs)/(settings)/account-form.tsx:247
+#: src/app/(tabs)/(trades)/[id].tsx:281
 msgid "Details"
 msgstr "詳細"
 
@@ -2043,7 +2056,7 @@ msgstr "資産曲線のピークからの乖離率です。"
 msgid "Dividend"
 msgstr "配当"
 
-#: src/app/(tabs)/(trades)/[id].tsx:302
+#: src/app/(tabs)/(trades)/[id].tsx:162
 msgid "Dividends"
 msgstr "配当"
 
@@ -2157,7 +2170,7 @@ msgstr "セットアップを編集"
 msgid "Edit tag"
 msgstr "タグを編集"
 
-#: src/app/(tabs)/(trades)/[id].tsx:223
+#: src/app/(tabs)/(trades)/[id].tsx:493
 #: src/app/edit-trade.tsx:114
 msgid "Edit trade"
 msgstr "トレードを編集"
@@ -2170,7 +2183,7 @@ msgstr "取引を編集"
 #~ msgid "Email"
 #~ msgstr "メールアドレス"
 
-#: src/app/(tabs)/(trades)/[id].tsx:413
+#: src/app/(tabs)/(trades)/[id].tsx:621
 #: src/app/manage-tags.tsx:104
 #: src/components/trade-form.tsx:481
 msgid "Emotion"
@@ -2291,7 +2304,7 @@ msgstr "エントリープレミアム"
 msgid "Entry price"
 msgstr "エントリー価格"
 
-#: src/app/(tabs)/(trades)/[id].tsx:427
+#: src/app/(tabs)/(trades)/[id].tsx:635
 #: src/app/quick-journal.tsx:77
 #: src/components/trade-form.tsx:515
 msgid "Entry reason"
@@ -2357,7 +2370,7 @@ msgstr "約定日時"
 msgid "Execution grade"
 msgstr "執行グレード"
 
-#: src/app/(tabs)/(trades)/[id].tsx:424
+#: src/app/(tabs)/(trades)/[id].tsx:632
 #: src/app/manage-tags.tsx:127
 #: src/app/quick-journal.tsx:90
 #: src/components/trade-form.tsx:525
@@ -2365,7 +2378,7 @@ msgstr "執行グレード"
 msgid "Execution rating"
 msgstr "執行評価"
 
-#: src/app/(tabs)/(trades)/[id].tsx:475
+#: src/app/(tabs)/(trades)/[id].tsx:683
 msgid "Executions"
 msgstr "約定履歴"
 
@@ -2377,7 +2390,7 @@ msgstr "決済で約{r}Rの下落を回避"
 msgid "Exit ladder"
 msgstr "出口ラダー"
 
-#: src/app/(tabs)/(trades)/[id].tsx:428
+#: src/app/(tabs)/(trades)/[id].tsx:636
 #: src/components/trade-form.tsx:547
 msgid "Exit reason"
 msgstr "決済理由"
@@ -2501,7 +2514,7 @@ msgstr "手数料"
 
 #: src/app/(tabs)/(calendar)/day/[date].tsx:320
 #: src/app/(tabs)/(settings)/import-trades.tsx:51
-#: src/app/(tabs)/(trades)/[id].tsx:299
+#: src/app/(tabs)/(trades)/[id].tsx:159
 #: src/app/trade-preview.tsx:141
 #: src/components/performance-card.tsx:57
 #: src/components/reports/overview-section.tsx:191
@@ -2769,7 +2782,7 @@ msgstr "グロス"
 msgid "Gross (before fees)"
 msgstr "グロス（手数料前）"
 
-#: src/app/(tabs)/(trades)/[id].tsx:295
+#: src/app/(tabs)/(trades)/[id].tsx:155
 msgid "Gross P&L"
 msgstr "総損益"
 
@@ -2948,7 +2961,7 @@ msgstr "進行中"
 msgid "Includes a dividend entry."
 msgstr "配当の記録を含みます。"
 
-#: src/app/(tabs)/(trades)/[id].tsx:326
+#: src/app/(tabs)/(trades)/[id].tsx:556
 msgid "Initial risk"
 msgstr "初期リスク"
 
@@ -2994,8 +3007,13 @@ msgstr "問題"
 msgid "It is deleted from this note and from the server."
 msgstr "このノートとサーバーの両方から削除されます。"
 
-#: src/app/(tabs)/(trades)/[id].tsx:392
-#: src/app/(tabs)/(trades)/[id].tsx:434
+#: src/app/(tabs)/(trades)/[id].tsx:380
+msgid "It may have been deleted on another device."
+msgstr "別のデバイスで削除された可能性があります。"
+
+#: src/app/(tabs)/(trades)/[id].tsx:305
+#: src/app/(tabs)/(trades)/[id].tsx:600
+#: src/app/(tabs)/(trades)/[id].tsx:642
 #: src/components/swipeable-trade-row.tsx:117
 #: src/components/tools-menu.tsx:92
 #: src/components/trade-form.tsx:463
@@ -3176,7 +3194,7 @@ msgstr "ログ"
 msgid "Long"
 msgstr "ロング"
 
-#: src/app/(tabs)/(trades)/[id].tsx:273
+#: src/app/(tabs)/(trades)/[id].tsx:127
 #: src/app/quick-journal.tsx:140
 #: src/app/replay.tsx:422
 #: src/components/share-card.tsx:54
@@ -3211,7 +3229,7 @@ msgstr "損失 vs 利益"
 msgid "Losing hold"
 msgstr "負け保有時間"
 
-#: src/app/(tabs)/(trades)/[id].tsx:88
+#: src/app/(tabs)/(trades)/[id].tsx:90
 #: src/components/share-card.tsx:20
 msgid "LOSS"
 msgstr "負け"
@@ -3250,7 +3268,7 @@ msgstr "損失トレードのセットアップ評価が低い"
 msgid "Lowest P&L"
 msgstr "損益が低い順"
 
-#: src/app/(tabs)/(trades)/[id].tsx:333
+#: src/app/(tabs)/(trades)/[id].tsx:563
 msgid "MAE"
 msgstr "MAE"
 
@@ -3380,7 +3398,7 @@ msgstr "メンタルを10段階で自己評価"
 msgid "Metric evolution"
 msgstr "指標の推移"
 
-#: src/app/(tabs)/(trades)/[id].tsx:340
+#: src/app/(tabs)/(trades)/[id].tsx:570
 msgid "MFE"
 msgstr "MFE"
 
@@ -3496,7 +3514,7 @@ msgstr "ネット（手数料後）"
 #: src/app/(tabs)/(calendar)/index.tsx:861
 #: src/app/(tabs)/(dashboard)/playbook.tsx:125
 #: src/app/(tabs)/(dashboard)/playbook.tsx:219
-#: src/app/(tabs)/(trades)/[id].tsx:307
+#: src/app/(tabs)/(trades)/[id].tsx:167
 msgid "Net P&L"
 msgstr "純損益"
 
@@ -3647,6 +3665,10 @@ msgstr "評価対象の決済トレードなし"
 #: src/app/(tabs)/(reports)/heatmap.tsx:89
 #~ msgid "No closed trades yet"
 #~ msgstr "決済済みトレードはまだありません"
+
+#: src/app/(tabs)/(trades)/[id].tsx:377
+msgid "No connection"
+msgstr "接続できません"
 
 #: src/components/equity-card.tsx:72
 #: src/components/reports/risk-section.tsx:79
@@ -3869,7 +3891,7 @@ msgstr "ノートが見つかりません"
 #: src/app/(tabs)/(dashboard)/index.tsx:197
 #: src/app/(tabs)/(dashboard)/notes.tsx:179
 #: src/app/(tabs)/(dashboard)/notes.tsx:229
-#: src/app/(tabs)/(trades)/[id].tsx:465
+#: src/app/(tabs)/(trades)/[id].tsx:673
 #: src/components/tools-menu.tsx:60
 msgid "Notes"
 msgstr "メモ"
@@ -3882,11 +3904,11 @@ msgstr "これらのファイルからは何も読み取れませんでした。
 msgid "Nothing journaled for this day yet. A two-minute recap while it's fresh beats a perfect writeup never written."
 msgstr "この日の記録はまだありません。記憶が新しいうちの2分の振り返りは、結局書かれない完璧なレポートに勝ります。"
 
-#: src/app/(tabs)/(trades)/[id].tsx:438
+#: src/app/(tabs)/(trades)/[id].tsx:646
 msgid "Nothing logged yet. A minute of review now is what makes this trade worth something later."
 msgstr "まだ記録がありません。今の一分の振り返りが、この取引を後で活きるものにします。"
 
-#: src/app/(tabs)/(trades)/[id].tsx:437
+#: src/app/(tabs)/(trades)/[id].tsx:645
 msgid "Nothing logged yet. Note the setup and why you took it while it's fresh."
 msgstr "まだ記録がありません。記憶が新しいうちに、セットアップとエントリー理由を残しましょう。"
 
@@ -3898,7 +3920,7 @@ msgstr "まだ記録がありません。記憶が新しいうちに、セット
 msgid "Nothing to replay."
 msgstr "再生する対象がありません。"
 
-#: src/app/(tabs)/(trades)/[id].tsx:387
+#: src/app/(tabs)/(trades)/[id].tsx:209
 msgid "Notional"
 msgstr "想定元本"
 
@@ -3971,8 +3993,8 @@ msgstr "このサーバーのアカウントを管理できるのはオーナー
 msgid "Only the first {0} files fit under the cap."
 msgstr "上限内に収まるのは最初の{0}件のみです。"
 
-#: src/app/(tabs)/(trades)/[id].tsx:279
-#: src/app/(tabs)/(trades)/[id].tsx:374
+#: src/app/(tabs)/(trades)/[id].tsx:133
+#: src/app/(tabs)/(trades)/[id].tsx:191
 #: src/app/(tabs)/(trades)/index.tsx:265
 #: src/app/quick-journal.tsx:136
 #: src/app/trade-preview.tsx:134
@@ -3984,7 +4006,7 @@ msgstr "上限内に収まるのは最初の{0}件のみです。"
 msgid "Open"
 msgstr "オープン"
 
-#: src/app/(tabs)/(trades)/[id].tsx:90
+#: src/app/(tabs)/(trades)/[id].tsx:92
 #: src/components/share-card.tsx:22
 msgid "OPEN"
 msgstr "オープン"
@@ -4010,7 +4032,7 @@ msgstr "リスクルールを開く"
 msgid "openai model screenshot scan coach key"
 msgstr "OpenAI モデル スクリーンショット スキャン コーチ キー AI"
 
-#: src/app/(tabs)/(trades)/[id].tsx:366
+#: src/app/(tabs)/(trades)/[id].tsx:183
 msgid "Opened"
 msgstr "エントリー"
 
@@ -4104,7 +4126,8 @@ msgstr "オーナー"
 msgid "Owners can add, remove and reset every account on this server, including yours."
 msgstr "オーナーはこのサーバーのすべてのアカウント（あなたのものを含む）を追加・削除・リセットできます。"
 
-#: src/app/(tabs)/(trades)/[id].tsx:293
+#: src/app/(tabs)/(trades)/[id].tsx:153
+#: src/app/(tabs)/(trades)/[id].tsx:277
 #: src/components/reports/winloss-section.tsx:73
 msgid "P&L"
 msgstr "損益"
@@ -4215,7 +4238,7 @@ msgstr "{0}をトレードと入出金記録ごと完全に削除します。"
 msgid "Permanently deletes {tradeCount} trades and their executions from {0}."
 msgstr "{0}から{tradeCount}件のトレードと約定を完全に削除します。"
 
-#: src/app/(tabs)/(trades)/[id].tsx:163
+#: src/app/(tabs)/(trades)/[id].tsx:442
 #: src/components/swipeable-trade-row.tsx:81
 msgid "Permanently deletes this trade and all of its fills. This cannot be undone."
 msgstr "このトレードとすべての約定を完全に削除します。元に戻せません。"
@@ -4258,7 +4281,7 @@ msgstr "まずアカウントを選択してください。"
 msgid "Plan"
 msgstr "プラン"
 
-#: src/app/(tabs)/(trades)/[id].tsx:318
+#: src/app/(tabs)/(trades)/[id].tsx:548
 msgid "Plan & risk"
 msgstr "プランとリスク"
 
@@ -4305,7 +4328,8 @@ msgstr "不良"
 #~ msgstr ""
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:332
-#: src/app/(tabs)/(trades)/[id].tsx:380
+#: src/app/(tabs)/(trades)/[id].tsx:202
+#: src/app/(tabs)/(trades)/[id].tsx:303
 #: src/components/trade-result-card.tsx:65
 msgid "Position"
 msgstr "ポジション"
@@ -4320,11 +4344,11 @@ msgstr "ポジションサイズ"
 msgid "Position value"
 msgstr "ポジション価値"
 
-#: src/app/(tabs)/(trades)/[id].tsx:354
+#: src/app/(tabs)/(trades)/[id].tsx:584
 msgid "Post-exit MAE"
 msgstr "決済後MAE"
 
-#: src/app/(tabs)/(trades)/[id].tsx:347
+#: src/app/(tabs)/(trades)/[id].tsx:577
 msgid "Post-exit MFE"
 msgstr "決済後MFE"
 
@@ -4481,7 +4505,7 @@ msgid "Put"
 msgstr "プット"
 
 #: src/app/(tabs)/(settings)/import-trades.tsx:46
-#: src/app/(tabs)/(trades)/[id].tsx:381
+#: src/app/(tabs)/(trades)/[id].tsx:203
 #: src/components/trade-form.tsx:129
 msgid "Quantity"
 msgstr "数量"
@@ -4512,7 +4536,7 @@ msgstr "即損切り — シナリオが早期に崩壊"
 msgid "R calculator"
 msgstr "R計算機"
 
-#: src/app/(tabs)/(trades)/[id].tsx:329
+#: src/app/(tabs)/(trades)/[id].tsx:559
 msgid "R multiple"
 msgstr "R倍率"
 
@@ -4601,7 +4625,7 @@ msgstr "最近のイベント"
 msgid "Recent trades"
 msgstr "最近のトレード"
 
-#: src/app/(tabs)/(trades)/[id].tsx:243
+#: src/app/(tabs)/(trades)/[id].tsx:513
 msgid "Recompute MAE/MFE"
 msgstr "MAE/MFEを再計算"
 
@@ -4617,7 +4641,7 @@ msgstr "再生成"
 msgid "Regular hours"
 msgstr "通常取引時間"
 
-#: src/app/(tabs)/(trades)/[id].tsx:383
+#: src/app/(tabs)/(trades)/[id].tsx:205
 msgid "Remaining"
 msgstr "残数量"
 
@@ -4649,7 +4673,7 @@ msgstr "リマインダーを利用できません"
 #: src/app/(tabs)/(settings)/prop-settings.tsx:122
 #: src/app/(tabs)/(settings)/risk-rules.tsx:75
 #: src/app/(tabs)/(settings)/risk-rules.tsx:86
-#: src/app/(tabs)/(trades)/[id].tsx:166
+#: src/app/(tabs)/(trades)/[id].tsx:445
 #: src/app/cash-form.tsx:144
 #: src/components/attachments-card.tsx:156
 #: src/components/note-images.tsx:147
@@ -4731,11 +4755,11 @@ msgstr "銘柄を削除"
 msgid "Remove tier"
 msgstr "ティアを削除"
 
-#: src/app/(tabs)/(trades)/[id].tsx:250
+#: src/app/(tabs)/(trades)/[id].tsx:520
 msgid "Remove trade"
 msgstr "トレードを削除"
 
-#: src/app/(tabs)/(trades)/[id].tsx:162
+#: src/app/(tabs)/(trades)/[id].tsx:441
 msgid "Remove trade?"
 msgstr "トレードを削除しますか？"
 
@@ -4786,7 +4810,7 @@ msgstr "リプレイの操作"
 msgid "Replay this trade"
 msgstr "このトレードを再生"
 
-#: src/app/(tabs)/(trades)/[id].tsx:230
+#: src/app/(tabs)/(trades)/[id].tsx:500
 msgid "Replay trade"
 msgstr "トレードをリプレイ"
 
@@ -4829,6 +4853,11 @@ msgstr "結果"
 msgid "Results"
 msgstr "検索結果"
 
+#: src/app/(tabs)/(trades)/[id].tsx:289
+#: src/app/(tabs)/(trades)/[id].tsx:391
+msgid "Retrying…"
+msgstr "再試行中…"
+
 #: src/app/(tabs)/(settings)/account-form.tsx:352
 msgid "Return"
 msgstr "リターン"
@@ -4842,7 +4871,7 @@ msgstr "リベンジトレード ×{0}"
 msgid "Revenge trading"
 msgstr "リベンジトレード"
 
-#: src/app/(tabs)/(trades)/[id].tsx:394
+#: src/app/(tabs)/(trades)/[id].tsx:602
 #: src/app/quick-journal.tsx:71
 #: src/components/trade-form.tsx:523
 msgid "Review"
@@ -4856,7 +4885,7 @@ msgstr "確認して保存"
 msgid "Review import"
 msgstr "読み込み内容の確認"
 
-#: src/app/(tabs)/(trades)/[id].tsx:429
+#: src/app/(tabs)/(trades)/[id].tsx:637
 #: src/app/quick-journal.tsx:81
 #: src/components/trade-form.tsx:553
 msgid "Review notes"
@@ -5001,7 +5030,7 @@ msgstr "土"
 #: src/app/(tabs)/(settings)/risk-rules.tsx:53
 #: src/app/(tabs)/(settings)/trading-journal.tsx:57
 #: src/app/(tabs)/(settings)/trading-journal.tsx:81
-#: src/components/form-sheet.tsx:157
+#: src/components/form-sheet.tsx:161
 msgid "Save"
 msgstr "保存"
 
@@ -5047,8 +5076,9 @@ msgstr "保存しました"
 #: src/app/(tabs)/(settings)/flex-sync.tsx:145
 #: src/app/(tabs)/(settings)/trading-journal.tsx:124
 #: src/app/trade-preview.tsx:207
-#: src/components/form-sheet.tsx:150
-#: src/components/form-sheet.tsx:157
+#: src/components/form-sheet.tsx:154
+#: src/components/form-sheet.tsx:161
+#: src/components/form-sheet.tsx:213
 msgid "Saving…"
 msgstr "保存中…"
 
@@ -5164,7 +5194,7 @@ msgstr "セルフホスト型 — トレードデータはあなたのサーバ�
 msgid "Sell"
 msgstr "売り"
 
-#: src/app/(tabs)/(trades)/[id].tsx:489
+#: src/app/(tabs)/(trades)/[id].tsx:697
 msgid "SELL"
 msgstr "売"
 
@@ -5181,7 +5211,7 @@ msgstr "サーバー"
 msgid "Server URL"
 msgstr "サーバーURL"
 
-#: src/app/(tabs)/(trades)/[id].tsx:408
+#: src/app/(tabs)/(trades)/[id].tsx:616
 #: src/components/trade-form.tsx:474
 msgid "Session"
 msgstr "セッション"
@@ -5235,7 +5265,7 @@ msgstr "現在のパスワードなしで {0} の新しいパスワードを設�
 msgid "Settings"
 msgstr "設定"
 
-#: src/app/(tabs)/(trades)/[id].tsx:400
+#: src/app/(tabs)/(trades)/[id].tsx:608
 #: src/components/breakdown-card.tsx:25
 #: src/components/reports/overview-section.tsx:317
 msgid "Setup"
@@ -5245,7 +5275,7 @@ msgstr "セットアップ"
 msgid "Setup {grade}"
 msgstr "セットアップ {grade}"
 
-#: src/app/(tabs)/(trades)/[id].tsx:423
+#: src/app/(tabs)/(trades)/[id].tsx:631
 #: src/app/manage-tags.tsx:114
 #: src/components/trade-form.tsx:494
 #: src/components/trade-form.tsx:496
@@ -5265,7 +5295,7 @@ msgstr "復元されたセットアップ"
 msgid "Share"
 msgstr "共有"
 
-#: src/app/(tabs)/(trades)/[id].tsx:235
+#: src/app/(tabs)/(trades)/[id].tsx:505
 #: src/app/share-trade.tsx:49
 msgid "Share card"
 msgstr "カードを共有"
@@ -5302,7 +5332,7 @@ msgstr "株数"
 msgid "Short"
 msgstr "ショート"
 
-#: src/app/(tabs)/(trades)/[id].tsx:273
+#: src/app/(tabs)/(trades)/[id].tsx:127
 #: src/app/quick-journal.tsx:140
 #: src/app/replay.tsx:422
 #: src/components/share-card.tsx:54
@@ -5428,7 +5458,7 @@ msgstr "株式 / オプション"
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:317
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:633
-#: src/app/(tabs)/(trades)/[id].tsx:323
+#: src/app/(tabs)/(trades)/[id].tsx:553
 #: src/app/new-setup.tsx:214
 #: src/app/tool-position-size.tsx:87
 #: src/components/trade-form.tsx:449
@@ -5607,7 +5637,7 @@ msgstr "システム"
 #: src/app/(tabs)/(settings)/_layout.tsx:30
 #: src/app/(tabs)/(settings)/index.tsx:159
 #: src/app/(tabs)/(settings)/trading-journal.tsx:137
-#: src/app/(tabs)/(trades)/[id].tsx:453
+#: src/app/(tabs)/(trades)/[id].tsx:661
 #: src/app/manage-tags.tsx:67
 #: src/components/reports/detailed-section.tsx:241
 #: src/components/trade-form.tsx:503
@@ -5659,7 +5689,7 @@ msgstr "ファイルをタップすると別のファイルに差し替えられ
 #~ msgstr ""
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:635
-#: src/app/(tabs)/(trades)/[id].tsx:320
+#: src/app/(tabs)/(trades)/[id].tsx:550
 #: src/app/new-setup.tsx:208
 #: src/components/trade-form.tsx:442
 msgid "Target"
@@ -5892,7 +5922,7 @@ msgstr "時刻表示形式"
 msgid "Time in the market"
 msgstr "市場滞在時間"
 
-#: src/app/(tabs)/(trades)/[id].tsx:377
+#: src/app/(tabs)/(trades)/[id].tsx:194
 msgid "Time in trade"
 msgstr "保有時間"
 
@@ -5900,7 +5930,8 @@ msgstr "保有時間"
 msgid "Timestamp"
 msgstr "日時"
 
-#: src/app/(tabs)/(trades)/[id].tsx:364
+#: src/app/(tabs)/(trades)/[id].tsx:181
+#: src/app/(tabs)/(trades)/[id].tsx:299
 msgid "Timing"
 msgstr "タイミング"
 
@@ -5985,11 +6016,16 @@ msgstr "最多銘柄"
 msgid "Total"
 msgstr "合計"
 
-#: src/app/(tabs)/(trades)/[id].tsx:310
+#: src/app/(tabs)/(trades)/[id].tsx:170
 msgid "Total P&L"
 msgstr "合計損益"
 
-#: src/app/(tabs)/(trades)/[id].tsx:219
+#: src/app/(tabs)/(trades)/[id].tsx:270
+#: src/app/(tabs)/(trades)/[id].tsx:363
+msgid "Trade"
+msgstr "トレード"
+
+#: src/app/(tabs)/(trades)/[id].tsx:489
 msgid "Trade actions"
 msgstr "トレード操作"
 
@@ -6005,7 +6041,7 @@ msgstr "トレード履歴を消去しました"
 msgid "Trade lands on"
 msgstr "トレードの計上日"
 
-#: src/app/(tabs)/(trades)/[id].tsx:117
+#: src/app/(tabs)/(trades)/[id].tsx:377
 #: src/app/edit-trade.tsx:102
 #: src/app/quick-journal.tsx:159
 #: src/app/replay.tsx:116
@@ -6094,6 +6130,11 @@ msgstr "別のフィルタを試してください。"
 #: src/app/(tabs)/(dashboard)/notes.tsx:279
 msgid "Try a different search."
 msgstr "別のキーワードで検索してください。"
+
+#: src/app/(tabs)/(trades)/[id].tsx:289
+#: src/app/(tabs)/(trades)/[id].tsx:391
+msgid "Try again"
+msgstr "再試行"
 
 #: src/components/reports/pnl-heatmap-card.tsx:23
 msgid "Tue"
@@ -6332,7 +6373,7 @@ msgstr "なぜエントリーしましたか？"
 msgid "Why did you exit?"
 msgstr "なぜ決済しましたか？"
 
-#: src/app/(tabs)/(trades)/[id].tsx:86
+#: src/app/(tabs)/(trades)/[id].tsx:88
 #: src/components/share-card.tsx:18
 msgid "WIN"
 msgstr "勝ち"
@@ -6395,7 +6436,7 @@ msgstr "最長連敗"
 msgid "Worst trade"
 msgstr "最悪のトレード"
 
-#: src/app/(tabs)/(trades)/[id].tsx:442
+#: src/app/(tabs)/(trades)/[id].tsx:650
 msgid "Write review"
 msgstr "振り返りを書く"
 
