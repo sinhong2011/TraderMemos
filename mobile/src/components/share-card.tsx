@@ -5,7 +5,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import type { TradeDetail } from '@/api/types';
 import { Pill } from '@/components/pill';
 import { t } from '@lingui/core/macro';
-import { formatDate, formatPercentPoints, formatPnl } from '@/lib/format';
+import { formatPercentPoints, useFormatters } from '@/lib/format';
 import { tradeRMultiple, tradeStatus } from '@/lib/trades';
 import { pnlColor, PnlFill } from '@/styles/unistyles';
 
@@ -33,6 +33,8 @@ function statusLabel(label: ReturnType<typeof tradeStatus>['label']): string {
 export const ShareCardView = forwardRef<View, { trade: TradeDetail; showAmounts: boolean }>(
   function ShareCardView({ trade, showAmounts }, ref) {
     const { theme } = useUnistyles();
+    // Formatters bound to the display prefs (see lib/format.ts).
+    const { formatDate, formatPnl } = useFormatters();
     const r = trade.r_multiple ?? tradeRMultiple(trade);
     const status = tradeStatus(trade);
     const isLong = trade.direction === 'long';

@@ -17,7 +17,7 @@ import type { FlexSyncPut, FlexSyncResult } from '@/api/types';
 import { CenteredButton } from '@/components/centered-button';
 import { SettingsForm } from '@/components/settings-form';
 import { t } from '@lingui/core/macro';
-import { formatDate, formatTime } from '@/lib/format';
+import { useFormatters } from '@/lib/format';
 import { AppHost } from '@/components/app-host';
 
 /**
@@ -26,6 +26,7 @@ import { AppHost } from '@/components/app-host';
  * seconds — the button shows a spinner, the result lands in an alert).
  */
 export default function FlexSyncScreen() {
+  const { formatDate, formatTime } = useFormatters();
   const { accountId } = useLocalSearchParams<{ accountId: string }>();
   const queryClient = useQueryClient();
   const api = useApiRequest();

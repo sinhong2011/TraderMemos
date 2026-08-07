@@ -8,7 +8,7 @@ import { useSession } from '@/api/session';
 import { AppHost } from '@/components/app-host';
 import { NavRow } from '@/components/nav-row';
 import { SettingsForm } from '@/components/settings-form';
-import { formatDate } from '@/lib/format';
+import { useFormatters } from '@/lib/format';
 import { t } from '@lingui/core/macro';
 
 /** `https://host:port/path` → `host` — the part that identifies the server. */
@@ -29,6 +29,7 @@ function serverHost(url: string): string {
  */
 export default function ProfileScreen() {
   const { theme } = useUnistyles();
+  const { formatDate } = useFormatters();
   const router = useRouter();
   const { session } = useSession();
   const me = useMe();

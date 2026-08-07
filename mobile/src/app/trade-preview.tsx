@@ -9,8 +9,7 @@ import { useAccounts, useCash, useSummary } from '@/api/hooks';
 import { GlassButton, GlassIconButton } from '@/components/glass-button';
 import { BlockSummary } from '@/components/trade-summary';
 import { t } from '@lingui/core/macro';
-import { formatCurrency, formatPercentPoints, formatPnl } from '@/lib/format';
-import { useDisplayPrefs } from '@/lib/prefs';
+import { formatPercentPoints, useFormatters } from '@/lib/format';
 import { useSaveTradeBlocks } from '@/lib/save-trades';
 import { clearTradeDraft, peekTradeDraft } from '@/lib/trade-draft';
 import {
@@ -56,8 +55,8 @@ export default function TradePreviewScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { theme } = useUnistyles();
-  // Money formatters read privacy mode at call time (see lib/format.ts).
-  useDisplayPrefs();
+  // Formatters bound to the display prefs (see lib/format.ts).
+  const { formatCurrency, formatPnl } = useFormatters();
 
   const draft = peekTradeDraft();
   const { data: accounts } = useAccounts();

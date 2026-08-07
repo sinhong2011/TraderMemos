@@ -8,8 +8,8 @@ import { NumericField } from '@/components/numeric-field';
 import { Segmented } from '@/components/segmented';
 import { ToolSheet } from '@/components/tool-sheet';
 import { t } from '@lingui/core/macro';
-import { formatDate } from '@/lib/format';
-import { DISPLAY_CURRENCIES, useDisplayPrefs } from '@/lib/prefs';
+import { useFormatters } from '@/lib/format';
+import { DISPLAY_CURRENCIES } from '@/lib/prefs';
 
 /**
  * Currency converter over the server's latest FX rate (GET /market/fx),
@@ -20,7 +20,8 @@ import { DISPLAY_CURRENCIES, useDisplayPrefs } from '@/lib/prefs';
  */
 export default function FxToolScreen() {
   const { theme } = useUnistyles();
-  useDisplayPrefs();
+  // Bound to the display timezone (see lib/format.ts).
+  const { formatDate } = useFormatters();
 
   const [amount, setAmount] = useState('100');
   const [from, setFrom] = useState<string>('USD');

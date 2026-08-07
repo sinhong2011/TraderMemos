@@ -15,8 +15,7 @@ import {
   type ReportsMoneyContext,
 } from '@/components/reports/section-scaffold';
 import { t } from '@lingui/core/macro';
-import { formatPercent, formatRatio } from '@/lib/format';
-import { formatHourKeyLabel } from '@/lib/prefs';
+import { formatPercent, formatRatio, useFormatters } from '@/lib/format';
 import { pnlColor } from '@/styles/unistyles';
 import { AppHost } from '@/components/app-host';
 
@@ -143,6 +142,8 @@ function DayOfWeekCard({ ctx }: { ctx: ReportsMoneyContext }) {
 
 /** Hour buckets ranked by magnitude, labels honoring the 12/24-hour pref. */
 function HourOfDayCard({ ctx }: { ctx: ReportsMoneyContext }) {
+  // Bound to the clock pref, so switching 12/24-hour relabels the rows.
+  const { formatHourKeyLabel } = useFormatters();
   return (
     <RankedBreakdownCard
       title={t`Hour of day`}

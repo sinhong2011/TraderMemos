@@ -15,7 +15,7 @@ import { queryKeys, useAccessTokens, useApiRequest } from '@/api/hooks';
 import type { AccessToken } from '@/api/types';
 import { Skeleton } from '@/components/skeleton';
 import { t } from '@lingui/core/macro';
-import { formatDate } from '@/lib/format';
+import { useFormatters } from '@/lib/format';
 import { AppHost } from '@/components/app-host';
 
 /** One token, with a trailing swipe to revoke (the trades-list idiom). */
@@ -29,6 +29,8 @@ function TokenRow({
   onPress: () => void;
 }) {
   const { theme } = useUnistyles();
+  // Bound to the display timezone (see lib/format.ts).
+  const { formatDate } = useFormatters();
   const swipeable = useRef<SwipeableMethods>(null);
   const lastUsed = token.last_used_at ? formatDate(token.last_used_at) : t`never`;
   // A token past its expiry still lists, so the badge has to say so — "Expires

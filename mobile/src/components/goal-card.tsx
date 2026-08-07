@@ -3,8 +3,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { DashboardCard } from '@/components/dashboard-card';
 import { t } from '@lingui/core/macro';
-import { formatCurrency, formatPercent, formatPnl } from '@/lib/format';
-import { useDisplayPrefs } from '@/lib/prefs';
+import { formatPercent, useFormatters } from '@/lib/format';
 import { pnlColor } from '@/styles/unistyles';
 
 /**
@@ -26,8 +25,8 @@ export function GoalCard({
   fxRate?: number;
 }) {
   const { theme } = useUnistyles();
-  // Re-render when privacy mode flips — formatters read it at call time.
-  useDisplayPrefs();
+  // Formatters bound to the display prefs (see lib/format.ts).
+  const { formatCurrency, formatPnl } = useFormatters();
   const progress = goalAmount > 0 ? ytdNetPnl / goalAmount : 0;
   const clamped = Math.min(1, Math.max(0, progress));
 

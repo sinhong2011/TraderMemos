@@ -24,10 +24,10 @@ import { t } from '@lingui/core/macro';
 import { locale } from '@/i18n';
 import { useSelectedAccountId } from '@/lib/account-store';
 import { dayBounds, useGlobalFilters } from '@/lib/filters';
-import { formatPercent, formatPnl, formatTime } from '@/lib/format';
+import { formatPercent, useFormatters } from '@/lib/format';
 import { noteExcerpt } from '@/lib/markdown';
 import { useMoneyFx } from '@/lib/money';
-import { accountBaseCurrency, useDisplayPrefs } from '@/lib/prefs';
+import { accountBaseCurrency } from '@/lib/prefs';
 import { pnlColor } from '@/styles/unistyles';
 import { AppHost } from '@/components/app-host';
 
@@ -76,6 +76,7 @@ function IntradayCurve({
   fxRate: number;
 }) {
   const { theme } = useUnistyles();
+  const { formatPnl, formatTime } = useFormatters();
   const series = useMemo(() => cumulativePnl(trades, fxRate), [trades, fxRate]);
 
   if (series.length < 2) {
@@ -229,8 +230,8 @@ export default function CalendarDayScreen() {
   const fx = useMoneyFx(accountBaseCurrency(accounts.data, selectedAccountId));
   const currency = fx.currency;
   const fxRate = fx.rate ?? 1;
-  // Re-render when privacy mode flips — every card formats money.
-  useDisplayPrefs();
+  // Formatters bound to the display prefs (see lib/format.ts).
+  const { formatPnl } = useFormatters();
 
   const dayTrades = trades.data ?? [];
   const netPnl = (summary.data?.net_pnl ?? 0) * fxRate;

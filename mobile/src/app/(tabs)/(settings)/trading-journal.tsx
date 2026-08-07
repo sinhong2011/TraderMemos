@@ -10,7 +10,7 @@ import { AppHost } from '@/components/app-host';
 import { NavRow } from '@/components/nav-row';
 import { SettingsForm } from '@/components/settings-form';
 import { parseAmount } from '@/lib/amount';
-import { formatCurrency } from '@/lib/format';
+import { useFormatters } from '@/lib/format';
 import { setMaxScreenshotsPerTrade, useJournalPrefs } from '@/lib/journal-prefs';
 import { t } from '@lingui/core/macro';
 
@@ -24,6 +24,7 @@ import { t } from '@lingui/core/macro';
  * field; the row shows the current value.
  */
 export default function TradingJournalScreen() {
+  const { formatCurrency } = useFormatters();
   const router = useRouter();
   const queryClient = useQueryClient();
   const api = useApiRequest();

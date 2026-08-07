@@ -15,9 +15,8 @@ import { TradeFilterMenu } from '@/components/trade-filter-menu';
 import { t } from '@lingui/core/macro';
 import { setSelectedAccountId, useSelectedAccountId } from '@/lib/account-store';
 import { useGlobalFilters } from '@/lib/filters';
-import { formatPnl } from '@/lib/format';
+import { useFormatters } from '@/lib/format';
 import { parseEmotionalStates } from '@/lib/journal';
-import { useDisplayPrefs } from '@/lib/prefs';
 import { useTagBarState } from '@/lib/tag-bar';
 import { pnlColor } from '@/styles/unistyles';
 
@@ -205,7 +204,8 @@ export default function TradesScreen() {
     ...(from ? { from } : {}),
   });
   // Re-render when privacy mode flips — the net summary formats money.
-  useDisplayPrefs();
+  // Formatters bound to the display prefs (see lib/format.ts).
+  const { formatPnl } = useFormatters();
   const { data: tags } = useTags();
   const { data: accounts } = useAccounts();
   const selectedAccountId = useSelectedAccountId();

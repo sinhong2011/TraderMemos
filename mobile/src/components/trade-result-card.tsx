@@ -4,9 +4,8 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { SectionHeader } from '@/components/form-rows';
 import { t } from '@lingui/core/macro';
-import { formatCurrency, formatPnl, formatRatio } from '@/lib/format';
+import { formatRatio, useFormatters } from '@/lib/format';
 import { pnlColor } from '@/styles/unistyles';
-import { useDisplayPrefs } from '@/lib/prefs';
 import type { TradePnlPreview } from '@/lib/trade-pnl-preview';
 
 function Tile({ label, children }: { label: string; children: React.ReactNode }) {
@@ -32,9 +31,8 @@ export function TradeResultCard({
   currency: string;
 }) {
   const { theme } = useUnistyles();
-  // formatPnl/formatCurrency read privacy mode at call time — subscribe so a
-  // toggle re-renders this card (see lib/format.ts).
-  useDisplayPrefs();
+  // Formatters bound to the display prefs (see lib/format.ts).
+  const { formatCurrency, formatPnl } = useFormatters();
 
   if (preview.avgEntry == null && preview.avgExit == null) return null;
 

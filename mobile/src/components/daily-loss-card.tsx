@@ -4,8 +4,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { useRiskRules } from '@/api/hooks';
 import { DashboardCard } from '@/components/dashboard-card';
 import { t } from '@lingui/core/macro';
-import { formatCurrency, formatPnl } from '@/lib/format';
-import { useDisplayPrefs } from '@/lib/prefs';
+import { useFormatters } from '@/lib/format';
 import { pnlColor } from '@/styles/unistyles';
 
 /**
@@ -24,7 +23,8 @@ export function DailyLossCard({
   fxRate?: number;
 }) {
   const { theme } = useUnistyles();
-  useDisplayPrefs();
+  // Formatters bound to the display prefs (see lib/format.ts).
+  const { formatCurrency, formatPnl } = useFormatters();
   const riskRules = useRiskRules();
   const cap = riskRules.data?.max_daily_loss;
   if (cap == null || cap <= 0) return null;

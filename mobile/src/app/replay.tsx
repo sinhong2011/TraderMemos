@@ -30,10 +30,9 @@ import { Segmented } from '@/components/segmented';
 import { Skeleton } from '@/components/skeleton';
 import { t } from '@lingui/core/macro';
 import { locale } from '@/i18n';
-import { formatCurrency, formatPnl } from '@/lib/format';
+import { useFormatters } from '@/lib/format';
 import * as haptics from '@/lib/haptics';
 import { appendNoteImage } from '@/lib/note-media';
-import { useDisplayPrefs } from '@/lib/prefs';
 import { useReplayController, useReplayRun } from '@/lib/replay';
 import { BAR_INTERVALS, useTradeBars } from '@/lib/trade-bars';
 import { pnlColor } from '@/styles/unistyles';
@@ -190,8 +189,8 @@ function Stage({
   const { theme } = useUnistyles();
   const router = useRouter();
   const apiRaw = useApiRaw();
-  // Re-render when privacy mode flips — formatters read it at call time.
-  useDisplayPrefs();
+  // Formatters bound to the display prefs (see lib/format.ts).
+  const { formatCurrency, formatPnl } = useFormatters();
   const insets = useSafeAreaInsets();
   const frameRef = useRef<View>(null);
   const [busy, setBusy] = useState(false);

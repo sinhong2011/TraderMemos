@@ -6,8 +6,7 @@ import { DashboardCard } from '@/components/dashboard-card';
 import { t } from '@lingui/core/macro';
 import { locale } from '@/i18n';
 import { monthGrid } from '@/lib/calendar';
-import { formatPnlCompact } from '@/lib/format';
-import { useDisplayPrefs } from '@/lib/prefs';
+import { useFormatters } from '@/lib/format';
 import { pnlBgTint, pnlColor } from '@/styles/unistyles';
 
 /** Sun-first narrow weekday letters in the app locale (avoids S/T msgid collisions). */
@@ -36,8 +35,8 @@ export function MiniCalendarCard({
   onOpenCalendar?: () => void;
 }) {
   const { theme } = useUnistyles();
-  // Re-render when privacy mode flips — formatters read it at call time.
-  useDisplayPrefs();
+  // Formatters bound to the display prefs (see lib/format.ts).
+  const { formatPnlCompact } = useFormatters();
   const grid = monthGrid(year, month, dailyPnl);
   const now = new Date();
   const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;

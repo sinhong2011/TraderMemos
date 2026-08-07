@@ -11,7 +11,7 @@ import type { Tag, TradeDetail } from '@/api/types';
 import { ChipGroup } from '@/components/chips';
 import { FormField, FormInput, FormSheet } from '@/components/form-sheet';
 import { Pill } from '@/components/pill';
-import { formatDate, formatPnl } from '@/lib/format';
+import { useFormatters } from '@/lib/format';
 import { pnlColor } from '@/styles/unistyles';
 import { t } from '@lingui/core/macro';
 import {
@@ -119,6 +119,8 @@ function QuickJournalForm({ trade, mistakeTags }: { trade: TradeDetail; mistakeT
  */
 function TradeSummary({ trade }: { trade: TradeDetail }) {
   const { theme } = useUnistyles();
+  // Formatters bound to the display prefs (see lib/format.ts).
+  const { formatDate, formatPnl } = useFormatters();
   const isOpen = trade.status === 'open';
   const isLong = trade.direction === 'long';
   return (

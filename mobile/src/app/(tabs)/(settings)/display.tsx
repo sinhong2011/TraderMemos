@@ -13,7 +13,7 @@ import { useAccounts } from '@/api/hooks';
 import { CenteredButton } from '@/components/centered-button';
 import { SettingsForm } from '@/components/settings-form';
 import { t } from '@lingui/core/macro';
-import { formatDate, formatCurrency, formatTime } from '@/lib/format';
+import { useFormatters } from '@/lib/format';
 import {
   accountBaseCurrency,
   DISPLAY_CURRENCIES,
@@ -66,6 +66,9 @@ function sampleInstant(): string {
  */
 export default function DisplaySettingsScreen() {
   const prefs = useDisplayPrefs();
+  // The preview reformats on every pref below — including privacy mode, which
+  // only reaches it through these bound formatters (see lib/format.ts).
+  const { formatCurrency, formatDate, formatTime } = useFormatters();
   const { theme } = useUnistyles();
   const { data: accounts } = useAccounts();
 

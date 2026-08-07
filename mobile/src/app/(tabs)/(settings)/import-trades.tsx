@@ -23,7 +23,7 @@ import type { ImportPreview, ImportResult } from '@/api/types';
 import { CenteredButton } from '@/components/centered-button';
 import { SettingsForm } from '@/components/settings-form';
 import { shareFile } from '@/lib/file-transfer';
-import { formatPnl } from '@/lib/format';
+import { useFormatters } from '@/lib/format';
 import {
   SAMPLE_CSV,
   SAMPLE_CSV_NAME,
@@ -98,6 +98,7 @@ async function readJsonAccountName(file: PickedFile): Promise<string | null> {
  * POST /imports/commit re-uploads the file with the confirmed column mapping.
  */
 export default function ImportTradesScreen() {
+  const { formatPnl } = useFormatters();
   const router = useRouter();
   const queryClient = useQueryClient();
   const api = useApiRaw();
