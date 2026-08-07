@@ -126,6 +126,8 @@ export function FormSheet({
           <GlassIconButton
             systemImage={pushed ? 'chevron.backward' : 'xmark'}
             label={pushed ? t`Back` : t`Cancel`}
+            // Dismissing mid-save races the mutation's own router.back().
+            disabled={saving}
             onPress={() => router.back()}
           />
         )}
@@ -155,7 +157,8 @@ export function FormSheet({
           <GlassIconButton
             systemImage={saveIcon ?? 'checkmark'}
             label={saving ? (savingLabel ?? t`Saving…`) : (saveLabel ?? t`Save`)}
-            disabled={saving || saveDisabled}
+            disabled={saveDisabled}
+            loading={saving}
             onPress={onSave}
           />
         )}

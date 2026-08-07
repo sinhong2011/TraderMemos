@@ -7,7 +7,7 @@ import { accessibilityLabel, buttonStyle, tint as tintModifier } from '@expo/ui/
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Alert, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -95,7 +95,7 @@ function statusLabel(label: ReturnType<typeof tradeStatus>['label']): string {
 
 export default function TradeDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { data: trade, isLoading, error, refetch, isRefetching } = useTrade(id);
+  const { data: trade, isLoading, error, refetch } = useTrade(id);
 
   if (isLoading) {
     // Hero figure, chart, and stat-row shaped skeletons.
@@ -120,23 +120,25 @@ export default function TradeDetailScreen() {
     );
   }
 
-  return <TradeDetailBody trade={trade} refetch={refetch} isRefetching={isRefetching} />;
+  return <TradeDetailBody trade={trade} refetch={refetch} />;
 }
 
 /** Inner body — mutations and share plumbing need the loaded trade in scope. */
 function TradeDetailBody({
   trade,
   refetch,
-  isRefetching,
 }: {
   trade: TradeDetail;
   refetch: () => Promise<unknown>;
-  isRefetching: boolean;
 }) {
   const { theme } = useUnistyles();
   const router = useRouter();
   const queryClient = useQueryClient();
   const api = useApiRequest();
+  // Local pull state, not the query's isRefetching: any sibling observer
+  // mounting on this key (the edit sheet) starts a background refetch, and
+  // binding the spinner to it plays a pull the user never made.
+  const [pulled, setPulled] = useState(false);
 
   // MAE/MFE from market bars — the server persists the result into the journal.
   const excursion = useMutation({
@@ -261,7 +263,13 @@ function TradeDetailBody({
         contentInsetAdjustmentBehavior="automatic"
         contentContainerStyle={styles.content}
         refreshControl={
-          <RefreshControl refreshing={isRefetching} onRefresh={() => void refetch()} />
+          <RefreshControl
+            refreshing={pulled}
+            onRefresh={() => {
+              setPulled(true);
+              void refetch().finally(() => setPulled(false));
+            }}
+          />
         }
       >
         <View style={styles.hero}>
