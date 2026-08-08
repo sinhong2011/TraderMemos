@@ -10,6 +10,7 @@
  * the *display* timezone only formats clock times.
  */
 
+import { Appearance } from 'react-native';
 import { UnistylesRuntime, useUnistyles } from 'react-native-unistyles';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
@@ -202,9 +203,22 @@ export function subscribeDisplayPrefs(listener: () => void): () => void {
 }
 
 /**
- * Push the pref into Unistyles. `adaptiveThemes` is what makes the app follow
- * iOS, so a pinned scheme has to switch it off first — with it on, `setTheme`
- * is overridden the next time the system scheme is read.
+ * Push the pref into Unistyles *and* into UIKit. `adaptiveThemes` is what makes
+ * the app follow iOS, so a pinned scheme has to switch it off first — with it
+ * on, `setTheme` is overridden the next time the system scheme is read.
+ *
+ * Unistyles only repaints what React Native draws. Everything UIKit draws for
+ * itself reads the window's trait collection instead, and `app.json` pins that
+ * to `userInterfaceStyle: "automatic"` — the *device*. The `NativeTabs` tab bar
+ * is the visible casualty: pinned to Light on a phone in Dark Mode, the app
+ * painted light screens under a dark glass tab bar. (Stack headers escaped it
+ * because expo-router hands them the navigation theme's scheme explicitly.)
+ * `Appearance.setColorScheme` is the lever for that half — on iOS it sets
+ * `overrideUserInterfaceStyle` on every window, `'unspecified'` handing the app
+ * back to the device. It goes last in each branch: the override raises a trait change
+ * that Unistyles' adaptive listener acts on, so it must land with the adaptive
+ * flag already in its final state. Re-asserting the same style is a plain
+ * assignment, so it needs none of the guarding below.
  */
 function applyAppearanceToRuntime(pref: AppearancePref) {
   // Each call is guarded on the current runtime value. Re-asserting a setting
@@ -213,10 +227,12 @@ function applyAppearanceToRuntime(pref: AppearancePref) {
   // this runs at module scope, so that is every Fast Refresh.
   if (pref === 'system') {
     if (!UnistylesRuntime.hasAdaptiveThemes) UnistylesRuntime.setAdaptiveThemes(true);
+    Appearance.setColorScheme('unspecified');
     return;
   }
   if (UnistylesRuntime.hasAdaptiveThemes) UnistylesRuntime.setAdaptiveThemes(false);
   if (UnistylesRuntime.themeName !== pref) UnistylesRuntime.setTheme(pref);
+  Appearance.setColorScheme(pref);
 }
 
 // The stored pref only reaches Unistyles when something applies it, and the
