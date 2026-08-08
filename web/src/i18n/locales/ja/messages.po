@@ -6,59 +6,65 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: @lingui/cli\n"
 "Language: ja\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
 
 #: src/components/AppNav.tsx:33
-msgid "Calendar"
-msgstr "カレンダー"
+#~ msgid "Calendar"
+#~ msgstr "カレンダー"
 
 #: src/components/AppNav.tsx:31
-msgid "Dashboard"
-msgstr "ダッシュボード"
+#~ msgid "Dashboard"
+#~ msgstr "ダッシュボード"
 
 #: src/components/AppNav.tsx:39
-msgid "Import"
-msgstr "インポート"
+#~ msgid "Import"
+#~ msgstr "インポート"
 
 #: src/app/screens/settings/settings-sections.tsx:1170
-msgid "Interface language"
-msgstr "表示言語"
+#~ msgid "Interface language"
+#~ msgstr "表示言語"
 
 #: src/app/screens/settings/settings-sections.tsx:1167
-msgid "Interface language for TraderMemos."
-msgstr "TraderMemos の表示言語。"
+#~ msgid "Interface language for TraderMemos."
+#~ msgstr "TraderMemos の表示言語。"
 
 #: src/app/screens/settings/settings-sections.tsx:1166
-msgid "Language"
-msgstr "言語"
+#~ msgid "Language"
+#~ msgstr "言語"
 
 #: src/app/screens/settings/settings-sections.tsx:1174
-msgid "Language selector"
-msgstr "言語セレクター"
+#~ msgid "Language selector"
+#~ msgstr "言語セレクター"
 
 #: src/components/AppNav.tsx:257
-msgid "New Note"
-msgstr "新規メモ"
+#~ msgid "New Note"
+#~ msgstr "新規メモ"
 
 #: src/components/AppNav.tsx:251
-msgid "New Setup"
-msgstr "新規セットアップ"
+#~ msgid "New Setup"
+#~ msgstr "新規セットアップ"
 
 #: src/components/AppNav.tsx:245
-msgid "New Trade"
-msgstr "新規トレード"
+#~ msgid "New Trade"
+#~ msgstr "新規トレード"
 
 #: src/components/AppNav.tsx:38
-msgid "Playbook"
-msgstr "プレイブック"
+#~ msgid "Playbook"
+#~ msgstr "プレイブック"
 
 #: src/components/AppNav.tsx:276
-msgid "Settings"
-msgstr "設定"
+#~ msgid "Settings"
+#~ msgstr "設定"
 
 #: src/components/AppNav.tsx:34
-msgid "Stats"
-msgstr "統計"
+#~ msgid "Stats"
+#~ msgstr "統計"
 
 #: src/components/AppNav.tsx:32
-msgid "Trades"
-msgstr "トレード"
+#~ msgid "Trades"
+#~ msgstr "トレード"

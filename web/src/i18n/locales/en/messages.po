@@ -13,57 +13,57 @@ msgstr ""
 "Plural-Forms: \n"
 
 #: src/components/AppNav.tsx:33
-msgid "Calendar"
-msgstr "Calendar"
+#~ msgid "Calendar"
+#~ msgstr "Calendar"
 
 #: src/components/AppNav.tsx:31
-msgid "Dashboard"
-msgstr "Dashboard"
+#~ msgid "Dashboard"
+#~ msgstr "Dashboard"
 
 #: src/components/AppNav.tsx:39
-msgid "Import"
-msgstr "Import"
+#~ msgid "Import"
+#~ msgstr "Import"
 
 #: src/app/screens/settings/settings-sections.tsx:1170
-msgid "Interface language"
-msgstr "Interface language"
+#~ msgid "Interface language"
+#~ msgstr "Interface language"
 
 #: src/app/screens/settings/settings-sections.tsx:1167
-msgid "Interface language for TraderMemos."
-msgstr "Interface language for TraderMemos."
+#~ msgid "Interface language for TraderMemos."
+#~ msgstr "Interface language for TraderMemos."
 
 #: src/app/screens/settings/settings-sections.tsx:1166
-msgid "Language"
-msgstr "Language"
+#~ msgid "Language"
+#~ msgstr "Language"
 
 #: src/app/screens/settings/settings-sections.tsx:1174
-msgid "Language selector"
-msgstr "Language selector"
+#~ msgid "Language selector"
+#~ msgstr "Language selector"
 
 #: src/components/AppNav.tsx:257
-msgid "New Note"
-msgstr "New Note"
+#~ msgid "New Note"
+#~ msgstr "New Note"
 
 #: src/components/AppNav.tsx:251
-msgid "New Setup"
-msgstr "New Setup"
+#~ msgid "New Setup"
+#~ msgstr "New Setup"
 
 #: src/components/AppNav.tsx:245
-msgid "New Trade"
-msgstr "New Trade"
+#~ msgid "New Trade"
+#~ msgstr "New Trade"
 
 #: src/components/AppNav.tsx:38
-msgid "Playbook"
-msgstr "Playbook"
+#~ msgid "Playbook"
+#~ msgstr "Playbook"
 
 #: src/components/AppNav.tsx:276
-msgid "Settings"
-msgstr "Settings"
+#~ msgid "Settings"
+#~ msgstr "Settings"
 
 #: src/components/AppNav.tsx:34
-msgid "Stats"
-msgstr "Stats"
+#~ msgid "Stats"
+#~ msgstr "Stats"
 
 #: src/components/AppNav.tsx:32
-msgid "Trades"
-msgstr "Trades"
+#~ msgid "Trades"
+#~ msgstr "Trades"

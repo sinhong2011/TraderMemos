@@ -126,8 +126,9 @@ Expo Go" until Expo ships a client with worklets 0.10.1.
 - **Keep `@lingui/babel-plugin-lingui-macro` on the 5.x line** while `@lingui/cli` is 5.x.
   The 6.x plugin sanitizes generated message ids (`2d/OiW` → `2d_OiW`) while the 5.x CLI
   compiles catalogs under the raw hash — every message whose hash contains `/` or `+`
-  silently falls back to English. (web pins plugin 6.5 with cli 5.2 — likely has the same
-  latent bug.)
+  silently falls back to English. (web had this exact bug — two ja/ko/zh-HK strings with
+  `/` in their hash fell back to English — until it aligned everything on 6.x; mobile
+  stays all-5.x until it migrates the same way, all packages together.)
 - Changing babel config requires restarting Metro with `--clear`.
 
 ### API layer

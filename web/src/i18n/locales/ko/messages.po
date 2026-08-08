@@ -6,59 +6,65 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: @lingui/cli\n"
 "Language: ko\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
 
 #: src/components/AppNav.tsx:33
-msgid "Calendar"
-msgstr "캘린더"
+#~ msgid "Calendar"
+#~ msgstr "캘린더"
 
 #: src/components/AppNav.tsx:31
-msgid "Dashboard"
-msgstr "대시보드"
+#~ msgid "Dashboard"
+#~ msgstr "대시보드"
 
 #: src/components/AppNav.tsx:39
-msgid "Import"
-msgstr "가져오기"
+#~ msgid "Import"
+#~ msgstr "가져오기"
 
 #: src/app/screens/settings/settings-sections.tsx:1170
-msgid "Interface language"
-msgstr "인터페이스 언어"
+#~ msgid "Interface language"
+#~ msgstr "인터페이스 언어"
 
 #: src/app/screens/settings/settings-sections.tsx:1167
-msgid "Interface language for TraderMemos."
-msgstr "TraderMemos 인터페이스 언어입니다."
+#~ msgid "Interface language for TraderMemos."
+#~ msgstr "TraderMemos 인터페이스 언어입니다."
 
 #: src/app/screens/settings/settings-sections.tsx:1166
-msgid "Language"
-msgstr "언어"
+#~ msgid "Language"
+#~ msgstr "언어"
 
 #: src/app/screens/settings/settings-sections.tsx:1174
-msgid "Language selector"
-msgstr "언어 선택"
+#~ msgid "Language selector"
+#~ msgstr "언어 선택"
 
 #: src/components/AppNav.tsx:257
-msgid "New Note"
-msgstr "새 메모"
+#~ msgid "New Note"
+#~ msgstr "새 메모"
 
 #: src/components/AppNav.tsx:251
-msgid "New Setup"
-msgstr "새 셋업"
+#~ msgid "New Setup"
+#~ msgstr "새 셋업"
 
 #: src/components/AppNav.tsx:245
-msgid "New Trade"
-msgstr "새 거래"
+#~ msgid "New Trade"
+#~ msgstr "새 거래"
 
 #: src/components/AppNav.tsx:38
-msgid "Playbook"
-msgstr "플레이북"
+#~ msgid "Playbook"
+#~ msgstr "플레이북"
 
 #: src/components/AppNav.tsx:276
-msgid "Settings"
-msgstr "설정"
+#~ msgid "Settings"
+#~ msgstr "설정"
 
 #: src/components/AppNav.tsx:34
-msgid "Stats"
-msgstr "통계"
+#~ msgid "Stats"
+#~ msgstr "통계"
 
 #: src/components/AppNav.tsx:32
-msgid "Trades"
-msgstr "거래"
+#~ msgid "Trades"
+#~ msgstr "거래"
