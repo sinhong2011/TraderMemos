@@ -5,6 +5,23 @@ All notable changes to TraderMemos are documented in this file.
 Release versioning is managed by [release-please](https://github.com/googleapis/release-please).
 See [docs/release.md](docs/release.md) for the release workflow.
 
+## [0.6.0](https://github.com/sinhong2011/TraderMemos/compare/v0.5.0...v0.6.0) (2026-08-08)
+
+
+### Features
+
+* **mobile:** human, actionable UI for an unreachable server ([#124](https://github.com/sinhong2011/TraderMemos/issues/124)) ([8acbe1e](https://github.com/sinhong2011/TraderMemos/commit/8acbe1e2f3ae165e78616a8826ae4645374e7b69))
+
+
+### Bug Fixes
+
+* **api:** make import commit atomic, disconnect-proof, and debuggable ([#117](https://github.com/sinhong2011/TraderMemos/issues/117)) ([4f46409](https://github.com/sinhong2011/TraderMemos/commit/4f46409488fcbb63096c7fa7a45994999fd7e1a3))
+* **mobile:** center the fill timestamp and give Review & save a real action button ([#125](https://github.com/sinhong2011/TraderMemos/issues/125)) ([202ef93](https://github.com/sinhong2011/TraderMemos/commit/202ef93863190349d26eeebe6cc885f0094913bb))
+* **mobile:** CenteredButton fill-form action + per-fill P&L on review cards ([#122](https://github.com/sinhong2011/TraderMemos/issues/122)) ([c0f2338](https://github.com/sinhong2011/TraderMemos/commit/c0f23385b796bd42eb21faefb241101b7bbcc3dc))
+* **mobile:** edit-trade save spinner + phantom pull-to-refresh on trade details ([#120](https://github.com/sinhong2011/TraderMemos/issues/120)) ([f4c479e](https://github.com/sinhong2011/TraderMemos/commit/f4c479e70173efd7120d012aba1caf661020f727))
+* **mobile:** paint the trade details screen from the list cache while it loads ([#121](https://github.com/sinhong2011/TraderMemos/issues/121)) ([d3501c4](https://github.com/sinhong2011/TraderMemos/commit/d3501c4721f6b2819fa659a82b9ce33502b85199))
+* **mobile:** privacy mode never masks amounts already on screen ([#123](https://github.com/sinhong2011/TraderMemos/issues/123)) ([13b292b](https://github.com/sinhong2011/TraderMemos/commit/13b292b14606a4822fcf9507fb36f0d56b483ae9))
+
 ## [0.5.0](https://github.com/sinhong2011/TraderMemos/compare/v0.4.2...v0.5.0) (2026-08-06)
 
 
