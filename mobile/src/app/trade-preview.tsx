@@ -6,7 +6,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { useAccounts, useCash, useSummary } from '@/api/hooks';
-import { GlassButton, GlassIconButton } from '@/components/glass-button';
+import { AppHost } from '@/components/app-host';
+import { CenteredButton } from '@/components/centered-button';
+import { GlassIconButton } from '@/components/glass-button';
 import { BlockSummary } from '@/components/trade-summary';
 import { t } from '@lingui/core/macro';
 import { formatPercentPoints, useFormatters } from '@/lib/format';
@@ -202,14 +204,15 @@ export default function TradePreviewScreen() {
       </ScrollView>
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + 12 }]}>
-        <GlassButton
-          label={save.isPending ? t`Saving…` : t`Save trade`}
-          systemImage="checkmark"
-          prominent
-          fill
-          disabled={save.isPending}
-          onPress={() => save.mutate(blocks)}
-        />
+        {/* The settings-form action idiom; hosted here since the footer is an
+            RN view, not a Form (width from the stretched host). */}
+        <AppHost matchContents={{ vertical: true }} style={styles.actionHost}>
+          <CenteredButton
+            label={save.isPending ? t`Saving…` : t`Save trade`}
+            loading={save.isPending}
+            onPress={() => save.mutate(blocks)}
+          />
+        </AppHost>
       </View>
     </View>
   );
@@ -304,4 +307,5 @@ const styles = StyleSheet.create((theme) => ({
     paddingHorizontal: theme.spacing.lg,
     paddingTop: theme.spacing.sm,
   },
+  actionHost: { alignSelf: 'stretch' },
 }));
