@@ -56,7 +56,23 @@ const CANONICAL_FIELDS = [
   "option_right",
   "fees",
   "commission",
+  "open_time",
+  "open_price",
+  "close_time",
+  "close_price",
+  "swap",
 ] as const;
+
+// Position-level exports (cTrader, Match-Trader) map an open/close pair per
+// row instead of a single fill. Only shown when the file suggests them, so
+// ordinary fill CSVs keep the short mapping grid.
+const ROUND_TRIP_FIELDS = new Set<string>([
+  "open_time",
+  "open_price",
+  "close_time",
+  "close_price",
+  "swap",
+]);
 
 function resolveImportAccountId(accounts: Account[], preferredAccountId?: string): string {
   if (preferredAccountId && accounts.some((account) => account.id === preferredAccountId)) {
@@ -579,7 +595,12 @@ function Step2Map({ preview, currency, accountId, onCommit, onBack, error, loadi
 
           {!skipMapping && (
             <div className="grid gap-x-4 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
-              {CANONICAL_FIELDS.map((field) => (
+              {CANONICAL_FIELDS.filter(
+                (field) =>
+                  !ROUND_TRIP_FIELDS.has(field) ||
+                  preview.suggested_mapping[field] ||
+                  mapping[field],
+              ).map((field) => (
                 <Field
                   key={field}
                   label={field.replace(/_/g, " ")}

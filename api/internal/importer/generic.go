@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type Generic struct {
@@ -16,6 +18,9 @@ type Generic struct {
 	// time, and reading it as UTC shifts every fill by 4-5h (late-Friday fills
 	// even onto Saturday). Timestamps with their own offset are unaffected.
 	loc *time.Location
+	// Quantities are lots (FX/CFD platforms), not units/shares — resolve the
+	// contract size per symbol instead of the conventional multiplier.
+	lotSized bool
 }
 
 func NewGeneric(mapping map[string]string) *Generic {
@@ -34,6 +39,14 @@ func (g *Generic) WithSourceTZ(tz string) *Generic {
 	return g
 }
 
+// WithLotSizedQuantity marks quantities as lot-denominated (cTrader, DXtrade,
+// Match-Trader), so fills without an explicit multiplier column resolve their
+// contract size from the symbol (EURUSD → 100k) instead of defaulting to 1.
+func (g *Generic) WithLotSizedQuantity(lots bool) *Generic {
+	g.lotSized = lots
+	return g
+}
+
 func (g *Generic) Name() string           { return "generic" }
 func (g *Generic) Detect(_ []string) bool { return true } // fallback importer
 
@@ -46,8 +59,24 @@ var skipStatuses = map[string]bool{
 
 func (g *Generic) ParseRows(rows []map[string]string) ParseResult {
 	var res ParseResult
+	roundTrip := g.roundTrip()
 	for i, row := range rows {
 		if rowHasSkipStatus(row) {
+			continue
+		}
+		if roundTrip {
+			exs, err := g.parseRoundTripRow(row)
+			if err != nil {
+				res.Errors = append(res.Errors, RowError{Row: i + 1, Message: err.Error()})
+				continue
+			}
+			// One lot per row: overlapping same-symbol positions (FX hedging)
+			// stay separate trades through Regroup, like journal imports.
+			lot := uuid.NewString()
+			for j := range exs {
+				exs[j].LotKey = lot
+			}
+			res.Executions = append(res.Executions, exs...)
 			continue
 		}
 		ex, err := g.parseRow(row)
@@ -58,6 +87,104 @@ func (g *Generic) ParseRows(rows []map[string]string) ParseResult {
 		res.Executions = append(res.Executions, ex)
 	}
 	return res
+}
+
+// roundTrip reports whether the mapping describes position-level rows —
+// open/close pairs (cTrader, Match-Trader) — rather than one fill per row.
+// Such rows synthesize an opening and a closing fill; the single-fill
+// price/executed_at mappings are ignored.
+func (g *Generic) roundTrip() bool {
+	return g.mapping["open_time"] != "" && g.mapping["open_price"] != "" &&
+		g.mapping["close_time"] != ""
+}
+
+// parseRoundTripRow synthesizes fills from a position-level row: an opening
+// fill always, plus a closing fill with the side flipped when the row carries
+// a close time and price (Match-Trader exports still-open positions without
+// them). Commission and swap land on the last fill so the pair is costed once.
+func (g *Generic) parseRoundTripRow(row map[string]string) ([]ParsedExecution, error) {
+	var open ParsedExecution
+	open.Symbol = g.col(row, "symbol")
+	if open.Symbol == "" {
+		return nil, fmt.Errorf("missing symbol")
+	}
+	open.Side = ParseSideToken(g.col(row, "side"))
+	if open.Side == "" {
+		return nil, fmt.Errorf("invalid side %q", g.col(row, "side"))
+	}
+	qty, err := strconv.ParseFloat(strings.ReplaceAll(g.col(row, "quantity"), ",", ""), 64)
+	if err != nil || qty == 0 {
+		return nil, fmt.Errorf("invalid quantity")
+	}
+	open.Quantity = math.Abs(qty)
+	price, err := strconv.ParseFloat(g.col(row, "open_price"), 64)
+	if err != nil {
+		return nil, fmt.Errorf("invalid open price")
+	}
+	open.Price = price
+	ts, err := parseTimeIn(g.col(row, "open_time"), g.loc)
+	if err != nil {
+		return nil, fmt.Errorf("invalid open time %q", g.col(row, "open_time"))
+	}
+	open.ExecutedAt = ts
+	open.InstrumentType = ParseInstrumentType(g.col(row, "instrument_type"), open.Symbol)
+	g.applyMultiplier(&open, row)
+
+	commission := absFloat(g.col(row, "commission"))
+	swap := absFloat(g.col(row, "swap")) + absFloat(g.col(row, "fees"))
+
+	closePrice := g.col(row, "close_price")
+	closeTime := g.col(row, "close_time")
+	if closePrice == "" || closeTime == "" {
+		open.Commission = commission
+		open.Fees = swap
+		return []ParsedExecution{open}, nil
+	}
+	cls := open
+	cls.Side = flipSide(open.Side)
+	if cls.Price, err = strconv.ParseFloat(closePrice, 64); err != nil {
+		return nil, fmt.Errorf("invalid close price")
+	}
+	if cls.ExecutedAt, err = parseTimeIn(closeTime, g.loc); err != nil {
+		return nil, fmt.Errorf("invalid close time %q", closeTime)
+	}
+	cls.Commission = commission
+	cls.Fees = swap
+	return []ParsedExecution{open, cls}, nil
+}
+
+func flipSide(side string) string {
+	if side == "buy" {
+		return "sell"
+	}
+	return "buy"
+}
+
+// absFloat parses a cost/size cell to a positive magnitude; empty or
+// unparseable cells are 0.
+func absFloat(s string) float64 {
+	v, _ := strconv.ParseFloat(strings.ReplaceAll(strings.TrimSpace(s), ",", ""), 64)
+	return math.Abs(v)
+}
+
+// applyMultiplier resolves the contract multiplier: an explicit column wins;
+// lot-denominated presets resolve the contract size from the symbol; futures
+// stay 0 so Commit can consult instrument_specs; everything else takes the
+// conventional default.
+func (g *Generic) applyMultiplier(p *ParsedExecution, row map[string]string) {
+	if m := g.col(row, "multiplier"); m != "" {
+		if v, err := strconv.ParseFloat(m, 64); err == nil && v > 0 {
+			p.Multiplier = v
+		}
+	}
+	// Quantities ≥1000 on a lot-sized platform are already units — some
+	// DXtrade deployments export unit volume (10000), not lots (0.1).
+	if p.Multiplier == 0 && g.lotSized && p.Quantity < 1000 {
+		p.Multiplier = LotContractSize(p.Symbol)
+	}
+	if p.Multiplier == 0 && p.InstrumentType != "future" {
+		p.Multiplier = DefaultMultiplier(p.InstrumentType)
+	}
 }
 
 func rowHasSkipStatus(row map[string]string) bool {
@@ -138,6 +265,8 @@ func (g *Generic) parseRow(row map[string]string) (ParsedExecution, error) {
 		v, _ := strconv.ParseFloat(f, 64)
 		p.Fees = math.Abs(v)
 	}
+	// Overnight financing on FX/CFD exports; a cost either way, like fees.
+	p.Fees += absFloat(g.col(row, "swap"))
 	p.InstrumentType = ParseInstrumentType(g.col(row, "instrument_type"), p.Symbol)
 	if p.InstrumentType == "option" {
 		p.OptionRight = ParseOptionRight(g.col(row, "option_right"))
@@ -145,16 +274,7 @@ func (g *Generic) parseRow(row map[string]string) (ParsedExecution, error) {
 			p.OptionRight = InferOptionRight(p.Symbol)
 		}
 	}
-	if m := g.col(row, "multiplier"); m != "" {
-		if v, err := strconv.ParseFloat(m, 64); err == nil && v > 0 {
-			p.Multiplier = v
-		}
-	}
-	// Futures stay 0 so Commit can resolve the contract multiplier from
-	// instrument_specs (ES → 50); other types take the conventional default.
-	if p.Multiplier == 0 && p.InstrumentType != "future" {
-		p.Multiplier = DefaultMultiplier(p.InstrumentType)
-	}
+	g.applyMultiplier(&p, row)
 	return p, nil
 }
 
@@ -197,7 +317,9 @@ func parseTimeIn(s string, loc *time.Location) (time.Time, error) {
 		"1/2/06 15:04:05",
 		"01/02/2006 15:04",
 		"1/2/2006 15:04",
-		"20060102;150405", // IBKR Flex DateTime
+		"20060102;150405",     // IBKR Flex DateTime
+		"2006.01.02 15:04:05", // MetaTrader-family dotted dates (cTrader, Match-Trader)
+		"02.01.2006 15:04:05", // European day-first dotted
 		"2006-01-02 15:04",
 		"01/02/2006",
 		"2006-01-02",
