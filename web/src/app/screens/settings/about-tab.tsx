@@ -3,11 +3,11 @@ import {
   Calendar,
   ExternalLink,
   FileSpreadsheet,
-  Github,
   House,
   ScrollText,
   Sparkles,
 } from "lucide-react";
+import { Github } from "@/components/icons/github";
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { AppLogo } from "@/components/AppLogo";

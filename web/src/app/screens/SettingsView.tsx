@@ -1,6 +1,5 @@
 import {
   Globe,
-  Github,
   Keyboard,
   KeyRound,
   Shield,
@@ -10,6 +9,7 @@ import {
   Users,
   Wallet,
 } from "lucide-react";
+import { Github } from "@/components/icons/github";
 import type { AnnualGoal, RiskRules } from "@/lib/api/settings";
 import { useLocale } from "@/i18n";
 import { useMe } from "@/lib/hooks/useMe";
