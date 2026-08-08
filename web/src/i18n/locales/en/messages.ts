@@ -1,4 +1,1 @@
-/*eslint-disable*/ import type { Messages } from "@lingui/core";
-export const messages = JSON.parse(
-  '{"29Hx9U":["Stats"],"3dioPi":["Interface language"],"4BzWk0":["Language selector"],"7p5kLi":["Dashboard"],"AjVXBS":["Calendar"],"PA/Etd":["New Setup"],"Tz0i8g":["Settings"],"Vava/Z":["Interface language for TraderMemos."],"ZFtwlj":["Trades"],"l3s5ri":["Import"],"lLbLDQ":["New Trade"],"vXIe7J":["Language"],"wm1sei":["New Note"],"zJY4Uj":["Playbook"]}',
-) as Messages;
+/*eslint-disable*/import type{Messages}from"@lingui/core";export const messages=JSON.parse("{\"29Hx9U\":[\"Stats\"],\"3dioPi\":[\"Interface language\"],\"4BzWk0\":[\"Language selector\"],\"7p5kLi\":[\"Dashboard\"],\"AjVXBS\":[\"Calendar\"],\"PA_Etd\":[\"New Setup\"],\"Tz0i8g\":[\"Settings\"],\"Vava_Z\":[\"Interface language for TraderMemos.\"],\"ZFtwlj\":[\"Trades\"],\"l3s5ri\":[\"Import\"],\"lLbLDQ\":[\"New Trade\"],\"vXIe7J\":[\"Language\"],\"wm1sei\":[\"New Note\"],\"zJY4Uj\":[\"Playbook\"]}")as Messages;
