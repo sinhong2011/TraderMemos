@@ -224,8 +224,8 @@ importers:
         specifier: ^1.5.0
         version: 1.5.0
       '@lingui/core':
-        specifier: ^5.2.0
-        version: 5.9.5(@lingui/babel-plugin-lingui-macro@6.6.0(@babel/core@8.0.1)(@babel/types@8.0.4))
+        specifier: ^6.6.0
+        version: 6.6.0(@babel/core@8.0.1)(@babel/types@8.0.4)
       '@lingui/react':
         specifier: ^5.2.0
         version: 5.9.5(@lingui/babel-plugin-lingui-macro@6.6.0(@babel/core@8.0.1)(@babel/types@8.0.4))(react@19.2.8)
@@ -1350,6 +1350,15 @@ packages:
     peerDependenciesMeta:
       '@lingui/babel-plugin-lingui-macro':
         optional: true
+      babel-plugin-macros:
+        optional: true
+
+  '@lingui/core@6.6.0':
+    resolution: {integrity: sha512-vqL7LkU2iDAHcaHYzFGbdYovHLdHamG0Zh7r5F9O7C1J1sEPZSMQfkddk2FFeSZHy5j7Na7hzIGGJTZutgiZRg==}
+    engines: {node: '>=22.19.0'}
+    peerDependencies:
+      babel-plugin-macros: 2 || 3
+    peerDependenciesMeta:
       babel-plugin-macros:
         optional: true
 
@@ -6634,6 +6643,14 @@ snapshots:
       '@lingui/message-utils': 5.9.5
     optionalDependencies:
       '@lingui/babel-plugin-lingui-macro': 6.6.0(@babel/core@8.0.1)(@babel/types@8.0.4)
+
+  '@lingui/core@6.6.0(@babel/core@8.0.1)(@babel/types@8.0.4)':
+    dependencies:
+      '@lingui/babel-plugin-lingui-macro': 6.6.0(@babel/core@8.0.1)(@babel/types@8.0.4)
+      '@lingui/message-utils': 6.6.0
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@babel/types'
 
   '@lingui/format-po@5.9.5(typescript@7.0.2)':
     dependencies:
