@@ -1,4 +1,4 @@
-import type { Column } from "@tanstack/react-table";
+import type { Column } from "@/lib/table";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vite-plus/test";
@@ -8,7 +8,7 @@ function mockColumn(over: {
   canSort?: boolean;
   canHide?: boolean;
   sorted?: false | "asc" | "desc";
-}): Column<unknown, unknown> {
+}): Column<Record<string, unknown>, unknown> {
   return {
     getCanSort: () => over.canSort ?? true,
     getCanHide: () => over.canHide ?? true,
@@ -16,7 +16,7 @@ function mockColumn(over: {
     toggleSorting: vi.fn<(...args: any[]) => any>(),
     clearSorting: vi.fn<(...args: any[]) => any>(),
     toggleVisibility: vi.fn<(...args: any[]) => any>(),
-  } as unknown as Column<unknown, unknown>;
+  } as unknown as Column<Record<string, unknown>, unknown>;
 }
 
 describe("ColumnHeader", () => {

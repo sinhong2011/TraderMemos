@@ -1,4 +1,4 @@
-import type { Column } from "@tanstack/react-table";
+import type { Column, RowData } from "@/lib/table";
 import { ChevronDown, ChevronsUpDown, ChevronUp, EyeOff, X } from "lucide-react";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
@@ -14,7 +14,7 @@ import {
 /**
  * tablecn-style column header — dropdown with Asc / Desc / Reset / Hide.
  */
-export function ColumnHeader<TData, TValue>({
+export function ColumnHeader<TData extends RowData, TValue>({
   column,
   title,
   titleAttr,

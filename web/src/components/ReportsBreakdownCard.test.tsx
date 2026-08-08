@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import type { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef } from "@/lib/table";
 import { describe, expect, it, vi } from "vite-plus/test";
 import type { BreakGroup } from "@/lib/api/types";
 import { ReportsBreakdownCard, buildBreakdownChartData } from "./ReportsBreakdownCard";

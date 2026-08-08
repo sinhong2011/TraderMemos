@@ -1,7 +1,13 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/Toaster";
-import { type ColumnDef, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import {
+  type ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+  type RowData,
+} from "@/lib/table";
 import userEvent from "@testing-library/user-event";
 import type { ReactElement } from "react";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
@@ -58,7 +64,13 @@ vi.mock("../../components/charts/TradeChartSection", () => ({
 // Mock DataTable: the real one virtualizes against a measured container, which
 // jsdom never gives it, so it renders zero rows. Mirrors HomeView.test.
 vi.mock("../../components/DataTable", () => ({
-  DataTable: function MockDataTable<T>({ columns, data }: { columns: ColumnDef<T>[]; data: T[] }) {
+  DataTable: function MockDataTable<T extends RowData>({
+    columns,
+    data,
+  }: {
+    columns: ColumnDef<T>[];
+    data: T[];
+  }) {
     const table = useReactTable({ data, columns, getCoreRowModel: getCoreRowModel() });
     return (
       <table>

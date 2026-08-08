@@ -1,5 +1,5 @@
-import type { ColumnDef } from "@tanstack/react-table";
-import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import type { ColumnDef } from "@/lib/table";
+import { flexRender, getCoreRowModel, useReactTable, type RowData } from "@/lib/table";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ReactNode } from "react";
@@ -54,7 +54,7 @@ vi.mock("../../components/OptionsSelect", () => ({
 }));
 
 vi.mock("../../components/DataTable", () => ({
-  DataTable: function MockDataTable<T>({
+  DataTable: function MockDataTable<T extends RowData>({
     columns,
     data,
     onRowClick,
