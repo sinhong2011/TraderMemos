@@ -14,6 +14,12 @@ var fieldHints = map[string][]string{
 	"instrument_type": {"market", "instrument type", "asset type", "sec type", "product type", "asset class"},
 	"option_right":    {"call/put", "option right", "option type", "right", "cp"},
 	"multiplier":      {"multiplier", "contract size", "point value"},
+	// Position-level (round-trip) exports: one row carries both fills.
+	"open_time":   {"open time", "opening time"},
+	"open_price":  {"open price", "entry price", "opening price"},
+	"close_time":  {"close time", "closing time"},
+	"close_price": {"close price", "closing price", "exit price"},
+	"swap":        {"swap"},
 }
 
 // SuggestMapping returns canonicalField -> originalHeader best guesses.
