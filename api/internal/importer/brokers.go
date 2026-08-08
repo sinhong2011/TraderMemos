@@ -14,6 +14,9 @@ type BrokerPreset struct {
 	// Equity brokers export US Eastern; futures platforms exchange (Chicago)
 	// time. Timestamps that carry their own offset/abbreviation ignore this.
 	TZ string
+	// Quantities are lots (FX/CFD platforms) — fills resolve a per-symbol
+	// contract size (LotContractSize) instead of the conventional multiplier.
+	LotSized bool
 	// All of these (lowercased) must be present for the preset to match.
 	// Chosen to be distinctive enough that generic CSVs never collide.
 	signature []string
@@ -95,6 +98,66 @@ var brokerPresets = []BrokerPreset{
 		},
 	},
 	{
+		// History rows are position-level (deal): open + close per row, mapped
+		// through the round-trip fields. Times follow the platform's configured
+		// offset — UTC by default — overridable in the import preview.
+		Key:       "ctrader",
+		Name:      "cTrader (History)",
+		TZ:        "UTC",
+		LotSized:  true,
+		signature: []string{"opening direction", "entry price", "closing time"},
+		fields: map[string][]string{
+			"symbol":          {"symbol"},
+			"side":            {"opening direction"},
+			"quantity":        {"closing quantity", "requested quantity"},
+			"open_time":       {"opening time"},
+			"open_price":      {"entry price"},
+			"close_time":      {"closing time"},
+			"close_price":     {"closing price"},
+			"commission":      {"commissions", "commission"},
+			"swap":            {"swap"},
+			"instrument_type": {"=forex"},
+		},
+	},
+	{
+		// Order History export (prop-firm portals): one row per order fill.
+		Key:       "dxtrade",
+		Name:      "DXtrade (Order History)",
+		TZ:        "UTC",
+		LotSized:  true,
+		signature: []string{"filled volume", "fill price"},
+		fields: map[string][]string{
+			"symbol":          {"symbol", "instrument"},
+			"side":            {"side"},
+			"quantity":        {"filled volume", "quantity"},
+			"price":           {"fill price"},
+			"executed_at":     {"date and time", "transaction time", "time"},
+			"commission":      {"commission"},
+			"instrument_type": {"=forex"},
+		},
+	},
+	{
+		// Closed/open positions export: position-level rows; open positions
+		// carry no close time/price and synthesize only the opening fill.
+		Key:       "matchtrader",
+		Name:      "Match-Trader (Positions)",
+		TZ:        "UTC",
+		LotSized:  true,
+		signature: []string{"open time", "open price", "volume"},
+		fields: map[string][]string{
+			"symbol":          {"symbol"},
+			"side":            {"side", "direction", "type"},
+			"quantity":        {"volume", "lots"},
+			"open_time":       {"open time"},
+			"open_price":      {"open price"},
+			"close_time":      {"close time"},
+			"close_price":     {"close price"},
+			"commission":      {"commission"},
+			"swap":            {"swap"},
+			"instrument_type": {"=forex"},
+		},
+	},
+	{
 		Key:       "ninjatrader",
 		Name:      "NinjaTrader (Executions)",
 		TZ:        "America/New_York",
@@ -115,9 +178,33 @@ var brokerPresets = []BrokerPreset{
 // headers, with its field map resolved to the file's original header strings
 // and the IANA zone its offset-less timestamps should be interpreted in.
 func MatchBroker(headers []string) (name string, mapping map[string]string, tz string, ok bool) {
+	p, m, ok := matchPreset(headers)
+	if !ok {
+		return "", nil, "", false
+	}
+	return p.Name, m, p.TZ, true
+}
+
+// LotSizedBroker reports whether the headers match a preset whose quantities
+// are lots (FX/CFD platforms) rather than units/shares.
+func LotSizedBroker(headers []string) bool {
+	p, _, ok := matchPreset(headers)
+	return ok && p.LotSized
+}
+
+func matchPreset(headers []string) (BrokerPreset, map[string]string, bool) {
 	byLower := make(map[string]string, len(headers))
 	for _, h := range headers {
-		byLower[strings.ToLower(strings.TrimSpace(h))] = h
+		lower := strings.ToLower(strings.TrimSpace(h))
+		byLower[lower] = h
+		// Qualified headers — cTrader "Opening time (UTC+2)", "Net (USD)" —
+		// also answer to their bare name. Real bare headers win: they are
+		// written unconditionally, the alias only when absent.
+		if i := strings.Index(lower, " ("); i > 0 {
+			if bare := strings.TrimSpace(lower[:i]); byLower[bare] == "" {
+				byLower[bare] = h
+			}
+		}
 	}
 	for _, p := range brokerPresets {
 		matched := true
@@ -143,7 +230,7 @@ func MatchBroker(headers []string) (name string, mapping map[string]string, tz s
 				}
 			}
 		}
-		return p.Name, m, p.TZ, true
+		return p, m, true
 	}
-	return "", nil, "", false
+	return BrokerPreset{}, nil, false
 }

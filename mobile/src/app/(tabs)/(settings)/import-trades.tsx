@@ -51,6 +51,13 @@ const MAPPABLE_FIELDS = [
   { key: 'option_right', label: () => t`Call / Put` },
   { key: 'fees', label: () => t`Fees` },
   { key: 'commission', label: () => t`Commission` },
+  // Position-level exports (cTrader, Match-Trader) map an open/close pair per
+  // row instead of a single fill; shown only when the file suggests them.
+  { key: 'open_time', label: () => t`Open time`, roundTrip: true },
+  { key: 'open_price', label: () => t`Open price`, roundTrip: true },
+  { key: 'close_time', label: () => t`Close time`, roundTrip: true },
+  { key: 'close_price', label: () => t`Close price`, roundTrip: true },
+  { key: 'swap', label: () => t`Swap`, roundTrip: true },
 ] as const;
 
 /** The formats the server parses, mirroring the web page's "Supported formats". */
@@ -379,7 +386,12 @@ export default function ImportTradesScreen() {
               title={t`Map columns`}
               footer={<UIText>{t`Match each field to a column from the file.`}</UIText>}
             >
-              {MAPPABLE_FIELDS.map((field) => {
+              {MAPPABLE_FIELDS.filter(
+                (field) =>
+                  !('roundTrip' in field) ||
+                  preview.suggested_mapping?.[field.key] != null ||
+                  mapping[field.key] != null,
+              ).map((field) => {
                 const value = mapping[field.key] ?? SKIP;
                 // Broker presets can pin a constant (`=future`); keep that
                 // choice in the menu even after the user moves off it.
