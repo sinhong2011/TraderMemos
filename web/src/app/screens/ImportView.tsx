@@ -88,7 +88,7 @@ async function readJSONAccountName(file: File): Promise<string | null> {
   try {
     const text = await new Promise<string>((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = () => resolve(String(reader.result ?? ""));
+      reader.onload = () => resolve(typeof reader.result === "string" ? reader.result : "");
       reader.onerror = () => reject(reader.error ?? new Error("read failed"));
       reader.readAsText(file);
     });
