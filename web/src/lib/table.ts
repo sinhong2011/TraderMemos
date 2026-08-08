@@ -10,8 +10,8 @@ import type {
   CellContext as CellContextV9,
   Column as ColumnV9,
   RowData,
-  StockFeatures,
 } from "@tanstack/react-table";
+import type { LegacyFeatures } from "@tanstack/react-table/legacy";
 
 export type { RowData } from "@tanstack/react-table";
 
@@ -29,14 +29,14 @@ export type {
   ColumnVisibilityState as VisibilityState,
 } from "@tanstack/react-table";
 
-/** v8 signature: the stock feature set is implied. */
+/** v8 signature: the legacy feature set is implied. */
 export type CellContext<TData extends RowData, TValue = unknown> = CellContextV9<
-  StockFeatures,
+  LegacyFeatures,
   TData,
   TValue
 >;
 export type Column<TData extends RowData, TValue = unknown> = ColumnV9<
-  StockFeatures,
+  LegacyFeatures,
   TData,
   TValue
 >;
