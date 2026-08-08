@@ -140,11 +140,9 @@ The expo-sqlite outbox already considered for offline writes. Journal on the sub
 *Why Pro:* phone-only by definition; the reads side already exists (MMKV + TanStack Query persister).
 *Note:* an `feat/mobile-offline-ux` worktree already exists — check overlap before starting.
 
-**5. Face ID / Touch ID app lock** — *Small*
-Privacy mode already exists; biometric lock on cold launch and resume.
-*Borderline:* security-adjacent, which normally stays free. Defensible here because the free app is already private and this is an *additional* convenience layer, not the only protection. Flag for a final call before shipping.
+~~**Face ID / Touch ID app lock**~~ — **dropped (2026-08-08, #137).** Superseded by the OS: since iOS 18 any app can be locked behind Face ID via the system built-in (long-press app icon → Require Face ID), which also hides the app-switcher preview and masks notifications — and it engages before our JS even boots, a stronger guarantee than an in-app lock. Privacy mode already covers on-screen masking. At most: a one-line hint in Settings pointing users at the system feature.
 
-**6. Share card styles + mark removal** — *Small*
+**5. Share card styles + mark removal** — *Small*
 The existing share card, productized. Cheapest Pro feature available; good candidate to ship *with* the entitlement plumbing so Pro isn't empty on day one. Cosmetics only — the share capability itself (cards, and the competitive plan's public share pages) stays free as the growth loop.
 
 ---
@@ -182,8 +180,7 @@ Revised per the 2026-08-08 decision (**build all features first, assign tiers la
 ## Open questions
 
 1. **Which candidates actually go Pro** — deliberately deferred (decision 2026-08-08: build all features first). Resolve at Phase 1, before the first public App Store release.
-2. **Face ID lock — free or Pro?** Listed as a P2 candidate, flagged as borderline. Leaning free if the app ever handles multi-user servers.
-3. **Price point:** $9.99 vs $14.99. Both clear the bar trivially; $14.99 is defensible once widgets and Live Activity both ship.
-4. **Android/Play Store:** out of scope for this document. The $25 one-time Play fee changes the math but not the strategy.
+2. **Price point:** $9.99 vs $14.99. Both clear the bar trivially; $14.99 is defensible once widgets and Live Activity both ship.
+3. **Android/Play Store:** out of scope for this document. The $25 one-time Play fee changes the math but not the strategy.
 
-*(Resolved: push alerts are free, not Pro — see "Not Pro" above. Only a TraderMemos-operated relay could ever be paid.)*
+*(Resolved: push alerts are free, not Pro — see "Not Pro" above; only a TraderMemos-operated relay could ever be paid. Face ID lock dropped entirely — superseded by the iOS system app lock, #137.)*
