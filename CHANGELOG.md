@@ -5,6 +5,13 @@ All notable changes to TraderMemos are documented in this file.
 Release versioning is managed by [release-please](https://github.com/googleapis/release-please).
 See [docs/release.md](docs/release.md) for the release workflow.
 
+## [0.6.1](https://github.com/sinhong2011/TraderMemos/compare/v0.6.0...v0.6.1) (2026-08-08)
+
+
+### Bug Fixes
+
+* **mobile:** Appearance pref reaches UIKit + hide iOS 26 scroll-edge effect ([#152](https://github.com/sinhong2011/TraderMemos/issues/152)) ([0362cd9](https://github.com/sinhong2011/TraderMemos/commit/0362cd92cd8030fa2999d98148a32b6179b040fc))
+
 ## [0.6.0](https://github.com/sinhong2011/TraderMemos/compare/v0.5.0...v0.6.0) (2026-08-08)
 
 
