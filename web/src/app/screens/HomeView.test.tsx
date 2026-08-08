@@ -1,5 +1,5 @@
-import type { ColumnDef } from "@tanstack/react-table";
-import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import type { ColumnDef } from "@/lib/table";
+import { flexRender, getCoreRowModel, useReactTable, type RowData } from "@/lib/table";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vite-plus/test";
@@ -43,7 +43,13 @@ vi.mock("../../lib/hooks/useProp", () => ({
 // (absent in jsdom, so it renders zero rows). Mirrors
 // src/components/tradeColumns.test.tsx, which hits the same jsdom gotcha.
 vi.mock("../../components/DataTable", () => ({
-  DataTable: function MockDataTable<T>({ columns, data }: { columns: ColumnDef<T>[]; data: T[] }) {
+  DataTable: function MockDataTable<T extends RowData>({
+    columns,
+    data,
+  }: {
+    columns: ColumnDef<T>[];
+    data: T[];
+  }) {
     const table = useReactTable({
       data,
       columns,

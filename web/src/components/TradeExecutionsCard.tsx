@@ -1,4 +1,4 @@
-import type { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef } from "@/lib/table";
 import { useMemo } from "react";
 import { Card } from "./Card";
 import { DataTable } from "./DataTable";

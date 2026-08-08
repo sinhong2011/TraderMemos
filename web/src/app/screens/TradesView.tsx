@@ -1,4 +1,4 @@
-import type { SortingState, VisibilityState } from "@tanstack/react-table";
+import type { SortingState, VisibilityState } from "@/lib/table";
 import { List, Plus, Search, Upload } from "lucide-react";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";

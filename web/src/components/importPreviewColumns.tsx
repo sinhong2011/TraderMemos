@@ -1,4 +1,4 @@
-import type { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef } from "@/lib/table";
 import { Pencil } from "lucide-react";
 import type { JournalTradePreview } from "@/lib/api/types";
 import { cn } from "@/lib/cn";

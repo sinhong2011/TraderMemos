@@ -1,4 +1,4 @@
-import type { OnChangeFn, VisibilityState } from "@tanstack/react-table";
+import type { OnChangeFn, VisibilityState } from "@/lib/table";
 import { Settings2 } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { buttonVariants } from "./ui/button";

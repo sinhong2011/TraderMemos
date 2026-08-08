@@ -2,6 +2,7 @@ import {
   type Column,
   type ColumnDef,
   type ColumnPinningState,
+  type RowData,
   type OnChangeFn,
   type SortingState,
   type VisibilityState,
@@ -9,7 +10,7 @@ import {
   getCoreRowModel,
   getSortedRowModel,
   useReactTable,
-} from "@tanstack/react-table";
+} from "@/lib/table";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { cn } from "@/lib/cn";
@@ -22,7 +23,7 @@ type ColumnMeta = {
   minWidth?: number;
 };
 
-interface DataTableProps<T> {
+interface DataTableProps<T extends RowData> {
   columns: ColumnDef<T>[];
   data: T[];
   onRowClick?: (row: T) => void;
@@ -82,7 +83,7 @@ function tableMetrics(dense: boolean, comfortable: boolean) {
  * Sticky pin styles from TanStack's sticky column-pinning example.
  * Header pins need top:0 + higher z so they stay above body pins while scrolling.
  */
-function pinningStyle<T>(
+function pinningStyle<T extends RowData>(
   column: Column<T>,
   kind: "header" | "body",
   pinActive: boolean,
@@ -92,14 +93,14 @@ function pinningStyle<T>(
 
   return {
     position: "sticky",
-    left: isPinned === "left" ? `${column.getStart("left")}px` : undefined,
-    right: isPinned === "right" ? `${column.getAfter("right")}px` : undefined,
+    left: isPinned === "start" ? `${column.getStart("start")}px` : undefined,
+    right: isPinned === "end" ? `${column.getAfter("end")}px` : undefined,
     top: kind === "header" ? 0 : undefined,
     zIndex: kind === "header" ? 3 : 1,
   };
 }
 
-function pinningCellClass<T>(
+function pinningCellClass<T extends RowData>(
   column: Column<T>,
   kind: "header" | "body",
   pinActive: boolean,
@@ -116,7 +117,7 @@ function pinningCellClass<T>(
   );
 }
 
-export function DataTable<T>({
+export function DataTable<T extends RowData>({
   columns,
   data,
   onRowClick,
@@ -137,7 +138,7 @@ export function DataTable<T>({
   const [internalSorting, setInternalSorting] = useState<SortingState>([]);
   const [internalVisibility, setInternalVisibility] = useState<VisibilityState>({});
   const [internalPinning, setInternalPinning] = useState<ColumnPinningState>(
-    () => pinningProp ?? { left: [], right: [] },
+    () => pinningProp ?? { start: [], end: [] },
   );
   const sorting = sortingProp ?? internalSorting;
   const setSorting = onSortingChange ?? setInternalSorting;
@@ -164,7 +165,7 @@ export function DataTable<T>({
   const { rows } = table.getRowModel();
   const visibleColCount = table.getVisibleLeafColumns().length;
   const hasPinIntent =
-    (columnPinning.left?.length ?? 0) > 0 || (columnPinning.right?.length ?? 0) > 0;
+    (columnPinning.start?.length ?? 0) > 0 || (columnPinning.end?.length ?? 0) > 0;
 
   const rowVirtualizer = useVirtualizer({
     count: rows.length,

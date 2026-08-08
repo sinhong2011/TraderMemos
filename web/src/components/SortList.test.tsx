@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useState } from "react";
-import type { SortingState } from "@tanstack/react-table";
+import type { SortingState } from "@/lib/table";
 import { describe, expect, it, vi } from "vite-plus/test";
 import { SortList } from "./SortList";
 

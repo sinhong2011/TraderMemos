@@ -1,5 +1,5 @@
 import { render, screen, within } from "@testing-library/react";
-import type { CellContext } from "@tanstack/react-table";
+import type { CellContext } from "@/lib/table";
 import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vite-plus/test";
 import { ReportsDisplayProvider } from "@/components/ReportsDisplayContext";

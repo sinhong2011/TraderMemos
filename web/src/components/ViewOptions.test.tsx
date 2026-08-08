@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useState } from "react";
-import type { VisibilityState } from "@tanstack/react-table";
+import type { VisibilityState } from "@/lib/table";
 import { describe, expect, it } from "vite-plus/test";
 import { ViewOptions } from "./ViewOptions";
 

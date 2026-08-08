@@ -1,4 +1,4 @@
-import type { ColumnDef, ColumnPinningState } from "@tanstack/react-table";
+import type { ColumnDef, ColumnPinningState } from "@/lib/table";
 import type { Trade } from "@/lib/api/types";
 import { usePrivacyMode } from "@/lib/displayPrefs";
 import { fmtDuration, fmtMoney, fmtSignedMoney, fmtTradeDay } from "@/lib/format";
@@ -217,7 +217,7 @@ export function tradeColumns(
         headerTitle: "Exit total — quantity × average exit × multiplier",
         minWidth: 88,
       },
-      sortingFn: (a, b, id) => {
+      sortFn: (a, b, id) => {
         const av = a.getValue<number | null>(id);
         const bv = b.getValue<number | null>(id);
         if (av == null && bv == null) return 0;
@@ -246,7 +246,7 @@ export function tradeColumns(
       },
       header: "Pos",
       meta: { align: "right", label: "Position", headerTitle: "Position still open", minWidth: 56 },
-      sortingFn: (a, b, id) => {
+      sortFn: (a, b, id) => {
         const av = a.getValue<number | null>(id);
         const bv = b.getValue<number | null>(id);
         if (av == null && bv == null) return 0;
@@ -367,7 +367,7 @@ export function tradeColumns(
 }
 
 /** Pin the actions column via TanStack `columnPinning` (pass to DataTable). */
-export const TRADE_COLUMN_PINNING: ColumnPinningState = { right: ["actions"] };
+export const TRADE_COLUMN_PINNING: ColumnPinningState = { start: [], end: ["actions"] };
 
 /** Sortable trade columns for the tablecn-style Sort button. */
 export const TRADE_SORT_COLUMNS: { id: string; label: string }[] = [

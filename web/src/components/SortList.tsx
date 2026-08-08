@@ -1,4 +1,4 @@
-import type { OnChangeFn, SortingState } from "@tanstack/react-table";
+import type { OnChangeFn, SortingState } from "@/lib/table";
 import { ArrowDownUp, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/cn";
