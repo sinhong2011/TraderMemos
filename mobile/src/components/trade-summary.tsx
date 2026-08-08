@@ -73,20 +73,28 @@ function FillLine({
     minute: '2-digit',
   });
   const buy = fill.side === 'buy';
+  // Three zones so the timestamp lands on the row's centre line and the P&L on
+  // its trailing edge — the same columns whether or not a fill closed anything.
   return (
     <View style={styles.fillLine}>
-      <Text style={[styles.fillSide, buy ? styles.labelPos : styles.labelNeg]}>
-        {buy ? t`Buy` : t`Sell`}
-      </Text>
-      <Text style={styles.fillQtyPrice} numberOfLines={1}>
-        {fill.quantity || '—'} @ {fill.price || '—'}
-      </Text>
-      {pnl != null ? (
-        <Text style={[styles.fillPnl, { color: pnlColor(theme.colors, pnl) }]}>
-          {formatPnl(pnl, currency)}
+      <View style={styles.fillLead}>
+        <Text style={[styles.fillSide, buy ? styles.labelPos : styles.labelNeg]}>
+          {buy ? t`Buy` : t`Sell`}
         </Text>
-      ) : null}
-      <Text style={styles.fillWhen}>{when}</Text>
+        <Text style={styles.fillQtyPrice} numberOfLines={1}>
+          {fill.quantity || '—'} @ {fill.price || '—'}
+        </Text>
+      </View>
+      <Text style={styles.fillWhen} numberOfLines={1}>
+        {when}
+      </Text>
+      <View style={styles.fillTail}>
+        {pnl != null ? (
+          <Text style={[styles.fillPnl, { color: pnlColor(theme.colors, pnl) }]} numberOfLines={1}>
+            {formatPnl(pnl, currency)}
+          </Text>
+        ) : null}
+      </View>
     </View>
   );
 }
@@ -258,15 +266,23 @@ const styles = StyleSheet.create((theme) => ({
     paddingHorizontal: theme.spacing.lg,
     paddingVertical: theme.spacing.xs + 2,
   },
+  fillLead: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
+  },
+  fillTail: { flex: 1, alignItems: 'flex-end' },
   fillSide: { width: 34, fontSize: 13, fontWeight: '600' },
   fillQtyPrice: {
-    flex: 1,
+    flexShrink: 1,
     fontSize: 14,
     color: theme.colors.foreground,
     fontVariant: ['tabular-nums'],
   },
   fillWhen: {
     fontSize: 12,
+    textAlign: 'center',
     color: theme.colors.mutedForeground,
     fontVariant: ['tabular-nums'],
   },
