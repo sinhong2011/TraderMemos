@@ -135,7 +135,7 @@ jobs:
       # (dtrace-provider, an optional dep with a build script nothing can answer
       # for); npm has no build-script gate. The project itself still installs with
       # pnpm in the Install step below.
-      - uses: expo/expo-github-action@v8
+      - uses: expo/expo-github-action@v9
         with:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
