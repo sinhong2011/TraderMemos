@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import {
   computeVersionMismatch,
   initAppUpdates,
+  swDismissSignature,
   type SerwistLike,
   useAppUpdate,
 } from "./appUpdate";
@@ -67,28 +68,36 @@ describe("computeVersionMismatch", () => {
 });
 
 describe("dismiss", () => {
-  it("stays dismissed across checks for the same release", async () => {
-    vi.mocked(fetchLatestRelease).mockResolvedValue(release("99.0.0"));
-    await useAppUpdate.getState().checkForUpdates();
-    expect(useAppUpdate.getState().webBehind).toBe(true);
+  it("persists across page loads while the same build's worker is waiting", () => {
+    useAppUpdate.getState().setSwReady(true);
     expect(useAppUpdate.getState().dismissed).toBe(false);
 
     useAppUpdate.getState().dismiss();
     expect(useAppUpdate.getState().dismissed).toBe(true);
 
-    // A later check of the same release (or a fresh page load) keeps it hidden.
-    await useAppUpdate.getState().checkForUpdates();
+    // Fresh page load: in-memory state resets, then "waiting" fires again.
+    useAppUpdate.setState({ swReady: false, dismissed: false });
+    useAppUpdate.getState().setSwReady(true);
     expect(useAppUpdate.getState().dismissed).toBe(true);
   });
 
-  it("resurfaces when a newer release ships", async () => {
-    vi.mocked(fetchLatestRelease).mockResolvedValue(release("99.0.0"));
-    await useAppUpdate.getState().checkForUpdates();
+  it("resurfaces once the running build changes", () => {
+    // A dismissal recorded on a previous build never matches this build's
+    // signature, so the next waiting worker shows the toast again.
+    localStorage.setItem("tradermemos-update-dismissed-version", "sw@0.0.0-previous");
+    expect(swDismissSignature()).not.toBe("sw@0.0.0-previous");
+    useAppUpdate.getState().setSwReady(true);
+    expect(useAppUpdate.getState().dismissed).toBe(false);
+  });
+
+  it("is untouched by periodic release checks", async () => {
+    useAppUpdate.getState().setSwReady(true);
     useAppUpdate.getState().dismiss();
 
-    vi.mocked(fetchLatestRelease).mockResolvedValue(release("99.0.1"));
+    vi.mocked(fetchLatestRelease).mockResolvedValue(release("99.0.0"));
     await useAppUpdate.getState().checkForUpdates();
-    expect(useAppUpdate.getState().dismissed).toBe(false);
+    expect(useAppUpdate.getState().webBehind).toBe(true);
+    expect(useAppUpdate.getState().dismissed).toBe(true);
   });
 });
 
