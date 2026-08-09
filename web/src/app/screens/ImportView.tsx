@@ -23,8 +23,10 @@ import { ControlledPopover } from "@/components/ControlledPopover";
 import { OptionsSelect } from "@/components/OptionsSelect";
 import { ToneToggle } from "@/components/ToneToggle";
 import { Skeleton } from "@/components/Skeleton";
+import { useToastManager } from "@/components/Toast";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
+import { ApiError } from "@/lib/api/client";
 import { downloadExport, type ExportFormat } from "@/lib/api/exports";
 import type {
   Account,
@@ -665,7 +667,7 @@ function Step2Map({ preview, currency, accountId, onCommit, onBack, error, loadi
         </Card>
       )}
 
-      <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
+      <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-start">
         <Button
           type="button"
           variant="default"
@@ -997,6 +999,34 @@ export interface ImportViewProps {
   onLogTrade?: () => void;
 }
 
+/**
+ * Turn a preview/commit rejection into something a person can act on.
+ *
+ * A dropped connection is the interesting case: the server detaches the commit
+ * from the request context, so a large import keeps running after the browser
+ * or a proxy has given up. Saying "failed" flat out would be wrong — the rows
+ * may well land a minute later.
+ */
+function describeImportFailure(e: unknown, stage: "preview" | "commit") {
+  if (e instanceof ApiError) {
+    return {
+      title: stage === "preview" ? "Could not read that file" : "Import failed",
+      description: e.message,
+    };
+  }
+  if (stage === "preview") {
+    return {
+      title: "Could not read that file",
+      description: e instanceof Error ? e.message : "Check the file and try again.",
+    };
+  }
+  return {
+    title: "Lost contact with the server",
+    description:
+      "The import may still be finishing in the background. Check your trades in a minute before importing again — re-importing the same file is safe, duplicate fills are skipped.",
+  };
+}
+
 export function ImportView({
   accounts,
   accountsLoading,
@@ -1012,6 +1042,7 @@ export function ImportView({
   const [result, setResult] = useState<ImportResult | null>(null);
   const [stepError, setStepError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const toast = useToastManager();
 
   // Keep file + account between steps so commit can resend
   const [stagedFile, setStagedFile] = useState<File | null>(null);
@@ -1038,9 +1069,9 @@ export function ImportView({
       setPreview(data);
       setStep(2);
     } catch (e) {
-      setStepError(
-        e instanceof Error ? e.message : "Preview failed. Check your CSV and try again.",
-      );
+      const { title, description } = describeImportFailure(e, "preview");
+      setStepError(description);
+      toast.add({ type: "error", title, description });
     } finally {
       setLoading(false);
     }
@@ -1068,7 +1099,9 @@ export function ImportView({
       setResult(data);
       setStep(3);
     } catch (e) {
-      setStepError(e instanceof Error ? e.message : "Import failed. Please try again.");
+      const { title, description } = describeImportFailure(e, "commit");
+      setStepError(description);
+      toast.add({ type: "error", title, description });
     } finally {
       setLoading(false);
     }
