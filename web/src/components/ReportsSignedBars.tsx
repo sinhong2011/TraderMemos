@@ -11,7 +11,7 @@ import {
 } from "recharts";
 import type { BreakGroup } from "@/lib/api/types";
 import { formatHourKeyLabel, useDisplayTimePrefs, usePrivacyMode } from "@/lib/displayPrefs";
-import { Card } from "./Card";
+import { ChartCard } from "./ChartCard";
 import { ChartFrame, chartTheme, chartTooltipStyle, pnlTooltipValue } from "./ChartFrame";
 import { EmptyState } from "./EmptyState";
 import { useReportsMoney } from "./ReportsDisplayContext";
@@ -61,7 +61,7 @@ export function ReportsSignedBars({
       losses: -money.display(g.summary.gross_loss),
     }));
 
-  const action = (
+  const controls = (
     <SegmentedControl
       ariaLabel="Win/loss bar dimension"
       size="xs"
@@ -74,64 +74,69 @@ export function ReportsSignedBars({
     />
   );
 
+  const body = ({ height }: { height?: number }) =>
+    loading ? (
+      <Skeleton height="220px" />
+    ) : error ? (
+      <p className="text-xs text-destructive">Failed to load breakdown data.</p>
+    ) : chartData.length === 0 ? (
+      <EmptyState title="No data" hint="Add trades to see win/loss volume by time." />
+    ) : (
+      <ChartFrame className="border-0 rounded-none">
+        <ResponsiveContainer width="100%" height={height ?? 220}>
+          <BarChart
+            data={chartData}
+            stackOffset="sign"
+            margin={{ top: 12, right: 16, bottom: 0, left: 0 }}
+          >
+            <CartesianGrid vertical={false} stroke={chartTheme.gridColor} />
+            <XAxis
+              dataKey="key"
+              tick={{ fontSize: 10, fill: chartTheme.axisColor }}
+              axisLine={false}
+              tickLine={false}
+              interval="preserveStartEnd"
+            />
+            <YAxis
+              tick={{ fontSize: 10, fill: chartTheme.axisColor }}
+              tickFormatter={(v: number) => money.formatAxis(v)}
+              axisLine={false}
+              tickLine={false}
+              width={72}
+            />
+            <Tooltip
+              {...chartTooltipStyle}
+              formatter={(value, name) => [
+                pnlTooltipValue(Number(value ?? 0), money.formatAxis(Number(value ?? 0))),
+                name === "wins" ? "Wins" : "Losses",
+              ]}
+              cursor={{ fill: chartTheme.cursorFill }}
+            />
+            <ReferenceLine y={0} stroke={chartTheme.axisColor} strokeOpacity={0.4} />
+            <Bar
+              dataKey="wins"
+              stackId="pnl"
+              fill={POS_COLOR}
+              fillOpacity={0.85}
+              radius={[2, 2, 0, 0]}
+            />
+            <Bar
+              dataKey="losses"
+              stackId="pnl"
+              fill={NEG_COLOR}
+              fillOpacity={0.85}
+              radius={[0, 0, 2, 2]}
+            />
+          </BarChart>
+        </ResponsiveContainer>
+      </ChartFrame>
+    );
+
   return (
-    <Card title="Win / Loss by Time" action={action}>
-      {loading ? (
-        <Skeleton height="220px" />
-      ) : error ? (
-        <p className="text-xs text-destructive">Failed to load breakdown data.</p>
-      ) : chartData.length === 0 ? (
-        <EmptyState title="No data" hint="Add trades to see win/loss volume by time." />
-      ) : (
-        <ChartFrame className="border-0 rounded-none">
-          <ResponsiveContainer width="100%" height={220}>
-            <BarChart
-              data={chartData}
-              stackOffset="sign"
-              margin={{ top: 12, right: 16, bottom: 0, left: 0 }}
-            >
-              <CartesianGrid vertical={false} stroke={chartTheme.gridColor} />
-              <XAxis
-                dataKey="key"
-                tick={{ fontSize: 10, fill: chartTheme.axisColor }}
-                axisLine={false}
-                tickLine={false}
-                interval="preserveStartEnd"
-              />
-              <YAxis
-                tick={{ fontSize: 10, fill: chartTheme.axisColor }}
-                tickFormatter={(v: number) => money.formatAxis(v)}
-                axisLine={false}
-                tickLine={false}
-                width={72}
-              />
-              <Tooltip
-                {...chartTooltipStyle}
-                formatter={(value, name) => [
-                  pnlTooltipValue(Number(value ?? 0), money.formatAxis(Number(value ?? 0))),
-                  name === "wins" ? "Wins" : "Losses",
-                ]}
-                cursor={{ fill: chartTheme.cursorFill }}
-              />
-              <ReferenceLine y={0} stroke={chartTheme.axisColor} strokeOpacity={0.4} />
-              <Bar
-                dataKey="wins"
-                stackId="pnl"
-                fill={POS_COLOR}
-                fillOpacity={0.85}
-                radius={[2, 2, 0, 0]}
-              />
-              <Bar
-                dataKey="losses"
-                stackId="pnl"
-                fill={NEG_COLOR}
-                fillOpacity={0.85}
-                radius={[0, 0, 2, 2]}
-              />
-            </BarChart>
-          </ResponsiveContainer>
-        </ChartFrame>
-      )}
-    </Card>
+    // Hour/session buckets come pre-aggregated from the server with no dates
+    // to slice, so this card is expand-only — no trailing range.
+    <ChartCard title="Win / Loss by Time" controls={controls}>
+      {body}
+    </ChartCard>
   );
 }

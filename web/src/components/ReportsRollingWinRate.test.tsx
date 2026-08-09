@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vite-plus/test";
 import type { Trade } from "@/lib/api/types";
 import { ReportsRollingWinRate } from "./ReportsRollingWinRate";
@@ -45,5 +45,25 @@ describe("ReportsRollingWinRate", () => {
     );
     render(<ReportsRollingWinRate trades={trades} loading={false} error={false} />);
     expect(screen.getByText("50%")).toBeInTheDocument();
+  });
+
+  it("slices trades with the shared range pills", () => {
+    // 9 recent trades + 6 from three months back: "All" fills the 10-trade
+    // window, "1M" leaves only 9 and drops to the empty state.
+    const recent = Array.from({ length: 9 }, (_, i) =>
+      trade({
+        id: `r${i}`,
+        closed_at: `2026-07-${String(i + 2).padStart(2, "0")}T12:00:00Z`,
+        net_pnl: 10,
+      }),
+    );
+    const older = Array.from({ length: 6 }, (_, i) =>
+      trade({ id: `o${i}`, closed_at: `2026-04-${String(i + 1).padStart(2, "0")}T12:00:00Z` }),
+    );
+    render(<ReportsRollingWinRate trades={[...recent, ...older]} loading={false} error={false} />);
+    expect(screen.getByText("100%")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "1M" }));
+    expect(screen.getByText("Not enough trades")).toBeInTheDocument();
   });
 });
