@@ -53,6 +53,9 @@ function nearestBarIndex(bars: MarketBar[], unixSec: number): number {
  * Replay: with a `cursor`, bars after it are hidden and markers past it too;
  * the price scale stays fixed to the full range so the frame is stable while
  * it plays. Pass `onScrub` to make the plot itself the scrubber.
+ *
+ * Blind replay (the backtester) is the exception: there the unplayed tape must
+ * not exist at all — see `blind`.
  */
 export function ChartCanvas({
   bars,
@@ -63,6 +66,7 @@ export function ChartCanvas({
   cursor = null,
   height = CHART_HEIGHT,
   surface,
+  blind = false,
   onScrub,
 }: {
   bars: MarketBar[];
@@ -77,6 +81,14 @@ export function ChartCanvas({
    * card surface; the full-screen theater sits on the page instead.
    */
   surface?: string;
+  /**
+   * Draw only the bars up to the cursor, and derive the price scale and the
+   * time axis from those alone. A veiled future is still a *known* future: a
+   * fixed scale leaks the run's high and low, and the axis leaks where it ends.
+   * The backtester needs the chart to know as little as the trader does, so it
+   * refits as each bar arrives.
+   */
+  blind?: boolean;
   /** Drag or tap anywhere on the plot to move the replay cursor. */
   onScrub?: (index: number) => void;
 }) {
@@ -84,11 +96,18 @@ export function ChartCanvas({
   const [plotWidth, setPlotWidth] = useState(0);
   const plotHeight = height - TIME_AXIS_HEIGHT;
 
+  // Everything below reads `shown`, never `bars` — in blind mode the tape past
+  // the cursor is not drawn, scaled against, or labelled.
+  const shown = useMemo(
+    () => (blind && cursor != null ? bars.slice(0, Math.max(cursor + 1, 1)) : bars),
+    [blind, bars, cursor],
+  );
+
   const layout = useMemo(() => {
-    if (bars.length === 0 || plotWidth <= 0) return null;
+    if (shown.length === 0 || plotWidth <= 0) return null;
     let min = Infinity;
     let max = -Infinity;
-    for (const bar of bars) {
+    for (const bar of shown) {
       if (bar.low < min) min = bar.low;
       if (bar.high > max) max = bar.high;
     }
@@ -96,7 +115,7 @@ export function ChartCanvas({
     min -= pad;
     max += pad;
     const y = (value: number) => plotHeight * (1 - (value - min) / (max - min));
-    const slot = plotWidth / bars.length;
+    const slot = plotWidth / shown.length;
     const bodyWidth = Math.min(9, Math.max(2, slot * 0.65));
     const x = (index: number) => index * slot + slot / 2;
 
@@ -107,16 +126,18 @@ export function ChartCanvas({
     });
 
     return { min, max, y, x, slot, bodyWidth, gridlines };
-  }, [bars, plotWidth, plotHeight]);
+  }, [shown, plotWidth, plotHeight]);
 
   const onPlotLayout = (e: LayoutChangeEvent) => setPlotWidth(e.nativeEvent.layout.width);
 
-  // Deliberately independent of `cursor` — the candles are the same picture at
-  // every frame of a replay, so they are built once per bar set and the cursor
-  // only moves the veil and the crosshair over them.
+  // Independent of `cursor` outside blind mode — the candles are the same
+  // picture at every frame of a replay, so they are built once per bar set and
+  // the cursor only moves the veil and the crosshair over them. Blind mode is
+  // the exception by construction: `shown` grows a bar at a time, so the list
+  // (and the refitted scale under it) is rebuilt per step.
   const candles = useMemo(() => {
     if (!layout) return null;
-    return bars.map((bar, index) => {
+    return shown.map((bar, index) => {
       const color = bar.close >= bar.open ? theme.colors.profit : theme.colors.loss;
       return (
         <View key={bar.time}>
@@ -146,15 +167,15 @@ export function ChartCanvas({
         </View>
       );
     });
-  }, [bars, layout, theme.colors.profit, theme.colors.loss]);
+  }, [shown, layout, theme.colors.profit, theme.colors.loss]);
 
   // Scrubbing maps an x offset back to a bar. Recreated whenever the geometry
   // changes so the closure never seeks against a stale slot width.
   const scrub = useMemo(() => {
-    if (!onScrub || !layout || bars.length === 0) return null;
+    if (!onScrub || !layout || shown.length === 0) return null;
     const seek = (x: number) => {
       const index = Math.round(x / layout.slot - 0.5);
-      onScrub(Math.min(Math.max(index, 0), bars.length - 1));
+      onScrub(Math.min(Math.max(index, 0), shown.length - 1));
     };
     return (
       Gesture.Pan()
@@ -166,7 +187,7 @@ export function ChartCanvas({
         .onBegin((e) => seek(e.x))
         .onUpdate((e) => seek(e.x))
     );
-  }, [onScrub, layout, bars.length]);
+  }, [onScrub, layout, shown.length]);
 
   const visibleLines = layout
     ? priceLines.filter((line) => line.value > layout.min && line.value < layout.max)
@@ -178,15 +199,15 @@ export function ChartCanvas({
       : markers
           .map((marker) => {
             if (
-              bars.length === 0 ||
-              marker.timeSec < bars[0].time - 60 ||
-              marker.timeSec > bars[bars.length - 1].time + 86_400
+              shown.length === 0 ||
+              marker.timeSec < shown[0].time - 60 ||
+              marker.timeSec > shown[shown.length - 1].time + 86_400
             ) {
               return null;
             }
-            const index = nearestBarIndex(bars, marker.timeSec);
+            const index = nearestBarIndex(shown, marker.timeSec);
             if (cursor != null && index > cursor) return null;
-            const bar = bars[index];
+            const bar = shown[index];
             return {
               key: marker.key,
               left: layout.x(index),
@@ -197,11 +218,11 @@ export function ChartCanvas({
           })
           .filter((m) => m != null);
 
-  if (bars.length === 0 || layout == null) {
+  if (shown.length === 0 || layout == null) {
     return <View style={{ height }} onLayout={onPlotLayout} />;
   }
 
-  const cursorBar = cursor != null && cursor >= 0 && cursor < bars.length ? bars[cursor] : null;
+  const cursorBar = cursor != null && cursor >= 0 && cursor < shown.length ? shown[cursor] : null;
 
   const plot = (
     <View style={[styles.plot, { height }]} onLayout={onPlotLayout}>
@@ -229,7 +250,8 @@ export function ChartCanvas({
       {/* The unplayed tape is covered by one moving pane rather than by
           slicing the candle list: playback moves this View instead of
           rebuilding several hundred, which is what keeps 10× smooth. */}
-      {cursorBar ? (
+      {/* Nothing to veil in blind mode — the cursor bar *is* the last one drawn. */}
+      {cursorBar && !blind ? (
         <View
           style={[
             styles.curtain,
@@ -286,11 +308,11 @@ export function ChartCanvas({
         </View>
       ))}
       <View style={styles.timeAxis}>
-        <Text style={styles.timeLabel}>{formatBarTime(bars[0].time, interval)}</Text>
+        <Text style={styles.timeLabel}>{formatBarTime(shown[0].time, interval)}</Text>
         <Text style={styles.timeLabel}>
-          {formatBarTime(bars[Math.floor(bars.length / 2)].time, interval)}
+          {formatBarTime(shown[Math.floor(shown.length / 2)].time, interval)}
         </Text>
-        <Text style={styles.timeLabel}>{formatBarTime(bars[bars.length - 1].time, interval)}</Text>
+        <Text style={styles.timeLabel}>{formatBarTime(shown[shown.length - 1].time, interval)}</Text>
       </View>
     </View>
   );

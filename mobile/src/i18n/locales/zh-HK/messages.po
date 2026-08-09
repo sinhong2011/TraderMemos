@@ -321,16 +321,16 @@ msgstr "儲存後會上載 {screenshots} 張截圖。"
 #~ msgid "{shown} of {total} events"
 #~ msgstr "{total} 項中的 {shown} 項"
 
-#: src/app/replay.tsx:335
+#: src/app/replay.tsx:388
 msgid "{symbol} replay"
 msgstr "{symbol} 重播"
 
-#: src/app/replay.tsx:331
+#: src/app/replay.tsx:384
 msgid "{symbol} replay at {barClock}"
 msgstr "{symbol} 重播（{barClock}）"
 
 #. placeholder {0}: formatPnl(frame?.net ?? 0, currency)
-#: src/app/replay.tsx:330
+#: src/app/replay.tsx:383
 msgid "{symbol} replay at {barClock} — {0}"
 msgstr "{symbol} 重播（{barClock}）— {0}"
 
@@ -1073,7 +1073,8 @@ msgid "Avg winning R"
 msgstr "平均獲利 R"
 
 #: src/app/(tabs)/(settings)/import-trades.tsx:441
-#: src/app/replay.tsx:362
+#: src/app/replay.tsx:415
+#: src/app/replay.tsx:898
 #: src/app/trade-preview.tsx:101
 #: src/components/form-sheet.tsx:130
 msgid "Back"
@@ -1087,6 +1088,11 @@ msgstr "返回"
 #: src/app/(tabs)/(trades)/[id].tsx:377
 msgid "Back to trades"
 msgstr "返回交易"
+
+#: src/app/(tabs)/(dashboard)/_layout.tsx:99
+#: src/components/tools-menu.tsx:65
+msgid "Backtest"
+msgstr "回溯測試"
 
 #: src/app/(tabs)/(settings)/index.tsx:299
 #~ msgid "Backup or restore local app preferences."
@@ -1243,6 +1249,7 @@ msgstr "預算 {0}"
 msgid "Busiest month: {0} with {1} trades."
 msgstr "最活躍月份：{0}（{1} 筆）。"
 
+#: src/app/replay.tsx:855
 #: src/components/trade-form.tsx:110
 #: src/components/trade-summary.tsx:82
 msgid "Buy"
@@ -1316,6 +1323,7 @@ msgstr "無法連接伺服器"
 #: src/app/cash-form.tsx:144
 #: src/app/edit-note.tsx:79
 #: src/app/new-setup.tsx:149
+#: src/app/replay.tsx:821
 #: src/components/account-menu.tsx:48
 #: src/components/attachments-card.tsx:156
 #: src/components/form-sheet.tsx:130
@@ -1473,10 +1481,15 @@ msgstr "清除中…"
 msgid "Clock"
 msgstr "時鐘"
 
+#: src/app/replay.tsx:1002
 #: src/components/swipeable-trade-row.tsx:108
 #: src/components/trade-scan-overlay.tsx:366
 msgid "Close"
 msgstr "平倉"
+
+#: src/app/replay.tsx:876
+msgid "Close & save"
+msgstr "平倉並儲存"
 
 #: src/app/(tabs)/(settings)/display.tsx:185
 msgid "Close date"
@@ -1809,7 +1822,8 @@ msgstr "無法撤銷權杖"
 #: src/app/new-setup.tsx:107
 #: src/app/new-setup.tsx:133
 #: src/app/quick-journal.tsx:78
-#: src/app/replay.tsx:340
+#: src/app/replay.tsx:393
+#: src/app/replay.tsx:727
 #: src/components/checklist-card.tsx:102
 #: src/lib/save-trades.ts:67
 msgid "Could not save"
@@ -1831,7 +1845,7 @@ msgstr "無法儲存範例檔"
 #~ msgid "Could not scan"
 #~ msgstr "無法掃描"
 
-#: src/app/replay.tsx:302
+#: src/app/replay.tsx:355
 #: src/app/share-trade.tsx:65
 #: src/app/share-wrapped.tsx:75
 msgid "Could not share"
@@ -1892,6 +1906,7 @@ msgstr "建立連結"
 #~ msgstr "建立中…"
 
 #: src/app/(tabs)/(dashboard)/advanced-chart.tsx:98
+#: src/app/(tabs)/(dashboard)/backtest.tsx:85
 #: src/app/(tabs)/(trades)/index.tsx:280
 #: src/components/trade-form.tsx:269
 msgid "Crypto"
@@ -1955,7 +1970,7 @@ msgstr "切換至下一個速度"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:88
 #: src/components/checklist-card.tsx:173
-#: src/components/tools-menu.tsx:78
+#: src/components/tools-menu.tsx:83
 msgid "Daily checklist"
 msgstr "每日清單"
 
@@ -2162,6 +2177,15 @@ msgstr "開發者"
 msgid "Direction"
 msgstr "方向"
 
+#: src/app/replay.tsx:822
+#: src/app/replay.tsx:883
+msgid "Discard"
+msgstr "捨棄"
+
+#: src/app/replay.tsx:820
+msgid "Discard session?"
+msgstr "捨棄此時段？"
+
 #: src/app/(tabs)/(settings)/index.tsx:153
 #: src/app/(tabs)/(settings)/index.tsx:316
 #~ msgid "Disconnect"
@@ -2285,9 +2309,9 @@ msgstr "每個項目都會成為 TraderMemos 清單中的提醒事項。在提�
 msgid "Each point is the win rate across the trailing {windowSize} closed trades."
 msgstr "每點代表最近 {windowSize} 筆已平倉交易的勝率。"
 
-#: src/app/(tabs)/(dashboard)/_layout.tsx:101
+#: src/app/(tabs)/(dashboard)/_layout.tsx:102
 #: src/app/(tabs)/(dashboard)/economic-events.tsx:661
-#: src/components/tools-menu.tsx:65
+#: src/components/tools-menu.tsx:70
 msgid "Economic calendar"
 msgstr "經濟日曆"
 
@@ -2338,7 +2362,11 @@ msgstr "情緒"
 msgid "Enabled"
 msgstr "啟用"
 
-#: src/components/tools-menu.tsx:108
+#: src/app/(tabs)/(dashboard)/backtest.tsx:171
+msgid "End date"
+msgstr "結束日期"
+
+#: src/components/tools-menu.tsx:113
 msgid "End Lock Screen session"
 msgstr "結束鎖定畫面時段"
 
@@ -2796,6 +2824,7 @@ msgstr "預測"
 #~ msgstr "預測 {0}"
 
 #: src/app/(tabs)/(dashboard)/advanced-chart.tsx:99
+#: src/app/(tabs)/(dashboard)/backtest.tsx:86
 #: src/app/(tabs)/(trades)/index.tsx:282
 #: src/components/trade-form.tsx:271
 msgid "Forex"
@@ -2883,6 +2912,7 @@ msgid "Funding"
 msgstr "資金"
 
 #: src/app/(tabs)/(dashboard)/advanced-chart.tsx:100
+#: src/app/(tabs)/(dashboard)/backtest.tsx:87
 #: src/app/(tabs)/(trades)/index.tsx:281
 #: src/components/trade-form.tsx:270
 msgid "Futures"
@@ -3175,6 +3205,10 @@ msgstr "智能"
 msgid "Interest"
 msgstr "利息"
 
+#: src/app/(tabs)/(dashboard)/backtest.tsx:176
+msgid "Interval"
+msgstr "時間週期"
+
 #: src/app/(tabs)/(calendar)/day/[date].tsx:338
 msgid "Intraday P&L"
 msgstr "日內損益"
@@ -3199,7 +3233,7 @@ msgstr "將同時從此筆記和伺服器刪除。"
 #: src/app/(tabs)/(trades)/[id].tsx:584
 #: src/app/(tabs)/(trades)/[id].tsx:626
 #: src/components/swipeable-trade-row.tsx:118
-#: src/components/tools-menu.tsx:121
+#: src/components/tools-menu.tsx:126
 #: src/components/trade-form.tsx:463
 msgid "Journal"
 msgstr "交易日誌"
@@ -3380,7 +3414,7 @@ msgstr "做多"
 
 #: src/app/(tabs)/(trades)/[id].tsx:126
 #: src/app/quick-journal.tsx:155
-#: src/app/replay.tsx:436
+#: src/app/replay.tsx:489
 #: src/components/share-card.tsx:164
 msgid "LONG"
 msgstr "做多"
@@ -3484,6 +3518,7 @@ msgstr "保證金"
 msgid "Mark key S/R levels"
 msgstr "標記關鍵支撐阻力位"
 
+#: src/app/(tabs)/(dashboard)/backtest.tsx:137
 #: src/app/(tabs)/(trades)/index.tsx:379
 #: src/components/trade-form.tsx:315
 msgid "Market"
@@ -3828,7 +3863,8 @@ msgstr "尚無分項數據。"
 msgid "No chart data for this symbol."
 msgstr "此代號沒有圖表數據。"
 
-#: src/app/replay.tsx:420
+#: src/app/replay.tsx:473
+#: src/app/replay.tsx:942
 msgid "No chart data for this window."
 msgstr "此時段沒有圖表資料。"
 
@@ -4108,7 +4144,7 @@ msgstr "找不到筆記"
 #: src/app/(tabs)/(dashboard)/notes.tsx:192
 #: src/app/(tabs)/(dashboard)/notes.tsx:243
 #: src/app/(tabs)/(trades)/[id].tsx:657
-#: src/components/tools-menu.tsx:72
+#: src/components/tools-menu.tsx:77
 msgid "Notes"
 msgstr "筆記"
 
@@ -4132,7 +4168,8 @@ msgstr "未有任何記錄。趁記憶清晰，記低形態同入場理由。"
 #~ msgid "Nothing matches the filters this week."
 #~ msgstr "本週沒有符合篩選條件的項目。"
 
-#: src/app/replay.tsx:160
+#: src/app/replay.tsx:186
+#: src/app/replay.tsx:213
 msgid "Nothing to replay."
 msgstr "沒有可重播的內容。"
 
@@ -4300,6 +4337,10 @@ msgstr "備註（可選）"
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:260
 msgid "Options"
 msgstr "期權"
+
+#: src/app/replay.tsx:992
+msgid "Order"
+msgstr "下單"
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:325
 msgid "Original"
@@ -4538,7 +4579,7 @@ msgstr "播放速度"
 #: src/app/(tabs)/(dashboard)/index.tsx:214
 #: src/app/(tabs)/(dashboard)/playbook.tsx:172
 #: src/app/(tabs)/(dashboard)/playbook.tsx:222
-#: src/components/tools-menu.tsx:73
+#: src/components/tools-menu.tsx:78
 msgid "Playbook"
 msgstr "策略手冊"
 
@@ -4753,6 +4794,10 @@ msgstr "認沽 (Put)"
 #: src/app/(tabs)/(trades)/[id].tsx:130
 msgid "PUT"
 msgstr "認沽"
+
+#: src/app/replay.tsx:975
+msgid "Qty"
+msgstr "數量"
 
 #: src/app/(tabs)/(settings)/import-trades.tsx:47
 #: src/app/(tabs)/(trades)/[id].tsx:211
@@ -5055,7 +5100,7 @@ msgstr "重播"
 msgid "Replay {symbol}"
 msgstr "重播 {symbol}"
 
-#: src/app/replay.tsx:389
+#: src/app/replay.tsx:442
 msgid "Replay actions"
 msgstr "重播操作"
 
@@ -5068,11 +5113,15 @@ msgstr "重播此交易"
 msgid "Replay trade"
 msgstr "重播交易"
 
+#: src/app/(tabs)/(dashboard)/backtest.tsx:162
+msgid "Replay window"
+msgstr "重播區間"
+
 #: src/app/(tabs)/(settings)/about.tsx:67
 msgid "Report an issue"
 msgstr "回報問題"
 
-#: src/app/(tabs)/(dashboard)/_layout.tsx:112
+#: src/app/(tabs)/(dashboard)/_layout.tsx:113
 #: src/app/(tabs)/(dashboard)/reports.tsx:114
 #: src/components/tools-menu.tsx:39
 msgid "Reports"
@@ -5149,6 +5198,10 @@ msgstr "檢視匯入內容"
 #: src/components/trade-form.tsx:553
 msgid "Review notes"
 msgstr "檢討筆記"
+
+#: src/app/replay.tsx:1012
+msgid "Reviewing an earlier bar — step forward to trade."
+msgstr "正在檢視較早的K線 — 前進一根才可下單。"
 
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:70
 msgid "Reviews your journal and trades to surface patterns on the dashboard."
@@ -5306,7 +5359,7 @@ msgstr "儲存範例檔即可了解預期格式。檔案只會留在你的伺服
 #~ msgid "Save checklist"
 #~ msgstr "儲存清單"
 
-#: src/app/replay.tsx:393
+#: src/app/replay.tsx:446
 msgid "Save frame to note"
 msgstr "將畫面存入筆記"
 
@@ -5317,6 +5370,10 @@ msgstr "將畫面存入筆記"
 #: src/app/(tabs)/(settings)/index.tsx:250
 #~ msgid "Save risk rules"
 #~ msgstr "儲存風險規則"
+
+#: src/app/replay.tsx:865
+msgid "Save session"
+msgstr "儲存時段"
 
 #: src/app/trade-preview.tsx:211
 msgid "Save trade"
@@ -5405,6 +5462,10 @@ msgstr "每筆交易截圖數"
 #~ msgid "Search"
 #~ msgstr "搜尋"
 
+#: src/app/(tabs)/(dashboard)/backtest.tsx:134
+msgid "Search a ticker"
+msgstr "搜尋代號"
+
 #: src/app/(tabs)/(dashboard)/advanced-chart.tsx:168
 msgid "Search a ticker above to load its chart."
 msgstr "在上方搜尋代號即可載入圖表。"
@@ -5429,6 +5490,7 @@ msgid "Search settings"
 msgstr "搜尋設定"
 
 #: src/app/(tabs)/(dashboard)/advanced-chart.tsx:122
+#: src/app/(tabs)/(dashboard)/backtest.tsx:115
 msgid "Search symbol"
 msgstr "搜尋代號"
 
@@ -5454,6 +5516,7 @@ msgstr "自主託管 — 你的日誌不會離開這台伺服器。"
 msgid "Self-hosted — your trade data stays on your stack."
 msgstr "自行架設 — 交易數據保存在你自己的伺服器。"
 
+#: src/app/replay.tsx:856
 #: src/components/trade-form.tsx:111
 #: src/components/trade-summary.tsx:82
 msgid "Sell"
@@ -5481,10 +5544,14 @@ msgid "Server URL"
 msgstr "伺服器 URL"
 
 #: src/app/(tabs)/(trades)/[id].tsx:600
-#: src/components/tools-menu.tsx:105
+#: src/components/tools-menu.tsx:110
 #: src/components/trade-form.tsx:474
 msgid "Session"
 msgstr "時段"
+
+#: src/app/replay.tsx:916
+msgid "Session actions"
+msgstr "時段操作"
 
 #: src/components/note-form.tsx:88
 #~ msgid "Session recap"
@@ -5579,7 +5646,7 @@ msgstr "分享"
 msgid "Share card"
 msgstr "分享卡片"
 
-#: src/app/replay.tsx:398
+#: src/app/replay.tsx:451
 msgid "Share frame"
 msgstr "分享畫面"
 
@@ -5605,7 +5672,7 @@ msgstr "分享連結需要此網址。你的伺服器並未回報，請設定網
 msgid "Share links will use whatever your server reports."
 msgstr "分享連結會改用伺服器回報的網址。"
 
-#: src/app/replay.tsx:299
+#: src/app/replay.tsx:352
 msgid "Share replay frame"
 msgstr "分享重播畫面"
 
@@ -5639,7 +5706,7 @@ msgstr "做空"
 
 #: src/app/(tabs)/(trades)/[id].tsx:126
 #: src/app/quick-journal.tsx:155
-#: src/app/replay.tsx:436
+#: src/app/replay.tsx:489
 #: src/components/share-card.tsx:164
 msgid "SHORT"
 msgstr "做空"
@@ -5660,7 +5727,7 @@ msgstr "顯示金額"
 msgid "Show password"
 msgstr "顯示密碼"
 
-#: src/components/tools-menu.tsx:114
+#: src/components/tools-menu.tsx:119
 msgid "Show session on Lock Screen"
 msgstr "在鎖定畫面顯示時段"
 
@@ -5748,6 +5815,14 @@ msgstr "排序"
 msgid "SQN"
 msgstr "SQN"
 
+#: src/app/(tabs)/(dashboard)/backtest.tsx:165
+msgid "Start date"
+msgstr "開始日期"
+
+#: src/app/(tabs)/(dashboard)/backtest.tsx:198
+msgid "Start replay"
+msgstr "開始重播"
+
 #: src/app/(tabs)/(settings)/account-form.tsx:311
 msgid "Starting balance"
 msgstr "初始結餘"
@@ -5775,6 +5850,7 @@ msgid "Step forward"
 msgstr "下一根"
 
 #: src/app/(tabs)/(dashboard)/advanced-chart.tsx:97
+#: src/app/(tabs)/(dashboard)/backtest.tsx:84
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:259
 #: src/app/(tabs)/(trades)/index.tsx:278
 #: src/components/trade-form.tsx:267
@@ -5900,6 +5976,8 @@ msgstr "波段"
 msgid "Switch account"
 msgstr "切換帳戶"
 
+#: src/app/(tabs)/(dashboard)/backtest.tsx:130
+#: src/app/(tabs)/(dashboard)/backtest.tsx:132
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:183
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:234
 #: src/app/(tabs)/(settings)/import-trades.tsx:45
@@ -5927,6 +6005,7 @@ msgid "Symbol A–Z"
 msgstr "代號 A–Z"
 
 #: src/app/(tabs)/(dashboard)/advanced-chart.tsx:231
+#: src/app/(tabs)/(dashboard)/backtest.tsx:208
 msgid "Symbol, e.g. SPY"
 msgstr "代號（例如 SPY）"
 
@@ -6074,6 +6153,10 @@ msgstr "AI 評語失敗 — 請再試。"
 msgid "The base URL must start with http:// or https://."
 msgstr "基礎 URL 必須以 http:// 或 https:// 開頭。"
 
+#: src/app/(tabs)/(dashboard)/backtest.tsx:190
+msgid "The end of the window has to fall after its start."
+msgstr "結束日期必須在開始日期之後。"
+
 #: src/app/(tabs)/(settings)/ai.tsx:115
 #~ msgid "The endpoint answered successfully."
 #~ msgstr "端點回應正常。"
@@ -6123,6 +6206,10 @@ msgstr "端點所用的模型 ID，例如 gpt-4o-mini。"
 msgid "The new passwords don't match."
 msgstr "兩次輸入的新密碼不一致。"
 
+#: src/app/replay.tsx:820
+msgid "The orders you placed will not be saved."
+msgstr "已下的單不會被儲存。"
+
 #: src/app/(tabs)/(settings)/profile.tsx:67
 msgid "The owner account — the first user created on this server."
 msgstr "擁有者帳戶 — 此伺服器上建立的第一位使用者。"
@@ -6130,6 +6217,10 @@ msgstr "擁有者帳戶 — 此伺服器上建立的第一位使用者。"
 #: src/app/(tabs)/(dashboard)/wrapped.tsx:190
 msgid "The recap appears once the year has closed trades."
 msgstr "該年度有已平倉交易後就會顯示回顧。"
+
+#: src/app/(tabs)/(dashboard)/backtest.tsx:189
+msgid "The replay starts a few bars in for context, then reveals one bar at a time. Orders fill at the bar's close."
+msgstr "重播會先跳過幾根K線作為背景，之後逐根顯示。訂單以該根K線的收市價成交。"
 
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:218
 msgid "The root of an OpenAI-compatible API, ending in /v1."
@@ -6346,9 +6437,9 @@ msgstr "權杖讓腳本與整合向伺服器 API 驗證身分。點一下可查�
 msgid "Too many requests"
 msgstr "請求過於頻繁"
 
-#: src/components/tools-menu.tsx:90
-#: src/components/tools-menu.tsx:102
-#: src/components/tools-menu.tsx:131
+#: src/components/tools-menu.tsx:95
+#: src/components/tools-menu.tsx:107
+#: src/components/tools-menu.tsx:136
 msgid "Tools"
 msgstr "工具"
 
@@ -6400,7 +6491,7 @@ msgstr "交易歸屬日"
 
 #: src/app/edit-trade.tsx:110
 #: src/app/quick-journal.tsx:207
-#: src/app/replay.tsx:131
+#: src/app/replay.tsx:157
 #: src/app/share-trade.tsx:101
 msgid "Trade not found"
 msgstr "找不到交易"
@@ -6595,7 +6686,7 @@ msgstr "未命名"
 #~ msgstr "上載 CSV / JSON"
 
 #. placeholder {0}: response.status
-#: src/app/replay.tsx:326
+#: src/app/replay.tsx:379
 #: src/components/attachments-card.tsx:92
 #: src/components/note-images.tsx:84
 msgid "Upload failed ({0})"
@@ -6847,7 +6938,7 @@ msgstr "趁記憶猶新寫下入場原因。未來的你需要的是論點，不
 msgid "Year"
 msgstr "年"
 
-#: src/app/(tabs)/(dashboard)/_layout.tsx:134
+#: src/app/(tabs)/(dashboard)/_layout.tsx:135
 #: src/app/(tabs)/(dashboard)/reports.tsx:59
 #: src/app/(tabs)/(dashboard)/wrapped.tsx:368
 #: src/components/reports/overview-section.tsx:558
