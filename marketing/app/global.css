@@ -182,38 +182,7 @@ html > body[data-scroll-locked] {
   }
 }
 
-/* ---------- Effect layer (Aceternity-style, token-driven) ---------- */
-
-/* Hero spotlight — a soft primary beam sweeps in from the top-left on load */
-.tm-spotlight {
-  position: absolute;
-  top: -14rem;
-  left: -18rem;
-  z-index: -10;
-  height: 44rem;
-  width: 90rem;
-  pointer-events: none;
-  transform: rotate(-16deg);
-  transform-origin: left center;
-  background: radial-gradient(
-    50% 50% at 50% 50%,
-    color-mix(in oklch, var(--color-fd-primary) 20%, transparent),
-    transparent 72%
-  );
-  opacity: 0;
-  animation: tm-spotlight-in 1.8s cubic-bezier(0.22, 1, 0.36, 1) 0.2s forwards;
-}
-
-@keyframes tm-spotlight-in {
-  from {
-    opacity: 0;
-    transform: rotate(-24deg) translateY(-3rem);
-  }
-  to {
-    opacity: 1;
-    transform: rotate(-16deg) translateY(0);
-  }
-}
+/* ---------- Effect layer (token-driven) ---------- */
 
 /* Light pulse traveling along the hero equity curve. dasharray period (0.06 +
    2) exceeds the normalized path length of 1, so outside the sweep the dash
@@ -232,17 +201,6 @@ html > body[data-scroll-locked] {
   55%,
   100% {
     stroke-dashoffset: -1;
-  }
-}
-
-/* Rotating conic highlight for the moving-border CTA (spins inside a p-px clip) */
-.tm-spin {
-  animation: tm-spin-rotate 3.5s linear infinite;
-}
-
-@keyframes tm-spin-rotate {
-  to {
-    transform: rotate(1turn);
   }
 }
 
@@ -339,15 +297,8 @@ html > body[data-scroll-locked] {
     animation: none;
     opacity: 0;
   }
-  .tm-spotlight {
-    animation: none;
-    opacity: 1;
-  }
   .tm-curve-pulse,
   .tm-glare {
     display: none;
-  }
-  .tm-spin {
-    animation: none;
   }
 }
