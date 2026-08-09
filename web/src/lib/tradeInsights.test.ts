@@ -81,6 +81,23 @@ describe("computeTradeInsights", () => {
     expect(i.postExitMae).toBe(45);
     expect(computeTradeInsights(baseTrade()).postExitMfe).toBeNull();
   });
+
+  it("blends entry heat and MFE capture into the execution score", () => {
+    // Entry: 1 − 40/(40+1200) ≈ 0.9677; Exit: 950/1200 ≈ 0.7917 → 88.
+    const i = computeTradeInsights(baseTrade());
+    expect(i.execScore).toBe(88);
+  });
+
+  it("scores entry heat alone when the trade was never green", () => {
+    // MFE 0 drops the capture component; entry = 1 − 120/120 = 0.
+    const i = computeTradeInsights(baseTrade({ mae: 120, mfe: 0, net_pnl: -80 }));
+    expect(i.execScore).toBe(0);
+  });
+
+  it("leaves the execution score null without excursion data", () => {
+    const i = computeTradeInsights(baseTrade({ mae: null, mfe: null }));
+    expect(i.execScore).toBeNull();
+  });
 });
 
 describe("generateTradeCoachNotes", () => {

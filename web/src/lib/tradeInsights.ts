@@ -35,6 +35,13 @@ export interface TradeInsights {
   mfeCapturePct: number | null;
   /** MFE − net when both set — dollars left on the table (winners). */
   leftOnTable: number | null;
+  /**
+   * Per-trade execution score (0–100): mean of the entry-heat component
+   * (1 − MAE/(MAE+MFE)) and the MFE-capture component (net ÷ MFE) — the
+   * per-trade slice of the Reports execution composite. Null when neither
+   * component has its excursion inputs.
+   */
+  execScore: number | null;
   /** Favorable continuation after the exit — what holding longer was worth. */
   postExitMfe: number | null;
   /** Adverse move after the exit — what exiting avoided. */
@@ -71,6 +78,20 @@ export function computeTradeInsights(trade: TradeDetail): TradeInsights {
     leftOnTable = mfe - net;
   }
 
+  const scoreParts: number[] = [];
+  if (mae != null && mfe != null) {
+    const heat = Math.abs(mae);
+    const move = Math.max(mfe, 0);
+    if (heat + move > 0) scoreParts.push(1 - heat / (heat + move));
+  }
+  if (mfeCapturePct != null) {
+    scoreParts.push(Math.min(1, Math.max(0, mfeCapturePct)));
+  }
+  const execScore =
+    scoreParts.length > 0
+      ? Math.round((scoreParts.reduce((a, b) => a + b, 0) / scoreParts.length) * 100)
+      : null;
+
   return {
     grossPnl: gross,
     netPnl: net,
@@ -89,6 +110,7 @@ export function computeTradeInsights(trade: TradeDetail): TradeInsights {
     mfe,
     mfeCapturePct,
     leftOnTable,
+    execScore,
     postExitMfe: trade.post_exit_mfe,
     postExitMae: trade.post_exit_mae,
     holdLabel: rr.holdLabel,

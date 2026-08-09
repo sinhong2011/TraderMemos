@@ -100,6 +100,42 @@ export interface BehaviorReport {
   loss_aversion: LossAversionSection;
 }
 
+/**
+ * One axis of the execution-quality composite (Go: analytics.AxisScore).
+ * `score` is null — not zero — when too few trades carry the axis's inputs.
+ */
+export interface ExecAxisScore {
+  score: number | null;
+  scored: number;
+  excluded: number;
+}
+
+/** One drill-down series bucket (Go: analytics.ExecScorePoint). */
+export interface ExecScorePoint {
+  date: string;
+  trades: number;
+  composite: number | null;
+  entry: number | null;
+  exit: number | null;
+  risk: number | null;
+  stability: number | null;
+  tempo: number | null;
+}
+
+/** Payload of GET /analytics/execution-score (Go: analytics.ExecScoreReport). */
+export interface ExecScoreReport {
+  trades: number;
+  rules_configured: boolean;
+  bucket: "week" | "month";
+  composite: number | null;
+  entry: ExecAxisScore;
+  exit: ExecAxisScore;
+  risk: ExecAxisScore;
+  stability: ExecAxisScore;
+  tempo: ExecAxisScore;
+  series: ExecScorePoint[];
+}
+
 export interface Tokens {
   access_token: string;
   refresh_token: string;

@@ -60,3 +60,10 @@ export function useBreakdown(by: string, filters: Filters) {
     queryFn: () => analyticsApi.breakdown(by, filters),
   });
 }
+
+export function useExecutionScore(filters: Filters, bucket: "week" | "month") {
+  return useQuery({
+    queryKey: ["analytics", "execution-score", bucket, filters],
+    queryFn: () => analyticsApi.executionScore(filters, bucket),
+  });
+}

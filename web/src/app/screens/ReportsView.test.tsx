@@ -85,6 +85,8 @@ const base = {
   qualityBreakdown: [],
   qualityBreakdownLoading: false,
   qualityBreakdownError: false,
+  execScoreBucket: "week" as const,
+  onExecScoreBucketChange: vi.fn<(...args: any[]) => any>(),
   tab: "overview" as const,
   onTabChange: vi.fn<(...args: any[]) => any>(),
   currency: "USD",
