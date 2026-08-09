@@ -72,6 +72,8 @@ Try TraderMemos without installing anything: **[tradermemos.netlify.app](https:/
 
 Sign in with `tradermemosdemo` / `demopassword`. The demo account carries the same seeded dataset as the screenshots — treat it as a shared sandbox, and don't store anything real in it.
 
+If TraderMemos is part of your daily review, consider [sponsoring its development](https://github.com/sponsors/sinhong2011) — it keeps the project free and self-hosted for everyone.
+
 ---
 
 ## Why TraderMemos?

@@ -20,6 +20,7 @@ import {
   Clock,
   Tag,
   LineChart,
+  Smartphone,
   type LucideIcon,
 } from 'lucide-react';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
@@ -87,11 +88,12 @@ const featureIcons = {
   tools: Calculator,
   ai: Bot,
   api: Plug,
+  mobile: Smartphone,
   themes: MoonStar,
 } as const;
 
 const bentoFeatureIds = ['dashboard', 'tradeLog', 'calendar', 'reports'] as const;
-const listFeatureIds = ['playbook', 'import', 'tools', 'ai', 'api', 'themes'] as const;
+const listFeatureIds = ['playbook', 'import', 'tools', 'ai', 'api', 'mobile'] as const;
 
 type FeatureId = (typeof bentoFeatureIds)[number] | (typeof listFeatureIds)[number];
 

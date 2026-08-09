@@ -122,6 +122,10 @@
         "title": "API 访问",
         "description": "个人访问令牌（tm_pat_…）可用于 MCP / 脚本；OpenAPI 文档位于 /docs。"
       },
+      "mobile": {
+        "title": "iOS 应用（测试版）",
+        "description": "原生 SwiftUI 随身版 — 交易、日历、报表，以及主屏幕 / 锁屏小组件。现已在 TestFlight 提供。"
+      },
       "themes": {
         "title": "主题",
         "description": "深色与浅色主题，基于 shadcn/ui + coss ui 设计令牌构建。"
@@ -137,22 +141,10 @@
     "techStackHeading": "技术栈",
     "stackComment": "# 你的数据，跑在你自己的主机上",
     "stack": [
-      {
-        "layer": "API",
-        "value": "Go · Echo · sqlc · golang-migrate · SQLite"
-      },
-      {
-        "layer": "Web",
-        "value": "React · Vite+ · TanStack Router/Query/Form · Tailwind"
-      },
-      {
-        "layer": "移动端",
-        "value": "Expo（规划中）"
-      },
-      {
-        "layer": "设计",
-        "value": "shadcn/ui + coss ui 设计令牌"
-      }
+      { "layer": "API", "value": "Go · Echo · sqlc · golang-migrate · SQLite" },
+      { "layer": "Web", "value": "React · Vite+ · TanStack Router/Query/Form · Tailwind" },
+      { "layer": "移动端", "value": "Expo · @expo/ui（SwiftUI）· TestFlight" },
+      { "layer": "设计", "value": "shadcn/ui + coss ui 设计令牌" }
     ],
     "licenseHeading": "采用 AGPL-3.0 许可协议",
     "licenseBody": "自由自托管、修改，供个人或公司内部使用。",
@@ -165,6 +157,7 @@
     "privacy": "隐私政策",
     "roadmap": "路线图",
     "github": "GitHub",
+    "sponsor": "赞助",
     "discussions": "社区讨论",
     "security": "安全政策",
     "license": "许可协议（AGPL-3.0）",

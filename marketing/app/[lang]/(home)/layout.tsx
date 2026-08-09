@@ -40,6 +40,9 @@ async function Footer({ lang }: { lang: string }) {
             <Link href={repoUrl} className={link}>
               {t('github')}
             </Link>
+            <Link href={`https://github.com/sponsors/${gitConfig.user}`} className={link}>
+              {t('sponsor')} ♥
+            </Link>
             <Link href={`${repoUrl}/discussions`} className={link}>
               {t('discussions')}
             </Link>
