@@ -259,6 +259,60 @@ describe("ImportView - Step 2 mapping selects", () => {
   });
 });
 
+describe("ImportView - MetaTrader statement preview", () => {
+  const statementPreview: ImportPreview = {
+    import_batch_id: "",
+    headers: ["Time", "Deal", "Symbol", "Type", "Volume", "Price"],
+    sample_rows: [
+      {
+        Time: "2024.01.15 10:30:00",
+        Deal: "400101",
+        Symbol: "EURUSD",
+        Type: "buy",
+        Volume: "0.50",
+        Price: "1.09312",
+      },
+    ],
+    suggested_mapping: {},
+    detected_broker: "MetaTrader 5 (Trade History Report)",
+    suggested_source_tz: "Europe/Athens",
+    format: "executions",
+    source: "statement",
+    row_count: 3,
+  };
+
+  it("skips column mapping but keeps the timezone picker", async () => {
+    const user = (await import("@testing-library/user-event")).default.setup();
+    const onCommit = vi.fn<(...args: any[]) => any>().mockResolvedValue(mockResult);
+    renderImportView({
+      accounts,
+      accountsLoading: false,
+      onPreview: vi.fn<(...args: any[]) => any>().mockResolvedValue(statementPreview),
+      onCommit,
+      onDone: vi.fn<(...args: any[]) => any>(),
+    });
+
+    const file = new File(["<html><table></table></html>"], "report.html", { type: "text/html" });
+    fireEvent.change(screen.getByLabelText("Import file input"), { target: { files: [file] } });
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: /preview import/i })).toBeEnabled(),
+    );
+    await user.click(screen.getByRole("button", { name: /preview import/i }));
+    await waitFor(() => expect(screen.getByText(/Detected: MetaTrader 5/)).toBeInTheDocument());
+
+    // No mapping selects, but the server-timezone choice stays.
+    expect(screen.queryByLabelText("Map symbol")).not.toBeInTheDocument();
+    expect(screen.getByLabelText("Timestamps timezone")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /confirm import/i }));
+    await waitFor(() => expect(screen.getByText("Import complete")).toBeInTheDocument());
+    // Commit sends the (suggested) statement timezone, not UTC.
+    const fd = onCommit.mock.calls[0][1] as FormData;
+    expect(fd.get("source_tz")).toBe("Europe/Athens");
+    expect(fd.get("column_mapping")).toBe("{}");
+  });
+});
+
 describe("jsonFileHasAccountName", () => {
   it("reads nested account.name from export JSON", () => {
     expect(

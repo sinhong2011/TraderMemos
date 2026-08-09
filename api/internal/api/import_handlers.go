@@ -1,6 +1,7 @@
 package api
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
 	"encoding/csv"
@@ -30,21 +31,17 @@ func (s *Server) importRoutes(g *echo.Group) {
 }
 
 type loadedImport struct {
-	Source  string // csv|json
-	Format  string
-	Headers []string
-	Rows    []map[string]string
-	JSON    importer.JSONImport
+	Source    string // csv|json|statement
+	Format    string
+	Headers   []string
+	Rows      []map[string]string
+	JSON      importer.JSONImport
+	Statement *importer.MTStatement
 }
 
-// readCSV parses an uploaded multipart file into headers + row maps.
-func readCSV(fh *multipart.FileHeader) (headers []string, rows []map[string]string, err error) {
-	f, err := fh.Open()
-	if err != nil {
-		return nil, nil, err
-	}
-	defer f.Close()
-	r := csv.NewReader(f)
+// readCSV parses uploaded CSV bytes into headers + row maps.
+func readCSV(data []byte) (headers []string, rows []map[string]string, err error) {
+	r := csv.NewReader(bytes.NewReader(data))
 	r.FieldsPerRecord = -1
 	records, err := r.ReadAll()
 	if err != nil {
@@ -76,11 +73,11 @@ func readUploadBytes(fh *multipart.FileHeader) ([]byte, error) {
 }
 
 func loadImportFile(fh *multipart.FileHeader) (loadedImport, error) {
+	data, err := readUploadBytes(fh)
+	if err != nil {
+		return loadedImport{}, err
+	}
 	if importer.IsJSONFilename(fh.Filename) {
-		data, err := readUploadBytes(fh)
-		if err != nil {
-			return loadedImport{}, err
-		}
 		j, err := importer.ParseJSONImport(data)
 		if err != nil {
 			return loadedImport{}, err
@@ -94,7 +91,26 @@ func loadImportFile(fh *multipart.FileHeader) (loadedImport, error) {
 		}, nil
 	}
 
-	headers, rows, err := readCSV(fh)
+	// MetaTrader statements (MT5 Trade History Report .xlsx/.html, MT4
+	// Statement .html) are recognized by content, not filename — they skip
+	// column mapping entirely.
+	if st, ok := importer.DetectMTStatement(data); ok {
+		return loadedImport{
+			Source:    "statement",
+			Format:    "executions",
+			Headers:   st.Headers,
+			Rows:      st.SampleRows(st.RowCount()),
+			Statement: st,
+		}, nil
+	}
+	switch importer.SniffStatementContainer(data) {
+	case "xlsx":
+		return loadedImport{}, fmt.Errorf("spreadsheet has no recognizable MetaTrader trade table — export the Trade History Report from the terminal")
+	case "html":
+		return loadedImport{}, fmt.Errorf("HTML file has no recognizable MetaTrader trade table — export the account Statement or Trade History Report")
+	}
+
+	headers, rows, err := readCSV(data)
 	if err != nil {
 		return loadedImport{}, err
 	}
@@ -158,15 +174,24 @@ func (s *Server) handleImportPreview(c *echo.Context) error {
 	suggested := importer.SuggestMapping(loaded.Headers)
 	detectedBroker := ""
 	suggestedTZ := ""
-	if loaded.Format == "journal_trades" {
+	switch {
+	case loaded.Source == "statement":
+		// Statement tables are parsed positionally — no column mapping. The
+		// tz suggestion is the MetaTrader server-time convention, not UTC.
 		suggested = map[string]string{}
-	} else if name, presetMap, presetTZ, ok := importer.MatchBroker(loaded.Headers); ok {
-		// A recognized broker export beats header-substring guessing.
-		for field, header := range presetMap {
-			suggested[field] = header
+		detectedBroker = loaded.Statement.BrokerName()
+		suggestedTZ = importer.MTServerTZ
+	case loaded.Format == "journal_trades":
+		suggested = map[string]string{}
+	default:
+		if name, presetMap, presetTZ, ok := importer.MatchBroker(loaded.Headers); ok {
+			// A recognized broker export beats header-substring guessing.
+			for field, header := range presetMap {
+				suggested[field] = header
+			}
+			detectedBroker = name
+			suggestedTZ = presetTZ
 		}
-		detectedBroker = name
-		suggestedTZ = presetTZ
 	}
 	if suggested["open_time"] != "" && suggested["close_time"] != "" {
 		// Round-trip rows synthesize both fills from the open/close pairs;
@@ -387,6 +412,16 @@ func (s *Server) finishImportCommit(c *echo.Context, uid string, batch store.Imp
 				parsed = importer.NewJournal().ParseRowsWithOptions(loaded.Rows, opts)
 			}
 		}
+	case loaded.Source == "statement":
+		sourceTZ := strings.TrimSpace(c.FormValue("source_tz"))
+		if sourceTZ != "" {
+			if _, err := time.LoadLocation(sourceTZ); err != nil {
+				return Fail(http.StatusBadRequest, "bad_request", "invalid 'source_tz' (want IANA timezone name)", nil)
+			}
+		}
+		// Empty override keeps the MetaTrader server-time default (EET) —
+		// reading broker wall clocks as UTC is the historical tz trap.
+		parsed = loaded.Statement.Parse(sourceTZ)
 	case loaded.Format == "journal_trades":
 		opts := journalOptionOverrides(c)
 		parsed = importer.NewJournal().ParseRowsWithOptions(loaded.Rows, opts)

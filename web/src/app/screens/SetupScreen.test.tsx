@@ -25,7 +25,7 @@ describe("SetupScreen", () => {
     expect(screen.getByRole("button", { name: "Back to account" })).toBeInTheDocument();
     expect(screen.getByLabelText("Import file input")).toHaveAttribute(
       "accept",
-      ".csv,text/csv,.json,application/json",
+      ".csv,text/csv,.json,application/json,.html,.htm,text/html,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     );
   });
 });
