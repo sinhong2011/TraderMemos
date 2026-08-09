@@ -46,15 +46,27 @@ describe("CalendarDayHoverDetails", () => {
             net_pnl: -4,
             closed_at: "2026-07-10T16:00:00Z",
           }),
+          trade({
+            id: "c",
+            symbol: "SPY 260117C500",
+            instrument_type: "option",
+            net_pnl: 30,
+            closed_at: "2026-07-10T17:00:00Z",
+          }),
         ]}
       />,
     );
 
     expect(screen.getByLabelText("Trades on 2026-07-10")).toBeInTheDocument();
+    // Market type leads each row.
+    expect(screen.getAllByText("STK")).toHaveLength(2);
+    expect(screen.getByText("OPT")).toBeInTheDocument();
     expect(screen.getByText("AAPL")).toBeInTheDocument();
     expect(screen.getByText("MSFT")).toBeInTheDocument();
-    expect(screen.getByText("long")).toBeInTheDocument();
-    expect(screen.getByText("short")).toBeInTheDocument();
+    // Direction and call/put read as one label.
+    expect(screen.getByText("Long")).toBeInTheDocument();
+    expect(screen.getByText("Short")).toBeInTheDocument();
+    expect(screen.getByText("Long Call")).toBeInTheDocument();
   });
 
   it("renders the at-a-glance stats and day review link when detail is given", async () => {

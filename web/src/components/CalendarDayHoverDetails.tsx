@@ -4,6 +4,8 @@ import { cn } from "@/lib/cn";
 import { usePrivacyMode } from "@/lib/displayPrefs";
 import { fmtMoney, fmtPct, fmtSignedMoney, fmtSignedPct } from "@/lib/format";
 import { intlLocale } from "@/lib/locale";
+import { resolveTradeDirection } from "@/lib/tradeDirection";
+import { marketLabel } from "./tradeColumns";
 import { pnlColor } from "./theme-tokens";
 import { Button } from "./ui/button";
 import { WinLossRecord } from "./WinLossRecord";
@@ -113,11 +115,21 @@ export function CalendarDayHoverDetails({
                   key={trade.id}
                   className="flex items-center gap-2 py-1 text-[12px] tabular-nums first:pt-0 last:pb-0"
                 >
+                  <span className="w-8 shrink-0 text-[10px] uppercase tracking-wider text-muted-foreground">
+                    {marketLabel(trade.instrument_type)}
+                  </span>
                   <span className="min-w-0 flex-1 truncate font-medium tracking-wide text-foreground">
                     {trade.symbol}
                   </span>
+                  {/* Direction and call/put read as one word: Long Call, Short Put… */}
                   <span className="shrink-0 uppercase text-[10px] tracking-wider text-muted-foreground">
-                    {trade.direction}
+                    {
+                      resolveTradeDirection({
+                        direction: trade.direction,
+                        instrumentType: trade.instrument_type,
+                        symbol: trade.symbol,
+                      }).label
+                    }
                   </span>
                   <span className="shrink-0 text-muted-foreground">{tradeTimeLabel(trade)}</span>
                   <span
