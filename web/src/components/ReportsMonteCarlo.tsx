@@ -42,11 +42,13 @@ export function ReportsMonteCarlo({
   const money = useReportsMoney();
   const locale = intlLocale();
 
-  const points = (simulation?.steps ?? []).map((b) => ({
+  const samples = simulation?.sample_paths ?? [];
+  const points = (simulation?.steps ?? []).map((b, i) => ({
     n: b.n,
     band90: [money.display(b.p05), money.display(b.p95)],
     band50: [money.display(b.p25), money.display(b.p75)],
     median: money.display(b.p50),
+    ...Object.fromEntries(samples.map((path, si) => [`s${si}`, money.display(path[i])])),
   }));
 
   return (
@@ -62,7 +64,7 @@ export function ReportsMonteCarlo({
         />
       ) : (
         <>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             <StatCard
               variant="bento"
               align="center"
@@ -74,18 +76,34 @@ export function ReportsMonteCarlo({
             <StatCard
               variant="bento"
               align="center"
-              label="5th Percentile"
-              value={money.format(simulation.terminal.p05)}
-              accent={simulation.terminal.p05 < 0 ? "neg" : "none"}
-              hint="bad-luck outcome"
+              label="Best Case"
+              value={money.format(simulation.terminal.p95)}
+              accent={simulation.terminal.p95 > 0 ? "pos" : "none"}
+              hint="95th percentile"
             />
             <StatCard
               variant="bento"
               align="center"
-              label="Chance of Loss"
-              value={fmtPct(simulation.terminal.prob_negative, locale)}
-              accent={simulation.terminal.prob_negative > 0.25 ? "neg" : "none"}
-              hint="paths ending below zero"
+              label="Worst Case"
+              value={money.format(simulation.terminal.p05)}
+              accent={simulation.terminal.p05 < 0 ? "neg" : "none"}
+              hint="5th percentile"
+            />
+            <StatCard
+              variant="bento"
+              align="center"
+              label="Typical Max Drawdown"
+              value={money.format(-simulation.max_drawdown.p50)}
+              accent="neg"
+              hint={`1 in 20 worse than ${fmtMoneyCompact(simulation.max_drawdown.p95, currency, locale)}`}
+            />
+            <StatCard
+              variant="bento"
+              align="center"
+              label="Chance of Profit"
+              value={fmtPct(1 - simulation.terminal.prob_negative, locale)}
+              accent={simulation.terminal.prob_negative > 0.25 ? "neg" : "pos"}
+              hint="paths ending above zero"
             />
             <StatCard
               variant="bento"
@@ -144,6 +162,18 @@ export function ReportsMonteCarlo({
                     fillOpacity={0.18}
                     isAnimationActive={false}
                   />
+                  {samples.map((_, si) => (
+                    <Line
+                      key={`s${si}`}
+                      dataKey={`s${si}`}
+                      stroke="var(--muted-foreground)"
+                      strokeOpacity={0.25}
+                      strokeWidth={1}
+                      dot={false}
+                      isAnimationActive={false}
+                      tooltipType="none"
+                    />
+                  ))}
                   <Line
                     dataKey="median"
                     stroke="var(--primary)"

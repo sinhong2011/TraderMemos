@@ -43,6 +43,12 @@ func TestMonteCarloShapeAndOrdering(t *testing.T) {
 	require.NotEmpty(t, res.Steps)
 	require.Equal(t, res.Horizon, res.Steps[len(res.Steps)-1].N)
 
+	// A few individual paths ride along for the UI, aligned with Steps.
+	require.Len(t, res.SamplePaths, 8)
+	for _, path := range res.SamplePaths {
+		require.Len(t, path, len(res.Steps))
+	}
+
 	prev := 0
 	for _, b := range res.Steps {
 		require.Greater(t, b.N, prev) // strictly increasing checkpoints

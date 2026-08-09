@@ -305,6 +305,8 @@ export interface MonteCarloResult {
     prob_negative: number;
   };
   max_drawdown: { p50: number; p90: number; p95: number; p99: number; worst: number };
+  /** A few individual simulated paths, equity at the same checkpoints as steps. */
+  sample_paths: number[][];
   risk_of_ruin: number;
   ruin_threshold: number;
   historical_max_drawdown: number;

@@ -24,6 +24,10 @@ function simulation(over: Partial<MonteCarloResult> = {}): MonteCarloResult {
       prob_negative: 0.08,
     },
     max_drawdown: { p50: 200, p90: 380, p95: 450, p99: 600, worst: 800 },
+    sample_paths: [
+      [180, 390],
+      [-40, 210],
+    ],
     risk_of_ruin: 0.03,
     ruin_threshold: 500,
     historical_max_drawdown: 500,
@@ -49,11 +53,15 @@ describe("ReportsMonteCarlo", () => {
       <ReportsMonteCarlo simulation={simulation()} loading={false} error={false} currency="USD" />,
     );
     expect(screen.getByText("Median Outcome")).toBeInTheDocument();
-    expect(screen.getByText("5th Percentile")).toBeInTheDocument();
-    expect(screen.getByText("Chance of Loss")).toBeInTheDocument();
+    expect(screen.getByText("Best Case")).toBeInTheDocument();
+    expect(screen.getByText("Worst Case")).toBeInTheDocument();
+    expect(screen.getByText("Typical Max Drawdown")).toBeInTheDocument();
+    expect(screen.getByText("Chance of Profit")).toBeInTheDocument();
     expect(screen.getByText("Risk of Ruin")).toBeInTheDocument();
     expect(screen.getByText("+$420.00")).toBeInTheDocument(); // terminal median
-    expect(screen.getByText("8%")).toBeInTheDocument(); // prob_negative
+    expect(screen.getByText("+$1,200.00")).toBeInTheDocument(); // best case p95
+    expect(screen.getByText("-$200.00")).toBeInTheDocument(); // median max drawdown
+    expect(screen.getByText("92%")).toBeInTheDocument(); // 1 - prob_negative
     expect(screen.getByText("3%")).toBeInTheDocument(); // risk_of_ruin
     expect(screen.getByText(/independent draw/)).toBeInTheDocument();
   });

@@ -29,6 +29,9 @@ const (
 	mcMaxCheckpoints = 60
 	// Below this many closed trades a bootstrap mostly re-arranges noise.
 	mcMinTrades = 10
+	// Individual paths returned for the UI to sketch under the fan. Enough
+	// to convey texture, few enough to stay visually quiet.
+	mcSamplePaths = 8
 )
 
 // McBand is the cross-path equity distribution after N simulated trades.
@@ -73,6 +76,9 @@ type MonteCarloResult struct {
 	Steps []McBand   `json:"steps"`
 	Term  McTerminal `json:"terminal"`
 	MaxDD McDrawdown `json:"max_drawdown"`
+	// SamplePaths are a few individual simulated paths (equity at the same
+	// checkpoints as Steps), for the UI to sketch under the fan.
+	SamplePaths [][]float64 `json:"sample_paths"`
 	// RiskOfRuin is the share of paths whose max drawdown reached
 	// RuinThreshold. The bootstrap treats trades as i.i.d. — no streaks,
 	// regime changes, or sizing feedback — so it understates clustered risk.
@@ -132,6 +138,16 @@ func MonteCarlo(pnls []float64, p MonteCarloParams) MonteCarloResult {
 		if ruin > 0 && dd >= ruin {
 			ruined++
 		}
+	}
+
+	// Sampled before the per-checkpoint sort scrambles path identity.
+	res.SamplePaths = make([][]float64, min(mcSamplePaths, paths))
+	for pi := range res.SamplePaths {
+		path := make([]float64, len(checkpoints))
+		for c := range checkpoints {
+			path[c] = equity[c][pi]
+		}
+		res.SamplePaths[pi] = path
 	}
 
 	res.Steps = make([]McBand, len(checkpoints))
