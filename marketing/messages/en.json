@@ -7,6 +7,8 @@
     "heroTitleLine2": "Review your edge.",
     "heroSubtitle": "TraderMemos is a self-hosted trading journal — dashboard, P&L calendar, trade log, playbook, and reports on your own infrastructure. No subscription, no vendor lock-in.",
     "ctaGetStarted": "Get started",
+    "ctaDemo": "Try the live demo",
+    "demoCreds": "Demo login:",
     "ctaGithub": "View on GitHub",
     "ticker": [
       {

@@ -7,6 +7,8 @@
     "heroTitleLine2": "エッジを、検証する。",
     "heroSubtitle": "TraderMemos はセルフホスト型のトレードジャーナルです。ダッシュボード、損益カレンダー、トレードログ、プレイブック、レポートを、すべてあなた自身のインフラ上で。サブスクリプションもベンダーロックインもありません。",
     "ctaGetStarted": "使ってみる",
+    "ctaDemo": "ライブデモを試す",
+    "demoCreds": "デモアカウント:",
     "ctaGithub": "GitHub で見る",
     "ticker": [
       {

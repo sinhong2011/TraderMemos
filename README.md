@@ -66,6 +66,14 @@
 
 ---
 
+## Live demo
+
+Try TraderMemos without installing anything: **[tradermemos.netlify.app](https://tradermemos.netlify.app)**
+
+Sign in with `tradermemosdemo` / `demopassword`. The demo account carries the same seeded dataset as the screenshots — treat it as a shared sandbox, and don't store anything real in it.
+
+---
+
 ## Why TraderMemos?
 
 Cloud journals like **TradeZella** and **TraderSync** are polished — but your edge lives in the data.
