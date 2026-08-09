@@ -41,8 +41,12 @@ import {
   type PnlMode,
   type UnitMode,
 } from "@/components/ReportsDisplayContext";
+import { ReportsDurationScatter } from "@/components/ReportsDurationScatter";
 import { ReportsExecutionGrade } from "@/components/ReportsExecutionGrade";
 import { ReportsHourlyList } from "@/components/ReportsHourlyList";
+import { ReportsPeriodReturns } from "@/components/ReportsPeriodReturns";
+import { ReportsSessionClock } from "@/components/ReportsSessionClock";
+import { ReportsSignedBars } from "@/components/ReportsSignedBars";
 import { ReportsSummaryBento } from "@/components/ReportsSummaryBento";
 import { ReportsMetricEvolution } from "@/components/ReportsMetricEvolution";
 import { ReportsRiskDrawdown } from "@/components/ReportsRiskDrawdown";
@@ -735,6 +739,14 @@ export function ReportsView({
               />
             ) : null}
 
+            <ReportsPeriodReturns
+              trades={trades}
+              loading={tradesLoading}
+              currency={displayCurrency}
+              fxRate={fxRate}
+              denominator={denominator}
+            />
+
             <Card title="Playbook & Leaks" action={panelRight}>
               {renderContent()}
             </Card>
@@ -765,6 +777,8 @@ export function ReportsView({
           </TabsContent>
 
           <TabsContent value="detailed" className="flex flex-col gap-4">
+            <ReportsSessionClock />
+
             <div className="grid gap-4 lg:grid-cols-2">
               <ReportsBreakdownCard
                 title="Symbol"
@@ -798,6 +812,20 @@ export function ReportsView({
                 error={hourOfDayBreakdownError}
               />
             </div>
+
+            <ReportsSignedBars
+              hourBreakdown={hourOfDayBreakdown}
+              sessionBreakdown={sessionBreakdown}
+              loading={hourOfDayBreakdownLoading || sessionBreakdownLoading}
+              error={hourOfDayBreakdownError || sessionBreakdownError}
+            />
+
+            <ReportsDurationScatter
+              trades={trades}
+              loading={tradesLoading}
+              error={tradesError}
+              onSelectTradeId={onSelectTradeId}
+            />
 
             <ReportsPnlHeatmap
               trades={trades}

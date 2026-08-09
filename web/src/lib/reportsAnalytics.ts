@@ -109,6 +109,93 @@ export function metricEvolution(
   return points;
 }
 
+export interface DurationScatterPoint {
+  id: string;
+  symbol: string;
+  secs: number;
+  pnl: number;
+}
+
+/** Closed trades with a known hold time, as scatter points (raw $ P&L). */
+export function durationScatter(
+  trades: Trade[],
+  tradePnl: (t: Trade) => number = (t) => t.net_pnl ?? 0,
+): DurationScatterPoint[] {
+  return chronologicalClosed(trades)
+    .filter((t) => (t.time_in_trade_secs ?? 0) > 0)
+    .map((t) => ({
+      id: t.id,
+      symbol: t.symbol,
+      secs: t.time_in_trade_secs ?? 0,
+      pnl: tradePnl(t),
+    }));
+}
+
+/** Median hold time of the given scatter points; 0 when empty. */
+export function medianDurationSecs(points: DurationScatterPoint[]): number {
+  if (points.length === 0) return 0;
+  const sorted = points.map((p) => p.secs).sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 === 1 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+}
+
+export interface PeriodReturns {
+  /** Mean P&L per traded day / week / month (raw $, unconverted). */
+  daily: number;
+  weekly: number;
+  monthly: number;
+  /** Total P&L scaled to a 365-day year over the traded span (raw $). */
+  annualized: number;
+  tradingDays: number;
+}
+
+/**
+ * Average return per period plus an annualized run rate. Buckets use `dayKey`
+ * (pass `fmtTradeDay` so days land on the market clock, same as the calendar);
+ * weeks start Monday. Returns null with fewer than one closed trade.
+ */
+export function periodReturns(
+  trades: Trade[],
+  tradePnl: (t: Trade) => number = (t) => t.net_pnl ?? 0,
+  dayKey: (iso: string) => string = (iso) => iso.slice(0, 10),
+): PeriodReturns | null {
+  const closed = chronologicalClosed(trades);
+  if (closed.length === 0) return null;
+
+  const days = new Map<string, number>();
+  for (const t of closed) {
+    const key = dayKey(t.closed_at ?? t.opened_at);
+    days.set(key, (days.get(key) ?? 0) + tradePnl(t));
+  }
+
+  const weeks = new Map<string, number>();
+  const months = new Map<string, number>();
+  let total = 0;
+  for (const [day, pnl] of days) {
+    total += pnl;
+    const d = new Date(`${day}T12:00:00Z`);
+    const monday = new Date(d);
+    monday.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7));
+    const weekKey = monday.toISOString().slice(0, 10);
+    weeks.set(weekKey, (weeks.get(weekKey) ?? 0) + pnl);
+    const monthKey = day.slice(0, 7);
+    months.set(monthKey, (months.get(monthKey) ?? 0) + pnl);
+  }
+
+  const dayKeys = [...days.keys()].sort();
+  const first = new Date(`${dayKeys[0]}T12:00:00Z`);
+  const last = new Date(`${dayKeys[dayKeys.length - 1]}T12:00:00Z`);
+  const spanDays = Math.max(1, Math.round((last.getTime() - first.getTime()) / 86_400_000) + 1);
+
+  return {
+    daily: total / days.size,
+    weekly: total / weeks.size,
+    monthly: total / months.size,
+    annualized: (total * 365) / spanDays,
+    tradingDays: days.size,
+  };
+}
+
 export interface DrawdownPoint {
   at: string;
   drawdownPct: number;
