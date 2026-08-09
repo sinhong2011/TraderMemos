@@ -3,7 +3,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Alert } from 'react-native';
 
-import { useApiRequest, useChecklistTemplate } from '@/api/hooks';
+import { useChecklistTemplate } from '@/api/hooks';
 import type { NoteBody } from '@/api/types';
 import { FormSheet } from '@/components/form-sheet';
 import {
@@ -17,6 +17,7 @@ import {
 import { t } from '@lingui/core/macro';
 import { errorMessage } from '@/lib/errors';
 import { checklistProgress } from '@/lib/markdown';
+import { useQueuedNoteOps } from '@/lib/use-outbox';
 
 /**
  * New note / daily log. Creating a daily log appends the checklist template
@@ -29,7 +30,9 @@ import { checklistProgress } from '@/lib/markdown';
 export default function NewNoteScreen() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const api = useApiRequest();
+  // Queue-aware save: with the server unreachable the note lands in the
+  // offline outbox instead of an error alert (lib/outbox.ts).
+  const { createNote } = useQueuedNoteOps();
   const checklist = useChecklistTemplate();
   const params = useLocalSearchParams<{
     date?: string;
@@ -51,9 +54,11 @@ export default function NewNoteScreen() {
     setValues((prev) => ({ ...prev, ...patch }));
 
   const save = useMutation({
-    mutationFn: (body: NoteBody) => api('/notes', { method: 'POST', body }),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['notes'] });
+    mutationFn: (body: NoteBody) => createNote(body),
+    onSuccess: ({ queued }) => {
+      // A queued save changed nothing server-side; the pending overlay puts
+      // the note in the list until the queue drains.
+      if (!queued) void queryClient.invalidateQueries({ queryKey: ['notes'] });
       router.back();
     },
     onError: (err) => Alert.alert(t`Could not save`, errorMessage(err)),

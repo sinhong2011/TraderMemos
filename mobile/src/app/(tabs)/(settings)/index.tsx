@@ -26,6 +26,7 @@ import { t } from '@lingui/core/macro';
 import { ledgerBalance } from '@/lib/cash';
 import { describeError } from '@/lib/errors';
 import { useFormatters } from '@/lib/format';
+import { clearOutbox, usePendingCount } from '@/lib/outbox';
 import { setAppearance, useDisplayPrefs, type AppearancePref } from '@/lib/prefs';
 import { clearPersistedQueryCache } from '@/storage/mmkv';
 import { AppHost } from '@/components/app-host';
@@ -51,6 +52,8 @@ export default function SettingsScreen() {
   const queryClient = useQueryClient();
   const { theme } = useUnistyles();
   const { signOut } = useSession();
+  // Offline writes still waiting to sync — signing out would discard them.
+  const pendingSyncs = usePendingCount();
   const accountsQuery = useAccounts();
   const accounts = accountsQuery.data;
   const me = useMe();
@@ -99,24 +102,37 @@ export default function SettingsScreen() {
   function handleSignOut() {
     // Always confirmed — signing out drops the cached journal and costs a
     // server URL plus credentials to undo, so it is never a one-tap action.
-    Alert.alert(t`Sign out?`, t`You will need to sign in again to reach this server.`, [
-      { text: t`Cancel`, style: 'cancel' },
-      {
-        text: t`Sign out`,
-        style: 'destructive',
-        // Tokens only — the server URL survives, so signing back in doesn't
-        // mean retyping the host. That's why this is "Sign out", not
-        // "Disconnect".
-        onPress: () =>
-          void signOut().then(() => {
-            // The query cache persists to MMKV — wipe both the live cache and
-            // the snapshot so the next account never sees this one's data.
-            queryClient.clear();
-            clearPersistedQueryCache();
-            router.replace('/login');
-          }),
-      },
-    ]);
+    // Unsynced offline writes go with it, so their loss is named up front.
+    const queuedWarning =
+      pendingSyncs === 0
+        ? ''
+        : pendingSyncs === 1
+          ? ' ' + t`1 offline change hasn't synced yet and will be discarded.`
+          : ' ' + t`${pendingSyncs} offline changes haven't synced yet and will be discarded.`;
+    Alert.alert(
+      t`Sign out?`,
+      t`You will need to sign in again to reach this server.` + queuedWarning,
+      [
+        { text: t`Cancel`, style: 'cancel' },
+        {
+          text: t`Sign out`,
+          style: 'destructive',
+          // Tokens only — the server URL survives, so signing back in doesn't
+          // mean retyping the host. That's why this is "Sign out", not
+          // "Disconnect".
+          onPress: () =>
+            void signOut().then(() => {
+              // The query cache persists to MMKV — wipe both the live cache and
+              // the snapshot so the next account never sees this one's data.
+              // Same for the offline write queue: it belongs to this account.
+              queryClient.clear();
+              clearPersistedQueryCache();
+              clearOutbox();
+              router.replace('/login');
+            }),
+        },
+      ],
+    );
   }
 
   // Flat index behind the search field. `terms` carries the words a setting is

@@ -11,7 +11,7 @@ import ReanimatedSwipeable, {
 } from 'react-native-gesture-handler/ReanimatedSwipeable';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
-import { useApiRequest, useNotes } from '@/api/hooks';
+import { useNotes } from '@/api/hooks';
 import type { Note } from '@/api/types';
 import { ErrorState } from '@/components/error-state';
 import { Pill } from '@/components/pill';
@@ -23,6 +23,8 @@ import { locale } from '@/i18n';
 import { errorMessage } from '@/lib/errors';
 import { checklistProgress, noteExcerpt } from '@/lib/markdown';
 import { noteMediaIds } from '@/lib/note-media';
+import { applyPendingNotes, pendingNoteIds, usePendingOps } from '@/lib/outbox';
+import { useQueuedNoteOps } from '@/lib/use-outbox';
 import { AppHost } from '@/components/app-host';
 
 type TypeFilter = 'all' | 'note' | 'daily_log';
@@ -58,10 +60,13 @@ function noteDayLabel(occurredAt: string): string {
 /** One note: tap to edit, trailing swipe to delete (the api-tokens idiom). */
 function NoteRow({
   note,
+  pending,
   onPress,
   onDelete,
 }: {
   note: Note;
+  /** A queued create or edit is waiting for the server — say so on the row. */
+  pending: boolean;
   onPress: () => void;
   onDelete: () => void;
 }) {
@@ -115,6 +120,7 @@ function NoteRow({
           <Pill tone={note.type === 'daily_log' ? 'accent' : 'muted'}>
             {note.type === 'daily_log' ? t`Log` : t`Note`}
           </Pill>
+          {pending ? <Pill tone="amber">{t`Waiting to sync`}</Pill> : null}
           {progress ? (
             <Pill tone={progress.done === progress.total ? 'pos' : 'amber'}>
               {t`${progress.done}/${progress.total} checks`}
@@ -144,15 +150,20 @@ export default function NotesScreen() {
   const router = useRouter();
   const { theme } = useUnistyles();
   const queryClient = useQueryClient();
-  const api = useApiRequest();
+  // Queue-aware delete, plus the pending overlay: notes written while the
+  // server was unreachable render here from the outbox (lib/outbox.ts).
+  const { deleteNote } = useQueuedNoteOps();
+  const pendingOps = usePendingOps();
   const [search, setSearch] = useState('');
   const [searching, setSearching] = useState(false);
   const [type, setType] = useState<TypeFilter>('all');
   const notes = useNotes();
 
   const remove = useMutation({
-    mutationFn: (id: string) => api<void>(`/notes/${id}`, { method: 'DELETE' }),
-    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ['notes'] }),
+    mutationFn: (id: string) => deleteNote(id),
+    onSuccess: ({ queued }) => {
+      if (!queued) void queryClient.invalidateQueries({ queryKey: ['notes'] });
+    },
     onError: (err) => Alert.alert(t`Could not delete note`, errorMessage(err)),
   });
 
@@ -214,15 +225,16 @@ export default function NotesScreen() {
     </View>
   );
 
+  const pendingIds = useMemo(() => pendingNoteIds(pendingOps), [pendingOps]);
   const rows = useMemo(() => {
     const q = search.trim();
-    return (notes.data ?? [])
+    return applyPendingNotes(notes.data, pendingOps)
       .filter((note) => (type === 'all' || note.type === type) && matchesQuery(note, q))
       .sort(
         (a, b) =>
           b.occurred_at.localeCompare(a.occurred_at) || b.updated_at.localeCompare(a.updated_at),
       );
-  }, [notes.data, search, type]);
+  }, [notes.data, pendingOps, search, type]);
 
   return (
     <>
@@ -241,10 +253,11 @@ export default function NotesScreen() {
             <Skeleton key={i} style={styles.skeletonRow} />
           ))}
         </View>
-      ) : notes.error && notes.data == null ? (
+      ) : notes.error && notes.data == null && rows.length === 0 ? (
         // Only when the persisted cache has nothing either — a dropped
         // connection over notes you already loaded should still let you read
-        // them, and the offline banner says the list may be behind.
+        // them, and the offline banner says the list may be behind. Queued
+        // notes count as content too: an offline cold start still journals.
         <ErrorState
           error={notes.error}
           onRetry={() => void notes.refetch()}
@@ -266,6 +279,7 @@ export default function NotesScreen() {
           renderItem={({ item }) => (
             <NoteRow
               note={item}
+              pending={pendingIds.has(item.id)}
               onPress={() => router.push({ pathname: '/edit-note', params: { id: item.id } })}
               onDelete={() => confirmDelete(item)}
             />

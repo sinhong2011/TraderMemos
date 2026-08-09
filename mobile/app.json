@@ -97,7 +97,8 @@
           "remindersPermission": "TraderMemos adds your daily checklist and the economic releases you bookmark to your Reminders."
         }
       ],
-      "expo-image"
+      "expo-image",
+      "expo-sqlite"
     ],
     "experiments": {
       "typedRoutes": true,

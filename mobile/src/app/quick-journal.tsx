@@ -6,7 +6,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { FormSkeleton } from '@/components/skeleton';
 
-import { useApiRequest, useTags, useTrade, useTrades } from '@/api/hooks';
+import { useTags, useTrade, useTrades } from '@/api/hooks';
 import type { Tag, Trade, TradeDetail } from '@/api/types';
 import { ChipGroup } from '@/components/chips';
 import { FormField, FormInput, FormSheet } from '@/components/form-sheet';
@@ -14,6 +14,7 @@ import { Pill } from '@/components/pill';
 import { errorMessage } from '@/lib/errors';
 import { useFormatters } from '@/lib/format';
 import { useProUnlocked } from '@/lib/pro';
+import { usePendingTradeJournal, useQueuedTradeJournal } from '@/lib/use-outbox';
 import { pnlColor } from '@/styles/unistyles';
 import { t } from '@lingui/core/macro';
 import {
@@ -32,36 +33,46 @@ import {
 function QuickJournalForm({ trade, mistakeTags }: { trade: TradeDetail; mistakeTags: Tag[] }) {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const api = useApiRequest();
+  // Queue-aware save (the trade PATCH is a full replace of these fields, so a
+  // replay is harmless), and the queued body if a review is already waiting —
+  // reopening the sheet offline should show what was last saved here, not
+  // what the server last heard.
+  const { saveJournal } = useQueuedTradeJournal();
+  const pending = usePendingTradeJournal(trade.id);
 
-  const notes = parseJournalNotes(trade.notes);
+  const mistakeTagIds = new Set(mistakeTags.map((tag) => tag.id));
+  const notes = parseJournalNotes(pending?.notes ?? trade.notes);
   const entryReason = notes.entryReason.trim();
   const [reviewNotes, setReviewNotes] = useState(notes.reviewNotes);
-  const [mistakeIds, setMistakeIds] = useState<string[]>(
-    trade.tags.filter((tag) => tag.kind === 'mistake').map((tag) => tag.id),
+  const [mistakeIds, setMistakeIds] = useState<string[]>(() =>
+    pending?.tag_ids != null
+      ? pending.tag_ids.filter((tagId) => mistakeTagIds.has(tagId))
+      : trade.tags.filter((tag) => tag.kind === 'mistake').map((tag) => tag.id),
   );
-  const [grade, setGrade] = useState(gradeFromInt(trade.trade_quality));
-  const keptTagIds = trade.tags.filter((tag) => tag.kind !== 'mistake').map((tag) => tag.id);
+  const [grade, setGrade] = useState(
+    gradeFromInt(pending?.trade_quality ?? trade.trade_quality),
+  );
+  const keptTagIds =
+    pending?.tag_ids != null
+      ? pending.tag_ids.filter((tagId) => !mistakeTagIds.has(tagId))
+      : trade.tags.filter((tag) => tag.kind !== 'mistake').map((tag) => tag.id);
 
   const save = useMutation({
     mutationFn: () =>
-      api(`/trades/${trade.id}`, {
-        method: 'PATCH',
-        body: {
-          notes: buildStructuredJournalNotes({
-            session: notes.session,
-            entryReason: notes.entryReason,
-            exitReason: notes.exitReason,
-            reviewNotes,
-            legacy: notes.legacy,
-          }),
-          trade_quality: intFromGrade(grade) ?? 0,
-          // tag_ids replaces the full set — keep the non-mistake tags as-is.
-          tag_ids: [...keptTagIds, ...mistakeIds],
-        },
+      saveJournal(trade.id, {
+        notes: buildStructuredJournalNotes({
+          session: notes.session,
+          entryReason: notes.entryReason,
+          exitReason: notes.exitReason,
+          reviewNotes,
+          legacy: notes.legacy,
+        }),
+        trade_quality: intFromGrade(grade) ?? 0,
+        // tag_ids replaces the full set — keep the non-mistake tags as-is.
+        tag_ids: [...keptTagIds, ...mistakeIds],
       }),
-    onSuccess: () => {
-      void queryClient.invalidateQueries();
+    onSuccess: ({ queued }) => {
+      if (!queued) void queryClient.invalidateQueries();
       router.back();
     },
     onError: (err) => Alert.alert(t`Could not save`, errorMessage(err)),

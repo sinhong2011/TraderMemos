@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { Alert, Pressable, Text } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
-import { useApiRequest, useNote } from '@/api/hooks';
+import { useNote } from '@/api/hooks';
 import type { Note, NoteBody } from '@/api/types';
 import { ErrorState } from '@/components/error-state';
 import { FormSheet } from '@/components/form-sheet';
@@ -20,6 +20,8 @@ import {
 } from '@/components/note-form';
 import { t } from '@lingui/core/macro';
 import { errorMessage } from '@/lib/errors';
+import { applyPendingNotes, isQueuedNoteId, usePendingOps } from '@/lib/outbox';
+import { useQueuedNoteOps } from '@/lib/use-outbox';
 
 function valuesFromNote(note: Note): NoteFormValues {
   return {
@@ -34,7 +36,9 @@ function valuesFromNote(note: Note): NoteFormValues {
 function EditNoteForm({ note }: { note: Note }) {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const api = useApiRequest();
+  // Queue-aware writes: unreachable-server saves land in the offline outbox,
+  // and a note whose create is still queued is edited in place there.
+  const { updateNote, deleteNote } = useQueuedNoteOps();
   const { theme } = useUnistyles();
 
   const [values, setValues] = useState<NoteFormValues>(() => valuesFromNote(note));
@@ -43,18 +47,18 @@ function EditNoteForm({ note }: { note: Note }) {
 
   const save = useMutation({
     // PATCH is a full replace on this endpoint — send every field back.
-    mutationFn: (body: NoteBody) => api(`/notes/${note.id}`, { method: 'PATCH', body }),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['notes'] });
+    mutationFn: (body: NoteBody) => updateNote(note.id, body),
+    onSuccess: ({ queued }) => {
+      if (!queued) void queryClient.invalidateQueries({ queryKey: ['notes'] });
       router.back();
     },
     onError: (err) => Alert.alert(t`Could not save`, errorMessage(err)),
   });
 
   const remove = useMutation({
-    mutationFn: () => api<void>(`/notes/${note.id}`, { method: 'DELETE' }),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['notes'] });
+    mutationFn: () => deleteNote(note.id),
+    onSuccess: ({ queued }) => {
+      if (!queued) void queryClient.invalidateQueries({ queryKey: ['notes'] });
       router.back();
     },
     onError: (err) => Alert.alert(t`Could not delete`, errorMessage(err)),
@@ -113,9 +117,28 @@ function EditNoteForm({ note }: { note: Note }) {
 
 export default function EditNoteScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const note = useNote(id ?? '');
+  const queued = id != null && isQueuedNoteId(id);
+  // A queued note has nothing to fetch — it exists only in the outbox.
+  const note = useNote(queued ? '' : (id ?? ''));
+  const ops = usePendingOps();
 
-  if (note.isLoading) {
+  // The note as the user last left it: the queued create itself, or the
+  // fetched note with any still-pending edit applied — editing the server's
+  // copy under a queued edit would silently roll that edit back on save.
+  const overlaid = applyPendingNotes(note.data ? [note.data] : [], ops).find(
+    (candidate) => candidate.id === id,
+  );
+
+  // Queued notes latch at mount: the outbox store is synchronous, and a drain
+  // mid-edit (the create synced, its row vanished) must not tear the form down
+  // under the user's fingers — `resolveNoteId` follows the id to the server on
+  // save. Fetched notes need no latch; the query cache never takes data away.
+  const [mountQueued] = useState<Note | undefined>(() => (queued ? overlaid : undefined));
+  const resolved = queued ? mountQueued : overlaid;
+
+  if (resolved != null) return <EditNoteForm note={resolved} />;
+
+  if (!queued && note.isLoading) {
     return (
       <FormSheet title={t`Edit note`} onSave={() => {}}>
         <FormSkeleton />
@@ -132,14 +155,12 @@ export default function EditNoteScreen() {
       />
     );
   }
-  if (!note.data) {
-    return (
-      <FormSheet title={t`Edit note`} onSave={() => {}}>
-        <Text style={styles.muted}>{t`Note not found`}</Text>
-      </FormSheet>
-    );
-  }
-  return <EditNoteForm note={note.data} />;
+  // Nothing fetched and nothing queued under this id — a stale link.
+  return (
+    <FormSheet title={t`Edit note`} onSave={() => {}}>
+      <Text style={styles.muted}>{t`Note not found`}</Text>
+    </FormSheet>
+  );
 }
 
 const styles = StyleSheet.create((theme) => ({
