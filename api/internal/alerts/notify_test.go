@@ -12,7 +12,21 @@ import (
 )
 
 func testService() *Service {
-	return &Service{httpc: http.DefaultClient, now: time.Now}
+	// httptest servers listen on loopback, so the webhook client must allow
+	// private addresses here.
+	return &Service{httpc: http.DefaultClient, webhookc: newWebhookClient(true), now: time.Now}
+}
+
+func TestWebhookClientBlocksPrivateTargets(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		t.Error("guarded client must not reach a loopback server")
+	}))
+	defer srv.Close()
+	s := &Service{httpc: http.DefaultClient, webhookc: newWebhookClient(false), now: time.Now}
+	err := s.sendWebhook(context.Background(), srv.URL, Event{Title: "t"}, time.Now())
+	if err == nil {
+		t.Fatal("want dial refusal for loopback webhook target")
+	}
 }
 
 func TestSendWebhookPayload(t *testing.T) {

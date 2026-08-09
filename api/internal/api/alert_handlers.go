@@ -256,10 +256,18 @@ func (s *Server) handleListAlertEvents(c *echo.Context) error {
 	if err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not load alert events", nil)
 	}
-	if rows == nil {
-		rows = []store.AlertEvent{}
+	type eventDTO struct {
+		ID      string    `json:"id"`
+		Rule    string    `json:"rule"`
+		Title   string    `json:"title"`
+		Body    string    `json:"body"`
+		FiredAt time.Time `json:"fired_at"`
 	}
-	return c.JSON(http.StatusOK, rows)
+	out := make([]eventDTO, 0, len(rows))
+	for _, ev := range rows {
+		out = append(out, eventDTO{ID: ev.ID, Rule: ev.Rule, Title: ev.Title, Body: ev.Body, FiredAt: ev.FiredAt})
+	}
+	return c.JSON(http.StatusOK, out)
 }
 
 // expoTokenValid loosely checks the ExponentPushToken[...] / ExpoPushToken[...]

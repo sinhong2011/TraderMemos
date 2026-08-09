@@ -7,7 +7,9 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
+	"syscall"
 	"time"
 )
 
@@ -17,6 +19,43 @@ var expoPushURL = "https://exp.host/--/api/v2/push/send"
 // errDeviceNotRegistered marks an Expo token whose app install is gone; the
 // service disables the channel instead of retrying forever.
 var errDeviceNotRegistered = errors.New("device not registered")
+
+// newWebhookClient returns the client used for user-supplied webhook URLs. It
+// never follows redirects and, unless allowPrivate, refuses to connect to
+// loopback / private / link-local addresses — on a multi-user server a webhook
+// URL must not become an SSRF probe into the host's network. The check runs at
+// dial time, after DNS resolution, so a rebinding hostname can't slip past a
+// create-time validation. TM_ALERTS_ALLOW_PRIVATE_WEBHOOKS=1 restores LAN
+// targets (e.g. a self-hosted ntfy on the same network).
+func newWebhookClient(allowPrivate bool) *http.Client {
+	dialer := &net.Dialer{
+		Timeout: 10 * time.Second,
+		Control: func(_, address string, _ syscall.RawConn) error {
+			if allowPrivate {
+				return nil
+			}
+			host, _, err := net.SplitHostPort(address)
+			if err != nil {
+				return err
+			}
+			ip := net.ParseIP(host)
+			if ip == nil {
+				return fmt.Errorf("webhook: unresolvable address %q", host)
+			}
+			if !ip.IsGlobalUnicast() || ip.IsPrivate() {
+				return fmt.Errorf("webhook: refusing non-public address %s", ip)
+			}
+			return nil
+		},
+	}
+	return &http.Client{
+		Timeout:   20 * time.Second,
+		Transport: &http.Transport{DialContext: dialer.DialContext},
+		CheckRedirect: func(*http.Request, []*http.Request) error {
+			return errors.New("webhook: redirects are not followed")
+		},
+	}
+}
 
 // webhookPayload is the outgoing webhook body. `content` (Discord) and `text`
 // (Slack/Mattermost) mirror title+body so common incoming webhooks render the
@@ -51,7 +90,7 @@ func (s *Service) sendWebhook(ctx context.Context, url string, ev Event, at time
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("X-Title", ev.Title)
-	resp, err := s.httpc.Do(req)
+	resp, err := s.webhookc.Do(req)
 	if err != nil {
 		return err
 	}

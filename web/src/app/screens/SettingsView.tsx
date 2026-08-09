@@ -19,6 +19,7 @@ import { settingsNavItems, settingsSectionCopy, type SettingsSectionId } from "@
 import type { Account, CashTransaction, Tag as TagType } from "@/lib/api/types";
 import { AboutTab } from "./settings/about-tab";
 import { AccountTab } from "./settings/account-tab";
+import { AlertsSection } from "./settings/alerts-section";
 import { ApiTab } from "./settings/api-tab";
 import { SharingTab } from "./settings/sharing-tab";
 import { AccountsTab, AiTab, GeneralTab, JournalTab, RulesTab } from "./settings/settings-sections";
@@ -167,6 +168,7 @@ export function SettingsView(props: SettingsViewProps) {
             onSaveChecklist={props.onSaveChecklist}
           />
         )}
+        {section === "rules" && <AlertsSection />}
         {section === "journal" && (
           <JournalTab
             tags={props.tags}

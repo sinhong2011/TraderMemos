@@ -111,7 +111,7 @@ func main() {
 		Model:   cfg.CoachModel,
 	}
 	flexClient := &flexsync.Client{}
-	alertsSvc := alerts.NewService(q, logger)
+	alertsSvc := alerts.NewService(q, logger, cfg.AlertsAllowPrivateWebhooks)
 	tradesSvc := trades.NewService(q)
 	tradesSvc.AfterRegroup = func(userID, _ string) { alertsSvc.TradeWritten(userID) }
 	s := api.New(api.Deps{

@@ -30,6 +30,35 @@ vi.mock("../../lib/hooks/useFlexSync", () => ({
   useRunFlexSync: () => ({ mutate: () => {}, isPending: false }),
 }));
 
+vi.mock("../../lib/hooks/useAlerts", () => ({
+  useAlertSettings: () => ({
+    data: {
+      enabled: false,
+      timezone: "",
+      rule_risk: true,
+      rule_daily_loss: true,
+      rule_loss_streak: true,
+      loss_streak_n: 3,
+      rule_prop_drawdown: true,
+      prop_warn_pct: 0.8,
+      rule_unreviewed: true,
+      unreviewed_days: 7,
+    },
+    isLoading: false,
+    isError: false,
+  }),
+  useSaveAlertSettings: () => ({ mutate: () => {}, isPending: false }),
+  useAlertChannels: () => ({ data: [], isLoading: false, isError: false }),
+  useCreateWebhookChannel: () => ({
+    mutateAsync: vi.fn<(...args: any[]) => any>(),
+    isPending: false,
+  }),
+  useSetAlertChannelEnabled: () => ({ mutate: () => {}, isPending: false }),
+  useDeleteAlertChannel: () => ({ mutate: () => {}, isPending: false }),
+  useTestAlertChannel: () => ({ mutateAsync: vi.fn<(...args: any[]) => any>(), isPending: false }),
+  useAlertEvents: () => ({ data: [], isLoading: false, isError: false }),
+}));
+
 vi.mock("../../lib/hooks/useOcrSettings", () => ({
   useOcrSettings: () => ({
     data: {

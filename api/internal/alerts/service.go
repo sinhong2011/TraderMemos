@@ -17,10 +17,13 @@ import (
 // Service evaluates a user's alert rules and dispatches new events to their
 // channels. It is safe for concurrent use.
 type Service struct {
-	q     store.Querier
-	log   *slog.Logger
-	httpc *http.Client
-	now   func() time.Time
+	q   store.Querier
+	log *slog.Logger
+	// httpc talks to Expo's fixed push gateway; webhookc is the SSRF-guarded
+	// client for user-supplied webhook URLs.
+	httpc    *http.Client
+	webhookc *http.Client
+	now      func() time.Time
 	// debounce delays async trade-write evaluations so a burst of writes
 	// (CSV import, flex sync) evaluates once after the dust settles.
 	debounce time.Duration
@@ -29,7 +32,9 @@ type Service struct {
 	inflight map[string]bool
 }
 
-func NewService(q store.Querier, log *slog.Logger) *Service {
+// NewService builds the alert service. allowPrivateWebhooks lets webhook
+// deliveries reach loopback/private addresses (TM_ALERTS_ALLOW_PRIVATE_WEBHOOKS).
+func NewService(q store.Querier, log *slog.Logger, allowPrivateWebhooks bool) *Service {
 	if log == nil {
 		log = slog.Default()
 	}
@@ -37,6 +42,7 @@ func NewService(q store.Querier, log *slog.Logger) *Service {
 		q:        q,
 		log:      log,
 		httpc:    &http.Client{Timeout: 20 * time.Second},
+		webhookc: newWebhookClient(allowPrivateWebhooks),
 		now:      time.Now,
 		debounce: 2 * time.Second,
 		inflight: map[string]bool{},

@@ -1196,7 +1196,9 @@ paths:
         `content` (Discord) and `text` (Slack/Mattermost) fields mirror the
         alert, and set an `X-Title` header (ntfy). Expo push channels register
         through `POST /me/push-tokens` instead. Re-posting the same URL
-        updates its label and re-enables it.
+        updates its label and re-enables it. Deliveries never follow redirects
+        and refuse loopback/private addresses unless the server sets
+        `TM_ALERTS_ALLOW_PRIVATE_WEBHOOKS=1` (for e.g. a LAN ntfy).
       operationId: createAlertChannel
       requestBody:
         required: true
@@ -1298,7 +1300,6 @@ paths:
                   properties:
                     id: { type: string }
                     rule: { type: string }
-                    dedupe_key: { type: string }
                     title: { type: string }
                     body: { type: string }
                     fired_at: { type: string, format: date-time }
