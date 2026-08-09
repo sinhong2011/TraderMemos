@@ -40,6 +40,7 @@ export type SettingsSectionId =
   | "general"
   | "shortcuts"
   | "api"
+  | "sharing"
   | "about";
 
 export function SettingsShell({ nav, children }: { nav: ReactNode; children: ReactNode }) {

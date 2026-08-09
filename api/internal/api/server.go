@@ -44,6 +44,9 @@ type Deps struct {
 	CORSOrigins []string
 	// AuthRateLimit is requests/second per IP for auth + setup routes. 0 disables.
 	AuthRateLimit rate.Limit
+	// ShareLinksEnabled turns on public share pages (off by default — the
+	// public endpoint exposes journal aggregates without auth).
+	ShareLinksEnabled bool
 	// Driver is the database driver name ("sqlite" or "postgres") for /system/info.
 	Driver string
 	// Features reports which optional subsystems this deployment has enabled.
@@ -161,6 +164,24 @@ func (s *Server) routes() {
 	s.authRoutes(limited)
 	limited.POST("/setup", s.handleSetupComplete)
 
+	// Public share pages: unauthenticated by design, so they get their own
+	// rate limiter (same budget as auth — the token is guessable in theory,
+	// brute force should be as hard as password guessing).
+	public := v1.Group("/public")
+	if lim := s.deps.AuthRateLimit; lim > 0 {
+		burst := int(lim) * 3
+		if burst < 5 {
+			burst = 5
+		}
+		publicStore := middleware.NewRateLimiterMemoryStoreWithConfig(middleware.RateLimiterMemoryStoreConfig{
+			Rate:      lim,
+			Burst:     burst,
+			ExpiresIn: 3 * time.Minute,
+		})
+		public.Use(middleware.RateLimiter(publicStore))
+	}
+	s.publicShareRoutes(public)
+
 	protected := v1.Group("")
 	if s.deps.JWT != nil {
 		protected.Use(auth.Middleware(s.deps.JWT, s.deps.Store, s.deps.Store))
@@ -184,6 +205,7 @@ func (s *Server) routes() {
 	s.economicEventRoutes(protected)
 	s.ocrRoutes(protected)
 	s.accessTokenRoutes(protected)
+	s.shareLinkRoutes(protected)
 	s.systemRoutes(protected)
 	s.meRoutes(protected)
 	s.adminRoutes(protected)

@@ -223,6 +223,17 @@ type Setup struct {
 	Checklist   string          `json:"checklist"`
 }
 
+type ShareLink struct {
+	ID        string       `json:"id"`
+	UserID    string       `json:"user_id"`
+	Token     string       `json:"token"`
+	ScopeJson string       `json:"scope_json"`
+	CreatedAt time.Time    `json:"created_at"`
+	ExpiresAt sql.NullTime `json:"expires_at"`
+	RevokedAt sql.NullTime `json:"revoked_at"`
+	ViewCount int64        `json:"view_count"`
+}
+
 type Tag struct {
 	ID          string `json:"id"`
 	UserID      string `json:"user_id"`

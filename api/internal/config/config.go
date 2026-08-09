@@ -59,6 +59,10 @@ type Config struct {
 	CoachBaseURL           string
 	CoachAPIKey            string
 	CoachModel             string
+	// ShareLinksEnabled turns on public share pages (TM_SHARE_LINKS_ENABLED).
+	// Off by default: instances are self-hosted and a share link makes part of
+	// the journal reachable without auth.
+	ShareLinksEnabled bool
 	// CORSOrigins is a comma-separated allowlist for browser frontends on
 	// another origin (e.g. Vercel/Cloudflare Pages). Empty = CORS off
 	// (same-origin Docker / reverse-proxy default).
@@ -106,6 +110,7 @@ func Load() (Config, error) {
 		"coach_base_url":             "https://api.openai.com/v1",
 		"coach_api_key":              "",
 		"coach_model":                "gpt-4o-mini",
+		"share_links_enabled":        false,
 		"cors_origins":               "",
 		"jobs_enabled":               true,
 		"job_excursion_interval_min": 360,
@@ -152,6 +157,7 @@ func Load() (Config, error) {
 		CoachBaseURL:            k.String("coach_base_url"),
 		CoachAPIKey:             k.String("coach_api_key"),
 		CoachModel:              k.String("coach_model"),
+		ShareLinksEnabled:       k.Bool("share_links_enabled"),
 		CORSOrigins:             SplitCSV(k.String("cors_origins")),
 		JobsEnabled:             k.Bool("jobs_enabled"),
 		JobExcursionIntervalMin: k.Int("job_excursion_interval_min"),

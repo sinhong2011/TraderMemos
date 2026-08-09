@@ -17,6 +17,7 @@ tags:
   - name: Health
   - name: Auth
   - name: Access tokens
+  - name: Share links
   - name: Accounts
   - name: Trades
   - name: Executions
@@ -429,6 +430,118 @@ paths:
         "404":
           $ref: "#/components/responses/Error"
         "401":
+          $ref: "#/components/responses/Error"
+
+  /api/v1/share-links:
+    get:
+      tags: [Share links]
+      summary: List share links
+      description: All endpoints under this tag 404 unless `TM_SHARE_LINKS_ENABLED=true`.
+      operationId: listShareLinks
+      responses:
+        "200":
+          description: Active share links (token included so the URL can be re-copied)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ShareLink"
+        "401":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+    post:
+      tags: [Share links]
+      summary: Create a share link
+      description: |
+        Mints a revocable public link for a read-only performance summary.
+        Omit `expires_in_days` for the 90-day default; `0` means never expires.
+        With `show_amounts` false (the default) the public payload carries
+        ratios and shape only — no absolute money amounts.
+      operationId: createShareLink
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                account_id:
+                  type: string
+                  description: Limit the link to one account (empty = all)
+                from:
+                  type: string
+                  format: date-time
+                to:
+                  type: string
+                  format: date-time
+                tz:
+                  type: string
+                  description: IANA timezone for day/month bucketing
+                show_amounts:
+                  type: boolean
+                currency:
+                  type: string
+                  description: Currency label for amounts when `show_amounts`
+                expires_in_days:
+                  type: integer
+                  minimum: 0
+                  maximum: 730
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShareLink"
+        "400":
+          $ref: "#/components/responses/Error"
+        "401":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+
+  /api/v1/share-links/{id}:
+    delete:
+      tags: [Share links]
+      summary: Revoke a share link
+      operationId: revokeShareLink
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        "204":
+          description: Revoked
+        "401":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+
+  /api/v1/public/share/{token}:
+    get:
+      tags: [Share links]
+      summary: Public share summary
+      description: |
+        The page behind a share link. Unauthenticated by design and rate-limited.
+        Disabled, unknown, revoked, and expired links all answer the same 404.
+        The payload is a dedicated aggregate (never trade rows or account
+        names); money fields appear only when the link allows amounts.
+      operationId: getPublicShare
+      security: []
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Aggregate performance summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicShareSummary"
+        "404":
           $ref: "#/components/responses/Error"
 
   /api/v1/accounts:
@@ -1189,6 +1302,89 @@ components:
           type: string
           format: date-time
           nullable: true
+    ShareLink:
+      type: object
+      properties:
+        id:
+          type: string
+        token:
+          type: string
+          description: URL token; the public page lives at `/s/{token}`
+        scope:
+          type: object
+          properties:
+            account_id:
+              type: string
+            from:
+              type: string
+              format: date-time
+            to:
+              type: string
+              format: date-time
+            tz:
+              type: string
+            show_amounts:
+              type: boolean
+            currency:
+              type: string
+        created_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+          nullable: true
+        view_count:
+          type: integer
+    PublicShareSummary:
+      type: object
+      description: >
+        Aggregate built by the dedicated share serializer. `summary` money
+        fields, per-month `pnl`, per-symbol `pnl`, and `best_day_pnl` /
+        `worst_day_pnl` are present only when the link allows amounts; with
+        amounts hidden the equity values are scaled to max |value| = 1.
+      properties:
+        summary:
+          type: object
+          additionalProperties: true
+        equity:
+          type: array
+          items:
+            type: object
+            properties:
+              at:
+                type: string
+                format: date-time
+              value:
+                type: number
+        months:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        top_symbols:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        trading_days:
+          type: integer
+        green_days:
+          type: integer
+        red_days:
+          type: integer
+        best_streak:
+          type: integer
+        worst_streak:
+          type: integer
+        first_day:
+          type: string
+        last_day:
+          type: string
+        show_amounts:
+          type: boolean
+        currency:
+          type: string
     Account:
       type: object
       properties:
