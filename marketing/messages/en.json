@@ -9,14 +9,46 @@
     "ctaGetStarted": "Get started",
     "ctaGithub": "View on GitHub",
     "ticker": [
-      { "label": "Net P&L", "value": "+$8,405.81", "tone": "profit" },
-      { "label": "Win rate", "value": "59%", "tone": "neutral" },
-      { "label": "Profit factor", "value": "1.83", "tone": "neutral" },
-      { "label": "Expectancy", "value": "+$45.44 / trade", "tone": "profit" },
-      { "label": "Max drawdown", "value": "−$1,057.78", "tone": "loss" },
-      { "label": "Avg hold", "value": "1h 02m", "tone": "neutral" },
-      { "label": "Trades", "value": "185", "tone": "neutral" },
-      { "label": "Goal pace", "value": "84% · ahead", "tone": "profit" }
+      {
+        "label": "Net P&L",
+        "value": "+$8,405.81",
+        "tone": "profit"
+      },
+      {
+        "label": "Win rate",
+        "value": "59%",
+        "tone": "neutral"
+      },
+      {
+        "label": "Profit factor",
+        "value": "1.83",
+        "tone": "neutral"
+      },
+      {
+        "label": "Expectancy",
+        "value": "+$45.44 / trade",
+        "tone": "profit"
+      },
+      {
+        "label": "Max drawdown",
+        "value": "−$1,057.78",
+        "tone": "loss"
+      },
+      {
+        "label": "Avg hold",
+        "value": "1h 02m",
+        "tone": "neutral"
+      },
+      {
+        "label": "Trades",
+        "value": "185",
+        "tone": "neutral"
+      },
+      {
+        "label": "Goal pace",
+        "value": "84% · ahead",
+        "tone": "profit"
+      }
     ],
     "eyebrowWhy": "Own the data",
     "eyebrowFeatures": "Feature set",
@@ -29,10 +61,26 @@
     "comparisonHeaderCloud": "Cloud journals",
     "comparisonHeaderTm": "TraderMemos",
     "comparison": [
-      { "row": "Data ownership", "cloud": "Vendor-hosted", "tm": "Your SQLite / VPS" },
-      { "row": "Cost", "cloud": "Monthly subscription", "tm": "Free + your hosting" },
-      { "row": "AI keys", "cloud": "Often vendor-managed", "tm": "Your OpenAI-compatible API" },
-      { "row": "Customization", "cloud": "Limited", "tm": "Fork, patch, deploy" }
+      {
+        "row": "Data ownership",
+        "cloud": "Vendor-hosted",
+        "tm": "Your SQLite / VPS"
+      },
+      {
+        "row": "Cost",
+        "cloud": "Monthly subscription",
+        "tm": "Free + your hosting"
+      },
+      {
+        "row": "AI keys",
+        "cloud": "Often vendor-managed",
+        "tm": "Your OpenAI-compatible API"
+      },
+      {
+        "row": "Customization",
+        "cloud": "Limited",
+        "tm": "Fork, patch, deploy"
+      }
     ],
     "featuresHeading": "Everything a daily review needs",
     "features": {
@@ -87,10 +135,22 @@
     "techStackHeading": "Tech stack",
     "stackComment": "# your data, your box",
     "stack": [
-      { "layer": "API", "value": "Go · Echo · sqlc · golang-migrate · SQLite" },
-      { "layer": "Web", "value": "React · Vite+ · TanStack Router/Query/Form · Tailwind" },
-      { "layer": "Mobile", "value": "Expo (planned)" },
-      { "layer": "Design", "value": "shadcn/ui + coss ui tokens" }
+      {
+        "layer": "API",
+        "value": "Go · Echo · sqlc · golang-migrate · SQLite"
+      },
+      {
+        "layer": "Web",
+        "value": "React · Vite+ · TanStack Router/Query/Form · Tailwind"
+      },
+      {
+        "layer": "Mobile",
+        "value": "Expo (planned)"
+      },
+      {
+        "layer": "Design",
+        "value": "shadcn/ui + coss ui tokens"
+      }
     ],
     "licenseHeading": "AGPL-3.0 licensed",
     "licenseBody": "Self-host it, modify it, and run it for yourself or your firm freely.",
@@ -106,7 +166,9 @@
     "discussions": "Discussions",
     "security": "Security",
     "license": "License (AGPL-3.0)",
-    "privacyNote": "No telemetry — your data stays on your server."
+    "privacyNote": "No telemetry — your data stays on your server.",
+    "features": "Features",
+    "compare": "Compare"
   },
   "Deploy": {
     "eyebrow": "Ship it",
@@ -212,5 +274,427 @@
     "contactTitle": "Contact",
     "contactBody": "Questions about this policy, or about how the apps handle data, are welcome in the public repository:",
     "contactLink": "Open a discussion on GitHub →"
+  },
+  "SeoShared": {
+    "ctaHeading": "Run it on your own box",
+    "ctaBody": "TraderMemos is free, open-source software. Clone the repo, run one command, and journal tonight's session on hardware you own.",
+    "ctaGetStarted": "Get started",
+    "ctaGithub": "View on GitHub",
+    "morePillars": "Feature pillars",
+    "moreComparisons": "Comparisons",
+    "vs": "TraderMemos vs {name}",
+    "crossLinksLabel": "Related pages"
+  },
+  "FeaturePages": {
+    "metaTitle": "Features — self-hosted trading journal | TraderMemos",
+    "metaDescription": "The five pillars of TraderMemos: self-hosted data ownership, behavioral analytics, prop-firm mode, rule compliance, and AI with your own keys.",
+    "eyebrow": "Feature pillars",
+    "heading": "What cloud journals can't copy",
+    "sub": "Five pillars, each one possible because the journal runs on your server instead of somebody’s cloud.",
+    "explore": "Explore",
+    "pages": {
+      "self-hosted": {
+        "metaTitle": "Self-hosted trading journal — TraderMemos",
+        "metaDescription": "Your trades in a SQLite file on your own server. Docker Compose install, AGPL-3.0, no telemetry, no subscription.",
+        "eyebrow": "Self-hosted",
+        "title": "Your trades never leave your server",
+        "subtitle": "TraderMemos runs where you run it — a Go binary and a SQLite file behind your own reverse proxy. No vendor cloud, no telemetry, nothing to cancel.",
+        "blurb": "A Go binary and a SQLite file behind your own reverse proxy — no vendor cloud, no telemetry, nothing to cancel.",
+        "points": [
+          {
+            "title": "One-file database",
+            "body": "Every trade, note, and screenshot lives in a single SQLite database you can copy, back up, and query directly. Exporting your journal is a file copy."
+          },
+          {
+            "title": "Deploy in minutes",
+            "body": "One docker compose up -d on any VPS, home server, or Raspberry Pi. One-click deploys cover the web UI on Vercel, Cloudflare, and Netlify."
+          },
+          {
+            "title": "AGPL-3.0, forever",
+            "body": "Free software — self-host it, modify it, run it for yourself or your firm. There is no paid tier holding your analytics hostage."
+          },
+          {
+            "title": "No telemetry",
+            "body": "The apps talk to your server and nowhere else. The only thing we host is this marketing site."
+          }
+        ]
+      },
+      "behavior-analytics": {
+        "metaTitle": "Behavioral trading analytics — TraderMemos",
+        "metaDescription": "Revenge trading, overconfidence, and loss-aversion detection — plus expectancy, SQN, and Kelly — computed from your own journal.",
+        "eyebrow": "Behavioral analytics",
+        "title": "Catch the tilt before it costs you",
+        "subtitle": "Beyond win rate and profit factor: TraderMemos flags revenge trades, overconfidence streaks, and loss-aversion patterns straight from your execution history.",
+        "blurb": "Revenge trades, overconfidence streaks, and loss aversion — detected automatically from your execution history.",
+        "points": [
+          {
+            "title": "Behavior flags",
+            "body": "Revenge trading, overconfidence after streaks, holding losers longer than winners — detected automatically and listed per session."
+          },
+          {
+            "title": "Stats that measure an edge",
+            "body": "Expectancy, SQN, Kelly %, median win and loss, gross vs. net — not just the four numbers every journal shows."
+          },
+          {
+            "title": "Session and hour breakdowns",
+            "body": "P&L by session, hour, weekday, hold time, and setup — find when your edge is real and when you are donating."
+          },
+          {
+            "title": "MAE / MFE excursion",
+            "body": "Auto-computed excursion per trade shows how much of the move you captured and how much heat you sat through."
+          }
+        ]
+      },
+      "prop-firm-mode": {
+        "metaTitle": "Prop-firm trading journal — TraderMemos",
+        "metaDescription": "Track evaluation drawdown, daily loss limits, and progress. Prop mode is built in and free — with alerts before you breach.",
+        "eyebrow": "Prop mode",
+        "title": "Pass the eval. Keep the account.",
+        "subtitle": "Configure your firm's max drawdown and daily loss rules once; TraderMemos tracks proximity in real time and alerts you before a breach, not after.",
+        "blurb": "Drawdown proximity, daily loss limits, and alerts before a breach — for every eval and funded account.",
+        "points": [
+          {
+            "title": "Drawdown proximity",
+            "body": "Live distance to your trailing or static max drawdown, on the dashboard and in your pocket."
+          },
+          {
+            "title": "Daily loss limits",
+            "body": "Set the firm's daily cap; the journal warns as you approach it and records the days you respected it."
+          },
+          {
+            "title": "Alerts, free",
+            "body": "Push and webhook alerts fire from your own server. No Pro tier stands between you and a breach warning."
+          },
+          {
+            "title": "Every account, one journal",
+            "body": "Evals, funded accounts, and personal accounts side by side — each with its own rules."
+          }
+        ]
+      },
+      "rule-compliance": {
+        "metaTitle": "Trading rule compliance — TraderMemos",
+        "metaDescription": "Write your risk rules once; every trade is checked against them. See what following your rules is actually worth in P&L.",
+        "eyebrow": "Rule compliance",
+        "title": "Your rules, enforced by your journal",
+        "subtitle": "Max risk per trade, max trades per day, stop required, no adding to losers — TraderMemos scores every trade against the rules you wrote.",
+        "blurb": "Write your risk rules once; every trade is scored against them, and discipline gets a dollar value.",
+        "points": [
+          {
+            "title": "Rules as data",
+            "body": "Define risk rules in settings — not in a note you stop reading. Each trade gets a compliance check automatically."
+          },
+          {
+            "title": "Compliance impact",
+            "body": "Reports split your P&L into rule-following and rule-breaking trades, so discipline gets a dollar value."
+          },
+          {
+            "title": "Broken-rule alerts",
+            "body": "A push notification when a trade breaks a rule — while you can still do something about the next one."
+          },
+          {
+            "title": "Checklists and playbooks",
+            "body": "Setups carry entry criteria; the day review asks whether you traded the plan."
+          }
+        ]
+      },
+      "ai-your-keys": {
+        "metaTitle": "AI trade coach with your own keys — TraderMemos",
+        "metaDescription": "AI trade review and screenshot OCR import using your own OpenAI-compatible API keys. Your data goes to the provider you chose — or to none at all.",
+        "eyebrow": "AI, your keys",
+        "title": "AI coaching without a middleman",
+        "subtitle": "Bring your own OpenAI-compatible key — OpenAI, Anthropic, or a local model. The journal calls the provider you configured; there is no vendor AI between you and your data.",
+        "blurb": "AI trade review and OCR import with your own OpenAI-compatible keys — including fully local models.",
+        "points": [
+          {
+            "title": "Your provider, your bill",
+            "body": "Point TraderMemos at any OpenAI-compatible endpoint, pay the provider directly, and swap models any time."
+          },
+          {
+            "title": "Trade coach",
+            "body": "Per-trade AI review that reads your entry, exit, excursion, and notes — and asks the uncomfortable questions."
+          },
+          {
+            "title": "Screenshot OCR import",
+            "body": "Snap a broker fill screen; OCR extracts the executions and prefills the trade form."
+          },
+          {
+            "title": "Local models welcome",
+            "body": "Run Ollama or another local endpoint and no trade data leaves your machine at all."
+          }
+        ]
+      }
+    }
+  },
+  "AlternativePages": {
+    "metaTitle": "TraderMemos vs cloud trading journals — honest comparisons",
+    "metaDescription": "How TraderMemos compares to TradeZella, TraderSync, Tradervue, and TraderWaves — including where they win.",
+    "eyebrow": "Compare",
+    "heading": "Honest comparisons",
+    "sub": "Where the cloud journals genuinely win, and where a self-hosted journal does. No ranked listicle, no affiliate links.",
+    "readComparison": "Read the comparison",
+    "tableCategory": "Category",
+    "theyWinHeading": "Where {name} wins",
+    "tmWinsHeading": "Where TraderMemos wins",
+    "verdictHeading": "The honest verdict",
+    "disclaimer": "Based on public pricing and feature pages as of August 2026. Products change — if something here is out of date, tell us and we will fix it.",
+    "disclaimerLink": "Open an issue →",
+    "pages": {
+      "tradezella": {
+        "metaTitle": "The self-hosted TradeZella alternative | TraderMemos",
+        "metaDescription": "TradeZella vs TraderMemos, honestly: where the $35/mo cloud journal wins, and where a free, self-hosted journal with deeper analytics does.",
+        "blurb": "The polished cloud journal with courses and backtesting — compared honestly against a free, self-hosted alternative.",
+        "title": "The self-hosted TradeZella alternative",
+        "subtitle": "TradeZella is a polished cloud journal with strong education. TraderMemos trades SaaS convenience for something no subscription offers: your entire trading history in a file you own, analyzed deeper, for free.",
+        "rows": [
+          {
+            "row": "Price",
+            "them": "$35/mo subscription",
+            "tm": "Free — AGPL-3.0 open source"
+          },
+          {
+            "row": "Your data",
+            "them": "Lives in TradeZella's cloud",
+            "tm": "A SQLite file on your own server"
+          },
+          {
+            "row": "Setup",
+            "them": "Sign up and go",
+            "tm": "Docker Compose on any server"
+          },
+          {
+            "row": "Broker import",
+            "them": "Broad auto-sync integrations",
+            "tm": "IBKR Flex sync + CSV presets (MT4/MT5, cTrader, DXtrade, Match-Trader…)"
+          },
+          {
+            "row": "Backtesting & replay",
+            "them": "Replay and backtesting built in",
+            "tm": "Bar replay with paper accounts — results flow into the same analytics"
+          },
+          {
+            "row": "Analytics depth",
+            "them": "50+ reports, Zella Score",
+            "tm": "Expectancy, SQN, Kelly %, behavior flags, rule-compliance P&L"
+          },
+          {
+            "row": "AI",
+            "them": "Built-in AI on their vendor",
+            "tm": "Your own OpenAI-compatible keys — local models supported"
+          },
+          {
+            "row": "Languages",
+            "them": "English",
+            "tm": "English · 日本語 · 繁體中文 · 简体中文"
+          }
+        ],
+        "theyWin": [
+          "Education — courses, community, and onboarding polish a self-hosted app doesn't try to match",
+          "Zero setup: nothing to install, nothing to maintain",
+          "Broker auto-sync breadth across mainstream US brokers"
+        ],
+        "tmWins": [
+          "No subscription — free forever under AGPL-3.0",
+          "Data ownership: your journal is a file on your box, not an account that can be closed",
+          "Deeper trade math: expectancy, SQN, Kelly %, MAE/MFE, and behavioral flags out of the box",
+          "Prop-firm mode and rule compliance built in, not bolted on",
+          "AI with your own keys — or a local model, so nothing leaves your machine"
+        ],
+        "verdict": "If you want a hosted product with courses and zero maintenance, TradeZella earns its subscription. If you'd rather own the journal itself — the data, the analytics, the AI keys — TraderMemos does more of the actual analysis and costs nothing."
+      },
+      "tradersync": {
+        "metaTitle": "The self-hosted TraderSync alternative | TraderMemos",
+        "metaDescription": "TraderSync vs TraderMemos: the widest broker support in the industry against a free, self-hosted journal with behavioral analytics.",
+        "blurb": "The broker-import champion with 900+ integrations — against a journal you host yourself.",
+        "title": "The self-hosted TraderSync alternative",
+        "subtitle": "TraderSync's 900+ broker integrations are the widest in the industry. TraderMemos doesn't compete on that breadth — it wins on what happens after the import: deeper analytics, on your own server, for free.",
+        "rows": [
+          {
+            "row": "Price",
+            "them": "From $29.95/mo after a 7-day trial",
+            "tm": "Free — AGPL-3.0 open source"
+          },
+          {
+            "row": "Your data",
+            "them": "TraderSync's cloud",
+            "tm": "A SQLite file on your own server"
+          },
+          {
+            "row": "Broker import",
+            "them": "900+ brokers — the widest anywhere",
+            "tm": "IBKR Flex sync + CSV presets (MT4/MT5, cTrader, DXtrade, Match-Trader…)"
+          },
+          {
+            "row": "Analytics",
+            "them": "Stats, simulator, exit analysis",
+            "tm": "Expectancy, SQN, Kelly %, MAE/MFE, session and hour breakdowns"
+          },
+          {
+            "row": "Behavioral analytics",
+            "them": "Mistake tagging",
+            "tm": "Automatic revenge, overconfidence, and loss-aversion detection"
+          },
+          {
+            "row": "Rule compliance & prop",
+            "them": "Evaluation tools on higher tiers",
+            "tm": "Risk rules, compliance P&L, prop drawdown tracking — free"
+          },
+          {
+            "row": "AI",
+            "them": "AI feedback on top tiers",
+            "tm": "Your own OpenAI-compatible keys — local models supported"
+          },
+          {
+            "row": "Languages",
+            "them": "English",
+            "tm": "English · 日本語 · 繁體中文 · 简体中文"
+          }
+        ],
+        "theyWin": [
+          "900+ broker auto-import — the widest in the industry",
+          "An established product with a long track record",
+          "Managed cloud: all the maintenance is somebody else’s job"
+        ],
+        "tmWins": [
+          "Free — there are no tiers at all",
+          "Your data lives on your own machine",
+          "Behavior flags plus expectancy, SQN, and Kelly % as standard",
+          "Prop mode and rule compliance without an upcharge",
+          "AI with your own keys",
+          "English, Japanese, Traditional and Simplified Chinese"
+        ],
+        "verdict": "If your broker only auto-syncs with TraderSync, that convenience may be worth the subscription. If a CSV export or IBKR Flex covers you, TraderMemos gives you deeper post-import analysis and a journal nobody can lock you out of."
+      },
+      "tradervue": {
+        "metaTitle": "The self-hosted Tradervue alternative | TraderMemos",
+        "metaDescription": "Tradervue invented the modern trading journal. TraderMemos brings its R-multiple and MAE/MFE reporting to your own server, free.",
+        "blurb": "The original trading journal with gold-standard reports — against a modern, self-hosted successor.",
+        "title": "The self-hosted Tradervue alternative",
+        "subtitle": "Tradervue set the standard every journal copies — R-multiple reporting, MAE/MFE, liquidity analysis. TraderMemos brings that reporting depth to your own server, with a modern UI and behavioral analytics on top.",
+        "rows": [
+          {
+            "row": "Price",
+            "them": "Free tier; advanced reports are paid",
+            "tm": "Everything free — AGPL-3.0 open source"
+          },
+          {
+            "row": "Your data",
+            "them": "Tradervue's cloud",
+            "tm": "A SQLite file on your own server"
+          },
+          {
+            "row": "Reports",
+            "them": "Gold standard: R-mode, MAE/MFE, liquidity",
+            "tm": "R-multiples, MAE/MFE, expectancy, SQN, Kelly %"
+          },
+          {
+            "row": "Behavioral analytics",
+            "them": "—",
+            "tm": "Revenge, overconfidence, and loss-aversion flags per session"
+          },
+          {
+            "row": "Rule compliance & prop",
+            "them": "—",
+            "tm": "Risk rules, compliance P&L, prop drawdown tracking"
+          },
+          {
+            "row": "Sharing",
+            "them": "Journal-sharing community",
+            "tm": "Revocable read-only share links + share cards"
+          },
+          {
+            "row": "AI",
+            "them": "—",
+            "tm": "AI trade coach with your own keys"
+          },
+          {
+            "row": "Interface",
+            "them": "Functional, showing its age",
+            "tm": "Modern terminal aesthetic, dark mode, native iOS app"
+          }
+        ],
+        "theyWin": [
+          "Report maturity refined over more than a decade",
+          "A sharing community of public journals",
+          "Liquidity and slippage reports for active equities traders"
+        ],
+        "tmWins": [
+          "Full ownership through self-hosting",
+          "Everything free",
+          "The behavioral layer Tradervue never built",
+          "Prop mode and rule compliance",
+          "AI with your own keys",
+          "Modern UX and a native mobile app"
+        ],
+        "verdict": "Tradervue remains excellent at the reports it pioneered. TraderMemos matches the ones day traders use daily, adds the behavioral layer Tradervue never built, and puts the whole thing on your hardware."
+      },
+      "traderwaves": {
+        "metaTitle": "The self-hosted TraderWaves alternative | TraderMemos",
+        "metaDescription": "TraderWaves gates equity analytics, Monte Carlo, and alerts behind Pro. TraderMemos ships them free, on your own server.",
+        "blurb": "The freemium journal with 700+ broker connections — against a journal with no Pro tier at all.",
+        "title": "The self-hosted TraderWaves alternative",
+        "subtitle": "TraderWaves' free tier is genuinely generous, and its 700+ broker connections are real. But the analytics that matter — equity and drawdown, Monte Carlo, alerts — sit behind Pro. TraderMemos has no Pro.",
+        "rows": [
+          {
+            "row": "Price",
+            "them": "Free tier + Pro at $19.99/mo",
+            "tm": "Everything free — AGPL-3.0 open source"
+          },
+          {
+            "row": "Your data",
+            "them": "TraderWaves' cloud",
+            "tm": "A SQLite file on your own server"
+          },
+          {
+            "row": "Broker sync",
+            "them": "700+ brokers via an aggregator",
+            "tm": "IBKR Flex sync + CSV presets (MT4/MT5, cTrader, DXtrade, Match-Trader…)"
+          },
+          {
+            "row": "Equity & drawdown analytics",
+            "them": "Pro",
+            "tm": "Free"
+          },
+          {
+            "row": "Monte Carlo simulation",
+            "them": "Pro",
+            "tm": "Free — built into Reports"
+          },
+          {
+            "row": "Alerts",
+            "them": "Pro (price, news, session, account)",
+            "tm": "Free — risk rules, loss limits, prop drawdown, sent from your own server"
+          },
+          {
+            "row": "Behavioral analytics",
+            "them": "Smart insights",
+            "tm": "Revenge, overconfidence, and loss-aversion detection + SQN, Kelly %"
+          },
+          {
+            "row": "Rule compliance & prop mode",
+            "them": "—",
+            "tm": "Built in, free"
+          },
+          {
+            "row": "Backtesting",
+            "them": "Unlimited on Pro",
+            "tm": "Bar replay with paper accounts — results land in the same analytics"
+          }
+        ],
+        "theyWin": [
+          "Broker connectivity through a live aggregator",
+          "Market breadth: watchlists and in-browser charting",
+          "A zero-setup free tier you can start on today"
+        ],
+        "tmWins": [
+          "Nothing is gated — there is no Pro",
+          "Deeper analytics: expectancy, SQN, Kelly %, behavior flags",
+          "Data ownership and self-hosting",
+          "Alerts free, sent from your own server",
+          "English, Japanese, Traditional and Simplified Chinese",
+          "AGPL-3.0 open source"
+        ],
+        "verdict": "TraderWaves is the strongest free cloud journal today — until you need the analytics behind Pro. TraderMemos' answer is structural: you run the software yourself, so a paid tier cannot exist."
+      }
+    }
   }
 }

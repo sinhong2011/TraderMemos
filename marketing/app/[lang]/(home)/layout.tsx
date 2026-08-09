@@ -22,6 +22,12 @@ async function Footer({ lang }: { lang: string }) {
             <Link href={`/${lang}/docs`} className={link}>
               {t('docs')}
             </Link>
+            <Link href={`/${lang}/features`} className={link}>
+              {t('features')}
+            </Link>
+            <Link href={`/${lang}/alternative`} className={link}>
+              {t('compare')}
+            </Link>
             <Link href={`/${lang}/changelog`} className={link}>
               {t('changelog')}
             </Link>

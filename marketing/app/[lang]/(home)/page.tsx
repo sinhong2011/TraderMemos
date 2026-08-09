@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import Image, { type StaticImageData } from 'next/image';
 import Link from 'next/link';
 import {
   LayoutDashboard,
@@ -26,6 +25,7 @@ import {
   StatBars,
   TypedTerminal,
 } from '@/components/landing/motion';
+import { BrowserFrame } from '@/components/browser-frame';
 import dashboardShot from '@/public/screenshots/dashboard.png';
 import dashboardLightShot from '@/public/screenshots/dashboard-light.png';
 import tradesShot from '@/public/screenshots/trades.png';
@@ -216,44 +216,6 @@ function TerminalCard() {
           url="http://localhost:3000"
         />
       </div>
-    </div>
-  );
-}
-
-/* Browser chrome frame — every screenshot runs on localhost, on purpose. */
-function BrowserFrame({
-  image,
-  lightImage,
-  alt,
-  sizes,
-  priority = false,
-}: {
-  image: StaticImageData;
-  lightImage?: StaticImageData;
-  alt: string;
-  sizes: string;
-  priority?: boolean;
-}) {
-  return (
-    <div className="overflow-hidden rounded-xl bg-zinc-950 shadow-2xl shadow-black/30 ring-1 ring-white/10">
-      <div className="flex items-center gap-2 px-4 py-2.5">
-        <span aria-hidden className="size-2.5 rounded-full bg-zinc-700" />
-        <span aria-hidden className="size-2.5 rounded-full bg-zinc-700" />
-        <span aria-hidden className="size-2.5 rounded-full bg-zinc-700" />
-        <span className="mx-auto rounded-md bg-zinc-900 px-6 py-0.5 font-mono text-[11px] text-zinc-500">
-          localhost:3000
-        </span>
-      </div>
-      <Image
-        src={image}
-        alt={alt}
-        priority={priority}
-        sizes={sizes}
-        className={lightImage ? 'hidden w-full dark:block' : 'w-full'}
-      />
-      {lightImage ? (
-        <Image src={lightImage} alt={alt} sizes={sizes} className="w-full dark:hidden" />
-      ) : null}
     </div>
   );
 }
