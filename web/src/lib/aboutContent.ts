@@ -58,10 +58,6 @@ export type AboutContent = {
   updateNeverChecked: string;
   updateBannerTitle: string;
   updateBannerSw: string;
-  updateBannerRemote: string;
-  updateBannerWebBehind: string;
-  updateBannerApiBehind: string;
-  updateBannerBothBehind: string;
   updateDismiss: string;
   updateReleaseTitle: string;
   updateReleasePublished: string;
@@ -73,7 +69,6 @@ export type AboutContent = {
   updateNoticesLabel: string;
   updateNoticesDetail: string;
   updateMismatch: string;
-  updateBannerMismatch: string;
   apiBuildTimeLabel: string;
   apiUptimeLabel: string;
   apiDbLabel: string;
@@ -178,10 +173,6 @@ const ABOUT: Record<AppLocale, AboutContent> = {
     updateNeverChecked: "Not checked yet",
     updateBannerTitle: "Update available",
     updateBannerSw: "A new version of TraderMemos is ready. Reload to apply it.",
-    updateBannerRemote: "A newer release is available. Pull the latest image or redeploy.",
-    updateBannerWebBehind: "The web app is behind — reload, or redeploy the web image.",
-    updateBannerApiBehind: "The API is behind — pull the latest API image.",
-    updateBannerBothBehind: "Web and API are behind — pull the latest images.",
     updateDismiss: "Dismiss",
     updateReleaseTitle: "Release notes",
     updateReleasePublished: "Published",
@@ -194,8 +185,6 @@ const ABOUT: Record<AppLocale, AboutContent> = {
     updateNoticesDetail:
       "Show a notice in the corner when a newer version is available. Update status stays visible here either way.",
     updateMismatch: "Web and API versions don't match",
-    updateBannerMismatch:
-      "Web and API are running different versions — update the older side so they match.",
     apiBuildTimeLabel: "Built",
     apiUptimeLabel: "Uptime",
     apiDbLabel: "Database",
@@ -297,10 +286,6 @@ const ABOUT: Record<AppLocale, AboutContent> = {
     updateNeverChecked: "尚未檢查",
     updateBannerTitle: "有可用更新",
     updateBannerSw: "TraderMemos 有新版本就緒。重新載入以套用。",
-    updateBannerRemote: "已推出新版本。請拉取最新映像或重新部署。",
-    updateBannerWebBehind: "Web 版本落後 — 請重新載入或重新部署 web 映像。",
-    updateBannerApiBehind: "API 版本落後 — 請拉取最新 API 映像。",
-    updateBannerBothBehind: "Web 與 API 均落後 — 請拉取最新映像。",
     updateDismiss: "關閉",
     updateReleaseTitle: "發佈說明",
     updateReleasePublished: "發佈日期",
@@ -312,7 +297,6 @@ const ABOUT: Record<AppLocale, AboutContent> = {
     updateNoticesLabel: "更新通知",
     updateNoticesDetail: "有新版本時在角落顯示提示。關閉後這裡仍會顯示更新狀態。",
     updateMismatch: "Web 與 API 版本不一致",
-    updateBannerMismatch: "Web 與 API 版本不同 — 請更新較舊的一方使其一致。",
     apiBuildTimeLabel: "建置時間",
     apiUptimeLabel: "運行時間",
     apiDbLabel: "資料庫",
@@ -421,12 +405,6 @@ const ABOUT: Record<AppLocale, AboutContent> = {
     updateBannerTitle: "アップデートがあります",
     updateBannerSw:
       "TraderMemos の新しいバージョンが準備できました。再読み込みして適用してください。",
-    updateBannerRemote:
-      "新しいリリースが利用可能です。最新イメージを取得するか再デプロイしてください。",
-    updateBannerWebBehind:
-      "Web が古くなっています — 再読み込みか、web イメージを再デプロイしてください。",
-    updateBannerApiBehind: "API が古くなっています — 最新の API イメージを取得してください。",
-    updateBannerBothBehind: "Web と API が古くなっています — 最新イメージを取得してください。",
     updateDismiss: "閉じる",
     updateReleaseTitle: "リリースノート",
     updateReleasePublished: "公開日",
@@ -439,8 +417,6 @@ const ABOUT: Record<AppLocale, AboutContent> = {
     updateNoticesDetail:
       "新しいバージョンがあるときに画面隅に通知を表示します。オフでもここで更新状況を確認できます。",
     updateMismatch: "Web と API のバージョンが一致しません",
-    updateBannerMismatch:
-      "Web と API が異なるバージョンで動作しています — 古い側を更新してください。",
     apiBuildTimeLabel: "ビルド日時",
     apiUptimeLabel: "稼働時間",
     apiDbLabel: "データベース",
@@ -543,10 +519,6 @@ const ABOUT: Record<AppLocale, AboutContent> = {
     updateNeverChecked: "아직 확인 안 함",
     updateBannerTitle: "업데이트 사용 가능",
     updateBannerSw: "TraderMemos 새 버전이 준비되었습니다. 새로고침하여 적용하세요.",
-    updateBannerRemote: "새 릴리스가 있습니다. 최신 이미지를 받거나 다시 배포하세요.",
-    updateBannerWebBehind: "Web이 뒤처져 있습니다 — 새로고침하거나 web 이미지를 다시 배포하세요.",
-    updateBannerApiBehind: "API가 뒤처져 있습니다 — 최신 API 이미지를 받으세요.",
-    updateBannerBothBehind: "Web과 API가 뒤처져 있습니다 — 최신 이미지를 받으세요.",
     updateDismiss: "닫기",
     updateReleaseTitle: "릴리스 노트",
     updateReleasePublished: "게시일",
@@ -559,8 +531,6 @@ const ABOUT: Record<AppLocale, AboutContent> = {
     updateNoticesDetail:
       "새 버전이 있을 때 화면 모서리에 알림을 표시합니다. 꺼도 여기에서 업데이트 상태를 확인할 수 있습니다.",
     updateMismatch: "Web과 API 버전이 일치하지 않음",
-    updateBannerMismatch:
-      "Web과 API가 서로 다른 버전으로 실행 중입니다 — 이전 버전 쪽을 업데이트하세요.",
     apiBuildTimeLabel: "빌드 시간",
     apiUptimeLabel: "가동 시간",
     apiDbLabel: "데이터베이스",
