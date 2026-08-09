@@ -82,25 +82,40 @@ export function useBacktestReplay(
     if (!bars || barCount === 0 || cursor !== frontier || quantity <= 0) return;
     const bar = bars[cursor];
     if (!bar) return;
-    // One second before the bar's close moment, so the fill lands inside the
-    // cursor bar for both the P&L cutoff and the chart marker.
-    const executedSec = bar.time + INTERVAL_SEC[interval] - 1;
+    // Anchor the fill at the bar's close moment, kept inside the bar so the
+    // P&L cutoff and the chart marker land on the cursor bar. Daily bars are
+    // stamped at the session open, so a full 86400-second offset would roll
+    // the journal date onto the next day — use the 6.5h stock session instead.
+    const executedSec = bar.time + (interval === "D" ? 23_400 : INTERVAL_SEC[interval] - 1);
     const executedAt = new Date(executedSec * 1000).toISOString();
     setFills((prev) => {
+      // Same-bar opposite-side orders net out first: both fill at the same
+      // close price, so netting is economically identical and avoids two
+      // same-timestamp fills whose ordering the server couldn't reconstruct.
+      const next = [...prev];
+      let remaining = quantity;
+      const opp = next.findIndex((f) => f.executed_at === executedAt && f.side !== side);
+      if (opp >= 0) {
+        const other = next[opp];
+        const netted = Math.min(other.quantity, remaining);
+        remaining -= netted;
+        if (other.quantity - netted <= 0) next.splice(opp, 1);
+        else next[opp] = { ...other, quantity: other.quantity - netted };
+      }
+      if (remaining <= 0) return next;
       // Same-bar same-side orders merge into one fill: the price is identical
       // anyway, and distinct fills with equal (symbol, side, qty, price, time)
       // would silently dedupe server-side on save.
-      const i = prev.findIndex((f) => f.executed_at === executedAt && f.side === side);
+      const i = next.findIndex((f) => f.executed_at === executedAt && f.side === side);
       if (i >= 0) {
-        const merged = [...prev];
-        merged[i] = { ...merged[i], quantity: merged[i].quantity + quantity };
-        return merged;
+        next[i] = { ...next[i], quantity: next[i].quantity + remaining };
+        return next;
       }
       return [
-        ...prev,
+        ...next,
         {
           side,
-          quantity,
+          quantity: remaining,
           price: bar.close,
           fees: 0,
           commission: 0,

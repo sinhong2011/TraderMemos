@@ -369,7 +369,13 @@ function FillsList({
             {f.side === "buy" ? "Buy" : "Sell"}
           </span>
           <span className="w-16 text-right">{f.quantity}</span>
-          <span className="w-20 text-right">@ {f.price}</span>
+          <span className="w-20 text-right">
+            @{" "}
+            {f.price.toLocaleString(intlLocale(), {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 4,
+            })}
+          </span>
           <span className="ml-auto text-muted-foreground">
             {formatReplayBarTime(
               Math.floor(new Date(f.executed_at).getTime() / 1000),
@@ -467,7 +473,13 @@ function SaveCard({
           disabled={replay.fills.length === 0 || saving}
           onClick={() => void save()}
         >
-          {saving ? "Saving…" : `Save ${replay.fills.length || "no"} fills`}
+          {saving
+            ? "Saving…"
+            : replay.fills.length === 0
+              ? "Save session"
+              : replay.fills.length === 1
+                ? "Save 1 fill"
+                : `Save ${replay.fills.length} fills`}
         </Button>
         {replay.pnl && replay.pnl.position !== 0 && (
           <span className="text-xs text-muted-foreground">
