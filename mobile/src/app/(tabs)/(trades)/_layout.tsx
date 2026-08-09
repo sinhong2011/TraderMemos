@@ -16,12 +16,10 @@ export default function TradesLayout() {
         headerTitleStyle: { color: theme.colors.foreground },
         headerLargeTitle: true,
         headerBlurEffect: 'none',
-        // iOS 26 paints an automatic scroll-edge effect under the bar once content
-        // scrolls beneath it — a dimming band that fights a header deliberately left
-        // with no background at all (expo-router defaults every edge to `automatic`,
-        // and its own docs warn the effect overlaps `headerBlurEffect`). Screens at
-        // rest look untouched, which is why only scrolled ones showed the slab.
-        scrollEdgeEffects: { top: 'hidden' },
+        // iOS 27 flipped the nav-bar default edge style from soft to hard, which
+        // paints an iOS 18-style bar slab + hairline under our transparent header.
+        // Soft keeps the iOS 26 progressive blur with no boundary line.
+        scrollEdgeEffects: { top: 'soft' },
         headerBackButtonDisplayMode: 'minimal',
       }}
     >

@@ -13,7 +13,7 @@ import { StyleSheet } from 'react-native-unistyles';
 
 import { useAccounts, useCash } from '@/api/hooks';
 import type { Filters } from '@/api/types';
-import type { ReportsSection } from '@/app/(tabs)/(reports)/index';
+import type { ReportsSection } from '@/app/(tabs)/(dashboard)/reports';
 import { useSelectedAccountId } from '@/lib/account-store';
 import { netDeposits } from '@/lib/cash';
 import { useGlobalFilters } from '@/lib/filters';

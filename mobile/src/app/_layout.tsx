@@ -232,7 +232,7 @@ export default function RootLayout() {
               options={{ presentation: 'fullScreenModal', headerShown: true }}
             />
             {/* One-shot calculators ride in half sheets; the R calculator is a
-                pushed screen under (reports). */}
+                pushed screen under (dashboard). */}
             <Stack.Screen
               name="tool-position-size"
               options={{

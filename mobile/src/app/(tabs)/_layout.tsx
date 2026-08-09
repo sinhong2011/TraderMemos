@@ -45,10 +45,11 @@ export default function TabsLayout() {
         <NativeTabs.Trigger.Icon sf="calendar" />
         <NativeTabs.Trigger.Label>{t`Calendar`}</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="(reports)">
-        <NativeTabs.Trigger.Icon sf="chart.pie" />
-        <NativeTabs.Trigger.Label>{t`Reports`}</NativeTabs.Trigger.Label>
-      </NativeTabs.Trigger>
+      {/* Reports moved into the Home Tools menu (pushed in that stack,
+          2026-08-09) — four destinations keep the bar light, and Reports is
+          one hop from Home. A `role="search"` fifth tab was tried and rejected:
+          this expo-router/RNS version renders it as a plain fifth tab, not
+          iOS 26's separated magnifier. */}
       <NativeTabs.Trigger name="(settings)">
         <NativeTabs.Trigger.Icon sf="gearshape" />
         <NativeTabs.Trigger.Label>{t`Settings`}</NativeTabs.Trigger.Label>
