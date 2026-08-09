@@ -72,7 +72,7 @@ export default async function Layout({
       {/* Blueprint chrome: hatched gutters outside the bounded content frame */}
       <div aria-hidden className="tm-gutter left-0" />
       <div aria-hidden className="tm-gutter right-0" />
-      <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col border-x border-fd-border/60 bg-fd-background">
+      <div className="mx-auto flex w-full max-w-[min(96rem,calc(100%-3rem))] flex-1 flex-col border-x border-fd-border/60 bg-fd-background max-sm:max-w-full max-sm:border-x-0">
         {children}
         <Footer lang={lang} />
       </div>

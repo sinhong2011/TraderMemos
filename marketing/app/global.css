@@ -159,13 +159,15 @@ html > body[data-scroll-locked] {
   animation: tm-blink 1s step-end infinite;
 }
 
-/* Tailwind-site style hatched gutters outside the content frame */
+/* Tailwind-site style hatched gutters outside the content frame. The frame is
+   near-full-bleed (capped at 96rem), so the rails stay thin on laptops and
+   only grow on very wide monitors. */
 .tm-gutter {
   position: fixed;
   top: 0;
   bottom: 0;
   z-index: -1;
-  width: calc((100vw - 72rem) / 2);
+  width: max(1.5rem, calc((100vw - 96rem) / 2));
   pointer-events: none;
   background-image: repeating-linear-gradient(
     315deg,
@@ -176,7 +178,7 @@ html > body[data-scroll-locked] {
   );
 }
 
-@media (max-width: 76rem) {
+@media (max-width: 40rem) {
   .tm-gutter {
     display: none;
   }
