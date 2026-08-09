@@ -87,6 +87,7 @@
         }
       ],
       "./plugins/with-ios-scene-lifecycle",
+      "./plugins/with-widgets",
       [
         "expo-calendar",
         {
@@ -103,7 +104,24 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "a8bda1dd-0562-412f-ad9f-cc8834002930"
+        "projectId": "a8bda1dd-0562-412f-ad9f-cc8834002930",
+        "build": {
+          "experimental": {
+            "ios": {
+              "appExtensions": [
+                {
+                  "targetName": "TraderMemosWidgets",
+                  "bundleIdentifier": "com.tradermemos.app.widgets",
+                  "entitlements": {
+                    "com.apple.security.application-groups": [
+                      "group.com.tradermemos.app"
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
       }
     },
     "owner": "sinhong2011"

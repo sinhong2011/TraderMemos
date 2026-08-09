@@ -22,6 +22,7 @@ import { t } from '@lingui/core/macro';
 import { useConnectivityStore } from '@/lib/connectivity';
 import { useResolvedScheme } from '@/lib/prefs';
 import { usePrefsSync } from '@/lib/use-prefs-sync';
+import { useWidgetSnapshotSync } from '@/lib/widget-snapshot';
 import { ensureDropFolder, stageDroppedFile } from '@/lib/trade-import';
 import { queryPersister } from '@/storage/mmkv';
 
@@ -91,6 +92,16 @@ function ImportLinkGate() {
  */
 function PrefsSyncGate() {
   usePrefsSync();
+  return null;
+}
+
+/**
+ * Feeds the Home/Lock Screen widgets: pushes the shared App Group snapshot
+ * (today's P&L, open positions, loss budget) whenever the underlying queries
+ * change, and clears it on sign-out — see `lib/widget-snapshot.ts`.
+ */
+function WidgetSnapshotGate() {
+  useWidgetSnapshotSync();
   return null;
 }
 
@@ -194,6 +205,7 @@ export default function RootLayout() {
         <ThemeProvider value={navTheme}>
           <ImportLinkGate />
           <PrefsSyncGate />
+          <WidgetSnapshotGate />
           <ReachabilityGate />
           <AppErrorBoundary>
           <View style={{ flex: 1 }}>
