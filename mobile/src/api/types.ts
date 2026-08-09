@@ -60,6 +60,8 @@ export type Trade = {
   time_in_trade_secs: number | null;
   notes: string;
   tags: Tag[];
+  /** call/put for option trades (from fills' contract details, OCC fallback). */
+  option_right?: string | null;
   initial_risk?: number | null;
   /** Journal quick-filter fields on list rows (absent until the API is current). */
   setup_id?: string | null;
