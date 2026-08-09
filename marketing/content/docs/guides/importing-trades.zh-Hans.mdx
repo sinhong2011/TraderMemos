@@ -8,12 +8,13 @@ description: 把券商成交记录导入 TraderMemos —— 支持列映射的 C
 
 ## 支持的格式
 
-格式根据文件的表头自动识别 —— 没有按券商区分的预设，任何券商的成交导出只要完成列映射
-就能导入：
+格式根据文件的表头自动识别。[支持的券商](/zh-Hans/docs/guides/supported-brokers)的导出文件会
+自动填好列映射和时区；其他券商的成交导出只要完成列映射就能导入：
 
 | 格式 | 说明 | 需要映射？ |
 |--------|------------|---------------|
-| **成交 CSV** | 每行一笔成交 —— 多数券商对账单导出的形式 | 需要 |
+| **成交 CSV** | 每行一笔成交 —— 多数券商对账单导出的形式 | 需要（[支持的券商](/zh-Hans/docs/guides/supported-brokers)自动填好） |
+| **MetaTrader 对账单** | MT5 *交易历史报告*（XLSX/HTML）或 MT4 *对账单*（HTML），原样上传 —— 见[支持的券商](/zh-Hans/docs/guides/supported-brokers) | 不需要 |
 | **日志导出** | 每行一笔完整交易，含开平仓（Stonk Journal 风格：`Date, Symbol, Side, Qty, Entry, Exit, …, Tags, Setup, Notes`）。每行生成一笔完整交易及日志批注 | 不需要 |
 | **JSON 备份** | TraderMemos 的[导出文件](/zh-Hans/docs/self-hosting/backup-restore) —— 恢复成交、策略手册、现金流水与账户元数据 | 不需要 |
 
