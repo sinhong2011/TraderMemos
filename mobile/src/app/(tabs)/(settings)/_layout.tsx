@@ -15,12 +15,13 @@ export default function SettingsLayout() {
         headerTitleStyle: { color: theme.colors.foreground },
         headerLargeTitle: true,
         headerBlurEffect: 'none',
-        // iOS 26 paints an automatic scroll-edge effect under the bar once content
-        // scrolls beneath it — a dimming band that fights a header deliberately left
-        // with no background at all (expo-router defaults every edge to `automatic`,
-        // and its own docs warn the effect overlaps `headerBlurEffect`). Screens at
-        // rest look untouched, which is why only scrolled ones showed the slab.
-        scrollEdgeEffects: { top: 'hidden' },
+        // `soft`, the app-wide choice — but this prop only reaches the RN-scrollable
+        // screens (funding, tags, api-tokens, token-uses). The SwiftUI `Form` screens
+        // keep their scroll view where react-native-screens' first-descendant-chain
+        // search can never find it, so they re-state `soft` themselves via the
+        // `scrollEdgeEffectStyle` SwiftUI modifier in `SettingsForm`
+        // (registered by `modules/scroll-edge-style`).
+        scrollEdgeEffects: { top: 'soft' },
         headerBackButtonDisplayMode: 'minimal',
       }}
     >
