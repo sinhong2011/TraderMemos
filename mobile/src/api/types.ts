@@ -217,6 +217,20 @@ export type AnnualGoal = {
   amount: number | null;
 };
 
+/** GET/PUT /settings/alerts (alertSettingsDTO) — enabled is the master switch. */
+export type AlertSettings = {
+  enabled: boolean;
+  timezone: string;
+  rule_risk: boolean;
+  rule_daily_loss: boolean;
+  rule_loss_streak: boolean;
+  loss_streak_n: number;
+  rule_prop_drawdown: boolean;
+  prop_warn_pct: number;
+  rule_unreviewed: boolean;
+  unreviewed_days: number;
+};
+
 /** GET/PUT /settings/risk-rules (riskRulesDTO) — null clears a rule. */
 export type RiskRules = {
   max_risk_per_trade: number | null;
