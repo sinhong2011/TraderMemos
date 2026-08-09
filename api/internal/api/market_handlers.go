@@ -25,7 +25,7 @@ func (s *Server) handleMarketFx(c *echo.Context) error {
 	}
 	out, err := s.deps.Market.GetFxRate(c.Request().Context(), from, to)
 	if err != nil {
-		s.logger.Warn("fx rate fetch failed", "from", from, "to", to, "err", err)
+		c.Logger().Warn("fx rate fetch failed", "from", from, "to", to, "err", err)
 		return Fail(http.StatusBadGateway, "upstream_error", "failed to fetch FX rate", nil)
 	}
 	return c.JSON(http.StatusOK, out)
@@ -102,7 +102,7 @@ func (s *Server) handleMarketBars(c *echo.Context) error {
 	out, err := s.deps.Market.GetBars(c.Request().Context(), req)
 	if err != nil {
 		// Chart widget should degrade gracefully — return empty bars, not 502.
-		s.logger.Warn("market bars fetch failed", "symbol", symbol, "err", err)
+		c.Logger().Warn("market bars fetch failed", "symbol", symbol, "err", err)
 		return c.JSON(http.StatusOK, marketdata.EmptyResponse(req, "unavailable"))
 	}
 	return c.JSON(http.StatusOK, out)

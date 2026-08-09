@@ -55,6 +55,26 @@ func RequestLogger(lg *slog.Logger) echo.MiddlewareFunc {
 	})
 }
 
+// ContextLogger stores a request-scoped logger on the context, tagged with the
+// request id. Handlers should log through c.Logger() rather than a
+// server-wide logger: without the id, a warning raised mid-handler cannot be
+// matched to the request line that carries its route, status and latency.
+//
+// Echo resets the context logger to the server one between requests, so the
+// tagged logger never leaks across the pooled contexts.
+func ContextLogger(lg *slog.Logger) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c *echo.Context) error {
+			if id := c.Response().Header().Get(echo.HeaderXRequestID); id != "" {
+				c.SetLogger(lg.With("id", id))
+			} else {
+				c.SetLogger(lg)
+			}
+			return next(c)
+		}
+	}
+}
+
 // errAttrs flattens a handler error into log attributes so every 4xx/5xx
 // line carries its cause — the response envelope hides it from the log
 // otherwise, and a bare status is undebuggable after the fact.

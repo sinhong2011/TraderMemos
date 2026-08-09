@@ -59,7 +59,7 @@ func (s *Server) handleOCRParse(c *echo.Context) error {
 			return Fail(http.StatusServiceUnavailable, "unavailable", "ocr not available", nil)
 		}
 		if errors.Is(err, ocr.ErrTimeout) {
-			s.logger.Warn("ocr parse timed out", "err", err)
+			c.Logger().Warn("ocr parse timed out", "err", err)
 			return Fail(
 				http.StatusGatewayTimeout,
 				"ocr_timeout",
@@ -67,7 +67,7 @@ func (s *Server) handleOCRParse(c *echo.Context) error {
 				nil,
 			)
 		}
-		s.logger.Warn("ocr parse failed", "err", err)
+		c.Logger().Warn("ocr parse failed", "err", err)
 		msg := strings.TrimSpace(err.Error())
 		if msg == "" {
 			msg = "could not extract fills from image"

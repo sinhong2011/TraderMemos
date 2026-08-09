@@ -71,6 +71,10 @@ func New(deps Deps) *Server {
 	e.Logger = lg
 	e.HTTPErrorHandler = errorHandler
 	e.Use(middleware.RequestID())
+	// Bind the request id into the logger handlers reach through c.Logger(),
+	// so a warning raised deep in a handler ties back to the request line
+	// carrying its route, status and latency.
+	e.Use(ContextLogger(lg))
 	e.Use(RequestLogger(lg))
 	// Recover reports a panic as a *middleware.PanicStackError carrying the
 	// stack, which RequestLogger unpacks into the request's own log line.

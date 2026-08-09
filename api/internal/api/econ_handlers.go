@@ -46,7 +46,7 @@ func (s *Server) handleListEconomicEvents(c *echo.Context) error {
 	}
 	// Refresh is best-effort: a feed outage degrades to cached rows.
 	if err := s.deps.Econ.EnsureFresh(c.Request().Context()); err != nil {
-		s.logger.Warn("economic events refresh failed", "err", err)
+		c.Logger().Warn("economic events refresh failed", "err", err)
 	}
 
 	rows, err := s.deps.Store.ListEconomicEvents(c.Request().Context(), store.ListEconomicEventsParams{

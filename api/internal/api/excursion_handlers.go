@@ -48,7 +48,7 @@ func (s *Server) handleTradeExcursion(c *echo.Context) error {
 		errors.Is(err, excursion.ErrBarsExpired):
 		return Fail(http.StatusUnprocessableEntity, "unprocessable", err.Error(), nil)
 	case errors.Is(err, excursion.ErrBarsFetch):
-		s.logger.Warn("excursion bars fetch failed", "trade", id, "symbol", t.Symbol, "err", err)
+		c.Logger().Warn("excursion bars fetch failed", "trade", id, "symbol", t.Symbol, "err", err)
 		return Fail(http.StatusBadGateway, "upstream_error", "could not fetch market data", nil)
 	case errors.Is(err, excursion.ErrNoBars):
 		return Fail(http.StatusUnprocessableEntity, "unprocessable", "no market data covers this trade window", nil)

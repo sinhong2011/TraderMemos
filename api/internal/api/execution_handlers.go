@@ -102,7 +102,7 @@ func (s *Server) handleCreateExecution(c *echo.Context) error {
 		ExecutedAt: in.ExecutedAt, Multiplier: in.Multiplier, Details: details, DedupHash: hash,
 	})
 	if err != nil {
-		s.logger.Warn("insert execution failed", "err", err, "symbol", in.Symbol, "side", in.Side)
+		c.Logger().Warn("insert execution failed", "err", err, "symbol", in.Symbol, "side", in.Side)
 		if isUniqueConstraint(err) {
 			return Fail(http.StatusConflict, "conflict", "duplicate fill already exists", nil)
 		}
