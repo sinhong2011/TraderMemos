@@ -26,6 +26,7 @@ import { useAppUpdate } from "@/lib/appUpdate";
 import { cn } from "@/lib/cn";
 import { fmtDateTime } from "@/lib/format";
 import { useApiHealth } from "@/lib/hooks/useApiHealth";
+import { parseReleaseNotes } from "@/lib/releases";
 import { formatUptime, useSystemInfo } from "@/lib/hooks/useSystemInfo";
 import { APP_BUILD, APP_VERSION, formatVersion } from "@/lib/version";
 import { useLocale } from "@/i18n";
@@ -223,6 +224,8 @@ export function AboutTab() {
     storeApiVersion ?? (healthOk && health.data?.version ? health.data.version : null);
   const apiCommit = health.data?.commit?.slice(0, 7);
 
+  const releaseSections = remote ? parseReleaseNotes(remote.body) : [];
+
   const lastCheckedLabel = lastCheckedAt
     ? fmtDateTime(new Date(lastCheckedAt).toISOString())
     : content.updateNeverChecked;
@@ -361,14 +364,60 @@ export function AboutTab() {
             </span>
           </div>
 
-          {remote?.excerpt ? (
-            <div className="mt-4 space-y-2 rounded-lg bg-sidebar/60 px-4 py-3.5">
-              <h3 className="m-0 text-[12px] font-semibold tracking-tight text-foreground">
-                {content.updateReleaseTitle}
-              </h3>
-              <p className="m-0 text-[12px] leading-relaxed text-muted-foreground">
-                {remote.excerpt}
-              </p>
+          {remote && (releaseSections.length > 0 || remote.excerpt) ? (
+            <div className="mt-4 rounded-lg bg-sidebar/60 px-4 py-3.5">
+              <div className="flex items-center justify-between gap-3">
+                <h3 className="m-0 text-[12px] font-semibold tracking-tight text-foreground">
+                  {content.updateReleaseTitle}
+                </h3>
+                <a
+                  href={remote.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex shrink-0 items-center gap-1 text-[11px] font-medium text-muted-foreground no-underline transition-colors duration-150 hover:text-primary motion-reduce:transition-none"
+                >
+                  {formatVersion(remote.version)}
+                  <ExternalLink size={11} strokeWidth={1.5} aria-hidden />
+                </a>
+              </div>
+              {releaseSections.length > 0 ? (
+                releaseSections.map((section) => (
+                  <div key={section.title} className="mt-3">
+                    <p className="m-0 text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
+                      {section.title}
+                    </p>
+                    <ul className="m-0 mt-1.5 flex list-none flex-col gap-1.5 p-0">
+                      {section.items.map((item) => (
+                        <li
+                          key={`${item.scope ?? ""}-${item.text}`}
+                          className="flex items-baseline gap-2 text-[12px] leading-relaxed"
+                        >
+                          {item.scope ? (
+                            <span className="shrink-0 rounded bg-sidebar px-1.5 py-px text-[10px] font-medium text-muted-foreground">
+                              {item.scope}
+                            </span>
+                          ) : null}
+                          <span className="min-w-0 text-foreground/85">{item.text}</span>
+                          {item.prUrl ? (
+                            <a
+                              href={item.prUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="shrink-0 text-[11px] font-medium tabular-nums text-muted-foreground no-underline transition-colors duration-150 hover:text-primary motion-reduce:transition-none"
+                            >
+                              {item.prLabel}
+                            </a>
+                          ) : null}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))
+              ) : (
+                <p className="m-0 mt-2 text-[12px] leading-relaxed text-muted-foreground">
+                  {remote.excerpt}
+                </p>
+              )}
             </div>
           ) : null}
 
