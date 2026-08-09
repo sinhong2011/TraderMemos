@@ -1463,6 +1463,11 @@ components:
           type: string
         account_type:
           type: string
+          description: >-
+            Free-form account kind — cash, margin, prop, or backtest. Accounts
+            marked backtest are paper accounts fed by the bar replay; their
+            trades and cash are excluded from all-account aggregates unless the
+            account is selected explicitly via account_id.
         base_currency:
           type: string
         starting_balance:
@@ -1477,6 +1482,11 @@ components:
           type: string
         account_type:
           type: string
+          description: >-
+            Free-form account kind — cash, margin, prop, or backtest. Accounts
+            marked backtest are paper accounts fed by the bar replay; their
+            trades and cash are excluded from all-account aggregates unless the
+            account is selected explicitly via account_id.
         base_currency:
           type: string
         starting_balance:
