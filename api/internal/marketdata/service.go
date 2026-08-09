@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"log/slog"
 	"sync"
 	"time"
 
@@ -26,8 +27,10 @@ func NewService(q store.Querier, provider Provider) *Service {
 	return &Service{
 		Store:    q,
 		Provider: provider,
-		mem:      newMemCache(128),
-		fxMem:    newFxCache(),
+		// 512 windows: a bar-replay session walks many distinct (symbol,
+		// interval, window) keys and would thrash a smaller cache.
+		mem:   newMemCache(512),
+		fxMem: newFxCache(),
 	}
 }
 
@@ -76,7 +79,7 @@ func (s *Service) fetchBars(ctx context.Context, req Request, key string) (Respo
 		}
 		var bars []Bar
 		if uerr := json.Unmarshal(cached.BarsJson, &bars); uerr == nil {
-			s.mem.set(key, bars)
+			s.mem.set(key, bars, cacheExpiresAt(req.To))
 			return Response{
 				Symbol: req.Symbol, Interval: req.Interval,
 				From: FormatTimeRFC3339(req.From), To: FormatTimeRFC3339(req.To),
@@ -112,9 +115,11 @@ fetch:
 		FetchedAt: time.Now().UTC().Format(time.RFC3339),
 		ExpiresAt: expiresSQL,
 	}); err != nil {
-		return Response{}, err
+		// The bars are already in hand — a cache write failure must not
+		// turn a good fetch into an error response.
+		slog.Warn("market bars cache write failed", "key", key, "err", err)
 	}
-	s.mem.set(key, bars)
+	s.mem.set(key, bars, expires)
 	return Response{
 		Symbol: req.Symbol, Interval: req.Interval,
 		From: FormatTimeRFC3339(req.From), To: FormatTimeRFC3339(req.To),
@@ -132,33 +137,49 @@ func cacheExpiresAt(to time.Time) *time.Time {
 	return &t
 }
 
+type memEntry struct {
+	bars []Bar
+	// expires follows the DB cache policy: nil for fully-historical windows
+	// (bars older than today never change), otherwise a short TTL so a
+	// long-lived process does not serve today's bars stale forever.
+	expires *time.Time
+}
+
 type memCache struct {
 	mu    sync.RWMutex
 	max   int
 	order []string
-	data  map[string][]Bar
+	data  map[string]memEntry
 }
 
 func newMemCache(max int) *memCache {
 	if max < 1 {
 		max = 64
 	}
-	return &memCache{max: max, data: make(map[string][]Bar)}
+	return &memCache{max: max, data: make(map[string]memEntry)}
 }
 
 func (c *memCache) get(key string) ([]Bar, bool) {
 	c.mu.RLock()
-	defer c.mu.RUnlock()
-	bars, ok := c.data[key]
+	entry, ok := c.data[key]
+	c.mu.RUnlock()
 	if !ok {
 		return nil, false
 	}
-	out := make([]Bar, len(bars))
-	copy(out, bars)
+	if entry.expires != nil && time.Now().UTC().After(*entry.expires) {
+		c.mu.Lock()
+		if cur, still := c.data[key]; still && cur.expires != nil && time.Now().UTC().After(*cur.expires) {
+			delete(c.data, key)
+		}
+		c.mu.Unlock()
+		return nil, false
+	}
+	out := make([]Bar, len(entry.bars))
+	copy(out, entry.bars)
 	return out, true
 }
 
-func (c *memCache) set(key string, bars []Bar) {
+func (c *memCache) set(key string, bars []Bar, expires *time.Time) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if _, exists := c.data[key]; !exists {
@@ -166,7 +187,7 @@ func (c *memCache) set(key string, bars []Bar) {
 	}
 	cp := make([]Bar, len(bars))
 	copy(cp, bars)
-	c.data[key] = cp
+	c.data[key] = memEntry{bars: cp, expires: expires}
 	for len(c.order) > c.max {
 		oldest := c.order[0]
 		c.order = c.order[1:]

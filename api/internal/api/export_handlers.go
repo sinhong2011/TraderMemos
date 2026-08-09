@@ -107,6 +107,8 @@ func (s *Server) handleExport(c *echo.Context) error {
 		return Fail(http.StatusBadRequest, "bad_request", err.Error(), nil)
 	}
 	f.AccountIDs = []string{accountID}
+	// Exports double as backups: keep backtest accounts in the dataset.
+	f.IncludeBacktest = true
 
 	trades, err := s.loadTrades(ctx, uid, f)
 	if err != nil {
