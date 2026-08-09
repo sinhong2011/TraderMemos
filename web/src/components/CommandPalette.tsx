@@ -7,24 +7,9 @@ import { useFilters } from "@/lib/filters";
 import { useHotkeyLabel } from "@/lib/keybindings";
 import { type CommandGroup, useCommands } from "@/lib/useCommands";
 import { useUI } from "@/lib/ui";
-import { Kbd, KbdGroup } from "./ui/kbd";
+import { ShortcutKeys } from "./ShortcutKeys";
 
 const GROUP_ORDER: CommandGroup[] = ["Navigate", "Actions", "Tools"];
-
-/** Split chord labels like `G D` into adjacent keycaps; keep `⌘K` as one chip. */
-function CommandShortcut({ children }: { children: string }) {
-  const parts = children.trim().split(/\s+/).filter(Boolean);
-  if (parts.length <= 1) {
-    return <Kbd>{children}</Kbd>;
-  }
-  return (
-    <KbdGroup className="gap-0.5">
-      {parts.map((part, i) => (
-        <Kbd key={`${part}-${i}`}>{part}</Kbd>
-      ))}
-    </KbdGroup>
-  );
-}
 
 export function CommandPalette() {
   const paletteLabel = useHotkeyLabel("palette");
@@ -77,7 +62,7 @@ export function CommandPalette() {
                     "placeholder:text-muted-foreground",
                   )}
                 />
-                <CommandShortcut>esc</CommandShortcut>
+                <ShortcutKeys>esc</ShortcutKeys>
               </div>
               <Command.List className="max-h-[min(420px,50vh)] overflow-y-auto p-2">
                 <Command.Empty className="px-3 py-8 text-center text-xs text-muted-foreground">
@@ -164,9 +149,7 @@ export function CommandPalette() {
                             aria-hidden
                           />
                           <span className="min-w-0 flex-1 truncate">{item.label}</span>
-                          {item.shortcut ? (
-                            <CommandShortcut>{item.shortcut}</CommandShortcut>
-                          ) : null}
+                          {item.shortcut ? <ShortcutKeys>{item.shortcut}</ShortcutKeys> : null}
                         </Command.Item>
                       );
                     })}
@@ -175,7 +158,7 @@ export function CommandPalette() {
               </Command.List>
               <div className="flex items-center justify-between gap-3 px-3 py-2 text-[10px] text-muted-foreground">
                 <span>Navigate with ↑↓ · Enter to run · shortcuts when empty</span>
-                <CommandShortcut>{paletteLabel}</CommandShortcut>
+                <ShortcutKeys>{paletteLabel}</ShortcutKeys>
               </div>
             </Command>
           </Dialog.Popup>

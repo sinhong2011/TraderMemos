@@ -9,6 +9,7 @@ import { navLabel } from "@/lib/locale";
 import { isRouteActive, MAIN_ROUTES, PRIMARY_NAV, SECONDARY_NAV } from "@/lib/navItems";
 import { useLocale } from "@/i18n";
 import { AppLogo } from "./AppLogo";
+import { CreateMenu } from "./CreateMenu";
 import { RailTooltip } from "./RailTooltip";
 import { ToolsPopover } from "./ToolsPopover";
 
@@ -166,6 +167,11 @@ export function AppNav() {
       </div>
 
       <div className="flex w-full flex-col items-center gap-0.5 py-2">
+        {/* Quick-add anchors the bottom cluster: the one action among the
+            rail's destinations, kept off the scrolling route list. */}
+        <CreateMenu variant="rail" />
+        <div className="my-1 h-px w-4 bg-border" aria-hidden />
+
         <ToolsPopover variant="rail" />
 
         <div className="relative">

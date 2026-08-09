@@ -10,6 +10,7 @@ import {
   Upload,
   Zap,
 } from "lucide-react";
+import type { AppHotkeyId } from "./hotkeys";
 import type { LucideIcon } from "lucide-react";
 import type { navLabel } from "./locale";
 import type { ModalKind } from "./ui";
@@ -24,6 +25,8 @@ export type CreateAction = {
   modal: ModalKind;
   labelKey: Parameters<typeof navLabel>[1];
   icon: LucideIcon;
+  /** Binding advertised beside the row in the quick-add menu. */
+  hotkeyId: AppHotkeyId;
 };
 
 /**
@@ -34,9 +37,9 @@ export type CreateAction = {
  * the verb. A bare `Plus` here would only say "add something".
  */
 export const CREATE_ACTIONS: CreateAction[] = [
-  { modal: "new-trade", labelKey: "newTrade", icon: List },
-  { modal: "new-setup", labelKey: "newSetup", icon: Zap },
-  { modal: "new-note", labelKey: "newNote", icon: StickyNote },
+  { modal: "new-trade", labelKey: "newTrade", icon: List, hotkeyId: "action-new-trade" },
+  { modal: "new-setup", labelKey: "newSetup", icon: Zap, hotkeyId: "action-new-setup" },
+  { modal: "new-note", labelKey: "newNote", icon: StickyNote, hotkeyId: "action-new-note" },
 ];
 
 /** Shown in the desktop/tablet rail top group and the mobile bottom tab bar. */
