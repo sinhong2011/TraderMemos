@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/auth"
 	"github.com/tradermemos/api/internal/importer"
 	"github.com/tradermemos/api/internal/store"
@@ -45,7 +45,7 @@ type updateExecutionReq struct {
 	ExecutedAt time.Time `json:"executed_at"`
 }
 
-func (s *Server) handleCreateExecution(c echo.Context) error {
+func (s *Server) handleCreateExecution(c *echo.Context) error {
 	uid := auth.UserID(c)
 	var in createExecutionReq
 	if err := c.Bind(&in); err != nil {
@@ -129,7 +129,7 @@ func isUniqueConstraint(err error) bool {
 	return strings.Contains(msg, "unique") || strings.Contains(msg, "constraint")
 }
 
-func (s *Server) handleListExecutions(c echo.Context) error {
+func (s *Server) handleListExecutions(c *echo.Context) error {
 	accountID := c.QueryParam("account_id")
 	if accountID == "" {
 		return Fail(http.StatusBadRequest, "bad_request", "account_id is required", nil)
@@ -146,7 +146,7 @@ func (s *Server) handleListExecutions(c echo.Context) error {
 	return c.JSON(http.StatusOK, toExecutionDTOs(rows))
 }
 
-func (s *Server) handleUpdateExecution(c echo.Context) error {
+func (s *Server) handleUpdateExecution(c *echo.Context) error {
 	uid := auth.UserID(c)
 	execID := c.Param("id")
 	var in updateExecutionReq
@@ -204,7 +204,7 @@ func (s *Server) handleUpdateExecution(c echo.Context) error {
 	})
 }
 
-func (s *Server) handleDeleteExecution(c echo.Context) error {
+func (s *Server) handleDeleteExecution(c *echo.Context) error {
 	uid := auth.UserID(c)
 	execID := c.Param("id")
 	ex, err := s.deps.Store.GetExecution(c.Request().Context(), store.GetExecutionParams{

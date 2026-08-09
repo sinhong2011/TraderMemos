@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/auth"
 	"github.com/tradermemos/api/internal/store"
 )
@@ -35,7 +35,7 @@ type preferencesDTO struct {
 	UpdatedAt *time.Time `json:"updated_at,omitempty"`
 }
 
-func (s *Server) loadPreferences(c echo.Context) (map[string]json.RawMessage, *time.Time, error) {
+func (s *Server) loadPreferences(c *echo.Context) (map[string]json.RawMessage, *time.Time, error) {
 	row, err := s.deps.Store.GetUserPreferences(c.Request().Context(), auth.UserID(c))
 	if errors.Is(err, sql.ErrNoRows) {
 		return map[string]json.RawMessage{}, nil, nil
@@ -52,7 +52,7 @@ func (s *Server) loadPreferences(c echo.Context) (map[string]json.RawMessage, *t
 	return prefs, &updated, nil
 }
 
-func (s *Server) handleGetPreferences(c echo.Context) error {
+func (s *Server) handleGetPreferences(c *echo.Context) error {
 	prefs, updated, err := s.loadPreferences(c)
 	if err != nil {
 		return err
@@ -74,7 +74,7 @@ A key set to JSON null is stored as null, not deleted. `displayCurrency: null`
 means "follow the account's base currency", so null has to survive the round
 trip.
 */
-func (s *Server) handlePatchPreferences(c echo.Context) error {
+func (s *Server) handlePatchPreferences(c *echo.Context) error {
 	var patch map[string]json.RawMessage
 	if err := c.Bind(&patch); err != nil || patch == nil {
 		return Fail(http.StatusBadRequest, "bad_request", "body must be a JSON object", nil)

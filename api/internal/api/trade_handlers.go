@@ -5,7 +5,7 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/auth"
 	"github.com/tradermemos/api/internal/store"
 )
@@ -20,7 +20,7 @@ func (s *Server) tradeRoutes(g *echo.Group) {
 	g.POST("/trades/regroup", s.handleRegroup)
 }
 
-func (s *Server) handleListTrades(c echo.Context) error {
+func (s *Server) handleListTrades(c *echo.Context) error {
 	uid := auth.UserID(c)
 	ctx := c.Request().Context()
 	f, err := parseFilters(c)
@@ -88,7 +88,7 @@ func (s *Server) handleListTrades(c echo.Context) error {
 	return c.JSON(http.StatusOK, out)
 }
 
-func (s *Server) handleGetTrade(c echo.Context) error {
+func (s *Server) handleGetTrade(c *echo.Context) error {
 	ctx := c.Request().Context()
 	uid := auth.UserID(c)
 	t, err := s.deps.Store.GetTrade(ctx, store.GetTradeParams{ID: c.Param("id"), UserID: uid})
@@ -120,7 +120,7 @@ type patchTradeReq struct {
 	TagIDs         []string `json:"tag_ids"`
 }
 
-func (s *Server) handlePatchTrade(c echo.Context) error {
+func (s *Server) handlePatchTrade(c *echo.Context) error {
 	ctx := c.Request().Context()
 	uid := auth.UserID(c)
 	id := c.Param("id")
@@ -318,7 +318,7 @@ func (s *Server) handlePatchTrade(c echo.Context) error {
 	return c.JSON(http.StatusOK, detail)
 }
 
-func (s *Server) handleDeleteTrade(c echo.Context) error {
+func (s *Server) handleDeleteTrade(c *echo.Context) error {
 	ctx := c.Request().Context()
 	uid := auth.UserID(c)
 	id := c.Param("id")
@@ -355,7 +355,7 @@ type regroupReq struct {
 	AccountID string `json:"account_id"`
 }
 
-func (s *Server) handleRegroup(c echo.Context) error {
+func (s *Server) handleRegroup(c *echo.Context) error {
 	var in regroupReq
 	if err := c.Bind(&in); err != nil || in.AccountID == "" {
 		return Fail(http.StatusBadRequest, "bad_request", "account_id is required", nil)

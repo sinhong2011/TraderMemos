@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/auth"
 )
 
@@ -31,7 +31,7 @@ type meDTO struct {
 	TotpEnabled bool `json:"totp_enabled"`
 }
 
-func (s *Server) handleMe(c echo.Context) error {
+func (s *Server) handleMe(c *echo.Context) error {
 	if s.deps.Auth == nil {
 		return Fail(http.StatusServiceUnavailable, "unavailable", "auth not configured", nil)
 	}
@@ -53,7 +53,7 @@ type changePasswordReq struct {
 	NewPassword     string `json:"new_password"`
 }
 
-func (s *Server) handleChangePassword(c echo.Context) error {
+func (s *Server) handleChangePassword(c *echo.Context) error {
 	if s.deps.Auth == nil {
 		return Fail(http.StatusServiceUnavailable, "unavailable", "auth not configured", nil)
 	}
@@ -82,7 +82,7 @@ func (s *Server) handleChangePassword(c echo.Context) error {
 // Enrolment is two calls: start mints a candidate secret, confirm proves the
 // user can read a code from it before anything is stored. Nothing is written
 // in between — see auth.StartTotp for why it is stateless.
-func (s *Server) handleTotpStart(c echo.Context) error {
+func (s *Server) handleTotpStart(c *echo.Context) error {
 	if s.deps.Auth == nil {
 		return Fail(http.StatusServiceUnavailable, "unavailable", "auth not configured", nil)
 	}
@@ -103,7 +103,7 @@ type totpConfirmReq struct {
 	Code   string `json:"code"`
 }
 
-func (s *Server) handleTotpConfirm(c echo.Context) error {
+func (s *Server) handleTotpConfirm(c *echo.Context) error {
 	if s.deps.Auth == nil {
 		return Fail(http.StatusServiceUnavailable, "unavailable", "auth not configured", nil)
 	}
@@ -131,7 +131,7 @@ type totpDisableReq struct {
 
 // POST rather than DELETE: turning a factor off carries a body (password and
 // code), and DELETE with a body is poorly supported across proxies and clients.
-func (s *Server) handleTotpDisable(c echo.Context) error {
+func (s *Server) handleTotpDisable(c *echo.Context) error {
 	if s.deps.Auth == nil {
 		return Fail(http.StatusServiceUnavailable, "unavailable", "auth not configured", nil)
 	}

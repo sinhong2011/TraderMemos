@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/coach"
 	"github.com/tradermemos/api/internal/ocr"
 	"github.com/tradermemos/api/internal/store"
@@ -42,12 +42,12 @@ type coachModelsRequestDTO struct {
 	APIKey  *string `json:"api_key"`
 }
 
-func (s *Server) handleGetCoachSettings(c echo.Context) error {
+func (s *Server) handleGetCoachSettings(c *echo.Context) error {
 	cfg := s.effectiveCoachConfig(c.Request().Context())
 	return c.JSON(http.StatusOK, toCoachSettingsDTO(cfg))
 }
 
-func (s *Server) handlePutCoachSettings(c echo.Context) error {
+func (s *Server) handlePutCoachSettings(c *echo.Context) error {
 	var in coachSettingsPutDTO
 	if err := c.Bind(&in); err != nil {
 		return Fail(http.StatusBadRequest, "bad_request", "invalid body", nil)
@@ -100,7 +100,7 @@ func (s *Server) handlePutCoachSettings(c echo.Context) error {
 	return c.JSON(http.StatusOK, toCoachSettingsDTO(cfg))
 }
 
-func (s *Server) handleTestCoachSettings(c echo.Context) error {
+func (s *Server) handleTestCoachSettings(c *echo.Context) error {
 	var in coachTestRequestDTO
 	_ = c.Bind(&in)
 	if trimmed := strings.TrimSpace(in.BaseURL); trimmed != "" {
@@ -125,7 +125,7 @@ func (s *Server) handleTestCoachSettings(c echo.Context) error {
 	return c.JSON(http.StatusOK, ocrTestResultDTO{OK: true})
 }
 
-func (s *Server) handleListCoachModels(c echo.Context) error {
+func (s *Server) handleListCoachModels(c *echo.Context) error {
 	var in coachModelsRequestDTO
 	if err := c.Bind(&in); err != nil {
 		return Fail(http.StatusBadRequest, "bad_request", "invalid body", nil)

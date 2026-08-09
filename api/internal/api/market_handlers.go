@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/marketdata"
 )
 
@@ -14,7 +14,7 @@ func (s *Server) marketRoutes(g *echo.Group) {
 	g.GET("/market/fx", s.handleMarketFx)
 }
 
-func (s *Server) handleMarketFx(c echo.Context) error {
+func (s *Server) handleMarketFx(c *echo.Context) error {
 	from := strings.TrimSpace(c.QueryParam("from"))
 	to := strings.TrimSpace(c.QueryParam("to"))
 	if from == "" || to == "" {
@@ -31,7 +31,7 @@ func (s *Server) handleMarketFx(c echo.Context) error {
 	return c.JSON(http.StatusOK, out)
 }
 
-func (s *Server) handleMarketBars(c echo.Context) error {
+func (s *Server) handleMarketBars(c *echo.Context) error {
 	symbol := strings.TrimSpace(c.QueryParam("symbol"))
 	if symbol == "" {
 		return Fail(http.StatusBadRequest, "bad_request", "symbol is required", nil)

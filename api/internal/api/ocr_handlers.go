@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/ocr"
 )
 
@@ -14,7 +14,7 @@ func (s *Server) ocrRoutes(g *echo.Group) {
 	g.POST("/ocr/parse", s.handleOCRParse)
 }
 
-func (s *Server) handleOCRParse(c echo.Context) error {
+func (s *Server) handleOCRParse(c *echo.Context) error {
 	if s.deps.OCR == nil {
 		return Fail(http.StatusServiceUnavailable, "unavailable", "ocr not configured", nil)
 	}

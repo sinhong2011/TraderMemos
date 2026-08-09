@@ -22,7 +22,6 @@ import (
 	"github.com/tradermemos/api/internal/store"
 	"github.com/tradermemos/api/internal/trades"
 	"github.com/tradermemos/api/internal/version"
-	"golang.org/x/time/rate"
 
 	// Embed the IANA tz database so `tz` query params and the ET session clock
 	// resolve inside minimal containers without a tzdata package.
@@ -128,7 +127,7 @@ func main() {
 		CoachDefaults:  coachDefaults,
 		FlexClient:     flexClient,
 		CORSOrigins:    cfg.CORSOrigins,
-		AuthRateLimit:  rate.Limit(2), // 2 req/s per IP on auth + setup
+		AuthRateLimit:  2, // 2 req/s per IP on auth + setup
 		Driver:         cfg.Driver,
 		Features: map[string]bool{
 			"market_data":     cfg.MarketDataEnabled,
@@ -163,5 +162,10 @@ func main() {
 		}
 	}
 	logger.Info("tradermemos api listening", "port", cfg.HTTPPort, "version", version.Version, "db", db.RedactDatabaseURL(cfg.DatabaseURL), "log_level", cfg.LogLevel)
-	log.Fatal(s.Echo.Start(":" + cfg.HTTPPort))
+	// Start returns nil once SIGINT/SIGTERM has drained in-flight requests.
+	if err := s.Start(":" + cfg.HTTPPort); err != nil {
+		logger.Error("tradermemos api stopped", "err", err)
+		os.Exit(1)
+	}
+	logger.Info("tradermemos api stopped")
 }

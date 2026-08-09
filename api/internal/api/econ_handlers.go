@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/store"
 )
 
@@ -25,7 +25,7 @@ type economicEventDTO struct {
 	Actual   string `json:"actual"`
 }
 
-func (s *Server) handleListEconomicEvents(c echo.Context) error {
+func (s *Server) handleListEconomicEvents(c *echo.Context) error {
 	from, err := parseEconTime(c.QueryParam("from"))
 	if err != nil {
 		return Fail(http.StatusBadRequest, "bad_request", "invalid from: RFC3339 or YYYY-MM-DD required", nil)

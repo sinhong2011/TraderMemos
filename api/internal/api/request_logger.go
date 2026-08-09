@@ -1,56 +1,58 @@
 package api
 
 import (
-	"fmt"
+	"errors"
 	"log/slog"
 	"net/http"
-	"time"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
+	"github.com/labstack/echo/v5/middleware"
 )
 
+// RequestLogger emits one structured line per request. It builds on echo's
+// RequestLogger middleware rather than wrapping the handler by hand: echo
+// resolves the final status (including the status an error carries, before the
+// error handler has written anything), which is not something a middleware can
+// read off the ResponseWriter on its own.
 func RequestLogger(lg *slog.Logger) echo.MiddlewareFunc {
-	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
-			if c.Path() == "/healthz" {
-				return next(c)
-			}
-
-			start := time.Now()
-			req := c.Request()
-			err := next(c)
-			if err != nil {
-				c.Error(err)
-			}
-
-			res := c.Response()
-			status := res.Status
+	return middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
+		// The SPA polls /healthz continuously; logging it drowns everything else.
+		Skipper:      func(c *echo.Context) bool { return c.Path() == "/healthz" },
+		LogMethod:    true,
+		LogRoutePath: true,
+		LogStatus:    true,
+		LogLatency:   true,
+		LogRequestID: true,
+		// Run the error handler before logging so the logged status is the one
+		// actually sent, and the error is still ours to inspect.
+		HandleError: true,
+		LogValuesFunc: func(c *echo.Context, v middleware.RequestLoggerValues) error {
 			attrs := []any{
-				"method", req.Method,
-				"route", c.Path(),
-				"status", status,
-				"latency_ms", float64(time.Since(start).Microseconds()) / 1000.0,
-				"id", res.Header().Get(echo.HeaderXRequestID),
+				"method", v.Method,
+				"route", v.RoutePath,
+				"status", v.Status,
+				"latency_ms", float64(v.Latency.Microseconds()) / 1000.0,
+				"id", v.RequestID,
 			}
 			if params := pathParams(c); len(params) > 0 {
 				attrs = append(attrs, "params", params)
 			}
-			if raw := rawQuery(req); raw != "" {
+			if raw := rawQuery(c.Request()); raw != "" {
 				attrs = append(attrs, "query", raw)
 			}
-			attrs = append(attrs, errAttrs(err)...)
+			attrs = append(attrs, errAttrs(v.Error)...)
 
 			switch {
-			case status >= http.StatusInternalServerError:
+			case v.Status >= http.StatusInternalServerError:
 				lg.Error("request", attrs...)
-			case status >= http.StatusBadRequest:
+			case v.Status >= http.StatusBadRequest:
 				lg.Warn("request", attrs...)
 			default:
 				lg.Info("request", attrs...)
 			}
 			return nil
-		}
-	}
+		},
+	})
 }
 
 // errAttrs flattens a handler error into log attributes so every 4xx/5xx
@@ -60,34 +62,48 @@ func errAttrs(err error) []any {
 	if err == nil {
 		return nil
 	}
-	he, ok := err.(*echo.HTTPError)
-	if !ok {
-		return []any{"err", err.Error()}
+
+	// A recovered panic arrives with the trace attached. Keep it as its own
+	// attribute — PanicStackError.Error() inlines the whole stack into the
+	// message, which is unreadable in a log line.
+	var panicErr *middleware.PanicStackError
+	if errors.As(err, &panicErr) {
+		return []any{"err", panicErr.Err.Error(), "stack", string(panicErr.Stack)}
 	}
-	var attrs []any
-	if env, ok := he.Message.(errEnvelope); ok {
-		attrs = append(attrs, "err_code", env.Error.Code, "err", env.Error.Message)
-		if env.Error.Details != nil {
-			attrs = append(attrs, "err_details", env.Error.Details)
+
+	var apiErr *Error
+	if errors.As(err, &apiErr) {
+		attrs := []any{"err_code", apiErr.Payload.Code, "err", apiErr.Payload.Message}
+		if apiErr.Payload.Details != nil {
+			attrs = append(attrs, "err_details", apiErr.Payload.Details)
 		}
-	} else {
-		attrs = append(attrs, "err", fmt.Sprint(he.Message))
+		if apiErr.cause != nil {
+			attrs = append(attrs, "err_internal", apiErr.cause.Error())
+		}
+		return attrs
 	}
-	if he.Internal != nil {
-		attrs = append(attrs, "err_internal", he.Internal.Error())
+
+	var he *echo.HTTPError
+	if errors.As(err, &he) {
+		attrs := []any{"err", he.Message}
+		if cause := he.Unwrap(); cause != nil {
+			attrs = append(attrs, "err_internal", cause.Error())
+		}
+		return attrs
 	}
-	return attrs
+
+	return []any{"err", err.Error()}
 }
 
-func pathParams(c echo.Context) map[string]string {
-	names := c.ParamNames()
-	if len(names) == 0 {
+func pathParams(c *echo.Context) map[string]string {
+	values := c.PathValues()
+	if len(values) == 0 {
 		return nil
 	}
-	out := make(map[string]string, len(names))
-	for _, name := range names {
-		if v := c.Param(name); v != "" {
-			out[name] = v
+	out := make(map[string]string, len(values))
+	for _, pv := range values {
+		if pv.Value != "" {
+			out[pv.Name] = pv.Value
 		}
 	}
 	if len(out) == 0 {
