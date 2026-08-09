@@ -11,7 +11,13 @@ import (
 	"github.com/tradermemos/api/internal/store"
 )
 
-type Service struct{ q store.Querier }
+type Service struct {
+	q store.Querier
+	// AfterRegroup, when set, runs after every successful Regroup — the single
+	// seam that sees manual entry, edits, imports, and background syncs alike
+	// (journal-alert evaluation hooks in here).
+	AfterRegroup func(userID, accountID string)
+}
 
 func NewService(q store.Querier) *Service { return &Service{q: q} }
 
@@ -67,9 +73,17 @@ func (s *Service) Regroup(ctx context.Context, userID, accountID string) error {
 	}
 
 	if len(keep) == 0 {
-		return s.q.DeleteTradesForAccount(ctx, store.DeleteTradesForAccountParams{UserID: userID, AccountID: accountID})
+		err = s.q.DeleteTradesForAccount(ctx, store.DeleteTradesForAccountParams{UserID: userID, AccountID: accountID})
+	} else {
+		err = s.q.DeleteTradesNotInAccount(ctx, store.DeleteTradesNotInAccountParams{UserID: userID, AccountID: accountID, Keep: keep})
 	}
-	return s.q.DeleteTradesNotInAccount(ctx, store.DeleteTradesNotInAccountParams{UserID: userID, AccountID: accountID, Keep: keep})
+	if err != nil {
+		return err
+	}
+	if s.AfterRegroup != nil {
+		s.AfterRegroup(userID, accountID)
+	}
+	return nil
 }
 
 func lotKeyFromDetails(details sql.NullString) string {

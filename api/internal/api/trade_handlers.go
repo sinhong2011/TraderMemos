@@ -315,6 +315,10 @@ func (s *Server) handlePatchTrade(c *echo.Context) error {
 	if err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not load trade detail", nil)
 	}
+	// Journal edits can change initial_risk, which the risk-rule alert reads.
+	if journalTouched && s.deps.Alerts != nil {
+		s.deps.Alerts.TradeWritten(uid)
+	}
 	return c.JSON(http.StatusOK, detail)
 }
 

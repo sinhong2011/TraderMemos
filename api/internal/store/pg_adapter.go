@@ -116,6 +116,14 @@ func (p *PG) DeleteAccount(ctx context.Context, arg DeleteAccountParams) (int64,
 	return p.q.DeleteAccount(ctx, storepg.DeleteAccountParams(arg))
 }
 
+func (p *PG) DeleteAlertChannel(ctx context.Context, arg DeleteAlertChannelParams) (int64, error) {
+	return p.q.DeleteAlertChannel(ctx, storepg.DeleteAlertChannelParams(arg))
+}
+
+func (p *PG) DeleteAlertChannelByTarget(ctx context.Context, arg DeleteAlertChannelByTargetParams) (int64, error) {
+	return p.q.DeleteAlertChannelByTarget(ctx, storepg.DeleteAlertChannelByTargetParams(arg))
+}
+
 func (p *PG) DeleteAnnualGoal(ctx context.Context, arg DeleteAnnualGoalParams) (int64, error) {
 	return p.q.DeleteAnnualGoal(ctx, storepg.DeleteAnnualGoalParams(arg))
 }
@@ -188,6 +196,10 @@ func (p *PG) DeleteUser(ctx context.Context, id string) (int64, error) {
 	return p.q.DeleteUser(ctx, id)
 }
 
+func (p *PG) DisableAlertChannel(ctx context.Context, id string) error {
+	return p.q.DisableAlertChannel(ctx, id)
+}
+
 func (p *PG) ExecutionExists(ctx context.Context, arg ExecutionExistsParams) (int64, error) {
 	return p.q.ExecutionExists(ctx, storepg.ExecutionExistsParams(arg))
 }
@@ -214,6 +226,22 @@ func (p *PG) GetAccountByIDAny(ctx context.Context, id string) (Account, error) 
 		return Account{}, err
 	}
 	return Account(v), nil
+}
+
+func (p *PG) GetAlertChannel(ctx context.Context, arg GetAlertChannelParams) (AlertChannel, error) {
+	v, err := p.q.GetAlertChannel(ctx, storepg.GetAlertChannelParams(arg))
+	if err != nil {
+		return AlertChannel{}, err
+	}
+	return AlertChannel(v), nil
+}
+
+func (p *PG) GetAlertSettings(ctx context.Context, userID string) (AlertSetting, error) {
+	v, err := p.q.GetAlertSettings(ctx, userID)
+	if err != nil {
+		return AlertSetting{}, err
+	}
+	return AlertSetting(v), nil
 }
 
 func (p *PG) GetAnnualGoal(ctx context.Context, arg GetAnnualGoalParams) (AnnualGoal, error) {
@@ -404,6 +432,10 @@ func (p *PG) IncrementShareLinkViews(ctx context.Context, id string) error {
 	return p.q.IncrementShareLinkViews(ctx, id)
 }
 
+func (p *PG) InsertAlertEvent(ctx context.Context, arg InsertAlertEventParams) (int64, error) {
+	return p.q.InsertAlertEvent(ctx, storepg.InsertAlertEventParams(arg))
+}
+
 func (p *PG) InsertAttachment(ctx context.Context, arg InsertAttachmentParams) (TradeAttachment, error) {
 	v, err := p.q.InsertAttachment(ctx, storepg.InsertAttachmentParams(arg))
 	if err != nil {
@@ -456,23 +488,16 @@ func (p *PG) LinkTradeExecution(ctx context.Context, arg LinkTradeExecutionParam
 	return p.q.LinkTradeExecution(ctx, storepg.LinkTradeExecutionParams(arg))
 }
 
-// HAND-PATCHED: sqlc types LIMIT as int64 for SQLite and int32 for Postgres,
-// so this cannot be the generator's struct conversion. `make sqlc` overwrites
-// this file — re-apply after regenerating.
 func (p *PG) ListAccessTokenUses(ctx context.Context, arg ListAccessTokenUsesParams) ([]AccessTokenUse, error) {
-	rows, err := p.q.ListAccessTokenUses(ctx, storepg.ListAccessTokenUsesParams{
+	v, err := p.q.ListAccessTokenUses(ctx, storepg.ListAccessTokenUsesParams{
 		TokenID: arg.TokenID,
-		UserID:  arg.UserID,
-		Limit:   int32(arg.Limit),
+		UserID: arg.UserID,
+		Limit: int32(arg.Limit),
 	})
 	if err != nil {
 		return nil, err
 	}
-	out := make([]AccessTokenUse, 0, len(rows))
-	for _, r := range rows {
-		out = append(out, AccessTokenUse(r))
-	}
-	return out, nil
+	return func() []AccessTokenUse { in := v; out := make([]AccessTokenUse, len(in)); for i := range in { out[i] = AccessTokenUse(in[i]) }; return out }(), nil
 }
 
 func (p *PG) ListAccessTokensByUser(ctx context.Context, userID string) ([]AccessToken, error) {
@@ -480,14 +505,7 @@ func (p *PG) ListAccessTokensByUser(ctx context.Context, userID string) ([]Acces
 	if err != nil {
 		return nil, err
 	}
-	return func() []AccessToken {
-		in := v
-		out := make([]AccessToken, len(in))
-		for i := range in {
-			out[i] = AccessToken(in[i])
-		}
-		return out
-	}(), nil
+	return func() []AccessToken { in := v; out := make([]AccessToken, len(in)); for i := range in { out[i] = AccessToken(in[i]) }; return out }(), nil
 }
 
 func (p *PG) ListAccounts(ctx context.Context, userID string) ([]Account, error) {
@@ -495,14 +513,26 @@ func (p *PG) ListAccounts(ctx context.Context, userID string) ([]Account, error)
 	if err != nil {
 		return nil, err
 	}
-	return func() []Account {
-		in := v
-		out := make([]Account, len(in))
-		for i := range in {
-			out[i] = Account(in[i])
-		}
-		return out
-	}(), nil
+	return func() []Account { in := v; out := make([]Account, len(in)); for i := range in { out[i] = Account(in[i]) }; return out }(), nil
+}
+
+func (p *PG) ListAlertChannels(ctx context.Context, userID string) ([]AlertChannel, error) {
+	v, err := p.q.ListAlertChannels(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	return func() []AlertChannel { in := v; out := make([]AlertChannel, len(in)); for i := range in { out[i] = AlertChannel(in[i]) }; return out }(), nil
+}
+
+func (p *PG) ListAlertEvents(ctx context.Context, arg ListAlertEventsParams) ([]AlertEvent, error) {
+	v, err := p.q.ListAlertEvents(ctx, storepg.ListAlertEventsParams{
+		UserID: arg.UserID,
+		Limit: int32(arg.Limit),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return func() []AlertEvent { in := v; out := make([]AlertEvent, len(in)); for i := range in { out[i] = AlertEvent(in[i]) }; return out }(), nil
 }
 
 func (p *PG) ListAttachmentsForAccount(ctx context.Context, arg ListAttachmentsForAccountParams) ([]TradeAttachment, error) {
@@ -510,14 +540,7 @@ func (p *PG) ListAttachmentsForAccount(ctx context.Context, arg ListAttachmentsF
 	if err != nil {
 		return nil, err
 	}
-	return func() []TradeAttachment {
-		in := v
-		out := make([]TradeAttachment, len(in))
-		for i := range in {
-			out[i] = TradeAttachment(in[i])
-		}
-		return out
-	}(), nil
+	return func() []TradeAttachment { in := v; out := make([]TradeAttachment, len(in)); for i := range in { out[i] = TradeAttachment(in[i]) }; return out }(), nil
 }
 
 func (p *PG) ListAttachmentsForTrade(ctx context.Context, arg ListAttachmentsForTradeParams) ([]TradeAttachment, error) {
@@ -525,14 +548,7 @@ func (p *PG) ListAttachmentsForTrade(ctx context.Context, arg ListAttachmentsFor
 	if err != nil {
 		return nil, err
 	}
-	return func() []TradeAttachment {
-		in := v
-		out := make([]TradeAttachment, len(in))
-		for i := range in {
-			out[i] = TradeAttachment(in[i])
-		}
-		return out
-	}(), nil
+	return func() []TradeAttachment { in := v; out := make([]TradeAttachment, len(in)); for i := range in { out[i] = TradeAttachment(in[i]) }; return out }(), nil
 }
 
 func (p *PG) ListCashForTrade(ctx context.Context, arg ListCashForTradeParams) ([]CashTransaction, error) {
@@ -540,52 +556,31 @@ func (p *PG) ListCashForTrade(ctx context.Context, arg ListCashForTradeParams) (
 	if err != nil {
 		return nil, err
 	}
-	return func() []CashTransaction {
-		in := v
-		out := make([]CashTransaction, len(in))
-		for i := range in {
-			out[i] = CashTransaction(in[i])
-		}
-		return out
-	}(), nil
+	return func() []CashTransaction { in := v; out := make([]CashTransaction, len(in)); for i := range in { out[i] = CashTransaction(in[i]) }; return out }(), nil
 }
 
 func (p *PG) ListCashTransactions(ctx context.Context, arg ListCashTransactionsParams) ([]CashTransaction, error) {
 	v, err := p.q.ListCashTransactions(ctx, storepg.ListCashTransactionsParams{
-		UserID:    arg.UserID,
+		UserID: arg.UserID,
 		AccountID: ifaceToNullString(arg.AccountID),
 	})
 	if err != nil {
 		return nil, err
 	}
-	return func() []CashTransaction {
-		in := v
-		out := make([]CashTransaction, len(in))
-		for i := range in {
-			out[i] = CashTransaction(in[i])
-		}
-		return out
-	}(), nil
+	return func() []CashTransaction { in := v; out := make([]CashTransaction, len(in)); for i := range in { out[i] = CashTransaction(in[i]) }; return out }(), nil
 }
 
 func (p *PG) ListClosedTrades(ctx context.Context, arg ListClosedTradesParams) ([]Trade, error) {
 	v, err := p.q.ListClosedTrades(ctx, storepg.ListClosedTradesParams{
-		UserID:    arg.UserID,
+		UserID: arg.UserID,
 		AccountID: ifaceToNullString(arg.AccountID),
-		From:      ifaceToNullTime(arg.From),
-		To:        ifaceToNullTime(arg.To),
+		From: ifaceToNullTime(arg.From),
+		To: ifaceToNullTime(arg.To),
 	})
 	if err != nil {
 		return nil, err
 	}
-	return func() []Trade {
-		in := v
-		out := make([]Trade, len(in))
-		for i := range in {
-			out[i] = Trade(in[i])
-		}
-		return out
-	}(), nil
+	return func() []Trade { in := v; out := make([]Trade, len(in)); for i := range in { out[i] = Trade(in[i]) }; return out }(), nil
 }
 
 func (p *PG) ListEconomicEvents(ctx context.Context, arg ListEconomicEventsParams) ([]EconomicEvent, error) {
@@ -593,14 +588,23 @@ func (p *PG) ListEconomicEvents(ctx context.Context, arg ListEconomicEventsParam
 	if err != nil {
 		return nil, err
 	}
-	return func() []EconomicEvent {
-		in := v
-		out := make([]EconomicEvent, len(in))
-		for i := range in {
-			out[i] = EconomicEvent(in[i])
-		}
-		return out
-	}(), nil
+	return func() []EconomicEvent { in := v; out := make([]EconomicEvent, len(in)); for i := range in { out[i] = EconomicEvent(in[i]) }; return out }(), nil
+}
+
+func (p *PG) ListEnabledAlertChannels(ctx context.Context, userID string) ([]AlertChannel, error) {
+	v, err := p.q.ListEnabledAlertChannels(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	return func() []AlertChannel { in := v; out := make([]AlertChannel, len(in)); for i := range in { out[i] = AlertChannel(in[i]) }; return out }(), nil
+}
+
+func (p *PG) ListEnabledAlertSettings(ctx context.Context) ([]AlertSetting, error) {
+	v, err := p.q.ListEnabledAlertSettings(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return func() []AlertSetting { in := v; out := make([]AlertSetting, len(in)); for i := range in { out[i] = AlertSetting(in[i]) }; return out }(), nil
 }
 
 func (p *PG) ListEnabledFlexSyncSettings(ctx context.Context) ([]FlexSyncSetting, error) {
@@ -608,14 +612,7 @@ func (p *PG) ListEnabledFlexSyncSettings(ctx context.Context) ([]FlexSyncSetting
 	if err != nil {
 		return nil, err
 	}
-	return func() []FlexSyncSetting {
-		in := v
-		out := make([]FlexSyncSetting, len(in))
-		for i := range in {
-			out[i] = FlexSyncSetting(in[i])
-		}
-		return out
-	}(), nil
+	return func() []FlexSyncSetting { in := v; out := make([]FlexSyncSetting, len(in)); for i := range in { out[i] = FlexSyncSetting(in[i]) }; return out }(), nil
 }
 
 func (p *PG) ListExecutionsForAccount(ctx context.Context, arg ListExecutionsForAccountParams) ([]Execution, error) {
@@ -623,14 +620,7 @@ func (p *PG) ListExecutionsForAccount(ctx context.Context, arg ListExecutionsFor
 	if err != nil {
 		return nil, err
 	}
-	return func() []Execution {
-		in := v
-		out := make([]Execution, len(in))
-		for i := range in {
-			out[i] = Execution(in[i])
-		}
-		return out
-	}(), nil
+	return func() []Execution { in := v; out := make([]Execution, len(in)); for i := range in { out[i] = Execution(in[i]) }; return out }(), nil
 }
 
 func (p *PG) ListExecutionsForTrade(ctx context.Context, tradeID string) ([]Execution, error) {
@@ -638,14 +628,7 @@ func (p *PG) ListExecutionsForTrade(ctx context.Context, tradeID string) ([]Exec
 	if err != nil {
 		return nil, err
 	}
-	return func() []Execution {
-		in := v
-		out := make([]Execution, len(in))
-		for i := range in {
-			out[i] = Execution(in[i])
-		}
-		return out
-	}(), nil
+	return func() []Execution { in := v; out := make([]Execution, len(in)); for i := range in { out[i] = Execution(in[i]) }; return out }(), nil
 }
 
 func (p *PG) ListImportBatches(ctx context.Context, userID string) ([]ImportBatch, error) {
@@ -653,48 +636,19 @@ func (p *PG) ListImportBatches(ctx context.Context, userID string) ([]ImportBatc
 	if err != nil {
 		return nil, err
 	}
-	return func() []ImportBatch {
-		in := v
-		out := make([]ImportBatch, len(in))
-		for i := range in {
-			out[i] = ImportBatch(in[i])
-		}
-		return out
-	}(), nil
+	return func() []ImportBatch { in := v; out := make([]ImportBatch, len(in)); for i := range in { out[i] = ImportBatch(in[i]) }; return out }(), nil
 }
 
 func (p *PG) ListJournalNotes(ctx context.Context, arg ListJournalNotesParams) ([]JournalNote, error) {
 	v, err := p.q.ListJournalNotes(ctx, storepg.ListJournalNotesParams{
-		UserID:   arg.UserID,
+		UserID: arg.UserID,
 		FromDate: ifaceToNullString(arg.FromDate),
-		ToDate:   ifaceToNullString(arg.ToDate),
+		ToDate: ifaceToNullString(arg.ToDate),
 	})
 	if err != nil {
 		return nil, err
 	}
-	return func() []JournalNote {
-		in := v
-		out := make([]JournalNote, len(in))
-		for i := range in {
-			out[i] = JournalNote(in[i])
-		}
-		return out
-	}(), nil
-}
-
-func (p *PG) ListOptionExecutionDetailsForUser(ctx context.Context, userID string) ([]ListOptionExecutionDetailsForUserRow, error) {
-	v, err := p.q.ListOptionExecutionDetailsForUser(ctx, userID)
-	if err != nil {
-		return nil, err
-	}
-	return func() []ListOptionExecutionDetailsForUserRow {
-		in := v
-		out := make([]ListOptionExecutionDetailsForUserRow, len(in))
-		for i := range in {
-			out[i] = ListOptionExecutionDetailsForUserRow(in[i])
-		}
-		return out
-	}(), nil
+	return func() []JournalNote { in := v; out := make([]JournalNote, len(in)); for i := range in { out[i] = JournalNote(in[i]) }; return out }(), nil
 }
 
 func (p *PG) ListJournalRisks(ctx context.Context, userID string) ([]ListJournalRisksRow, error) {
@@ -702,14 +656,7 @@ func (p *PG) ListJournalRisks(ctx context.Context, userID string) ([]ListJournal
 	if err != nil {
 		return nil, err
 	}
-	return func() []ListJournalRisksRow {
-		in := v
-		out := make([]ListJournalRisksRow, len(in))
-		for i := range in {
-			out[i] = ListJournalRisksRow(in[i])
-		}
-		return out
-	}(), nil
+	return func() []ListJournalRisksRow { in := v; out := make([]ListJournalRisksRow, len(in)); for i := range in { out[i] = ListJournalRisksRow(in[i]) }; return out }(), nil
 }
 
 func (p *PG) ListMediaFilesForUser(ctx context.Context, userID string) ([]MediaFile, error) {
@@ -717,14 +664,23 @@ func (p *PG) ListMediaFilesForUser(ctx context.Context, userID string) ([]MediaF
 	if err != nil {
 		return nil, err
 	}
-	return func() []MediaFile {
-		in := v
-		out := make([]MediaFile, len(in))
-		for i := range in {
-			out[i] = MediaFile(in[i])
-		}
-		return out
-	}(), nil
+	return func() []MediaFile { in := v; out := make([]MediaFile, len(in)); for i := range in { out[i] = MediaFile(in[i]) }; return out }(), nil
+}
+
+func (p *PG) ListOptionExecutionDetailsForUser(ctx context.Context, userID string) ([]ListOptionExecutionDetailsForUserRow, error) {
+	v, err := p.q.ListOptionExecutionDetailsForUser(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	return func() []ListOptionExecutionDetailsForUserRow { in := v; out := make([]ListOptionExecutionDetailsForUserRow, len(in)); for i := range in { out[i] = ListOptionExecutionDetailsForUserRow(in[i]) }; return out }(), nil
+}
+
+func (p *PG) ListPropSettingsForUser(ctx context.Context, userID string) ([]PropSetting, error) {
+	v, err := p.q.ListPropSettingsForUser(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	return func() []PropSetting { in := v; out := make([]PropSetting, len(in)); for i := range in { out[i] = PropSetting(in[i]) }; return out }(), nil
 }
 
 func (p *PG) ListSetups(ctx context.Context, userID string) ([]Setup, error) {
@@ -732,14 +688,7 @@ func (p *PG) ListSetups(ctx context.Context, userID string) ([]Setup, error) {
 	if err != nil {
 		return nil, err
 	}
-	return func() []Setup {
-		in := v
-		out := make([]Setup, len(in))
-		for i := range in {
-			out[i] = Setup(in[i])
-		}
-		return out
-	}(), nil
+	return func() []Setup { in := v; out := make([]Setup, len(in)); for i := range in { out[i] = Setup(in[i]) }; return out }(), nil
 }
 
 func (p *PG) ListSetupsForTrade(ctx context.Context, tradeID string) ([]Setup, error) {
@@ -747,14 +696,7 @@ func (p *PG) ListSetupsForTrade(ctx context.Context, tradeID string) ([]Setup, e
 	if err != nil {
 		return nil, err
 	}
-	return func() []Setup {
-		in := v
-		out := make([]Setup, len(in))
-		for i := range in {
-			out[i] = Setup(in[i])
-		}
-		return out
-	}(), nil
+	return func() []Setup { in := v; out := make([]Setup, len(in)); for i := range in { out[i] = Setup(in[i]) }; return out }(), nil
 }
 
 func (p *PG) ListShareLinksByUser(ctx context.Context, userID string) ([]ShareLink, error) {
@@ -777,14 +719,7 @@ func (p *PG) ListTags(ctx context.Context, userID string) ([]Tag, error) {
 	if err != nil {
 		return nil, err
 	}
-	return func() []Tag {
-		in := v
-		out := make([]Tag, len(in))
-		for i := range in {
-			out[i] = Tag(in[i])
-		}
-		return out
-	}(), nil
+	return func() []Tag { in := v; out := make([]Tag, len(in)); for i := range in { out[i] = Tag(in[i]) }; return out }(), nil
 }
 
 func (p *PG) ListTagsForTrade(ctx context.Context, tradeID string) ([]Tag, error) {
@@ -792,14 +727,7 @@ func (p *PG) ListTagsForTrade(ctx context.Context, tradeID string) ([]Tag, error
 	if err != nil {
 		return nil, err
 	}
-	return func() []Tag {
-		in := v
-		out := make([]Tag, len(in))
-		for i := range in {
-			out[i] = Tag(in[i])
-		}
-		return out
-	}(), nil
+	return func() []Tag { in := v; out := make([]Tag, len(in)); for i := range in { out[i] = Tag(in[i]) }; return out }(), nil
 }
 
 func (p *PG) ListTradeJournalsForUser(ctx context.Context, userID string) ([]TradeJournal, error) {
@@ -807,14 +735,7 @@ func (p *PG) ListTradeJournalsForUser(ctx context.Context, userID string) ([]Tra
 	if err != nil {
 		return nil, err
 	}
-	return func() []TradeJournal {
-		in := v
-		out := make([]TradeJournal, len(in))
-		for i := range in {
-			out[i] = TradeJournal(in[i])
-		}
-		return out
-	}(), nil
+	return func() []TradeJournal { in := v; out := make([]TradeJournal, len(in)); for i := range in { out[i] = TradeJournal(in[i]) }; return out }(), nil
 }
 
 func (p *PG) ListTradeTagsForUser(ctx context.Context, userID string) ([]ListTradeTagsForUserRow, error) {
@@ -822,55 +743,31 @@ func (p *PG) ListTradeTagsForUser(ctx context.Context, userID string) ([]ListTra
 	if err != nil {
 		return nil, err
 	}
-	return func() []ListTradeTagsForUserRow {
-		in := v
-		out := make([]ListTradeTagsForUserRow, len(in))
-		for i := range in {
-			out[i] = ListTradeTagsForUserRow(in[i])
-		}
-		return out
-	}(), nil
+	return func() []ListTradeTagsForUserRow { in := v; out := make([]ListTradeTagsForUserRow, len(in)); for i := range in { out[i] = ListTradeTagsForUserRow(in[i]) }; return out }(), nil
 }
 
 func (p *PG) ListTrades(ctx context.Context, arg ListTradesParams) ([]Trade, error) {
 	v, err := p.q.ListTrades(ctx, storepg.ListTradesParams{
-		UserID:    arg.UserID,
+		UserID: arg.UserID,
 		AccountID: ifaceToNullString(arg.AccountID),
-		Status:    ifaceToNullString(arg.Status),
+		Status: ifaceToNullString(arg.Status),
 	})
 	if err != nil {
 		return nil, err
 	}
-	return func() []Trade {
-		in := v
-		out := make([]Trade, len(in))
-		for i := range in {
-			out[i] = Trade(in[i])
-		}
-		return out
-	}(), nil
+	return func() []Trade { in := v; out := make([]Trade, len(in)); for i := range in { out[i] = Trade(in[i]) }; return out }(), nil
 }
 
-// HAND-PATCHED: sqlc types LIMIT as int64 for SQLite and int32 for Postgres,
-// so this cannot be the generator's struct conversion. `make sqlc` overwrites
-// this file — re-apply after regenerating.
 func (p *PG) ListTradesMissingExcursion(ctx context.Context, arg ListTradesMissingExcursionParams) ([]Trade, error) {
 	v, err := p.q.ListTradesMissingExcursion(ctx, storepg.ListTradesMissingExcursionParams{
 		PostCutoff: arg.PostCutoff,
-		PostFloor:  arg.PostFloor,
-		RowLimit:   int32(arg.RowLimit),
+		PostFloor: arg.PostFloor,
+		RowLimit: int32(arg.RowLimit),
 	})
 	if err != nil {
 		return nil, err
 	}
-	return func() []Trade {
-		in := v
-		out := make([]Trade, len(in))
-		for i := range in {
-			out[i] = Trade(in[i])
-		}
-		return out
-	}(), nil
+	return func() []Trade { in := v; out := make([]Trade, len(in)); for i := range in { out[i] = Trade(in[i]) }; return out }(), nil
 }
 
 func (p *PG) ListUsers(ctx context.Context) ([]User, error) {
@@ -878,24 +775,14 @@ func (p *PG) ListUsers(ctx context.Context) ([]User, error) {
 	if err != nil {
 		return nil, err
 	}
-	return func() []User {
-		in := v
-		out := make([]User, len(in))
-		for i := range in {
-			out[i] = User(in[i])
-		}
-		return out
-	}(), nil
+	return func() []User { in := v; out := make([]User, len(in)); for i := range in { out[i] = User(in[i]) }; return out }(), nil
 }
 
-// HAND-PATCHED: sqlc types LIMIT as int64 for SQLite and int32 for Postgres,
-// so this cannot be the generator's struct conversion. `make sqlc` overwrites
-// this file — re-apply after regenerating.
 func (p *PG) PruneAccessTokenUses(ctx context.Context, arg PruneAccessTokenUsesParams) error {
 	return p.q.PruneAccessTokenUses(ctx, storepg.PruneAccessTokenUsesParams{
-		TokenID:   arg.TokenID,
+		TokenID: arg.TokenID,
 		TokenID_2: arg.TokenID_2,
-		Limit:     int32(arg.Limit),
+		Limit: int32(arg.Limit),
 	})
 }
 
@@ -909,6 +796,14 @@ func (p *PG) RevokeAccessToken(ctx context.Context, arg RevokeAccessTokenParams)
 
 func (p *PG) RevokeShareLink(ctx context.Context, arg RevokeShareLinkParams) (int64, error) {
 	return p.q.RevokeShareLink(ctx, storepg.RevokeShareLinkParams(arg))
+}
+
+func (p *PG) SetAlertChannelEnabled(ctx context.Context, arg SetAlertChannelEnabledParams) (AlertChannel, error) {
+	v, err := p.q.SetAlertChannelEnabled(ctx, storepg.SetAlertChannelEnabledParams(arg))
+	if err != nil {
+		return AlertChannel{}, err
+	}
+	return AlertChannel(v), nil
 }
 
 func (p *PG) SetImportBatchStatus(ctx context.Context, arg SetImportBatchStatusParams) error {
@@ -941,6 +836,10 @@ func (p *PG) UpdateAccount(ctx context.Context, arg UpdateAccountParams) (Accoun
 		return Account{}, err
 	}
 	return Account(v), nil
+}
+
+func (p *PG) UpdateAlertChannelStatus(ctx context.Context, arg UpdateAlertChannelStatusParams) error {
+	return p.q.UpdateAlertChannelStatus(ctx, storepg.UpdateAlertChannelStatusParams(arg))
 }
 
 func (p *PG) UpdateCashTransaction(ctx context.Context, arg UpdateCashTransactionParams) (CashTransaction, error) {
@@ -993,6 +892,22 @@ func (p *PG) UpdateUserTotpSecret(ctx context.Context, arg UpdateUserTotpSecretP
 		return User{}, err
 	}
 	return User(v), nil
+}
+
+func (p *PG) UpsertAlertChannel(ctx context.Context, arg UpsertAlertChannelParams) (AlertChannel, error) {
+	v, err := p.q.UpsertAlertChannel(ctx, storepg.UpsertAlertChannelParams(arg))
+	if err != nil {
+		return AlertChannel{}, err
+	}
+	return AlertChannel(v), nil
+}
+
+func (p *PG) UpsertAlertSettings(ctx context.Context, arg UpsertAlertSettingsParams) (AlertSetting, error) {
+	v, err := p.q.UpsertAlertSettings(ctx, storepg.UpsertAlertSettingsParams(arg))
+	if err != nil {
+		return AlertSetting{}, err
+	}
+	return AlertSetting(v), nil
 }
 
 func (p *PG) UpsertAnnualGoal(ctx context.Context, arg UpsertAnnualGoalParams) (AnnualGoal, error) {

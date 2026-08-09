@@ -83,6 +83,9 @@ type Config struct {
 	// JobFlexSyncIntervalMin is minutes between IBKR Flex sync passes;
 	// 0 disables the scheduled job (manual sync stays available).
 	JobFlexSyncIntervalMin int
+	// JobAlertsIntervalMin is minutes between journal-alert scan passes;
+	// 0 disables the scheduled scan (write-path evaluation stays active).
+	JobAlertsIntervalMin int
 }
 
 func Load() (Config, error) {
@@ -121,6 +124,7 @@ func Load() (Config, error) {
 		"job_excursion_interval_min": 360,
 		"job_excursion_limit":        10,
 		"job_flex_sync_interval_min": 360,
+		"job_alerts_interval_min":    60,
 	}, "."), nil)
 
 	// TM_HTTP_PORT -> http_port
@@ -169,6 +173,7 @@ func Load() (Config, error) {
 		JobExcursionIntervalMin: k.Int("job_excursion_interval_min"),
 		JobExcursionLimit:       k.Int("job_excursion_limit"),
 		JobFlexSyncIntervalMin:  k.Int("job_flex_sync_interval_min"),
+		JobAlertsIntervalMin:    k.Int("job_alerts_interval_min"),
 	}
 	if err := cfg.resolveDatabase(k.String("database_url"), k.String("db_path")); err != nil {
 		return Config{}, err

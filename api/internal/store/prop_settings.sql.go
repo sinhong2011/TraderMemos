@@ -50,6 +50,43 @@ func (q *Queries) GetPropSettings(ctx context.Context, arg GetPropSettingsParams
 	return i, err
 }
 
+const listPropSettingsForUser = `-- name: ListPropSettingsForUser :many
+SELECT account_id, user_id, profit_target, max_drawdown, drawdown_mode, daily_loss_limit, consistency_pct, updated_at
+FROM prop_settings WHERE user_id = ? ORDER BY account_id
+`
+
+func (q *Queries) ListPropSettingsForUser(ctx context.Context, userID string) ([]PropSetting, error) {
+	rows, err := q.db.QueryContext(ctx, listPropSettingsForUser, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []PropSetting
+	for rows.Next() {
+		var i PropSetting
+		if err := rows.Scan(
+			&i.AccountID,
+			&i.UserID,
+			&i.ProfitTarget,
+			&i.MaxDrawdown,
+			&i.DrawdownMode,
+			&i.DailyLossLimit,
+			&i.ConsistencyPct,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const upsertPropSettings = `-- name: UpsertPropSettings :one
 INSERT INTO prop_settings (account_id, user_id, profit_target, max_drawdown, drawdown_mode, daily_loss_limit, consistency_pct, updated_at)
 VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)

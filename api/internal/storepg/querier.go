@@ -23,6 +23,8 @@ type Querier interface {
 	CreateTag(ctx context.Context, arg CreateTagParams) (Tag, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	DeleteAccount(ctx context.Context, arg DeleteAccountParams) (int64, error)
+	DeleteAlertChannel(ctx context.Context, arg DeleteAlertChannelParams) (int64, error)
+	DeleteAlertChannelByTarget(ctx context.Context, arg DeleteAlertChannelByTargetParams) (int64, error)
 	DeleteAnnualGoal(ctx context.Context, arg DeleteAnnualGoalParams) (int64, error)
 	DeleteAttachment(ctx context.Context, arg DeleteAttachmentParams) (int64, error)
 	DeleteCashTransaction(ctx context.Context, arg DeleteCashTransactionParams) (int64, error)
@@ -41,10 +43,13 @@ type Querier interface {
 	DeleteTradesForAccount(ctx context.Context, arg DeleteTradesForAccountParams) error
 	DeleteTradesNotInAccount(ctx context.Context, arg DeleteTradesNotInAccountParams) error
 	DeleteUser(ctx context.Context, id string) (int64, error)
+	DisableAlertChannel(ctx context.Context, id string) error
 	ExecutionExists(ctx context.Context, arg ExecutionExistsParams) (int64, error)
 	GetAccessTokenByHash(ctx context.Context, tokenHash string) (AccessToken, error)
 	GetAccount(ctx context.Context, arg GetAccountParams) (Account, error)
 	GetAccountByIDAny(ctx context.Context, id string) (Account, error)
+	GetAlertChannel(ctx context.Context, arg GetAlertChannelParams) (AlertChannel, error)
+	GetAlertSettings(ctx context.Context, userID string) (AlertSetting, error)
 	GetAnnualGoal(ctx context.Context, arg GetAnnualGoalParams) (AnnualGoal, error)
 	GetAttachment(ctx context.Context, arg GetAttachmentParams) (TradeAttachment, error)
 	GetChecklistTemplate(ctx context.Context, userID string) (ChecklistTemplate, error)
@@ -70,6 +75,7 @@ type Querier interface {
 	GetUserByID(ctx context.Context, id string) (User, error)
 	GetUserPreferences(ctx context.Context, userID string) (UserPreference, error)
 	IncrementShareLinkViews(ctx context.Context, id string) error
+	InsertAlertEvent(ctx context.Context, arg InsertAlertEventParams) (int64, error)
 	InsertAttachment(ctx context.Context, arg InsertAttachmentParams) (TradeAttachment, error)
 	InsertCashTransaction(ctx context.Context, arg InsertCashTransactionParams) (CashTransaction, error)
 	InsertExecution(ctx context.Context, arg InsertExecutionParams) (Execution, error)
@@ -80,12 +86,16 @@ type Querier interface {
 	ListAccessTokenUses(ctx context.Context, arg ListAccessTokenUsesParams) ([]AccessTokenUse, error)
 	ListAccessTokensByUser(ctx context.Context, userID string) ([]AccessToken, error)
 	ListAccounts(ctx context.Context, userID string) ([]Account, error)
+	ListAlertChannels(ctx context.Context, userID string) ([]AlertChannel, error)
+	ListAlertEvents(ctx context.Context, arg ListAlertEventsParams) ([]AlertEvent, error)
 	ListAttachmentsForAccount(ctx context.Context, arg ListAttachmentsForAccountParams) ([]TradeAttachment, error)
 	ListAttachmentsForTrade(ctx context.Context, arg ListAttachmentsForTradeParams) ([]TradeAttachment, error)
 	ListCashForTrade(ctx context.Context, arg ListCashForTradeParams) ([]CashTransaction, error)
 	ListCashTransactions(ctx context.Context, arg ListCashTransactionsParams) ([]CashTransaction, error)
 	ListClosedTrades(ctx context.Context, arg ListClosedTradesParams) ([]Trade, error)
 	ListEconomicEvents(ctx context.Context, arg ListEconomicEventsParams) ([]EconomicEvent, error)
+	ListEnabledAlertChannels(ctx context.Context, userID string) ([]AlertChannel, error)
+	ListEnabledAlertSettings(ctx context.Context) ([]AlertSetting, error)
 	ListEnabledFlexSyncSettings(ctx context.Context) ([]FlexSyncSetting, error)
 	ListExecutionsForAccount(ctx context.Context, arg ListExecutionsForAccountParams) ([]Execution, error)
 	ListExecutionsForTrade(ctx context.Context, tradeID string) ([]Execution, error)
@@ -93,6 +103,8 @@ type Querier interface {
 	ListJournalNotes(ctx context.Context, arg ListJournalNotesParams) ([]JournalNote, error)
 	ListJournalRisks(ctx context.Context, userID string) ([]ListJournalRisksRow, error)
 	ListMediaFilesForUser(ctx context.Context, userID string) ([]MediaFile, error)
+	ListOptionExecutionDetailsForUser(ctx context.Context, userID string) ([]ListOptionExecutionDetailsForUserRow, error)
+	ListPropSettingsForUser(ctx context.Context, userID string) ([]PropSetting, error)
 	ListSetups(ctx context.Context, userID string) ([]Setup, error)
 	ListSetupsForTrade(ctx context.Context, tradeID string) ([]Setup, error)
 	ListShareLinksByUser(ctx context.Context, userID string) ([]ShareLink, error)
@@ -114,12 +126,14 @@ type Querier interface {
 	RecordAccessTokenUse(ctx context.Context, arg RecordAccessTokenUseParams) error
 	RevokeAccessToken(ctx context.Context, arg RevokeAccessTokenParams) (int64, error)
 	RevokeShareLink(ctx context.Context, arg RevokeShareLinkParams) (int64, error)
+	SetAlertChannelEnabled(ctx context.Context, arg SetAlertChannelEnabledParams) (AlertChannel, error)
 	SetImportBatchStatus(ctx context.Context, arg SetImportBatchStatusParams) error
 	SetTradeSetup(ctx context.Context, arg SetTradeSetupParams) error
 	SetTradeTags(ctx context.Context, arg SetTradeTagsParams) error
 	SetUserAdmin(ctx context.Context, arg SetUserAdminParams) (User, error)
 	TouchAccessTokenLastUsed(ctx context.Context, id string) error
 	UpdateAccount(ctx context.Context, arg UpdateAccountParams) (Account, error)
+	UpdateAlertChannelStatus(ctx context.Context, arg UpdateAlertChannelStatusParams) error
 	UpdateCashTransaction(ctx context.Context, arg UpdateCashTransactionParams) (CashTransaction, error)
 	UpdateExecution(ctx context.Context, arg UpdateExecutionParams) (int64, error)
 	UpdateFlexSyncStatus(ctx context.Context, arg UpdateFlexSyncStatusParams) error
@@ -129,6 +143,8 @@ type Querier interface {
 	UpdateTradeNotes(ctx context.Context, arg UpdateTradeNotesParams) error
 	UpdateUserPassword(ctx context.Context, arg UpdateUserPasswordParams) (User, error)
 	UpdateUserTotpSecret(ctx context.Context, arg UpdateUserTotpSecretParams) (User, error)
+	UpsertAlertChannel(ctx context.Context, arg UpsertAlertChannelParams) (AlertChannel, error)
+	UpsertAlertSettings(ctx context.Context, arg UpsertAlertSettingsParams) (AlertSetting, error)
 	UpsertAnnualGoal(ctx context.Context, arg UpsertAnnualGoalParams) (AnnualGoal, error)
 	UpsertChecklistTemplate(ctx context.Context, arg UpsertChecklistTemplateParams) (ChecklistTemplate, error)
 	UpsertCoachSettings(ctx context.Context, arg UpsertCoachSettingsParams) (CoachSetting, error)
