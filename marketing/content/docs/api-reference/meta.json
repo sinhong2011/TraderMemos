@@ -1,0 +1,20 @@
+{
+  "title": "API Reference",
+  "description": "Every endpoint in the TraderMemos JSON API, generated from the OpenAPI spec.",
+  "pages": [
+    "health",
+    "auth",
+    "access-tokens",
+    "accounts",
+    "trades",
+    "executions",
+    "cash",
+    "import",
+    "export",
+    "analytics",
+    "tags",
+    "setups",
+    "notes",
+    "admin"
+  ]
+}

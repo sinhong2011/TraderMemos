@@ -3,23 +3,27 @@
   "version": "0.0.10",
   "private": true,
   "scripts": {
-    "build": "next build",
-    "dev": "next dev",
+    "build": "pnpm sync:openapi && next build",
+    "dev": "pnpm sync:openapi && next dev",
     "start": "next start",
-    "types:check": "next typegen && tsc --noEmit",
+    "sync:openapi": "node scripts/sync-openapi.mjs",
+    "types:check": "pnpm sync:openapi && next typegen && tsc --noEmit",
     "lint": "eslint"
   },
   "dependencies": {
+    "@scalar/api-client-react": "^2.0.38",
     "cnfast": "^0.1.0",
     "fumadocs-core": "16.14.0",
     "fumadocs-mdx": "15.2.1",
+    "fumadocs-openapi": "^11.2.3",
     "fumadocs-ui": "npm:@fumadocs/base-ui@16.14.0",
     "lucide-react": "^1.27.0",
     "motion": "^12.43.0",
     "next": "16.3.0",
     "next-intl": "^4.13.4",
     "react": "^19.2.8",
-    "react-dom": "^19.2.8"
+    "react-dom": "^19.2.8",
+    "yaml": "^2.9.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.3",

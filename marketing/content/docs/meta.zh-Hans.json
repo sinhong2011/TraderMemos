@@ -1,4 +1,11 @@
 {
   "title": "文档",
-  "pages": ["index", "getting-started", "self-hosting", "guides", "faq"]
+  "pages": [
+    "index",
+    "getting-started",
+    "self-hosting",
+    "guides",
+    "api-reference",
+    "faq"
+  ]
 }

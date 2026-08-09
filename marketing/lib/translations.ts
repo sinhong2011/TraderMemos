@@ -1,9 +1,13 @@
 import { uiTranslations } from 'fumadocs-ui/i18n';
+import { openapiTranslations } from 'fumadocs-openapi/i18n';
 import { i18n } from './i18n';
 
 export const translations = i18n
   .translations()
   .extend(uiTranslations())
+  // Chrome for the generated API pages (request/response tabs, playground buttons).
+  // Untranslated keys fall back to English, same as the rest of the site.
+  .extend(openapiTranslations())
   .add({
     en: {
       displayName: 'English',
