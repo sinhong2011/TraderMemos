@@ -25,6 +25,7 @@ import { useTradingSessionSync } from '@/lib/live-activity';
 import { usePrefsSync } from '@/lib/use-prefs-sync';
 import { useWidgetSnapshotSync } from '@/lib/widget-snapshot';
 import { ensureDropFolder, stageDroppedFile } from '@/lib/trade-import';
+import { useOutboxDrain } from '@/lib/use-outbox';
 import { queryPersister } from '@/storage/mmkv';
 
 // Hold the native splash through the SecureStore session read so cold start
@@ -113,6 +114,18 @@ function WidgetSnapshotGate() {
  */
 function LiveActivityGate() {
   useTradingSessionSync();
+  return null;
+}
+
+/**
+ * Replays the offline write queue (notes and quick-journal saves made while
+ * the server was unreachable) on launch, recovery and foreground — see
+ * `lib/outbox.ts`. Mounted before ReachabilityGate so a recovery drains the
+ * queue before the refetch storm starts; the pending-note overlay keeps the
+ * lists coherent either way.
+ */
+function OutboxGate() {
+  useOutboxDrain();
   return null;
 }
 
@@ -218,6 +231,7 @@ export default function RootLayout() {
           <PrefsSyncGate />
           <WidgetSnapshotGate />
           <LiveActivityGate />
+          <OutboxGate />
           <ReachabilityGate />
           <AppErrorBoundary>
           <View style={{ flex: 1 }}>

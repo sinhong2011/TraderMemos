@@ -24,6 +24,7 @@ import { AppHost } from '@/components/app-host';
 import { GlassButton } from '@/components/glass-button';
 import { useServerHost, useServerUnreachable } from '@/lib/connectivity';
 import { describeError } from '@/lib/errors';
+import { usePendingCount } from '@/lib/outbox';
 
 export function ErrorState({
   error,
@@ -119,6 +120,9 @@ export function OfflineBanner() {
   const { session } = useSession();
   const unreachable = useServerUnreachable();
   const serverHost = useServerHost();
+  // Journaling writes made while unreachable wait in the offline outbox —
+  // the banner is where the user learns they're queued, not lost.
+  const pending = usePendingCount();
   // Signed out, the login form is *about* reaching the server and says so in
   // its own alert card — a second, vaguer notice floating over it is noise.
   if (!unreachable || session == null) return null;
@@ -130,6 +134,11 @@ export function OfflineBanner() {
         <Text style={styles.bannerLabel} numberOfLines={1}>
           {serverHost ? t`Can't reach ${serverHost}` : t`Can't reach the server`}
         </Text>
+        {pending > 0 ? (
+          <Text style={styles.bannerQueued} numberOfLines={1}>
+            {pending === 1 ? t`1 change queued` : t`${pending} changes queued`}
+          </Text>
+        ) : null}
       </View>
     </View>
   );
@@ -178,4 +187,5 @@ const styles = StyleSheet.create((theme, rt) => ({
   },
   bannerIcon: { color: theme.colors.mutedForeground },
   bannerLabel: { fontSize: 13, fontWeight: '500', color: theme.colors.foreground },
+  bannerQueued: { fontSize: 13, color: theme.colors.mutedForeground, ...theme.numeric },
 }));
