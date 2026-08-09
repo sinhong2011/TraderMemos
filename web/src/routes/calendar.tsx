@@ -6,7 +6,7 @@ import { buildDayRecords, tradeDayKey, tradesOnDay } from "@/lib/calendar";
 import { accountBaseCurrency, useDisplayPrefs } from "@/lib/displayPrefs";
 import { normalizeFilterDate, useFilterParams, useFilters } from "@/lib/filters";
 import { useAccounts } from "@/lib/hooks/useAccounts";
-import { useDailyPnl, useSummary } from "@/lib/hooks/useAnalytics";
+import { useDailyPnl, useEquityCurve, useSummary } from "@/lib/hooks/useAnalytics";
 import { useCash } from "@/lib/hooks/useCash";
 import { useTrades } from "@/lib/hooks/useTrades";
 
@@ -54,6 +54,13 @@ function CalendarPage() {
   const tradeDateBasis = useDisplayPrefs((s) => s.tradeDateBasis);
   const accountsQ = useAccounts();
   const cashQ = useCash(filters);
+  // All-time curve (no from/to): its points carry the running balance, which
+  // funds day/week start-balance readings regardless of the visible month.
+  const equityQ = useEquityCurve({
+    account_id: filters.account_id,
+    date_basis: filters.date_basis,
+    tz: filters.tz,
+  });
 
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
@@ -129,6 +136,7 @@ function CalendarPage() {
         monthSummary={monthSummaryQ.data}
         accounts={accounts}
         cashTx={cashQ.data ?? []}
+        equityPoints={equityQ.data?.points ?? []}
         selectedAccountId={accountId}
         year={year}
         month={month}

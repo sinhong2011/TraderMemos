@@ -1,5 +1,5 @@
 import { CalendarDays } from "lucide-react";
-import { useMemo, useRef, useState } from "react";
+import { type ReactNode, useMemo, useRef, useState } from "react";
 import { CalendarDayHoverCard } from "@/components/CalendarDayHoverCard";
 import { CalendarYearView } from "@/components/CalendarYearView";
 import { Card } from "@/components/Card";
@@ -21,11 +21,20 @@ import {
   TINTED_LABEL_SUBTLE,
 } from "@/components/theme-tokens";
 
-import type { Account, CashTransaction, Summary, Trade } from "@/lib/api/types";
+import type { Account, CashTransaction, EquityPoint, Summary, Trade } from "@/lib/api/types";
 import { netDeposits } from "@/lib/headerStats";
-import { type DayRecord, dayKeyInTz, monthGrid, tradeDayKey, weekSummaries } from "@/lib/calendar";
+import {
+  balanceAsOf,
+  type DayRecord,
+  dayDetail,
+  dayKeyInTz,
+  monthGrid,
+  tradeDayKey,
+  weekSummaries,
+} from "@/lib/calendar";
 import { cn } from "@/lib/cn";
-import { fmtPct, fmtSignedMoney, fmtSignedMoneyCompact } from "@/lib/format";
+import { normalizeFilterDate } from "@/lib/filters";
+import { fmtPct, fmtSignedMoney, fmtSignedMoneyCompact, fmtSignedPct } from "@/lib/format";
 import { useMoneyFx } from "@/lib/hooks/useMoneyFx";
 import { intlLocale } from "@/lib/locale";
 import { resolveMarketTimezone, useDisplayPrefs, usePrivacyMode } from "@/lib/displayPrefs";
@@ -67,6 +76,8 @@ export interface CalendarViewProps {
   accounts: Account[];
   /** Full cash ledger for the scope; funds the %-of-account basis. */
   cashTx: CashTransaction[];
+  /** All-time equity curve for the scope; funds day/week balance readings. */
+  equityPoints?: EquityPoint[];
   selectedAccountId: string | undefined;
   year: number;
   month: number;
@@ -127,6 +138,7 @@ export function CalendarView({
   monthSummary,
   accounts,
   cashTx,
+  equityPoints = [],
   selectedAccountId,
   year,
   month,
@@ -185,11 +197,58 @@ export function CalendarView({
     return map;
   }, [yearTradeList, tradeDateBasis, marketTz]);
 
-  // %-basis is net deposits from the cash ledger — starting_balance is metadata
-  // that already lives in the ledger as the "Opening balance" deposit.
-  const starting = netDeposits({ accounts, accountId: selectedAccountId, cashTx });
+  // Period returns are measured against the balance walking into the period —
+  // the equity curve carries cash flows + realized P&L, i.e. the running
+  // balance — so day, week, month, and year percentages all share one basis.
+  // Before any curve data arrives, fall back to net deposits (the pre-curve
+  // basis) so the modal % doesn't flash null.
+  const deposits = netDeposits({ accounts, accountId: selectedAccountId, cashTx });
+  const periodStartBalance = (dayKey: string): number | null => {
+    const startISO = normalizeFilterDate(dayKey, "start", marketTz);
+    if (!startISO) return null;
+    const balance = equityPoints.length ? balanceAsOf(equityPoints, startISO, "before") : deposits;
+    return balance > 0 ? balance : null;
+  };
+  const pad2 = (n: number) => String(n).padStart(2, "0");
   const monthPnl = monthSummary?.net_pnl ?? grid.monthTotal;
-  const monthPct = starting > 0 ? (monthPnl / starting) * 100 : null;
+  const monthStartBalance = periodStartBalance(`${year}-${pad2(month)}-01`);
+  const monthPct = monthStartBalance != null ? (monthPnl / monthStartBalance) * 100 : null;
+
+  // Week returns are measured against the balance walking into the week —
+  // the equity curve carries cash flows + realized P&L, i.e. the balance.
+  const weekPcts = weeks.map((ws) => {
+    if (!ws.hasData || !ws.firstDate) return null;
+    const balance = periodStartBalance(ws.firstDate);
+    return balance != null ? ws.pnl / balance : null;
+  });
+
+  // At-a-glance stats behind each day's hover card, keyed by day.
+  const dayDetails = useMemo(() => {
+    const map = new Map<string, ReturnType<typeof dayDetail>>();
+    for (const week of monthGrid(year, month, dailyPnl).weeks) {
+      for (const cell of week) {
+        if (!cell || cell.pnl == null) continue;
+        const dayStartISO = normalizeFilterDate(cell.date, "start", marketTz);
+        const dayEndISO = normalizeFilterDate(cell.date, "end", marketTz);
+        if (!dayStartISO || !dayEndISO) continue;
+        map.set(
+          cell.date,
+          dayDetail({
+            day: cell.date,
+            pnl: cell.pnl,
+            dayTrades: monthTradesByDay.get(cell.date) ?? [],
+            record: records[cell.date],
+            cashTx,
+            equityPoints,
+            dayStartISO,
+            dayEndISO,
+            timeZone: marketTz,
+          }),
+        );
+      }
+    }
+    return map;
+  }, [year, month, dailyPnl, monthTradesByDay, records, cashTx, equityPoints, marketTz]);
 
   const hasAnyPnl = Object.keys(dailyPnl).some((key) => {
     const [y, m] = key.split("-").map(Number);
@@ -205,7 +264,8 @@ export function CalendarView({
     if (key.startsWith(`${year}-`)) return sum + v;
     return sum;
   }, 0);
-  const yearPct = starting > 0 ? (yearPnlTotal / starting) * 100 : null;
+  const yearStartBalance = periodStartBalance(`${year}-01-01`);
+  const yearPct = yearStartBalance != null ? (yearPnlTotal / yearStartBalance) * 100 : null;
 
   const yearTradingDays = Object.keys(yearDailyPnl).filter((key) =>
     key.startsWith(`${year}-`),
@@ -319,6 +379,38 @@ export function CalendarView({
               )}
             </Button>
           </div>
+
+          {mode === "month" && monthSummary && monthSummary.total_trades > 0 ? (
+            <div className="flex shrink-0 flex-wrap items-center gap-1.5 px-3 pb-2 sm:px-4">
+              <MonthStatChip label="Trades" value={String(monthSummary.total_trades)} />
+              <MonthStatChip
+                label="Wins"
+                value={
+                  <>
+                    <WinLossRecord wins={monthSummary.wins} losses={monthSummary.losses} />
+                    {monthSummary.wins + monthSummary.losses > 0 ? (
+                      <span className="text-muted-foreground">
+                        {" "}
+                        · {fmtPct(monthSummary.win_rate, intlLocale())}
+                      </span>
+                    ) : null}
+                  </>
+                }
+              />
+              <MonthStatChip
+                label="P&L"
+                tone={monthPnl >= 0 ? "pos" : "neg"}
+                value={fmtSignedMoneyCompact(money(monthPnl), displayCurrency, intlLocale())}
+              />
+              {monthPct != null ? (
+                <MonthStatChip
+                  label="Return"
+                  tone={monthPct >= 0 ? "pos" : "neg"}
+                  value={fmtSignedPct(monthPct / 100, intlLocale())}
+                />
+              ) : null}
+            </div>
+          ) : null}
 
           <div
             key={`${mode}-${modeAnimKey.current}`}
@@ -524,6 +616,8 @@ export function CalendarView({
                               currency={displayCurrency}
                               fxRate={fxRate}
                               trades={monthTradesByDay.get(cell.date) ?? []}
+                              detail={dayDetails.get(cell.date)}
+                              onOpenDayReview={onOpenDayReview}
                               ariaLabel={dayAria}
                               ariaCurrent={isToday ? "date" : undefined}
                               className={dayClass}
@@ -549,6 +643,12 @@ export function CalendarView({
                             "relative flex h-full min-h-0 w-full flex-col overflow-hidden rounded-md px-1.5 py-1 md:px-2.5 md:py-1.5",
                             "@container/week",
                             !ws.hasData && "bg-muted",
+                            // The inset ring marks the week total as a summary
+                            // tier, distinct from the flat day cells beside it.
+                            ws.hasData &&
+                              (ws.pnl >= 0
+                                ? "ring-1 ring-inset ring-profit/30"
+                                : "ring-1 ring-inset ring-destructive/30"),
                           )}
                           style={ws.hasData ? { background: pnlBgTint(ws.pnl) } : undefined}
                         >
@@ -580,6 +680,14 @@ export function CalendarView({
                                   intlLocale(),
                                 )}
                               </span>
+                              {weekPcts[wi] != null ? (
+                                <span
+                                  className="max-w-full truncate text-[10px] font-semibold tabular-nums opacity-80"
+                                  style={{ color: dayColor(ws.pnl) }}
+                                >
+                                  {fmtSignedPct(weekPcts[wi]!, intlLocale())}
+                                </span>
+                              ) : null}
                               {ws.wins + ws.losses > 0 ? (
                                 <span className="max-w-full truncate text-[10px] tabular-nums">
                                   <WinLossRecord wins={ws.wins} losses={ws.losses} />
@@ -587,7 +695,7 @@ export function CalendarView({
                               ) : null}
                               <span
                                 className={cn(
-                                  "max-w-full truncate text-[10px] tabular-nums",
+                                  "hidden max-w-full truncate text-[10px] tabular-nums @min-[4rem]/week:block",
                                   TINTED_LABEL_SUBTLE,
                                 )}
                               >
@@ -595,8 +703,8 @@ export function CalendarView({
                               </span>
                             </span>
                           ) : (
-                            <span className="flex h-full items-center justify-center text-xs text-muted-foreground">
-                              —
+                            <span className="flex h-full items-center justify-center text-[10px] text-muted-foreground">
+                              No trades
                             </span>
                           )}
                         </div>
@@ -677,6 +785,38 @@ export function CalendarView({
         />
       </Modal>
     </>
+  );
+}
+
+/** Header chip — one tier louder than body text, one quieter than the P&L button. */
+function MonthStatChip({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: ReactNode;
+  tone?: "pos" | "neg";
+}) {
+  return (
+    <span
+      className={cn(
+        "inline-flex items-baseline gap-1.5 rounded-md px-2.5 py-1 text-[11px] tabular-nums",
+        tone === "pos" && "bg-profit/10 text-profit",
+        tone === "neg" && "bg-destructive/10 text-destructive",
+        !tone && "bg-muted/60 text-foreground",
+      )}
+    >
+      <span
+        className={cn(
+          "text-[9px] font-medium uppercase tracking-[0.1em]",
+          tone ? "opacity-70" : "text-muted-foreground",
+        )}
+      >
+        {label}
+      </span>
+      <span className="font-semibold">{value}</span>
+    </span>
   );
 }
 

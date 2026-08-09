@@ -94,9 +94,46 @@ describe("CalendarView", () => {
 
     await userEvent.click(pnlBtn);
     expect(screen.getByText("Days")).toBeInTheDocument();
-    expect(screen.getByText("Trades")).toBeInTheDocument();
+    // "Trades" labels both the header chip and the modal stat.
+    expect(screen.getAllByText("Trades").length).toBeGreaterThanOrEqual(2);
     expect(screen.getByText("Win rate")).toBeInTheDocument();
     expect(screen.getByText("Profit factor")).toBeInTheDocument();
+  });
+
+  it("renders the month header chip row with trades, wins, P&L, and return", () => {
+    wrap(
+      <CalendarView
+        {...BASE}
+        accounts={[{ id: "a1", base_currency: "USD" } as never]}
+        cashTx={[
+          {
+            id: "c1",
+            account_id: "a1",
+            type: "deposit",
+            amount: 10000,
+            currency: "USD",
+            occurred_at: "2026-06-01T00:00:00Z",
+            note: "",
+          } as never,
+        ]}
+      />,
+    );
+    expect(screen.getByText("Trades")).toBeInTheDocument();
+    expect(screen.getByText("Wins")).toBeInTheDocument();
+    expect(screen.getByText("P&L")).toBeInTheDocument();
+    // -61.79 on 10,000 deposited → -0.6%.
+    expect(screen.getByText("Return")).toBeInTheDocument();
+    expect(screen.getAllByText(/-0\.6%/).length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("shows a week return chip measured against the week-start balance", () => {
+    wrap(<CalendarView {...BASE} equityPoints={[{ at: "2026-06-01T00:00:00Z", equity: 10000 }]} />);
+    // Week 1 and the month both lose 61.79 on a 10,000 start balance → -0.6%
+    // in the week chip and the header Return chip (one shared basis).
+    expect(screen.getAllByText("-0.6%").length).toBeGreaterThanOrEqual(2);
+    // Empty weeks say so instead of an em-dash placeholder.
+    expect(screen.queryByText("—")).not.toBeInTheDocument();
+    expect(screen.getAllByText("No trades").length).toBeGreaterThanOrEqual(1);
   });
 
   it("renders day cells with pnl and records, plus WEEK column", () => {

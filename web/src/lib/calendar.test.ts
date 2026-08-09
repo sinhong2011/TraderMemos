@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vite-plus/test";
-import { buildDayRecords, dayKeyInTz, monthGrid, tradesOnDay, weekSummaries } from "./calendar";
+import {
+  balanceAsOf,
+  buildDayRecords,
+  dayDetail,
+  dayKeyInTz,
+  monthGrid,
+  tradesOnDay,
+  weekSummaries,
+} from "./calendar";
 
 describe("dayKeyInTz", () => {
   it("keys timestamps on the trader's calendar day", () => {
@@ -101,6 +109,7 @@ describe("weekSummaries", () => {
       hasData: true,
       weekNumber: 1,
       daysWithTrades: 2,
+      firstDate: "2026-07-01",
     });
     expect(weeks[1]).toEqual({
       pnl: 0,
@@ -109,6 +118,86 @@ describe("weekSummaries", () => {
       hasData: false,
       weekNumber: 2,
       daysWithTrades: 0,
+      firstDate: "2026-07-05",
     });
+  });
+});
+
+describe("balanceAsOf", () => {
+  const points = [
+    { at: "2026-06-01T00:00:00Z", equity: 10000 }, // opening deposit
+    { at: "2026-07-01T15:00:00Z", equity: 10200 },
+    { at: "2026-07-02T15:00:00Z", equity: 10150 },
+  ];
+
+  it("reads the latest point at or before the cutoff", () => {
+    expect(balanceAsOf(points, "2026-07-01T23:59:59Z")).toBe(10200);
+    expect(balanceAsOf(points, "2026-07-02T23:59:59Z")).toBe(10150);
+  });
+
+  it("excludes boundary points in before mode (start-of-day balances)", () => {
+    expect(balanceAsOf(points, "2026-07-01T15:00:00Z", "before")).toBe(10000);
+    expect(balanceAsOf(points, "2026-07-01T15:00:00Z", "through")).toBe(10200);
+  });
+
+  it("returns 0 before any activity", () => {
+    expect(balanceAsOf(points, "2026-05-01T00:00:00Z")).toBe(0);
+    expect(balanceAsOf([], "2026-07-01T00:00:00Z")).toBe(0);
+  });
+});
+
+describe("dayDetail", () => {
+  const equityPoints = [
+    { at: "2026-06-01T00:00:00Z", equity: 10000 },
+    { at: "2026-07-02T15:00:00Z", equity: 10150 },
+  ];
+  const cashTx = [
+    { amount: 10000, occurred_at: "2026-06-01T00:00:00Z", type: "deposit" },
+    { amount: 500, occurred_at: "2026-07-02T09:00:00Z", type: "deposit" },
+    { amount: -12, occurred_at: "2026-07-02T10:00:00Z", type: "fee" }, // not a deposit
+  ];
+
+  it("derives balances, deposits, fees, and quality stats for the day", () => {
+    const detail = dayDetail({
+      day: "2026-07-02",
+      pnl: 150,
+      dayTrades: [
+        { net_pnl: 200, fees_total: 3.5 },
+        { net_pnl: -50, fees_total: 1.5 },
+      ],
+      record: { wins: 1, losses: 1 },
+      cashTx,
+      equityPoints,
+      dayStartISO: "2026-07-02T00:00:00Z",
+      dayEndISO: "2026-07-02T23:59:59Z",
+      timeZone: "UTC",
+    });
+    expect(detail.startBalance).toBe(10000);
+    expect(detail.endBalance).toBe(10150);
+    expect(detail.pct).toBeCloseTo(0.015);
+    expect(detail.deposits).toBe(500); // the fee row is excluded
+    expect(detail.fees).toBe(5);
+    expect(detail.trades).toBe(2);
+    expect(detail.winRate).toBe(0.5);
+    expect(detail.profitFactor).toBe(4);
+    expect(detail.expectancy).toBe(75);
+  });
+
+  it("degrades without dashes: no funding → null pct, only wins → infinite PF", () => {
+    const detail = dayDetail({
+      day: "2026-07-02",
+      pnl: 80,
+      dayTrades: [{ net_pnl: 80, fees_total: 0 }],
+      record: { wins: 1, losses: 0 },
+      cashTx: [],
+      equityPoints: [],
+      dayStartISO: "2026-07-02T00:00:00Z",
+      dayEndISO: "2026-07-02T23:59:59Z",
+      timeZone: "UTC",
+    });
+    expect(detail.pct).toBeNull(); // nothing funded yet
+    expect(detail.startBalance).toBe(0);
+    expect(detail.profitFactor).toBe(Infinity);
+    expect(detail.deposits).toBe(0);
   });
 });

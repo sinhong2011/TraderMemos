@@ -1,10 +1,11 @@
-import type { DayRecord } from "@/lib/calendar";
+import type { DayDetail, DayRecord } from "@/lib/calendar";
 import type { Trade } from "@/lib/api/types";
 import { cn } from "@/lib/cn";
 import { usePrivacyMode } from "@/lib/displayPrefs";
-import { fmtSignedMoney } from "@/lib/format";
+import { fmtMoney, fmtPct, fmtSignedMoney, fmtSignedPct } from "@/lib/format";
 import { intlLocale } from "@/lib/locale";
 import { pnlColor } from "./theme-tokens";
+import { Button } from "./ui/button";
 import { WinLossRecord } from "./WinLossRecord";
 
 function dayTradeCount(rec: DayRecord | undefined): number {
@@ -50,6 +51,8 @@ export function CalendarDayHoverDetails({
   currency,
   fxRate = 1,
   trades = [],
+  detail,
+  onOpenDayReview,
 }: {
   date: string;
   pnl: number | null;
@@ -58,6 +61,9 @@ export function CalendarDayHoverDetails({
   fxRate?: number;
   /** Closed trades attributed to this day (shown as compact execution rows). */
   trades?: Trade[];
+  /** At-a-glance stats: %, balances, deposits, fees, PF, expectancy. */
+  detail?: DayDetail;
+  onOpenDayReview?: (day: string) => void;
 }) {
   usePrivacyMode();
   const locale = intlLocale();
@@ -75,6 +81,11 @@ export function CalendarDayHoverDetails({
         <>
           <p className={cn("text-[18px] font-semibold tabular-nums", pnlColor(pnl))}>
             {fmtSignedMoney(pnl * fxRate, currency, locale)}
+            {detail?.pct != null ? (
+              <span className="ml-1.5 text-[13px] opacity-80">
+                {fmtSignedPct(detail.pct, locale)}
+              </span>
+            ) : null}
           </p>
           <div className="flex flex-col gap-0.5 text-[13px] tabular-nums text-muted-foreground">
             <span>
@@ -91,6 +102,7 @@ export function CalendarDayHoverDetails({
               </span>
             )}
           </div>
+          {detail ? <DayStatRows detail={detail} currency={currency} fxRate={fxRate} /> : null}
           {rows.length > 0 ? (
             <ul
               className="max-h-52 overflow-y-auto overscroll-contain pt-1"
@@ -122,10 +134,74 @@ export function CalendarDayHoverDetails({
               ))}
             </ul>
           ) : null}
+          {onOpenDayReview ? (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-7 w-full text-[12px]"
+              onClick={() => onOpenDayReview(date)}
+            >
+              View day review →
+            </Button>
+          ) : null}
         </>
       ) : (
         <p className="text-[14px] text-muted-foreground">No trades</p>
       )}
     </div>
+  );
+}
+
+/** The at-a-glance middle of the card: balances, flows, costs, quality. */
+function DayStatRows({
+  detail,
+  currency,
+  fxRate,
+}: {
+  detail: DayDetail;
+  currency: string;
+  fxRate: number;
+}) {
+  const locale = intlLocale();
+  const moneyOf = (v: number) => fmtMoney(v * fxRate, currency, locale);
+  const rows: { label: string; value: string }[] = [
+    {
+      label: "Balance",
+      value: `${moneyOf(detail.startBalance)} → ${moneyOf(detail.endBalance)}`,
+    },
+    {
+      label: "Deposits",
+      value:
+        detail.deposits === 0
+          ? moneyOf(0)
+          : fmtSignedMoney(detail.deposits * fxRate, currency, locale),
+    },
+    { label: "Comm & fees", value: moneyOf(detail.fees) },
+  ];
+  if (detail.winRate != null) {
+    rows.push({ label: "Win rate", value: fmtPct(detail.winRate, locale) });
+  }
+  if (detail.profitFactor != null) {
+    rows.push({
+      label: "Profit factor",
+      value: Number.isFinite(detail.profitFactor) ? detail.profitFactor.toFixed(2) : "∞",
+    });
+  }
+  if (detail.expectancy != null) {
+    rows.push({
+      label: "Expectancy",
+      value: fmtSignedMoney(detail.expectancy * fxRate, currency, locale),
+    });
+  }
+  return (
+    <dl className="m-0 flex flex-col gap-1 text-[12px] tabular-nums">
+      {rows.map((row) => (
+        <div key={row.label} className="flex items-baseline justify-between gap-3">
+          <dt className="text-muted-foreground">{row.label}</dt>
+          <dd className="m-0 text-right font-medium text-foreground">{row.value}</dd>
+        </div>
+      ))}
+    </dl>
   );
 }
