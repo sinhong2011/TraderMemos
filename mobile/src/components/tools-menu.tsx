@@ -12,6 +12,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { t } from '@lingui/core/macro';
 import { AppHost } from '@/components/app-host';
+import { useTradingSession } from '@/lib/live-activity';
 
 /**
  * Home-header wrench menu — everywhere you go from Home that isn't a tab.
@@ -26,6 +27,10 @@ import { AppHost } from '@/components/app-host';
 export function ToolsMenu() {
   const { theme } = useUnistyles();
   const router = useRouter();
+  // Lock Screen / Dynamic Island trading session (lib/live-activity.ts).
+  // Lives here because this menu is where the day starts, same reasoning as
+  // the daily checklist below.
+  const tradingSession = useTradingSession();
 
   const actions: { label: string; systemImage: SFSymbol; href: Href }[] = [
     // Promoted out of the tab bar (2026-08-09) when the search tab took the
@@ -96,6 +101,23 @@ export function ToolsMenu() {
         label={<UIImage systemName="wrench.and.screwdriver" size={16} />}
         modifiers={[buttonStyle('plain'), tint(theme.colors.foreground), accessibilityLabel(t`Tools`)]}
       >
+        {tradingSession.supported && (
+          <Section title={t`Session`}>
+            {tradingSession.active ? (
+              <UIButton
+                label={t`End Lock Screen session`}
+                systemImage="stop.circle"
+                onPress={tradingSession.end}
+              />
+            ) : (
+              <UIButton
+                label={t`Show session on Lock Screen`}
+                systemImage="dot.radiowaves.left.and.right"
+                onPress={tradingSession.start}
+              />
+            )}
+          </Section>
+        )}
         <Section title={t`Journal`}>
           {journal.map((action) => (
             <UIButton

@@ -743,7 +743,7 @@ msgstr "調整"
 msgid "Advanced"
 msgstr "進階設定"
 
-#: src/components/tools-menu.tsx:55
+#: src/components/tools-menu.tsx:60
 msgid "Advanced chart"
 msgstr "進階圖表"
 
@@ -1667,7 +1667,7 @@ msgstr "無法載入模型"
 #~ msgid "Could not load your account."
 #~ msgstr "無法載入帳戶資料。"
 
-#: src/app/_layout.tsx:73
+#: src/app/_layout.tsx:74
 msgid "Could not open file"
 msgstr "無法開啟檔案"
 
@@ -1841,7 +1841,7 @@ msgid "Currency"
 msgstr "貨幣"
 
 #: src/app/tool-fx.tsx:52
-#: src/components/tools-menu.tsx:45
+#: src/components/tools-menu.tsx:50
 msgid "Currency converter"
 msgstr "貨幣換算"
 
@@ -1873,7 +1873,7 @@ msgstr "切換至下一個速度"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:88
 #: src/components/checklist-card.tsx:169
-#: src/components/tools-menu.tsx:73
+#: src/components/tools-menu.tsx:78
 msgid "Daily checklist"
 msgstr "每日清單"
 
@@ -2202,7 +2202,7 @@ msgstr "每點代表最近 {windowSize} 筆已平倉交易的勝率。"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:101
 #: src/app/(tabs)/(dashboard)/economic-events.tsx:661
-#: src/components/tools-menu.tsx:60
+#: src/components/tools-menu.tsx:65
 msgid "Economic calendar"
 msgstr "經濟日曆"
 
@@ -2252,6 +2252,10 @@ msgstr "情緒"
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:315
 msgid "Enabled"
 msgstr "啟用"
+
+#: src/components/tools-menu.tsx:108
+msgid "End Lock Screen session"
+msgstr "結束鎖定畫面時段"
 
 #: src/app/(tabs)/(settings)/trading-journal.tsx:92
 msgid "Enter a number of 1 or more."
@@ -3089,7 +3093,7 @@ msgstr "將同時從此筆記和伺服器刪除。"
 #: src/app/(tabs)/(trades)/[id].tsx:584
 #: src/app/(tabs)/(trades)/[id].tsx:626
 #: src/components/swipeable-trade-row.tsx:118
-#: src/components/tools-menu.tsx:99
+#: src/components/tools-menu.tsx:121
 #: src/components/trade-form.tsx:463
 msgid "Journal"
 msgstr "交易日誌"
@@ -3121,7 +3125,7 @@ msgid "Kelly (half)"
 msgstr "凱利（一半）"
 
 #: src/app/tool-kelly.tsx:33
-#: src/components/tools-menu.tsx:43
+#: src/components/tools-menu.tsx:48
 msgid "Kelly criterion"
 msgstr "凱利公式"
 
@@ -3980,7 +3984,7 @@ msgstr "找不到筆記"
 #: src/app/(tabs)/(dashboard)/notes.tsx:181
 #: src/app/(tabs)/(dashboard)/notes.tsx:231
 #: src/app/(tabs)/(trades)/[id].tsx:657
-#: src/components/tools-menu.tsx:67
+#: src/components/tools-menu.tsx:72
 msgid "Notes"
 msgstr "筆記"
 
@@ -4394,7 +4398,7 @@ msgstr "播放速度"
 #: src/app/(tabs)/(dashboard)/index.tsx:214
 #: src/app/(tabs)/(dashboard)/playbook.tsx:172
 #: src/app/(tabs)/(dashboard)/playbook.tsx:222
-#: src/components/tools-menu.tsx:68
+#: src/components/tools-menu.tsx:73
 msgid "Playbook"
 msgstr "策略手冊"
 
@@ -4432,7 +4436,7 @@ msgid "Position"
 msgstr "倉位"
 
 #: src/app/tool-position-size.tsx:53
-#: src/components/tools-menu.tsx:39
+#: src/components/tools-menu.tsx:44
 msgid "Position size"
 msgstr "倉位大小"
 
@@ -4636,7 +4640,7 @@ msgstr "快速虧損 — 論點迅速失效"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:93
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:698
-#: src/components/tools-menu.tsx:50
+#: src/components/tools-menu.tsx:55
 msgid "R calculator"
 msgstr "R 計算機"
 
@@ -4924,7 +4928,7 @@ msgstr "回報問題"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:112
 #: src/app/(tabs)/(dashboard)/reports.tsx:73
-#: src/components/tools-menu.tsx:34
+#: src/components/tools-menu.tsx:39
 msgid "Reports"
 msgstr "報表"
 
@@ -5330,6 +5334,7 @@ msgid "Server URL"
 msgstr "伺服器 URL"
 
 #: src/app/(tabs)/(trades)/[id].tsx:600
+#: src/components/tools-menu.tsx:105
 #: src/components/trade-form.tsx:474
 msgid "Session"
 msgstr "時段"
@@ -5471,6 +5476,10 @@ msgstr "顯示金額"
 #: src/components/password-input.tsx:35
 msgid "Show password"
 msgstr "顯示密碼"
+
+#: src/components/tools-menu.tsx:114
+msgid "Show session on Lock Screen"
+msgstr "在鎖定畫面顯示時段"
 
 #: src/app/(tabs)/(settings)/import-trades.tsx:46
 #: src/components/reports-filter-menu.tsx:36
@@ -6146,9 +6155,9 @@ msgstr "權杖讓腳本與整合向伺服器 API 驗證身分。點一下可查�
 msgid "Too many requests"
 msgstr "請求過於頻繁"
 
-#: src/components/tools-menu.tsx:85
-#: src/components/tools-menu.tsx:97
-#: src/components/tools-menu.tsx:109
+#: src/components/tools-menu.tsx:90
+#: src/components/tools-menu.tsx:102
+#: src/components/tools-menu.tsx:131
 msgid "Tools"
 msgstr "工具"
 

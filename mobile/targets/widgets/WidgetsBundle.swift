@@ -5,5 +5,6 @@ import WidgetKit
 struct TraderMemosWidgets: WidgetBundle {
   var body: some Widget {
     TodayWidget()
+    TradingSessionLiveActivity()
   }
 }

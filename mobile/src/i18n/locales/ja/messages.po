@@ -743,7 +743,7 @@ msgstr "調整"
 msgid "Advanced"
 msgstr "詳細設定"
 
-#: src/components/tools-menu.tsx:55
+#: src/components/tools-menu.tsx:60
 msgid "Advanced chart"
 msgstr "高度なチャート"
 
@@ -1667,7 +1667,7 @@ msgstr "モデルを取得できませんでした"
 #~ msgid "Could not load your account."
 #~ msgstr "アカウント情報を読み込めませんでした。"
 
-#: src/app/_layout.tsx:73
+#: src/app/_layout.tsx:74
 msgid "Could not open file"
 msgstr "ファイルを開けませんでした"
 
@@ -1841,7 +1841,7 @@ msgid "Currency"
 msgstr "通貨"
 
 #: src/app/tool-fx.tsx:52
-#: src/components/tools-menu.tsx:45
+#: src/components/tools-menu.tsx:50
 msgid "Currency converter"
 msgstr "通貨コンバーター"
 
@@ -1873,7 +1873,7 @@ msgstr "次の速度に切り替えます"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:88
 #: src/components/checklist-card.tsx:169
-#: src/components/tools-menu.tsx:73
+#: src/components/tools-menu.tsx:78
 msgid "Daily checklist"
 msgstr "デイリーチェックリスト"
 
@@ -2202,7 +2202,7 @@ msgstr "各ポイントは直近{windowSize}件の決済済みトレードの勝
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:101
 #: src/app/(tabs)/(dashboard)/economic-events.tsx:661
-#: src/components/tools-menu.tsx:60
+#: src/components/tools-menu.tsx:65
 msgid "Economic calendar"
 msgstr "経済カレンダー"
 
@@ -2252,6 +2252,10 @@ msgstr "感情"
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:315
 msgid "Enabled"
 msgstr "有効"
+
+#: src/components/tools-menu.tsx:108
+msgid "End Lock Screen session"
+msgstr "ロック画面のセッションを終了"
 
 #: src/app/(tabs)/(settings)/trading-journal.tsx:92
 msgid "Enter a number of 1 or more."
@@ -3089,7 +3093,7 @@ msgstr "このノートとサーバーの両方から削除されます。"
 #: src/app/(tabs)/(trades)/[id].tsx:584
 #: src/app/(tabs)/(trades)/[id].tsx:626
 #: src/components/swipeable-trade-row.tsx:118
-#: src/components/tools-menu.tsx:99
+#: src/components/tools-menu.tsx:121
 #: src/components/trade-form.tsx:463
 msgid "Journal"
 msgstr "ジャーナル"
@@ -3121,7 +3125,7 @@ msgid "Kelly (half)"
 msgstr "ケリー（半分）"
 
 #: src/app/tool-kelly.tsx:33
-#: src/components/tools-menu.tsx:43
+#: src/components/tools-menu.tsx:48
 msgid "Kelly criterion"
 msgstr "ケリー基準"
 
@@ -3980,7 +3984,7 @@ msgstr "ノートが見つかりません"
 #: src/app/(tabs)/(dashboard)/notes.tsx:181
 #: src/app/(tabs)/(dashboard)/notes.tsx:231
 #: src/app/(tabs)/(trades)/[id].tsx:657
-#: src/components/tools-menu.tsx:67
+#: src/components/tools-menu.tsx:72
 msgid "Notes"
 msgstr "メモ"
 
@@ -4394,7 +4398,7 @@ msgstr "再生速度"
 #: src/app/(tabs)/(dashboard)/index.tsx:214
 #: src/app/(tabs)/(dashboard)/playbook.tsx:172
 #: src/app/(tabs)/(dashboard)/playbook.tsx:222
-#: src/components/tools-menu.tsx:68
+#: src/components/tools-menu.tsx:73
 msgid "Playbook"
 msgstr "プレイブック"
 
@@ -4432,7 +4436,7 @@ msgid "Position"
 msgstr "ポジション"
 
 #: src/app/tool-position-size.tsx:53
-#: src/components/tools-menu.tsx:39
+#: src/components/tools-menu.tsx:44
 msgid "Position size"
 msgstr "ポジションサイズ"
 
@@ -4636,7 +4640,7 @@ msgstr "即損切り — シナリオが早期に崩壊"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:93
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:698
-#: src/components/tools-menu.tsx:50
+#: src/components/tools-menu.tsx:55
 msgid "R calculator"
 msgstr "R計算機"
 
@@ -4924,7 +4928,7 @@ msgstr "問題を報告"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:112
 #: src/app/(tabs)/(dashboard)/reports.tsx:73
-#: src/components/tools-menu.tsx:34
+#: src/components/tools-menu.tsx:39
 msgid "Reports"
 msgstr "レポート"
 
@@ -5330,6 +5334,7 @@ msgid "Server URL"
 msgstr "サーバーURL"
 
 #: src/app/(tabs)/(trades)/[id].tsx:600
+#: src/components/tools-menu.tsx:105
 #: src/components/trade-form.tsx:474
 msgid "Session"
 msgstr "セッション"
@@ -5471,6 +5476,10 @@ msgstr "金額を表示"
 #: src/components/password-input.tsx:35
 msgid "Show password"
 msgstr "パスワードを表示"
+
+#: src/components/tools-menu.tsx:114
+msgid "Show session on Lock Screen"
+msgstr "ロック画面にセッションを表示"
 
 #: src/app/(tabs)/(settings)/import-trades.tsx:46
 #: src/components/reports-filter-menu.tsx:36
@@ -6146,9 +6155,9 @@ msgstr "トークンはスクリプトや連携がサーバーの API を利用�
 msgid "Too many requests"
 msgstr "リクエストが多すぎます"
 
-#: src/components/tools-menu.tsx:85
-#: src/components/tools-menu.tsx:97
-#: src/components/tools-menu.tsx:109
+#: src/components/tools-menu.tsx:90
+#: src/components/tools-menu.tsx:102
+#: src/components/tools-menu.tsx:131
 msgid "Tools"
 msgstr "ツール"
 
