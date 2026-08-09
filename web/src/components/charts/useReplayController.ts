@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 export type ReplaySpeed = "1" | "2" | "5" | "10";
 
 /** Milliseconds per bar at each speed. */
-const SPEED_MS: Record<ReplaySpeed, number> = { "1": 600, "2": 300, "5": 120, "10": 60 };
+export const SPEED_MS: Record<ReplaySpeed, number> = { "1": 600, "2": 300, "5": 120, "10": 60 };
 
 export const REPLAY_SPEEDS = [
   { value: "1" as const, label: "1×" },

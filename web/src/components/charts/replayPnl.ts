@@ -3,6 +3,15 @@ import type { Execution } from "@/lib/api/types";
 import { INTERVAL_SEC } from "./barsToCandlestickData";
 import { CHART_TIME_ZONE } from "./chartTime";
 
+/**
+ * The fill fields the replay math reads — real Executions and the synthetic
+ * fills a backtest session fabricates both satisfy it.
+ */
+export type ReplayFillInput = Pick<
+  Execution,
+  "side" | "quantity" | "price" | "fees" | "commission" | "executed_at" | "multiplier"
+>;
+
 export interface ReplayPnl {
   /** Signed open quantity at the cursor (+long / -short). */
   position: number;
@@ -34,7 +43,7 @@ export function replayCutoff(bars: MarketBar[], cursor: number, interval: BarInt
  * partial exits, and flips (remainder re-opens at the flip fill's price).
  */
 export function computeReplayPnl(
-  fills: Execution[],
+  fills: ReplayFillInput[],
   bars: MarketBar[],
   cursor: number,
   interval: BarInterval,

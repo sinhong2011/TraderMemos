@@ -3,6 +3,7 @@ import {
   CalendarDays,
   ChartLine,
   Globe,
+  History,
   LayoutGrid,
   PartyPopper,
   RefreshCw,
@@ -10,7 +11,16 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-export type ToolId = "size" | "planner" | "kelly" | "fx" | "today" | "chart" | "econ" | "wrapped";
+export type ToolId =
+  | "size"
+  | "planner"
+  | "kelly"
+  | "fx"
+  | "today"
+  | "chart"
+  | "replay"
+  | "econ"
+  | "wrapped";
 
 export type ToolGroupId = "calculators" | "markets" | "journal";
 
@@ -70,6 +80,13 @@ export const TOOL_ITEMS: ToolItem[] = [
     label: "Advanced chart",
     icon: ChartLine,
     keywords: ["chart", "technical"],
+    group: "markets",
+  },
+  {
+    id: "replay",
+    label: "Replay",
+    icon: History,
+    keywords: ["backtest", "replay", "practice", "paper", "simulator"],
     group: "markets",
   },
   {
