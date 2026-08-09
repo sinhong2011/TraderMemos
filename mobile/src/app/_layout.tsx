@@ -21,6 +21,7 @@ import { i18n } from '@/i18n';
 import { t } from '@lingui/core/macro';
 import { useConnectivityStore } from '@/lib/connectivity';
 import { useResolvedScheme } from '@/lib/prefs';
+import { useTradingSessionSync } from '@/lib/live-activity';
 import { usePrefsSync } from '@/lib/use-prefs-sync';
 import { useWidgetSnapshotSync } from '@/lib/widget-snapshot';
 import { ensureDropFolder, stageDroppedFile } from '@/lib/trade-import';
@@ -102,6 +103,16 @@ function PrefsSyncGate() {
  */
 function WidgetSnapshotGate() {
   useWidgetSnapshotSync();
+  return null;
+}
+
+/**
+ * Keeps the Lock Screen / Dynamic Island trading session honest: mirrors the
+ * shared today-state into the Live Activity while one is running, and ends it
+ * on sign-out or a new market day — see `lib/live-activity.ts`.
+ */
+function LiveActivityGate() {
+  useTradingSessionSync();
   return null;
 }
 
@@ -206,6 +217,7 @@ export default function RootLayout() {
           <ImportLinkGate />
           <PrefsSyncGate />
           <WidgetSnapshotGate />
+          <LiveActivityGate />
           <ReachabilityGate />
           <AppErrorBoundary>
           <View style={{ flex: 1 }}>

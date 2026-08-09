@@ -6,7 +6,7 @@
  * Store release (roadmap Wave 6), without refactoring the features
  * themselves. Until the IAP plumbing lands, everything is unlocked.
  */
-export type ProFeature = 'widgets';
+export type ProFeature = 'widgets' | 'liveActivity';
 
 export function useProUnlocked(_feature: ProFeature): boolean {
   return true;

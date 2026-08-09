@@ -13,6 +13,7 @@
       "supportsTablet": true,
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
+        "NSSupportsLiveActivities": true,
         "CFBundleAllowMixedLocalizations": true,
         "CFBundleLocalizations": [
           "en",
