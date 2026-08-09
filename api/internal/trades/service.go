@@ -38,23 +38,32 @@ func (s *Service) Regroup(ctx context.Context, userID, accountID string) error {
 		})
 	}
 
+	// Collect the whole regroup first, then write it in a handful of
+	// set-at-a-time statements. Row-at-a-time here cost three round trips per
+	// trade plus one per fill, which a hosted Postgres charges network latency for.
 	keep := []string{}
+	upserts := []store.UpsertTradeParams{}
+	links := []store.LinkTradeExecutionParams{}
 	for _, g := range groups {
 		for _, tr := range Group(g) {
 			id := tr.ExecutionIDs[0] // opening fill = stable id
-			if err := s.q.UpsertTrade(ctx, toUpsertParams(id, userID, accountID, acc.BaseCurrency, tr)); err != nil {
-				return err
-			}
-			if err := s.q.ClearTradeExecutions(ctx, id); err != nil {
-				return err
-			}
+			upserts = append(upserts, toUpsertParams(id, userID, accountID, acc.BaseCurrency, tr))
 			for _, eid := range tr.ExecutionIDs {
-				if err := s.q.LinkTradeExecution(ctx, store.LinkTradeExecutionParams{TradeID: id, ExecutionID: eid}); err != nil {
-					return err
-				}
+				links = append(links, store.LinkTradeExecutionParams{TradeID: id, ExecutionID: eid})
 			}
 			keep = append(keep, id)
 		}
+	}
+	if err := store.BulkUpsertTrades(ctx, s.q, upserts); err != nil {
+		return err
+	}
+	// Clear before linking: the links inserted below replace whatever the
+	// previous grouping left behind for these trades.
+	if err := store.BulkClearTradeExecutions(ctx, s.q, keep); err != nil {
+		return err
+	}
+	if err := store.BulkLinkTradeExecutions(ctx, s.q, links); err != nil {
+		return err
 	}
 
 	if len(keep) == 0 {

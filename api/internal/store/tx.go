@@ -3,8 +3,6 @@ package store
 import (
 	"context"
 	"database/sql"
-
-	"github.com/tradermemos/api/internal/storepg"
 )
 
 // TxRunner is implemented by stores that can run fn inside a database
@@ -49,7 +47,7 @@ func (s *pgStore) InTx(ctx context.Context, fn func(Querier) error) error {
 	if err != nil {
 		return err
 	}
-	if err := fn(&PG{q: storepg.New(tx)}); err != nil {
+	if err := fn(NewPGFromDBTX(tx)); err != nil {
 		_ = tx.Rollback()
 		return err
 	}
