@@ -19,6 +19,7 @@ import {
   useBreakdown,
   useCompliance,
   useEquityCurve,
+  useMonteCarlo,
   useRSummary,
   useSummary,
 } from "@/lib/hooks/useAnalytics";
@@ -116,6 +117,7 @@ function ReportsPage() {
   const qualityBreakdownQ = useBreakdown("trade_quality", analyticsFilters);
   const complianceQ = useCompliance(analyticsFilters);
   const behaviorQ = useBehavior(analyticsFilters);
+  const monteCarloQ = useMonteCarlo(analyticsFilters, tab === "risk");
   const accountsQ = useAccounts();
   const cashQ = useCash(filters);
   const annualGoalQ = useAnnualGoal(goalYear);
@@ -171,6 +173,9 @@ function ReportsPage() {
         behavior={behaviorQ.data}
         behaviorLoading={behaviorQ.isLoading}
         behaviorError={behaviorQ.isError}
+        monteCarlo={monteCarloQ.data}
+        monteCarloLoading={monteCarloQ.isLoading}
+        monteCarloError={monteCarloQ.isError}
         onSelectTradeId={setSelectedTradeId}
         currency={currency}
         dim={dim}
