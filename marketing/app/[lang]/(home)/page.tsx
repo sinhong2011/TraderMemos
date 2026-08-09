@@ -43,6 +43,37 @@ import reportsShot from '@/public/screenshots/reports.png';
 
 const repoUrl = `https://github.com/${gitConfig.user}/${gitConfig.repo}`;
 
+/*
+ * Live star count, revalidated hourly (one uncached hit per hour keeps the
+ * unauthenticated GitHub API far below its rate limit). Returns null on any
+ * failure so the page renders the plain GitHub links without a count.
+ */
+async function fetchStarCount(): Promise<number | null> {
+  try {
+    const res = await fetch(`https://api.github.com/repos/${gitConfig.user}/${gitConfig.repo}`, {
+      next: { revalidate: 3600 },
+      signal: AbortSignal.timeout(3000),
+    });
+    if (!res.ok) return null;
+    const data = (await res.json()) as { stargazers_count?: number };
+    return typeof data.stargazers_count === 'number' ? data.stargazers_count : null;
+  } catch {
+    return null;
+  }
+}
+
+const formatStars = (n: number) =>
+  new Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 }).format(n);
+
+function StarBadge({ count }: { count: number }) {
+  return (
+    <span className="inline-flex items-center gap-1 rounded-md bg-fd-muted px-1.5 py-0.5 font-mono text-xs tabular-nums text-fd-muted-foreground">
+      <Star className="size-3 fill-current" />
+      {formatStars(count)}
+    </span>
+  );
+}
+
 const focusRing =
   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fd-ring';
 
@@ -370,6 +401,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
   const features = t.raw('features') as Record<FeatureId, { title: string; description: string }>;
   const comparison = t.raw('comparison') as { row: string; cloud: string; tm: string }[];
   const stack = t.raw('stack') as { layer: string; value: string }[];
+  const stars = await fetchStarCount();
 
   return (
     <>
@@ -438,6 +470,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
               >
                 <GithubMark className="size-4" />
                 {t('ctaGithub')}
+                {stars !== null && <StarBadge count={stars} />}
               </Link>
             </div>
             <p
@@ -820,6 +853,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
                 >
                   <Star className="size-4" />
                   {d('star')}
+                  {stars !== null && <StarBadge count={stars} />}
                 </a>
               </div>
               <p className="mt-4 text-sm text-fd-muted-foreground/80">{d('note')}</p>
