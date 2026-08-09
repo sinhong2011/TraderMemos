@@ -1700,7 +1700,7 @@ msgstr "Could not revoke token"
 #: src/app/new-note.tsx:59
 #: src/app/new-setup.tsx:107
 #: src/app/new-setup.tsx:133
-#: src/app/quick-journal.tsx:66
+#: src/app/quick-journal.tsx:67
 #: src/app/replay.tsx:340
 #: src/components/checklist-card.tsx:98
 #: src/lib/save-trades.ts:67
@@ -2337,7 +2337,7 @@ msgid "Entry price"
 msgstr "Entry price"
 
 #: src/app/(tabs)/(trades)/[id].tsx:619
-#: src/app/quick-journal.tsx:78
+#: src/app/quick-journal.tsx:79
 #: src/components/trade-form.tsx:515
 msgid "Entry reason"
 msgstr "Entry reason"
@@ -2405,7 +2405,7 @@ msgstr "Execution grade"
 
 #: src/app/(tabs)/(trades)/[id].tsx:616
 #: src/app/manage-tags.tsx:127
-#: src/app/quick-journal.tsx:91
+#: src/app/quick-journal.tsx:92
 #: src/components/trade-form.tsx:525
 #: src/components/trade-form.tsx:527
 msgid "Execution rating"
@@ -3226,7 +3226,7 @@ msgid "Long"
 msgstr "Long"
 
 #: src/app/(tabs)/(trades)/[id].tsx:126
-#: src/app/quick-journal.tsx:143
+#: src/app/quick-journal.tsx:144
 #: src/app/replay.tsx:436
 #: src/components/share-card.tsx:56
 msgid "LONG"
@@ -3455,7 +3455,7 @@ msgid "Mistake"
 msgstr "Mistake"
 
 #: src/app/manage-tags.tsx:77
-#: src/app/quick-journal.tsx:100
+#: src/app/quick-journal.tsx:101
 #: src/components/trade-form.tsx:534
 msgid "Mistake type"
 msgstr "Mistake type"
@@ -3836,6 +3836,10 @@ msgstr "No trades matching \"{search}\""
 msgid "No trades on this day."
 msgstr "No trades on this day."
 
+#: src/app/quick-journal.tsx:184
+msgid "No trades to review yet"
+msgstr "No trades to review yet"
+
 #: src/components/reports/overview-section.tsx:364
 msgid "No trades with a knowable initial risk — set stops to unlock R analytics."
 msgstr "No trades with a knowable initial risk — set stops to unlock R analytics."
@@ -4040,7 +4044,7 @@ msgstr "Only the first {0} files fit under the cap."
 #: src/app/(tabs)/(trades)/[id].tsx:138
 #: src/app/(tabs)/(trades)/[id].tsx:198
 #: src/app/(tabs)/(trades)/index.tsx:266
-#: src/app/quick-journal.tsx:139
+#: src/app/quick-journal.tsx:140
 #: src/app/trade-preview.tsx:135
 #: src/components/performance-card.tsx:80
 #: src/components/trade-result-card.tsx:51
@@ -4930,7 +4934,7 @@ msgid "Revenge trading"
 msgstr "Revenge trading"
 
 #: src/app/(tabs)/(trades)/[id].tsx:586
-#: src/app/quick-journal.tsx:72
+#: src/app/quick-journal.tsx:73
 #: src/components/trade-form.tsx:523
 msgid "Review"
 msgstr "Review"
@@ -4944,7 +4948,7 @@ msgid "Review import"
 msgstr "Review import"
 
 #: src/app/(tabs)/(trades)/[id].tsx:621
-#: src/app/quick-journal.tsx:82
+#: src/app/quick-journal.tsx:83
 #: src/components/trade-form.tsx:553
 msgid "Review notes"
 msgstr "Review notes"
@@ -5402,7 +5406,7 @@ msgid "Short"
 msgstr "Short"
 
 #: src/app/(tabs)/(trades)/[id].tsx:126
-#: src/app/quick-journal.tsx:143
+#: src/app/quick-journal.tsx:144
 #: src/app/replay.tsx:436
 #: src/components/share-card.tsx:56
 msgid "SHORT"
@@ -6148,7 +6152,7 @@ msgid "Trade lands on"
 msgstr "Trade lands on"
 
 #: src/app/edit-trade.tsx:110
-#: src/app/quick-journal.tsx:162
+#: src/app/quick-journal.tsx:196
 #: src/app/replay.tsx:131
 #: src/app/share-trade.tsx:76
 msgid "Trade not found"
@@ -6467,7 +6471,7 @@ msgstr "What happened today?"
 msgid "What has to be happening for this play to be on? Where is it wrong?"
 msgstr "What has to be happening for this play to be on? Where is it wrong?"
 
-#: src/app/quick-journal.tsx:86
+#: src/app/quick-journal.tsx:87
 #: src/components/trade-form.tsx:556
 msgid "What would you do differently?"
 msgstr "What would you do differently?"

@@ -204,12 +204,16 @@ export function useRiskRules() {
   return useApiQuery<RiskRules>(queryKeys.riskRules(), '/settings/risk-rules');
 }
 
-export function useTrades(filters: Filters = {}) {
-  return useApiQuery<Trade[]>(queryKeys.trades(filters), '/trades', filters);
+export function useTrades(filters: Filters = {}, options?: { enabled?: boolean }) {
+  return useApiQuery<Trade[]>(queryKeys.trades(filters), '/trades', filters, options);
 }
 
 export function useTrade(id: string) {
-  return useApiQuery<TradeDetail>(queryKeys.trade(id), `/trades/${id}`);
+  return useApiQuery<TradeDetail>(queryKeys.trade(id), `/trades/${id}`, undefined, {
+    // An id-less quick-journal launch passes '' while it resolves the latest
+    // trade from the list — don't fire a request at `/trades/`.
+    enabled: id !== '',
+  });
 }
 
 /**

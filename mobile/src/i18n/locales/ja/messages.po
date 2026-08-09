@@ -1700,7 +1700,7 @@ msgstr "トークンを失効できませんでした"
 #: src/app/new-note.tsx:59
 #: src/app/new-setup.tsx:107
 #: src/app/new-setup.tsx:133
-#: src/app/quick-journal.tsx:66
+#: src/app/quick-journal.tsx:67
 #: src/app/replay.tsx:340
 #: src/components/checklist-card.tsx:98
 #: src/lib/save-trades.ts:67
@@ -2337,7 +2337,7 @@ msgid "Entry price"
 msgstr "エントリー価格"
 
 #: src/app/(tabs)/(trades)/[id].tsx:619
-#: src/app/quick-journal.tsx:78
+#: src/app/quick-journal.tsx:79
 #: src/components/trade-form.tsx:515
 msgid "Entry reason"
 msgstr "エントリー理由"
@@ -2405,7 +2405,7 @@ msgstr "執行グレード"
 
 #: src/app/(tabs)/(trades)/[id].tsx:616
 #: src/app/manage-tags.tsx:127
-#: src/app/quick-journal.tsx:91
+#: src/app/quick-journal.tsx:92
 #: src/components/trade-form.tsx:525
 #: src/components/trade-form.tsx:527
 msgid "Execution rating"
@@ -3226,7 +3226,7 @@ msgid "Long"
 msgstr "ロング"
 
 #: src/app/(tabs)/(trades)/[id].tsx:126
-#: src/app/quick-journal.tsx:143
+#: src/app/quick-journal.tsx:144
 #: src/app/replay.tsx:436
 #: src/components/share-card.tsx:56
 msgid "LONG"
@@ -3455,7 +3455,7 @@ msgid "Mistake"
 msgstr "ミス"
 
 #: src/app/manage-tags.tsx:77
-#: src/app/quick-journal.tsx:100
+#: src/app/quick-journal.tsx:101
 #: src/components/trade-form.tsx:534
 msgid "Mistake type"
 msgstr "ミスの種類"
@@ -3836,6 +3836,10 @@ msgstr "「{search}」に一致するトレードはありません"
 msgid "No trades on this day."
 msgstr "この日のトレードはありません。"
 
+#: src/app/quick-journal.tsx:184
+msgid "No trades to review yet"
+msgstr "振り返るトレードはまだありません"
+
 #: src/components/reports/overview-section.tsx:364
 msgid "No trades with a knowable initial risk — set stops to unlock R analytics."
 msgstr "初期リスクが判明しているトレードがありません — ストップを設定するとR分析が有効になります。"
@@ -4040,7 +4044,7 @@ msgstr "上限内に収まるのは最初の{0}件のみです。"
 #: src/app/(tabs)/(trades)/[id].tsx:138
 #: src/app/(tabs)/(trades)/[id].tsx:198
 #: src/app/(tabs)/(trades)/index.tsx:266
-#: src/app/quick-journal.tsx:139
+#: src/app/quick-journal.tsx:140
 #: src/app/trade-preview.tsx:135
 #: src/components/performance-card.tsx:80
 #: src/components/trade-result-card.tsx:51
@@ -4928,7 +4932,7 @@ msgid "Revenge trading"
 msgstr "リベンジトレード"
 
 #: src/app/(tabs)/(trades)/[id].tsx:586
-#: src/app/quick-journal.tsx:72
+#: src/app/quick-journal.tsx:73
 #: src/components/trade-form.tsx:523
 msgid "Review"
 msgstr "振り返り"
@@ -4942,7 +4946,7 @@ msgid "Review import"
 msgstr "読み込み内容の確認"
 
 #: src/app/(tabs)/(trades)/[id].tsx:621
-#: src/app/quick-journal.tsx:82
+#: src/app/quick-journal.tsx:83
 #: src/components/trade-form.tsx:553
 msgid "Review notes"
 msgstr "振り返りメモ"
@@ -5400,7 +5404,7 @@ msgid "Short"
 msgstr "ショート"
 
 #: src/app/(tabs)/(trades)/[id].tsx:126
-#: src/app/quick-journal.tsx:143
+#: src/app/quick-journal.tsx:144
 #: src/app/replay.tsx:436
 #: src/components/share-card.tsx:56
 msgid "SHORT"
@@ -6146,7 +6150,7 @@ msgid "Trade lands on"
 msgstr "トレードの計上日"
 
 #: src/app/edit-trade.tsx:110
-#: src/app/quick-journal.tsx:162
+#: src/app/quick-journal.tsx:196
 #: src/app/replay.tsx:131
 #: src/app/share-trade.tsx:76
 msgid "Trade not found"
@@ -6465,7 +6469,7 @@ msgstr "今日はどうでしたか？"
 msgid "What has to be happening for this play to be on? Where is it wrong?"
 msgstr "このプレイが成立する条件は？ どうなったら無効ですか？"
 
-#: src/app/quick-journal.tsx:86
+#: src/app/quick-journal.tsx:87
 #: src/components/trade-form.tsx:556
 msgid "What would you do differently?"
 msgstr "次はどう改善しますか？"

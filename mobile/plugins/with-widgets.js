@@ -30,6 +30,7 @@ const SWIFT_FILES = [
   'TodaySnapshot.swift',
   'WidgetTheme.swift',
   'TodayWidget.swift',
+  'QuickJournalControl.swift',
   'TradingSessionAttributes.swift',
   'TradingSessionLiveActivity.swift',
   'WidgetsBundle.swift',
