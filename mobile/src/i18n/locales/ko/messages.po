@@ -1732,7 +1732,7 @@ msgstr "토큰을 폐기하지 못했습니다"
 #: src/app/new-note.tsx:59
 #: src/app/new-setup.tsx:107
 #: src/app/new-setup.tsx:133
-#: src/app/quick-journal.tsx:66
+#: src/app/quick-journal.tsx:67
 #: src/app/replay.tsx:340
 #: src/components/checklist-card.tsx:98
 #: src/lib/save-trades.ts:67
@@ -2369,7 +2369,7 @@ msgid "Entry price"
 msgstr "진입 가격"
 
 #: src/app/(tabs)/(trades)/[id].tsx:619
-#: src/app/quick-journal.tsx:78
+#: src/app/quick-journal.tsx:79
 #: src/components/trade-form.tsx:515
 msgid "Entry reason"
 msgstr "진입 이유"
@@ -2437,7 +2437,7 @@ msgstr "실행 등급"
 
 #: src/app/(tabs)/(trades)/[id].tsx:616
 #: src/app/manage-tags.tsx:127
-#: src/app/quick-journal.tsx:91
+#: src/app/quick-journal.tsx:92
 #: src/components/trade-form.tsx:525
 #: src/components/trade-form.tsx:527
 msgid "Execution rating"
@@ -3273,7 +3273,7 @@ msgid "Long"
 msgstr "롱"
 
 #: src/app/(tabs)/(trades)/[id].tsx:126
-#: src/app/quick-journal.tsx:143
+#: src/app/quick-journal.tsx:144
 #: src/app/replay.tsx:436
 #: src/components/share-card.tsx:56
 msgid "LONG"
@@ -3502,7 +3502,7 @@ msgid "Mistake"
 msgstr "실수"
 
 #: src/app/manage-tags.tsx:77
-#: src/app/quick-journal.tsx:100
+#: src/app/quick-journal.tsx:101
 #: src/components/trade-form.tsx:534
 msgid "Mistake type"
 msgstr "실수 유형"
@@ -3884,6 +3884,10 @@ msgstr "\"{search}\" 와 일치하는 거래가 없습니다"
 msgid "No trades on this day."
 msgstr "이 날에는 거래가 없습니다."
 
+#: src/app/quick-journal.tsx:184
+msgid "No trades to review yet"
+msgstr "아직 리뷰할 트레이드가 없습니다"
+
 #: src/components/reports/overview-section.tsx:364
 msgid "No trades with a knowable initial risk — set stops to unlock R analytics."
 msgstr "초기 리스크를 알 수 있는 거래가 없습니다 — 스톱을 설정하면 R 분석이 활성화됩니다."
@@ -4088,7 +4092,7 @@ msgstr "한도 내에는 처음 {0}개 파일만 들어갑니다."
 #: src/app/(tabs)/(trades)/[id].tsx:138
 #: src/app/(tabs)/(trades)/[id].tsx:198
 #: src/app/(tabs)/(trades)/index.tsx:266
-#: src/app/quick-journal.tsx:139
+#: src/app/quick-journal.tsx:140
 #: src/app/trade-preview.tsx:135
 #: src/components/performance-card.tsx:80
 #: src/components/trade-result-card.tsx:51
@@ -4985,7 +4989,7 @@ msgid "Revenge trading"
 msgstr "복수 매매"
 
 #: src/app/(tabs)/(trades)/[id].tsx:586
-#: src/app/quick-journal.tsx:72
+#: src/app/quick-journal.tsx:73
 #: src/components/trade-form.tsx:523
 msgid "Review"
 msgstr "리뷰"
@@ -4999,7 +5003,7 @@ msgid "Review import"
 msgstr "가져오기 검토"
 
 #: src/app/(tabs)/(trades)/[id].tsx:621
-#: src/app/quick-journal.tsx:82
+#: src/app/quick-journal.tsx:83
 #: src/components/trade-form.tsx:553
 msgid "Review notes"
 msgstr "리뷰 노트"
@@ -5457,7 +5461,7 @@ msgid "Short"
 msgstr "숏"
 
 #: src/app/(tabs)/(trades)/[id].tsx:126
-#: src/app/quick-journal.tsx:143
+#: src/app/quick-journal.tsx:144
 #: src/app/replay.tsx:436
 #: src/components/share-card.tsx:56
 msgid "SHORT"
@@ -6208,7 +6212,7 @@ msgid "Trade lands on"
 msgstr "거래 귀속일"
 
 #: src/app/edit-trade.tsx:110
-#: src/app/quick-journal.tsx:162
+#: src/app/quick-journal.tsx:196
 #: src/app/replay.tsx:131
 #: src/app/share-trade.tsx:76
 msgid "Trade not found"
@@ -6538,7 +6542,7 @@ msgstr "오늘은 어땠나요?"
 msgid "What has to be happening for this play to be on? Where is it wrong?"
 msgstr "이 플레이가 성립하려면 무엇이 필요합니까? 언제 무효가 됩니까?"
 
-#: src/app/quick-journal.tsx:86
+#: src/app/quick-journal.tsx:87
 #: src/components/trade-form.tsx:556
 msgid "What would you do differently?"
 msgstr "다음에는 무엇을 다르게 하시겠습니까?"
