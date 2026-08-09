@@ -8,10 +8,17 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { useTrade } from '@/api/hooks';
 import { ErrorState } from '@/components/error-state';
 import { GlassButton } from '@/components/glass-button';
-import { ShareCardView } from '@/components/share-card';
+import {
+  SHARE_CARD_STYLES,
+  ShareCardView,
+  shareCardStyleLabel,
+  type ShareCardStyleId,
+} from '@/components/share-card';
 import { Skeleton } from '@/components/skeleton';
 import { t } from '@lingui/core/macro';
 import { errorMessage } from '@/lib/errors';
+import { useProGate } from '@/lib/pro-gate';
+import { PnlFill } from '@/styles/unistyles';
 
 /**
  * Share preview: the actual card, at the size it will be captured, with the
@@ -26,7 +33,25 @@ export default function ShareTradeScreen() {
   const trade = useTrade(id ?? '');
   const cardRef = useRef<View>(null);
   const [showAmounts, setShowAmounts] = useState(false);
+  const [cardStyle, setCardStyle] = useState<ShareCardStyleId>('classic');
+  const [showMark, setShowMark] = useState(true);
   const [sharing, setSharing] = useState(false);
+
+  // Pro seam (docs/mobile-monetization-plan.md): styles beyond Classic and
+  // mark removal are the Pro candidates; the capability itself stays free.
+  const stylesUnlocked = useProGate('share-card-styles');
+  const hideMarkUnlocked = useProGate('share-card-hide-mark');
+  const effectiveStyle = stylesUnlocked ? cardStyle : 'classic';
+  const effectiveShowMark = hideMarkUnlocked ? showMark : true;
+
+  // Swatch dots for the picker; signal's fill is outcome-driven on the card,
+  // so its swatch shows the brand-blue "open" fill as the representative hue.
+  const swatchColor: Record<ShareCardStyleId, string> = {
+    classic: theme.colors.background,
+    midnight: '#0E1116',
+    paper: '#FFFFFF',
+    signal: PnlFill.open,
+  };
 
   async function share() {
     setSharing(true);
@@ -77,7 +102,37 @@ export default function ShareTradeScreen() {
       ) : (
         <>
           <View style={styles.preview}>
-            <ShareCardView ref={cardRef} trade={trade.data} showAmounts={showAmounts} />
+            <ShareCardView
+              ref={cardRef}
+              trade={trade.data}
+              showAmounts={showAmounts}
+              cardStyle={effectiveStyle}
+              showMark={effectiveShowMark}
+            />
+          </View>
+
+          <View style={styles.stylePicker}>
+            {SHARE_CARD_STYLES.map((id) => {
+              const selected = id === effectiveStyle;
+              return (
+                <Pressable
+                  key={id}
+                  onPress={() => setCardStyle(id)}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected }}
+                  style={({ pressed }) => [
+                    styles.styleChip,
+                    selected && styles.styleChipSelected,
+                    pressed && styles.pressed,
+                  ]}
+                >
+                  <View style={[styles.swatch, { backgroundColor: swatchColor[id] }]} />
+                  <Text style={[styles.styleLabel, selected && styles.styleLabelSelected]}>
+                    {shareCardStyleLabel(id)}
+                  </Text>
+                </Pressable>
+              );
+            })}
           </View>
 
           <View style={styles.optionRow}>
@@ -90,6 +145,18 @@ export default function ShareTradeScreen() {
             <Switch
               value={showAmounts}
               onValueChange={setShowAmounts}
+              trackColor={{ true: theme.colors.primary }}
+            />
+          </View>
+
+          <View style={styles.optionRow}>
+            <View style={styles.optionText}>
+              <Text style={styles.optionLabel}>{t`TraderMemos mark`}</Text>
+              <Text style={styles.optionHint}>{t`A small wordmark in the card corner.`}</Text>
+            </View>
+            <Switch
+              value={effectiveShowMark}
+              onValueChange={setShowMark}
               trackColor={{ true: theme.colors.primary }}
             />
           </View>
@@ -134,6 +201,33 @@ const styles = StyleSheet.create((theme) => ({
     borderCurve: 'continuous',
     backgroundColor: theme.colors.muted,
   },
+  stylePicker: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: theme.spacing.sm,
+  },
+  styleChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.xs,
+    paddingVertical: 6,
+    paddingHorizontal: theme.spacing.md,
+    borderRadius: theme.radius.lg,
+    borderCurve: 'continuous',
+    backgroundColor: theme.colors.muted,
+  },
+  styleChipSelected: { backgroundColor: theme.colors.primary },
+  // Hairline keeps same-ground swatches (paper-on-light, midnight-on-dark)
+  // readable; interactive controls may carry borders.
+  swatch: {
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: theme.colors.border,
+  },
+  styleLabel: { fontSize: 13, fontWeight: '600', color: theme.colors.foreground },
+  styleLabelSelected: { color: theme.colors.primaryForeground },
   optionRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md },
   optionText: { flex: 1, gap: 2 },
   optionLabel: { fontSize: 15, fontWeight: '500', color: theme.colors.foreground },

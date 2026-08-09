@@ -521,6 +521,10 @@ msgstr "重設會登出該用戶的其他裝置。"
 msgid "A sample amount and a late-session timestamp, rendered with the settings below."
 msgstr "下方設定套用後的金額與收市後時間示例。"
 
+#: src/app/share-trade.tsx:155
+msgid "A small wordmark in the card corner."
+msgstr "在卡片角落顯示小型字標。"
+
 #: src/app/new-setup.tsx:218
 msgid "A symbol pins the play to one ticker — leave it on Any for a pattern you trade anywhere."
 msgstr "填上代號會把這個計劃綁定到單一標的；任何標的都適用的形態就留在「不限」。"
@@ -1067,7 +1071,7 @@ msgid "Baseline P&L"
 msgstr "基準盈虧"
 
 #: src/app/(tabs)/(trades)/[id].tsx:89
-#: src/components/share-card.tsx:24
+#: src/components/share-card.tsx:120
 msgid "BE"
 msgstr "打和"
 
@@ -1368,6 +1372,10 @@ msgstr "選擇要在交易列表顯示為篩選標籤的日誌選項。"
 #: src/app/manage-tags.tsx:36
 #~ msgid "Choose which journal tags show as quick filters. Tags are created in the trade form."
 #~ msgstr "選擇要顯示為快速篩選的日誌標籤。標籤在交易表單中建立。"
+
+#: src/components/share-card.tsx:21
+msgid "Classic"
+msgstr "經典"
 
 #: src/app/(tabs)/(dashboard)/economic-events.tsx:827
 #~ msgid "Clear"
@@ -1740,7 +1748,7 @@ msgstr "無法儲存範例檔"
 #~ msgstr "無法掃描"
 
 #: src/app/replay.tsx:302
-#: src/app/share-trade.tsx:40
+#: src/app/share-trade.tsx:65
 msgid "Could not share"
 msgstr "無法分享"
 
@@ -1867,7 +1875,7 @@ msgstr "每日清單"
 #: src/app/(tabs)/(dashboard)/notes.tsx:171
 #: src/components/note-form.tsx:84
 #: src/components/note-form.tsx:225
-#: src/lib/outbox.ts:429
+#: src/lib/outbox.ts:448
 msgid "Daily log"
 msgstr "每日日誌"
 
@@ -2120,7 +2128,7 @@ msgstr "金額"
 #: src/app/login.tsx:385
 #: src/app/manage-tags.tsx:60
 #: src/app/new-token.tsx:80
-#: src/app/share-trade.tsx:58
+#: src/app/share-trade.tsx:83
 #: src/components/tool-sheet.tsx:18
 msgid "Done"
 msgstr "完成"
@@ -3245,7 +3253,7 @@ msgstr "做多"
 #: src/app/(tabs)/(trades)/[id].tsx:126
 #: src/app/quick-journal.tsx:155
 #: src/app/replay.tsx:436
-#: src/components/share-card.tsx:56
+#: src/components/share-card.tsx:163
 msgid "LONG"
 msgstr "做多"
 
@@ -3278,7 +3286,7 @@ msgid "Losing hold"
 msgstr "虧損持倉時間"
 
 #: src/app/(tabs)/(trades)/[id].tsx:85
-#: src/components/share-card.tsx:20
+#: src/components/share-card.tsx:116
 msgid "LOSS"
 msgstr "虧損"
 
@@ -3453,6 +3461,10 @@ msgstr "MFE"
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:560
 msgid "Mid"
 msgstr "中間"
+
+#: src/components/share-card.tsx:23
+msgid "Midnight"
+msgstr "午夜"
 
 #: src/app/(tabs)/(dashboard)/checklist.tsx:307
 msgid "Mirror the checklist into the iOS Reminders app, so it reaches you on the lock screen, the Watch and Siri."
@@ -3945,11 +3957,11 @@ msgstr "不是有效的 JSON。"
 #: src/app/cash-form.tsx:227
 #: src/components/note-form.tsx:83
 #: src/components/trade-form.tsx:578
-#: src/lib/outbox.ts:429
+#: src/lib/outbox.ts:448
 msgid "Note"
 msgstr "筆記"
 
-#: src/lib/outbox.ts:432
+#: src/lib/outbox.ts:451
 msgid "Note deletion"
 msgstr "刪除筆記"
 
@@ -4012,7 +4024,7 @@ msgstr "/ {0}"
 msgid "Off"
 msgstr "關閉"
 
-#: src/app/share-trade.tsx:87
+#: src/app/share-trade.tsx:142
 msgid "Off by default — the card shows R and return % only."
 msgstr "預設關閉 — 卡片只顯示 R 與回報率 %。"
 
@@ -4077,7 +4089,7 @@ msgid "Open"
 msgstr "持倉中"
 
 #: src/app/(tabs)/(trades)/[id].tsx:87
-#: src/components/share-card.tsx:22
+#: src/components/share-card.tsx:118
 msgid "OPEN"
 msgstr "持倉中"
 
@@ -4220,6 +4232,10 @@ msgstr "盈虧（違規日）"
 #: src/components/reports/risk-section.tsx:147
 msgid "P&L, rules followed"
 msgstr "盈虧（遵守日）"
+
+#: src/components/share-card.tsx:25
+msgid "Paper"
+msgstr "紙白"
 
 #: src/components/trade-scan-overlay.tsx:64
 msgid "Parsed"
@@ -5384,12 +5400,12 @@ msgstr "策略設定"
 msgid "Setups restored"
 msgstr "已還原策略設定"
 
-#: src/app/share-trade.tsx:103
+#: src/app/share-trade.tsx:170
 msgid "Share"
 msgstr "分享"
 
 #: src/app/(tabs)/(trades)/[id].tsx:489
-#: src/app/share-trade.tsx:51
+#: src/app/share-trade.tsx:76
 msgid "Share card"
 msgstr "分享卡片"
 
@@ -5405,7 +5421,7 @@ msgstr "分享重播畫面"
 msgid "Share token"
 msgstr "分享權杖"
 
-#: src/app/share-trade.tsx:37
+#: src/app/share-trade.tsx:62
 msgid "Share trade"
 msgstr "分享交易"
 
@@ -5428,7 +5444,7 @@ msgstr "做空"
 #: src/app/(tabs)/(trades)/[id].tsx:126
 #: src/app/quick-journal.tsx:155
 #: src/app/replay.tsx:436
-#: src/components/share-card.tsx:56
+#: src/components/share-card.tsx:163
 msgid "SHORT"
 msgstr "做空"
 
@@ -5437,7 +5453,7 @@ msgstr "做空"
 msgid "Short {0}"
 msgstr "做空 {0}"
 
-#: src/app/share-trade.tsx:85
+#: src/app/share-trade.tsx:140
 msgid "Show amounts"
 msgstr "顯示金額"
 
@@ -5472,6 +5488,10 @@ msgstr "登出"
 #: src/app/(tabs)/(settings)/index.tsx:113
 msgid "Sign out?"
 msgstr "要登出嗎？"
+
+#: src/components/share-card.tsx:27
+msgid "Signal"
+msgstr "訊號"
 
 #: src/app/(tabs)/(settings)/profile.tsx:64
 msgid "Signed in as"
@@ -5511,7 +5531,7 @@ msgstr "樣本較少 — 隨已平倉交易累積，模式會更清晰。"
 #~ msgid "Solid"
 #~ msgstr ""
 
-#: src/lib/outbox.ts:396
+#: src/lib/outbox.ts:415
 msgid "Some offline changes didn't sync"
 msgstr "部分離線變更未能同步"
 
@@ -6178,7 +6198,7 @@ msgstr "交易歸屬日"
 #: src/app/edit-trade.tsx:110
 #: src/app/quick-journal.tsx:207
 #: src/app/replay.tsx:131
-#: src/app/share-trade.tsx:76
+#: src/app/share-trade.tsx:101
 msgid "Trade not found"
 msgstr "找不到交易"
 
@@ -6188,7 +6208,7 @@ msgstr "找不到交易"
 msgid "Trade not ready"
 msgstr "交易資料未齊"
 
-#: src/lib/outbox.ts:434
+#: src/lib/outbox.ts:453
 msgid "Trade review"
 msgstr "交易覆盤"
 
@@ -6199,6 +6219,10 @@ msgstr "此範圍內已交易"
 #: src/app/(tabs)/(settings)/about.tsx:114
 msgid "TraderMemos is a self-hosted trading journal — your data stays on your server."
 msgstr "TraderMemos 是自架的交易日誌 — 資料只保存在你的伺服器上。"
+
+#: src/app/share-trade.tsx:154
+msgid "TraderMemos mark"
+msgstr "TraderMemos 標記"
 
 #: src/app/(tabs)/_layout.tsx:40
 #: src/app/(tabs)/(calendar)/day/[date].tsx:317
@@ -6521,7 +6545,7 @@ msgid "Why did you exit?"
 msgstr "為何出場？"
 
 #: src/app/(tabs)/(trades)/[id].tsx:83
-#: src/components/share-card.tsx:18
+#: src/components/share-card.tsx:114
 msgid "WIN"
 msgstr "獲利"
 

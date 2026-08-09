@@ -521,6 +521,10 @@ msgstr "재설정하면 해당 사용자의 다른 기기는 로그아웃됩니�
 msgid "A sample amount and a late-session timestamp, rendered with the settings below."
 msgstr "아래 설정을 적용한 금액과 장 마감 후 시각의 샘플입니다."
 
+#: src/app/share-trade.tsx:155
+msgid "A small wordmark in the card corner."
+msgstr "카드 모서리에 작은 워드마크를 표시합니다."
+
 #: src/app/new-setup.tsx:218
 msgid "A symbol pins the play to one ticker — leave it on Any for a pattern you trade anywhere."
 msgstr "종목을 넣으면 이 플레이는 해당 종목에만 묶입니다. 어디서나 쓰는 패턴이면 ‘지정 없음’으로 두세요."
@@ -1067,7 +1071,7 @@ msgid "Baseline P&L"
 msgstr "기준선 손익"
 
 #: src/app/(tabs)/(trades)/[id].tsx:89
-#: src/components/share-card.tsx:24
+#: src/components/share-card.tsx:120
 msgid "BE"
 msgstr "본전"
 
@@ -1368,6 +1372,10 @@ msgstr "트레이드 목록에 필터 칩으로 표시할 저널 옵션을 선�
 #: src/app/manage-tags.tsx:36
 #~ msgid "Choose which journal tags show as quick filters. Tags are created in the trade form."
 #~ msgstr "빠른 필터로 표시할 저널 태그를 선택하세요. 태그는 트레이드 폼에서 생성합니다."
+
+#: src/components/share-card.tsx:21
+msgid "Classic"
+msgstr "클래식"
 
 #: src/app/(tabs)/(dashboard)/economic-events.tsx:827
 #~ msgid "Clear"
@@ -1740,7 +1748,7 @@ msgstr "샘플을 저장할 수 없습니다"
 #~ msgstr "스캔하지 못했습니다"
 
 #: src/app/replay.tsx:302
-#: src/app/share-trade.tsx:40
+#: src/app/share-trade.tsx:65
 msgid "Could not share"
 msgstr "공유할 수 없습니다"
 
@@ -1867,7 +1875,7 @@ msgstr "데일리 체크리스트"
 #: src/app/(tabs)/(dashboard)/notes.tsx:171
 #: src/components/note-form.tsx:84
 #: src/components/note-form.tsx:225
-#: src/lib/outbox.ts:429
+#: src/lib/outbox.ts:448
 msgid "Daily log"
 msgstr "일일 로그"
 
@@ -2120,7 +2128,7 @@ msgstr "금액"
 #: src/app/login.tsx:385
 #: src/app/manage-tags.tsx:60
 #: src/app/new-token.tsx:80
-#: src/app/share-trade.tsx:58
+#: src/app/share-trade.tsx:83
 #: src/components/tool-sheet.tsx:18
 msgid "Done"
 msgstr "완료"
@@ -3245,7 +3253,7 @@ msgstr "롱"
 #: src/app/(tabs)/(trades)/[id].tsx:126
 #: src/app/quick-journal.tsx:155
 #: src/app/replay.tsx:436
-#: src/components/share-card.tsx:56
+#: src/components/share-card.tsx:163
 msgid "LONG"
 msgstr "롱"
 
@@ -3278,7 +3286,7 @@ msgid "Losing hold"
 msgstr "손실 보유 시간"
 
 #: src/app/(tabs)/(trades)/[id].tsx:85
-#: src/components/share-card.tsx:20
+#: src/components/share-card.tsx:116
 msgid "LOSS"
 msgstr "손실"
 
@@ -3453,6 +3461,10 @@ msgstr "MFE"
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:560
 msgid "Mid"
 msgstr "중간"
+
+#: src/components/share-card.tsx:23
+msgid "Midnight"
+msgstr "미드나이트"
 
 #: src/app/(tabs)/(dashboard)/checklist.tsx:307
 msgid "Mirror the checklist into the iOS Reminders app, so it reaches you on the lock screen, the Watch and Siri."
@@ -3945,11 +3957,11 @@ msgstr "유효한 JSON이 아닙니다."
 #: src/app/cash-form.tsx:227
 #: src/components/note-form.tsx:83
 #: src/components/trade-form.tsx:578
-#: src/lib/outbox.ts:429
+#: src/lib/outbox.ts:448
 msgid "Note"
 msgstr "노트"
 
-#: src/lib/outbox.ts:432
+#: src/lib/outbox.ts:451
 msgid "Note deletion"
 msgstr "노트 삭제"
 
@@ -4012,7 +4024,7 @@ msgstr "/ {0}"
 msgid "Off"
 msgstr "끔"
 
-#: src/app/share-trade.tsx:87
+#: src/app/share-trade.tsx:142
 msgid "Off by default — the card shows R and return % only."
 msgstr "기본값은 꺼짐 — 카드에는 R과 수익률 %만 표시됩니다."
 
@@ -4077,7 +4089,7 @@ msgid "Open"
 msgstr "오픈"
 
 #: src/app/(tabs)/(trades)/[id].tsx:87
-#: src/components/share-card.tsx:22
+#: src/components/share-card.tsx:118
 msgid "OPEN"
 msgstr "진행 중"
 
@@ -4220,6 +4232,10 @@ msgstr "손익 (규칙 위반일)"
 #: src/components/reports/risk-section.tsx:147
 msgid "P&L, rules followed"
 msgstr "손익 (규칙 준수일)"
+
+#: src/components/share-card.tsx:25
+msgid "Paper"
+msgstr "페이퍼"
 
 #: src/components/trade-scan-overlay.tsx:64
 msgid "Parsed"
@@ -5384,12 +5400,12 @@ msgstr "셋업"
 msgid "Setups restored"
 msgstr "복원된 셋업"
 
-#: src/app/share-trade.tsx:103
+#: src/app/share-trade.tsx:170
 msgid "Share"
 msgstr "공유"
 
 #: src/app/(tabs)/(trades)/[id].tsx:489
-#: src/app/share-trade.tsx:51
+#: src/app/share-trade.tsx:76
 msgid "Share card"
 msgstr "카드 공유"
 
@@ -5405,7 +5421,7 @@ msgstr "리플레이 프레임 공유"
 msgid "Share token"
 msgstr "토큰 공유"
 
-#: src/app/share-trade.tsx:37
+#: src/app/share-trade.tsx:62
 msgid "Share trade"
 msgstr "거래 공유"
 
@@ -5428,7 +5444,7 @@ msgstr "숏"
 #: src/app/(tabs)/(trades)/[id].tsx:126
 #: src/app/quick-journal.tsx:155
 #: src/app/replay.tsx:436
-#: src/components/share-card.tsx:56
+#: src/components/share-card.tsx:163
 msgid "SHORT"
 msgstr "숏"
 
@@ -5437,7 +5453,7 @@ msgstr "숏"
 msgid "Short {0}"
 msgstr "숏 {0}"
 
-#: src/app/share-trade.tsx:85
+#: src/app/share-trade.tsx:140
 msgid "Show amounts"
 msgstr "금액 표시"
 
@@ -5472,6 +5488,10 @@ msgstr "로그아웃"
 #: src/app/(tabs)/(settings)/index.tsx:113
 msgid "Sign out?"
 msgstr "로그아웃할까요?"
+
+#: src/components/share-card.tsx:27
+msgid "Signal"
+msgstr "시그널"
 
 #: src/app/(tabs)/(settings)/profile.tsx:64
 msgid "Signed in as"
@@ -5511,7 +5531,7 @@ msgstr "표본이 적습니다 — 청산 거래가 쌓일수록 패턴이 뚜�
 #~ msgid "Solid"
 #~ msgstr ""
 
-#: src/lib/outbox.ts:396
+#: src/lib/outbox.ts:415
 msgid "Some offline changes didn't sync"
 msgstr "일부 오프라인 변경이 동기화되지 않았습니다"
 
@@ -6178,7 +6198,7 @@ msgstr "거래 귀속일"
 #: src/app/edit-trade.tsx:110
 #: src/app/quick-journal.tsx:207
 #: src/app/replay.tsx:131
-#: src/app/share-trade.tsx:76
+#: src/app/share-trade.tsx:101
 msgid "Trade not found"
 msgstr "거래를 찾을 수 없습니다"
 
@@ -6188,7 +6208,7 @@ msgstr "거래를 찾을 수 없습니다"
 msgid "Trade not ready"
 msgstr "거래가 완성되지 않았습니다"
 
-#: src/lib/outbox.ts:434
+#: src/lib/outbox.ts:453
 msgid "Trade review"
 msgstr "거래 리뷰"
 
@@ -6199,6 +6219,10 @@ msgstr "이 범위에서 거래됨"
 #: src/app/(tabs)/(settings)/about.tsx:114
 msgid "TraderMemos is a self-hosted trading journal — your data stays on your server."
 msgstr "TraderMemos는 셀프 호스팅 트레이딩 저널입니다 — 데이터는 내 서버에 남습니다."
+
+#: src/app/share-trade.tsx:154
+msgid "TraderMemos mark"
+msgstr "TraderMemos 마크"
 
 #: src/app/(tabs)/_layout.tsx:40
 #: src/app/(tabs)/(calendar)/day/[date].tsx:317
@@ -6521,7 +6545,7 @@ msgid "Why did you exit?"
 msgstr "왜 청산했습니까?"
 
 #: src/app/(tabs)/(trades)/[id].tsx:83
-#: src/components/share-card.tsx:18
+#: src/components/share-card.tsx:114
 msgid "WIN"
 msgstr "수익"
 

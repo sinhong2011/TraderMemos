@@ -521,6 +521,10 @@ msgstr "リセットすると、そのユーザーの他のデバイスはサイ
 msgid "A sample amount and a late-session timestamp, rendered with the settings below."
 msgstr "下の設定を適用した金額と、取引終了後の時刻のサンプルです。"
 
+#: src/app/share-trade.tsx:155
+msgid "A small wordmark in the card corner."
+msgstr "カードの隅に小さなワードマークを表示します。"
+
 #: src/app/new-setup.tsx:218
 msgid "A symbol pins the play to one ticker — leave it on Any for a pattern you trade anywhere."
 msgstr "銘柄を入れるとこのプレイはその1銘柄に固定されます。どの銘柄でも使うパターンなら「指定なし」のままに。"
@@ -1067,7 +1071,7 @@ msgid "Baseline P&L"
 msgstr "ベースライン損益"
 
 #: src/app/(tabs)/(trades)/[id].tsx:89
-#: src/components/share-card.tsx:24
+#: src/components/share-card.tsx:120
 msgid "BE"
 msgstr "引き分け"
 
@@ -1368,6 +1372,10 @@ msgstr "トレード一覧のフィルターチップに表示するジャーナ
 #: src/app/manage-tags.tsx:36
 #~ msgid "Choose which journal tags show as quick filters. Tags are created in the trade form."
 #~ msgstr "クイックフィルターに表示するジャーナルタグを選択します。タグはトレードフォームで作成します。"
+
+#: src/components/share-card.tsx:21
+msgid "Classic"
+msgstr "クラシック"
 
 #: src/app/(tabs)/(dashboard)/economic-events.tsx:827
 #~ msgid "Clear"
@@ -1740,7 +1748,7 @@ msgstr "サンプルを保存できませんでした"
 #~ msgstr "スキャンできませんでした"
 
 #: src/app/replay.tsx:302
-#: src/app/share-trade.tsx:40
+#: src/app/share-trade.tsx:65
 msgid "Could not share"
 msgstr "共有できませんでした"
 
@@ -1867,7 +1875,7 @@ msgstr "デイリーチェックリスト"
 #: src/app/(tabs)/(dashboard)/notes.tsx:171
 #: src/components/note-form.tsx:84
 #: src/components/note-form.tsx:225
-#: src/lib/outbox.ts:429
+#: src/lib/outbox.ts:448
 msgid "Daily log"
 msgstr "デイリーログ"
 
@@ -2120,7 +2128,7 @@ msgstr "金額"
 #: src/app/login.tsx:385
 #: src/app/manage-tags.tsx:60
 #: src/app/new-token.tsx:80
-#: src/app/share-trade.tsx:58
+#: src/app/share-trade.tsx:83
 #: src/components/tool-sheet.tsx:18
 msgid "Done"
 msgstr "完了"
@@ -3245,7 +3253,7 @@ msgstr "ロング"
 #: src/app/(tabs)/(trades)/[id].tsx:126
 #: src/app/quick-journal.tsx:155
 #: src/app/replay.tsx:436
-#: src/components/share-card.tsx:56
+#: src/components/share-card.tsx:163
 msgid "LONG"
 msgstr "ロング"
 
@@ -3278,7 +3286,7 @@ msgid "Losing hold"
 msgstr "負け保有時間"
 
 #: src/app/(tabs)/(trades)/[id].tsx:85
-#: src/components/share-card.tsx:20
+#: src/components/share-card.tsx:116
 msgid "LOSS"
 msgstr "負け"
 
@@ -3453,6 +3461,10 @@ msgstr "MFE"
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:560
 msgid "Mid"
 msgstr "中央"
+
+#: src/components/share-card.tsx:23
+msgid "Midnight"
+msgstr "ミッドナイト"
 
 #: src/app/(tabs)/(dashboard)/checklist.tsx:307
 msgid "Mirror the checklist into the iOS Reminders app, so it reaches you on the lock screen, the Watch and Siri."
@@ -3945,11 +3957,11 @@ msgstr "有効なJSONではありません。"
 #: src/app/cash-form.tsx:227
 #: src/components/note-form.tsx:83
 #: src/components/trade-form.tsx:578
-#: src/lib/outbox.ts:429
+#: src/lib/outbox.ts:448
 msgid "Note"
 msgstr "メモ"
 
-#: src/lib/outbox.ts:432
+#: src/lib/outbox.ts:451
 msgid "Note deletion"
 msgstr "メモの削除"
 
@@ -4012,7 +4024,7 @@ msgstr "/ {0}"
 msgid "Off"
 msgstr "オフ"
 
-#: src/app/share-trade.tsx:87
+#: src/app/share-trade.tsx:142
 msgid "Off by default — the card shows R and return % only."
 msgstr "既定はオフ — カードにはRとリターン%のみ表示されます。"
 
@@ -4077,7 +4089,7 @@ msgid "Open"
 msgstr "オープン"
 
 #: src/app/(tabs)/(trades)/[id].tsx:87
-#: src/components/share-card.tsx:22
+#: src/components/share-card.tsx:118
 msgid "OPEN"
 msgstr "オープン"
 
@@ -4220,6 +4232,10 @@ msgstr "損益（ルール違反日）"
 #: src/components/reports/risk-section.tsx:147
 msgid "P&L, rules followed"
 msgstr "損益（ルール遵守日）"
+
+#: src/components/share-card.tsx:25
+msgid "Paper"
+msgstr "ペーパー"
 
 #: src/components/trade-scan-overlay.tsx:64
 msgid "Parsed"
@@ -5384,12 +5400,12 @@ msgstr "セットアップ"
 msgid "Setups restored"
 msgstr "復元されたセットアップ"
 
-#: src/app/share-trade.tsx:103
+#: src/app/share-trade.tsx:170
 msgid "Share"
 msgstr "共有"
 
 #: src/app/(tabs)/(trades)/[id].tsx:489
-#: src/app/share-trade.tsx:51
+#: src/app/share-trade.tsx:76
 msgid "Share card"
 msgstr "カードを共有"
 
@@ -5405,7 +5421,7 @@ msgstr "リプレイのフレームを共有"
 msgid "Share token"
 msgstr "トークンを共有"
 
-#: src/app/share-trade.tsx:37
+#: src/app/share-trade.tsx:62
 msgid "Share trade"
 msgstr "トレードを共有"
 
@@ -5428,7 +5444,7 @@ msgstr "ショート"
 #: src/app/(tabs)/(trades)/[id].tsx:126
 #: src/app/quick-journal.tsx:155
 #: src/app/replay.tsx:436
-#: src/components/share-card.tsx:56
+#: src/components/share-card.tsx:163
 msgid "SHORT"
 msgstr "ショート"
 
@@ -5437,7 +5453,7 @@ msgstr "ショート"
 msgid "Short {0}"
 msgstr "ショート {0}"
 
-#: src/app/share-trade.tsx:85
+#: src/app/share-trade.tsx:140
 msgid "Show amounts"
 msgstr "金額を表示"
 
@@ -5472,6 +5488,10 @@ msgstr "サインアウト"
 #: src/app/(tabs)/(settings)/index.tsx:113
 msgid "Sign out?"
 msgstr "サインアウトしますか？"
+
+#: src/components/share-card.tsx:27
+msgid "Signal"
+msgstr "シグナル"
 
 #: src/app/(tabs)/(settings)/profile.tsx:64
 msgid "Signed in as"
@@ -5511,7 +5531,7 @@ msgstr "サンプルが少数です — 決済済みトレードが増えるほ�
 #~ msgid "Solid"
 #~ msgstr ""
 
-#: src/lib/outbox.ts:396
+#: src/lib/outbox.ts:415
 msgid "Some offline changes didn't sync"
 msgstr "一部のオフライン変更を同期できませんでした"
 
@@ -6178,7 +6198,7 @@ msgstr "トレードの計上日"
 #: src/app/edit-trade.tsx:110
 #: src/app/quick-journal.tsx:207
 #: src/app/replay.tsx:131
-#: src/app/share-trade.tsx:76
+#: src/app/share-trade.tsx:101
 msgid "Trade not found"
 msgstr "トレードが見つかりません"
 
@@ -6188,7 +6208,7 @@ msgstr "トレードが見つかりません"
 msgid "Trade not ready"
 msgstr "トレードが未入力です"
 
-#: src/lib/outbox.ts:434
+#: src/lib/outbox.ts:453
 msgid "Trade review"
 msgstr "トレードの振り返り"
 
@@ -6199,6 +6219,10 @@ msgstr "この範囲で取引"
 #: src/app/(tabs)/(settings)/about.tsx:114
 msgid "TraderMemos is a self-hosted trading journal — your data stays on your server."
 msgstr "TraderMemosはセルフホスト型のトレードジャーナルです — データはあなたのサーバーに保存されます。"
+
+#: src/app/share-trade.tsx:154
+msgid "TraderMemos mark"
+msgstr "TraderMemos マーク"
 
 #: src/app/(tabs)/_layout.tsx:40
 #: src/app/(tabs)/(calendar)/day/[date].tsx:317
@@ -6521,7 +6545,7 @@ msgid "Why did you exit?"
 msgstr "なぜ決済しましたか？"
 
 #: src/app/(tabs)/(trades)/[id].tsx:83
-#: src/components/share-card.tsx:18
+#: src/components/share-card.tsx:114
 msgid "WIN"
 msgstr "勝ち"
 

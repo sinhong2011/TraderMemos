@@ -521,6 +521,10 @@ msgstr "A reset signs out that user's other devices."
 msgid "A sample amount and a late-session timestamp, rendered with the settings below."
 msgstr "A sample amount and a late-session timestamp, rendered with the settings below."
 
+#: src/app/share-trade.tsx:155
+msgid "A small wordmark in the card corner."
+msgstr "A small wordmark in the card corner."
+
 #: src/app/new-setup.tsx:218
 msgid "A symbol pins the play to one ticker — leave it on Any for a pattern you trade anywhere."
 msgstr "A symbol pins the play to one ticker — leave it on Any for a pattern you trade anywhere."
@@ -1067,7 +1071,7 @@ msgid "Baseline P&L"
 msgstr "Baseline P&L"
 
 #: src/app/(tabs)/(trades)/[id].tsx:89
-#: src/components/share-card.tsx:24
+#: src/components/share-card.tsx:120
 msgid "BE"
 msgstr "BE"
 
@@ -1368,6 +1372,10 @@ msgstr "Choose which journal options show as filter chips on the trades list."
 #: src/app/manage-tags.tsx:36
 #~ msgid "Choose which journal tags show as quick filters. Tags are created in the trade form."
 #~ msgstr "Choose which journal tags show as quick filters. Tags are created in the trade form."
+
+#: src/components/share-card.tsx:21
+msgid "Classic"
+msgstr "Classic"
 
 #: src/app/(tabs)/(dashboard)/economic-events.tsx:827
 #~ msgid "Clear"
@@ -1740,7 +1748,7 @@ msgstr "Could not save the sample"
 #~ msgstr "Could not scan"
 
 #: src/app/replay.tsx:302
-#: src/app/share-trade.tsx:40
+#: src/app/share-trade.tsx:65
 msgid "Could not share"
 msgstr "Could not share"
 
@@ -1867,7 +1875,7 @@ msgstr "Daily checklist"
 #: src/app/(tabs)/(dashboard)/notes.tsx:171
 #: src/components/note-form.tsx:84
 #: src/components/note-form.tsx:225
-#: src/lib/outbox.ts:429
+#: src/lib/outbox.ts:448
 msgid "Daily log"
 msgstr "Daily log"
 
@@ -2120,7 +2128,7 @@ msgstr "Dollars"
 #: src/app/login.tsx:385
 #: src/app/manage-tags.tsx:60
 #: src/app/new-token.tsx:80
-#: src/app/share-trade.tsx:58
+#: src/app/share-trade.tsx:83
 #: src/components/tool-sheet.tsx:18
 msgid "Done"
 msgstr "Done"
@@ -3245,7 +3253,7 @@ msgstr "Long"
 #: src/app/(tabs)/(trades)/[id].tsx:126
 #: src/app/quick-journal.tsx:155
 #: src/app/replay.tsx:436
-#: src/components/share-card.tsx:56
+#: src/components/share-card.tsx:163
 msgid "LONG"
 msgstr "LONG"
 
@@ -3278,7 +3286,7 @@ msgid "Losing hold"
 msgstr "Losing hold"
 
 #: src/app/(tabs)/(trades)/[id].tsx:85
-#: src/components/share-card.tsx:20
+#: src/components/share-card.tsx:116
 msgid "LOSS"
 msgstr "LOSS"
 
@@ -3453,6 +3461,10 @@ msgstr "MFE"
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:560
 msgid "Mid"
 msgstr "Mid"
+
+#: src/components/share-card.tsx:23
+msgid "Midnight"
+msgstr "Midnight"
 
 #: src/app/(tabs)/(dashboard)/checklist.tsx:307
 msgid "Mirror the checklist into the iOS Reminders app, so it reaches you on the lock screen, the Watch and Siri."
@@ -3945,11 +3957,11 @@ msgstr "Not valid JSON."
 #: src/app/cash-form.tsx:227
 #: src/components/note-form.tsx:83
 #: src/components/trade-form.tsx:578
-#: src/lib/outbox.ts:429
+#: src/lib/outbox.ts:448
 msgid "Note"
 msgstr "Note"
 
-#: src/lib/outbox.ts:432
+#: src/lib/outbox.ts:451
 msgid "Note deletion"
 msgstr "Note deletion"
 
@@ -4012,7 +4024,7 @@ msgstr "of {0}"
 msgid "Off"
 msgstr "Off"
 
-#: src/app/share-trade.tsx:87
+#: src/app/share-trade.tsx:142
 msgid "Off by default — the card shows R and return % only."
 msgstr "Off by default — the card shows R and return % only."
 
@@ -4077,7 +4089,7 @@ msgid "Open"
 msgstr "Open"
 
 #: src/app/(tabs)/(trades)/[id].tsx:87
-#: src/components/share-card.tsx:22
+#: src/components/share-card.tsx:118
 msgid "OPEN"
 msgstr "OPEN"
 
@@ -4220,6 +4232,10 @@ msgstr "P&L, rules broken"
 #: src/components/reports/risk-section.tsx:147
 msgid "P&L, rules followed"
 msgstr "P&L, rules followed"
+
+#: src/components/share-card.tsx:25
+msgid "Paper"
+msgstr "Paper"
 
 #: src/components/trade-scan-overlay.tsx:64
 msgid "Parsed"
@@ -5386,12 +5402,12 @@ msgstr "Setups"
 msgid "Setups restored"
 msgstr "Setups restored"
 
-#: src/app/share-trade.tsx:103
+#: src/app/share-trade.tsx:170
 msgid "Share"
 msgstr "Share"
 
 #: src/app/(tabs)/(trades)/[id].tsx:489
-#: src/app/share-trade.tsx:51
+#: src/app/share-trade.tsx:76
 msgid "Share card"
 msgstr "Share card"
 
@@ -5407,7 +5423,7 @@ msgstr "Share replay frame"
 msgid "Share token"
 msgstr "Share token"
 
-#: src/app/share-trade.tsx:37
+#: src/app/share-trade.tsx:62
 msgid "Share trade"
 msgstr "Share trade"
 
@@ -5430,7 +5446,7 @@ msgstr "Short"
 #: src/app/(tabs)/(trades)/[id].tsx:126
 #: src/app/quick-journal.tsx:155
 #: src/app/replay.tsx:436
-#: src/components/share-card.tsx:56
+#: src/components/share-card.tsx:163
 msgid "SHORT"
 msgstr "SHORT"
 
@@ -5439,7 +5455,7 @@ msgstr "SHORT"
 msgid "Short {0}"
 msgstr "Short {0}"
 
-#: src/app/share-trade.tsx:85
+#: src/app/share-trade.tsx:140
 msgid "Show amounts"
 msgstr "Show amounts"
 
@@ -5474,6 +5490,10 @@ msgstr "Sign out"
 #: src/app/(tabs)/(settings)/index.tsx:113
 msgid "Sign out?"
 msgstr "Sign out?"
+
+#: src/components/share-card.tsx:27
+msgid "Signal"
+msgstr "Signal"
 
 #: src/app/(tabs)/(settings)/profile.tsx:64
 msgid "Signed in as"
@@ -5513,7 +5533,7 @@ msgstr "Small sample — patterns firm up as more closed trades accumulate."
 #~ msgid "Solid"
 #~ msgstr "Solid"
 
-#: src/lib/outbox.ts:396
+#: src/lib/outbox.ts:415
 msgid "Some offline changes didn't sync"
 msgstr "Some offline changes didn't sync"
 
@@ -6180,7 +6200,7 @@ msgstr "Trade lands on"
 #: src/app/edit-trade.tsx:110
 #: src/app/quick-journal.tsx:207
 #: src/app/replay.tsx:131
-#: src/app/share-trade.tsx:76
+#: src/app/share-trade.tsx:101
 msgid "Trade not found"
 msgstr "Trade not found"
 
@@ -6190,7 +6210,7 @@ msgstr "Trade not found"
 msgid "Trade not ready"
 msgstr "Trade not ready"
 
-#: src/lib/outbox.ts:434
+#: src/lib/outbox.ts:453
 msgid "Trade review"
 msgstr "Trade review"
 
@@ -6201,6 +6221,10 @@ msgstr "Traded in this range"
 #: src/app/(tabs)/(settings)/about.tsx:114
 msgid "TraderMemos is a self-hosted trading journal — your data stays on your server."
 msgstr "TraderMemos is a self-hosted trading journal — your data stays on your server."
+
+#: src/app/share-trade.tsx:154
+msgid "TraderMemos mark"
+msgstr "TraderMemos mark"
 
 #: src/app/(tabs)/_layout.tsx:40
 #: src/app/(tabs)/(calendar)/day/[date].tsx:317
@@ -6523,7 +6547,7 @@ msgid "Why did you exit?"
 msgstr "Why did you exit?"
 
 #: src/app/(tabs)/(trades)/[id].tsx:83
-#: src/components/share-card.tsx:18
+#: src/components/share-card.tsx:114
 msgid "WIN"
 msgstr "WIN"
 
