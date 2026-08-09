@@ -11,6 +11,8 @@ import Reanimated, {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+import { AnimatedSymbolSwap } from '@/components/animated-symbol-swap';
+
 /** The header magnifier that opens the bar — `xmark` while it is open. */
 export function SearchToggle({
   open,
@@ -33,7 +35,7 @@ export function SearchToggle({
       accessibilityLabel={label}
       style={({ pressed }) => pressed && styles.pressed}
     >
-      <SymbolView
+      <AnimatedSymbolSwap
         name={open ? 'xmark' : 'magnifyingglass'}
         size={17}
         tintColor={active ? theme.colors.primary : theme.colors.foreground}

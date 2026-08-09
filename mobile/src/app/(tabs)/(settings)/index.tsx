@@ -19,6 +19,7 @@ import type { SFSymbol } from 'sf-symbols-typescript';
 import { useAccounts, useCash, useMe, useTrades } from '@/api/hooks';
 import { CenteredButton } from '@/components/centered-button';
 import { NavRow } from '@/components/nav-row';
+import { FloatingSearchBar, SearchToggle } from '@/components/search-bar';
 import { SettingsForm } from '@/components/settings-form';
 import { useSession } from '@/api/session';
 import { t } from '@lingui/core/macro';
@@ -41,9 +42,9 @@ import { AppHost } from '@/components/app-host';
  * - **Theme** is the most-reached control here and it changes the screen you
  *   are looking at, so it is inline rather than two pushes deep.
  *
- * The extra tap folding costs is bought back by the search field, which
- * indexes every setting — including ones no page shows directly, like Import
- * trades — and jumps straight to it.
+ * The extra tap folding costs is bought back by search (the header magnifier),
+ * which indexes every setting — including ones no page shows directly, like
+ * Import trades — and jumps straight to it.
  */
 export default function SettingsScreen() {
   const router = useRouter();
@@ -90,6 +91,11 @@ export default function SettingsScreen() {
   const year = new Date().getFullYear();
 
   const [query, setQuery] = useState('');
+  // Same search pattern as Trades: a header magnifier toggles the floating
+  // bottom Liquid Glass bar. No UISearchController — every native placement
+  // was tried and rejected (see settings-search history in the layout).
+  const [searching, setSearching] = useState(false);
+
   function handleSignOut() {
     // Always confirmed — signing out drops the cached journal and costs a
     // server URL plus credentials to undo, so it is never a one-tap action.
@@ -243,23 +249,27 @@ export default function SettingsScreen() {
 
   return (
     <>
-      {/* `stacked` — the search field sits under the large title, the standard
-          iOS list-search look. The bottom-floating field iOS 26 Settings uses
-          is a *toolbar-integrated* search bar: UIKit only moves it down when
-          the screen owns a UIToolbar, and react-native-screens exposes no way
-          to add one (these tabs are a UITabBar). With `integrated` the field
-          just strands itself in the navigation bar. */}
+      {/* Trades-style search: the header magnifier (✕ while open) toggles the
+          floating bottom Liquid Glass bar. UISearchController placements were
+          all tried and rejected on sight — always-visible `stacked`,
+          `integrated` (field strands beside the Dynamic Island), and the
+          `role="search"` tab (renders as a plain fifth tab on iOS 27,
+          expo/expo#47119) — so search here shares the app's own component
+          instead. */}
       <Stack.Screen
         options={{
-          headerSearchBarOptions: {
-            placement: 'stacked',
-            placeholder: t`Search`,
-            autoCapitalize: 'none',
-            hideWhenScrolling: false,
-            textColor: theme.colors.foreground,
-            onChangeText: (event) => setQuery(event.nativeEvent.text),
-            onCancelButtonPress: () => setQuery(''),
-          },
+          // Right edge, same corner as every other screen's search toggle.
+          headerRight: () => (
+            <SearchToggle
+              open={searching}
+              active={query.trim().length > 0}
+              label={t`Search settings`}
+              onPress={() => {
+                if (searching) setQuery('');
+                setSearching((open) => !open);
+              }}
+            />
+          ),
         }}
       />
       <AppHost style={{ flex: 1, backgroundColor: theme.colors.background }}>
@@ -447,6 +457,16 @@ export default function SettingsScreen() {
           </SettingsForm>
         )}
       </AppHost>
+      <FloatingSearchBar
+        open={searching}
+        value={query}
+        placeholder={t`Search settings`}
+        onChangeText={setQuery}
+        onClose={() => {
+          setQuery('');
+          setSearching(false);
+        }}
+      />
     </>
   );
 }

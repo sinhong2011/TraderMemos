@@ -330,19 +330,3 @@ func (s *Server) buildJournalExportRows(ctx context.Context, userID string, f Fi
 	return out, nil
 }
 
-func optionRightFromFills(fills []store.Execution) string {
-	for _, f := range fills {
-		if !f.Details.Valid || f.Details.String == "" {
-			continue
-		}
-		var details map[string]string
-		if err := json.Unmarshal([]byte(f.Details.String), &details); err != nil {
-			continue
-		}
-		right := strings.ToLower(strings.TrimSpace(details["option_right"]))
-		if right == "call" || right == "put" {
-			return right
-		}
-	}
-	return ""
-}

@@ -4,8 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"strings"
 	"time"
 
+	"github.com/tradermemos/api/internal/importer"
 	"github.com/tradermemos/api/internal/store"
 )
 
@@ -58,6 +60,9 @@ type tradeDTO struct {
 	TimeInTradeSecs *int64      `json:"time_in_trade_secs"`
 	Notes           string      `json:"notes"`
 	Tags            []store.Tag `json:"tags"`
+	// call/put for option trades, resolved from the fills' contract details
+	// (OCC symbol as fallback). Absent for non-options and unresolvable rows.
+	OptionRight *string `json:"option_right,omitempty"`
 	InitialRisk     *float64    `json:"initial_risk,omitempty"`
 	// Journal quick-filter fields, filled on list rows so clients can filter by
 	// setup/emotion/ratings without a detail fetch. The detail DTO's own fields
@@ -81,6 +86,49 @@ func toTradeDTO(t store.Trade, tags []store.Tag) tradeDTO {
 		PnlCurrency: t.PnlCurrency, ReturnPct: fptr(t.ReturnPct),
 		TimeInTradeSecs: iptr(t.TimeInTradeSecs), Notes: t.Notes, Tags: tags,
 	}
+}
+
+// optionRightFrom resolves call/put from one fill's contract details, falling
+// back to the OCC/word-marked symbol when the broker left details sparse —
+// the same order the grouping service uses to partition contracts.
+func optionRightFrom(details sql.NullString, symbol string) string {
+	if details.Valid && details.String != "" {
+		var m map[string]any
+		if json.Unmarshal([]byte(details.String), &m) == nil {
+			if s, ok := m["option_right"].(string); ok {
+				if r := strings.ToLower(strings.TrimSpace(s)); r == "call" || r == "put" {
+					return r
+				}
+			}
+		}
+	}
+	return importer.InferOptionRight(symbol)
+}
+
+// optionRightsByTrade maps trade id → call/put from the user's option fills;
+// the first fill that resolves wins (fills arrive ordered by execution time).
+func optionRightsByTrade(rows []store.ListOptionExecutionDetailsForUserRow) map[string]string {
+	out := make(map[string]string)
+	for _, r := range rows {
+		if _, done := out[r.TradeID]; done {
+			continue
+		}
+		if right := optionRightFrom(r.Details, r.Symbol); right != "" {
+			out[r.TradeID] = right
+		}
+	}
+	return out
+}
+
+// optionRightFromFills is the single-trade variant used by the detail DTO,
+// where the fills are already loaded.
+func optionRightFromFills(fills []store.Execution) string {
+	for _, f := range fills {
+		if right := optionRightFrom(f.Details, f.Symbol); right != "" {
+			return right
+		}
+	}
+	return ""
 }
 
 // executionDTO flattens sql.Null* and parses details JSON so clients get

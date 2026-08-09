@@ -654,6 +654,21 @@ func (p *PG) ListJournalNotes(ctx context.Context, arg ListJournalNotesParams) (
 	}(), nil
 }
 
+func (p *PG) ListOptionExecutionDetailsForUser(ctx context.Context, userID string) ([]ListOptionExecutionDetailsForUserRow, error) {
+	v, err := p.q.ListOptionExecutionDetailsForUser(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	return func() []ListOptionExecutionDetailsForUserRow {
+		in := v
+		out := make([]ListOptionExecutionDetailsForUserRow, len(in))
+		for i := range in {
+			out[i] = ListOptionExecutionDetailsForUserRow(in[i])
+		}
+		return out
+	}(), nil
+}
+
 func (p *PG) ListJournalRisks(ctx context.Context, userID string) ([]ListJournalRisksRow, error) {
 	v, err := p.q.ListJournalRisks(ctx, userID)
 	if err != nil {

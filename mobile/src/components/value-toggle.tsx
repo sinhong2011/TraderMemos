@@ -82,7 +82,7 @@ const styles = StyleSheet.create((theme) => ({
     padding: TRACK_PADDING,
     borderRadius: theme.radius.full,
     borderCurve: 'continuous',
-    backgroundColor: theme.colors.input,
+    backgroundColor: theme.colors.fill,
   },
   // Under the labels, so text keeps its own color over the fill.
   pill: {

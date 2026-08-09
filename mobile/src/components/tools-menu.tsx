@@ -28,6 +28,13 @@ export function ToolsMenu() {
   const router = useRouter();
 
   const actions: { label: string; systemImage: SFSymbol; href: Href }[] = [
+    // Promoted out of the tab bar (2026-08-09) when the search tab took the
+    // fifth slot; first here because it was a top-level destination.
+    {
+      label: t`Reports`,
+      systemImage: 'chart.pie',
+      href: '/(tabs)/(dashboard)/reports',
+    },
     {
       label: t`Position size`,
       systemImage: 'scalemass',

@@ -116,11 +116,20 @@ function TradeHero({ trade }: { trade: TradeLike }) {
   return (
     <View style={styles.hero}>
       <View style={styles.pillRow}>
+        {/* Position named the way traders do — LONG CALL, SHORT PUT (same
+            convention as the trade-row chips). */}
         <Pill tone="muted">
           <Text style={{ color: isLong ? theme.colors.profit : theme.colors.loss }}>
             {isLong ? '↗ ' : '↘ '}
           </Text>
-          {isLong ? t`LONG` : t`SHORT`}
+          {[
+            isLong ? t`LONG` : t`SHORT`,
+            ...(trade.option_right === 'call'
+              ? [t`CALL`]
+              : trade.option_right === 'put'
+                ? [t`PUT`]
+                : []),
+          ].join(' ')}
         </Pill>
         <Pill tone={status.tone}>{statusLabel(status.label)}</Pill>
         <Pill tone="muted">{marketLabel(trade.instrument_type)}</Pill>
