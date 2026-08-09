@@ -5,6 +5,21 @@ All notable changes to TraderMemos are documented in this file.
 Release versioning is managed by [release-please](https://github.com/googleapis/release-please).
 See [docs/release.md](docs/release.md) for the release workflow.
 
+## [0.7.0](https://github.com/sinhong2011/TraderMemos/compare/v0.6.1...v0.7.0) (2026-08-09)
+
+
+### Features
+
+* **mobile:** option call/put chips, trade-row redesign, Reports-into-Dashboard, settings search ([#169](https://github.com/sinhong2011/TraderMemos/issues/169)) ([ba6e999](https://github.com/sinhong2011/TraderMemos/commit/ba6e999a80be1e7e0339071ab948a07bb5900a26))
+
+
+### Bug Fixes
+
+* **docker:** build the web bundle natively, not under QEMU ([#171](https://github.com/sinhong2011/TraderMemos/issues/171)) ([b3fe070](https://github.com/sinhong2011/TraderMemos/commit/b3fe0706efe6574f40d7a90f5710065bcfa441de))
+* **mobile:** remove iOS 27 hard scroll-edge border on settings Form screens ([#165](https://github.com/sinhong2011/TraderMemos/issues/165)) ([65c5047](https://github.com/sinhong2011/TraderMemos/commit/65c504715f7483c58636137a3b83e96c7ac70e03))
+* **scripts:** stop setup hanging on a non-functional corepack ([#156](https://github.com/sinhong2011/TraderMemos/issues/156)) ([1789171](https://github.com/sinhong2011/TraderMemos/commit/17891717b616db924b4fd714513118ef2193538b))
+* **web:** stop the update toast from reappearing every session ([#157](https://github.com/sinhong2011/TraderMemos/issues/157)) ([60f62a3](https://github.com/sinhong2011/TraderMemos/commit/60f62a306081b9fd577bdc66467554b2be9f723a))
+
 ## [0.6.1](https://github.com/sinhong2011/TraderMemos/compare/v0.6.0...v0.6.1) (2026-08-08)
 
 
