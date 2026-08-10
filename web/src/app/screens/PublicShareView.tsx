@@ -1,3 +1,5 @@
+import { t } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
 import { Link2Off } from "lucide-react";
 import { type ReactNode, useId } from "react";
 import { AppLogo } from "@/components/AppLogo";
@@ -87,7 +89,7 @@ function ShareEquityLine({ data }: { data: PublicShareSummary }) {
       className="mt-4 h-36 w-full"
       preserveAspectRatio="none"
       role="img"
-      aria-label="Cumulative P&L curve"
+      aria-label={t`Cumulative P&L curve`}
     >
       <defs>
         <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
@@ -122,7 +124,7 @@ export function PublicShareView({ token }: PublicShareViewProps) {
       <AppLogo size={26} />
       <div className="min-w-0">
         <p className="text-[14px] font-bold tracking-[-0.01em] text-foreground">TraderMemos</p>
-        <p className="text-[11px] text-muted-foreground">Shared performance record</p>
+        <p className="text-[11px] text-muted-foreground">{t`Shared performance record`}</p>
       </div>
     </header>
   );
@@ -146,9 +148,9 @@ export function PublicShareView({ token }: PublicShareViewProps) {
         {header}
         <div className="mx-auto flex w-full max-w-md flex-1 flex-col items-center justify-center gap-3 pb-24 text-center">
           <Link2Off aria-hidden className="size-8 text-muted-foreground" />
-          <h1 className="text-[17px] font-semibold text-foreground">This link isn't available</h1>
+          <h1 className="text-[17px] font-semibold text-foreground">{t`This link isn't available`}</h1>
           <p className="text-[13px] text-muted-foreground">
-            It may have expired or been revoked by its owner.
+            {t`It may have expired or been revoked by its owner.`}
           </p>
         </div>
       </div>
@@ -175,7 +177,7 @@ export function PublicShareView({ token }: PublicShareViewProps) {
       <div className="mx-auto flex w-full max-w-2xl flex-col gap-4">
         {/* Hero */}
         <ShareCard className="items-center py-10 text-center">
-          <Eyebrow>{showAmounts ? "Net P&L" : "Win rate"}</Eyebrow>
+          <Eyebrow>{showAmounts ? t`Net P&L` : t`Win rate`}</Eyebrow>
           <p
             className={cn(
               "mt-4 text-[44px] font-semibold leading-none tracking-[-0.04em] tabular-nums sm:text-[52px]",
@@ -189,19 +191,19 @@ export function PublicShareView({ token }: PublicShareViewProps) {
             {showAmounts ? money(s.net_pnl ?? 0) : fmtPct(s.win_rate, locale)}
           </p>
           <p className="mt-4 text-[13px] text-muted-foreground">
-            {s.total_trades} trades
-            {showAmounts ? <> · {fmtPct(s.win_rate, locale)} win rate</> : null} ·{" "}
-            {data.trading_days} days in the market
+            {t`${s.total_trades} trades`}
+            {showAmounts ? <> · {t`${fmtPct(s.win_rate, locale)} win rate`}</> : null} ·{" "}
+            {t`${data.trading_days} days in the market`}
           </p>
           {range ? <p className="mt-1 text-[11px] text-muted-foreground">{range}</p> : null}
         </ShareCard>
 
         {/* Edge */}
         <ShareCard>
-          <Eyebrow>The edge</Eyebrow>
+          <Eyebrow>{t`The edge`}</Eyebrow>
           <div className="mt-4 grid grid-cols-2 gap-4 sm:gap-5">
             <div className="flex flex-col items-center justify-center">
-              <p className="mb-2 self-start text-[11px] text-muted-foreground">Profit factor</p>
+              <p className="mb-2 self-start text-[11px] text-muted-foreground">{t`Profit factor`}</p>
               <GaugeArc
                 value={pfFraction}
                 className="w-full max-w-[148px]"
@@ -216,10 +218,10 @@ export function PublicShareView({ token }: PublicShareViewProps) {
                   {pf > 0 ? pf.toFixed(2) : "0.00"}
                 </span>
               </GaugeArc>
-              <p className="mt-1 text-[10px] text-muted-foreground">1.0 = break-even</p>
+              <p className="mt-1 text-[10px] text-muted-foreground">{t`1.0 = break-even`}</p>
             </div>
             <div className="flex flex-col items-center justify-center">
-              <p className="mb-2 self-start text-[11px] text-muted-foreground">Win rate</p>
+              <p className="mb-2 self-start text-[11px] text-muted-foreground">{t`Win rate`}</p>
               <DonutRing
                 className="w-full max-w-[120px]"
                 segments={[
@@ -243,72 +245,72 @@ export function PublicShareView({ token }: PublicShareViewProps) {
           <div className="mt-5 grid grid-cols-2 gap-x-5 gap-y-5 sm:grid-cols-3">
             {showAmounts && s.expectancy != null ? (
               <StatCell
-                label="Expectancy"
+                label={t`Expectancy`}
                 value={money(s.expectancy)}
-                hint="per trade"
+                hint={t`per trade`}
                 tone={s.expectancy >= 0 ? "pos" : "neg"}
               />
             ) : null}
             <StatCell
-              label="Kelly"
+              label={t`Kelly`}
               value={`${s.kelly_pct.toFixed(1)}%`}
               tone={s.kelly_pct > 0 ? "pos" : "muted"}
             />
-            <StatCell label="SQN" value={s.sqn.toFixed(2)} tone={s.sqn >= 2 ? "pos" : "muted"} />
+            <StatCell label={t`SQN`} value={s.sqn.toFixed(2)} tone={s.sqn >= 2 ? "pos" : "muted"} />
           </div>
         </ShareCard>
 
         {/* Equity curve */}
         {data.equity.length >= 2 ? (
           <ShareCard>
-            <Eyebrow>The curve</Eyebrow>
+            <Eyebrow>{t`The curve`}</Eyebrow>
             <ShareEquityLine data={data} />
             <p className="mt-2 text-[11px] text-muted-foreground">
               {showAmounts
-                ? "Cumulative net P&L over the shared period."
-                : "Cumulative P&L shape — amounts are not shared."}
+                ? t`Cumulative net P&L over the shared period.`
+                : t`Cumulative P&L shape — amounts are not shared.`}
             </p>
           </ShareCard>
         ) : null}
 
         {/* Consistency */}
         <ShareCard>
-          <Eyebrow>Consistency</Eyebrow>
+          <Eyebrow>{t`Consistency`}</Eyebrow>
           <div className="mt-4 grid grid-cols-2 gap-x-5 gap-y-5">
             <StatCell
-              label="Green days"
+              label={t`Green days`}
               value={String(data.green_days)}
-              hint={`of ${data.trading_days} trading days`}
+              hint={t`of ${data.trading_days} trading days`}
               tone={data.green_days > 0 ? "pos" : "muted"}
             />
             <StatCell
-              label="Red days"
+              label={t`Red days`}
               value={String(data.red_days)}
-              hint={`of ${data.trading_days} trading days`}
+              hint={t`of ${data.trading_days} trading days`}
               tone={data.red_days > 0 ? "neg" : "muted"}
             />
             <StatCell
-              label="Longest green streak"
+              label={t`Longest green streak`}
               value={String(data.best_streak)}
-              hint={data.best_streak > 0 ? "days in a row" : undefined}
+              hint={data.best_streak > 0 ? t`days in a row` : undefined}
               tone={data.best_streak > 0 ? "pos" : "muted"}
             />
             <StatCell
-              label="Longest red streak"
+              label={t`Longest red streak`}
               value={String(data.worst_streak)}
-              hint={data.worst_streak > 0 ? "days in a row" : undefined}
+              hint={data.worst_streak > 0 ? t`days in a row` : undefined}
               tone={data.worst_streak > 0 ? "neg" : "muted"}
             />
             {showAmounts && data.best_day_pnl != null ? (
               <StatCell
-                label="Best day"
+                label={t`Best day`}
                 value={money(data.best_day_pnl)}
                 tone={data.best_day_pnl > 0 ? "pos" : "muted"}
               />
             ) : null}
             {showAmounts && data.worst_day_pnl != null ? (
               <StatCell
-                label="Worst day"
+                label={t`Worst day`}
                 value={money(data.worst_day_pnl)}
                 tone={data.worst_day_pnl < 0 ? "neg" : "muted"}
               />
@@ -319,7 +321,7 @@ export function PublicShareView({ token }: PublicShareViewProps) {
         {/* Rhythm */}
         {data.months.length > 0 ? (
           <ShareCard>
-            <Eyebrow>The rhythm</Eyebrow>
+            <Eyebrow>{t`The rhythm`}</Eyebrow>
             <div className="mt-5 flex h-24 items-end gap-1.5" aria-hidden>
               {data.months.map((m) => (
                 <div key={m.month} className="flex min-w-0 flex-1 flex-col items-center gap-1.5">
@@ -342,14 +344,14 @@ export function PublicShareView({ token }: PublicShareViewProps) {
                 </div>
               ))}
             </div>
-            <p className="mt-4 text-[11px] text-muted-foreground">Trades per month.</p>
+            <p className="mt-4 text-[11px] text-muted-foreground">{t`Trades per month.`}</p>
           </ShareCard>
         ) : null}
 
         {/* Top symbols */}
         {data.top_symbols.length > 0 ? (
           <ShareCard>
-            <Eyebrow>Most traded</Eyebrow>
+            <Eyebrow>{t`Most traded`}</Eyebrow>
             <div className="mt-4 space-y-2.5">
               {data.top_symbols.map((sym, i) => (
                 <p
@@ -361,7 +363,7 @@ export function PublicShareView({ token }: PublicShareViewProps) {
                     {sym.symbol}
                   </span>
                   <span className="shrink-0">
-                    {sym.trades} trades
+                    {t`${sym.trades} trades`}
                     {sym.pnl != null ? (
                       <>
                         {" · "}
@@ -380,8 +382,10 @@ export function PublicShareView({ token }: PublicShareViewProps) {
         <footer className="flex items-center justify-center gap-2 py-4 text-[11px] text-muted-foreground">
           <AppLogo size={16} />
           <span>
-            Journaled with <span className="font-semibold text-foreground">TraderMemos</span> — the
-            self-hosted trading journal
+            <Trans>
+              Journaled with <span className="font-semibold text-foreground">TraderMemos</span> —
+              the self-hosted trading journal
+            </Trans>
           </span>
         </footer>
       </div>

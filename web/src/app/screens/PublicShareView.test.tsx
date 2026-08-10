@@ -1,6 +1,7 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vite-plus/test";
 import type { PublicShareSummary } from "@/lib/api/share";
+import { renderWithI18n } from "@/test/renderWithI18n";
 import { PublicShareView } from "./PublicShareView";
 
 const shared: PublicShareSummary = {
@@ -57,7 +58,7 @@ function mockResult(data: PublicShareSummary | undefined, isError = false) {
 describe("PublicShareView", () => {
   it("renders the shared record with amounts", () => {
     mockResult(shared);
-    render(<PublicShareView token="tok" />);
+    renderWithI18n(<PublicShareView token="tok" />);
     expect(screen.getByText("Shared performance record")).toBeInTheDocument();
     expect(screen.getByText("+$180.00")).toBeInTheDocument();
     expect(screen.getByText("2.30")).toBeInTheDocument();
@@ -93,7 +94,7 @@ describe("PublicShareView", () => {
         { at: "2026-04-01T15:00:00Z", value: 1 },
       ],
     });
-    render(<PublicShareView token="tok" />);
+    renderWithI18n(<PublicShareView token="tok" />);
     expect(screen.queryByText(/\$/)).not.toBeInTheDocument();
     // Win rate becomes the hero and appears in the donut too.
     expect(screen.getAllByText("60%").length).toBeGreaterThan(0);
@@ -102,7 +103,7 @@ describe("PublicShareView", () => {
 
   it("shows the unavailable state on error", () => {
     mockResult(undefined, true);
-    render(<PublicShareView token="tok" />);
+    renderWithI18n(<PublicShareView token="tok" />);
     expect(screen.getByText("This link isn't available")).toBeInTheDocument();
   });
 });
