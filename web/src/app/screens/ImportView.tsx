@@ -134,6 +134,11 @@ const IMPORT_FORMATS: FormatNote[] = [
     body: "Closed trades with Entry/Exit columns — setup and tags are preserved.",
   },
   {
+    icon: FileText,
+    name: "MT4 / MT5 statement",
+    body: "MetaTrader Trade History Report (.xlsx or .html) or MT4 Statement (.html). Deals import as fills in broker server time (EET) — adjust the timezone before confirming if your broker differs.",
+  },
+  {
     icon: FileJson,
     name: "JSON export",
     body: "Full account backup: trades, fills, tags, cash, and the playbook setups catalog.",
@@ -520,7 +525,11 @@ interface Step2Props {
 
 function Step2Map({ preview, currency, accountId, onCommit, onBack, error, loading }: Step2Props) {
   const isJournal = preview.format === "journal_trades";
-  const skipMapping = isJournal || (preview.source === "json" && preview.format === "executions");
+  // MetaTrader statements are parsed positionally — no column mapping, but the
+  // server-timezone choice still applies (statement times are broker wall clock).
+  const isStatement = preview.source === "statement";
+  const skipMapping =
+    isJournal || isStatement || (preview.source === "json" && preview.format === "executions");
   const [mapping, setMapping] = useState<Record<string, string>>(() => {
     const initial: Record<string, string> = {};
     for (const field of CANONICAL_FIELDS) {
@@ -542,7 +551,11 @@ function Step2Map({ preview, currency, accountId, onCommit, onBack, error, loadi
   }
 
   async function handleCommit() {
-    await onCommit(isJournal ? {} : mapping, optionOverrides, skipMapping ? undefined : sourceTz);
+    await onCommit(
+      skipMapping ? {} : mapping,
+      optionOverrides,
+      skipMapping && !isStatement ? undefined : sourceTz,
+    );
   }
 
   return (
@@ -570,6 +583,21 @@ function Step2Map({ preview, currency, accountId, onCommit, onBack, error, loadi
               {preview.journal_summary ? (
                 <JournalSummaryStrip summary={preview.journal_summary} currency={currency} />
               ) : null}
+            </div>
+          ) : isStatement ? (
+            <div className="flex flex-col gap-2">
+              {preview.detected_broker ? (
+                <p className="m-0 text-[12px] leading-relaxed">
+                  <span className="rounded-md bg-primary/10 px-1.5 py-0.5 font-medium text-primary">
+                    Detected: {preview.detected_broker}
+                  </span>
+                </p>
+              ) : null}
+              <p className="m-0 text-[12px] leading-relaxed text-muted-foreground">
+                Statement parsed directly — no column mapping needed. Times in MetaTrader reports
+                are the broker server&apos;s clock (usually EET); confirm the timezone below before
+                importing.
+              </p>
             </div>
           ) : skipMapping ? (
             <p className="m-0 text-[12px] leading-relaxed text-muted-foreground">
@@ -635,7 +663,7 @@ function Step2Map({ preview, currency, accountId, onCommit, onBack, error, loadi
             </div>
           )}
 
-          {!skipMapping && (
+          {(!skipMapping || isStatement) && (
             <div className="flex flex-col gap-1.5">
               <Field label="Timestamps timezone" className="w-full items-stretch sm:max-w-xs">
                 <OptionsSelect
@@ -650,8 +678,9 @@ function Step2Map({ preview, currency, accountId, onCommit, onBack, error, loadi
                 />
               </Field>
               <p className="m-0 text-[11px] leading-relaxed text-muted-foreground">
-                Zone the file&apos;s times were exported in — most US broker exports are Eastern.
-                Times that carry their own offset are unaffected.
+                {isStatement
+                  ? "Zone your broker's MetaTrader server runs in — most use EET (Athens), never UTC."
+                  : "Zone the file's times were exported in — most US broker exports are Eastern. Times that carry their own offset are unaffected."}
               </p>
             </div>
           )}

@@ -40,6 +40,7 @@ export const TIMEZONE_CHOICES = [
   { value: "America/Los_Angeles", name: "Pacific (Los Angeles)" },
   { value: "Europe/London", name: "London" },
   { value: "Europe/Berlin", name: "Berlin" },
+  { value: "Europe/Athens", name: "Athens (EET · MT server)" },
   { value: "Asia/Hong_Kong", name: "Hong Kong" },
   { value: "Asia/Taipei", name: "Taipei" },
   { value: "Asia/Shanghai", name: "Shanghai" },
