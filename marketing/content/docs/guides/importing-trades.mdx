@@ -9,12 +9,14 @@ import. Your file is parsed on your server; nothing goes to third parties.
 
 ## Supported formats
 
-Format is auto-detected from the file's headers — there are no per-broker presets, so any
-broker's fill export works once its columns are mapped:
+Format is auto-detected from the file's headers. Exports from a
+[known broker](/en/docs/guides/supported-brokers) pre-fill the column mapping and timezone;
+any other broker's fill export works once its columns are mapped:
 
 | Format | What it is | Mapping step? |
 |--------|------------|---------------|
-| **Fill CSV** | One row per execution/fill — the shape most broker statement exports have | Yes |
+| **Fill CSV** | One row per execution/fill — the shape most broker statement exports have | Yes (pre-filled for [known brokers](/en/docs/guides/supported-brokers)) |
+| **MetaTrader statement** | The MT5 *Trade History Report* (XLSX/HTML) or MT4 *Statement* (HTML), uploaded as-is — see [Supported brokers](/en/docs/guides/supported-brokers) | No |
 | **Journal export** | One row per finished trade with entry/exit (Stonk Journal-style: `Date, Symbol, Side, Qty, Entry, Exit, …, Tags, Setup, Notes`). Each row becomes a round-trip trade plus journal annotations | No |
 | **JSON backup** | A TraderMemos [export](/en/docs/self-hosting/backup-restore) — restores fills, playbook setups, cash transactions, and account metadata | No |
 
