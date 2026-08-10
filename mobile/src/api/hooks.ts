@@ -36,6 +36,7 @@ import type {
   RiskRules,
   RSummary,
   Summary,
+  SystemInfo,
   BarInterval,
   CashTransaction,
   ChecklistTemplate,
@@ -96,6 +97,7 @@ export const queryKeys = {
     ['accounts', accountId, 'prop-status', filters] as const,
   flexSync: (accountId: string) => ['accounts', accountId, 'flex-sync'] as const,
   health: () => ['health'] as const,
+  systemInfo: () => ['system-info'] as const,
 };
 
 /** The two LLM integrations share one settings shape and endpoint family. */
@@ -332,6 +334,14 @@ export function useApiHealth() {
       if (!response.ok) throw new Error(`Health check failed (${response.status})`);
       return (await response.json()) as ApiHealth;
     },
+  });
+}
+
+/** Server capability probe — feature gates (e.g. share_links) ride `features`. */
+export function useSystemInfo() {
+  return useApiQuery<SystemInfo>(queryKeys.systemInfo(), '/system/info', undefined, {
+    staleTime: 30_000,
+    retry: 1,
   });
 }
 

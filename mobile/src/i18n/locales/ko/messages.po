@@ -470,9 +470,9 @@ msgstr "1개 종목을 찾았습니다"
 msgid "1 trade"
 msgstr "1건"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:36
-#~ msgid "1 year"
-#~ msgstr "1년"
+#: src/app/share-reports-link.tsx:29
+msgid "1 year"
+msgstr "1년"
 
 #: src/app/(tabs)/(settings)/two-factor.tsx:163
 msgid "1. Add to your authenticator"
@@ -506,9 +506,9 @@ msgstr "24시간제"
 #~ msgid "24-hour (13:30)"
 #~ msgstr "24시간제 (13:30)"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:34
-#~ msgid "30 days"
-#~ msgstr "30일"
+#: src/app/share-reports-link.tsx:25
+msgid "30 days"
+msgstr "30일"
 
 #: src/app/new-token.tsx:18
 msgid "30d"
@@ -520,9 +520,9 @@ msgstr "30일"
 msgid "6-digit code"
 msgstr "6자리 코드"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:35
-#~ msgid "90 days"
-#~ msgstr "90일"
+#: src/app/share-reports-link.tsx:27
+msgid "90 days"
+msgstr "90일"
 
 #: src/app/new-token.tsx:19
 msgid "90d"
@@ -553,7 +553,7 @@ msgstr "카드 모서리에 작은 워드마크를 표시합니다."
 msgid "A symbol pins the play to one ticker — leave it on Any for a pattern you trade anywhere."
 msgstr "종목을 넣으면 이 플레이는 해당 종목에만 묶입니다. 어디서나 쓰는 패턴이면 ‘지정 없음’으로 두세요."
 
-#: src/app/(tabs)/(settings)/_layout.tsx:95
+#: src/app/(tabs)/(settings)/_layout.tsx:99
 msgid "About"
 msgstr "정보"
 
@@ -758,6 +758,10 @@ msgstr "사용자 추가"
 msgid "Adding…"
 msgstr "추가 중…"
 
+#: src/app/(tabs)/(settings)/web-address.tsx:88
+msgid "Address"
+msgstr "주소"
+
 #: src/app/(tabs)/(settings)/two-factor.tsx:150
 msgid "Adds a 6-digit code from an authenticator app to your password at sign-in."
 msgstr "로그인 시 비밀번호에 인증 앱의 6자리 코드를 추가합니다."
@@ -795,12 +799,12 @@ msgstr "저장 후"
 msgid "Aggressive"
 msgstr "공격적"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:74
+#: src/app/(tabs)/(settings)/_layout.tsx:78
 msgid "AI"
 msgstr "AI"
 
 #: src/app/(tabs)/(settings)/index.tsx:203
-#: src/app/(tabs)/(settings)/integrations.tsx:25
+#: src/app/(tabs)/(settings)/integrations.tsx:42
 msgid "AI — vision scan & coach"
 msgstr "AI — 비전 스캔 & 코치"
 
@@ -900,6 +904,10 @@ msgstr "모든 보유 기간"
 msgid "Any OpenAI-compatible endpoint works. Test uses the values above, saved or not."
 msgstr "OpenAI 호환 엔드포인트면 무엇이든 사용할 수 있습니다. 테스트는 저장 여부와 관계없이 위 값을 사용합니다."
 
+#: src/app/share-reports-link.tsx:112
+msgid "Anyone with the link sees a read-only summary of the current scope — no trades, notes or account details."
+msgstr "링크가 있는 사람은 현재 범위의 읽기 전용 요약을 볼 수 있습니다 — 거래, 노트, 계좌 정보는 포함되지 않습니다."
+
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:246
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:385
 msgid "API key"
@@ -909,9 +917,9 @@ msgstr "API 키"
 msgid "API server"
 msgstr "API 서버"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:79
+#: src/app/(tabs)/(settings)/_layout.tsx:83
 #: src/app/(tabs)/(settings)/index.tsx:209
-#: src/app/(tabs)/(settings)/integrations.tsx:30
+#: src/app/(tabs)/(settings)/integrations.tsx:47
 msgid "API tokens"
 msgstr "API 토큰"
 
@@ -1103,7 +1111,7 @@ msgstr "본전"
 msgid "Before the open"
 msgstr "장 시작 전"
 
-#: src/app/(tabs)/(dashboard)/reports.tsx:93
+#: src/app/(tabs)/(dashboard)/reports.tsx:102
 msgid "Behavior"
 msgstr "동작"
 
@@ -1279,6 +1287,7 @@ msgstr "서버에 연결할 수 없음"
 #: src/app/(tabs)/(settings)/two-factor.tsx:204
 #: src/app/(tabs)/(settings)/user-detail.tsx:108
 #: src/app/(tabs)/(settings)/user-detail.tsx:133
+#: src/app/(tabs)/(settings)/web-address.tsx:53
 #: src/app/(tabs)/(trades)/[id].tsx:428
 #: src/app/cash-form.tsx:144
 #: src/app/edit-note.tsx:79
@@ -1403,14 +1412,26 @@ msgstr "트레이드 목록에 필터 칩으로 표시할 저널 옵션을 선�
 msgid "Classic"
 msgstr "클래식"
 
-#: src/app/(tabs)/(dashboard)/economic-events.tsx:827
-#~ msgid "Clear"
-#~ msgstr "지우기"
+#: src/app/(tabs)/(settings)/web-address.tsx:55
+msgid "Clear"
+msgstr "지우기"
+
+#: src/app/(tabs)/(settings)/web-address.tsx:109
+msgid "Clear address"
+msgstr "주소 삭제"
 
 #: src/components/event-filter-menu.tsx:87
 #: src/components/trade-filter-menu.tsx:100
 msgid "Clear filters"
 msgstr "필터 지우기"
+
+#: src/app/(tabs)/(settings)/web-address.tsx:92
+#~ msgid "Clear override"
+#~ msgstr "재정의 해제"
+
+#: src/app/(tabs)/(settings)/web-address.tsx:52
+msgid "Clear this address?"
+msgstr "이 주소를 삭제할까요?"
 
 #: src/app/(tabs)/(settings)/account-form.tsx:396
 msgid "Clear trade history"
@@ -1423,6 +1444,10 @@ msgstr "거래 기록을 지울까요?"
 #: src/app/(tabs)/(settings)/account-form.tsx:210
 msgid "Clear trades"
 msgstr "거래 지우기"
+
+#: src/app/(tabs)/(settings)/web-address.tsx:89
+#~ msgid "Clearing falls back to the address your server reports."
+#~ msgstr "해제하면 서버가 알려주는 주소로 돌아갑니다."
 
 #: src/app/(tabs)/(settings)/account-form.tsx:396
 msgid "Clearing…"
@@ -1579,6 +1604,10 @@ msgstr "계약 수"
 msgid "Copied"
 msgstr "복사됨"
 
+#: src/app/share-reports-link.tsx:172
+msgid "Copy"
+msgstr "복사"
+
 #: src/app/new-token.tsx:85
 msgid "Copy it now — the secret is shown only once and cannot be recovered."
 msgstr "지금 복사하세요 — 시크릿은 한 번만 표시되며 복구할 수 없습니다."
@@ -1614,6 +1643,10 @@ msgstr "거래를 지우지 못했습니다"
 #: src/app/(tabs)/(trades)/[id].tsx:410
 msgid "Could not compute excursion"
 msgstr "익스커전을 계산할 수 없습니다"
+
+#: src/app/share-reports-link.tsx:78
+msgid "Could not create link"
+msgstr "링크를 만들지 못했습니다"
 
 #: src/app/tag-form.tsx:47
 msgid "Could not create tag"
@@ -1743,6 +1776,7 @@ msgstr "토큰을 폐기하지 못했습니다"
 #: src/app/(tabs)/(settings)/trading-journal.tsx:49
 #: src/app/(tabs)/(settings)/trading-journal.tsx:63
 #: src/app/(tabs)/(settings)/trading-journal.tsx:92
+#: src/app/(tabs)/(settings)/web-address.tsx:47
 #: src/app/cash-form.tsx:112
 #: src/app/edit-note.tsx:55
 #: src/app/edit-trade.tsx:85
@@ -1816,6 +1850,10 @@ msgstr "서버에 연결하지 못했습니다. 위 수치는 마지막 동기�
 msgid "Create an account first."
 msgstr "먼저 계좌를 만드세요."
 
+#: src/app/share-reports-link.tsx:204
+msgid "Create link"
+msgstr "링크 만들기"
+
 #: src/app/(tabs)/(settings)/tags.tsx:117
 #~ msgid "Create tag"
 #~ msgstr "태그 만들기"
@@ -1874,6 +1912,7 @@ msgid "Current password"
 msgstr "현재 비밀번호"
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:326
+#: src/app/(tabs)/(settings)/integrations.tsx:30
 #: src/lib/tags.ts:5
 msgid "Custom"
 msgstr "사용자 지정"
@@ -1941,7 +1980,7 @@ msgstr "다크"
 #~ msgid "Data"
 #~ msgstr "데이터"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:83
+#: src/app/(tabs)/(settings)/_layout.tsx:87
 #: src/app/(tabs)/(settings)/general.tsx:45
 #: src/app/(tabs)/(settings)/index.tsx:234
 msgid "Data & backup"
@@ -2076,7 +2115,7 @@ msgstr "입출금과 수수료는 거래 손익과 함께 자산 곡선에 반�
 #~ msgid "Description"
 #~ msgstr "설명"
 
-#: src/app/(tabs)/(dashboard)/reports.tsx:91
+#: src/app/(tabs)/(dashboard)/reports.tsx:100
 msgid "Detailed"
 msgstr "상세"
 
@@ -2108,7 +2147,7 @@ msgstr "방향"
 #~ msgid "Disconnect?"
 #~ msgstr "연결을 해제할까요?"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:64
+#: src/app/(tabs)/(settings)/_layout.tsx:68
 #: src/app/(tabs)/(settings)/general.tsx:27
 #: src/app/(tabs)/(settings)/index.tsx:222
 msgid "Display"
@@ -2155,6 +2194,7 @@ msgstr "금액"
 #: src/app/login.tsx:385
 #: src/app/manage-tags.tsx:60
 #: src/app/new-token.tsx:80
+#: src/app/share-reports-link.tsx:107
 #: src/app/share-trade.tsx:83
 #: src/app/share-wrapped.tsx:93
 #: src/components/tool-sheet.tsx:18
@@ -2326,6 +2366,10 @@ msgstr "유효한 시작 잔고를 입력하세요."
 #: src/lib/risk-rules.ts:91
 msgid "Enter a value."
 msgstr "값을 입력하세요."
+
+#: src/app/(tabs)/(settings)/web-address.tsx:47
+msgid "Enter a web address like https://tm.example.com."
+msgstr "https://tm.example.com 형식의 주소를 입력하세요."
 
 #: src/app/(tabs)/(settings)/flex-sync.tsx:92
 msgid "Enter the Flex Query ID."
@@ -2511,6 +2555,10 @@ msgstr "기대값"
 msgid "Expired"
 msgstr "만료됨"
 
+#: src/app/share-reports-link.tsx:131
+msgid "Expires"
+msgstr "만료"
+
 #. placeholder {0}: formatDate(token.expires_at)
 #: src/app/(tabs)/(settings)/api-tokens.tsx:47
 msgid "Expires {0}"
@@ -2541,7 +2589,7 @@ msgstr "앱 설정 내보내기"
 #~ msgid "Export config"
 #~ msgstr "설정 내보내기"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:93
+#: src/app/(tabs)/(settings)/_layout.tsx:97
 #: src/app/(tabs)/(settings)/data-backup.tsx:88
 #: src/app/(tabs)/(settings)/index.tsx:246
 msgid "Export data"
@@ -2778,6 +2826,10 @@ msgstr "파일에서"
 msgid "From IBKR Client Portal: Performance & Reports → Flex Queries. The token is stored server-side only."
 msgstr "IBKR 클라이언트 포털: Performance & Reports → Flex Queries. 토큰은 서버에만 저장됩니다."
 
+#: src/app/(tabs)/(settings)/integrations.tsx:30
+msgid "From server"
+msgstr "서버에서 가져옴"
+
 #: src/app/(tabs)/(settings)/import-trades.tsx:72
 msgid "Full account backup: trades, fills, tags, cash, and the playbook setups catalog."
 msgstr "계좌 전체 백업: 트레이드, 체결, 태그, 자금, 플레이북 셋업."
@@ -2817,7 +2869,7 @@ msgstr "갭 상단"
 msgid "Gap top must sit above the bottom — check the edges"
 msgstr "갭 상단은 하단보다 위여야 합니다 — 값을 확인하세요"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:60
+#: src/app/(tabs)/(settings)/_layout.tsx:64
 #: src/app/(tabs)/(settings)/index.tsx:455
 msgid "General"
 msgstr "일반"
@@ -2953,7 +3005,7 @@ msgstr "시간대"
 msgid "How did the session go? Use \"- [ ]\" for checklist items."
 msgstr "세션은 어땠나요? \"- [ ]\"로 체크 항목을 만들 수 있습니다."
 
-#: src/app/(tabs)/(settings)/_layout.tsx:72
+#: src/app/(tabs)/(settings)/_layout.tsx:76
 #: src/app/(tabs)/(settings)/account-form.tsx:378
 #: src/app/(tabs)/(settings)/flex-sync.tsx:116
 msgid "IBKR Flex sync"
@@ -3036,7 +3088,7 @@ msgstr "가져오기 실패"
 msgid "Import into"
 msgstr "가져올 계좌"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:89
+#: src/app/(tabs)/(settings)/_layout.tsx:93
 #: src/app/(tabs)/(settings)/data-backup.tsx:83
 #: src/app/(tabs)/(settings)/index.tsx:240
 msgid "Import trades"
@@ -3144,7 +3196,7 @@ msgstr "켈리 (절반)"
 msgid "Kelly criterion"
 msgstr "켈리 기준"
 
-#: src/app/(tabs)/(settings)/integrations.tsx:20
+#: src/app/(tabs)/(settings)/integrations.tsx:37
 msgid "Keys are stored on your server, never on the device or with third parties."
 msgstr "키는 서버에만 저장되며 기기나 제3자에게 전달되지 않습니다."
 
@@ -3625,6 +3677,7 @@ msgid "never"
 msgstr "없음"
 
 #: src/app/new-token.tsx:17
+#: src/app/share-reports-link.tsx:31
 msgid "Never"
 msgstr "무기한"
 
@@ -3970,6 +4023,8 @@ msgid "Not rated"
 msgstr "평가 없음"
 
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:295
+#: src/app/(tabs)/(settings)/integrations.tsx:30
+#: src/app/(tabs)/(settings)/integrations.tsx:64
 #: src/app/(tabs)/(settings)/prop-settings.tsx:129
 #: src/app/(tabs)/(settings)/trading-journal.tsx:129
 msgid "Not set"
@@ -4071,6 +4126,10 @@ msgstr "기본값은 꺼짐 — 카드에는 R과 수익률 %만 표시됩니다
 msgid "Off by default — the card shows win rate and ratios only."
 msgstr "기본값은 꺼짐 — 카드에는 승률과 비율만 표시됩니다."
 
+#: src/app/share-reports-link.tsx:119
+msgid "Off shares only win rate and ratios — account size stays private."
+msgstr "끄면 승률과 비율만 공유됩니다 — 계좌 규모는 비공개로 유지됩니다."
+
 #: src/app/(tabs)/(trades)/index.tsx:286
 msgid "Oldest first"
 msgstr "오래된 순"
@@ -4153,6 +4212,10 @@ msgstr "진입일"
 msgid "Open risk rules"
 msgstr "리스크 규칙 열기"
 
+#: src/app/share-reports-link.tsx:188
+msgid "Open settings"
+msgstr "설정 열기"
+
 #: src/app/(tabs)/(settings)/index.tsx:204
 msgid "openai model screenshot scan coach key"
 msgstr "OpenAI 모델 스크린샷 스캔 코치 키 AI"
@@ -4230,7 +4293,7 @@ msgstr "오버나이트"
 msgid "oversized after streak ×{0}"
 msgstr "연승 후 과대 사이즈 ×{0}"
 
-#: src/app/(tabs)/(dashboard)/reports.tsx:89
+#: src/app/(tabs)/(dashboard)/reports.tsx:98
 msgid "Overview"
 msgstr "개요"
 
@@ -4626,7 +4689,7 @@ msgstr "프랍"
 msgid "Prop evaluation"
 msgstr "프랍 평가"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:68
+#: src/app/(tabs)/(settings)/_layout.tsx:72
 #: src/app/(tabs)/(settings)/account-form.tsx:370
 #: src/app/(tabs)/(settings)/prop-settings.tsx:135
 msgid "Prop rules"
@@ -4961,7 +5024,7 @@ msgid "Report an issue"
 msgstr "문제 신고"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:89
-#: src/app/(tabs)/(dashboard)/reports.tsx:105
+#: src/app/(tabs)/(dashboard)/reports.tsx:114
 #: src/components/tools-menu.tsx:39
 msgid "Reports"
 msgstr "리포트"
@@ -5058,7 +5121,7 @@ msgstr "토큰을 폐기할까요?"
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:380
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:640
-#: src/app/(tabs)/(dashboard)/reports.tsx:92
+#: src/app/(tabs)/(dashboard)/reports.tsx:101
 #: src/app/tool-position-size.tsx:103
 msgid "Risk"
 msgstr "리스크"
@@ -5073,7 +5136,7 @@ msgstr "리스크 %"
 msgid "Risk budget under 1 contract — raise Risk% or tighten the stop"
 msgstr "리스크 예산이 1계약 미만 — 리스크%를 높이거나 스톱을 좁히세요"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:61
+#: src/app/(tabs)/(settings)/_layout.tsx:65
 #: src/app/(tabs)/(settings)/index.tsx:185
 #: src/app/(tabs)/(settings)/trading-journal.tsx:136
 msgid "Risk rules"
@@ -5150,6 +5213,10 @@ msgstr "러너"
 msgid "Runner stop"
 msgstr "러너 스톱"
 
+#: src/app/(tabs)/(settings)/integrations.tsx:32
+#~ msgid "Same as server"
+#~ msgstr "서버와 동일"
+
 #: src/app/(tabs)/(settings)/import-trades.tsx:563
 msgid "Sample CSV"
 msgstr "샘플 CSV"
@@ -5177,6 +5244,7 @@ msgstr "토"
 #: src/app/(tabs)/(settings)/risk-rules.tsx:54
 #: src/app/(tabs)/(settings)/trading-journal.tsx:59
 #: src/app/(tabs)/(settings)/trading-journal.tsx:83
+#: src/app/(tabs)/(settings)/web-address.tsx:73
 #: src/components/form-sheet.tsx:161
 msgid "Save"
 msgstr "저장"
@@ -5396,6 +5464,10 @@ msgstr "세션은 뉴욕 시간을 따릅니다."
 msgid "Set stop loss targets"
 msgstr "손절 목표 설정"
 
+#: src/app/share-reports-link.tsx:183
+msgid "Set the web app address first — links open there, and this server doesn't advertise one."
+msgstr "먼저 웹 앱 주소를 설정하세요 — 링크는 그곳에서 열립니다. 이 서버는 주소를 알려주지 않습니다."
+
 #: src/app/(tabs)/(settings)/ai.tsx:57
 msgid "Set up"
 msgstr "설정 필요"
@@ -5450,6 +5522,7 @@ msgid "Setups restored"
 msgstr "복원된 셋업"
 
 #: src/app/(tabs)/(dashboard)/wrapped.tsx:374
+#: src/app/share-reports-link.tsx:167
 #: src/app/share-trade.tsx:170
 #: src/app/share-wrapped.tsx:182
 msgid "Share"
@@ -5464,6 +5537,32 @@ msgstr "카드 공유"
 #: src/app/replay.tsx:398
 msgid "Share frame"
 msgstr "프레임 공유"
+
+#: src/app/(tabs)/(dashboard)/reports.tsx:53
+#: src/app/share-reports-link.tsx:100
+msgid "Share link"
+msgstr "공유 링크"
+
+#: src/app/(tabs)/(settings)/web-address.tsx:79
+msgid "Share links"
+msgstr "공유 링크"
+
+#. placeholder {0}: source.toLowerCase()
+#: src/app/(tabs)/(settings)/integrations.tsx:56
+msgid "Share links are built from this address ({0})."
+msgstr "공유 링크는 이 주소({0})로 만들어집니다."
+
+#: src/app/(tabs)/(settings)/integrations.tsx:81
+#~ msgid "Share links are built from this address ({0}). Set it when your web app and API live on different domains."
+#~ msgstr "공유 링크는 이 주소({0})로 만들어집니다. 웹 앱과 API가 서로 다른 도메인에 있을 때 설정하세요."
+
+#: src/app/(tabs)/(settings)/integrations.tsx:57
+msgid "Share links need this address. Your server doesn't advertise one, so set the domain your web app is served from."
+msgstr "공유 링크에는 이 주소가 필요합니다. 서버가 알려주지 않으므로 웹 앱이 제공되는 도메인을 설정하세요."
+
+#: src/app/(tabs)/(settings)/web-address.tsx:52
+msgid "Share links will use whatever your server reports."
+msgstr "공유 링크는 서버가 알려주는 주소를 사용합니다."
 
 #: src/app/replay.tsx:299
 msgid "Share replay frame"
@@ -5509,6 +5608,7 @@ msgstr "숏"
 msgid "Short {0}"
 msgstr "숏 {0}"
 
+#: src/app/share-reports-link.tsx:117
 #: src/app/share-trade.tsx:140
 #: src/app/share-wrapped.tsx:152
 msgid "Show amounts"
@@ -6542,6 +6642,11 @@ msgstr "무승부"
 msgid "Watch"
 msgstr "주의"
 
+#: src/app/(tabs)/(settings)/_layout.tsx:62
+#: src/app/(tabs)/(settings)/integrations.tsx:63
+msgid "Web app address"
+msgstr "웹 앱 주소"
+
 #: src/app/(tabs)/(settings)/flex-sync.tsx:134
 msgid "Web Service token"
 msgstr "Web Service 토큰"
@@ -6594,6 +6699,10 @@ msgstr "다음에는 무엇을 다르게 하시겠습니까?"
 msgid "When something authenticates with this token, the IP and app it used show up here."
 msgstr "이 토큰으로 인증이 일어나면 사용된 IP와 앱이 여기에 표시됩니다."
 
+#: src/app/(tabs)/(settings)/integrations.tsx:37
+#~ msgid "Where share links open. Leave blank to use the address your server reports, or the server itself."
+#~ msgstr "공유 링크가 열리는 주소입니다. 비워 두면 서버가 알려주는 주소를, 없으면 서버 자체를 사용합니다."
+
 #: src/components/trade-form.tsx:518
 msgid "Why did you enter?"
 msgstr "왜 진입했습니까?"
@@ -6607,7 +6716,7 @@ msgstr "왜 청산했습니까?"
 msgid "WIN"
 msgstr "수익"
 
-#: src/app/(tabs)/(dashboard)/reports.tsx:90
+#: src/app/(tabs)/(dashboard)/reports.tsx:99
 msgid "Win / Loss"
 msgstr "승패"
 
@@ -6685,7 +6794,7 @@ msgid "Year"
 msgstr "연"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:111
-#: src/app/(tabs)/(dashboard)/reports.tsx:50
+#: src/app/(tabs)/(dashboard)/reports.tsx:59
 #: src/app/(tabs)/(dashboard)/wrapped.tsx:368
 #: src/components/reports/overview-section.tsx:558
 msgid "Year Wrapped"
@@ -6767,6 +6876,14 @@ msgstr "이제 비밀번호만으로 로그인합니다."
 #: src/app/(tabs)/(dashboard)/wrapped.tsx:274
 msgid "Your rhythm"
 msgstr "나의 리듬"
+
+#: src/app/(tabs)/(settings)/web-address.tsx:84
+msgid "Your server doesn't report one, so share links need this address. Use the domain your web app is served from — not the API address."
+msgstr "서버가 알려주지 않으므로 공유 링크에 이 주소가 필요합니다. API 주소가 아니라 웹 앱이 제공되는 도메인을 입력하세요."
+
+#: src/app/(tabs)/(settings)/web-address.tsx:83
+msgid "Your server reports {advertised}. Set an address here only to override it."
+msgstr "서버는 {advertised} 을(를) 알려줍니다. 재정의할 때만 여기에 주소를 설정하세요."
 
 #: src/lib/errors.ts:118
 msgid "Your session expired. Sign in again."
