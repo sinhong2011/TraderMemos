@@ -118,6 +118,7 @@ export function SectionScaffold({
     <Animated.ScrollView
       style={styles.page}
       contentContainerStyle={[styles.content, { paddingTop: headerHeight }]}
+      contentInsetAdjustmentBehavior="automatic"
       scrollEventThrottle={16}
       onScroll={onScroll}
       refreshControl={
