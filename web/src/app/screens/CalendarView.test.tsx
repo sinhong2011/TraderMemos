@@ -89,7 +89,7 @@ describe("CalendarView", () => {
     wrap(<CalendarView {...BASE} />);
     expect(screen.getByRole("button", { name: /July 2026, choose month/i })).toBeInTheDocument();
 
-    const pnlBtn = screen.getByRole("button", { name: /-\$61/ });
+    const pnlBtn = screen.getByTitle("Month summary");
     expect(pnlBtn).toBeInTheDocument();
 
     await userEvent.click(pnlBtn);
@@ -144,6 +144,30 @@ describe("CalendarView", () => {
     expect(screen.getByText("Week")).toBeInTheDocument();
     expect(screen.getByText("Week 1")).toBeInTheDocument();
     expect(screen.getAllByText(/2 days/).length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("opens week hover details on focus and week review modal on click", async () => {
+    wrap(<CalendarView {...BASE} equityPoints={[{ at: "2026-06-01T00:00:00Z", equity: 10000 }]} />);
+
+    const weekBtn = screen.getByRole("button", { name: /^Week 1,/ });
+    expect(weekBtn).toBeInTheDocument();
+
+    weekBtn.focus();
+    expect(await screen.findByText("Balance")).toBeInTheDocument();
+    expect(screen.getByText("View week review →")).toBeInTheDocument();
+
+    await userEvent.click(weekBtn);
+    const dialog = screen.getByRole("dialog");
+    expect(dialog).toBeInTheDocument();
+    expect(dialog).toHaveTextContent("Jul 1 – 4");
+    expect(dialog).toHaveTextContent("2 trading days");
+  });
+
+  it("shows No trades on empty week cells without em-dash placeholders", () => {
+    wrap(<CalendarView {...BASE} />);
+    const emptyWeekBtns = screen.getAllByRole("button", { name: /No trades/i });
+    expect(emptyWeekBtns.length).toBeGreaterThanOrEqual(1);
+    expect(screen.queryByText("—")).not.toBeInTheDocument();
   });
 
   it("renders year overview with twelve month cards and trade counts", () => {

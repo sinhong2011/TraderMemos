@@ -1,6 +1,7 @@
 import { CalendarDays } from "lucide-react";
 import { type ReactNode, useMemo, useRef, useState } from "react";
 import { CalendarDayHoverCard } from "@/components/CalendarDayHoverCard";
+import { CalendarWeekHoverDetails } from "@/components/CalendarWeekHoverDetails";
 import { CalendarYearView } from "@/components/CalendarYearView";
 import { Card } from "@/components/Card";
 import { DayTradesDrawer } from "@/components/DayTradesDrawer";
@@ -13,6 +14,7 @@ import { PeriodNav } from "@/components/PeriodNav";
 import { SegmentedControl } from "@/components/SegmentedControl";
 import { CardSkeleton } from "@/components/skeletons/card-skeleton";
 import { Button } from "@/components/ui/button";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/HoverCard";
 import {
   heroPnlClass,
   pnlBgTint,
@@ -30,6 +32,7 @@ import {
   dayKeyInTz,
   monthGrid,
   tradeDayKey,
+  weekDetail,
   weekSummaries,
 } from "@/lib/calendar";
 import { cn } from "@/lib/cn";
@@ -166,6 +169,7 @@ export function CalendarView({
   const marketTz = resolveMarketTimezone(useDisplayPrefs((s) => s.marketTimezone));
   const [monthSummaryOpen, setMonthSummaryOpen] = useState(false);
   const [yearSummaryOpen, setYearSummaryOpen] = useState(false);
+  const [weekReviewIndex, setWeekReviewIndex] = useState<number | null>(null);
   const { currency: displayCurrency, rate } = useMoneyFx(currency);
   const fxRate = rate ?? 1;
   const money = (v: number) => v * fxRate;
@@ -249,6 +253,39 @@ export function CalendarView({
     }
     return map;
   }, [year, month, dailyPnl, monthTradesByDay, records, cashTx, equityPoints, marketTz]);
+
+  const weekDetails = useMemo(() => {
+    const map = new Map<number, ReturnType<typeof weekDetail>>();
+    const { weeks: gridWeeks } = monthGrid(year, month, dailyPnl);
+    gridWeeks.forEach((week, wi) => {
+      const ws = weeks[wi];
+      if (!ws?.firstDate || !ws.lastDate) return;
+      const weekStartISO = normalizeFilterDate(ws.firstDate, "start", marketTz);
+      const weekEndISO = normalizeFilterDate(ws.lastDate, "end", marketTz);
+      if (!weekStartISO || !weekEndISO) return;
+      const weekTrades: Trade[] = [];
+      for (const cell of week) {
+        if (!cell) continue;
+        const dayTrades = monthTradesByDay.get(cell.date);
+        if (dayTrades) weekTrades.push(...dayTrades);
+      }
+      map.set(
+        wi,
+        weekDetail({
+          week,
+          pnl: ws.pnl,
+          weekTrades,
+          records,
+          cashTx,
+          equityPoints,
+          weekStartISO,
+          weekEndISO,
+          timeZone: marketTz,
+        }),
+      );
+    });
+    return map;
+  }, [year, month, dailyPnl, weeks, monthTradesByDay, records, cashTx, equityPoints, marketTz]);
 
   const hasAnyPnl = Object.keys(dailyPnl).some((key) => {
     const [y, m] = key.split("-").map(Number);
@@ -638,76 +675,119 @@ export function CalendarView({
                           );
                         })}
 
-                        <div
-                          className={cn(
+                        {(() => {
+                          const weekClass = cn(
                             "relative flex h-full min-h-0 w-full flex-col overflow-hidden rounded-md px-1.5 py-1 md:px-2.5 md:py-1.5",
                             "@container/week",
                             !ws.hasData && "bg-muted",
-                            // The inset ring marks the week total as a summary
-                            // tier, distinct from the flat day cells beside it.
                             ws.hasData &&
                               (ws.pnl >= 0
                                 ? "ring-1 ring-inset ring-profit/30"
                                 : "ring-1 ring-inset ring-destructive/30"),
-                          )}
-                          style={ws.hasData ? { background: pnlBgTint(ws.pnl) } : undefined}
-                        >
-                          {ws.weekNumber != null && (
-                            <span
-                              className={cn(
-                                "max-w-full truncate self-end text-[10px] font-medium @min-[6rem]/week:text-[11px]",
-                                TINTED_LABEL_SUBTLE,
-                              )}
-                            >
-                              <span className="@min-[6rem]/week:hidden">W{ws.weekNumber}</span>
-                              <span className="hidden @min-[6rem]/week:inline">
-                                Week {ws.weekNumber}
-                              </span>
-                            </span>
-                          )}
-                          {ws.hasData ? (
-                            <span className="flex min-h-0 w-full min-w-0 flex-1 flex-col items-center justify-center gap-0.5 @min-[6rem]/week:gap-1.5">
-                              <span
-                                className={cn(
-                                  "max-w-full truncate text-[11px] font-semibold tracking-[-0.02em] tabular-nums",
-                                  "@min-[6rem]/week:text-base @min-[7.5rem]/week:text-lg",
-                                )}
-                                style={{ color: dayColor(ws.pnl) }}
-                              >
-                                {fmtSignedMoneyCompact(
-                                  money(ws.pnl),
-                                  displayCurrency,
-                                  intlLocale(),
-                                )}
-                              </span>
-                              {weekPcts[wi] != null ? (
+                          );
+                          const weekStyle = ws.hasData
+                            ? { background: pnlBgTint(ws.pnl) }
+                            : undefined;
+                          const weekBody = (
+                            <>
+                              {ws.weekNumber != null && (
                                 <span
-                                  className="max-w-full truncate text-[10px] font-semibold tabular-nums opacity-80"
-                                  style={{ color: dayColor(ws.pnl) }}
+                                  className={cn(
+                                    "max-w-full truncate self-end text-[10px] font-medium @min-[6rem]/week:text-[11px]",
+                                    TINTED_LABEL_SUBTLE,
+                                  )}
                                 >
-                                  {fmtSignedPct(weekPcts[wi]!, intlLocale())}
+                                  <span className="@min-[6rem]/week:hidden">W{ws.weekNumber}</span>
+                                  <span className="hidden @min-[6rem]/week:inline">
+                                    Week {ws.weekNumber}
+                                  </span>
                                 </span>
-                              ) : null}
-                              {ws.wins + ws.losses > 0 ? (
-                                <span className="max-w-full truncate text-[10px] tabular-nums">
-                                  <WinLossRecord wins={ws.wins} losses={ws.losses} />
+                              )}
+                              {ws.hasData ? (
+                                <span className="flex min-h-0 w-full min-w-0 flex-1 flex-col items-center justify-center gap-0.5 @min-[6rem]/week:gap-1.5">
+                                  <span
+                                    className={cn(
+                                      "max-w-full truncate text-[11px] font-semibold tracking-[-0.02em] tabular-nums",
+                                      "@min-[6rem]/week:text-base @min-[7.5rem]/week:text-lg",
+                                    )}
+                                    style={{ color: dayColor(ws.pnl) }}
+                                  >
+                                    {fmtSignedMoneyCompact(
+                                      money(ws.pnl),
+                                      displayCurrency,
+                                      intlLocale(),
+                                    )}
+                                  </span>
+                                  {weekPcts[wi] != null ? (
+                                    <span
+                                      className="max-w-full truncate text-[10px] font-semibold tabular-nums opacity-80"
+                                      style={{ color: dayColor(ws.pnl) }}
+                                    >
+                                      {fmtSignedPct(weekPcts[wi]!, intlLocale())}
+                                    </span>
+                                  ) : null}
+                                  {ws.wins + ws.losses > 0 ? (
+                                    <span className="max-w-full truncate text-[10px] tabular-nums">
+                                      <WinLossRecord wins={ws.wins} losses={ws.losses} />
+                                    </span>
+                                  ) : null}
+                                  <span
+                                    className={cn(
+                                      "hidden max-w-full truncate text-[10px] tabular-nums @min-[4rem]/week:block",
+                                      TINTED_LABEL_SUBTLE,
+                                    )}
+                                  >
+                                    {ws.daysWithTrades} {ws.daysWithTrades === 1 ? "day" : "days"}
+                                  </span>
                                 </span>
-                              ) : null}
-                              <span
-                                className={cn(
-                                  "hidden max-w-full truncate text-[10px] tabular-nums @min-[4rem]/week:block",
-                                  TINTED_LABEL_SUBTLE,
-                                )}
+                              ) : (
+                                <span className="flex h-full items-center justify-center text-[10px] text-muted-foreground">
+                                  No trades
+                                </span>
+                              )}
+                            </>
+                          );
+                          const weekAria = formatWeekAriaLabel(
+                            ws,
+                            displayCurrency,
+                            money(ws.pnl),
+                            ws.firstDate,
+                            ws.lastDate,
+                          );
+                          const openWeekReview = () => {
+                            if (ws.hasData) setWeekReviewIndex(wi);
+                          };
+
+                          return (
+                            <HoverCard>
+                              <HoverCardTrigger
+                                delay={160}
+                                closeDelay={100}
+                                render={
+                                  <Button type="button" variant="ghost" onClick={openWeekReview} />
+                                }
+                                aria-label={weekAria}
+                                className={weekClass}
+                                style={weekStyle}
                               >
-                                {ws.daysWithTrades} {ws.daysWithTrades === 1 ? "day" : "days"}
-                              </span>
-                            </span>
-                          ) : (
-                            <span className="flex h-full items-center justify-center text-[10px] text-muted-foreground">
-                              No trades
-                            </span>
-                          )}
-                        </div>
+                                {weekBody}
+                              </HoverCardTrigger>
+                              <HoverCardContent side="top" align="center" sideOffset={8}>
+                                <CalendarWeekHoverDetails
+                                  firstDate={ws.firstDate}
+                                  lastDate={ws.lastDate}
+                                  weekNumber={ws.weekNumber}
+                                  pnl={ws.pnl}
+                                  hasData={ws.hasData}
+                                  currency={displayCurrency}
+                                  fxRate={fxRate}
+                                  detail={weekDetails.get(wi)}
+                                  onOpenWeekReview={ws.hasData ? openWeekReview : undefined}
+                                />
+                              </HoverCardContent>
+                            </HoverCard>
+                          );
+                        })()}
                       </div>
                     );
                   })}
@@ -784,6 +864,25 @@ export function CalendarView({
           ]}
         />
       </Modal>
+
+      {weekReviewIndex != null ? (
+        <WeekReviewModal
+          open={weekReviewIndex != null}
+          onOpenChange={(open) => {
+            if (!open) setWeekReviewIndex(null);
+          }}
+          week={grid.weeks[weekReviewIndex]}
+          weekSummary={weeks[weekReviewIndex]}
+          detail={weekDetails.get(weekReviewIndex)}
+          records={records}
+          currency={displayCurrency}
+          fxRate={fxRate}
+          onSelectDay={(day) => {
+            setWeekReviewIndex(null);
+            onSelectDay(day);
+          }}
+        />
+      ) : null}
     </>
   );
 }
@@ -825,6 +924,136 @@ function formatMonthTitle(year: number, month: number): string {
     month: "long",
     year: "numeric",
   });
+}
+
+function formatWeekRangeTitle(firstDate: string, lastDate: string): string {
+  const locale = intlLocale();
+  const start = new Date(`${firstDate}T12:00:00Z`);
+  const end = new Date(`${lastDate}T12:00:00Z`);
+  return new Intl.DateTimeFormat(locale, {
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC",
+  }).formatRange(start, end);
+}
+
+function formatWeekAriaLabel(
+  ws: { weekNumber: number | null; hasData: boolean; pnl: number },
+  currency: string,
+  pnlMoney: number,
+  firstDate: string | null,
+  lastDate: string | null,
+): string {
+  const parts: string[] = [];
+  if (ws.weekNumber != null) parts.push(`Week ${ws.weekNumber}`);
+  if (firstDate && lastDate) parts.push(formatWeekRangeTitle(firstDate, lastDate));
+  if (ws.hasData) {
+    parts.push(fmtSignedMoney(pnlMoney, currency, intlLocale()));
+  } else {
+    parts.push("No trades");
+  }
+  return parts.join(", ");
+}
+
+function WeekReviewModal({
+  open,
+  onOpenChange,
+  week,
+  weekSummary,
+  detail,
+  records,
+  currency,
+  fxRate,
+  onSelectDay,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  week: ({ date: string; pnl: number | null } | null)[];
+  weekSummary: {
+    firstDate: string | null;
+    lastDate: string | null;
+    weekNumber: number | null;
+    pnl: number;
+    hasData: boolean;
+  };
+  detail?: ReturnType<typeof weekDetail>;
+  records: Record<string, DayRecord>;
+  currency: string;
+  fxRate: number;
+  onSelectDay: (day: string) => void;
+}) {
+  const title =
+    weekSummary.firstDate && weekSummary.lastDate
+      ? formatWeekRangeTitle(weekSummary.firstDate, weekSummary.lastDate)
+      : "Week";
+
+  const days = week.filter((c): c is { date: string; pnl: number | null } => c != null);
+
+  return (
+    <Modal
+      open={open}
+      onOpenChange={onOpenChange}
+      title={title}
+      className="max-w-[min(380px,94vw)]"
+      bodyClassName="gap-4"
+    >
+      <CalendarWeekHoverDetails
+        firstDate={weekSummary.firstDate}
+        lastDate={weekSummary.lastDate}
+        weekNumber={weekSummary.weekNumber}
+        pnl={weekSummary.pnl}
+        hasData={weekSummary.hasData}
+        currency={currency}
+        fxRate={fxRate}
+        detail={detail}
+      />
+      {days.length > 0 ? (
+        <ul className="m-0 flex flex-col gap-0.5 p-0">
+          {days.map((cell) => {
+            const rec = records[cell.date];
+            const trades = dayTradeCount(rec);
+            const hasPnl = cell.pnl != null;
+            return (
+              <li key={cell.date}>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="h-auto w-full justify-between rounded-md px-3 py-2 text-left"
+                  onClick={() => onSelectDay(cell.date)}
+                >
+                  <span className="text-[13px] text-foreground">
+                    {new Date(`${cell.date}T12:00:00Z`).toLocaleDateString(intlLocale(), {
+                      weekday: "short",
+                      month: "short",
+                      day: "numeric",
+                      timeZone: "UTC",
+                    })}
+                  </span>
+                  <span className="flex items-center gap-2 text-[12px] tabular-nums">
+                    {hasPnl ? (
+                      <span className={cn("font-semibold", pnlColor(cell.pnl!))}>
+                        {fmtSignedMoney(cell.pnl! * fxRate, currency, intlLocale())}
+                      </span>
+                    ) : (
+                      <span className="text-muted-foreground">No trades</span>
+                    )}
+                    {trades > 0 ? (
+                      <>
+                        <span className="text-muted-foreground">
+                          {trades} {trades === 1 ? "trade" : "trades"}
+                        </span>
+                        {rec ? <WinLossRecord wins={rec.wins} losses={rec.losses} /> : null}
+                      </>
+                    ) : null}
+                  </span>
+                </Button>
+              </li>
+            );
+          })}
+        </ul>
+      ) : null}
+    </Modal>
+  );
 }
 
 function PeriodSummaryBody({
