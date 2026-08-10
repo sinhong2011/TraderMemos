@@ -1349,7 +1349,7 @@ components:
             override with `source_tz` on commit.
         format:
           type: string
-          enum: [executions, journal_trades, tradermemos_backup]
+          enum: [executions, journal_trades, account_backup]
         source:
           type: string
           enum: [csv, json, statement]
