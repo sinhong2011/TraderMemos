@@ -14,12 +14,12 @@ import (
 
 // CommitResult is the outcome of inserting parsed executions and annotations.
 type CommitResult struct {
-	Inserted    int
-	Skipped     int
-	Annotated   int
-	Trades      int
-	Errors      []RowError
-	Format      string
+	Inserted  int
+	Skipped   int
+	Annotated int
+	Trades    int
+	Errors    []RowError
+	Format    string
 }
 
 // Commit inserts executions, regroups trades, then applies journal annotations.
@@ -213,7 +213,9 @@ func applyAnnotation(ctx context.Context, q store.Querier, userID, accountID, tr
 					byName[strings.ToLower(name)] = tag
 				}
 			}
-			_ = q.SetTradeTags(ctx, store.SetTradeTagsParams{TradeID: tradeID, TagID: tag.ID})
+			if err := q.SetTradeTags(ctx, store.SetTradeTagsParams{TradeID: tradeID, TagID: tag.ID}); err != nil {
+				return err
+			}
 		}
 	}
 

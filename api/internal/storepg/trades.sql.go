@@ -8,6 +8,7 @@ package storepg
 import (
 	"context"
 	"database/sql"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -62,21 +63,24 @@ type DeleteTradesNotInAccountParams struct {
 	Keep      []string `json:"keep"`
 }
 
-// NOTE: sqlc+database/sql emits a broken single-$3 slice expand for Postgres.
-// storepg/trades.sql.go implements placeholder expansion manually; re-check after `make sqlc`.
+// HAND-PATCHED: sqlc+database/sql collapses the keep slice to a single `$3` for
+// Postgres, so the placeholders have to be expanded here. Note the differences
+// from the SQLite twin in store/trades.sql.go: there is no `/*SLICE:keep*/?`
+// marker to substitute (sqlc already rendered it as `$3`) and the markers are
+// numbered, not `?`. `make sqlc` overwrites this file — re-apply after
+// regenerating, and keep TestBulkWriterConformance/postgres green.
 func (q *Queries) DeleteTradesNotInAccount(ctx context.Context, arg DeleteTradesNotInAccountParams) error {
-	query := deleteTradesNotInAccount
-	var queryParams []interface{}
-	queryParams = append(queryParams, arg.UserID)
-	queryParams = append(queryParams, arg.AccountID)
+	queryParams := []interface{}{arg.UserID, arg.AccountID}
+	list := "NULL"
 	if len(arg.Keep) > 0 {
-		for _, v := range arg.Keep {
+		markers := make([]string, len(arg.Keep))
+		for i, v := range arg.Keep {
 			queryParams = append(queryParams, v)
+			markers[i] = "$" + strconv.Itoa(len(queryParams))
 		}
-		query = strings.Replace(query, "/*SLICE:keep*/?", strings.Repeat(",?", len(arg.Keep))[1:], 1)
-	} else {
-		query = strings.Replace(query, "/*SLICE:keep*/?", "NULL", 1)
+		list = strings.Join(markers, ",")
 	}
+	query := strings.Replace(deleteTradesNotInAccount, "id NOT IN ($3)", "id NOT IN ("+list+")", 1)
 	_, err := q.db.ExecContext(ctx, query, queryParams...)
 	return err
 }
