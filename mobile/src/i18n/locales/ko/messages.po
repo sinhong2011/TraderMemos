@@ -81,7 +81,7 @@ msgid "{0} closed trades excluded (no stop recorded)."
 msgstr "청산 거래 {0}건 제외 (스톱 미기록)."
 
 #. placeholder {0}: traded.length
-#: src/app/(tabs)/(calendar)/index.tsx:640
+#: src/app/(tabs)/(calendar)/index.tsx:668
 msgid "{0} days"
 msgstr "{0}일"
 
@@ -244,15 +244,14 @@ msgstr "차트 {charts}개"
 #~ msgid "{count, plural, one {# trade} other {# trades}}"
 #~ msgstr "{count, plural, other {#건}}"
 
-#: src/app/(tabs)/(calendar)/index.tsx:580
-#: src/app/(tabs)/(calendar)/index.tsx:806
-#: src/app/(tabs)/(calendar)/index.tsx:963
+#: src/app/(tabs)/(calendar)/index.tsx:602
+#: src/app/(tabs)/(calendar)/index.tsx:867
+#: src/app/(tabs)/(calendar)/index.tsx:1026
 #: src/app/(tabs)/(trades)/index.tsx:433
 msgid "{count} trades"
 msgstr "트레이드 {count}건"
 
-#: src/app/(tabs)/(calendar)/index.tsx:710
-#: src/app/(tabs)/(calendar)/index.tsx:714
+#: src/app/(tabs)/(calendar)/index.tsx:738
 msgid "{daysTraded} days"
 msgstr "{daysTraded}일"
 
@@ -320,7 +319,7 @@ msgstr "트레이드 {tradeCount}건"
 #~ msgid "{weekCount, plural, one {# trade} other {# trades}}"
 #~ msgstr "{weekCount, plural, other {#건}}"
 
-#: src/app/(tabs)/(calendar)/index.tsx:770
+#: src/app/(tabs)/(calendar)/index.tsx:831
 msgid "{weekCount} trades"
 msgstr "트레이드 {weekCount}건"
 
@@ -346,7 +345,7 @@ msgstr "{year}년 손익 목표"
 #~ msgid "{yearCount, plural, one {# trade} other {# trades}}"
 #~ msgstr "{yearCount, plural, other {#건}}"
 
-#: src/app/(tabs)/(calendar)/index.tsx:888
+#: src/app/(tabs)/(calendar)/index.tsx:951
 msgid "{yearCount} trades"
 msgstr "트레이드 {yearCount}건"
 
@@ -402,8 +401,8 @@ msgstr "1 {from} = {0} {to}"
 msgid "1 chart"
 msgstr "차트 1개"
 
-#: src/app/(tabs)/(calendar)/index.tsx:640
-#: src/app/(tabs)/(calendar)/index.tsx:710
+#: src/app/(tabs)/(calendar)/index.tsx:668
+#: src/app/(tabs)/(calendar)/index.tsx:738
 msgid "1 day"
 msgstr "1일"
 
@@ -423,11 +422,11 @@ msgstr "저장 후 스크린샷 1장을 업로드합니다."
 msgid "1 symbol found"
 msgstr "1개 종목을 찾았습니다"
 
-#: src/app/(tabs)/(calendar)/index.tsx:580
-#: src/app/(tabs)/(calendar)/index.tsx:770
-#: src/app/(tabs)/(calendar)/index.tsx:806
-#: src/app/(tabs)/(calendar)/index.tsx:888
-#: src/app/(tabs)/(calendar)/index.tsx:963
+#: src/app/(tabs)/(calendar)/index.tsx:602
+#: src/app/(tabs)/(calendar)/index.tsx:831
+#: src/app/(tabs)/(calendar)/index.tsx:867
+#: src/app/(tabs)/(calendar)/index.tsx:951
+#: src/app/(tabs)/(calendar)/index.tsx:1026
 msgid "1 trade"
 msgstr "1건"
 
@@ -1197,12 +1196,12 @@ msgstr "콜"
 msgid "Call / Put"
 msgstr "콜 / 풋"
 
-#: src/components/error-state.tsx:131
+#: src/components/error-state.tsx:155
 msgid "Can't reach {serverHost}"
 msgstr "{serverHost} 에 연결할 수 없음"
 
 #: src/app/(tabs)/(settings)/about.tsx:92
-#: src/components/error-state.tsx:131
+#: src/components/error-state.tsx:155
 #: src/lib/errors.ts:43
 msgid "Can't reach the server"
 msgstr "서버에 연결할 수 없음"
@@ -3481,7 +3480,7 @@ msgstr "모델"
 msgid "Mon"
 msgstr "월"
 
-#: src/app/(tabs)/(calendar)/index.tsx:196
+#: src/app/(tabs)/(calendar)/index.tsx:199
 #: src/components/mini-calendar-card.tsx:51
 #: src/components/reports/winloss-section.tsx:71
 msgid "Month"
@@ -3548,9 +3547,9 @@ msgid "Net (after fees)"
 msgstr "순액 (수수료 후)"
 
 #: src/app/(tabs)/(calendar)/day/[date].tsx:313
-#: src/app/(tabs)/(calendar)/index.tsx:629
-#: src/app/(tabs)/(calendar)/index.tsx:759
-#: src/app/(tabs)/(calendar)/index.tsx:877
+#: src/app/(tabs)/(calendar)/index.tsx:657
+#: src/app/(tabs)/(calendar)/index.tsx:820
+#: src/app/(tabs)/(calendar)/index.tsx:940
 #: src/app/(tabs)/(dashboard)/playbook.tsx:126
 #: src/app/(tabs)/(dashboard)/playbook.tsx:236
 #: src/app/(tabs)/(trades)/[id].tsx:173
@@ -3630,7 +3629,7 @@ msgstr "새 사용자"
 msgid "Newest first"
 msgstr "최신순"
 
-#: src/app/(tabs)/(calendar)/index.tsx:338
+#: src/app/(tabs)/(calendar)/index.tsx:359
 msgid "Next"
 msgstr "다음"
 
@@ -3818,8 +3817,9 @@ msgid "No tokens yet"
 msgstr "아직 토큰이 없습니다"
 
 #: src/app/(tabs)/(calendar)/day/[date].tsx:320
-#: src/app/(tabs)/(calendar)/index.tsx:817
-#: src/app/(tabs)/(calendar)/index.tsx:963
+#: src/app/(tabs)/(calendar)/index.tsx:742
+#: src/app/(tabs)/(calendar)/index.tsx:878
+#: src/app/(tabs)/(calendar)/index.tsx:1026
 msgid "No trades"
 msgstr "거래 없음"
 
@@ -4447,7 +4447,7 @@ msgstr "미리 보기"
 msgid "Preview import"
 msgstr "가져오기 미리보기"
 
-#: src/app/(tabs)/(calendar)/index.tsx:329
+#: src/app/(tabs)/(calendar)/index.tsx:350
 msgid "Previous"
 msgstr "이전"
 
@@ -4921,12 +4921,12 @@ msgstr "결과"
 msgid "Results"
 msgstr "검색 결과"
 
-#: src/components/error-state.tsx:100
+#: src/components/error-state.tsx:122
 msgid "Retry"
 msgstr "재시도"
 
 #: src/app/(tabs)/(trades)/[id].tsx:297
-#: src/components/error-state.tsx:65
+#: src/components/error-state.tsx:87
 msgid "Retrying…"
 msgstr "다시 시도하는 중…"
 
@@ -6066,7 +6066,7 @@ msgstr "변환 후"
 #. placeholder {0}: formatPercent(latest.winRate)
 #. placeholder {1}: formatRatio(latest.profitFactor)
 #. placeholder {2}: ctx.money.format(latest.cumulativePnl)
-#: src/components/reports/winloss-section.tsx:179
+#: src/components/reports/winloss-section.tsx:186
 msgid "To date: {0} win rate · PF {1} · {2} cumulative"
 msgstr "현재까지: 승률 {0} · PF {1} · 누적 {2}"
 
@@ -6253,7 +6253,7 @@ msgstr "다른 검색어를 시도해 보세요."
 
 #: src/app/(tabs)/(settings)/users.tsx:71
 #: src/app/(tabs)/(trades)/[id].tsx:297
-#: src/components/error-state.tsx:65
+#: src/components/error-state.tsx:87
 msgid "Try again"
 msgstr "다시 시도"
 
@@ -6446,11 +6446,22 @@ msgstr "Web Service 토큰"
 msgid "Wed"
 msgstr "수"
 
-#: src/app/(tabs)/(calendar)/index.tsx:195
-#: src/app/(tabs)/(calendar)/index.tsx:656
+#: src/app/(tabs)/(calendar)/index.tsx:198
+#: src/app/(tabs)/(calendar)/index.tsx:684
 #: src/components/reports/winloss-section.tsx:70
 msgid "Week"
 msgstr "주"
+
+#. placeholder {0}: wi + 1
+#. placeholder {1}: formatPnlCompact(weekPnl, currency)
+#: src/app/(tabs)/(calendar)/index.tsx:704
+msgid "Week {0}, {1}"
+msgstr "주 {0}, {1}"
+
+#. placeholder {0}: wi + 1
+#: src/app/(tabs)/(calendar)/index.tsx:705
+msgid "Week {0}, No trades"
+msgstr "주 {0}, 거래 없음"
 
 #: src/app/(tabs)/(dashboard)/checklist.tsx:295
 msgid "Weekdays only"
@@ -6574,7 +6585,7 @@ msgstr "리뷰 작성"
 msgid "Write why you entered while it's fresh. Future you needs the thesis, not just the P&L."
 msgstr "기억이 생생할 때 진입 이유를 쓰세요. 미래의 나에게 필요한 건 손익이 아니라 가설입니다."
 
-#: src/app/(tabs)/(calendar)/index.tsx:197
+#: src/app/(tabs)/(calendar)/index.tsx:200
 msgid "Year"
 msgstr "연"
 

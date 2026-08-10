@@ -15,19 +15,19 @@ import Animated, {
 import { SafeAreaView } from 'react-native-screens/experimental';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
-import { useAccounts, useCash, useDaily, useTrades } from '@/api/hooks';
+import { useAccounts, useCash, useDaily, useEquityCurve, useTrades } from '@/api/hooks';
 import { ErrorState } from '@/components/error-state';
 import { Segmented } from '@/components/segmented';
 import { Skeleton } from '@/components/skeleton';
 import { t } from '@lingui/core/macro';
 import { locale } from '@/i18n';
 import { useSelectedAccountId } from '@/lib/account-store';
-import { monthGrid, tradeDayKey } from '@/lib/calendar';
+import { monthGrid, periodStartBalance, tradeDayKey } from '@/lib/calendar';
 import { netDeposits } from '@/lib/cash';
-import { useGlobalFilters } from '@/lib/filters';
+import { dayBounds, useGlobalFilters } from '@/lib/filters';
 import { formatPercentPoints, useFormatters } from '@/lib/format';
 import { useMoneyFx } from '@/lib/money';
-import { accountBaseCurrency } from '@/lib/prefs';
+import { accountBaseCurrency, resolveMarketTimezone, useDisplayPrefs } from '@/lib/prefs';
 import { pnlBgTint, pnlColor, pnlDotTint } from '@/styles/unistyles';
 
 type Mode = 'week' | 'month' | 'year';
@@ -171,7 +171,10 @@ export default function CalendarScreen() {
   const trades = useTrades(globalFilters);
   const accounts = useAccounts();
   const cash = useCash();
+  const equity = useEquityCurve(globalFilters);
   const selectedAccountId = useSelectedAccountId();
+  const { marketTimezone } = useDisplayPrefs();
+  const marketTz = resolveMarketTimezone(marketTimezone);
   const baseCurrency = accountBaseCurrency(accounts.data, selectedAccountId);
   const fx = useMoneyFx(baseCurrency);
   const currency = fx.currency;
@@ -197,15 +200,18 @@ export default function CalendarScreen() {
     { value: 'year' as const, label: t`Year`, icon: 'square.grid.3x3' as const },
   ];
 
-  function switchMode(next: Mode) {
+  function switchMode(next: Mode, nextAnchor: string = anchor) {
     setAnim(MODE_DEPTH[next] > MODE_DEPTH[mode] ? 'drillIn' : 'drillOut');
     setMode(next);
-    setPages(pageWindow(next, anchor));
+    setAnchor(nextAnchor);
+    setPages(pageWindow(next, nextAnchor));
     setPickerOpen(false);
     // The remounted pager starts centered; forget any in-flight page state.
     settledPage.current = 1;
     recentering.current = false;
   }
+
+  const selectWeek = (date: string) => switchMode('week', date);
 
   const pagerLabel =
     mode === 'year'
@@ -228,6 +234,21 @@ export default function CalendarScreen() {
     if (fxRate === 1) return raw;
     return Object.fromEntries(Object.entries(raw).map(([key, pnl]) => [key, pnl * fxRate]));
   }, [daily.data, fxRate]);
+  const equityPoints = useMemo(() => {
+    const raw = equity.data?.points ?? [];
+    if (fxRate === 1) return raw;
+    return raw.map((p) => ({ ...p, equity: p.equity * fxRate }));
+  }, [equity.data?.points, fxRate]);
+  const deposits =
+    netDeposits(accounts.data ?? [], selectedAccountId, cash.data ?? []) * fxRate;
+  const equityLoaded = equity.data !== undefined;
+  const balanceAtPeriodStart = useMemo(
+    () => (dayKey: string) => {
+      const { from } = dayBounds(dayKey, marketTz);
+      return periodStartBalance(equityPoints, from, deposits);
+    },
+    [deposits, equityPoints, marketTz],
+  );
   const openDay = (date: string) => router.push(`/(tabs)/(calendar)/day/${date}`);
 
   // Flicker-free infinite paging. Landing on a side page kicks off a
@@ -395,7 +416,10 @@ export default function CalendarScreen() {
                           dayStats={dayStats}
                           todayKey={todayKey}
                           onSelect={openDay}
+                          onSelectWeek={selectWeek}
                           currency={currency}
+                          equityLoaded={equityLoaded}
+                          balanceAtPeriodStart={balanceAtPeriodStart}
                         />
                       ) : mode === 'week' ? (
                         <WeekView
@@ -412,10 +436,8 @@ export default function CalendarScreen() {
                           data={data}
                           dayStats={dayStats}
                           currency={currency}
-                          startingBalance={
-                            netDeposits(accounts.data ?? [], selectedAccountId, cash.data ?? []) *
-                            fxRate
-                          }
+                          equityLoaded={equityLoaded}
+                          yearStartBalance={balanceAtPeriodStart(`${pageYear}-01-01`)}
                           onSelectMonth={(m) => {
                             const key = `${pageYear}-${pad(m)}-01`;
                             setAnim('drillIn');
@@ -595,7 +617,10 @@ function MonthView({
   dayStats,
   todayKey,
   onSelect,
+  onSelectWeek,
   currency,
+  equityLoaded,
+  balanceAtPeriodStart,
 }: {
   year: number;
   month: number;
@@ -603,7 +628,10 @@ function MonthView({
   dayStats: Map<string, DayStats>;
   todayKey: string;
   onSelect: (date: string) => void;
+  onSelectWeek: (date: string) => void;
   currency: string;
+  equityLoaded: boolean;
+  balanceAtPeriodStart: (dayKey: string) => number | null;
 }) {
   const { theme } = useUnistyles();
   const { formatPnl, formatPnlCompact } = useFormatters();
@@ -667,6 +695,54 @@ function MonthView({
           (sum, c) => sum + (c ? (dayStats.get(c.date)?.losses ?? 0) : 0),
           0,
         );
+        const weekAnchor = week.find((c) => c != null)?.date ?? null;
+        const weekStartBal = weekAnchor ? balanceAtPeriodStart(weekAnchor) : null;
+        const weekReturnPct =
+          equityLoaded && weekStartBal != null ? weekPnl / weekStartBal : null;
+        const weekLabel =
+          daysTraded > 0
+            ? t`Week ${wi + 1}, ${formatPnlCompact(weekPnl, currency)}`
+            : t`Week ${wi + 1}, No trades`;
+        const tileStyle = [
+          styles.cell,
+          daysTraded > 0
+            ? { backgroundColor: pnlBgTint(theme.colors, weekPnl, maxWeekAbs) }
+            : styles.emptyCell,
+        ];
+        const tileBody = (
+          <>
+            <Text style={[styles.dayNum, daysTraded > 0 && styles.dayNumOnTint]}>W{wi + 1}</Text>
+            {daysTraded > 0 ? (
+              <View style={styles.cellBody}>
+                <Text
+                  style={[styles.cellPnl, { color: pnlColor(theme.colors, weekPnl) }]}
+                  numberOfLines={1}
+                  adjustsFontSizeToFit
+                >
+                  {formatPnlCompact(weekPnl, currency)}
+                </Text>
+                {weekReturnPct != null ? (
+                  <Text
+                    style={[
+                      styles.cellSub,
+                      { color: pnlColor(theme.colors, weekPnl), fontWeight: '600' },
+                    ]}
+                    numberOfLines={1}
+                    adjustsFontSizeToFit
+                  >
+                    {`${weekPnl > 0 ? '+' : ''}${formatPercentPoints(weekReturnPct * 100)}`}
+                  </Text>
+                ) : null}
+                <WinLoss wins={weekWins} losses={weekLosses} />
+                <Text style={styles.cellSub} numberOfLines={1} adjustsFontSizeToFit>
+                  {daysTraded === 1 ? t`1 day` : t`${daysTraded} days`}
+                </Text>
+              </View>
+            ) : (
+              <Text style={styles.cellSubIdle}>{t`No trades`}</Text>
+            )}
+          </>
+        );
         return (
           <View key={wi} style={[styles.gridRow, styles.gridRowFlex]}>
             {dayIdx.map((ci) => {
@@ -687,33 +763,18 @@ function MonthView({
               );
             })}
             {/* Weekly summary tile, same footprint as a day. */}
-            <View
-              style={[
-                styles.cell,
-                daysTraded > 0
-                  ? { backgroundColor: pnlBgTint(theme.colors, weekPnl, maxWeekAbs) }
-                  : styles.emptyCell,
-              ]}
-            >
-              <Text style={[styles.dayNum, daysTraded > 0 && styles.dayNumOnTint]}>W{wi + 1}</Text>
-              {daysTraded > 0 ? (
-                <View style={styles.cellBody}>
-                  <Text
-                    style={[styles.cellPnl, { color: pnlColor(theme.colors, weekPnl) }]}
-                    numberOfLines={1}
-                    adjustsFontSizeToFit
-                  >
-                    {formatPnlCompact(weekPnl, currency)}
-                  </Text>
-                  <WinLoss wins={weekWins} losses={weekLosses} />
-                  <Text style={styles.cellSub} numberOfLines={1} adjustsFontSizeToFit>
-                    {daysTraded === 1 ? t`1 day` : t`${daysTraded} days`}
-                  </Text>
-                </View>
-              ) : (
-                <Text style={styles.cellSubIdle}>{t`${daysTraded} days`}</Text>
-              )}
-            </View>
+            {weekAnchor ? (
+              <Pressable
+                onPress={() => onSelectWeek(weekAnchor)}
+                accessibilityRole="button"
+                accessibilityLabel={weekLabel}
+                style={({ pressed }) => [...tileStyle, pressed && styles.pressed]}
+              >
+                {tileBody}
+              </Pressable>
+            ) : (
+              <View style={tileStyle}>{tileBody}</View>
+            )}
           </View>
         );
       })}
@@ -845,14 +906,16 @@ function YearView({
   data,
   dayStats,
   currency,
-  startingBalance,
+  equityLoaded,
+  yearStartBalance,
   onSelectMonth,
 }: {
   year: number;
   data: Record<string, number>;
   dayStats: Map<string, DayStats>;
   currency: string;
-  startingBalance: number;
+  equityLoaded: boolean;
+  yearStartBalance: number | null;
   onSelectMonth: (month: number) => void;
 }) {
   const { theme } = useUnistyles();
@@ -887,9 +950,9 @@ function YearView({
           <Text style={styles.summarySub}>
             {yearCount === 1 ? t`1 trade` : t`${yearCount} trades`}
           </Text>
-          {startingBalance > 0 ? (
+          {equityLoaded && yearStartBalance != null ? (
             <Text style={[styles.summarySub, { color: pnlColor(theme.colors, yearTotal) }]}>
-              {`${yearTotal > 0 ? '+' : ''}${formatPercentPoints((yearTotal / startingBalance) * 100)}`}
+              {`${yearTotal > 0 ? '+' : ''}${formatPercentPoints((yearTotal / yearStartBalance) * 100)}`}
             </Text>
           ) : null}
         </View>

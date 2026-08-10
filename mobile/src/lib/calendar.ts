@@ -1,5 +1,38 @@
 /** Month-grid math for the dashboard mini calendar, ported from web/src/lib/calendar.ts. */
 
+/** Latest equity on the curve at or before `atISO` ("before" excludes boundary points). */
+export function balanceAsOf(
+  points: readonly { at: string; equity: number }[],
+  atISO: string,
+  mode: 'before' | 'through' = 'through',
+): number {
+  const cutoff = Date.parse(atISO);
+  if (Number.isNaN(cutoff)) return 0;
+  let balance = 0;
+  let bestT = -Infinity;
+  for (const p of points) {
+    const t = Date.parse(p.at);
+    if (Number.isNaN(t) || (mode === 'before' ? t >= cutoff : t > cutoff)) continue;
+    if (t >= bestT) {
+      bestT = t;
+      balance = p.equity;
+    }
+  }
+  return balance;
+}
+
+/** Balance walking into a period — equity curve when available, else net deposits. */
+export function periodStartBalance(
+  equityPoints: readonly { at: string; equity: number }[],
+  startISO: string,
+  deposits: number,
+): number | null {
+  const balance = equityPoints.length
+    ? balanceAsOf(equityPoints, startISO, 'before')
+    : deposits;
+  return balance > 0 ? balance : null;
+}
+
 export interface DayCell {
   /** "YYYY-MM-DD" */
   date: string;

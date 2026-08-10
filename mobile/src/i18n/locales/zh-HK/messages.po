@@ -81,7 +81,7 @@ msgid "{0} closed trades excluded (no stop recorded)."
 msgstr "已排除 {0} 筆已平倉交易（未記錄止蝕）。"
 
 #. placeholder {0}: traded.length
-#: src/app/(tabs)/(calendar)/index.tsx:640
+#: src/app/(tabs)/(calendar)/index.tsx:668
 msgid "{0} days"
 msgstr "{0} 日"
 
@@ -244,15 +244,14 @@ msgstr "{charts} 張圖表"
 #~ msgid "{count, plural, one {# trade} other {# trades}}"
 #~ msgstr "{count, plural, other {# 筆}}"
 
-#: src/app/(tabs)/(calendar)/index.tsx:580
-#: src/app/(tabs)/(calendar)/index.tsx:806
-#: src/app/(tabs)/(calendar)/index.tsx:963
+#: src/app/(tabs)/(calendar)/index.tsx:602
+#: src/app/(tabs)/(calendar)/index.tsx:867
+#: src/app/(tabs)/(calendar)/index.tsx:1026
 #: src/app/(tabs)/(trades)/index.tsx:433
 msgid "{count} trades"
 msgstr "{count} 筆交易"
 
-#: src/app/(tabs)/(calendar)/index.tsx:710
-#: src/app/(tabs)/(calendar)/index.tsx:714
+#: src/app/(tabs)/(calendar)/index.tsx:738
 msgid "{daysTraded} days"
 msgstr "{daysTraded} 日"
 
@@ -320,7 +319,7 @@ msgstr "{tradeCount} 筆交易"
 #~ msgid "{weekCount, plural, one {# trade} other {# trades}}"
 #~ msgstr "{weekCount, plural, other {# 筆}}"
 
-#: src/app/(tabs)/(calendar)/index.tsx:770
+#: src/app/(tabs)/(calendar)/index.tsx:831
 msgid "{weekCount} trades"
 msgstr "{weekCount} 筆交易"
 
@@ -346,7 +345,7 @@ msgstr "{year} 年損益目標"
 #~ msgid "{yearCount, plural, one {# trade} other {# trades}}"
 #~ msgstr "{yearCount, plural, other {# 筆}}"
 
-#: src/app/(tabs)/(calendar)/index.tsx:888
+#: src/app/(tabs)/(calendar)/index.tsx:951
 msgid "{yearCount} trades"
 msgstr "{yearCount} 筆交易"
 
@@ -402,8 +401,8 @@ msgstr "1 {from} = {0} {to}"
 msgid "1 chart"
 msgstr "1 張圖表"
 
-#: src/app/(tabs)/(calendar)/index.tsx:640
-#: src/app/(tabs)/(calendar)/index.tsx:710
+#: src/app/(tabs)/(calendar)/index.tsx:668
+#: src/app/(tabs)/(calendar)/index.tsx:738
 msgid "1 day"
 msgstr "1 日"
 
@@ -423,11 +422,11 @@ msgstr "儲存後會上載 1 張截圖。"
 msgid "1 symbol found"
 msgstr "找到 1 個代號"
 
-#: src/app/(tabs)/(calendar)/index.tsx:580
-#: src/app/(tabs)/(calendar)/index.tsx:770
-#: src/app/(tabs)/(calendar)/index.tsx:806
-#: src/app/(tabs)/(calendar)/index.tsx:888
-#: src/app/(tabs)/(calendar)/index.tsx:963
+#: src/app/(tabs)/(calendar)/index.tsx:602
+#: src/app/(tabs)/(calendar)/index.tsx:831
+#: src/app/(tabs)/(calendar)/index.tsx:867
+#: src/app/(tabs)/(calendar)/index.tsx:951
+#: src/app/(tabs)/(calendar)/index.tsx:1026
 msgid "1 trade"
 msgstr "1 筆"
 
@@ -1197,12 +1196,12 @@ msgstr "認購"
 msgid "Call / Put"
 msgstr "Call / Put"
 
-#: src/components/error-state.tsx:131
+#: src/components/error-state.tsx:155
 msgid "Can't reach {serverHost}"
 msgstr "無法連接 {serverHost}"
 
 #: src/app/(tabs)/(settings)/about.tsx:92
-#: src/components/error-state.tsx:131
+#: src/components/error-state.tsx:155
 #: src/lib/errors.ts:43
 msgid "Can't reach the server"
 msgstr "無法連接伺服器"
@@ -3481,7 +3480,7 @@ msgstr "模型"
 msgid "Mon"
 msgstr "一"
 
-#: src/app/(tabs)/(calendar)/index.tsx:196
+#: src/app/(tabs)/(calendar)/index.tsx:199
 #: src/components/mini-calendar-card.tsx:51
 #: src/components/reports/winloss-section.tsx:71
 msgid "Month"
@@ -3548,9 +3547,9 @@ msgid "Net (after fees)"
 msgstr "淨額（已扣費用）"
 
 #: src/app/(tabs)/(calendar)/day/[date].tsx:313
-#: src/app/(tabs)/(calendar)/index.tsx:629
-#: src/app/(tabs)/(calendar)/index.tsx:759
-#: src/app/(tabs)/(calendar)/index.tsx:877
+#: src/app/(tabs)/(calendar)/index.tsx:657
+#: src/app/(tabs)/(calendar)/index.tsx:820
+#: src/app/(tabs)/(calendar)/index.tsx:940
 #: src/app/(tabs)/(dashboard)/playbook.tsx:126
 #: src/app/(tabs)/(dashboard)/playbook.tsx:236
 #: src/app/(tabs)/(trades)/[id].tsx:173
@@ -3630,7 +3629,7 @@ msgstr "新用戶"
 msgid "Newest first"
 msgstr "最新優先"
 
-#: src/app/(tabs)/(calendar)/index.tsx:338
+#: src/app/(tabs)/(calendar)/index.tsx:359
 msgid "Next"
 msgstr "下一個"
 
@@ -3818,8 +3817,9 @@ msgid "No tokens yet"
 msgstr "尚未有權杖"
 
 #: src/app/(tabs)/(calendar)/day/[date].tsx:320
-#: src/app/(tabs)/(calendar)/index.tsx:817
-#: src/app/(tabs)/(calendar)/index.tsx:963
+#: src/app/(tabs)/(calendar)/index.tsx:742
+#: src/app/(tabs)/(calendar)/index.tsx:878
+#: src/app/(tabs)/(calendar)/index.tsx:1026
 msgid "No trades"
 msgstr "無交易"
 
@@ -4447,7 +4447,7 @@ msgstr "預覽"
 msgid "Preview import"
 msgstr "預覽匯入"
 
-#: src/app/(tabs)/(calendar)/index.tsx:329
+#: src/app/(tabs)/(calendar)/index.tsx:350
 msgid "Previous"
 msgstr "上一個"
 
@@ -4921,12 +4921,12 @@ msgstr "結果"
 msgid "Results"
 msgstr "搜尋結果"
 
-#: src/components/error-state.tsx:100
+#: src/components/error-state.tsx:122
 msgid "Retry"
 msgstr "重試"
 
 #: src/app/(tabs)/(trades)/[id].tsx:297
-#: src/components/error-state.tsx:65
+#: src/components/error-state.tsx:87
 msgid "Retrying…"
 msgstr "重試中…"
 
@@ -6066,7 +6066,7 @@ msgstr "至"
 #. placeholder {0}: formatPercent(latest.winRate)
 #. placeholder {1}: formatRatio(latest.profitFactor)
 #. placeholder {2}: ctx.money.format(latest.cumulativePnl)
-#: src/components/reports/winloss-section.tsx:179
+#: src/components/reports/winloss-section.tsx:186
 msgid "To date: {0} win rate · PF {1} · {2} cumulative"
 msgstr "至今：勝率 {0} · PF {1} · 累計 {2}"
 
@@ -6253,7 +6253,7 @@ msgstr "試試其他搜尋字詞。"
 
 #: src/app/(tabs)/(settings)/users.tsx:71
 #: src/app/(tabs)/(trades)/[id].tsx:297
-#: src/components/error-state.tsx:65
+#: src/components/error-state.tsx:87
 msgid "Try again"
 msgstr "再試一次"
 
@@ -6446,11 +6446,22 @@ msgstr "Web Service 權杖"
 msgid "Wed"
 msgstr "三"
 
-#: src/app/(tabs)/(calendar)/index.tsx:195
-#: src/app/(tabs)/(calendar)/index.tsx:656
+#: src/app/(tabs)/(calendar)/index.tsx:198
+#: src/app/(tabs)/(calendar)/index.tsx:684
 #: src/components/reports/winloss-section.tsx:70
 msgid "Week"
 msgstr "週"
+
+#. placeholder {0}: wi + 1
+#. placeholder {1}: formatPnlCompact(weekPnl, currency)
+#: src/app/(tabs)/(calendar)/index.tsx:704
+msgid "Week {0}, {1}"
+msgstr "週 {0}, {1}"
+
+#. placeholder {0}: wi + 1
+#: src/app/(tabs)/(calendar)/index.tsx:705
+msgid "Week {0}, No trades"
+msgstr "週 {0}，無交易"
 
 #: src/app/(tabs)/(dashboard)/checklist.tsx:295
 msgid "Weekdays only"
@@ -6574,7 +6585,7 @@ msgstr "撰寫覆盤"
 msgid "Write why you entered while it's fresh. Future you needs the thesis, not just the P&L."
 msgstr "趁記憶猶新寫下入場原因。未來的你需要的是論點，不只是盈虧。"
 
-#: src/app/(tabs)/(calendar)/index.tsx:197
+#: src/app/(tabs)/(calendar)/index.tsx:200
 msgid "Year"
 msgstr "年"
 
