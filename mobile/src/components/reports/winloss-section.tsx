@@ -165,7 +165,14 @@ export function WinLossSection({
 
                 {/* Swift Charts draws one series per host — the second metric
                     gets its own panel instead of a shared dual axis. */}
-                <Segmented options={rightMetrics} value={rightMetric} onChange={setRightMetric} />
+                <View style={styles.metricSwitcherRow}>
+                  <Segmented
+                    compact
+                    options={rightMetrics}
+                    value={rightMetric}
+                    onChange={setRightMetric}
+                  />
+                </View>
                 <AppHost style={styles.chartShort}>
                   <Chart
                     data={metricData}
@@ -194,6 +201,7 @@ const styles = StyleSheet.create((theme) => ({
   chart: { height: 190 },
   chartShort: { height: 150 },
   chartLabel: { fontSize: 12, fontWeight: '500', color: theme.colors.mutedForeground },
+  metricSwitcherRow: { alignItems: 'flex-end' },
   footnote: { fontSize: 12, color: theme.colors.mutedForeground },
   empty: { fontSize: 13, color: theme.colors.mutedForeground, paddingVertical: theme.spacing.lg },
   skeletonCard: { height: 260, borderRadius: theme.radius.lg + 4 },
