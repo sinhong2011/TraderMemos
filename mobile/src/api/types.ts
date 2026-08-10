@@ -796,6 +796,11 @@ export type SystemInfo = {
   uptime_sec: number;
   db_driver?: string;
   features: Record<string, boolean>;
+  /**
+   * Public web-app origin for building share links (TM_PUBLIC_WEB_URL).
+   * Absent when the API origin also serves the web app.
+   */
+  web_url?: string;
 };
 
 /** Scope snapshot baked into a public share link (share_link_handlers.go). */

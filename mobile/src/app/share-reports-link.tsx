@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, Share, Switch, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
-import { useAccounts, useApiRequest } from '@/api/hooks';
+import { useAccounts, useApiRequest, useSystemInfo } from '@/api/hooks';
 import { useSession } from '@/api/session';
 import type { CreateShareLinkBody, ShareLink } from '@/api/types';
 import { GlassButton } from '@/components/glass-button';
@@ -52,9 +52,12 @@ export default function ShareReportsLinkScreen() {
   const [creating, setCreating] = useState(false);
   const [created, setCreated] = useState<ShareLink | null>(null);
 
-  // The nginx deployment serves the SPA and proxies /api from one origin, so
-  // the server the app signed into also hosts the visitor page.
-  const url = created && session ? new URL(`/s/${created.token}`, session.serverUrl).toString() : null;
+  // Split deployments serve the web app from its own origin; the server
+  // advertises it as web_url (TM_PUBLIC_WEB_URL). Without it, the nginx
+  // deployment's same-origin assumption holds and the signed-in server URL
+  // also hosts the visitor page.
+  const webBase = useSystemInfo().data?.web_url || session?.serverUrl;
+  const url = created && webBase ? new URL(`/s/${created.token}`, webBase).toString() : null;
 
   async function create() {
     setCreating(true);
