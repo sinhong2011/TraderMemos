@@ -553,7 +553,7 @@ msgstr "A small wordmark in the card corner."
 msgid "A symbol pins the play to one ticker — leave it on Any for a pattern you trade anywhere."
 msgstr "A symbol pins the play to one ticker — leave it on Any for a pattern you trade anywhere."
 
-#: src/app/(tabs)/(settings)/_layout.tsx:95
+#: src/app/(tabs)/(settings)/_layout.tsx:99
 msgid "About"
 msgstr "About"
 
@@ -758,6 +758,10 @@ msgstr "Add user"
 msgid "Adding…"
 msgstr "Adding…"
 
+#: src/app/(tabs)/(settings)/web-address.tsx:68
+msgid "Address"
+msgstr "Address"
+
 #: src/app/(tabs)/(settings)/two-factor.tsx:150
 msgid "Adds a 6-digit code from an authenticator app to your password at sign-in."
 msgstr "Adds a 6-digit code from an authenticator app to your password at sign-in."
@@ -795,12 +799,12 @@ msgstr "After save"
 msgid "Aggressive"
 msgstr "Aggressive"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:74
+#: src/app/(tabs)/(settings)/_layout.tsx:78
 msgid "AI"
 msgstr "AI"
 
 #: src/app/(tabs)/(settings)/index.tsx:203
-#: src/app/(tabs)/(settings)/integrations.tsx:67
+#: src/app/(tabs)/(settings)/integrations.tsx:42
 msgid "AI — vision scan & coach"
 msgstr "AI — vision scan & coach"
 
@@ -913,9 +917,9 @@ msgstr "API key"
 msgid "API server"
 msgstr "API server"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:79
+#: src/app/(tabs)/(settings)/_layout.tsx:83
 #: src/app/(tabs)/(settings)/index.tsx:209
-#: src/app/(tabs)/(settings)/integrations.tsx:72
+#: src/app/(tabs)/(settings)/integrations.tsx:47
 msgid "API tokens"
 msgstr "API tokens"
 
@@ -1271,7 +1275,6 @@ msgstr "Can't reach the server"
 #: src/app/(tabs)/(settings)/flex-sync.tsx:106
 #: src/app/(tabs)/(settings)/funding.tsx:140
 #: src/app/(tabs)/(settings)/index.tsx:116
-#: src/app/(tabs)/(settings)/integrations.tsx:39
 #: src/app/(tabs)/(settings)/prop-settings.tsx:73
 #: src/app/(tabs)/(settings)/prop-settings.tsx:97
 #: src/app/(tabs)/(settings)/prop-settings.tsx:123
@@ -1417,6 +1420,10 @@ msgstr "Classic"
 msgid "Clear filters"
 msgstr "Clear filters"
 
+#: src/app/(tabs)/(settings)/web-address.tsx:92
+msgid "Clear override"
+msgstr "Clear override"
+
 #: src/app/(tabs)/(settings)/account-form.tsx:396
 msgid "Clear trade history"
 msgstr "Clear trade history"
@@ -1428,6 +1435,10 @@ msgstr "Clear trade history?"
 #: src/app/(tabs)/(settings)/account-form.tsx:210
 msgid "Clear trades"
 msgstr "Clear trades"
+
+#: src/app/(tabs)/(settings)/web-address.tsx:89
+msgid "Clearing falls back to the address your server reports."
+msgstr "Clearing falls back to the address your server reports."
 
 #: src/app/(tabs)/(settings)/account-form.tsx:396
 msgid "Clearing…"
@@ -1748,7 +1759,6 @@ msgstr "Could not revoke token"
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:165
 #: src/app/(tabs)/(settings)/flex-sync.tsx:64
 #: src/app/(tabs)/(settings)/flex-sync.tsx:92
-#: src/app/(tabs)/(settings)/integrations.tsx:46
 #: src/app/(tabs)/(settings)/prop-settings.tsx:53
 #: src/app/(tabs)/(settings)/prop-settings.tsx:79
 #: src/app/(tabs)/(settings)/prop-settings.tsx:108
@@ -1757,6 +1767,7 @@ msgstr "Could not revoke token"
 #: src/app/(tabs)/(settings)/trading-journal.tsx:49
 #: src/app/(tabs)/(settings)/trading-journal.tsx:63
 #: src/app/(tabs)/(settings)/trading-journal.tsx:92
+#: src/app/(tabs)/(settings)/web-address.tsx:45
 #: src/app/cash-form.tsx:112
 #: src/app/edit-note.tsx:55
 #: src/app/edit-trade.tsx:85
@@ -1892,7 +1903,7 @@ msgid "Current password"
 msgstr "Current password"
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:326
-#: src/app/(tabs)/(settings)/integrations.tsx:31
+#: src/app/(tabs)/(settings)/integrations.tsx:30
 #: src/lib/tags.ts:5
 msgid "Custom"
 msgstr "Custom"
@@ -1960,7 +1971,7 @@ msgstr "Dark"
 #~ msgid "Data"
 #~ msgstr "Data"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:83
+#: src/app/(tabs)/(settings)/_layout.tsx:87
 #: src/app/(tabs)/(settings)/general.tsx:45
 #: src/app/(tabs)/(settings)/index.tsx:234
 msgid "Data & backup"
@@ -2127,7 +2138,7 @@ msgstr "Direction"
 #~ msgid "Disconnect?"
 #~ msgstr "Disconnect?"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:64
+#: src/app/(tabs)/(settings)/_layout.tsx:68
 #: src/app/(tabs)/(settings)/general.tsx:27
 #: src/app/(tabs)/(settings)/index.tsx:222
 msgid "Display"
@@ -2347,7 +2358,7 @@ msgstr "Enter a valid starting balance."
 msgid "Enter a value."
 msgstr "Enter a value."
 
-#: src/app/(tabs)/(settings)/integrations.tsx:46
+#: src/app/(tabs)/(settings)/web-address.tsx:45
 msgid "Enter a web address like https://tm.example.com."
 msgstr "Enter a web address like https://tm.example.com."
 
@@ -2569,7 +2580,7 @@ msgstr "Export app config"
 #~ msgid "Export config"
 #~ msgstr "Export config"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:93
+#: src/app/(tabs)/(settings)/_layout.tsx:97
 #: src/app/(tabs)/(settings)/data-backup.tsx:88
 #: src/app/(tabs)/(settings)/index.tsx:246
 msgid "Export data"
@@ -2806,7 +2817,7 @@ msgstr "From file"
 msgid "From IBKR Client Portal: Performance & Reports → Flex Queries. The token is stored server-side only."
 msgstr "From IBKR Client Portal: Performance & Reports → Flex Queries. The token is stored server-side only."
 
-#: src/app/(tabs)/(settings)/integrations.tsx:31
+#: src/app/(tabs)/(settings)/integrations.tsx:30
 msgid "From server"
 msgstr "From server"
 
@@ -2849,7 +2860,7 @@ msgstr "Gap top"
 msgid "Gap top must sit above the bottom — check the edges"
 msgstr "Gap top must sit above the bottom — check the edges"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:60
+#: src/app/(tabs)/(settings)/_layout.tsx:64
 #: src/app/(tabs)/(settings)/index.tsx:455
 msgid "General"
 msgstr "General"
@@ -2985,7 +2996,7 @@ msgstr "Hour of day"
 msgid "How did the session go? Use \"- [ ]\" for checklist items."
 msgstr "How did the session go? Use \"- [ ]\" for checklist items."
 
-#: src/app/(tabs)/(settings)/_layout.tsx:72
+#: src/app/(tabs)/(settings)/_layout.tsx:76
 #: src/app/(tabs)/(settings)/account-form.tsx:378
 #: src/app/(tabs)/(settings)/flex-sync.tsx:116
 msgid "IBKR Flex sync"
@@ -3068,7 +3079,7 @@ msgstr "Import failed"
 msgid "Import into"
 msgstr "Import into"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:89
+#: src/app/(tabs)/(settings)/_layout.tsx:93
 #: src/app/(tabs)/(settings)/data-backup.tsx:83
 #: src/app/(tabs)/(settings)/index.tsx:240
 msgid "Import trades"
@@ -3176,7 +3187,7 @@ msgstr "Kelly (half)"
 msgid "Kelly criterion"
 msgstr "Kelly criterion"
 
-#: src/app/(tabs)/(settings)/integrations.tsx:62
+#: src/app/(tabs)/(settings)/integrations.tsx:37
 msgid "Keys are stored on your server, never on the device or with third parties."
 msgstr "Keys are stored on your server, never on the device or with third parties."
 
@@ -4003,8 +4014,8 @@ msgid "Not rated"
 msgstr "Not rated"
 
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:295
-#: src/app/(tabs)/(settings)/integrations.tsx:31
-#: src/app/(tabs)/(settings)/integrations.tsx:89
+#: src/app/(tabs)/(settings)/integrations.tsx:30
+#: src/app/(tabs)/(settings)/integrations.tsx:64
 #: src/app/(tabs)/(settings)/prop-settings.tsx:129
 #: src/app/(tabs)/(settings)/trading-journal.tsx:129
 msgid "Not set"
@@ -4671,7 +4682,7 @@ msgstr "Prop"
 msgid "Prop evaluation"
 msgstr "Prop evaluation"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:68
+#: src/app/(tabs)/(settings)/_layout.tsx:72
 #: src/app/(tabs)/(settings)/account-form.tsx:370
 #: src/app/(tabs)/(settings)/prop-settings.tsx:135
 msgid "Prop rules"
@@ -5118,7 +5129,7 @@ msgstr "Risk %"
 msgid "Risk budget under 1 contract — raise Risk% or tighten the stop"
 msgstr "Risk budget under 1 contract — raise Risk% or tighten the stop"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:61
+#: src/app/(tabs)/(settings)/_layout.tsx:65
 #: src/app/(tabs)/(settings)/index.tsx:185
 #: src/app/(tabs)/(settings)/trading-journal.tsx:136
 msgid "Risk rules"
@@ -5221,12 +5232,12 @@ msgstr "Sat"
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:306
 #: src/app/(tabs)/(settings)/change-password.tsx:111
 #: src/app/(tabs)/(settings)/flex-sync.tsx:147
-#: src/app/(tabs)/(settings)/integrations.tsx:41
 #: src/app/(tabs)/(settings)/prop-settings.tsx:75
 #: src/app/(tabs)/(settings)/prop-settings.tsx:99
 #: src/app/(tabs)/(settings)/risk-rules.tsx:54
 #: src/app/(tabs)/(settings)/trading-journal.tsx:59
 #: src/app/(tabs)/(settings)/trading-journal.tsx:83
+#: src/app/(tabs)/(settings)/web-address.tsx:83
 #: src/components/form-sheet.tsx:161
 msgid "Save"
 msgstr "Save"
@@ -5526,7 +5537,7 @@ msgid "Share link"
 msgstr "Share link"
 
 #. placeholder {0}: source.toLowerCase()
-#: src/app/(tabs)/(settings)/integrations.tsx:81
+#: src/app/(tabs)/(settings)/integrations.tsx:56
 msgid "Share links are built from this address ({0})."
 msgstr "Share links are built from this address ({0})."
 
@@ -5534,7 +5545,7 @@ msgstr "Share links are built from this address ({0})."
 #~ msgid "Share links are built from this address ({0}). Set it when your web app and API live on different domains."
 #~ msgstr "Share links are built from this address ({0}). Set it when your web app and API live on different domains."
 
-#: src/app/(tabs)/(settings)/integrations.tsx:82
+#: src/app/(tabs)/(settings)/integrations.tsx:57
 msgid "Share links need this address. Your server doesn't advertise one, so set the domain your web app is served from."
 msgstr "Share links need this address. Your server doesn't advertise one, so set the domain your web app is served from."
 
@@ -6616,8 +6627,8 @@ msgstr "Wash"
 msgid "Watch"
 msgstr "Watch"
 
-#: src/app/(tabs)/(settings)/integrations.tsx:36
-#: src/app/(tabs)/(settings)/integrations.tsx:88
+#: src/app/(tabs)/(settings)/_layout.tsx:62
+#: src/app/(tabs)/(settings)/integrations.tsx:63
 msgid "Web app address"
 msgstr "Web app address"
 
@@ -6674,8 +6685,8 @@ msgid "When something authenticates with this token, the IP and app it used show
 msgstr "When something authenticates with this token, the IP and app it used show up here."
 
 #: src/app/(tabs)/(settings)/integrations.tsx:37
-msgid "Where share links open. Leave blank to use the address your server reports, or the server itself."
-msgstr "Where share links open. Leave blank to use the address your server reports, or the server itself."
+#~ msgid "Where share links open. Leave blank to use the address your server reports, or the server itself."
+#~ msgstr "Where share links open. Leave blank to use the address your server reports, or the server itself."
 
 #: src/components/trade-form.tsx:518
 msgid "Why did you enter?"
@@ -6850,6 +6861,14 @@ msgstr "Your password alone signs you in again."
 #: src/app/(tabs)/(dashboard)/wrapped.tsx:274
 msgid "Your rhythm"
 msgstr "Your rhythm"
+
+#: src/app/(tabs)/(settings)/web-address.tsx:64
+msgid "Your server doesn't report one, so share links need this address. Use the domain your web app is served from — not the API address."
+msgstr "Your server doesn't report one, so share links need this address. Use the domain your web app is served from — not the API address."
+
+#: src/app/(tabs)/(settings)/web-address.tsx:63
+msgid "Your server reports {advertised}. Set an address here only to override it."
+msgstr "Your server reports {advertised}. Set an address here only to override it."
 
 #: src/lib/errors.ts:118
 msgid "Your session expired. Sign in again."

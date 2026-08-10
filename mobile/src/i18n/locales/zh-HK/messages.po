@@ -553,7 +553,7 @@ msgstr "在卡片角落顯示小型字標。"
 msgid "A symbol pins the play to one ticker — leave it on Any for a pattern you trade anywhere."
 msgstr "填上代號會把這個計劃綁定到單一標的；任何標的都適用的形態就留在「不限」。"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:95
+#: src/app/(tabs)/(settings)/_layout.tsx:99
 msgid "About"
 msgstr "關於"
 
@@ -758,6 +758,10 @@ msgstr "新增用戶"
 msgid "Adding…"
 msgstr "新增中…"
 
+#: src/app/(tabs)/(settings)/web-address.tsx:68
+msgid "Address"
+msgstr "網址"
+
 #: src/app/(tabs)/(settings)/two-factor.tsx:150
 msgid "Adds a 6-digit code from an authenticator app to your password at sign-in."
 msgstr "登入時，除密碼外再要求驗證器的 6 位數驗證碼。"
@@ -795,12 +799,12 @@ msgstr "儲存後"
 msgid "Aggressive"
 msgstr "進取"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:74
+#: src/app/(tabs)/(settings)/_layout.tsx:78
 msgid "AI"
 msgstr "AI"
 
 #: src/app/(tabs)/(settings)/index.tsx:203
-#: src/app/(tabs)/(settings)/integrations.tsx:67
+#: src/app/(tabs)/(settings)/integrations.tsx:42
 msgid "AI — vision scan & coach"
 msgstr "AI — 影像掃描與教練"
 
@@ -913,9 +917,9 @@ msgstr "API 金鑰"
 msgid "API server"
 msgstr "API 伺服器"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:79
+#: src/app/(tabs)/(settings)/_layout.tsx:83
 #: src/app/(tabs)/(settings)/index.tsx:209
-#: src/app/(tabs)/(settings)/integrations.tsx:72
+#: src/app/(tabs)/(settings)/integrations.tsx:47
 msgid "API tokens"
 msgstr "API 權杖"
 
@@ -1271,7 +1275,6 @@ msgstr "無法連接伺服器"
 #: src/app/(tabs)/(settings)/flex-sync.tsx:106
 #: src/app/(tabs)/(settings)/funding.tsx:140
 #: src/app/(tabs)/(settings)/index.tsx:116
-#: src/app/(tabs)/(settings)/integrations.tsx:39
 #: src/app/(tabs)/(settings)/prop-settings.tsx:73
 #: src/app/(tabs)/(settings)/prop-settings.tsx:97
 #: src/app/(tabs)/(settings)/prop-settings.tsx:123
@@ -1417,6 +1420,10 @@ msgstr "經典"
 msgid "Clear filters"
 msgstr "清除篩選"
 
+#: src/app/(tabs)/(settings)/web-address.tsx:92
+msgid "Clear override"
+msgstr "清除覆寫"
+
 #: src/app/(tabs)/(settings)/account-form.tsx:396
 msgid "Clear trade history"
 msgstr "清除交易紀錄"
@@ -1428,6 +1435,10 @@ msgstr "清除交易紀錄？"
 #: src/app/(tabs)/(settings)/account-form.tsx:210
 msgid "Clear trades"
 msgstr "清除交易"
+
+#: src/app/(tabs)/(settings)/web-address.tsx:89
+msgid "Clearing falls back to the address your server reports."
+msgstr "清除後會改用伺服器回報的網址。"
 
 #: src/app/(tabs)/(settings)/account-form.tsx:396
 msgid "Clearing…"
@@ -1748,7 +1759,6 @@ msgstr "無法撤銷權杖"
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:165
 #: src/app/(tabs)/(settings)/flex-sync.tsx:64
 #: src/app/(tabs)/(settings)/flex-sync.tsx:92
-#: src/app/(tabs)/(settings)/integrations.tsx:46
 #: src/app/(tabs)/(settings)/prop-settings.tsx:53
 #: src/app/(tabs)/(settings)/prop-settings.tsx:79
 #: src/app/(tabs)/(settings)/prop-settings.tsx:108
@@ -1757,6 +1767,7 @@ msgstr "無法撤銷權杖"
 #: src/app/(tabs)/(settings)/trading-journal.tsx:49
 #: src/app/(tabs)/(settings)/trading-journal.tsx:63
 #: src/app/(tabs)/(settings)/trading-journal.tsx:92
+#: src/app/(tabs)/(settings)/web-address.tsx:45
 #: src/app/cash-form.tsx:112
 #: src/app/edit-note.tsx:55
 #: src/app/edit-trade.tsx:85
@@ -1892,7 +1903,7 @@ msgid "Current password"
 msgstr "目前密碼"
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:326
-#: src/app/(tabs)/(settings)/integrations.tsx:31
+#: src/app/(tabs)/(settings)/integrations.tsx:30
 #: src/lib/tags.ts:5
 msgid "Custom"
 msgstr "自訂"
@@ -1960,7 +1971,7 @@ msgstr "深色"
 #~ msgid "Data"
 #~ msgstr "資料"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:83
+#: src/app/(tabs)/(settings)/_layout.tsx:87
 #: src/app/(tabs)/(settings)/general.tsx:45
 #: src/app/(tabs)/(settings)/index.tsx:234
 msgid "Data & backup"
@@ -2127,7 +2138,7 @@ msgstr "方向"
 #~ msgid "Disconnect?"
 #~ msgstr "中斷連接？"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:64
+#: src/app/(tabs)/(settings)/_layout.tsx:68
 #: src/app/(tabs)/(settings)/general.tsx:27
 #: src/app/(tabs)/(settings)/index.tsx:222
 msgid "Display"
@@ -2347,7 +2358,7 @@ msgstr "請輸入有效的初始結餘。"
 msgid "Enter a value."
 msgstr "請輸入數值。"
 
-#: src/app/(tabs)/(settings)/integrations.tsx:46
+#: src/app/(tabs)/(settings)/web-address.tsx:45
 msgid "Enter a web address like https://tm.example.com."
 msgstr "請輸入類似 https://tm.example.com 的網址。"
 
@@ -2569,7 +2580,7 @@ msgstr "匯出應用程式設定"
 #~ msgid "Export config"
 #~ msgstr "匯出設定"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:93
+#: src/app/(tabs)/(settings)/_layout.tsx:97
 #: src/app/(tabs)/(settings)/data-backup.tsx:88
 #: src/app/(tabs)/(settings)/index.tsx:246
 msgid "Export data"
@@ -2806,7 +2817,7 @@ msgstr "從檔案"
 msgid "From IBKR Client Portal: Performance & Reports → Flex Queries. The token is stored server-side only."
 msgstr "在 IBKR 客戶端：Performance & Reports → Flex Queries。權杖只儲存在伺服器。"
 
-#: src/app/(tabs)/(settings)/integrations.tsx:31
+#: src/app/(tabs)/(settings)/integrations.tsx:30
 msgid "From server"
 msgstr "來自伺服器"
 
@@ -2849,7 +2860,7 @@ msgstr "缺口頂"
 msgid "Gap top must sit above the bottom — check the edges"
 msgstr "缺口頂必須高於缺口底 — 請檢查邊界"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:60
+#: src/app/(tabs)/(settings)/_layout.tsx:64
 #: src/app/(tabs)/(settings)/index.tsx:455
 msgid "General"
 msgstr "一般"
@@ -2985,7 +2996,7 @@ msgstr "時段"
 msgid "How did the session go? Use \"- [ ]\" for checklist items."
 msgstr "今日交易如何？用「- [ ]」建立清單項目。"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:72
+#: src/app/(tabs)/(settings)/_layout.tsx:76
 #: src/app/(tabs)/(settings)/account-form.tsx:378
 #: src/app/(tabs)/(settings)/flex-sync.tsx:116
 msgid "IBKR Flex sync"
@@ -3068,7 +3079,7 @@ msgstr "匯入失敗"
 msgid "Import into"
 msgstr "匯入至"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:89
+#: src/app/(tabs)/(settings)/_layout.tsx:93
 #: src/app/(tabs)/(settings)/data-backup.tsx:83
 #: src/app/(tabs)/(settings)/index.tsx:240
 msgid "Import trades"
@@ -3176,7 +3187,7 @@ msgstr "凱利（一半）"
 msgid "Kelly criterion"
 msgstr "凱利公式"
 
-#: src/app/(tabs)/(settings)/integrations.tsx:62
+#: src/app/(tabs)/(settings)/integrations.tsx:37
 msgid "Keys are stored on your server, never on the device or with third parties."
 msgstr "金鑰只儲存在你的伺服器，不會留在裝置或交給第三方。"
 
@@ -4003,8 +4014,8 @@ msgid "Not rated"
 msgstr "未評分"
 
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:295
-#: src/app/(tabs)/(settings)/integrations.tsx:31
-#: src/app/(tabs)/(settings)/integrations.tsx:89
+#: src/app/(tabs)/(settings)/integrations.tsx:30
+#: src/app/(tabs)/(settings)/integrations.tsx:64
 #: src/app/(tabs)/(settings)/prop-settings.tsx:129
 #: src/app/(tabs)/(settings)/trading-journal.tsx:129
 msgid "Not set"
@@ -4669,7 +4680,7 @@ msgstr "自營"
 msgid "Prop evaluation"
 msgstr "Prop 評估"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:68
+#: src/app/(tabs)/(settings)/_layout.tsx:72
 #: src/app/(tabs)/(settings)/account-form.tsx:370
 #: src/app/(tabs)/(settings)/prop-settings.tsx:135
 msgid "Prop rules"
@@ -5116,7 +5127,7 @@ msgstr "風險 %"
 msgid "Risk budget under 1 contract — raise Risk% or tighten the stop"
 msgstr "風險預算不足一張合約 — 提高風險%或收窄止蝕"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:61
+#: src/app/(tabs)/(settings)/_layout.tsx:65
 #: src/app/(tabs)/(settings)/index.tsx:185
 #: src/app/(tabs)/(settings)/trading-journal.tsx:136
 msgid "Risk rules"
@@ -5219,12 +5230,12 @@ msgstr "六"
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:306
 #: src/app/(tabs)/(settings)/change-password.tsx:111
 #: src/app/(tabs)/(settings)/flex-sync.tsx:147
-#: src/app/(tabs)/(settings)/integrations.tsx:41
 #: src/app/(tabs)/(settings)/prop-settings.tsx:75
 #: src/app/(tabs)/(settings)/prop-settings.tsx:99
 #: src/app/(tabs)/(settings)/risk-rules.tsx:54
 #: src/app/(tabs)/(settings)/trading-journal.tsx:59
 #: src/app/(tabs)/(settings)/trading-journal.tsx:83
+#: src/app/(tabs)/(settings)/web-address.tsx:83
 #: src/components/form-sheet.tsx:161
 msgid "Save"
 msgstr "儲存"
@@ -5524,7 +5535,7 @@ msgid "Share link"
 msgstr "分享連結"
 
 #. placeholder {0}: source.toLowerCase()
-#: src/app/(tabs)/(settings)/integrations.tsx:81
+#: src/app/(tabs)/(settings)/integrations.tsx:56
 msgid "Share links are built from this address ({0})."
 msgstr "分享連結會以此網址（{0}）建立。"
 
@@ -5532,7 +5543,7 @@ msgstr "分享連結會以此網址（{0}）建立。"
 #~ msgid "Share links are built from this address ({0}). Set it when your web app and API live on different domains."
 #~ msgstr "分享連結會以此網址（{0}）建立。當網頁應用與 API 位於不同網域時請設定。"
 
-#: src/app/(tabs)/(settings)/integrations.tsx:82
+#: src/app/(tabs)/(settings)/integrations.tsx:57
 msgid "Share links need this address. Your server doesn't advertise one, so set the domain your web app is served from."
 msgstr "分享連結需要此網址。你的伺服器並未回報，請設定網頁應用所在的網域。"
 
@@ -6614,8 +6625,8 @@ msgstr "打和"
 msgid "Watch"
 msgstr "留意"
 
-#: src/app/(tabs)/(settings)/integrations.tsx:36
-#: src/app/(tabs)/(settings)/integrations.tsx:88
+#: src/app/(tabs)/(settings)/_layout.tsx:62
+#: src/app/(tabs)/(settings)/integrations.tsx:63
 msgid "Web app address"
 msgstr "網頁應用網址"
 
@@ -6672,8 +6683,8 @@ msgid "When something authenticates with this token, the IP and app it used show
 msgstr "當有程式使用此權杖驗證時，其 IP 與應用程式會顯示在這裡。"
 
 #: src/app/(tabs)/(settings)/integrations.tsx:37
-msgid "Where share links open. Leave blank to use the address your server reports, or the server itself."
-msgstr "分享連結開啟的位置。留空則使用伺服器回報的網址，否則使用伺服器本身。"
+#~ msgid "Where share links open. Leave blank to use the address your server reports, or the server itself."
+#~ msgstr "分享連結開啟的位置。留空則使用伺服器回報的網址，否則使用伺服器本身。"
 
 #: src/components/trade-form.tsx:518
 msgid "Why did you enter?"
@@ -6848,6 +6859,14 @@ msgstr "之後只需密碼即可登入。"
 #: src/app/(tabs)/(dashboard)/wrapped.tsx:274
 msgid "Your rhythm"
 msgstr "你的節奏"
+
+#: src/app/(tabs)/(settings)/web-address.tsx:64
+msgid "Your server doesn't report one, so share links need this address. Use the domain your web app is served from — not the API address."
+msgstr "伺服器並未回報，因此分享連結需要此網址。請填寫網頁應用所在的網域，而非 API 網址。"
+
+#: src/app/(tabs)/(settings)/web-address.tsx:63
+msgid "Your server reports {advertised}. Set an address here only to override it."
+msgstr "伺服器回報 {advertised}。只有需要覆寫時才在此設定網址。"
 
 #: src/lib/errors.ts:118
 msgid "Your session expired. Sign in again."

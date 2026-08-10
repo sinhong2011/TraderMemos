@@ -189,7 +189,7 @@ export default function ShareReportsLinkScreen() {
               systemImage="gearshape"
               onPress={() => {
                 router.back();
-                router.push('/integrations');
+                router.push('/web-address');
               }}
             />
           </View>

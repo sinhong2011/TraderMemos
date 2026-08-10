@@ -1,6 +1,5 @@
 import { Section, Text as UIText } from '@expo/ui/swift-ui';
 import { useRouter } from 'expo-router';
-import { Alert } from 'react-native';
 import { useUnistyles } from 'react-native-unistyles';
 
 import { useSystemInfo } from '@/api/hooks';
@@ -8,7 +7,7 @@ import { AppHost } from '@/components/app-host';
 import { NavRow } from '@/components/nav-row';
 import { SettingsForm } from '@/components/settings-form';
 import { t } from '@lingui/core/macro';
-import { normalizeWebBaseUrl, setWebBaseUrl, useWebBaseUrl } from '@/lib/share-prefs';
+import { useWebBaseUrl } from '@/lib/share-prefs';
 
 /** Host only — the full origin is too long for a settings row's value slot. */
 function hostOf(url: string): string {
@@ -29,30 +28,6 @@ export default function IntegrationsScreen() {
   // No API-origin fallback — see the note in app/share-reports-link.tsx.
   const effective = override ?? advertised ?? null;
   const source = override != null ? t`Custom` : advertised ? t`From server` : t`Not set`;
-
-  function editWebBaseUrl() {
-    // One value, so Alert.prompt rather than a pushed form (settings idiom).
-    Alert.prompt(
-      t`Web app address`,
-      t`Where share links open. Leave blank to use the address your server reports, or the server itself.`,
-      [
-        { text: t`Cancel`, style: 'cancel' },
-        {
-          text: t`Save`,
-          onPress: (text?: string) => {
-            try {
-              setWebBaseUrl(normalizeWebBaseUrl(text ?? ''));
-            } catch {
-              Alert.alert(t`Could not save`, t`Enter a web address like https://tm.example.com.`);
-            }
-          },
-        },
-      ],
-      'plain-text',
-      override ?? '',
-      'url',
-    );
-  }
 
   return (
     <AppHost style={{ flex: 1, backgroundColor: theme.colors.background }}>
@@ -87,8 +62,7 @@ export default function IntegrationsScreen() {
             systemImage="globe"
             label={t`Web app address`}
             value={effective ? hostOf(effective) : t`Not set`}
-            accessory="none"
-            onPress={editWebBaseUrl}
+            onPress={() => router.push('/web-address')}
           />
         </Section>
       </SettingsForm>

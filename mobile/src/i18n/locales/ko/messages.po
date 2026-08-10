@@ -553,7 +553,7 @@ msgstr "카드 모서리에 작은 워드마크를 표시합니다."
 msgid "A symbol pins the play to one ticker — leave it on Any for a pattern you trade anywhere."
 msgstr "종목을 넣으면 이 플레이는 해당 종목에만 묶입니다. 어디서나 쓰는 패턴이면 ‘지정 없음’으로 두세요."
 
-#: src/app/(tabs)/(settings)/_layout.tsx:95
+#: src/app/(tabs)/(settings)/_layout.tsx:99
 msgid "About"
 msgstr "정보"
 
@@ -758,6 +758,10 @@ msgstr "사용자 추가"
 msgid "Adding…"
 msgstr "추가 중…"
 
+#: src/app/(tabs)/(settings)/web-address.tsx:68
+msgid "Address"
+msgstr "주소"
+
 #: src/app/(tabs)/(settings)/two-factor.tsx:150
 msgid "Adds a 6-digit code from an authenticator app to your password at sign-in."
 msgstr "로그인 시 비밀번호에 인증 앱의 6자리 코드를 추가합니다."
@@ -795,12 +799,12 @@ msgstr "저장 후"
 msgid "Aggressive"
 msgstr "공격적"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:74
+#: src/app/(tabs)/(settings)/_layout.tsx:78
 msgid "AI"
 msgstr "AI"
 
 #: src/app/(tabs)/(settings)/index.tsx:203
-#: src/app/(tabs)/(settings)/integrations.tsx:67
+#: src/app/(tabs)/(settings)/integrations.tsx:42
 msgid "AI — vision scan & coach"
 msgstr "AI — 비전 스캔 & 코치"
 
@@ -913,9 +917,9 @@ msgstr "API 키"
 msgid "API server"
 msgstr "API 서버"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:79
+#: src/app/(tabs)/(settings)/_layout.tsx:83
 #: src/app/(tabs)/(settings)/index.tsx:209
-#: src/app/(tabs)/(settings)/integrations.tsx:72
+#: src/app/(tabs)/(settings)/integrations.tsx:47
 msgid "API tokens"
 msgstr "API 토큰"
 
@@ -1271,7 +1275,6 @@ msgstr "서버에 연결할 수 없음"
 #: src/app/(tabs)/(settings)/flex-sync.tsx:106
 #: src/app/(tabs)/(settings)/funding.tsx:140
 #: src/app/(tabs)/(settings)/index.tsx:116
-#: src/app/(tabs)/(settings)/integrations.tsx:39
 #: src/app/(tabs)/(settings)/prop-settings.tsx:73
 #: src/app/(tabs)/(settings)/prop-settings.tsx:97
 #: src/app/(tabs)/(settings)/prop-settings.tsx:123
@@ -1417,6 +1420,10 @@ msgstr "클래식"
 msgid "Clear filters"
 msgstr "필터 지우기"
 
+#: src/app/(tabs)/(settings)/web-address.tsx:92
+msgid "Clear override"
+msgstr "재정의 해제"
+
 #: src/app/(tabs)/(settings)/account-form.tsx:396
 msgid "Clear trade history"
 msgstr "거래 기록 지우기"
@@ -1428,6 +1435,10 @@ msgstr "거래 기록을 지울까요?"
 #: src/app/(tabs)/(settings)/account-form.tsx:210
 msgid "Clear trades"
 msgstr "거래 지우기"
+
+#: src/app/(tabs)/(settings)/web-address.tsx:89
+msgid "Clearing falls back to the address your server reports."
+msgstr "해제하면 서버가 알려주는 주소로 돌아갑니다."
 
 #: src/app/(tabs)/(settings)/account-form.tsx:396
 msgid "Clearing…"
@@ -1748,7 +1759,6 @@ msgstr "토큰을 폐기하지 못했습니다"
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:165
 #: src/app/(tabs)/(settings)/flex-sync.tsx:64
 #: src/app/(tabs)/(settings)/flex-sync.tsx:92
-#: src/app/(tabs)/(settings)/integrations.tsx:46
 #: src/app/(tabs)/(settings)/prop-settings.tsx:53
 #: src/app/(tabs)/(settings)/prop-settings.tsx:79
 #: src/app/(tabs)/(settings)/prop-settings.tsx:108
@@ -1757,6 +1767,7 @@ msgstr "토큰을 폐기하지 못했습니다"
 #: src/app/(tabs)/(settings)/trading-journal.tsx:49
 #: src/app/(tabs)/(settings)/trading-journal.tsx:63
 #: src/app/(tabs)/(settings)/trading-journal.tsx:92
+#: src/app/(tabs)/(settings)/web-address.tsx:45
 #: src/app/cash-form.tsx:112
 #: src/app/edit-note.tsx:55
 #: src/app/edit-trade.tsx:85
@@ -1892,7 +1903,7 @@ msgid "Current password"
 msgstr "현재 비밀번호"
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:326
-#: src/app/(tabs)/(settings)/integrations.tsx:31
+#: src/app/(tabs)/(settings)/integrations.tsx:30
 #: src/lib/tags.ts:5
 msgid "Custom"
 msgstr "사용자 지정"
@@ -1960,7 +1971,7 @@ msgstr "다크"
 #~ msgid "Data"
 #~ msgstr "데이터"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:83
+#: src/app/(tabs)/(settings)/_layout.tsx:87
 #: src/app/(tabs)/(settings)/general.tsx:45
 #: src/app/(tabs)/(settings)/index.tsx:234
 msgid "Data & backup"
@@ -2127,7 +2138,7 @@ msgstr "방향"
 #~ msgid "Disconnect?"
 #~ msgstr "연결을 해제할까요?"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:64
+#: src/app/(tabs)/(settings)/_layout.tsx:68
 #: src/app/(tabs)/(settings)/general.tsx:27
 #: src/app/(tabs)/(settings)/index.tsx:222
 msgid "Display"
@@ -2347,7 +2358,7 @@ msgstr "유효한 시작 잔고를 입력하세요."
 msgid "Enter a value."
 msgstr "값을 입력하세요."
 
-#: src/app/(tabs)/(settings)/integrations.tsx:46
+#: src/app/(tabs)/(settings)/web-address.tsx:45
 msgid "Enter a web address like https://tm.example.com."
 msgstr "https://tm.example.com 형식의 주소를 입력하세요."
 
@@ -2569,7 +2580,7 @@ msgstr "앱 설정 내보내기"
 #~ msgid "Export config"
 #~ msgstr "설정 내보내기"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:93
+#: src/app/(tabs)/(settings)/_layout.tsx:97
 #: src/app/(tabs)/(settings)/data-backup.tsx:88
 #: src/app/(tabs)/(settings)/index.tsx:246
 msgid "Export data"
@@ -2806,7 +2817,7 @@ msgstr "파일에서"
 msgid "From IBKR Client Portal: Performance & Reports → Flex Queries. The token is stored server-side only."
 msgstr "IBKR 클라이언트 포털: Performance & Reports → Flex Queries. 토큰은 서버에만 저장됩니다."
 
-#: src/app/(tabs)/(settings)/integrations.tsx:31
+#: src/app/(tabs)/(settings)/integrations.tsx:30
 msgid "From server"
 msgstr "서버에서 가져옴"
 
@@ -2849,7 +2860,7 @@ msgstr "갭 상단"
 msgid "Gap top must sit above the bottom — check the edges"
 msgstr "갭 상단은 하단보다 위여야 합니다 — 값을 확인하세요"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:60
+#: src/app/(tabs)/(settings)/_layout.tsx:64
 #: src/app/(tabs)/(settings)/index.tsx:455
 msgid "General"
 msgstr "일반"
@@ -2985,7 +2996,7 @@ msgstr "시간대"
 msgid "How did the session go? Use \"- [ ]\" for checklist items."
 msgstr "세션은 어땠나요? \"- [ ]\"로 체크 항목을 만들 수 있습니다."
 
-#: src/app/(tabs)/(settings)/_layout.tsx:72
+#: src/app/(tabs)/(settings)/_layout.tsx:76
 #: src/app/(tabs)/(settings)/account-form.tsx:378
 #: src/app/(tabs)/(settings)/flex-sync.tsx:116
 msgid "IBKR Flex sync"
@@ -3068,7 +3079,7 @@ msgstr "가져오기 실패"
 msgid "Import into"
 msgstr "가져올 계좌"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:89
+#: src/app/(tabs)/(settings)/_layout.tsx:93
 #: src/app/(tabs)/(settings)/data-backup.tsx:83
 #: src/app/(tabs)/(settings)/index.tsx:240
 msgid "Import trades"
@@ -3176,7 +3187,7 @@ msgstr "켈리 (절반)"
 msgid "Kelly criterion"
 msgstr "켈리 기준"
 
-#: src/app/(tabs)/(settings)/integrations.tsx:62
+#: src/app/(tabs)/(settings)/integrations.tsx:37
 msgid "Keys are stored on your server, never on the device or with third parties."
 msgstr "키는 서버에만 저장되며 기기나 제3자에게 전달되지 않습니다."
 
@@ -4003,8 +4014,8 @@ msgid "Not rated"
 msgstr "평가 없음"
 
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:295
-#: src/app/(tabs)/(settings)/integrations.tsx:31
-#: src/app/(tabs)/(settings)/integrations.tsx:89
+#: src/app/(tabs)/(settings)/integrations.tsx:30
+#: src/app/(tabs)/(settings)/integrations.tsx:64
 #: src/app/(tabs)/(settings)/prop-settings.tsx:129
 #: src/app/(tabs)/(settings)/trading-journal.tsx:129
 msgid "Not set"
@@ -4669,7 +4680,7 @@ msgstr "프랍"
 msgid "Prop evaluation"
 msgstr "프랍 평가"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:68
+#: src/app/(tabs)/(settings)/_layout.tsx:72
 #: src/app/(tabs)/(settings)/account-form.tsx:370
 #: src/app/(tabs)/(settings)/prop-settings.tsx:135
 msgid "Prop rules"
@@ -5116,7 +5127,7 @@ msgstr "리스크 %"
 msgid "Risk budget under 1 contract — raise Risk% or tighten the stop"
 msgstr "리스크 예산이 1계약 미만 — 리스크%를 높이거나 스톱을 좁히세요"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:61
+#: src/app/(tabs)/(settings)/_layout.tsx:65
 #: src/app/(tabs)/(settings)/index.tsx:185
 #: src/app/(tabs)/(settings)/trading-journal.tsx:136
 msgid "Risk rules"
@@ -5219,12 +5230,12 @@ msgstr "토"
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:306
 #: src/app/(tabs)/(settings)/change-password.tsx:111
 #: src/app/(tabs)/(settings)/flex-sync.tsx:147
-#: src/app/(tabs)/(settings)/integrations.tsx:41
 #: src/app/(tabs)/(settings)/prop-settings.tsx:75
 #: src/app/(tabs)/(settings)/prop-settings.tsx:99
 #: src/app/(tabs)/(settings)/risk-rules.tsx:54
 #: src/app/(tabs)/(settings)/trading-journal.tsx:59
 #: src/app/(tabs)/(settings)/trading-journal.tsx:83
+#: src/app/(tabs)/(settings)/web-address.tsx:83
 #: src/components/form-sheet.tsx:161
 msgid "Save"
 msgstr "저장"
@@ -5524,7 +5535,7 @@ msgid "Share link"
 msgstr "공유 링크"
 
 #. placeholder {0}: source.toLowerCase()
-#: src/app/(tabs)/(settings)/integrations.tsx:81
+#: src/app/(tabs)/(settings)/integrations.tsx:56
 msgid "Share links are built from this address ({0})."
 msgstr "공유 링크는 이 주소({0})로 만들어집니다."
 
@@ -5532,7 +5543,7 @@ msgstr "공유 링크는 이 주소({0})로 만들어집니다."
 #~ msgid "Share links are built from this address ({0}). Set it when your web app and API live on different domains."
 #~ msgstr "공유 링크는 이 주소({0})로 만들어집니다. 웹 앱과 API가 서로 다른 도메인에 있을 때 설정하세요."
 
-#: src/app/(tabs)/(settings)/integrations.tsx:82
+#: src/app/(tabs)/(settings)/integrations.tsx:57
 msgid "Share links need this address. Your server doesn't advertise one, so set the domain your web app is served from."
 msgstr "공유 링크에는 이 주소가 필요합니다. 서버가 알려주지 않으므로 웹 앱이 제공되는 도메인을 설정하세요."
 
@@ -6614,8 +6625,8 @@ msgstr "무승부"
 msgid "Watch"
 msgstr "주의"
 
-#: src/app/(tabs)/(settings)/integrations.tsx:36
-#: src/app/(tabs)/(settings)/integrations.tsx:88
+#: src/app/(tabs)/(settings)/_layout.tsx:62
+#: src/app/(tabs)/(settings)/integrations.tsx:63
 msgid "Web app address"
 msgstr "웹 앱 주소"
 
@@ -6672,8 +6683,8 @@ msgid "When something authenticates with this token, the IP and app it used show
 msgstr "이 토큰으로 인증이 일어나면 사용된 IP와 앱이 여기에 표시됩니다."
 
 #: src/app/(tabs)/(settings)/integrations.tsx:37
-msgid "Where share links open. Leave blank to use the address your server reports, or the server itself."
-msgstr "공유 링크가 열리는 주소입니다. 비워 두면 서버가 알려주는 주소를, 없으면 서버 자체를 사용합니다."
+#~ msgid "Where share links open. Leave blank to use the address your server reports, or the server itself."
+#~ msgstr "공유 링크가 열리는 주소입니다. 비워 두면 서버가 알려주는 주소를, 없으면 서버 자체를 사용합니다."
 
 #: src/components/trade-form.tsx:518
 msgid "Why did you enter?"
@@ -6848,6 +6859,14 @@ msgstr "이제 비밀번호만으로 로그인합니다."
 #: src/app/(tabs)/(dashboard)/wrapped.tsx:274
 msgid "Your rhythm"
 msgstr "나의 리듬"
+
+#: src/app/(tabs)/(settings)/web-address.tsx:64
+msgid "Your server doesn't report one, so share links need this address. Use the domain your web app is served from — not the API address."
+msgstr "서버가 알려주지 않으므로 공유 링크에 이 주소가 필요합니다. API 주소가 아니라 웹 앱이 제공되는 도메인을 입력하세요."
+
+#: src/app/(tabs)/(settings)/web-address.tsx:63
+msgid "Your server reports {advertised}. Set an address here only to override it."
+msgstr "서버는 {advertised} 을(를) 알려줍니다. 재정의할 때만 여기에 주소를 설정하세요."
 
 #: src/lib/errors.ts:118
 msgid "Your session expired. Sign in again."
