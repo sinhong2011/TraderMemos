@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/store"
 )
 
@@ -43,7 +43,7 @@ const (
 
 func Middleware(j *JWT, users UserStore, tokens TokenStore) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
+		return func(c *echo.Context) error {
 			h := c.Request().Header.Get("Authorization")
 			if !strings.HasPrefix(h, "Bearer ") {
 				return echo.NewHTTPError(http.StatusUnauthorized, "missing token")
@@ -72,7 +72,7 @@ func Middleware(j *JWT, users UserStore, tokens TokenStore) echo.MiddlewareFunc 
 	}
 }
 
-func authenticatePAT(c echo.Context, tokens TokenStore, secret string) (string, error) {
+func authenticatePAT(c *echo.Context, tokens TokenStore, secret string) (string, error) {
 	if tokens == nil {
 		return "", echo.ErrUnauthorized
 	}
@@ -120,7 +120,7 @@ func recordUse(ctx context.Context, tokens TokenStore, tokenID, ip, agent string
 	})
 }
 
-func UserID(c echo.Context) string {
+func UserID(c *echo.Context) string {
 	if v, ok := c.Get(userKey).(string); ok {
 		return v
 	}

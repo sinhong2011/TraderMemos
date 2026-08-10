@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/auth"
 	"github.com/tradermemos/api/internal/coach"
 	"github.com/tradermemos/api/internal/store"
@@ -18,7 +18,7 @@ type coachReviewDTO struct {
 	Error  string       `json:"error,omitempty"`
 }
 
-func (s *Server) handleTradeCoach(c echo.Context) error {
+func (s *Server) handleTradeCoach(c *echo.Context) error {
 	ctx := c.Request().Context()
 	uid := auth.UserID(c)
 	tradeID := c.Param("id")
@@ -51,9 +51,9 @@ func (s *Server) handleTradeCoach(c echo.Context) error {
 			msg = "coach generation failed"
 		}
 		if errors.Is(err, coach.ErrTimeout) {
-			s.logger.Warn("coach review timed out", "trade_id", tradeID, "err", err)
+			c.Logger().Warn("coach review timed out", "trade_id", tradeID, "err", err)
 		} else {
-			s.logger.Warn("coach review failed", "trade_id", tradeID, "err", err)
+			c.Logger().Warn("coach review failed", "trade_id", tradeID, "err", err)
 		}
 		return c.JSON(http.StatusOK, coachReviewDTO{
 			Source: "error",

@@ -3,7 +3,7 @@ package api
 import (
 	"net/http"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/analytics"
 	"github.com/tradermemos/api/internal/auth"
 	"github.com/tradermemos/api/internal/store"
@@ -45,7 +45,7 @@ func toClosedTrades(rows []store.Trade) []analytics.ClosedTrade {
 	return out
 }
 
-func (s *Server) handleSummary(c echo.Context) error {
+func (s *Server) handleSummary(c *echo.Context) error {
 	f, err := parseFilters(c)
 	if err != nil {
 		return Fail(http.StatusBadRequest, "bad_request", err.Error(), nil)
@@ -57,7 +57,7 @@ func (s *Server) handleSummary(c echo.Context) error {
 	return c.JSON(http.StatusOK, analytics.Summarize(toClosedTrades(rows)))
 }
 
-func (s *Server) handleRSummary(c echo.Context) error {
+func (s *Server) handleRSummary(c *echo.Context) error {
 	ctx := c.Request().Context()
 	uid := auth.UserID(c)
 	f, err := parseFilters(c)
@@ -96,7 +96,7 @@ func (s *Server) handleRSummary(c echo.Context) error {
 	return c.JSON(http.StatusOK, analytics.SummarizeR(withRisk, excluded))
 }
 
-func (s *Server) handleDaily(c echo.Context) error {
+func (s *Server) handleDaily(c *echo.Context) error {
 	f, err := parseFilters(c)
 	if err != nil {
 		return Fail(http.StatusBadRequest, "bad_request", err.Error(), nil)
@@ -108,7 +108,7 @@ func (s *Server) handleDaily(c echo.Context) error {
 	return c.JSON(http.StatusOK, analytics.DailyPnl(toClosedTrades(rows), f.DateBasis, f.Loc))
 }
 
-func (s *Server) handleEquityCurve(c echo.Context) error {
+func (s *Server) handleEquityCurve(c *echo.Context) error {
 	ctx := c.Request().Context()
 	uid := auth.UserID(c)
 	f, err := parseFilters(c)

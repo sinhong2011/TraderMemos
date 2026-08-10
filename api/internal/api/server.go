@@ -1,14 +1,17 @@
 package api
 
 import (
+	"context"
 	"log/slog"
 	"net/http"
+	"os"
+	"os/signal"
 	"runtime"
-	"strconv"
+	"syscall"
 	"time"
 
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
+	"github.com/labstack/echo/v5"
+	"github.com/labstack/echo/v5/middleware"
 	"github.com/tradermemos/api/internal/auth"
 	"github.com/tradermemos/api/internal/econdata"
 	"github.com/tradermemos/api/internal/flexsync"
@@ -18,7 +21,6 @@ import (
 	"github.com/tradermemos/api/internal/store"
 	"github.com/tradermemos/api/internal/trades"
 	"github.com/tradermemos/api/internal/version"
-	"golang.org/x/time/rate"
 )
 
 // Deps holds the services handlers need. Populated in cmd/server.
@@ -43,7 +45,7 @@ type Deps struct {
 	// separately (Vercel, Cloudflare Pages, etc.). Empty disables CORS.
 	CORSOrigins []string
 	// AuthRateLimit is requests/second per IP for auth + setup routes. 0 disables.
-	AuthRateLimit rate.Limit
+	AuthRateLimit float64
 	// Driver is the database driver name ("sqlite" or "postgres") for /system/info.
 	Driver string
 	// Features reports which optional subsystems this deployment has enabled.
@@ -64,26 +66,24 @@ func New(deps Deps) *Server {
 	}
 
 	e := echo.New()
-	e.HideBanner = true
+	// Echo v5 logs through log/slog, so its internal output joins ours instead
+	// of going to a separate gommon logger.
+	e.Logger = lg
 	e.HTTPErrorHandler = errorHandler
 	e.Use(middleware.RequestID())
+	// Bind the request id into the logger handlers reach through c.Logger(),
+	// so a warning raised deep in a handler ties back to the request line
+	// carrying its route, status and latency.
+	e.Use(ContextLogger(lg))
 	e.Use(RequestLogger(lg))
-	// Panics must land in the structured log, not echo's own gommon logger.
-	e.Use(middleware.RecoverWithConfig(middleware.RecoverConfig{
-		LogErrorFunc: func(c echo.Context, err error, stack []byte) error {
-			lg.Error("panic recovered",
-				"err", err.Error(),
-				"stack", string(stack),
-				"id", c.Response().Header().Get(echo.HeaderXRequestID),
-			)
-			return err
-		},
-	}))
+	// Recover reports a panic as a *middleware.PanicStackError carrying the
+	// stack, which RequestLogger unpacks into the request's own log line.
+	e.Use(middleware.Recover())
 	if len(deps.CORSOrigins) > 0 {
 		origins := deps.CORSOrigins
 		e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-			AllowOriginFunc: func(origin string) (bool, error) {
-				return OriginAllowed(origin, origins), nil
+			UnsafeAllowOriginFunc: func(c *echo.Context, origin string) (string, bool, error) {
+				return origin, OriginAllowed(origin, origins), nil
 			},
 			AllowMethods: []string{
 				http.MethodGet,
@@ -107,11 +107,11 @@ func New(deps Deps) *Server {
 	// Reject oversized request bodies at read time (before multipart parse).
 	// Sized to the largest configured upload cap; a 16KiB floor covers JSON.
 	if lim := bodyLimit(deps); lim > 0 {
-		e.Use(middleware.BodyLimit(strconv.FormatInt(lim, 10) + "B"))
+		e.Use(middleware.BodyLimit(lim))
 	}
 
 	s := &Server{Echo: e, deps: deps, logger: lg, startedAt: time.Now()}
-	e.GET("/healthz", func(c echo.Context) error {
+	e.GET("/healthz", func(c *echo.Context) error {
 		payload := map[string]string{
 			"status":  "ok",
 			"version": version.Version,
@@ -125,6 +125,35 @@ func New(deps Deps) *Server {
 	s.docsRoutes()
 	s.routes()
 	return s
+}
+
+// Start serves the API on addr until SIGINT/SIGTERM, then drains in-flight
+// requests before returning. It returns nil on a clean shutdown.
+//
+// Echo's banner and port lines are suppressed because cmd/server already logs
+// both, with the build and database detail that actually matters.
+func (s *Server) Start(addr string) error {
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	return echo.StartConfig{
+		Address:    addr,
+		HideBanner: true,
+		HidePort:   true,
+		OnShutdownError: func(err error) {
+			s.logger.Error("graceful shutdown timed out", "err", err)
+		},
+		BeforeServeFunc: func(srv *http.Server) error {
+			// Echo defaults ReadTimeout to 30s, but that is a budget for the
+			// whole request: it would cut off a large attachment, import or
+			// OCR upload on a slow link. Bound the header read instead — that
+			// is what closes the Slowloris hole the default was added for —
+			// and leave the body untimed, since BodyLimit already caps its size.
+			srv.ReadHeaderTimeout = 30 * time.Second
+			srv.ReadTimeout = 0
+			return nil
+		},
+	}.Start(ctx, s.Echo)
 }
 
 // bodyLimit returns the larger of the configured upload caps (0 = no limit).

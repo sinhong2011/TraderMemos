@@ -5,7 +5,7 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/auth"
 	"github.com/tradermemos/api/internal/excursion"
 	"github.com/tradermemos/api/internal/store"
@@ -24,7 +24,7 @@ type excursionResp struct {
 
 // handleTradeExcursion computes MAE/MFE for a closed trade from market bars
 // and saves the result into the trade journal.
-func (s *Server) handleTradeExcursion(c echo.Context) error {
+func (s *Server) handleTradeExcursion(c *echo.Context) error {
 	ctx := c.Request().Context()
 	uid := auth.UserID(c)
 	id := c.Param("id")
@@ -48,7 +48,7 @@ func (s *Server) handleTradeExcursion(c echo.Context) error {
 		errors.Is(err, excursion.ErrBarsExpired):
 		return Fail(http.StatusUnprocessableEntity, "unprocessable", err.Error(), nil)
 	case errors.Is(err, excursion.ErrBarsFetch):
-		s.logger.Warn("excursion bars fetch failed", "trade", id, "symbol", t.Symbol, "err", err)
+		c.Logger().Warn("excursion bars fetch failed", "trade", id, "symbol", t.Symbol, "err", err)
 		return Fail(http.StatusBadGateway, "upstream_error", "could not fetch market data", nil)
 	case errors.Is(err, excursion.ErrNoBars):
 		return Fail(http.StatusUnprocessableEntity, "unprocessable", "no market data covers this trade window", nil)

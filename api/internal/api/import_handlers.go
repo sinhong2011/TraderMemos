@@ -14,7 +14,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/auth"
 	"github.com/tradermemos/api/internal/importer"
 	"github.com/tradermemos/api/internal/store"
@@ -115,7 +115,7 @@ func stripBOMHeaders(headers []string) []string {
 	return out
 }
 
-func (s *Server) handleImportPreview(c echo.Context) error {
+func (s *Server) handleImportPreview(c *echo.Context) error {
 	uid := auth.UserID(c)
 	ctx := c.Request().Context()
 	if s.deps.ImportMaxBytes > 0 && c.Request().ContentLength > s.deps.ImportMaxBytes {
@@ -290,7 +290,7 @@ type importResult struct {
 
 // handleImportCommitFresh creates account (if needed) + batch, then commits in one step.
 // Web uses this after a parse-only preview (no pending batch).
-func (s *Server) handleImportCommitFresh(c echo.Context) error {
+func (s *Server) handleImportCommitFresh(c *echo.Context) error {
 	ctx := c.Request().Context()
 	uid := auth.UserID(c)
 	if s.deps.ImportMaxBytes > 0 && c.Request().ContentLength > s.deps.ImportMaxBytes {
@@ -342,7 +342,7 @@ func (s *Server) handleImportCommitFresh(c echo.Context) error {
 	return s.finishImportCommit(c, uid, batch, loaded)
 }
 
-func (s *Server) handleImportCommit(c echo.Context) error {
+func (s *Server) handleImportCommit(c *echo.Context) error {
 	ctx := c.Request().Context()
 	uid := auth.UserID(c)
 	if s.deps.ImportMaxBytes > 0 && c.Request().ContentLength > s.deps.ImportMaxBytes {
@@ -366,7 +366,7 @@ func (s *Server) handleImportCommit(c echo.Context) error {
 	return s.finishImportCommit(c, uid, batch, loaded)
 }
 
-func (s *Server) finishImportCommit(c echo.Context, uid string, batch store.ImportBatch, loaded loadedImport) error {
+func (s *Server) finishImportCommit(c *echo.Context, uid string, batch store.ImportBatch, loaded loadedImport) error {
 	// The upload is fully read by now. Detach from the request context so a
 	// client or proxy disconnect (e.g. a 120s proxy timeout on a large file)
 	// cannot cancel the import halfway through.
@@ -538,7 +538,7 @@ func (s *Server) applyJSONCashTransactions(
 	return inserted, nil
 }
 
-func journalOptionOverrides(c echo.Context) *importer.JournalParseOptions {
+func journalOptionOverrides(c *echo.Context) *importer.JournalParseOptions {
 	raw := c.FormValue("journal_option_overrides")
 	if raw == "" {
 		return nil
@@ -563,7 +563,7 @@ func journalOptionOverrides(c echo.Context) *importer.JournalParseOptions {
 	return &importer.JournalParseOptions{OptionRightByRow: overrides}
 }
 
-func (s *Server) handleListImports(c echo.Context) error {
+func (s *Server) handleListImports(c *echo.Context) error {
 	rows, err := s.deps.Store.ListImportBatches(c.Request().Context(), auth.UserID(c))
 	if err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not list imports", nil)
@@ -574,7 +574,7 @@ func (s *Server) handleListImports(c echo.Context) error {
 	return c.JSON(http.StatusOK, rows)
 }
 
-func (s *Server) handleDeleteImport(c echo.Context) error {
+func (s *Server) handleDeleteImport(c *echo.Context) error {
 	ctx := c.Request().Context()
 	uid := auth.UserID(c)
 	batchID := c.Param("id")

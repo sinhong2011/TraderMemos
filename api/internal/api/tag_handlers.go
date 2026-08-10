@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/google/uuid"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/auth"
 	"github.com/tradermemos/api/internal/store"
 )
@@ -30,7 +30,7 @@ func normalizeTagKind(kind string) string {
 	return "custom"
 }
 
-func (s *Server) handleCreateTag(c echo.Context) error {
+func (s *Server) handleCreateTag(c *echo.Context) error {
 	var in createTagReq
 	if err := c.Bind(&in); err != nil || in.Name == "" {
 		return Fail(http.StatusBadRequest, "bad_request", "name is required", nil)
@@ -48,7 +48,7 @@ func (s *Server) handleCreateTag(c echo.Context) error {
 	return c.JSON(http.StatusCreated, tag)
 }
 
-func (s *Server) handleUpdateTag(c echo.Context) error {
+func (s *Server) handleUpdateTag(c *echo.Context) error {
 	var in createTagReq
 	if err := c.Bind(&in); err != nil || in.Name == "" {
 		return Fail(http.StatusBadRequest, "bad_request", "name is required", nil)
@@ -71,7 +71,7 @@ func (s *Server) handleUpdateTag(c echo.Context) error {
 	return c.NoContent(http.StatusNoContent)
 }
 
-func (s *Server) handleListTags(c echo.Context) error {
+func (s *Server) handleListTags(c *echo.Context) error {
 	rows, err := s.deps.Store.ListTags(c.Request().Context(), auth.UserID(c))
 	if err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not list tags", nil)
@@ -82,7 +82,7 @@ func (s *Server) handleListTags(c echo.Context) error {
 	return c.JSON(http.StatusOK, rows)
 }
 
-func (s *Server) handleDeleteTag(c echo.Context) error {
+func (s *Server) handleDeleteTag(c *echo.Context) error {
 	n, err := s.deps.Store.DeleteTag(c.Request().Context(), store.DeleteTagParams{
 		ID: c.Param("id"), UserID: auth.UserID(c),
 	})

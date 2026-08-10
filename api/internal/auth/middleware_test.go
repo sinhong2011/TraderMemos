@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/stretchr/testify/require"
 	"github.com/tradermemos/api/internal/store"
 )
@@ -39,7 +39,7 @@ func (s *testTokenStore) TouchAccessTokenLastUsed(ctx context.Context, id string
 func TestMiddlewareRejectsMissingToken(t *testing.T) {
 	e := echo.New()
 	m := NewJWT("s")
-	h := Middleware(m, nil, nil)(func(c echo.Context) error { return c.String(200, "ok") })
+	h := Middleware(m, nil, nil)(func(c *echo.Context) error { return c.String(200, "ok") })
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	rec := httptest.NewRecorder()
 	require.Error(t, h(e.NewContext(req, rec)))
@@ -50,7 +50,7 @@ func TestMiddlewareInjectsUserID(t *testing.T) {
 	m := NewJWT("s")
 	tok, _ := m.Mint("u-1", time.Minute, TokenAccess, "")
 	var seen string
-	h := Middleware(m, nil, nil)(func(c echo.Context) error {
+	h := Middleware(m, nil, nil)(func(c *echo.Context) error {
 		seen = UserID(c)
 		return c.String(200, "ok")
 	})
@@ -69,7 +69,7 @@ func TestMiddlewareRejectsTokenWhenUserDeleted(t *testing.T) {
 			return store.User{}, errors.New("not found")
 		},
 	}
-	h := Middleware(m, users, nil)(func(c echo.Context) error { return c.String(200, "ok") })
+	h := Middleware(m, users, nil)(func(c *echo.Context) error { return c.String(200, "ok") })
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	req.Header.Set("Authorization", "Bearer "+tok)
 	err := h(e.NewContext(req, httptest.NewRecorder()))
@@ -91,7 +91,7 @@ func TestMiddlewareAcceptsPAT(t *testing.T) {
 		},
 	}
 	var seen string
-	h := Middleware(m, nil, tokens)(func(c echo.Context) error {
+	h := Middleware(m, nil, tokens)(func(c *echo.Context) error {
 		seen = UserID(c)
 		return c.String(200, "ok")
 	})
@@ -119,7 +119,7 @@ func TestMiddlewareRejectsExpiredPAT(t *testing.T) {
 			}, nil
 		},
 	}
-	h := Middleware(m, nil, tokens)(func(c echo.Context) error { return c.String(200, "ok") })
+	h := Middleware(m, nil, tokens)(func(c *echo.Context) error { return c.String(200, "ok") })
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	req.Header.Set("Authorization", "Bearer "+secret)
 	err = h(e.NewContext(req, httptest.NewRecorder()))
@@ -139,7 +139,7 @@ func TestMiddlewareRejectsUnknownPAT(t *testing.T) {
 			return store.AccessToken{}, errors.New("not found")
 		},
 	}
-	h := Middleware(m, nil, tokens)(func(c echo.Context) error { return c.String(200, "ok") })
+	h := Middleware(m, nil, tokens)(func(c *echo.Context) error { return c.String(200, "ok") })
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	req.Header.Set("Authorization", "Bearer "+secret)
 	err = h(e.NewContext(req, httptest.NewRecorder()))

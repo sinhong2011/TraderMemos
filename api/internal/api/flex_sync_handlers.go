@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/auth"
 	"github.com/tradermemos/api/internal/flexsync"
 	"github.com/tradermemos/api/internal/store"
@@ -61,7 +61,7 @@ func toFlexSyncDTO(r store.FlexSyncSetting) flexSyncDTO {
 	return dto
 }
 
-func (s *Server) handleGetFlexSync(c echo.Context) error {
+func (s *Server) handleGetFlexSync(c *echo.Context) error {
 	acct, err := s.ownAccount(c)
 	if err != nil {
 		return err
@@ -78,7 +78,7 @@ func (s *Server) handleGetFlexSync(c echo.Context) error {
 	return c.JSON(http.StatusOK, toFlexSyncDTO(row))
 }
 
-func (s *Server) handlePutFlexSync(c echo.Context) error {
+func (s *Server) handlePutFlexSync(c *echo.Context) error {
 	ctx := c.Request().Context()
 	uid := auth.UserID(c)
 	acct, err := s.ownAccount(c)
@@ -123,7 +123,7 @@ func (s *Server) handlePutFlexSync(c echo.Context) error {
 	return c.JSON(http.StatusOK, toFlexSyncDTO(row))
 }
 
-func (s *Server) handleDeleteFlexSync(c echo.Context) error {
+func (s *Server) handleDeleteFlexSync(c *echo.Context) error {
 	acct, err := s.ownAccount(c)
 	if err != nil {
 		return err
@@ -138,7 +138,7 @@ func (s *Server) handleDeleteFlexSync(c echo.Context) error {
 
 // handleRunFlexSync triggers one synchronous sync. IBKR statement generation
 // can take tens of seconds; the UI shows a progress state meanwhile.
-func (s *Server) handleRunFlexSync(c echo.Context) error {
+func (s *Server) handleRunFlexSync(c *echo.Context) error {
 	ctx := c.Request().Context()
 	uid := auth.UserID(c)
 	acct, err := s.ownAccount(c)

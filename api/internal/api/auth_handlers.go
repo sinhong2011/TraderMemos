@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	"github.com/google/uuid"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/auth"
 	"github.com/tradermemos/api/internal/store"
 )
@@ -24,7 +24,7 @@ func (s *Server) authRoutes(g *echo.Group) {
 	g.POST("/auth/refresh", s.handleRefresh)
 }
 
-func (s *Server) handleSetupStatus(c echo.Context) error {
+func (s *Server) handleSetupStatus(c *echo.Context) error {
 	if s.deps.Auth == nil {
 		return Fail(http.StatusServiceUnavailable, "unavailable", "auth not configured", nil)
 	}
@@ -60,7 +60,7 @@ type setupReq struct {
 	} `json:"account"`
 }
 
-func (s *Server) handleSetupComplete(c echo.Context) error {
+func (s *Server) handleSetupComplete(c *echo.Context) error {
 	if s.deps.Auth == nil {
 		return Fail(http.StatusServiceUnavailable, "unavailable", "auth not configured", nil)
 	}
@@ -118,7 +118,7 @@ func (s *Server) handleSetupComplete(c echo.Context) error {
 	})
 }
 
-func (s *Server) handleRegister(c echo.Context) error {
+func (s *Server) handleRegister(c *echo.Context) error {
 	var in credentials
 	if err := c.Bind(&in); err != nil || in.Email == "" || in.Password == "" {
 		return Fail(http.StatusBadRequest, "bad_request", "email and password required", nil)
@@ -137,7 +137,7 @@ func (s *Server) handleRegister(c echo.Context) error {
 	return c.JSON(http.StatusCreated, map[string]any{"id": u.ID, "email": u.Email, "is_admin": u.IsAdmin == 1})
 }
 
-func (s *Server) handleLogin(c echo.Context) error {
+func (s *Server) handleLogin(c *echo.Context) error {
 	var in credentials
 	if err := c.Bind(&in); err != nil {
 		return Fail(http.StatusBadRequest, "bad_request", "invalid body", nil)
@@ -158,7 +158,7 @@ func (s *Server) handleLogin(c echo.Context) error {
 	return c.JSON(http.StatusOK, toks)
 }
 
-func (s *Server) handleRefresh(c echo.Context) error {
+func (s *Server) handleRefresh(c *echo.Context) error {
 	var in struct {
 		Refresh string `json:"refresh_token"`
 	}

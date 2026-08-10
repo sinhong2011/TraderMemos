@@ -5,7 +5,7 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/auth"
 	"github.com/tradermemos/api/internal/prop"
 	"github.com/tradermemos/api/internal/store"
@@ -40,7 +40,7 @@ func toPropSettingsDTO(r store.PropSetting) propSettingsDTO {
 	}
 }
 
-func (s *Server) ownAccount(c echo.Context) (store.Account, error) {
+func (s *Server) ownAccount(c *echo.Context) (store.Account, error) {
 	acct, err := s.deps.Store.GetAccount(c.Request().Context(), store.GetAccountParams{
 		ID: c.Param("id"), UserID: auth.UserID(c),
 	})
@@ -53,7 +53,7 @@ func (s *Server) ownAccount(c echo.Context) (store.Account, error) {
 	return acct, nil
 }
 
-func (s *Server) handleGetPropSettings(c echo.Context) error {
+func (s *Server) handleGetPropSettings(c *echo.Context) error {
 	acct, err := s.ownAccount(c)
 	if err != nil {
 		return err
@@ -70,7 +70,7 @@ func (s *Server) handleGetPropSettings(c echo.Context) error {
 	return c.JSON(http.StatusOK, toPropSettingsDTO(r))
 }
 
-func (s *Server) handlePutPropSettings(c echo.Context) error {
+func (s *Server) handlePutPropSettings(c *echo.Context) error {
 	acct, err := s.ownAccount(c)
 	if err != nil {
 		return err
@@ -108,7 +108,7 @@ func (s *Server) handlePutPropSettings(c echo.Context) error {
 	return c.JSON(http.StatusOK, toPropSettingsDTO(r))
 }
 
-func (s *Server) handleDeletePropSettings(c echo.Context) error {
+func (s *Server) handleDeletePropSettings(c *echo.Context) error {
 	acct, err := s.ownAccount(c)
 	if err != nil {
 		return err
@@ -122,7 +122,7 @@ func (s *Server) handleDeletePropSettings(c echo.Context) error {
 }
 
 // handlePropStatus evaluates the account against its prop program rules.
-func (s *Server) handlePropStatus(c echo.Context) error {
+func (s *Server) handlePropStatus(c *echo.Context) error {
 	ctx := c.Request().Context()
 	uid := auth.UserID(c)
 	acct, err := s.ownAccount(c)

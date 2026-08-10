@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/auth"
 	"github.com/tradermemos/api/internal/store"
 )
@@ -38,7 +38,7 @@ type createAccountReq struct {
 	StartingBalance float64 `json:"starting_balance"`
 }
 
-func (s *Server) handleCreateAccount(c echo.Context) error {
+func (s *Server) handleCreateAccount(c *echo.Context) error {
 	uid := auth.UserID(c)
 	ctx := c.Request().Context()
 	var in createAccountReq
@@ -95,7 +95,7 @@ func (s *Server) ensureOpeningDeposit(ctx context.Context, q store.Querier, user
 	return err
 }
 
-func (s *Server) handleListAccounts(c echo.Context) error {
+func (s *Server) handleListAccounts(c *echo.Context) error {
 	accs, err := s.deps.Store.ListAccounts(c.Request().Context(), auth.UserID(c))
 	if err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not list accounts", nil)
@@ -106,7 +106,7 @@ func (s *Server) handleListAccounts(c echo.Context) error {
 	return c.JSON(http.StatusOK, accs)
 }
 
-func (s *Server) handleGetAccount(c echo.Context) error {
+func (s *Server) handleGetAccount(c *echo.Context) error {
 	acc, err := s.deps.Store.GetAccount(c.Request().Context(), store.GetAccountParams{
 		ID: c.Param("id"), UserID: auth.UserID(c),
 	})
@@ -127,7 +127,7 @@ type updateAccountReq struct {
 	StartingBalance *float64 `json:"starting_balance"`
 }
 
-func (s *Server) handleUpdateAccount(c echo.Context) error {
+func (s *Server) handleUpdateAccount(c *echo.Context) error {
 	uid := auth.UserID(c)
 	id := c.Param("id")
 	ctx := c.Request().Context()
@@ -187,7 +187,7 @@ func (s *Server) handleUpdateAccount(c echo.Context) error {
 	return c.JSON(http.StatusOK, updated)
 }
 
-func (s *Server) handleClearAccountTrades(c echo.Context) error {
+func (s *Server) handleClearAccountTrades(c *echo.Context) error {
 	uid := auth.UserID(c)
 	ctx := c.Request().Context()
 	id := c.Param("id")
@@ -214,7 +214,7 @@ func (s *Server) handleClearAccountTrades(c echo.Context) error {
 	return c.NoContent(http.StatusNoContent)
 }
 
-func (s *Server) handleDeleteAccount(c echo.Context) error {
+func (s *Server) handleDeleteAccount(c *echo.Context) error {
 	uid := auth.UserID(c)
 	ctx := c.Request().Context()
 	id := c.Param("id")
