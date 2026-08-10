@@ -130,6 +130,7 @@ func main() {
 		CORSOrigins:       cfg.CORSOrigins,
 		AuthRateLimit:     rate.Limit(2), // 2 req/s per IP on auth + setup + public share
 		ShareLinksEnabled: cfg.ShareLinksEnabled,
+		PublicWebURL:      cfg.PublicWebURL,
 		Driver:            cfg.Driver,
 		Features: map[string]bool{
 			"market_data":     cfg.MarketDataEnabled,

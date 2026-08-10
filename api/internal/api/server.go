@@ -47,6 +47,8 @@ type Deps struct {
 	// ShareLinksEnabled turns on public share pages (off by default — the
 	// public endpoint exposes journal aggregates without auth).
 	ShareLinksEnabled bool
+	// PublicWebURL is the web-app origin advertised to clients for share links.
+	PublicWebURL string
 	// Driver is the database driver name ("sqlite" or "postgres") for /system/info.
 	Driver string
 	// Features reports which optional subsystems this deployment has enabled.
