@@ -1,13 +1,36 @@
 import { Stack } from 'expo-router/stack';
-import { useUnistyles } from 'react-native-unistyles';
+import { View } from 'react-native';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { useAccounts, useCash } from '@/api/hooks';
 import { AccountMenu } from '@/components/account-menu';
+import { HeaderIconButton } from '@/components/header-icon-button';
 import { ReportsFilterMenu } from '@/components/reports-filter-menu';
 import { ToolsMenu } from '@/components/tools-menu';
 import { useSelectedAccountId } from '@/lib/account-store';
 import { netDeposits } from '@/lib/cash';
+import { setPrivacyMode, useDisplayPrefs } from '@/lib/prefs';
 import { t } from '@lingui/core/macro';
+
+/**
+ * Privacy eye + the calculators (#203). Privacy mode is a glance-and-hide
+ * control — one tap here beats the trip to Settings → Display. Every money
+ * surface re-renders from the prefs store via useFormatters, so the flip is
+ * global and instant.
+ */
+function HomeHeaderRight() {
+  const { privacyMode } = useDisplayPrefs();
+  return (
+    <View style={styles.headerRight}>
+      <HeaderIconButton
+        systemImage={privacyMode ? 'eye.slash' : 'eye'}
+        label={privacyMode ? t`Show amounts` : t`Hide amounts`}
+        onPress={() => setPrivacyMode(!privacyMode)}
+      />
+      <ToolsMenu />
+    </View>
+  );
+}
 
 /** The % unit needs a balance to divide by — probed here to label the menu row. */
 function ReportsHeaderFilterMenu() {
@@ -53,10 +76,10 @@ export default function DashboardLayout() {
         name="index"
         options={{
           title: t`Home`,
-          // Account scope leads left; the calculators live right. Creation
-          // moved off Home — the Trades tab owns the + menu.
+          // Account scope leads left; privacy + the calculators live right.
+          // Creation moved off Home — the Trades tab owns the + menu.
           headerLeft: () => <AccountMenu />,
-          headerRight: () => <ToolsMenu />,
+          headerRight: () => <HomeHeaderRight />,
         }}
       />
       <Stack.Screen name="notes" options={{ title: t`Notes`, headerLargeTitle: false }} />
@@ -107,3 +130,7 @@ export default function DashboardLayout() {
     </Stack>
   );
 }
+
+const styles = StyleSheet.create((theme) => ({
+  headerRight: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
+}));
