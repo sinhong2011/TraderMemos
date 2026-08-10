@@ -470,7 +470,7 @@ msgstr "1銘柄が見つかりました"
 msgid "1 trade"
 msgstr "1件"
 
-#: src/app/share-reports-link.tsx:29
+#: src/app/share-reports-link.tsx:30
 msgid "1 year"
 msgstr "1年"
 
@@ -506,7 +506,7 @@ msgstr "24時間制"
 #~ msgid "24-hour (13:30)"
 #~ msgstr "24時間表示 (13:30)"
 
-#: src/app/share-reports-link.tsx:25
+#: src/app/share-reports-link.tsx:26
 msgid "30 days"
 msgstr "30日間"
 
@@ -520,7 +520,7 @@ msgstr "30日"
 msgid "6-digit code"
 msgstr "6桁のコード"
 
-#: src/app/share-reports-link.tsx:27
+#: src/app/share-reports-link.tsx:28
 msgid "90 days"
 msgstr "90日間"
 
@@ -800,7 +800,7 @@ msgid "AI"
 msgstr "AI"
 
 #: src/app/(tabs)/(settings)/index.tsx:203
-#: src/app/(tabs)/(settings)/integrations.tsx:25
+#: src/app/(tabs)/(settings)/integrations.tsx:68
 msgid "AI — vision scan & coach"
 msgstr "AI — 画像スキャン & コーチ"
 
@@ -900,7 +900,7 @@ msgstr "全期間タイプ"
 msgid "Any OpenAI-compatible endpoint works. Test uses the values above, saved or not."
 msgstr "OpenAI互換のエンドポイントなら何でも使えます。テストは保存前でも上の値を使います。"
 
-#: src/app/share-reports-link.tsx:105
+#: src/app/share-reports-link.tsx:113
 msgid "Anyone with the link sees a read-only summary of the current scope — no trades, notes or account details."
 msgstr "リンクを知っている人は現在のスコープの読み取り専用サマリーを閲覧できます — トレード、ノート、口座情報は含まれません。"
 
@@ -915,7 +915,7 @@ msgstr "API サーバー"
 
 #: src/app/(tabs)/(settings)/_layout.tsx:79
 #: src/app/(tabs)/(settings)/index.tsx:209
-#: src/app/(tabs)/(settings)/integrations.tsx:30
+#: src/app/(tabs)/(settings)/integrations.tsx:73
 msgid "API tokens"
 msgstr "APIトークン"
 
@@ -1271,6 +1271,7 @@ msgstr "サーバーに接続できません"
 #: src/app/(tabs)/(settings)/flex-sync.tsx:106
 #: src/app/(tabs)/(settings)/funding.tsx:140
 #: src/app/(tabs)/(settings)/index.tsx:116
+#: src/app/(tabs)/(settings)/integrations.tsx:40
 #: src/app/(tabs)/(settings)/prop-settings.tsx:73
 #: src/app/(tabs)/(settings)/prop-settings.tsx:97
 #: src/app/(tabs)/(settings)/prop-settings.tsx:123
@@ -1583,7 +1584,7 @@ msgstr "枚数"
 msgid "Copied"
 msgstr "コピーしました"
 
-#: src/app/share-reports-link.tsx:165
+#: src/app/share-reports-link.tsx:173
 msgid "Copy"
 msgstr "コピー"
 
@@ -1623,7 +1624,7 @@ msgstr "トレードを消去できませんでした"
 msgid "Could not compute excursion"
 msgstr "エクスカーションを計算できませんでした"
 
-#: src/app/share-reports-link.tsx:71
+#: src/app/share-reports-link.tsx:79
 msgid "Could not create link"
 msgstr "リンクを作成できませんでした"
 
@@ -1747,6 +1748,7 @@ msgstr "トークンを失効できませんでした"
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:165
 #: src/app/(tabs)/(settings)/flex-sync.tsx:64
 #: src/app/(tabs)/(settings)/flex-sync.tsx:92
+#: src/app/(tabs)/(settings)/integrations.tsx:47
 #: src/app/(tabs)/(settings)/prop-settings.tsx:53
 #: src/app/(tabs)/(settings)/prop-settings.tsx:79
 #: src/app/(tabs)/(settings)/prop-settings.tsx:108
@@ -1828,7 +1830,7 @@ msgstr "サーバーに接続できませんでした。上の数値は最後に
 msgid "Create an account first."
 msgstr "まずアカウントを作成してください。"
 
-#: src/app/share-reports-link.tsx:178
+#: src/app/share-reports-link.tsx:186
 msgid "Create link"
 msgstr "リンクを作成"
 
@@ -1890,6 +1892,7 @@ msgid "Current password"
 msgstr "現在のパスワード"
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:326
+#: src/app/(tabs)/(settings)/integrations.tsx:32
 #: src/lib/tags.ts:5
 msgid "Custom"
 msgstr "カスタム"
@@ -2171,7 +2174,7 @@ msgstr "金額"
 #: src/app/login.tsx:385
 #: src/app/manage-tags.tsx:60
 #: src/app/new-token.tsx:80
-#: src/app/share-reports-link.tsx:100
+#: src/app/share-reports-link.tsx:108
 #: src/app/share-trade.tsx:83
 #: src/app/share-wrapped.tsx:93
 #: src/components/tool-sheet.tsx:18
@@ -2343,6 +2346,10 @@ msgstr "有効な開始残高を入力してください。"
 #: src/lib/risk-rules.ts:91
 msgid "Enter a value."
 msgstr "値を入力してください。"
+
+#: src/app/(tabs)/(settings)/integrations.tsx:47
+msgid "Enter a web address like https://tm.example.com."
+msgstr "https://tm.example.com のような URL を入力してください。"
 
 #: src/app/(tabs)/(settings)/flex-sync.tsx:92
 msgid "Enter the Flex Query ID."
@@ -2528,7 +2535,7 @@ msgstr "期待値"
 msgid "Expired"
 msgstr "期限切れ"
 
-#: src/app/share-reports-link.tsx:124
+#: src/app/share-reports-link.tsx:132
 msgid "Expires"
 msgstr "有効期限"
 
@@ -2798,6 +2805,10 @@ msgstr "ファイルから"
 #: src/app/(tabs)/(settings)/flex-sync.tsx:119
 msgid "From IBKR Client Portal: Performance & Reports → Flex Queries. The token is stored server-side only."
 msgstr "IBKRクライアントポータル: Performance & Reports → Flex Queries。トークンはサーバー側にのみ保存されます。"
+
+#: src/app/(tabs)/(settings)/integrations.tsx:32
+msgid "From server"
+msgstr "サーバーから取得"
 
 #: src/app/(tabs)/(settings)/import-trades.tsx:72
 msgid "Full account backup: trades, fills, tags, cash, and the playbook setups catalog."
@@ -3165,7 +3176,7 @@ msgstr "ケリー（半分）"
 msgid "Kelly criterion"
 msgstr "ケリー基準"
 
-#: src/app/(tabs)/(settings)/integrations.tsx:20
+#: src/app/(tabs)/(settings)/integrations.tsx:63
 msgid "Keys are stored on your server, never on the device or with third parties."
 msgstr "キーはサーバーにのみ保存され、端末や第三者に渡ることはありません。"
 
@@ -3646,7 +3657,7 @@ msgid "never"
 msgstr "なし"
 
 #: src/app/new-token.tsx:17
-#: src/app/share-reports-link.tsx:31
+#: src/app/share-reports-link.tsx:32
 msgid "Never"
 msgstr "無期限"
 
@@ -3992,6 +4003,7 @@ msgid "Not rated"
 msgstr "未評価"
 
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:295
+#: src/app/(tabs)/(settings)/integrations.tsx:88
 #: src/app/(tabs)/(settings)/prop-settings.tsx:129
 #: src/app/(tabs)/(settings)/trading-journal.tsx:129
 msgid "Not set"
@@ -4093,7 +4105,7 @@ msgstr "既定はオフ — カードにはRとリターン%のみ表示され�
 msgid "Off by default — the card shows win rate and ratios only."
 msgstr "既定はオフ — カードには勝率と比率のみ表示されます。"
 
-#: src/app/share-reports-link.tsx:112
+#: src/app/share-reports-link.tsx:120
 msgid "Off shares only win rate and ratios — account size stays private."
 msgstr "オフの場合は勝率と比率のみ共有 — 口座規模は非公開のままです。"
 
@@ -5176,6 +5188,10 @@ msgstr "ランナー"
 msgid "Runner stop"
 msgstr "ランナーのストップ"
 
+#: src/app/(tabs)/(settings)/integrations.tsx:32
+msgid "Same as server"
+msgstr "サーバーと同じ"
+
 #: src/app/(tabs)/(settings)/import-trades.tsx:563
 msgid "Sample CSV"
 msgstr "サンプル CSV"
@@ -5198,6 +5214,7 @@ msgstr "土"
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:306
 #: src/app/(tabs)/(settings)/change-password.tsx:111
 #: src/app/(tabs)/(settings)/flex-sync.tsx:147
+#: src/app/(tabs)/(settings)/integrations.tsx:42
 #: src/app/(tabs)/(settings)/prop-settings.tsx:75
 #: src/app/(tabs)/(settings)/prop-settings.tsx:99
 #: src/app/(tabs)/(settings)/risk-rules.tsx:54
@@ -5476,7 +5493,7 @@ msgid "Setups restored"
 msgstr "復元されたセットアップ"
 
 #: src/app/(tabs)/(dashboard)/wrapped.tsx:374
-#: src/app/share-reports-link.tsx:160
+#: src/app/share-reports-link.tsx:168
 #: src/app/share-trade.tsx:170
 #: src/app/share-wrapped.tsx:182
 msgid "Share"
@@ -5493,9 +5510,14 @@ msgid "Share frame"
 msgstr "フレームを共有"
 
 #: src/app/(tabs)/(dashboard)/reports.tsx:53
-#: src/app/share-reports-link.tsx:93
+#: src/app/share-reports-link.tsx:101
 msgid "Share link"
 msgstr "共有リンク"
+
+#. placeholder {0}: source.toLowerCase()
+#: src/app/(tabs)/(settings)/integrations.tsx:81
+msgid "Share links are built from this address ({0}). Set it when your web app and API live on different domains."
+msgstr "共有リンクはこのアドレス（{0}）で作成されます。Webアプリと API のドメインが異なる場合に設定してください。"
 
 #: src/app/replay.tsx:299
 msgid "Share replay frame"
@@ -5541,7 +5563,7 @@ msgstr "ショート"
 msgid "Short {0}"
 msgstr "ショート {0}"
 
-#: src/app/share-reports-link.tsx:110
+#: src/app/share-reports-link.tsx:118
 #: src/app/share-trade.tsx:140
 #: src/app/share-wrapped.tsx:152
 msgid "Show amounts"
@@ -6575,6 +6597,11 @@ msgstr "引き分け"
 msgid "Watch"
 msgstr "注意"
 
+#: src/app/(tabs)/(settings)/integrations.tsx:37
+#: src/app/(tabs)/(settings)/integrations.tsx:87
+msgid "Web app address"
+msgstr "Webアプリのアドレス"
+
 #: src/app/(tabs)/(settings)/flex-sync.tsx:134
 msgid "Web Service token"
 msgstr "Web Serviceトークン"
@@ -6626,6 +6653,10 @@ msgstr "次はどう改善しますか？"
 #: src/app/(tabs)/(settings)/token-uses.tsx:110
 msgid "When something authenticates with this token, the IP and app it used show up here."
 msgstr "このトークンで認証が行われると、その IP とアプリがここに表示されます。"
+
+#: src/app/(tabs)/(settings)/integrations.tsx:38
+msgid "Where share links open. Leave blank to use the address your server reports, or the server itself."
+msgstr "共有リンクの表示先です。空欄の場合はサーバーが通知するアドレス、なければサーバー自体を使用します。"
 
 #: src/components/trade-form.tsx:518
 msgid "Why did you enter?"

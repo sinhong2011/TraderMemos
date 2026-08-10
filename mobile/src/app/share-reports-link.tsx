@@ -14,6 +14,7 @@ import { errorMessage } from '@/lib/errors';
 import { useGlobalFilters } from '@/lib/filters';
 import { useMoneyFx } from '@/lib/money';
 import { accountBaseCurrency } from '@/lib/prefs';
+import { useWebBaseUrl } from '@/lib/share-prefs';
 
 /** Mirrors web ShareLinkDialog's choices; `0` is the API's "never expires". */
 const EXPIRY_CHOICES = [30, 90, 365, 0] as const;
@@ -52,11 +53,15 @@ export default function ShareReportsLinkScreen() {
   const [creating, setCreating] = useState(false);
   const [created, setCreated] = useState<ShareLink | null>(null);
 
-  // Split deployments serve the web app from its own origin; the server
-  // advertises it as web_url (TM_PUBLIC_WEB_URL). Without it, the nginx
-  // deployment's same-origin assumption holds and the signed-in server URL
-  // also hosts the visitor page.
-  const webBase = useSystemInfo().data?.web_url || session?.serverUrl;
+  // Most specific wins (see lib/share-prefs): the device override set in
+  // Settings → Integrations, then the server's advertised web_url
+  // (TM_PUBLIC_WEB_URL), then the API origin — right for the bundled nginx
+  // deployment, where one origin serves both the SPA and /api.
+  // Both hooks run unconditionally — `??` between two calls would skip the
+  // second whenever the override is set.
+  const overrideBase = useWebBaseUrl();
+  const advertisedBase = useSystemInfo().data?.web_url;
+  const webBase = overrideBase ?? advertisedBase ?? session?.serverUrl;
   const url = created && webBase ? new URL(`/s/${created.token}`, webBase).toString() : null;
 
   async function create() {
