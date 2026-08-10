@@ -52,7 +52,7 @@ func (s *Server) handleSummary(c *echo.Context) error {
 	}
 	rows, err := s.loadClosedTrades(c.Request().Context(), auth.UserID(c), f)
 	if err != nil {
-		return Fail(http.StatusInternalServerError, "internal", "could not compute summary", nil)
+		return failLoad(err, "could not compute summary")
 	}
 	return c.JSON(http.StatusOK, analytics.Summarize(toClosedTrades(rows)))
 }
@@ -66,7 +66,7 @@ func (s *Server) handleRSummary(c *echo.Context) error {
 	}
 	rows, err := s.loadClosedTrades(ctx, uid, f)
 	if err != nil {
-		return Fail(http.StatusInternalServerError, "internal", "could not compute r-summary", nil)
+		return failLoad(err, "could not compute r-summary")
 	}
 	risks, err := s.deps.Store.ListJournalRisks(ctx, uid)
 	if err != nil {
@@ -103,7 +103,7 @@ func (s *Server) handleDaily(c *echo.Context) error {
 	}
 	rows, err := s.loadClosedTrades(c.Request().Context(), auth.UserID(c), f)
 	if err != nil {
-		return Fail(http.StatusInternalServerError, "internal", "could not compute daily pnl", nil)
+		return failLoad(err, "could not compute daily pnl")
 	}
 	return c.JSON(http.StatusOK, analytics.DailyPnl(toClosedTrades(rows), f.DateBasis, f.Loc))
 }
@@ -118,16 +118,19 @@ func (s *Server) handleEquityCurve(c *echo.Context) error {
 
 	rows, err := s.loadClosedTrades(ctx, uid, f)
 	if err != nil {
-		return Fail(http.StatusInternalServerError, "internal", "could not compute equity curve", nil)
+		return failLoad(err, "could not compute equity curve")
 	}
 	cashRows, err := s.deps.Store.ListCashTransactions(ctx, store.ListCashTransactionsParams{
-		UserID: uid, AccountID: accountArg(f.AccountID),
+		UserID: uid, AccountID: f.accountNarg(),
 	})
 	if err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not load cash flows", nil)
 	}
 	flows := make([]analytics.CashFlow, 0, len(cashRows))
 	for _, ct := range cashRows {
+		if !f.matchAccount(ct.AccountID) {
+			continue
+		}
 		flows = append(flows, analytics.CashFlow{Amount: ct.Amount, OccurredAt: ct.OccurredAt})
 	}
 	// The curve starts at zero: accounts.starting_balance is metadata only, it is

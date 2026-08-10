@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 	"time"
 
@@ -14,8 +15,11 @@ import (
 // Account filtering is pushed to SQL; symbol/date filtering is applied in Go
 // to avoid timestamp-binding fragility across the sqlite driver.
 type Filters struct {
-	AccountID string // "" = all accounts
-	From      *time.Time
+	// AccountIDs is the portfolio scope: nil = all accounts, one id = that
+	// account (pushed to SQL), several ids = aggregated in Go. Parsed from
+	// repeated and/or comma-separated `account_id` query params.
+	AccountIDs []string
+	From       *time.Time
 	To        *time.Time
 	Symbol    string
 	Status    string // "" = all, "open" | "closed"
@@ -32,7 +36,7 @@ type Filters struct {
 // are an error (rather than silently ignored) so clients learn of the mistake.
 func parseFilters(c *echo.Context) (Filters, error) {
 	var f Filters
-	f.AccountID = c.QueryParam("account_id")
+	f.AccountIDs = parseAccountIDs(c)
 	f.Symbol = c.QueryParam("symbol")
 	f.Status = c.QueryParam("status")
 	if f.Status != "" && f.Status != "open" && f.Status != "closed" {
@@ -75,12 +79,44 @@ func parseFilters(c *echo.Context) (Filters, error) {
 	return f, nil
 }
 
+// parseAccountIDs collects the `account_id` query params, accepting both
+// repeated params and comma-separated lists (mirroring `symbol`).
+func parseAccountIDs(c *echo.Context) []string {
+	var ids []string
+	for _, v := range c.Request().URL.Query()["account_id"] {
+		for _, part := range strings.Split(v, ",") {
+			if p := strings.TrimSpace(part); p != "" {
+				ids = append(ids, p)
+			}
+		}
+	}
+	return ids
+}
+
 // accountArg maps the account filter to the interface{} narg the store expects.
 func accountArg(accountID string) interface{} {
 	if accountID == "" {
 		return nil
 	}
 	return accountID
+}
+
+// accountNarg pushes a single-account filter to SQL. Multi-account selections
+// fetch all of the user's rows and narrow via matchAccount instead, since the
+// generated queries only take a scalar account narg.
+func (f Filters) accountNarg() interface{} {
+	if len(f.AccountIDs) == 1 {
+		return f.AccountIDs[0]
+	}
+	return nil
+}
+
+// matchAccount reports whether a row's account is in the portfolio scope.
+func (f Filters) matchAccount(accountID string) bool {
+	if len(f.AccountIDs) == 0 {
+		return true
+	}
+	return slices.Contains(f.AccountIDs, accountID)
 }
 
 func statusArg(status string) interface{} {
@@ -163,7 +199,7 @@ func (f Filters) matchSideDuration(t store.Trade) bool {
 // closed trade. Trades without a valid close are excluded.
 // date_basis=open filters the range by opened_at; otherwise (close / unset) by closed_at.
 func (f Filters) matchTrade(t store.Trade) bool {
-	if !t.ClosedAt.Valid {
+	if !t.ClosedAt.Valid || !f.matchAccount(t.AccountID) {
 		return false
 	}
 	ok := f.matchClosed(t.Symbol, t.ClosedAt.Time)
@@ -180,6 +216,9 @@ func (f Filters) matchTrade(t store.Trade) bool {
 // legacy opened_at behavior; date_basis=close uses closed_at when present so
 // overnight closes stay visible on their realization day.
 func (f Filters) matchListDate(t store.Trade) bool {
+	if !f.matchAccount(t.AccountID) {
+		return false
+	}
 	if f.Symbol != "" && t.Symbol != f.Symbol {
 		return false
 	}

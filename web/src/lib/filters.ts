@@ -43,8 +43,18 @@ export function symbolsToParam(symbols?: string[]): string | undefined {
   return symbols.join(",");
 }
 
+/** The single selected account id, when the portfolio scope is exactly one account. */
+export function soleAccountId(ids?: string[]): string | undefined {
+  return ids?.length === 1 ? ids[0] : undefined;
+}
+
 interface FilterState {
-  accountId?: string;
+  /**
+   * Portfolio scope — undefined = all accounts, otherwise one or more account
+   * ids. Multi-account selections are constrained to a single base currency
+   * by the account picker (and enforced by the API).
+   */
+  accountIds?: string[];
   from?: string;
   to?: string;
   /** Multi-select symbols — trade matches if its symbol is selected (OR). */
@@ -54,6 +64,8 @@ interface FilterState {
   tagIds?: string[];
   /** Multi-select instrument types — trade matches if type is selected. */
   markets?: string[];
+  setAccounts: (ids?: string[]) => void;
+  /** Convenience: scope to a single account (or clear back to all). */
   setAccount: (id?: string) => void;
   setRange: (from?: string, to?: string) => void;
   setSymbols: (symbols?: string[]) => void;
@@ -75,7 +87,8 @@ interface FilterState {
 export const useFilters = create<FilterState>()(
   persist(
     (set, get) => ({
-      setAccount: (accountId) => set({ accountId }),
+      setAccounts: (accountIds) => set({ accountIds: accountIds?.length ? accountIds : undefined }),
+      setAccount: (id) => set({ accountIds: id ? [id] : undefined }),
       setRange: (from, to) => set({ from, to }),
       setSymbols: (symbols) => set({ symbols: symbols?.length ? symbols : undefined }),
       setSymbol: (symbol) => set({ symbols: symbol ? [symbol] : undefined }),
@@ -88,7 +101,7 @@ export const useFilters = create<FilterState>()(
       setMarkets: (markets) => set({ markets: markets?.length ? markets : undefined }),
       reset: () =>
         set({
-          accountId: undefined,
+          accountIds: undefined,
           from: undefined,
           to: undefined,
           symbols: undefined,
@@ -99,7 +112,7 @@ export const useFilters = create<FilterState>()(
       toParams: () => {
         const s = get();
         return {
-          account_id: s.accountId,
+          account_id: s.accountIds?.join(","),
           from: s.from,
           to: s.to,
           symbol: symbolsToParam(s.symbols),
@@ -110,7 +123,16 @@ export const useFilters = create<FilterState>()(
       name: FILTERS_STORAGE_KEY,
       // Persist only the account selection so refresh keeps scope
       // without unexpectedly carrying over date/symbol/search filters.
-      partialize: (s) => ({ accountId: s.accountId }),
+      partialize: (s) => ({ accountIds: s.accountIds }),
+      version: 1,
+      migrate: (persisted, version) => {
+        // v0 stored a single `accountId`; carry it into the portfolio scope.
+        if (version === 0 && persisted && typeof persisted === "object") {
+          const { accountId } = persisted as { accountId?: string };
+          return { accountIds: accountId ? [accountId] : undefined };
+        }
+        return persisted as { accountIds?: string[] };
+      },
     },
   ),
 );
@@ -125,7 +147,7 @@ export function useFilterParams() {
   const tz = resolveMarketTimezone(marketTimezonePref);
   return useFilters(
     useShallow((s) => ({
-      account_id: s.accountId,
+      account_id: s.accountIds?.join(","),
       from: normalizeFilterDate(s.from, "start", tz),
       to: normalizeFilterDate(s.to, "end", tz),
       symbol: symbolsToParam(s.symbols),

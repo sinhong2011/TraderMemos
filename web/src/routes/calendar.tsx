@@ -50,7 +50,7 @@ function tradesByMonthKey(
 function CalendarPage() {
   const navigate = useNavigate();
   const filters = useFilterParams();
-  const accountId = useFilters((s) => s.accountId);
+  const accountIds = useFilters((s) => s.accountIds);
   const tradeDateBasis = useDisplayPrefs((s) => s.tradeDateBasis);
   const accountsQ = useAccounts();
   const cashQ = useCash(filters);
@@ -94,7 +94,7 @@ function CalendarPage() {
   }, [selectedDay, scopeTradesQ.data, tradeDateBasis, tz]);
 
   const accounts = accountsQ.data ?? [];
-  const currency = accountBaseCurrency(accounts, accountId);
+  const currency = accountBaseCurrency(accounts, accountIds);
 
   function shiftMonth(delta: number) {
     const d = new Date(year, month - 1 + delta, 1);
@@ -129,7 +129,7 @@ function CalendarPage() {
         monthSummary={monthSummaryQ.data}
         accounts={accounts}
         cashTx={cashQ.data ?? []}
-        selectedAccountId={accountId}
+        selectedAccountIds={accountIds}
         year={year}
         month={month}
         mode={mode}

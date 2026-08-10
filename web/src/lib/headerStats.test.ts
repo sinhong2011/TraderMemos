@@ -15,7 +15,7 @@ describe("netDeposits", () => {
     // counting the field too would report 21589.47.
     const d = netDeposits({
       accounts: [acct("a1", 10000)],
-      accountId: "a1",
+      accountIds: "a1",
       cashTx: [
         { account_id: "a1", amount: 10000 },
         { account_id: "a1", amount: 1589.47 },
@@ -31,13 +31,13 @@ describe("netDeposits", () => {
       { account_id: "a2", amount: 4000 },
     ] as never;
     expect(netDeposits({ accounts: [acct("a1", 0), acct("a2", 0)], cashTx })).toBe(4750);
-    expect(netDeposits({ accounts: [acct("a1", 0), acct("a2", 0)], accountId: "a1", cashTx })).toBe(
-      750,
-    );
+    expect(
+      netDeposits({ accounts: [acct("a1", 0), acct("a2", 0)], accountIds: "a1", cashTx }),
+    ).toBe(750);
   });
 
   it("is zero for an unfunded account, which disables % mode", () => {
-    expect(netDeposits({ accounts: [acct("a1", 0)], accountId: "a1", cashTx: [] })).toBe(0);
+    expect(netDeposits({ accounts: [acct("a1", 0)], accountIds: "a1", cashTx: [] })).toBe(0);
   });
 });
 
@@ -45,7 +45,7 @@ describe("computeHeaderStats", () => {
   it("computes cash from cash ledger and pnl", () => {
     const s = computeHeaderStats({
       accounts: [acct("a1", 1000)],
-      accountId: "a1",
+      accountIds: "a1",
       cashTx: [
         { account_id: "a1", amount: 1000 },
         { account_id: "a1", amount: 500 },
@@ -63,7 +63,7 @@ describe("computeHeaderStats", () => {
   it("has no return pct without funded capital", () => {
     const s = computeHeaderStats({
       accounts: [acct("a1", 0)],
-      accountId: "a1",
+      accountIds: "a1",
       cashTx: [],
       summary: summary(120),
       trades: [],

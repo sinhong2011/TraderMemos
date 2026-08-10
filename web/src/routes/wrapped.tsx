@@ -25,17 +25,17 @@ export const Route = createFileRoute("/wrapped")({
 function WrappedPage() {
   const { year } = Route.useSearch();
   const navigate = Route.useNavigate();
-  const accountId = useFilters((s) => s.accountId);
+  const accountIds = useFilters((s) => s.accountIds);
 
   // Whole calendar year (YTD for the current one); honors the account filter
   // so the recap matches the rest of the app's scope.
   const filters = useMemo(
-    () => ytdFiltersForYear(accountId ? { account_id: accountId } : {}, year),
-    [accountId, year],
+    () => ytdFiltersForYear(accountIds?.length ? { account_id: accountIds.join(",") } : {}, year),
+    [accountIds, year],
   );
   const tradesQ = useTrades(filters);
   const accountsQ = useAccounts();
-  const baseCurrency = accountBaseCurrency(accountsQ.data ?? [], accountId);
+  const baseCurrency = accountBaseCurrency(accountsQ.data ?? [], accountIds);
   const { currency, rate } = useMoneyFx(baseCurrency);
 
   const wrapped = useMemo(() => computeYearWrapped(tradesQ.data ?? [], year), [tradesQ.data, year]);

@@ -67,7 +67,7 @@ export interface CalendarViewProps {
   accounts: Account[];
   /** Full cash ledger for the scope; funds the %-of-account basis. */
   cashTx: CashTransaction[];
-  selectedAccountId: string | undefined;
+  selectedAccountIds: string[] | undefined;
   year: number;
   month: number;
   mode: CalendarMode;
@@ -127,7 +127,7 @@ export function CalendarView({
   monthSummary,
   accounts,
   cashTx,
-  selectedAccountId,
+  selectedAccountIds,
   year,
   month,
   mode,
@@ -187,7 +187,7 @@ export function CalendarView({
 
   // %-basis is net deposits from the cash ledger — starting_balance is metadata
   // that already lives in the ledger as the "Opening balance" deposit.
-  const starting = netDeposits({ accounts, accountId: selectedAccountId, cashTx });
+  const starting = netDeposits({ accounts, accountIds: selectedAccountIds, cashTx });
   const monthPnl = monthSummary?.net_pnl ?? grid.monthTotal;
   const monthPct = starting > 0 ? (monthPnl / starting) * 100 : null;
 
