@@ -42,6 +42,6 @@ export const config = {
   // counterpart — without the exemption the i18n middleware redirects `/sitemap.xml` to
   // `/en/sitemap.xml`, which 404s, hiding the sitemap and robots.txt from crawlers.
   matcher: [
-    '/((?!api|_next/static|_next/image|favicon\\.ico|icon\\.svg|screenshots|sitemap\\.xml|robots\\.txt|llms\\.txt|llms-full\\.txt).*)',
+    '/((?!api|_next/static|_next/image|favicon\\.ico|icon\\.png|icon-1024\\.png|screenshots|sitemap\\.xml|robots\\.txt|llms\\.txt|llms-full\\.txt).*)',
   ],
 };
