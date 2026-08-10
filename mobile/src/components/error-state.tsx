@@ -16,14 +16,35 @@
 import { ContentUnavailableView } from '@expo/ui/swift-ui';
 import { t } from '@lingui/core/macro';
 import { SymbolView, type SFSymbol } from 'expo-symbols';
+import { useEffect } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
+import { create } from 'zustand';
 
+import { NetworkError } from '@/api/client';
 import { useSession } from '@/api/session';
 import { AppHost } from '@/components/app-host';
 import { GlassButton } from '@/components/glass-button';
 import { useServerHost, useServerUnreachable } from '@/lib/connectivity';
 import { describeError } from '@/lib/errors';
+
+/**
+ * Full-screen network `ErrorState`s announce themselves here so the banner can
+ * yield: when the visible screen already *is* the "can't reach the server"
+ * message, a capsule repeating it underneath is noise. The banner's real job —
+ * flagging stale cached data on otherwise-working screens — is untouched, and
+ * `InlineError` deliberately doesn't register (a screen that is only partly
+ * broken is exactly the case the banner exists for).
+ */
+const useNetworkErrorScreens = create<{ count: number }>(() => ({ count: 0 }));
+
+function useAnnounceNetworkErrorScreen(active: boolean) {
+  useEffect(() => {
+    if (!active) return;
+    useNetworkErrorScreens.setState((s) => ({ count: s.count + 1 }));
+    return () => useNetworkErrorScreens.setState((s) => ({ count: s.count - 1 }));
+  }, [active]);
+}
 
 export function ErrorState({
   error,
@@ -45,6 +66,7 @@ export function ErrorState({
 }) {
   const { title, description, systemImage, retryable } = describeError(error);
   const showRetry = onRetry != null && retryable;
+  useAnnounceNetworkErrorScreen(error instanceof NetworkError);
 
   return (
     <View style={styles.screen}>
@@ -119,9 +141,11 @@ export function OfflineBanner() {
   const { session } = useSession();
   const unreachable = useServerUnreachable();
   const serverHost = useServerHost();
+  // A mounted full-screen network ErrorState already says all of this.
+  const covered = useNetworkErrorScreens((s) => s.count > 0);
   // Signed out, the login form is *about* reaching the server and says so in
   // its own alert card — a second, vaguer notice floating over it is noise.
-  if (!unreachable || session == null) return null;
+  if (!unreachable || session == null || covered) return null;
 
   return (
     <View style={styles.bannerWrap} pointerEvents="none">
