@@ -5,6 +5,7 @@ import type {
   ComplianceReport,
   EquityCurve,
   Filters,
+  MonteCarloResult,
   RSummary,
   Summary,
 } from "./types";
@@ -29,5 +30,9 @@ export const analyticsApi = {
   breakdown: (by: string, f: Filters) =>
     apiFetch<BreakGroup[]>(
       `/analytics/breakdown${qs({ by, ...(f as Record<string, string | undefined>) })}`,
+    ),
+  monteCarlo: (f: Filters) =>
+    apiFetch<MonteCarloResult>(
+      `/analytics/montecarlo${qs(f as Record<string, string | undefined>)}`,
     ),
 };

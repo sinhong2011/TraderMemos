@@ -2,6 +2,8 @@ package api
 
 import (
 	"net/http"
+	"sort"
+	"strconv"
 
 	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/analytics"
@@ -17,6 +19,7 @@ func (s *Server) analyticsRoutes(g *echo.Group) {
 	g.GET("/analytics/breakdown", s.handleBreakdown)
 	g.GET("/analytics/compliance", s.handleCompliance)
 	g.GET("/analytics/behavior", s.handleBehavior)
+	g.GET("/analytics/montecarlo", s.handleMonteCarlo)
 }
 
 // grossPnlOf reads the stored gross P&L, reconstructing it from net + fees
@@ -94,6 +97,60 @@ func (s *Server) handleRSummary(c *echo.Context) error {
 		})
 	}
 	return c.JSON(http.StatusOK, analytics.SummarizeR(withRisk, excluded))
+}
+
+// handleMonteCarlo bootstrap-resamples the filtered closed trades' net P&L.
+// Optional params: paths, horizon, seed (reproducible runs), ruin_threshold
+// (currency drawdown counted as ruin; defaults to the historical max
+// drawdown).
+func (s *Server) handleMonteCarlo(c *echo.Context) error {
+	f, err := parseFilters(c)
+	if err != nil {
+		return Fail(http.StatusBadRequest, "bad_request", err.Error(), nil)
+	}
+	params := analytics.MonteCarloParams{}
+	if params.Seed, err = uintParam(c, "seed"); err != nil {
+		return Fail(http.StatusBadRequest, "bad_request", "invalid 'seed' (want unsigned integer)", nil)
+	}
+	intParams := map[string]*int{"paths": &params.Paths, "horizon": &params.Horizon}
+	for name, dst := range intParams {
+		if v := c.QueryParam(name); v != "" {
+			n, err := strconv.Atoi(v)
+			if err != nil || n < 0 {
+				return Fail(http.StatusBadRequest, "bad_request", "invalid '"+name+"' (want positive integer)", nil)
+			}
+			*dst = n
+		}
+	}
+	if v := c.QueryParam("ruin_threshold"); v != "" {
+		t, err := strconv.ParseFloat(v, 64)
+		if err != nil || t < 0 {
+			return Fail(http.StatusBadRequest, "bad_request", "invalid 'ruin_threshold' (want positive number)", nil)
+		}
+		params.RuinThreshold = t
+	}
+
+	rows, err := s.loadClosedTrades(c.Request().Context(), auth.UserID(c), f)
+	if err != nil {
+		return Fail(http.StatusInternalServerError, "internal", "could not run simulation", nil)
+	}
+	trades := toClosedTrades(rows)
+	// Chronological order matters only for the historical-drawdown anchor;
+	// the bootstrap itself samples i.i.d.
+	sort.Slice(trades, func(i, j int) bool { return trades[i].ClosedAt.Before(trades[j].ClosedAt) })
+	pnls := make([]float64, len(trades))
+	for i, t := range trades {
+		pnls[i] = t.NetPnl
+	}
+	return c.JSON(http.StatusOK, analytics.MonteCarlo(pnls, params))
+}
+
+func uintParam(c *echo.Context, name string) (uint64, error) {
+	v := c.QueryParam(name)
+	if v == "" {
+		return 0, nil
+	}
+	return strconv.ParseUint(v, 10, 64)
 }
 
 func (s *Server) handleDaily(c *echo.Context) error {
