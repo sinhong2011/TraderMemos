@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { AppNav } from "@/components/AppNav";
 import { CommandPalette } from "@/components/CommandPalette";
-import { CreateMenu } from "@/components/CreateMenu";
 import { HeaderBar } from "@/components/HeaderBar";
 import { MobileNavDrawer } from "@/components/MobileNavDrawer";
 import { MobileTabBar } from "@/components/MobileTabBar";
@@ -54,12 +53,6 @@ function AuthedShell() {
         >
           <Outlet />
         </main>
-      </div>
-
-      {/* Desktop quick-add. Below md the MobileTabBar's centre FAB owns the
-          same actions, so this corner stays empty there. */}
-      <div className="fixed right-6 bottom-6 z-30 hidden md:block">
-        <CreateMenu variant="floating" />
       </div>
 
       <MobileTabBar />

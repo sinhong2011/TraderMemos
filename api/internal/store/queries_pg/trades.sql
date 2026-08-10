@@ -52,7 +52,9 @@ ON CONFLICT(id) DO UPDATE SET
 
 -- name: DeleteTradesNotInAccount :exec
 -- NOTE: sqlc+database/sql emits a broken single-$3 slice expand for Postgres.
--- storepg/trades.sql.go implements placeholder expansion manually; re-check after `make sqlc`.
+-- storepg/trades.sql.go implements placeholder expansion manually; re-apply after
+-- `make sqlc` and re-run TestBulkWriterConformance/postgres — the patch cannot be
+-- copied from the SQLite twin (no /*SLICE:keep*/? marker, numbered placeholders).
 DELETE FROM trades WHERE user_id = $1 AND account_id = $2 AND id NOT IN (sqlc.slice('keep'));
 
 -- name: ClearTradeExecutions :exec

@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/auth"
 	"github.com/tradermemos/api/internal/store"
 )
@@ -33,7 +33,7 @@ func (s *Server) attachmentRoutes(g *echo.Group) {
 }
 
 // ownsTrade returns nil only if the trade exists and belongs to userID.
-func (s *Server) ownsTrade(c echo.Context, userID, tradeID string) error {
+func (s *Server) ownsTrade(c *echo.Context, userID, tradeID string) error {
 	_, err := s.deps.Store.GetTrade(c.Request().Context(), store.GetTradeParams{ID: tradeID, UserID: userID})
 	return err
 }
@@ -93,7 +93,7 @@ func (s *Server) purgeAttachmentsForAccount(ctx context.Context, userID, account
 	s.purgeAttachmentRows(ctx, rows)
 }
 
-func (s *Server) handleUploadAttachment(c echo.Context) error {
+func (s *Server) handleUploadAttachment(c *echo.Context) error {
 	ctx := c.Request().Context()
 	uid := auth.UserID(c)
 	tradeID := c.Param("id")
@@ -134,7 +134,7 @@ func (s *Server) handleUploadAttachment(c echo.Context) error {
 	return c.JSON(http.StatusCreated, att)
 }
 
-func (s *Server) handleListAttachments(c echo.Context) error {
+func (s *Server) handleListAttachments(c *echo.Context) error {
 	uid := auth.UserID(c)
 	tradeID := c.Param("id")
 	if err := s.ownsTrade(c, uid, tradeID); err != nil {
@@ -152,7 +152,7 @@ func (s *Server) handleListAttachments(c echo.Context) error {
 	return c.JSON(http.StatusOK, rows)
 }
 
-func (s *Server) handleGetAttachmentFile(c echo.Context) error {
+func (s *Server) handleGetAttachmentFile(c *echo.Context) error {
 	att, err := s.deps.Store.GetAttachment(c.Request().Context(), store.GetAttachmentParams{
 		ID: c.Param("id"), UserID: auth.UserID(c),
 	})
@@ -170,7 +170,7 @@ func (s *Server) handleGetAttachmentFile(c echo.Context) error {
 	return c.Stream(http.StatusOK, att.ContentType, r)
 }
 
-func (s *Server) handleDeleteAttachment(c echo.Context) error {
+func (s *Server) handleDeleteAttachment(c *echo.Context) error {
 	ctx := c.Request().Context()
 	uid := auth.UserID(c)
 	att, err := s.deps.Store.GetAttachment(ctx, store.GetAttachmentParams{ID: c.Param("id"), UserID: uid})
@@ -202,7 +202,7 @@ func toMediaDTO(m store.MediaFile) mediaDTO {
 	}
 }
 
-func (s *Server) handleUploadMedia(c echo.Context) error {
+func (s *Server) handleUploadMedia(c *echo.Context) error {
 	ctx := c.Request().Context()
 	uid := auth.UserID(c)
 	fh, err := c.FormFile("file")
@@ -239,7 +239,7 @@ func (s *Server) handleUploadMedia(c echo.Context) error {
 	return c.JSON(http.StatusCreated, toMediaDTO(row))
 }
 
-func (s *Server) handleGetMediaFile(c echo.Context) error {
+func (s *Server) handleGetMediaFile(c *echo.Context) error {
 	row, err := s.deps.Store.GetMediaFile(c.Request().Context(), store.GetMediaFileParams{
 		ID: c.Param("id"), UserID: auth.UserID(c),
 	})
@@ -257,7 +257,7 @@ func (s *Server) handleGetMediaFile(c echo.Context) error {
 	return c.Stream(http.StatusOK, row.ContentType, r)
 }
 
-func (s *Server) handleDeleteMedia(c echo.Context) error {
+func (s *Server) handleDeleteMedia(c *echo.Context) error {
 	ctx := c.Request().Context()
 	uid := auth.UserID(c)
 	row, err := s.deps.Store.GetMediaFile(ctx, store.GetMediaFileParams{ID: c.Param("id"), UserID: uid})

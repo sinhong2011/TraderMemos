@@ -553,7 +553,7 @@ function ExploreCard() {
     // The economic calendar lives on the Home tools menu — it's a start-of-day
     // lookup, not a review of what already happened.
     {
-      href: '/(tabs)/(reports)/wrapped' as const,
+      href: '/(tabs)/(dashboard)/wrapped' as const,
       icon: 'sparkles' as const,
       label: t`Year Wrapped`,
     },

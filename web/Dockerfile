@@ -1,4 +1,8 @@
-FROM node:24-alpine AS build
+# The Vite bundle is architecture-independent, so the build stage always runs
+# natively on the build host ($BUILDPLATFORM) instead of under QEMU. Emulated
+# arm64 Node crashes V8's JIT (`qemu: uncaught target signal 4`) and builds
+# the same static files twice; only the nginx layer below is per-arch.
+FROM --platform=$BUILDPLATFORM node:24-alpine AS build
 WORKDIR /web
 ARG APP_VERSION=dev
 ARG APP_BUILD=

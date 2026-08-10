@@ -92,6 +92,7 @@ type Querier interface {
 	ListImportBatches(ctx context.Context, userID string) ([]ImportBatch, error)
 	ListJournalNotes(ctx context.Context, arg ListJournalNotesParams) ([]JournalNote, error)
 	ListJournalRisks(ctx context.Context, userID string) ([]ListJournalRisksRow, error)
+	ListOptionExecutionDetailsForUser(ctx context.Context, userID string) ([]ListOptionExecutionDetailsForUserRow, error)
 	ListMediaFilesForUser(ctx context.Context, userID string) ([]MediaFile, error)
 	ListSetups(ctx context.Context, userID string) ([]Setup, error)
 	ListSetupsForTrade(ctx context.Context, tradeID string) ([]Setup, error)

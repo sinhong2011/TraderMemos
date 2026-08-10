@@ -113,7 +113,7 @@ export function PnlHeatmapCard({ ctx }: { ctx: ReportsMoneyContext }) {
                 disabled={cell.trades === 0}
                 onPress={() =>
                   router.push({
-                    pathname: '/(tabs)/(reports)/heatmap-cell',
+                    pathname: '/(tabs)/(dashboard)/heatmap-cell',
                     params: { day: String(day), hour: String(hour) },
                   })
                 }

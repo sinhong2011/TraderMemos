@@ -14,12 +14,12 @@ import (
 
 // CommitResult is the outcome of inserting parsed executions and annotations.
 type CommitResult struct {
-	Inserted    int
-	Skipped     int
-	Annotated   int
-	Trades      int
-	Errors      []RowError
-	Format      string
+	Inserted  int
+	Skipped   int
+	Annotated int
+	Trades    int
+	Errors    []RowError
+	Format    string
 }
 
 // Commit inserts executions, regroups trades, then applies journal annotations.
@@ -42,24 +42,35 @@ func Commit(ctx context.Context, q store.Querier, userID, accountID string, batc
 	// that lot so a re-import does not insert an orphan avg-exit sell as an OPEN short.
 	skippedLots := map[string]bool{}
 
-	for _, pe := range parsed.Executions {
-		mult := ResolveMultiplier(ctx, q, pe.InstrumentType, pe.Symbol, pe.Multiplier)
+	// One round trip answers the dedup question for the whole file. `seen` then
+	// grows as rows are accepted, so a fill repeated inside the same file is
+	// still skipped — the row-at-a-time path got that from its own prior insert.
+	hashes := make([]string, len(parsed.Executions))
+	for i, pe := range parsed.Executions {
+		hashes[i] = DedupHash(pe.Symbol, pe.Side, pe.Quantity, pe.Price, pe.ExecutedAt)
+	}
+	seen, err := store.BulkExistingDedupHashes(ctx, q, accountID, hashes)
+	if err != nil {
+		return res, fmt.Errorf("dedup check for %d executions: %w", len(hashes), err)
+	}
+
+	multipliers := map[string]float64{}
+	inserts := make([]store.InsertExecutionParams, 0, len(parsed.Executions))
+	for i, pe := range parsed.Executions {
+		mult := resolveMultiplierCached(ctx, q, multipliers, pe)
 		if pe.LotKey != "" && skippedLots[pe.LotKey] {
 			res.Skipped++
 			continue
 		}
-		hash := DedupHash(pe.Symbol, pe.Side, pe.Quantity, pe.Price, pe.ExecutedAt)
-		exists, err := q.ExecutionExists(ctx, store.ExecutionExistsParams{AccountID: accountID, DedupHash: hash})
-		if err != nil {
-			return res, fmt.Errorf("dedup check %s %s @ %s: %w", pe.Symbol, pe.Side, pe.ExecutedAt, err)
-		}
-		if exists == 1 {
+		hash := hashes[i]
+		if _, exists := seen[hash]; exists {
 			if pe.LotKey != "" {
 				skippedLots[pe.LotKey] = true
 			}
 			res.Skipped++
 			continue
 		}
+		seen[hash] = struct{}{}
 		ext := sql.NullString{}
 		if pe.ExternalID != "" {
 			ext = sql.NullString{String: pe.ExternalID, Valid: true}
@@ -78,45 +89,127 @@ func Commit(ctx context.Context, q store.Querier, userID, accountID string, batc
 				details = sql.NullString{String: string(b), Valid: true}
 			}
 		}
-		if _, err := q.InsertExecution(ctx, store.InsertExecutionParams{
+		inserts = append(inserts, store.InsertExecutionParams{
 			ID: id, UserID: userID, AccountID: accountID, ExternalID: ext,
 			Symbol: pe.Symbol, InstrumentType: pe.InstrumentType, Side: pe.Side,
 			Quantity: pe.Quantity, Price: pe.Price, Fees: pe.Fees, Commission: pe.Commission,
 			ExecutedAt: pe.ExecutedAt, Multiplier: mult, Details: details,
 			ImportBatchID: batchID, DedupHash: hash,
-		}); err != nil {
-			return res, fmt.Errorf("insert execution %s %s @ %s (row %d): %w", pe.Symbol, pe.Side, pe.ExecutedAt, res.Inserted+res.Skipped+1, err)
-		}
+		})
 		res.Inserted++
 		if pe.Annotation != nil {
 			pendingAnns = append(pendingAnns, pending{tradeID: id, ann: pe.Annotation})
 		}
 	}
 
+	if err := store.BulkInsertExecutions(ctx, q, inserts); err != nil {
+		return res, fmt.Errorf("insert %d executions: %w", len(inserts), err)
+	}
+
 	if err := trades.NewService(q).Regroup(ctx, userID, accountID); err != nil {
 		return res, fmt.Errorf("regroup trades after %d inserts: %w", res.Inserted, err)
 	}
 
-	for _, p := range pendingAnns {
-		if err := applyAnnotation(ctx, q, userID, accountID, p.tradeID, p.ann); err != nil {
-			res.Errors = append(res.Errors, RowError{Row: 0, Message: "annotation: " + err.Error()})
-			continue
+	if len(pendingAnns) > 0 {
+		cache, err := newAnnotationCache(ctx, q, userID)
+		if err != nil {
+			return res, fmt.Errorf("load journal catalog: %w", err)
 		}
-		res.Annotated++
+		journals := make([]store.UpsertTradeJournalParams, 0, len(pendingAnns))
+		tagLinks := []store.SetTradeTagsParams{}
+		for _, p := range pendingAnns {
+			journal, links, err := prepareAnnotation(ctx, q, cache, userID, accountID, p.tradeID, p.ann)
+			if err != nil {
+				res.Errors = append(res.Errors, RowError{Row: 0, Message: "annotation: " + err.Error()})
+				continue
+			}
+			journals = append(journals, journal)
+			tagLinks = append(tagLinks, links...)
+			res.Annotated++
+		}
+		if err := store.BulkUpsertTradeJournals(ctx, q, journals); err != nil {
+			return res, fmt.Errorf("write %d journal entries: %w", len(journals), err)
+		}
+		if err := store.BulkSetTradeTags(ctx, q, tagLinks); err != nil {
+			return res, fmt.Errorf("link %d trade tags: %w", len(tagLinks), err)
+		}
 	}
 	return res, nil
 }
 
-func applyAnnotation(ctx context.Context, q store.Querier, userID, accountID, tradeID string, ann *TradeAnnotation) error {
+// resolveMultiplierCached memoizes ResolveMultiplier, which hits
+// instrument_specs once per futures symbol root.
+func resolveMultiplierCached(ctx context.Context, q store.Querier, cache map[string]float64, pe ParsedExecution) float64 {
+	if pe.Multiplier > 0 {
+		return pe.Multiplier
+	}
+	key := pe.InstrumentType + "|" + pe.Symbol
+	if m, ok := cache[key]; ok {
+		return m
+	}
+	m := ResolveMultiplier(ctx, q, pe.InstrumentType, pe.Symbol, pe.Multiplier)
+	cache[key] = m
+	return m
+}
+
+// annotationCache holds the per-user catalogs an annotation reads. Loading each
+// one once turns three round trips per annotated trade into three per import.
+type annotationCache struct {
+	setups   map[string]store.Setup        // lower(name) -> setup
+	tags     map[string]store.Tag          // lower(name) -> tag
+	journals map[string]store.TradeJournal // trade id -> row as it stands now
+}
+
+func newAnnotationCache(ctx context.Context, q store.Querier, userID string) (*annotationCache, error) {
+	c := &annotationCache{
+		setups:   map[string]store.Setup{},
+		tags:     map[string]store.Tag{},
+		journals: map[string]store.TradeJournal{},
+	}
+	setups, err := q.ListSetups(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	for _, s := range setups {
+		c.setups[strings.ToLower(s.Name)] = s
+	}
+	tags, err := q.ListTags(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	for _, t := range tags {
+		c.tags[strings.ToLower(t.Name)] = t
+	}
+	journals, err := q.ListTradeJournalsForUser(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	for _, j := range journals {
+		c.journals[j.TradeID] = j
+	}
+	return c, nil
+}
+
+// prepareAnnotation resolves one annotation into the journal row and tag links
+// to write, creating setups/tags and dividend cash rows as it goes. The journal
+// and tag writes themselves are batched by the caller.
+func prepareAnnotation(
+	ctx context.Context,
+	q store.Querier,
+	cache *annotationCache,
+	userID, accountID, tradeID string,
+	ann *TradeAnnotation,
+) (store.UpsertTradeJournalParams, []store.SetTradeTagsParams, error) {
+	var none store.UpsertTradeJournalParams
 	if ann == nil {
-		return nil
+		return none, nil, fmt.Errorf("nil annotation for trade %s", tradeID)
 	}
 
 	var setupID sql.NullString
 	if name := strings.TrimSpace(ann.SetupName); name != "" {
-		id, err := ensureSetup(ctx, q, userID, name)
+		id, err := ensureSetup(ctx, q, cache, userID, name)
 		if err != nil {
-			return err
+			return none, nil, err
 		}
 		setupID = sql.NullString{String: id, Valid: true}
 	}
@@ -134,14 +227,14 @@ func applyAnnotation(ctx context.Context, q store.Querier, userID, accountID, tr
 	}
 	emotion := ann.Emotion
 
-	// Preserve existing journal fields when annotation leaves them empty by
-	// reading current row first (import should still overwrite notes/setup when set).
-	cur, err := q.GetTradeJournal(ctx, store.GetTradeJournalParams{TradeID: tradeID, UserID: userID})
+	// Preserve existing journal fields when annotation leaves them empty
+	// (import should still overwrite notes/setup when set).
+	cur, hasCur := cache.journals[tradeID]
 	notes := ann.Notes
 	risk := sql.NullFloat64{}
 	quality := sql.NullInt64{}
 	mae, mfe := sql.NullFloat64{}, sql.NullFloat64{}
-	if err == nil {
+	if hasCur {
 		if notes == "" {
 			notes = cur.Notes
 		}
@@ -165,66 +258,57 @@ func applyAnnotation(ctx context.Context, q store.Querier, userID, accountID, tr
 		mae, mfe = cur.Mae, cur.Mfe
 	}
 
-	if err := q.UpsertTradeJournal(ctx, store.UpsertTradeJournalParams{
+	journal := store.UpsertTradeJournalParams{
 		TradeID: tradeID, UserID: userID, Notes: notes, SetupID: setupID, InitialRisk: risk,
 		TargetPrice: target, StopPrice: stop, EmotionalState: emotion, Confidence: confidence,
 		TradeQuality: quality, Mae: mae, Mfe: mfe,
-	}); err != nil {
-		return err
 	}
 
-	if len(ann.Tags) > 0 {
-		existing, err := q.ListTags(ctx, userID)
-		if err != nil {
-			return err
+	var links []store.SetTradeTagsParams
+	for _, ref := range ann.Tags {
+		name := strings.TrimSpace(ref.Name)
+		if name == "" {
+			continue
 		}
-		byName := map[string]store.Tag{}
-		for _, t := range existing {
-			byName[strings.ToLower(t.Name)] = t
+		kind := ref.Kind
+		if kind != "mistake" {
+			kind = "custom"
 		}
-		for _, ref := range ann.Tags {
-			name := strings.TrimSpace(ref.Name)
-			if name == "" {
-				continue
-			}
-			kind := ref.Kind
-			if kind != "mistake" {
-				kind = "custom"
-			}
-			tag, ok := byName[strings.ToLower(name)]
-			if !ok {
-				created, err := q.CreateTag(ctx, store.CreateTagParams{
-					ID: uuid.NewString(), UserID: userID, Name: name,
-					Color: "#CBD5E1", Description: "", Kind: kind,
-				})
-				if err != nil {
-					// Race / duplicate — reload list
-					existing, _ = q.ListTags(ctx, userID)
-					byName = map[string]store.Tag{}
-					for _, t := range existing {
-						byName[strings.ToLower(t.Name)] = t
-					}
-					tag, ok = byName[strings.ToLower(name)]
-					if !ok {
-						return err
-					}
-				} else {
-					tag = created
-					byName[strings.ToLower(name)] = tag
+		tag, ok := cache.tags[strings.ToLower(name)]
+		if !ok {
+			created, err := q.CreateTag(ctx, store.CreateTagParams{
+				ID: uuid.NewString(), UserID: userID, Name: name,
+				Color: "#CBD5E1", Description: "", Kind: kind,
+			})
+			if err != nil {
+				// Race / duplicate — reload the catalog and look again.
+				existing, listErr := q.ListTags(ctx, userID)
+				if listErr != nil {
+					return none, nil, err
 				}
+				for _, t := range existing {
+					cache.tags[strings.ToLower(t.Name)] = t
+				}
+				tag, ok = cache.tags[strings.ToLower(name)]
+				if !ok {
+					return none, nil, err
+				}
+			} else {
+				tag = created
+				cache.tags[strings.ToLower(name)] = tag
 			}
-			_ = q.SetTradeTags(ctx, store.SetTradeTagsParams{TradeID: tradeID, TagID: tag.ID})
 		}
+		links = append(links, store.SetTradeTagsParams{TradeID: tradeID, TagID: tag.ID})
 	}
 
 	if ann.Dividends != 0 {
 		acc, err := q.GetAccount(ctx, store.GetAccountParams{ID: accountID, UserID: userID})
 		if err != nil {
-			return err
+			return none, nil, err
 		}
 		tr, err := q.GetTrade(ctx, store.GetTradeParams{ID: tradeID, UserID: userID})
 		if err != nil {
-			return err
+			return none, nil, err
 		}
 		occurred := tr.OpenedAt
 		if tr.ClosedAt.Valid {
@@ -236,21 +320,15 @@ func applyAnnotation(ctx context.Context, q store.Querier, userID, accountID, tr
 			OccurredAt: occurred, Note: tr.Symbol + " dividend",
 			ImportBatchID: sql.NullString{}, TradeID: sql.NullString{String: tradeID, Valid: true},
 		}); err != nil {
-			return err
+			return none, nil, err
 		}
 	}
-	return nil
+	return journal, links, nil
 }
 
-func ensureSetup(ctx context.Context, q store.Querier, userID, name string) (string, error) {
-	setups, err := q.ListSetups(ctx, userID)
-	if err != nil {
-		return "", err
-	}
-	for _, s := range setups {
-		if strings.EqualFold(s.Name, name) {
-			return s.ID, nil
-		}
+func ensureSetup(ctx context.Context, q store.Querier, cache *annotationCache, userID, name string) (string, error) {
+	if s, ok := cache.setups[strings.ToLower(name)]; ok {
+		return s.ID, nil
 	}
 	created, err := q.CreateSetup(ctx, store.CreateSetupParams{
 		ID: uuid.NewString(), UserID: userID, Name: name,
@@ -260,6 +338,7 @@ func ensureSetup(ctx context.Context, q store.Querier, userID, name string) (str
 	if err != nil {
 		return "", err
 	}
+	cache.setups[strings.ToLower(name)] = created
 	return created.ID, nil
 }
 

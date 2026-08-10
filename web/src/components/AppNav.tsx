@@ -2,11 +2,14 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { Settings } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useLayoutEffect, useRef, useState } from "react";
+import { useAppUpdate } from "@/lib/appUpdate";
 import { cn } from "@/lib/cn";
+import { useDisplayPrefs } from "@/lib/displayPrefs";
 import { navLabel } from "@/lib/locale";
 import { isRouteActive, MAIN_ROUTES, PRIMARY_NAV, SECONDARY_NAV } from "@/lib/navItems";
 import { useLocale } from "@/i18n";
 import { AppLogo } from "./AppLogo";
+import { CreateMenu } from "./CreateMenu";
 import { RailTooltip } from "./RailTooltip";
 import { ToolsPopover } from "./ToolsPopover";
 
@@ -15,12 +18,15 @@ function RailLink({
   label,
   icon: Icon,
   active,
+  dot,
   itemRef,
 }: {
   to: string;
   label: string;
   icon: LucideIcon;
   active: boolean;
+  /** Quiet attention dot (e.g. an update is available — detail lives on the page). */
+  dot?: boolean;
   itemRef?: (el: HTMLAnchorElement | null) => void;
 }) {
   return (
@@ -51,6 +57,9 @@ function RailLink({
           active ? "scale-105" : "group-hover:scale-105",
         )}
       />
+      {dot ? (
+        <span aria-hidden className="absolute top-1.5 right-1.5 size-1.5 rounded-full bg-primary" />
+      ) : null}
       <RailTooltip label={label} />
     </Link>
   );
@@ -67,6 +76,13 @@ export function AppNav() {
 
   const activeMain = MAIN_ROUTES.find((r) => isRouteActive(pathname, r.to));
   const settingsActive = isRouteActive(pathname, "/settings");
+  // Non-actionable update states (web/API behind a release, deployment
+  // mismatch) don't toast — they show as a quiet dot here; Settings → About
+  // carries the detail. The waiting-SW reload keeps the toast.
+  const updateAttention = useAppUpdate(
+    (s) => s.swReady || s.webBehind || s.apiBehind || s.versionMismatch,
+  );
+  const updateNotices = useDisplayPrefs((s) => s.updateNotices);
 
   useLayoutEffect(() => {
     const list = listRef.current;
@@ -151,6 +167,11 @@ export function AppNav() {
       </div>
 
       <div className="flex w-full flex-col items-center gap-0.5 py-2">
+        {/* Quick-add anchors the bottom cluster: the one action among the
+            rail's destinations, kept off the scrolling route list. */}
+        <CreateMenu variant="rail" />
+        <div className="my-1 h-px w-4 bg-border" aria-hidden />
+
         <ToolsPopover variant="rail" />
 
         <div className="relative">
@@ -165,6 +186,7 @@ export function AppNav() {
             label={label("settings")}
             icon={Settings}
             active={settingsActive}
+            dot={updateNotices && updateAttention}
           />
         </div>
       </div>

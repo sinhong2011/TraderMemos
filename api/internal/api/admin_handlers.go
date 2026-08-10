@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/auth"
 	"github.com/tradermemos/api/internal/store"
 )
@@ -27,7 +27,7 @@ func (s *Server) adminRoutes(g *echo.Group) {
 // requireAdmin re-reads the user rather than trusting a claim in the token:
 // a demotion has to take effect for tokens already in circulation.
 func (s *Server) requireAdmin(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
+	return func(c *echo.Context) error {
 		if s.deps.Store == nil {
 			return Fail(http.StatusServiceUnavailable, "unavailable", "store not configured", nil)
 		}
@@ -60,7 +60,7 @@ func adminUserToDTO(u store.User) adminUserDTO {
 	}
 }
 
-func (s *Server) handleListUsers(c echo.Context) error {
+func (s *Server) handleListUsers(c *echo.Context) error {
 	rows, err := s.deps.Store.ListUsers(c.Request().Context())
 	if err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not list users", nil)
@@ -82,7 +82,7 @@ type adminCreateUserReq struct {
 // self-hosted box TM_ALLOW_REGISTRATION defaults to false, which is the right
 // default for a public port — the owner inviting someone is a different act
 // from letting the internet sign itself up.
-func (s *Server) handleCreateUser(c echo.Context) error {
+func (s *Server) handleCreateUser(c *echo.Context) error {
 	if s.deps.Auth == nil {
 		return Fail(http.StatusServiceUnavailable, "unavailable", "auth not configured", nil)
 	}
@@ -105,7 +105,7 @@ type adminSetAdminReq struct {
 	IsAdmin *bool `json:"is_admin"`
 }
 
-func (s *Server) handleSetUserAdmin(c echo.Context) error {
+func (s *Server) handleSetUserAdmin(c *echo.Context) error {
 	var in adminSetAdminReq
 	if err := c.Bind(&in); err != nil || in.IsAdmin == nil {
 		return Fail(http.StatusBadRequest, "bad_request", "is_admin required", nil)
@@ -138,7 +138,7 @@ type adminResetPasswordReq struct {
 // The owner's answer to "I'm locked out" — no current password, because the
 // point is that the user does not have it. It still invalidates their refresh
 // tokens, since the hash changes (see the `pv` claim in auth/jwt.go).
-func (s *Server) handleAdminResetPassword(c echo.Context) error {
+func (s *Server) handleAdminResetPassword(c *echo.Context) error {
 	if s.deps.Auth == nil {
 		return Fail(http.StatusServiceUnavailable, "unavailable", "auth not configured", nil)
 	}
@@ -160,7 +160,7 @@ func (s *Server) handleAdminResetPassword(c echo.Context) error {
 // Deleting a user cascades every account, trade, note and attachment they own
 // (ON DELETE CASCADE throughout). There is no undo and no soft delete — the
 // client is responsible for making that plain before it calls this.
-func (s *Server) handleDeleteUser(c echo.Context) error {
+func (s *Server) handleDeleteUser(c *echo.Context) error {
 	ctx := c.Request().Context()
 	target := c.Param("id")
 	if target == auth.UserID(c) {

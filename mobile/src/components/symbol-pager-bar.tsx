@@ -271,10 +271,9 @@ const styles = StyleSheet.create((theme) => ({
     flexShrink: 1,
     borderRadius: theme.radius.full,
     borderCurve: 'continuous',
-    // iOS 26 bordered capsule — the hairline carries the affordance (chips.tsx).
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    backgroundColor: theme.colors.card,
+    // Same system fill as a compact DatePicker's pill (ControlPill), so the
+    // strip sits in the same control family as the form's other capsules.
+    backgroundColor: theme.colors.fill,
   },
   tabList: {
     flexDirection: 'row',
@@ -305,7 +304,7 @@ const styles = StyleSheet.create((theme) => ({
     bottom: 0,
     borderRadius: theme.radius.full,
     borderCurve: 'continuous',
-    backgroundColor: theme.colors.input,
+    backgroundColor: theme.colors.segmentActive,
     // Start hidden so the animated opacity has a defined origin — otherwise a
     // freshly mounted inactive tab paints one filled frame before settling.
     opacity: 0,

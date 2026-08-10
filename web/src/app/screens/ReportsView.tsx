@@ -45,6 +45,7 @@ import { ReportsExecutionGrade } from "@/components/ReportsExecutionGrade";
 import { ReportsHourlyList } from "@/components/ReportsHourlyList";
 import { ReportsSummaryBento } from "@/components/ReportsSummaryBento";
 import { ReportsMetricEvolution } from "@/components/ReportsMetricEvolution";
+import { ReportsMonteCarlo } from "@/components/ReportsMonteCarlo";
 import { ReportsRiskDrawdown } from "@/components/ReportsRiskDrawdown";
 import { ReportsRuleCompliance } from "@/components/ReportsRuleCompliance";
 import { ReportsRMultiplePerformance } from "@/components/ReportsRMultiplePerformance";
@@ -63,6 +64,7 @@ import type {
   BreakGroup,
   ComplianceReport,
   EquityCurve,
+  MonteCarloResult,
   RSummary,
   Summary,
   Trade,
@@ -153,6 +155,9 @@ export interface ReportsViewProps {
   behavior?: BehaviorReport;
   behaviorLoading?: boolean;
   behaviorError?: boolean;
+  monteCarlo?: MonteCarloResult;
+  monteCarloLoading?: boolean;
+  monteCarloError?: boolean;
   onSelectTradeId?: (id: string) => void;
   tab: ReportsTab;
   onTabChange: (t: ReportsTab) => void;
@@ -599,6 +604,9 @@ export function ReportsView({
   behavior,
   behaviorLoading = false,
   behaviorError = false,
+  monteCarlo,
+  monteCarloLoading = false,
+  monteCarloError = false,
   onSelectTradeId,
   tab,
   onTabChange,
@@ -837,6 +845,12 @@ export function ReportsView({
               error={tradesError || equityError}
               currency={displayCurrency}
               fxRate={fxRate}
+            />
+            <ReportsMonteCarlo
+              simulation={monteCarlo}
+              loading={monteCarloLoading}
+              error={monteCarloError}
+              currency={displayCurrency}
             />
             <ReportsRuleCompliance
               report={compliance}

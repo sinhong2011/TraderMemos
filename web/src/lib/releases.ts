@@ -40,6 +40,74 @@ export function isNewerVersion(candidate: string, current: string): boolean {
   return compareSemver(candidate, current) > 0;
 }
 
+export type ReleaseNoteItem = {
+  scope: string | null;
+  text: string;
+  prLabel: string | null;
+  prUrl: string | null;
+};
+
+export type ReleaseNoteSection = {
+  title: string;
+  items: ReleaseNoteItem[];
+};
+
+const SHA_LABEL = /^[0-9a-f]{7,40}$/i;
+
+/** Replace inline markdown links with their label text. */
+function stripInlineLinks(text: string): string {
+  return text.replace(/\[([^\]]*)\]\([^)]*\)/g, "$1");
+}
+
+/**
+ * Parse a release-please changelog body (`### Features`, `* **scope:** text
+ * ([#1](url)) ([sha](url))`) into sections of items. Trailing commit-SHA refs
+ * are dropped; the first issue/PR ref is kept as a link. Returns no sections
+ * for freeform bodies — callers fall back to the plain excerpt.
+ */
+export function parseReleaseNotes(body: string): ReleaseNoteSection[] {
+  const sections: ReleaseNoteSection[] = [];
+  let current: ReleaseNoteSection | null = null;
+  for (const raw of body.split(/\r?\n/)) {
+    const line = raw.trim();
+    if (!line) continue;
+    const heading = line.match(/^#{2,4}\s+(.*)$/);
+    if (heading) {
+      // The version heading ("## [0.7.0](compare) (date)") duplicates the
+      // version/date shown elsewhere — skip it.
+      if (/^\[?v?\d+\.\d+/.test(heading[1].trim())) {
+        current = null;
+        continue;
+      }
+      current = { title: stripInlineLinks(heading[1]).trim(), items: [] };
+      sections.push(current);
+      continue;
+    }
+    const bullet = line.match(/^[*-]\s+(.*)$/);
+    if (!bullet || !current) continue;
+    let text = bullet[1].trim();
+    const scopeMatch = text.match(/^\*\*(.+?):?\*\*:?\s*/);
+    const scope = scopeMatch ? scopeMatch[1].replace(/:$/, "") : null;
+    if (scopeMatch) text = text.slice(scopeMatch[0].length);
+    let prLabel: string | null = null;
+    let prUrl: string | null = null;
+    const trailingRef = /\s*\(\[([^\]]+)\]\(([^)]+)\)\)$/;
+    for (let m = text.match(trailingRef); m; m = text.match(trailingRef)) {
+      const label = m[1].trim();
+      if (label.startsWith("#")) {
+        prLabel = label;
+        prUrl = m[2];
+      } else if (!SHA_LABEL.test(label)) {
+        break;
+      }
+      text = text.slice(0, m.index).trimEnd();
+    }
+    text = stripInlineLinks(text).trim();
+    if (text) current.items.push({ scope, text, prLabel, prUrl });
+  }
+  return sections.filter((section) => section.items.length > 0);
+}
+
 export function releaseExcerpt(body: string, max = 320): string {
   const plain = body
     .replace(/```[\s\S]*?```/g, " ")

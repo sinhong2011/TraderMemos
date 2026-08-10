@@ -5,7 +5,7 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/version"
 )
 
@@ -25,7 +25,7 @@ type systemInfoDTO struct {
 	Features  map[string]bool `json:"features"`
 }
 
-func (s *Server) handleSystemInfo(c echo.Context) error {
+func (s *Server) handleSystemInfo(c *echo.Context) error {
 	features := s.deps.Features
 	if features == nil {
 		features = map[string]bool{}

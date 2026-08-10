@@ -8,9 +8,10 @@ import { DateRangePicker } from "./DateRangePicker";
 import { DisplayCurrencySelect } from "./HeaderBar";
 import { ToolsPopover } from "./ToolsPopover";
 import { Button } from "./ui/button";
+import { useAppUpdate } from "@/lib/appUpdate";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/cn";
-import { accountBaseCurrency } from "@/lib/displayPrefs";
+import { accountBaseCurrency, useDisplayPrefs } from "@/lib/displayPrefs";
 import { useFilters } from "@/lib/filters";
 import { useAccounts } from "@/lib/hooks/useAccounts";
 import { useLocale } from "@/i18n";
@@ -23,12 +24,15 @@ function NavRow({
   label,
   icon: Icon,
   active,
+  dot,
   onNavigate,
 }: {
   to: string;
   label: string;
   icon: LucideIcon;
   active: boolean;
+  /** Quiet attention dot (e.g. an update is available — detail lives on the page). */
+  dot?: boolean;
   onNavigate: () => void;
 }) {
   return (
@@ -44,6 +48,7 @@ function NavRow({
     >
       <Icon size={18} strokeWidth={1.75} aria-hidden />
       {label}
+      {dot ? <span aria-hidden className="ml-auto size-1.5 rounded-full bg-primary" /> : null}
     </Link>
   );
 }
@@ -176,6 +181,11 @@ export function MobileNavDrawer() {
   const closeMobileNav = useUI((s) => s.closeMobileNav);
   const openModal = useUI((s) => s.openModal);
   const label = (key: Parameters<typeof navLabel>[1]) => navLabel(locale, key);
+  // Mirrors the settings-rail dot in AppNav — see the comment there.
+  const updateAttention = useAppUpdate(
+    (s) => s.swReady || s.webBehind || s.apiBehind || s.versionMismatch,
+  );
+  const updateNotices = useDisplayPrefs((s) => s.updateNotices);
 
   function runAction(fn: () => void) {
     closeMobileNav();
@@ -228,6 +238,7 @@ export function MobileNavDrawer() {
             label={label("settings")}
             icon={Settings}
             active={isRouteActive(pathname, "/settings")}
+            dot={updateNotices && updateAttention}
             onNavigate={closeMobileNav}
           />
 

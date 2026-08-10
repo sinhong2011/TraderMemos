@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/analytics"
 	"github.com/tradermemos/api/internal/auth"
 	"github.com/tradermemos/api/internal/store"
@@ -87,7 +87,7 @@ func (s *Server) shareLinksDisabled() error {
 	return Fail(http.StatusNotFound, "share_links_disabled", "share links are disabled on this server", nil)
 }
 
-func (s *Server) handleListShareLinks(c echo.Context) error {
+func (s *Server) handleListShareLinks(c *echo.Context) error {
 	if !s.deps.ShareLinksEnabled {
 		return s.shareLinksDisabled()
 	}
@@ -102,7 +102,7 @@ func (s *Server) handleListShareLinks(c echo.Context) error {
 	return c.JSON(http.StatusOK, out)
 }
 
-func (s *Server) handleCreateShareLink(c echo.Context) error {
+func (s *Server) handleCreateShareLink(c *echo.Context) error {
 	if !s.deps.ShareLinksEnabled {
 		return s.shareLinksDisabled()
 	}
@@ -172,7 +172,7 @@ func (s *Server) handleCreateShareLink(c echo.Context) error {
 	return c.JSON(http.StatusCreated, shareLinkToDTO(row))
 }
 
-func (s *Server) handleRevokeShareLink(c echo.Context) error {
+func (s *Server) handleRevokeShareLink(c *echo.Context) error {
 	if !s.deps.ShareLinksEnabled {
 		return s.shareLinksDisabled()
 	}
@@ -198,7 +198,7 @@ type publicShareDTO struct {
 // reuses the authed handlers: the response is the dedicated aggregate built by
 // analytics.BuildShareAggregate, with the scope enforced here on every hit.
 // Disabled, unknown, revoked, and expired all answer the same 404.
-func (s *Server) handlePublicShare(c echo.Context) error {
+func (s *Server) handlePublicShare(c *echo.Context) error {
 	notFound := Fail(http.StatusNotFound, "not_found", "share link not found", nil)
 	if !s.deps.ShareLinksEnabled {
 		return notFound

@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/auth"
 	"github.com/tradermemos/api/internal/exporter"
 	"github.com/tradermemos/api/internal/store"
@@ -76,7 +76,7 @@ func stripAccountFromTradeExport(details []tradeDetailDTO) {
 	}
 }
 
-func (s *Server) handleExport(c echo.Context) error {
+func (s *Server) handleExport(c *echo.Context) error {
 	uid := auth.UserID(c)
 	ctx := c.Request().Context()
 
@@ -191,7 +191,7 @@ func (s *Server) handleExport(c echo.Context) error {
 	}
 }
 
-func (s *Server) writeExportZip(c echo.Context, userID, accountID, accountName string, payload accountExportJSON) error {
+func (s *Server) writeExportZip(c *echo.Context, userID, accountID, accountName string, payload accountExportJSON) error {
 	ctx := c.Request().Context()
 	var buf bytes.Buffer
 	zw := zip.NewWriter(&buf)
@@ -330,19 +330,3 @@ func (s *Server) buildJournalExportRows(ctx context.Context, userID string, f Fi
 	return out, nil
 }
 
-func optionRightFromFills(fills []store.Execution) string {
-	for _, f := range fills {
-		if !f.Details.Valid || f.Details.String == "" {
-			continue
-		}
-		var details map[string]string
-		if err := json.Unmarshal([]byte(f.Details.String), &details); err != nil {
-			continue
-		}
-		right := strings.ToLower(strings.TrimSpace(details["option_right"]))
-		if right == "call" || right == "put" {
-			return right
-		}
-	}
-	return ""
-}

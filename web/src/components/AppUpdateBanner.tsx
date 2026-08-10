@@ -3,49 +3,26 @@ import { aboutContent } from "@/lib/aboutContent";
 import { useAppUpdate } from "@/lib/appUpdate";
 import { useDisplayPrefs } from "@/lib/displayPrefs";
 import { useLocale } from "@/i18n";
-import { APP_VERSION } from "@/lib/version";
 import { Button } from "./ui/button";
 
 /**
- * Fixed toast when a service-worker update is waiting or a newer GitHub
- * release is available. Lives inside Toaster so it works on login + authed.
+ * Fixed toast shown only when a new service worker is waiting — the one update
+ * state a click can fix. Non-actionable staleness (web/API behind the latest
+ * release, deployment mismatch) surfaces quietly in Settings → About and as a
+ * dot on the settings nav item instead. Lives inside Toaster so it works on
+ * login + authed. Dismissal persists per build — see appUpdate.ts.
  */
 export function AppUpdateBanner() {
   const { locale } = useLocale();
   const content = aboutContent(locale);
   const swReady = useAppUpdate((s) => s.swReady);
-  const webBehind = useAppUpdate((s) => s.webBehind);
-  const apiBehind = useAppUpdate((s) => s.apiBehind);
-  const versionMismatch = useAppUpdate((s) => s.versionMismatch);
-  const apiVersion = useAppUpdate((s) => s.apiVersion);
-  const remote = useAppUpdate((s) => s.remote);
   const dismissed = useAppUpdate((s) => s.dismissed);
   const applyUpdate = useAppUpdate((s) => s.applyUpdate);
   const dismiss = useAppUpdate((s) => s.dismiss);
   const updateNotices = useDisplayPrefs((s) => s.updateNotices);
 
-  const updateAvailable = swReady || webBehind || apiBehind || versionMismatch;
-  const visible = updateNotices && !dismissed && updateAvailable;
+  const visible = updateNotices && !dismissed && swReady;
   if (!visible) return null;
-
-  const description = swReady
-    ? content.updateBannerSw
-    : webBehind && apiBehind
-      ? content.updateBannerBothBehind
-      : webBehind
-        ? content.updateBannerWebBehind
-        : apiBehind
-          ? content.updateBannerApiBehind
-          : versionMismatch
-            ? content.updateBannerMismatch
-            : content.updateBannerRemote;
-
-  // Versions live in a compact chip instead of the sentence. A pure mismatch
-  // (no release info) compares web against API instead of against latest.
-  const mismatchOnly = !swReady && !webBehind && !apiBehind && versionMismatch;
-  const latest = mismatchOnly ? apiVersion : remote?.version;
-  const fromVersion = !webBehind && apiBehind ? (apiVersion ?? APP_VERSION) : APP_VERSION;
-  const showVersions = !swReady && Boolean(latest) && latest !== fromVersion;
 
   return (
     <div
@@ -57,38 +34,16 @@ export function AppUpdateBanner() {
           <RefreshCw size={13} strokeWidth={2} aria-hidden />
         </div>
         <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <p className="text-[13px] font-medium tracking-tight text-popover-foreground">
-              {content.updateBannerTitle}
-            </p>
-            {showVersions ? (
-              <span className="inline-flex items-center gap-1 rounded-sm bg-muted px-1.5 py-px font-mono text-[10.5px] tabular-nums text-muted-foreground">
-                {fromVersion}
-                <span aria-hidden>→</span>
-                <span className="font-medium text-popover-foreground">{latest}</span>
-              </span>
-            ) : null}
-          </div>
+          <p className="text-[13px] font-medium tracking-tight text-popover-foreground">
+            {content.updateBannerTitle}
+          </p>
           <p className="mt-1 text-xs leading-relaxed text-pretty text-muted-foreground">
-            {description}
+            {content.updateBannerSw}
           </p>
           <div className="mt-2.5 flex flex-wrap items-center gap-2">
-            {swReady ? (
-              <Button type="button" size="xs" onClick={() => applyUpdate()}>
-                {content.updateReload}
-              </Button>
-            ) : remote?.url ? (
-              <Button
-                type="button"
-                size="xs"
-                variant="outline"
-                onClick={() => {
-                  window.open(remote.url, "_blank", "noopener,noreferrer");
-                }}
-              >
-                {content.updateViewRelease}
-              </Button>
-            ) : null}
+            <Button type="button" size="xs" onClick={() => applyUpdate()}>
+              {content.updateReload}
+            </Button>
           </div>
         </div>
         <Button

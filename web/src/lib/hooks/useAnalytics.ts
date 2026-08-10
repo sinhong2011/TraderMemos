@@ -46,6 +46,14 @@ export function useBehavior(filters: Filters, enabled = true) {
   });
 }
 
+export function useMonteCarlo(filters: Filters, enabled = true) {
+  return useQuery({
+    queryKey: ["analytics", "montecarlo", filters],
+    queryFn: () => analyticsApi.monteCarlo(filters),
+    enabled,
+  });
+}
+
 export function useBreakdown(by: string, filters: Filters) {
   return useQuery({
     queryKey: ["analytics", "breakdown", by, filters],

@@ -21,7 +21,8 @@ import { cn } from "@/lib/cn";
 import { Button } from "./ui/button";
 
 /** The import API takes one file per run, so the picker stays single-file. */
-const ACCEPT = ".csv,text/csv,.json,application/json";
+const ACCEPT =
+  ".csv,text/csv,.json,application/json,.html,.htm,text/html,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 // Must not exceed the API's TM_IMPORT_MAX_BYTES (default 10 MiB) — a larger
 // client cap lets uploads through that the server then rejects with a 413.
 const MAX_SIZE = 10 * 1024 * 1024;
@@ -121,7 +122,7 @@ export function CsvDropZone({ file, onFileChange, disabled, fill, className }: C
             </button>
           </p>
           <p className="m-0 text-xs text-muted-foreground">
-            CSV or JSON · maximum file size {formatBytes(MAX_SIZE)}
+            CSV, JSON, or MT4/MT5 statement · maximum file size {formatBytes(MAX_SIZE)}
           </p>
         </div>
       </div>

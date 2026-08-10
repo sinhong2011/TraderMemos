@@ -7,6 +7,7 @@ package storepg
 
 import (
 	"context"
+	"database/sql"
 )
 
 const getTradeIDForExecution = `-- name: GetTradeIDForExecution :one
@@ -18,4 +19,42 @@ func (q *Queries) GetTradeIDForExecution(ctx context.Context, executionID string
 	var trade_id string
 	err := row.Scan(&trade_id)
 	return trade_id, err
+}
+
+const listOptionExecutionDetailsForUser = `-- name: ListOptionExecutionDetailsForUser :many
+SELECT te.trade_id, e.symbol, e.details
+FROM trade_executions te
+JOIN executions e ON e.id = te.execution_id
+JOIN trades t ON t.id = te.trade_id
+WHERE t.user_id = $1 AND t.instrument_type = 'option'
+ORDER BY e.executed_at
+`
+
+type ListOptionExecutionDetailsForUserRow struct {
+	TradeID string         `json:"trade_id"`
+	Symbol  string         `json:"symbol"`
+	Details sql.NullString `json:"details"`
+}
+
+func (q *Queries) ListOptionExecutionDetailsForUser(ctx context.Context, userID string) ([]ListOptionExecutionDetailsForUserRow, error) {
+	rows, err := q.db.QueryContext(ctx, listOptionExecutionDetailsForUser, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListOptionExecutionDetailsForUserRow
+	for rows.Next() {
+		var i ListOptionExecutionDetailsForUserRow
+		if err := rows.Scan(&i.TradeID, &i.Symbol, &i.Details); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/analytics"
 	"github.com/tradermemos/api/internal/store"
 )
@@ -30,7 +30,7 @@ type Filters struct {
 
 // parseFilters reads the shared filter query params. Malformed from/to dates
 // are an error (rather than silently ignored) so clients learn of the mistake.
-func parseFilters(c echo.Context) (Filters, error) {
+func parseFilters(c *echo.Context) (Filters, error) {
 	var f Filters
 	f.AccountID = c.QueryParam("account_id")
 	f.Symbol = c.QueryParam("symbol")

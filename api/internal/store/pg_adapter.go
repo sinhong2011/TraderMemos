@@ -9,13 +9,21 @@ import (
 )
 
 // PG adapts storepg.Queries to the store.Querier interface.
+// db is the same handle storepg holds, kept for the hand-written set-at-a-time
+// statements in bulk.go that sqlc cannot express.
 type PG struct {
-	q *storepg.Queries
+	q  *storepg.Queries
+	db DBTX
 }
 
 // NewPG wraps a Postgres sqlc Queries as store.Querier.
 func NewPG(conn *sql.DB) *PG {
-	return &PG{q: storepg.New(conn)}
+	return NewPGFromDBTX(conn)
+}
+
+// NewPGFromDBTX wraps any Postgres handle — a *sql.DB or an open *sql.Tx.
+func NewPGFromDBTX(db DBTX) *PG {
+	return &PG{q: storepg.New(db), db: db}
 }
 
 var _ Querier = (*PG)(nil)
@@ -669,6 +677,21 @@ func (p *PG) ListJournalNotes(ctx context.Context, arg ListJournalNotesParams) (
 		out := make([]JournalNote, len(in))
 		for i := range in {
 			out[i] = JournalNote(in[i])
+		}
+		return out
+	}(), nil
+}
+
+func (p *PG) ListOptionExecutionDetailsForUser(ctx context.Context, userID string) ([]ListOptionExecutionDetailsForUserRow, error) {
+	v, err := p.q.ListOptionExecutionDetailsForUser(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	return func() []ListOptionExecutionDetailsForUserRow {
+		in := v
+		out := make([]ListOptionExecutionDetailsForUserRow, len(in))
+		for i := range in {
+			out[i] = ListOptionExecutionDetailsForUserRow(in[i])
 		}
 		return out
 	}(), nil

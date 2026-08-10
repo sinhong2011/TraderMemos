@@ -2,14 +2,14 @@
 @import 'fumadocs-ui/css/neutral.css';
 @import 'fumadocs-ui/css/preset.css';
 
-/* TraderMemos blue primary — matches web/src/global.css.
-   Light mode uses a deeper shade of the brand hue so white-on-primary and
-   primary-as-text both clear WCAG AA (4.5:1); dark mode keeps the bright
-   brand blue and flips primary-foreground to near-black for the same reason. */
+/* TraderMemos blue primary — matches web/src/global.css. The brand blue is
+   dark enough that white-on-primary clears WCAG AA (6.0:1) in both schemes,
+   so unlike the earlier bright blue there is no light/dark split here and
+   primary-foreground stays near-white on both. */
 @theme {
-  --color-fd-primary: oklch(0.52 0.1305 235.19);
+  --color-fd-primary: oklch(0.5013 0.1428 252.49);
   --color-fd-primary-foreground: oklch(0.985 0 0);
-  --color-fd-ring: oklch(0.52 0.1305 235.19);
+  --color-fd-ring: oklch(0.5013 0.1428 252.49);
   --color-fd-muted-foreground: oklch(0.5 0 0);
   --radius: 0.625rem;
 }
@@ -21,9 +21,9 @@
 }
 
 .dark {
-  --color-fd-primary: oklch(0.617 0.1305 235.19);
-  --color-fd-primary-foreground: oklch(0.145 0 0);
-  --color-fd-ring: oklch(0.617 0.1305 235.19);
+  --color-fd-primary: oklch(0.5013 0.1428 252.49);
+  --color-fd-primary-foreground: oklch(0.985 0 0);
+  --color-fd-ring: oklch(0.5013 0.1428 252.49);
   --color-fd-muted-foreground: oklch(0.708 0 0);
   --tm-profit: oklch(0.76 0.15 155);
   --tm-loss: oklch(0.68 0.19 25);

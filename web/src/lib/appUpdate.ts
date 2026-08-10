@@ -33,6 +33,7 @@ type AppUpdateState = {
   /** GitHub release is newer than the running web build. */
   remoteNewer: boolean;
   checkError: string | null;
+  /** The waiting-worker toast was dismissed for the current build (persisted). */
   dismissed: boolean;
   setSwReady: (ready: boolean) => void;
   dismiss: () => void;
@@ -44,19 +45,29 @@ type AppUpdateState = {
 let serwistRef: SerwistLike | null = null;
 let controllingReloadBound = false;
 
-const DISMISSED_VERSION_KEY = "tradermemos-update-dismissed-version";
+const DISMISSED_KEY = "tradermemos-update-dismissed-version";
 
-function readDismissedVersion(): string | null {
+/**
+ * Dismissal is keyed to the build the waiting worker would replace: once the
+ * update applies, APP_VERSION changes and the next release's worker resurfaces
+ * the toast. Values written by older builds (a bare release version) never
+ * match, so they self-correct.
+ */
+export function swDismissSignature(): string {
+  return `sw@${APP_VERSION}`;
+}
+
+function readDismissedSignature(): string | null {
   try {
-    return localStorage.getItem(DISMISSED_VERSION_KEY);
+    return localStorage.getItem(DISMISSED_KEY);
   } catch {
     return null;
   }
 }
 
-function writeDismissedVersion(version: string) {
+function writeDismissedSignature(signature: string) {
   try {
-    localStorage.setItem(DISMISSED_VERSION_KEY, version);
+    localStorage.setItem(DISMISSED_KEY, signature);
   } catch {
     // storage unavailable — dismissal lasts for the session only
   }
@@ -90,10 +101,13 @@ export const useAppUpdate = create<AppUpdateState>((set, get) => ({
   remoteNewer: false,
   checkError: null,
   dismissed: false,
-  setSwReady: (swReady) => set({ swReady, dismissed: swReady ? false : get().dismissed }),
+  setSwReady: (swReady) =>
+    set({
+      swReady,
+      dismissed: swReady ? readDismissedSignature() === swDismissSignature() : get().dismissed,
+    }),
   dismiss: () => {
-    const version = get().remote?.version;
-    if (version) writeDismissedVersion(version);
+    writeDismissedSignature(swDismissSignature());
     set({ dismissed: true });
   },
   snapshot: () => {
@@ -132,14 +146,6 @@ export const useAppUpdate = create<AppUpdateState>((set, get) => ({
         remoteNewer: webBehind,
         lastCheckedAt: Date.now(),
         checking: false,
-        // A dismissal sticks for the release it was made on (persisted), so
-        // the toast only returns when a newer version ships. A waiting SW is
-        // separately actionable and keeps its own session dismissal.
-        dismissed: get().swReady
-          ? get().dismissed
-          : webBehind || apiBehind
-            ? latestVersion !== null && readDismissedVersion() === latestVersion
-            : get().dismissed,
       });
     } catch (err) {
       set({
