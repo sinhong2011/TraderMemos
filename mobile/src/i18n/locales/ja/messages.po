@@ -470,9 +470,9 @@ msgstr "1銘柄が見つかりました"
 msgid "1 trade"
 msgstr "1件"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:36
-#~ msgid "1 year"
-#~ msgstr "1年"
+#: src/app/share-reports-link.tsx:29
+msgid "1 year"
+msgstr "1年"
 
 #: src/app/(tabs)/(settings)/two-factor.tsx:163
 msgid "1. Add to your authenticator"
@@ -506,9 +506,9 @@ msgstr "24時間制"
 #~ msgid "24-hour (13:30)"
 #~ msgstr "24時間表示 (13:30)"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:34
-#~ msgid "30 days"
-#~ msgstr "30日間"
+#: src/app/share-reports-link.tsx:25
+msgid "30 days"
+msgstr "30日間"
 
 #: src/app/new-token.tsx:18
 msgid "30d"
@@ -520,9 +520,9 @@ msgstr "30日"
 msgid "6-digit code"
 msgstr "6桁のコード"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:35
-#~ msgid "90 days"
-#~ msgstr "90日間"
+#: src/app/share-reports-link.tsx:27
+msgid "90 days"
+msgstr "90日間"
 
 #: src/app/new-token.tsx:19
 msgid "90d"
@@ -900,6 +900,10 @@ msgstr "全期間タイプ"
 msgid "Any OpenAI-compatible endpoint works. Test uses the values above, saved or not."
 msgstr "OpenAI互換のエンドポイントなら何でも使えます。テストは保存前でも上の値を使います。"
 
+#: src/app/share-reports-link.tsx:105
+msgid "Anyone with the link sees a read-only summary of the current scope — no trades, notes or account details."
+msgstr "リンクを知っている人は現在のスコープの読み取り専用サマリーを閲覧できます — トレード、ノート、口座情報は含まれません。"
+
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:246
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:385
 msgid "API key"
@@ -1103,7 +1107,7 @@ msgstr "引き分け"
 msgid "Before the open"
 msgstr "取引開始前"
 
-#: src/app/(tabs)/(dashboard)/reports.tsx:93
+#: src/app/(tabs)/(dashboard)/reports.tsx:102
 msgid "Behavior"
 msgstr "動作"
 
@@ -1579,6 +1583,10 @@ msgstr "枚数"
 msgid "Copied"
 msgstr "コピーしました"
 
+#: src/app/share-reports-link.tsx:165
+msgid "Copy"
+msgstr "コピー"
+
 #: src/app/new-token.tsx:85
 msgid "Copy it now — the secret is shown only once and cannot be recovered."
 msgstr "今すぐコピーしてください — シークレットは一度しか表示されず、復元できません。"
@@ -1614,6 +1622,10 @@ msgstr "トレードを消去できませんでした"
 #: src/app/(tabs)/(trades)/[id].tsx:410
 msgid "Could not compute excursion"
 msgstr "エクスカーションを計算できませんでした"
+
+#: src/app/share-reports-link.tsx:71
+msgid "Could not create link"
+msgstr "リンクを作成できませんでした"
 
 #: src/app/tag-form.tsx:47
 msgid "Could not create tag"
@@ -1815,6 +1827,10 @@ msgstr "サーバーに接続できませんでした。上の数値は最後に
 #: src/app/(tabs)/(settings)/export-trades.tsx:60
 msgid "Create an account first."
 msgstr "まずアカウントを作成してください。"
+
+#: src/app/share-reports-link.tsx:178
+msgid "Create link"
+msgstr "リンクを作成"
 
 #: src/app/(tabs)/(settings)/tags.tsx:117
 #~ msgid "Create tag"
@@ -2076,7 +2092,7 @@ msgstr "入出金と手数料は、トレード損益とともにエクイティ
 #~ msgid "Description"
 #~ msgstr "説明"
 
-#: src/app/(tabs)/(dashboard)/reports.tsx:91
+#: src/app/(tabs)/(dashboard)/reports.tsx:100
 msgid "Detailed"
 msgstr "詳細"
 
@@ -2155,6 +2171,7 @@ msgstr "金額"
 #: src/app/login.tsx:385
 #: src/app/manage-tags.tsx:60
 #: src/app/new-token.tsx:80
+#: src/app/share-reports-link.tsx:100
 #: src/app/share-trade.tsx:83
 #: src/app/share-wrapped.tsx:93
 #: src/components/tool-sheet.tsx:18
@@ -2510,6 +2527,10 @@ msgstr "期待値"
 #: src/app/(tabs)/(settings)/api-tokens.tsx:46
 msgid "Expired"
 msgstr "期限切れ"
+
+#: src/app/share-reports-link.tsx:124
+msgid "Expires"
+msgstr "有効期限"
 
 #. placeholder {0}: formatDate(token.expires_at)
 #: src/app/(tabs)/(settings)/api-tokens.tsx:47
@@ -3625,6 +3646,7 @@ msgid "never"
 msgstr "なし"
 
 #: src/app/new-token.tsx:17
+#: src/app/share-reports-link.tsx:31
 msgid "Never"
 msgstr "無期限"
 
@@ -4071,6 +4093,10 @@ msgstr "既定はオフ — カードにはRとリターン%のみ表示され�
 msgid "Off by default — the card shows win rate and ratios only."
 msgstr "既定はオフ — カードには勝率と比率のみ表示されます。"
 
+#: src/app/share-reports-link.tsx:112
+msgid "Off shares only win rate and ratios — account size stays private."
+msgstr "オフの場合は勝率と比率のみ共有 — 口座規模は非公開のままです。"
+
 #: src/app/(tabs)/(trades)/index.tsx:286
 msgid "Oldest first"
 msgstr "古い順"
@@ -4230,7 +4256,7 @@ msgstr "オーバーナイト"
 msgid "oversized after streak ×{0}"
 msgstr "連勝後の過大サイズ ×{0}"
 
-#: src/app/(tabs)/(dashboard)/reports.tsx:89
+#: src/app/(tabs)/(dashboard)/reports.tsx:98
 msgid "Overview"
 msgstr "概要"
 
@@ -4961,7 +4987,7 @@ msgid "Report an issue"
 msgstr "問題を報告"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:89
-#: src/app/(tabs)/(dashboard)/reports.tsx:105
+#: src/app/(tabs)/(dashboard)/reports.tsx:114
 #: src/components/tools-menu.tsx:39
 msgid "Reports"
 msgstr "レポート"
@@ -5058,7 +5084,7 @@ msgstr "トークンを失効しますか？"
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:380
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:640
-#: src/app/(tabs)/(dashboard)/reports.tsx:92
+#: src/app/(tabs)/(dashboard)/reports.tsx:101
 #: src/app/tool-position-size.tsx:103
 msgid "Risk"
 msgstr "リスク"
@@ -5450,6 +5476,7 @@ msgid "Setups restored"
 msgstr "復元されたセットアップ"
 
 #: src/app/(tabs)/(dashboard)/wrapped.tsx:374
+#: src/app/share-reports-link.tsx:160
 #: src/app/share-trade.tsx:170
 #: src/app/share-wrapped.tsx:182
 msgid "Share"
@@ -5464,6 +5491,11 @@ msgstr "カードを共有"
 #: src/app/replay.tsx:398
 msgid "Share frame"
 msgstr "フレームを共有"
+
+#: src/app/(tabs)/(dashboard)/reports.tsx:53
+#: src/app/share-reports-link.tsx:93
+msgid "Share link"
+msgstr "共有リンク"
 
 #: src/app/replay.tsx:299
 msgid "Share replay frame"
@@ -5509,6 +5541,7 @@ msgstr "ショート"
 msgid "Short {0}"
 msgstr "ショート {0}"
 
+#: src/app/share-reports-link.tsx:110
 #: src/app/share-trade.tsx:140
 #: src/app/share-wrapped.tsx:152
 msgid "Show amounts"
@@ -6607,7 +6640,7 @@ msgstr "なぜ決済しましたか？"
 msgid "WIN"
 msgstr "勝ち"
 
-#: src/app/(tabs)/(dashboard)/reports.tsx:90
+#: src/app/(tabs)/(dashboard)/reports.tsx:99
 msgid "Win / Loss"
 msgstr "勝敗"
 
@@ -6685,7 +6718,7 @@ msgid "Year"
 msgstr "年"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:111
-#: src/app/(tabs)/(dashboard)/reports.tsx:50
+#: src/app/(tabs)/(dashboard)/reports.tsx:59
 #: src/app/(tabs)/(dashboard)/wrapped.tsx:368
 #: src/components/reports/overview-section.tsx:558
 msgid "Year Wrapped"

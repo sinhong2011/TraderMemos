@@ -470,9 +470,9 @@ msgstr "1개 종목을 찾았습니다"
 msgid "1 trade"
 msgstr "1건"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:36
-#~ msgid "1 year"
-#~ msgstr "1년"
+#: src/app/share-reports-link.tsx:29
+msgid "1 year"
+msgstr "1년"
 
 #: src/app/(tabs)/(settings)/two-factor.tsx:163
 msgid "1. Add to your authenticator"
@@ -506,9 +506,9 @@ msgstr "24시간제"
 #~ msgid "24-hour (13:30)"
 #~ msgstr "24시간제 (13:30)"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:34
-#~ msgid "30 days"
-#~ msgstr "30일"
+#: src/app/share-reports-link.tsx:25
+msgid "30 days"
+msgstr "30일"
 
 #: src/app/new-token.tsx:18
 msgid "30d"
@@ -520,9 +520,9 @@ msgstr "30일"
 msgid "6-digit code"
 msgstr "6자리 코드"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:35
-#~ msgid "90 days"
-#~ msgstr "90일"
+#: src/app/share-reports-link.tsx:27
+msgid "90 days"
+msgstr "90일"
 
 #: src/app/new-token.tsx:19
 msgid "90d"
@@ -900,6 +900,10 @@ msgstr "모든 보유 기간"
 msgid "Any OpenAI-compatible endpoint works. Test uses the values above, saved or not."
 msgstr "OpenAI 호환 엔드포인트면 무엇이든 사용할 수 있습니다. 테스트는 저장 여부와 관계없이 위 값을 사용합니다."
 
+#: src/app/share-reports-link.tsx:105
+msgid "Anyone with the link sees a read-only summary of the current scope — no trades, notes or account details."
+msgstr "링크가 있는 사람은 현재 범위의 읽기 전용 요약을 볼 수 있습니다 — 거래, 노트, 계좌 정보는 포함되지 않습니다."
+
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:246
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:385
 msgid "API key"
@@ -1103,7 +1107,7 @@ msgstr "본전"
 msgid "Before the open"
 msgstr "장 시작 전"
 
-#: src/app/(tabs)/(dashboard)/reports.tsx:93
+#: src/app/(tabs)/(dashboard)/reports.tsx:102
 msgid "Behavior"
 msgstr "동작"
 
@@ -1579,6 +1583,10 @@ msgstr "계약 수"
 msgid "Copied"
 msgstr "복사됨"
 
+#: src/app/share-reports-link.tsx:165
+msgid "Copy"
+msgstr "복사"
+
 #: src/app/new-token.tsx:85
 msgid "Copy it now — the secret is shown only once and cannot be recovered."
 msgstr "지금 복사하세요 — 시크릿은 한 번만 표시되며 복구할 수 없습니다."
@@ -1614,6 +1622,10 @@ msgstr "거래를 지우지 못했습니다"
 #: src/app/(tabs)/(trades)/[id].tsx:410
 msgid "Could not compute excursion"
 msgstr "익스커전을 계산할 수 없습니다"
+
+#: src/app/share-reports-link.tsx:71
+msgid "Could not create link"
+msgstr "링크를 만들지 못했습니다"
 
 #: src/app/tag-form.tsx:47
 msgid "Could not create tag"
@@ -1815,6 +1827,10 @@ msgstr "서버에 연결하지 못했습니다. 위 수치는 마지막 동기�
 #: src/app/(tabs)/(settings)/export-trades.tsx:60
 msgid "Create an account first."
 msgstr "먼저 계좌를 만드세요."
+
+#: src/app/share-reports-link.tsx:178
+msgid "Create link"
+msgstr "링크 만들기"
 
 #: src/app/(tabs)/(settings)/tags.tsx:117
 #~ msgid "Create tag"
@@ -2076,7 +2092,7 @@ msgstr "입출금과 수수료는 거래 손익과 함께 자산 곡선에 반�
 #~ msgid "Description"
 #~ msgstr "설명"
 
-#: src/app/(tabs)/(dashboard)/reports.tsx:91
+#: src/app/(tabs)/(dashboard)/reports.tsx:100
 msgid "Detailed"
 msgstr "상세"
 
@@ -2155,6 +2171,7 @@ msgstr "금액"
 #: src/app/login.tsx:385
 #: src/app/manage-tags.tsx:60
 #: src/app/new-token.tsx:80
+#: src/app/share-reports-link.tsx:100
 #: src/app/share-trade.tsx:83
 #: src/app/share-wrapped.tsx:93
 #: src/components/tool-sheet.tsx:18
@@ -2510,6 +2527,10 @@ msgstr "기대값"
 #: src/app/(tabs)/(settings)/api-tokens.tsx:46
 msgid "Expired"
 msgstr "만료됨"
+
+#: src/app/share-reports-link.tsx:124
+msgid "Expires"
+msgstr "만료"
 
 #. placeholder {0}: formatDate(token.expires_at)
 #: src/app/(tabs)/(settings)/api-tokens.tsx:47
@@ -3625,6 +3646,7 @@ msgid "never"
 msgstr "없음"
 
 #: src/app/new-token.tsx:17
+#: src/app/share-reports-link.tsx:31
 msgid "Never"
 msgstr "무기한"
 
@@ -4071,6 +4093,10 @@ msgstr "기본값은 꺼짐 — 카드에는 R과 수익률 %만 표시됩니다
 msgid "Off by default — the card shows win rate and ratios only."
 msgstr "기본값은 꺼짐 — 카드에는 승률과 비율만 표시됩니다."
 
+#: src/app/share-reports-link.tsx:112
+msgid "Off shares only win rate and ratios — account size stays private."
+msgstr "끄면 승률과 비율만 공유됩니다 — 계좌 규모는 비공개로 유지됩니다."
+
 #: src/app/(tabs)/(trades)/index.tsx:286
 msgid "Oldest first"
 msgstr "오래된 순"
@@ -4230,7 +4256,7 @@ msgstr "오버나이트"
 msgid "oversized after streak ×{0}"
 msgstr "연승 후 과대 사이즈 ×{0}"
 
-#: src/app/(tabs)/(dashboard)/reports.tsx:89
+#: src/app/(tabs)/(dashboard)/reports.tsx:98
 msgid "Overview"
 msgstr "개요"
 
@@ -4961,7 +4987,7 @@ msgid "Report an issue"
 msgstr "문제 신고"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:89
-#: src/app/(tabs)/(dashboard)/reports.tsx:105
+#: src/app/(tabs)/(dashboard)/reports.tsx:114
 #: src/components/tools-menu.tsx:39
 msgid "Reports"
 msgstr "리포트"
@@ -5058,7 +5084,7 @@ msgstr "토큰을 폐기할까요?"
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:380
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:640
-#: src/app/(tabs)/(dashboard)/reports.tsx:92
+#: src/app/(tabs)/(dashboard)/reports.tsx:101
 #: src/app/tool-position-size.tsx:103
 msgid "Risk"
 msgstr "리스크"
@@ -5450,6 +5476,7 @@ msgid "Setups restored"
 msgstr "복원된 셋업"
 
 #: src/app/(tabs)/(dashboard)/wrapped.tsx:374
+#: src/app/share-reports-link.tsx:160
 #: src/app/share-trade.tsx:170
 #: src/app/share-wrapped.tsx:182
 msgid "Share"
@@ -5464,6 +5491,11 @@ msgstr "카드 공유"
 #: src/app/replay.tsx:398
 msgid "Share frame"
 msgstr "프레임 공유"
+
+#: src/app/(tabs)/(dashboard)/reports.tsx:53
+#: src/app/share-reports-link.tsx:93
+msgid "Share link"
+msgstr "공유 링크"
 
 #: src/app/replay.tsx:299
 msgid "Share replay frame"
@@ -5509,6 +5541,7 @@ msgstr "숏"
 msgid "Short {0}"
 msgstr "숏 {0}"
 
+#: src/app/share-reports-link.tsx:110
 #: src/app/share-trade.tsx:140
 #: src/app/share-wrapped.tsx:152
 msgid "Show amounts"
@@ -6607,7 +6640,7 @@ msgstr "왜 청산했습니까?"
 msgid "WIN"
 msgstr "수익"
 
-#: src/app/(tabs)/(dashboard)/reports.tsx:90
+#: src/app/(tabs)/(dashboard)/reports.tsx:99
 msgid "Win / Loss"
 msgstr "승패"
 
@@ -6685,7 +6718,7 @@ msgid "Year"
 msgstr "연"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:111
-#: src/app/(tabs)/(dashboard)/reports.tsx:50
+#: src/app/(tabs)/(dashboard)/reports.tsx:59
 #: src/app/(tabs)/(dashboard)/wrapped.tsx:368
 #: src/components/reports/overview-section.tsx:558
 msgid "Year Wrapped"

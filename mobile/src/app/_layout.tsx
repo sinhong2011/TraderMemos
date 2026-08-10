@@ -317,6 +317,16 @@ export default function RootLayout() {
                 sheetCornerRadius: 24,
               }}
             />
+            {/* Public reports share link (#204) — web ShareLinkDialog's twin. */}
+            <Stack.Screen
+              name="share-reports-link"
+              options={{
+                presentation: 'formSheet',
+                sheetAllowedDetents: [0.6, 1],
+                sheetGrabberVisible: true,
+                sheetCornerRadius: 24,
+              }}
+            />
             {/* Add/edit cash transaction — a creation sheet like new-token,
                 launched from the Funding list's + button. Taller detent than
                 the token sheet: five stacked fields, not two. */}
