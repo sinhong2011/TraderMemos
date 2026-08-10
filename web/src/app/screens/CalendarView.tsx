@@ -5,6 +5,7 @@ import { CalendarWeekHoverDetails } from "@/components/CalendarWeekHoverDetails"
 import { CalendarYearView } from "@/components/CalendarYearView";
 import { Card } from "@/components/Card";
 import { DayTradesDrawer } from "@/components/DayTradesDrawer";
+import { WeekReviewDrawer } from "@/components/WeekReviewDrawer";
 import { WinLossRecord } from "@/components/WinLossRecord";
 import { EmptyState } from "@/components/EmptyState";
 import { Modal } from "@/components/Modal";
@@ -677,7 +678,8 @@ export function CalendarView({
 
                         {(() => {
                           const weekClass = cn(
-                            "relative flex h-full min-h-0 w-full flex-col overflow-hidden rounded-md px-1.5 py-1 md:px-2.5 md:py-1.5",
+                            // `sm:h-full` must beat Button size (`sm:h-8`) so week cells fill the row.
+                            "relative flex h-full min-h-0 w-full flex-col justify-start overflow-hidden rounded-md px-1.5 py-1 text-left sm:h-full md:px-2.5 md:py-1.5",
                             "@container/week",
                             !ws.hasData && "bg-muted",
                             ws.hasData &&
@@ -865,24 +867,33 @@ export function CalendarView({
         />
       </Modal>
 
-      {weekReviewIndex != null ? (
-        <WeekReviewModal
-          open={weekReviewIndex != null}
-          onOpenChange={(open) => {
-            if (!open) setWeekReviewIndex(null);
-          }}
-          week={grid.weeks[weekReviewIndex]}
-          weekSummary={weeks[weekReviewIndex]}
-          detail={weekDetails.get(weekReviewIndex)}
-          records={records}
-          currency={displayCurrency}
-          fxRate={fxRate}
-          onSelectDay={(day) => {
-            setWeekReviewIndex(null);
-            onSelectDay(day);
-          }}
-        />
-      ) : null}
+      <WeekReviewDrawer
+        weekReviewIndex={weekReviewIndex}
+        onClose={() => setWeekReviewIndex(null)}
+        week={weekReviewIndex != null ? grid.weeks[weekReviewIndex]! : []}
+        weekSummary={
+          weekReviewIndex != null
+            ? weeks[weekReviewIndex]!
+            : {
+                pnl: 0,
+                wins: 0,
+                losses: 0,
+                hasData: false,
+                daysWithTrades: 0,
+                firstDate: null,
+                lastDate: null,
+                weekNumber: null,
+              }
+        }
+        detail={weekReviewIndex != null ? weekDetails.get(weekReviewIndex) : undefined}
+        records={records}
+        currency={displayCurrency}
+        fxRate={fxRate}
+        onSelectDay={(day) => {
+          setWeekReviewIndex(null);
+          onSelectDay(day);
+        }}
+      />
     </>
   );
 }
@@ -953,107 +964,6 @@ function formatWeekAriaLabel(
     parts.push("No trades");
   }
   return parts.join(", ");
-}
-
-function WeekReviewModal({
-  open,
-  onOpenChange,
-  week,
-  weekSummary,
-  detail,
-  records,
-  currency,
-  fxRate,
-  onSelectDay,
-}: {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  week: ({ date: string; pnl: number | null } | null)[];
-  weekSummary: {
-    firstDate: string | null;
-    lastDate: string | null;
-    weekNumber: number | null;
-    pnl: number;
-    hasData: boolean;
-  };
-  detail?: ReturnType<typeof weekDetail>;
-  records: Record<string, DayRecord>;
-  currency: string;
-  fxRate: number;
-  onSelectDay: (day: string) => void;
-}) {
-  const title =
-    weekSummary.firstDate && weekSummary.lastDate
-      ? formatWeekRangeTitle(weekSummary.firstDate, weekSummary.lastDate)
-      : "Week";
-
-  const days = week.filter((c): c is { date: string; pnl: number | null } => c != null);
-
-  return (
-    <Modal
-      open={open}
-      onOpenChange={onOpenChange}
-      title={title}
-      className="max-w-[min(380px,94vw)]"
-      bodyClassName="gap-4"
-    >
-      <CalendarWeekHoverDetails
-        firstDate={weekSummary.firstDate}
-        lastDate={weekSummary.lastDate}
-        weekNumber={weekSummary.weekNumber}
-        pnl={weekSummary.pnl}
-        hasData={weekSummary.hasData}
-        currency={currency}
-        fxRate={fxRate}
-        detail={detail}
-      />
-      {days.length > 0 ? (
-        <ul className="m-0 flex flex-col gap-0.5 p-0">
-          {days.map((cell) => {
-            const rec = records[cell.date];
-            const trades = dayTradeCount(rec);
-            const hasPnl = cell.pnl != null;
-            return (
-              <li key={cell.date}>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  className="h-auto w-full justify-between rounded-md px-3 py-2 text-left"
-                  onClick={() => onSelectDay(cell.date)}
-                >
-                  <span className="text-[13px] text-foreground">
-                    {new Date(`${cell.date}T12:00:00Z`).toLocaleDateString(intlLocale(), {
-                      weekday: "short",
-                      month: "short",
-                      day: "numeric",
-                      timeZone: "UTC",
-                    })}
-                  </span>
-                  <span className="flex items-center gap-2 text-[12px] tabular-nums">
-                    {hasPnl ? (
-                      <span className={cn("font-semibold", pnlColor(cell.pnl!))}>
-                        {fmtSignedMoney(cell.pnl! * fxRate, currency, intlLocale())}
-                      </span>
-                    ) : (
-                      <span className="text-muted-foreground">No trades</span>
-                    )}
-                    {trades > 0 ? (
-                      <>
-                        <span className="text-muted-foreground">
-                          {trades} {trades === 1 ? "trade" : "trades"}
-                        </span>
-                        {rec ? <WinLossRecord wins={rec.wins} losses={rec.losses} /> : null}
-                      </>
-                    ) : null}
-                  </span>
-                </Button>
-              </li>
-            );
-          })}
-        </ul>
-      ) : null}
-    </Modal>
-  );
 }
 
 function PeriodSummaryBody({

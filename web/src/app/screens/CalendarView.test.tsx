@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ReactElement } from "react";
 import { describe, expect, it, vi } from "vite-plus/test";
@@ -146,7 +146,15 @@ describe("CalendarView", () => {
     expect(screen.getAllByText(/2 days/).length).toBeGreaterThanOrEqual(1);
   });
 
-  it("opens week hover details on focus and week review modal on click", async () => {
+  it("week cells use sm:h-full to fill the row inside Button trigger", () => {
+    wrap(<CalendarView {...BASE} />);
+    const weekBtn = screen.getByRole("button", { name: /^Week 1,/ });
+    expect(weekBtn.className).toContain("sm:h-full");
+    const emptyWeekBtn = screen.getAllByRole("button", { name: /No trades/i })[0]!;
+    expect(emptyWeekBtn.className).toContain("sm:h-full");
+  });
+
+  it("opens week hover details on focus and week review drawer on click", async () => {
     wrap(<CalendarView {...BASE} equityPoints={[{ at: "2026-06-01T00:00:00Z", equity: 10000 }]} />);
 
     const weekBtn = screen.getByRole("button", { name: /^Week 1,/ });
@@ -159,8 +167,40 @@ describe("CalendarView", () => {
     await userEvent.click(weekBtn);
     const dialog = screen.getByRole("dialog");
     expect(dialog).toBeInTheDocument();
-    expect(dialog).toHaveTextContent("Jul 1 – 4");
+    expect(screen.getByText(/Week review — Week 1 — Jul 1 – 4/)).toBeInTheDocument();
     expect(dialog).toHaveTextContent("2 trading days");
+  });
+
+  it("selecting a day in the week review drawer closes it and opens the day trades drawer", async () => {
+    const onSelectDay = vi.fn();
+    const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const { rerender } = render(
+      <QueryClientProvider client={qc}>
+        <CalendarView {...BASE} onSelectDay={onSelectDay} />
+      </QueryClientProvider>,
+    );
+
+    await userEvent.click(screen.getByRole("button", { name: /^Week 1,/ }));
+    expect(screen.getByText(/Week review — Week 1 — Jul 1 – 4/)).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: /Thu, Jul 2/i }));
+    expect(onSelectDay).toHaveBeenCalledWith("2026-07-02");
+    await waitFor(() => {
+      expect(screen.queryByText(/Week review — Week 1/)).not.toBeInTheDocument();
+    });
+
+    rerender(
+      <QueryClientProvider client={qc}>
+        <CalendarView
+          {...BASE}
+          onSelectDay={onSelectDay}
+          selectedDay="2026-07-02"
+          dayTrades={[DAY_TRADE]}
+        />
+      </QueryClientProvider>,
+    );
+    expect(screen.getByText(/Trades —/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Week review —/)).not.toBeInTheDocument();
   });
 
   it("shows No trades on empty week cells without em-dash placeholders", () => {
