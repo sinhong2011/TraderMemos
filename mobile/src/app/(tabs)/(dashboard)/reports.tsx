@@ -1,11 +1,14 @@
 // See the note in trade-form.tsx: @expo/ui's SwiftUI pager swallows taps on RN
 // views inside its pages, so section paging rides react-native-pager-view.
 import PagerView from 'react-native-pager-view';
+import { useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
 import { useEffect, useRef, useState } from 'react';
 import { Animated, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
+import { useAccounts, useCash } from '@/api/hooks';
+import { HeaderIconButton } from '@/components/header-icon-button';
 import { PagerTabs } from '@/components/pager-tabs';
 import { BehaviorSection } from '@/components/reports/behavior-section';
 import { DetailedSection } from '@/components/reports/detailed-section';
@@ -13,6 +16,9 @@ import { OverviewSection } from '@/components/reports/overview-section';
 import { RiskSection } from '@/components/reports/risk-section';
 import { ReportsScrollProvider } from '@/components/reports/section-scaffold';
 import { WinLossSection } from '@/components/reports/winloss-section';
+import { ReportsFilterMenu } from '@/components/reports-filter-menu';
+import { useSelectedAccountId } from '@/lib/account-store';
+import { netDeposits } from '@/lib/cash';
 import { t } from '@lingui/core/macro';
 
 /**
@@ -24,6 +30,30 @@ import { t } from '@lingui/core/macro';
 export type ReportsSection = 'overview' | 'winloss' | 'detailed' | 'risk' | 'behavior';
 
 const SECTION_VALUES: ReportsSection[] = ['overview', 'winloss', 'detailed', 'risk', 'behavior'];
+
+/** Sparkles → Year Wrapped (#198) beside the existing display-filter menu. */
+function ReportsHeaderRight() {
+  const router = useRouter();
+  const accounts = useAccounts();
+  const cash = useCash();
+  const selectedId = useSelectedAccountId();
+  // An unreachable server is not a zero balance: `?? []` would have divided the
+  // reports by a made-up denominator rather than leaving the unit inert.
+  const denominator =
+    accounts.data != null && cash.data != null
+      ? netDeposits(accounts.data, selectedId, cash.data)
+      : 0;
+  return (
+    <View style={styles.headerRight}>
+      <HeaderIconButton
+        systemImage="sparkles"
+        label={t`Year Wrapped`}
+        onPress={() => router.push('/(tabs)/(dashboard)/wrapped')}
+      />
+      <ReportsFilterMenu pctEnabled={denominator > 0} />
+    </View>
+  );
+}
 
 export default function ReportsScreen() {
   const [section, setSection] = useState<ReportsSection>('overview');
@@ -70,7 +100,12 @@ export default function ReportsScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ title: scrolled ? t`Reports` : '' }} />
+      <Stack.Screen
+        options={{
+          title: scrolled ? t`Reports` : '',
+          headerRight: () => <ReportsHeaderRight />,
+        }}
+      />
       <View style={styles.page}>
         {/* Floats over the pages and slides out with the content — the sections
             are long, and the switcher only matters between reads. */}
@@ -125,4 +160,5 @@ const styles = StyleSheet.create((theme) => ({
   },
   pager: { flex: 1 },
   fill: { flex: 1 },
+  headerRight: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
 }));
