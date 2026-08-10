@@ -168,11 +168,61 @@ describe("CalendarView", () => {
     const dialog = screen.getByRole("dialog");
     expect(dialog).toBeInTheDocument();
     expect(screen.getByText(/Week review — Week 1 — Jul 1 – 4/)).toBeInTheDocument();
-    expect(dialog).toHaveTextContent("2 trading days");
+    expect(dialog).toHaveTextContent("Trading days");
+    expect(dialog).toHaveTextContent("2");
+    expect(screen.getByTestId("week-review-chart-region")).toBeInTheDocument();
+  });
+
+  it("clicking a daily bar in the week review drawer hands off to the day drawer", async () => {
+    const onSelectDay = vi.fn<(date: string | null) => void>();
+    const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const rectSpy = vi
+      .spyOn(HTMLElement.prototype, "getBoundingClientRect")
+      .mockImplementation(function (this: HTMLElement) {
+        if (this.id === "recharts_measurement_span") {
+          const width = (this.textContent ?? "").length * 6;
+          return {
+            width,
+            height: 12,
+            top: 0,
+            left: 0,
+            bottom: 12,
+            right: width,
+            x: 0,
+            y: 0,
+            toJSON: () => {},
+          } as DOMRect;
+        }
+        return {
+          width: 600,
+          height: 200,
+          top: 0,
+          left: 0,
+          bottom: 200,
+          right: 600,
+          x: 0,
+          y: 0,
+          toJSON: () => {},
+        } as DOMRect;
+      });
+    render(
+      <QueryClientProvider client={qc}>
+        <CalendarView {...BASE} onSelectDay={onSelectDay} />
+      </QueryClientProvider>,
+    );
+
+    await userEvent.click(screen.getByRole("button", { name: /^Week 1,/ }));
+    await userEvent.click(await screen.findByTestId("week-bar-2026-07-02"));
+
+    expect(onSelectDay).toHaveBeenCalledWith("2026-07-02");
+    await waitFor(() => {
+      expect(screen.queryByText(/Week review — Week 1/)).not.toBeInTheDocument();
+    });
+    rectSpy.mockRestore();
   });
 
   it("selecting a day in the week review drawer closes it and opens the day trades drawer", async () => {
-    const onSelectDay = vi.fn();
+    const onSelectDay = vi.fn<(date: string | null) => void>();
     const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
     const { rerender } = render(
       <QueryClientProvider client={qc}>
