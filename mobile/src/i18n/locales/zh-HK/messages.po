@@ -758,7 +758,7 @@ msgstr "新增用戶"
 msgid "Adding…"
 msgstr "新增中…"
 
-#: src/app/(tabs)/(settings)/web-address.tsx:68
+#: src/app/(tabs)/(settings)/web-address.tsx:88
 msgid "Address"
 msgstr "網址"
 
@@ -1287,6 +1287,7 @@ msgstr "無法連接伺服器"
 #: src/app/(tabs)/(settings)/two-factor.tsx:204
 #: src/app/(tabs)/(settings)/user-detail.tsx:108
 #: src/app/(tabs)/(settings)/user-detail.tsx:133
+#: src/app/(tabs)/(settings)/web-address.tsx:53
 #: src/app/(tabs)/(trades)/[id].tsx:428
 #: src/app/cash-form.tsx:144
 #: src/app/edit-note.tsx:79
@@ -1411,9 +1412,13 @@ msgstr "選擇要在交易列表顯示為篩選標籤的日誌選項。"
 msgid "Classic"
 msgstr "經典"
 
-#: src/app/(tabs)/(dashboard)/economic-events.tsx:827
-#~ msgid "Clear"
-#~ msgstr "清除"
+#: src/app/(tabs)/(settings)/web-address.tsx:55
+msgid "Clear"
+msgstr "清除"
+
+#: src/app/(tabs)/(settings)/web-address.tsx:109
+msgid "Clear address"
+msgstr "清除網址"
 
 #: src/components/event-filter-menu.tsx:87
 #: src/components/trade-filter-menu.tsx:100
@@ -1421,8 +1426,12 @@ msgid "Clear filters"
 msgstr "清除篩選"
 
 #: src/app/(tabs)/(settings)/web-address.tsx:92
-msgid "Clear override"
-msgstr "清除覆寫"
+#~ msgid "Clear override"
+#~ msgstr "清除覆寫"
+
+#: src/app/(tabs)/(settings)/web-address.tsx:52
+msgid "Clear this address?"
+msgstr "要清除此網址嗎？"
 
 #: src/app/(tabs)/(settings)/account-form.tsx:396
 msgid "Clear trade history"
@@ -1437,8 +1446,8 @@ msgid "Clear trades"
 msgstr "清除交易"
 
 #: src/app/(tabs)/(settings)/web-address.tsx:89
-msgid "Clearing falls back to the address your server reports."
-msgstr "清除後會改用伺服器回報的網址。"
+#~ msgid "Clearing falls back to the address your server reports."
+#~ msgstr "清除後會改用伺服器回報的網址。"
 
 #: src/app/(tabs)/(settings)/account-form.tsx:396
 msgid "Clearing…"
@@ -1767,7 +1776,7 @@ msgstr "無法撤銷權杖"
 #: src/app/(tabs)/(settings)/trading-journal.tsx:49
 #: src/app/(tabs)/(settings)/trading-journal.tsx:63
 #: src/app/(tabs)/(settings)/trading-journal.tsx:92
-#: src/app/(tabs)/(settings)/web-address.tsx:45
+#: src/app/(tabs)/(settings)/web-address.tsx:47
 #: src/app/cash-form.tsx:112
 #: src/app/edit-note.tsx:55
 #: src/app/edit-trade.tsx:85
@@ -2358,7 +2367,7 @@ msgstr "請輸入有效的初始結餘。"
 msgid "Enter a value."
 msgstr "請輸入數值。"
 
-#: src/app/(tabs)/(settings)/web-address.tsx:45
+#: src/app/(tabs)/(settings)/web-address.tsx:47
 msgid "Enter a web address like https://tm.example.com."
 msgstr "請輸入類似 https://tm.example.com 的網址。"
 
@@ -5235,7 +5244,7 @@ msgstr "六"
 #: src/app/(tabs)/(settings)/risk-rules.tsx:54
 #: src/app/(tabs)/(settings)/trading-journal.tsx:59
 #: src/app/(tabs)/(settings)/trading-journal.tsx:83
-#: src/app/(tabs)/(settings)/web-address.tsx:83
+#: src/app/(tabs)/(settings)/web-address.tsx:73
 #: src/components/form-sheet.tsx:161
 msgid "Save"
 msgstr "儲存"
@@ -5534,6 +5543,10 @@ msgstr "分享畫面"
 msgid "Share link"
 msgstr "分享連結"
 
+#: src/app/(tabs)/(settings)/web-address.tsx:79
+msgid "Share links"
+msgstr "分享連結"
+
 #. placeholder {0}: source.toLowerCase()
 #: src/app/(tabs)/(settings)/integrations.tsx:56
 msgid "Share links are built from this address ({0})."
@@ -5546,6 +5559,10 @@ msgstr "分享連結會以此網址（{0}）建立。"
 #: src/app/(tabs)/(settings)/integrations.tsx:57
 msgid "Share links need this address. Your server doesn't advertise one, so set the domain your web app is served from."
 msgstr "分享連結需要此網址。你的伺服器並未回報，請設定網頁應用所在的網域。"
+
+#: src/app/(tabs)/(settings)/web-address.tsx:52
+msgid "Share links will use whatever your server reports."
+msgstr "分享連結會改用伺服器回報的網址。"
 
 #: src/app/replay.tsx:299
 msgid "Share replay frame"
@@ -6860,11 +6877,11 @@ msgstr "之後只需密碼即可登入。"
 msgid "Your rhythm"
 msgstr "你的節奏"
 
-#: src/app/(tabs)/(settings)/web-address.tsx:64
+#: src/app/(tabs)/(settings)/web-address.tsx:84
 msgid "Your server doesn't report one, so share links need this address. Use the domain your web app is served from — not the API address."
 msgstr "伺服器並未回報，因此分享連結需要此網址。請填寫網頁應用所在的網域，而非 API 網址。"
 
-#: src/app/(tabs)/(settings)/web-address.tsx:63
+#: src/app/(tabs)/(settings)/web-address.tsx:83
 msgid "Your server reports {advertised}. Set an address here only to override it."
 msgstr "伺服器回報 {advertised}。只有需要覆寫時才在此設定網址。"
 

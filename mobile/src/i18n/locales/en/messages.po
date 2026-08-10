@@ -758,7 +758,7 @@ msgstr "Add user"
 msgid "Adding…"
 msgstr "Adding…"
 
-#: src/app/(tabs)/(settings)/web-address.tsx:68
+#: src/app/(tabs)/(settings)/web-address.tsx:88
 msgid "Address"
 msgstr "Address"
 
@@ -1287,6 +1287,7 @@ msgstr "Can't reach the server"
 #: src/app/(tabs)/(settings)/two-factor.tsx:204
 #: src/app/(tabs)/(settings)/user-detail.tsx:108
 #: src/app/(tabs)/(settings)/user-detail.tsx:133
+#: src/app/(tabs)/(settings)/web-address.tsx:53
 #: src/app/(tabs)/(trades)/[id].tsx:428
 #: src/app/cash-form.tsx:144
 #: src/app/edit-note.tsx:79
@@ -1411,9 +1412,13 @@ msgstr "Choose which journal options show as filter chips on the trades list."
 msgid "Classic"
 msgstr "Classic"
 
-#: src/app/(tabs)/(dashboard)/economic-events.tsx:827
-#~ msgid "Clear"
-#~ msgstr "Clear"
+#: src/app/(tabs)/(settings)/web-address.tsx:55
+msgid "Clear"
+msgstr "Clear"
+
+#: src/app/(tabs)/(settings)/web-address.tsx:109
+msgid "Clear address"
+msgstr "Clear address"
 
 #: src/components/event-filter-menu.tsx:87
 #: src/components/trade-filter-menu.tsx:100
@@ -1421,8 +1426,12 @@ msgid "Clear filters"
 msgstr "Clear filters"
 
 #: src/app/(tabs)/(settings)/web-address.tsx:92
-msgid "Clear override"
-msgstr "Clear override"
+#~ msgid "Clear override"
+#~ msgstr "Clear override"
+
+#: src/app/(tabs)/(settings)/web-address.tsx:52
+msgid "Clear this address?"
+msgstr "Clear this address?"
 
 #: src/app/(tabs)/(settings)/account-form.tsx:396
 msgid "Clear trade history"
@@ -1437,8 +1446,8 @@ msgid "Clear trades"
 msgstr "Clear trades"
 
 #: src/app/(tabs)/(settings)/web-address.tsx:89
-msgid "Clearing falls back to the address your server reports."
-msgstr "Clearing falls back to the address your server reports."
+#~ msgid "Clearing falls back to the address your server reports."
+#~ msgstr "Clearing falls back to the address your server reports."
 
 #: src/app/(tabs)/(settings)/account-form.tsx:396
 msgid "Clearing…"
@@ -1767,7 +1776,7 @@ msgstr "Could not revoke token"
 #: src/app/(tabs)/(settings)/trading-journal.tsx:49
 #: src/app/(tabs)/(settings)/trading-journal.tsx:63
 #: src/app/(tabs)/(settings)/trading-journal.tsx:92
-#: src/app/(tabs)/(settings)/web-address.tsx:45
+#: src/app/(tabs)/(settings)/web-address.tsx:47
 #: src/app/cash-form.tsx:112
 #: src/app/edit-note.tsx:55
 #: src/app/edit-trade.tsx:85
@@ -2358,7 +2367,7 @@ msgstr "Enter a valid starting balance."
 msgid "Enter a value."
 msgstr "Enter a value."
 
-#: src/app/(tabs)/(settings)/web-address.tsx:45
+#: src/app/(tabs)/(settings)/web-address.tsx:47
 msgid "Enter a web address like https://tm.example.com."
 msgstr "Enter a web address like https://tm.example.com."
 
@@ -5237,7 +5246,7 @@ msgstr "Sat"
 #: src/app/(tabs)/(settings)/risk-rules.tsx:54
 #: src/app/(tabs)/(settings)/trading-journal.tsx:59
 #: src/app/(tabs)/(settings)/trading-journal.tsx:83
-#: src/app/(tabs)/(settings)/web-address.tsx:83
+#: src/app/(tabs)/(settings)/web-address.tsx:73
 #: src/components/form-sheet.tsx:161
 msgid "Save"
 msgstr "Save"
@@ -5536,6 +5545,10 @@ msgstr "Share frame"
 msgid "Share link"
 msgstr "Share link"
 
+#: src/app/(tabs)/(settings)/web-address.tsx:79
+msgid "Share links"
+msgstr "Share links"
+
 #. placeholder {0}: source.toLowerCase()
 #: src/app/(tabs)/(settings)/integrations.tsx:56
 msgid "Share links are built from this address ({0})."
@@ -5548,6 +5561,10 @@ msgstr "Share links are built from this address ({0})."
 #: src/app/(tabs)/(settings)/integrations.tsx:57
 msgid "Share links need this address. Your server doesn't advertise one, so set the domain your web app is served from."
 msgstr "Share links need this address. Your server doesn't advertise one, so set the domain your web app is served from."
+
+#: src/app/(tabs)/(settings)/web-address.tsx:52
+msgid "Share links will use whatever your server reports."
+msgstr "Share links will use whatever your server reports."
 
 #: src/app/replay.tsx:299
 msgid "Share replay frame"
@@ -6862,11 +6879,11 @@ msgstr "Your password alone signs you in again."
 msgid "Your rhythm"
 msgstr "Your rhythm"
 
-#: src/app/(tabs)/(settings)/web-address.tsx:64
+#: src/app/(tabs)/(settings)/web-address.tsx:84
 msgid "Your server doesn't report one, so share links need this address. Use the domain your web app is served from — not the API address."
 msgstr "Your server doesn't report one, so share links need this address. Use the domain your web app is served from — not the API address."
 
-#: src/app/(tabs)/(settings)/web-address.tsx:63
+#: src/app/(tabs)/(settings)/web-address.tsx:83
 msgid "Your server reports {advertised}. Set an address here only to override it."
 msgstr "Your server reports {advertised}. Set an address here only to override it."
 

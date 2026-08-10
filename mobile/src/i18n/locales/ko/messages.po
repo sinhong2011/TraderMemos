@@ -758,7 +758,7 @@ msgstr "사용자 추가"
 msgid "Adding…"
 msgstr "추가 중…"
 
-#: src/app/(tabs)/(settings)/web-address.tsx:68
+#: src/app/(tabs)/(settings)/web-address.tsx:88
 msgid "Address"
 msgstr "주소"
 
@@ -1287,6 +1287,7 @@ msgstr "서버에 연결할 수 없음"
 #: src/app/(tabs)/(settings)/two-factor.tsx:204
 #: src/app/(tabs)/(settings)/user-detail.tsx:108
 #: src/app/(tabs)/(settings)/user-detail.tsx:133
+#: src/app/(tabs)/(settings)/web-address.tsx:53
 #: src/app/(tabs)/(trades)/[id].tsx:428
 #: src/app/cash-form.tsx:144
 #: src/app/edit-note.tsx:79
@@ -1411,9 +1412,13 @@ msgstr "트레이드 목록에 필터 칩으로 표시할 저널 옵션을 선�
 msgid "Classic"
 msgstr "클래식"
 
-#: src/app/(tabs)/(dashboard)/economic-events.tsx:827
-#~ msgid "Clear"
-#~ msgstr "지우기"
+#: src/app/(tabs)/(settings)/web-address.tsx:55
+msgid "Clear"
+msgstr "지우기"
+
+#: src/app/(tabs)/(settings)/web-address.tsx:109
+msgid "Clear address"
+msgstr "주소 삭제"
 
 #: src/components/event-filter-menu.tsx:87
 #: src/components/trade-filter-menu.tsx:100
@@ -1421,8 +1426,12 @@ msgid "Clear filters"
 msgstr "필터 지우기"
 
 #: src/app/(tabs)/(settings)/web-address.tsx:92
-msgid "Clear override"
-msgstr "재정의 해제"
+#~ msgid "Clear override"
+#~ msgstr "재정의 해제"
+
+#: src/app/(tabs)/(settings)/web-address.tsx:52
+msgid "Clear this address?"
+msgstr "이 주소를 삭제할까요?"
 
 #: src/app/(tabs)/(settings)/account-form.tsx:396
 msgid "Clear trade history"
@@ -1437,8 +1446,8 @@ msgid "Clear trades"
 msgstr "거래 지우기"
 
 #: src/app/(tabs)/(settings)/web-address.tsx:89
-msgid "Clearing falls back to the address your server reports."
-msgstr "해제하면 서버가 알려주는 주소로 돌아갑니다."
+#~ msgid "Clearing falls back to the address your server reports."
+#~ msgstr "해제하면 서버가 알려주는 주소로 돌아갑니다."
 
 #: src/app/(tabs)/(settings)/account-form.tsx:396
 msgid "Clearing…"
@@ -1767,7 +1776,7 @@ msgstr "토큰을 폐기하지 못했습니다"
 #: src/app/(tabs)/(settings)/trading-journal.tsx:49
 #: src/app/(tabs)/(settings)/trading-journal.tsx:63
 #: src/app/(tabs)/(settings)/trading-journal.tsx:92
-#: src/app/(tabs)/(settings)/web-address.tsx:45
+#: src/app/(tabs)/(settings)/web-address.tsx:47
 #: src/app/cash-form.tsx:112
 #: src/app/edit-note.tsx:55
 #: src/app/edit-trade.tsx:85
@@ -2358,7 +2367,7 @@ msgstr "유효한 시작 잔고를 입력하세요."
 msgid "Enter a value."
 msgstr "값을 입력하세요."
 
-#: src/app/(tabs)/(settings)/web-address.tsx:45
+#: src/app/(tabs)/(settings)/web-address.tsx:47
 msgid "Enter a web address like https://tm.example.com."
 msgstr "https://tm.example.com 형식의 주소를 입력하세요."
 
@@ -5235,7 +5244,7 @@ msgstr "토"
 #: src/app/(tabs)/(settings)/risk-rules.tsx:54
 #: src/app/(tabs)/(settings)/trading-journal.tsx:59
 #: src/app/(tabs)/(settings)/trading-journal.tsx:83
-#: src/app/(tabs)/(settings)/web-address.tsx:83
+#: src/app/(tabs)/(settings)/web-address.tsx:73
 #: src/components/form-sheet.tsx:161
 msgid "Save"
 msgstr "저장"
@@ -5534,6 +5543,10 @@ msgstr "프레임 공유"
 msgid "Share link"
 msgstr "공유 링크"
 
+#: src/app/(tabs)/(settings)/web-address.tsx:79
+msgid "Share links"
+msgstr "공유 링크"
+
 #. placeholder {0}: source.toLowerCase()
 #: src/app/(tabs)/(settings)/integrations.tsx:56
 msgid "Share links are built from this address ({0})."
@@ -5546,6 +5559,10 @@ msgstr "공유 링크는 이 주소({0})로 만들어집니다."
 #: src/app/(tabs)/(settings)/integrations.tsx:57
 msgid "Share links need this address. Your server doesn't advertise one, so set the domain your web app is served from."
 msgstr "공유 링크에는 이 주소가 필요합니다. 서버가 알려주지 않으므로 웹 앱이 제공되는 도메인을 설정하세요."
+
+#: src/app/(tabs)/(settings)/web-address.tsx:52
+msgid "Share links will use whatever your server reports."
+msgstr "공유 링크는 서버가 알려주는 주소를 사용합니다."
 
 #: src/app/replay.tsx:299
 msgid "Share replay frame"
@@ -6860,11 +6877,11 @@ msgstr "이제 비밀번호만으로 로그인합니다."
 msgid "Your rhythm"
 msgstr "나의 리듬"
 
-#: src/app/(tabs)/(settings)/web-address.tsx:64
+#: src/app/(tabs)/(settings)/web-address.tsx:84
 msgid "Your server doesn't report one, so share links need this address. Use the domain your web app is served from — not the API address."
 msgstr "서버가 알려주지 않으므로 공유 링크에 이 주소가 필요합니다. API 주소가 아니라 웹 앱이 제공되는 도메인을 입력하세요."
 
-#: src/app/(tabs)/(settings)/web-address.tsx:63
+#: src/app/(tabs)/(settings)/web-address.tsx:83
 msgid "Your server reports {advertised}. Set an address here only to override it."
 msgstr "서버는 {advertised} 을(를) 알려줍니다. 재정의할 때만 여기에 주소를 설정하세요."
 
