@@ -19,6 +19,7 @@ import { useAccounts, useCash, useDaily, useEquityCurve, useTrades } from '@/api
 import { ErrorState } from '@/components/error-state';
 import { Segmented } from '@/components/segmented';
 import { Skeleton } from '@/components/skeleton';
+import { WeekPnlStrip } from '@/components/week-pnl-strip';
 import { t } from '@lingui/core/macro';
 import { locale } from '@/i18n';
 import { useSelectedAccountId } from '@/lib/account-store';
@@ -429,6 +430,8 @@ export default function CalendarScreen() {
                           todayKey={todayKey}
                           onSelect={openDay}
                           currency={currency}
+                          equityLoaded={equityLoaded}
+                          balanceAtPeriodStart={balanceAtPeriodStart}
                         />
                       ) : (
                         <YearView
@@ -790,6 +793,8 @@ function WeekView({
   todayKey,
   onSelect,
   currency,
+  equityLoaded,
+  balanceAtPeriodStart,
 }: {
   anchor: string;
   data: Record<string, number>;
@@ -797,6 +802,8 @@ function WeekView({
   todayKey: string;
   onSelect: (date: string) => void;
   currency: string;
+  equityLoaded: boolean;
+  balanceAtPeriodStart: (dayKey: string) => number | null;
 }) {
   const { theme } = useUnistyles();
   const { formatPnl } = useFormatters();
@@ -812,19 +819,36 @@ function WeekView({
   const weekLosses = days.reduce((sum, key) => sum + (dayStats.get(key)?.losses ?? 0), 0);
   // Biggest absolute day drives tint intensity and the magnitude bars.
   const weekMax = Math.max(...days.map((key) => Math.abs(data[key] ?? 0)));
+  const weekStartBal = balanceAtPeriodStart(days[0]!);
+  const weekReturnPct =
+    equityLoaded && weekStartBal != null ? weekPnl / weekStartBal : null;
 
   return (
     <View style={styles.fill}>
       <View style={styles.summaryRow}>
         <View>
           <Text style={styles.summaryLabel}>{t`Net P&L`}</Text>
-          <Text
-            style={[styles.summaryValue, { color: pnlColor(theme.colors, weekPnl) }]}
-            numberOfLines={1}
-            adjustsFontSizeToFit
-          >
-            {formatPnl(weekPnl, currency)}
-          </Text>
+          <View style={styles.summaryValueRow}>
+            <Text
+              style={[styles.summaryValue, { color: pnlColor(theme.colors, weekPnl) }]}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+            >
+              {formatPnl(weekPnl, currency)}
+            </Text>
+            {weekReturnPct != null ? (
+              <Text
+                style={[
+                  styles.summaryReturnPct,
+                  { color: pnlColor(theme.colors, weekPnl) },
+                ]}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+              >
+                {`${weekPnl > 0 ? '+' : ''}${formatPercentPoints(weekReturnPct * 100)}`}
+              </Text>
+            ) : null}
+          </View>
         </View>
         <View style={styles.summaryRight}>
           <Text style={styles.summarySub}>
@@ -833,6 +857,14 @@ function WeekView({
           <WinLoss wins={weekWins} losses={weekLosses} style={styles.summarySub} />
         </View>
       </View>
+      <WeekPnlStrip
+        days={days}
+        data={data}
+        weekMax={weekMax}
+        onSelect={onSelect}
+        currency={currency}
+      />
+      <View style={styles.weekDays}>
       {days.map((key) => {
         const pnl = data[key] ?? null;
         const stats = dayStats.get(key);
@@ -896,6 +928,7 @@ function WeekView({
           </Pressable>
         );
       })}
+      </View>
     </View>
   );
 }
@@ -1153,21 +1186,24 @@ const styles = StyleSheet.create((theme) => ({
     paddingBottom: theme.spacing.md,
   },
   summaryLabel: { fontSize: 11, color: theme.colors.mutedForeground, marginBottom: 2 },
+  summaryValueRow: { flexDirection: 'row', alignItems: 'baseline', gap: theme.spacing.sm },
   summaryValue: { fontSize: 24, fontWeight: '700', letterSpacing: -0.4, ...theme.numeric },
+  summaryReturnPct: { fontSize: 15, fontWeight: '600', ...theme.numeric },
   summaryRight: { alignItems: 'flex-end', gap: 3, paddingBottom: 2 },
   summarySub: { fontSize: 12, color: theme.colors.mutedForeground, ...theme.numeric },
+  weekDays: { flex: 1, gap: theme.spacing.sm },
   weekRow: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: theme.spacing.md,
-    minHeight: 73,
+    minHeight: 48,
     paddingHorizontal: theme.spacing.md,
     paddingVertical: theme.spacing.sm,
     borderRadius: theme.radius.md,
     borderCurve: 'continuous',
     backgroundColor: theme.colors.muted,
-    marginBottom: theme.spacing.sm,
     // Clip the flush magnitude bar to the card's rounded corners.
     overflow: 'hidden',
   },
