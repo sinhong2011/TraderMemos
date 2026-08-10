@@ -4,8 +4,9 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import type { TradeDetail } from '@/api/types';
 import { t } from '@lingui/core/macro';
-import { formatPercentPoints, useFormatters } from '@/lib/format';
+import { formatPercent, formatPercentPoints, formatRatio, useFormatters } from '@/lib/format';
 import { tradeRMultiple, tradeStatus } from '@/lib/trades';
+import type { YearWrapped } from '@/lib/wrapped';
 import { pnlColor, PnlFill } from '@/styles/unistyles';
 import type { AppTheme } from '@/styles/unistyles';
 
@@ -188,6 +189,104 @@ export const ShareCardView = forwardRef<
   );
 });
 
+/**
+ * Annual-recap share card (web WrappedShareCard). Same privacy default as the
+ * trade card: without amounts the hero is the win rate and the stats stick to
+ * ratios and day counts — account size never leaves the device unasked.
+ */
+export const WrappedShareCardView = forwardRef<
+  View,
+  {
+    wrapped: YearWrapped;
+    currency: string;
+    fxRate: number;
+    /** True while the year is still running (current year → "Year to date"). */
+    inProgress: boolean;
+    showAmounts: boolean;
+    cardStyle?: ShareCardStyleId;
+    showMark?: boolean;
+  }
+>(function WrappedShareCardView(
+  { wrapped, currency, fxRate, inProgress, showAmounts, cardStyle = 'classic', showMark = true },
+  ref,
+) {
+  const { theme } = useUnistyles();
+  const { formatPnl, formatPnlCompact } = useFormatters();
+  const net = wrapped.netPnl;
+  const palette = cardPalette(cardStyle, theme, net, false);
+  const money = (v: number) => formatPnl(v * fxRate, currency);
+  const moneyCompact = (v: number) => formatPnlCompact(v * fxRate, currency);
+  const winRate = formatPercent(wrapped.winRate, 0);
+
+  const heroColor =
+    palette.heroFg ??
+    pnlColor({ ...theme.colors, profit: palette.pos, loss: palette.neg, flat: palette.flat }, net);
+  const chipTone = net > 0 ? palette.pos : net < 0 ? palette.neg : palette.flat;
+
+  // Same stat menu as the web builder: amounts unlock money rows, privacy
+  // mode swaps in counts and streaks. At most three make the card.
+  const stats: { label: string; value: string }[] = [
+    ...(showAmounts
+      ? [
+          { label: t`Win rate`, value: winRate },
+          { label: t`Profit factor`, value: formatRatio(wrapped.profitFactor) },
+          ...(wrapped.bestDay
+            ? [{ label: t`Best day`, value: moneyCompact(wrapped.bestDay.pnl) }]
+            : []),
+        ]
+      : [
+          { label: t`Profit factor`, value: formatRatio(wrapped.profitFactor) },
+          { label: t`Green days`, value: t`${wrapped.greenDays} of ${wrapped.tradingDays}` },
+          ...(wrapped.bestStreak > 0
+            ? [{ label: t`Best streak`, value: t`${wrapped.bestStreak} wins` }]
+            : []),
+        ]),
+  ].slice(0, 3);
+
+  return (
+    <View ref={ref} collapsable={false} style={[styles.card, { backgroundColor: palette.bg }]}>
+      <View style={styles.cardHead}>
+        <Text style={[styles.wrappedTitle, { color: palette.fg }]}>
+          {t`${wrapped.year} Wrapped`}
+        </Text>
+        <View style={[styles.chip, { backgroundColor: palette.chipBg ?? `${chipTone}1F` }]}>
+          <Text style={[styles.chipText, { color: palette.chipFg ?? chipTone }]}>
+            {net > 0 ? t`GREEN YEAR` : net < 0 ? t`RED YEAR` : t`FLAT YEAR`}
+          </Text>
+        </View>
+      </View>
+      <View style={styles.heroWrap}>
+        <Text style={[styles.wrappedHero, { color: heroColor }]}>
+          {showAmounts ? money(net) : winRate}
+        </Text>
+        <Text style={[styles.heroSub, { color: palette.mutedFg }]}>
+          {showAmounts ? t`Net P&L` : t`Win rate`}
+        </Text>
+      </View>
+      <View style={styles.statRow}>
+        {stats.map((stat) => (
+          <View key={stat.label} style={styles.stat}>
+            <Text style={[styles.statLabel, { color: palette.mutedFg }]}>{stat.label}</Text>
+            <Text style={[styles.statValue, { color: palette.fg }]}>{stat.value}</Text>
+          </View>
+        ))}
+      </View>
+      <View style={styles.cardFoot}>
+        <Text style={[styles.date, { color: palette.mutedFg }]}>
+          {inProgress
+            ? t`${wrapped.totalTrades} trades · Year to date`
+            : t`${wrapped.totalTrades} trades · Full year`}
+        </Text>
+        {showMark ? (
+          <Text style={[styles.brand, { color: palette.fg }]}>
+            Trader<Text style={{ color: palette.brandAccent }}>Memos</Text>
+          </Text>
+        ) : null}
+      </View>
+    </View>
+  );
+});
+
 const styles = StyleSheet.create((theme) => ({
   card: {
     width: SHARE_CARD_WIDTH,
@@ -211,6 +310,14 @@ const styles = StyleSheet.create((theme) => ({
   chipText: { fontSize: 11, fontWeight: '600', letterSpacing: 0.3 },
   heroWrap: { alignItems: 'center', gap: theme.spacing.xs, paddingVertical: theme.spacing.lg },
   hero: { fontSize: 56, fontWeight: '700', letterSpacing: -2, ...theme.numeric },
+  // The year hero carries full currency strings — a step down from the trade
+  // card's R multiple so "+$123,456.78" still fits the 340pt card.
+  wrappedTitle: { fontSize: 20, fontWeight: '700' },
+  wrappedHero: { fontSize: 40, fontWeight: '700', letterSpacing: -1.5, ...theme.numeric },
+  statRow: { flexDirection: 'row', gap: theme.spacing.sm },
+  stat: { flex: 1, alignItems: 'center', gap: 2 },
+  statLabel: { fontSize: 11, fontWeight: '500' },
+  statValue: { fontSize: 15, fontWeight: '600', ...theme.numeric },
   heroSub: { fontSize: 16, fontWeight: '500', ...theme.numeric },
   amount: { fontSize: 20, fontWeight: '600', ...theme.numeric },
   cardFoot: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
