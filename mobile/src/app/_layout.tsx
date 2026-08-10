@@ -307,6 +307,16 @@ export default function RootLayout() {
                 sheetCornerRadius: 24,
               }}
             />
+            {/* Year Wrapped share card (#198) — share-trade's twin sheet. */}
+            <Stack.Screen
+              name="share-wrapped"
+              options={{
+                presentation: 'formSheet',
+                sheetAllowedDetents: [0.75, 1],
+                sheetGrabberVisible: true,
+                sheetCornerRadius: 24,
+              }}
+            />
             {/* Add/edit cash transaction — a creation sheet like new-token,
                 launched from the Funding list's + button. Taller detent than
                 the token sheet: five stacked fields, not two. */}
