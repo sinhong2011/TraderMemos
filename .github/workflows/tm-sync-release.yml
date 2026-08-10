@@ -1,0 +1,127 @@
+# Build cross-platform tm-sync binaries and attach them to the GitHub Release.
+#
+# tm-sync is the local statement watcher agent (api/cmd/tm-sync) — Windows
+# builds lead the matrix because MetaTrader terminals live there.
+#
+# Triggers:
+#   - workflow_call from release-please (version input) — the normal path
+#   - GitHub Release published (backfill: version from the tag)
+#   - workflow_dispatch (build-only smoke run; artifacts, no release upload)
+
+name: Release tm-sync binaries
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: Semver version without v prefix (from release-please)
+        required: false
+        type: string
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  # Reuse PR CI so a release can never ship binaries that skipped tests.
+  test-api:
+    uses: ./.github/workflows/api-ci.yml
+
+  build:
+    name: Build ${{ matrix.goos }}/${{ matrix.goarch }}
+    needs: test-api
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { goos: windows, goarch: amd64 }
+          - { goos: windows, goarch: arm64 }
+          - { goos: linux, goarch: amd64 }
+          - { goos: linux, goarch: arm64 }
+          - { goos: darwin, goarch: amd64 }
+          - { goos: darwin, goarch: arm64 }
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: api/go.mod
+          cache-dependency-path: api/go.sum
+
+      - name: Resolve version
+        id: ver
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          if [ -n "$INPUT_VERSION" ]; then
+            VERSION="$INPUT_VERSION"
+          elif [ "$EVENT_NAME" = "release" ]; then
+            VERSION="${RELEASE_TAG#v}"
+          else
+            VERSION="$(cat VERSION 2>/dev/null || echo dev)-${GITHUB_SHA::7}"
+          fi
+          # The version lands in shell commands and filenames below — reject
+          # anything that isn't a plain semver-ish token.
+          if ! printf '%s' "$VERSION" | grep -Eq '^[0-9A-Za-z][0-9A-Za-z.+-]*$'; then
+            echo "refusing suspicious version: $VERSION" >&2
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Build
+        working-directory: api
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: "0"
+          VERSION: ${{ steps.ver.outputs.version }}
+        run: |
+          BIN=tm-sync
+          [ "$GOOS" = "windows" ] && BIN=tm-sync.exe
+          go build -trimpath -ldflags "-s -w -X main.version=$VERSION" \
+            -o "dist/$BIN" ./cmd/tm-sync
+
+      - name: Package
+        id: pkg
+        working-directory: api/dist
+        env:
+          VERSION: ${{ steps.ver.outputs.version }}
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+        run: |
+          NAME="tm-sync_${VERSION}_${GOOS}_${GOARCH}"
+          if [ "$GOOS" = "windows" ]; then
+            ASSET="$NAME.zip"
+            zip -q "$ASSET" tm-sync.exe
+          else
+            ASSET="$NAME.tar.gz"
+            tar czf "$ASSET" tm-sync
+          fi
+          sha256sum "$ASSET" > "$ASSET.sha256"
+          echo "asset=$ASSET" >> "$GITHUB_OUTPUT"
+
+      - name: Upload to release
+        # Only when a real release exists (release-please chain or release event).
+        if: ${{ inputs.version != '' || github.event_name == 'release' }}
+        working-directory: api/dist
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.ver.outputs.version }}
+          ASSET: ${{ steps.pkg.outputs.asset }}
+        run: |
+          gh release upload "v$VERSION" "$ASSET" "$ASSET.sha256" \
+            --clobber --repo "$GITHUB_REPOSITORY"
+
+      - name: Upload artifact (dispatch smoke runs)
+        if: ${{ inputs.version == '' && github.event_name != 'release' }}
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ steps.pkg.outputs.asset }}
+          path: api/dist/${{ steps.pkg.outputs.asset }}
