@@ -88,6 +88,14 @@ func (p *PG) CreateSetup(ctx context.Context, arg CreateSetupParams) (Setup, err
 	return Setup(v), nil
 }
 
+func (p *PG) CreateShareLink(ctx context.Context, arg CreateShareLinkParams) (ShareLink, error) {
+	v, err := p.q.CreateShareLink(ctx, storepg.CreateShareLinkParams(arg))
+	if err != nil {
+		return ShareLink{}, err
+	}
+	return ShareLink(v), nil
+}
+
 func (p *PG) CreateTag(ctx context.Context, arg CreateTagParams) (Tag, error) {
 	v, err := p.q.CreateTag(ctx, storepg.CreateTagParams(arg))
 	if err != nil {
@@ -340,6 +348,14 @@ func (p *PG) GetSetup(ctx context.Context, arg GetSetupParams) (Setup, error) {
 	return Setup(v), nil
 }
 
+func (p *PG) GetShareLinkByToken(ctx context.Context, token string) (ShareLink, error) {
+	v, err := p.q.GetShareLinkByToken(ctx, token)
+	if err != nil {
+		return ShareLink{}, err
+	}
+	return ShareLink(v), nil
+}
+
 func (p *PG) GetTrade(ctx context.Context, arg GetTradeParams) (Trade, error) {
 	v, err := p.q.GetTrade(ctx, storepg.GetTradeParams(arg))
 	if err != nil {
@@ -382,6 +398,10 @@ func (p *PG) GetUserPreferences(ctx context.Context, userID string) (UserPrefere
 		return UserPreference{}, err
 	}
 	return UserPreference(v), nil
+}
+
+func (p *PG) IncrementShareLinkViews(ctx context.Context, id string) error {
+	return p.q.IncrementShareLinkViews(ctx, id)
 }
 
 func (p *PG) InsertAttachment(ctx context.Context, arg InsertAttachmentParams) (TradeAttachment, error) {
@@ -737,6 +757,21 @@ func (p *PG) ListSetupsForTrade(ctx context.Context, tradeID string) ([]Setup, e
 	}(), nil
 }
 
+func (p *PG) ListShareLinksByUser(ctx context.Context, userID string) ([]ShareLink, error) {
+	v, err := p.q.ListShareLinksByUser(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	return func() []ShareLink {
+		in := v
+		out := make([]ShareLink, len(in))
+		for i := range in {
+			out[i] = ShareLink(in[i])
+		}
+		return out
+	}(), nil
+}
+
 func (p *PG) ListTags(ctx context.Context, userID string) ([]Tag, error) {
 	v, err := p.q.ListTags(ctx, userID)
 	if err != nil {
@@ -870,6 +905,10 @@ func (p *PG) RecordAccessTokenUse(ctx context.Context, arg RecordAccessTokenUseP
 
 func (p *PG) RevokeAccessToken(ctx context.Context, arg RevokeAccessTokenParams) (int64, error) {
 	return p.q.RevokeAccessToken(ctx, storepg.RevokeAccessTokenParams(arg))
+}
+
+func (p *PG) RevokeShareLink(ctx context.Context, arg RevokeShareLinkParams) (int64, error) {
+	return p.q.RevokeShareLink(ctx, storepg.RevokeShareLinkParams(arg))
 }
 
 func (p *PG) SetImportBatchStatus(ctx context.Context, arg SetImportBatchStatusParams) error {

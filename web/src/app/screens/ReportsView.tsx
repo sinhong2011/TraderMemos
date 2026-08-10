@@ -190,6 +190,8 @@ export interface ReportsViewProps {
   ytdLoading: boolean;
   onSaveGoal: (amount: number) => Promise<void>;
   onClearGoal: () => Promise<void>;
+  /** Optional share affordance rendered at the end of the control bar row. */
+  shareAction?: ReactNode;
 }
 
 // ---------------------------------------------------------------------------
@@ -637,6 +639,7 @@ export function ReportsView({
   ytdLoading,
   onSaveGoal,
   onClearGoal,
+  shareAction,
 }: ReportsViewProps) {
   usePrivacyMode();
   const { currency: displayCurrency, rate } = useMoneyFx(currency);
@@ -703,19 +706,24 @@ export function ReportsView({
             ))}
           </TabsList>
 
-          <ReportsControlBar
-            side={side}
-            duration={duration}
-            onSideChange={onSideChange}
-            onDurationChange={onDurationChange}
-            pnlMode={pnlMode}
-            unitMode={unitMode}
-            avgMode={avgMode}
-            onPnlModeChange={onPnlModeChange}
-            onUnitModeChange={onUnitModeChange}
-            onAvgModeChange={onAvgModeChange}
-            pctEnabled={pctEnabled}
-          />
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="min-w-0 flex-1">
+              <ReportsControlBar
+                side={side}
+                duration={duration}
+                onSideChange={onSideChange}
+                onDurationChange={onDurationChange}
+                pnlMode={pnlMode}
+                unitMode={unitMode}
+                avgMode={avgMode}
+                onPnlModeChange={onPnlModeChange}
+                onUnitModeChange={onUnitModeChange}
+                onAvgModeChange={onAvgModeChange}
+                pctEnabled={pctEnabled}
+              />
+            </div>
+            {shareAction}
+          </div>
 
           <TabsContent value="overview" className="flex flex-col gap-4">
             {summaryLoading ? (

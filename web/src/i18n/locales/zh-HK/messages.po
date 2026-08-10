@@ -13,13 +13,67 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#. placeholder {0}: data.trading_days
+#: src/app/screens/PublicShareView.tsx:196
+msgid "{0} days in the market"
+msgstr "入市 {0} 日"
+
+#. placeholder {0}: s.total_trades
+#. placeholder {0}: sym.trades
+#: src/app/screens/PublicShareView.tsx:194
+#: src/app/screens/PublicShareView.tsx:366
+msgid "{0} trades"
+msgstr "{0} 筆交易"
+
+#. placeholder {0}: fmtPct(s.win_rate, locale)
+#: src/app/screens/PublicShareView.tsx:195
+msgid "{0} win rate"
+msgstr "勝率 {0}"
+
+#: src/app/screens/PublicShareView.tsx:221
+msgid "1.0 = break-even"
+msgstr "1.0 = 打和"
+
+#: src/app/screens/PublicShareView.tsx:306
+msgid "Best day"
+msgstr "最佳交易日"
+
 #: src/components/AppNav.tsx:33
 #~ msgid "Calendar"
 #~ msgstr "日曆"
 
+#: src/app/screens/PublicShareView.tsx:278
+msgid "Consistency"
+msgstr "穩定性"
+
+#: src/app/screens/PublicShareView.tsx:270
+msgid "Cumulative net P&L over the shared period."
+msgstr "分享期間的累計淨損益。"
+
+#: src/app/screens/PublicShareView.tsx:92
+msgid "Cumulative P&L curve"
+msgstr "累計損益曲線"
+
+#: src/app/screens/PublicShareView.tsx:271
+msgid "Cumulative P&L shape — amounts are not shared."
+msgstr "累計損益形態 — 金額未有分享。"
+
 #: src/components/AppNav.tsx:31
 #~ msgid "Dashboard"
 #~ msgstr "儀表板"
+
+#: src/app/screens/PublicShareView.tsx:295
+#: src/app/screens/PublicShareView.tsx:301
+msgid "days in a row"
+msgstr "連續日數"
+
+#: src/app/screens/PublicShareView.tsx:248
+msgid "Expectancy"
+msgstr "期望值"
+
+#: src/app/screens/PublicShareView.tsx:281
+msgid "Green days"
+msgstr "獲利日"
 
 #: src/components/AppNav.tsx:39
 #~ msgid "Import"
@@ -33,6 +87,18 @@ msgstr ""
 #~ msgid "Interface language for TraderMemos."
 #~ msgstr "TraderMemos 的介面語言。"
 
+#: src/app/screens/PublicShareView.tsx:153
+msgid "It may have expired or been revoked by its owner."
+msgstr "可能已過期，或者已被擁有者撤銷。"
+
+#: src/app/screens/PublicShareView.tsx:385
+msgid "Journaled with <0>TraderMemos</0> — the self-hosted trading journal"
+msgstr "以 <0>TraderMemos</0> 記錄 — 自架交易日誌"
+
+#: src/app/screens/PublicShareView.tsx:255
+msgid "Kelly"
+msgstr "Kelly"
+
 #: src/app/screens/settings/settings-sections.tsx:1166
 #~ msgid "Language"
 #~ msgstr "語言"
@@ -40,6 +106,22 @@ msgstr ""
 #: src/app/screens/settings/settings-sections.tsx:1174
 #~ msgid "Language selector"
 #~ msgstr "語言選擇器"
+
+#: src/app/screens/PublicShareView.tsx:293
+msgid "Longest green streak"
+msgstr "最長獲利連續"
+
+#: src/app/screens/PublicShareView.tsx:299
+msgid "Longest red streak"
+msgstr "最長虧損連續"
+
+#: src/app/screens/PublicShareView.tsx:354
+msgid "Most traded"
+msgstr "最常交易"
+
+#: src/app/screens/PublicShareView.tsx:180
+msgid "Net P&L"
+msgstr "淨損益"
 
 #: src/components/AppNav.tsx:257
 #~ msgid "New Note"
@@ -53,18 +135,73 @@ msgstr ""
 #~ msgid "New Trade"
 #~ msgstr "新增交易"
 
+#. placeholder {0}: data.trading_days
+#: src/app/screens/PublicShareView.tsx:283
+#: src/app/screens/PublicShareView.tsx:289
+msgid "of {0} trading days"
+msgstr "共 {0} 個交易日"
+
+#: src/app/screens/PublicShareView.tsx:250
+msgid "per trade"
+msgstr "每筆"
+
 #: src/components/AppNav.tsx:38
 #~ msgid "Playbook"
 #~ msgstr "策略庫"
+
+#: src/app/screens/PublicShareView.tsx:206
+msgid "Profit factor"
+msgstr "獲利因子"
+
+#: src/app/screens/PublicShareView.tsx:287
+msgid "Red days"
+msgstr "虧損日"
 
 #: src/components/AppNav.tsx:276
 #~ msgid "Settings"
 #~ msgstr "設定"
 
+#: src/app/screens/PublicShareView.tsx:127
+msgid "Shared performance record"
+msgstr "分享的績效紀錄"
+
+#: src/app/screens/PublicShareView.tsx:259
+msgid "SQN"
+msgstr "SQN"
+
 #: src/components/AppNav.tsx:34
 #~ msgid "Stats"
 #~ msgstr "統計"
 
+#: src/app/screens/PublicShareView.tsx:266
+msgid "The curve"
+msgstr "曲線"
+
+#: src/app/screens/PublicShareView.tsx:203
+msgid "The edge"
+msgstr "優勢"
+
+#: src/app/screens/PublicShareView.tsx:324
+msgid "The rhythm"
+msgstr "節奏"
+
+#: src/app/screens/PublicShareView.tsx:151
+msgid "This link isn't available"
+msgstr "此連結無法使用"
+
 #: src/components/AppNav.tsx:32
 #~ msgid "Trades"
 #~ msgstr "交易"
+
+#: src/app/screens/PublicShareView.tsx:347
+msgid "Trades per month."
+msgstr "每月交易次數。"
+
+#: src/app/screens/PublicShareView.tsx:180
+#: src/app/screens/PublicShareView.tsx:224
+msgid "Win rate"
+msgstr "勝率"
+
+#: src/app/screens/PublicShareView.tsx:313
+msgid "Worst day"
+msgstr "最差交易日"

@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Share2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import {
   type BreakdownDim,
@@ -8,7 +9,10 @@ import {
 } from "@/app/screens/ReportsView";
 import type { ReportsDuration, ReportsSide } from "@/components/ReportsControlBar";
 import type { AvgMode, PnlMode, UnitMode } from "@/components/ReportsDisplayContext";
+import { ShareLinkDialog } from "@/components/ShareLinkDialog";
 import { TradeDetailSheet } from "@/components/TradeDetailSheet";
+import { Button } from "@/components/ui/button";
+import { useSystemInfo } from "@/lib/hooks/useSystemInfo";
 import { ytdFiltersForYear } from "@/lib/annualGoal";
 import { tradesOnDay } from "@/lib/calendar";
 import { accountBaseCurrency } from "@/lib/displayPrefs";
@@ -99,6 +103,9 @@ function ReportsPage() {
     [analyticsFilters, goalYear],
   );
 
+  const systemInfoQ = useSystemInfo();
+  const shareEnabled = systemInfoQ.data?.features?.share_links === true;
+  const [shareOpen, setShareOpen] = useState(false);
   const summaryQ = useSummary(analyticsFilters);
   const ytdSummaryQ = useSummary(ytdFilters);
   const rSummaryQ = useRSummary(analyticsFilters);
@@ -211,6 +218,30 @@ function ReportsPage() {
         }}
         onClearGoal={async () => {
           await clearAnnualGoalM.mutateAsync(goalYear);
+        }}
+        shareAction={
+          shareEnabled ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              aria-label="Share a public link"
+              onClick={() => setShareOpen(true)}
+            >
+              <Share2 aria-hidden />
+            </Button>
+          ) : undefined
+        }
+      />
+      <ShareLinkDialog
+        open={shareOpen}
+        onOpenChange={setShareOpen}
+        defaults={{
+          accountId: filters.account_id,
+          from: filters.from,
+          to: filters.to,
+          tz: filters.tz,
+          currency,
         }}
       />
       <TradeDetailSheet tradeId={selectedTradeId} onClose={() => setSelectedTradeId(null)} />

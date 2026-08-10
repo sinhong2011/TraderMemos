@@ -13,13 +13,67 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#. placeholder {0}: data.trading_days
+#: src/app/screens/PublicShareView.tsx:196
+msgid "{0} days in the market"
+msgstr "市場にいた日数 {0}日"
+
+#. placeholder {0}: s.total_trades
+#. placeholder {0}: sym.trades
+#: src/app/screens/PublicShareView.tsx:194
+#: src/app/screens/PublicShareView.tsx:366
+msgid "{0} trades"
+msgstr "{0}件のトレード"
+
+#. placeholder {0}: fmtPct(s.win_rate, locale)
+#: src/app/screens/PublicShareView.tsx:195
+msgid "{0} win rate"
+msgstr "勝率 {0}"
+
+#: src/app/screens/PublicShareView.tsx:221
+msgid "1.0 = break-even"
+msgstr "1.0 = 損益分岐"
+
+#: src/app/screens/PublicShareView.tsx:306
+msgid "Best day"
+msgstr "最高の日"
+
 #: src/components/AppNav.tsx:33
 #~ msgid "Calendar"
 #~ msgstr "カレンダー"
 
+#: src/app/screens/PublicShareView.tsx:278
+msgid "Consistency"
+msgstr "一貫性"
+
+#: src/app/screens/PublicShareView.tsx:270
+msgid "Cumulative net P&L over the shared period."
+msgstr "共有期間の累積純損益。"
+
+#: src/app/screens/PublicShareView.tsx:92
+msgid "Cumulative P&L curve"
+msgstr "累積損益曲線"
+
+#: src/app/screens/PublicShareView.tsx:271
+msgid "Cumulative P&L shape — amounts are not shared."
+msgstr "累積損益の形状 — 金額は共有されていません。"
+
 #: src/components/AppNav.tsx:31
 #~ msgid "Dashboard"
 #~ msgstr "ダッシュボード"
+
+#: src/app/screens/PublicShareView.tsx:295
+#: src/app/screens/PublicShareView.tsx:301
+msgid "days in a row"
+msgstr "連続日数"
+
+#: src/app/screens/PublicShareView.tsx:248
+msgid "Expectancy"
+msgstr "期待値"
+
+#: src/app/screens/PublicShareView.tsx:281
+msgid "Green days"
+msgstr "プラスの日"
 
 #: src/components/AppNav.tsx:39
 #~ msgid "Import"
@@ -33,6 +87,18 @@ msgstr ""
 #~ msgid "Interface language for TraderMemos."
 #~ msgstr "TraderMemos の表示言語。"
 
+#: src/app/screens/PublicShareView.tsx:153
+msgid "It may have expired or been revoked by its owner."
+msgstr "期限切れか、所有者によって取り消された可能性があります。"
+
+#: src/app/screens/PublicShareView.tsx:385
+msgid "Journaled with <0>TraderMemos</0> — the self-hosted trading journal"
+msgstr "<0>TraderMemos</0> で記録 — セルフホストのトレードジャーナル"
+
+#: src/app/screens/PublicShareView.tsx:255
+msgid "Kelly"
+msgstr "Kelly"
+
 #: src/app/screens/settings/settings-sections.tsx:1166
 #~ msgid "Language"
 #~ msgstr "言語"
@@ -40,6 +106,22 @@ msgstr ""
 #: src/app/screens/settings/settings-sections.tsx:1174
 #~ msgid "Language selector"
 #~ msgstr "言語セレクター"
+
+#: src/app/screens/PublicShareView.tsx:293
+msgid "Longest green streak"
+msgstr "最長プラス連続"
+
+#: src/app/screens/PublicShareView.tsx:299
+msgid "Longest red streak"
+msgstr "最長マイナス連続"
+
+#: src/app/screens/PublicShareView.tsx:354
+msgid "Most traded"
+msgstr "最多取引"
+
+#: src/app/screens/PublicShareView.tsx:180
+msgid "Net P&L"
+msgstr "純損益"
 
 #: src/components/AppNav.tsx:257
 #~ msgid "New Note"
@@ -53,18 +135,73 @@ msgstr ""
 #~ msgid "New Trade"
 #~ msgstr "新規トレード"
 
+#. placeholder {0}: data.trading_days
+#: src/app/screens/PublicShareView.tsx:283
+#: src/app/screens/PublicShareView.tsx:289
+msgid "of {0} trading days"
+msgstr "取引日 {0}日中"
+
+#: src/app/screens/PublicShareView.tsx:250
+msgid "per trade"
+msgstr "1トレードあたり"
+
 #: src/components/AppNav.tsx:38
 #~ msgid "Playbook"
 #~ msgstr "プレイブック"
+
+#: src/app/screens/PublicShareView.tsx:206
+msgid "Profit factor"
+msgstr "プロフィットファクター"
+
+#: src/app/screens/PublicShareView.tsx:287
+msgid "Red days"
+msgstr "マイナスの日"
 
 #: src/components/AppNav.tsx:276
 #~ msgid "Settings"
 #~ msgstr "設定"
 
+#: src/app/screens/PublicShareView.tsx:127
+msgid "Shared performance record"
+msgstr "共有された成績記録"
+
+#: src/app/screens/PublicShareView.tsx:259
+msgid "SQN"
+msgstr "SQN"
+
 #: src/components/AppNav.tsx:34
 #~ msgid "Stats"
 #~ msgstr "統計"
 
+#: src/app/screens/PublicShareView.tsx:266
+msgid "The curve"
+msgstr "曲線"
+
+#: src/app/screens/PublicShareView.tsx:203
+msgid "The edge"
+msgstr "エッジ"
+
+#: src/app/screens/PublicShareView.tsx:324
+msgid "The rhythm"
+msgstr "リズム"
+
+#: src/app/screens/PublicShareView.tsx:151
+msgid "This link isn't available"
+msgstr "このリンクは利用できません"
+
 #: src/components/AppNav.tsx:32
 #~ msgid "Trades"
 #~ msgstr "トレード"
+
+#: src/app/screens/PublicShareView.tsx:347
+msgid "Trades per month."
+msgstr "月あたりのトレード数。"
+
+#: src/app/screens/PublicShareView.tsx:180
+#: src/app/screens/PublicShareView.tsx:224
+msgid "Win rate"
+msgstr "勝率"
+
+#: src/app/screens/PublicShareView.tsx:313
+msgid "Worst day"
+msgstr "最悪の日"

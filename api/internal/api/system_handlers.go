@@ -21,6 +21,7 @@ type systemInfoDTO struct {
 	StartedAt time.Time       `json:"started_at"`
 	UptimeSec int64           `json:"uptime_sec"`
 	DBDriver  string          `json:"db_driver,omitempty"`
+	WebURL    string          `json:"web_url,omitempty"`
 	Features  map[string]bool `json:"features"`
 }
 
@@ -37,6 +38,7 @@ func (s *Server) handleSystemInfo(c *echo.Context) error {
 		StartedAt: s.startedAt.UTC(),
 		UptimeSec: int64(time.Since(s.startedAt).Seconds()),
 		DBDriver:  s.deps.Driver,
+		WebURL:    s.deps.PublicWebURL,
 		Features:  features,
 	})
 }
