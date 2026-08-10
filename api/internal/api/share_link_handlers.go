@@ -220,7 +220,10 @@ func (s *Server) handlePublicShare(c *echo.Context) error {
 
 	var scope shareScope
 	_ = json.Unmarshal([]byte(row.ScopeJson), &scope)
-	f := Filters{AccountID: scope.AccountID, Loc: time.UTC}
+	f := Filters{Loc: time.UTC}
+	if scope.AccountID != "" {
+		f.AccountIDs = []string{scope.AccountID}
+	}
 	if scope.Tz != "" {
 		if loc, err := time.LoadLocation(scope.Tz); err == nil {
 			f.Loc = loc

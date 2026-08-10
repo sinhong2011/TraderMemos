@@ -32,8 +32,8 @@ func shareTestServer(t *testing.T) *api.Server {
 	})
 }
 
-// seedClosedTrade books a round trip on symbol for net P&L (sell-buy)*qty.
-func seedClosedTrade(t *testing.T, s *api.Server, tok, acc, symbol, day string, buy, sell float64) {
+// seedShareClosedTrade books a round trip on symbol for net P&L (sell-buy)*qty.
+func seedShareClosedTrade(t *testing.T, s *api.Server, tok, acc, symbol, day string, buy, sell float64) {
 	t.Helper()
 	b := `{"account_id":"` + acc + `","symbol":"` + symbol + `","instrument_type":"stock","side":"buy","quantity":10,"price":` + jsonNum(buy) + `,"executed_at":"` + day + `T10:00:00Z"}`
 	sl := `{"account_id":"` + acc + `","symbol":"` + symbol + `","instrument_type":"stock","side":"sell","quantity":10,"price":` + jsonNum(sell) + `,"executed_at":"` + day + `T11:00:00Z"}`
@@ -59,8 +59,8 @@ func TestShareLinkLifecycle(t *testing.T) {
 	s := shareTestServer(t)
 	tok := registerAndLogin(t, s, "share@x.com")
 	acc := accountID(t, s, tok)
-	seedClosedTrade(t, s, tok, acc, "AAPL", "2026-01-05", 10, 12) // +20
-	seedClosedTrade(t, s, tok, acc, "MSFT", "2026-01-06", 100, 95) // -50
+	seedShareClosedTrade(t, s, tok, acc, "AAPL", "2026-01-05", 10, 12) // +20
+	seedShareClosedTrade(t, s, tok, acc, "MSFT", "2026-01-06", 100, 95) // -50
 
 	rec := do(s, http.MethodPost, "/api/v1/share-links",
 		`{"show_amounts":true,"currency":"USD"}`, tok)
@@ -118,7 +118,7 @@ func TestShareLinkRedactsAmounts(t *testing.T) {
 	s := shareTestServer(t)
 	tok := registerAndLogin(t, s, "redact@x.com")
 	acc := accountID(t, s, tok)
-	seedClosedTrade(t, s, tok, acc, "AAPL", "2026-01-05", 10, 12)
+	seedShareClosedTrade(t, s, tok, acc, "AAPL", "2026-01-05", 10, 12)
 
 	rec := do(s, http.MethodPost, "/api/v1/share-links", `{"show_amounts":false}`, tok)
 	require.Equal(t, http.StatusCreated, rec.Code, rec.Body.String())
@@ -156,8 +156,8 @@ func TestShareLinkScopeLimitsAccounts(t *testing.T) {
 	}
 	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &acc2))
 
-	seedClosedTrade(t, s, tok, acc1, "AAPL", "2026-01-05", 10, 12)
-	seedClosedTrade(t, s, tok, acc2.ID, "MSFT", "2026-01-06", 100, 95)
+	seedShareClosedTrade(t, s, tok, acc1, "AAPL", "2026-01-05", 10, 12)
+	seedShareClosedTrade(t, s, tok, acc2.ID, "MSFT", "2026-01-06", 100, 95)
 
 	rec = do(s, http.MethodPost, "/api/v1/share-links",
 		`{"account_id":"`+acc1+`","show_amounts":true}`, tok)
