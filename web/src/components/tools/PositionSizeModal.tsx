@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { useFilters } from "@/lib/filters";
+import { soleAccountId, useFilters } from "@/lib/filters";
 import { useAccounts } from "@/lib/hooks/useAccounts";
 import { useRiskRules } from "@/lib/hooks/useRiskRules";
 import { positionSizeFromRisk } from "@/lib/positionSize";
@@ -18,7 +18,7 @@ export function PositionSizeModal({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
-  const accountId = useFilters((s) => s.accountId);
+  const accountId = useFilters((s) => soleAccountId(s.accountIds));
   const accounts = useAccounts().data ?? [];
   const account = accounts.find((a) => a.id === accountId) ?? accounts[0];
   const riskRules = useRiskRules().data;

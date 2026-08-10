@@ -29,7 +29,7 @@ func (s *Server) handleBreakdown(c *echo.Context) error {
 	}
 	rows, err := s.loadClosedTrades(ctx, uid, f)
 	if err != nil {
-		return Fail(http.StatusInternalServerError, "internal", "could not load trades", nil)
+		return failLoad(err, "could not load trades")
 	}
 
 	groups := map[string][]analytics.ClosedTrade{}

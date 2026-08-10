@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ImportView } from "@/app/screens/ImportView";
 import { useAccounts } from "@/lib/hooks/useAccounts";
 import { useImportCommit, useImportPreview } from "@/lib/hooks/useImports";
-import { useFilters } from "@/lib/filters";
+import { soleAccountId, useFilters } from "@/lib/filters";
 import { useUI } from "@/lib/ui";
 
 export const Route = createFileRoute("/import")({
@@ -13,7 +13,7 @@ function ImportPage() {
   const navigate = useNavigate();
   const openModal = useUI((s) => s.openModal);
 
-  const accountId = useFilters((s) => s.accountId);
+  const accountId = useFilters((s) => soleAccountId(s.accountIds));
 
   const accountsQ = useAccounts();
   const previewM = useImportPreview();

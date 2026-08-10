@@ -142,7 +142,7 @@ const BASE = {
   tradesError: false,
   trades: [TRADE],
   accounts: [],
-  selectedAccountId: undefined,
+  selectedAccountIds: undefined,
   onSelectTrade: vi.fn<(...args: any[]) => any>(),
   onOpenFullPage: vi.fn<(...args: any[]) => any>(),
   onViewAllTrades: vi.fn<(...args: any[]) => any>(),

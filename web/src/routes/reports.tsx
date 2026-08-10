@@ -66,7 +66,7 @@ export const Route = createFileRoute("/reports")({
 
 function ReportsPage() {
   const filters = useFilterParams();
-  const accountId = useFilters((s) => s.accountId);
+  const accountIds = useFilters((s) => s.accountIds);
   const [dim, setDim] = useState<BreakdownDim>("setup");
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [selectedTradeId, setSelectedTradeId] = useState<string | null>(null);
@@ -123,12 +123,12 @@ function ReportsPage() {
   const annualGoalQ = useAnnualGoal(goalYear);
   const saveAnnualGoalM = useSaveAnnualGoal();
   const clearAnnualGoalM = useClearAnnualGoal();
-  const currency = accountBaseCurrency(accountsQ.data ?? [], accountId);
+  const currency = accountBaseCurrency(accountsQ.data ?? [], accountIds);
   // %-basis is the capital actually put in (net deposits), read off the cash
   // ledger rather than the starting_balance metadata.
   const denominator = useMemo(
-    () => netDeposits({ accounts: accountsQ.data ?? [], accountId, cashTx: cashQ.data ?? [] }),
-    [accountsQ.data, accountId, cashQ.data],
+    () => netDeposits({ accounts: accountsQ.data ?? [], accountIds, cashTx: cashQ.data ?? [] }),
+    [accountsQ.data, accountIds, cashQ.data],
   );
 
   return (

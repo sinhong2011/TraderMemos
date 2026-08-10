@@ -30,7 +30,7 @@ function monthRange(year: number, month: number, tz: string) {
 
 function HomePage() {
   const filters = useFilterParams();
-  const accountId = useFilters((s) => s.accountId);
+  const accountIds = useFilters((s) => s.accountIds);
   const tradeStatusFilter = useFilters((s) => s.tradeStatus);
   const toggleTradeStatus = useFilters((s) => s.toggleTradeStatus);
   const setSymbol = useFilters((s) => s.setSymbol);
@@ -75,7 +75,7 @@ function HomePage() {
 
   const headerStats = computeHeaderStats({
     accounts: accountsQ.data ?? [],
-    accountId,
+    accountIds,
     cashTx: cashQ.data ?? [],
     summary: summaryQ.data,
     trades: tradesQ.data ?? [],
@@ -95,7 +95,7 @@ function HomePage() {
         tradesError={tradesQ.isError}
         trades={trades}
         accounts={accountsQ.data ?? []}
-        selectedAccountId={accountId}
+        selectedAccountIds={accountIds}
         tradeStatusFilter={tradeStatusFilter}
         onToggleTradeStatus={toggleTradeStatus}
         onSelectTrade={(t) => setSelectedTradeId(t.id)}

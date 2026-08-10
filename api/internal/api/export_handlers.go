@@ -106,7 +106,7 @@ func (s *Server) handleExport(c *echo.Context) error {
 	if err != nil {
 		return Fail(http.StatusBadRequest, "bad_request", err.Error(), nil)
 	}
-	f.AccountID = accountID
+	f.AccountIDs = []string{accountID}
 
 	trades, err := s.loadTrades(ctx, uid, f)
 	if err != nil {
@@ -288,7 +288,7 @@ func (s *Server) buildJournalExportRows(ctx context.Context, userID string, f Fi
 	}
 
 	cashRows, err := s.deps.Store.ListCashTransactions(ctx, store.ListCashTransactionsParams{
-		UserID: userID, AccountID: accountArg(f.AccountID),
+		UserID: userID, AccountID: f.accountNarg(),
 	})
 	if err != nil {
 		return nil, err

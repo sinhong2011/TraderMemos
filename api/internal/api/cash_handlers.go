@@ -97,14 +97,18 @@ func (s *Server) handleCreateCash(c *echo.Context) error {
 }
 
 func (s *Server) handleListCash(c *echo.Context) error {
+	f := Filters{AccountIDs: parseAccountIDs(c)}
 	rows, err := s.deps.Store.ListCashTransactions(c.Request().Context(), store.ListCashTransactionsParams{
-		UserID: auth.UserID(c), AccountID: accountArg(c.QueryParam("account_id")),
+		UserID: auth.UserID(c), AccountID: f.accountNarg(),
 	})
 	if err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not list cash transactions", nil)
 	}
 	out := make([]cashDTO, 0, len(rows))
 	for _, r := range rows {
+		if !f.matchAccount(r.AccountID) {
+			continue
+		}
 		out = append(out, toCashDTO(r))
 	}
 	return c.JSON(http.StatusOK, out)

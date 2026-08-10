@@ -1069,6 +1069,11 @@ components:
     AccountIdQuery:
       name: account_id
       in: query
+      description: >-
+        Account scope. Accepts a single account id, a comma-separated list, or
+        the parameter repeated (portfolio mode). Multi-account scopes must share
+        one base currency; mixed-currency selections return 400
+        `mixed_currencies`. Omit for all accounts.
       schema:
         type: string
     FromQuery:
