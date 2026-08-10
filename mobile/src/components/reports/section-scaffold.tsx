@@ -9,7 +9,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { createContext, useContext, type ReactNode } from 'react';
 import { Animated, RefreshControl, View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { useAccounts, useCash } from '@/api/hooks';
 import type { Filters } from '@/api/types';
@@ -19,6 +19,7 @@ import { netDeposits } from '@/lib/cash';
 import { useGlobalFilters } from '@/lib/filters';
 import { useFormatters } from '@/lib/format';
 import { useMoneyFx } from '@/lib/money';
+import { usePagerBottomInset } from '@/lib/pager-insets';
 import { accountBaseCurrency } from '@/lib/prefs';
 import {
   reportsMoney,
@@ -99,8 +100,12 @@ export function SectionScaffold({
   children: ReactNode;
 }) {
   const queryClient = useQueryClient();
+  const { theme } = useUnistyles();
   const reportsScroll = useContext(ReportsScrollContext);
   const headerHeight = reportsScroll?.headerHeight ?? 0;
+  // Nested in the pager, `automatic` never gets the tab-bar bottom inset
+  // (see lib/pager-insets.ts) — the last card needs explicit clearance.
+  const bottomInset = usePagerBottomInset();
 
   const onScroll = reportsScroll
     ? Animated.event([{ nativeEvent: { contentOffset: { y: reportsScroll.offset } } }], {
@@ -117,7 +122,10 @@ export function SectionScaffold({
   return (
     <Animated.ScrollView
       style={styles.page}
-      contentContainerStyle={[styles.content, { paddingTop: headerHeight }]}
+      contentContainerStyle={[
+        styles.content,
+        { paddingTop: headerHeight, paddingBottom: theme.spacing.xl * 2 + bottomInset },
+      ]}
       contentInsetAdjustmentBehavior="automatic"
       scrollEventThrottle={16}
       onScroll={onScroll}

@@ -103,7 +103,17 @@ export default function DashboardLayout() {
           sheetCornerRadius: 24,
         }}
       />
-      <Stack.Screen name="wrapped" options={{ title: t`Year Wrapped`, headerLargeTitle: false }} />
+      {/* Same opaque-bar reasoning as Reports: the year pager's root is a plain
+          View, so a transparent header would sit on top of the year switcher. */}
+      <Stack.Screen
+        name="wrapped"
+        options={{
+          title: t`Year Wrapped`,
+          headerLargeTitle: false,
+          headerTransparent: false,
+          headerStyle: { backgroundColor: theme.colors.background },
+        }}
+      />
     </Stack>
   );
 }
