@@ -168,6 +168,12 @@ func (s *Server) handleImportPreview(c *echo.Context) error {
 		detectedBroker = name
 		suggestedTZ = presetTZ
 	}
+	if suggested["open_time"] != "" && suggested["close_time"] != "" {
+		// Round-trip rows synthesize both fills from the open/close pairs;
+		// the single-fill guesses would double-map the same columns.
+		delete(suggested, "executed_at")
+		delete(suggested, "price")
+	}
 	resp := map[string]any{
 		"headers":           loaded.Headers,
 		"sample_rows":       sample,
@@ -403,7 +409,9 @@ func (s *Server) finishImportCommit(c *echo.Context, uid string, batch store.Imp
 			// clock (US Eastern / exchange time), not UTC.
 			sourceTZ = presetTZ
 		}
-		parsed = importer.NewGeneric(mapping).WithSourceTZ(sourceTZ).ParseRows(loaded.Rows)
+		parsed = importer.NewGeneric(mapping).WithSourceTZ(sourceTZ).
+			WithLotSizedQuantity(importer.LotSizedBroker(loaded.Headers)).
+			ParseRows(loaded.Rows)
 		parsed.Format = "executions"
 	}
 
