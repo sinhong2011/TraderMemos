@@ -32,7 +32,7 @@ function DayReviewPage() {
   const { date } = Route.useParams();
   const navigate = useNavigate();
   const filters = useFilterParams();
-  const accountId = useFilters((s) => s.accountId);
+  const accountIds = useFilters((s) => s.accountIds);
   const openModal = useUI((s) => s.openModal);
   const [selectedTradeId, setSelectedTradeId] = useState<string | null>(null);
 
@@ -51,7 +51,7 @@ function DayReviewPage() {
   const behaviorQ = useBehavior(dayFilters);
   const notesQ = useNotes({ from: dayFilters.from, to: dayFilters.to });
   const accountsQ = useAccounts();
-  const baseCurrency = accountBaseCurrency(accountsQ.data ?? [], accountId);
+  const baseCurrency = accountBaseCurrency(accountsQ.data ?? [], accountIds);
   const { currency, rate } = useMoneyFx(baseCurrency);
 
   const goToDay = (d: string) => void navigate({ to: "/day/$date", params: { date: d } });

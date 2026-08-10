@@ -248,37 +248,40 @@ export function HeaderBar() {
   const paletteLabel = useHotkeyLabel("palette");
   usePrivacyMode();
   const filters = useFilterParams();
-  const accountId = useFilters((s) => s.accountId);
-  const setAccount = useFilters((s) => s.setAccount);
+  const accountIds = useFilters((s) => s.accountIds);
+  const setAccounts = useFilters((s) => s.setAccounts);
   const symbols = useFilters((s) => s.symbols);
   const setSymbols = useFilters((s) => s.setSymbols);
   const openCommandPalette = useUI((s) => s.openCommandPalette);
 
-  const accounts = useAccounts().data ?? [];
+  const accountsQ = useAccounts();
+  const accounts = accountsQ.data ?? [];
   const summaryQ = useSummary(filters);
   const tradesQ = useTrades(filters);
   const cashQ = useCash(filters);
 
-  const baseCurrency = accountBaseCurrency(accounts, accountId);
+  const baseCurrency = accountBaseCurrency(accounts, accountIds);
   const { currency, toDisplay, isLoading: fxLoading } = useMoneyFx(baseCurrency);
   const stats = computeHeaderStats({
     accounts,
-    accountId,
+    accountIds,
     cashTx: cashQ.data ?? [],
     summary: summaryQ.data,
     trades: tradesQ.data ?? [],
   });
   const summary = summaryQ.data;
-  const hasSelectedAccount = accountId
-    ? accounts.some((account) => account.id === accountId)
-    : true;
+  // Only judge staleness against a LOADED account list — before the query
+  // resolves every persisted id would look deleted and the scope would clear
+  // on each reload.
+  const hasStaleSelection = Boolean(
+    accountsQ.data && accountIds?.some((id) => !accounts.some((account) => account.id === id)),
+  );
 
+  // Deleted accounts fall out of the persisted scope rather than filtering forever.
   useEffect(() => {
-    if (!accountId) return;
-    if (!hasSelectedAccount) {
-      setAccount(undefined);
-    }
-  }, [accountId, hasSelectedAccount, setAccount]);
+    if (!accountIds?.length || !hasStaleSelection) return;
+    setAccounts(accountIds.filter((id) => accounts.some((account) => account.id === id)));
+  }, [accountIds, hasStaleSelection, accounts, setAccounts]);
 
   // Phones auto-hide the strip: it slides away scrolling down and returns on
   // the first upward scroll. Only the document scrolls there, so the window

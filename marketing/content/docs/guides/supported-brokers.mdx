@@ -1,0 +1,92 @@
+---
+title: Supported brokers
+description: Every broker preset and statement parser — which file to export from each platform, and the timezone its times are read in.
+---
+
+The importer recognizes the exports below automatically: drop the file and the column mapping,
+broker name, and timezone are pre-filled in the preview. Anything not listed still imports as a
+[generic fill CSV](/en/docs/guides/importing-trades) — you map the columns yourself.
+
+## How detection works
+
+- **CSV presets** match on the file's header names. A recognized export pre-fills the column
+  mapping and the timezone its timestamps are read in; both stay editable before commit.
+- **MetaTrader statements** are detected from the file's *content* (not its name) — the MT5
+  Trade History Report and the MT4 Statement are table documents, not CSVs, so they skip the
+  mapping step entirely.
+
+## Timezones
+
+Broker exports almost never carry a UTC offset — the timestamps are a wall clock in some zone
+only the platform knows. Each preset carries the zone that platform conventionally writes:
+
+- **US equity brokers** export US Eastern time.
+- **Futures platforms** export exchange (Chicago) time.
+- **FX/CFD platforms** (cTrader, DXtrade, Match-Trader) default to **UTC**, but follow the
+  platform or portal's configured offset — check yours.
+- **MetaTrader** reports use the broker *server's* clock — conventionally EET/EEST (GMT+2/+3,
+  so daily candles close with the New York session), **never UTC**.
+
+The preview shows the assumed zone and lets you override it before committing. Timestamps that
+carry their own offset (ISO 8601 with `Z` or `+hh:mm`) ignore the assumption. If your trades
+land hours off, delete the batch, re-import, and correct the timezone in the preview.
+
+## CSV presets
+
+| Platform | File to export | Times read as | Quantities |
+|----------|----------------|---------------|------------|
+| **Interactive Brokers** | Flex Query or Activity Statement trades CSV (`Buy/Sell`, `TradePrice` columns) | US Eastern | shares / contracts |
+| **ThinkOrSwim** | Account Statement → *Account Trade History* section export | US Eastern | shares / contracts |
+| **Webull** | Orders export (filled orders) | US Eastern | shares |
+| **Charles Schwab** | Transactions export | US Eastern | shares |
+| **Tradovate** | Fills export | Chicago (exchange time) | futures contracts |
+| **NinjaTrader** | Executions grid export | US Eastern | futures contracts |
+| **cTrader** | *History* tab export — one row per closed position (open + close) | UTC (platform-configured offset) | lots |
+| **DXtrade** | *Order History* export (prop-firm portals) — one row per fill | UTC | lots |
+| **Match-Trader** | Positions export (closed or open) — one row per position | UTC | lots |
+
+Notes:
+
+- **cTrader / Match-Trader** rows are position-level: each row becomes an open *and* a close
+  fill. Match-Trader rows for still-open positions import just the opening fill — re-import
+  after they close to complete the round trip (duplicates are skipped).
+- **DXtrade** portals vary by prop firm; the preset matches the common `Filled Volume` /
+  `Fill Price` order-history layout.
+
+## MetaTrader statements (MT4 / MT5)
+
+No CSV needed — export the terminal's own report and upload it as-is:
+
+| Terminal | File to export | What's imported |
+|----------|----------------|-----------------|
+| **MetaTrader 5** | *Trade History Report* — right-click the History tab → Report → **XLSX** or **HTML** | The **Deals** table: every buy/sell deal becomes a fill |
+| **MetaTrader 4** | *Statement* or detailed *Account History* — right-click the Account History tab → Save as Report (**HTML**) | The **Closed Transactions** table: each row becomes an open + close fill pair |
+
+- Balance rows (deposits, credits, corrections) and cancelled pending orders are skipped
+  silently; rows with broken fields surface as row errors in the preview instead of aborting
+  the import.
+- **Commission stays its own cost line; swap (and any fee column) imports as fees** — they are
+  distinct costs on a MetaTrader account.
+- Times default to the MetaTrader **server-time convention (EET/EEST)**. If your broker's
+  server runs UTC or local time, override the timezone in the preview before committing.
+
+## How lots become units
+
+On lot-denominated platforms (cTrader, DXtrade, Match-Trader, MetaTrader) P&L math resolves a
+per-symbol contract size instead of the equity/option multiplier:
+
+| Symbol | Units per 1.00 lot |
+|--------|--------------------|
+| FX pairs (EURUSD, GBPJPY, …) | 100,000 |
+| Gold, platinum, palladium (XAU\*, XPT\*, XPD\*) | 100 |
+| Silver (XAG\*) | 5,000 |
+| Index / crypto CFDs | 1 (price is the contract value) |
+
+Broker symbol suffixes (`EURUSD.r`, `XAUUSDm`) are recognized.
+
+## Your broker isn't listed?
+
+Every fill export with symbol / side / quantity / price / time columns imports through the
+[generic CSV mapping](/en/docs/guides/importing-trades) — presets only save the mapping step.
+Open a [GitHub issue](https://github.com/sinhong2011/TraderMemos/issues) with a redacted
+sample export and we'll add a preset.

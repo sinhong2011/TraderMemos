@@ -4,6 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"errors"
+	"net/http"
+	"slices"
 	"strings"
 	"time"
 
@@ -178,12 +181,55 @@ func toExecutionDTOs(rows []store.Execution) []executionDTO {
 	return out
 }
 
+// errMixedCurrencies rejects portfolio scopes whose accounts settle in
+// different base currencies — summing them 1:1 would produce a meaningless
+// number, and /market/fx only has spot rates, not the historical rates an
+// honest conversion would need.
+var errMixedCurrencies = errors.New("selected accounts mix base currencies")
+
+// checkPortfolioCurrency enforces the same-currency rule for multi-account
+// scopes. Single-account and all-account scopes pass through untouched (the
+// all-accounts default predates portfolio mode and keeps its behavior).
+func (s *Server) checkPortfolioCurrency(ctx context.Context, userID string, f Filters) error {
+	if len(f.AccountIDs) < 2 {
+		return nil
+	}
+	accounts, err := s.deps.Store.ListAccounts(ctx, userID)
+	if err != nil {
+		return err
+	}
+	base := ""
+	for _, a := range accounts {
+		if !slices.Contains(f.AccountIDs, a.ID) {
+			continue
+		}
+		if base == "" {
+			base = a.BaseCurrency
+		} else if a.BaseCurrency != base {
+			return errMixedCurrencies
+		}
+	}
+	return nil
+}
+
+// failLoad maps a loader error to an API error: the mixed-currency guard is
+// the caller's mistake (400), anything else is internal.
+func failLoad(err error, msg string) error {
+	if errors.Is(err, errMixedCurrencies) {
+		return Fail(http.StatusBadRequest, "mixed_currencies", errMixedCurrencies.Error(), nil)
+	}
+	return Fail(http.StatusInternalServerError, "internal", msg, nil)
+}
+
 // loadClosedTrades fetches a user's closed trades (optionally account-scoped in
 // SQL) and applies symbol/date filters in Go.
 func (s *Server) loadClosedTrades(ctx context.Context, userID string, f Filters) ([]store.Trade, error) {
+	if err := s.checkPortfolioCurrency(ctx, userID, f); err != nil {
+		return nil, err
+	}
 	rows, err := s.deps.Store.ListClosedTrades(ctx, store.ListClosedTradesParams{
 		UserID:    userID,
-		AccountID: accountArg(f.AccountID),
+		AccountID: f.accountNarg(),
 	})
 	if err != nil {
 		return nil, err
@@ -201,9 +247,12 @@ func (s *Server) loadClosedTrades(ctx context.Context, userID string, f Filters)
 // Date filters default to opened_at (legacy). Pass date_basis=close to filter
 // by closed_at so calendar / realized-day views stay consistent.
 func (s *Server) loadTrades(ctx context.Context, userID string, f Filters) ([]store.Trade, error) {
+	if err := s.checkPortfolioCurrency(ctx, userID, f); err != nil {
+		return nil, err
+	}
 	rows, err := s.deps.Store.ListTrades(ctx, store.ListTradesParams{
 		UserID:    userID,
-		AccountID: accountArg(f.AccountID),
+		AccountID: f.accountNarg(),
 		Status:    statusArg(f.Status),
 	})
 	if err != nil {

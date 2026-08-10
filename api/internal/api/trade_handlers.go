@@ -29,7 +29,7 @@ func (s *Server) handleListTrades(c *echo.Context) error {
 	}
 	rows, err := s.loadTrades(ctx, uid, f)
 	if err != nil {
-		return Fail(http.StatusInternalServerError, "internal", "could not list trades", nil)
+		return failLoad(err, "could not list trades")
 	}
 	risks, err := s.deps.Store.ListJournalRisks(ctx, uid)
 	if err != nil {

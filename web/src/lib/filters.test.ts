@@ -12,6 +12,15 @@ describe("filter store", () => {
     expect(p.from).toBe("2026-06-01T00:00:00Z");
   });
 
+  it("serializes a multi-account portfolio scope to a comma param", () => {
+    useFilters.getState().setAccounts(["acc1", "acc2"]);
+    expect(useFilters.getState().accountIds).toEqual(["acc1", "acc2"]);
+    expect(useFilters.getState().toParams().account_id).toBe("acc1,acc2");
+    useFilters.getState().setAccounts([]);
+    expect(useFilters.getState().accountIds).toBeUndefined();
+    expect(useFilters.getState().toParams().account_id).toBeUndefined();
+  });
+
   it("stores multi-select tag ids and clears them on reset", () => {
     useFilters.getState().setTagIds(["a", "b"]);
     expect(useFilters.getState().tagIds).toEqual(["a", "b"]);

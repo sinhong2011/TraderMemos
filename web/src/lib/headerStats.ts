@@ -8,19 +8,22 @@ export interface HeaderStats {
   active: number;
 }
 
+/** Accounts in the portfolio scope: a single id, several ids, or all when unset. */
+function scopeAccounts(accounts: Account[], ids?: string | readonly string[]): Account[] {
+  const list = typeof ids === "string" ? [ids] : ids;
+  return list?.length ? accounts.filter((a) => list.includes(a.id)) : accounts;
+}
+
 // Capital put into the scoped accounts: the cash ledger is the single source of
 // truth for funding. `accounts.starting_balance` is metadata only — it is seeded
 // into the ledger as the "Opening balance" deposit when an account is created,
 // so summing it here as well would count that money twice.
 export function netDeposits(opts: {
   accounts: Account[];
-  accountId?: string;
+  accountIds?: string | readonly string[];
   cashTx: CashTransaction[];
 }): number {
-  const scope = opts.accountId
-    ? opts.accounts.filter((a) => a.id === opts.accountId)
-    : opts.accounts;
-  const accountIds = new Set(scope.map((a) => a.id));
+  const accountIds = new Set(scopeAccounts(opts.accounts, opts.accountIds).map((a) => a.id));
   return opts.cashTx
     .filter((c) => accountIds.has(c.account_id))
     .reduce((sum, c) => sum + c.amount, 0);
@@ -31,15 +34,12 @@ export function netDeposits(opts: {
 // positions ("Active"). Opening balance is seeded as the first deposit.
 export function computeHeaderStats(opts: {
   accounts: Account[];
-  accountId?: string;
+  accountIds?: string | readonly string[];
   cashTx: CashTransaction[];
   summary?: Summary;
   trades: Trade[];
 }): HeaderStats {
-  const accounts = opts.accountId
-    ? opts.accounts.filter((a) => a.id === opts.accountId)
-    : opts.accounts;
-  const accountIds = new Set(accounts.map((a) => a.id));
+  const accountIds = new Set(scopeAccounts(opts.accounts, opts.accountIds).map((a) => a.id));
   const cashFlow = opts.cashTx
     .filter((c) => accountIds.has(c.account_id))
     .reduce((s, c) => s + c.amount, 0);

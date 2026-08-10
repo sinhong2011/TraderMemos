@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
-import { useFilters } from "@/lib/filters";
+import { soleAccountId, useFilters } from "@/lib/filters";
 import { useAccounts } from "@/lib/hooks/useAccounts";
 import { useRiskRules } from "@/lib/hooks/useRiskRules";
 import { useFvgStore } from "@/lib/r-calculator/useFvgStore";
@@ -34,7 +34,7 @@ export function RCalculatorView() {
   // Read on first render so the hint doesn't flash in after mount.
   const [hintDismissed, setHintDismissed] = useState(() => localStorage.getItem(HINT_KEY) === "1");
 
-  const accountId = useFilters((s) => s.accountId);
+  const accountId = useFilters((s) => soleAccountId(s.accountIds));
   const accounts = useAccounts().data ?? [];
   const account = accounts.find((a) => a.id === accountId) ?? accounts[0];
   const riskRules = useRiskRules().data;

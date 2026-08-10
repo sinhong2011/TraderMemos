@@ -70,7 +70,7 @@ import { cn } from "@/lib/cn";
 import { usePrivacyMode } from "@/lib/displayPrefs";
 import { parseFillFile } from "@/lib/fillFile";
 import { fmtMoney, fmtSignedMoney } from "@/lib/format";
-import { useFilters } from "@/lib/filters";
+import { soleAccountId, useFilters } from "@/lib/filters";
 import {
   CUSTOM_PRESET_ID,
   FUTURES_PRESETS,
@@ -1288,7 +1288,7 @@ export function NewTradeDrawer() {
   const closeModal = useUI((s) => s.closeModal);
   const isEditMode = Boolean(editTradeId);
   const isImportPreviewEdit = isImportPreviewEditId(editTradeId);
-  const filterAccountId = useFilters((s) => s.accountId);
+  const filterAccountId = useFilters((s) => soleAccountId(s.accountIds));
   const accounts = useAccounts().data ?? [];
   const setups = useSetups().data ?? [];
   const allTags = useTags().data;
@@ -1556,7 +1556,7 @@ export function NewTradeDrawer() {
     : (() => {
         const stats = computeHeaderStats({
           accounts,
-          accountId,
+          accountIds: accountId,
           cashTx: cashQ.data ?? [],
           summary: summaryQ.data,
           trades: [],

@@ -155,7 +155,7 @@ func (s *Server) handlePropStatus(c *echo.Context) error {
 		settings.ConsistencyPct = row.ConsistencyPct.Float64
 	}
 
-	trades, terr := s.loadClosedTrades(ctx, uid, Filters{AccountID: acct.ID})
+	trades, terr := s.loadClosedTrades(ctx, uid, Filters{AccountIDs: []string{acct.ID}})
 	if terr != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not load trades", nil)
 	}
