@@ -4,7 +4,6 @@ import { Alert } from 'react-native';
 import { useUnistyles } from 'react-native-unistyles';
 
 import { useSystemInfo } from '@/api/hooks';
-import { useSession } from '@/api/session';
 import { AppHost } from '@/components/app-host';
 import { NavRow } from '@/components/nav-row';
 import { SettingsForm } from '@/components/settings-form';
@@ -24,12 +23,12 @@ function hostOf(url: string): string {
 export default function IntegrationsScreen() {
   const router = useRouter();
   const { theme } = useUnistyles();
-  const { session } = useSession();
   const override = useWebBaseUrl();
   const advertised = useSystemInfo().data?.web_url;
-  // Same precedence the share sheet uses, so the row shows what links will say.
-  const effective = override ?? advertised ?? session?.serverUrl ?? '';
-  const source = override != null ? t`Custom` : advertised ? t`From server` : t`Same as server`;
+  // Same resolution the share sheet uses, so the row shows what links will say.
+  // No API-origin fallback — see the note in app/share-reports-link.tsx.
+  const effective = override ?? advertised ?? null;
+  const source = override != null ? t`Custom` : advertised ? t`From server` : t`Not set`;
 
   function editWebBaseUrl() {
     // One value, so Alert.prompt rather than a pushed form (settings idiom).
@@ -78,7 +77,9 @@ export default function IntegrationsScreen() {
         <Section
           footer={
             <UIText>
-              {t`Share links are built from this address (${source.toLowerCase()}). Set it when your web app and API live on different domains.`}
+              {effective
+                ? t`Share links are built from this address (${source.toLowerCase()}).`
+                : t`Share links need this address. Your server doesn't advertise one, so set the domain your web app is served from.`}
             </UIText>
           }
         >

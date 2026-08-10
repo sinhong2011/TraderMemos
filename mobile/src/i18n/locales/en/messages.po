@@ -470,7 +470,7 @@ msgstr "1 symbol found"
 msgid "1 trade"
 msgstr "1 trade"
 
-#: src/app/share-reports-link.tsx:30
+#: src/app/share-reports-link.tsx:29
 msgid "1 year"
 msgstr "1 year"
 
@@ -506,7 +506,7 @@ msgstr "24-hour"
 #~ msgid "24-hour (13:30)"
 #~ msgstr "24-hour (13:30)"
 
-#: src/app/share-reports-link.tsx:26
+#: src/app/share-reports-link.tsx:25
 msgid "30 days"
 msgstr "30 days"
 
@@ -520,7 +520,7 @@ msgstr "30d"
 msgid "6-digit code"
 msgstr "6-digit code"
 
-#: src/app/share-reports-link.tsx:28
+#: src/app/share-reports-link.tsx:27
 msgid "90 days"
 msgstr "90 days"
 
@@ -800,7 +800,7 @@ msgid "AI"
 msgstr "AI"
 
 #: src/app/(tabs)/(settings)/index.tsx:203
-#: src/app/(tabs)/(settings)/integrations.tsx:68
+#: src/app/(tabs)/(settings)/integrations.tsx:67
 msgid "AI — vision scan & coach"
 msgstr "AI — vision scan & coach"
 
@@ -900,7 +900,7 @@ msgstr "Any duration"
 msgid "Any OpenAI-compatible endpoint works. Test uses the values above, saved or not."
 msgstr "Any OpenAI-compatible endpoint works. Test uses the values above, saved or not."
 
-#: src/app/share-reports-link.tsx:113
+#: src/app/share-reports-link.tsx:112
 msgid "Anyone with the link sees a read-only summary of the current scope — no trades, notes or account details."
 msgstr "Anyone with the link sees a read-only summary of the current scope — no trades, notes or account details."
 
@@ -915,7 +915,7 @@ msgstr "API server"
 
 #: src/app/(tabs)/(settings)/_layout.tsx:79
 #: src/app/(tabs)/(settings)/index.tsx:209
-#: src/app/(tabs)/(settings)/integrations.tsx:73
+#: src/app/(tabs)/(settings)/integrations.tsx:72
 msgid "API tokens"
 msgstr "API tokens"
 
@@ -1271,7 +1271,7 @@ msgstr "Can't reach the server"
 #: src/app/(tabs)/(settings)/flex-sync.tsx:106
 #: src/app/(tabs)/(settings)/funding.tsx:140
 #: src/app/(tabs)/(settings)/index.tsx:116
-#: src/app/(tabs)/(settings)/integrations.tsx:40
+#: src/app/(tabs)/(settings)/integrations.tsx:39
 #: src/app/(tabs)/(settings)/prop-settings.tsx:73
 #: src/app/(tabs)/(settings)/prop-settings.tsx:97
 #: src/app/(tabs)/(settings)/prop-settings.tsx:123
@@ -1584,7 +1584,7 @@ msgstr "Contracts"
 msgid "Copied"
 msgstr "Copied"
 
-#: src/app/share-reports-link.tsx:173
+#: src/app/share-reports-link.tsx:172
 msgid "Copy"
 msgstr "Copy"
 
@@ -1624,7 +1624,7 @@ msgstr "Could not clear trades"
 msgid "Could not compute excursion"
 msgstr "Could not compute excursion"
 
-#: src/app/share-reports-link.tsx:79
+#: src/app/share-reports-link.tsx:78
 msgid "Could not create link"
 msgstr "Could not create link"
 
@@ -1748,7 +1748,7 @@ msgstr "Could not revoke token"
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:165
 #: src/app/(tabs)/(settings)/flex-sync.tsx:64
 #: src/app/(tabs)/(settings)/flex-sync.tsx:92
-#: src/app/(tabs)/(settings)/integrations.tsx:47
+#: src/app/(tabs)/(settings)/integrations.tsx:46
 #: src/app/(tabs)/(settings)/prop-settings.tsx:53
 #: src/app/(tabs)/(settings)/prop-settings.tsx:79
 #: src/app/(tabs)/(settings)/prop-settings.tsx:108
@@ -1830,7 +1830,7 @@ msgstr "Couldn't reach the server. The figures above are from your last sync."
 msgid "Create an account first."
 msgstr "Create an account first."
 
-#: src/app/share-reports-link.tsx:186
+#: src/app/share-reports-link.tsx:204
 msgid "Create link"
 msgstr "Create link"
 
@@ -1892,7 +1892,7 @@ msgid "Current password"
 msgstr "Current password"
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:326
-#: src/app/(tabs)/(settings)/integrations.tsx:32
+#: src/app/(tabs)/(settings)/integrations.tsx:31
 #: src/lib/tags.ts:5
 msgid "Custom"
 msgstr "Custom"
@@ -2174,7 +2174,7 @@ msgstr "Dollars"
 #: src/app/login.tsx:385
 #: src/app/manage-tags.tsx:60
 #: src/app/new-token.tsx:80
-#: src/app/share-reports-link.tsx:108
+#: src/app/share-reports-link.tsx:107
 #: src/app/share-trade.tsx:83
 #: src/app/share-wrapped.tsx:93
 #: src/components/tool-sheet.tsx:18
@@ -2347,7 +2347,7 @@ msgstr "Enter a valid starting balance."
 msgid "Enter a value."
 msgstr "Enter a value."
 
-#: src/app/(tabs)/(settings)/integrations.tsx:47
+#: src/app/(tabs)/(settings)/integrations.tsx:46
 msgid "Enter a web address like https://tm.example.com."
 msgstr "Enter a web address like https://tm.example.com."
 
@@ -2535,7 +2535,7 @@ msgstr "Expectancy"
 msgid "Expired"
 msgstr "Expired"
 
-#: src/app/share-reports-link.tsx:132
+#: src/app/share-reports-link.tsx:131
 msgid "Expires"
 msgstr "Expires"
 
@@ -2806,7 +2806,7 @@ msgstr "From file"
 msgid "From IBKR Client Portal: Performance & Reports → Flex Queries. The token is stored server-side only."
 msgstr "From IBKR Client Portal: Performance & Reports → Flex Queries. The token is stored server-side only."
 
-#: src/app/(tabs)/(settings)/integrations.tsx:32
+#: src/app/(tabs)/(settings)/integrations.tsx:31
 msgid "From server"
 msgstr "From server"
 
@@ -3176,7 +3176,7 @@ msgstr "Kelly (half)"
 msgid "Kelly criterion"
 msgstr "Kelly criterion"
 
-#: src/app/(tabs)/(settings)/integrations.tsx:63
+#: src/app/(tabs)/(settings)/integrations.tsx:62
 msgid "Keys are stored on your server, never on the device or with third parties."
 msgstr "Keys are stored on your server, never on the device or with third parties."
 
@@ -3657,7 +3657,7 @@ msgid "never"
 msgstr "never"
 
 #: src/app/new-token.tsx:17
-#: src/app/share-reports-link.tsx:32
+#: src/app/share-reports-link.tsx:31
 msgid "Never"
 msgstr "Never"
 
@@ -4003,7 +4003,8 @@ msgid "Not rated"
 msgstr "Not rated"
 
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:295
-#: src/app/(tabs)/(settings)/integrations.tsx:88
+#: src/app/(tabs)/(settings)/integrations.tsx:31
+#: src/app/(tabs)/(settings)/integrations.tsx:89
 #: src/app/(tabs)/(settings)/prop-settings.tsx:129
 #: src/app/(tabs)/(settings)/trading-journal.tsx:129
 msgid "Not set"
@@ -4105,7 +4106,7 @@ msgstr "Off by default — the card shows R and return % only."
 msgid "Off by default — the card shows win rate and ratios only."
 msgstr "Off by default — the card shows win rate and ratios only."
 
-#: src/app/share-reports-link.tsx:120
+#: src/app/share-reports-link.tsx:119
 msgid "Off shares only win rate and ratios — account size stays private."
 msgstr "Off shares only win rate and ratios — account size stays private."
 
@@ -4190,6 +4191,10 @@ msgstr "Open date"
 #: src/components/reports/risk-section.tsx:134
 msgid "Open risk rules"
 msgstr "Open risk rules"
+
+#: src/app/share-reports-link.tsx:188
+msgid "Open settings"
+msgstr "Open settings"
 
 #: src/app/(tabs)/(settings)/index.tsx:204
 msgid "openai model screenshot scan coach key"
@@ -5191,8 +5196,8 @@ msgid "Runner stop"
 msgstr "Runner stop"
 
 #: src/app/(tabs)/(settings)/integrations.tsx:32
-msgid "Same as server"
-msgstr "Same as server"
+#~ msgid "Same as server"
+#~ msgstr "Same as server"
 
 #: src/app/(tabs)/(settings)/import-trades.tsx:563
 msgid "Sample CSV"
@@ -5216,7 +5221,7 @@ msgstr "Sat"
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:306
 #: src/app/(tabs)/(settings)/change-password.tsx:111
 #: src/app/(tabs)/(settings)/flex-sync.tsx:147
-#: src/app/(tabs)/(settings)/integrations.tsx:42
+#: src/app/(tabs)/(settings)/integrations.tsx:41
 #: src/app/(tabs)/(settings)/prop-settings.tsx:75
 #: src/app/(tabs)/(settings)/prop-settings.tsx:99
 #: src/app/(tabs)/(settings)/risk-rules.tsx:54
@@ -5441,6 +5446,10 @@ msgstr "Sessions follow the New York clock."
 msgid "Set stop loss targets"
 msgstr "Set stop loss targets"
 
+#: src/app/share-reports-link.tsx:183
+msgid "Set the web app address first — links open there, and this server doesn't advertise one."
+msgstr "Set the web app address first — links open there, and this server doesn't advertise one."
+
 #: src/app/(tabs)/(settings)/ai.tsx:57
 msgid "Set up"
 msgstr "Set up"
@@ -5495,7 +5504,7 @@ msgid "Setups restored"
 msgstr "Setups restored"
 
 #: src/app/(tabs)/(dashboard)/wrapped.tsx:374
-#: src/app/share-reports-link.tsx:168
+#: src/app/share-reports-link.tsx:167
 #: src/app/share-trade.tsx:170
 #: src/app/share-wrapped.tsx:182
 msgid "Share"
@@ -5512,14 +5521,22 @@ msgid "Share frame"
 msgstr "Share frame"
 
 #: src/app/(tabs)/(dashboard)/reports.tsx:53
-#: src/app/share-reports-link.tsx:101
+#: src/app/share-reports-link.tsx:100
 msgid "Share link"
 msgstr "Share link"
 
 #. placeholder {0}: source.toLowerCase()
 #: src/app/(tabs)/(settings)/integrations.tsx:81
-msgid "Share links are built from this address ({0}). Set it when your web app and API live on different domains."
-msgstr "Share links are built from this address ({0}). Set it when your web app and API live on different domains."
+msgid "Share links are built from this address ({0})."
+msgstr "Share links are built from this address ({0})."
+
+#: src/app/(tabs)/(settings)/integrations.tsx:81
+#~ msgid "Share links are built from this address ({0}). Set it when your web app and API live on different domains."
+#~ msgstr "Share links are built from this address ({0}). Set it when your web app and API live on different domains."
+
+#: src/app/(tabs)/(settings)/integrations.tsx:82
+msgid "Share links need this address. Your server doesn't advertise one, so set the domain your web app is served from."
+msgstr "Share links need this address. Your server doesn't advertise one, so set the domain your web app is served from."
 
 #: src/app/replay.tsx:299
 msgid "Share replay frame"
@@ -5565,7 +5582,7 @@ msgstr "SHORT"
 msgid "Short {0}"
 msgstr "Short {0}"
 
-#: src/app/share-reports-link.tsx:118
+#: src/app/share-reports-link.tsx:117
 #: src/app/share-trade.tsx:140
 #: src/app/share-wrapped.tsx:152
 msgid "Show amounts"
@@ -6599,8 +6616,8 @@ msgstr "Wash"
 msgid "Watch"
 msgstr "Watch"
 
-#: src/app/(tabs)/(settings)/integrations.tsx:37
-#: src/app/(tabs)/(settings)/integrations.tsx:87
+#: src/app/(tabs)/(settings)/integrations.tsx:36
+#: src/app/(tabs)/(settings)/integrations.tsx:88
 msgid "Web app address"
 msgstr "Web app address"
 
@@ -6656,7 +6673,7 @@ msgstr "What would you do differently?"
 msgid "When something authenticates with this token, the IP and app it used show up here."
 msgstr "When something authenticates with this token, the IP and app it used show up here."
 
-#: src/app/(tabs)/(settings)/integrations.tsx:38
+#: src/app/(tabs)/(settings)/integrations.tsx:37
 msgid "Where share links open. Leave blank to use the address your server reports, or the server itself."
 msgstr "Where share links open. Leave blank to use the address your server reports, or the server itself."
 

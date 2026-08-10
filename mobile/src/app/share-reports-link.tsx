@@ -5,7 +5,6 @@ import { ActivityIndicator, Alert, Pressable, ScrollView, Share, Switch, Text, V
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { useAccounts, useApiRequest, useSystemInfo } from '@/api/hooks';
-import { useSession } from '@/api/session';
 import type { CreateShareLinkBody, ShareLink } from '@/api/types';
 import { GlassButton } from '@/components/glass-button';
 import { t } from '@lingui/core/macro';
@@ -41,7 +40,6 @@ function expiryLabel(days: ExpiryChoice): string {
 export default function ShareReportsLinkScreen() {
   const { theme } = useUnistyles();
   const router = useRouter();
-  const { session } = useSession();
   const apiRequest = useApiRequest();
   const selectedAccountId = useSelectedAccountId();
   const { tz } = useGlobalFilters();
@@ -53,15 +51,16 @@ export default function ShareReportsLinkScreen() {
   const [creating, setCreating] = useState(false);
   const [created, setCreated] = useState<ShareLink | null>(null);
 
-  // Most specific wins (see lib/share-prefs): the device override set in
-  // Settings → Integrations, then the server's advertised web_url
-  // (TM_PUBLIC_WEB_URL), then the API origin — right for the bundled nginx
-  // deployment, where one origin serves both the SPA and /api.
+  // The device override (Settings → Integrations) wins over the server's
+  // advertised web_url (TM_PUBLIC_WEB_URL). Deliberately no fall back to the
+  // API origin: it serves the visitor page only in the bundled nginx
+  // deployment, so guessing it hands out a dead link everywhere else — and a
+  // share link that 404s is worse than being told to set the address.
   // Both hooks run unconditionally — `??` between two calls would skip the
   // second whenever the override is set.
   const overrideBase = useWebBaseUrl();
   const advertisedBase = useSystemInfo().data?.web_url;
-  const webBase = overrideBase ?? advertisedBase ?? session?.serverUrl;
+  const webBase = overrideBase ?? advertisedBase ?? null;
   const url = created && webBase ? new URL(`/s/${created.token}`, webBase).toString() : null;
 
   async function create() {
@@ -173,6 +172,25 @@ export default function ShareReportsLinkScreen() {
               label={t`Copy`}
               systemImage="doc.on.doc"
               onPress={() => void copyUrl()}
+            />
+          </View>
+        </>
+      ) : webBase == null ? (
+        // Gated before creating, not after: a link minted with nowhere to point
+        // is a live public token the sharer can't even see.
+        <>
+          <Text style={styles.explainer}>
+            {t`Set the web app address first — links open there, and this server doesn't advertise one.`}
+          </Text>
+          <View style={styles.actions}>
+            <GlassButton
+              prominent
+              label={t`Open settings`}
+              systemImage="gearshape"
+              onPress={() => {
+                router.back();
+                router.push('/integrations');
+              }}
             />
           </View>
         </>
