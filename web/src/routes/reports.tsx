@@ -18,11 +18,13 @@ import { tradesOnDay } from "@/lib/calendar";
 import { accountBaseCurrency } from "@/lib/displayPrefs";
 import { useFilterParams, useFilters } from "@/lib/filters";
 import { useAccounts } from "@/lib/hooks/useAccounts";
+import type { ExecScoreBucket } from "@/components/ReportsExecutionScore";
 import {
   useBehavior,
   useBreakdown,
   useCompliance,
   useEquityCurve,
+  useExecutionScore,
   useMonteCarlo,
   useRSummary,
   useSummary,
@@ -125,6 +127,8 @@ function ReportsPage() {
   const complianceQ = useCompliance(analyticsFilters);
   const behaviorQ = useBehavior(analyticsFilters);
   const monteCarloQ = useMonteCarlo(analyticsFilters, tab === "risk");
+  const [execScoreBucket, setExecScoreBucket] = useState<ExecScoreBucket>("week");
+  const execScoreQ = useExecutionScore(analyticsFilters, execScoreBucket);
   const accountsQ = useAccounts();
   const cashQ = useCash(filters);
   const annualGoalQ = useAnnualGoal(goalYear);
@@ -183,6 +187,11 @@ function ReportsPage() {
         monteCarlo={monteCarloQ.data}
         monteCarloLoading={monteCarloQ.isLoading}
         monteCarloError={monteCarloQ.isError}
+        execScore={execScoreQ.data}
+        execScoreLoading={execScoreQ.isLoading}
+        execScoreError={execScoreQ.isError}
+        execScoreBucket={execScoreBucket}
+        onExecScoreBucketChange={setExecScoreBucket}
         onSelectTradeId={setSelectedTradeId}
         currency={currency}
         dim={dim}

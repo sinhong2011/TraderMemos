@@ -44,6 +44,7 @@ import {
 } from "@/components/ReportsDisplayContext";
 import { ReportsDurationScatter } from "@/components/ReportsDurationScatter";
 import { ReportsExecutionGrade } from "@/components/ReportsExecutionGrade";
+import { type ExecScoreBucket, ReportsExecutionScore } from "@/components/ReportsExecutionScore";
 import { ReportsHourlyList } from "@/components/ReportsHourlyList";
 import { ReportsPeriodReturns } from "@/components/ReportsPeriodReturns";
 import { ReportsSessionClock } from "@/components/ReportsSessionClock";
@@ -69,6 +70,7 @@ import type {
   BreakGroup,
   ComplianceReport,
   EquityCurve,
+  ExecScoreReport,
   MonteCarloResult,
   RSummary,
   Summary,
@@ -164,6 +166,11 @@ export interface ReportsViewProps {
   monteCarlo?: MonteCarloResult;
   monteCarloLoading?: boolean;
   monteCarloError?: boolean;
+  execScore?: ExecScoreReport;
+  execScoreLoading?: boolean;
+  execScoreError?: boolean;
+  execScoreBucket: ExecScoreBucket;
+  onExecScoreBucketChange: (b: ExecScoreBucket) => void;
   onSelectTradeId?: (id: string) => void;
   tab: ReportsTab;
   onTabChange: (t: ReportsTab) => void;
@@ -611,6 +618,11 @@ export function ReportsView({
   monteCarlo,
   monteCarloLoading = false,
   monteCarloError = false,
+  execScore,
+  execScoreLoading = false,
+  execScoreError = false,
+  execScoreBucket,
+  onExecScoreBucketChange,
   onSelectTradeId,
   tab,
   onTabChange,
@@ -761,6 +773,14 @@ export function ReportsView({
               currency={displayCurrency}
               fxRate={fxRate}
               denominator={denominator}
+            />
+
+            <ReportsExecutionScore
+              report={execScore}
+              loading={execScoreLoading}
+              error={execScoreError}
+              bucket={execScoreBucket}
+              onBucketChange={onExecScoreBucketChange}
             />
 
             <Card title="Playbook & Leaks" action={panelRight}>

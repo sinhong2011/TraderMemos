@@ -20,6 +20,7 @@ func (s *Server) analyticsRoutes(g *echo.Group) {
 	g.GET("/analytics/compliance", s.handleCompliance)
 	g.GET("/analytics/behavior", s.handleBehavior)
 	g.GET("/analytics/montecarlo", s.handleMonteCarlo)
+	g.GET("/analytics/execution-score", s.handleExecScore)
 }
 
 // grossPnlOf reads the stored gross P&L, reconstructing it from net + fees

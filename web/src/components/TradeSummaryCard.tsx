@@ -1,5 +1,6 @@
 import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 import { Card } from "./Card";
+import { DonutRing } from "./charts/DonutRing";
 import { DIR_TONE_CLASS } from "./DirCell";
 import { Pill } from "./Pill";
 import { StatCell } from "./StatCell";
@@ -113,34 +114,56 @@ export function TradeSummaryCard({
             </p>
           </div>
 
-          <div className="flex flex-col gap-1.5 sm:items-end">
-            <span
-              className={cn(
-                "text-[32px] leading-none font-semibold tracking-[-0.03em] tabular-nums sm:text-[38px]",
-                net != null ? pnlColor(net) : "text-flat",
-              )}
-              title="Net P&L after fees"
-            >
-              {net != null ? fmtSignedMoney(net, currency, locale) : "—"}
-            </span>
-            <div className="flex flex-wrap items-baseline gap-x-3 sm:justify-end">
-              {trade.return_pct != null && (
+          <div className="flex items-center gap-4">
+            {/* Execution score, not P&L — the ring grades process (entry heat,
+                MFE capture) so it stays primary-tinted rather than riding the
+                green/red outcome scale. */}
+            {insights.execScore != null && (
+              <DonutRing
+                className="w-13 shrink-0"
+                strokeWidth={10}
+                segments={[
+                  { value: insights.execScore, color: "var(--primary)" },
+                  { value: 100 - insights.execScore, color: "transparent" },
+                ]}
+              >
                 <span
-                  className={cn("text-sm font-semibold tabular-nums", pnlColor(trade.return_pct))}
+                  className="text-[14px] font-semibold leading-none tabular-nums text-foreground"
+                  title="Execution score — entry heat and MFE capture from auto excursion"
                 >
-                  {trade.return_pct >= 0 ? "+" : ""}
-                  {trade.return_pct.toFixed(2)}%
+                  {insights.execScore}
                 </span>
-              )}
-              {trade.r_multiple != null && (
-                <span
-                  className={cn("text-sm font-semibold tabular-nums", pnlColor(trade.r_multiple))}
-                  title="Realized R — net P&L ÷ planned risk"
-                >
-                  {trade.r_multiple >= 0 ? "+" : ""}
-                  {trade.r_multiple.toFixed(2)}R
-                </span>
-              )}
+              </DonutRing>
+            )}
+            <div className="flex flex-col gap-1.5 sm:items-end">
+              <span
+                className={cn(
+                  "text-[32px] leading-none font-semibold tracking-[-0.03em] tabular-nums sm:text-[38px]",
+                  net != null ? pnlColor(net) : "text-flat",
+                )}
+                title="Net P&L after fees"
+              >
+                {net != null ? fmtSignedMoney(net, currency, locale) : "—"}
+              </span>
+              <div className="flex flex-wrap items-baseline gap-x-3 sm:justify-end">
+                {trade.return_pct != null && (
+                  <span
+                    className={cn("text-sm font-semibold tabular-nums", pnlColor(trade.return_pct))}
+                  >
+                    {trade.return_pct >= 0 ? "+" : ""}
+                    {trade.return_pct.toFixed(2)}%
+                  </span>
+                )}
+                {trade.r_multiple != null && (
+                  <span
+                    className={cn("text-sm font-semibold tabular-nums", pnlColor(trade.r_multiple))}
+                    title="Realized R — net P&L ÷ planned risk"
+                  >
+                    {trade.r_multiple >= 0 ? "+" : ""}
+                    {trade.r_multiple.toFixed(2)}R
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         </div>
