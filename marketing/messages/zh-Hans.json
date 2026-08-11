@@ -9,14 +9,46 @@
     "ctaGetStarted": "开始使用",
     "ctaGithub": "前往 GitHub",
     "ticker": [
-      { "label": "净盈亏", "value": "+$8,405.81", "tone": "profit" },
-      { "label": "胜率", "value": "59%", "tone": "neutral" },
-      { "label": "盈利因子", "value": "1.83", "tone": "neutral" },
-      { "label": "期望值", "value": "+$45.44 / 笔", "tone": "profit" },
-      { "label": "最大回撤", "value": "−$1,057.78", "tone": "loss" },
-      { "label": "平均持仓", "value": "1 小时 02 分", "tone": "neutral" },
-      { "label": "交易笔数", "value": "185", "tone": "neutral" },
-      { "label": "目标进度", "value": "84% · 超前", "tone": "profit" }
+      {
+        "label": "净盈亏",
+        "value": "+$8,405.81",
+        "tone": "profit"
+      },
+      {
+        "label": "胜率",
+        "value": "59%",
+        "tone": "neutral"
+      },
+      {
+        "label": "盈利因子",
+        "value": "1.83",
+        "tone": "neutral"
+      },
+      {
+        "label": "期望值",
+        "value": "+$45.44 / 笔",
+        "tone": "profit"
+      },
+      {
+        "label": "最大回撤",
+        "value": "−$1,057.78",
+        "tone": "loss"
+      },
+      {
+        "label": "平均持仓",
+        "value": "1 小时 02 分",
+        "tone": "neutral"
+      },
+      {
+        "label": "交易笔数",
+        "value": "185",
+        "tone": "neutral"
+      },
+      {
+        "label": "目标进度",
+        "value": "84% · 超前",
+        "tone": "profit"
+      }
     ],
     "eyebrowWhy": "数据主权",
     "eyebrowFeatures": "功能总览",
@@ -29,10 +61,26 @@
     "comparisonHeaderCloud": "云端交易日志",
     "comparisonHeaderTm": "TraderMemos",
     "comparison": [
-      { "row": "数据归属", "cloud": "供应商托管", "tm": "你的 SQLite / VPS" },
-      { "row": "费用", "cloud": "按月订阅", "tm": "免费 + 自托管主机成本" },
-      { "row": "AI 密钥", "cloud": "通常由供应商管理", "tm": "你自己的兼容 OpenAI API" },
-      { "row": "定制化", "cloud": "有限", "tm": "可 Fork、修改、自由部署" }
+      {
+        "row": "数据归属",
+        "cloud": "供应商托管",
+        "tm": "你的 SQLite / VPS"
+      },
+      {
+        "row": "费用",
+        "cloud": "按月订阅",
+        "tm": "免费 + 自托管主机成本"
+      },
+      {
+        "row": "AI 密钥",
+        "cloud": "通常由供应商管理",
+        "tm": "你自己的兼容 OpenAI API"
+      },
+      {
+        "row": "定制化",
+        "cloud": "有限",
+        "tm": "可 Fork、修改、自由部署"
+      }
     ],
     "featuresHeading": "日常复盘所需的一切",
     "features": {
@@ -87,10 +135,22 @@
     "techStackHeading": "技术栈",
     "stackComment": "# 你的数据，跑在你自己的主机上",
     "stack": [
-      { "layer": "API", "value": "Go · Echo · sqlc · golang-migrate · SQLite" },
-      { "layer": "Web", "value": "React · Vite+ · TanStack Router/Query/Form · Tailwind" },
-      { "layer": "移动端", "value": "Expo（规划中）" },
-      { "layer": "设计", "value": "shadcn/ui + coss ui 设计令牌" }
+      {
+        "layer": "API",
+        "value": "Go · Echo · sqlc · golang-migrate · SQLite"
+      },
+      {
+        "layer": "Web",
+        "value": "React · Vite+ · TanStack Router/Query/Form · Tailwind"
+      },
+      {
+        "layer": "移动端",
+        "value": "Expo（规划中）"
+      },
+      {
+        "layer": "设计",
+        "value": "shadcn/ui + coss ui 设计令牌"
+      }
     ],
     "licenseHeading": "采用 AGPL-3.0 许可协议",
     "licenseBody": "自由自托管、修改，供个人或公司内部使用。",
@@ -106,7 +166,9 @@
     "discussions": "社区讨论",
     "security": "安全政策",
     "license": "许可协议（AGPL-3.0）",
-    "privacyNote": "无遥测 —— 数据只留在你的服务器上。"
+    "privacyNote": "无遥测 —— 数据只留在你的服务器上。",
+    "features": "功能",
+    "compare": "对比"
   },
   "Deploy": {
     "eyebrow": "立即上线",
@@ -212,5 +274,427 @@
     "contactTitle": "联系我们",
     "contactBody": "关于本政策，或应用如何处理数据的任何问题，欢迎在公开仓库中提出：",
     "contactLink": "前往 GitHub 讨论区 →"
+  },
+  "SeoShared": {
+    "ctaHeading": "在自己的机器上跑起来",
+    "ctaBody": "TraderMemos 是免费的开源软件。Clone 仓库、跑一条命令,今晚的交易就能记录在你自己的硬件上。",
+    "ctaGetStarted": "开始使用",
+    "ctaGithub": "在 GitHub 查看",
+    "morePillars": "功能支柱",
+    "moreComparisons": "对比",
+    "vs": "TraderMemos vs {name}",
+    "crossLinksLabel": "相关页面"
+  },
+  "FeaturePages": {
+    "metaTitle": "功能 — 自托管交易日志 | TraderMemos",
+    "metaDescription": "TraderMemos 的五大支柱:数据自主的自托管部署、行为分析、Prop Firm 模式、规则遵守,以及使用自己 API 密钥的 AI。",
+    "eyebrow": "功能支柱",
+    "heading": "云端日志抄不走的东西",
+    "sub": "五大支柱 — 每一项都因为日志跑在你的服务器、而不是别人的云端,才有可能实现。",
+    "explore": "深入了解",
+    "pages": {
+      "self-hosted": {
+        "metaTitle": "自托管交易日志 — TraderMemos",
+        "metaDescription": "你的交易记录存在自己服务器上的 SQLite 文件里。Docker Compose 安装、AGPL-3.0、无遥测、无订阅。",
+        "eyebrow": "自托管部署",
+        "title": "交易数据永远不离开你的服务器",
+        "subtitle": "TraderMemos 跑在你部署的地方 — 你自己的反向代理后面的一个 Go 可执行文件和一个 SQLite 文件。没有厂商云端、没有遥测、没有任何需要退订的东西。",
+        "blurb": "跑在你自己反向代理后面的 Go 可执行文件加 SQLite 文件 — 没有厂商云端、没有遥测、不用退订。",
+        "points": [
+          {
+            "title": "数据库就是一个文件",
+            "body": "每一笔交易、笔记和截图都存在一个你可以复制、备份、直接查询的 SQLite 数据库里。导出日志就是复制文件。"
+          },
+          {
+            "title": "几分钟完成部署",
+            "body": "在任何 VPS、家用服务器或 Raspberry Pi 上一句 docker compose up -d。Web UI 也支持 Vercel、Cloudflare、Netlify 的一键部署。"
+          },
+          {
+            "title": "AGPL-3.0,永远免费",
+            "body": "自由软件 — 自托管、修改,个人或公司使用都可以。没有把分析功能当人质的付费方案。"
+          },
+          {
+            "title": "没有遥测",
+            "body": "App 只会连到你的服务器,不会连到任何其他地方。我们唯一托管的只有这个营销网站。"
+          }
+        ]
+      },
+      "behavior-analytics": {
+        "metaTitle": "行为分析交易日志 — TraderMemos",
+        "metaDescription": "自动检测报复性交易、过度自信与损失厌恶 — 加上期望值、SQN 与凯利比例,全部由你自己的日志计算。",
+        "eyebrow": "行为分析",
+        "title": "在失控变成亏损之前抓住它",
+        "subtitle": "在胜率和盈利因子之外:TraderMemos 直接从你的成交记录标记报复性交易、连胜后的过度自信,以及损失厌恶的模式。",
+        "blurb": "报复性交易、连胜后的过度自信、损失厌恶 — 从成交记录自动检测。",
+        "points": [
+          {
+            "title": "行为标记",
+            "body": "报复性交易、连胜后的过度自信、拿亏损比拿盈利更久 — 自动检测,按交易时段列出。"
+          },
+          {
+            "title": "衡量优势的统计",
+            "body": "期望值、SQN、凯利比例、盈亏中位数、毛利/净利分离 — 不只是每个日志都有的那四个数字。"
+          },
+          {
+            "title": "时段与小时拆解",
+            "body": "按交易时段、小时、星期、持仓时间和策略拆解盈亏 — 找出你的优势什么时候是真的,什么时候是在捐钱。"
+          },
+          {
+            "title": "MAE / MFE 波幅",
+            "body": "每笔交易自动计算的最大有利/不利波幅,告诉你吃到了多少行情、又扛了多少浮亏。"
+          }
+        ]
+      },
+      "prop-firm-mode": {
+        "metaTitle": "Prop Firm 交易日志 — TraderMemos",
+        "metaDescription": "跟踪考核回撤、单日亏损上限与进度。Prop 模式内置且免费 — 在违规之前发出警报。",
+        "eyebrow": "Prop 模式",
+        "title": "通过考核,守住账户。",
+        "subtitle": "把公司的最大回撤和单日亏损规则设置一次,TraderMemos 就会实时跟踪距离,在违规之前 — 而不是之后 — 提醒你。",
+        "blurb": "回撤距离、单日亏损上限、违规前警报 — 给每一个考核账户与正式账户。",
+        "points": [
+          {
+            "title": "回撤距离",
+            "body": "与移动式或固定式最大回撤的实时距离,仪表盘上看得到,口袋里也收得到。"
+          },
+          {
+            "title": "单日亏损上限",
+            "body": "设置公司的单日上限;接近时日志会警告你,守住的日子也会被记录下来。"
+          },
+          {
+            "title": "警报免费",
+            "body": "推送与 Webhook 警报从你自己的服务器发出。你和违规警告之间没有 Pro 方案挡路。"
+          },
+          {
+            "title": "所有账户,一本日志",
+            "body": "考核账户、正式账户和个人账户并排管理 — 每个都有自己的规则。"
+          }
+        ]
+      },
+      "rule-compliance": {
+        "metaTitle": "交易规则遵守 — TraderMemos",
+        "metaDescription": "把风险规则写一次,每笔交易都会自动对照检查。看看遵守规则实际值多少盈亏。",
+        "eyebrow": "规则遵守",
+        "title": "你的规则,由你的日志执行",
+        "subtitle": "单笔最大风险、单日最多笔数、必设止损、不加仓摊平 — TraderMemos 用你写下的规则为每一笔交易评分。",
+        "blurb": "风险规则写一次,每笔交易自动评分,纪律有了金额背书。",
+        "points": [
+          {
+            "title": "规则是数据",
+            "body": "在设置里定义风险规则 — 而不是写在一条你不会再读的笔记里。每笔交易自动接受合规检查。"
+          },
+          {
+            "title": "遵守的价值",
+            "body": "报表把盈亏拆成守规则与破规则两部分 — 纪律有了以美元计的价值。"
+          },
+          {
+            "title": "破规则警报",
+            "body": "交易破了规则就推送通知 — 趁你还来得及改变下一笔。"
+          },
+          {
+            "title": "清单与 Playbook",
+            "body": "策略带着进场条件;每日复盘会问你:是不是照计划交易。"
+          }
+        ]
+      },
+      "ai-your-keys": {
+        "metaTitle": "用自己密钥的 AI 交易教练 — TraderMemos",
+        "metaDescription": "用你自己的 OpenAI 兼容 API 密钥做 AI 交易复盘与截图 OCR 导入。数据只去你选的供应商 — 或哪里都不去。",
+        "eyebrow": "AI,用你的密钥",
+        "title": "没有中间商的 AI 教练",
+        "subtitle": "带上你自己的 OpenAI 兼容密钥 — OpenAI、Anthropic 或本地模型。日志只调用你配置的供应商,你和你的数据之间没有厂商 AI。",
+        "blurb": "用自己的 OpenAI 兼容密钥做 AI 复盘与 OCR 导入 — 完全本地的模型也支持。",
+        "points": [
+          {
+            "title": "你的供应商,你的账单",
+            "body": "把 TraderMemos 指向任何 OpenAI 兼容端点,直接付钱给供应商,随时换模型。"
+          },
+          {
+            "title": "交易教练",
+            "body": "逐笔的 AI 复盘,读你的进场、出场、波幅和笔记 — 然后问那些让人不舒服的问题。"
+          },
+          {
+            "title": "截图 OCR 导入",
+            "body": "拍下券商成交画面,OCR 提取成交记录并预先填好交易表单。"
+          },
+          {
+            "title": "欢迎本地模型",
+            "body": "跑 Ollama 或其他本地端点,交易数据完全不出你的机器。"
+          }
+        ]
+      }
+    }
+  },
+  "AlternativePages": {
+    "metaTitle": "TraderMemos 与云端交易日志 — 诚实对比",
+    "metaDescription": "TraderMemos 与 TradeZella、TraderSync、Tradervue、TraderWaves 的对比 — 包括对方赢的地方。",
+    "eyebrow": "对比",
+    "heading": "诚实的对比",
+    "sub": "云端日志真正赢的地方,和自托管日志赢的地方。不是排名文,也没有联盟链接。",
+    "readComparison": "阅读对比",
+    "tableCategory": "项目",
+    "theyWinHeading": "{name} 赢的地方",
+    "tmWinsHeading": "TraderMemos 赢的地方",
+    "verdictHeading": "诚实的结论",
+    "disclaimer": "基于 2026 年 8 月的公开价格与功能页面。产品会变 — 如果这里有过时的内容,告诉我们,我们会修正。",
+    "disclaimerLink": "开一个 Issue →",
+    "pages": {
+      "tradezella": {
+        "metaTitle": "可自托管的 TradeZella 替代品 | TraderMemos",
+        "metaDescription": "TradeZella vs TraderMemos,诚实对比:月费 $35 的云端日志赢在哪里,免费、自托管、分析更深的日志又赢在哪里。",
+        "blurb": "有课程和回测的精致云端日志,对上免费的自托管替代品 — 诚实对比。",
+        "title": "可自托管的 TradeZella 替代品",
+        "subtitle": "TradeZella 是一个教育内容很强的精致云端日志。TraderMemos 用 SaaS 的便利换来订阅买不到的东西:整份交易记录放在你自己的文件里,分析更深,而且免费。",
+        "rows": [
+          {
+            "row": "价格",
+            "them": "月费 $35 订阅",
+            "tm": "免费 — AGPL-3.0 开源"
+          },
+          {
+            "row": "数据存放",
+            "them": "TradeZella 的云端",
+            "tm": "你服务器上的 SQLite 文件"
+          },
+          {
+            "row": "安装",
+            "them": "注册即用",
+            "tm": "任何服务器上的 Docker Compose"
+          },
+          {
+            "row": "券商导入",
+            "them": "广泛的自动同步集成",
+            "tm": "IBKR Flex 同步 + CSV 预设 (MT4/MT5、cTrader、DXtrade、Match-Trader…)"
+          },
+          {
+            "row": "回测与重放",
+            "them": "内置重放与回测",
+            "tm": "带模拟账户的 K 线重放 — 结果流入同一套分析"
+          },
+          {
+            "row": "分析深度",
+            "them": "50+ 报表、Zella Score",
+            "tm": "期望值、SQN、凯利比例、行为标记、规则遵守盈亏"
+          },
+          {
+            "row": "AI",
+            "them": "内置 AI,用他们的供应商",
+            "tm": "你自己的 OpenAI 兼容密钥 — 支持本地模型"
+          },
+          {
+            "row": "语言",
+            "them": "英文",
+            "tm": "English · 日本語 · 繁體中文 · 简体中文"
+          }
+        ],
+        "theyWin": [
+          "教育 — 课程、社区和上手体验的完成度,不是自托管软件要竞争的领域",
+          "零安装:不用架、不用维护",
+          "对美国主流券商的自动同步覆盖面"
+        ],
+        "tmWins": [
+          "没有订阅 — AGPL-3.0,永远免费",
+          "数据所有权:日志是你机器上的文件,不是一个可能被关掉的账号",
+          "更深的交易数学:期望值、SQN、凯利比例、MAE/MFE、行为标记开箱即用",
+          "Prop 模式与规则遵守是内置,不是外挂",
+          "AI 用你自己的密钥 — 用本地模型的话,数据完全不出机器"
+        ],
+        "verdict": "如果你要的是附课程、零维护的托管产品,TradeZella 对得起它的订阅费。如果你想拥有日志本身 — 数据、分析、AI 密钥 — TraderMemos 做的实际分析更多,而且一分钱都不用。"
+      },
+      "tradersync": {
+        "metaTitle": "可自托管的 TraderSync 替代品 | TraderMemos",
+        "metaDescription": "TraderSync vs TraderMemos:业界最广的券商支持,对上免费、自托管、有行为分析的日志。",
+        "blurb": "拥有 900+ 集成的券商导入冠军,对上一个你自己托管的日志。",
+        "title": "可自托管的 TraderSync 替代品",
+        "subtitle": "TraderSync 的 900+ 券商集成是业界最广,TraderMemos 不打算比这个 — 它赢在导入之后的事:更深的分析,在你自己的服务器上,免费。",
+        "rows": [
+          {
+            "row": "价格",
+            "them": "7 天试用后,月费 $29.95 起",
+            "tm": "免费 — AGPL-3.0 开源"
+          },
+          {
+            "row": "数据存放",
+            "them": "TraderSync 的云端",
+            "tm": "你服务器上的 SQLite 文件"
+          },
+          {
+            "row": "券商导入",
+            "them": "900+ 券商 — 业界最广",
+            "tm": "IBKR Flex 同步 + CSV 预设 (MT4/MT5、cTrader、DXtrade、Match-Trader…)"
+          },
+          {
+            "row": "分析",
+            "them": "统计、模拟器、离场分析",
+            "tm": "期望值、SQN、凯利比例、MAE/MFE、时段/小时拆解"
+          },
+          {
+            "row": "行为分析",
+            "them": "错误标签",
+            "tm": "自动检测报复性交易、过度自信、损失厌恶"
+          },
+          {
+            "row": "规则遵守与 Prop",
+            "them": "较高方案的考核工具",
+            "tm": "风险规则、遵守盈亏、Prop 回撤跟踪 — 免费"
+          },
+          {
+            "row": "AI",
+            "them": "顶级方案的 AI 反馈",
+            "tm": "你自己的 OpenAI 兼容密钥 — 支持本地模型"
+          },
+          {
+            "row": "语言",
+            "them": "英文",
+            "tm": "English · 日本語 · 繁體中文 · 简体中文"
+          }
+        ],
+        "theyWin": [
+          "900+ 券商自动导入 — 业界最广",
+          "多年积累的成熟产品",
+          "全托管云端:维护全部有人处理"
+        ],
+        "tmWins": [
+          "免费 — 根本没有\"方案\"这回事",
+          "数据在你自己的机器上",
+          "行为标记加上期望值、SQN、凯利比例,标准内置",
+          "Prop 模式与规则遵守不另收费",
+          "AI 用你自己的密钥",
+          "英文、日文、繁体与简体中文"
+        ],
+        "verdict": "如果你的券商只跟 TraderSync 自动同步,那份便利也许值得订阅。如果 CSV 导出或 IBKR Flex 就够用,TraderMemos 导入后的分析更深,而且这本日志没有人能把你锁在门外。"
+      },
+      "tradervue": {
+        "metaTitle": "可自托管的 Tradervue 替代品 | TraderMemos",
+        "metaDescription": "Tradervue 开创了现代交易日志。TraderMemos 把它的 R 倍数与 MAE/MFE 报表带到你自己的服务器,免费。",
+        "blurb": "报表黄金标准的元祖交易日志,对上一个现代的自托管后继者。",
+        "title": "可自托管的 Tradervue 替代品",
+        "subtitle": "Tradervue 定下了每个日志都在抄的标准 — R 倍数报表、MAE/MFE、流动性分析。TraderMemos 把这种报表深度带到你自己的服务器,加上现代 UI 和行为分析。",
+        "rows": [
+          {
+            "row": "价格",
+            "them": "有免费方案;高级报表要付费",
+            "tm": "全部免费 — AGPL-3.0 开源"
+          },
+          {
+            "row": "数据存放",
+            "them": "Tradervue 的云端",
+            "tm": "你服务器上的 SQLite 文件"
+          },
+          {
+            "row": "报表",
+            "them": "黄金标准:R 模式、MAE/MFE、流动性",
+            "tm": "R 倍数、MAE/MFE、期望值、SQN、凯利比例"
+          },
+          {
+            "row": "行为分析",
+            "them": "—",
+            "tm": "按时段标记报复性交易、过度自信、损失厌恶"
+          },
+          {
+            "row": "规则遵守与 Prop",
+            "them": "—",
+            "tm": "风险规则、遵守盈亏、Prop 回撤跟踪"
+          },
+          {
+            "row": "分享",
+            "them": "日志分享社区",
+            "tm": "可撤销的只读分享链接 + 分享卡片"
+          },
+          {
+            "row": "AI",
+            "them": "—",
+            "tm": "用你自己密钥的 AI 交易教练"
+          },
+          {
+            "row": "界面",
+            "them": "功能齐全,但看得出年头",
+            "tm": "现代终端风格、深色模式、原生 iOS App"
+          }
+        ],
+        "theyWin": [
+          "磨了十多年的报表成熟度",
+          "公开日志的分享社区",
+          "给活跃股票交易者的流动性与滑点分析"
+        ],
+        "tmWins": [
+          "自托管带来的完整所有权",
+          "全部免费",
+          "Tradervue 没做的行为分析层",
+          "Prop 模式与规则遵守",
+          "用你自己密钥的 AI",
+          "现代 UX 与原生移动 App"
+        ],
+        "verdict": "Tradervue 在它开创的报表上依然出色。TraderMemos 在日内交易者每天用的报表上并驾齐驱,加上 Tradervue 没做的行为分析,然后把整套东西放到你的硬件上。"
+      },
+      "traderwaves": {
+        "metaTitle": "可自托管的 TraderWaves 替代品 | TraderMemos",
+        "metaDescription": "TraderWaves 把资金曲线分析、蒙特卡洛和警报锁在 Pro 后面。TraderMemos 全部免费,跑在你自己的服务器上。",
+        "blurb": "有 700+ 券商连接的免费增值日志,对上一个根本没有 Pro 方案的日志。",
+        "title": "可自托管的 TraderWaves 替代品",
+        "subtitle": "TraderWaves 的免费方案确实大方,700+ 券商连接也是真的。但真正重要的分析 — 资金曲线与回撤、蒙特卡洛、警报 — 都在 Pro 的另一边。TraderMemos 没有 Pro。",
+        "rows": [
+          {
+            "row": "价格",
+            "them": "免费方案 + Pro 月费 $19.99",
+            "tm": "全部免费 — AGPL-3.0 开源"
+          },
+          {
+            "row": "数据存放",
+            "them": "TraderWaves 的云端",
+            "tm": "你服务器上的 SQLite 文件"
+          },
+          {
+            "row": "券商同步",
+            "them": "通过聚合器连 700+ 券商",
+            "tm": "IBKR Flex 同步 + CSV 预设 (MT4/MT5、cTrader、DXtrade、Match-Trader…)"
+          },
+          {
+            "row": "资金曲线与回撤分析",
+            "them": "Pro",
+            "tm": "免费"
+          },
+          {
+            "row": "蒙特卡洛模拟",
+            "them": "Pro",
+            "tm": "免费 — 内置于报表"
+          },
+          {
+            "row": "警报",
+            "them": "Pro(价格、新闻、时段、账户)",
+            "tm": "免费 — 风险规则、亏损上限、Prop 回撤,从你自己的服务器发出"
+          },
+          {
+            "row": "行为分析",
+            "them": "智能洞察",
+            "tm": "报复性交易、过度自信、损失厌恶检测 + SQN、凯利比例"
+          },
+          {
+            "row": "规则遵守与 Prop 模式",
+            "them": "—",
+            "tm": "内置,免费"
+          },
+          {
+            "row": "回测",
+            "them": "Pro 无限制",
+            "tm": "带模拟账户的 K 线重放 — 结果进同一套分析"
+          }
+        ],
+        "theyWin": [
+          "通过实时聚合器的券商连接能力",
+          "自选列表与浏览器内图表等市场功能的广度",
+          "注册就能开始的零安装免费方案"
+        ],
+        "tmWins": [
+          "没有任何功能被锁 — Pro 根本不存在",
+          "更深的分析:期望值、SQN、凯利比例、行为标记",
+          "数据所有权与自托管",
+          "警报从你自己的服务器免费发出",
+          "英文、日文、繁体与简体中文",
+          "AGPL-3.0 开源"
+        ],
+        "verdict": "TraderWaves 是今天最强的免费云端日志 — 直到你需要 Pro 后面的那些分析。TraderMemos 的答案是结构性的:软件跑在你自己手上,付费方案根本无从存在。"
+      }
+    }
   }
 }
