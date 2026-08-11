@@ -1363,7 +1363,13 @@ const styles = StyleSheet.create((theme) => ({
     color: theme.colors.mutedForeground,
     ...theme.numeric,
   },
-  weekChart: { marginTop: theme.spacing.sm },
+  // Absorbs slack between bento and day list; centres strip + labels as one block.
+  weekChart: {
+    flexGrow: 1,
+    flexShrink: 0,
+    justifyContent: 'center',
+    marginTop: theme.spacing.sm,
+  },
   weekBentoLabel: { fontSize: 10, color: theme.colors.mutedForeground },
   weekBentoHeroValueRow: {
     flexDirection: 'row',
@@ -1391,10 +1397,9 @@ const styles = StyleSheet.create((theme) => ({
     color: theme.colors.foreground,
     ...theme.numeric,
   },
-  // Rows are content-sized (minHeight floor); leftover height sits below the list.
+  // Content-sized rows anchored to the bottom; chart block above takes leftover height.
   weekDays: {
-    flex: 1,
-    justifyContent: 'flex-start',
+    flexShrink: 0,
     gap: theme.spacing.sm,
     marginTop: theme.spacing.lg,
   },
