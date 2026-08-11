@@ -4,8 +4,11 @@ import {
   avgRiskPerTrade,
   currentDrawdownPct,
   drawdownSeries,
+  durationScatter,
   maxDrawdownPct,
+  medianDurationSecs,
   metricEvolution,
+  periodReturns,
   rollingWinRate,
 } from "./reportsAnalytics";
 
@@ -178,5 +181,78 @@ describe("avgRiskPerTrade", () => {
     expect(result.avg).toBeNull();
     expect(result.included).toBe(0);
     expect(result.excluded).toBe(1);
+  });
+});
+
+describe("durationScatter", () => {
+  it("keeps only closed trades with a known hold time", () => {
+    const trades = [
+      trade({ id: "1", time_in_trade_secs: 600, net_pnl: 50 }),
+      trade({ id: "2", time_in_trade_secs: null }),
+      trade({ id: "3", time_in_trade_secs: 0 }),
+      trade({ id: "4", status: "open", net_pnl: null, time_in_trade_secs: 100 }),
+    ];
+    const points = durationScatter(trades);
+    expect(points).toEqual([{ id: "1", symbol: "NQ", secs: 600, pnl: 50 }]);
+  });
+
+  it("uses the provided pnl accessor", () => {
+    const trades = [trade({ id: "1", gross_pnl: 20, net_pnl: 10 })];
+    const points = durationScatter(trades, (t) => t.gross_pnl ?? 0);
+    expect(points[0].pnl).toBe(20);
+  });
+});
+
+describe("medianDurationSecs", () => {
+  it("returns 0 for no points", () => {
+    expect(medianDurationSecs([])).toBe(0);
+  });
+
+  it("takes the middle value for odd counts and the mean of the middle pair for even", () => {
+    const p = (secs: number) => ({ id: String(secs), symbol: "NQ", secs, pnl: 0 });
+    expect(medianDurationSecs([p(10), p(1000), p(100)])).toBe(100);
+    expect(medianDurationSecs([p(10), p(20), p(100), p(1000)])).toBe(60);
+  });
+});
+
+describe("periodReturns", () => {
+  it("returns null with no closed trades", () => {
+    expect(periodReturns([])).toBeNull();
+    expect(periodReturns([trade({ status: "open", net_pnl: null })])).toBeNull();
+  });
+
+  it("averages per traded day, week and month", () => {
+    // Two days in one ISO week, one day in another month.
+    const trades = [
+      trade({ id: "1", closed_at: "2026-07-06T15:00:00Z", net_pnl: 100 }),
+      trade({ id: "2", closed_at: "2026-07-06T18:00:00Z", net_pnl: 50 }),
+      trade({ id: "3", closed_at: "2026-07-07T15:00:00Z", net_pnl: -30 }),
+      trade({ id: "4", closed_at: "2026-08-03T15:00:00Z", net_pnl: 60 }),
+    ];
+    const r = periodReturns(trades);
+    expect(r).not.toBeNull();
+    if (!r) return;
+    expect(r.tradingDays).toBe(3);
+    expect(r.daily).toBeCloseTo(180 / 3);
+    expect(r.weekly).toBeCloseTo(180 / 2); // Jul 6–7 share a Monday week
+    expect(r.monthly).toBeCloseTo(180 / 2);
+    // Span Jul 6 → Aug 3 inclusive = 29 days.
+    expect(r.annualized).toBeCloseTo((180 * 365) / 29);
+  });
+
+  it("annualizes a single-day span against one day", () => {
+    const r = periodReturns([trade({ id: "1", closed_at: "2026-07-06T15:00:00Z", net_pnl: 10 })]);
+    expect(r?.annualized).toBeCloseTo(10 * 365);
+  });
+
+  it("buckets days through the provided day key", () => {
+    // Shift both trades onto the same custom day.
+    const trades = [
+      trade({ id: "1", closed_at: "2026-07-06T23:30:00Z", net_pnl: 10 }),
+      trade({ id: "2", closed_at: "2026-07-07T00:30:00Z", net_pnl: 20 }),
+    ];
+    const r = periodReturns(trades, undefined, () => "2026-07-06");
+    expect(r?.tradingDays).toBe(1);
+    expect(r?.daily).toBe(30);
   });
 });
