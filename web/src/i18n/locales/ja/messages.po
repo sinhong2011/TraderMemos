@@ -34,6 +34,10 @@ msgstr "勝率 {0}"
 msgid "1.0 = break-even"
 msgstr "1.0 = 損益分岐"
 
+#: src/app/drawers/NewTradeDrawer.tsx:2178
+msgid "Apply"
+msgstr "適用"
+
 #: src/app/screens/PublicShareView.tsx:306
 msgid "Best day"
 msgstr "最高の日"
@@ -156,6 +160,14 @@ msgstr "プロフィットファクター"
 #: src/app/screens/PublicShareView.tsx:287
 msgid "Red days"
 msgstr "マイナスの日"
+
+#: src/app/drawers/NewTradeDrawer.tsx:2182
+msgid "Save"
+msgstr "保存"
+
+#: src/app/drawers/NewTradeDrawer.tsx:2180
+msgid "Save changes"
+msgstr "変更を保存"
 
 #: src/components/AppNav.tsx:276
 #~ msgid "Settings"

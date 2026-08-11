@@ -1,8 +1,10 @@
+import { I18nProvider } from "@lingui/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
+import { i18n } from "@/i18n";
 import { executionsApi } from "@/lib/api/executions";
 import { ocrApi } from "@/lib/api/ocr";
 import { tradesApi } from "@/lib/api/trades";
@@ -53,13 +55,19 @@ vi.mock("../../components/Toast", () => ({
 const mockedCreate = vi.mocked(executionsApi.create);
 const mockedPatch = vi.mocked(tradesApi.patch);
 const mockedOcrParse = vi.mocked(ocrApi.parse);
+// `i18n` is loaded with the en catalog at module import; activate it so the
+// drawer's <Trans> labels resolve instead of throwing for a missing provider.
+i18n.activate("en");
+
 const wrap = (ui: ReactNode) =>
   render(
-    <QueryClientProvider
-      client={new QueryClient({ defaultOptions: { mutations: { retry: false } } })}
-    >
-      {ui}
-    </QueryClientProvider>,
+    <I18nProvider i18n={i18n}>
+      <QueryClientProvider
+        client={new QueryClient({ defaultOptions: { mutations: { retry: false } } })}
+      >
+        {ui}
+      </QueryClientProvider>
+    </I18nProvider>,
   );
 
 describe("rowsFromOcrExtract", () => {

@@ -34,6 +34,10 @@ msgstr "勝率 {0}"
 msgid "1.0 = break-even"
 msgstr "1.0 = 打和"
 
+#: src/app/drawers/NewTradeDrawer.tsx:2178
+msgid "Apply"
+msgstr "套用"
+
 #: src/app/screens/PublicShareView.tsx:306
 msgid "Best day"
 msgstr "最佳交易日"
@@ -156,6 +160,14 @@ msgstr "獲利因子"
 #: src/app/screens/PublicShareView.tsx:287
 msgid "Red days"
 msgstr "虧損日"
+
+#: src/app/drawers/NewTradeDrawer.tsx:2182
+msgid "Save"
+msgstr "儲存"
+
+#: src/app/drawers/NewTradeDrawer.tsx:2180
+msgid "Save changes"
+msgstr "儲存變更"
 
 #: src/components/AppNav.tsx:276
 #~ msgid "Settings"

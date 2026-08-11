@@ -33,6 +33,10 @@ msgstr "{0} win rate"
 msgid "1.0 = break-even"
 msgstr "1.0 = break-even"
 
+#: src/app/drawers/NewTradeDrawer.tsx:2178
+msgid "Apply"
+msgstr "Apply"
+
 #: src/app/screens/PublicShareView.tsx:306
 msgid "Best day"
 msgstr "Best day"
@@ -155,6 +159,14 @@ msgstr "Profit factor"
 #: src/app/screens/PublicShareView.tsx:287
 msgid "Red days"
 msgstr "Red days"
+
+#: src/app/drawers/NewTradeDrawer.tsx:2182
+msgid "Save"
+msgstr "Save"
+
+#: src/app/drawers/NewTradeDrawer.tsx:2180
+msgid "Save changes"
+msgstr "Save changes"
 
 #: src/components/AppNav.tsx:276
 #~ msgid "Settings"
