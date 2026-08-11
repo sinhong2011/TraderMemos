@@ -39,6 +39,38 @@ export interface DayCell {
   pnl: number | null;
 }
 
+/** Whether a day had trading activity — weekend columns/rows hide when this is false. */
+export function dayHasTradingActivity(
+  pnl: number | null | undefined,
+  tradeCount: number,
+): boolean {
+  return pnl != null || tradeCount > 0;
+}
+
+/** Month grid: show weekend columns when any week in the month traded on a weekend day. */
+export function monthWeekendColumnsVisible(
+  weeks: (DayCell | null)[][],
+  dayStats: ReadonlyMap<string, { count: number }>,
+): boolean {
+  return weeks.some((w) =>
+    [w[0], w[6]].some(
+      (c) => c && dayHasTradingActivity(c.pnl, dayStats.get(c.date)?.count ?? 0),
+    ),
+  );
+}
+
+/** Week mode: drop Sun/Sat when they have no activity; weekdays always stay. */
+export function weekVisibleDayKeys(
+  weekKeys: string[],
+  pnl: Record<string, number>,
+  dayStats: ReadonlyMap<string, { count: number }>,
+): string[] {
+  return weekKeys.filter((key, i) => {
+    if (i !== 0 && i !== 6) return true;
+    return dayHasTradingActivity(pnl[key], dayStats.get(key)?.count ?? 0);
+  });
+}
+
 export interface MonthGrid {
   weeks: (DayCell | null)[][];
   monthTotal: number;

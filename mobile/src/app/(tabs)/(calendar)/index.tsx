@@ -23,7 +23,13 @@ import { WeekPnlStrip } from '@/components/week-pnl-strip';
 import { t } from '@lingui/core/macro';
 import { locale } from '@/i18n';
 import { useSelectedAccountId } from '@/lib/account-store';
-import { monthGrid, periodStartBalance, tradeDayKey } from '@/lib/calendar';
+import {
+  monthGrid,
+  monthWeekendColumnsVisible,
+  periodStartBalance,
+  tradeDayKey,
+  weekVisibleDayKeys,
+} from '@/lib/calendar';
 import { netDeposits } from '@/lib/cash';
 import { dayBounds, useGlobalFilters } from '@/lib/filters';
 import { formatPercentPoints, useFormatters } from '@/lib/format';
@@ -644,10 +650,9 @@ function MonthView({
   const red = traded.filter((k) => data[k] < 0).length;
 
   // Weekend columns only earn their width when the month actually traded on one.
-  const hasWeekend = grid.weeks.some((w) =>
-    [w[0], w[6]].some((c) => c && (c.pnl != null || (dayStats.get(c.date)?.count ?? 0) > 0)),
-  );
-  const dayIdx = hasWeekend ? [0, 1, 2, 3, 4, 5, 6] : [1, 2, 3, 4, 5];
+  const dayIdx = monthWeekendColumnsVisible(grid.weeks, dayStats)
+    ? [0, 1, 2, 3, 4, 5, 6]
+    : [1, 2, 3, 4, 5];
   const maxWeekAbs = Math.max(
     1,
     ...grid.weeks.map((w) => Math.abs(w.reduce((sum, c) => sum + (c?.pnl ?? 0), 0))),
@@ -808,18 +813,19 @@ function WeekView({
   const { theme } = useUnistyles();
   const { formatPnl } = useFormatters();
   const start = weekStart(anchor);
-  const days = Array.from({ length: 7 }, (_, i) => {
+  const allDays = Array.from({ length: 7 }, (_, i) => {
     const d = new Date(start);
     d.setUTCDate(d.getUTCDate() + i);
     return keyOf(d);
   });
-  const weekPnl = days.reduce((sum, key) => sum + (data[key] ?? 0), 0);
-  const weekCount = days.reduce((sum, key) => sum + (dayStats.get(key)?.count ?? 0), 0);
-  const weekWins = days.reduce((sum, key) => sum + (dayStats.get(key)?.wins ?? 0), 0);
-  const weekLosses = days.reduce((sum, key) => sum + (dayStats.get(key)?.losses ?? 0), 0);
-  // Biggest absolute day drives tint intensity and the magnitude bars.
-  const weekMax = Math.max(...days.map((key) => Math.abs(data[key] ?? 0)));
-  const weekStartBal = balanceAtPeriodStart(days[0]!);
+  const days = weekVisibleDayKeys(allDays, data, dayStats);
+  const weekPnl = allDays.reduce((sum, key) => sum + (data[key] ?? 0), 0);
+  const weekCount = allDays.reduce((sum, key) => sum + (dayStats.get(key)?.count ?? 0), 0);
+  const weekWins = allDays.reduce((sum, key) => sum + (dayStats.get(key)?.wins ?? 0), 0);
+  const weekLosses = allDays.reduce((sum, key) => sum + (dayStats.get(key)?.losses ?? 0), 0);
+  // Biggest absolute day drives card tint intensity in the strip.
+  const weekMax = Math.max(1, ...days.map((key) => Math.abs(data[key] ?? 0)));
+  const weekStartBal = balanceAtPeriodStart(allDays[0]!);
   const weekReturnPct =
     equityLoaded && weekStartBal != null ? weekPnl / weekStartBal : null;
 
@@ -845,7 +851,7 @@ function WeekView({
                 numberOfLines={1}
                 adjustsFontSizeToFit
               >
-                {`${weekPnl > 0 ? '+' : ''}${formatPercentPoints(weekReturnPct * 100)}`}
+                {`${weekPnl > 0 ? '+' : ''}${formatPercentPoints(weekReturnPct * 100, 1)}`}
               </Text>
             ) : null}
           </View>
@@ -910,21 +916,6 @@ function WeekView({
                 <Text style={styles.weekRowEmpty}>{t`No trades`}</Text>
               )}
             </View>
-            {/* Magnitude bar: day's |P&L| relative to the week's biggest day. */}
-            {pnl != null && weekMax > 0 ? (
-              <>
-                <View style={styles.weekRowBarTrack} />
-                <View
-                  style={[
-                    styles.weekRowBar,
-                    {
-                      width: `${Math.max(4, Math.round((Math.abs(pnl) / weekMax) * 100))}%`,
-                      backgroundColor: pnlColor(theme.colors, pnl),
-                    },
-                  ]}
-                />
-              </>
-            ) : null}
           </Pressable>
         );
       })}
@@ -985,7 +976,7 @@ function YearView({
           </Text>
           {equityLoaded && yearStartBalance != null ? (
             <Text style={[styles.summarySub, { color: pnlColor(theme.colors, yearTotal) }]}>
-              {`${yearTotal > 0 ? '+' : ''}${formatPercentPoints((yearTotal / yearStartBalance) * 100)}`}
+              {`${yearTotal > 0 ? '+' : ''}${formatPercentPoints((yearTotal / yearStartBalance) * 100, 1)}`}
             </Text>
           ) : null}
         </View>
@@ -1204,23 +1195,6 @@ const styles = StyleSheet.create((theme) => ({
     borderRadius: theme.radius.md,
     borderCurve: 'continuous',
     backgroundColor: theme.colors.muted,
-    // Clip the flush magnitude bar to the card's rounded corners.
-    overflow: 'hidden',
-  },
-  weekRowBarTrack: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: 3,
-    backgroundColor: theme.colors.border,
-  },
-  weekRowBar: {
-    position: 'absolute',
-    left: 0,
-    bottom: 0,
-    height: 3,
-    borderTopRightRadius: 1.5,
   },
   weekRowLeft: { gap: 1 },
   weekRowDay: { fontSize: 14, fontWeight: '600', color: theme.colors.foreground },
