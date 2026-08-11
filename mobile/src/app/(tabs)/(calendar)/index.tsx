@@ -249,14 +249,17 @@ function WeekBento({
         >
           <Text style={styles.weekBentoLabel}>{t`Balance`}</Text>
           <View style={styles.weekBentoBalanceRow}>
+            <View style={styles.weekBentoBalanceSide}>
+              {hasBalance ? (
+                <Text style={styles.weekBentoBalanceFrom} numberOfLines={1}>
+                  {t`from ${formatCurrency(startBalance, currency)}`}
+                </Text>
+              ) : null}
+            </View>
             <Text style={styles.weekBentoBalanceEnd} numberOfLines={1}>
               {formatCurrency(hasBalance ? endBalance : 0, currency)}
             </Text>
-            {hasBalance ? (
-              <Text style={styles.weekBentoBalanceFrom} numberOfLines={1}>
-                {t`from ${formatCurrency(startBalance, currency)}`}
-              </Text>
-            ) : null}
+            <View style={styles.weekBentoBalanceSide} />
           </View>
         </View>
       ) : null}
@@ -1347,10 +1350,13 @@ const styles = StyleSheet.create((theme) => ({
   weekBentoBalanceRow: {
     flexDirection: 'row',
     alignItems: 'baseline',
-    justifyContent: 'space-between',
-    gap: theme.spacing.sm,
+  },
+  weekBentoBalanceSide: {
+    flex: 1,
+    minWidth: 0,
   },
   weekBentoBalanceEnd: {
+    flexShrink: 1,
     fontSize: 17,
     fontWeight: '700',
     letterSpacing: -0.2,
@@ -1358,7 +1364,7 @@ const styles = StyleSheet.create((theme) => ({
     ...theme.numeric,
   },
   weekBentoBalanceFrom: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '500',
     color: theme.colors.mutedForeground,
     ...theme.numeric,
