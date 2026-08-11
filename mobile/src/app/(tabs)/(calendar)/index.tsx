@@ -738,7 +738,7 @@ function MonthView({
                     numberOfLines={1}
                     adjustsFontSizeToFit
                   >
-                    {`${weekPnl > 0 ? '+' : ''}${formatPercentPoints(weekReturnPct * 100)}`}
+                    {`${weekPnl > 0 ? '+' : ''}${formatPercentPoints(weekReturnPct * 100, 1)}`}
                   </Text>
                 ) : null}
                 <WinLoss wins={weekWins} losses={weekLosses} />
