@@ -62,6 +62,11 @@ export function ToolsMenu() {
       href: '/(tabs)/(dashboard)/advanced-chart',
     },
     {
+      label: t`Backtest`,
+      systemImage: 'backward.frame',
+      href: '/(tabs)/(dashboard)/backtest',
+    },
+    {
       label: t`Economic calendar`,
       systemImage: 'newspaper',
       href: '/(tabs)/(dashboard)/economic-events',

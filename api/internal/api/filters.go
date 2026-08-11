@@ -30,6 +30,10 @@ type Filters struct {
 	// (`tz` query param, IANA name). UTC when unset — the legacy behavior.
 	// Session bucketing stays on the exchange clock (US Eastern) regardless.
 	Loc *time.Location
+	// IncludeBacktest keeps backtest-account rows in unscoped results. Never
+	// parsed from the query — set internally by handlers (exports/backups)
+	// that must see the complete dataset.
+	IncludeBacktest bool
 }
 
 // parseFilters reads the shared filter query params. Malformed from/to dates

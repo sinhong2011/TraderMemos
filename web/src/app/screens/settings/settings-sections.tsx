@@ -633,6 +633,7 @@ export function AccountsTab({
                       <NativeSelectOption value="cash">Cash</NativeSelectOption>
                       <NativeSelectOption value="margin">Margin</NativeSelectOption>
                       <NativeSelectOption value="prop">Prop</NativeSelectOption>
+                      <NativeSelectOption value="backtest">Backtest (paper)</NativeSelectOption>
                     </NativeSelect>
                   </Field>
                 )}

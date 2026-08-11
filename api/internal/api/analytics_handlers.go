@@ -184,6 +184,11 @@ func (s *Server) handleEquityCurve(c *echo.Context) error {
 	if err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not load cash flows", nil)
 	}
+	excluded, err := s.backtestAccountIDs(ctx, uid, f)
+	if err != nil {
+		return Fail(http.StatusInternalServerError, "internal", "could not load cash flows", nil)
+	}
+	cashRows = filterCashAccounts(cashRows, excluded)
 	flows := make([]analytics.CashFlow, 0, len(cashRows))
 	for _, ct := range cashRows {
 		if !f.matchAccount(ct.AccountID) {

@@ -20,7 +20,10 @@ import { barsToCandlestickData } from "./barsToCandlestickData";
 import { utcSecToChartTime } from "./chartTime";
 import { BAR_INTERVALS, tradeChartTheme } from "./tradeChartTheme";
 
-function fillMarkers(fills: Execution[]): SeriesMarker<Time>[] {
+/** The fill fields the chart draws — synthetic backtest fills qualify too. */
+export type ChartFill = Pick<Execution, "side" | "quantity" | "price" | "executed_at">;
+
+function fillMarkers(fills: ChartFill[]): SeriesMarker<Time>[] {
   return fills.map((f) => ({
     time: utcSecToChartTime(Math.floor(new Date(f.executed_at).getTime() / 1000)),
     position: f.side === "buy" ? "belowBar" : "aboveBar",
@@ -37,7 +40,7 @@ const sectionLabelClass = "text-xs font-medium text-muted-foreground";
 export interface TradeChartProps {
   symbol: string;
   bars: MarketBar[] | undefined;
-  fills: Execution[];
+  fills: ChartFill[];
   loading?: boolean;
   error?: boolean;
   errorMessage?: string;

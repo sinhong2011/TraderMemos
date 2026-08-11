@@ -26,6 +26,16 @@ export const INTERVAL_SEC: Record<BarInterval, number> = {
   D: 86_400,
 };
 
+/**
+ * What the book actually needs from a fill. A journalled `Execution` satisfies
+ * it; so do the synthetic orders the backtester places against the tape, which
+ * have no server identity until the session is saved.
+ */
+export type ReplayFill = Pick<
+  Execution,
+  'side' | 'quantity' | 'price' | 'fees' | 'commission' | 'executed_at' | 'multiplier'
+>;
+
 export interface ReplayPnl {
   /** Signed open quantity at the cursor (+long / -short). */
   position: number;
@@ -101,7 +111,7 @@ interface Book {
  * weighted-avg cost, scale-ins, partial exits, and flips (the remainder
  * re-opens at the flip fill's price).
  */
-function applyFill(book: Book, fill: Execution): void {
+function applyFill(book: Book, fill: ReplayFill): void {
   const mult = fill.multiplier > 0 ? fill.multiplier : 1;
   book.lastMult = mult;
   book.fees += (fill.fees ?? 0) + (fill.commission ?? 0);
@@ -125,7 +135,7 @@ function applyFill(book: Book, fill: Execution): void {
   else if (book.position === 0) book.avgCost = 0;
 }
 
-function fillSeconds(fill: Execution): number {
+function fillSeconds(fill: ReplayFill): number {
   return Math.floor(new Date(fill.executed_at).getTime() / 1000);
 }
 
@@ -138,7 +148,7 @@ function stateOf(position: number, fillCount: number, fillTotal: number): Replay
 }
 
 export interface ReplayRunInput {
-  fills: Execution[];
+  fills: ReplayFill[];
   bars: MarketBar[];
   interval: BarInterval;
   /** Trade's recorded risk, for the R readout. Non-positive is treated as absent. */
@@ -239,7 +249,7 @@ const FILL_BAR_TOLERANCE = 0.01;
  * prices), so mark-to-market replay P&L is unreliable until the exit.
  */
 export function detectFillBarMismatch(
-  fills: Execution[],
+  fills: ReplayFill[],
   bars: MarketBar[],
   interval: BarInterval,
 ): boolean {

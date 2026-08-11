@@ -222,7 +222,8 @@ func failLoad(err error, msg string) error {
 }
 
 // loadClosedTrades fetches a user's closed trades (optionally account-scoped in
-// SQL) and applies symbol/date filters in Go.
+// SQL) and applies symbol/date filters in Go. Unscoped results skip backtest
+// accounts unless f.IncludeBacktest is set.
 func (s *Server) loadClosedTrades(ctx context.Context, userID string, f Filters) ([]store.Trade, error) {
 	if err := s.checkPortfolioCurrency(ctx, userID, f); err != nil {
 		return nil, err
@@ -234,9 +235,13 @@ func (s *Server) loadClosedTrades(ctx context.Context, userID string, f Filters)
 	if err != nil {
 		return nil, err
 	}
+	excluded, err := s.backtestAccountIDs(ctx, userID, f)
+	if err != nil {
+		return nil, err
+	}
 	out := rows[:0]
 	for _, t := range rows {
-		if f.matchTrade(t) {
+		if !excluded[t.AccountID] && f.matchTrade(t) {
 			out = append(out, t)
 		}
 	}
@@ -258,9 +263,13 @@ func (s *Server) loadTrades(ctx context.Context, userID string, f Filters) ([]st
 	if err != nil {
 		return nil, err
 	}
+	excluded, err := s.backtestAccountIDs(ctx, userID, f)
+	if err != nil {
+		return nil, err
+	}
 	out := rows[:0]
 	for _, t := range rows {
-		if f.matchListDate(t) && f.matchSideDuration(t) {
+		if !excluded[t.AccountID] && f.matchListDate(t) && f.matchSideDuration(t) {
 			out = append(out, t)
 		}
 	}

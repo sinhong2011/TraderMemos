@@ -96,6 +96,7 @@ export default function DashboardLayout() {
         name="advanced-chart"
         options={{ title: t`Chart`, headerLargeTitle: false }}
       />
+      <Stack.Screen name="backtest" options={{ title: t`Backtest`, headerLargeTitle: false }} />
       <Stack.Screen
         name="economic-events"
         options={{ title: t`Economic calendar`, headerLargeTitle: false }}
