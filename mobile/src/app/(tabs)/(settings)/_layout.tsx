@@ -57,6 +57,10 @@ export default function SettingsLayout() {
         name="integrations"
         options={{ title: t`Integrations`, headerLargeTitle: false }}
       />
+      <Stack.Screen
+        name="web-address"
+        options={{ title: t`Web app address`, headerLargeTitle: false }}
+      />
       <Stack.Screen name="general" options={{ title: t`General`, headerLargeTitle: false }} />
       <Stack.Screen name="risk-rules" options={{ title: t`Risk rules` }} />
       <Stack.Screen

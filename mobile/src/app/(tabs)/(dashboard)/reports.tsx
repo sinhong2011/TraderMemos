@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Animated, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { useAccounts, useCash } from '@/api/hooks';
+import { useAccounts, useCash, useSystemInfo } from '@/api/hooks';
 import { HeaderIconButton } from '@/components/header-icon-button';
 import { PagerTabs } from '@/components/pager-tabs';
 import { BehaviorSection } from '@/components/reports/behavior-section';
@@ -31,12 +31,14 @@ export type ReportsSection = 'overview' | 'winloss' | 'detailed' | 'risk' | 'beh
 
 const SECTION_VALUES: ReportsSection[] = ['overview', 'winloss', 'detailed', 'risk', 'behavior'];
 
-/** Sparkles → Year Wrapped (#198) beside the existing display-filter menu. */
+/** Share link (#204) + sparkles → Year Wrapped (#198) beside the filter menu. */
 function ReportsHeaderRight() {
   const router = useRouter();
   const accounts = useAccounts();
   const cash = useCash();
   const selectedId = useSelectedAccountId();
+  // Public links only exist when the server enables them (web's shareEnabled).
+  const shareEnabled = useSystemInfo().data?.features?.share_links === true;
   // An unreachable server is not a zero balance: `?? []` would have divided the
   // reports by a made-up denominator rather than leaving the unit inert.
   const denominator =
@@ -45,6 +47,13 @@ function ReportsHeaderRight() {
       : 0;
   return (
     <View style={styles.headerRight}>
+      {shareEnabled ? (
+        <HeaderIconButton
+          systemImage="square.and.arrow.up"
+          label={t`Share link`}
+          onPress={() => router.push('/share-reports-link')}
+        />
+      ) : null}
       <HeaderIconButton
         systemImage="sparkles"
         label={t`Year Wrapped`}

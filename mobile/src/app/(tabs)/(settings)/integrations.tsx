@@ -2,15 +2,32 @@ import { Section, Text as UIText } from '@expo/ui/swift-ui';
 import { useRouter } from 'expo-router';
 import { useUnistyles } from 'react-native-unistyles';
 
+import { useSystemInfo } from '@/api/hooks';
 import { AppHost } from '@/components/app-host';
 import { NavRow } from '@/components/nav-row';
 import { SettingsForm } from '@/components/settings-form';
 import { t } from '@lingui/core/macro';
+import { useWebBaseUrl } from '@/lib/share-prefs';
 
-/** What the app talks to: model providers and the tokens other tools use. */
+/** Host only — the full origin is too long for a settings row's value slot. */
+function hostOf(url: string): string {
+  try {
+    return new URL(url).host;
+  } catch {
+    return url;
+  }
+}
+
+/** What the app talks to: model providers, tokens, and the web app share links point at. */
 export default function IntegrationsScreen() {
   const router = useRouter();
   const { theme } = useUnistyles();
+  const override = useWebBaseUrl();
+  const advertised = useSystemInfo().data?.web_url;
+  // Same resolution the share sheet uses, so the row shows what links will say.
+  // No API-origin fallback — see the note in app/share-reports-link.tsx.
+  const effective = override ?? advertised ?? null;
+  const source = override != null ? t`Custom` : advertised ? t`From server` : t`Not set`;
 
   return (
     <AppHost style={{ flex: 1, backgroundColor: theme.colors.background }}>
@@ -29,6 +46,23 @@ export default function IntegrationsScreen() {
             systemImage="key"
             label={t`API tokens`}
             onPress={() => router.push('/api-tokens')}
+          />
+        </Section>
+
+        <Section
+          footer={
+            <UIText>
+              {effective
+                ? t`Share links are built from this address (${source.toLowerCase()}).`
+                : t`Share links need this address. Your server doesn't advertise one, so set the domain your web app is served from.`}
+            </UIText>
+          }
+        >
+          <NavRow
+            systemImage="globe"
+            label={t`Web app address`}
+            value={effective ? hostOf(effective) : t`Not set`}
+            onPress={() => router.push('/web-address')}
           />
         </Section>
       </SettingsForm>

@@ -3,6 +3,7 @@
 // react-native-pager-view.
 import PagerView from 'react-native-pager-view';
 import { ContentUnavailableView } from '@expo/ui/swift-ui';
+import { useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
 import { useMemo, useRef, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
@@ -12,6 +13,7 @@ import { useAccounts, useTrades } from '@/api/hooks';
 import { AppHost } from '@/components/app-host';
 import { DashboardCard } from '@/components/dashboard-card';
 import { ErrorState } from '@/components/error-state';
+import { HeaderIconButton } from '@/components/header-icon-button';
 import { Skeleton } from '@/components/skeleton';
 import { StatBar } from '@/components/stat-bar';
 import { t } from '@lingui/core/macro';
@@ -19,6 +21,7 @@ import { locale } from '@/i18n';
 import { useSelectedAccountId } from '@/lib/account-store';
 import { formatDuration, formatPercent, formatRatio, useFormatters } from '@/lib/format';
 import { useMoneyFx } from '@/lib/money';
+import { usePagerBottomInset } from '@/lib/pager-insets';
 import { accountBaseCurrency } from '@/lib/prefs';
 import { computeYearWrapped } from '@/lib/wrapped';
 import { pnlColor } from '@/styles/unistyles';
@@ -139,6 +142,9 @@ function WrappedYear({ year, active }: { year: number; active: boolean }) {
   const currency = fx.currency;
   const rate = fx.rate ?? 1;
   const { formatPnl, formatPnlCompact } = useFormatters();
+  // Nested in the pager, `automatic` never gets the tab-bar bottom inset
+  // (see lib/pager-insets.ts) — the last card needs explicit clearance.
+  const bottomInset = usePagerBottomInset();
 
   const wrapped = useMemo(() => computeYearWrapped(trades.data ?? [], year), [trades.data, year]);
   const money = (v: number) => formatPnl(v * rate, currency);
@@ -149,7 +155,10 @@ function WrappedYear({ year, active }: { year: number; active: boolean }) {
     <ScrollView
       style={styles.page}
       contentInsetAdjustmentBehavior="automatic"
-      contentContainerStyle={styles.content}
+      contentContainerStyle={[
+        styles.content,
+        { paddingBottom: theme.spacing.xl * 2 + bottomInset },
+      ]}
       refreshControl={
         <RefreshControl
           refreshing={trades.isRefetching}
@@ -338,6 +347,7 @@ function WrappedYear({ year, active }: { year: number; active: boolean }) {
 
 /** Annual recap — swipeable years, one page each from MIN_YEAR to now. */
 export default function WrappedScreen() {
+  const router = useRouter();
   const currentYear = new Date().getFullYear();
   const years = useMemo(() => yearsRange(currentYear), [currentYear]);
   const initialIndex = years.length - 1;
@@ -350,9 +360,28 @@ export default function WrappedScreen() {
     pagerRef.current?.setPage(clamped);
   };
 
+  const shareYear = years[index]!;
   return (
     <>
-      <Stack.Screen options={{ title: t`Year Wrapped`, headerLargeTitle: false }} />
+      <Stack.Screen
+        options={{
+          title: t`Year Wrapped`,
+          headerLargeTitle: false,
+          // Share-card export for the visible year (#198).
+          headerRight: () => (
+            <HeaderIconButton
+              systemImage="square.and.arrow.up"
+              label={t`Share`}
+              onPress={() =>
+                router.push({
+                  pathname: '/share-wrapped',
+                  params: { year: String(shareYear) },
+                })
+              }
+            />
+          ),
+        }}
+      />
       <View style={styles.root}>
         <YearIndicator
           years={years}

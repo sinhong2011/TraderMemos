@@ -785,3 +785,45 @@ export type MediaFile = {
   size_bytes: number;
   created_at: string;
 };
+
+/** GET /system/info (web useSystemInfo) — feature gates ride `features`. */
+export type SystemInfo = {
+  version: string;
+  commit?: string;
+  build_time?: string;
+  go: string;
+  started_at: string;
+  uptime_sec: number;
+  db_driver?: string;
+  features: Record<string, boolean>;
+  /**
+   * Public web-app origin for building share links (TM_PUBLIC_WEB_URL).
+   * Absent when the API origin also serves the web app.
+   */
+  web_url?: string;
+};
+
+/** Scope snapshot baked into a public share link (share_link_handlers.go). */
+export type ShareScope = {
+  account_id?: string;
+  from?: string;
+  to?: string;
+  tz?: string;
+  show_amounts?: boolean;
+  currency?: string;
+};
+
+/** POST/GET /share-links row — the visitor URL is `/s/{token}` on the server origin. */
+export type ShareLink = {
+  id: string;
+  token: string;
+  scope: ShareScope;
+  created_at: string;
+  expires_at: string | null;
+  view_count: number;
+};
+
+export type CreateShareLinkBody = ShareScope & {
+  /** Omit for the 90-day default; 0 = never expires. */
+  expires_in_days?: number;
+};
