@@ -183,10 +183,12 @@ function WeekBento({
   const pnlTint = pnlColor(theme.colors, weekPnl);
   const expTint = pnlColor(theme.colors, stats.expectancy);
 
+  const hasBalance = startBalance != null && endBalance != null;
+
   return (
     <View style={styles.weekBento}>
       <View style={styles.weekBentoRow}>
-        <View style={[styles.weekBentoTile, styles.weekBentoHero]}>
+        <View style={styles.weekBentoHero}>
           <Text style={styles.weekBentoLabel}>{t`Net P&L`}</Text>
           <View style={styles.weekBentoHeroValueRow}>
             <Text
@@ -207,7 +209,7 @@ function WeekBento({
             ) : null}
           </View>
         </View>
-        <View style={[styles.weekBentoTile, styles.weekBentoSide]}>
+        <View style={styles.weekBentoSide}>
           <Text style={styles.weekBentoLabel}>{t`Activity`}</Text>
           <Text style={styles.weekBentoSideValue}>
             {weekCount === 1 ? t`1 trade` : t`${weekCount} trades`}
@@ -231,12 +233,32 @@ function WeekBento({
           </Text>
         </View>
       </View>
-      {showBalance && startBalance != null && endBalance != null ? (
-        <View style={[styles.weekBentoTile, styles.weekBentoBalance]}>
-          <Text style={styles.weekBentoLabel}>{t`Balance`}</Text>
-          <Text style={styles.weekBentoBalanceValue} numberOfLines={1} adjustsFontSizeToFit>
-            {`${formatCurrency(startBalance, currency)} → ${formatCurrency(endBalance, currency)}`}
-          </Text>
+      {showBalance ? (
+        <View style={styles.weekBentoBalance}>
+          <Text style={styles.weekBentoBalanceLabel}>{t`Balance`}</Text>
+          <View style={styles.weekBentoBalanceValues}>
+            {hasBalance ? (
+              <>
+                <Text style={styles.weekBentoBalanceStart} numberOfLines={1}>
+                  {formatCurrency(startBalance, currency)}
+                </Text>
+                <Text style={styles.weekBentoBalanceArrow}>→</Text>
+                <Text style={styles.weekBentoBalanceEnd} numberOfLines={1}>
+                  {formatCurrency(endBalance, currency)}
+                </Text>
+                <Text
+                  style={[styles.weekBentoBalanceDelta, { color: pnlTint }]}
+                  numberOfLines={1}
+                >
+                  {formatPnl(weekPnl, currency)}
+                </Text>
+              </>
+            ) : (
+              <Text style={styles.weekBentoBalanceEnd} numberOfLines={1}>
+                {formatCurrency(0, currency)}
+              </Text>
+            )}
+          </View>
         </View>
       ) : null}
     </View>
@@ -976,12 +998,14 @@ function WeekView({
         endBalance={weekEndBal}
         showBalance={equityLoaded}
       />
-      <WeekPnlStrip
-        days={days}
-        data={data}
-        onSelect={onSelect}
-        currency={currency}
-      />
+      <View style={styles.weekChart}>
+        <WeekPnlStrip
+          days={days}
+          data={data}
+          onSelect={onSelect}
+          currency={currency}
+        />
+      </View>
       <View style={styles.weekDays}>
       {days.map((key) => {
         const pnl = data[key] ?? null;
@@ -1294,8 +1318,8 @@ const styles = StyleSheet.create((theme) => ({
   summaryReturnPct: { fontSize: 15, fontWeight: '600', ...theme.numeric },
   summaryRight: { alignItems: 'flex-end', gap: 3, paddingBottom: 2 },
   summarySub: { fontSize: 12, color: theme.colors.mutedForeground, ...theme.numeric },
-  weekBento: { gap: theme.spacing.xs, paddingBottom: theme.spacing.xs },
-  weekBentoRow: { flexDirection: 'row', gap: theme.spacing.xs },
+  weekBento: { gap: theme.spacing.xs },
+  weekBentoRow: { flexDirection: 'row', gap: theme.spacing.xs, alignItems: 'flex-start' },
   weekBentoTile: {
     backgroundColor: theme.colors.card,
     borderRadius: theme.radius.md,
@@ -1304,10 +1328,45 @@ const styles = StyleSheet.create((theme) => ({
     paddingVertical: theme.spacing.xs,
     gap: 2,
   },
-  weekBentoHero: { flex: 1.5, minWidth: 0 },
-  weekBentoSide: { flex: 1, minWidth: 0, justifyContent: 'center' },
+  weekBentoHero: { flex: 1.5, minWidth: 0, gap: 2, paddingHorizontal: theme.spacing.sm },
+  weekBentoSide: {
+    flex: 1,
+    minWidth: 0,
+    justifyContent: 'center',
+    gap: 2,
+    paddingHorizontal: theme.spacing.sm,
+  },
   weekBentoStat: { flex: 1, minWidth: 0, alignItems: 'center' },
-  weekBentoBalance: { alignItems: 'center' },
+  weekBentoBalance: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
+    paddingHorizontal: theme.spacing.sm,
+  },
+  weekBentoBalanceLabel: { fontSize: 10, color: theme.colors.mutedForeground },
+  weekBentoBalanceValues: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    justifyContent: 'flex-end',
+    gap: theme.spacing.xs,
+    minWidth: 0,
+  },
+  weekBentoBalanceStart: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: theme.colors.mutedForeground,
+    ...theme.numeric,
+  },
+  weekBentoBalanceArrow: { fontSize: 12, color: theme.colors.mutedForeground },
+  weekBentoBalanceEnd: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: theme.colors.foreground,
+    ...theme.numeric,
+  },
+  weekBentoBalanceDelta: { fontSize: 12, fontWeight: '600', ...theme.numeric },
+  weekChart: { marginTop: theme.spacing.sm },
   weekBentoLabel: { fontSize: 10, color: theme.colors.mutedForeground },
   weekBentoHeroValueRow: {
     flexDirection: 'row',
@@ -1332,12 +1391,6 @@ const styles = StyleSheet.create((theme) => ({
   weekBentoStatValue: {
     fontSize: 13,
     fontWeight: '600',
-    color: theme.colors.foreground,
-    ...theme.numeric,
-  },
-  weekBentoBalanceValue: {
-    fontSize: 12,
-    fontWeight: '500',
     color: theme.colors.foreground,
     ...theme.numeric,
   },

@@ -9,6 +9,10 @@ import { useFormatters } from '@/lib/format';
 /** Band height — full-magnitude bar height : `BAR_WIDTH` ≥ ~1.4 (96 → 47 : 32 ≈ 1.47). */
 export const WEEK_STRIP_HEIGHT = 96;
 
+/** Gap between bars and weekday labels — 4% of band height, scales with `WEEK_STRIP_HEIGHT`. */
+const LABEL_GAP_RATIO = 0.04;
+const LABEL_GAP = Math.round(WEEK_STRIP_HEIGHT * LABEL_GAP_RATIO);
+
 /** Drawn column width; slots stay `flex: 1` so day labels stay column-aligned. */
 const BAR_WIDTH = 32;
 
@@ -210,7 +214,7 @@ const styles = StyleSheet.create((theme) => ({
     marginLeft: -BAR_WIDTH / 2,
     borderRadius: 1,
   },
-  labelRow: { flexDirection: 'row' },
+  labelRow: { flexDirection: 'row', marginTop: LABEL_GAP },
   dayLabel: {
     flex: 1,
     textAlign: 'center',
