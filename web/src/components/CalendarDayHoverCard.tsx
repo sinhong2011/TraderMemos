@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactElement, ReactNode } from "react";
-import type { DayRecord } from "@/lib/calendar";
+import type { DayDetail, DayRecord } from "@/lib/calendar";
 import type { Trade } from "@/lib/api/types";
 import { CalendarDayHoverDetails } from "./CalendarDayHoverDetails";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "./HoverCard";
@@ -12,6 +12,8 @@ export function CalendarDayHoverCard({
   currency,
   fxRate = 1,
   trades,
+  detail,
+  onOpenDayReview,
   children,
   className,
   style,
@@ -28,6 +30,9 @@ export function CalendarDayHoverCard({
   currency: string;
   fxRate?: number;
   trades?: Trade[];
+  /** At-a-glance stats (balances, deposits, fees, PF…) for the richer card. */
+  detail?: DayDetail;
+  onOpenDayReview?: (day: string) => void;
   children?: ReactNode;
   className?: string;
   style?: CSSProperties;
@@ -65,6 +70,8 @@ export function CalendarDayHoverCard({
           currency={currency}
           fxRate={fxRate}
           trades={trades}
+          detail={detail}
+          onOpenDayReview={onOpenDayReview}
         />
       </HoverCardContent>
     </HoverCard>

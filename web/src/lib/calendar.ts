@@ -108,6 +108,10 @@ export interface WeekSummary {
   weekNumber: number | null;
   /** Count of calendar days in the row that have P&L. */
   daysWithTrades: number;
+  /** First in-month day of the row ("YYYY-MM-DD") — anchors the week-start balance. */
+  firstDate: string | null;
+  /** Last in-month day of the row ("YYYY-MM-DD") — anchors the week-end balance. */
+  lastDate: string | null;
 }
 
 // One summary per grid row: summed P&L and win/loss record for the week.
@@ -144,6 +148,210 @@ export function weekSummaries(
       hasData,
       weekNumber,
       daysWithTrades,
+      firstDate: week.find((c) => c != null)?.date ?? null,
+      lastDate: [...week].reverse().find((c) => c != null)?.date ?? null,
     };
   });
+}
+
+/**
+ * Account balance at a moment, read off the all-time equity curve (whose
+ * points carry cash flows + realized P&L — i.e. the running balance).
+ * "before" excludes points exactly at the boundary (start-of-day balances),
+ * "through" includes them. No points yet → 0.
+ */
+export function balanceAsOf(
+  points: readonly { at: string; equity: number }[],
+  atISO: string,
+  mode: "before" | "through" = "through",
+): number {
+  const cutoff = Date.parse(atISO);
+  if (Number.isNaN(cutoff)) return 0;
+  let balance = 0;
+  let bestT = -Infinity;
+  for (const p of points) {
+    const t = Date.parse(p.at);
+    if (Number.isNaN(t) || (mode === "before" ? t >= cutoff : t > cutoff)) continue;
+    if (t >= bestT) {
+      bestT = t;
+      balance = p.equity;
+    }
+  }
+  return balance;
+}
+
+export interface DayDetail {
+  pnl: number;
+  /** Day return on the start-of-day balance; null when nothing was funded yet. */
+  pct: number | null;
+  startBalance: number;
+  endBalance: number;
+  /** Net deposits/withdrawals dated that day. */
+  deposits: number;
+  /** Commissions & fees across the day's closed trades. */
+  fees: number;
+  trades: number;
+  winRate: number | null;
+  /** Gross profit / |gross loss|; Infinity when only wins, null with no trades. */
+  profitFactor: number | null;
+  expectancy: number | null;
+}
+
+/** At-a-glance stats for one calendar day, from data the calendar already holds. */
+export function dayDetail(opts: {
+  day: string;
+  pnl: number;
+  /** Closed trades attributed to the day (drives fees / PF / expectancy). */
+  dayTrades: readonly { net_pnl: number | null; fees_total: number }[];
+  record?: DayRecord;
+  /** Full cash ledger for the scope. */
+  cashTx: readonly { amount: number; occurred_at: string; type: string }[];
+  /** All-time equity curve points for the scope. */
+  equityPoints: readonly { at: string; equity: number }[];
+  /** RFC3339 bounds of the day on the market clock. */
+  dayStartISO: string;
+  dayEndISO: string;
+  timeZone?: string;
+}): DayDetail {
+  const startBalance = balanceAsOf(opts.equityPoints, opts.dayStartISO, "before");
+  const endBalance = balanceAsOf(opts.equityPoints, opts.dayEndISO, "through");
+  const deposits = opts.cashTx
+    .filter(
+      (c) =>
+        (c.type === "deposit" || c.type === "withdrawal") &&
+        dayKeyInTz(c.occurred_at, opts.timeZone) === opts.day,
+    )
+    .reduce((sum, c) => sum + c.amount, 0);
+
+  let fees = 0;
+  let grossProfit = 0;
+  let grossLoss = 0;
+  let net = 0;
+  let counted = 0;
+  for (const t of opts.dayTrades) {
+    fees += t.fees_total;
+    if (t.net_pnl == null) continue;
+    counted++;
+    net += t.net_pnl;
+    if (t.net_pnl > 0) grossProfit += t.net_pnl;
+    else grossLoss += -t.net_pnl;
+  }
+  const wins = opts.record?.wins ?? 0;
+  const losses = opts.record?.losses ?? 0;
+  const decided = wins + losses;
+  return {
+    pnl: opts.pnl,
+    pct: startBalance > 0 ? opts.pnl / startBalance : null,
+    startBalance,
+    endBalance,
+    deposits,
+    fees,
+    trades: counted,
+    winRate: decided > 0 ? wins / decided : null,
+    profitFactor: grossLoss > 0 ? grossProfit / grossLoss : grossProfit > 0 ? Infinity : null,
+    expectancy: counted > 0 ? net / counted : null,
+  };
+}
+
+export interface WeekDetail {
+  pnl: number;
+  /** Week return on the start-of-week balance; null when nothing was funded yet. */
+  pct: number | null;
+  startBalance: number;
+  endBalance: number;
+  /** Net deposits/withdrawals dated inside the week. */
+  deposits: number;
+  /** Commissions & fees across the week's closed trades. */
+  fees: number;
+  trades: number;
+  winRate: number | null;
+  /** Gross profit / |gross loss|; Infinity when only wins, null with no trades. */
+  profitFactor: number | null;
+  expectancy: number | null;
+  /** Count of calendar days in the row with P&L. */
+  tradingDays: number;
+  bestDay: { date: string; pnl: number } | null;
+  worstDay: { date: string; pnl: number } | null;
+}
+
+/** At-a-glance stats for one calendar week row, from data the calendar already holds. */
+export function weekDetail(opts: {
+  week: readonly (DayCell | null)[];
+  pnl: number;
+  /** Closed trades attributed to days in the week (drives fees / PF / expectancy). */
+  weekTrades: readonly { net_pnl: number | null; fees_total: number }[];
+  records: Record<string, DayRecord>;
+  /** Full cash ledger for the scope. */
+  cashTx: readonly { amount: number; occurred_at: string; type: string }[];
+  /** All-time equity curve points for the scope. */
+  equityPoints: readonly { at: string; equity: number }[];
+  /** RFC3339 bounds of the first in-month day on the market clock. */
+  weekStartISO: string;
+  /** RFC3339 bounds of the last in-month day on the market clock. */
+  weekEndISO: string;
+  timeZone?: string;
+}): WeekDetail {
+  const startBalance = balanceAsOf(opts.equityPoints, opts.weekStartISO, "before");
+  const endBalance = balanceAsOf(opts.equityPoints, opts.weekEndISO, "through");
+
+  const weekDates = new Set<string>();
+  let tradingDays = 0;
+  let bestDay: { date: string; pnl: number } | null = null;
+  let worstDay: { date: string; pnl: number } | null = null;
+  let wins = 0;
+  let losses = 0;
+
+  for (const cell of opts.week) {
+    if (!cell) continue;
+    weekDates.add(cell.date);
+    if (cell.pnl != null) {
+      tradingDays++;
+      if (!bestDay || cell.pnl > bestDay.pnl) bestDay = { date: cell.date, pnl: cell.pnl };
+      if (!worstDay || cell.pnl < worstDay.pnl) worstDay = { date: cell.date, pnl: cell.pnl };
+    }
+    const rec = opts.records[cell.date];
+    if (rec) {
+      wins += rec.wins;
+      losses += rec.losses;
+    }
+  }
+
+  const deposits = opts.cashTx
+    .filter(
+      (c) =>
+        (c.type === "deposit" || c.type === "withdrawal") &&
+        weekDates.has(dayKeyInTz(c.occurred_at, opts.timeZone)),
+    )
+    .reduce((sum, c) => sum + c.amount, 0);
+
+  let fees = 0;
+  let grossProfit = 0;
+  let grossLoss = 0;
+  let net = 0;
+  let counted = 0;
+  for (const t of opts.weekTrades) {
+    fees += t.fees_total;
+    if (t.net_pnl == null) continue;
+    counted++;
+    net += t.net_pnl;
+    if (t.net_pnl > 0) grossProfit += t.net_pnl;
+    else grossLoss += -t.net_pnl;
+  }
+
+  const decided = wins + losses;
+  return {
+    pnl: opts.pnl,
+    pct: startBalance > 0 ? opts.pnl / startBalance : null,
+    startBalance,
+    endBalance,
+    deposits,
+    fees,
+    trades: counted,
+    winRate: decided > 0 ? wins / decided : null,
+    profitFactor: grossLoss > 0 ? grossProfit / grossLoss : grossProfit > 0 ? Infinity : null,
+    expectancy: counted > 0 ? net / counted : null,
+    tradingDays,
+    bestDay,
+    worstDay,
+  };
 }

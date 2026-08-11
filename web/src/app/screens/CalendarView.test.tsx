@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ReactElement } from "react";
 import { describe, expect, it, vi } from "vite-plus/test";
@@ -89,14 +89,51 @@ describe("CalendarView", () => {
     wrap(<CalendarView {...BASE} />);
     expect(screen.getByRole("button", { name: /July 2026, choose month/i })).toBeInTheDocument();
 
-    const pnlBtn = screen.getByRole("button", { name: /-\$61/ });
+    const pnlBtn = screen.getByTitle("Month summary");
     expect(pnlBtn).toBeInTheDocument();
 
     await userEvent.click(pnlBtn);
     expect(screen.getByText("Days")).toBeInTheDocument();
-    expect(screen.getByText("Trades")).toBeInTheDocument();
+    // "Trades" labels both the header chip and the modal stat.
+    expect(screen.getAllByText("Trades").length).toBeGreaterThanOrEqual(2);
     expect(screen.getByText("Win rate")).toBeInTheDocument();
     expect(screen.getByText("Profit factor")).toBeInTheDocument();
+  });
+
+  it("renders the month header chip row with trades, wins, P&L, and return", () => {
+    wrap(
+      <CalendarView
+        {...BASE}
+        accounts={[{ id: "a1", base_currency: "USD" } as never]}
+        cashTx={[
+          {
+            id: "c1",
+            account_id: "a1",
+            type: "deposit",
+            amount: 10000,
+            currency: "USD",
+            occurred_at: "2026-06-01T00:00:00Z",
+            note: "",
+          } as never,
+        ]}
+      />,
+    );
+    expect(screen.getByText("Trades")).toBeInTheDocument();
+    expect(screen.getByText("Wins")).toBeInTheDocument();
+    expect(screen.getByText("P&L")).toBeInTheDocument();
+    // -61.79 on 10,000 deposited → -0.6%.
+    expect(screen.getByText("Return")).toBeInTheDocument();
+    expect(screen.getAllByText(/-0\.6%/).length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("shows a week return chip measured against the week-start balance", () => {
+    wrap(<CalendarView {...BASE} equityPoints={[{ at: "2026-06-01T00:00:00Z", equity: 10000 }]} />);
+    // Week 1 and the month both lose 61.79 on a 10,000 start balance → -0.6%
+    // in the week chip and the header Return chip (one shared basis).
+    expect(screen.getAllByText("-0.6%").length).toBeGreaterThanOrEqual(2);
+    // Empty weeks say so instead of an em-dash placeholder.
+    expect(screen.queryByText("—")).not.toBeInTheDocument();
+    expect(screen.getAllByText("No trades").length).toBeGreaterThanOrEqual(1);
   });
 
   it("renders day cells with pnl and records, plus WEEK column", () => {
@@ -107,6 +144,120 @@ describe("CalendarView", () => {
     expect(screen.getByText("Week")).toBeInTheDocument();
     expect(screen.getByText("Week 1")).toBeInTheDocument();
     expect(screen.getAllByText(/2 days/).length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("week cells use sm:h-full to fill the row inside Button trigger", () => {
+    wrap(<CalendarView {...BASE} />);
+    const weekBtn = screen.getByRole("button", { name: /^Week 1,/ });
+    expect(weekBtn.className).toContain("sm:h-full");
+    const emptyWeekBtn = screen.getAllByRole("button", { name: /No trades/i })[0]!;
+    expect(emptyWeekBtn.className).toContain("sm:h-full");
+  });
+
+  it("opens week hover details on focus and week review drawer on click", async () => {
+    wrap(<CalendarView {...BASE} equityPoints={[{ at: "2026-06-01T00:00:00Z", equity: 10000 }]} />);
+
+    const weekBtn = screen.getByRole("button", { name: /^Week 1,/ });
+    expect(weekBtn).toBeInTheDocument();
+
+    weekBtn.focus();
+    expect(await screen.findByText("Balance")).toBeInTheDocument();
+    expect(screen.getByText("View week review →")).toBeInTheDocument();
+
+    await userEvent.click(weekBtn);
+    const dialog = screen.getByRole("dialog");
+    expect(dialog).toBeInTheDocument();
+    expect(screen.getByText(/Week review — Week 1 — Jul 1 – 4/)).toBeInTheDocument();
+    expect(dialog).toHaveTextContent("Trading days");
+    expect(dialog).toHaveTextContent("2");
+    expect(screen.getByTestId("week-review-chart-region")).toBeInTheDocument();
+  });
+
+  it("clicking a daily bar in the week review drawer hands off to the day drawer", async () => {
+    const onSelectDay = vi.fn<(date: string | null) => void>();
+    const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const rectSpy = vi
+      .spyOn(HTMLElement.prototype, "getBoundingClientRect")
+      .mockImplementation(function (this: HTMLElement) {
+        if (this.id === "recharts_measurement_span") {
+          const width = (this.textContent ?? "").length * 6;
+          return {
+            width,
+            height: 12,
+            top: 0,
+            left: 0,
+            bottom: 12,
+            right: width,
+            x: 0,
+            y: 0,
+            toJSON: () => {},
+          } as DOMRect;
+        }
+        return {
+          width: 600,
+          height: 200,
+          top: 0,
+          left: 0,
+          bottom: 200,
+          right: 600,
+          x: 0,
+          y: 0,
+          toJSON: () => {},
+        } as DOMRect;
+      });
+    render(
+      <QueryClientProvider client={qc}>
+        <CalendarView {...BASE} onSelectDay={onSelectDay} />
+      </QueryClientProvider>,
+    );
+
+    await userEvent.click(screen.getByRole("button", { name: /^Week 1,/ }));
+    await userEvent.click(await screen.findByTestId("week-bar-2026-07-02"));
+
+    expect(onSelectDay).toHaveBeenCalledWith("2026-07-02");
+    await waitFor(() => {
+      expect(screen.queryByText(/Week review — Week 1/)).not.toBeInTheDocument();
+    });
+    rectSpy.mockRestore();
+  });
+
+  it("selecting a day in the week review drawer closes it and opens the day trades drawer", async () => {
+    const onSelectDay = vi.fn<(date: string | null) => void>();
+    const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const { rerender } = render(
+      <QueryClientProvider client={qc}>
+        <CalendarView {...BASE} onSelectDay={onSelectDay} />
+      </QueryClientProvider>,
+    );
+
+    await userEvent.click(screen.getByRole("button", { name: /^Week 1,/ }));
+    expect(screen.getByText(/Week review — Week 1 — Jul 1 – 4/)).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: /Thu, Jul 2/i }));
+    expect(onSelectDay).toHaveBeenCalledWith("2026-07-02");
+    await waitFor(() => {
+      expect(screen.queryByText(/Week review — Week 1/)).not.toBeInTheDocument();
+    });
+
+    rerender(
+      <QueryClientProvider client={qc}>
+        <CalendarView
+          {...BASE}
+          onSelectDay={onSelectDay}
+          selectedDay="2026-07-02"
+          dayTrades={[DAY_TRADE]}
+        />
+      </QueryClientProvider>,
+    );
+    expect(screen.getByText(/Trades —/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Week review —/)).not.toBeInTheDocument();
+  });
+
+  it("shows No trades on empty week cells without em-dash placeholders", () => {
+    wrap(<CalendarView {...BASE} />);
+    const emptyWeekBtns = screen.getAllByRole("button", { name: /No trades/i });
+    expect(emptyWeekBtns.length).toBeGreaterThanOrEqual(1);
+    expect(screen.queryByText("—")).not.toBeInTheDocument();
   });
 
   it("renders year overview with twelve month cards and trade counts", () => {
