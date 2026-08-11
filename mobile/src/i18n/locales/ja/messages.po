@@ -71,7 +71,7 @@ msgstr "{0}項目"
 #. placeholder {0}: wrapped.totalTrades
 #. placeholder {1}: formatPercent(wrapped.winRate, 0)
 #. placeholder {2}: wrapped.tradingDays
-#: src/app/(tabs)/(dashboard)/wrapped.tsx:137
+#: src/app/(tabs)/(dashboard)/wrapped.tsx:195
 msgid "{0} closed trades · {1} win rate · {2} trading days"
 msgstr "決済{0}件 · 勝率{1} · 取引{2}日"
 
@@ -340,7 +340,7 @@ msgstr "{wins}勝 · {losses}敗"
 msgid "{year} goal"
 msgstr "{year}年の目標"
 
-#: src/app/(tabs)/(dashboard)/wrapped.tsx:128
+#: src/app/(tabs)/(dashboard)/wrapped.tsx:186
 msgid "{year} in one number"
 msgstr "{year}年をひとつの数字で"
 
@@ -359,7 +359,7 @@ msgid "{yearCount} trades"
 msgstr "{yearCount}件のトレード"
 
 #. placeholder {0}: index + 1
-#: src/app/(tabs)/(dashboard)/wrapped.tsx:241
+#: src/app/(tabs)/(dashboard)/wrapped.tsx:299
 msgid "#{0}"
 msgstr "#{0}"
 
@@ -958,7 +958,7 @@ msgstr "平均的"
 msgid "Average"
 msgstr "平均"
 
-#: src/app/(tabs)/(dashboard)/wrapped.tsx:251
+#: src/app/(tabs)/(dashboard)/wrapped.tsx:309
 msgid "Average hold"
 msgstr "平均保有時間"
 
@@ -1083,7 +1083,7 @@ msgstr "引き分け"
 msgid "Before the open"
 msgstr "取引開始前"
 
-#: src/app/(tabs)/(dashboard)/reports.tsx:63
+#: src/app/(tabs)/(dashboard)/reports.tsx:93
 msgid "Behavior"
 msgstr "動作"
 
@@ -1095,7 +1095,7 @@ msgstr "平均以下"
 msgid "Best / worst"
 msgstr "最高 / 最低"
 
-#: src/app/(tabs)/(dashboard)/wrapped.tsx:145
+#: src/app/(tabs)/(dashboard)/wrapped.tsx:203
 #: src/components/insights-card.tsx:53
 #: src/components/prop-status-card.tsx:139
 msgid "Best day"
@@ -1117,11 +1117,11 @@ msgstr "バイアス"
 msgid "Biggest give-backs"
 msgstr "最大の利益吐き出し"
 
-#: src/app/(tabs)/(dashboard)/wrapped.tsx:180
+#: src/app/(tabs)/(dashboard)/wrapped.tsx:238
 msgid "Biggest loss"
 msgstr "最大の損失"
 
-#: src/app/(tabs)/(dashboard)/wrapped.tsx:151
+#: src/app/(tabs)/(dashboard)/wrapped.tsx:209
 msgid "Biggest win"
 msgstr "最大の利益"
 
@@ -1134,7 +1134,7 @@ msgstr "合成 {0}"
 msgid "Bottom"
 msgstr "下端"
 
-#: src/app/(tabs)/(dashboard)/wrapped.tsx:255
+#: src/app/(tabs)/(dashboard)/wrapped.tsx:313
 msgid "Bottom line"
 msgstr "総括"
 
@@ -1185,7 +1185,7 @@ msgstr "予算 {0}"
 
 #. placeholder {0}: monthShort(wrapped.busiestMonth.month)
 #. placeholder {1}: wrapped.busiestMonth.trades
-#: src/app/(tabs)/(dashboard)/wrapped.tsx:231
+#: src/app/(tabs)/(dashboard)/wrapped.tsx:289
 msgid "Busiest month: {0} with {1} trades."
 msgstr "最も活発な月: {0}（{1}件）。"
 
@@ -2056,7 +2056,7 @@ msgstr "入出金と手数料は、トレード損益とともにエクイティ
 #~ msgid "Description"
 #~ msgstr "説明"
 
-#: src/app/(tabs)/(dashboard)/reports.tsx:61
+#: src/app/(tabs)/(dashboard)/reports.tsx:91
 msgid "Detailed"
 msgstr "詳細"
 
@@ -2483,7 +2483,7 @@ msgstr "期待値"
 
 #: src/app/(tabs)/(calendar)/index.tsx:230
 #: src/app/(tabs)/(dashboard)/playbook.tsx:130
-#: src/app/(tabs)/(dashboard)/wrapped.tsx:263
+#: src/app/(tabs)/(dashboard)/wrapped.tsx:321
 msgid "Expectancy"
 msgstr "期待値"
 
@@ -2596,7 +2596,7 @@ msgstr "手数料 {0}"
 msgid "Fees amplified a small loss"
 msgstr "手数料が小さな損失を拡大"
 
-#: src/app/(tabs)/(dashboard)/wrapped.tsx:269
+#: src/app/(tabs)/(dashboard)/wrapped.tsx:327
 msgid "Fees paid"
 msgstr "支払手数料"
 
@@ -2844,7 +2844,7 @@ msgstr "良い結果です — 次回は計画も記録し、勝ちを運でな�
 msgid "Good setup, weak execution"
 msgstr "良いセットアップ、弱い執行"
 
-#: src/app/(tabs)/(dashboard)/wrapped.tsx:163
+#: src/app/(tabs)/(dashboard)/wrapped.tsx:221
 msgid "Green days"
 msgstr "プラスの日"
 
@@ -3031,7 +3031,7 @@ msgstr "トレードをインポート"
 msgid "Importing…"
 msgstr "インポート中…"
 
-#: src/app/(tabs)/(dashboard)/wrapped.tsx:84
+#: src/app/(tabs)/(dashboard)/wrapped.tsx:87
 msgid "in progress"
 msgstr "進行中"
 
@@ -3287,11 +3287,11 @@ msgstr "ロング {position}"
 msgid "Long-press to remove"
 msgstr "長押しで削除"
 
-#: src/app/(tabs)/(dashboard)/wrapped.tsx:188
+#: src/app/(tabs)/(dashboard)/wrapped.tsx:246
 msgid "Longest loss streak"
 msgstr "最長連敗"
 
-#: src/app/(tabs)/(dashboard)/wrapped.tsx:157
+#: src/app/(tabs)/(dashboard)/wrapped.tsx:215
 msgid "Longest win streak"
 msgstr "最長連勝"
 
@@ -3330,7 +3330,7 @@ msgstr "連敗"
 msgid "Losses"
 msgstr "負け"
 
-#: src/app/(tabs)/(dashboard)/wrapped.tsx:190
+#: src/app/(tabs)/(dashboard)/wrapped.tsx:248
 msgid "losses in a row"
 msgstr "連敗"
 
@@ -3534,11 +3534,11 @@ msgstr "値動きの大半を取り逃しました"
 msgid "most traded"
 msgstr "最多取引"
 
-#: src/app/(tabs)/(dashboard)/wrapped.tsx:241
+#: src/app/(tabs)/(dashboard)/wrapped.tsx:299
 msgid "Most traded"
 msgstr "最多取引"
 
-#: src/app/(tabs)/(dashboard)/wrapped.tsx:200
+#: src/app/(tabs)/(dashboard)/wrapped.tsx:258
 msgid "Most-tagged mistake"
 msgstr "最多のミスタグ"
 
@@ -3681,7 +3681,7 @@ msgstr "翌日"
 #~ msgid "Next week"
 #~ msgstr "翌週"
 
-#: src/app/(tabs)/(dashboard)/wrapped.tsx:91
+#: src/app/(tabs)/(dashboard)/wrapped.tsx:94
 msgid "Next year"
 msgstr "翌年"
 
@@ -3720,7 +3720,7 @@ msgstr "このシンボルのチャートデータがありません。"
 msgid "No chart data for this window."
 msgstr "この期間のチャートデータがありません。"
 
-#: src/app/(tabs)/(dashboard)/wrapped.tsx:121
+#: src/app/(tabs)/(dashboard)/wrapped.tsx:179
 msgid "No closed trades in {year}"
 msgstr "{year}年に決済済みトレードはありません"
 
@@ -3920,7 +3920,7 @@ msgstr "書き込み可能なリマインダーリストが見つかりません
 msgid "None"
 msgstr "なし"
 
-#: src/app/(tabs)/(dashboard)/wrapped.tsx:201
+#: src/app/(tabs)/(dashboard)/wrapped.tsx:259
 #: src/components/insights-card.tsx:106
 msgid "None tagged"
 msgstr "タグなし"
@@ -4026,8 +4026,8 @@ msgstr "想定元本"
 
 #. placeholder {0}: formatCurrency(goalAmount * fxRate, currency)
 #. placeholder {0}: wrapped.tradingDays
-#: src/app/(tabs)/(dashboard)/wrapped.tsx:165
-#: src/app/(tabs)/(dashboard)/wrapped.tsx:196
+#: src/app/(tabs)/(dashboard)/wrapped.tsx:223
+#: src/app/(tabs)/(dashboard)/wrapped.tsx:254
 #: src/components/goal-card.tsx:39
 msgid "of {0}"
 msgstr "/ {0}"
@@ -4209,7 +4209,7 @@ msgstr "オーバーナイト"
 msgid "oversized after streak ×{0}"
 msgstr "連勝後の過大サイズ ×{0}"
 
-#: src/app/(tabs)/(dashboard)/reports.tsx:59
+#: src/app/(tabs)/(dashboard)/reports.tsx:89
 msgid "Overview"
 msgstr "概要"
 
@@ -4307,7 +4307,7 @@ msgstr "1枚あたり"
 msgid "per share"
 msgstr "1株あたり"
 
-#: src/app/(tabs)/(dashboard)/wrapped.tsx:265
+#: src/app/(tabs)/(dashboard)/wrapped.tsx:323
 msgid "per trade"
 msgstr "1トレードあたり"
 
@@ -4503,7 +4503,7 @@ msgstr "前日"
 #~ msgid "Previous week"
 #~ msgstr "前週"
 
-#: src/app/(tabs)/(dashboard)/wrapped.tsx:77
+#: src/app/(tabs)/(dashboard)/wrapped.tsx:76
 msgid "Previous year"
 msgstr "前年"
 
@@ -4562,7 +4562,7 @@ msgstr "目標到達時利益"
 
 #: src/app/(tabs)/(calendar)/index.tsx:226
 #: src/app/(tabs)/(dashboard)/playbook.tsx:129
-#: src/app/(tabs)/(dashboard)/wrapped.tsx:258
+#: src/app/(tabs)/(dashboard)/wrapped.tsx:316
 #: src/components/reports/overview-section.tsx:113
 msgid "Profit factor"
 msgstr "プロフィットファクター"
@@ -4741,7 +4741,7 @@ msgstr "最近のトレード"
 msgid "Recompute MAE/MFE"
 msgstr "MAE/MFEを再計算"
 
-#: src/app/(tabs)/(dashboard)/wrapped.tsx:194
+#: src/app/(tabs)/(dashboard)/wrapped.tsx:252
 msgid "Red days"
 msgstr "マイナスの日"
 
@@ -4931,7 +4931,7 @@ msgid "Report an issue"
 msgstr "問題を報告"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:112
-#: src/app/(tabs)/(dashboard)/reports.tsx:73
+#: src/app/(tabs)/(dashboard)/reports.tsx:105
 #: src/components/tools-menu.tsx:39
 msgid "Reports"
 msgstr "レポート"
@@ -5028,7 +5028,7 @@ msgstr "トークンを失効しますか？"
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:380
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:640
-#: src/app/(tabs)/(dashboard)/reports.tsx:62
+#: src/app/(tabs)/(dashboard)/reports.tsx:92
 #: src/app/tool-position-size.tsx:103
 msgid "Risk"
 msgstr "リスク"
@@ -5940,7 +5940,7 @@ msgstr "新しいパスワードが一致しません。"
 msgid "The owner account — the first user created on this server."
 msgstr "オーナーアカウント — このサーバーで最初に作成されたユーザーです。"
 
-#: src/app/(tabs)/(dashboard)/wrapped.tsx:123
+#: src/app/(tabs)/(dashboard)/wrapped.tsx:181
 msgid "The recap appears once the year has closed trades."
 msgstr "その年に決済済みトレードがあると振り返りが表示されます。"
 
@@ -6084,7 +6084,7 @@ msgstr "ティア{0}"
 msgid "Time format"
 msgstr "時刻表示形式"
 
-#: src/app/(tabs)/(dashboard)/wrapped.tsx:248
+#: src/app/(tabs)/(dashboard)/wrapped.tsx:306
 msgid "Time in the market"
 msgstr "市場滞在時間"
 
@@ -6564,7 +6564,7 @@ msgstr "なぜ決済しましたか？"
 msgid "WIN"
 msgstr "勝ち"
 
-#: src/app/(tabs)/(dashboard)/reports.tsx:60
+#: src/app/(tabs)/(dashboard)/reports.tsx:90
 msgid "Win / Loss"
 msgstr "勝敗"
 
@@ -6602,7 +6602,7 @@ msgstr "連勝"
 msgid "Wins"
 msgstr "勝ち"
 
-#: src/app/(tabs)/(dashboard)/wrapped.tsx:159
+#: src/app/(tabs)/(dashboard)/wrapped.tsx:217
 msgid "wins in a row"
 msgstr "連勝"
 
@@ -6610,7 +6610,7 @@ msgstr "連勝"
 msgid "Withdrawal"
 msgstr "出金"
 
-#: src/app/(tabs)/(dashboard)/wrapped.tsx:174
+#: src/app/(tabs)/(dashboard)/wrapped.tsx:232
 #: src/components/insights-card.tsx:59
 msgid "Worst day"
 msgstr "最悪の日"
@@ -6641,7 +6641,8 @@ msgid "Year"
 msgstr "年"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:129
-#: src/app/(tabs)/(dashboard)/wrapped.tsx:59
+#: src/app/(tabs)/(dashboard)/reports.tsx:50
+#: src/app/(tabs)/(dashboard)/wrapped.tsx:355
 #: src/components/reports/overview-section.tsx:558
 msgid "Year Wrapped"
 msgstr "Year Wrapped"
@@ -6695,15 +6696,15 @@ msgstr "次回サインイン時から認証アプリのコードが必要にな
 msgid "Your account"
 msgstr "アカウント"
 
-#: src/app/(tabs)/(dashboard)/wrapped.tsx:236
+#: src/app/(tabs)/(dashboard)/wrapped.tsx:294
 msgid "Your habits"
 msgstr "あなたの習慣"
 
-#: src/app/(tabs)/(dashboard)/wrapped.tsx:142
+#: src/app/(tabs)/(dashboard)/wrapped.tsx:200
 msgid "Your highs"
 msgstr "ハイライト"
 
-#: src/app/(tabs)/(dashboard)/wrapped.tsx:171
+#: src/app/(tabs)/(dashboard)/wrapped.tsx:229
 msgid "Your lows"
 msgstr "ローライト"
 
@@ -6719,7 +6720,7 @@ msgstr "損益目標の進捗はダッシュボードに表示され、リスク
 msgid "Your password alone signs you in again."
 msgstr "以降はパスワードだけでサインインできます。"
 
-#: src/app/(tabs)/(dashboard)/wrapped.tsx:207
+#: src/app/(tabs)/(dashboard)/wrapped.tsx:265
 msgid "Your rhythm"
 msgstr "あなたのリズム"
 
