@@ -1,5 +1,5 @@
 import type { ColumnDef } from "@/lib/table";
-import { useState, type ReactNode } from "react";
+import { Fragment, useState, type ReactNode } from "react";
 import {
   Area,
   AreaChart,
@@ -29,6 +29,8 @@ import { DayTradesDrawer } from "@/components/DayTradesDrawer";
 import { EmptyState } from "@/components/EmptyState";
 import { Page } from "@/components/Page";
 import { ReportsBreakdownCard } from "@/components/ReportsBreakdownCard";
+import { ReportsCardsMenu } from "@/components/ReportsCardsMenu";
+import { ReportsPresetsMenu } from "@/components/ReportsPresetsMenu";
 import {
   ReportsControlBar,
   type ReportsDuration,
@@ -83,6 +85,9 @@ import { fmtDayShort, fmtMoney, fmtMoneyCompact, fmtPct } from "@/lib/format";
 import { useMoneyFx } from "@/lib/hooks/useMoneyFx";
 import { intlLocale } from "@/lib/locale";
 import { useDisplayTimePrefs, usePrivacyMode } from "@/lib/displayPrefs";
+import type { ReportsTab } from "@/lib/reportCards";
+import type { ReportsViewPreset } from "@/lib/reportsPresets";
+import { useReportsView, visibleCardIds } from "@/lib/reportsView";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -113,7 +118,7 @@ const DIM_LABELS: Record<BreakdownDim, string> = {
 // always-visible card above; this selector only covers the two dims without one.
 const SELECTOR_DIMS: BreakdownDim[] = ["setup", "mistake"];
 
-export type ReportsTab = "overview" | "win-loss" | "detailed" | "risk" | "behavior";
+export type { ReportsTab };
 
 export const REPORT_TABS: { value: ReportsTab; label: string }[] = [
   { value: "overview", label: "Overview" },
@@ -172,6 +177,7 @@ export interface ReportsViewProps {
   execScoreBucket: ExecScoreBucket;
   onExecScoreBucketChange: (b: ExecScoreBucket) => void;
   onSelectTradeId?: (id: string) => void;
+  onApplyPreset?: (preset: ReportsViewPreset) => void;
   tab: ReportsTab;
   onTabChange: (t: ReportsTab) => void;
   side: ReportsSide;
@@ -624,6 +630,7 @@ export function ReportsView({
   execScoreBucket,
   onExecScoreBucketChange,
   onSelectTradeId,
+  onApplyPreset,
   tab,
   onTabChange,
   side,
@@ -662,6 +669,7 @@ export function ReportsView({
   const fxRate = rate ?? 1;
   const columns = buildColumns(DIM_LABELS[dim]);
   const pctEnabled = denominator > 0;
+  const cardsLayout = useReportsView((s) => s.cards);
 
   const panelRight = <DimSelector value={dim} onChange={onDimChange} />;
 
@@ -694,6 +702,220 @@ export function ReportsView({
     );
   };
 
+  // Card registry — ids and default order come from REPORT_CARDS; the view
+  // store decides which of these render, and in what order, per tab.
+  const cardNodes: Record<ReportsTab, Record<string, ReactNode>> = {
+    overview: {
+      summary: summaryLoading ? (
+        <Skeleton height="120px" />
+      ) : summaryError ? (
+        <p className="p-4 text-xs text-destructive">Failed to load summary.</p>
+      ) : summary ? (
+        <SummaryMetricsGrid
+          summary={summary}
+          trades={trades}
+          tradesLoading={tradesLoading}
+          currency={displayCurrency}
+          fxRate={fxRate}
+          equity={equity}
+          equityLoading={equityLoading}
+          onDayClick={(date) => onSelectDay(date)}
+          goalYear={goalYear}
+          goalAmount={goalAmount}
+          goalLoading={goalLoading}
+          goalSaving={goalSaving}
+          ytdNetPnl={ytdNetPnl}
+          ytdLoading={ytdLoading}
+          onSaveGoal={onSaveGoal}
+          onClearGoal={onClearGoal}
+        />
+      ) : null,
+      "period-returns": (
+        <ReportsPeriodReturns
+          trades={trades}
+          loading={tradesLoading}
+          currency={displayCurrency}
+          fxRate={fxRate}
+          denominator={denominator}
+        />
+      ),
+      "execution-score": (
+        <ReportsExecutionScore
+          report={execScore}
+          loading={execScoreLoading}
+          error={execScoreError}
+          bucket={execScoreBucket}
+          onBucketChange={onExecScoreBucketChange}
+        />
+      ),
+      playbook: (
+        <Card title="Playbook & Leaks" action={panelRight}>
+          {renderContent()}
+        </Card>
+      ),
+      "r-multiple": (
+        <ReportsRMultiplePerformance
+          rSummary={rSummary}
+          loading={Boolean(rSummaryLoading)}
+          error={Boolean(rSummaryError)}
+        />
+      ),
+      "execution-grade": (
+        <ReportsExecutionGrade
+          breakdown={qualityBreakdown}
+          loading={qualityBreakdownLoading}
+          error={qualityBreakdownError}
+        />
+      ),
+    },
+    "win-loss": {
+      "rolling-win-rate": (
+        <ReportsRollingWinRate trades={trades} loading={tradesLoading} error={tradesError} />
+      ),
+      "metric-evolution": (
+        <ReportsMetricEvolution
+          trades={trades}
+          loading={tradesLoading}
+          error={tradesError}
+          currency={displayCurrency}
+          fxRate={fxRate}
+        />
+      ),
+    },
+    detailed: {
+      "session-clock": <ReportsSessionClock />,
+      "symbol-tag": (
+        <div className="grid gap-4 lg:grid-cols-2">
+          <ReportsBreakdownCard
+            title="Symbol"
+            breakdown={symbolBreakdown}
+            loading={symbolBreakdownLoading}
+            error={symbolBreakdownError}
+            orientation="horizontal"
+            tableColumns={buildColumns("Symbol")}
+          />
+          <ReportsBreakdownCard
+            title="Tag"
+            breakdown={tagBreakdown}
+            loading={tagBreakdownLoading}
+            error={tagBreakdownError}
+            orientation="horizontal"
+            tableColumns={buildColumns("Tag")}
+          />
+        </div>
+      ),
+      "day-hour": (
+        <div className="grid gap-4 lg:grid-cols-2">
+          <ReportsBreakdownCard
+            title="Day of Week"
+            breakdown={dayOfWeekBreakdown}
+            loading={dayOfWeekBreakdownLoading}
+            error={dayOfWeekBreakdownError}
+            tableColumns={buildColumns("Day")}
+          />
+          <ReportsHourlyList
+            breakdown={hourOfDayBreakdown}
+            loading={hourOfDayBreakdownLoading}
+            error={hourOfDayBreakdownError}
+          />
+        </div>
+      ),
+      "signed-bars": (
+        <ReportsSignedBars
+          hourBreakdown={hourOfDayBreakdown}
+          sessionBreakdown={sessionBreakdown}
+          loading={hourOfDayBreakdownLoading || sessionBreakdownLoading}
+          error={hourOfDayBreakdownError || sessionBreakdownError}
+        />
+      ),
+      "duration-scatter": (
+        <ReportsDurationScatter
+          trades={trades}
+          loading={tradesLoading}
+          error={tradesError}
+          onSelectTradeId={onSelectTradeId}
+        />
+      ),
+      "pnl-heatmap": (
+        <ReportsPnlHeatmap
+          trades={trades}
+          loading={tradesLoading}
+          error={tradesError}
+          onSelectTradeId={onSelectTradeId}
+        />
+      ),
+      sessions: (
+        <ReportsSessionTable
+          breakdown={sessionBreakdown}
+          loading={sessionBreakdownLoading}
+          error={sessionBreakdownError}
+          currency={displayCurrency}
+          fxRate={fxRate}
+        />
+      ),
+      "symbol-heatmap": (
+        <ReportsSymbolHeatmap
+          breakdown={symbolBreakdown}
+          loading={symbolBreakdownLoading}
+          error={symbolBreakdownError}
+        />
+      ),
+    },
+    risk: {
+      drawdown: (
+        <ReportsRiskDrawdown
+          trades={trades}
+          equityPoints={equity?.points ?? []}
+          loading={tradesLoading || equityLoading}
+          error={tradesError || equityError}
+          currency={displayCurrency}
+          fxRate={fxRate}
+        />
+      ),
+      "monte-carlo": (
+        <ReportsMonteCarlo
+          simulation={monteCarlo}
+          loading={monteCarloLoading}
+          error={monteCarloError}
+          currency={displayCurrency}
+        />
+      ),
+      "rule-compliance": (
+        <ReportsRuleCompliance
+          report={compliance}
+          loading={complianceLoading}
+          error={complianceError}
+        />
+      ),
+    },
+    behavior: {
+      revenge: (
+        <BehaviorRevengeCard
+          report={behavior}
+          loading={behaviorLoading}
+          error={behaviorError}
+          onSelectTradeId={onSelectTradeId}
+        />
+      ),
+      overconfidence: (
+        <BehaviorOverconfidenceCard
+          report={behavior}
+          loading={behaviorLoading}
+          error={behaviorError}
+          onSelectTradeId={onSelectTradeId}
+        />
+      ),
+      "loss-aversion": (
+        <BehaviorLossAversionCard
+          report={behavior}
+          loading={behaviorLoading}
+          error={behaviorError}
+          onSelectTradeId={onSelectTradeId}
+        />
+      ),
+    },
+  };
+
   return (
     <ReportsDisplayProvider
       value={{ pnlMode, unitMode, avgMode, denominator, currency: displayCurrency, fxRate }}
@@ -723,210 +945,38 @@ export function ReportsView({
           </TabsList>
 
           <div className="flex flex-wrap items-center gap-2">
-            <div className="min-w-0 flex-1">
-              <ReportsControlBar
-                side={side}
-                duration={duration}
-                onSideChange={onSideChange}
-                onDurationChange={onDurationChange}
-                pnlMode={pnlMode}
-                unitMode={unitMode}
-                avgMode={avgMode}
-                onPnlModeChange={onPnlModeChange}
-                onUnitModeChange={onUnitModeChange}
-                onAvgModeChange={onAvgModeChange}
-                pctEnabled={pctEnabled}
-              />
+            <ReportsControlBar
+              side={side}
+              duration={duration}
+              onSideChange={onSideChange}
+              onDurationChange={onDurationChange}
+              pnlMode={pnlMode}
+              unitMode={unitMode}
+              avgMode={avgMode}
+              onPnlModeChange={onPnlModeChange}
+              onUnitModeChange={onUnitModeChange}
+              onAvgModeChange={onAvgModeChange}
+              pctEnabled={pctEnabled}
+            />
+            <div className="ms-auto flex items-center gap-2">
+              <ReportsCardsMenu tab={tab} />
+              {onApplyPreset && (
+                <ReportsPresetsMenu
+                  search={{ tab, side, dur: duration, pnl: pnlMode, unit: unitMode, avg: avgMode }}
+                  onApply={onApplyPreset}
+                />
+              )}
+              {shareAction}
             </div>
-            {shareAction}
           </div>
 
-          <TabsContent value="overview" className="flex flex-col gap-4">
-            {summaryLoading ? (
-              <Skeleton height="120px" />
-            ) : summaryError ? (
-              <p className="p-4 text-xs text-destructive">Failed to load summary.</p>
-            ) : summary ? (
-              <SummaryMetricsGrid
-                summary={summary}
-                trades={trades}
-                tradesLoading={tradesLoading}
-                currency={displayCurrency}
-                fxRate={fxRate}
-                equity={equity}
-                equityLoading={equityLoading}
-                onDayClick={(date) => onSelectDay(date)}
-                goalYear={goalYear}
-                goalAmount={goalAmount}
-                goalLoading={goalLoading}
-                goalSaving={goalSaving}
-                ytdNetPnl={ytdNetPnl}
-                ytdLoading={ytdLoading}
-                onSaveGoal={onSaveGoal}
-                onClearGoal={onClearGoal}
-              />
-            ) : null}
-
-            <ReportsPeriodReturns
-              trades={trades}
-              loading={tradesLoading}
-              currency={displayCurrency}
-              fxRate={fxRate}
-              denominator={denominator}
-            />
-
-            <ReportsExecutionScore
-              report={execScore}
-              loading={execScoreLoading}
-              error={execScoreError}
-              bucket={execScoreBucket}
-              onBucketChange={onExecScoreBucketChange}
-            />
-
-            <Card title="Playbook & Leaks" action={panelRight}>
-              {renderContent()}
-            </Card>
-
-            <ReportsRMultiplePerformance
-              rSummary={rSummary}
-              loading={Boolean(rSummaryLoading)}
-              error={Boolean(rSummaryError)}
-            />
-
-            <ReportsExecutionGrade
-              breakdown={qualityBreakdown}
-              loading={qualityBreakdownLoading}
-              error={qualityBreakdownError}
-            />
-          </TabsContent>
-
-          <TabsContent value="win-loss" className="flex flex-col gap-4">
-            <ReportsRollingWinRate trades={trades} loading={tradesLoading} error={tradesError} />
-
-            <ReportsMetricEvolution
-              trades={trades}
-              loading={tradesLoading}
-              error={tradesError}
-              currency={displayCurrency}
-              fxRate={fxRate}
-            />
-          </TabsContent>
-
-          <TabsContent value="detailed" className="flex flex-col gap-4">
-            <ReportsSessionClock />
-
-            <div className="grid gap-4 lg:grid-cols-2">
-              <ReportsBreakdownCard
-                title="Symbol"
-                breakdown={symbolBreakdown}
-                loading={symbolBreakdownLoading}
-                error={symbolBreakdownError}
-                orientation="horizontal"
-                tableColumns={buildColumns("Symbol")}
-              />
-              <ReportsBreakdownCard
-                title="Tag"
-                breakdown={tagBreakdown}
-                loading={tagBreakdownLoading}
-                error={tagBreakdownError}
-                orientation="horizontal"
-                tableColumns={buildColumns("Tag")}
-              />
-            </div>
-
-            <div className="grid gap-4 lg:grid-cols-2">
-              <ReportsBreakdownCard
-                title="Day of Week"
-                breakdown={dayOfWeekBreakdown}
-                loading={dayOfWeekBreakdownLoading}
-                error={dayOfWeekBreakdownError}
-                tableColumns={buildColumns("Day")}
-              />
-              <ReportsHourlyList
-                breakdown={hourOfDayBreakdown}
-                loading={hourOfDayBreakdownLoading}
-                error={hourOfDayBreakdownError}
-              />
-            </div>
-
-            <ReportsSignedBars
-              hourBreakdown={hourOfDayBreakdown}
-              sessionBreakdown={sessionBreakdown}
-              loading={hourOfDayBreakdownLoading || sessionBreakdownLoading}
-              error={hourOfDayBreakdownError || sessionBreakdownError}
-            />
-
-            <ReportsDurationScatter
-              trades={trades}
-              loading={tradesLoading}
-              error={tradesError}
-              onSelectTradeId={onSelectTradeId}
-            />
-
-            <ReportsPnlHeatmap
-              trades={trades}
-              loading={tradesLoading}
-              error={tradesError}
-              onSelectTradeId={onSelectTradeId}
-            />
-
-            <ReportsSessionTable
-              breakdown={sessionBreakdown}
-              loading={sessionBreakdownLoading}
-              error={sessionBreakdownError}
-              currency={displayCurrency}
-              fxRate={fxRate}
-            />
-
-            <ReportsSymbolHeatmap
-              breakdown={symbolBreakdown}
-              loading={symbolBreakdownLoading}
-              error={symbolBreakdownError}
-            />
-          </TabsContent>
-
-          <TabsContent value="risk" className="flex flex-col gap-4">
-            <ReportsRiskDrawdown
-              trades={trades}
-              equityPoints={equity?.points ?? []}
-              loading={tradesLoading || equityLoading}
-              error={tradesError || equityError}
-              currency={displayCurrency}
-              fxRate={fxRate}
-            />
-            <ReportsMonteCarlo
-              simulation={monteCarlo}
-              loading={monteCarloLoading}
-              error={monteCarloError}
-              currency={displayCurrency}
-            />
-            <ReportsRuleCompliance
-              report={compliance}
-              loading={complianceLoading}
-              error={complianceError}
-            />
-          </TabsContent>
-
-          <TabsContent value="behavior" className="flex flex-col gap-4">
-            <BehaviorRevengeCard
-              report={behavior}
-              loading={behaviorLoading}
-              error={behaviorError}
-              onSelectTradeId={onSelectTradeId}
-            />
-            <BehaviorOverconfidenceCard
-              report={behavior}
-              loading={behaviorLoading}
-              error={behaviorError}
-              onSelectTradeId={onSelectTradeId}
-            />
-            <BehaviorLossAversionCard
-              report={behavior}
-              loading={behaviorLoading}
-              error={behaviorError}
-              onSelectTradeId={onSelectTradeId}
-            />
-          </TabsContent>
+          {REPORT_TABS.map((t) => (
+            <TabsContent key={t.value} value={t.value} className="flex flex-col gap-4">
+              {visibleCardIds(cardsLayout, t.value).map((id) => (
+                <Fragment key={id}>{cardNodes[t.value][id]}</Fragment>
+              ))}
+            </TabsContent>
+          ))}
         </Tabs>
       </Page>
       <DayTradesDrawer

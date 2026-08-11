@@ -33,6 +33,8 @@ import { useAnnualGoal, useClearAnnualGoal, useSaveAnnualGoal } from "@/lib/hook
 import { useCash } from "@/lib/hooks/useCash";
 import { useTrades } from "@/lib/hooks/useTrades";
 import { netDeposits } from "@/lib/headerStats";
+import { resolvePresetRange, type ReportsViewPreset } from "@/lib/reportsPresets";
+import { useReportsView } from "@/lib/reportsView";
 
 const REPORT_TAB_VALUES: ReportsTab[] = REPORT_TABS.map((t) => t.value);
 const SIDE_VALUES: ReportsSide[] = ["all", "long", "short"];
@@ -91,6 +93,31 @@ function ReportsPage() {
     void navigate({ to: "/reports", search: (prev) => ({ ...prev, unit: next }) });
   const onAvgModeChange = (next: AvgMode) =>
     void navigate({ to: "/reports", search: (prev) => ({ ...prev, avg: next }) });
+  // Applying a saved view spans three state homes: the filters store (range +
+  // facet filters), the reports view store (card layout), and the URL search
+  // (tab + control modes).
+  const onApplyPreset = (p: ReportsViewPreset) => {
+    const f = useFilters.getState();
+    const range = resolvePresetRange(p.range);
+    f.setRange(range.from, range.to);
+    f.setSymbols(p.symbols);
+    f.setTagIds(p.tagIds);
+    f.setMarkets(p.markets);
+    f.setTradeStatus(p.tradeStatus);
+    useReportsView.getState().applyLayout(p.cards, p.id);
+    void navigate({
+      to: "/reports",
+      search: (prev) => ({
+        ...prev,
+        tab: p.tab,
+        side: p.side,
+        dur: p.dur,
+        pnl: p.pnl,
+        unit: p.unit,
+        avg: p.avg,
+      }),
+    });
+  };
 
   const analyticsFilters = useMemo(
     () => ({
@@ -193,6 +220,7 @@ function ReportsPage() {
         execScoreBucket={execScoreBucket}
         onExecScoreBucketChange={setExecScoreBucket}
         onSelectTradeId={setSelectedTradeId}
+        onApplyPreset={onApplyPreset}
         currency={currency}
         dim={dim}
         onDimChange={setDim}
