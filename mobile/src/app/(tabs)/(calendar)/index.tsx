@@ -1408,6 +1408,7 @@ const styles = StyleSheet.create((theme) => ({
     flexShrink: 0,
     gap: theme.spacing.sm,
     marginTop: theme.spacing.lg,
+    paddingBottom: theme.spacing.sm,
   },
   weekRow: {
     flexDirection: 'row',
