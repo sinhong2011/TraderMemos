@@ -7,7 +7,7 @@ import { locale } from '@/i18n';
 import { useFormatters } from '@/lib/format';
 
 /** Band height — full-magnitude bar height : `BAR_WIDTH` ≥ ~1.4 (96 → 47 : 32 ≈ 1.47). */
-export const WEEK_STRIP_HEIGHT = 96;
+export const WEEK_STRIP_HEIGHT = 88;
 
 /** Gap between bars and weekday labels — 4% of band height, scales with `WEEK_STRIP_HEIGHT`. */
 const LABEL_GAP_RATIO = 0.04;

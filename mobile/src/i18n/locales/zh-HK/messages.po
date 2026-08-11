@@ -81,7 +81,7 @@ msgid "{0} closed trades excluded (no stop recorded)."
 msgstr "已排除 {0} 筆已平倉交易（未記錄止蝕）。"
 
 #. placeholder {0}: traded.length
-#: src/app/(tabs)/(calendar)/index.tsx:805
+#: src/app/(tabs)/(calendar)/index.tsx:826
 msgid "{0} days"
 msgstr "{0} 日"
 
@@ -244,14 +244,14 @@ msgstr "{charts} 張圖表"
 #~ msgid "{count, plural, one {# trade} other {# trades}}"
 #~ msgstr "{count, plural, other {# 筆}}"
 
-#: src/app/(tabs)/(calendar)/index.tsx:740
-#: src/app/(tabs)/(calendar)/index.tsx:1016
-#: src/app/(tabs)/(calendar)/index.tsx:1161
+#: src/app/(tabs)/(calendar)/index.tsx:761
+#: src/app/(tabs)/(calendar)/index.tsx:1040
+#: src/app/(tabs)/(calendar)/index.tsx:1185
 #: src/app/(tabs)/(trades)/index.tsx:433
 msgid "{count} trades"
 msgstr "{count} 筆交易"
 
-#: src/app/(tabs)/(calendar)/index.tsx:875
+#: src/app/(tabs)/(calendar)/index.tsx:896
 msgid "{daysTraded} days"
 msgstr "{daysTraded} 日"
 
@@ -319,16 +319,16 @@ msgstr "{tradeCount} 筆交易"
 #~ msgid "{weekCount, plural, one {# trade} other {# trades}}"
 #~ msgstr "{weekCount, plural, other {# 筆}}"
 
-#: src/app/(tabs)/(calendar)/index.tsx:213
+#: src/app/(tabs)/(calendar)/index.tsx:215
 msgid "{weekCount} trades"
 msgstr "{weekCount} 筆交易"
 
 #. placeholder {0}: formatPnl(pnl, currency)
-#: src/components/week-pnl-strip.tsx:121
+#: src/components/week-pnl-strip.tsx:125
 msgid "{weekday}, {0}"
 msgstr "{weekday}，{0}"
 
-#: src/components/week-pnl-strip.tsx:121
+#: src/components/week-pnl-strip.tsx:125
 msgid "{weekday}, No trades"
 msgstr "{weekday}，無交易"
 
@@ -354,7 +354,7 @@ msgstr "{year} 年損益目標"
 #~ msgid "{yearCount, plural, one {# trade} other {# trades}}"
 #~ msgstr "{yearCount, plural, other {# 筆}}"
 
-#: src/app/(tabs)/(calendar)/index.tsx:1086
+#: src/app/(tabs)/(calendar)/index.tsx:1110
 msgid "{yearCount} trades"
 msgstr "{yearCount} 筆交易"
 
@@ -410,8 +410,8 @@ msgstr "1 {from} = {0} {to}"
 msgid "1 chart"
 msgstr "1 張圖表"
 
-#: src/app/(tabs)/(calendar)/index.tsx:805
-#: src/app/(tabs)/(calendar)/index.tsx:875
+#: src/app/(tabs)/(calendar)/index.tsx:826
+#: src/app/(tabs)/(calendar)/index.tsx:896
 msgid "1 day"
 msgstr "1 日"
 
@@ -431,11 +431,11 @@ msgstr "儲存後會上載 1 張截圖。"
 msgid "1 symbol found"
 msgstr "找到 1 個代號"
 
-#: src/app/(tabs)/(calendar)/index.tsx:213
-#: src/app/(tabs)/(calendar)/index.tsx:740
-#: src/app/(tabs)/(calendar)/index.tsx:1016
-#: src/app/(tabs)/(calendar)/index.tsx:1086
-#: src/app/(tabs)/(calendar)/index.tsx:1161
+#: src/app/(tabs)/(calendar)/index.tsx:215
+#: src/app/(tabs)/(calendar)/index.tsx:761
+#: src/app/(tabs)/(calendar)/index.tsx:1040
+#: src/app/(tabs)/(calendar)/index.tsx:1110
+#: src/app/(tabs)/(calendar)/index.tsx:1185
 msgid "1 trade"
 msgstr "1 筆"
 
@@ -591,7 +591,7 @@ msgstr "生效上限"
 #~ msgid "Active tokens"
 #~ msgstr "有效權杖"
 
-#: src/app/(tabs)/(calendar)/index.tsx:211
+#: src/app/(tabs)/(calendar)/index.tsx:213
 msgid "Activity"
 msgstr "交易"
 
@@ -1040,7 +1040,9 @@ msgstr "返回交易"
 #~ msgid "Backup or restore local app preferences."
 #~ msgstr "備份或還原本機應用程式偏好設定。"
 
-#: src/app/(tabs)/(calendar)/index.tsx:236
+#: src/app/(tabs)/(calendar)/index.tsx:243
+#: src/app/(tabs)/(calendar)/index.tsx:247
+#: src/app/(tabs)/(calendar)/index.tsx:250
 #: src/app/trade-preview.tsx:179
 msgid "Balance"
 msgstr "結餘"
@@ -2466,7 +2468,7 @@ msgstr "期望"
 msgid "Expect"
 msgstr "期望值"
 
-#: src/app/(tabs)/(calendar)/index.tsx:228
+#: src/app/(tabs)/(calendar)/index.tsx:230
 #: src/app/(tabs)/(dashboard)/playbook.tsx:130
 #: src/app/(tabs)/(dashboard)/wrapped.tsx:263
 msgid "Expectancy"
@@ -2730,6 +2732,12 @@ msgstr "五"
 #: src/app/tool-fx.tsx:56
 msgid "From"
 msgstr "由"
+
+#. placeholder {0}: formatCurrency(startBalance, currency)
+#: src/app/(tabs)/(calendar)/index.tsx:245
+#: src/app/(tabs)/(calendar)/index.tsx:257
+msgid "from {0}"
+msgstr "由 {0}"
 
 #: src/app/(tabs)/(settings)/import-trades.tsx:473
 msgid "From file"
@@ -3495,7 +3503,7 @@ msgstr "模型"
 msgid "Mon"
 msgstr "一"
 
-#: src/app/(tabs)/(calendar)/index.tsx:334
+#: src/app/(tabs)/(calendar)/index.tsx:355
 #: src/components/mini-calendar-card.tsx:51
 #: src/components/reports/winloss-section.tsx:71
 msgid "Month"
@@ -3562,9 +3570,9 @@ msgid "Net (after fees)"
 msgstr "淨額（已扣費用）"
 
 #: src/app/(tabs)/(calendar)/day/[date].tsx:313
-#: src/app/(tabs)/(calendar)/index.tsx:190
-#: src/app/(tabs)/(calendar)/index.tsx:794
-#: src/app/(tabs)/(calendar)/index.tsx:1075
+#: src/app/(tabs)/(calendar)/index.tsx:192
+#: src/app/(tabs)/(calendar)/index.tsx:815
+#: src/app/(tabs)/(calendar)/index.tsx:1099
 #: src/app/(tabs)/(dashboard)/playbook.tsx:126
 #: src/app/(tabs)/(dashboard)/playbook.tsx:236
 #: src/app/(tabs)/(trades)/[id].tsx:173
@@ -3644,7 +3652,7 @@ msgstr "新用戶"
 msgid "Newest first"
 msgstr "最新優先"
 
-#: src/app/(tabs)/(calendar)/index.tsx:494
+#: src/app/(tabs)/(calendar)/index.tsx:515
 msgid "Next"
 msgstr "下一個"
 
@@ -3832,9 +3840,9 @@ msgid "No tokens yet"
 msgstr "尚未有權杖"
 
 #: src/app/(tabs)/(calendar)/day/[date].tsx:320
-#: src/app/(tabs)/(calendar)/index.tsx:879
-#: src/app/(tabs)/(calendar)/index.tsx:1027
-#: src/app/(tabs)/(calendar)/index.tsx:1161
+#: src/app/(tabs)/(calendar)/index.tsx:900
+#: src/app/(tabs)/(calendar)/index.tsx:1051
+#: src/app/(tabs)/(calendar)/index.tsx:1185
 msgid "No trades"
 msgstr "無交易"
 
@@ -4462,7 +4470,7 @@ msgstr "預覽"
 msgid "Preview import"
 msgstr "預覽匯入"
 
-#: src/app/(tabs)/(calendar)/index.tsx:485
+#: src/app/(tabs)/(calendar)/index.tsx:506
 msgid "Previous"
 msgstr "上一個"
 
@@ -4531,7 +4539,7 @@ msgstr "個人檔案 電郵 密碼 登入 擁有者 管理員 保安"
 msgid "Profit at target"
 msgstr "到達目標利潤"
 
-#: src/app/(tabs)/(calendar)/index.tsx:224
+#: src/app/(tabs)/(calendar)/index.tsx:226
 #: src/app/(tabs)/(dashboard)/playbook.tsx:129
 #: src/app/(tabs)/(dashboard)/wrapped.tsx:258
 #: src/components/reports/overview-section.tsx:113
@@ -6462,20 +6470,20 @@ msgstr "Web Service 權杖"
 msgid "Wed"
 msgstr "三"
 
-#: src/app/(tabs)/(calendar)/index.tsx:333
-#: src/app/(tabs)/(calendar)/index.tsx:821
+#: src/app/(tabs)/(calendar)/index.tsx:354
+#: src/app/(tabs)/(calendar)/index.tsx:842
 #: src/components/reports/winloss-section.tsx:70
 msgid "Week"
 msgstr "週"
 
 #. placeholder {0}: wi + 1
 #. placeholder {1}: formatPnlCompact(weekPnl, currency)
-#: src/app/(tabs)/(calendar)/index.tsx:841
+#: src/app/(tabs)/(calendar)/index.tsx:862
 msgid "Week {0}, {1}"
 msgstr "週 {0}, {1}"
 
 #. placeholder {0}: wi + 1
-#: src/app/(tabs)/(calendar)/index.tsx:842
+#: src/app/(tabs)/(calendar)/index.tsx:863
 msgid "Week {0}, No trades"
 msgstr "週 {0}，無交易"
 
@@ -6539,7 +6547,7 @@ msgid "win ÷ loss"
 msgstr "平均盈利 ÷ 平均虧損"
 
 #: src/app/(tabs)/(calendar)/day/[date].tsx:319
-#: src/app/(tabs)/(calendar)/index.tsx:220
+#: src/app/(tabs)/(calendar)/index.tsx:222
 #: src/app/(tabs)/(dashboard)/playbook.tsx:128
 #: src/app/(tabs)/(dashboard)/playbook.tsx:231
 #: src/components/reports/overview-section.tsx:132
@@ -6602,7 +6610,7 @@ msgstr "撰寫覆盤"
 msgid "Write why you entered while it's fresh. Future you needs the thesis, not just the P&L."
 msgstr "趁記憶猶新寫下入場原因。未來的你需要的是論點，不只是盈虧。"
 
-#: src/app/(tabs)/(calendar)/index.tsx:335
+#: src/app/(tabs)/(calendar)/index.tsx:356
 msgid "Year"
 msgstr "年"
 
