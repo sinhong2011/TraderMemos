@@ -31,6 +31,7 @@ const catalogLoaders: Record<AppLocale, () => Promise<CatalogModule>> = {
 };
 
 i18n.load(DEFAULT_LOCALE, enMessages);
+i18n.activate(DEFAULT_LOCALE);
 
 type LocaleContextValue = {
   locale: AppLocale;

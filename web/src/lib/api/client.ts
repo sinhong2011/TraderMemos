@@ -208,6 +208,22 @@ export async function apiFetch<T = unknown>(
   return body as T;
 }
 
+/**
+ * Unauthenticated fetch for public pages (`/s/$token`). Deliberately not
+ * apiFetch: no Authorization header (a stale token must not leak to a public
+ * endpoint), no refresh, and no onUnauthorized — a visitor's 4xx must never
+ * trigger the "Session expired" sign-out flow.
+ */
+export async function publicFetch<T = unknown>(path: string): Promise<T> {
+  const res = await fetch(getBaseUrl() + path);
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const e = body?.error ?? {};
+    throw new ApiError(res.status, e.code ?? "error", e.message ?? res.statusText);
+  }
+  return body as T;
+}
+
 /** Authenticated GET that returns the raw Response (for file downloads). */
 export async function apiRawGet(path: string, retried = false): Promise<Response> {
   const auth = getToken();

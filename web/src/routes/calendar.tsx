@@ -50,17 +50,13 @@ function tradesByMonthKey(
 function CalendarPage() {
   const navigate = useNavigate();
   const filters = useFilterParams();
-  const accountId = useFilters((s) => s.accountId);
+  const accountIds = useFilters((s) => s.accountIds);
   const tradeDateBasis = useDisplayPrefs((s) => s.tradeDateBasis);
   const accountsQ = useAccounts();
   const cashQ = useCash(filters);
   // All-time curve (no from/to): its points carry the running balance, which
   // funds day/week start-balance readings regardless of the visible month.
-  const equityQ = useEquityCurve({
-    account_id: filters.account_id,
-    date_basis: filters.date_basis,
-    tz: filters.tz,
-  });
+  const equityQ = useEquityCurve(filters);
 
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
@@ -101,7 +97,7 @@ function CalendarPage() {
   }, [selectedDay, scopeTradesQ.data, tradeDateBasis, tz]);
 
   const accounts = accountsQ.data ?? [];
-  const currency = accountBaseCurrency(accounts, accountId);
+  const currency = accountBaseCurrency(accounts, accountIds);
 
   function shiftMonth(delta: number) {
     const d = new Date(year, month - 1 + delta, 1);
@@ -137,7 +133,7 @@ function CalendarPage() {
         accounts={accounts}
         cashTx={cashQ.data ?? []}
         equityPoints={equityQ.data?.points ?? []}
-        selectedAccountId={accountId}
+        selectedAccountIds={accountIds}
         year={year}
         month={month}
         mode={mode}

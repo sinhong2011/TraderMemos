@@ -5,13 +5,13 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/analytics"
 	"github.com/tradermemos/api/internal/auth"
 )
 
 // handleCompliance scores closed trades against the user's risk rules.
-func (s *Server) handleCompliance(c echo.Context) error {
+func (s *Server) handleCompliance(c *echo.Context) error {
 	ctx := c.Request().Context()
 	uid := auth.UserID(c)
 	f, err := parseFilters(c)
@@ -35,7 +35,7 @@ func (s *Server) handleCompliance(c echo.Context) error {
 
 	rows, err := s.loadClosedTrades(ctx, uid, f)
 	if err != nil {
-		return Fail(http.StatusInternalServerError, "internal", "could not load trades", nil)
+		return failLoad(err, "could not load trades")
 	}
 	risks, err := s.deps.Store.ListJournalRisks(ctx, uid)
 	if err != nil {

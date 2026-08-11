@@ -2,6 +2,7 @@ import {
   Globe,
   Keyboard,
   KeyRound,
+  Link2,
   Shield,
   Sparkles,
   Tag,
@@ -19,6 +20,7 @@ import type { Account, CashTransaction, Tag as TagType } from "@/lib/api/types";
 import { AboutTab } from "./settings/about-tab";
 import { AccountTab } from "./settings/account-tab";
 import { ApiTab } from "./settings/api-tab";
+import { SharingTab } from "./settings/sharing-tab";
 import { AccountsTab, AiTab, GeneralTab, JournalTab, RulesTab } from "./settings/settings-sections";
 import { ShortcutsTab } from "./settings/shortcuts-tab";
 import { UsersTab } from "./settings/users-tab";
@@ -104,6 +106,7 @@ const NAV_ICONS: Record<SettingsSectionId, typeof Wallet> = {
   general: Globe,
   shortcuts: Keyboard,
   api: KeyRound,
+  sharing: Link2,
   about: Github,
 };
 
@@ -180,6 +183,7 @@ export function SettingsView(props: SettingsViewProps) {
         {section === "general" && <GeneralTab />}
         {section === "shortcuts" && <ShortcutsTab />}
         {section === "api" && <ApiTab />}
+        {section === "sharing" && <SharingTab />}
         {section === "about" && <AboutTab />}
       </Page>
     </SettingsShell>

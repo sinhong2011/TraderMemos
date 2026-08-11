@@ -48,6 +48,11 @@ func (s *Server) buildTradeDetail(ctx context.Context, userID string, t store.Tr
 		fills = []store.Execution{}
 	}
 	d.Fills = toExecutionDTOs(fills)
+	if t.InstrumentType == "option" {
+		if right := optionRightFromFills(fills); right != "" {
+			d.OptionRight = &right
+		}
+	}
 
 	atts, err := s.deps.Store.ListAttachmentsForTrade(ctx, store.ListAttachmentsForTradeParams{TradeID: t.ID, UserID: userID})
 	if err != nil {

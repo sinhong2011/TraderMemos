@@ -122,6 +122,26 @@ function time(prefs: DisplayPrefs, iso: string | null | undefined): string {
   });
 }
 
+/**
+ * Fixed `yyyy-MM-dd HH:mm:ss` in the display timezone (trade-row corner
+ * stamp). en-CA is the locale whose date order is ISO; the clock is always
+ * 24-hour — a fixed-width pattern, deliberately outside the 12/24h pref.
+ */
+function timestamp(prefs: DisplayPrefs, iso: string | null | undefined): string {
+  if (!iso) return '';
+  const tz = resolveDisplayTimezone(prefs.timezone);
+  const d = new Date(iso);
+  const day = d.toLocaleDateString('en-CA', { timeZone: tz });
+  const clock = d.toLocaleTimeString('en-GB', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+    timeZone: tz,
+  });
+  return `${day} ${clock}`;
+}
+
 // ---------------------------------------------------------------------------
 // Ambient exports — the prefs are read from the store at call time. Correct
 // outside React; inside a component use `useFormatters()` (see the file note).
@@ -151,6 +171,10 @@ export function formatTime(iso: string | null | undefined): string {
   return time(getPrefs(), iso);
 }
 
+export function formatTimestamp(iso: string | null | undefined): string {
+  return timestamp(getPrefs(), iso);
+}
+
 // ---------------------------------------------------------------------------
 // Bound formatters
 // ---------------------------------------------------------------------------
@@ -166,6 +190,8 @@ export type Formatters = {
   formatDate: DateFormatter;
   formatDayKey: DateFormatter;
   formatTime: DateFormatter;
+  /** Fixed `yyyy-MM-dd HH:mm:ss` in the display timezone. */
+  formatTimestamp: DateFormatter;
   /** Hour bucket key (`"14:00"`) on the 12/24-hour clock pref. */
   formatHourKeyLabel: (hourKey: string) => string;
 };
@@ -179,6 +205,7 @@ export function makeFormatters(prefs: DisplayPrefs): Formatters {
     formatDate: (iso) => date(prefs, iso),
     formatDayKey: (day) => dayKey(prefs, day),
     formatTime: (iso) => time(prefs, iso),
+    formatTimestamp: (iso) => timestamp(prefs, iso),
     formatHourKeyLabel: (key) => hourKeyLabel(key, prefs.timeFormat),
   };
 }

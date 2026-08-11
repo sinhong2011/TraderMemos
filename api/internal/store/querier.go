@@ -19,6 +19,7 @@ type Querier interface {
 	CreateImportBatch(ctx context.Context, arg CreateImportBatchParams) (ImportBatch, error)
 	CreateJournalNote(ctx context.Context, arg CreateJournalNoteParams) (JournalNote, error)
 	CreateSetup(ctx context.Context, arg CreateSetupParams) (Setup, error)
+	CreateShareLink(ctx context.Context, arg CreateShareLinkParams) (ShareLink, error)
 	CreateTag(ctx context.Context, arg CreateTagParams) (Tag, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	DeleteAccount(ctx context.Context, arg DeleteAccountParams) (int64, error)
@@ -61,12 +62,14 @@ type Querier interface {
 	GetPropSettings(ctx context.Context, arg GetPropSettingsParams) (PropSetting, error)
 	GetRiskRules(ctx context.Context, userID string) (RiskRule, error)
 	GetSetup(ctx context.Context, arg GetSetupParams) (Setup, error)
+	GetShareLinkByToken(ctx context.Context, token string) (ShareLink, error)
 	GetTrade(ctx context.Context, arg GetTradeParams) (Trade, error)
 	GetTradeIDForExecution(ctx context.Context, executionID string) (string, error)
 	GetTradeJournal(ctx context.Context, arg GetTradeJournalParams) (TradeJournal, error)
 	GetUserByEmail(ctx context.Context, email string) (User, error)
 	GetUserByID(ctx context.Context, id string) (User, error)
 	GetUserPreferences(ctx context.Context, userID string) (UserPreference, error)
+	IncrementShareLinkViews(ctx context.Context, id string) error
 	InsertAttachment(ctx context.Context, arg InsertAttachmentParams) (TradeAttachment, error)
 	InsertCashTransaction(ctx context.Context, arg InsertCashTransactionParams) (CashTransaction, error)
 	InsertExecution(ctx context.Context, arg InsertExecutionParams) (Execution, error)
@@ -89,9 +92,11 @@ type Querier interface {
 	ListImportBatches(ctx context.Context, userID string) ([]ImportBatch, error)
 	ListJournalNotes(ctx context.Context, arg ListJournalNotesParams) ([]JournalNote, error)
 	ListJournalRisks(ctx context.Context, userID string) ([]ListJournalRisksRow, error)
+	ListOptionExecutionDetailsForUser(ctx context.Context, userID string) ([]ListOptionExecutionDetailsForUserRow, error)
 	ListMediaFilesForUser(ctx context.Context, userID string) ([]MediaFile, error)
 	ListSetups(ctx context.Context, userID string) ([]Setup, error)
 	ListSetupsForTrade(ctx context.Context, tradeID string) ([]Setup, error)
+	ListShareLinksByUser(ctx context.Context, userID string) ([]ShareLink, error)
 	ListTags(ctx context.Context, userID string) ([]Tag, error)
 	ListTagsForTrade(ctx context.Context, tradeID string) ([]Tag, error)
 	ListTradeJournalsForUser(ctx context.Context, userID string) ([]TradeJournal, error)
@@ -109,6 +114,7 @@ type Querier interface {
 	PruneAccessTokenUses(ctx context.Context, arg PruneAccessTokenUsesParams) error
 	RecordAccessTokenUse(ctx context.Context, arg RecordAccessTokenUseParams) error
 	RevokeAccessToken(ctx context.Context, arg RevokeAccessTokenParams) (int64, error)
+	RevokeShareLink(ctx context.Context, arg RevokeShareLinkParams) (int64, error)
 	SetImportBatchStatus(ctx context.Context, arg SetImportBatchStatusParams) error
 	SetTradeSetup(ctx context.Context, arg SetTradeSetupParams) error
 	SetTradeTags(ctx context.Context, arg SetTradeTagsParams) error

@@ -62,7 +62,7 @@ const BASE = {
   monthSummary: MONTH_SUMMARY,
   accounts: [],
   cashTx: [],
-  selectedAccountId: undefined,
+  selectedAccountIds: undefined,
   year: 2026,
   month: 7,
   mode: "month" as const,

@@ -15,19 +15,27 @@ import Animated, {
 import { SafeAreaView } from 'react-native-screens/experimental';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
-import { useAccounts, useCash, useDaily, useTrades } from '@/api/hooks';
+import type { Trade } from '@/api/types';
+import { useAccounts, useCash, useDaily, useEquityCurve, useTrades } from '@/api/hooks';
 import { ErrorState } from '@/components/error-state';
 import { Segmented } from '@/components/segmented';
 import { Skeleton } from '@/components/skeleton';
+import { WeekPnlStrip } from '@/components/week-pnl-strip';
 import { t } from '@lingui/core/macro';
 import { locale } from '@/i18n';
 import { useSelectedAccountId } from '@/lib/account-store';
-import { monthGrid, tradeDayKey } from '@/lib/calendar';
+import {
+  monthGrid,
+  monthWeekendColumnsVisible,
+  periodStartBalance,
+  tradeDayKey,
+  weekVisibleDayKeys,
+} from '@/lib/calendar';
 import { netDeposits } from '@/lib/cash';
-import { useGlobalFilters } from '@/lib/filters';
-import { formatPercentPoints, useFormatters } from '@/lib/format';
+import { dayBounds, useGlobalFilters } from '@/lib/filters';
+import { formatPercent, formatPercentPoints, formatRatio, useFormatters } from '@/lib/format';
 import { useMoneyFx } from '@/lib/money';
-import { accountBaseCurrency } from '@/lib/prefs';
+import { accountBaseCurrency, resolveMarketTimezone, useDisplayPrefs } from '@/lib/prefs';
 import { pnlBgTint, pnlColor, pnlDotTint } from '@/styles/unistyles';
 
 type Mode = 'week' | 'month' | 'year';
@@ -108,6 +116,152 @@ const panelEntering: EntryExitAnimationFunction = () => {
 /** Per-day closed-trade tallies (close basis) behind the count and W/L badges. */
 type DayStats = { count: number; wins: number; losses: number };
 
+/** Closed-trade edge metrics for one calendar week — mirrors web day/week review stats. */
+type WeekTradeStats = {
+  winRate: number;
+  profitFactor: number;
+  expectancy: number;
+};
+
+function weekTradeStats(trades: Trade[], weekKeys: readonly string[]): WeekTradeStats {
+  const keys = new Set(weekKeys);
+  let wins = 0;
+  let losses = 0;
+  let grossProfit = 0;
+  let grossLoss = 0;
+  let total = 0;
+  for (const trade of trades) {
+    const key = tradeDayKey(trade);
+    if (key == null || !keys.has(key)) continue;
+    total += 1;
+    const pnl = trade.net_pnl ?? 0;
+    if (pnl > 0) {
+      wins += 1;
+      grossProfit += pnl;
+    } else if (pnl < 0) {
+      losses += 1;
+      grossLoss += -pnl;
+    }
+  }
+  const winRate = total > 0 ? wins / total : 0;
+  const avgWin = wins > 0 ? grossProfit / wins : 0;
+  const avgLoss = losses > 0 ? grossLoss / losses : 0;
+  const lossRate = total > 0 ? losses / total : 0;
+  return {
+    winRate,
+    profitFactor: grossLoss > 0 ? grossProfit / grossLoss : 0,
+    expectancy: Math.round((winRate * avgWin - lossRate * avgLoss) * 100) / 100,
+  };
+}
+
+/** Week summary bento — hero P&L, activity, edge stats, balance walk. */
+function WeekBento({
+  weekPnl,
+  weekReturnPct,
+  weekCount,
+  weekWins,
+  weekLosses,
+  stats,
+  currency,
+  startBalance,
+  endBalance,
+  showBalance,
+}: {
+  weekPnl: number;
+  weekReturnPct: number | null;
+  weekCount: number;
+  weekWins: number;
+  weekLosses: number;
+  stats: WeekTradeStats;
+  currency: string;
+  startBalance: number | null;
+  endBalance: number | null;
+  showBalance: boolean;
+}) {
+  const { theme } = useUnistyles();
+  const { formatPnl, formatCurrency } = useFormatters();
+  const pnlTint = pnlColor(theme.colors, weekPnl);
+  const expTint = pnlColor(theme.colors, stats.expectancy);
+
+  const hasBalance = startBalance != null && endBalance != null;
+
+  return (
+    <View style={styles.weekBento}>
+      <View style={styles.weekBentoRow}>
+        <View style={styles.weekBentoHero}>
+          <Text style={styles.weekBentoLabel}>{t`Net P&L`}</Text>
+          <View style={styles.weekBentoHeroValueRow}>
+            <Text
+              style={[styles.weekBentoHeroValue, { color: pnlTint }]}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+            >
+              {formatPnl(weekPnl, currency)}
+            </Text>
+            {weekReturnPct != null ? (
+              <Text
+                style={[styles.weekBentoHeroReturn, { color: pnlTint }]}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+              >
+                {`${weekPnl > 0 ? '+' : ''}${formatPercentPoints(weekReturnPct * 100, 1)}`}
+              </Text>
+            ) : null}
+          </View>
+        </View>
+        <View style={styles.weekBentoSide}>
+          <Text style={styles.weekBentoLabel}>{t`Activity`}</Text>
+          <WinLoss wins={weekWins} losses={weekLosses} style={styles.weekBentoSideValue} />
+          <Text style={styles.weekBentoSideSub}>
+            {weekCount === 1 ? t`1 trade` : t`${weekCount} trades`}
+          </Text>
+        </View>
+      </View>
+      <View style={styles.weekBentoRow}>
+        <View style={[styles.weekBentoTile, styles.weekBentoStat]}>
+          <Text style={styles.weekBentoLabel}>{t`Win rate`}</Text>
+          <Text style={styles.weekBentoStatValue}>{formatPercent(stats.winRate, 0)}</Text>
+        </View>
+        <View style={[styles.weekBentoTile, styles.weekBentoStat]}>
+          <Text style={styles.weekBentoLabel}>{t`Profit factor`}</Text>
+          <Text style={styles.weekBentoStatValue}>{formatRatio(stats.profitFactor)}</Text>
+        </View>
+        <View style={[styles.weekBentoTile, styles.weekBentoStat]}>
+          <Text style={styles.weekBentoLabel}>{t`Expectancy`}</Text>
+          <Text style={[styles.weekBentoStatValue, { color: expTint }]}>
+            {formatPnl(stats.expectancy, currency)}
+          </Text>
+        </View>
+      </View>
+      {showBalance ? (
+        <View
+          style={styles.weekBentoBalance}
+          accessible
+          accessibilityLabel={
+            hasBalance
+              ? t`Balance, ${formatCurrency(endBalance, currency)}, from ${formatCurrency(startBalance, currency)}`
+              : t`Balance, ${formatCurrency(0, currency)}`
+          }
+        >
+          <Text style={styles.weekBentoBalanceLabel}>{t`Balance`}</Text>
+          <View style={styles.weekBentoBalanceRow}>
+            {hasBalance ? (
+              <Text style={styles.weekBentoBalanceFrom} numberOfLines={1}>
+                {`${formatCurrency(startBalance, currency)} →`}
+              </Text>
+            ) : null}
+            <View style={styles.weekBentoBalanceValueOverlay} pointerEvents="none">
+              <Text style={styles.weekBentoBalanceEnd} numberOfLines={1}>
+                {formatCurrency(hasBalance ? endBalance : 0, currency)}
+              </Text>
+            </View>
+          </View>
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
 /** Sun-first short weekday names in the app locale. */
 const DOW = (() => {
   const fmt = new Intl.DateTimeFormat(locale, { weekday: 'short', timeZone: 'UTC' });
@@ -171,7 +325,10 @@ export default function CalendarScreen() {
   const trades = useTrades(globalFilters);
   const accounts = useAccounts();
   const cash = useCash();
+  const equity = useEquityCurve(globalFilters);
   const selectedAccountId = useSelectedAccountId();
+  const { marketTimezone } = useDisplayPrefs();
+  const marketTz = resolveMarketTimezone(marketTimezone);
   const baseCurrency = accountBaseCurrency(accounts.data, selectedAccountId);
   const fx = useMoneyFx(baseCurrency);
   const currency = fx.currency;
@@ -197,15 +354,18 @@ export default function CalendarScreen() {
     { value: 'year' as const, label: t`Year`, icon: 'square.grid.3x3' as const },
   ];
 
-  function switchMode(next: Mode) {
+  function switchMode(next: Mode, nextAnchor: string = anchor) {
     setAnim(MODE_DEPTH[next] > MODE_DEPTH[mode] ? 'drillIn' : 'drillOut');
     setMode(next);
-    setPages(pageWindow(next, anchor));
+    setAnchor(nextAnchor);
+    setPages(pageWindow(next, nextAnchor));
     setPickerOpen(false);
     // The remounted pager starts centered; forget any in-flight page state.
     settledPage.current = 1;
     recentering.current = false;
   }
+
+  const selectWeek = (date: string) => switchMode('week', date);
 
   const pagerLabel =
     mode === 'year'
@@ -228,6 +388,21 @@ export default function CalendarScreen() {
     if (fxRate === 1) return raw;
     return Object.fromEntries(Object.entries(raw).map(([key, pnl]) => [key, pnl * fxRate]));
   }, [daily.data, fxRate]);
+  const equityPoints = useMemo(() => {
+    const raw = equity.data?.points ?? [];
+    if (fxRate === 1) return raw;
+    return raw.map((p) => ({ ...p, equity: p.equity * fxRate }));
+  }, [equity.data?.points, fxRate]);
+  const deposits =
+    netDeposits(accounts.data ?? [], selectedAccountId, cash.data ?? []) * fxRate;
+  const equityLoaded = equity.data !== undefined;
+  const balanceAtPeriodStart = useMemo(
+    () => (dayKey: string) => {
+      const { from } = dayBounds(dayKey, marketTz);
+      return periodStartBalance(equityPoints, from, deposits);
+    },
+    [deposits, equityPoints, marketTz],
+  );
   const openDay = (date: string) => router.push(`/(tabs)/(calendar)/day/${date}`);
 
   // Flicker-free infinite paging. Landing on a side page kicks off a
@@ -395,16 +570,22 @@ export default function CalendarScreen() {
                           dayStats={dayStats}
                           todayKey={todayKey}
                           onSelect={openDay}
+                          onSelectWeek={selectWeek}
                           currency={currency}
+                          equityLoaded={equityLoaded}
+                          balanceAtPeriodStart={balanceAtPeriodStart}
                         />
                       ) : mode === 'week' ? (
                         <WeekView
                           anchor={pageKey}
                           data={data}
                           dayStats={dayStats}
+                          trades={trades.data ?? []}
                           todayKey={todayKey}
                           onSelect={openDay}
                           currency={currency}
+                          equityLoaded={equityLoaded}
+                          balanceAtPeriodStart={balanceAtPeriodStart}
                         />
                       ) : (
                         <YearView
@@ -412,10 +593,8 @@ export default function CalendarScreen() {
                           data={data}
                           dayStats={dayStats}
                           currency={currency}
-                          startingBalance={
-                            netDeposits(accounts.data ?? [], selectedAccountId, cash.data ?? []) *
-                            fxRate
-                          }
+                          equityLoaded={equityLoaded}
+                          yearStartBalance={balanceAtPeriodStart(`${pageYear}-01-01`)}
                           onSelectMonth={(m) => {
                             const key = `${pageYear}-${pad(m)}-01`;
                             setAnim('drillIn');
@@ -595,7 +774,10 @@ function MonthView({
   dayStats,
   todayKey,
   onSelect,
+  onSelectWeek,
   currency,
+  equityLoaded,
+  balanceAtPeriodStart,
 }: {
   year: number;
   month: number;
@@ -603,7 +785,10 @@ function MonthView({
   dayStats: Map<string, DayStats>;
   todayKey: string;
   onSelect: (date: string) => void;
+  onSelectWeek: (date: string) => void;
   currency: string;
+  equityLoaded: boolean;
+  balanceAtPeriodStart: (dayKey: string) => number | null;
 }) {
   const { theme } = useUnistyles();
   const { formatPnl, formatPnlCompact } = useFormatters();
@@ -613,10 +798,9 @@ function MonthView({
   const red = traded.filter((k) => data[k] < 0).length;
 
   // Weekend columns only earn their width when the month actually traded on one.
-  const hasWeekend = grid.weeks.some((w) =>
-    [w[0], w[6]].some((c) => c && (c.pnl != null || (dayStats.get(c.date)?.count ?? 0) > 0)),
-  );
-  const dayIdx = hasWeekend ? [0, 1, 2, 3, 4, 5, 6] : [1, 2, 3, 4, 5];
+  const dayIdx = monthWeekendColumnsVisible(grid.weeks, dayStats)
+    ? [0, 1, 2, 3, 4, 5, 6]
+    : [1, 2, 3, 4, 5];
   const maxWeekAbs = Math.max(
     1,
     ...grid.weeks.map((w) => Math.abs(w.reduce((sum, c) => sum + (c?.pnl ?? 0), 0))),
@@ -667,6 +851,54 @@ function MonthView({
           (sum, c) => sum + (c ? (dayStats.get(c.date)?.losses ?? 0) : 0),
           0,
         );
+        const weekAnchor = week.find((c) => c != null)?.date ?? null;
+        const weekStartBal = weekAnchor ? balanceAtPeriodStart(weekAnchor) : null;
+        const weekReturnPct =
+          equityLoaded && weekStartBal != null ? weekPnl / weekStartBal : null;
+        const weekLabel =
+          daysTraded > 0
+            ? t`Week ${wi + 1}, ${formatPnlCompact(weekPnl, currency)}`
+            : t`Week ${wi + 1}, No trades`;
+        const tileStyle = [
+          styles.cell,
+          daysTraded > 0
+            ? { backgroundColor: pnlBgTint(theme.colors, weekPnl, maxWeekAbs) }
+            : styles.emptyCell,
+        ];
+        const tileBody = (
+          <>
+            <Text style={[styles.dayNum, daysTraded > 0 && styles.dayNumOnTint]}>W{wi + 1}</Text>
+            {daysTraded > 0 ? (
+              <View style={styles.cellBody}>
+                <Text
+                  style={[styles.cellPnl, { color: pnlColor(theme.colors, weekPnl) }]}
+                  numberOfLines={1}
+                  adjustsFontSizeToFit
+                >
+                  {formatPnlCompact(weekPnl, currency)}
+                </Text>
+                {weekReturnPct != null ? (
+                  <Text
+                    style={[
+                      styles.cellSub,
+                      { color: pnlColor(theme.colors, weekPnl), fontWeight: '600' },
+                    ]}
+                    numberOfLines={1}
+                    adjustsFontSizeToFit
+                  >
+                    {`${weekPnl > 0 ? '+' : ''}${formatPercentPoints(weekReturnPct * 100, 1)}`}
+                  </Text>
+                ) : null}
+                <WinLoss wins={weekWins} losses={weekLosses} />
+                <Text style={styles.cellSub} numberOfLines={1} adjustsFontSizeToFit>
+                  {daysTraded === 1 ? t`1 day` : t`${daysTraded} days`}
+                </Text>
+              </View>
+            ) : (
+              <Text style={styles.cellSubIdle}>{t`No trades`}</Text>
+            )}
+          </>
+        );
         return (
           <View key={wi} style={[styles.gridRow, styles.gridRowFlex]}>
             {dayIdx.map((ci) => {
@@ -687,33 +919,18 @@ function MonthView({
               );
             })}
             {/* Weekly summary tile, same footprint as a day. */}
-            <View
-              style={[
-                styles.cell,
-                daysTraded > 0
-                  ? { backgroundColor: pnlBgTint(theme.colors, weekPnl, maxWeekAbs) }
-                  : styles.emptyCell,
-              ]}
-            >
-              <Text style={[styles.dayNum, daysTraded > 0 && styles.dayNumOnTint]}>W{wi + 1}</Text>
-              {daysTraded > 0 ? (
-                <View style={styles.cellBody}>
-                  <Text
-                    style={[styles.cellPnl, { color: pnlColor(theme.colors, weekPnl) }]}
-                    numberOfLines={1}
-                    adjustsFontSizeToFit
-                  >
-                    {formatPnlCompact(weekPnl, currency)}
-                  </Text>
-                  <WinLoss wins={weekWins} losses={weekLosses} />
-                  <Text style={styles.cellSub} numberOfLines={1} adjustsFontSizeToFit>
-                    {daysTraded === 1 ? t`1 day` : t`${daysTraded} days`}
-                  </Text>
-                </View>
-              ) : (
-                <Text style={styles.cellSubIdle}>{t`${daysTraded} days`}</Text>
-              )}
-            </View>
+            {weekAnchor ? (
+              <Pressable
+                onPress={() => onSelectWeek(weekAnchor)}
+                accessibilityRole="button"
+                accessibilityLabel={weekLabel}
+                style={({ pressed }) => [...tileStyle, pressed && styles.pressed]}
+              >
+                {tileBody}
+              </Pressable>
+            ) : (
+              <View style={tileStyle}>{tileBody}</View>
+            )}
           </View>
         );
       })}
@@ -726,52 +943,67 @@ function WeekView({
   anchor,
   data,
   dayStats,
+  trades,
   todayKey,
   onSelect,
   currency,
+  equityLoaded,
+  balanceAtPeriodStart,
 }: {
   anchor: string;
   data: Record<string, number>;
   dayStats: Map<string, DayStats>;
+  trades: Trade[];
   todayKey: string;
   onSelect: (date: string) => void;
   currency: string;
+  equityLoaded: boolean;
+  balanceAtPeriodStart: (dayKey: string) => number | null;
 }) {
   const { theme } = useUnistyles();
   const { formatPnl } = useFormatters();
   const start = weekStart(anchor);
-  const days = Array.from({ length: 7 }, (_, i) => {
+  const allDays = Array.from({ length: 7 }, (_, i) => {
     const d = new Date(start);
     d.setUTCDate(d.getUTCDate() + i);
     return keyOf(d);
   });
-  const weekPnl = days.reduce((sum, key) => sum + (data[key] ?? 0), 0);
-  const weekCount = days.reduce((sum, key) => sum + (dayStats.get(key)?.count ?? 0), 0);
-  const weekWins = days.reduce((sum, key) => sum + (dayStats.get(key)?.wins ?? 0), 0);
-  const weekLosses = days.reduce((sum, key) => sum + (dayStats.get(key)?.losses ?? 0), 0);
-  // Biggest absolute day drives tint intensity and the magnitude bars.
-  const weekMax = Math.max(...days.map((key) => Math.abs(data[key] ?? 0)));
+  const days = weekVisibleDayKeys(allDays, data, dayStats);
+  const weekPnl = allDays.reduce((sum, key) => sum + (data[key] ?? 0), 0);
+  const weekCount = allDays.reduce((sum, key) => sum + (dayStats.get(key)?.count ?? 0), 0);
+  const weekWins = allDays.reduce((sum, key) => sum + (dayStats.get(key)?.wins ?? 0), 0);
+  const weekLosses = allDays.reduce((sum, key) => sum + (dayStats.get(key)?.losses ?? 0), 0);
+  const weekStats = weekTradeStats(trades, allDays);
+  // Biggest absolute day drives card tint intensity in the strip.
+  const weekMax = Math.max(1, ...days.map((key) => Math.abs(data[key] ?? 0)));
+  const weekStartBal = balanceAtPeriodStart(allDays[0]!);
+  const weekEndBal = weekStartBal != null ? weekStartBal + weekPnl : null;
+  const weekReturnPct =
+    equityLoaded && weekStartBal != null ? weekPnl / weekStartBal : null;
 
   return (
     <View style={styles.fill}>
-      <View style={styles.summaryRow}>
-        <View>
-          <Text style={styles.summaryLabel}>{t`Net P&L`}</Text>
-          <Text
-            style={[styles.summaryValue, { color: pnlColor(theme.colors, weekPnl) }]}
-            numberOfLines={1}
-            adjustsFontSizeToFit
-          >
-            {formatPnl(weekPnl, currency)}
-          </Text>
-        </View>
-        <View style={styles.summaryRight}>
-          <Text style={styles.summarySub}>
-            {weekCount === 1 ? t`1 trade` : t`${weekCount} trades`}
-          </Text>
-          <WinLoss wins={weekWins} losses={weekLosses} style={styles.summarySub} />
-        </View>
+      <WeekBento
+        weekPnl={weekPnl}
+        weekReturnPct={weekReturnPct}
+        weekCount={weekCount}
+        weekWins={weekWins}
+        weekLosses={weekLosses}
+        stats={weekStats}
+        currency={currency}
+        startBalance={weekStartBal}
+        endBalance={weekEndBal}
+        showBalance={equityLoaded}
+      />
+      <View style={styles.weekChart}>
+        <WeekPnlStrip
+          days={days}
+          data={data}
+          onSelect={onSelect}
+          currency={currency}
+        />
       </View>
+      <View style={styles.weekDays}>
       {days.map((key) => {
         const pnl = data[key] ?? null;
         const stats = dayStats.get(key);
@@ -817,24 +1049,10 @@ function WeekView({
                 <Text style={styles.weekRowEmpty}>{t`No trades`}</Text>
               )}
             </View>
-            {/* Magnitude bar: day's |P&L| relative to the week's biggest day. */}
-            {pnl != null && weekMax > 0 ? (
-              <>
-                <View style={styles.weekRowBarTrack} />
-                <View
-                  style={[
-                    styles.weekRowBar,
-                    {
-                      width: `${Math.max(4, Math.round((Math.abs(pnl) / weekMax) * 100))}%`,
-                      backgroundColor: pnlColor(theme.colors, pnl),
-                    },
-                  ]}
-                />
-              </>
-            ) : null}
           </Pressable>
         );
       })}
+      </View>
     </View>
   );
 }
@@ -845,14 +1063,16 @@ function YearView({
   data,
   dayStats,
   currency,
-  startingBalance,
+  equityLoaded,
+  yearStartBalance,
   onSelectMonth,
 }: {
   year: number;
   data: Record<string, number>;
   dayStats: Map<string, DayStats>;
   currency: string;
-  startingBalance: number;
+  equityLoaded: boolean;
+  yearStartBalance: number | null;
   onSelectMonth: (month: number) => void;
 }) {
   const { theme } = useUnistyles();
@@ -887,9 +1107,9 @@ function YearView({
           <Text style={styles.summarySub}>
             {yearCount === 1 ? t`1 trade` : t`${yearCount} trades`}
           </Text>
-          {startingBalance > 0 ? (
+          {equityLoaded && yearStartBalance != null ? (
             <Text style={[styles.summarySub, { color: pnlColor(theme.colors, yearTotal) }]}>
-              {`${yearTotal > 0 ? '+' : ''}${formatPercentPoints((yearTotal / startingBalance) * 100)}`}
+              {`${yearTotal > 0 ? '+' : ''}${formatPercentPoints((yearTotal / yearStartBalance) * 100, 1)}`}
             </Text>
           ) : null}
         </View>
@@ -1090,38 +1310,123 @@ const styles = StyleSheet.create((theme) => ({
     paddingBottom: theme.spacing.md,
   },
   summaryLabel: { fontSize: 11, color: theme.colors.mutedForeground, marginBottom: 2 },
+  summaryValueRow: { flexDirection: 'row', alignItems: 'baseline', gap: theme.spacing.sm },
   summaryValue: { fontSize: 24, fontWeight: '700', letterSpacing: -0.4, ...theme.numeric },
+  summaryReturnPct: { fontSize: 15, fontWeight: '600', ...theme.numeric },
   summaryRight: { alignItems: 'flex-end', gap: 3, paddingBottom: 2 },
   summarySub: { fontSize: 12, color: theme.colors.mutedForeground, ...theme.numeric },
+  weekBento: { gap: theme.spacing.xs },
+  weekBentoRow: { flexDirection: 'row', gap: theme.spacing.xs, alignItems: 'flex-start' },
+  weekBentoTile: {
+    backgroundColor: theme.colors.card,
+    borderRadius: theme.radius.md,
+    borderCurve: 'continuous',
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: theme.spacing.xs,
+    gap: 2,
+  },
+  weekBentoHero: { flex: 1.5, minWidth: 0, gap: 2, paddingHorizontal: theme.spacing.sm },
+  weekBentoSide: {
+    flex: 1,
+    minWidth: 0,
+    justifyContent: 'center',
+    gap: 2,
+    paddingHorizontal: theme.spacing.sm,
+  },
+  weekBentoStat: { flex: 1, minWidth: 0, alignItems: 'center' },
+  weekBentoBalance: {
+    backgroundColor: theme.colors.card,
+    borderRadius: theme.radius.md,
+    borderCurve: 'continuous',
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: theme.spacing.xs,
+    gap: 2,
+  },
+  weekBentoBalanceRow: {
+    position: 'relative',
+    minHeight: 21,
+    justifyContent: 'center',
+  },
+  weekBentoBalanceValueOverlay: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  weekBentoBalanceEnd: {
+    fontSize: 17,
+    fontWeight: '700',
+    lineHeight: 21,
+    letterSpacing: -0.2,
+    color: theme.colors.foreground,
+    textAlign: 'center',
+    ...theme.numeric,
+  },
+  weekBentoBalanceFrom: {
+    maxWidth: '38%',
+    fontSize: 9,
+    fontWeight: '500',
+    color: theme.colors.mutedForeground,
+    ...theme.numeric,
+  },
+  // Absorbs slack between bento and day list; centres strip + labels as one block.
+  weekChart: {
+    flexGrow: 1,
+    flexShrink: 0,
+    justifyContent: 'center',
+    marginTop: theme.spacing.sm,
+  },
+  weekBentoLabel: { fontSize: 10, color: theme.colors.mutedForeground },
+  weekBentoBalanceLabel: {
+    fontSize: 10,
+    color: theme.colors.mutedForeground,
+    textAlign: 'center',
+  },
+  weekBentoHeroValueRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: theme.spacing.xs,
+    flexWrap: 'wrap',
+  },
+  weekBentoHeroValue: {
+    fontSize: 22,
+    fontWeight: '700',
+    letterSpacing: -0.3,
+    ...theme.numeric,
+  },
+  weekBentoHeroReturn: { fontSize: 14, fontWeight: '600', ...theme.numeric },
+  weekBentoSideValue: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: theme.colors.foreground,
+    ...theme.numeric,
+  },
+  weekBentoSideSub: { fontSize: 11, color: theme.colors.mutedForeground, ...theme.numeric },
+  weekBentoStatValue: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: theme.colors.foreground,
+    ...theme.numeric,
+  },
+  // Content-sized rows anchored to the bottom; chart block above takes leftover height.
+  weekDays: {
+    flexShrink: 0,
+    gap: theme.spacing.sm,
+    marginTop: theme.spacing.lg,
+    paddingBottom: theme.spacing.sm,
+  },
   weekRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: theme.spacing.md,
-    minHeight: 73,
+    minHeight: 48,
     paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.sm,
+    paddingVertical: theme.spacing.xs,
     borderRadius: theme.radius.md,
     borderCurve: 'continuous',
     backgroundColor: theme.colors.muted,
-    marginBottom: theme.spacing.sm,
-    // Clip the flush magnitude bar to the card's rounded corners.
-    overflow: 'hidden',
-  },
-  weekRowBarTrack: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: 3,
-    backgroundColor: theme.colors.border,
-  },
-  weekRowBar: {
-    position: 'absolute',
-    left: 0,
-    bottom: 0,
-    height: 3,
-    borderTopRightRadius: 1.5,
   },
   weekRowLeft: { gap: 1 },
   weekRowDay: { fontSize: 14, fontWeight: '600', color: theme.colors.foreground },

@@ -70,6 +70,13 @@ export interface ThemeColors {
    * swap happens where every other color's does.
    */
   fill: string;
+  /**
+   * Selected-segment fill inside a `fill` capsule track (the symbol pager's
+   * active tab). Currently the app background — the active page reads as a
+   * cut-out of the page it controls — but its own slot so the two can diverge
+   * without touching every `background` use.
+   */
+  segmentActive: string;
   primary: string;
   primaryForeground: string;
   destructive: string;
@@ -108,6 +115,7 @@ export const lightTheme = {
     border: 'rgba(0, 0, 0, 0.12)',
     input: 'rgba(0, 0, 0, 0.18)',
     fill: 'rgba(118, 118, 128, 0.12)',
+    segmentActive: '#F2F2F7', // = background
     /** TraderMemos brand — web `--primary` oklch(0.5013 0.1428 252.49). */
     primary: '#1264B2',
     primaryForeground: '#FFFFFF',
@@ -146,6 +154,7 @@ export const darkTheme = {
     border: 'rgba(255, 255, 255, 0.06)',
     input: 'rgba(255, 255, 255, 0.08)',
     fill: 'rgba(118, 118, 128, 0.24)',
+    segmentActive: '#161616', // = background
     primary: '#1264B2',
     primaryForeground: '#FFFFFF',
     destructive: '#FB414A',

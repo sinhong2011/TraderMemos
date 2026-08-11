@@ -12,13 +12,67 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#. placeholder {0}: data.trading_days
+#: src/app/screens/PublicShareView.tsx:196
+msgid "{0} days in the market"
+msgstr "{0} days in the market"
+
+#. placeholder {0}: s.total_trades
+#. placeholder {0}: sym.trades
+#: src/app/screens/PublicShareView.tsx:194
+#: src/app/screens/PublicShareView.tsx:366
+msgid "{0} trades"
+msgstr "{0} trades"
+
+#. placeholder {0}: fmtPct(s.win_rate, locale)
+#: src/app/screens/PublicShareView.tsx:195
+msgid "{0} win rate"
+msgstr "{0} win rate"
+
+#: src/app/screens/PublicShareView.tsx:221
+msgid "1.0 = break-even"
+msgstr "1.0 = break-even"
+
+#: src/app/screens/PublicShareView.tsx:306
+msgid "Best day"
+msgstr "Best day"
+
 #: src/components/AppNav.tsx:33
 #~ msgid "Calendar"
 #~ msgstr "Calendar"
 
+#: src/app/screens/PublicShareView.tsx:278
+msgid "Consistency"
+msgstr "Consistency"
+
+#: src/app/screens/PublicShareView.tsx:270
+msgid "Cumulative net P&L over the shared period."
+msgstr "Cumulative net P&L over the shared period."
+
+#: src/app/screens/PublicShareView.tsx:92
+msgid "Cumulative P&L curve"
+msgstr "Cumulative P&L curve"
+
+#: src/app/screens/PublicShareView.tsx:271
+msgid "Cumulative P&L shape — amounts are not shared."
+msgstr "Cumulative P&L shape — amounts are not shared."
+
 #: src/components/AppNav.tsx:31
 #~ msgid "Dashboard"
 #~ msgstr "Dashboard"
+
+#: src/app/screens/PublicShareView.tsx:295
+#: src/app/screens/PublicShareView.tsx:301
+msgid "days in a row"
+msgstr "days in a row"
+
+#: src/app/screens/PublicShareView.tsx:248
+msgid "Expectancy"
+msgstr "Expectancy"
+
+#: src/app/screens/PublicShareView.tsx:281
+msgid "Green days"
+msgstr "Green days"
 
 #: src/components/AppNav.tsx:39
 #~ msgid "Import"
@@ -32,6 +86,18 @@ msgstr ""
 #~ msgid "Interface language for TraderMemos."
 #~ msgstr "Interface language for TraderMemos."
 
+#: src/app/screens/PublicShareView.tsx:153
+msgid "It may have expired or been revoked by its owner."
+msgstr "It may have expired or been revoked by its owner."
+
+#: src/app/screens/PublicShareView.tsx:385
+msgid "Journaled with <0>TraderMemos</0> — the self-hosted trading journal"
+msgstr "Journaled with <0>TraderMemos</0> — the self-hosted trading journal"
+
+#: src/app/screens/PublicShareView.tsx:255
+msgid "Kelly"
+msgstr "Kelly"
+
 #: src/app/screens/settings/settings-sections.tsx:1166
 #~ msgid "Language"
 #~ msgstr "Language"
@@ -39,6 +105,22 @@ msgstr ""
 #: src/app/screens/settings/settings-sections.tsx:1174
 #~ msgid "Language selector"
 #~ msgstr "Language selector"
+
+#: src/app/screens/PublicShareView.tsx:293
+msgid "Longest green streak"
+msgstr "Longest green streak"
+
+#: src/app/screens/PublicShareView.tsx:299
+msgid "Longest red streak"
+msgstr "Longest red streak"
+
+#: src/app/screens/PublicShareView.tsx:354
+msgid "Most traded"
+msgstr "Most traded"
+
+#: src/app/screens/PublicShareView.tsx:180
+msgid "Net P&L"
+msgstr "Net P&L"
 
 #: src/components/AppNav.tsx:257
 #~ msgid "New Note"
@@ -52,18 +134,73 @@ msgstr ""
 #~ msgid "New Trade"
 #~ msgstr "New Trade"
 
+#. placeholder {0}: data.trading_days
+#: src/app/screens/PublicShareView.tsx:283
+#: src/app/screens/PublicShareView.tsx:289
+msgid "of {0} trading days"
+msgstr "of {0} trading days"
+
+#: src/app/screens/PublicShareView.tsx:250
+msgid "per trade"
+msgstr "per trade"
+
 #: src/components/AppNav.tsx:38
 #~ msgid "Playbook"
 #~ msgstr "Playbook"
+
+#: src/app/screens/PublicShareView.tsx:206
+msgid "Profit factor"
+msgstr "Profit factor"
+
+#: src/app/screens/PublicShareView.tsx:287
+msgid "Red days"
+msgstr "Red days"
 
 #: src/components/AppNav.tsx:276
 #~ msgid "Settings"
 #~ msgstr "Settings"
 
+#: src/app/screens/PublicShareView.tsx:127
+msgid "Shared performance record"
+msgstr "Shared performance record"
+
+#: src/app/screens/PublicShareView.tsx:259
+msgid "SQN"
+msgstr "SQN"
+
 #: src/components/AppNav.tsx:34
 #~ msgid "Stats"
 #~ msgstr "Stats"
 
+#: src/app/screens/PublicShareView.tsx:266
+msgid "The curve"
+msgstr "The curve"
+
+#: src/app/screens/PublicShareView.tsx:203
+msgid "The edge"
+msgstr "The edge"
+
+#: src/app/screens/PublicShareView.tsx:324
+msgid "The rhythm"
+msgstr "The rhythm"
+
+#: src/app/screens/PublicShareView.tsx:151
+msgid "This link isn't available"
+msgstr "This link isn't available"
+
 #: src/components/AppNav.tsx:32
 #~ msgid "Trades"
 #~ msgstr "Trades"
+
+#: src/app/screens/PublicShareView.tsx:347
+msgid "Trades per month."
+msgstr "Trades per month."
+
+#: src/app/screens/PublicShareView.tsx:180
+#: src/app/screens/PublicShareView.tsx:224
+msgid "Win rate"
+msgstr "Win rate"
+
+#: src/app/screens/PublicShareView.tsx:313
+msgid "Worst day"
+msgstr "Worst day"

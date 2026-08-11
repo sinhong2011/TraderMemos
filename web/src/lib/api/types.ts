@@ -279,6 +279,39 @@ export interface EquityCurve {
   max_drawdown: number;
 }
 
+// MonteCarloResult matches analytics.MonteCarloResult from analytics/montecarlo.go
+export interface McBand {
+  n: number;
+  p05: number;
+  p25: number;
+  p50: number;
+  p75: number;
+  p95: number;
+}
+export interface MonteCarloResult {
+  insufficient_data: boolean;
+  trades: number;
+  paths: number;
+  horizon: number;
+  seed: number;
+  steps: McBand[];
+  terminal: {
+    p05: number;
+    p25: number;
+    p50: number;
+    p75: number;
+    p95: number;
+    mean: number;
+    prob_negative: number;
+  };
+  max_drawdown: { p50: number; p90: number; p95: number; p99: number; worst: number };
+  /** A few individual simulated paths, equity at the same checkpoints as steps. */
+  sample_paths: number[][];
+  risk_of_ruin: number;
+  ruin_threshold: number;
+  historical_max_drawdown: number;
+}
+
 // BreakGroup matches analytics.BreakGroup from analytics/breakdown.go
 export interface BreakGroup {
   key: string;
@@ -398,8 +431,8 @@ export interface ImportPreview {
   suggested_source_tz?: string;
   /** "journal_trades" for closed-trade journal CSVs; "executions" for fill CSVs */
   format?: "journal_trades" | "executions";
-  /** Upload source detected by the API */
-  source?: "csv" | "json";
+  /** Upload source detected by the API; "statement" = MetaTrader report */
+  source?: "csv" | "json" | "statement";
   row_count?: number;
   journal_summary?: JournalPreviewSummary;
   sample_trades?: JournalTradePreview[];

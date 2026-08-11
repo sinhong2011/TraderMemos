@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Share2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import {
   type BreakdownDim,
@@ -8,7 +9,10 @@ import {
 } from "@/app/screens/ReportsView";
 import type { ReportsDuration, ReportsSide } from "@/components/ReportsControlBar";
 import type { AvgMode, PnlMode, UnitMode } from "@/components/ReportsDisplayContext";
+import { ShareLinkDialog } from "@/components/ShareLinkDialog";
 import { TradeDetailSheet } from "@/components/TradeDetailSheet";
+import { Button } from "@/components/ui/button";
+import { useSystemInfo } from "@/lib/hooks/useSystemInfo";
 import { ytdFiltersForYear } from "@/lib/annualGoal";
 import { tradesOnDay } from "@/lib/calendar";
 import { accountBaseCurrency } from "@/lib/displayPrefs";
@@ -19,6 +23,7 @@ import {
   useBreakdown,
   useCompliance,
   useEquityCurve,
+  useMonteCarlo,
   useRSummary,
   useSummary,
 } from "@/lib/hooks/useAnalytics";
@@ -65,7 +70,7 @@ export const Route = createFileRoute("/reports")({
 
 function ReportsPage() {
   const filters = useFilterParams();
-  const accountId = useFilters((s) => s.accountId);
+  const accountIds = useFilters((s) => s.accountIds);
   const [dim, setDim] = useState<BreakdownDim>("setup");
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [selectedTradeId, setSelectedTradeId] = useState<string | null>(null);
@@ -98,6 +103,9 @@ function ReportsPage() {
     [analyticsFilters, goalYear],
   );
 
+  const systemInfoQ = useSystemInfo();
+  const shareEnabled = systemInfoQ.data?.features?.share_links === true;
+  const [shareOpen, setShareOpen] = useState(false);
   const summaryQ = useSummary(analyticsFilters);
   const ytdSummaryQ = useSummary(ytdFilters);
   const rSummaryQ = useRSummary(analyticsFilters);
@@ -116,17 +124,18 @@ function ReportsPage() {
   const qualityBreakdownQ = useBreakdown("trade_quality", analyticsFilters);
   const complianceQ = useCompliance(analyticsFilters);
   const behaviorQ = useBehavior(analyticsFilters);
+  const monteCarloQ = useMonteCarlo(analyticsFilters, tab === "risk");
   const accountsQ = useAccounts();
   const cashQ = useCash(filters);
   const annualGoalQ = useAnnualGoal(goalYear);
   const saveAnnualGoalM = useSaveAnnualGoal();
   const clearAnnualGoalM = useClearAnnualGoal();
-  const currency = accountBaseCurrency(accountsQ.data ?? [], accountId);
+  const currency = accountBaseCurrency(accountsQ.data ?? [], accountIds);
   // %-basis is the capital actually put in (net deposits), read off the cash
   // ledger rather than the starting_balance metadata.
   const denominator = useMemo(
-    () => netDeposits({ accounts: accountsQ.data ?? [], accountId, cashTx: cashQ.data ?? [] }),
-    [accountsQ.data, accountId, cashQ.data],
+    () => netDeposits({ accounts: accountsQ.data ?? [], accountIds, cashTx: cashQ.data ?? [] }),
+    [accountsQ.data, accountIds, cashQ.data],
   );
 
   return (
@@ -171,6 +180,9 @@ function ReportsPage() {
         behavior={behaviorQ.data}
         behaviorLoading={behaviorQ.isLoading}
         behaviorError={behaviorQ.isError}
+        monteCarlo={monteCarloQ.data}
+        monteCarloLoading={monteCarloQ.isLoading}
+        monteCarloError={monteCarloQ.isError}
         onSelectTradeId={setSelectedTradeId}
         currency={currency}
         dim={dim}
@@ -206,6 +218,30 @@ function ReportsPage() {
         }}
         onClearGoal={async () => {
           await clearAnnualGoalM.mutateAsync(goalYear);
+        }}
+        shareAction={
+          shareEnabled ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              aria-label="Share a public link"
+              onClick={() => setShareOpen(true)}
+            >
+              <Share2 aria-hidden />
+            </Button>
+          ) : undefined
+        }
+      />
+      <ShareLinkDialog
+        open={shareOpen}
+        onOpenChange={setShareOpen}
+        defaults={{
+          accountId: filters.account_id,
+          from: filters.from,
+          to: filters.to,
+          tz: filters.tz,
+          currency,
         }}
       />
       <TradeDetailSheet tradeId={selectedTradeId} onClose={() => setSelectedTradeId(null)} />

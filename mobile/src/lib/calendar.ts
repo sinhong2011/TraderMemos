@@ -1,9 +1,74 @@
 /** Month-grid math for the dashboard mini calendar, ported from web/src/lib/calendar.ts. */
 
+/** Latest equity on the curve at or before `atISO` ("before" excludes boundary points). */
+export function balanceAsOf(
+  points: readonly { at: string; equity: number }[],
+  atISO: string,
+  mode: 'before' | 'through' = 'through',
+): number {
+  const cutoff = Date.parse(atISO);
+  if (Number.isNaN(cutoff)) return 0;
+  let balance = 0;
+  let bestT = -Infinity;
+  for (const p of points) {
+    const t = Date.parse(p.at);
+    if (Number.isNaN(t) || (mode === 'before' ? t >= cutoff : t > cutoff)) continue;
+    if (t >= bestT) {
+      bestT = t;
+      balance = p.equity;
+    }
+  }
+  return balance;
+}
+
+/** Balance walking into a period — equity curve when available, else net deposits. */
+export function periodStartBalance(
+  equityPoints: readonly { at: string; equity: number }[],
+  startISO: string,
+  deposits: number,
+): number | null {
+  const balance = equityPoints.length
+    ? balanceAsOf(equityPoints, startISO, 'before')
+    : deposits;
+  return balance > 0 ? balance : null;
+}
+
 export interface DayCell {
   /** "YYYY-MM-DD" */
   date: string;
   pnl: number | null;
+}
+
+/** Whether a day had trading activity — weekend columns/rows hide when this is false. */
+export function dayHasTradingActivity(
+  pnl: number | null | undefined,
+  tradeCount: number,
+): boolean {
+  return pnl != null || tradeCount > 0;
+}
+
+/** Month grid: show weekend columns when any week in the month traded on a weekend day. */
+export function monthWeekendColumnsVisible(
+  weeks: (DayCell | null)[][],
+  dayStats: ReadonlyMap<string, { count: number }>,
+): boolean {
+  return weeks.some((w) =>
+    [w[0], w[6]].some(
+      (c) => c && dayHasTradingActivity(c.pnl, dayStats.get(c.date)?.count ?? 0),
+    ),
+  );
+}
+
+/** Week mode: drop Sun/Sat when they have no activity; weekdays always stay. */
+export function weekVisibleDayKeys(
+  weekKeys: string[],
+  pnl: Record<string, number>,
+  dayStats: ReadonlyMap<string, { count: number }>,
+): string[] {
+  return weekKeys.filter((key, i) => {
+    if (i !== 0 && i !== 6) return true;
+    return dayHasTradingActivity(pnl[key], dayStats.get(key)?.count ?? 0);
+  });
 }
 
 export interface MonthGrid {

@@ -13,13 +13,67 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#. placeholder {0}: data.trading_days
+#: src/app/screens/PublicShareView.tsx:196
+msgid "{0} days in the market"
+msgstr "시장에 있던 날 {0}일"
+
+#. placeholder {0}: s.total_trades
+#. placeholder {0}: sym.trades
+#: src/app/screens/PublicShareView.tsx:194
+#: src/app/screens/PublicShareView.tsx:366
+msgid "{0} trades"
+msgstr "{0}건의 거래"
+
+#. placeholder {0}: fmtPct(s.win_rate, locale)
+#: src/app/screens/PublicShareView.tsx:195
+msgid "{0} win rate"
+msgstr "승률 {0}"
+
+#: src/app/screens/PublicShareView.tsx:221
+msgid "1.0 = break-even"
+msgstr "1.0 = 손익분기"
+
+#: src/app/screens/PublicShareView.tsx:306
+msgid "Best day"
+msgstr "최고의 날"
+
 #: src/components/AppNav.tsx:33
 #~ msgid "Calendar"
 #~ msgstr "캘린더"
 
+#: src/app/screens/PublicShareView.tsx:278
+msgid "Consistency"
+msgstr "일관성"
+
+#: src/app/screens/PublicShareView.tsx:270
+msgid "Cumulative net P&L over the shared period."
+msgstr "공유 기간의 누적 순손익."
+
+#: src/app/screens/PublicShareView.tsx:92
+msgid "Cumulative P&L curve"
+msgstr "누적 손익 곡선"
+
+#: src/app/screens/PublicShareView.tsx:271
+msgid "Cumulative P&L shape — amounts are not shared."
+msgstr "누적 손익 형태 — 금액은 공유되지 않습니다."
+
 #: src/components/AppNav.tsx:31
 #~ msgid "Dashboard"
 #~ msgstr "대시보드"
+
+#: src/app/screens/PublicShareView.tsx:295
+#: src/app/screens/PublicShareView.tsx:301
+msgid "days in a row"
+msgstr "연속 일수"
+
+#: src/app/screens/PublicShareView.tsx:248
+msgid "Expectancy"
+msgstr "기대값"
+
+#: src/app/screens/PublicShareView.tsx:281
+msgid "Green days"
+msgstr "수익일"
 
 #: src/components/AppNav.tsx:39
 #~ msgid "Import"
@@ -33,6 +87,18 @@ msgstr ""
 #~ msgid "Interface language for TraderMemos."
 #~ msgstr "TraderMemos 인터페이스 언어입니다."
 
+#: src/app/screens/PublicShareView.tsx:153
+msgid "It may have expired or been revoked by its owner."
+msgstr "만료되었거나 소유자가 철회했을 수 있습니다."
+
+#: src/app/screens/PublicShareView.tsx:385
+msgid "Journaled with <0>TraderMemos</0> — the self-hosted trading journal"
+msgstr "<0>TraderMemos</0>로 기록 — 셀프호스팅 트레이딩 저널"
+
+#: src/app/screens/PublicShareView.tsx:255
+msgid "Kelly"
+msgstr "Kelly"
+
 #: src/app/screens/settings/settings-sections.tsx:1166
 #~ msgid "Language"
 #~ msgstr "언어"
@@ -40,6 +106,22 @@ msgstr ""
 #: src/app/screens/settings/settings-sections.tsx:1174
 #~ msgid "Language selector"
 #~ msgstr "언어 선택"
+
+#: src/app/screens/PublicShareView.tsx:293
+msgid "Longest green streak"
+msgstr "최장 수익 연속"
+
+#: src/app/screens/PublicShareView.tsx:299
+msgid "Longest red streak"
+msgstr "최장 손실 연속"
+
+#: src/app/screens/PublicShareView.tsx:354
+msgid "Most traded"
+msgstr "최다 거래"
+
+#: src/app/screens/PublicShareView.tsx:180
+msgid "Net P&L"
+msgstr "순손익"
 
 #: src/components/AppNav.tsx:257
 #~ msgid "New Note"
@@ -53,18 +135,73 @@ msgstr ""
 #~ msgid "New Trade"
 #~ msgstr "새 거래"
 
+#. placeholder {0}: data.trading_days
+#: src/app/screens/PublicShareView.tsx:283
+#: src/app/screens/PublicShareView.tsx:289
+msgid "of {0} trading days"
+msgstr "거래일 {0}일 중"
+
+#: src/app/screens/PublicShareView.tsx:250
+msgid "per trade"
+msgstr "거래당"
+
 #: src/components/AppNav.tsx:38
 #~ msgid "Playbook"
 #~ msgstr "플레이북"
+
+#: src/app/screens/PublicShareView.tsx:206
+msgid "Profit factor"
+msgstr "프로핏 팩터"
+
+#: src/app/screens/PublicShareView.tsx:287
+msgid "Red days"
+msgstr "손실일"
 
 #: src/components/AppNav.tsx:276
 #~ msgid "Settings"
 #~ msgstr "설정"
 
+#: src/app/screens/PublicShareView.tsx:127
+msgid "Shared performance record"
+msgstr "공유된 성과 기록"
+
+#: src/app/screens/PublicShareView.tsx:259
+msgid "SQN"
+msgstr "SQN"
+
 #: src/components/AppNav.tsx:34
 #~ msgid "Stats"
 #~ msgstr "통계"
 
+#: src/app/screens/PublicShareView.tsx:266
+msgid "The curve"
+msgstr "곡선"
+
+#: src/app/screens/PublicShareView.tsx:203
+msgid "The edge"
+msgstr "엣지"
+
+#: src/app/screens/PublicShareView.tsx:324
+msgid "The rhythm"
+msgstr "리듬"
+
+#: src/app/screens/PublicShareView.tsx:151
+msgid "This link isn't available"
+msgstr "이 링크를 사용할 수 없습니다"
+
 #: src/components/AppNav.tsx:32
 #~ msgid "Trades"
 #~ msgstr "거래"
+
+#: src/app/screens/PublicShareView.tsx:347
+msgid "Trades per month."
+msgstr "월별 거래 수."
+
+#: src/app/screens/PublicShareView.tsx:180
+#: src/app/screens/PublicShareView.tsx:224
+msgid "Win rate"
+msgstr "승률"
+
+#: src/app/screens/PublicShareView.tsx:313
+msgid "Worst day"
+msgstr "최악의 날"

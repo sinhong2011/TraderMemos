@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/ocr"
 	"github.com/tradermemos/api/internal/store"
 )
@@ -54,12 +54,12 @@ type ocrModelsResultDTO struct {
 	Error  string   `json:"error,omitempty"`
 }
 
-func (s *Server) handleGetOcrSettings(c echo.Context) error {
+func (s *Server) handleGetOcrSettings(c *echo.Context) error {
 	cfg := s.effectiveVisionConfig(c.Request().Context())
 	return c.JSON(http.StatusOK, toOcrSettingsDTO(cfg))
 }
 
-func (s *Server) handlePutOcrSettings(c echo.Context) error {
+func (s *Server) handlePutOcrSettings(c *echo.Context) error {
 	var in ocrSettingsPutDTO
 	if err := c.Bind(&in); err != nil {
 		return Fail(http.StatusBadRequest, "bad_request", "invalid body", nil)
@@ -112,7 +112,7 @@ func (s *Server) handlePutOcrSettings(c echo.Context) error {
 	return c.JSON(http.StatusOK, toOcrSettingsDTO(cfg))
 }
 
-func (s *Server) handleTestOcrSettings(c echo.Context) error {
+func (s *Server) handleTestOcrSettings(c *echo.Context) error {
 	var in ocrTestRequestDTO
 	_ = c.Bind(&in)
 	if trimmed := strings.TrimSpace(in.BaseURL); trimmed != "" {
@@ -168,7 +168,7 @@ func (s *Server) ocrConfigWithOverrides(ctx context.Context, baseURL, model stri
 	return cfg, nil
 }
 
-func (s *Server) handleListOcrModels(c echo.Context) error {
+func (s *Server) handleListOcrModels(c *echo.Context) error {
 	var in ocrModelsRequestDTO
 	if err := c.Bind(&in); err != nil {
 		return Fail(http.StatusBadRequest, "bad_request", "invalid body", nil)

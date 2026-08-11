@@ -17,6 +17,7 @@ tags:
   - name: Health
   - name: Auth
   - name: Access tokens
+  - name: Share links
   - name: Accounts
   - name: Trades
   - name: Executions
@@ -431,6 +432,118 @@ paths:
         "401":
           $ref: "#/components/responses/Error"
 
+  /api/v1/share-links:
+    get:
+      tags: [Share links]
+      summary: List share links
+      description: All endpoints under this tag 404 unless `TM_SHARE_LINKS_ENABLED=true`.
+      operationId: listShareLinks
+      responses:
+        "200":
+          description: Active share links (token included so the URL can be re-copied)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ShareLink"
+        "401":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+    post:
+      tags: [Share links]
+      summary: Create a share link
+      description: |
+        Mints a revocable public link for a read-only performance summary.
+        Omit `expires_in_days` for the 90-day default; `0` means never expires.
+        With `show_amounts` false (the default) the public payload carries
+        ratios and shape only — no absolute money amounts.
+      operationId: createShareLink
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                account_id:
+                  type: string
+                  description: Limit the link to one account (empty = all)
+                from:
+                  type: string
+                  format: date-time
+                to:
+                  type: string
+                  format: date-time
+                tz:
+                  type: string
+                  description: IANA timezone for day/month bucketing
+                show_amounts:
+                  type: boolean
+                currency:
+                  type: string
+                  description: Currency label for amounts when `show_amounts`
+                expires_in_days:
+                  type: integer
+                  minimum: 0
+                  maximum: 730
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShareLink"
+        "400":
+          $ref: "#/components/responses/Error"
+        "401":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+
+  /api/v1/share-links/{id}:
+    delete:
+      tags: [Share links]
+      summary: Revoke a share link
+      operationId: revokeShareLink
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        "204":
+          description: Revoked
+        "401":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+
+  /api/v1/public/share/{token}:
+    get:
+      tags: [Share links]
+      summary: Public share summary
+      description: |
+        The page behind a share link. Unauthenticated by design and rate-limited.
+        Disabled, unknown, revoked, and expired links all answer the same 404.
+        The payload is a dedicated aggregate (never trade rows or account
+        names); money fields appear only when the link allows amounts.
+      operationId: getPublicShare
+      security: []
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Aggregate performance summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicShareSummary"
+        "404":
+          $ref: "#/components/responses/Error"
+
   /api/v1/accounts:
     get:
       tags: [Accounts]
@@ -708,54 +821,116 @@ paths:
       operationId: listImports
       responses:
         "200":
-          description: Import batches
+          description: Import batches, newest first
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ImportBatch"
     post:
       tags: [Import]
-      summary: Preview import (multipart CSV/JSON)
+      summary: Preview an import (parse-only, no batch created)
+      description: |
+        Parses the upload and returns headers, sample rows, and a suggested
+        column mapping — nothing is written. Accepted uploads:
+
+        - **Fill CSV** — one row per execution. Known broker exports are
+          detected from the header signature (`detected_broker`) and pre-fill
+          the mapping and `suggested_source_tz`.
+        - **Journal CSV** — one row per finished trade (Stonk Journal-style);
+          detected as `format: journal_trades`, no mapping step.
+        - **MetaTrader statement** — the MT5 Trade History Report
+          (XLSX/HTML) or MT4 Statement / Account History (HTML), detected from
+          content (`source: statement`); parsed positionally, no mapping.
+          `suggested_source_tz` is the MetaTrader server-time convention
+          (`Europe/Athens`), never UTC.
+        - **JSON backup** — a TraderMemos export; `account_id` may be omitted
+          and is matched (or deferred to commit as `pending_account`) from the
+          backup's account metadata. CSV/statement uploads require `account_id`.
+
+        Uploads are limited to `TM_IMPORT_MAX_BYTES` (default 10 MiB) → 413.
       operationId: previewImport
       requestBody:
         content:
           multipart/form-data:
             schema:
               type: object
-              properties:
-                file:
-                  type: string
-                  format: binary
-      responses:
-        "200":
-          description: Preview
-
-  /api/v1/imports/commit:
-    post:
-      tags: [Import]
-      summary: Commit import without a preview batch (creates account from JSON when needed)
-      operationId: commitImportFresh
-      requestBody:
-        content:
-          multipart/form-data:
-            schema:
-              type: object
+              required: [file]
               properties:
                 file:
                   type: string
                   format: binary
                 account_id:
                   type: string
+                  description: Target account. Optional for JSON backups only.
+      responses:
+        "200":
+          description: Preview
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImportPreview"
+
+  /api/v1/imports/commit:
+    post:
+      tags: [Import]
+      summary: Commit an import in one step (no prior batch)
+      description: |
+        Creates the import batch and commits it in one call — the flow the web
+        client uses after a parse-only preview. For JSON backups without
+        `account_id`, the account is matched from backup metadata or created.
+        The whole commit is one transaction; on failure the batch is marked
+        `failed` and no rows are written.
+      operationId: commitImportFresh
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/ImportCommitForm"
       responses:
         "200":
           description: Committed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImportResult"
 
   /api/v1/imports/{id}/commit:
     post:
       tags: [Import]
-      summary: Commit import batch
+      summary: Commit a previously created import batch
+      description: Re-upload the same file and commit it against an existing pending batch.
       operationId: commitImport
       parameters:
         - $ref: "#/components/parameters/IdPath"
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/ImportCommitForm"
       responses:
         "200":
           description: Committed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImportResult"
+
+  /api/v1/imports/{id}:
+    delete:
+      tags: [Import]
+      summary: Reverse an import batch
+      description: |
+        Deletes the batch's executions, marks the batch `reversed`, and
+        regroups the account's trades. Journal annotations on surviving trades
+        are unaffected.
+      operationId: deleteImport
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        "204":
+          description: Reversed
 
   /api/v1/exports:
     get:
@@ -1069,6 +1244,11 @@ components:
     AccountIdQuery:
       name: account_id
       in: query
+      description: >-
+        Account scope. Accepts a single account id, a comma-separated list, or
+        the parameter repeated (portfolio mode). Multi-account scopes must share
+        one base currency; mixed-currency selections return 400
+        `mixed_currencies`. Omit for all accounts.
       schema:
         type: string
     FromQuery:
@@ -1189,6 +1369,89 @@ components:
           type: string
           format: date-time
           nullable: true
+    ShareLink:
+      type: object
+      properties:
+        id:
+          type: string
+        token:
+          type: string
+          description: URL token; the public page lives at `/s/{token}`
+        scope:
+          type: object
+          properties:
+            account_id:
+              type: string
+            from:
+              type: string
+              format: date-time
+            to:
+              type: string
+              format: date-time
+            tz:
+              type: string
+            show_amounts:
+              type: boolean
+            currency:
+              type: string
+        created_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+          nullable: true
+        view_count:
+          type: integer
+    PublicShareSummary:
+      type: object
+      description: >
+        Aggregate built by the dedicated share serializer. `summary` money
+        fields, per-month `pnl`, per-symbol `pnl`, and `best_day_pnl` /
+        `worst_day_pnl` are present only when the link allows amounts; with
+        amounts hidden the equity values are scaled to max |value| = 1.
+      properties:
+        summary:
+          type: object
+          additionalProperties: true
+        equity:
+          type: array
+          items:
+            type: object
+            properties:
+              at:
+                type: string
+                format: date-time
+              value:
+                type: number
+        months:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        top_symbols:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        trading_days:
+          type: integer
+        green_days:
+          type: integer
+        red_days:
+          type: integer
+        best_streak:
+          type: integer
+        worst_streak:
+          type: integer
+        first_day:
+          type: string
+        last_day:
+          type: string
+        show_amounts:
+          type: boolean
+        currency:
+          type: string
     Account:
       type: object
       properties:
@@ -1218,6 +1481,178 @@ components:
           type: string
         starting_balance:
           type: number
+
+    NullString:
+      type: object
+      description: Go `sql.NullString` encoding of a nullable string.
+      properties:
+        String:
+          type: string
+        Valid:
+          type: boolean
+
+    ImportBatch:
+      type: object
+      properties:
+        id:
+          type: string
+        user_id:
+          type: string
+        account_id:
+          type: string
+        source:
+          type: string
+          enum: [csv, json, statement]
+        filename:
+          $ref: "#/components/schemas/NullString"
+        column_mapping:
+          $ref: "#/components/schemas/NullString"
+        row_count:
+          type: integer
+        status:
+          type: string
+          enum: [pending, committed, failed, reversed]
+        created_at:
+          type: string
+          format: date-time
+
+    ImportPreview:
+      type: object
+      properties:
+        headers:
+          type: array
+          items:
+            type: string
+        sample_rows:
+          type: array
+          description: Up to 5 parsed rows keyed by header.
+          items:
+            type: object
+            additionalProperties:
+              type: string
+        suggested_mapping:
+          type: object
+          description: >
+            Canonical field → header guesses (broker preset beats
+            header-substring detection). Empty for statements and journal CSVs,
+            which are parsed without a mapping.
+          additionalProperties:
+            type: string
+        detected_broker:
+          type: string
+          description: >
+            Preset or statement display name (e.g. `cTrader (History)`,
+            `MetaTrader 5 (Trade History Report)`); empty when unrecognized.
+        suggested_source_tz:
+          type: string
+          description: >
+            IANA zone the file's offset-less timestamps are assumed to be in;
+            override with `source_tz` on commit.
+        format:
+          type: string
+          enum: [executions, journal_trades, account_backup]
+        source:
+          type: string
+          enum: [csv, json, statement]
+        row_count:
+          type: integer
+        import_batch_id:
+          type: string
+          description: Always empty — preview is parse-only.
+        account_id:
+          type: string
+        pending_account:
+          description: >
+            Present for JSON backups whose account has no match yet — the
+            metadata the commit step would create an account from.
+          type: object
+          properties:
+            name:
+              type: string
+            broker:
+              type: string
+            account_type:
+              type: string
+            base_currency:
+              type: string
+            starting_balance:
+              type: number
+        journal_summary:
+          type: object
+          description: Journal CSVs only.
+          additionalProperties: true
+        sample_trades:
+          type: array
+          description: Journal CSVs only.
+          items:
+            type: object
+            additionalProperties: true
+
+    ImportCommitForm:
+      type: object
+      required: [file]
+      properties:
+        file:
+          type: string
+          format: binary
+        account_id:
+          type: string
+          description: >
+            Fresh commit only (`POST /imports/commit`); ignored on batch
+            commit. Optional for JSON backups — matched or created from backup
+            metadata when omitted.
+        column_mapping:
+          type: string
+          description: >
+            JSON object of canonical field → CSV header. Required for fill
+            CSVs; ignored for journal CSVs, statements, and JSON backups.
+        source_tz:
+          type: string
+          description: >
+            IANA zone to read offset-less timestamps in. Defaults to the
+            detected broker preset's zone (fill CSV) or the MetaTrader
+            server-time convention `Europe/Athens` (statement) — never UTC
+            unless the preset says so.
+        journal_option_overrides:
+          type: string
+          description: >
+            Journal CSVs only — JSON object of row number → option right
+            (`call`/`put`) for ambiguous option rows.
+
+    RowError:
+      type: object
+      properties:
+        row:
+          type: integer
+        message:
+          type: string
+
+    ImportResult:
+      type: object
+      properties:
+        inserted:
+          type: integer
+        skipped:
+          type: integer
+          description: Duplicate fills (same symbol+side+quantity+price+time in the account).
+        annotated:
+          type: integer
+        trades:
+          type: integer
+        cash_inserted:
+          type: integer
+          description: JSON backups only.
+        setups_upserted:
+          type: integer
+          description: JSON backups only.
+        format:
+          type: string
+        account_id:
+          type: string
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/RowError"
 
 security:
   - bearerAuth: []

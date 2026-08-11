@@ -5,6 +5,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 	"github.com/tradermemos/api/internal/db"
 	"github.com/tradermemos/api/internal/store"
@@ -20,7 +21,14 @@ func TestPostgresListQueries(t *testing.T) {
 	defer conn.Close()
 	require.NoError(t, db.Migrate(conn, db.DriverPostgres))
 	q := store.NewForDriver(conn, db.DriverPostgres)
+	// Seed on first run so the suite works against any empty Postgres, not just
+	// a hand-prepared local one.
 	u, err := q.GetUserByEmail(context.Background(), "local@pg.test")
+	if err != nil {
+		u, err = q.CreateUser(context.Background(), store.CreateUserParams{
+			ID: uuid.NewString(), Email: "local@pg.test", PasswordHash: "x",
+		})
+	}
 	require.NoError(t, err)
 
 	_, err = q.ListTrades(context.Background(), store.ListTradesParams{UserID: u.ID})

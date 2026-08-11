@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/analytics"
 	"github.com/tradermemos/api/internal/auth"
 	"github.com/tradermemos/api/internal/store"
@@ -16,7 +16,7 @@ var breakdownDims = map[string]bool{
 	"session": true, "tag": true, "mistake": true, "trade_quality": true,
 }
 
-func (s *Server) handleBreakdown(c echo.Context) error {
+func (s *Server) handleBreakdown(c *echo.Context) error {
 	ctx := c.Request().Context()
 	uid := auth.UserID(c)
 	by := c.QueryParam("by")
@@ -29,7 +29,7 @@ func (s *Server) handleBreakdown(c echo.Context) error {
 	}
 	rows, err := s.loadClosedTrades(ctx, uid, f)
 	if err != nil {
-		return Fail(http.StatusInternalServerError, "internal", "could not load trades", nil)
+		return failLoad(err, "could not load trades")
 	}
 
 	groups := map[string][]analytics.ClosedTrade{}

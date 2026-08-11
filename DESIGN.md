@@ -2,7 +2,7 @@
 
 **Direction:** shadcn/ui + [coss ui](https://coss.com/ui/docs/styling) color tokens (opaque borders)  
 **Updated:** 2026-07-24  
-**Brand primary:** TraderMemos blue `oklch(0.617 0.1305 235.19)` (not coss neutral primary)
+**Brand primary:** TraderMemos blue `oklch(0.5013 0.1428 252.49)` (not coss neutral primary)
 
 ## Product Context
 
@@ -103,3 +103,4 @@ Floating overlays (popover, select, menu, tooltip) use `bg-popover` / `text-popo
 | 2026-07-24 | Adopt shadcn theme system | Align with Base UI + CLI ecosystem; light/dark; remove custom Signal token surface |
 | 2026-07-24 | Adopt coss ui color tokens | Opaque alpha borders / muted surfaces per https://coss.com/ui/docs/styling; brand primary retained |
 | 2026-07-24 | Replace ReUI with coss | `@coss/alert|autocomplete|number-field|card`; Filters kept as owned `components/filters.tsx` (no coss equivalent) |
+| 2026-08-06 | Deepen brand primary to `oklch(0.5013 0.1428 252.49)` (`#1264B2`) | The old `oklch(0.617 0.1305 235.19)` only reached 3.6:1 against white, so filled primary buttons failed AA; the deeper blue clears 6.0:1 and needs no light/dark split |

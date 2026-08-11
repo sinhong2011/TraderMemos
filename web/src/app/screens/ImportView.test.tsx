@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import type { ComponentProps } from "react";
 import { describe, expect, it, vi } from "vite-plus/test";
 import { Toaster } from "@/components/Toaster";
+import { ApiError } from "@/lib/api/client";
 import type { Account, ImportPreview, ImportResult } from "@/lib/api/types";
 import { ImportView, jsonFileHasAccountName } from "./ImportView";
 
@@ -205,11 +206,110 @@ describe("ImportView - Step 3 result", () => {
   });
 });
 
+describe("ImportView - commit failure", () => {
+  async function commitWith(rejection: unknown) {
+    const user = (await import("@testing-library/user-event")).default.setup();
+    renderImportView({
+      accounts,
+      accountsLoading: false,
+      onPreview: vi.fn<(...args: any[]) => any>().mockResolvedValue(mockPreview),
+      onCommit: vi.fn<(...args: any[]) => any>().mockRejectedValue(rejection),
+      onDone: vi.fn<(...args: any[]) => any>(),
+    });
+
+    const file = new File(["Date,Symbol\n2026-01-02,AAPL\n"], "fills.csv", { type: "text/csv" });
+    fireEvent.change(screen.getByLabelText("Import file input"), { target: { files: [file] } });
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: /preview import/i })).toBeEnabled(),
+    );
+    await user.click(screen.getByRole("button", { name: /preview import/i }));
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: /confirm import/i })).toBeInTheDocument(),
+    );
+    await user.click(screen.getByRole("button", { name: /confirm import/i }));
+  }
+
+  it("toasts the server's reason when the API rejects the commit", async () => {
+    await commitWith(new ApiError(500, "internal", "could not import"));
+
+    await waitFor(() => expect(screen.getByText("Import failed")).toBeInTheDocument());
+    expect(screen.getAllByText("could not import").length).toBeGreaterThan(0);
+    expect(screen.queryByText("Import complete")).not.toBeInTheDocument();
+  });
+
+  it("toasts a may-still-be-running warning when the connection drops", async () => {
+    // What a proxy timeout or dropped connection actually looks like: fetch
+    // rejects with a TypeError, not an ApiError.
+    await commitWith(new TypeError("Failed to fetch"));
+
+    await waitFor(() =>
+      expect(screen.getByText("Lost contact with the server")).toBeInTheDocument(),
+    );
+    expect(screen.getAllByText(/may still be finishing/i).length).toBeGreaterThan(0);
+    // The raw fetch message is never shown — it tells the user nothing.
+    expect(screen.queryByText(/failed to fetch/i)).not.toBeInTheDocument();
+  });
+});
+
 describe("ImportView - Step 2 mapping selects", () => {
   it("renders suggested mapping selects from headers", () => {
     expect(mockPreview.headers).toContain("Symbol");
     expect(mockPreview.suggested_mapping.symbol).toBe("Symbol");
     expect(mockResult.inserted).toBe(5);
+  });
+});
+
+describe("ImportView - MetaTrader statement preview", () => {
+  const statementPreview: ImportPreview = {
+    import_batch_id: "",
+    headers: ["Time", "Deal", "Symbol", "Type", "Volume", "Price"],
+    sample_rows: [
+      {
+        Time: "2024.01.15 10:30:00",
+        Deal: "400101",
+        Symbol: "EURUSD",
+        Type: "buy",
+        Volume: "0.50",
+        Price: "1.09312",
+      },
+    ],
+    suggested_mapping: {},
+    detected_broker: "MetaTrader 5 (Trade History Report)",
+    suggested_source_tz: "Europe/Athens",
+    format: "executions",
+    source: "statement",
+    row_count: 3,
+  };
+
+  it("skips column mapping but keeps the timezone picker", async () => {
+    const user = (await import("@testing-library/user-event")).default.setup();
+    const onCommit = vi.fn<(...args: any[]) => any>().mockResolvedValue(mockResult);
+    renderImportView({
+      accounts,
+      accountsLoading: false,
+      onPreview: vi.fn<(...args: any[]) => any>().mockResolvedValue(statementPreview),
+      onCommit,
+      onDone: vi.fn<(...args: any[]) => any>(),
+    });
+
+    const file = new File(["<html><table></table></html>"], "report.html", { type: "text/html" });
+    fireEvent.change(screen.getByLabelText("Import file input"), { target: { files: [file] } });
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: /preview import/i })).toBeEnabled(),
+    );
+    await user.click(screen.getByRole("button", { name: /preview import/i }));
+    await waitFor(() => expect(screen.getByText(/Detected: MetaTrader 5/)).toBeInTheDocument());
+
+    // No mapping selects, but the server-timezone choice stays.
+    expect(screen.queryByLabelText("Map symbol")).not.toBeInTheDocument();
+    expect(screen.getByLabelText("Timestamps timezone")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /confirm import/i }));
+    await waitFor(() => expect(screen.getByText("Import complete")).toBeInTheDocument());
+    // Commit sends the (suggested) statement timezone, not UTC.
+    const fd = onCommit.mock.calls[0][1] as FormData;
+    expect(fd.get("source_tz")).toBe("Europe/Athens");
+    expect(fd.get("column_mapping")).toBe("{}");
   });
 });
 

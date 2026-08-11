@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/auth"
 	"github.com/tradermemos/api/internal/store"
 )
@@ -143,7 +143,7 @@ func toNoteDTO(n store.JournalNote) noteDTO {
 	}
 }
 
-func (s *Server) handleCreateNote(c echo.Context) error {
+func (s *Server) handleCreateNote(c *echo.Context) error {
 	var in noteBody
 	if err := c.Bind(&in); err != nil {
 		return Fail(http.StatusBadRequest, "bad_request", "invalid body", nil)
@@ -175,7 +175,7 @@ func (s *Server) handleCreateNote(c echo.Context) error {
 	return c.JSON(http.StatusCreated, toNoteDTO(n))
 }
 
-func (s *Server) handleListNotes(c echo.Context) error {
+func (s *Server) handleListNotes(c *echo.Context) error {
 	rows, err := s.deps.Store.ListJournalNotes(c.Request().Context(), store.ListJournalNotesParams{
 		UserID:   auth.UserID(c),
 		FromDate: nullStr(c.QueryParam("from")),
@@ -191,7 +191,7 @@ func (s *Server) handleListNotes(c echo.Context) error {
 	return c.JSON(http.StatusOK, out)
 }
 
-func (s *Server) handleGetNote(c echo.Context) error {
+func (s *Server) handleGetNote(c *echo.Context) error {
 	n, err := s.deps.Store.GetJournalNote(c.Request().Context(), store.GetJournalNoteParams{
 		ID: c.Param("id"), UserID: auth.UserID(c),
 	})
@@ -204,7 +204,7 @@ func (s *Server) handleGetNote(c echo.Context) error {
 	return c.JSON(http.StatusOK, toNoteDTO(n))
 }
 
-func (s *Server) handleUpdateNote(c echo.Context) error {
+func (s *Server) handleUpdateNote(c *echo.Context) error {
 	var in noteBody
 	if err := c.Bind(&in); err != nil {
 		return Fail(http.StatusBadRequest, "bad_request", "invalid body", nil)
@@ -239,7 +239,7 @@ func (s *Server) handleUpdateNote(c echo.Context) error {
 	return c.JSON(http.StatusOK, toNoteDTO(n))
 }
 
-func (s *Server) handleDeleteNote(c echo.Context) error {
+func (s *Server) handleDeleteNote(c *echo.Context) error {
 	n, err := s.deps.Store.DeleteJournalNote(c.Request().Context(), store.DeleteJournalNoteParams{
 		ID: c.Param("id"), UserID: auth.UserID(c),
 	})
@@ -331,7 +331,7 @@ func resolveChecklist(row store.ChecklistTemplate) checklistDTO {
 	return checklistDTO{Items: items, Content: content}
 }
 
-func (s *Server) handleGetChecklist(c echo.Context) error {
+func (s *Server) handleGetChecklist(c *echo.Context) error {
 	row, err := s.deps.Store.GetChecklistTemplate(c.Request().Context(), auth.UserID(c))
 	if errors.Is(err, sql.ErrNoRows) {
 		return c.JSON(http.StatusOK, checklistDTO{Items: []string{}, Content: ""})
@@ -342,7 +342,7 @@ func (s *Server) handleGetChecklist(c echo.Context) error {
 	return c.JSON(http.StatusOK, resolveChecklist(row))
 }
 
-func (s *Server) handlePutChecklist(c echo.Context) error {
+func (s *Server) handlePutChecklist(c *echo.Context) error {
 	var in checklistDTO
 	if err := c.Bind(&in); err != nil {
 		return Fail(http.StatusBadRequest, "bad_request", "invalid body", nil)

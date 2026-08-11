@@ -40,6 +40,7 @@ export const TIMEZONE_CHOICES = [
   { value: "America/Los_Angeles", name: "Pacific (Los Angeles)" },
   { value: "Europe/London", name: "London" },
   { value: "Europe/Berlin", name: "Berlin" },
+  { value: "Europe/Athens", name: "Athens (EET · MT server)" },
   { value: "Asia/Hong_Kong", name: "Hong Kong" },
   { value: "Asia/Taipei", name: "Taipei" },
   { value: "Asia/Shanghai", name: "Shanghai" },
@@ -394,14 +395,26 @@ export function useDisplayTimePrefs(): {
   return { timezone, timeFormat, marketTimezone };
 }
 
-/** Account ledger currency — source of truth for stored amounts / forms. */
+/**
+ * Account ledger currency — source of truth for stored amounts / forms.
+ * Accepts a single account id or a portfolio scope (array of ids): a
+ * multi-account scope resolves to its shared currency (the picker only builds
+ * same-currency groups), falling back when the scope is empty or disagrees.
+ */
 export function accountBaseCurrency(
   accounts: readonly Pick<Account, "id" | "base_currency">[],
-  accountId?: string,
+  accountId?: string | readonly string[],
   fallback = "USD",
 ): string {
-  if (!accountId) return fallback;
-  return accounts.find((a) => a.id === accountId)?.base_currency ?? fallback;
+  const ids = typeof accountId === "string" ? [accountId] : (accountId ?? []);
+  let base: string | undefined;
+  for (const id of ids) {
+    const currency = accounts.find((a) => a.id === id)?.base_currency;
+    if (!currency) continue;
+    if (base === undefined) base = currency;
+    else if (currency !== base) return fallback;
+  }
+  return base ?? fallback;
 }
 
 /** Prefer display override; otherwise use account base. */

@@ -82,7 +82,7 @@ export interface CalendarViewProps {
   cashTx: CashTransaction[];
   /** All-time equity curve for the scope; funds day/week balance readings. */
   equityPoints?: EquityPoint[];
-  selectedAccountId: string | undefined;
+  selectedAccountIds: string[] | undefined;
   year: number;
   month: number;
   mode: CalendarMode;
@@ -143,7 +143,7 @@ export function CalendarView({
   accounts,
   cashTx,
   equityPoints = [],
-  selectedAccountId,
+  selectedAccountIds,
   year,
   month,
   mode,
@@ -207,7 +207,7 @@ export function CalendarView({
   // balance — so day, week, month, and year percentages all share one basis.
   // Before any curve data arrives, fall back to net deposits (the pre-curve
   // basis) so the modal % doesn't flash null.
-  const deposits = netDeposits({ accounts, accountId: selectedAccountId, cashTx });
+  const deposits = netDeposits({ accounts, accountIds: selectedAccountIds, cashTx });
   const periodStartBalance = (dayKey: string): number | null => {
     const startISO = normalizeFilterDate(dayKey, "start", marketTz);
     if (!startISO) return null;

@@ -22,7 +22,6 @@ import (
 	"github.com/tradermemos/api/internal/store"
 	"github.com/tradermemos/api/internal/trades"
 	"github.com/tradermemos/api/internal/version"
-	"golang.org/x/time/rate"
 
 	// Embed the IANA tz database so `tz` query params and the ET session clock
 	// resolve inside minimal containers without a tzdata package.
@@ -112,30 +111,33 @@ func main() {
 	}
 	flexClient := &flexsync.Client{}
 	s := api.New(api.Deps{
-		JWTSecret:      cfg.JWTSecret,
-		JWT:            jwt,
-		Auth:           auth.NewService(q, jwt, cfg.AllowRegistration),
-		Store:          q,
-		Trades:         trades.NewService(q),
-		Logger:         logger,
-		Storage:        storage.NewLocalDisk(attachDir),
-		AttachMaxBytes: cfg.AttachMaxBytes,
-		ImportMaxBytes: cfg.ImportMaxBytes,
-		OCRMaxBytes:    cfg.OCRMaxBytes,
-		Market:         marketSvc,
-		Econ:           econSvc,
-		OCR:            ocrSvc,
-		CoachDefaults:  coachDefaults,
-		FlexClient:     flexClient,
-		CORSOrigins:    cfg.CORSOrigins,
-		AuthRateLimit:  rate.Limit(2), // 2 req/s per IP on auth + setup
-		Driver:         cfg.Driver,
+		JWTSecret:         cfg.JWTSecret,
+		JWT:               jwt,
+		Auth:              auth.NewService(q, jwt, cfg.AllowRegistration),
+		Store:             q,
+		Trades:            trades.NewService(q),
+		Logger:            logger,
+		Storage:           storage.NewLocalDisk(attachDir),
+		AttachMaxBytes:    cfg.AttachMaxBytes,
+		ImportMaxBytes:    cfg.ImportMaxBytes,
+		OCRMaxBytes:       cfg.OCRMaxBytes,
+		Market:            marketSvc,
+		Econ:              econSvc,
+		OCR:               ocrSvc,
+		CoachDefaults:     coachDefaults,
+		FlexClient:        flexClient,
+		CORSOrigins:       cfg.CORSOrigins,
+		AuthRateLimit:     2, // 2 req/s per IP on auth + setup + public share
+		ShareLinksEnabled: cfg.ShareLinksEnabled,
+		PublicWebURL:      cfg.PublicWebURL,
+		Driver:            cfg.Driver,
 		Features: map[string]bool{
 			"market_data":     cfg.MarketDataEnabled,
 			"econ_calendar":   cfg.EconCalendarEnabled,
 			"ocr":             cfg.OCREnabled,
 			"coach":           cfg.CoachEnabled,
 			"background_jobs": cfg.JobsEnabled,
+			"share_links":     cfg.ShareLinksEnabled,
 		},
 	})
 	if len(cfg.CORSOrigins) > 0 {
@@ -163,5 +165,10 @@ func main() {
 		}
 	}
 	logger.Info("tradermemos api listening", "port", cfg.HTTPPort, "version", version.Version, "db", db.RedactDatabaseURL(cfg.DatabaseURL), "log_level", cfg.LogLevel)
-	log.Fatal(s.Echo.Start(":" + cfg.HTTPPort))
+	// Start returns nil once SIGINT/SIGTERM has drained in-flight requests.
+	if err := s.Start(":" + cfg.HTTPPort); err != nil {
+		logger.Error("tradermemos api stopped", "err", err)
+		os.Exit(1)
+	}
+	logger.Info("tradermemos api stopped")
 }

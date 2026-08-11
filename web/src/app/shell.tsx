@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { AppNav } from "@/components/AppNav";
 import { CommandPalette } from "@/components/CommandPalette";
-import { CreateMenu } from "@/components/CreateMenu";
 import { HeaderBar } from "@/components/HeaderBar";
 import { MobileNavDrawer } from "@/components/MobileNavDrawer";
 import { MobileTabBar } from "@/components/MobileTabBar";
@@ -54,12 +53,6 @@ function AuthedShell() {
         >
           <Outlet />
         </main>
-      </div>
-
-      {/* Desktop quick-add. Below md the MobileTabBar's centre FAB owns the
-          same actions, so this corner stays empty there. */}
-      <div className="fixed right-6 bottom-6 z-30 hidden md:block">
-        <CreateMenu variant="floating" />
       </div>
 
       <MobileTabBar />
@@ -130,16 +123,34 @@ function UnauthedGate() {
 
 const AUTH_ENTRY_PATHS = new Set(["/setup", "/login"]);
 
+/** Routes that render without auth — no gate, no nav, no authed side effects. */
+function isPublicPath(pathname: string): boolean {
+  return pathname.startsWith("/s/");
+}
+
 export function AppShell() {
   const authed = useAuth((s) => s.authed);
   const navigate = useNavigate();
   const location = useLocation();
+  const publicRoute = isPublicPath(location.pathname);
 
   useEffect(() => {
-    if (!authed) return;
+    if (!authed || publicRoute) return;
     if (!AUTH_ENTRY_PATHS.has(location.pathname)) return;
     void navigate({ to: "/home", replace: true });
-  }, [authed, location.pathname, navigate]);
+  }, [authed, publicRoute, location.pathname, navigate]);
+
+  // Share pages are for visitors: skip UnauthedGate's login redirect and the
+  // authed chrome (nav, hotkeys, prefs sync — all of which hit authed APIs).
+  if (publicRoute) {
+    return (
+      <Toaster>
+        <main className="flex min-h-svh min-w-0 flex-col bg-background">
+          <Outlet />
+        </main>
+      </Toaster>
+    );
+  }
 
   return (
     <Toaster>

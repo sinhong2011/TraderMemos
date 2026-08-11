@@ -23,8 +23,10 @@ import { ControlledPopover } from "@/components/ControlledPopover";
 import { OptionsSelect } from "@/components/OptionsSelect";
 import { ToneToggle } from "@/components/ToneToggle";
 import { Skeleton } from "@/components/Skeleton";
+import { useToastManager } from "@/components/Toast";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
+import { ApiError } from "@/lib/api/client";
 import { downloadExport, type ExportFormat } from "@/lib/api/exports";
 import type {
   Account,
@@ -56,7 +58,23 @@ const CANONICAL_FIELDS = [
   "option_right",
   "fees",
   "commission",
+  "open_time",
+  "open_price",
+  "close_time",
+  "close_price",
+  "swap",
 ] as const;
+
+// Position-level exports (cTrader, Match-Trader) map an open/close pair per
+// row instead of a single fill. Only shown when the file suggests them, so
+// ordinary fill CSVs keep the short mapping grid.
+const ROUND_TRIP_FIELDS = new Set<string>([
+  "open_time",
+  "open_price",
+  "close_time",
+  "close_price",
+  "swap",
+]);
 
 function resolveImportAccountId(accounts: Account[], preferredAccountId?: string): string {
   if (preferredAccountId && accounts.some((account) => account.id === preferredAccountId)) {
@@ -114,6 +132,11 @@ const IMPORT_FORMATS: FormatNote[] = [
     icon: FileText,
     name: "Journal export",
     body: "Closed trades with Entry/Exit columns — setup and tags are preserved.",
+  },
+  {
+    icon: FileText,
+    name: "MT4 / MT5 statement",
+    body: "MetaTrader Trade History Report (.xlsx or .html) or MT4 Statement (.html). Deals import as fills in broker server time (EET) — adjust the timezone before confirming if your broker differs.",
   },
   {
     icon: FileJson,
@@ -502,7 +525,11 @@ interface Step2Props {
 
 function Step2Map({ preview, currency, accountId, onCommit, onBack, error, loading }: Step2Props) {
   const isJournal = preview.format === "journal_trades";
-  const skipMapping = isJournal || (preview.source === "json" && preview.format === "executions");
+  // MetaTrader statements are parsed positionally — no column mapping, but the
+  // server-timezone choice still applies (statement times are broker wall clock).
+  const isStatement = preview.source === "statement";
+  const skipMapping =
+    isJournal || isStatement || (preview.source === "json" && preview.format === "executions");
   const [mapping, setMapping] = useState<Record<string, string>>(() => {
     const initial: Record<string, string> = {};
     for (const field of CANONICAL_FIELDS) {
@@ -524,7 +551,11 @@ function Step2Map({ preview, currency, accountId, onCommit, onBack, error, loadi
   }
 
   async function handleCommit() {
-    await onCommit(isJournal ? {} : mapping, optionOverrides, skipMapping ? undefined : sourceTz);
+    await onCommit(
+      skipMapping ? {} : mapping,
+      optionOverrides,
+      skipMapping && !isStatement ? undefined : sourceTz,
+    );
   }
 
   return (
@@ -553,6 +584,21 @@ function Step2Map({ preview, currency, accountId, onCommit, onBack, error, loadi
                 <JournalSummaryStrip summary={preview.journal_summary} currency={currency} />
               ) : null}
             </div>
+          ) : isStatement ? (
+            <div className="flex flex-col gap-2">
+              {preview.detected_broker ? (
+                <p className="m-0 text-[12px] leading-relaxed">
+                  <span className="rounded-md bg-primary/10 px-1.5 py-0.5 font-medium text-primary">
+                    Detected: {preview.detected_broker}
+                  </span>
+                </p>
+              ) : null}
+              <p className="m-0 text-[12px] leading-relaxed text-muted-foreground">
+                Statement parsed directly — no column mapping needed. Times in MetaTrader reports
+                are the broker server&apos;s clock (usually EET); confirm the timezone below before
+                importing.
+              </p>
+            </div>
           ) : skipMapping ? (
             <p className="m-0 text-[12px] leading-relaxed text-muted-foreground">
               TraderMemos JSON execution export — fills import directly, no column mapping needed.
@@ -579,7 +625,12 @@ function Step2Map({ preview, currency, accountId, onCommit, onBack, error, loadi
 
           {!skipMapping && (
             <div className="grid gap-x-4 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
-              {CANONICAL_FIELDS.map((field) => (
+              {CANONICAL_FIELDS.filter(
+                (field) =>
+                  !ROUND_TRIP_FIELDS.has(field) ||
+                  preview.suggested_mapping[field] ||
+                  mapping[field],
+              ).map((field) => (
                 <Field
                   key={field}
                   label={field.replace(/_/g, " ")}
@@ -612,7 +663,7 @@ function Step2Map({ preview, currency, accountId, onCommit, onBack, error, loadi
             </div>
           )}
 
-          {!skipMapping && (
+          {(!skipMapping || isStatement) && (
             <div className="flex flex-col gap-1.5">
               <Field label="Timestamps timezone" className="w-full items-stretch sm:max-w-xs">
                 <OptionsSelect
@@ -627,8 +678,9 @@ function Step2Map({ preview, currency, accountId, onCommit, onBack, error, loadi
                 />
               </Field>
               <p className="m-0 text-[11px] leading-relaxed text-muted-foreground">
-                Zone the file&apos;s times were exported in — most US broker exports are Eastern.
-                Times that carry their own offset are unaffected.
+                {isStatement
+                  ? "Zone your broker's MetaTrader server runs in — most use EET (Athens), never UTC."
+                  : "Zone the file's times were exported in — most US broker exports are Eastern. Times that carry their own offset are unaffected."}
               </p>
             </div>
           )}
@@ -665,7 +717,7 @@ function Step2Map({ preview, currency, accountId, onCommit, onBack, error, loadi
         </Card>
       )}
 
-      <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
+      <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-start">
         <Button
           type="button"
           variant="default"
@@ -997,6 +1049,34 @@ export interface ImportViewProps {
   onLogTrade?: () => void;
 }
 
+/**
+ * Turn a preview/commit rejection into something a person can act on.
+ *
+ * A dropped connection is the interesting case: the server detaches the commit
+ * from the request context, so a large import keeps running after the browser
+ * or a proxy has given up. Saying "failed" flat out would be wrong — the rows
+ * may well land a minute later.
+ */
+function describeImportFailure(e: unknown, stage: "preview" | "commit") {
+  if (e instanceof ApiError) {
+    return {
+      title: stage === "preview" ? "Could not read that file" : "Import failed",
+      description: e.message,
+    };
+  }
+  if (stage === "preview") {
+    return {
+      title: "Could not read that file",
+      description: e instanceof Error ? e.message : "Check the file and try again.",
+    };
+  }
+  return {
+    title: "Lost contact with the server",
+    description:
+      "The import may still be finishing in the background. Check your trades in a minute before importing again — re-importing the same file is safe, duplicate fills are skipped.",
+  };
+}
+
 export function ImportView({
   accounts,
   accountsLoading,
@@ -1012,6 +1092,7 @@ export function ImportView({
   const [result, setResult] = useState<ImportResult | null>(null);
   const [stepError, setStepError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const toast = useToastManager();
 
   // Keep file + account between steps so commit can resend
   const [stagedFile, setStagedFile] = useState<File | null>(null);
@@ -1038,9 +1119,9 @@ export function ImportView({
       setPreview(data);
       setStep(2);
     } catch (e) {
-      setStepError(
-        e instanceof Error ? e.message : "Preview failed. Check your CSV and try again.",
-      );
+      const { title, description } = describeImportFailure(e, "preview");
+      setStepError(description);
+      toast.add({ type: "error", title, description });
     } finally {
       setLoading(false);
     }
@@ -1068,7 +1149,9 @@ export function ImportView({
       setResult(data);
       setStep(3);
     } catch (e) {
-      setStepError(e instanceof Error ? e.message : "Import failed. Please try again.");
+      const { title, description } = describeImportFailure(e, "commit");
+      setStepError(description);
+      toast.add({ type: "error", title, description });
     } finally {
       setLoading(false);
     }

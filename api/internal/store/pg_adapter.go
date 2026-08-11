@@ -9,13 +9,21 @@ import (
 )
 
 // PG adapts storepg.Queries to the store.Querier interface.
+// db is the same handle storepg holds, kept for the hand-written set-at-a-time
+// statements in bulk.go that sqlc cannot express.
 type PG struct {
-	q *storepg.Queries
+	q  *storepg.Queries
+	db DBTX
 }
 
 // NewPG wraps a Postgres sqlc Queries as store.Querier.
 func NewPG(conn *sql.DB) *PG {
-	return &PG{q: storepg.New(conn)}
+	return NewPGFromDBTX(conn)
+}
+
+// NewPGFromDBTX wraps any Postgres handle — a *sql.DB or an open *sql.Tx.
+func NewPGFromDBTX(db DBTX) *PG {
+	return &PG{q: storepg.New(db), db: db}
 }
 
 var _ Querier = (*PG)(nil)
@@ -78,6 +86,14 @@ func (p *PG) CreateSetup(ctx context.Context, arg CreateSetupParams) (Setup, err
 		return Setup{}, err
 	}
 	return Setup(v), nil
+}
+
+func (p *PG) CreateShareLink(ctx context.Context, arg CreateShareLinkParams) (ShareLink, error) {
+	v, err := p.q.CreateShareLink(ctx, storepg.CreateShareLinkParams(arg))
+	if err != nil {
+		return ShareLink{}, err
+	}
+	return ShareLink(v), nil
 }
 
 func (p *PG) CreateTag(ctx context.Context, arg CreateTagParams) (Tag, error) {
@@ -332,6 +348,14 @@ func (p *PG) GetSetup(ctx context.Context, arg GetSetupParams) (Setup, error) {
 	return Setup(v), nil
 }
 
+func (p *PG) GetShareLinkByToken(ctx context.Context, token string) (ShareLink, error) {
+	v, err := p.q.GetShareLinkByToken(ctx, token)
+	if err != nil {
+		return ShareLink{}, err
+	}
+	return ShareLink(v), nil
+}
+
 func (p *PG) GetTrade(ctx context.Context, arg GetTradeParams) (Trade, error) {
 	v, err := p.q.GetTrade(ctx, storepg.GetTradeParams(arg))
 	if err != nil {
@@ -374,6 +398,10 @@ func (p *PG) GetUserPreferences(ctx context.Context, userID string) (UserPrefere
 		return UserPreference{}, err
 	}
 	return UserPreference(v), nil
+}
+
+func (p *PG) IncrementShareLinkViews(ctx context.Context, id string) error {
+	return p.q.IncrementShareLinkViews(ctx, id)
 }
 
 func (p *PG) InsertAttachment(ctx context.Context, arg InsertAttachmentParams) (TradeAttachment, error) {
@@ -654,6 +682,21 @@ func (p *PG) ListJournalNotes(ctx context.Context, arg ListJournalNotesParams) (
 	}(), nil
 }
 
+func (p *PG) ListOptionExecutionDetailsForUser(ctx context.Context, userID string) ([]ListOptionExecutionDetailsForUserRow, error) {
+	v, err := p.q.ListOptionExecutionDetailsForUser(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	return func() []ListOptionExecutionDetailsForUserRow {
+		in := v
+		out := make([]ListOptionExecutionDetailsForUserRow, len(in))
+		for i := range in {
+			out[i] = ListOptionExecutionDetailsForUserRow(in[i])
+		}
+		return out
+	}(), nil
+}
+
 func (p *PG) ListJournalRisks(ctx context.Context, userID string) ([]ListJournalRisksRow, error) {
 	v, err := p.q.ListJournalRisks(ctx, userID)
 	if err != nil {
@@ -709,6 +752,21 @@ func (p *PG) ListSetupsForTrade(ctx context.Context, tradeID string) ([]Setup, e
 		out := make([]Setup, len(in))
 		for i := range in {
 			out[i] = Setup(in[i])
+		}
+		return out
+	}(), nil
+}
+
+func (p *PG) ListShareLinksByUser(ctx context.Context, userID string) ([]ShareLink, error) {
+	v, err := p.q.ListShareLinksByUser(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	return func() []ShareLink {
+		in := v
+		out := make([]ShareLink, len(in))
+		for i := range in {
+			out[i] = ShareLink(in[i])
 		}
 		return out
 	}(), nil
@@ -847,6 +905,10 @@ func (p *PG) RecordAccessTokenUse(ctx context.Context, arg RecordAccessTokenUseP
 
 func (p *PG) RevokeAccessToken(ctx context.Context, arg RevokeAccessTokenParams) (int64, error) {
 	return p.q.RevokeAccessToken(ctx, storepg.RevokeAccessTokenParams(arg))
+}
+
+func (p *PG) RevokeShareLink(ctx context.Context, arg RevokeShareLinkParams) (int64, error) {
+	return p.q.RevokeShareLink(ctx, storepg.RevokeShareLinkParams(arg))
 }
 
 func (p *PG) SetImportBatchStatus(ctx context.Context, arg SetImportBatchStatusParams) error {

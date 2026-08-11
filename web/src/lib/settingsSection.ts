@@ -10,6 +10,7 @@ export const SETTINGS_SECTION_IDS: SettingsSectionId[] = [
   "journal",
   "ai",
   "api",
+  "sharing",
   "about",
 ];
 

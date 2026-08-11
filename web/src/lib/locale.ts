@@ -125,6 +125,7 @@ export type SettingsSectionId =
   | "general"
   | "shortcuts"
   | "api"
+  | "sharing"
   | "about";
 
 export type SettingsLabelKey =
@@ -155,6 +156,36 @@ export type SettingsLabelKey =
   | "generalDescription"
   | "apiTitle"
   | "apiDescription"
+  | "sharing"
+  | "sharingTitle"
+  | "sharingDescription"
+  | "sharingLinksTitle"
+  | "sharingLinksDescription"
+  | "sharingCreate"
+  | "sharingCreateHint"
+  | "sharingCreateFailed"
+  | "sharingGenerate"
+  | "sharingLinkReady"
+  | "sharingLinkReadyHint"
+  | "sharingLinkUrl"
+  | "sharingRevokeAnytime"
+  | "sharingCopy"
+  | "sharingCopied"
+  | "sharingCopyFailed"
+  | "sharingOpen"
+  | "sharingShowAmounts"
+  | "sharingShowAmountsHint"
+  | "sharingScopeAll"
+  | "sharingAmountsHidden"
+  | "sharingViews"
+  | "sharingLoading"
+  | "sharingError"
+  | "sharingEmpty"
+  | "sharingDisabled"
+  | "sharingDisabledHint"
+  | "sharingRevoked"
+  | "sharingRevokeFailed"
+  | "sharingRevokeConfirm"
   | "aboutTitle"
   | "aboutDescription"
   | "shortcutsTitle"
@@ -301,6 +332,40 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     generalDescription: "Preferences and session.",
     apiTitle: "API access",
     apiDescription: "Personal access tokens and OpenAPI docs for external tools, MCP, and scripts.",
+    sharing: "Sharing",
+    sharingTitle: "Sharing",
+    sharingDescription: "Public share links for a read-only performance summary.",
+    sharingLinksTitle: "Share links",
+    sharingLinksDescription:
+      "Revocable public links to an aggregate performance record. No trades, notes, or account details are ever exposed.",
+    sharingCreate: "New share link",
+    sharingCreateHint:
+      "The link shows aggregate stats only. Money amounts stay hidden unless you turn them on.",
+    sharingCreateFailed: "Could not create the share link",
+    sharingGenerate: "Create link",
+    sharingLinkReady: "Share link ready",
+    sharingLinkReadyHint: "Anyone with this URL can view the shared summary.",
+    sharingLinkUrl: "Link",
+    sharingRevokeAnytime: "You can revoke this link at any time from Settings → Sharing.",
+    sharingCopy: "Copy link",
+    sharingCopied: "Link copied",
+    sharingCopyFailed: "Could not copy the link",
+    sharingOpen: "Open",
+    sharingShowAmounts: "Show money amounts",
+    sharingShowAmountsHint:
+      "Off shares ratios and curve shape only — win rate and profit factor without dollar values.",
+    sharingScopeAll: "All accounts",
+    sharingAmountsHidden: "amounts hidden",
+    sharingViews: "Views",
+    sharingLoading: "Loading share links…",
+    sharingError: "Could not load share links.",
+    sharingEmpty: "No share links yet",
+    sharingDisabled: "Sharing is off on this server",
+    sharingDisabledHint:
+      "Set TM_SHARE_LINKS_ENABLED=true on the API server to enable public share pages.",
+    sharingRevoked: "Share link revoked",
+    sharingRevokeFailed: "Could not revoke the share link",
+    sharingRevokeConfirm: "Anyone with the link will immediately lose access.",
     aboutTitle: "About TraderMemos",
     aboutDescription: "Project info, features, and links to docs and source.",
     shortcutsTitle: "Keyboard shortcuts",
@@ -459,6 +524,37 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     generalDescription: "偏好設定及工作階段。",
     apiTitle: "API 存取",
     apiDescription: "個人存取權杖與 OpenAPI 文件，供外部工具、MCP 及腳本使用。",
+    sharing: "分享",
+    sharingTitle: "分享",
+    sharingDescription: "以唯讀方式公開分享績效摘要嘅連結。",
+    sharingLinksTitle: "分享連結",
+    sharingLinksDescription:
+      "可隨時撤銷嘅公開連結，只顯示整體績效統計。唔會公開任何交易、筆記或帳戶資料。",
+    sharingCreate: "新增分享連結",
+    sharingCreateHint: "連結只會顯示整體統計。除非你開啟，否則唔會顯示金額。",
+    sharingCreateFailed: "無法建立分享連結",
+    sharingGenerate: "建立連結",
+    sharingLinkReady: "分享連結已就緒",
+    sharingLinkReadyHint: "任何人有呢個網址都可以查看分享嘅摘要。",
+    sharingLinkUrl: "連結",
+    sharingRevokeAnytime: "你可以隨時喺 設定 → 分享 撤銷呢條連結。",
+    sharingCopy: "複製連結",
+    sharingCopied: "已複製連結",
+    sharingCopyFailed: "無法複製連結",
+    sharingOpen: "開啟",
+    sharingShowAmounts: "顯示金額",
+    sharingShowAmountsHint: "關閉時只分享比率同曲線形狀 — 勝率、獲利因子，冇銀碼。",
+    sharingScopeAll: "所有帳戶",
+    sharingAmountsHidden: "隱藏金額",
+    sharingViews: "瀏覽次數",
+    sharingLoading: "載入分享連結中…",
+    sharingError: "無法載入分享連結。",
+    sharingEmpty: "未有分享連結",
+    sharingDisabled: "呢部伺服器未開啟分享功能",
+    sharingDisabledHint: "喺 API 伺服器設定 TM_SHARE_LINKS_ENABLED=true 以啟用公開分享頁面。",
+    sharingRevoked: "已撤銷分享連結",
+    sharingRevokeFailed: "無法撤銷分享連結",
+    sharingRevokeConfirm: "任何人持有呢條連結都會即時失去存取權。",
     aboutTitle: "關於 TraderMemos",
     aboutDescription: "專案資訊、功能概覽，以及文件與原始碼連結。",
     shortcutsTitle: "鍵盤快捷鍵",
@@ -611,6 +707,39 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     apiTitle: "API アクセス",
     apiDescription:
       "外部ツール、MCP、スクリプト向けの個人アクセストークンと OpenAPI ドキュメント。",
+    sharing: "共有",
+    sharingTitle: "共有",
+    sharingDescription: "読み取り専用のパフォーマンス概要を公開する共有リンク。",
+    sharingLinksTitle: "共有リンク",
+    sharingLinksDescription:
+      "いつでも取り消せる公開リンクで、集計された成績のみを表示します。取引・メモ・口座情報は公開されません。",
+    sharingCreate: "共有リンクを作成",
+    sharingCreateHint: "リンクには集計値のみが表示されます。オンにしない限り金額は表示されません。",
+    sharingCreateFailed: "共有リンクを作成できませんでした",
+    sharingGenerate: "リンクを作成",
+    sharingLinkReady: "共有リンクの準備ができました",
+    sharingLinkReadyHint: "この URL を知っている人は誰でも共有された概要を閲覧できます。",
+    sharingLinkUrl: "リンク",
+    sharingRevokeAnytime: "設定 → 共有 からいつでも取り消せます。",
+    sharingCopy: "リンクをコピー",
+    sharingCopied: "リンクをコピーしました",
+    sharingCopyFailed: "リンクをコピーできませんでした",
+    sharingOpen: "開く",
+    sharingShowAmounts: "金額を表示",
+    sharingShowAmountsHint:
+      "オフの場合は勝率やプロフィットファクターなど比率と曲線の形のみを共有します。",
+    sharingScopeAll: "すべての口座",
+    sharingAmountsHidden: "金額非表示",
+    sharingViews: "閲覧数",
+    sharingLoading: "共有リンクを読み込み中…",
+    sharingError: "共有リンクを読み込めませんでした。",
+    sharingEmpty: "共有リンクはまだありません",
+    sharingDisabled: "このサーバーでは共有が無効です",
+    sharingDisabledHint:
+      "公開共有ページを有効にするには API サーバーで TM_SHARE_LINKS_ENABLED=true を設定してください。",
+    sharingRevoked: "共有リンクを取り消しました",
+    sharingRevokeFailed: "共有リンクを取り消せませんでした",
+    sharingRevokeConfirm: "このリンクを知っている人は直ちにアクセスできなくなります。",
     aboutTitle: "TraderMemos について",
     aboutDescription: "プロジェクト情報、機能、ドキュメントとソースへのリンク。",
     shortcutsTitle: "キーボードショートカット",
@@ -768,6 +897,38 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     generalDescription: "환경설정 및 세션.",
     apiTitle: "API 접근",
     apiDescription: "외부 도구, MCP, 스크립트용 개인 액세스 토큰과 OpenAPI 문서.",
+    sharing: "공유",
+    sharingTitle: "공유",
+    sharingDescription: "읽기 전용 성과 요약을 공개하는 공유 링크.",
+    sharingLinksTitle: "공유 링크",
+    sharingLinksDescription:
+      "언제든 철회할 수 있는 공개 링크로, 집계된 성과만 표시됩니다. 거래·메모·계좌 정보는 공개되지 않습니다.",
+    sharingCreate: "새 공유 링크",
+    sharingCreateHint: "링크에는 집계 통계만 표시됩니다. 켜지 않는 한 금액은 표시되지 않습니다.",
+    sharingCreateFailed: "공유 링크를 만들 수 없습니다",
+    sharingGenerate: "링크 만들기",
+    sharingLinkReady: "공유 링크 준비 완료",
+    sharingLinkReadyHint: "이 URL을 아는 누구나 공유된 요약을 볼 수 있습니다.",
+    sharingLinkUrl: "링크",
+    sharingRevokeAnytime: "설정 → 공유에서 언제든지 철회할 수 있습니다.",
+    sharingCopy: "링크 복사",
+    sharingCopied: "링크를 복사했습니다",
+    sharingCopyFailed: "링크를 복사할 수 없습니다",
+    sharingOpen: "열기",
+    sharingShowAmounts: "금액 표시",
+    sharingShowAmountsHint: "끄면 승률·프로핏 팩터 등 비율과 곡선 모양만 공유됩니다.",
+    sharingScopeAll: "모든 계좌",
+    sharingAmountsHidden: "금액 숨김",
+    sharingViews: "조회수",
+    sharingLoading: "공유 링크 불러오는 중…",
+    sharingError: "공유 링크를 불러올 수 없습니다.",
+    sharingEmpty: "공유 링크가 아직 없습니다",
+    sharingDisabled: "이 서버에서는 공유가 꺼져 있습니다",
+    sharingDisabledHint:
+      "공개 공유 페이지를 사용하려면 API 서버에 TM_SHARE_LINKS_ENABLED=true를 설정하세요.",
+    sharingRevoked: "공유 링크를 철회했습니다",
+    sharingRevokeFailed: "공유 링크를 철회할 수 없습니다",
+    sharingRevokeConfirm: "이 링크를 가진 누구나 즉시 접근할 수 없게 됩니다.",
     aboutTitle: "TraderMemos 정보",
     aboutDescription: "프로젝트 정보, 기능, 문서 및 소스 링크.",
     shortcutsTitle: "키보드 단축키",
@@ -928,6 +1089,7 @@ export function settingsNavItems(locale: string): {
       { id: "journal", key: "journal" },
       { id: "ai", key: "ai" },
       { id: "api", key: "api" },
+      { id: "sharing", key: "sharing" },
       { id: "about", key: "about" },
     ] as const
   ).map(({ id, key }) => ({

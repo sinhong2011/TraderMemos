@@ -85,8 +85,8 @@ function SectionLabel({ children }: { children: ReactNode }) {
 
 function FiltersSection() {
   const accounts = useAccounts().data ?? [];
-  const accountId = useFilters((s) => s.accountId);
-  const baseCurrency = accountBaseCurrency(accounts, accountId);
+  const accountIds = useFilters((s) => s.accountIds);
+  const baseCurrency = accountBaseCurrency(accounts, accountIds);
 
   return (
     <div>
@@ -108,9 +108,22 @@ function FiltersSection() {
 function AccountSection({ onNavigate }: { onNavigate: () => void }) {
   const signOut = useAuth((s) => s.signOut);
   const { data: accounts, isLoading } = useAccounts();
-  const accountId = useFilters((s) => s.accountId);
-  const setAccount = useFilters((s) => s.setAccount);
+  const accountIds = useFilters((s) => s.accountIds);
+  const setAccounts = useFilters((s) => s.setAccounts);
   const items = accounts ?? [];
+  const selected = accountIds ?? [];
+  // Portfolio selections must share one base currency (the API rejects mixed
+  // sums), so rows in another currency are disabled while a scope is active.
+  const scopeCurrency = selected.length
+    ? (items
+        .find((a) => a.id === selected[0])
+        ?.base_currency?.trim()
+        .toUpperCase() ?? "")
+    : "";
+  const toggleAccount = (id: string) => {
+    const next = selected.includes(id) ? selected.filter((x) => x !== id) : [...selected, id];
+    setAccounts(next);
+  };
 
   return (
     <div>
@@ -127,34 +140,37 @@ function AccountSection({ onNavigate }: { onNavigate: () => void }) {
           <Button
             type="button"
             variant="ghost"
-            onClick={() => setAccount(undefined)}
+            onClick={() => setAccounts(undefined)}
             className={cn(
               "h-11 w-full justify-start gap-2 rounded-md px-3 text-left text-[14px]",
-              !accountId ? "bg-primary/10 font-medium text-primary" : "text-foreground",
+              !selected.length ? "bg-primary/10 font-medium text-primary" : "text-foreground",
             )}
           >
             <span className="min-w-0 flex-1 truncate">All accounts</span>
-            {!accountId ? <Check size={14} strokeWidth={2} className="shrink-0" /> : null}
+            {!selected.length ? <Check size={14} strokeWidth={2} className="shrink-0" /> : null}
           </Button>
-          {items.map((account) => (
-            <Button
-              key={account.id}
-              type="button"
-              variant="ghost"
-              onClick={() => setAccount(account.id)}
-              className={cn(
-                "h-11 w-full justify-start gap-2 rounded-md px-3 text-left text-[14px]",
-                accountId === account.id
-                  ? "bg-primary/10 font-medium text-primary"
-                  : "text-foreground",
-              )}
-            >
-              <span className="min-w-0 flex-1 truncate">{account.name}</span>
-              {accountId === account.id ? (
-                <Check size={14} strokeWidth={2} className="shrink-0" />
-              ) : null}
-            </Button>
-          ))}
+          {items.map((account) => {
+            const isSelected = selected.includes(account.id);
+            const currency = account.base_currency?.trim().toUpperCase() ?? "";
+            const incompatible =
+              Boolean(scopeCurrency) && !isSelected && currency !== scopeCurrency;
+            return (
+              <Button
+                key={account.id}
+                type="button"
+                variant="ghost"
+                disabled={incompatible}
+                onClick={() => toggleAccount(account.id)}
+                className={cn(
+                  "h-11 w-full justify-start gap-2 rounded-md px-3 text-left text-[14px]",
+                  isSelected ? "bg-primary/10 font-medium text-primary" : "text-foreground",
+                )}
+              >
+                <span className="min-w-0 flex-1 truncate">{account.name}</span>
+                {isSelected ? <Check size={14} strokeWidth={2} className="shrink-0" /> : null}
+              </Button>
+            );
+          })}
         </div>
       )}
       <ActionRow

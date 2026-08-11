@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/auth"
 	"github.com/tradermemos/api/internal/store"
 )
@@ -44,7 +44,7 @@ func toRiskRulesDTO(r store.RiskRule) riskRulesDTO {
 	}
 }
 
-func (s *Server) handleGetRiskRules(c echo.Context) error {
+func (s *Server) handleGetRiskRules(c *echo.Context) error {
 	uid := auth.UserID(c)
 	r, err := s.deps.Store.GetRiskRules(c.Request().Context(), uid)
 	if errors.Is(err, sql.ErrNoRows) {
@@ -56,7 +56,7 @@ func (s *Server) handleGetRiskRules(c echo.Context) error {
 	return c.JSON(http.StatusOK, toRiskRulesDTO(r))
 }
 
-func (s *Server) handlePutRiskRules(c echo.Context) error {
+func (s *Server) handlePutRiskRules(c *echo.Context) error {
 	uid := auth.UserID(c)
 	var in riskRulesDTO
 	if err := c.Bind(&in); err != nil {
@@ -117,7 +117,7 @@ func toAnnualGoalDTO(g store.AnnualGoal) annualGoalDTO {
 	return annualGoalDTO{Year: int(g.Year), Amount: &amount}
 }
 
-func parseGoalYear(c echo.Context) (int64, error) {
+func parseGoalYear(c *echo.Context) (int64, error) {
 	raw := c.QueryParam("year")
 	if raw == "" {
 		return int64(time.Now().UTC().Year()), nil
@@ -132,7 +132,7 @@ func parseGoalYear(c echo.Context) (int64, error) {
 	return int64(y), nil
 }
 
-func (s *Server) handleGetAnnualGoal(c echo.Context) error {
+func (s *Server) handleGetAnnualGoal(c *echo.Context) error {
 	uid := auth.UserID(c)
 	year, err := parseGoalYear(c)
 	if err != nil {
@@ -151,7 +151,7 @@ func (s *Server) handleGetAnnualGoal(c echo.Context) error {
 	return c.JSON(http.StatusOK, toAnnualGoalDTO(g))
 }
 
-func (s *Server) handlePutAnnualGoal(c echo.Context) error {
+func (s *Server) handlePutAnnualGoal(c *echo.Context) error {
 	uid := auth.UserID(c)
 	var in struct {
 		Year   int      `json:"year"`
@@ -183,7 +183,7 @@ func (s *Server) handlePutAnnualGoal(c echo.Context) error {
 	return c.JSON(http.StatusOK, toAnnualGoalDTO(g))
 }
 
-func (s *Server) handleDeleteAnnualGoal(c echo.Context) error {
+func (s *Server) handleDeleteAnnualGoal(c *echo.Context) error {
 	uid := auth.UserID(c)
 	year, err := parseGoalYear(c)
 	if err != nil {

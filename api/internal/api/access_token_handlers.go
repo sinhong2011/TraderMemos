@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/auth"
 	"github.com/tradermemos/api/internal/store"
 )
@@ -56,7 +56,7 @@ func accessTokenToDTO(row store.AccessToken) accessTokenDTO {
 	return dto
 }
 
-func (s *Server) handleListAccessTokens(c echo.Context) error {
+func (s *Server) handleListAccessTokens(c *echo.Context) error {
 	rows, err := s.deps.Store.ListAccessTokensByUser(c.Request().Context(), auth.UserID(c))
 	if err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not list access tokens", nil)
@@ -68,7 +68,7 @@ func (s *Server) handleListAccessTokens(c echo.Context) error {
 	return c.JSON(http.StatusOK, out)
 }
 
-func (s *Server) handleCreateAccessToken(c echo.Context) error {
+func (s *Server) handleCreateAccessToken(c *echo.Context) error {
 	var in createAccessTokenReq
 	if err := c.Bind(&in); err != nil {
 		return Fail(http.StatusBadRequest, "bad_request", "invalid body", nil)
@@ -115,7 +115,7 @@ func (s *Server) handleCreateAccessToken(c echo.Context) error {
 	})
 }
 
-func (s *Server) handleRevokeAccessToken(c echo.Context) error {
+func (s *Server) handleRevokeAccessToken(c *echo.Context) error {
 	n, err := s.deps.Store.RevokeAccessToken(c.Request().Context(), store.RevokeAccessTokenParams{
 		ID:     c.Param("id"),
 		UserID: auth.UserID(c),
@@ -141,7 +141,7 @@ type accessTokenUseDTO struct {
 // Where a token has been used from. `last_used_at` answers "recently?"; this
 // answers "by what?", which is the question you ask when a token might have
 // leaked.
-func (s *Server) handleListAccessTokenUses(c echo.Context) error {
+func (s *Server) handleListAccessTokenUses(c *echo.Context) error {
 	if s.deps.Store == nil {
 		return Fail(http.StatusServiceUnavailable, "unavailable", "store not configured", nil)
 	}

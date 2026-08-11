@@ -3,13 +3,13 @@ package api
 import (
 	"net/http"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/analytics"
 	"github.com/tradermemos/api/internal/auth"
 )
 
 // handleBehavior runs the behavioral-pattern detectors over closed trades.
-func (s *Server) handleBehavior(c echo.Context) error {
+func (s *Server) handleBehavior(c *echo.Context) error {
 	ctx := c.Request().Context()
 	uid := auth.UserID(c)
 	f, err := parseFilters(c)
@@ -19,7 +19,7 @@ func (s *Server) handleBehavior(c echo.Context) error {
 
 	rows, err := s.loadClosedTrades(ctx, uid, f)
 	if err != nil {
-		return Fail(http.StatusInternalServerError, "internal", "could not load trades", nil)
+		return failLoad(err, "could not load trades")
 	}
 	journals, err := s.deps.Store.ListTradeJournalsForUser(ctx, uid)
 	if err != nil {

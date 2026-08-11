@@ -4,6 +4,7 @@ import {
   fetchLatestRelease,
   isNewerVersion,
   normalizeVersion,
+  parseReleaseNotes,
   releaseExcerpt,
 } from "./releases";
 
@@ -31,6 +32,62 @@ describe("releaseExcerpt", () => {
     const excerpt = releaseExcerpt(body, 40);
     expect(excerpt).not.toContain("```");
     expect(excerpt.length).toBeLessThanOrEqual(41);
+  });
+});
+
+describe("parseReleaseNotes", () => {
+  const body = [
+    "## [0.7.0](https://github.com/x/y/compare/v0.6.1...v0.7.0) (2026-08-09)",
+    "",
+    "### Features",
+    "",
+    "* **mobile:** option call/put chips ([#169](https://github.com/x/y/issues/169)) ([ba6e999](https://github.com/x/y/commit/ba6e999a80be1e7e0339071ab948a07bb5900a26))",
+    "",
+    "### Bug Fixes",
+    "",
+    "* **docker:** build the web bundle natively ([#171](https://github.com/x/y/issues/171)) ([b3fe070](https://github.com/x/y/commit/b3fe0706))",
+    "* plain fix without scope or refs",
+  ].join("\n");
+
+  it("parses release-please sections, scopes, and PR refs", () => {
+    const sections = parseReleaseNotes(body);
+    expect(sections.map((s) => s.title)).toEqual(["Features", "Bug Fixes"]);
+    expect(sections[0].items).toEqual([
+      {
+        scope: "mobile",
+        text: "option call/put chips",
+        prLabel: "#169",
+        prUrl: "https://github.com/x/y/issues/169",
+      },
+    ]);
+    expect(sections[1].items[1]).toEqual({
+      scope: null,
+      text: "plain fix without scope or refs",
+      prLabel: null,
+      prUrl: null,
+    });
+  });
+
+  it("drops commit-sha refs but keeps the PR link", () => {
+    const [fixes] = parseReleaseNotes(body).slice(1);
+    expect(fixes.items[0]).toEqual({
+      scope: "docker",
+      text: "build the web bundle natively",
+      prLabel: "#171",
+      prUrl: "https://github.com/x/y/issues/171",
+    });
+  });
+
+  it("returns no sections for freeform bodies", () => {
+    expect(parseReleaseNotes("Bug fixes and polish.")).toEqual([]);
+    expect(parseReleaseNotes("")).toEqual([]);
+  });
+
+  it("flattens inline links left in item text", () => {
+    const sections = parseReleaseNotes(
+      "### Features\n* see [the docs](https://example.com) for details",
+    );
+    expect(sections[0].items[0].text).toBe("see the docs for details");
   });
 });
 

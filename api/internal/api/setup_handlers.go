@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/auth"
 	"github.com/tradermemos/api/internal/store"
 )
@@ -99,7 +99,7 @@ func normalizeDirection(d string) string {
 	}
 }
 
-func (s *Server) handleCreateSetup(c echo.Context) error {
+func (s *Server) handleCreateSetup(c *echo.Context) error {
 	var in setupBody
 	if err := c.Bind(&in); err != nil || strings.TrimSpace(in.Name) == "" {
 		return Fail(http.StatusBadRequest, "bad_request", "name is required", nil)
@@ -122,7 +122,7 @@ func (s *Server) handleCreateSetup(c echo.Context) error {
 	return c.JSON(http.StatusCreated, toSetupDTO(setup))
 }
 
-func (s *Server) handleListSetups(c echo.Context) error {
+func (s *Server) handleListSetups(c *echo.Context) error {
 	rows, err := s.deps.Store.ListSetups(c.Request().Context(), auth.UserID(c))
 	if err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not list setups", nil)
@@ -134,7 +134,7 @@ func (s *Server) handleListSetups(c echo.Context) error {
 	return c.JSON(http.StatusOK, out)
 }
 
-func (s *Server) handleGetSetup(c echo.Context) error {
+func (s *Server) handleGetSetup(c *echo.Context) error {
 	setup, err := s.deps.Store.GetSetup(c.Request().Context(), store.GetSetupParams{
 		ID: c.Param("id"), UserID: auth.UserID(c),
 	})
@@ -144,7 +144,7 @@ func (s *Server) handleGetSetup(c echo.Context) error {
 	return c.JSON(http.StatusOK, toSetupDTO(setup))
 }
 
-func (s *Server) handleUpdateSetup(c echo.Context) error {
+func (s *Server) handleUpdateSetup(c *echo.Context) error {
 	var in setupBody
 	if err := c.Bind(&in); err != nil || strings.TrimSpace(in.Name) == "" {
 		return Fail(http.StatusBadRequest, "bad_request", "name is required", nil)
@@ -172,7 +172,7 @@ func (s *Server) handleUpdateSetup(c echo.Context) error {
 	return c.JSON(http.StatusOK, toSetupDTO(setup))
 }
 
-func (s *Server) handleDeleteSetup(c echo.Context) error {
+func (s *Server) handleDeleteSetup(c *echo.Context) error {
 	n, err := s.deps.Store.DeleteSetup(c.Request().Context(), store.DeleteSetupParams{
 		ID: c.Param("id"), UserID: auth.UserID(c),
 	})

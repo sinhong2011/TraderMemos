@@ -34,6 +34,7 @@ import type { Account, BreakGroup, EquityPoint, Summary, Trade } from "@/lib/api
 import type { DayRecord } from "@/lib/calendar";
 import { uniqueDayTicks } from "@/lib/chartTicks";
 import { accountBaseCurrency, useDisplayTimePrefs, usePrivacyMode } from "@/lib/displayPrefs";
+import { soleAccountId } from "@/lib/filters";
 import { COMPACT_VIEWPORT, useMediaQuery } from "@/lib/hooks/use-mobile";
 import { useMoneyFx } from "@/lib/hooks/useMoneyFx";
 import { fmtDayShort, fmtMoney, fmtMoneyCompact } from "@/lib/format";
@@ -52,7 +53,7 @@ export interface HomeViewProps {
   tradesError: boolean;
   trades: Trade[];
   accounts: Account[];
-  selectedAccountId: string | undefined;
+  selectedAccountIds: string[] | undefined;
   tradeStatusFilter?: TradeStatusFilter;
   onToggleTradeStatus?: (filter: TradeStatusFilter) => void;
   onSelectTrade: (t: Trade) => void;
@@ -206,7 +207,7 @@ export function HomeView({
   tradesError,
   trades,
   accounts,
-  selectedAccountId,
+  selectedAccountIds,
   tradeStatusFilter,
   onToggleTradeStatus,
   onSelectTrade,
@@ -240,7 +241,7 @@ export function HomeView({
   onSaveGoal,
   onClearGoal,
 }: HomeViewProps) {
-  const baseCurrency = accountBaseCurrency(accounts, selectedAccountId);
+  const baseCurrency = accountBaseCurrency(accounts, selectedAccountIds);
   const { currency, rate } = useMoneyFx(baseCurrency);
   const fxRate = rate ?? 1;
   const compact = useMediaQuery(COMPACT_VIEWPORT);
@@ -356,7 +357,8 @@ export function HomeView({
 
       <DailyLossCard todayNetPnl={todayNetPnl} currency={currency} fxRate={fxRate} />
 
-      <PropStatusCard accounts={accounts} selectedAccountId={selectedAccountId} />
+      {/* Prop status tracks one funded account; hidden under a multi-account scope. */}
+      <PropStatusCard accounts={accounts} selectedAccountId={soleAccountId(selectedAccountIds)} />
 
       <AnnualGoalCard
         year={goalYear}

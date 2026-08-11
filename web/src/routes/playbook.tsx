@@ -14,12 +14,12 @@ export const Route = createFileRoute("/playbook")({
 function PlaybookPage() {
   const toast = useToastManager();
   const filters = useFilterParams();
-  const accountId = useFilters((s) => s.accountId);
+  const accountIds = useFilters((s) => s.accountIds);
 
   const setupsQ = useSetups();
   const breakdownQ = useBreakdown("setup", filters);
   const accountsQ = useAccounts();
-  const currency = accountBaseCurrency(accountsQ.data ?? [], accountId);
+  const currency = accountBaseCurrency(accountsQ.data ?? [], accountIds);
 
   const deleteM = useDeleteSetup();
 

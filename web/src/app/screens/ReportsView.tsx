@@ -45,6 +45,7 @@ import { ReportsExecutionGrade } from "@/components/ReportsExecutionGrade";
 import { ReportsHourlyList } from "@/components/ReportsHourlyList";
 import { ReportsSummaryBento } from "@/components/ReportsSummaryBento";
 import { ReportsMetricEvolution } from "@/components/ReportsMetricEvolution";
+import { ReportsMonteCarlo } from "@/components/ReportsMonteCarlo";
 import { ReportsRiskDrawdown } from "@/components/ReportsRiskDrawdown";
 import { ReportsRuleCompliance } from "@/components/ReportsRuleCompliance";
 import { ReportsRMultiplePerformance } from "@/components/ReportsRMultiplePerformance";
@@ -63,6 +64,7 @@ import type {
   BreakGroup,
   ComplianceReport,
   EquityCurve,
+  MonteCarloResult,
   RSummary,
   Summary,
   Trade,
@@ -153,6 +155,9 @@ export interface ReportsViewProps {
   behavior?: BehaviorReport;
   behaviorLoading?: boolean;
   behaviorError?: boolean;
+  monteCarlo?: MonteCarloResult;
+  monteCarloLoading?: boolean;
+  monteCarloError?: boolean;
   onSelectTradeId?: (id: string) => void;
   tab: ReportsTab;
   onTabChange: (t: ReportsTab) => void;
@@ -185,6 +190,8 @@ export interface ReportsViewProps {
   ytdLoading: boolean;
   onSaveGoal: (amount: number) => Promise<void>;
   onClearGoal: () => Promise<void>;
+  /** Optional share affordance rendered at the end of the control bar row. */
+  shareAction?: ReactNode;
 }
 
 // ---------------------------------------------------------------------------
@@ -597,6 +604,9 @@ export function ReportsView({
   behavior,
   behaviorLoading = false,
   behaviorError = false,
+  monteCarlo,
+  monteCarloLoading = false,
+  monteCarloError = false,
   onSelectTradeId,
   tab,
   onTabChange,
@@ -629,6 +639,7 @@ export function ReportsView({
   ytdLoading,
   onSaveGoal,
   onClearGoal,
+  shareAction,
 }: ReportsViewProps) {
   usePrivacyMode();
   const { currency: displayCurrency, rate } = useMoneyFx(currency);
@@ -695,19 +706,24 @@ export function ReportsView({
             ))}
           </TabsList>
 
-          <ReportsControlBar
-            side={side}
-            duration={duration}
-            onSideChange={onSideChange}
-            onDurationChange={onDurationChange}
-            pnlMode={pnlMode}
-            unitMode={unitMode}
-            avgMode={avgMode}
-            onPnlModeChange={onPnlModeChange}
-            onUnitModeChange={onUnitModeChange}
-            onAvgModeChange={onAvgModeChange}
-            pctEnabled={pctEnabled}
-          />
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="min-w-0 flex-1">
+              <ReportsControlBar
+                side={side}
+                duration={duration}
+                onSideChange={onSideChange}
+                onDurationChange={onDurationChange}
+                pnlMode={pnlMode}
+                unitMode={unitMode}
+                avgMode={avgMode}
+                onPnlModeChange={onPnlModeChange}
+                onUnitModeChange={onUnitModeChange}
+                onAvgModeChange={onAvgModeChange}
+                pctEnabled={pctEnabled}
+              />
+            </div>
+            {shareAction}
+          </div>
 
           <TabsContent value="overview" className="flex flex-col gap-4">
             {summaryLoading ? (
@@ -829,6 +845,12 @@ export function ReportsView({
               error={tradesError || equityError}
               currency={displayCurrency}
               fxRate={fxRate}
+            />
+            <ReportsMonteCarlo
+              simulation={monteCarlo}
+              loading={monteCarloLoading}
+              error={monteCarloError}
+              currency={displayCurrency}
             />
             <ReportsRuleCompliance
               report={compliance}

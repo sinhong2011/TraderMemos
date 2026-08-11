@@ -22,7 +22,7 @@ export const Route = createFileRoute("/trades/")({
 
 function TradesPage() {
   const filters = useFilterParams();
-  const accountId = useFilters((s) => s.accountId);
+  const accountIds = useFilters((s) => s.accountIds);
   const from = useFilters((s) => s.from);
   const to = useFilters((s) => s.to);
   const symbols = useFilters((s) => s.symbols);
@@ -42,7 +42,7 @@ function TradesPage() {
   const tradesQ = useTrades(filters);
   const accountsQ = useAccounts();
   const accounts = accountsQ.data ?? [];
-  const currency = accountBaseCurrency(accounts, accountId);
+  const currency = accountBaseCurrency(accounts, accountIds);
 
   const hasNarrowingFilters = !!(
     from ||
@@ -52,7 +52,7 @@ function TradesPage() {
     tagIds?.length ||
     markets?.length
   );
-  const scopeFilters = accountId ? { account_id: accountId } : {};
+  const scopeFilters = accountIds?.length ? { account_id: accountIds.join(",") } : {};
   const scopeQ = useTrades(scopeFilters);
 
   const rawTrades = tradesQ.data;

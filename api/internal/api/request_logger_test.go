@@ -6,9 +6,11 @@ import (
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
+	"regexp"
+	"strings"
 	"testing"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/stretchr/testify/require"
 	"github.com/tradermemos/api/internal/api"
 )
@@ -18,9 +20,8 @@ func TestRequestLoggerIncludesRouteParamsAndQuery(t *testing.T) {
 	lg := slog.New(slog.NewTextHandler(&buf, &slog.HandlerOptions{Level: slog.LevelInfo}))
 
 	e := echo.New()
-	e.HideBanner = true
 	e.Use(api.RequestLogger(lg))
-	e.GET("/api/v1/trades/:id", func(c echo.Context) error {
+	e.GET("/api/v1/trades/:id", func(c *echo.Context) error {
 		return c.NoContent(http.StatusOK)
 	})
 
@@ -41,9 +42,8 @@ func TestRequestLoggerOmitsEmptyParamsAndQuery(t *testing.T) {
 	lg := slog.New(slog.NewTextHandler(&buf, &slog.HandlerOptions{Level: slog.LevelInfo}))
 
 	e := echo.New()
-	e.HideBanner = true
 	e.Use(api.RequestLogger(lg))
-	e.GET("/api/v1/setup/status", func(c echo.Context) error {
+	e.GET("/api/v1/setup/status", func(c *echo.Context) error {
 		return c.NoContent(http.StatusOK)
 	})
 
@@ -63,9 +63,8 @@ func TestRequestLoggerIncludesErrorCause(t *testing.T) {
 	lg := slog.New(slog.NewTextHandler(&buf, &slog.HandlerOptions{Level: slog.LevelInfo}))
 
 	e := echo.New()
-	e.HideBanner = true
 	e.Use(api.RequestLogger(lg))
-	e.POST("/api/v1/import", func(c echo.Context) error {
+	e.POST("/api/v1/import", func(c *echo.Context) error {
 		return api.Fail(http.StatusInternalServerError, "internal", "could not import", "disk full")
 	})
 
@@ -82,14 +81,63 @@ func TestRequestLoggerIncludesErrorCause(t *testing.T) {
 	require.Contains(t, out, "latency_ms=")
 }
 
+// A recovered panic must land in the request's own log line — with route,
+// status and latency alongside the stack — rather than a detached entry.
+func TestRequestLoggerRecordsPanicStack(t *testing.T) {
+	var buf bytes.Buffer
+	lg := slog.New(slog.NewTextHandler(&buf, &slog.HandlerOptions{Level: slog.LevelInfo}))
+
+	s := api.New(api.Deps{Logger: lg})
+	s.Echo.GET("/test/panic", func(c *echo.Context) error { panic("boom") })
+
+	rec := httptest.NewRecorder()
+	s.Echo.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/test/panic", nil))
+	require.Equal(t, http.StatusInternalServerError, rec.Code)
+
+	out := buf.String()
+	require.Contains(t, out, "level=ERROR")
+	require.Contains(t, out, "route=/test/panic")
+	require.Contains(t, out, "status=500")
+	require.Contains(t, out, "latency_ms=")
+	require.Contains(t, out, "err=boom")
+	require.Contains(t, out, "goroutine")
+	// One line for the whole request, not a separate panic entry.
+	require.Equal(t, 1, strings.Count(out, "msg=request"))
+}
+
+// A handler logging through c.Logger() must carry the same request id as the
+// request line, so the two can be correlated after the fact.
+func TestContextLoggerTagsHandlerLogsWithRequestID(t *testing.T) {
+	var buf bytes.Buffer
+	lg := slog.New(slog.NewTextHandler(&buf, &slog.HandlerOptions{Level: slog.LevelInfo}))
+
+	s := api.New(api.Deps{Logger: lg})
+	s.Echo.GET("/test/warn", func(c *echo.Context) error {
+		c.Logger().Warn("something degraded", "detail", "upstream slow")
+		return c.NoContent(http.StatusOK)
+	})
+
+	rec := httptest.NewRecorder()
+	s.Echo.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/test/warn", nil))
+	require.Equal(t, http.StatusOK, rec.Code)
+
+	out := buf.String()
+	require.Contains(t, out, "something degraded")
+
+	// Both lines must carry the same non-empty id.
+	ids := regexp.MustCompile(`id=(\S+)`).FindAllStringSubmatch(out, -1)
+	require.Len(t, ids, 2, "expected an id on both the handler warning and the request line: %s", out)
+	require.NotEmpty(t, ids[0][1])
+	require.Equal(t, ids[0][1], ids[1][1])
+}
+
 func TestRequestLoggerIncludesPlainErrors(t *testing.T) {
 	var buf bytes.Buffer
 	lg := slog.New(slog.NewTextHandler(&buf, &slog.HandlerOptions{Level: slog.LevelInfo}))
 
 	e := echo.New()
-	e.HideBanner = true
 	e.Use(api.RequestLogger(lg))
-	e.GET("/api/v1/boom", func(c echo.Context) error {
+	e.GET("/api/v1/boom", func(c *echo.Context) error {
 		return errors.New("kaput")
 	})
 

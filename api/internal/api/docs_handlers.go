@@ -3,7 +3,7 @@ package api
 import (
 	"net/http"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/openapi"
 )
 
@@ -41,13 +41,13 @@ const scalarDocsHTML = `<!doctype html>
 `
 
 func (s *Server) docsRoutes() {
-	s.Echo.GET("/openapi.yaml", func(c echo.Context) error {
+	s.Echo.GET("/openapi.yaml", func(c *echo.Context) error {
 		return c.Blob(http.StatusOK, "application/yaml; charset=utf-8", openapi.Spec)
 	})
-	s.Echo.GET("/docs", func(c echo.Context) error {
+	s.Echo.GET("/docs", func(c *echo.Context) error {
 		return c.HTML(http.StatusOK, scalarDocsHTML)
 	})
-	s.Echo.GET("/docs/", func(c echo.Context) error {
+	s.Echo.GET("/docs/", func(c *echo.Context) error {
 		return c.Redirect(http.StatusMovedPermanently, "/docs")
 	})
 }
