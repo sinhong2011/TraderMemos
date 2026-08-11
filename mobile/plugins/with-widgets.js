@@ -30,8 +30,16 @@ const SWIFT_FILES = [
   'TodaySnapshot.swift',
   'WidgetTheme.swift',
   'TodayWidget.swift',
+  'TradingSessionAttributes.swift',
+  'TradingSessionLiveActivity.swift',
   'WidgetsBundle.swift',
 ];
+// The ActivityKit attributes are canonical in the live-activity module (the
+// app compiles them through its pod); the extension gets a prebuild-time copy
+// so the two targets can never drift.
+const SHARED_FROM_MODULES = {
+  'TradingSessionAttributes.swift': ['modules', 'live-activity', 'ios'],
+};
 const TARGET_FILES = [...SWIFT_FILES, 'Info.plist', `${TARGET_NAME}.entitlements`];
 
 /** @type {import('expo/config-plugins').ConfigPlugin} */
@@ -51,7 +59,10 @@ function withWidgets(config) {
       const destination = path.join(config.modRequest.platformProjectRoot, TARGET_NAME);
       fs.mkdirSync(destination, { recursive: true });
       for (const file of TARGET_FILES) {
-        fs.copyFileSync(path.join(source, file), path.join(destination, file));
+        const from = SHARED_FROM_MODULES[file]
+          ? path.join(config.modRequest.projectRoot, ...SHARED_FROM_MODULES[file], file)
+          : path.join(source, file);
+        fs.copyFileSync(from, path.join(destination, file));
       }
       return config;
     },

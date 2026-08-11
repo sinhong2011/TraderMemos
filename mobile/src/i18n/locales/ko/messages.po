@@ -743,7 +743,7 @@ msgstr "조정"
 msgid "Advanced"
 msgstr "고급 설정"
 
-#: src/components/tools-menu.tsx:55
+#: src/components/tools-menu.tsx:60
 msgid "Advanced chart"
 msgstr "고급 차트"
 
@@ -1667,7 +1667,7 @@ msgstr "모델을 불러오지 못했습니다"
 #~ msgid "Could not load your account."
 #~ msgstr "계정 정보를 불러올 수 없습니다."
 
-#: src/app/_layout.tsx:73
+#: src/app/_layout.tsx:74
 msgid "Could not open file"
 msgstr "파일을 열지 못했습니다"
 
@@ -1841,7 +1841,7 @@ msgid "Currency"
 msgstr "통화"
 
 #: src/app/tool-fx.tsx:52
-#: src/components/tools-menu.tsx:45
+#: src/components/tools-menu.tsx:50
 msgid "Currency converter"
 msgstr "환율 변환기"
 
@@ -1873,7 +1873,7 @@ msgstr "다음 속도로 전환합니다"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:88
 #: src/components/checklist-card.tsx:169
-#: src/components/tools-menu.tsx:73
+#: src/components/tools-menu.tsx:78
 msgid "Daily checklist"
 msgstr "데일리 체크리스트"
 
@@ -2202,7 +2202,7 @@ msgstr "각 점은 최근 {windowSize}건의 청산 거래 승률입니다."
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:101
 #: src/app/(tabs)/(dashboard)/economic-events.tsx:661
-#: src/components/tools-menu.tsx:60
+#: src/components/tools-menu.tsx:65
 msgid "Economic calendar"
 msgstr "경제 캘린더"
 
@@ -2252,6 +2252,10 @@ msgstr "감정"
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:315
 msgid "Enabled"
 msgstr "사용"
+
+#: src/components/tools-menu.tsx:108
+msgid "End Lock Screen session"
+msgstr "잠금 화면 세션 종료"
 
 #: src/app/(tabs)/(settings)/trading-journal.tsx:92
 msgid "Enter a number of 1 or more."
@@ -3089,7 +3093,7 @@ msgstr "이 노트와 서버에서 모두 삭제됩니다."
 #: src/app/(tabs)/(trades)/[id].tsx:584
 #: src/app/(tabs)/(trades)/[id].tsx:626
 #: src/components/swipeable-trade-row.tsx:118
-#: src/components/tools-menu.tsx:99
+#: src/components/tools-menu.tsx:121
 #: src/components/trade-form.tsx:463
 msgid "Journal"
 msgstr "저널"
@@ -3121,7 +3125,7 @@ msgid "Kelly (half)"
 msgstr "켈리 (절반)"
 
 #: src/app/tool-kelly.tsx:33
-#: src/components/tools-menu.tsx:43
+#: src/components/tools-menu.tsx:48
 msgid "Kelly criterion"
 msgstr "켈리 기준"
 
@@ -3980,7 +3984,7 @@ msgstr "노트를 찾을 수 없습니다"
 #: src/app/(tabs)/(dashboard)/notes.tsx:181
 #: src/app/(tabs)/(dashboard)/notes.tsx:231
 #: src/app/(tabs)/(trades)/[id].tsx:657
-#: src/components/tools-menu.tsx:67
+#: src/components/tools-menu.tsx:72
 msgid "Notes"
 msgstr "메모"
 
@@ -4394,7 +4398,7 @@ msgstr "재생 속도"
 #: src/app/(tabs)/(dashboard)/index.tsx:214
 #: src/app/(tabs)/(dashboard)/playbook.tsx:172
 #: src/app/(tabs)/(dashboard)/playbook.tsx:222
-#: src/components/tools-menu.tsx:68
+#: src/components/tools-menu.tsx:73
 msgid "Playbook"
 msgstr "플레이북"
 
@@ -4432,7 +4436,7 @@ msgid "Position"
 msgstr "포지션"
 
 #: src/app/tool-position-size.tsx:53
-#: src/components/tools-menu.tsx:39
+#: src/components/tools-menu.tsx:44
 msgid "Position size"
 msgstr "포지션 크기"
 
@@ -4636,7 +4640,7 @@ msgstr "빠른 손실 — 가설이 빠르게 무너짐"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:93
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:698
-#: src/components/tools-menu.tsx:50
+#: src/components/tools-menu.tsx:55
 msgid "R calculator"
 msgstr "R 계산기"
 
@@ -4924,7 +4928,7 @@ msgstr "문제 신고"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:112
 #: src/app/(tabs)/(dashboard)/reports.tsx:73
-#: src/components/tools-menu.tsx:34
+#: src/components/tools-menu.tsx:39
 msgid "Reports"
 msgstr "리포트"
 
@@ -5330,6 +5334,7 @@ msgid "Server URL"
 msgstr "서버 URL"
 
 #: src/app/(tabs)/(trades)/[id].tsx:600
+#: src/components/tools-menu.tsx:105
 #: src/components/trade-form.tsx:474
 msgid "Session"
 msgstr "세션"
@@ -5471,6 +5476,10 @@ msgstr "금액 표시"
 #: src/components/password-input.tsx:35
 msgid "Show password"
 msgstr "비밀번호 표시"
+
+#: src/components/tools-menu.tsx:114
+msgid "Show session on Lock Screen"
+msgstr "잠금 화면에 세션 표시"
 
 #: src/app/(tabs)/(settings)/import-trades.tsx:46
 #: src/components/reports-filter-menu.tsx:36
@@ -6146,9 +6155,9 @@ msgstr "토큰은 스크립트와 연동이 서버 API에 인증하는 수단입
 msgid "Too many requests"
 msgstr "요청이 너무 많음"
 
-#: src/components/tools-menu.tsx:85
-#: src/components/tools-menu.tsx:97
-#: src/components/tools-menu.tsx:109
+#: src/components/tools-menu.tsx:90
+#: src/components/tools-menu.tsx:102
+#: src/components/tools-menu.tsx:131
 msgid "Tools"
 msgstr "도구"
 

@@ -743,7 +743,7 @@ msgstr "Adjustment"
 msgid "Advanced"
 msgstr "Advanced"
 
-#: src/components/tools-menu.tsx:55
+#: src/components/tools-menu.tsx:60
 msgid "Advanced chart"
 msgstr "Advanced chart"
 
@@ -1667,7 +1667,7 @@ msgstr "Could not load models"
 #~ msgid "Could not load your account."
 #~ msgstr "Could not load your account."
 
-#: src/app/_layout.tsx:73
+#: src/app/_layout.tsx:74
 msgid "Could not open file"
 msgstr "Could not open file"
 
@@ -1841,7 +1841,7 @@ msgid "Currency"
 msgstr "Currency"
 
 #: src/app/tool-fx.tsx:52
-#: src/components/tools-menu.tsx:45
+#: src/components/tools-menu.tsx:50
 msgid "Currency converter"
 msgstr "Currency converter"
 
@@ -1873,7 +1873,7 @@ msgstr "Cycles to the next speed"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:88
 #: src/components/checklist-card.tsx:169
-#: src/components/tools-menu.tsx:73
+#: src/components/tools-menu.tsx:78
 msgid "Daily checklist"
 msgstr "Daily checklist"
 
@@ -2202,7 +2202,7 @@ msgstr "Each point is the win rate across the trailing {windowSize} closed trade
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:101
 #: src/app/(tabs)/(dashboard)/economic-events.tsx:661
-#: src/components/tools-menu.tsx:60
+#: src/components/tools-menu.tsx:65
 msgid "Economic calendar"
 msgstr "Economic calendar"
 
@@ -2252,6 +2252,10 @@ msgstr "Emotion"
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:315
 msgid "Enabled"
 msgstr "Enabled"
+
+#: src/components/tools-menu.tsx:108
+msgid "End Lock Screen session"
+msgstr "End Lock Screen session"
 
 #: src/app/(tabs)/(settings)/trading-journal.tsx:92
 msgid "Enter a number of 1 or more."
@@ -3089,7 +3093,7 @@ msgstr "It is deleted from this note and from the server."
 #: src/app/(tabs)/(trades)/[id].tsx:584
 #: src/app/(tabs)/(trades)/[id].tsx:626
 #: src/components/swipeable-trade-row.tsx:118
-#: src/components/tools-menu.tsx:99
+#: src/components/tools-menu.tsx:121
 #: src/components/trade-form.tsx:463
 msgid "Journal"
 msgstr "Journal"
@@ -3121,7 +3125,7 @@ msgid "Kelly (half)"
 msgstr "Kelly (half)"
 
 #: src/app/tool-kelly.tsx:33
-#: src/components/tools-menu.tsx:43
+#: src/components/tools-menu.tsx:48
 msgid "Kelly criterion"
 msgstr "Kelly criterion"
 
@@ -3980,7 +3984,7 @@ msgstr "Note not found"
 #: src/app/(tabs)/(dashboard)/notes.tsx:181
 #: src/app/(tabs)/(dashboard)/notes.tsx:231
 #: src/app/(tabs)/(trades)/[id].tsx:657
-#: src/components/tools-menu.tsx:67
+#: src/components/tools-menu.tsx:72
 msgid "Notes"
 msgstr "Notes"
 
@@ -4394,7 +4398,7 @@ msgstr "Playback speed"
 #: src/app/(tabs)/(dashboard)/index.tsx:214
 #: src/app/(tabs)/(dashboard)/playbook.tsx:172
 #: src/app/(tabs)/(dashboard)/playbook.tsx:222
-#: src/components/tools-menu.tsx:68
+#: src/components/tools-menu.tsx:73
 msgid "Playbook"
 msgstr "Playbook"
 
@@ -4434,7 +4438,7 @@ msgid "Position"
 msgstr "Position"
 
 #: src/app/tool-position-size.tsx:53
-#: src/components/tools-menu.tsx:39
+#: src/components/tools-menu.tsx:44
 msgid "Position size"
 msgstr "Position size"
 
@@ -4638,7 +4642,7 @@ msgstr "Quick loss — thesis failed fast"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:93
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:698
-#: src/components/tools-menu.tsx:50
+#: src/components/tools-menu.tsx:55
 msgid "R calculator"
 msgstr "R calculator"
 
@@ -4926,7 +4930,7 @@ msgstr "Report an issue"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:112
 #: src/app/(tabs)/(dashboard)/reports.tsx:73
-#: src/components/tools-menu.tsx:34
+#: src/components/tools-menu.tsx:39
 msgid "Reports"
 msgstr "Reports"
 
@@ -5332,6 +5336,7 @@ msgid "Server URL"
 msgstr "Server URL"
 
 #: src/app/(tabs)/(trades)/[id].tsx:600
+#: src/components/tools-menu.tsx:105
 #: src/components/trade-form.tsx:474
 msgid "Session"
 msgstr "Session"
@@ -5473,6 +5478,10 @@ msgstr "Show amounts"
 #: src/components/password-input.tsx:35
 msgid "Show password"
 msgstr "Show password"
+
+#: src/components/tools-menu.tsx:114
+msgid "Show session on Lock Screen"
+msgstr "Show session on Lock Screen"
 
 #: src/app/(tabs)/(settings)/import-trades.tsx:46
 #: src/components/reports-filter-menu.tsx:36
@@ -6148,9 +6157,9 @@ msgstr "Tokens authenticate scripts and integrations against your server's API. 
 msgid "Too many requests"
 msgstr "Too many requests"
 
-#: src/components/tools-menu.tsx:85
-#: src/components/tools-menu.tsx:97
-#: src/components/tools-menu.tsx:109
+#: src/components/tools-menu.tsx:90
+#: src/components/tools-menu.tsx:102
+#: src/components/tools-menu.tsx:131
 msgid "Tools"
 msgstr "Tools"
 
