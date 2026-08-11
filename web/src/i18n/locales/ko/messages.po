@@ -34,6 +34,10 @@ msgstr "승률 {0}"
 msgid "1.0 = break-even"
 msgstr "1.0 = 손익분기"
 
+#: src/app/drawers/NewTradeDrawer.tsx:2178
+msgid "Apply"
+msgstr "적용"
+
 #: src/app/screens/PublicShareView.tsx:306
 msgid "Best day"
 msgstr "최고의 날"
@@ -156,6 +160,14 @@ msgstr "프로핏 팩터"
 #: src/app/screens/PublicShareView.tsx:287
 msgid "Red days"
 msgstr "손실일"
+
+#: src/app/drawers/NewTradeDrawer.tsx:2182
+msgid "Save"
+msgstr "저장"
+
+#: src/app/drawers/NewTradeDrawer.tsx:2180
+msgid "Save changes"
+msgstr "변경 사항 저장"
 
 #: src/components/AppNav.tsx:276
 #~ msgid "Settings"

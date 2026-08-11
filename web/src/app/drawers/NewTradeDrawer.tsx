@@ -1,3 +1,4 @@
+import { Trans } from "@lingui/react/macro";
 import { useForm, useStore } from "@tanstack/react-form";
 import { useNavigate } from "@tanstack/react-router";
 import {
@@ -2166,21 +2167,20 @@ export function NewTradeDrawer() {
                   <Button
                     type="button"
                     size="sm"
+                    loading={pending}
                     disabled={pending || (isEditMode && !editHydrated)}
                     onClick={() => {
                       void form.handleSubmit();
                     }}
                     className="text-sm"
                   >
-                    {pending
-                      ? isImportPreviewEdit
-                        ? "Applying…"
-                        : "Saving…"
-                      : isImportPreviewEdit
-                        ? "Apply"
-                        : isEditMode
-                          ? "Save changes"
-                          : "Save"}
+                    {isImportPreviewEdit ? (
+                      <Trans>Apply</Trans>
+                    ) : isEditMode ? (
+                      <Trans>Save changes</Trans>
+                    ) : (
+                      <Trans>Save</Trans>
+                    )}
                   </Button>
                 </div>
               </form>
