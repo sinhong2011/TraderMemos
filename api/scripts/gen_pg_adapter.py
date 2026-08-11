@@ -60,6 +60,34 @@ PARAM_CONVERTERS = {
         "\t\tToDate: ifaceToNullString(arg.ToDate),\n"
         "\t}"
     ),
+    # LIMIT params: Postgres sqlc types them int32, SQLite int64.
+    "ListAccessTokenUsesParams": (
+        "storepg.ListAccessTokenUsesParams{\n"
+        "\t\tTokenID: arg.TokenID,\n"
+        "\t\tUserID: arg.UserID,\n"
+        "\t\tLimit: int32(arg.Limit),\n"
+        "\t}"
+    ),
+    "PruneAccessTokenUsesParams": (
+        "storepg.PruneAccessTokenUsesParams{\n"
+        "\t\tTokenID: arg.TokenID,\n"
+        "\t\tTokenID_2: arg.TokenID_2,\n"
+        "\t\tLimit: int32(arg.Limit),\n"
+        "\t}"
+    ),
+    "ListTradesMissingExcursionParams": (
+        "storepg.ListTradesMissingExcursionParams{\n"
+        "\t\tPostCutoff: arg.PostCutoff,\n"
+        "\t\tPostFloor: arg.PostFloor,\n"
+        "\t\tRowLimit: int32(arg.RowLimit),\n"
+        "\t}"
+    ),
+    "ListAlertEventsParams": (
+        "storepg.ListAlertEventsParams{\n"
+        "\t\tUserID: arg.UserID,\n"
+        "\t\tLimit: int32(arg.Limit),\n"
+        "\t}"
+    ),
 }
 def convert_value(expr: str, typ: str, to_pg: bool) -> str:
     typ = typ.strip()

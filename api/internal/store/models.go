@@ -40,6 +40,45 @@ type Account struct {
 	CreatedAt       time.Time `json:"created_at"`
 }
 
+type AlertChannel struct {
+	ID         string       `json:"id"`
+	UserID     string       `json:"user_id"`
+	Kind       string       `json:"kind"`
+	Target     string       `json:"target"`
+	Label      string       `json:"label"`
+	Enabled    int64        `json:"enabled"`
+	LastSentAt sql.NullTime `json:"last_sent_at"`
+	LastStatus string       `json:"last_status"`
+	LastError  string       `json:"last_error"`
+	CreatedAt  time.Time    `json:"created_at"`
+	UpdatedAt  time.Time    `json:"updated_at"`
+}
+
+type AlertEvent struct {
+	ID        string    `json:"id"`
+	UserID    string    `json:"user_id"`
+	Rule      string    `json:"rule"`
+	DedupeKey string    `json:"dedupe_key"`
+	Title     string    `json:"title"`
+	Body      string    `json:"body"`
+	FiredAt   time.Time `json:"fired_at"`
+}
+
+type AlertSetting struct {
+	UserID           string    `json:"user_id"`
+	Enabled          int64     `json:"enabled"`
+	Timezone         string    `json:"timezone"`
+	RuleRisk         int64     `json:"rule_risk"`
+	RuleDailyLoss    int64     `json:"rule_daily_loss"`
+	RuleLossStreak   int64     `json:"rule_loss_streak"`
+	LossStreakN      int64     `json:"loss_streak_n"`
+	RulePropDrawdown int64     `json:"rule_prop_drawdown"`
+	PropWarnPct      float64   `json:"prop_warn_pct"`
+	RuleUnreviewed   int64     `json:"rule_unreviewed"`
+	UnreviewedDays   int64     `json:"unreviewed_days"`
+	UpdatedAt        time.Time `json:"updated_at"`
+}
+
 type AnnualGoal struct {
 	UserID    string    `json:"user_id"`
 	Year      int64     `json:"year"`

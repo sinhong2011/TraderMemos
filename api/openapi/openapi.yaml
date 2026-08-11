@@ -28,6 +28,7 @@ tags:
   - name: Tags
   - name: Setups
   - name: Notes
+  - name: Alerts
   - name: Admin
 paths:
   /healthz:
@@ -1133,6 +1134,221 @@ paths:
         "413":
           description: Too many keys, or the blob exceeds 16 KiB
 
+  /api/v1/settings/alerts:
+    get:
+      tags: [Alerts]
+      summary: Journal alert settings
+      description: |
+        Which journal rules fire notifications and their thresholds. Rules:
+        risk rule broken (per trade, thresholds from `/settings/risk-rules`),
+        daily loss limit hit, N consecutive losses, prop drawdown approaching,
+        and unreviewed trades piling up. Defaults are returned until saved;
+        `enabled` is the master switch and starts off. Alerts are evaluated
+        after trade writes and on a background scan, then delivered to every
+        enabled channel. Free — never gated.
+      operationId: getAlertSettings
+      responses:
+        "200":
+          description: Settings (defaults when never saved)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AlertSettings"
+    put:
+      tags: [Alerts]
+      summary: Save journal alert settings
+      operationId: putAlertSettings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AlertSettings"
+      responses:
+        "200":
+          description: Saved settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AlertSettings"
+        "400":
+          description: Validation error
+
+  /api/v1/settings/alert-channels:
+    get:
+      tags: [Alerts]
+      summary: List delivery channels
+      operationId: listAlertChannels
+      responses:
+        "200":
+          description: Channels with their last delivery outcome
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AlertChannel"
+    post:
+      tags: [Alerts]
+      summary: Add a webhook channel
+      description: |
+        Registers an outgoing webhook. Alerts POST a JSON payload whose
+        `content` (Discord) and `text` (Slack/Mattermost) fields mirror the
+        alert, and set an `X-Title` header (ntfy). Expo push channels register
+        through `POST /me/push-tokens` instead. Re-posting the same URL
+        updates its label and re-enables it. Deliveries never follow redirects
+        and refuse loopback/private addresses unless the server sets
+        `TM_ALERTS_ALLOW_PRIVATE_WEBHOOKS=1` (for e.g. a LAN ntfy).
+      operationId: createAlertChannel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [kind, target]
+              properties:
+                kind: { type: string, enum: [webhook] }
+                target: { type: string, description: "http(s) webhook URL" }
+                label: { type: string }
+      responses:
+        "200":
+          description: The channel
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AlertChannel"
+        "400":
+          description: Validation error
+
+  /api/v1/settings/alert-channels/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string }
+    patch:
+      tags: [Alerts]
+      summary: Enable or disable a channel
+      operationId: patchAlertChannel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [enabled]
+              properties:
+                enabled: { type: boolean }
+      responses:
+        "200":
+          description: The updated channel
+        "404":
+          description: Not found
+    delete:
+      tags: [Alerts]
+      summary: Delete a channel
+      operationId: deleteAlertChannel
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+
+  /api/v1/settings/alert-channels/{id}/test:
+    post:
+      tags: [Alerts]
+      summary: Send a test notification
+      description: |
+        Delivers a test alert through the channel and records the outcome on
+        it. Returns 200 either way; `ok: false` carries the delivery error.
+      operationId: testAlertChannel
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Delivery outcome
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  error: { type: string }
+
+  /api/v1/alerts/events:
+    get:
+      tags: [Alerts]
+      summary: Recent fired alerts
+      operationId: listAlertEvents
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 200, default: 50 }
+      responses:
+        "200":
+          description: Newest first
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id: { type: string }
+                    rule: { type: string }
+                    title: { type: string }
+                    body: { type: string }
+                    fired_at: { type: string, format: date-time }
+
+  /api/v1/me/push-tokens:
+    post:
+      tags: [Alerts]
+      summary: Register an Expo push token
+      description: |
+        Called by the mobile app after obtaining an Expo push token. Creates
+        (or re-enables) an `expo` alert channel; dead tokens are disabled
+        automatically when Expo reports the device gone.
+      operationId: registerPushToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token]
+              properties:
+                token: { type: string, example: "ExponentPushToken[xxxxxxx]" }
+                label: { type: string, example: "iPhone 17 Pro" }
+      responses:
+        "200":
+          description: The channel
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AlertChannel"
+        "400":
+          description: Not an Expo push token
+    delete:
+      tags: [Alerts]
+      summary: Remove an Expo push token
+      operationId: unregisterPushToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token]
+              properties:
+                token: { type: string }
+      responses:
+        "204":
+          description: Removed (idempotent)
+
   /api/v1/admin/users:
     get:
       tags: [Admin]
@@ -1293,6 +1509,49 @@ components:
             message:
               type: string
             details: {}
+    AlertSettings:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          description: Master switch; nothing fires while off.
+        timezone:
+          type: string
+          description: >-
+            IANA timezone for day bucketing ("today", streak recency). Empty
+            means UTC.
+        rule_risk: { type: boolean }
+        rule_daily_loss: { type: boolean }
+        rule_loss_streak: { type: boolean }
+        loss_streak_n:
+          type: integer
+          minimum: 1
+          maximum: 50
+          default: 3
+        rule_prop_drawdown: { type: boolean }
+        prop_warn_pct:
+          type: number
+          description: >-
+            Warn when this fraction of a prop account's drawdown budget is
+            consumed (exclusive 0–1).
+          default: 0.8
+        rule_unreviewed: { type: boolean }
+        unreviewed_days:
+          type: integer
+          minimum: 1
+          maximum: 90
+          default: 7
+    AlertChannel:
+      type: object
+      properties:
+        id: { type: string }
+        kind: { type: string, enum: [webhook, expo] }
+        target: { type: string }
+        label: { type: string }
+        enabled: { type: boolean }
+        last_sent_at: { type: string, format: date-time, nullable: true }
+        last_status: { type: string, description: '"ok", "error", or empty' }
+        last_error: { type: string }
     Credentials:
       type: object
       required: [email, password]

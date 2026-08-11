@@ -20,6 +20,7 @@ import type {
   AccessTokenUse,
   Account,
   AdminUser,
+  AlertSettings,
   AnnualGoal,
   ApiHealth,
   BehaviorReport,
@@ -85,6 +86,7 @@ export const queryKeys = {
     ['market', 'bars', symbol, instrumentType, interval, from, to] as const,
   annualGoal: (year: number) => ['settings', 'annual-goal', year] as const,
   riskRules: () => ['settings', 'risk-rules'] as const,
+  alertSettings: () => ['settings', 'alerts'] as const,
   cash: (filters: Filters) => ['cash', filters] as const,
   checklistTemplate: () => ['settings', 'checklist-template'] as const,
   llmSettings: (kind: LlmKind) => ['settings', kind] as const,
@@ -204,6 +206,10 @@ export function useAnnualGoal(year: number) {
 
 export function useRiskRules() {
   return useApiQuery<RiskRules>(queryKeys.riskRules(), '/settings/risk-rules');
+}
+
+export function useAlertSettings() {
+  return useApiQuery<AlertSettings>(queryKeys.alertSettings(), '/settings/alerts');
 }
 
 export function useTrades(filters: Filters = {}, options?: { enabled?: boolean }) {

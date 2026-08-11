@@ -16,7 +16,7 @@ import { Alert, Linking } from 'react-native';
 import { useUnistyles } from 'react-native-unistyles';
 import type { SFSymbol } from 'sf-symbols-typescript';
 
-import { useAccounts, useCash, useMe, useTrades } from '@/api/hooks';
+import { useAccounts, useApiRequest, useCash, useMe, useTrades } from '@/api/hooks';
 import { CenteredButton } from '@/components/centered-button';
 import { NavRow } from '@/components/nav-row';
 import { FloatingSearchBar, SearchToggle } from '@/components/search-bar';
@@ -28,6 +28,7 @@ import { describeError } from '@/lib/errors';
 import { useFormatters } from '@/lib/format';
 import { clearOutbox, usePendingCount } from '@/lib/outbox';
 import { setAppearance, useDisplayPrefs, type AppearancePref } from '@/lib/prefs';
+import { usePushAlertStore } from '@/lib/push-alerts';
 import { clearPersistedQueryCache } from '@/storage/mmkv';
 import { AppHost } from '@/components/app-host';
 
@@ -50,6 +51,7 @@ import { AppHost } from '@/components/app-host';
 export default function SettingsScreen() {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const api = useApiRequest();
   const { theme } = useUnistyles();
   const { signOut } = useSession();
   // Offline writes still waiting to sync — signing out would discard them.
@@ -99,6 +101,19 @@ export default function SettingsScreen() {
   // was tried and rejected (see settings-search history in the layout).
   const [searching, setSearching] = useState(false);
 
+  // Best-effort: this device's alert channel should die with the session, so
+  // a signed-out phone stops getting the next user's journal alerts.
+  async function unregisterPush() {
+    const token = usePushAlertStore.getState().token;
+    if (!token) return;
+    try {
+      await api('/me/push-tokens', { method: 'DELETE', body: { token } });
+    } catch {
+      // Signing out matters more than a dead channel row on the server.
+    }
+    usePushAlertStore.setState({ token: null });
+  }
+
   function handleSignOut() {
     // Always confirmed — signing out drops the cached journal and costs a
     // server URL plus credentials to undo, so it is never a one-tap action.
@@ -120,16 +135,21 @@ export default function SettingsScreen() {
           // Tokens only — the server URL survives, so signing back in doesn't
           // mean retyping the host. That's why this is "Sign out", not
           // "Disconnect".
+          // The push channel belongs to this account too — drop it before the
+          // token goes, or the server keeps notifying a signed-out device.
           onPress: () =>
-            void signOut().then(() => {
-              // The query cache persists to MMKV — wipe both the live cache and
-              // the snapshot so the next account never sees this one's data.
-              // Same for the offline write queue: it belongs to this account.
-              queryClient.clear();
-              clearPersistedQueryCache();
-              clearOutbox();
-              router.replace('/login');
-            }),
+            void unregisterPush().then(() =>
+              signOut().then(() => {
+                // The query cache persists to MMKV — wipe both the live cache
+                // and the snapshot so the next account never sees this one's
+                // data. Same for the offline write queue: it belongs to this
+                // account.
+                queryClient.clear();
+                clearPersistedQueryCache();
+                clearOutbox();
+                router.replace('/login');
+              }),
+            ),
         },
       ],
     );
@@ -185,6 +205,12 @@ export default function SettingsScreen() {
       label: t`Risk rules`,
       terms: t`limits daily loss compliance position size`,
       onPress: () => router.push('/risk-rules'),
+    },
+    {
+      icon: 'bell.badge',
+      label: t`Alerts`,
+      terms: t`push notifications webhook loss streak drawdown`,
+      onPress: () => router.push('/alerts'),
     },
     {
       icon: 'tag',

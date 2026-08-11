@@ -12,6 +12,7 @@ import (
 
 	"github.com/labstack/echo/v5"
 	"github.com/labstack/echo/v5/middleware"
+	"github.com/tradermemos/api/internal/alerts"
 	"github.com/tradermemos/api/internal/auth"
 	"github.com/tradermemos/api/internal/econdata"
 	"github.com/tradermemos/api/internal/flexsync"
@@ -41,6 +42,9 @@ type Deps struct {
 	CoachDefaults  ocr.VisionConfig
 	// FlexClient talks to IBKR's Flex Web Service; nil disables manual sync.
 	FlexClient *flexsync.Client
+	// Alerts evaluates journal alerts and delivers notifications; nil disables
+	// the test-send endpoint and write-path evaluation.
+	Alerts *alerts.Service
 	// CORSOrigins enable browser cross-origin access when the SPA is hosted
 	// separately (Vercel, Cloudflare Pages, etc.). Empty disables CORS.
 	CORSOrigins []string
@@ -230,6 +234,7 @@ func (s *Server) routes() {
 	s.attachmentRoutes(protected)
 	s.analyticsRoutes(protected)
 	s.settingsRoutes(protected)
+	s.alertRoutes(protected)
 	s.noteRoutes(protected)
 	s.checklistRoutes(protected)
 	s.marketRoutes(protected)

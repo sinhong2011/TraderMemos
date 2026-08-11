@@ -136,6 +136,11 @@ export default function TradingJournalScreen() {
             label={t`Risk rules`}
             onPress={() => router.push('/risk-rules')}
           />
+          <NavRow
+            systemImage="bell.badge"
+            label={t`Alerts`}
+            onPress={() => router.push('/alerts')}
+          />
           <NavRow systemImage="tag" label={t`Tags`} onPress={() => router.push('/tags')} />
           {/* A capture rule, not a formatting one — it belongs with the
               journal, not on the Display screen it used to sit on. */}

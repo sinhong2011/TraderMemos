@@ -8,6 +8,7 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/tradermemos/api/internal/alerts"
 	"github.com/tradermemos/api/internal/api"
 	"github.com/tradermemos/api/internal/auth"
 	"github.com/tradermemos/api/internal/config"
@@ -110,12 +111,16 @@ func main() {
 		Model:   cfg.CoachModel,
 	}
 	flexClient := &flexsync.Client{}
+	alertsSvc := alerts.NewService(q, logger, cfg.AlertsAllowPrivateWebhooks)
+	tradesSvc := trades.NewService(q)
+	tradesSvc.AfterRegroup = func(userID, _ string) { alertsSvc.TradeWritten(userID) }
 	s := api.New(api.Deps{
 		JWTSecret:         cfg.JWTSecret,
 		JWT:               jwt,
 		Auth:              auth.NewService(q, jwt, cfg.AllowRegistration),
 		Store:             q,
-		Trades:            trades.NewService(q),
+		Trades:            tradesSvc,
+		Alerts:            alertsSvc,
 		Logger:            logger,
 		Storage:           storage.NewLocalDisk(attachDir),
 		AttachMaxBytes:    cfg.AttachMaxBytes,
@@ -156,6 +161,13 @@ func main() {
 			runner.Register(jobs.NewFlexSync(
 				q, flexClient,
 				time.Duration(cfg.JobFlexSyncIntervalMin)*time.Minute,
+				logger,
+			))
+		}
+		if cfg.JobAlertsIntervalMin > 0 {
+			runner.Register(jobs.NewAlertScan(
+				q, alertsSvc,
+				time.Duration(cfg.JobAlertsIntervalMin)*time.Minute,
 				logger,
 			))
 		}

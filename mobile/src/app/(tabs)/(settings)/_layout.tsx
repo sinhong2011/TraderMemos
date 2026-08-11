@@ -63,6 +63,7 @@ export default function SettingsLayout() {
       />
       <Stack.Screen name="general" options={{ title: t`General`, headerLargeTitle: false }} />
       <Stack.Screen name="risk-rules" options={{ title: t`Risk rules` }} />
+      <Stack.Screen name="alerts" options={{ title: t`Alerts`, headerLargeTitle: false }} />
       <Stack.Screen
         name="display"
         options={{ title: t`Display`, headerLargeTitle: false }}
