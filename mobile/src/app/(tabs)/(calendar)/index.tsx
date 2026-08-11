@@ -211,10 +211,10 @@ function WeekBento({
         </View>
         <View style={styles.weekBentoSide}>
           <Text style={styles.weekBentoLabel}>{t`Activity`}</Text>
-          <Text style={styles.weekBentoSideValue}>
+          <WinLoss wins={weekWins} losses={weekLosses} style={styles.weekBentoSideValue} />
+          <Text style={styles.weekBentoSideSub}>
             {weekCount === 1 ? t`1 trade` : t`${weekCount} trades`}
           </Text>
-          <WinLoss wins={weekWins} losses={weekLosses} style={styles.weekBentoSideSub} />
         </View>
       </View>
       <View style={styles.weekBentoRow}>
