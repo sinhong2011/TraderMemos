@@ -242,17 +242,17 @@ function WeekBento({
               ? [
                   t`Balance`,
                   formatCurrency(endBalance, currency),
-                  t`from ${formatCurrency(startBalance, currency)}`,
+                  t`from ${formatCurrency(startBalance, currency)} →`,
                 ].join(', ')
               : [t`Balance`, formatCurrency(0, currency)].join(', ')
           }
         >
-          <Text style={styles.weekBentoLabel}>{t`Balance`}</Text>
+          <Text style={styles.weekBentoBalanceLabel}>{t`Balance`}</Text>
           <View style={styles.weekBentoBalanceRow}>
             <View style={styles.weekBentoBalanceSide}>
               {hasBalance ? (
                 <Text style={styles.weekBentoBalanceFrom} numberOfLines={1}>
-                  {t`from ${formatCurrency(startBalance, currency)}`}
+                  {t`from ${formatCurrency(startBalance, currency)} →`}
                 </Text>
               ) : null}
             </View>
@@ -1361,10 +1361,11 @@ const styles = StyleSheet.create((theme) => ({
     fontWeight: '700',
     letterSpacing: -0.2,
     color: theme.colors.foreground,
+    textAlign: 'center',
     ...theme.numeric,
   },
   weekBentoBalanceFrom: {
-    fontSize: 10,
+    fontSize: 9,
     fontWeight: '500',
     color: theme.colors.mutedForeground,
     ...theme.numeric,
@@ -1377,6 +1378,11 @@ const styles = StyleSheet.create((theme) => ({
     marginTop: theme.spacing.sm,
   },
   weekBentoLabel: { fontSize: 10, color: theme.colors.mutedForeground },
+  weekBentoBalanceLabel: {
+    fontSize: 10,
+    color: theme.colors.mutedForeground,
+    textAlign: 'center',
+  },
   weekBentoHeroValueRow: {
     flexDirection: 'row',
     alignItems: 'baseline',

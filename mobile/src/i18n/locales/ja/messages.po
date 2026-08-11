@@ -81,7 +81,7 @@ msgid "{0} closed trades excluded (no stop recorded)."
 msgstr "{0}件の決済済みトレードを除外（ストップ未記録）。"
 
 #. placeholder {0}: traded.length
-#: src/app/(tabs)/(calendar)/index.tsx:826
+#: src/app/(tabs)/(calendar)/index.tsx:829
 msgid "{0} days"
 msgstr "{0}日"
 
@@ -244,14 +244,14 @@ msgstr "チャート{charts}枚"
 #~ msgid "{count, plural, one {# trade} other {# trades}}"
 #~ msgstr "{count, plural, other {#件}}"
 
-#: src/app/(tabs)/(calendar)/index.tsx:761
-#: src/app/(tabs)/(calendar)/index.tsx:1040
-#: src/app/(tabs)/(calendar)/index.tsx:1185
+#: src/app/(tabs)/(calendar)/index.tsx:764
+#: src/app/(tabs)/(calendar)/index.tsx:1043
+#: src/app/(tabs)/(calendar)/index.tsx:1188
 #: src/app/(tabs)/(trades)/index.tsx:433
 msgid "{count} trades"
 msgstr "{count}件のトレード"
 
-#: src/app/(tabs)/(calendar)/index.tsx:896
+#: src/app/(tabs)/(calendar)/index.tsx:899
 msgid "{daysTraded} days"
 msgstr "{daysTraded}日"
 
@@ -354,7 +354,7 @@ msgstr "{year}年の損益目標"
 #~ msgid "{yearCount, plural, one {# trade} other {# trades}}"
 #~ msgstr "{yearCount, plural, other {#件}}"
 
-#: src/app/(tabs)/(calendar)/index.tsx:1110
+#: src/app/(tabs)/(calendar)/index.tsx:1113
 msgid "{yearCount} trades"
 msgstr "{yearCount}件のトレード"
 
@@ -410,8 +410,8 @@ msgstr "1 {from} = {0} {to}"
 msgid "1 chart"
 msgstr "チャート1枚"
 
-#: src/app/(tabs)/(calendar)/index.tsx:826
-#: src/app/(tabs)/(calendar)/index.tsx:896
+#: src/app/(tabs)/(calendar)/index.tsx:829
+#: src/app/(tabs)/(calendar)/index.tsx:899
 msgid "1 day"
 msgstr "1日"
 
@@ -432,10 +432,10 @@ msgid "1 symbol found"
 msgstr "1銘柄が見つかりました"
 
 #: src/app/(tabs)/(calendar)/index.tsx:215
-#: src/app/(tabs)/(calendar)/index.tsx:761
-#: src/app/(tabs)/(calendar)/index.tsx:1040
-#: src/app/(tabs)/(calendar)/index.tsx:1110
-#: src/app/(tabs)/(calendar)/index.tsx:1185
+#: src/app/(tabs)/(calendar)/index.tsx:764
+#: src/app/(tabs)/(calendar)/index.tsx:1043
+#: src/app/(tabs)/(calendar)/index.tsx:1113
+#: src/app/(tabs)/(calendar)/index.tsx:1188
 msgid "1 trade"
 msgstr "1件"
 
@@ -2733,11 +2733,16 @@ msgstr "金"
 msgid "From"
 msgstr "変換元"
 
-#. placeholder {0}: formatCurrency(startBalance, currency)
 #: src/app/(tabs)/(calendar)/index.tsx:245
 #: src/app/(tabs)/(calendar)/index.tsx:257
-msgid "from {0}"
-msgstr "{0}から"
+#~ msgid "from {0}"
+#~ msgstr "{0}から"
+
+#. placeholder {0}: formatCurrency(startBalance, currency)
+#: src/app/(tabs)/(calendar)/index.tsx:245
+#: src/app/(tabs)/(calendar)/index.tsx:255
+msgid "from {0} →"
+msgstr "{0}から →"
 
 #: src/app/(tabs)/(settings)/import-trades.tsx:473
 msgid "From file"
@@ -3503,7 +3508,7 @@ msgstr "モデル"
 msgid "Mon"
 msgstr "月"
 
-#: src/app/(tabs)/(calendar)/index.tsx:355
+#: src/app/(tabs)/(calendar)/index.tsx:358
 #: src/components/mini-calendar-card.tsx:51
 #: src/components/reports/winloss-section.tsx:71
 msgid "Month"
@@ -3571,8 +3576,8 @@ msgstr "ネット（手数料後）"
 
 #: src/app/(tabs)/(calendar)/day/[date].tsx:313
 #: src/app/(tabs)/(calendar)/index.tsx:192
-#: src/app/(tabs)/(calendar)/index.tsx:815
-#: src/app/(tabs)/(calendar)/index.tsx:1099
+#: src/app/(tabs)/(calendar)/index.tsx:818
+#: src/app/(tabs)/(calendar)/index.tsx:1102
 #: src/app/(tabs)/(dashboard)/playbook.tsx:126
 #: src/app/(tabs)/(dashboard)/playbook.tsx:236
 #: src/app/(tabs)/(trades)/[id].tsx:173
@@ -3652,7 +3657,7 @@ msgstr "新しいユーザー"
 msgid "Newest first"
 msgstr "新しい順"
 
-#: src/app/(tabs)/(calendar)/index.tsx:515
+#: src/app/(tabs)/(calendar)/index.tsx:518
 msgid "Next"
 msgstr "次へ"
 
@@ -3840,9 +3845,9 @@ msgid "No tokens yet"
 msgstr "トークンがまだありません"
 
 #: src/app/(tabs)/(calendar)/day/[date].tsx:320
-#: src/app/(tabs)/(calendar)/index.tsx:900
-#: src/app/(tabs)/(calendar)/index.tsx:1051
-#: src/app/(tabs)/(calendar)/index.tsx:1185
+#: src/app/(tabs)/(calendar)/index.tsx:903
+#: src/app/(tabs)/(calendar)/index.tsx:1054
+#: src/app/(tabs)/(calendar)/index.tsx:1188
 msgid "No trades"
 msgstr "取引なし"
 
@@ -4470,7 +4475,7 @@ msgstr "プレビュー"
 msgid "Preview import"
 msgstr "インポートをプレビュー"
 
-#: src/app/(tabs)/(calendar)/index.tsx:506
+#: src/app/(tabs)/(calendar)/index.tsx:509
 msgid "Previous"
 msgstr "前へ"
 
@@ -6470,20 +6475,20 @@ msgstr "Web Serviceトークン"
 msgid "Wed"
 msgstr "水"
 
-#: src/app/(tabs)/(calendar)/index.tsx:354
-#: src/app/(tabs)/(calendar)/index.tsx:842
+#: src/app/(tabs)/(calendar)/index.tsx:357
+#: src/app/(tabs)/(calendar)/index.tsx:845
 #: src/components/reports/winloss-section.tsx:70
 msgid "Week"
 msgstr "週"
 
 #. placeholder {0}: wi + 1
 #. placeholder {1}: formatPnlCompact(weekPnl, currency)
-#: src/app/(tabs)/(calendar)/index.tsx:862
+#: src/app/(tabs)/(calendar)/index.tsx:865
 msgid "Week {0}, {1}"
 msgstr "週 {0}, {1}"
 
 #. placeholder {0}: wi + 1
-#: src/app/(tabs)/(calendar)/index.tsx:863
+#: src/app/(tabs)/(calendar)/index.tsx:866
 msgid "Week {0}, No trades"
 msgstr "週 {0}、取引なし"
 
@@ -6610,7 +6615,7 @@ msgstr "振り返りを書く"
 msgid "Write why you entered while it's fresh. Future you needs the thesis, not just the P&L."
 msgstr "記憶が新しいうちにエントリー理由を書きましょう。未来の自分に必要なのは損益ではなく仮説です。"
 
-#: src/app/(tabs)/(calendar)/index.tsx:356
+#: src/app/(tabs)/(calendar)/index.tsx:359
 msgid "Year"
 msgstr "年"
 
