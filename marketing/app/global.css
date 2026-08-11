@@ -159,13 +159,15 @@ html > body[data-scroll-locked] {
   animation: tm-blink 1s step-end infinite;
 }
 
-/* Tailwind-site style hatched gutters outside the content frame */
+/* Tailwind-site style hatched gutters outside the content frame. The frame is
+   near-full-bleed (capped at 96rem), so the rails stay thin on laptops and
+   only grow on very wide monitors. */
 .tm-gutter {
   position: fixed;
   top: 0;
   bottom: 0;
   z-index: -1;
-  width: calc((100vw - 72rem) / 2);
+  width: max(1.5rem, calc((100vw - 96rem) / 2));
   pointer-events: none;
   background-image: repeating-linear-gradient(
     315deg,
@@ -176,10 +178,106 @@ html > body[data-scroll-locked] {
   );
 }
 
-@media (max-width: 76rem) {
+@media (max-width: 40rem) {
   .tm-gutter {
     display: none;
   }
+}
+
+/* ---------- Effect layer (token-driven) ---------- */
+
+/* Light pulse traveling along the hero equity curve. dasharray period (0.06 +
+   2) exceeds the normalized path length of 1, so outside the sweep the dash
+   sits entirely off-path and the curve rests between pulses. */
+.tm-curve-pulse {
+  stroke-dasharray: 0.06 2;
+  stroke-dashoffset: 0.06;
+  filter: drop-shadow(0 0 5px var(--color-fd-primary));
+  animation: tm-curve-pulse 6s linear 2.8s infinite;
+}
+
+@keyframes tm-curve-pulse {
+  0% {
+    stroke-dashoffset: 0.06;
+  }
+  55%,
+  100% {
+    stroke-dashoffset: -1;
+  }
+}
+
+/* Cursor-tracking glow card — coordinates arrive via --tm-x/--tm-y (see
+   components/landing/effects.tsx). ::before is a 1px gradient ring (padding +
+   xor mask), ::after a soft interior wash. */
+.tm-glow-card {
+  position: relative;
+}
+
+.tm-glow-card::before,
+.tm-glow-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.tm-glow-card::before {
+  padding: 1px;
+  background: radial-gradient(
+    220px circle at var(--tm-x, 50%) var(--tm-y, 50%),
+    color-mix(in oklch, var(--color-fd-primary) 55%, transparent),
+    transparent 75%
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.tm-glow-card::after {
+  background: radial-gradient(
+    320px circle at var(--tm-x, 50%) var(--tm-y, 50%),
+    color-mix(in oklch, var(--color-fd-primary) 7%, transparent),
+    transparent 70%
+  );
+}
+
+.tm-glow-card:hover::before,
+.tm-glow-card:hover::after {
+  opacity: 1;
+}
+
+/* Glare sweep across framed screenshots on hover */
+.tm-glare {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+  background: linear-gradient(
+    105deg,
+    transparent 42%,
+    rgb(255 255 255 / 0.05) 47%,
+    rgb(255 255 255 / 0.14) 50%,
+    rgb(255 255 255 / 0.05) 53%,
+    transparent 58%
+  );
+  transform: translateX(-130%);
+}
+
+.group:hover > .tm-glare {
+  transform: translateX(130%);
+  transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.tm-ticker-track:hover {
+  animation-play-state: paused;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -200,5 +298,9 @@ html > body[data-scroll-locked] {
   .tm-caret {
     animation: none;
     opacity: 0;
+  }
+  .tm-curve-pulse,
+  .tm-glare {
+    display: none;
   }
 }

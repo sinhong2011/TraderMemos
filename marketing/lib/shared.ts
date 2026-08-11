@@ -12,3 +12,10 @@ export const gitConfig = {
   repo: 'TraderMemos',
   branch: 'main',
 };
+
+// Hosted demo instance surfaced on the landing page (hero CTA) and in the README.
+export const demoConfig = {
+  url: 'https://tradermemos.netlify.app',
+  user: 'tradermemosdemo',
+  password: 'demopassword',
+};

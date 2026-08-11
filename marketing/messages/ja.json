@@ -7,6 +7,8 @@
     "heroTitleLine2": "エッジを、検証する。",
     "heroSubtitle": "TraderMemos はセルフホスト型のトレードジャーナルです。ダッシュボード、損益カレンダー、トレードログ、プレイブック、レポートを、すべてあなた自身のインフラ上で。サブスクリプションもベンダーロックインもありません。",
     "ctaGetStarted": "使ってみる",
+    "ctaDemo": "ライブデモを試す",
+    "demoCreds": "デモアカウント:",
     "ctaGithub": "GitHub で見る",
     "ticker": [
       {
@@ -120,6 +122,10 @@
         "title": "API アクセス",
         "description": "MCP／スクリプト向けのパーソナルアクセストークン（tm_pat_…）。OpenAPI ドキュメントは /docs にあります。"
       },
+      "mobile": {
+        "title": "iOS アプリ（ベータ）",
+        "description": "SwiftUI ネイティブのコンパニオンアプリ — トレード、カレンダー、レポート、ホーム / ロック画面ウィジェット。TestFlight で配信中。"
+      },
       "themes": {
         "title": "テーマ",
         "description": "shadcn/ui + coss ui トークンで構築したダーク／ライトテーマ。"
@@ -135,22 +141,10 @@
     "techStackHeading": "技術スタック",
     "stackComment": "# あなたのデータは、あなたのマシンに",
     "stack": [
-      {
-        "layer": "API",
-        "value": "Go · Echo · sqlc · golang-migrate · SQLite"
-      },
-      {
-        "layer": "Web",
-        "value": "React · Vite+ · TanStack Router/Query/Form · Tailwind"
-      },
-      {
-        "layer": "モバイル",
-        "value": "Expo（予定）"
-      },
-      {
-        "layer": "デザイン",
-        "value": "shadcn/ui + coss ui トークン"
-      }
+      { "layer": "API", "value": "Go · Echo · sqlc · golang-migrate · SQLite" },
+      { "layer": "Web", "value": "React · Vite+ · TanStack Router/Query/Form · Tailwind" },
+      { "layer": "モバイル", "value": "Expo · @expo/ui（SwiftUI）· TestFlight" },
+      { "layer": "デザイン", "value": "shadcn/ui + coss ui トークン" }
     ],
     "licenseHeading": "AGPL-3.0 ライセンス",
     "licenseBody": "セルフホストし、改変し、個人でも会社でも自由に運用できます。",
@@ -163,6 +157,7 @@
     "privacy": "プライバシー",
     "roadmap": "ロードマップ",
     "github": "GitHub",
+    "sponsor": "スポンサー",
     "discussions": "ディスカッション",
     "security": "セキュリティ",
     "license": "ライセンス（AGPL-3.0）",

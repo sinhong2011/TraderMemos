@@ -9,7 +9,7 @@ export function baseOptions(locale: string): BaseLayoutProps {
       url: `/${locale}`,
       title: (
         <>
-          <Image src="/icon.svg" alt="" width={20} height={20} unoptimized className="rounded-sm" />
+          <Image src="/icon.png" alt="" width={20} height={20} unoptimized className="rounded-sm" />
           {appName}
         </>
       ),

@@ -38,7 +38,8 @@ export function Reveal({
 }
 
 /**
- * GSAP-style staggered word entrance for display headlines.
+ * Staggered word entrance for display headlines — each unit rises and
+ * sharpens from a blur (the "text generate" pattern).
  * Splits on spaces for latin text, per-character for CJK.
  */
 export function WordReveal({
@@ -60,21 +61,21 @@ export function WordReveal({
   return (
     <span className={className} aria-label={text}>
       {units.map((unit, i) => (
-        <span key={i} className="inline-block overflow-hidden align-bottom" aria-hidden>
-          <motion.span
-            className="inline-block"
-            initial={{ y: '110%' }}
-            animate={{ y: 0 }}
-            transition={{
-              duration: 0.65,
-              ease: easeOutExpo,
-              delay: delay + i * (perChar ? 0.035 : 0.07),
-            }}
-          >
-            {unit}
-            {!perChar && i < units.length - 1 ? ' ' : ''}
-          </motion.span>
-        </span>
+        <motion.span
+          key={i}
+          aria-hidden
+          className="inline-block"
+          initial={{ opacity: 0, y: 14, filter: 'blur(8px)' }}
+          animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+          transition={{
+            duration: 0.6,
+            ease: easeOutExpo,
+            delay: delay + i * (perChar ? 0.035 : 0.07),
+          }}
+        >
+          {unit}
+          {!perChar && i < units.length - 1 ? ' ' : ''}
+        </motion.span>
       ))}
     </span>
   );

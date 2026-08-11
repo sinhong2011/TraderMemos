@@ -7,6 +7,8 @@
     "heroTitleLine2": "復盤由你主導。",
     "heroSubtitle": "TraderMemos 是一款自架交易日誌 —— 儀表板、盈虧日曆、交易紀錄、策略手冊與報表，全部執行於你自己的基礎設施。免訂閱，也不被廠商綁定。",
     "ctaGetStarted": "開始使用",
+    "ctaDemo": "試用線上 Demo",
+    "demoCreds": "Demo 帳號:",
     "ctaGithub": "前往 GitHub",
     "ticker": [
       {
@@ -120,6 +122,10 @@
         "title": "API 存取",
         "description": "個人存取權杖（tm_pat_…）可用於 MCP / 指令稿；OpenAPI 文件位於 /docs。"
       },
+      "mobile": {
+        "title": "iOS App（測試版）",
+        "description": "原生 SwiftUI 隨身版 — 交易、日曆、報表，以及主畫面 / 鎖定畫面小工具。現已在 TestFlight 提供。"
+      },
       "themes": {
         "title": "主題",
         "description": "深色與淺色主題，以 shadcn/ui + coss ui 設計 token 建構。"
@@ -135,22 +141,10 @@
     "techStackHeading": "技術堆疊",
     "stackComment": "# 你的資料，跑在你自己的主機上",
     "stack": [
-      {
-        "layer": "API",
-        "value": "Go · Echo · sqlc · golang-migrate · SQLite"
-      },
-      {
-        "layer": "Web",
-        "value": "React · Vite+ · TanStack Router/Query/Form · Tailwind"
-      },
-      {
-        "layer": "行動裝置",
-        "value": "Expo（規劃中）"
-      },
-      {
-        "layer": "設計",
-        "value": "shadcn/ui + coss ui 設計 token"
-      }
+      { "layer": "API", "value": "Go · Echo · sqlc · golang-migrate · SQLite" },
+      { "layer": "Web", "value": "React · Vite+ · TanStack Router/Query/Form · Tailwind" },
+      { "layer": "行動裝置", "value": "Expo · @expo/ui（SwiftUI）· TestFlight" },
+      { "layer": "設計", "value": "shadcn/ui + coss ui 設計 token" }
     ],
     "licenseHeading": "採用 AGPL-3.0 授權",
     "licenseBody": "自由自架、修改，供個人或公司內部使用。",
@@ -163,6 +157,7 @@
     "privacy": "隱私權",
     "roadmap": "路線圖",
     "github": "GitHub",
+    "sponsor": "贊助",
     "discussions": "社群討論",
     "security": "安全政策",
     "license": "授權條款（AGPL-3.0）",

@@ -7,6 +7,8 @@
     "heroTitleLine2": "Review your edge.",
     "heroSubtitle": "TraderMemos is a self-hosted trading journal — dashboard, P&L calendar, trade log, playbook, and reports on your own infrastructure. No subscription, no vendor lock-in.",
     "ctaGetStarted": "Get started",
+    "ctaDemo": "Try the live demo",
+    "demoCreds": "Demo login:",
     "ctaGithub": "View on GitHub",
     "ticker": [
       {
@@ -120,6 +122,10 @@
         "title": "API access",
         "description": "Personal access tokens (tm_pat_…) for MCP/scripts; OpenAPI docs at /docs."
       },
+      "mobile": {
+        "title": "iOS app (beta)",
+        "description": "Native SwiftUI companion — trades, calendar, reports, and Home / Lock Screen widgets. On TestFlight today."
+      },
       "themes": {
         "title": "Themes",
         "description": "Dark and light, built on shadcn/ui + coss ui tokens."
@@ -135,22 +141,10 @@
     "techStackHeading": "Tech stack",
     "stackComment": "# your data, your box",
     "stack": [
-      {
-        "layer": "API",
-        "value": "Go · Echo · sqlc · golang-migrate · SQLite"
-      },
-      {
-        "layer": "Web",
-        "value": "React · Vite+ · TanStack Router/Query/Form · Tailwind"
-      },
-      {
-        "layer": "Mobile",
-        "value": "Expo (planned)"
-      },
-      {
-        "layer": "Design",
-        "value": "shadcn/ui + coss ui tokens"
-      }
+      { "layer": "API", "value": "Go · Echo · sqlc · golang-migrate · SQLite" },
+      { "layer": "Web", "value": "React · Vite+ · TanStack Router/Query/Form · Tailwind" },
+      { "layer": "Mobile", "value": "Expo · @expo/ui (SwiftUI) · TestFlight" },
+      { "layer": "Design", "value": "shadcn/ui + coss ui tokens" }
     ],
     "licenseHeading": "AGPL-3.0 licensed",
     "licenseBody": "Self-host it, modify it, and run it for yourself or your firm freely.",
@@ -163,6 +157,7 @@
     "privacy": "Privacy",
     "roadmap": "Roadmap",
     "github": "GitHub",
+    "sponsor": "Sponsor",
     "discussions": "Discussions",
     "security": "Security",
     "license": "License (AGPL-3.0)",

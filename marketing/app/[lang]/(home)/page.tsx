@@ -12,10 +12,19 @@ import {
   Plug,
   MoonStar,
   ArrowRight,
+  ArrowUpRight,
   Star,
+  TrendingUp,
+  DollarSign,
+  Percent,
+  Clock,
+  Tag,
+  LineChart,
+  Smartphone,
+  type LucideIcon,
 } from 'lucide-react';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { appName, gitConfig } from '@/lib/shared';
+import { appName, demoConfig, gitConfig } from '@/lib/shared';
 import { resolveLocale } from '@/i18n/locales';
 import {
   Reveal,
@@ -26,6 +35,7 @@ import {
   TypedTerminal,
 } from '@/components/landing/motion';
 import { BrowserFrame } from '@/components/browser-frame';
+import { GlowCard } from '@/components/landing/effects';
 import dashboardShot from '@/public/screenshots/dashboard.png';
 import dashboardLightShot from '@/public/screenshots/dashboard-light.png';
 import tradesShot from '@/public/screenshots/trades.png';
@@ -33,6 +43,37 @@ import calendarShot from '@/public/screenshots/calendar.png';
 import reportsShot from '@/public/screenshots/reports.png';
 
 const repoUrl = `https://github.com/${gitConfig.user}/${gitConfig.repo}`;
+
+/*
+ * Live star count, revalidated hourly (one uncached hit per hour keeps the
+ * unauthenticated GitHub API far below its rate limit). Returns null on any
+ * failure so the page renders the plain GitHub links without a count.
+ */
+async function fetchStarCount(): Promise<number | null> {
+  try {
+    const res = await fetch(`https://api.github.com/repos/${gitConfig.user}/${gitConfig.repo}`, {
+      next: { revalidate: 3600 },
+      signal: AbortSignal.timeout(3000),
+    });
+    if (!res.ok) return null;
+    const data = (await res.json()) as { stargazers_count?: number };
+    return typeof data.stargazers_count === 'number' ? data.stargazers_count : null;
+  } catch {
+    return null;
+  }
+}
+
+const formatStars = (n: number) =>
+  new Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 }).format(n);
+
+function StarBadge({ count }: { count: number }) {
+  return (
+    <span className="inline-flex items-center gap-1 rounded-md bg-fd-muted px-1.5 py-0.5 font-mono text-xs tabular-nums text-fd-muted-foreground">
+      <Star className="size-3 fill-current" />
+      {formatStars(count)}
+    </span>
+  );
+}
 
 const focusRing =
   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fd-ring';
@@ -47,11 +88,12 @@ const featureIcons = {
   tools: Calculator,
   ai: Bot,
   api: Plug,
+  mobile: Smartphone,
   themes: MoonStar,
 } as const;
 
 const bentoFeatureIds = ['dashboard', 'tradeLog', 'calendar', 'reports'] as const;
-const listFeatureIds = ['playbook', 'import', 'tools', 'ai', 'api', 'themes'] as const;
+const listFeatureIds = ['playbook', 'import', 'tools', 'ai', 'api', 'mobile'] as const;
 
 type FeatureId = (typeof bentoFeatureIds)[number] | (typeof listFeatureIds)[number];
 
@@ -134,9 +176,19 @@ function SectionRule() {
 }
 
 /* Chart-legend eyebrow: swatch square + mono label, like a series legend. */
-function Eyebrow({ label, tone = 'primary' }: { label: string; tone?: 'primary' | 'profit' }) {
+function Eyebrow({
+  label,
+  tone = 'primary',
+  centered = false,
+}: {
+  label: string;
+  tone?: 'primary' | 'profit';
+  centered?: boolean;
+}) {
   return (
-    <p className="flex items-center gap-2 font-mono text-xs font-medium uppercase tracking-[0.18em] text-fd-muted-foreground">
+    <p
+      className={`flex items-center gap-2 font-mono text-xs font-medium uppercase tracking-[0.18em] text-fd-muted-foreground ${centered ? 'justify-center' : ''}`}
+    >
       <span
         aria-hidden
         className={`size-2 rounded-[2px] ${tone === 'profit' ? 'bg-tm-profit' : 'bg-fd-primary'}`}
@@ -178,6 +230,17 @@ function EquityCurve() {
         strokeWidth="1.5"
         vectorEffect="non-scaling-stroke"
       />
+      {/* Light pulse traveling along the curve after it draws in */}
+      <path
+        className="tm-curve-pulse text-fd-primary"
+        d={line}
+        pathLength={1}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        vectorEffect="non-scaling-stroke"
+      />
       {/* Trade annotation — a journal entry pinned to the curve */}
       <g
         className="tm-annot font-mono max-sm:hidden"
@@ -192,30 +255,54 @@ function EquityCurve() {
   );
 }
 
-/* Terminal window — self-hosting is the product; the install is the demo. */
-function TerminalCard() {
+/*
+ * Glyph lattice — the shadcn.io hero-canvas pattern, in this product's
+ * vocabulary: journal glyphs scattered at ~5% opacity across the panel, with
+ * a radial mask keeping the center clear for the headline.
+ */
+const latticeGlyphs: [LucideIcon, string, string, number, number][] = [
+  [TrendingUp, '5%', '6%', 22, -8],
+  [CalendarDays, '8%', '22%', 16, 6],
+  [DollarSign, '4%', '40%', 18, 0],
+  [BarChart3, '7%', '58%', 20, 10],
+  [Tag, '4%', '76%', 16, -12],
+  [LineChart, '9%', '91%', 22, 6],
+  [BookOpen, '24%', '3%', 18, 8],
+  [Percent, '22%', '15%', 16, -6],
+  [Clock, '27%', '86%', 18, 0],
+  [Upload, '23%', '95%', 16, 10],
+  [Calculator, '46%', '4%', 20, -10],
+  [ListChecks, '50%', '13%', 16, 4],
+  [LayoutDashboard, '45%', '88%', 18, -4],
+  [Plug, '52%', '95%', 16, 8],
+  [MoonStar, '68%', '6%', 16, -8],
+  [LineChart, '72%', '17%', 20, 6],
+  [Percent, '66%', '84%', 16, 12],
+  [TrendingUp, '73%', '94%', 18, -6],
+  [Clock, '88%', '10%', 16, 8],
+  [DollarSign, '91%', '26%', 20, -4],
+  [CalendarDays, '87%', '45%', 16, 6],
+  [BarChart3, '92%', '62%', 18, -10],
+  [Tag, '88%', '78%', 16, 4],
+  [BookOpen, '91%', '92%', 20, -6],
+];
+
+function HeroLattice() {
   return (
     <div
-      className="tm-fade-up relative w-full"
-      style={{ '--tm-delay': '0.35s' } as React.CSSProperties}
+      aria-hidden
+      className="pointer-events-none absolute inset-0 -z-10 hidden sm:block"
+      style={{
+        maskImage: 'radial-gradient(60% 55% at 50% 42%, transparent 38%, black 80%)',
+      }}
     >
-      <div
-        aria-hidden
-        className="absolute -inset-6 -z-10 rounded-[2rem] bg-fd-primary/15 blur-3xl"
-      />
-      <div className="overflow-hidden rounded-xl bg-zinc-950 shadow-2xl shadow-black/40 ring-1 ring-white/10">
-        <div className="flex items-center gap-2 px-4 py-3">
-          <span aria-hidden className="size-3 rounded-full bg-[#ff5f57]" />
-          <span aria-hidden className="size-3 rounded-full bg-[#febc2e]" />
-          <span aria-hidden className="size-3 rounded-full bg-[#28c840]" />
-          <span className="ml-3 font-mono text-xs text-zinc-500">~/TraderMemos — zsh</span>
-        </div>
-        <TypedTerminal
-          commands={[`git clone ${repoUrl}.git`, 'cd TraderMemos', 'make up']}
-          ready="tradermemos ready"
-          url="http://localhost:3000"
+      {latticeGlyphs.map(([Icon, top, left, size, rotate], i) => (
+        <Icon
+          key={i}
+          className="absolute text-fd-foreground/5"
+          style={{ top, left, width: size, height: size, transform: `rotate(${rotate}deg)` }}
         />
-      </div>
+      ))}
     </div>
   );
 }
@@ -316,83 +403,105 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
   const features = t.raw('features') as Record<FeatureId, { title: string; description: string }>;
   const comparison = t.raw('comparison') as { row: string; cloud: string; tm: string }[];
   const stack = t.raw('stack') as { layer: string; value: string }[];
+  const stars = await fetchStarCount();
 
   return (
     <>
-      {/* Hero */}
-      <section className="relative isolate overflow-hidden">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 -z-20"
-          style={{
-            background:
-              'radial-gradient(70% 55% at 50% -12%, color-mix(in oklch, var(--color-fd-primary) 16%, transparent), transparent 70%)',
-          }}
-        />
-        <div aria-hidden className="tm-hero-grid pointer-events-none absolute inset-0 -z-20" />
-        <EquityCurve />
+      {/* Hero — one centered canvas panel (shadcn.io pattern): bordered muted
+          surface, glyph lattice at the edges, content stacked in the middle */}
+      <section className="px-6 pt-8 sm:pt-12">
+        <div className="relative isolate overflow-hidden rounded-3xl border border-fd-border/60 bg-fd-card/40">
+          <div aria-hidden className="tm-hero-grid pointer-events-none absolute inset-0 -z-20" />
+          <HeroLattice />
+          <EquityCurve />
 
-        <div className="px-6 pb-16 pt-20 sm:pt-28">
-          <div className="grid grid-cols-[minmax(0,1fr)] items-center gap-14 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
-            <div className="max-w-2xl">
-              <div
-                className="tm-fade-up flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs text-fd-muted-foreground"
-                style={{ '--tm-delay': '0s' } as React.CSSProperties}
-              >
-                {badgeParts.map((part, i) => (
-                  <span key={part} className="flex items-center gap-3">
-                    {i > 0 && (
-                      <span aria-hidden className="text-fd-muted-foreground/40">
-                        /
-                      </span>
-                    )}
-                    <span className="uppercase tracking-[0.15em]">{part}</span>
-                  </span>
-                ))}
-              </div>
-              <h1 className="mt-6 font-display text-4xl font-semibold tracking-tight sm:text-5xl lg:text-6xl">
-                <WordReveal text={t('heroTitleLine1')} perChar={isCjk} delay={0.15} />
-                <br />
-                <WordReveal
-                  text={t('heroTitleLine2')}
-                  perChar={isCjk}
-                  delay={0.4}
-                  className="text-fd-muted-foreground"
-                />
-              </h1>
-              <p
-                className="tm-fade-up mt-6 max-w-xl text-pretty text-lg leading-relaxed text-fd-muted-foreground"
-                style={{ '--tm-delay': '0.55s' } as React.CSSProperties}
-              >
-                {t('heroSubtitle')}
-              </p>
-              <div
-                className="tm-fade-up mt-8 flex flex-wrap items-center gap-3"
-                style={{ '--tm-delay': '0.7s' } as React.CSSProperties}
-              >
-                <Link
-                  href={`/${lang}/docs`}
-                  className={`inline-flex items-center gap-2 rounded-lg bg-fd-primary px-5 py-2.5 text-sm font-medium text-fd-primary-foreground shadow-lg shadow-fd-primary/25 transition hover:opacity-90 ${focusRing}`}
-                >
-                  {t('ctaGetStarted')}
-                  <ArrowRight className="size-4" />
-                </Link>
-                <Link
-                  href={repoUrl}
-                  className={`inline-flex items-center gap-2 rounded-lg bg-fd-secondary px-5 py-2.5 text-sm font-medium text-fd-secondary-foreground ring-1 ring-fd-border transition-colors hover:bg-fd-accent ${focusRing}`}
-                >
-                  <GithubMark className="size-4" />
-                  {t('ctaGithub')}
-                </Link>
-              </div>
+          <div className="px-6 pb-14 pt-16 text-center sm:pb-16 sm:pt-24">
+            <div
+              className="tm-fade-up flex flex-wrap items-center justify-center gap-x-3 gap-y-1 font-mono text-xs text-fd-muted-foreground"
+              style={{ '--tm-delay': '0s' } as React.CSSProperties}
+            >
+              {badgeParts.map((part, i) => (
+                <span key={part} className="flex items-center gap-3">
+                  {i > 0 && (
+                    <span aria-hidden className="text-fd-muted-foreground/40">
+                      /
+                    </span>
+                  )}
+                  <span className="uppercase tracking-[0.15em]">{part}</span>
+                </span>
+              ))}
             </div>
-
-            <TerminalCard />
+            <h1 className="mx-auto mt-6 max-w-3xl text-balance font-display text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
+              <WordReveal text={t('heroTitleLine1')} perChar={isCjk} delay={0.15} />
+              <br />
+              <WordReveal
+                text={t('heroTitleLine2')}
+                perChar={isCjk}
+                delay={0.4}
+                className="text-fd-muted-foreground"
+              />
+            </h1>
+            <p
+              className="tm-fade-up mx-auto mt-6 max-w-2xl text-pretty text-lg leading-relaxed text-fd-muted-foreground"
+              style={{ '--tm-delay': '0.55s' } as React.CSSProperties}
+            >
+              {t('heroSubtitle')}
+            </p>
+            <div
+              className="tm-fade-up mt-8 flex flex-wrap items-center justify-center gap-3"
+              style={{ '--tm-delay': '0.7s' } as React.CSSProperties}
+            >
+              <Link
+                href={`/${lang}/docs`}
+                className={`inline-flex items-center gap-2 rounded-xl bg-fd-primary px-6 py-3 text-sm font-semibold text-fd-primary-foreground transition-colors hover:bg-fd-primary/90 ${focusRing}`}
+              >
+                {t('ctaGetStarted')}
+                <ArrowRight className="size-4" />
+              </Link>
+              <a
+                href={demoConfig.url}
+                rel="noreferrer"
+                className={`inline-flex items-center gap-2 rounded-xl border border-fd-border bg-fd-background px-6 py-3 text-sm font-medium transition-colors hover:bg-fd-accent ${focusRing}`}
+              >
+                {t('ctaDemo')}
+                <ArrowUpRight className="size-4 opacity-60" />
+              </a>
+              <Link
+                href={repoUrl}
+                className={`inline-flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-medium text-fd-muted-foreground transition-colors hover:text-fd-foreground ${focusRing}`}
+              >
+                <GithubMark className="size-4" />
+                {t('ctaGithub')}
+                {stars !== null && <StarBadge count={stars} />}
+              </Link>
+            </div>
+            <p
+              className="tm-fade-up mt-4 font-mono text-xs text-fd-muted-foreground"
+              style={{ '--tm-delay': '0.85s' } as React.CSSProperties}
+            >
+              {t('demoCreds')}{' '}
+              <span className="text-fd-foreground">{demoConfig.user}</span>
+              <span className="text-fd-muted-foreground/50"> / </span>
+              <span className="text-fd-foreground">{demoConfig.password}</span>
+            </p>
+            {/* Stat row — bold value, muted label */}
+            <div
+              className="tm-fade-up mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-2"
+              style={{ '--tm-delay': '1s' } as React.CSSProperties}
+            >
+              {ticker.slice(0, 3).map((s) => (
+                <span key={s.label} className="flex items-baseline gap-2 text-sm">
+                  <span className="font-semibold tabular-nums text-fd-foreground">{s.value}</span>
+                  <span className="text-fd-muted-foreground">{s.label}</span>
+                </span>
+              ))}
+            </div>
           </div>
         </div>
 
-        <ZoomFrame className="px-6 pb-20">
+        <ZoomFrame className="mt-12 pb-20">
           <BrowserFrame
+            glare
             image={dashboardShot}
             lightImage={dashboardLightShot}
             alt="TraderMemos dashboard — equity curve, annual P&L goal, expectancy and win-rate stats"
@@ -404,34 +513,34 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
 
       <SectionRule />
 
-      {/* Metrics ticker — the numbers a daily review runs on */}
-      <div aria-hidden className="select-none overflow-hidden bg-fd-card/60 py-3.5">
+      {/* Metrics ticker — the numbers a daily review runs on, as drifting glass chips */}
+      <div aria-hidden className="select-none overflow-hidden py-5">
         <div
-          className="tm-ticker-track flex w-max items-center gap-10 pr-10"
+          className="tm-ticker-track flex w-max items-center gap-3 pr-3"
           style={{
             maskImage:
               'linear-gradient(to right, transparent, black 8%, black 92%, transparent)',
           }}
         >
           {tickerItems.map((s, i) => (
-            <span key={i} className="flex items-center gap-10 font-mono text-xs">
-              <span className="flex items-center gap-2.5 whitespace-nowrap">
-                <span className="uppercase tracking-[0.15em] text-fd-muted-foreground">
-                  {s.label}
-                </span>
-                <span
-                  className={
-                    s.tone === 'profit'
-                      ? 'text-tm-profit'
-                      : s.tone === 'loss'
-                        ? 'text-tm-loss'
-                        : 'text-fd-foreground'
-                  }
-                >
-                  {s.value}
-                </span>
+            <span
+              key={i}
+              className="flex items-center gap-2.5 whitespace-nowrap rounded-full bg-fd-card px-4 py-1.5 font-mono text-xs shadow-sm ring-1 ring-fd-border/70"
+            >
+              <span className="uppercase tracking-[0.15em] text-fd-muted-foreground">
+                {s.label}
               </span>
-              <span className="text-fd-muted-foreground/30">◆</span>
+              <span
+                className={
+                  s.tone === 'profit'
+                    ? 'text-tm-profit'
+                    : s.tone === 'loss'
+                      ? 'text-tm-loss'
+                      : 'text-fd-foreground'
+                }
+              >
+                {s.value}
+              </span>
             </span>
           ))}
         </div>
@@ -441,22 +550,22 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
 
       {/* Why — scroll-scrubbed manifesto, then the comparison ledger */}
       <section className="px-6 py-24">
-        <Reveal>
-          <Eyebrow label={t('eyebrowWhy')} />
-          <h2 className="mt-4 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+        <Reveal className="text-center">
+          <Eyebrow label={t('eyebrowWhy')} centered />
+          <h2 className="mt-4 text-balance font-display text-3xl font-semibold tracking-tight sm:text-4xl">
             {t('whyHeading')}
           </h2>
         </Reveal>
         <ScrollFillText
           text={t('whyBody')}
           perChar={isCjk}
-          className="mt-8 max-w-4xl font-display text-2xl font-medium leading-snug tracking-tight text-fd-foreground sm:text-3xl"
+          className="mx-auto mt-8 max-w-4xl text-center font-display text-2xl font-medium leading-snug tracking-tight text-fd-foreground sm:text-3xl"
         />
         <Reveal className="mt-14" delay={0.1}>
           {/* Mobile: the ledger stacks — one card per category, TM value highlighted */}
           <div className="space-y-3 sm:hidden">
             {comparison.map((r) => (
-              <div key={r.row} className="rounded-xl bg-fd-card p-4 shadow-sm">
+              <div key={r.row} className="rounded-xl border border-fd-border/60 bg-fd-card p-4">
                 <p className="font-mono text-[11px] font-medium uppercase tracking-[0.15em] text-fd-muted-foreground">
                   {r.row}
                 </p>
@@ -478,7 +587,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
             ))}
           </div>
 
-          <div className="hidden max-w-3xl overflow-x-auto rounded-xl bg-fd-card p-2 shadow-sm sm:block">
+          <div className="mx-auto hidden max-w-3xl overflow-x-auto rounded-xl border border-fd-border/60 bg-fd-card p-2 sm:block">
             <table className="w-full min-w-[28rem] border-separate border-spacing-0 text-left text-sm">
               <thead>
                 <tr className="font-mono text-[11px] uppercase tracking-[0.15em]">
@@ -525,9 +634,9 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
 
       {/* Features */}
       <section className="px-6 py-24">
-        <Reveal className="max-w-2xl">
-          <Eyebrow label={t('eyebrowFeatures')} />
-          <h2 className="mt-4 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+        <Reveal className="mx-auto max-w-2xl text-center">
+          <Eyebrow label={t('eyebrowFeatures')} centered />
+          <h2 className="mt-4 text-balance font-display text-3xl font-semibold tracking-tight sm:text-4xl">
             {t('featuresHeading')}
           </h2>
           <p className="mt-4 text-pretty leading-relaxed text-fd-muted-foreground">
@@ -541,8 +650,8 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
             const Deco = bentoDecos[id];
             const { title, description } = features[id];
             return (
-              <Reveal key={id} delay={i * 0.08}>
-                <div className="flex h-full flex-col rounded-2xl bg-fd-card p-6 shadow-sm transition-colors hover:bg-fd-card/80">
+              <Reveal key={id} delay={i * 0.08} className="h-full">
+                <GlowCard className="flex h-full flex-col rounded-2xl border border-fd-border/60 bg-fd-card p-6">
                   <div className="flex size-9 items-center justify-center rounded-lg bg-fd-primary/10">
                     <Icon className="size-4.5 text-fd-primary" />
                   </div>
@@ -551,7 +660,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
                     {description}
                   </p>
                   <Deco />
-                </div>
+                </GlowCard>
               </Reveal>
             );
           })}
@@ -584,9 +693,9 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
 
       {/* A look inside */}
       <section className="px-6 py-24">
-        <Reveal className="max-w-2xl">
-          <Eyebrow label={t('eyebrowInside')} />
-          <h2 className="mt-4 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+        <Reveal className="mx-auto max-w-2xl text-center">
+          <Eyebrow label={t('eyebrowInside')} centered />
+          <h2 className="mt-4 text-balance font-display text-3xl font-semibold tracking-tight sm:text-4xl">
             {t('lookInsideHeading')}
           </h2>
         </Reveal>
@@ -594,6 +703,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
           <Reveal>
             <figure>
               <BrowserFrame
+                glare
                 image={tradesShot}
                 alt="Trade log with per-trade P&L, hold time, and tags"
                 sizes="(max-width: 640px) 100vw, (max-width: 1200px) 50vw, 540px"
@@ -607,6 +717,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
           <Reveal delay={0.12}>
             <figure>
               <BrowserFrame
+                glare
                 image={calendarShot}
                 alt="P&L calendar heatmap by day and week"
                 sizes="(max-width: 640px) 100vw, (max-width: 1200px) 50vw, 540px"
@@ -621,6 +732,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
         <figure className="mt-12">
           <ZoomFrame>
             <BrowserFrame
+              glare
               image={reportsShot}
               alt="Reports — equity curve, profit factor gauge, win-rate donut, annual goal pacing"
               sizes="(max-width: 1200px) 100vw, 1104px"
@@ -646,11 +758,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
               </h2>
             </div>
             <div className="relative self-center">
-              <div
-                aria-hidden
-                className="absolute -inset-4 -z-10 rounded-3xl bg-fd-primary/10 blur-2xl"
-              />
-              <div className="overflow-hidden rounded-xl bg-zinc-950 shadow-2xl shadow-black/30 ring-1 ring-white/10">
+              <div className="overflow-hidden rounded-xl bg-zinc-950 ring-1 ring-white/10">
                 <div className="flex items-center gap-2 px-4 py-2.5">
                   <span aria-hidden className="size-2.5 rounded-full bg-zinc-700" />
                   <span aria-hidden className="size-2.5 rounded-full bg-zinc-700" />
@@ -734,7 +842,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
                     key={name}
                     href={href}
                     rel="noreferrer"
-                    className={`inline-flex items-center gap-2 rounded-lg bg-fd-secondary px-5 py-2.5 text-sm font-medium text-fd-secondary-foreground ring-1 ring-fd-border transition-colors hover:bg-fd-accent ${focusRing}`}
+                    className={`inline-flex items-center gap-2 rounded-lg bg-fd-secondary px-5 py-2.5 text-sm font-medium text-fd-secondary-foreground ring-1 ring-fd-border transition hover:-translate-y-0.5 hover:bg-fd-accent ${focusRing}`}
                   >
                     {name}
                     <ArrowRight className="size-3.5 opacity-60" />
@@ -747,39 +855,29 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
                 >
                   <Star className="size-4" />
                   {d('star')}
+                  {stars !== null && <StarBadge count={stars} />}
                 </a>
               </div>
               <p className="mt-4 text-sm text-fd-muted-foreground/80">{d('note')}</p>
             </div>
             <div className="relative self-center">
-              <div
-                aria-hidden
-                className="absolute -inset-4 -z-10 rounded-3xl bg-fd-primary/10 blur-2xl"
-              />
-              <div className="overflow-hidden rounded-xl bg-zinc-950 shadow-2xl shadow-black/30 ring-1 ring-white/10">
+              <div className="overflow-hidden rounded-xl bg-zinc-950 ring-1 ring-white/10">
                 <div className="flex items-center gap-2 px-4 py-2.5">
                   <span aria-hidden className="size-2.5 rounded-full bg-zinc-700" />
                   <span aria-hidden className="size-2.5 rounded-full bg-zinc-700" />
                   <span aria-hidden className="size-2.5 rounded-full bg-zinc-700" />
                   <span className="mx-auto rounded-md bg-zinc-900 px-6 py-0.5 font-mono text-[11px] text-zinc-500">
-                    deploy.sh
+                    ~/tradermemos — zsh
                   </span>
                 </div>
-                <pre className="overflow-x-auto px-5 pb-6 pt-2 font-mono text-[13px] leading-8 text-zinc-300">
-                  <code>
-                    <span className="text-zinc-600">{d('dockerComment')}</span>
-                    {'\n'}
-                    <span aria-hidden className="select-none text-tm-profit">
-                      ${' '}
-                    </span>
-                    curl -fsSLO https://raw.githubusercontent.com/sinhong2011/TraderMemos/main/docker-compose.yml
-                    {'\n'}
-                    <span aria-hidden className="select-none text-tm-profit">
-                      ${' '}
-                    </span>
-                    docker compose up -d
-                  </code>
-                </pre>
+                <TypedTerminal
+                  commands={[
+                    'curl -fsSLO https://raw.githubusercontent.com/sinhong2011/TraderMemos/main/docker-compose.yml',
+                    'docker compose up -d',
+                  ]}
+                  ready="tradermemos ready"
+                  url="http://localhost:3000"
+                />
               </div>
             </div>
           </div>
@@ -791,31 +889,25 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
       {/* License CTA */}
       <section className="px-6 py-24">
         <Reveal>
-          <div
-            className="relative overflow-hidden rounded-2xl bg-fd-card p-8 shadow-sm sm:p-12"
-            style={{
-              background:
-                'linear-gradient(120deg, color-mix(in oklch, var(--color-fd-primary) 12%, var(--color-fd-card)), var(--color-fd-card) 55%)',
-            }}
-          >
-            <div className="flex flex-col items-start gap-8 sm:flex-row sm:items-center sm:justify-between">
-              <div className="max-w-xl">
-                <h2 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">
-                  {t('licenseHeading')}
-                </h2>
-                <p className="mt-2 text-pretty leading-relaxed text-fd-muted-foreground">
-                  {t('licenseBody')}
-                </p>
-                <p className="mt-5 inline-block rounded-lg bg-zinc-950 px-4 py-2 font-mono text-sm text-zinc-300 ring-1 ring-white/10">
-                  <span aria-hidden className="select-none text-tm-profit">
-                    ${' '}
-                  </span>
-                  make up
-                </p>
-              </div>
+          {/* Statement band — a second bordered canvas carrying the glyph lattice */}
+          <div className="relative isolate overflow-hidden rounded-3xl border border-fd-border/60 bg-fd-card/40 px-8 pb-14 pt-14 text-center sm:px-12 sm:pb-16 sm:pt-16">
+            <HeroLattice />
+            <h2 className="text-balance font-display text-2xl font-semibold tracking-tight sm:text-3xl">
+              {t('licenseHeading')}
+            </h2>
+            <p className="mx-auto mt-3 max-w-xl text-pretty leading-relaxed text-fd-muted-foreground">
+              {t('licenseBody')}
+            </p>
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+              <p className="inline-block rounded-xl bg-zinc-950 px-4 py-3 font-mono text-sm text-zinc-300 ring-1 ring-white/10">
+                <span aria-hidden className="select-none text-tm-profit">
+                  ${' '}
+                </span>
+                make up
+              </p>
               <Link
                 href={`/${lang}/docs`}
-                className={`inline-flex shrink-0 items-center gap-2 rounded-lg bg-fd-primary px-6 py-3 text-sm font-medium text-fd-primary-foreground shadow-lg shadow-fd-primary/25 transition hover:opacity-90 ${focusRing}`}
+                className={`inline-flex shrink-0 items-center gap-2 rounded-xl bg-fd-primary px-6 py-3 text-sm font-semibold text-fd-primary-foreground transition-colors hover:bg-fd-primary/90 ${focusRing}`}
               >
                 {t('readDocs')}
                 <ArrowRight className="size-4" />
