@@ -12,7 +12,6 @@ import (
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	"github.com/golang-migrate/migrate/v4/database/sqlite"
 	"github.com/golang-migrate/migrate/v4/source/iofs"
-	"golang.org/x/sys/unix"
 )
 
 //go:embed all:migrations
@@ -120,9 +119,9 @@ func withMigrateLock(dbPath string, fn func() error) error {
 		return fmt.Errorf("migrate lock: %w", err)
 	}
 	defer f.Close()
-	if err := unix.Flock(int(f.Fd()), unix.LOCK_EX); err != nil {
-		return fmt.Errorf("migrate lock: %w", err)
+	if err := lockMigrateFile(f); err != nil {
+		return err
 	}
-	defer func() { _ = unix.Flock(int(f.Fd()), unix.LOCK_UN) }()
+	defer func() { _ = unlockMigrateFile(f) }()
 	return fn()
 }
