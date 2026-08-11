@@ -81,7 +81,7 @@ msgid "{0} closed trades excluded (no stop recorded)."
 msgstr "{0} closed trades excluded (no stop recorded)."
 
 #. placeholder {0}: traded.length
-#: src/app/(tabs)/(calendar)/index.tsx:761
+#: src/app/(tabs)/(calendar)/index.tsx:805
 msgid "{0} days"
 msgstr "{0} days"
 
@@ -244,14 +244,14 @@ msgstr "{charts} charts"
 #~ msgid "{count, plural, one {# trade} other {# trades}}"
 #~ msgstr "{count, plural, one {# trade} other {# trades}}"
 
-#: src/app/(tabs)/(calendar)/index.tsx:696
-#: src/app/(tabs)/(calendar)/index.tsx:1001
-#: src/app/(tabs)/(calendar)/index.tsx:1146
+#: src/app/(tabs)/(calendar)/index.tsx:740
+#: src/app/(tabs)/(calendar)/index.tsx:1016
+#: src/app/(tabs)/(calendar)/index.tsx:1161
 #: src/app/(tabs)/(trades)/index.tsx:433
 msgid "{count} trades"
 msgstr "{count} trades"
 
-#: src/app/(tabs)/(calendar)/index.tsx:831
+#: src/app/(tabs)/(calendar)/index.tsx:875
 msgid "{daysTraded} days"
 msgstr "{daysTraded} days"
 
@@ -319,16 +319,16 @@ msgstr "{tradeCount} trades"
 #~ msgid "{weekCount, plural, one {# trade} other {# trades}}"
 #~ msgstr "{weekCount, plural, one {# trade} other {# trades}}"
 
-#: src/app/(tabs)/(calendar)/index.tsx:950
+#: src/app/(tabs)/(calendar)/index.tsx:213
 msgid "{weekCount} trades"
 msgstr "{weekCount} trades"
 
 #. placeholder {0}: formatPnl(pnl, currency)
-#: src/components/week-pnl-strip.tsx:58
+#: src/components/week-pnl-strip.tsx:121
 msgid "{weekday}, {0}"
 msgstr "{weekday}, {0}"
 
-#: src/components/week-pnl-strip.tsx:58
+#: src/components/week-pnl-strip.tsx:121
 msgid "{weekday}, No trades"
 msgstr "{weekday}, No trades"
 
@@ -354,7 +354,7 @@ msgstr "{year} P&L goal"
 #~ msgid "{yearCount, plural, one {# trade} other {# trades}}"
 #~ msgstr "{yearCount, plural, one {# trade} other {# trades}}"
 
-#: src/app/(tabs)/(calendar)/index.tsx:1071
+#: src/app/(tabs)/(calendar)/index.tsx:1086
 msgid "{yearCount} trades"
 msgstr "{yearCount} trades"
 
@@ -410,8 +410,8 @@ msgstr "1 {from} = {0} {to}"
 msgid "1 chart"
 msgstr "1 chart"
 
-#: src/app/(tabs)/(calendar)/index.tsx:761
-#: src/app/(tabs)/(calendar)/index.tsx:831
+#: src/app/(tabs)/(calendar)/index.tsx:805
+#: src/app/(tabs)/(calendar)/index.tsx:875
 msgid "1 day"
 msgstr "1 day"
 
@@ -431,11 +431,11 @@ msgstr "1 screenshot uploads after saving."
 msgid "1 symbol found"
 msgstr "1 symbol found"
 
-#: src/app/(tabs)/(calendar)/index.tsx:696
-#: src/app/(tabs)/(calendar)/index.tsx:950
-#: src/app/(tabs)/(calendar)/index.tsx:1001
-#: src/app/(tabs)/(calendar)/index.tsx:1071
-#: src/app/(tabs)/(calendar)/index.tsx:1146
+#: src/app/(tabs)/(calendar)/index.tsx:213
+#: src/app/(tabs)/(calendar)/index.tsx:740
+#: src/app/(tabs)/(calendar)/index.tsx:1016
+#: src/app/(tabs)/(calendar)/index.tsx:1086
+#: src/app/(tabs)/(calendar)/index.tsx:1161
 msgid "1 trade"
 msgstr "1 trade"
 
@@ -590,6 +590,10 @@ msgstr "Active limits"
 #: src/app/(tabs)/(settings)/api-tokens.tsx:197
 #~ msgid "Active tokens"
 #~ msgstr "Active tokens"
+
+#: src/app/(tabs)/(calendar)/index.tsx:211
+msgid "Activity"
+msgstr "Activity"
 
 #: src/app/(tabs)/(dashboard)/economic-events.tsx:306
 msgid "Actual"
@@ -1036,6 +1040,7 @@ msgstr "Back to trades"
 #~ msgid "Backup or restore local app preferences."
 #~ msgstr "Backup or restore local app preferences."
 
+#: src/app/(tabs)/(calendar)/index.tsx:236
 #: src/app/trade-preview.tsx:179
 msgid "Balance"
 msgstr "Balance"
@@ -2461,7 +2466,7 @@ msgstr "exp"
 msgid "Expect"
 msgstr "Expect"
 
-#: src/app/(tabs)/(calendar)/index.tsx:187
+#: src/app/(tabs)/(calendar)/index.tsx:228
 #: src/app/(tabs)/(dashboard)/playbook.tsx:130
 #: src/app/(tabs)/(dashboard)/wrapped.tsx:263
 msgid "Expectancy"
@@ -3490,7 +3495,7 @@ msgstr "Model"
 msgid "Mon"
 msgstr "Mon"
 
-#: src/app/(tabs)/(calendar)/index.tsx:290
+#: src/app/(tabs)/(calendar)/index.tsx:334
 #: src/components/mini-calendar-card.tsx:51
 #: src/components/reports/winloss-section.tsx:71
 msgid "Month"
@@ -3557,9 +3562,9 @@ msgid "Net (after fees)"
 msgstr "Net (after fees)"
 
 #: src/app/(tabs)/(calendar)/day/[date].tsx:313
-#: src/app/(tabs)/(calendar)/index.tsx:750
-#: src/app/(tabs)/(calendar)/index.tsx:925
-#: src/app/(tabs)/(calendar)/index.tsx:1060
+#: src/app/(tabs)/(calendar)/index.tsx:190
+#: src/app/(tabs)/(calendar)/index.tsx:794
+#: src/app/(tabs)/(calendar)/index.tsx:1075
 #: src/app/(tabs)/(dashboard)/playbook.tsx:126
 #: src/app/(tabs)/(dashboard)/playbook.tsx:236
 #: src/app/(tabs)/(trades)/[id].tsx:173
@@ -3639,7 +3644,7 @@ msgstr "New user"
 msgid "Newest first"
 msgstr "Newest first"
 
-#: src/app/(tabs)/(calendar)/index.tsx:450
+#: src/app/(tabs)/(calendar)/index.tsx:494
 msgid "Next"
 msgstr "Next"
 
@@ -3827,9 +3832,9 @@ msgid "No tokens yet"
 msgstr "No tokens yet"
 
 #: src/app/(tabs)/(calendar)/day/[date].tsx:320
-#: src/app/(tabs)/(calendar)/index.tsx:835
-#: src/app/(tabs)/(calendar)/index.tsx:1012
-#: src/app/(tabs)/(calendar)/index.tsx:1146
+#: src/app/(tabs)/(calendar)/index.tsx:879
+#: src/app/(tabs)/(calendar)/index.tsx:1027
+#: src/app/(tabs)/(calendar)/index.tsx:1161
 msgid "No trades"
 msgstr "No trades"
 
@@ -4459,7 +4464,7 @@ msgstr "Preview"
 msgid "Preview import"
 msgstr "Preview import"
 
-#: src/app/(tabs)/(calendar)/index.tsx:441
+#: src/app/(tabs)/(calendar)/index.tsx:485
 msgid "Previous"
 msgstr "Previous"
 
@@ -4528,7 +4533,7 @@ msgstr "profile email password sign in owner admin security"
 msgid "Profit at target"
 msgstr "Profit at target"
 
-#: src/app/(tabs)/(calendar)/index.tsx:183
+#: src/app/(tabs)/(calendar)/index.tsx:224
 #: src/app/(tabs)/(dashboard)/playbook.tsx:129
 #: src/app/(tabs)/(dashboard)/wrapped.tsx:258
 #: src/components/reports/overview-section.tsx:113
@@ -6459,20 +6464,20 @@ msgstr "Web Service token"
 msgid "Wed"
 msgstr "Wed"
 
-#: src/app/(tabs)/(calendar)/index.tsx:289
-#: src/app/(tabs)/(calendar)/index.tsx:777
+#: src/app/(tabs)/(calendar)/index.tsx:333
+#: src/app/(tabs)/(calendar)/index.tsx:821
 #: src/components/reports/winloss-section.tsx:70
 msgid "Week"
 msgstr "Week"
 
 #. placeholder {0}: wi + 1
 #. placeholder {1}: formatPnlCompact(weekPnl, currency)
-#: src/app/(tabs)/(calendar)/index.tsx:797
+#: src/app/(tabs)/(calendar)/index.tsx:841
 msgid "Week {0}, {1}"
 msgstr "Week {0}, {1}"
 
 #. placeholder {0}: wi + 1
-#: src/app/(tabs)/(calendar)/index.tsx:798
+#: src/app/(tabs)/(calendar)/index.tsx:842
 msgid "Week {0}, No trades"
 msgstr "Week {0}, No trades"
 
@@ -6536,7 +6541,7 @@ msgid "win ÷ loss"
 msgstr "win ÷ loss"
 
 #: src/app/(tabs)/(calendar)/day/[date].tsx:319
-#: src/app/(tabs)/(calendar)/index.tsx:179
+#: src/app/(tabs)/(calendar)/index.tsx:220
 #: src/app/(tabs)/(dashboard)/playbook.tsx:128
 #: src/app/(tabs)/(dashboard)/playbook.tsx:231
 #: src/components/reports/overview-section.tsx:132
@@ -6599,7 +6604,7 @@ msgstr "Write review"
 msgid "Write why you entered while it's fresh. Future you needs the thesis, not just the P&L."
 msgstr "Write why you entered while it's fresh. Future you needs the thesis, not just the P&L."
 
-#: src/app/(tabs)/(calendar)/index.tsx:291
+#: src/app/(tabs)/(calendar)/index.tsx:335
 msgid "Year"
 msgstr "Year"
 

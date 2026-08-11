@@ -154,14 +154,24 @@ function weekTradeStats(trades: Trade[], weekKeys: readonly string[]): WeekTrade
   };
 }
 
-/** Compact win-rate / PF / expectancy row plus optional balance walk. */
-function WeekStatsBlock({
+/** Week summary bento — hero P&L, activity, edge stats, balance walk. */
+function WeekBento({
+  weekPnl,
+  weekReturnPct,
+  weekCount,
+  weekWins,
+  weekLosses,
   stats,
   currency,
   startBalance,
   endBalance,
   showBalance,
 }: {
+  weekPnl: number;
+  weekReturnPct: number | null;
+  weekCount: number;
+  weekWins: number;
+  weekLosses: number;
   stats: WeekTradeStats;
   currency: string;
   startBalance: number | null;
@@ -170,30 +180,64 @@ function WeekStatsBlock({
 }) {
   const { theme } = useUnistyles();
   const { formatPnl, formatCurrency } = useFormatters();
+  const pnlTint = pnlColor(theme.colors, weekPnl);
   const expTint = pnlColor(theme.colors, stats.expectancy);
 
   return (
-    <View style={styles.weekStats}>
-      <View style={styles.weekStatsRow}>
-        <View style={styles.weekStatCell}>
-          <Text style={styles.weekStatLabel}>{t`Win rate`}</Text>
-          <Text style={styles.weekStatValue}>{formatPercent(stats.winRate, 0)}</Text>
+    <View style={styles.weekBento}>
+      <View style={styles.weekBentoRow}>
+        <View style={[styles.weekBentoTile, styles.weekBentoHero]}>
+          <Text style={styles.weekBentoLabel}>{t`Net P&L`}</Text>
+          <View style={styles.weekBentoHeroValueRow}>
+            <Text
+              style={[styles.weekBentoHeroValue, { color: pnlTint }]}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+            >
+              {formatPnl(weekPnl, currency)}
+            </Text>
+            {weekReturnPct != null ? (
+              <Text
+                style={[styles.weekBentoHeroReturn, { color: pnlTint }]}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+              >
+                {`${weekPnl > 0 ? '+' : ''}${formatPercentPoints(weekReturnPct * 100, 1)}`}
+              </Text>
+            ) : null}
+          </View>
         </View>
-        <View style={styles.weekStatCell}>
-          <Text style={styles.weekStatLabel}>{t`Profit factor`}</Text>
-          <Text style={styles.weekStatValue}>{formatRatio(stats.profitFactor)}</Text>
+        <View style={[styles.weekBentoTile, styles.weekBentoSide]}>
+          <Text style={styles.weekBentoLabel}>{t`Activity`}</Text>
+          <Text style={styles.weekBentoSideValue}>
+            {weekCount === 1 ? t`1 trade` : t`${weekCount} trades`}
+          </Text>
+          <WinLoss wins={weekWins} losses={weekLosses} style={styles.weekBentoSideSub} />
         </View>
-        <View style={styles.weekStatCell}>
-          <Text style={styles.weekStatLabel}>{t`Expectancy`}</Text>
-          <Text style={[styles.weekStatValue, { color: expTint }]}>
+      </View>
+      <View style={styles.weekBentoRow}>
+        <View style={[styles.weekBentoTile, styles.weekBentoStat]}>
+          <Text style={styles.weekBentoLabel}>{t`Win rate`}</Text>
+          <Text style={styles.weekBentoStatValue}>{formatPercent(stats.winRate, 0)}</Text>
+        </View>
+        <View style={[styles.weekBentoTile, styles.weekBentoStat]}>
+          <Text style={styles.weekBentoLabel}>{t`Profit factor`}</Text>
+          <Text style={styles.weekBentoStatValue}>{formatRatio(stats.profitFactor)}</Text>
+        </View>
+        <View style={[styles.weekBentoTile, styles.weekBentoStat]}>
+          <Text style={styles.weekBentoLabel}>{t`Expectancy`}</Text>
+          <Text style={[styles.weekBentoStatValue, { color: expTint }]}>
             {formatPnl(stats.expectancy, currency)}
           </Text>
         </View>
       </View>
       {showBalance && startBalance != null && endBalance != null ? (
-        <Text style={styles.weekStatBalance} numberOfLines={1} adjustsFontSizeToFit>
-          {`${formatCurrency(startBalance, currency)} → ${formatCurrency(endBalance, currency)}`}
-        </Text>
+        <View style={[styles.weekBentoTile, styles.weekBentoBalance]}>
+          <Text style={styles.weekBentoLabel}>{t`Balance`}</Text>
+          <Text style={styles.weekBentoBalanceValue} numberOfLines={1} adjustsFontSizeToFit>
+            {`${formatCurrency(startBalance, currency)} → ${formatCurrency(endBalance, currency)}`}
+          </Text>
+        </View>
       ) : null}
     </View>
   );
@@ -920,39 +964,12 @@ function WeekView({
 
   return (
     <View style={styles.fill}>
-      <View style={styles.summaryRow}>
-        <View>
-          <Text style={styles.summaryLabel}>{t`Net P&L`}</Text>
-          <View style={styles.summaryValueRow}>
-            <Text
-              style={[styles.summaryValue, { color: pnlColor(theme.colors, weekPnl) }]}
-              numberOfLines={1}
-              adjustsFontSizeToFit
-            >
-              {formatPnl(weekPnl, currency)}
-            </Text>
-            {weekReturnPct != null ? (
-              <Text
-                style={[
-                  styles.summaryReturnPct,
-                  { color: pnlColor(theme.colors, weekPnl) },
-                ]}
-                numberOfLines={1}
-                adjustsFontSizeToFit
-              >
-                {`${weekPnl > 0 ? '+' : ''}${formatPercentPoints(weekReturnPct * 100, 1)}`}
-              </Text>
-            ) : null}
-          </View>
-        </View>
-        <View style={styles.summaryRight}>
-          <Text style={styles.summarySub}>
-            {weekCount === 1 ? t`1 trade` : t`${weekCount} trades`}
-          </Text>
-          <WinLoss wins={weekWins} losses={weekLosses} style={styles.summarySub} />
-        </View>
-      </View>
-      <WeekStatsBlock
+      <WeekBento
+        weekPnl={weekPnl}
+        weekReturnPct={weekReturnPct}
+        weekCount={weekCount}
+        weekWins={weekWins}
+        weekLosses={weekLosses}
         stats={weekStats}
         currency={currency}
         startBalance={weekStartBal}
@@ -962,7 +979,6 @@ function WeekView({
       <WeekPnlStrip
         days={days}
         data={data}
-        weekMax={weekMax}
         onSelect={onSelect}
         currency={currency}
       />
@@ -1278,28 +1294,59 @@ const styles = StyleSheet.create((theme) => ({
   summaryReturnPct: { fontSize: 15, fontWeight: '600', ...theme.numeric },
   summaryRight: { alignItems: 'flex-end', gap: 3, paddingBottom: 2 },
   summarySub: { fontSize: 12, color: theme.colors.mutedForeground, ...theme.numeric },
-  weekStats: { gap: theme.spacing.xs, paddingBottom: theme.spacing.sm },
-  weekStatsRow: { flexDirection: 'row', gap: theme.spacing.sm },
-  weekStatCell: { flex: 1, alignItems: 'center', gap: 2 },
-  weekStatLabel: { fontSize: 10, color: theme.colors.mutedForeground },
-  weekStatValue: {
+  weekBento: { gap: theme.spacing.xs, paddingBottom: theme.spacing.xs },
+  weekBentoRow: { flexDirection: 'row', gap: theme.spacing.xs },
+  weekBentoTile: {
+    backgroundColor: theme.colors.card,
+    borderRadius: theme.radius.md,
+    borderCurve: 'continuous',
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: theme.spacing.xs,
+    gap: 2,
+  },
+  weekBentoHero: { flex: 1.5, minWidth: 0 },
+  weekBentoSide: { flex: 1, minWidth: 0, justifyContent: 'center' },
+  weekBentoStat: { flex: 1, minWidth: 0, alignItems: 'center' },
+  weekBentoBalance: { alignItems: 'center' },
+  weekBentoLabel: { fontSize: 10, color: theme.colors.mutedForeground },
+  weekBentoHeroValueRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: theme.spacing.xs,
+    flexWrap: 'wrap',
+  },
+  weekBentoHeroValue: {
+    fontSize: 22,
+    fontWeight: '700',
+    letterSpacing: -0.3,
+    ...theme.numeric,
+  },
+  weekBentoHeroReturn: { fontSize: 14, fontWeight: '600', ...theme.numeric },
+  weekBentoSideValue: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: theme.colors.foreground,
+    ...theme.numeric,
+  },
+  weekBentoSideSub: { fontSize: 11, color: theme.colors.mutedForeground, ...theme.numeric },
+  weekBentoStatValue: {
     fontSize: 13,
     fontWeight: '600',
     color: theme.colors.foreground,
     ...theme.numeric,
   },
-  weekStatBalance: {
-    textAlign: 'center',
-    fontSize: 11,
-    color: theme.colors.mutedForeground,
+  weekBentoBalanceValue: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: theme.colors.foreground,
     ...theme.numeric,
   },
   // Rows are content-sized (minHeight floor); leftover height sits below the list.
   weekDays: {
     flex: 1,
     justifyContent: 'flex-start',
-    gap: theme.spacing.xs,
-    marginTop: theme.spacing.md,
+    gap: theme.spacing.sm,
+    marginTop: theme.spacing.lg,
   },
   weekRow: {
     flexDirection: 'row',

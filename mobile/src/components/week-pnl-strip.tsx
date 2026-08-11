@@ -18,6 +18,71 @@ const STRIP_MAX_WIDTH = 360;
 /** Hairline height for untraded days — sits on the zero line. */
 const UNTRADED_HEIGHT = 2;
 
+/** One px above/below the zero line so bars do not kiss the axis. */
+const ZERO_PAD = 1;
+
+type StripLayout = {
+  profitHalf: number;
+  lossHalf: number;
+  zeroLineY: number;
+  pxPerUnit: number;
+};
+
+/**
+ * Size the above/below-zero bands from the week's extrema so one-sided weeks
+ * do not reserve empty half-height. Profit and loss share one scale: equal |P&L|
+ * yields equal bar length; each side's max bar fills its band.
+ */
+export function computeWeekStripLayout(
+  days: string[],
+  data: Record<string, number>,
+): StripLayout {
+  let weekMaxGain = 0;
+  let weekMaxLoss = 0;
+  for (const key of days) {
+    const pnl = data[key];
+    if (pnl == null) continue;
+    if (pnl > 0) weekMaxGain = Math.max(weekMaxGain, pnl);
+    else if (pnl < 0) weekMaxLoss = Math.max(weekMaxLoss, -pnl);
+  }
+
+  const drawable = WEEK_STRIP_HEIGHT - ZERO_PAD * 2;
+
+  if (weekMaxGain > 0 && weekMaxLoss > 0) {
+    const sum = weekMaxGain + weekMaxLoss;
+    const profitHalf = ZERO_PAD + (drawable * weekMaxGain) / sum;
+    const lossHalf = ZERO_PAD + (drawable * weekMaxLoss) / sum;
+    return {
+      profitHalf,
+      lossHalf,
+      zeroLineY: profitHalf,
+      pxPerUnit: drawable / sum,
+    };
+  }
+
+  if (weekMaxGain > 0) {
+    return {
+      profitHalf: WEEK_STRIP_HEIGHT,
+      lossHalf: 0,
+      zeroLineY: WEEK_STRIP_HEIGHT,
+      pxPerUnit: drawable / weekMaxGain,
+    };
+  }
+
+  if (weekMaxLoss > 0) {
+    return {
+      profitHalf: 0,
+      lossHalf: WEEK_STRIP_HEIGHT,
+      zeroLineY: 0,
+      pxPerUnit: drawable / weekMaxLoss,
+    };
+  }
+
+  // No trades or every day flat — centre zero line, hairlines only.
+  const half = WEEK_STRIP_HEIGHT / 2;
+  return { profitHalf: half, lossHalf: half, zeroLineY: half, pxPerUnit: 1 };
+}
+
 /**
  * One column per weekday above/below a centre zero line — the week-mode
  * counterpart to `equity-strip` and `chart-canvas`: plain Views, no SVG.
@@ -26,31 +91,29 @@ const UNTRADED_HEIGHT = 2;
 export function WeekPnlStrip({
   days,
   data,
-  weekMax,
   onSelect,
   currency,
 }: {
   days: string[];
   data: Record<string, number>;
-  weekMax: number;
   onSelect: (date: string) => void;
   currency: string;
 }) {
   const { theme } = useUnistyles();
   const { formatPnl } = useFormatters();
 
-  const columns = useMemo(() => {
-    const scale = weekMax > 0 ? weekMax : 1;
-    const half = WEEK_STRIP_HEIGHT / 2;
+  const { layout, columns } = useMemo(() => {
+    const layout = computeWeekStripLayout(days, data);
+    const { zeroLineY, pxPerUnit } = layout;
     const untradedColor = theme.colors.border;
 
-    return days.map((key) => {
+    const columns = days.map((key) => {
       const pnl = data[key];
       const hasTrade = pnl != null;
       const value = pnl ?? 0;
       const magnitude =
         hasTrade && value !== 0
-          ? Math.max(1, (Math.abs(value) / scale) * (half - 1))
+          ? Math.max(1, Math.abs(value) * pxPerUnit)
           : UNTRADED_HEIGHT;
       const d = new Date(`${key}T00:00:00Z`);
       const weekday = d.toLocaleDateString(locale, { weekday: 'long', timeZone: 'UTC' });
@@ -61,10 +124,10 @@ export function WeekPnlStrip({
         label,
         top:
           !hasTrade || value === 0
-            ? half - magnitude / 2
+            ? zeroLineY - magnitude / 2
             : value > 0
-              ? half - magnitude
-              : half,
+              ? zeroLineY - magnitude
+              : zeroLineY,
         height: magnitude,
         color:
           !hasTrade || value === 0
@@ -74,7 +137,9 @@ export function WeekPnlStrip({
               : theme.colors.loss,
       };
     });
-  }, [currency, data, days, formatPnl, theme.colors, weekMax]);
+
+    return { layout, columns };
+  }, [currency, data, days, formatPnl, theme.colors]);
 
   return (
     <View style={styles.container}>
@@ -95,7 +160,7 @@ export function WeekPnlStrip({
             />
           </Pressable>
         ))}
-        <View style={styles.zeroLine} pointerEvents="none" />
+        <View style={[styles.zeroLine, { top: layout.zeroLineY }]} pointerEvents="none" />
       </View>
       <View style={styles.labelRow}>
         {days.map((key) => {
@@ -133,7 +198,6 @@ const styles = StyleSheet.create((theme) => ({
     position: 'absolute',
     left: 0,
     right: 0,
-    top: WEEK_STRIP_HEIGHT / 2,
     height: 1,
     backgroundColor: theme.colors.border,
     zIndex: 1,
@@ -146,7 +210,7 @@ const styles = StyleSheet.create((theme) => ({
     marginLeft: -BAR_WIDTH / 2,
     borderRadius: 1,
   },
-  labelRow: { flexDirection: 'row', marginTop: 2 },
+  labelRow: { flexDirection: 'row' },
   dayLabel: {
     flex: 1,
     textAlign: 'center',
