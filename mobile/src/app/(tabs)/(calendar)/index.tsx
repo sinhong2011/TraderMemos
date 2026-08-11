@@ -15,6 +15,7 @@ import Animated, {
 import { SafeAreaView } from 'react-native-screens/experimental';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+import type { Trade } from '@/api/types';
 import { useAccounts, useCash, useDaily, useEquityCurve, useTrades } from '@/api/hooks';
 import { ErrorState } from '@/components/error-state';
 import { Segmented } from '@/components/segmented';
@@ -32,7 +33,7 @@ import {
 } from '@/lib/calendar';
 import { netDeposits } from '@/lib/cash';
 import { dayBounds, useGlobalFilters } from '@/lib/filters';
-import { formatPercentPoints, useFormatters } from '@/lib/format';
+import { formatPercent, formatPercentPoints, formatRatio, useFormatters } from '@/lib/format';
 import { useMoneyFx } from '@/lib/money';
 import { accountBaseCurrency, resolveMarketTimezone, useDisplayPrefs } from '@/lib/prefs';
 import { pnlBgTint, pnlColor, pnlDotTint } from '@/styles/unistyles';
@@ -114,6 +115,89 @@ const panelEntering: EntryExitAnimationFunction = () => {
 
 /** Per-day closed-trade tallies (close basis) behind the count and W/L badges. */
 type DayStats = { count: number; wins: number; losses: number };
+
+/** Closed-trade edge metrics for one calendar week — mirrors web day/week review stats. */
+type WeekTradeStats = {
+  winRate: number;
+  profitFactor: number;
+  expectancy: number;
+};
+
+function weekTradeStats(trades: Trade[], weekKeys: readonly string[]): WeekTradeStats {
+  const keys = new Set(weekKeys);
+  let wins = 0;
+  let losses = 0;
+  let grossProfit = 0;
+  let grossLoss = 0;
+  let total = 0;
+  for (const trade of trades) {
+    const key = tradeDayKey(trade);
+    if (key == null || !keys.has(key)) continue;
+    total += 1;
+    const pnl = trade.net_pnl ?? 0;
+    if (pnl > 0) {
+      wins += 1;
+      grossProfit += pnl;
+    } else if (pnl < 0) {
+      losses += 1;
+      grossLoss += -pnl;
+    }
+  }
+  const winRate = total > 0 ? wins / total : 0;
+  const avgWin = wins > 0 ? grossProfit / wins : 0;
+  const avgLoss = losses > 0 ? grossLoss / losses : 0;
+  const lossRate = total > 0 ? losses / total : 0;
+  return {
+    winRate,
+    profitFactor: grossLoss > 0 ? grossProfit / grossLoss : 0,
+    expectancy: Math.round((winRate * avgWin - lossRate * avgLoss) * 100) / 100,
+  };
+}
+
+/** Compact win-rate / PF / expectancy row plus optional balance walk. */
+function WeekStatsBlock({
+  stats,
+  currency,
+  startBalance,
+  endBalance,
+  showBalance,
+}: {
+  stats: WeekTradeStats;
+  currency: string;
+  startBalance: number | null;
+  endBalance: number | null;
+  showBalance: boolean;
+}) {
+  const { theme } = useUnistyles();
+  const { formatPnl, formatCurrency } = useFormatters();
+  const expTint = pnlColor(theme.colors, stats.expectancy);
+
+  return (
+    <View style={styles.weekStats}>
+      <View style={styles.weekStatsRow}>
+        <View style={styles.weekStatCell}>
+          <Text style={styles.weekStatLabel}>{t`Win rate`}</Text>
+          <Text style={styles.weekStatValue}>{formatPercent(stats.winRate, 0)}</Text>
+        </View>
+        <View style={styles.weekStatCell}>
+          <Text style={styles.weekStatLabel}>{t`Profit factor`}</Text>
+          <Text style={styles.weekStatValue}>{formatRatio(stats.profitFactor)}</Text>
+        </View>
+        <View style={styles.weekStatCell}>
+          <Text style={styles.weekStatLabel}>{t`Expectancy`}</Text>
+          <Text style={[styles.weekStatValue, { color: expTint }]}>
+            {formatPnl(stats.expectancy, currency)}
+          </Text>
+        </View>
+      </View>
+      {showBalance && startBalance != null && endBalance != null ? (
+        <Text style={styles.weekStatBalance} numberOfLines={1} adjustsFontSizeToFit>
+          {`${formatCurrency(startBalance, currency)} → ${formatCurrency(endBalance, currency)}`}
+        </Text>
+      ) : null}
+    </View>
+  );
+}
 
 /** Sun-first short weekday names in the app locale. */
 const DOW = (() => {
@@ -433,6 +517,7 @@ export default function CalendarScreen() {
                           anchor={pageKey}
                           data={data}
                           dayStats={dayStats}
+                          trades={trades.data ?? []}
                           todayKey={todayKey}
                           onSelect={openDay}
                           currency={currency}
@@ -795,6 +880,7 @@ function WeekView({
   anchor,
   data,
   dayStats,
+  trades,
   todayKey,
   onSelect,
   currency,
@@ -804,6 +890,7 @@ function WeekView({
   anchor: string;
   data: Record<string, number>;
   dayStats: Map<string, DayStats>;
+  trades: Trade[];
   todayKey: string;
   onSelect: (date: string) => void;
   currency: string;
@@ -823,9 +910,11 @@ function WeekView({
   const weekCount = allDays.reduce((sum, key) => sum + (dayStats.get(key)?.count ?? 0), 0);
   const weekWins = allDays.reduce((sum, key) => sum + (dayStats.get(key)?.wins ?? 0), 0);
   const weekLosses = allDays.reduce((sum, key) => sum + (dayStats.get(key)?.losses ?? 0), 0);
+  const weekStats = weekTradeStats(trades, allDays);
   // Biggest absolute day drives card tint intensity in the strip.
   const weekMax = Math.max(1, ...days.map((key) => Math.abs(data[key] ?? 0)));
   const weekStartBal = balanceAtPeriodStart(allDays[0]!);
+  const weekEndBal = weekStartBal != null ? weekStartBal + weekPnl : null;
   const weekReturnPct =
     equityLoaded && weekStartBal != null ? weekPnl / weekStartBal : null;
 
@@ -863,6 +952,13 @@ function WeekView({
           <WinLoss wins={weekWins} losses={weekLosses} style={styles.summarySub} />
         </View>
       </View>
+      <WeekStatsBlock
+        stats={weekStats}
+        currency={currency}
+        startBalance={weekStartBal}
+        endBalance={weekEndBal}
+        showBalance={equityLoaded}
+      />
       <WeekPnlStrip
         days={days}
         data={data}
@@ -1182,8 +1278,29 @@ const styles = StyleSheet.create((theme) => ({
   summaryReturnPct: { fontSize: 15, fontWeight: '600', ...theme.numeric },
   summaryRight: { alignItems: 'flex-end', gap: 3, paddingBottom: 2 },
   summarySub: { fontSize: 12, color: theme.colors.mutedForeground, ...theme.numeric },
+  weekStats: { gap: theme.spacing.xs, paddingBottom: theme.spacing.sm },
+  weekStatsRow: { flexDirection: 'row', gap: theme.spacing.sm },
+  weekStatCell: { flex: 1, alignItems: 'center', gap: 2 },
+  weekStatLabel: { fontSize: 10, color: theme.colors.mutedForeground },
+  weekStatValue: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: theme.colors.foreground,
+    ...theme.numeric,
+  },
+  weekStatBalance: {
+    textAlign: 'center',
+    fontSize: 11,
+    color: theme.colors.mutedForeground,
+    ...theme.numeric,
+  },
   // Rows are content-sized (minHeight floor); leftover height sits below the list.
-  weekDays: { flex: 1, justifyContent: 'flex-start', gap: theme.spacing.xs },
+  weekDays: {
+    flex: 1,
+    justifyContent: 'flex-start',
+    gap: theme.spacing.xs,
+    marginTop: theme.spacing.md,
+  },
   weekRow: {
     flexDirection: 'row',
     alignItems: 'center',

@@ -6,11 +6,11 @@ import { t } from '@lingui/core/macro';
 import { locale } from '@/i18n';
 import { useFormatters } from '@/lib/format';
 
-/** Band height — tall enough that a full-magnitude bar reads taller than `BAR_WIDTH`. */
-export const WEEK_STRIP_HEIGHT = 72;
+/** Band height — full-magnitude bar height : `BAR_WIDTH` ≥ ~1.4 (96 → 47 : 32 ≈ 1.47). */
+export const WEEK_STRIP_HEIGHT = 96;
 
 /** Drawn column width; slots stay `flex: 1` so day labels stay column-aligned. */
-const BAR_WIDTH = 16;
+const BAR_WIDTH = 32;
 
 /** Cap strip width on iPad / landscape so slots do not grow absurdly. */
 const STRIP_MAX_WIDTH = 360;
@@ -119,7 +119,6 @@ export function WeekPnlStrip({
 
 const styles = StyleSheet.create((theme) => ({
   container: {
-    marginBottom: theme.spacing.xs,
     alignSelf: 'center',
     width: '100%',
     maxWidth: STRIP_MAX_WIDTH,
