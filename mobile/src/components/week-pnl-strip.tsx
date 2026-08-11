@@ -6,8 +6,14 @@ import { t } from '@lingui/core/macro';
 import { locale } from '@/i18n';
 import { useFormatters } from '@/lib/format';
 
-/** Compact band height — same order of magnitude as `equity-strip`'s `STRIP_HEIGHT`. */
-export const WEEK_STRIP_HEIGHT = 56;
+/** Band height — tall enough that a full-magnitude bar reads taller than `BAR_WIDTH`. */
+export const WEEK_STRIP_HEIGHT = 72;
+
+/** Drawn column width; slots stay `flex: 1` so day labels stay column-aligned. */
+const BAR_WIDTH = 16;
+
+/** Cap strip width on iPad / landscape so slots do not grow absurdly. */
+const STRIP_MAX_WIDTH = 360;
 
 /** Hairline height for untraded days — sits on the zero line. */
 const UNTRADED_HEIGHT = 2;
@@ -112,7 +118,12 @@ export function WeekPnlStrip({
 }
 
 const styles = StyleSheet.create((theme) => ({
-  container: { marginBottom: theme.spacing.xs },
+  container: {
+    marginBottom: theme.spacing.xs,
+    alignSelf: 'center',
+    width: '100%',
+    maxWidth: STRIP_MAX_WIDTH,
+  },
   strip: {
     height: WEEK_STRIP_HEIGHT,
     flexDirection: 'row',
@@ -129,7 +140,13 @@ const styles = StyleSheet.create((theme) => ({
     zIndex: 1,
   },
   columnSlot: { flex: 1 },
-  column: { position: 'absolute', left: 0.5, right: 0.5, borderRadius: 1 },
+  column: {
+    position: 'absolute',
+    width: BAR_WIDTH,
+    left: '50%',
+    marginLeft: -BAR_WIDTH / 2,
+    borderRadius: 1,
+  },
   labelRow: { flexDirection: 'row', marginTop: 2 },
   dayLabel: {
     flex: 1,
