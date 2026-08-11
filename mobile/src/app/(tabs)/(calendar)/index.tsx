@@ -239,27 +239,22 @@ function WeekBento({
           accessible
           accessibilityLabel={
             hasBalance
-              ? [
-                  t`Balance`,
-                  formatCurrency(endBalance, currency),
-                  t`from ${formatCurrency(startBalance, currency)} →`,
-                ].join(', ')
-              : [t`Balance`, formatCurrency(0, currency)].join(', ')
+              ? t`Balance, ${formatCurrency(endBalance, currency)}, from ${formatCurrency(startBalance, currency)}`
+              : t`Balance, ${formatCurrency(0, currency)}`
           }
         >
           <Text style={styles.weekBentoBalanceLabel}>{t`Balance`}</Text>
           <View style={styles.weekBentoBalanceRow}>
-            <View style={styles.weekBentoBalanceSide}>
-              {hasBalance ? (
-                <Text style={styles.weekBentoBalanceFrom} numberOfLines={1}>
-                  {t`from ${formatCurrency(startBalance, currency)} →`}
-                </Text>
-              ) : null}
+            {hasBalance ? (
+              <Text style={styles.weekBentoBalanceFrom} numberOfLines={1}>
+                {`${formatCurrency(startBalance, currency)} →`}
+              </Text>
+            ) : null}
+            <View style={styles.weekBentoBalanceValueOverlay} pointerEvents="none">
+              <Text style={styles.weekBentoBalanceEnd} numberOfLines={1}>
+                {formatCurrency(hasBalance ? endBalance : 0, currency)}
+              </Text>
             </View>
-            <Text style={styles.weekBentoBalanceEnd} numberOfLines={1}>
-              {formatCurrency(hasBalance ? endBalance : 0, currency)}
-            </Text>
-            <View style={styles.weekBentoBalanceSide} />
           </View>
         </View>
       ) : null}
@@ -1348,23 +1343,28 @@ const styles = StyleSheet.create((theme) => ({
     gap: 2,
   },
   weekBentoBalanceRow: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
+    position: 'relative',
+    minHeight: 21,
+    justifyContent: 'center',
   },
-  weekBentoBalanceSide: {
-    flex: 1,
-    minWidth: 0,
+  weekBentoBalanceValueOverlay: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   weekBentoBalanceEnd: {
-    flexShrink: 1,
     fontSize: 17,
     fontWeight: '700',
+    lineHeight: 21,
     letterSpacing: -0.2,
     color: theme.colors.foreground,
     textAlign: 'center',
     ...theme.numeric,
   },
   weekBentoBalanceFrom: {
+    maxWidth: '38%',
     fontSize: 9,
     fontWeight: '500',
     color: theme.colors.mutedForeground,

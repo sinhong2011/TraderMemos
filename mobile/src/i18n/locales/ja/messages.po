@@ -81,7 +81,7 @@ msgid "{0} closed trades excluded (no stop recorded)."
 msgstr "{0}件の決済済みトレードを除外（ストップ未記録）。"
 
 #. placeholder {0}: traded.length
-#: src/app/(tabs)/(calendar)/index.tsx:829
+#: src/app/(tabs)/(calendar)/index.tsx:824
 msgid "{0} days"
 msgstr "{0}日"
 
@@ -244,14 +244,14 @@ msgstr "チャート{charts}枚"
 #~ msgid "{count, plural, one {# trade} other {# trades}}"
 #~ msgstr "{count, plural, other {#件}}"
 
-#: src/app/(tabs)/(calendar)/index.tsx:764
-#: src/app/(tabs)/(calendar)/index.tsx:1043
-#: src/app/(tabs)/(calendar)/index.tsx:1188
+#: src/app/(tabs)/(calendar)/index.tsx:759
+#: src/app/(tabs)/(calendar)/index.tsx:1038
+#: src/app/(tabs)/(calendar)/index.tsx:1183
 #: src/app/(tabs)/(trades)/index.tsx:433
 msgid "{count} trades"
 msgstr "{count}件のトレード"
 
-#: src/app/(tabs)/(calendar)/index.tsx:899
+#: src/app/(tabs)/(calendar)/index.tsx:894
 msgid "{daysTraded} days"
 msgstr "{daysTraded}日"
 
@@ -319,7 +319,7 @@ msgstr "{tradeCount}件のトレード"
 #~ msgid "{weekCount, plural, one {# trade} other {# trades}}"
 #~ msgstr "{weekCount, plural, other {#件}}"
 
-#: src/app/(tabs)/(calendar)/index.tsx:215
+#: src/app/(tabs)/(calendar)/index.tsx:216
 msgid "{weekCount} trades"
 msgstr "{weekCount}件のトレード"
 
@@ -354,7 +354,7 @@ msgstr "{year}年の損益目標"
 #~ msgid "{yearCount, plural, one {# trade} other {# trades}}"
 #~ msgstr "{yearCount, plural, other {#件}}"
 
-#: src/app/(tabs)/(calendar)/index.tsx:1113
+#: src/app/(tabs)/(calendar)/index.tsx:1108
 msgid "{yearCount} trades"
 msgstr "{yearCount}件のトレード"
 
@@ -410,8 +410,8 @@ msgstr "1 {from} = {0} {to}"
 msgid "1 chart"
 msgstr "チャート1枚"
 
-#: src/app/(tabs)/(calendar)/index.tsx:829
-#: src/app/(tabs)/(calendar)/index.tsx:899
+#: src/app/(tabs)/(calendar)/index.tsx:824
+#: src/app/(tabs)/(calendar)/index.tsx:894
 msgid "1 day"
 msgstr "1日"
 
@@ -431,11 +431,11 @@ msgstr "保存後にスクリーンショットを1枚アップロードしま�
 msgid "1 symbol found"
 msgstr "1銘柄が見つかりました"
 
-#: src/app/(tabs)/(calendar)/index.tsx:215
-#: src/app/(tabs)/(calendar)/index.tsx:764
-#: src/app/(tabs)/(calendar)/index.tsx:1043
-#: src/app/(tabs)/(calendar)/index.tsx:1113
-#: src/app/(tabs)/(calendar)/index.tsx:1188
+#: src/app/(tabs)/(calendar)/index.tsx:216
+#: src/app/(tabs)/(calendar)/index.tsx:759
+#: src/app/(tabs)/(calendar)/index.tsx:1038
+#: src/app/(tabs)/(calendar)/index.tsx:1108
+#: src/app/(tabs)/(calendar)/index.tsx:1183
 msgid "1 trade"
 msgstr "1件"
 
@@ -1040,12 +1040,21 @@ msgstr "トレード一覧に戻る"
 #~ msgid "Backup or restore local app preferences."
 #~ msgstr "端末内のアプリ設定をバックアップ・復元します。"
 
-#: src/app/(tabs)/(calendar)/index.tsx:243
-#: src/app/(tabs)/(calendar)/index.tsx:247
-#: src/app/(tabs)/(calendar)/index.tsx:250
+#: src/app/(tabs)/(calendar)/index.tsx:246
 #: src/app/trade-preview.tsx:179
 msgid "Balance"
 msgstr "残高"
+
+#. placeholder {0}: formatCurrency(0, currency)
+#: src/app/(tabs)/(calendar)/index.tsx:243
+msgid "Balance, {0}"
+msgstr "残高、{0}"
+
+#. placeholder {0}: formatCurrency(endBalance, currency)
+#. placeholder {1}: formatCurrency(startBalance, currency)
+#: src/app/(tabs)/(calendar)/index.tsx:242
+msgid "Balance, {0}, from {1}"
+msgstr "残高、{0}、{1}から"
 
 #: src/app/(tabs)/(settings)/account-form.tsx:304
 msgid "Base currency"
@@ -2738,11 +2747,10 @@ msgstr "変換元"
 #~ msgid "from {0}"
 #~ msgstr "{0}から"
 
-#. placeholder {0}: formatCurrency(startBalance, currency)
 #: src/app/(tabs)/(calendar)/index.tsx:245
 #: src/app/(tabs)/(calendar)/index.tsx:255
-msgid "from {0} →"
-msgstr "{0}から →"
+#~ msgid "from {0} →"
+#~ msgstr "{0}から →"
 
 #: src/app/(tabs)/(settings)/import-trades.tsx:473
 msgid "From file"
@@ -3508,7 +3516,7 @@ msgstr "モデル"
 msgid "Mon"
 msgstr "月"
 
-#: src/app/(tabs)/(calendar)/index.tsx:358
+#: src/app/(tabs)/(calendar)/index.tsx:353
 #: src/components/mini-calendar-card.tsx:51
 #: src/components/reports/winloss-section.tsx:71
 msgid "Month"
@@ -3576,8 +3584,8 @@ msgstr "ネット（手数料後）"
 
 #: src/app/(tabs)/(calendar)/day/[date].tsx:313
 #: src/app/(tabs)/(calendar)/index.tsx:192
-#: src/app/(tabs)/(calendar)/index.tsx:818
-#: src/app/(tabs)/(calendar)/index.tsx:1102
+#: src/app/(tabs)/(calendar)/index.tsx:813
+#: src/app/(tabs)/(calendar)/index.tsx:1097
 #: src/app/(tabs)/(dashboard)/playbook.tsx:126
 #: src/app/(tabs)/(dashboard)/playbook.tsx:236
 #: src/app/(tabs)/(trades)/[id].tsx:173
@@ -3657,7 +3665,7 @@ msgstr "新しいユーザー"
 msgid "Newest first"
 msgstr "新しい順"
 
-#: src/app/(tabs)/(calendar)/index.tsx:518
+#: src/app/(tabs)/(calendar)/index.tsx:513
 msgid "Next"
 msgstr "次へ"
 
@@ -3845,9 +3853,9 @@ msgid "No tokens yet"
 msgstr "トークンがまだありません"
 
 #: src/app/(tabs)/(calendar)/day/[date].tsx:320
-#: src/app/(tabs)/(calendar)/index.tsx:903
-#: src/app/(tabs)/(calendar)/index.tsx:1054
-#: src/app/(tabs)/(calendar)/index.tsx:1188
+#: src/app/(tabs)/(calendar)/index.tsx:898
+#: src/app/(tabs)/(calendar)/index.tsx:1049
+#: src/app/(tabs)/(calendar)/index.tsx:1183
 msgid "No trades"
 msgstr "取引なし"
 
@@ -4475,7 +4483,7 @@ msgstr "プレビュー"
 msgid "Preview import"
 msgstr "インポートをプレビュー"
 
-#: src/app/(tabs)/(calendar)/index.tsx:509
+#: src/app/(tabs)/(calendar)/index.tsx:504
 msgid "Previous"
 msgstr "前へ"
 
@@ -6475,20 +6483,20 @@ msgstr "Web Serviceトークン"
 msgid "Wed"
 msgstr "水"
 
-#: src/app/(tabs)/(calendar)/index.tsx:357
-#: src/app/(tabs)/(calendar)/index.tsx:845
+#: src/app/(tabs)/(calendar)/index.tsx:352
+#: src/app/(tabs)/(calendar)/index.tsx:840
 #: src/components/reports/winloss-section.tsx:70
 msgid "Week"
 msgstr "週"
 
 #. placeholder {0}: wi + 1
 #. placeholder {1}: formatPnlCompact(weekPnl, currency)
-#: src/app/(tabs)/(calendar)/index.tsx:865
+#: src/app/(tabs)/(calendar)/index.tsx:860
 msgid "Week {0}, {1}"
 msgstr "週 {0}, {1}"
 
 #. placeholder {0}: wi + 1
-#: src/app/(tabs)/(calendar)/index.tsx:866
+#: src/app/(tabs)/(calendar)/index.tsx:861
 msgid "Week {0}, No trades"
 msgstr "週 {0}、取引なし"
 
@@ -6615,7 +6623,7 @@ msgstr "振り返りを書く"
 msgid "Write why you entered while it's fresh. Future you needs the thesis, not just the P&L."
 msgstr "記憶が新しいうちにエントリー理由を書きましょう。未来の自分に必要なのは損益ではなく仮説です。"
 
-#: src/app/(tabs)/(calendar)/index.tsx:359
+#: src/app/(tabs)/(calendar)/index.tsx:354
 msgid "Year"
 msgstr "年"
 
