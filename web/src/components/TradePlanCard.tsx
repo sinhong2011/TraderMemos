@@ -1,6 +1,7 @@
 import { Card } from "./Card";
 import { cardSectionLabelClass, StatCell } from "./StatCell";
 import { pnlColor } from "./theme-tokens";
+import { TradeExcursionChart } from "./TradeExcursionChart";
 import { Button } from "./ui/button";
 import type { TradeDetail } from "@/lib/api/types";
 import { cn } from "@/lib/cn";
@@ -237,6 +238,7 @@ export function TradePlanCard({
                 </Button>
               )}
             </div>
+            <TradeExcursionChart trade={trade} />
             <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
               <StatCell
                 label="MAE"
