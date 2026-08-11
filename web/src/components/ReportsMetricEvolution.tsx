@@ -9,6 +9,7 @@ import {
   YAxis,
 } from "recharts";
 import type { Trade } from "@/lib/api/types";
+import { type ChartRange, tradesInRange } from "@/lib/chartRange";
 import { useDisplayTimePrefs } from "@/lib/displayPrefs";
 import { fmtDayShort, fmtPct } from "@/lib/format";
 import { intlLocale } from "@/lib/locale";
@@ -17,7 +18,7 @@ import {
   type EvolutionPoint,
   metricEvolution,
 } from "@/lib/reportsAnalytics";
-import { Card } from "./Card";
+import { ChartCard } from "./ChartCard";
 import { ChartFrame, chartTheme, chartTooltipStyle, pnlTooltipValue } from "./ChartFrame";
 import { EmptyState } from "./EmptyState";
 import { useReportsMoney } from "./ReportsDisplayContext";
@@ -58,8 +59,12 @@ export function ReportsMetricEvolution({ trades, loading, error }: ReportsMetric
   const money = useReportsMoney();
   const [granularity, setGranularity] = useState<EvolutionGranularity>("week");
   const [rightMetric, setRightMetric] = useState<RightMetric>("cumulativePnl");
+  const [range, setRange] = useState<ChartRange>("all");
 
-  const rawPoints = metricEvolution(trades, granularity, money.tradePnl);
+  // The metrics are cumulative-to-date, so a trailing range recomputes them
+  // over the ranged trades — "3M" resets the baseline to the window start
+  // rather than showing the tail of the all-time series.
+  const rawPoints = metricEvolution(tradesInRange(trades, range), granularity, money.tradePnl);
   // Dollar metrics (cumulative P&L, expectancy) re-express via display(); PF stays raw.
   const points: EvolutionPoint[] = rawPoints.map((p) => ({
     ...p,
@@ -76,13 +81,12 @@ export function ReportsMetricEvolution({ trades, loading, error }: ReportsMetric
   const lastRightValue = points.length > 0 ? points[points.length - 1][rightMetric] : 0;
   const rightColor = lastRightValue < 0 ? "var(--loss)" : "var(--profit)";
 
-  const action = (
-    // Side-by-side once there's room (sm+), stacked below that: "Right axis
-    // metric" alone can exceed a narrow card's width, so each control keeps
-    // its own row there. overflow-x-auto is a fallback so an over-wide
-    // control scrolls within itself rather than breaking the page layout at
-    // the very narrowest viewports.
-    <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:gap-4">
+  const controls = (
+    // "Right axis metric" alone can exceed a narrow card's width;
+    // overflow-x-auto is a fallback so an over-wide control scrolls within
+    // itself rather than breaking the page layout at the very narrowest
+    // viewports. ChartCard stacks the controls below sm.
+    <>
       <div className="max-w-full overflow-x-auto">
         <SegmentedControl
           ariaLabel="Evolution granularity"
@@ -99,89 +103,92 @@ export function ReportsMetricEvolution({ trades, loading, error }: ReportsMetric
           options={RIGHT_METRICS}
         />
       </div>
-    </div>
+    </>
   );
 
+  const body = ({ height }: { height?: number }) =>
+    loading ? (
+      <Skeleton height="220px" />
+    ) : error ? (
+      <p className="text-xs text-destructive">Failed to load metric evolution.</p>
+    ) : points.length === 0 ? (
+      <EmptyState title="No data" hint="Add trades or adjust filters to see trends over time." />
+    ) : (
+      <ChartFrame className="border-0 rounded-none">
+        {/* Expose the last cumulative P&L (display units) for unit tests —
+            recharts ticks are unreliable in jsdom. */}
+        <span data-testid="evolution-last-cum-pnl" className="sr-only">
+          {money.formatAxis(points[points.length - 1].cumulativePnl)}
+        </span>
+        <ResponsiveContainer width="100%" height={height ?? 220}>
+          <LineChart data={points} margin={{ top: 8, right: 16, bottom: 0, left: 0 }}>
+            <CartesianGrid vertical={false} stroke={chartTheme.gridColor} />
+            <XAxis
+              dataKey="bucket"
+              tickFormatter={(v: string) => fmtDayShort(v, locale)}
+              tick={{ fontSize: 10, fill: chartTheme.axisColor }}
+              axisLine={false}
+              tickLine={false}
+              minTickGap={40}
+            />
+            <YAxis
+              yAxisId="left"
+              tick={{ fontSize: 10, fill: chartTheme.axisColor }}
+              tickFormatter={(v: number) => fmtPct(v, locale)}
+              axisLine={false}
+              tickLine={false}
+              width={44}
+              domain={[0, 1]}
+            />
+            <YAxis
+              yAxisId="right"
+              orientation="right"
+              tick={{ fontSize: 10, fill: chartTheme.axisColor }}
+              tickFormatter={fmtRight}
+              axisLine={false}
+              tickLine={false}
+              width={56}
+            />
+            <Tooltip
+              {...chartTooltipStyle}
+              labelFormatter={(v) => fmtDayShort(String(v), locale)}
+              formatter={(value, name) => {
+                const v = Number(value ?? 0);
+                if (name === "winRate") return [fmtPct(v, locale), "Win rate"];
+                // Dollar metrics are signed P&L; profit factor is a ratio, so it stays neutral.
+                const text = fmtRight(v);
+                return [
+                  rightMetric === "profitFactor" ? text : pnlTooltipValue(v, text),
+                  rightLabel,
+                ];
+              }}
+            />
+            <Line
+              yAxisId="left"
+              type="monotone"
+              dataKey="winRate"
+              name="winRate"
+              stroke={chartTheme.accentStroke}
+              strokeWidth={1.5}
+              dot={false}
+            />
+            <Line
+              yAxisId="right"
+              type="monotone"
+              dataKey={rightMetric}
+              name={rightMetric}
+              stroke={rightColor}
+              strokeWidth={1.5}
+              dot={false}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </ChartFrame>
+    );
+
   return (
-    <Card title="Metric Evolution" action={action}>
-      {loading ? (
-        <Skeleton height="220px" />
-      ) : error ? (
-        <p className="text-xs text-destructive">Failed to load metric evolution.</p>
-      ) : points.length === 0 ? (
-        <EmptyState title="No data" hint="Add trades or adjust filters to see trends over time." />
-      ) : (
-        <ChartFrame className="border-0 rounded-none">
-          {/* Expose the last cumulative P&L (display units) for unit tests —
-              recharts ticks are unreliable in jsdom. */}
-          <span data-testid="evolution-last-cum-pnl" className="sr-only">
-            {money.formatAxis(points[points.length - 1].cumulativePnl)}
-          </span>
-          <ResponsiveContainer width="100%" height={220}>
-            <LineChart data={points} margin={{ top: 8, right: 16, bottom: 0, left: 0 }}>
-              <CartesianGrid vertical={false} stroke={chartTheme.gridColor} />
-              <XAxis
-                dataKey="bucket"
-                tickFormatter={(v: string) => fmtDayShort(v, locale)}
-                tick={{ fontSize: 10, fill: chartTheme.axisColor }}
-                axisLine={false}
-                tickLine={false}
-                minTickGap={40}
-              />
-              <YAxis
-                yAxisId="left"
-                tick={{ fontSize: 10, fill: chartTheme.axisColor }}
-                tickFormatter={(v: number) => fmtPct(v, locale)}
-                axisLine={false}
-                tickLine={false}
-                width={44}
-                domain={[0, 1]}
-              />
-              <YAxis
-                yAxisId="right"
-                orientation="right"
-                tick={{ fontSize: 10, fill: chartTheme.axisColor }}
-                tickFormatter={fmtRight}
-                axisLine={false}
-                tickLine={false}
-                width={56}
-              />
-              <Tooltip
-                {...chartTooltipStyle}
-                labelFormatter={(v) => fmtDayShort(String(v), locale)}
-                formatter={(value, name) => {
-                  const v = Number(value ?? 0);
-                  if (name === "winRate") return [fmtPct(v, locale), "Win rate"];
-                  // Dollar metrics are signed P&L; profit factor is a ratio, so it stays neutral.
-                  const text = fmtRight(v);
-                  return [
-                    rightMetric === "profitFactor" ? text : pnlTooltipValue(v, text),
-                    rightLabel,
-                  ];
-                }}
-              />
-              <Line
-                yAxisId="left"
-                type="monotone"
-                dataKey="winRate"
-                name="winRate"
-                stroke={chartTheme.accentStroke}
-                strokeWidth={1.5}
-                dot={false}
-              />
-              <Line
-                yAxisId="right"
-                type="monotone"
-                dataKey={rightMetric}
-                name={rightMetric}
-                stroke={rightColor}
-                strokeWidth={1.5}
-                dot={false}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </ChartFrame>
-      )}
-    </Card>
+    <ChartCard title="Metric Evolution" controls={controls} range={range} onRangeChange={setRange}>
+      {body}
+    </ChartCard>
   );
 }

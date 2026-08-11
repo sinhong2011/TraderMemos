@@ -1,5 +1,5 @@
 import type { ColumnDef } from "@/lib/table";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import {
   Area,
   AreaChart,
@@ -17,6 +17,7 @@ import { BehaviorLossAversionCard } from "@/components/BehaviorLossAversionCard"
 import { BehaviorOverconfidenceCard } from "@/components/BehaviorOverconfidenceCard";
 import { BehaviorRevengeCard } from "@/components/BehaviorRevengeCard";
 import { Card } from "@/components/Card";
+import { ChartCard } from "@/components/ChartCard";
 import {
   ChartFrame,
   chartTheme,
@@ -73,6 +74,7 @@ import type {
   Summary,
   Trade,
 } from "@/lib/api/types";
+import { equityPointsInRange, type ChartRange } from "@/lib/chartRange";
 import { uniqueDayTicks } from "@/lib/chartTicks";
 import { cn } from "@/lib/cn";
 import { fmtDayShort, fmtMoney, fmtMoneyCompact, fmtPct } from "@/lib/format";
@@ -209,16 +211,6 @@ const NEG_COLOR = "var(--loss)";
 // Summary metrics — equity, day strip, insight widgets, bento grid
 // ---------------------------------------------------------------------------
 
-function BentoCell({ className, children }: { className?: string; children: ReactNode }) {
-  return (
-    <section
-      className={cn("flex h-full min-w-0 flex-col rounded-lg bg-card p-4 sm:p-5", className)}
-    >
-      {children}
-    </section>
-  );
-}
-
 function BentoTitle({
   children,
   tone = "signal",
@@ -281,25 +273,33 @@ function SummaryMetricsGrid({
   usePrivacyMode();
   useDisplayTimePrefs();
   const locale = intlLocale();
-  const equityPoints = equity?.points ?? [];
+  const [equityRange, setEquityRange] = useState<ChartRange>("all");
+  const equityPoints = equityPointsInRange(equity?.points ?? [], equityRange);
 
   return (
     <div className="flex flex-col gap-3">
       <div className="grid auto-rows-[minmax(64px,auto)] grid-cols-1 gap-3">
         {/* Equity — top full-bleed, area chart like the home page */}
-        <BentoCell className="min-h-[180px]">
-          <BentoTitle tone="muted">
-            Equity curve
-            {equityPoints.length > 0 && equity
-              ? ` · Max DD ${fmtMoney(equity.max_drawdown * fxRate, currency, locale)}`
-              : null}
-          </BentoTitle>
-          <div className="mt-2 min-h-0 flex-1">
-            {equityLoading ? (
+        <ChartCard
+          className="min-h-[180px]"
+          title={
+            <BentoTitle tone="muted">
+              Equity curve
+              {equityPoints.length > 0 && equity
+                ? ` · Max DD ${fmtMoney(equity.max_drawdown * fxRate, currency, locale)}`
+                : null}
+            </BentoTitle>
+          }
+          expandTitle="Equity curve"
+          range={equityRange}
+          onRangeChange={setEquityRange}
+        >
+          {({ height }) =>
+            equityLoading ? (
               <Skeleton className="h-[148px] w-full" />
             ) : equityPoints.length > 0 ? (
               <ChartFrame inset className="rounded-none border-0 bg-transparent">
-                <ResponsiveContainer width="100%" height={148}>
+                <ResponsiveContainer width="100%" height={height ?? 148}>
                   <AreaChart
                     data={equityPoints.map((p) => ({ ...p, equity: p.equity * fxRate }))}
                     margin={{ top: 8, right: 8, bottom: 0, left: 4 }}
@@ -354,9 +354,9 @@ function SummaryMetricsGrid({
               <p className="py-8 text-center text-[12px] text-muted-foreground">
                 No equity data yet.
               </p>
-            )}
-          </div>
-        </BentoCell>
+            )
+          }
+        </ChartCard>
       </div>
 
       <ReportsDayStrip
