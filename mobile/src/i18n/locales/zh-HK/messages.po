@@ -1732,7 +1732,7 @@ msgstr "無法撤銷權杖"
 #: src/app/new-note.tsx:59
 #: src/app/new-setup.tsx:107
 #: src/app/new-setup.tsx:133
-#: src/app/quick-journal.tsx:66
+#: src/app/quick-journal.tsx:67
 #: src/app/replay.tsx:340
 #: src/components/checklist-card.tsx:98
 #: src/lib/save-trades.ts:67
@@ -2369,7 +2369,7 @@ msgid "Entry price"
 msgstr "入場價"
 
 #: src/app/(tabs)/(trades)/[id].tsx:619
-#: src/app/quick-journal.tsx:78
+#: src/app/quick-journal.tsx:79
 #: src/components/trade-form.tsx:515
 msgid "Entry reason"
 msgstr "入場原因"
@@ -2437,7 +2437,7 @@ msgstr "執行評級"
 
 #: src/app/(tabs)/(trades)/[id].tsx:616
 #: src/app/manage-tags.tsx:127
-#: src/app/quick-journal.tsx:91
+#: src/app/quick-journal.tsx:92
 #: src/components/trade-form.tsx:525
 #: src/components/trade-form.tsx:527
 msgid "Execution rating"
@@ -3273,7 +3273,7 @@ msgid "Long"
 msgstr "做多"
 
 #: src/app/(tabs)/(trades)/[id].tsx:126
-#: src/app/quick-journal.tsx:143
+#: src/app/quick-journal.tsx:144
 #: src/app/replay.tsx:436
 #: src/components/share-card.tsx:56
 msgid "LONG"
@@ -3502,7 +3502,7 @@ msgid "Mistake"
 msgstr "錯誤"
 
 #: src/app/manage-tags.tsx:77
-#: src/app/quick-journal.tsx:100
+#: src/app/quick-journal.tsx:101
 #: src/components/trade-form.tsx:534
 msgid "Mistake type"
 msgstr "錯誤類型"
@@ -3884,6 +3884,10 @@ msgstr "沒有符合「{search}」的交易"
 msgid "No trades on this day."
 msgstr "這天沒有交易。"
 
+#: src/app/quick-journal.tsx:184
+msgid "No trades to review yet"
+msgstr "尚無可覆盤的交易"
+
 #: src/components/reports/overview-section.tsx:364
 msgid "No trades with a knowable initial risk — set stops to unlock R analytics."
 msgstr "沒有可得知初始風險的交易 — 設定止蝕即可解鎖 R 分析。"
@@ -4088,7 +4092,7 @@ msgstr "上限內只容納最先的 {0} 個檔案。"
 #: src/app/(tabs)/(trades)/[id].tsx:138
 #: src/app/(tabs)/(trades)/[id].tsx:198
 #: src/app/(tabs)/(trades)/index.tsx:266
-#: src/app/quick-journal.tsx:139
+#: src/app/quick-journal.tsx:140
 #: src/app/trade-preview.tsx:135
 #: src/components/performance-card.tsx:80
 #: src/components/trade-result-card.tsx:51
@@ -4985,7 +4989,7 @@ msgid "Revenge trading"
 msgstr "報復性交易"
 
 #: src/app/(tabs)/(trades)/[id].tsx:586
-#: src/app/quick-journal.tsx:72
+#: src/app/quick-journal.tsx:73
 #: src/components/trade-form.tsx:523
 msgid "Review"
 msgstr "覆盤"
@@ -4999,7 +5003,7 @@ msgid "Review import"
 msgstr "檢視匯入內容"
 
 #: src/app/(tabs)/(trades)/[id].tsx:621
-#: src/app/quick-journal.tsx:82
+#: src/app/quick-journal.tsx:83
 #: src/components/trade-form.tsx:553
 msgid "Review notes"
 msgstr "檢討筆記"
@@ -5457,7 +5461,7 @@ msgid "Short"
 msgstr "做空"
 
 #: src/app/(tabs)/(trades)/[id].tsx:126
-#: src/app/quick-journal.tsx:143
+#: src/app/quick-journal.tsx:144
 #: src/app/replay.tsx:436
 #: src/components/share-card.tsx:56
 msgid "SHORT"
@@ -6208,7 +6212,7 @@ msgid "Trade lands on"
 msgstr "交易歸屬日"
 
 #: src/app/edit-trade.tsx:110
-#: src/app/quick-journal.tsx:162
+#: src/app/quick-journal.tsx:196
 #: src/app/replay.tsx:131
 #: src/app/share-trade.tsx:76
 msgid "Trade not found"
@@ -6538,7 +6542,7 @@ msgstr "今日點樣？"
 msgid "What has to be happening for this play to be on? Where is it wrong?"
 msgstr "這個形態成立需要什麼條件？什麼情況下就算失效？"
 
-#: src/app/quick-journal.tsx:86
+#: src/app/quick-journal.tsx:87
 #: src/components/trade-form.tsx:556
 msgid "What would you do differently?"
 msgstr "下次會如何改進？"

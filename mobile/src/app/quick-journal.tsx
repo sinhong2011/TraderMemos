@@ -6,13 +6,14 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { FormSkeleton } from '@/components/skeleton';
 
-import { useApiRequest, useTags, useTrade } from '@/api/hooks';
-import type { Tag, TradeDetail } from '@/api/types';
+import { useApiRequest, useTags, useTrade, useTrades } from '@/api/hooks';
+import type { Tag, Trade, TradeDetail } from '@/api/types';
 import { ChipGroup } from '@/components/chips';
 import { FormField, FormInput, FormSheet } from '@/components/form-sheet';
 import { Pill } from '@/components/pill';
 import { errorMessage } from '@/lib/errors';
 import { useFormatters } from '@/lib/format';
+import { useProUnlocked } from '@/lib/pro';
 import { pnlColor } from '@/styles/unistyles';
 import { t } from '@lingui/core/macro';
 import {
@@ -147,13 +148,46 @@ function TradeSummary({ trade }: { trade: TradeDetail }) {
   );
 }
 
+/**
+ * The trade an id-less launch reviews: most recently closed, or newest overall
+ * while nothing has closed yet. The list arrives opened_at-desc, so the closed
+ * pass has to compare closed_at itself.
+ */
+function latestReviewableTrade(trades: Trade[]): Trade | undefined {
+  let latestClosed: Trade | undefined;
+  for (const trade of trades) {
+    if (trade.status !== 'closed' || !trade.closed_at) continue;
+    if (!latestClosed || Date.parse(trade.closed_at) > Date.parse(latestClosed.closed_at!)) {
+      latestClosed = trade;
+    }
+  }
+  return latestClosed ?? trades[0];
+}
+
 export default function QuickJournalScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
-  const { data: trade, isLoading } = useTrade(id);
+  // Opened either from a trade row with an explicit id, or id-less from the
+  // App Intents surfaces (Siri / Action Button / Control Center deep-link
+  // tradermemos://quick-journal?latest=1) — then the latest trade is resolved
+  // here. That intent wrapper is the Pro candidate (docs/mobile-monetization-plan.md
+  // #3), hence the seam on the id-less path only.
+  const { id } = useLocalSearchParams<{ id?: string }>();
+  const unlocked = useProUnlocked('appIntents');
+  const wantLatest = !id && unlocked;
+  const { data: trades, isLoading: tradesLoading } = useTrades({}, { enabled: wantLatest });
+  const resolvedId = id ?? (wantLatest && trades ? latestReviewableTrade(trades)?.id : undefined);
+  const { data: trade, isLoading } = useTrade(resolvedId ?? '');
   const { data: tags } = useTags();
 
-  if (isLoading || !trade || !tags) {
-    return isLoading || !tags ? (
+  if (!resolvedId && !(wantLatest && tradesLoading)) {
+    return (
+      <View style={styles.centered}>
+        <Text style={styles.muted}>{t`No trades to review yet`}</Text>
+      </View>
+    );
+  }
+
+  if (isLoading || tradesLoading || !trade || !tags) {
+    return isLoading || tradesLoading || !tags ? (
       <View style={styles.loading}>
         <FormSkeleton fields={3} />
       </View>
