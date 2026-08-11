@@ -5,7 +5,7 @@ import { useRef, useState } from 'react';
 import { Alert, Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
-import { queryKeys, useApiRequest, useChecklistTemplate, useNotes } from '@/api/hooks';
+import { queryKeys, useChecklistTemplate, useNotes } from '@/api/hooks';
 import type { Note, NoteBody } from '@/api/types';
 import { DashboardCard } from '@/components/dashboard-card';
 import { t } from '@lingui/core/macro';
@@ -20,6 +20,8 @@ import {
 } from '@/lib/checklist';
 import { useChecklistReminderSync } from '@/lib/checklist-reminders';
 import { errorMessage } from '@/lib/errors';
+import { applyPendingNotes, usePendingOps } from '@/lib/outbox';
+import { useQueuedNoteOps } from '@/lib/use-outbox';
 
 /**
  * Today's checklist, tickable in place (web has this on the New Note drawer;
@@ -37,7 +39,11 @@ export function ChecklistCard() {
   const { theme } = useUnistyles();
   const router = useRouter();
   const queryClient = useQueryClient();
-  const api = useApiRequest();
+  // Queue-aware saves: a tick with the server unreachable lands in the
+  // offline outbox instead of an alert, and today's log may itself be a
+  // queued create the overlay surfaces (lib/outbox.ts).
+  const { createNote, updateNote } = useQueuedNoteOps();
+  const pendingOps = usePendingOps();
 
   const template = useChecklistTemplate();
   const weekdaysOnly = useWeekdaysOnly();
@@ -46,7 +52,7 @@ export function ChecklistCard() {
   // bound would drop a log saved with a time component on the same day.
   const notesFilter = { from: today };
   const notes = useNotes(notesFilter);
-  const serverLog = (notes.data ?? []).find(
+  const serverLog = applyPendingNotes(notes.data, pendingOps, notesFilter).find(
     (note) => note.type === 'daily_log' && note.occurred_at.slice(0, 10) === today,
   );
 
@@ -71,21 +77,19 @@ export function ChecklistCard() {
         const target =
           serverLog ?? (created.current?.day === today ? created.current.note : undefined);
         if (target) {
-          return api<Note>(`/notes/${target.id}`, {
-            method: 'PATCH',
-            body: {
-              type: 'daily_log',
-              occurred_at: target.occurred_at,
-              title: target.title,
-              body,
-              symbols: target.symbols,
-            } satisfies NoteBody,
-          });
+          return updateNote(target.id, {
+            type: 'daily_log',
+            occurred_at: target.occurred_at,
+            title: target.title,
+            body,
+            symbols: target.symbols,
+          } satisfies NoteBody);
         }
-        const note = await api<Note>('/notes', {
-          method: 'POST',
-          body: { type: 'daily_log', occurred_at: today, body } satisfies NoteBody,
-        });
+        const { note } = await createNote({
+          type: 'daily_log',
+          occurred_at: today,
+          body,
+        } satisfies NoteBody);
         created.current = { day: today, note };
         return note;
       });
