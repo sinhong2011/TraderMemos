@@ -146,3 +146,27 @@ The `web/` app uses [Vite+](https://viteplus.dev/guide/) — unified dev, build,
 - Validate changes: `vp check` and `vp test`
 - Pre-commit hooks run `vp staged` on staged web files (`.vite-hooks/` at repo root).
 - Node version is pinned in `web/.node-version` (24.18.0 LTS); pnpm 11 via `packageManager` + `scripts/ensure-pnpm.sh`.
+
+## Docs site (`marketing/`, Fumadocs + Next)
+
+Docs, landing page, changelog and privacy pages. Validate with `pnpm lint`, `pnpm types:check`
+and `pnpm build` from `marketing/` (CI: `.github/workflows/marketing-ci.yml`).
+
+- **The API reference is generated, not written.** `pnpm sync:openapi` (run by `dev`, `build`
+  and `types:check`) converts `api/openapi/openapi.yaml` into the gitignored
+  `marketing/lib/openapi.generated.json`; `lib/openapi.ts` feeds it to `fumadocs-openapi`,
+  which emits one virtual page per OpenAPI tag under `content/docs/api-reference/`. Nothing
+  is written into `content/`, so **never hand-edit API reference pages** — change the spec.
+  Only the folder's `meta*.json` (title + tag order) is a real file.
+- It's a *generated* JSON module rather than a runtime read of the YAML because Next's file
+  tracing won't bundle a path outside the app directory, and `/api/search` keeps the module
+  alive at runtime. A spec edit therefore needs a docs rebuild; `pnpm dev` won't hot-reload it.
+- Vercel must have "Include files outside of the Root Directory in the Build Step" enabled —
+  the build reads `../api/openapi/openapi.yaml`.
+- The playground is the Scalar API client (`withScalar()` from `fumadocs-openapi/scalar`),
+  same UI the Go server serves at `/docs`. Scalar defines its palette under
+  `.light-mode`/`.dark-mode` and portals its dialog to `<body>`, so `components/api-page.tsx`
+  syncs that class onto `document.body` — without it the dialog renders unstyled.
+- `lib/source.ts` merges two sources into one loader, so `page.type` is `'docs' | 'openapi'`.
+  Anything walking `source.getPages()` that touches MDX (`page.data.body`, `getText`) must
+  branch — use `getMarkdownPages()` / `isOpenAPIPage()`.

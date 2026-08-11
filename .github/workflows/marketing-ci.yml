@@ -1,0 +1,55 @@
+# Lint, typecheck, and build the docs/marketing site. Runs on every PR and push to main.
+#
+# It also guards api/openapi/openapi.yaml: the docs site generates its API reference from
+# that file (marketing/scripts/sync-openapi.mjs), so a spec edit can break the site build
+# without touching marketing/ at all — hence the path filter covers both.
+
+name: Marketing CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    paths:
+      - "marketing/**"
+      - "api/openapi/openapi.yaml"
+      - ".github/workflows/marketing-ci.yml"
+  workflow_call:
+
+concurrency:
+  group: marketing-ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+defaults:
+  run:
+    working-directory: marketing
+
+jobs:
+  test-marketing:
+    name: Test marketing
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 11.16.0
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: pnpm
+          cache-dependency-path: marketing/pnpm-lock.yaml
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm run lint
+
+      - name: Typecheck
+        run: pnpm run types:check
+
+      - name: Build
+        run: pnpm run build

@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 @import 'fumadocs-ui/css/neutral.css';
 @import 'fumadocs-ui/css/preset.css';
+@import 'fumadocs-openapi/css/preset.css';
 
 /* TraderMemos blue primary — matches web/src/global.css. The brand blue is
    dark enough that white-on-primary clears WCAG AA (6.0:1) in both schemes,

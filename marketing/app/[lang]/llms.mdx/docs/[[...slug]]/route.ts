@@ -1,4 +1,4 @@
-import { getLLMText, getPageMarkdownUrl, source } from '@/lib/source';
+import { getLLMText, getMarkdownPages, getPageMarkdownUrl, isOpenAPIPage, source } from '@/lib/source';
 import { notFound } from 'next/navigation';
 
 export const revalidate = false;
@@ -9,7 +9,7 @@ export async function GET(
 ) {
   const { lang, slug } = await params;
   const page = source.getPage(slug?.slice(0, -1), lang);
-  if (!page) notFound();
+  if (!page || isOpenAPIPage(page)) notFound();
 
   return new Response(await getLLMText(page), {
     headers: {
@@ -19,7 +19,7 @@ export async function GET(
 }
 
 export function generateStaticParams() {
-  return source.getPages().map((page) => ({
+  return getMarkdownPages().map((page) => ({
     lang: page.locale,
     slug: getPageMarkdownUrl(page).segments,
   }));

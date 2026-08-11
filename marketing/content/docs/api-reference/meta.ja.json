@@ -1,0 +1,20 @@
+{
+  "title": "API リファレンス",
+  "description": "OpenAPI 仕様から生成された TraderMemos JSON API の全エンドポイント。",
+  "pages": [
+    "health",
+    "auth",
+    "access-tokens",
+    "accounts",
+    "trades",
+    "executions",
+    "cash",
+    "import",
+    "export",
+    "analytics",
+    "tags",
+    "setups",
+    "notes",
+    "admin"
+  ]
+}

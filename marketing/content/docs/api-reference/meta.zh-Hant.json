@@ -1,0 +1,20 @@
+{
+  "title": "API 參考",
+  "description": "由 OpenAPI 規範生成的 TraderMemos JSON API 全部端點。",
+  "pages": [
+    "health",
+    "auth",
+    "access-tokens",
+    "accounts",
+    "trades",
+    "executions",
+    "cash",
+    "import",
+    "export",
+    "analytics",
+    "tags",
+    "setups",
+    "notes",
+    "admin"
+  ]
+}

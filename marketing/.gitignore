@@ -24,3 +24,5 @@ yarn-error.log*
 .env*.local
 .vercel
 next-env.d.ts
+# generated from ../api/openapi/openapi.yaml by scripts/sync-openapi.mjs
+/lib/openapi.generated.json

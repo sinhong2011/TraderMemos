@@ -1,4 +1,4 @@
-import { getPageImageUrl, getPageMarkdownUrl, source } from '@/lib/source';
+import { getPageImageUrl, getPageMarkdownUrl, isOpenAPIPage, source } from '@/lib/source';
 import {
   DocsBody,
   DocsDescription,
@@ -9,6 +9,7 @@ import {
 } from 'fumadocs-ui/layouts/docs/page';
 import { notFound } from 'next/navigation';
 import { getMDXComponents } from '@/components/mdx';
+import { OpenAPIPage } from '@/components/api-page';
 import type { Metadata } from 'next';
 import { createRelativeLink } from 'fumadocs-ui/mdx';
 import { gitConfig } from '@/lib/shared';
@@ -22,6 +23,20 @@ export default async function Page(props: { params: Promise<PageParams> }) {
   const { lang, slug } = await props.params;
   const page = source.getPage(slug, lang);
   if (!page) notFound();
+
+  // Generated from the OpenAPI schema — no MDX body, and no source file to link at on
+  // GitHub or serve as Markdown, so the page-action row is dropped here.
+  if (isOpenAPIPage(page)) {
+    return (
+      <DocsPage toc={page.data.toc} full>
+        <DocsTitle>{page.data.title}</DocsTitle>
+        <DocsDescription className="mb-0">{page.data.description}</DocsDescription>
+        <DocsBody>
+          <OpenAPIPage {...page.data.getOpenAPIPageProps()} />
+        </DocsBody>
+      </DocsPage>
+    );
+  }
 
   const MDX = page.data.body;
   const markdownUrl = getPageMarkdownUrl(page).url;
