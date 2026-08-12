@@ -7,8 +7,9 @@ import { accessibilityLabel, buttonStyle, tint as tintModifier } from '@expo/ui/
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
+import { SymbolView } from 'expo-symbols';
 import { useState, type ReactNode } from 'react';
-import { Alert, RefreshControl, ScrollView, Text, View } from 'react-native';
+import { Alert, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { ApiError } from '@/api/client';
@@ -97,6 +98,35 @@ function statusLabel(label: ReturnType<typeof tradeStatus>['label']): string {
  */
 type TradeLike = Trade & Partial<Pick<TradeDetail, 'r_multiple' | 'dividend_total' | 'total_pnl'>>;
 
+/**
+ * Symbol chip → the symbol journal: this symbol's chart with every one of your
+ * trades on it. Lives on the hero because "where else did I trade this?" is
+ * asked while looking at a trade, not while browsing a tools menu.
+ */
+function SymbolChip({ symbol, market }: { symbol: string; market: string }) {
+  const { theme } = useUnistyles();
+  const router = useRouter();
+  return (
+    <Pressable
+      onPress={() =>
+        router.push({
+          pathname: '/(tabs)/(trades)/symbol-journal',
+          params: { symbol, market },
+        })
+      }
+      hitSlop={6}
+      accessibilityRole="button"
+      accessibilityLabel={t`Symbol journal for ${symbol}`}
+      style={({ pressed }) => [styles.symbolChip, pressed && styles.pressed]}
+    >
+      <SymbolView name="chart.xyaxis.line" size={11} tintColor={theme.colors.mutedForeground} />
+      <Text style={styles.symbolChipText} numberOfLines={1}>
+        {symbol}
+      </Text>
+    </Pressable>
+  );
+}
+
 /** Direction/status/market, the P&L figure, and its return·R caption. */
 function TradeHero({ trade }: { trade: TradeLike }) {
   const { theme } = useUnistyles();
@@ -116,6 +146,7 @@ function TradeHero({ trade }: { trade: TradeLike }) {
   return (
     <View style={styles.hero}>
       <View style={styles.pillRow}>
+        <SymbolChip symbol={trade.symbol} market={trade.instrument_type} />
         {/* Position named the way traders do — LONG CALL, SHORT PUT (same
             convention as the trade-row chips). */}
         <Pill tone="muted">
@@ -736,7 +767,26 @@ const styles = StyleSheet.create((theme) => ({
   },
   pressed: { opacity: 0.6 },
   hero: { gap: theme.spacing.sm },
-  pillRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
+  // Wraps: the symbol chip joined direction/status/market, and a long option
+  // symbol can push the set past one line.
+  pillRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: theme.spacing.sm },
+  // Pill-shaped like its neighbours, but pressable — the icon is the affordance.
+  symbolChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: 2,
+    borderRadius: theme.radius.sm,
+    borderCurve: 'continuous',
+    backgroundColor: theme.colors.muted,
+  },
+  symbolChipText: {
+    fontSize: 11,
+    fontWeight: '600',
+    letterSpacing: 0.3,
+    color: theme.colors.foreground,
+  },
   heroValue: { fontSize: 36, fontWeight: '700', letterSpacing: -1, ...theme.numeric },
   heroOpen: { color: theme.colors.mutedForeground },
   heroCaption: { fontSize: 14, fontWeight: '500', ...theme.numeric },

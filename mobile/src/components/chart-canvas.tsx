@@ -21,6 +21,8 @@ export type ChartMarker = {
   timeSec: number;
   isBuy: boolean;
   label: string;
+  /** Overrides the buy/sell tint — the symbol journal colors fills by outcome. */
+  color?: string;
 };
 
 function formatAxisPrice(value: number): string {
@@ -214,6 +216,7 @@ export function ChartCanvas({
               top: marker.isBuy ? layout.y(bar.low) + 6 : layout.y(bar.high) - 20,
               isBuy: marker.isBuy,
               label: marker.label,
+              color: marker.color,
             };
           })
           .filter((m) => m != null);
@@ -300,7 +303,7 @@ export function ChartCanvas({
           <SymbolView
             name={marker.isBuy ? 'arrowtriangle.up.fill' : 'arrowtriangle.down.fill'}
             size={9}
-            tintColor={marker.isBuy ? theme.colors.profit : theme.colors.mutedForeground}
+            tintColor={marker.color ?? (marker.isBuy ? theme.colors.profit : theme.colors.mutedForeground)}
           />
           <Text style={styles.markerLabel} numberOfLines={1}>
             {marker.label}

@@ -57,9 +57,9 @@ export function ToolsMenu() {
       href: '/(tabs)/(dashboard)/r-calculator',
     },
     {
-      label: t`Advanced chart`,
+      label: t`Symbol journal`,
       systemImage: 'chart.xyaxis.line',
-      href: '/(tabs)/(dashboard)/advanced-chart',
+      href: '/(tabs)/(dashboard)/symbol-journal',
     },
     {
       label: t`Backtest`,
