@@ -6,9 +6,14 @@ import { useEffect, useMemo, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
-import { useMarketBars, useTrades } from '@/api/hooks';
+import { useMarketBars, useTradeDetails, useTrades } from '@/api/hooks';
 import type { BarInterval } from '@/api/types';
-import { AXIS_WIDTH, ChartCanvas, type ChartMarker } from '@/components/chart-canvas';
+import {
+  AXIS_WIDTH,
+  ChartCanvas,
+  type ChartMarker,
+  type ChartPriceLine,
+} from '@/components/chart-canvas';
 import { DashboardCard } from '@/components/dashboard-card';
 import { InlineError } from '@/components/error-state';
 import { FloatingSearchBar, SearchToggle } from '@/components/search-bar';
@@ -192,14 +197,36 @@ export default function SymbolJournalScreen() {
   });
   const data = bars.data?.bars ?? [];
 
-  // Every entry and exit on this symbol, colored by how the trade ended.
+  // Fills per trade, shared with the detail screens' cache. Only the visible
+  // rows are fetched — for older trades the avg-entry/exit fallback below
+  // still marks the chart.
+  const visibleIds = useMemo(
+    () => history.slice(0, MAX_TRADE_ROWS).map((trade) => trade.id),
+    [history],
+  );
+  const details = useTradeDetails(visibleIds);
+
+  // Every fill on this symbol, colored by how its trade ended. Real fills
+  // where the detail has arrived (a scale-in shows each add, not one averaged
+  // arrow); the trade's avg entry/exit until then. Keys carry the trade id so
+  // a marker tap can open the trade.
   const markers = useMemo<ChartMarker[]>(() => {
     return history.flatMap((trade) => {
       const outcome =
         trade.status === 'closed' ? pnlColor(theme.colors, trade.net_pnl) : undefined;
+      const fills = details.get(trade.id)?.fills;
+      if (fills && fills.length > 0) {
+        return fills.map((fill) => ({
+          key: `${trade.id}|${fill.id}`,
+          timeSec: Math.floor(new Date(fill.executed_at).getTime() / 1000),
+          isBuy: fill.side === 'buy',
+          label: `${fill.quantity} @ ${markerPrice(fill.price)}`,
+          color: outcome,
+        }));
+      }
       const marks: ChartMarker[] = [
         {
-          key: `${trade.id}-entry`,
+          key: `${trade.id}|entry`,
           timeSec: Math.floor(new Date(trade.opened_at).getTime() / 1000),
           isBuy: trade.direction === 'long',
           label: `${trade.qty_opened} @ ${markerPrice(trade.avg_entry_price)}`,
@@ -208,7 +235,7 @@ export default function SymbolJournalScreen() {
       ];
       if (trade.closed_at && trade.avg_exit_price != null) {
         marks.push({
-          key: `${trade.id}-exit`,
+          key: `${trade.id}|exit`,
           timeSec: Math.floor(new Date(trade.closed_at).getTime() / 1000),
           isBuy: trade.direction !== 'long',
           label: `${trade.qty_opened} @ ${markerPrice(trade.avg_exit_price)}`,
@@ -217,7 +244,17 @@ export default function SymbolJournalScreen() {
       }
       return marks;
     });
-  }, [history, theme.colors]);
+  }, [history, details, theme.colors]);
+
+  // Open positions draw their cost basis across the chart — "your level" is
+  // the one line a broker chart can't know.
+  const priceLines = useMemo<ChartPriceLine[]>(
+    () =>
+      history
+        .filter((trade) => trade.status === 'open')
+        .map((trade) => ({ value: trade.avg_entry_price, color: theme.colors.primary })),
+    [history, theme.colors],
+  );
 
   // Folded client-side from the rows already fetched for the list below —
   // money per currency, since accounts can settle in different ones.
@@ -386,7 +423,20 @@ export default function SymbolJournalScreen() {
                   accessibilityLabel={t`Replay ${symbol}`}
                   style={({ pressed }) => pressed && styles.pressed}
                 >
-                  <ChartCanvas bars={data} interval={interval} markers={markers} />
+                  <ChartCanvas
+                    bars={data}
+                    interval={interval}
+                    markers={markers}
+                    priceLines={priceLines}
+                    // A fill answers to its trade: tapping the marker opens it.
+                    onMarkerPress={(key) => {
+                      const tradeId = key.split('|')[0];
+                      router.push({
+                        pathname: '/(tabs)/(trades)/[id]',
+                        params: { id: tradeId },
+                      });
+                    }}
+                  />
                   {data.length > 1 ? (
                     <View style={styles.replayBadge}>
                       <SymbolView

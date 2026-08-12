@@ -1,6 +1,6 @@
 import { SymbolView } from 'expo-symbols';
 import { useMemo, useState } from 'react';
-import { Text, View, type LayoutChangeEvent } from 'react-native';
+import { Pressable, Text, View, type LayoutChangeEvent } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -70,6 +70,7 @@ export function ChartCanvas({
   surface,
   blind = false,
   onScrub,
+  onMarkerPress,
 }: {
   bars: MarketBar[];
   interval: BarInterval;
@@ -93,6 +94,12 @@ export function ChartCanvas({
   blind?: boolean;
   /** Drag or tap anywhere on the plot to move the replay cursor. */
   onScrub?: (index: number) => void;
+  /**
+   * Makes each marker its own tap target (called with the marker's key) — the
+   * symbol journal jumps from a fill to its trade. Inner Pressables win over
+   * a plot-level one, so the rest of the plot keeps its own handler.
+   */
+  onMarkerPress?: (key: string) => void;
 }) {
   const { theme } = useUnistyles();
   const [plotWidth, setPlotWidth] = useState(0);
@@ -298,18 +305,42 @@ export function ChartCanvas({
           style={[styles.priceLine, { top: layout.y(line.value), backgroundColor: line.color }]}
         />
       ))}
-      {placedMarkers.map((marker) => (
-        <View key={marker.key} style={[styles.marker, { left: marker.left - 32, top: marker.top }]}>
-          <SymbolView
-            name={marker.isBuy ? 'arrowtriangle.up.fill' : 'arrowtriangle.down.fill'}
-            size={9}
-            tintColor={marker.color ?? (marker.isBuy ? theme.colors.profit : theme.colors.mutedForeground)}
-          />
-          <Text style={styles.markerLabel} numberOfLines={1}>
-            {marker.label}
-          </Text>
-        </View>
-      ))}
+      {placedMarkers.map((marker) => {
+        const glyph = (
+          <>
+            <SymbolView
+              name={marker.isBuy ? 'arrowtriangle.up.fill' : 'arrowtriangle.down.fill'}
+              size={9}
+              tintColor={marker.color ?? (marker.isBuy ? theme.colors.profit : theme.colors.mutedForeground)}
+            />
+            <Text style={styles.markerLabel} numberOfLines={1}>
+              {marker.label}
+            </Text>
+          </>
+        );
+        return onMarkerPress ? (
+          <Pressable
+            key={marker.key}
+            onPress={() => onMarkerPress(marker.key)}
+            hitSlop={8}
+            accessibilityRole="button"
+            style={({ pressed }) => [
+              styles.marker,
+              { left: marker.left - 32, top: marker.top },
+              pressed && styles.markerPressed,
+            ]}
+          >
+            {glyph}
+          </Pressable>
+        ) : (
+          <View
+            key={marker.key}
+            style={[styles.marker, { left: marker.left - 32, top: marker.top }]}
+          >
+            {glyph}
+          </View>
+        );
+      })}
       <View style={styles.timeAxis}>
         <Text style={styles.timeLabel}>{formatBarTime(shown[0].time, interval)}</Text>
         <Text style={styles.timeLabel}>
@@ -377,6 +408,7 @@ const styles = StyleSheet.create((theme) => ({
   cursorDot: { position: 'absolute', width: 6, height: 6, borderRadius: 3 },
   priceLine: { position: 'absolute', left: 0, right: 0, height: 1, opacity: 0.55 },
   marker: { position: 'absolute', width: 64, alignItems: 'center', gap: 1 },
+  markerPressed: { opacity: 0.5 },
   markerLabel: { fontSize: 8, color: theme.colors.mutedForeground, ...theme.numeric },
   axisLabel: {
     position: 'absolute',
