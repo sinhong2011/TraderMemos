@@ -110,6 +110,12 @@ function withWidgets(config) {
         // 17 keeps the view code on one API path.
         IPHONEOS_DEPLOYMENT_TARGET: '17.0',
         MARKETING_VERSION: config.version ?? '1.0.0',
+        // EAS workers export USE_CCACHE=1, so react_native_post_install points the
+        // project-level CC/LD at $(REACT_NATIVE_PATH)/scripts/xcode/ccache-clang.sh,
+        // where REACT_NATIVE_PATH is ${PODS_ROOT}/../../node_modules/react-native.
+        // This target has no CocoaPods xcconfig to define PODS_ROOT, so the compiler
+        // path collapses to /../../node_modules/… and the build dies spawning it.
+        PODS_ROOT: '"$(SRCROOT)/Pods"',
         SWIFT_EMIT_LOC_STRINGS: 'YES',
         SWIFT_VERSION: '5.0',
         TARGETED_DEVICE_FAMILY: '"1,2"',
