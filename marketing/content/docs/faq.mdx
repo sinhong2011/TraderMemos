@@ -103,9 +103,12 @@ enable + base URL + key haven't all been saved.
 
 ### Is my trading data sent anywhere?
 
-No. Everything stays on your server. The two opt-in exceptions: AI features call the endpoint
-**you** configure, and market data (on by default, `TM_MARKET_DATA_ENABLED`) fetches quotes
-from the configured provider.
+No. Everything stays on your server. The exceptions, all under your control: AI features call
+the endpoint **you** configure; market data (on by default, `TM_MARKET_DATA_ENABLED`) and the
+economic calendar (on by default, `TM_ECON_CALENDAR_ENABLED`) fetch public data from their
+providers; alert channels you create deliver to your webhook URLs or Expo push; and a share
+link you create makes that stats page public until you revoke it (`TM_SHARE_LINKS_ENABLED`,
+off by default).
 
 ## Still stuck?
 

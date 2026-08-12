@@ -26,7 +26,7 @@ make up-build                # 从仓库重新构建两个镜像
 
 ```bash
 curl -s http://localhost:3000/healthz
-# {"status":"ok","version":"0.1.6","go":"go1.26","commit":"…"}
+# {"status":"ok","version":"0.7.0","go":"go1.26","commit":"…"}
 ```
 
 ## 锁定版本（生产环境推荐）
@@ -35,7 +35,7 @@ curl -s http://localhost:3000/healthz
 
 ```bash
 # .env
-TM_IMAGE_TAG=0.1.6
+TM_IMAGE_TAG=0.7.0
 ```
 
 ```bash
@@ -43,7 +43,7 @@ TM_IMAGE_TAG=0.1.6
 docker compose pull && make up
 ```
 
-已发布的标签遵循语义化版本：`0.1.6`、`0.1`、`0`、`latest`，以及不可变的 commit `sha` 标签。
+已发布的标签遵循语义化版本：`0.7.0`、`0.7`、`0`、`latest`，以及不可变的 commit `sha` 标签。
 镜像为多架构（`amd64` + `arm64`）。版本与变更记录见
 [CHANGELOG](https://github.com/sinhong2011/TraderMemos/blob/main/CHANGELOG.md) 与
 [GitHub Releases](https://github.com/sinhong2011/TraderMemos/releases)。

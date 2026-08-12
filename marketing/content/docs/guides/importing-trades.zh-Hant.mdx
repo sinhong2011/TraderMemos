@@ -61,8 +61,12 @@ description: 把券商成交記錄導入 TraderMemos —— 支持列映射的 C
 
 ## 其他導入途徑
 
+- **tm-sync** —— 一個小巧的桌面監控程式，監視你的對賬單資料夾，MT4/MT5 導出一生成就通過
+  個人訪問令牌導入 —— 參見 [tm-sync](https://github.com/sinhong2011/TraderMemos/blob/main/docs/tm-sync.md)
+- **IBKR Flex 同步** —— 通過 IBKR Flex Query 定時自動導入
+  （**設置 → 賬戶 → Flex 同步**；間隔由 `TM_JOB_FLEX_SYNC_INTERVAL_MIN` 控制）
 - **截圖掃描** —— 用 LLM 從券商截圖提取成交，參見 [AI 功能](/zh-Hant/docs/guides/ai-features)
-- **手動錄入** —— **新建交易**抽屜（快捷鍵 `n`）
+- **手動錄入** —— **新建交易**抽屜（快捷鍵 `c` `t`）
 - **API / 腳本** —— 攜帶[個人訪問令牌](/zh-Hant/docs/guides/api-tokens)調用
   `POST /api/v1/executions`；同樣的去重規則適用
 - **CLI** —— 在 API 容器內執行 `tradermemos import --account … --file …`

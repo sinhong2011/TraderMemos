@@ -68,9 +68,14 @@ description: 証券会社の約定を TraderMemos に取り込みます — 列�
 
 ## その他の取り込み方法
 
+- **tm-sync** — 明細フォルダを監視し、MT4/MT5 のエクスポートを出力と同時にパーソナルアクセス
+  トークン経由でインポートする小さなデスクトップウォッチャー —
+  [tm-sync](https://github.com/sinhong2011/TraderMemos/blob/main/docs/tm-sync.md) を参照
+- **IBKR Flex 同期** — IBKR Flex Query からの自動インポートをスケジュール
+  （**設定 → 口座 → Flex 同期**、間隔は `TM_JOB_FLEX_SYNC_INTERVAL_MIN`）
 - **スクリーンショットスキャン** — 証券会社のスクリーンショットから LLM で約定を抽出します。
   [AI 機能](/ja/docs/guides/ai-features)を参照してください
-- **手入力** — **新規トレード**ドロワー（ホットキー `n`）
+- **手入力** — **新規トレード**ドロワー（ホットキー `c` `t`）
 - **API / スクリプト** — [パーソナルアクセストークン](/ja/docs/guides/api-tokens)を使った
   `POST /api/v1/executions`。同じ重複排除が適用されます
 - **CLI** — API コンテナ内で `tradermemos import --account … --file …`

@@ -20,7 +20,7 @@ description: Docker 一体化部署、CDN + API 分离，或边缘重写 —— 
 # 可选：复制并编辑 Hub 命名空间 / 标签
 cp .env.example .env
 # DOCKERHUB_USERNAME=sinhong2011   # 如果你发布自己的镜像，填你的 Hub 用户名
-# TM_IMAGE_TAG=0.1.1               # 生产环境建议锁定具体版本（默认：latest）
+# TM_IMAGE_TAG=0.7.0               # 生产环境建议锁定具体版本（默认：latest）
 
 make up            # docker compose up -d（拉取 Hub 镜像，使用 SQLite）
 # 打开 http://localhost:3000
@@ -34,7 +34,7 @@ make up-build      # 从本仓库构建 api/web，而非拉取镜像
 | 场景 | 设置位置 |
 |---------|-----------------|
 | 终端用户 / 自托管 | 根目录 `.env` → `DOCKERHUB_USERNAME`（Compose 会自动加载）。默认为 `sinhong2011`。 |
-| 镜像标签 | 根目录 `.env` → `TM_IMAGE_TAG`（`latest` 或语义化版本号，如 `0.1.1`）。 |
+| 镜像标签 | 根目录 `.env` → `TM_IMAGE_TAG`（`latest` 或语义化版本号，如 `0.7.0`）。 |
 | CI 发布到 Hub | GitHub 仓库密钥 `DOCKERHUB_USERNAME` + `DOCKERHUB_TOKEN`。 |
 
 你将获得：
@@ -65,7 +65,7 @@ make up-build      # 从本仓库构建 api/web，而非拉取镜像
 ```bash
 # 类生产环境的 compose 示例
 cp .env.example .env
-# 编辑 .env：TM_IMAGE_TAG=0.1.1、TM_JWT_SECRET=…、TM_ALLOW_INSECURE_JWT=false
+# 编辑 .env：TM_IMAGE_TAG=0.7.0、TM_JWT_SECRET=…、TM_ALLOW_INSECURE_JWT=false
 export TM_JWT_SECRET=$(openssl rand -hex 32)
 export TM_ALLOW_INSECURE_JWT=false
 make up
@@ -119,6 +119,10 @@ TM_JWT_SECRET=$(openssl rand -hex 32)
 
 通配符形式 `https://*.vercel.app` 与 `https://*.pages.dev` 可匹配预览 / 生产环境的 CDN 主机。
 自定义域名请使用精确的源。
+
+在这种模式下使用[公开分享链接](/zh-Hans/docs/self-hosting/configuration)？请同时把
+`TM_PUBLIC_WEB_URL` 设置为 SPA 的源 —— 否则分享 URL 会基于 API 源生成，而该源在此模式下
+并不提供 Web 应用。
 
 ### Web
 

@@ -97,8 +97,11 @@ Docker：`tm_data` 数据卷 —— `/data/tradermemos.db` 加上 `/data/attachm
 
 ### 我的交易数据会被发送到哪里吗？
 
-不会。一切都留在你的服务器上。两个需主动开启的例外：AI 功能会调用**你**配置的端点；
-行情数据（默认开启，`TM_MARKET_DATA_ENABLED`）会从配置的数据源获取报价。
+不会。一切都留在你的服务器上。所有例外都在你的掌控之中：AI 功能会调用**你**配置的端点；
+行情数据（默认开启，`TM_MARKET_DATA_ENABLED`）与财经日历（默认开启，
+`TM_ECON_CALENDAR_ENABLED`）会从各自数据源获取公开数据；你创建的警报通道会推送到你的
+Webhook 地址或 Expo 推送；你创建的分享链接在撤销前会公开对应的统计页
+（`TM_SHARE_LINKS_ENABLED`，默认关闭）。
 
 ## 还是没解决？
 
