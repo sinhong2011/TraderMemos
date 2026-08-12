@@ -51,6 +51,11 @@ export async function loadServerUrl(): Promise<string | null> {
   return SecureStore.getItemAsync(SERVER_KEY);
 }
 
+/** Points the app at a different instance — callers sign out around this (the tokens belong to the old server). */
+export async function saveServerUrl(url: string): Promise<void> {
+  await SecureStore.setItemAsync(SERVER_KEY, url);
+}
+
 export async function saveTokens(tokens: TokenPair): Promise<void> {
   await Promise.all([
     SecureStore.setItemAsync(ACCESS_KEY, tokens.access_token),
