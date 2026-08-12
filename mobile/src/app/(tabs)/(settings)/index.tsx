@@ -24,6 +24,7 @@ import { SettingsForm } from '@/components/settings-form';
 import { useSession } from '@/api/session';
 import { t } from '@lingui/core/macro';
 import { ledgerBalance } from '@/lib/cash';
+import { useChangeServer } from '@/lib/change-server';
 import { describeError } from '@/lib/errors';
 import { useFormatters } from '@/lib/format';
 import { clearOutbox, usePendingCount } from '@/lib/outbox';
@@ -53,7 +54,8 @@ export default function SettingsScreen() {
   const queryClient = useQueryClient();
   const api = useApiRequest();
   const { theme } = useUnistyles();
-  const { signOut } = useSession();
+  const { session, signOut } = useSession();
+  const changeServer = useChangeServer();
   // Offline writes still waiting to sync — signing out would discard them.
   const pendingSyncs = usePendingCount();
   const accountsQuery = useAccounts();
@@ -491,6 +493,14 @@ export default function SettingsScreen() {
               label={t`About TraderMemos`}
               onPress={() => router.push('/about')}
             />
+          </Section>
+
+          {/* Above Sign out, and on the hub rather than only Profile: the hub
+              stays navigable when the server is unreachable — which is exactly
+              when you need to re-point the app (Profile is a full-screen error
+              by then). */}
+          <Section footer={<UIText>{session?.serverUrl ?? ''}</UIText>}>
+            <CenteredButton label={t`Change server`} onPress={changeServer} />
           </Section>
 
           <Section>

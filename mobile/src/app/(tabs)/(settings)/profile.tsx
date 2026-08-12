@@ -1,4 +1,4 @@
-import { LabeledContent, Section, Text as UIText } from '@expo/ui/swift-ui';
+import { Button, LabeledContent, Section, Text as UIText } from '@expo/ui/swift-ui';
 import { foregroundStyle } from '@expo/ui/swift-ui/modifiers';
 import { useRouter } from 'expo-router';
 import { useUnistyles } from 'react-native-unistyles';
@@ -9,6 +9,7 @@ import { AppHost } from '@/components/app-host';
 import { ErrorState } from '@/components/error-state';
 import { NavRow } from '@/components/nav-row';
 import { SettingsForm } from '@/components/settings-form';
+import { useChangeServer } from '@/lib/change-server';
 import { useFormatters } from '@/lib/format';
 import { t } from '@lingui/core/macro';
 
@@ -33,6 +34,7 @@ export default function ProfileScreen() {
   const { formatDate } = useFormatters();
   const router = useRouter();
   const { session } = useSession();
+  const changeServer = useChangeServer();
   const me = useMe();
 
   const secondary = foregroundStyle({ type: 'hierarchical', style: 'secondary' as const });
@@ -89,6 +91,10 @@ export default function ProfileScreen() {
           <LabeledContent label={t`Host`}>
             <UIText>{serverHost(session?.serverUrl ?? '')}</UIText>
           </LabeledContent>
+          {/* Plain Button, no chevron — it opens a prompt, not a push (NavRow
+              doc). The hub carries the same action for the server-unreachable
+              case, where this screen is a full-screen error. */}
+          <Button label={t`Change server`} systemImage="arrow.left.arrow.right" onPress={changeServer} />
           {/* Owner-only: managing other people's accounts is a property of the
               server, not of your profile, but this is the only screen that
               already knows which one you are signed in to. */}
