@@ -9,6 +9,7 @@
 export const featureSlugs = [
   'self-hosted',
   'behavior-analytics',
+  'backtesting',
   'prop-firm-mode',
   'rule-compliance',
   'ai-your-keys',

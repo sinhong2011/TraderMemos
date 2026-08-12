@@ -10,7 +10,9 @@ import {
   Calculator,
   Bot,
   Plug,
-  MoonStar,
+  BellRing,
+  History,
+  Share2,
   ArrowRight,
   ArrowUpRight,
   Star,
@@ -85,15 +87,27 @@ const featureIcons = {
   reports: BarChart3,
   playbook: BookOpen,
   import: Upload,
+  alerts: BellRing,
+  replay: History,
+  share: Share2,
   tools: Calculator,
   ai: Bot,
   api: Plug,
   mobile: Smartphone,
-  themes: MoonStar,
 } as const;
 
 const bentoFeatureIds = ['dashboard', 'tradeLog', 'calendar', 'reports'] as const;
-const listFeatureIds = ['playbook', 'import', 'tools', 'ai', 'api', 'mobile'] as const;
+const listFeatureIds = [
+  'playbook',
+  'import',
+  'alerts',
+  'replay',
+  'share',
+  'tools',
+  'ai',
+  'api',
+  'mobile',
+] as const;
 
 type FeatureId = (typeof bentoFeatureIds)[number] | (typeof listFeatureIds)[number];
 
@@ -275,7 +289,7 @@ const latticeGlyphs: [LucideIcon, string, string, number, number][] = [
   [ListChecks, '50%', '13%', 16, 4],
   [LayoutDashboard, '45%', '88%', 18, -4],
   [Plug, '52%', '95%', 16, 8],
-  [MoonStar, '68%', '6%', 16, -8],
+  [BellRing, '68%', '6%', 16, -8],
   [LineChart, '72%', '17%', 20, 6],
   [Percent, '66%', '84%', 16, 12],
   [TrendingUp, '73%', '94%', 18, -6],

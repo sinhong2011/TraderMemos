@@ -63,6 +63,22 @@ win. Keys are stored server-side and never sent to the browser. See
 | `TM_MARKET_DATA_ENABLED` | `true` | Enable the market-data service |
 | `TM_MARKET_DATA_PROVIDER` | `yahoo` | Provider name |
 | `TM_MARKET_DATA_API_KEY` | *(empty)* | Provider API key, if the provider needs one |
+| `TM_ECON_CALENDAR_ENABLED` | `true` | Enable the economic-events calendar feed |
+| `TM_ECON_CALENDAR_FEED_URL` | *(built-in)* | Override the events feed URL |
+| `TM_ECON_CALENDAR_REFRESH_MIN` | `60` | Minutes between feed refreshes |
+
+## Sharing & background jobs
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `TM_SHARE_LINKS_ENABLED` | `false` | Turns on public share pages. Off by default — a share link makes part of the journal reachable without auth |
+| `TM_PUBLIC_WEB_URL` | *(empty)* | Public web-app origin used when building share-link URLs. Leave empty when the API origin also serves the web app (the bundled nginx deployment) |
+| `TM_JOBS_ENABLED` | `true` | Global background-job switch. Disable on extra replicas so scheduled work runs on one instance only |
+| `TM_JOB_EXCURSION_INTERVAL_MIN` | `360` | Minutes between MAE/MFE backfill passes (`0` disables) |
+| `TM_JOB_EXCURSION_LIMIT` | `10` | Trades attempted per backfill pass (`0` disables) |
+| `TM_JOB_FLEX_SYNC_INTERVAL_MIN` | `360` | Minutes between IBKR Flex auto-sync runs (`0` disables) |
+| `TM_JOB_ALERTS_INTERVAL_MIN` | `60` | Minutes between alert-rule evaluations (`0` disables) |
+| `TM_ALERTS_ALLOW_PRIVATE_WEBHOOKS` | `false` | Allow alert webhooks to target private/internal addresses (SSRF guard — leave off unless your webhook receiver is on your LAN) |
 
 ## Web build-time variables
 

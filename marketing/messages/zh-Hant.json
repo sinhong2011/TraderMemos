@@ -56,7 +56,7 @@
     "eyebrowFeatures": "功能總覽",
     "eyebrowInside": "產品導覽",
     "eyebrowStack": "技術底層",
-    "featuresSub": "從券商 CSV 到每日復盤 —— 整個循環的每一步，都在同一套自架應用中完成。",
+    "featuresSub": "從券商對帳單到每日復盤 —— 整個循環的每一步，都在同一套自架應用中完成。",
     "whyHeading": "為什麼選擇 TraderMemos？",
     "whyBody": "TradeZella、TraderSync 等雲端交易日誌固然精緻 —— 但你的交易優勢藏在資料裡。TraderMemos 延續 Ghost、Umami、Plane 的自架理念：執行於你自己的基礎設施，資料庫由你掌控，不需任何人許可即可自由擴充。",
     "comparisonHeaderFeature": "項目",
@@ -66,7 +66,7 @@
       {
         "row": "資料歸屬",
         "cloud": "廠商託管",
-        "tm": "你的 SQLite / VPS"
+        "tm": "你的 SQLite / Postgres，你的 VPS"
       },
       {
         "row": "費用",
@@ -88,7 +88,7 @@
     "features": {
       "dashboard": {
         "title": "儀表板",
-        "description": "權益曲線、期望值、連勝連虧、持倉時間與年度目標進度。"
+        "description": "權益曲線、期望值、連勝連虧、持倉時間與年度目標進度 — 可按單一帳戶檢視，也可跨多帳戶組合檢視。"
       },
       "tradeLog": {
         "title": "交易紀錄",
@@ -96,11 +96,11 @@
       },
       "calendar": {
         "title": "盈虧日曆",
-        "description": "按日 / 按週熱力圖，支援逐層檢視。"
+        "description": "按日 / 按週熱力圖，含每週合計與單日明細檢視。"
       },
       "reports": {
         "title": "報表",
-        "description": "勝率、獲利因子、期望值，以及按策略 / 小時 / 交易時段的細分統計。"
+        "description": "期望值、SQN、凱利比例、MAE/MFE、蒙地卡羅與執行品質 — 按策略 / 小時 / 交易時段細分，並可儲存為常用檢視。"
       },
       "playbook": {
         "title": "策略手冊",
@@ -108,11 +108,23 @@
       },
       "import": {
         "title": "匯入",
-        "description": "支援券商 CSV 對帳單匯入，含欄位對應與去除重複。"
+        "description": "九家券商 CSV 預設、MT4/MT5 對帳單、IBKR Flex 同步 — 也可讓 tm-sync 桌面代理自動監控你的對帳單資料夾。"
+      },
+      "alerts": {
+        "title": "警示",
+        "description": "風控規則、每日虧損上限與 Prop 回撤預警 — 推播與 Webhook 由你自己的伺服器發出，全部免費。"
+      },
+      "replay": {
+        "title": "K 線回放",
+        "description": "對任意商品逐根 K 線回測，成績記入可持久保存的模擬帳戶 — 並進入與實盤相同的分析體系。"
+      },
+      "share": {
+        "title": "分享",
+        "description": "可隨時撤銷的唯讀績效連結、單筆交易分享卡片，以及年度回顧 Year Wrapped。"
       },
       "tools": {
         "title": "工具",
-        "description": "部位計算器、風控規則、現金流水帳。"
+        "description": "部位 / 匯率 / 凱利計算器、進階圖表、財經日曆與現金流水帳。"
       },
       "ai": {
         "title": "AI（選用）",
@@ -124,11 +136,7 @@
       },
       "mobile": {
         "title": "iOS App（測試版）",
-        "description": "原生 SwiftUI 隨身版 — 交易、日曆、報表，以及主畫面 / 鎖定畫面小工具。現已在 TestFlight 提供。"
-      },
-      "themes": {
-        "title": "主題",
-        "description": "深色與淺色主題，以 shadcn/ui + coss ui 設計 token 建構。"
+        "description": "原生 SwiftUI 隨身版 — 離線記錄、小工具、即時動態與 Siri / 動作按鈕快速記帳。現已在 TestFlight 提供。"
       }
     },
     "lookInsideHeading": "實際畫面",
@@ -137,14 +145,26 @@
     "calendarCaptionTitle": "盈虧日曆",
     "calendarCaptionBody": "按日 / 按週熱力圖，一眼看出連勝與失手的日子。",
     "reportsCaptionTitle": "報表",
-    "reportsCaptionBody": "權益曲線、獲利因子、期望值、勝率與目標進度 —— 並可按策略、小時、交易時段細分。",
+    "reportsCaptionBody": "權益曲線、獲利因子、期望值與目標進度 — 還有蒙地卡羅模擬、MAE/MFE，以及按策略 / 小時 / 時段的細分。",
     "techStackHeading": "技術堆疊",
     "stackComment": "# 你的資料，跑在你自己的主機上",
     "stack": [
-      { "layer": "API", "value": "Go · Echo · sqlc · golang-migrate · SQLite" },
-      { "layer": "Web", "value": "React · Vite+ · TanStack Router/Query/Form · Tailwind" },
-      { "layer": "行動裝置", "value": "Expo · @expo/ui（SwiftUI）· TestFlight" },
-      { "layer": "設計", "value": "shadcn/ui + coss ui 設計 token" }
+      {
+        "layer": "API",
+        "value": "Go · Echo · sqlc · golang-migrate · SQLite / Postgres"
+      },
+      {
+        "layer": "Web",
+        "value": "React · Vite+ · TanStack Router/Query/Form · Tailwind"
+      },
+      {
+        "layer": "行動裝置",
+        "value": "Expo · @expo/ui（SwiftUI）· TestFlight"
+      },
+      {
+        "layer": "設計",
+        "value": "shadcn/ui + coss ui 設計 token"
+      }
     ],
     "licenseHeading": "採用 AGPL-3.0 授權",
     "licenseBody": "自由自架、修改，供個人或公司內部使用。",
@@ -170,7 +190,6 @@
     "heading": "幾分鐘內完成部署",
     "sub": "一鍵將 Web UI 部署到你自己的 Vercel、Cloudflare 或 Netlify 帳戶 —— 或用 Docker 在任意機器上執行完整服務。",
     "note": "一鍵按鈕僅部署 Web UI —— 請搭配 Railway 或 Docker 上的 API 使用。",
-    "dockerComment": "# 或自架全部服務",
     "star": "在 GitHub 上加星"
   },
   "Changelog": {
@@ -282,10 +301,10 @@
   },
   "FeaturePages": {
     "metaTitle": "功能 — 自架式交易日誌 | TraderMemos",
-    "metaDescription": "TraderMemos 的五大支柱:資料自主的自架部署、行為分析、Prop Firm 模式、規則遵守,以及使用自己 API 金鑰的 AI。",
+    "metaDescription": "TraderMemos 的支柱:資料自主的自架部署、行為分析、K 線回放回測、Prop Firm 模式、規則遵守,以及使用自己 API 金鑰的 AI。",
     "eyebrow": "功能支柱",
     "heading": "雲端日誌抄不走的東西",
-    "sub": "五大支柱 — 每一項都因為日誌跑在你的伺服器、而不是別人的雲端,才有可能實現。",
+    "sub": "六大支柱 — 每一項都因為日誌跑在你的伺服器、而不是別人的雲端,才有可能實現。",
     "explore": "深入了解",
     "pages": {
       "self-hosted": {
@@ -298,7 +317,7 @@
         "points": [
           {
             "title": "資料庫就是一個檔案",
-            "body": "每一筆交易、筆記和截圖都存在一個你可以複製、備份、直接查詢的 SQLite 資料庫裡。匯出日誌就是複製檔案。"
+            "body": "每一筆交易、筆記和截圖都存在一個你可以複製、備份、直接查詢的 SQLite 資料庫裡。匯出日誌就是複製檔案。偏好伺服器資料庫?也支援 Postgres。"
           },
           {
             "title": "幾分鐘完成部署",
@@ -337,6 +356,32 @@
           {
             "title": "MAE / MFE 波幅",
             "body": "每筆交易自動計算的最大有利/不利波幅,告訴你吃到了多少行情、又扛了多少浮虧。"
+          }
+        ]
+      },
+      "backtesting": {
+        "metaTitle": "免費 K 線回放回測 — TraderMemos",
+        "metaDescription": "對任意商品逐根 K 線回放,在模擬帳戶中練習,並用與實盤相同的報表分析結果。免費、自架。",
+        "eyebrow": "回測與回放",
+        "title": "先在昨天練習,再拿明天冒險",
+        "subtitle": "支援模擬帳戶持久化的 K 線回放 — 每一筆練習成交都進入與實盤相同的分析體系,讓你在投入資金前先量化一個策略。",
+        "blurb": "帶模擬帳戶的 K 線回放 — 練習結果用與實盤相同的報表分析。",
+        "points": [
+          {
+            "title": "任意商品,逐根 K 線",
+            "body": "按自己的節奏逐根推進歷史 K 線,像實盤一樣設置進場、出場與停損。"
+          },
+          {
+            "title": "可持久保存的模擬帳戶",
+            "body": "回放交易記入模擬帳戶,與實盤成績分開保存,但用同一套數學來分析。"
+          },
+          {
+            "title": "同一套分析",
+            "body": "期望值、MAE/MFE 與時段細分同樣適用於回放交易 — 一份可以像日誌一樣復盤的回測。"
+          },
+          {
+            "title": "再加蒙地卡羅",
+            "body": "用報表內建的蒙地卡羅模擬器,預估策略的回撤與波動區間。"
           }
         ]
       },
@@ -449,7 +494,7 @@
           {
             "row": "資料存放",
             "them": "TradeZella 的雲端",
-            "tm": "你伺服器上的 SQLite 檔案"
+            "tm": "你伺服器上的 SQLite（或 Postgres）資料庫"
           },
           {
             "row": "安裝",
@@ -459,7 +504,7 @@
           {
             "row": "券商匯入",
             "them": "廣泛的自動同步整合",
-            "tm": "IBKR Flex 同步 + CSV 預設 (MT4/MT5、cTrader、DXtrade、Match-Trader…)"
+            "tm": "IBKR Flex 同步、MT4/MT5 對帳單、9 家券商 CSV 預設,以及 tm-sync 資料夾監控"
           },
           {
             "row": "回測與重播",
@@ -511,12 +556,12 @@
           {
             "row": "資料存放",
             "them": "TraderSync 的雲端",
-            "tm": "你伺服器上的 SQLite 檔案"
+            "tm": "你伺服器上的 SQLite（或 Postgres）資料庫"
           },
           {
             "row": "券商匯入",
             "them": "900+ 券商 — 業界最廣",
-            "tm": "IBKR Flex 同步 + CSV 預設 (MT4/MT5、cTrader、DXtrade、Match-Trader…)"
+            "tm": "IBKR Flex 同步、MT4/MT5 對帳單、9 家券商 CSV 預設,以及 tm-sync 資料夾監控"
           },
           {
             "row": "分析",
@@ -574,7 +619,7 @@
           {
             "row": "資料存放",
             "them": "Tradervue 的雲端",
-            "tm": "你伺服器上的 SQLite 檔案"
+            "tm": "你伺服器上的 SQLite（或 Postgres）資料庫"
           },
           {
             "row": "報表",
@@ -637,12 +682,12 @@
           {
             "row": "資料存放",
             "them": "TraderWaves 的雲端",
-            "tm": "你伺服器上的 SQLite 檔案"
+            "tm": "你伺服器上的 SQLite（或 Postgres）資料庫"
           },
           {
             "row": "券商同步",
             "them": "透過聚合器連 700+ 券商",
-            "tm": "IBKR Flex 同步 + CSV 預設 (MT4/MT5、cTrader、DXtrade、Match-Trader…)"
+            "tm": "IBKR Flex 同步、MT4/MT5 對帳單、9 家券商 CSV 預設,以及 tm-sync 資料夾監控"
           },
           {
             "row": "資金曲線與回撤分析",

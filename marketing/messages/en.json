@@ -56,7 +56,7 @@
     "eyebrowFeatures": "Feature set",
     "eyebrowInside": "Inside the app",
     "eyebrowStack": "Under the hood",
-    "featuresSub": "From broker CSV to daily review — every step of the loop lives in one self-hosted app.",
+    "featuresSub": "From broker statement to daily review — every step of the loop lives in one self-hosted app.",
     "whyHeading": "Why TraderMemos?",
     "whyBody": "Cloud journals like TradeZella and TraderSync are polished — but your edge lives in the data. TraderMemos follows the same self-hosting philosophy as Ghost, Umami, and Plane: run it on your infrastructure, own the database, extend without permission.",
     "comparisonHeaderFeature": "Category",
@@ -66,7 +66,7 @@
       {
         "row": "Data ownership",
         "cloud": "Vendor-hosted",
-        "tm": "Your SQLite / VPS"
+        "tm": "Your SQLite / Postgres, your VPS"
       },
       {
         "row": "Cost",
@@ -88,7 +88,7 @@
     "features": {
       "dashboard": {
         "title": "Dashboard",
-        "description": "Equity curve, expectancy, streaks, hold times, and annual goal pacing."
+        "description": "Equity curve, expectancy, streaks, hold times, and annual goal pacing — per account or across a multi-account portfolio."
       },
       "tradeLog": {
         "title": "Trade log",
@@ -96,11 +96,11 @@
       },
       "calendar": {
         "title": "P&L calendar",
-        "description": "Daily and weekly heatmap with drill-down."
+        "description": "Daily and weekly heatmap with weekly totals and a day-detail drill-down."
       },
       "reports": {
         "title": "Reports",
-        "description": "Win rate, profit factor, expectancy, and setup / hourly / session breakdowns."
+        "description": "Expectancy, SQN, Kelly %, MAE/MFE, Monte Carlo, and execution quality — broken down by setup, hour, and session, saved as reusable views."
       },
       "playbook": {
         "title": "Playbook",
@@ -108,11 +108,23 @@
       },
       "import": {
         "title": "Import",
-        "description": "CSV broker statements, with column mapping and dedup."
+        "description": "Nine broker CSV presets, MT4/MT5 statements, IBKR Flex sync — or let the tm-sync desktop agent watch your statement folder."
+      },
+      "alerts": {
+        "title": "Alerts",
+        "description": "Risk rules, daily loss limits, and prop drawdown warnings — push and webhook, fired from your own server. All free."
+      },
+      "replay": {
+        "title": "Bar replay",
+        "description": "Backtest any symbol bar by bar against a persistent paper account — results flow into the same analytics as live trades."
+      },
+      "share": {
+        "title": "Sharing",
+        "description": "Revocable read-only links to your performance, share cards for single trades, and a Year Wrapped recap."
       },
       "tools": {
         "title": "Tools",
-        "description": "Position-size calculator, risk rules, cash ledger."
+        "description": "Position-size, FX, and Kelly calculators, an advanced chart, economic calendar, and cash ledger."
       },
       "ai": {
         "title": "AI (optional)",
@@ -124,11 +136,7 @@
       },
       "mobile": {
         "title": "iOS app (beta)",
-        "description": "Native SwiftUI companion — trades, calendar, reports, and Home / Lock Screen widgets. On TestFlight today."
-      },
-      "themes": {
-        "title": "Themes",
-        "description": "Dark and light, built on shadcn/ui + coss ui tokens."
+        "description": "Native SwiftUI companion — offline journaling, widgets, Live Activities, and Siri / Action Button quick capture. On TestFlight today."
       }
     },
     "lookInsideHeading": "A look inside",
@@ -137,14 +145,26 @@
     "calendarCaptionTitle": "P&L calendar",
     "calendarCaptionBody": "daily and weekly heatmap. Spot the streaks and the bad days at a glance.",
     "reportsCaptionTitle": "Reports",
-    "reportsCaptionBody": "equity curve, profit factor, expectancy, win rate, and goal pacing — plus breakdowns by setup, hour, and session.",
+    "reportsCaptionBody": "equity curve, profit factor, expectancy, and goal pacing — plus Monte Carlo simulation, MAE/MFE, and breakdowns by setup, hour, and session.",
     "techStackHeading": "Tech stack",
     "stackComment": "# your data, your box",
     "stack": [
-      { "layer": "API", "value": "Go · Echo · sqlc · golang-migrate · SQLite" },
-      { "layer": "Web", "value": "React · Vite+ · TanStack Router/Query/Form · Tailwind" },
-      { "layer": "Mobile", "value": "Expo · @expo/ui (SwiftUI) · TestFlight" },
-      { "layer": "Design", "value": "shadcn/ui + coss ui tokens" }
+      {
+        "layer": "API",
+        "value": "Go · Echo · sqlc · golang-migrate · SQLite / Postgres"
+      },
+      {
+        "layer": "Web",
+        "value": "React · Vite+ · TanStack Router/Query/Form · Tailwind"
+      },
+      {
+        "layer": "Mobile",
+        "value": "Expo · @expo/ui (SwiftUI) · TestFlight"
+      },
+      {
+        "layer": "Design",
+        "value": "shadcn/ui + coss ui tokens"
+      }
     ],
     "licenseHeading": "AGPL-3.0 licensed",
     "licenseBody": "Self-host it, modify it, and run it for yourself or your firm freely.",
@@ -170,7 +190,6 @@
     "heading": "Deploy in minutes",
     "sub": "One-click the web UI to your own Vercel, Cloudflare, or Netlify account — or run the whole stack with Docker on any machine.",
     "note": "One-click buttons deploy the web UI only — pair them with the API on Railway or Docker.",
-    "dockerComment": "# or self-host everything",
     "star": "Star on GitHub"
   },
   "Changelog": {
@@ -282,10 +301,10 @@
   },
   "FeaturePages": {
     "metaTitle": "Features — self-hosted trading journal | TraderMemos",
-    "metaDescription": "The five pillars of TraderMemos: self-hosted data ownership, behavioral analytics, prop-firm mode, rule compliance, and AI with your own keys.",
+    "metaDescription": "The pillars of TraderMemos: self-hosted data ownership, behavioral analytics, bar-replay backtesting, prop-firm mode, rule compliance, and AI with your own keys.",
     "eyebrow": "Feature pillars",
     "heading": "What cloud journals can't copy",
-    "sub": "Five pillars, each one possible because the journal runs on your server instead of somebody’s cloud.",
+    "sub": "Six pillars, each one possible because the journal runs on your server instead of somebody’s cloud.",
     "explore": "Explore",
     "pages": {
       "self-hosted": {
@@ -298,7 +317,7 @@
         "points": [
           {
             "title": "One-file database",
-            "body": "Every trade, note, and screenshot lives in a single SQLite database you can copy, back up, and query directly. Exporting your journal is a file copy."
+            "body": "Every trade, note, and screenshot lives in a single SQLite database you can copy, back up, and query directly. Exporting your journal is a file copy. Prefer a server database? Postgres is supported too."
           },
           {
             "title": "Deploy in minutes",
@@ -337,6 +356,32 @@
           {
             "title": "MAE / MFE excursion",
             "body": "Auto-computed excursion per trade shows how much of the move you captured and how much heat you sat through."
+          }
+        ]
+      },
+      "backtesting": {
+        "metaTitle": "Free bar-replay backtesting — TraderMemos",
+        "metaDescription": "Replay any symbol bar by bar, practice against a persistent paper account, and analyze the results with the same reports as your live journal. Free, self-hosted.",
+        "eyebrow": "Backtest & replay",
+        "title": "Practice on yesterday before risking tomorrow",
+        "subtitle": "Bar replay on any symbol with paper-account persistence — every practice fill lands in the same analytics as your live trades, so you can measure a setup before you fund it.",
+        "blurb": "Bar replay with paper accounts — practice results analyzed by the same reports as your live journal.",
+        "points": [
+          {
+            "title": "Any symbol, bar by bar",
+            "body": "Step through historical bars at your own pace, placing entries, exits, and stops as if it were live."
+          },
+          {
+            "title": "Paper accounts that persist",
+            "body": "Replay sessions record to a paper account — kept apart from live results, analyzed with the same math."
+          },
+          {
+            "title": "The same analytics",
+            "body": "Expectancy, MAE/MFE, and session breakdowns work on replay trades too — a backtest you can review like a journal."
+          },
+          {
+            "title": "Monte Carlo on top",
+            "body": "Project a strategy's drawdown and variance with the Monte Carlo simulator built into Reports."
           }
         ]
       },
@@ -449,7 +494,7 @@
           {
             "row": "Your data",
             "them": "Lives in TradeZella's cloud",
-            "tm": "A SQLite file on your own server"
+            "tm": "A SQLite (or Postgres) database on your own server"
           },
           {
             "row": "Setup",
@@ -459,7 +504,7 @@
           {
             "row": "Broker import",
             "them": "Broad auto-sync integrations",
-            "tm": "IBKR Flex sync + CSV presets (MT4/MT5, cTrader, DXtrade, Match-Trader…)"
+            "tm": "IBKR Flex sync, MT4/MT5 statements, 9 broker CSV presets, and the tm-sync folder watcher"
           },
           {
             "row": "Backtesting & replay",
@@ -511,12 +556,12 @@
           {
             "row": "Your data",
             "them": "TraderSync's cloud",
-            "tm": "A SQLite file on your own server"
+            "tm": "A SQLite (or Postgres) database on your own server"
           },
           {
             "row": "Broker import",
             "them": "900+ brokers — the widest anywhere",
-            "tm": "IBKR Flex sync + CSV presets (MT4/MT5, cTrader, DXtrade, Match-Trader…)"
+            "tm": "IBKR Flex sync, MT4/MT5 statements, 9 broker CSV presets, and the tm-sync folder watcher"
           },
           {
             "row": "Analytics",
@@ -574,7 +619,7 @@
           {
             "row": "Your data",
             "them": "Tradervue's cloud",
-            "tm": "A SQLite file on your own server"
+            "tm": "A SQLite (or Postgres) database on your own server"
           },
           {
             "row": "Reports",
@@ -637,12 +682,12 @@
           {
             "row": "Your data",
             "them": "TraderWaves' cloud",
-            "tm": "A SQLite file on your own server"
+            "tm": "A SQLite (or Postgres) database on your own server"
           },
           {
             "row": "Broker sync",
             "them": "700+ brokers via an aggregator",
-            "tm": "IBKR Flex sync + CSV presets (MT4/MT5, cTrader, DXtrade, Match-Trader…)"
+            "tm": "IBKR Flex sync, MT4/MT5 statements, 9 broker CSV presets, and the tm-sync folder watcher"
           },
           {
             "row": "Equity & drawdown analytics",

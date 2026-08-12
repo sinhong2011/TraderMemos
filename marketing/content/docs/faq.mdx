@@ -88,8 +88,10 @@ No. Fills are deduplicated by symbol + side + quantity + price + timestamp; repe
 
 ### My broker isn't listed as supported
 
-There's no broker list — any CSV with symbol / side / quantity / price / date columns imports
-via [column mapping](/en/docs/guides/importing-trades). Auto-detection recognizes most common
+Check [Supported brokers](/en/docs/guides/supported-brokers) first — presets cover the common
+platforms, and MT4/MT5 statements import as-is. For anything else, any CSV with symbol / side /
+quantity / price / date columns imports via
+[column mapping](/en/docs/guides/importing-trades); auto-detection recognizes most common
 header names.
 
 ### Screenshot scan times out or errors

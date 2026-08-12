@@ -15,23 +15,27 @@ TradeZella、TraderSync 等雲端交易日誌固然精緻，但你的交易優�
 
 ## 功能
 
-- **儀表盤** —— 權益曲線、期望值、連勝連虧、持倉時長與年度目標進度
-- **交易記錄** —— 成交明細自動歸組爲交易，可篩選、排序、打標籤，並下鑽查看執行細節
-- **盈虧日曆** —— 按日 / 按周熱力圖，支持下鑽查看
-- **報表** —— 勝率、盈利因子、期望值，以及按策略 / 小時 / 交易時段的細分統計
-- **策略手冊** —— 策略庫與使用該策略的交易記錄相互關聯
-- **導入** —— 支持券商 CSV 對賬單導入，含列映射與去重
-- **工具** —— 倉位計算器、風控規則、現金流水賬
+- **儀表盤** —— 權益曲線、期望值、連勝連虧、持倉時長與年度目標進度，可按單賬戶或跨賬戶組合查看
+- **交易記錄** —— 成交明細自動歸組爲交易，可篩選、排序、打標籤，並下鑽查看含 MAE/MFE 圖表的執行細節
+- **盈虧日曆** —— 按日熱力圖，含每週合計與單日明細下鑽
+- **報表** —— 期望值、SQN、凱利比例、MAE/MFE、蒙地卡羅與執行品質，按策略 / 小時 / 時段細分，並可保存爲常用視圖
+- **策略手冊** —— 策略庫與使用該策略的交易記錄相互關聯，附規則遵守評分
+- **導入** —— 券商 CSV 預設、MT4/MT5 對賬單、IBKR Flex 同步與 tm-sync 對賬單監控 —— 參見[支持的券商](/zh-Hant/docs/guides/supported-brokers)
+- **警報** —— 風控規則、每日虧損上限與 Prop 回撤預警，通過推送與 Webhook 發送
+- **K 線回放** —— 對任意品種逐根 K 線回測，成績記入可持久保存的模擬賬戶
+- **分享** —— 可隨時撤銷的只讀業績鏈接與分享卡片
+- **工具** —— 倉位 / 匯率 / 凱利計算器、高級圖表、財經日曆與現金流水賬
 - **AI**（可選）—— 截圖自動提取成交信息 + AI 交易教練，基於兼容 OpenAI 的 API，使用你自己的密鑰
 - **API 訪問** —— 個人訪問令牌（`tm_pat_…`）可用於 MCP / 腳本；OpenAPI 文檔位於 `/docs`
+- **iOS 應用**（測試版）—— 原生 SwiftUI 隨身版，支持離線記錄、小組件、即時動態與 Siri 快速記賬
 
 ## 技術棧
 
 | 層級 | 技術棧 |
 |-------|-------|
-| **API** | Go · Echo · sqlc · golang-migrate · SQLite |
+| **API** | Go · Echo · sqlc · golang-migrate · SQLite / Postgres |
 | **Web** | React · Vite+ · TanStack Router/Query/Form · Tailwind |
-| **移動端** | Expo（規劃中） |
+| **移動端** | Expo · @expo/ui (SwiftUI) |
 | **設計** | shadcn/ui + coss ui 設計令牌 |
 
 ## 下一步
@@ -42,6 +46,7 @@ TradeZella、TraderSync 等雲端交易日誌固然精緻，但你的交易優�
   <Card title="部署" href="/zh-Hant/docs/self-hosting/deploy" description="Docker、CDN + API 分離，或邊緣重寫等部署方式。" />
   <Card title="Fork 並部署" href="/zh-Hant/docs/self-hosting/fork-deploy" description="一鍵將 Web UI 部署到你自己的 Vercel、Cloudflare 或 Netlify 賬戶。" />
   <Card title="導入交易" href="/zh-Hant/docs/guides/importing-trades" description="通過列映射導入券商 CSV —— 重複記錄自動跳過。" />
+  <Card title="支持的券商" href="/zh-Hant/docs/guides/supported-brokers" description="CSV 預設、MT4/MT5 對賬單與 IBKR Flex 自動同步。" />
   <Card title="常見問題" href="/zh-Hant/docs/faq" description="登錄、CORS、端口、上傳與數據等問題的排查。" />
 </Cards>
 

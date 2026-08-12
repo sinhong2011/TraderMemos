@@ -17,23 +17,27 @@ TradeZella や TraderSync のようなクラウド型ジャーナルは洗練さ
 
 ## 主な機能
 
-- **ダッシュボード** — 資産曲線、期待値、連勝・連敗、保有時間、年間目標の進捗ペース
-- **トレードログ** — 約定をトレード単位にグループ化し、フィルタ・並べ替え・タグ付け・約定明細へのドリルダウン
-- **損益カレンダー** — 日次・週次のヒートマップとドリルダウン
-- **レポート** — 勝率、プロフィットファクター、期待値、セットアップ別／時間帯別／セッション別の内訳
-- **プレイブック** — 各セットアップを使ったトレードに紐づく戦略ライブラリ
-- **インポート** — 証券会社の CSV 明細を、列マッピングと重複排除つきで取り込み
-- **ツール** — ポジションサイズ計算機、リスクルール、資金台帳
+- **ダッシュボード** — 資産曲線、期待値、連勝・連敗、保有時間、年間目標の進捗ペース。口座ごとにもポートフォリオ全体でも
+- **トレードログ** — 約定をトレード単位にグループ化し、フィルタ・並べ替え・タグ付け・MAE/MFE チャートつきの約定明細へのドリルダウン
+- **損益カレンダー** — 日次ヒートマップに週間合計と日別詳細ドリルダウン
+- **レポート** — 期待値、SQN、ケリー%、MAE/MFE、モンテカルロ、執行クオリティ。セットアップ別／時間帯別／セッション別、ビューとして保存可能
+- **プレイブック** — 各セットアップを使ったトレードに紐づく戦略ライブラリ、ルール遵守スコアリング付き
+- **インポート** — ブローカー CSV プリセット、MT4/MT5 明細、IBKR Flex 同期、tm-sync 明細ウォッチャー — [対応ブローカー](/ja/docs/guides/supported-brokers)を参照
+- **アラート** — リスクルール、日次損失上限、プロップのドローダウン警告をプッシュ通知と Webhook で
+- **バーリプレイ** — 任意のシンボルをバー単位でリプレイし、永続するペーパーアカウントで検証
+- **共有** — 取り消し可能な読み取り専用パフォーマンスリンクとシェアカード
+- **ツール** — ポジションサイズ・FX・ケリー計算機、高機能チャート、経済指標カレンダー、資金台帳
 - **AI** *(任意)* — OpenAI 互換 API によるスクリーンショットからの約定抽出とトレードコーチ（キーはあなたのもの）
 - **API アクセス** — MCP／スクリプト向けのパーソナルアクセストークン（`tm_pat_…`）、OpenAPI ドキュメントは `/docs`
+- **iOS アプリ** *(ベータ)* — SwiftUI ネイティブのコンパニオンアプリ。オフライン記帳、ウィジェット、Live Activities、Siri クイック記録
 
 ## 技術スタック
 
 | レイヤー | スタック |
 |-------|-------|
-| **API** | Go · Echo · sqlc · golang-migrate · SQLite |
+| **API** | Go · Echo · sqlc · golang-migrate · SQLite / Postgres |
 | **Web** | React · Vite+ · TanStack Router/Query/Form · Tailwind |
-| **モバイル** | Expo（予定） |
+| **モバイル** | Expo · @expo/ui (SwiftUI) |
 | **デザイン** | shadcn/ui + coss ui トークン |
 
 ## 次のステップ
@@ -44,6 +48,7 @@ TradeZella や TraderSync のようなクラウド型ジャーナルは洗練さ
   <Card title="デプロイ" href="/ja/docs/self-hosting/deploy" description="Docker 一体型、CDN + API 分離、エッジリライトの 3 つのデプロイ方式。" />
   <Card title="フォークしてデプロイ" href="/ja/docs/self-hosting/fork-deploy" description="Web UI をあなた自身の Vercel / Cloudflare / Netlify アカウントにワンクリックでデプロイ。" />
   <Card title="トレードのインポート" href="/ja/docs/guides/importing-trades" description="列マッピング対応の証券会社 CSV インポート — 重複は自動的にスキップされます。" />
+  <Card title="対応ブローカー" href="/ja/docs/guides/supported-brokers" description="CSV プリセット、MT4/MT5 明細、IBKR Flex 自動同期。" />
   <Card title="FAQ" href="/ja/docs/faq" description="ログイン、CORS、ポート、アップロード、データに関するトラブルシューティング。" />
 </Cards>
 
