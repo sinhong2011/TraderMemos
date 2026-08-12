@@ -5,6 +5,13 @@ All notable changes to TraderMemos are documented in this file.
 Release versioning is managed by [release-please](https://github.com/googleapis/release-please).
 See [docs/release.md](docs/release.md) for the release workflow.
 
+## [0.8.1](https://github.com/sinhong2011/TraderMemos/compare/v0.8.0...v0.8.1) (2026-08-12)
+
+
+### Bug Fixes
+
+* **mobile:** define PODS_ROOT on the widgets target so EAS ccache builds resolve ([#217](https://github.com/sinhong2011/TraderMemos/issues/217)) ([62ac63d](https://github.com/sinhong2011/TraderMemos/commit/62ac63db836806470be6c6b640cea31d864c5b02))
+
 ## [0.8.0](https://github.com/sinhong2011/TraderMemos/compare/v0.7.0...v0.8.0) (2026-08-12)
 
 
