@@ -7,6 +7,7 @@
 
 import {
   keepPreviousData,
+  useQueries,
   useQuery,
   useQueryClient,
   type UseQueryResult,
@@ -221,6 +222,39 @@ export function useTrade(id: string) {
     // An id-less quick-journal launch passes '' while it resolves the latest
     // trade from the list — don't fire a request at `/trades/`.
     enabled: id !== '',
+  });
+}
+
+/**
+ * Details for a set of trades, as a map by id. The symbol journal draws
+ * per-fill markers from `fills`, which the list rows don't carry — and there
+ * is no fills-by-symbol endpoint. Query keys match `useTrade`, so anything a
+ * detail screen already cached is reused, and what this fetches warms the
+ * detail screen you tap into next. Callers cap the id list (the journal
+ * passes its visible rows), so this stays a handful of small requests.
+ */
+export function useTradeDetails(ids: string[]): Map<string, TradeDetail> {
+  const { session, signIn } = useSession();
+  return useQueries({
+    queries: ids.map((id) => ({
+      queryKey: queryKeys.trade(id),
+      enabled: session != null,
+      staleTime: 5 * 60_000,
+      queryFn: () =>
+        request<TradeDetail>(session!, `/trades/${id}`, {}, (tokens) => {
+          void signIn({
+            ...session!,
+            accessToken: tokens.access_token,
+            refreshToken: tokens.refresh_token,
+          });
+        }),
+    })),
+    combine: (results) =>
+      new Map(
+        results.flatMap((result, i) =>
+          result.data ? [[ids[i], result.data as TradeDetail] as const] : [],
+        ),
+      ),
   });
 }
 

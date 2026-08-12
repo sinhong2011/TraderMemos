@@ -93,8 +93,8 @@ export default function DashboardLayout() {
         options={{ title: t`R calculator`, headerLargeTitle: false }}
       />
       <Stack.Screen
-        name="advanced-chart"
-        options={{ title: t`Chart`, headerLargeTitle: false }}
+        name="symbol-journal"
+        options={{ title: t`Symbol journal`, headerLargeTitle: false }}
       />
       <Stack.Screen name="backtest" options={{ title: t`Backtest`, headerLargeTitle: false }} />
       <Stack.Screen
