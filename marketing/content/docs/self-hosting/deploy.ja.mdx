@@ -20,7 +20,7 @@ Docker Hub の公開イメージ（`sinhong2011/tradermemos-api` と `…-web`�
 # 任意: Hub のネームスペース / タグをコピーして編集
 cp .env.example .env
 # DOCKERHUB_USERNAME=sinhong2011   # 自分でイメージを公開する場合は自分の Hub ユーザー名
-# TM_IMAGE_TAG=0.1.1               # 本番ではリリースを固定する（既定: latest）
+# TM_IMAGE_TAG=0.7.0               # 本番ではリリースを固定する（既定: latest）
 
 make up            # docker compose up -d （Hub イメージを取得、SQLite）
 # http://localhost:3000 を開く
@@ -34,7 +34,7 @@ make up-build      # 取得せず、このリポジトリから api/web をビ�
 | 場面 | 設定場所 |
 |---------|-----------------|
 | エンドユーザー / セルフホスト | ルートの `.env` → `DOCKERHUB_USERNAME`（Compose が自動で読み込みます）。既定値は `sinhong2011`。 |
-| イメージタグ | ルートの `.env` → `TM_IMAGE_TAG`（`latest` または `0.1.1` のような semver）。 |
+| イメージタグ | ルートの `.env` → `TM_IMAGE_TAG`（`latest` または `0.7.0` のような semver）。 |
 | CI から Hub への公開 | GitHub リポジトリシークレット `DOCKERHUB_USERNAME` と `DOCKERHUB_TOKEN`。 |
 
 構成されるもの:
@@ -66,7 +66,7 @@ nginx が `api` コンテナへプロキシします — CORS は不要です。
 ```bash
 # 本番相当の compose 例
 cp .env.example .env
-# .env を編集: TM_IMAGE_TAG=0.1.1, TM_JWT_SECRET=…, TM_ALLOW_INSECURE_JWT=false
+# .env を編集: TM_IMAGE_TAG=0.7.0, TM_JWT_SECRET=…, TM_ALLOW_INSECURE_JWT=false
 export TM_JWT_SECRET=$(openssl rand -hex 32)
 export TM_ALLOW_INSECURE_JWT=false
 make up
@@ -122,6 +122,10 @@ TM_JWT_SECRET=$(openssl rand -hex 32)
 
 `https://*.vercel.app` や `https://*.pages.dev` といったワイルドカード形式は、プレビュー／本番の
 CDN ホストにマッチします。カスタムドメインには正確なオリジンを指定してください。
+
+この構成で[公開シェアリンク](/ja/docs/self-hosting/configuration)を使う場合は、
+`TM_PUBLIC_WEB_URL` に SPA のオリジンも設定してください — 未設定だとシェア URL が
+API オリジンで生成され、この構成では Web アプリを配信していないため機能しません。
 
 ### Web 側
 

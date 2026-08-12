@@ -71,7 +71,7 @@ export default async function Layout({
   setRequestLocale(resolveLocale(lang));
 
   return (
-    <HomeLayout {...baseOptions(lang)}>
+    <HomeLayout {...(await baseOptions(lang))}>
       {/* Blueprint chrome: hatched gutters outside the bounded content frame */}
       <div aria-hidden className="tm-gutter left-0" />
       <div aria-hidden className="tm-gutter right-0" />

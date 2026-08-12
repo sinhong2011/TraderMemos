@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { Server, Brain, Gauge, ShieldCheck, KeyRound, ArrowRight } from 'lucide-react';
+import { Server, Brain, History, Gauge, ShieldCheck, KeyRound, ArrowRight } from 'lucide-react';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { appName } from '@/lib/shared';
 import { resolveLocale } from '@/i18n/locales';
@@ -10,6 +10,7 @@ import { Eyebrow, PageCta, CrossLinks, focusRing } from '@/components/seo-sectio
 const pillarIcons: Record<FeatureSlug, typeof Server> = {
   'self-hosted': Server,
   'behavior-analytics': Brain,
+  backtesting: History,
   'prop-firm-mode': Gauge,
   'rule-compliance': ShieldCheck,
   'ai-your-keys': KeyRound,

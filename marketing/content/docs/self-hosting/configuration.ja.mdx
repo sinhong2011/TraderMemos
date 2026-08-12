@@ -64,6 +64,22 @@ description: API が読み取るすべての TM_* 環境変数と、その既定
 | `TM_MARKET_DATA_ENABLED` | `true` | マーケットデータサービスを有効化 |
 | `TM_MARKET_DATA_PROVIDER` | `yahoo` | プロバイダー名 |
 | `TM_MARKET_DATA_API_KEY` | *(空)* | プロバイダーが必要とする場合の API キー |
+| `TM_ECON_CALENDAR_ENABLED` | `true` | 経済指標カレンダーのフィードを有効化 |
+| `TM_ECON_CALENDAR_FEED_URL` | *(組み込み)* | イベントフィード URL の上書き |
+| `TM_ECON_CALENDAR_REFRESH_MIN` | `60` | フィード更新間隔（分） |
+
+## 共有とバックグラウンドジョブ
+
+| 変数 | デフォルト | 用途 |
+|----------|---------|---------|
+| `TM_SHARE_LINKS_ENABLED` | `false` | 公開シェアページを有効化。デフォルトはオフ — シェアリンクはジャーナルの一部を認証なしで公開します |
+| `TM_PUBLIC_WEB_URL` | *(空)* | シェアリンク URL の生成に使う公開 Web アプリのオリジン。API と同一オリジンで Web を配信する構成（同梱の nginx）では空のまま |
+| `TM_JOBS_ENABLED` | `true` | バックグラウンドジョブの全体スイッチ。レプリカを増やす場合は 1 台だけで動くよう他を無効化 |
+| `TM_JOB_EXCURSION_INTERVAL_MIN` | `360` | MAE/MFE バックフィルの間隔（分、`0` で無効） |
+| `TM_JOB_EXCURSION_LIMIT` | `10` | 1 回のバックフィルで処理するトレード数（`0` で無効） |
+| `TM_JOB_FLEX_SYNC_INTERVAL_MIN` | `360` | IBKR Flex 自動同期の間隔（分、`0` で無効） |
+| `TM_JOB_ALERTS_INTERVAL_MIN` | `60` | アラートルール評価の間隔（分、`0` で無効） |
+| `TM_ALERTS_ALLOW_PRIVATE_WEBHOOKS` | `false` | アラート Webhook がプライベート／ループバックアドレスへ届くのを許可（SSRF ガード — 受信先が LAN 内にある場合のみオンに） |
 
 ## Web のビルド時変数
 

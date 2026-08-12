@@ -56,7 +56,7 @@
     "eyebrowFeatures": "功能总览",
     "eyebrowInside": "产品导览",
     "eyebrowStack": "技术底层",
-    "featuresSub": "从券商 CSV 到每日复盘 —— 整个循环的每一步，都在同一套自托管应用中完成。",
+    "featuresSub": "从券商对账单到每日复盘 —— 整个循环的每一步，都在同一套自托管应用中完成。",
     "whyHeading": "为什么选择 TraderMemos？",
     "whyBody": "TradeZella、TraderSync 等云端交易日志固然精致 —— 但你的交易优势藏在数据里。TraderMemos 延续 Ghost、Umami、Plane 的自托管理念：运行在你自己的基础设施上，数据库由你掌控，不需任何人许可即可自由扩展。",
     "comparisonHeaderFeature": "项目",
@@ -66,7 +66,7 @@
       {
         "row": "数据归属",
         "cloud": "供应商托管",
-        "tm": "你的 SQLite / VPS"
+        "tm": "你的 SQLite / Postgres，你的 VPS"
       },
       {
         "row": "费用",
@@ -88,7 +88,7 @@
     "features": {
       "dashboard": {
         "title": "仪表盘",
-        "description": "权益曲线、期望值、连胜连亏、持仓时长与年度目标进度。"
+        "description": "权益曲线、期望值、连胜连亏、持仓时长与年度目标进度 — 可按单个账户查看，也可跨多账户组合查看。"
       },
       "tradeLog": {
         "title": "交易记录",
@@ -96,11 +96,11 @@
       },
       "calendar": {
         "title": "盈亏日历",
-        "description": "按日 / 按周热力图，支持下钻查看。"
+        "description": "按日 / 按周热力图，含每周合计与单日明细下钻。"
       },
       "reports": {
         "title": "报表",
-        "description": "胜率、盈利因子、期望值，以及按策略 / 小时 / 交易时段的细分统计。"
+        "description": "期望值、SQN、凯利比例、MAE/MFE、蒙特卡洛与执行质量 — 按策略 / 小时 / 交易时段细分，并可保存为常用视图。"
       },
       "playbook": {
         "title": "策略手册",
@@ -108,11 +108,23 @@
       },
       "import": {
         "title": "导入",
-        "description": "支持券商 CSV 对账单导入，含列映射与去重。"
+        "description": "九家券商 CSV 预设、MT4/MT5 对账单、IBKR Flex 同步 — 也可让 tm-sync 桌面代理自动监控你的对账单文件夹。"
+      },
+      "alerts": {
+        "title": "警报",
+        "description": "风控规则、每日亏损上限与 Prop 回撤预警 — 推送与 Webhook 由你自己的服务器发出，全部免费。"
+      },
+      "replay": {
+        "title": "K 线回放",
+        "description": "对任意品种逐根 K 线回测，成绩记入可持久保存的模拟账户 — 并进入与实盘相同的分析体系。"
+      },
+      "share": {
+        "title": "分享",
+        "description": "可随时撤销的只读业绩链接、单笔交易分享卡片，以及年度总结 Year Wrapped。"
       },
       "tools": {
         "title": "工具",
-        "description": "仓位计算器、风控规则、现金流水账。"
+        "description": "仓位 / 汇率 / 凯利计算器、高级图表、财经日历与现金流水账。"
       },
       "ai": {
         "title": "AI（可选）",
@@ -124,11 +136,7 @@
       },
       "mobile": {
         "title": "iOS 应用（测试版）",
-        "description": "原生 SwiftUI 随身版 — 交易、日历、报表，以及主屏幕 / 锁屏小组件。现已在 TestFlight 提供。"
-      },
-      "themes": {
-        "title": "主题",
-        "description": "深色与浅色主题，基于 shadcn/ui + coss ui 设计令牌构建。"
+        "description": "原生 SwiftUI 随身版 — 离线记录、小组件、实时活动与 Siri / 操作按钮快速记账。现已在 TestFlight 提供。"
       }
     },
     "lookInsideHeading": "实际画面",
@@ -137,14 +145,26 @@
     "calendarCaptionTitle": "盈亏日历",
     "calendarCaptionBody": "按日 / 按周热力图，一眼看出连胜与失手的日子。",
     "reportsCaptionTitle": "报表",
-    "reportsCaptionBody": "权益曲线、盈利因子、期望值、胜率与目标进度 —— 并可按策略、小时、交易时段细分。",
+    "reportsCaptionBody": "权益曲线、盈利因子、期望值与目标进度 — 还有蒙特卡洛模拟、MAE/MFE，以及按策略 / 小时 / 时段的细分。",
     "techStackHeading": "技术栈",
     "stackComment": "# 你的数据，跑在你自己的主机上",
     "stack": [
-      { "layer": "API", "value": "Go · Echo · sqlc · golang-migrate · SQLite" },
-      { "layer": "Web", "value": "React · Vite+ · TanStack Router/Query/Form · Tailwind" },
-      { "layer": "移动端", "value": "Expo · @expo/ui（SwiftUI）· TestFlight" },
-      { "layer": "设计", "value": "shadcn/ui + coss ui 设计令牌" }
+      {
+        "layer": "API",
+        "value": "Go · Echo · sqlc · golang-migrate · SQLite / Postgres"
+      },
+      {
+        "layer": "Web",
+        "value": "React · Vite+ · TanStack Router/Query/Form · Tailwind"
+      },
+      {
+        "layer": "移动端",
+        "value": "Expo · @expo/ui（SwiftUI）· TestFlight"
+      },
+      {
+        "layer": "设计",
+        "value": "shadcn/ui + coss ui 设计令牌"
+      }
     ],
     "licenseHeading": "采用 AGPL-3.0 许可协议",
     "licenseBody": "自由自托管、修改，供个人或公司内部使用。",
@@ -170,7 +190,6 @@
     "heading": "几分钟内完成部署",
     "sub": "一键将 Web UI 部署到你自己的 Vercel、Cloudflare 或 Netlify 账户 —— 或用 Docker 在任意机器上运行完整服务栈。",
     "note": "一键按钮只部署 Web UI —— 请搭配 Railway 或 Docker 上的 API 使用。",
-    "dockerComment": "# 或自托管全部服务",
     "star": "在 GitHub 上加星"
   },
   "Changelog": {
@@ -282,10 +301,10 @@
   },
   "FeaturePages": {
     "metaTitle": "功能 — 自托管交易日志 | TraderMemos",
-    "metaDescription": "TraderMemos 的五大支柱:数据自主的自托管部署、行为分析、Prop Firm 模式、规则遵守,以及使用自己 API 密钥的 AI。",
+    "metaDescription": "TraderMemos 的支柱:数据自主的自托管部署、行为分析、K 线回放回测、Prop Firm 模式、规则遵守,以及使用自己 API 密钥的 AI。",
     "eyebrow": "功能支柱",
     "heading": "云端日志抄不走的东西",
-    "sub": "五大支柱 — 每一项都因为日志跑在你的服务器、而不是别人的云端,才有可能实现。",
+    "sub": "六大支柱 — 每一项都因为日志跑在你的服务器、而不是别人的云端,才有可能实现。",
     "explore": "深入了解",
     "pages": {
       "self-hosted": {
@@ -298,7 +317,7 @@
         "points": [
           {
             "title": "数据库就是一个文件",
-            "body": "每一笔交易、笔记和截图都存在一个你可以复制、备份、直接查询的 SQLite 数据库里。导出日志就是复制文件。"
+            "body": "每一笔交易、笔记和截图都存在一个你可以复制、备份、直接查询的 SQLite 数据库里。导出日志就是复制文件。偏好服务器数据库?也支持 Postgres。"
           },
           {
             "title": "几分钟完成部署",
@@ -337,6 +356,32 @@
           {
             "title": "MAE / MFE 波幅",
             "body": "每笔交易自动计算的最大有利/不利波幅,告诉你吃到了多少行情、又扛了多少浮亏。"
+          }
+        ]
+      },
+      "backtesting": {
+        "metaTitle": "免费 K 线回放回测 — TraderMemos",
+        "metaDescription": "对任意品种逐根 K 线回放,在模拟账户中练习,并用与实盘相同的报表分析结果。免费、自托管。",
+        "eyebrow": "回测与回放",
+        "title": "先在昨天练习,再拿明天冒险",
+        "subtitle": "支持模拟账户持久化的 K 线回放 — 每一笔练习成交都进入与实盘相同的分析体系,让你在投入资金前先量化一个策略。",
+        "blurb": "带模拟账户的 K 线回放 — 练习结果用与实盘相同的报表分析。",
+        "points": [
+          {
+            "title": "任意品种,逐根 K 线",
+            "body": "按自己的节奏逐根推进历史 K 线,像实盘一样设置进场、出场与止损。"
+          },
+          {
+            "title": "可持久保存的模拟账户",
+            "body": "回放交易记入模拟账户,与实盘成绩分开保存,但用同一套数学来分析。"
+          },
+          {
+            "title": "同一套分析",
+            "body": "期望值、MAE/MFE 与时段细分同样适用于回放交易 — 一份可以像日志一样复盘的回测。"
+          },
+          {
+            "title": "再加蒙特卡洛",
+            "body": "用报表内置的蒙特卡洛模拟器,预估策略的回撤与波动区间。"
           }
         ]
       },
@@ -449,7 +494,7 @@
           {
             "row": "数据存放",
             "them": "TradeZella 的云端",
-            "tm": "你服务器上的 SQLite 文件"
+            "tm": "你服务器上的 SQLite（或 Postgres）数据库"
           },
           {
             "row": "安装",
@@ -459,7 +504,7 @@
           {
             "row": "券商导入",
             "them": "广泛的自动同步集成",
-            "tm": "IBKR Flex 同步 + CSV 预设 (MT4/MT5、cTrader、DXtrade、Match-Trader…)"
+            "tm": "IBKR Flex 同步、MT4/MT5 对账单、9 家券商 CSV 预设,以及 tm-sync 文件夹监控"
           },
           {
             "row": "回测与重放",
@@ -511,12 +556,12 @@
           {
             "row": "数据存放",
             "them": "TraderSync 的云端",
-            "tm": "你服务器上的 SQLite 文件"
+            "tm": "你服务器上的 SQLite（或 Postgres）数据库"
           },
           {
             "row": "券商导入",
             "them": "900+ 券商 — 业界最广",
-            "tm": "IBKR Flex 同步 + CSV 预设 (MT4/MT5、cTrader、DXtrade、Match-Trader…)"
+            "tm": "IBKR Flex 同步、MT4/MT5 对账单、9 家券商 CSV 预设,以及 tm-sync 文件夹监控"
           },
           {
             "row": "分析",
@@ -574,7 +619,7 @@
           {
             "row": "数据存放",
             "them": "Tradervue 的云端",
-            "tm": "你服务器上的 SQLite 文件"
+            "tm": "你服务器上的 SQLite（或 Postgres）数据库"
           },
           {
             "row": "报表",
@@ -637,12 +682,12 @@
           {
             "row": "数据存放",
             "them": "TraderWaves 的云端",
-            "tm": "你服务器上的 SQLite 文件"
+            "tm": "你服务器上的 SQLite（或 Postgres）数据库"
           },
           {
             "row": "券商同步",
             "them": "通过聚合器连 700+ 券商",
-            "tm": "IBKR Flex 同步 + CSV 预设 (MT4/MT5、cTrader、DXtrade、Match-Trader…)"
+            "tm": "IBKR Flex 同步、MT4/MT5 对账单、9 家券商 CSV 预设,以及 tm-sync 文件夹监控"
           },
           {
             "row": "资金曲线与回撤分析",

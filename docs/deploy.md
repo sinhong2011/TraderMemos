@@ -37,7 +37,7 @@ Pulls published images from Docker Hub (`sinhong2011/tradermemos-api` + `…-web
 # Optional: copy and edit Hub namespace / tag
 cp .env.example .env
 # DOCKERHUB_USERNAME=sinhong2011   # your Hub user if you publish your own images
-# TM_IMAGE_TAG=0.1.1               # pin a release in production (default: latest)
+# TM_IMAGE_TAG=0.7.0               # pin a release in production (default: latest)
 
 make up            # docker compose up -d  (pull Hub images, SQLite)
 # open http://localhost:3000
@@ -51,7 +51,7 @@ make up-build      # build api/web from this repo instead of pulling
 | Context | Where to set it |
 |---------|-----------------|
 | End users / self-host | Root `.env` → `DOCKERHUB_USERNAME` (Compose loads it automatically). Defaults to `sinhong2011`. |
-| Image tag | Root `.env` → `TM_IMAGE_TAG` (`latest` or a semver like `0.1.1`). |
+| Image tag | Root `.env` → `TM_IMAGE_TAG` (`latest` or a semver like `0.7.0`). |
 | CI publish to Hub | GitHub repo secrets `DOCKERHUB_USERNAME` + `DOCKERHUB_TOKEN` (see `.github/workflows/docker-publish.yml`). |
 
 What you get:
@@ -80,7 +80,7 @@ Important env (compose / host):
 ```bash
 # Production-ish compose example
 cp .env.example .env
-# edit .env: TM_IMAGE_TAG=0.1.1, TM_JWT_SECRET=…, TM_ALLOW_INSECURE_JWT=false
+# edit .env: TM_IMAGE_TAG=0.7.0, TM_JWT_SECRET=…, TM_ALLOW_INSECURE_JWT=false
 export TM_JWT_SECRET=$(openssl rand -hex 32)
 export TM_ALLOW_INSECURE_JWT=false
 make up

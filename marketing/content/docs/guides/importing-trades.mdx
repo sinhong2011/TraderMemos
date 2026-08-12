@@ -67,9 +67,14 @@ dedup makes overlapping files harmless.
 
 ## Other ways in
 
+- **tm-sync** — a small desktop watcher that monitors your statement folders and imports
+  MT4/MT5 exports as they appear, via a personal access token —
+  see [tm-sync](https://github.com/sinhong2011/TraderMemos/blob/main/docs/tm-sync.md)
+- **IBKR Flex sync** — schedule automatic imports from an IBKR Flex Query
+  (**Settings → Accounts → Flex sync**; interval via `TM_JOB_FLEX_SYNC_INTERVAL_MIN`)
 - **Screenshot scan** — extract fills from a broker screenshot with an LLM,
   see [AI features](/en/docs/guides/ai-features)
-- **Manual entry** — the **New Trade** drawer (hotkey `n`)
+- **Manual entry** — the **New Trade** drawer (hotkey `c` `t`)
 - **API / scripts** — `POST /api/v1/executions` with a
   [personal access token](/en/docs/guides/api-tokens); the same dedup applies
 - **CLI** — `tradermemos import --account … --file …` inside the API container

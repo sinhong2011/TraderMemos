@@ -61,6 +61,22 @@ description: API 讀取的全部 TM_* 環境變量，含默認值與作用說明
 | `TM_MARKET_DATA_ENABLED` | `true` | 啓用行情數據服務 |
 | `TM_MARKET_DATA_PROVIDER` | `yahoo` | 數據源名稱 |
 | `TM_MARKET_DATA_API_KEY` | *（空）* | 數據源 API 密鑰（如需要） |
+| `TM_ECON_CALENDAR_ENABLED` | `true` | 啓用財經事件日曆數據源 |
+| `TM_ECON_CALENDAR_FEED_URL` | *（內置）* | 覆蓋事件數據源 URL |
+| `TM_ECON_CALENDAR_REFRESH_MIN` | `60` | 數據源刷新間隔（分鐘） |
+
+## 分享與後臺任務
+
+| 變量 | 默認值 | 用途 |
+|----------|---------|---------|
+| `TM_SHARE_LINKS_ENABLED` | `false` | 開啓公開分享頁。默認關閉 —— 分享鏈接會讓日誌的一部分無需登錄即可訪問 |
+| `TM_PUBLIC_WEB_URL` | *（空）* | 生成分享鏈接時使用的公開 Web 應用地址。若 API 與 Web 同源部署（自帶 nginx），留空即可 |
+| `TM_JOBS_ENABLED` | `true` | 後臺任務總開關。多副本部署時只在一個實例上開啓 |
+| `TM_JOB_EXCURSION_INTERVAL_MIN` | `360` | MAE/MFE 回填間隔（分鐘，`0` 爲禁用） |
+| `TM_JOB_EXCURSION_LIMIT` | `10` | 每次回填處理的交易數（`0` 爲禁用） |
+| `TM_JOB_FLEX_SYNC_INTERVAL_MIN` | `360` | IBKR Flex 自動同步間隔（分鐘，`0` 爲禁用） |
+| `TM_JOB_ALERTS_INTERVAL_MIN` | `60` | 警報規則評估間隔（分鐘，`0` 爲禁用） |
+| `TM_ALERTS_ALLOW_PRIVATE_WEBHOOKS` | `false` | 允許警報 Webhook 指向內網 / 回環地址（SSRF 防護 —— 僅當接收端在你的區域網內時開啓） |
 
 ## Web 構建期變量
 

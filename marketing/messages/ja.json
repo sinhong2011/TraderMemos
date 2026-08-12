@@ -56,7 +56,7 @@
     "eyebrowFeatures": "機能一覧",
     "eyebrowInside": "アプリの中身",
     "eyebrowStack": "技術的な裏側",
-    "featuresSub": "証券会社の CSV から日次レビューまで — 振り返りサイクルのすべてが、ひとつのセルフホストアプリに収まります。",
+    "featuresSub": "証券会社の明細から日次レビューまで — 振り返りサイクルのすべてが、ひとつのセルフホストアプリに収まります。",
     "whyHeading": "なぜ TraderMemos なのか",
     "whyBody": "TradeZella や TraderSync のようなクラウド型ジャーナルは洗練されています。しかし、あなたのエッジはデータの中にあります。TraderMemos は Ghost、Umami、Plane と同じセルフホストの哲学に従います。自分のインフラで動かし、データベースを自分で所有し、誰の許可も得ずに拡張できます。",
     "comparisonHeaderFeature": "項目",
@@ -66,7 +66,7 @@
       {
         "row": "データの所有権",
         "cloud": "ベンダーがホスト",
-        "tm": "あなたの SQLite / VPS"
+        "tm": "あなたの SQLite / Postgres、あなたの VPS"
       },
       {
         "row": "コスト",
@@ -88,7 +88,7 @@
     "features": {
       "dashboard": {
         "title": "ダッシュボード",
-        "description": "資産曲線、期待値、連勝・連敗、保有時間、年間目標の進捗ペース。"
+        "description": "資産曲線、期待値、連勝・連敗、保有時間、年間目標の進捗ペース — 口座ごとにも、複数口座のポートフォリオ全体でも。"
       },
       "tradeLog": {
         "title": "トレードログ",
@@ -96,11 +96,11 @@
       },
       "calendar": {
         "title": "損益カレンダー",
-        "description": "日次・週次のヒートマップとドリルダウン。"
+        "description": "日次・週次のヒートマップ。週間合計と日別詳細へのドリルダウン付き。"
       },
       "reports": {
         "title": "レポート",
-        "description": "勝率、プロフィットファクター、期待値、セットアップ別／時間帯別／セッション別の内訳。"
+        "description": "期待値、SQN、ケリー%、MAE/MFE、モンテカルロ、執行クオリティ — セットアップ別・時間帯別・セッション別に分析し、ビューとして保存可能。"
       },
       "playbook": {
         "title": "プレイブック",
@@ -108,11 +108,23 @@
       },
       "import": {
         "title": "インポート",
-        "description": "証券会社の CSV 明細を、列マッピングと重複排除つきで取り込み。"
+        "description": "9社のブローカー CSV プリセット、MT4/MT5 明細、IBKR Flex 同期 — tm-sync デスクトップエージェントに明細フォルダを監視させることも。"
+      },
+      "alerts": {
+        "title": "アラート",
+        "description": "リスクルール、日次損失上限、プロップのドローダウン警告 — プッシュ通知と Webhook を自分のサーバーから送信。すべて無料。"
+      },
+      "replay": {
+        "title": "バーリプレイ",
+        "description": "任意のシンボルをバー単位でリプレイし、ペーパーアカウントで検証 — 結果は実トレードと同じ分析に反映されます。"
+      },
+      "share": {
+        "title": "共有",
+        "description": "パフォーマンスを共有する取り消し可能な読み取り専用リンク、トレード単位のシェアカード、Year Wrapped の年間まとめ。"
       },
       "tools": {
         "title": "ツール",
-        "description": "ポジションサイズ計算機、リスクルール、資金台帳。"
+        "description": "ポジションサイズ・FX・ケリー計算機、高機能チャート、経済指標カレンダー、資金台帳。"
       },
       "ai": {
         "title": "AI（任意）",
@@ -124,11 +136,7 @@
       },
       "mobile": {
         "title": "iOS アプリ（ベータ）",
-        "description": "SwiftUI ネイティブのコンパニオンアプリ — トレード、カレンダー、レポート、ホーム / ロック画面ウィジェット。TestFlight で配信中。"
-      },
-      "themes": {
-        "title": "テーマ",
-        "description": "shadcn/ui + coss ui トークンで構築したダーク／ライトテーマ。"
+        "description": "SwiftUI ネイティブのコンパニオンアプリ — オフライン記帳、ウィジェット、Live Activities、Siri / アクションボタンでのクイック記録。TestFlight で配信中。"
       }
     },
     "lookInsideHeading": "中を見てみる",
@@ -137,14 +145,26 @@
     "calendarCaptionTitle": "損益カレンダー",
     "calendarCaptionBody": "日次・週次のヒートマップ。好調の連続も、崩れた日も、ひと目で見つかります。",
     "reportsCaptionTitle": "レポート",
-    "reportsCaptionBody": "資産曲線、プロフィットファクター、期待値、勝率、目標進捗 — さらにセットアップ別・時間帯別・セッション別の内訳も。",
+    "reportsCaptionBody": "資産曲線、プロフィットファクター、期待値、目標ペース — さらにモンテカルロ・シミュレーション、MAE/MFE、セットアップ別・時間帯別・セッション別の内訳も。",
     "techStackHeading": "技術スタック",
     "stackComment": "# あなたのデータは、あなたのマシンに",
     "stack": [
-      { "layer": "API", "value": "Go · Echo · sqlc · golang-migrate · SQLite" },
-      { "layer": "Web", "value": "React · Vite+ · TanStack Router/Query/Form · Tailwind" },
-      { "layer": "モバイル", "value": "Expo · @expo/ui（SwiftUI）· TestFlight" },
-      { "layer": "デザイン", "value": "shadcn/ui + coss ui トークン" }
+      {
+        "layer": "API",
+        "value": "Go · Echo · sqlc · golang-migrate · SQLite / Postgres"
+      },
+      {
+        "layer": "Web",
+        "value": "React · Vite+ · TanStack Router/Query/Form · Tailwind"
+      },
+      {
+        "layer": "モバイル",
+        "value": "Expo · @expo/ui（SwiftUI）· TestFlight"
+      },
+      {
+        "layer": "デザイン",
+        "value": "shadcn/ui + coss ui トークン"
+      }
     ],
     "licenseHeading": "AGPL-3.0 ライセンス",
     "licenseBody": "セルフホストし、改変し、個人でも会社でも自由に運用できます。",
@@ -170,7 +190,6 @@
     "heading": "数分でデプロイ",
     "sub": "ワンクリックで Web UI を自分の Vercel・Cloudflare・Netlify アカウントへ — または Docker でスタック全体を任意のマシンで実行できます。",
     "note": "ワンクリックボタンがデプロイするのは Web UI のみです。API は Railway または Docker で運用してください。",
-    "dockerComment": "# またはすべてをセルフホスト",
     "star": "GitHub でスターする"
   },
   "Changelog": {
@@ -282,10 +301,10 @@
   },
   "FeaturePages": {
     "metaTitle": "機能 — セルフホスト型トレード日誌 | TraderMemos",
-    "metaDescription": "TraderMemos の5つの柱: データを所有するセルフホスト、行動分析、プロップファームモード、ルール遵守、自分の API キーで使う AI。",
+    "metaDescription": "TraderMemos の柱: データを所有するセルフホスト、行動分析、バーリプレイでのバックテスト、プロップファームモード、ルール遵守、自分の API キーで使う AI。",
     "eyebrow": "機能の柱",
     "heading": "クラウド型ジャーナルには真似できないこと",
-    "sub": "5つの柱 — どれも、ジャーナルが誰かのクラウドではなくあなたのサーバーで動くからこそ可能になります。",
+    "sub": "6つの柱 — どれも、ジャーナルが誰かのクラウドではなくあなたのサーバーで動くからこそ可能になります。",
     "explore": "詳しく見る",
     "pages": {
       "self-hosted": {
@@ -298,7 +317,7 @@
         "points": [
           {
             "title": "データベースはファイル1つ",
-            "body": "すべてのトレード、メモ、スクリーンショットは、コピーもバックアップも直接クエリもできる1つの SQLite データベースに保存されます。エクスポートはファイルコピーで完了。"
+            "body": "すべてのトレード、メモ、スクリーンショットは、コピーもバックアップも直接クエリもできる1つの SQLite データベースに保存されます。エクスポートはファイルコピーで完了。サーバーデータベースが必要なら Postgres にも対応しています。"
           },
           {
             "title": "数分でデプロイ",
@@ -337,6 +356,32 @@
           {
             "title": "MAE / MFE",
             "body": "トレードごとに自動計算されるエクスカーションで、値動きのどれだけを取れたか、どれだけの含み損に耐えたかが分かります。"
+          }
+        ]
+      },
+      "backtesting": {
+        "metaTitle": "無料のバーリプレイ・バックテスト — TraderMemos",
+        "metaDescription": "任意のシンボルをバー単位でリプレイし、ペーパーアカウントで練習。結果は実トレードと同じレポートで分析できます。無料・セルフホスト。",
+        "eyebrow": "バックテスト & リプレイ",
+        "title": "明日のリスクの前に、昨日で練習する",
+        "subtitle": "ペーパーアカウント永続化つきのバーリプレイ。練習の約定はすべて実トレードと同じ分析に取り込まれるため、資金を入れる前にセットアップを計測できます。",
+        "blurb": "ペーパーアカウントつきバーリプレイ — 練習結果を実トレードと同じレポートで分析。",
+        "points": [
+          {
+            "title": "どのシンボルも、バー単位で",
+            "body": "過去のバーを自分のペースで進めながら、実際のトレードのようにエントリー、エグジット、ストップを置けます。"
+          },
+          {
+            "title": "永続するペーパーアカウント",
+            "body": "リプレイセッションはペーパーアカウントに記録されます。実績とは分離しつつ、同じ計算で分析。"
+          },
+          {
+            "title": "同じ分析エンジン",
+            "body": "期待値、MAE/MFE、セッション別の内訳はリプレイのトレードにも機能します — ジャーナルのように振り返れるバックテスト。"
+          },
+          {
+            "title": "モンテカルロも",
+            "body": "レポート組み込みのモンテカルロ・シミュレーターで、戦略のドローダウンと分散を予測。"
           }
         ]
       },
@@ -449,7 +494,7 @@
           {
             "row": "データの所在",
             "them": "TradeZella のクラウド",
-            "tm": "自分のサーバー上の SQLite ファイル"
+            "tm": "自分のサーバー上の SQLite（または Postgres）データベース"
           },
           {
             "row": "導入",
@@ -459,7 +504,7 @@
           {
             "row": "ブローカー取り込み",
             "them": "幅広い自動連携",
-            "tm": "IBKR Flex 同期 + CSV プリセット (MT4/MT5, cTrader, DXtrade, Match-Trader…)"
+            "tm": "IBKR Flex 同期、MT4/MT5 明細、9社の CSV プリセット、tm-sync フォルダ監視エージェント"
           },
           {
             "row": "バックテストとリプレイ",
@@ -511,12 +556,12 @@
           {
             "row": "データの所在",
             "them": "TraderSync のクラウド",
-            "tm": "自分のサーバー上の SQLite ファイル"
+            "tm": "自分のサーバー上の SQLite（または Postgres）データベース"
           },
           {
             "row": "ブローカー取り込み",
             "them": "900+ ブローカー — 業界最多",
-            "tm": "IBKR Flex 同期 + CSV プリセット (MT4/MT5, cTrader, DXtrade, Match-Trader…)"
+            "tm": "IBKR Flex 同期、MT4/MT5 明細、9社の CSV プリセット、tm-sync フォルダ監視エージェント"
           },
           {
             "row": "分析",
@@ -574,7 +619,7 @@
           {
             "row": "データの所在",
             "them": "Tradervue のクラウド",
-            "tm": "自分のサーバー上の SQLite ファイル"
+            "tm": "自分のサーバー上の SQLite（または Postgres）データベース"
           },
           {
             "row": "レポート",
@@ -637,12 +682,12 @@
           {
             "row": "データの所在",
             "them": "TraderWaves のクラウド",
-            "tm": "自分のサーバー上の SQLite ファイル"
+            "tm": "自分のサーバー上の SQLite（または Postgres）データベース"
           },
           {
             "row": "ブローカー同期",
             "them": "アグリゲーター経由で 700+ ブローカー",
-            "tm": "IBKR Flex 同期 + CSV プリセット (MT4/MT5, cTrader, DXtrade, Match-Trader…)"
+            "tm": "IBKR Flex 同期、MT4/MT5 明細、9社の CSV プリセット、tm-sync フォルダ監視エージェント"
           },
           {
             "row": "資産曲線・ドローダウン分析",

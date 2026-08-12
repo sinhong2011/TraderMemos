@@ -6,7 +6,7 @@
 
 ### Own your data. Review your edge.
 
-**A self-hosted trading journal for traders who want their performance data on their own infrastructure** — dashboard, P&L calendar, trade log, playbook, and reports. No subscription, no vendor lock-in.
+**A self-hosted trading journal for traders who want their performance data on their own infrastructure** — dashboard, P&L calendar, trade log, playbook, reports, alerts, and a bar-replay backtester, with a native iOS companion app. No subscription, no vendor lock-in.
 
 <br/>
 
@@ -20,7 +20,7 @@
 
 <br/>
 
-[Quick start](#quick-start) · [Fork guide](docs/fork-deploy.md) · [Contributing](CONTRIBUTING.md) · [Design](DESIGN.md) · [License](LICENSE)
+[Quick start](#quick-start) · [Docs site](https://trader-memos.vercel.app) · [Fork guide](docs/fork-deploy.md) · [Contributing](CONTRIBUTING.md) · [Design](DESIGN.md) · [License](LICENSE)
 
 <br/>
 
@@ -40,14 +40,14 @@
 </td>
 <td width="50%">
 <img src="docs/screenshots/calendar.png" alt="P&L calendar heatmap by day and week" />
-<p align="center"><strong>P&L calendar</strong><br/><sub>Daily and weekly heatmap. Spot the streaks and the bad days at a glance.</sub></p>
+<p align="center"><strong>P&L calendar</strong><br/><sub>Daily heatmap with weekly totals. Spot the streaks and the bad days at a glance.</sub></p>
 </td>
 </tr>
 </table>
 
 <img src="docs/screenshots/reports.png" alt="Reports — equity curve, profit factor gauge, win-rate donut, annual goal pacing" width="100%" />
 
-<p align="center"><strong>Reports</strong><br/><sub>Equity curve, profit factor, expectancy, win rate, and goal pacing — plus breakdowns by setup, hour, and session.</sub></p>
+<p align="center"><strong>Reports</strong><br/><sub>Equity curve, profit factor, expectancy, and goal pacing — plus Monte Carlo, MAE/MFE, and breakdowns by setup, hour, and session, saved as reusable view presets.</sub></p>
 
 <table>
 <tr>
@@ -84,7 +84,7 @@ TraderMemos brings to performance review what **[Ghost](https://github.com/TryGh
 
 | | Cloud journals | TraderMemos |
 |---|---|---|
-| **Data ownership** | Vendor-hosted | Your SQLite / VPS |
+| **Data ownership** | Vendor-hosted | Your SQLite / Postgres, your VPS |
 | **Cost** | Monthly subscription | Free + your hosting |
 | **AI keys** | Often vendor-managed | Your OpenAI-compatible API |
 | **Customization** | Limited | Fork, patch, deploy |
@@ -93,24 +93,29 @@ TraderMemos brings to performance review what **[Ghost](https://github.com/TryGh
 
 | Feature | What it does |
 |---|---|
-| 📊&nbsp; **Home** | Equity curve, expectancy, streaks, hold times, and annual goal pacing |
-| 📒&nbsp; **Trade log** | Fills grouped into trades — filter, sort, tag, and drill into execution detail |
-| 🗓&nbsp; **P&L calendar** | Daily and weekly heatmap with drill-down |
-| 📈&nbsp; **Reports** | Win rate, profit factor, expectancy, and setup / hourly / session breakdowns |
-| 📖&nbsp; **Playbook** | Strategy library linked to the trades that used each setup |
-| 📥&nbsp; **Import** | CSV broker statements, with column mapping and dedup |
-| 🧮&nbsp; **Tools** | Position-size calculator, risk rules, cash ledger |
+| 📊&nbsp; **Home** | Equity curve, expectancy, streaks, hold times, and annual goal pacing — per account or across a multi-account portfolio |
+| 📒&nbsp; **Trade log** | Fills grouped into trades — filter, sort, tag, and drill into execution detail with MAE/MFE excursion charts |
+| 🗓&nbsp; **P&L calendar** | Daily heatmap with weekly totals and day-detail drill-down |
+| 📈&nbsp; **Reports** | Expectancy, SQN, Kelly %, MAE/MFE, Monte Carlo, execution quality — by setup, hour, and session, saved as view presets |
+| 📖&nbsp; **Playbook** | Strategy library linked to the trades that used each setup, with rule-compliance scoring |
+| 📥&nbsp; **Import** | 9 broker CSV presets, MT4/MT5 statements, IBKR Flex sync — or the [tm-sync](docs/tm-sync.md) watcher that imports statements as they appear |
+| 🔔&nbsp; **Alerts** | Risk rules, daily loss limits, and prop-drawdown warnings — push and webhook, from your own server |
+| ⏪&nbsp; **Bar replay** | Backtest any symbol bar by bar against a persistent paper account — analyzed by the same reports |
+| 🔗&nbsp; **Sharing** | Revocable read-only performance links, share cards, and a Year Wrapped recap |
+| 🧮&nbsp; **Tools** | Position-size / FX / Kelly calculators, advanced chart, economic calendar, cash ledger |
 | 🤖&nbsp; **AI** *(optional)* | Screenshot fill extraction + trade coach via OpenAI-compatible APIs — your keys |
 | 🔌&nbsp; **API access** | Personal access tokens (`tm_pat_…`) for MCP/scripts; OpenAPI docs at `/docs` |
+| 📱&nbsp; **iOS app** *(beta)* | Native SwiftUI companion — offline journaling, widgets, Live Activities, Siri / Action Button capture. On TestFlight |
 | 🌗&nbsp; **Themes** | Dark and light, built on shadcn/ui + [coss ui](https://coss.com/ui/docs) tokens |
 
 ## Tech stack
 
 | Layer | Stack |
 |-------|-------|
-| **API** | Go · Echo · sqlc · golang-migrate · SQLite |
+| **API** | Go · Echo · sqlc · golang-migrate · SQLite / Postgres |
 | **Web** | React · Vite+ · TanStack Router/Query/Form · Tailwind |
-| **Mobile** | Expo (planned) |
+| **Mobile** | Expo · @expo/ui (SwiftUI) · WidgetKit / Live Activities / App Intents |
+| **Sync agent** | [tm-sync](docs/tm-sync.md) — a Go binary that watches statement folders and imports on change |
 | **Design** | shadcn/ui + coss ui tokens — see [DESIGN.md](DESIGN.md) |
 
 ## Quick start
@@ -137,6 +142,8 @@ make up-build          # or build both images from this repo
 ```
 
 For production, set `TM_JWT_SECRET=$(openssl rand -hex 32)` and put TLS (Caddy/Traefik) in front — see [docs/deploy.md](docs/deploy.md).
+
+Prefer Postgres over the default SQLite? `make up-postgres` runs the same stack with a Postgres overlay.
 
 </details>
 
@@ -185,10 +192,13 @@ It talks to the public API only, so it works against a local stack or a deployed
 
 ## Docs
 
+User docs live on the docs site: **[trader-memos.vercel.app](https://trader-memos.vercel.app)** — getting started, importing trades, supported brokers, self-hosting guides, FAQ, and the full API reference.
+
 | Doc | Topic |
 |-----|--------|
 | [docs/fork-deploy.md](docs/fork-deploy.md) | One-click / fork → Vercel, Cloudflare, Netlify, Railway |
 | [docs/deploy.md](docs/deploy.md) | Docker, CORS, edge rewrite |
+| [docs/tm-sync.md](docs/tm-sync.md) | The tm-sync local statement watcher |
 | [docs/release.md](docs/release.md) | Versioning, changelogs, GitHub Releases |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Local dev (`make dev`) |
 | [DESIGN.md](DESIGN.md) | UI system — shadcn/ui + coss ui tokens |

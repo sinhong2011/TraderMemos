@@ -27,7 +27,7 @@ make up-build                # リポジトリから両方のイメージを再�
 
 ```bash
 curl -s http://localhost:3000/healthz
-# {"status":"ok","version":"0.1.6","go":"go1.26","commit":"…"}
+# {"status":"ok","version":"0.7.0","go":"go1.26","commit":"…"}
 ```
 
 ## バージョンの固定（本番環境で推奨）
@@ -37,7 +37,7 @@ curl -s http://localhost:3000/healthz
 
 ```bash
 # .env
-TM_IMAGE_TAG=0.1.6
+TM_IMAGE_TAG=0.7.0
 ```
 
 ```bash
@@ -45,7 +45,7 @@ TM_IMAGE_TAG=0.1.6
 docker compose pull && make up
 ```
 
-公開されるタグは semver に従います（`0.1.6`、`0.1`、`0`、`latest`、および不変のコミット `sha`
+公開されるタグは semver に従います（`0.7.0`、`0.7`、`0`、`latest`、および不変のコミット `sha`
 タグ）。イメージはマルチアーキテクチャ対応です（`amd64` + `arm64`）。リリースと主な変更点は
 [CHANGELOG](https://github.com/sinhong2011/TraderMemos/blob/main/CHANGELOG.md) と
 [GitHub Releases](https://github.com/sinhong2011/TraderMemos/releases) に記載されています。

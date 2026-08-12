@@ -26,9 +26,12 @@ Three ways, mix freely:
 
 - **Import a broker CSV** — the fastest way to a populated journal.
   See [Importing trades](/en/docs/guides/importing-trades).
-- **New Trade** (hotkey `n`) — manual entry with execution rows, setup, tags, emotion,
+- **New Trade** (hotkey `c` `t`) — manual entry with execution rows, setup, tags, emotion,
   screenshots, and notes. With [AI features](/en/docs/guides/ai-features) enabled,
   **Scan to fill** extracts the fills from a broker screenshot.
+- **Automate it** — the [tm-sync](https://github.com/sinhong2011/TraderMemos/blob/main/docs/tm-sync.md)
+  desktop watcher imports MT4/MT5 statements as they appear, and IBKR accounts can auto-sync
+  on a schedule via a Flex Query (**Settings → Accounts → Flex sync**).
 - **Just exploring?** Seed ~200 realistic demo trades:
   ```bash
   make demo-seed API=http://localhost:3000/api/v1 EMAIL=you@example.com PASSWORD='…'
@@ -41,16 +44,19 @@ duplicates are always skipped — so nothing here can double-count.
 
 | Page | Hotkey | What it's for |
 |------|--------|---------------|
-| **Dashboard** | `G` `D` | Equity curve, P&L hero, streaks, expectancy, goal pacing |
+| **Home** | `G` `H` | Equity curve, P&L hero, streaks, expectancy, goal pacing |
 | **Trades** | `G` `T` | The trade log — filter, sort, drill into fills and journal detail |
-| **Calendar** | `G` `C` | Daily/weekly P&L heatmap with drill-down |
-| **Reports** | `G` `S` | Win rate, profit factor, expectancy; setup / hourly / session breakdowns |
+| **Calendar** | `G` `C` | Daily P&L heatmap with weekly totals and drill-down |
+| **Reports** | `G` `S` | Expectancy, SQN, Kelly %, Monte Carlo, execution quality; setup / hourly / session breakdowns |
 | **Notes** | `G` `N` | Freeform notes and daily logs |
 | **Playbook** | `G` `P` | Your setups, each linked to the trades that used it |
+| **Calculator** | `G` `R` | Position-size / R calculator |
 | **Import** | `G` `I` | Import & export |
-| **Settings** | `⌘` `,` | Accounts, risk rules, AI, API tokens |
+| **Settings** | `⌘` `,` | Accounts, rules & alerts, journal, AI, API tokens, sharing, users |
 
-`⌘K` opens the command palette from anywhere.
+`⌘K` opens the command palette from anywhere, and the **Tools** menu holds the rest — advanced
+chart, bar replay, economic calendar, FX and Kelly calculators, and Year Wrapped. Every binding
+is remappable in **Settings → Shortcuts**.
 
 ## 4. Build the review habit
 

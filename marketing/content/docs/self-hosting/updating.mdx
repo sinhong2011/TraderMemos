@@ -26,7 +26,7 @@ Verify the running version:
 
 ```bash
 curl -s http://localhost:3000/healthz
-# {"status":"ok","version":"0.1.6","go":"go1.26","commit":"…"}
+# {"status":"ok","version":"0.7.0","go":"go1.26","commit":"…"}
 ```
 
 ## Pinning versions (recommended for production)
@@ -35,7 +35,7 @@ curl -s http://localhost:3000/healthz
 
 ```bash
 # .env
-TM_IMAGE_TAG=0.1.6
+TM_IMAGE_TAG=0.7.0
 ```
 
 ```bash
@@ -43,7 +43,7 @@ TM_IMAGE_TAG=0.1.6
 docker compose pull && make up
 ```
 
-Published tags follow semver: `0.1.6`, `0.1`, `0`, `latest`, plus immutable commit-`sha` tags.
+Published tags follow semver: `0.7.0`, `0.7`, `0`, `latest`, plus immutable commit-`sha` tags.
 Images are multi-arch (`amd64` + `arm64`). Releases and notable changes are listed in the
 [CHANGELOG](https://github.com/sinhong2011/TraderMemos/blob/main/CHANGELOG.md) and
 [GitHub Releases](https://github.com/sinhong2011/TraderMemos/releases).
