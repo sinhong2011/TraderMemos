@@ -28,6 +28,10 @@ export default function TradesLayout() {
         options={{ title: t`Trades`, headerRight: () => <AddTradeButton /> }}
       />
       <Stack.Screen name="[id]" options={{ headerLargeTitle: false }} />
+      <Stack.Screen
+        name="symbol-journal"
+        options={{ title: t`Symbol journal`, headerLargeTitle: false }}
+      />
     </Stack>
   );
 }

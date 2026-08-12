@@ -1,5 +1,6 @@
 import { Chart } from '@expo/ui/swift-ui';
-import { Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
+import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { useBreakdown, type BreakdownDim } from '@/api/hooks';
@@ -32,12 +33,15 @@ function RankedBreakdownCard({
   ctx,
   emptyLabel,
   labelFor,
+  onPressRow,
 }: {
   title: string;
   dim: BreakdownDim;
   ctx: ReportsMoneyContext;
   emptyLabel: string;
   labelFor?: (key: string) => string;
+  /** Makes each row tappable — the Symbols card opens the symbol journal. */
+  onPressRow?: (key: string) => void;
 }) {
   const filters = useReportsFilters();
   const breakdown = useBreakdown(dim, filters);
@@ -78,7 +82,7 @@ function RankedBreakdownCard({
       <View style={styles.rows}>
         {shown.map((group) => {
           const value = money.pnl(group.summary);
-          return (
+          const row = (
             <MagnitudeRow
               key={group.key}
               label={labelFor ? labelFor(group.key) : group.key}
@@ -87,6 +91,18 @@ function RankedBreakdownCard({
               rawValue={value}
               maxAbs={maxAbs}
             />
+          );
+          return onPressRow ? (
+            <Pressable
+              key={group.key}
+              onPress={() => onPressRow(group.key)}
+              accessibilityRole="button"
+              style={({ pressed }) => pressed && styles.pressed}
+            >
+              {row}
+            </Pressable>
+          ) : (
+            row
           );
         })}
       </View>
@@ -242,6 +258,7 @@ export function DetailedSection({
 }) {
   const ctx = useReportsMoney();
   const filters = useReportsFilters();
+  const router = useRouter();
   // One representative query drives the pull-to-refresh spinner.
   const symbols = useBreakdown('symbol', filters);
 
@@ -252,6 +269,10 @@ export function DetailedSection({
         dim="symbol"
         ctx={ctx}
         emptyLabel={t`No trades in this range.`}
+        // A symbol row answers "how did I do on X?" — the journal shows where.
+        onPressRow={(symbol) =>
+          router.push({ pathname: '/(tabs)/(dashboard)/symbol-journal', params: { symbol } })
+        }
       />
       <RankedBreakdownCard
         title={t`Tags`}
@@ -269,6 +290,7 @@ export function DetailedSection({
 
 const styles = StyleSheet.create((theme) => ({
   rows: { gap: theme.spacing.md },
+  pressed: { opacity: 0.6 },
   chart: { height: 200 },
   listSkeleton: { height: 220, borderRadius: theme.radius.lg },
   empty: { fontSize: 13, color: theme.colors.mutedForeground, paddingVertical: theme.spacing.lg },
