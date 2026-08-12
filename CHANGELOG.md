@@ -5,6 +5,57 @@ All notable changes to TraderMemos are documented in this file.
 Release versioning is managed by [release-please](https://github.com/googleapis/release-please).
 See [docs/release.md](docs/release.md) for the release workflow.
 
+## [0.8.0](https://github.com/sinhong2011/TraderMemos/compare/v0.7.0...v0.8.0) (2026-08-12)
+
+
+### Features
+
+* **alerts:** journal alerts — risk rules, loss limits, prop drawdown (free) ([#185](https://github.com/sinhong2011/TraderMemos/issues/185)) ([2e374f2](https://github.com/sinhong2011/TraderMemos/commit/2e374f2dcf871769ee013fec7e464e8967a72d2e))
+* **analytics:** execution-quality composite score with per-axis drill-down ([#183](https://github.com/sinhong2011/TraderMemos/issues/183)) ([ac430db](https://github.com/sinhong2011/TraderMemos/commit/ac430dbd7ad99a4277a3e09ebf7fc94bfc73b529))
+* **analytics:** Monte Carlo simulation on Reports ([#155](https://github.com/sinhong2011/TraderMemos/issues/155)) ([dbbb639](https://github.com/sinhong2011/TraderMemos/commit/dbbb639251be8e33fefa89cec7eddd019afafd7e))
+* **calendar:** weekly totals, month header chips, day detail popover ([#168](https://github.com/sinhong2011/TraderMemos/issues/168)) ([c9fb843](https://github.com/sinhong2011/TraderMemos/commit/c9fb8438b5cb1a5eebff51d4f0871ac177195fd7))
+* **docs:** publish the API reference with fumadocs-openapi + Scalar ([#187](https://github.com/sinhong2011/TraderMemos/issues/187)) ([49fdcff](https://github.com/sinhong2011/TraderMemos/commit/49fdcff89743f8f7d34ea6d6eb1c9f69f65a3f1c))
+* **importer:** cTrader, DXtrade and Match-Trader broker presets ([#153](https://github.com/sinhong2011/TraderMemos/issues/153)) ([bbee550](https://github.com/sinhong2011/TraderMemos/commit/bbee55003d7d8363916299be418a9765d282e280))
+* **importer:** MT4/MT5 statement parsers (XLSX + HTML) ([#166](https://github.com/sinhong2011/TraderMemos/issues/166)) ([6402160](https://github.com/sinhong2011/TraderMemos/commit/64021602f1c3b98537cde71c37763090dfd0afc1))
+* **marketing:** Aceternity-style landing revamp + live demo CTA ([#189](https://github.com/sinhong2011/TraderMemos/issues/189)) ([4607e1b](https://github.com/sinhong2011/TraderMemos/commit/4607e1b51ba583b167743567a37fc3de7c2644bb))
+* **marketing:** feature + comparison pages ([#188](https://github.com/sinhong2011/TraderMemos/issues/188)) ([2c2e281](https://github.com/sinhong2011/TraderMemos/commit/2c2e281887ffcfdee3044945fec3c8bc935a8a61))
+* **mobile:** change the API server from Settings ([#214](https://github.com/sinhong2011/TraderMemos/issues/214)) ([201594f](https://github.com/sinhong2011/TraderMemos/commit/201594f6686ec84154a86ce620add18113f26a0f))
+* **mobile:** Live Activity / Dynamic Island trading session ([#176](https://github.com/sinhong2011/TraderMemos/issues/176)) ([3ed5b91](https://github.com/sinhong2011/TraderMemos/commit/3ed5b91dfc51f3f1a5f3acea245aa6e7480f6922))
+* **mobile:** offline journaling write queue ([#179](https://github.com/sinhong2011/TraderMemos/issues/179)) ([661d6bd](https://github.com/sinhong2011/TraderMemos/commit/661d6bd526b2649627acc31ba3fc6615903aa278))
+* **mobile:** privacy-mode eye toggle in the Home header ([#205](https://github.com/sinhong2011/TraderMemos/issues/205)) ([18fad99](https://github.com/sinhong2011/TraderMemos/commit/18fad99ef4ec551e53a6c7da9325cc0f9cbb248d))
+* **mobile:** repurpose Advanced chart into a Symbol journal ([#212](https://github.com/sinhong2011/TraderMemos/issues/212)) ([#213](https://github.com/sinhong2011/TraderMemos/issues/213)) ([26fc14e](https://github.com/sinhong2011/TraderMemos/commit/26fc14e404cd1913883d5644a6a9d29324dbc0e7))
+* **mobile:** share card styles + Wrapped/Reports share export ([#180](https://github.com/sinhong2011/TraderMemos/issues/180)) ([141b2ec](https://github.com/sinhong2011/TraderMemos/commit/141b2ec42e19a1ab0eeafc4fa5ee68471af9cbaf))
+* **mobile:** Siri / App Intents / Action Button quick journal ([#177](https://github.com/sinhong2011/TraderMemos/issues/177)) ([fb88f0e](https://github.com/sinhong2011/TraderMemos/commit/fb88f0e2204e5bc650578cb532cdbe69f1180b93))
+* **mobile:** swipeable Year Wrapped paging + Reports header entry ([#201](https://github.com/sinhong2011/TraderMemos/issues/201)) ([d96f0fc](https://github.com/sinhong2011/TraderMemos/commit/d96f0fc35d79d3dfaee1f8c0a0e1ea0c1d72644c))
+* **mobile:** tappable calendar week tile + week return on the equity-curve basis ([#208](https://github.com/sinhong2011/TraderMemos/issues/208)) ([5770ef3](https://github.com/sinhong2011/TraderMemos/commit/5770ef35708d3a291f5ea5e6b7b027454ae2d0c4))
+* **mobile:** WidgetKit Home + Lock Screen widgets ([#174](https://github.com/sinhong2011/TraderMemos/issues/174)) ([3bc9e4e](https://github.com/sinhong2011/TraderMemos/commit/3bc9e4eeb9e7b66b397ab810411a0e886b2df166))
+* **portfolio:** multi-account portfolio mode with same-currency scopes ([#196](https://github.com/sinhong2011/TraderMemos/issues/196)) ([5fa00a2](https://github.com/sinhong2011/TraderMemos/commit/5fa00a241db35e86be003f4f57a3b5e6865cb444))
+* **replay:** free-symbol bar-replay backtester with paper-account persistence ([#184](https://github.com/sinhong2011/TraderMemos/issues/184)) ([0eff369](https://github.com/sinhong2011/TraderMemos/commit/0eff369dbead010807c465c83672cae37c911928))
+* **reports:** chart quick wins — duration scatter, signed bars, period returns, session clock ([#170](https://github.com/sinhong2011/TraderMemos/issues/170)) ([4f814d6](https://github.com/sinhong2011/TraderMemos/commit/4f814d60a3c8f188178b94610a8b28daf107a257))
+* **reports:** saved view presets — named card set, order, range and filters ([#190](https://github.com/sinhong2011/TraderMemos/issues/190)) ([91bc231](https://github.com/sinhong2011/TraderMemos/commit/91bc231a54dbebf0df8f0e506b267bbbf34e8b32))
+* **reports:** universal per-card range selector + fullscreen expand ([#181](https://github.com/sinhong2011/TraderMemos/issues/181)) ([92f025e](https://github.com/sinhong2011/TraderMemos/commit/92f025e76bc63b52f876ba1022ebc9ab2518cf55))
+* **share:** public share pages — revocable read-only performance links ([#158](https://github.com/sinhong2011/TraderMemos/issues/158)) ([cac9de4](https://github.com/sinhong2011/TraderMemos/commit/cac9de4e5789724b54225333c4929648c46e3c20))
+* **tm-sync:** local statement watcher agent ([#167](https://github.com/sinhong2011/TraderMemos/issues/167)) ([00f7391](https://github.com/sinhong2011/TraderMemos/commit/00f7391846f27970ca23753d63f196ab6521f2b0))
+* **trades:** MAE/MFE intra-trade excursion chart ([#182](https://github.com/sinhong2011/TraderMemos/issues/182)) ([33e3078](https://github.com/sinhong2011/TraderMemos/commit/33e30788257f228408c8f6bac5afa1ee7ef64bc8))
+* **web:** show a spinner on the new-trade Save button ([#211](https://github.com/sinhong2011/TraderMemos/issues/211)) ([5780b52](https://github.com/sinhong2011/TraderMemos/commit/5780b520db1ca2f1b4027ebfedf5b7084555fc2e))
+
+
+### Bug Fixes
+
+* **api:** repair Postgres regroup delete; toast import failures ([#192](https://github.com/sinhong2011/TraderMemos/issues/192)) ([13733ce](https://github.com/sinhong2011/TraderMemos/commit/13733ceb763fb382420b9f9a2202860d7de26fd6))
+* **docker:** set CI=true in web image build for headless pnpm ([#210](https://github.com/sinhong2011/TraderMemos/issues/210)) ([a85ef1a](https://github.com/sinhong2011/TraderMemos/commit/a85ef1a62c09f31913ec685b818b4750086dbc04))
+* **mobile:** drop the Change server button from the Settings hub ([#215](https://github.com/sinhong2011/TraderMemos/issues/215)) ([57952fa](https://github.com/sinhong2011/TraderMemos/commit/57952fad34bbd370dc471d67a57d7972705319d8))
+* **mobile:** hide the offline banner behind a full-screen network error ([#207](https://github.com/sinhong2011/TraderMemos/issues/207)) ([c808d08](https://github.com/sinhong2011/TraderMemos/commit/c808d08490cb8e76656e58e6a6ef7d5477cd0467))
+* **mobile:** inset Reports sections under the iOS tab bar ([#197](https://github.com/sinhong2011/TraderMemos/issues/197)) ([84e3326](https://github.com/sinhong2011/TraderMemos/commit/84e33267edd966b49c3d4e61657d4132e46ac4ea))
+* **mobile:** right-align the metric-evolution switcher ([#200](https://github.com/sinhong2011/TraderMemos/issues/200)) ([3de6d8a](https://github.com/sinhong2011/TraderMemos/commit/3de6d8a300859e5f6649c327e45167bab9befcc2))
+* **tm-sync:** portable SQLite migrate lock for Windows cross-compile ([#209](https://github.com/sinhong2011/TraderMemos/issues/209)) ([aae6acd](https://github.com/sinhong2011/TraderMemos/commit/aae6acd49f130e3424f17eda54ad3837aeeaecb1))
+* **web:** render release notes as a structured changelog ([#178](https://github.com/sinhong2011/TraderMemos/issues/178)) ([bf8fe27](https://github.com/sinhong2011/TraderMemos/commit/bf8fe2793ce2afe3fbe61e28105db55bee5b81e1))
+
+
+### Performance Improvements
+
+* **import:** batch import and regroup writes ([#193](https://github.com/sinhong2011/TraderMemos/issues/193)) ([d2e36f1](https://github.com/sinhong2011/TraderMemos/commit/d2e36f1c90832fcfdd079543c193fba33f27f829))
+
 ## [0.7.0](https://github.com/sinhong2011/TraderMemos/compare/v0.6.1...v0.7.0) (2026-08-09)
 
 
