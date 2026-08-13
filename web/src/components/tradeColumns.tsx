@@ -104,21 +104,6 @@ export function tradeColumns(
       cell: (i) => <span className="font-semibold text-primary">{i.getValue<string>()}</span>,
     },
     {
-      accessorKey: "opened_at",
-      header: "Date",
-      meta: { label: "Created At", headerTitle: "Date opened", minWidth: 96 },
-      cell: (i) => muted(fmtTradeDay(i.getValue<string>())),
-    },
-    {
-      accessorKey: "closed_at",
-      header: "Close",
-      meta: { label: "Close date", headerTitle: "Date closed (last activity)", minWidth: 96 },
-      cell: (i) => {
-        const v = i.getValue<string | null>();
-        return v ? muted(fmtTradeDay(v)) : muted("-");
-      },
-    },
-    {
       id: "status",
       accessorFn: (row) => tradeStatus(row).label,
       header: "Status",
@@ -311,6 +296,21 @@ export function tradeColumns(
       },
     },
     {
+      accessorKey: "opened_at",
+      header: "Date",
+      meta: { label: "Created At", headerTitle: "Date opened", minWidth: 96 },
+      cell: (i) => muted(fmtTradeDay(i.getValue<string>())),
+    },
+    {
+      accessorKey: "closed_at",
+      header: "Close",
+      meta: { label: "Close date", headerTitle: "Date closed (last activity)", minWidth: 96 },
+      cell: (i) => {
+        const v = i.getValue<string | null>();
+        return v ? muted(fmtTradeDay(v)) : muted("-");
+      },
+    },
+    {
       id: "r_multiple",
       accessorFn: (row) => tradeRMultiple(row),
       header: "R",
@@ -393,8 +393,6 @@ export const TRADE_SORT_COLUMNS: { id: string; label: string }[] = [
 /** Hideable trade columns for the tablecn-style View button. */
 export const TRADE_VIEW_COLUMNS: { id: string; label: string }[] = [
   { id: "symbol", label: "Symbol" },
-  { id: "opened_at", label: "Created At" },
-  { id: "closed_at", label: "Close date" },
   { id: "status", label: "Status" },
   { id: "direction", label: "Direction" },
   { id: "instrument_type", label: "Market" },
@@ -408,6 +406,8 @@ export const TRADE_VIEW_COLUMNS: { id: string; label: string }[] = [
   { id: "fees_total", label: "Fees" },
   { id: "net_pnl", label: "P&L" },
   { id: "return_pct", label: "P&L %" },
+  { id: "opened_at", label: "Created At" },
+  { id: "closed_at", label: "Close date" },
   { id: "r_multiple", label: "R" },
   { id: "tags", label: "Tags" },
 ];
