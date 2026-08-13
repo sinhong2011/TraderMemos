@@ -98,6 +98,12 @@ export function tradeColumns(
 ): ColumnDef<Trade>[] {
   return [
     {
+      accessorKey: "symbol",
+      header: "Symbol",
+      meta: { label: "Symbol", minWidth: 72 },
+      cell: (i) => <span className="font-semibold text-primary">{i.getValue<string>()}</span>,
+    },
+    {
       accessorKey: "opened_at",
       header: "Date",
       meta: { label: "Created At", headerTitle: "Date opened", minWidth: 96 },
@@ -111,12 +117,6 @@ export function tradeColumns(
         const v = i.getValue<string | null>();
         return v ? muted(fmtTradeDay(v)) : muted("-");
       },
-    },
-    {
-      accessorKey: "symbol",
-      header: "Symbol",
-      meta: { label: "Symbol", minWidth: 72 },
-      cell: (i) => <span className="font-semibold text-primary">{i.getValue<string>()}</span>,
     },
     {
       id: "status",
@@ -392,9 +392,9 @@ export const TRADE_SORT_COLUMNS: { id: string; label: string }[] = [
 
 /** Hideable trade columns for the tablecn-style View button. */
 export const TRADE_VIEW_COLUMNS: { id: string; label: string }[] = [
+  { id: "symbol", label: "Symbol" },
   { id: "opened_at", label: "Created At" },
   { id: "closed_at", label: "Close date" },
-  { id: "symbol", label: "Symbol" },
   { id: "status", label: "Status" },
   { id: "direction", label: "Direction" },
   { id: "instrument_type", label: "Market" },
