@@ -43,6 +43,8 @@ jobs:
   # skipped tests.
   test-api:
     uses: ./.github/workflows/api-ci.yml
+    with:
+      concurrency_key: docker-publish
 
   test-web:
     uses: ./.github/workflows/web-ci.yml

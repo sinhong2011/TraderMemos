@@ -28,6 +28,8 @@ jobs:
   # Reuse PR CI so a release can never ship binaries that skipped tests.
   test-api:
     uses: ./.github/workflows/api-ci.yml
+    with:
+      concurrency_key: tm-sync-release
 
   build:
     name: Build ${{ matrix.goos }}/${{ matrix.goarch }}

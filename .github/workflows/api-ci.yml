@@ -10,9 +10,19 @@ on:
       - main
   pull_request:
   workflow_call:
+    inputs:
+      concurrency_key:
+        description: >-
+          Distinguishes callers that reuse this workflow within one run.
+          Two calls on the same ref land in the same concurrency group,
+          and GitHub cancels one of them — silently skipping whatever
+          job needed it. Callers must pass a unique value.
+        required: false
+        type: string
+        default: ""
 
 concurrency:
-  group: api-ci-${{ github.ref }}
+  group: api-ci-${{ github.ref }}-${{ inputs.concurrency_key }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
