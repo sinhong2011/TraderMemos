@@ -1,3 +1,4 @@
+import { useRouterState } from "@tanstack/react-router";
 import { Eye, EyeOff, Search, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/cn";
@@ -253,6 +254,9 @@ export function HeaderBar() {
   const symbols = useFilters((s) => s.symbols);
   const setSymbols = useFilters((s) => s.setSymbols);
   const openCommandPalette = useUI((s) => s.openCommandPalette);
+  // The Trades page already shows the symbol filter in its own filter bar —
+  // the header chip is only needed on screens without one.
+  const onTradesPage = useRouterState({ select: (s) => s.location.pathname }).startsWith("/trades");
 
   const accountsQ = useAccounts();
   const accounts = accountsQ.data ?? [];
@@ -340,7 +344,7 @@ export function HeaderBar() {
             value={fmtMoney(toDisplay(stats.cash), currency, intlLocale())}
           />
         </div>
-        {symbols?.length ? (
+        {symbols?.length && !onTradesPage ? (
           <SymbolFilterChip symbols={symbols} onClear={() => setSymbols(undefined)} />
         ) : null}
       </div>
