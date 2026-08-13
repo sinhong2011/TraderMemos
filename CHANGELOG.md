@@ -5,6 +5,13 @@ All notable changes to TraderMemos are documented in this file.
 Release versioning is managed by [release-please](https://github.com/googleapis/release-please).
 See [docs/release.md](docs/release.md) for the release workflow.
 
+## [0.8.2](https://github.com/sinhong2011/TraderMemos/compare/v0.8.1...v0.8.2) (2026-08-13)
+
+
+### Bug Fixes
+
+* **api:** renumber the alerts Postgres migration to 000007 ([#219](https://github.com/sinhong2011/TraderMemos/issues/219)) ([b7454ab](https://github.com/sinhong2011/TraderMemos/commit/b7454abec2a14c2d6a66ade855b56e7b663ce0b7))
+
 ## [0.8.1](https://github.com/sinhong2011/TraderMemos/compare/v0.8.0...v0.8.1) (2026-08-12)
 
 
