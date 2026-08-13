@@ -1,7 +1,7 @@
 import type { ColumnDef, ColumnPinningState } from "@/lib/table";
 import type { Trade } from "@/lib/api/types";
 import { usePrivacyMode } from "@/lib/displayPrefs";
-import { fmtDuration, fmtMoney, fmtSignedMoney, fmtTradeDay } from "@/lib/format";
+import { fmtDateTime, fmtDuration, fmtMoney, fmtSignedMoney, fmtTradeDay } from "@/lib/format";
 import { intlLocale } from "@/lib/locale";
 import { resolveTradeDirection } from "@/lib/tradeDirection";
 import { DirCell } from "./DirCell";
@@ -56,8 +56,12 @@ export function tradeRMultiple(t: Trade): number | null {
   return t.net_pnl / t.initial_risk;
 }
 
-function muted(v: string) {
-  return <span className="text-muted-foreground">{v}</span>;
+function muted(v: string, title?: string) {
+  return (
+    <span className="text-muted-foreground" title={title}>
+      {v}
+    </span>
+  );
 }
 
 function MoneyCell({
@@ -71,7 +75,12 @@ function MoneyCell({
 }) {
   usePrivacyMode();
   if (value == null) return muted("-");
-  return <span className="tabular-nums">{fmtMoney(value * fxRate, currency, intlLocale())}</span>;
+  const text = fmtMoney(value * fxRate, currency, intlLocale());
+  return (
+    <span className="tabular-nums" title={text}>
+      {text}
+    </span>
+  );
 }
 
 function SignedMoneyCell({
@@ -84,9 +93,10 @@ function SignedMoneyCell({
   fxRate?: number;
 }) {
   usePrivacyMode();
+  const text = fmtSignedMoney(value * fxRate, currency, intlLocale());
   return (
-    <span className={`tabular-nums font-semibold ${pnlColor(value)}`}>
-      {fmtSignedMoney(value * fxRate, currency, intlLocale())}
+    <span className={`tabular-nums font-semibold ${pnlColor(value)}`} title={text}>
+      {text}
     </span>
   );
 }
@@ -101,7 +111,11 @@ export function tradeColumns(
       accessorKey: "symbol",
       header: "Symbol",
       meta: { label: "Symbol", minWidth: 72 },
-      cell: (i) => <span className="font-semibold text-primary">{i.getValue<string>()}</span>,
+      cell: (i) => (
+        <span className="font-semibold text-primary" title={i.getValue<string>()}>
+          {i.getValue<string>()}
+        </span>
+      ),
     },
     {
       id: "status",
@@ -110,8 +124,14 @@ export function tradeColumns(
       meta: { label: "Status", headerTitle: "Trade result", minWidth: 64 },
       cell: (i) => {
         const s = tradeStatus(i.row.original);
+        const titles: Record<typeof s.label, string> = {
+          WIN: "Win",
+          LOSS: "Loss",
+          OPEN: "Open",
+          BE: "Break-even",
+        };
         return (
-          <Pill tone={s.tone} title={s.label === "BE" ? "Break-even" : undefined}>
+          <Pill tone={s.tone} title={titles[s.label]}>
             {s.label}
           </Pill>
         );
@@ -125,11 +145,11 @@ export function tradeColumns(
           instrumentType: row.instrument_type,
           symbol: row.symbol,
         }).sortKey,
-      header: "Dir",
+      header: "Direction",
       meta: {
         label: "Direction",
         headerTitle: "Direction — long/short; LC/LP/SC/SP when option",
-        minWidth: 52,
+        minWidth: 88,
       },
       cell: (i) => {
         const t = i.row.original;
@@ -150,9 +170,13 @@ export function tradeColumns(
     },
     {
       accessorKey: "qty_opened",
-      header: "Qty",
-      meta: { align: "right", label: "Qty", headerTitle: "Quantity opened", minWidth: 64 },
-      cell: (i) => <span className="tabular-nums">{i.getValue<number>().toFixed(2)}</span>,
+      header: "Quantity",
+      meta: { align: "right", label: "Quantity", headerTitle: "Quantity opened", minWidth: 80 },
+      cell: (i) => (
+        <span className="tabular-nums" title={String(i.getValue<number>())}>
+          {i.getValue<number>().toFixed(2)}
+        </span>
+      ),
     },
     {
       accessorKey: "avg_entry_price",
@@ -171,12 +195,12 @@ export function tradeColumns(
     {
       id: "ent_tot",
       accessorFn: (row) => tradeNotional(row.qty_opened, row.avg_entry_price, row.instrument_type),
-      header: "Ent tot",
+      header: "Entry total",
       meta: {
         align: "right",
         label: "Entry total",
         headerTitle: "Entry total — quantity × average entry × multiplier",
-        minWidth: 88,
+        minWidth: 96,
       },
       cell: (i) => {
         const t = i.row.original;
@@ -195,12 +219,12 @@ export function tradeColumns(
         row.avg_exit_price == null
           ? null
           : tradeNotional(row.qty_opened, row.avg_exit_price, row.instrument_type),
-      header: "Ext tot",
+      header: "Exit total",
       meta: {
         align: "right",
         label: "Exit total",
         headerTitle: "Exit total — quantity × average exit × multiplier",
-        minWidth: 88,
+        minWidth: 96,
       },
       sortFn: (a, b, id) => {
         const av = a.getValue<number | null>(id);
@@ -229,8 +253,8 @@ export function tradeColumns(
         if (row.status !== "open") return null;
         return row.qty_remaining > 0 ? row.qty_remaining : row.qty_opened;
       },
-      header: "Pos",
-      meta: { align: "right", label: "Position", headerTitle: "Position still open", minWidth: 56 },
+      header: "Position",
+      meta: { align: "right", label: "Position", headerTitle: "Position still open", minWidth: 80 },
       sortFn: (a, b, id) => {
         const av = a.getValue<number | null>(id);
         const bv = b.getValue<number | null>(id);
@@ -243,7 +267,11 @@ export function tradeColumns(
         const t = i.row.original;
         if (t.status !== "open") return muted("-");
         const qty = t.qty_remaining > 0 ? t.qty_remaining : t.qty_opened;
-        return <span className="tabular-nums">{qty.toFixed(2)}</span>;
+        return (
+          <span className="tabular-nums" title={String(qty)}>
+            {qty.toFixed(2)}
+          </span>
+        );
       },
     },
     {
@@ -255,7 +283,9 @@ export function tradeColumns(
         return v == null || v <= 0 ? (
           muted("-")
         ) : (
-          <span className="tabular-nums text-muted-foreground">{fmtDuration(v)}</span>
+          <span className="tabular-nums text-muted-foreground" title={fmtDuration(v)}>
+            {fmtDuration(v)}
+          </span>
         );
       },
     },
@@ -292,14 +322,21 @@ export function tradeColumns(
       cell: (i) => {
         const v = i.getValue<number | null>();
         if (v == null) return muted("-");
-        return <span className={`tabular-nums ${pnlColor(v)}`}>{v.toFixed(2)}%</span>;
+        return (
+          <span className={`tabular-nums ${pnlColor(v)}`} title={`${v.toFixed(2)}%`}>
+            {v.toFixed(2)}%
+          </span>
+        );
       },
     },
     {
       accessorKey: "opened_at",
       header: "Date",
       meta: { label: "Created At", headerTitle: "Date opened", minWidth: 96 },
-      cell: (i) => muted(fmtTradeDay(i.getValue<string>())),
+      cell: (i) => {
+        const v = i.getValue<string>();
+        return muted(fmtTradeDay(v), fmtDateTime(v));
+      },
     },
     {
       accessorKey: "closed_at",
@@ -307,7 +344,7 @@ export function tradeColumns(
       meta: { label: "Close date", headerTitle: "Date closed (last activity)", minWidth: 96 },
       cell: (i) => {
         const v = i.getValue<string | null>();
-        return v ? muted(fmtTradeDay(v)) : muted("-");
+        return v ? muted(fmtTradeDay(v), fmtDateTime(v)) : muted("-");
       },
     },
     {
@@ -325,7 +362,10 @@ export function tradeColumns(
         if (v == null) return muted("-");
         const sign = v > 0 ? "+" : "";
         return (
-          <span className={`tabular-nums font-semibold ${pnlColor(v)}`}>
+          <span
+            className={`tabular-nums font-semibold ${pnlColor(v)}`}
+            title={`${sign}${v.toFixed(2)}R — net P&L ÷ planned risk`}
+          >
             {sign}
             {v.toFixed(2)}R
           </span>
@@ -344,13 +384,28 @@ export function tradeColumns(
         const shown = tags.slice(0, 2);
         const rest = tags.length - shown.length;
         return (
-          <div className="flex max-w-[10rem] flex-wrap items-center gap-1">
+          <div className="flex max-w-[14rem] items-center gap-1">
             {shown.map((t) => (
-              <Pill key={t.id} tone={t.kind === "mistake" ? "neg" : "muted"} title={t.name}>
-                {t.name}
+              <Pill
+                key={t.id}
+                tone={t.kind === "mistake" ? "neg" : "muted"}
+                title={t.name}
+                className="max-w-[7rem] overflow-hidden"
+              >
+                <span className="truncate">{t.name}</span>
               </Pill>
             ))}
-            {rest > 0 ? muted(`+${rest}`) : null}
+            {rest > 0 ? (
+              <span
+                className="shrink-0 text-muted-foreground"
+                title={tags
+                  .slice(2)
+                  .map((t) => t.name)
+                  .join(", ")}
+              >
+                +{rest}
+              </span>
+            ) : null}
           </div>
         );
       },
