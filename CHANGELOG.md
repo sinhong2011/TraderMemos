@@ -5,6 +5,13 @@ All notable changes to TraderMemos are documented in this file.
 Release versioning is managed by [release-please](https://github.com/googleapis/release-please).
 See [docs/release.md](docs/release.md) for the release workflow.
 
+## [0.8.4](https://github.com/sinhong2011/TraderMemos/compare/v0.8.3...v0.8.4) (2026-08-13)
+
+
+### Bug Fixes
+
+* **web:** show Symbol as the first column in trade tables ([#223](https://github.com/sinhong2011/TraderMemos/issues/223)) ([f913f35](https://github.com/sinhong2011/TraderMemos/commit/f913f35ff6ca527fb8f32174c98f6d180c02a7ff))
+
 ## [0.8.3](https://github.com/sinhong2011/TraderMemos/compare/v0.8.2...v0.8.3) (2026-08-13)
 
 
