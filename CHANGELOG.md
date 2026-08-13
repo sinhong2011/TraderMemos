@@ -5,6 +5,13 @@ All notable changes to TraderMemos are documented in this file.
 Release versioning is managed by [release-please](https://github.com/googleapis/release-please).
 See [docs/release.md](docs/release.md) for the release workflow.
 
+## [0.8.3](https://github.com/sinhong2011/TraderMemos/compare/v0.8.2...v0.8.3) (2026-08-13)
+
+
+### Bug Fixes
+
+* **ci:** stop the two release callers of api-ci from cancelling each other ([#221](https://github.com/sinhong2011/TraderMemos/issues/221)) ([441dac6](https://github.com/sinhong2011/TraderMemos/commit/441dac66e3eb5966f2f0f46f6de96eea84007392))
+
 ## [0.8.2](https://github.com/sinhong2011/TraderMemos/compare/v0.8.1...v0.8.2) (2026-08-13)
 
 
