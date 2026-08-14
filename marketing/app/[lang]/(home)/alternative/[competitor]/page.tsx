@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { Check, Minus } from 'lucide-react';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { appName, gitConfig } from '@/lib/shared';
+import { localeAlternates, socialCard } from '@/lib/metadata';
 import { resolveLocale } from '@/i18n/locales';
 import { competitorSlugs, competitorNames, isCompetitorSlug } from '@/lib/seo-pages';
 import { Eyebrow, PageCta, CrossLinks } from '@/components/seo-sections';
@@ -28,25 +29,23 @@ export async function generateMetadata({
   if (!isCompetitorSlug(competitor)) notFound();
   const t = await getTranslations({ locale: resolveLocale(lang), namespace: 'AlternativePages' });
 
+  const title = t(`pages.${competitor}.metaTitle`);
+  const description = t(`pages.${competitor}.metaDescription`);
+  const { images, twitter } = socialCard(title, description);
+
   return {
-    title: t(`pages.${competitor}.metaTitle`),
-    description: t(`pages.${competitor}.metaDescription`),
-    alternates: {
-      canonical: `/${lang}/alternative/${competitor}`,
-      languages: {
-        en: `/en/alternative/${competitor}`,
-        'zh-Hant': `/zh-Hant/alternative/${competitor}`,
-        'zh-Hans': `/zh-Hans/alternative/${competitor}`,
-        ja: `/ja/alternative/${competitor}`,
-      },
-    },
+    title,
+    description,
+    alternates: localeAlternates(lang, `/alternative/${competitor}`),
     openGraph: {
-      title: t(`pages.${competitor}.metaTitle`),
-      description: t(`pages.${competitor}.metaDescription`),
+      title,
+      description,
       url: `/${lang}/alternative/${competitor}`,
       siteName: appName,
       type: 'article',
+      images,
     },
+    twitter,
   };
 }
 

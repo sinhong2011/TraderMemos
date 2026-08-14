@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import type { StaticImageData } from 'next/image';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { appName } from '@/lib/shared';
+import { localeAlternates, socialCard } from '@/lib/metadata';
 import { resolveLocale } from '@/i18n/locales';
 import { featureSlugs, isFeatureSlug, type FeatureSlug } from '@/lib/seo-pages';
 import { Eyebrow, PageCta, CrossLinks } from '@/components/seo-sections';
@@ -58,25 +59,23 @@ export async function generateMetadata({
   if (!isFeatureSlug(slug)) notFound();
   const t = await getTranslations({ locale: resolveLocale(lang), namespace: 'FeaturePages' });
 
+  const title = t(`pages.${slug}.metaTitle`);
+  const description = t(`pages.${slug}.metaDescription`);
+  const { images, twitter } = socialCard(title, description);
+
   return {
-    title: t(`pages.${slug}.metaTitle`),
-    description: t(`pages.${slug}.metaDescription`),
-    alternates: {
-      canonical: `/${lang}/features/${slug}`,
-      languages: {
-        en: `/en/features/${slug}`,
-        'zh-Hant': `/zh-Hant/features/${slug}`,
-        'zh-Hans': `/zh-Hans/features/${slug}`,
-        ja: `/ja/features/${slug}`,
-      },
-    },
+    title,
+    description,
+    alternates: localeAlternates(lang, `/features/${slug}`),
     openGraph: {
-      title: t(`pages.${slug}.metaTitle`),
-      description: t(`pages.${slug}.metaDescription`),
+      title,
+      description,
       url: `/${lang}/features/${slug}`,
       siteName: appName,
       type: 'article',
+      images,
     },
+    twitter,
   };
 }
 

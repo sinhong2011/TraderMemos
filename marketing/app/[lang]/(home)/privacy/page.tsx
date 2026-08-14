@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { appName, gitConfig } from '@/lib/shared';
+import { localeAlternates, socialCard } from '@/lib/metadata';
 import { resolveLocale } from '@/i18n/locales';
 
 const repoUrl = `https://github.com/${gitConfig.user}/${gitConfig.repo}`;
@@ -28,25 +29,23 @@ export async function generateMetadata({
   const { lang } = await params;
   const t = await getTranslations({ locale: resolveLocale(lang), namespace: 'Privacy' });
 
+  const title = t('metaTitle');
+  const description = t('metaDescription');
+  const { images, twitter } = socialCard(title, description);
+
   return {
-    title: t('metaTitle'),
-    description: t('metaDescription'),
-    alternates: {
-      canonical: `/${lang}/privacy`,
-      languages: {
-        en: '/en/privacy',
-        'zh-Hant': '/zh-Hant/privacy',
-        'zh-Hans': '/zh-Hans/privacy',
-        ja: '/ja/privacy',
-      },
-    },
+    title,
+    description,
+    alternates: localeAlternates(lang, '/privacy'),
     openGraph: {
-      title: t('metaTitle'),
-      description: t('metaDescription'),
+      title,
+      description,
       url: `/${lang}/privacy`,
       siteName: appName,
       type: 'article',
+      images,
     },
+    twitter,
   };
 }
 

@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { appName, demoConfig, gitConfig } from '@/lib/shared';
+import { jsonLdScript, localeAlternates, socialCard, softwareSchema } from '@/lib/metadata';
 import { resolveLocale } from '@/i18n/locales';
 import {
   Reveal,
@@ -125,18 +126,17 @@ export async function generateMetadata({
   const { lang } = await params;
   const locale = resolveLocale(lang);
   const t = await getTranslations({ locale, namespace: 'Home' });
-  const ogImage = { url: '/screenshots/dashboard.png', width: 1440, height: 900 };
+  const title = t('metaTitle');
+  const description = t('metaDescription');
+  const { images, twitter } = socialCard(title, description);
 
   return {
-    title: t('metaTitle'),
-    description: t('metaDescription'),
-    alternates: {
-      canonical: `/${lang}`,
-      languages: { en: '/en', 'zh-Hant': '/zh-Hant', 'zh-Hans': '/zh-Hans', ja: '/ja' },
-    },
+    title,
+    description,
+    alternates: localeAlternates(lang),
     openGraph: {
-      title: t('metaTitle'),
-      description: t('metaDescription'),
+      title,
+      description,
       url: `/${lang}`,
       siteName: appName,
       type: 'website',
@@ -148,14 +148,9 @@ export async function generateMetadata({
             : locale === 'ja'
               ? 'ja_JP'
               : 'en_US',
-      images: [ogImage],
+      images,
     },
-    twitter: {
-      card: 'summary_large_image',
-      title: t('metaTitle'),
-      description: t('metaDescription'),
-      images: [ogImage.url],
-    },
+    twitter,
   };
 }
 
@@ -421,6 +416,10 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLdScript(softwareSchema(t('metaDescription'))) }}
+      />
       {/* Hero — one centered canvas panel (shadcn.io pattern): bordered muted
           surface, glyph lattice at the edges, content stacked in the middle */}
       <section className="px-6 pt-8 sm:pt-12">
