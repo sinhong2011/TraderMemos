@@ -24,6 +24,7 @@ import { SettingsForm } from '@/components/settings-form';
 import { useSession } from '@/api/session';
 import { t } from '@lingui/core/macro';
 import { ledgerBalance } from '@/lib/cash';
+import { serverHost, useChangeServer } from '@/lib/change-server';
 import { describeError } from '@/lib/errors';
 import { useFormatters } from '@/lib/format';
 import { clearOutbox, usePendingCount } from '@/lib/outbox';
@@ -53,7 +54,8 @@ export default function SettingsScreen() {
   const queryClient = useQueryClient();
   const api = useApiRequest();
   const { theme } = useUnistyles();
-  const { signOut } = useSession();
+  const { session, signOut } = useSession();
+  const changeServer = useChangeServer();
   // Offline writes still waiting to sync — signing out would discard them.
   const pendingSyncs = usePendingCount();
   const accountsQuery = useAccounts();
@@ -167,8 +169,16 @@ export default function SettingsScreen() {
     {
       icon: 'person.crop.circle',
       label: t`Your account`,
-      terms: t`profile email password sign in owner admin security change server url instance`,
+      terms: t`profile email password sign in owner admin security`,
       onPress: () => router.push('/profile'),
+    },
+    {
+      // Searchable in its own right now that the hub states it — #215 folded
+      // these terms into "Your account" because no row carried them.
+      icon: 'externaldrive.badge.wifi',
+      label: t`Server`,
+      terms: t`change server url instance host address self-hosted connect`,
+      onPress: changeServer,
     },
     {
       icon: 'lock.rotation',
@@ -337,14 +347,32 @@ export default function SettingsScreen() {
           </SettingsForm>
         ) : (
           <SettingsForm>
-          {/* Who is signed in, which nothing showed before /me existed. First
-              on the page: it identifies everything below it. */}
-          <Section>
+          {/* Who is signed in and where from — the two facts that qualify
+              every number below. Nothing showed either before /me existed.
+              The server row is stated rather than tucked behind Profile: this
+              app is a client for a machine the user runs, and which one it is
+              talking to is not a detail to hide. */}
+          <Section
+            footer={
+              <UIText>{t`Every screen in the app is served by this instance. Tap Server to point the app at a different one — that signs you out.`}</UIText>
+            }
+          >
             <NavRow
               systemImage="person.crop.circle"
               label={me.data?.email ?? t`Your account`}
               value={me.data?.is_admin ? t`Owner` : undefined}
               onPress={() => router.push('/profile')}
+            />
+            {/* No chevron — it opens a prompt, not a push (NavRow doc). It
+                lives on the hub because the hub stays navigable when the
+                server is unreachable, which is exactly when this is needed;
+                Profile is a full-screen error state by then. */}
+            <NavRow
+              systemImage="externaldrive.badge.wifi"
+              label={t`Server`}
+              value={serverHost(session?.serverUrl ?? '')}
+              accessory="none"
+              onPress={changeServer}
             />
           </Section>
 
