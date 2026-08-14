@@ -5,6 +5,13 @@ All notable changes to TraderMemos are documented in this file.
 Release versioning is managed by [release-please](https://github.com/googleapis/release-please).
 See [docs/release.md](docs/release.md) for the release workflow.
 
+## [0.8.5](https://github.com/sinhong2011/TraderMemos/compare/v0.8.4...v0.8.5) (2026-08-14)
+
+
+### Bug Fixes
+
+* **mobile:** put the server address on the sign-in screen, not behind Advanced ([#225](https://github.com/sinhong2011/TraderMemos/issues/225)) ([fa3ab07](https://github.com/sinhong2011/TraderMemos/commit/fa3ab0700a76fc087320f271585e95f454c5b26e))
+
 ## [0.8.4](https://github.com/sinhong2011/TraderMemos/compare/v0.8.3...v0.8.4) (2026-08-13)
 
 
