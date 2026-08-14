@@ -4,23 +4,13 @@ import {
   ChartLine,
   Globe,
   History,
-  LayoutGrid,
   PartyPopper,
   RefreshCw,
   Scale,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-export type ToolId =
-  | "size"
-  | "planner"
-  | "kelly"
-  | "fx"
-  | "today"
-  | "chart"
-  | "replay"
-  | "econ"
-  | "wrapped";
+export type ToolId = "size" | "kelly" | "fx" | "today" | "chart" | "replay" | "econ" | "wrapped";
 
 export type ToolGroupId = "calculators" | "markets" | "journal";
 
@@ -45,13 +35,6 @@ export const TOOL_ITEMS: ToolItem[] = [
     label: "Position size",
     icon: Calculator,
     keywords: ["calculator", "risk", "shares", "qty"],
-    group: "calculators",
-  },
-  {
-    id: "planner",
-    label: "Trade planner",
-    icon: LayoutGrid,
-    keywords: ["plan", "setup"],
     group: "calculators",
   },
   {
