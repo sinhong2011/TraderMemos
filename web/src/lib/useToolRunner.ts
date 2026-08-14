@@ -21,9 +21,6 @@ export function useToolRunner() {
         case "fx":
           openFx();
           return;
-        case "planner":
-          void navigate({ to: "/calculator" });
-          return;
         case "chart":
           void navigate({ to: "/chart", search: { iv: "D" } });
           return;

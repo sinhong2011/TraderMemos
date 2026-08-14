@@ -112,8 +112,9 @@ function toSetupDraft(setup: Setup): SetupDraft {
 }
 
 function buildRows(setups: Setup[], breakdown: BreakGroup[]): SetupRowModel[] {
+  const summaries = new Map(breakdown.map((g) => [g.key, g.summary]));
   return setups.map((setup) => {
-    const sum = breakdown.find((g) => g.key === setup.name)?.summary;
+    const sum = summaries.get(setup.name);
     const trades = sum?.total_trades ?? 0;
     return {
       setup,
@@ -357,8 +358,13 @@ function TradedPlayRow({ row, currency, fxRate, ...actions }: PlayRowProps) {
   return (
     <div
       role="listitem"
+      onClick={(e) => {
+        // Whole-row click opens the editor; inner buttons keep their own actions.
+        if ((e.target as HTMLElement).closest("button")) return;
+        actions.onEdit(setup);
+      }}
       className={cn(
-        "group/play flex items-center gap-3 rounded-lg px-2 py-2.5",
+        "group/play flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2.5",
         "transition-colors duration-100 hover:bg-accent motion-reduce:transition-none",
         PLAY_GRID,
       )}
@@ -367,9 +373,16 @@ function TradedPlayRow({ row, currency, fxRate, ...actions }: PlayRowProps) {
         <PlayIcon setup={setup} tone={netPnl < 0 ? "neg" : "pos"} />
         <div className="min-w-0">
           <div className="flex min-w-0 items-center gap-2">
-            <span className="truncate text-[14px] font-semibold tracking-tight text-foreground">
+            <button
+              type="button"
+              onClick={() => actions.onEdit(setup)}
+              className={cn(
+                "cursor-pointer truncate rounded-sm text-left text-[14px] font-semibold tracking-tight text-foreground",
+                "outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+              )}
+            >
               {setup.name}
-            </span>
+            </button>
             {setup.symbol ? (
               <Pill tone="accent" className="px-1.5 py-0 text-[10px]">
                 {setup.symbol}
@@ -427,7 +440,12 @@ function UnusedPlayChip({ row, ...actions }: { row: SetupRowModel } & RowActions
     <Item
       variant="muted"
       size="sm"
-      className="w-fit gap-2 py-1 pr-1 pl-2.5 hover:bg-accent"
+      onClick={(e) => {
+        // Chip surface opens the editor; the trade/edit/delete buttons stay their own targets.
+        if ((e.target as HTMLElement).closest("button")) return;
+        actions.onEdit(setup);
+      }}
+      className="w-fit cursor-pointer gap-2 py-1 pr-1 pl-2.5 hover:bg-accent"
       title={setupSubline(setup) || undefined}
     >
       <PlayIcon setup={setup} tone="muted" chip />

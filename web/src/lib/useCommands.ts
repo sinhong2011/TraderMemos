@@ -75,7 +75,7 @@ const NAV_COMMANDS: Array<{
     label: "Calculator",
     to: "/calculator",
     icon: Calculator,
-    keywords: ["r-multiple", "r", "exit ladder", "fvg", "position size"],
+    keywords: ["r-multiple", "r", "exit ladder", "fvg", "position size", "trade planner"],
   },
   { id: "nav-import ", label: "Import", to: "/import", icon: Upload },
   {

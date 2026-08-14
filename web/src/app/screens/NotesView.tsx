@@ -10,7 +10,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useDeferredValue, useMemo, useState } from "react";
 import { EmptyState } from "@/components/EmptyState";
 import { Page } from "@/components/Page";
 import { Pill } from "@/components/Pill";
@@ -19,6 +19,7 @@ import { CardGridSkeleton } from "@/components/skeletons/card-skeleton";
 import { ListSkeleton } from "@/components/skeletons/list-skeleton";
 import { checklistProgress, noteExcerpt } from "@/components/editor/markdown";
 import { Button } from "@/components/ui/button";
+import { Kbd } from "@/components/ui/kbd";
 import {
   InputGroup,
   InputGroupAddon,
@@ -84,6 +85,24 @@ function localIsoDay(d: Date): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
+/** Constructing Intl.DateTimeFormat is ~100× the cost of formatting — reuse per locale. */
+const dayFormatters = new Map<string, Intl.DateTimeFormat>();
+
+function dayFormatter(locale: string, withYear: boolean): Intl.DateTimeFormat {
+  const key = `${locale}${withYear ? "|y" : ""}`;
+  let fmt = dayFormatters.get(key);
+  if (!fmt) {
+    fmt = new Intl.DateTimeFormat(locale, {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+      ...(withYear ? { year: "numeric" } : {}),
+    });
+    dayFormatters.set(key, fmt);
+  }
+  return fmt;
+}
+
 /** "Today" / "Yesterday" for the two most recent days, otherwise a short date. */
 function formatNoteDay(isoDate: string, locale: string): string {
   const d = new Date(`${isoDate}T12:00:00`);
@@ -95,33 +114,80 @@ function formatNoteDay(isoDate: string, locale: string): string {
   yesterday.setDate(today.getDate() - 1);
   if (isoDate === localIsoDay(yesterday)) return "Yesterday";
 
-  return new Intl.DateTimeFormat(locale, {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-    ...(d.getFullYear() === today.getFullYear() ? {} : { year: "numeric" }),
-  }).format(d);
+  return dayFormatter(locale, d.getFullYear() !== today.getFullYear()).format(d);
 }
 
-/** Case-insensitive match over title, body text and symbol tickers. */
-function matchesQuery(note: JournalNote, query: string): boolean {
-  const q = query.trim().toLowerCase();
-  if (!q) return true;
-  if (note.title.toLowerCase().includes(q)) return true;
-  if (noteExcerpt(note.body, Number.MAX_SAFE_INTEGER).toLowerCase().includes(q)) return true;
-  return (note.symbols ?? []).some(
-    (s) => s.symbol.toLowerCase().includes(q) || s.body.toLowerCase().includes(q),
-  );
-}
+const monthFormatters = new Map<string, Intl.DateTimeFormat>();
 
-function noteBodyPreview(note: JournalNote): string {
-  const excerpt = noteExcerpt(note.body);
-  if (excerpt) return excerpt;
-  const symbols = note.symbols ?? [];
-  if (note.type === "daily_log" && symbols.length > 0) {
-    return `${symbols.length} symbol card${symbols.length === 1 ? "" : "s"}`;
+function monthFormatter(locale: string, withYear: boolean): Intl.DateTimeFormat {
+  const key = `${locale}${withYear ? "|y" : ""}`;
+  let fmt = monthFormatters.get(key);
+  if (!fmt) {
+    fmt = new Intl.DateTimeFormat(locale, {
+      month: "long",
+      ...(withYear ? { year: "numeric" } : {}),
+    });
+    monthFormatters.set(key, fmt);
   }
-  return "No content yet.";
+  return fmt;
+}
+
+/** Section label a note files under — recency buckets first, then month headings. */
+function noteDayBucket(isoDate: string, locale: string): string {
+  const today = new Date();
+  const todayIso = localIsoDay(today);
+  if (isoDate === todayIso) return "Today";
+
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+  if (isoDate === localIsoDay(yesterday)) return "Yesterday";
+
+  const weekAgo = new Date(today);
+  weekAgo.setDate(today.getDate() - 7);
+  if (isoDate > localIsoDay(weekAgo) && isoDate < todayIso) return "This week";
+
+  if (isoDate.slice(0, 7) === todayIso.slice(0, 7)) return "This month";
+
+  const d = new Date(`${isoDate}T12:00:00`);
+  if (Number.isNaN(d.getTime())) return isoDate;
+  return monthFormatter(locale, d.getFullYear() !== today.getFullYear()).format(d);
+}
+
+/**
+ * Everything derived from a note's body, flattened once per fetch so keystroke
+ * filtering and tile renders never re-run the markdown/HTML regex chain.
+ */
+interface NoteRow {
+  note: JournalNote;
+  preview: string;
+  progress: { done: number; total: number } | null;
+  /** Lowercased title + body text + symbol cards, matched by the search filter. */
+  search: string;
+}
+
+const PREVIEW_MAX = 140;
+
+function toNoteRow(note: JournalNote): NoteRow {
+  const flat = noteExcerpt(note.body, Number.MAX_SAFE_INTEGER);
+  const symbols = note.symbols ?? [];
+
+  let preview: string;
+  if (flat) {
+    preview = flat.length <= PREVIEW_MAX ? flat : `${flat.slice(0, PREVIEW_MAX - 1).trimEnd()}…`;
+  } else if (note.type === "daily_log" && symbols.length > 0) {
+    preview = `${symbols.length} symbol card${symbols.length === 1 ? "" : "s"}`;
+  } else {
+    preview = "No content yet.";
+  }
+
+  return {
+    note,
+    preview,
+    progress: checklistProgress(note.body),
+    search: [note.title, flat, ...symbols.flatMap((s) => [s.symbol, s.body])]
+      .join("\n")
+      .toLowerCase(),
+  };
 }
 
 function NoteActionsMenu({
@@ -180,21 +246,21 @@ function NoteActionsMenu({
 }
 
 function NoteTile({
-  note,
+  row,
   layout,
   onOpen,
   onDelete,
 }: {
-  note: JournalNote;
+  row: NoteRow;
   layout: NotesLayout;
   onOpen: () => void;
   onDelete: () => void;
 }) {
+  const { note, preview, progress } = row;
   const locale = intlLocale();
   const isDailyLog = note.type === "daily_log";
   const symbols = note.symbols ?? [];
   const isCard = layout === "cards";
-  const progress = checklistProgress(note.body);
 
   return (
     <div
@@ -212,7 +278,11 @@ function NoteTile({
         "group/note flex cursor-pointer flex-col gap-2.5 rounded-lg bg-card p-4 text-left outline-none",
         "transition-colors duration-100 hover:bg-accent",
         "focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring",
-        isCard ? "h-full min-h-0" : "w-full",
+        // Off-screen tiles skip layout/paint; long collections scroll smoothly.
+        "[content-visibility:auto]",
+        isCard
+          ? "h-full min-h-0 [contain-intrinsic-size:auto_11rem]"
+          : "w-full [contain-intrinsic-size:auto_6.5rem]",
       )}
     >
       <header className="flex items-start gap-3">
@@ -248,7 +318,7 @@ function NoteTile({
           isCard ? "line-clamp-4 flex-1" : "line-clamp-2",
         )}
       >
-        {noteBodyPreview(note)}
+        {preview}
       </p>
 
       {symbols.length > 0 ? (
@@ -274,25 +344,42 @@ export function NotesView({ notes, loading, error, onDelete }: NotesViewProps) {
   const setLayout = useNotesPrefs((s) => s.setLayout);
   const [query, setQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
+  // Keeps typing responsive: the input updates immediately, filtering lags a frame.
+  const deferredQuery = useDeferredValue(query);
 
   const sorted = useMemo(
     () =>
-      [...notes].sort((a, b) => {
-        const byDate = b.occurred_at.localeCompare(a.occurred_at);
-        if (byDate !== 0) return byDate;
-        return b.updated_at.localeCompare(a.updated_at);
-      }),
+      [...notes]
+        .sort((a, b) => {
+          const byDate = b.occurred_at.localeCompare(a.occurred_at);
+          if (byDate !== 0) return byDate;
+          return b.updated_at.localeCompare(a.updated_at);
+        })
+        .map(toNoteRow),
     [notes],
   );
 
-  const visible = useMemo(
-    () =>
-      sorted.filter(
-        (n) =>
-          (typeFilter === "all" || (n.type ?? "note") === typeFilter) && matchesQuery(n, query),
-      ),
-    [sorted, typeFilter, query],
-  );
+  const visible = useMemo(() => {
+    const q = deferredQuery.trim().toLowerCase();
+    return sorted.filter(
+      (r) =>
+        (typeFilter === "all" || (r.note.type ?? "note") === typeFilter) &&
+        (!q || r.search.includes(q)),
+    );
+  }, [sorted, typeFilter, deferredQuery]);
+
+  const locale = intlLocale();
+  // Consecutive-run grouping — `visible` is already date-desc, so buckets stay in order.
+  const groups = useMemo(() => {
+    const out: { label: string; rows: NoteRow[] }[] = [];
+    for (const row of visible) {
+      const label = noteDayBucket(row.note.occurred_at, locale);
+      const last = out[out.length - 1];
+      if (last && last.label === label) last.rows.push(row);
+      else out.push({ label, rows: [row] });
+    }
+    return out;
+  }, [visible, locale]);
 
   const filtered = query.trim().length > 0 || typeFilter !== "all";
 
@@ -309,37 +396,51 @@ export function NotesView({ notes, loading, error, onDelete }: NotesViewProps) {
 
   return (
     <Page fill>
-      <header className="flex flex-wrap items-start justify-between gap-x-4 gap-y-3">
-        <div className="min-w-0">
-          <h2 className="text-[15px] font-semibold tracking-tight text-foreground">Notes</h2>
-          <p className="mt-0.5 text-[12px] leading-relaxed text-muted-foreground">
-            {notes.length > 0 && filtered
-              ? `${visible.length} of ${notes.length} note${notes.length === 1 ? "" : "s"}`
-              : "Freeform notes and daily logs. Tap to edit — Shift+N for a new one."}
-          </p>
+      <header className="flex flex-col gap-3">
+        {/* Title row — the primary action stays pinned top-right at every width. */}
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <h2 className="flex items-baseline gap-2 text-[15px] font-semibold tracking-tight text-foreground">
+              Notes
+              {notes.length > 0 ? (
+                <span className="text-[12px] font-medium tabular-nums text-muted-foreground">
+                  {filtered ? `${visible.length} of ${notes.length}` : notes.length}
+                </span>
+              ) : null}
+            </h2>
+            <p className="mt-0.5 text-[12px] leading-relaxed text-muted-foreground">
+              Freeform notes and daily logs — <Kbd>⇧N</Kbd> starts a new one.
+            </p>
+          </div>
+          <Button type="button" className="shrink-0" onClick={() => openModal("new-note")}>
+            <Plus size={14} strokeWidth={1.75} />
+            New note
+          </Button>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          {notes.length > 0 ? (
-            <>
-              <InputGroup className="h-8.5 w-full sm:h-7.5 sm:w-56">
-                <InputGroupAddon>
-                  <Search size={14} strokeWidth={1.75} aria-hidden />
+
+        {/* Toolbar row — search anchors left, view controls right; wraps cleanly. */}
+        {notes.length > 0 ? (
+          <div className="flex flex-wrap items-center gap-2">
+            <InputGroup className="h-8.5 w-full sm:h-7.5 sm:w-72">
+              <InputGroupAddon>
+                <Search size={14} strokeWidth={1.75} aria-hidden />
+              </InputGroupAddon>
+              <InputGroupInput
+                type="search"
+                aria-label="Search notes"
+                placeholder="Search notes…"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+              {query ? (
+                <InputGroupAddon align="inline-end">
+                  <InputGroupButton aria-label="Clear search" onClick={() => setQuery("")}>
+                    <X size={13} strokeWidth={1.75} />
+                  </InputGroupButton>
                 </InputGroupAddon>
-                <InputGroupInput
-                  type="search"
-                  aria-label="Search notes"
-                  placeholder="Search notes…"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                />
-                {query ? (
-                  <InputGroupAddon align="inline-end">
-                    <InputGroupButton aria-label="Clear search" onClick={() => setQuery("")}>
-                      <X size={13} strokeWidth={1.75} />
-                    </InputGroupButton>
-                  </InputGroupAddon>
-                ) : null}
-              </InputGroup>
+              ) : null}
+            </InputGroup>
+            <div className="flex flex-1 items-center justify-end gap-2">
               <SegmentedControl
                 ariaLabel="Filter notes by type"
                 size="xs"
@@ -354,13 +455,9 @@ export function NotesView({ notes, loading, error, onDelete }: NotesViewProps) {
                 value={layout}
                 onChange={(v) => setLayout(v as NotesLayout)}
               />
-            </>
-          ) : null}
-          <Button type="button" onClick={() => openModal("new-note")}>
-            <Plus size={14} strokeWidth={1.75} />
-            New note
-          </Button>
-        </div>
+            </div>
+          </div>
+        ) : null}
       </header>
 
       {loading ? (
@@ -406,31 +503,52 @@ export function NotesView({ notes, loading, error, onDelete }: NotesViewProps) {
           }
         />
       ) : layout === "cards" ? (
-        <div className="grid min-h-0 flex-1 grid-cols-1 content-start gap-3 overflow-y-auto sm:grid-cols-2 xl:grid-cols-3">
-          {visible.map((note) => (
-            <NoteTile
-              key={note.id}
-              note={note}
-              layout="cards"
-              onOpen={() => openNote(note)}
-              onDelete={async () => {
-                await onDelete(note.id);
-              }}
-            />
+        <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto">
+          {groups.map((group) => (
+            <section key={group.label} className="flex flex-col gap-2">
+              <h3 className="sticky top-0 z-10 bg-background py-1 text-[11px] font-medium tracking-[0.08em] text-muted-foreground uppercase">
+                {group.label}
+              </h3>
+              <div className="grid grid-cols-1 content-start gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                {group.rows.map((row) => (
+                  <NoteTile
+                    key={row.note.id}
+                    row={row}
+                    layout="cards"
+                    onOpen={() => openNote(row.note)}
+                    onDelete={async () => {
+                      await onDelete(row.note.id);
+                    }}
+                  />
+                ))}
+              </div>
+            </section>
           ))}
         </div>
       ) : (
         <div role="list" className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto">
-          {visible.map((note) => (
-            <div key={note.id} role="listitem">
-              <NoteTile
-                note={note}
-                layout="list"
-                onOpen={() => openNote(note)}
-                onDelete={async () => {
-                  await onDelete(note.id);
-                }}
-              />
+          {groups.map((group, groupIndex) => (
+            <div key={group.label} className="contents">
+              <div
+                role="presentation"
+                className={cn("sticky top-0 z-10 bg-background py-1", groupIndex > 0 && "mt-3")}
+              >
+                <h3 className="text-[11px] font-medium tracking-[0.08em] text-muted-foreground uppercase">
+                  {group.label}
+                </h3>
+              </div>
+              {group.rows.map((row) => (
+                <div key={row.note.id} role="listitem">
+                  <NoteTile
+                    row={row}
+                    layout="list"
+                    onOpen={() => openNote(row.note)}
+                    onDelete={async () => {
+                      await onDelete(row.note.id);
+                    }}
+                  />
+                </div>
+              ))}
             </div>
           ))}
         </div>

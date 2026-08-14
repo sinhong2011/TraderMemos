@@ -194,14 +194,23 @@ export function AuthShell({
         </p>
       </div>
 
-      <main className="flex min-h-svh flex-col items-center justify-center px-4 py-10 sm:px-8 lg:min-h-0">
-        <div className="mb-8 flex flex-col items-center gap-2.5 lg:hidden">
+      <main className="relative flex min-h-svh flex-col items-center justify-center px-4 py-10 sm:px-8 lg:min-h-0">
+        {/* faint answering glow so the form column reads as part of the same lit space */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(65%_45%_at_50%_-8%,color-mix(in_oklab,var(--primary)_6%,transparent),transparent_62%)]"
+        />
+        <div className="relative mb-8 flex flex-col items-center gap-2.5 lg:hidden">
           <AppLogo size={36} />
           <p className="text-base font-semibold tracking-tight text-foreground">TraderMemos</p>
         </div>
         <section
           data-auth-surface
-          className={cn("flex w-full max-w-[22.5rem] min-w-0 flex-col gap-6", formClassName)}
+          className={cn(
+            "relative flex w-full max-w-[22.5rem] min-w-0 flex-col gap-6",
+            "motion-safe:animate-[auth-memo-in_450ms_ease-out_both] motion-safe:[animation-delay:120ms]",
+            formClassName,
+          )}
         >
           {children}
         </section>

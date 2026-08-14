@@ -1,4 +1,4 @@
-import { AlertCircle, Settings2 } from "lucide-react";
+import { AlertCircle, Check, Settings2 } from "lucide-react";
 import { useId, useState } from "react";
 import { AuthShell } from "@/components/AuthShell";
 import { CsvDropZone } from "@/components/CsvDropZone";
@@ -28,13 +28,16 @@ function SetupStepIndicator({ step }: { step: 1 | 2 }) {
   ];
 
   return (
-    <div className="mb-6" aria-label={`Setup step ${step} of 2`}>
+    <div aria-label={`Setup step ${step} of 2`}>
       <div className="flex items-center gap-3">
         {steps.map(({ n, label }, index) => (
           <div key={n} className="contents">
             {index > 0 ? (
               <div
-                className={cn("h-px min-w-[3rem] flex-1", step > n ? "bg-primary/40" : "bg-border")}
+                className={cn(
+                  "h-px min-w-[3rem] flex-1 rounded-full transition-colors",
+                  step > n - 1 ? "bg-primary/40" : "bg-border",
+                )}
                 aria-hidden
               />
             ) : null}
@@ -45,15 +48,15 @@ function SetupStepIndicator({ step }: { step: 1 | 2 }) {
                   step === n
                     ? "bg-primary text-primary-foreground"
                     : step > n
-                      ? "bg-muted text-foreground"
+                      ? "bg-primary/15 text-primary"
                       : "bg-muted text-muted-foreground",
                 )}
               >
-                {n}
+                {step > n ? <Check size={13} strokeWidth={2.5} aria-hidden /> : n}
               </span>
               <span
                 className={cn(
-                  "text-[11px] font-medium",
+                  "text-[10px] font-medium tracking-[0.08em] uppercase",
                   step >= n ? "text-foreground" : "text-muted-foreground",
                 )}
               >

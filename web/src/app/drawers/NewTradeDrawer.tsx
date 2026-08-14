@@ -2137,9 +2137,10 @@ export function NewTradeDrawer() {
                 <div
                   className={cn(
                     // Narrow: full-width stacked block so each action is a whole
-                    // tap target. Wider: the usual inline group, right-aligned.
+                    // tap target. Wider: destructive-ish actions (Clear/Cancel)
+                    // anchor left, Save alone on the right.
                     "flex flex-col gap-2 *:w-full",
-                    "@min-[30rem]/form:flex-row @min-[30rem]/form:flex-wrap @min-[30rem]/form:items-center @min-[30rem]/form:justify-end @min-[30rem]/form:*:w-auto",
+                    "@min-[30rem]/form:flex-row @min-[30rem]/form:flex-wrap @min-[30rem]/form:items-center @min-[30rem]/form:*:w-auto",
                   )}
                 >
                   {!isEditMode && (
@@ -2172,7 +2173,7 @@ export function NewTradeDrawer() {
                     onClick={() => {
                       void form.handleSubmit();
                     }}
-                    className="text-sm"
+                    className="text-sm @min-[30rem]/form:ml-auto"
                   >
                     {isImportPreviewEdit ? (
                       <Trans>Apply</Trans>
