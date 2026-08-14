@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { Server, Brain, History, Gauge, ShieldCheck, KeyRound, ArrowRight } from 'lucide-react';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { appName } from '@/lib/shared';
+import { localeAlternates, socialCard } from '@/lib/metadata';
 import { resolveLocale } from '@/i18n/locales';
 import { featureSlugs, type FeatureSlug } from '@/lib/seo-pages';
 import { Eyebrow, PageCta, CrossLinks, focusRing } from '@/components/seo-sections';
@@ -24,25 +25,23 @@ export async function generateMetadata({
   const { lang } = await params;
   const t = await getTranslations({ locale: resolveLocale(lang), namespace: 'FeaturePages' });
 
+  const title = t('metaTitle');
+  const description = t('metaDescription');
+  const { images, twitter } = socialCard(title, description);
+
   return {
-    title: t('metaTitle'),
-    description: t('metaDescription'),
-    alternates: {
-      canonical: `/${lang}/features`,
-      languages: {
-        en: '/en/features',
-        'zh-Hant': '/zh-Hant/features',
-        'zh-Hans': '/zh-Hans/features',
-        ja: '/ja/features',
-      },
-    },
+    title,
+    description,
+    alternates: localeAlternates(lang, '/features'),
     openGraph: {
-      title: t('metaTitle'),
-      description: t('metaDescription'),
+      title,
+      description,
       url: `/${lang}/features`,
       siteName: appName,
       type: 'website',
+      images,
     },
+    twitter,
   };
 }
 

@@ -13,6 +13,7 @@ import { OpenAPIPage } from '@/components/api-page';
 import type { Metadata } from 'next';
 import { createRelativeLink } from 'fumadocs-ui/mdx';
 import { gitConfig } from '@/lib/shared';
+import { localeAlternates } from '@/lib/metadata';
 
 interface PageParams {
   lang: string;
@@ -75,9 +76,14 @@ export async function generateMetadata(props: {
   const page = source.getPage(slug, lang);
   if (!page) notFound();
 
+  // `slug` is the same path segment in every locale, so the hreflang set is just the
+  // same doc under each prefix.
+  const docPath = `/docs${slug?.length ? `/${slug.join('/')}` : ''}`;
+
   return {
     title: page.data.title,
     description: page.data.description,
+    alternates: localeAlternates(lang, docPath),
     openGraph: {
       images: getPageImageUrl(page).url,
     },
