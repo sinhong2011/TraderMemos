@@ -22,9 +22,14 @@ export function Toaster({ children }: { children: ReactNode }) {
   return (
     <BaseToast.Provider>
       {children}
-      <BaseToast.Viewport className="pointer-events-none fixed top-[max(1.5rem,env(safe-area-inset-top))] left-1/2 z-[9999] m-0 flex w-full max-w-[min(100%,24rem)] -translate-x-1/2 flex-col items-stretch gap-2 px-4">
-        <ToastList />
-      </BaseToast.Viewport>
+      {/* Portal to <body>: #root is `isolate`, so an inline viewport is capped
+          at the root context's z-0 and drawers/dialogs portaled to <body>
+          (z-50) paint over it regardless of its own z-index. */}
+      <BaseToast.Portal>
+        <BaseToast.Viewport className="pointer-events-none fixed top-[max(1.5rem,env(safe-area-inset-top))] left-1/2 z-[9999] m-0 flex w-full max-w-[min(100%,24rem)] -translate-x-1/2 flex-col items-stretch gap-2 px-4">
+          <ToastList />
+        </BaseToast.Viewport>
+      </BaseToast.Portal>
     </BaseToast.Provider>
   );
 }
