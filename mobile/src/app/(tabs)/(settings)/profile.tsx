@@ -9,18 +9,9 @@ import { AppHost } from '@/components/app-host';
 import { ErrorState } from '@/components/error-state';
 import { NavRow } from '@/components/nav-row';
 import { SettingsForm } from '@/components/settings-form';
-import { useChangeServer } from '@/lib/change-server';
+import { serverHost, useChangeServer } from '@/lib/change-server';
 import { useFormatters } from '@/lib/format';
 import { t } from '@lingui/core/macro';
-
-/** `https://host:port/path` → `host` — the part that identifies the server. */
-function serverHost(url: string): string {
-  try {
-    return new URL(url).host;
-  } catch {
-    return url;
-  }
-}
 
 /**
  * The signed-in account. Until /me existed the app could not say who you were:

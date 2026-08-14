@@ -23,6 +23,15 @@ import { clearOutbox } from '@/lib/outbox';
 import { usePushAlertStore } from '@/lib/push-alerts';
 import { clearPersistedQueryCache } from '@/storage/mmkv';
 
+/** `https://host:port/path` → `host` — the part that identifies the server. */
+export function serverHost(url: string): string {
+  try {
+    return new URL(url).host;
+  } catch {
+    return url;
+  }
+}
+
 /** Returns the prompt-opener; safe to hand straight to an `onPress`. */
 export function useChangeServer(): () => void {
   const { session, signOut } = useSession();

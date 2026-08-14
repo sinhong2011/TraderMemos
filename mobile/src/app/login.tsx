@@ -1,31 +1,3 @@
-import {
-  BottomSheet,
-  Button as UIButton,
-  Group,
-  Image as UIImage,
-  Text as UIText,
-  TextField,
-  useNativeState,
-  VStack,
-} from '@expo/ui/swift-ui';
-import {
-  autocorrectionDisabled,
-  background,
-  buttonStyle,
-  controlSize,
-  cornerRadius,
-  font,
-  foregroundStyle,
-  frame,
-  keyboardType,
-  multilineTextAlignment,
-  padding,
-  presentationDetents,
-  presentationDragIndicator,
-  textContentType,
-  textInputAutocapitalization,
-  tint,
-} from '@expo/ui/swift-ui/modifiers';
 import { useForm } from '@tanstack/react-form';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
@@ -34,6 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
+  Linking,
   Platform,
   Pressable,
   ScrollView,
@@ -50,9 +23,11 @@ import { PasswordInput } from '@/components/password-input';
 import { loadServerUrl, normalizeServerUrl, useSession } from '@/api/session';
 import { t } from '@lingui/core/macro';
 import { errorMessage } from '@/lib/errors';
-import { AppHost } from '@/components/app-host';
 
 const GRID_CELL = 44;
+
+/** Self-hosting instructions — the answer to "I don't have a server yet". */
+const DOCS_URL = 'https://trader-memos.vercel.app/en/docs';
 
 /** Quiet hairline grid — the native translation of the web AuthShell's grid void. */
 function AuthGridPattern() {
@@ -72,6 +47,9 @@ function AuthGridPattern() {
   );
 }
 
+/** Reachability of the typed host, shown beside the Server label. */
+type Probe = { url: string; state: 'checking' | 'reachable' | 'unreachable' };
+
 export default function LoginScreen() {
   const { theme } = useUnistyles();
   const router = useRouter();
@@ -81,18 +59,36 @@ export default function LoginScreen() {
   const wide = windowWidth >= 600;
   const { signIn } = useSession();
   const [error, setError] = useState<string | null>(null);
-  const [advancedOpen, setAdvancedOpen] = useState(false);
 
-  // The sheet's SwiftUI TextField binds to this observable; the form mirrors it
-  // via onTextChange so submit and the Advanced row see every keystroke.
-  const serverState = useNativeState('');
-
+  const usernameRef = useRef<TextInput>(null);
   const passwordRef = useRef<TextInput>(null);
   const totpRef = useRef<TextInput>(null);
   // Set once the server answers `totp_required`: the password was right, the
   // account just has a second factor. Revealing the field only at that point
-  // keeps the first screen to two inputs for the accounts that don't.
+  // keeps the first screen to two credentials for the accounts that don't.
   const [needsTotp, setNeedsTotp] = useState(false);
+
+  // The host is the one field here nobody can validate from memory — it is an
+  // address, typed by hand, often on a LAN. Probing it as soon as the field is
+  // left turns "wrong password?" guesswork into an answer before the first
+  // sign-in attempt. Informational only: submit re-checks (see below).
+  const [probe, setProbe] = useState<Probe | null>(null);
+  const probeSeq = useRef(0);
+
+  async function checkServer(raw: string) {
+    const url = normalizeServerUrl(raw);
+    if (!url) {
+      setProbe(null);
+      return;
+    }
+    // Each probe carries a sequence number so a slow answer for an old host
+    // can't overwrite the verdict for the one now in the field.
+    const seq = ++probeSeq.current;
+    setProbe({ url, state: 'checking' });
+    const reachable = await ping(url);
+    if (seq !== probeSeq.current) return;
+    setProbe({ url, state: reachable ? 'reachable' : 'unreachable' });
+  }
 
   // TanStack Form, same stack as web — the reference pattern for upcoming
   // forms (new trade, settings, notes). Server-side failures stay in local
@@ -101,24 +97,26 @@ export default function LoginScreen() {
     defaultValues: { serverUrl: '', username: '', password: '', totpCode: '' },
     onSubmit: async ({ value }) => {
       // The CTA stays enabled and validates on tap — feedback beats a dead button.
-      if (!value.username.trim() || !value.password) {
-        setError(t`Enter your username and password`);
-        return;
-      }
       const normalized = normalizeServerUrl(value.serverUrl);
       if (!normalized) {
-        setError(t`Enter your TraderMemos server URL`);
-        setAdvancedOpen(true);
+        setError(t`Enter your TraderMemos server address`);
+        return;
+      }
+      if (!value.username.trim() || !value.password) {
+        setError(t`Enter your username and password`);
         return;
       }
       setError(null);
       try {
         // Probe /healthz first so a bad host reports "unreachable" rather than
-        // surfacing as a confusing credentials failure.
+        // surfacing as a confusing credentials failure. Re-run even when the
+        // field's own check said reachable — that verdict can be minutes old.
         if (!(await ping(normalized))) {
+          setProbe({ url: normalized, state: 'unreachable' });
           setError(t`Could not reach ${normalized}. Check the address, and that the server is running and reachable from this network.`);
           return;
         }
+        setProbe({ url: normalized, state: 'reachable' });
         const tokens = await login(normalized, {
           email: value.username.trim(),
           password: value.password,
@@ -153,12 +151,13 @@ export default function LoginScreen() {
     },
   });
 
-  // Prefill the last host so a re-login after token expiry doesn't retype it.
+  // Prefill the last host so a re-login after token expiry doesn't retype it,
+  // and say straight away whether it still answers.
   useEffect(() => {
     void loadServerUrl().then((saved) => {
       if (saved) {
         form.setFieldValue('serverUrl', saved);
-        serverState.set(saved);
+        void checkServer(saved);
       }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -194,16 +193,81 @@ export default function LoginScreen() {
             {/* Title block stays left-aligned with the form column. */}
             <View style={styles.intro}>
               <Text style={styles.title}>{t`Sign in`}</Text>
-              <Text style={styles.subtitle}>{t`Welcome back.`}</Text>
+              <Text style={styles.subtitle}>{t`Connect to your TraderMemos server.`}</Text>
+            </View>
+
+            {/* There is no TraderMemos cloud to sign up for, and nothing below
+                makes sense until that is said. First-run reads this before it
+                reaches a field it cannot fill. */}
+            <View style={styles.notice}>
+              <View style={styles.noticeIcon}>
+                <SymbolView
+                  name="externaldrive.badge.wifi"
+                  size={17}
+                  tintColor={theme.colors.primary}
+                />
+              </View>
+              <View style={styles.noticeBody}>
+                <Text style={styles.noticeTitle}>{t`You bring the server`}</Text>
+                <Text style={styles.noticeText}>
+                  {t`TraderMemos is self-hosted: this app is the client for a server you run, and every screen in it comes from that server.`}
+                </Text>
+                <Pressable
+                  onPress={() => void Linking.openURL(DOCS_URL)}
+                  accessibilityRole="link"
+                  style={({ pressed }) => [styles.noticeLinkRow, pressed && styles.pressed]}
+                >
+                  <Text style={styles.noticeLink}>{t`How to set one up`}</Text>
+                  <SymbolView
+                    name="arrow.up.forward"
+                    size={11}
+                    tintColor={theme.colors.primary}
+                  />
+                </Pressable>
+              </View>
             </View>
 
             <View style={styles.fields}>
+              <View style={styles.field}>
+                <View style={styles.labelRow}>
+                  <Text style={styles.label}>{t`Server address`}</Text>
+                  <ProbeChip probe={probe} />
+                </View>
+                <form.Field name="serverUrl">
+                  {(field) => (
+                    <View style={styles.inputShell}>
+                      <TextInput
+                        value={field.state.value}
+                        onChangeText={field.handleChange}
+                        onBlur={() => void checkServer(field.state.value)}
+                        placeholder="https://trades.example.com"
+                        placeholderTextColor={theme.colors.mutedForeground}
+                        keyboardType="url"
+                        textContentType="URL"
+                        autoCapitalize="none"
+                        autoCorrect={false}
+                        returnKeyType="next"
+                        onSubmitEditing={() => {
+                          void checkServer(field.state.value);
+                          usernameRef.current?.focus();
+                        }}
+                        style={styles.input}
+                      />
+                    </View>
+                  )}
+                </form.Field>
+                <Text style={styles.hint}>
+                  {t`Origin only — the app adds /api/v1 itself.`}
+                </Text>
+              </View>
+
               <View style={styles.field}>
                 <Text style={styles.label}>{t`Username`}</Text>
                 <form.Field name="username">
                   {(field) => (
                     <View style={styles.inputShell}>
                       <TextInput
+                        ref={usernameRef}
                         value={field.state.value}
                         onChangeText={field.handleChange}
                         placeholder={t`Enter your username`}
@@ -298,97 +362,40 @@ export default function LoginScreen() {
               )}
             </form.Subscribe>
 
-            <Pressable
-              onPress={() => setAdvancedOpen(true)}
-              accessibilityRole="button"
-              accessibilityLabel={t`Advanced`}
-              style={({ pressed }) => [styles.advanced, pressed && styles.advancedPressed]}
-            >
-              <SymbolView name="gearshape" size={13} tintColor={theme.colors.mutedForeground} />
-              <Text style={styles.advancedText}>{t`Advanced`}</Text>
-            </Pressable>
-
             <Text style={styles.selfHostedNote}>{t`Self-hosted — your trade data stays on your stack.`}</Text>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+    </View>
+  );
+}
 
-      <AppHost style={styles.sheetHost}>
-        <BottomSheet isPresented={advancedOpen} onIsPresentedChange={setAdvancedOpen}>
-          <Group
-            modifiers={[
-              presentationDetents([{ height: 380 }]),
-              presentationDragIndicator('visible'),
-            ]}
-          >
-            <VStack
-              alignment="center"
-              spacing={0}
-              modifiers={[padding({ horizontal: 24, top: 32, bottom: 24 })]}
-            >
-              <UIImage
-                systemName="externaldrive.badge.wifi"
-                size={28}
-                color={theme.colors.foreground}
-                modifiers={[
-                  frame({ width: 60, height: 60 }),
-                  background('rgba(4, 144, 200, 0.15)'),
-                  cornerRadius(15),
-                ]}
-              />
-              <UIText
-                modifiers={[padding({ top: 14 }), font({ size: 20, weight: 'semibold' })]}
-              >
-                {t`API server`}
-              </UIText>
-              <UIText
-                modifiers={[
-                  padding({ top: 6 }),
-                  font({ size: 14 }),
-                  foregroundStyle({ type: 'hierarchical', style: 'secondary' }),
-                  multilineTextAlignment('center'),
-                ]}
-              >
-                {t`Point the app at your own TraderMemos instance.\nOrigin only — /api/v1 is added automatically.`}
-              </UIText>
-              <TextField
-                text={serverState}
-                autoFocus
-                placeholder="https://trades.example.com"
-                onTextChange={(text) => form.setFieldValue('serverUrl', text)}
-                modifiers={[
-                  keyboardType('url'),
-                  textContentType('URL'),
-                  textInputAutocapitalization('never'),
-                  autocorrectionDisabled(),
-                  padding({ horizontal: 14, vertical: 13 }),
-                  // Was a flat rgba(120,120,128,0.16) — the *dark*-scheme
-                  // `tertiarySystemFill` alpha, which made this field read
-                  // heavier than the system controls beside it in light.
-                  background(theme.colors.fill),
-                  cornerRadius(12),
-                  padding({ top: 24 }),
-                ]}
-              />
-              <UIButton
-                onPress={() => setAdvancedOpen(false)}
-                modifiers={[
-                  buttonStyle('borderedProminent'),
-                  controlSize('large'),
-                  tint(theme.colors.primary),
-                  padding({ top: 16 }),
-                ]}
-              >
-                <UIText
-                  modifiers={[frame({ maxWidth: 9999 }), font({ size: 17, weight: 'semibold' })]}
-                >
-                  {t`Done`}
-                </UIText>
-              </UIButton>
-            </VStack>
-          </Group>
-        </BottomSheet>
-      </AppHost>
+/**
+ * Verdict on the typed host. Absent until something has been typed, so the
+ * label row stays quiet on a first, empty run.
+ */
+function ProbeChip({ probe }: { probe: Probe | null }) {
+  const { theme } = useUnistyles();
+  if (!probe) return null;
+  if (probe.state === 'checking') {
+    return (
+      <View style={styles.probe}>
+        <ActivityIndicator size="small" color={theme.colors.mutedForeground} />
+        <Text style={styles.probeMuted}>{t`Checking…`}</Text>
+      </View>
+    );
+  }
+  const reachable = probe.state === 'reachable';
+  return (
+    <View style={styles.probe}>
+      <SymbolView
+        name={reachable ? 'checkmark.circle.fill' : 'exclamationmark.circle.fill'}
+        size={13}
+        tintColor={reachable ? theme.colors.profit : theme.colors.destructive}
+      />
+      <Text style={reachable ? styles.probeOk : styles.probeBad}>
+        {reachable ? t`Reachable` : t`No answer`}
+      </Text>
     </View>
   );
 }
@@ -442,13 +449,52 @@ const styles = StyleSheet.create((theme) => ({
     borderRadius: 12.5,
     borderCurve: 'continuous',
   },
-  intro: { gap: theme.spacing.xs, paddingTop: theme.spacing.sm, paddingBottom: theme.spacing.lg },
+  intro: { gap: theme.spacing.xs, paddingTop: theme.spacing.sm },
   title: { fontSize: 28, fontWeight: '700', color: theme.colors.foreground },
   subtitle: { fontSize: 15, color: theme.colors.mutedForeground },
+  // Explainer, not an alert: the card surface with a brand-tinted glyph well,
+  // no destructive or warning color anywhere.
+  notice: {
+    flexDirection: 'row',
+    gap: theme.spacing.md,
+    padding: theme.spacing.lg,
+    borderRadius: theme.radius.lg + 2,
+    borderCurve: 'continuous',
+    backgroundColor: theme.colors.card,
+    boxShadow: theme.shadows.card,
+  },
+  noticeIcon: {
+    width: 34,
+    height: 34,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: theme.radius.md,
+    borderCurve: 'continuous',
+    backgroundColor: theme.colors.fill,
+  },
+  noticeBody: { flex: 1, gap: theme.spacing.xs },
+  noticeTitle: { fontSize: 15, fontWeight: '600', color: theme.colors.foreground },
+  noticeText: { fontSize: 13, lineHeight: 18, color: theme.colors.mutedForeground },
+  noticeLinkRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.xs,
+    paddingTop: theme.spacing.xs,
+  },
+  noticeLink: { fontSize: 13, fontWeight: '600', color: theme.colors.primary },
+  pressed: { opacity: 0.6 },
   fields: { gap: theme.spacing.lg },
   field: { gap: theme.spacing.sm },
+  // The label and its verdict share a baseline — the status belongs to the
+  // field, not to the page, so it never becomes another banner.
+  labelRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   // Reference auth form: prominent label above a large, standalone filled field.
   label: { fontSize: 16, fontWeight: '600', color: theme.colors.foreground },
+  probe: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.xs },
+  probeMuted: { fontSize: 13, color: theme.colors.mutedForeground },
+  probeOk: { fontSize: 13, fontWeight: '600', color: theme.colors.profit },
+  probeBad: { fontSize: 13, fontWeight: '600', color: theme.colors.destructive },
+  hint: { fontSize: 12, color: theme.colors.mutedForeground },
   inputShell: {
     minHeight: 52,
     justifyContent: 'center',
@@ -483,15 +529,6 @@ const styles = StyleSheet.create((theme) => ({
   },
   submitPressed: { opacity: 0.8 },
   submitText: { fontSize: 17, fontWeight: '600', color: theme.colors.background },
-  advanced: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: theme.spacing.xs,
-    minHeight: 44,
-  },
-  advancedPressed: { opacity: 0.6 },
-  advancedText: { fontSize: 15, color: theme.colors.mutedForeground },
   selfHostedNote: {
     fontSize: 12,
     color: theme.colors.mutedForeground,
@@ -499,5 +536,4 @@ const styles = StyleSheet.create((theme) => ({
     paddingTop: theme.spacing.sm,
     paddingBottom: theme.spacing.xl,
   },
-  sheetHost: { position: 'absolute', width: 0, height: 0 },
 }));
