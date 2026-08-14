@@ -1,7 +1,7 @@
 {
   "name": "tradermemos-mobile",
   "main": "index.ts",
-  "version": "0.8.4",
+  "version": "0.8.5",
   "packageManager": "pnpm@11.16.0",
   "dependencies": {
     "@expo/ui": "~57.0.9",

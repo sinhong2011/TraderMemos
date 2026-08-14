@@ -2,7 +2,7 @@
   "expo": {
     "name": "TraderMemos",
     "slug": "tradermemos",
-    "version": "0.8.4",
+    "version": "0.8.5",
     "orientation": "default",
     "icon": "./assets/images/icon.png",
     "scheme": "tradermemos",
