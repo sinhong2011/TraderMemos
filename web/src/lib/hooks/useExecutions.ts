@@ -6,6 +6,7 @@ import {
   type UpdateExecutionBody,
   executionsApi,
 } from "@/lib/api/executions";
+import { armRollingNumbers } from "@/lib/rollingNumbers";
 
 export interface ExecutionFailure {
   index: number;
@@ -36,6 +37,9 @@ export interface SaveExecutionsResult {
 }
 
 function invalidateTradeQueries(queryClient: ReturnType<typeof useQueryClient>) {
+  // Every fill write funnels through here, which makes it the one place that
+  // knows a figure about to move was moved by the user (see rollingNumbers).
+  armRollingNumbers();
   void queryClient.invalidateQueries({ queryKey: ["trades"] });
   void queryClient.invalidateQueries({ queryKey: ["trade"] });
   void queryClient.invalidateQueries({ queryKey: ["analytics"] });
