@@ -3,6 +3,7 @@ import { SymbolView } from 'expo-symbols';
 import { Children, Fragment, useState, type ReactNode } from 'react';
 import { Pressable, Text, TextInput, View, type TextInputProps } from 'react-native';
 import Animated, {
+  FadeIn,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
@@ -214,46 +215,88 @@ export function NotesRow({
   );
 }
 
-/** Two digits, the way a clock writes them — 7 seconds past reads `:07`. */
-const padSeconds = (value: number) => String(value).padStart(2, '0');
+/** Two digits, the way a clock writes them — 7 seconds past reads `07`. */
+const pad2 = (value: number) => String(value).padStart(2, '0');
 
-/** `:00` … `:59`, built once — the separator lives in the label so the pill
- *  reads as a continuation of the time beside it. */
-const SECOND_OPTIONS = Array.from({ length: 60 }, (_, second) => ({
-  value: String(second),
-  label: `:${padSeconds(second)}`,
-}));
+const wheelOptions = (count: number) =>
+  Array.from({ length: count }, (_, n) => ({ value: String(n), label: pad2(n) }));
+
+const HOUR_OPTIONS = wheelOptions(24);
+/** Minutes and seconds run the same 00–59, so one list serves both wheels. */
+const SIXTY_OPTIONS = wheelOptions(60);
 
 /**
- * Seconds pill for `DateRow`. SwiftUI's `DatePicker` has no seconds component
- * (`displayedComponents` is date and hourAndMinute, nothing finer), so the last
- * field of a timestamp has to be its own control — but it stays a *picker* like
- * the two pills beside it, not a keyboard field: a pull-down menu of the 60
- * values, with the current one checkmarked.
+ * The whole clock as one control: a pill reading `HH:MM:SS` that opens hour,
+ * minute and second wheels beneath its row.
  *
- * The pill is ours because a menu Picker draws only its label; the height and
- * radius here are what put it on the same line as the date and time pills that
- * SwiftUI draws for itself.
+ * SwiftUI's compact `DatePicker` can't do this — `displayedComponents` stops at
+ * `hourAndMinute`, so a to-the-second stamp used to need a second control
+ * bolted alongside it, and two pills for one quantity read as two settings.
+ * Taking the time over means drawing the pill ourselves; the date stays
+ * SwiftUI's, since it needs no seconds and a calendar popover is better than
+ * anything three wheels could do.
+ *
+ * 24-hour, ignoring the 12/24h display pref, for the reason `fmtTimestamp`
+ * gives: a to-the-second stamp is a fixed-width pattern, and an AM/PM wheel
+ * would be a fourth column to fit.
  */
-function SecondsPicker({
+function TimePill({
   value,
-  onChange,
+  open,
+  onPress,
 }: {
-  value: number;
-  onChange: (seconds: number) => void;
+  value: Date;
+  open: boolean;
+  onPress: () => void;
 }) {
+  const clock = `${pad2(value.getHours())}:${pad2(value.getMinutes())}:${pad2(value.getSeconds())}`;
   return (
-    <View style={styles.secondsPill}>
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={clock}
+      accessibilityState={{ expanded: open }}
+      style={({ pressed }) => [styles.timePill, pressed && styles.timePillPressed]}
+    >
+      {/* Tinted while open, the way a compact picker colors its label when its
+          own popover is showing — the pill says which wheels these are. */}
+      <Text style={[styles.timePillLabel, open && styles.timePillLabelOpen]}>{clock}</Text>
+    </Pressable>
+  );
+}
+
+function TimeWheels({ value, onChange }: { value: Date; onChange: (next: Date) => void }) {
+  const setPart = (part: 'hours' | 'minutes' | 'seconds', n: number) => {
+    const next = new Date(value);
+    if (part === 'hours') next.setHours(n);
+    else if (part === 'minutes') next.setMinutes(n);
+    // Milliseconds go with the seconds — a fill is stamped to the second, and
+    // leaving a stale remainder makes two edits of the same value unequal.
+    else next.setSeconds(n, 0);
+    onChange(next);
+  };
+
+  return (
+    <Animated.View entering={FadeIn.duration(160)} style={styles.wheels}>
       <Segmented
-        options={SECOND_OPTIONS}
-        value={String(value)}
-        onChange={(second) => onChange(Number(second))}
-        variant="menu"
-        // The menu's own 12pt label inset would sit inside the pill's padding
-        // and read as double-indented; the pill owns the spacing instead.
-        flush
+        options={HOUR_OPTIONS}
+        value={String(value.getHours())}
+        onChange={(hours) => setPart('hours', Number(hours))}
+        variant="wheel"
       />
-    </View>
+      <Segmented
+        options={SIXTY_OPTIONS}
+        value={String(value.getMinutes())}
+        onChange={(minutes) => setPart('minutes', Number(minutes))}
+        variant="wheel"
+      />
+      <Segmented
+        options={SIXTY_OPTIONS}
+        value={String(value.getSeconds())}
+        onChange={(seconds) => setPart('seconds', Number(seconds))}
+        variant="wheel"
+      />
+    </Animated.View>
   );
 }
 
@@ -274,51 +317,72 @@ export function DateRow({
   label: string;
   selection: Date;
   displayedComponents: ('date' | 'hourAndMinute')[];
-  /** Adds the editable seconds pill — for timestamps recorded to the second. */
+  /**
+   * Stamps recorded to the second. The clock becomes our own `HH:MM:SS` pill
+   * over wheels instead of SwiftUI's time pill, which stops at minutes.
+   */
   seconds?: boolean;
   onDateChange: (date: Date) => void;
 }) {
+  const [wheelsOpen, setWheelsOpen] = useState(false);
+  const ownsTime = seconds === true && displayedComponents.includes('hourAndMinute');
+  // SwiftUI keeps the date half; handing it `hourAndMinute` as well would draw
+  // a second, minute-only clock beside ours.
+  const pickerComponents = ownsTime
+    ? displayedComponents.filter((component) => component !== 'hourAndMinute')
+    : displayedComponents;
+
   /**
-   * The picker reports whole minutes: the date it hands back carries `:00`,
-   * so passing it straight through would wipe an imported fill's seconds the
-   * moment anyone brushed the minute wheel. Re-stamp them from the value we
-   * were given — only the seconds pill edits seconds.
+   * The date picker reports whole minutes: the value it hands back carries
+   * `:00`, so passing it straight through would wipe an imported fill's
+   * seconds the moment anyone touched the calendar. Re-stamp the clock from
+   * the value we were given — only the wheels below edit it.
    */
   const picked = (date: Date) => {
-    if (!seconds) return onDateChange(date);
+    if (!ownsTime) return onDateChange(date);
     const next = new Date(date);
-    next.setSeconds(selection.getSeconds(), selection.getMilliseconds());
-    onDateChange(next);
-  };
-
-  const setSeconds = (value: number) => {
-    const next = new Date(selection);
-    next.setSeconds(value, 0);
+    next.setHours(
+      selection.getHours(),
+      selection.getMinutes(),
+      selection.getSeconds(),
+      selection.getMilliseconds(),
+    );
     onDateChange(next);
   };
 
   return (
-    <View style={styles.row}>
-      <Text style={styles.rowLabel} numberOfLines={1}>
-        {label}
-      </Text>
-      <View style={[styles.rowControl, styles.dateControl]}>
-        {/*
-          `ignoreSafeArea` is load-bearing: a hosted SwiftUI view still insets
-          its content by the container safe area, so a picker sitting inside
-          the home-indicator band — the dividend Date row, last card on the
-          page — drew its pill ~20pt above its own frame, over the row divider.
-          'all' also keeps the keyboard inset out of it while a field is open.
-        */}
-        <AppHost matchContents ignoreSafeArea="all">
-          <DatePicker
-            selection={selection}
-            displayedComponents={displayedComponents}
-            onDateChange={picked}
-          />
-        </AppHost>
-        {seconds ? <SecondsPicker value={selection.getSeconds()} onChange={setSeconds} /> : null}
+    <View>
+      <View style={styles.row}>
+        <Text style={styles.rowLabel} numberOfLines={1}>
+          {label}
+        </Text>
+        <View style={[styles.rowControl, styles.dateControl]}>
+          {/*
+            `ignoreSafeArea` is load-bearing: a hosted SwiftUI view still insets
+            its content by the container safe area, so a picker sitting inside
+            the home-indicator band — the dividend Date row, last card on the
+            page — drew its pill ~20pt above its own frame, over the row divider.
+            'all' also keeps the keyboard inset out of it while a field is open.
+          */}
+          {pickerComponents.length > 0 ? (
+            <AppHost matchContents ignoreSafeArea="all">
+              <DatePicker
+                selection={selection}
+                displayedComponents={pickerComponents}
+                onDateChange={picked}
+              />
+            </AppHost>
+          ) : null}
+          {ownsTime ? (
+            <TimePill
+              value={selection}
+              open={wheelsOpen}
+              onPress={() => setWheelsOpen((wasOpen) => !wasOpen)}
+            />
+          ) : null}
+        </View>
       </View>
+      {ownsTime && wheelsOpen ? <TimeWheels value={selection} onChange={onDateChange} /> : null}
     </View>
   );
 }
@@ -396,18 +460,26 @@ const styles = StyleSheet.create((theme) => ({
     paddingVertical: theme.spacing.sm,
   },
   rowControl: { marginLeft: 'auto', flexShrink: 1 },
-  /** Picker and seconds pill sit on one line, spaced like SwiftUI's own pills. */
+  /** Date pill and clock pill share one line, spaced like SwiftUI's own pair. */
   dateControl: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.xs },
-  // Sized to the compact `DatePicker` pills either side of it: 34pt is the
-  // app's control height (see `Segmented`'s `fill`), and the radius has to be
-  // read against that height — the same 10pt on a text-hugging box looked
-  // nearly capsule next to SwiftUI's squarer pills.
-  secondsPill: {
+  // Matched to the compact `DatePicker` pill beside it: 34pt is the app's
+  // control height (see `Segmented`'s `fill`), and the radius only reads right
+  // against that height — the same 10pt on a text-hugging box looked nearly
+  // capsule next to SwiftUI's squarer pill.
+  timePill: {
     height: 34,
     justifyContent: 'center',
     paddingHorizontal: theme.spacing.md,
     borderRadius: theme.radius.md,
     backgroundColor: theme.colors.input,
+  },
+  timePillPressed: { opacity: 0.6 },
+  timePillLabel: { fontSize: 17, color: theme.colors.foreground, ...theme.numeric },
+  timePillLabelOpen: { color: theme.colors.primary },
+  wheels: {
+    flexDirection: 'row',
+    paddingHorizontal: theme.spacing.lg,
+    paddingBottom: theme.spacing.sm,
   },
   stackRow: {
     gap: theme.spacing.sm,
