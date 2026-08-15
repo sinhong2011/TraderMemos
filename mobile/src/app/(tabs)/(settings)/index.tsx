@@ -21,6 +21,7 @@ import { CenteredButton } from '@/components/centered-button';
 import { Icon } from '@/components/icon';
 import { NavRow } from '@/components/nav-row';
 import { FloatingSearchBar, SearchToggle } from '@/components/search-bar';
+import { Segmented } from '@/components/segmented';
 import { SettingsForm } from '@/components/settings-form';
 import { useSession } from '@/api/session';
 import { t } from '@lingui/core/macro';
@@ -321,6 +322,23 @@ export default function SettingsScreen() {
         <Text style={styles.stubBody}>
           {t`This screen is still being ported. Sign out to switch server or account.`}
         </Text>
+        {/* Theme escapes the stub because nothing else can set it: the pref is
+            device-local (prefs-sync strips `appearance`), so a phone pinned to
+            Light or Dark by an old pref had no way back to System until the
+            hub lands. The RN-drawn Segmented needs no Host, so it is safe in
+            this plain RN tree where EmptyState was not. */}
+        <View style={styles.stubTheme}>
+          <Text style={styles.stubThemeLabel}>{t`Theme`}</Text>
+          <Segmented
+            options={[
+              { value: 'system', label: t`System` },
+              { value: 'light', label: t`Light` },
+              { value: 'dark', label: t`Dark` },
+            ]}
+            value={displayPrefs.appearance}
+            onChange={(value: AppearancePref) => setAppearance(value)}
+          />
+        </View>
         <Pressable
           onPress={handleSignOut}
           accessibilityRole="button"
@@ -600,4 +618,12 @@ const styles = StyleSheet.create((theme) => ({
     textAlign: 'center',
   },
   stubBody: { fontSize: 14, color: theme.colors.mutedForeground, textAlign: 'center' },
+  stubTheme: { alignItems: 'center', gap: theme.spacing.sm, marginTop: theme.spacing.md },
+  stubThemeLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
+    color: theme.colors.mutedForeground,
+  },
 }));
