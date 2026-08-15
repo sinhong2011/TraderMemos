@@ -136,8 +136,8 @@ function ChangePasswordModal({
           <Button type="button" variant="ghost" onClick={close}>
             Cancel
           </Button>
-          <Button type="submit" disabled={!current || !next || !confirm || change.isPending}>
-            {change.isPending ? "Changing…" : "Change password"}
+          <Button type="submit" disabled={!current || !next || !confirm} loading={change.isPending}>
+            Change password
           </Button>
         </div>
       </form>
@@ -266,9 +266,10 @@ function TwoFactorModal({
             <Button
               type="submit"
               variant="destructive"
-              disabled={!password || !code || disable.isPending}
+              disabled={!password || !code}
+              loading={disable.isPending}
             >
-              {disable.isPending ? "Turning off…" : "Turn off"}
+              Turn off
             </Button>
           </div>
         </form>
@@ -317,8 +318,8 @@ function TwoFactorModal({
           <Button type="button" variant="ghost" onClick={close}>
             Cancel
           </Button>
-          <Button type="submit" disabled={!setup || code.length < 6 || confirm.isPending}>
-            {confirm.isPending ? "Confirming…" : "Turn on"}
+          <Button type="submit" disabled={!setup || code.length < 6} loading={confirm.isPending}>
+            Turn on
           </Button>
         </div>
       </form>
