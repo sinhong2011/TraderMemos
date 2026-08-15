@@ -1,4 +1,3 @@
-import { Section, Text as UIText } from '@expo/ui/swift-ui';
 import { useRouter } from 'expo-router';
 import { useUnistyles } from 'react-native-unistyles';
 
@@ -6,6 +5,7 @@ import { useSystemInfo } from '@/api/hooks';
 import { AppHost } from '@/components/app-host';
 import { NavRow } from '@/components/nav-row';
 import { SettingsForm } from '@/components/settings-form';
+import { SettingsSection } from '@/components/settings-rows';
 import { t } from '@lingui/core/macro';
 import { useWebBaseUrl } from '@/lib/share-prefs';
 
@@ -32,10 +32,8 @@ export default function IntegrationsScreen() {
   return (
     <AppHost style={{ flex: 1, backgroundColor: theme.colors.background }}>
       <SettingsForm>
-        <Section
-          footer={
-            <UIText>{t`Keys are stored on your server, never on the device or with third parties.`}</UIText>
-          }
+        <SettingsSection
+          footer={t`Keys are stored on your server, never on the device or with third parties.`}
         >
           <NavRow
             systemImage="sparkles"
@@ -47,16 +45,12 @@ export default function IntegrationsScreen() {
             label={t`API tokens`}
             onPress={() => router.push('/api-tokens')}
           />
-        </Section>
+        </SettingsSection>
 
-        <Section
-          footer={
-            <UIText>
-              {effective
+        <SettingsSection
+          footer={effective
                 ? t`Share links are built from this address (${source.toLowerCase()}).`
                 : t`Share links need this address. Your server doesn't advertise one, so set the domain your web app is served from.`}
-            </UIText>
-          }
         >
           <NavRow
             systemImage="globe"
@@ -64,7 +58,7 @@ export default function IntegrationsScreen() {
             value={effective ? hostOf(effective) : t`Not set`}
             onPress={() => router.push('/web-address')}
           />
-        </Section>
+        </SettingsSection>
       </SettingsForm>
     </AppHost>
   );

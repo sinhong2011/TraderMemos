@@ -1,4 +1,4 @@
-import { Button, Section, Text as UIText } from '@expo/ui/swift-ui';
+import { Button, Text as UIText } from '@expo/ui/swift-ui';
 import { foregroundStyle } from '@expo/ui/swift-ui/modifiers';
 import { useRouter } from 'expo-router';
 import { useUnistyles } from 'react-native-unistyles';
@@ -8,6 +8,7 @@ import { AppHost } from '@/components/app-host';
 import { CenteredButton } from '@/components/centered-button';
 import { NavRow } from '@/components/nav-row';
 import { SettingsForm } from '@/components/settings-form';
+import { SettingsSection } from '@/components/settings-rows';
 import { describeError } from '@/lib/errors';
 import { t } from '@lingui/core/macro';
 
@@ -36,20 +37,16 @@ export default function UsersScreen() {
     <AppHost style={{ flex: 1, backgroundColor: theme.colors.background }}>
       <SettingsForm>
         {!isOwner ? (
-          <Section title={t`Users`}>
+          <SettingsSection title={t`Users`}>
             <UIText modifiers={[secondary]}>
               {t`Only an owner can manage the accounts on this server.`}
             </UIText>
-          </Section>
+          </SettingsSection>
         ) : (
           <>
-            <Section
+            <SettingsSection
               title={t`People`}
-              footer={
-                <UIText>
-                  {t`Members see only their own trades. Owners can also add and remove accounts here.`}
-                </UIText>
-              }
+              footer={t`Members see only their own trades. Owners can also add and remove accounts here.`}
             >
               {(users.data ?? []).map((user) => (
                 <NavRow
@@ -72,11 +69,11 @@ export default function UsersScreen() {
                   onPress={() => void users.refetch()}
                 />
               ) : null}
-            </Section>
+            </SettingsSection>
 
-            <Section>
+            <SettingsSection>
               <CenteredButton label={t`Add user`} onPress={() => router.push('/user-form')} />
-            </Section>
+            </SettingsSection>
           </>
         )}
       </SettingsForm>

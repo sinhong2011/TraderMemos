@@ -1,19 +1,24 @@
-import { Button, HStack, Image, Spacer, Text as UIText } from '@expo/ui/swift-ui';
-import { font, foregroundStyle } from '@expo/ui/swift-ui/modifiers';
-import type { SFSymbol } from 'sf-symbols-typescript';
-import { useUnistyles } from 'react-native-unistyles';
+import { RNHostView } from '@expo/ui';
+import type { SFSymbol } from 'expo-symbols';
+import { Pressable, Text, View } from 'react-native';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+
+import { Icon } from '@/components/icon';
 
 /**
- * A settings row that pushes another screen — the NavigationLink look: leading
- * icon, label, optional trailing value, disclosure chevron. Icon and label
- * share the neutral label color; brand blue is reserved for the values and
- * states that carry meaning, not for row furniture.
+ * A settings row that pushes another screen, rebuilt for platforms without
+ * SwiftUI. iOS overrides this with `nav-row.ios.tsx`, which keeps the composed
+ * SwiftUI `Button`/`HStack` row exactly as it shipped.
  *
- * `Button label={…} systemImage={…}` can't carry a trailing chevron (label and
- * children are mutually exclusive), so the row is composed by hand, matching
- * the account and AI rows. Use it only where a tap pushes: a chevron on a row
- * that opens a sheet, an alert, or iOS Settings promises navigation that never
- * happens — those stay plain `Button`s.
+ * Like `empty-state.tsx`, the Android side is plain RN inside an `RNHostView`
+ * rather than universal primitives: `systemImage` is a runtime prop, and
+ * universal `Icon` needs an XML drawable literal on Android, so there'd be
+ * nothing for Metro to resolve a `require` against. Going through `RNHostView`
+ * reuses `@/components/icon`, already mapped to Material Symbols.
+ *
+ * Same rule as the iOS version: use this only where a tap pushes. A chevron on
+ * a row that opens a sheet or leaves the app promises navigation that never
+ * happens — `accessory` covers those cases instead.
  */
 export function NavRow({
   systemImage,
@@ -26,7 +31,7 @@ export function NavRow({
   label: string;
   value?: string;
   /**
-   * `external` for a row that leaves the app (iOS Settings, a browser) — the
+   * `external` for a row that leaves the app (system settings, a browser) — the
    * chevron promises an in-app push, so those rows get the leaving glyph
    * instead. `none` for an action that stays put.
    */
@@ -34,31 +39,42 @@ export function NavRow({
   onPress: () => void;
 }) {
   const { theme } = useUnistyles();
+
   return (
-    <Button onPress={onPress}>
-      <HStack spacing={12}>
+    <RNHostView matchContents>
+      <Pressable
+        onPress={onPress}
+        accessibilityRole="button"
+        style={({ pressed }) => [styles.row, pressed && styles.pressed]}
+      >
         {systemImage != null ? (
-          <Image systemName={systemImage} size={17} color={theme.colors.foreground} />
+          <Icon name={systemImage} size={17} tintColor={theme.colors.foreground} />
         ) : null}
-        <UIText modifiers={[foregroundStyle({ type: 'hierarchical', style: 'primary' })]}>
-          {label}
-        </UIText>
-        <Spacer />
-        {value != null ? (
-          <UIText
-            modifiers={[font({ size: 15 }), foregroundStyle({ type: 'hierarchical', style: 'secondary' })]}
-          >
-            {value}
-          </UIText>
-        ) : null}
+        <Text style={styles.label}>{label}</Text>
+        <View style={styles.spacer} />
+        {value != null ? <Text style={styles.value}>{value}</Text> : null}
         {accessory === 'none' ? null : (
-          <Image
-            systemName={accessory === 'external' ? 'arrow.up.forward' : 'chevron.right'}
+          <Icon
+            name={accessory === 'external' ? 'arrow.up.forward' : 'chevron.right'}
             size={12}
-            color={theme.colors.mutedForeground}
+            tintColor={theme.colors.mutedForeground}
           />
         )}
-      </HStack>
-    </Button>
+      </Pressable>
+    </RNHostView>
   );
 }
+
+const styles = StyleSheet.create((theme) => ({
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.md,
+    paddingVertical: theme.spacing.md,
+    paddingHorizontal: theme.spacing.lg,
+  },
+  pressed: { backgroundColor: theme.colors.accent },
+  label: { fontSize: 17, color: theme.colors.foreground },
+  spacer: { flex: 1 },
+  value: { fontSize: 15, color: theme.colors.mutedForeground },
+}));

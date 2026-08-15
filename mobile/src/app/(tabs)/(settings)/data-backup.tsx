@@ -1,8 +1,4 @@
-import {
-  Button,
-  Section,
-  Text as UIText,
-} from '@expo/ui/swift-ui';
+import { Button } from '@expo/ui/swift-ui';
 import * as DocumentPicker from 'expo-document-picker';
 import { File } from 'expo-file-system';
 import { useRouter } from 'expo-router';
@@ -11,6 +7,7 @@ import { useUnistyles } from 'react-native-unistyles';
 
 import { useSession } from '@/api/session';
 import { SettingsForm } from '@/components/settings-form';
+import { SettingsSection } from '@/components/settings-rows';
 import { buildAppConfigExport, parseAppConfig } from '@/lib/app-config';
 import { errorMessage } from '@/lib/errors';
 import { shareFile } from '@/lib/file-transfer';
@@ -70,13 +67,9 @@ export default function DataBackupScreen() {
   return (
     <AppHost style={{ flex: 1, backgroundColor: theme.colors.background }}>
       <SettingsForm>
-        <Section
+        <SettingsSection
           title={t`Trades`}
-          footer={
-            <UIText>
-              {t`Import broker fills, a journal CSV, or a TraderMemos backup. Exports come out as JSON, CSV, or a ZIP with screenshots.`}
-            </UIText>
-          }
+          footer={t`Import broker fills, a journal CSV, or a TraderMemos backup. Exports come out as JSON, CSV, or a ZIP with screenshots.`}
         >
           <Button
             systemImage="square.and.arrow.down"
@@ -88,15 +81,11 @@ export default function DataBackupScreen() {
             label={t`Export data`}
             onPress={() => router.push('/export-trades')}
           />
-        </Section>
+        </SettingsSection>
 
-        <Section
+        <SettingsSection
           title={t`App config`}
-          footer={
-            <UIText>
-              {t`Config files carry this device's app preferences only — no trades, no credentials. They round-trip with the web app.`}
-            </UIText>
-          }
+          footer={t`Config files carry this device's app preferences only — no trades, no credentials. They round-trip with the web app.`}
         >
           <Button
             systemImage="arrow.up.doc"
@@ -108,7 +97,7 @@ export default function DataBackupScreen() {
             label={t`Export app config`}
             onPress={() => void exportAppConfig()}
           />
-        </Section>
+        </SettingsSection>
       </SettingsForm>
     </AppHost>
   );

@@ -1,4 +1,4 @@
-import { Section, Text as UIText, Toggle } from '@expo/ui/swift-ui';
+import { Toggle } from '@expo/ui/swift-ui';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Alert } from 'react-native';
@@ -8,6 +8,7 @@ import type { AlertSettings } from '@/api/types';
 import { t } from '@lingui/core/macro';
 import { AppHost } from '@/components/app-host';
 import { SettingsForm } from '@/components/settings-form';
+import { SettingsSection } from '@/components/settings-rows';
 import { errorMessage } from '@/lib/errors';
 import {
   deviceLabel,
@@ -82,10 +83,8 @@ export default function AlertsScreen() {
   return (
     <AppHost>
       <SettingsForm>
-        <Section
-          footer={
-            <UIText>{t`Alerts are evaluated on your server after every trade and delivered to each registered device and webhook. Free, always.`}</UIText>
-          }
+        <SettingsSection
+          footer={t`Alerts are evaluated on your server after every trade and delivered to each registered device and webhook. Free, always.`}
         >
           <Toggle
             label={t`Push to this device`}
@@ -95,14 +94,12 @@ export default function AlertsScreen() {
               void (value ? enablePush() : disablePush());
             }}
           />
-        </Section>
+        </SettingsSection>
 
         {s ? (
-          <Section
+          <SettingsSection
             title={t`Rules`}
-            footer={
-              <UIText>{t`Thresholds, timezone, and webhook channels are edited in web Settings → Rules.`}</UIText>
-            }
+            footer={t`Thresholds, timezone, and webhook channels are edited in web Settings → Rules.`}
           >
             <Toggle
               label={t`Enable alerts`}
@@ -134,7 +131,7 @@ export default function AlertsScreen() {
               isOn={s.rule_unreviewed}
               onIsOnChange={(value) => patch({ rule_unreviewed: value })}
             />
-          </Section>
+          </SettingsSection>
         ) : null}
       </SettingsForm>
     </AppHost>
