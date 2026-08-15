@@ -59,8 +59,10 @@ rebuild-ios: prebuild-ios run-ios ## Full native rebuild: clean prebuild, patch,
 # command line if you keep them elsewhere.
 #
 # JetBrains Toolbox installs into ~/Applications; a direct download lands in
-# /Applications. Take whichever exists, preferring the Toolbox copy.
-ANDROID_STUDIO ?= $(firstword $(wildcard $(HOME)/Applications/Android*Studio*.app) $(wildcard /Applications/Android*Studio*.app))
+# /Applications. Take whichever exists, preferring the Toolbox copy. This has
+# to go through the shell rather than $(wildcard): "Android Studio.app" has a
+# space in it, and make's $(firstword) would split the path in half.
+ANDROID_STUDIO ?= $(shell ls -d "$$HOME/Applications/Android Studio.app" "/Applications/Android Studio.app" 2>/dev/null | head -1)
 JAVA_HOME ?= $(ANDROID_STUDIO)/Contents/jbr/Contents/Home
 ANDROID_HOME ?= $(HOME)/Library/Android/sdk
 ANDROID_ENV := JAVA_HOME="$(JAVA_HOME)" ANDROID_HOME="$(ANDROID_HOME)" PATH="$(JAVA_HOME)/bin:$(ANDROID_HOME)/platform-tools:$(PATH)"
