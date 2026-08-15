@@ -13,6 +13,7 @@ import { useApiRaw, useApiRequest } from '@/api/hooks';
 import type { Account } from '@/api/types';
 import { t } from '@lingui/core/macro';
 import { errorMessage } from '@/lib/errors';
+import { armRollingNumbers } from '@/lib/rolling-numbers';
 import {
   dividendBody,
   executionBody,
@@ -61,6 +62,9 @@ export function useSaveTradeBlocks(accounts: Account[] | undefined, onSaved: () 
       }
     },
     onSuccess: () => {
+      // The figures about to refetch are moving because of this save — that is
+      // what lets them roll rather than swap (see lib/rolling-numbers).
+      armRollingNumbers();
       void queryClient.invalidateQueries();
       onSaved();
     },

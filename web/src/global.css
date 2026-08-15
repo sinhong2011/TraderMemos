@@ -80,6 +80,10 @@
   --animate-fab-in: fab-in 320ms cubic-bezier(0.34, 1.4, 0.5, 1) backwards;
   --animate-shimmer: shimmer 1.5s ease-in-out infinite;
   --animate-skeleton: skeleton 2s -1s infinite linear;
+  /* Odometer pair: a changed digit leaves upward while its replacement rises
+     into the same cell. Both run at once, so they share a duration. */
+  --animate-digit-in: digit-in 420ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  --animate-digit-out: digit-out 420ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
   @keyframes skeleton {
     to {
       background-position: -200% 0;
@@ -286,6 +290,30 @@
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
+  }
+}
+
+/* Distances are in `em` so a digit travels its own height whatever the strip's
+   font size — the header hero and the small stats read as one motion. */
+@keyframes digit-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.9em);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes digit-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-0.9em);
   }
 }
 

@@ -25,6 +25,7 @@ import { Skeleton } from '@/components/skeleton';
 import { TradeChart } from '@/components/trade-chart';
 import { t } from '@lingui/core/macro';
 import { errorMessage, isUnreachable } from '@/lib/errors';
+import { armRollingNumbers } from '@/lib/rolling-numbers';
 import { formatDuration, useFormatters } from '@/lib/format';
 import { gradeFromInt, parseEmotionalStates, parseJournalNotes } from '@/lib/journal';
 import { marketLabel, tradeNotional, tradeRMultiple, tradeStatus } from '@/lib/trades';
@@ -445,6 +446,8 @@ function TradeDetailBody({
   const remove = useMutation({
     mutationFn: () => api<void>(`/trades/${trade.id}`, { method: 'DELETE' }),
     onSuccess: () => {
+      // Removing a trade moves the same figures adding one does.
+      armRollingNumbers();
       void queryClient.invalidateQueries();
       router.back();
     },
