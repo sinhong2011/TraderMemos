@@ -49,6 +49,7 @@ type chatRequest struct {
 	Messages       []chatMessage `json:"messages"`
 	ResponseFormat *chatFmt      `json:"response_format,omitempty"`
 	Temperature    float64       `json:"temperature"`
+	Stream         bool          `json:"stream,omitempty"`
 }
 
 type chatFmt struct {
@@ -167,6 +168,11 @@ func isTimeoutErr(err error) bool {
 // for, not the request as a whole — the caller retries in a simpler mode.
 var errFormatRejected = errors.New("response format rejected")
 
+// errStreamUnsupported means the endpoint refused the request even in plain
+// JSON mode, so the objection is to streaming itself; the caller falls back to
+// a blocking call.
+var errStreamUnsupported = errors.New("streaming unsupported")
+
 // GenerateReview calls an OpenAI-compatible chat completions endpoint with trade context.
 //
 // It asks for schema-constrained decoding first and falls back to plain JSON
@@ -257,6 +263,13 @@ func requestReview(
 	if err != nil {
 		return Review{}, err
 	}
+	return parseReview(content)
+}
+
+// parseReview turns a raw model payload into a Review, repairing the common
+// ways a model wraps or pads JSON. Both the blocking and streaming paths end
+// here, so a streamed review is decoded exactly like a blocking one.
+func parseReview(content string) (Review, error) {
 	content = stripJSONFence(content)
 	content = extractJSONObject(content)
 
@@ -270,24 +283,33 @@ func requestReview(
 		if i >= maxNotes {
 			break
 		}
-		tone := normalizeTone(n.Tone)
-		headline := strings.TrimSpace(n.Headline)
-		detail := strings.TrimSpace(n.Detail)
-		if headline == "" && detail == "" {
+		note, ok := toNote(n.Tone, n.Headline, n.Detail, i)
+		if !ok {
 			continue
 		}
-		if headline == "" {
-			headline = "Coach note"
-		}
-		notes = append(notes, Note{
-			ID:       fmt.Sprintf("llm-%d", i+1),
-			Tone:     tone,
-			Headline: headline,
-			Detail:   detail,
-			Priority: i + 1,
-		})
+		notes = append(notes, note)
 	}
 	return Review{Notes: notes, NextAction: strings.TrimSpace(parsed.NextAction)}, nil
+}
+
+// toNote normalises one note. Reports false for a note with neither a headline
+// nor a detail, which carries nothing worth showing.
+func toNote(tone, headline, detail string, idx int) (Note, bool) {
+	headline = strings.TrimSpace(headline)
+	detail = strings.TrimSpace(detail)
+	if headline == "" && detail == "" {
+		return Note{}, false
+	}
+	if headline == "" {
+		headline = "Coach note"
+	}
+	return Note{
+		ID:       fmt.Sprintf("llm-%d", idx+1),
+		Tone:     normalizeTone(tone),
+		Headline: headline,
+		Detail:   detail,
+		Priority: idx + 1,
+	}, true
 }
 
 func isSchemaRequest(f *chatFmt) bool {

@@ -1,6 +1,11 @@
 import { resolveMarketTimezone, useDisplayPrefs } from "@/lib/displayPrefs";
 import { apiFetch, qs } from "./client";
-import type { TradeCoachReview, TradeCoachReviewHistory } from "./trades.coach.types";
+import { postEventStream } from "./sse";
+import type {
+  TradeCoachApiNote,
+  TradeCoachReview,
+  TradeCoachReviewHistory,
+} from "./trades.coach.types";
 import type { Filters, Trade, TradeDetail } from "./types";
 
 export type {
@@ -36,6 +41,36 @@ export const tradesApi = {
     ),
   /** Previously stored coach reviews for a trade, newest first. */
   coachReviews: (id: string) => apiFetch<TradeCoachReviewHistory>(`/trades/${id}/coach/reviews`),
+  /**
+   * Streaming coach review: `onNote` fires as each note lands, and the promise
+   * resolves with the authoritative review — only that carries the next action
+   * and the stored id.
+   */
+  coachStream: (
+    id: string,
+    onNote: (note: TradeCoachApiNote) => void,
+    signal?: AbortSignal,
+  ): Promise<TradeCoachReview> => {
+    const tz = resolveMarketTimezone(useDisplayPrefs.getState().marketTimezone);
+    let final: TradeCoachReview | undefined;
+    let failure: string | undefined;
+    return postEventStream(`/trades/${id}/coach/stream${qs({ tz })}`, {
+      signal,
+      onEvent: (event, data) => {
+        try {
+          if (event === "note") onNote(JSON.parse(data) as TradeCoachApiNote);
+          else if (event === "done") final = JSON.parse(data) as TradeCoachReview;
+          else if (event === "error") failure = (JSON.parse(data) as { message?: string }).message;
+        } catch {
+          // A frame we cannot parse is skipped; the done event is authoritative.
+        }
+      },
+    }).then(() => {
+      if (failure) throw new Error(failure);
+      if (!final) throw new Error("The coach stream ended without a result");
+      return final;
+    });
+  },
   patch: (
     id: string,
     body: {
