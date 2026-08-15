@@ -1,6 +1,7 @@
 import { Button, HStack, Picker, Popover, Text as UIText } from '@expo/ui/swift-ui';
 import {
   buttonStyle,
+  foregroundStyle,
   frame,
   monospacedDigit,
   pickerStyle,
@@ -25,6 +26,16 @@ const SIXTY = column(60);
 /** Roughly a compact picker's own popover: three wheels, no wider than needed. */
 const WHEEL_WIDTH = 76;
 const WHEEL_HEIGHT = 180;
+
+/**
+ * The gray UIKit fills its own controls with — `tertiarySystemFill`, which is
+ * what backs the compact `DatePicker` pill this one sits beside. A `.bordered`
+ * button paints its fill from the tint at low opacity, so tinting with this
+ * hue lands on the same gray in both schemes. Tinting with the foreground (the
+ * first attempt) gave white at a heavier opacity, which read visibly lighter
+ * than the date pill; the accent default paints it blue.
+ */
+const SYSTEM_FILL = '#767680';
 
 /**
  * A clock, to the second, as one native control: a bordered pill reading
@@ -80,19 +91,18 @@ export function TimePicker({ value, onChange }: { value: Date; onChange: (next: 
     <AppHost matchContents ignoreSafeArea="all">
       <Popover isPresented={open} onIsPresentedChange={setOpen} arrowEdge="top">
         <Popover.Trigger>
+          {/* The label is a child rather than the `label` prop so it can carry
+              its own color: a bordered button takes fill *and* label from the
+              tint, and the two need different colors to match the date pill —
+              system gray behind, plain foreground on top. */}
           <Button
-            label={`${pad2(value.getHours())}:${pad2(value.getMinutes())}:${pad2(value.getSeconds())}`}
             onPress={() => setOpen(true)}
-            modifiers={[
-              buttonStyle('bordered'),
-              // A bordered button takes both its fill and its label from the
-              // tint. The foreground color reads as the same low-opacity fill
-              // the date pill uses, in either scheme, with a legible label —
-              // the accent default would paint it blue.
-              tint(theme.colors.foreground),
-              monospacedDigit(),
-            ]}
-          />
+            modifiers={[buttonStyle('bordered'), tint(SYSTEM_FILL)]}
+          >
+            <UIText modifiers={[foregroundStyle(theme.colors.foreground), monospacedDigit()]}>
+              {`${pad2(value.getHours())}:${pad2(value.getMinutes())}:${pad2(value.getSeconds())}`}
+            </UIText>
+          </Button>
         </Popover.Trigger>
         <Popover.Content>
           <HStack spacing={0}>
