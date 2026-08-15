@@ -186,7 +186,10 @@ export function LoginScreen({
           </Alert>
         ) : null}
 
-        <Button type="submit" variant="default" className="w-full" disabled={busy}>
+        {/* `loading` (not just `disabled`) — a greyed button with swapped copy
+            never said the request was in flight, only that the form was shut.
+            Full width, so the pending label costs no reflow. */}
+        <Button type="submit" variant="default" className="w-full" loading={busy}>
           {busy
             ? isLogin
               ? "Signing in…"

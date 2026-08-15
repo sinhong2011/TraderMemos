@@ -545,18 +545,27 @@ export function AccountRow({
 export function BtnPrimary({
   children,
   disabled,
+  loading,
   type = "button",
   onClick,
   className,
 }: {
   children: ReactNode;
   disabled?: boolean;
+  /** Pending state — Button draws its spinner and disables itself. */
+  loading?: boolean;
   type?: "button" | "submit";
   onClick?: () => void;
   className?: string;
 }) {
   return (
-    <Button type={type} disabled={disabled} onClick={onClick} className={className}>
+    <Button
+      type={type}
+      disabled={disabled}
+      loading={loading}
+      onClick={onClick}
+      className={className}
+    >
       {children}
     </Button>
   );

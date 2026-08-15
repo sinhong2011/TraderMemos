@@ -11,6 +11,7 @@ import { ErrorState } from '@/components/error-state';
 import { TradeForm } from '@/components/trade-form';
 import { t } from '@lingui/core/macro';
 import { errorMessage } from '@/lib/errors';
+import { armRollingNumbers } from '@/lib/rolling-numbers';
 import {
   dividendBody,
   emptyFill,
@@ -79,6 +80,8 @@ export default function EditTradeScreen() {
       }
     },
     onSuccess: () => {
+      // An edit moves the dashboard's figures as directly as a new trade does.
+      armRollingNumbers();
       void queryClient.invalidateQueries();
       router.back();
     },

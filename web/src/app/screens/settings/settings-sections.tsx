@@ -1919,7 +1919,7 @@ export function JournalTab({
               <div className="flex items-center gap-2">
                 <tagForm.Subscribe selector={(s) => s.isSubmitting}>
                   {(tagSaving) => (
-                    <BtnPrimary type="submit" disabled={tagSaving}>
+                    <BtnPrimary type="submit" loading={tagSaving}>
                       <Check size={12} strokeWidth={1.5} />
                       {tagSaving ? "Creating…" : "Create"}
                     </BtnPrimary>

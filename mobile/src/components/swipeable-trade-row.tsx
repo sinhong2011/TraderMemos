@@ -13,6 +13,7 @@ import type { Trade } from '@/api/types';
 import { TradeRow } from '@/components/trade-row';
 import { t } from '@lingui/core/macro';
 import { errorMessage } from '@/lib/errors';
+import { armRollingNumbers } from '@/lib/rolling-numbers';
 
 function SwipeAction({
   icon,
@@ -72,7 +73,11 @@ export function SwipeableTradeRow({
 
   const deleteTrade = useMutation({
     mutationFn: (id: string) => api<void>(`/trades/${id}`, { method: 'DELETE' }),
-    onSuccess: () => void queryClient.invalidateQueries(),
+    onSuccess: () => {
+      // Removing a trade moves the same figures adding one does.
+      armRollingNumbers();
+      void queryClient.invalidateQueries();
+    },
     onError: (err) => Alert.alert(t`Could not delete`, errorMessage(err)),
   });
 

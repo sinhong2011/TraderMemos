@@ -121,8 +121,8 @@ function AddUserModal({
           <Button type="button" variant="ghost" onClick={close}>
             Cancel
           </Button>
-          <Button type="submit" disabled={!username.trim() || create.isPending}>
-            {create.isPending ? "Adding…" : "Add user"}
+          <Button type="submit" disabled={!username.trim()} loading={create.isPending}>
+            Add user
           </Button>
         </div>
       </form>
@@ -201,8 +201,8 @@ function ResetPasswordModal({
             <Button type="button" variant="ghost" onClick={close}>
               Cancel
             </Button>
-            <Button type="submit" disabled={reset.isPending}>
-              {reset.isPending ? "Resetting…" : "Reset password"}
+            <Button type="submit" loading={reset.isPending}>
+              Reset password
             </Button>
           </div>
         </form>
@@ -266,9 +266,10 @@ function DeleteUserModal({
           <Button
             type="submit"
             variant="destructive"
-            disabled={typed !== user?.email || remove.isPending}
+            disabled={typed !== user?.email}
+            loading={remove.isPending}
           >
-            {remove.isPending ? "Deleting…" : "Delete user"}
+            Delete user
           </Button>
         </div>
       </form>

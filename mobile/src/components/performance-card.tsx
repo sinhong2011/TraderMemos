@@ -3,6 +3,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import type { Summary, Trade } from '@/api/types';
 import { DashboardCard } from '@/components/dashboard-card';
+import { RollingNumber } from '@/components/rolling-number';
 import { StatBar } from '@/components/stat-bar';
 import { t } from '@lingui/core/macro';
 import { formatPercent, formatRatio, useFormatters } from '@/lib/format';
@@ -48,9 +49,13 @@ export function PerformanceCard({
     <DashboardCard title={t`Performance`} flush>
       <View style={styles.hero}>
         <Text style={styles.heroLabel}>{t`Net`}</Text>
-        <Text selectable style={[styles.heroValue, { color: pnl(summary.net_pnl) }]}>
-          {formatPnl(fx(summary.net_pnl), currency)}
-        </Text>
+        {/* 42 for a 34pt line: enough to clear the glyph box so a rolling digit
+            isn't clipped standing still. */}
+        <RollingNumber
+          value={formatPnl(fx(summary.net_pnl), currency)}
+          style={[styles.heroValue, { color: pnl(summary.net_pnl) }]}
+          cellHeight={42}
+        />
         <View style={styles.metaRow}>
           <Meta label={t`Gross`} value={formatPnl(fx(gross), currency)} tint={pnl(gross)} />
           <Meta label={t`Fees`} value={formatCurrency(fx(summary.total_fees), currency)} />
