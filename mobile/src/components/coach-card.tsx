@@ -1,13 +1,14 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { useApiRequest, useLlmSettings } from '@/api/hooks';
-import type { CoachReview, TradeDetail } from '@/api/types';
+import type { CoachReview, CoachReviewHistory, TradeDetail } from '@/api/types';
 import { DashboardCard } from '@/components/dashboard-card';
 import { InlineError } from '@/components/error-state';
 import { GlassButton } from '@/components/glass-button';
+import { useFormatters } from '@/lib/format';
 import { resolveMarketTimezone, useDisplayPrefs } from '@/lib/prefs';
 import { t } from '@lingui/core/macro';
 import {
@@ -62,8 +63,17 @@ export function CoachCard({ trade }: { trade: TradeDetail }) {
   const coachSettings = useLlmSettings('coach');
   const coachConfigured = coachSettings.data?.enabled === true;
   const prefs = useDisplayPrefs();
+  const { formatDate } = useFormatters();
 
   const [review, setReview] = useState<CoachReview | null>(null);
+
+  // A review costs a model call, so the last one is read back from the server
+  // rather than regenerated when the screen mounts.
+  const stored = useQuery({
+    queryKey: ['trade-coach-reviews', trade.id],
+    queryFn: () => api<CoachReviewHistory>(`/trades/${trade.id}/coach/reviews`),
+    enabled: coachConfigured,
+  });
 
   // `tz` is the market timezone the server draws day and week boundaries in
   // when reconstructing the trader's state at this trade's entry.
@@ -78,10 +88,26 @@ export function CoachCard({ trade }: { trade: TradeDetail }) {
 
   const insights = computeTradeInsights(trade);
   const localNotes = generateTradeCoachNotes(trade, insights);
-  const llmNotes = review?.source === 'llm' ? review.notes : [];
+
+  // A freshly generated review wins; otherwise fall back to the newest stored one.
+  const latestStored = stored.data?.reviews?.[0];
+  const shown: CoachReview | null =
+    review ??
+    (latestStored
+      ? {
+          source: 'llm',
+          notes: latestStored.notes,
+          next_action: latestStored.next_action,
+          id: latestStored.id,
+          created_at: latestStored.created_at,
+        }
+      : null);
+  const fromStorage = review == null && latestStored != null;
+
+  const llmNotes = shown?.source === 'llm' ? shown.notes : [];
   // Only ever shown alongside the model's own notes — pairing it with the
   // rule-based fallback would attribute the action to advice that never ran.
-  const nextAction = review?.source === 'llm' ? review.next_action?.trim() : undefined;
+  const nextAction = shown?.source === 'llm' ? shown.next_action?.trim() : undefined;
 
   if (localNotes.length === 0 && !coachConfigured) return null;
 
@@ -93,7 +119,11 @@ export function CoachCard({ trade }: { trade: TradeDetail }) {
 
       {llmNotes.length > 0 ? (
         <>
-          <Text style={styles.sectionLabel}>{t`AI review`}</Text>
+          <Text style={styles.sectionLabel}>
+            {fromStorage && shown?.created_at
+              ? t`AI review · saved ${formatDate(shown.created_at)}`
+              : t`AI review`}
+          </Text>
           {llmNotes.map((note) => (
             <NoteRow key={note.id} note={note} />
           ))}

@@ -16,6 +16,7 @@ type Querier interface {
 	CountUsers(ctx context.Context) (int64, error)
 	CreateAccessToken(ctx context.Context, arg CreateAccessTokenParams) (AccessToken, error)
 	CreateAccount(ctx context.Context, arg CreateAccountParams) (Account, error)
+	CreateCoachReview(ctx context.Context, arg CreateCoachReviewParams) (CoachReview, error)
 	CreateImportBatch(ctx context.Context, arg CreateImportBatchParams) (ImportBatch, error)
 	CreateJournalNote(ctx context.Context, arg CreateJournalNoteParams) (JournalNote, error)
 	CreateSetup(ctx context.Context, arg CreateSetupParams) (Setup, error)
@@ -28,6 +29,7 @@ type Querier interface {
 	DeleteAnnualGoal(ctx context.Context, arg DeleteAnnualGoalParams) (int64, error)
 	DeleteAttachment(ctx context.Context, arg DeleteAttachmentParams) (int64, error)
 	DeleteCashTransaction(ctx context.Context, arg DeleteCashTransactionParams) (int64, error)
+	DeleteCoachReview(ctx context.Context, arg DeleteCoachReviewParams) (int64, error)
 	DeleteExecution(ctx context.Context, arg DeleteExecutionParams) (int64, error)
 	DeleteExecutionsForAccount(ctx context.Context, arg DeleteExecutionsForAccountParams) error
 	DeleteExecutionsForBatch(ctx context.Context, arg DeleteExecutionsForBatchParams) error
@@ -41,6 +43,10 @@ type Querier interface {
 	DeleteTag(ctx context.Context, arg DeleteTagParams) (int64, error)
 	DeleteTrade(ctx context.Context, arg DeleteTradeParams) (int64, error)
 	DeleteTradesForAccount(ctx context.Context, arg DeleteTradesForAccountParams) error
+	// NOTE: sqlc+database/sql emits a broken single-$3 slice expand for Postgres.
+	// storepg/trades.sql.go implements placeholder expansion manually; re-apply after
+	// `make sqlc` and re-run TestBulkWriterConformance/postgres — the patch cannot be
+	// copied from the SQLite twin (no /*SLICE:keep*/? marker, numbered placeholders).
 	DeleteTradesNotInAccount(ctx context.Context, arg DeleteTradesNotInAccountParams) error
 	DeleteUser(ctx context.Context, id string) (int64, error)
 	DisableAlertChannel(ctx context.Context, id string) error
@@ -93,6 +99,7 @@ type Querier interface {
 	ListCashForTrade(ctx context.Context, arg ListCashForTradeParams) ([]CashTransaction, error)
 	ListCashTransactions(ctx context.Context, arg ListCashTransactionsParams) ([]CashTransaction, error)
 	ListClosedTrades(ctx context.Context, arg ListClosedTradesParams) ([]Trade, error)
+	ListCoachReviews(ctx context.Context, arg ListCoachReviewsParams) ([]CoachReview, error)
 	ListEconomicEvents(ctx context.Context, arg ListEconomicEventsParams) ([]EconomicEvent, error)
 	ListEnabledAlertChannels(ctx context.Context, userID string) ([]AlertChannel, error)
 	ListEnabledAlertSettings(ctx context.Context) ([]AlertSetting, error)

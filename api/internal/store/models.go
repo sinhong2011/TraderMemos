@@ -107,6 +107,16 @@ type ChecklistTemplate struct {
 	Content   string    `json:"content"`
 }
 
+type CoachReview struct {
+	ID         string    `json:"id"`
+	UserID     string    `json:"user_id"`
+	TradeID    string    `json:"trade_id"`
+	Model      string    `json:"model"`
+	Notes      string    `json:"notes"`
+	NextAction string    `json:"next_action"`
+	CreatedAt  time.Time `json:"created_at"`
+}
+
 type CoachSetting struct {
 	ID           int64     `json:"id"`
 	Enabled      int64     `json:"enabled"`

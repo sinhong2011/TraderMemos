@@ -41,7 +41,7 @@ import {
 } from "@/components/ui/menu";
 import { cn } from "@/lib/cn";
 import type { Setup, Tag, TradeDetail } from "@/lib/api/types";
-import { fmtMoney } from "@/lib/format";
+import { fmtDateTime, fmtMoney } from "@/lib/format";
 
 import {
   buildStructuredJournalNotes,
@@ -173,6 +173,12 @@ function TradeCoachPanel({ trade, insights }: { trade: TradeDetail; insights: Tr
   // Only ever shown alongside the model's own notes — pairing it with the
   // rule-based fallback would attribute the action to advice that never ran.
   const nextAction = usingLlm ? coach.data?.next_action?.trim() : undefined;
+  // A review read back from storage is dated, so it does not read as advice
+  // just written about the trade you are looking at now.
+  const savedLabel =
+    coach.fromStorage && coach.data?.created_at
+      ? `Saved review from ${fmtDateTime(coach.data.created_at)}`
+      : undefined;
 
   // Excursion moved to the plan card — this panel is advice, not measurement,
   // so with no notes there is nothing left to show.
@@ -221,7 +227,7 @@ function TradeCoachPanel({ trade, insights }: { trade: TradeDetail; insights: Tr
                   {coach.isPending
                     ? "Asking the coach…"
                     : usingLlm
-                      ? "Generated from this trade via your coach model"
+                      ? (savedLabel ?? "Generated from this trade via your coach model")
                       : errorMsg
                         ? "Showing rule-based notes — AI unavailable"
                         : hasGenerated

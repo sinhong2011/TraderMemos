@@ -638,7 +638,21 @@ export type CoachReview = {
   /** The one concrete step to take before the next trade; absent if the model omitted it. */
   next_action?: string;
   error?: string;
+  /** Set once the review is stored; absent when the write failed. */
+  id?: string;
+  created_at?: string;
 };
+
+/** One previously stored review, from GET /trades/:id/coach/reviews. */
+export type StoredCoachReview = {
+  id: string;
+  notes: CoachNote[];
+  next_action?: string;
+  model?: string;
+  created_at: string;
+};
+
+export type CoachReviewHistory = { reviews: StoredCoachReview[] };
 
 /** POST /settings/{ocr,coach}/models result. */
 export type LlmModelsResult = {

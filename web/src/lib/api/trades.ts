@@ -1,9 +1,15 @@
 import { resolveMarketTimezone, useDisplayPrefs } from "@/lib/displayPrefs";
 import { apiFetch, qs } from "./client";
-import type { TradeCoachReview } from "./trades.coach.types";
+import type { TradeCoachReview, TradeCoachReviewHistory } from "./trades.coach.types";
 import type { Filters, Trade, TradeDetail } from "./types";
 
-export type { TradeCoachApiNote, TradeCoachReview, TradeCoachSource } from "./trades.coach.types";
+export type {
+  StoredTradeCoachReview,
+  TradeCoachApiNote,
+  TradeCoachReview,
+  TradeCoachReviewHistory,
+  TradeCoachSource,
+} from "./trades.coach.types";
 
 export interface TradeExcursion {
   mae: number;
@@ -28,6 +34,8 @@ export const tradesApi = {
       `/trades/${id}/coach${qs({ tz: resolveMarketTimezone(useDisplayPrefs.getState().marketTimezone) })}`,
       { method: "POST" },
     ),
+  /** Previously stored coach reviews for a trade, newest first. */
+  coachReviews: (id: string) => apiFetch<TradeCoachReviewHistory>(`/trades/${id}/coach/reviews`),
   patch: (
     id: string,
     body: {
