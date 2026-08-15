@@ -15,6 +15,7 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { Icon } from '@/components/icon';
@@ -57,6 +58,11 @@ export default function LoginScreen() {
   // form — a 1024pt-wide input row reads as a broken layout, not a sign-in card.
   const { width: windowWidth } = useWindowDimensions();
   const wide = windowWidth >= 600;
+  // `contentInsetAdjustmentBehavior` is UIKit-only, and this screen carries no
+  // header to inset against. Android draws edge-to-edge, so without an explicit
+  // pad the app icon renders at y=0 — behind the status bar, and on a Pixel
+  // behind the camera cutout itself.
+  const insets = useSafeAreaInsets();
   const { signIn } = useSession();
   const [error, setError] = useState<string | null>(null);
 
@@ -176,7 +182,14 @@ export default function LoginScreen() {
       >
         <ScrollView
           contentInsetAdjustmentBehavior="automatic"
-          contentContainerStyle={[styles.content, wide && styles.contentWide]}
+          contentContainerStyle={[
+            styles.content,
+            wide && styles.contentWide,
+            Platform.OS === 'android' && {
+              paddingTop: insets.top + theme.spacing.lg,
+              paddingBottom: insets.bottom + theme.spacing.lg,
+            },
+          ]}
           keyboardDismissMode="on-drag"
           keyboardShouldPersistTaps="handled"
         >
