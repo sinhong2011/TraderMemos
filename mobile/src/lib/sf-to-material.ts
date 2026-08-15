@@ -158,6 +158,10 @@ export const SF_TO_MATERIAL: Record<string, AndroidSymbol> = {
   'bolt.fill': 'bolt',
   'slider.horizontal.3': 'tune',
   'wrench.and.screwdriver': 'handyman',
+  // Overflow menus and the backtest session actions — these used to be drawn by
+  // SwiftUI (`@expo/ui` Menu labels), so they never needed an Android row.
+  'ellipsis.circle': 'more_horiz',
+  'tray.and.arrow.down': 'save',
 };
 
 /** Drawn when a symbol has no row above — visible, so the gap is obvious. */

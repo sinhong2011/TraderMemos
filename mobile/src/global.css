@@ -63,7 +63,9 @@
       --color-muted-foreground: #686868;
       --color-secondary: rgba(0, 0, 0, 0.08);
       --color-secondary-foreground: #262626;
-      --color-accent: rgba(0, 0, 0, 0.06);
+      /* Selected/hover fill — must read STRONGER than secondary (the resting
+         chip/button ground), or Chip's selected state looks unselected. */
+      --color-accent: rgba(0, 0, 0, 0.11);
       --color-accent-foreground: #262626;
 
       /* 12%/18% keep a divider and a field outline distinct from a filled row
@@ -125,7 +127,8 @@
       --color-muted-foreground: #878787;
       --color-secondary: rgba(255, 255, 255, 0.08);
       --color-secondary-foreground: #f5f5f5;
-      --color-accent: rgba(255, 255, 255, 0.08);
+      /* Selected/hover fill — kept above secondary; see the light block. */
+      --color-accent: rgba(255, 255, 255, 0.11);
       --color-accent-foreground: #f5f5f5;
 
       --color-border: rgba(255, 255, 255, 0.06);

@@ -1,12 +1,13 @@
 import * as Clipboard from 'expo-clipboard';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, Share, Switch, Text, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { Spinner, Switch } from 'panelui-native';
+import { Alert, Pressable, ScrollView, Share, Text, View } from 'react-native';
 
 import { useAccounts, useApiRequest, useSystemInfo } from '@/api/hooks';
 import type { CreateShareLinkBody, ShareLink } from '@/api/types';
 import { GlassButton } from '@/components/glass-button';
+import { Segmented } from '@/components/segmented';
 import { t } from '@lingui/core/macro';
 import { useSelectedAccountId } from '@/lib/account-store';
 import { errorMessage } from '@/lib/errors';
@@ -38,7 +39,6 @@ function expiryLabel(days: ExpiryChoice): string {
  * privacy default matches the share cards: amounts stay off until opted in.
  */
 export default function ShareReportsLinkScreen() {
-  const { theme } = useUnistyles();
   const router = useRouter();
   const apiRequest = useApiRequest();
   const selectedAccountId = useSelectedAccountId();
@@ -95,73 +95,59 @@ export default function ShareReportsLinkScreen() {
   return (
     // Form sheets lay non-scroll children on top of each other — the sheet's
     // content root must be a ScrollView.
-    <ScrollView style={styles.page} contentContainerStyle={styles.content}>
-      <View style={styles.header}>
-        <Text style={styles.title}>{t`Share link`}</Text>
+    <ScrollView
+      className="flex-1 bg-background"
+      contentContainerClassName="gap-4 p-4 pb-12 pt-6"
+    >
+      <View className="flex-row items-center justify-between">
+        <Text className="text-[20px] font-bold text-foreground">{t`Share link`}</Text>
         <Pressable
           onPress={() => router.back()}
           hitSlop={8}
           accessibilityRole="button"
-          style={({ pressed }) => [styles.doneButton, pressed && styles.pressed]}
+          className="p-1 active:opacity-60"
         >
-          <Text style={styles.doneLabel}>{t`Done`}</Text>
+          <Text className="text-[15px] font-semibold text-foreground">{t`Done`}</Text>
         </Pressable>
       </View>
 
-      <Text style={styles.explainer}>
+      <Text className={EXPLAINER}>
         {t`Anyone with the link sees a read-only summary of the current scope — no trades, notes or account details.`}
       </Text>
 
-      <View style={styles.optionRow}>
-        <View style={styles.optionText}>
-          <Text style={styles.optionLabel}>{t`Show amounts`}</Text>
-          <Text style={styles.optionHint}>
+      <View className="flex-row items-center gap-3">
+        <View className="flex-1 gap-[2px]">
+          <Text className={OPTION_LABEL}>{t`Show amounts`}</Text>
+          <Text className="text-xs text-muted-foreground">
             {t`Off shares only win rate and ratios — account size stays private.`}
           </Text>
         </View>
-        <Switch
-          value={showAmounts}
-          onValueChange={setShowAmounts}
-          trackColor={{ true: theme.colors.primary }}
-        />
+        <Switch value={showAmounts} onValueChange={setShowAmounts} label={t`Show amounts`} />
       </View>
 
-      <View style={styles.optionRow}>
-        <View style={styles.optionText}>
-          <Text style={styles.optionLabel}>{t`Expires`}</Text>
-        </View>
-      </View>
-      <View style={styles.expiryPicker}>
-        {EXPIRY_CHOICES.map((days) => {
-          const selected = days === expiry;
-          return (
-            <Pressable
-              key={days}
-              onPress={() => setExpiry(days)}
-              accessibilityRole="button"
-              accessibilityState={{ selected }}
-              style={({ pressed }) => [
-                styles.expiryChip,
-                selected && styles.expiryChipSelected,
-                pressed && styles.pressed,
-              ]}
-            >
-              <Text style={[styles.expiryLabel, selected && styles.expiryLabelSelected]}>
-                {expiryLabel(days)}
-              </Text>
-            </Pressable>
-          );
-        })}
+      {/* Four equal-width, mutually exclusive choices — the segmented control
+          this row of stretched chips was always drawing by hand. */}
+      <View className="gap-2">
+        <Text className={OPTION_LABEL}>{t`Expires`}</Text>
+        <Segmented
+          fill
+          options={EXPIRY_CHOICES.map((days) => ({
+            value: String(days),
+            label: expiryLabel(days),
+          }))}
+          value={String(expiry)}
+          onChange={(next) => setExpiry(Number(next) as ExpiryChoice)}
+        />
       </View>
 
       {url ? (
         <>
-          <View style={styles.urlBox}>
-            <Text selectable style={styles.url}>
+          <View className="rounded-lg bg-muted p-3" style={{ borderCurve: 'continuous' }}>
+            <Text selectable className="text-[13px] text-foreground tabular-nums">
               {url}
             </Text>
           </View>
-          <View style={styles.actions}>
+          <View className={ACTIONS}>
             <GlassButton
               prominent
               label={t`Share`}
@@ -179,10 +165,10 @@ export default function ShareReportsLinkScreen() {
         // Gated before creating, not after: a link minted with nowhere to point
         // is a live public token the sharer can't even see.
         <>
-          <Text style={styles.explainer}>
+          <Text className={EXPLAINER}>
             {t`Set the web app address first — links open there, and this server doesn't advertise one.`}
           </Text>
-          <View style={styles.actions}>
+          <View className={ACTIONS}>
             <GlassButton
               prominent
               label={t`Open settings`}
@@ -195,9 +181,9 @@ export default function ShareReportsLinkScreen() {
           </View>
         </>
       ) : (
-        <View style={styles.actions}>
+        <View className={ACTIONS}>
           {creating ? (
-            <ActivityIndicator />
+            <Spinner />
           ) : (
             <GlassButton
               prominent
@@ -212,46 +198,6 @@ export default function ShareReportsLinkScreen() {
   );
 }
 
-const styles = StyleSheet.create((theme) => ({
-  page: { flex: 1, backgroundColor: theme.colors.background },
-  content: {
-    padding: theme.spacing.lg,
-    paddingTop: theme.spacing.xl,
-    gap: theme.spacing.lg,
-    paddingBottom: theme.spacing.xl * 2,
-  },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  title: { fontSize: 20, fontWeight: '700', color: theme.colors.foreground },
-  doneButton: { paddingVertical: 4, paddingHorizontal: 4 },
-  pressed: { opacity: 0.6 },
-  doneLabel: { fontSize: 15, fontWeight: '600', color: theme.colors.foreground },
-  explainer: { fontSize: 13, color: theme.colors.mutedForeground, lineHeight: 18 },
-  optionRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md },
-  optionText: { flex: 1, gap: 2 },
-  optionLabel: { fontSize: 15, fontWeight: '500', color: theme.colors.foreground },
-  optionHint: { fontSize: 12, color: theme.colors.mutedForeground },
-  expiryPicker: { flexDirection: 'row', gap: theme.spacing.sm },
-  expiryChip: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: 6,
-    borderRadius: theme.radius.lg,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.muted,
-  },
-  expiryChipSelected: { backgroundColor: theme.colors.primary },
-  expiryLabel: { fontSize: 13, fontWeight: '600', color: theme.colors.foreground },
-  expiryLabelSelected: { color: theme.colors.primaryForeground },
-  urlBox: {
-    padding: theme.spacing.md,
-    borderRadius: theme.radius.lg,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.muted,
-  },
-  url: { fontSize: 13, color: theme.colors.foreground, ...theme.numeric },
-  actions: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: theme.spacing.sm,
-  },
-}));
+const EXPLAINER = 'text-[13px] leading-[18px] text-muted-foreground';
+const OPTION_LABEL = 'text-[15px] font-medium text-foreground';
+const ACTIONS = 'flex-row justify-center gap-2';

@@ -1,7 +1,6 @@
-
 import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { useCSSVariable } from 'uniwind';
 
 import { Icon } from '@/components/icon';
 import { useFxRate } from '@/api/hooks';
@@ -21,7 +20,7 @@ import { DISPLAY_CURRENCIES } from '@/lib/prefs';
  * the result is live, so the form is the result.
  */
 export default function FxToolScreen() {
-  const { theme } = useUnistyles();
+  const [foreground] = useCSSVariable(['--color-foreground']) as [string];
   // Bound to the display timezone (see lib/format.ts).
   const { formatDate } = useFormatters();
 
@@ -51,10 +50,10 @@ export default function FxToolScreen() {
 
   return (
     <ToolSheet title={t`Currency converter`}>
-      <View style={styles.stack}>
-        <View style={styles.panel}>
-          <View style={styles.panelHead}>
-            <Text style={styles.caption}>{t`From`}</Text>
+      <View className="gap-1">
+        <View className={PANEL} style={CONTINUOUS}>
+          <View className={PANEL_HEAD}>
+            <Text className={CAPTION}>{t`From`}</Text>
             <Segmented variant="menu" options={currencyOptions} value={from} onChange={setFrom} />
           </View>
           <NumericField
@@ -70,7 +69,7 @@ export default function FxToolScreen() {
 
         {/* Zero-height so the button floats on the seam between the panels,
             the converter idiom — a row of its own would push them apart. */}
-        <View style={styles.seam} pointerEvents="box-none">
+        <View className="z-[2] h-0 items-end pr-4" pointerEvents="box-none">
           <Pressable
             onPress={() => {
               setFrom(to);
@@ -79,30 +78,37 @@ export default function FxToolScreen() {
             hitSlop={10}
             accessibilityRole="button"
             accessibilityLabel={t`Swap currencies`}
-            style={({ pressed }) => [styles.swapButton, pressed && styles.pressed]}
+            // Ring in the page color so the button reads as punched through
+            // the seam; the negative top margin is half its own height.
+            className="-mt-[22px] h-11 w-11 items-center justify-center rounded-full border-4 border-background bg-muted active:opacity-60"
           >
-            <Icon name="arrow.up.arrow.down" size={16} tintColor={theme.colors.foreground} />
+            <Icon name="arrow.up.arrow.down" size={16} tintColor={foreground} />
           </Pressable>
         </View>
 
-        <View style={styles.panel}>
-          <View style={styles.panelHead}>
-            <Text style={styles.caption}>{t`To`}</Text>
+        <View className={PANEL} style={CONTINUOUS}>
+          <View className={PANEL_HEAD}>
+            <Text className={CAPTION}>{t`To`}</Text>
             <Segmented variant="menu" options={currencyOptions} value={to} onChange={setTo} />
           </View>
           {converted != null ? (
-            <Text selectable numberOfLines={1} adjustsFontSizeToFit style={styles.result}>
+            <Text
+              selectable
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              className="text-right text-[34px] font-semibold tracking-[-1px] text-foreground tabular-nums"
+            >
               {money(converted, to)}
             </Text>
           ) : (
-            <Text style={styles.resultPending}>
+            <Text className="py-2 text-right text-[17px] text-muted-foreground">
               {fxProblem ? fxProblem.title : t`Fetching rate…`}
             </Text>
           )}
         </View>
       </View>
 
-      <Text style={styles.rateLine}>
+      <Text className="text-center text-xs text-muted-foreground tabular-nums">
         {fxProblemLine && !same
           ? fxProblemLine
           : converted != null
@@ -115,52 +121,12 @@ export default function FxToolScreen() {
   );
 }
 
-const SWAP_SIZE = 44;
-
-const styles = StyleSheet.create((theme) => ({
-  stack: { gap: theme.spacing.xs },
-  panel: {
-    gap: theme.spacing.xs,
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.md,
-    borderRadius: theme.radius.lg + 4,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.card,
-  },
-  panelHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  caption: { fontSize: 13, fontWeight: '600', color: theme.colors.mutedForeground },
-  seam: { height: 0, alignItems: 'flex-end', paddingRight: theme.spacing.lg, zIndex: 2 },
-  swapButton: {
-    width: SWAP_SIZE,
-    height: SWAP_SIZE,
-    marginTop: -SWAP_SIZE / 2,
-    borderRadius: theme.radius.full,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: theme.colors.muted,
-    // Ring in the page color so the button reads as punched through the seam.
-    borderWidth: 4,
-    borderColor: theme.colors.background,
-  },
-  pressed: { opacity: 0.6 },
-  result: {
-    fontSize: 34,
-    fontWeight: '600',
-    letterSpacing: -1,
-    textAlign: 'right',
-    color: theme.colors.foreground,
-    ...theme.numeric,
-  },
-  resultPending: {
-    fontSize: 17,
-    textAlign: 'right',
-    paddingVertical: theme.spacing.sm,
-    color: theme.colors.mutedForeground,
-  },
-  rateLine: {
-    fontSize: 12,
-    textAlign: 'center',
-    color: theme.colors.mutedForeground,
-    ...theme.numeric,
-  },
-}));
+/**
+ * The two currency panels. An 18pt radius — one step softer than the `lg`
+ * tier — is the Calculator convert-mode panel; `continuous` corners have no
+ * class, so the squircle stays a style prop.
+ */
+const PANEL = 'gap-1 rounded-[18px] bg-card px-4 py-3';
+const PANEL_HEAD = 'flex-row items-center justify-between';
+const CAPTION = 'text-[13px] font-semibold text-muted-foreground';
+const CONTINUOUS = { borderCurve: 'continuous' } as const;

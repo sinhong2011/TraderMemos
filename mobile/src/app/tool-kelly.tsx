@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Text, View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
 
 import { useSummary } from '@/api/hooks';
 import { FormField, FormInput } from '@/components/form-sheet';
@@ -56,7 +55,7 @@ export default function KellyToolScreen() {
 
       {kelly != null ? (
         <>
-          <View style={styles.grid}>
+          <View className="flex-row flex-wrap gap-2 pt-2">
             <StatBar
               label={t`Full Kelly`}
               value={formatPercent(kelly, 1)}
@@ -65,7 +64,7 @@ export default function KellyToolScreen() {
             <StatBar label={t`Half Kelly`} value={formatPercent(kelly / 2, 1)} tone="pos" />
             <StatBar label={t`Quarter Kelly`} value={formatPercent(kelly / 4, 1)} />
           </View>
-          <Text style={styles.footnote}>
+          <Text className="text-xs leading-[17px] text-muted-foreground">
             {kelly > 0
               ? t`Fraction of capital to risk per trade. Half Kelly is the common practical pick — full Kelly assumes perfect estimates.`
               : t`Negative Kelly means this win rate and payoff have no positive edge.`}
@@ -75,13 +74,3 @@ export default function KellyToolScreen() {
     </ToolSheet>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: theme.spacing.sm,
-    paddingTop: theme.spacing.sm,
-  },
-  footnote: { fontSize: 12, lineHeight: 17, color: theme.colors.mutedForeground },
-}));

@@ -2,7 +2,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Alert, Pressable, Text, View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
 
 import { useAccounts, useApiRequest, useCash } from '@/api/hooks';
 import type { Account, CashTransaction } from '@/api/types';
@@ -168,9 +167,9 @@ function CashForm({
       {!isEdit && accounts.length > 1 ? (
         <FormField quiet label={t`Account`}>
           <FormControl>
-            {/* Hugging, not `fill`: a stretched Host gives the SwiftUI menu a
-                frame it lays its label out against on its own, and the label
-                lands outside the shell (half off-screen). */}
+            {/* Hugging, not `fill`: the trigger sits on the shell's leading
+                edge, so a stretched one would push its value off to the far
+                side of the box. */}
             <Segmented
               flush
               variant="menu"
@@ -186,7 +185,7 @@ function CashForm({
       ) : account ? (
         <FormField quiet label={t`Account`}>
           <FormControl>
-            <Text style={styles.staticValue}>{account.name}</Text>
+            <Text className="text-base text-muted-foreground">{account.name}</Text>
           </FormControl>
         </FormField>
       ) : null}
@@ -231,14 +230,14 @@ function CashForm({
       {/* Remove sits in the body, away from the header's commit — destructive
           actions shouldn't be a thumb-slip from Save. */}
       {isEdit ? (
-        <View style={styles.dangerZone}>
+        <View className="items-center pt-6">
           <Pressable
             onPress={confirmDelete}
             disabled={remove.isPending}
             accessibilityRole="button"
-            style={({ pressed }) => [styles.deleteButton, pressed && styles.pressed]}
+            className="px-4 py-2 active:opacity-60"
           >
-            <Text style={styles.deleteLabel}>
+            <Text className="text-[15px] font-medium text-destructive">
               {remove.isPending ? t`Removing…` : t`Remove transaction`}
             </Text>
           </Pressable>
@@ -247,11 +246,3 @@ function CashForm({
     </FormSheet>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  staticValue: { fontSize: 16, color: theme.colors.mutedForeground },
-  dangerZone: { paddingTop: theme.spacing.xl, alignItems: 'center' },
-  deleteButton: { paddingVertical: theme.spacing.sm, paddingHorizontal: theme.spacing.lg },
-  pressed: { opacity: 0.6 },
-  deleteLabel: { fontSize: 15, fontWeight: '500', color: theme.colors.destructive },
-}));

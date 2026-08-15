@@ -1,9 +1,10 @@
 import * as Sharing from 'expo-sharing';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useRef, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, Switch, Text, View } from 'react-native';
+import { Chip, Spinner, Switch } from 'panelui-native';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { captureRef } from 'react-native-view-shot';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { useCSSVariable } from 'uniwind';
 
 import { useTrade } from '@/api/hooks';
 import { ErrorState } from '@/components/error-state';
@@ -18,7 +19,7 @@ import { Skeleton } from '@/components/skeleton';
 import { t } from '@lingui/core/macro';
 import { errorMessage } from '@/lib/errors';
 import { useProGate } from '@/lib/pro-gate';
-import { PnlFill } from '@/styles/unistyles';
+import { PnlFill } from '@/styles/pnl';
 
 /**
  * Share preview: the actual card, at the size it will be captured, with the
@@ -27,7 +28,7 @@ import { PnlFill } from '@/styles/unistyles';
  * the preview honest.
  */
 export default function ShareTradeScreen() {
-  const { theme } = useUnistyles();
+  const [background] = useCSSVariable(['--color-background']) as [string];
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const trade = useTrade(id ?? '');
@@ -47,7 +48,7 @@ export default function ShareTradeScreen() {
   // Swatch dots for the picker; signal's fill is outcome-driven on the card,
   // so its swatch shows the brand-blue "open" fill as the representative hue.
   const swatchColor: Record<ShareCardStyleId, string> = {
-    classic: theme.colors.background,
+    classic: background,
     midnight: '#0E1116',
     paper: '#FFFFFF',
     signal: PnlFill.open,
@@ -71,26 +72,29 @@ export default function ShareTradeScreen() {
   return (
     // Form sheets lay non-scroll children on top of each other — the sheet's
     // content root must be a ScrollView.
-    <ScrollView style={styles.page} contentContainerStyle={styles.content}>
-      <View style={styles.header}>
-        <Text style={styles.title}>{t`Share card`}</Text>
+    <ScrollView
+      className="flex-1 bg-background"
+      contentContainerClassName="gap-4 p-4 pb-12 pt-6"
+    >
+      <View className="flex-row items-center justify-between">
+        <Text className="text-[20px] font-bold text-foreground">{t`Share card`}</Text>
         <Pressable
           onPress={() => router.back()}
           hitSlop={8}
           accessibilityRole="button"
-          style={({ pressed }) => [styles.doneButton, pressed && styles.pressed]}
+          className="p-1 active:opacity-60"
         >
-          <Text style={styles.doneLabel}>{t`Done`}</Text>
+          <Text className="text-[15px] font-semibold text-foreground">{t`Done`}</Text>
         </Pressable>
       </View>
 
       {trade.isLoading ? (
-        <Skeleton style={styles.cardSkeleton} />
+        <Skeleton className="h-[280px] rounded-[18px]" />
       ) : trade.error && !trade.data ? (
         // Only when the cache has nothing either — a card built from a stale
         // trade still shares. The sheet's content root is the ScrollView, which
         // hands children no height, so the failure needs an explicit slot.
-        <View style={styles.failure}>
+        <View className="h-[280px]">
           <ErrorState
             error={trade.error}
             onRetry={() => void trade.refetch()}
@@ -98,10 +102,15 @@ export default function ShareTradeScreen() {
           />
         </View>
       ) : !trade.data ? (
-        <Text style={styles.muted}>{t`Trade not found`}</Text>
+        <Text className="text-center text-muted-foreground">{t`Trade not found`}</Text>
       ) : (
         <>
-          <View style={styles.preview}>
+          {/* The card paints its own background; a muted mat separates it from
+              the sheet so the capture's edges read. */}
+          <View
+            className="items-center rounded-[18px] bg-muted py-4"
+            style={{ borderCurve: 'continuous' }}
+          >
             <ShareCardView
               ref={cardRef}
               trade={trade.data}
@@ -111,59 +120,66 @@ export default function ShareTradeScreen() {
             />
           </View>
 
-          <View style={styles.stylePicker}>
+          <View className="flex-row justify-center gap-2">
             {SHARE_CARD_STYLES.map((id) => {
               const selected = id === effectiveStyle;
               return (
-                <Pressable
+                <Chip
                   key={id}
+                  // `variant`, not Chip's own `selected` fill: this theme's
+                  // accent is quieter than the default chip ground, so the
+                  // chosen style would read as the unchosen one.
+                  variant={selected ? 'primary' : 'default'}
                   onPress={() => setCardStyle(id)}
-                  accessibilityRole="button"
                   accessibilityState={{ selected }}
-                  style={({ pressed }) => [
-                    styles.styleChip,
-                    selected && styles.styleChipSelected,
-                    pressed && styles.pressed,
-                  ]}
+                  start={
+                    // Hairline keeps same-ground swatches (paper-on-light,
+                    // midnight-on-dark) readable; interactive controls may
+                    // carry borders.
+                    <View
+                      className="h-[14px] w-[14px] rounded-full border-border"
+                      style={{
+                        backgroundColor: swatchColor[id],
+                        borderWidth: StyleSheet.hairlineWidth,
+                      }}
+                    />
+                  }
                 >
-                  <View style={[styles.swatch, { backgroundColor: swatchColor[id] }]} />
-                  <Text style={[styles.styleLabel, selected && styles.styleLabelSelected]}>
-                    {shareCardStyleLabel(id)}
-                  </Text>
-                </Pressable>
+                  {shareCardStyleLabel(id)}
+                </Chip>
               );
             })}
           </View>
 
-          <View style={styles.optionRow}>
-            <View style={styles.optionText}>
-              <Text style={styles.optionLabel}>{t`Show amounts`}</Text>
-              <Text style={styles.optionHint}>
+          <View className={OPTION_ROW}>
+            <View className={OPTION_TEXT}>
+              <Text className={OPTION_LABEL}>{t`Show amounts`}</Text>
+              <Text className={OPTION_HINT}>
                 {t`Off by default — the card shows R and return % only.`}
               </Text>
             </View>
             <Switch
               value={showAmounts}
               onValueChange={setShowAmounts}
-              trackColor={{ true: theme.colors.primary }}
+              label={t`Show amounts`}
             />
           </View>
 
-          <View style={styles.optionRow}>
-            <View style={styles.optionText}>
-              <Text style={styles.optionLabel}>{t`TraderMemos mark`}</Text>
-              <Text style={styles.optionHint}>{t`A small wordmark in the card corner.`}</Text>
+          <View className={OPTION_ROW}>
+            <View className={OPTION_TEXT}>
+              <Text className={OPTION_LABEL}>{t`TraderMemos mark`}</Text>
+              <Text className={OPTION_HINT}>{t`A small wordmark in the card corner.`}</Text>
             </View>
             <Switch
               value={effectiveShowMark}
               onValueChange={setShowMark}
-              trackColor={{ true: theme.colors.primary }}
+              label={t`TraderMemos mark`}
             />
           </View>
 
-          <View style={styles.action}>
+          <View className="items-center">
             {sharing ? (
-              <ActivityIndicator />
+              <Spinner />
             ) : (
               <GlassButton
                 prominent
@@ -179,61 +195,7 @@ export default function ShareTradeScreen() {
   );
 }
 
-const styles = StyleSheet.create((theme) => ({
-  page: { flex: 1, backgroundColor: theme.colors.background },
-  content: {
-    padding: theme.spacing.lg,
-    paddingTop: theme.spacing.xl,
-    gap: theme.spacing.lg,
-    paddingBottom: theme.spacing.xl * 2,
-  },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  title: { fontSize: 20, fontWeight: '700', color: theme.colors.foreground },
-  doneButton: { paddingVertical: 4, paddingHorizontal: 4 },
-  pressed: { opacity: 0.6 },
-  doneLabel: { fontSize: 15, fontWeight: '600', color: theme.colors.foreground },
-  // The card paints its own background; a muted mat separates it from the
-  // sheet so the capture's edges read.
-  preview: {
-    alignItems: 'center',
-    paddingVertical: theme.spacing.lg,
-    borderRadius: theme.radius.lg + 4,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.muted,
-  },
-  stylePicker: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: theme.spacing.sm,
-  },
-  styleChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing.xs,
-    paddingVertical: 6,
-    paddingHorizontal: theme.spacing.md,
-    borderRadius: theme.radius.lg,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.muted,
-  },
-  styleChipSelected: { backgroundColor: theme.colors.primary },
-  // Hairline keeps same-ground swatches (paper-on-light, midnight-on-dark)
-  // readable; interactive controls may carry borders.
-  swatch: {
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: theme.colors.border,
-  },
-  styleLabel: { fontSize: 13, fontWeight: '600', color: theme.colors.foreground },
-  styleLabelSelected: { color: theme.colors.primaryForeground },
-  optionRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md },
-  optionText: { flex: 1, gap: 2 },
-  optionLabel: { fontSize: 15, fontWeight: '500', color: theme.colors.foreground },
-  optionHint: { fontSize: 12, color: theme.colors.mutedForeground },
-  action: { alignItems: 'center' },
-  cardSkeleton: { height: 280, borderRadius: theme.radius.lg + 4 },
-  failure: { height: 280 },
-  muted: { color: theme.colors.mutedForeground, textAlign: 'center' },
-}));
+const OPTION_ROW = 'flex-row items-center gap-3';
+const OPTION_TEXT = 'flex-1 gap-[2px]';
+const OPTION_LABEL = 'text-[15px] font-medium text-foreground';
+const OPTION_HINT = 'text-xs text-muted-foreground';

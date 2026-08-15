@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
 
 import { useAccounts, useRiskRules } from '@/api/hooks';
 import { FormField, FormInput } from '@/components/form-sheet';
@@ -97,7 +96,7 @@ export default function PositionSizeToolScreen() {
       </ToolRow>
 
       {result ? (
-        <View style={styles.grid}>
+        <View className="flex-row flex-wrap gap-2 pt-2">
           <StatBar label={t`Shares`} value={formatCompact(Math.floor(result.qty))} tone="accent" />
           <StatBar
             label={t`Risk`}
@@ -114,12 +113,3 @@ export default function PositionSizeToolScreen() {
     </ToolSheet>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: theme.spacing.sm,
-    paddingTop: theme.spacing.sm,
-  },
-}));
