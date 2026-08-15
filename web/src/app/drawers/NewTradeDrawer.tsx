@@ -7,7 +7,6 @@ import {
   CircleDashed,
   FileStack,
   FileUp,
-  Loader2,
   Plus,
   ScanLine,
   Trash2,
@@ -59,9 +58,9 @@ import {
   BatchTradeResultPreview,
   TradeResultPreview,
 } from "@/components/TradeResultPreview";
+import { TradeScanOverlay } from "@/components/TradeScanOverlay";
 import { useToastManager } from "@/components/Toast";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { ApiError } from "@/lib/api/client";
 import { attachmentsApi } from "@/lib/api/attachments";
 import { cashApi } from "@/lib/api/cash";
 import type { TradeExtract } from "@/lib/api/ocr";
@@ -69,7 +68,6 @@ import { tradesApi } from "@/lib/api/trades";
 import { parseAmountToNumber } from "@/lib/amountInput";
 import { cn } from "@/lib/cn";
 import { usePrivacyMode } from "@/lib/displayPrefs";
-import { parseFillFile } from "@/lib/fillFile";
 import { fmtMoney, fmtSignedMoney } from "@/lib/format";
 import { soleAccountId, useFilters } from "@/lib/filters";
 import {
@@ -102,7 +100,7 @@ import {
   tradesFromOcrExtract,
 } from "@/lib/newTradeBlocks";
 import { detectOptionStrategy } from "@/lib/optionStrategy";
-import { groupOcrBySymbol, ocrScanToastDescription } from "@/lib/ocrSymbolGroups";
+import { groupOcrBySymbol } from "@/lib/ocrSymbolGroups";
 import { pnlColor } from "@/components/theme-tokens";
 import {
   aggregateTradePnlPreviews,
@@ -126,7 +124,6 @@ import {
   useDeleteExecution,
   useUpdateExecution,
 } from "@/lib/hooks/useExecutions";
-import { useOcrParse } from "@/lib/hooks/useOcrParse";
 import { useOcrSettings } from "@/lib/hooks/useOcrSettings";
 import { isOcrVisionReady } from "@/lib/ocrVisionReady";
 import { useSetups } from "@/lib/hooks/useSetups";
@@ -1301,7 +1298,6 @@ export function NewTradeDrawer() {
   const editTradeQ = useTradeDetail(editTradeId ?? "");
   /** Prefer the snapshot passed at open; fall back to query cache/network. */
   const editSource = editTradeDetail ?? editTradeQ.data;
-  const ocrParse = useOcrParse();
   const { data: ocrSettings, isLoading: ocrSettingsLoading } = useOcrSettings();
   const visionReady = isOcrVisionReady(ocrSettings);
   const toast = useToastManager();
@@ -1316,6 +1312,8 @@ export function NewTradeDrawer() {
   const [removingKey, setRemovingKey] = useState<string | null>(null);
   const [ocrExtract, setOcrExtract] = useState<TradeExtract | null>(null);
   const [ocrWarnings, setOcrWarnings] = useState<string[]>([]);
+  /** Files staged for the scan overlay — the form is untouched until "Fill form". */
+  const [scanFiles, setScanFiles] = useState<File[] | null>(null);
   const [ocrSetupPromptOpen, setOcrSetupPromptOpen] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [editSaving, setEditSaving] = useState(false);
@@ -1621,6 +1619,7 @@ export function NewTradeDrawer() {
     setRemovingKey(null);
     setOcrExtract(null);
     setOcrWarnings([]);
+    setScanFiles(null);
     setSubmitError("");
     setTemplatesOpen(false);
     const acct = filterAccountId || accounts[0]?.id || "";
@@ -1755,49 +1754,13 @@ export function NewTradeDrawer() {
     setTemplates(listTradeTemplates());
   };
 
-  const scan = async (files: File | File[]) => {
-    const list = Array.isArray(files) ? files : [files];
-    if (list.length === 0) return;
-    try {
-      const extract = await ocrParse.mutateAsync(list);
-      form.setFieldValue("trades", tradesFromOcrExtract(extract));
-      setPendingFilesByKey({});
-      setOcrExtract(extract);
-      setOcrWarnings(extract.warnings ?? []);
-      toast.add({
-        title: list.length > 1 ? `Scanned ${list.length} images` : "Symbols loaded",
-        description: ocrScanToastDescription(extract),
-      });
-    } catch (error) {
-      toast.add({
-        title: "OCR failed",
-        description:
-          error instanceof ApiError || error instanceof Error
-            ? error.message
-            : "Could not scan screenshot",
-        type: "error",
-      });
-    }
-  };
-
-  const importFillFile = async (file: File) => {
-    try {
-      const extract = parseFillFile(file.name, await file.text());
-      form.setFieldValue("trades", tradesFromOcrExtract(extract));
-      setPendingFilesByKey({});
-      setOcrExtract(extract);
-      setOcrWarnings(extract.warnings ?? []);
-      toast.add({
-        title: "Fills loaded",
-        description: ocrScanToastDescription(extract),
-      });
-    } catch (error) {
-      toast.add({
-        title: "Import failed",
-        description: error instanceof Error ? error.message : "Could not read file",
-        type: "error",
-      });
-    }
+  /** "Fill form" in the scan overlay — the only path that touches the form. */
+  const applyScan = (extract: TradeExtract) => {
+    form.setFieldValue("trades", tradesFromOcrExtract(extract));
+    setPendingFilesByKey({});
+    setOcrExtract(extract);
+    setOcrWarnings(extract.warnings ?? []);
+    setScanFiles(null);
   };
 
   const openVisionSettings = () => {
@@ -1947,14 +1910,13 @@ export function NewTradeDrawer() {
                         type="button"
                         variant="outline"
                         size="sm"
-                        disabled={ocrParse.isPending || ocrSettingsLoading}
+                        disabled={ocrSettingsLoading}
                         onClick={onScanClick}
                         className={cn(
                           // Field height, not button height — it sits on the
                           // Account select's baseline (`size="sm"` is 2px short).
                           "h-8.5 text-sm font-medium sm:h-7.5",
                           !visionReady && "text-muted-foreground",
-                          ocrParse.isPending && "opacity-70",
                         )}
                         aria-label="Prefill trade from screenshot"
                         title={
@@ -1963,17 +1925,8 @@ export function NewTradeDrawer() {
                             : "Set up screenshot scan in Settings before scanning"
                         }
                       >
-                        {ocrParse.isPending ? (
-                          <Loader2
-                            size={14}
-                            strokeWidth={1.75}
-                            className="animate-spin"
-                            aria-hidden
-                          />
-                        ) : (
-                          <ScanLine size={14} aria-hidden />
-                        )}
-                        {ocrParse.isPending ? "Scanning…" : "Scan to fill"}
+                        <ScanLine size={14} aria-hidden />
+                        Scan to fill
                       </Button>
                       <input
                         ref={ocrFileRef}
@@ -1985,7 +1938,7 @@ export function NewTradeDrawer() {
                         onChange={(event) => {
                           const files = Array.from(event.target.files ?? []);
                           event.target.value = "";
-                          if (files.length) void scan(files);
+                          if (files.length) setScanFiles(files);
                         }}
                       />
                       <Button
@@ -2009,7 +1962,7 @@ export function NewTradeDrawer() {
                         onChange={(event) => {
                           const file = event.target.files?.[0];
                           event.target.value = "";
-                          if (file) void importFillFile(file);
+                          if (file) setScanFiles([file]);
                         }}
                       />
                     </>
@@ -2187,6 +2140,17 @@ export function NewTradeDrawer() {
               </form>
             )}
           </DrawerBody>
+          <AnimatePresence>
+            {scanFiles ? (
+              <TradeScanOverlay
+                files={scanFiles}
+                currency={currency}
+                locale={locale}
+                onApply={applyScan}
+                onClose={() => setScanFiles(null)}
+              />
+            ) : null}
+          </AnimatePresence>
         </DrawerContent>
       </Drawer>
       <OcrSetupPromptModal

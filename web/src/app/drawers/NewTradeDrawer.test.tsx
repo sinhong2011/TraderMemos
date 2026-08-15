@@ -290,6 +290,11 @@ describe("NewTradeDrawer", () => {
       document.querySelector('[data-testid="ocr-scan-input"]') as HTMLInputElement,
       new File(["x"], "fills.png", { type: "image/png" }),
     );
+    // The scan overlay stages the parse and shows per-symbol review cards;
+    // nothing touches the form until "Fill form".
+    expect(screen.getByTestId("trade-scan-overlay")).toBeInTheDocument();
+    await userEvent.click(await screen.findByRole("button", { name: "Fill form" }));
+    await waitFor(() => expect(screen.queryByTestId("trade-scan-overlay")).not.toBeInTheDocument());
     // The pre-scan block leaves via AnimatePresence, so it stays mounted (and
     // keeps its "Symbol" label) until the exit finishes. Wait for the list to
     // settle rather than asserting mid-transition.
@@ -313,6 +318,65 @@ describe("NewTradeDrawer", () => {
     );
     expect(screen.queryByRole("listbox", { name: "Symbols in scan" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /Save & next/i })).not.toBeInTheDocument();
+  });
+
+  it("leaves the form untouched when the scan is dismissed without filling", async () => {
+    mockedOcrParse.mockResolvedValue({
+      symbol: "AAPL",
+      instrument_type: "stock",
+      side: "long",
+      confidence: 0.9,
+      raw_text: "…",
+      warnings: [],
+      rows: [
+        {
+          symbol: "AAPL",
+          side: "buy",
+          quantity: 10,
+          price: 100,
+          fees: 0,
+          commission: 0,
+          executed_at: "2026-07-16T10:00:00Z",
+        },
+      ],
+    });
+    wrap(<NewTradeDrawer />);
+    await userEvent.upload(
+      document.querySelector('[data-testid="ocr-scan-input"]') as HTMLInputElement,
+      new File(["x"], "fills.png", { type: "image/png" }),
+    );
+    // The review stage is reached, so the extract is ready to apply…
+    await screen.findByRole("button", { name: "Fill form" });
+    expect(screen.getByLabelText("Symbol")).toHaveValue("");
+    // …but closing instead of applying must leave the blank form as it was.
+    await userEvent.click(screen.getByRole("button", { name: "Close scan" }));
+    await waitFor(() => expect(screen.queryByTestId("trade-scan-overlay")).not.toBeInTheDocument());
+    expect(screen.getByLabelText("Symbol")).toHaveValue("");
+    expect(screen.queryByTestId("ocr-scan-summary")).not.toBeInTheDocument();
+  });
+
+  it("reports a scan that returned no usable fills instead of an empty symbol card", async () => {
+    mockedOcrParse.mockResolvedValue({
+      symbol: "",
+      instrument_type: "stock",
+      side: "",
+      confidence: 0.1,
+      raw_text: "…",
+      warnings: ["vision returned no usable fills — try a clearer screenshot or CSV import"],
+      rows: [],
+    });
+    wrap(<NewTradeDrawer />);
+    await userEvent.upload(
+      document.querySelector('[data-testid="ocr-scan-input"]') as HTMLInputElement,
+      new File(["x"], "blank.png", { type: "image/png" }),
+    );
+    expect(await screen.findByText(/Nothing could be read from these files/)).toBeInTheDocument();
+    // The vision warning is the diagnosis, so it survives into this ending.
+    expect(screen.getByTestId("scan-overlay-warnings")).toHaveTextContent(
+      "vision returned no usable fills",
+    );
+    expect(screen.queryByRole("button", { name: "Fill form" })).not.toBeInTheDocument();
+    expect(screen.queryByText(/symbol found/)).not.toBeInTheDocument();
   });
 
   it("scans multiple screenshots and merges fills", async () => {
@@ -364,6 +428,9 @@ describe("NewTradeDrawer", () => {
       ],
     );
     await waitFor(() => expect(mockedOcrParse).toHaveBeenCalledTimes(2));
+    // Both files fold into the one-line receipt once parsing settles.
+    expect(await screen.findByText("2 files scanned")).toBeInTheDocument();
+    await userEvent.click(await screen.findByRole("button", { name: "Fill form" }));
     await waitFor(() => expect(screen.getByLabelText("Qty row 1")).toHaveValue("3"));
     expect(screen.getByLabelText("Qty row 2")).toHaveValue("2");
   });
