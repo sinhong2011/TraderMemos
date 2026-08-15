@@ -1,8 +1,9 @@
 
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
+import { Card, Skeleton } from 'panelui-native';
 import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { useCSSVariable } from 'uniwind';
 
 import {
   useAccounts,
@@ -25,7 +26,6 @@ import { InsightsCard } from '@/components/insights-card';
 import { MiniCalendarCard } from '@/components/mini-calendar-card';
 import { PerformanceCard } from '@/components/performance-card';
 import { PropStatusCard } from '@/components/prop-status-card';
-import { Skeleton } from '@/components/skeleton';
 import { TradeRow } from '@/components/trade-row';
 import { t } from '@lingui/core/macro';
 import { useSelectedAccountId } from '@/lib/account-store';
@@ -33,15 +33,24 @@ import { dayKeyInTz } from '@/lib/events';
 import { useGlobalFilters } from '@/lib/filters';
 import { useMoneyFx } from '@/lib/money';
 import { accountBaseCurrency, resolveMarketTimezone, useDisplayPrefs } from '@/lib/prefs';
-import { AppHost } from '@/components/app-host';
 
 /** Recent trades shown on the overview — the full log lives on the Trades tab. */
 const RECENT_LIMIT = 5;
 
+/** The page inset every card block sits in. */
+const CONTENT = 'gap-4 p-4 pb-12';
+
+/** Card-shaped stand-in while a block's query is still out. */
+const SKELETON_CARD = 'h-[180px] rounded-[18px]';
+
+/** Journal quick link — a card the whole tile presses. */
+const QUICK_LINK = 'flex-row items-center justify-center gap-2 rounded-lg border-0 py-4';
+
 export default function DashboardScreen() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { theme } = useUnistyles();
+  // The quick-link glyphs are tinted with a JS value, not a class.
+  const [heading] = useCSSVariable(['--color-heading']) as [string];
 
   const now = new Date();
   const year = now.getFullYear();
@@ -80,13 +89,13 @@ export default function DashboardScreen() {
     // breakdown blocks.
     return (
       <ScrollView
-        style={styles.page}
+        className="bg-background"
         contentInsetAdjustmentBehavior="automatic"
-        contentContainerStyle={styles.content}
+        contentContainerClassName={CONTENT}
       >
-        <Skeleton style={styles.skeletonCardTall} />
-        <Skeleton style={styles.skeletonCard} />
-        <Skeleton style={styles.skeletonCard} />
+        <Skeleton className="h-[240px] rounded-[18px]" label={t`Loading your dashboard`} />
+        <Skeleton className={SKELETON_CARD} />
+        <Skeleton className={SKELETON_CARD} />
       </ScrollView>
     );
   }
@@ -118,13 +127,13 @@ export default function DashboardScreen() {
 
   if (noData) {
     return (
-      <AppHost style={styles.centered}>
+      <View className="flex-1 items-center justify-center p-6">
         <EmptyState
           title={t`No trades yet`}
           systemImage="chart.line.uptrend.xyaxis"
           description={t`Import broker history or log a trade on the web app to see performance here.`}
         />
-      </AppHost>
+      </View>
     );
   }
 
@@ -132,15 +141,15 @@ export default function DashboardScreen() {
 
   return (
     <ScrollView
-      style={styles.page}
+      className="bg-background"
       contentInsetAdjustmentBehavior="automatic"
-      contentContainerStyle={styles.content}
+      contentContainerClassName={CONTENT}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refreshAll} />}
     >
       {/* The curve leads: the shape of the account answers "how am I doing"
           faster than the aggregates below it, which read as its detail. */}
       {equity.isLoading ? (
-        <Skeleton style={styles.skeletonCard} />
+        <Skeleton className={SKELETON_CARD} />
       ) : equity.error && equity.data == null ? (
         <DashboardCard title={t`Equity curve`}>
           <InlineError error={equity.error} onRetry={() => void equity.refetch()} />
@@ -197,29 +206,41 @@ export default function DashboardScreen() {
       <BreakdownCard />
 
       {/* Journal quick links — Notes and Playbook live behind Home, not a tab. */}
-      <View style={styles.quickLinks}>
+      <View className="flex-row gap-2">
         <Pressable
           onPress={() => router.push('/(tabs)/(dashboard)/notes')}
           accessibilityRole="button"
-          style={({ pressed }) => [styles.quickLink, pressed && styles.quickLinkPressed]}
+          className="flex-1 active:opacity-70"
         >
-          <Icon name="note.text" size={20} tintColor={theme.colors.accent} />
-          <Text style={styles.quickLinkLabel}>{t`Notes`}</Text>
+          <Card className={QUICK_LINK}>
+            <Icon name="note.text" size={20} tintColor={heading} />
+            <Text className="text-[15px] font-semibold text-foreground">{t`Notes`}</Text>
+          </Card>
         </Pressable>
         <Pressable
           onPress={() => router.push('/(tabs)/(dashboard)/playbook')}
           accessibilityRole="button"
-          style={({ pressed }) => [styles.quickLink, pressed && styles.quickLinkPressed]}
+          className="flex-1 active:opacity-70"
         >
-          <Icon name="book" size={20} tintColor={theme.colors.accent} />
-          <Text style={styles.quickLinkLabel}>{t`Playbook`}</Text>
+          <Card className={QUICK_LINK}>
+            <Icon name="book" size={20} tintColor={heading} />
+            <Text className="text-[15px] font-semibold text-foreground">{t`Playbook`}</Text>
+          </Card>
         </Pressable>
       </View>
 
-      <View style={styles.recent}>
-        <View style={styles.recentHeader}>
-          <Text style={styles.recentTitle}>{t`Recent trades`}</Text>
-          <Text style={styles.recentAction} onPress={() => router.navigate('/(tabs)/(trades)')}>
+      <View className="gap-2">
+        <View className="flex-row items-center justify-between px-1 pt-2">
+          {/* Matches DashboardCard's section header — this is the one heading on
+              Home that isn't drawn by that component, and it read as a
+              different rank. */}
+          <Text className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            {t`Recent trades`}
+          </Text>
+          <Text
+            className="text-[13px] font-medium text-foreground"
+            onPress={() => router.navigate('/(tabs)/(trades)')}
+          >
             {t`View all`} ›
           </Text>
         </View>
@@ -229,7 +250,7 @@ export default function DashboardScreen() {
         {trades.error && trades.data == null ? (
           <InlineError error={trades.error} onRetry={() => void trades.refetch()} />
         ) : recentTrades.length === 0 ? (
-          <Text style={styles.cardError}>{t`No trades in this range.`}</Text>
+          <Text className="text-[13px] text-muted-foreground">{t`No trades in this range.`}</Text>
         ) : (
           recentTrades.map((trade) => <TradeRow key={trade.id} trade={trade} />)
         )}
@@ -237,54 +258,3 @@ export default function DashboardScreen() {
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  page: { backgroundColor: theme.colors.background },
-  content: {
-    padding: theme.spacing.lg,
-    gap: theme.spacing.lg,
-    paddingBottom: theme.spacing.xl * 2,
-  },
-  centered: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: theme.spacing.xl,
-  },
-  skeletonCardTall: { height: 240, borderRadius: theme.radius.lg + 4 },
-  skeletonCard: { height: 180, borderRadius: theme.radius.lg + 4 },
-  cardError: { fontSize: 13, color: theme.colors.mutedForeground },
-  quickLinks: { flexDirection: 'row', gap: theme.spacing.sm },
-  quickLink: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: theme.spacing.sm,
-    backgroundColor: theme.colors.card,
-    boxShadow: theme.shadows.card,
-    borderRadius: theme.radius.lg,
-    borderCurve: 'continuous',
-    paddingVertical: theme.spacing.lg,
-  },
-  quickLinkPressed: { opacity: 0.7 },
-  quickLinkLabel: { fontSize: 15, fontWeight: '600', color: theme.colors.foreground },
-  recent: { gap: theme.spacing.sm },
-  recentHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: theme.spacing.xs,
-    paddingTop: theme.spacing.sm,
-  },
-  // Matches DashboardCard's section header — this is the one heading on Home
-  // that isn't drawn by that component, and it read as a different rank.
-  recentTitle: {
-    fontSize: 11,
-    fontWeight: '600',
-    letterSpacing: 0.7,
-    textTransform: 'uppercase',
-    color: theme.colors.mutedForeground,
-  },
-  recentAction: { fontSize: 13, fontWeight: '500', color: theme.colors.foreground },
-}));

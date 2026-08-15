@@ -1,27 +1,14 @@
-import {
-  LabeledContent,
-  Section,
-  Text as UIText,
-  TextField,
-  useNativeState,
-} from '@expo/ui/swift-ui';
-import {
-  autocorrectionDisabled,
-  keyboardType,
-  scrollDismissesKeyboard,
-  textContentType,
-  textInputAutocapitalization,
-} from '@expo/ui/swift-ui/modifiers';
 import { useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
-import { useRef } from 'react';
+import { Frame, Input } from 'panelui-native';
+import { useRef, useState } from 'react';
 import { Alert } from 'react-native';
 
 import { useSystemInfo } from '@/api/hooks';
-import { AppHost } from '@/components/app-host';
 import { CenteredButton } from '@/components/centered-button';
 import { HeaderIconButton } from '@/components/header-icon-button';
 import { SettingsForm } from '@/components/settings-form';
+import { SettingsSection } from '@/components/settings-rows';
 import { t } from '@lingui/core/macro';
 import { normalizeWebBaseUrl, setWebBaseUrl, useWebBaseUrl } from '@/lib/share-prefs';
 
@@ -35,9 +22,11 @@ export default function WebAddressScreen() {
   const stored = useWebBaseUrl();
   const advertised = useSystemInfo().data?.web_url;
 
-  // The native field owns its text after mount; the ref is what Save reads.
-  const fieldState = useNativeState<string>(stored ?? '');
+  // The field owns its text after mount; the ref is what Save reads. Clearing
+  // is the one thing that has to push a value back into it, and remounting on
+  // a changed `key` is how an uncontrolled field takes one.
   const fieldText = useRef(stored ?? '');
+  const [cleared, setCleared] = useState(false);
 
   function save() {
     try {
@@ -56,15 +45,15 @@ export default function WebAddressScreen() {
         style: 'destructive',
         onPress: () => {
           setWebBaseUrl(null);
-          fieldState.set('');
           fieldText.current = '';
+          setCleared(true);
         },
       },
     ]);
   }
 
   return (
-    <AppHost style={{ flex: 1 }}>
+    <>
       <Stack.Screen
         options={{
           // Pushed settings forms put their commit action in the nav bar
@@ -74,44 +63,48 @@ export default function WebAddressScreen() {
           ),
         }}
       />
-      <SettingsForm modifiers={[scrollDismissesKeyboard('immediately')]}>
-        <Section
+      <SettingsForm>
+        <SettingsSection
           title={t`Share links`}
           footer={
-            <UIText>
-              {advertised
-                ? t`Your server reports ${advertised}. Set an address here only to override it.`
-                : t`Your server doesn't report one, so share links need this address. Use the domain your web app is served from — not the API address.`}
-            </UIText>
+            advertised
+              ? t`Your server reports ${advertised}. Set an address here only to override it.`
+              : t`Your server doesn't report one, so share links need this address. Use the domain your web app is served from — not the API address.`
           }
         >
-          <LabeledContent label={t`Address`}>
-            <TextField
-              placeholder="https://tm.example.com"
-              text={fieldState}
-              modifiers={[
-                keyboardType('url'),
-                textContentType('URL'),
-                textInputAutocapitalization('never'),
-                autocorrectionDisabled(),
-              ]}
-              onTextChange={(text) => {
-                fieldText.current = text;
-              }}
-            />
-          </LabeledContent>
-        </Section>
+          {/* The row is `SettingsInput`'s shape with the affordances a URL
+              needs on top — no autocapitalisation, no autocorrect, and the
+              keyboard with the slash on it. */}
+          <Frame.Row>
+            <Frame.Content>
+              <Frame.Title>{t`Address`}</Frame.Title>
+            </Frame.Content>
+            <Frame.Actions className="min-w-0 shrink grow justify-end">
+              <Input
+                key={cleared ? 'cleared' : 'stored'}
+                variant="filled"
+                size="sm"
+                defaultValue={cleared ? '' : (stored ?? '')}
+                onChangeText={(text) => {
+                  fieldText.current = text;
+                }}
+                placeholder="https://tm.example.com"
+                keyboardType="url"
+                textContentType="URL"
+                autoCapitalize="none"
+                autoCorrect={false}
+                accessibilityLabel={t`Address`}
+                className="text-right"
+                containerClassName="w-auto min-w-0 shrink grow"
+              />
+            </Frame.Actions>
+          </Frame.Row>
+        </SettingsSection>
 
         {stored != null ? (
-          <Section>
-            <CenteredButton
-              role="destructive"
-              label={t`Clear address`}
-              onPress={confirmClear}
-            />
-          </Section>
+          <CenteredButton role="destructive" label={t`Clear address`} onPress={confirmClear} />
         ) : null}
       </SettingsForm>
-    </AppHost>
+    </>
   );
 }

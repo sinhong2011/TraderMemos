@@ -1,9 +1,8 @@
-import { scrollDismissesKeyboard } from '@expo/ui/swift-ui/modifiers';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useRef, useState } from 'react';
-import { Alert } from 'react-native';
-import { useUnistyles } from 'react-native-unistyles';
+import { Alert, View } from 'react-native';
+import { Frame, Text } from 'panelui-native';
 
 import { queryKeys, useAccounts, useApiRequest, useCash, useTrades } from '@/api/hooks';
 import type { Account } from '@/api/types';
@@ -24,7 +23,7 @@ import { ledgerBalance } from '@/lib/cash';
 import { errorMessage } from '@/lib/errors';
 import { formatPercent, useFormatters } from '@/lib/format';
 import { DISPLAY_CURRENCIES } from '@/lib/prefs';
-import { AppHost } from '@/components/app-host';
+import { pnlColor, usePnlPalette } from '@/styles/pnl';
 
 /** Mirrors the web settings broker dropdown; anything else is a custom entry. */
 const POPULAR_BROKERS = [
@@ -61,13 +60,15 @@ export default function AccountFormScreen() {
 
   if (id != null && !account) {
     return (
-      <AppHost style={{ flex: 1 }}>
-        <SettingsForm>
-          <SettingsSection>
-            <ValueText>{t`Loading…`}</ValueText>
-          </SettingsSection>
-        </SettingsForm>
-      </AppHost>
+      <SettingsForm>
+        <SettingsSection>
+          <Frame.Row>
+            <Text size="sm" muted className="flex-1">
+              {t`Loading…`}
+            </Text>
+          </Frame.Row>
+        </SettingsSection>
+      </SettingsForm>
     );
   }
 
@@ -78,14 +79,15 @@ function AccountForm({ account, accountCount }: { account?: Account; accountCoun
   const router = useRouter();
   const queryClient = useQueryClient();
   const api = useApiRequest();
-  const { theme } = useUnistyles();
+  // Live P&L hues from the theme tokens (see styles/pnl.ts).
+  const pnl = usePnlPalette();
   // Formatters bound to the display prefs (see lib/format.ts).
   const { formatCurrency, formatPnl } = useFormatters();
 
   const isEdit = account != null;
   const knownBroker = account != null && POPULAR_BROKERS.includes(account.broker.trim());
 
-  // The fields are uncontrolled (`SettingsInput` holds native text state); ref
+  // The fields are uncontrolled (`SettingsInput` holds its own text); the ref
   // mirrors capture keystrokes for submit-time reads.
   const nameText = useRef(account?.name ?? '');
   // The ref holds the value; this boolean is the only part the header action
@@ -211,7 +213,7 @@ function AccountForm({ account, accountCount }: { account?: Account; accountCoun
   const isOnlyAccount = accountCount <= 1;
 
   return (
-    <AppHost style={{ flex: 1 }}>
+    <>
       <Stack.Screen
         options={{
           title: isEdit ? t`Account` : t`New account`,
@@ -227,7 +229,7 @@ function AccountForm({ account, accountCount }: { account?: Account; accountCoun
           ),
         }}
       />
-      <SettingsForm modifiers={[scrollDismissesKeyboard('immediately')]}>
+      <SettingsForm>
         <SettingsSection title={t`Details`}>
           <SettingsInput
             label={t`Name`}
@@ -300,15 +302,7 @@ function AccountForm({ account, accountCount }: { account?: Account; accountCoun
               <ValueText>{formatCurrency(equity, account.base_currency)}</ValueText>
             </SettingsRow>
             <SettingsRow label={t`Realized P&L`}>
-              <ValueText
-                color={
-                  netPnl > 0
-                    ? theme.colors.profit
-                    : netPnl < 0
-                      ? theme.colors.loss
-                      : theme.colors.mutedForeground
-                }
-              >
+              <ValueText color={pnlColor(pnl, netPnl)}>
                 {formatPnl(netPnl, account.base_currency)}
               </ValueText>
             </SettingsRow>
@@ -344,10 +338,11 @@ function AccountForm({ account, accountCount }: { account?: Account; accountCoun
           </SettingsSection>
         ) : null}
 
+        {/* Outside a section card: these are actions on the account, not more
+            of its fields, and a filled button inside the panel would fight its
+            corners. */}
         {isEdit ? (
-          <SettingsSection
-            footer={isOnlyAccount ? t`Add another account before deleting this one.` : undefined}
-          >
+          <View className="gap-2">
             <CenteredButton
               role="destructive"
               label={clearTrades.isPending ? t`Clearing…` : t`Clear trade history`}
@@ -361,10 +356,14 @@ function AccountForm({ account, accountCount }: { account?: Account; accountCoun
                 disabled={deleteAccount.isPending}
                 onPress={confirmDeleteAccount}
               />
-            ) : null}
-          </SettingsSection>
+            ) : (
+              <Text size="xs" muted className="px-4">
+                {t`Add another account before deleting this one.`}
+              </Text>
+            )}
+          </View>
         ) : null}
       </SettingsForm>
-    </AppHost>
+    </>
   );
 }

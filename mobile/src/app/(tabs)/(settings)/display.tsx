@@ -1,5 +1,4 @@
 import { Alert } from 'react-native';
-import { useUnistyles } from 'react-native-unistyles';
 
 import { useAccounts } from '@/api/hooks';
 import { CenteredButton } from '@/components/centered-button';
@@ -34,7 +33,6 @@ import {
   type MarketTimezonePref,
   type TimezonePref,
 } from '@/lib/prefs';
-import { AppHost } from '@/components/app-host';
 
 /** Sentinel for the "follow account base currency" picker row. */
 const CURRENCY_BASE = '__base__';
@@ -68,7 +66,6 @@ export default function DisplaySettingsScreen() {
   // The preview reformats on every pref below — including privacy mode, which
   // only reaches it through these bound formatters (see lib/format.ts).
   const { formatCurrency, formatDate, formatTime } = useFormatters();
-  const { theme } = useUnistyles();
   const { data: accounts } = useAccounts();
 
   const baseCurrency = accountBaseCurrency(accounts);
@@ -95,113 +92,107 @@ export default function DisplaySettingsScreen() {
   }
 
   return (
-    <AppHost style={{ flex: 1, backgroundColor: theme.colors.background }}>
-      <SettingsForm>
-        {/* Live consequence of every setting below — amounts mask under privacy
-            mode, and the trading day drifts off the timestamp when the two
-            timezones disagree. */}
-        <SettingsSection
-          title={t`Preview`}
-          footer={t`A sample amount and a late-session timestamp, rendered with the settings below.`}
-        >
-          <SettingsRow label={t`Amount`}>
-            <NumericText>{formatCurrency(SAMPLE_AMOUNT, previewCurrency)}</NumericText>
-          </SettingsRow>
-          <SettingsRow label={t`Timestamp`}>
-            <NumericText>{`${formatDate(at)} · ${formatTime(at)}`}</NumericText>
-          </SettingsRow>
-          <SettingsRow label={t`Trading day`}>
-            <NumericText>{marketDay}</NumericText>
-          </SettingsRow>
-        </SettingsSection>
+    <SettingsForm>
+      {/* Live consequence of every setting below — amounts mask under privacy
+          mode, and the trading day drifts off the timestamp when the two
+          timezones disagree. */}
+      <SettingsSection
+        title={t`Preview`}
+        footer={t`A sample amount and a late-session timestamp, rendered with the settings below.`}
+      >
+        <SettingsRow label={t`Amount`}>
+          <NumericText>{formatCurrency(SAMPLE_AMOUNT, previewCurrency)}</NumericText>
+        </SettingsRow>
+        <SettingsRow label={t`Timestamp`}>
+          <NumericText>{`${formatDate(at)} · ${formatTime(at)}`}</NumericText>
+        </SettingsRow>
+        <SettingsRow label={t`Trading day`}>
+          <NumericText>{marketDay}</NumericText>
+        </SettingsRow>
+      </SettingsSection>
 
-        {/* Privacy and currency both answer "what does money look like", so they
-            share a section instead of each orphaning one row. */}
-        <SettingsSection
-          title={t`Amounts`}
-          footer={
-            prefs.displayCurrency
-              ? t`Privacy mode hides amounts everywhere — stats and ratios stay visible. Read-only amounts convert with the latest FX rate; forms keep the account currency (${baseCurrency}).`
-              : t`Privacy mode hides amounts everywhere — stats and ratios stay visible. Amounts show in each account's own currency.`
+      {/* Privacy and currency both answer "what does money look like", so they
+          share a section instead of each orphaning one row. */}
+      <SettingsSection
+        title={t`Amounts`}
+        footer={
+          prefs.displayCurrency
+            ? t`Privacy mode hides amounts everywhere — stats and ratios stay visible. Read-only amounts convert with the latest FX rate; forms keep the account currency (${baseCurrency}).`
+            : t`Privacy mode hides amounts everywhere — stats and ratios stay visible. Amounts show in each account's own currency.`
+        }
+      >
+        <SettingsToggle
+          label={t`Privacy mode`}
+          value={prefs.privacyMode}
+          onValueChange={(value) => setPrivacyMode(value)}
+        />
+        <SettingsPicker
+          label={t`Display currency`}
+          selectedValue={prefs.displayCurrency ?? CURRENCY_BASE}
+          onValueChange={(value) =>
+            setDisplayCurrency(value === CURRENCY_BASE ? null : (value as DisplayCurrencyCode))
           }
-        >
-          <SettingsToggle
-            label={t`Privacy mode`}
-            value={prefs.privacyMode}
-            onValueChange={(value) => setPrivacyMode(value)}
-          />
-          <SettingsPicker
-            label={t`Display currency`}
-            selectedValue={prefs.displayCurrency ?? CURRENCY_BASE}
-            onValueChange={(value) =>
-              setDisplayCurrency(value === CURRENCY_BASE ? null : (value as DisplayCurrencyCode))
-            }
-            items={[
-              { label: t`Account currency`, value: CURRENCY_BASE },
-              ...DISPLAY_CURRENCIES.map((code) => ({ label: code, value: code })),
-            ]}
-          />
-        </SettingsSection>
+          items={[
+            { label: t`Account currency`, value: CURRENCY_BASE },
+            ...DISPLAY_CURRENCIES.map((code) => ({ label: code, value: code })),
+          ]}
+        />
+      </SettingsSection>
 
-        {/* Both rows decide which calendar day a trade lands on. */}
-        <SettingsSection
-          title={t`Trading day`}
-          footer={t`The market timezone defines the day — calendar cells, date filters, and hourly stats all follow it. Close date (last activity) matches realized P&L; open date groups by entry.`}
-        >
-          <SettingsPicker
-            label={t`Market timezone`}
-            selectedValue={prefs.marketTimezone}
-            onValueChange={(value) => setMarketTimezone(value as MarketTimezonePref)}
-            items={marketTimezoneOptions()}
-          />
-          <SettingsPicker
-            label={t`Trade lands on`}
-            selectedValue={prefs.tradeDateBasis}
-            onValueChange={(value) => setTradeDateBasis(value === 'open' ? 'open' : 'close')}
-            items={[
-              { label: t`Close date`, value: 'close' },
-              { label: t`Open date`, value: 'open' },
-            ]}
-          />
-        </SettingsSection>
+      {/* Both rows decide which calendar day a trade lands on. */}
+      <SettingsSection
+        title={t`Trading day`}
+        footer={t`The market timezone defines the day — calendar cells, date filters, and hourly stats all follow it. Close date (last activity) matches realized P&L; open date groups by entry.`}
+      >
+        <SettingsPicker
+          label={t`Market timezone`}
+          selectedValue={prefs.marketTimezone}
+          onValueChange={(value) => setMarketTimezone(value as MarketTimezonePref)}
+          items={marketTimezoneOptions()}
+        />
+        <SettingsPicker
+          label={t`Trade lands on`}
+          selectedValue={prefs.tradeDateBasis}
+          onValueChange={(value) => setTradeDateBasis(value === 'open' ? 'open' : 'close')}
+          items={[
+            { label: t`Close date`, value: 'close' },
+            { label: t`Open date`, value: 'open' },
+          ]}
+        />
+      </SettingsSection>
 
-        <SettingsSection
-          title={t`Clock`}
-          footer={
-            // Last section on the screen, so its footer also says which of the
-            // rows above travel with the account — this screen mixes both kinds.
-            prefs.timezone === TIMEZONE_LOCAL
-              ? t`Formats clock times only — never which day a trade belongs to. 12-hour reads 1:30 PM, 24-hour reads 13:30. This device is on ${resolveDisplayTimezone(TIMEZONE_LOCAL)}. Timezones, time format and display currency follow your account and apply on every device; privacy mode and theme stay on this phone.`
-              : t`Formats clock times only — never which day a trade belongs to. 12-hour reads 1:30 PM, 24-hour reads 13:30. Timezones, time format and display currency follow your account and apply on every device; privacy mode and theme stay on this phone.`
-          }
-        >
-          <SettingsPicker
-            label={t`Display timezone`}
-            selectedValue={prefs.timezone}
-            onValueChange={(value) => setTimezone(value as TimezonePref)}
-            items={timezoneOptions()}
-          />
-          <SettingsPicker
-            label={t`Time format`}
-            selectedValue={prefs.timeFormat}
-            onValueChange={(value) => setTimeFormat(value === 'h23' ? 'h23' : 'h12')}
-            items={[
-              { label: t`12-hour`, value: 'h12' },
-              { label: t`24-hour`, value: 'h23' },
-            ]}
-          />
-        </SettingsSection>
+      <SettingsSection
+        title={t`Clock`}
+        footer={
+          // Last section on the screen, so its footer also says which of the
+          // rows above travel with the account — this screen mixes both kinds.
+          prefs.timezone === TIMEZONE_LOCAL
+            ? t`Formats clock times only — never which day a trade belongs to. 12-hour reads 1:30 PM, 24-hour reads 13:30. This device is on ${resolveDisplayTimezone(TIMEZONE_LOCAL)}. Timezones, time format and display currency follow your account and apply on every device; privacy mode and theme stay on this phone.`
+            : t`Formats clock times only — never which day a trade belongs to. 12-hour reads 1:30 PM, 24-hour reads 13:30. Timezones, time format and display currency follow your account and apply on every device; privacy mode and theme stay on this phone.`
+        }
+      >
+        <SettingsPicker
+          label={t`Display timezone`}
+          selectedValue={prefs.timezone}
+          onValueChange={(value) => setTimezone(value as TimezonePref)}
+          items={timezoneOptions()}
+        />
+        <SettingsPicker
+          label={t`Time format`}
+          selectedValue={prefs.timeFormat}
+          onValueChange={(value) => setTimeFormat(value === 'h23' ? 'h23' : 'h12')}
+          items={[
+            { label: t`12-hour`, value: 'h12' },
+            { label: t`24-hour`, value: 'h23' },
+          ]}
+        />
+      </SettingsSection>
 
-        {isDefaultDisplayPrefs(prefs) ? null : (
-          <SettingsSection>
-            <CenteredButton
-              role="destructive"
-              label={t`Reset to defaults`}
-              onPress={confirmReset}
-            />
-          </SettingsSection>
-        )}
-      </SettingsForm>
-    </AppHost>
+      {/* Standalone action, not a row: a filled button inside a section card
+          would fill the card edge to edge and read as a red panel. */}
+      {isDefaultDisplayPrefs(prefs) ? null : (
+        <CenteredButton role="destructive" label={t`Reset to defaults`} onPress={confirmReset} />
+      )}
+    </SettingsForm>
   );
 }

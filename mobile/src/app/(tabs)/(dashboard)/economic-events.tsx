@@ -1,10 +1,10 @@
 
 import { Stack } from 'expo-router/stack';
 import { useHeaderHeight } from 'expo-router/react-navigation';
+import { Skeleton, cn } from 'panelui-native';
 import { useEffect, useRef, useState } from 'react';
 import {
   Alert,
-  Animated,
   Pressable,
   RefreshControl,
   ScrollView,
@@ -13,7 +13,8 @@ import {
   type NativeScrollEvent,
   type NativeSyntheticEvent,
 } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import { useCSSVariable } from 'uniwind';
 
 import { EmptyState } from '@/components/empty-state';
 import { Icon } from '@/components/icon';
@@ -24,7 +25,6 @@ import { ErrorState } from '@/components/error-state';
 import { EventFilterMenu } from '@/components/event-filter-menu';
 import { Pill, type PillTone } from '@/components/pill';
 import { FloatingSearchBar, SearchToggle } from '@/components/search-bar';
-import { Skeleton } from '@/components/skeleton';
 import { t } from '@lingui/core/macro';
 import { locale } from '@/i18n';
 import {
@@ -37,8 +37,6 @@ import { toggleEventReminder, useEventBookmarks } from '@/lib/event-reminders';
 import { addDaysKey, dayKeyInTz, formatWeekLabel, weekStartKey } from '@/lib/events';
 import { useFormatters } from '@/lib/format';
 import { resolveDisplayTimezone, useDisplayPrefs } from '@/lib/prefs';
-import type { AppTheme } from '@/styles/unistyles';
-import { AppHost } from '@/components/app-host';
 
 /** Loudest first — the order the strip bar and the filter menu both read in. */
 const IMPACTS = ['high', 'medium', 'low', 'holiday'] as const;
@@ -75,35 +73,76 @@ const GROW_WEEKS = 2;
 /** iOS 26 sheet feel — settles quickly, barely overshoots. */
 const SEARCH_SPRING = { damping: 22, stiffness: 240, mass: 0.9, overshootClamping: false };
 
+/** Page inset the rail is measured from (`px-4`). */
+const GUTTER = 16;
+
+/*
+ * Geometry the rail and its dots are laid out from. These are computed offsets
+ * rather than scale steps, so they stay style objects — everything else on the
+ * screen is a class.
+ */
+/** Rows whose text clears the rail: the gutter plus the rail's own width. */
+const RAIL_INSET = { paddingLeft: GUTTER + RAIL_WIDTH, paddingRight: GUTTER } as const;
+/** The unbroken thread, centred in the rail column. */
+const RAIL_LEFT = { left: GUTTER + (RAIL_WIDTH - 1) / 2 } as const;
+const RAIL_COLUMN = { width: RAIL_WIDTH } as const;
+const RAIL_ABOVE = { left: (RAIL_WIDTH - 1) / 2, top: 0, height: DOT_TOP } as const;
+const RAIL_BELOW = { left: (RAIL_WIDTH - 1) / 2, top: DOT_TOP + DOT_SIZE, bottom: 0 } as const;
+const DOT = {
+  top: DOT_TOP,
+  left: (RAIL_WIDTH - DOT_SIZE) / 2,
+  width: DOT_SIZE,
+  height: DOT_SIZE,
+  borderRadius: DOT_SIZE / 2,
+} as const;
+/** Fixed track so the bars grow from a shared baseline instead of shoving the
+ *  dates around as the week's busiest day changes. */
+const STRIP_TRACK = { height: BAR_MAX } as const;
+/** `Animated.View` is a wrapper, not a core component Uniwind styles by class. */
+const TODAY_HOLDER = { position: 'absolute', top: 0, right: GUTTER } as const;
+
+/** The day marker's chip, shared by the inline row and the pinned copy. */
+const DAY_CHIP = 'flex-1 flex-row items-center gap-2 rounded-full bg-muted px-3 py-[5px]';
+/** Full-bleed backdrop, so rows passing under the pinned header are hidden. */
+const DAY_HEADER = 'flex-row items-center bg-background py-2';
+/** Absolute rather than a flex rail column: a fixed-width empty child gets
+ *  collapsed by the sticky-header wrapper, which broke the thread at every day. */
+const DAY_RAIL = 'absolute bottom-0 top-0 w-px bg-input';
+
+/** The thread itself — one hairline, positioned by `RAIL_ABOVE`/`RAIL_BELOW`. */
+const RAIL_LINE = 'absolute w-px bg-input';
+
+/** An empty/failed state inside scroll content, which has no height of its own. */
+const EMPTY_HOST = 'min-h-[280px] self-stretch';
+
+/** Impact tint per level — `medium` takes the section-title accent. */
+type ImpactPalette = { loss: string; heading: string; primary: string; muted: string };
+
 /**
  * The jump back to this week. Kept mounted and scaled to nothing when you're
  * already there, so it grows and shrinks instead of blinking in and out.
  */
 function TodayButton({ visible, onPress }: { visible: boolean; onPress: () => void }) {
-  const [progress] = useState(() => new Animated.Value(visible ? 1 : 0));
+  const progress = useSharedValue(visible ? 1 : 0);
 
   useEffect(() => {
-    Animated.spring(progress, {
-      toValue: visible ? 1 : 0,
-      ...SEARCH_SPRING,
-      useNativeDriver: true,
-    }).start();
+    progress.value = withSpring(visible ? 1 : 0, SEARCH_SPRING);
   }, [visible, progress]);
 
-  const scale = progress.interpolate({ inputRange: [0, 1], outputRange: [0.8, 1] });
+  const grow = useAnimatedStyle(() => ({
+    opacity: progress.value,
+    transform: [{ scale: 0.8 + 0.2 * progress.value }],
+  }));
 
   return (
-    <Animated.View
-      style={[styles.todayHolder, { opacity: progress, transform: [{ scale }] }]}
-      pointerEvents={visible ? 'auto' : 'none'}
-    >
+    <Animated.View style={[TODAY_HOLDER, grow]} pointerEvents={visible ? 'auto' : 'none'}>
       <Pressable
         onPress={onPress}
         hitSlop={10}
         accessibilityRole="button"
-        style={({ pressed }) => [styles.todayButton, pressed && styles.pressed]}
+        className="rounded-full bg-muted px-3 py-[3px] active:opacity-60"
       >
-        <Text style={styles.todayLabel}>{t`Today`}</Text>
+        <Text className="text-xs font-semibold text-foreground">{t`Today`}</Text>
       </Pressable>
     </Animated.View>
   );
@@ -112,28 +151,48 @@ function TodayButton({ visible, onPress }: { visible: boolean; onPress: () => vo
 /** The day marker, used both inline in the timeline and floating above it. */
 function DayChip({ day, isToday }: { day: string; isToday: boolean }) {
   return (
-    <View style={styles.dayChip}>
-      <Text style={styles.dayTitle}>{formatDayHeader(day)}</Text>
+    <View className={DAY_CHIP}>
+      <Text className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        {formatDayHeader(day)}
+      </Text>
+      {/* Solid, like the strip's today circle — the two "you are here" marks on
+          this screen should look like the same mark. */}
       {isToday ? (
-        <View style={styles.todayTag}>
-          <Text style={styles.todayTagLabel}>{t`Today`}</Text>
+        <View className="rounded-full bg-primary px-2 py-0.5">
+          <Text className="text-[9px] font-bold uppercase tracking-wide text-primary-foreground">
+            {t`Today`}
+          </Text>
         </View>
       ) : null}
     </View>
   );
 }
 
-/** Impact color, shared by the rail dots, the strip bars and the day pills. */
-function impactColor(theme: AppTheme, impact: string): string {
+/**
+ * Impact color, shared by the rail dots and the strip bars. Both are drawn
+ * views rather than text, so the hue has to be a value — read live from the
+ * tokens by `useImpactPalette`.
+ */
+function useImpactPalette(): ImpactPalette {
+  const [loss, heading, primary, muted] = useCSSVariable([
+    '--color-loss',
+    '--color-heading',
+    '--color-primary',
+    '--color-muted-foreground',
+  ]) as [string, string, string, string];
+  return { loss, heading, primary, muted };
+}
+
+function impactColor(palette: ImpactPalette, impact: string): string {
   switch (impact) {
     case 'high':
-      return theme.colors.loss;
+      return palette.loss;
     case 'medium':
-      return theme.colors.accent;
+      return palette.heading;
     case 'holiday':
-      return theme.colors.primary;
+      return palette.primary;
     default:
-      return theme.colors.mutedForeground;
+      return palette.muted;
   }
 }
 
@@ -209,17 +268,39 @@ function Stat({
   strong?: boolean;
   trend?: number;
 }) {
-  const { theme } = useUnistyles();
+  // The trend arrow is a glyph tint, so it takes the token's value.
+  const [primary, mutedForeground] = useCSSVariable([
+    '--color-primary',
+    '--color-muted-foreground',
+  ]) as [string, string];
   return (
-    <View style={[styles.stat, strong && styles.statStrong]}>
-      <Text style={styles.statLabel}>{label}</Text>
-      <Text style={[styles.statValue, strong && styles.statValueStrong]}>{value}</Text>
+    // Tokens rather than a run of loose words: each figure gets its own surface,
+    // so a released number reads as a value and not as more label text.
+    <View
+      className={cn(
+        'flex-row items-center gap-[5px] rounded-sm bg-muted px-2 py-[3px]',
+        strong && 'bg-primary/12',
+      )}
+    >
+      {/* One size for both halves of the token — the label carries its role in
+          the color and the caps, not in being smaller than the number. */}
+      <Text className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+        {label}
+      </Text>
+      <Text
+        className={cn(
+          'text-[11px] font-bold tabular-nums',
+          strong ? 'text-primary' : 'text-foreground',
+        )}
+      >
+        {value}
+      </Text>
       {trend !== 0 ? (
         <Icon
           name={trend > 0 ? 'arrow.up' : 'arrow.down'}
           size={9}
           weight="bold"
-          tintColor={strong ? theme.colors.primary : theme.colors.mutedForeground}
+          tintColor={strong ? primary : mutedForeground}
         />
       ) : null}
     </View>
@@ -254,7 +335,9 @@ function EventRow({
   onBookmark: () => void;
   onMeasure: (y: number) => void;
 }) {
-  const { theme } = useUnistyles();
+  const palette = useImpactPalette();
+  // The bell is a glyph tint, so it takes the token's value.
+  const [primary] = useCSSVariable(['--color-primary']) as [string];
   // Bound to the display clock (see lib/format.ts).
   const { formatTime } = useFormatters();
   const past = new Date(event.time).getTime() < now;
@@ -265,24 +348,28 @@ function EventRow({
   const trend = actual != null && forecast != null ? Math.sign(actual - forecast) : 0;
 
   return (
-    <View style={styles.eventRow} onLayout={(e) => onMeasure(e.nativeEvent.layout.y)}>
-      <View style={styles.rail}>
-        {!isFirst ? <View style={[styles.railLine, styles.railAbove]} /> : null}
-        {!isLast ? <View style={[styles.railLine, styles.railBelow]} /> : null}
+    <View className="flex-row px-4" onLayout={(e) => onMeasure(e.nativeEvent.layout.y)}>
+      <View className="self-stretch" style={RAIL_COLUMN}>
+        {!isFirst ? <View className={RAIL_LINE} style={RAIL_ABOVE} /> : null}
+        {!isLast ? <View className={RAIL_LINE} style={RAIL_BELOW} /> : null}
         <View
-          style={[
-            styles.dot,
-            { backgroundColor: impactColor(theme, event.impact) },
-            past && styles.past,
-          ]}
+          className={cn('absolute', past && 'opacity-55')}
+          style={[DOT, { backgroundColor: impactColor(palette, event.impact) }]}
         />
       </View>
-      <View style={[styles.eventBody, past && styles.past]}>
-        <View style={styles.eventMeta}>
-          <Text style={styles.eventTime}>{formatTime(event.time)}</Text>
-          <Text style={styles.eventCurrency}>{currencyLabel(event.country.toUpperCase())}</Text>
+      {/* The gap between rows belongs to the *body*: children lay out inside the
+          content box, so a row `paddingBottom` would fall outside the stretched
+          rail and break the line at every gap. */}
+      <View className={cn('flex-1 gap-1 pb-6', past && 'opacity-55')}>
+        <View className="flex-row items-center gap-2">
+          <Text className="text-xs text-muted-foreground tabular-nums">
+            {formatTime(event.time)}
+          </Text>
+          <Text className="text-xs font-semibold text-muted-foreground">
+            {currencyLabel(event.country.toUpperCase())}
+          </Text>
           <Pill tone={IMPACT_TONES[event.impact] ?? 'muted'}>{impactLabel(event.impact)}</Pill>
-          <View style={styles.metaSpacer} />
+          <View className="flex-1" />
           {/* Past releases can't be reminded about — the bell goes with them. */}
           {!past ? (
             <Pressable
@@ -291,19 +378,19 @@ function EventRow({
               accessibilityRole="button"
               accessibilityState={{ selected: bookmarked }}
               accessibilityLabel={bookmarked ? t`Remove reminder` : t`Remind me`}
-              style={({ pressed }) => pressed && styles.pressed}
+              className="active:opacity-60"
             >
               <Icon
                 name={bookmarked ? 'bell.fill' : 'bell'}
                 size={15}
-                tintColor={bookmarked ? theme.colors.primary : theme.colors.mutedForeground}
+                tintColor={bookmarked ? primary : palette.muted}
               />
             </Pressable>
           ) : null}
         </View>
-        <Text style={styles.eventTitle}>{event.title}</Text>
+        <Text className="text-[15px] font-semibold leading-5 text-foreground">{event.title}</Text>
         {hasActual || event.forecast || event.previous ? (
-          <View style={styles.stats}>
+          <View className="flex-row flex-wrap gap-1.5 pt-[3px]">
             {hasActual ? <Stat label={t`Actual`} value={event.actual} strong trend={trend} /> : null}
             {event.forecast ? <Stat label={t`Forecast`} value={event.forecast} /> : null}
             {event.previous ? <Stat label={t`Prev`} value={event.previous} /> : null}
@@ -323,15 +410,20 @@ function TimelineSkeleton() {
   return (
     <View>
       {Array.from({ length: 6 }, (_, i) => (
-        <View key={i} style={styles.eventRow}>
-          <View style={styles.rail}>
-            {i > 0 ? <View style={[styles.railLine, styles.railAbove]} /> : null}
-            {i < 5 ? <View style={[styles.railLine, styles.railBelow]} /> : null}
-            <View style={[styles.dot, styles.dotIdle]} />
+        <View key={i} className="flex-row px-4">
+          <View className="self-stretch" style={RAIL_COLUMN}>
+            {i > 0 ? <View className={RAIL_LINE} style={RAIL_ABOVE} /> : null}
+            {i < 5 ? <View className={RAIL_LINE} style={RAIL_BELOW} /> : null}
+            <View className="absolute bg-input" style={DOT} />
           </View>
-          <View style={styles.eventBody}>
-            <Skeleton style={styles.skeletonMeta} />
-            <Skeleton style={[styles.skeletonTitle, i % 3 === 1 && styles.skeletonTitleShort]} />
+          <View className="flex-1 gap-1 pb-6">
+            <Skeleton
+              className="h-[11px] w-[132px] rounded-sm"
+              label={i === 0 ? t`Loading the calendar` : undefined}
+            />
+            <Skeleton
+              className={cn('mt-[5px] h-[15px] rounded-sm', i % 3 === 1 ? 'w-[48%]' : 'w-[72%]')}
+            />
           </View>
         </View>
       ))}
@@ -371,15 +463,18 @@ function WeekPage({
   width: number;
   onSelectDay: (dayKey: string) => void;
 }) {
-  const { theme } = useUnistyles();
+  const palette = useImpactPalette();
   const busiest = Math.max(1, ...days.map((day) => day.count));
 
   return (
-    <View style={[styles.page, { width }]}>
-      <Text style={styles.weekLabel} numberOfLines={1}>
+    <View className="gap-1 px-4" style={{ width }}>
+      <Text
+        className="text-center text-[17px] font-bold tracking-tight text-foreground tabular-nums"
+        numberOfLines={1}
+      >
         {label}
       </Text>
-      <View style={styles.strip}>
+      <View className="flex-row items-end">
         {days.map((day) => {
           const isToday = day.key === todayKey;
           return (
@@ -389,27 +484,37 @@ function WeekPage({
               disabled={day.count === 0}
               accessibilityRole="button"
               accessibilityLabel={`${formatDayHeader(day.key)}, ${day.count}`}
-              style={({ pressed }) => [styles.stripCell, pressed && styles.pressed]}
+              className="flex-1 items-center gap-[3px] py-1 active:opacity-60"
             >
-              <Text style={styles.stripWeekday}>{weekdayInitial(day.key)}</Text>
-              <View style={[styles.stripDate, isToday && styles.stripDateToday]}>
-                <Text style={[styles.stripDay, isToday && styles.stripDayToday]}>
+              <Text className="text-[11px] font-semibold text-muted-foreground">
+                {weekdayInitial(day.key)}
+              </Text>
+              <View
+                className={cn(
+                  'h-[26px] w-[26px] items-center justify-center rounded-full',
+                  isToday && 'bg-primary',
+                )}
+              >
+                <Text
+                  className={cn(
+                    'text-sm font-semibold tabular-nums',
+                    isToday ? 'text-primary-foreground' : 'text-foreground',
+                  )}
+                >
                   {Number(day.key.slice(8, 10))}
                 </Text>
               </View>
-              <View style={styles.stripTrack}>
+              <View className="justify-end" style={STRIP_TRACK}>
                 {day.count > 0 ? (
                   <View
-                    style={[
-                      styles.stripBar,
-                      {
-                        height: BAR_MIN + Math.round((day.count / busiest) * (BAR_MAX - BAR_MIN)),
-                        backgroundColor: impactColor(theme, day.impact),
-                      },
-                    ]}
+                    className="w-1 rounded-[2px]"
+                    style={{
+                      height: BAR_MIN + Math.round((day.count / busiest) * (BAR_MAX - BAR_MIN)),
+                      backgroundColor: impactColor(palette, day.impact),
+                    }}
                   />
                 ) : (
-                  <View style={styles.stripEmpty} />
+                  <View className="mb-px h-[3px] w-[3px] rounded-full bg-input" />
                 )}
               </View>
             </Pressable>
@@ -656,13 +761,13 @@ export default function EconomicEventsScreen() {
   };
 
   return (
-    <View style={[styles.screen, { paddingTop: headerHeight }]}>
+    <View className="flex-1 bg-background" style={{ paddingTop: headerHeight }}>
       <Stack.Screen
         options={{
           title: t`Economic calendar`,
           headerLargeTitle: false,
           headerRight: () => (
-            <View style={styles.headerActions}>
+            <View className="flex-row items-center gap-3">
               <SearchToggle
                 open={searching}
                 active={needle.length > 0}
@@ -706,8 +811,8 @@ export default function EconomicEventsScreen() {
 
       {/* Pinned. It reports where the timeline is rather than deciding what the
           timeline shows — swiping it scrolls the list to that week. */}
-      <View style={styles.controls} onLayout={(e) => setPageWidth(e.nativeEvent.layout.width)}>
-        <View style={styles.pager}>
+      <View className="gap-2 pb-2" onLayout={(e) => setPageWidth(e.nativeEvent.layout.width)}>
+        <View className="justify-start">
           <ScrollView
             ref={pagerRef}
             horizontal
@@ -740,18 +845,25 @@ export default function EconomicEventsScreen() {
         </View>
       </View>
 
-      <View style={styles.list}>
+      <View className="flex-1 overflow-hidden">
+        {/* Floats over the timeline, opaque, so rows pass behind it. */}
         {pinnedDay ? (
-          <View style={styles.pinnedDay} pointerEvents="none">
-            <View style={styles.dayRail} />
+          <View
+            className={cn('absolute left-0 right-0 top-0 z-20', DAY_HEADER)}
+            style={RAIL_INSET}
+            pointerEvents="none"
+          >
+            <View className={DAY_RAIL} style={RAIL_LEFT} />
             <DayChip day={pinnedDay} isToday={pinnedDay === todayKey} />
           </View>
         ) : null}
         <ScrollView
           ref={scrollRef}
-          style={styles.listScroll}
+          className="flex-1"
           contentInsetAdjustmentBehavior="never"
-          contentContainerStyle={styles.content}
+          // No horizontal padding here — the day headers have to reach both
+          // edges, or scrolled rows peek through the gutters beside them.
+          contentContainerClassName="pb-18"
           // Weeks are prepended when you reach the start; without this the new
           // content above would shove everything down under your thumb. Safe
           // now that the pinned day is drawn by hand — RN's own sticky headers
@@ -771,18 +883,18 @@ export default function EconomicEventsScreen() {
           {loading ? (
             <TimelineSkeleton />
           ) : unconfigured ? (
-            <AppHost style={styles.emptyHost}>
+            <View className={EMPTY_HOST}>
               <EmptyState
                 title={t`Calendar not configured`}
                 systemImage="newspaper"
                 description={t`The server has no economic-calendar provider configured.`}
               />
-            </AppHost>
+            </View>
           ) : events.error && events.data == null ? (
             // Only when the persisted cache is empty too — a week already
             // fetched stays readable offline. Sized like the empty host: the
             // failure sits inside scroll content with no height of its own.
-            <View style={styles.emptyHost}>
+            <View className={EMPTY_HOST}>
               <ErrorState
                 error={events.error}
                 onRetry={() => void events.refetch()}
@@ -795,7 +907,8 @@ export default function EconomicEventsScreen() {
                 return (
                   <View
                     key={`day-${row.day}`}
-                    style={styles.dayHeader}
+                    className={DAY_HEADER}
+                    style={RAIL_INSET}
                     onLayout={(e) => {
                       setStickyHeight(e.nativeEvent.layout.height);
                       // A host `onLayout` only fires after commit, so the refs
@@ -806,7 +919,7 @@ export default function EconomicEventsScreen() {
                       remember(row.day, e.nativeEvent.layout.y);
                     }}
                   >
-                    {index > 0 ? <View style={styles.dayRail} /> : null}
+                    {index > 0 ? <View className={DAY_RAIL} style={RAIL_LEFT} /> : null}
                     <DayChip day={row.day} isToday={row.day === todayKey} />
                   </View>
                 );
@@ -815,11 +928,15 @@ export default function EconomicEventsScreen() {
                 return (
                   <View
                     key={`gap-${row.week}`}
-                    style={styles.gapRow}
+                    // A week with no releases still occupies the thread, so the
+                    // rail stays unbroken and the scroll has something to report
+                    // from.
+                    className="flex-row items-center py-4"
+                    style={RAIL_INSET}
                     onLayout={(e) => remember(row.week, e.nativeEvent.layout.y)}
                   >
-                    <View style={styles.dayRail} />
-                    <Text style={styles.gapText}>
+                    <View className={DAY_RAIL} style={RAIL_LEFT} />
+                    <Text className="text-xs text-muted-foreground tabular-nums">
                       {formatWeekLabel(row.week, locale, todayKey)} · {t`No events`}
                     </Text>
                   </View>
@@ -854,212 +971,3 @@ export default function EconomicEventsScreen() {
     </View>
   );
 }
-const styles = StyleSheet.create((theme) => ({
-  screen: { flex: 1, backgroundColor: theme.colors.background },
-  list: { flex: 1, overflow: 'hidden' },
-  listScroll: { flex: 1 },
-  // Floats over the timeline, opaque, so rows pass behind it.
-  pinnedDay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 2,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingLeft: theme.spacing.lg + RAIL_WIDTH,
-    paddingRight: theme.spacing.lg,
-    paddingVertical: theme.spacing.sm,
-    backgroundColor: theme.colors.background,
-  },
-  // Absolute so an outgoing week can slide out over the incoming one instead of
-  // stacking below it for a frame.
-  weekLayer: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },
-  // No horizontal padding here — the sticky day headers have to reach both
-  // edges, or scrolled rows peek through the gutters beside them.
-  content: { paddingBottom: theme.spacing.xl * 3 },
-
-  controls: { paddingBottom: theme.spacing.sm, gap: theme.spacing.sm },
-  headerActions: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md },
-  pager: { justifyContent: 'flex-start' },
-  page: { gap: theme.spacing.xs, paddingHorizontal: theme.spacing.lg },
-  weekLabel: {
-    fontSize: 17,
-    fontWeight: '700',
-    letterSpacing: -0.3,
-    textAlign: 'center',
-    color: theme.colors.foreground,
-    ...theme.numeric,
-  },
-  pressed: { opacity: 0.6 },
-  todayHolder: { position: 'absolute', top: 0, right: theme.spacing.lg },
-  todayButton: {
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: 3,
-    borderRadius: theme.radius.full,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.muted,
-  },
-  todayLabel: { fontSize: 12, fontWeight: '600', color: theme.colors.foreground },
-
-  strip: { flexDirection: 'row', alignItems: 'flex-end' },
-  stripCell: { flex: 1, alignItems: 'center', gap: 3, paddingVertical: theme.spacing.xs },
-  stripWeekday: { fontSize: 11, fontWeight: '600', color: theme.colors.mutedForeground },
-  stripDate: {
-    width: 26,
-    height: 26,
-    borderRadius: theme.radius.full,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  stripDateToday: { backgroundColor: theme.colors.primary },
-  stripDay: { fontSize: 14, fontWeight: '600', color: theme.colors.foreground, ...theme.numeric },
-  stripDayToday: { color: theme.colors.primaryForeground },
-  // Fixed track so the bars grow from a shared baseline instead of shoving the
-  // dates around as the week's busiest day changes.
-  stripTrack: { height: BAR_MAX, justifyContent: 'flex-end' },
-  stripBar: { width: 4, borderRadius: 2, borderCurve: 'continuous' },
-  stripEmpty: {
-    width: 3,
-    height: 3,
-    borderRadius: 1.5,
-    marginBottom: 1,
-    backgroundColor: theme.colors.input,
-  },
-
-  // Full-bleed backdrop, so rows passing under the pinned header are hidden…
-  dayHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingLeft: theme.spacing.lg + RAIL_WIDTH,
-    paddingRight: theme.spacing.lg,
-    paddingVertical: theme.spacing.sm,
-    backgroundColor: theme.colors.background,
-  },
-  // …and a rounded surface inside it, hugging the date so the rail still runs
-  // down its left instead of through it.
-  dayChip: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing.sm,
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: 5,
-    borderRadius: theme.radius.full,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.muted,
-  },
-  // Absolute rather than a flex rail column: RN's sticky-header wrapper
-  // collapses an empty fixed-width child, which broke the thread at every day.
-  dayRail: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: theme.spacing.lg + (RAIL_WIDTH - 1) / 2,
-    width: 1,
-    backgroundColor: theme.colors.input,
-  },
-  dayTitle: {
-    fontSize: 12,
-    fontWeight: '600',
-    letterSpacing: 0.6,
-    textTransform: 'uppercase',
-    color: theme.colors.mutedForeground,
-  },
-  // Solid, like the strip's today circle — the two "you are here" marks on this
-  // screen should look like the same mark.
-  todayTag: {
-    paddingHorizontal: theme.spacing.sm,
-    paddingVertical: 2,
-    borderRadius: theme.radius.full,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.primary,
-  },
-  todayTagLabel: {
-    fontSize: 9,
-    fontWeight: '700',
-    letterSpacing: 0.5,
-    textTransform: 'uppercase',
-    color: theme.colors.primaryForeground,
-  },
-
-  eventRow: { flexDirection: 'row', paddingHorizontal: theme.spacing.lg },
-  rail: { width: RAIL_WIDTH, alignSelf: 'stretch' },
-  railLine: {
-    position: 'absolute',
-    left: (RAIL_WIDTH - 1) / 2,
-    width: 1,
-    backgroundColor: theme.colors.input,
-  },
-  railAbove: { top: 0, height: DOT_TOP },
-  railBelow: { top: DOT_TOP + DOT_SIZE, bottom: 0 },
-  dot: {
-    position: 'absolute',
-    top: DOT_TOP,
-    left: (RAIL_WIDTH - DOT_SIZE) / 2,
-    width: DOT_SIZE,
-    height: DOT_SIZE,
-    borderRadius: DOT_SIZE / 2,
-  },
-  past: { opacity: 0.55 },
-  // The gap between rows belongs to the *body*: children lay out inside the
-  // content box, so a row `paddingBottom` would fall outside the stretched rail
-  // and break the line at every gap.
-  eventBody: { flex: 1, gap: 4, paddingBottom: theme.spacing.xl },
-  eventMeta: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
-  metaSpacer: { flex: 1 },
-  eventTime: { fontSize: 12, color: theme.colors.mutedForeground, ...theme.numeric },
-  eventCurrency: { fontSize: 12, fontWeight: '600', color: theme.colors.mutedForeground },
-  eventTitle: { fontSize: 15, fontWeight: '600', lineHeight: 20, color: theme.colors.foreground },
-  // Tokens rather than a run of loose words: each figure gets its own surface,
-  // so a released number reads as a value and not as more label text.
-  stats: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.xs + 2, paddingTop: 3 },
-  stat: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing.xs + 1,
-    paddingHorizontal: theme.spacing.sm,
-    paddingVertical: 3,
-    borderRadius: theme.radius.sm,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.muted,
-  },
-  statStrong: { backgroundColor: `${theme.colors.primary}1F` },
-  // One size for both halves of the token — the label carries its role in the
-  // color and the caps, not in being smaller than the number.
-  statLabel: {
-    fontSize: 11,
-    fontWeight: '600',
-    letterSpacing: 0.4,
-    textTransform: 'uppercase',
-    color: theme.colors.mutedForeground,
-  },
-  statValue: { fontSize: 11, fontWeight: '700', color: theme.colors.foreground, ...theme.numeric },
-  statValueStrong: { color: theme.colors.primary },
-
-  // A week with no releases still occupies the thread, so the rail stays
-  // unbroken and the scroll has something to report from.
-  gapRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingLeft: theme.spacing.lg + RAIL_WIDTH,
-    paddingRight: theme.spacing.lg,
-    paddingVertical: theme.spacing.lg,
-  },
-  gapText: { fontSize: 12, color: theme.colors.mutedForeground, ...theme.numeric },
-
-  dotIdle: { backgroundColor: theme.colors.input },
-  skeletonMeta: { width: 132, height: 11, borderRadius: theme.radius.sm },
-  skeletonTitle: { width: '72%', height: 15, borderRadius: theme.radius.sm, marginTop: 5 },
-  skeletonTitleShort: { width: '48%' },
-  empty: { alignItems: 'center', gap: theme.spacing.md, paddingHorizontal: theme.spacing.lg },
-  emptyHost: { minHeight: 280, alignSelf: 'stretch' },
-  clearButton: {
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.sm,
-    borderRadius: theme.radius.full,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.muted,
-  },
-  clearButtonLabel: { fontSize: 14, fontWeight: '600', color: theme.colors.foreground },
-}));

@@ -1,9 +1,10 @@
 
 import { useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
+import { Skeleton, cn } from 'panelui-native';
 import { useMemo, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { useCSSVariable } from 'uniwind';
 
 import { EmptyState } from '@/components/empty-state';
 import { Icon } from '@/components/icon';
@@ -12,7 +13,6 @@ import type { BreakGroup, Setup } from '@/api/types';
 import { DashboardCard } from '@/components/dashboard-card';
 import { ErrorState } from '@/components/error-state';
 import { Pill } from '@/components/pill';
-import { Skeleton } from '@/components/skeleton';
 import { StatBar } from '@/components/stat-bar';
 import { TradeFilterMenu } from '@/components/trade-filter-menu';
 import { t } from '@lingui/core/macro';
@@ -21,10 +21,12 @@ import { useGlobalFilters } from '@/lib/filters';
 import { formatPercent, formatRatio, useFormatters } from '@/lib/format';
 import { useMoneyFx } from '@/lib/money';
 import { accountBaseCurrency } from '@/lib/prefs';
-import { pnlColor } from '@/styles/unistyles';
-import { AppHost } from '@/components/app-host';
+import { pnlClass } from '@/styles/pnl';
 
 type SortKey = 'name' | 'trades' | 'winRate' | 'pf' | 'exp' | 'pnl';
+
+/** Card-shaped stand-in while the setups and their scores are still out. */
+const SKELETON_CARD = 'h-[200px] rounded-[18px]';
 
 type SetupRow = {
   setup: Setup;
@@ -92,7 +94,8 @@ function planBits(setup: Setup): string[] {
 
 /** Playbook — every setup scored by its traded results in the current scope. */
 export default function PlaybookScreen() {
-  const { theme } = useUnistyles();
+  // The header glyph takes a JS color, not a class.
+  const [foreground] = useCSSVariable(['--color-foreground']) as [string];
   const router = useRouter();
   const filters = useGlobalFilters();
   const setups = useSetups();
@@ -142,7 +145,7 @@ export default function PlaybookScreen() {
     checklist is a page, not something to inline under the stats.
   */
   const headerActions = (
-    <View style={styles.headerActions}>
+    <View className="flex-row items-center gap-2">
       <TradeFilterMenu
         active={false}
         label={t`Sort`}
@@ -161,9 +164,9 @@ export default function PlaybookScreen() {
         hitSlop={10}
         accessibilityRole="button"
         accessibilityLabel={t`New setup`}
-        style={({ pressed }) => [styles.addButton, pressed && styles.pressed]}
+        className="h-8 w-8 items-center justify-center active:opacity-60"
       >
-        <Icon name="plus" size={18} tintColor={theme.colors.foreground} weight="semibold" />
+        <Icon name="plus" size={18} tintColor={foreground} weight="semibold" />
       </Pressable>
     </View>
   );
@@ -172,9 +175,9 @@ export default function PlaybookScreen() {
     <>
       <Stack.Screen options={{ title: t`Playbook`, headerRight: () => headerActions }} />
       <ScrollView
-        style={styles.page}
+        className="bg-background"
         contentInsetAdjustmentBehavior="automatic"
-        contentContainerStyle={styles.content}
+        contentContainerClassName="gap-4 p-4 pb-12"
         // Inline title, not large — see the note in (settings)/funding.tsx. A
         // native RefreshControl on a pushed `headerLargeTitle` screen leaks its
         // 60pt height into the stack's top inset on every push, so the content
@@ -191,8 +194,8 @@ export default function PlaybookScreen() {
       >
         {loading ? (
           <>
-            <Skeleton style={styles.skeletonCard} />
-            <Skeleton style={styles.skeletonCard} />
+            <Skeleton className={SKELETON_CARD} label={t`Loading your playbook`} />
+            <Skeleton className={SKELETON_CARD} />
           </>
         ) : (setups.error || breakdown.error) && setups.data == null ? (
           // Ahead of the empty state on purpose: that one tells you to write
@@ -200,7 +203,7 @@ export default function PlaybookScreen() {
           // are on a server this phone can't reach. The setups are what the
           // screen lists, so cached ones still render — scored by whatever
           // breakdown the cache holds.
-          <View style={styles.emptyHost}>
+          <View className="min-h-[320px]">
             <ErrorState
               error={setups.error ?? breakdown.error}
               onRetry={() => {
@@ -211,17 +214,17 @@ export default function PlaybookScreen() {
             />
           </View>
         ) : (setups.data ?? []).length === 0 ? (
-          <AppHost style={styles.emptyHost}>
+          <View className="min-h-[320px]">
             <EmptyState
               title={t`No setups yet`}
               systemImage="book"
               description={t`Tap + to write the first play you trade — trades link to it from the trade form.`}
             />
-          </AppHost>
+          </View>
         ) : (
           <>
             <DashboardCard title={t`Playbook`} flush>
-              <View style={styles.grid}>
+              <View className="flex-row flex-wrap gap-2">
                 <StatBar
                   label={t`Plays traded`}
                   value={`${traded.length}/${rows.length}`}
@@ -251,9 +254,9 @@ export default function PlaybookScreen() {
 
             <DashboardCard title={t`Traded in this range`}>
               {traded.length === 0 ? (
-                <Text style={styles.empty}>{t`No setups traded in this range.`}</Text>
+                <Text className="py-2 text-[13px] text-muted-foreground">{t`No setups traded in this range.`}</Text>
               ) : (
-                <View style={styles.rows}>
+                <View className="gap-3">
                   {traded.map((row) => (
                     <Pressable
                       key={row.setup.id}
@@ -261,25 +264,25 @@ export default function PlaybookScreen() {
                         router.push({ pathname: '/new-setup', params: { id: row.setup.id } })
                       }
                       accessibilityRole="button"
-                      style={({ pressed }) => [styles.row, pressed && styles.pressed]}
+                      className="gap-0.5 active:opacity-60"
                     >
-                      <View style={styles.rowHead}>
-                        <Text style={styles.rowName} numberOfLines={1}>
+                      <View className="flex-row items-baseline justify-between">
+                        <Text className="shrink text-[15px] font-semibold text-foreground" numberOfLines={1}>
                           {row.setup.name}
                         </Text>
                         <Text
-                          style={[styles.rowPnl, { color: pnlColor(theme.colors, row.netPnl) }]}
+                          className={cn('text-[15px] font-semibold tabular-nums', pnlClass(row.netPnl))}
                         >
                           {formatPnlCompact(row.netPnl * fxRate, currency)}
                         </Text>
                       </View>
-                      <Text style={styles.rowMeta}>
+                      <Text className="text-xs text-muted-foreground tabular-nums">
                         {t`${row.trades} trades`} · {formatPercent(row.winRate, 0)} · PF{' '}
                         {formatRatio(row.pf)} · {t`exp`}{' '}
                         {formatPnlCompact(row.exp * fxRate, currency)}
                       </Text>
                       {planBits(row.setup).length > 0 ? (
-                        <Text style={styles.rowPlan} numberOfLines={1}>
+                        <Text className="text-xs text-muted-foreground" numberOfLines={1}>
                           {planBits(row.setup).join(' · ')}
                         </Text>
                       ) : null}
@@ -291,7 +294,7 @@ export default function PlaybookScreen() {
 
             {untraded.length > 0 ? (
               <DashboardCard title={t`Not traded in this range`}>
-                <View style={styles.chipWrap}>
+                <View className="flex-row flex-wrap gap-2">
                   {untraded.map((row) => (
                     <Pressable
                       key={row.setup.id}
@@ -299,7 +302,7 @@ export default function PlaybookScreen() {
                         router.push({ pathname: '/new-setup', params: { id: row.setup.id } })
                       }
                       accessibilityRole="button"
-                      style={({ pressed }) => pressed && styles.pressed}
+                      className="active:opacity-60"
                     >
                       <Pill tone="muted">{row.setup.name}</Pill>
                     </Pressable>
@@ -313,27 +316,3 @@ export default function PlaybookScreen() {
     </>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  page: { backgroundColor: theme.colors.background },
-  content: {
-    padding: theme.spacing.lg,
-    gap: theme.spacing.lg,
-    paddingBottom: theme.spacing.xl * 2,
-  },
-  headerActions: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
-  addButton: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
-  rows: { gap: theme.spacing.md },
-  row: { gap: 2 },
-  pressed: { opacity: 0.6 },
-  rowHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
-  rowName: { flexShrink: 1, fontSize: 15, fontWeight: '600', color: theme.colors.foreground },
-  rowPnl: { fontSize: 15, fontWeight: '600', ...theme.numeric },
-  rowMeta: { fontSize: 12, color: theme.colors.mutedForeground, ...theme.numeric },
-  rowPlan: { fontSize: 12, color: theme.colors.mutedForeground },
-  chipWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
-  empty: { fontSize: 13, color: theme.colors.mutedForeground, paddingVertical: theme.spacing.sm },
-  emptyHost: { minHeight: 320 },
-  skeletonCard: { height: 200, borderRadius: theme.radius.lg + 4 },
-}));

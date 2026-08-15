@@ -1,7 +1,7 @@
 import { Redirect } from 'expo-router';
 import { NativeTabs } from 'expo-router/unstable-native-tabs';
 import { ActivityIndicator, Platform, View } from 'react-native';
-import { useUnistyles } from 'react-native-unistyles';
+import { useCSSVariable } from 'uniwind';
 
 import { useSession } from '@/api/session';
 import { t } from '@lingui/core/macro';
@@ -14,13 +14,20 @@ export const unstable_settings = { anchor: '(dashboard)' };
 
 export default function TabsLayout() {
   const { session, isLoading } = useSession();
-  const { theme } = useUnistyles();
+  // `NativeTabs` takes colors as props on a native view, not as classes, so
+  // every one of these is read from the token as a JS value.
+  const [foreground, card, fill, mutedForeground] = useCSSVariable([
+    '--color-foreground',
+    '--color-card',
+    '--color-fill',
+    '--color-muted-foreground',
+  ]) as [string, string, string, string];
 
   // Hold the tabs back until SecureStore has been read, otherwise a restored
   // session would flash the login modal on every cold start.
   if (isLoading) {
     return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <View className="flex-1 items-center justify-center">
         <ActivityIndicator />
       </View>
     );
@@ -31,7 +38,7 @@ export default function TabsLayout() {
   // Neutral foreground tint: the selected tab shouldn't pick up the system accent color.
   return (
     <NativeTabs
-      tintColor={theme.colors.foreground}
+      tintColor={foreground}
       // Android only. Material's default labels the *selected* item alone;
       // every tab keeps its label here to match how the iOS tab bar reads.
       labelVisibilityMode="labeled"
@@ -46,13 +53,13 @@ export default function TabsLayout() {
       // tab bar's Liquid Glass with a flat fill.
       {...(Platform.OS === 'android'
         ? {
-            backgroundColor: theme.colors.card,
-            indicatorColor: theme.colors.fill,
-            rippleColor: theme.colors.fill,
-            iconColor: { default: theme.colors.mutedForeground },
+            backgroundColor: card,
+            indicatorColor: fill,
+            rippleColor: fill,
+            iconColor: { default: mutedForeground },
             labelStyle: {
-              default: { color: theme.colors.mutedForeground },
-              selected: { color: theme.colors.foreground },
+              default: { color: mutedForeground },
+              selected: { color: foreground },
             },
           }
         : null)}

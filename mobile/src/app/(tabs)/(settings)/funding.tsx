@@ -1,14 +1,11 @@
-
 import { FlashList } from '@shopify/flash-list';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
+import { Card, cn, Swipe, type SwipeHandle } from 'panelui-native';
 import { useMemo, useRef } from 'react';
 import { Alert, Pressable, RefreshControl, Text, View } from 'react-native';
-import ReanimatedSwipeable, {
-  type SwipeableMethods,
-} from 'react-native-gesture-handler/ReanimatedSwipeable';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { useCSSVariable } from 'uniwind';
 
 import { EmptyState } from '@/components/empty-state';
 import { Icon } from '@/components/icon';
@@ -20,7 +17,7 @@ import { t } from '@lingui/core/macro';
 import { cashTypeLabel } from '@/lib/cash';
 import { errorMessage } from '@/lib/errors';
 import { useFormatters } from '@/lib/format';
-import { AppHost } from '@/components/app-host';
+import { pnlClass } from '@/styles/pnl';
 
 /** One ledger entry: tap to edit, trailing swipe to remove (the api-tokens idiom). */
 function TransactionRow({
@@ -34,10 +31,9 @@ function TransactionRow({
   onEdit: () => void;
   onRemove: () => void;
 }) {
-  const { theme } = useUnistyles();
   // Formatters bound to the display prefs (see lib/format.ts).
   const { formatCurrency, formatDate } = useFormatters();
-  const swipeable = useRef<SwipeableMethods>(null);
+  const swipeable = useRef<SwipeHandle>(null);
   // Withdrawals and fees are stored negative, but older rows can carry a bare
   // positive amount — the type still decides the direction.
   const isOutflow =
@@ -46,65 +42,53 @@ function TransactionRow({
   const date = formatDate(transaction.occurred_at);
 
   return (
-    <ReanimatedSwipeable
-      ref={swipeable}
-      friction={2}
-      rightThreshold={36}
-      overshootRight={false}
-      renderRightActions={() => (
-        <Pressable
+    // No full swipe: removing a ledger entry moves the equity curve, so it does
+    // not fire from a hard drag alone.
+    <Swipe ref={swipeable} fullSwipe={false}>
+      <Swipe.End>
+        <Swipe.Action
+          color="destructive"
+          icon={<Icon name="trash.fill" size={17} tintColor="#FFFFFF" />}
+          label={t`Remove`}
           onPress={() => {
             swipeable.current?.close();
             onRemove();
           }}
-          accessibilityRole="button"
-          accessibilityLabel={t`Remove`}
-          style={({ pressed }) => [
-            styles.swipeAction,
-            { backgroundColor: theme.colors.destructive },
-            pressed && styles.pressed,
-          ]}
-        >
-          <Icon name="trash.fill" size={17} tintColor="#FFFFFF" />
-          <Text style={styles.swipeLabel} numberOfLines={1}>
-            {t`Remove`}
-          </Text>
-        </Pressable>
-      )}
-    >
-      <Pressable onPress={onEdit} accessibilityRole="button">
-        {({ pressed }) => (
-          <View style={[styles.row, pressed && styles.pressed]}>
-            <View style={styles.rowText}>
-              <Text style={styles.rowName} numberOfLines={1}>
-                {account ? `${cashTypeLabel(transaction.type)} · ${account.name}` : cashTypeLabel(transaction.type)}
-              </Text>
-              <Text style={styles.rowMeta} numberOfLines={1}>
-                {transaction.note ? `${date} · ${transaction.note}` : date}
-              </Text>
-            </View>
-            <Text
-              style={[
-                styles.rowAmount,
-                { color: isOutflow ? theme.colors.loss : theme.colors.profit },
-              ]}
-              numberOfLines={1}
-            >
-              {formatCurrency(signed, transaction.currency || 'USD')}
+        />
+      </Swipe.End>
+      <Pressable onPress={onEdit} accessibilityRole="button" className="active:opacity-70">
+        <Card className="flex-row items-center gap-3 rounded-lg border-0 p-4">
+          <View className="flex-1 gap-0.5">
+            <Text className="text-[15px] font-semibold text-foreground" numberOfLines={1}>
+              {account
+                ? `${cashTypeLabel(transaction.type)} · ${account.name}`
+                : cashTypeLabel(transaction.type)}
+            </Text>
+            <Text className="text-xs tabular-nums text-muted-foreground" numberOfLines={1}>
+              {transaction.note ? `${date} · ${transaction.note}` : date}
             </Text>
           </View>
-        )}
+          <Text
+            className={cn(
+              'text-[15px] font-semibold tabular-nums',
+              pnlClass(isOutflow ? -1 : 1),
+            )}
+            numberOfLines={1}
+          >
+            {formatCurrency(signed, transaction.currency || 'USD')}
+          </Text>
+        </Card>
       </Pressable>
-    </ReanimatedSwipeable>
+    </Swipe>
   );
 }
 
 /**
  * Deposits & withdrawals (web "Deposits & withdrawals" section): the cash
- * ledger across all accounts, newest first. Built like api-tokens.tsx rather
- * than as a SwiftUI Form — the ledger is unbounded and a Form Section renders
- * every row eagerly. Creation lives behind the bar's + button so the screen
- * stays a list; rows push the edit form, swipe removes.
+ * ledger across all accounts, newest first. Built as a list rather than a
+ * settings form — the ledger is unbounded and a form section renders every row
+ * eagerly. Creation lives behind the bar's + button so the screen stays a
+ * list; rows push the edit form, swipe removes.
  *
  * No running total in the header: accounts can hold different base currencies,
  * so a single summed figure would be wrong. Per-account balances live on the
@@ -112,7 +96,12 @@ function TransactionRow({
  */
 export default function FundingScreen() {
   const router = useRouter();
-  const { theme } = useUnistyles();
+  // `FlashList` is not a core component Uniwind can take a `className` on, so
+  // its content fill has to be a JS value.
+  const [background, foreground] = useCSSVariable([
+    '--color-background',
+    '--color-foreground',
+  ]) as [string, string];
   const queryClient = useQueryClient();
   const api = useApiRequest();
   const { data: accounts } = useAccounts();
@@ -153,9 +142,9 @@ export default function FundingScreen() {
       hitSlop={10}
       accessibilityRole="button"
       accessibilityLabel={t`Add transaction`}
-      style={({ pressed }) => [styles.addButton, pressed && styles.pressed]}
+      className="h-8 w-8 items-center justify-center active:opacity-70"
     >
-      <Icon name="plus" size={18} tintColor={theme.colors.foreground} weight="semibold" />
+      <Icon name="plus" size={18} tintColor={foreground} weight="semibold" />
     </Pressable>
   );
 
@@ -163,9 +152,9 @@ export default function FundingScreen() {
     <>
       <Stack.Screen options={{ headerRight: () => addButton }} />
       {cash.isLoading ? (
-        <View style={[styles.page, styles.skeletonPage]}>
+        <View className="flex-1 gap-2 bg-background p-4 pt-[120px]">
           {Array.from({ length: 5 }, (_, i) => (
-            <Skeleton key={i} style={styles.skeletonRow} />
+            <Skeleton key={i} className="h-[72px] rounded-lg" />
           ))}
         </View>
       ) : loadFailed ? (
@@ -179,7 +168,7 @@ export default function FundingScreen() {
           data={transactions}
           keyExtractor={(transaction) => transaction.id}
           contentInsetAdjustmentBehavior="automatic"
-          contentContainerStyle={styles.content}
+          contentContainerStyle={{ padding: 16, paddingBottom: 48, backgroundColor: background }}
           // Pull-to-refresh is why this screen runs an inline title instead of
           // a large one (see the layout). A native RefreshControl on a *pushed*
           // `headerLargeTitle` screen leaks its own 60pt height into the stack's
@@ -198,72 +187,27 @@ export default function FundingScreen() {
               onRemove={() => confirmRemove(item)}
             />
           )}
-          ItemSeparatorComponent={() => <View style={styles.separator} />}
+          ItemSeparatorComponent={() => <View className="h-2" />}
           ListFooterComponent={
             transactions.length > 0 ? (
-              <Text style={styles.footnote}>
+              // No horizontal inset of its own — the helper text lines up with
+              // the card edges above it, not 4pt inside them.
+              <Text className="pt-4 text-xs leading-[17px] text-muted-foreground">
                 {t`Deposits, withdrawals, and fees drive the equity curve alongside trade P&L. Tap a row to edit it, swipe to remove.`}
               </Text>
             ) : null
           }
           ListEmptyComponent={
-            <AppHost style={styles.empty}>
+            <View className="min-h-[320px]">
               <EmptyState
                 title={t`No transactions yet`}
                 systemImage="banknote"
                 description={t`Tap + to log a deposit, withdrawal, or fee — they drive the equity curve alongside trade P&L.`}
               />
-            </AppHost>
+            </View>
           }
         />
       )}
     </>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  page: { flex: 1, backgroundColor: theme.colors.background },
-  content: {
-    padding: theme.spacing.lg,
-    paddingBottom: theme.spacing.xl * 2,
-    backgroundColor: theme.colors.background,
-  },
-  addButton: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
-  footnote: {
-    fontSize: 12,
-    lineHeight: 17,
-    color: theme.colors.mutedForeground,
-    paddingTop: theme.spacing.lg,
-    // No horizontal inset of its own — the helper text lines up with the card
-    // edges above it, not 4pt inside them.
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing.md,
-    backgroundColor: theme.colors.card,
-    boxShadow: theme.shadows.card,
-    borderRadius: theme.radius.lg,
-    borderCurve: 'continuous',
-    padding: theme.spacing.lg,
-  },
-  rowText: { flex: 1, gap: 2 },
-  rowName: { fontSize: 15, fontWeight: '600', color: theme.colors.foreground },
-  rowMeta: { fontSize: 12, color: theme.colors.mutedForeground, ...theme.numeric },
-  rowAmount: { fontSize: 15, fontWeight: '600', ...theme.numeric },
-  separator: { height: theme.spacing.sm },
-  swipeAction: {
-    width: 72,
-    marginLeft: theme.spacing.sm,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 3,
-    borderRadius: theme.radius.lg,
-    borderCurve: 'continuous',
-  },
-  pressed: { opacity: 0.7 },
-  swipeLabel: { fontSize: 11, fontWeight: '600', color: '#FFFFFF' },
-  empty: { minHeight: 320 },
-  skeletonPage: { padding: theme.spacing.lg, gap: theme.spacing.sm, paddingTop: 120 },
-  skeletonRow: { height: 72, borderRadius: theme.radius.lg },
-}));

@@ -1,14 +1,11 @@
-
 import { FlashList } from '@shopify/flash-list';
 import { useLocalSearchParams } from 'expo-router';
 import { Stack } from 'expo-router/stack';
 import { RefreshControl, Text, View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
 
 import { EmptyState } from '@/components/empty-state';
 import { useAccessTokenUses } from '@/api/hooks';
 import type { AccessTokenUse } from '@/api/types';
-import { AppHost } from '@/components/app-host';
 import { ErrorState } from '@/components/error-state';
 import { Skeleton } from '@/components/skeleton';
 import { useFormatters } from '@/lib/format';
@@ -27,18 +24,23 @@ function shortAgent(agent: string): string {
 function UseRow({ use }: { use: AccessTokenUse }) {
   const { formatDate, formatTime } = useFormatters();
   return (
-    <View style={styles.row}>
-      <View style={styles.rowTop}>
-        <Text style={styles.agent} numberOfLines={1}>
+    <View className="gap-1.5 rounded-lg bg-card p-4">
+      <View className="flex-row items-center gap-2">
+        <Text className="flex-1 text-[15px] font-semibold text-foreground" numberOfLines={1}>
           {shortAgent(use.user_agent)}
         </Text>
-        <Text style={styles.when} numberOfLines={1}>
+        <Text className="text-xs tabular-nums text-muted-foreground" numberOfLines={1}>
           {`${formatDate(use.used_at)} · ${formatTime(use.used_at)}`}
         </Text>
       </View>
-      <View style={styles.rowBottom}>
-        <View style={styles.chip}>
-          <Text style={styles.chipText} numberOfLines={1}>
+      <View className="gap-1">
+        {/* The IP is an address, not prose — Menlo makes it read as one. */}
+        <View className="self-start rounded-sm bg-muted px-[7px] py-0.5">
+          <Text
+            className="text-[11.5px] text-muted-foreground"
+            style={{ fontFamily: 'Menlo' }}
+            numberOfLines={1}
+          >
             {use.ip || t`no IP`}
           </Text>
         </View>
@@ -47,7 +49,11 @@ function UseRow({ use }: { use: AccessTokenUse }) {
             a one-word agent like "curl/8.4.0" is already the heading, and
             printing it twice reads like a rendering bug. */}
         {use.user_agent.trim() && use.user_agent.trim() !== shortAgent(use.user_agent) ? (
-          <Text selectable style={styles.fullAgent} numberOfLines={2}>
+          <Text
+            selectable
+            className="text-[11px] leading-[15px] text-muted-foreground"
+            numberOfLines={2}
+          >
             {use.user_agent}
           </Text>
         ) : null}
@@ -74,9 +80,9 @@ export default function TokenUsesScreen() {
     <>
       <Stack.Screen options={{ title: name || t`Token activity` }} />
       {uses.isLoading ? (
-        <View style={[styles.page, styles.skeletonPage]}>
+        <View className="flex-1 gap-2 bg-background p-4">
           {Array.from({ length: 3 }, (_, i) => (
-            <Skeleton key={i} style={styles.skeletonRow} />
+            <Skeleton key={i} className="h-[78px] rounded-lg" />
           ))}
         </View>
       ) : loadFailed ? (
@@ -86,74 +92,42 @@ export default function TokenUsesScreen() {
           retrying={uses.isRefetching}
         />
       ) : (
-        <FlashList
-          data={uses.data ?? []}
-          keyExtractor={(use) => `${use.used_at}-${use.ip}-${use.user_agent}`}
-          contentInsetAdjustmentBehavior="automatic"
-          contentContainerStyle={styles.content}
-          refreshControl={
-            <RefreshControl refreshing={uses.isRefetching} onRefresh={() => void uses.refetch()} />
-          }
-          renderItem={({ item }) => <UseRow use={item} />}
-          ItemSeparatorComponent={() => <View style={styles.separator} />}
-          ListFooterComponent={
-            (uses.data ?? []).length > 0 ? (
-              <Text style={styles.footnote}>
-                {t`One entry per client, not per request — a repeat from the same IP and app is folded in for ten minutes. The 50 most recent are kept.`}
-              </Text>
-            ) : null
-          }
-          ListEmptyComponent={
-            <AppHost style={styles.empty}>
-              <EmptyState
-                title={t`Not used yet`}
-                systemImage="clock.arrow.circlepath"
-                description={t`When something authenticates with this token, the IP and app it used show up here.`}
+        // The page colour lives on a wrapper: `contentContainerStyle` is a
+        // plain style object on FlashList, so it can hold the padding but not
+        // a themed class.
+        <View className="flex-1 bg-background">
+          <FlashList
+            data={uses.data ?? []}
+            keyExtractor={(use) => `${use.used_at}-${use.ip}-${use.user_agent}`}
+            contentInsetAdjustmentBehavior="automatic"
+            contentContainerStyle={{ padding: 16, paddingBottom: 48 }}
+            refreshControl={
+              <RefreshControl
+                refreshing={uses.isRefetching}
+                onRefresh={() => void uses.refetch()}
               />
-            </AppHost>
-          }
-        />
+            }
+            renderItem={({ item }) => <UseRow use={item} />}
+            ItemSeparatorComponent={() => <View className="h-2" />}
+            ListFooterComponent={
+              (uses.data ?? []).length > 0 ? (
+                <Text className="pt-4 text-xs leading-[17px] text-muted-foreground">
+                  {t`One entry per client, not per request — a repeat from the same IP and app is folded in for ten minutes. The 50 most recent are kept.`}
+                </Text>
+              ) : null
+            }
+            ListEmptyComponent={
+              <View className="min-h-[320px] flex-1">
+                <EmptyState
+                  title={t`Not used yet`}
+                  systemImage="clock.arrow.circlepath"
+                  description={t`When something authenticates with this token, the IP and app it used show up here.`}
+                />
+              </View>
+            }
+          />
+        </View>
       )}
     </>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  page: { flex: 1, backgroundColor: theme.colors.background },
-  content: {
-    padding: theme.spacing.lg,
-    paddingBottom: theme.spacing.xl * 2,
-    backgroundColor: theme.colors.background,
-  },
-  row: {
-    gap: 6,
-    backgroundColor: theme.colors.card,
-    borderRadius: theme.radius.lg,
-    borderCurve: 'continuous',
-    padding: theme.spacing.lg,
-  },
-  rowTop: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
-  agent: { flex: 1, fontSize: 15, fontWeight: '600', color: theme.colors.foreground },
-  when: { fontSize: 12, color: theme.colors.mutedForeground, ...theme.numeric },
-  rowBottom: { gap: 4 },
-  chip: {
-    alignSelf: 'flex-start',
-    paddingHorizontal: 7,
-    paddingVertical: 2,
-    borderRadius: theme.radius.sm,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.muted,
-  },
-  chipText: { fontFamily: 'Menlo', fontSize: 11.5, color: theme.colors.mutedForeground },
-  fullAgent: { fontSize: 11, lineHeight: 15, color: theme.colors.mutedForeground },
-  separator: { height: theme.spacing.sm },
-  footnote: {
-    fontSize: 12,
-    lineHeight: 17,
-    color: theme.colors.mutedForeground,
-    paddingTop: theme.spacing.lg,
-  },
-  skeletonPage: { padding: theme.spacing.lg, gap: theme.spacing.sm },
-  skeletonRow: { height: 78, borderRadius: theme.radius.lg },
-  empty: { flex: 1, minHeight: 320 },
-}));

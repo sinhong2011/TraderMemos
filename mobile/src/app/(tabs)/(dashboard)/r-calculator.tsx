@@ -1,9 +1,10 @@
 
 import { useHeaderHeight } from 'expo-router/react-navigation';
 import { Stack } from 'expo-router/stack';
+import { cn } from 'panelui-native';
 import { Children, Fragment, useState, type ReactNode } from 'react';
-import { Alert, Keyboard, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { Keyboard, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { useCSSVariable } from 'uniwind';
 
 import { Icon } from '@/components/icon';
 import { DashboardCard } from '@/components/dashboard-card';
@@ -13,6 +14,7 @@ import { Pill } from '@/components/pill';
 import { Segmented } from '@/components/segmented';
 import { StatBar } from '@/components/stat-bar';
 import { SymbolPager } from '@/components/symbol-pager';
+import { usePrompt, type PromptOptions } from '@/components/use-prompt';
 import { t } from '@lingui/core/macro';
 import type { Direction, Warning, WarningKey } from '@/lib/r-calculator/calc';
 import { EXIT_PRESETS, matchPreset, type TrailerStop } from '@/lib/r-calculator/exit';
@@ -30,6 +32,12 @@ import {
 import type { Instrument, OptionType, Session } from '@/lib/r-calculator/sessions';
 
 type Mode = 'r' | 'fvg';
+
+/** Settings-row metrics shared by every field in the calculator. */
+const FIELD_ROW = 'min-h-[48px] flex-row items-center gap-3 py-1';
+const FIELD_LABEL = 'text-[15px] font-semibold text-foreground';
+/** Trailing controls hug their content and sit on the label's centre line. */
+const FIELD_CONTROL = 'ml-auto shrink';
 
 // ---------------------------------------------------------------------------
 // Localized copy for the engine's stable warning keys
@@ -66,25 +74,33 @@ function warningText(key: WarningKey): string {
   }
 }
 
+/** Text tint per warning tone — `caution` takes the section-title accent. */
+const WARN_CLASS: Record<Warning['tone'], string> = {
+  danger: 'text-destructive',
+  caution: 'text-heading',
+  ok: 'text-muted-foreground',
+};
+
 function WarningList({ warns }: { warns: Warning[] }) {
-  const { theme } = useUnistyles();
+  // The glyph beside each line takes the same hue as a JS value.
+  const [destructive, heading, mutedForeground] = useCSSVariable([
+    '--color-destructive',
+    '--color-heading',
+    '--color-muted-foreground',
+  ]) as [string, string, string];
   if (warns.length === 0) return null;
   const tint = (tone: Warning['tone']) =>
-    tone === 'danger'
-      ? theme.colors.destructive
-      : tone === 'caution'
-        ? theme.colors.accent
-        : theme.colors.mutedForeground;
+    tone === 'danger' ? destructive : tone === 'caution' ? heading : mutedForeground;
   return (
-    <View style={styles.warnings}>
+    <View className="gap-1">
       {warns.map((warning) => (
-        <View key={warning.key} style={styles.warningRow}>
+        <View key={warning.key} className="flex-row items-start gap-1.5">
           <Icon
             name={warning.tone === 'ok' ? 'checkmark.circle' : 'exclamationmark.triangle'}
             size={13}
             tintColor={tint(warning.tone)}
           />
-          <Text style={[styles.warningText, { color: tint(warning.tone) }]}>
+          <Text className={cn('flex-1 text-xs leading-[17px]', WARN_CLASS[warning.tone])}>
             {warningText(warning.key)}
           </Text>
         </View>
@@ -106,10 +122,12 @@ function WarningList({ warns }: { warns: Warning[] }) {
 function FieldGroup({ children }: { children: ReactNode }) {
   const rows = Children.toArray(children);
   return (
-    <View style={styles.group}>
+    // Rows sit flush against each other; the hairline is the only divider, so
+    // the group needs the card's own gap cancelled.
+    <View className="-my-1">
       {rows.map((row, index) => (
         <Fragment key={index}>
-          {index > 0 ? <View style={styles.separator} /> : null}
+          {index > 0 ? <View className="h-px bg-border" /> : null}
           {row}
         </Fragment>
       ))}
@@ -120,9 +138,9 @@ function FieldGroup({ children }: { children: ReactNode }) {
 /** Label leading, control trailing — the settings-row idiom (`form-rows.tsx`). */
 function ControlField({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <View style={styles.fieldRow}>
-      <Text style={styles.fieldLabel}>{label}</Text>
-      <View style={styles.fieldControl}>{children}</View>
+    <View className={FIELD_ROW}>
+      <Text className={FIELD_LABEL}>{label}</Text>
+      <View className={FIELD_CONTROL}>{children}</View>
     </View>
   );
 }
@@ -147,11 +165,11 @@ function NumberRow({
     setText(String(value));
   }
   return (
-    <View style={styles.fieldRow}>
-      <Text style={styles.fieldLabel}>{label}</Text>
-      {/* A definite box for the hosted field: left to size itself it drifts
-          above the label's centre line in some rows. */}
-      <View style={styles.fieldValue}>
+    <View className={FIELD_ROW}>
+      <Text className={FIELD_LABEL}>{label}</Text>
+      {/* A definite box for the field: left to size itself it drifts above the
+          label's centre line in some rows. */}
+      <View className="h-6 flex-1 justify-center">
         <NumericField
           align="trailing"
           value={text}
@@ -178,18 +196,21 @@ function SymbolField({
   value: string;
   onChange: (symbol: string) => void;
 }) {
-  const { theme } = useUnistyles();
+  // `placeholderTextColor` is a prop, not a style — it needs the token's value.
+  const [mutedForeground] = useCSSVariable(['--color-muted-foreground']) as [string];
   return (
-    <View style={styles.fieldRow}>
-      <Text style={styles.fieldLabel}>{t`Symbol`}</Text>
+    <View className={FIELD_ROW}>
+      <Text className={FIELD_LABEL}>{t`Symbol`}</Text>
+      {/* The text field takes the rest of the row and right-aligns, so its
+          value lands on the same edge as the trailing controls'. */}
       <TextInput
         value={value}
         onChangeText={onChange}
         placeholder="AAPL"
-        placeholderTextColor={theme.colors.mutedForeground}
+        placeholderTextColor={mutedForeground}
         autoCapitalize="characters"
         autoCorrect={false}
-        style={styles.fieldInput}
+        className="flex-1 py-2 text-right text-base text-foreground"
       />
     </View>
   );
@@ -203,8 +224,8 @@ function SymbolField({
 function CalcPage({ children }: { children: ReactNode }) {
   return (
     <ScrollView
-      style={styles.flex}
-      contentContainerStyle={styles.content}
+      className="flex-1"
+      contentContainerClassName="grow"
       // The pinned strip above already clears the transparent nav bar; the
       // automatic behaviour would inset this page by it a second time.
       contentInsetAdjustmentBehavior="never"
@@ -213,7 +234,9 @@ function CalcPage({ children }: { children: ReactNode }) {
       automaticallyAdjustKeyboardInsets
     >
       {/* Decimal pads have no return key — tapping any empty space dismisses. */}
-      <Pressable onPress={Keyboard.dismiss} accessible={false} style={styles.pageBody}>
+      {/* `pb-18` clears the tab bar — this page's scroll view opts out of the
+          automatic content insets that would otherwise carry it. */}
+      <Pressable onPress={Keyboard.dismiss} accessible={false} className="grow gap-4 p-4 pb-18">
         {children}
       </Pressable>
     </ScrollView>
@@ -227,23 +250,20 @@ function pageLabel(symbol: string, index: number): string {
 
 /**
  * Retitle a page from its tab — the same edit as the Symbol field, reachable
- * without scrolling back to it. `Alert.prompt` is iOS-only, which this screen
- * already is: the single-value idiom the settings forms use.
+ * without scrolling back to it. Raised through `usePrompt`, the single-value
+ * idiom the settings forms use: `Alert.prompt` is iOS-only, and the hook falls
+ * back to a dialog everywhere else.
  */
-function promptRename(symbol: string, onRename: (symbol: string) => void) {
-  Alert.prompt(
-    t`Symbol`,
-    undefined,
-    [
-      { text: t`Cancel`, style: 'cancel' },
-      {
-        text: t`Save`,
-        onPress: (next?: string) => onRename((next ?? '').trim()),
-      },
-    ],
-    'plain-text',
-    symbol,
-  );
+function promptRename(
+  prompt: (options: PromptOptions) => void,
+  symbol: string,
+  onRename: (symbol: string) => void,
+) {
+  prompt({
+    title: t`Symbol`,
+    defaultValue: symbol,
+    onSubmit: (next) => onRename(next.trim()),
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -251,7 +271,8 @@ function promptRename(symbol: string, onRename: (symbol: string) => void) {
 // ---------------------------------------------------------------------------
 
 function RPanel({ session }: { session: Session }) {
-  const { theme } = useUnistyles();
+  // The remove-tier glyph is tinted with a JS value, not a class.
+  const [destructive] = useCSSVariable(['--color-destructive']) as [string];
   const { result, riskPerUnit, exitResult, warns, exitWarns } = deriveSession(session);
   const id = session.id;
   const isOptions = session.instrument === 'options';
@@ -361,7 +382,7 @@ function RPanel({ session }: { session: Session }) {
       </DashboardCard>
 
       <DashboardCard title={t`Size`} flush>
-        <View style={styles.grid}>
+        <View className="flex-row flex-wrap gap-2">
           <StatBar
             label={isOptions ? t`Contracts` : t`Shares`}
             value={fmtShares(result.shares)}
@@ -408,13 +429,13 @@ function RPanel({ session }: { session: Session }) {
       <DashboardCard
         title={t`Exit ladder`}
         control={
-          <View style={styles.presetRow}>
+          <View className="flex-row gap-2">
             {EXIT_PRESETS.map((preset) => (
               <Pressable
                 key={preset.id}
                 onPress={() => rCalcActions.applyExitPreset(id, preset.plan)}
                 accessibilityRole="button"
-                style={({ pressed }) => pressed && styles.pressed}
+                className="active:opacity-60"
               >
                 <Pill tone={presetId === preset.id ? 'accent' : 'muted'}>
                   {preset.id === 'aggressive' ? t`Aggressive` : t`Conservative`}
@@ -428,16 +449,18 @@ function RPanel({ session }: { session: Session }) {
             single run of rows would leave nothing to hang "Tier 2" off. */}
         {session.exitPlan.tiers.map((tier, index) => (
           <FieldGroup key={index}>
-            <View style={styles.fieldRow}>
-              <Text style={styles.tierTitle}>{t`Tier ${index + 1}`}</Text>
+            <View className={FIELD_ROW}>
+              <Text className="text-[13px] font-semibold tracking-wide text-muted-foreground">
+                {t`Tier ${index + 1}`}
+              </Text>
               <Pressable
                 onPress={() => rCalcActions.removeTier(id, index)}
                 hitSlop={10}
                 accessibilityRole="button"
                 accessibilityLabel={t`Remove tier`}
-                style={({ pressed }) => [styles.fieldControl, pressed && styles.pressed]}
+                className={cn(FIELD_CONTROL, 'active:opacity-60')}
               >
-                <Icon name="minus.circle" size={18} tintColor={theme.colors.destructive} />
+                <Icon name="minus.circle" size={18} tintColor={destructive} />
               </Pressable>
             </View>
             <NumberRow
@@ -452,7 +475,7 @@ function RPanel({ session }: { session: Session }) {
             />
           </FieldGroup>
         ))}
-        <View style={styles.actionRow}>
+        <View className="items-center">
           <GlassButton
             label={t`Add tier`}
             systemImage="plus"
@@ -483,7 +506,7 @@ function RPanel({ session }: { session: Session }) {
           ) : null}
         </FieldGroup>
 
-        <View style={styles.grid}>
+        <View className="flex-row flex-wrap gap-2">
           <StatBar label={t`Locked at tiers`} value={money(exitResult.locked)} tone="pos" />
           <StatBar
             label={t`Guaranteed floor`}
@@ -511,6 +534,7 @@ function RPanel({ session }: { session: Session }) {
 
 /** Every saved sizing as a swipeable page, one tab per symbol (trade-form shape). */
 function RPager({ topStyle }: { topStyle: { paddingTop: number } }) {
+  const { prompt, element: promptElement } = usePrompt();
   const { sessions, activeId } = useRCalc();
   const active = Math.max(
     0,
@@ -518,29 +542,32 @@ function RPager({ topStyle }: { topStyle: { paddingTop: number } }) {
   );
 
   return (
-    <SymbolPager
-      tabs={sessions.map((session, index) => ({
-        key: session.id,
-        label: pageLabel(session.symbol, index),
-      }))}
-      active={active}
-      addLabel={t`Add symbol`}
-      removeLabel={t`Remove symbol`}
-      topStyle={topStyle}
-      onSelect={(index) => rCalcActions.setActive(sessions[index].id)}
-      onLongPressTab={(index) =>
-        promptRename(sessions[index].symbol, (symbol) =>
-          rCalcActions.setSymbol(sessions[index].id, symbol),
-        )
-      }
-      onAdd={rCalcActions.addSession}
-      onRemoveActive={() => rCalcActions.removeSession(activeId)}
-      renderPage={(index) => (
-        <CalcPage>
-          <RPanel session={sessions[index]} />
-        </CalcPage>
-      )}
-    />
+    <>
+      <SymbolPager
+        tabs={sessions.map((session, index) => ({
+          key: session.id,
+          label: pageLabel(session.symbol, index),
+        }))}
+        active={active}
+        addLabel={t`Add symbol`}
+        removeLabel={t`Remove symbol`}
+        topStyle={topStyle}
+        onSelect={(index) => rCalcActions.setActive(sessions[index].id)}
+        onLongPressTab={(index) =>
+          promptRename(prompt, sessions[index].symbol, (symbol) =>
+            rCalcActions.setSymbol(sessions[index].id, symbol),
+          )
+        }
+        onAdd={rCalcActions.addSession}
+        onRemoveActive={() => rCalcActions.removeSession(activeId)}
+        renderPage={(index) => (
+          <CalcPage>
+            <RPanel session={sessions[index]} />
+          </CalcPage>
+        )}
+      />
+      {promptElement}
+    </>
   );
 }
 
@@ -628,7 +655,7 @@ function FvgPanel({ session }: { session: FvgSession }) {
       </DashboardCard>
 
       <DashboardCard title={t`Plan`} flush>
-        <View style={styles.grid}>
+        <View className="flex-row flex-wrap gap-2">
           <StatBar label={t`Shares`} value={fmtShares(result.shares)} tone="accent" />
           <StatBar label={t`Entry`} value={money(result.entryPrice)} />
           <StatBar label={t`Stop`} value={money(result.stopPrice)} tone="neg" />
@@ -648,6 +675,7 @@ function FvgPanel({ session }: { session: FvgSession }) {
 }
 
 function FvgPager({ topStyle }: { topStyle: { paddingTop: number } }) {
+  const { prompt, element: promptElement } = usePrompt();
   const { sessions, activeId } = useFvg();
   const active = Math.max(
     0,
@@ -655,29 +683,32 @@ function FvgPager({ topStyle }: { topStyle: { paddingTop: number } }) {
   );
 
   return (
-    <SymbolPager
-      tabs={sessions.map((session, index) => ({
-        key: session.id,
-        label: pageLabel(session.symbol, index),
-      }))}
-      active={active}
-      addLabel={t`Add symbol`}
-      removeLabel={t`Remove symbol`}
-      topStyle={topStyle}
-      onSelect={(index) => fvgActions.setActive(sessions[index].id)}
-      onLongPressTab={(index) =>
-        promptRename(sessions[index].symbol, (symbol) =>
-          fvgActions.setSymbol(sessions[index].id, symbol),
-        )
-      }
-      onAdd={fvgActions.addSession}
-      onRemoveActive={() => fvgActions.removeSession(activeId)}
-      renderPage={(index) => (
-        <CalcPage>
-          <FvgPanel session={sessions[index]} />
-        </CalcPage>
-      )}
-    />
+    <>
+      <SymbolPager
+        tabs={sessions.map((session, index) => ({
+          key: session.id,
+          label: pageLabel(session.symbol, index),
+        }))}
+        active={active}
+        addLabel={t`Add symbol`}
+        removeLabel={t`Remove symbol`}
+        topStyle={topStyle}
+        onSelect={(index) => fvgActions.setActive(sessions[index].id)}
+        onLongPressTab={(index) =>
+          promptRename(prompt, sessions[index].symbol, (symbol) =>
+            fvgActions.setSymbol(sessions[index].id, symbol),
+          )
+        }
+        onAdd={fvgActions.addSession}
+        onRemoveActive={() => fvgActions.removeSession(activeId)}
+        renderPage={(index) => (
+          <CalcPage>
+            <FvgPanel session={sessions[index]} />
+          </CalcPage>
+        )}
+      />
+      {promptElement}
+    </>
   );
 }
 
@@ -703,7 +734,7 @@ export default function RCalculatorScreen() {
           ),
         }}
       />
-      <View style={styles.screen}>
+      <View className="flex-1 bg-background">
         {mode === 'r' ? (
           <RPager topStyle={{ paddingTop: headerHeight }} />
         ) : (
@@ -713,55 +744,3 @@ export default function RCalculatorScreen() {
     </>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  flex: { flex: 1 },
-  screen: { flex: 1, backgroundColor: theme.colors.background },
-  content: { flexGrow: 1 },
-  pageBody: {
-    flexGrow: 1,
-    padding: theme.spacing.lg,
-    gap: theme.spacing.lg,
-    // Clears the tab bar — this page's scroll view opts out of the automatic
-    // content insets that would otherwise carry it.
-    paddingBottom: theme.spacing.xl * 3,
-  },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
-  pressed: { opacity: 0.6 },
-  // Rows sit flush against each other; the hairline is the only divider, so
-  // the group needs the card's own gap cancelled.
-  group: { marginVertical: -theme.spacing.xs },
-  separator: { height: 0.5, backgroundColor: theme.colors.border },
-  fieldRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing.md,
-    minHeight: 48,
-    paddingVertical: theme.spacing.xs,
-  },
-  fieldLabel: { fontSize: 15, fontWeight: '600', color: theme.colors.foreground },
-  // Trailing controls hug their content; the text field takes the rest of the
-  // row and right-aligns, so its value lands on the same edge as theirs. The
-  // definite height is what keeps a hosted SwiftUI picker on the label's centre
-  // line — sizing itself, it draws towards the top of the row instead.
-  fieldControl: { marginLeft: 'auto', flexShrink: 1 },
-  fieldValue: { flex: 1, height: 24, justifyContent: 'center' },
-  fieldInput: {
-    flex: 1,
-    textAlign: 'right',
-    fontSize: 16,
-    color: theme.colors.foreground,
-    paddingVertical: theme.spacing.sm,
-  },
-  tierTitle: {
-    fontSize: 13,
-    fontWeight: '600',
-    letterSpacing: 0.3,
-    color: theme.colors.mutedForeground,
-  },
-  actionRow: { alignItems: 'center' },
-  presetRow: { flexDirection: 'row', gap: theme.spacing.sm },
-  warnings: { gap: theme.spacing.xs },
-  warningRow: { flexDirection: 'row', alignItems: 'flex-start', gap: theme.spacing.xs + 2 },
-  warningText: { flex: 1, fontSize: 12, lineHeight: 17 },
-}));

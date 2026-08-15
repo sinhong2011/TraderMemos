@@ -1,19 +1,12 @@
-import {
-  Button,
-  HStack,
-  Section,
-  Spacer,
-  Text as UIText,
-  VStack,
-} from '@expo/ui/swift-ui';
-import { font, foregroundStyle } from '@expo/ui/swift-ui/modifiers';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Frame, Text } from 'panelui-native';
 import { Alert } from 'react-native';
 
 import { queryKeys, useApiRequest, useRiskRules } from '@/api/hooks';
 import type { RiskRules } from '@/api/types';
 import { t } from '@lingui/core/macro';
 import { SettingsForm } from '@/components/settings-form';
+import { SettingsButton, SettingsSection } from '@/components/settings-rows';
 import { errorMessage } from '@/lib/errors';
 import {
   activeRiskRules,
@@ -24,12 +17,11 @@ import {
   validateRiskRuleValue,
   type RiskRuleDef,
 } from '@/lib/risk-rules';
-import { AppHost } from '@/components/app-host';
 
 /**
  * Risk rules (web RulesTab parity): only active limits are listed — tap one to
  * change or remove it, add unset limits from the section below. Values edit in
- * a native prompt (iOS Alert with a decimal field), so the list never shows
+ * a native prompt (an Alert with a decimal field), so the list never shows
  * empty inputs like the old four-blank-fields form.
  */
 export default function RiskRulesScreen() {
@@ -92,57 +84,51 @@ export default function RiskRulesScreen() {
   const available = availableRiskRules(rules.data);
 
   return (
-    <AppHost style={{ flex: 1 }}>
-      <SettingsForm>
-        <Section
-          title={t`Active limits`}
-          footer={
-            <UIText>{t`Used by Check compliance on New Trade. Add only the limits you want enforced.`}</UIText>
-          }
-        >
-          {active.map(({ def, value }) => (
-            <Button key={def.key} onPress={() => openActiveRule(def, value)}>
-              <HStack spacing={8}>
-                <VStack alignment="leading" spacing={2}>
-                  <UIText modifiers={[foregroundStyle({ type: 'hierarchical', style: 'primary' })]}>
-                    {def.label()}
-                  </UIText>
-                  <UIText
-                    modifiers={[
-                      font({ size: 13 }),
-                      foregroundStyle({ type: 'hierarchical', style: 'secondary' }),
-                    ]}
-                  >
-                    {def.detail()}
-                  </UIText>
-                </VStack>
-                <Spacer />
-                <UIText modifiers={[foregroundStyle({ type: 'hierarchical', style: 'primary' })]}>
-                  {formatRiskRuleValue(def, value)}
-                </UIText>
-              </HStack>
-            </Button>
-          ))}
-          {active.length === 0 ? (
-            <UIText modifiers={[foregroundStyle({ type: 'hierarchical', style: 'secondary' })]}>
-              {rules.isLoading ? t`Loading…` : t`No risk rules yet`}
-            </UIText>
-          ) : null}
-        </Section>
-
-        {available.length > 0 ? (
-          <Section title={t`Add a limit`}>
-            {available.map((def) => (
-              <Button
-                key={def.key}
-                systemImage="plus.circle.fill"
-                label={def.label()}
-                onPress={() => promptForValue(def)}
-              />
-            ))}
-          </Section>
+    <SettingsForm>
+      <SettingsSection
+        title={t`Active limits`}
+        footer={t`Used by Check compliance on New Trade. Add only the limits you want enforced.`}
+      >
+        {/* A rule row carries a second line the settings vocabulary has no slot
+            for — what the limit actually measures — so it is composed from the
+            Frame row parts the other rows are built on rather than bent out of
+            NavRow. */}
+        {active.map(({ def, value }) => (
+          <Frame.Row key={def.key} onPress={() => openActiveRule(def, value)}>
+            <Frame.Content>
+              <Frame.Title>{def.label()}</Frame.Title>
+              <Frame.Description>{def.detail()}</Frame.Description>
+            </Frame.Content>
+            <Frame.Actions>
+              <Text size="sm" className="tabular-nums">
+                {formatRiskRuleValue(def, value)}
+              </Text>
+            </Frame.Actions>
+          </Frame.Row>
+        ))}
+        {active.length === 0 ? (
+          <Frame.Row>
+            <Frame.Content>
+              <Text size="sm" muted>
+                {rules.isLoading ? t`Loading…` : t`No risk rules yet`}
+              </Text>
+            </Frame.Content>
+          </Frame.Row>
         ) : null}
-      </SettingsForm>
-    </AppHost>
+      </SettingsSection>
+
+      {available.length > 0 ? (
+        <SettingsSection title={t`Add a limit`}>
+          {available.map((def) => (
+            <SettingsButton
+              key={def.key}
+              systemImage="plus.circle.fill"
+              label={def.label()}
+              onPress={() => promptForValue(def)}
+            />
+          ))}
+        </SettingsSection>
+      ) : null}
+    </SettingsForm>
   );
 }

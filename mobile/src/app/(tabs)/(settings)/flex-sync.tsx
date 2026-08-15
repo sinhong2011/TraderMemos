@@ -1,25 +1,23 @@
-import {
-  LabeledContent,
-  Section,
-  Text as UIText,
-  TextField,
-  Toggle,
-  useNativeState,
-} from '@expo/ui/swift-ui';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
+import { Spinner } from 'panelui-native';
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
+import { Alert, View } from 'react-native';
 
 import { queryKeys, useAccounts, useApiRequest, useFlexSync } from '@/api/hooks';
 import type { FlexSyncPut, FlexSyncResult } from '@/api/types';
 import { CenteredButton } from '@/components/centered-button';
 import { SettingsForm } from '@/components/settings-form';
+import {
+  SettingsInput,
+  SettingsRow,
+  SettingsSection,
+  SettingsToggle,
+  ValueText,
+} from '@/components/settings-rows';
 import { t } from '@lingui/core/macro';
 import { errorMessage } from '@/lib/errors';
 import { useFormatters } from '@/lib/format';
-import { AppHost } from '@/components/app-host';
 
 /**
  * IBKR Flex Web Service sync for one account: query ID + token + scheduled
@@ -37,19 +35,22 @@ export default function FlexSyncScreen() {
   const account = accounts.data?.find((candidate) => candidate.id === accountId);
   const settings = flex.data;
 
-  const queryIdState = useNativeState<string>('');
   const queryIdText = useRef('');
-  const tokenState = useNativeState<string>('');
   const tokenText = useRef('');
   const [enabled, setEnabled] = useState(false);
-  // Adopt the loaded settings once — the native fields keep their own state after.
+  // Adopt the loaded settings once — the fields keep their own text after.
+  // `seed` remounts them, which is the only way an uncontrolled field takes a
+  // value it did not start with (the hydration, and the token clear on save).
+  const [seed, setSeed] = useState(0);
+  const [queryIdSeed, setQueryIdSeed] = useState('');
   const hydrated = useRef(false);
   useEffect(() => {
     if (hydrated.current || settings == null) return;
     hydrated.current = true;
-    queryIdState.set(settings.query_id ?? '');
     queryIdText.current = settings.query_id ?? '';
+    setQueryIdSeed(settings.query_id ?? '');
     setEnabled(settings.enabled);
+    setSeed((n) => n + 1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [settings]);
 
@@ -58,8 +59,9 @@ export default function FlexSyncScreen() {
       api(`/accounts/${accountId}/flex-sync`, { method: 'PUT', body }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.flexSync(accountId!) });
-      tokenState.set('');
+      // The token is stored server-side now — drop the local copy.
       tokenText.current = '';
+      setSeed((n) => n + 1);
     },
     onError: (err) => Alert.alert(t`Could not save`, errorMessage(err)),
   });
@@ -109,99 +111,79 @@ export default function FlexSyncScreen() {
   }
 
   return (
-    <View style={styles.page}>
-      <AppHost style={{ flex: 1 }}>
-        <SettingsForm>
-        <Section
+    <View className="flex-1">
+      <SettingsForm>
+        <SettingsSection
           title={account ? account.name : t`IBKR Flex sync`}
-          footer={
-            <UIText>
-              {t`From IBKR Client Portal: Performance & Reports → Flex Queries. The token is stored server-side only.`}
-            </UIText>
-          }
+          footer={t`From IBKR Client Portal: Performance & Reports → Flex Queries. The token is stored server-side only.`}
         >
-          <LabeledContent label={t`Query ID`}>
-            <TextField
-              placeholder="123456"
-              text={queryIdState}
-              onTextChange={(text) => {
-                queryIdText.current = text;
-              }}
-            />
-          </LabeledContent>
-          <LabeledContent label={t`Token`}>
-            <TextField
-              placeholder={settings?.token_set ? '••••••••' : t`Web Service token`}
-              text={tokenState}
-              onTextChange={(text) => {
-                tokenText.current = text;
-              }}
-            />
-          </LabeledContent>
-          <Toggle
-            label={t`Scheduled sync`}
-            isOn={enabled}
-            onIsOnChange={(value) => setEnabled(value)}
+          <SettingsInput
+            key={`query-${seed}`}
+            label={t`Query ID`}
+            placeholder="123456"
+            defaultValue={queryIdSeed}
+            onChangeText={(text) => {
+              queryIdText.current = text;
+            }}
           />
-          <CenteredButton
-            label={save.isPending ? t`Saving…` : t`Save`}
-            onPress={handleSave}
+          <SettingsInput
+            key={`token-${seed}`}
+            label={t`Token`}
+            placeholder={settings?.token_set ? '••••••••' : t`Web Service token`}
+            onChangeText={(text) => {
+              tokenText.current = text;
+            }}
           />
-        </Section>
+          <SettingsToggle label={t`Scheduled sync`} value={enabled} onValueChange={setEnabled} />
+        </SettingsSection>
+
+        <CenteredButton
+          label={save.isPending ? t`Saving…` : t`Save`}
+          loading={save.isPending}
+          onPress={handleSave}
+        />
 
         {settings?.configured ? (
-          <Section
-            title={t`Status`}
-            footer={
-              settings.last_error ? <UIText>{settings.last_error}</UIText> : undefined
-            }
-          >
-            {settings.last_synced_at ? (
-              <LabeledContent label={t`Last synced`}>
-                <UIText>
-                  {`${formatDate(settings.last_synced_at)} ${formatTime(settings.last_synced_at)}`}
-                </UIText>
-              </LabeledContent>
-            ) : null}
-            {settings.last_status ? (
-              <LabeledContent label={t`Last status`}>
-                <UIText>{settings.last_status}</UIText>
-              </LabeledContent>
-            ) : null}
+          <>
+            <SettingsSection title={t`Status`} footer={settings.last_error ?? undefined}>
+              {settings.last_synced_at ? (
+                <SettingsRow label={t`Last synced`}>
+                  <ValueText>
+                    {`${formatDate(settings.last_synced_at)} ${formatTime(settings.last_synced_at)}`}
+                  </ValueText>
+                </SettingsRow>
+              ) : null}
+              {settings.last_status ? (
+                <SettingsRow label={t`Last status`}>
+                  <ValueText>{settings.last_status}</ValueText>
+                </SettingsRow>
+              ) : null}
+            </SettingsSection>
+
             <CenteredButton
               label={run.isPending ? t`Syncing…` : t`Sync now`}
+              loading={run.isPending}
               onPress={() => {
                 if (!run.isPending) run.mutate();
               }}
             />
-          </Section>
-        ) : null}
 
-          {settings?.configured ? (
-            <Section>
-              <CenteredButton
-                role="destructive"
-                label={remove.isPending ? t`Removing…` : t`Remove Flex sync`}
-                onPress={confirmDelete}
-              />
-            </Section>
-          ) : null}
-        </SettingsForm>
-      </AppHost>
+            <CenteredButton
+              role="destructive"
+              label={remove.isPending ? t`Removing…` : t`Remove Flex sync`}
+              loading={remove.isPending}
+              onPress={confirmDelete}
+            />
+          </>
+        ) : null}
+      </SettingsForm>
+      {/* The run takes tens of seconds and the button is far up the page by
+          then — a corner spinner is the standing proof it is still going. */}
       {run.isPending ? (
-        <View style={styles.syncOverlay} pointerEvents="none">
-          <ActivityIndicator />
+        <View className="absolute right-6 top-6" pointerEvents="none">
+          <Spinner />
         </View>
       ) : null}
     </View>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  page: { flex: 1 },
-  syncOverlay: {
-    position: 'absolute',
-    top: theme.spacing.xl,
-    right: theme.spacing.xl,
-  },
-}));

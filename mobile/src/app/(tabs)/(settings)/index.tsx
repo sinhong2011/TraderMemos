@@ -1,9 +1,8 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { Stack, useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
+import type { SFSymbol } from 'expo-symbols';
 import { Alert, Linking } from 'react-native';
-import { useUnistyles } from 'react-native-unistyles';
-import type { SFSymbol } from 'sf-symbols-typescript';
 
 import { useAccounts, useApiRequest, useCash, useMe, useTrades } from '@/api/hooks';
 import { AccountRow } from '@/components/account-row';
@@ -27,12 +26,13 @@ import { clearOutbox, usePendingCount } from '@/lib/outbox';
 import { setAppearance, useDisplayPrefs, type AppearancePref } from '@/lib/prefs';
 import { usePushAlertStore } from '@/lib/push-alerts';
 import { clearPersistedQueryCache } from '@/storage/mmkv';
-import { AppHost } from '@/components/app-host';
+import { pnlColor, usePnlPalette } from '@/styles/pnl';
+import { useCSSVariable } from 'uniwind';
 
 /**
- * Native settings hub — one screen, no scrolling. Built entirely on the
- * cross-platform settings vocabulary (SettingsForm/SettingsSection/NavRow/…),
- * so the same tree renders SwiftUI on iOS and Compose on Android.
+ * The settings hub — one screen, no scrolling. Built entirely on the shared
+ * settings vocabulary (SettingsForm/SettingsSection/NavRow/…), so the same
+ * tree draws identically on both platforms.
  *
  * Settings are folded one row per topic (Trading & journal, Integrations,
  * General); flat, they ran ~16 rows over four group headers. Two things stay
@@ -51,7 +51,9 @@ export default function SettingsScreen() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const api = useApiRequest();
-  const { theme } = useUnistyles();
+  // Live P&L hues for the account rows' figures (see styles/pnl.ts).
+  const palette = usePnlPalette();
+  const [foreground] = useCSSVariable(['--color-foreground']) as [string];
   const { session, signOut } = useSession();
   const changeServer = useChangeServer();
   // Offline writes still waiting to sync — signing out would discard them.
@@ -322,25 +324,24 @@ export default function SettingsScreen() {
           ),
         }}
       />
-      <AppHost style={{ flex: 1, backgroundColor: theme.colors.background }}>
-        {needle !== '' ? (
-          <SettingsForm>
-            <SettingsSection title={t`Results`}>
-              {matches.map((entry) => (
-                <NavRow
-                  key={entry.label}
-                  systemImage={entry.icon}
-                  label={entry.label}
-                  onPress={entry.onPress}
-                />
-              ))}
-              {matches.length === 0 ? (
-                <ValueText>{t`No settings match “${query.trim()}”.`}</ValueText>
-              ) : null}
-            </SettingsSection>
-          </SettingsForm>
-        ) : (
-          <SettingsForm>
+      {needle !== '' ? (
+        <SettingsForm>
+          <SettingsSection title={t`Results`}>
+            {matches.map((entry) => (
+              <NavRow
+                key={entry.label}
+                systemImage={entry.icon}
+                label={entry.label}
+                onPress={entry.onPress}
+              />
+            ))}
+            {matches.length === 0 ? (
+              <ValueText>{t`No settings match “${query.trim()}”.`}</ValueText>
+            ) : null}
+          </SettingsSection>
+        </SettingsForm>
+      ) : (
+        <SettingsForm>
           {/* Who is signed in and where from — the two facts that qualify
               every number below. Nothing showed either before /me existed.
               The server row is stated rather than tucked behind Profile: this
@@ -395,13 +396,7 @@ export default function SettingsScreen() {
                   meta={meta}
                   equity={formatCurrency(deposited + netPnl, account.base_currency)}
                   pnl={formatPnl(netPnl, account.base_currency)}
-                  pnlColor={
-                    netPnl > 0
-                      ? theme.colors.profit
-                      : netPnl < 0
-                        ? theme.colors.loss
-                        : theme.colors.mutedForeground
-                  }
+                  pnlColor={pnlColor(palette, netPnl)}
                   onPress={() =>
                     router.push({ pathname: '/account-form', params: { id: account.id } })
                   }
@@ -411,7 +406,7 @@ export default function SettingsScreen() {
             {accountsFailure ? (
               <ValueText>{accountsFailure.title}</ValueText>
             ) : accounts?.length === 0 ? (
-              <ValueText color={theme.colors.foreground}>{t`No accounts yet`}</ValueText>
+              <ValueText color={foreground}>{t`No accounts yet`}</ValueText>
             ) : null}
             <SettingsButton
               systemImage="plus.circle.fill"
@@ -469,12 +464,11 @@ export default function SettingsScreen() {
             />
           </SettingsSection>
 
-          <SettingsSection>
-            <CenteredButton role="destructive" label={t`Sign out`} onPress={handleSignOut} />
-          </SettingsSection>
-          </SettingsForm>
-        )}
-      </AppHost>
+          {/* Standalone action, not a row: a filled button inside a section
+              card would fill the card edge to edge and read as a red panel. */}
+          <CenteredButton role="destructive" label={t`Sign out`} onPress={handleSignOut} />
+        </SettingsForm>
+      )}
       <FloatingSearchBar
         open={searching}
         value={query}

@@ -1,16 +1,15 @@
-import { Button, Section, Text as UIText, TextField, useNativeState } from '@expo/ui/swift-ui';
-import { font, foregroundStyle } from '@expo/ui/swift-ui/modifiers';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import * as Clipboard from 'expo-clipboard';
-import { useRef, useState } from 'react';
-import { Alert, Linking } from 'react-native';
-import { useUnistyles } from 'react-native-unistyles';
+import { Frame, Input, Text } from 'panelui-native';
+import { useState } from 'react';
+import { Alert, Linking, View } from 'react-native';
 
 import { queryKeys, useApiRequest, useMe } from '@/api/hooks';
 import type { TotpSetup } from '@/api/types';
-import { AppHost } from '@/components/app-host';
 import { CenteredButton } from '@/components/centered-button';
+import { PasswordInput } from '@/components/password-input';
 import { SettingsForm } from '@/components/settings-form';
+import { SettingsButton, SettingsSection } from '@/components/settings-rows';
 import { errorMessage } from '@/lib/errors';
 import { notify } from '@/lib/haptics';
 import { t } from '@lingui/core/macro';
@@ -20,22 +19,18 @@ import { t } from '@lingui/core/macro';
  *
  * No QR code: the phone rendering this screen is usually the phone holding the
  * authenticator, and you cannot scan your own display. The `otpauth://` link
- * hands the secret straight to iOS Passwords or any installed authenticator,
- * with the raw secret underneath for typing into a desktop app.
+ * hands the secret straight to the platform password manager or any installed
+ * authenticator, with the raw secret underneath for typing into a desktop app.
  */
 export default function TwoFactorScreen() {
-  const { theme } = useUnistyles();
   const queryClient = useQueryClient();
   const api = useApiRequest();
   const me = useMe();
 
   const [setup, setSetup] = useState<TotpSetup | null>(null);
-  const codeState = useNativeState('');
-  const code = useRef('');
-  const passwordState = useNativeState('');
-  const password = useRef('');
+  const [code, setCode] = useState('');
+  const [password, setPassword] = useState('');
 
-  const secondary = foregroundStyle({ type: 'hierarchical', style: 'secondary' as const });
   const enabled = me.data?.totp_enabled ?? false;
 
   function refreshMe() {
@@ -52,13 +47,12 @@ export default function TwoFactorScreen() {
     mutationFn: () =>
       api<void>('/me/totp/confirm', {
         method: 'POST',
-        body: { secret: setup?.secret ?? '', code: code.current.trim() },
+        body: { secret: setup?.secret ?? '', code: code.trim() },
       }),
     onSuccess: () => {
       notify('success');
       setSetup(null);
-      codeState.set('');
-      code.current = '';
+      setCode('');
       refreshMe();
       Alert.alert(
         t`Two-factor is on`,
@@ -75,14 +69,12 @@ export default function TwoFactorScreen() {
     mutationFn: () =>
       api<void>('/me/totp/disable', {
         method: 'POST',
-        body: { password: password.current, code: code.current.trim() },
+        body: { password, code: code.trim() },
       }),
     onSuccess: () => {
       notify('success');
-      passwordState.set('');
-      password.current = '';
-      codeState.set('');
-      code.current = '';
+      setPassword('');
+      setCode('');
       refreshMe();
       Alert.alert(t`Two-factor is off`, t`Your password alone signs you in again.`);
     },
@@ -95,117 +87,126 @@ export default function TwoFactorScreen() {
   // ---- Enrolled: offer removal -------------------------------------------
   if (enabled) {
     return (
-      <AppHost style={{ flex: 1, backgroundColor: theme.colors.background }}>
-        <SettingsForm>
-          <Section
-            footer={
-              <UIText>
-                {t`Turning it off needs your password and a current code, so a borrowed unlocked phone can't remove it.`}
-              </UIText>
-            }
-            title={t`Turn off two-factor`}
-          >
-            <TextField
+      <SettingsForm>
+        <SettingsSection
+          title={t`Turn off two-factor`}
+          footer={t`Turning it off needs your password and a current code, so a borrowed unlocked phone can't remove it.`}
+        >
+          <View className="px-4 py-3">
+            <PasswordInput
+              value={password}
+              onChangeText={setPassword}
               placeholder={t`Password`}
-              text={passwordState}
-              onTextChange={(text) => {
-                password.current = text;
-              }}
             />
-            <TextField
-              placeholder={t`6-digit code`}
-              text={codeState}
-              onTextChange={(text) => {
-                code.current = text;
-              }}
-            />
-            <CenteredButton
-              label={disable.isPending ? t`Turning off…` : t`Turn off two-factor`}
-              role="destructive"
-              disabled={disable.isPending}
-              onPress={() => disable.mutate()}
-            />
-          </Section>
+          </View>
+          <View className="px-4 py-3">
+            <CodeField value={code} onChangeText={setCode} />
+          </View>
+        </SettingsSection>
 
-          {/* The break-glass, stated where someone locked out would look for
-              it — there is no recovery-code list by design. */}
-          <Section title={t`If you lose your authenticator`}>
-            <UIText modifiers={[font({ size: 13 }), secondary]}>
+        <CenteredButton
+          label={disable.isPending ? t`Turning off…` : t`Turn off two-factor`}
+          role="destructive"
+          loading={disable.isPending}
+          onPress={() => disable.mutate()}
+        />
+
+        {/* The break-glass, stated where someone locked out would look for
+            it — there is no recovery-code list by design. */}
+        <SettingsSection title={t`If you lose your authenticator`}>
+          <Frame.Row>
+            <Text size="sm" muted className="flex-1">
               {t`Run "tradermemos disable-totp --email ${me.data?.email ?? ''}" on the server. There are no recovery codes to lose.`}
-            </UIText>
-          </Section>
-        </SettingsForm>
-      </AppHost>
+            </Text>
+          </Frame.Row>
+        </SettingsSection>
+      </SettingsForm>
     );
   }
 
   // ---- Not enrolled: start, then confirm ----------------------------------
   return (
-    <AppHost style={{ flex: 1, backgroundColor: theme.colors.background }}>
-      <SettingsForm>
-        {setup == null ? (
-          <Section
-            footer={
-              <UIText>
-                {t`Adds a 6-digit code from an authenticator app to your password at sign-in.`}
-              </UIText>
-            }
+    <SettingsForm>
+      {setup == null ? (
+        <View className="gap-2">
+          <CenteredButton
+            label={start.isPending ? t`Preparing…` : t`Set up two-factor`}
+            loading={start.isPending}
+            onPress={() => start.mutate()}
+          />
+          <Text size="xs" muted className="px-4">
+            {t`Adds a 6-digit code from an authenticator app to your password at sign-in.`}
+          </Text>
+        </View>
+      ) : (
+        <>
+          <SettingsSection
+            title={t`1. Add to your authenticator`}
+            footer={t`Opens your password manager or whichever authenticator you use. Nothing is saved until you enter a code below.`}
           >
-            <CenteredButton
-              label={start.isPending ? t`Preparing…` : t`Set up two-factor`}
-              disabled={start.isPending}
-              onPress={() => start.mutate()}
+            <SettingsButton
+              systemImage="key.horizontal.fill"
+              label={t`Add to authenticator`}
+              onPress={() => void Linking.openURL(setup.otpauth_url)}
             />
-          </Section>
-        ) : (
-          <>
-            <Section
-              title={t`1. Add to your authenticator`}
-              footer={
-                <UIText>
-                  {t`Opens iOS Passwords or whichever authenticator you use. Nothing is saved until you enter a code below.`}
-                </UIText>
-              }
-            >
-              <Button
-                systemImage="key.horizontal.fill"
-                label={t`Add to authenticator`}
-                onPress={() => void Linking.openURL(setup.otpauth_url)}
-              />
-              <Button
-                systemImage="doc.on.doc"
-                label={t`Copy setup key`}
-                onPress={() => {
-                  void Clipboard.setStringAsync(setup.secret);
-                  notify('success');
-                }}
-              />
-              <UIText modifiers={[font({ size: 13 }), secondary]}>{setup.secret}</UIText>
-            </Section>
+            <SettingsButton
+              systemImage="doc.on.doc"
+              label={t`Copy setup key`}
+              onPress={() => {
+                void Clipboard.setStringAsync(setup.secret);
+                notify('success');
+              }}
+            />
+            <Frame.Row>
+              {/* Selectable: this is the string that gets typed into a desktop
+                  authenticator when the link cannot reach one. */}
+              <Text size="sm" muted selectable className="flex-1">
+                {setup.secret}
+              </Text>
+            </Frame.Row>
+          </SettingsSection>
 
-            <Section
-              title={t`2. Enter a code to confirm`}
-              footer={
-                <UIText>{t`This proves the authenticator was added before it's required.`}</UIText>
-              }
-            >
-              <TextField
-                placeholder={t`6-digit code`}
-                text={codeState}
-                onTextChange={(text) => {
-                  code.current = text;
-                }}
-              />
-              <CenteredButton
-                label={confirm.isPending ? t`Confirming…` : t`Turn on two-factor`}
-                disabled={confirm.isPending}
-                onPress={() => confirm.mutate()}
-              />
-              <CenteredButton label={t`Cancel`} onPress={() => setSetup(null)} />
-            </Section>
-          </>
-        )}
-      </SettingsForm>
-    </AppHost>
+          <SettingsSection
+            title={t`2. Enter a code to confirm`}
+            footer={t`This proves the authenticator was added before it's required.`}
+          >
+            <View className="px-4 py-3">
+              <CodeField value={code} onChangeText={setCode} />
+            </View>
+          </SettingsSection>
+
+          <View className="gap-2">
+            <CenteredButton
+              label={confirm.isPending ? t`Confirming…` : t`Turn on two-factor`}
+              loading={confirm.isPending}
+              onPress={() => confirm.mutate()}
+            />
+            <CenteredButton label={t`Cancel`} onPress={() => setSetup(null)} />
+          </View>
+        </>
+      )}
+    </SettingsForm>
+  );
+}
+
+/** The 6-digit field, wired for the one-time-code autofill both platforms do. */
+function CodeField({
+  value,
+  onChangeText,
+}: {
+  value: string;
+  onChangeText: (next: string) => void;
+}) {
+  return (
+    <Input
+      value={value}
+      onChangeText={onChangeText}
+      placeholder={t`6-digit code`}
+      keyboardType="number-pad"
+      textContentType="oneTimeCode"
+      autoComplete="one-time-code"
+      maxLength={6}
+      accessibilityLabel={t`6-digit code`}
+    />
   );
 }

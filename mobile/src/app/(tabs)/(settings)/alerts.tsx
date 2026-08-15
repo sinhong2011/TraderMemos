@@ -1,4 +1,3 @@
-import { Toggle } from '@expo/ui/swift-ui';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Alert } from 'react-native';
@@ -6,9 +5,8 @@ import { Alert } from 'react-native';
 import { queryKeys, useAlertSettings, useApiRequest } from '@/api/hooks';
 import type { AlertSettings } from '@/api/types';
 import { t } from '@lingui/core/macro';
-import { AppHost } from '@/components/app-host';
 import { SettingsForm } from '@/components/settings-form';
-import { SettingsSection } from '@/components/settings-rows';
+import { SettingsSection, SettingsToggle } from '@/components/settings-rows';
 import { errorMessage } from '@/lib/errors';
 import {
   deviceLabel,
@@ -81,59 +79,57 @@ export default function AlertsScreen() {
   const enabled = s?.enabled ?? false;
 
   return (
-    <AppHost>
-      <SettingsForm>
+    <SettingsForm>
+      <SettingsSection
+        footer={t`Alerts are evaluated on your server after every trade and delivered to each registered device and webhook. Free, always.`}
+      >
+        <SettingsToggle
+          label={t`Push to this device`}
+          value={pushToken != null}
+          onValueChange={(value) => {
+            if (pushBusy) return;
+            void (value ? enablePush() : disablePush());
+          }}
+        />
+      </SettingsSection>
+
+      {s ? (
         <SettingsSection
-          footer={t`Alerts are evaluated on your server after every trade and delivered to each registered device and webhook. Free, always.`}
+          title={t`Rules`}
+          footer={t`Thresholds, timezone, and webhook channels are edited in web Settings → Rules.`}
         >
-          <Toggle
-            label={t`Push to this device`}
-            isOn={pushToken != null}
-            onIsOnChange={(value) => {
-              if (pushBusy) return;
-              void (value ? enablePush() : disablePush());
-            }}
+          <SettingsToggle
+            label={t`Enable alerts`}
+            value={enabled}
+            onValueChange={(value) => patch({ enabled: value })}
+          />
+          <SettingsToggle
+            label={t`Risk rule broken`}
+            value={s.rule_risk}
+            onValueChange={(value) => patch({ rule_risk: value })}
+          />
+          <SettingsToggle
+            label={t`Daily loss limit`}
+            value={s.rule_daily_loss}
+            onValueChange={(value) => patch({ rule_daily_loss: value })}
+          />
+          <SettingsToggle
+            label={t`${s.loss_streak_n} losses in a row`}
+            value={s.rule_loss_streak}
+            onValueChange={(value) => patch({ rule_loss_streak: value })}
+          />
+          <SettingsToggle
+            label={t`Prop drawdown`}
+            value={s.rule_prop_drawdown}
+            onValueChange={(value) => patch({ rule_prop_drawdown: value })}
+          />
+          <SettingsToggle
+            label={t`Unreviewed trades`}
+            value={s.rule_unreviewed}
+            onValueChange={(value) => patch({ rule_unreviewed: value })}
           />
         </SettingsSection>
-
-        {s ? (
-          <SettingsSection
-            title={t`Rules`}
-            footer={t`Thresholds, timezone, and webhook channels are edited in web Settings → Rules.`}
-          >
-            <Toggle
-              label={t`Enable alerts`}
-              isOn={enabled}
-              onIsOnChange={(value) => patch({ enabled: value })}
-            />
-            <Toggle
-              label={t`Risk rule broken`}
-              isOn={s.rule_risk}
-              onIsOnChange={(value) => patch({ rule_risk: value })}
-            />
-            <Toggle
-              label={t`Daily loss limit`}
-              isOn={s.rule_daily_loss}
-              onIsOnChange={(value) => patch({ rule_daily_loss: value })}
-            />
-            <Toggle
-              label={t`${s.loss_streak_n} losses in a row`}
-              isOn={s.rule_loss_streak}
-              onIsOnChange={(value) => patch({ rule_loss_streak: value })}
-            />
-            <Toggle
-              label={t`Prop drawdown`}
-              isOn={s.rule_prop_drawdown}
-              onIsOnChange={(value) => patch({ rule_prop_drawdown: value })}
-            />
-            <Toggle
-              label={t`Unreviewed trades`}
-              isOn={s.rule_unreviewed}
-              onIsOnChange={(value) => patch({ rule_unreviewed: value })}
-            />
-          </SettingsSection>
-        ) : null}
-      </SettingsForm>
-    </AppHost>
+      ) : null}
+    </SettingsForm>
   );
 }

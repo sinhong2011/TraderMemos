@@ -1,12 +1,14 @@
 import { Stack } from 'expo-router/stack';
 import { Platform } from 'react-native';
-import { useUnistyles } from 'react-native-unistyles';
+import { useCSSVariable } from 'uniwind';
 
 import { AddTradeButton } from '@/components/add-trade-button';
 import { t } from '@lingui/core/macro';
 
 export default function TradesLayout() {
-  const { theme } = useUnistyles();
+  // Screen options are plain objects, not styles — the title color has to be a
+  // JS value, so it comes off the token rather than out of a class.
+  const [foreground] = useCSSVariable(['--color-foreground']) as [string];
   return (
     <Stack
       screenOptions={{
@@ -19,7 +21,7 @@ export default function TradesLayout() {
         headerShadowVisible: false,
         headerLargeTitleShadowVisible: false,
         headerLargeStyle: { backgroundColor: 'transparent' },
-        headerTitleStyle: { color: theme.colors.foreground },
+        headerTitleStyle: { color: foreground },
         headerLargeTitle: true,
         headerBlurEffect: 'none',
         // iOS 27 flipped the nav-bar default edge style from soft to hard, which

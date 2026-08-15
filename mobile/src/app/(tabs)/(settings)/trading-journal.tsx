@@ -1,10 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { Alert } from 'react-native';
-import { useUnistyles } from 'react-native-unistyles';
 
 import { queryKeys, useAnnualGoal, useApiRequest } from '@/api/hooks';
-import { AppHost } from '@/components/app-host';
 import { NavRow } from '@/components/nav-row';
 import { SettingsForm } from '@/components/settings-form';
 import { SettingsSection } from '@/components/settings-rows';
@@ -29,7 +27,6 @@ export default function TradingJournalScreen() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const api = useApiRequest();
-  const { theme } = useUnistyles();
   const journalPrefs = useJournalPrefs();
   const { prompt, element: promptElement } = usePrompt();
 
@@ -94,52 +91,49 @@ export default function TradingJournalScreen() {
 
   return (
     <>
-      <AppHost style={{ flex: 1, backgroundColor: theme.colors.background }}>
-        <SettingsForm>
-          <SettingsSection
-            footer={t`Your P&L target shows on the dashboard; risk limits drive Check compliance on New Trade.`}
-          >
-            {/* NavRow draws the same icon-gutter row the hand-built SwiftUI
-                version did, so the value rows line up with the pushing rows
-                they sit between. */}
-            <NavRow
-              systemImage="target"
-              label={t`${year} P&L goal`}
-              value={
-                saveGoal.isPending
-                  ? t`Saving…`
-                  : goal.data?.amount != null
-                    ? formatCurrency(goal.data.amount)
-                    : t`Not set`
-              }
-              onPress={editGoal}
-            />
-            <NavRow
-              systemImage="shield"
-              label={t`Risk rules`}
-              onPress={() => router.push('/risk-rules')}
-            />
-            <NavRow
-              systemImage="bell.badge"
-              label={t`Alerts`}
-              onPress={() => router.push('/alerts')}
-            />
-            <NavRow systemImage="tag" label={t`Tags`} onPress={() => router.push('/tags')} />
-            {/* A capture rule, not a formatting one — it belongs with the
-                journal, not on the Display screen it used to sit on. */}
-            <NavRow
-              systemImage="photo.on.rectangle"
-              label={t`Screenshots per trade`}
-              value={
-                journalPrefs.maxScreenshotsPerTrade != null
-                  ? String(journalPrefs.maxScreenshotsPerTrade)
-                  : t`No limit`
-              }
-              onPress={editMaxScreenshots}
-            />
-          </SettingsSection>
-        </SettingsForm>
-      </AppHost>
+      <SettingsForm>
+        <SettingsSection
+          footer={t`Your P&L target shows on the dashboard; risk limits drive Check compliance on New Trade.`}
+        >
+          {/* NavRow draws the same icon-gutter row throughout, so the value
+              rows line up with the pushing rows they sit between. */}
+          <NavRow
+            systemImage="target"
+            label={t`${year} P&L goal`}
+            value={
+              saveGoal.isPending
+                ? t`Saving…`
+                : goal.data?.amount != null
+                  ? formatCurrency(goal.data.amount)
+                  : t`Not set`
+            }
+            onPress={editGoal}
+          />
+          <NavRow
+            systemImage="shield"
+            label={t`Risk rules`}
+            onPress={() => router.push('/risk-rules')}
+          />
+          <NavRow
+            systemImage="bell.badge"
+            label={t`Alerts`}
+            onPress={() => router.push('/alerts')}
+          />
+          <NavRow systemImage="tag" label={t`Tags`} onPress={() => router.push('/tags')} />
+          {/* A capture rule, not a formatting one — it belongs with the
+              journal, not on the Display screen it used to sit on. */}
+          <NavRow
+            systemImage="photo.on.rectangle"
+            label={t`Screenshots per trade`}
+            value={
+              journalPrefs.maxScreenshotsPerTrade != null
+                ? String(journalPrefs.maxScreenshotsPerTrade)
+                : t`No limit`
+            }
+            onPress={editMaxScreenshots}
+          />
+        </SettingsSection>
+      </SettingsForm>
       {promptElement}
     </>
   );

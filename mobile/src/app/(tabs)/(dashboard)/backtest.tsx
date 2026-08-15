@@ -1,8 +1,8 @@
 import { useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
 import { useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
+import { Chip, cn } from 'panelui-native';
+import { ScrollView, Text, View } from 'react-native';
 
 import type { BarInterval } from '@/api/types';
 import { Card, ControlRow, DateRow, SectionFooter, SectionHeader } from '@/components/form-rows';
@@ -122,15 +122,20 @@ export default function BacktestScreen() {
         }}
       />
       <ScrollView
-        style={styles.page}
+        className="bg-background"
         contentInsetAdjustmentBehavior="automatic"
-        contentContainerStyle={styles.content}
+        contentContainerClassName="gap-3 p-4 pb-18"
         keyboardDismissMode="on-drag"
       >
         <SectionHeader label={t`Symbol`} />
         <Card>
           <ControlRow label={t`Symbol`}>
-            <Text style={[styles.value, symbol === '' && styles.valueEmpty]}>
+            <Text
+              className={cn(
+                'text-base font-semibold text-foreground tabular-nums',
+                symbol === '' && 'font-normal text-muted-foreground',
+              )}
+            >
               {symbol === '' ? t`Search a ticker` : symbol}
             </Text>
           </ControlRow>
@@ -139,22 +144,17 @@ export default function BacktestScreen() {
           </ControlRow>
         </Card>
         {recents.length > 0 ? (
-          <View style={styles.recents}>
+          <View className="flex-row flex-wrap gap-2">
             {recents.map((recent) => (
-              <Pressable
+              <Chip
                 key={recent}
+                variant="outline"
+                size="sm"
+                selected={recent === symbol}
                 onPress={() => commitSymbol(recent)}
-                accessibilityRole="button"
-                style={({ pressed }) => [
-                  styles.recentChip,
-                  recent === symbol && styles.recentChipActive,
-                  pressed && styles.pressed,
-                ]}
               >
-                <Text style={[styles.recentLabel, recent === symbol && styles.recentLabelActive]}>
-                  {recent}
-                </Text>
-              </Pressable>
+                {recent}
+              </Chip>
             ))}
           </View>
         ) : null}
@@ -191,7 +191,7 @@ export default function BacktestScreen() {
           }
         />
 
-        <View style={styles.action}>
+        <View className="mt-3">
           <GlassButton
             fill
             prominent
@@ -221,28 +221,3 @@ export default function BacktestScreen() {
     </>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  page: { backgroundColor: theme.colors.background },
-  content: {
-    padding: theme.spacing.lg,
-    gap: theme.spacing.md,
-    paddingBottom: theme.spacing.xl * 3,
-  },
-  value: { fontSize: 16, fontWeight: '600', color: theme.colors.foreground, ...theme.numeric },
-  valueEmpty: { fontWeight: '400', color: theme.colors.mutedForeground },
-  recents: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
-  recentChip: {
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: 6,
-    borderRadius: theme.radius.full,
-    borderCurve: 'continuous',
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-  },
-  recentChipActive: { backgroundColor: theme.colors.card, borderColor: theme.colors.input },
-  recentLabel: { fontSize: 13, fontWeight: '500', color: theme.colors.mutedForeground },
-  recentLabelActive: { color: theme.colors.foreground, fontWeight: '600' },
-  pressed: { opacity: 0.6 },
-  action: { marginTop: theme.spacing.md },
-}));

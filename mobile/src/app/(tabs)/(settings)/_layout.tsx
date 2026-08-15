@@ -1,11 +1,11 @@
 import { Stack } from 'expo-router/stack';
 import { Platform } from 'react-native';
-import { useUnistyles } from 'react-native-unistyles';
+import { useCSSVariable } from 'uniwind';
 
 import { t } from '@lingui/core/macro';
 
 export default function SettingsLayout() {
-  const { theme } = useUnistyles();
+  const [foreground] = useCSSVariable(['--color-foreground']) as [string];
   return (
     <Stack
       screenOptions={{
@@ -18,15 +18,13 @@ export default function SettingsLayout() {
         headerShadowVisible: false,
         headerLargeTitleShadowVisible: false,
         headerLargeStyle: { backgroundColor: 'transparent' },
-        headerTitleStyle: { color: theme.colors.foreground },
+        headerTitleStyle: { color: foreground },
         headerLargeTitle: true,
         headerBlurEffect: 'none',
-        // `soft`, the app-wide choice — but this prop only reaches the RN-scrollable
-        // screens (funding, tags, api-tokens, token-uses). The SwiftUI `Form` screens
-        // keep their scroll view where react-native-screens' first-descendant-chain
-        // search can never find it, so they re-state `soft` themselves via the
-        // `scrollEdgeEffectStyle` SwiftUI modifier in `SettingsForm`
-        // (registered by `modules/scroll-edge-style`).
+        // `soft`, the app-wide choice. It reaches every screen under this stack
+        // now that `SettingsForm` is an ordinary RN scroll view — the SwiftUI
+        // `Form` used to hide its scroll view from react-native-screens'
+        // first-descendant search and had to re-state the effect itself.
         scrollEdgeEffects: { top: 'soft' },
         headerBackButtonDisplayMode: 'minimal',
       }}

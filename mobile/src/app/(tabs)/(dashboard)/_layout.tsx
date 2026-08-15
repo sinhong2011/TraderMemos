@@ -1,6 +1,6 @@
 import { Stack } from 'expo-router/stack';
 import { Platform, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { useCSSVariable } from 'uniwind';
 
 import { useAccounts, useCash } from '@/api/hooks';
 import { AccountMenu } from '@/components/account-menu';
@@ -21,7 +21,7 @@ import { t } from '@lingui/core/macro';
 function HomeHeaderRight() {
   const { privacyMode } = useDisplayPrefs();
   return (
-    <View style={styles.headerRight}>
+    <View className="flex-row items-center gap-2">
       <HeaderIconButton
         systemImage={privacyMode ? 'eye.slash' : 'eye'}
         label={privacyMode ? t`Show amounts` : t`Hide amounts`}
@@ -54,7 +54,11 @@ function ReportsHeaderFilterMenu() {
 export const unstable_settings = { initialRouteName: 'index' };
 
 export default function DashboardLayout() {
-  const { theme } = useUnistyles();
+  // Navigation options take colors as values, not classes.
+  const [foreground, background] = useCSSVariable(['--color-foreground', '--color-background']) as [
+    string,
+    string,
+  ];
   return (
     <Stack
       screenOptions={{
@@ -67,7 +71,7 @@ export default function DashboardLayout() {
         headerShadowVisible: false,
         headerLargeTitleShadowVisible: false,
         headerLargeStyle: { backgroundColor: 'transparent' },
-        headerTitleStyle: { color: theme.colors.foreground },
+        headerTitleStyle: { color: foreground },
         headerLargeTitle: true,
         headerBlurEffect: 'none',
         // iOS 27 flipped the nav-bar default edge style from soft to hard, which
@@ -118,7 +122,7 @@ export default function DashboardLayout() {
           title: t`Reports`,
           headerLargeTitle: false,
           headerTransparent: false,
-          headerStyle: { backgroundColor: theme.colors.background },
+          headerStyle: { backgroundColor: background },
           headerRight: () => <ReportsHeaderFilterMenu />,
         }}
       />
@@ -140,13 +144,9 @@ export default function DashboardLayout() {
           title: t`Year Wrapped`,
           headerLargeTitle: false,
           headerTransparent: false,
-          headerStyle: { backgroundColor: theme.colors.background },
+          headerStyle: { backgroundColor: background },
         }}
       />
     </Stack>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  headerRight: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
-}));

@@ -1,16 +1,16 @@
 import { FlashList } from '@shopify/flash-list';
 import { useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
+import { cn, Skeleton } from 'panelui-native';
 import { useMemo, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { useCSSVariable } from 'uniwind';
 
 import { Icon } from '@/components/icon';
 import { useAccounts, useTags, useTrades } from '@/api/hooks';
 import type { Trade } from '@/api/types';
 import { ErrorState } from '@/components/error-state';
 import { FloatingSearchBar, SearchToggle } from '@/components/search-bar';
-import { Skeleton } from '@/components/skeleton';
 import { SwipeableTradeRow } from '@/components/swipeable-trade-row';
 import { TradeFilterMenu } from '@/components/trade-filter-menu';
 import { t } from '@lingui/core/macro';
@@ -19,7 +19,7 @@ import { useGlobalFilters } from '@/lib/filters';
 import { useFormatters } from '@/lib/format';
 import { parseEmotionalStates } from '@/lib/journal';
 import { useTagBarState } from '@/lib/tag-bar';
-import { pnlColor } from '@/styles/unistyles';
+import { pnlClass } from '@/styles/pnl';
 
 type StatusFilter = 'all' | 'win' | 'loss' | 'open';
 type DateFilter = 'all' | 'today' | 'week' | 'month' | '30d' | 'year';
@@ -107,8 +107,12 @@ function matchesStatus(filter: StatusFilter, trade: { status: string; net_pnl: n
 }
 
 function RowGap() {
-  return <View style={styles.rowGap} />;
+  return <View className="h-3" />;
 }
+
+/** iOS 26 bordered capsule chip — the border carries the affordance, not a fill. */
+const TAG_CHIP =
+  'min-h-[26px] flex-row items-center gap-1 rounded-full border border-border px-2.5 py-[3px] active:opacity-70';
 
 /**
  * Horizontal quick-filter chips under the search bar (iOS 26 bordered
@@ -130,29 +134,35 @@ function TagBar({
   onSelect: (key: string) => void;
   onManage: () => void;
 }) {
-  const { theme } = useUnistyles();
+  // The active wash is a computed rgba and the icon tint is a native prop, so
+  // these three come off the tokens as values rather than as classes.
+  const [primary, loss, mutedForeground] = useCSSVariable([
+    '--color-primary',
+    '--color-loss',
+    '--color-muted-foreground',
+  ]) as [string, string, string];
   const sorted = [...chips].sort((a, b) => (counts.get(b.key) ?? 0) - (counts.get(a.key) ?? 0));
 
   const chip = (key: string, label: string, count: number, neg: boolean) => {
     const active = selected === key;
-    const color = neg ? theme.colors.loss : theme.colors.primary;
+    const color = neg ? loss : primary;
     return (
       <Pressable
         key={key}
         onPress={() => onSelect(key)}
         accessibilityRole="button"
         accessibilityState={{ selected: active }}
-        style={({ pressed }) => [
-          styles.tagChip,
-          // Active state is background-only — border and text stay put.
-          active && { backgroundColor: `${color}26` },
-          pressed && styles.swipePressed,
-        ]}
+        className={TAG_CHIP}
+        // Active state is background-only — border and text stay put.
+        style={active ? { backgroundColor: `${color}26` } : undefined}
       >
-        <Text style={styles.tagChipLabel} numberOfLines={1}>
+        <Text className="text-xs font-medium text-muted-foreground" numberOfLines={1}>
           {label}
         </Text>
-        <Text style={styles.tagChipCount} numberOfLines={1}>
+        <Text
+          className="text-[11px] font-semibold tabular-nums text-muted-foreground"
+          numberOfLines={1}
+        >
           {count}
         </Text>
       </Pressable>
@@ -160,12 +170,12 @@ function TagBar({
   };
 
   return (
-    <View style={styles.tagBarRow}>
+    <View className="flex-row items-center gap-2 pb-3">
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.tagBar}
-        style={styles.tagBarScroll}
+        className="flex-1"
+        contentContainerClassName="flex-row items-center gap-1.5 px-0.5"
       >
         {chip('all', t`All`, total, false)}
         {sorted.map((def) => chip(def.key, def.label, counts.get(def.key) ?? 0, def.neg))}
@@ -174,20 +184,18 @@ function TagBar({
         onPress={onManage}
         accessibilityRole="button"
         accessibilityLabel={t`Manage tags`}
-        style={({ pressed }) => [styles.tagManage, pressed && styles.swipePressed]}
+        className="h-[26px] w-[26px] items-center justify-center rounded-full border border-border active:opacity-70"
       >
-        <Icon
-          name="slider.horizontal.3"
-          size={13}
-          tintColor={theme.colors.mutedForeground}
-        />
+        <Icon name="slider.horizontal.3" size={13} tintColor={mutedForeground} />
       </Pressable>
     </View>
   );
 }
 
 export default function TradesScreen() {
-  const { theme } = useUnistyles();
+  // `FlashList` is not a core component Uniwind can take a `className` on, so
+  // its page fill has to be a JS value.
+  const [background] = useCSSVariable(['--color-background']) as [string];
   const router = useRouter();
   const [search, setSearch] = useState('');
   const [searching, setSearching] = useState(false);
@@ -307,9 +315,15 @@ export default function TradesScreen() {
   if (isLoading) {
     // Row-shaped skeletons standing in for the trade list.
     return (
-      <View style={[styles.page, styles.content, styles.skeletonPage]}>
+      <View className="flex-1 bg-background p-4 pb-12 pt-2">
         {Array.from({ length: 8 }, (_, i) => (
-          <Skeleton key={i} style={styles.skeletonRow} />
+          <Skeleton
+            key={i}
+            className="mb-3 h-[76px] rounded-lg"
+            // One label for the whole list: eight announcements of the same
+            // wait is what a screen of placeholders must not do.
+            label={i === 0 ? t`Loading trades` : undefined}
+          />
         ))}
       </View>
     );
@@ -335,7 +349,7 @@ export default function TradesScreen() {
           // Three bar buttons for one job left the row crowded and made you
           // guess which pull-down held what.
           headerLeft: () => (
-            <View style={styles.headerButtons}>
+            <View className="flex-row items-center gap-2">
               <TradeFilterMenu
                 active={filtersActive}
                 onReset={() => {
@@ -407,12 +421,12 @@ export default function TradesScreen() {
       />
       {/* FlashList recycles row instances — TradeRow must stay stateless-from-props. */}
       <FlashList
-        style={styles.page}
+        style={{ backgroundColor: background }}
         data={trades}
         keyExtractor={(trade) => trade.id}
         renderItem={({ item }) => <SwipeableTradeRow trade={item} />}
         contentInsetAdjustmentBehavior="automatic"
-        contentContainerStyle={styles.content}
+        contentContainerStyle={{ padding: 16, paddingTop: 8, paddingBottom: 48 }}
         // FlashList lays rows out itself, so container `gap` can't space them.
         ItemSeparatorComponent={RowGap}
         refreshControl={
