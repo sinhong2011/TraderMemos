@@ -5630,8 +5630,8 @@ msgid "Search symbol or tag"
 msgstr "搜尋代號或標籤"
 
 #: src/components/form-rows.tsx:260
-msgid "Seconds"
-msgstr "秒"
+#~ msgid "Seconds"
+#~ msgstr "秒"
 
 #: src/app/(tabs)/(settings)/profile.tsx:102
 #: src/app/(tabs)/(settings)/user-detail.tsx:186

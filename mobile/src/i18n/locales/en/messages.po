@@ -5638,8 +5638,8 @@ msgid "Search symbol or tag"
 msgstr "Search symbol or tag"
 
 #: src/components/form-rows.tsx:260
-msgid "Seconds"
-msgstr "Seconds"
+#~ msgid "Seconds"
+#~ msgstr "Seconds"
 
 #: src/app/(tabs)/(settings)/profile.tsx:102
 #: src/app/(tabs)/(settings)/user-detail.tsx:186

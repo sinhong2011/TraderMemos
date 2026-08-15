@@ -5630,8 +5630,8 @@ msgid "Search symbol or tag"
 msgstr "종목 또는 태그 검색"
 
 #: src/components/form-rows.tsx:260
-msgid "Seconds"
-msgstr "초"
+#~ msgid "Seconds"
+#~ msgstr "초"
 
 #: src/app/(tabs)/(settings)/profile.tsx:102
 #: src/app/(tabs)/(settings)/user-detail.tsx:186
