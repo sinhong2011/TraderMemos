@@ -1,10 +1,11 @@
-import { Button, HStack, Picker, Popover, Text as UIText } from '@expo/ui/swift-ui';
+import { BottomSheet, Button, Group, HStack, Picker, Text as UIText } from '@expo/ui/swift-ui';
 import {
   buttonStyle,
   foregroundStyle,
   frame,
   monospacedDigit,
   pickerStyle,
+  presentationDragIndicator,
   tag,
   tint,
 } from '@expo/ui/swift-ui/modifiers';
@@ -23,7 +24,7 @@ const HOURS = column(24);
 /** Minutes and seconds run the same 00–59, so one list serves both wheels. */
 const SIXTY = column(60);
 
-/** Roughly a compact picker's own popover: three wheels, no wider than needed. */
+/** Three columns sized like a date picker's own wheels, not the sheet's width. */
 const WHEEL_WIDTH = 76;
 const WHEEL_HEIGHT = 180;
 
@@ -39,15 +40,18 @@ const SYSTEM_FILL = '#767680';
 
 /**
  * A clock, to the second, as one native control: a bordered pill reading
- * `HH:MM:SS` that opens hour / minute / second wheels in a popover.
+ * `HH:MM:SS` that opens hour / minute / second wheels in a sheet.
  *
  * This exists because SwiftUI's compact `DatePicker` cannot show seconds —
  * `displayedComponents` stops at `hourAndMinute` — so a to-the-second stamp
  * has to be assembled from parts. Everything here is still SwiftUI: the pill
- * is a `.bordered` `Button`, which is what gives it the same capsule and fill
- * the date picker draws for itself, and the wheels sit in a real `.popover`
- * (`@expo/ui` pins `presentationCompactAdaptation(.popover)`, so it stays a
- * popover on a phone rather than adapting into a sheet).
+ * is a `.bordered` `Button`, which is where its capsule and fill come from
+ * rather than an imitation of the date picker's that has to be kept in sync.
+ *
+ * The wheels are a sheet and not a `.popover` because a popover always draws
+ * an anchor arrow — SwiftUI exposes which edge it attaches to, never whether
+ * it is drawn — and a wheel picker rising from the bottom is what iOS itself
+ * does on a phone anyway.
  *
  * 24-hour, ignoring the 12/24h display pref, for the reason `fmtTimestamp`
  * gives: a to-the-second stamp is a fixed-width pattern, and AM/PM would be a
@@ -89,12 +93,17 @@ export function TimePicker({ value, onChange }: { value: Date; onChange: (next: 
 
   return (
     <AppHost matchContents ignoreSafeArea="all">
-      <Popover isPresented={open} onIsPresentedChange={setOpen} arrowEdge="top">
-        <Popover.Trigger>
-          {/* The label is a child rather than the `label` prop so it can carry
-              its own color: a bordered button takes fill *and* label from the
-              tint, and the two need different colors to match the date pill —
-              system gray behind, plain foreground on top. */}
+      <BottomSheet
+        isPresented={open}
+        onIsPresentedChange={setOpen}
+        // The detent follows the wheels' own height, so nothing here has to
+        // guess a sheet size that a taller wheel would then break.
+        fitToContents
+        anchor={
+          /* The label is a child rather than the `label` prop so it can carry
+             its own color: a bordered button takes fill *and* label from the
+             tint, and the two need different colors to match the date pill —
+             system gray behind, plain foreground on top. */
           <Button
             onPress={() => setOpen(true)}
             modifiers={[buttonStyle('bordered'), tint(SYSTEM_FILL)]}
@@ -103,15 +112,18 @@ export function TimePicker({ value, onChange }: { value: Date; onChange: (next: 
               {`${pad2(value.getHours())}:${pad2(value.getMinutes())}:${pad2(value.getSeconds())}`}
             </UIText>
           </Button>
-        </Popover.Trigger>
-        <Popover.Content>
+        }
+      >
+        {/* Presentation modifiers have to sit on a wrapper the sheet owns,
+            not on the wheels themselves. */}
+        <Group modifiers={[presentationDragIndicator('visible')]}>
           <HStack spacing={0}>
             {wheel(HOURS, value.getHours(), 'hours')}
             {wheel(SIXTY, value.getMinutes(), 'minutes')}
             {wheel(SIXTY, value.getSeconds(), 'seconds')}
           </HStack>
-        </Popover.Content>
-      </Popover>
+        </Group>
+      </BottomSheet>
     </AppHost>
   );
 }
