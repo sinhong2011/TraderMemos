@@ -3,6 +3,7 @@ import {
   useNativeState,
 } from '@expo/ui/swift-ui';
 import {
+  accessibilityLabel,
   autocorrectionDisabled,
   font,
   foregroundStyle,
@@ -67,12 +68,15 @@ export function NumericField({
   layout = 'flex',
   decimals = true,
   autoFocus,
+  accessibilityLabel: label,
 }: {
   value: string;
   onChangeText: (text: string) => void;
   placeholder?: string;
   /** Takes first responder on mount — the sheet's primary field. */
   autoFocus?: boolean;
+  /** For fields whose meaning is carried by a glyph rather than a row label. */
+  accessibilityLabel?: string;
   /** `trailing` for grouped rows (label left, value right). */
   align?: 'leading' | 'trailing';
   size?: number;
@@ -118,6 +122,7 @@ export function NumericField({
           // Figures line up column-wise while typing, per DESIGN.md.
           monospacedDigit(),
           foregroundStyle(theme.colors.foreground),
+          ...(label ? [accessibilityLabel(label)] : []),
         ]}
       />
     </AppHost>

@@ -1,5 +1,6 @@
 import { DatePicker } from '@expo/ui/swift-ui';
 import { SymbolView } from 'expo-symbols';
+import { t } from '@lingui/core/macro';
 import { Children, Fragment, useState, type ReactNode } from 'react';
 import { Pressable, Text, TextInput, View, type TextInputProps } from 'react-native';
 import Animated, {
@@ -213,6 +214,56 @@ export function NotesRow({
   );
 }
 
+/** Two digits, the way a clock writes them — 7 seconds past reads `:07`. */
+const padSeconds = (value: number) => String(value).padStart(2, '0');
+
+/**
+ * Seconds pill for `DateRow`. SwiftUI's `DatePicker` has no seconds component
+ * (`displayedComponents` is date and hourAndMinute, nothing finer), so the last
+ * field of a timestamp has to be its own control. It's drawn as a third pill
+ * carrying the separator, which is what makes a bare `07` read as part of the
+ * time next to it rather than an unlabelled number.
+ */
+function SecondsField({ value, onChange }: { value: number; onChange: (seconds: number) => void }) {
+  const [text, setText] = useState(padSeconds(value));
+  const [seen, setSeen] = useState(value);
+
+  // Adjusting state during render — React's sanctioned answer to "reset state
+  // when a prop changes", and the reason this isn't an effect. Only a value we
+  // didn't type re-seeds the field: a prefill, a reset, a duplicated fill. Our
+  // own commits arrive already agreeing with `text`, which is what lets a
+  // half-typed `9` stay `9` instead of being padded back to `09` under the
+  // caret.
+  if (value !== seen) {
+    setSeen(value);
+    if (Number(text || '0') !== value) setText(padSeconds(value));
+  }
+
+  const commit = (raw: string) => {
+    // The field is already digit-only; a minute never carries more than 59.
+    const digits = raw.slice(0, 2);
+    const seconds = Math.min(59, Number(digits || '0'));
+    setText(digits === '' ? '' : String(seconds).padStart(digits.length, '0'));
+    onChange(seconds);
+  };
+
+  return (
+    <View style={styles.secondsPill}>
+      <Text style={styles.secondsColon}>:</Text>
+      <View style={styles.secondsInput}>
+        <NumericField
+          value={text}
+          onChangeText={commit}
+          placeholder="00"
+          layout="stretch"
+          decimals={false}
+          accessibilityLabel={t`Seconds`}
+        />
+      </View>
+    </View>
+  );
+}
+
 /**
  * Date/time row — same shape as every other row: our label leading, the
  * SwiftUI picker pinned trailing. The label has to be ours: passing `title`
@@ -224,19 +275,41 @@ export function DateRow({
   label,
   selection,
   displayedComponents,
+  seconds,
   onDateChange,
 }: {
   label: string;
   selection: Date;
   displayedComponents: ('date' | 'hourAndMinute')[];
+  /** Adds the editable seconds pill — for timestamps recorded to the second. */
+  seconds?: boolean;
   onDateChange: (date: Date) => void;
 }) {
+  /**
+   * The picker reports whole minutes: the date it hands back carries `:00`,
+   * so passing it straight through would wipe an imported fill's seconds the
+   * moment anyone brushed the minute wheel. Re-stamp them from the value we
+   * were given — only the seconds pill edits seconds.
+   */
+  const picked = (date: Date) => {
+    if (!seconds) return onDateChange(date);
+    const next = new Date(date);
+    next.setSeconds(selection.getSeconds(), selection.getMilliseconds());
+    onDateChange(next);
+  };
+
+  const setSeconds = (value: number) => {
+    const next = new Date(selection);
+    next.setSeconds(value, 0);
+    onDateChange(next);
+  };
+
   return (
     <View style={styles.row}>
       <Text style={styles.rowLabel} numberOfLines={1}>
         {label}
       </Text>
-      <View style={styles.rowControl}>
+      <View style={[styles.rowControl, styles.dateControl]}>
         {/*
           `ignoreSafeArea` is load-bearing: a hosted SwiftUI view still insets
           its content by the container safe area, so a picker sitting inside
@@ -248,9 +321,10 @@ export function DateRow({
           <DatePicker
             selection={selection}
             displayedComponents={displayedComponents}
-            onDateChange={onDateChange}
+            onDateChange={picked}
           />
         </AppHost>
+        {seconds ? <SecondsField value={selection.getSeconds()} onChange={setSeconds} /> : null}
       </View>
     </View>
   );
@@ -329,6 +403,20 @@ const styles = StyleSheet.create((theme) => ({
     paddingVertical: theme.spacing.sm,
   },
   rowControl: { marginLeft: 'auto', flexShrink: 1 },
+  /** Picker and seconds pill sit on one line, spaced like SwiftUI's own pills. */
+  dateControl: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.xs },
+  secondsPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: theme.radius.md,
+    backgroundColor: theme.colors.input,
+    paddingLeft: theme.spacing.sm,
+    paddingRight: theme.spacing.xs,
+  },
+  secondsColon: { fontSize: 16, color: theme.colors.mutedForeground },
+  // Two monospaced digits, given a width because the hosted SwiftUI field has
+  // no intrinsic one to hand the row.
+  secondsInput: { width: 22 },
   stackRow: {
     gap: theme.spacing.sm,
     paddingHorizontal: theme.spacing.lg,

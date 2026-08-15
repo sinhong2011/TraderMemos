@@ -141,6 +141,10 @@ function FillCard({
         label={t`Executed at`}
         selection={fill.executedAt}
         displayedComponents={['date', 'hourAndMinute']}
+        // Fills are timestamped to the second — brokers report them that way,
+        // and the server replays a trade's executions in `executed_at, id`
+        // order, so the seconds are what sequence two legs of the same minute.
+        seconds
         onDateChange={(executedAt) => onChange({ executedAt })}
       />
       <InputRow
