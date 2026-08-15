@@ -5,7 +5,7 @@
 
 - [traderwaves-competitive-plan.md](traderwaves-competitive-plan.md) — product roadmap (importers, `tm-sync`, share pages, backtester, Monte Carlo, alerts, marketing)
 - [mobile-monetization-plan.md](mobile-monetization-plan.md) — iOS pricing policy (free app + one-time Pro unlock; candidate features)
-- Background: [competitive-day-trader-roadmap.md](competitive-day-trader-roadmap.md), [stonk-journal-v2-features.md](stonk-journal-v2-features.md)
+- Background: [competitive-day-trader-roadmap.md](competitive-day-trader-roadmap.md)
 
 **Governing decision (2026-08-08): finish all features first.** Everything ships unlocked (TestFlight during development); the free/Pro line is drawn last, before the first public App Store release. While building, each mobile Pro-candidate keeps a one-place `<ProGate>` seam (always-true for now) so the line needs no refactoring later.
 

@@ -4,7 +4,7 @@
 **Sources:** traderwaves.com homepage, `/features`, `/features/trade-journal`, `/pricing`, `/alternative/journal`; TraderMemos API routes, `web/src/routes`, `mobile/src/app`, `api/internal/analytics`
 **Goal:** Decide what TraderMemos should build in response to TraderWaves — and what it should deliberately not build.
 
-Companion docs: [competitive-day-trader-roadmap.md](competitive-day-trader-roadmap.md) (TraderVue / TradeZella / Stonk Journal), [stonk-journal-v2-features.md](stonk-journal-v2-features.md), [mobile-monetization-plan.md](mobile-monetization-plan.md) (iOS free/Pro line — decides which of these features may be mobile-Pro-gated), [roadmap.md](roadmap.md) (unified sequencing across both plans).
+Companion docs: [competitive-day-trader-roadmap.md](competitive-day-trader-roadmap.md) (TraderVue / TradeZella / Stonk Journal), [mobile-monetization-plan.md](mobile-monetization-plan.md) (iOS free/Pro line — decides which of these features may be mobile-Pro-gated), [roadmap.md](roadmap.md) (unified sequencing across both plans).
 
 ---
 
