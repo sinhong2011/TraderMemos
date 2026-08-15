@@ -5,17 +5,15 @@ import PagerView from 'react-native-pager-view';
 
 import { useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
+import { Skeleton, cn } from 'panelui-native';
 import { useMemo, useRef, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { EmptyState } from '@/components/empty-state';
 import { useAccounts, useTrades } from '@/api/hooks';
-import { AppHost } from '@/components/app-host';
 import { DashboardCard } from '@/components/dashboard-card';
 import { ErrorState } from '@/components/error-state';
 import { HeaderIconButton } from '@/components/header-icon-button';
-import { Skeleton } from '@/components/skeleton';
 import { StatBar } from '@/components/stat-bar';
 import { t } from '@lingui/core/macro';
 import { locale } from '@/i18n';
@@ -25,9 +23,13 @@ import { useMoneyFx } from '@/lib/money';
 import { usePagerBottomInset } from '@/lib/pager-insets';
 import { accountBaseCurrency } from '@/lib/prefs';
 import { computeYearWrapped } from '@/lib/wrapped';
-import { pnlColor } from '@/styles/unistyles';
+import { pnlClass, pnlColor, usePnlPalette } from '@/styles/pnl';
 
 const MIN_YEAR = 2000;
+
+/** Card-shaped stand-ins while a year's trades are still out. */
+const SKELETON_TALL = 'h-[180px] rounded-[18px]';
+const SKELETON_CARD = 'h-[200px] rounded-[18px]';
 
 function yearsRange(currentYear: number): number[] {
   const years: number[] = [];
@@ -70,25 +72,31 @@ function YearIndicator({
   );
 
   return (
-    <View style={styles.indicator}>
-      <View style={styles.indicatorRow}>
+    <View className="gap-2 bg-background px-4 py-2">
+      <View className="flex-row items-center justify-between">
         <Pressable
           onPress={() => prev != null && onSelect(index - 1)}
           disabled={prev == null}
           hitSlop={10}
           accessibilityRole="button"
           accessibilityLabel={t`Previous year`}
-          style={({ pressed }) => [
-            styles.sideYear,
-            prev == null && styles.sideYearHidden,
-            pressed && styles.pressed,
-          ]}
+          className={cn(SIDE_YEAR, prev == null && 'opacity-0')}
         >
-          <Text style={styles.sideYearLabel}>{prev ?? ' '}</Text>
+          <Text className="text-sm font-medium text-muted-foreground tabular-nums">
+            {prev ?? ' '}
+          </Text>
         </Pressable>
-        <Text style={styles.yearLabel} accessibilityRole="header">
+        <Text
+          className="text-center text-lg font-semibold text-foreground tabular-nums"
+          accessibilityRole="header"
+        >
           {year}
-          {inProgress ? <Text style={styles.inProgress}> · {t`in progress`}</Text> : null}
+          {inProgress ? (
+            <Text className="text-[13px] font-normal text-muted-foreground">
+              {' '}
+              · {t`in progress`}
+            </Text>
+          ) : null}
         </Text>
         <Pressable
           onPress={() => next != null && onSelect(index + 1)}
@@ -96,17 +104,15 @@ function YearIndicator({
           hitSlop={10}
           accessibilityRole="button"
           accessibilityLabel={t`Next year`}
-          style={({ pressed }) => [
-            styles.sideYear,
-            next == null && styles.sideYearHidden,
-            pressed && styles.pressed,
-          ]}
+          className={cn(SIDE_YEAR, next == null && 'opacity-0')}
         >
-          <Text style={styles.sideYearLabel}>{next ?? ' '}</Text>
+          <Text className="text-sm font-medium text-muted-foreground tabular-nums">
+            {next ?? ' '}
+          </Text>
         </Pressable>
       </View>
       {years.length > 1 ? (
-        <View style={styles.dots} accessibilityElementsHidden>
+        <View className="flex-row items-center justify-center gap-1.5" accessibilityElementsHidden>
           {Array.from({ length: windowSize }, (_, i) => {
             const pageIndex = windowStart + i;
             const active = pageIndex === index;
@@ -115,7 +121,12 @@ function YearIndicator({
                 key={years[pageIndex]}
                 onPress={() => onSelect(pageIndex)}
                 hitSlop={6}
-                style={[styles.dot, active && styles.dotActive]}
+                // Capsule chip dots — trade-form pager language, without a
+                // bordered track.
+                className={cn(
+                  'h-1.5 w-1.5 rounded-full bg-muted',
+                  active && 'w-3.5 bg-foreground',
+                )}
               />
             );
           })}
@@ -127,7 +138,8 @@ function YearIndicator({
 
 /** One year's recap — own query + scroll so the pager can keep pages independent. */
 function WrappedYear({ year, active }: { year: number; active: boolean }) {
-  const { theme } = useUnistyles();
+  // The month bars are drawn views, so their fills are token values.
+  const palette = usePnlPalette();
   const selectedAccountId = useSelectedAccountId();
   // Far pages stay mounted for swipe physics but skip the network until nearby.
   const trades = useTrades(
@@ -154,12 +166,10 @@ function WrappedYear({ year, active }: { year: number; active: boolean }) {
 
   return (
     <ScrollView
-      style={styles.page}
+      className="bg-background"
       contentInsetAdjustmentBehavior="automatic"
-      contentContainerStyle={[
-        styles.content,
-        { paddingBottom: theme.spacing.xl * 2 + bottomInset },
-      ]}
+      contentContainerClassName="gap-4 p-4"
+      contentContainerStyle={{ paddingBottom: 48 + bottomInset }}
       refreshControl={
         <RefreshControl
           refreshing={trades.isRefetching}
@@ -169,14 +179,14 @@ function WrappedYear({ year, active }: { year: number; active: boolean }) {
     >
       {trades.isLoading || (!active && trades.data == null) ? (
         <>
-          <Skeleton style={styles.skeletonTall} />
-          <Skeleton style={styles.skeletonCard} />
+          <Skeleton className={SKELETON_TALL} label={t`Loading ${year}`} />
+          <Skeleton className={SKELETON_CARD} />
         </>
       ) : trades.error && trades.data == null ? (
         // The recap is computed from the trades, so a failed fetch with no
         // cache produces a zeroed wrapped — indistinguishable from a year you
         // didn't trade. Cached trades still recap fine.
-        <View style={styles.emptyHost}>
+        <View className="min-h-[320px]">
           <ErrorState
             error={trades.error}
             onRetry={() => void trades.refetch()}
@@ -184,31 +194,34 @@ function WrappedYear({ year, active }: { year: number; active: boolean }) {
           />
         </View>
       ) : wrapped.totalTrades === 0 ? (
-        <AppHost style={styles.emptyHost}>
+        <View className="min-h-[320px]">
           <EmptyState
             title={t`No closed trades in ${year}`}
             systemImage="sparkles"
             description={t`The recap appears once the year has closed trades.`}
           />
-        </AppHost>
+        </View>
       ) : (
         <>
           <DashboardCard title={t`${year} in one number`}>
-            <View style={styles.hero}>
+            <View className="items-center gap-1 py-2">
               <Text
                 selectable
-                style={[styles.heroValue, { color: pnlColor(theme.colors, wrapped.netPnl) }]}
+                className={cn(
+                  'text-[34px] font-semibold tracking-tight tabular-nums',
+                  pnlClass(wrapped.netPnl),
+                )}
               >
                 {money(wrapped.netPnl)}
               </Text>
-              <Text style={styles.heroCaption}>
+              <Text className="text-xs text-muted-foreground tabular-nums">
                 {t`${wrapped.totalTrades} closed trades · ${formatPercent(wrapped.winRate, 0)} win rate · ${wrapped.tradingDays} trading days`}
               </Text>
             </View>
           </DashboardCard>
 
           <DashboardCard title={t`Your highs`} flush>
-            <View style={styles.grid}>
+            <View className="flex-row flex-wrap gap-2">
               <StatBar
                 label={t`Best day`}
                 value={wrapped.bestDay ? moneyCompact(wrapped.bestDay.pnl) : moneyCompact(0)}
@@ -237,7 +250,7 @@ function WrappedYear({ year, active }: { year: number; active: boolean }) {
           </DashboardCard>
 
           <DashboardCard title={t`Your lows`} flush>
-            <View style={styles.grid}>
+            <View className="flex-row flex-wrap gap-2">
               <StatBar
                 label={t`Worst day`}
                 value={wrapped.worstDay ? moneyCompact(wrapped.worstDay.pnl) : moneyCompact(0)}
@@ -273,36 +286,38 @@ function WrappedYear({ year, active }: { year: number; active: boolean }) {
           </DashboardCard>
 
           <DashboardCard title={t`Your rhythm`}>
-            <View style={styles.months}>
+            <View className="h-24 flex-row items-end gap-1">
               {wrapped.months.map((month) => (
-                <View key={month.month} style={styles.monthCol}>
-                  <View style={styles.monthTrack}>
+                <View key={month.month} className="h-full flex-1 items-center gap-[3px]">
+                  <View className="w-full flex-1 justify-end">
                     <View
-                      style={[
-                        styles.monthFill,
-                        {
-                          height: `${Math.max(4, (month.trades / maxMonthTrades) * 100)}%`,
-                          backgroundColor:
-                            month.trades === 0
-                              ? theme.colors.muted
-                              : pnlColor(theme.colors, month.pnl),
-                        },
-                      ]}
+                      className={cn(
+                        'w-full rounded-[3px]',
+                        month.trades === 0 && 'bg-muted',
+                      )}
+                      style={{
+                        height: `${Math.max(4, (month.trades / maxMonthTrades) * 100)}%`,
+                        ...(month.trades === 0
+                          ? null
+                          : { backgroundColor: pnlColor(palette, month.pnl) }),
+                      }}
                     />
                   </View>
-                  <Text style={styles.monthLabel}>{monthShort(month.month)}</Text>
+                  <Text className="text-[8px] text-muted-foreground">
+                    {monthShort(month.month)}
+                  </Text>
                 </View>
               ))}
             </View>
             {wrapped.busiestMonth ? (
-              <Text style={styles.caption}>
+              <Text className="text-xs text-muted-foreground">
                 {t`Busiest month: ${monthShort(wrapped.busiestMonth.month)} with ${wrapped.busiestMonth.trades} trades.`}
               </Text>
             ) : null}
           </DashboardCard>
 
           <DashboardCard title={t`Your habits`} flush>
-            <View style={styles.grid}>
+            <View className="flex-row flex-wrap gap-2">
               {wrapped.topSymbols.map((symbol, index) => (
                 <StatBar
                   key={symbol.symbol}
@@ -321,7 +336,7 @@ function WrappedYear({ year, active }: { year: number; active: boolean }) {
           </DashboardCard>
 
           <DashboardCard title={t`Bottom line`} flush>
-            <View style={styles.grid}>
+            <View className="flex-row flex-wrap gap-2">
               <StatBar
                 label={t`Profit factor`}
                 value={formatRatio(wrapped.profitFactor)}
@@ -383,7 +398,7 @@ export default function WrappedScreen() {
           ),
         }}
       />
-      <View style={styles.root}>
+      <View className="flex-1 bg-background">
         <YearIndicator
           years={years}
           index={index}
@@ -393,11 +408,11 @@ export default function WrappedScreen() {
         <PagerView
           ref={pagerRef}
           initialPage={initialIndex}
-          style={styles.pager}
+          style={FILL}
           onPageSelected={(event) => setIndex(event.nativeEvent.position)}
         >
           {years.map((year, pageIndex) => (
-            <View key={year} style={styles.fill} collapsable={false}>
+            <View key={year} className="flex-1" collapsable={false}>
               <WrappedYear year={year} active={Math.abs(pageIndex - index) <= 1} />
             </View>
           ))}
@@ -407,78 +422,8 @@ export default function WrappedScreen() {
   );
 }
 
-const styles = StyleSheet.create((theme) => ({
-  root: { flex: 1, backgroundColor: theme.colors.background },
-  pager: { flex: 1 },
-  fill: { flex: 1 },
-  page: { backgroundColor: theme.colors.background },
-  content: {
-    padding: theme.spacing.lg,
-    gap: theme.spacing.lg,
-    paddingBottom: theme.spacing.xl * 2,
-  },
-  indicator: {
-    paddingHorizontal: theme.spacing.lg,
-    paddingTop: theme.spacing.sm,
-    paddingBottom: theme.spacing.sm,
-    gap: theme.spacing.sm,
-    backgroundColor: theme.colors.background,
-  },
-  indicatorRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  sideYear: {
-    minWidth: 56,
-    alignItems: 'center',
-    paddingVertical: theme.spacing.xs,
-  },
-  sideYearHidden: { opacity: 0 },
-  sideYearLabel: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: theme.colors.mutedForeground,
-    ...theme.numeric,
-  },
-  yearLabel: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: theme.colors.foreground,
-    textAlign: 'center',
-    ...theme.numeric,
-  },
-  inProgress: { fontSize: 13, fontWeight: '400', color: theme.colors.mutedForeground },
-  dots: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-  },
-  // Capsule chip dots — trade-form pager language, without a bordered track.
-  dot: {
-    width: 6,
-    height: 6,
-    borderRadius: theme.radius.full,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.muted,
-  },
-  dotActive: {
-    width: 14,
-    backgroundColor: theme.colors.foreground,
-  },
-  pressed: { opacity: 0.6 },
-  hero: { alignItems: 'center', gap: theme.spacing.xs, paddingVertical: theme.spacing.sm },
-  heroValue: { fontSize: 34, fontWeight: '600', letterSpacing: -1, ...theme.numeric },
-  heroCaption: { fontSize: 12, color: theme.colors.mutedForeground, ...theme.numeric },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
-  months: { flexDirection: 'row', gap: theme.spacing.xs, height: 96, alignItems: 'flex-end' },
-  monthCol: { flex: 1, alignItems: 'center', gap: 3, height: '100%' },
-  monthTrack: { flex: 1, width: '100%', justifyContent: 'flex-end' },
-  monthFill: { width: '100%', borderRadius: 3, borderCurve: 'continuous' },
-  monthLabel: { fontSize: 8, color: theme.colors.mutedForeground },
-  caption: { fontSize: 12, color: theme.colors.mutedForeground },
-  skeletonTall: { height: 180, borderRadius: theme.radius.lg + 4 },
-  skeletonCard: { height: 200, borderRadius: theme.radius.lg + 4 },
-  emptyHost: { minHeight: 320 },
-}));
+/** The tappable neighbour-year peek beside the centred label. */
+const SIDE_YEAR = 'min-w-[56px] items-center py-1 active:opacity-60';
+
+/** `PagerView` is a native component, not one Uniwind styles by class. */
+const FILL = { flex: 1 } as const;

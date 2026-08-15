@@ -5,7 +5,7 @@ import { useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
 import { useEffect, useRef, useState } from 'react';
 import { Animated, View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
+import { useCSSVariable } from 'uniwind';
 
 import { useAccounts, useCash, useSystemInfo } from '@/api/hooks';
 import { HeaderIconButton } from '@/components/header-icon-button';
@@ -46,7 +46,7 @@ function ReportsHeaderRight() {
       ? netDeposits(accounts.data, selectedId, cash.data)
       : 0;
   return (
-    <View style={styles.headerRight}>
+    <View className="flex-row items-center gap-2">
       {shareEnabled ? (
         <HeaderIconButton
           systemImage="square.and.arrow.up"
@@ -65,6 +65,9 @@ function ReportsHeaderRight() {
 }
 
 export default function ReportsScreen() {
+  // The switcher is an `Animated.View` — a wrapper, not a core component
+  // Uniwind can take a `className` on — so its fill has to be a JS value.
+  const [background] = useCSSVariable(['--color-background']) as [string];
   const [section, setSection] = useState<ReportsSection>('overview');
   const [scrolled, setScrolled] = useState(false);
   const pagerRef = useRef<PagerView>(null);
@@ -115,11 +118,15 @@ export default function ReportsScreen() {
           headerRight: () => <ReportsHeaderRight />,
         }}
       />
-      <View style={styles.page}>
+      <View className="flex-1 bg-background">
         {/* Floats over the pages and slides out with the content — the sections
-            are long, and the switcher only matters between reads. */}
+            are long, and the switcher only matters between reads. Opaque and
+            above the pages: the rows sliding under it have to disappear. */}
         <Animated.View
-          style={[styles.segment, { opacity: fade, transform: [{ translateY: travel }] }]}
+          style={[
+            SEGMENT_BAR,
+            { backgroundColor: background, opacity: fade, transform: [{ translateY: travel }] },
+          ]}
           onLayout={(e) => setHeaderHeight(e.nativeEvent.layout.height)}
         >
           <PagerTabs options={sections} value={section} onChange={selectSection} />
@@ -128,22 +135,22 @@ export default function ReportsScreen() {
           <PagerView
             ref={pagerRef}
             initialPage={0}
-            style={styles.pager}
+            style={FILL}
             onPageSelected={(event) => setSection(SECTION_VALUES[event.nativeEvent.position])}
           >
-            <View key="overview" style={styles.fill}>
+            <View key="overview" className="flex-1">
               <OverviewSection onScrolledChange={setScrolled} />
             </View>
-            <View key="winloss" style={styles.fill}>
+            <View key="winloss" className="flex-1">
               <WinLossSection onScrolledChange={setScrolled} />
             </View>
-            <View key="detailed" style={styles.fill}>
+            <View key="detailed" className="flex-1">
               <DetailedSection onScrolledChange={setScrolled} />
             </View>
-            <View key="risk" style={styles.fill}>
+            <View key="risk" className="flex-1">
               <RiskSection onScrolledChange={setScrolled} />
             </View>
-            <View key="behavior" style={styles.fill}>
+            <View key="behavior" className="flex-1">
               <BehaviorSection onScrolledChange={setScrolled} />
             </View>
           </PagerView>
@@ -153,21 +160,16 @@ export default function ReportsScreen() {
   );
 }
 
-const styles = StyleSheet.create((theme) => ({
-  page: { flex: 1, backgroundColor: theme.colors.background },
-  // Opaque and above the pages: the rows sliding under it have to disappear.
-  segment: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 2,
-    paddingHorizontal: theme.spacing.lg,
-    paddingTop: theme.spacing.sm,
-    paddingBottom: theme.spacing.sm,
-    backgroundColor: theme.colors.background,
-  },
-  pager: { flex: 1 },
-  fill: { flex: 1 },
-  headerRight: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
-}));
+/** Static half of the switcher bar; the fill and the slide are animated. */
+const SEGMENT_BAR = {
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  right: 0,
+  zIndex: 2,
+  paddingHorizontal: 16,
+  paddingVertical: 8,
+} as const;
+
+/** `PagerView` is a native component, not one Uniwind styles by class. */
+const FILL = { flex: 1 } as const;
