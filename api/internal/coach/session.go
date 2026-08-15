@@ -206,9 +206,10 @@ func (s SessionContext) format() string {
 		b.WriteString("Current streak: none\n")
 	}
 
-	window := "180d"
+	// Reads into "below the 180-day peak" / "at the all-time equity peak".
+	window := "180-day"
 	if !s.Bounded {
-		window = "all recorded"
+		window = "all-time"
 	}
 	if s.Drawdown > 0 {
 		fmt.Fprintf(&b, "Drawdown: %g %s below the %s peak, %d trades since that peak\n",
