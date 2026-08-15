@@ -1,4 +1,3 @@
-import { DatePicker } from '@expo/ui/swift-ui';
 import { Children, Fragment, useState, type ReactNode } from 'react';
 import { Pressable, Text, TextInput, View, type TextInputProps } from 'react-native';
 import Animated, {
@@ -10,7 +9,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { Icon } from '@/components/icon';
 import { NumericField } from '@/components/numeric-field';
-import { AppHost } from '@/components/app-host';
+import { DateField } from '@/components/date-field';
 import { TimePicker } from '@/components/time-picker';
 
 /** The app's one spring (see symbol-pager-bar.tsx) — accordion motion matches. */
@@ -269,21 +268,12 @@ export function DateRow({
         {label}
       </Text>
       <View style={[styles.rowControl, styles.dateControl]}>
-        {/*
-          `ignoreSafeArea` is load-bearing: a hosted SwiftUI view still insets
-          its content by the container safe area, so a picker sitting inside
-          the home-indicator band — the dividend Date row, last card on the
-          page — drew its pill ~20pt above its own frame, over the row divider.
-          'all' also keeps the keyboard inset out of it while a field is open.
-        */}
         {pickerComponents.length > 0 ? (
-          <AppHost matchContents ignoreSafeArea="all">
-            <DatePicker
-              selection={selection}
-              displayedComponents={pickerComponents}
-              onDateChange={picked}
-            />
-          </AppHost>
+          <DateField
+            selection={selection}
+            displayedComponents={pickerComponents}
+            onDateChange={picked}
+          />
         ) : null}
         {ownsTime ? <TimePicker value={selection} onChange={onDateChange} /> : null}
       </View>

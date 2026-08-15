@@ -1,4 +1,3 @@
-import { DatePicker } from '@expo/ui/swift-ui';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { TextInput, View } from 'react-native';
 // react-native-pager-view, not @expo/ui's SwiftUI drop-in — see trade-form.tsx:
@@ -14,7 +13,7 @@ import { NoteImageButton, NoteImageStrip, useNoteImages } from '@/components/not
 import { Segmented } from '@/components/segmented';
 import { SymbolPagerBar } from '@/components/symbol-pager-bar';
 import { t } from '@lingui/core/macro';
-import { AppHost } from '@/components/app-host';
+import { DateField } from '@/components/date-field';
 
 /**
  * A symbol block being edited. `key` is local: two blank tickers still need
@@ -313,20 +312,13 @@ export function NoteEditor({
       {onRecap ? <NoteImageStrip images={images} /> : null}
 
       <View style={styles.toolbar}>
-        {/*
-          `ignoreSafeArea` is load-bearing: a hosted SwiftUI view still insets
-          its content by the container safe area, so a picker sitting this close
-          to the home indicator draws its pill above its own frame.
-        */}
-        <AppHost matchContents ignoreSafeArea="all">
-          <DatePicker
-            // Noon-anchored so a UTC-shifted parse can never land on the
-            // previous day (the fmtDayShort rule).
-            selection={new Date(`${values.occurredAt}T12:00:00`)}
-            displayedComponents={['date']}
-            onDateChange={(date) => onChange({ occurredAt: dayString(new Date(date)) })}
-          />
-        </AppHost>
+        <DateField
+          // Noon-anchored so a UTC-shifted parse can never land on the
+          // previous day (the fmtDayShort rule).
+          selection={new Date(`${values.occurredAt}T12:00:00`)}
+          displayedComponents={['date']}
+          onDateChange={(date) => onChange({ occurredAt: dayString(new Date(date)) })}
+        />
         {/* Charts attach to the note body, so the button only makes sense on
             the page that owns it. */}
         {onRecap ? <NoteImageButton images={images} /> : null}

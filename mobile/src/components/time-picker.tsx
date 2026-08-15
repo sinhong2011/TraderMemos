@@ -1,147 +1,54 @@
-import { BottomSheet, Button, Group, HStack, Picker, Text as UIText } from '@expo/ui/swift-ui';
-import {
-  buttonStyle,
-  foregroundStyle,
-  frame,
-  monospacedDigit,
-  padding,
-  pickerStyle,
-  presentationDragIndicator,
-  tag,
-  tint,
-} from '@expo/ui/swift-ui/modifiers';
+import { TimePickerDialog } from '@expo/ui/jetpack-compose';
 import { useState } from 'react';
 import { useUnistyles } from 'react-native-unistyles';
 
 import { AppHost } from '@/components/app-host';
+import { ControlPillButton } from '@/components/control-pill';
 
 /** Two digits, the way a clock writes them — 7 seconds past reads `07`. */
 const pad2 = (value: number) => String(value).padStart(2, '0');
 
-const column = (count: number) =>
-  Array.from({ length: count }, (_, n) => ({ value: String(n), label: pad2(n) }));
-
-const HOURS = column(24);
-/** Minutes and seconds run the same 00–59, so one list serves both wheels. */
-const SIXTY = column(60);
-
-/** Three columns sized like a date picker's own wheels, not the sheet's width. */
-const WHEEL_WIDTH = 76;
-const WHEEL_HEIGHT = 180;
-
 /**
- * Stands in for `.infinity` in a `maxWidth`: the modifier crosses the bridge as
- * a `CGFloat` and JSON has no infinity to send. Any value past the sheet's own
- * width behaves identically — SwiftUI hands the view the width it was offered.
- */
-const FILL_WIDTH = 10_000;
-
-/**
- * The gray UIKit fills its own controls with — `tertiarySystemFill`, which is
- * what backs the compact `DatePicker` pill this one sits beside. A `.bordered`
- * button paints its fill from the tint at low opacity, so tinting with this
- * hue lands on the same gray in both schemes. Tinting with the foreground (the
- * first attempt) gave white at a heavier opacity, which read visibly lighter
- * than the date pill; the accent default paints it blue.
- */
-const SYSTEM_FILL = '#767680';
-
-/**
- * A clock, to the second, as one native control: a bordered pill reading
- * `HH:MM:SS` that opens hour / minute / second wheels in a sheet.
+ * Cross-platform form of the seconds clock (`time-picker.ios.tsx` keeps the
+ * SwiftUI wheels; both export the same name, so `DateRow` never branches).
  *
- * This exists because SwiftUI's compact `DatePicker` cannot show seconds —
- * `displayedComponents` stops at `hourAndMinute` — so a to-the-second stamp
- * has to be assembled from parts. Everything here is still SwiftUI: the pill
- * is a `.bordered` `Button`, which is where its capsule and fill come from
- * rather than an imitation of the date picker's that has to be kept in sync.
- *
- * The wheels are a sheet and not a `.popover` because a popover always draws
- * an anchor arrow — SwiftUI exposes which edge it attaches to, never whether
- * it is drawn — and a wheel picker rising from the bottom is what iOS itself
- * does on a phone anyway.
- *
- * 24-hour, ignoring the 12/24h display pref, for the reason `fmtTimestamp`
- * gives: a to-the-second stamp is a fixed-width pattern, and AM/PM would be a
- * fourth wheel to fit.
+ * Material has no seconds control anywhere — the M3 time picker stops at
+ * minutes — so the pill still *shows* `HH:MM:SS` while the dialog edits only
+ * the hour and minute; the seconds ride through unchanged, which keeps an
+ * imported fill's to-the-second stamp intact. 24-hour for the reason the iOS
+ * file gives: a to-the-second stamp is a fixed-width pattern.
  */
 export function TimePicker({ value, onChange }: { value: Date; onChange: (next: Date) => void }) {
   const { theme } = useUnistyles();
   const [open, setOpen] = useState(false);
 
-  const setPart = (part: 'hours' | 'minutes' | 'seconds', n: number) => {
+  const picked = (date: Date) => {
+    // Merge over `value`: the dialog's Date is built from its own fields
+    // alone, and the day and the seconds belong to the row, not this dialog.
     const next = new Date(value);
-    if (part === 'hours') next.setHours(n);
-    else if (part === 'minutes') next.setMinutes(n);
-    // Milliseconds go with the seconds — a fill is stamped to the second, and
-    // leaving a stale remainder makes two edits of the same value unequal.
-    else next.setSeconds(n, 0);
+    next.setHours(date.getHours(), date.getMinutes());
+    setOpen(false);
     onChange(next);
   };
 
-  const wheel = (
-    options: readonly { value: string; label: string }[],
-    selected: number,
-    part: 'hours' | 'minutes' | 'seconds',
-  ) => (
-    <Picker
-      selection={String(selected)}
-      onSelectionChange={(selection) => {
-        if (selection != null) setPart(part, Number(selection));
-      }}
-      modifiers={[pickerStyle('wheel'), frame({ width: WHEEL_WIDTH, height: WHEEL_HEIGHT })]}
-    >
-      {options.map((option) => (
-        <UIText key={option.value} modifiers={[tag(option.value)]}>
-          {option.label}
-        </UIText>
-      ))}
-    </Picker>
-  );
-
   return (
-    <AppHost matchContents ignoreSafeArea="all">
-      <BottomSheet
-        isPresented={open}
-        onIsPresentedChange={setOpen}
-        // The detent follows the wheels' own height, so nothing here has to
-        // guess a sheet size that a taller wheel would then break.
-        fitToContents
-        anchor={
-          /* The label is a child rather than the `label` prop so it can carry
-             its own color: a bordered button takes fill *and* label from the
-             tint, and the two need different colors to match the date pill —
-             system gray behind, plain foreground on top. */
-          <Button
-            onPress={() => setOpen(true)}
-            modifiers={[buttonStyle('bordered'), tint(SYSTEM_FILL)]}
-          >
-            <UIText modifiers={[foregroundStyle(theme.colors.foreground), monospacedDigit()]}>
-              {`${pad2(value.getHours())}:${pad2(value.getMinutes())}:${pad2(value.getSeconds())}`}
-            </UIText>
-          </Button>
-        }
-      >
-        {/* Presentation modifiers have to sit on a wrapper the sheet owns,
-            not on the wheels themselves. */}
-        <Group modifiers={[presentationDragIndicator('visible')]}>
-          {/* Three fixed columns are narrower than the sheet, so the stack has
-              to be told to take the full width and centre them inside it —
-              left to hug its content it sits wherever the sheet drops it. The
-              top inset clears the drag indicator. */}
-          <HStack
-            spacing={0}
-            modifiers={[
-              padding({ top: 12 }),
-              frame({ maxWidth: FILL_WIDTH, alignment: 'center' }),
-            ]}
-          >
-            {wheel(HOURS, value.getHours(), 'hours')}
-            {wheel(SIXTY, value.getMinutes(), 'minutes')}
-            {wheel(SIXTY, value.getSeconds(), 'seconds')}
-          </HStack>
-        </Group>
-      </BottomSheet>
-    </AppHost>
+    <>
+      <ControlPillButton
+        numeric
+        label={`${pad2(value.getHours())}:${pad2(value.getMinutes())}:${pad2(value.getSeconds())}`}
+        onPress={() => setOpen(true)}
+      />
+      {open ? (
+        <AppHost matchContents>
+          <TimePickerDialog
+            initialDate={value.toISOString()}
+            is24Hour
+            color={theme.colors.primary}
+            onDateSelected={picked}
+            onDismissRequest={() => setOpen(false)}
+          />
+        </AppHost>
+      ) : null}
+    </>
   );
 }

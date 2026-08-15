@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 /**
@@ -22,6 +22,32 @@ export function ControlPill({ children }: { children: ReactNode }) {
   return <View style={styles.pill}>{children}</View>;
 }
 
+/**
+ * The pill as a button — Android's stand-in for the controls SwiftUI draws
+ * itself on iOS (the compact date pill, the seconds clock): the value sits in
+ * the capsule and a tap hands off to a Material dialog.
+ */
+export function ControlPillButton({
+  label,
+  numeric,
+  onPress,
+}: {
+  label: string;
+  /** Tabular figures, so a ticking value doesn't reshape the pill. */
+  numeric?: boolean;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      style={({ pressed }) => [styles.pill, styles.button, pressed && styles.pressed]}
+    >
+      <Text style={[styles.label, numeric && styles.numeric]}>{label}</Text>
+    </Pressable>
+  );
+}
+
 const styles = StyleSheet.create((theme) => ({
   pill: {
     height: CONTROL_PILL_HEIGHT,
@@ -34,4 +60,8 @@ const styles = StyleSheet.create((theme) => ({
     // system-drawn pill in the same row.
     backgroundColor: theme.colors.fill,
   },
+  button: { paddingHorizontal: theme.spacing.md },
+  pressed: { opacity: 0.6 },
+  label: { fontSize: 15, color: theme.colors.foreground },
+  numeric: { fontVariant: ['tabular-nums'] },
 }));

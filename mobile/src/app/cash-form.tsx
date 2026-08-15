@@ -1,4 +1,3 @@
-import { DatePicker } from '@expo/ui/swift-ui';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
@@ -22,7 +21,7 @@ import { t } from '@lingui/core/macro';
 import { parseAmount } from '@/lib/amount';
 import { CASH_TYPES, signedCashAmount } from '@/lib/cash';
 import { errorMessage } from '@/lib/errors';
-import { AppHost } from '@/components/app-host';
+import { DateField } from '@/components/date-field';
 
 /** Noon-UTC anchor keeps the calendar day stable across timezones. */
 function toOccurredAt(date: Date): string {
@@ -213,14 +212,7 @@ function CashForm({
         />
       </FormField>
       <FormRow label={t`Date`}>
-        {/*
-          `ignoreSafeArea` is load-bearing: a hosted SwiftUI view still insets
-          its content by the container safe area, so a picker near the
-          home-indicator band draws its pill above its own frame.
-        */}
-        <AppHost matchContents ignoreSafeArea="all">
-          <DatePicker selection={date} displayedComponents={['date']} onDateChange={setDate} />
-        </AppHost>
+        <DateField selection={date} displayedComponents={['date']} onDateChange={setDate} />
       </FormRow>
       {/* A note is prose — "wire from broker, settles Monday" — so it gets a
           writing box, not a one-line field. */}
