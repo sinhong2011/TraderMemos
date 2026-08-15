@@ -4,6 +4,7 @@ import {
   foregroundStyle,
   frame,
   monospacedDigit,
+  padding,
   pickerStyle,
   presentationDragIndicator,
   tag,
@@ -27,6 +28,13 @@ const SIXTY = column(60);
 /** Three columns sized like a date picker's own wheels, not the sheet's width. */
 const WHEEL_WIDTH = 76;
 const WHEEL_HEIGHT = 180;
+
+/**
+ * Stands in for `.infinity` in a `maxWidth`: the modifier crosses the bridge as
+ * a `CGFloat` and JSON has no infinity to send. Any value past the sheet's own
+ * width behaves identically — SwiftUI hands the view the width it was offered.
+ */
+const FILL_WIDTH = 10_000;
 
 /**
  * The gray UIKit fills its own controls with — `tertiarySystemFill`, which is
@@ -117,7 +125,17 @@ export function TimePicker({ value, onChange }: { value: Date; onChange: (next: 
         {/* Presentation modifiers have to sit on a wrapper the sheet owns,
             not on the wheels themselves. */}
         <Group modifiers={[presentationDragIndicator('visible')]}>
-          <HStack spacing={0}>
+          {/* Three fixed columns are narrower than the sheet, so the stack has
+              to be told to take the full width and centre them inside it —
+              left to hug its content it sits wherever the sheet drops it. The
+              top inset clears the drag indicator. */}
+          <HStack
+            spacing={0}
+            modifiers={[
+              padding({ top: 12 }),
+              frame({ maxWidth: FILL_WIDTH, alignment: 'center' }),
+            ]}
+          >
             {wheel(HOURS, value.getHours(), 'hours')}
             {wheel(SIXTY, value.getMinutes(), 'minutes')}
             {wheel(SIXTY, value.getSeconds(), 'seconds')}
