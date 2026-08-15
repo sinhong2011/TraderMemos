@@ -239,7 +239,7 @@ function BentoStat({
   className?: string;
 }) {
   return (
-    <div className={cn("flex min-w-0 flex-col gap-1 bg-sidebar p-2.5 sm:p-3", className)}>
+    <div className={cn("flex min-w-0 flex-col gap-1 bg-sidebar p-2 sm:p-2.5", className)}>
       <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
         {label}
       </span>
@@ -284,7 +284,11 @@ function TradeDetailSheetBody({
                 }${hold === "-" ? "" : ` · ${hold}`}`}
           </span>
         </div>
-        <div className="mt-3 grid grid-cols-[1.15fr_1fr] gap-px overflow-hidden rounded-md bg-border">
+        {/* The stat column carries three figures per row and the hero carries
+            one, so the extra share goes to the column that has to fit more.
+            Both tracks still floor at min-content, so a long P&L widens the
+            hero rather than being clipped by the ratio. */}
+        <div className="mt-3 grid grid-cols-[1fr_1.15fr] gap-px overflow-hidden rounded-md bg-border">
           <div className="row-span-2 flex flex-col justify-between gap-3 bg-sidebar p-3.5">
             <div>
               {pnl != null ? (
@@ -332,7 +336,13 @@ function TradeDetailSheetBody({
               }
             />
           </div>
-          <div className="grid grid-cols-[minmax(0,1fr)_minmax(4.75rem,1.35fr)_minmax(0,1fr)] gap-px">
+          {/* `auto` rather than a fixed ratio: these three hold a count, a
+              duration and a money amount, and which one needs the most room
+              changes per trade. A fixed split gave Hold 80px to render "7m"
+              while Fees truncated "$6.88" in 35px. Each track now takes what
+              its own value needs and the slack is shared; `truncate` on the
+              value stays as the last resort when all three run long. */}
+          <div className="grid grid-cols-[auto_auto_auto] gap-px">
             <BentoStat label="Qty" value={qty.toFixed(2)} />
             <BentoStat label="Hold" value={hold === "-" ? "—" : hold} />
             <BentoStat label="Fees" value={fmtMoney(trade.fees_total, currency, intlLocale())} />
