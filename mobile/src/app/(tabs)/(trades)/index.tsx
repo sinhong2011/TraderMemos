@@ -442,12 +442,16 @@ export default function TradesScreen() {
               onSelect={setTagFilter}
               onManage={() => router.push('/manage-tags')}
             />
+            {/* iOS section-header treatment: count left, labeled net right —
+                no floating line. */}
             {count > 0 ? (
-              <View style={styles.summaryRow}>
-                <Text style={styles.summaryCount}>{t`${count} trades`.toUpperCase()}</Text>
-                <Text style={styles.summaryLabel}>
+              <View className="flex-row items-baseline justify-between gap-3 px-1 pb-3">
+                <Text className="text-[11px] font-medium tracking-[0.6px] tabular-nums text-muted-foreground">
+                  {t`${count} trades`.toUpperCase()}
+                </Text>
+                <Text className="text-xs font-medium tabular-nums text-muted-foreground">
                   {t`Net`}{' '}
-                  <Text style={[styles.summaryNet, { color: pnlColor(theme.colors, netTotal) }]}>
+                  <Text className={cn('text-[13px] font-semibold', pnlClass(netTotal))}>
                     {formatPnl(netTotal, trades[0]?.pnl_currency)}
                   </Text>
                 </Text>
@@ -456,8 +460,8 @@ export default function TradesScreen() {
           </View>
         }
         ListEmptyComponent={
-          <View style={styles.centered}>
-            <Text style={styles.muted}>
+          <View className="items-center justify-center gap-3 p-6">
+            <Text className="text-center text-muted-foreground">
               {search
                 ? t`No trades matching "${search}"`
                 : status !== 'all'
@@ -480,94 +484,3 @@ export default function TradesScreen() {
     </>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  page: { backgroundColor: theme.colors.background },
-  content: {
-    padding: theme.spacing.lg,
-    paddingBottom: theme.spacing.xl * 2,
-    paddingTop: theme.spacing.sm,
-  },
-  rowGap: { height: theme.spacing.md },
-  skeletonPage: { flex: 1 },
-  skeletonRow: {
-    height: 76,
-    borderRadius: theme.radius.lg,
-    marginBottom: theme.spacing.md,
-  },
-  tagBarRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing.sm,
-    paddingBottom: theme.spacing.md,
-  },
-  tagBarScroll: { flex: 1 },
-  tagBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing.xs + 2,
-    paddingHorizontal: 2,
-  },
-  // iOS 26 bordered capsule chips — border carries the affordance, not a fill.
-  tagChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    minHeight: 26,
-    paddingHorizontal: theme.spacing.sm + 2,
-    paddingVertical: 3,
-    borderRadius: theme.radius.full,
-    borderCurve: 'continuous',
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    backgroundColor: 'transparent',
-  },
-  tagChipLabel: { fontSize: 12, fontWeight: '500', color: theme.colors.mutedForeground },
-  tagChipCount: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: theme.colors.mutedForeground,
-    ...theme.numeric,
-  },
-  tagManage: {
-    width: 26,
-    height: 26,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: theme.radius.full,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-  },
-  swipePressed: { opacity: 0.7 },
-  headerButtons: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
-  // iOS section-header treatment: count left, labeled net right — no floating line.
-  summaryRow: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    justifyContent: 'space-between',
-    gap: theme.spacing.md,
-    paddingHorizontal: theme.spacing.xs,
-    paddingBottom: theme.spacing.md,
-  },
-  summaryCount: {
-    fontSize: 11,
-    fontWeight: '500',
-    letterSpacing: 0.6,
-    color: theme.colors.mutedForeground,
-    ...theme.numeric,
-  },
-  summaryLabel: {
-    fontSize: 12,
-    fontWeight: '500',
-    color: theme.colors.mutedForeground,
-    ...theme.numeric,
-  },
-  summaryNet: { fontSize: 13, fontWeight: '600' },
-  centered: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: theme.spacing.xl,
-    gap: theme.spacing.md,
-  },
-  muted: { color: theme.colors.mutedForeground, textAlign: 'center' },
-}));

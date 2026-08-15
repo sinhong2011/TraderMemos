@@ -1,15 +1,10 @@
-import {
-  Button as UIButton,
-  Image as UIImage,
-  Menu,
-} from '@expo/ui/swift-ui';
-import { accessibilityLabel, buttonStyle, tint as tintModifier } from '@expo/ui/swift-ui/modifiers';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
+import { cn, Menu, Skeleton } from 'panelui-native';
 import { useState, type ReactNode } from 'react';
 import { Alert, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { useCSSVariable } from 'uniwind';
 
 import { Icon } from '@/components/icon';
 import { ApiError } from '@/api/client';
@@ -21,7 +16,6 @@ import { DashboardCard } from '@/components/dashboard-card';
 import { ErrorState } from '@/components/error-state';
 import { GlassButton } from '@/components/glass-button';
 import { Pill } from '@/components/pill';
-import { Skeleton } from '@/components/skeleton';
 import { TradeChart } from '@/components/trade-chart';
 import { t } from '@lingui/core/macro';
 import { errorMessage, isUnreachable } from '@/lib/errors';
@@ -29,14 +23,29 @@ import { armRollingNumbers } from '@/lib/rolling-numbers';
 import { formatDuration, useFormatters } from '@/lib/format';
 import { gradeFromInt, parseEmotionalStates, parseJournalNotes } from '@/lib/journal';
 import { marketLabel, tradeNotional, tradeRMultiple, tradeStatus } from '@/lib/trades';
-import { pnlColor } from '@/styles/unistyles';
-import { AppHost } from '@/components/app-host';
+import { pnlClass } from '@/styles/pnl';
 
-function Row({ label, value, tint }: { label: string; value: string; tint?: string }) {
+/** Label/value line — the shape every factual card on this screen is made of. */
+function Row({
+  label,
+  value,
+  tintClassName,
+}: {
+  label: string;
+  value: string;
+  /** Tints the figure — the P&L and excursion rows color themselves. */
+  tintClassName?: string;
+}) {
   return (
-    <View style={styles.row}>
-      <Text style={styles.rowLabel}>{label}</Text>
-      <Text selectable style={[styles.rowValue, tint ? { color: tint } : null]}>
+    <View className="flex-row items-center justify-between gap-3">
+      <Text className="text-[15px] text-muted-foreground">{label}</Text>
+      <Text
+        selectable
+        className={cn(
+          'text-[15px] font-medium tabular-nums',
+          tintClassName ?? 'text-foreground',
+        )}
+      >
         {value}
       </Text>
     </View>
@@ -47,9 +56,9 @@ function Row({ label, value, tint }: { label: string; value: string; tint?: stri
 function TextBlock({ label, value }: { label: string; value: string }) {
   if (!value.trim()) return null;
   return (
-    <View style={styles.block}>
-      <Text style={styles.blockLabel}>{label}</Text>
-      <Text selectable style={styles.notes}>
+    <View className="gap-1">
+      <Text className="text-xs text-muted-foreground">{label}</Text>
+      <Text selectable className="text-[15px] leading-[22px] text-foreground">
         {value}
       </Text>
     </View>
@@ -62,9 +71,9 @@ function TextBlock({ label, value }: { label: string; value: string }) {
  */
 function PillBlock({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <View style={styles.block}>
-      <Text style={styles.blockLabel}>{label}</Text>
-      <View style={styles.tags}>{children}</View>
+    <View className="gap-1">
+      <Text className="text-xs text-muted-foreground">{label}</Text>
+      <View className="flex-row flex-wrap gap-2">{children}</View>
     </View>
   );
 }
@@ -72,9 +81,11 @@ function PillBlock({ label, children }: { label: string; children: ReactNode }) 
 /** Grade tile — the two ratings are the card's scannable verdict, not a row pair. */
 function GradeTile({ label, grade }: { label: string; grade: string }) {
   return (
-    <View style={styles.gradeTile}>
-      <Text style={styles.blockLabel}>{label}</Text>
-      <Text style={styles.gradeValue}>{grade}</Text>
+    <View className="flex-1 gap-1 rounded-md bg-muted px-3 py-2">
+      <Text className="text-xs text-muted-foreground">{label}</Text>
+      <Text className="text-[22px] font-bold tracking-[-0.5px] tabular-nums text-foreground">
+        {grade}
+      </Text>
     </View>
   );
 }
@@ -105,9 +116,11 @@ type TradeLike = Trade & Partial<Pick<TradeDetail, 'r_multiple' | 'dividend_tota
  * asked while looking at a trade, not while browsing a tools menu.
  */
 function SymbolChip({ symbol, market }: { symbol: string; market: string }) {
-  const { theme } = useUnistyles();
+  // `expo-symbols` takes a resolved color, not a class.
+  const [mutedForeground] = useCSSVariable(['--color-muted-foreground']) as [string];
   const router = useRouter();
   return (
+    // Pill-shaped like its neighbours, but pressable — the icon is the affordance.
     <Pressable
       onPress={() =>
         router.push({
@@ -118,10 +131,13 @@ function SymbolChip({ symbol, market }: { symbol: string; market: string }) {
       hitSlop={6}
       accessibilityRole="button"
       accessibilityLabel={t`Symbol journal for ${symbol}`}
-      style={({ pressed }) => [styles.symbolChip, pressed && styles.pressed]}
+      className="flex-row items-center gap-1 rounded-sm bg-muted px-2 py-0.5 active:opacity-60"
     >
-      <Icon name="chart.xyaxis.line" size={11} tintColor={theme.colors.mutedForeground} />
-      <Text style={styles.symbolChipText} numberOfLines={1}>
+      <Icon name="chart.xyaxis.line" size={11} tintColor={mutedForeground} />
+      <Text
+        className="text-[11px] font-semibold tracking-[0.3px] text-foreground"
+        numberOfLines={1}
+      >
         {symbol}
       </Text>
     </Pressable>
@@ -130,12 +146,11 @@ function SymbolChip({ symbol, market }: { symbol: string; market: string }) {
 
 /** Direction/status/market, the P&L figure, and its return·R caption. */
 function TradeHero({ trade }: { trade: TradeLike }) {
-  const { theme } = useUnistyles();
   const { formatPnl } = useFormatters();
   const status = tradeStatus(trade);
   const isLong = trade.direction === 'long';
   const isOpen = trade.status === 'open';
-  const tint = pnlColor(theme.colors, trade.net_pnl);
+  const tintClass = pnlClass(trade.net_pnl);
   const r = trade.r_multiple ?? tradeRMultiple(trade);
   const captionParts = [
     ...(trade.return_pct != null
@@ -145,15 +160,15 @@ function TradeHero({ trade }: { trade: TradeLike }) {
   ];
 
   return (
-    <View style={styles.hero}>
-      <View style={styles.pillRow}>
+    <View className="gap-2">
+      {/* Wraps: the symbol chip joined direction/status/market, and a long
+          option symbol can push the set past one line. */}
+      <View className="flex-row flex-wrap items-center gap-2">
         <SymbolChip symbol={trade.symbol} market={trade.instrument_type} />
         {/* Position named the way traders do — LONG CALL, SHORT PUT (same
             convention as the trade-row chips). */}
         <Pill tone="muted">
-          <Text style={{ color: isLong ? theme.colors.profit : theme.colors.loss }}>
-            {isLong ? '↗ ' : '↘ '}
-          </Text>
+          <Text className={isLong ? 'text-profit' : 'text-loss'}>{isLong ? '↗ ' : '↘ '}</Text>
           {[
             isLong ? t`LONG` : t`SHORT`,
             ...(trade.option_right === 'call'
@@ -166,12 +181,21 @@ function TradeHero({ trade }: { trade: TradeLike }) {
         <Pill tone={status.tone}>{statusLabel(status.label)}</Pill>
         <Pill tone="muted">{marketLabel(trade.instrument_type)}</Pill>
       </View>
-      <Text selectable style={[styles.heroValue, isOpen ? styles.heroOpen : { color: tint }]}>
+      <Text
+        selectable
+        className={cn(
+          'text-4xl font-bold tracking-[-1px] tabular-nums',
+          isOpen ? 'text-muted-foreground' : tintClass,
+        )}
+      >
         {isOpen ? t`Open` : formatPnl(trade.net_pnl, trade.pnl_currency)}
       </Text>
       {captionParts.length > 0 ? (
         <Text
-          style={[styles.heroCaption, { color: isOpen ? theme.colors.mutedForeground : tint }]}
+          className={cn(
+            'text-sm font-medium tabular-nums',
+            isOpen ? 'text-muted-foreground' : tintClass,
+          )}
         >
           {captionParts.join(' · ')}
         </Text>
@@ -181,10 +205,8 @@ function TradeHero({ trade }: { trade: TradeLike }) {
 }
 
 function PnlCard({ trade }: { trade: TradeLike }) {
-  const { theme } = useUnistyles();
   const { formatCurrency, formatPnl } = useFormatters();
   const currency = trade.pnl_currency;
-  const tint = pnlColor(theme.colors, trade.net_pnl);
   const dividends = trade.dividend_total ?? 0;
 
   return (
@@ -192,22 +214,26 @@ function PnlCard({ trade }: { trade: TradeLike }) {
       <Row
         label={t`Gross P&L`}
         value={formatPnl(trade.gross_pnl, currency)}
-        tint={pnlColor(theme.colors, trade.gross_pnl)}
+        tintClassName={pnlClass(trade.gross_pnl)}
       />
       <Row label={t`Fees`} value={formatCurrency(trade.fees_total, currency)} />
       {dividends !== 0 ? (
         <Row
           label={t`Dividends`}
           value={formatPnl(dividends, currency)}
-          tint={pnlColor(theme.colors, dividends)}
+          tintClassName={pnlClass(dividends)}
         />
       ) : null}
-      <Row label={t`Net P&L`} value={formatPnl(trade.net_pnl, currency)} tint={tint} />
+      <Row
+        label={t`Net P&L`}
+        value={formatPnl(trade.net_pnl, currency)}
+        tintClassName={pnlClass(trade.net_pnl)}
+      />
       {dividends !== 0 && trade.total_pnl != null ? (
         <Row
           label={t`Total P&L`}
           value={formatPnl(trade.total_pnl, currency)}
-          tint={pnlColor(theme.colors, trade.total_pnl)}
+          tintClassName={pnlClass(trade.total_pnl)}
         />
       ) : null}
     </DashboardCard>
@@ -309,9 +335,9 @@ function TradeDetailPending({
           trade's actions menu sitting in the bar, wired to the old id. */}
       <Stack.Screen options={{ title: preview?.symbol ?? t`Trade`, headerRight: () => null }} />
       <ScrollView
-        style={styles.page}
+        className="bg-background"
         contentInsetAdjustmentBehavior="automatic"
-        contentContainerStyle={styles.content}
+        contentContainerClassName="gap-4 p-4 pb-12"
       >
         {preview ? <TradeHero trade={preview} /> : <HeroSkeleton />}
         {preview ? <PnlCard trade={preview} /> : <CardSkeleton title={t`P&L`} rows={3} />}
@@ -319,12 +345,12 @@ function TradeDetailPending({
           // The row's own numbers are all true; only the rest of the trade is
           // missing, so the retry sits where that missing content would be.
           <DashboardCard title={t`Details`}>
-            <Text style={styles.emptyNote}>
+            <Text className="text-sm leading-5 text-muted-foreground">
               {isUnreachable(error)
                 ? t`Couldn't reach the server. The figures above are from your last sync.`
                 : errorMessage(error)}
             </Text>
-            <View style={styles.emptyAction}>
+            <View className="items-center pt-1">
               <GlassButton
                 label={retrying ? t`Retrying…` : t`Try again`}
                 systemImage="arrow.clockwise"
@@ -334,7 +360,10 @@ function TradeDetailPending({
             </View>
           </DashboardCard>
         ) : (
-          <Skeleton style={styles.skeletonChart} />
+          // Height of the whole chart card (header, canvas, interval picker),
+          // not of the canvas alone — an under-tall placeholder shoves the cards
+          // below it down the moment the real chart mounts.
+          <Skeleton className="h-[330px] rounded-[18px]" label={t`Loading trade`} />
         )}
         {preview ? <TimingCard trade={preview} /> : <CardSkeleton title={t`Timing`} rows={3} />}
         {preview ? (
@@ -348,16 +377,20 @@ function TradeDetailPending({
   );
 }
 
+/**
+ * Placeholders mirror the loaded screen's own metrics, so nothing shifts when
+ * the response lands: pills, the 36pt hero figure, then its caption.
+ */
 function HeroSkeleton() {
   return (
-    <View style={styles.hero}>
-      <View style={styles.pillRow}>
+    <View className="gap-2">
+      <View className="flex-row flex-wrap items-center gap-2">
         {Array.from({ length: 3 }, (_, i) => (
-          <Skeleton key={i} style={styles.skeletonPill} />
+          <Skeleton key={i} className="h-[17px] w-[58px] rounded-sm" />
         ))}
       </View>
-      <Skeleton style={styles.skeletonHeroValue} />
-      <Skeleton style={styles.skeletonHeroCaption} />
+      <Skeleton className="h-[38px] w-[196px]" />
+      <Skeleton className="h-[15px] w-[104px]" />
     </View>
   );
 }
@@ -367,10 +400,14 @@ function CardSkeleton({ title, rows }: { title: string; rows: number }) {
   return (
     <DashboardCard title={title}>
       {Array.from({ length: rows }, (_, i) => (
-        <View key={i} style={styles.row}>
-          {/* Uneven label widths: a stack of identical bars looks like a table. */}
-          <Skeleton style={[styles.skeletonLabel, { width: 72 + ((i * 31) % 48) }]} />
-          <Skeleton style={styles.skeletonValue} />
+        <View key={i} className="flex-row items-center justify-between gap-3">
+          {/* Uneven label widths: a stack of identical bars looks like a table.
+              The width is computed, and `Skeleton` takes no `style` — so the
+              measure goes on a wrapper the placeholder stretches to fill. */}
+          <View style={{ width: 72 + ((i * 31) % 48) }}>
+            <Skeleton className="h-[15px]" />
+          </View>
+          <Skeleton className="h-[15px] w-[84px]" />
         </View>
       ))}
     </DashboardCard>
@@ -422,7 +459,13 @@ function TradeDetailBody({
   trade: TradeDetail;
   refetch: () => Promise<unknown>;
 }) {
-  const { theme } = useUnistyles();
+  // Bar glyph and menu-row icons are native props, so they take resolved
+  // colors rather than classes.
+  const [foreground, popoverForeground, destructive] = useCSSVariable([
+    '--color-foreground',
+    '--color-popover-foreground',
+    '--color-destructive',
+  ]) as [string, string, string];
   // Bound to the display prefs so a privacy flip re-formats every amount here.
   const { formatCurrency, formatDate, formatTime } = useFormatters();
   const router = useRouter();
@@ -467,7 +510,7 @@ function TradeDetailBody({
 
   const isOpen = trade.status === 'open';
   const currency = trade.pnl_currency;
-  const tint = pnlColor(theme.colors, trade.net_pnl);
+  const tintClass = pnlClass(trade.net_pnl);
   const r = trade.r_multiple ?? tradeRMultiple(trade);
 
   const journal = parseJournalNotes(trade.notes);
@@ -497,57 +540,72 @@ function TradeDetailBody({
       <Stack.Screen
         options={{
           title: trade.symbol,
+          // PanelUI `Menu`, so the same rows draw on both platforms — Android
+          // has no pull-down view manager to fall back to.
           headerRight: () => (
-            <AppHost matchContents>
-              <Menu
-                label={<UIImage systemName="ellipsis.circle" size={17} />}
-                modifiers={[
-                  buttonStyle('plain'),
-                  tintModifier(theme.colors.foreground),
-                  accessibilityLabel(t`Trade actions`),
-                ]}
-              >
-                <UIButton
-                  label={t`Edit trade`}
-                  systemImage="pencil"
-                  onPress={() =>
+            <Menu>
+              <Menu.Trigger>
+                <Pressable
+                  hitSlop={10}
+                  accessibilityRole="button"
+                  accessibilityLabel={t`Trade actions`}
+                  className="h-8 w-8 items-center justify-center active:opacity-60"
+                >
+                  <Icon name="ellipsis.circle" size={17} tintColor={foreground} />
+                </Pressable>
+              </Menu.Trigger>
+              <Menu.Content align="end">
+                <Menu.Item
+                  icon={<Icon name="pencil" size={16} tintColor={popoverForeground} />}
+                  onSelect={() =>
                     router.push({ pathname: '/edit-trade', params: { id: trade.id } })
                   }
-                />
-                <UIButton
-                  label={t`Replay trade`}
-                  systemImage="play.rectangle"
-                  onPress={() => router.push({ pathname: '/replay', params: { id: trade.id } })}
-                />
-                <UIButton
-                  label={t`Share card`}
-                  systemImage="square.and.arrow.up"
-                  onPress={() =>
+                >
+                  {t`Edit trade`}
+                </Menu.Item>
+                <Menu.Item
+                  icon={<Icon name="play.rectangle" size={16} tintColor={popoverForeground} />}
+                  onSelect={() => router.push({ pathname: '/replay', params: { id: trade.id } })}
+                >
+                  {t`Replay trade`}
+                </Menu.Item>
+                <Menu.Item
+                  icon={
+                    <Icon name="square.and.arrow.up" size={16} tintColor={popoverForeground} />
+                  }
+                  onSelect={() =>
                     router.push({ pathname: '/share-trade', params: { id: trade.id } })
                   }
-                />
+                >
+                  {t`Share card`}
+                </Menu.Item>
                 {canExcursion ? (
-                  <UIButton
-                    label={t`Recompute MAE/MFE`}
-                    systemImage="waveform.path.ecg"
-                    onPress={() => excursion.mutate()}
-                  />
+                  <Menu.Item
+                    icon={
+                      <Icon name="waveform.path.ecg" size={16} tintColor={popoverForeground} />
+                    }
+                    onSelect={() => excursion.mutate()}
+                  >
+                    {t`Recompute MAE/MFE`}
+                  </Menu.Item>
                 ) : null}
-                <UIButton
-                  role="destructive"
-                  label={t`Remove trade`}
-                  systemImage="trash"
-                  onPress={confirmDelete}
-                />
-              </Menu>
-            </AppHost>
+                <Menu.Separator />
+                <Menu.Item
+                  variant="destructive"
+                  icon={<Icon name="trash" size={16} tintColor={destructive} />}
+                  onSelect={confirmDelete}
+                >
+                  {t`Remove trade`}
+                </Menu.Item>
+              </Menu.Content>
+            </Menu>
           ),
         }}
       />
       <ScrollView
-        style={styles.page}
+        className="bg-background"
         contentInsetAdjustmentBehavior="automatic"
-        contentContainerStyle={styles.content}
+        contentContainerClassName="gap-4 p-4 pb-12"
         refreshControl={
           <RefreshControl
             refreshing={pulled}
@@ -574,34 +632,34 @@ function TradeDetailBody({
               <Row label={t`Initial risk`} value={formatCurrency(trade.initial_risk, currency)} />
             ) : null}
             {r != null ? (
-              <Row label={t`R multiple`} value={`${r.toFixed(2)}R`} tint={tint} />
+              <Row label={t`R multiple`} value={`${r.toFixed(2)}R`} tintClassName={tintClass} />
             ) : null}
             {trade.mae != null ? (
               <Row
                 label={t`MAE`}
                 value={formatCurrency(trade.mae, currency)}
-                tint={theme.colors.loss}
+                tintClassName="text-loss"
               />
             ) : null}
             {trade.mfe != null ? (
               <Row
                 label={t`MFE`}
                 value={formatCurrency(trade.mfe, currency)}
-                tint={theme.colors.profit}
+                tintClassName="text-profit"
               />
             ) : null}
             {trade.post_exit_mfe != null ? (
               <Row
                 label={t`Post-exit MFE`}
                 value={formatCurrency(trade.post_exit_mfe, currency)}
-                tint={theme.colors.profit}
+                tintClassName="text-profit"
               />
             ) : null}
             {trade.post_exit_mae != null ? (
               <Row
                 label={t`Post-exit MAE`}
                 value={formatCurrency(trade.post_exit_mae, currency)}
-                tint={theme.colors.loss}
+                tintClassName="text-loss"
               />
             ) : null}
           </DashboardCard>
@@ -645,7 +703,7 @@ function TradeDetailBody({
               </PillBlock>
             ) : null}
             {setupGrade || execGrade ? (
-              <View style={styles.grades}>
+              <View className="flex-row gap-2">
                 {setupGrade ? <GradeTile label={t`Setup rating`} grade={setupGrade} /> : null}
                 {execGrade ? <GradeTile label={t`Execution rating`} grade={execGrade} /> : null}
               </View>
@@ -658,12 +716,12 @@ function TradeDetailBody({
           // An unjournaled closed trade is the one thing this app exists to fix,
           // so the card stays — as the prompt to write it — instead of vanishing.
           <DashboardCard title={t`Journal`}>
-            <Text style={styles.emptyNote}>
+            <Text className="text-sm leading-5 text-muted-foreground">
               {isOpen
                 ? t`Nothing logged yet. Note the setup and why you took it while it's fresh.`
                 : t`Nothing logged yet. A minute of review now is what makes this trade worth something later.`}
             </Text>
-            <View style={styles.emptyAction}>
+            <View className="items-center pt-1">
               <GlassButton
                 label={t`Write review`}
                 systemImage="square.and.pencil"
@@ -677,7 +735,7 @@ function TradeDetailBody({
 
         {trade.tags.length > 0 ? (
           <DashboardCard title={t`Tags`}>
-            <View style={styles.tags}>
+            <View className="flex-row flex-wrap gap-2">
               {trade.tags.map((tag) => (
                 <Pill key={tag.id} tone={tag.kind === 'mistake' ? 'neg' : 'muted'}>
                   {tag.name}
@@ -689,7 +747,7 @@ function TradeDetailBody({
 
         {journal.legacy ? (
           <DashboardCard title={t`Notes`}>
-            <Text selectable style={styles.notes}>
+            <Text selectable className="text-[15px] leading-[22px] text-foreground">
               {journal.legacy}
             </Text>
           </DashboardCard>
@@ -703,25 +761,26 @@ function TradeDetailBody({
               const isBuy = fill.side === 'buy';
               const fees = fill.fees + fill.commission;
               return (
-                <View key={fill.id} style={styles.fillRow}>
-                  <View style={styles.fillLeft}>
-                    <Text selectable style={styles.fillMain} numberOfLines={1}>
-                      <Text
-                        style={{
-                          color: isBuy ? theme.colors.profit : theme.colors.loss,
-                          fontWeight: '700',
-                        }}
-                      >
+                <View key={fill.id} className="flex-row items-center justify-between gap-3">
+                  <View className="shrink gap-px">
+                    <Text
+                      selectable
+                      className="text-[15px] tabular-nums text-foreground"
+                      numberOfLines={1}
+                    >
+                      <Text className={cn('font-bold', isBuy ? 'text-profit' : 'text-loss')}>
                         {isBuy ? t`BUY` : t`SELL`}
                       </Text>
                       {`  ${fill.quantity} · ${formatCurrency(fill.price, currency)}`}
                     </Text>
-                    <Text style={styles.fillSub}>
+                    <Text className="text-xs tabular-nums text-muted-foreground">
                       {formatDate(fill.executed_at)} {formatTime(fill.executed_at)}
                     </Text>
                   </View>
                   {fees > 0 ? (
-                    <Text style={styles.fillFees}>-{formatCurrency(fees, currency)}</Text>
+                    <Text className="text-[13px] tabular-nums text-muted-foreground">
+                      -{formatCurrency(fees, currency)}
+                    </Text>
                   ) : null}
                 </View>
               );
@@ -734,112 +793,3 @@ function TradeDetailBody({
     </>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  page: { backgroundColor: theme.colors.background },
-  content: {
-    padding: theme.spacing.lg,
-    gap: theme.spacing.lg,
-    paddingBottom: theme.spacing.xl * 2,
-  },
-  // Placeholders mirror the loaded screen's own metrics, so nothing shifts when
-  // the response lands: pills, the 36pt hero figure, its caption, a chart card.
-  skeletonPill: { width: 58, height: 17, borderRadius: theme.radius.sm },
-  skeletonHeroValue: { width: 196, height: 38 },
-  skeletonHeroCaption: { width: 104, height: 15 },
-  // Height of the whole chart card (header, canvas, interval picker), not of
-  // the canvas alone — an under-tall placeholder shoves the cards below it down
-  // the moment the real chart mounts.
-  skeletonChart: { height: 330, borderRadius: theme.radius.lg + 4 },
-  skeletonLabel: { height: 15 },
-  skeletonValue: { width: 84, height: 15 },
-  centered: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: theme.spacing.sm,
-    padding: theme.spacing.xl,
-  },
-  muted: { color: theme.colors.mutedForeground, textAlign: 'center' },
-  // Bare glyph — the sizing stays for the tap target, not for a visible chip.
-  editButton: {
-    width: 32,
-    height: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  pressed: { opacity: 0.6 },
-  hero: { gap: theme.spacing.sm },
-  // Wraps: the symbol chip joined direction/status/market, and a long option
-  // symbol can push the set past one line.
-  pillRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: theme.spacing.sm },
-  // Pill-shaped like its neighbours, but pressable — the icon is the affordance.
-  symbolChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: theme.spacing.sm,
-    paddingVertical: 2,
-    borderRadius: theme.radius.sm,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.muted,
-  },
-  symbolChipText: {
-    fontSize: 11,
-    fontWeight: '600',
-    letterSpacing: 0.3,
-    color: theme.colors.foreground,
-  },
-  heroValue: { fontSize: 36, fontWeight: '700', letterSpacing: -1, ...theme.numeric },
-  heroOpen: { color: theme.colors.mutedForeground },
-  heroCaption: { fontSize: 14, fontWeight: '500', ...theme.numeric },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: theme.spacing.md,
-  },
-  rowLabel: { fontSize: 15, color: theme.colors.mutedForeground },
-  rowValue: { fontSize: 15, fontWeight: '500', color: theme.colors.foreground, ...theme.numeric },
-  block: { gap: theme.spacing.xs },
-  blockLabel: { fontSize: 12, color: theme.colors.mutedForeground },
-  notes: { fontSize: 15, lineHeight: 22, color: theme.colors.foreground },
-  grades: { flexDirection: 'row', gap: theme.spacing.sm },
-  gradeTile: {
-    flex: 1,
-    gap: theme.spacing.xs,
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.sm,
-    borderRadius: theme.radius.md,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.muted,
-  },
-  gradeValue: {
-    fontSize: 22,
-    fontWeight: '700',
-    letterSpacing: -0.5,
-    color: theme.colors.foreground,
-    ...theme.numeric,
-  },
-  emptyNote: { fontSize: 14, lineHeight: 20, color: theme.colors.mutedForeground },
-  emptyAction: { alignItems: 'center', paddingTop: theme.spacing.xs },
-  tags: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
-  fillRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: theme.spacing.md,
-  },
-  fillLeft: { gap: 1, flexShrink: 1 },
-  fillMain: { fontSize: 15, color: theme.colors.foreground, ...theme.numeric },
-  fillSub: { fontSize: 12, color: theme.colors.mutedForeground, ...theme.numeric },
-  fillFees: { fontSize: 13, color: theme.colors.mutedForeground, ...theme.numeric },
-  shots: { gap: theme.spacing.sm },
-  shot: {
-    width: '100%',
-    height: 200,
-    borderRadius: theme.radius.md,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.muted,
-  },
-}));

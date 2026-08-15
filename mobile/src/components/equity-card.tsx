@@ -6,7 +6,9 @@ import type { EquityCurve } from '@/api/types';
 import { DashboardCard } from '@/components/dashboard-card';
 import { Segmented } from '@/components/segmented';
 import { t } from '@lingui/core/macro';
+import { locale } from '@/i18n';
 import { useFormatters } from '@/lib/format';
+import { resolveDisplayTimezone, useDisplayPrefs } from '@/lib/prefs';
 import { pnlClass, usePnlPalette } from '@/styles/pnl';
 
 type Range = '30D' | '90D' | 'ALL';
@@ -39,6 +41,17 @@ export function EquityCard({
 }) {
   // Formatters bound to the display prefs (see lib/format.ts).
   const { formatCurrency, formatPnl, formatDate } = useFormatters();
+  // The axis needs a *short* day ("Aug 15"): `formatDate` carries the year, and
+  // four of those don't fit across a phone-width plot. Same display timezone,
+  // so an axis tick and the readout under the finger name the same day.
+  const prefs = useDisplayPrefs();
+  const displayTz = resolveDisplayTimezone(prefs.timezone);
+  const axisDay = (iso: string) =>
+    new Date(iso).toLocaleDateString(locale, {
+      month: 'short',
+      day: 'numeric',
+      timeZone: displayTz,
+    });
   const palette = usePnlPalette();
   const [range, setRange] = useState<Range>('30D');
 
@@ -96,7 +109,7 @@ export function EquityCard({
         <LineChart.Grid />
         <LineChart.Area dataKey="equity" color={curveColor} />
         <LineChart.Line dataKey="equity" color={curveColor} />
-        <LineChart.XAxis ticks={4} format={(datum) => formatDate(String(datum.at))} />
+        <LineChart.XAxis ticks={4} format={(datum) => axisDay(String(datum.at))} />
         <LineChart.Tooltip
           color={curveColor}
           formatValue={(value) => formatCurrency(value, currency)}

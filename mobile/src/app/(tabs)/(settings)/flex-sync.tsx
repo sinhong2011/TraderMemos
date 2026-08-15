@@ -51,7 +51,6 @@ export default function FlexSyncScreen() {
     setQueryIdSeed(settings.query_id ?? '');
     setEnabled(settings.enabled);
     setSeed((n) => n + 1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [settings]);
 
   const save = useMutation({

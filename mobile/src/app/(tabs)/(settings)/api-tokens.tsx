@@ -1,25 +1,25 @@
-
 import { FlashList } from '@shopify/flash-list';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
+import { cn } from 'panelui-native';
 import { useRef } from 'react';
 import { Alert, Pressable, RefreshControl, Text, View } from 'react-native';
 import ReanimatedSwipeable, {
   type SwipeableMethods,
 } from 'react-native-gesture-handler/ReanimatedSwipeable';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { useCSSVariable } from 'uniwind';
 
 import { EmptyState } from '@/components/empty-state';
 import { Icon } from '@/components/icon';
 import { queryKeys, useAccessTokens, useApiRequest } from '@/api/hooks';
 import type { AccessToken } from '@/api/types';
 import { ErrorState } from '@/components/error-state';
+import { HeaderIconButton } from '@/components/header-icon-button';
 import { Skeleton } from '@/components/skeleton';
 import { t } from '@lingui/core/macro';
 import { errorMessage } from '@/lib/errors';
 import { useFormatters } from '@/lib/format';
-import { AppHost } from '@/components/app-host';
 
 /** One token, with a trailing swipe to revoke (the trades-list idiom). */
 function TokenRow({
@@ -31,7 +31,7 @@ function TokenRow({
   onRevoke: () => void;
   onPress: () => void;
 }) {
-  const { theme } = useUnistyles();
+  const [mutedForeground] = useCSSVariable(['--color-muted-foreground']) as [string];
   // Bound to the display timezone (see lib/format.ts).
   const { formatDate } = useFormatters();
   const swipeable = useRef<SwipeableMethods>(null);
@@ -61,14 +61,10 @@ function TokenRow({
           }}
           accessibilityRole="button"
           accessibilityLabel={t`Revoke`}
-          style={({ pressed }) => [
-            styles.swipeAction,
-            { backgroundColor: theme.colors.destructive },
-            pressed && styles.pressed,
-          ]}
+          className="ml-2 w-[72px] items-center justify-center gap-[3px] rounded-lg bg-destructive active:opacity-70"
         >
           <Icon name="key.slash.fill" size={17} tintColor="#FFFFFF" />
-          <Text style={styles.swipeLabel} numberOfLines={1}>
+          <Text className="text-[11px] font-semibold text-white" numberOfLines={1}>
             {t`Revoke`}
           </Text>
         </Pressable>
@@ -83,33 +79,56 @@ function TokenRow({
         onPress={onPress}
         accessibilityRole="button"
         accessibilityLabel={t`${token.name} activity`}
-        style={({ pressed }) => [styles.row, pressed && styles.pressed]}
+        className="gap-1.5 rounded-lg bg-card p-4 active:opacity-70"
       >
-        <View style={styles.rowTop}>
+        <View className="flex-row items-center gap-2">
           <Icon
             name="key.horizontal.fill"
             size={15}
-            tintColor={theme.colors.mutedForeground}
+            tintColor={mutedForeground}
             resizeMode="scaleAspectFit"
           />
-          <Text style={styles.rowName} numberOfLines={1}>
+          <Text className="flex-1 text-[15px] font-semibold text-foreground" numberOfLines={1}>
             {token.name}
           </Text>
-          <View style={[styles.badge, expiry.tone === 'bad' && styles.badgeBad]}>
-            <Text style={[styles.badgeText, expiry.tone === 'bad' && styles.badgeTextBad]}>
+          <View
+            className={cn(
+              'rounded-full px-2 py-[3px]',
+              expiry.tone === 'bad' ? 'bg-destructive/12' : 'bg-muted',
+            )}
+          >
+            <Text
+              className={cn(
+                'text-[11px] font-semibold',
+                expiry.tone === 'bad' ? 'text-destructive' : 'text-muted-foreground',
+              )}
+            >
               {expiry.label}
             </Text>
           </View>
           {/* The row pushes now, so it says so. */}
-          <Icon name="chevron.right" size={12} tintColor={theme.colors.mutedForeground} />
+          <Icon name="chevron.right" size={12} tintColor={mutedForeground} />
         </View>
-        <View style={styles.rowBottom}>
-          <View style={styles.chip}>
-            <Text style={styles.chipText} numberOfLines={1}>
+        <View className="flex-row items-center gap-2">
+          {/* The prefix is a credential fragment — Menlo makes it read as one,
+              and keeps `tm_pat_` aligned across rows for scanning against a
+              log. */}
+          <View className="rounded-sm bg-muted px-[7px] py-0.5">
+            <Text
+              className="text-[11.5px] text-muted-foreground"
+              style={{ fontFamily: 'Menlo' }}
+              numberOfLines={1}
+            >
               {`${token.token_prefix}…`}
             </Text>
           </View>
-          <Text style={styles.rowMeta} numberOfLines={1}>
+          {/* Pushed to the trailing edge so it sits under the expiry badge —
+              the two lifecycle facts form a right-hand column, the identity a
+              left-hand one. */}
+          <Text
+            className="flex-1 text-right text-xs tabular-nums text-muted-foreground"
+            numberOfLines={1}
+          >
             {t`Last used ${lastUsed}`}
           </Text>
         </View>
@@ -120,13 +139,11 @@ function TokenRow({
 
 /**
  * Personal access tokens (web ApiTab parity): a FlashList like the trades
- * list — the token count is unbounded, and a SwiftUI Form Section renders
- * every row eagerly. Creation lives behind the bar's + button so the screen
- * stays a list; swipe a token to revoke it.
+ * list — the token count is unbounded. Creation lives behind the bar's +
+ * button so the screen stays a list; swipe a token to revoke it.
  */
 export default function ApiTokensScreen() {
   const router = useRouter();
-  const { theme } = useUnistyles();
   const queryClient = useQueryClient();
   const api = useApiRequest();
   const tokens = useAccessTokens();
@@ -153,25 +170,23 @@ export default function ApiTokensScreen() {
   // still win — a failed refresh is no reason to hide them.
   const loadFailed = tokens.isError && tokens.data == null;
 
-  const addButton = (
-    <Pressable
-      onPress={() => router.push('/new-token')}
-      hitSlop={10}
-      accessibilityRole="button"
-      accessibilityLabel={t`New token`}
-      style={({ pressed }) => [styles.addButton, pressed && styles.pressed]}
-    >
-      <Icon name="plus" size={18} tintColor={theme.colors.foreground} weight="semibold" />
-    </Pressable>
-  );
-
   return (
     <>
-      <Stack.Screen options={{ headerRight: () => addButton }} />
+      <Stack.Screen
+        options={{
+          headerRight: () => (
+            <HeaderIconButton
+              systemImage="plus"
+              label={t`New token`}
+              onPress={() => router.push('/new-token')}
+            />
+          ),
+        }}
+      />
       {tokens.isLoading ? (
-        <View style={[styles.page, styles.skeletonPage]}>
+        <View className="flex-1 gap-2 bg-background p-4 pt-[120px]">
           {Array.from({ length: 4 }, (_, i) => (
-            <Skeleton key={i} style={styles.skeletonRow} />
+            <Skeleton key={i} className="h-[72px] rounded-lg" />
           ))}
         </View>
       ) : loadFailed ? (
@@ -181,119 +196,53 @@ export default function ApiTokensScreen() {
           retrying={tokens.isRefetching}
         />
       ) : (
-        <FlashList
-          data={tokens.data ?? []}
-          keyExtractor={(token) => token.id}
-          contentInsetAdjustmentBehavior="automatic"
-          contentContainerStyle={styles.content}
-          refreshControl={
-            <RefreshControl
-              refreshing={tokens.isRefetching}
-              onRefresh={() => void tokens.refetch()}
-            />
-          }
-          renderItem={({ item }) => (
-            <TokenRow
-              token={item}
-              onRevoke={() => confirmRevoke(item)}
-              onPress={() =>
-                router.push({
-                  pathname: '/token-uses',
-                  params: { id: item.id, name: item.name },
-                })
-              }
-            />
-          )}
-          ItemSeparatorComponent={() => <View style={styles.separator} />}
-          ListFooterComponent={
-            (tokens.data ?? []).length > 0 ? (
-              <Text style={styles.footnote}>
-                {t`Tokens authenticate scripts and integrations against your server's API. Tap one to see where it has been used; swipe to revoke.`}
-              </Text>
-            ) : null
-          }
-          ListEmptyComponent={
-            <AppHost style={styles.empty}>
-              <EmptyState
-                title={t`No tokens yet`}
-                systemImage="key"
-                description={t`Tap + to generate one and authenticate scripts against your server.`}
+        // The page colour lives on a wrapper: `contentContainerStyle` is a
+        // plain style object on FlashList, so it can hold the padding but not
+        // a themed class.
+        <View className="flex-1 bg-background">
+          <FlashList
+            data={tokens.data ?? []}
+            keyExtractor={(token) => token.id}
+            contentInsetAdjustmentBehavior="automatic"
+            contentContainerStyle={{ padding: 16, paddingBottom: 48 }}
+            refreshControl={
+              <RefreshControl
+                refreshing={tokens.isRefetching}
+                onRefresh={() => void tokens.refetch()}
               />
-            </AppHost>
-          }
-        />
+            }
+            renderItem={({ item }) => (
+              <TokenRow
+                token={item}
+                onRevoke={() => confirmRevoke(item)}
+                onPress={() =>
+                  router.push({
+                    pathname: '/token-uses',
+                    params: { id: item.id, name: item.name },
+                  })
+                }
+              />
+            )}
+            ItemSeparatorComponent={() => <View className="h-2" />}
+            ListFooterComponent={
+              (tokens.data ?? []).length > 0 ? (
+                <Text className="px-1 pt-4 text-xs leading-[17px] text-muted-foreground">
+                  {t`Tokens authenticate scripts and integrations against your server's API. Tap one to see where it has been used; swipe to revoke.`}
+                </Text>
+              ) : null
+            }
+            ListEmptyComponent={
+              <View className="min-h-[320px]">
+                <EmptyState
+                  title={t`No tokens yet`}
+                  systemImage="key"
+                  description={t`Tap + to generate one and authenticate scripts against your server.`}
+                />
+              </View>
+            }
+          />
+        </View>
       )}
     </>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  page: { flex: 1, backgroundColor: theme.colors.background },
-  content: {
-    padding: theme.spacing.lg,
-    paddingBottom: theme.spacing.xl * 2,
-    backgroundColor: theme.colors.background,
-  },
-  addButton: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
-  footnote: {
-    fontSize: 12,
-    lineHeight: 17,
-    color: theme.colors.mutedForeground,
-    paddingTop: theme.spacing.lg,
-    paddingHorizontal: theme.spacing.xs,
-  },
-  row: {
-    gap: 6,
-    backgroundColor: theme.colors.card,
-    boxShadow: theme.shadows.card,
-    borderRadius: theme.radius.lg,
-    borderCurve: 'continuous',
-    padding: theme.spacing.lg,
-  },
-  rowTop: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
-  rowName: { flex: 1, fontSize: 15, fontWeight: '600', color: theme.colors.foreground },
-  rowBottom: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
-  badge: {
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: theme.radius.full,
-    backgroundColor: theme.colors.muted,
-  },
-  badgeBad: { backgroundColor: `${theme.colors.destructive}1F` },
-  badgeText: { fontSize: 11, fontWeight: '600', color: theme.colors.mutedForeground },
-  badgeTextBad: { color: theme.colors.destructive },
-  /** The prefix is a credential fragment — Menlo makes it read as one, and
-   *  keeps `tm_pat_` aligned across rows for scanning against a log. */
-  chip: {
-    paddingHorizontal: 7,
-    paddingVertical: 2,
-    borderRadius: theme.radius.sm,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.muted,
-  },
-  chipText: { fontFamily: 'Menlo', fontSize: 11.5, color: theme.colors.mutedForeground },
-  /** Pushed to the trailing edge so it sits under the expiry badge — the two
-   *  lifecycle facts form a right-hand column, the identity a left-hand one. */
-  rowMeta: {
-    flex: 1,
-    textAlign: 'right',
-    fontSize: 12,
-    color: theme.colors.mutedForeground,
-    ...theme.numeric,
-  },
-  separator: { height: theme.spacing.sm },
-  swipeAction: {
-    width: 72,
-    marginLeft: theme.spacing.sm,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 3,
-    borderRadius: theme.radius.lg,
-    borderCurve: 'continuous',
-  },
-  pressed: { opacity: 0.7 },
-  swipeLabel: { fontSize: 11, fontWeight: '600', color: '#FFFFFF' },
-  empty: { minHeight: 320 },
-  skeletonPage: { padding: theme.spacing.lg, gap: theme.spacing.sm, paddingTop: 120 },
-  skeletonRow: { height: 72, borderRadius: theme.radius.lg },
-}));
