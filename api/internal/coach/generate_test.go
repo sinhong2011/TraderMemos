@@ -3,13 +3,12 @@ package coach
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/require"
 	"github.com/tradermemos/api/internal/ocr"
 )
 
@@ -31,9 +30,7 @@ func TestFormatTradeContext(t *testing.T) {
 		}},
 	})
 	for _, want := range []string{"AAPL", "Net P&L: 100", "R-multiple: 2", "entry: breakout", "orb", "buy 10 @ 190"} {
-		if !strings.Contains(out, want) {
-			t.Fatalf("missing %q in:\n%s", want, out)
-		}
+		require.Contains(t, out, want)
 	}
 }
 
@@ -72,25 +69,16 @@ func TestGenerateReview(t *testing.T) {
 		Model:      "gpt-test",
 		HTTPClient: srv.Client(),
 	}, TradeContext{Symbol: "AAPL", Direction: "long", Status: "closed", OpenedAt: time.Now().UTC()})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(rev.Notes) != 2 {
-		t.Fatalf("notes=%d", len(rev.Notes))
-	}
-	if rev.Notes[0].Tone != "warn" || rev.Notes[0].Headline != "Cut winners early" {
-		t.Fatalf("note0=%+v", rev.Notes[0])
-	}
-	if rev.Notes[1].Tone != "pos" {
-		t.Fatalf("note1=%+v", rev.Notes[1])
-	}
+	require.NoError(t, err)
+	require.Len(t, rev.Notes, 2)
+	require.Equal(t, "warn", rev.Notes[0].Tone)
+	require.Equal(t, "Cut winners early", rev.Notes[0].Headline)
+	require.Equal(t, "pos", rev.Notes[1].Tone)
 }
 
 func TestGenerateReview_Unavailable(t *testing.T) {
 	_, err := GenerateReview(context.Background(), ocr.VisionConfig{}, TradeContext{})
-	if !errors.Is(err, ErrUnavailable) {
-		t.Fatalf("got %v want ErrUnavailable", err)
-	}
+	require.ErrorIs(t, err, ErrUnavailable)
 }
 
 func TestGenerateReview_CapsNotes(t *testing.T) {
@@ -111,12 +99,8 @@ func TestGenerateReview_CapsNotes(t *testing.T) {
 	rev, err := GenerateReview(context.Background(), ocr.VisionConfig{
 		Enabled: true, BaseURL: srv.URL, APIKey: "k", HTTPClient: srv.Client(),
 	}, TradeContext{Symbol: "X", OpenedAt: time.Now().UTC()})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(rev.Notes) != maxNotes {
-		t.Fatalf("got %d want %d", len(rev.Notes), maxNotes)
-	}
+	require.NoError(t, err)
+	require.Len(t, rev.Notes, maxNotes)
 }
 
 func TestNormalizeTone(t *testing.T) {
@@ -124,8 +108,6 @@ func TestNormalizeTone(t *testing.T) {
 		"NEG": "neg", "warning": "warn", "Strength": "pos", "habit": "tip", "": "tip",
 	}
 	for in, want := range cases {
-		if got := normalizeTone(in); got != want {
-			t.Fatalf("%q -> %q want %q", in, got, want)
-		}
+		require.Equal(t, want, normalizeTone(in), "input %q", in)
 	}
 }

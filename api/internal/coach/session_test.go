@@ -1,9 +1,10 @@
 package coach
 
 import (
-	"strings"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/require"
 )
 
 var nyc = mustLoadNY()
@@ -34,12 +35,8 @@ func TestBuildSessionContextCountsOnlyClosesBeforeEntry(t *testing.T) {
 		prior(et(2026, 7, 15, 15, 0), 500),
 	}, nyc)
 
-	if sc.PriorTradesToday != 2 {
-		t.Fatalf("PriorTradesToday = %d, want 2", sc.PriorTradesToday)
-	}
-	if sc.RealizedToday != -140 {
-		t.Fatalf("RealizedToday = %g, want -140", sc.RealizedToday)
-	}
+	require.Equal(t, 2, sc.PriorTradesToday)
+	require.Equal(t, -140.0, sc.RealizedToday)
 }
 
 func TestBuildSessionContextRetrospectiveDayIsTheTradesOwnDay(t *testing.T) {
@@ -52,15 +49,10 @@ func TestBuildSessionContextRetrospectiveDayIsTheTradesOwnDay(t *testing.T) {
 		prior(et(2026, 7, 14, 10, 0), -1000),
 	}, nyc)
 
-	if sc.Day != "2026-06-24" {
-		t.Fatalf("Day = %s, want 2026-06-24", sc.Day)
-	}
-	if sc.PriorTradesToday != 1 || sc.RealizedToday != -250 {
-		t.Fatalf("today = %d trades / %g, want 1 / -250", sc.PriorTradesToday, sc.RealizedToday)
-	}
-	if sc.PriorTradesWeek != 2 {
-		t.Fatalf("PriorTradesWeek = %d, want 2 (Jun 23 and Jun 24 share an ISO week)", sc.PriorTradesWeek)
-	}
+	require.Equal(t, "2026-06-24", sc.Day)
+	require.Equal(t, 1, sc.PriorTradesToday)
+	require.Equal(t, -250.0, sc.RealizedToday)
+	require.Equal(t, 2, sc.PriorTradesWeek, "Jun 23 and Jun 24 share an ISO week")
 }
 
 func TestBuildSessionContextDayBoundaryFollowsMarketClock(t *testing.T) {
@@ -69,14 +61,11 @@ func TestBuildSessionContextDayBoundaryFollowsMarketClock(t *testing.T) {
 	afterHours := time.Date(2026, 7, 16, 1, 30, 0, 0, time.UTC)
 
 	inNY := BuildSessionContext(entry, "USD", []PriorTrade{prior(afterHours, -75)}, nyc)
-	if inNY.Day != "2026-07-16" || inNY.PriorTradesToday != 0 {
-		t.Fatalf("NY: day=%s today=%d, want 2026-07-16 / 0", inNY.Day, inNY.PriorTradesToday)
-	}
+	require.Equal(t, "2026-07-16", inNY.Day)
+	require.Zero(t, inNY.PriorTradesToday, "the close belongs to the previous NY day")
 
 	inUTC := BuildSessionContext(entry, "USD", []PriorTrade{prior(afterHours, -75)}, time.UTC)
-	if inUTC.PriorTradesToday != 1 {
-		t.Fatalf("UTC: today=%d, want 1", inUTC.PriorTradesToday)
-	}
+	require.Equal(t, 1, inUTC.PriorTradesToday)
 }
 
 func TestBuildSessionContextStreak(t *testing.T) {
@@ -104,9 +93,8 @@ func TestBuildSessionContextStreak(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			sc := BuildSessionContext(entry, "USD", mk(tc.nets...), nyc)
-			if sc.StreakKind != tc.kind || sc.StreakLen != tc.n {
-				t.Fatalf("streak = %q/%d, want %q/%d", sc.StreakKind, sc.StreakLen, tc.kind, tc.n)
-			}
+			require.Equal(t, tc.kind, sc.StreakKind)
+			require.Equal(t, tc.n, sc.StreakLen)
 		})
 	}
 }
@@ -118,12 +106,9 @@ func TestBuildSessionContextDrawdownFromZeroStart(t *testing.T) {
 	sc := BuildSessionContext(base.Add(time.Hour), "USD", []PriorTrade{
 		prior(base, -300),
 	}, nyc)
-	if sc.Drawdown != 300 {
-		t.Fatalf("Drawdown = %g, want 300", sc.Drawdown)
-	}
-	if sc.TradesSincePeak != 1 {
-		t.Fatalf("TradesSincePeak = %d, want 1", sc.TradesSincePeak)
-	}
+
+	require.Equal(t, 300.0, sc.Drawdown)
+	require.Equal(t, 1, sc.TradesSincePeak)
 }
 
 func TestBuildSessionContextDrawdownOffPeak(t *testing.T) {
@@ -135,12 +120,9 @@ func TestBuildSessionContextDrawdownOffPeak(t *testing.T) {
 		prior(base.Add(2*time.Minute), -200),
 		prior(base.Add(3*time.Minute), -300),
 	}, nyc)
-	if sc.Drawdown != 500 {
-		t.Fatalf("Drawdown = %g, want 500", sc.Drawdown)
-	}
-	if sc.TradesSincePeak != 2 {
-		t.Fatalf("TradesSincePeak = %d, want 2", sc.TradesSincePeak)
-	}
+
+	require.Equal(t, 500.0, sc.Drawdown)
+	require.Equal(t, 2, sc.TradesSincePeak)
 }
 
 func TestBuildSessionContextAtPeak(t *testing.T) {
@@ -149,9 +131,9 @@ func TestBuildSessionContextAtPeak(t *testing.T) {
 		prior(base, 100),
 		prior(base.Add(time.Minute), 250),
 	}, nyc)
-	if sc.Drawdown != 0 || sc.TradesSincePeak != 0 {
-		t.Fatalf("dd=%g since=%d, want 0/0", sc.Drawdown, sc.TradesSincePeak)
-	}
+
+	require.Zero(t, sc.Drawdown)
+	require.Zero(t, sc.TradesSincePeak)
 }
 
 func TestBuildSessionContextExcludesOtherCurrencies(t *testing.T) {
@@ -163,15 +145,9 @@ func TestBuildSessionContextExcludesOtherCurrencies(t *testing.T) {
 		hkd,
 	}, nyc)
 
-	if sc.RealizedToday != -100 {
-		t.Fatalf("RealizedToday = %g, want -100 (HKD must not be summed)", sc.RealizedToday)
-	}
-	if sc.SkippedOtherCcy != 1 {
-		t.Fatalf("SkippedOtherCcy = %d, want 1", sc.SkippedOtherCcy)
-	}
-	if !strings.Contains(sc.format(), "another currency were excluded") {
-		t.Fatal("brief should disclose the excluded trades")
-	}
+	require.Equal(t, -100.0, sc.RealizedToday, "HKD must not be summed into a USD total")
+	require.Equal(t, 1, sc.SkippedOtherCcy)
+	require.Contains(t, sc.format(), "another currency were excluded")
 }
 
 func TestBuildSessionContextWindowBound(t *testing.T) {
@@ -181,29 +157,22 @@ func TestBuildSessionContextWindowBound(t *testing.T) {
 		prior(entry.Add(-time.Hour), -100),
 	}, nyc)
 
-	if !sc.Bounded {
-		t.Fatal("Bounded = false, want true when a prior falls outside the window")
-	}
-	if sc.PriorsSeen != 1 {
-		t.Fatalf("PriorsSeen = %d, want 1", sc.PriorsSeen)
-	}
-	if !strings.Contains(sc.format(), "180d peak") {
-		t.Fatalf("brief should label the bounded peak:\n%s", sc.format())
-	}
+	require.True(t, sc.Bounded, "a prior outside the window should mark the context bounded")
+	require.Equal(t, 1, sc.PriorsSeen)
+	require.Contains(t, sc.format(), "180d peak")
 }
 
 func TestBuildSessionContextEmptyPriors(t *testing.T) {
 	sc := BuildSessionContext(et(2026, 7, 15, 9, 0), "USD", nil, nyc)
-	if sc.PriorTradesToday != 0 || sc.StreakLen != 0 || sc.Drawdown != 0 {
-		t.Fatalf("unexpected state for a first trade: %+v", sc)
-	}
+
+	require.Zero(t, sc.PriorTradesToday)
+	require.Zero(t, sc.StreakLen)
+	require.Zero(t, sc.Drawdown)
+
 	out := sc.format()
-	if !strings.Contains(out, "Current streak: none") {
-		t.Fatalf("missing streak line:\n%s", out)
-	}
-	if !strings.Contains(out, "all recorded equity peak") {
-		t.Fatalf("unbounded history should not claim a 180d peak:\n%s", out)
-	}
+	require.Contains(t, out, "Current streak: none")
+	require.Contains(t, out, "all recorded equity peak",
+		"unbounded history should not claim a 180d peak")
 }
 
 func TestBuildSessionContextRecentNewestFirst(t *testing.T) {
@@ -218,17 +187,12 @@ func TestBuildSessionContextRecentNewestFirst(t *testing.T) {
 	}
 	sc := BuildSessionContext(base.Add(time.Hour), "USD", priors, nyc)
 
-	if len(sc.Recent) != maxRecentTrades {
-		t.Fatalf("Recent = %d, want %d", len(sc.Recent), maxRecentTrades)
-	}
-	if sc.Recent[0].Symbol != "TSLA" {
-		t.Fatalf("Recent[0] = %s, want the newest close (TSLA)", sc.Recent[0].Symbol)
-	}
+	require.Len(t, sc.Recent, maxRecentTrades)
+	require.Equal(t, "TSLA", sc.Recent[0].Symbol, "newest close comes first")
+
 	out := sc.format()
 	for _, want := range []string{"TSLA net=-40", "R=1.5", "emotion=frustrated"} {
-		if !strings.Contains(out, want) {
-			t.Fatalf("missing %q in:\n%s", want, out)
-		}
+		require.Contains(t, out, want)
 	}
 }
 
@@ -250,9 +214,7 @@ func TestFormatTradeContextIncludesSession(t *testing.T) {
 		"Realized that day before entry: -140 USD",
 		"2 consecutive losses",
 	} {
-		if !strings.Contains(out, want) {
-			t.Fatalf("missing %q in:\n%s", want, out)
-		}
+		require.Contains(t, out, want)
 	}
 }
 
@@ -260,7 +222,5 @@ func TestFormatTradeContextOmitsSessionWhenNil(t *testing.T) {
 	out := FormatTradeContext(TradeContext{
 		Symbol: "AAPL", Status: "closed", OpenedAt: et(2026, 7, 15, 13, 0),
 	})
-	if strings.Contains(out, "Trader state at the moment") {
-		t.Fatalf("nil session must not render a block:\n%s", out)
-	}
+	require.NotContains(t, out, "Trader state at the moment")
 }
