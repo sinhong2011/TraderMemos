@@ -1,28 +1,22 @@
-import {
-  Button,
-  HStack,
-  Image,
-  Picker,
-  Section,
-  Spacer,
-  Text as UIText,
-  VStack,
-} from '@expo/ui/swift-ui';
-import { font, foregroundStyle, pickerStyle, tag } from '@expo/ui/swift-ui/modifiers';
 import { useQueryClient } from '@tanstack/react-query';
 import { Stack, useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Alert, Linking, Platform, Pressable, Text, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { Alert, Linking } from 'react-native';
+import { useUnistyles } from 'react-native-unistyles';
 import type { SFSymbol } from 'sf-symbols-typescript';
 
 import { useAccounts, useApiRequest, useCash, useMe, useTrades } from '@/api/hooks';
+import { AccountRow } from '@/components/account-row';
 import { CenteredButton } from '@/components/centered-button';
-import { Icon } from '@/components/icon';
 import { NavRow } from '@/components/nav-row';
 import { FloatingSearchBar, SearchToggle } from '@/components/search-bar';
-import { Segmented } from '@/components/segmented';
 import { SettingsForm } from '@/components/settings-form';
+import {
+  SettingsButton,
+  SettingsPicker,
+  SettingsSection,
+  ValueText,
+} from '@/components/settings-rows';
 import { useSession } from '@/api/session';
 import { t } from '@lingui/core/macro';
 import { ledgerBalance } from '@/lib/cash';
@@ -36,7 +30,9 @@ import { clearPersistedQueryCache } from '@/storage/mmkv';
 import { AppHost } from '@/components/app-host';
 
 /**
- * Native SwiftUI settings hub — one screen, no scrolling.
+ * Native settings hub — one screen, no scrolling. Built entirely on the
+ * cross-platform settings vocabulary (SettingsForm/SettingsSection/NavRow/…),
+ * so the same tree renders SwiftUI on iOS and Compose on Android.
  *
  * Settings are folded one row per topic (Trading & journal, Integrations,
  * General); flat, they ran ~16 rows over four group headers. Two things stay
@@ -301,55 +297,6 @@ export default function SettingsScreen() {
           `${entry.label} ${entry.terms}`.toLowerCase().includes(needle),
         );
 
-  // The hub below is still SwiftUI-only, and `Section` is the piece with no
-  // Android counterpart at all: @expo/ui registers no `SectionView` there, and
-  // the universal surface stops at `FieldGroup` — a grouped container with no
-  // per-section equivalent. Mounting it throws
-  // `Can't find ViewManager 'ViewManagerAdapter_ExpoUI_SectionView'`, and
-  // because Android's native tabs preload every tab root that is a crash on
-  // boot for the whole app, not just this tab. Until the hub is ported, Android
-  // gets a placeholder carrying the one action that is unreachable elsewhere —
-  // sign out, which is also how you point the app at a different server.
-  if (Platform.OS === 'android') {
-    return (
-      <View style={styles.stub}>
-        {/* Spelled out rather than reusing `EmptyState`: that one renders
-            through `RNHostView`, which Compose requires to be a direct child of
-            a `Host`, and this stub is a plain React Native tree. Nested there it
-            drops its whole subtree and logs a composition-boundary error. */}
-        <Icon name="gearshape" size={44} tintColor={theme.colors.mutedForeground} />
-        <Text style={styles.stubTitle}>{t`Settings aren't on Android yet`}</Text>
-        <Text style={styles.stubBody}>
-          {t`This screen is still being ported. Sign out to switch server or account.`}
-        </Text>
-        {/* Theme escapes the stub because nothing else can set it: the pref is
-            device-local (prefs-sync strips `appearance`), so a phone pinned to
-            Light or Dark by an old pref had no way back to System until the
-            hub lands. The RN-drawn Segmented needs no Host, so it is safe in
-            this plain RN tree where EmptyState was not. */}
-        <View style={styles.stubTheme}>
-          <Text style={styles.stubThemeLabel}>{t`Theme`}</Text>
-          <Segmented
-            options={[
-              { value: 'system', label: t`System` },
-              { value: 'light', label: t`Light` },
-              { value: 'dark', label: t`Dark` },
-            ]}
-            value={displayPrefs.appearance}
-            onChange={(value: AppearancePref) => setAppearance(value)}
-          />
-        </View>
-        <Pressable
-          onPress={handleSignOut}
-          accessibilityRole="button"
-          style={({ pressed }) => [styles.stubButton, pressed && styles.stubButtonPressed]}
-        >
-          <Text style={styles.stubButtonText}>{t`Sign out`}</Text>
-        </Pressable>
-      </View>
-    );
-  }
-
   return (
     <>
       {/* Trades-style search: the header magnifier (✕ while open) toggles the
@@ -378,7 +325,7 @@ export default function SettingsScreen() {
       <AppHost style={{ flex: 1, backgroundColor: theme.colors.background }}>
         {needle !== '' ? (
           <SettingsForm>
-            <Section title={t`Results`}>
+            <SettingsSection title={t`Results`}>
               {matches.map((entry) => (
                 <NavRow
                   key={entry.label}
@@ -388,13 +335,9 @@ export default function SettingsScreen() {
                 />
               ))}
               {matches.length === 0 ? (
-                <UIText
-                  modifiers={[foregroundStyle({ type: 'hierarchical', style: 'secondary' })]}
-                >
-                  {t`No settings match “${query.trim()}”.`}
-                </UIText>
+                <ValueText>{t`No settings match “${query.trim()}”.`}</ValueText>
               ) : null}
-            </Section>
+            </SettingsSection>
           </SettingsForm>
         ) : (
           <SettingsForm>
@@ -403,10 +346,8 @@ export default function SettingsScreen() {
               The server row is stated rather than tucked behind Profile: this
               app is a client for a machine the user runs, and which one it is
               talking to is not a detail to hide. */}
-          <Section
-            footer={
-              <UIText>{t`Every screen in the app is served by this instance. Tap Server to point the app at a different one — that signs you out.`}</UIText>
-            }
+          <SettingsSection
+            footer={t`Every screen in the app is served by this instance. Tap Server to point the app at a different one — that signs you out.`}
           >
             <NavRow
               systemImage="person.crop.circle"
@@ -425,9 +366,9 @@ export default function SettingsScreen() {
               accessory="none"
               onPress={changeServer}
             />
-          </Section>
+          </SettingsSection>
 
-          <Section title={t`Accounts`}>
+          <SettingsSection title={t`Accounts`}>
             {(accounts ?? []).map((account) => {
               // Equity is the funded base (cash ledger) plus realized P&L, the
               // same figure the account form and web's AccountRow show.
@@ -448,65 +389,31 @@ export default function SettingsScreen() {
                 .filter(Boolean)
                 .join(' · ');
               return (
-                <Button
+                <AccountRow
                   key={account.id}
+                  name={account.name}
+                  meta={meta}
+                  equity={formatCurrency(deposited + netPnl, account.base_currency)}
+                  pnl={formatPnl(netPnl, account.base_currency)}
+                  pnlColor={
+                    netPnl > 0
+                      ? theme.colors.profit
+                      : netPnl < 0
+                        ? theme.colors.loss
+                        : theme.colors.mutedForeground
+                  }
                   onPress={() =>
                     router.push({ pathname: '/account-form', params: { id: account.id } })
                   }
-                >
-                  <HStack spacing={8}>
-                    <VStack alignment="leading" spacing={2}>
-                      <UIText
-                        modifiers={[foregroundStyle({ type: 'hierarchical', style: 'primary' })]}
-                      >
-                        {account.name}
-                      </UIText>
-                      {/* Single string child — the SwiftUI Text bridge can't mount an
-                          array of interpolations (RawText crash). */}
-                      <UIText
-                        modifiers={[
-                          font({ size: 13 }),
-                          foregroundStyle({ type: 'hierarchical', style: 'secondary' }),
-                        ]}
-                      >
-                        {meta}
-                      </UIText>
-                    </VStack>
-                    <Spacer />
-                    <VStack alignment="trailing" spacing={2}>
-                      <UIText
-                        modifiers={[foregroundStyle({ type: 'hierarchical', style: 'primary' })]}
-                      >
-                        {formatCurrency(deposited + netPnl, account.base_currency)}
-                      </UIText>
-                      <UIText
-                        modifiers={[
-                          font({ size: 13 }),
-                          foregroundStyle(
-                            netPnl > 0
-                              ? theme.colors.profit
-                              : netPnl < 0
-                                ? theme.colors.loss
-                                : theme.colors.mutedForeground,
-                          ),
-                        ]}
-                      >
-                        {formatPnl(netPnl, account.base_currency)}
-                      </UIText>
-                    </VStack>
-                    <Image systemName="chevron.right" size={12} color={theme.colors.mutedForeground} />
-                  </HStack>
-                </Button>
+                />
               );
             })}
             {accountsFailure ? (
-              <UIText modifiers={[foregroundStyle({ type: 'hierarchical', style: 'secondary' })]}>
-                {accountsFailure.title}
-              </UIText>
+              <ValueText>{accountsFailure.title}</ValueText>
             ) : accounts?.length === 0 ? (
-              <UIText>{t`No accounts yet`}</UIText>
+              <ValueText color={theme.colors.foreground}>{t`No accounts yet`}</ValueText>
             ) : null}
-            <Button
+            <SettingsButton
               systemImage="plus.circle.fill"
               label={t`Add account`}
               onPress={() => router.push('/account-form')}
@@ -516,7 +423,7 @@ export default function SettingsScreen() {
               label={t`Deposits & withdrawals`}
               onPress={() => router.push('/funding')}
             />
-          </Section>
+          </SettingsSection>
 
           {/* One row per topic. Accounts above stays expanded because it is
               live data — equity and P&L per account — not settings; folding it
@@ -524,27 +431,17 @@ export default function SettingsScreen() {
               Theme stays inline for the same reason it was hoisted out of
               Display: it is the most-reached control here and it changes the
               screen you are looking at. */}
-          <Section
-            footer={
-              <UIText>{t`Search finds any setting directly, without opening its page.`}</UIText>
-            }
-          >
-            <Picker
+          <SettingsSection footer={t`Search finds any setting directly, without opening its page.`}>
+            <SettingsPicker
               label={t`Theme`}
-              modifiers={[pickerStyle('menu')]}
-              selection={displayPrefs.appearance}
-              onSelectionChange={(value) => setAppearance(value as AppearancePref)}
-            >
-              <UIText key="system" modifiers={[tag('system')]}>
-                {t`System`}
-              </UIText>
-              <UIText key="light" modifiers={[tag('light')]}>
-                {t`Light`}
-              </UIText>
-              <UIText key="dark" modifiers={[tag('dark')]}>
-                {t`Dark`}
-              </UIText>
-            </Picker>
+              selectedValue={displayPrefs.appearance}
+              onValueChange={(value: AppearancePref) => setAppearance(value)}
+              items={[
+                { value: 'system', label: t`System` },
+                { value: 'light', label: t`Light` },
+                { value: 'dark', label: t`Dark` },
+              ]}
+            />
             <NavRow
               systemImage="chart.line.uptrend.xyaxis"
               label={t`Trading & journal`}
@@ -560,21 +457,21 @@ export default function SettingsScreen() {
               label={t`General`}
               onPress={() => router.push('/general')}
             />
-          </Section>
+          </SettingsSection>
 
           {/* Last row on the page, directly above Sign out — the iOS place for
               an About entry, and it keeps the destructive action isolated. */}
-          <Section>
+          <SettingsSection>
             <NavRow
               systemImage="info.circle"
               label={t`About TraderMemos`}
               onPress={() => router.push('/about')}
             />
-          </Section>
+          </SettingsSection>
 
-          <Section>
+          <SettingsSection>
             <CenteredButton role="destructive" label={t`Sign out`} onPress={handleSignOut} />
-          </Section>
+          </SettingsSection>
           </SettingsForm>
         )}
       </AppHost>
@@ -591,39 +488,3 @@ export default function SettingsScreen() {
     </>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  stub: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: theme.spacing.lg,
-    padding: theme.spacing.lg,
-    backgroundColor: theme.colors.background,
-  },
-  stubButton: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: 52,
-    paddingHorizontal: theme.spacing.xl,
-    borderRadius: theme.radius.full,
-    backgroundColor: theme.colors.destructive,
-  },
-  stubButtonPressed: { opacity: 0.8 },
-  stubButtonText: { fontSize: 17, fontWeight: '600', color: theme.colors.background },
-  stubTitle: {
-    fontSize: 17,
-    fontWeight: '600',
-    color: theme.colors.foreground,
-    textAlign: 'center',
-  },
-  stubBody: { fontSize: 14, color: theme.colors.mutedForeground, textAlign: 'center' },
-  stubTheme: { alignItems: 'center', gap: theme.spacing.sm, marginTop: theme.spacing.md },
-  stubThemeLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    letterSpacing: 0.6,
-    textTransform: 'uppercase',
-    color: theme.colors.mutedForeground,
-  },
-}));

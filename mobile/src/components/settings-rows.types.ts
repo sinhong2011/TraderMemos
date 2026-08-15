@@ -40,6 +40,31 @@ export interface SettingsSectionProps {
   children: ReactNode;
 }
 
+export interface ValueTextProps {
+  /**
+   * Explicit color for values that carry meaning (P&L, server status).
+   * Omitted, the text reads in the secondary/value color — iOS hierarchical
+   * secondary, `mutedForeground` on Android.
+   */
+  color?: string;
+  children: string;
+}
+
+export interface SettingsInputProps {
+  label: string;
+  placeholder?: string;
+  /** Read once at mount — the field is uncontrolled; native state holds the text. */
+  defaultValue?: string;
+  /** Trailing unit label (a currency code) after the field. */
+  suffix?: string;
+  /**
+   * Amount entry: decimal keyboard, and on iOS the worklet-filtered field that
+   * rejects non-numeric characters before they draw (see numeric-field.tsx).
+   */
+  numeric?: boolean;
+  onChangeText: (text: string) => void;
+}
+
 export interface SettingsButtonProps {
   label: string;
   /** Leading SF Symbol; Android maps it through `@/lib/sf-to-material`. */

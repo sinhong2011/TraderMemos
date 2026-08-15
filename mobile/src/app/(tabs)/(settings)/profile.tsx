@@ -1,5 +1,4 @@
 import { Text as UIText } from '@expo/ui';
-import { foregroundStyle } from '@expo/ui/swift-ui/modifiers';
 import { useRouter } from 'expo-router';
 import { useUnistyles } from 'react-native-unistyles';
 
@@ -9,7 +8,7 @@ import { AppHost } from '@/components/app-host';
 import { ErrorState } from '@/components/error-state';
 import { NavRow } from '@/components/nav-row';
 import { SettingsForm } from '@/components/settings-form';
-import { SettingsButton, SettingsRow, SettingsSection } from '@/components/settings-rows';
+import { SettingsButton, SettingsRow, SettingsSection, ValueText } from '@/components/settings-rows';
 import { serverHost, useChangeServer } from '@/lib/change-server';
 import { useFormatters } from '@/lib/format';
 import { t } from '@lingui/core/macro';
@@ -29,8 +28,6 @@ export default function ProfileScreen() {
   const changeServer = useChangeServer();
   const me = useMe();
 
-  const secondary = foregroundStyle({ type: 'hierarchical', style: 'secondary' as const });
-
   // The whole screen is /me, so a failure has nothing to sit beside — it gets
   // the full-screen treatment with the retry the old one-liner never offered.
   if (me.isError && !me.data) {
@@ -44,7 +41,7 @@ export default function ProfileScreen() {
       <AppHost style={{ flex: 1, backgroundColor: theme.colors.background }}>
         <SettingsForm>
           <SettingsSection>
-            <UIText modifiers={[secondary]}>{t`Loading…`}</UIText>
+            <ValueText>{t`Loading…`}</ValueText>
           </SettingsSection>
         </SettingsForm>
       </AppHost>

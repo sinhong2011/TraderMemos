@@ -1,30 +1,16 @@
-import { Button, HStack, ProgressView, Spacer, Text } from '@expo/ui/swift-ui';
-import type { ButtonRole } from '@expo/ui/swift-ui';
-import {
-  buttonStyle,
-  controlSize,
-  disabled as disabledModifier,
-  font,
-  foregroundStyle,
-  listRowBackground,
-  progressViewStyle,
-  tint,
-} from '@expo/ui/swift-ui/modifiers';
-import { useUnistyles } from 'react-native-unistyles';
+import { RNHostView } from '@expo/ui';
+import { ActivityIndicator, Pressable, Text } from 'react-native';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 /**
- * Form action button with a centered label — the iOS-settings idiom for
- * standalone actions (Save / Sign out / Delete …). Filled with the brand
- * `primary` (destructive actions keep the `destructive` fill) via
- * `borderedProminent`, matching the login screen's primary action. SwiftUI
- * left-aligns plain Button rows like navigation links, so the label is
- * centered with flanking Spacers.
+ * Form action button with a centered label, in its cross-platform form —
+ * `centered-button.ios.tsx` keeps the SwiftUI `borderedProminent` original;
+ * both export the same name, so the settings screens never branch.
  *
- * `disabled` is what an in-flight action should pass: swapping the label to
- * "Saving…" alone leaves the row tappable, so a double tap fires the mutation
- * twice (two accounts, two deletes). `loading` does both — a native spinner
- * ahead of the label, and the same lock-out — for actions long enough that a
- * relabelled button alone reads as a frozen screen.
+ * Same contract as iOS: `disabled` locks out the double tap an in-flight
+ * mutation would otherwise take twice; `loading` adds the spinner as well.
+ * Plain RN inside an `RNHostView` (the NavRow pattern) so it can sit in a
+ * `FieldGroup` row on Android.
  */
 export function CenteredButton({
   label,
@@ -34,51 +20,50 @@ export function CenteredButton({
   onPress,
 }: {
   label: string;
-  role?: ButtonRole;
+  role?: 'default' | 'cancel' | 'destructive';
   disabled?: boolean;
   /** In-flight: shows a spinner beside the label and blocks further taps. */
   loading?: boolean;
   onPress: () => void;
 }) {
   const { theme } = useUnistyles();
+  const locked = disabled || loading || false;
 
   return (
-    <Button
-      role={role}
-      onPress={onPress}
-      modifiers={[
-        buttonStyle('borderedProminent'),
-        controlSize('large'),
-        tint(role === 'destructive' ? theme.colors.destructive : theme.colors.primary),
-        // The Form row would otherwise draw its own inset-grouped grey capsule
-        // behind the fill, reading as a wrapper box around the button.
-        listRowBackground('#00000000'),
-        disabledModifier(disabled || loading || false),
-      ]}
-    >
-      <HStack spacing={8}>
-        <Spacer />
-        {loading ? (
-          // Linear is the default inside a button's label; force the spinner.
-          <ProgressView
-            modifiers={[
-              progressViewStyle('circular'),
-              tint(theme.colors.primaryForeground),
-            ]}
-          />
-        ) : (
-          <></>
-        )}
-        <Text
-          modifiers={[
-            font({ size: 17, weight: 'semibold' }),
-            foregroundStyle(theme.colors.primaryForeground),
-          ]}
-        >
-          {label}
-        </Text>
-        <Spacer />
-      </HStack>
-    </Button>
+    <RNHostView matchContents>
+      <Pressable
+        onPress={onPress}
+        disabled={locked}
+        accessibilityRole="button"
+        accessibilityState={{ disabled: locked }}
+        style={({ pressed }) => [
+          styles.button,
+          role === 'destructive' && styles.destructive,
+          pressed && styles.pressed,
+          locked && styles.disabled,
+        ]}
+      >
+        {loading ? <ActivityIndicator size="small" color={theme.colors.primaryForeground} /> : null}
+        <Text style={styles.label}>{label}</Text>
+      </Pressable>
+    </RNHostView>
   );
 }
+
+const styles = StyleSheet.create((theme) => ({
+  button: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: theme.spacing.sm,
+    minHeight: 50,
+    marginHorizontal: theme.spacing.lg,
+    marginVertical: theme.spacing.xs,
+    borderRadius: theme.radius.full,
+    backgroundColor: theme.colors.primary,
+  },
+  destructive: { backgroundColor: theme.colors.destructive },
+  pressed: { opacity: 0.8 },
+  disabled: { opacity: 0.5 },
+  label: { fontSize: 17, fontWeight: '600', color: theme.colors.primaryForeground },
+}));

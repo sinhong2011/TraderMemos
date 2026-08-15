@@ -1,19 +1,4 @@
-import {
-  HStack,
-  LabeledContent,
-  Picker,
-  Section,
-  Text as UIText,
-  TextField,
-  useNativeState,
-} from '@expo/ui/swift-ui';
-import {
-  foregroundStyle,
-  keyboardType,
-  multilineTextAlignment,
-  scrollDismissesKeyboard,
-  tag,
-} from '@expo/ui/swift-ui/modifiers';
+import { scrollDismissesKeyboard } from '@expo/ui/swift-ui/modifiers';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useRef, useState } from 'react';
@@ -25,9 +10,15 @@ import type { Account } from '@/api/types';
 import { CenteredButton } from '@/components/centered-button';
 import { HeaderIconButton } from '@/components/header-icon-button';
 import { NavRow } from '@/components/nav-row';
-import { useNumericState } from '@/components/numeric-field';
 import { t } from '@lingui/core/macro';
 import { SettingsForm } from '@/components/settings-form';
+import {
+  SettingsInput,
+  SettingsPicker,
+  SettingsRow,
+  SettingsSection,
+  ValueText,
+} from '@/components/settings-rows';
 import { numericText, parseAmount } from '@/lib/amount';
 import { ledgerBalance } from '@/lib/cash';
 import { errorMessage } from '@/lib/errors';
@@ -72,11 +63,9 @@ export default function AccountFormScreen() {
     return (
       <AppHost style={{ flex: 1 }}>
         <SettingsForm>
-          <Section>
-            <UIText modifiers={[foregroundStyle({ type: 'hierarchical', style: 'secondary' })]}>
-              {t`Loading…`}
-            </UIText>
-          </Section>
+          <SettingsSection>
+            <ValueText>{t`Loading…`}</ValueText>
+          </SettingsSection>
         </SettingsForm>
       </AppHost>
     );
@@ -96,9 +85,8 @@ function AccountForm({ account, accountCount }: { account?: Account; accountCoun
   const isEdit = account != null;
   const knownBroker = account != null && POPULAR_BROKERS.includes(account.broker.trim());
 
-  // Same SwiftUI-binding pattern as the settings hub: observable state drives
-  // the native field, a ref mirror captures keystrokes for submit-time reads.
-  const nameState = useNativeState(account?.name ?? '');
+  // The fields are uncontrolled (`SettingsInput` holds native text state); ref
+  // mirrors capture keystrokes for submit-time reads.
   const nameText = useRef(account?.name ?? '');
   // The ref holds the value; this boolean is the only part the header action
   // needs, so it re-renders on empty↔filled rather than on every keystroke.
@@ -107,14 +95,11 @@ function AccountForm({ account, accountCount }: { account?: Account; accountCoun
     account == null ? POPULAR_BROKERS[0] : knownBroker ? account.broker.trim() : OTHER_BROKER,
   );
   const initialCustomBroker = account != null && !knownBroker ? account.broker.trim() : '';
-  const customBrokerState = useNativeState(initialCustomBroker);
   const customBrokerText = useRef(initialCustomBroker);
   const [accountType, setAccountType] = useState('cash');
   // Picker, not a text field: the balance row echoes the choice, and a free
   // text code would let "usd" / "US$" through `toUpperCase` untouched.
   const [currency, setCurrency] = useState<string>('USD');
-  // Number field: the state itself rejects anything but digits (worklet guard).
-  const balanceState = useNumericState('');
   const balanceText = useRef('');
 
   // Stats for the edit summary (both lists are cached app-wide already).
@@ -224,10 +209,6 @@ function AccountForm({ account, accountCount }: { account?: Account; accountCoun
   }
 
   const isOnlyAccount = accountCount <= 1;
-  const secondary = foregroundStyle({ type: 'hierarchical', style: 'secondary' });
-  // Form rows read as one column of values: SwiftUI trails `Picker` selections
-  // but leaves `TextField` text against the label unless told otherwise.
-  const trailing = multilineTextAlignment('trailing');
 
   return (
     <AppHost style={{ flex: 1 }}>
@@ -247,123 +228,103 @@ function AccountForm({ account, accountCount }: { account?: Account; accountCoun
         }}
       />
       <SettingsForm modifiers={[scrollDismissesKeyboard('immediately')]}>
-        <Section title={t`Details`}>
-          <LabeledContent label={t`Name`}>
-            <TextField
-              placeholder={t`e.g. Main Account`}
-              text={nameState}
-              onTextChange={(text) => {
-                nameText.current = text;
-                setHasName(text.trim() !== '');
-              }}
-              modifiers={[trailing]}
-            />
-          </LabeledContent>
-          <Picker label={t`Broker`} selection={brokerChoice} onSelectionChange={setBrokerChoice}>
-            {POPULAR_BROKERS.map((broker) => (
-              <UIText key={broker} modifiers={[tag(broker)]}>
-                {broker}
-              </UIText>
-            ))}
-            <UIText modifiers={[tag(OTHER_BROKER)]}>{t`Other`}</UIText>
-          </Picker>
+        <SettingsSection title={t`Details`}>
+          <SettingsInput
+            label={t`Name`}
+            placeholder={t`e.g. Main Account`}
+            defaultValue={account?.name ?? ''}
+            onChangeText={(text) => {
+              nameText.current = text;
+              setHasName(text.trim() !== '');
+            }}
+          />
+          <SettingsPicker
+            label={t`Broker`}
+            selectedValue={brokerChoice}
+            onValueChange={setBrokerChoice}
+            items={[
+              ...POPULAR_BROKERS.map((broker) => ({ value: broker, label: broker })),
+              { value: OTHER_BROKER, label: t`Other` },
+            ]}
+          />
           {brokerChoice === OTHER_BROKER ? (
-            <LabeledContent label={t`Custom broker`}>
-              <TextField
-                placeholder={t`Type broker name`}
-                text={customBrokerState}
-                onTextChange={(text) => {
-                  customBrokerText.current = text;
-                }}
-                modifiers={[trailing]}
-              />
-            </LabeledContent>
+            <SettingsInput
+              label={t`Custom broker`}
+              placeholder={t`Type broker name`}
+              defaultValue={initialCustomBroker}
+              onChangeText={(text) => {
+                customBrokerText.current = text;
+              }}
+            />
           ) : null}
-        </Section>
+        </SettingsSection>
 
         {!isEdit ? (
-          <Section
+          <SettingsSection
             title={t`Funding`}
-            footer={
-              <UIText>
-                {t`The starting balance is saved as the first deposit in the cash ledger.`}
-              </UIText>
-            }
+            footer={t`The starting balance is saved as the first deposit in the cash ledger.`}
           >
-            <Picker
+            <SettingsPicker
               label={t`Account type`}
-              selection={accountType}
-              onSelectionChange={setAccountType}
-            >
-              {ACCOUNT_TYPES.map((option) => (
-                <UIText key={option.value} modifiers={[tag(option.value)]}>
-                  {option.label()}
-                </UIText>
-              ))}
-            </Picker>
-            <Picker label={t`Base currency`} selection={currency} onSelectionChange={setCurrency}>
-              {DISPLAY_CURRENCIES.map((code) => (
-                <UIText key={code} modifiers={[tag(code)]}>
-                  {code}
-                </UIText>
-              ))}
-            </Picker>
-            <LabeledContent label={t`Starting balance`}>
-              <HStack spacing={8}>
-                <TextField
-                  placeholder="0.00"
-                  text={balanceState}
-                  onTextChange={(text) => {
-                    balanceText.current = numericText(text);
-                  }}
-                  modifiers={[keyboardType('decimal-pad'), trailing]}
-                />
-                <UIText modifiers={[secondary]}>{currency}</UIText>
-              </HStack>
-            </LabeledContent>
-          </Section>
+              selectedValue={accountType}
+              onValueChange={setAccountType}
+              items={ACCOUNT_TYPES.map((option) => ({
+                value: option.value,
+                label: option.label(),
+              }))}
+            />
+            <SettingsPicker
+              label={t`Base currency`}
+              selectedValue={currency}
+              onValueChange={setCurrency}
+              items={DISPLAY_CURRENCIES.map((code) => ({ value: code, label: code }))}
+            />
+            <SettingsInput
+              label={t`Starting balance`}
+              placeholder="0.00"
+              numeric
+              suffix={currency}
+              onChangeText={(text) => {
+                balanceText.current = numericText(text);
+              }}
+            />
+          </SettingsSection>
         ) : null}
 
         {isEdit ? (
-          <Section title={t`Performance`}>
-            <LabeledContent label={t`Deposited`}>
-              <UIText modifiers={[secondary]}>
-                {formatCurrency(deposited, account.base_currency)}
-              </UIText>
-            </LabeledContent>
-            <LabeledContent label={t`Equity`}>
-              <UIText modifiers={[secondary]}>
-                {formatCurrency(equity, account.base_currency)}
-              </UIText>
-            </LabeledContent>
-            <LabeledContent label={t`Realized P&L`}>
-              <UIText
-                modifiers={[
-                  foregroundStyle(
-                    netPnl > 0
-                      ? theme.colors.profit
-                      : netPnl < 0
-                        ? theme.colors.loss
-                        : theme.colors.mutedForeground,
-                  ),
-                ]}
+          <SettingsSection title={t`Performance`}>
+            <SettingsRow label={t`Deposited`}>
+              <ValueText>{formatCurrency(deposited, account.base_currency)}</ValueText>
+            </SettingsRow>
+            <SettingsRow label={t`Equity`}>
+              <ValueText>{formatCurrency(equity, account.base_currency)}</ValueText>
+            </SettingsRow>
+            <SettingsRow label={t`Realized P&L`}>
+              <ValueText
+                color={
+                  netPnl > 0
+                    ? theme.colors.profit
+                    : netPnl < 0
+                      ? theme.colors.loss
+                      : theme.colors.mutedForeground
+                }
               >
                 {formatPnl(netPnl, account.base_currency)}
-              </UIText>
-            </LabeledContent>
+              </ValueText>
+            </SettingsRow>
             {deposited !== 0 ? (
-              <LabeledContent label={t`Return`}>
-                <UIText modifiers={[secondary]}>{formatPercent(netPnl / deposited)}</UIText>
-              </LabeledContent>
+              <SettingsRow label={t`Return`}>
+                <ValueText>{formatPercent(netPnl / deposited)}</ValueText>
+              </SettingsRow>
             ) : null}
-            <LabeledContent label={t`Trades`}>
-              <UIText modifiers={[secondary]}>{String(tradeCount)}</UIText>
-            </LabeledContent>
-          </Section>
+            <SettingsRow label={t`Trades`}>
+              <ValueText>{String(tradeCount)}</ValueText>
+            </SettingsRow>
+          </SettingsSection>
         ) : null}
 
         {isEdit ? (
-          <Section title={t`Integrations`}>
+          <SettingsSection title={t`Integrations`}>
             {account.account_type === 'prop' ? (
               <NavRow
                 systemImage="flag.checkered"
@@ -380,16 +341,12 @@ function AccountForm({ account, accountCount }: { account?: Account; accountCoun
                 router.push({ pathname: '/flex-sync', params: { accountId: account.id } })
               }
             />
-          </Section>
+          </SettingsSection>
         ) : null}
 
         {isEdit ? (
-          <Section
-            footer={
-              isOnlyAccount ? (
-                <UIText>{t`Add another account before deleting this one.`}</UIText>
-              ) : undefined
-            }
+          <SettingsSection
+            footer={isOnlyAccount ? t`Add another account before deleting this one.` : undefined}
           >
             <CenteredButton
               role="destructive"
@@ -405,7 +362,7 @@ function AccountForm({ account, accountCount }: { account?: Account; accountCoun
                 onPress={confirmDeleteAccount}
               />
             ) : null}
-          </Section>
+          </SettingsSection>
         ) : null}
       </SettingsForm>
     </AppHost>

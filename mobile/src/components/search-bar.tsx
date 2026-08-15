@@ -1,6 +1,6 @@
 import { GlassView } from 'expo-glass-effect';
 import { useEffect, useRef } from 'react';
-import { Pressable, TextInput, View } from 'react-native';
+import { Platform, Pressable, TextInput, View } from 'react-native';
 import Reanimated, {
   useAnimatedKeyboard,
   useAnimatedStyle,
@@ -54,10 +54,17 @@ const styles = StyleSheet.create((theme) => ({
   },
   // The glass owns the capsule; the row inside owns the padding, so the
   // material covers the full pill rather than sitting behind an inset box.
+  // Off iOS, `GlassView` degrades to a plain transparent `View`, so the pill
+  // paints itself: elevated card fill plus a soft shadow to lift it off the
+  // list the way the glass refraction does.
   floatGlass: {
     borderRadius: theme.radius.full,
     borderCurve: 'continuous',
     overflow: 'hidden',
+    ...(Platform.OS !== 'ios' && {
+      backgroundColor: theme.colors.card,
+      boxShadow: '0 4 16 rgba(0, 0, 0, 0.25)',
+    }),
   },
   floatRow: {
     flexDirection: 'row',

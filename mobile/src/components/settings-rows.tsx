@@ -1,4 +1,4 @@
-import { FieldGroup, ListItem, Picker, RNHostView, Switch, Text } from '@expo/ui';
+import { FieldGroup, ListItem, Picker, RNHostView, Switch, Text, TextInput } from '@expo/ui';
 import { Pressable, Text as RNText } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -6,10 +6,12 @@ import { Icon } from '@/components/icon';
 
 import type {
   SettingsButtonProps,
+  SettingsInputProps,
   SettingsPickerProps,
   SettingsRowProps,
   SettingsSectionProps,
   SettingsToggleProps,
+  ValueTextProps,
 } from './settings-rows.types';
 
 /**
@@ -120,6 +122,49 @@ const buttonStyles = StyleSheet.create((theme) => ({
  */
 export function NumericText({ children }: { children: string }) {
   return <Text>{children}</Text>;
+}
+
+/**
+ * Value-side text. Colored when the value carries meaning (P&L, status);
+ * otherwise the secondary value color, so rows read label-dark / value-muted
+ * the way iOS grouped lists do.
+ */
+export function ValueText({ color, children }: ValueTextProps) {
+  const { theme } = useUnistyles();
+  return <Text textStyle={{ color: color ?? theme.colors.mutedForeground }}>{children}</Text>;
+}
+
+/** A label paired with an inline, trailing-aligned text field. */
+export function SettingsInput({
+  label,
+  placeholder,
+  defaultValue,
+  suffix,
+  numeric,
+  onChangeText,
+}: SettingsInputProps) {
+  const { theme } = useUnistyles();
+  return (
+    <ListItem>
+      <Text>{label}</Text>
+      <ListItem.Trailing>
+        {/* Uncontrolled — native state holds the text, `onChangeText` mirrors
+            it into a ref for submit-time reads (the account-form pattern).
+            No worklet filter here: Android validates amounts at submit, the
+            decimal keyboard keeps the input honest enough. */}
+        <TextInput
+          defaultValue={defaultValue}
+          placeholder={placeholder}
+          placeholderTextColor={theme.colors.mutedForeground}
+          textAlign="right"
+          keyboardType={numeric ? 'decimal-pad' : 'default'}
+          autoCorrect={!numeric}
+          onChangeText={onChangeText}
+        />
+        {suffix != null ? <Text textStyle={{ color: theme.colors.mutedForeground }}>{suffix}</Text> : null}
+      </ListItem.Trailing>
+    </ListItem>
+  );
 }
 
 /** A labelled on/off row. */
