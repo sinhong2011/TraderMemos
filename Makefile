@@ -63,7 +63,15 @@ rebuild-ios: prebuild-ios run-ios ## Full native rebuild: clean prebuild, patch,
 # to go through the shell rather than $(wildcard): "Android Studio.app" has a
 # space in it, and make's $(firstword) would split the path in half.
 ANDROID_STUDIO ?= $(shell ls -d "$$HOME/Applications/Android Studio.app" "/Applications/Android Studio.app" 2>/dev/null | head -1)
-JAVA_HOME ?= $(ANDROID_STUDIO)/Contents/jbr/Contents/Home
+
+# Build on JDK 17 (mise), NOT Android Studio's bundled JBR. Studio currently
+# ships JBR 25, and JDK 24+ enforces integrity-by-default: the CMake configure
+# tasks for the native RN modules (react-native-screens, worklets,
+# nitro-modules) die with "A restricted method in java.lang.System has been
+# called". Falls back to the JBR only if mise has no JDK, which will fail that
+# way until you `mise use -g java@temurin-17`.
+MISE_JDK := $(shell ls -d "$$HOME/.local/share/mise/installs/java/temurin-17" 2>/dev/null | head -1)
+JAVA_HOME ?= $(if $(MISE_JDK),$(MISE_JDK),$(ANDROID_STUDIO)/Contents/jbr/Contents/Home)
 ANDROID_HOME ?= $(HOME)/Library/Android/sdk
 ANDROID_ENV := JAVA_HOME="$(JAVA_HOME)" ANDROID_HOME="$(ANDROID_HOME)" PATH="$(JAVA_HOME)/bin:$(ANDROID_HOME)/platform-tools:$(PATH)"
 
