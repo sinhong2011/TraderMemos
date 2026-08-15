@@ -2,13 +2,14 @@
 // swallows taps on RN views inside its pages, so year paging rides
 // react-native-pager-view.
 import PagerView from 'react-native-pager-view';
-import { ContentUnavailableView } from '@expo/ui/swift-ui';
+
 import { useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
 import { useMemo, useRef, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+import { EmptyState } from '@/components/empty-state';
 import { useAccounts, useTrades } from '@/api/hooks';
 import { AppHost } from '@/components/app-host';
 import { DashboardCard } from '@/components/dashboard-card';
@@ -184,7 +185,7 @@ function WrappedYear({ year, active }: { year: number; active: boolean }) {
         </View>
       ) : wrapped.totalTrades === 0 ? (
         <AppHost style={styles.emptyHost}>
-          <ContentUnavailableView
+          <EmptyState
             title={t`No closed trades in ${year}`}
             systemImage="sparkles"
             description={t`The recap appears once the year has closed trades.`}

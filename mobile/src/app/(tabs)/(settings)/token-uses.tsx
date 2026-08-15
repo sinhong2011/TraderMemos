@@ -1,10 +1,11 @@
-import { ContentUnavailableView } from '@expo/ui/swift-ui';
+
 import { FlashList } from '@shopify/flash-list';
 import { useLocalSearchParams } from 'expo-router';
 import { Stack } from 'expo-router/stack';
 import { RefreshControl, Text, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
+import { EmptyState } from '@/components/empty-state';
 import { useAccessTokenUses } from '@/api/hooks';
 import type { AccessTokenUse } from '@/api/types';
 import { AppHost } from '@/components/app-host';
@@ -104,7 +105,7 @@ export default function TokenUsesScreen() {
           }
           ListEmptyComponent={
             <AppHost style={styles.empty}>
-              <ContentUnavailableView
+              <EmptyState
                 title={t`Not used yet`}
                 systemImage="clock.arrow.circlepath"
                 description={t`When something authenticates with this token, the IP and app it used show up here.`}

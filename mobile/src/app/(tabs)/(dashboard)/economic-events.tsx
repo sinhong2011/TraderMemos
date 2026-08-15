@@ -1,4 +1,4 @@
-import { ContentUnavailableView } from '@expo/ui/swift-ui';
+
 import { Stack } from 'expo-router/stack';
 import { useHeaderHeight } from 'expo-router/react-navigation';
 import { useEffect, useRef, useState } from 'react';
@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+import { EmptyState } from '@/components/empty-state';
 import { Icon } from '@/components/icon';
 import { useEconomicEvents } from '@/api/hooks';
 import { ApiError } from '@/api/client';
@@ -771,7 +772,7 @@ export default function EconomicEventsScreen() {
             <TimelineSkeleton />
           ) : unconfigured ? (
             <AppHost style={styles.emptyHost}>
-              <ContentUnavailableView
+              <EmptyState
                 title={t`Calendar not configured`}
                 systemImage="newspaper"
                 description={t`The server has no economic-calendar provider configured.`}

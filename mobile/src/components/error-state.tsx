@@ -13,7 +13,6 @@
  * action. SwiftUI's view takes no action slot, hence the button beneath it.
  */
 
-import { ContentUnavailableView } from '@expo/ui/swift-ui';
 import { t } from '@lingui/core/macro';
 import { type SFSymbol } from 'expo-symbols';
 import { useEffect } from 'react';
@@ -21,6 +20,7 @@ import { Pressable, Text, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 import { create } from 'zustand';
 
+import { EmptyState } from '@/components/empty-state';
 import { Icon } from '@/components/icon';
 import { NetworkError } from '@/api/client';
 import { useSession } from '@/api/session';
@@ -77,7 +77,7 @@ export function ErrorState({
           Letting the host flex instead pinned the button to the bottom of the
           screen, where the tab bar and the offline banner sit on top of it. */}
       <AppHost matchContents={{ vertical: true }}>
-        <ContentUnavailableView
+        <EmptyState
           title={title}
           systemImage={systemImage}
           description={description}

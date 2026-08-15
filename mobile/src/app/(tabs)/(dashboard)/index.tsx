@@ -1,4 +1,4 @@
-import { ContentUnavailableView } from '@expo/ui/swift-ui';
+
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
@@ -12,6 +12,7 @@ import {
   useSummary,
   useTrades,
 } from '@/api/hooks';
+import { EmptyState } from '@/components/empty-state';
 import { Icon } from '@/components/icon';
 import { BreakdownCard } from '@/components/breakdown-card';
 import { ChecklistCard } from '@/components/checklist-card';
@@ -118,7 +119,7 @@ export default function DashboardScreen() {
   if (noData) {
     return (
       <AppHost style={styles.centered}>
-        <ContentUnavailableView
+        <EmptyState
           title={t`No trades yet`}
           systemImage="chart.line.uptrend.xyaxis"
           description={t`Import broker history or log a trade on the web app to see performance here.`}

@@ -1,4 +1,4 @@
-import { ContentUnavailableView } from '@expo/ui/swift-ui';
+
 import { FlashList } from '@shopify/flash-list';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
@@ -10,6 +10,7 @@ import ReanimatedSwipeable, {
 } from 'react-native-gesture-handler/ReanimatedSwipeable';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+import { EmptyState } from '@/components/empty-state';
 import { Icon } from '@/components/icon';
 import { queryKeys, useApiRequest, useTags } from '@/api/hooks';
 import type { Tag } from '@/api/types';
@@ -152,7 +153,7 @@ export default function TagsScreen() {
           }
           ListEmptyComponent={
             <AppHost style={styles.empty}>
-              <ContentUnavailableView
+              <EmptyState
                 title={t`No tags yet`}
                 systemImage="tag"
                 description={t`Tap + to add one — tags annotate trades with mistakes, habits, and custom labels.`}

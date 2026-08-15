@@ -1,4 +1,4 @@
-import { ContentUnavailableView } from '@expo/ui/swift-ui';
+
 import { FlashList } from '@shopify/flash-list';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
@@ -10,6 +10,7 @@ import ReanimatedSwipeable, {
 } from 'react-native-gesture-handler/ReanimatedSwipeable';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+import { EmptyState } from '@/components/empty-state';
 import { Icon } from '@/components/icon';
 import { useNotes } from '@/api/hooks';
 import type { Note } from '@/api/types';
@@ -290,7 +291,7 @@ export default function NotesScreen() {
               {/* The filter now lives in a pull-down, so an empty list has to
                   say it is narrowed — otherwise a stray "Logs" filter reads as
                   having no notes at all. */}
-              <ContentUnavailableView
+              <EmptyState
                 title={search || type !== 'all' ? t`No matching notes` : t`No notes yet`}
                 systemImage="note.text"
                 description={

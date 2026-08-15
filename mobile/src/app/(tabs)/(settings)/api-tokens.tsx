@@ -1,4 +1,4 @@
-import { ContentUnavailableView } from '@expo/ui/swift-ui';
+
 import { FlashList } from '@shopify/flash-list';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
@@ -10,6 +10,7 @@ import ReanimatedSwipeable, {
 } from 'react-native-gesture-handler/ReanimatedSwipeable';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+import { EmptyState } from '@/components/empty-state';
 import { Icon } from '@/components/icon';
 import { queryKeys, useAccessTokens, useApiRequest } from '@/api/hooks';
 import type { AccessToken } from '@/api/types';
@@ -213,7 +214,7 @@ export default function ApiTokensScreen() {
           }
           ListEmptyComponent={
             <AppHost style={styles.empty}>
-              <ContentUnavailableView
+              <EmptyState
                 title={t`No tokens yet`}
                 systemImage="key"
                 description={t`Tap + to generate one and authenticate scripts against your server.`}

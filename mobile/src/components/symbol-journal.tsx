@@ -1,10 +1,11 @@
-import { ContentUnavailableView } from '@expo/ui/swift-ui';
+
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
 import { useEffect, useMemo, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+import { EmptyState } from '@/components/empty-state';
 import { Icon } from '@/components/icon';
 import { useMarketBars, useTradeDetails, useTrades } from '@/api/hooks';
 import type { BarInterval } from '@/api/types';
@@ -366,7 +367,7 @@ export default function SymbolJournalScreen() {
 
         {symbol === '' ? (
           <AppHost style={styles.emptyHost}>
-            <ContentUnavailableView
+            <EmptyState
               title={t`Pick a symbol`}
               systemImage="chart.xyaxis.line"
               description={t`Search a ticker to see its chart — with your own trades drawn on it.`}

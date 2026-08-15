@@ -1,10 +1,11 @@
-import { ContentUnavailableView } from '@expo/ui/swift-ui';
+
 import { useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
 import { useMemo, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+import { EmptyState } from '@/components/empty-state';
 import { Icon } from '@/components/icon';
 import { useAccounts, useBreakdown, useSetups } from '@/api/hooks';
 import type { BreakGroup, Setup } from '@/api/types';
@@ -211,7 +212,7 @@ export default function PlaybookScreen() {
           </View>
         ) : (setups.data ?? []).length === 0 ? (
           <AppHost style={styles.emptyHost}>
-            <ContentUnavailableView
+            <EmptyState
               title={t`No setups yet`}
               systemImage="book"
               description={t`Tap + to write the first play you trade — trades link to it from the trade form.`}

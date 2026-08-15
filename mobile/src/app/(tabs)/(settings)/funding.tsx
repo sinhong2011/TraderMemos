@@ -1,4 +1,4 @@
-import { ContentUnavailableView } from '@expo/ui/swift-ui';
+
 import { FlashList } from '@shopify/flash-list';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
@@ -10,6 +10,7 @@ import ReanimatedSwipeable, {
 } from 'react-native-gesture-handler/ReanimatedSwipeable';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+import { EmptyState } from '@/components/empty-state';
 import { Icon } from '@/components/icon';
 import { useAccounts, useApiRequest, useCash } from '@/api/hooks';
 import type { Account, CashTransaction } from '@/api/types';
@@ -207,7 +208,7 @@ export default function FundingScreen() {
           }
           ListEmptyComponent={
             <AppHost style={styles.empty}>
-              <ContentUnavailableView
+              <EmptyState
                 title={t`No transactions yet`}
                 systemImage="banknote"
                 description={t`Tap + to log a deposit, withdrawal, or fee — they drive the equity curve alongside trade P&L.`}
