@@ -42,6 +42,13 @@ export const SF_TO_MATERIAL: Record<string, AndroidSymbol> = {
   keyboard: 'keyboard',
   link: 'link',
   'arrow.up.forward': 'call_made',
+  // The pull-down indicator on a menu-style row (settings pickers, the trade
+  // form's account pill). Material writes the same "this opens a list of
+  // choices" affordance as a single stacked pair.
+  'chevron.up.chevron.down': 'unfold_more',
+  // Drag-to-reorder grip. `drag_handle` is the bare rules Material uses inside
+  // a row, where `drag_indicator`'s dot grid belongs to a whole-row handle.
+  'line.3.horizontal': 'drag_handle',
 
   // add / edit / remove
   plus: 'add',
@@ -162,6 +169,12 @@ export const SF_TO_MATERIAL: Record<string, AndroidSymbol> = {
   // SwiftUI (`@expo/ui` Menu labels), so they never needed an Android row.
   'ellipsis.circle': 'more_horiz',
   'tray.and.arrow.down': 'save',
+  // About's source links. SF's `chevron.left.forwardslash.chevron.right` is
+  // the `</>` mark Apple uses for a repository, which Material writes as
+  // `code`; `ladybug` — the report-an-issue row — is `bug_report`, the same
+  // beetle-on-a-page Material uses for filing one.
+  'chevron.left.forwardslash.chevron.right': 'code',
+  ladybug: 'bug_report',
 };
 
 /** Drawn when a symbol has no row above — visible, so the gap is obvious. */
