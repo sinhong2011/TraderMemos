@@ -1,4 +1,4 @@
-import { Button, LabeledContent, Section, Text as UIText } from '@expo/ui/swift-ui';
+import { Text as UIText } from '@expo/ui';
 import { foregroundStyle } from '@expo/ui/swift-ui/modifiers';
 import { useRouter } from 'expo-router';
 import { useUnistyles } from 'react-native-unistyles';
@@ -9,6 +9,7 @@ import { AppHost } from '@/components/app-host';
 import { ErrorState } from '@/components/error-state';
 import { NavRow } from '@/components/nav-row';
 import { SettingsForm } from '@/components/settings-form';
+import { SettingsButton, SettingsRow, SettingsSection } from '@/components/settings-rows';
 import { serverHost, useChangeServer } from '@/lib/change-server';
 import { useFormatters } from '@/lib/format';
 import { t } from '@lingui/core/macro';
@@ -42,9 +43,9 @@ export default function ProfileScreen() {
     return (
       <AppHost style={{ flex: 1, backgroundColor: theme.colors.background }}>
         <SettingsForm>
-          <Section>
+          <SettingsSection>
             <UIText modifiers={[secondary]}>{t`Loading…`}</UIText>
-          </Section>
+          </SettingsSection>
         </SettingsForm>
       </AppHost>
     );
@@ -53,39 +54,39 @@ export default function ProfileScreen() {
   return (
     <AppHost style={{ flex: 1, backgroundColor: theme.colors.background }}>
       <SettingsForm>
-        <Section
+        <SettingsSection
           title={t`Signed in as`}
           footer={
-            me.data.is_admin ? (
-              <UIText>{t`The owner account — the first user created on this server.`}</UIText>
-            ) : undefined
+            me.data.is_admin
+              ? t`The owner account — the first user created on this server.`
+              : undefined
           }
         >
           {/* "Username", not "Email": the wire field is `email`, but nothing
               validates it as one and the sign-in screen asks for a username,
               so that is what this account actually has. */}
-          <LabeledContent label={t`Username`}>
+          <SettingsRow label={t`Username`}>
             <UIText>{me.data.email}</UIText>
-          </LabeledContent>
-          <LabeledContent label={t`Role`}>
+          </SettingsRow>
+          <SettingsRow label={t`Role`}>
             <UIText>{me.data.is_admin ? t`Owner` : t`Member`}</UIText>
-          </LabeledContent>
-          <LabeledContent label={t`Member since`}>
+          </SettingsRow>
+          <SettingsRow label={t`Member since`}>
             <UIText>{formatDate(me.data.created_at)}</UIText>
-          </LabeledContent>
-        </Section>
+          </SettingsRow>
+        </SettingsSection>
 
-        <Section
+        <SettingsSection
           title={t`Server`}
-          footer={<UIText>{t`Self-hosted — your journal never leaves this server.`}</UIText>}
+          footer={t`Self-hosted — your journal never leaves this server.`}
         >
-          <LabeledContent label={t`Host`}>
+          <SettingsRow label={t`Host`}>
             <UIText>{serverHost(session?.serverUrl ?? '')}</UIText>
-          </LabeledContent>
+          </SettingsRow>
           {/* Plain Button, no chevron — it opens a prompt, not a push (NavRow
               doc). The hub carries the same action for the server-unreachable
               case, where this screen is a full-screen error. */}
-          <Button label={t`Change server`} systemImage="arrow.left.arrow.right" onPress={changeServer} />
+          <SettingsButton label={t`Change server`} systemImage="arrow.left.arrow.right" onPress={changeServer} />
           {/* Owner-only: managing other people's accounts is a property of the
               server, not of your profile, but this is the only screen that
               already knows which one you are signed in to. */}
@@ -96,15 +97,11 @@ export default function ProfileScreen() {
               onPress={() => router.push('/users')}
             />
           ) : null}
-        </Section>
+        </SettingsSection>
 
-        <Section
+        <SettingsSection
           title={t`Security`}
-          footer={
-            <UIText>
-              {t`Changing your password signs out your other devices.`}
-            </UIText>
-          }
+          footer={t`Changing your password signs out your other devices.`}
         >
           <NavRow
             systemImage="lock.rotation"
@@ -117,7 +114,7 @@ export default function ProfileScreen() {
             value={me.data.totp_enabled ? t`On` : t`Off`}
             onPress={() => router.push('/two-factor')}
           />
-        </Section>
+        </SettingsSection>
       </SettingsForm>
     </AppHost>
   );

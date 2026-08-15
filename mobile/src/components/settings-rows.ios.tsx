@@ -1,7 +1,13 @@
-import { LabeledContent, Picker, Section, Text as UIText, Toggle } from '@expo/ui/swift-ui';
-import { monospacedDigit, pickerStyle, tag } from '@expo/ui/swift-ui/modifiers';
+import { Button, LabeledContent, Picker, Section, Text as UIText, Toggle } from '@expo/ui/swift-ui';
+import {
+  disabled as disabledModifier,
+  monospacedDigit,
+  pickerStyle,
+  tag,
+} from '@expo/ui/swift-ui/modifiers';
 
 import type {
+  SettingsButtonProps,
   SettingsPickerProps,
   SettingsRowProps,
   SettingsSectionProps,
@@ -32,6 +38,25 @@ export type {
 
 export function SettingsRow({ label, children }: SettingsRowProps) {
   return <LabeledContent label={label}>{children}</LabeledContent>;
+}
+
+/** An action row: leading icon, label, no navigation affordance. */
+export function SettingsButton({
+  label,
+  systemImage,
+  role = 'default',
+  disabled,
+  onPress,
+}: SettingsButtonProps) {
+  return (
+    <Button
+      label={label}
+      systemImage={systemImage}
+      role={role}
+      onPress={onPress}
+      modifiers={disabled ? [disabledModifier(true)] : []}
+    />
+  );
 }
 
 /** Value text with tabular figures, per DESIGN.md. */

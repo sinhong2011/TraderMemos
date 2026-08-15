@@ -1,4 +1,3 @@
-import { Button } from '@expo/ui/swift-ui';
 import * as DocumentPicker from 'expo-document-picker';
 import { File } from 'expo-file-system';
 import { useRouter } from 'expo-router';
@@ -7,7 +6,7 @@ import { useUnistyles } from 'react-native-unistyles';
 
 import { useSession } from '@/api/session';
 import { SettingsForm } from '@/components/settings-form';
-import { SettingsSection } from '@/components/settings-rows';
+import { SettingsButton, SettingsSection } from '@/components/settings-rows';
 import { buildAppConfigExport, parseAppConfig } from '@/lib/app-config';
 import { errorMessage } from '@/lib/errors';
 import { shareFile } from '@/lib/file-transfer';
@@ -71,12 +70,12 @@ export default function DataBackupScreen() {
           title={t`Trades`}
           footer={t`Import broker fills, a journal CSV, or a TraderMemos backup. Exports come out as JSON, CSV, or a ZIP with screenshots.`}
         >
-          <Button
+          <SettingsButton
             systemImage="square.and.arrow.down"
             label={t`Import trades`}
             onPress={() => router.push('/import-trades')}
           />
-          <Button
+          <SettingsButton
             systemImage="square.and.arrow.up"
             label={t`Export data`}
             onPress={() => router.push('/export-trades')}
@@ -87,12 +86,12 @@ export default function DataBackupScreen() {
           title={t`App config`}
           footer={t`Config files carry this device's app preferences only — no trades, no credentials. They round-trip with the web app.`}
         >
-          <Button
+          <SettingsButton
             systemImage="arrow.up.doc"
             label={t`Import app config`}
             onPress={() => void importAppConfig()}
           />
-          <Button
+          <SettingsButton
             systemImage="arrow.down.doc"
             label={t`Export app config`}
             onPress={() => void exportAppConfig()}

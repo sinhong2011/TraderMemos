@@ -1,3 +1,4 @@
+import type { SFSymbol } from 'expo-symbols';
 import type { ReactNode } from 'react';
 
 /**
@@ -37,4 +38,14 @@ export interface SettingsSectionProps {
    */
   footer?: string;
   children: ReactNode;
+}
+
+export interface SettingsButtonProps {
+  label: string;
+  /** Leading SF Symbol; Android maps it through `@/lib/sf-to-material`. */
+  systemImage?: SFSymbol;
+  /** `destructive` tints the row red, for rows that remove something. */
+  role?: 'default' | 'destructive';
+  disabled?: boolean;
+  onPress: () => void;
 }

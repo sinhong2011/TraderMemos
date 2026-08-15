@@ -1,4 +1,4 @@
-import { LabeledContent, Section, Text as UIText, Toggle } from '@expo/ui/swift-ui';
+import { Text as UIText } from '@expo/ui';
 import { foregroundStyle } from '@expo/ui/swift-ui/modifiers';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -12,6 +12,7 @@ import { AppHost } from '@/components/app-host';
 import { CenteredButton } from '@/components/centered-button';
 import { NavRow } from '@/components/nav-row';
 import { SettingsForm } from '@/components/settings-form';
+import { SettingsRow, SettingsSection, SettingsToggle } from '@/components/settings-rows';
 import { errorMessage } from '@/lib/errors';
 import { useFormatters } from '@/lib/format';
 import { notify } from '@/lib/haptics';
@@ -140,11 +141,11 @@ export default function UserDetailScreen() {
     return (
       <AppHost style={{ flex: 1, backgroundColor: theme.colors.background }}>
         <SettingsForm>
-          <Section>
+          <SettingsSection>
             <UIText modifiers={[secondary]}>
               {users.isLoading ? t`Loading…` : t`This account no longer exists.`}
             </UIText>
-          </Section>
+          </SettingsSection>
         </SettingsForm>
       </AppHost>
     );
@@ -154,37 +155,33 @@ export default function UserDetailScreen() {
     <AppHost style={{ flex: 1, backgroundColor: theme.colors.background }}>
       <Stack.Screen options={{ title: user.email }} />
       <SettingsForm>
-        <Section title={t`Account`}>
-          <LabeledContent label={t`Username`}>
+        <SettingsSection title={t`Account`}>
+          <SettingsRow label={t`Username`}>
             <UIText>{user.email}</UIText>
-          </LabeledContent>
-          <LabeledContent label={t`Member since`}>
+          </SettingsRow>
+          <SettingsRow label={t`Member since`}>
             <UIText>{formatDate(user.created_at)}</UIText>
-          </LabeledContent>
-          <LabeledContent label={t`Two-factor`}>
+          </SettingsRow>
+          <SettingsRow label={t`Two-factor`}>
             <UIText>{user.totp_enabled ? t`On` : t`Off`}</UIText>
-          </LabeledContent>
-        </Section>
+          </SettingsRow>
+        </SettingsSection>
 
-        <Section
-          footer={
-            <UIText>
-              {isSelf
+        <SettingsSection
+          footer={isSelf
                 ? t`You are an owner. The last owner cannot be demoted — promote someone else first.`
                 : t`Owners can add, remove and reset every account on this server, including yours.`}
-            </UIText>
-          }
         >
-          <Toggle
+          <SettingsToggle
             label={t`Owner`}
-            isOn={user.is_admin}
-            onIsOnChange={(value) => setRole.mutate(value)}
+            value={user.is_admin}
+            onValueChange={(value) => setRole.mutate(value)}
           />
-        </Section>
+        </SettingsSection>
 
-        <Section
+        <SettingsSection
           title={t`Security`}
-          footer={<UIText>{t`A reset signs out that user's other devices.`}</UIText>}
+          footer={t`A reset signs out that user's other devices.`}
         >
           <NavRow
             systemImage="lock.rotation"
@@ -192,19 +189,19 @@ export default function UserDetailScreen() {
             accessory="none"
             onPress={promptReset}
           />
-        </Section>
+        </SettingsSection>
 
         {/* Your own account is deleted from nowhere — the server refuses it
             here, and the account screen owns the choices that are yours. */}
         {isSelf ? null : (
-          <Section>
+          <SettingsSection>
             <CenteredButton
               role="destructive"
               label={t`Delete user`}
               disabled={remove.isPending}
               onPress={confirmDelete}
             />
-          </Section>
+          </SettingsSection>
         )}
       </SettingsForm>
     </AppHost>

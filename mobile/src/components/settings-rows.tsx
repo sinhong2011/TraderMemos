@@ -1,6 +1,11 @@
-import { FieldGroup, ListItem, Picker, Switch, Text } from '@expo/ui';
+import { FieldGroup, ListItem, Picker, RNHostView, Switch, Text } from '@expo/ui';
+import { Pressable, Text as RNText } from 'react-native';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+
+import { Icon } from '@/components/icon';
 
 import type {
+  SettingsButtonProps,
   SettingsPickerProps,
   SettingsRowProps,
   SettingsSectionProps,
@@ -51,6 +56,58 @@ export function SettingsRow({ label, children }: SettingsRowProps) {
     </ListItem>
   );
 }
+
+/**
+ * An action row: leading icon, label, no navigation affordance.
+ *
+ * Universal `Button` is deliberately not used here. It has no `systemImage`
+ * prop and defaults to `variant='filled'`, which maps to `borderedProminent`
+ * on iOS — a settings list full of solid blue buttons with the icons dropped.
+ * So this follows `nav-row.tsx`: RN inside an `RNHostView`, reusing the mapped
+ * icon layer.
+ */
+export function SettingsButton({
+  label,
+  systemImage,
+  role = 'default',
+  disabled,
+  onPress,
+}: SettingsButtonProps) {
+  const { theme } = useUnistyles();
+  const tint = role === 'destructive' ? theme.colors.destructive : theme.colors.primary;
+
+  return (
+    <RNHostView matchContents>
+      <Pressable
+        onPress={onPress}
+        disabled={disabled}
+        accessibilityRole="button"
+        accessibilityState={{ disabled: !!disabled }}
+        style={({ pressed }) => [
+          buttonStyles.row,
+          pressed && buttonStyles.pressed,
+          disabled && buttonStyles.disabled,
+        ]}
+      >
+        {systemImage != null ? <Icon name={systemImage} size={17} tintColor={tint} /> : null}
+        <RNText style={[buttonStyles.label, { color: tint }]}>{label}</RNText>
+      </Pressable>
+    </RNHostView>
+  );
+}
+
+const buttonStyles = StyleSheet.create((theme) => ({
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.md,
+    paddingVertical: theme.spacing.md,
+    paddingHorizontal: theme.spacing.lg,
+  },
+  pressed: { backgroundColor: theme.colors.accent },
+  disabled: { opacity: 0.4 },
+  label: { fontSize: 17 },
+}));
 
 /**
  * Value text with tabular figures, per DESIGN.md.
