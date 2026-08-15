@@ -15,9 +15,10 @@ import (
 )
 
 type coachReviewDTO struct {
-	Source string       `json:"source"` // llm | off | error
-	Notes  []coach.Note `json:"notes"`
-	Error  string       `json:"error,omitempty"`
+	Source     string       `json:"source"` // llm | off | error
+	Notes      []coach.Note `json:"notes"`
+	NextAction string       `json:"next_action,omitempty"`
+	Error      string       `json:"error,omitempty"`
 }
 
 func (s *Server) handleTradeCoach(c *echo.Context) error {
@@ -75,7 +76,11 @@ func (s *Server) handleTradeCoach(c *echo.Context) error {
 	if review.Notes == nil {
 		review.Notes = []coach.Note{}
 	}
-	return c.JSON(http.StatusOK, coachReviewDTO{Source: "llm", Notes: review.Notes})
+	return c.JSON(http.StatusOK, coachReviewDTO{
+		Source:     "llm",
+		Notes:      review.Notes,
+		NextAction: review.NextAction,
+	})
 }
 
 // coachLoc resolves the market timezone the day and week boundaries are drawn
