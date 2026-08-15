@@ -1,12 +1,12 @@
-
 import { useMemo, useState } from 'react';
 import { Pressable, Text, View, type LayoutChangeEvent } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { useCSSVariable } from 'uniwind';
 
 import { Icon } from '@/components/icon';
 import type { BarInterval, MarketBar } from '@/api/types';
 import { locale } from '@/i18n';
+import { usePnlPalette } from '@/styles/pnl';
 
 export const CHART_HEIGHT = 220;
 /** Price gutter on the right — overlays anchor inside it so labels stay clear. */
@@ -50,8 +50,14 @@ function nearestBarIndex(bars: MarketBar[], unixSec: number): number {
 /**
  * Candlestick renderer shared by the trade chart, the advanced chart, and the
  * replay theater — candles, grid, price lines, plan bands, fill markers, and
- * the replay cursor are plain positioned Views, so no chart library or native
- * module is needed (there is no SVG dependency in this app).
+ * the replay cursor are plain positioned Views.
+ *
+ * Deliberately *not* PanelUI's `CandlestickChart`: that draws candles, a grid,
+ * axes and a tooltip and nothing else. It has no reference/price lines, no
+ * shaded bands, no markers and no cursor — and those four overlays *are* this
+ * component (a trade's plan drawn on its tape). Swapping the candles for it
+ * would mean losing them, so the hand-drawn plot stays and only its colors moved
+ * onto the theme tokens.
  *
  * Replay: with a `cursor`, bars after it are hidden and markers past it too;
  * the price scale stays fixed to the full range so the frame is stable while
@@ -102,7 +108,12 @@ export function ChartCanvas({
    */
   onMarkerPress?: (key: string) => void;
 }) {
-  const { theme } = useUnistyles();
+  const palette = usePnlPalette();
+  const [foreground, card, mutedForeground] = useCSSVariable([
+    '--color-foreground',
+    '--color-card',
+    '--color-muted-foreground',
+  ]) as [string, string, string];
   const [plotWidth, setPlotWidth] = useState(0);
   const plotHeight = height - TIME_AXIS_HEIGHT;
 
@@ -148,36 +159,32 @@ export function ChartCanvas({
   const candles = useMemo(() => {
     if (!layout) return null;
     return shown.map((bar, index) => {
-      const color = bar.close >= bar.open ? theme.colors.profit : theme.colors.loss;
+      const color = bar.close >= bar.open ? palette.profit : palette.loss;
       return (
         <View key={bar.time}>
           <View
-            style={[
-              styles.wick,
-              {
-                left: layout.x(index) - 0.5,
-                top: layout.y(bar.high),
-                height: Math.max(1, layout.y(bar.low) - layout.y(bar.high)),
-                backgroundColor: color,
-              },
-            ]}
+            className="absolute w-px"
+            style={{
+              left: layout.x(index) - 0.5,
+              top: layout.y(bar.high),
+              height: Math.max(1, layout.y(bar.low) - layout.y(bar.high)),
+              backgroundColor: color,
+            }}
           />
           <View
-            style={[
-              styles.body,
-              {
-                left: layout.x(index) - layout.bodyWidth / 2,
-                top: layout.y(Math.max(bar.open, bar.close)),
-                width: layout.bodyWidth,
-                height: Math.max(1, Math.abs(layout.y(bar.open) - layout.y(bar.close))),
-                backgroundColor: color,
-              },
-            ]}
+            className="absolute rounded-[1px]"
+            style={{
+              left: layout.x(index) - layout.bodyWidth / 2,
+              top: layout.y(Math.max(bar.open, bar.close)),
+              width: layout.bodyWidth,
+              height: Math.max(1, Math.abs(layout.y(bar.open) - layout.y(bar.close))),
+              backgroundColor: color,
+            }}
           />
         </View>
       );
     });
-  }, [shown, layout, theme.colors.profit, theme.colors.loss]);
+  }, [shown, layout, palette.profit, palette.loss]);
 
   // Scrubbing maps an x offset back to a bar. Recreated whenever the geometry
   // changes so the closure never seeks against a stale slot width.
@@ -236,7 +243,7 @@ export function ChartCanvas({
   const cursorBar = cursor != null && cursor >= 0 && cursor < shown.length ? shown[cursor] : null;
 
   const plot = (
-    <View style={[styles.plot, { height }]} onLayout={onPlotLayout}>
+    <View className="flex-1" style={{ height }} onLayout={onPlotLayout}>
       {/* Plan bands sit under the candles — context, not foreground. */}
       {bands.map((band) => {
         const top = Math.min(layout.y(band.from), layout.y(band.to));
@@ -247,63 +254,62 @@ export function ChartCanvas({
         return (
           <View
             key={`${band.color}-${band.from}-${band.to}`}
-            style={[
-              styles.band,
-              { top: clippedTop, height: clippedHeight, backgroundColor: band.color },
-            ]}
+            className="absolute left-0 right-0 opacity-10"
+            style={{ top: clippedTop, height: clippedHeight, backgroundColor: band.color }}
           />
         );
       })}
       {layout.gridlines.map((line) => (
-        <View key={line.value} style={[styles.gridline, { top: line.top }]} />
+        <View
+          key={line.value}
+          className="absolute left-0 right-0 h-px bg-border opacity-40"
+          style={{ top: line.top }}
+        />
       ))}
       {candles}
       {/* The unplayed tape is covered by one moving pane rather than by
           slicing the candle list: playback moves this View instead of
-          rebuilding several hundred, which is what keeps 10× smooth. */}
+          rebuilding several hundred, which is what keeps 10× smooth.
+          Opaque, not tinted: a replay whose next candles are legible through
+          the veil answers the question before you have played it. */}
       {/* Nothing to veil in blind mode — the cursor bar *is* the last one drawn. */}
       {cursorBar && !blind ? (
         <View
-          style={[
-            styles.curtain,
-            {
-              left: layout.x(cursor!) + layout.slot / 2,
-              height: plotHeight,
-              backgroundColor: surface ?? theme.colors.card,
-            },
-          ]}
+          className="absolute right-0 top-0"
+          style={{
+            left: layout.x(cursor!) + layout.slot / 2,
+            height: plotHeight,
+            backgroundColor: surface ?? card,
+          }}
         />
       ) : null}
       {cursorBar ? (
         <>
           <View
-            style={[
-              styles.cursorLine,
-              {
-                left: layout.x(cursor!) - 0.5,
-                height: plotHeight,
-                backgroundColor: theme.colors.foreground,
-              },
-            ]}
+            className="absolute top-0 w-px opacity-50"
+            style={{
+              left: layout.x(cursor!) - 0.5,
+              height: plotHeight,
+              backgroundColor: foreground,
+            }}
           />
           {/* Marks the close the P&L readout is marked to, so the number and
               the candle can't be read as belonging to different bars. */}
           <View
-            style={[
-              styles.cursorDot,
-              {
-                left: layout.x(cursor!) - 3,
-                top: layout.y(cursorBar.close) - 3,
-                backgroundColor: theme.colors.foreground,
-              },
-            ]}
+            className="absolute h-1.5 w-1.5 rounded-full"
+            style={{
+              left: layout.x(cursor!) - 3,
+              top: layout.y(cursorBar.close) - 3,
+              backgroundColor: foreground,
+            }}
           />
         </>
       ) : null}
       {visibleLines.map((line) => (
         <View
           key={`${line.color}-${line.value}`}
-          style={[styles.priceLine, { top: layout.y(line.value), backgroundColor: line.color }]}
+          className="absolute left-0 right-0 h-px opacity-[0.55]"
+          style={{ top: layout.y(line.value), backgroundColor: line.color }}
         />
       ))}
       {placedMarkers.map((marker) => {
@@ -312,9 +318,9 @@ export function ChartCanvas({
             <Icon
               name={marker.isBuy ? 'arrowtriangle.up.fill' : 'arrowtriangle.down.fill'}
               size={9}
-              tintColor={marker.color ?? (marker.isBuy ? theme.colors.profit : theme.colors.mutedForeground)}
+              tintColor={marker.color ?? (marker.isBuy ? palette.profit : mutedForeground)}
             />
-            <Text style={styles.markerLabel} numberOfLines={1}>
+            <Text className="text-[8px] tabular-nums text-muted-foreground" numberOfLines={1}>
               {marker.label}
             </Text>
           </>
@@ -325,57 +331,73 @@ export function ChartCanvas({
             onPress={() => onMarkerPress(marker.key)}
             hitSlop={8}
             accessibilityRole="button"
-            style={({ pressed }) => [
-              styles.marker,
-              { left: marker.left - 32, top: marker.top },
-              pressed && styles.markerPressed,
-            ]}
+            className="absolute w-16 items-center gap-px active:opacity-50"
+            style={{ left: marker.left - 32, top: marker.top }}
           >
             {glyph}
           </Pressable>
         ) : (
           <View
             key={marker.key}
-            style={[styles.marker, { left: marker.left - 32, top: marker.top }]}
+            className="absolute w-16 items-center gap-px"
+            style={{ left: marker.left - 32, top: marker.top }}
           >
             {glyph}
           </View>
         );
       })}
-      <View style={styles.timeAxis}>
-        <Text style={styles.timeLabel}>{formatBarTime(shown[0].time, interval)}</Text>
-        <Text style={styles.timeLabel}>
+      <View
+        className="absolute bottom-0 left-0 right-0 flex-row items-end justify-between"
+        style={{ height: TIME_AXIS_HEIGHT }}
+      >
+        <Text className="text-[9px] tabular-nums text-muted-foreground">
+          {formatBarTime(shown[0].time, interval)}
+        </Text>
+        <Text className="text-[9px] tabular-nums text-muted-foreground">
           {formatBarTime(shown[Math.floor(shown.length / 2)].time, interval)}
         </Text>
-        <Text style={styles.timeLabel}>{formatBarTime(shown[shown.length - 1].time, interval)}</Text>
+        <Text className="text-[9px] tabular-nums text-muted-foreground">
+          {formatBarTime(shown[shown.length - 1].time, interval)}
+        </Text>
       </View>
     </View>
   );
 
   return (
-    <View style={[styles.chartRow, { height }]}>
+    <View className="flex-row" style={{ height }}>
       {scrub ? <GestureDetector gesture={scrub}>{plot}</GestureDetector> : plot}
-      <View style={[styles.axis, { height: plotHeight }]}>
+      <View style={{ width: AXIS_WIDTH, height: plotHeight }}>
         {layout.gridlines.map((line) => (
-          <Text key={line.value} style={[styles.axisLabel, { top: line.top - 6 }]} numberOfLines={1}>
+          <Text
+            key={line.value}
+            className="absolute right-0 text-[9px] tabular-nums text-muted-foreground"
+            style={{ top: line.top - 6 }}
+            numberOfLines={1}
+          >
             {formatAxisPrice(line.value)}
           </Text>
         ))}
         {visibleLines.map((line) => (
           <Text
             key={`${line.color}-${line.value}`}
-            style={[
-              styles.axisLabel,
-              { top: layout.y(line.value) - 6, color: line.color, fontWeight: '600' },
-            ]}
+            className="absolute right-0 text-[9px] font-semibold tabular-nums"
+            style={{ top: layout.y(line.value) - 6, color: line.color }}
             numberOfLines={1}
           >
             {formatAxisPrice(line.value)}
           </Text>
         ))}
+        {/* The cursor's own price reads as a chip so it wins against the axis
+            ticks it inevitably overlaps as the replay runs. */}
         {cursorBar ? (
-          <View style={[styles.cursorChip, { top: layout.y(cursorBar.close) - 9 }]}>
-            <Text style={styles.cursorChipLabel} numberOfLines={1}>
+          <View
+            className="absolute right-0 rounded-sm bg-foreground px-1 py-px"
+            style={{ top: layout.y(cursorBar.close) - 9 }}
+          >
+            <Text
+              className="text-[9px] font-semibold tabular-nums text-background"
+              numberOfLines={1}
+            >
               {formatAxisPrice(cursorBar.close)}
             </Text>
           </View>
@@ -384,66 +406,3 @@ export function ChartCanvas({
     </View>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  chartRow: { flexDirection: 'row' },
-  plot: { flex: 1 },
-  axis: { width: AXIS_WIDTH },
-  band: { position: 'absolute', left: 0, right: 0, opacity: 0.1 },
-  gridline: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    height: 1,
-    backgroundColor: theme.colors.border,
-    opacity: 0.4,
-  },
-  wick: { position: 'absolute', width: 1 },
-  body: { position: 'absolute', borderRadius: 1 },
-  // 0.75 over the surface leaves the future tape at the same quarter-strength
-  // the per-candle opacity used to give it.
-  // Opaque, not tinted: a replay whose next candles are legible through the
-  // veil answers the question before you have played it.
-  curtain: { position: 'absolute', top: 0, right: 0 },
-  cursorLine: { position: 'absolute', top: 0, width: 1, opacity: 0.5 },
-  cursorDot: { position: 'absolute', width: 6, height: 6, borderRadius: 3 },
-  priceLine: { position: 'absolute', left: 0, right: 0, height: 1, opacity: 0.55 },
-  marker: { position: 'absolute', width: 64, alignItems: 'center', gap: 1 },
-  markerPressed: { opacity: 0.5 },
-  markerLabel: { fontSize: 8, color: theme.colors.mutedForeground, ...theme.numeric },
-  axisLabel: {
-    position: 'absolute',
-    right: 0,
-    fontSize: 9,
-    color: theme.colors.mutedForeground,
-    ...theme.numeric,
-  },
-  // The cursor's own price reads as a chip so it wins against the axis ticks
-  // it inevitably overlaps as the replay runs.
-  cursorChip: {
-    position: 'absolute',
-    right: 0,
-    paddingHorizontal: 4,
-    paddingVertical: 1,
-    borderRadius: theme.radius.sm,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.foreground,
-  },
-  cursorChipLabel: {
-    fontSize: 9,
-    fontWeight: '600',
-    color: theme.colors.background,
-    ...theme.numeric,
-  },
-  timeAxis: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: TIME_AXIS_HEIGHT,
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    justifyContent: 'space-between',
-  },
-  timeLabel: { fontSize: 9, color: theme.colors.mutedForeground, ...theme.numeric },
-}));

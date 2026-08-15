@@ -1,73 +1,142 @@
-import { FieldGroup, ListItem, Picker, RNHostView, Switch, Text, TextInput } from '@expo/ui';
-import { Pressable, Text as RNText } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import type { SFSymbol } from 'expo-symbols';
+import { cn, Frame, Input, Menu, Switch, Text } from 'panelui-native';
+import { Children, Fragment, useState, type ReactNode } from 'react';
+import { View } from 'react-native';
+import { useCSSVariable } from 'uniwind';
 
 import { Icon } from '@/components/icon';
-
-import type {
-  SettingsButtonProps,
-  SettingsInputProps,
-  SettingsPickerProps,
-  SettingsRowProps,
-  SettingsSectionProps,
-  SettingsToggleProps,
-  ValueTextProps,
-} from './settings-rows.types';
+import { numericText } from '@/lib/amount';
 
 /**
- * The settings-row vocabulary, in its cross-platform form. `settings-rows.ios.tsx`
- * overrides this with the SwiftUI originals; both export the same names, so the
- * settings screens never branch. (As with `settings-form`, the universal file
- * must be the unsuffixed one — TypeScript only resolves the base name.)
+ * The settings-row vocabulary — one implementation for both platforms, drawn
+ * in JS on PanelUI's `Frame`.
  *
- * These exist because the universal primitives don't cover the app's row shapes
- * one-for-one:
- *
- * - `@expo/ui`'s `Picker` has **no `label` prop**, while SwiftUI's does and every
- *   settings row depends on it for the row title. Dropping in the universal
- *   Picker directly would silently erase the label on every picker row, so
- *   `SettingsPicker` supplies it — as a `ListItem` headline here, and as the
- *   SwiftUI `Picker`'s own label on iOS.
- * - `LabeledContent` has no universal counterpart at all; `SettingsRow` rebuilds
- *   it from `ListItem` (headline = label, trailing = value).
- *
- * `SettingsToggle` needs no such help — universal `Switch` already takes a label
- * and compiles to the very same SwiftUI `Toggle` on iOS.
+ * A section is a `Frame` (title strip, card panel, footer caption) and every
+ * row is a `Frame.Row` inside its `Frame.Panel`, which is where the shared
+ * row metrics, the press highlight and the leading/content/trailing slot rules
+ * come from. The old SwiftUI `Form`/`Section`/`LabeledContent` set and its
+ * Compose counterpart are both gone, and with them the platform split — the
+ * settings screens see exactly the same components and the same props they
+ * always did.
  */
 
-/** Grouped section with an optional title and footer. */
+export interface SettingsRowProps {
+  label: string;
+  /** The value side of the row. */
+  children: ReactNode;
+}
+
+export interface SettingsToggleProps {
+  label: string;
+  value: boolean;
+  onValueChange: (value: boolean) => void;
+}
+
+export interface SettingsPickerItem<T extends string> {
+  label: string;
+  value: T;
+}
+
+export interface SettingsPickerProps<T extends string> {
+  label: string;
+  selectedValue: T;
+  onValueChange: (value: T) => void;
+  items: SettingsPickerItem<T>[];
+}
+
+export interface SettingsSectionProps {
+  title?: string;
+  /** Plain text caption under the section's card. */
+  footer?: string;
+  children: ReactNode;
+}
+
+export interface ValueTextProps {
+  /**
+   * Explicit color for values that carry meaning (P&L, server status). Omitted,
+   * the text reads in `muted-foreground`, so rows read label-dark /
+   * value-muted the way a grouped list does.
+   */
+  color?: string;
+  children: string;
+}
+
+export interface SettingsInputProps {
+  label: string;
+  placeholder?: string;
+  /** Seeds the field at mount; the row owns the text from then on. */
+  defaultValue?: string;
+  /** Trailing unit label (a currency code) after the field. */
+  suffix?: string;
+  /** Amount entry: decimal keyboard, and non-numeric characters filtered out. */
+  numeric?: boolean;
+  onChangeText: (text: string) => void;
+}
+
+export interface SettingsButtonProps {
+  label: string;
+  /** Leading SF Symbol; Android maps it through `@/lib/sf-to-material`. */
+  systemImage?: SFSymbol;
+  /** `destructive` tints the row red, for rows that remove something. */
+  role?: 'default' | 'destructive';
+  disabled?: boolean;
+  onPress: () => void;
+}
+
+/**
+ * Hairlines between a section's rows.
+ *
+ * `Frame.Panel` draws its own, but only for children it can recognise as a
+ * `Frame.Row` — and every row here is wrapped in one of the components below,
+ * so the panel sees a `SettingsToggle`, not a row. Inserting the rules here
+ * works whatever a screen puts in a section, including a plain `Text`.
+ */
+function withDividers(children: ReactNode) {
+  return Children.toArray(children).map((child, index) => (
+    <Fragment key={index}>
+      {index > 0 ? <View className="ms-4 h-px bg-border" /> : null}
+      {child}
+    </Fragment>
+  ));
+}
+
+/** Grouped section: an optional title, a card of rows, an optional footer. */
 export function SettingsSection({ title, footer, children }: SettingsSectionProps) {
   return (
-    <FieldGroup.Section title={title}>
-      {children}
-      {footer ? (
-        <FieldGroup.SectionFooter>
-          <Text>{footer}</Text>
-        </FieldGroup.SectionFooter>
+    // `plain` because the title and footer sit *outside* the card here, the way
+    // a grouped list writes them — the default variant's tray would draw a
+    // second edge around a panel that already has one.
+    <Frame variant="plain">
+      {title ? (
+        <Frame.Header className="px-4 pb-1.5 pt-0">
+          <Frame.Title className="text-xs uppercase tracking-wider">{title}</Frame.Title>
+        </Frame.Header>
       ) : null}
-    </FieldGroup.Section>
+      <Frame.Panel dividers={false}>{withDividers(children)}</Frame.Panel>
+      {footer ? (
+        <Text size="xs" muted className="px-4 pt-2">
+          {footer}
+        </Text>
+      ) : null}
+    </Frame>
   );
 }
 
-/** A label paired with a read-only value — the `LabeledContent` stand-in. */
+/** A label paired with a read-only value. */
 export function SettingsRow({ label, children }: SettingsRowProps) {
   return (
-    <ListItem>
-      <Text>{label}</Text>
-      <ListItem.Trailing>{children}</ListItem.Trailing>
-    </ListItem>
+    <Frame.Row>
+      <Frame.Content>
+        <Frame.Title>{label}</Frame.Title>
+      </Frame.Content>
+      {/* `shrink` against the slot's own `shrink-0`: a long value (a server
+          URL) wraps inside the row instead of running off the card. */}
+      <Frame.Actions className="min-w-0 shrink justify-end">{children}</Frame.Actions>
+    </Frame.Row>
   );
 }
 
-/**
- * An action row: leading icon, label, no navigation affordance.
- *
- * Universal `Button` is deliberately not used here. It has no `systemImage`
- * prop and defaults to `variant='filled'`, which maps to `borderedProminent`
- * on iOS — a settings list full of solid blue buttons with the icons dropped.
- * So this follows `nav-row.tsx`: RN inside an `RNHostView`, reusing the mapped
- * icon layer.
- */
+/** An action row: leading icon, tinted label, no navigation affordance. */
 export function SettingsButton({
   label,
   systemImage,
@@ -75,63 +144,48 @@ export function SettingsButton({
   disabled,
   onPress,
 }: SettingsButtonProps) {
-  const { theme } = useUnistyles();
-  const tint = role === 'destructive' ? theme.colors.destructive : theme.colors.primary;
+  const [primary, destructive] = useCSSVariable([
+    '--color-primary',
+    '--color-destructive',
+  ]) as [string, string];
+  const tint = role === 'destructive' ? destructive : primary;
 
   return (
-    <RNHostView matchContents>
-      <Pressable
-        onPress={onPress}
-        disabled={disabled}
-        accessibilityRole="button"
-        accessibilityState={{ disabled: !!disabled }}
-        style={({ pressed }) => [
-          buttonStyles.row,
-          pressed && buttonStyles.pressed,
-          disabled && buttonStyles.disabled,
-        ]}
-      >
-        {systemImage != null ? <Icon name={systemImage} size={17} tintColor={tint} /> : null}
-        <RNText style={[buttonStyles.label, { color: tint }]}>{label}</RNText>
-      </Pressable>
-    </RNHostView>
+    <Frame.Row
+      onPress={onPress}
+      disabled={disabled}
+      accessibilityState={{ disabled: !!disabled }}
+      className={cn(disabled && 'opacity-40')}
+    >
+      {systemImage != null ? (
+        <Frame.Media>
+          <Icon name={systemImage} size={17} tintColor={tint} />
+        </Frame.Media>
+      ) : null}
+      <Frame.Content>
+        <Frame.Title className={role === 'destructive' ? 'text-destructive' : 'text-primary'}>
+          {label}
+        </Frame.Title>
+      </Frame.Content>
+    </Frame.Row>
   );
 }
 
-const buttonStyles = StyleSheet.create((theme) => ({
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing.md,
-    paddingVertical: theme.spacing.md,
-    paddingHorizontal: theme.spacing.lg,
-  },
-  pressed: { backgroundColor: theme.colors.accent },
-  disabled: { opacity: 0.4 },
-  label: { fontSize: 17 },
-}));
-
-/**
- * Value text with tabular figures, per DESIGN.md.
- *
- * Known gap: `@expo/ui`'s universal `Text` exposes no tabular-numbers option and
- * Compose has no equivalent knob reachable from here, so on Android these read
- * in the default proportional figures. iOS keeps `monospacedDigit()` via
- * `settings-rows.ios.tsx`. Worth revisiting once a real device shows how badly
- * the preview column shifts.
- */
+/** Value text with tabular figures, per DESIGN.md. */
 export function NumericText({ children }: { children: string }) {
-  return <Text>{children}</Text>;
+  return <Text size="sm" className="tabular-nums">{children}</Text>;
 }
 
 /**
  * Value-side text. Colored when the value carries meaning (P&L, status);
- * otherwise the secondary value color, so rows read label-dark / value-muted
- * the way iOS grouped lists do.
+ * otherwise the muted value color.
  */
 export function ValueText({ color, children }: ValueTextProps) {
-  const { theme } = useUnistyles();
-  return <Text textStyle={{ color: color ?? theme.colors.mutedForeground }}>{children}</Text>;
+  return (
+    <Text size="sm" muted={color == null} style={color != null ? { color } : undefined}>
+      {children}
+    </Text>
+  );
 }
 
 /** A label paired with an inline, trailing-aligned text field. */
@@ -143,52 +197,105 @@ export function SettingsInput({
   numeric,
   onChangeText,
 }: SettingsInputProps) {
-  const { theme } = useUnistyles();
+  // The field is drawn in JS now, so a rejected character can be filtered in
+  // the same commit that produced it — no worklet, and no letter that appears
+  // and vanishes the way an uncontrolled RN field used to give.
+  const [value, setValue] = useState(defaultValue ?? '');
+
+  function handleChange(next: string) {
+    const cleaned = numeric ? numericText(next) : next;
+    setValue(cleaned);
+    onChangeText(cleaned);
+  }
+
   return (
-    <ListItem>
-      <Text>{label}</Text>
-      <ListItem.Trailing>
-        {/* Uncontrolled — native state holds the text, `onChangeText` mirrors
-            it into a ref for submit-time reads (the account-form pattern).
-            No worklet filter here: Android validates amounts at submit, the
-            decimal keyboard keeps the input honest enough. */}
-        <TextInput
-          defaultValue={defaultValue}
+    <Frame.Row>
+      <Frame.Content>
+        <Frame.Title>{label}</Frame.Title>
+      </Frame.Content>
+      <Frame.Actions className="min-w-0 shrink grow justify-end gap-2">
+        <Input
+          variant="filled"
+          size="sm"
+          value={value}
+          onChangeText={handleChange}
           placeholder={placeholder}
-          placeholderTextColor={theme.colors.mutedForeground}
-          textAlign="right"
           keyboardType={numeric ? 'decimal-pad' : 'default'}
           autoCorrect={!numeric}
-          onChangeText={onChangeText}
+          accessibilityLabel={label}
+          className="text-right"
+          containerClassName="w-auto min-w-0 shrink grow"
         />
-        {suffix != null ? <Text textStyle={{ color: theme.colors.mutedForeground }}>{suffix}</Text> : null}
-      </ListItem.Trailing>
-    </ListItem>
+        {suffix != null ? (
+          <Text size="sm" muted>
+            {suffix}
+          </Text>
+        ) : null}
+      </Frame.Actions>
+    </Frame.Row>
   );
 }
 
 /** A labelled on/off row. */
 export function SettingsToggle({ label, value, onValueChange }: SettingsToggleProps) {
-  return <Switch label={label} value={value} onValueChange={onValueChange} />;
+  return (
+    <Frame.Row>
+      <Frame.Content>
+        <Frame.Title>{label}</Frame.Title>
+      </Frame.Content>
+      <Frame.Actions>
+        <Switch value={value} onValueChange={onValueChange} accessibilityLabel={label} />
+      </Frame.Actions>
+    </Frame.Row>
+  );
 }
 
-/** A labelled single-choice row. */
+/**
+ * A labelled single-choice row.
+ *
+ * The whole row is the trigger and the options arrive in a `Menu` — the
+ * pull-down shape SwiftUI's `pickerStyle('menu')` gave the row before, rather
+ * than `Select`'s bordered trigger, which would put a second control box
+ * inside a card that is already one.
+ */
 export function SettingsPicker<T extends string>({
   label,
   selectedValue,
   onValueChange,
   items,
 }: SettingsPickerProps<T>) {
+  const [mutedForeground] = useCSSVariable(['--color-muted-foreground']) as [string];
+  const selected = items.find((item) => item.value === selectedValue);
+
   return (
-    <ListItem>
-      <Text>{label}</Text>
-      <ListItem.Trailing>
-        <Picker selectedValue={selectedValue} onValueChange={(v) => onValueChange(v as T)}>
+    <Menu>
+      <Menu.Trigger>
+        <Frame.Row accessibilityRole="button" accessibilityLabel={label}>
+          <Frame.Content>
+            <Frame.Title>{label}</Frame.Title>
+          </Frame.Content>
+          <Frame.Actions>
+            {selected ? (
+              <Text size="sm" muted>
+                {selected.label}
+              </Text>
+            ) : null}
+            <Icon name="chevron.up.chevron.down" size={11} tintColor={mutedForeground} />
+          </Frame.Actions>
+        </Frame.Row>
+      </Menu.Trigger>
+      <Menu.Content align="end">
+        <Menu.RadioGroup
+          value={selectedValue}
+          onValueChange={(value) => onValueChange(value as T)}
+        >
           {items.map((item) => (
-            <Picker.Item key={item.value} label={item.label} value={item.value} />
+            <Menu.RadioItem key={item.value} value={item.value}>
+              {item.label}
+            </Menu.RadioItem>
           ))}
-        </Picker>
-      </ListItem.Trailing>
-    </ListItem>
+        </Menu.RadioGroup>
+      </Menu.Content>
+    </Menu>
   );
 }

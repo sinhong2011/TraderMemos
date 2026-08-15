@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
+import { Spinner, cn } from 'panelui-native';
 import { useState } from 'react';
-import { ActivityIndicator, Text, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { Text, View } from 'react-native';
 
 import { useApiRequest, useLlmSettings } from '@/api/hooks';
 import type { CoachReview, TradeDetail } from '@/api/types';
@@ -15,6 +15,14 @@ import {
   type CoachTone,
   type TradeCoachNote,
 } from '@/lib/trade-insights';
+
+/** Tone tint for the leading word — `warn` takes the section-title accent. */
+const TONE_CLASS: Record<CoachTone, string> = {
+  neg: 'text-destructive',
+  warn: 'text-heading',
+  pos: 'text-profit',
+  tip: 'text-primary',
+};
 
 function toneLabel(tone: CoachTone): string {
   switch (tone) {
@@ -30,23 +38,14 @@ function toneLabel(tone: CoachTone): string {
 }
 
 function NoteRow({ note }: { note: TradeCoachNote }) {
-  const { theme } = useUnistyles();
-  const toneColor: Record<CoachTone, string> = {
-    neg: theme.colors.destructive,
-    warn: theme.colors.accent,
-    pos: theme.colors.profit,
-    tip: theme.colors.primary,
-  };
   return (
-    <View style={styles.note}>
-      <Text style={styles.noteHead}>
-        <Text style={[styles.noteTone, { color: toneColor[note.tone] }]}>
-          {toneLabel(note.tone)}
-        </Text>
-        <Text style={styles.noteDot}> · </Text>
+    <View className="gap-1 rounded-md bg-muted px-3 py-2.5">
+      <Text className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        <Text className={cn('font-bold', TONE_CLASS[note.tone])}>{toneLabel(note.tone)}</Text>
+        <Text className="text-muted-foreground"> · </Text>
         {note.headline}
       </Text>
-      <Text style={styles.noteDetail}>{note.detail}</Text>
+      <Text className="text-[13px] leading-[18px] text-muted-foreground">{note.detail}</Text>
     </View>
   );
 }
@@ -82,7 +81,9 @@ export function CoachCard({ trade }: { trade: TradeDetail }) {
 
       {llmNotes.length > 0 ? (
         <>
-          <Text style={styles.sectionLabel}>{t`AI review`}</Text>
+          <Text className="pt-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            {t`AI review`}
+          </Text>
           {llmNotes.map((note) => (
             <NoteRow key={note.id} note={note} />
           ))}
@@ -90,10 +91,12 @@ export function CoachCard({ trade }: { trade: TradeDetail }) {
       ) : null}
 
       {review?.source === 'error' ? (
-        <Text style={styles.muted}>{review.error || t`The AI review failed — try again.`}</Text>
+        <Text className="text-[13px] text-muted-foreground">
+          {review.error || t`The AI review failed — try again.`}
+        </Text>
       ) : null}
       {review?.source === 'off' ? (
-        <Text style={styles.muted}>
+        <Text className="text-[13px] text-muted-foreground">
           {t`AI coach is turned off — enable it under Settings → AI.`}
         </Text>
       ) : null}
@@ -102,9 +105,10 @@ export function CoachCard({ trade }: { trade: TradeDetail }) {
       ) : null}
 
       {coachConfigured ? (
-        <View style={styles.action}>
+        // Standalone actions center (the CenteredButton idiom).
+        <View className="items-center pt-1">
           {generate.isPending ? (
-            <ActivityIndicator />
+            <Spinner />
           ) : (
             <GlassButton
               label={llmNotes.length > 0 ? t`Regenerate` : t`Ask AI`}
@@ -114,43 +118,10 @@ export function CoachCard({ trade }: { trade: TradeDetail }) {
           )}
         </View>
       ) : localNotes.length > 0 ? (
-        <Text style={styles.footnote}>
+        <Text className="text-xs text-muted-foreground">
           {t`Add an AI endpoint under Settings → AI for a model-written review.`}
         </Text>
       ) : null}
     </DashboardCard>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  note: {
-    gap: 4,
-    backgroundColor: theme.colors.muted,
-    borderRadius: theme.radius.md,
-    borderCurve: 'continuous',
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.sm + 2,
-  },
-  noteHead: {
-    fontSize: 12,
-    fontWeight: '600',
-    letterSpacing: 0.4,
-    color: theme.colors.mutedForeground,
-    textTransform: 'uppercase',
-  },
-  noteTone: { fontWeight: '700' },
-  noteDot: { color: theme.colors.mutedForeground },
-  noteDetail: { fontSize: 13, lineHeight: 18, color: theme.colors.mutedForeground },
-  sectionLabel: {
-    fontSize: 11,
-    fontWeight: '600',
-    letterSpacing: 0.6,
-    textTransform: 'uppercase',
-    color: theme.colors.mutedForeground,
-    paddingTop: theme.spacing.xs,
-  },
-  // Standalone actions center (the CenteredButton idiom).
-  action: { alignItems: 'center', paddingTop: theme.spacing.xs },
-  muted: { fontSize: 13, color: theme.colors.mutedForeground },
-  footnote: { fontSize: 12, color: theme.colors.mutedForeground },
-}));

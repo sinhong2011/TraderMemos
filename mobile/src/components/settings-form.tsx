@@ -1,36 +1,51 @@
-import { FieldGroup } from '@expo/ui';
-import type { ComponentProps } from 'react';
-import { useUnistyles } from 'react-native-unistyles';
+import { cn } from 'panelui-native';
+import type { ReactNode } from 'react';
+import { ScrollView, type ScrollViewProps } from 'react-native';
+
+export interface SettingsFormProps extends ScrollViewProps {
+  /**
+   * Accepted and ignored — the SwiftUI `modifiers` array the settings screens
+   * used to hand the native `Form` (`scrollDismissesKeyboard`, and before that
+   * the background/section-spacing/scroll-edge set). The form is drawn in JS
+   * now, so keyboard dismissal and the background are props on the scroller
+   * below; the prop stays in the signature so the screens that still pass one
+   * keep compiling.
+   */
+  modifiers?: unknown;
+  children?: ReactNode;
+}
 
 /**
- * The settings-screen form container, in its cross-platform form.
+ * The settings-screen container: one scroller on the app background holding a
+ * column of `SettingsSection` blocks.
  *
- * This is the base module, so Android resolves here; iOS overrides it with
- * `settings-form.ios.tsx`, which keeps the SwiftUI `Form` and its four
- * iOS-only modifiers exactly as they shipped. Both export the same name and
- * take the same children, so the 25 settings screens never branch. (TypeScript
- * only resolves the base name, which is why the universal version — not the
- * iOS one — has to be the unsuffixed file.)
+ * It replaces the SwiftUI `Form` / Compose `FieldGroup` pair with the same
+ * shape drawn in JS, so both platforms get the identical grouped-list layout
+ * and the 25 settings screens never branch. Section gaps, the grouped
+ * background and the card surfaces all come from the theme tokens rather than
+ * from platform list styling.
  *
- * `FieldGroup` is `@expo/ui`'s universal grouped-list container — the very same
- * SwiftUI `Form` on iOS, a Compose grouped list on Android — which is why the
- * screens' `Section` rows keep working underneath it.
- *
- * None of the iOS modifiers are restated here: `scrollContentBackground` and
- * `listSectionSpacing` are SwiftUI-only knobs, and `scrollEdgeEffectStyle`
- * comes from the iOS-26-only `modules/scroll-edge-style`. Compose's grouped
- * list already paints on the theme background, so only that token carries over
- * — as a plain style, not a modifier.
- *
- * Callers that pass `modifiers` (three screens pass `scrollDismissesKeyboard`)
- * still typecheck and stay safe: SwiftUI modifier configs are inert data to
- * Compose, so they're accepted and ignored rather than crashing.
+ * `contentInsetAdjustmentBehavior="automatic"` keeps the app-wide rule for
+ * scrollables under a large-title header; the keyboard settings are the ones
+ * the three form screens used to ask for with `scrollDismissesKeyboard`.
  */
 export function SettingsForm({
-  modifiers: _iosModifiers,
-  style,
+  modifiers: _modifiers,
+  className,
+  contentContainerClassName,
+  children,
   ...props
-}: ComponentProps<typeof FieldGroup>) {
-  const { theme } = useUnistyles();
-  return <FieldGroup style={{ backgroundColor: theme.colors.background, ...style }} {...props} />;
+}: SettingsFormProps) {
+  return (
+    <ScrollView
+      contentInsetAdjustmentBehavior="automatic"
+      keyboardDismissMode="on-drag"
+      keyboardShouldPersistTaps="handled"
+      className={cn('flex-1 bg-background', className)}
+      contentContainerClassName={cn('gap-6 px-4 py-4', contentContainerClassName)}
+      {...props}
+    >
+      {children}
+    </ScrollView>
+  );
 }

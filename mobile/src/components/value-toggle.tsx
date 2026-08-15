@@ -1,3 +1,4 @@
+import { cn } from 'panelui-native';
 import { useEffect, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import Animated, {
@@ -6,7 +7,6 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from 'react-native-reanimated';
-import { StyleSheet } from 'react-native-unistyles';
 
 type Option<T extends string> = { value: T; label: string; fill: string };
 
@@ -15,10 +15,10 @@ type Option<T extends string> = { value: T; label: string; fill: string };
  * Long/Buy in profit green, Short/Sell in loss red — so the row states its
  * direction at a glance instead of leaving it to the label.
  *
- * Hand-rolled rather than `Segmented`: SwiftUI's segmented `Picker` paints its
- * own selection and ignores `.tint`, so a native control can't color the
- * selected segment. Neutral switches (chart ranges, calendar modes) stay on
- * `Segmented` and keep the system look.
+ * Hand-rolled rather than `Segmented`: PanelUI's `Tabs` indicator is one
+ * surface token for every tab, so a control whose selection color *is* the
+ * information cannot be expressed with it. Neutral switches (chart ranges,
+ * calendar modes) stay on `Segmented` and keep the standard look.
  */
 export function ValueToggle<T extends string>({
   options,
@@ -49,8 +49,17 @@ export function ValueToggle<T extends string>({
   }));
 
   return (
-    <View style={styles.track} onLayout={(e) => setTrackWidth(e.nativeEvent.layout.width)}>
-      <Animated.View style={[styles.pill, pill]} />
+    <View
+      className="flex-row items-center rounded-full bg-fill p-[3px]"
+      onLayout={(e) => setTrackWidth(e.nativeEvent.layout.width)}
+    >
+      {/* Under the labels, so text keeps its own color over the fill. The
+          inset is the track's own padding, in points, because the pill is
+          positioned against the track's box rather than laid out in it. */}
+      <Animated.View
+        className="absolute rounded-full"
+        style={[{ top: TRACK_PADDING, bottom: TRACK_PADDING, left: TRACK_PADDING }, pill]}
+      />
       {options.map((option) => {
         const isActive = option.value === value;
         return (
@@ -59,9 +68,17 @@ export function ValueToggle<T extends string>({
             onPress={() => onChange(option.value)}
             accessibilityRole="button"
             accessibilityState={{ selected: isActive }}
-            style={styles.segment}
+            className="min-h-[28px] min-w-[58px] items-center justify-center px-3"
           >
-            <Text style={[styles.label, isActive && styles.labelActive]} numberOfLines={1}>
+            <Text
+              className={cn(
+                'text-[13px] font-medium text-muted-foreground',
+                // White, not a token: the pill under it is a saturated P&L fill
+                // that stays the same in both schemes (see PnlFill).
+                isActive && 'font-semibold text-white'
+              )}
+              numberOfLines={1}
+            >
               {option.label}
             </Text>
           </Pressable>
@@ -74,32 +91,3 @@ export function ValueToggle<T extends string>({
 /** Shorter than the pager's page spring — the pill travels a fraction as far. */
 const SLIDE_SPRING = { duration: 260, dampingRatio: 0.9 } as const;
 const TRACK_PADDING = 3;
-
-const styles = StyleSheet.create((theme) => ({
-  track: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: TRACK_PADDING,
-    borderRadius: theme.radius.full,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.fill,
-  },
-  // Under the labels, so text keeps its own color over the fill.
-  pill: {
-    position: 'absolute',
-    top: TRACK_PADDING,
-    bottom: TRACK_PADDING,
-    left: TRACK_PADDING,
-    borderRadius: theme.radius.full,
-    borderCurve: 'continuous',
-  },
-  segment: {
-    minWidth: 58,
-    minHeight: 28,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: theme.spacing.md,
-  },
-  label: { fontSize: 13, fontWeight: '500', color: theme.colors.mutedForeground },
-  labelActive: { color: '#FFFFFF', fontWeight: '600' },
-}));

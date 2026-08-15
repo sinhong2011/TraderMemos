@@ -1,17 +1,15 @@
 import { useRouter } from 'expo-router';
+import { Progress, Skeleton, cn } from 'panelui-native';
 import { Text, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { usePropStatus } from '@/api/hooks';
 import { DashboardCard } from '@/components/dashboard-card';
 import { InlineError } from '@/components/error-state';
 import { Pill } from '@/components/pill';
-import { Skeleton } from '@/components/skeleton';
 import { StatBar } from '@/components/stat-bar';
 import { t } from '@lingui/core/macro';
 import { formatPercent, useFormatters } from '@/lib/format';
 import { resolveMarketTimezone, useDisplayPrefs } from '@/lib/prefs';
-import { pnlColor } from '@/styles/unistyles';
 
 function RuleBar({
   label,
@@ -25,25 +23,21 @@ function RuleBar({
   note: string;
   danger?: boolean;
 }) {
-  const { theme } = useUnistyles();
   const clamped = Math.min(1, Math.max(0, progress));
   return (
-    <View style={styles.rule}>
-      <View style={styles.ruleHead}>
-        <Text style={styles.ruleLabel}>{label}</Text>
-        <Text style={[styles.ruleNote, danger ? { color: theme.colors.loss } : null]}>{note}</Text>
+    <View className="gap-1">
+      <View className="flex-row items-baseline justify-between">
+        <Text className="text-[13px] font-medium text-foreground">{label}</Text>
+        <Text className={cn('text-xs tabular-nums', danger ? 'text-loss' : 'text-muted-foreground')}>
+          {note}
+        </Text>
       </View>
-      <View style={styles.track}>
-        <View
-          style={[
-            styles.fill,
-            {
-              width: `${Math.max(3, clamped * 100)}%`,
-              backgroundColor: danger ? theme.colors.loss : theme.colors.profit,
-            },
-          ]}
-        />
-      </View>
+      {/* 3% floor so a rule barely underway still reads as a started bar. */}
+      <Progress
+        value={Math.max(3, clamped * 100)}
+        size="sm"
+        color={danger ? 'destructive' : 'success'}
+      />
     </View>
   );
 }
@@ -63,13 +57,12 @@ export function PropStatusCard({
   /** Base→display conversion applied before formatting (1 = account currency). */
   fxRate?: number;
 }) {
-  const { theme } = useUnistyles();
   const router = useRouter();
   const prefs = useDisplayPrefs();
   const { formatCurrency, formatPnl } = useFormatters();
   const status = usePropStatus(accountId, { tz: resolveMarketTimezone(prefs.marketTimezone) });
 
-  if (status.isLoading) return <Skeleton style={styles.skeleton} />;
+  if (status.isLoading) return <Skeleton className="h-[200px] rounded-[18px]" />;
   // Vanishing was defensible while it was the only blank card on screen; with
   // the server down every card beside it is blank too, and a trader on an
   // evaluation is owed a reason rather than a missing drawdown floor. A cached
@@ -95,7 +88,7 @@ export function PropStatusCard({
             router.push({ pathname: '/prop-settings', params: { accountId } }),
         }}
       >
-        <Text style={styles.empty}>
+        <Text className="text-[13px] text-muted-foreground">
           {t`Define the profit target, drawdown, and daily-loss rules to track this evaluation.`}
         </Text>
       </DashboardCard>
@@ -127,7 +120,7 @@ export function PropStatusCard({
       }}
       flush
     >
-      <View style={styles.grid}>
+      <View className="flex-row flex-wrap gap-2">
         <StatBar label={t`Equity`} value={formatCurrency(fx(s.equity), currency)} tone="accent" />
         <StatBar
           label={t`Realized P&L`}
@@ -139,7 +132,7 @@ export function PropStatusCard({
           label={t`Best day`}
           value={formatPnl(fx(s.best_day_pnl), currency)}
           sub={s.best_day_share != null ? t`${formatPercent(s.best_day_share, 0)} of profit` : undefined}
-          tone={pnlColor(theme.colors, s.best_day_pnl) === theme.colors.profit ? 'pos' : 'muted'}
+          tone={s.best_day_pnl > 0 ? 'pos' : 'muted'}
         />
       </View>
 
@@ -172,7 +165,7 @@ export function PropStatusCard({
         />
       ) : null}
 
-      <View style={styles.pills}>
+      <View className="flex-row flex-wrap gap-1.5">
         {s.target_reached ? <Pill tone="pos">{t`target reached`}</Pill> : null}
         {s.drawdown_hit ? <Pill tone="neg">{t`drawdown floor hit`}</Pill> : null}
         {s.daily_loss_hits > 0 ? <Pill tone="neg">{t`daily loss ×${s.daily_loss_hits}`}</Pill> : null}
@@ -185,21 +178,3 @@ export function PropStatusCard({
     </DashboardCard>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
-  rule: { gap: theme.spacing.xs },
-  ruleHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
-  ruleLabel: { fontSize: 13, fontWeight: '500', color: theme.colors.foreground },
-  ruleNote: { fontSize: 12, color: theme.colors.mutedForeground, ...theme.numeric },
-  track: {
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: theme.colors.muted,
-    overflow: 'hidden',
-  },
-  fill: { height: '100%', borderRadius: 3 },
-  pills: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.xs + 2 },
-  empty: { fontSize: 13, color: theme.colors.mutedForeground },
-  skeleton: { height: 200, borderRadius: theme.radius.lg + 4 },
-}));

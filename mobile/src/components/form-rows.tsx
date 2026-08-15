@@ -1,3 +1,4 @@
+import { Item } from 'panelui-native';
 import { Children, Fragment, useState, type ReactNode } from 'react';
 import { Pressable, Text, TextInput, View, type TextInputProps } from 'react-native';
 import Animated, {
@@ -5,7 +6,7 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from 'react-native-reanimated';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { useCSSVariable } from 'uniwind';
 
 import { Icon } from '@/components/icon';
 import { NumericField } from '@/components/numeric-field';
@@ -17,22 +18,26 @@ const ACCORDION_SPRING = { duration: 420, dampingRatio: 0.85 } as const;
 
 /**
  * The inset-grouped row vocabulary shared by the creation sheets (trade form,
- * cash form). These are plain RN — a SwiftUI `Form` can't host chip groups,
- * pagers or the screenshot queue, so the forms that need those build the
- * grouped look themselves and everything else matches them.
- *
- * Settings *screens* are the other idiom: those stay real SwiftUI Forms via
- * `settings-form.tsx`.
+ * cash form) and the settings screens. Rows are label-leading with the control
+ * pinned trailing — the grouped-list idiom both platforms share — drawn in JS
+ * so a chip group, a pager or the screenshot queue can sit in a row beside a
+ * plain text field.
  */
 
 /** Muted uppercase grouped-section header. */
 export function SectionHeader({ label }: { label: string }) {
-  return <Text style={styles.section}>{label}</Text>;
+  return (
+    <Text className="mt-2 pl-4 text-xs font-semibold uppercase tracking-[0.6px] text-muted-foreground">
+      {label}
+    </Text>
+  );
 }
 
-/** Grouped-list footer — the iOS place for a rule the fields can't state. */
+/** Grouped-list footer — the place for a rule the fields can't state. */
 export function SectionFooter({ label }: { label: string }) {
-  return <Text style={styles.sectionFooter}>{label}</Text>;
+  return (
+    <Text className="-mt-2 px-4 text-xs leading-[17px] text-muted-foreground">{label}</Text>
+  );
 }
 
 /**
@@ -44,8 +49,10 @@ export function SectionFooter({ label }: { label: string }) {
  * The body stays mounted inside a clipped, height-animated container (the
  * standard measure-and-spring accordion): inputs keep their state while
  * closed, and the open/close glides on the app's shared spring instead of the
- * content snapping in. The chevron rotation runs off the same progress value,
- * so glyph and fold always agree.
+ * content snapping in. PanelUI's `Collapse` does the same job on a 200ms
+ * timing curve — this keeps the hand-rolled one so the fold rides the app's
+ * single spring, and so the chevron rotation can run off the same progress
+ * value and always agree with it.
  */
 export function CollapsibleSection({
   label,
@@ -56,12 +63,12 @@ export function CollapsibleSection({
   defaultOpen?: boolean;
   children: ReactNode;
 }) {
+  const [mutedForeground] = useCSSVariable(['--color-muted-foreground']) as [string];
   const [open, setOpen] = useState(defaultOpen);
   const progress = useSharedValue(defaultOpen ? 1 : 0);
   // Written by onLayout directly (no spring): a late first measure or a chip
   // row reflowing must resize the open section instantly, not re-animate it.
   const contentHeight = useSharedValue(0);
-  const { theme } = useUnistyles();
 
   const toggle = () => {
     const next = !open;
@@ -79,26 +86,28 @@ export function CollapsibleSection({
 
   return (
     <View>
+      {/* Full-width toggle row: label leads like a section header, the chevron
+          trails at the far edge — the disclosure idiom. */}
       <Pressable
         onPress={toggle}
         hitSlop={8}
         accessibilityRole="button"
         accessibilityState={{ expanded: open }}
-        style={({ pressed }) => [styles.collapseHeader, pressed && styles.collapsePressed]}
+        className="mt-2 flex-row items-center justify-between px-4 active:opacity-60"
       >
-        <Text style={styles.collapseLabel}>{label}</Text>
+        <Text className="text-xs font-semibold uppercase tracking-[0.6px] text-muted-foreground">
+          {label}
+        </Text>
         <Animated.View style={chevron}>
-          <Icon
-            name="chevron.forward"
-            size={11}
-            weight="semibold"
-            tintColor={theme.colors.mutedForeground}
-          />
+          <Icon name="chevron.forward" size={11} weight="semibold" tintColor={mutedForeground} />
         </Animated.View>
       </Pressable>
-      <Animated.View style={[styles.collapseClip, body]} pointerEvents={open ? 'auto' : 'none'}>
+      <Animated.View className="overflow-hidden" style={body} pointerEvents={open ? 'auto' : 'none'}>
+        {/* Absolute so the body measures its natural height inside the clip;
+            the top padding stands in for the column gap the header used to
+            get. */}
         <View
-          style={styles.collapseInner}
+          className="absolute left-0 right-0 top-0 gap-4 pt-4"
           onLayout={(event) => {
             // eslint-disable-next-line react-hooks/immutability -- reanimated shared value
             contentHeight.value = event.nativeEvent.layout.height;
@@ -111,25 +120,25 @@ export function CollapsibleSection({
   );
 }
 
-/** iOS inset-grouped card — children become rows split by inset hairlines. */
+/** Inset-grouped card — children become rows split by inset hairlines. */
 export function Card({ children }: { children: ReactNode }) {
   const rows = Children.toArray(children);
   return (
-    <View style={styles.card}>
+    <Item.Group className="overflow-hidden rounded-2xl bg-card" style={{ borderCurve: 'continuous' }}>
       {rows.map((row, index) => (
         <Fragment key={index}>
-          {index > 0 ? <View style={styles.separator} /> : null}
+          {index > 0 ? <Item.Separator className="ml-4" /> : null}
           {row}
         </Fragment>
       ))}
-    </View>
+    </Item.Group>
   );
 }
 
 /**
- * Native settings-row idiom: label left, right-aligned input. `numeric` swaps
- * in the `NumericField` — a number field is its own control here, not a text
- * field wearing a numeric keyboard (see numeric-field.tsx).
+ * Settings-row idiom: label left, right-aligned input. `numeric` swaps in the
+ * `NumericField` — a number field is its own control here, not a text field
+ * wearing a numeric keyboard (see numeric-field.tsx).
  */
 export function InputRow({
   label,
@@ -138,10 +147,10 @@ export function InputRow({
   onChangeText,
   ...props
 }: { label: string; numeric?: boolean; decimals?: boolean } & TextInputProps) {
-  const { theme } = useUnistyles();
+  const [mutedForeground] = useCSSVariable(['--color-muted-foreground']) as [string];
   return (
-    <View style={styles.row}>
-      <Text style={styles.rowLabel}>{label}</Text>
+    <View className="min-h-12 flex-row items-center gap-3 px-4 py-1">
+      <Text className="text-[15px] text-foreground">{label}</Text>
       {numeric ? (
         <NumericField
           align="trailing"
@@ -149,14 +158,12 @@ export function InputRow({
           onChangeText={onChangeText ?? (() => {})}
           placeholder={props.placeholder}
           decimals={decimals}
-          // The numeric branch is a SwiftUI field, not a TextInput — RN's
-          // autoFocus would be dropped silently unless it's forwarded.
           autoFocus={props.autoFocus}
         />
       ) : (
         <TextInput
-          placeholderTextColor={theme.colors.mutedForeground}
-          style={styles.rowInput}
+          placeholderTextColor={mutedForeground}
+          className="flex-1 py-2 text-right text-base text-foreground"
           onChangeText={onChangeText}
           {...props}
         />
@@ -168,9 +175,9 @@ export function InputRow({
 /** Label left, any control (segmented / menu picker / text) right. */
 export function ControlRow({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <View style={styles.row}>
-      <Text style={styles.rowLabel}>{label}</Text>
-      <View style={styles.rowControl}>{children}</View>
+    <View className="min-h-12 flex-row items-center gap-3 px-4 py-1">
+      <Text className="text-[15px] text-foreground">{label}</Text>
+      <View className="ml-auto shrink">{children}</View>
     </View>
   );
 }
@@ -178,14 +185,14 @@ export function ControlRow({ label, children }: { label: string; children: React
 /** Stacked label + full-width content (chip groups). */
 export function StackRow({ label, children }: { label?: string; children: ReactNode }) {
   return (
-    <View style={styles.stackRow}>
-      {label ? <Text style={styles.rowLabel}>{label}</Text> : null}
+    <View className="gap-2 px-4 py-3">
+      {label ? <Text className="text-[15px] text-foreground">{label}</Text> : null}
       {children}
     </View>
   );
 }
 
-/** Borderless multiline row — the native notes-field idiom, no boxed input. */
+/** Borderless multiline row — the notes-field idiom, no boxed input. */
 export function NotesRow({
   label,
   value,
@@ -197,28 +204,26 @@ export function NotesRow({
   onChangeText: (text: string) => void;
   placeholder: string;
 }) {
-  const { theme } = useUnistyles();
+  const [mutedForeground] = useCSSVariable(['--color-muted-foreground']) as [string];
   return (
-    <View style={styles.stackRow}>
-      <Text style={styles.rowLabel}>{label}</Text>
+    <View className="gap-2 px-4 py-3">
+      <Text className="text-[15px] text-foreground">{label}</Text>
       <TextInput
         multiline
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
-        placeholderTextColor={theme.colors.mutedForeground}
-        style={styles.notesInput}
+        placeholderTextColor={mutedForeground}
+        className="min-h-14 p-0 text-base text-foreground"
+        style={{ textAlignVertical: 'top' }}
       />
     </View>
   );
 }
 
 /**
- * Date/time row — same shape as every other row: our label leading, the
- * SwiftUI picker pinned trailing. The label has to be ours: passing `title`
- * makes SwiftUI draw its own leading label, and since the `Host` only hugs its
- * content, the pills end up parked mid-row with the right half empty.
- * Omitting `title` is what opts the picker into `.labelsHidden()`.
+ * Date/time row — same shape as every other row: the label leading, the
+ * picker's pill(s) pinned trailing.
  */
 export function DateRow({
   label,
@@ -231,14 +236,15 @@ export function DateRow({
   selection: Date;
   displayedComponents: ('date' | 'hourAndMinute')[];
   /**
-   * Stamps recorded to the second. The clock becomes a `TimePicker` — SwiftUI's
-   * own time pill stops at minutes — while the date half stays this picker's.
+   * Stamps recorded to the second. The clock becomes a `TimePicker` — the
+   * date control's own time pill stops at minutes — while the date half stays
+   * that control's.
    */
   seconds?: boolean;
   onDateChange: (date: Date) => void;
 }) {
   const ownsTime = seconds === true && displayedComponents.includes('hourAndMinute');
-  // The date picker keeps only the calendar; handing it `hourAndMinute` as
+  // The date control keeps only the calendar; handing it `hourAndMinute` as
   // well would draw a second, minute-only clock beside the TimePicker.
   const pickerComponents = ownsTime
     ? displayedComponents.filter((component) => component !== 'hourAndMinute')
@@ -263,11 +269,12 @@ export function DateRow({
   };
 
   return (
-    <View style={styles.row}>
-      <Text style={styles.rowLabel} numberOfLines={1}>
+    <View className="min-h-12 flex-row items-center gap-3 px-4 py-1">
+      <Text className="text-[15px] text-foreground" numberOfLines={1}>
         {label}
       </Text>
-      <View style={[styles.rowControl, styles.dateControl]}>
+      {/* Date pill and clock pill share one line, spaced like a native pair. */}
+      <View className="ml-auto shrink flex-row items-center gap-1">
         {pickerComponents.length > 0 ? (
           <DateField
             selection={selection}
@@ -280,92 +287,3 @@ export function DateRow({
     </View>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  section: {
-    fontSize: 12,
-    fontWeight: '600',
-    letterSpacing: 0.6,
-    textTransform: 'uppercase',
-    color: theme.colors.mutedForeground,
-    marginTop: theme.spacing.sm,
-    paddingLeft: theme.spacing.lg,
-  },
-  sectionFooter: {
-    fontSize: 12,
-    lineHeight: 17,
-    color: theme.colors.mutedForeground,
-    marginTop: -theme.spacing.sm,
-    paddingHorizontal: theme.spacing.lg,
-  },
-  // Full-width toggle row: label leads like a section header, the chevron
-  // trails at the far edge — the iOS disclosure idiom.
-  collapseHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: theme.spacing.sm,
-    paddingHorizontal: theme.spacing.lg,
-  },
-  collapsePressed: { opacity: 0.6 },
-  collapseLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    letterSpacing: 0.6,
-    textTransform: 'uppercase',
-    color: theme.colors.mutedForeground,
-  },
-  collapseClip: { overflow: 'hidden' },
-  // Absolute so the body measures its natural height inside the clip; the
-  // top padding stands in for the column gap the header used to get.
-  collapseInner: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    gap: theme.spacing.lg,
-    paddingTop: theme.spacing.lg,
-  },
-  card: {
-    borderRadius: theme.radius.lg + 6,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.card,
-    overflow: 'hidden',
-  },
-  separator: {
-    height: 0.5,
-    marginLeft: theme.spacing.lg,
-    backgroundColor: theme.colors.border,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing.md,
-    minHeight: 48,
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.xs,
-  },
-  rowLabel: { fontSize: 15, color: theme.colors.foreground },
-  rowInput: {
-    flex: 1,
-    textAlign: 'right',
-    fontSize: 16,
-    color: theme.colors.foreground,
-    paddingVertical: theme.spacing.sm,
-  },
-  rowControl: { marginLeft: 'auto', flexShrink: 1 },
-  /** Date pill and clock pill share one line, spaced like SwiftUI's own pair. */
-  dateControl: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.xs },
-  stackRow: {
-    gap: theme.spacing.sm,
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.md,
-  },
-  notesInput: {
-    minHeight: 56,
-    fontSize: 16,
-    color: theme.colors.foreground,
-    textAlignVertical: 'top',
-    padding: 0,
-  },
-}));

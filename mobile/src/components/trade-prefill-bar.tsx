@@ -1,38 +1,28 @@
-import {
-  Button as UIButton,
-  Image as UIImage,
-  Menu,
-} from '@expo/ui/swift-ui';
-import {
-  accessibilityLabel,
-  buttonBorderShape,
-  buttonStyle,
-  controlSize,
-  tint,
-} from '@expo/ui/swift-ui/modifiers';
 import * as DocumentPicker from 'expo-document-picker';
 import * as ImagePicker from 'expo-image-picker';
+import { Menu } from 'panelui-native';
 import { Alert } from 'react-native';
-import { useUnistyles } from 'react-native-unistyles';
+import { useCSSVariable } from 'uniwind';
 
 import { useLlmSettings } from '@/api/hooks';
+import { Icon } from '@/components/icon';
+import { GlassIconButton } from '@/components/glass-button';
 import { t } from '@lingui/core/macro';
 import { isVisionReady, SCAN_MAX_IMAGES, type ImportSource } from '@/lib/trade-import';
-import { AppHost } from '@/components/app-host';
 
 /**
- * "Scan to fill" trigger beside the account row — a circular glass SwiftUI
- * Menu button wearing the viewfinder glyph in the neutral chrome color. The
- * popover fans out to broker screenshots from Photos or image files, or a
- * CSV/JSON fill file. Picking only collects the sources; parsing and review
- * happen in the scan overlay (trade-scan-overlay.tsx).
+ * "Scan to fill" trigger beside the account row — a circular glass button
+ * wearing the viewfinder glyph in the neutral chrome color. The menu fans out
+ * to broker screenshots from Photos or image files, or a CSV/JSON fill file.
+ * Picking only collects the sources; parsing and review happen in the scan
+ * overlay (trade-scan-overlay.tsx).
  */
 export function TradePrefillBar({
   onSources,
 }: {
   onSources: (sources: ImportSource[]) => void;
 }) {
-  const { theme } = useUnistyles();
+  const [foreground] = useCSSVariable(['--color-foreground']) as [string];
   const ocrSettings = useLlmSettings('ocr');
 
   const visionReady = isVisionReady(ocrSettings.data);
@@ -94,34 +84,32 @@ export function TradePrefillBar({
   }
 
   return (
-    <AppHost matchContents>
-      <Menu
-        label={<UIImage systemName="text.viewfinder" size={16} />}
-        modifiers={[
-          buttonStyle('glass'),
-          buttonBorderShape('circle'),
-          controlSize('regular'),
-          // Menu triggers default to the accent tint — keep the glyph neutral.
-          tint(theme.colors.foreground),
-          accessibilityLabel(t`Scan to fill`),
-        ]}
-      >
-        <UIButton
-          label={t`Photo Library`}
-          systemImage="photo.on.rectangle"
-          onPress={() => void pickFromPhotos()}
-        />
-        <UIButton
-          label={t`Image files`}
-          systemImage="folder"
-          onPress={() => void pickImageFiles()}
-        />
-        <UIButton
-          label={t`CSV / JSON file`}
-          systemImage="doc.text"
-          onPress={() => void pickDataFile()}
-        />
-      </Menu>
-    </AppHost>
+    <Menu>
+      {/* `Menu.Trigger` clones its child with its own `onPress`, so the button
+          keeps its chrome and only needs a placeholder handler. */}
+      <Menu.Trigger>
+        <GlassIconButton systemImage="text.viewfinder" label={t`Scan to fill`} onPress={() => {}} />
+      </Menu.Trigger>
+      <Menu.Content align="end">
+        <Menu.Item
+          icon={<Icon name="photo.on.rectangle" size={16} tintColor={foreground} />}
+          onSelect={() => void pickFromPhotos()}
+        >
+          {t`Photo Library`}
+        </Menu.Item>
+        <Menu.Item
+          icon={<Icon name="folder" size={16} tintColor={foreground} />}
+          onSelect={() => void pickImageFiles()}
+        >
+          {t`Image files`}
+        </Menu.Item>
+        <Menu.Item
+          icon={<Icon name="doc.text" size={16} tintColor={foreground} />}
+          onSelect={() => void pickDataFile()}
+        >
+          {t`CSV / JSON file`}
+        </Menu.Item>
+      </Menu.Content>
+    </Menu>
   );
 }

@@ -9,7 +9,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { createContext, useContext, type ReactNode } from 'react';
 import { Animated, RefreshControl, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { useCSSVariable } from 'uniwind';
 
 import { useAccounts, useCash } from '@/api/hooks';
 import type { Filters } from '@/api/types';
@@ -78,7 +78,9 @@ export type ReportsScroll = {
    * Live offset of whichever page is on screen. RN's `Animated` rather than
    * Reanimated: the value is written by a native-driven scroll event, so no
    * component ever assigns to it — which is the only form the React Compiler
-   * accepts for a value handed down through context.
+   * accepts for a value handed down through context. (The one place in this
+   * app core `Animated` is still right: it is a scroll-offset carrier shared
+   * with the Reports index, not an animation driver.)
    */
   offset: Animated.Value;
   /** Measured height of the floating switcher — the pages' top inset. */
@@ -100,7 +102,9 @@ export function SectionScaffold({
   children: ReactNode;
 }) {
   const queryClient = useQueryClient();
-  const { theme } = useUnistyles();
+  // The page fill has to be a JS value: `Animated.ScrollView` is a wrapper,
+  // not a core component Uniwind can take a `className` on.
+  const [background] = useCSSVariable(['--color-background']) as [string];
   const reportsScroll = useContext(ReportsScrollContext);
   const headerHeight = reportsScroll?.headerHeight ?? 0;
   // Nested in the pager, `automatic` never gets the tab-bar bottom inset
@@ -121,11 +125,8 @@ export function SectionScaffold({
 
   return (
     <Animated.ScrollView
-      style={styles.page}
-      contentContainerStyle={[
-        styles.content,
-        { paddingTop: headerHeight, paddingBottom: theme.spacing.xl * 2 + bottomInset },
-      ]}
+      style={{ flex: 1, backgroundColor: background }}
+      contentContainerStyle={{ paddingTop: headerHeight, paddingBottom: 48 + bottomInset }}
       contentInsetAdjustmentBehavior="automatic"
       scrollEventThrottle={16}
       onScroll={onScroll}
@@ -138,17 +139,7 @@ export function SectionScaffold({
         />
       }
     >
-      <View style={styles.stack}>{children}</View>
+      <View className="gap-4 p-4 pt-2">{children}</View>
     </Animated.ScrollView>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  page: { flex: 1, backgroundColor: theme.colors.background },
-  content: { paddingBottom: theme.spacing.xl * 2 },
-  stack: {
-    padding: theme.spacing.lg,
-    paddingTop: theme.spacing.sm,
-    gap: theme.spacing.lg,
-  },
-}));

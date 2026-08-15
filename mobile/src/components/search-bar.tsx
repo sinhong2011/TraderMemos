@@ -8,7 +8,7 @@ import Reanimated, {
   withSpring,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { useCSSVariable } from 'uniwind';
 
 import { Icon } from '@/components/icon';
 import { AnimatedSymbolSwap } from '@/components/animated-symbol-swap';
@@ -26,55 +26,26 @@ export function SearchToggle({
   label: string;
   onPress: () => void;
 }) {
-  const { theme } = useUnistyles();
+  const [foreground, primary] = useCSSVariable(['--color-foreground', '--color-primary']) as [
+    string,
+    string,
+  ];
   return (
     <Pressable
       onPress={onPress}
       hitSlop={10}
       accessibilityRole="button"
       accessibilityLabel={label}
-      style={({ pressed }) => pressed && styles.pressed}
+      className="active:opacity-60"
     >
       <AnimatedSymbolSwap
         name={open ? 'xmark' : 'magnifyingglass'}
         size={17}
-        tintColor={active ? theme.colors.primary : theme.colors.foreground}
+        tintColor={active ? primary : foreground}
       />
     </Pressable>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  pressed: { opacity: 0.6 },
-
-  floatWrap: {
-    position: 'absolute',
-    left: theme.spacing.lg,
-    right: theme.spacing.lg,
-  },
-  // The glass owns the capsule; the row inside owns the padding, so the
-  // material covers the full pill rather than sitting behind an inset box.
-  // Off iOS, `GlassView` degrades to a plain transparent `View`, so the pill
-  // paints itself: elevated card fill plus a soft shadow to lift it off the
-  // list the way the glass refraction does.
-  floatGlass: {
-    borderRadius: theme.radius.full,
-    borderCurve: 'continuous',
-    overflow: 'hidden',
-    ...(Platform.OS !== 'ios' && {
-      backgroundColor: theme.colors.card,
-      boxShadow: '0 4 16 rgba(0, 0, 0, 0.25)',
-    }),
-  },
-  floatRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing.sm,
-    height: 48,
-    paddingHorizontal: theme.spacing.lg,
-  },
-  floatInput: { flex: 1, fontSize: 16, color: theme.colors.foreground },
-}));
 
 /** Same spring the tab strips ride — one motion vocabulary across the app. */
 const FLOAT_SPRING = { duration: 420, dampingRatio: 0.85 } as const;
@@ -82,8 +53,8 @@ const FLOAT_SPRING = { duration: 420, dampingRatio: 0.85 } as const;
 const FLOAT_HIDDEN_OFFSET = 140;
 
 /**
- * Floating bottom search — the iOS 26 placement, where search sits in reach of
- * a thumb rather than at the top of a list you have scrolled away from.
+ * Floating bottom search — the placement where search sits in reach of a thumb
+ * rather than at the top of a list you have scrolled away from.
  *
  * It rides above the tab bar as real Liquid Glass (`GlassView`, which samples
  * the window behind it — correct here, unlike inside a sheet where it flattens
@@ -114,7 +85,10 @@ export function FloatingSearchBar({
   /** Called when the field asks to dismiss itself (the trailing ✕). */
   onClose: () => void;
 }) {
-  const { theme } = useUnistyles();
+  const [card, mutedForeground] = useCSSVariable([
+    '--color-card',
+    '--color-muted-foreground',
+  ]) as [string, string];
   const insets = useSafeAreaInsets();
   const keyboard = useAnimatedKeyboard();
   const input = useRef<TextInput>(null);
@@ -145,11 +119,31 @@ export function FloatingSearchBar({
   return (
     <Reanimated.View
       pointerEvents={open ? 'auto' : 'none'}
-      style={[styles.floatWrap, { bottom: insets.bottom + 8 }, animated]}
+      className="absolute left-4 right-4"
+      style={[{ bottom: insets.bottom + 8 }, animated]}
     >
-      <GlassView style={styles.floatGlass} glassEffectStyle="regular" isInteractive>
-        <View style={styles.floatRow}>
-          <Icon name="magnifyingglass" size={16} tintColor={theme.colors.mutedForeground} />
+      {/* The glass owns the capsule; the row inside owns the padding, so the
+          material covers the full pill rather than sitting behind an inset
+          box. Off iOS, `GlassView` degrades to a plain transparent `View`, so
+          the pill paints itself: elevated card fill plus a soft shadow to lift
+          it off the list the way the glass refraction does. Styled by value
+          rather than by class — the glass view is a native host, not one of
+          the core components Uniwind styles. */}
+      <GlassView
+        style={{
+          borderRadius: 9999,
+          borderCurve: 'continuous',
+          overflow: 'hidden',
+          ...(Platform.OS !== 'ios' && {
+            backgroundColor: card,
+            boxShadow: '0 4 16 rgba(0, 0, 0, 0.25)',
+          }),
+        }}
+        glassEffectStyle="regular"
+        isInteractive
+      >
+        <View className="h-12 flex-row items-center gap-2 px-4">
+          <Icon name="magnifyingglass" size={16} tintColor={mutedForeground} />
           <TextInput
             ref={input}
             value={value}
@@ -159,19 +153,15 @@ export function FloatingSearchBar({
             returnKeyType="search"
             onSubmitEditing={onSubmit}
             placeholder={placeholder}
-            placeholderTextColor={theme.colors.mutedForeground}
-            style={styles.floatInput}
+            placeholderTextColor={mutedForeground}
+            className="flex-1 text-base text-foreground"
           />
           <Pressable
             onPress={() => (value.length > 0 ? onChangeText('') : onClose())}
             hitSlop={10}
             accessibilityRole="button"
           >
-            <Icon
-              name="xmark.circle.fill"
-              size={16}
-              tintColor={theme.colors.mutedForeground}
-            />
+            <Icon name="xmark.circle.fill" size={16} tintColor={mutedForeground} />
           </Pressable>
         </View>
       </GlassView>

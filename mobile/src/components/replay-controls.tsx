@@ -1,6 +1,7 @@
 import { type SFSymbol } from 'expo-symbols';
+import { cn } from 'panelui-native';
 import { Pressable, Text, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { useCSSVariable } from 'uniwind';
 
 import { Icon } from '@/components/icon';
 import { EquityStrip } from '@/components/equity-strip';
@@ -14,7 +15,7 @@ import {
   type ReplaySpeed,
   type ReplayState,
 } from '@/lib/replay';
-import { pnlColor } from '@/styles/unistyles';
+import { pnlClass } from '@/styles/pnl';
 
 /** Label for a speed, from the same table the picker used to render. */
 function speedLabel(speed: ReplaySpeed): string {
@@ -65,7 +66,10 @@ export function ReplayControls({
    */
   mode?: 'pnl' | 'price';
 }) {
-  const { theme } = useUnistyles();
+  const [foreground, background] = useCSSVariable([
+    '--color-foreground',
+    '--color-background',
+  ]) as [string, string];
   // Formatters bound to the display prefs (see lib/format.ts).
   const { formatCurrency, formatPnl } = useFormatters();
   const frame = run.frames[controller.cursor];
@@ -88,52 +92,50 @@ export function ReplayControls({
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityState={{ disabled }}
-      style={({ pressed }) => [
-        styles.transportButton,
-        primary && styles.transportPrimary,
-        disabled && styles.disabled,
-        pressed && styles.pressed,
-      ]}
+      className={cn(
+        'h-10 w-10 items-center justify-center rounded-full bg-muted active:opacity-60',
+        // The one control worth aiming at without looking — inverted and larger.
+        primary && 'h-[52px] w-[52px] bg-foreground',
+        disabled && 'opacity-35',
+      )}
     >
-      <Icon
-        name={icon}
-        size={primary ? 20 : 15}
-        tintColor={primary ? theme.colors.background : theme.colors.foreground}
-      />
+      <Icon name={icon} size={primary ? 20 : 15} tintColor={primary ? background : foreground} />
     </Pressable>
   );
 
   return (
-    <View style={styles.wrap}>
-      <View style={styles.readout}>
-        <View style={styles.readoutMain}>
+    <View className="gap-3">
+      <View className="flex-row items-end gap-3">
+        <View className="flex-1 flex-row items-baseline gap-2">
           {showPnl ? (
             <>
               <Text
-                style={[styles.net, { color: pnlColor(theme.colors, frame?.net) }]}
+                className={cn('text-[28px] font-bold tabular-nums', pnlClass(frame?.net))}
                 numberOfLines={1}
               >
                 {formatPnl(frame?.net ?? 0, currency)}
               </Text>
               {frame?.rMultiple != null ? (
-                <Text style={[styles.rMultiple, { color: pnlColor(theme.colors, frame.net) }]}>
+                <Text
+                  className={cn('text-[15px] font-semibold tabular-nums', pnlClass(frame.net))}
+                >
                   {`${frame.rMultiple >= 0 ? '+' : ''}${frame.rMultiple.toFixed(2)}R`}
                 </Text>
               ) : null}
             </>
           ) : (
-            <Text style={[styles.net, styles.price]} numberOfLines={1}>
+            <Text className="text-[28px] font-bold tabular-nums text-foreground" numberOfLines={1}>
               {formatCurrency(frame?.close ?? 0, currency)}
             </Text>
           )}
         </View>
-        <View style={styles.readoutMeta}>
+        <View className="items-end gap-0.5">
           {showPnl ? (
-            <Text style={styles.metaStrong}>
+            <Text className="text-[13px] font-semibold tabular-nums text-foreground">
               {frame ? stateLabel(frame.state, frame.position) : t`Flat`}
             </Text>
           ) : null}
-          <Text style={styles.meta}>{barTimeLabel}</Text>
+          <Text className="text-xs tabular-nums text-muted-foreground">{barTimeLabel}</Text>
         </View>
       </View>
 
@@ -142,26 +144,24 @@ export function ReplayControls({
       {/* Run MAE/MFE — what the trade was worth at its best and worst, which is
           the pair a review is actually looking for. */}
       {showPnl ? (
-        <View style={styles.extremes}>
-          <Text style={styles.meta}>
+        <View className="flex-row items-center gap-4">
+          <Text className="text-xs tabular-nums text-muted-foreground">
             {t`Peak`}{' '}
-            <Text style={[styles.metaValue, { color: theme.colors.profit }]}>
-              {formatCurrency(run.best, currency)}
-            </Text>
+            <Text className="font-semibold text-profit">{formatCurrency(run.best, currency)}</Text>
           </Text>
-          <Text style={styles.meta}>
+          <Text className="text-xs tabular-nums text-muted-foreground">
             {t`Trough`}{' '}
-            <Text style={[styles.metaValue, { color: theme.colors.loss }]}>
-              {formatCurrency(run.worst, currency)}
-            </Text>
+            <Text className="font-semibold text-loss">{formatCurrency(run.worst, currency)}</Text>
           </Text>
           {frame && frame.fillCount > 0 ? (
-            <Text style={styles.meta}>{t`${frame.fillCount} fills`}</Text>
+            <Text className="text-xs tabular-nums text-muted-foreground">{t`${frame.fillCount} fills`}</Text>
           ) : null}
         </View>
       ) : null}
 
-      <View style={styles.transport}>
+      {/* Evenly spaced rather than left-packed: five equal-weight targets, with
+          the play button's extra 12pt of diameter doing the ranking. */}
+      <View className="flex-row items-center justify-center gap-4">
         {button('gobackward', controller.restart, t`Restart`)}
         {button('backward.frame.fill', controller.stepBack, t`Step back`, {
           disabled: controller.cursor <= 0,
@@ -188,53 +188,19 @@ export function ReplayControls({
           accessibilityLabel={t`Playback speed`}
           accessibilityValue={{ text: speedLabel(controller.speed) }}
           accessibilityHint={t`Cycles to the next speed`}
-          style={({ pressed }) => [styles.transportButton, pressed && styles.pressed]}
+          className="h-10 w-10 items-center justify-center rounded-full bg-muted active:opacity-60"
         >
-          <Text style={styles.speedLabel}>{speedLabel(controller.speed)}</Text>
+          <Text className="text-sm font-bold tabular-nums text-foreground">
+            {speedLabel(controller.speed)}
+          </Text>
         </Pressable>
       </View>
 
       {run.mismatch && showPnl ? (
-        <Text style={styles.footnote}>
+        <Text className="text-xs text-muted-foreground">
           {t`Fill prices disagree with the tape — in-flight P&L is marked to the chart and may look off. The closing figure comes from the fills.`}
         </Text>
       ) : null}
     </View>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  wrap: { gap: theme.spacing.md },
-  readout: { flexDirection: 'row', alignItems: 'flex-end', gap: theme.spacing.md },
-  readoutMain: { flex: 1, flexDirection: 'row', alignItems: 'baseline', gap: theme.spacing.sm },
-  net: { fontSize: 28, fontWeight: '700', ...theme.numeric },
-  price: { color: theme.colors.foreground },
-  rMultiple: { fontSize: 15, fontWeight: '600', ...theme.numeric },
-  readoutMeta: { alignItems: 'flex-end', gap: 2 },
-  metaStrong: { fontSize: 13, fontWeight: '600', color: theme.colors.foreground, ...theme.numeric },
-  meta: { fontSize: 12, color: theme.colors.mutedForeground, ...theme.numeric },
-  metaValue: { fontWeight: '600' },
-  extremes: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.lg },
-  // Evenly spaced rather than left-packed: five equal-weight targets, with the
-  // play button's extra 12pt of diameter doing the ranking.
-  transport: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: theme.spacing.lg,
-  },
-  transportButton: {
-    width: 40,
-    height: 40,
-    borderRadius: theme.radius.full,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: theme.colors.muted,
-  },
-  // The one control worth aiming at without looking — inverted and larger.
-  transportPrimary: { width: 52, height: 52, backgroundColor: theme.colors.foreground },
-  disabled: { opacity: 0.35 },
-  pressed: { opacity: 0.6 },
-  speedLabel: { fontSize: 14, fontWeight: '700', color: theme.colors.foreground, ...theme.numeric },
-  footnote: { fontSize: 12, color: theme.colors.mutedForeground },
-}));

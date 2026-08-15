@@ -1,12 +1,11 @@
 import { useRouter } from 'expo-router';
+import { Skeleton } from 'panelui-native';
 import { Text, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { useBehavior } from '@/api/hooks';
 import type { BehaviorEvent, OutcomeSplit } from '@/api/types';
 import { DashboardCard } from '@/components/dashboard-card';
 import { ErrorState } from '@/components/error-state';
-import { Skeleton } from '@/components/skeleton';
 import { StatBar } from '@/components/stat-bar';
 import { EventRow, MicroHeading } from '@/components/reports/shared';
 import {
@@ -17,7 +16,7 @@ import {
 } from '@/components/reports/section-scaffold';
 import { t } from '@lingui/core/macro';
 import { formatDuration, formatPercent } from '@/lib/format';
-import { pnlColor } from '@/styles/unistyles';
+import { pnlColor, usePnlPalette } from '@/styles/pnl';
 
 /** Flagged-vs-baseline stat tiles shared by the revenge and streak cards. */
 function SplitStats({
@@ -33,7 +32,7 @@ function SplitStats({
 }) {
   const { money } = ctx;
   return (
-    <View style={styles.grid}>
+    <View className="flex-row flex-wrap gap-2">
       <StatBar label={t`Flagged trades`} value={String(flagged.trades)} sub={t`${events} events`} />
       <StatBar
         label={t`Flagged P&L`}
@@ -65,11 +64,11 @@ function EventList({
   ctx: ReportsMoneyContext;
   onOpen: (id: string) => void;
 }) {
-  const { theme } = useUnistyles();
+  const palette = usePnlPalette();
   const recent = events.slice(-6).reverse();
   if (recent.length === 0) return null;
   return (
-    <View style={styles.rows}>
+    <View className="gap-1">
       <MicroHeading>{t`Recent events`}</MicroHeading>
       {recent.map((event) => (
         <EventRow
@@ -82,7 +81,7 @@ function EventList({
               : t`size ×${(event.size_ratio ?? 0).toFixed(1)}`
           }
           value={ctx.money.formatCompact(event.net_pnl)}
-          valueTint={pnlColor(theme.colors, event.net_pnl)}
+          valueTint={pnlColor(palette, event.net_pnl)}
           onPress={() => onOpen(event.trade_id)}
         />
       ))}
@@ -95,7 +94,7 @@ export function BehaviorSection({
 }: {
   onScrolledChange?: (scrolled: boolean) => void;
 }) {
-  const { theme } = useUnistyles();
+  const palette = usePnlPalette();
   const router = useRouter();
   const filters = useReportsFilters();
   const ctx = useReportsMoney();
@@ -116,14 +115,14 @@ export function BehaviorSection({
     <SectionScaffold refreshing={behavior.isRefetching} onScrolledChange={onScrolledChange}>
       {behavior.isLoading ? (
         <>
-          <Skeleton style={styles.skeletonCard} />
-          <Skeleton style={styles.skeletonCard} />
-          <Skeleton style={styles.skeletonCard} />
+          <Skeleton className="h-[220px] rounded-[18px]" label={t`Loading behavior report`} />
+          <Skeleton className="h-[220px] rounded-[18px]" />
+          <Skeleton className="h-[220px] rounded-[18px]" />
         </>
       ) : behavior.error && behavior.data == null ? (
         // Boxed rather than flexed: the scaffold's scroll content has no height
         // of its own, so a `flex: 1` failure state would collapse to nothing.
-        <View style={styles.errorHost}>
+        <View className="min-h-[320px]">
           <ErrorState
             error={behavior.error}
             onRetry={() => void behavior.refetch()}
@@ -134,7 +133,7 @@ export function BehaviorSection({
         <>
           <DashboardCard title={t`Revenge trading`}>
             {!revenge || revenge.events.length === 0 ? (
-              <Text style={styles.empty}>
+              <Text className="py-2 text-[13px] text-muted-foreground">
                 {t`No revenge patterns detected — flags trades opened within an hour of a losing close: same-symbol re-entries inside 15 minutes, or entries sized 1.5× above your recent median.`}
               </Text>
             ) : (
@@ -146,7 +145,7 @@ export function BehaviorSection({
                   ctx={ctx}
                 />
                 {revenge.insufficient_data ? (
-                  <Text style={styles.footnote}>
+                  <Text className="text-xs text-muted-foreground">
                     {t`Small sample — patterns firm up as more closed trades accumulate.`}
                   </Text>
                 ) : null}
@@ -157,7 +156,7 @@ export function BehaviorSection({
 
           <DashboardCard title={t`Overconfidence`}>
             {!streaks || streaks.events.length === 0 ? (
-              <Text style={styles.empty}>
+              <Text className="py-2 text-[13px] text-muted-foreground">
                 {t`No streak patterns detected — flags trades sized up right after a winning streak.`}
               </Text>
             ) : (
@@ -168,11 +167,11 @@ export function BehaviorSection({
                   events={streaks.events.length}
                   ctx={ctx}
                 />
-                <Text style={styles.footnote}>
+                <Text className="text-xs text-muted-foreground">
                   {t`${streaks.streaks} winning streaks scanned.`}
                 </Text>
                 {streaks.insufficient_data ? (
-                  <Text style={styles.footnote}>
+                  <Text className="text-xs text-muted-foreground">
                     {t`Small sample — patterns firm up as more closed trades accumulate.`}
                   </Text>
                 ) : null}
@@ -183,12 +182,12 @@ export function BehaviorSection({
 
           <DashboardCard title={t`Loss aversion`}>
             {!lossAversion || (!hasHolds && lossAversion.give_back_count === 0) ? (
-              <Text style={styles.empty}>
+              <Text className="py-2 text-[13px] text-muted-foreground">
                 {t`Not enough closed trades yet — compares how long winners and losers are held, and finds losers that were green at their peak.`}
               </Text>
             ) : (
               <>
-                <View style={styles.grid}>
+                <View className="flex-row flex-wrap gap-2">
                   <StatBar
                     label={t`Avg winner hold`}
                     value={formatDuration(lossAversion.avg_win_hold_secs)}
@@ -218,13 +217,13 @@ export function BehaviorSection({
                 </View>
 
                 {lossAversion.excluded > 0 ? (
-                  <Text style={styles.footnote}>
+                  <Text className="text-xs text-muted-foreground">
                     {t`${lossAversion.excluded} losers without recorded MAE/MFE could not be checked — recompute excursion on the trade to fill them.`}
                   </Text>
                 ) : null}
 
                 {lossAversion.give_backs.length > 0 ? (
-                  <View style={styles.rows}>
+                  <View className="gap-1">
                     <MicroHeading>{t`Biggest give-backs`}</MicroHeading>
                     {lossAversion.give_backs.map((giveBack) => (
                       <EventRow
@@ -233,7 +232,7 @@ export function BehaviorSection({
                         title={giveBack.symbol}
                         pill={t`peak ${money.formatCompact(giveBack.mfe)}`}
                         value={money.formatCompact(giveBack.net_pnl)}
-                        valueTint={pnlColor(theme.colors, giveBack.net_pnl)}
+                        valueTint={pnlColor(palette, giveBack.net_pnl)}
                         onPress={() => openTrade(giveBack.trade_id)}
                       />
                     ))}
@@ -247,12 +246,3 @@ export function BehaviorSection({
     </SectionScaffold>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
-  rows: { gap: theme.spacing.xs },
-  empty: { fontSize: 13, color: theme.colors.mutedForeground, paddingVertical: theme.spacing.sm },
-  footnote: { fontSize: 12, color: theme.colors.mutedForeground },
-  skeletonCard: { height: 220, borderRadius: theme.radius.lg + 4 },
-  errorHost: { minHeight: 320 },
-}));

@@ -1,60 +1,42 @@
+import { Skeleton as PanelSkeleton, cn } from 'panelui-native';
 import type { StyleProp, ViewStyle } from 'react-native';
 import { View } from 'react-native';
-import { useEffect } from 'react';
-import Animated, {
-  Easing,
-  ReduceMotion,
-  useAnimatedStyle,
-  useSharedValue,
-  withRepeat,
-  withTiming,
-} from 'react-native-reanimated';
-import { StyleSheet } from 'react-native-unistyles';
 
 /**
  * Animated placeholder for data-fetch loading states (cards, list rows,
- * boards) — a muted block pulsing between half and full opacity. Spinners
- * stay reserved for action feedback (form submits, sign-in).
+ * boards). Spinners stay reserved for action feedback (form submits, sign-in).
+ *
+ * PanelUI owns the pulse — including stopping it under the platform's
+ * reduce-motion setting — but its `Skeleton` takes only a `className`, and the
+ * ~40 call sites here size their placeholders with a `style`. So the box is
+ * ours and the pulse is PanelUI's, filling it: the wrapper carries whatever
+ * size and corner the caller asked for and clips the block to it.
  */
-export function Skeleton({ style }: { style?: StyleProp<ViewStyle> }) {
-  const pulse = useSharedValue(0.55);
-  useEffect(() => {
-    pulse.value = withRepeat(
-      withTiming(1, {
-        duration: 700,
-        easing: Easing.inOut(Easing.quad),
-        reduceMotion: ReduceMotion.System,
-      }),
-      -1,
-      true,
-    );
-  }, [pulse]);
-  const animatedStyle = useAnimatedStyle(() => ({ opacity: pulse.value }));
-  return <Animated.View style={[styles.block, style, animatedStyle]} />;
+export function Skeleton({
+  style,
+  className,
+}: {
+  style?: StyleProp<ViewStyle>;
+  className?: string;
+}) {
+  return (
+    <View style={style} className={cn('overflow-hidden rounded-md', className)}>
+      {/* The corner lives on the wrapper, which is the view that was given one. */}
+      <PanelSkeleton className="h-full w-full rounded-none" />
+    </View>
+  );
 }
 
 /** Placeholder for a creation form still fetching its prefill data. */
 export function FormSkeleton({ fields = 4 }: { fields?: number }) {
   return (
-    <View style={styles.form}>
+    <View className="gap-4 p-4">
       {Array.from({ length: fields }, (_, i) => (
-        <View key={i} style={styles.field}>
-          <Skeleton style={styles.fieldLabel} />
-          <Skeleton style={styles.fieldInput} />
+        <View key={i} className="gap-2">
+          <Skeleton className="h-[14px] w-[90px]" />
+          <Skeleton className="h-[50px] rounded-[16px]" />
         </View>
       ))}
     </View>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  block: {
-    backgroundColor: theme.colors.muted,
-    borderRadius: theme.radius.md,
-    borderCurve: 'continuous',
-  },
-  form: { padding: theme.spacing.lg, gap: theme.spacing.lg },
-  field: { gap: theme.spacing.sm },
-  fieldLabel: { width: 90, height: 14 },
-  fieldInput: { height: 50, borderRadius: theme.radius.lg + 2 },
-}));

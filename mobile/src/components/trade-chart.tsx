@@ -1,7 +1,8 @@
 import { useRouter } from 'expo-router';
+import { Skeleton } from 'panelui-native';
 import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { useCSSVariable } from 'uniwind';
 
 import { Icon } from '@/components/icon';
 import type { TradeDetail } from '@/api/types';
@@ -13,9 +14,9 @@ import {
 } from '@/components/chart-canvas';
 import { DashboardCard } from '@/components/dashboard-card';
 import { Segmented } from '@/components/segmented';
-import { Skeleton } from '@/components/skeleton';
 import { t } from '@lingui/core/macro';
 import { BAR_INTERVALS, useTradeBars } from '@/lib/trade-bars';
+import { usePnlPalette } from '@/styles/pnl';
 
 /**
  * The trade's candles with its plan drawn on them: entry, stop and target as
@@ -28,8 +29,12 @@ import { BAR_INTERVALS, useTradeBars } from '@/lib/trade-bars';
  * hands off to.
  */
 export function TradeChart({ trade }: { trade: TradeDetail }) {
-  const { theme } = useUnistyles();
   const router = useRouter();
+  const palette = usePnlPalette();
+  const [primary, background] = useCSSVariable(['--color-primary', '--color-background']) as [
+    string,
+    string,
+  ];
   // Open trades chart up to "now", captured once per mount so render stays pure
   // and the query key doesn't churn.
   const [mountedAtMs] = useState(() => Date.now());
@@ -44,19 +49,17 @@ export function TradeChart({ trade }: { trade: TradeDetail }) {
   });
 
   const priceLines = [
-    { value: trade.avg_entry_price, color: theme.colors.primary },
-    ...(trade.target_price != null
-      ? [{ value: trade.target_price, color: theme.colors.profit }]
-      : []),
-    ...(trade.stop_price != null ? [{ value: trade.stop_price, color: theme.colors.loss }] : []),
+    { value: trade.avg_entry_price, color: primary },
+    ...(trade.target_price != null ? [{ value: trade.target_price, color: palette.profit }] : []),
+    ...(trade.stop_price != null ? [{ value: trade.stop_price, color: palette.loss }] : []),
   ];
 
   const bands: ChartBand[] = [
     ...(trade.stop_price != null
-      ? [{ from: trade.avg_entry_price, to: trade.stop_price, color: theme.colors.loss }]
+      ? [{ from: trade.avg_entry_price, to: trade.stop_price, color: palette.loss }]
       : []),
     ...(trade.target_price != null
-      ? [{ from: trade.avg_entry_price, to: trade.target_price, color: theme.colors.profit }]
+      ? [{ from: trade.avg_entry_price, to: trade.target_price, color: palette.profit }]
       : []),
   ];
 
@@ -81,19 +84,19 @@ export function TradeChart({ trade }: { trade: TradeDetail }) {
             hitSlop={8}
             accessibilityRole="button"
             accessibilityLabel={t`Replay this trade`}
-            style={({ pressed }) => [styles.replayBadge, pressed && styles.pressed]}
+            className="flex-row items-center gap-[5px] rounded-full bg-foreground px-[9px] py-[5px] active:opacity-70"
           >
-            <Icon name="play.fill" size={10} tintColor={theme.colors.background} />
-            <Text style={styles.replayLabel}>{t`Replay`}</Text>
+            <Icon name="play.fill" size={10} tintColor={background} />
+            <Text className="text-[11px] font-semibold text-background">{t`Replay`}</Text>
           </Pressable>
         ) : null
       }
     >
       {bars.isLoading ? (
-        <Skeleton style={styles.placeholder} />
+        <Skeleton className="h-[220px] rounded-lg" label={t`Loading chart`} />
       ) : bars.bars.length === 0 ? (
-        <View style={styles.placeholder}>
-          <Text style={styles.empty}>{t`No chart data for this symbol.`}</Text>
+        <View className="items-center justify-center" style={{ height: CHART_HEIGHT }}>
+          <Text className="text-[13px] text-muted-foreground">{t`No chart data for this symbol.`}</Text>
         </View>
       ) : (
         // The plot itself stays a target, the way a video thumbnail is — the
@@ -103,7 +106,7 @@ export function TradeChart({ trade }: { trade: TradeDetail }) {
           disabled={!canReplay}
           accessibilityRole="button"
           accessibilityLabel={t`Replay this trade`}
-          style={({ pressed }) => pressed && styles.pressed}
+          className="active:opacity-70"
         >
           <ChartCanvas
             bars={bars.bars}
@@ -120,27 +123,9 @@ export function TradeChart({ trade }: { trade: TradeDetail }) {
           caption, and it leaves the top corner to the replay badge. Outside the
           branch above so it is still there to change when a window came back
           empty. */}
-      <View style={styles.intervalRow}>
+      <View className="items-center">
         <Segmented options={BAR_INTERVALS} value={bars.interval} onChange={bars.pickInterval} />
       </View>
     </DashboardCard>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  placeholder: { height: CHART_HEIGHT, alignItems: 'center', justifyContent: 'center' },
-  empty: { fontSize: 13, color: theme.colors.mutedForeground },
-  pressed: { opacity: 0.7 },
-  intervalRow: { alignItems: 'center' },
-  replayBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    paddingHorizontal: 9,
-    paddingVertical: 5,
-    borderRadius: theme.radius.full,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.foreground,
-  },
-  replayLabel: { fontSize: 11, fontWeight: '600', color: theme.colors.background },
-}));

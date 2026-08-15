@@ -1,18 +1,12 @@
-import {
-  Button as UIButton,
-  Image as UIImage,
-  Menu,
-  Section,
-} from '@expo/ui/swift-ui';
-import { accessibilityLabel, buttonStyle, tint } from '@expo/ui/swift-ui/modifiers';
 import { useRouter, type Href } from 'expo-router';
 import { type SFSymbol } from 'expo-symbols';
-import { Platform, Pressable } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { Menu } from 'panelui-native';
+import { Fragment } from 'react';
+import { Pressable } from 'react-native';
+import { useCSSVariable } from 'uniwind';
 
 import { t } from '@lingui/core/macro';
 import { Icon } from '@/components/icon';
-import { AppHost } from '@/components/app-host';
 import { useTradingSession } from '@/lib/live-activity';
 
 /**
@@ -24,9 +18,15 @@ import { useTradingSession } from '@/lib/live-activity';
  * block — reaching your own journal should not mean scrolling past the whole
  * dashboard. Sheets for the one-shot calculators; everything else pushes in
  * the Home stack.
+ *
+ * PanelUI `Menu`, so the same rows draw on both platforms — Android has no
+ * pull-down view manager, and the old fallback pushed one hardcoded action.
  */
 export function ToolsMenu() {
-  const { theme } = useUnistyles();
+  const [foreground, popoverForeground] = useCSSVariable([
+    '--color-foreground',
+    '--color-popover-foreground',
+  ]) as [string, string];
   const router = useRouter();
   // Lock Screen / Dynamic Island trading session (lib/live-activity.ts).
   // Lives here because this menu is where the day starts, same reasoning as
@@ -87,69 +87,63 @@ export function ToolsMenu() {
     },
   ];
 
-  if (Platform.OS !== 'ios') {
-    return (
-      <Pressable
-        onPress={() => router.push(actions[3].href)}
-        hitSlop={10}
-        accessibilityRole="button"
-        accessibilityLabel={t`Tools`}
-        style={({ pressed }) => [styles.button, pressed && styles.pressed]}
-      >
-        <Icon name="wrench.and.screwdriver" size={17} tintColor={theme.colors.foreground} />
-      </Pressable>
-    );
-  }
+  const rowIcon = (name: SFSymbol) => (
+    <Icon name={name} size={16} tintColor={popoverForeground} />
+  );
 
   return (
-    <AppHost matchContents>
-      <Menu
-        label={<UIImage systemName="wrench.and.screwdriver" size={16} />}
-        modifiers={[buttonStyle('plain'), tint(theme.colors.foreground), accessibilityLabel(t`Tools`)]}
-      >
-        {tradingSession.supported && (
-          <Section title={t`Session`}>
+    <Menu>
+      <Menu.Trigger>
+        <Pressable
+          hitSlop={10}
+          accessibilityRole="button"
+          accessibilityLabel={t`Tools`}
+          className="h-8 w-8 items-center justify-center active:opacity-60"
+        >
+          <Icon name="wrench.and.screwdriver" size={17} tintColor={foreground} />
+        </Pressable>
+      </Menu.Trigger>
+      <Menu.Content align="end" minWidth={240}>
+        {tradingSession.supported ? (
+          <Fragment>
+            <Menu.Label>{t`Session`}</Menu.Label>
             {tradingSession.active ? (
-              <UIButton
-                label={t`End Lock Screen session`}
-                systemImage="stop.circle"
-                onPress={tradingSession.end}
-              />
+              <Menu.Item icon={rowIcon('stop.circle')} onSelect={tradingSession.end}>
+                {t`End Lock Screen session`}
+              </Menu.Item>
             ) : (
-              <UIButton
-                label={t`Show session on Lock Screen`}
-                systemImage="dot.radiowaves.left.and.right"
-                onPress={tradingSession.start}
-              />
+              <Menu.Item
+                icon={rowIcon('dot.radiowaves.left.and.right')}
+                onSelect={tradingSession.start}
+              >
+                {t`Show session on Lock Screen`}
+              </Menu.Item>
             )}
-          </Section>
-        )}
-        <Section title={t`Journal`}>
-          {journal.map((action) => (
-            <UIButton
-              key={action.label}
-              label={action.label}
-              systemImage={action.systemImage}
-              onPress={() => router.push(action.href)}
-            />
-          ))}
-        </Section>
-        <Section title={t`Tools`}>
-          {actions.map((action) => (
-            <UIButton
-              key={action.label}
-              label={action.label}
-              systemImage={action.systemImage}
-              onPress={() => router.push(action.href)}
-            />
-          ))}
-        </Section>
-      </Menu>
-    </AppHost>
+            <Menu.Separator />
+          </Fragment>
+        ) : null}
+        <Menu.Label>{t`Journal`}</Menu.Label>
+        {journal.map((action) => (
+          <Menu.Item
+            key={action.label}
+            icon={rowIcon(action.systemImage)}
+            onSelect={() => router.push(action.href)}
+          >
+            {action.label}
+          </Menu.Item>
+        ))}
+        <Menu.Separator />
+        <Menu.Label>{t`Tools`}</Menu.Label>
+        {actions.map((action) => (
+          <Menu.Item
+            key={action.label}
+            icon={rowIcon(action.systemImage)}
+            onSelect={() => router.push(action.href)}
+          >
+            {action.label}
+          </Menu.Item>
+        ))}
+      </Menu.Content>
+    </Menu>
   );
 }
-
-const styles = StyleSheet.create(() => ({
-  button: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
-  pressed: { opacity: 0.6 },
-}));

@@ -1,4 +1,5 @@
 
+import { cn } from 'panelui-native';
 import { useEffect } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import Animated, {
@@ -8,7 +9,7 @@ import Animated, {
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { useCSSVariable } from 'uniwind';
 
 import { Icon } from '@/components/icon';
 import { GlassIconButton } from '@/components/glass-button';
@@ -17,7 +18,7 @@ import { GlassIconButton } from '@/components/glass-button';
  * One fluid motion for the whole tab strip: SwiftUI's `.smooth` spring model
  * (perceptual duration + damping ratio rather than stiffness/mass), damped just
  * under critical so everything glides to rest without a bounce. DESIGN.md's
- * 150ms ease-out rule is written for the web; iOS motion is springs.
+ * 150ms ease-out rule is written for the web; app motion here is springs.
  */
 export const TAB_SPRING = { duration: 420, dampingRatio: 0.85 } as const;
 
@@ -60,7 +61,7 @@ function tabExit() {
  * spent three times as long closing — two animations, visibly out of step.
  * `currentWidth` is what makes it possible: an exiting view is detached from
  * layout, so without seeding its measured width there is nothing to animate
- * from. The wrapper clips (`tabSlot`) so the label is wiped rather than
+ * from. The wrapper clips (`overflow-hidden`) so the label is wiped rather than
  * spilling out of the shrinking capsule.
  */
 function tabCollapse(values: { currentWidth: number }) {
@@ -100,7 +101,7 @@ function SymbolTab({
   onLongPress?: () => void;
   onRemove: () => void;
 }) {
-  const { theme } = useUnistyles();
+  const [mutedForeground] = useCSSVariable(['--color-muted-foreground']) as [string];
   /**
    * Seeded at the tab's *current* selection so the fill is simply there on the
    * first frame. Springing straight from `useAnimatedStyle` instead — the
@@ -121,10 +122,28 @@ function SymbolTab({
       onLongPress={onLongPress}
       accessibilityRole="tab"
       accessibilityState={{ selected: isActive }}
-      style={({ pressed }) => [styles.tab, pressed && styles.pressed]}
+      // 34 + 3pt of capsule padding either side lines the tab strip up with the
+      // 40pt glass "+" button beside it.
+      className={cn(
+        'min-h-[34px] min-w-[44px] flex-row items-center justify-center gap-1.5 rounded-full px-3',
+        'active:opacity-60',
+      )}
     >
-      <Animated.View pointerEvents="none" style={[styles.tabFill, fill]} />
-      <Text style={[styles.tabLabel, isActive && styles.tabLabelActive]} numberOfLines={1}>
+      {/* Starts hidden so the animated opacity has a defined origin — otherwise
+          a freshly mounted inactive tab paints one filled frame before it
+          settles. */}
+      <Animated.View
+        pointerEvents="none"
+        className="absolute inset-0 rounded-full bg-segment-active opacity-0"
+        style={fill}
+      />
+      <Text
+        className={cn(
+          'max-w-[140px] text-[13px]',
+          isActive ? 'font-semibold text-foreground' : 'font-medium text-muted-foreground',
+        )}
+        numberOfLines={1}
+      >
         {label}
       </Text>
       {isActive && removable ? (
@@ -134,13 +153,9 @@ function SymbolTab({
             hitSlop={10}
             accessibilityRole="button"
             accessibilityLabel={removeLabel}
-            style={({ pressed }) => pressed && styles.pressed}
+            className="active:opacity-60"
           >
-            <Icon
-              name="xmark.circle.fill"
-              size={15}
-              tintColor={theme.colors.mutedForeground}
-            />
+            <Icon name="xmark.circle.fill" size={15} tintColor={mutedForeground} />
           </Pressable>
         </Animated.View>
       ) : null}
@@ -166,6 +181,10 @@ export type PagerTab = {
  *
  * Shared by the trade form's per-symbol blocks and the daily log's per-symbol
  * recaps — the two places where one form edits a variable list of symbols.
+ *
+ * Hand-built rather than PanelUI `Tabs`: the tabs are a variable list with a
+ * per-tab remove affordance and add/remove motion of their own, none of which
+ * a fixed segmented set models. `PagerTabs` is the `Tabs` case.
  */
 export function SymbolPagerBar({
   tabs,
@@ -201,7 +220,7 @@ export function SymbolPagerBar({
 }) {
   const removable = tabs.filter((tab) => !tab.fixed).length > (keepLast ? 1 : 0);
   return (
-    <View style={styles.pagerRow}>
+    <View className="flex-row items-center gap-3">
       {/*
        * `tabEnter` describes a tab being *added* — it opens from zero width. On
        * mount there is nothing being added, so `skipEntering` suppresses it for
@@ -212,8 +231,13 @@ export function SymbolPagerBar({
         <Animated.ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.tabList}
-          style={styles.tabScroll}
+          // Filled tab capsule — the page-switcher family (segmented control),
+          // kept visually apart from the bordered tag chips which toggle
+          // values. `fill` is the same system fill as a compact picker's pill,
+          // so the strip sits in the same control family as the form's other
+          // capsules.
+          className="shrink grow-0 rounded-full bg-fill"
+          contentContainerClassName="flex-row items-center gap-0.5 p-[3px]"
           // Without this a scroll view eats the first tap while a field is open —
           // switching pages mid-typing took two taps, the first one going nowhere
           // but the keyboard.
@@ -234,9 +258,10 @@ export function SymbolPagerBar({
           // the layout pass that actually misfires.
         >
           {tabs.map((tab, index) => (
+            // Clips the label while `tabCollapse` squeezes the slot shut.
             <Animated.View
               key={tab.key}
-              style={styles.tabSlot}
+              className="overflow-hidden"
               entering={tabEnter}
               exiting={tabCollapse}
             >
@@ -257,64 +282,3 @@ export function SymbolPagerBar({
     </View>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  pressed: { opacity: 0.6 },
-  pagerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing.md,
-  },
-  // Filled tab capsule — the page-switcher family (segmented control), kept
-  // visually apart from the bordered tag chips which toggle values.
-  tabScroll: {
-    flexGrow: 0,
-    flexShrink: 1,
-    borderRadius: theme.radius.full,
-    borderCurve: 'continuous',
-    // Same system fill as a compact DatePicker's pill (ControlPill), so the
-    // strip sits in the same control family as the form's other capsules.
-    backgroundColor: theme.colors.fill,
-  },
-  tabList: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 2,
-    padding: 3,
-  },
-  // 34 + 3pt of capsule padding either side lines the tab strip up with the
-  // 40pt glass "+" button beside it.
-  tab: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: theme.spacing.xs + 2,
-    minWidth: 44,
-    minHeight: 34,
-    paddingHorizontal: theme.spacing.md,
-    borderRadius: theme.radius.full,
-    borderCurve: 'continuous',
-  },
-  // Clips the label while `tabCollapse` squeezes the slot shut.
-  tabSlot: { overflow: 'hidden' },
-  tabFill: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    borderRadius: theme.radius.full,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.segmentActive,
-    // Start hidden so the animated opacity has a defined origin — otherwise a
-    // freshly mounted inactive tab paints one filled frame before settling.
-    opacity: 0,
-  },
-  tabLabel: {
-    fontSize: 13,
-    fontWeight: '500',
-    maxWidth: 140,
-    color: theme.colors.mutedForeground,
-  },
-  tabLabelActive: { color: theme.colors.foreground, fontWeight: '600' },
-}));

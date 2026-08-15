@@ -1,3 +1,4 @@
+import { Button, Input, Scrim } from 'panelui-native';
 import { useState, type ReactNode } from 'react';
 import {
   Alert,
@@ -6,11 +7,9 @@ import {
   Platform,
   Pressable,
   Text,
-  TextInput,
   View,
   type KeyboardTypeOptions,
 } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { t } from '@lingui/core/macro';
 
@@ -28,9 +27,9 @@ export interface PromptOptions {
  * Single-value editing, cross-platform. The iOS settings idiom is
  * `Alert.prompt` (see trading-journal), but that API does not exist on
  * Android, so this hook wraps it: on iOS `prompt()` calls `Alert.prompt`
- * verbatim; elsewhere it raises an RN `Modal` dialog styled like a Material
- * alert. Screens render `element` once at their root — it is `null` whenever
- * no prompt is up (and always on iOS).
+ * verbatim; elsewhere it raises an RN `Modal` dialog. Screens render `element`
+ * once at their root — it is `null` whenever no prompt is up (and always on
+ * iOS).
  */
 export function usePrompt(): {
   prompt: (options: PromptOptions) => void;
@@ -63,7 +62,6 @@ export function usePrompt(): {
 }
 
 function PromptDialog({ options, onClose }: { options: PromptOptions; onClose: () => void }) {
-  const { theme } = useUnistyles();
   // Seeded once per prompt — the dialog unmounts when it closes.
   const [text, setText] = useState(options.defaultValue ?? '');
 
@@ -74,64 +72,31 @@ function PromptDialog({ options, onClose }: { options: PromptOptions; onClose: (
 
   return (
     <Modal transparent animationType="fade" onRequestClose={onClose}>
-      <KeyboardAvoidingView behavior="padding" style={styles.scrim}>
-        <Pressable style={styles.scrimTouch} onPress={onClose} />
-        <View style={styles.card}>
-          <Text style={styles.title}>{options.title}</Text>
-          {options.message ? <Text style={styles.message}>{options.message}</Text> : null}
-          <TextInput
+      <KeyboardAvoidingView behavior="padding" className="flex-1 items-center justify-center p-6">
+        <Scrim />
+        <Pressable className="absolute bottom-0 left-0 right-0 top-0" onPress={onClose} />
+        <View className="self-stretch gap-3 rounded-2xl bg-popover p-6">
+          <Text className="text-lg font-semibold text-popover-foreground">{options.title}</Text>
+          {options.message ? (
+            <Text className="text-sm text-muted-foreground">{options.message}</Text>
+          ) : null}
+          <Input
             autoFocus
             value={text}
             onChangeText={setText}
             keyboardType={options.keyboardType}
-            placeholderTextColor={theme.colors.mutedForeground}
-            style={styles.input}
             onSubmitEditing={submit}
           />
-          <View style={styles.actions}>
-            <Pressable onPress={onClose} hitSlop={8} accessibilityRole="button">
-              <Text style={styles.action}>{t`Cancel`}</Text>
-            </Pressable>
-            <Pressable onPress={submit} hitSlop={8} accessibilityRole="button">
-              <Text style={styles.action}>{options.confirmLabel ?? t`Save`}</Text>
-            </Pressable>
+          <View className="flex-row justify-end gap-2">
+            <Button variant="ghost" onPress={onClose}>
+              {t`Cancel`}
+            </Button>
+            <Button variant="ghost" onPress={submit}>
+              {options.confirmLabel ?? t`Save`}
+            </Button>
           </View>
         </View>
       </KeyboardAvoidingView>
     </Modal>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  scrim: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: theme.spacing.xl,
-    backgroundColor: 'rgba(0, 0, 0, 0.45)',
-  },
-  scrimTouch: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },
-  card: {
-    alignSelf: 'stretch',
-    gap: theme.spacing.md,
-    padding: theme.spacing.xl,
-    borderRadius: theme.radius.lg + 6,
-    backgroundColor: theme.colors.card,
-  },
-  title: { fontSize: 18, fontWeight: '600', color: theme.colors.foreground },
-  message: { fontSize: 14, color: theme.colors.mutedForeground },
-  input: {
-    fontSize: 16,
-    color: theme.colors.foreground,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.primary,
-    paddingVertical: theme.spacing.sm,
-  },
-  actions: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    gap: theme.spacing.xl,
-    marginTop: theme.spacing.sm,
-  },
-  action: { fontSize: 15, fontWeight: '600', color: theme.colors.primary },
-}));

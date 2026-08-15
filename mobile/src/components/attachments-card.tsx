@@ -1,31 +1,21 @@
-import {
-  Button as UIButton,
-  Menu,
-} from '@expo/ui/swift-ui';
-import {
-  buttonBorderShape,
-  buttonStyle,
-  controlSize,
-  disabled as disabledModifier,
-  tint,
-} from '@expo/ui/swift-ui/modifiers';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import * as DocumentPicker from 'expo-document-picker';
 import { File as FsFile } from 'expo-file-system';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
+import { Button, Menu, Spinner } from 'panelui-native';
 import { useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { Alert, Pressable, View } from 'react-native';
+import { useCSSVariable } from 'uniwind';
 
 import { queryKeys, useApiRaw, useApiRequest } from '@/api/hooks';
 import { useSession } from '@/api/session';
 import type { TradeDetail } from '@/api/types';
 import { DashboardCard } from '@/components/dashboard-card';
+import { Icon } from '@/components/icon';
 import { t } from '@lingui/core/macro';
 import { errorMessage } from '@/lib/errors';
 import { getJournalPrefs } from '@/lib/journal-prefs';
-import { AppHost } from '@/components/app-host';
 
 /** The server only accepts these (content-sniffed); HEIC from Photos gets
  *  re-encoded to jpeg by the picker, but a HEIC *file* would be rejected. */
@@ -35,17 +25,22 @@ type PickedImage = { uri: string; name: string; type: string };
 
 /**
  * Trade screenshots — the read-only gallery grown into full manage: add from
- * Photos or image files (SwiftUI glass menu, like the trade form's Import),
+ * Photos or image files (a pull-down, like the trade form's Import),
  * long-press to remove. Respects the max-screenshots display pref like the
  * web uploader.
  */
 export function AttachmentsCard({ trade }: { trade: TradeDetail }) {
-  const { theme } = useUnistyles();
   const { session } = useSession();
   const queryClient = useQueryClient();
   const apiRaw = useApiRaw();
   const api = useApiRequest();
   const [uploading, setUploading] = useState(false);
+  // expo-image is not a core RN component, so its box is styled with values
+  // read off the theme rather than with classes.
+  const [foreground, muted] = useCSSVariable(['--color-foreground', '--color-muted']) as [
+    string,
+    string,
+  ];
 
   const invalidate = () => {
     void queryClient.invalidateQueries({ queryKey: queryKeys.trade(trade.id) });
@@ -163,7 +158,7 @@ export function AttachmentsCard({ trade }: { trade: TradeDetail }) {
   return (
     <DashboardCard title={t`Screenshots`}>
       {trade.attachments.length > 0 ? (
-        <View style={styles.shots}>
+        <View className="flex-row flex-wrap gap-2">
           {trade.attachments.map((attachment) => (
             <Pressable
               key={attachment.id}
@@ -179,7 +174,7 @@ export function AttachmentsCard({ trade }: { trade: TradeDetail }) {
                   ).toString(),
                   headers: { Authorization: `Bearer ${session.accessToken}` },
                 }}
-                style={styles.shot}
+                style={{ width: 104, height: 104, borderRadius: 10, backgroundColor: muted }}
                 contentFit="cover"
                 transition={150}
               />
@@ -187,50 +182,38 @@ export function AttachmentsCard({ trade }: { trade: TradeDetail }) {
           ))}
         </View>
       ) : null}
-      <View style={styles.action}>
+      {/* Standalone actions center (the CenteredButton idiom). */}
+      <View className="items-center">
         {uploading ? (
-          <ActivityIndicator />
+          <Spinner />
         ) : (
-          <AppHost matchContents>
-            <Menu
-              label={t`Add screenshot`}
-              systemImage="photo.badge.plus"
-              modifiers={[
-                buttonStyle('glass'),
-                buttonBorderShape('capsule'),
-                controlSize('regular'),
-                // Menu triggers default to the accent tint — keep it neutral.
-                tint(theme.colors.foreground),
-                ...(uploading ? [disabledModifier(true)] : []),
-              ]}
-            >
-              <UIButton
-                label={t`Photo Library`}
-                systemImage="photo.on.rectangle"
-                onPress={() => void pickFromPhotos()}
-              />
-              <UIButton
-                label={t`Image files`}
-                systemImage="folder"
-                onPress={() => void pickFromFiles()}
-              />
-            </Menu>
-          </AppHost>
+          <Menu>
+            <Menu.Trigger>
+              <Button
+                variant="outline"
+                size="sm"
+                startContent={<Icon name="photo.badge.plus" size={16} tintColor={foreground} />}
+              >
+                {t`Add screenshot`}
+              </Button>
+            </Menu.Trigger>
+            <Menu.Content align="center">
+              <Menu.Item
+                icon={<Icon name="photo.on.rectangle" size={16} tintColor={foreground} />}
+                onSelect={() => void pickFromPhotos()}
+              >
+                {t`Photo Library`}
+              </Menu.Item>
+              <Menu.Item
+                icon={<Icon name="folder" size={16} tintColor={foreground} />}
+                onSelect={() => void pickFromFiles()}
+              >
+                {t`Image files`}
+              </Menu.Item>
+            </Menu.Content>
+          </Menu>
         )}
       </View>
     </DashboardCard>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  shots: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
-  shot: {
-    width: 104,
-    height: 104,
-    borderRadius: theme.radius.md,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.muted,
-  },
-  // Standalone actions center (the CenteredButton idiom).
-  action: { alignItems: 'center' },
-}));

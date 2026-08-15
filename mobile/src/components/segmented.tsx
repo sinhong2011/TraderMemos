@@ -1,37 +1,49 @@
-import { Picker } from '@expo/ui';
-import { Pressable, Text, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import type { SFSymbol } from 'expo-symbols';
+import { Select, Tabs, cn } from 'panelui-native';
+import { View } from 'react-native';
+import { useCSSVariable } from 'uniwind';
 
-import { AppHost } from '@/components/app-host';
 import { Icon } from '@/components/icon';
 
-import type { SegmentedProps } from './segmented.types';
+export type SegmentedProps<T extends string> = {
+  /** With `icon` set the segment shows only the SF Symbol; `label` stays for menus. */
+  options: readonly { value: T; label: string; icon?: SFSymbol }[];
+  value: T;
+  onChange: (value: T) => void;
+  /**
+   * 'menu' renders a pull-down button instead of a segmented control; 'wheel'
+   * a longer list for overlay pickers.
+   */
+  variant?: 'segmented' | 'menu' | 'wheel';
+  /** Fixes a tight frame for nav bars instead of hugging content. */
+  compact?: boolean;
+  /** Stretches to the container width — form rows, where hugging leaves dead space. */
+  fill?: boolean;
+  /**
+   * Cancels a menu trigger's own label padding so it lands on the same edge as
+   * a plain value beside it. Was a SwiftUI menu inset; PanelUI's `Select`
+   * trigger already sits on the frame's edge, so it is accepted and ignored.
+   */
+  flush?: boolean;
+};
 
 /**
- * The single-choice control, in its cross-platform form. `segmented.ios.tsx`
- * keeps the SwiftUI `Picker` and its three `pickerStyle`s; both export the same
- * name, so the 16 call sites never branch. (As with `settings-form`, the
- * universal file has to be the unsuffixed one — TypeScript only resolves the
- * base name.)
+ * The app's single-choice control, one file for both platforms.
  *
- * The two halves are split because `@expo/ui`'s universal `Picker` only offers
- * `appearance: 'menu' | 'wheel'` — there is no segmented appearance at all, so
- * the app's default variant has no universal primitive to sit on:
+ * It used to be a SwiftUI `Picker` (`segmented.ios.tsx`) beside a hand-drawn
+ * track, because `@expo/ui` had no segmented appearance to sit on. PanelUI
+ * draws all three variants itself, so the split is gone and the 16 call sites
+ * get the same control everywhere:
  *
- * - **segmented** is drawn here in React Native. Compose does ship
- *   `SingleChoiceSegmentedButtonRow`, but it is Material's outlined pill row —
- *   visually a different control from the iOS track this replaces, and it would
- *   drag the dashboard cards away from DESIGN.md's tokens. A track on `fill`
- *   with the active segment on `segmentActive` is the same shape on both
- *   platforms, and `segmentActive` exists for exactly this.
- * - **menu** and **wheel** go through the universal `Picker`, which is the very
- *   same SwiftUI picker on iOS and a Compose dropdown on Android. `wheel` has no
- *   Compose drum, so it degrades to that dropdown — acceptable, since the two
- *   wheel call sites (the calendar's month/year overlay) are choosing from a
- *   flat list either way.
- *
- * `compact` and `fill` size the RN track directly; `flush` is a SwiftUI menu
- * inset that has no Compose counterpart and is ignored here.
+ * - **segmented** is `Tabs` in its segmented variant — a raised chip travelling
+ *   inside a recessed track. No panels: the tab strip *is* the control, and the
+ *   value it reports is the caller's state.
+ * - **menu** is a `Select` anchored to its trigger, which is what the SwiftUI
+ *   pull-down was: a checkmarked list of one-of-N.
+ * - **wheel** is the same `Select` presented from the bottom edge. There is no
+ *   cross-platform drum, and the two wheel call sites (the calendar's
+ *   month/year overlay) are choosing from a flat list either way — a sheet is
+ *   the honest form of that on a phone.
  */
 export function Segmented<T extends string>({
   options,
@@ -40,95 +52,69 @@ export function Segmented<T extends string>({
   variant = 'segmented',
   compact,
   fill,
-  flush: _iosFlush,
+  flush: _flush,
 }: SegmentedProps<T>) {
-  const { theme } = useUnistyles();
+  // Segment glyphs are `expo-symbols` views, so they need the resolved token
+  // rather than a class — and they have to re-resolve when the scheme flips.
+  const [foreground, mutedForeground] = useCSSVariable([
+    '--color-foreground',
+    '--color-muted-foreground',
+  ]) as [string, string];
 
   if (variant !== 'segmented') {
     return (
-      <AppHost matchContents={!fill} style={fill ? styles.stretch : undefined}>
-        <Picker
-          appearance={variant === 'wheel' ? 'wheel' : 'menu'}
-          selectedValue={value}
-          onValueChange={(selection) => onChange(selection as T)}
-        >
-          {options.map((option) => (
-            <Picker.Item key={option.value} label={option.label} value={option.value} />
-          ))}
-        </Picker>
-      </AppHost>
+      <Select
+        value={value}
+        onValueChange={(next) => onChange(next as T)}
+        // A pull-down floats over the page; a wheel's list is long enough that
+        // the bottom sheet is the only place it fits without covering what it
+        // is being chosen for.
+        presentation={variant === 'wheel' ? 'sheet' : 'overlay'}
+        className={cn(fill && 'self-stretch')}
+      >
+        {options.map((option) => (
+          <Select.Item key={option.value} value={option.value} label={option.label} />
+        ))}
+      </Select>
     );
   }
 
+  // Icons replace labels only when *every* segment has one — a half-glyphed
+  // track reads as a rendering bug.
   const allIcons = options.every((option) => option.icon != null);
 
   return (
-    <View
-      accessibilityRole="tablist"
-      style={[styles.track, compact && styles.compact, fill && styles.stretch]}
+    <Tabs
+      value={value}
+      // `Tabs` insists on a starting value even when it is driven from outside.
+      defaultValue={value}
+      onValueChange={(next) => onChange(next as T)}
+      className={cn(fill ? 'self-stretch' : 'self-start')}
     >
-      {options.map((option) => {
-        const active = option.value === value;
-        return (
-          <Pressable
+      <Tabs.List className={cn(compact && 'h-[30px] items-center py-0')}>
+        {options.map((option) => (
+          <Tabs.Trigger
             key={option.value}
-            onPress={() => onChange(option.value)}
-            accessibilityRole="tab"
-            accessibilityState={{ selected: active }}
-            accessibilityLabel={option.label}
-            style={({ pressed }) => [
-              styles.segment,
-              // Segments share the width only when the track was told to
-              // stretch; hugging, they size to their own label — `flex: 1`
-              // there zeroes the basis and the labels spill out of the track.
-              fill && styles.segmentFill,
-              active && styles.segmentActive,
-              pressed && !active && styles.segmentPressed,
-            ]}
+            value={option.value}
+            // Segments share the width only when the track was told to stretch;
+            // hugging, they size to their own label — the `flex-1` a fixed row
+            // gives them zeroes the basis and the labels spill out of the track.
+            className={cn(!fill && 'flex-none')}
           >
             {allIcons && option.icon ? (
-              <Icon
-                name={option.icon}
-                size={15}
-                tintColor={active ? theme.colors.foreground : theme.colors.mutedForeground}
-              />
+              <View accessibilityLabel={option.label}>
+                <Icon
+                  name={option.icon}
+                  size={15}
+                  tintColor={option.value === value ? foreground : mutedForeground}
+                />
+              </View>
             ) : (
-              <Text numberOfLines={1} style={[styles.label, active && styles.labelActive]}>
-                {option.label}
-              </Text>
+              option.label
             )}
-          </Pressable>
-        );
-      })}
-    </View>
+          </Tabs.Trigger>
+        ))}
+      </Tabs.List>
+    </Tabs>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  stretch: { alignSelf: 'stretch' },
-  track: {
-    flexDirection: 'row',
-    alignSelf: 'flex-start',
-    flexShrink: 1,
-    padding: 2,
-    gap: 2,
-    borderRadius: theme.radius.full,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.fill,
-  },
-  compact: { height: 30 },
-  segment: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: 28,
-    paddingHorizontal: theme.spacing.sm,
-    borderRadius: theme.radius.full,
-    borderCurve: 'continuous',
-  },
-  segmentFill: { flex: 1 },
-  // The active page reads as a cut-out of the page it controls — see the token.
-  segmentActive: { backgroundColor: theme.colors.segmentActive },
-  segmentPressed: { opacity: 0.6 },
-  label: { fontSize: 13, fontWeight: '500', color: theme.colors.mutedForeground },
-  labelActive: { color: theme.colors.foreground, fontWeight: '600' },
-}));

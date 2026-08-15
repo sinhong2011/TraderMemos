@@ -1,7 +1,8 @@
 import { t } from '@lingui/core/macro';
+import { cn, Input } from 'panelui-native';
 import { useState, type Ref } from 'react';
-import { Pressable, TextInput, View, type TextInputProps } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { Pressable, TextInput, type TextInputProps } from 'react-native';
+import { useCSSVariable } from 'uniwind';
 
 import { Icon } from '@/components/icon';
 
@@ -10,51 +11,37 @@ type PasswordInputProps = Omit<TextInputProps, 'secureTextEntry'> & {
 };
 
 /**
- * Password field with an eye toggle to reveal the value. Renders as a bare
- * input row like the login card's TextInputs — the caller supplies the
- * surrounding card/label chrome.
+ * Password field with an eye toggle to reveal the value — the auth screen's
+ * `Input`, with the toggle as trailing content inside the field rather than a
+ * control parked beside it. The caller supplies the label and any card chrome
+ * around it, exactly as it does for the plain fields it sits with.
  */
-export function PasswordInput({ ref, style, ...props }: PasswordInputProps) {
-  const { theme } = useUnistyles();
+export function PasswordInput({ ref, className, ...props }: PasswordInputProps) {
+  const [mutedForeground] = useCSSVariable(['--color-muted-foreground']) as [string];
   const [visible, setVisible] = useState(false);
 
   return (
-    <View style={styles.row}>
-      <TextInput
-        ref={ref}
-        secureTextEntry={!visible}
-        placeholderTextColor={theme.colors.mutedForeground}
-        autoCapitalize="none"
-        autoCorrect={false}
-        textContentType="password"
-        style={[styles.input, style]}
-        {...props}
-      />
-      <Pressable
-        onPress={() => setVisible((v) => !v)}
-        accessibilityRole="button"
-        accessibilityLabel={visible ? t`Hide password` : t`Show password`}
-        hitSlop={8}
-        style={({ pressed }) => [styles.toggle, pressed && styles.togglePressed]}
-      >
-        <Icon
-          name={visible ? 'eye.slash' : 'eye'}
-          size={18}
-          tintColor={theme.colors.mutedForeground}
-        />
-      </Pressable>
-    </View>
+    <Input
+      ref={ref}
+      secureTextEntry={!visible}
+      autoCapitalize="none"
+      autoCorrect={false}
+      textContentType="password"
+      // Matches the sibling fields on the sign-in screen; a caller's own
+      // classes still win, since they are merged last.
+      className={cn('min-h-[52px] text-[17px]', className)}
+      endContent={
+        <Pressable
+          onPress={() => setVisible((v) => !v)}
+          accessibilityRole="button"
+          accessibilityLabel={visible ? t`Hide password` : t`Show password`}
+          hitSlop={8}
+          className="min-h-7 min-w-7 items-center justify-center active:opacity-50"
+        >
+          <Icon name={visible ? 'eye.slash' : 'eye'} size={18} tintColor={mutedForeground} />
+        </Pressable>
+      }
+      {...props}
+    />
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  row: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
-  input: {
-    flex: 1,
-    fontSize: 17,
-    paddingVertical: theme.spacing.xs,
-    color: theme.colors.foreground,
-  },
-  toggle: { justifyContent: 'center', minWidth: 28, minHeight: 28, alignItems: 'center' },
-  togglePressed: { opacity: 0.5 },
-}));

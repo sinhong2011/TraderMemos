@@ -1,14 +1,10 @@
-import {
-  Button,
-  Menu,
-  Toggle,
-} from '@expo/ui/swift-ui';
-import { labelStyle, menuActionDismissBehavior, tint } from '@expo/ui/swift-ui/modifiers';
+import { Menu } from 'panelui-native';
+import { Pressable } from 'react-native';
 import type { SFSymbol } from 'sf-symbols-typescript';
-import { useUnistyles } from 'react-native-unistyles';
+import { useCSSVariable } from 'uniwind';
 
 import { t } from '@lingui/core/macro';
-import { AppHost } from '@/components/app-host';
+import { Icon } from '@/components/icon';
 
 export type FilterToggleGroup = {
   key: string;
@@ -35,9 +31,9 @@ function summary(group: FilterToggleGroup): string {
  * Nav-bar pull-down for filters you pick several of at once — the multi-select
  * sibling of [TradeFilterMenu], which pickers one value per dimension.
  *
- * `Toggle` rows plus `menuActionDismissBehavior('disabled')` are what make that
- * work: a plain `Button` row closes the menu on every tap, so choosing three
- * currencies meant reopening the menu three times.
+ * `Menu.CheckboxItem` is what makes that work: it keeps the panel open when a
+ * row is chosen, where a plain `Menu.Item` closes on every tap and choosing
+ * three currencies would mean reopening the menu three times.
  */
 export function EventFilterMenu({
   groups,
@@ -47,49 +43,67 @@ export function EventFilterMenu({
   /** Shown as a destructive row at the foot of the menu while anything is on. */
   onReset: () => void;
 }) {
-  const { theme } = useUnistyles();
+  const [foreground, primary, popoverForeground, destructive] = useCSSVariable([
+    '--color-foreground',
+    '--color-primary',
+    '--color-popover-foreground',
+    '--color-destructive',
+  ]) as [string, string, string, string];
   const active = groups.some((group) => group.selected.length > 0);
 
   return (
-    <AppHost matchContents>
-      <Menu
-        label={t`Filter`}
-        systemImage={
-          active ? 'line.3.horizontal.decrease.circle.fill' : 'line.3.horizontal.decrease.circle'
-        }
-        // Neutral glyph — primary is fill-only, and bar icons default to accent.
-        modifiers={[
-          labelStyle('iconOnly'),
-          tint(active ? theme.colors.primary : theme.colors.foreground),
-          menuActionDismissBehavior('disabled'),
-        ]}
-      >
+    <Menu>
+      <Menu.Trigger>
+        <Pressable
+          hitSlop={10}
+          accessibilityRole="button"
+          accessibilityLabel={t`Filter`}
+          className="h-8 w-8 items-center justify-center active:opacity-60"
+        >
+          {/* Neutral glyph unless something is on — primary is a fill, not a
+              default bar tint. */}
+          <Icon
+            name={
+              active
+                ? 'line.3.horizontal.decrease.circle.fill'
+                : 'line.3.horizontal.decrease.circle'
+            }
+            size={18}
+            tintColor={active ? primary : foreground}
+          />
+        </Pressable>
+      </Menu.Trigger>
+      <Menu.Content align="end" minWidth={240}>
         {groups.map((group) => (
-          <Menu
-            key={group.key}
-            label={summary(group)}
-            systemImage={group.icon}
-            modifiers={[menuActionDismissBehavior('disabled')]}
-          >
-            {group.options.map((option) => (
-              <Toggle
-                key={option.value}
-                label={option.label}
-                isOn={group.selected.includes(option.value)}
-                onIsOnChange={() => group.onToggle(option.value)}
-              />
-            ))}
-          </Menu>
+          <Menu.Sub key={group.key}>
+            <Menu.SubTrigger
+              icon={<Icon name={group.icon} size={16} tintColor={popoverForeground} />}
+            >
+              {summary(group)}
+            </Menu.SubTrigger>
+            <Menu.SubContent>
+              {group.options.map((option) => (
+                <Menu.CheckboxItem
+                  key={option.value}
+                  checked={group.selected.includes(option.value)}
+                  onCheckedChange={() => group.onToggle(option.value)}
+                >
+                  {option.label}
+                </Menu.CheckboxItem>
+              ))}
+            </Menu.SubContent>
+          </Menu.Sub>
         ))}
         {active ? (
-          <Button
-            role="destructive"
-            label={t`Clear filters`}
-            systemImage="arrow.counterclockwise"
-            onPress={onReset}
-          />
+          <Menu.Item
+            variant="destructive"
+            icon={<Icon name="arrow.counterclockwise" size={16} tintColor={destructive} />}
+            onSelect={onReset}
+          >
+            {t`Clear filters`}
+          </Menu.Item>
         ) : null}
-      </Menu>
-    </AppHost>
+      </Menu.Content>
+    </Menu>
   );
 }

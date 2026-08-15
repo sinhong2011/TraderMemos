@@ -1,17 +1,10 @@
-import {
-  Button,
-  Menu,
-  Picker,
-  Text as UIText,
-} from '@expo/ui/swift-ui';
-import { labelStyle, pickerStyle, tag, tint } from '@expo/ui/swift-ui/modifiers';
+import { Menu } from 'panelui-native';
 import { Fragment } from 'react';
 import type { SFSymbol } from 'sf-symbols-typescript';
-import { Alert, Platform, Pressable } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { Pressable } from 'react-native';
+import { useCSSVariable } from 'uniwind';
 
 import { t } from '@lingui/core/macro';
-import { AppHost } from '@/components/app-host';
 import { Icon } from '@/components/icon';
 
 export type FilterGroup = {
@@ -58,106 +51,71 @@ export function TradeFilterMenu({
   /** Shown as a destructive row at the foot of the menu while `active`. */
   onReset?: () => void;
 }) {
-  const { theme } = useUnistyles();
-  // A `Section` title is dropped when the menu flattens it inline, so grouping
-  // has to come from real submenus — those keep their label.
+  const [foreground, destructive] = useCSSVariable([
+    '--color-foreground',
+    '--color-destructive',
+  ]) as [string, string];
+  // One group's options are listed straight into the panel; several become
+  // submenus, which is what keeps the dimensions named and the panel short.
   const nested = groups.length > 1;
 
-  // Android has no `Menu` view manager, and nothing in Compose nests a
-  // checkmarked picker inside a pull-down the way UIMenu does. Same fallback as
-  // `AccountMenu`: the glyph opens the platform's own chooser. Two steps rather
-  // than one when there are several dimensions — an Alert cannot nest, so the
-  // first sheet picks the dimension and the second its value, which is also how
-  // the submenus read on iOS.
-  if (Platform.OS !== 'ios') {
-    const chooseValue = (group: FilterGroup) =>
-      Alert.alert(group.title ?? (label ?? t`Filter`), undefined, [
-        ...group.options.map((option) => ({
-          text: option.value === group.value ? `✓ ${option.label}` : option.label,
-          onPress: () => group.onChange(option.value),
-        })),
-        { text: t`Cancel`, style: 'cancel' as const },
-      ]);
-
-    return (
-      <Pressable
-        onPress={() => {
-          if (!nested) {
-            chooseValue(groups[0]);
-            return;
-          }
-          Alert.alert(label ?? t`Filter`, undefined, [
-            ...groups.map((group) => ({
-              text: groupSummary(group),
-              onPress: () => chooseValue(group),
-            })),
-            ...(onReset && active
-              ? [{ text: t`Clear filters`, style: 'destructive' as const, onPress: onReset }]
-              : []),
-            { text: t`Cancel`, style: 'cancel' as const },
-          ]);
-        }}
-        hitSlop={10}
-        accessibilityRole="button"
-        accessibilityLabel={label ?? t`Filter`}
-        style={({ pressed }) => [styles.button, pressed && styles.pressed]}
-      >
-        <Icon
-          name={active ? activeSystemImage : systemImage}
-          size={18}
-          tintColor={theme.colors.foreground}
-        />
-      </Pressable>
-    );
-  }
-
-  const picker = (group: FilterGroup) => (
-    <Picker
-      selection={group.value}
-      onSelectionChange={(selection) => {
-        if (selection != null) group.onChange(selection);
-      }}
-      modifiers={[pickerStyle('inline')]}
-    >
+  const options = (group: FilterGroup) => (
+    <Menu.RadioGroup value={group.value} onValueChange={group.onChange}>
       {group.options.map((option) => (
-        <UIText key={option.value} modifiers={[tag(option.value)]}>
+        <Menu.RadioItem key={option.value} value={option.value}>
           {option.label}
-        </UIText>
+        </Menu.RadioItem>
       ))}
-    </Picker>
+    </Menu.RadioGroup>
   );
 
   return (
-    <AppHost matchContents>
-      <Menu
-        label={label ?? t`Filter`}
-        systemImage={active ? activeSystemImage : systemImage}
-        // Neutral glyph — primary is fill-only, and bar icons default to accent.
-        modifiers={[labelStyle('iconOnly'), tint(theme.colors.foreground)]}
-      >
+    <Menu>
+      <Menu.Trigger>
+        <Pressable
+          hitSlop={10}
+          accessibilityRole="button"
+          accessibilityLabel={label ?? t`Filter`}
+          className="h-8 w-8 items-center justify-center active:opacity-60"
+        >
+          {/* Neutral glyph — bar icons default to the accent tint. */}
+          <Icon
+            name={active ? activeSystemImage : systemImage}
+            size={18}
+            tintColor={foreground}
+          />
+        </Pressable>
+      </Menu.Trigger>
+      <Menu.Content align="end">
         {groups.map((group) =>
           nested ? (
-            <Menu key={group.key} label={groupSummary(group)} systemImage={group.icon}>
-              {picker(group)}
-            </Menu>
+            <Menu.Sub key={group.key}>
+              <Menu.SubTrigger
+                icon={
+                  group.icon ? <Icon name={group.icon} size={16} tintColor={foreground} /> : null
+                }
+              >
+                {groupSummary(group)}
+              </Menu.SubTrigger>
+              <Menu.SubContent>{options(group)}</Menu.SubContent>
+            </Menu.Sub>
           ) : (
-            <Fragment key={group.key}>{picker(group)}</Fragment>
+            <Fragment key={group.key}>{options(group)}</Fragment>
           ),
         )}
         {onReset && active ? (
-          <Button
-            role="destructive"
-            label={t`Clear filters`}
-            systemImage="arrow.counterclockwise"
-            onPress={onReset}
-          />
+          <>
+            <Menu.Separator />
+            <Menu.Item
+              variant="destructive"
+              icon={<Icon name="arrow.counterclockwise" size={16} tintColor={destructive} />}
+              onSelect={onReset}
+            >
+              {t`Clear filters`}
+            </Menu.Item>
+          </>
         ) : null}
-      </Menu>
-    </AppHost>
+      </Menu.Content>
+    </Menu>
   );
 }
-
-const styles = StyleSheet.create(() => ({
-  button: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
-  pressed: { opacity: 0.6 },
-}));

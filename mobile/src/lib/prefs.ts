@@ -11,7 +11,7 @@
  */
 
 import { Appearance } from 'react-native';
-import { UnistylesRuntime, useUnistyles } from 'react-native-unistyles';
+import { Uniwind, useUniwind } from 'uniwind';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -203,11 +203,10 @@ export function subscribeDisplayPrefs(listener: () => void): () => void {
 }
 
 /**
- * Push the pref into Unistyles *and* into UIKit. `adaptiveThemes` is what makes
- * the app follow iOS, so a pinned scheme has to switch it off first — with it
- * on, `setTheme` is overridden the next time the system scheme is read.
+ * Push the pref into Uniwind *and* into UIKit. `Uniwind.setTheme('system')` is
+ * the adaptive mode that follows the OS; a concrete name pins the app.
  *
- * Unistyles only repaints what React Native draws. Everything UIKit draws for
+ * Uniwind only repaints what React Native draws. Everything UIKit draws for
  * itself reads the window's trait collection instead, and `app.json` pins that
  * to `userInterfaceStyle: "automatic"` — the *device*. The `NativeTabs` tab bar
  * is the visible casualty: pinned to Light on a phone in Dark Mode, the app
@@ -215,23 +214,20 @@ export function subscribeDisplayPrefs(listener: () => void): () => void {
  * because expo-router hands them the navigation theme's scheme explicitly.)
  * `Appearance.setColorScheme` is the lever for that half — on iOS it sets
  * `overrideUserInterfaceStyle` on every window, `'unspecified'` handing the app
- * back to the device. It goes last in each branch: the override raises a trait change
- * that Unistyles' adaptive listener acts on, so it must land with the adaptive
- * flag already in its final state. Re-asserting the same style is a plain
- * assignment, so it needs none of the guarding below.
+ * back to the device. It goes last in each branch: the override raises a trait
+ * change that the adaptive listener acts on, so it must land with the theme
+ * mode already in its final state.
  */
 function applyAppearanceToRuntime(pref: AppearancePref) {
-  // Each call is guarded on the current runtime value. Re-asserting a setting
-  // Unistyles already holds re-applies the default theme rather than being a
-  // no-op, which flashes the app light on every module re-evaluation — and
-  // this runs at module scope, so that is every Fast Refresh.
+  // Guarded on the current runtime value so a module re-evaluation (every Fast
+  // Refresh — this runs at module scope) never re-applies a state Uniwind
+  // already holds.
   if (pref === 'system') {
-    if (!UnistylesRuntime.hasAdaptiveThemes) UnistylesRuntime.setAdaptiveThemes(true);
+    if (!Uniwind.hasAdaptiveThemes) Uniwind.setTheme('system');
     Appearance.setColorScheme('unspecified');
     return;
   }
-  if (UnistylesRuntime.hasAdaptiveThemes) UnistylesRuntime.setAdaptiveThemes(false);
-  if (UnistylesRuntime.themeName !== pref) UnistylesRuntime.setTheme(pref);
+  if (Uniwind.hasAdaptiveThemes || Uniwind.currentTheme !== pref) Uniwind.setTheme(pref);
   Appearance.setColorScheme(pref);
 }
 
@@ -245,26 +241,19 @@ export function setAppearance(pref: AppearancePref) {
 }
 
 /**
- * The scheme actually being rendered. SwiftUI views are native and don't read
- * Unistyles, so every `Host` has to be told this explicitly — see
- * `components/app-host.tsx`. Subscribes to both the pref and the system scheme
- * because either can move it.
- */
-/**
- * The scheme actually being painted, for the SwiftUI `Host`s (see
- * `components/app-host.tsx`).
+ * The scheme actually being painted — for the status bar and the navigation
+ * theme, which take a scheme rather than a class.
  *
- * Reads Unistyles' live theme, deliberately — not the pref and not RN's
+ * Reads Uniwind's live theme, deliberately — not the pref and not RN's
  * `useColorScheme`. Those are three separate signals: the pref is intent,
- * `useColorScheme` is the device, and Unistyles is what the RN surfaces are
- * *currently* painted with. Driving SwiftUI from either of the first two lets
- * it disagree with the background it sits on, and the result isn't subtle —
- * dark-scheme section headers land on a light background as unreadable grey.
- * Reading the applied theme makes divergence impossible by construction.
+ * `useColorScheme` is the device, and Uniwind is what the surfaces are
+ * *currently* painted with. Driving chrome from either of the first two lets
+ * it disagree with the background it sits on; reading the applied theme makes
+ * divergence impossible by construction.
  */
 export function useResolvedScheme(): 'light' | 'dark' {
-  const { rt } = useUnistyles();
-  return rt.themeName === 'dark' ? 'dark' : 'light';
+  const { theme } = useUniwind();
+  return theme === 'dark' ? 'dark' : 'light';
 }
 
 export function setPrivacyMode(on: boolean) {

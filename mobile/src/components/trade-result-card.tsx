@@ -1,18 +1,21 @@
 
+import { Card, cn } from 'panelui-native';
 import { Text, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { useCSSVariable } from 'uniwind';
 
 import { Icon } from '@/components/icon';
 import { SectionHeader } from '@/components/form-rows';
 import { t } from '@lingui/core/macro';
 import { formatRatio, useFormatters } from '@/lib/format';
-import { pnlColor } from '@/styles/unistyles';
+import { pnlClass } from '@/styles/pnl';
 import type { TradePnlPreview } from '@/lib/trade-pnl-preview';
 
 function Tile({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <View style={styles.tile}>
-      <Text style={styles.tileLabel}>{label}</Text>
+    <View className="w-1/2 gap-0.5">
+      <Text className="text-[11px] font-semibold uppercase tracking-[0.5px] text-muted-foreground">
+        {label}
+      </Text>
       {children}
     </View>
   );
@@ -31,7 +34,7 @@ export function TradeResultCard({
   preview: TradePnlPreview;
   currency: string;
 }) {
-  const { theme } = useUnistyles();
+  const [profit] = useCSSVariable(['--color-profit']) as [string];
   // Formatters bound to the display prefs (see lib/format.ts).
   const { formatCurrency, formatPnl } = useFormatters();
 
@@ -40,42 +43,42 @@ export function TradeResultCard({
   return (
     <>
       <SectionHeader label={t`Result`} />
-      <View style={styles.card}>
-        <View style={styles.grid}>
+      <Card className="gap-3 p-4">
+        <View className="flex-row flex-wrap gap-y-3">
           <Tile label={t`Avg entry`}>
-            <Text style={styles.tileValue}>
+            <Text className="text-[17px] font-semibold text-foreground tabular-nums">
               {preview.avgEntry != null ? formatCurrency(preview.avgEntry, currency) : t`None`}
             </Text>
           </Tile>
           <Tile label={t`Avg exit`}>
-            <Text style={styles.tileValue}>
+            <Text className="text-[17px] font-semibold text-foreground tabular-nums">
               {preview.avgExit != null ? formatCurrency(preview.avgExit, currency) : t`Open`}
             </Text>
           </Tile>
           <Tile label={t`Est. P&L`}>
             {preview.net != null ? (
-              <Text style={[styles.tileValue, { color: pnlColor(theme.colors, preview.net) }]}>
+              <Text
+                className={cn('text-[17px] font-semibold tabular-nums', pnlClass(preview.net))}
+              >
                 {formatPnl(preview.net, currency)}
               </Text>
             ) : (
-              <Text style={styles.tileValueMuted}>{t`Open`}</Text>
+              <Text className="text-[17px] font-semibold text-muted-foreground">{t`Open`}</Text>
             )}
           </Tile>
           <Tile label={t`Position`}>
-            <View style={styles.positionRow}>
-              <Text style={styles.tileValue}>{preview.positionQty}</Text>
+            <View className="flex-row items-center gap-1">
+              <Text className="text-[17px] font-semibold text-foreground tabular-nums">
+                {preview.positionQty}
+              </Text>
               {preview.closed ? (
-                <Icon
-                  name="checkmark.circle.fill"
-                  size={15}
-                  tintColor={theme.colors.profit}
-                />
+                <Icon name="checkmark.circle.fill" size={15} tintColor={profit} />
               ) : null}
             </View>
           </Tile>
         </View>
         {preview.feesTotal > 0 || preview.rMultiple != null ? (
-          <Text style={styles.rLine}>
+          <Text className="text-xs text-muted-foreground tabular-nums">
             {[
               preview.feesTotal > 0 ? t`Fees ${formatCurrency(preview.feesTotal, currency)}` : '',
               preview.rMultiple != null ? t`R multiple ${formatRatio(preview.rMultiple)}` : '',
@@ -84,48 +87,7 @@ export function TradeResultCard({
               .join(' · ')}
           </Text>
         ) : null}
-      </View>
+      </Card>
     </>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  card: {
-    borderRadius: theme.radius.lg + 6,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.card,
-    boxShadow: theme.shadows.card,
-    padding: theme.spacing.lg,
-    gap: theme.spacing.md,
-  },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    rowGap: theme.spacing.md,
-  },
-  tile: { width: '50%', gap: 2 },
-  tileLabel: {
-    fontSize: 11,
-    fontWeight: '600',
-    letterSpacing: 0.5,
-    textTransform: 'uppercase',
-    color: theme.colors.mutedForeground,
-  },
-  tileValue: {
-    fontSize: 17,
-    fontWeight: '600',
-    color: theme.colors.foreground,
-    fontVariant: ['tabular-nums'],
-  },
-  tileValueMuted: {
-    fontSize: 17,
-    fontWeight: '600',
-    color: theme.colors.mutedForeground,
-  },
-  positionRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.xs },
-  rLine: {
-    fontSize: 12,
-    color: theme.colors.mutedForeground,
-    fontVariant: ['tabular-nums'],
-  },
-}));

@@ -1,7 +1,6 @@
-
 import type { SFSymbol } from 'expo-symbols';
 import { Pressable } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { useCSSVariable } from 'uniwind';
 
 import { Icon } from '@/components/icon';
 
@@ -13,7 +12,9 @@ import { Icon } from '@/components/icon';
  * Liquid Glass container, the same one the back chevron sits in, so a
  * `GlassIconButton` here nests a second capsule inside the first and reads
  * dimmer and flatter than the back button beside it. Plain glyph in, system
- * circle around it, and the two sides of the bar match.
+ * circle around it, and the two sides of the bar match. That is also why it
+ * stays a bare `Pressable` rather than a PanelUI `Button` — every button
+ * variant brings a surface this one must not have.
  *
  * Not for `FormSheet`'s header — that one is an RN row with no bar item to
  * inherit from, so it draws its own glass (see form-sheet.tsx).
@@ -30,7 +31,12 @@ export function HeaderIconButton({
   disabled?: boolean;
   onPress: () => void;
 }) {
-  const { theme } = useUnistyles();
+  // `expo-symbols` takes a resolved color, not a class.
+  const [foreground, mutedForeground] = useCSSVariable([
+    '--color-foreground',
+    '--color-muted-foreground',
+  ]) as [string, string];
+
   return (
     <Pressable
       onPress={onPress}
@@ -39,19 +45,16 @@ export function HeaderIconButton({
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityState={{ disabled: Boolean(disabled) }}
-      style={({ pressed }) => [styles.button, pressed && !disabled && styles.pressed]}
+      // A disabled Pressable never reports pressed, so the active state needs
+      // no guard of its own.
+      className="h-8 w-8 items-center justify-center active:opacity-70"
     >
       <Icon
         name={systemImage}
         size={18}
         weight="semibold"
-        tintColor={disabled ? theme.colors.mutedForeground : theme.colors.foreground}
+        tintColor={disabled ? mutedForeground : foreground}
       />
     </Pressable>
   );
 }
-
-const styles = StyleSheet.create(() => ({
-  button: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
-  pressed: { opacity: 0.7 },
-}));

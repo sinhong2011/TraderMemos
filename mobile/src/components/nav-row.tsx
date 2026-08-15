@@ -1,24 +1,18 @@
-import { RNHostView } from '@expo/ui';
 import type { SFSymbol } from 'expo-symbols';
-import { Pressable, Text, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { Frame, Text } from 'panelui-native';
+import { useCSSVariable } from 'uniwind';
 
 import { Icon } from '@/components/icon';
 
 /**
- * A settings row that pushes another screen, rebuilt for platforms without
- * SwiftUI. iOS overrides this with `nav-row.ios.tsx`, which keeps the composed
- * SwiftUI `Button`/`HStack` row exactly as it shipped.
+ * A settings row that pushes another screen — leading icon, label, optional
+ * trailing value, disclosure chevron. Icon and label share the neutral label
+ * color; brand blue is reserved for the values and states that carry meaning,
+ * not for row furniture.
  *
- * Like `empty-state.tsx`, the Android side is plain RN inside an `RNHostView`
- * rather than universal primitives: `systemImage` is a runtime prop, and
- * universal `Icon` needs an XML drawable literal on Android, so there'd be
- * nothing for Metro to resolve a `require` against. Going through `RNHostView`
- * reuses `@/components/icon`, already mapped to Material Symbols.
- *
- * Same rule as the iOS version: use this only where a tap pushes. A chevron on
- * a row that opens a sheet or leaves the app promises navigation that never
- * happens — `accessory` covers those cases instead.
+ * Use it only where a tap pushes: a chevron on a row that opens a sheet, an
+ * alert, or the system settings promises navigation that never happens — those
+ * rows take `accessory` instead.
  */
 export function NavRow({
   systemImage,
@@ -38,43 +32,38 @@ export function NavRow({
   accessory?: 'chevron' | 'external' | 'none';
   onPress: () => void;
 }) {
-  const { theme } = useUnistyles();
+  const [foreground, mutedForeground] = useCSSVariable([
+    '--color-foreground',
+    '--color-muted-foreground',
+  ]) as [string, string];
 
   return (
-    <RNHostView matchContents>
-      <Pressable
-        onPress={onPress}
-        accessibilityRole="button"
-        style={({ pressed }) => [styles.row, pressed && styles.pressed]}
-      >
-        {systemImage != null ? (
-          <Icon name={systemImage} size={17} tintColor={theme.colors.foreground} />
+    <Frame.Row onPress={onPress}>
+      {systemImage != null ? (
+        <Frame.Media>
+          <Icon name={systemImage} size={17} tintColor={foreground} />
+        </Frame.Media>
+      ) : null}
+      <Frame.Content>
+        <Frame.Title>{label}</Frame.Title>
+      </Frame.Content>
+      <Frame.Actions>
+        {value != null ? (
+          <Text size="sm" muted>
+            {value}
+          </Text>
         ) : null}
-        <Text style={styles.label}>{label}</Text>
-        <View style={styles.spacer} />
-        {value != null ? <Text style={styles.value}>{value}</Text> : null}
+        {/* `Frame.Row`'s own `chevron` prop draws only the pushing glyph, and
+            an external row needs the leaving one — so both come from the app's
+            icon layer instead. */}
         {accessory === 'none' ? null : (
           <Icon
             name={accessory === 'external' ? 'arrow.up.forward' : 'chevron.right'}
             size={12}
-            tintColor={theme.colors.mutedForeground}
+            tintColor={mutedForeground}
           />
         )}
-      </Pressable>
-    </RNHostView>
+      </Frame.Actions>
+    </Frame.Row>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing.md,
-    paddingVertical: theme.spacing.md,
-    paddingHorizontal: theme.spacing.lg,
-  },
-  pressed: { backgroundColor: theme.colors.accent },
-  label: { fontSize: 17, color: theme.colors.foreground },
-  spacer: { flex: 1 },
-  value: { fontSize: 15, color: theme.colors.mutedForeground },
-}));

@@ -1,16 +1,13 @@
-import { Chart } from '@expo/ui/swift-ui';
+import { LineChart } from 'panelui-native';
 import { useMemo, useState } from 'react';
-import { Platform, Text, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { Text, View } from 'react-native';
 
 import type { EquityCurve } from '@/api/types';
-import { ChartPlaceholder } from '@/components/chart-placeholder';
 import { DashboardCard } from '@/components/dashboard-card';
 import { Segmented } from '@/components/segmented';
 import { t } from '@lingui/core/macro';
 import { useFormatters } from '@/lib/format';
-import { pnlColor } from '@/styles/unistyles';
-import { AppHost } from '@/components/app-host';
+import { pnlClass, usePnlPalette } from '@/styles/pnl';
 
 type Range = '30D' | '90D' | 'ALL';
 
@@ -26,10 +23,10 @@ function rangeCutoff(range: Range): number | null {
   return Date.now() - days * 86400_000;
 }
 
-/** Keeps the native chart light — Swift Charts doesn't need 1k marks for a phone-width line. */
+/** Keeps the plot light — a phone-width line doesn't need 1k marks. */
 const MAX_POINTS = 120;
 
-/** Equity curve card with the web's 30D/90D/ALL range switcher, drawn by Swift Charts. */
+/** Equity curve card with the web's 30D/90D/ALL range switcher. */
 export function EquityCard({
   curve,
   currency,
@@ -40,9 +37,9 @@ export function EquityCard({
   /** Base→display conversion applied before formatting (1 = account currency). */
   fxRate?: number;
 }) {
-  const { theme } = useUnistyles();
   // Formatters bound to the display prefs (see lib/format.ts).
-  const { formatCurrency, formatPnl } = useFormatters();
+  const { formatCurrency, formatPnl, formatDate } = useFormatters();
+  const palette = usePnlPalette();
   const [range, setRange] = useState<Range>('30D');
 
   const visible = useMemo(() => {
@@ -59,7 +56,7 @@ export function EquityCard({
   }, [curve.points, range]);
 
   const data = useMemo(
-    () => visible.map((point, index) => ({ x: index, y: point.equity * fxRate })),
+    () => visible.map((point) => ({ at: point.at, equity: point.equity * fxRate })),
     [visible, fxRate],
   );
 
@@ -69,7 +66,7 @@ export function EquityCard({
         title={t`Equity curve`}
         control={<Segmented options={RANGES} value={range} onChange={setRange} />}
       >
-        <Text style={styles.empty}>{t`No equity data in this range.`}</Text>
+        <Text className="py-4 text-[13px] text-muted-foreground">{t`No equity data in this range.`}</Text>
       </DashboardCard>
     );
   }
@@ -77,44 +74,40 @@ export function EquityCard({
   const first = visible[0].equity * fxRate;
   const last = visible[visible.length - 1].equity * fxRate;
   const delta = last - first;
+  // The run's own verdict tints the curve — a green line under a red delta was
+  // the one reading the card could not survive.
+  const curveColor = delta >= 0 ? palette.profit : palette.loss;
 
   return (
     <DashboardCard
       title={t`Equity curve`}
       control={<Segmented options={RANGES} value={range} onChange={setRange} />}
     >
-      <View style={styles.headline}>
-        <Text selectable style={styles.equityValue}>
+      <View className="flex-row items-baseline gap-3">
+        <Text selectable className="text-[22px] font-semibold tabular-nums text-foreground">
           {formatCurrency(last, currency)}
         </Text>
-        <Text style={[styles.delta, { color: pnlColor(theme.colors, delta) }]}>
+        <Text className={`text-[15px] font-medium tabular-nums ${pnlClass(delta)}`}>
           {formatPnl(delta, currency)}
         </Text>
       </View>
 
-      {Platform.OS !== 'ios' ? (
-        <ChartPlaceholder style={styles.chart} />
-      ) : (
-      <AppHost style={styles.chart}>
-        <Chart
-          data={data}
-          type="line"
-          animate
-          lineStyle={{ color: theme.colors.primary, width: 2 }}
-          referenceLines={[{ x: 'start', y: first }]}
-          // Scheme-neutral by construction, not a stray literal: mid-grey at 33%
-          // resolves to #D5D5D5 on the light card and #3D3D3D on the dark one —
-          // a correct gridline in both. A `border` token is too faint here
-          // (dark would drop to #292929).
-          ruleStyle={{ color: '#80808055', lineWidth: 1, dashArray: [4, 4] }}
+      <LineChart data={data} xDataKey="at" aspectRatio={1.9}>
+        <LineChart.Grid />
+        <LineChart.Area dataKey="equity" color={curveColor} />
+        <LineChart.Line dataKey="equity" color={curveColor} />
+        <LineChart.XAxis ticks={4} format={(datum) => formatDate(String(datum.at))} />
+        <LineChart.Tooltip
+          color={curveColor}
+          formatValue={(value) => formatCurrency(value, currency)}
+          formatX={(datum) => formatDate(String(datum.at))}
         />
-      </AppHost>
-      )}
+      </LineChart>
 
       {curve.max_drawdown > 0 ? (
-        <Text style={styles.caption}>
+        <Text className="text-xs text-muted-foreground">
           {t`Max drawdown`}{' '}
-          <Text style={[styles.captionValue, { color: pnlColor(theme.colors, -curve.max_drawdown) }]}>
+          <Text className={`font-medium tabular-nums ${pnlClass(-curve.max_drawdown)}`}>
             {formatPnl(-curve.max_drawdown * fxRate, currency)}
           </Text>
         </Text>
@@ -122,13 +115,3 @@ export function EquityCard({
     </DashboardCard>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  headline: { flexDirection: 'row', alignItems: 'baseline', gap: theme.spacing.md },
-  equityValue: { fontSize: 22, fontWeight: '600', color: theme.colors.foreground, ...theme.numeric },
-  delta: { fontSize: 15, fontWeight: '500', ...theme.numeric },
-  chart: { height: 190 },
-  caption: { fontSize: 12, color: theme.colors.mutedForeground },
-  captionValue: { fontWeight: '500', ...theme.numeric },
-  empty: { fontSize: 13, color: theme.colors.mutedForeground, paddingVertical: theme.spacing.lg },
-}));

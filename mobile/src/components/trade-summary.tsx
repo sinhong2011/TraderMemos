@@ -1,6 +1,7 @@
 
+import { Badge, Card, cn } from 'panelui-native';
 import { Text, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { useCSSVariable } from 'uniwind';
 
 import { Icon } from '@/components/icon';
 import type { Setup, Tag } from '@/api/types';
@@ -8,7 +9,10 @@ import { t } from '@lingui/core/macro';
 import { useFormatters, type MoneyFormatter } from '@/lib/format';
 import { parseAmount, type FillDraft, type TradeFormValues } from '@/lib/trade-form';
 import { blockFillPnls, blockPnlPreview } from '@/lib/trade-pnl-preview';
-import { pnlColor } from '@/styles/unistyles';
+import { pnlClass } from '@/styles/pnl';
+
+/** Shared padding for every row inside the card — the gutter the header sets. */
+const GUTTER = 'px-4';
 
 /** "CALL 102 · Aug 7 · ×100" — the contract facts the header row can't hold. */
 function contractLine(block: TradeFormValues): string {
@@ -38,20 +42,16 @@ function planLine(
   return parts.join(' · ');
 }
 
-function Chip({ label, tone }: { label: string; tone: 'accent' | 'muted' | 'neg' }) {
+/** One journal token: setup, session/tag, or mistake. */
+function JournalChip({ label, tone }: { label: string; tone: 'accent' | 'muted' | 'neg' }) {
   return (
-    <View style={[styles.chip, tone === 'accent' && styles.chipAccent]}>
-      <Text
-        style={[
-          styles.chipLabel,
-          tone === 'accent' && styles.chipLabelAccent,
-          tone === 'neg' && styles.chipLabelNeg,
-        ]}
-        numberOfLines={1}
-      >
-        {label}
-      </Text>
-    </View>
+    <Badge
+      variant={tone === 'muted' ? 'outline' : 'secondary'}
+      className="max-w-[180px] rounded-full px-2.5 py-[3px]"
+      labelClassName={cn('text-xs', tone === 'neg' && 'text-loss')}
+    >
+      {label}
+    </Badge>
   );
 }
 
@@ -65,7 +65,6 @@ function FillLine({
   pnl: number | null;
   currency: string;
 }) {
-  const { theme } = useUnistyles();
   const { formatPnl } = useFormatters();
   const when = fill.executedAt.toLocaleString(undefined, {
     month: 'short',
@@ -77,21 +76,26 @@ function FillLine({
   // Three zones so the timestamp lands on the row's centre line and the P&L on
   // its trailing edge — the same columns whether or not a fill closed anything.
   return (
-    <View style={styles.fillLine}>
-      <View style={styles.fillLead}>
-        <Text style={[styles.fillSide, buy ? styles.labelPos : styles.labelNeg]}>
+    <View className={cn('flex-row items-center gap-2 py-1.5', GUTTER)}>
+      <View className="flex-1 flex-row items-center gap-2">
+        <Text
+          className={cn('w-[34px] text-[13px] font-semibold', buy ? 'text-profit' : 'text-loss')}
+        >
           {buy ? t`Buy` : t`Sell`}
         </Text>
-        <Text style={styles.fillQtyPrice} numberOfLines={1}>
+        <Text className="shrink text-sm text-foreground tabular-nums" numberOfLines={1}>
           {fill.quantity || '—'} @ {fill.price || '—'}
         </Text>
       </View>
-      <Text style={styles.fillWhen} numberOfLines={1}>
+      <Text className="text-center text-xs text-muted-foreground tabular-nums" numberOfLines={1}>
         {when}
       </Text>
-      <View style={styles.fillTail}>
+      <View className="flex-1 items-end">
         {pnl != null ? (
-          <Text style={[styles.fillPnl, { color: pnlColor(theme.colors, pnl) }]} numberOfLines={1}>
+          <Text
+            className={cn('text-xs font-semibold tabular-nums', pnlClass(pnl))}
+            numberOfLines={1}
+          >
             {formatPnl(pnl, currency)}
           </Text>
         ) : null}
@@ -118,7 +122,7 @@ export function BlockSummary({
   setups?: Setup[];
   tags?: Tag[];
 }) {
-  const { theme } = useUnistyles();
+  const [profit] = useCSSVariable(['--color-profit']) as [string];
   // Formatters bound to the display prefs (see lib/format.ts).
   const { formatCurrency, formatPnl } = useFormatters();
 
@@ -146,68 +150,83 @@ export function BlockSummary({
   }
 
   return (
-    <View style={styles.card}>
-      <View style={styles.blockHeader}>
-        <Text style={styles.blockSymbol}>{block.symbol || t`Unknown symbol`}</Text>
-        <View style={styles.directionBadge}>
-          <Text style={[styles.directionLabel, long ? styles.labelPos : styles.labelNeg]}>
+    <Card className="gap-2 py-3">
+      <View className={cn('flex-row items-center gap-2', GUTTER)}>
+        <Text className="text-lg font-bold text-foreground">
+          {block.symbol || t`Unknown symbol`}
+        </Text>
+        <View className="rounded-full bg-muted px-2 py-0.5">
+          <Text className={cn('text-xs font-semibold', long ? 'text-profit' : 'text-loss')}>
             {long ? t`Long` : t`Short`}
           </Text>
         </View>
-        <Text style={styles.blockMarket}>{block.market}</Text>
+        <Text className="ml-auto text-[13px] capitalize text-muted-foreground">{block.market}</Text>
       </View>
-      {contract ? <Text style={styles.metaLine}>{contract}</Text> : null}
+      {contract ? (
+        <Text className={cn('text-xs text-muted-foreground tabular-nums', GUTTER)}>{contract}</Text>
+      ) : null}
 
-      <View style={styles.fills}>
+      <View className="py-1">
         {shown.map((fill, index) => (
           <FillLine key={fill.key} fill={fill} pnl={fillPnls[index] ?? null} currency={currency} />
         ))}
-        {hidden > 0 ? <Text style={styles.moreLine}>{t`+${hidden} more fills`}</Text> : null}
+        {hidden > 0 ? (
+          <Text className={cn('pt-1 text-xs text-muted-foreground', GUTTER)}>
+            {t`+${hidden} more fills`}
+          </Text>
+        ) : null}
       </View>
 
-      {plan ? <Text style={styles.metaLine}>{plan}</Text> : null}
+      {plan ? (
+        <Text className={cn('text-xs text-muted-foreground tabular-nums', GUTTER)}>{plan}</Text>
+      ) : null}
 
       {chips.length > 0 ? (
-        <View style={styles.chips}>
+        <View className={cn('flex-row flex-wrap gap-1.5', GUTTER)}>
           {chips.map((chip) => (
-            <Chip key={chip.key} label={chip.label} tone={chip.tone} />
+            <JournalChip key={chip.key} label={chip.label} tone={chip.tone} />
           ))}
         </View>
       ) : null}
 
       {preview.avgEntry != null || preview.avgExit != null ? (
-        <View style={styles.resultStrip}>
-          <View style={styles.resultCell}>
-            <Text style={styles.resultLabel}>{t`Avg entry`}</Text>
-            <Text style={styles.resultValue}>
+        <View className="mx-4 mt-1 flex-row gap-3 border-t border-border pt-3">
+          <View className="flex-1 gap-0.5">
+            <Text className="text-[10px] font-semibold uppercase tracking-[0.5px] text-muted-foreground">
+              {t`Avg entry`}
+            </Text>
+            <Text className="text-[15px] font-semibold text-foreground tabular-nums">
               {preview.avgEntry != null ? formatCurrency(preview.avgEntry, currency) : t`None`}
             </Text>
           </View>
-          <View style={styles.resultCell}>
-            <Text style={styles.resultLabel}>{t`Avg exit`}</Text>
-            <Text style={styles.resultValue}>
+          <View className="flex-1 gap-0.5">
+            <Text className="text-[10px] font-semibold uppercase tracking-[0.5px] text-muted-foreground">
+              {t`Avg exit`}
+            </Text>
+            <Text className="text-[15px] font-semibold text-foreground tabular-nums">
               {preview.avgExit != null ? formatCurrency(preview.avgExit, currency) : t`Open`}
             </Text>
           </View>
-          <View style={styles.resultCell}>
-            <Text style={styles.resultLabel}>{t`Est. P&L`}</Text>
+          <View className="flex-1 gap-0.5">
+            <Text className="text-[10px] font-semibold uppercase tracking-[0.5px] text-muted-foreground">
+              {t`Est. P&L`}
+            </Text>
             {preview.net != null ? (
-              <View style={styles.resultPnlRow}>
+              <View className="flex-row items-center gap-1">
                 <Text
-                  style={[styles.resultValue, { color: pnlColor(theme.colors, preview.net) }]}
+                  className={cn(
+                    'text-[15px] font-semibold tabular-nums',
+                    pnlClass(preview.net),
+                  )}
                 >
                   {formatPnl(preview.net, currency)}
                 </Text>
                 {preview.closed ? (
-                  <Icon
-                    name="checkmark.circle.fill"
-                    size={13}
-                    tintColor={theme.colors.profit}
-                  />
+                  <Icon name="checkmark.circle.fill" size={13} tintColor={profit} />
                 ) : null}
               </View>
             ) : (
-              <Text style={styles.resultValueMuted}>
+              <Text className="text-[13px] font-medium text-muted-foreground tabular-nums">
                 {t`Open · ${preview.positionQty} left`}
               </Text>
             )}
@@ -216,133 +235,10 @@ export function BlockSummary({
       ) : null}
 
       {preview.feesTotal > 0 ? (
-        <Text style={styles.metaLine}>{t`Fees ${formatCurrency(preview.feesTotal, currency)}`}</Text>
+        <Text className={cn('text-xs text-muted-foreground tabular-nums', GUTTER)}>
+          {t`Fees ${formatCurrency(preview.feesTotal, currency)}`}
+        </Text>
       ) : null}
-    </View>
+    </Card>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  card: {
-    borderRadius: theme.radius.lg + 6,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.card,
-    boxShadow: theme.shadows.card,
-    paddingVertical: theme.spacing.md,
-    gap: theme.spacing.sm,
-  },
-  blockHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing.sm,
-    paddingHorizontal: theme.spacing.lg,
-  },
-  blockSymbol: { fontSize: 18, fontWeight: '700', color: theme.colors.foreground },
-  directionBadge: {
-    borderRadius: theme.radius.full,
-    paddingHorizontal: theme.spacing.sm,
-    paddingVertical: 2,
-    backgroundColor: theme.colors.muted,
-  },
-  directionLabel: { fontSize: 12, fontWeight: '600' },
-  labelPos: { color: theme.colors.profit },
-  labelNeg: { color: theme.colors.loss },
-  blockMarket: {
-    marginLeft: 'auto',
-    fontSize: 13,
-    color: theme.colors.mutedForeground,
-    textTransform: 'capitalize',
-  },
-  metaLine: {
-    fontSize: 12,
-    color: theme.colors.mutedForeground,
-    paddingHorizontal: theme.spacing.lg,
-    fontVariant: ['tabular-nums'],
-  },
-  fills: { paddingVertical: theme.spacing.xs },
-  fillLine: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing.sm,
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.xs + 2,
-  },
-  fillLead: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing.sm,
-  },
-  fillTail: { flex: 1, alignItems: 'flex-end' },
-  fillSide: { width: 34, fontSize: 13, fontWeight: '600' },
-  fillQtyPrice: {
-    flexShrink: 1,
-    fontSize: 14,
-    color: theme.colors.foreground,
-    fontVariant: ['tabular-nums'],
-  },
-  fillWhen: {
-    fontSize: 12,
-    textAlign: 'center',
-    color: theme.colors.mutedForeground,
-    fontVariant: ['tabular-nums'],
-  },
-  fillPnl: {
-    fontSize: 12,
-    fontWeight: '600',
-    fontVariant: ['tabular-nums'],
-  },
-  moreLine: {
-    fontSize: 12,
-    color: theme.colors.mutedForeground,
-    paddingHorizontal: theme.spacing.lg,
-    paddingTop: theme.spacing.xs,
-  },
-  chips: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: theme.spacing.xs + 2,
-    paddingHorizontal: theme.spacing.lg,
-  },
-  chip: {
-    borderRadius: theme.radius.full,
-    backgroundColor: theme.colors.muted,
-    paddingHorizontal: theme.spacing.sm + 2,
-    paddingVertical: 3,
-    maxWidth: 180,
-  },
-  chipAccent: { backgroundColor: theme.colors.accent },
-  chipLabel: { fontSize: 12, fontWeight: '500', color: theme.colors.foreground },
-  chipLabelAccent: { color: theme.colors.foreground },
-  chipLabelNeg: { color: theme.colors.loss },
-  resultStrip: {
-    flexDirection: 'row',
-    gap: theme.spacing.md,
-    marginHorizontal: theme.spacing.lg,
-    marginTop: theme.spacing.xs,
-    paddingTop: theme.spacing.md,
-    borderTopWidth: 0.5,
-    borderTopColor: theme.colors.border,
-  },
-  resultCell: { flex: 1, gap: 2 },
-  resultLabel: {
-    fontSize: 10,
-    fontWeight: '600',
-    letterSpacing: 0.5,
-    textTransform: 'uppercase',
-    color: theme.colors.mutedForeground,
-  },
-  resultValue: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: theme.colors.foreground,
-    fontVariant: ['tabular-nums'],
-  },
-  resultValueMuted: {
-    fontSize: 13,
-    fontWeight: '500',
-    color: theme.colors.mutedForeground,
-    fontVariant: ['tabular-nums'],
-  },
-  resultPnlRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.xs },
-}));

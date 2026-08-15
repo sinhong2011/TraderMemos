@@ -1,7 +1,16 @@
+import { Card, cn } from 'panelui-native';
 import { Text, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 export type StatTone = 'pos' | 'neg' | 'accent' | 'amber' | 'muted';
+
+/** Value tint per tone — `amber` is the section-title accent (`heading`). */
+const TONE_CLASS: Record<StatTone, string> = {
+  pos: 'text-profit',
+  neg: 'text-loss',
+  accent: 'text-primary',
+  amber: 'text-heading',
+  muted: 'text-foreground',
+};
 
 /**
  * Metric chip for dense strips (web `StatBar`): label top-left, value centered.
@@ -12,8 +21,8 @@ export type StatTone = 'pos' | 'neg' | 'accent' | 'amber' | 'muted';
  * separating, which is what the `flush` DashboardCard is for.
  *
  * Carries no border: against the page the card/background contrast and the
- * shadow are the whole point of the surface, and a hairline on top of them read
- * as an outlined box. That does mean a grid still nested inside a solid
+ * elevation are the whole point of the surface, and a hairline on top of them
+ * reads as an outlined box. That does mean a grid still nested inside a solid
  * DashboardCard has card-on-card and no separation — such a grid needs its
  * parent switched to `flush`, not a border added back here.
  */
@@ -28,31 +37,32 @@ export function StatBar({
   sub?: string;
   tone?: StatTone;
 }) {
-  const { theme } = useUnistyles();
-  const toneColor: Record<StatTone, string> = {
-    pos: theme.colors.profit,
-    neg: theme.colors.loss,
-    accent: theme.colors.primary,
-    amber: theme.colors.accent,
-    muted: theme.colors.foreground,
-  };
-
   return (
     // Grouped for VoiceOver — read as one "label, value, sub" phrase rather
     // than three orphaned fragments swiped past in sequence.
-    <View
-      style={styles.tile}
+    //
+    // `min-h-[88px]` matches the web tile's min-h so a wrapped sub doesn't make
+    // one column taller than its neighbour on the first row it appears in.
+    <Card
+      className="min-h-[88px] grow basis-[140px] gap-2 rounded-md border-0 p-3"
       accessible
       accessibilityLabel={[label, value, sub].filter(Boolean).join(', ')}
     >
-      <Text style={styles.label} numberOfLines={1} maxFontSizeMultiplier={1.6}>
+      <Text
+        className="text-xs font-medium text-muted-foreground"
+        numberOfLines={1}
+        maxFontSizeMultiplier={1.6}
+      >
         {label}
       </Text>
-      <View style={styles.valueBlock}>
-        <View style={styles.valueRow}>
+      <View className="flex-1 justify-center">
+        {/* Wrapping is what keeps a long sub (a date) inside the tile: it drops
+            under the value instead of pushing the centered row past both
+            edges. */}
+        <View className="flex-row flex-wrap items-baseline justify-center gap-x-1.5 gap-y-0.5">
           <Text
             selectable
-            style={[styles.value, { color: toneColor[tone] }]}
+            className={cn('shrink text-center text-lg font-semibold tabular-nums', TONE_CLASS[tone])}
             // Money and durations can't wrap (no spaces), so they shrink a
             // little instead of ellipsizing mid-number; word values ("Early
             // exit", a mistake tag) get the second line.
@@ -64,49 +74,16 @@ export function StatBar({
             {value}
           </Text>
           {sub ? (
-            <Text style={styles.sub} numberOfLines={1} maxFontSizeMultiplier={1.4}>
+            <Text
+              className="shrink text-center text-[13px] text-muted-foreground tabular-nums"
+              numberOfLines={1}
+              maxFontSizeMultiplier={1.4}
+            >
               {sub}
             </Text>
           ) : null}
         </View>
       </View>
-    </View>
+    </Card>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  tile: {
-    flexGrow: 1,
-    flexBasis: 140,
-    // Matches the web tile's min-h so a wrapped sub doesn't make one column
-    // taller than its neighbour on the first row it appears in.
-    minHeight: 88,
-    gap: theme.spacing.sm,
-    paddingVertical: theme.spacing.md,
-    paddingHorizontal: theme.spacing.md,
-    borderRadius: theme.radius.md,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.card,
-    boxShadow: theme.shadows.card,
-  },
-  label: { fontSize: 12, fontWeight: '500', color: theme.colors.mutedForeground },
-  valueBlock: { flex: 1, justifyContent: 'center' },
-  valueRow: {
-    flexDirection: 'row',
-    // Wrapping is what keeps a long sub (a date) inside the tile: it drops
-    // under the value instead of pushing the centered row past both edges.
-    flexWrap: 'wrap',
-    alignItems: 'baseline',
-    justifyContent: 'center',
-    columnGap: theme.spacing.xs + 2,
-    rowGap: theme.spacing.xs / 2,
-  },
-  value: { flexShrink: 1, fontSize: 18, fontWeight: '600', textAlign: 'center', ...theme.numeric },
-  sub: {
-    flexShrink: 1,
-    fontSize: 13,
-    textAlign: 'center',
-    color: theme.colors.mutedForeground,
-    ...theme.numeric,
-  },
-}));

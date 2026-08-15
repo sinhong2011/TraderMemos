@@ -11,9 +11,8 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useMemo, useRef } from 'react';
 import { Alert, Platform, View } from 'react-native';
-import { PanelUIProvider, useThemeMode } from 'panelui-native';
-
-import { useUnistyles } from 'react-native-unistyles';
+import { PanelUIProvider } from 'panelui-native';
+import { useCSSVariable } from 'uniwind';
 
 import { ApiError, UnauthorizedError } from '@/api/client';
 import { useSession } from '@/api/session';
@@ -140,21 +139,6 @@ function OutboxGate() {
  * their retries, and the banner would vanish while the content stayed dead
  * until they thought to pull to refresh.
  */
-/**
- * Pins Uniwind's theme to the app's Appearance preference. PanelUI resolves
- * every token from the active Uniwind theme, and the app lets the user pin
- * Light or Dark regardless of the OS — `useResolvedScheme` already folds the
- * system scheme into that preference, so this is the single hand-off point.
- */
-function ThemeModeGate() {
-  const scheme = useResolvedScheme();
-  const { mode, setMode } = useThemeMode();
-  useEffect(() => {
-    if (mode !== scheme) setMode(scheme);
-  }, [scheme, mode, setMode]);
-  return null;
-}
-
 function ReachabilityGate() {
   const queryClient = useQueryClient();
   const recoveredAt = useConnectivityStore((state) => state.recoveredAt);
@@ -172,7 +156,14 @@ export default function RootLayout() {
   // phone in Dark Mode has to move the navigation chrome too, or the headers
   // and back buttons stay dark over light screens.
   const scheme = useResolvedScheme();
-  const { theme } = useUnistyles();
+  // Live tokens — useCSSVariable subscribes to Uniwind theme changes, so the
+  // chrome follows the pinned/system scheme exactly like the page surfaces.
+  const [foreground, background, card, border] = useCSSVariable([
+    '--color-foreground',
+    '--color-background',
+    '--color-card',
+    '--color-border',
+  ]) as [string, string, string, string];
   // Feed the design tokens into navigation so every screen background,
   // header, and tint matches the web app instead of the UIKit defaults.
   const navTheme = useMemo(() => {
@@ -183,14 +174,14 @@ export default function RootLayout() {
         ...base.colors,
         // Nav "primary" tints interactive text/icons (back button, header
         // actions) — brand blue is reserved for fills, so keep chrome neutral.
-        primary: theme.colors.foreground,
-        background: theme.colors.background,
-        card: theme.colors.card,
-        text: theme.colors.foreground,
-        border: theme.colors.border,
+        primary: foreground,
+        background,
+        card,
+        text: foreground,
+        border,
       },
     };
-  }, [scheme, theme]);
+  }, [scheme, foreground, background, card, border]);
   const queryClient = useMemo(
     () =>
       new QueryClient({
@@ -255,7 +246,6 @@ export default function RootLayout() {
           {Platform.OS === 'android' ? (
             <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
           ) : null}
-          <ThemeModeGate />
           <ImportLinkGate />
           <PrefsSyncGate />
           <WidgetSnapshotGate />

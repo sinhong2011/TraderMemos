@@ -1,8 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
+import { Progress, cn } from 'panelui-native';
 import { useRef, useState } from 'react';
 import { Alert, Pressable, Text, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { useCSSVariable } from 'uniwind';
 
 import { Icon } from '@/components/icon';
 import { queryKeys, useChecklistTemplate, useNotes } from '@/api/hooks';
@@ -36,7 +37,11 @@ import { useQueuedNoteOps } from '@/lib/use-outbox';
  * through, not a prompt to go set one up (DailyLossCard's rule).
  */
 export function ChecklistCard() {
-  const { theme } = useUnistyles();
+  // Icon tints are JS values, so they come from the tokens rather than a class.
+  const [profit, mutedForeground] = useCSSVariable([
+    '--color-profit',
+    '--color-muted-foreground',
+  ]) as [string, string];
   const router = useRouter();
   const queryClient = useQueryClient();
   // Queue-aware saves: a tick with the server unreachable lands in the
@@ -176,26 +181,21 @@ export function ChecklistCard() {
         onPress: () => router.push('/(tabs)/(dashboard)/checklist'),
       }}
     >
-      <View style={styles.head}>
-        <Text style={styles.count}>
+      <View className="flex-row items-baseline gap-2">
+        <Text className="text-[22px] font-bold text-foreground tabular-nums">
           {done}/{rows.length}
         </Text>
-        <Text style={styles.status}>
+        <Text className="text-[13px] text-muted-foreground">
           {done === rows.length ? t`Ready to trade` : t`Before the open`}
         </Text>
       </View>
-      <View style={styles.track}>
-        <View
-          style={[
-            styles.fill,
-            {
-              width: `${Math.max((done / rows.length) * 100, done > 0 ? 3 : 0)}%`,
-              backgroundColor: done === rows.length ? theme.colors.profit : theme.colors.primary,
-            },
-          ]}
-        />
-      </View>
-      <View style={styles.rows}>
+      {/* 3% floor so the first tick of the day still reads as a started run. */}
+      <Progress
+        value={Math.max((done / rows.length) * 100, done > 0 ? 3 : 0)}
+        size="sm"
+        color={done === rows.length ? 'success' : 'primary'}
+      />
+      <View className="gap-1">
         {rows.map((row, index) => (
           <Pressable
             key={`${index}-${row.text}`}
@@ -204,40 +204,24 @@ export function ChecklistCard() {
             accessibilityState={{ checked: row.done }}
             accessibilityLabel={row.text}
             hitSlop={4}
-            style={({ pressed }) => [styles.row, pressed && styles.pressed]}
+            className="flex-row items-center gap-2 py-1 active:opacity-60"
           >
             <Icon
               name={row.done ? 'checkmark.circle.fill' : 'circle'}
               size={20}
-              tintColor={row.done ? theme.colors.profit : theme.colors.mutedForeground}
+              tintColor={row.done ? profit : mutedForeground}
             />
-            <Text style={[styles.label, row.done && styles.labelDone]}>{row.text}</Text>
+            <Text
+              className={cn(
+                'flex-1 text-[15px] text-foreground',
+                row.done && 'text-muted-foreground line-through',
+              )}
+            >
+              {row.text}
+            </Text>
           </Pressable>
         ))}
       </View>
     </DashboardCard>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  head: { flexDirection: 'row', alignItems: 'baseline', gap: theme.spacing.sm },
-  count: { fontSize: 22, fontWeight: '700', color: theme.colors.foreground, ...theme.numeric },
-  status: { fontSize: 13, color: theme.colors.mutedForeground },
-  track: {
-    height: 6,
-    borderRadius: 3,
-    overflow: 'hidden',
-    backgroundColor: theme.colors.muted,
-  },
-  fill: { height: '100%', borderRadius: 3 },
-  rows: { gap: theme.spacing.xs },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing.sm,
-    paddingVertical: theme.spacing.xs,
-  },
-  pressed: { opacity: 0.6 },
-  label: { flex: 1, fontSize: 15, color: theme.colors.foreground },
-  labelDone: { color: theme.colors.mutedForeground, textDecorationLine: 'line-through' },
-}));

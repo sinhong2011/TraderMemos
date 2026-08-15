@@ -1,11 +1,11 @@
-
+import { cn } from 'panelui-native';
 import { useRef, useState, type ReactNode } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import ReanimatedSwipeable, {
   type SwipeableMethods,
 } from 'react-native-gesture-handler/ReanimatedSwipeable';
 import Animated, { FadeInDown, LinearTransition, SlideOutLeft } from 'react-native-reanimated';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { useCSSVariable } from 'uniwind';
 
 import { Icon } from '@/components/icon';
 import type { Account, Setup, Tag } from '@/api/types';
@@ -32,7 +32,7 @@ import { TradePrefillBar } from '@/components/trade-prefill-bar';
 import { TradeResultCard } from '@/components/trade-result-card';
 import { TradeScanOverlay } from '@/components/trade-scan-overlay';
 import { ValueToggle } from '@/components/value-toggle';
-import { PnlFill, pnlColor } from '@/styles/unistyles';
+import { PnlFill, pnlClass } from '@/styles/pnl';
 import { t } from '@lingui/core/macro';
 import {
   EMOTIONAL_STATES,
@@ -81,6 +81,9 @@ function toggleIn(list: string[], value: string): string[] {
   return list.includes(value) ? list.filter((v) => v !== value) : [...list, value];
 }
 
+/** Squircle corners on the swipe actions — no Tailwind utility maps to this. */
+const CONTINUOUS = { borderCurve: 'continuous' } as const;
+
 /** The app's one spring (see symbol-pager-bar.tsx) — fill-list motion matches. */
 const FILL_SPRING = { duration: 420, dampingRatio: 0.85 } as const;
 const FILL_ENTER = FadeInDown.springify()
@@ -113,7 +116,9 @@ function FillCard({
   onDuplicate: () => void;
 }) {
   const swipeable = useRef<SwipeableMethods>(null);
-  const { theme } = useUnistyles();
+  // White-on-color glyphs for the solid swipe fills; `primary-foreground` is
+  // the theme's on-fill ink in both schemes.
+  const [onFill] = useCSSVariable(['--color-primary-foreground']) as [string];
   const { formatPnl } = useFormatters();
   const sides = [
     { value: 'buy' as const, label: t`Buy`, fill: PnlFill.pos },
@@ -122,17 +127,20 @@ function FillCard({
 
   const card = (
     <Card>
-      <View style={styles.fillHeader}>
-        <Text style={styles.fillTitle}>{t`Fill ${index + 1}`}</Text>
+      <View className="flex-row items-center justify-between px-4 pb-1 pt-3">
+        <Text className="text-[13px] font-semibold text-muted-foreground">{t`Fill ${index + 1}`}</Text>
         {/* What this fill locked in, on the header's trailing edge. A fill that
             only opens size has nothing to realize yet — it reads "Open" rather
             than a blank slot, so the column never looks like a failed render. */}
         {pnl != null ? (
-          <Text style={[styles.fillPnl, { color: pnlColor(theme.colors, pnl) }]} numberOfLines={1}>
+          <Text
+            className={cn('text-[13px] font-semibold tabular-nums', pnlClass(pnl))}
+            numberOfLines={1}
+          >
             {formatPnl(pnl, currency)}
           </Text>
         ) : (
-          <Text style={styles.fillPnlOpen}>{t`Open`}</Text>
+          <Text className="text-[13px] font-medium text-muted-foreground">{t`Open`}</Text>
         )}
       </View>
       <ControlRow label={t`Side`}>
@@ -194,9 +202,10 @@ function FillCard({
           }}
           accessibilityRole="button"
           accessibilityLabel={t`Duplicate fill`}
-          style={({ pressed }) => [styles.swipeDuplicate, pressed && styles.pressed]}
+          className="mr-2 w-[72px] items-center justify-center rounded-[20px] bg-primary active:opacity-60"
+          style={CONTINUOUS}
         >
-          <Icon name="plus.square.on.square" size={18} tintColor="#FFFFFF" />
+          <Icon name="plus.square.on.square" size={18} tintColor={onFill} />
         </Pressable>
       )}
       renderRightActions={
@@ -206,9 +215,10 @@ function FillCard({
                 onPress={onRemove}
                 accessibilityRole="button"
                 accessibilityLabel={t`Remove fill`}
-                style={({ pressed }) => [styles.swipeDelete, pressed && styles.pressed]}
+                className="ml-2 w-[72px] items-center justify-center rounded-[20px] bg-destructive active:opacity-60"
+                style={CONTINUOUS}
               >
-                <Icon name="trash.fill" size={18} tintColor="#FFFFFF" />
+                <Icon name="trash.fill" size={18} tintColor={onFill} />
               </Pressable>
             )
           : undefined
@@ -415,7 +425,7 @@ function SymbolBlock({
       ) : (
         <Card>
           <ControlRow label={t`Symbol`}>
-            <Text style={styles.lockedSymbol}>{values.symbol}</Text>
+            <Text className="text-[17px] font-bold text-foreground">{values.symbol}</Text>
           </ControlRow>
         </Card>
       )}
@@ -447,9 +457,11 @@ function SymbolBlock({
         </Animated.View>
       ))}
       {/* One layout-animated wrapper: everything below the fills glides into
-          place when a card is added or removed instead of snapping. */}
-      <Animated.View layout={fillsMoved ? FILL_LAYOUT : undefined} style={styles.afterFills}>
-        <View style={styles.actionRow}>
+          place when a card is added or removed instead of snapping. It exists
+          purely so the tail of the block rides a single layout transition when
+          the fill list changes height, so its gap mirrors the form column's. */}
+      <Animated.View layout={fillsMoved ? FILL_LAYOUT : undefined} className="gap-4">
+        <View className="items-center">
           <GlassButton
             label={t`Add fill`}
             systemImage="plus"
@@ -684,7 +696,7 @@ export function TradeForm({
         {accounts.length > 1 ? (
           <Card>
             <ControlRow label={t`Account`}>
-              <Text style={styles.rowValue}>{accountName}</Text>
+              <Text className="text-[15px] text-muted-foreground">{accountName}</Text>
             </ControlRow>
           </Card>
         ) : null}
@@ -704,7 +716,7 @@ export function TradeForm({
   }
 
   return (
-    <View style={styles.flexRoot}>
+    <View className="flex-1">
       <FormSheet
         title={title}
         saving={saving}
@@ -725,9 +737,12 @@ export function TradeForm({
           header={
             // One shallow pinned row: account (always named, picker when there
             // is a choice) left, the scan trigger as an icon on the right.
-            <View style={styles.headerRow}>
+            // No left inset: the account capsule starts on the same edge as the
+            // tab strip's capsule below it, so the pinned area reads as two
+            // stacked controls.
+            <View className="flex-row items-center gap-2">
               <AccountPill accounts={accounts} value={accountId} onChange={setAccountId} />
-              <View style={styles.headerEnd}>
+              <View className="ml-auto">
                 <TradePrefillBar onSources={setScanSources} />
               </View>
             </View>
@@ -774,67 +789,3 @@ export function TradeForm({
     </View>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  flexRoot: { flex: 1 },
-  rowValue: { fontSize: 15, color: theme.colors.mutedForeground },
-  // No left inset: the account capsule now starts on the same edge as the tab
-  // strip's capsule below it, so the pinned area reads as two stacked controls.
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing.sm,
-  },
-  headerEnd: { marginLeft: 'auto' },
-  fillHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: theme.spacing.lg,
-    paddingTop: theme.spacing.md,
-    paddingBottom: theme.spacing.xs,
-  },
-  fillTitle: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: theme.colors.mutedForeground,
-  },
-  fillPnl: {
-    fontSize: 13,
-    fontWeight: '600',
-    ...theme.numeric,
-  },
-  fillPnlOpen: {
-    fontSize: 13,
-    fontWeight: '500',
-    color: theme.colors.mutedForeground,
-  },
-  actionRow: { alignItems: 'center' },
-  // Mirrors the form column's gap — this wrapper exists purely so the tail of
-  // the block rides one layout transition when the fill list changes height.
-  afterFills: { gap: theme.spacing.lg },
-  swipeDelete: {
-    width: 72,
-    marginLeft: theme.spacing.sm,
-    borderRadius: theme.radius.lg + 6,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.destructive,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  swipeDuplicate: {
-    width: 72,
-    marginRight: theme.spacing.sm,
-    borderRadius: theme.radius.lg + 6,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  lockedSymbol: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: theme.colors.foreground,
-  },
-  pressed: { opacity: 0.6 },
-}));

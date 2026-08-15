@@ -1,13 +1,11 @@
-import { Chart } from '@expo/ui/swift-ui';
 import { useRouter } from 'expo-router';
+import { AreaChart, Skeleton } from 'panelui-native';
 import { useMemo } from 'react';
 import { Text, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { useCompliance, useEquityCurve, useTrades } from '@/api/hooks';
 import { DashboardCard } from '@/components/dashboard-card';
 import { InlineError } from '@/components/error-state';
-import { Skeleton } from '@/components/skeleton';
 import { StatBar } from '@/components/stat-bar';
 import { EventRow, MicroHeading } from '@/components/reports/shared';
 import {
@@ -23,8 +21,7 @@ import {
   drawdownSeries,
   maxDrawdownPct,
 } from '@/lib/reports-analytics';
-import { pnlColor } from '@/styles/unistyles';
-import { AppHost } from '@/components/app-host';
+import { pnlColor, usePnlPalette } from '@/styles/pnl';
 
 /** Downsampling cap for the drawdown curve. */
 const MAX_POINTS = 120;
@@ -34,7 +31,7 @@ export function RiskSection({
 }: {
   onScrolledChange?: (scrolled: boolean) => void;
 }) {
-  const { theme } = useUnistyles();
+  const palette = usePnlPalette();
   const router = useRouter();
   const filters = useReportsFilters();
   const ctx = useReportsMoney();
@@ -59,7 +56,14 @@ export function RiskSection({
   const currentDd = currentDrawdownPct(points);
   const risk = avgRiskPerTrade(trades.data ?? []);
 
-  const ddData = ddSeries.map((point, index) => ({ x: index, y: point.drawdownPct * 100 }));
+  // Plotted as *depth* (a positive number of points below the peak) rather than
+  // the signed percentage: an area band fills from the baseline up, so signed
+  // values would draw the biggest wash at the flattest stretch and nothing at
+  // the worst of it. The axis and the readout put the minus sign back.
+  const ddData = ddSeries.map((point, index) => ({
+    i: index,
+    depth: -point.drawdownPct * 100,
+  }));
 
   const report = compliance.data;
   const scoredDays = report ? report.compliant_days + report.breach_days : 0;
@@ -75,14 +79,14 @@ export function RiskSection({
     >
       <DashboardCard title={t`Drawdown`}>
         {equity.isLoading ? (
-          <Skeleton style={styles.chart} />
+          <Skeleton className="h-[170px] rounded-lg" label={t`Loading drawdown`} />
         ) : equity.error && equity.data == null ? (
           <InlineError error={equity.error} onRetry={() => void equity.refetch()} />
         ) : points.length === 0 ? (
-          <Text style={styles.empty}>{t`No equity data in this range.`}</Text>
+          <Text className="py-2 text-[13px] text-muted-foreground">{t`No equity data in this range.`}</Text>
         ) : (
           <>
-            <View style={styles.grid}>
+            <View className="flex-row flex-wrap gap-2">
               <StatBar
                 label={t`Max drawdown`}
                 value={formatPercentPoints(maxDd * 100, 1)}
@@ -105,15 +109,17 @@ export function RiskSection({
                 tone={risk.avg != null ? 'accent' : 'muted'}
               />
             </View>
-            <AppHost style={styles.chart}>
-              <Chart
-                data={ddData}
-                type="area"
-                animate
-                lineStyle={{ color: theme.colors.loss, width: 2 }}
+            <AreaChart data={ddData} xDataKey="i" aspectRatio={2.1}>
+              <AreaChart.Grid />
+              <AreaChart.Area dataKey="depth" color={palette.loss} />
+              <AreaChart.YAxis ticks={3} format={(v) => formatPercentPoints(-v, 0)} />
+              <AreaChart.Tooltip
+                color={palette.loss}
+                formatValue={(v) => formatPercentPoints(-v, 1)}
+                formatX={() => t`Below peak`}
               />
-            </AppHost>
-            <Text style={styles.footnote}>
+            </AreaChart>
+            <Text className="text-xs text-muted-foreground">
               {t`Distance from the running equity peak, as a percentage.`}
             </Text>
           </>
@@ -122,21 +128,24 @@ export function RiskSection({
 
       <DashboardCard title={t`Rule compliance`}>
         {compliance.isLoading ? (
-          <Skeleton style={styles.listSkeleton} />
+          <Skeleton className="h-[200px] rounded-lg" label={t`Loading compliance`} />
         ) : compliance.error && compliance.data == null ? (
           <InlineError error={compliance.error} onRetry={() => void compliance.refetch()} />
         ) : !report?.rules_configured ? (
           <>
-            <Text style={styles.empty}>
+            <Text className="py-2 text-[13px] text-muted-foreground">
               {t`No risk rules configured — set max risk per trade and max daily loss to score every trading day against your own process.`}
             </Text>
-            <Text style={styles.link} onPress={() => router.navigate('/(tabs)/(settings)/risk-rules')}>
+            <Text
+              className="text-[13px] font-medium text-foreground"
+              onPress={() => router.navigate('/(tabs)/(settings)/risk-rules')}
+            >
               {t`Open risk rules`} ›
             </Text>
           </>
         ) : (
           <>
-            <View style={styles.grid}>
+            <View className="flex-row flex-wrap gap-2">
               <StatBar
                 label={t`Adherence`}
                 value={adherence != null ? formatPercentPoints(adherence * 100, 0) : '0%'}
@@ -162,13 +171,13 @@ export function RiskSection({
             </View>
 
             {report.unknown_risk > 0 ? (
-              <Text style={styles.footnote}>
+              <Text className="text-xs text-muted-foreground">
                 {t`${report.unknown_risk} trades had no recorded initial risk and could not be scored against the per-trade rule.`}
               </Text>
             ) : null}
 
             {recentBreaches.length > 0 ? (
-              <View style={styles.rows}>
+              <View className="gap-1">
                 <MicroHeading>{t`Recent breach days`}</MicroHeading>
                 {recentBreaches.map((day) => (
                   <EventRow
@@ -182,7 +191,7 @@ export function RiskSection({
                     }
                     pillTone="neg"
                     value={money.formatCompact(day.net_pnl)}
-                    valueTint={pnlColor(theme.colors, day.net_pnl)}
+                    valueTint={pnlColor(palette, day.net_pnl)}
                     onPress={() => router.push(`/(tabs)/(calendar)/day/${day.date}`)}
                   />
                 ))}
@@ -194,13 +203,3 @@ export function RiskSection({
     </SectionScaffold>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
-  chart: { height: 170 },
-  rows: { gap: theme.spacing.xs },
-  listSkeleton: { height: 200, borderRadius: theme.radius.lg },
-  empty: { fontSize: 13, color: theme.colors.mutedForeground, paddingVertical: theme.spacing.sm },
-  footnote: { fontSize: 12, color: theme.colors.mutedForeground },
-  link: { fontSize: 13, fontWeight: '500', color: theme.colors.foreground },
-}));

@@ -1,5 +1,4 @@
 import { View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
 
 import type { Summary, Trade } from '@/api/types';
 import { DashboardCard } from '@/components/dashboard-card';
@@ -38,7 +37,7 @@ export function InsightsCard({
   // then the two lone aggregates, then the qualitative read.
   return (
     <DashboardCard title={t`Insights`} flush>
-      <View style={styles.grid}>
+      <View className="flex-row flex-wrap gap-2">
         <StatBar
           label={t`Best trade`}
           value={formatPnl(fx(summary.largest_win), currency)}
@@ -110,7 +109,3 @@ export function InsightsCard({
     </DashboardCard>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
-}));

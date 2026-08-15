@@ -1,11 +1,11 @@
+import { Progress, cn } from 'panelui-native';
 import { Text, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { useRiskRules } from '@/api/hooks';
 import { DashboardCard } from '@/components/dashboard-card';
 import { t } from '@lingui/core/macro';
 import { useFormatters } from '@/lib/format';
-import { pnlColor } from '@/styles/unistyles';
+import { pnlClass } from '@/styles/pnl';
 
 /**
  * Today's realized P&L against the max-daily-loss risk rule (web
@@ -22,7 +22,6 @@ export function DailyLossCard({
   /** Base→display conversion applied before formatting (1 = account currency). */
   fxRate?: number;
 }) {
-  const { theme } = useUnistyles();
   // Formatters bound to the display prefs (see lib/format.ts).
   const { formatCurrency, formatPnl } = useFormatters();
   const riskRules = useRiskRules();
@@ -36,35 +35,26 @@ export function DailyLossCard({
 
   return (
     <DashboardCard title={t`Daily loss limit`}>
-      <View style={styles.row}>
-        <Text
-          selectable
-          style={[styles.today, { color: pnlColor(theme.colors, todayNetPnl) }]}
-        >
+      <View className="flex-row items-baseline gap-2">
+        <Text selectable className={cn('text-[22px] font-semibold tabular-nums', pnlClass(todayNetPnl))}>
           {formatPnl(todayNetPnl * fxRate, currency)}
         </Text>
-        <Text style={styles.cap}>{t`limit ${formatCurrency(cap * fxRate, currency)}`}</Text>
+        <Text className="text-[13px] text-muted-foreground tabular-nums">
+          {t`limit ${formatCurrency(cap * fxRate, currency)}`}
+        </Text>
       </View>
-      <View style={styles.track}>
-        <View
-          style={[
-            styles.fill,
-            {
-              width: `${Math.max(usedPct, spent > 0 ? 3 : 0)}%`,
-              backgroundColor: breached
-                ? theme.colors.loss
-                : warning
-                  ? theme.colors.accent
-                  : theme.colors.primary,
-            },
-          ]}
-        />
-      </View>
+      {/* A budget barely touched still has to read as started, so the fill
+          keeps a 3% floor once anything has been spent. */}
+      <Progress
+        value={Math.max(usedPct, spent > 0 ? 3 : 0)}
+        size="sm"
+        color={breached ? 'destructive' : warning ? 'warning' : 'primary'}
+      />
       <Text
-        style={[
-          styles.caption,
-          breached ? { color: theme.colors.loss, fontWeight: '600' } : null,
-        ]}
+        className={cn(
+          'text-xs text-muted-foreground tabular-nums',
+          breached && 'font-semibold text-loss',
+        )}
       >
         {breached
           ? t`Limit hit — the edge is gone for today. Close the app.`
@@ -75,17 +65,3 @@ export function DailyLossCard({
     </DashboardCard>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  row: { flexDirection: 'row', alignItems: 'baseline', gap: theme.spacing.sm },
-  today: { fontSize: 22, fontWeight: '600', ...theme.numeric },
-  cap: { fontSize: 13, color: theme.colors.mutedForeground, ...theme.numeric },
-  track: {
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: theme.colors.muted,
-    overflow: 'hidden',
-  },
-  fill: { height: '100%', borderRadius: 3 },
-  caption: { fontSize: 12, color: theme.colors.mutedForeground, ...theme.numeric },
-}));

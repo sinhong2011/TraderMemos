@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
+import { Skeleton } from 'panelui-native';
 import { useMemo } from 'react';
 import { Pressable, Text, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { useTrades } from '@/api/hooks';
 import { DashboardCard } from '@/components/dashboard-card';
@@ -10,12 +10,11 @@ import {
   useReportsFilters,
   type ReportsMoneyContext,
 } from '@/components/reports/section-scaffold';
-import { Skeleton } from '@/components/skeleton';
 import { t } from '@lingui/core/macro';
 import { useFormatters } from '@/lib/format';
 import { computePnlHeatmap, HEATMAP_DAY_LABELS } from '@/lib/pnl-heatmap';
 import { resolveMarketTimezone, useDisplayPrefs } from '@/lib/prefs';
-import { pnlBgTint } from '@/styles/unistyles';
+import { pnlBgTint, usePnlPalette } from '@/styles/pnl';
 
 export function heatmapDayLabel(day: number): string {
   switch (HEATMAP_DAY_LABELS[day]) {
@@ -40,9 +39,14 @@ export function heatmapDayLabel(day: number): string {
  * Weekday × entry-hour P&L grid over the Reports-filtered trades, on the
  * market clock. Tapping a traded cell opens the cell-details sheet — the
  * phone's answer to web's hover tooltip + click popover.
+ *
+ * Hand-built rather than PanelUI's `HeatmapChart`: that one washes a single
+ * base colour through a four-step quantile ramp, which cannot say *green above
+ * zero, red below it* — and its cells report a drag, not a tap, so there would
+ * be nothing to push the day/hour sheet from.
  */
 export function PnlHeatmapCard({ ctx }: { ctx: ReportsMoneyContext }) {
-  const { theme } = useUnistyles();
+  const palette = usePnlPalette();
   const router = useRouter();
   const prefs = useDisplayPrefs();
   const { formatHourKeyLabel } = useFormatters();
@@ -67,7 +71,7 @@ export function PnlHeatmapCard({ ctx }: { ctx: ReportsMoneyContext }) {
   if (trades.isLoading) {
     return (
       <DashboardCard title={t`P&L heatmap`}>
-        <Skeleton style={styles.skeleton} />
+        <Skeleton className="h-[220px] rounded-lg" />
       </DashboardCard>
     );
   }
@@ -81,7 +85,7 @@ export function PnlHeatmapCard({ ctx }: { ctx: ReportsMoneyContext }) {
   if (heatmap.total === 0) {
     return (
       <DashboardCard title={t`P&L heatmap`}>
-        <Text style={styles.empty}>{t`No trades in this range.`}</Text>
+        <Text className="py-4 text-[13px] text-muted-foreground">{t`No trades in this range.`}</Text>
       </DashboardCard>
     );
   }
@@ -93,17 +97,23 @@ export function PnlHeatmapCard({ ctx }: { ctx: ReportsMoneyContext }) {
 
   return (
     <DashboardCard title={t`P&L heatmap`}>
-      <View style={styles.gridRow}>
-        <View style={styles.dayCol} />
+      <View className="mb-0.5 flex-row items-center gap-0.5">
+        <View className="w-[34px]" />
         {hours.map((hour) => (
-          <Text key={hour} style={styles.hourLabel} numberOfLines={1}>
+          <Text
+            key={hour}
+            className="flex-1 text-center text-[8px] tabular-nums text-muted-foreground"
+            numberOfLines={1}
+          >
             {hour}
           </Text>
         ))}
       </View>
       {heatmap.days.map((day) => (
-        <View key={day} style={styles.gridRow}>
-          <Text style={[styles.dayCol, styles.dayLabel]}>{heatmapDayLabel(day)}</Text>
+        <View key={day} className="mb-0.5 flex-row items-center gap-0.5">
+          <Text className="w-[34px] text-[11px] font-medium text-muted-foreground">
+            {heatmapDayLabel(day)}
+          </Text>
           {hours.map((hour) => {
             const cell = heatmap.grid[day][hour];
             const label = `${heatmapDayLabel(day)} ${formatHourKeyLabel(`${String(hour).padStart(2, '0')}:00`)}`;
@@ -123,53 +133,20 @@ export function PnlHeatmapCard({ ctx }: { ctx: ReportsMoneyContext }) {
                     ? t`${label} — ${money.format(cell.pnl)} · ${cell.trades} trades`
                     : t`${label} — no trades`
                 }
-                style={({ pressed }) => [
-                  styles.cell,
-                  cell.trades > 0 && {
-                    backgroundColor: pnlBgTint(theme.colors, cell.pnl, heatmap.maxAbsPnl),
-                  },
-                  pressed && styles.cellPressed,
-                ]}
+                className="aspect-square flex-1 rounded-[3px] bg-muted active:border-[1.5px] active:border-foreground"
+                style={
+                  cell.trades > 0
+                    ? { backgroundColor: pnlBgTint(palette, cell.pnl, heatmap.maxAbsPnl) }
+                    : undefined
+                }
               />
             );
           })}
         </View>
       ))}
-      <Text style={styles.caption}>
+      <Text className="mt-2 text-xs tabular-nums text-muted-foreground">
         {t`Closed-trade P&L by entry time on the market clock. Tap a cell for its trades.`}
       </Text>
     </DashboardCard>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  gridRow: { flexDirection: 'row', gap: 2, marginBottom: 2, alignItems: 'center' },
-  dayCol: { width: 34 },
-  dayLabel: { fontSize: 11, fontWeight: '500', color: theme.colors.mutedForeground },
-  hourLabel: {
-    flex: 1,
-    textAlign: 'center',
-    fontSize: 8,
-    color: theme.colors.mutedForeground,
-    ...theme.numeric,
-  },
-  cell: {
-    flex: 1,
-    aspectRatio: 1,
-    borderRadius: 3,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.muted,
-  },
-  cellPressed: {
-    borderWidth: 1.5,
-    borderColor: theme.colors.foreground,
-  },
-  caption: {
-    fontSize: 12,
-    color: theme.colors.mutedForeground,
-    marginTop: theme.spacing.sm,
-    ...theme.numeric,
-  },
-  empty: { fontSize: 13, color: theme.colors.mutedForeground, paddingVertical: theme.spacing.lg },
-  skeleton: { height: 220, borderRadius: theme.radius.lg },
-}));

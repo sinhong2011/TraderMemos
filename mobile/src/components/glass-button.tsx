@@ -1,32 +1,48 @@
-import { ActivityIndicator, Pressable, Text, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import type { SFSymbol } from 'expo-symbols';
+import { Button } from 'panelui-native';
+import { ActivityIndicator } from 'react-native';
+import { useCSSVariable } from 'uniwind';
 
 import { Icon } from '@/components/icon';
 
-import type { GlassButtonProps, GlassIconButtonProps } from './glass-button.types';
+export type GlassButtonProps = {
+  label: string;
+  systemImage?: SFSymbol;
+  prominent?: boolean;
+  /** Stretch to the container width — form actions, not inline chrome. */
+  fill?: boolean;
+  disabled?: boolean;
+  onPress: () => void;
+};
+
+export type GlassIconButtonProps = {
+  systemImage: SFSymbol;
+  /** Accessibility label — the button shows only the symbol. */
+  label: string;
+  disabled?: boolean;
+  /** Swaps the glyph for a spinner and disables the button. */
+  loading?: boolean;
+  onPress: () => void;
+};
 
 /**
- * The glass button pair, in its cross-platform form. `glass-button.ios.tsx`
- * keeps the real SwiftUI `glassEffect` originals; both export the same names,
- * so the call sites never branch. (As with `settings-form`, the universal file
- * has to be the unsuffixed one — TypeScript only resolves the base name.)
+ * Sheet / overlay chrome actions, one file for both platforms.
  *
- * Liquid Glass is not a material Android has, and nothing in `@expo/ui`'s
- * Compose surface approximates it: there is no `glassEffect` modifier, and
- * universal `Button` maps to a filled Material button with no icon slot. So
- * rather than fake a translucent capsule badly — a semi-transparent fill over
- * an opaque card reads as a muddy grey blob, not as glass — this draws the
- * honest Material translation: a solid capsule on `fill`, the same token the
- * app already uses for compact picker tracks and plain fields.
+ * The pair used to be a SwiftUI `glassEffect` original (`glass-button.ios.tsx`)
+ * beside a hand-drawn Material translation; PanelUI's `Button` now covers both
+ * from one call, so the split is gone and with it the two implementations that
+ * had to be kept in step.
  *
- * The one thing that must survive the translation is *rank*: `prominent` is the
- * single brand action in a sheet, so it keeps the primary fill and its paired
- * foreground, exactly as the tinted glass reads on iOS.
+ * The labelled button stays **drawn**, not `native`: it carries an optional
+ * glyph beside its label, and a native button can only host elements when its
+ * width is fixed by something above it — a labelled one's is its text's, which
+ * is nobody's, and hosting there takes the app down in native code where a JS
+ * `try` has nothing to catch. Drawn, it also keeps `fill`, the theme tokens and
+ * the icon tint.
  *
- * Plain RN rather than `RNHostView`: unlike the settings rows, these mount in
- * ordinary React Native trees (sheet headers, nav bars, the calendar toolbar),
- * so there is no hosted subtree to join and a host here would only add a
- * measuring pass.
+ * The one thing that must survive from the SwiftUI original is *rank*:
+ * `prominent` is the single brand action in a sheet, so it keeps the primary
+ * fill and its paired foreground, exactly as the tinted glass read on iOS.
  */
 export function GlassButton({
   label,
@@ -36,34 +52,38 @@ export function GlassButton({
   disabled,
   onPress,
 }: GlassButtonProps) {
-  const { theme } = useUnistyles();
-  const tint = prominent ? theme.colors.primaryForeground : theme.colors.foreground;
+  // The glyph is an `expo-symbols` view, not a PanelUI icon, so it does not
+  // inherit the button's `IconColorProvider` — it needs the resolved token.
+  const [primaryForeground, secondaryForeground] = useCSSVariable([
+    '--color-primary-foreground',
+    '--color-secondary-foreground',
+  ]) as [string, string];
+  const tint = prominent ? primaryForeground : secondaryForeground;
 
   return (
-    <Pressable
-      onPress={onPress}
+    <Button
+      variant={prominent ? 'primary' : 'secondary'}
+      fullWidth={fill}
       disabled={disabled}
-      accessibilityRole="button"
-      accessibilityState={{ disabled: !!disabled }}
-      style={({ pressed }) => [
-        styles.button,
-        prominent ? styles.prominent : styles.plain,
-        fill && styles.fill,
-        pressed && styles.pressed,
-        disabled && styles.disabled,
-      ]}
+      onPress={onPress}
+      startContent={
+        systemImage ? <Icon name={systemImage} size={15} tintColor={tint} /> : undefined
+      }
     >
-      <View style={styles.content}>
-        {systemImage ? <Icon name={systemImage} size={15} tintColor={tint} /> : null}
-        <Text style={[styles.label, prominent && styles.labelProminent, { color: tint }]}>
-          {label}
-        </Text>
-      </View>
-    </Pressable>
+      {label}
+    </Button>
   );
 }
 
-/** Circular icon button — sheet close / compact bar actions. */
+/**
+ * Circular icon button — sheet close / compact bar actions.
+ *
+ * This one *is* native: an icon button is a square PanelUI sizes itself, which
+ * is the case where hosting a view inside the platform button is safe, and it
+ * is what buys the real Liquid Glass material on iOS 26. Android has no such
+ * material, so Compose draws its own round button there — the intended
+ * fallback, not a downgrade.
+ */
 export function GlassIconButton({
   systemImage,
   label,
@@ -71,55 +91,27 @@ export function GlassIconButton({
   loading,
   onPress,
 }: GlassIconButtonProps) {
-  const { theme } = useUnistyles();
+  const [foreground] = useCSSVariable(['--color-foreground']) as [string];
   const off = disabled || loading;
 
   return (
-    <Pressable
-      onPress={onPress}
+    <Button
+      native
+      glass
+      size="icon"
+      variant="ghost"
       disabled={off}
-      accessibilityRole="button"
+      onPress={onPress}
       accessibilityLabel={label}
       accessibilityState={{ disabled: !!off, busy: !!loading }}
-      style={({ pressed }) => [
-        styles.iconButton,
-        styles.plain,
-        pressed && styles.pressed,
-        off && styles.disabled,
-      ]}
     >
       {loading ? (
-        // Sized to the glyph's box so the circle doesn't resize mid-swap.
-        <ActivityIndicator size="small" color={theme.colors.foreground} />
+        // `size="icon"` fixes the button's square, so swapping the glyph for
+        // the spinner cannot resize the circle under the finger.
+        <ActivityIndicator size="small" color={foreground} />
       ) : (
-        <Icon name={systemImage} size={16} tintColor={theme.colors.foreground} />
+        <Icon name={systemImage} size={16} tintColor={foreground} />
       )}
-    </Pressable>
+    </Button>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  button: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 18,
-    paddingVertical: 11,
-    borderRadius: theme.radius.full,
-    borderCurve: 'continuous',
-  },
-  plain: { backgroundColor: theme.colors.fill },
-  prominent: { backgroundColor: theme.colors.primary },
-  fill: { alignSelf: 'stretch' },
-  pressed: { opacity: 0.7 },
-  disabled: { opacity: 0.4 },
-  content: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  label: { fontSize: 15, fontWeight: '500' },
-  labelProminent: { fontWeight: '600' },
-  iconButton: {
-    width: 38,
-    height: 38,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: theme.radius.full,
-  },
-}));

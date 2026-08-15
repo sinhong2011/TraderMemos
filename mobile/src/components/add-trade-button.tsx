@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { Pressable } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { useCSSVariable } from 'uniwind';
 
 import { t } from '@lingui/core/macro';
 
@@ -16,11 +16,11 @@ import { Icon } from '@/components/icon';
  * the screen that holds them (Notes, Playbook — quick links on Home), so the
  * one here can do the obvious thing in one tap.
  *
- * A plain tinted glyph, not custom chrome: iOS 26 wraps every bar item in its
- * own Liquid Glass circle, so a shape of ours would render nested inside it.
+ * A plain tinted glyph, not custom chrome: a bar item is already wrapped in
+ * the platform's own circle, so a shape of ours would render nested inside it.
  */
 export function AddTradeButton() {
-  const { theme } = useUnistyles();
+  const [foreground] = useCSSVariable(['--color-foreground']) as [string];
   const router = useRouter();
 
   return (
@@ -29,14 +29,9 @@ export function AddTradeButton() {
       hitSlop={10}
       accessibilityRole="button"
       accessibilityLabel={t`New trade`}
-      style={({ pressed }) => [styles.button, pressed && styles.pressed]}
+      className="h-8 w-8 items-center justify-center active:opacity-60"
     >
-      <Icon name="plus" size={18} tintColor={theme.colors.foreground} weight="semibold" />
+      <Icon name="plus" size={18} tintColor={foreground} weight="semibold" />
     </Pressable>
   );
 }
-
-const styles = StyleSheet.create(() => ({
-  button: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
-  pressed: { opacity: 0.6 },
-}));

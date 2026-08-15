@@ -1,92 +1,62 @@
-import {
-  Button as UIButton,
-  Menu,
-} from '@expo/ui/swift-ui';
-import { labelStyle, tint } from '@expo/ui/swift-ui/modifiers';
-import { Alert, Platform, Pressable } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-
-import { Icon } from '@/components/icon';
-import { useAccounts } from '@/api/hooks';
-import { setSelectedAccountId, useSelectedAccountId } from '@/lib/account-store';
 import { t } from '@lingui/core/macro';
-import { AppHost } from '@/components/app-host';
+import { Menu } from 'panelui-native';
+import { Pressable } from 'react-native';
+import { useCSSVariable } from 'uniwind';
+
+import { useAccounts } from '@/api/hooks';
+import { Icon } from '@/components/icon';
+import { setSelectedAccountId, useSelectedAccountId } from '@/lib/account-store';
+
+/** Sentinel for the unscoped choice — account ids are server-issued, so no id collides with it. */
+const ALL_ACCOUNTS = '__all__';
 
 /**
- * Header account scope switcher — SwiftUI Menu listing every account plus
- * "All accounts", with a checkmark on the active pick. The trigger glyph
- * switches from the neutral outline to the filled variant when a single
- * account is scoped, so the narrowed view is visible at a glance without a
- * label crowding the bar.
+ * Header account scope switcher — a menu listing every account plus "All
+ * accounts", with a checkmark on the active pick. The trigger glyph switches
+ * from the neutral outline to the filled variant when a single account is
+ * scoped, so the narrowed view is visible at a glance without a label crowding
+ * the bar.
  */
 export function AccountMenu() {
-  const { theme } = useUnistyles();
+  const [foreground] = useCSSVariable(['--color-foreground']) as [string];
   const accounts = useAccounts();
   const selectedId = useSelectedAccountId();
 
-  // Always render: iOS 26 wraps every bar item in a glass circle, so a null
-  // here still leaves an empty, dead-looking circle in the bar. With a lone
-  // account the menu simply shows it checked under "All accounts".
+  // Always render: the bar reserves the slot either way, so a null here leaves
+  // a dead gap. With a lone account the menu simply shows it under "All
+  // accounts".
   const list = accounts.data ?? [];
 
   const scoped = selectedId != null && list.some((account) => account.id === selectedId);
   const icon = scoped ? 'person.crop.circle.fill' : 'person.crop.circle';
 
-  if (Platform.OS !== 'ios') {
-    return (
-      <Pressable
-        onPress={() => {
-          Alert.alert(
-            t`Account`,
-            undefined,
-            [
-              { text: t`All accounts`, onPress: () => setSelectedAccountId(null) },
-              ...list.map((account) => ({
-                text: account.name,
-                onPress: () => setSelectedAccountId(account.id),
-              })),
-              { text: t`Cancel`, style: 'cancel' as const },
-            ],
-          );
-        }}
-        hitSlop={10}
-        accessibilityRole="button"
-        accessibilityLabel={t`Switch account`}
-        style={({ pressed }) => [styles.button, pressed && styles.pressed]}
-      >
-        <Icon name={icon} size={18} tintColor={theme.colors.foreground} />
-      </Pressable>
-    );
-  }
-
   return (
-    <AppHost matchContents>
-      {/* String label + iconOnly, like TradeFilterMenu — a UIImage label
-          measured to zero in headerLeft and never took taps. */}
-      <Menu
-        label={t`Switch account`}
-        systemImage={icon}
-        modifiers={[labelStyle('iconOnly'), tint(theme.colors.foreground)]}
-      >
-        <UIButton
-          label={t`All accounts`}
-          systemImage={scoped ? undefined : 'checkmark'}
-          onPress={() => setSelectedAccountId(null)}
-        />
-        {list.map((account) => (
-          <UIButton
-            key={account.id}
-            label={account.name}
-            systemImage={selectedId === account.id ? 'checkmark' : undefined}
-            onPress={() => setSelectedAccountId(account.id)}
-          />
-        ))}
-      </Menu>
-    </AppHost>
+    <Menu>
+      <Menu.Trigger>
+        <Pressable
+          hitSlop={10}
+          accessibilityRole="button"
+          accessibilityLabel={t`Switch account`}
+          className="h-8 w-8 items-center justify-center active:opacity-60"
+        >
+          <Icon name={icon} size={18} tintColor={foreground} />
+        </Pressable>
+      </Menu.Trigger>
+      <Menu.Content align="start">
+        <Menu.RadioGroup
+          value={scoped ? (selectedId as string) : ALL_ACCOUNTS}
+          onValueChange={(value) =>
+            setSelectedAccountId(value === ALL_ACCOUNTS ? null : value)
+          }
+        >
+          <Menu.RadioItem value={ALL_ACCOUNTS}>{t`All accounts`}</Menu.RadioItem>
+          {list.map((account) => (
+            <Menu.RadioItem key={account.id} value={account.id}>
+              {account.name}
+            </Menu.RadioItem>
+          ))}
+        </Menu.RadioGroup>
+      </Menu.Content>
+    </Menu>
   );
 }
-
-const styles = StyleSheet.create(() => ({
-  button: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
-  pressed: { opacity: 0.6 },
-}));

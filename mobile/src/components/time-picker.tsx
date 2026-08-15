@@ -1,54 +1,41 @@
-import { TimePickerDialog } from '@expo/ui/jetpack-compose';
-import { useState } from 'react';
-import { useUnistyles } from 'react-native-unistyles';
-
-import { AppHost } from '@/components/app-host';
-import { ControlPillButton } from '@/components/control-pill';
+import { Button, TimePicker as PanelTimePicker, type TimeValue } from 'panelui-native';
 
 /** Two digits, the way a clock writes them — 7 seconds past reads `07`. */
 const pad2 = (value: number) => String(value).padStart(2, '0');
 
 /**
- * Cross-platform form of the seconds clock (`time-picker.ios.tsx` keeps the
- * SwiftUI wheels; both export the same name, so `DateRow` never branches).
+ * A clock to the second: a pill reading `HH:MM:SS` that opens hour/minute
+ * wheels in a sheet.
  *
- * Material has no seconds control anywhere — the M3 time picker stops at
- * minutes — so the pill still *shows* `HH:MM:SS` while the dialog edits only
- * the hour and minute; the seconds ride through unchanged, which keeps an
- * imported fill's to-the-second stamp intact. 24-hour for the reason the iOS
- * file gives: a to-the-second stamp is a fixed-width pattern.
+ * It exists as its own control because the row's `DateField` stops at the
+ * minute, and a to-the-second stamp (an imported fill) has to keep the
+ * seconds it arrived with. No wheel edits them — no picker on either platform
+ * has ever offered one — so they *ride through* every pick unchanged, which is
+ * what keeps re-saving an imported fill a no-op rather than a truncation.
+ *
+ * 24-hour, ignoring the 12/24h display pref, for the reason `fmtTimestamp`
+ * gives: a to-the-second stamp is a fixed-width pattern, and AM/PM would be a
+ * fourth column to fit.
  */
 export function TimePicker({ value, onChange }: { value: Date; onChange: (next: Date) => void }) {
-  const { theme } = useUnistyles();
-  const [open, setOpen] = useState(false);
-
-  const picked = (date: Date) => {
-    // Merge over `value`: the dialog's Date is built from its own fields
-    // alone, and the day and the seconds belong to the row, not this dialog.
+  // Merge over `value`: the picker's answer is built from its own two columns
+  // alone, and the day and the seconds belong to the caller, not to it.
+  const picked = ({ hour, minute }: TimeValue) => {
     const next = new Date(value);
-    next.setHours(date.getHours(), date.getMinutes());
-    setOpen(false);
+    next.setHours(hour, minute);
     onChange(next);
   };
 
   return (
-    <>
-      <ControlPillButton
-        numeric
-        label={`${pad2(value.getHours())}:${pad2(value.getMinutes())}:${pad2(value.getSeconds())}`}
-        onPress={() => setOpen(true)}
-      />
-      {open ? (
-        <AppHost matchContents>
-          <TimePickerDialog
-            initialDate={value.toISOString()}
-            is24Hour
-            color={theme.colors.primary}
-            onDateSelected={picked}
-            onDismissRequest={() => setOpen(false)}
-          />
-        </AppHost>
-      ) : null}
-    </>
+    <PanelTimePicker
+      value={{ hour: value.getHours(), minute: value.getMinutes() }}
+      onValueChange={picked}
+      hourCycle={24}
+      presentation="bottom-sheet"
+    >
+      <Button variant="secondary" size="sm" labelClassName="tabular-nums">
+        {`${pad2(value.getHours())}:${pad2(value.getMinutes())}:${pad2(value.getSeconds())}`}
+      </Button>
+    </PanelTimePicker>
   );
 }

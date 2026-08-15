@@ -1,16 +1,19 @@
-import { RNHostView } from '@expo/ui';
-import { ActivityIndicator, Pressable, Text } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { Button } from 'panelui-native';
 
 /**
- * Form action button with a centered label, in its cross-platform form —
- * `centered-button.ios.tsx` keeps the SwiftUI `borderedProminent` original;
- * both export the same name, so the settings screens never branch.
+ * Form action button with a centered label — the standalone action at the foot
+ * of a settings screen or a sheet (Save / Sign out / Delete …).
  *
- * Same contract as iOS: `disabled` locks out the double tap an in-flight
- * mutation would otherwise take twice; `loading` adds the spinner as well.
- * Plain RN inside an `RNHostView` (the NavRow pattern) so it can sit in a
- * `FieldGroup` row on Android.
+ * One file for both platforms now: the SwiftUI `borderedProminent` original
+ * (`centered-button.ios.tsx`) and its hand-drawn Material twin have both been
+ * replaced by PanelUI's `Button`, which centers its label and fills the row on
+ * its own. Spacing around it belongs to the container, not to the button.
+ *
+ * `disabled` is what an in-flight action should pass: swapping the label to
+ * "Saving…" alone leaves the row tappable, so a double tap fires the mutation
+ * twice (two accounts, two deletes). `loading` does both — a spinner ahead of
+ * the label, and the same lock-out — for actions long enough that a relabelled
+ * button alone reads as a frozen screen.
  */
 export function CenteredButton({
   label,
@@ -26,44 +29,16 @@ export function CenteredButton({
   loading?: boolean;
   onPress: () => void;
 }) {
-  const { theme } = useUnistyles();
-  const locked = disabled || loading || false;
-
   return (
-    <RNHostView matchContents>
-      <Pressable
-        onPress={onPress}
-        disabled={locked}
-        accessibilityRole="button"
-        accessibilityState={{ disabled: locked }}
-        style={({ pressed }) => [
-          styles.button,
-          role === 'destructive' && styles.destructive,
-          pressed && styles.pressed,
-          locked && styles.disabled,
-        ]}
-      >
-        {loading ? <ActivityIndicator size="small" color={theme.colors.primaryForeground} /> : null}
-        <Text style={styles.label}>{label}</Text>
-      </Pressable>
-    </RNHostView>
+    <Button
+      variant={role === 'destructive' ? 'destructive' : 'primary'}
+      size="lg"
+      fullWidth
+      disabled={disabled}
+      loading={loading}
+      onPress={onPress}
+    >
+      {label}
+    </Button>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  button: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: theme.spacing.sm,
-    minHeight: 50,
-    marginHorizontal: theme.spacing.lg,
-    marginVertical: theme.spacing.xs,
-    borderRadius: theme.radius.full,
-    backgroundColor: theme.colors.primary,
-  },
-  destructive: { backgroundColor: theme.colors.destructive },
-  pressed: { opacity: 0.8 },
-  disabled: { opacity: 0.5 },
-  label: { fontSize: 17, fontWeight: '600', color: theme.colors.primaryForeground },
-}));
