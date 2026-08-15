@@ -190,7 +190,11 @@ const styles = StyleSheet.create((theme) => ({
   noteDetail: { fontSize: 13, lineHeight: 18, color: theme.colors.mutedForeground },
   nextAction: {
     gap: 4,
-    backgroundColor: theme.colors.accent,
+    // `fill` is the one surface token stronger than the `muted` the notes use,
+    // which is what sets the action apart from them. Not `accent`: that is a
+    // section-title *text* colour (amber in dark), and as a ground it reads as
+    // a warning state — the exact misuse its token comment warns about.
+    backgroundColor: theme.colors.fill,
     borderRadius: theme.radius.md,
     borderCurve: 'continuous',
     paddingHorizontal: theme.spacing.md,
