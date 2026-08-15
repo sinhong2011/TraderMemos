@@ -1,10 +1,12 @@
 package api
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/auth"
@@ -41,7 +43,16 @@ func (s *Server) handleTradeCoach(c *echo.Context) error {
 		return c.JSON(http.StatusOK, coachReviewDTO{Source: "off", Notes: []coach.Note{}})
 	}
 
-	review, err := coach.GenerateReview(ctx, cfg, tradeContextFromDetail(detail))
+	tradeCtx := tradeContextFromDetail(detail)
+	// A failed session lookup degrades the review rather than failing it: the
+	// single-trade brief is still worth generating.
+	if session, serr := s.coachSession(ctx, uid, detail, coachLoc(c)); serr != nil {
+		c.Logger().Warn("coach session context unavailable", "trade_id", tradeID, "err", serr)
+	} else {
+		tradeCtx.Session = session
+	}
+
+	review, err := coach.GenerateReview(ctx, cfg, tradeCtx)
 	if err != nil {
 		if errors.Is(err, coach.ErrUnavailable) {
 			return c.JSON(http.StatusOK, coachReviewDTO{Source: "off", Notes: []coach.Note{}})
@@ -65,6 +76,62 @@ func (s *Server) handleTradeCoach(c *echo.Context) error {
 		review.Notes = []coach.Note{}
 	}
 	return c.JSON(http.StatusOK, coachReviewDTO{Source: "llm", Notes: review.Notes})
+}
+
+// coachLoc resolves the market timezone the day and week boundaries are drawn
+// in. Grouping always follows the market clock, never the display clock, so
+// the client passes the same `tz` the analytics endpoints take.
+func coachLoc(c *echo.Context) *time.Location {
+	if v := c.QueryParam("tz"); v != "" {
+		if loc, err := time.LoadLocation(v); err == nil {
+			return loc
+		}
+	}
+	return time.UTC
+}
+
+// coachSession reconstructs the trader's state as of the reviewed trade's
+// entry from the other closed trades in the same account.
+func (s *Server) coachSession(
+	ctx context.Context,
+	userID string,
+	d tradeDetailDTO,
+	loc *time.Location,
+) (*coach.SessionContext, error) {
+	rows, err := s.deps.Store.ListClosedTrades(ctx, store.ListClosedTradesParams{
+		UserID:    userID,
+		AccountID: d.AccountID,
+	})
+	if err != nil {
+		return nil, err
+	}
+	journals, err := s.deps.Store.ListTradeJournalsForUser(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	emotionByTrade := make(map[string]string, len(journals))
+	for _, j := range journals {
+		if e := strings.TrimSpace(j.EmotionalState); e != "" {
+			emotionByTrade[j.TradeID] = e
+		}
+	}
+
+	priors := make([]coach.PriorTrade, 0, len(rows))
+	for _, t := range rows {
+		if t.ID == d.ID || !t.ClosedAt.Valid || !t.NetPnl.Valid {
+			continue
+		}
+		priors = append(priors, coach.PriorTrade{
+			Symbol:    t.Symbol,
+			NetPnl:    t.NetPnl.Float64,
+			RMultiple: fptr(t.RMultiple),
+			Currency:  t.PnlCurrency,
+			ClosedAt:  t.ClosedAt.Time,
+			Emotion:   emotionByTrade[t.ID],
+		})
+	}
+	session := coach.BuildSessionContext(d.OpenedAt, d.PnlCurrency, priors, loc)
+	return &session, nil
 }
 
 func tradeContextFromDetail(d tradeDetailDTO) coach.TradeContext {

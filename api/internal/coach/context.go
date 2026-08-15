@@ -46,6 +46,9 @@ type TradeContext struct {
 	Notes          string
 	TagNames       []string
 	Fills          []FillContext
+	// Session is the trader's state as of OpenedAt. Nil when it could not be
+	// reconstructed, so the brief omits the block instead of claiming a flat day.
+	Session *SessionContext
 }
 
 // FormatTradeContext renders a plain-text brief for the LLM user message.
@@ -118,6 +121,9 @@ func FormatTradeContext(t TradeContext) string {
 			fmt.Fprintf(&b, "  %d. %s %g @ %g fees=%g at %s\n",
 				i+1, f.Side, f.Quantity, f.Price, f.Fees, f.ExecutedAt.UTC().Format(time.RFC3339))
 		}
+	}
+	if t.Session != nil {
+		b.WriteString(t.Session.format())
 	}
 	return b.String()
 }

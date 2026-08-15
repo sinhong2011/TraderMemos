@@ -8,6 +8,7 @@ import type { CoachReview, TradeDetail } from '@/api/types';
 import { DashboardCard } from '@/components/dashboard-card';
 import { InlineError } from '@/components/error-state';
 import { GlassButton } from '@/components/glass-button';
+import { resolveMarketTimezone, useDisplayPrefs } from '@/lib/prefs';
 import { t } from '@lingui/core/macro';
 import {
   computeTradeInsights,
@@ -60,11 +61,18 @@ export function CoachCard({ trade }: { trade: TradeDetail }) {
   const api = useApiRequest();
   const coachSettings = useLlmSettings('coach');
   const coachConfigured = coachSettings.data?.enabled === true;
+  const prefs = useDisplayPrefs();
 
   const [review, setReview] = useState<CoachReview | null>(null);
 
+  // `tz` is the market timezone the server draws day and week boundaries in
+  // when reconstructing the trader's state at this trade's entry.
+  const marketTz = resolveMarketTimezone(prefs.marketTimezone);
   const generate = useMutation({
-    mutationFn: () => api<CoachReview>(`/trades/${trade.id}/coach`, { method: 'POST' }),
+    mutationFn: () =>
+      api<CoachReview>(`/trades/${trade.id}/coach?tz=${encodeURIComponent(marketTz)}`, {
+        method: 'POST',
+      }),
     onSuccess: setReview,
   });
 
