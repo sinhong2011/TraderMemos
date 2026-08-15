@@ -99,6 +99,14 @@ type scoredTrade struct {
 	tempo     *float64
 	stabValue *float64 // R multiple when risk is recorded, else net P&L
 	stabIsR   bool
+
+	// Why the risk and tempo axes scored as they did, kept so a single trade
+	// can be explained and not merely numbered.
+	quickReentry bool
+	overtraded   bool
+	riskRecorded bool
+	overMaxRisk  bool
+	lossBreach   bool
 }
 
 // ExecScore computes the execution-quality composite over closed trades.
@@ -144,57 +152,10 @@ func ExecScore(trades []ScoreTrade, rules ComplianceRules, cfg ExecScoreConfig, 
 	copy(sorted, trades)
 	sort.SliceStable(sorted, func(i, j int) bool { return sorted[i].ClosedAt.Before(sorted[j].ClosedAt) })
 
-	breachDays := dailyLossBreachDays(sorted, rules, loc)
-	quick := quickReentries(sorted, cfg.QuickReentryWindow)
-	overDays := overtradedDays(sorted, cfg, loc)
-
+	sctx := newScoringContext(sorted, rules, cfg, loc)
 	scored := make([]scoredTrade, 0, len(sorted))
 	for _, t := range sorted {
-		st := scoredTrade{t: t}
-
-		if t.Mae != nil && t.Mfe != nil {
-			heat := math.Max(*t.Mae, 0)
-			move := math.Max(*t.Mfe, 0)
-			if heat+move > 0 {
-				v := 1 - heat/(heat+move)
-				st.entry = &v
-			}
-		}
-
-		if t.Mfe != nil && *t.Mfe > 0 {
-			v := clamp01(t.NetPnl / *t.Mfe)
-			st.exit = &v
-		}
-
-		recorded := t.InitialRisk > 0
-		day := t.ClosedAt.In(loc).Format("2006-01-02")
-		if rep.RulesConfigured {
-			compliant := 1.0
-			if rules.MaxRiskPerTrade > 0 && recorded && t.InitialRisk > rules.MaxRiskPerTrade {
-				compliant = 0
-			}
-			if breachDays[day] {
-				compliant = 0
-			}
-			v := 0.5*b2f(recorded) + 0.5*compliant
-			st.risk = &v
-		} else {
-			v := b2f(recorded)
-			st.risk = &v
-		}
-
-		tempo := 1.0
-		if quick[t.ID] || overDays[t.OpenedAt.In(loc).Format("2006-01-02")] {
-			tempo = 0
-		}
-		st.tempo = &tempo
-
-		if recorded {
-			v := t.NetPnl / t.InitialRisk
-			st.stabValue = &v
-			st.stabIsR = true
-		}
-		scored = append(scored, st)
+		scored = append(scored, sctx.score(t))
 	}
 
 	rep.Entry, rep.Exit, rep.Risk, rep.Stability, rep.Tempo = axesOf(scored, cfg, cfg.MinTrades)
@@ -226,6 +187,163 @@ func ExecScore(trades []ScoreTrade, rules ComplianceRules, cfg ExecScoreConfig, 
 		rep.Series = append(rep.Series, p)
 	}
 	return rep
+}
+
+// scoringContext holds the cross-trade facts a single trade's axes depend on:
+// which days breached the daily-loss rule, which trades were quick re-entries,
+// and which days the trader traded well above their own median count.
+type scoringContext struct {
+	rules           ComplianceRules
+	rulesConfigured bool
+	breachDays      map[string]bool
+	quick           map[string]bool
+	overDays        map[string]bool
+	loc             *time.Location
+}
+
+func newScoringContext(
+	sorted []ScoreTrade,
+	rules ComplianceRules,
+	cfg ExecScoreConfig,
+	loc *time.Location,
+) scoringContext {
+	return scoringContext{
+		rules:           rules,
+		rulesConfigured: rules.configured(),
+		breachDays:      dailyLossBreachDays(sorted, rules, loc),
+		quick:           quickReentries(sorted, cfg.QuickReentryWindow),
+		overDays:        overtradedDays(sorted, cfg, loc),
+		loc:             loc,
+	}
+}
+
+// score computes one trade's axis fractions and records why each was docked.
+// ExecScore and TradeAxesFor both go through here so the per-trade numbers the
+// coach cites can never drift from the ones the reports page aggregates.
+func (sc scoringContext) score(t ScoreTrade) scoredTrade {
+	st := scoredTrade{t: t}
+
+	if t.Mae != nil && t.Mfe != nil {
+		heat := math.Max(*t.Mae, 0)
+		move := math.Max(*t.Mfe, 0)
+		if heat+move > 0 {
+			v := 1 - heat/(heat+move)
+			st.entry = &v
+		}
+	}
+
+	if t.Mfe != nil && *t.Mfe > 0 {
+		v := clamp01(t.NetPnl / *t.Mfe)
+		st.exit = &v
+	}
+
+	st.riskRecorded = t.InitialRisk > 0
+	day := t.ClosedAt.In(sc.loc).Format("2006-01-02")
+	if sc.rulesConfigured {
+		st.overMaxRisk = sc.rules.MaxRiskPerTrade > 0 &&
+			st.riskRecorded && t.InitialRisk > sc.rules.MaxRiskPerTrade
+		st.lossBreach = sc.breachDays[day]
+		compliant := 1.0
+		if st.overMaxRisk || st.lossBreach {
+			compliant = 0
+		}
+		v := 0.5*b2f(st.riskRecorded) + 0.5*compliant
+		st.risk = &v
+	} else {
+		v := b2f(st.riskRecorded)
+		st.risk = &v
+	}
+
+	st.quickReentry = sc.quick[t.ID]
+	st.overtraded = sc.overDays[t.OpenedAt.In(sc.loc).Format("2006-01-02")]
+	tempo := 1.0
+	if st.quickReentry || st.overtraded {
+		tempo = 0
+	}
+	st.tempo = &tempo
+
+	if st.riskRecorded {
+		v := t.NetPnl / t.InitialRisk
+		st.stabValue = &v
+		st.stabIsR = true
+	}
+	return st
+}
+
+// TradeAxes is one trade's execution quality, 0–100 per axis. A nil score
+// means the trade lacks that axis's inputs — never a zero, matching how
+// AxisScore reports "insufficient data" rather than a fake score.
+//
+// Stability is deliberately absent: it is the dispersion of results across
+// trades and is undefined for a single one.
+type TradeAxes struct {
+	Entry *float64 `json:"entry"`
+	Exit  *float64 `json:"exit"`
+	Risk  *float64 `json:"risk"`
+	Tempo *float64 `json:"tempo"`
+
+	// Why an axis scored as it did. A bare number tells a coach nothing
+	// actionable; "you re-entered the same symbol within 15 minutes" does.
+	QuickReentry    bool `json:"quick_reentry"`
+	Overtraded      bool `json:"overtraded"`
+	RiskRecorded    bool `json:"risk_recorded"`
+	OverMaxRisk     bool `json:"over_max_risk"`
+	DailyLossBreach bool `json:"daily_loss_breach"`
+	RulesConfigured bool `json:"rules_configured"`
+}
+
+// TradeAxesFor scores one trade within the context of the trader's own
+// history — tempo and daily-loss compliance are only meaningful relative to
+// the other trades, so the full set must be passed in even to score one.
+//
+// Reports false when tradeID is not among trades.
+func TradeAxesFor(
+	tradeID string,
+	trades []ScoreTrade,
+	rules ComplianceRules,
+	cfg ExecScoreConfig,
+	loc *time.Location,
+) (TradeAxes, bool) {
+	if loc == nil {
+		loc = time.UTC
+	}
+	sorted := make([]ScoreTrade, len(trades))
+	copy(sorted, trades)
+	sort.SliceStable(sorted, func(i, j int) bool { return sorted[i].ClosedAt.Before(sorted[j].ClosedAt) })
+
+	idx := -1
+	for i, t := range sorted {
+		if t.ID == tradeID {
+			idx = i
+			break
+		}
+	}
+	if idx < 0 {
+		return TradeAxes{}, false
+	}
+
+	st := newScoringContext(sorted, rules, cfg, loc).score(sorted[idx])
+	return TradeAxes{
+		Entry:           pct(st.entry),
+		Exit:            pct(st.exit),
+		Risk:            pct(st.risk),
+		Tempo:           pct(st.tempo),
+		QuickReentry:    st.quickReentry,
+		Overtraded:      st.overtraded,
+		RiskRecorded:    st.riskRecorded,
+		OverMaxRisk:     st.overMaxRisk,
+		DailyLossBreach: st.lossBreach,
+		RulesConfigured: rules.configured(),
+	}, true
+}
+
+// pct rescales a 0–1 axis fraction to the 0–100 the axes are reported in.
+func pct(v *float64) *float64 {
+	if v == nil {
+		return nil
+	}
+	s := round1(100 * *v)
+	return &s
 }
 
 // axesOf aggregates per-trade fractions into 0–100 axis scores, leaving an
