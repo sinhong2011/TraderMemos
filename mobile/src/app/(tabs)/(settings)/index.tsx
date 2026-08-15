@@ -12,12 +12,13 @@ import { font, foregroundStyle, pickerStyle, tag } from '@expo/ui/swift-ui/modif
 import { useQueryClient } from '@tanstack/react-query';
 import { Stack, useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Alert, Linking } from 'react-native';
-import { useUnistyles } from 'react-native-unistyles';
+import { Alert, Linking, Platform, Pressable, Text, View } from 'react-native';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import type { SFSymbol } from 'sf-symbols-typescript';
 
 import { useAccounts, useApiRequest, useCash, useMe, useTrades } from '@/api/hooks';
 import { CenteredButton } from '@/components/centered-button';
+import { Icon } from '@/components/icon';
 import { NavRow } from '@/components/nav-row';
 import { FloatingSearchBar, SearchToggle } from '@/components/search-bar';
 import { SettingsForm } from '@/components/settings-form';
@@ -299,6 +300,38 @@ export default function SettingsScreen() {
           `${entry.label} ${entry.terms}`.toLowerCase().includes(needle),
         );
 
+  // The hub below is still SwiftUI-only, and `Section` is the piece with no
+  // Android counterpart at all: @expo/ui registers no `SectionView` there, and
+  // the universal surface stops at `FieldGroup` — a grouped container with no
+  // per-section equivalent. Mounting it throws
+  // `Can't find ViewManager 'ViewManagerAdapter_ExpoUI_SectionView'`, and
+  // because Android's native tabs preload every tab root that is a crash on
+  // boot for the whole app, not just this tab. Until the hub is ported, Android
+  // gets a placeholder carrying the one action that is unreachable elsewhere —
+  // sign out, which is also how you point the app at a different server.
+  if (Platform.OS === 'android') {
+    return (
+      <View style={styles.stub}>
+        {/* Spelled out rather than reusing `EmptyState`: that one renders
+            through `RNHostView`, which Compose requires to be a direct child of
+            a `Host`, and this stub is a plain React Native tree. Nested there it
+            drops its whole subtree and logs a composition-boundary error. */}
+        <Icon name="gearshape" size={44} tintColor={theme.colors.mutedForeground} />
+        <Text style={styles.stubTitle}>{t`Settings aren't on Android yet`}</Text>
+        <Text style={styles.stubBody}>
+          {t`This screen is still being ported. Sign out to switch server or account.`}
+        </Text>
+        <Pressable
+          onPress={handleSignOut}
+          accessibilityRole="button"
+          style={({ pressed }) => [styles.stubButton, pressed && styles.stubButtonPressed]}
+        >
+          <Text style={styles.stubButtonText}>{t`Sign out`}</Text>
+        </Pressable>
+      </View>
+    );
+  }
+
   return (
     <>
       {/* Trades-style search: the header magnifier (✕ while open) toggles the
@@ -540,3 +573,31 @@ export default function SettingsScreen() {
     </>
   );
 }
+
+const styles = StyleSheet.create((theme) => ({
+  stub: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: theme.spacing.lg,
+    padding: theme.spacing.lg,
+    backgroundColor: theme.colors.background,
+  },
+  stubButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 52,
+    paddingHorizontal: theme.spacing.xl,
+    borderRadius: theme.radius.full,
+    backgroundColor: theme.colors.destructive,
+  },
+  stubButtonPressed: { opacity: 0.8 },
+  stubButtonText: { fontSize: 17, fontWeight: '600', color: theme.colors.background },
+  stubTitle: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: theme.colors.foreground,
+    textAlign: 'center',
+  },
+  stubBody: { fontSize: 14, color: theme.colors.mutedForeground, textAlign: 'center' },
+}));
