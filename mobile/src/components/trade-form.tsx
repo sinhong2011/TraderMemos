@@ -5,7 +5,7 @@ import ReanimatedSwipeable, {
   type SwipeableMethods,
 } from 'react-native-gesture-handler/ReanimatedSwipeable';
 import Animated, { FadeInDown, LinearTransition, SlideOutLeft } from 'react-native-reanimated';
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import type { Account, Setup, Tag } from '@/api/types';
 import { AccountPill } from '@/components/account-pill';
@@ -31,7 +31,7 @@ import { TradePrefillBar } from '@/components/trade-prefill-bar';
 import { TradeResultCard } from '@/components/trade-result-card';
 import { TradeScanOverlay } from '@/components/trade-scan-overlay';
 import { ValueToggle } from '@/components/value-toggle';
-import { PnlFill } from '@/styles/unistyles';
+import { PnlFill, pnlColor } from '@/styles/unistyles';
 import { t } from '@lingui/core/macro';
 import {
   EMOTIONAL_STATES,
@@ -49,8 +49,9 @@ import {
   type Market,
   type TradeFormValues,
 } from '@/lib/trade-form';
+import { useFormatters } from '@/lib/format';
 import type { ImportSource } from '@/lib/trade-import';
-import { blockPnlPreview } from '@/lib/trade-pnl-preview';
+import { blockFillPnls, blockPnlPreview } from '@/lib/trade-pnl-preview';
 
 /** Single-select chip row: tapping the active chip clears it. */
 function SingleChips({
@@ -93,6 +94,8 @@ const FILL_LAYOUT = LinearTransition.springify()
 function FillCard({
   fill,
   index,
+  pnl,
+  currency,
   removable,
   onChange,
   onRemove,
@@ -100,12 +103,17 @@ function FillCard({
 }: {
   fill: FillDraft;
   index: number;
+  /** Realized net this closing fill locked in; null while it only opens size. */
+  pnl: number | null;
+  currency: string;
   removable: boolean;
   onChange: (patch: Partial<FillDraft>) => void;
   onRemove: () => void;
   onDuplicate: () => void;
 }) {
   const swipeable = useRef<SwipeableMethods>(null);
+  const { theme } = useUnistyles();
+  const { formatPnl } = useFormatters();
   const sides = [
     { value: 'buy' as const, label: t`Buy`, fill: PnlFill.pos },
     { value: 'sell' as const, label: t`Sell`, fill: PnlFill.neg },
@@ -115,6 +123,16 @@ function FillCard({
     <Card>
       <View style={styles.fillHeader}>
         <Text style={styles.fillTitle}>{t`Fill ${index + 1}`}</Text>
+        {/* What this fill locked in, on the header's trailing edge. A fill that
+            only opens size has nothing to realize yet — it reads "Open" rather
+            than a blank slot, so the column never looks like a failed render. */}
+        {pnl != null ? (
+          <Text style={[styles.fillPnl, { color: pnlColor(theme.colors, pnl) }]} numberOfLines={1}>
+            {formatPnl(pnl, currency)}
+          </Text>
+        ) : (
+          <Text style={styles.fillPnlOpen}>{t`Open`}</Text>
+        )}
       </View>
       <ControlRow label={t`Side`}>
         <ValueToggle options={sides} value={fill.side} onChange={(side) => onChange({ side })} />
@@ -123,6 +141,10 @@ function FillCard({
         label={t`Executed at`}
         selection={fill.executedAt}
         displayedComponents={['date', 'hourAndMinute']}
+        // Fills are timestamped to the second — brokers report them that way,
+        // and the server replays a trade's executions in `executed_at, id`
+        // order, so the seconds are what sequence two legs of the same minute.
+        seconds
         onDateChange={(executedAt) => onChange({ executedAt })}
       />
       <InputRow
@@ -308,6 +330,10 @@ function SymbolBlock({
     });
   }
 
+  // FIFO matching runs over the whole list, so the per-fill nets are computed
+  // once for the block rather than card by card.
+  const fillPnls = blockFillPnls(values);
+
   return (
     <>
       {isNew ? (
@@ -404,6 +430,8 @@ function SymbolBlock({
           <FillCard
             fill={fill}
             index={index}
+            pnl={fillPnls[index] ?? null}
+            currency={currency}
             removable={values.fills.length > 1}
             onChange={(patch) => updateFill(fill.key, patch)}
             onRemove={() => {
@@ -768,6 +796,16 @@ const styles = StyleSheet.create((theme) => ({
   fillTitle: {
     fontSize: 13,
     fontWeight: '600',
+    color: theme.colors.mutedForeground,
+  },
+  fillPnl: {
+    fontSize: 13,
+    fontWeight: '600',
+    ...theme.numeric,
+  },
+  fillPnlOpen: {
+    fontSize: 13,
+    fontWeight: '500',
     color: theme.colors.mutedForeground,
   },
   actionRow: { alignItems: 'center' },
