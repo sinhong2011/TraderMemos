@@ -1,3 +1,5 @@
+import '../global.css';
+
 import { I18nProvider } from '@lingui/react';
 import { QueryClient, useQueryClient } from '@tanstack/react-query';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
@@ -9,7 +11,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useMemo, useRef } from 'react';
 import { Alert, Platform, View } from 'react-native';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { PanelUIProvider, useThemeMode } from 'panelui-native';
 
 import { useUnistyles } from 'react-native-unistyles';
 
@@ -138,6 +140,21 @@ function OutboxGate() {
  * their retries, and the banner would vanish while the content stayed dead
  * until they thought to pull to refresh.
  */
+/**
+ * Pins Uniwind's theme to the app's Appearance preference. PanelUI resolves
+ * every token from the active Uniwind theme, and the app lets the user pin
+ * Light or Dark regardless of the OS — `useResolvedScheme` already folds the
+ * system scheme into that preference, so this is the single hand-off point.
+ */
+function ThemeModeGate() {
+  const scheme = useResolvedScheme();
+  const { mode, setMode } = useThemeMode();
+  useEffect(() => {
+    if (mode !== scheme) setMode(scheme);
+  }, [scheme, mode, setMode]);
+  return null;
+}
+
 function ReachabilityGate() {
   const queryClient = useQueryClient();
   const recoveredAt = useConnectivityStore((state) => state.recoveredAt);
@@ -222,7 +239,7 @@ export default function RootLayout() {
   );
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <PanelUIProvider>
     <I18nProvider i18n={i18n}>
       <SessionProvider>
         <SplashGate />
@@ -238,6 +255,7 @@ export default function RootLayout() {
           {Platform.OS === 'android' ? (
             <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
           ) : null}
+          <ThemeModeGate />
           <ImportLinkGate />
           <PrefsSyncGate />
           <WidgetSnapshotGate />
@@ -379,6 +397,6 @@ export default function RootLayout() {
         </PersistQueryClientProvider>
       </SessionProvider>
     </I18nProvider>
-    </GestureHandlerRootView>
+    </PanelUIProvider>
   );
 }
