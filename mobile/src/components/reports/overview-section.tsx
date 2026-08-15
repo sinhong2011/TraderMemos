@@ -1,13 +1,8 @@
-import {
-  Chart,
-  Gauge,
-  Text as UIText,
-} from '@expo/ui/swift-ui';
-import { font, gaugeStyle, tint } from '@expo/ui/swift-ui/modifiers';
 import { useRouter } from 'expo-router';
+import { BarChart, cn, PieChart, RingChart, Skeleton, type PieDatum } from 'panelui-native';
 import { useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { useCSSVariable } from 'uniwind';
 
 import {
   useAccounts,
@@ -26,8 +21,8 @@ import { EquityCard } from '@/components/equity-card';
 import { ErrorState, InlineError } from '@/components/error-state';
 import { GoalCard } from '@/components/goal-card';
 import { Segmented } from '@/components/segmented';
-import { Skeleton } from '@/components/skeleton';
 import { StatBar } from '@/components/stat-bar';
+import { signedBars } from '@/components/reports/shared';
 import {
   SectionScaffold,
   useReportsFilters,
@@ -39,12 +34,16 @@ import { locale } from '@/i18n';
 import { formatPercent, formatRatio } from '@/lib/format';
 import { gradeFromInt } from '@/lib/journal';
 import { buildReportsDayStrip, sqnBand } from '@/lib/reports-display';
-import { pnlColor } from '@/styles/unistyles';
-import { AppHost } from '@/components/app-host';
+import { pnlClass, pnlColor, usePnlPalette } from '@/styles/pnl';
 
 // ---------------------------------------------------------------------------
 // Summary bento
 // ---------------------------------------------------------------------------
+
+/** Diameter of the two edge dials — they sit side by side in one card row. */
+const DIAL_SIZE = 84;
+/** A PF of 3 fills the ring — beyond that the edge is proven. */
+const PF_FULL = 3;
 
 function sqnBandLabel(sqn: number): string {
   switch (sqnBand(sqn)) {
@@ -65,7 +64,7 @@ function sqnBandLabel(sqn: number): string {
 
 /** Hero + edge quality + key stats — the web ReportsSummaryBento, tiled for a phone. */
 function SummaryCard({ summary, ctx }: { summary: Summary; ctx: ReportsMoneyContext }) {
-  const { theme } = useUnistyles();
+  const palette = usePnlPalette();
   const { money } = ctx;
   const pnl = money.pnl(summary);
   const median = money.avgMode === 'median';
@@ -85,71 +84,84 @@ function SummaryCard({ summary, ctx }: { summary: Summary; ctx: ReportsMoneyCont
   const sqn = summary.sqn;
   const sqnDefined = summary.total_trades >= 2 && sqn !== 0;
 
-  const donutData = [
-    { x: t`Wins`, y: summary.wins, color: theme.colors.profit },
-    { x: t`Losses`, y: summary.losses, color: theme.colors.loss },
+  const donutData: PieDatum[] = [
+    { label: t`Wins`, value: summary.wins, color: palette.profit },
+    { label: t`Losses`, value: summary.losses, color: palette.loss },
     ...(summary.breakeven > 0
-      ? [{ x: t`Wash`, y: summary.breakeven, color: theme.colors.flat }]
+      ? [{ label: t`Wash`, value: summary.breakeven, color: palette.flat }]
       : []),
-  ].filter((slice) => slice.y > 0);
+  ].filter((slice) => slice.value > 0);
 
   return (
-    <DashboardCard
-      title={money.pnlMode === 'gross' ? t`Performance — gross` : t`Performance`}
-      flush
-    >
-      <View style={styles.hero}>
-        <Text selectable style={[styles.heroValue, { color: pnlColor(theme.colors, pnl) }]}>
+    <DashboardCard title={money.pnlMode === 'gross' ? t`Performance — gross` : t`Performance`} flush>
+      {/* Own surface: the card around it is `flush` so the tiles below sit on
+          the page, but the headline is a statement rather than a tile. */}
+      <View className="items-center gap-1 rounded-lg bg-card p-4">
+        <Text
+          selectable
+          className={cn('text-[34px] font-semibold tracking-[-1px] tabular-nums', pnlClass(pnl))}
+        >
           {money.format(pnl)}
         </Text>
-        <Text style={styles.heroCaption}>
+        <Text className="text-xs tabular-nums text-muted-foreground">
           {t`${summary.total_trades} trades · Fees ${money.format(-summary.total_fees)} · Expectancy ${money.format(summary.expectancy)}`}
         </Text>
       </View>
 
-      {/* Edge row: native gauge for PF, donut for the W/L split. */}
-      <View style={styles.edgeRow}>
-        <View style={styles.edgeCell}>
-          <Text style={styles.edgeLabel}>{t`Profit factor`}</Text>
-          <AppHost style={styles.donut}>
-            {/* A PF of 3 fills the ring — beyond that the edge is proven. */}
-            <Gauge
-              value={Math.min(1, Number.isFinite(pf) ? pf / 3 : 1)}
-              modifiers={[
-                gaugeStyle('circularCapacity'),
-                tint(pf >= 1 ? theme.colors.profit : theme.colors.loss),
-              ]}
-              currentValueLabel={
-                <UIText modifiers={[font({ size: 15, weight: 'semibold', design: 'rounded' })]}>
+      {/* Edge row: a gauge for PF, a donut for the W/L split. Same `card`
+          surface as StatBar — these sit in the same grid, and a grey fill here
+          against white tiles below split the screen down the middle. */}
+      <View className="flex-row gap-2">
+        <View className="flex-1 items-center gap-1 rounded-md bg-card px-2 py-3">
+          <Text className="text-[11px] font-medium tracking-[0.3px] text-muted-foreground">
+            {t`Profit factor`}
+          </Text>
+          <RingChart
+            data={[
+              {
+                label: t`Profit factor`,
+                value: Math.min(PF_FULL, Number.isFinite(pf) ? pf : PF_FULL),
+                maxValue: PF_FULL,
+                color: pf >= 1 ? palette.profit : palette.loss,
+              },
+            ]}
+            size={DIAL_SIZE}
+            strokeWidth={10}
+          >
+            <RingChart.Ring index={0} />
+            <RingChart.Center>
+              {() => (
+                <Text className="text-[15px] font-semibold tabular-nums text-foreground">
                   {formatRatio(pf)}
-                </UIText>
-              }
-            />
-          </AppHost>
-          <Text style={styles.edgeSubCaption}>{t`gross profit ÷ gross loss`}</Text>
+                </Text>
+              )}
+            </RingChart.Center>
+          </RingChart>
+          <Text className="text-[10px] text-muted-foreground">{t`gross profit ÷ gross loss`}</Text>
         </View>
-        <View style={styles.edgeCell}>
-          <Text style={styles.edgeLabel}>{t`Win rate`}</Text>
+        <View className="flex-1 items-center gap-1 rounded-md bg-card px-2 py-3">
+          <Text className="text-[11px] font-medium tracking-[0.3px] text-muted-foreground">
+            {t`Win rate`}
+          </Text>
           {donutData.length > 0 ? (
-            <AppHost style={styles.donut}>
-              <Chart data={donutData} type="pie" pieStyle={{ innerRadius: 0.62, angularInset: 1.5 }} />
-            </AppHost>
+            <PieChart data={donutData} size={DIAL_SIZE} innerRadius={0.62} padAngle={1.5}>
+              <PieChart.Slices />
+            </PieChart>
           ) : (
-            <View style={styles.donut} />
+            <View style={{ width: DIAL_SIZE, height: DIAL_SIZE }} />
           )}
-          <Text style={styles.edgeValue}>
+          <Text className="text-base font-semibold tabular-nums text-foreground">
             {formatPercent(winRate)}
-            <Text style={styles.edgeSub}> · {t`${summary.wins}W ${summary.losses}L`}</Text>
+            <Text className="text-xs font-normal text-muted-foreground">
+              {' '}
+              · {t`${summary.wins}W ${summary.losses}L`}
+            </Text>
           </Text>
         </View>
       </View>
 
-      <View style={styles.grid}>
-        <StatBar
-          label={median ? t`Median win` : t`Avg win`}
-          value={money.format(avgWin)}
-          tone="pos"
-        />
+      <View className="flex-row flex-wrap gap-2">
+        <StatBar label={median ? t`Median win` : t`Avg win`} value={money.format(avgWin)} tone="pos" />
         <StatBar
           label={median ? t`Median loss` : t`Avg loss`}
           value={money.format(-avgLoss)}
@@ -166,16 +178,8 @@ function SummaryCard({ summary, ctx }: { summary: Summary; ctx: ReportsMoneyCont
           value={money.format(avgTrade)}
           tone={avgTrade >= 0 ? 'pos' : 'neg'}
         />
-        <StatBar
-          label={t`Largest win`}
-          value={money.format(summary.largest_win)}
-          tone="pos"
-        />
-        <StatBar
-          label={t`Largest loss`}
-          value={money.format(-summary.largest_loss)}
-          tone="neg"
-        />
+        <StatBar label={t`Largest win`} value={money.format(summary.largest_win)} tone="pos" />
+        <StatBar label={t`Largest loss`} value={money.format(-summary.largest_loss)} tone="neg" />
         <StatBar
           label={t`Kelly (half)`}
           value={formatPercent(kelly / 2)}
@@ -205,12 +209,11 @@ function SummaryCard({ summary, ctx }: { summary: Summary; ctx: ReportsMoneyCont
 // ---------------------------------------------------------------------------
 
 function DayStripCard({ ctx }: { ctx: ReportsMoneyContext }) {
-  const { theme } = useUnistyles();
   const filters = useReportsFilters();
   const trades = useTrades(filters);
   const days = buildReportsDayStrip(trades.data ?? [], ctx.money.tradePnl);
 
-  if (trades.isLoading) return <Skeleton style={styles.stripSkeleton} />;
+  if (trades.isLoading) return <Skeleton className="h-24 rounded-lg" />;
   // Ahead of the `days.length === 0` bail-out: this card hides itself when there
   // is genuinely nothing to strip, which would swallow the failure whole. With
   // trades in the cache the strip still draws, so only a bare failure surfaces.
@@ -228,8 +231,9 @@ function DayStripCard({ ctx }: { ctx: ReportsMoneyContext }) {
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.strip}
-        style={styles.stripRail}
+        // Bleeds to the card edges so the rail reads as scrollable content.
+        className="grow-0 -mx-4"
+        contentContainerClassName="gap-2 px-4"
       >
         {days.map((day) => {
           const dow = new Date(`${day.date}T12:00:00Z`).getUTCDay();
@@ -240,16 +244,22 @@ function DayStripCard({ ctx }: { ctx: ReportsMoneyContext }) {
             timeZone: 'UTC',
           });
           return (
-            <View key={day.date} style={[styles.dayCell, isWeekend && styles.dayCellWeekend]}>
-              <Text style={styles.dayLabel}>{label}</Text>
+            <View
+              key={day.date}
+              className={cn(
+                'w-[92px] gap-0.5 rounded-md bg-muted px-2.5 py-2.5',
+                isWeekend && 'opacity-60',
+              )}
+            >
+              <Text className="text-[10px] font-medium text-muted-foreground">{label}</Text>
               <Text
-                style={[styles.dayPnl, { color: pnlColor(theme.colors, day.pnl) }]}
+                className={cn('text-sm font-semibold tabular-nums', pnlClass(day.pnl))}
                 numberOfLines={1}
                 adjustsFontSizeToFit
               >
                 {ctx.money.formatCompact(day.pnl)}
               </Text>
-              <Text style={styles.dayTrades}>{t`${day.trades} trades`}</Text>
+              <Text className="text-[10px] tabular-nums text-muted-foreground">{t`${day.trades} trades`}</Text>
             </View>
           );
         })}
@@ -274,46 +284,50 @@ function BreakdownRows({
   ctx: ReportsMoneyContext;
   emptyLabel: string;
 }) {
-  const { theme } = useUnistyles();
+  const palette = usePnlPalette();
   const filters = useReportsFilters();
   const breakdown = useBreakdown(dim, filters);
   const { money } = ctx;
 
-  if (breakdown.isLoading) return <Skeleton style={styles.chart} />;
+  if (breakdown.isLoading) return <Skeleton className="h-[200px] rounded-lg" />;
   if (breakdown.error && breakdown.data == null) {
     return <InlineError error={breakdown.error} onRetry={() => void breakdown.refetch()} />;
   }
 
   const groups = breakdown.data ?? [];
-  if (groups.length === 0) return <Text style={styles.empty}>{emptyLabel}</Text>;
+  if (groups.length === 0) {
+    return <Text className="py-4 text-[13px] text-muted-foreground">{emptyLabel}</Text>;
+  }
 
-  const chartData = groups.slice(0, MAX_BARS).map((group) => {
-    const value = money.display(money.pnl(group.summary));
-    return {
-      x: group.key.length > 8 ? `${group.key.slice(0, 7)}…` : group.key,
-      y: value,
-      color: value >= 0 ? theme.colors.profit : theme.colors.loss,
-    };
-  });
+  const chartData = groups
+    .slice(0, MAX_BARS)
+    .map((group) =>
+      signedBars(
+        group.key.length > 8 ? `${group.key.slice(0, 7)}…` : group.key,
+        money.display(money.pnl(group.summary)),
+      ),
+    );
 
   return (
     <>
-      <AppHost style={styles.chart}>
-        <Chart data={chartData} type="bar" showGrid animate barStyle={{ cornerRadius: 2 }} />
-      </AppHost>
-      <View style={styles.rows}>
+      <BarChart data={chartData} xDataKey="name" stacked aspectRatio={1.9} cornerRadius={2}>
+        <BarChart.Grid />
+        <BarChart.Bar dataKey="gain" color={palette.profit} />
+        <BarChart.Bar dataKey="loss" color={palette.loss} />
+        <BarChart.XAxis />
+      </BarChart>
+      <View className="gap-2">
         {groups.slice(0, MAX_ROWS).map((group) => {
           const value = money.pnl(group.summary);
           return (
-            <View key={group.key} style={styles.row}>
-              <Text style={styles.rowKey} numberOfLines={1}>
+            <View key={group.key} className="flex-row items-baseline gap-2">
+              <Text className="shrink text-sm font-medium text-foreground" numberOfLines={1}>
                 {group.key}
               </Text>
-              <Text style={styles.rowMeta}>
-                {t`${group.summary.total_trades} trades`} ·{' '}
-                {formatPercent(group.summary.win_rate)}
+              <Text className="flex-1 text-xs tabular-nums text-muted-foreground">
+                {t`${group.summary.total_trades} trades`} · {formatPercent(group.summary.win_rate)}
               </Text>
-              <Text style={[styles.rowValue, { color: pnlColor(theme.colors, value) }]}>
+              <Text className={cn('text-sm font-semibold tabular-nums', pnlClass(value))}>
                 {money.formatCompact(value)}
               </Text>
             </View>
@@ -353,29 +367,31 @@ function fmtR(value: number): string {
 }
 
 function RMultipleCard({ rSummary }: { rSummary: RSummary }) {
-  const { theme } = useUnistyles();
+  const palette = usePnlPalette();
   const included = rSummary.total_trades;
   const total = included + rSummary.excluded;
 
   if (included === 0) {
     return (
       <DashboardCard title={t`R-multiple`}>
-        <Text style={styles.empty}>
+        <Text className="py-4 text-[13px] text-muted-foreground">
           {t`No trades with a knowable initial risk — set stops to unlock R analytics.`}
         </Text>
       </DashboardCard>
     );
   }
 
+  // Counts are all positive, so the sign that colours a bucket is the bucket's
+  // own R, not its height — hence two series rather than `signedBars`.
   const distribution = rSummary.distribution.map((bucket) => ({
-    x: bucket.label,
-    y: bucket.count,
-    color: bucket.from < 0 ? theme.colors.loss : theme.colors.profit,
+    name: bucket.label,
+    losing: bucket.from < 0 ? bucket.count : 0,
+    winning: bucket.from < 0 ? 0 : bucket.count,
   }));
 
   return (
     <DashboardCard title={t`R-multiple`} flush>
-      <View style={styles.grid}>
+      <View className="flex-row flex-wrap gap-2">
         <StatBar
           label={t`Avg R / trade`}
           value={fmtR(rSummary.avg_r)}
@@ -384,17 +400,16 @@ function RMultipleCard({ rSummary }: { rSummary: RSummary }) {
         />
         <StatBar label={t`Avg winning R`} value={fmtR(rSummary.avg_win_r)} tone="pos" />
         <StatBar label={t`Avg losing R`} value={fmtR(-rSummary.avg_loss_r)} tone="neg" />
-        <StatBar
-          label={t`Best / worst`}
-          value={fmtR(rSummary.best_r)}
-          sub={fmtR(rSummary.worst_r)}
-        />
+        <StatBar label={t`Best / worst`} value={fmtR(rSummary.best_r)} sub={fmtR(rSummary.worst_r)} />
       </View>
-      <AppHost style={styles.chart}>
-        <Chart data={distribution} type="bar" showGrid animate barStyle={{ cornerRadius: 2 }} />
-      </AppHost>
+      <BarChart data={distribution} xDataKey="name" stacked aspectRatio={1.9} cornerRadius={2}>
+        <BarChart.Grid />
+        <BarChart.Bar dataKey="losing" color={palette.loss} />
+        <BarChart.Bar dataKey="winning" color={palette.profit} />
+        <BarChart.XAxis />
+      </BarChart>
       {rSummary.excluded > 0 ? (
-        <Text style={styles.footnote}>
+        <Text className="text-xs text-muted-foreground">
           {t`${rSummary.excluded} closed trades excluded (no stop recorded).`}
         </Text>
       ) : null}
@@ -407,12 +422,12 @@ function RMultipleCard({ rSummary }: { rSummary: RSummary }) {
 // ---------------------------------------------------------------------------
 
 function ExecutionGradeCard({ ctx }: { ctx: ReportsMoneyContext }) {
-  const { theme } = useUnistyles();
+  const palette = usePnlPalette();
   const filters = useReportsFilters();
   const breakdown = useBreakdown('trade_quality', filters);
   const { money } = ctx;
 
-  if (breakdown.isLoading) return <Skeleton style={styles.gradeSkeleton} />;
+  if (breakdown.isLoading) return <Skeleton className="h-40 rounded-lg" />;
   // Split from the length check below: hiding the card is right for "nobody
   // grades their trades", wrong for "the grades didn't load and weren't cached".
   if (breakdown.error && breakdown.data == null) {
@@ -434,29 +449,29 @@ function ExecutionGradeCard({ ctx }: { ctx: ReportsMoneyContext }) {
 
   return (
     <DashboardCard title={t`Execution grade`}>
-      <View style={styles.rows}>
+      <View className="gap-2">
         {groups.map((group) => {
           const value = money.pnl(group.summary);
           const grade = gradeFromInt(Number(group.key));
           return (
-            <View key={group.key} style={styles.gradeRow}>
-              <Text style={styles.gradeLabel}>{grade || t`Unrated`}</Text>
-              <View style={styles.gradeBarTrack}>
+            <View key={group.key} className="gap-1">
+              <Text className="text-[13px] font-semibold text-foreground">
+                {grade || t`Unrated`}
+              </Text>
+              <View className="h-1.5 overflow-hidden rounded-[3px] bg-muted">
                 <View
-                  style={[
-                    styles.gradeBarFill,
-                    {
-                      width: `${Math.max(4, (Math.abs(value) / maxAbs) * 100)}%`,
-                      backgroundColor: pnlColor(theme.colors, value),
-                    },
-                  ]}
+                  className="h-full rounded-[3px]"
+                  style={{
+                    width: `${Math.max(4, (Math.abs(value) / maxAbs) * 100)}%`,
+                    backgroundColor: pnlColor(palette, value),
+                  }}
                 />
               </View>
-              <View style={styles.gradeMeta}>
-                <Text style={[styles.rowValue, { color: pnlColor(theme.colors, value) }]}>
+              <View className="flex-row items-baseline justify-between">
+                <Text className={cn('text-sm font-semibold tabular-nums', pnlClass(value))}>
                   {money.formatCompact(value)}
                 </Text>
-                <Text style={styles.rowMeta}>
+                <Text className="text-xs tabular-nums text-muted-foreground">
                   {t`${group.summary.wins}W ${group.summary.losses}L`} · PF{' '}
                   {formatRatio(group.summary.profit_factor)}
                 </Text>
@@ -495,13 +510,13 @@ export function OverviewSection({
     <SectionScaffold refreshing={refreshing} onScrolledChange={onScrolledChange}>
       {summary.isLoading ? (
         <>
-          <Skeleton style={styles.skeletonTall} />
-          <Skeleton style={styles.skeletonCard} />
+          <Skeleton className="h-[320px] rounded-[18px]" label={t`Loading report`} />
+          <Skeleton className="h-[200px] rounded-[18px]" />
         </>
       ) : summary.error && summary.data == null ? (
         // Boxed rather than flexed: the scaffold's scroll content has no height
         // of its own, so a `flex: 1` failure state would collapse to nothing.
-        <View style={styles.errorHost}>
+        <View className="min-h-[320px]">
           <ErrorState
             error={summary.error}
             onRetry={() => void summary.refetch()}
@@ -515,7 +530,7 @@ export function OverviewSection({
           {equity.data ? (
             <EquityCard curve={equity.data} currency={ctx.currency} fxRate={ctx.fxRate} />
           ) : equity.isLoading ? (
-            <Skeleton style={styles.skeletonCard} />
+            <Skeleton className="h-[200px] rounded-[18px]" />
           ) : null}
 
           <SummaryCard summary={summary.data} ctx={ctx} />
@@ -547,8 +562,11 @@ export function OverviewSection({
 
 /** Deep-dive screens pushed from Reports — one row each, App Store style. */
 function ExploreCard() {
-  const { theme } = useUnistyles();
   const router = useRouter();
+  const [heading, mutedForeground] = useCSSVariable([
+    '--color-heading',
+    '--color-muted-foreground',
+  ]) as [string, string];
   const links = [
     // The economic calendar lives on the Home tools menu — it's a start-of-day
     // lookup, not a review of what already happened.
@@ -560,108 +578,20 @@ function ExploreCard() {
   ];
   return (
     <DashboardCard title={t`Explore`}>
-      <View style={styles.exploreRows}>
+      <View className="gap-0.5">
         {links.map((link) => (
           <Pressable
             key={link.href}
             onPress={() => router.push(link.href)}
             accessibilityRole="button"
-            style={({ pressed }) => [styles.exploreRow, pressed && styles.explorePressed]}
+            className="flex-row items-center gap-3 py-2.5 active:opacity-60"
           >
-            <Icon name={link.icon} size={18} tintColor={theme.colors.accent} />
-            <Text style={styles.exploreLabel}>{link.label}</Text>
-            <Icon name="chevron.right" size={12} tintColor={theme.colors.mutedForeground} />
+            <Icon name={link.icon} size={18} tintColor={heading} />
+            <Text className="flex-1 text-[15px] font-medium text-foreground">{link.label}</Text>
+            <Icon name="chevron.right" size={12} tintColor={mutedForeground} />
           </Pressable>
         ))}
       </View>
     </DashboardCard>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  // Own surface: the card around it is `flush` so the tiles below sit on the
-  // page, but the headline is a statement rather than a tile.
-  hero: {
-    alignItems: 'center',
-    gap: theme.spacing.xs,
-    padding: theme.spacing.lg,
-    borderRadius: theme.radius.lg,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.card,
-    boxShadow: theme.shadows.card,
-  },
-  heroValue: { fontSize: 34, fontWeight: '600', letterSpacing: -1, ...theme.numeric },
-  heroCaption: { fontSize: 12, color: theme.colors.mutedForeground, ...theme.numeric },
-  edgeRow: { flexDirection: 'row', gap: theme.spacing.sm },
-  // Same surface as StatBar — these sit in the same grid, and a grey fill here
-  // against white tiles below split the screen down the middle.
-  edgeCell: {
-    flex: 1,
-    alignItems: 'center',
-    gap: theme.spacing.xs,
-    backgroundColor: theme.colors.card,
-    boxShadow: theme.shadows.card,
-    borderRadius: theme.radius.md,
-    borderCurve: 'continuous',
-    paddingVertical: theme.spacing.md,
-    paddingHorizontal: theme.spacing.sm,
-  },
-  edgeLabel: {
-    fontSize: 11,
-    fontWeight: '500',
-    color: theme.colors.mutedForeground,
-    letterSpacing: 0.3,
-  },
-  edgeValue: { fontSize: 16, fontWeight: '600', color: theme.colors.foreground, ...theme.numeric },
-  edgeSub: { fontSize: 12, fontWeight: '400', color: theme.colors.mutedForeground },
-  edgeSubCaption: { fontSize: 10, color: theme.colors.mutedForeground },
-  donut: { width: 84, height: 84 },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
-  chart: { height: 200 },
-  rows: { gap: theme.spacing.sm },
-  row: { flexDirection: 'row', alignItems: 'baseline', gap: theme.spacing.sm },
-  rowKey: { flexShrink: 1, fontSize: 14, fontWeight: '500', color: theme.colors.foreground },
-  rowMeta: { flex: 1, fontSize: 12, color: theme.colors.mutedForeground, ...theme.numeric },
-  rowValue: { fontSize: 14, fontWeight: '600', ...theme.numeric },
-  footnote: { fontSize: 12, color: theme.colors.mutedForeground },
-  empty: { fontSize: 13, color: theme.colors.mutedForeground, paddingVertical: theme.spacing.lg },
-  stripRail: { flexGrow: 0, marginHorizontal: -theme.spacing.lg },
-  strip: { gap: theme.spacing.sm, paddingHorizontal: theme.spacing.lg },
-  stripSkeleton: { height: 96, borderRadius: theme.radius.lg },
-  dayCell: {
-    width: 92,
-    gap: 2,
-    backgroundColor: theme.colors.muted,
-    borderRadius: theme.radius.md,
-    borderCurve: 'continuous',
-    paddingHorizontal: theme.spacing.sm + 2,
-    paddingVertical: theme.spacing.sm + 2,
-  },
-  dayCellWeekend: { opacity: 0.6 },
-  dayLabel: { fontSize: 10, fontWeight: '500', color: theme.colors.mutedForeground },
-  dayPnl: { fontSize: 14, fontWeight: '600', ...theme.numeric },
-  dayTrades: { fontSize: 10, color: theme.colors.mutedForeground, ...theme.numeric },
-  gradeRow: { gap: theme.spacing.xs },
-  gradeLabel: { fontSize: 13, fontWeight: '600', color: theme.colors.foreground },
-  gradeBarTrack: {
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: theme.colors.muted,
-    overflow: 'hidden',
-  },
-  gradeBarFill: { height: '100%', borderRadius: 3 },
-  gradeMeta: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
-  gradeSkeleton: { height: 160, borderRadius: theme.radius.lg },
-  exploreRows: { gap: 2 },
-  exploreRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing.md,
-    paddingVertical: theme.spacing.sm + 2,
-  },
-  explorePressed: { opacity: 0.6 },
-  exploreLabel: { flex: 1, fontSize: 15, fontWeight: '500', color: theme.colors.foreground },
-  skeletonTall: { height: 320, borderRadius: theme.radius.lg + 4 },
-  skeletonCard: { height: 200, borderRadius: theme.radius.lg + 4 },
-  errorHost: { minHeight: 320 },
-}));
