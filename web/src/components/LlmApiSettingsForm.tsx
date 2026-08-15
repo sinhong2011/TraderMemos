@@ -275,8 +275,8 @@ export function LlmApiSettingsForm({
           >
             {testing ? labels.testing : labels.test}
           </BtnGhost>
-          <BtnPrimary type="submit" disabled={saving}>
-            {saving ? "Saving…" : labels.save}
+          <BtnPrimary type="submit" loading={saving}>
+            {labels.save}
           </BtnPrimary>
         </div>
       </SettingsGroup>
