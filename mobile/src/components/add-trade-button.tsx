@@ -1,9 +1,10 @@
 import { useRouter } from 'expo-router';
-import { SymbolView } from 'expo-symbols';
 import { Pressable } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { t } from '@lingui/core/macro';
+
+import { Icon } from '@/components/icon';
 
 /**
  * Header-right "+" on Trades — straight to the trade form.
@@ -30,7 +31,7 @@ export function AddTradeButton() {
       accessibilityLabel={t`New trade`}
       style={({ pressed }) => [styles.button, pressed && styles.pressed]}
     >
-      <SymbolView name="plus" size={18} tintColor={theme.colors.foreground} weight="semibold" />
+      <Icon name="plus" size={18} tintColor={theme.colors.foreground} weight="semibold" />
     </Pressable>
   );
 }

@@ -1,8 +1,9 @@
-import { SymbolView } from 'expo-symbols';
+
 import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+import { Icon } from '@/components/icon';
 import { useFxRate } from '@/api/hooks';
 import { NumericField } from '@/components/numeric-field';
 import { Segmented } from '@/components/segmented';
@@ -80,7 +81,7 @@ export default function FxToolScreen() {
             accessibilityLabel={t`Swap currencies`}
             style={({ pressed }) => [styles.swapButton, pressed && styles.pressed]}
           >
-            <SymbolView name="arrow.up.arrow.down" size={16} tintColor={theme.colors.foreground} />
+            <Icon name="arrow.up.arrow.down" size={16} tintColor={theme.colors.foreground} />
           </Pressable>
         </View>
 

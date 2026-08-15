@@ -6,7 +6,7 @@ import {
 import { accessibilityLabel, buttonStyle, tint as tintModifier } from '@expo/ui/swift-ui/modifiers';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { File as FsFile } from 'expo-file-system';
-import { SymbolView, type SFSymbol } from 'expo-symbols';
+import { type SFSymbol } from 'expo-symbols';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
 import * as Sharing from 'expo-sharing';
@@ -23,6 +23,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { captureRef } from 'react-native-view-shot';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+import { Icon } from '@/components/icon';
 import { queryKeys, useAccounts, useApiRaw, useApiRequest, useTrade } from '@/api/hooks';
 import type { Account, BarInterval, MediaFile, TradeDetail } from '@/api/types';
 import { ChartCanvas, type ChartBand, type ChartMarker } from '@/components/chart-canvas';
@@ -415,7 +416,7 @@ function Stage({
               accessibilityLabel={t`Back`}
               style={({ pressed }) => pressed && styles.pressed}
             >
-              <SymbolView name="chevron.left" size={20} tintColor={theme.colors.foreground} />
+              <Icon name="chevron.left" size={20} tintColor={theme.colors.foreground} />
             </Pressable>
           ),
           headerRight: () =>
@@ -898,7 +899,7 @@ function BacktestStage({
               accessibilityLabel={t`Back`}
               style={({ pressed }) => pressed && styles.pressed}
             >
-              <SymbolView name="chevron.left" size={20} tintColor={theme.colors.foreground} />
+              <Icon name="chevron.left" size={20} tintColor={theme.colors.foreground} />
             </Pressable>
           ),
           headerRight: () =>

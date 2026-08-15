@@ -16,6 +16,9 @@
       "distribution": "internal",
       "ios": {
         "simulator": true
+      },
+      "android": {
+        "buildType": "apk"
       }
     },
     "preview": {
@@ -24,7 +27,10 @@
       "env": {
         "EXPO_NO_TELEMETRY": "1"
       },
-      "distribution": "internal"
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      }
     },
     "production": {
       "node": "25.6.1",
@@ -33,7 +39,10 @@
         "EXPO_NO_TELEMETRY": "1"
       },
       "distribution": "store",
-      "autoIncrement": true
+      "autoIncrement": true,
+      "android": {
+        "buildType": "app-bundle"
+      }
     }
   },
   "submit": {
@@ -43,6 +52,10 @@
         "appleTeamId": "FX3VR69P5K",
         "language": "en-US",
         "groups": ["Internal Testers"]
+      },
+      "android": {
+        "serviceAccountKeyPath": "../secrets/play-service-account.json",
+        "track": "internal"
       }
     }
   }

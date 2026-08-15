@@ -1,6 +1,8 @@
-import { SymbolView, type SFSymbol } from 'expo-symbols';
+import { type SFSymbol } from 'expo-symbols';
 import { useEffect, useState } from 'react';
 import type { ColorValue } from 'react-native';
+
+import { Icon } from '@/components/icon';
 import Reanimated, {
   interpolate,
   useAnimatedStyle,
@@ -64,10 +66,10 @@ export function AnimatedSymbolSwap({
   return (
     <Reanimated.View style={{ width: size, height: size }}>
       <Reanimated.View style={[fill, slotAStyle]}>
-        <SymbolView name={slots.a} size={size} tintColor={tintColor} />
+        <Icon name={slots.a} size={size} tintColor={tintColor} />
       </Reanimated.View>
       <Reanimated.View style={[fill, slotBStyle]}>
-        <SymbolView name={slots.b} size={size} tintColor={tintColor} />
+        <Icon name={slots.b} size={size} tintColor={tintColor} />
       </Reanimated.View>
     </Reanimated.View>
   );

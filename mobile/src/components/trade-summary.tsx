@@ -1,7 +1,8 @@
-import { SymbolView } from 'expo-symbols';
+
 import { Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+import { Icon } from '@/components/icon';
 import type { Setup, Tag } from '@/api/types';
 import { t } from '@lingui/core/macro';
 import { useFormatters, type MoneyFormatter } from '@/lib/format';
@@ -198,7 +199,7 @@ export function BlockSummary({
                   {formatPnl(preview.net, currency)}
                 </Text>
                 {preview.closed ? (
-                  <SymbolView
+                  <Icon
                     name="checkmark.circle.fill"
                     size={13}
                     tintColor={theme.colors.profit}

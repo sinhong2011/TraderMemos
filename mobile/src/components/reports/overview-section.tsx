@@ -5,7 +5,6 @@ import {
 } from '@expo/ui/swift-ui';
 import { font, gaugeStyle, tint } from '@expo/ui/swift-ui/modifiers';
 import { useRouter } from 'expo-router';
-import { SymbolView } from 'expo-symbols';
 import { useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -20,6 +19,7 @@ import {
   useTrades,
   type BreakdownDim,
 } from '@/api/hooks';
+import { Icon } from '@/components/icon';
 import type { RSummary, Summary } from '@/api/types';
 import { DashboardCard } from '@/components/dashboard-card';
 import { EquityCard } from '@/components/equity-card';
@@ -568,9 +568,9 @@ function ExploreCard() {
             accessibilityRole="button"
             style={({ pressed }) => [styles.exploreRow, pressed && styles.explorePressed]}
           >
-            <SymbolView name={link.icon} size={18} tintColor={theme.colors.accent} />
+            <Icon name={link.icon} size={18} tintColor={theme.colors.accent} />
             <Text style={styles.exploreLabel}>{link.label}</Text>
-            <SymbolView name="chevron.right" size={12} tintColor={theme.colors.mutedForeground} />
+            <Icon name="chevron.right" size={12} tintColor={theme.colors.mutedForeground} />
           </Pressable>
         ))}
       </View>

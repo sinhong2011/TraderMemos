@@ -1,7 +1,8 @@
-import { SymbolView } from 'expo-symbols';
+
 import { Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+import { Icon } from '@/components/icon';
 import { SectionHeader } from '@/components/form-rows';
 import { t } from '@lingui/core/macro';
 import { formatRatio, useFormatters } from '@/lib/format';
@@ -64,7 +65,7 @@ export function TradeResultCard({
             <View style={styles.positionRow}>
               <Text style={styles.tileValue}>{preview.positionQty}</Text>
               {preview.closed ? (
-                <SymbolView
+                <Icon
                   name="checkmark.circle.fill"
                   size={15}
                   tintColor={theme.colors.profit}

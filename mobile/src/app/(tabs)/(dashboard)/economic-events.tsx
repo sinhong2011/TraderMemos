@@ -1,5 +1,4 @@
 import { ContentUnavailableView } from '@expo/ui/swift-ui';
-import { SymbolView } from 'expo-symbols';
 import { Stack } from 'expo-router/stack';
 import { useHeaderHeight } from 'expo-router/react-navigation';
 import { useEffect, useRef, useState } from 'react';
@@ -16,6 +15,7 @@ import {
 } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+import { Icon } from '@/components/icon';
 import { useEconomicEvents } from '@/api/hooks';
 import { ApiError } from '@/api/client';
 import type { EconomicEvent } from '@/api/types';
@@ -214,7 +214,7 @@ function Stat({
       <Text style={styles.statLabel}>{label}</Text>
       <Text style={[styles.statValue, strong && styles.statValueStrong]}>{value}</Text>
       {trend !== 0 ? (
-        <SymbolView
+        <Icon
           name={trend > 0 ? 'arrow.up' : 'arrow.down'}
           size={9}
           weight="bold"
@@ -292,7 +292,7 @@ function EventRow({
               accessibilityLabel={bookmarked ? t`Remove reminder` : t`Remind me`}
               style={({ pressed }) => pressed && styles.pressed}
             >
-              <SymbolView
+              <Icon
                 name={bookmarked ? 'bell.fill' : 'bell'}
                 size={15}
                 tintColor={bookmarked ? theme.colors.primary : theme.colors.mutedForeground}

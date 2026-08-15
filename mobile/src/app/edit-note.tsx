@@ -1,10 +1,10 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { SymbolView } from 'expo-symbols';
 import { useState } from 'react';
 import { Alert, Pressable, Text } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+import { Icon } from '@/components/icon';
 import { useNote } from '@/api/hooks';
 import type { Note, NoteBody } from '@/api/types';
 import { ErrorState } from '@/components/error-state';
@@ -107,7 +107,7 @@ function EditNoteForm({ note }: { note: Note }) {
             accessibilityLabel={t`Delete note`}
             style={({ pressed }) => pressed && styles.pressed}
           >
-            <SymbolView name="trash" size={20} tintColor={theme.colors.destructive} />
+            <Icon name="trash" size={20} tintColor={theme.colors.destructive} />
           </Pressable>
         }
       />

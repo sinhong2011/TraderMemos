@@ -1,11 +1,11 @@
 import { ContentUnavailableView } from '@expo/ui/swift-ui';
 import { useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
-import { SymbolView } from 'expo-symbols';
 import { useMemo, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+import { Icon } from '@/components/icon';
 import { useAccounts, useBreakdown, useSetups } from '@/api/hooks';
 import type { BreakGroup, Setup } from '@/api/types';
 import { DashboardCard } from '@/components/dashboard-card';
@@ -162,7 +162,7 @@ export default function PlaybookScreen() {
         accessibilityLabel={t`New setup`}
         style={({ pressed }) => [styles.addButton, pressed && styles.pressed]}
       >
-        <SymbolView name="plus" size={18} tintColor={theme.colors.foreground} weight="semibold" />
+        <Icon name="plus" size={18} tintColor={theme.colors.foreground} weight="semibold" />
       </Pressable>
     </View>
   );

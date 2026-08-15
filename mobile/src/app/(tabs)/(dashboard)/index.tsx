@@ -1,7 +1,6 @@
 import { ContentUnavailableView } from '@expo/ui/swift-ui';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
-import { SymbolView } from 'expo-symbols';
 import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -13,6 +12,7 @@ import {
   useSummary,
   useTrades,
 } from '@/api/hooks';
+import { Icon } from '@/components/icon';
 import { BreakdownCard } from '@/components/breakdown-card';
 import { ChecklistCard } from '@/components/checklist-card';
 import { DailyLossCard } from '@/components/daily-loss-card';
@@ -202,7 +202,7 @@ export default function DashboardScreen() {
           accessibilityRole="button"
           style={({ pressed }) => [styles.quickLink, pressed && styles.quickLinkPressed]}
         >
-          <SymbolView name="note.text" size={20} tintColor={theme.colors.accent} />
+          <Icon name="note.text" size={20} tintColor={theme.colors.accent} />
           <Text style={styles.quickLinkLabel}>{t`Notes`}</Text>
         </Pressable>
         <Pressable
@@ -210,7 +210,7 @@ export default function DashboardScreen() {
           accessibilityRole="button"
           style={({ pressed }) => [styles.quickLink, pressed && styles.quickLinkPressed]}
         >
-          <SymbolView name="book" size={20} tintColor={theme.colors.accent} />
+          <Icon name="book" size={20} tintColor={theme.colors.accent} />
           <Text style={styles.quickLinkLabel}>{t`Playbook`}</Text>
         </Pressable>
       </View>

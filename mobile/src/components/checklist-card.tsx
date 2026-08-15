@@ -1,10 +1,10 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
-import { SymbolView } from 'expo-symbols';
 import { useRef, useState } from 'react';
 import { Alert, Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+import { Icon } from '@/components/icon';
 import { queryKeys, useChecklistTemplate, useNotes } from '@/api/hooks';
 import type { Note, NoteBody } from '@/api/types';
 import { DashboardCard } from '@/components/dashboard-card';
@@ -206,7 +206,7 @@ export function ChecklistCard() {
             hitSlop={4}
             style={({ pressed }) => [styles.row, pressed && styles.pressed]}
           >
-            <SymbolView
+            <Icon
               name={row.done ? 'checkmark.circle.fill' : 'circle'}
               size={20}
               tintColor={row.done ? theme.colors.profit : theme.colors.mutedForeground}

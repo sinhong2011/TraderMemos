@@ -1,5 +1,4 @@
 import { t } from '@lingui/core/macro';
-import { SymbolView } from 'expo-symbols';
 import { useEffect } from 'react';
 import { Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
@@ -10,6 +9,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+import { Icon } from '@/components/icon';
 import { tick } from '@/lib/haptics';
 
 /**
@@ -43,7 +43,7 @@ function Star({ filled, tint }: { filled: boolean; tint: string }) {
   const pop = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
   return (
     <Animated.View style={pop}>
-      <SymbolView name={filled ? 'star.fill' : 'star'} size={STAR_SIZE} tintColor={tint} />
+      <Icon name={filled ? 'star.fill' : 'star'} size={STAR_SIZE} tintColor={tint} />
     </Animated.View>
   );
 }

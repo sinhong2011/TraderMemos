@@ -1,9 +1,10 @@
-import { SymbolView } from 'expo-symbols';
+
 import { useMemo, useState } from 'react';
 import { Pressable, Text, View, type LayoutChangeEvent } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+import { Icon } from '@/components/icon';
 import type { BarInterval, MarketBar } from '@/api/types';
 import { locale } from '@/i18n';
 
@@ -308,7 +309,7 @@ export function ChartCanvas({
       {placedMarkers.map((marker) => {
         const glyph = (
           <>
-            <SymbolView
+            <Icon
               name={marker.isBuy ? 'arrowtriangle.up.fill' : 'arrowtriangle.down.fill'}
               size={9}
               tintColor={marker.color ?? (marker.isBuy ? theme.colors.profit : theme.colors.mutedForeground)}

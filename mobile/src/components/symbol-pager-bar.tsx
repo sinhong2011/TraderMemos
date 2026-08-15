@@ -1,4 +1,4 @@
-import { SymbolView } from 'expo-symbols';
+
 import { useEffect } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import Animated, {
@@ -10,6 +10,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+import { Icon } from '@/components/icon';
 import { GlassIconButton } from '@/components/glass-button';
 
 /**
@@ -135,7 +136,7 @@ function SymbolTab({
             accessibilityLabel={removeLabel}
             style={({ pressed }) => pressed && styles.pressed}
           >
-            <SymbolView
+            <Icon
               name="xmark.circle.fill"
               size={15}
               tintColor={theme.colors.mutedForeground}

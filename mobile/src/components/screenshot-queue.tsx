@@ -11,11 +11,11 @@ import {
 import * as DocumentPicker from 'expo-document-picker';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
-import { SymbolView } from 'expo-symbols';
 import { Alert, Pressable, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { t } from '@lingui/core/macro';
+import { Icon } from '@/components/icon';
 import { getJournalPrefs } from '@/lib/journal-prefs';
 import type { QueuedScreenshot } from '@/lib/trade-form';
 import { AppHost } from '@/components/app-host';
@@ -109,7 +109,7 @@ export function ScreenshotQueue({
             >
               <Image source={{ uri: shot.uri }} style={styles.thumb} contentFit="cover" />
               <View style={styles.removeBadge}>
-                <SymbolView name="xmark" size={9} weight="bold" tintColor="#FFFFFF" />
+                <Icon name="xmark" size={9} weight="bold" tintColor="#FFFFFF" />
               </View>
             </Pressable>
           ))}

@@ -3,10 +3,10 @@ import {
   Menu,
 } from '@expo/ui/swift-ui';
 import { labelStyle, tint } from '@expo/ui/swift-ui/modifiers';
-import { SymbolView } from 'expo-symbols';
 import { Alert, Platform, Pressable } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+import { Icon } from '@/components/icon';
 import { useAccounts } from '@/api/hooks';
 import { setSelectedAccountId, useSelectedAccountId } from '@/lib/account-store';
 import { t } from '@lingui/core/macro';
@@ -54,7 +54,7 @@ export function AccountMenu() {
         accessibilityLabel={t`Switch account`}
         style={({ pressed }) => [styles.button, pressed && styles.pressed]}
       >
-        <SymbolView name={icon} size={18} tintColor={theme.colors.foreground} />
+        <Icon name={icon} size={18} tintColor={theme.colors.foreground} />
       </Pressable>
     );
   }

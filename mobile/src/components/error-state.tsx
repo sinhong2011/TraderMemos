@@ -15,12 +15,13 @@
 
 import { ContentUnavailableView } from '@expo/ui/swift-ui';
 import { t } from '@lingui/core/macro';
-import { SymbolView, type SFSymbol } from 'expo-symbols';
+import { type SFSymbol } from 'expo-symbols';
 import { useEffect } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 import { create } from 'zustand';
 
+import { Icon } from '@/components/icon';
 import { NetworkError } from '@/api/client';
 import { useSession } from '@/api/session';
 import { AppHost } from '@/components/app-host';
@@ -114,7 +115,7 @@ export function InlineError({ error, onRetry }: { error: unknown; onRetry?: () =
 
   return (
     <View style={styles.inline}>
-      <SymbolView name={systemImage} size={15} tintColor={styles.inlineIcon.color} />
+      <Icon name={systemImage} size={15} tintColor={styles.inlineIcon.color} />
       <Text style={styles.inlineLabel} numberOfLines={2}>
         {title}
       </Text>
@@ -154,7 +155,7 @@ export function OfflineBanner() {
   return (
     <View style={styles.bannerWrap} pointerEvents="none">
       <View style={styles.banner}>
-        <SymbolView name="wifi.slash" size={13} tintColor={styles.bannerIcon.color} />
+        <Icon name="wifi.slash" size={13} tintColor={styles.bannerIcon.color} />
         <Text style={styles.bannerLabel} numberOfLines={1}>
           {serverHost ? t`Can't reach ${serverHost}` : t`Can't reach the server`}
         </Text>

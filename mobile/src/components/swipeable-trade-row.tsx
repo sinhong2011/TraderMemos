@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
-import { SymbolView, type SFSymbol } from 'expo-symbols';
+import { type SFSymbol } from 'expo-symbols';
 import { useEffect, useRef } from 'react';
 import { Alert, Pressable, Text, View } from 'react-native';
 import ReanimatedSwipeable, {
@@ -8,6 +8,7 @@ import ReanimatedSwipeable, {
 } from 'react-native-gesture-handler/ReanimatedSwipeable';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+import { Icon } from '@/components/icon';
 import { useApiRequest } from '@/api/hooks';
 import type { Trade } from '@/api/types';
 import { TradeRow } from '@/components/trade-row';
@@ -40,7 +41,7 @@ function SwipeAction({
         pressed && styles.pressed,
       ]}
     >
-      <SymbolView name={icon} size={17} tintColor="#FFFFFF" />
+      <Icon name={icon} size={17} tintColor="#FFFFFF" />
       <Text style={styles.swipeLabel} numberOfLines={1}>
         {label}
       </Text>

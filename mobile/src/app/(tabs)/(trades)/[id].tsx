@@ -7,11 +7,11 @@ import { accessibilityLabel, buttonStyle, tint as tintModifier } from '@expo/ui/
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
-import { SymbolView } from 'expo-symbols';
 import { useState, type ReactNode } from 'react';
 import { Alert, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+import { Icon } from '@/components/icon';
 import { ApiError } from '@/api/client';
 import { queryKeys, useApiRequest, useCachedTradeRow, useTrade } from '@/api/hooks';
 import type { ExcursionResult, Trade, TradeDetail } from '@/api/types';
@@ -120,7 +120,7 @@ function SymbolChip({ symbol, market }: { symbol: string; market: string }) {
       accessibilityLabel={t`Symbol journal for ${symbol}`}
       style={({ pressed }) => [styles.symbolChip, pressed && styles.pressed]}
     >
-      <SymbolView name="chart.xyaxis.line" size={11} tintColor={theme.colors.mutedForeground} />
+      <Icon name="chart.xyaxis.line" size={11} tintColor={theme.colors.mutedForeground} />
       <Text style={styles.symbolChipText} numberOfLines={1}>
         {symbol}
       </Text>

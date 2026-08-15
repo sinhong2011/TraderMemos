@@ -2,7 +2,8 @@ import { t } from '@lingui/core/macro';
 import { useState, type Ref } from 'react';
 import { Pressable, TextInput, View, type TextInputProps } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import { SymbolView } from 'expo-symbols';
+
+import { Icon } from '@/components/icon';
 
 type PasswordInputProps = Omit<TextInputProps, 'secureTextEntry'> & {
   ref?: Ref<TextInput>;
@@ -36,7 +37,7 @@ export function PasswordInput({ ref, style, ...props }: PasswordInputProps) {
         hitSlop={8}
         style={({ pressed }) => [styles.toggle, pressed && styles.togglePressed]}
       >
-        <SymbolView
+        <Icon
           name={visible ? 'eye.slash' : 'eye'}
           size={18}
           tintColor={theme.colors.mutedForeground}

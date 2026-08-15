@@ -1,10 +1,10 @@
 import { useRouter } from 'expo-router';
-import { SymbolView } from 'expo-symbols';
 import { useEffect } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+import { Icon } from '@/components/icon';
 import { useAccounts, useCash, useSummary } from '@/api/hooks';
 import { AppHost } from '@/components/app-host';
 import { CenteredButton } from '@/components/centered-button';
@@ -148,7 +148,7 @@ export default function TradePreviewScreen() {
                     {batch.closedCount}/{priced}
                   </Text>
                   {batch.closedCount === priced ? (
-                    <SymbolView
+                    <Icon
                       name="checkmark.circle.fill"
                       size={13}
                       tintColor={theme.colors.profit}

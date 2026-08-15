@@ -1,4 +1,4 @@
-import { SymbolView } from 'expo-symbols';
+
 import { useRef, useState, type ReactNode } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import ReanimatedSwipeable, {
@@ -7,6 +7,7 @@ import ReanimatedSwipeable, {
 import Animated, { FadeInDown, LinearTransition, SlideOutLeft } from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+import { Icon } from '@/components/icon';
 import type { Account, Setup, Tag } from '@/api/types';
 import { AccountPill } from '@/components/account-pill';
 import { ChipGroup } from '@/components/chips';
@@ -195,7 +196,7 @@ function FillCard({
           accessibilityLabel={t`Duplicate fill`}
           style={({ pressed }) => [styles.swipeDuplicate, pressed && styles.pressed]}
         >
-          <SymbolView name="plus.square.on.square" size={18} tintColor="#FFFFFF" />
+          <Icon name="plus.square.on.square" size={18} tintColor="#FFFFFF" />
         </Pressable>
       )}
       renderRightActions={
@@ -207,7 +208,7 @@ function FillCard({
                 accessibilityLabel={t`Remove fill`}
                 style={({ pressed }) => [styles.swipeDelete, pressed && styles.pressed]}
               >
-                <SymbolView name="trash.fill" size={18} tintColor="#FFFFFF" />
+                <Icon name="trash.fill" size={18} tintColor="#FFFFFF" />
               </Pressable>
             )
           : undefined

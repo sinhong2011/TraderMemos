@@ -4,6 +4,7 @@
   "version": "0.8.5",
   "packageManager": "pnpm@11.16.0",
   "dependencies": {
+    "@expo/material-symbols": "^0.1.1",
     "@expo/ui": "~57.0.9",
     "@lingui/core": "^5.9.5",
     "@lingui/react": "^5.9.5",
@@ -71,6 +72,7 @@
     "web": "expo start --web",
     "lint": "expo lint",
     "check": "tsc --noEmit",
+    "check-icons": "node scripts/check-icon-map.mjs",
     "doctor": "pnpm dlx expo-doctor",
     "i18n:extract": "lingui extract",
     "i18n:compile": "lingui compile --typescript --namespace es"

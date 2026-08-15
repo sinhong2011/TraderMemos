@@ -1,8 +1,9 @@
 import { useRouter } from 'expo-router';
-import { SymbolView, type SFSymbol } from 'expo-symbols';
+import { type SFSymbol } from 'expo-symbols';
 import { ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+import { Icon } from '@/components/icon';
 import { useSetups, useTags } from '@/api/hooks';
 import { ChipGroup } from '@/components/chips';
 import { GlassIconButton } from '@/components/glass-button';
@@ -24,7 +25,7 @@ function Section({
   return (
     <View style={styles.sectionCard}>
       <View style={styles.sectionHeader}>
-        <SymbolView name={icon} size={13} tintColor={theme.colors.mutedForeground} />
+        <Icon name={icon} size={13} tintColor={theme.colors.mutedForeground} />
         <Text style={styles.section}>{label}</Text>
       </View>
       {children}

@@ -12,11 +12,11 @@ import * as DocumentPicker from 'expo-document-picker';
 import { File as FsFile } from 'expo-file-system';
 import { Image, type ImageSource } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
-import { SymbolView } from 'expo-symbols';
 import { useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+import { Icon } from '@/components/icon';
 import { useApiRaw, useApiRequest } from '@/api/hooks';
 import { useSession } from '@/api/session';
 import type { MediaFile } from '@/api/types';
@@ -189,7 +189,7 @@ export function NoteImageStrip({ images }: { images: NoteImagesController }) {
             transition={150}
           />
           <View style={styles.removeBadge}>
-            <SymbolView name="xmark" size={9} weight="bold" tintColor="#FFFFFF" />
+            <Icon name="xmark" size={9} weight="bold" tintColor="#FFFFFF" />
           </View>
         </Pressable>
       ))}

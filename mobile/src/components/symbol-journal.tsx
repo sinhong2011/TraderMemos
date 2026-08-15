@@ -1,11 +1,11 @@
 import { ContentUnavailableView } from '@expo/ui/swift-ui';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
-import { SymbolView } from 'expo-symbols';
 import { useEffect, useMemo, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+import { Icon } from '@/components/icon';
 import { useMarketBars, useTradeDetails, useTrades } from '@/api/hooks';
 import type { BarInterval } from '@/api/types';
 import {
@@ -439,7 +439,7 @@ export default function SymbolJournalScreen() {
                   />
                   {data.length > 1 ? (
                     <View style={styles.replayBadge}>
-                      <SymbolView
+                      <Icon
                         name="play.fill"
                         size={10}
                         tintColor={theme.colors.background}

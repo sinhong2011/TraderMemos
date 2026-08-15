@@ -1,8 +1,8 @@
 import { Link } from 'expo-router';
-import { SymbolView } from 'expo-symbols';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+import { Icon } from '@/components/icon';
 import type { Trade } from '@/api/types';
 import { t } from '@lingui/core/macro';
 import { formatDuration, useFormatters } from '@/lib/format';
@@ -110,7 +110,7 @@ export function TradeRow({ trade, showDate = true }: { trade: Trade; showDate?: 
                   {meta}
                 </Text>
                 {hasNotes ? (
-                  <SymbolView
+                  <Icon
                     name="square.and.pencil"
                     size={11}
                     tintColor={theme.colors.mutedForeground}

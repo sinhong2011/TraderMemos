@@ -1,11 +1,11 @@
 import { ColorPicker } from '@expo/ui/swift-ui';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { SymbolView } from 'expo-symbols';
 import { useState } from 'react';
 import { Alert, Pressable, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
+import { Icon } from '@/components/icon';
 import { queryKeys, useApiRequest, useTags } from '@/api/hooks';
 import type { Tag } from '@/api/types';
 import { FormField, FormFootnote, FormInput, FormSheet } from '@/components/form-sheet';
@@ -105,7 +105,7 @@ export default function NewTagScreen() {
               ]}
             >
               {color.toLowerCase() === swatch ? (
-                <SymbolView name="checkmark" size={14} tintColor="#FFFFFF" weight="bold" />
+                <Icon name="checkmark" size={14} tintColor="#FFFFFF" weight="bold" />
               ) : null}
             </Pressable>
           ))}

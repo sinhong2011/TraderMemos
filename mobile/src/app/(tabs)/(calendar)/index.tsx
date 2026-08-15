@@ -2,7 +2,6 @@
 // views inside its pages, which killed day-cell selection on these boards.
 import PagerView from 'react-native-pager-view';
 import { Stack, useRouter } from 'expo-router';
-import { SymbolView } from 'expo-symbols';
 import { useMemo, useRef, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import Animated, {
@@ -15,6 +14,7 @@ import Animated, {
 import { SafeAreaView } from 'react-native-screens/experimental';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+import { Icon } from '@/components/icon';
 import type { Trade } from '@/api/types';
 import { useAccounts, useCash, useDaily, useEquityCurve, useTrades } from '@/api/hooks';
 import { ErrorState } from '@/components/error-state';
@@ -504,7 +504,7 @@ export default function CalendarScreen() {
                 accessibilityLabel={t`Previous`}
                 style={({ pressed }) => [styles.pagerButton, pressed && styles.pressed]}
               >
-                <SymbolView name="chevron.left" size={15} tintColor={theme.colors.foreground} />
+                <Icon name="chevron.left" size={15} tintColor={theme.colors.foreground} />
               </Pressable>
               <Pressable
                 onPress={() => pagerRef.current?.setPage(2)}
@@ -513,7 +513,7 @@ export default function CalendarScreen() {
                 accessibilityLabel={t`Next`}
                 style={({ pressed }) => [styles.pagerButton, pressed && styles.pressed]}
               >
-                <SymbolView name="chevron.right" size={15} tintColor={theme.colors.foreground} />
+                <Icon name="chevron.right" size={15} tintColor={theme.colors.foreground} />
               </Pressable>
             </View>
           ),

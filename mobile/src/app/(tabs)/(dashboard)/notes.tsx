@@ -3,7 +3,6 @@ import { FlashList } from '@shopify/flash-list';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
-import { SymbolView } from 'expo-symbols';
 import { useMemo, useRef, useState } from 'react';
 import { Alert, Pressable, RefreshControl, Text, View } from 'react-native';
 import ReanimatedSwipeable, {
@@ -11,6 +10,7 @@ import ReanimatedSwipeable, {
 } from 'react-native-gesture-handler/ReanimatedSwipeable';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+import { Icon } from '@/components/icon';
 import { useNotes } from '@/api/hooks';
 import type { Note } from '@/api/types';
 import { ErrorState } from '@/components/error-state';
@@ -98,7 +98,7 @@ function NoteRow({
             pressed && styles.pressed,
           ]}
         >
-          <SymbolView name="trash.fill" size={17} tintColor="#FFFFFF" />
+          <Icon name="trash.fill" size={17} tintColor="#FFFFFF" />
           <Text style={styles.swipeLabel} numberOfLines={1}>
             {t`Delete`}
           </Text>
@@ -183,7 +183,7 @@ export default function NotesScreen() {
       accessibilityLabel={t`New note`}
       style={({ pressed }) => [styles.addButton, pressed && styles.pressed]}
     >
-      <SymbolView name="plus" size={18} tintColor={theme.colors.foreground} weight="semibold" />
+      <Icon name="plus" size={18} tintColor={theme.colors.foreground} weight="semibold" />
     </Pressable>
   );
 

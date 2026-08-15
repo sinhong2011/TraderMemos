@@ -1,7 +1,9 @@
-import { SymbolView } from 'expo-symbols';
+
 import type { SFSymbol } from 'expo-symbols';
 import { Pressable } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+
+import { Icon } from '@/components/icon';
 
 /**
  * Icon action for a **native** nav bar (`headerRight`) — the shape
@@ -39,7 +41,7 @@ export function HeaderIconButton({
       accessibilityState={{ disabled: Boolean(disabled) }}
       style={({ pressed }) => [styles.button, pressed && !disabled && styles.pressed]}
     >
-      <SymbolView
+      <Icon
         name={systemImage}
         size={18}
         weight="semibold"

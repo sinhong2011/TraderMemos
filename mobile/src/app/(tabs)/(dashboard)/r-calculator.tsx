@@ -1,10 +1,11 @@
-import { SymbolView } from 'expo-symbols';
+
 import { useHeaderHeight } from 'expo-router/react-navigation';
 import { Stack } from 'expo-router/stack';
 import { Children, Fragment, useState, type ReactNode } from 'react';
 import { Alert, Keyboard, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+import { Icon } from '@/components/icon';
 import { DashboardCard } from '@/components/dashboard-card';
 import { GlassButton } from '@/components/glass-button';
 import { NumericField } from '@/components/numeric-field';
@@ -78,7 +79,7 @@ function WarningList({ warns }: { warns: Warning[] }) {
     <View style={styles.warnings}>
       {warns.map((warning) => (
         <View key={warning.key} style={styles.warningRow}>
-          <SymbolView
+          <Icon
             name={warning.tone === 'ok' ? 'checkmark.circle' : 'exclamationmark.triangle'}
             size={13}
             tintColor={tint(warning.tone)}
@@ -436,7 +437,7 @@ function RPanel({ session }: { session: Session }) {
                 accessibilityLabel={t`Remove tier`}
                 style={({ pressed }) => [styles.fieldControl, pressed && styles.pressed]}
               >
-                <SymbolView name="minus.circle" size={18} tintColor={theme.colors.destructive} />
+                <Icon name="minus.circle" size={18} tintColor={theme.colors.destructive} />
               </Pressable>
             </View>
             <NumberRow

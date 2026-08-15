@@ -1,7 +1,8 @@
-import { SymbolView, type SFSymbol } from 'expo-symbols';
+import { type SFSymbol } from 'expo-symbols';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+import { Icon } from '@/components/icon';
 import { EquityStrip } from '@/components/equity-strip';
 import { t } from '@lingui/core/macro';
 import { useFormatters } from '@/lib/format';
@@ -94,7 +95,7 @@ export function ReplayControls({
         pressed && styles.pressed,
       ]}
     >
-      <SymbolView
+      <Icon
         name={icon}
         size={primary ? 20 : 15}
         tintColor={primary ? theme.colors.background : theme.colors.foreground}

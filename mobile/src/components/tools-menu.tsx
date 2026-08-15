@@ -6,11 +6,12 @@ import {
 } from '@expo/ui/swift-ui';
 import { accessibilityLabel, buttonStyle, tint } from '@expo/ui/swift-ui/modifiers';
 import { useRouter, type Href } from 'expo-router';
-import { SymbolView, type SFSymbol } from 'expo-symbols';
+import { type SFSymbol } from 'expo-symbols';
 import { Platform, Pressable } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { t } from '@lingui/core/macro';
+import { Icon } from '@/components/icon';
 import { AppHost } from '@/components/app-host';
 import { useTradingSession } from '@/lib/live-activity';
 
@@ -95,7 +96,7 @@ export function ToolsMenu() {
         accessibilityLabel={t`Tools`}
         style={({ pressed }) => [styles.button, pressed && styles.pressed]}
       >
-        <SymbolView name="wrench.and.screwdriver" size={17} tintColor={theme.colors.foreground} />
+        <Icon name="wrench.and.screwdriver" size={17} tintColor={theme.colors.foreground} />
       </Pressable>
     );
   }

@@ -1,9 +1,9 @@
 import { useRouter } from 'expo-router';
-import { SymbolView } from 'expo-symbols';
 import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+import { Icon } from '@/components/icon';
 import type { TradeDetail } from '@/api/types';
 import {
   ChartCanvas,
@@ -83,7 +83,7 @@ export function TradeChart({ trade }: { trade: TradeDetail }) {
             accessibilityLabel={t`Replay this trade`}
             style={({ pressed }) => [styles.replayBadge, pressed && styles.pressed]}
           >
-            <SymbolView name="play.fill" size={10} tintColor={theme.colors.background} />
+            <Icon name="play.fill" size={10} tintColor={theme.colors.background} />
             <Text style={styles.replayLabel}>{t`Replay`}</Text>
           </Pressable>
         ) : null

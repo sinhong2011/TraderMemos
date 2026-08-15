@@ -1,5 +1,4 @@
 import { Image } from 'expo-image';
-import { SymbolView } from 'expo-symbols';
 import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, Text, View } from 'react-native';
 import Animated, {
@@ -19,6 +18,7 @@ import Animated, {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+import { Icon } from '@/components/icon';
 import { useApiRaw } from '@/api/hooks';
 import type { TradeExtract } from '@/api/types';
 import { AppHost } from '@/components/app-host';
@@ -90,14 +90,14 @@ function StatusGlyph({ status }: { status: FileStatus }) {
   const { theme } = useUnistyles();
   switch (status) {
     case 'pending':
-      return <SymbolView name="clock" size={16} tintColor={theme.colors.mutedForeground} />;
+      return <Icon name="clock" size={16} tintColor={theme.colors.mutedForeground} />;
     case 'parsing':
       return <ActivityIndicator size="small" color={theme.colors.mutedForeground} />;
     case 'done':
-      return <SymbolView name="checkmark.circle.fill" size={18} tintColor={theme.colors.profit} />;
+      return <Icon name="checkmark.circle.fill" size={18} tintColor={theme.colors.profit} />;
     case 'error':
       return (
-        <SymbolView name="exclamationmark.circle.fill" size={18} tintColor={theme.colors.loss} />
+        <Icon name="exclamationmark.circle.fill" size={18} tintColor={theme.colors.loss} />
       );
   }
 }
@@ -114,7 +114,7 @@ function FileRow({ state, index }: { state: FileState; index: number }) {
           <Image source={{ uri: state.source.uri }} style={styles.fileThumb} contentFit="cover" />
         ) : (
           <View style={styles.fileDoc}>
-            <SymbolView name="doc.text" size={20} tintColor={theme.colors.mutedForeground} />
+            <Icon name="doc.text" size={20} tintColor={theme.colors.mutedForeground} />
           </View>
         )}
         {scanning ? <ScanBeam travel={40} /> : null}
@@ -273,7 +273,7 @@ export function TradeScanOverlay({
                         index > 0 && styles.receiptThumbStacked,
                       ]}
                     >
-                      <SymbolView
+                      <Icon
                         name="doc.text"
                         size={14}
                         tintColor={theme.colors.mutedForeground}
@@ -285,7 +285,7 @@ export function TradeScanOverlay({
               <Text style={styles.receiptLabel}>
                 {parsedCount === 1 ? t`1 file scanned` : t`${parsedCount} files scanned`}
               </Text>
-              <SymbolView
+              <Icon
                 name="checkmark.circle.fill"
                 size={18}
                 tintColor={theme.colors.profit}
@@ -333,7 +333,7 @@ export function TradeScanOverlay({
               >
                 {prefill.warnings.map((warning, index) => (
                   <View key={index} style={styles.warningRow}>
-                    <SymbolView
+                    <Icon
                       name="exclamationmark.triangle.fill"
                       size={13}
                       tintColor={theme.colors.flat}

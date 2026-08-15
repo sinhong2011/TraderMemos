@@ -1,7 +1,6 @@
 import { useForm } from '@tanstack/react-form';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
-import { SymbolView } from 'expo-symbols';
 import { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
@@ -18,6 +17,7 @@ import {
 } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+import { Icon } from '@/components/icon';
 import { ApiError, login, ping } from '@/api/client';
 import { PasswordInput } from '@/components/password-input';
 import { loadServerUrl, normalizeServerUrl, useSession } from '@/api/session';
@@ -201,7 +201,7 @@ export default function LoginScreen() {
                 reaches a field it cannot fill. */}
             <View style={styles.notice}>
               <View style={styles.noticeIcon}>
-                <SymbolView
+                <Icon
                   name="externaldrive.badge.wifi"
                   size={17}
                   tintColor={theme.colors.primary}
@@ -218,7 +218,7 @@ export default function LoginScreen() {
                   style={({ pressed }) => [styles.noticeLinkRow, pressed && styles.pressed]}
                 >
                   <Text style={styles.noticeLink}>{t`How to set one up`}</Text>
-                  <SymbolView
+                  <Icon
                     name="arrow.up.forward"
                     size={11}
                     tintColor={theme.colors.primary}
@@ -333,7 +333,7 @@ export default function LoginScreen() {
 
             {error ? (
               <View style={[styles.card, styles.alert]}>
-                <SymbolView
+                <Icon
                   name="exclamationmark.circle"
                   size={18}
                   tintColor={theme.colors.destructive}
@@ -388,7 +388,7 @@ function ProbeChip({ probe }: { probe: Probe | null }) {
   const reachable = probe.state === 'reachable';
   return (
     <View style={styles.probe}>
-      <SymbolView
+      <Icon
         name={reachable ? 'checkmark.circle.fill' : 'exclamationmark.circle.fill'}
         size={13}
         tintColor={reachable ? theme.colors.profit : theme.colors.destructive}

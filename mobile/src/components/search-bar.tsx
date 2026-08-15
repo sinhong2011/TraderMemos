@@ -1,5 +1,4 @@
 import { GlassView } from 'expo-glass-effect';
-import { SymbolView } from 'expo-symbols';
 import { useEffect, useRef } from 'react';
 import { Pressable, TextInput, View } from 'react-native';
 import Reanimated, {
@@ -11,6 +10,7 @@ import Reanimated, {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+import { Icon } from '@/components/icon';
 import { AnimatedSymbolSwap } from '@/components/animated-symbol-swap';
 
 /** The header magnifier that opens the bar — `xmark` while it is open. */
@@ -142,7 +142,7 @@ export function FloatingSearchBar({
     >
       <GlassView style={styles.floatGlass} glassEffectStyle="regular" isInteractive>
         <View style={styles.floatRow}>
-          <SymbolView name="magnifyingglass" size={16} tintColor={theme.colors.mutedForeground} />
+          <Icon name="magnifyingglass" size={16} tintColor={theme.colors.mutedForeground} />
           <TextInput
             ref={input}
             value={value}
@@ -160,7 +160,7 @@ export function FloatingSearchBar({
             hitSlop={10}
             accessibilityRole="button"
           >
-            <SymbolView
+            <Icon
               name="xmark.circle.fill"
               size={16}
               tintColor={theme.colors.mutedForeground}

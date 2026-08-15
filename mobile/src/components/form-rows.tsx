@@ -1,5 +1,4 @@
 import { DatePicker } from '@expo/ui/swift-ui';
-import { SymbolView } from 'expo-symbols';
 import { Children, Fragment, useState, type ReactNode } from 'react';
 import { Pressable, Text, TextInput, View, type TextInputProps } from 'react-native';
 import Animated, {
@@ -9,6 +8,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+import { Icon } from '@/components/icon';
 import { NumericField } from '@/components/numeric-field';
 import { AppHost } from '@/components/app-host';
 import { TimePicker } from '@/components/time-picker';
@@ -89,7 +89,7 @@ export function CollapsibleSection({
       >
         <Text style={styles.collapseLabel}>{label}</Text>
         <Animated.View style={chevron}>
-          <SymbolView
+          <Icon
             name="chevron.forward"
             size={11}
             weight="semibold"

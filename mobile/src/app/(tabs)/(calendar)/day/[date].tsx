@@ -1,7 +1,6 @@
 import { Chart } from '@expo/ui/swift-ui';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
-import { SymbolView } from 'expo-symbols';
 import { useMemo } from 'react';
 import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -14,6 +13,7 @@ import {
   useSummary,
   useTrades,
 } from '@/api/hooks';
+import { Icon } from '@/components/icon';
 import type { BehaviorReport, ComplianceReport, Note, Trade } from '@/api/types';
 import { DashboardCard } from '@/components/dashboard-card';
 import { InlineError } from '@/components/error-state';
@@ -263,7 +263,7 @@ export default function CalendarDayScreen() {
                 accessibilityLabel={t`Previous day`}
                 style={({ pressed }) => [styles.headerButton, pressed && styles.pressed]}
               >
-                <SymbolView name="chevron.left" size={15} tintColor={theme.colors.foreground} />
+                <Icon name="chevron.left" size={15} tintColor={theme.colors.foreground} />
               </Pressable>
               <Pressable
                 onPress={() => stepDay(1)}
@@ -272,7 +272,7 @@ export default function CalendarDayScreen() {
                 accessibilityLabel={t`Next day`}
                 style={({ pressed }) => [styles.headerButton, pressed && styles.pressed]}
               >
-                <SymbolView name="chevron.right" size={15} tintColor={theme.colors.foreground} />
+                <Icon name="chevron.right" size={15} tintColor={theme.colors.foreground} />
               </Pressable>
             </View>
           ),

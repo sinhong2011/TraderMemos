@@ -1,11 +1,11 @@
 import { FlashList } from '@shopify/flash-list';
 import { useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
-import { SymbolView } from 'expo-symbols';
 import { useMemo, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+import { Icon } from '@/components/icon';
 import { useAccounts, useTags, useTrades } from '@/api/hooks';
 import type { Trade } from '@/api/types';
 import { ErrorState } from '@/components/error-state';
@@ -176,7 +176,7 @@ function TagBar({
         accessibilityLabel={t`Manage tags`}
         style={({ pressed }) => [styles.tagManage, pressed && styles.swipePressed]}
       >
-        <SymbolView
+        <Icon
           name="slider.horizontal.3"
           size={13}
           tintColor={theme.colors.mutedForeground}

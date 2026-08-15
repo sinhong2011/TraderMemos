@@ -1,10 +1,10 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { SymbolView } from 'expo-symbols';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Alert, Keyboard, Pressable, Text, TextInput, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+import { Icon } from '@/components/icon';
 import { queryKeys, useApiRequest, useSetups } from '@/api/hooks';
 import type { Setup } from '@/api/types';
 import {
@@ -222,7 +222,7 @@ export default function NewSetupScreen() {
       <Card>
         {checks.map((check, index) => (
           <View key={check.id} style={styles.checkRow}>
-            <SymbolView name="circle" size={17} tintColor={theme.colors.mutedForeground} />
+            <Icon name="circle" size={17} tintColor={theme.colors.mutedForeground} />
             <TextInput
               value={check.text}
               onChangeText={(text) =>
@@ -250,7 +250,7 @@ export default function NewSetupScreen() {
               accessibilityLabel={t`Remove check`}
               style={({ pressed }) => pressed && styles.pressed}
             >
-              <SymbolView name="minus.circle" size={19} tintColor={theme.colors.mutedForeground} />
+              <Icon name="minus.circle" size={19} tintColor={theme.colors.mutedForeground} />
             </Pressable>
           </View>
         ))}
@@ -259,7 +259,7 @@ export default function NewSetupScreen() {
           accessibilityRole="button"
           style={({ pressed }) => [styles.checkRow, pressed && styles.pressed]}
         >
-          <SymbolView name="plus.circle.fill" size={17} tintColor={theme.colors.primary} />
+          <Icon name="plus.circle.fill" size={17} tintColor={theme.colors.primary} />
           <Text style={styles.addLabel}>{checks.length === 0 ? t`Add a check` : t`Add another`}</Text>
         </Pressable>
       </Card>

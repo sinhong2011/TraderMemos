@@ -5,11 +5,11 @@ import {
 } from '@expo/ui/swift-ui';
 import { accessibilityLabel, buttonStyle, tint } from '@expo/ui/swift-ui/modifiers';
 import { useRouter } from 'expo-router';
-import { SymbolView } from 'expo-symbols';
 import { Platform, Pressable } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { t } from '@lingui/core/macro';
+import { Icon } from '@/components/icon';
 import { AppHost } from '@/components/app-host';
 
 /**
@@ -37,7 +37,7 @@ export function AddMenu() {
         accessibilityLabel={t`Add`}
         style={({ pressed }) => [styles.button, pressed && styles.pressed]}
       >
-        <SymbolView name="plus" size={18} tintColor={theme.colors.foreground} weight="semibold" />
+        <Icon name="plus" size={18} tintColor={theme.colors.foreground} weight="semibold" />
       </Pressable>
     );
   }
