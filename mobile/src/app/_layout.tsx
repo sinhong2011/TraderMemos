@@ -6,8 +6,9 @@ import * as Linking from 'expo-linking';
 import { DarkTheme, DefaultTheme, ThemeProvider, useRootNavigationState, useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
 import * as SplashScreen from 'expo-splash-screen';
+import { StatusBar } from 'expo-status-bar';
 import { useEffect, useMemo, useRef } from 'react';
-import { Alert, View } from 'react-native';
+import { Alert, Platform, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { useUnistyles } from 'react-native-unistyles';
@@ -227,6 +228,16 @@ export default function RootLayout() {
         <SplashGate />
         <PersistQueryClientProvider client={queryClient} persistOptions={persistOptions}>
         <ThemeProvider value={navTheme}>
+          {/* Android only: iOS status bar icons follow the window's trait
+              collection (which the Appearance override already moves), but
+              Android's edge-to-edge window leaves them light forever — in
+              light mode the clock and battery are white on white. Driven by
+              the resolved scheme, not `style="auto"`, for the same reason as
+              `useResolvedScheme`: the icons must match what the surfaces are
+              actually painted with. */}
+          {Platform.OS === 'android' ? (
+            <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
+          ) : null}
           <ImportLinkGate />
           <PrefsSyncGate />
           <WidgetSnapshotGate />
