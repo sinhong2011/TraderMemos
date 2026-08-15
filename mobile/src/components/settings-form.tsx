@@ -1,38 +1,36 @@
-import { Form } from '@expo/ui/swift-ui';
-import {
-  background,
-  listSectionSpacing,
-  scrollContentBackground,
-} from '@expo/ui/swift-ui/modifiers';
+import { FieldGroup } from '@expo/ui';
 import type { ComponentProps } from 'react';
 import { useUnistyles } from 'react-native-unistyles';
 
-import { scrollEdgeEffectStyle } from '@/lib/scroll-edge-effect';
-
 /**
- * `Form` with the app's settings styling: the system grouped background is
- * replaced by the app background token and the default iOS section gaps are
- * tightened. Row labels keep the native neutral color — no form-wide tint,
- * which would repaint every navigation label brand-blue. Extra `modifiers`
- * append after the shared set.
+ * The settings-screen form container, in its cross-platform form.
  *
- * `soft` matches the app-wide scroll edge choice (every Stack layout pins
- * `top: 'soft'`) — but the screen prop can't reach a SwiftUI Form's scroll
- * view, so it has to be re-stated here as a SwiftUI modifier or iOS 26+
- * paints the `hard` slab + hairline under the header.
+ * This is the base module, so Android resolves here; iOS overrides it with
+ * `settings-form.ios.tsx`, which keeps the SwiftUI `Form` and its four
+ * iOS-only modifiers exactly as they shipped. Both export the same name and
+ * take the same children, so the 25 settings screens never branch. (TypeScript
+ * only resolves the base name, which is why the universal version — not the
+ * iOS one — has to be the unsuffixed file.)
+ *
+ * `FieldGroup` is `@expo/ui`'s universal grouped-list container — the very same
+ * SwiftUI `Form` on iOS, a Compose grouped list on Android — which is why the
+ * screens' `Section` rows keep working underneath it.
+ *
+ * None of the iOS modifiers are restated here: `scrollContentBackground` and
+ * `listSectionSpacing` are SwiftUI-only knobs, and `scrollEdgeEffectStyle`
+ * comes from the iOS-26-only `modules/scroll-edge-style`. Compose's grouped
+ * list already paints on the theme background, so only that token carries over
+ * — as a plain style, not a modifier.
+ *
+ * Callers that pass `modifiers` (three screens pass `scrollDismissesKeyboard`)
+ * still typecheck and stay safe: SwiftUI modifier configs are inert data to
+ * Compose, so they're accepted and ignored rather than crashing.
  */
-export function SettingsForm({ modifiers = [], ...props }: ComponentProps<typeof Form>) {
+export function SettingsForm({
+  modifiers: _iosModifiers,
+  style,
+  ...props
+}: ComponentProps<typeof FieldGroup>) {
   const { theme } = useUnistyles();
-  return (
-    <Form
-      modifiers={[
-        scrollContentBackground('hidden'),
-        background(theme.colors.background),
-        listSectionSpacing('compact'),
-        scrollEdgeEffectStyle('soft'),
-        ...modifiers,
-      ]}
-      {...props}
-    />
-  );
+  return <FieldGroup style={{ backgroundColor: theme.colors.background, ...style }} {...props} />;
 }
