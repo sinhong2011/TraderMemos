@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import { type SFSymbol } from 'expo-symbols';
 import { ScrollView, Text, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { useCSSVariable } from 'uniwind';
 
 import { Icon } from '@/components/icon';
 import { useSetups, useTags } from '@/api/hooks';
@@ -10,6 +10,9 @@ import { GlassIconButton } from '@/components/glass-button';
 import { t } from '@lingui/core/macro';
 import { EMOTIONAL_STATES, TRADE_GRADES, intFromGrade } from '@/lib/journal';
 import { toggleExtraChip, toggleTagHidden, useTagBarState } from '@/lib/tag-bar';
+
+/** Squircle corners on the section cards — no Tailwind utility maps to this. */
+const CONTINUOUS = { borderCurve: 'continuous' } as const;
 
 /** Card-block section (DESIGN.md): icon + quiet label over a chip row. */
 function Section({
@@ -21,12 +24,15 @@ function Section({
   label: string;
   children: React.ReactNode;
 }) {
-  const { theme } = useUnistyles();
+  const [mutedForeground] = useCSSVariable(['--color-muted-foreground']) as [string];
   return (
-    <View style={styles.sectionCard}>
-      <View style={styles.sectionHeader}>
-        <Icon name={icon} size={13} tintColor={theme.colors.mutedForeground} />
-        <Text style={styles.section}>{label}</Text>
+    // Borderless card blocks (DESIGN.md) — each taxonomy gets its own surface.
+    <View className="gap-3 rounded-lg bg-card p-4" style={CONTINUOUS}>
+      <View className="flex-row items-center gap-1.5">
+        <Icon name={icon} size={13} tintColor={mutedForeground} />
+        <Text className="text-xs font-semibold uppercase tracking-[0.6px] text-muted-foreground">
+          {label}
+        </Text>
       </View>
       {children}
     </View>
@@ -53,14 +59,14 @@ export default function ManageTagsScreen() {
   return (
     // Form sheets lay non-scroll children on top of each other — the sheet's
     // content root must be a ScrollView.
-    <ScrollView style={styles.page} contentContainerStyle={styles.content}>
-      <View style={styles.header}>
-        <Text style={styles.title}>{t`Quick filters`}</Text>
+    <ScrollView className="flex-1 bg-background" contentContainerClassName="gap-4 p-4 pb-12">
+      <View className="flex-row items-center justify-between pt-2">
+        <Text className="text-[22px] font-bold tracking-[-0.3px] text-foreground">{t`Quick filters`}</Text>
         {/* Same glass checkmark every other sheet commits with — a labelled
             "Done" pill was the one bespoke button in the set. */}
         <GlassIconButton systemImage="checkmark" label={t`Done`} onPress={() => router.back()} />
       </View>
-      <Text style={styles.hint}>
+      <Text className="text-[13px] leading-[18px] text-muted-foreground">
         {t`Choose which journal options show as filter chips on the trades list.`}
       </Text>
 
@@ -140,36 +146,3 @@ export default function ManageTagsScreen() {
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  page: { flex: 1, backgroundColor: theme.colors.background },
-  content: {
-    padding: theme.spacing.lg,
-    paddingBottom: theme.spacing.xl * 2,
-    gap: theme.spacing.lg,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: theme.spacing.sm,
-  },
-  title: { fontSize: 22, fontWeight: '700', letterSpacing: -0.3, color: theme.colors.foreground },
-  hint: { fontSize: 13, lineHeight: 18, color: theme.colors.mutedForeground },
-  // Borderless card blocks (DESIGN.md) — each taxonomy gets its own surface.
-  sectionCard: {
-    gap: theme.spacing.md,
-    padding: theme.spacing.lg,
-    borderRadius: theme.radius.lg,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.card,
-  },
-  sectionHeader: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.xs + 2 },
-  section: {
-    fontSize: 12,
-    fontWeight: '600',
-    letterSpacing: 0.6,
-    textTransform: 'uppercase',
-    color: theme.colors.mutedForeground,
-  },
-}));

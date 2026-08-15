@@ -1,12 +1,11 @@
 import { useRouter } from 'expo-router';
+import { cn } from 'panelui-native';
 import { useEffect } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { Icon } from '@/components/icon';
 import { useAccounts, useCash, useSummary } from '@/api/hooks';
-import { AppHost } from '@/components/app-host';
 import { CenteredButton } from '@/components/centered-button';
 import { GlassIconButton } from '@/components/glass-button';
 import { BlockSummary } from '@/components/trade-summary';
@@ -21,7 +20,14 @@ import {
   type TradeFormValues,
 } from '@/lib/trade-form';
 import { aggregateTradePnlPreviews, blockPnlPreview } from '@/lib/trade-pnl-preview';
-import { pnlColor } from '@/styles/unistyles';
+import { pnlClass, usePnlPalette } from '@/styles/pnl';
+
+/** Squircle corners on the batch card — no Tailwind utility maps to this. */
+const CONTINUOUS = { borderCurve: 'continuous' } as const;
+
+/** Shared caption above every figure in the batch card. */
+const STAT_LABEL = 'text-[11px] font-semibold uppercase tracking-[0.5px] text-muted-foreground';
+const STAT_VALUE = 'text-[15px] font-semibold tabular-nums text-foreground';
 
 /** Opening-side cost basis across the batch — denominator for the return %. */
 function entryTotal(blocks: TradeFormValues[]): number {
@@ -39,8 +45,8 @@ function entryTotal(blocks: TradeFormValues[]): number {
 
 function Stat({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <View style={styles.stat}>
-      <Text style={styles.statLabel}>{label}</Text>
+    <View className="gap-0.5">
+      <Text className={STAT_LABEL}>{label}</Text>
       {children}
     </View>
   );
@@ -56,7 +62,7 @@ function Stat({ label, children }: { label: string; children: React.ReactNode })
 export default function TradePreviewScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { theme } = useUnistyles();
+  const { profit } = usePnlPalette();
   // Formatters bound to the display prefs (see lib/format.ts).
   const { formatCurrency, formatPnl } = useFormatters();
 
@@ -96,18 +102,22 @@ export default function TradePreviewScreen() {
   const pnlPctAfter = pnlAfter != null && deposits > 0 ? (pnlAfter / deposits) * 100 : null;
 
   return (
-    <View style={[styles.page, { paddingTop: insets.top + 8 }]}>
-      <View style={styles.header}>
+    <View className="flex-1 bg-background" style={{ paddingTop: insets.top + 8 }}>
+      <View className="flex-row items-center gap-3 px-4 pb-3">
         <GlassIconButton systemImage="chevron.backward" label={t`Back`} onPress={router.back} />
-        <Text style={styles.title}>{t`Review & save`}</Text>
-        <View style={styles.headerSpacer} />
+        <Text className="flex-1 text-center text-[17px] font-semibold text-foreground">{t`Review & save`}</Text>
+        {/* Spacer mirroring the back button keeps the title centred. */}
+        <View className="w-[38px]" />
       </View>
 
       <ScrollView
-        style={styles.scroll}
-        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 24 }]}
+        className="flex-1"
+        contentContainerClassName="w-full max-w-[560px] self-center gap-4 p-4"
+        contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
       >
-        {accountName ? <Text style={styles.accountLine}>{t`Logging into ${accountName}`}</Text> : null}
+        {accountName ? (
+          <Text className="pl-1 text-[13px] text-muted-foreground">{t`Logging into ${accountName}`}</Text>
+        ) : null}
         {blocks.map((block) => (
           <BlockSummary
             key={block.key}
@@ -119,65 +129,61 @@ export default function TradePreviewScreen() {
         ))}
 
         {priced > 0 ? (
-          <View style={styles.batchCard}>
-            <View style={styles.batchMain}>
-              <Text style={styles.statLabel}>{t`Est. P&L`}</Text>
+          <View className="gap-3 rounded-[20px] bg-card p-4" style={CONTINUOUS}>
+            <View className="gap-0.5">
+              <Text className={STAT_LABEL}>{t`Est. P&L`}</Text>
               {batch.net != null ? (
-                <View style={styles.batchNetRow}>
-                  <Text style={[styles.batchNet, { color: pnlColor(theme.colors, batch.net) }]}>
+                <View className="flex-row items-baseline gap-2">
+                  <Text className={cn('text-[28px] font-bold tabular-nums', pnlClass(batch.net))}>
                     {formatPnl(batch.net, currency)}
                   </Text>
                   {returnPct != null ? (
-                    <Text style={styles.batchNetPct}>{formatPercentPoints(returnPct, 1)}</Text>
+                    <Text className="text-[13px] font-semibold tabular-nums text-muted-foreground">
+                      {formatPercentPoints(returnPct, 1)}
+                    </Text>
                   ) : null}
                 </View>
               ) : (
-                <Text style={styles.batchNetMuted}>{t`Open`}</Text>
+                <Text className="text-[28px] font-bold text-muted-foreground">{t`Open`}</Text>
               )}
             </View>
-            <View style={styles.batchStats}>
+            <View className="flex-row gap-6">
               <Stat label={t`Symbols`}>
-                <Text style={styles.statValue}>{batch.symbolCount}</Text>
+                <Text className={STAT_VALUE}>{batch.symbolCount}</Text>
               </Stat>
               <Stat label={t`Fees`}>
-                <Text style={styles.statValue}>{formatCurrency(batch.feesTotal, currency)}</Text>
+                <Text className={STAT_VALUE}>{formatCurrency(batch.feesTotal, currency)}</Text>
               </Stat>
               <Stat label={t`Closed`}>
-                <View style={styles.closedRow}>
-                  <Text style={styles.statValue}>
+                <View className="flex-row items-center gap-1">
+                  <Text className={STAT_VALUE}>
                     {batch.closedCount}/{priced}
                   </Text>
                   {batch.closedCount === priced ? (
-                    <Icon
-                      name="checkmark.circle.fill"
-                      size={13}
-                      tintColor={theme.colors.profit}
-                    />
+                    <Icon name="checkmark.circle.fill" size={13} tintColor={profit} />
                   ) : null}
                 </View>
               </Stat>
             </View>
 
             {pnlAfter != null ? (
-              <View style={styles.afterSave}>
-                <Text style={styles.afterSaveTitle}>{t`After save`}</Text>
-                <View style={styles.batchStats}>
+              <View className="mt-1 gap-2 border-t-[0.5px] border-border pt-3">
+                <Text className="text-[11px] font-semibold uppercase tracking-[0.5px] text-flat">{t`After save`}</Text>
+                <View className="flex-row gap-6">
                   <Stat label={t`Account P&L`}>
-                    <View style={styles.closedRow}>
-                      <Text
-                        style={[styles.statValue, { color: pnlColor(theme.colors, pnlAfter) }]}
-                      >
+                    <View className="flex-row items-center gap-1">
+                      <Text className={cn(STAT_VALUE, pnlClass(pnlAfter))}>
                         {formatPnl(pnlAfter, currency)}
                       </Text>
                       {pnlPctAfter != null ? (
-                        <Text style={styles.afterSavePct}>
+                        <Text className="text-xs font-medium tabular-nums text-muted-foreground">
                           {formatPercentPoints(pnlPctAfter, 1)}
                         </Text>
                       ) : null}
                     </View>
                   </Stat>
                   <Stat label={t`Balance`}>
-                    <Text style={styles.statValue}>
+                    <Text className={STAT_VALUE}>
                       {balanceAfter != null ? formatCurrency(balanceAfter, currency) : t`None`}
                     </Text>
                   </Stat>
@@ -188,7 +194,7 @@ export default function TradePreviewScreen() {
         ) : null}
 
         {dividends > 0 || screenshots > 0 ? (
-          <Text style={styles.footnote}>
+          <Text className="px-1 text-[13px] leading-[18px] text-muted-foreground">
             {[
               dividends > 0 ? t`Includes a dividend entry.` : '',
               screenshots > 0
@@ -203,109 +209,15 @@ export default function TradePreviewScreen() {
         ) : null}
       </ScrollView>
 
-      <View style={[styles.footer, { paddingBottom: insets.bottom + 12 }]}>
-        {/* The settings-form action idiom; hosted here since the footer is an
-            RN view, not a Form (width from the stretched host). */}
-        <AppHost matchContents={{ vertical: true }} style={styles.actionHost}>
-          <CenteredButton
-            label={save.isPending ? t`Saving…` : t`Save trade`}
-            loading={save.isPending}
-            onPress={() => save.mutate(blocks)}
-          />
-        </AppHost>
+      {/* The settings-form action idiom. `CenteredButton` fills the row itself
+          now, so the footer only owns the insets around it. */}
+      <View className="px-4 pt-2" style={{ paddingBottom: insets.bottom + 12 }}>
+        <CenteredButton
+          label={save.isPending ? t`Saving…` : t`Save trade`}
+          loading={save.isPending}
+          onPress={() => save.mutate(blocks)}
+        />
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  page: { flex: 1, backgroundColor: theme.colors.background },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: theme.spacing.lg,
-    paddingBottom: theme.spacing.md,
-    gap: theme.spacing.md,
-  },
-  headerSpacer: { width: 38 },
-  title: {
-    flex: 1,
-    textAlign: 'center',
-    fontSize: 17,
-    fontWeight: '600',
-    color: theme.colors.foreground,
-  },
-  scroll: { flex: 1 },
-  content: {
-    padding: theme.spacing.lg,
-    gap: theme.spacing.lg,
-    maxWidth: theme.measure.form,
-    width: '100%',
-    alignSelf: 'center',
-  },
-  accountLine: { fontSize: 13, color: theme.colors.mutedForeground, paddingLeft: theme.spacing.xs },
-  batchCard: {
-    borderRadius: theme.radius.lg + 6,
-    borderCurve: 'continuous',
-    backgroundColor: theme.colors.card,
-    padding: theme.spacing.lg,
-    gap: theme.spacing.md,
-  },
-  batchMain: { gap: 2 },
-  batchNetRow: { flexDirection: 'row', alignItems: 'baseline', gap: theme.spacing.sm },
-  batchNet: { fontSize: 28, fontWeight: '700', fontVariant: ['tabular-nums'] },
-  batchNetPct: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: theme.colors.mutedForeground,
-    fontVariant: ['tabular-nums'],
-  },
-  batchNetMuted: { fontSize: 28, fontWeight: '700', color: theme.colors.mutedForeground },
-  batchStats: { flexDirection: 'row', gap: theme.spacing.xl },
-  stat: { gap: 2 },
-  statLabel: {
-    fontSize: 11,
-    fontWeight: '600',
-    letterSpacing: 0.5,
-    textTransform: 'uppercase',
-    color: theme.colors.mutedForeground,
-  },
-  statValue: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: theme.colors.foreground,
-    fontVariant: ['tabular-nums'],
-  },
-  closedRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.xs },
-  afterSave: {
-    marginTop: theme.spacing.xs,
-    paddingTop: theme.spacing.md,
-    borderTopWidth: 0.5,
-    borderTopColor: theme.colors.border,
-    gap: theme.spacing.sm,
-  },
-  afterSaveTitle: {
-    fontSize: 11,
-    fontWeight: '600',
-    letterSpacing: 0.5,
-    textTransform: 'uppercase',
-    color: theme.colors.flat,
-  },
-  afterSavePct: {
-    fontSize: 12,
-    fontWeight: '500',
-    color: theme.colors.mutedForeground,
-    fontVariant: ['tabular-nums'],
-  },
-  footnote: {
-    fontSize: 13,
-    lineHeight: 18,
-    color: theme.colors.mutedForeground,
-    paddingHorizontal: theme.spacing.xs,
-  },
-  footer: {
-    paddingHorizontal: theme.spacing.lg,
-    paddingTop: theme.spacing.sm,
-  },
-  actionHost: { alignSelf: 'stretch' },
-}));

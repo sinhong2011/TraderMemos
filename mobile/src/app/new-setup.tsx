@@ -2,7 +2,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Alert, Keyboard, Pressable, Text, TextInput, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { cn } from 'panelui-native';
+import { useCSSVariable } from 'uniwind';
 
 import { Icon } from '@/components/icon';
 import { queryKeys, useApiRequest, useSetups } from '@/api/hooks';
@@ -16,10 +17,16 @@ import {
 } from '@/components/form-rows';
 import { FormSheet } from '@/components/form-sheet';
 import { ValueToggle } from '@/components/value-toggle';
-import { PnlFill } from '@/styles/unistyles';
+import { PnlFill } from '@/styles/pnl';
 import { t } from '@lingui/core/macro';
 import { parseAmount } from '@/lib/amount';
 import { errorMessage } from '@/lib/errors';
+
+/**
+ * One checklist line. `min-h-[48px]` is the row's tap target; the icon, field
+ * and remove control share it.
+ */
+const CHECK_ROW = 'min-h-[48px] flex-row items-center gap-3 px-4 py-1';
 
 type Direction = 'long' | 'short';
 
@@ -68,7 +75,10 @@ function cleanCheck(text: string): string {
  */
 export default function NewSetupScreen() {
   const router = useRouter();
-  const { theme } = useUnistyles();
+  const [mutedForeground, primary] = useCSSVariable([
+    '--color-muted-foreground',
+    '--color-primary',
+  ]) as [string, string];
   const queryClient = useQueryClient();
   const api = useApiRequest();
   const { id } = useLocalSearchParams<{ id?: string }>();
@@ -177,17 +187,21 @@ export default function NewSetupScreen() {
           value={name}
           onChangeText={setName}
           placeholder={t`Breakout pullback`}
-          placeholderTextColor={theme.colors.mutedForeground}
-          style={styles.headline}
+          placeholderTextColor={mutedForeground}
+          className="py-2 text-[22px] font-semibold leading-7 text-foreground"
           autoCorrect={false}
           autoFocus={!editing}
         />
+        {/* `min-h`, never `flex` — a multiline input with no bound inside the
+            form's scroll view reports an effectively infinite height
+            (form-sheet.tsx). */}
         <TextInput
           value={thesis}
           onChangeText={setThesis}
           placeholder={t`What has to be happening for this play to be on? Where is it wrong?`}
-          placeholderTextColor={theme.colors.mutedForeground}
-          style={styles.thesis}
+          placeholderTextColor={mutedForeground}
+          className="min-h-[72px] pt-1 text-[17px] leading-6 text-foreground"
+          textAlignVertical="top"
           multiline
         />
       </View>
@@ -221,8 +235,8 @@ export default function NewSetupScreen() {
       <SectionHeader label={t`Checklist`} />
       <Card>
         {checks.map((check, index) => (
-          <View key={check.id} style={styles.checkRow}>
-            <Icon name="circle" size={17} tintColor={theme.colors.mutedForeground} />
+          <View key={check.id} className={CHECK_ROW}>
+            <Icon name="circle" size={17} tintColor={mutedForeground} />
             <TextInput
               value={check.text}
               onChangeText={(text) =>
@@ -231,8 +245,8 @@ export default function NewSetupScreen() {
                 )
               }
               placeholder={t`One thing that has to be true`}
-              placeholderTextColor={theme.colors.mutedForeground}
-              style={styles.checkInput}
+              placeholderTextColor={mutedForeground}
+              className="flex-1 py-2 text-base text-foreground"
               autoFocus={check.id === focusId}
               returnKeyType="next"
               // Return opens the next line instead of closing the keyboard —
@@ -248,19 +262,21 @@ export default function NewSetupScreen() {
               hitSlop={10}
               accessibilityRole="button"
               accessibilityLabel={t`Remove check`}
-              style={({ pressed }) => pressed && styles.pressed}
+              className="active:opacity-60"
             >
-              <Icon name="minus.circle" size={19} tintColor={theme.colors.mutedForeground} />
+              <Icon name="minus.circle" size={19} tintColor={mutedForeground} />
             </Pressable>
           </View>
         ))}
         <Pressable
           onPress={() => addCheck()}
           accessibilityRole="button"
-          style={({ pressed }) => [styles.checkRow, pressed && styles.pressed]}
+          className={cn(CHECK_ROW, 'active:opacity-60')}
         >
-          <Icon name="plus.circle.fill" size={17} tintColor={theme.colors.primary} />
-          <Text style={styles.addLabel}>{checks.length === 0 ? t`Add a check` : t`Add another`}</Text>
+          <Icon name="plus.circle.fill" size={17} tintColor={primary} />
+          <Text className="text-base text-primary">
+            {checks.length === 0 ? t`Add a check` : t`Add another`}
+          </Text>
         </Pressable>
       </Card>
       <SectionFooter label={t`Everything that has to be true before you take the play.`} />
@@ -271,9 +287,9 @@ export default function NewSetupScreen() {
             onPress={confirmDelete}
             disabled={remove.isPending}
             accessibilityRole="button"
-            style={({ pressed }) => [styles.deleteRow, pressed && styles.pressed]}
+            className="min-h-[48px] items-center justify-center active:opacity-60"
           >
-            <Text style={styles.deleteLabel}>
+            <Text className="text-base text-destructive">
               {remove.isPending ? t`Deleting…` : t`Delete setup`}
             </Text>
           </Pressable>
@@ -282,41 +298,3 @@ export default function NewSetupScreen() {
     </FormSheet>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  headline: {
-    fontSize: 22,
-    fontWeight: '600',
-    lineHeight: 28,
-    paddingVertical: theme.spacing.sm,
-    color: theme.colors.foreground,
-  },
-  // `minHeight`, never `flex` — a multiline input with no bound inside the
-  // form's scroll view reports an effectively infinite height (form-sheet.tsx).
-  thesis: {
-    minHeight: 72,
-    fontSize: 17,
-    lineHeight: 24,
-    paddingTop: theme.spacing.xs,
-    textAlignVertical: 'top',
-    color: theme.colors.foreground,
-  },
-  checkRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing.md,
-    minHeight: 48,
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.xs,
-  },
-  checkInput: {
-    flex: 1,
-    fontSize: 16,
-    paddingVertical: theme.spacing.sm,
-    color: theme.colors.foreground,
-  },
-  addLabel: { fontSize: 16, color: theme.colors.primary },
-  deleteRow: { minHeight: 48, alignItems: 'center', justifyContent: 'center' },
-  deleteLabel: { fontSize: 16, color: theme.colors.destructive },
-  pressed: { opacity: 0.6 },
-}));

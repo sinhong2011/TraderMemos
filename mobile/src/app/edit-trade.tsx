@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Alert, Text, View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
 
 import { FormSkeleton } from '@/components/skeleton';
 
@@ -105,12 +104,12 @@ export default function EditTradeScreen() {
   }
   if (isLoading || !trade || !accounts || !setups || !tags) {
     return isLoading || !accounts || !setups || !tags ? (
-      <View style={styles.loading}>
+      <View className="flex-1 bg-background">
         <FormSkeleton />
       </View>
     ) : (
-      <View style={styles.centered}>
-        <Text style={styles.muted}>{t`Trade not found`}</Text>
+      <View className="flex-1 items-center justify-center bg-background p-6">
+        <Text className="text-center text-muted-foreground">{t`Trade not found`}</Text>
       </View>
     );
   }
@@ -136,15 +135,3 @@ export default function EditTradeScreen() {
     />
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  loading: { flex: 1, backgroundColor: theme.colors.background },
-  centered: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: theme.spacing.xl,
-    backgroundColor: theme.colors.background,
-  },
-  muted: { color: theme.colors.mutedForeground, textAlign: 'center' },
-}));
