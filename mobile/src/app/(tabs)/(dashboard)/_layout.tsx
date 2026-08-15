@@ -1,5 +1,5 @@
 import { Stack } from 'expo-router/stack';
-import { View } from 'react-native';
+import { Platform, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { useAccounts, useCash } from '@/api/hooks';
@@ -58,7 +58,12 @@ export default function DashboardLayout() {
   return (
     <Stack
       screenOptions={{
-        headerTransparent: true,
+        // iOS only. A transparent bar relies on UIKit's automatic content-inset
+        // adjustment to push the scroll view clear of it; react-native-screens
+        // has no such pass on Android, so a transparent header there simply
+        // floats over the first card. Opaque takes layout space, which is the
+        // Material bar anyway.
+        headerTransparent: Platform.OS === 'ios',
         headerShadowVisible: false,
         headerLargeTitleShadowVisible: false,
         headerLargeStyle: { backgroundColor: 'transparent' },

@@ -15,9 +15,10 @@ import {
   glassEffect,
   padding,
 } from '@expo/ui/swift-ui/modifiers';
-import { type SFSymbol } from 'expo-symbols';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { AppHost } from '@/components/app-host';
+
+import type { GlassButtonProps, GlassIconButtonProps } from './glass-button.types';
 
 /**
  * iOS 26 Liquid Glass buttons — real SwiftUI hosted in RN, not a `GlassView`
@@ -45,15 +46,7 @@ export function GlassButton({
   fill,
   disabled,
   onPress,
-}: {
-  label: string;
-  systemImage?: SFSymbol;
-  prominent?: boolean;
-  /** Stretch to the container width — form actions, not inline chrome. */
-  fill?: boolean;
-  disabled?: boolean;
-  onPress: () => void;
-}) {
+}: GlassButtonProps) {
   const { theme } = useUnistyles();
   const modifiers = [
     // Plain: the button contributes no chrome of its own, the glass is the
@@ -100,15 +93,7 @@ export function GlassIconButton({
   disabled,
   loading,
   onPress,
-}: {
-  systemImage: SFSymbol;
-  /** Accessibility label — the button shows only the symbol. */
-  label: string;
-  disabled?: boolean;
-  /** Swaps the glyph for a native spinner and disables the button. */
-  loading?: boolean;
-  onPress: () => void;
-}) {
+}: GlassIconButtonProps) {
   const { theme } = useUnistyles();
   return (
     <AppHost matchContents>

@@ -4,33 +4,13 @@ import {
   Text as UIText,
 } from '@expo/ui/swift-ui';
 import { padding, pickerStyle, tag, tint } from '@expo/ui/swift-ui/modifiers';
-import type { SFSymbol } from 'expo-symbols';
 import { useUnistyles } from 'react-native-unistyles';
 import { AppHost } from '@/components/app-host';
 
+import type { SegmentedProps } from './segmented.types';
+
 /** SwiftUI's own inset around a menu Picker's label — see `flush` below. */
 const MENU_LABEL_PADDING = 12;
-
-type SegmentedProps<T extends string> = {
-  /** With `icon` set the segment shows only the SF Symbol; `label` stays for menus. */
-  options: readonly { value: T; label: string; icon?: SFSymbol }[];
-  value: T;
-  onChange: (value: T) => void;
-  /**
-   * 'menu' renders a pull-down button (checkmarked UIMenu) instead of a
-   * segmented control; 'wheel' a spinning drum for overlay pickers.
-   */
-  variant?: 'segmented' | 'menu' | 'wheel';
-  /** Fixes a tight frame for nav bars instead of hugging content. */
-  compact?: boolean;
-  /** Stretches to the container width — form rows, where hugging leaves dead space. */
-  fill?: boolean;
-  /**
-   * Cancels the menu's own label padding so it lands on the same edge as a
-   * plain value beside it (form rows, boxed fields). Menu variant only.
-   */
-  flush?: boolean;
-};
 
 /** Native SwiftUI Picker — segmented control on cards, a pull-down menu, or a wheel. */
 export function Segmented<T extends string>({

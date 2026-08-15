@@ -1,9 +1,10 @@
 import { Chart } from '@expo/ui/swift-ui';
 import { useState } from 'react';
-import { Text } from 'react-native';
+import { Platform, Text } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { useBreakdown, type BreakdownDim } from '@/api/hooks';
+import { ChartPlaceholder } from '@/components/chart-placeholder';
 import { DashboardCard } from '@/components/dashboard-card';
 import { Segmented } from '@/components/segmented';
 import { Skeleton } from '@/components/skeleton';
@@ -43,6 +44,8 @@ export function BreakdownCard() {
         <Text style={styles.empty}>{t`Failed to load breakdown.`}</Text>
       ) : chartData.length === 0 ? (
         <Text style={styles.empty}>{t`No breakdown data yet.`}</Text>
+      ) : Platform.OS !== 'ios' ? (
+        <ChartPlaceholder style={styles.chart} />
       ) : (
         <AppHost style={styles.chart}>
           <Chart data={chartData} type="bar" showGrid animate barStyle={{ cornerRadius: 2 }} />

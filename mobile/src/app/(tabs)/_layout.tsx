@@ -30,7 +30,17 @@ export default function TabsLayout() {
 
   // Neutral foreground tint: the selected tab shouldn't pick up the system accent color.
   return (
-    <NativeTabs tintColor={theme.colors.foreground}>
+    <NativeTabs
+      tintColor={theme.colors.foreground}
+      // Android only, and load-bearing here rather than cosmetic. Material's
+      // navigation bar defaults to labelling the *selected* item alone and
+      // relies on icons to carry the rest — but `Icon sf=` is iOS-only, so the
+      // unselected tabs draw neither glyph nor text and the bar comes up with
+      // one visible item and three invisible ones. Labelling all four is what
+      // keeps the app navigable until the triggers get real Android icons
+      // (which needs drawables or an icon family — see the port notes).
+      labelVisibilityMode="labeled"
+    >
       <NativeTabs.Trigger name="(dashboard)">
         <NativeTabs.Trigger.Icon sf="house" />
         <NativeTabs.Trigger.Label>{t`Home`}</NativeTabs.Trigger.Label>

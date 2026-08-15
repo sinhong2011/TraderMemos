@@ -102,6 +102,16 @@ export const SF_TO_MATERIAL: Record<string, AndroidSymbol> = {
   'photo.badge.plus': 'add_photo_alternate',
   'text.viewfinder': 'document_scanner',
 
+  // filters — the nav-bar pull-down falls back to a plain glyph off iOS, so
+  // both the idle and the active variant need a target here.
+  'line.3.horizontal.decrease.circle': 'filter_alt',
+  'line.3.horizontal.decrease.circle.fill': 'filter_alt',
+
+  // tab bar
+  'list.bullet': 'format_list_bulleted',
+  calendar: 'calendar_month',
+  'square.grid.3x3': 'grid_view',
+
   // charts / analytics
   'chart.xyaxis.line': 'show_chart',
   'chart.line.uptrend.xyaxis': 'trending_up',
