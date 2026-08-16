@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  panelui-native: 623c26afaa7ea7713ad5b579ad7c27e37c22ffe13edd7678a28d43e18d399753
+
 importers:
 
   .:
@@ -124,7 +127,7 @@ importers:
         version: 57.0.2(expo@57.0.11)(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))
       panelui-native:
         specifier: ^0.68.0
-        version: 0.68.0(e62738e6f20e84e4b7bd75998431e7c5)
+        version: 0.68.0(patch_hash=623c26afaa7ea7713ad5b579ad7c27e37c22ffe13edd7678a28d43e18d399753)(e62738e6f20e84e4b7bd75998431e7c5)
       react:
         specifier: 19.2.3
         version: 19.2.3
@@ -9377,7 +9380,7 @@ snapshots:
 
   package-json-from-dist@1.0.1: {}
 
-  panelui-native@0.68.0(e62738e6f20e84e4b7bd75998431e7c5):
+  panelui-native@0.68.0(patch_hash=623c26afaa7ea7713ad5b579ad7c27e37c22ffe13edd7678a28d43e18d399753)(e62738e6f20e84e4b7bd75998431e7c5):
     dependencies:
       '@react-native-masked-view/masked-view': 0.3.2(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)
       clsx: 2.1.1

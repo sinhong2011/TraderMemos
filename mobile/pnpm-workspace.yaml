@@ -30,3 +30,6 @@ minimumReleaseAgeExclude:
   # PanelUI ships fixes daily while it stabilises on the 0.x line — track latest.
   - panelui-native
   - uniwind
+
+patchedDependencies:
+  panelui-native: patches/panelui-native.patch
