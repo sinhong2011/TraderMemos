@@ -24,54 +24,75 @@ import { useTradingSession } from '@/lib/live-activity';
  * pull-down view manager, and the old fallback pushed one hardcoded action.
  */
 export function ToolsMenu() {
-  const [foreground, overlayForeground] = useCSSVariable([
-    '--color-foreground',
-    '--color-overlay-foreground',
-  ]) as [string, string];
+  const [foreground, overlayForeground, chart1, chart2, chart3, chart4, chart5, open, profit, heading] =
+    useCSSVariable([
+      '--color-foreground',
+      '--color-overlay-foreground',
+      '--color-chart-1',
+      '--color-chart-2',
+      '--color-chart-3',
+      '--color-chart-4',
+      '--color-chart-5',
+      '--color-open',
+      '--color-profit',
+      '--color-heading',
+    ]) as string[];
+  // Curated per-tool accents from the brand ramp — assigned, not hashed, so
+  // neighbouring tiles never share a hue.
+  const hues = { chart1, chart2, chart3, chart4, chart5, open, profit, heading };
   const router = useRouter();
   // Lock Screen / Dynamic Island trading session (lib/live-activity.ts).
   // Lives here because this menu is where the day starts, same reasoning as
   // the daily checklist below.
   const tradingSession = useTradingSession();
 
-  const tools: { label: string; systemImage: SFSymbol; href: Href }[] = [
+  const tools: { label: string; systemImage: SFSymbol; href: Href; hue: string }[] = [
     // Promoted out of the tab bar (2026-08-09) when the search tab took the
     // fifth slot; first here because it was a top-level destination.
     {
       label: t`Reports`,
       systemImage: 'chart.pie',
       href: '/(tabs)/(dashboard)/reports',
+      hue: hues.chart1,
     },
     {
       label: t`Position size`,
       systemImage: 'scalemass',
       href: '/tool-position-size',
+      hue: hues.chart3,
     },
-    { label: t`Kelly criterion`, systemImage: 'percent', href: '/tool-kelly' },
+    { label: t`Kelly criterion`, systemImage: 'percent', href: '/tool-kelly',
+      hue: hues.chart5,
+    },
     {
       label: t`Currency converter`,
       systemImage: 'arrow.left.arrow.right',
       href: '/tool-fx',
+      hue: hues.open,
     },
     {
       label: t`R calculator`,
       systemImage: 'plus.forwardslash.minus',
       href: '/(tabs)/(dashboard)/r-calculator',
+      hue: hues.profit,
     },
     {
       label: t`Symbol journal`,
       systemImage: 'chart.xyaxis.line',
       href: '/(tabs)/(dashboard)/symbol-journal',
+      hue: hues.chart2,
     },
     {
       label: t`Backtest`,
       systemImage: 'backward.frame',
       href: '/(tabs)/(dashboard)/backtest',
+      hue: hues.heading,
     },
     {
       label: t`Economic calendar`,
       systemImage: 'newspaper',
       href: '/(tabs)/(dashboard)/economic-events',
+      hue: hues.chart4,
     },
   ];
 
@@ -145,11 +166,19 @@ export function ToolsMenu() {
           {tools.map((action) => (
             <Menu.Item
               key={action.label}
-              className="min-h-[76px] w-[48%] flex-col items-start justify-between gap-2 rounded-2xl bg-muted p-3"
+              className="min-h-[86px] w-[48%] flex-col items-start justify-between gap-3 rounded-2xl bg-secondary p-3"
               onSelect={() => router.push(action.href)}
             >
-              <Icon name={action.systemImage} size={18} tintColor={overlayForeground} />
-              <Text className="text-[13px] font-medium text-overlay-foreground">
+              {/* Tinted well in the tool's own accent — the tile's identity,
+                  like the iOS Settings glyph grid. Hues are data-resolved
+                  hexes, so the wash rides `style`. */}
+              <View
+                className="h-8 w-8 items-center justify-center rounded-[10px]"
+                style={{ backgroundColor: `${action.hue}26` }}
+              >
+                <Icon name={action.systemImage} size={16} tintColor={action.hue} />
+              </View>
+              <Text numberOfLines={2} className="text-[13px] font-medium text-overlay-foreground">
                 {action.label}
               </Text>
             </Menu.Item>
