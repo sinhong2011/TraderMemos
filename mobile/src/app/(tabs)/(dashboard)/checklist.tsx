@@ -168,7 +168,7 @@ export default function ChecklistScreen() {
    */
   const suggestionsMenu =
     suggestions.length === 0 ? null : (
-      <Menu>
+      <Menu presentation="bottom-sheet">
         <Menu.Trigger>
           <Pressable
             hitSlop={10}
@@ -179,7 +179,7 @@ export default function ChecklistScreen() {
             <Icon name="sparkles" size={17} tintColor={foreground} />
           </Pressable>
         </Menu.Trigger>
-        <Menu.Content align="end" minWidth={240}>
+        <Menu.Content width="full" className="shadow-none rounded-none">
           {suggestions.map((item) => (
             <Menu.Item key={item} onSelect={() => commit([...items, item], item, items.length)}>
               {item}
