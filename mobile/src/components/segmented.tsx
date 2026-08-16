@@ -91,25 +91,24 @@ export function Segmented<T extends string>({
       onValueChange={(next) => onChange(next as T)}
       className={cn(fill ? 'self-stretch' : 'self-start')}
     >
-      {/* `scrollable` is PanelUI's hug mode: triggers take their natural width
-          with the variant's own px-4 — three short segments never actually
-          scroll. A fixed row divides itself between flex-1 triggers instead,
-          which is what `fill` wants. (A bare flex-none override loses the
-          hug padding and jams the labels together — 30D90DALL.) */}
-      {/* Explicit track heights: hug mode wraps the row in a horizontal
-          ScrollView, and RN gives ScrollViews flexGrow:1 of their own — in a
-          column with spare height the track otherwise stretches into a giant
-          empty slab (trade detail's interval switcher did exactly that). */}
-      <Tabs.List
-        scrollable={!fill}
-        className={cn('items-center', compact ? 'h-[30px] py-0' : 'h-10')}
-      >
+      {/* Hug mode is NOT Tabs' `scrollable`: that wraps the row in a
+          horizontal ScrollView, and RN ScrollViews carry flexGrow:1 of their
+          own — in a column with spare height the transparent scroller
+          stretched into a giant empty slab (trade detail's interval
+          switcher). A hugging segmented control never scrolls, so the row is
+          laid out directly: flex-none triggers with the px-4 the scrollable
+          variant would have supplied — a bare flex-none alone jams the
+          labels together (30D90DALL). */}
+      <Tabs.List className={cn('items-center', compact ? 'h-[30px] py-0' : 'h-10')}>
         {options.map((option) => (
           <Tabs.Trigger
             key={option.value}
             value={option.value}
-            // Compact drops the hug padding a step with the smaller label.
-            className={cn(compact && 'px-2.5 py-0.5')}
+            className={cn(
+              !fill && 'flex-none px-4',
+              // Compact drops the hug padding a step with the smaller label.
+              compact && 'px-2.5 py-0.5',
+            )}
           >
             {allIcons && option.icon ? (
               <View accessibilityLabel={option.label}>
