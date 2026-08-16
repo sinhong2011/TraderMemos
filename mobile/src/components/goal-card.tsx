@@ -1,4 +1,4 @@
-import { Progress, cn } from 'panelui-native';
+import { Meter, cn } from 'panelui-native';
 import { Text, View } from 'react-native';
 
 import { DashboardCard } from '@/components/dashboard-card';
@@ -39,7 +39,18 @@ export function GoalCard({
           {t`of ${formatCurrency(goalAmount * fxRate, currency)}`}
         </Text>
       </View>
-      <Progress value={clamped * 100} size="sm" />
+      {/* Meter, not Progress: the goal is a measurement on a fixed scale, and
+          the threshold turns the bar profit-green the moment the goal is met —
+          a full blue bar at 124% read as "still in progress". */}
+      <Meter
+        value={clamped * 100}
+        size="sm"
+        // No `label`: it renders a visible header row and the card already
+        // carries the numbers; the a11y name rides on the view instead.
+        accessibilityLabel={t`Goal progress`}
+        color="primary"
+        thresholds={[{ from: 100, color: 'success' }]}
+      />
       <Text className="text-xs text-muted-foreground tabular-nums">
         {t`${formatPercent(progress, 0)} of goal · YTD net P&L`}
       </Text>
