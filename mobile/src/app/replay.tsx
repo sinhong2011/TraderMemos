@@ -4,7 +4,7 @@ import { type SFSymbol } from 'expo-symbols';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
 import * as Sharing from 'expo-sharing';
-import { cn, Menu, Spinner } from 'panelui-native';
+import { cn, LineChart, Menu, Spinner } from 'panelui-native';
 import { useEffect, useRef, useState } from 'react';
 import { Alert, Pressable, Text, View, type LayoutChangeEvent } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -261,13 +261,14 @@ function Stage({
 }) {
   // Chart series, band fills and icon tints are JS values, not classes — they
   // have to re-resolve when the scheme flips.
-  const [foreground, background, primary, profit, loss] = useCSSVariable([
+  const [foreground, background, primary, profit, loss, flat] = useCSSVariable([
     '--color-foreground',
     '--color-background',
     '--color-primary',
     '--color-profit',
     '--color-loss',
-  ]) as [string, string, string, string, string];
+    '--color-flat',
+  ]) as [string, string, string, string, string, string];
   const router = useRouter();
   const apiRaw = useApiRaw();
   // Formatters bound to the display prefs (see lib/format.ts).
@@ -530,6 +531,33 @@ function Stage({
                   />
                 ) : null}
               </View>
+
+              {/* The trade's heartbeat: running net P&L up to the cursor,
+                  growing as the tape plays. A plain LineChart over bar index —
+                  not LiveLineChart, whose wall-clock window can't pause or
+                  scrub backwards the way the replay cursor can. The dashed
+                  zero series doubles as a baseline and pins 0 into the
+                  domain, so sign never has to be read off an axis. */}
+              {trade && replay.cursor > 0 ? (
+                <LineChart
+                  data={run.frames
+                    .slice(0, replay.cursor + 1)
+                    .map((f, i) => ({ i, net: f.net, zero: 0 }))}
+                  xDataKey="i"
+                  aspectRatio={4.6}
+                >
+                  <LineChart.Line dataKey="zero" color={flat} strokeWidth={1} dashArray="3 4" />
+                  <LineChart.Area
+                    dataKey="net"
+                    color={(frame?.net ?? 0) >= 0 ? profit : loss}
+                  />
+                  <LineChart.Line
+                    dataKey="net"
+                    color={(frame?.net ?? 0) >= 0 ? profit : loss}
+                    strokeWidth={2}
+                  />
+                </LineChart>
+              ) : null}
             </View>
 
             <ReplayControls
