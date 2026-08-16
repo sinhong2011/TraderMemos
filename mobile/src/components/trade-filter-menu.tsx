@@ -86,7 +86,7 @@ export function TradeFilterMenu({
           />
         </Pressable>
       </Menu.Trigger>
-      <Menu.Content align="end">
+      <Menu.Content align="end" minWidth={260}>
         {groups.map((group) =>
           nested ? (
             <Menu.Sub key={group.key}>

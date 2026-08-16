@@ -554,7 +554,7 @@ function TradeDetailBody({
                   <Icon name="ellipsis.circle" size={17} tintColor={foreground} />
                 </Pressable>
               </Menu.Trigger>
-              <Menu.Content align="end">
+              <Menu.Content align="end" minWidth={220}>
                 <Menu.Item
                   icon={<Icon name="pencil" size={16} tintColor={popoverForeground} />}
                   onSelect={() =>

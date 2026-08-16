@@ -42,7 +42,10 @@ export function AccountMenu() {
           <Icon name={icon} size={18} tintColor={foreground} />
         </Pressable>
       </Menu.Trigger>
-      <Menu.Content align="start">
+      {/* Explicit floor: with the default content-fit width the flex-1 label
+          column collapses to zero and the menu renders as an empty pillar —
+          every Menu.Content in the app sets minWidth for this reason. */}
+      <Menu.Content align="start" minWidth={240}>
         <Menu.RadioGroup
           value={scoped ? (selectedId as string) : ALL_ACCOUNTS}
           onValueChange={(value) =>

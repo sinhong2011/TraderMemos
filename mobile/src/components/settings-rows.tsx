@@ -284,7 +284,7 @@ export function SettingsPicker<T extends string>({
           </Frame.Actions>
         </Frame.Row>
       </Menu.Trigger>
-      <Menu.Content align="end">
+      <Menu.Content align="end" minWidth={240}>
         <Menu.RadioGroup
           value={selectedValue}
           onValueChange={(value) => onValueChange(value as T)}

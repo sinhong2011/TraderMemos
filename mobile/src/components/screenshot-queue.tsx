@@ -126,7 +126,7 @@ export function ScreenshotQueue({
             {t`Add screenshot`}
           </Button>
         </Menu.Trigger>
-        <Menu.Content align="center">
+        <Menu.Content align="center" minWidth={220}>
           <Menu.Item
             icon={<Icon name="photo.on.rectangle" size={16} tintColor={foreground} />}
             onSelect={() => void pickFromPhotos()}

@@ -90,7 +90,7 @@ export function TradePrefillBar({
       <Menu.Trigger>
         <GlassIconButton systemImage="text.viewfinder" label={t`Scan to fill`} onPress={() => {}} />
       </Menu.Trigger>
-      <Menu.Content align="end">
+      <Menu.Content align="end" minWidth={240}>
         <Menu.Item
           icon={<Icon name="photo.on.rectangle" size={16} tintColor={foreground} />}
           onSelect={() => void pickFromPhotos()}

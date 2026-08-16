@@ -300,7 +300,7 @@ function ProviderForm({ kind, settings }: { kind: LlmKind; settings: LlmApiSetti
                 </Frame.Actions>
               </Frame.Row>
             </Menu.Trigger>
-            <Menu.Content align="end">
+            <Menu.Content align="end" minWidth={240}>
               {models.map((name) => (
                 <Menu.Item
                   key={name}

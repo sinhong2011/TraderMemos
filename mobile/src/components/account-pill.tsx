@@ -66,7 +66,7 @@ export function AccountPill({
           </View>
         </Pressable>
       </Menu.Trigger>
-      <Menu.Content align="start">
+      <Menu.Content align="start" minWidth={240}>
         <Menu.RadioGroup value={value} onValueChange={onChange}>
           {accounts.map((account) => (
             <Menu.RadioItem key={account.id} value={account.id}>
