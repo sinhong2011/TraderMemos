@@ -187,7 +187,7 @@ export function AttachmentsCard({ trade }: { trade: TradeDetail }) {
         {uploading ? (
           <Spinner />
         ) : (
-          <Menu>
+          <Menu presentation="bottom-sheet">
             <Menu.Trigger>
               <Button
                 variant="outline"
@@ -197,7 +197,7 @@ export function AttachmentsCard({ trade }: { trade: TradeDetail }) {
                 {t`Add screenshot`}
               </Button>
             </Menu.Trigger>
-            <Menu.Content align="center" minWidth={220}>
+            <Menu.Content width="full" className="shadow-none rounded-none">
               <Menu.Item
                 icon={<Icon name="photo.on.rectangle" size={16} tintColor={foreground} />}
                 onSelect={() => void pickFromPhotos()}
