@@ -203,7 +203,7 @@ export function NoteImageButton({ images }: { images: NoteImagesController }) {
     );
   }
   return (
-    <Menu>
+    <Menu presentation="bottom-sheet">
       <Menu.Trigger>
         <Button
           variant="outline"
@@ -213,7 +213,7 @@ export function NoteImageButton({ images }: { images: NoteImagesController }) {
           {t`Chart`}
         </Button>
       </Menu.Trigger>
-      <Menu.Content align="start" minWidth={220}>
+      <Menu.Content width="full" className="shadow-none rounded-none">
         <Menu.Item
           icon={<Icon name="photo.on.rectangle" size={16} tintColor={foreground} />}
           onSelect={() => void images.pickFromPhotos()}
