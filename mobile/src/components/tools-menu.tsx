@@ -105,7 +105,7 @@ export function ToolsMenu() {
           <Icon name="wrench.and.screwdriver" size={17} tintColor={foreground} />
         </Pressable>
       </Menu.Trigger>
-      <Menu.Content align="end" minWidth={240}>
+      <Menu.Content width="full">
         {tradingSession.supported ? (
           <Fragment>
             <Menu.Label>{t`Session`}</Menu.Label>
