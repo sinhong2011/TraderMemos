@@ -60,25 +60,35 @@ export function GoalTicks({
       accessibilityValue={{ min: 0, max: 100, now: Math.round(Math.max(0, progress) * 100) }}
       className="h-4 w-full shrink-0 flex-row items-center gap-[1px]"
     >
-      {Array.from({ length: count }, (_, i) => (
-        <View
-          key={i}
-          className={cn(
-            'h-full min-w-0 flex-1 rounded-[1px]',
-            // Capsule caps on the comb's outer corners.
-            i === 0 && 'rounded-s-full',
-            i === count - 1 && 'rounded-e-full',
-            // `bg-muted` is white/black at 4%, which vanishes against the card —
-            // an empty track then reads as a hole rather than a scale.
-            'bg-muted-foreground/20',
-            losing ? i < lossFilled && 'bg-loss' : i < greenTicks && fillClassName,
-            // The run beyond the goal — `heading` is the app's celebratory
-            // accent (amber in dark, deep teal in light), distinct from the
-            // profit green it follows.
-            !losing && i >= count - goldTicks && 'bg-heading',
-          )}
-        />
-      ))}
+      {Array.from({ length: count }, (_, i) => {
+        const beyond = !losing && i >= count - goldTicks;
+        return (
+          <View
+            key={i}
+            className={cn(
+              'h-full min-w-0 flex-1 overflow-hidden rounded-[1px]',
+              // Capsule caps on the comb's outer corners.
+              i === 0 && 'rounded-s-full',
+              i === count - 1 && 'rounded-e-full',
+              // `bg-muted` is white/black at 4%, which vanishes against the card —
+              // an empty track then reads as a hole rather than a scale.
+              'bg-muted-foreground/20',
+              losing ? i < lossFilled && 'bg-loss' : i < greenTicks && fillClassName,
+              // Beyond the goal stays in the profit family — amber is this
+              // app's warning color (this very bar warms when behind pace),
+              // so a yellow tail read as caution, not triumph.
+              beyond && 'bg-profit',
+              // The goal line: a thermometer's target mark where the run
+              // beyond begins.
+              !losing && goldTicks > 0 && i === count - goldTicks && 'ms-[2px]',
+            )}
+          >
+            {/* Lightened, not recolored: white over the profit green reads as
+                "more of the same, elevated". */}
+            {beyond ? <View className="absolute inset-0 bg-white/30" /> : null}
+          </View>
+        );
+      })}
     </View>
   );
 }
