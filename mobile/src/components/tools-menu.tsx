@@ -129,16 +129,21 @@ export function ToolsMenu() {
           {tools.map((action) => (
             <Menu.Item
               key={action.label}
-              className="min-h-[86px] w-[48%] flex-col items-center justify-center gap-2.5 rounded-2xl bg-secondary p-3"
+              className="min-h-[76px] w-[48%] rounded-2xl bg-secondary p-3"
               onSelect={() => router.push(action.href)}
             >
-              <Icon name={action.systemImage} size={20} tintColor={overlayForeground} />
-              <Text
-                numberOfLines={2}
-                className="text-center text-[13px] font-medium text-overlay-foreground"
-              >
-                {action.label}
-              </Text>
+              {/* Menu.Item wraps children in a plain flex-1 View, so the
+                  centering has to live on our own inner View — alignment
+                  classes on the item itself never reach the content. */}
+              <View className="flex-1 items-center justify-center gap-2">
+                <Icon name={action.systemImage} size={20} tintColor={overlayForeground} />
+                <Text
+                  numberOfLines={2}
+                  className="text-center text-[13px] font-medium text-overlay-foreground"
+                >
+                  {action.label}
+                </Text>
+              </View>
             </Menu.Item>
           ))}
         </View>
