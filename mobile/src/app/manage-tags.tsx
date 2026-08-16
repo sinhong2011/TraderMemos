@@ -6,6 +6,7 @@ import { useCSSVariable } from 'uniwind';
 import { Icon } from '@/components/icon';
 import { useSetups, useTags } from '@/api/hooks';
 import { ChipGroup } from '@/components/chips';
+import { DEFAULT_TAG_COLOR } from '@/lib/tags';
 import { GlassIconButton } from '@/components/glass-button';
 import { t } from '@lingui/core/macro';
 import { EMOTIONAL_STATES, TRADE_GRADES, intFromGrade } from '@/lib/journal';
@@ -73,7 +74,11 @@ export default function ManageTagsScreen() {
       {customTags.length > 0 ? (
         <Section icon="tag" label={t`Tags`}>
           <ChipGroup
-            options={customTags.map((tag) => ({ value: tag.id, label: tag.name }))}
+            options={customTags.map((tag) => ({
+              value: tag.id,
+              label: tag.name,
+              color: tag.color || DEFAULT_TAG_COLOR,
+            }))}
             selected={customTags.filter((tag) => !hiddenTagIds.includes(tag.id)).map((t2) => t2.id)}
             onToggle={toggleTagHidden}
           />

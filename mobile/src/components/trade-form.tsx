@@ -11,6 +11,7 @@ import { Icon } from '@/components/icon';
 import type { Account, Setup, Tag } from '@/api/types';
 import { AccountPill } from '@/components/account-pill';
 import { ChipGroup } from '@/components/chips';
+import { DEFAULT_TAG_COLOR } from '@/lib/tags';
 import {
   Card,
   CollapsibleSection,
@@ -546,6 +547,7 @@ function SymbolBlock({
                   options={customTags.map((tag) => ({
                     value: tag.id,
                     label: tag.name,
+                    color: tag.color || DEFAULT_TAG_COLOR,
                   }))}
                   selected={values.tagIds}
                   onToggle={(id) => set('tagIds', toggleIn(values.tagIds, id))}

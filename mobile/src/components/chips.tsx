@@ -1,12 +1,22 @@
 import { Chip, cn } from 'panelui-native';
 import { View } from 'react-native';
 
+/** `#RRGGBB` + alpha byte — tag colors arrive as plain hex from the server. */
+function withAlpha(hex: string, alpha: string): string {
+  return hex.length === 7 ? `${hex}${alpha}` : hex;
+}
+
 export type ChipTone = 'accent' | 'neg';
 
 /** Multi-select chips read as checkboxes to assistive tech; single as radios. */
 export type ChipSelect = 'single' | 'multi';
 
-type Option = { value: string; label: string };
+type Option = {
+  value: string;
+  label: string;
+  /** The tag's own color — drawn as a leading dot, and tinting the selection. */
+  color?: string;
+};
 
 /**
  * Selection colors for the `neg` tone (mistake tags), which PanelUI's own
@@ -51,6 +61,25 @@ export function ChipGroup({
             accessibilityState={{ selected: active, checked: active }}
             className={cn(active && tone === 'neg' && NEG_SELECTED)}
             labelClassName={cn(active && tone === 'neg' && 'text-foreground')}
+            // A tag's own hue leads the chip and, once picked, tints the
+            // selection — the web's colored-chip language. Dynamic hexes are
+            // data, not theme, so they ride `style` rather than a class.
+            start={
+              option.color ? (
+                <View
+                  className="h-2 w-2 rounded-full"
+                  style={{ backgroundColor: option.color }}
+                />
+              ) : undefined
+            }
+            style={
+              active && option.color
+                ? {
+                    borderColor: withAlpha(option.color, '80'),
+                    backgroundColor: withAlpha(option.color, '24'),
+                  }
+                : undefined
+            }
           >
             {option.label}
           </Chip>
