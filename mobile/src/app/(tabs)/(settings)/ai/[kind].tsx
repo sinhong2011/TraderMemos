@@ -286,7 +286,7 @@ function ProviderForm({ kind, settings }: { kind: LlmKind; settings: LlmApiSetti
           {/* The model row is a pull-down rather than a picker: besides the
               models the endpoint listed, it carries the two actions that
               produce that list in the first place. */}
-          <Menu>
+          <Menu presentation="bottom-sheet">
             <Menu.Trigger>
               <Frame.Row accessibilityRole="button" accessibilityLabel={t`Model`}>
                 <Frame.Content>
@@ -300,7 +300,7 @@ function ProviderForm({ kind, settings }: { kind: LlmKind; settings: LlmApiSetti
                 </Frame.Actions>
               </Frame.Row>
             </Menu.Trigger>
-            <Menu.Content align="end" minWidth={240}>
+            <Menu.Content width="full" className="shadow-none rounded-none">
               {models.map((name) => (
                 <Menu.Item
                   key={name}
