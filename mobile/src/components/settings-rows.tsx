@@ -268,7 +268,7 @@ export function SettingsPicker<T extends string>({
   const selected = items.find((item) => item.value === selectedValue);
 
   return (
-    <Menu>
+    <Menu presentation="bottom-sheet">
       <Menu.Trigger>
         <Frame.Row accessibilityRole="button" accessibilityLabel={label}>
           <Frame.Content>
@@ -284,7 +284,7 @@ export function SettingsPicker<T extends string>({
           </Frame.Actions>
         </Frame.Row>
       </Menu.Trigger>
-      <Menu.Content align="end" minWidth={240}>
+      <Menu.Content width="full" className="shadow-none rounded-none">
         <Menu.RadioGroup
           value={selectedValue}
           onValueChange={(value) => onValueChange(value as T)}
