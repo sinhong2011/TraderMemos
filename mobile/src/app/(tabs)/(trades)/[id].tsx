@@ -543,7 +543,7 @@ function TradeDetailBody({
           // PanelUI `Menu`, so the same rows draw on both platforms — Android
           // has no pull-down view manager to fall back to.
           headerRight: () => (
-            <Menu>
+            <Menu presentation="bottom-sheet">
               <Menu.Trigger>
                 <Pressable
                   hitSlop={10}
@@ -554,7 +554,7 @@ function TradeDetailBody({
                   <Icon name="ellipsis.circle" size={17} tintColor={foreground} />
                 </Pressable>
               </Menu.Trigger>
-              <Menu.Content align="end" minWidth={220}>
+              <Menu.Content width="full" className="shadow-none rounded-none">
                 <Menu.Item
                   icon={<Icon name="pencil" size={16} tintColor={popoverForeground} />}
                   onSelect={() =>
