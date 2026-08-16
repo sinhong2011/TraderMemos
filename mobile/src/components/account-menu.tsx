@@ -117,6 +117,9 @@ export function AccountMenu() {
       {/* width="full": a sheet centres content-fit panels, which strands short
           rows in a narrow card — rows span the sheet instead. */}
       <Menu.Content width="full">
+        {/* The sheet is already the surface — the default panel background
+            would draw a second card floating inside it. */}
+        <Menu.Background className="bg-transparent" />
         <Menu.Label>{t`Account`}</Menu.Label>
         <Menu.Item
           accessibilityState={{ selected: !scoped }}

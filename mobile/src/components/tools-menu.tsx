@@ -2,7 +2,7 @@ import { useRouter, type Href } from 'expo-router';
 import { type SFSymbol } from 'expo-symbols';
 import { Menu } from 'panelui-native';
 import { Fragment } from 'react';
-import { Pressable } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { useCSSVariable } from 'uniwind';
 
 import { t } from '@lingui/core/macro';
@@ -12,20 +12,21 @@ import { useTradingSession } from '@/lib/live-activity';
 /**
  * Home-header wrench menu — everywhere you go from Home that isn't a tab.
  *
- * Two sections: the calculators and market lookups (the phone home of the web
- * Tools popover), then the journal sections. Notes and Playbook live here as
- * well as on their dashboard cards because the cards sit below every analytics
- * block — reaching your own journal should not mean scrolling past the whole
- * dashboard. Sheets for the one-shot calculators; everything else pushes in
- * the Home stack.
+ * Presented as a bottom sheet with two shapes of content: the journal
+ * destinations stay reading-order rows, while the tools are a two-column grid
+ * of tiles — calculators are "grab one" objects, not a list you read top to
+ * bottom, and the grid halves the sheet's height. Notes and Playbook live
+ * here as well as on their dashboard cards because the cards sit below every
+ * analytics block — reaching your own journal should not mean scrolling past
+ * the whole dashboard.
  *
- * PanelUI `Menu`, so the same rows draw on both platforms — Android has no
+ * PanelUI `Menu`, so the same sheet draws on both platforms — Android has no
  * pull-down view manager, and the old fallback pushed one hardcoded action.
  */
 export function ToolsMenu() {
-  const [foreground, popoverForeground] = useCSSVariable([
+  const [foreground, overlayForeground] = useCSSVariable([
     '--color-foreground',
-    '--color-popover-foreground',
+    '--color-overlay-foreground',
   ]) as [string, string];
   const router = useRouter();
   // Lock Screen / Dynamic Island trading session (lib/live-activity.ts).
@@ -33,7 +34,7 @@ export function ToolsMenu() {
   // the daily checklist below.
   const tradingSession = useTradingSession();
 
-  const actions: { label: string; systemImage: SFSymbol; href: Href }[] = [
+  const tools: { label: string; systemImage: SFSymbol; href: Href }[] = [
     // Promoted out of the tab bar (2026-08-09) when the search tab took the
     // fifth slot; first here because it was a top-level destination.
     {
@@ -88,11 +89,9 @@ export function ToolsMenu() {
   ];
 
   const rowIcon = (name: SFSymbol) => (
-    <Icon name={name} size={16} tintColor={popoverForeground} />
+    <Icon name={name} size={16} tintColor={overlayForeground} />
   );
 
-  // Bottom sheet — a 12-row action list reads as an action sheet, the platform
-  // idiom on iOS and Android alike.
   return (
     <Menu presentation="bottom-sheet">
       <Menu.Trigger>
@@ -106,6 +105,9 @@ export function ToolsMenu() {
         </Pressable>
       </Menu.Trigger>
       <Menu.Content width="full">
+        {/* The sheet is already the surface — the default panel background
+            would draw a second card floating inside it. */}
+        <Menu.Background className="bg-transparent" />
         {tradingSession.supported ? (
           <Fragment>
             <Menu.Label>{t`Session`}</Menu.Label>
@@ -136,15 +138,23 @@ export function ToolsMenu() {
         ))}
         <Menu.Separator />
         <Menu.Label>{t`Tools`}</Menu.Label>
-        {actions.map((action) => (
-          <Menu.Item
-            key={action.label}
-            icon={rowIcon(action.systemImage)}
-            onSelect={() => router.push(action.href)}
-          >
-            {action.label}
-          </Menu.Item>
-        ))}
+        {/* Bento grid: quiet muted tiles, icon anchored top, label at the
+            base. Menu.Item keeps the press fill/scale and close-on-select;
+            the class overrides reshape the row into a tile. */}
+        <View className="flex-row flex-wrap gap-2 pb-1 pt-1">
+          {tools.map((action) => (
+            <Menu.Item
+              key={action.label}
+              className="min-h-[76px] w-[48%] flex-col items-start justify-between gap-2 rounded-2xl bg-muted p-3"
+              onSelect={() => router.push(action.href)}
+            >
+              <Icon name={action.systemImage} size={18} tintColor={overlayForeground} />
+              <Text className="text-[13px] font-medium text-overlay-foreground">
+                {action.label}
+              </Text>
+            </Menu.Item>
+          ))}
+        </View>
       </Menu.Content>
     </Menu>
   );

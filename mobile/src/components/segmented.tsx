@@ -91,16 +91,14 @@ export function Segmented<T extends string>({
       onValueChange={(next) => onChange(next as T)}
       className={cn(fill ? 'self-stretch' : 'self-start')}
     >
-      <Tabs.List className={cn(compact && 'h-[30px] items-center py-0')}>
+      {/* `scrollable` is PanelUI's hug mode: triggers take their natural width
+          with the variant's own px-4 — three short segments never actually
+          scroll. A fixed row divides itself between flex-1 triggers instead,
+          which is what `fill` wants. (A bare flex-none override loses the
+          hug padding and jams the labels together — 30D90DALL.) */}
+      <Tabs.List scrollable={!fill} className={cn(compact && 'h-[30px] items-center py-0')}>
         {options.map((option) => (
-          <Tabs.Trigger
-            key={option.value}
-            value={option.value}
-            // Segments share the width only when the track was told to stretch;
-            // hugging, they size to their own label — the `flex-1` a fixed row
-            // gives them zeroes the basis and the labels spill out of the track.
-            className={cn(!fill && 'flex-none')}
-          >
+          <Tabs.Trigger key={option.value} value={option.value}>
             {allIcons && option.icon ? (
               <View accessibilityLabel={option.label}>
                 <Icon
