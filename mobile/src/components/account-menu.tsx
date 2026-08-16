@@ -116,10 +116,10 @@ export function AccountMenu() {
       </Menu.Trigger>
       {/* width="full": a sheet centres content-fit panels, which strands short
           rows in a narrow card — rows span the sheet instead. */}
-      <Menu.Content width="full">
-        {/* The sheet is already the surface — the default panel background
-            would draw a second card floating inside it. */}
-        <Menu.Background className="bg-transparent" />
+      {/* shadow-none: the sheet is already the surface, but Menu.Content
+          always adds its popover panel chrome (shadow-lg halo + rounded
+          box) which reads as a second card floating inside the sheet. */}
+      <Menu.Content width="full" className="shadow-none rounded-none">
         <Menu.Label>{t`Account`}</Menu.Label>
         <Menu.Item
           accessibilityState={{ selected: !scoped }}

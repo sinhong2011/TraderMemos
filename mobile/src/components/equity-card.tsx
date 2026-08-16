@@ -77,7 +77,7 @@ export function EquityCard({
     return (
       <DashboardCard
         title={t`Equity curve`}
-        control={<Segmented options={RANGES} value={range} onChange={setRange} />}
+        control={<Segmented compact options={RANGES} value={range} onChange={setRange} />}
       >
         <Text className="py-4 text-[13px] text-muted-foreground">{t`No equity data in this range.`}</Text>
       </DashboardCard>
@@ -94,7 +94,7 @@ export function EquityCard({
   return (
     <DashboardCard
       title={t`Equity curve`}
-      control={<Segmented options={RANGES} value={range} onChange={setRange} />}
+      control={<Segmented compact options={RANGES} value={range} onChange={setRange} />}
     >
       <View className="flex-row items-baseline gap-3">
         <Text selectable className="text-[22px] font-semibold tabular-nums text-foreground">

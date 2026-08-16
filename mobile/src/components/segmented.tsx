@@ -1,6 +1,6 @@
 import type { SFSymbol } from 'expo-symbols';
 import { Select, Tabs, cn } from 'panelui-native';
-import { View } from 'react-native';
+import { Text, View } from 'react-native';
 import { useCSSVariable } from 'uniwind';
 
 import { Icon } from '@/components/icon';
@@ -98,15 +98,31 @@ export function Segmented<T extends string>({
           hug padding and jams the labels together — 30D90DALL.) */}
       <Tabs.List scrollable={!fill} className={cn(compact && 'h-[30px] items-center py-0')}>
         {options.map((option) => (
-          <Tabs.Trigger key={option.value} value={option.value}>
+          <Tabs.Trigger
+            key={option.value}
+            value={option.value}
+            // Compact drops the hug padding a step with the smaller label.
+            className={cn(compact && 'px-2.5 py-0.5')}
+          >
             {allIcons && option.icon ? (
               <View accessibilityLabel={option.label}>
                 <Icon
                   name={option.icon}
-                  size={15}
+                  size={compact ? 13 : 15}
                   tintColor={option.value === value ? foreground : mutedForeground}
                 />
               </View>
+            ) : compact ? (
+              // The stock trigger label is a fixed size="sm" Text; compact
+              // supplies its own so the whole control scales down together.
+              <Text
+                className={cn(
+                  'text-[12px] font-medium',
+                  option.value === value ? 'text-foreground' : 'text-muted-foreground',
+                )}
+              >
+                {option.label}
+              </Text>
             ) : (
               option.label
             )}
