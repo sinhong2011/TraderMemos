@@ -594,6 +594,7 @@ msgstr "access token integration webhook"
 #: src/app/(tabs)/(trades)/index.tsx:367
 #: src/app/cash-form.tsx:168
 #: src/app/cash-form.tsx:186
+#: src/components/account-menu.tsx:120
 #: src/components/account-pill.tsx:41
 #: src/components/account-pill.tsx:54
 #: src/components/account-pill.tsx:58
@@ -861,7 +862,7 @@ msgid "All"
 msgstr "All"
 
 #: src/app/(tabs)/(trades)/index.tsx:307
-#: src/components/account-menu.tsx:52
+#: src/components/account-menu.tsx:131
 msgid "All accounts"
 msgstr "All accounts"
 
@@ -1585,6 +1586,11 @@ msgstr "Coach"
 #: src/app/tag-form.tsx:95
 msgid "Color"
 msgstr "Color"
+
+#. placeholder {0}: list.length
+#: src/components/account-menu.tsx:132
+msgid "Combined view · {0} accounts"
+msgstr "Combined view · {0} accounts"
 
 #: src/app/(tabs)/(settings)/import-trades.tsx:51
 msgid "Commission"
@@ -2434,7 +2440,7 @@ msgstr "Enabled"
 msgid "End date"
 msgstr "End date"
 
-#: src/components/tools-menu.tsx:112
+#: src/components/tools-menu.tsx:114
 msgid "End Lock Screen session"
 msgstr "End Lock Screen session"
 
@@ -3313,7 +3319,7 @@ msgstr "It is deleted from this note and from the server."
 #: src/app/(tabs)/(trades)/[id].tsx:676
 #: src/app/(tabs)/(trades)/[id].tsx:718
 #: src/components/swipeable-trade-row.tsx:86
-#: src/components/tools-menu.tsx:125
+#: src/components/tools-menu.tsx:127
 #: src/components/trade-form.tsx:504
 msgid "Journal"
 msgstr "Journal"
@@ -3637,6 +3643,10 @@ msgstr "MAE was ~{r}× your recorded risk. Either the stop was widened or the pl
 #: src/components/insights-card.tsx:104
 msgid "Main leak"
 msgstr "Main leak"
+
+#: src/components/account-menu.tsx:157
+msgid "Manage accounts"
+msgstr "Manage accounts"
 
 #: src/app/(tabs)/(trades)/index.tsx:186
 msgid "Manage tags"
@@ -4600,6 +4610,7 @@ msgstr "P&L, rules broken"
 msgid "P&L, rules followed"
 msgstr "P&L, rules followed"
 
+#: src/components/account-menu.tsx:74
 #: src/components/share-card.tsx:25
 msgid "Paper"
 msgstr "Paper"
@@ -5770,7 +5781,7 @@ msgid "Server URL"
 msgstr "Server URL"
 
 #: src/app/(tabs)/(trades)/[id].tsx:692
-#: src/components/tools-menu.tsx:109
+#: src/components/tools-menu.tsx:111
 #: src/components/trade-form.tsx:515
 msgid "Session"
 msgstr "Session"
@@ -5956,7 +5967,7 @@ msgstr "Show amounts"
 msgid "Show password"
 msgstr "Show password"
 
-#: src/components/tools-menu.tsx:119
+#: src/components/tools-menu.tsx:121
 msgid "Show session on Lock Screen"
 msgstr "Show session on Lock Screen"
 
@@ -6200,7 +6211,7 @@ msgstr "Swap currencies"
 msgid "Swing"
 msgstr "Swing"
 
-#: src/components/account-menu.tsx:39
+#: src/components/account-menu.tsx:111
 msgid "Switch account"
 msgstr "Switch account"
 
@@ -6685,8 +6696,8 @@ msgstr "Tokens authenticate scripts and integrations against your server's API. 
 msgid "Too many requests"
 msgstr "Too many requests"
 
-#: src/components/tools-menu.tsx:100
-#: src/components/tools-menu.tsx:136
+#: src/components/tools-menu.tsx:102
+#: src/components/tools-menu.tsx:138
 msgid "Tools"
 msgstr "Tools"
 

@@ -163,6 +163,7 @@ export const SF_TO_MATERIAL: Record<string, AndroidSymbol> = {
   target: 'adjust',
   'flag.checkered': 'sports_score',
   'bolt.fill': 'bolt',
+  'square.stack.3d.up': 'stacks',
   'slider.horizontal.3': 'tune',
   'wrench.and.screwdriver': 'handyman',
   // Overflow menus and the backtest session actions — these used to be drawn by

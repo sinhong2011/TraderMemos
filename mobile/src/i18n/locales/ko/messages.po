@@ -594,6 +594,7 @@ msgstr "액세스 토큰 연동 API 웹훅"
 #: src/app/(tabs)/(trades)/index.tsx:367
 #: src/app/cash-form.tsx:168
 #: src/app/cash-form.tsx:186
+#: src/components/account-menu.tsx:120
 #: src/components/account-pill.tsx:41
 #: src/components/account-pill.tsx:54
 #: src/components/account-pill.tsx:58
@@ -861,7 +862,7 @@ msgid "All"
 msgstr "전체"
 
 #: src/app/(tabs)/(trades)/index.tsx:307
-#: src/components/account-menu.tsx:52
+#: src/components/account-menu.tsx:131
 msgid "All accounts"
 msgstr "모든 계좌"
 
@@ -1585,6 +1586,11 @@ msgstr "코치"
 #: src/app/tag-form.tsx:95
 msgid "Color"
 msgstr "색상"
+
+#. placeholder {0}: list.length
+#: src/components/account-menu.tsx:132
+msgid "Combined view · {0} accounts"
+msgstr "통합 보기 · 계좌 {0}개"
 
 #: src/app/(tabs)/(settings)/import-trades.tsx:51
 msgid "Commission"
@@ -2434,7 +2440,7 @@ msgstr "사용"
 msgid "End date"
 msgstr "종료일"
 
-#: src/components/tools-menu.tsx:112
+#: src/components/tools-menu.tsx:114
 msgid "End Lock Screen session"
 msgstr "잠금 화면 세션 종료"
 
@@ -3313,7 +3319,7 @@ msgstr "이 노트와 서버에서 모두 삭제됩니다."
 #: src/app/(tabs)/(trades)/[id].tsx:676
 #: src/app/(tabs)/(trades)/[id].tsx:718
 #: src/components/swipeable-trade-row.tsx:86
-#: src/components/tools-menu.tsx:125
+#: src/components/tools-menu.tsx:127
 #: src/components/trade-form.tsx:504
 msgid "Journal"
 msgstr "저널"
@@ -3637,6 +3643,10 @@ msgstr "MAE가 기록 리스크의 약 {r}배였습니다. 스톱을 넓혔거�
 #: src/components/insights-card.tsx:104
 msgid "Main leak"
 msgstr "주요 실수"
+
+#: src/components/account-menu.tsx:157
+msgid "Manage accounts"
+msgstr "계좌 관리"
 
 #: src/app/(tabs)/(trades)/index.tsx:186
 msgid "Manage tags"
@@ -4600,6 +4610,7 @@ msgstr "손익 (규칙 위반일)"
 msgid "P&L, rules followed"
 msgstr "손익 (규칙 준수일)"
 
+#: src/components/account-menu.tsx:74
 #: src/components/share-card.tsx:25
 msgid "Paper"
 msgstr "페이퍼"
@@ -5762,7 +5773,7 @@ msgid "Server URL"
 msgstr "서버 URL"
 
 #: src/app/(tabs)/(trades)/[id].tsx:692
-#: src/components/tools-menu.tsx:109
+#: src/components/tools-menu.tsx:111
 #: src/components/trade-form.tsx:515
 msgid "Session"
 msgstr "세션"
@@ -5948,7 +5959,7 @@ msgstr "금액 표시"
 msgid "Show password"
 msgstr "비밀번호 표시"
 
-#: src/components/tools-menu.tsx:119
+#: src/components/tools-menu.tsx:121
 msgid "Show session on Lock Screen"
 msgstr "잠금 화면에 세션 표시"
 
@@ -6192,7 +6203,7 @@ msgstr "통화 바꾸기"
 msgid "Swing"
 msgstr "스윙"
 
-#: src/components/account-menu.tsx:39
+#: src/components/account-menu.tsx:111
 msgid "Switch account"
 msgstr "계좌 전환"
 
@@ -6677,8 +6688,8 @@ msgstr "토큰은 스크립트와 연동이 서버 API에 인증하는 수단입
 msgid "Too many requests"
 msgstr "요청이 너무 많음"
 
-#: src/components/tools-menu.tsx:100
-#: src/components/tools-menu.tsx:136
+#: src/components/tools-menu.tsx:102
+#: src/components/tools-menu.tsx:138
 msgid "Tools"
 msgstr "도구"
 
