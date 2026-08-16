@@ -124,7 +124,7 @@ export function TradeChart({ trade }: { trade: TradeDetail }) {
           branch above so it is still there to change when a window came back
           empty. */}
       <View className="items-center">
-        <Segmented options={BAR_INTERVALS} value={bars.interval} onChange={bars.pickInterval} />
+        <Segmented compact options={BAR_INTERVALS} value={bars.interval} onChange={bars.pickInterval} />
       </View>
     </DashboardCard>
   );

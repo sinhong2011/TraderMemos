@@ -96,7 +96,14 @@ export function Segmented<T extends string>({
           scroll. A fixed row divides itself between flex-1 triggers instead,
           which is what `fill` wants. (A bare flex-none override loses the
           hug padding and jams the labels together — 30D90DALL.) */}
-      <Tabs.List scrollable={!fill} className={cn(compact && 'h-[30px] items-center py-0')}>
+      {/* Explicit track heights: hug mode wraps the row in a horizontal
+          ScrollView, and RN gives ScrollViews flexGrow:1 of their own — in a
+          column with spare height the track otherwise stretches into a giant
+          empty slab (trade detail's interval switcher did exactly that). */}
+      <Tabs.List
+        scrollable={!fill}
+        className={cn('items-center', compact ? 'h-[30px] py-0' : 'h-10')}
+      >
         {options.map((option) => (
           <Tabs.Trigger
             key={option.value}
