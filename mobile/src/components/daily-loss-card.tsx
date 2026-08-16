@@ -1,4 +1,4 @@
-import { Progress, cn } from 'panelui-native';
+import { Meter, cn } from 'panelui-native';
 import { Text, View } from 'react-native';
 
 import { useRiskRules } from '@/api/hooks';
@@ -44,11 +44,19 @@ export function DailyLossCard({
         </Text>
       </View>
       {/* A budget barely touched still has to read as started, so the fill
-          keeps a 3% floor once anything has been spent. */}
-      <Progress
+          keeps a 3% floor once anything has been spent. A Meter rather than
+          Progress: the budget is a reading on a fixed scale, and the
+          thresholds carry the calm→warning→breached color story on the track
+          itself instead of a ternary in JS. */}
+      <Meter
         value={Math.max(usedPct, spent > 0 ? 3 : 0)}
         size="sm"
-        color={breached ? 'destructive' : warning ? 'warning' : 'primary'}
+        accessibilityLabel={t`Daily loss budget used`}
+        color="primary"
+        thresholds={[
+          { from: 70, color: 'warning' },
+          { from: 100, color: 'destructive' },
+        ]}
       />
       <Text
         className={cn(
