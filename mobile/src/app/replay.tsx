@@ -435,7 +435,7 @@ function Stage({
                   value={bars.interval}
                   onChange={bars.pickInterval}
                 />
-                <Menu>
+                <Menu presentation="bottom-sheet">
                   <Menu.Trigger>
                     <Pressable
                       hitSlop={10}
@@ -446,7 +446,7 @@ function Stage({
                       <Icon name="ellipsis.circle" size={17} tintColor={foreground} />
                     </Pressable>
                   </Menu.Trigger>
-                  <Menu.Content align="end" minWidth={220}>
+                  <Menu.Content width="full" className="shadow-none rounded-none">
                     <Menu.Item
                       icon={<Icon name="note.text.badge.plus" size={16} tintColor={foreground} />}
                       onSelect={() => void saveFrameToNote()}
@@ -948,7 +948,7 @@ function BacktestStage({
             ) : // Nothing traded yet, nothing to save or throw away — an empty
             // pull-down would be a dead affordance in the nav bar.
             sessionActions.length === 0 ? null : (
-              <Menu>
+              <Menu presentation="bottom-sheet">
                 <Menu.Trigger>
                   <Pressable
                     hitSlop={10}
@@ -959,7 +959,7 @@ function BacktestStage({
                     <Icon name="ellipsis.circle" size={17} tintColor={foreground} />
                   </Pressable>
                 </Menu.Trigger>
-                <Menu.Content align="end" minWidth={200}>
+                <Menu.Content width="full" className="shadow-none rounded-none">
                   {sessionActions.map((action) => (
                     <Menu.Item
                       key={action.label}
