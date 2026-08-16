@@ -52,7 +52,7 @@ export function EventFilterMenu({
   const active = groups.some((group) => group.selected.length > 0);
 
   return (
-    <Menu>
+    <Menu presentation="bottom-sheet">
       <Menu.Trigger>
         <Pressable
           hitSlop={10}
@@ -73,7 +73,7 @@ export function EventFilterMenu({
           />
         </Pressable>
       </Menu.Trigger>
-      <Menu.Content align="end" minWidth={240}>
+      <Menu.Content width="full" className="shadow-none rounded-none">
         {groups.map((group) => (
           <Menu.Sub key={group.key}>
             <Menu.SubTrigger
