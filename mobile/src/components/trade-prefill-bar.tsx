@@ -84,13 +84,13 @@ export function TradePrefillBar({
   }
 
   return (
-    <Menu>
+    <Menu presentation="bottom-sheet">
       {/* `Menu.Trigger` clones its child with its own `onPress`, so the button
           keeps its chrome and only needs a placeholder handler. */}
       <Menu.Trigger>
         <GlassIconButton systemImage="text.viewfinder" label={t`Scan to fill`} onPress={() => {}} />
       </Menu.Trigger>
-      <Menu.Content align="end" minWidth={240}>
+      <Menu.Content width="full" className="shadow-none rounded-none">
         <Menu.Item
           icon={<Icon name="photo.on.rectangle" size={16} tintColor={foreground} />}
           onSelect={() => void pickFromPhotos()}
