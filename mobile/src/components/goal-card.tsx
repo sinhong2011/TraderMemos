@@ -101,7 +101,7 @@ export function GoalCard({
       <GoalTicks
         progress={progress}
         // Web parity: falling behind the calendar pace warms the fill.
-        fillClassName={status === 'behind' && progress < 1 ? 'bg-warning' : 'bg-profit'}
+        tone={status === 'behind' && progress < 1 ? 'warning' : 'profit'}
         accessibilityLabel={t`Goal progress`}
       />
       <View className="flex-row flex-wrap items-center justify-between gap-2">
