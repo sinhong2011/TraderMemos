@@ -29,7 +29,7 @@ export function AddMenu() {
   ] as const;
 
   return (
-    <Menu>
+    <Menu presentation="bottom-sheet">
       <Menu.Trigger>
         <Pressable
           hitSlop={10}
@@ -40,7 +40,7 @@ export function AddMenu() {
           <Icon name="plus" size={18} tintColor={foreground} weight="semibold" />
         </Pressable>
       </Menu.Trigger>
-      <Menu.Content align="end" minWidth={220}>
+      <Menu.Content width="full" className="shadow-none rounded-none">
         {actions.map((action) => (
           <Menu.Item
             key={action.href}
