@@ -30,8 +30,10 @@ export function AccountMenu() {
   const scoped = selectedId != null && list.some((account) => account.id === selectedId);
   const icon = scoped ? 'person.crop.circle.fill' : 'person.crop.circle';
 
+  // Bottom sheet, not an anchored popover: the native-feeling idiom on both
+  // platforms, and it needs no trigger anchoring or width floor.
   return (
-    <Menu>
+    <Menu presentation="bottom-sheet">
       <Menu.Trigger>
         <Pressable
           hitSlop={10}

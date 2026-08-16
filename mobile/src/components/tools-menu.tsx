@@ -91,8 +91,10 @@ export function ToolsMenu() {
     <Icon name={name} size={16} tintColor={popoverForeground} />
   );
 
+  // Bottom sheet — a 12-row action list reads as an action sheet, the platform
+  // idiom on iOS and Android alike.
   return (
-    <Menu>
+    <Menu presentation="bottom-sheet">
       <Menu.Trigger>
         <Pressable
           hitSlop={10}
