@@ -12,9 +12,9 @@ const DEFAULT_SEGMENTS = 24;
  * Segmented tick progress bar — the web `GoalProgressBar` energy-bar comb,
  * with two states the web leaves to text:
  *
- * - **Overshoot** (`progress > 1`): the bar is a game energy bar, so the run
- *   past the goal is a second lap — gold ticks refill from the left over the
- *   full green base. 124% reads as a full bar plus 24% of gold.
+ * - **Overshoot** (`progress > 1`): the scale grows to the total, so the bar
+ *   reads left to right — green to the goal boundary, then gold for the run
+ *   beyond it. 124% is ~4/5 green with a gold tail.
  * - **Loss** (`progress < 0`): red ticks fill from the left for the drawdown
  *   measured against the goal, instead of an empty track that says nothing.
  *
@@ -41,10 +41,15 @@ export function GoalTicks({
   };
 
   const losing = progress < 0;
-  const base = Math.min(1, Math.max(0, progress));
-  const filled = Math.round(base * count);
-  // Second lap caps at another 100% — past 200% the copy carries the number.
-  const overshoot = Math.round(Math.min(1, Math.max(0, progress - 1)) * count);
+  const over = progress > 1;
+  // Past the goal the scale grows to the total, so the bar reads left to
+  // right: green to the goal boundary, gold for the run beyond it. (An
+  // overlay lap refilling from the left read as "why is the start yellow".)
+  const goalShare = over ? 1 / progress : 1;
+  const greenTicks = over
+    ? Math.max(1, Math.round(goalShare * count))
+    : Math.round(Math.min(1, Math.max(0, progress)) * count);
+  const goldTicks = over ? count - Math.max(1, Math.round(goalShare * count)) : 0;
   const lossFilled = Math.round(Math.min(1, -Math.min(0, progress)) * count);
 
   return (
@@ -60,14 +65,17 @@ export function GoalTicks({
           key={i}
           className={cn(
             'h-full min-w-0 flex-1 rounded-[1px]',
+            // Capsule caps on the comb's outer corners.
+            i === 0 && 'rounded-s-full',
+            i === count - 1 && 'rounded-e-full',
             // `bg-muted` is white/black at 4%, which vanishes against the card —
             // an empty track then reads as a hole rather than a scale.
             'bg-muted-foreground/20',
-            losing ? i < lossFilled && 'bg-loss' : i < filled && fillClassName,
-            // The gold lap sits over the green base — `heading` is the app's
-            // celebratory accent (amber in dark, deep teal in light), distinct
-            // from the profit green it covers.
-            !losing && i < overshoot && 'bg-heading',
+            losing ? i < lossFilled && 'bg-loss' : i < greenTicks && fillClassName,
+            // The run beyond the goal — `heading` is the app's celebratory
+            // accent (amber in dark, deep teal in light), distinct from the
+            // profit green it follows.
+            !losing && i >= count - goldTicks && 'bg-heading',
           )}
         />
       ))}
