@@ -70,7 +70,7 @@ export function TradeFilterMenu({
   );
 
   return (
-    <Menu>
+    <Menu presentation="bottom-sheet">
       <Menu.Trigger>
         <Pressable
           hitSlop={10}
@@ -86,7 +86,7 @@ export function TradeFilterMenu({
           />
         </Pressable>
       </Menu.Trigger>
-      <Menu.Content align="end" minWidth={260}>
+      <Menu.Content width="full" className="shadow-none rounded-none">
         {groups.map((group) =>
           nested ? (
             <Menu.Sub key={group.key}>
