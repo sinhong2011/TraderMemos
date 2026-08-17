@@ -731,6 +731,7 @@ export default function CalendarScreen() {
               {mode === 'month' ? (
                 <Segmented
                   variant="wheel"
+                  title={t`Month`}
                   options={monthOptions}
                   value={String(month)}
                   onChange={(m) => jumpTo(year, Number(m))}
@@ -738,6 +739,7 @@ export default function CalendarScreen() {
               ) : null}
               <Segmented
                 variant="wheel"
+                title={t`Year`}
                 options={yearOptions}
                 value={String(year)}
                 onChange={(y) => jumpTo(Number(y), month)}

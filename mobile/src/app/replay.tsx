@@ -431,6 +431,7 @@ function Stage({
                     the height back. */}
                 <Segmented
                   variant="menu"
+                  title={t`Interval`}
                   options={BAR_INTERVALS}
                   value={bars.interval}
                   onChange={bars.pickInterval}

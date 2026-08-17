@@ -1,34 +1,34 @@
-
-import { cn } from 'panelui-native';
-import { useEffect } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Chip, cn } from 'panelui-native';
+import { Text, View } from 'react-native';
 import Animated, {
+  interpolate,
   LayoutAnimationConfig,
+  runOnJS,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
-import { useCSSVariable } from 'uniwind';
 
-import { Icon } from '@/components/icon';
 import { GlassIconButton } from '@/components/glass-button';
 
+/** The app's one spring (see form-rows.tsx) — strip motion matches the fills. */
+const TAB_SPRING = { duration: 420, dampingRatio: 0.85 } as const;
+
 /**
- * One fluid motion for the whole tab strip: SwiftUI's `.smooth` spring model
- * (perceptual duration + damping ratio rather than stiffness/mass), damped just
- * under critical so everything glides to rest without a bounce. DESIGN.md's
- * 150ms ease-out rule is written for the web; app motion here is springs.
+ * Critically damped, unlike `TAB_SPRING`: a slot closing to zero must not
+ * overshoot — 0.85 damping swings the width negative and back, which on
+ * screen reads as the strip closing, reopening a sliver, then closing again.
+ * The opening spring keeps its bounce; over-opening is a positive width.
  */
-export const TAB_SPRING = { duration: 420, dampingRatio: 0.85 } as const;
+const COLLAPSE_SPRING = { duration: 300, dampingRatio: 1 } as const;
 
 /**
  * Entering tabs grow open from zero width on the strip's spring while they
- * fade in — the exact mirror of `tabCollapse`, so add and remove read as the
- * same liquid motion. Fade/scale alone left the width to snap in one frame:
- * the capsule jumped wider, then a ghost faded into the already-open gap.
- * `targetWidth` seeds the spring's destination; the slot wrapper clips the
- * label while the capsule is still opening.
+ * fade in. This is deliberately *not* a `LinearTransition` on the track or its
+ * children: animating the one tab's width lets the neighbours, the capsule and
+ * the "+" follow through ordinary layout every frame, which is what keeps the
+ * strip fluid — a layout transition on the ScrollView itself stutters on iOS.
  */
 function tabEnter(values: { targetWidth: number }) {
   'worklet';
@@ -42,47 +42,22 @@ function tabEnter(values: { targetWidth: number }) {
   };
 }
 
-/** Mirror of the entrance, quicker — a removed glyph shouldn't linger. */
-function tabExit() {
-  'worklet';
-  return {
-    initialValues: { opacity: 1, transform: [{ scale: 1 }] },
-    animations: {
-      opacity: withTiming(0, { duration: 140 }),
-      transform: [{ scale: withTiming(0.92, { duration: 140 }) }],
-    },
-  };
-}
+export type PagerTab = {
+  key: string;
+  label: string;
+  /** Never offers the inline clear glyph — a page the form always owns (the
+   * daily log's own recap sits at index 0 alongside its symbol pages). */
+  fixed?: boolean;
+};
 
 /**
- * Removing a tab: it squeezes shut on the very spring that carries its
- * neighbours into the gap, so the strip closes as one motion. Previously the
- * chip blinked out in 140ms and left a hole that the 420ms layout spring then
- * spent three times as long closing — two animations, visibly out of step.
- * `currentWidth` is what makes it possible: an exiting view is detached from
- * layout, so without seeding its measured width there is nothing to animate
- * from. The wrapper clips (`overflow-hidden`) so the label is wiped rather than
- * spilling out of the shrinking capsule.
- */
-function tabCollapse(values: { currentWidth: number }) {
-  'worklet';
-  return {
-    initialValues: { opacity: 1, width: values.currentWidth, transform: [{ scale: 1 }] },
-    animations: {
-      // Fades well before the width lands, so the ghost never sits on top of
-      // the neighbour sliding underneath it.
-      opacity: withTiming(0, { duration: 160 }),
-      width: withSpring(0, TAB_SPRING),
-      transform: [{ scale: withSpring(0.9, TAB_SPRING) }],
-    },
-  };
-}
-
-/**
- * One tab. The selection fill is an animated layer rather than a conditional
- * background: removing the active tab hands the highlight to its neighbour,
- * and swapping that on instantly reads as a second jump landing on top of the
- * collapse.
+ * One tab. Removal is collapse-then-unmount: a Reanimated `exiting` animation
+ * never fires for these views (inside the strip's horizontal ScrollView the
+ * removed tab simply vanished, on both platforms), so the ✕ does not unmount
+ * anything — it springs the slot's width to zero itself, neighbours and the
+ * "+" following through ordinary layout each frame, and only the finished
+ * animation reports the removal upward. The mirror of `tabEnter`, so add and
+ * remove read as the same liquid motion.
  */
 function SymbolTab({
   label,
@@ -101,75 +76,80 @@ function SymbolTab({
   onLongPress?: () => void;
   onRemove: () => void;
 }) {
-  const [mutedForeground] = useCSSVariable(['--color-muted-foreground']) as [string];
-  /**
-   * Seeded at the tab's *current* selection so the fill is simply there on the
-   * first frame. Springing straight from `useAnimatedStyle` instead — the
-   * previous form — starts from the static style's `opacity: 0` and fades the
-   * active tab's fill in over 420ms every single time the bar mounts, which on
-   * a freshly opened form reads as the chip arriving late. The spring belongs
-   * to a *change* of selection, so it lives in the effect.
-   */
-  const selected = useSharedValue(isActive ? 1 : 0);
-  useEffect(() => {
-    selected.value = withSpring(isActive ? 1 : 0, TAB_SPRING);
-  }, [isActive, selected]);
-  const fill = useAnimatedStyle(() => ({ opacity: selected.value }));
+  /** Natural slot width, kept fresh while the tab is open. */
+  const measured = useSharedValue(0);
+  /** 1 open → 0 collapsed. Only read once `closing` flips. */
+  const progress = useSharedValue(1);
+  const closing = useSharedValue(false);
+
+  const collapse = useAnimatedStyle(() => {
+    if (!closing.value) return {};
+    return {
+      width: Math.max(0, measured.value * progress.value),
+      // Gone well before the width lands, so the ghost never sits on top of
+      // the neighbour sliding underneath it.
+      opacity: interpolate(progress.value, [0.6, 1], [0, 1], 'clamp'),
+      transform: [{ scale: 0.9 + progress.value * 0.1 }],
+    };
+  });
+
+  const startRemove = () => {
+    if (closing.value) return;
+    // eslint-disable-next-line react-hooks/immutability -- reanimated shared value
+    closing.value = true;
+    // eslint-disable-next-line react-hooks/immutability -- reanimated shared value
+    progress.value = withSpring(0, COLLAPSE_SPRING, (finished) => {
+      'worklet';
+      if (finished) runOnJS(onRemove)();
+    });
+  };
 
   return (
-    <Pressable
-      onPress={onPress}
-      onLongPress={onLongPress}
-      accessibilityRole="tab"
-      accessibilityState={{ selected: isActive }}
-      // 34 + 3pt of capsule padding either side lines the tab strip up with the
-      // 40pt glass "+" button beside it.
-      className={cn(
-        'min-h-[34px] min-w-[44px] flex-row items-center justify-center gap-1.5 rounded-full px-3',
-        'active:opacity-60',
-      )}
+    // Clips the label while the collapse squeezes the slot shut.
+    <Animated.View
+      className="overflow-hidden"
+      entering={tabEnter}
+      style={collapse}
+      onLayout={(event) => {
+        // A closing slot reports its own shrinking width — not a measurement.
+        if (closing.value) return;
+        // eslint-disable-next-line react-hooks/immutability -- reanimated shared value
+        measured.value = event.nativeEvent.layout.width;
+      }}
     >
-      {/* Starts hidden so the animated opacity has a defined origin — otherwise
-          a freshly mounted inactive tab paints one filled frame before it
-          settles. */}
-      <Animated.View
-        pointerEvents="none"
-        className="absolute inset-0 rounded-full bg-segment-active opacity-0"
-        style={fill}
-      />
-      <Text
+      <Chip
+        onPress={onPress}
+        onLongPress={onLongPress}
+        onClose={removable ? startRemove : undefined}
+        closeLabel={removeLabel}
+        // A page switcher, not a filter: announced as a tab set, so the chip's
+        // own toggle semantics stay off (`selected` unset) and the active
+        // state is drawn by class instead.
+        accessibilityRole="tab"
+        accessibilityState={{ selected: isActive }}
         className={cn(
-          'max-w-[140px] text-[13px]',
-          isActive ? 'font-semibold text-foreground' : 'font-medium text-muted-foreground',
+          // 34 + 3pt of capsule padding either side lines the strip up with
+          // the 40pt glass "+" button beside it.
+          'min-h-[34px] min-w-[44px] justify-center rounded-full border-0 bg-transparent px-3',
+          isActive && 'bg-segment-active',
         )}
-        numberOfLines={1}
       >
-        {label}
-      </Text>
-      {isActive && removable ? (
-        <Animated.View entering={tabEnter} exiting={tabExit}>
-          <Pressable
-            onPress={onRemove}
-            hitSlop={10}
-            accessibilityRole="button"
-            accessibilityLabel={removeLabel}
-            className="active:opacity-60"
-          >
-            <Icon name="xmark.circle.fill" size={15} tintColor={mutedForeground} />
-          </Pressable>
-        </Animated.View>
-      ) : null}
-    </Pressable>
+        {/* Own Text rather than `Chip.Label`: the label component cannot
+            truncate, and a runaway page name has to ellipsize inside the
+            capsule, not wrap it open. */}
+        <Text
+          className={cn(
+            'max-w-[140px] text-[13px]',
+            isActive ? 'font-semibold text-foreground' : 'font-medium text-muted-foreground',
+          )}
+          numberOfLines={1}
+        >
+          {label}
+        </Text>
+      </Chip>
+    </Animated.View>
   );
 }
-
-export type PagerTab = {
-  key: string;
-  label: string;
-  /** Never offers the inline clear glyph — a page the form always owns (the
-   * daily log's own recap sits at index 0 alongside its symbol pages). */
-  fixed?: boolean;
-};
 
 /**
  * Page-switcher strip for a `PagerView` — a filled segmented capsule
@@ -182,9 +162,12 @@ export type PagerTab = {
  * Shared by the trade form's per-symbol blocks and the daily log's per-symbol
  * recaps — the two places where one form edits a variable list of symbols.
  *
- * Hand-built rather than PanelUI `Tabs`: the tabs are a variable list with a
- * per-tab remove affordance and add/remove motion of their own, none of which
- * a fixed segmented set models. `PagerTabs` is the `Tabs` case.
+ * Tabs are PanelUI `Chip`s (the token shape: pressable pill, own-hit-target ✕
+ * via `onClose`), restyled to sit borderless inside the capsule track so the
+ * strip stays in the segmented family. Not `Tabs`: a fixed segmented set has
+ * no per-tab remove or append, which is this strip's whole job. What looked
+ * like the strip being broken on Android was the native glass "+" swallowing
+ * presses (see glass-button.tsx) — the width-spring animations run fine there.
  */
 export function SymbolPagerBar({
   tabs,
@@ -221,12 +204,9 @@ export function SymbolPagerBar({
   const removable = tabs.filter((tab) => !tab.fixed).length > (keepLast ? 1 : 0);
   return (
     <View className="flex-row items-center gap-3">
-      {/*
-       * `tabEnter` describes a tab being *added* — it opens from zero width. On
-       * mount there is nothing being added, so `skipEntering` suppresses it for
-       * the tabs already present when the bar appears; tabs added later still
-       * animate, which is the case the animation was written for.
-       */}
+      {/* `tabEnter` describes a tab being *added* — it opens from zero width.
+          On mount there is nothing being added, so `skipEntering` suppresses
+          it for the tabs already present when the bar appears. */}
       <LayoutAnimationConfig skipEntering>
         <Animated.ScrollView
           horizontal
@@ -242,43 +222,30 @@ export function SymbolPagerBar({
           // switching pages mid-typing took two taps, the first one going nowhere
           // but the keyboard.
           keyboardShouldPersistTaps="handled"
-          // Deliberately *no* `layout` here, nor on the tabs below. A
-          // `LinearTransition` interpolates from the view's previous frame, and
-          // on mount there isn't one, so it animates out of an empty rect: on
-          // the track that dragged the chip ~23pt downwards, and on each tab it
-          // grew the capsule open from zero width. Both were measured
-          // frame-by-frame on a freshly pushed form, and the strip is supposed
-          // to be simply *there* when the screen arrives.
-          //
-          // The cost is that neighbours no longer glide into a gap on
-          // add/remove — the tab being added still opens via `tabEnter` and the
-          // one leaving still collapses via `tabCollapse`, but the others snap.
-          // Re-adding `layout` reintroduces the on-open motion; gating it behind
-          // a mount flag does not help either, because `onLayout` fires before
-          // the layout pass that actually misfires.
         >
           {tabs.map((tab, index) => (
-            // Clips the label while `tabCollapse` squeezes the slot shut.
-            <Animated.View
+            <SymbolTab
               key={tab.key}
-              className="overflow-hidden"
-              entering={tabEnter}
-              exiting={tabCollapse}
-            >
-              <SymbolTab
-                label={tab.label}
-                isActive={index === active}
-                removable={removable && !tab.fixed}
-                removeLabel={removeLabel}
-                onPress={() => onSelect(index)}
-                onLongPress={onLongPressTab ? () => onLongPressTab(index) : undefined}
-                onRemove={onRemoveActive}
-              />
-            </Animated.View>
+              label={tab.label}
+              isActive={index === active}
+              // Only the active tab offers its clear glyph — the iOS
+              // token-field idiom, and what keeps a long strip from growing a
+              // row of ✕s.
+              removable={index === active && removable && !tab.fixed}
+              removeLabel={removeLabel}
+              onPress={() => onSelect(index)}
+              onLongPress={onLongPressTab ? () => onLongPressTab(index) : undefined}
+              onRemove={onRemoveActive}
+            />
           ))}
         </Animated.ScrollView>
       </LayoutAnimationConfig>
-      <GlassIconButton systemImage="plus" label={addLabel} onPress={onAdd} />
+      {/* Pinned to the row's trailing edge, not to the capsule: a fixed home
+          means the "+" never shifts as tabs come and go, and the thumb always
+          finds it in the same place. */}
+      <View className="ml-auto">
+        <GlassIconButton systemImage="plus" label={addLabel} onPress={onAdd} />
+      </View>
     </View>
   );
 }

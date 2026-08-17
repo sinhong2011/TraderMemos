@@ -83,7 +83,7 @@ export function NoteTypeSwitch({
     { value: 'note' as const, label: t`Note` },
     { value: 'daily_log' as const, label: t`Daily log` },
   ];
-  return <Segmented variant="menu" options={types} value={value} onChange={onChange} />;
+  return <Segmented variant="menu" title={t`Type`} options={types} value={value} onChange={onChange} />;
 }
 
 /**

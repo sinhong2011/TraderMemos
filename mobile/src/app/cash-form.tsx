@@ -173,6 +173,7 @@ function CashForm({
             <Segmented
               flush
               variant="menu"
+              title={t`Account`}
               value={accountId}
               onChange={setAccountId}
               options={accounts.map((candidate) => ({
@@ -196,7 +197,7 @@ function CashForm({
             picker's own pill in the row below. No `flush` here — the menu's
             built-in label padding is what fills the pill. */}
         <ControlPill>
-          <Segmented variant="menu" value={type} onChange={setType} options={typeOptions} />
+          <Segmented variant="menu" title={t`Type`} value={type} onChange={setType} options={typeOptions} />
         </ControlPill>
       </FormRow>
       {/* Amount is the only thing a new entry can't default — open on it,

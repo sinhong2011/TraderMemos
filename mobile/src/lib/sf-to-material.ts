@@ -119,9 +119,15 @@ export const SF_TO_MATERIAL: Record<string, AndroidSymbol> = {
   calendar: 'calendar_month',
   'square.grid.3x3': 'grid_view',
 
+  // markets (trade form's market picker badges)
+  'bitcoinsign.circle': 'currency_bitcoin',
+  'calendar.badge.clock': 'calendar_clock',
+  'dollarsign.arrow.circlepath': 'currency_exchange',
+
   // charts / analytics
   'chart.xyaxis.line': 'show_chart',
   'chart.line.uptrend.xyaxis': 'trending_up',
+  'chart.line.downtrend.xyaxis': 'trending_down',
   'chart.pie': 'pie_chart',
   'waveform.path.ecg': 'monitor_heart',
   'arrowtriangle.up.fill': 'arrow_drop_up',
@@ -165,6 +171,7 @@ export const SF_TO_MATERIAL: Record<string, AndroidSymbol> = {
   'bolt.fill': 'bolt',
   'square.stack.3d.up': 'stacks',
   'slider.horizontal.3': 'tune',
+  'circle.lefthalf.filled': 'contrast',
   'wrench.and.screwdriver': 'handyman',
   // Overflow menus and the backtest session actions — these used to be drawn by
   // SwiftUI (`@expo/ui` Menu labels), so they never needed an Android row.

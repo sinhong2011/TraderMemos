@@ -54,7 +54,7 @@ export default function FxToolScreen() {
         <View className={PANEL} style={CONTINUOUS}>
           <View className={PANEL_HEAD}>
             <Text className={CAPTION}>{t`From`}</Text>
-            <Segmented variant="menu" options={currencyOptions} value={from} onChange={setFrom} />
+            <Segmented variant="menu" title={t`From`} options={currencyOptions} value={from} onChange={setFrom} />
           </View>
           <NumericField
             value={amount}
@@ -89,7 +89,7 @@ export default function FxToolScreen() {
         <View className={PANEL} style={CONTINUOUS}>
           <View className={PANEL_HEAD}>
             <Text className={CAPTION}>{t`To`}</Text>
-            <Segmented variant="menu" options={currencyOptions} value={to} onChange={setTo} />
+            <Segmented variant="menu" title={t`To`} options={currencyOptions} value={to} onChange={setTo} />
           </View>
           {converted != null ? (
             <Text

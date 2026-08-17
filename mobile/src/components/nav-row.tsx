@@ -1,5 +1,6 @@
 import type { SFSymbol } from 'expo-symbols';
 import { Frame, Text } from 'panelui-native';
+import { View } from 'react-native';
 import { useCSSVariable } from 'uniwind';
 
 import { Icon } from '@/components/icon';
@@ -55,8 +56,12 @@ export function NavRow({
         ) : null}
         {/* `Frame.Row`'s own `chevron` prop draws only the pushing glyph, and
             an external row needs the leaving one — so both come from the app's
-            icon layer instead. */}
-        {accessory === 'none' ? null : (
+            icon layer instead. An accessory-less row keeps the glyph's width as
+            a spacer, so values right-align across a section's rows whether or
+            not they carry a chevron. */}
+        {accessory === 'none' ? (
+          <View className="w-3" />
+        ) : (
           <Icon
             name={accessory === 'external' ? 'arrow.up.forward' : 'chevron.right'}
             size={12}

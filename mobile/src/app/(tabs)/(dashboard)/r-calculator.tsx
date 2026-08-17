@@ -487,6 +487,7 @@ function RPanel({ session }: { session: Session }) {
           <ControlField label={t`Runner stop`}>
             <Segmented
               variant="menu"
+              title={t`Runner stop`}
               options={trailerKinds}
               value={session.exitPlan.trailerStop.kind}
               onChange={(kind) =>
@@ -618,6 +619,7 @@ function FvgPanel({ session }: { session: FvgSession }) {
           <ControlField label={t`Entry at`}>
             <Segmented
               variant="menu"
+              title={t`Entry at`}
               options={entryAts}
               value={session.entryAt}
               onChange={(value: EntryAt) => fvgActions.setField(id, 'entryAt', value)}

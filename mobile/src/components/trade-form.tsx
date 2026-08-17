@@ -1,4 +1,5 @@
 import { cn } from 'panelui-native';
+import type { SFSymbol } from 'expo-symbols';
 import { useRef, useState, type ReactNode } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import ReanimatedSwipeable, {
@@ -297,12 +298,14 @@ function SymbolBlock({
     values.reviewNotes !== '';
   const dividendOpen = !isNew || values.dividendAmount !== '';
 
-  const markets: { value: Market; label: string }[] = [
-    { value: 'stock', label: t`Stock` },
-    { value: 'option', label: t`Option` },
-    { value: 'crypto', label: t`Crypto` },
-    { value: 'future', label: t`Futures` },
-    { value: 'forex', label: t`Forex` },
+  // Icons become the leading badges in the picker sheet — each market keyed
+  // to the glyph its rows already use elsewhere in the app.
+  const markets: { value: Market; label: string; icon: SFSymbol }[] = [
+    { value: 'stock', label: t`Stock`, icon: 'chart.line.uptrend.xyaxis' },
+    { value: 'option', label: t`Option`, icon: 'doc.text' },
+    { value: 'crypto', label: t`Crypto`, icon: 'bitcoinsign.circle' },
+    { value: 'future', label: t`Futures`, icon: 'calendar.badge.clock' },
+    { value: 'forex', label: t`Forex`, icon: 'dollarsign.arrow.circlepath' },
   ];
   const directions = [
     { value: 'long' as const, label: t`Long`, fill: PnlFill.pos },
@@ -353,6 +356,7 @@ function SymbolBlock({
           <ControlRow label={t`Market`}>
             <Segmented
               variant="menu"
+              title={t`Market`}
               options={markets}
               value={values.market}
               onChange={(market) => set('market', market)}
@@ -377,6 +381,7 @@ function SymbolBlock({
             <ControlRow label={t`Contract`}>
               <Segmented
                 variant="menu"
+                title={t`Contract`}
                 options={contracts}
                 value={values.optionRight || 'none'}
                 onChange={(right) => set('optionRight', right === 'none' ? '' : right)}

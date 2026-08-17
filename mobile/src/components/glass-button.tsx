@@ -1,6 +1,6 @@
 import type { SFSymbol } from 'expo-symbols';
 import { Button } from 'panelui-native';
-import { ActivityIndicator } from 'react-native';
+import { ActivityIndicator, Platform } from 'react-native';
 import { useCSSVariable } from 'uniwind';
 
 import { Icon } from '@/components/icon';
@@ -78,11 +78,14 @@ export function GlassButton({
 /**
  * Circular icon button — sheet close / compact bar actions.
  *
- * This one *is* native: an icon button is a square PanelUI sizes itself, which
- * is the case where hosting a view inside the platform button is safe, and it
- * is what buys the real Liquid Glass material on iOS 26. Android has no such
- * material, so Compose draws its own round button there — the intended
- * fallback, not a downgrade.
+ * On iOS this one *is* native: an icon button is a square PanelUI sizes
+ * itself, which is the case where hosting a view inside the platform button is
+ * safe, and it is what buys the real Liquid Glass material on iOS 26.
+ *
+ * On Android it is drawn. The Compose button renders, but a press on it never
+ * reaches `onPress` (verified on the Pixel emulator — the trade form's "+"
+ * drew and did nothing), so Android gets PanelUI's own round secondary button:
+ * same square, same glyph, presses that work.
  */
 export function GlassIconButton({
   systemImage,
@@ -93,6 +96,30 @@ export function GlassIconButton({
 }: GlassIconButtonProps) {
   const [foreground] = useCSSVariable(['--color-foreground']) as [string];
   const off = disabled || loading;
+
+  const glyph = loading ? (
+    // `size="icon"` fixes the button's square, so swapping the glyph for
+    // the spinner cannot resize the circle under the finger.
+    <ActivityIndicator size="small" color={foreground} />
+  ) : (
+    <Icon name={systemImage} size={16} tintColor={foreground} />
+  );
+
+  if (Platform.OS !== 'ios') {
+    return (
+      <Button
+        size="icon"
+        variant="secondary"
+        className="rounded-full"
+        disabled={off}
+        onPress={onPress}
+        accessibilityLabel={label}
+        accessibilityState={{ disabled: !!off, busy: !!loading }}
+      >
+        {glyph}
+      </Button>
+    );
+  }
 
   return (
     <Button
@@ -105,13 +132,7 @@ export function GlassIconButton({
       accessibilityLabel={label}
       accessibilityState={{ disabled: !!off, busy: !!loading }}
     >
-      {loading ? (
-        // `size="icon"` fixes the button's square, so swapping the glyph for
-        // the spinner cannot resize the circle under the finger.
-        <ActivityIndicator size="small" color={foreground} />
-      ) : (
-        <Icon name={systemImage} size={16} tintColor={foreground} />
-      )}
+      {glyph}
     </Button>
   );
 }

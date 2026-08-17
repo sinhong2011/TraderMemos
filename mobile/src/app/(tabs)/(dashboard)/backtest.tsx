@@ -176,6 +176,7 @@ export default function BacktestScreen() {
           <ControlRow label={t`Interval`}>
             <Segmented
               variant="menu"
+              title={t`Interval`}
               flush
               options={BAR_INTERVALS}
               value={interval}

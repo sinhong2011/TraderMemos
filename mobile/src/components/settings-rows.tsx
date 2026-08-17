@@ -1,7 +1,6 @@
 import type { SFSymbol } from 'expo-symbols';
 import { cn, Frame, Input, Menu, Switch, Text } from 'panelui-native';
-import { Children, Fragment, useState, type ReactNode } from 'react';
-import { View } from 'react-native';
+import { useState, type ReactNode } from 'react';
 import { useCSSVariable } from 'uniwind';
 
 import { Icon } from '@/components/icon';
@@ -21,12 +20,16 @@ import { numericText } from '@/lib/amount';
  */
 
 export interface SettingsRowProps {
+  /** Leading SF Symbol; Android maps it through `@/lib/sf-to-material`. */
+  systemImage?: SFSymbol;
   label: string;
   /** The value side of the row. */
   children: ReactNode;
 }
 
 export interface SettingsToggleProps {
+  /** Leading SF Symbol; Android maps it through `@/lib/sf-to-material`. */
+  systemImage?: SFSymbol;
   label: string;
   value: boolean;
   onValueChange: (value: boolean) => void;
@@ -38,6 +41,8 @@ export interface SettingsPickerItem<T extends string> {
 }
 
 export interface SettingsPickerProps<T extends string> {
+  /** Leading SF Symbol; Android maps it through `@/lib/sf-to-material`. */
+  systemImage?: SFSymbol;
   label: string;
   selectedValue: T;
   onValueChange: (value: T) => void;
@@ -83,23 +88,6 @@ export interface SettingsButtonProps {
   onPress: () => void;
 }
 
-/**
- * Hairlines between a section's rows.
- *
- * `Frame.Panel` draws its own, but only for children it can recognise as a
- * `Frame.Row` — and every row here is wrapped in one of the components below,
- * so the panel sees a `SettingsToggle`, not a row. Inserting the rules here
- * works whatever a screen puts in a section, including a plain `Text`.
- */
-function withDividers(children: ReactNode) {
-  return Children.toArray(children).map((child, index) => (
-    <Fragment key={index}>
-      {index > 0 ? <View className="ms-4 h-px bg-border" /> : null}
-      {child}
-    </Fragment>
-  ));
-}
-
 /** Grouped section: an optional title, a card of rows, an optional footer. */
 export function SettingsSection({ title, footer, children }: SettingsSectionProps) {
   return (
@@ -112,7 +100,12 @@ export function SettingsSection({ title, footer, children }: SettingsSectionProp
           <Frame.Title className="text-xs uppercase tracking-wider">{title}</Frame.Title>
         </Frame.Header>
       ) : null}
-      <Frame.Panel dividers={false}>{withDividers(children)}</Frame.Panel>
+      {/* Borderless per DESIGN.md: the card is `bg-card` elevation alone — no
+          box border, no hairlines between rows. Row padding and the press
+          highlight do the separating. */}
+      <Frame.Panel dividers={false} className="rounded-3xl border-0">
+        {children}
+      </Frame.Panel>
       {footer ? (
         <Text size="xs" muted className="px-4 pt-2">
           {footer}
@@ -122,10 +115,25 @@ export function SettingsSection({ title, footer, children }: SettingsSectionProp
   );
 }
 
+/**
+ * Leading icon slot shared by the rows below — NavRow's treatment exactly
+ * (17pt, neutral foreground), so labels land on one vertical line whichever
+ * row kind a section mixes.
+ */
+function RowIcon({ name }: { name: SFSymbol }) {
+  const [foreground] = useCSSVariable(['--color-foreground']) as [string];
+  return (
+    <Frame.Media>
+      <Icon name={name} size={17} tintColor={foreground} />
+    </Frame.Media>
+  );
+}
+
 /** A label paired with a read-only value. */
-export function SettingsRow({ label, children }: SettingsRowProps) {
+export function SettingsRow({ systemImage, label, children }: SettingsRowProps) {
   return (
     <Frame.Row>
+      {systemImage != null ? <RowIcon name={systemImage} /> : null}
       <Frame.Content>
         <Frame.Title>{label}</Frame.Title>
       </Frame.Content>
@@ -237,9 +245,10 @@ export function SettingsInput({
 }
 
 /** A labelled on/off row. */
-export function SettingsToggle({ label, value, onValueChange }: SettingsToggleProps) {
+export function SettingsToggle({ systemImage, label, value, onValueChange }: SettingsToggleProps) {
   return (
     <Frame.Row>
+      {systemImage != null ? <RowIcon name={systemImage} /> : null}
       <Frame.Content>
         <Frame.Title>{label}</Frame.Title>
       </Frame.Content>
@@ -259,6 +268,7 @@ export function SettingsToggle({ label, value, onValueChange }: SettingsTogglePr
  * inside a card that is already one.
  */
 export function SettingsPicker<T extends string>({
+  systemImage,
   label,
   selectedValue,
   onValueChange,
@@ -271,6 +281,7 @@ export function SettingsPicker<T extends string>({
     <Menu presentation="bottom-sheet">
       <Menu.Trigger>
         <Frame.Row accessibilityRole="button" accessibilityLabel={label}>
+          {systemImage != null ? <RowIcon name={systemImage} /> : null}
           <Frame.Content>
             <Frame.Title>{label}</Frame.Title>
           </Frame.Content>

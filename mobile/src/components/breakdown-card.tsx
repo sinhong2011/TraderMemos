@@ -42,7 +42,7 @@ export function BreakdownCard() {
   return (
     <DashboardCard
       title={t`Breakdown`}
-      control={<Segmented options={dims} value={dim} onChange={setDim} />}
+      control={<Segmented compact options={dims} value={dim} onChange={setDim} />}
     >
       {error ? (
         <Text className="py-4 text-[13px] text-muted-foreground">{t`Failed to load breakdown.`}</Text>

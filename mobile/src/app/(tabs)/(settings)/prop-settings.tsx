@@ -144,6 +144,7 @@ export default function PropSettingsScreen() {
           onPress={() => editAmount(t`Max drawdown`, 'max_drawdown')}
         />
         <SettingsPicker
+          systemImage="chart.line.downtrend.xyaxis"
           label={t`Drawdown model`}
           selectedValue={current.drawdown_mode}
           onValueChange={(value) =>

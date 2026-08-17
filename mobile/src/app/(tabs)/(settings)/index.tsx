@@ -199,7 +199,7 @@ export default function SettingsScreen() {
       onPress: () => router.push('/funding'),
     },
     {
-      icon: 'plus.circle.fill',
+      icon: 'plus.circle',
       label: t`Add account`,
       terms: t`broker new account`,
       onPress: () => router.push('/account-form'),
@@ -348,7 +348,7 @@ export default function SettingsScreen() {
               app is a client for a machine the user runs, and which one it is
               talking to is not a detail to hide. */}
           <SettingsSection
-            footer={t`Every screen in the app is served by this instance. Tap Server to point the app at a different one — that signs you out.`}
+            footer={t`Every screen is served by this instance. Switching servers signs you out.`}
           >
             <NavRow
               systemImage="person.crop.circle"
@@ -409,7 +409,7 @@ export default function SettingsScreen() {
               <ValueText color={foreground}>{t`No accounts yet`}</ValueText>
             ) : null}
             <SettingsButton
-              systemImage="plus.circle.fill"
+              systemImage="plus.circle"
               label={t`Add account`}
               onPress={() => router.push('/account-form')}
             />
@@ -426,8 +426,9 @@ export default function SettingsScreen() {
               Theme stays inline for the same reason it was hoisted out of
               Display: it is the most-reached control here and it changes the
               screen you are looking at. */}
-          <SettingsSection footer={t`Search finds any setting directly, without opening its page.`}>
+          <SettingsSection>
             <SettingsPicker
+              systemImage="circle.lefthalf.filled"
               label={t`Theme`}
               selectedValue={displayPrefs.appearance}
               onValueChange={(value: AppearancePref) => setAppearance(value)}
