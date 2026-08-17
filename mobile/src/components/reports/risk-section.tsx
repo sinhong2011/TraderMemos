@@ -15,12 +15,7 @@ import {
 } from '@/components/reports/section-scaffold';
 import { t } from '@lingui/core/macro';
 import { formatPercentPoints } from '@/lib/format';
-import {
-  avgRiskPerTrade,
-  currentDrawdownPct,
-  drawdownSeries,
-  maxDrawdownPct,
-} from '@/lib/reports-analytics';
+import { avgRiskPerTrade, drawdownDepthSeries } from '@/lib/reports-analytics';
 import { pnlColor, usePnlPalette } from '@/styles/pnl';
 
 /** Downsampling cap for the drawdown curve. */
@@ -42,27 +37,30 @@ export function RiskSection({
   const compliance = useCompliance(filters);
 
   const points = useMemo(() => equity.data?.points ?? [], [equity.data]);
+  // Dollar depth, not percent-of-peak: a range-scoped curve's early peak is
+  // tiny, and dividing by it turned ordinary dips into "-257%". Money runs
+  // through the reports unit toggle for a percentage with a real base.
+  const fullSeries = useMemo(() => drawdownDepthSeries(points), [points]);
   const ddSeries = useMemo(() => {
-    const series = drawdownSeries(points);
-    if (series.length <= MAX_POINTS) return series;
-    const step = series.length / MAX_POINTS;
+    if (fullSeries.length <= MAX_POINTS) return fullSeries;
+    const step = fullSeries.length / MAX_POINTS;
     const sampled = [];
-    for (let i = 0; i < MAX_POINTS - 1; i++) sampled.push(series[Math.floor(i * step)]);
-    sampled.push(series[series.length - 1]);
+    for (let i = 0; i < MAX_POINTS - 1; i++) sampled.push(fullSeries[Math.floor(i * step)]);
+    sampled.push(fullSeries[fullSeries.length - 1]);
     return sampled;
-  }, [points]);
+  }, [fullSeries]);
 
-  const maxDd = maxDrawdownPct(points);
-  const currentDd = currentDrawdownPct(points);
+  const maxDd = fullSeries.reduce((min, point) => Math.min(min, point.depth), 0);
+  const currentDd = fullSeries.length > 0 ? fullSeries[fullSeries.length - 1].depth : 0;
   const risk = avgRiskPerTrade(trades.data ?? []);
 
-  // Plotted as *depth* (a positive number of points below the peak) rather than
-  // the signed percentage: an area band fills from the baseline up, so signed
-  // values would draw the biggest wash at the flattest stretch and nothing at
-  // the worst of it. The axis and the readout put the minus sign back.
+  // Plotted as *depth* (a positive number below the peak) rather than the
+  // signed value: an area band fills from the baseline up, so signed values
+  // would draw the biggest wash at the flattest stretch and nothing at the
+  // worst of it. The axis and the readout put the minus sign back.
   const ddData = ddSeries.map((point, index) => ({
     i: index,
-    depth: -point.drawdownPct * 100,
+    depth: -point.depth,
   }));
 
   const report = compliance.data;
@@ -89,12 +87,12 @@ export function RiskSection({
             <View className="flex-row flex-wrap gap-2">
               <StatBar
                 label={t`Max drawdown`}
-                value={formatPercentPoints(maxDd * 100, 1)}
+                value={money.formatCompact(maxDd)}
                 tone={maxDd < 0 ? 'neg' : 'muted'}
               />
               <StatBar
                 label={t`Current drawdown`}
-                value={formatPercentPoints(currentDd * 100, 1)}
+                value={money.formatCompact(currentDd)}
                 sub={currentDd >= 0 ? t`at the highs` : undefined}
                 tone={currentDd < 0 ? 'neg' : 'pos'}
               />
@@ -112,15 +110,15 @@ export function RiskSection({
             <AreaChart data={ddData} xDataKey="i" aspectRatio={2.1}>
               <AreaChart.Grid />
               <AreaChart.Area dataKey="depth" color={palette.loss} />
-              <AreaChart.YAxis ticks={3} format={(v) => formatPercentPoints(-v, 0)} />
+              <AreaChart.YAxis ticks={3} format={(v) => money.formatCompact(-v)} />
               <AreaChart.Tooltip
                 color={palette.loss}
-                formatValue={(v) => formatPercentPoints(-v, 1)}
+                formatValue={(v) => money.formatCompact(-v)}
                 formatX={() => t`Below peak`}
               />
             </AreaChart>
             <Text className="text-xs text-muted-foreground">
-              {t`Distance from the running equity peak, as a percentage.`}
+              {t`Distance below the running equity peak.`}
             </Text>
           </>
         )}
@@ -164,9 +162,20 @@ export function RiskSection({
               />
               <StatBar
                 label={t`Violations`}
-                value={String(report.risk_violations + report.daily_loss_breaches)}
-                sub={t`${report.risk_violations} over-risked · ${report.daily_loss_breaches} daily-loss`}
-                tone={report.risk_violations + report.daily_loss_breaches > 0 ? 'neg' : 'pos'}
+                value={String(
+                  report.risk_violations +
+                    report.daily_loss_breaches +
+                    report.trade_limit_breaches,
+                )}
+                sub={t`${report.risk_violations} over-risked · ${report.daily_loss_breaches} daily-loss · ${report.trade_limit_breaches} over-traded`}
+                tone={
+                  report.risk_violations +
+                    report.daily_loss_breaches +
+                    report.trade_limit_breaches >
+                  0
+                    ? 'neg'
+                    : 'pos'
+                }
               />
             </View>
 
@@ -187,7 +196,9 @@ export function RiskSection({
                     pill={
                       day.daily_loss_breach
                         ? t`daily loss`
-                        : t`over-risked ×${day.risk_violations}`
+                        : day.trade_limit_breach
+                          ? t`over-traded`
+                          : t`over-risked ×${day.risk_violations}`
                     }
                     pillTone="neg"
                     value={money.formatCompact(day.net_pnl)}

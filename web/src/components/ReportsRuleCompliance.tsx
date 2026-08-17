@@ -86,8 +86,10 @@ export function ReportsRuleCompliance({ report, loading, error }: ReportsRuleCom
           />
           <StatCard
             label="Violations"
-            value={String(report.risk_violations + report.daily_loss_breaches)}
-            hint={`${report.risk_violations} over-risked · ${report.daily_loss_breaches} daily-loss`}
+            value={String(
+              report.risk_violations + report.daily_loss_breaches + report.trade_limit_breaches,
+            )}
+            hint={`${report.risk_violations} over-risked · ${report.daily_loss_breaches} daily-loss · ${report.trade_limit_breaches} over-traded`}
           />
         </div>
 
@@ -117,6 +119,7 @@ export function ReportsRuleCompliance({ report, loading, error }: ReportsRuleCom
                       <Pill tone="neg">over-risked ×{d.risk_violations}</Pill>
                     )}
                     {d.daily_loss_breach && <Pill tone="neg">daily loss</Pill>}
+                    {d.trade_limit_breach && <Pill tone="neg">over-traded</Pill>}
                   </span>
                   <span
                     className={

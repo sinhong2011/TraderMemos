@@ -1648,7 +1648,13 @@ export function RulesTab({
             </div>
           )}
           <Field
-            label={modalDef.unit === "%" ? "Value (%)" : "Value ($)"}
+            label={
+              modalDef.unit === "%"
+                ? "Value (%)"
+                : modalDef.unit === "count"
+                  ? "Value (trades)"
+                  : "Value ($)"
+            }
             htmlFor="risk-rule-value"
             error={ruleError ?? undefined}
           >

@@ -13,7 +13,7 @@ export type RiskRuleDef = {
   key: RiskRuleKey;
   label: () => string;
   detail: () => string;
-  unit: '$' | '%';
+  unit: '$' | '%' | 'count';
   placeholder: string;
 };
 
@@ -40,6 +40,13 @@ export const RISK_RULE_DEFS: readonly RiskRuleDef[] = [
     placeholder: 'e.g. 500',
   },
   {
+    key: 'max_trades_per_day',
+    label: () => t`Max trades / day`,
+    detail: () => t`Cap how many trades close in a single day.`,
+    unit: 'count',
+    placeholder: 'e.g. 5',
+  },
+  {
     key: 'default_account_risk_pct',
     label: () => t`Default account risk %`,
     detail: () => t`Suggested size as a percent of account equity.`,
@@ -54,6 +61,7 @@ export function emptyRiskRules(): RiskRules {
     max_daily_loss: null,
     max_open_risk: null,
     default_account_risk_pct: null,
+    max_trades_per_day: null,
   };
 }
 
@@ -81,6 +89,9 @@ export function setRiskRuleValue(
 }
 
 export function formatRiskRuleValue(def: RiskRuleDef, value: number): string {
+  if (def.unit === 'count') {
+    return value.toLocaleString('en-US', { maximumFractionDigits: 0 });
+  }
   const num = value.toLocaleString('en-US', { maximumFractionDigits: 2 });
   return def.unit === '%' ? `${num}%` : `$${num}`;
 }
@@ -92,6 +103,9 @@ export function validateRiskRuleValue(def: RiskRuleDef, raw: string): string | u
   const value = Number(trimmed);
   if (!Number.isFinite(value) || value < 0) return t`Enter a valid number.`;
   if (def.unit === '%' && value > 100) return t`Percent must be between 0 and 100.`;
+  if (def.unit === 'count' && !Number.isInteger(value)) {
+    return t`Enter a whole number of trades.`;
+  }
   return undefined;
 }
 

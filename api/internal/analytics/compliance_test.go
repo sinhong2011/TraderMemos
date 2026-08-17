@@ -59,6 +59,32 @@ func TestComplianceDailyLossIntradayDip(t *testing.T) {
 	}
 }
 
+func TestComplianceTradeLimit(t *testing.T) {
+	rules := ComplianceRules{MaxTradesPerDay: 2}
+	trades := []ComplianceTrade{
+		ct(1, 10, 50, 0),
+		ct(1, 11, -20, 0),
+		ct(1, 12, 30, 0), // third trade of the day — over the limit
+		ct(2, 10, 40, 0),
+	}
+	rep := Compliance(trades, rules, time.UTC)
+	if !rep.RulesConfigured {
+		t.Fatal("trade limit alone should configure the rules")
+	}
+	if len(rep.Days) != 2 || !rep.Days[0].TradeLimitBreach || rep.Days[1].TradeLimitBreach {
+		t.Fatalf("expected day 1 over the limit only, got %+v", rep.Days)
+	}
+	if rep.TradeLimitBreaches != 1 {
+		t.Fatalf("tradeLimitBreaches=%d, want 1", rep.TradeLimitBreaches)
+	}
+	if rep.CompliantDays != 1 || rep.BreachDays != 1 {
+		t.Fatalf("compliant=%d breach=%d, want 1/1", rep.CompliantDays, rep.BreachDays)
+	}
+	if rep.BreachPnl != 60 || rep.CompliantPnl != 40 {
+		t.Fatalf("breachPnl=%v compliantPnl=%v", rep.BreachPnl, rep.CompliantPnl)
+	}
+}
+
 func TestComplianceDailyLossNotBreached(t *testing.T) {
 	rules := ComplianceRules{MaxDailyLoss: 200}
 	trades := []ComplianceTrade{

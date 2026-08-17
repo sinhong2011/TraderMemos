@@ -41,6 +41,10 @@ type Querier interface {
 	DeleteTag(ctx context.Context, arg DeleteTagParams) (int64, error)
 	DeleteTrade(ctx context.Context, arg DeleteTradeParams) (int64, error)
 	DeleteTradesForAccount(ctx context.Context, arg DeleteTradesForAccountParams) error
+	// NOTE: sqlc+database/sql emits a broken single-$3 slice expand for Postgres.
+	// storepg/trades.sql.go implements placeholder expansion manually; re-apply after
+	// `make sqlc` and re-run TestBulkWriterConformance/postgres — the patch cannot be
+	// copied from the SQLite twin (no /*SLICE:keep*/? marker, numbered placeholders).
 	DeleteTradesNotInAccount(ctx context.Context, arg DeleteTradesNotInAccountParams) error
 	DeleteUser(ctx context.Context, id string) (int64, error)
 	DisableAlertChannel(ctx context.Context, id string) error

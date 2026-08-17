@@ -22,6 +22,7 @@ export interface ComplianceDay {
   risk_violations: number;
   unknown_risk: number;
   daily_loss_breach: boolean;
+  trade_limit_breach: boolean;
   compliant: boolean;
 }
 
@@ -35,6 +36,7 @@ export interface ComplianceReport {
   risk_violations: number;
   unknown_risk: number;
   daily_loss_breaches: number;
+  trade_limit_breaches: number;
 }
 
 /** One trade flagged by a behavioral detector, with the evidence. */

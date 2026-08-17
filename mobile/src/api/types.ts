@@ -237,6 +237,7 @@ export type RiskRules = {
   max_daily_loss: number | null;
   max_open_risk: number | null;
   default_account_risk_pct: number | null;
+  max_trades_per_day: number | null;
 };
 
 /** One cash ledger entry (api dto) — amount is signed; outflows are negative. */
@@ -501,6 +502,7 @@ export type ComplianceDay = {
   risk_violations: number;
   unknown_risk: number;
   daily_loss_breach: boolean;
+  trade_limit_breach: boolean;
   compliant: boolean;
 };
 
@@ -515,6 +517,7 @@ export type ComplianceReport = {
   risk_violations: number;
   unknown_risk: number;
   daily_loss_breaches: number;
+  trade_limit_breaches: number;
 };
 
 /** One flagged trade in a behavior section (analytics.BehaviorEvent). */

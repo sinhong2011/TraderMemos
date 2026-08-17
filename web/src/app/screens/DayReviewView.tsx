@@ -254,6 +254,7 @@ export function DayReviewView({
                       <Pill tone="neg">over-risked ×{day.risk_violations}</Pill>
                     )}
                     {day.daily_loss_breach && <Pill tone="neg">daily loss breached</Pill>}
+                    {day.trade_limit_breach && <Pill tone="neg">over-traded</Pill>}
                   </>
                 )}
                 {day != null && day.unknown_risk > 0 && (

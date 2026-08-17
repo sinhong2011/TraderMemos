@@ -209,6 +209,7 @@ const baseProps = {
     max_daily_loss: null,
     max_open_risk: null,
     default_account_risk_pct: null,
+    max_trades_per_day: null,
   },
   riskRulesLoading: false,
   riskRulesError: false,
@@ -350,6 +351,7 @@ describe("SettingsView", () => {
         max_daily_loss: null,
         max_open_risk: null,
         default_account_risk_pct: null,
+        max_trades_per_day: null,
       },
     });
     await user.click(screen.getByRole("link", { name: /^Rules$/i }));

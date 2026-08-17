@@ -33,6 +33,7 @@ type riskRulesDTO struct {
 	MaxDailyLoss          *float64 `json:"max_daily_loss"`
 	MaxOpenRisk           *float64 `json:"max_open_risk"`
 	DefaultAccountRiskPct *float64 `json:"default_account_risk_pct"`
+	MaxTradesPerDay       *int64   `json:"max_trades_per_day"`
 }
 
 func toRiskRulesDTO(r store.RiskRule) riskRulesDTO {
@@ -41,6 +42,7 @@ func toRiskRulesDTO(r store.RiskRule) riskRulesDTO {
 		MaxDailyLoss:          fptr(r.MaxDailyLoss),
 		MaxOpenRisk:           fptr(r.MaxOpenRisk),
 		DefaultAccountRiskPct: fptr(r.DefaultAccountRiskPct),
+		MaxTradesPerDay:       iptr(r.MaxTradesPerDay),
 	}
 }
 
@@ -71,6 +73,7 @@ func (s *Server) handlePutRiskRules(c *echo.Context) error {
 		MaxDailyLoss:          nullF(in.MaxDailyLoss),
 		MaxOpenRisk:           nullF(in.MaxOpenRisk),
 		DefaultAccountRiskPct: nullF(in.DefaultAccountRiskPct),
+		MaxTradesPerDay:       nullI(in.MaxTradesPerDay),
 	})
 	if err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not save risk rules", nil)
@@ -83,6 +86,13 @@ func nullF(p *float64) sql.NullFloat64 {
 		return sql.NullFloat64{}
 	}
 	return sql.NullFloat64{Float64: *p, Valid: true}
+}
+
+func nullI(p *int64) sql.NullInt64 {
+	if p == nil {
+		return sql.NullInt64{}
+	}
+	return sql.NullInt64{Int64: *p, Valid: true}
 }
 
 func validateRiskRules(in riskRulesDTO) error {
@@ -103,6 +113,9 @@ func validateRiskRules(in riskRulesDTO) error {
 	}
 	if in.DefaultAccountRiskPct != nil && (*in.DefaultAccountRiskPct < 0 || *in.DefaultAccountRiskPct > 100) {
 		return errors.New("default_account_risk_pct must be between 0 and 100")
+	}
+	if in.MaxTradesPerDay != nil && *in.MaxTradesPerDay < 0 {
+		return errors.New("max_trades_per_day must be >= 0")
 	}
 	return nil
 }

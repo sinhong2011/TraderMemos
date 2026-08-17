@@ -36,7 +36,8 @@ export default function RiskRulesScreen() {
   });
 
   function promptForValue(def: RiskRuleDef, current?: number) {
-    const unitLabel = def.unit === '%' ? t`Value (%)` : t`Value ($)`;
+    const unitLabel =
+      def.unit === '%' ? t`Value (%)` : def.unit === 'count' ? t`Value (trades)` : t`Value ($)`;
     Alert.prompt(
       def.label(),
       `${def.detail()}\n${unitLabel}`,
