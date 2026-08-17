@@ -1,9 +1,9 @@
 import { useRouter } from 'expo-router';
-import { Skeleton } from 'panelui-native';
+import { RadarChart, Skeleton } from 'panelui-native';
 import { Text, View } from 'react-native';
 
-import { useBehavior } from '@/api/hooks';
-import type { BehaviorEvent, OutcomeSplit } from '@/api/types';
+import { useBehavior, useSummary } from '@/api/hooks';
+import type { BehaviorEvent, BehaviorReport, OutcomeSplit } from '@/api/types';
 import { DashboardCard } from '@/components/dashboard-card';
 import { ErrorState } from '@/components/error-state';
 import { StatBar } from '@/components/stat-bar';
@@ -17,6 +17,65 @@ import {
 import { t } from '@lingui/core/macro';
 import { formatDuration, formatPercent } from '@/lib/format';
 import { pnlColor, usePnlPalette } from '@/styles/pnl';
+
+/** A profit factor of 3 scores the Edge axis full — beyond that it's proven. */
+const PF_CAP = 3;
+/** A 3× win/loss payoff fills its axis. */
+const PAYOFF_CAP = 3;
+/** Van Tharp's scale tops out around 7 ("holy grail"). */
+const SQN_CAP = 7;
+
+/**
+ * The section's verdict as one shape: five-or-six 0–100 scores on a radar,
+ * where a rounder polygon is a healthier trader. Axes with nothing behind
+ * them are dropped rather than drawn at zero — an empty reading is not a bad
+ * one — and under three axes there is no shape to read, so the card skips.
+ */
+function TraderProfileCard({ report }: { report: BehaviorReport }) {
+  const filters = useReportsFilters();
+  const summary = useSummary(filters).data;
+  if (!summary || summary.total_trades < 2) return null;
+
+  const score = (fraction: number) => Math.max(0, Math.min(100, fraction * 100));
+  const axes: { axis: string; score: number }[] = [
+    { axis: t`Win rate`, score: score(summary.win_rate) },
+    { axis: t`Edge`, score: score(Math.min(summary.profit_factor, PF_CAP) / PF_CAP) },
+  ];
+  if (summary.avg_loss > 0 || summary.avg_win > 0) {
+    const payoff = summary.avg_loss > 0 ? summary.avg_win / summary.avg_loss : PAYOFF_CAP;
+    axes.push({ axis: t`Payoff`, score: score(Math.min(payoff, PAYOFF_CAP) / PAYOFF_CAP) });
+  }
+  // Same guard the Overview dial uses: SQN is undefined on tiny samples.
+  if (summary.sqn !== 0) {
+    axes.push({ axis: t`Consistency`, score: score(summary.sqn / SQN_CAP) });
+  }
+  const revenge = report.revenge;
+  const scanned = revenge.flagged.trades + revenge.baseline.trades;
+  if (!revenge.insufficient_data && scanned > 0) {
+    // Full marks with no flagged trades, zero once a quarter of them are.
+    const share = revenge.flagged.trades / scanned;
+    axes.push({ axis: t`Discipline`, score: score(1 - Math.min(share / 0.25, 1)) });
+  }
+  const holdRatio = report.loss_aversion.hold_ratio;
+  if (holdRatio > 0) {
+    // 1× (losers held no longer than winners) is full; 3× and past is zero.
+    axes.push({ axis: t`Patience`, score: score((3 - holdRatio) / 2) });
+  }
+  if (axes.length < 3) return null;
+
+  return (
+    <DashboardCard title={t`Trader profile`}>
+      <RadarChart data={axes} axisKey="axis" domain={[0, 100]} aspectRatio={1.3}>
+        <RadarChart.Grid />
+        <RadarChart.Axis />
+        <RadarChart.Series dataKey="score" showDots />
+      </RadarChart>
+      <Text className="text-xs text-muted-foreground">
+        {t`Axes score 0–100: profit factor caps at 3, payoff at 3×, SQN at 7; discipline falls with revenge flags, patience with holding losers past winners.`}
+      </Text>
+    </DashboardCard>
+  );
+}
 
 /** Flagged-vs-baseline stat tiles shared by the revenge and streak cards. */
 function SplitStats({
@@ -33,7 +92,13 @@ function SplitStats({
   const { money } = ctx;
   return (
     <View className="flex-row flex-wrap gap-2">
-      <StatBar label={t`Flagged trades`} value={String(flagged.trades)} sub={t`${events} events`} />
+      {/* The event count earns its spot only when it differs from the trade
+          count — "54 · 54 events" reads as a stutter, not a second fact. */}
+      <StatBar
+        label={t`Flagged trades`}
+        value={String(flagged.trades)}
+        sub={events === flagged.trades ? undefined : t`${events} events`}
+      />
       <StatBar
         label={t`Flagged P&L`}
         value={money.formatCompact(flagged.net_pnl)}
@@ -131,6 +196,8 @@ export function BehaviorSection({
         </View>
       ) : (
         <>
+          {report ? <TraderProfileCard report={report} /> : null}
+
           <DashboardCard title={t`Revenge trading`}>
             {!revenge || revenge.events.length === 0 ? (
               <Text className="py-2 text-[13px] text-muted-foreground">

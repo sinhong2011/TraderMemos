@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { BarChart, cn, Skeleton } from 'panelui-native';
+import { BarChart, cn, Skeleton, TreemapChart } from 'panelui-native';
 import { Pressable, Text, View } from 'react-native';
 
 import { useBreakdown, type BreakdownDim } from '@/api/hooks';
@@ -21,8 +21,9 @@ import { pnlClass, usePnlPalette } from '@/styles/pnl';
 const MAX_ROWS = 10;
 
 /**
- * Ranked magnitude list — the phone's answer to web's horizontal bar charts
- * and the symbol treemap in one visual: label, share-of-|P&L| bar, amount.
+ * Ranked magnitude list — the phone's answer to web's horizontal bar charts:
+ * label, share-of-|P&L| bar, amount. With `treemap` the card leads with the
+ * web-style area map of the same share.
  */
 function RankedBreakdownCard({
   title,
@@ -31,6 +32,7 @@ function RankedBreakdownCard({
   emptyLabel,
   labelFor,
   onPressRow,
+  treemap,
 }: {
   title: string;
   dim: BreakdownDim;
@@ -39,7 +41,10 @@ function RankedBreakdownCard({
   labelFor?: (key: string) => string;
   /** Makes each row tappable — the Symbols card opens the symbol journal. */
   onPressRow?: (key: string) => void;
+  /** Leads with a P&L-share treemap of the top rows (web's symbol treemap). */
+  treemap?: boolean;
 }) {
+  const palette = usePnlPalette();
   const filters = useReportsFilters();
   const breakdown = useBreakdown(dim, filters);
   const { money } = ctx;
@@ -74,8 +79,37 @@ function RankedBreakdownCard({
   const shown = groups.slice(0, MAX_ROWS);
   const maxAbs = Math.max(...shown.map((g) => Math.abs(money.pnl(g.summary))), 1);
 
+  // Tile area is share of |P&L| (like the ranked bars below); the tint is the
+  // sign. Sliced to 8 up front rather than via `maxTiles`, whose "Other" tile
+  // would sum absolute values across mixed signs into a number that means
+  // nothing. Signed amounts ride a label lookup because the datum's own value
+  // must be the unsigned area.
+  const tiles = shown.slice(0, 8).map((group) => {
+    const value = money.pnl(group.summary);
+    return {
+      label: labelFor ? labelFor(group.key) : group.key,
+      value: Math.abs(value),
+      color: value >= 0 ? palette.profit : palette.loss,
+    };
+  });
+  const signedByLabel = new Map(
+    shown.map((group) => [
+      labelFor ? labelFor(group.key) : group.key,
+      money.formatCompact(money.pnl(group.summary)),
+    ]),
+  );
+  const fmtTile = (value: number, tile: { label: string }) =>
+    signedByLabel.get(tile.label) ?? money.formatCompact(value);
+
   return (
     <DashboardCard title={title}>
+      {treemap && tiles.length >= 3 && tiles.some((tile) => tile.value > 0) ? (
+        <TreemapChart data={tiles} aspectRatio={1.7}>
+          <TreemapChart.Tiles />
+          <TreemapChart.Labels formatValue={fmtTile} />
+          <TreemapChart.Tooltip formatValue={fmtTile} />
+        </TreemapChart>
+      ) : null}
       <View className="gap-3">
         {shown.map((group) => {
           const value = money.pnl(group.summary);
@@ -263,6 +297,7 @@ export function DetailedSection({
         dim="symbol"
         ctx={ctx}
         emptyLabel={t`No trades in this range.`}
+        treemap
         // A symbol row answers "how did I do on X?" — the journal shows where.
         onPressRow={(symbol) =>
           router.push({ pathname: '/(tabs)/(dashboard)/symbol-journal', params: { symbol } })

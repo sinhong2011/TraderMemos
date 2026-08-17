@@ -29,6 +29,12 @@
   --color-fill: unset;
   /* Selected-segment fill inside a `fill` capsule track (= background). */
   --color-segment-active: unset;
+  /* Track behind PanelUI's segmented Tabs chip. The chip is bg-popover and
+     cannot be restyled per instance, so the *track* carries the contrast: in
+     dark it recesses below the #202020 chip (muted's 4% white resolves to the
+     same grey as the chip and the selection vanishes); in light it equals
+     muted, the value that already read well under the white chip. */
+  --color-segment-track: unset;
   /* Section-title accent (the old unistyles `accent` slot — deliberately
      cool teal on light, amber on dark; see the note in git history). */
   --color-heading: unset;
@@ -97,6 +103,7 @@
       --color-flat: #737373;
       --color-fill: rgba(118, 118, 128, 0.12);
       --color-segment-active: #f2f2f7;
+      --color-segment-track: rgba(0, 0, 0, 0.08);
       --color-heading: #104e64;
       --color-open: #0490c8;
 
@@ -156,6 +163,9 @@
       --color-flat: #a1a1a1;
       --color-fill: rgba(118, 118, 128, 0.24);
       --color-segment-active: #161616;
+      /* 30% black over #161616 ≈ #0f0f0f — a real step below the chip, the
+         same ~20-point delta the light pairing has. */
+      --color-segment-track: rgba(0, 0, 0, 0.3);
       --color-heading: #f59e0b;
       --color-open: #0490c8;
 

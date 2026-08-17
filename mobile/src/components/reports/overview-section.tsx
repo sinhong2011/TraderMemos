@@ -1,5 +1,17 @@
 import { useRouter } from 'expo-router';
-import { BarChart, cn, PieChart, RingChart, Skeleton, type PieDatum } from 'panelui-native';
+import {
+  BarChart,
+  cn,
+  Meter,
+  PieChart,
+  RingChart,
+  ScrollFade,
+  Skeleton,
+  Table,
+  WaterfallChart,
+  type PieDatum,
+  type WaterfallDatum,
+} from 'panelui-native';
 import { useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useCSSVariable } from 'uniwind';
@@ -34,7 +46,7 @@ import { locale } from '@/i18n';
 import { formatPercent, formatRatio } from '@/lib/format';
 import { gradeFromInt } from '@/lib/journal';
 import { buildReportsDayStrip, sqnBand } from '@/lib/reports-display';
-import { pnlClass, pnlColor, usePnlPalette } from '@/styles/pnl';
+import { pnlClass, usePnlPalette } from '@/styles/pnl';
 
 // ---------------------------------------------------------------------------
 // Summary bento
@@ -212,6 +224,9 @@ function DayStripCard({ ctx }: { ctx: ReportsMoneyContext }) {
   const filters = useReportsFilters();
   const trades = useTrades(filters);
   const days = buildReportsDayStrip(trades.data ?? [], ctx.money.tradePnl);
+  // The strip sits on the card surface, so the edge fades must resolve to it —
+  // ScrollFade's default is the page background.
+  const [card] = useCSSVariable(['--color-card']) as [string];
 
   if (trades.isLoading) return <Skeleton className="h-24 rounded-lg" />;
   // Ahead of the `days.length === 0` bail-out: this card hides itself when there
@@ -228,42 +243,147 @@ function DayStripCard({ ctx }: { ctx: ReportsMoneyContext }) {
 
   return (
     <DashboardCard title={t`Trading days`}>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        // Bleeds to the card edges so the rail reads as scrollable content.
-        className="grow-0 -mx-4"
-        contentContainerClassName="gap-2 px-4"
-      >
-        {days.map((day) => {
-          const dow = new Date(`${day.date}T12:00:00Z`).getUTCDay();
-          const isWeekend = dow === 0 || dow === 6;
-          const label = new Date(`${day.date}T12:00:00Z`).toLocaleDateString(locale, {
-            month: 'short',
-            day: 'numeric',
-            timeZone: 'UTC',
-          });
-          return (
-            <View
-              key={day.date}
-              className={cn(
-                'w-[92px] gap-0.5 rounded-md bg-muted px-2.5 py-2.5',
-                isWeekend && 'opacity-60',
-              )}
-            >
-              <Text className="text-[10px] font-medium text-muted-foreground">{label}</Text>
-              <Text
-                className={cn('text-sm font-semibold tabular-nums', pnlClass(day.pnl))}
-                numberOfLines={1}
-                adjustsFontSizeToFit
+      {/* The end fade doubles as the "there's more" affordance the cut-off
+          tile used to carry alone. */}
+      <ScrollFade orientation="horizontal" color={card} size={24} className="-mx-4">
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          // Bleeds to the card edges so the rail reads as scrollable content.
+          className="grow-0"
+          contentContainerClassName="gap-2 px-4"
+        >
+          {days.map((day) => {
+            const dow = new Date(`${day.date}T12:00:00Z`).getUTCDay();
+            const isWeekend = dow === 0 || dow === 6;
+            const label = new Date(`${day.date}T12:00:00Z`).toLocaleDateString(locale, {
+              month: 'short',
+              day: 'numeric',
+              timeZone: 'UTC',
+            });
+            return (
+              <View
+                key={day.date}
+                className={cn(
+                  'w-[92px] gap-0.5 rounded-md bg-muted px-2.5 py-2.5',
+                  isWeekend && 'opacity-60',
+                )}
               >
-                {ctx.money.formatCompact(day.pnl)}
-              </Text>
-              <Text className="text-[10px] tabular-nums text-muted-foreground">{t`${day.trades} trades`}</Text>
-            </View>
-          );
-        })}
-      </ScrollView>
+                <Text className="text-[10px] font-medium text-muted-foreground">{label}</Text>
+                <Text
+                  className={cn('text-sm font-semibold tabular-nums', pnlClass(day.pnl))}
+                  numberOfLines={1}
+                  adjustsFontSizeToFit
+                >
+                  {ctx.money.formatCompact(day.pnl)}
+                </Text>
+                <Text className="text-[10px] tabular-nums text-muted-foreground">{t`${day.trades} trades`}</Text>
+              </View>
+            );
+          })}
+        </ScrollView>
+      </ScrollFade>
+    </DashboardCard>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Monthly P&L bridge
+// ---------------------------------------------------------------------------
+
+/**
+ * Bars a phone plot fits before the axis labels collide: the XAxis tiles one
+ * label box per band, so past ~10 bands even "Oct" ellipsizes.
+ */
+const MAX_BRIDGE_BUCKETS = 8;
+
+/** How the period's P&L was built period by period, as a waterfall. */
+function PnlBridgeCard({ ctx }: { ctx: ReportsMoneyContext }) {
+  const palette = usePnlPalette();
+  // Anchored totals are a verdict, not a win or a loss — brand blue, not P&L.
+  const [totalColor] = useCSSVariable(['--color-chart-1']) as [string];
+  const filters = useReportsFilters();
+  const trades = useTrades(filters);
+  const { money } = ctx;
+
+  if (trades.isLoading) return <Skeleton className="h-[220px] rounded-lg" />;
+  // Quiet on failure: DayStripCard above surfaces this same query's error.
+  if (trades.data == null) return null;
+
+  // Via the day strip so the bars follow the gross/net toggle (tradePnl is
+  // mode-aware), which /analytics/daily is not.
+  const days = buildReportsDayStrip(trades.data, money.tradePnl);
+  const monthly = new Map<string, number>();
+  // The strip arrives newest → oldest; a bridge reads oldest → newest.
+  for (const day of [...days].reverse()) {
+    const month = day.date.slice(0, 7);
+    monthly.set(month, (monthly.get(month) ?? 0) + day.pnl);
+  }
+  const months = [...monthly.entries()];
+  // One month has no bridge to draw.
+  if (months.length < 2) return null;
+
+  // Longer ranges step up to quarters instead of thinning month labels — the
+  // period keeps its full shape and the labels stay short enough for a band.
+  const byQuarter = months.length > MAX_BRIDGE_BUCKETS;
+  let buckets = months;
+  if (byQuarter) {
+    const quarterly = new Map<string, number>();
+    for (const [month, pnl] of months) {
+      const quarter = `${month.slice(0, 4)}-Q${Math.floor((Number(month.slice(5, 7)) - 1) / 3) + 1}`;
+      quarterly.set(quarter, (quarterly.get(quarter) ?? 0) + pnl);
+    }
+    buckets = [...quarterly.entries()];
+  }
+
+  const shown = buckets.slice(-MAX_BRIDGE_BUCKETS);
+  const prior = buckets.slice(0, buckets.length - shown.length);
+  const priorSum = prior.reduce((sum, [, pnl]) => sum + pnl, 0);
+
+  const multiYear = new Set(shown.map(([key]) => key.slice(0, 4))).size > 1;
+  // Years only where the bands have room for them — a truncated "Sep…" says
+  // less than a bare "Sep".
+  const withYear = multiYear && shown.length <= 6;
+  const bucketLabel = (key: string) =>
+    byQuarter
+      ? `${key.slice(5)}${withYear ? ` ${key.slice(2, 4)}` : ''}`
+      : new Date(`${key}-01T12:00:00Z`).toLocaleDateString(locale, {
+          month: 'short',
+          ...(withYear ? { year: '2-digit' as const } : {}),
+          timeZone: 'UTC',
+        });
+
+  const data: WaterfallDatum[] = [
+    // Older periods roll into one anchored opening bar rather than vanishing.
+    ...(prior.length > 0 ? [{ label: t`Prior`, value: priorSum, total: true }] : []),
+    ...shown.map(([key, pnl]) => ({ label: bucketLabel(key), value: pnl })),
+    { label: t`Total`, value: 0, total: true },
+  ];
+
+  return (
+    <DashboardCard title={t`P&L bridge`}>
+      <WaterfallChart
+        data={data}
+        aspectRatio={1.7}
+        riseColor={palette.profit}
+        fallColor={palette.loss}
+        totalColor={totalColor}
+      >
+        <WaterfallChart.Grid />
+        <WaterfallChart.Connectors />
+        <WaterfallChart.Bars />
+        <WaterfallChart.XAxis />
+        <WaterfallChart.Tooltip
+          // An anchored bar's own `value` is its delta-from-zero bookkeeping;
+          // the reading a finger wants there is the running total it stands at.
+          formatValue={(step) => money.formatCompact(step.datum.total ? step.end : step.value)}
+        />
+      </WaterfallChart>
+      {prior.length > 0 ? (
+        <Text className="text-xs text-muted-foreground">
+          {t`Earlier periods are rolled into Prior.`}
+        </Text>
+      ) : null}
     </DashboardCard>
   );
 }
@@ -316,24 +436,30 @@ function BreakdownRows({
         <BarChart.Bar dataKey="loss" color={palette.loss} />
         <BarChart.XAxis />
       </BarChart>
-      <View className="gap-2">
-        {groups.slice(0, MAX_ROWS).map((group) => {
-          const value = money.pnl(group.summary);
-          return (
-            <View key={group.key} className="flex-row items-baseline gap-2">
-              <Text className="shrink text-sm font-medium text-foreground" numberOfLines={1}>
-                {group.key}
-              </Text>
-              <Text className="flex-1 text-xs tabular-nums text-muted-foreground">
-                {t`${group.summary.total_trades} trades`} · {formatPercent(group.summary.win_rate)}
-              </Text>
-              <Text className={cn('text-sm font-semibold tabular-nums', pnlClass(value))}>
-                {money.formatCompact(value)}
-              </Text>
-            </View>
-          );
-        })}
-      </View>
+      {/* A column model, not per-row flex guessing: the trades·WR column had
+          floated wherever each row's name let it, so nothing lined up. */}
+      <Table size="sm" columns={[{ flex: 1.2 }, { flex: 1 }, { flex: 1, align: 'end' }]}>
+        <Table.Body>
+          {groups.slice(0, MAX_ROWS).map((group, index, rows) => {
+            const value = money.pnl(group.summary);
+            return (
+              <Table.Row key={group.key} last={index === rows.length - 1}>
+                <Table.Cell labelClassName="text-sm font-medium text-foreground">
+                  {group.key}
+                </Table.Cell>
+                <Table.Cell labelClassName="tabular-nums text-muted-foreground">
+                  {`${t`${group.summary.total_trades} trades`} · ${formatPercent(group.summary.win_rate)}`}
+                </Table.Cell>
+                <Table.Cell
+                  labelClassName={cn('text-sm font-semibold tabular-nums', pnlClass(value))}
+                >
+                  {money.formatCompact(value)}
+                </Table.Cell>
+              </Table.Row>
+            );
+          })}
+        </Table.Body>
+      </Table>
     </>
   );
 }
@@ -347,7 +473,7 @@ function PlaybookCard({ ctx }: { ctx: ReportsMoneyContext }) {
   return (
     <DashboardCard
       title={t`Playbook & leaks`}
-      control={<Segmented options={dims} value={dim} onChange={setDim} />}
+      control={<Segmented compact options={dims} value={dim} onChange={setDim} />}
     >
       <BreakdownRows
         dim={dim}
@@ -422,7 +548,6 @@ function RMultipleCard({ rSummary }: { rSummary: RSummary }) {
 // ---------------------------------------------------------------------------
 
 function ExecutionGradeCard({ ctx }: { ctx: ReportsMoneyContext }) {
-  const palette = usePnlPalette();
   const filters = useReportsFilters();
   const breakdown = useBreakdown('trade_quality', filters);
   const { money } = ctx;
@@ -458,15 +583,15 @@ function ExecutionGradeCard({ ctx }: { ctx: ReportsMoneyContext }) {
               <Text className="text-[13px] font-semibold text-foreground">
                 {grade || t`Unrated`}
               </Text>
-              <View className="h-1.5 overflow-hidden rounded-[3px] bg-muted">
-                <View
-                  className="h-full rounded-[3px]"
-                  style={{
-                    width: `${Math.max(4, (Math.abs(value) / maxAbs) * 100)}%`,
-                    backgroundColor: pnlColor(palette, value),
-                  }}
-                />
-              </View>
+              {/* The 4% floor keeps a near-zero grade visible; the readout row
+                  below carries the value, so the bar itself stays unlabeled. */}
+              <Meter
+                value={Math.max(Math.abs(value), maxAbs * 0.04)}
+                maxValue={maxAbs}
+                size="sm"
+                color="muted"
+                indicatorClassName={value === 0 ? 'bg-flat' : value > 0 ? 'bg-profit' : 'bg-loss'}
+              />
               <View className="flex-row items-baseline justify-between">
                 <Text className={cn('text-sm font-semibold tabular-nums', pnlClass(value))}>
                   {money.formatCompact(value)}
@@ -536,6 +661,8 @@ export function OverviewSection({
           <SummaryCard summary={summary.data} ctx={ctx} />
 
           <DayStripCard ctx={ctx} />
+
+          <PnlBridgeCard ctx={ctx} />
 
           {goal.data?.amount != null && ytd.data ? (
             <GoalCard

@@ -129,6 +129,27 @@ export function drawdownSeries(points: EquityPoint[]): DrawdownPoint[] {
   });
 }
 
+export interface DrawdownDepthPoint {
+  at: string;
+  /** Dollars below the running peak — 0 at a new high, negative in a trough. */
+  depth: number;
+}
+
+/**
+ * Depth below the running equity peak in account currency. Percent-of-peak
+ * (`drawdownPct`, web's measure) breaks on range-scoped curves: the running
+ * peak starts near zero, so an ordinary dollar dip early in the window reads
+ * as "-250%". Money is stable whatever the window; the reports unit toggle
+ * supplies a percentage with a real base (net deposits) when wanted.
+ */
+export function drawdownDepthSeries(points: EquityPoint[]): DrawdownDepthPoint[] {
+  let peak = -Infinity;
+  return points.map((p) => {
+    if (p.equity > peak) peak = p.equity;
+    return { at: p.at, depth: p.equity - peak };
+  });
+}
+
 export function currentDrawdownPct(points: EquityPoint[]): number {
   const series = drawdownSeries(points);
   return series.length > 0 ? series[series.length - 1].drawdownPct : 0;

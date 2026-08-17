@@ -2,13 +2,13 @@
  * event rows (behavior/compliance lists), and ranked magnitude rows (the
  * phone stand-in for web's horizontal bar charts and the symbol treemap). */
 
-import { cn } from 'panelui-native';
+import { cn, Meter } from 'panelui-native';
 import type { ReactNode } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
 import { Pill, type PillTone } from '@/components/pill';
 import { locale } from '@/i18n';
-import { pnlClass, pnlColor, usePnlPalette } from '@/styles/pnl';
+import { pnlClass } from '@/styles/pnl';
 
 /**
  * One row of a signed P&L bar chart.
@@ -95,7 +95,7 @@ export function MagnitudeRow({
   rawValue: number;
   maxAbs: number;
 }) {
-  const palette = usePnlPalette();
+  const max = Math.max(maxAbs, 1);
   return (
     <View className="gap-1">
       <View className="flex-row items-baseline gap-2">
@@ -106,15 +106,16 @@ export function MagnitudeRow({
         <View className="flex-1" />
         <Text className={cn('text-sm font-semibold tabular-nums', pnlClass(rawValue))}>{value}</Text>
       </View>
-      <View className="h-[5px] overflow-hidden rounded-[3px] bg-muted">
-        <View
-          className="h-full rounded-[3px]"
-          style={{
-            width: `${Math.max(3, (Math.abs(rawValue) / Math.max(maxAbs, 1)) * 100)}%`,
-            backgroundColor: pnlColor(palette, rawValue),
-          }}
-        />
-      </View>
+      {/* The 3% floor keeps the smallest rank visible as more than a fleck.
+          The header row above already carries the reading for VoiceOver, so
+          the bar stays unlabeled rather than announcing it twice. */}
+      <Meter
+        value={Math.max(Math.abs(rawValue), max * 0.03)}
+        maxValue={max}
+        size="sm"
+        color="muted"
+        indicatorClassName={rawValue === 0 ? 'bg-flat' : rawValue > 0 ? 'bg-profit' : 'bg-loss'}
+      />
     </View>
   );
 }

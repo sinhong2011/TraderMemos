@@ -28,7 +28,9 @@ export function PagerTabs<T extends string>({
       defaultValue={value}
       onValueChange={(next) => onChange(next as T)}
     >
-      <Tabs.List>
+      {/* bg-segment-track, not the stock bg-muted: in dark that muted resolves
+          to the chip's own grey and the active tab disappears. */}
+      <Tabs.List className="bg-segment-track">
         {options.map((option) => (
           <Tabs.Trigger key={option.value} value={option.value}>
             {option.label}

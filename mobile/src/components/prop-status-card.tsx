@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { Progress, Skeleton, cn } from 'panelui-native';
+import { RingChart, Skeleton, cn } from 'panelui-native';
 import { Text, View } from 'react-native';
 
 import { usePropStatus } from '@/api/hooks';
@@ -10,34 +10,77 @@ import { StatBar } from '@/components/stat-bar';
 import { t } from '@lingui/core/macro';
 import { formatPercent, useFormatters } from '@/lib/format';
 import { resolveMarketTimezone, useDisplayPrefs } from '@/lib/prefs';
+import { usePnlPalette } from '@/styles/pnl';
 
-function RuleBar({
-  label,
-  progress,
-  note,
-  danger,
-}: {
+/** Diameter of the evaluation rings; two arcs plus a center readout fit here. */
+const RING_SIZE = 96;
+
+/** One evaluation rule drawn as a ring: its arc, and the legend row beside. */
+type RuleRing = {
+  key: string;
   label: string;
-  /** 0–1 fill. */
+  /** 0–1 fill of the arc. */
   progress: number;
+  color: string;
   note: string;
   danger?: boolean;
-}) {
-  const clamped = Math.min(1, Math.max(0, progress));
+};
+
+/**
+ * The two evaluation rules as concentric rings — progress towards several
+ * targets is RingChart's literal shape. The green arc closes on the profit
+ * target; the red one is drawdown allowance being consumed, so a full red
+ * ring is the failure state. The notes the old bars carried move into a
+ * legend column beside the dial.
+ */
+function RuleRings({ rings }: { rings: RuleRing[] }) {
+  const center = rings[0];
   return (
-    <View className="gap-1">
-      <View className="flex-row items-baseline justify-between">
-        <Text className="text-[13px] font-medium text-foreground">{label}</Text>
-        <Text className={cn('text-xs tabular-nums', danger ? 'text-loss' : 'text-muted-foreground')}>
-          {note}
-        </Text>
+    <View className="flex-row items-center gap-4">
+      <RingChart
+        data={rings.map((ring) => ({
+          label: ring.label,
+          value: Math.min(1, Math.max(0, ring.progress)),
+          maxValue: 1,
+          color: ring.color,
+        }))}
+        size={RING_SIZE}
+        strokeWidth={9}
+      >
+        {rings.map((ring, index) => (
+          <RingChart.Ring key={ring.key} index={index} />
+        ))}
+        <RingChart.Center>
+          {() => (
+            <Text className="text-[13px] font-semibold tabular-nums text-foreground">
+              {formatPercent(Math.min(1, Math.max(0, center.progress)), 0)}
+            </Text>
+          )}
+        </RingChart.Center>
+      </RingChart>
+      <View className="flex-1 gap-2.5">
+        {rings.map((ring) => (
+          <View
+            key={ring.key}
+            className="gap-0.5"
+            accessible
+            accessibilityLabel={`${ring.label}, ${ring.note}`}
+          >
+            <View className="flex-row items-center gap-1.5">
+              <View className="h-2 w-2 rounded-full" style={{ backgroundColor: ring.color }} />
+              <Text className="text-[13px] font-medium text-foreground">{ring.label}</Text>
+            </View>
+            <Text
+              className={cn(
+                'text-xs tabular-nums',
+                ring.danger ? 'text-loss' : 'text-muted-foreground',
+              )}
+            >
+              {ring.note}
+            </Text>
+          </View>
+        ))}
       </View>
-      {/* 3% floor so a rule barely underway still reads as a started bar. */}
-      <Progress
-        value={Math.max(3, clamped * 100)}
-        size="sm"
-        color={danger ? 'destructive' : 'success'}
-      />
     </View>
   );
 }
@@ -59,6 +102,7 @@ export function PropStatusCard({
 }) {
   const router = useRouter();
   const prefs = useDisplayPrefs();
+  const palette = usePnlPalette();
   const { formatCurrency, formatPnl } = useFormatters();
   const status = usePropStatus(accountId, { tz: resolveMarketTimezone(prefs.marketTimezone) });
 
@@ -111,6 +155,34 @@ export function PropStatusCard({
         ? t`static`
         : t`trailing`;
 
+  const rings: RuleRing[] = [];
+  if (s.profit_target != null && s.profit_target > 0) {
+    rings.push({
+      key: 'target',
+      label: t`Profit target`,
+      progress: s.target_pct ?? 0,
+      color: palette.profit,
+      note: s.target_reached
+        ? t`reached`
+        : t`${formatPercent(s.target_pct ?? 0, 0)} of ${formatCurrency(fx(s.profit_target), currency)}`,
+    });
+  }
+  if (s.max_drawdown != null && s.max_drawdown > 0) {
+    rings.push({
+      key: 'drawdown',
+      label: t`Drawdown (${drawdownModeLabel})`,
+      progress:
+        s.floor_distance != null ? 1 - s.floor_distance / s.max_drawdown : s.drawdown_hit ? 1 : 0,
+      color: palette.loss,
+      note: s.drawdown_hit
+        ? t`floor hit`
+        : s.floor_distance != null
+          ? t`${formatCurrency(fx(s.floor_distance), currency)} above the floor`
+          : '',
+      danger: floorDanger,
+    });
+  }
+
   return (
     <DashboardCard
       title={t`Prop evaluation`}
@@ -136,34 +208,7 @@ export function PropStatusCard({
         />
       </View>
 
-      {s.profit_target != null && s.profit_target > 0 ? (
-        <RuleBar
-          label={t`Profit target`}
-          progress={s.target_pct ?? 0}
-          note={
-            s.target_reached
-              ? t`reached`
-              : t`${formatPercent(s.target_pct ?? 0, 0)} of ${formatCurrency(fx(s.profit_target), currency)}`
-          }
-        />
-      ) : null}
-
-      {s.max_drawdown != null && s.max_drawdown > 0 ? (
-        <RuleBar
-          label={t`Drawdown (${drawdownModeLabel})`}
-          progress={
-            s.floor_distance != null ? 1 - s.floor_distance / s.max_drawdown : s.drawdown_hit ? 1 : 0
-          }
-          note={
-            s.drawdown_hit
-              ? t`floor hit`
-              : s.floor_distance != null
-                ? t`${formatCurrency(fx(s.floor_distance), currency)} above the floor`
-                : ''
-          }
-          danger={floorDanger}
-        />
-      ) : null}
+      {rings.length > 0 ? <RuleRings rings={rings} /> : null}
 
       <View className="flex-row flex-wrap gap-1.5">
         {s.target_reached ? <Pill tone="pos">{t`target reached`}</Pill> : null}

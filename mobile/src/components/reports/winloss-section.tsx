@@ -208,7 +208,10 @@ export function WinLossSection({
                 {/* One metric per panel rather than a shared dual axis: two
                     series on one y-scale would put a profit factor of 1.4 and a
                     five-figure cumulative P&L on the same axis. */}
-                <View className="items-end">
+                {/* justify-end on a row, not items-end on a column: Segmented
+                    carries self-start, which overrides a parent's cross-axis
+                    alignment and drags it back to the left edge. */}
+                <View className="flex-row justify-end">
                   <Segmented
                     compact
                     options={rightMetrics}
