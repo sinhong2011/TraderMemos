@@ -8,6 +8,7 @@ import { CenteredButton } from '@/components/centered-button';
 import { NavRow } from '@/components/nav-row';
 import { SettingsForm } from '@/components/settings-form';
 import { SettingsPicker, SettingsSection } from '@/components/settings-rows';
+import { usePrompt } from '@/components/use-prompt';
 import { t } from '@lingui/core/macro';
 import { parseAmount } from '@/lib/amount';
 import { errorMessage } from '@/lib/errors';
@@ -27,6 +28,7 @@ export default function PropSettingsScreen() {
   const api = useApiRequest();
   const accounts = useAccounts();
   const settings = usePropSettings(accountId ?? '');
+  const { prompt, element: promptElement } = usePrompt();
 
   const account = accounts.data?.find((candidate) => candidate.id === accountId);
   const currency = account?.base_currency ?? 'USD';
@@ -61,56 +63,42 @@ export default function PropSettingsScreen() {
     title: string,
     key: 'profit_target' | 'max_drawdown' | 'daily_loss_limit',
   ) {
-    Alert.prompt(
+    prompt({
       title,
-      t`Leave blank to drop this rule.`,
-      [
-        { text: t`Cancel`, style: 'cancel' },
-        {
-          text: t`Save`,
-          onPress: (text?: string) => {
-            const amount = parseAmount(text ?? '');
-            if (amount === undefined) {
-              Alert.alert(t`Could not save`, t`Enter a valid amount.`);
-              return;
-            }
-            save.mutate({ ...current, [key]: amount });
-          },
-        },
-      ],
-      'plain-text',
-      current[key] != null ? String(current[key]) : '',
-      'decimal-pad',
-    );
+      message: t`Leave blank to drop this rule.`,
+      defaultValue: current[key] != null ? String(current[key]) : '',
+      keyboardType: 'decimal-pad',
+      onSubmit: (text) => {
+        const amount = parseAmount(text);
+        if (amount === undefined) {
+          Alert.alert(t`Could not save`, t`Enter a valid amount.`);
+          return;
+        }
+        save.mutate({ ...current, [key]: amount });
+      },
+    });
   }
 
   function editConsistency() {
-    Alert.prompt(
-      t`Consistency rule`,
-      t`Max share of profit one day may contribute, as a percent (e.g. 40). Leave blank to drop.`,
-      [
-        { text: t`Cancel`, style: 'cancel' },
-        {
-          text: t`Save`,
-          onPress: (text?: string) => {
-            const raw = (text ?? '').trim();
-            if (raw === '') {
-              save.mutate({ ...current, consistency_pct: null });
-              return;
-            }
-            const parsed = Number(raw);
-            if (!Number.isFinite(parsed) || parsed <= 0 || parsed > 100) {
-              Alert.alert(t`Could not save`, t`Enter a percent between 1 and 100.`);
-              return;
-            }
-            save.mutate({ ...current, consistency_pct: parsed / 100 });
-          },
-        },
-      ],
-      'plain-text',
-      current.consistency_pct != null ? String(current.consistency_pct * 100) : '',
-      'decimal-pad',
-    );
+    prompt({
+      title: t`Consistency rule`,
+      message: t`Max share of profit one day may contribute, as a percent (e.g. 40). Leave blank to drop.`,
+      defaultValue: current.consistency_pct != null ? String(current.consistency_pct * 100) : '',
+      keyboardType: 'decimal-pad',
+      onSubmit: (text) => {
+        const raw = text.trim();
+        if (raw === '') {
+          save.mutate({ ...current, consistency_pct: null });
+          return;
+        }
+        const parsed = Number(raw);
+        if (!Number.isFinite(parsed) || parsed <= 0 || parsed > 100) {
+          Alert.alert(t`Could not save`, t`Enter a percent between 1 and 100.`);
+          return;
+        }
+        save.mutate({ ...current, consistency_pct: parsed / 100 });
+      },
+    });
   }
 
   function confirmDelete() {
@@ -125,6 +113,7 @@ export default function PropSettingsScreen() {
 
   return (
     <SettingsForm>
+      {promptElement}
       <SettingsSection
         title={account ? account.name : t`Prop rules`}
         footer={t`Rules the firm scores this evaluation on. Blank rules are skipped.`}

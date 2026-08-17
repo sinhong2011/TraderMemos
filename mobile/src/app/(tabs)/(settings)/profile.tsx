@@ -21,7 +21,7 @@ export default function ProfileScreen() {
   const { formatDate } = useFormatters();
   const router = useRouter();
   const { session } = useSession();
-  const changeServer = useChangeServer();
+  const { changeServer, element: changeServerPrompt } = useChangeServer();
   const me = useMe();
 
   // The whole screen is /me, so a failure has nothing to sit beside — it gets
@@ -46,6 +46,7 @@ export default function ProfileScreen() {
 
   return (
     <SettingsForm>
+      {changeServerPrompt}
       <SettingsSection
         title={t`Signed in as`}
         footer={

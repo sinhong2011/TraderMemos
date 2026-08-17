@@ -7,6 +7,7 @@ import type { RiskRules } from '@/api/types';
 import { t } from '@lingui/core/macro';
 import { SettingsForm } from '@/components/settings-form';
 import { SettingsButton, SettingsSection } from '@/components/settings-rows';
+import { usePrompt } from '@/components/use-prompt';
 import { errorMessage } from '@/lib/errors';
 import {
   activeRiskRules,
@@ -21,13 +22,15 @@ import {
 /**
  * Risk rules (web RulesTab parity): only active limits are listed — tap one to
  * change or remove it, add unset limits from the section below. Values edit in
- * a native prompt (an Alert with a decimal field), so the list never shows
- * empty inputs like the old four-blank-fields form.
+ * a single-field prompt (`usePrompt`: `Alert.prompt` on iOS, a dialog on
+ * Android — the Alert API alone is a silent no-op there), so the list never
+ * shows empty inputs like the old four-blank-fields form.
  */
 export default function RiskRulesScreen() {
   const queryClient = useQueryClient();
   const api = useApiRequest();
   const rules = useRiskRules();
+  const { prompt, element: promptElement } = usePrompt();
 
   const save = useMutation({
     mutationFn: (body: RiskRules) => api('/settings/risk-rules', { method: 'PUT', body }),
@@ -38,28 +41,20 @@ export default function RiskRulesScreen() {
   function promptForValue(def: RiskRuleDef, current?: number) {
     const unitLabel =
       def.unit === '%' ? t`Value (%)` : def.unit === 'count' ? t`Value (trades)` : t`Value ($)`;
-    Alert.prompt(
-      def.label(),
-      `${def.detail()}\n${unitLabel}`,
-      [
-        { text: t`Cancel`, style: 'cancel' },
-        {
-          text: t`Save`,
-          onPress: (raw?: string) => {
-            const text = raw ?? '';
-            const error = validateRiskRuleValue(def, text);
-            if (error) {
-              Alert.alert(t`Could not save`, error);
-              return;
-            }
-            save.mutate(setRiskRuleValue(rules.data, def.key, parseRiskRuleValue(text)));
-          },
-        },
-      ],
-      'plain-text',
-      current != null ? String(current) : '',
-      'decimal-pad',
-    );
+    prompt({
+      title: def.label(),
+      message: `${def.detail()}\n${unitLabel}`,
+      defaultValue: current != null ? String(current) : '',
+      keyboardType: 'decimal-pad',
+      onSubmit: (text) => {
+        const error = validateRiskRuleValue(def, text);
+        if (error) {
+          Alert.alert(t`Could not save`, error);
+          return;
+        }
+        save.mutate(setRiskRuleValue(rules.data, def.key, parseRiskRuleValue(text)));
+      },
+    });
   }
 
   function confirmRemove(def: RiskRuleDef) {
@@ -86,6 +81,7 @@ export default function RiskRulesScreen() {
 
   return (
     <SettingsForm>
+      {promptElement}
       <SettingsSection
         title={t`Active limits`}
         footer={t`Used by Check compliance on New Trade. Add only the limits you want enforced.`}

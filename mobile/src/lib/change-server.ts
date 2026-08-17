@@ -4,7 +4,9 @@
  * server stranded a signed-in session with no way out but Sign out (and
  * nothing told you that was the fix).
  *
- * One value → `Alert.prompt`, the settings idiom for single-field edits.
+ * One value → `usePrompt` (`Alert.prompt` on iOS, a dialog on Android — the
+ * bare Alert API is a silent no-op there), the settings idiom for
+ * single-field edits.
  * Saving points the app at the new instance and signs out, because both
  * halves of the session belong to the old server: the token pair was issued
  * by it, and the cached journal/queued writes belong to its account. The
@@ -14,9 +16,10 @@
 
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
-import { Alert } from 'react-native';
+import type { ReactNode } from 'react';
 
 import { useApiRequest } from '@/api/hooks';
+import { usePrompt } from '@/components/use-prompt';
 import { normalizeServerUrl, saveServerUrl, useSession } from '@/api/session';
 import { t } from '@lingui/core/macro';
 import { clearOutbox } from '@/lib/outbox';
@@ -32,12 +35,17 @@ export function serverHost(url: string): string {
   }
 }
 
-/** Returns the prompt-opener; safe to hand straight to an `onPress`. */
-export function useChangeServer(): () => void {
+/**
+ * Returns the prompt-opener (safe to hand straight to an `onPress`) and the
+ * dialog element the caller must render once — null on iOS and whenever the
+ * prompt is closed.
+ */
+export function useChangeServer(): { changeServer: () => void; element: ReactNode } {
   const { session, signOut } = useSession();
   const router = useRouter();
   const queryClient = useQueryClient();
   const api = useApiRequest();
+  const { prompt, element } = usePrompt();
 
   async function applyChange(next: string) {
     // Best-effort against the old server while the token still works — this
@@ -63,26 +71,22 @@ export function useChangeServer(): () => void {
     router.replace('/login');
   }
 
-  return () => {
+  const changeServer = () => {
     const current = session?.serverUrl ?? '';
-    Alert.prompt(
-      t`Change server?`,
-      t`Points the app at a different TraderMemos instance and signs you out. Unsynced offline changes will be discarded.`,
-      [
-        { text: t`Cancel`, style: 'cancel' },
-        {
-          text: t`Change & sign out`,
-          style: 'destructive',
-          onPress: (value?: string) => {
-            const next = normalizeServerUrl(value ?? '');
-            // Empty or unchanged: nothing to move to — keep the session.
-            if (!next || next === current) return;
-            void applyChange(next);
-          },
-        },
-      ],
-      'plain-text',
-      current,
-    );
+    prompt({
+      title: t`Change server?`,
+      message: t`Points the app at a different TraderMemos instance and signs you out. Unsynced offline changes will be discarded.`,
+      defaultValue: current,
+      keyboardType: 'url',
+      confirmLabel: t`Change & sign out`,
+      onSubmit: (value) => {
+        const next = normalizeServerUrl(value);
+        // Empty or unchanged: nothing to move to — keep the session.
+        if (!next || next === current) return;
+        void applyChange(next);
+      },
+    });
   };
+
+  return { changeServer, element };
 }

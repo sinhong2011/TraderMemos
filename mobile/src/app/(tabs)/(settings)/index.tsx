@@ -55,7 +55,7 @@ export default function SettingsScreen() {
   const palette = usePnlPalette();
   const [foreground] = useCSSVariable(['--color-foreground']) as [string];
   const { session, signOut } = useSession();
-  const changeServer = useChangeServer();
+  const { changeServer, element: changeServerPrompt } = useChangeServer();
   // Offline writes still waiting to sync — signing out would discard them.
   const pendingSyncs = usePendingCount();
   const accountsQuery = useAccounts();
@@ -301,6 +301,7 @@ export default function SettingsScreen() {
 
   return (
     <>
+      {changeServerPrompt}
       {/* Trades-style search: the header magnifier (✕ while open) toggles the
           floating bottom Liquid Glass bar. UISearchController placements were
           all tried and rejected on sight — always-visible `stacked`,
