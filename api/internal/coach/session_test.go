@@ -159,7 +159,7 @@ func TestBuildSessionContextWindowBound(t *testing.T) {
 
 	require.True(t, sc.Bounded, "a prior outside the window should mark the context bounded")
 	require.Equal(t, 1, sc.PriorsSeen)
-	require.Contains(t, sc.format(), "180d peak")
+	require.Contains(t, sc.format(), "180-day peak")
 }
 
 func TestBuildSessionContextEmptyPriors(t *testing.T) {
@@ -171,7 +171,7 @@ func TestBuildSessionContextEmptyPriors(t *testing.T) {
 
 	out := sc.format()
 	require.Contains(t, out, "Current streak: none")
-	require.Contains(t, out, "all recorded equity peak",
+	require.Contains(t, out, "all-time equity peak",
 		"unbounded history should not claim a 180d peak")
 }
 

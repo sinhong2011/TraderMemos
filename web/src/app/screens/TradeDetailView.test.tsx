@@ -53,6 +53,13 @@ const tradeCoachMock = vi.hoisted(() => ({
     isError: false,
     fromStorage: false,
     history: [] as unknown[],
+    streamingNotes: [] as {
+      id: string;
+      tone: "neg" | "warn" | "pos" | "tip";
+      headline: string;
+      detail: string;
+      priority: number;
+    }[],
     generate: vi.fn<(...args: any[]) => any>(),
     reset: vi.fn<(...args: any[]) => any>(),
   },
@@ -267,6 +274,7 @@ describe("TradeDetailView", () => {
       isError: false,
       fromStorage: false,
       history: [],
+      streamingNotes: [],
       generate: vi.fn<(...args: any[]) => any>(),
       reset: vi.fn<(...args: any[]) => any>(),
     };
@@ -413,6 +421,7 @@ describe("TradeDetailView", () => {
       isError: false,
       fromStorage: false,
       history: [],
+      streamingNotes: [],
       generate,
       reset: vi.fn<(...args: any[]) => any>(),
     };
@@ -442,6 +451,7 @@ describe("TradeDetailView", () => {
       isError: false,
       fromStorage: false,
       history: [],
+      streamingNotes: [],
       generate: vi.fn<(...args: any[]) => any>(),
       reset: vi.fn<(...args: any[]) => any>(),
     };
@@ -474,12 +484,38 @@ describe("TradeDetailView", () => {
       isError: false,
       fromStorage: false,
       history: [],
+      streamingNotes: [],
       generate: vi.fn<(...args: any[]) => any>(),
       reset: vi.fn<(...args: any[]) => any>(),
     };
     renderView(<TradeDetailView {...defaultProps} />);
     expect(screen.getByText("Next action")).toBeInTheDocument();
     expect(screen.getByText(/at or below 1R before entering/i)).toBeInTheDocument();
+  });
+
+  // Notes appear as the model writes them, so a slow review is not a blank
+  // panel for a minute.
+  it("renders notes that have streamed in while still generating", () => {
+    tradeCoachMock.current = {
+      coachConfigured: true,
+      settingsPending: false,
+      data: undefined,
+      isPending: true,
+      isError: false,
+      fromStorage: false,
+      history: [],
+      streamingNotes: [
+        { id: "llm-1", tone: "warn", headline: "Arrived first", detail: "D1", priority: 1 },
+        { id: "llm-2", tone: "tip", headline: "Arrived second", detail: "D2", priority: 2 },
+      ],
+      generate: vi.fn<(...args: any[]) => any>(),
+      reset: vi.fn<(...args: any[]) => any>(),
+    };
+    renderView(<TradeDetailView {...defaultProps} />);
+    expect(screen.getByText("Arrived first")).toBeInTheDocument();
+    expect(screen.getByText("Arrived second")).toBeInTheDocument();
+    // The rule-based notes must not sit alongside a partial model review.
+    expect(screen.queryByText(/Write why you entered while it's fresh/i)).not.toBeInTheDocument();
   });
 
   // A review read back from storage is dated, so it does not read as advice
@@ -499,6 +535,7 @@ describe("TradeDetailView", () => {
       isError: false,
       fromStorage: true,
       history: [],
+      streamingNotes: [],
       generate: vi.fn<(...args: any[]) => any>(),
       reset: vi.fn<(...args: any[]) => any>(),
     };
@@ -522,6 +559,7 @@ describe("TradeDetailView", () => {
       isError: false,
       fromStorage: false,
       history: [],
+      streamingNotes: [],
       generate: vi.fn<(...args: any[]) => any>(),
       reset: vi.fn<(...args: any[]) => any>(),
     };
@@ -542,6 +580,7 @@ describe("TradeDetailView", () => {
       isError: false,
       fromStorage: false,
       history: [],
+      streamingNotes: [],
       generate: vi.fn<(...args: any[]) => any>(),
       reset: vi.fn<(...args: any[]) => any>(),
     };
@@ -565,6 +604,7 @@ describe("TradeDetailView", () => {
       isError: false,
       fromStorage: false,
       history: [],
+      streamingNotes: [],
       generate: vi.fn<(...args: any[]) => any>(),
       reset: vi.fn<(...args: any[]) => any>(),
     };
@@ -583,6 +623,7 @@ describe("TradeDetailView", () => {
       isError: false,
       fromStorage: false,
       history: [],
+      streamingNotes: [],
       generate: vi.fn<(...args: any[]) => any>(),
       reset: vi.fn<(...args: any[]) => any>(),
     };

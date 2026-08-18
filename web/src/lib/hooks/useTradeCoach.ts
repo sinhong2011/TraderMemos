@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { tradesApi, type TradeCoachReview } from "@/lib/api/trades";
+import { useCallback, useState } from "react";
+import { tradesApi, type TradeCoachApiNote, type TradeCoachReview } from "@/lib/api/trades";
 import { useCoachSettings } from "./useCoachSettings";
 
 export const tradeCoachReviewsKey = (tradeId: string) => ["trade-coach-reviews", tradeId] as const;
@@ -7,15 +8,20 @@ export const tradeCoachReviewsKey = (tradeId: string) => ["trade-coach-reviews",
 /**
  * Coach LLM is opt-in per trade — call `generate()` from a button.
  *
+ * Generation streams: notes are rendered as the model produces them instead of
+ * after a minute of nothing. `streamingNotes` holds what has arrived so far and
+ * is only meaningful while `isPending`; once the stream finishes, `data` holds
+ * the authoritative review, which is the only thing carrying the next action.
+ *
  * Past reviews are read back from the server so opening a trade shows the last
  * one immediately: a review costs a model call, so it should not vanish with
- * the component. A freshly generated review takes precedence over the stored
- * one for the rest of the session.
+ * the component.
  */
 export function useTradeCoach(tradeId: string | undefined) {
   const settings = useCoachSettings();
   const qc = useQueryClient();
   const coachConfigured = settings.data?.enabled === true;
+  const [streamingNotes, setStreamingNotes] = useState<TradeCoachApiNote[]>([]);
 
   const stored = useQuery({
     queryKey: tradeCoachReviewsKey(tradeId ?? ""),
@@ -26,9 +32,15 @@ export function useTradeCoach(tradeId: string | undefined) {
   const mutation = useMutation({
     mutationFn: (): Promise<TradeCoachReview> => {
       if (!tradeId) throw new Error("missing trade id");
-      return tradesApi.coach(tradeId);
+      setStreamingNotes([]);
+      return tradesApi.coachStream(tradeId, (note) => {
+        setStreamingNotes((prev) => [...prev, note]);
+      });
     },
-    onSuccess: () => {
+    onSettled: () => {
+      // The final review supersedes the partial list either way; on failure the
+      // partials would otherwise linger as if they were a finished review.
+      setStreamingNotes([]);
       if (tradeId) void qc.invalidateQueries({ queryKey: tradeCoachReviewsKey(tradeId) });
     },
   });
@@ -45,6 +57,11 @@ export function useTradeCoach(tradeId: string | undefined) {
     : undefined;
 
   const data = mutation.data ?? storedReview;
+  const { reset: resetMutation } = mutation;
+  const reset = useCallback(() => {
+    setStreamingNotes([]);
+    resetMutation();
+  }, [resetMutation]);
 
   return {
     coachConfigured,
@@ -52,12 +69,14 @@ export function useTradeCoach(tradeId: string | undefined) {
     isPending: mutation.isPending,
     isError: mutation.isError,
     data,
+    /** Notes received so far in an in-flight stream; empty when idle. */
+    streamingNotes,
     /** True when what's on screen was read back from storage, not generated now. */
     fromStorage: mutation.data == null && storedReview != null,
     /** Every stored review for this trade, newest first. */
     history: stored.data?.reviews ?? [],
     error: mutation.error,
     generate: mutation.mutateAsync,
-    reset: mutation.reset,
+    reset,
   };
 }

@@ -179,6 +179,10 @@ function TradeCoachPanel({ trade, insights }: { trade: TradeDetail; insights: Tr
     coach.fromStorage && coach.data?.created_at
       ? `Saved review from ${fmtDateTime(coach.data.created_at)}`
       : undefined;
+  // Notes stream in one at a time; showing them as they land is the whole
+  // point of the streaming endpoint, so they replace the skeleton.
+  const streamingNotes =
+    coach.isPending && coach.streamingNotes.length > 0 ? toCoachNotes(coach.streamingNotes) : null;
 
   // Excursion moved to the plan card — this panel is advice, not measurement,
   // so with no notes there is nothing left to show.
@@ -256,7 +260,14 @@ function TradeCoachPanel({ trade, insights }: { trade: TradeDetail; insights: Tr
               </div>
             ) : null}
 
-            {coach.isPending && !hasGenerated ? (
+            {streamingNotes ? (
+              // Notes that have landed so far, with one skeleton standing in
+              // for the note still being written.
+              <div className="flex flex-col gap-2" aria-busy="true" aria-live="polite">
+                <TradeCoachNotes notes={streamingNotes} />
+                <Skeleton className="h-14 w-full" />
+              </div>
+            ) : coach.isPending && !hasGenerated ? (
               <div className="flex flex-col gap-2" aria-busy="true">
                 <Skeleton className="h-14 w-full" />
                 <Skeleton className="h-14 w-full" />
