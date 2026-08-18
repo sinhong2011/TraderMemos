@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { History, Pause, Play, SkipBack, SkipForward } from "lucide-react";
 import { type FormEvent, useMemo, useState } from "react";
+import { ReplayHeartbeat } from "@/components/charts/ReplayHeartbeat";
 import { TradeChart } from "@/components/charts/TradeChart";
 import { formatReplayBarTime } from "@/components/charts/replayPnl";
 import { useBacktestReplay } from "@/components/charts/useBacktestReplay";
@@ -221,6 +222,16 @@ function ReplaySession({ spec, onExit }: { spec: SessionSpec; onExit: () => void
             hideHeaderLabel
             replayUpTo={replay.cutoff}
           />
+          {/* The session's heartbeat: running net P&L up to the cursor. Only
+              once a fill exists — before the first order it is a flat zero. */}
+          {bars && replay.fills.length > 0 && (
+            <ReplayHeartbeat
+              fills={replay.fills}
+              bars={bars}
+              interval={spec.interval}
+              cursor={replay.cursor}
+            />
+          )}
           <div className="flex flex-wrap items-center gap-2">
             <div className="flex items-center gap-0.5">
               <Button

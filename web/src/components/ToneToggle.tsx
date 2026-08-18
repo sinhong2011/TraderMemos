@@ -23,6 +23,11 @@ const tonePressedClass: Record<ToneToggleTone, string> = {
   neg: "aria-pressed:border-destructive/40 aria-pressed:bg-destructive/10 aria-pressed:text-destructive",
 };
 
+/** `#RRGGBB` + alpha byte — tag colors arrive as plain hex from the server. */
+function withAlpha(hex: string, alpha: string): string {
+  return hex.length === 7 ? `${hex}${alpha}` : hex;
+}
+
 /**
  * Shadcn/Base UI Toggle adapted to shadcn tokens.
  * @see https://ui.shadcn.com/docs/components/base/toggle
@@ -32,11 +37,19 @@ export function ToneToggle({
   variant = "default",
   size = "sm",
   tone = "accent",
+  color,
+  children,
   ...props
 }: ComponentProps<typeof TogglePrimitive> & {
   variant?: ToneToggleVariant;
   size?: ToneToggleSize;
   tone?: ToneToggleTone;
+  /**
+   * The item's own hue (a tag's color): drawn as a leading dot, and tinting
+   * the pressed fill/border in place of the tone. Dynamic hexes are data, not
+   * theme, so they ride `style` rather than a class.
+   */
+  color?: string;
 }) {
   return (
     <TogglePrimitive
@@ -51,10 +64,24 @@ export function ToneToggle({
         "[&_svg]:pointer-events-none [&_svg]:shrink-0",
         sizeClass[size],
         variantClass[variant],
-        tonePressedClass[tone],
+        color ? "aria-pressed:text-foreground" : tonePressedClass[tone],
         className,
       )}
+      style={
+        color && props.pressed
+          ? { borderColor: withAlpha(color, "66"), backgroundColor: withAlpha(color, "24") }
+          : undefined
+      }
       {...props}
-    />
+    >
+      {color ? (
+        <span
+          aria-hidden
+          className="-ml-0.5 size-2 shrink-0 rounded-full"
+          style={{ backgroundColor: color }}
+        />
+      ) : null}
+      {children}
+    </TogglePrimitive>
   );
 }
