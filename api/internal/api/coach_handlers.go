@@ -3,15 +3,18 @@ package api
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"net/http"
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v5"
 	"github.com/tradermemos/api/internal/analytics"
 	"github.com/tradermemos/api/internal/auth"
 	"github.com/tradermemos/api/internal/coach"
+	"github.com/tradermemos/api/internal/ocr"
 	"github.com/tradermemos/api/internal/store"
 )
 
@@ -20,6 +23,19 @@ type coachReviewDTO struct {
 	Notes      []coach.Note `json:"notes"`
 	NextAction string       `json:"next_action,omitempty"`
 	Error      string       `json:"error,omitempty"`
+	// ID and CreatedAt are set once the review is stored; absent when the
+	// write failed, so a client can tell a persisted review from a transient one.
+	ID        string     `json:"id,omitempty"`
+	CreatedAt *time.Time `json:"created_at,omitempty"`
+}
+
+// storedCoachReviewDTO is one row of a trade's coach history.
+type storedCoachReviewDTO struct {
+	ID         string       `json:"id"`
+	Notes      []coach.Note `json:"notes"`
+	NextAction string       `json:"next_action,omitempty"`
+	Model      string       `json:"model,omitempty"`
+	CreatedAt  time.Time    `json:"created_at"`
 }
 
 func (s *Server) handleTradeCoach(c *echo.Context) error {
@@ -79,11 +95,89 @@ func (s *Server) handleTradeCoach(c *echo.Context) error {
 	if review.Notes == nil {
 		review.Notes = []coach.Note{}
 	}
-	return c.JSON(http.StatusOK, coachReviewDTO{
+
+	out := coachReviewDTO{
 		Source:     "llm",
 		Notes:      review.Notes,
 		NextAction: review.NextAction,
+	}
+	// Persisting is best-effort: the user asked for a review and got one, so a
+	// write failure must not turn a good review into an error response.
+	if rec, perr := s.saveCoachReview(ctx, uid, tradeID, cfg, review); perr != nil {
+		c.Logger().Warn("could not persist coach review", "trade_id", tradeID, "err", perr)
+	} else {
+		out.ID = rec.ID
+		out.CreatedAt = &rec.CreatedAt
+	}
+	return c.JSON(http.StatusOK, out)
+}
+
+// saveCoachReview records a generated review so the trade page can show it
+// again without spending another model call.
+func (s *Server) saveCoachReview(
+	ctx context.Context,
+	userID, tradeID string,
+	cfg ocr.VisionConfig,
+	review coach.Review,
+) (store.CoachReview, error) {
+	notes, err := json.Marshal(review.Notes)
+	if err != nil {
+		return store.CoachReview{}, err
+	}
+	return s.deps.Store.CreateCoachReview(ctx, store.CreateCoachReviewParams{
+		ID:         uuid.NewString(),
+		UserID:     userID,
+		TradeID:    tradeID,
+		Model:      strings.TrimSpace(cfg.Model),
+		Notes:      string(notes),
+		NextAction: review.NextAction,
 	})
+}
+
+// maxStoredReviewsListed bounds the history a trade page asks for.
+const maxStoredReviewsListed = 20
+
+// handleListTradeCoachReviews returns the stored reviews for a trade, newest
+// first, so a coach panel can render past feedback without calling the model.
+func (s *Server) handleListTradeCoachReviews(c *echo.Context) error {
+	ctx := c.Request().Context()
+	uid := auth.UserID(c)
+	tradeID := c.Param("id")
+
+	if _, err := s.deps.Store.GetTrade(ctx, store.GetTradeParams{ID: tradeID, UserID: uid}); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return Fail(http.StatusNotFound, "not_found", "trade not found", nil)
+		}
+		return Fail(http.StatusInternalServerError, "internal", "could not load trade", nil)
+	}
+
+	rows, err := s.deps.Store.ListCoachReviews(ctx, store.ListCoachReviewsParams{
+		UserID:  uid,
+		TradeID: tradeID,
+		Limit:   maxStoredReviewsListed,
+	})
+	if err != nil {
+		return Fail(http.StatusInternalServerError, "internal", "could not load coach reviews", nil)
+	}
+
+	out := make([]storedCoachReviewDTO, 0, len(rows))
+	for _, r := range rows {
+		notes := []coach.Note{}
+		// A row whose notes will not parse is skipped rather than failing the
+		// list — one bad record should not hide the rest of the history.
+		if err := json.Unmarshal([]byte(r.Notes), &notes); err != nil {
+			c.Logger().Warn("skipping unreadable coach review", "review_id", r.ID, "err", err)
+			continue
+		}
+		out = append(out, storedCoachReviewDTO{
+			ID:         r.ID,
+			Notes:      notes,
+			NextAction: r.NextAction,
+			Model:      r.Model,
+			CreatedAt:  r.CreatedAt,
+		})
+	}
+	return c.JSON(http.StatusOK, map[string]any{"reviews": out})
 }
 
 // coachLoc resolves the market timezone the day and week boundaries are drawn

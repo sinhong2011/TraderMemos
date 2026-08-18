@@ -64,6 +64,14 @@ func (p *PG) CreateAccount(ctx context.Context, arg CreateAccountParams) (Accoun
 	return Account(v), nil
 }
 
+func (p *PG) CreateCoachReview(ctx context.Context, arg CreateCoachReviewParams) (CoachReview, error) {
+	v, err := p.q.CreateCoachReview(ctx, storepg.CreateCoachReviewParams(arg))
+	if err != nil {
+		return CoachReview{}, err
+	}
+	return CoachReview(v), nil
+}
+
 func (p *PG) CreateImportBatch(ctx context.Context, arg CreateImportBatchParams) (ImportBatch, error) {
 	v, err := p.q.CreateImportBatch(ctx, storepg.CreateImportBatchParams(arg))
 	if err != nil {
@@ -134,6 +142,10 @@ func (p *PG) DeleteAttachment(ctx context.Context, arg DeleteAttachmentParams) (
 
 func (p *PG) DeleteCashTransaction(ctx context.Context, arg DeleteCashTransactionParams) (int64, error) {
 	return p.q.DeleteCashTransaction(ctx, storepg.DeleteCashTransactionParams(arg))
+}
+
+func (p *PG) DeleteCoachReview(ctx context.Context, arg DeleteCoachReviewParams) (int64, error) {
+	return p.q.DeleteCoachReview(ctx, storepg.DeleteCoachReviewParams(arg))
 }
 
 func (p *PG) DeleteExecution(ctx context.Context, arg DeleteExecutionParams) (int64, error) {
@@ -583,6 +595,18 @@ func (p *PG) ListClosedTrades(ctx context.Context, arg ListClosedTradesParams) (
 	return func() []Trade { in := v; out := make([]Trade, len(in)); for i := range in { out[i] = Trade(in[i]) }; return out }(), nil
 }
 
+func (p *PG) ListCoachReviews(ctx context.Context, arg ListCoachReviewsParams) ([]CoachReview, error) {
+	v, err := p.q.ListCoachReviews(ctx, storepg.ListCoachReviewsParams{
+		UserID: arg.UserID,
+		TradeID: arg.TradeID,
+		Limit: int32(arg.Limit),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return func() []CoachReview { in := v; out := make([]CoachReview, len(in)); for i := range in { out[i] = CoachReview(in[i]) }; return out }(), nil
+}
+
 func (p *PG) ListEconomicEvents(ctx context.Context, arg ListEconomicEventsParams) ([]EconomicEvent, error) {
 	v, err := p.q.ListEconomicEvents(ctx, storepg.ListEconomicEventsParams(arg))
 	if err != nil {
@@ -704,14 +728,7 @@ func (p *PG) ListShareLinksByUser(ctx context.Context, userID string) ([]ShareLi
 	if err != nil {
 		return nil, err
 	}
-	return func() []ShareLink {
-		in := v
-		out := make([]ShareLink, len(in))
-		for i := range in {
-			out[i] = ShareLink(in[i])
-		}
-		return out
-	}(), nil
+	return func() []ShareLink { in := v; out := make([]ShareLink, len(in)); for i := range in { out[i] = ShareLink(in[i]) }; return out }(), nil
 }
 
 func (p *PG) ListTags(ctx context.Context, userID string) ([]Tag, error) {
