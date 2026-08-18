@@ -19,7 +19,8 @@ import (
 
 const flexCSV = "ClientAccountID,Symbol,Buy/Sell,Quantity,TradePrice,DateTime,IBCommission,AssetClass,Multiplier,Put/Call\n" +
 	"U1234567,AAPL,BUY,100,10,20260730;093000,-1.00,STK,1,\n" +
-	"U1234567,AAPL,SELL,-100,12,20260730;100000,-1.00,STK,1,\n"
+	"U1234567,AAPL,SELL,-100,12,20260730;100000,-1.00,STK,1,\n" +
+	"U1234567,MU 260817C01030000,BUY,5,3.84,20260731;094500,-1.42,OPT,100,C\n"
 
 // flexServer fakes IBKR's two-step Flex Web Service: SendRequest hands out a
 // reference, GetStatement reports "in progress" pendingCount times, then
@@ -113,21 +114,43 @@ func TestSyncImportsAndDedups(t *testing.T) {
 
 	res, err := flexsync.Sync(ctx, q, fs.client(), settings)
 	require.NoError(t, err)
-	require.Equal(t, 2, res.Inserted)
+	require.Equal(t, 3, res.Inserted)
 	require.Equal(t, 0, res.Skipped)
 
 	trades, err := q.ListTrades(ctx, store.ListTradesParams{UserID: settings.UserID, AccountID: settings.AccountID})
 	require.NoError(t, err)
-	require.Len(t, trades, 1)
-	require.Equal(t, "closed", trades[0].Status)
-	require.Equal(t, "AAPL", trades[0].Symbol)
-	require.InDelta(t, 198, trades[0].NetPnl.Float64, 0.01) // (12−10)×100 − $2 commission
+	require.Len(t, trades, 2)
+	bySymbol := map[string]store.Trade{}
+	for _, tr := range trades {
+		bySymbol[tr.Symbol] = tr
+	}
+	aapl := bySymbol["AAPL"]
+	require.Equal(t, "closed", aapl.Status)
+	require.InDelta(t, 198, aapl.NetPnl.Float64, 0.01) // (12−10)×100 − $2 commission
+
+	// The OCC option symbol is normalized to underlying + contract details.
+	mu, ok := bySymbol["MU"]
+	require.True(t, ok, "expected an MU trade, got %v", trades)
+	require.Equal(t, "open", mu.Status)
+	fills, err := q.ListExecutionsForAccount(ctx, store.ListExecutionsForAccountParams{
+		UserID: settings.UserID, AccountID: settings.AccountID,
+	})
+	require.NoError(t, err)
+	var optDetails string
+	for _, f := range fills {
+		if f.InstrumentType == "option" {
+			optDetails = f.Details.String
+		}
+	}
+	require.Contains(t, optDetails, `"strike":"1030"`)
+	require.Contains(t, optDetails, `"expiry":"2026-08-17"`)
+	require.Contains(t, optDetails, `"option_right":"call"`)
 
 	// Second sync of the same statement: everything is a duplicate.
 	res2, err := flexsync.Sync(ctx, q, fs.client(), settings)
 	require.NoError(t, err)
 	require.Equal(t, 0, res2.Inserted)
-	require.Equal(t, 2, res2.Skipped)
+	require.Equal(t, 3, res2.Skipped)
 
 	// Both runs left committed batches for history.
 	batches, err := q.ListImportBatches(ctx, settings.UserID)

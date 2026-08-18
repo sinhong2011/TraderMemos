@@ -41,3 +41,13 @@ DELETE FROM executions WHERE account_id = $1 AND user_id = $2;
 SELECT CASE WHEN EXISTS(
   SELECT 1 FROM executions WHERE account_id = $1 AND dedup_hash = $2
 ) THEN 1::bigint ELSE 0::bigint END;
+
+-- name: ListOptionExecutions :many
+SELECT * FROM executions WHERE instrument_type = 'option' ORDER BY user_id, account_id, executed_at, id;
+
+-- name: UpdateExecutionContract :exec
+UPDATE executions
+SET symbol = $1,
+    details = $2,
+    dedup_hash = $3
+WHERE id = $4 AND user_id = $5;
