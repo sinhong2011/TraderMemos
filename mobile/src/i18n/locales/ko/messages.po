@@ -713,7 +713,7 @@ msgstr "계좌 추가"
 msgid "Add an account first."
 msgstr "먼저 계좌를 추가하세요."
 
-#: src/components/coach-card.tsx:143
+#: src/components/coach-card.tsx:171
 msgid "Add an AI endpoint under Settings → AI for a model-written review."
 msgstr "설정 → AI에서 엔드포인트를 추가하면 모델이 작성한 리뷰를 받을 수 있습니다."
 
@@ -867,13 +867,18 @@ msgstr "AI — 비전 스캔 & 코치"
 msgid "AI coach"
 msgstr "AI 코치"
 
-#: src/components/coach-card.tsx:121
+#: src/components/coach-card.tsx:149
 msgid "AI coach is turned off — enable it under Settings → AI."
 msgstr "AI 코치가 꺼져 있습니다 — 설정 → AI에서 켜세요."
 
-#: src/components/coach-card.tsx:96
+#: src/components/coach-card.tsx:124
 msgid "AI review"
 msgstr "AI 리뷰"
+
+#. placeholder {0}: formatDate(shown.created_at)
+#: src/components/coach-card.tsx:123
+msgid "AI review · saved {0}"
+msgstr "AI 리뷰 · {0} 저장됨"
 
 #: src/app/(tabs)/(settings)/_layout.tsx:88
 #: src/app/(tabs)/(settings)/index.tsx:226
@@ -1028,7 +1033,7 @@ msgstr "화면 모드 다크 라이트 시스템 테마"
 msgid "around {0}"
 msgstr "{0}경"
 
-#: src/components/coach-card.tsx:135
+#: src/components/coach-card.tsx:163
 msgid "Ask AI"
 msgstr "AI에게 묻기"
 
@@ -1628,7 +1633,7 @@ msgstr "Entry / Exit 열이 있는 청산된 트레이드 — 셋업과 태그�
 msgid "Closed-trade P&L by entry time on the market clock. Tap a cell for its trades."
 msgstr "시장 시간 기준 진입 시각별 확정 손익입니다. 셀을 탭하면 거래를 볼 수 있습니다."
 
-#: src/components/coach-card.tsx:88
+#: src/components/coach-card.tsx:114
 msgid "Coach"
 msgstr "코치"
 
@@ -3412,7 +3417,7 @@ msgstr "장중 손익"
 msgid "Invalid URL"
 msgstr "잘못된 URL"
 
-#: src/components/coach-card.tsx:31
+#: src/components/coach-card.tsx:32
 msgid "Issue"
 msgstr "문제"
 
@@ -4135,7 +4140,7 @@ msgstr "최신순"
 msgid "Next"
 msgstr "다음"
 
-#: src/components/coach-card.tsx:107
+#: src/components/coach-card.tsx:135
 msgid "Next action"
 msgstr "다음 행동"
 
@@ -5336,7 +5341,7 @@ msgstr "손실일"
 msgid "RED YEAR"
 msgstr "손실의 해"
 
-#: src/components/coach-card.tsx:135
+#: src/components/coach-card.tsx:163
 msgid "Regenerate"
 msgstr "다시 생성"
 
@@ -6349,7 +6354,7 @@ msgstr "오늘 실현 손실이 이 금액에 도달하면 중단합니다."
 msgid "Stored on your server, never on this phone."
 msgstr "키는 서버에만 저장되며 이 기기에는 남지 않습니다."
 
-#: src/components/coach-card.tsx:35
+#: src/components/coach-card.tsx:36
 msgid "Strength"
 msgstr "강점"
 
@@ -6618,7 +6623,7 @@ msgstr "현재 비밀번호와 동일합니다."
 msgid "The {MAX_TRADE_ROWS} most recent of {0} trades."
 msgstr "전체 {0}건 중 최근 {MAX_TRADE_ROWS}건입니다."
 
-#: src/components/coach-card.tsx:116
+#: src/components/coach-card.tsx:144
 msgid "The AI review failed — try again."
 msgstr "AI 리뷰에 실패했습니다 — 다시 시도하세요."
 
@@ -6843,7 +6848,7 @@ msgstr "시간 형식"
 msgid "Time in the market"
 msgstr "시장 체류 시간"
 
-#: src/app/(tabs)/(trades)/[id].tsx:283
+#: src/app/(tabs)/(trades)/[id].tsx:233
 #~ msgid "Time in trade"
 #~ msgstr "보유 시간"
 
@@ -6851,12 +6856,13 @@ msgstr "시장 체류 시간"
 msgid "Timestamp"
 msgstr "일시"
 
-#: src/app/(tabs)/(trades)/[id].tsx:270
-#: src/app/(tabs)/(trades)/[id].tsx:392
+#: src/components/coach-card.tsx:37
+#: src/app/(tabs)/(trades)/[id].tsx:220
+#: src/app/(tabs)/(trades)/[id].tsx:339
 #~ msgid "Timing"
 #~ msgstr "타이밍"
 
-#: src/components/coach-card.tsx:37
+#: src/components/coach-card.tsx:38
 msgid "Tip"
 msgstr "팁"
 
@@ -7279,7 +7285,7 @@ msgstr "동기화 대기 중"
 msgid "Wash"
 msgstr "무승부"
 
-#: src/components/coach-card.tsx:33
+#: src/components/coach-card.tsx:34
 msgid "Watch"
 msgstr "주의"
 

@@ -88,6 +88,13 @@ PARAM_CONVERTERS = {
         "\t\tLimit: int32(arg.Limit),\n"
         "\t}"
     ),
+    "ListCoachReviewsParams": (
+        "storepg.ListCoachReviewsParams{\n"
+        "\t\tUserID: arg.UserID,\n"
+        "\t\tTradeID: arg.TradeID,\n"
+        "\t\tLimit: int32(arg.Limit),\n"
+        "\t}"
+    ),
 }
 def convert_value(expr: str, typ: str, to_pg: bool) -> str:
     typ = typ.strip()

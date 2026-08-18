@@ -713,7 +713,7 @@ msgstr "口座を追加"
 msgid "Add an account first."
 msgstr "まず口座を追加してください。"
 
-#: src/components/coach-card.tsx:143
+#: src/components/coach-card.tsx:171
 msgid "Add an AI endpoint under Settings → AI for a model-written review."
 msgstr "設定 → AIでエンドポイントを追加すると、モデルによるレビューが受けられます。"
 
@@ -867,13 +867,18 @@ msgstr "AI — 画像スキャン & コーチ"
 msgid "AI coach"
 msgstr "AIコーチ"
 
-#: src/components/coach-card.tsx:121
+#: src/components/coach-card.tsx:149
 msgid "AI coach is turned off — enable it under Settings → AI."
 msgstr "AIコーチはオフです — 設定 → AIで有効にしてください。"
 
-#: src/components/coach-card.tsx:96
+#: src/components/coach-card.tsx:124
 msgid "AI review"
 msgstr "AIレビュー"
+
+#. placeholder {0}: formatDate(shown.created_at)
+#: src/components/coach-card.tsx:123
+msgid "AI review · saved {0}"
+msgstr "AIレビュー · {0} 保存"
 
 #: src/app/(tabs)/(settings)/_layout.tsx:88
 #: src/app/(tabs)/(settings)/index.tsx:226
@@ -1028,7 +1033,7 @@ msgstr "外観 ダーク ライト モード システム テーマ"
 msgid "around {0}"
 msgstr "{0} ごろ"
 
-#: src/components/coach-card.tsx:135
+#: src/components/coach-card.tsx:163
 msgid "Ask AI"
 msgstr "AIに聞く"
 
@@ -1628,7 +1633,7 @@ msgstr "Entry / Exit 列を持つ決済済みトレード。セットアップ�
 msgid "Closed-trade P&L by entry time on the market clock. Tap a cell for its trades."
 msgstr "市場時間のエントリー時刻別の確定損益。セルをタップすると取引を表示します。"
 
-#: src/components/coach-card.tsx:88
+#: src/components/coach-card.tsx:114
 msgid "Coach"
 msgstr "コーチ"
 
@@ -3412,7 +3417,7 @@ msgstr "日中損益"
 msgid "Invalid URL"
 msgstr "URLが正しくありません"
 
-#: src/components/coach-card.tsx:31
+#: src/components/coach-card.tsx:32
 msgid "Issue"
 msgstr "問題"
 
@@ -4135,7 +4140,7 @@ msgstr "新しい順"
 msgid "Next"
 msgstr "次へ"
 
-#: src/components/coach-card.tsx:107
+#: src/components/coach-card.tsx:135
 msgid "Next action"
 msgstr "次のアクション"
 
@@ -5336,7 +5341,7 @@ msgstr "マイナスの日"
 msgid "RED YEAR"
 msgstr "マイナスの年"
 
-#: src/components/coach-card.tsx:135
+#: src/components/coach-card.tsx:163
 msgid "Regenerate"
 msgstr "再生成"
 
@@ -6349,7 +6354,7 @@ msgstr "当日の実現損失がこの額に達したら停止します。"
 msgid "Stored on your server, never on this phone."
 msgstr "キーはサーバーにのみ保存され、この端末には残りません。"
 
-#: src/components/coach-card.tsx:35
+#: src/components/coach-card.tsx:36
 msgid "Strength"
 msgstr "強み"
 
@@ -6618,7 +6623,7 @@ msgstr "現在と同じパスワードです。"
 msgid "The {MAX_TRADE_ROWS} most recent of {0} trades."
 msgstr "全 {0} 件のうち直近 {MAX_TRADE_ROWS} 件。"
 
-#: src/components/coach-card.tsx:116
+#: src/components/coach-card.tsx:144
 msgid "The AI review failed — try again."
 msgstr "AIレビューに失敗しました — もう一度お試しください。"
 
@@ -6843,7 +6848,7 @@ msgstr "時刻表示形式"
 msgid "Time in the market"
 msgstr "市場滞在時間"
 
-#: src/app/(tabs)/(trades)/[id].tsx:283
+#: src/app/(tabs)/(trades)/[id].tsx:233
 #~ msgid "Time in trade"
 #~ msgstr "保有時間"
 
@@ -6851,12 +6856,13 @@ msgstr "市場滞在時間"
 msgid "Timestamp"
 msgstr "日時"
 
-#: src/app/(tabs)/(trades)/[id].tsx:270
-#: src/app/(tabs)/(trades)/[id].tsx:392
+#: src/components/coach-card.tsx:37
+#: src/app/(tabs)/(trades)/[id].tsx:220
+#: src/app/(tabs)/(trades)/[id].tsx:339
 #~ msgid "Timing"
 #~ msgstr "タイミング"
 
-#: src/components/coach-card.tsx:37
+#: src/components/coach-card.tsx:38
 msgid "Tip"
 msgstr "ヒント"
 
@@ -7279,7 +7285,7 @@ msgstr "同期待ち"
 msgid "Wash"
 msgstr "引き分け"
 
-#: src/components/coach-card.tsx:33
+#: src/components/coach-card.tsx:34
 msgid "Watch"
 msgstr "注意"
 

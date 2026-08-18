@@ -713,7 +713,7 @@ msgstr "新增帳戶"
 msgid "Add an account first."
 msgstr "請先新增帳戶。"
 
-#: src/components/coach-card.tsx:143
+#: src/components/coach-card.tsx:171
 msgid "Add an AI endpoint under Settings → AI for a model-written review."
 msgstr "在設定 → AI 加入端點，即可獲得模型撰寫的評語。"
 
@@ -867,13 +867,18 @@ msgstr "AI — 影像掃描與教練"
 msgid "AI coach"
 msgstr "AI 教練"
 
-#: src/components/coach-card.tsx:121
+#: src/components/coach-card.tsx:149
 msgid "AI coach is turned off — enable it under Settings → AI."
 msgstr "AI 教練已關閉 — 在設定 → AI 開啟。"
 
-#: src/components/coach-card.tsx:96
+#: src/components/coach-card.tsx:124
 msgid "AI review"
 msgstr "AI 評語"
+
+#. placeholder {0}: formatDate(shown.created_at)
+#: src/components/coach-card.tsx:123
+msgid "AI review · saved {0}"
+msgstr "AI 檢討 · {0} 已儲存"
 
 #: src/app/(tabs)/(settings)/_layout.tsx:88
 #: src/app/(tabs)/(settings)/index.tsx:226
@@ -1028,7 +1033,7 @@ msgstr "外觀 深色 淺色 模式 系統 主題"
 msgid "around {0}"
 msgstr "約 {0}"
 
-#: src/components/coach-card.tsx:135
+#: src/components/coach-card.tsx:163
 msgid "Ask AI"
 msgstr "詢問 AI"
 
@@ -1628,7 +1633,7 @@ msgstr "帶有 Entry / Exit 欄位的已平倉交易 — 設定與標籤會一�
 msgid "Closed-trade P&L by entry time on the market clock. Tap a cell for its trades."
 msgstr "按市場時間入場時刻統計的已平倉損益。點一下方格查看交易。"
 
-#: src/components/coach-card.tsx:88
+#: src/components/coach-card.tsx:114
 msgid "Coach"
 msgstr "教練"
 
@@ -3412,7 +3417,7 @@ msgstr "日內損益"
 msgid "Invalid URL"
 msgstr "URL 無效"
 
-#: src/components/coach-card.tsx:31
+#: src/components/coach-card.tsx:32
 msgid "Issue"
 msgstr "問題"
 
@@ -4135,7 +4140,7 @@ msgstr "最新優先"
 msgid "Next"
 msgstr "下一個"
 
-#: src/components/coach-card.tsx:107
+#: src/components/coach-card.tsx:135
 msgid "Next action"
 msgstr "下一步行動"
 
@@ -5336,7 +5341,7 @@ msgstr "虧損日"
 msgid "RED YEAR"
 msgstr "虧損之年"
 
-#: src/components/coach-card.tsx:135
+#: src/components/coach-card.tsx:163
 msgid "Regenerate"
 msgstr "重新生成"
 
@@ -6349,7 +6354,7 @@ msgstr "當日已實現虧損達此金額時停止。"
 msgid "Stored on your server, never on this phone."
 msgstr "金鑰只儲存在你的伺服器，不會留在這部手機。"
 
-#: src/components/coach-card.tsx:35
+#: src/components/coach-card.tsx:36
 msgid "Strength"
 msgstr "優點"
 
@@ -6618,7 +6623,7 @@ msgstr "與目前密碼相同。"
 msgid "The {MAX_TRADE_ROWS} most recent of {0} trades."
 msgstr "共 {0} 筆交易，顯示最近 {MAX_TRADE_ROWS} 筆。"
 
-#: src/components/coach-card.tsx:116
+#: src/components/coach-card.tsx:144
 msgid "The AI review failed — try again."
 msgstr "AI 評語失敗 — 請再試。"
 
@@ -6843,7 +6848,7 @@ msgstr "時間格式"
 msgid "Time in the market"
 msgstr "市場停留時間"
 
-#: src/app/(tabs)/(trades)/[id].tsx:283
+#: src/app/(tabs)/(trades)/[id].tsx:233
 #~ msgid "Time in trade"
 #~ msgstr "持倉時間"
 
@@ -6851,12 +6856,13 @@ msgstr "市場停留時間"
 msgid "Timestamp"
 msgstr "日期時間"
 
-#: src/app/(tabs)/(trades)/[id].tsx:270
-#: src/app/(tabs)/(trades)/[id].tsx:392
+#: src/components/coach-card.tsx:37
+#: src/app/(tabs)/(trades)/[id].tsx:220
+#: src/app/(tabs)/(trades)/[id].tsx:339
 #~ msgid "Timing"
 #~ msgstr "時間"
 
-#: src/components/coach-card.tsx:37
+#: src/components/coach-card.tsx:38
 msgid "Tip"
 msgstr "提示"
 
@@ -7279,7 +7285,7 @@ msgstr "等待同步"
 msgid "Wash"
 msgstr "打和"
 
-#: src/components/coach-card.tsx:33
+#: src/components/coach-card.tsx:34
 msgid "Watch"
 msgstr "留意"
 

@@ -45,10 +45,21 @@ const tradeCoachMock = vi.hoisted(() => ({
           }[];
           next_action?: string;
           error?: string;
+          id?: string;
+          created_at?: string;
         }
       | undefined,
     isPending: false,
     isError: false,
+    fromStorage: false,
+    history: [] as unknown[],
+    streamingNotes: [] as {
+      id: string;
+      tone: "neg" | "warn" | "pos" | "tip";
+      headline: string;
+      detail: string;
+      priority: number;
+    }[],
     generate: vi.fn<(...args: any[]) => any>(),
     reset: vi.fn<(...args: any[]) => any>(),
   },
@@ -261,6 +272,9 @@ describe("TradeDetailView", () => {
       data: undefined,
       isPending: false,
       isError: false,
+      fromStorage: false,
+      history: [],
+      streamingNotes: [],
       generate: vi.fn<(...args: any[]) => any>(),
       reset: vi.fn<(...args: any[]) => any>(),
     };
@@ -405,6 +419,9 @@ describe("TradeDetailView", () => {
       data: undefined,
       isPending: false,
       isError: false,
+      fromStorage: false,
+      history: [],
+      streamingNotes: [],
       generate,
       reset: vi.fn<(...args: any[]) => any>(),
     };
@@ -432,6 +449,9 @@ describe("TradeDetailView", () => {
       },
       isPending: false,
       isError: false,
+      fromStorage: false,
+      history: [],
+      streamingNotes: [],
       generate: vi.fn<(...args: any[]) => any>(),
       reset: vi.fn<(...args: any[]) => any>(),
     };
@@ -462,12 +482,90 @@ describe("TradeDetailView", () => {
       },
       isPending: false,
       isError: false,
+      fromStorage: false,
+      history: [],
+      streamingNotes: [],
       generate: vi.fn<(...args: any[]) => any>(),
       reset: vi.fn<(...args: any[]) => any>(),
     };
     renderView(<TradeDetailView {...defaultProps} />);
     expect(screen.getByText("Next action")).toBeInTheDocument();
     expect(screen.getByText(/at or below 1R before entering/i)).toBeInTheDocument();
+  });
+
+  // Notes appear as the model writes them, so a slow review is not a blank
+  // panel for a minute.
+  it("renders notes that have streamed in while still generating", () => {
+    tradeCoachMock.current = {
+      coachConfigured: true,
+      settingsPending: false,
+      data: undefined,
+      isPending: true,
+      isError: false,
+      fromStorage: false,
+      history: [],
+      streamingNotes: [
+        { id: "llm-1", tone: "warn", headline: "Arrived first", detail: "D1", priority: 1 },
+        { id: "llm-2", tone: "tip", headline: "Arrived second", detail: "D2", priority: 2 },
+      ],
+      generate: vi.fn<(...args: any[]) => any>(),
+      reset: vi.fn<(...args: any[]) => any>(),
+    };
+    renderView(<TradeDetailView {...defaultProps} />);
+    expect(screen.getByText("Arrived first")).toBeInTheDocument();
+    expect(screen.getByText("Arrived second")).toBeInTheDocument();
+    // The rule-based notes must not sit alongside a partial model review.
+    expect(screen.queryByText(/Write why you entered while it's fresh/i)).not.toBeInTheDocument();
+  });
+
+  // A review read back from storage is dated, so it does not read as advice
+  // just written about the trade in front of you.
+  it("dates a review that came from storage", () => {
+    tradeCoachMock.current = {
+      coachConfigured: true,
+      settingsPending: false,
+      data: {
+        source: "llm",
+        notes: [{ id: "llm-1", tone: "tip", headline: "Stored note", detail: "D", priority: 1 }],
+        next_action: "Size at or below 1R.",
+        id: "rev-1",
+        created_at: "2026-03-12T14:30:00Z",
+      },
+      isPending: false,
+      isError: false,
+      fromStorage: true,
+      history: [],
+      streamingNotes: [],
+      generate: vi.fn<(...args: any[]) => any>(),
+      reset: vi.fn<(...args: any[]) => any>(),
+    };
+    renderView(<TradeDetailView {...defaultProps} />);
+    expect(screen.getByText(/Saved review from/i)).toBeInTheDocument();
+    expect(screen.getByText("Stored note")).toBeInTheDocument();
+    expect(screen.getByText("Next action")).toBeInTheDocument();
+  });
+
+  it("labels a freshly generated review as generated, not saved", () => {
+    tradeCoachMock.current = {
+      coachConfigured: true,
+      settingsPending: false,
+      data: {
+        source: "llm",
+        notes: [{ id: "llm-1", tone: "tip", headline: "Fresh note", detail: "D", priority: 1 }],
+        id: "rev-2",
+        created_at: "2026-03-12T14:30:00Z",
+      },
+      isPending: false,
+      isError: false,
+      fromStorage: false,
+      history: [],
+      streamingNotes: [],
+      generate: vi.fn<(...args: any[]) => any>(),
+      reset: vi.fn<(...args: any[]) => any>(),
+    };
+    renderView(<TradeDetailView {...defaultProps} />);
+    expect(screen.queryByText(/Saved review from/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/Generated from this trade/i)).toBeInTheDocument();
   });
 
   it("omits the next action when the model returned none", () => {
@@ -480,6 +578,9 @@ describe("TradeDetailView", () => {
       },
       isPending: false,
       isError: false,
+      fromStorage: false,
+      history: [],
+      streamingNotes: [],
       generate: vi.fn<(...args: any[]) => any>(),
       reset: vi.fn<(...args: any[]) => any>(),
     };
@@ -501,6 +602,9 @@ describe("TradeDetailView", () => {
       },
       isPending: false,
       isError: false,
+      fromStorage: false,
+      history: [],
+      streamingNotes: [],
       generate: vi.fn<(...args: any[]) => any>(),
       reset: vi.fn<(...args: any[]) => any>(),
     };
@@ -517,6 +621,9 @@ describe("TradeDetailView", () => {
       data: { source: "error", notes: [], error: "coach api 502: boom" },
       isPending: false,
       isError: false,
+      fromStorage: false,
+      history: [],
+      streamingNotes: [],
       generate: vi.fn<(...args: any[]) => any>(),
       reset: vi.fn<(...args: any[]) => any>(),
     };
