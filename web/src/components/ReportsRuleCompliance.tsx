@@ -87,9 +87,21 @@ export function ReportsRuleCompliance({ report, loading, error }: ReportsRuleCom
           <StatCard
             label="Violations"
             value={String(
-              report.risk_violations + report.daily_loss_breaches + report.trade_limit_breaches,
+              report.risk_violations +
+                report.daily_loss_breaches +
+                report.trade_limit_breaches +
+                report.loss_streak_breaches,
             )}
-            hint={`${report.risk_violations} over-risked · ${report.daily_loss_breaches} daily-loss · ${report.trade_limit_breaches} over-traded`}
+            hint={
+              [
+                report.risk_violations > 0 && `${report.risk_violations} over-risked`,
+                report.daily_loss_breaches > 0 && `${report.daily_loss_breaches} daily-loss`,
+                report.trade_limit_breaches > 0 && `${report.trade_limit_breaches} over-traded`,
+                report.loss_streak_breaches > 0 && `${report.loss_streak_breaches} loss-streak`,
+              ]
+                .filter(Boolean)
+                .join(" \u00b7 ") || "none"
+            }
           />
         </div>
 
@@ -120,6 +132,7 @@ export function ReportsRuleCompliance({ report, loading, error }: ReportsRuleCom
                     )}
                     {d.daily_loss_breach && <Pill tone="neg">daily loss</Pill>}
                     {d.trade_limit_breach && <Pill tone="neg">over-traded</Pill>}
+                    {d.loss_streak_breach && <Pill tone="neg">loss streak</Pill>}
                   </span>
                   <span
                     className={

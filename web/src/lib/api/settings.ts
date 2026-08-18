@@ -23,6 +23,7 @@ export interface RiskRules {
   max_open_risk: number | null;
   default_account_risk_pct: number | null;
   max_trades_per_day: number | null;
+  max_consecutive_losses: number | null;
 }
 
 export interface AnnualGoal {

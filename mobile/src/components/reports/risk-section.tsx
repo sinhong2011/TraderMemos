@@ -66,6 +66,22 @@ export function RiskSection({
   const report = compliance.data;
   const scoredDays = report ? report.compliant_days + report.breach_days : 0;
   const adherence = report && scoredDays > 0 ? report.compliant_days / scoredDays : null;
+  const totalViolations = report
+    ? report.risk_violations +
+      report.daily_loss_breaches +
+      report.trade_limit_breaches +
+      report.loss_streak_breaches
+    : 0;
+  // Only the rules actually broken get named — four zero-count segments would
+  // truncate the tile's one-line sub before it said anything.
+  const violationParts = report
+    ? [
+        report.risk_violations > 0 ? t`${report.risk_violations} over-risked` : null,
+        report.daily_loss_breaches > 0 ? t`${report.daily_loss_breaches} daily-loss` : null,
+        report.trade_limit_breaches > 0 ? t`${report.trade_limit_breaches} over-traded` : null,
+        report.loss_streak_breaches > 0 ? t`${report.loss_streak_breaches} loss-streak` : null,
+      ].filter((part): part is string => part != null)
+    : [];
   const recentBreaches = report
     ? report.days.filter((day) => !day.compliant).slice(-6).reverse()
     : [];
@@ -162,20 +178,9 @@ export function RiskSection({
               />
               <StatBar
                 label={t`Violations`}
-                value={String(
-                  report.risk_violations +
-                    report.daily_loss_breaches +
-                    report.trade_limit_breaches,
-                )}
-                sub={t`${report.risk_violations} over-risked · ${report.daily_loss_breaches} daily-loss · ${report.trade_limit_breaches} over-traded`}
-                tone={
-                  report.risk_violations +
-                    report.daily_loss_breaches +
-                    report.trade_limit_breaches >
-                  0
-                    ? 'neg'
-                    : 'pos'
-                }
+                value={String(totalViolations)}
+                sub={violationParts.length > 0 ? violationParts.join(' · ') : undefined}
+                tone={totalViolations > 0 ? 'neg' : 'pos'}
               />
             </View>
 
@@ -198,7 +203,9 @@ export function RiskSection({
                         ? t`daily loss`
                         : day.trade_limit_breach
                           ? t`over-traded`
-                          : t`over-risked ×${day.risk_violations}`
+                          : day.loss_streak_breach
+                            ? t`loss streak`
+                            : t`over-risked ×${day.risk_violations}`
                     }
                     pillTone="neg"
                     value={money.formatCompact(day.net_pnl)}

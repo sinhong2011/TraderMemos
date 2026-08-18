@@ -62,6 +62,7 @@ describe("settingsFormSchema", () => {
       max_open_risk: null,
       default_account_risk_pct: 2,
       max_trades_per_day: null,
+      max_consecutive_losses: null,
     });
   });
 
@@ -87,6 +88,7 @@ describe("settingsFormSchema", () => {
       max_open_risk: null,
       default_account_risk_pct: 1,
       max_trades_per_day: null,
+      max_consecutive_losses: null,
     };
     expect(activeRiskRuleEntries(rules).map((r) => r.key)).toEqual([
       "max_risk_per_trade",
@@ -96,6 +98,7 @@ describe("settingsFormSchema", () => {
       "max_daily_loss",
       "max_open_risk",
       "max_trades_per_day",
+      "max_consecutive_losses",
     ]);
     expect(setRiskRuleValue(rules, "max_daily_loss", 300).max_daily_loss).toBe(300);
     expect(formatRiskRuleValue("max_risk_per_trade", 100, "en-US")).toBe("$100");

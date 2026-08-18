@@ -34,6 +34,7 @@ type riskRulesDTO struct {
 	MaxOpenRisk           *float64 `json:"max_open_risk"`
 	DefaultAccountRiskPct *float64 `json:"default_account_risk_pct"`
 	MaxTradesPerDay       *int64   `json:"max_trades_per_day"`
+	MaxConsecutiveLosses  *int64   `json:"max_consecutive_losses"`
 }
 
 func toRiskRulesDTO(r store.RiskRule) riskRulesDTO {
@@ -43,6 +44,7 @@ func toRiskRulesDTO(r store.RiskRule) riskRulesDTO {
 		MaxOpenRisk:           fptr(r.MaxOpenRisk),
 		DefaultAccountRiskPct: fptr(r.DefaultAccountRiskPct),
 		MaxTradesPerDay:       iptr(r.MaxTradesPerDay),
+		MaxConsecutiveLosses:  iptr(r.MaxConsecutiveLosses),
 	}
 }
 
@@ -74,6 +76,7 @@ func (s *Server) handlePutRiskRules(c *echo.Context) error {
 		MaxOpenRisk:           nullF(in.MaxOpenRisk),
 		DefaultAccountRiskPct: nullF(in.DefaultAccountRiskPct),
 		MaxTradesPerDay:       nullI(in.MaxTradesPerDay),
+		MaxConsecutiveLosses:  nullI(in.MaxConsecutiveLosses),
 	})
 	if err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not save risk rules", nil)
@@ -116,6 +119,9 @@ func validateRiskRules(in riskRulesDTO) error {
 	}
 	if in.MaxTradesPerDay != nil && *in.MaxTradesPerDay < 0 {
 		return errors.New("max_trades_per_day must be >= 0")
+	}
+	if in.MaxConsecutiveLosses != nil && *in.MaxConsecutiveLosses < 0 {
+		return errors.New("max_consecutive_losses must be >= 0")
 	}
 	return nil
 }

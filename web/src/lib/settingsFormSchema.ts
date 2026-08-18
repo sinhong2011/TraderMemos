@@ -135,6 +135,13 @@ export const RISK_RULE_DEFS: readonly RiskRuleDef[] = [
     placeholder: "e.g. 5",
   },
   {
+    key: "max_consecutive_losses",
+    label: "Max consecutive losses",
+    detail: "Stop after this many losing trades in a row.",
+    unit: "count",
+    placeholder: "e.g. 3",
+  },
+  {
     key: "default_account_risk_pct",
     label: "Default account risk %",
     detail: "Suggested size as a percent of account equity.",
@@ -156,6 +163,7 @@ export function emptyRiskRules(): RiskRules {
     max_open_risk: null,
     default_account_risk_pct: null,
     max_trades_per_day: null,
+    max_consecutive_losses: null,
   };
 }
 
@@ -195,7 +203,7 @@ export function formatRiskRuleValue(key: RiskRuleKey, value: number, locale?: st
 }
 
 export function validateRiskRuleValue(key: RiskRuleKey, raw: string): string | undefined {
-  if (key === "max_trades_per_day") {
+  if (riskRuleDef(key).unit === "count") {
     const t = raw.trim();
     if (!t) return "Enter a value.";
     const n = Number(t);
@@ -237,6 +245,7 @@ export function riskFormToBody(value: RiskFormValues): RiskRules {
     max_open_risk: parseOptionalAmount(value.maxOpen),
     default_account_risk_pct: parseOptionalAmount(value.riskPct),
     max_trades_per_day: null,
+    max_consecutive_losses: null,
   };
 }
 

@@ -18,10 +18,13 @@ type ComplianceRules struct {
 	MaxRiskPerTrade float64
 	MaxDailyLoss    float64 // positive magnitude
 	MaxTradesPerDay int
+	// Stop after this many losing closes in a row within a day.
+	MaxConsecutiveLosses int
 }
 
 func (r ComplianceRules) configured() bool {
-	return r.MaxRiskPerTrade > 0 || r.MaxDailyLoss > 0 || r.MaxTradesPerDay > 0
+	return r.MaxRiskPerTrade > 0 || r.MaxDailyLoss > 0 || r.MaxTradesPerDay > 0 ||
+		r.MaxConsecutiveLosses > 0
 }
 
 // ComplianceDay scores one calendar day against the rules.
@@ -33,6 +36,7 @@ type ComplianceDay struct {
 	UnknownRisk      int     `json:"unknown_risk"`
 	DailyLossBreach  bool    `json:"daily_loss_breach"`
 	TradeLimitBreach bool    `json:"trade_limit_breach"`
+	LossStreakBreach bool    `json:"loss_streak_breach"`
 	Compliant        bool    `json:"compliant"`
 }
 
@@ -48,6 +52,7 @@ type ComplianceReport struct {
 	UnknownRisk        int             `json:"unknown_risk"`
 	DailyLossBreaches  int             `json:"daily_loss_breaches"`
 	TradeLimitBreaches int             `json:"trade_limit_breaches"`
+	LossStreakBreaches int             `json:"loss_streak_breaches"`
 }
 
 // Compliance scores closed trades against the rules, day by day in loc.
@@ -58,7 +63,10 @@ type ComplianceReport struct {
 // violates the risk rule when its recorded initial risk exceeds
 // MaxRiskPerTrade; trades with no recorded risk are reported separately
 // rather than silently passed or failed. A day breaches the trade-count rule
-// when more than MaxTradesPerDay trades close in it.
+// when more than MaxTradesPerDay trades close in it, and the loss-streak rule
+// when a trade closes after the day already held MaxConsecutiveLosses losing
+// closes in a row — the rule is "stop trading", so the breach is the trade
+// taken past the stop, whatever that trade's own result.
 func Compliance(trades []ComplianceTrade, rules ComplianceRules, loc *time.Location) ComplianceReport {
 	rep := ComplianceReport{RulesConfigured: rules.configured(), Days: []ComplianceDay{}}
 	if !rep.RulesConfigured || len(trades) == 0 {
@@ -74,6 +82,8 @@ func Compliance(trades []ComplianceTrade, rules ComplianceRules, loc *time.Locat
 
 	byDay := make(map[string]*ComplianceDay)
 	running := make(map[string]float64)
+	// Consecutive losing closes so far in each day.
+	streak := make(map[string]int)
 	var order []string
 	for _, t := range sorted {
 		key := t.ClosedAt.In(loc).Format("2006-01-02")
@@ -87,6 +97,18 @@ func Compliance(trades []ComplianceTrade, rules ComplianceRules, loc *time.Locat
 		d.NetPnl += t.NetPnl
 		if rules.MaxTradesPerDay > 0 && d.Trades > rules.MaxTradesPerDay {
 			d.TradeLimitBreach = true
+		}
+		if rules.MaxConsecutiveLosses > 0 {
+			// Checked before this trade updates the streak: the violation is
+			// closing another trade when the stop was already due.
+			if streak[key] >= rules.MaxConsecutiveLosses {
+				d.LossStreakBreach = true
+			}
+			if t.NetPnl < 0 {
+				streak[key]++
+			} else {
+				streak[key] = 0
+			}
 		}
 		if rules.MaxRiskPerTrade > 0 {
 			switch {
@@ -106,7 +128,8 @@ func Compliance(trades []ComplianceTrade, rules ComplianceRules, loc *time.Locat
 
 	for _, key := range order {
 		d := byDay[key]
-		d.Compliant = d.RiskViolations == 0 && !d.DailyLossBreach && !d.TradeLimitBreach
+		d.Compliant = d.RiskViolations == 0 && !d.DailyLossBreach && !d.TradeLimitBreach &&
+			!d.LossStreakBreach
 		rep.Days = append(rep.Days, *d)
 		rep.RiskViolations += d.RiskViolations
 		rep.UnknownRisk += d.UnknownRisk
@@ -115,6 +138,9 @@ func Compliance(trades []ComplianceTrade, rules ComplianceRules, loc *time.Locat
 		}
 		if d.TradeLimitBreach {
 			rep.TradeLimitBreaches++
+		}
+		if d.LossStreakBreach {
+			rep.LossStreakBreaches++
 		}
 		if d.Compliant {
 			rep.CompliantDays++

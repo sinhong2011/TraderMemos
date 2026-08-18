@@ -85,6 +85,31 @@ func TestComplianceTradeLimit(t *testing.T) {
 	}
 }
 
+func TestComplianceLossStreak(t *testing.T) {
+	rules := ComplianceRules{MaxConsecutiveLosses: 2}
+	trades := []ComplianceTrade{
+		ct(1, 10, -50, 0),
+		ct(1, 11, -30, 0), // streak hits 2 — stop is due
+		ct(1, 12, 80, 0),  // trades on anyway: breach, even though it won
+		ct(2, 10, -40, 0),
+		ct(2, 11, 60, 0), // reset before the stop was due — clean day
+		ct(2, 12, -20, 0),
+	}
+	rep := Compliance(trades, rules, time.UTC)
+	if !rep.RulesConfigured {
+		t.Fatal("loss streak alone should configure the rules")
+	}
+	if len(rep.Days) != 2 || !rep.Days[0].LossStreakBreach || rep.Days[1].LossStreakBreach {
+		t.Fatalf("expected day 1 streak breach only, got %+v", rep.Days)
+	}
+	if rep.LossStreakBreaches != 1 || rep.CompliantDays != 1 || rep.BreachDays != 1 {
+		t.Fatalf(
+			"streak=%d compliant=%d breach=%d, want 1/1/1",
+			rep.LossStreakBreaches, rep.CompliantDays, rep.BreachDays,
+		)
+	}
+}
+
 func TestComplianceDailyLossNotBreached(t *testing.T) {
 	rules := ComplianceRules{MaxDailyLoss: 200}
 	trades := []ComplianceTrade{
