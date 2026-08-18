@@ -40,6 +40,7 @@ import { Field, fieldError } from "@/components/Field";
 import { AmountInput } from "@/components/AmountInput";
 import { FormInput, FormTextarea } from "@/components/FormInput";
 import { OptionsSelect } from "@/components/OptionsSelect";
+import { AccountMultiSelect } from "@/components/AccountMultiSelect";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import {
   Accordion,
@@ -501,7 +502,7 @@ function SymbolCard({
   removable: boolean;
   pending: boolean;
   setups: Array<{ id: string; name: string }>;
-  regularTags: Array<{ id: string; name: string }>;
+  regularTags: Array<{ id: string; name: string; color?: string }>;
   mistakeTags: Array<{ id: string; name: string }>;
   screenshotFiles: File[];
   maxScreenshots: number | null;
@@ -599,7 +600,7 @@ function SymbolCard({
     [setups],
   );
   const tagOptions = useMemo<MultiSelectOption[]>(
-    () => regularTags.map((t) => ({ value: t.id, label: t.name })),
+    () => regularTags.map((t) => ({ value: t.id, label: t.name, color: t.color || undefined })),
     [regularTags],
   );
   const mistakeOptions = useMemo<MultiSelectOption[]>(
@@ -1889,20 +1890,19 @@ export function NewTradeDrawer() {
                 <div className="flex flex-wrap items-end gap-3">
                   <div className="min-w-48 flex-1">
                     <label className={labelClass}>Account</label>
-                    <NativeSelect
-                      aria-label="Account"
-                      value={accountId}
-                      onChange={(e) => form.setFieldValue("accountId", e.target.value)}
+                    <AccountMultiSelect
+                      accounts={accounts}
+                      // The primary leads; the rest are the copies the save
+                      // path fans out to (see `accountIds` at submit).
+                      value={[accountId, ...values.copyAccountIds].filter(Boolean)}
+                      onChange={(ids) => {
+                        form.setFieldValue("accountId", ids[0] ?? "");
+                        form.setFieldValue("copyAccountIds", ids.slice(1));
+                      }}
+                      // Editing writes back to the trade's own account; moving
+                      // it between accounts isn't what this form does.
                       disabled={isEditMode}
-                      className={cn("w-full", fieldTextClass)}
-                      wrapperClassName="w-full"
-                    >
-                      {accounts.map((a) => (
-                        <NativeSelectOption key={a.id} value={a.id}>
-                          {a.name}
-                        </NativeSelectOption>
-                      ))}
-                    </NativeSelect>
+                    />
                   </div>
                   {!isEditMode && (
                     <>
@@ -1968,36 +1968,6 @@ export function NewTradeDrawer() {
                     </>
                   )}
                 </div>
-                {!isEditMode &&
-                  accounts.filter((account) => account.id !== accountId).length > 0 && (
-                    <div>
-                      <span className={labelClass}>Also save to</span>
-                      <div className="flex flex-wrap gap-2">
-                        {accounts
-                          .filter((account) => account.id !== accountId)
-                          .map((account) => (
-                            <label
-                              key={account.id}
-                              className="flex cursor-pointer items-center gap-2 rounded-md bg-muted px-3 py-2 text-[12px] text-muted-foreground"
-                            >
-                              <input
-                                type="checkbox"
-                                checked={values.copyAccountIds.includes(account.id)}
-                                onChange={() =>
-                                  form.setFieldValue(
-                                    "copyAccountIds",
-                                    values.copyAccountIds.includes(account.id)
-                                      ? values.copyAccountIds.filter((id) => id !== account.id)
-                                      : [...values.copyAccountIds, account.id],
-                                  )
-                                }
-                              />
-                              {account.name}
-                            </label>
-                          ))}
-                      </div>
-                    </div>
-                  )}
                 {!isEditMode && ocrExtract && (
                   <OcrScanSummary groups={groupOcrBySymbol(ocrExtract)} warnings={ocrWarnings} />
                 )}

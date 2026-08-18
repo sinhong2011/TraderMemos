@@ -11,6 +11,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { NumericField } from '@/components/numeric-field';
 import { AppHost } from '@/components/app-host';
+import { TimePicker } from '@/components/time-picker';
 
 /** The app's one spring (see symbol-pager-bar.tsx) — accordion motion matches. */
 const ACCORDION_SPRING = { duration: 420, dampingRatio: 0.85 } as const;
@@ -224,19 +225,50 @@ export function DateRow({
   label,
   selection,
   displayedComponents,
+  seconds,
   onDateChange,
 }: {
   label: string;
   selection: Date;
   displayedComponents: ('date' | 'hourAndMinute')[];
+  /**
+   * Stamps recorded to the second. The clock becomes a `TimePicker` — SwiftUI's
+   * own time pill stops at minutes — while the date half stays this picker's.
+   */
+  seconds?: boolean;
   onDateChange: (date: Date) => void;
 }) {
+  const ownsTime = seconds === true && displayedComponents.includes('hourAndMinute');
+  // The date picker keeps only the calendar; handing it `hourAndMinute` as
+  // well would draw a second, minute-only clock beside the TimePicker.
+  const pickerComponents = ownsTime
+    ? displayedComponents.filter((component) => component !== 'hourAndMinute')
+    : displayedComponents;
+
+  /**
+   * The calendar reports midnight: the value it hands back has no clock, so
+   * passing it straight through would wipe an imported fill's time the moment
+   * anyone changed the day. Re-stamp it from the value we were given — only
+   * the `TimePicker` edits the clock.
+   */
+  const picked = (date: Date) => {
+    if (!ownsTime) return onDateChange(date);
+    const next = new Date(date);
+    next.setHours(
+      selection.getHours(),
+      selection.getMinutes(),
+      selection.getSeconds(),
+      selection.getMilliseconds(),
+    );
+    onDateChange(next);
+  };
+
   return (
     <View style={styles.row}>
       <Text style={styles.rowLabel} numberOfLines={1}>
         {label}
       </Text>
-      <View style={styles.rowControl}>
+      <View style={[styles.rowControl, styles.dateControl]}>
         {/*
           `ignoreSafeArea` is load-bearing: a hosted SwiftUI view still insets
           its content by the container safe area, so a picker sitting inside
@@ -244,13 +276,16 @@ export function DateRow({
           page — drew its pill ~20pt above its own frame, over the row divider.
           'all' also keeps the keyboard inset out of it while a field is open.
         */}
-        <AppHost matchContents ignoreSafeArea="all">
-          <DatePicker
-            selection={selection}
-            displayedComponents={displayedComponents}
-            onDateChange={onDateChange}
-          />
-        </AppHost>
+        {pickerComponents.length > 0 ? (
+          <AppHost matchContents ignoreSafeArea="all">
+            <DatePicker
+              selection={selection}
+              displayedComponents={pickerComponents}
+              onDateChange={picked}
+            />
+          </AppHost>
+        ) : null}
+        {ownsTime ? <TimePicker value={selection} onChange={onDateChange} /> : null}
       </View>
     </View>
   );
@@ -329,6 +364,8 @@ const styles = StyleSheet.create((theme) => ({
     paddingVertical: theme.spacing.sm,
   },
   rowControl: { marginLeft: 'auto', flexShrink: 1 },
+  /** Date pill and clock pill share one line, spaced like SwiftUI's own pair. */
+  dateControl: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.xs },
   stackRow: {
     gap: theme.spacing.sm,
     paddingHorizontal: theme.spacing.lg,

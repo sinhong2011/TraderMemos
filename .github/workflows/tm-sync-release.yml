@@ -50,7 +50,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: actions/setup-go@v6
+      - uses: actions/setup-go@v7
         with:
           go-version-file: api/go.mod
           cache-dependency-path: api/go.sum
@@ -123,7 +123,7 @@ jobs:
 
       - name: Upload artifact (dispatch smoke runs)
         if: ${{ inputs.version == '' && github.event_name != 'release' }}
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ steps.pkg.outputs.asset }}
           path: api/dist/${{ steps.pkg.outputs.asset }}

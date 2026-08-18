@@ -85,6 +85,10 @@ export function SetupScreen() {
   const [step, setStep] = useState<1 | 2>(1);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  // Which of the two step-2 buttons started the request. Both call
+  // `finishSetup`, so a bare `busy` would spin the primary button even when
+  // "Skip for now" was the one clicked.
+  const [skipping, setSkipping] = useState(false);
   const [advancedOpen, setAdvancedOpen] = useState(false);
 
   async function importAfterSetup(accessToken: string, accountID: string, file: File) {
@@ -133,7 +137,7 @@ export function SetupScreen() {
     }
   }
 
-  async function finishSetup() {
+  async function finishSetup(skipImport = false) {
     if (password.length < MIN_PASSWORD) {
       setError(`Password must be at least ${MIN_PASSWORD} characters.`);
       return;
@@ -151,7 +155,7 @@ export function SetupScreen() {
         base_currency: currency.trim() || "USD",
         starting_balance: Number.isFinite(starting) ? starting : 0,
       });
-      if (importFile) {
+      if (importFile && !skipImport) {
         const accountID =
           typeof result.account === "object" &&
           result.account &&
@@ -369,7 +373,11 @@ export function SetupScreen() {
               type="button"
               variant="default"
               className="w-full"
-              onClick={() => void finishSetup()}
+              onClick={() => {
+                setSkipping(false);
+                void finishSetup();
+              }}
+              loading={busy && !skipping}
               disabled={busy}
             >
               {busy ? "Finishing…" : importFile ? "Create & import" : "Create owner account"}
@@ -379,9 +387,13 @@ export function SetupScreen() {
               variant="outline"
               className="w-full"
               onClick={() => {
-                setImportFile(null);
-                void finishSetup();
+                setSkipping(true);
+                // `finishSetup` closes over this render's `importFile`, so
+                // clearing the state here would not reach it — the call has to
+                // be told to skip the import.
+                void finishSetup(true);
               }}
+              loading={busy && skipping}
               disabled={busy}
             >
               Skip for now

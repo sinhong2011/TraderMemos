@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { tradesApi } from "@/lib/api/trades";
+import { armRollingNumbers } from "@/lib/rollingNumbers";
 
 export function useTradeDetail(id: string) {
   return useQuery({
@@ -55,6 +56,9 @@ export function useDeleteTrade() {
   return useMutation({
     mutationFn: (id: string) => tradesApi.delete(id),
     onSuccess: (_data, id) => {
+      // Removing a trade moves the same figures a new one does, and the user
+      // caused it just as directly — it rolls for the same reason.
+      armRollingNumbers();
       void queryClient.invalidateQueries({ queryKey: ["trades"] });
       void queryClient.invalidateQueries({ queryKey: ["trade", id] });
       void queryClient.invalidateQueries({ queryKey: ["analytics"] });

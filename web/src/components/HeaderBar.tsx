@@ -22,6 +22,7 @@ import { intlLocale } from "@/lib/locale";
 import { useUI } from "@/lib/ui";
 import { AccountNavPopover } from "./AccountNavPopover";
 import { DateRangePicker } from "./DateRangePicker";
+import { RollingNumber } from "./RollingNumber";
 import { filterChipClass } from "./field-styles";
 import { OptionsSelect } from "./OptionsSelect";
 import { heroPnlClass } from "./theme-tokens";
@@ -44,7 +45,7 @@ function HeaderStat({ label, value }: { label: string; value: string }) {
   return (
     <span className="inline-flex items-baseline gap-1 text-[13px] font-medium whitespace-nowrap">
       <span className="uppercase tracking-widest text-muted-foreground">{label}</span>
-      <span className="font-semibold tabular-nums text-foreground">{value}</span>
+      <RollingNumber value={value} className="font-semibold text-foreground" />
     </span>
   );
 }
@@ -323,11 +324,12 @@ export function HeaderBar() {
             fxLoading && "opacity-60",
           )}
         >
-          <span>{fmtSignedMoney(toDisplay(stats.netPnl), currency, intlLocale())}</span>
+          <RollingNumber value={fmtSignedMoney(toDisplay(stats.netPnl), currency, intlLocale())} />
           {stats.netPnlPct != null ? (
-            <span className="text-[12px] font-medium opacity-70 sm:text-[13px]">
-              {fmtSignedPct(stats.netPnlPct, intlLocale())}
-            </span>
+            <RollingNumber
+              value={fmtSignedPct(stats.netPnlPct, intlLocale())}
+              className="text-[12px] font-medium opacity-70 sm:text-[13px]"
+            />
           ) : null}
         </div>
         <div aria-hidden className="hidden h-7 w-px shrink-0 bg-border md:block" />

@@ -231,8 +231,10 @@ export function AnnualGoalCard({
     );
   }
 
-  const fillClass =
-    progress.paceStatus === "behind" && progress.progress < 1 ? "bg-warning" : "bg-profit";
+  const barTone =
+    progress.paceStatus === "behind" && progress.progress < 1
+      ? ("warning" as const)
+      : ("profit" as const);
 
   if (variant === "compact") {
     return (
@@ -249,7 +251,7 @@ export function AnnualGoalCard({
           <GoalProgressBar
             progress={progress.progress}
             className="mt-3 h-4"
-            fillClassName={fillClass}
+            tone={barTone}
             aria-label={`${year} goal progress`}
           />
           <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-[12px]">
@@ -303,7 +305,7 @@ export function AnnualGoalCard({
           <div className="min-w-0 flex-1">
             <GoalProgressBar
               progress={progress.progress}
-              fillClassName={fillClass}
+              tone={barTone}
               aria-label={`${year} goal progress`}
             />
 
