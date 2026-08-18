@@ -38,6 +38,10 @@ type Note struct {
 // Review is the LLM coaching result.
 type Review struct {
 	Notes []Note `json:"notes"`
+	// NextAction is the single concrete thing to do before the next trade.
+	// Required of the model so a review lands as a change in behaviour rather
+	// than an essay; empty only when the model ignored the instruction.
+	NextAction string `json:"next_action,omitempty"`
 }
 
 type chatRequest struct {
@@ -48,8 +52,49 @@ type chatRequest struct {
 }
 
 type chatFmt struct {
-	Type string `json:"type"`
+	Type       string      `json:"type"`
+	JSONSchema *jsonSchema `json:"json_schema,omitempty"`
 }
+
+type jsonSchema struct {
+	Name   string         `json:"name"`
+	Strict bool           `json:"strict"`
+	Schema map[string]any `json:"schema"`
+}
+
+// schemaFormat asks for schema-constrained decoding. Small local models are
+// far likelier to return usable JSON under a grammar than under prompt
+// instructions alone, which is the whole reason the repair helpers below exist.
+func schemaFormat() *chatFmt {
+	note := map[string]any{
+		"type": "object",
+		"properties": map[string]any{
+			"tone":     map[string]any{"type": "string", "enum": []string{"neg", "warn", "pos", "tip"}},
+			"headline": map[string]any{"type": "string"},
+			"detail":   map[string]any{"type": "string"},
+		},
+		"required":             []string{"tone", "headline", "detail"},
+		"additionalProperties": false,
+	}
+	return &chatFmt{
+		Type: "json_schema",
+		JSONSchema: &jsonSchema{
+			Name:   "trade_review",
+			Strict: true,
+			Schema: map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"notes":       map[string]any{"type": "array", "items": note},
+					"next_action": map[string]any{"type": "string"},
+				},
+				"required":             []string{"notes", "next_action"},
+				"additionalProperties": false,
+			},
+		},
+	}
+}
+
+func objectFormat() *chatFmt { return &chatFmt{Type: "json_object"} }
 
 type chatMessage struct {
 	Role    string `json:"role"`
@@ -73,6 +118,7 @@ type notesPayload struct {
 		Headline string `json:"headline"`
 		Detail   string `json:"detail"`
 	} `json:"notes"`
+	NextAction string `json:"next_action"`
 }
 
 func systemPrompt(cfg ocr.VisionConfig) string {
@@ -117,23 +163,48 @@ func isTimeoutErr(err error) bool {
 	return false
 }
 
+// errFormatRejected means the endpoint refused the response_format we asked
+// for, not the request as a whole — the caller retries in a simpler mode.
+var errFormatRejected = errors.New("response format rejected")
+
 // GenerateReview calls an OpenAI-compatible chat completions endpoint with trade context.
+//
+// It asks for schema-constrained decoding first and falls back to plain JSON
+// mode when the endpoint rejects it: `json_schema` is well supported by
+// OpenAI, LM Studio and recent Ollama, but the compat layers self-hosters put
+// in front of local models are uneven, and a coach that used to work must not
+// start erroring because of a format upgrade.
 func GenerateReview(ctx context.Context, cfg ocr.VisionConfig, trade TradeContext) (Review, error) {
 	if !cfg.Ready() {
 		return Review{}, fmt.Errorf("%w: coach not configured", ErrUnavailable)
 	}
 
 	userMsg := FormatTradeContext(trade) + "\n\n" + responseFormatPrompt
-	body := chatRequest{
-		Model: modelName(cfg),
-		Messages: []chatMessage{
-			{Role: "system", Content: systemPrompt(cfg)},
-			{Role: "user", Content: userMsg},
-		},
-		ResponseFormat: &chatFmt{Type: "json_object"},
-		Temperature:    0.3,
+	messages := []chatMessage{
+		{Role: "system", Content: systemPrompt(cfg)},
+		{Role: "user", Content: userMsg},
 	}
-	payload, err := json.Marshal(body)
+
+	review, err := requestReview(ctx, cfg, messages, schemaFormat())
+	if errors.Is(err, errFormatRejected) {
+		review, err = requestReview(ctx, cfg, messages, objectFormat())
+	}
+	return review, err
+}
+
+// requestReview performs one chat completion and decodes it into a Review.
+func requestReview(
+	ctx context.Context,
+	cfg ocr.VisionConfig,
+	messages []chatMessage,
+	format *chatFmt,
+) (Review, error) {
+	payload, err := json.Marshal(chatRequest{
+		Model:          modelName(cfg),
+		Messages:       messages,
+		ResponseFormat: format,
+		Temperature:    0.3,
+	})
 	if err != nil {
 		return Review{}, err
 	}
@@ -165,7 +236,11 @@ func GenerateReview(ctx context.Context, cfg ocr.VisionConfig, trade TradeContex
 		return Review{}, err
 	}
 	if res.StatusCode >= 300 {
-		return Review{}, fmt.Errorf("coach api %s: %s", res.Status, truncateRunes(string(raw), 300))
+		apiErr := fmt.Errorf("coach api %s: %s", res.Status, truncateRunes(string(raw), 300))
+		if isSchemaRequest(format) && rejectsRequestShape(res.StatusCode) {
+			return Review{}, fmt.Errorf("%w: %w", errFormatRejected, apiErr)
+		}
+		return Review{}, apiErr
 	}
 
 	var api chatAPIResponse
@@ -212,7 +287,28 @@ func GenerateReview(ctx context.Context, cfg ocr.VisionConfig, trade TradeContex
 			Priority: i + 1,
 		})
 	}
-	return Review{Notes: notes}, nil
+	return Review{Notes: notes, NextAction: strings.TrimSpace(parsed.NextAction)}, nil
+}
+
+func isSchemaRequest(f *chatFmt) bool {
+	return f != nil && f.Type == "json_schema"
+}
+
+// rejectsRequestShape reports whether a status plausibly means "I do not
+// understand this request body" rather than "your credentials or quota are
+// the problem" — retrying the latter in a simpler format would just fail
+// twice and double the user's wait.
+func rejectsRequestShape(status int) bool {
+	switch status {
+	case http.StatusBadRequest,
+		http.StatusNotFound,
+		http.StatusMethodNotAllowed,
+		http.StatusUnprocessableEntity,
+		http.StatusNotImplemented:
+		return true
+	default:
+		return false
+	}
 }
 
 func normalizeTone(t string) string {

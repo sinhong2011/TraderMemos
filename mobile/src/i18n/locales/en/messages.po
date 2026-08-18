@@ -687,7 +687,7 @@ msgstr "Add account"
 msgid "Add an account first."
 msgstr "Add an account first."
 
-#: src/components/coach-card.tsx:118
+#: src/components/coach-card.tsx:135
 msgid "Add an AI endpoint under Settings → AI for a model-written review."
 msgstr "Add an AI endpoint under Settings → AI for a model-written review."
 
@@ -836,11 +836,11 @@ msgstr "AI — vision scan & coach"
 msgid "AI coach"
 msgstr "AI coach"
 
-#: src/components/coach-card.tsx:97
+#: src/components/coach-card.tsx:114
 msgid "AI coach is turned off — enable it under Settings → AI."
 msgstr "AI coach is turned off — enable it under Settings → AI."
 
-#: src/components/coach-card.tsx:85
+#: src/components/coach-card.tsx:96
 msgid "AI review"
 msgstr "AI review"
 
@@ -998,7 +998,7 @@ msgstr "appearance dark light mode system"
 msgid "around {0}"
 msgstr "around {0}"
 
-#: src/components/coach-card.tsx:110
+#: src/components/coach-card.tsx:127
 msgid "Ask AI"
 msgstr "Ask AI"
 
@@ -1579,7 +1579,7 @@ msgstr "Closed trades with Entry/Exit columns — setup and tags are preserved."
 msgid "Closed-trade P&L by entry time on the market clock. Tap a cell for its trades."
 msgstr "Closed-trade P&L by entry time on the market clock. Tap a cell for its trades."
 
-#: src/components/coach-card.tsx:78
+#: src/components/coach-card.tsx:89
 msgid "Coach"
 msgstr "Coach"
 
@@ -3292,7 +3292,7 @@ msgstr "Intraday P&L"
 msgid "Invalid URL"
 msgstr "Invalid URL"
 
-#: src/components/coach-card.tsx:22
+#: src/components/coach-card.tsx:23
 msgid "Issue"
 msgstr "Issue"
 
@@ -3899,6 +3899,10 @@ msgstr "Newest first"
 #: src/app/(tabs)/(calendar)/index.tsx:513
 msgid "Next"
 msgstr "Next"
+
+#: src/components/coach-card.tsx:102
+msgid "Next action"
+msgstr "Next action"
 
 #: src/app/(tabs)/(calendar)/day/[date].tsx:272
 msgid "Next day"
@@ -5061,7 +5065,7 @@ msgstr "Red days"
 msgid "RED YEAR"
 msgstr "RED YEAR"
 
-#: src/components/coach-card.tsx:110
+#: src/components/coach-card.tsx:127
 msgid "Regenerate"
 msgstr "Regenerate"
 
@@ -6055,7 +6059,7 @@ msgstr "Stop when today's realized loss hits this amount."
 msgid "Stored on your server, never on this phone."
 msgstr "Stored on your server, never on this phone."
 
-#: src/components/coach-card.tsx:26
+#: src/components/coach-card.tsx:27
 msgid "Strength"
 msgstr "Strength"
 
@@ -6309,7 +6313,7 @@ msgstr "That is already your password."
 msgid "The {MAX_TRADE_ROWS} most recent of {0} trades."
 msgstr "The {MAX_TRADE_ROWS} most recent of {0} trades."
 
-#: src/components/coach-card.tsx:93
+#: src/components/coach-card.tsx:110
 msgid "The AI review failed — try again."
 msgstr "The AI review failed — try again."
 
@@ -6547,7 +6551,7 @@ msgstr "Timestamp"
 msgid "Timing"
 msgstr "Timing"
 
-#: src/components/coach-card.tsx:28
+#: src/components/coach-card.tsx:29
 msgid "Tip"
 msgstr "Tip"
 
@@ -6952,7 +6956,7 @@ msgstr "Waiting to sync"
 msgid "Wash"
 msgstr "Wash"
 
-#: src/components/coach-card.tsx:24
+#: src/components/coach-card.tsx:25
 msgid "Watch"
 msgstr "Watch"
 

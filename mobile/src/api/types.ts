@@ -635,6 +635,8 @@ export type CoachNote = {
 export type CoachReview = {
   source: 'llm' | 'off' | 'error';
   notes: CoachNote[];
+  /** The one concrete step to take before the next trade; absent if the model omitted it. */
+  next_action?: string;
   error?: string;
 };
 
