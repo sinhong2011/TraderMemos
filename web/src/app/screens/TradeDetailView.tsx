@@ -378,6 +378,8 @@ function TagChipGroup({
             key={tag.id}
             pressed={active}
             tone={tone}
+            // Custom tags carry their own hue; mistakes keep the loss tone.
+            color={tone === "neg" ? undefined : tag.color || undefined}
             onPressedChange={() => onToggle(tag.id)}
             aria-label={tag.name}
           >

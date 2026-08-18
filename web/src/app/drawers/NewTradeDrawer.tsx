@@ -502,7 +502,7 @@ function SymbolCard({
   removable: boolean;
   pending: boolean;
   setups: Array<{ id: string; name: string }>;
-  regularTags: Array<{ id: string; name: string }>;
+  regularTags: Array<{ id: string; name: string; color?: string }>;
   mistakeTags: Array<{ id: string; name: string }>;
   screenshotFiles: File[];
   maxScreenshots: number | null;
@@ -600,7 +600,7 @@ function SymbolCard({
     [setups],
   );
   const tagOptions = useMemo<MultiSelectOption[]>(
-    () => regularTags.map((t) => ({ value: t.id, label: t.name })),
+    () => regularTags.map((t) => ({ value: t.id, label: t.name, color: t.color || undefined })),
     [regularTags],
   );
   const mistakeOptions = useMemo<MultiSelectOption[]>(
