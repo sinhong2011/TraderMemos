@@ -81,6 +81,8 @@ function PromptDialog({ options, onClose }: { options: PromptOptions; onClose: (
             <Text className="text-sm text-muted-foreground">{options.message}</Text>
           ) : null}
           <Input
+            variant="filled"
+            className="rounded-3xl border-0"
             autoFocus
             value={text}
             onChangeText={setText}

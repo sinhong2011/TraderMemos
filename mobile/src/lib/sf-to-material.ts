@@ -183,6 +183,27 @@ export const SF_TO_MATERIAL: Record<string, AndroidSymbol> = {
   // beetle-on-a-page Material uses for filing one.
   'chevron.left.forwardslash.chevron.right': 'code',
   ladybug: 'bug_report',
+
+  // replay transport — SF's frame-steppers have no Material twin, so the
+  // step buttons borrow the track-skip pair (the podcast-player vocabulary).
+  gobackward: 'replay',
+  'backward.frame.fill': 'skip_previous',
+  'forward.frame.fill': 'skip_next',
+  'pause.fill': 'pause',
+  // Tools menu's Backtest row: Material has no bare frame-step glyph either,
+  // and `history` says "re-run the past" better than a transport arrow would.
+  'backward.frame': 'history',
+
+  // misc gaps surfaced by the Android sweep
+  'exclamationmark.triangle': 'warning',
+  'chart.bar': 'bar_chart',
+  'chart.bar.doc.horizontal': 'analytics',
+  'dollarsign.circle': 'paid',
+  'list.bullet.rectangle': 'list_alt',
+  'plus.forwardslash.minus': 'exposure',
+  'person.crop.circle.badge.exclamationmark': 'no_accounts',
+  // Same glyph as the fallback, but deliberate for this name.
+  'questionmark.circle': 'help_outline',
 };
 
 /** Drawn when a symbol has no row above — visible, so the gap is obvious. */

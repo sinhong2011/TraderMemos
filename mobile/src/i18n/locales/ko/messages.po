@@ -14,15 +14,15 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. placeholder {0}: token.name
-#: src/app/(tabs)/(settings)/api-tokens.tsx:160
+#: src/app/(tabs)/(settings)/api-tokens.tsx:148
 msgid "“{0}” stops working immediately. This cannot be undone."
 msgstr "“{0}”이(가) 즉시 작동을 멈춥니다. 되돌릴 수 없습니다."
 
-#: src/app/(tabs)/(dashboard)/notes.tsx:161
+#: src/app/(tabs)/(dashboard)/notes.tsx:156
 msgid "“{label}” is removed for good. This cannot be undone."
 msgstr "“{label}”이(가) 완전히 삭제됩니다. 되돌릴 수 없습니다."
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:116
+#: src/app/(tabs)/(dashboard)/checklist.tsx:118
 msgid "“{name}” is already a checklist item."
 msgstr "\"{name}\"은(는) 이미 체크리스트 항목입니다."
 
@@ -36,7 +36,7 @@ msgstr "(건너뛰기)"
 
 #. placeholder {0}: record.total
 #. placeholder {1}: record.open
-#: src/components/symbol-journal.tsx:498
+#: src/components/symbol-journal.tsx:491
 msgid "{0} · {1} open"
 msgstr "{0} · 미청산 {1}건"
 
@@ -50,7 +50,7 @@ msgid "{0} above the floor"
 msgstr "하한까지 {0}"
 
 #. placeholder {0}: token.name
-#: src/app/(tabs)/(settings)/api-tokens.tsx:81
+#: src/app/(tabs)/(settings)/api-tokens.tsx:66
 msgid "{0} activity"
 msgstr "{0} 사용 기록"
 
@@ -65,7 +65,7 @@ msgid "{0} can push size or timing. Compare this trade to your playbook rules be
 msgstr "{0}은(는) 규모나 타이밍을 흔들 수 있습니다. 다음 유사 신호 전에 이 거래를 플레이북 규칙과 비교하세요."
 
 #. placeholder {0}: user.email
-#: src/app/(tabs)/(settings)/user-form.tsx:59
+#: src/app/(tabs)/(settings)/user-form.tsx:63
 msgid "{0} can sign in to this server with the password you set."
 msgstr "{0} 님은 설정한 비밀번호로 이 서버에 로그인할 수 있습니다."
 
@@ -85,6 +85,11 @@ msgstr "청산 {0}건 · 승률 {1} · 거래일 {2}일"
 #: src/components/reports/overview-section.tsx:539
 msgid "{0} closed trades excluded (no stop recorded)."
 msgstr "청산 거래 {0}건 제외 (스톱 미기록)."
+
+#. placeholder {0}: report.daily_loss_breaches
+#: src/components/reports/risk-section.tsx:80
+msgid "{0} daily-loss"
+msgstr "일일 손실 {0}"
 
 #. placeholder {0}: traded.length
 #: src/app/(tabs)/(calendar)/index.tsx:918
@@ -111,6 +116,11 @@ msgstr "{0}건이 고점에서 수익 상태"
 msgid "{0} losers without recorded MAE/MFE could not be checked — recompute excursion on the trade to fill them."
 msgstr "MAE/MFE가 기록되지 않은 손실 거래 {0}건은 확인할 수 없습니다 — 거래에서 익스커전을 다시 계산하세요."
 
+#. placeholder {0}: report.loss_streak_breaches
+#: src/components/reports/risk-section.tsx:82
+msgid "{0} loss-streak"
+msgstr "연패 초과 {0}"
+
 #. placeholder {0}: s.loss_streak_n
 #: src/app/(tabs)/(settings)/alerts.tsx:117
 msgid "{0} losses in a row"
@@ -127,12 +137,12 @@ msgstr "{1} 중 {0}"
 
 #. placeholder {0}: risk.included
 #. placeholder {1}: risk.included + risk.excluded
-#: src/components/reports/risk-section.tsx:104
+#: src/components/reports/risk-section.tsx:120
 msgid "{0} of {1} trades"
 msgstr "{1}건 중 {0}건"
 
 #. placeholder {0}: report.compliant_days
-#: src/components/reports/risk-section.tsx:150
+#: src/components/reports/risk-section.tsx:166
 msgid "{0} of {scoredDays} days"
 msgstr "{scoredDays}일 중 {0}일"
 
@@ -149,16 +159,23 @@ msgstr "이익의 {0}"
 #~ msgid "{0} open @ {1}"
 #~ msgstr "{0} 보유 @ {1}"
 
+#. placeholder {0}: report.risk_violations
+#: src/components/reports/risk-section.tsx:79
+msgid "{0} over-risked"
+msgstr "리스크 초과 {0}"
+
 #: src/components/reports/risk-section.tsx:166
 #~ msgid "{0} over-risked · {1} daily-loss"
 #~ msgstr "리스크 초과 {0} · 일일 손실 {1}"
 
-#. placeholder {0}: report.risk_violations
-#. placeholder {1}: report.daily_loss_breaches
-#. placeholder {2}: report.trade_limit_breaches
 #: src/components/reports/risk-section.tsx:170
-msgid "{0} over-risked · {1} daily-loss · {2} over-traded"
-msgstr "리스크 초과 {0} · 일일 손실 {1} · 거래 수 초과 {2}"
+#~ msgid "{0} over-risked · {1} daily-loss · {2} over-traded"
+#~ msgstr "리스크 초과 {0} · 일일 손실 {1} · 거래 수 초과 {2}"
+
+#. placeholder {0}: report.trade_limit_breaches
+#: src/components/reports/risk-section.tsx:81
+msgid "{0} over-traded"
+msgstr "거래 수 초과 {0}"
 
 #. placeholder {0}: money(exitResult.perR)
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:521
@@ -166,7 +183,7 @@ msgid "{0} per +1R"
 msgstr "+1R당 {0}"
 
 #. placeholder {0}: user?.email ?? ''
-#: src/app/(tabs)/(settings)/user-detail.tsx:77
+#: src/app/(tabs)/(settings)/reset-password.tsx:56
 msgid "{0} signs in with the new password. Their other devices are signed out."
 msgstr "{0} 님은 새 비밀번호로 로그인합니다. 다른 기기는 로그아웃됩니다."
 
@@ -189,7 +206,7 @@ msgstr "{0}개 종목을 찾았습니다"
 #: src/components/reports/detailed-section.tsx:266
 #: src/components/reports/overview-section.tsx:280
 #: src/components/reports/overview-section.tsx:451
-#: src/components/reports/risk-section.tsx:195
+#: src/components/reports/risk-section.tsx:200
 msgid "{0} trades"
 msgstr "트레이드 {0}건"
 
@@ -214,12 +231,12 @@ msgstr "{0}건 · 연초 이후"
 #. placeholder {1}: result.rows
 #. placeholder {2}: result.inserted
 #. placeholder {3}: result.skipped
-#: src/app/(tabs)/(settings)/flex-sync.tsx:84
+#: src/app/(tabs)/(settings)/flex-sync.tsx:78
 msgid "{0} trades from {1} rows — {2} fills inserted, {3} duplicates skipped."
 msgstr "{1}행에서 거래 {0}건 — 체결 {2}건 삽입, 중복 {3}건 건너뜀."
 
 #. placeholder {0}: report.unknown_risk
-#: src/components/reports/risk-section.tsx:184
+#: src/components/reports/risk-section.tsx:189
 msgid "{0} trades had no recorded initial risk and could not be scored against the per-trade rule."
 msgstr "초기 리스크가 기록되지 않은 거래 {0}건은 거래당 리스크 규칙으로 채점할 수 없었습니다."
 
@@ -245,7 +262,7 @@ msgstr "{0} Wrapped"
 
 #. placeholder {0}: progress.done
 #. placeholder {1}: progress.total
-#: src/app/(tabs)/(dashboard)/notes.tsx:109
+#: src/app/(tabs)/(dashboard)/notes.tsx:104
 msgid "{0}/{1} checks"
 msgstr "{0}/{1} 완료"
 
@@ -274,7 +291,7 @@ msgstr "{0}승 · {1}패"
 msgid "{0}W {1}L"
 msgstr "{0}승 {1}패"
 
-#: src/app/(tabs)/(dashboard)/notes.tsx:113
+#: src/app/(tabs)/(dashboard)/notes.tsx:108
 msgid "{charts} charts"
 msgstr "차트 {charts}개"
 
@@ -324,7 +341,7 @@ msgstr "총손익의 {pct}%가 체결 {0}건의 수수료로 나갔습니다. �
 msgid "{pending} changes queued"
 msgstr "변경 {pending}건 동기화 대기 중"
 
-#: src/app/(tabs)/(settings)/index.tsx:128
+#: src/app/(tabs)/(settings)/index.tsx:127
 msgid "{pendingSyncs} offline changes haven't synced yet and will be discarded."
 msgstr "오프라인 변경 {pendingSyncs}건이 아직 동기화되지 않아 삭제됩니다."
 
@@ -357,7 +374,7 @@ msgstr "{symbol} 리플레이 — {barClock} — {0}"
 #~ msgid "{total} events"
 #~ msgstr "이벤트 {total}건"
 
-#: src/app/(tabs)/(settings)/index.tsx:388
+#: src/app/(tabs)/(settings)/index.tsx:391
 msgid "{tradeCount} trades"
 msgstr "트레이드 {tradeCount}건"
 
@@ -390,7 +407,7 @@ msgstr "{year}년 목표"
 msgid "{year} in one number"
 msgstr "숫자 하나로 보는 {year}년"
 
-#: src/app/(tabs)/(settings)/index.tsx:209
+#: src/app/(tabs)/(settings)/index.tsx:208
 #: src/app/(tabs)/(settings)/trading-journal.tsx:52
 #: src/app/(tabs)/(settings)/trading-journal.tsx:102
 msgid "{year} P&L goal"
@@ -456,7 +473,7 @@ msgstr "1 {from} = {0} {to}"
 msgid "1 change queued"
 msgstr "변경 1건 동기화 대기 중"
 
-#: src/app/(tabs)/(dashboard)/notes.tsx:113
+#: src/app/(tabs)/(dashboard)/notes.tsx:108
 msgid "1 chart"
 msgstr "차트 1개"
 
@@ -473,7 +490,7 @@ msgstr "1일"
 msgid "1 file scanned"
 msgstr "파일 1개 스캔 완료"
 
-#: src/app/(tabs)/(settings)/index.tsx:127
+#: src/app/(tabs)/(settings)/index.tsx:126
 msgid "1 offline change hasn't synced yet and will be discarded."
 msgstr "오프라인 변경 1건이 아직 동기화되지 않아 삭제됩니다."
 
@@ -493,11 +510,11 @@ msgstr "1개 종목을 찾았습니다"
 msgid "1 trade"
 msgstr "1건"
 
-#: src/app/share-reports-link.tsx:30
+#: src/app/share-reports-link.tsx:31
 msgid "1 year"
 msgstr "1년"
 
-#: src/app/(tabs)/(settings)/two-factor.tsx:144
+#: src/app/(tabs)/(settings)/two-factor.tsx:149
 msgid "1. Add to your authenticator"
 msgstr "1. 인증 앱에 추가"
 
@@ -517,7 +534,7 @@ msgstr "1R"
 msgid "1y"
 msgstr "1년"
 
-#: src/app/(tabs)/(settings)/two-factor.tsx:170
+#: src/app/(tabs)/(settings)/two-factor.tsx:176
 msgid "2. Enter a code to confirm"
 msgstr "2. 코드를 입력해 확인"
 
@@ -529,7 +546,7 @@ msgstr "24시간제"
 #~ msgid "24-hour (13:30)"
 #~ msgstr "24시간제 (13:30)"
 
-#: src/app/share-reports-link.tsx:26
+#: src/app/share-reports-link.tsx:27
 msgid "30 days"
 msgstr "30일"
 
@@ -537,13 +554,12 @@ msgstr "30일"
 msgid "30d"
 msgstr "30일"
 
-#: src/app/(tabs)/(settings)/two-factor.tsx:204
-#: src/app/(tabs)/(settings)/two-factor.tsx:209
-#: src/app/login.tsx:334
+#: src/app/(tabs)/(settings)/two-factor.tsx:104
+#: src/app/(tabs)/(settings)/two-factor.tsx:225
 msgid "6-digit code"
 msgstr "6자리 코드"
 
-#: src/app/share-reports-link.tsx:28
+#: src/app/share-reports-link.tsx:29
 msgid "90 days"
 msgstr "90일"
 
@@ -559,7 +575,8 @@ msgstr "90일"
 #~ msgid "A quiet week."
 #~ msgstr "조용한 한 주입니다."
 
-#: src/app/(tabs)/(settings)/user-detail.tsx:174
+#: src/app/(tabs)/(settings)/reset-password.tsx:124
+#: src/app/(tabs)/(settings)/user-detail.tsx:130
 msgid "A reset signs out that user's other devices."
 msgstr "재설정하면 해당 사용자의 다른 기기는 로그아웃됩니다."
 
@@ -567,43 +584,43 @@ msgstr "재설정하면 해당 사용자의 다른 기기는 로그아웃됩니�
 msgid "A sample amount and a late-session timestamp, rendered with the settings below."
 msgstr "아래 설정을 적용한 금액과 장 마감 후 시각의 샘플입니다."
 
-#: src/app/share-trade.tsx:171
-#: src/app/share-wrapped.tsx:183
+#: src/app/share-trade.tsx:164
+#: src/app/share-wrapped.tsx:176
 msgid "A small wordmark in the card corner."
 msgstr "카드 모서리에 작은 워드마크를 표시합니다."
 
-#: src/app/new-setup.tsx:232
+#: src/app/new-setup.tsx:231
 msgid "A symbol pins the play to one ticker — leave it on Any for a pattern you trade anywhere."
 msgstr "종목을 넣으면 이 플레이는 해당 종목에만 묶입니다. 어디서나 쓰는 패턴이면 ‘지정 없음’으로 두세요."
 
-#: src/app/(tabs)/(settings)/_layout.tsx:104
+#: src/app/(tabs)/(settings)/_layout.tsx:122
 msgid "About"
 msgstr "정보"
 
-#: src/app/(tabs)/(settings)/index.tsx:288
-#: src/app/(tabs)/(settings)/index.tsx:463
+#: src/app/(tabs)/(settings)/index.tsx:293
+#: src/app/(tabs)/(settings)/index.tsx:466
 msgid "About TraderMemos"
 msgstr "TraderMemos 정보"
 
-#: src/app/(tabs)/(settings)/index.tsx:246
+#: src/app/(tabs)/(settings)/index.tsx:251
 msgid "access token integration webhook"
 msgstr "액세스 토큰 연동 API 웹훅"
 
 #: src/app/(tabs)/(settings)/_layout.tsx:35
-#: src/app/(tabs)/(settings)/account-form.tsx:219
+#: src/app/(tabs)/(settings)/account-form.tsx:213
 #: src/app/(tabs)/(settings)/export-trades.tsx:84
 #: src/app/(tabs)/(settings)/export-trades.tsx:87
 #: src/app/(tabs)/(settings)/import-trades.tsx:442
-#: src/app/(tabs)/(settings)/user-detail.tsx:148
+#: src/app/(tabs)/(settings)/user-detail.tsx:104
 #: src/app/(tabs)/(trades)/index.tsx:367
-#: src/app/cash-form.tsx:168
-#: src/app/cash-form.tsx:176
-#: src/app/cash-form.tsx:187
+#: src/app/cash-form.tsx:150
+#: src/app/cash-form.tsx:156
+#: src/app/cash-form.tsx:167
 #: src/components/account-menu.tsx:123
 #: src/components/account-pill.tsx:41
 #: src/components/account-pill.tsx:54
 #: src/components/account-pill.tsx:58
-#: src/components/trade-form.tsx:705
+#: src/components/trade-form.tsx:680
 msgid "Account"
 msgstr "계좌"
 
@@ -624,7 +641,7 @@ msgstr "계좌 통화"
 msgid "Account is too small to take even one share at this risk"
 msgstr "이 리스크로는 1주도 살 수 없는 계좌 규모입니다"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:166
+#: src/app/(tabs)/(settings)/account-form.tsx:160
 msgid "Account name is required."
 msgstr "계좌 이름을 입력하세요."
 
@@ -632,19 +649,21 @@ msgstr "계좌 이름을 입력하세요."
 msgid "Account P&L"
 msgstr "계좌 손익"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:270
+#: src/app/(tabs)/(settings)/account-form.tsx:262
+#: src/app/(tabs)/(settings)/account-form.tsx:264
 msgid "Account type"
 msgstr "계좌 유형"
 
-#: src/app/(tabs)/(settings)/index.tsx:372
+#: src/app/(tabs)/(settings)/index.tsx:375
 msgid "Accounts"
 msgstr "계좌"
 
-#: src/app/(tabs)/(settings)/index.tsx:192
+#: src/app/(tabs)/(settings)/index.tsx:191
 msgid "accounts people members owner admin invite add remove password reset"
 msgstr "계정 사용자 멤버 소유자 관리자 초대 추가 삭제 비밀번호 재설정"
 
-#: src/app/(tabs)/(settings)/risk-rules.tsx:90
+#: src/app/(tabs)/(settings)/risk-rules.tsx:209
+#: src/app/(tabs)/(settings)/risk-rules.tsx:228
 msgid "Active limits"
 msgstr "활성 한도"
 
@@ -668,27 +687,29 @@ msgstr "실제"
 msgid "Actual risk is below your target."
 msgstr "실제 리스크가 목표보다 낮습니다."
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:126
-#: src/app/(tabs)/(settings)/account-form.tsx:226
-#: src/app/(tabs)/(settings)/user-form.tsx:84
+#: src/app/(tabs)/(dashboard)/checklist.tsx:128
+#: src/app/(tabs)/(settings)/account-form.tsx:220
+#: src/app/(tabs)/(settings)/user-form.tsx:89
 #: src/components/add-menu.tsx:37
 msgid "Add"
 msgstr "추가"
 
-#: src/app/new-setup.tsx:278
+#: src/app/new-setup.tsx:277
 msgid "Add a check"
 msgstr "체크 추가"
 
-#: src/app/(tabs)/(settings)/risk-rules.tsx:122
+#: src/app/(tabs)/(settings)/risk-rules.tsx:199
+#: src/app/(tabs)/(settings)/risk-rules.tsx:241
+#: src/app/(tabs)/(settings)/risk-rules.tsx:263
 msgid "Add a limit"
 msgstr "한도 추가"
 
-#: src/app/(tabs)/(settings)/index.tsx:203
-#: src/app/(tabs)/(settings)/index.tsx:413
+#: src/app/(tabs)/(settings)/index.tsx:202
+#: src/app/(tabs)/(settings)/index.tsx:416
 msgid "Add account"
 msgstr "계좌 추가"
 
-#: src/app/cash-form.tsx:229
+#: src/app/cash-form.tsx:211
 msgid "Add an account first."
 msgstr "먼저 계좌를 추가하세요."
 
@@ -696,7 +717,7 @@ msgstr "먼저 계좌를 추가하세요."
 msgid "Add an AI endpoint under Settings → AI for a model-written review."
 msgstr "설정 → AI에서 엔드포인트를 추가하면 모델이 작성한 리뷰를 받을 수 있습니다."
 
-#: src/app/new-trade.tsx:60
+#: src/app/new-trade.tsx:61
 msgid "Add an OpenAI-compatible vision endpoint and API key under Settings → AI, then open this shortcut again."
 msgstr "설정 → AI에서 OpenAI 호환 비전 엔드포인트와 API 키를 추가한 뒤 단축어를 다시 실행하세요."
 
@@ -704,23 +725,23 @@ msgstr "설정 → AI에서 OpenAI 호환 비전 엔드포인트와 API 키를 �
 msgid "Add an OpenAI-compatible vision endpoint and API key under Settings → AI, then scan broker screenshots straight into this form."
 msgstr "설정 → AI에서 OpenAI 호환 비전 엔드포인트와 API 키를 추가하면 브로커 스크린샷을 이 양식으로 바로 스캔해 넣을 수 있습니다."
 
-#: src/app/new-setup.tsx:278
+#: src/app/new-setup.tsx:277
 msgid "Add another"
 msgstr "하나 더 추가"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:361
+#: src/app/(tabs)/(settings)/account-form.tsx:345
 msgid "Add another account before deleting this one."
 msgstr "이 계좌를 삭제하기 전에 다른 계좌를 추가하세요."
 
-#: src/app/new-trade.tsx:117
+#: src/app/new-trade.tsx:118
 msgid "Add at least one fill with quantity and price for {label}."
 msgstr "{label}에 수량과 가격이 있는 체결을 1개 이상 추가하세요."
 
-#: src/app/edit-trade.tsx:94
+#: src/app/edit-trade.tsx:95
 msgid "Add at least one fill with quantity and price."
 msgstr "수량과 가격이 입력된 체결을 1건 이상 추가하세요."
 
-#: src/components/trade-form.tsx:472
+#: src/components/trade-form.tsx:447
 msgid "Add fill"
 msgstr "체결 추가"
 
@@ -732,7 +753,7 @@ msgstr "체결 추가"
 #~ msgid "Add gap"
 #~ msgstr "갭 추가"
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:253
+#: src/app/(tabs)/(dashboard)/checklist.tsx:255
 msgid "Add item"
 msgstr "항목 추가"
 
@@ -752,7 +773,7 @@ msgstr "스크린샷 추가"
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:553
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:695
 #: src/components/note-form.tsx:268
-#: src/components/trade-form.tsx:742
+#: src/components/trade-form.tsx:717
 msgid "Add symbol"
 msgstr "종목 추가"
 
@@ -768,34 +789,34 @@ msgstr "종목 추가"
 msgid "Add tier"
 msgstr "티어 추가"
 
-#: src/app/(tabs)/(settings)/two-factor.tsx:149
+#: src/app/(tabs)/(settings)/two-factor.tsx:154
 msgid "Add to authenticator"
 msgstr "인증 앱에 추가"
 
-#: src/app/(tabs)/(settings)/funding.tsx:144
-#: src/app/cash-form.tsx:155
+#: src/app/(tabs)/(settings)/funding.tsx:166
+#: src/app/cash-form.tsx:137
 msgid "Add transaction"
 msgstr "입출금 내역 추가"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:53
+#: src/app/(tabs)/(settings)/_layout.tsx:61
 #: src/app/(tabs)/(settings)/users.tsx:88
 msgid "Add user"
 msgstr "사용자 추가"
 
-#: src/app/(tabs)/(settings)/user-form.tsx:84
+#: src/app/(tabs)/(settings)/user-form.tsx:89
 msgid "Adding…"
 msgstr "추가 중…"
 
-#: src/app/(tabs)/(settings)/web-address.tsx:80
-#: src/app/(tabs)/(settings)/web-address.tsx:96
+#: src/app/(tabs)/(settings)/web-address.tsx:66
+#: src/app/(tabs)/(settings)/web-address.tsx:85
 msgid "Address"
 msgstr "주소"
 
-#: src/app/(tabs)/(settings)/two-factor.tsx:138
+#: src/app/(tabs)/(settings)/two-factor.tsx:143
 msgid "Adds a 6-digit code from an authenticator app to your password at sign-in."
 msgstr "로그인 시 비밀번호에 인증 앱의 6자리 코드를 추가합니다."
 
-#: src/components/reports/risk-section.tsx:148
+#: src/components/reports/risk-section.tsx:164
 msgid "Adherence"
 msgstr "준수율"
 
@@ -832,17 +853,17 @@ msgstr "공격적"
 msgid "Ahead of pace"
 msgstr "페이스 앞섬"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:83
+#: src/app/(tabs)/(settings)/_layout.tsx:101
 msgid "AI"
 msgstr "AI"
 
-#: src/app/(tabs)/(settings)/index.tsx:239
+#: src/app/(tabs)/(settings)/index.tsx:244
 #: src/app/(tabs)/(settings)/integrations.tsx:36
 msgid "AI — vision scan & coach"
 msgstr "AI — 비전 스캔 & 코치"
 
 #: src/app/(tabs)/(settings)/ai.tsx:29
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:35
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:36
 msgid "AI coach"
 msgstr "AI 코치"
 
@@ -854,9 +875,9 @@ msgstr "AI 코치가 꺼져 있습니다 — 설정 → AI에서 켜세요."
 msgid "AI review"
 msgstr "AI 리뷰"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:70
-#: src/app/(tabs)/(settings)/index.tsx:221
-#: src/app/(tabs)/(settings)/trading-journal.tsx:119
+#: src/app/(tabs)/(settings)/_layout.tsx:88
+#: src/app/(tabs)/(settings)/index.tsx:226
+#: src/app/(tabs)/(settings)/trading-journal.tsx:128
 msgid "Alerts"
 msgstr "알림"
 
@@ -864,7 +885,7 @@ msgstr "알림"
 msgid "Alerts are evaluated on your server after every trade and delivered to each registered device and webhook. Free, always."
 msgstr "알림은 매 거래 후 내 서버에서 평가되어 등록된 각 기기와 웹훅으로 전송됩니다. 언제나 무료입니다."
 
-#: src/app/(tabs)/(dashboard)/notes.tsx:180
+#: src/app/(tabs)/(dashboard)/notes.tsx:175
 #: src/app/(tabs)/(trades)/index.tsx:180
 #: src/app/(tabs)/(trades)/index.tsx:271
 msgid "All"
@@ -895,7 +916,7 @@ msgstr "전체 기간"
 msgid "Allow notifications for TraderMemos in iOS Settings, and use a physical device."
 msgstr "iOS 설정에서 TraderMemos 알림을 허용하고 실제 기기를 사용하세요."
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:74
+#: src/app/(tabs)/(dashboard)/checklist.tsx:76
 msgid "Allow Reminders for TraderMemos in Settings → Privacy to mirror the checklist."
 msgstr "설정 → 개인정보 보호에서 TraderMemos의 미리 알림 접근을 허용하면 체크리스트를 동기화합니다."
 
@@ -903,7 +924,7 @@ msgstr "설정 → 개인정보 보호에서 TraderMemos의 미리 알림 접근
 msgid "Allow TraderMemos to add reminders in Settings › Privacy › Reminders."
 msgstr "설정 › 개인 정보 보호 › 미리 알림에서 TraderMemos의 접근을 허용하세요."
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:116
+#: src/app/(tabs)/(dashboard)/checklist.tsx:118
 msgid "Already on the list"
 msgstr "이미 목록에 있음"
 
@@ -913,8 +934,8 @@ msgid "Always \"{0}\""
 msgstr "항상 \"{0}\""
 
 #: src/app/(tabs)/(settings)/display.tsx:103
-#: src/app/cash-form.tsx:205
-#: src/components/trade-form.tsx:613
+#: src/app/cash-form.tsx:189
+#: src/components/trade-form.tsx:588
 msgid "Amount"
 msgstr "금액"
 
@@ -934,11 +955,11 @@ msgstr "실수, 습관, 사용자 지정 라벨로 거래에 주석을 답니다
 #~ msgid "Annual P&L goal"
 #~ msgstr "연간 손익 목표"
 
-#: src/app/(tabs)/(settings)/index.tsx:210
+#: src/app/(tabs)/(settings)/index.tsx:209
 msgid "annual target profit"
 msgstr "연간 목표 수익"
 
-#: src/app/new-setup.tsx:218
+#: src/app/new-setup.tsx:217
 msgid "Any"
 msgstr "지정 없음"
 
@@ -946,16 +967,16 @@ msgstr "지정 없음"
 msgid "Any duration"
 msgstr "모든 보유 기간"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:280
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:281
 msgid "Any OpenAI-compatible endpoint works. Test uses the values above, saved or not."
 msgstr "OpenAI 호환 엔드포인트면 무엇이든 사용할 수 있습니다. 테스트는 저장 여부와 관계없이 위 값을 사용합니다."
 
-#: src/app/share-reports-link.tsx:115
+#: src/app/share-reports-link.tsx:110
 msgid "Anyone with the link sees a read-only summary of the current scope — no trades, notes or account details."
 msgstr "링크가 있는 사람은 현재 범위의 읽기 전용 요약을 볼 수 있습니다 — 거래, 노트, 계좌 정보는 포함되지 않습니다."
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:213
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:336
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:214
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:337
 msgid "API key"
 msgstr "API 키"
 
@@ -963,8 +984,8 @@ msgstr "API 키"
 #~ msgid "API server"
 #~ msgstr "API 서버"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:88
-#: src/app/(tabs)/(settings)/index.tsx:245
+#: src/app/(tabs)/(settings)/_layout.tsx:106
+#: src/app/(tabs)/(settings)/index.tsx:250
 #: src/app/(tabs)/(settings)/integrations.tsx:41
 msgid "API tokens"
 msgstr "API 토큰"
@@ -994,7 +1015,7 @@ msgstr "앱 설정을 가져왔습니다"
 #~ msgid "Appearance"
 #~ msgstr "화면 모드"
 
-#: src/app/(tabs)/(settings)/index.tsx:252
+#: src/app/(tabs)/(settings)/index.tsx:257
 msgid "appearance dark light mode system"
 msgstr "화면 모드 다크 라이트 시스템 테마"
 
@@ -1016,15 +1037,17 @@ msgstr "AI에게 묻기"
 msgid "At {0}"
 msgstr "{0} 도달 시"
 
-#: src/app/(tabs)/(settings)/user-form.tsx:105
+#: src/app/(tabs)/(settings)/change-password.tsx:127
+#: src/app/(tabs)/(settings)/reset-password.tsx:91
+#: src/app/(tabs)/(settings)/user-form.tsx:113
 msgid "At least {MIN_LENGTH} characters"
 msgstr "{MIN_LENGTH}자 이상"
 
 #: src/app/(tabs)/(settings)/change-password.tsx:121
-msgid "At least {MIN_LENGTH} characters. Changing it signs out your other devices — this one stays signed in."
-msgstr "{MIN_LENGTH}자 이상. 변경하면 다른 기기는 로그아웃되지만 이 기기는 로그인 상태를 유지합니다."
+#~ msgid "At least {MIN_LENGTH} characters. Changing it signs out your other devices — this one stays signed in."
+#~ msgstr "{MIN_LENGTH}자 이상. 변경하면 다른 기기는 로그아웃되지만 이 기기는 로그인 상태를 유지합니다."
 
-#: src/components/reports/risk-section.tsx:96
+#: src/components/reports/risk-section.tsx:112
 msgid "at the highs"
 msgstr "고점 부근"
 
@@ -1032,11 +1055,12 @@ msgstr "고점 부근"
 msgid "at the stop"
 msgstr "스톱 기준"
 
-#: src/app/login.tsx:327
+#: src/app/login.tsx:329
+#: src/app/login.tsx:341
 msgid "Authenticator code"
 msgstr "인증 코드"
 
-#: src/components/symbol-journal.tsx:319
+#: src/components/symbol-journal.tsx:315
 msgid "Auto"
 msgstr "자동"
 
@@ -1056,20 +1080,20 @@ msgstr "평균 보유 시간"
 msgid "avg"
 msgstr "평균"
 
-#: src/app/(tabs)/(trades)/[id].tsx:273
+#: src/app/(tabs)/(trades)/[id].tsx:297
 #: src/components/trade-result-card.tsx:48
 #: src/components/trade-summary.tsx:196
 msgid "Avg entry"
 msgstr "평균 진입가"
 
-#: src/app/(tabs)/(trades)/[id].tsx:274
+#: src/app/(tabs)/(trades)/[id].tsx:298
 #: src/components/trade-result-card.tsx:53
 #: src/components/trade-summary.tsx:204
 msgid "Avg exit"
 msgstr "평균 청산가"
 
 #: src/components/insights-card.tsx:86
-#: src/components/symbol-journal.tsx:503
+#: src/components/symbol-journal.tsx:496
 msgid "Avg hold"
 msgstr "평균 보유 시간"
 
@@ -1090,7 +1114,7 @@ msgstr "평균 손실"
 msgid "Avg R / trade"
 msgstr "거래당 평균 R"
 
-#: src/components/reports/risk-section.tsx:100
+#: src/components/reports/risk-section.tsx:116
 msgid "Avg risk / trade"
 msgstr "거래당 평균 리스크"
 
@@ -1116,10 +1140,10 @@ msgid "Axes score 0–100: profit factor caps at 3, payoff at 3×, SQN at 7; dis
 msgstr "각 축은 0–100점: 프로핏 팩터는 3, 페이오프는 3배, SQN은 7이 상한입니다. 복수 매매 플래그가 늘면 규율이, 손실 트레이드를 수익보다 오래 들고 있으면 인내 점수가 내려갑니다."
 
 #: src/app/(tabs)/(settings)/import-trades.tsx:430
-#: src/app/replay.tsx:417
-#: src/app/replay.tsx:940
+#: src/app/replay.tsx:423
+#: src/app/replay.tsx:950
 #: src/app/trade-preview.tsx:107
-#: src/components/form-sheet.tsx:140
+#: src/components/form-sheet.tsx:149
 msgid "Back"
 msgstr "뒤로"
 
@@ -1128,11 +1152,11 @@ msgstr "뒤로"
 #~ msgid "Back to this week"
 #~ msgstr "이번 주로 돌아가기"
 
-#: src/app/(tabs)/(trades)/[id].tsx:446
+#: src/app/(tabs)/(trades)/[id].tsx:470
 msgid "Back to trades"
 msgstr "거래 목록으로"
 
-#: src/app/(tabs)/(dashboard)/_layout.tsx:108
+#: src/app/(tabs)/(dashboard)/_layout.tsx:112
 #: src/components/tools-menu.tsx:54
 msgid "Backtest"
 msgstr "백테스트"
@@ -1157,12 +1181,13 @@ msgstr "잔고, {0}"
 msgid "Balance, {0}, from {1}"
 msgstr "잔고, {0}, {1}에서"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:279
+#: src/app/(tabs)/(settings)/account-form.tsx:273
+#: src/app/(tabs)/(settings)/account-form.tsx:275
 msgid "Base currency"
 msgstr "기준 통화"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:190
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:284
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:191
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:285
 msgid "Base URL"
 msgstr "베이스 URL"
 
@@ -1175,12 +1200,13 @@ msgstr "기준선 {0}"
 msgid "Baseline P&L"
 msgstr "기준선 손익"
 
-#: src/app/(tabs)/(trades)/[id].tsx:102
+#: src/app/(tabs)/(trades)/[id].tsx:106
 #: src/components/share-card.tsx:162
 msgid "BE"
 msgstr "본전"
 
-#: src/components/checklist-card.tsx:189
+#: src/app/(tabs)/(dashboard)/daily-checklist.tsx:61
+#: src/components/checklist-card.tsx:53
 msgid "Before the open"
 msgstr "장 시작 전"
 
@@ -1196,7 +1222,7 @@ msgstr "페이스 뒤처짐"
 msgid "below average"
 msgstr "평균 이하"
 
-#: src/components/reports/risk-section.tsx:117
+#: src/components/reports/risk-section.tsx:133
 msgid "Below peak"
 msgstr "고점 대비 하락"
 
@@ -1220,7 +1246,7 @@ msgstr "최장 연승"
 msgid "Best trade"
 msgstr "최고 수익 트레이드"
 
-#: src/app/new-setup.tsx:211
+#: src/app/new-setup.tsx:210
 msgid "Bias"
 msgstr "방향"
 
@@ -1265,7 +1291,8 @@ msgstr "본전"
 msgid "Breakout pullback"
 msgstr "브레이크아웃 풀백"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:244
+#: src/app/(tabs)/(settings)/account-form.tsx:237
+#: src/app/(tabs)/(settings)/account-form.tsx:239
 msgid "Broker"
 msgstr "브로커"
 
@@ -1273,15 +1300,15 @@ msgstr "브로커"
 msgid "Broker execution exports. Map a Market/Asset Type column for mixed stock/option files, or let the symbol decide."
 msgstr "증권사 체결 내역 내보내기. 주식과 옵션이 섞인 파일은 Market / Asset Type 열을 매핑하거나 종목으로 판단하게 하세요."
 
-#: src/app/(tabs)/(settings)/index.tsx:277
+#: src/app/(tabs)/(settings)/index.tsx:282
 msgid "broker fills csv json backup restore"
 msgstr "증권사 체결 CSV JSON 백업 복원 가져오기"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:170
+#: src/app/(tabs)/(settings)/account-form.tsx:164
 msgid "Broker is required."
 msgstr "브로커를 입력하세요."
 
-#: src/app/(tabs)/(settings)/index.tsx:204
+#: src/app/(tabs)/(settings)/index.tsx:203
 msgid "broker new account"
 msgstr "증권사 새 계좌 추가"
 
@@ -1300,13 +1327,13 @@ msgstr "예산 {0}"
 msgid "Busiest month: {0} with {1} trades."
 msgstr "가장 활발한 달: {0} ({1}건)."
 
-#: src/app/replay.tsx:896
-#: src/components/trade-form.tsx:126
+#: src/app/replay.tsx:902
+#: src/components/trade-form.tsx:116
 #: src/components/trade-summary.tsx:84
 msgid "Buy"
 msgstr "매수"
 
-#: src/app/(tabs)/(trades)/[id].tsx:772
+#: src/app/(tabs)/(trades)/[id].tsx:796
 msgid "BUY"
 msgstr "매수"
 
@@ -1320,12 +1347,12 @@ msgid "Calendar not configured"
 msgstr "캘린더 미설정"
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:291
-#: src/components/trade-form.tsx:316
+#: src/components/trade-form.tsx:291
 #: src/components/trade-row.tsx:61
 msgid "Call"
 msgstr "콜"
 
-#: src/app/(tabs)/(trades)/[id].tsx:175
+#: src/app/(tabs)/(trades)/[id].tsx:188
 msgid "CALL"
 msgstr "콜"
 
@@ -1343,37 +1370,29 @@ msgstr "{serverHost} 에 연결할 수 없음"
 msgid "Can't reach the server"
 msgstr "서버에 연결할 수 없음"
 
-#: src/app/(tabs)/(dashboard)/notes.tsx:162
-#: src/app/(tabs)/(settings)/account-form.tsx:196
-#: src/app/(tabs)/(settings)/account-form.tsx:207
-#: src/app/(tabs)/(settings)/api-tokens.tsx:162
+#: src/app/(tabs)/(dashboard)/notes.tsx:157
+#: src/app/(tabs)/(settings)/account-form.tsx:190
+#: src/app/(tabs)/(settings)/account-form.tsx:201
+#: src/app/(tabs)/(settings)/api-tokens.tsx:150
 #: src/app/(tabs)/(settings)/display.tsx:88
-#: src/app/(tabs)/(settings)/flex-sync.tsx:107
-#: src/app/(tabs)/(settings)/funding.tsx:130
-#: src/app/(tabs)/(settings)/index.tsx:133
-#: src/app/(tabs)/(settings)/prop-settings.tsx:68
-#: src/app/(tabs)/(settings)/prop-settings.tsx:92
-#: src/app/(tabs)/(settings)/prop-settings.tsx:118
-#: src/app/(tabs)/(settings)/risk-rules.tsx:45
-#: src/app/(tabs)/(settings)/risk-rules.tsx:67
-#: src/app/(tabs)/(settings)/risk-rules.tsx:78
-#: src/app/(tabs)/(settings)/tags.tsx:85
-#: src/app/(tabs)/(settings)/two-factor.tsx:184
-#: src/app/(tabs)/(settings)/user-detail.tsx:124
-#: src/app/(tabs)/(settings)/web-address.tsx:42
-#: src/app/(tabs)/(trades)/[id].tsx:505
-#: src/app/cash-form.tsx:142
+#: src/app/(tabs)/(settings)/flex-sync.tsx:101
+#: src/app/(tabs)/(settings)/funding.tsx:152
+#: src/app/(tabs)/(settings)/index.tsx:132
+#: src/app/(tabs)/(settings)/prop-settings.tsx:106
+#: src/app/(tabs)/(settings)/tags.tsx:97
+#: src/app/(tabs)/(settings)/user-detail.tsx:80
+#: src/app/(tabs)/(settings)/web-address.tsx:41
+#: src/app/(tabs)/(trades)/[id].tsx:529
 #: src/app/edit-note.tsx:79
 #: src/app/new-setup.tsx:159
-#: src/app/replay.tsx:862
+#: src/app/replay.tsx:868
 #: src/components/attachments-card.tsx:151
-#: src/components/form-sheet.tsx:140
+#: src/components/form-sheet.tsx:149
 #: src/components/note-images.tsx:136
-#: src/components/swipeable-trade-row.tsx:56
+#: src/components/swipeable-trade-row.tsx:46
 #: src/components/trade-scan-overlay.tsx:281
 #: src/components/use-prompt.tsx:46
-#: src/components/use-prompt.tsx:92
-#: src/lib/change-server.ts:72
+#: src/components/use-prompt.tsx:94
 msgid "Cancel"
 msgstr "취소"
 
@@ -1381,11 +1400,11 @@ msgstr "취소"
 msgid "Canonical backup — trades, fills, journal, cash, and playbook setups. Re-importable."
 msgstr "정식 백업 — 매매, 체결, 일지, 현금, 플레이북 셋업 포함. 다시 가져올 수 있습니다."
 
-#: src/lib/risk-rules.ts:45
+#: src/lib/risk-rules.ts:52
 msgid "Cap how many trades close in a single day."
 msgstr "하루에 청산하는 거래 수의 상한입니다."
 
-#: src/lib/risk-rules.ts:24
+#: src/lib/risk-rules.ts:28
 msgid "Cap planned risk on a single trade."
 msgstr "단일 거래의 계획 리스크에 상한을 둡니다."
 
@@ -1406,15 +1425,15 @@ msgstr "자본으로 1주도 살 수 없습니다 — 더 저렴한 종목을 �
 #~ msgid "Caps how many images one trade keeps, so a busy day of chart grabs doesn't fill the device."
 #~ msgstr "거래 하나가 보관하는 이미지 수의 상한입니다. 차트를 많이 캡처한 날에도 기기 용량을 채우지 않습니다."
 
-#: src/app/(tabs)/(dashboard)/notes.tsx:298
+#: src/app/(tabs)/(dashboard)/notes.tsx:293
 msgid "Capture market thoughts or a daily log from the + menu."
 msgstr "+ 메뉴에서 시장 메모나 일일 로그를 기록하세요."
 
-#: src/app/(tabs)/(settings)/account-form.tsx:43
+#: src/app/(tabs)/(settings)/account-form.tsx:37
 msgid "Cash"
 msgstr "현금"
 
-#: src/app/(tabs)/(settings)/index.tsx:198
+#: src/app/(tabs)/(settings)/index.tsx:197
 msgid "cash funding ledger balance transfer"
 msgstr "입금 출금 자금 잔액 이체"
 
@@ -1430,29 +1449,33 @@ msgstr "현금 거래"
 msgid "cash-limited"
 msgstr "현금 제한"
 
-#: src/lib/change-server.ts:74
+#: src/app/(tabs)/(settings)/change-server.tsx:52
 msgid "Change & sign out"
 msgstr "변경 후 로그아웃"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:50
-#: src/app/(tabs)/(settings)/index.tsx:185
-#: src/app/(tabs)/(settings)/profile.tsx:100
+#: src/app/(tabs)/(settings)/_layout.tsx:58
+#: src/app/(tabs)/(settings)/index.tsx:184
+#: src/app/(tabs)/(settings)/profile.tsx:85
 msgid "Change password"
 msgstr "비밀번호 변경"
 
-#: src/app/(tabs)/(settings)/profile.tsx:82
+#: src/app/(tabs)/(settings)/_layout.tsx:50
 msgid "Change server"
 msgstr "서버 변경"
 
-#: src/app/(tabs)/(settings)/index.tsx:180
+#: src/app/(tabs)/(settings)/index.tsx:179
 msgid "change server url instance host address self-hosted connect"
 msgstr "서버 변경 URL 인스턴스 호스트 주소 셀프 호스팅 연결"
 
-#: src/lib/change-server.ts:69
-msgid "Change server?"
-msgstr "서버를 변경할까요?"
+#: src/lib/change-server.ts:77
+#~ msgid "Change server?"
+#~ msgstr "서버를 변경할까요?"
 
-#: src/app/(tabs)/(settings)/profile.tsx:96
+#: src/app/(tabs)/(settings)/change-password.tsx:144
+msgid "Changing it signs out your other devices — this one stays signed in."
+msgstr "변경하면 다른 기기는 로그아웃됩니다 — 이 기기는 로그인 상태가 유지됩니다."
+
+#: src/app/(tabs)/(settings)/profile.tsx:81
 msgid "Changing your password signs out your other devices."
 msgstr "비밀번호를 변경하면 다른 기기가 로그아웃됩니다."
 
@@ -1473,7 +1496,7 @@ msgstr "차트"
 msgid "Check news events"
 msgstr "주요 뉴스 일정 확인"
 
-#: src/app/new-trade.tsx:69
+#: src/app/new-trade.tsx:70
 msgid "Check the fills"
 msgstr "체결 내용 확인"
 
@@ -1482,12 +1505,12 @@ msgstr "체결 내용 확인"
 msgid "Checking…"
 msgstr "확인 중…"
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:197
+#: src/app/(tabs)/(dashboard)/checklist.tsx:199
 #: src/app/new-note.tsx:74
 #: src/app/new-note.tsx:74
-#: src/app/new-setup.tsx:235
-#: src/components/checklist-card.tsx:147
-#: src/components/checklist-card.tsx:171
+#: src/app/new-setup.tsx:234
+#: src/lib/use-checklist-run.ts:137
+#: src/lib/use-checklist-run.ts:156
 msgid "Checklist"
 msgstr "체크리스트"
 
@@ -1511,11 +1534,11 @@ msgstr "트레이드 목록에 필터 칩으로 표시할 저널 옵션을 선�
 msgid "Classic"
 msgstr "클래식"
 
-#: src/app/(tabs)/(settings)/web-address.tsx:44
+#: src/app/(tabs)/(settings)/web-address.tsx:43
 msgid "Clear"
 msgstr "지우기"
 
-#: src/app/(tabs)/(settings)/web-address.tsx:105
+#: src/app/(tabs)/(settings)/web-address.tsx:93
 msgid "Clear address"
 msgstr "주소 삭제"
 
@@ -1524,23 +1547,23 @@ msgstr "주소 삭제"
 msgid "Clear filters"
 msgstr "필터 지우기"
 
-#: src/app/(tabs)/(settings)/web-address.tsx:41
+#: src/app/(tabs)/(settings)/web-address.tsx:40
 msgid "Clear this address?"
 msgstr "이 주소를 삭제할까요?"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:348
+#: src/app/(tabs)/(settings)/account-form.tsx:350
 msgid "Clear trade history"
 msgstr "거래 기록 지우기"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:193
+#: src/app/(tabs)/(settings)/account-form.tsx:187
 msgid "Clear trade history?"
 msgstr "거래 기록을 지울까요?"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:197
+#: src/app/(tabs)/(settings)/account-form.tsx:191
 msgid "Clear trades"
 msgstr "거래 지우기"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:348
+#: src/app/(tabs)/(settings)/account-form.tsx:350
 msgid "Clearing…"
 msgstr "지우는 중…"
 
@@ -1548,13 +1571,18 @@ msgstr "지우는 중…"
 msgid "Clock"
 msgstr "시계"
 
-#: src/app/replay.tsx:1048
-#: src/components/swipeable-trade-row.tsx:77
+#: src/app/new-token.tsx:80
+#: src/app/replay.tsx:1058
+#: src/app/share-reports-link.tsx:106
+#: src/app/share-trade.tsx:81
+#: src/app/share-wrapped.tsx:91
+#: src/components/swipeable-trade-row.tsx:63
+#: src/components/tool-sheet.tsx:22
 #: src/components/trade-scan-overlay.tsx:402
 msgid "Close"
 msgstr "청산"
 
-#: src/app/replay.tsx:918
+#: src/app/replay.tsx:924
 msgid "Close & save"
 msgstr "청산 후 저장"
 
@@ -1570,7 +1598,8 @@ msgstr "청산일"
 #~ msgid "Close date matches realized P&L; open date groups by entry day."
 #~ msgstr "청산일은 실현 손익과 일치하고, 진입일은 진입한 날짜로 묶습니다."
 
-#: src/app/edit-trade.tsx:124
+#: src/app/edit-trade.tsx:111
+#: src/app/edit-trade.tsx:132
 msgid "Close position"
 msgstr "포지션 청산"
 
@@ -1582,7 +1611,7 @@ msgstr "청산 가격"
 msgid "Close time"
 msgstr "청산 시각"
 
-#: src/app/(tabs)/(trades)/[id].tsx:252
+#: src/app/(tabs)/(trades)/[id].tsx:276
 #: src/app/trade-preview.tsx:157
 #: src/components/replay-controls.tsx:37
 msgid "Closed"
@@ -1604,7 +1633,7 @@ msgstr "시장 시간 기준 진입 시각별 확정 손익입니다. 셀을 탭
 msgid "Coach"
 msgstr "코치"
 
-#: src/app/tag-form.tsx:95
+#: src/app/tag-form.tsx:94
 msgid "Color"
 msgstr "색상"
 
@@ -1638,6 +1667,9 @@ msgid "Confirm market bias"
 msgstr "오늘의 시장 방향 확인"
 
 #: src/app/(tabs)/(settings)/change-password.tsx:136
+#: src/app/(tabs)/(settings)/change-password.tsx:148
+#: src/app/(tabs)/(settings)/reset-password.tsx:100
+#: src/app/(tabs)/(settings)/reset-password.tsx:111
 msgid "Confirm new password"
 msgstr "새 비밀번호 확인"
 
@@ -1645,7 +1677,7 @@ msgstr "새 비밀번호 확인"
 msgid "Confirm trade rules"
 msgstr "매매 규칙 확인"
 
-#: src/app/(tabs)/(settings)/two-factor.tsx:180
+#: src/app/(tabs)/(settings)/two-factor.tsx:190
 msgid "Confirming…"
 msgstr "확인 중…"
 
@@ -1653,7 +1685,7 @@ msgstr "확인 중…"
 msgid "Connect to your TraderMemos server."
 msgstr "내 TraderMemos 서버에 연결합니다."
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:279
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:280
 msgid "Connection"
 msgstr "연결"
 
@@ -1667,7 +1699,7 @@ msgstr "연결"
 #~ msgstr "연결 성공"
 
 #. placeholder {0}: formatLatency(elapsedMs)
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:158
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:159
 msgid "Connection OK · {0}"
 msgstr "연결 정상 · {0}"
 
@@ -1675,7 +1707,7 @@ msgstr "연결 정상 · {0}"
 msgid "Conservative"
 msgstr "보수적"
 
-#: src/app/(tabs)/(settings)/prop-settings.tsx:168
+#: src/app/(tabs)/(settings)/prop-settings.tsx:157
 #: src/components/reports/behavior-section.tsx:50
 msgid "Consistency"
 msgstr "일관성"
@@ -1692,7 +1724,7 @@ msgstr "일관성"
 msgid "consistency ok"
 msgstr "일관성 양호"
 
-#: src/app/(tabs)/(settings)/prop-settings.tsx:89
+#: src/app/(tabs)/(settings)/prop-settings.tsx:84
 msgid "Consistency rule"
 msgstr "일관성 규칙"
 
@@ -1701,8 +1733,8 @@ msgid "consistency rule at risk"
 msgstr "일관성 규칙 위험"
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:297
-#: src/components/trade-form.tsx:381
-#: src/components/trade-form.tsx:384
+#: src/components/trade-form.tsx:356
+#: src/components/trade-form.tsx:359
 msgid "Contract"
 msgstr "계약"
 
@@ -1718,51 +1750,47 @@ msgstr "계약 수"
 #~ msgid "Converts read-only amounts with the latest FX rate. Forms keep the account currency."
 #~ msgstr "표시용 금액을 최신 환율로 환산합니다. 입력 양식은 계좌 통화를 유지합니다."
 
-#: src/app/new-token.tsx:97
+#: src/app/new-token.tsx:98
 msgid "Copied"
 msgstr "복사됨"
 
-#: src/app/share-reports-link.tsx:158
+#: src/app/share-reports-link.tsx:153
 msgid "Copy"
 msgstr "복사"
 
-#: src/app/new-token.tsx:84
+#: src/app/new-token.tsx:85
 msgid "Copy it now — the secret is shown only once and cannot be recovered."
 msgstr "지금 복사하세요 — 시크릿은 한 번만 표시되며 복구할 수 없습니다."
 
-#: src/app/(tabs)/(settings)/two-factor.tsx:154
+#: src/app/(tabs)/(settings)/two-factor.tsx:159
 msgid "Copy setup key"
 msgstr "설정 키 복사"
 
-#: src/app/new-token.tsx:97
+#: src/app/new-token.tsx:98
 msgid "Copy token"
 msgstr "토큰 복사"
 
-#: src/app/(tabs)/(settings)/user-form.tsx:64
-#: src/app/(tabs)/(settings)/user-form.tsx:70
+#: src/app/(tabs)/(settings)/user-form.tsx:68
 msgid "Could not add user"
 msgstr "사용자를 추가할 수 없습니다"
 
-#: src/app/(tabs)/(settings)/change-password.tsx:72
-#: src/app/(tabs)/(settings)/change-password.tsx:78
-#: src/app/(tabs)/(settings)/change-password.tsx:82
-#: src/app/(tabs)/(settings)/change-password.tsx:86
+#: src/app/(tabs)/(settings)/change-password.tsx:70
 msgid "Could not change password"
 msgstr "비밀번호를 변경할 수 없습니다"
 
-#: src/app/(tabs)/(settings)/user-detail.tsx:62
+#: src/app/(tabs)/(settings)/user-detail.tsx:54
 msgid "Could not change role"
 msgstr "역할을 변경할 수 없습니다"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:147
+#: src/app/(tabs)/(settings)/account-form.tsx:141
 msgid "Could not clear trades"
 msgstr "거래를 지우지 못했습니다"
 
-#: src/app/(tabs)/(trades)/[id].tsx:485
+#: src/app/(tabs)/(trades)/[id].tsx:509
 msgid "Could not compute excursion"
 msgstr "익스커전을 계산할 수 없습니다"
 
-#: src/app/share-reports-link.tsx:78
+#: src/app/share-reports-link.tsx:79
 msgid "Could not create link"
 msgstr "링크를 만들지 못했습니다"
 
@@ -1774,32 +1802,32 @@ msgstr "태그를 만들지 못했습니다"
 msgid "Could not create token"
 msgstr "토큰을 만들지 못했습니다"
 
-#: src/app/(tabs)/(settings)/prop-settings.tsx:57
-#: src/app/(tabs)/(trades)/[id].tsx:497
+#: src/app/(tabs)/(settings)/prop-settings.tsx:59
+#: src/app/(tabs)/(trades)/[id].tsx:521
 #: src/app/edit-note.tsx:64
 #: src/app/new-setup.tsx:126
 #: src/components/attachments-card.tsx:54
-#: src/components/swipeable-trade-row.tsx:48
+#: src/components/swipeable-trade-row.tsx:38
 msgid "Could not delete"
 msgstr "삭제하지 못했습니다"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:158
+#: src/app/(tabs)/(settings)/account-form.tsx:152
 msgid "Could not delete account"
 msgstr "계좌를 삭제하지 못했습니다"
 
-#: src/app/(tabs)/(dashboard)/notes.tsx:156
+#: src/app/(tabs)/(dashboard)/notes.tsx:151
 msgid "Could not delete note"
 msgstr "노트를 삭제하지 못했습니다"
 
-#: src/app/(tabs)/(settings)/tags.tsx:80
+#: src/app/(tabs)/(settings)/tags.tsx:92
 msgid "Could not delete tag"
 msgstr "태그를 삭제하지 못했습니다"
 
-#: src/app/(tabs)/(settings)/user-detail.tsx:95
+#: src/app/(tabs)/(settings)/user-detail.tsx:68
 msgid "Could not delete user"
 msgstr "사용자를 삭제할 수 없습니다"
 
-#: src/app/(tabs)/(settings)/two-factor.tsx:64
+#: src/app/(tabs)/(settings)/two-factor.tsx:70
 msgid "Could not enable"
 msgstr "활성화할 수 없습니다"
 
@@ -1811,7 +1839,7 @@ msgstr "설정을 내보내지 못했습니다"
 msgid "Could not fetch the rate — is market data configured?"
 msgstr "환율을 가져올 수 없습니다 — 시장 데이터가 설정되어 있나요?"
 
-#: src/app/new-trade.tsx:72
+#: src/app/new-trade.tsx:73
 msgid "Could not import"
 msgstr "가져오지 못했습니다"
 
@@ -1819,8 +1847,8 @@ msgstr "가져오지 못했습니다"
 msgid "Could not import config"
 msgstr "설정을 가져오지 못했습니다"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:179
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:185
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:180
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:186
 msgid "Could not load models"
 msgstr "모델을 불러오지 못했습니다"
 
@@ -1865,57 +1893,54 @@ msgstr "서버에 연결하지 못했습니다. 연결 상태를 확인한 뒤 �
 msgid "Could not register"
 msgstr "등록하지 못했습니다"
 
-#: src/app/(tabs)/(settings)/flex-sync.tsx:74
+#: src/app/(tabs)/(settings)/flex-sync.tsx:68
 msgid "Could not remove"
 msgstr "제거할 수 없습니다"
 
-#: src/app/(tabs)/(settings)/funding.tsx:125
-#: src/app/cash-form.tsx:119
+#: src/app/(tabs)/(settings)/funding.tsx:147
 msgid "Could not remove transaction"
 msgstr "입출금 내역을 삭제하지 못했습니다"
 
-#: src/app/(tabs)/(settings)/user-detail.tsx:82
-#: src/app/(tabs)/(settings)/user-detail.tsx:108
+#: src/app/(tabs)/(settings)/reset-password.tsx:61
 msgid "Could not reset password"
 msgstr "비밀번호를 재설정할 수 없습니다"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:154
+#: src/app/(tabs)/(settings)/api-tokens.tsx:142
 msgid "Could not revoke token"
 msgstr "토큰을 폐기하지 못했습니다"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:137
-#: src/app/(tabs)/(settings)/account-form.tsx:166
-#: src/app/(tabs)/(settings)/account-form.tsx:170
-#: src/app/(tabs)/(settings)/account-form.tsx:179
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:138
+#: src/app/(tabs)/(settings)/account-form.tsx:131
+#: src/app/(tabs)/(settings)/account-form.tsx:160
+#: src/app/(tabs)/(settings)/account-form.tsx:164
+#: src/app/(tabs)/(settings)/account-form.tsx:173
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:139
 #: src/app/(tabs)/(settings)/alerts.tsx:34
-#: src/app/(tabs)/(settings)/flex-sync.tsx:65
-#: src/app/(tabs)/(settings)/flex-sync.tsx:93
-#: src/app/(tabs)/(settings)/prop-settings.tsx:48
+#: src/app/(tabs)/(settings)/flex-sync.tsx:59
+#: src/app/(tabs)/(settings)/flex-sync.tsx:87
+#: src/app/(tabs)/(settings)/prop-settings.tsx:50
 #: src/app/(tabs)/(settings)/prop-settings.tsx:74
-#: src/app/(tabs)/(settings)/prop-settings.tsx:103
-#: src/app/(tabs)/(settings)/risk-rules.tsx:35
-#: src/app/(tabs)/(settings)/risk-rules.tsx:52
+#: src/app/(tabs)/(settings)/prop-settings.tsx:96
+#: src/app/(tabs)/(settings)/risk-rule-form.tsx:66
+#: src/app/(tabs)/(settings)/risk-rules.tsx:168
 #: src/app/(tabs)/(settings)/trading-journal.tsx:47
 #: src/app/(tabs)/(settings)/trading-journal.tsx:59
 #: src/app/(tabs)/(settings)/trading-journal.tsx:84
-#: src/app/(tabs)/(settings)/web-address.tsx:36
-#: src/app/cash-form.tsx:110
+#: src/app/cash-form.tsx:108
 #: src/app/edit-note.tsx:55
-#: src/app/edit-trade.tsx:87
-#: src/app/edit-trade.tsx:94
+#: src/app/edit-trade.tsx:88
+#: src/app/edit-trade.tsx:95
 #: src/app/new-note.tsx:64
 #: src/app/new-setup.tsx:117
 #: src/app/new-setup.tsx:143
 #: src/app/quick-journal.tsx:84
 #: src/app/replay.tsx:395
-#: src/app/replay.tsx:768
-#: src/components/checklist-card.tsx:107
+#: src/app/replay.tsx:774
 #: src/lib/save-trades.ts:71
+#: src/lib/use-checklist-run.ts:98
 msgid "Could not save"
 msgstr "저장하지 못했습니다"
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:98
+#: src/app/(tabs)/(dashboard)/checklist.tsx:100
 msgid "Could not save checklist"
 msgstr "체크리스트를 저장하지 못했습니다"
 
@@ -1937,11 +1962,11 @@ msgstr "샘플을 저장할 수 없습니다"
 msgid "Could not share"
 msgstr "공유할 수 없습니다"
 
-#: src/app/(tabs)/(settings)/two-factor.tsx:43
+#: src/app/(tabs)/(settings)/two-factor.tsx:49
 msgid "Could not start setup"
 msgstr "설정을 시작할 수 없습니다"
 
-#: src/app/(tabs)/(settings)/two-factor.tsx:83
+#: src/app/(tabs)/(settings)/two-factor.tsx:89
 msgid "Could not turn off"
 msgstr "끌 수 없습니다"
 
@@ -1962,7 +1987,7 @@ msgstr "미리 알림을 추가하지 못했습니다"
 #~ msgid "Couldn't load this trade"
 #~ msgstr "이 거래를 불러오지 못했습니다"
 
-#: src/app/(tabs)/(trades)/[id].tsx:350
+#: src/app/(tabs)/(trades)/[id].tsx:374
 msgid "Couldn't reach the server. The figures above are from your last sync."
 msgstr "서버에 연결하지 못했습니다. 위 수치는 마지막 동기화 기준입니다."
 
@@ -1978,7 +2003,7 @@ msgstr "서버에 연결하지 못했습니다. 위 수치는 마지막 동기�
 msgid "Create an account first."
 msgstr "먼저 계좌를 만드세요."
 
-#: src/app/share-reports-link.tsx:190
+#: src/app/share-reports-link.tsx:185
 msgid "Create link"
 msgstr "링크 만들기"
 
@@ -1997,8 +2022,8 @@ msgstr "링크 만들기"
 
 #: src/app/(tabs)/(dashboard)/backtest.tsx:85
 #: src/app/(tabs)/(trades)/index.tsx:288
-#: src/components/symbol-journal.tsx:309
-#: src/components/trade-form.tsx:306
+#: src/components/symbol-journal.tsx:305
+#: src/components/trade-form.tsx:281
 msgid "Crypto"
 msgstr "암호화폐"
 
@@ -2031,12 +2056,12 @@ msgstr "통화"
 msgid "Currency converter"
 msgstr "환율 변환기"
 
-#: src/components/reports/risk-section.tsx:94
+#: src/components/reports/risk-section.tsx:110
 msgid "Current drawdown"
 msgstr "현재 드로다운"
 
-#: src/app/(tabs)/(settings)/change-password.tsx:107
-#: src/app/(tabs)/(settings)/change-password.tsx:112
+#: src/app/(tabs)/(settings)/change-password.tsx:108
+#: src/app/(tabs)/(settings)/change-password.tsx:114
 msgid "Current password"
 msgstr "현재 비밀번호"
 
@@ -2046,11 +2071,11 @@ msgstr "현재 비밀번호"
 msgid "Custom"
 msgstr "사용자 지정"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:254
+#: src/app/(tabs)/(settings)/account-form.tsx:249
 msgid "Custom broker"
 msgstr "사용자 지정 브로커"
 
-#: src/app/tag-form.tsx:126
+#: src/app/tag-form.tsx:125
 msgid "Custom color"
 msgstr "사용자 지정 색상"
 
@@ -2063,22 +2088,26 @@ msgid "Cycles to the next speed"
 msgstr "다음 속도로 전환합니다"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:97
-#: src/components/checklist-card.tsx:178
+#: src/app/(tabs)/(settings)/_layout.tsx:82
+#: src/app/(tabs)/(settings)/index.tsx:220
+#: src/app/(tabs)/(settings)/trading-journal.tsx:123
+#: src/components/checklist-card.tsx:36
+#: src/components/checklist-card.tsx:45
 #: src/components/tools-menu.tsx:69
 msgid "Daily checklist"
 msgstr "데일리 체크리스트"
 
 #: src/app/(tabs)/(calendar)/day/[date].tsx:204
 #: src/app/(tabs)/(calendar)/day/[date].tsx:382
-#: src/app/(tabs)/(dashboard)/notes.tsx:96
-#: src/app/(tabs)/(dashboard)/notes.tsx:160
+#: src/app/(tabs)/(dashboard)/notes.tsx:91
+#: src/app/(tabs)/(dashboard)/notes.tsx:155
 #: src/components/note-form.tsx:84
 #: src/components/note-form.tsx:233
 #: src/lib/outbox.ts:448
 msgid "Daily log"
 msgstr "일일 로그"
 
-#: src/components/reports/risk-section.tsx:198
+#: src/components/reports/risk-section.tsx:203
 msgid "daily loss"
 msgstr "일일 손실"
 
@@ -2096,8 +2125,8 @@ msgid "Daily loss budget used"
 msgstr "일일 손실 예산 사용률"
 
 #: src/app/(tabs)/(settings)/alerts.tsx:112
-#: src/app/(tabs)/(settings)/prop-settings.tsx:161
-#: src/app/(tabs)/(settings)/prop-settings.tsx:164
+#: src/app/(tabs)/(settings)/prop-settings.tsx:150
+#: src/app/(tabs)/(settings)/prop-settings.tsx:153
 #: src/components/daily-loss-card.tsx:37
 msgid "Daily loss limit"
 msgstr "일일 손실 한도"
@@ -2110,7 +2139,7 @@ msgstr "일일 손실 한도"
 #~ msgid "dark"
 #~ msgstr ""
 
-#: src/app/(tabs)/(settings)/index.tsx:438
+#: src/app/(tabs)/(settings)/index.tsx:441
 msgid "Dark"
 msgstr "다크"
 
@@ -2118,15 +2147,15 @@ msgstr "다크"
 #~ msgid "Data"
 #~ msgstr "데이터"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:92
+#: src/app/(tabs)/(settings)/_layout.tsx:110
 #: src/app/(tabs)/(settings)/general.tsx:39
-#: src/app/(tabs)/(settings)/index.tsx:270
+#: src/app/(tabs)/(settings)/index.tsx:275
 msgid "Data & backup"
 msgstr "데이터 및 백업"
 
 #: src/app/(tabs)/(trades)/index.tsx:377
-#: src/app/cash-form.tsx:214
-#: src/components/trade-form.tsx:620
+#: src/app/cash-form.tsx:192
+#: src/components/trade-form.tsx:595
 msgid "Date"
 msgstr "날짜"
 
@@ -2144,11 +2173,11 @@ msgstr "요일"
 msgid "Day of week"
 msgstr "요일"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:297
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:298
 msgid "Default"
 msgstr "기본값"
 
-#: src/lib/risk-rules.ts:51
+#: src/lib/risk-rules.ts:67
 msgid "Default account risk %"
 msgstr "기본 계좌 리스크 %"
 
@@ -2164,28 +2193,28 @@ msgstr "기본 모델"
 msgid "Define the profit target, drawdown, and daily-loss rules to track this evaluation."
 msgstr "이익 목표, 드로다운, 일일 손실 규칙을 정의하면 이 평가를 추적할 수 있습니다."
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:214
-#: src/app/(tabs)/(dashboard)/notes.tsx:85
-#: src/app/(tabs)/(dashboard)/notes.tsx:163
-#: src/app/(tabs)/(settings)/account-form.tsx:208
-#: src/app/(tabs)/(settings)/tags.tsx:32
-#: src/app/(tabs)/(settings)/tags.tsx:86
-#: src/app/(tabs)/(settings)/user-detail.tsx:125
+#: src/app/(tabs)/(dashboard)/checklist.tsx:216
+#: src/app/(tabs)/(dashboard)/notes.tsx:83
+#: src/app/(tabs)/(dashboard)/notes.tsx:158
+#: src/app/(tabs)/(settings)/account-form.tsx:202
+#: src/app/(tabs)/(settings)/tags.tsx:39
+#: src/app/(tabs)/(settings)/tags.tsx:98
+#: src/app/(tabs)/(settings)/user-detail.tsx:81
 #: src/app/edit-note.tsx:80
 #: src/app/new-setup.tsx:160
 msgid "Delete"
 msgstr "삭제"
 
 #. placeholder {0}: user?.email ?? ''
-#: src/app/(tabs)/(settings)/user-detail.tsx:121
+#: src/app/(tabs)/(settings)/user-detail.tsx:77
 msgid "Delete {0}?"
 msgstr "{0} 님을 삭제할까요?"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:355
+#: src/app/(tabs)/(settings)/account-form.tsx:358
 msgid "Delete account"
 msgstr "계좌 삭제"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:204
+#: src/app/(tabs)/(settings)/account-form.tsx:198
 msgid "Delete account?"
 msgstr "계좌를 삭제할까요?"
 
@@ -2193,12 +2222,12 @@ msgstr "계좌를 삭제할까요?"
 msgid "Delete note"
 msgstr "노트 삭제"
 
-#: src/app/(tabs)/(dashboard)/notes.tsx:161
+#: src/app/(tabs)/(dashboard)/notes.tsx:156
 #: src/app/edit-note.tsx:78
 msgid "Delete note?"
 msgstr "노트를 삭제할까요?"
 
-#: src/app/new-setup.tsx:293
+#: src/app/new-setup.tsx:292
 msgid "Delete setup"
 msgstr "셋업 삭제"
 
@@ -2206,16 +2235,16 @@ msgstr "셋업 삭제"
 msgid "Delete setup?"
 msgstr "셋업을 삭제할까요?"
 
-#: src/app/(tabs)/(settings)/tags.tsx:84
+#: src/app/(tabs)/(settings)/tags.tsx:96
 msgid "Delete tag?"
 msgstr "태그를 삭제할까요?"
 
-#: src/app/(tabs)/(settings)/user-detail.tsx:189
+#: src/app/(tabs)/(settings)/user-detail.tsx:144
 msgid "Delete user"
 msgstr "사용자 삭제"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:355
-#: src/app/new-setup.tsx:293
+#: src/app/(tabs)/(settings)/account-form.tsx:358
+#: src/app/new-setup.tsx:292
 msgid "Deleting…"
 msgstr "삭제 중…"
 
@@ -2223,26 +2252,34 @@ msgstr "삭제 중…"
 msgid "Deposit"
 msgstr "입금"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:298
+#: src/app/(tabs)/(settings)/account-form.tsx:297
 msgid "Deposited"
 msgstr "입금액"
 
-#: src/app/(tabs)/(settings)/index.tsx:197
-#: src/app/(tabs)/(settings)/index.tsx:418
+#: src/app/(tabs)/(settings)/index.tsx:196
+#: src/app/(tabs)/(settings)/index.tsx:421
 msgid "Deposits & withdrawals"
 msgstr "입출금"
 
-#: src/app/cash-form.tsx:163
+#: src/app/cash-form.tsx:145
 msgid "Deposits, withdrawals, and fees drive the equity curve alongside trade P&L."
 msgstr "입출금과 수수료는 거래 손익과 함께 자산 곡선에 반영됩니다."
+
+#: src/app/(tabs)/(settings)/funding.tsx:201
+#~ msgid "Deposits, withdrawals, and fees drive the equity curve alongside trade P&L. Swipe a row to edit or remove it."
+#~ msgstr "입출금과 수수료는 거래 손익과 함께 자산 곡선에 반영됩니다. 행을 밀면 수정하거나 삭제할 수 있습니다."
 
 #: src/app/(tabs)/(settings)/funding.tsx:182
 #~ msgid "Deposits, withdrawals, and fees drive the equity curve alongside trade P&L. Swipe a row to remove."
 #~ msgstr "입출금과 수수료는 거래 손익과 함께 자산 곡선에 반영됩니다. 행을 밀면 삭제할 수 있습니다."
 
-#: src/app/(tabs)/(settings)/funding.tsx:196
-msgid "Deposits, withdrawals, and fees drive the equity curve alongside trade P&L. Tap a row to edit it, swipe to remove."
-msgstr "입출금과 수수료는 거래 손익과 함께 자산 곡선에 반영됩니다. 행을 누르면 수정하고, 밀면 삭제할 수 있습니다."
+#: src/app/(tabs)/(settings)/funding.tsx:221
+msgid "Deposits, withdrawals, and fees drive the equity curve alongside trade P&L. Tap a row to edit it, or swipe to remove."
+msgstr "입금·출금·수수료는 매매 손익과 함께 자산 곡선을 만듭니다. 행을 탭하면 수정하고, 스와이프하면 삭제할 수 있습니다."
+
+#: src/app/(tabs)/(settings)/funding.tsx:191
+#~ msgid "Deposits, withdrawals, and fees drive the equity curve alongside trade P&L. Tap a row to edit it, swipe to remove."
+#~ msgstr "입출금과 수수료는 거래 손익과 함께 자산 곡선에 반영됩니다. 행을 누르면 수정하고, 밀면 삭제할 수 있습니다."
 
 #: src/app/(tabs)/(settings)/index.tsx:194
 #~ msgid "Deposits, withdrawals, and fees feed the equity curve."
@@ -2256,8 +2293,7 @@ msgstr "입출금과 수수료는 거래 손익과 함께 자산 곡선에 반�
 msgid "Detailed"
 msgstr "상세"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:233
-#: src/app/(tabs)/(trades)/[id].tsx:347
+#: src/app/(tabs)/(trades)/[id].tsx:371
 msgid "Details"
 msgstr "세부 정보"
 
@@ -2271,16 +2307,16 @@ msgstr "개발자"
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:324
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:602
-#: src/components/trade-form.tsx:373
+#: src/components/trade-form.tsx:348
 msgid "Direction"
 msgstr "방향"
 
-#: src/app/replay.tsx:863
-#: src/app/replay.tsx:925
+#: src/app/replay.tsx:869
+#: src/app/replay.tsx:931
 msgid "Discard"
 msgstr "버리기"
 
-#: src/app/replay.tsx:861
+#: src/app/replay.tsx:867
 msgid "Discard session?"
 msgstr "이 세션을 버릴까요?"
 
@@ -2297,9 +2333,9 @@ msgstr "규율"
 #~ msgid "Disconnect?"
 #~ msgstr "연결을 해제할까요?"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:73
+#: src/app/(tabs)/(settings)/_layout.tsx:91
 #: src/app/(tabs)/(settings)/general.tsx:23
-#: src/app/(tabs)/(settings)/index.tsx:258
+#: src/app/(tabs)/(settings)/index.tsx:263
 msgid "Display"
 msgstr "표시"
 
@@ -2316,7 +2352,7 @@ msgstr "표시 통화"
 msgid "Display timezone"
 msgstr "표시 시간대"
 
-#: src/components/reports/risk-section.tsx:121
+#: src/components/reports/risk-section.tsx:137
 msgid "Distance below the running equity peak."
 msgstr "자산 곡선의 최근 고점 대비 하락 폭입니다."
 
@@ -2324,12 +2360,12 @@ msgstr "자산 곡선의 최근 고점 대비 하락 폭입니다."
 #~ msgid "Distance from the running equity peak, as a percentage."
 #~ msgstr "자산 곡선 고점 대비 하락률입니다."
 
-#: src/components/trade-form.tsx:610
+#: src/components/trade-form.tsx:585
 #: src/lib/cash.ts:14
 msgid "Dividend"
 msgstr "배당"
 
-#: src/app/(tabs)/(trades)/[id].tsx:222
+#: src/app/(tabs)/(trades)/[id].tsx:244
 msgid "Dividends"
 msgstr "배당금"
 
@@ -2341,17 +2377,12 @@ msgstr "청산 이유를 기록하세요 — 스톱 도달, 가설 붕괴, 감�
 msgid "Dollars"
 msgstr "금액"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:194
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:217
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:233
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:195
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:218
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:234
 #: src/app/(tabs)/(settings)/import-trades.tsx:289
 #: src/app/manage-tags.tsx:68
-#: src/app/new-token.tsx:79
-#: src/app/share-reports-link.tsx:110
-#: src/app/share-trade.tsx:87
-#: src/app/share-wrapped.tsx:97
 #: src/components/time-picker.tsx:100
-#: src/components/tool-sheet.tsx:16
 msgid "Done"
 msgstr "완료"
 
@@ -2359,11 +2390,11 @@ msgstr "완료"
 msgid "Download & share"
 msgstr "다운로드 및 공유"
 
-#: src/app/(tabs)/(settings)/index.tsx:283
+#: src/app/(tabs)/(settings)/index.tsx:288
 msgid "download backup csv json zip share"
 msgstr "다운로드 백업 CSV JSON ZIP 공유 내보내기"
 
-#: src/components/reports/risk-section.tsx:78
+#: src/components/reports/risk-section.tsx:94
 msgid "Drawdown"
 msgstr "드로다운"
 
@@ -2375,15 +2406,15 @@ msgstr "드로다운 ({drawdownModeLabel})"
 msgid "drawdown floor hit"
 msgstr "드로다운 하한 도달"
 
-#: src/app/(tabs)/(settings)/prop-settings.tsx:148
+#: src/app/(tabs)/(settings)/prop-settings.tsx:137
 msgid "Drawdown model"
 msgstr "드로다운 방식"
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:283
+#: src/app/(tabs)/(dashboard)/checklist.tsx:285
 msgid "Due at"
 msgstr "알림 시각"
 
-#: src/components/trade-form.tsx:206
+#: src/components/trade-form.tsx:187
 msgid "Duplicate fill"
 msgstr "체결 복제"
 
@@ -2391,11 +2422,11 @@ msgstr "체결 복제"
 msgid "Duration"
 msgstr "보유 기간"
 
-#: src/app/(tabs)/(settings)/user-form.tsx:97
+#: src/app/(tabs)/(settings)/user-form.tsx:98
 msgid "e.g. alex"
 msgstr "예: alex"
 
-#: src/app/new-token.tsx:132
+#: src/app/new-token.tsx:133
 msgid "e.g. CLI import"
 msgstr "예: CLI 가져오기"
 
@@ -2403,11 +2434,11 @@ msgstr "예: CLI 가져오기"
 msgid "e.g. FOMO"
 msgstr "예: FOMO"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:236
+#: src/app/(tabs)/(settings)/account-form.tsx:229
 msgid "e.g. Main Account"
 msgstr "예: 주 계좌"
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:271
+#: src/app/(tabs)/(dashboard)/checklist.tsx:273
 msgid "Each item becomes a reminder in your TraderMemos list. Completing one there ticks it here, and ticking it here completes it there."
 msgstr "각 항목이 TraderMemos 목록의 미리 알림이 됩니다. 미리 알림에서 완료하면 여기에도 표시되고, 여기서 체크하면 그쪽도 완료됩니다."
 
@@ -2419,7 +2450,7 @@ msgstr "각 점은 최근 {windowSize}건의 청산 거래 승률입니다."
 msgid "Earlier periods are rolled into Prior."
 msgstr "그 이전 기간은 \"이전\"으로 합산됩니다."
 
-#: src/app/(tabs)/(dashboard)/_layout.tsx:111
+#: src/app/(tabs)/(dashboard)/_layout.tsx:115
 #: src/app/(tabs)/(dashboard)/economic-events.tsx:767
 #: src/components/tools-menu.tsx:56
 msgid "Economic calendar"
@@ -2429,13 +2460,21 @@ msgstr "경제 캘린더"
 msgid "Edge"
 msgstr "엣지"
 
-#: src/app/(tabs)/(settings)/risk-rules.tsx:79
-#: src/components/checklist-card.tsx:180
-#: src/components/swipeable-trade-row.tsx:97
+#: src/app/(tabs)/(settings)/funding.tsx:54
+#: src/app/(tabs)/(settings)/risk-rules.tsx:108
+#: src/app/(tabs)/(settings)/tags.tsx:31
+#: src/components/checklist-card.tsx:38
+#: src/components/swipeable-trade-row.tsx:81
 msgid "Edit"
 msgstr "수정"
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:136
+#: src/app/(tabs)/(dashboard)/_layout.tsx:101
+#: src/app/(tabs)/(dashboard)/daily-checklist.tsx:35
+#: src/app/(tabs)/(settings)/_layout.tsx:86
+msgid "Edit checklist"
+msgstr "체크리스트 편집"
+
+#: src/app/(tabs)/(dashboard)/checklist.tsx:138
 msgid "Edit item"
 msgstr "항목 편집"
 
@@ -2453,12 +2492,13 @@ msgstr "셋업 편집"
 msgid "Edit tag"
 msgstr "태그 편집"
 
-#: src/app/(tabs)/(trades)/[id].tsx:564
-#: src/app/edit-trade.tsx:124
+#: src/app/(tabs)/(trades)/[id].tsx:588
+#: src/app/edit-trade.tsx:111
+#: src/app/edit-trade.tsx:132
 msgid "Edit trade"
 msgstr "트레이드 수정"
 
-#: src/app/cash-form.tsx:155
+#: src/app/cash-form.tsx:137
 msgid "Edit transaction"
 msgstr "거래 편집"
 
@@ -2466,9 +2506,9 @@ msgstr "거래 편집"
 #~ msgid "Email"
 #~ msgstr "이메일"
 
-#: src/app/(tabs)/(trades)/[id].tsx:697
+#: src/app/(tabs)/(trades)/[id].tsx:721
 #: src/app/manage-tags.tsx:116
-#: src/components/trade-form.tsx:528
+#: src/components/trade-form.tsx:503
 msgid "Emotion"
 msgstr "감정"
 
@@ -2476,7 +2516,7 @@ msgstr "감정"
 msgid "Enable alerts"
 msgstr "알림 켜기"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:269
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:270
 msgid "Enabled"
 msgstr "사용"
 
@@ -2492,7 +2532,7 @@ msgstr "잠금 화면 세션 종료"
 msgid "Enter a number of 1 or more."
 msgstr "1 이상의 숫자를 입력하세요."
 
-#: src/app/(tabs)/(settings)/prop-settings.tsx:103
+#: src/app/(tabs)/(settings)/prop-settings.tsx:96
 msgid "Enter a percent between 1 and 100."
 msgstr "1에서 100 사이의 퍼센트를 입력하세요."
 
@@ -2500,7 +2540,7 @@ msgstr "1에서 100 사이의 퍼센트를 입력하세요."
 #~ msgid "Enter a setup name."
 #~ msgstr "셋업 이름을 입력하세요."
 
-#: src/app/new-trade.tsx:113
+#: src/app/new-trade.tsx:114
 msgid "Enter a symbol for {label}."
 msgstr "{label}의 종목을 입력하세요."
 
@@ -2517,7 +2557,7 @@ msgstr "{label}의 종목을 입력하세요."
 msgid "Enter a valid amount."
 msgstr "유효한 금액을 입력하세요."
 
-#: src/lib/risk-rules.ts:104
+#: src/lib/risk-rules.ts:122
 msgid "Enter a valid number."
 msgstr "유효한 숫자를 입력하세요."
 
@@ -2529,23 +2569,23 @@ msgstr "유효한 숫자를 입력하세요."
 #~ msgid "Enter a valid quantity."
 #~ msgstr "유효한 수량을 입력하세요."
 
-#: src/app/(tabs)/(settings)/account-form.tsx:179
+#: src/app/(tabs)/(settings)/account-form.tsx:173
 msgid "Enter a valid starting balance."
 msgstr "유효한 시작 잔고를 입력하세요."
 
-#: src/lib/risk-rules.ts:102
+#: src/lib/risk-rules.ts:120
 msgid "Enter a value."
 msgstr "값을 입력하세요."
 
-#: src/app/(tabs)/(settings)/web-address.tsx:36
+#: src/app/(tabs)/(settings)/web-address.tsx:35
 msgid "Enter a web address like https://tm.example.com."
 msgstr "https://tm.example.com 형식의 주소를 입력하세요."
 
-#: src/lib/risk-rules.ts:107
+#: src/lib/risk-rules.ts:125
 msgid "Enter a whole number of trades."
 msgstr "거래 수는 정수로 입력하세요."
 
-#: src/app/(tabs)/(settings)/flex-sync.tsx:93
+#: src/app/(tabs)/(settings)/flex-sync.tsx:87
 msgid "Enter the Flex Query ID."
 msgstr "Flex Query ID를 입력하세요."
 
@@ -2553,7 +2593,7 @@ msgstr "Flex Query ID를 입력하세요."
 msgid "Enter valid prices."
 msgstr "유효한 가격을 입력하세요."
 
-#: src/app/login.tsx:316
+#: src/app/login.tsx:318
 msgid "Enter your password"
 msgstr "비밀번호 입력"
 
@@ -2565,7 +2605,7 @@ msgstr "TraderMemos 서버 주소를 입력하세요"
 #~ msgid "Enter your TraderMemos server URL"
 #~ msgstr "TraderMemos 서버 URL을 입력하세요"
 
-#: src/app/login.tsx:297
+#: src/app/login.tsx:299
 msgid "Enter your username"
 msgstr "사용자 이름 입력"
 
@@ -2573,7 +2613,7 @@ msgstr "사용자 이름 입력"
 msgid "Enter your username and password"
 msgstr "사용자 이름과 비밀번호를 입력하세요"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:246
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:247
 msgid "Entered — not saved yet"
 msgstr "입력됨 — 아직 저장 안 됨"
 
@@ -2612,9 +2652,9 @@ msgstr "진입 프리미엄"
 msgid "Entry price"
 msgstr "진입 가격"
 
-#: src/app/(tabs)/(trades)/[id].tsx:711
+#: src/app/(tabs)/(trades)/[id].tsx:735
 #: src/app/quick-journal.tsx:96
-#: src/components/trade-form.tsx:563
+#: src/components/trade-form.tsx:538
 msgid "Entry reason"
 msgstr "진입 이유"
 
@@ -2622,11 +2662,11 @@ msgstr "진입 이유"
 msgid "EOD trailing"
 msgstr "종가 트레일링"
 
-#: src/app/(tabs)/(settings)/prop-settings.tsx:155
+#: src/app/(tabs)/(settings)/prop-settings.tsx:144
 msgid "EOD trailing — ratchets at day close"
 msgstr "종가 트레일링 — 일마감 기준 상향"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:301
+#: src/app/(tabs)/(settings)/account-form.tsx:300
 #: src/app/tool-position-size.tsx:55
 #: src/components/prop-status-card.tsx:196
 msgid "Equity"
@@ -2661,11 +2701,11 @@ msgstr "모든 항목은 폼에서 수정할 수 있습니다 — 저장 전에 
 #~ msgid "Every screen in the app is served by this instance. Tap Server to point the app at a different one — that signs you out."
 #~ msgstr "앱의 모든 화면은 이 인스턴스에서 제공됩니다. 서버를 탭하면 다른 인스턴스로 연결할 수 있으며, 이때 로그아웃됩니다."
 
-#: src/app/(tabs)/(settings)/index.tsx:351
+#: src/app/(tabs)/(settings)/index.tsx:356
 msgid "Every screen is served by this instance. Switching servers signs you out."
 msgstr "모든 화면은 이 인스턴스에서 제공됩니다. 서버를 전환하면 로그아웃됩니다."
 
-#: src/app/new-setup.tsx:282
+#: src/app/new-setup.tsx:281
 msgid "Everything that has to be true before you take the play."
 msgstr "이 플레이를 잡기 전에 충족돼야 하는 조건입니다."
 
@@ -2678,7 +2718,7 @@ msgid "Exec {grade}"
 msgstr "실행 {grade}"
 
 #: src/app/(tabs)/(settings)/import-trades.tsx:47
-#: src/components/trade-form.tsx:152
+#: src/components/trade-form.tsx:142
 msgid "Executed at"
 msgstr "체결 시각"
 
@@ -2687,15 +2727,15 @@ msgstr "체결 시각"
 msgid "Execution grade"
 msgstr "실행 등급"
 
-#: src/app/(tabs)/(trades)/[id].tsx:708
+#: src/app/(tabs)/(trades)/[id].tsx:732
 #: src/app/manage-tags.tsx:139
-#: src/app/quick-journal.tsx:109
-#: src/components/trade-form.tsx:573
-#: src/components/trade-form.tsx:575
+#: src/app/quick-journal.tsx:108
+#: src/components/trade-form.tsx:548
+#: src/components/trade-form.tsx:550
 msgid "Execution rating"
 msgstr "실행 평가"
 
-#: src/app/(tabs)/(trades)/[id].tsx:759
+#: src/app/(tabs)/(trades)/[id].tsx:783
 msgid "Executions"
 msgstr "체결 내역"
 
@@ -2707,8 +2747,8 @@ msgstr "청산으로 약 {r}R 하락 회피"
 msgid "Exit ladder"
 msgstr "청산 래더"
 
-#: src/app/(tabs)/(trades)/[id].tsx:712
-#: src/components/trade-form.tsx:595
+#: src/app/(tabs)/(trades)/[id].tsx:736
+#: src/components/trade-form.tsx:570
 msgid "Exit reason"
 msgstr "청산 이유"
 
@@ -2739,16 +2779,16 @@ msgstr "기대값"
 msgid "Expectancy"
 msgstr "기대값"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:47
+#: src/app/(tabs)/(settings)/api-tokens.tsx:38
 msgid "Expired"
 msgstr "만료됨"
 
-#: src/app/share-reports-link.tsx:131
+#: src/app/share-reports-link.tsx:126
 msgid "Expires"
 msgstr "만료"
 
 #. placeholder {0}: formatDate(token.expires_at)
-#: src/app/(tabs)/(settings)/api-tokens.tsx:48
+#: src/app/(tabs)/(settings)/api-tokens.tsx:39
 msgid "Expires {0}"
 msgstr "만료 {0}"
 
@@ -2761,7 +2801,7 @@ msgstr "만료 {0}"
 #~ msgstr "만료 {expires} · 마지막 사용 {lastUsed}"
 
 #: src/app/new-token.tsx:139
-#: src/components/trade-form.tsx:402
+#: src/components/trade-form.tsx:377
 msgid "Expiry"
 msgstr "만기일"
 
@@ -2777,9 +2817,9 @@ msgstr "앱 설정 내보내기"
 #~ msgid "Export config"
 #~ msgstr "설정 내보내기"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:102
+#: src/app/(tabs)/(settings)/_layout.tsx:120
 #: src/app/(tabs)/(settings)/data-backup.tsx:76
-#: src/app/(tabs)/(settings)/index.tsx:282
+#: src/app/(tabs)/(settings)/index.tsx:287
 msgid "Export data"
 msgstr "데이터 내보내기"
 
@@ -2792,11 +2832,11 @@ msgstr "내보내기 실패"
 msgid "export.json plus trade screenshots under attachments/."
 msgstr "export.json과 attachments/ 폴더의 매매 스크린샷을 포함합니다."
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:42
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:43
 msgid "Extra instructions for reading screenshots — broker quirks, date formats."
 msgstr "스크린샷 판독을 위한 추가 지침 — 브로커별 특이사항, 날짜 형식 등."
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:37
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:38
 msgid "Extra instructions for the review — tone, what to focus on, what to ignore."
 msgstr "리뷰를 위한 추가 지침 — 어조, 집중할 점, 무시할 점."
 
@@ -2834,11 +2874,11 @@ msgstr "수수료"
 
 #: src/app/(tabs)/(calendar)/day/[date].tsx:345
 #: src/app/(tabs)/(settings)/import-trades.tsx:50
-#: src/app/(tabs)/(trades)/[id].tsx:219
+#: src/app/(tabs)/(trades)/[id].tsx:241
 #: src/app/trade-preview.tsx:154
 #: src/components/performance-card.tsx:75
 #: src/components/reports/overview-section.tsx:208
-#: src/components/trade-form.tsx:178
+#: src/components/trade-form.tsx:168
 msgid "Fees"
 msgstr "수수료"
 
@@ -2860,7 +2900,7 @@ msgstr "지불 수수료"
 msgid "Fees took a large bite of gross P&L"
 msgstr "수수료가 총손익을 크게 깎았습니다"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:325
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:326
 msgid "Fetch models"
 msgstr "모델 가져오기"
 
@@ -2875,7 +2915,7 @@ msgid "File"
 msgstr "파일"
 
 #. placeholder {0}: index + 1
-#: src/components/trade-form.tsx:133
+#: src/components/trade-form.tsx:123
 msgid "Fill {0}"
 msgstr "체결 {0}"
 
@@ -2900,7 +2940,7 @@ msgstr "체결가가 차트와 일치하지 않습니다 — 재생 중 손익�
 #~ msgstr "체결 가격이 차트와 일치하지 않습니다 — 청산 전까지 리플레이 손익은 근사치입니다."
 
 #: src/app/(tabs)/(settings)/import-trades.tsx:336
-#: src/components/trade-form.tsx:439
+#: src/components/trade-form.tsx:414
 msgid "Fills"
 msgstr "체결"
 
@@ -2960,8 +3000,8 @@ msgstr "예상"
 
 #: src/app/(tabs)/(dashboard)/backtest.tsx:86
 #: src/app/(tabs)/(trades)/index.tsx:290
-#: src/components/symbol-journal.tsx:310
-#: src/components/trade-form.tsx:308
+#: src/components/symbol-journal.tsx:306
+#: src/components/trade-form.tsx:283
 msgid "Forex"
 msgstr "외환"
 
@@ -3022,7 +3062,7 @@ msgstr "변환 전"
 msgid "From file"
 msgstr "파일에서"
 
-#: src/app/(tabs)/(settings)/flex-sync.tsx:117
+#: src/app/(tabs)/(settings)/flex-sync.tsx:126
 msgid "From IBKR Client Portal: Performance & Reports → Flex Queries. The token is stored server-side only."
 msgstr "IBKR 클라이언트 포털: Performance & Reports → Flex Queries. 토큰은 서버에만 저장됩니다."
 
@@ -3043,14 +3083,13 @@ msgid "Full Kelly"
 msgstr "풀 켈리"
 
 #: src/app/(tabs)/(settings)/_layout.tsx:37
-#: src/app/(tabs)/(settings)/account-form.tsx:266
 msgid "Funding"
 msgstr "자금"
 
 #: src/app/(tabs)/(dashboard)/backtest.tsx:87
 #: src/app/(tabs)/(trades)/index.tsx:289
-#: src/components/symbol-journal.tsx:311
-#: src/components/trade-form.tsx:307
+#: src/components/symbol-journal.tsx:307
+#: src/components/trade-form.tsx:282
 msgid "Futures"
 msgstr "선물"
 
@@ -3070,8 +3109,8 @@ msgstr "갭 상단"
 msgid "Gap top must sit above the bottom — check the edges"
 msgstr "갭 상단은 하단보다 위여야 합니다 — 값을 확인하세요"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:68
-#: src/app/(tabs)/(settings)/index.tsx:453
+#: src/app/(tabs)/(settings)/_layout.tsx:76
+#: src/app/(tabs)/(settings)/index.tsx:456
 msgid "General"
 msgstr "일반"
 
@@ -3136,7 +3175,7 @@ msgstr "총손익"
 msgid "Gross (before fees)"
 msgstr "총액 (수수료 전)"
 
-#: src/app/(tabs)/(trades)/[id].tsx:215
+#: src/app/(tabs)/(trades)/[id].tsx:235
 msgid "Gross P&L"
 msgstr "총손익"
 
@@ -3156,7 +3195,7 @@ msgstr "보장 하한"
 msgid "Half Kelly"
 msgstr "하프 켈리"
 
-#: src/app/(tabs)/(settings)/user-form.tsx:93
+#: src/app/(tabs)/(settings)/user-form.tsx:114
 msgid "Hand the password over out of band — they can change it from their own account screen."
 msgstr "비밀번호는 다른 경로로 전달하세요. 본인이 계정 화면에서 변경할 수 있습니다."
 
@@ -3177,7 +3216,7 @@ msgstr "금액 숨기기"
 #~ msgid "hide amounts market timezone clock currency"
 #~ msgstr "금액 숨기기 시장 시간대 시계 통화"
 
-#: src/components/password-input.tsx:37
+#: src/components/password-input.tsx:40
 msgid "Hide password"
 msgstr "비밀번호 숨기기"
 
@@ -3206,9 +3245,9 @@ msgstr "휴일"
 msgid "Home"
 msgstr "홈"
 
-#: src/app/(tabs)/(settings)/profile.tsx:75
-msgid "Host"
-msgstr "호스트"
+#: src/app/(tabs)/(settings)/profile.tsx:76
+#~ msgid "Host"
+#~ msgstr "호스트"
 
 #: src/components/time-picker.tsx:45
 msgid "Hour"
@@ -3226,13 +3265,13 @@ msgstr "세션은 어땠나요? \"- [ ]\"로 체크 항목을 만들 수 있습�
 msgid "How to set one up"
 msgstr "서버 구축 방법"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:81
-#: src/app/(tabs)/(settings)/account-form.tsx:333
-#: src/app/(tabs)/(settings)/flex-sync.tsx:116
+#: src/app/(tabs)/(settings)/_layout.tsx:99
+#: src/app/(tabs)/(settings)/account-form.tsx:332
+#: src/app/(tabs)/(settings)/flex-sync.tsx:109
 msgid "IBKR Flex sync"
 msgstr "IBKR Flex 동기화"
 
-#: src/app/(tabs)/(settings)/two-factor.tsx:116
+#: src/app/(tabs)/(settings)/two-factor.tsx:121
 msgid "If you lose your authenticator"
 msgstr "인증 앱을 분실한 경우"
 
@@ -3243,7 +3282,7 @@ msgstr "인증 앱을 분실한 경우"
 msgid "Image files"
 msgstr "이미지 파일"
 
-#: src/app/(tabs)/(settings)/index.tsx:234
+#: src/app/(tabs)/(settings)/index.tsx:239
 msgid "images cap limit attachments charts"
 msgstr "이미지 상한 제한 첨부 차트 스크린샷"
 
@@ -3297,7 +3336,7 @@ msgstr "가져오기 완료"
 #~ msgid "Import config"
 #~ msgstr "설정 가져오기"
 
-#: src/app/(tabs)/(settings)/index.tsx:271
+#: src/app/(tabs)/(settings)/index.tsx:276
 msgid "import export backup restore csv json zip"
 msgstr "가져오기 내보내기 백업 복원 CSV JSON ZIP"
 
@@ -3309,9 +3348,9 @@ msgstr "가져오기 실패"
 msgid "Import into"
 msgstr "가져올 계좌"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:98
+#: src/app/(tabs)/(settings)/_layout.tsx:116
 #: src/app/(tabs)/(settings)/data-backup.tsx:71
-#: src/app/(tabs)/(settings)/index.tsx:276
+#: src/app/(tabs)/(settings)/index.tsx:281
 msgid "Import trades"
 msgstr "매매 가져오기"
 
@@ -3327,7 +3366,7 @@ msgstr "진행 중"
 msgid "Includes a dividend entry."
 msgstr "배당 기록이 포함됩니다."
 
-#: src/app/(tabs)/(trades)/[id].tsx:632
+#: src/app/(tabs)/(trades)/[id].tsx:656
 msgid "Initial risk"
 msgstr "초기 리스크"
 
@@ -3343,9 +3382,9 @@ msgstr "인사이트"
 msgid "Instrument"
 msgstr "상품 유형"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:62
-#: src/app/(tabs)/(settings)/account-form.tsx:321
-#: src/app/(tabs)/(settings)/index.tsx:448
+#: src/app/(tabs)/(settings)/_layout.tsx:70
+#: src/app/(tabs)/(settings)/account-form.tsx:320
+#: src/app/(tabs)/(settings)/index.tsx:451
 msgid "Integrations"
 msgstr "연동"
 
@@ -3359,7 +3398,7 @@ msgstr "이자"
 
 #: src/app/(tabs)/(dashboard)/backtest.tsx:176
 #: src/app/(tabs)/(dashboard)/backtest.tsx:179
-#: src/app/replay.tsx:434
+#: src/app/replay.tsx:440
 msgid "Interval"
 msgstr "봉 간격"
 
@@ -3367,7 +3406,7 @@ msgstr "봉 간격"
 msgid "Intraday P&L"
 msgstr "장중 손익"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:199
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:200
 msgid "Invalid URL"
 msgstr "잘못된 URL"
 
@@ -3383,12 +3422,12 @@ msgstr "이 노트와 서버에서 모두 삭제됩니다."
 #~ msgid "It may have been deleted on another device."
 #~ msgstr "다른 기기에서 삭제되었을 수 있습니다."
 
-#: src/app/(tabs)/(trades)/[id].tsx:374
-#: src/app/(tabs)/(trades)/[id].tsx:676
-#: src/app/(tabs)/(trades)/[id].tsx:718
-#: src/components/swipeable-trade-row.tsx:86
+#: src/app/(tabs)/(trades)/[id].tsx:398
+#: src/app/(tabs)/(trades)/[id].tsx:700
+#: src/app/(tabs)/(trades)/[id].tsx:742
+#: src/components/swipeable-trade-row.tsx:72
 #: src/components/tools-menu.tsx:113
-#: src/components/trade-form.tsx:510
+#: src/components/trade-form.tsx:485
 msgid "Journal"
 msgstr "저널"
 
@@ -3427,16 +3466,16 @@ msgstr "켈리 기준"
 msgid "Keys are stored on your server, never on the device or with third parties."
 msgstr "키는 서버에만 저장되며 기기나 제3자에게 전달되지 않습니다."
 
-#: src/app/tag-form.tsx:87
+#: src/app/tag-form.tsx:86
 msgid "Kind"
 msgstr "종류"
 
-#: src/app/(tabs)/(settings)/index.tsx:228
+#: src/app/(tabs)/(settings)/index.tsx:233
 msgid "labels mistakes setups journal"
 msgstr "라벨 실수 셋업 저널 태그"
 
 #: src/app/(tabs)/(settings)/general.tsx:28
-#: src/app/(tabs)/(settings)/index.tsx:264
+#: src/app/(tabs)/(settings)/index.tsx:269
 msgid "Language"
 msgstr "언어"
 
@@ -3456,15 +3495,15 @@ msgstr "최대 수익"
 msgid "Last 30 days"
 msgstr "최근 30일"
 
-#: src/app/(tabs)/(settings)/flex-sync.tsx:156
+#: src/app/(tabs)/(settings)/flex-sync.tsx:160
 msgid "Last status"
 msgstr "마지막 상태"
 
-#: src/app/(tabs)/(settings)/flex-sync.tsx:149
+#: src/app/(tabs)/(settings)/flex-sync.tsx:153
 msgid "Last synced"
 msgstr "마지막 동기화"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:132
+#: src/app/(tabs)/(settings)/api-tokens.tsx:116
 msgid "Last used {lastUsed}"
 msgstr "마지막 사용 {lastUsed}"
 
@@ -3476,15 +3515,15 @@ msgstr "비워 두면 제한이 없습니다."
 msgid "Leave blank to clear the goal."
 msgstr "비워 두면 목표가 삭제됩니다."
 
-#: src/app/(tabs)/(settings)/prop-settings.tsx:66
+#: src/app/(tabs)/(settings)/prop-settings.tsx:68
 msgid "Leave blank to drop this rule."
 msgstr "비워 두면 이 규칙을 해제합니다."
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:215
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:216
 msgid "Leave blank to keep the key already stored on the server."
 msgstr "비워 두면 서버에 저장된 키를 그대로 사용합니다."
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:378
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:382
 msgid "Leave blank to use the built-in prompt"
 msgstr "비워 두면 기본 프롬프트 사용"
 
@@ -3497,7 +3536,7 @@ msgstr "남은 금액 {0}"
 #~ msgid "light"
 #~ msgstr ""
 
-#: src/app/(tabs)/(settings)/index.tsx:437
+#: src/app/(tabs)/(settings)/index.tsx:440
 msgid "Light"
 msgstr "라이트"
 
@@ -3510,17 +3549,21 @@ msgstr "한도 {0}"
 msgid "Limit hit — the edge is gone for today. Close the app."
 msgstr "한도 도달 — 오늘의 우위는 사라졌습니다. 앱을 닫으세요."
 
-#: src/lib/risk-rules.ts:38
+#: src/lib/risk-rules.ts:44
 msgid "Limit total risk across open positions."
 msgstr "오픈 포지션 전체의 총 리스크를 제한합니다."
 
-#: src/app/(tabs)/(settings)/index.tsx:216
+#: src/app/(tabs)/(settings)/index.tsx:215
 msgid "limits daily loss compliance position size"
 msgstr "한도 일일 손실 준수 포지션 크기 리스크"
 
 #: src/app/(tabs)/(settings)/index.tsx:226
 #~ msgid "Limits used by Check compliance on New Trade."
 #~ msgstr "새 거래의 규칙 준수 검사에 사용되는 한도입니다."
+
+#: src/app/share-reports-link.tsx:94
+msgid "Link copied"
+msgstr "링크를 복사했습니다"
 
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:317
 #~ msgid "Load models from server"
@@ -3538,19 +3581,19 @@ msgstr "행동 리포트 불러오는 중"
 msgid "Loading calendar"
 msgstr "캘린더 불러오는 중"
 
-#: src/components/trade-chart.tsx:96
+#: src/components/trade-chart.tsx:84
 msgid "Loading chart"
 msgstr "차트 불러오는 중"
 
-#: src/components/reports/risk-section.tsx:129
+#: src/components/reports/risk-section.tsx:145
 msgid "Loading compliance"
 msgstr "규칙 준수 현황 불러오는 중"
 
-#: src/components/reports/risk-section.tsx:80
+#: src/components/reports/risk-section.tsx:96
 msgid "Loading drawdown"
 msgstr "드로다운 불러오는 중"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:325
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:326
 msgid "Loading models…"
 msgstr "모델 불러오는 중…"
 
@@ -3566,7 +3609,7 @@ msgstr "세션 요약 불러오는 중"
 msgid "Loading the calendar"
 msgstr "캘린더 불러오는 중"
 
-#: src/app/(tabs)/(trades)/[id].tsx:366
+#: src/app/(tabs)/(trades)/[id].tsx:390
 msgid "Loading trade"
 msgstr "거래 불러오는 중"
 
@@ -3582,7 +3625,7 @@ msgstr "승패 리포트 불러오는 중"
 msgid "Loading your dashboard"
 msgstr "대시보드 불러오는 중"
 
-#: src/app/(tabs)/(dashboard)/notes.tsx:245
+#: src/app/(tabs)/(dashboard)/notes.tsx:240
 msgid "Loading your notes"
 msgstr "노트 불러오는 중"
 
@@ -3590,18 +3633,18 @@ msgstr "노트 불러오는 중"
 msgid "Loading your playbook"
 msgstr "플레이북 불러오는 중"
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:244
-#: src/app/(tabs)/(settings)/account-form.tsx:67
+#: src/app/(tabs)/(dashboard)/checklist.tsx:246
+#: src/app/(tabs)/(settings)/account-form.tsx:61
 #: src/app/(tabs)/(settings)/ai.tsx:71
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:82
-#: src/app/(tabs)/(settings)/profile.tsx:40
-#: src/app/(tabs)/(settings)/risk-rules.tsx:114
-#: src/app/(tabs)/(settings)/user-detail.tsx:136
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:83
+#: src/app/(tabs)/(settings)/profile.tsx:36
+#: src/app/(tabs)/(settings)/risk-rules.tsx:232
+#: src/app/(tabs)/(settings)/user-detail.tsx:92
 #: src/app/(tabs)/(settings)/users.tsx:66
 msgid "Loading…"
 msgstr "불러오는 중…"
 
-#: src/app/(tabs)/(settings)/index.tsx:265
+#: src/app/(tabs)/(settings)/index.tsx:270
 msgid "locale translation region"
 msgstr "로캘 번역 지역 언어"
 
@@ -3609,7 +3652,7 @@ msgstr "로캘 번역 지역 언어"
 msgid "Locked at tiers"
 msgstr "티어에서 확정"
 
-#: src/app/(tabs)/(dashboard)/notes.tsx:104
+#: src/app/(tabs)/(dashboard)/notes.tsx:99
 msgid "Log"
 msgstr "로그"
 
@@ -3617,7 +3660,7 @@ msgstr "로그"
 msgid "Logging into {accountName}"
 msgstr "{accountName}에 기록합니다"
 
-#: src/app/(tabs)/(dashboard)/notes.tsx:182
+#: src/app/(tabs)/(dashboard)/notes.tsx:177
 msgid "Logs"
 msgstr "로그"
 
@@ -3625,15 +3668,15 @@ msgstr "로그"
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:584
 #: src/app/new-setup.tsx:165
 #: src/components/reports-filter-menu.tsx:40
-#: src/components/trade-form.tsx:311
+#: src/components/trade-form.tsx:286
 #: src/components/trade-row.tsx:64
 #: src/components/trade-summary.tsx:160
 msgid "Long"
 msgstr "롱"
 
-#: src/app/(tabs)/(trades)/[id].tsx:173
-#: src/app/quick-journal.tsx:160
-#: src/app/replay.tsx:499
+#: src/app/(tabs)/(trades)/[id].tsx:186
+#: src/app/quick-journal.tsx:159
+#: src/app/replay.tsx:505
 #: src/components/share-card.tsx:231
 msgid "LONG"
 msgstr "롱"
@@ -3666,7 +3709,7 @@ msgstr "손실 vs 수익"
 msgid "Losing hold"
 msgstr "손실 보유 시간"
 
-#: src/app/(tabs)/(trades)/[id].tsx:98
+#: src/app/(tabs)/(trades)/[id].tsx:102
 #: src/components/share-card.tsx:158
 msgid "LOSS"
 msgstr "손실"
@@ -3678,6 +3721,10 @@ msgstr "손실 회피"
 #: src/lib/trade-insights.ts:282
 msgid "Loss exceeded plan at {r}R"
 msgstr "손실이 계획 초과 ({r}R)"
+
+#: src/components/reports/risk-section.tsx:207
+msgid "loss streak"
+msgstr "연패 초과"
 
 #: src/components/insights-card.tsx:72
 msgid "losses"
@@ -3705,7 +3752,7 @@ msgstr "손실 거래의 셋업 등급이 낮음"
 msgid "Lowest P&L"
 msgstr "손익 낮은 순"
 
-#: src/app/(tabs)/(trades)/[id].tsx:639
+#: src/app/(tabs)/(trades)/[id].tsx:663
 msgid "MAE"
 msgstr "MAE"
 
@@ -3733,7 +3780,7 @@ msgstr "수동"
 msgid "Map columns"
 msgstr "열 매핑"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:44
+#: src/app/(tabs)/(settings)/account-form.tsx:38
 msgid "Margin"
 msgstr "마진"
 
@@ -3743,8 +3790,8 @@ msgstr "핵심 지지·저항선 표시"
 
 #: src/app/(tabs)/(dashboard)/backtest.tsx:142
 #: src/app/(tabs)/(trades)/index.tsx:393
-#: src/components/trade-form.tsx:356
-#: src/components/trade-form.tsx:359
+#: src/components/trade-form.tsx:331
+#: src/components/trade-form.tsx:334
 msgid "Market"
 msgstr "시장"
 
@@ -3756,15 +3803,19 @@ msgstr "시장 시간대"
 msgid "Match each field to a column from the file."
 msgstr "각 필드를 파일의 열과 연결하세요."
 
-#: src/lib/risk-rules.ts:30
+#: src/lib/risk-rules.ts:59
+msgid "Max consecutive losses"
+msgstr "최대 연속 손실"
+
+#: src/lib/risk-rules.ts:35
 msgid "Max daily loss"
 msgstr "일일 최대 손실"
 
-#: src/app/(tabs)/(settings)/prop-settings.tsx:141
-#: src/app/(tabs)/(settings)/prop-settings.tsx:144
+#: src/app/(tabs)/(settings)/prop-settings.tsx:130
+#: src/app/(tabs)/(settings)/prop-settings.tsx:133
 #: src/components/equity-card.tsx:122
 #: src/components/insights-card.tsx:93
-#: src/components/reports/risk-section.tsx:89
+#: src/components/reports/risk-section.tsx:105
 msgid "Max drawdown"
 msgstr "최대 낙폭"
 
@@ -3772,11 +3823,11 @@ msgstr "최대 낙폭"
 #~ msgid "Max drawdown — {0}"
 #~ msgstr "최대 드로다운 — {0}"
 
-#: src/lib/risk-rules.ts:37
+#: src/lib/risk-rules.ts:43
 msgid "Max open risk"
 msgstr "최대 오픈 리스크"
 
-#: src/lib/risk-rules.ts:23
+#: src/lib/risk-rules.ts:27
 msgid "Max risk / trade"
 msgstr "거래당 최대 리스크"
 
@@ -3784,11 +3835,11 @@ msgstr "거래당 최대 리스크"
 #~ msgid "Max risk per trade"
 #~ msgstr "트레이드당 최대 리스크"
 
-#: src/app/(tabs)/(settings)/prop-settings.tsx:90
+#: src/app/(tabs)/(settings)/prop-settings.tsx:85
 msgid "Max share of profit one day may contribute, as a percent (e.g. 40). Leave blank to drop."
 msgstr "하루가 이익에 기여할 수 있는 최대 비중(%, 예: 40). 비워 두면 해제됩니다."
 
-#: src/lib/risk-rules.ts:44
+#: src/lib/risk-rules.ts:51
 msgid "Max trades / day"
 msgstr "일일 최대 거래 수"
 
@@ -3823,13 +3874,13 @@ msgstr "수익 중앙값"
 msgid "Medium"
 msgstr "보통"
 
-#: src/app/(tabs)/(settings)/profile.tsx:64
+#: src/app/(tabs)/(settings)/profile.tsx:60
 #: src/app/(tabs)/(settings)/users.tsx:52
 msgid "Member"
 msgstr "멤버"
 
-#: src/app/(tabs)/(settings)/profile.tsx:66
-#: src/app/(tabs)/(settings)/user-detail.tsx:152
+#: src/app/(tabs)/(settings)/profile.tsx:62
+#: src/app/(tabs)/(settings)/user-detail.tsx:108
 msgid "Member since"
 msgstr "가입일"
 
@@ -3845,7 +3896,7 @@ msgstr "멘탈 상태 1-10 자가 점수"
 msgid "Metric evolution"
 msgstr "지표 추이"
 
-#: src/app/(tabs)/(trades)/[id].tsx:646
+#: src/app/(tabs)/(trades)/[id].tsx:670
 msgid "MFE"
 msgstr "MFE"
 
@@ -3865,7 +3916,7 @@ msgstr "분"
 #~ msgid "Mirror the checklist into the iOS Reminders app, so it reaches you on the lock screen, the Watch and Siri."
 #~ msgstr "체크리스트를 iOS 미리 알림 앱에 동기화해 잠금 화면, 애플 워치, Siri에서 확인하세요."
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:272
+#: src/app/(tabs)/(dashboard)/checklist.tsx:274
 msgid "Mirror the checklist into the system Reminders app, so it reaches you on the lock screen, the Watch and Siri."
 msgstr "체크리스트를 시스템 미리 알림 앱에 동기화하여 잠금 화면, Apple Watch, Siri에서도 확인할 수 있게 합니다."
 
@@ -3883,8 +3934,8 @@ msgid "Mistake"
 msgstr "실수"
 
 #: src/app/manage-tags.tsx:89
-#: src/app/quick-journal.tsx:118
-#: src/components/trade-form.tsx:582
+#: src/app/quick-journal.tsx:117
+#: src/components/trade-form.tsx:557
 msgid "Mistake type"
 msgstr "실수 유형"
 
@@ -3892,9 +3943,9 @@ msgstr "실수 유형"
 msgid "Mistake: {tag}"
 msgstr "실수: {tag}"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:230
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:291
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:293
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:231
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:292
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:294
 msgid "Model"
 msgstr "모델"
 
@@ -3916,6 +3967,10 @@ msgstr "이번 달"
 #: src/components/reports/overview-section.tsx:363
 #~ msgid "Months beyond the last 12 are rolled into Prior."
 #~ msgstr "최근 12개월 이전은 \"이전\"으로 합산됩니다."
+
+#: src/components/interval-picker.tsx:28
+msgid "More intervals"
+msgstr ""
 
 #: src/lib/trade-insights.ts:227
 msgid "Most of the move was left on the table"
@@ -3945,13 +4000,13 @@ msgstr "손실 거래에서 청산 전 여러 번 추가 — 전형적인 물타
 msgid "Multiple fills increase fee drag and slippage. Make sure each add had a defined reason."
 msgstr "체결이 많을수록 수수료와 슬리피지가 커집니다. 각 추가에 분명한 이유가 있었는지 확인하세요."
 
-#: src/components/trade-form.tsx:414
+#: src/components/trade-form.tsx:389
 msgid "Multiplier"
 msgstr "승수"
 
 #: src/app/(tabs)/(dashboard)/playbook.tsx:135
-#: src/app/(tabs)/(settings)/account-form.tsx:235
-#: src/app/new-token.tsx:128
+#: src/app/(tabs)/(settings)/account-form.tsx:227
+#: src/app/new-token.tsx:129
 #: src/app/tag-form.tsx:76
 msgid "Name"
 msgstr "이름"
@@ -3983,13 +4038,13 @@ msgstr "순액 (수수료 후)"
 #: src/app/(tabs)/(calendar)/index.tsx:1213
 #: src/app/(tabs)/(dashboard)/playbook.tsx:130
 #: src/app/(tabs)/(dashboard)/playbook.tsx:240
-#: src/app/(tabs)/(trades)/[id].tsx:228
+#: src/app/(tabs)/(trades)/[id].tsx:250
 #: src/components/share-card.tsx:353
-#: src/components/symbol-journal.tsx:481
+#: src/components/symbol-journal.tsx:474
 msgid "Net P&L"
 msgstr "순손익"
 
-#: src/components/symbol-journal.tsx:481
+#: src/components/symbol-journal.tsx:474
 msgid "Net P&L ({currency})"
 msgstr "순손익({currency})"
 
@@ -4001,12 +4056,12 @@ msgstr "그룹별 순손익"
 #~ msgid "Net P&L target — progress shows on the dashboard."
 #~ msgstr "순손익 목표 — 진행 상황은 대시보드에 표시됩니다."
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:38
+#: src/app/(tabs)/(settings)/api-tokens.tsx:29
 msgid "never"
 msgstr "없음"
 
 #: src/app/new-token.tsx:16
-#: src/app/share-reports-link.tsx:32
+#: src/app/share-reports-link.tsx:33
 msgid "Never"
 msgstr "무기한"
 
@@ -4018,7 +4073,7 @@ msgstr "무기한"
 msgid "New"
 msgstr "새로 작성"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:219
+#: src/app/(tabs)/(settings)/account-form.tsx:213
 msgid "New account"
 msgstr "새 계좌"
 
@@ -4026,18 +4081,20 @@ msgstr "새 계좌"
 msgid "New daily log"
 msgstr "새 일일 로그"
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:124
+#: src/app/(tabs)/(dashboard)/checklist.tsx:126
 msgid "New item"
 msgstr "새 항목"
 
-#: src/app/(tabs)/(dashboard)/notes.tsx:172
+#: src/app/(tabs)/(dashboard)/notes.tsx:167
 #: src/app/new-note.tsx:87
 #: src/components/add-menu.tsx:27
 msgid "New note"
 msgstr "새 노트"
 
-#: src/app/(tabs)/(settings)/change-password.tsx:120
-#: src/app/(tabs)/(settings)/change-password.tsx:127
+#: src/app/(tabs)/(settings)/change-password.tsx:119
+#: src/app/(tabs)/(settings)/change-password.tsx:131
+#: src/app/(tabs)/(settings)/reset-password.tsx:84
+#: src/app/(tabs)/(settings)/reset-password.tsx:95
 msgid "New password"
 msgstr "새 비밀번호"
 
@@ -4047,25 +4104,26 @@ msgstr "새 비밀번호"
 msgid "New setup"
 msgstr "새 셋업"
 
-#: src/app/(tabs)/(settings)/tags.tsx:99
+#: src/app/(tabs)/(settings)/tags.tsx:111
 #: src/app/tag-form.tsx:68
 msgid "New tag"
 msgstr "새 태그"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:180
-#: src/app/new-token.tsx:115
+#: src/app/(tabs)/(settings)/api-tokens.tsx:168
+#: src/app/new-token.tsx:116
 msgid "New token"
 msgstr "새 토큰"
 
-#: src/app/new-trade.tsx:151
+#: src/app/new-trade.tsx:141
+#: src/app/new-trade.tsx:161
 #: src/components/add-menu.tsx:26
 #: src/components/add-trade-button.tsx:31
 msgid "New trade"
 msgstr "새 트레이드"
 
 #: src/app/(tabs)/(settings)/user-form.tsx:92
-msgid "New user"
-msgstr "새 사용자"
+#~ msgid "New user"
+#~ msgstr "새 사용자"
 
 #: src/app/(tabs)/(trades)/index.tsx:293
 msgid "Newest first"
@@ -4087,13 +4145,13 @@ msgstr "다음 날"
 msgid "Next year"
 msgstr "다음 해"
 
-#: src/app/new-trade.tsx:110
-#: src/app/new-trade.tsx:144
+#: src/app/new-trade.tsx:111
+#: src/app/new-trade.tsx:154
 msgid "No account found — create one on the web app first."
 msgstr "계좌가 없습니다 — 먼저 웹 앱에서 만들어 주세요."
 
 #: src/app/(tabs)/(settings)/export-trades.tsx:98
-#: src/app/(tabs)/(settings)/index.tsx:409
+#: src/app/(tabs)/(settings)/index.tsx:412
 #: src/app/(tabs)/(settings)/users.tsx:59
 msgid "No accounts yet"
 msgstr "아직 계좌가 없습니다"
@@ -4110,7 +4168,7 @@ msgstr "응답 없음"
 msgid "No API key yet"
 msgstr "API 키 없음"
 
-#: src/components/symbol-journal.tsx:416
+#: src/components/symbol-journal.tsx:404
 msgid "No bars for {symbol} in this window — try a coarser interval."
 msgstr "이 기간에 {symbol}의 봉이 없습니다 — 더 굵은 봉을 시도하세요."
 
@@ -4118,21 +4176,21 @@ msgstr "이 기간에 {symbol}의 봉이 없습니다 — 더 굵은 봉을 시�
 msgid "No breakdown data yet."
 msgstr "아직 분석 데이터가 없습니다."
 
-#: src/components/trade-chart.tsx:99
+#: src/components/trade-chart.tsx:87
 msgid "No chart data for this symbol."
 msgstr "이 종목의 차트 데이터가 없습니다."
 
-#: src/app/replay.tsx:481
-#: src/app/replay.tsx:988
+#: src/app/replay.tsx:487
+#: src/app/replay.tsx:998
 msgid "No chart data for this window."
 msgstr "이 구간의 차트 데이터가 없습니다."
 
-#: src/components/symbol-journal.tsx:491
+#: src/components/symbol-journal.tsx:484
 msgid "No closed trades"
 msgstr "청산된 거래 없음"
 
 #: src/app/(tabs)/(dashboard)/wrapped.tsx:199
-#: src/app/share-wrapped.tsx:114
+#: src/app/share-wrapped.tsx:107
 msgid "No closed trades in {year}"
 msgstr "{year}년에 청산된 거래가 없습니다"
 
@@ -4161,7 +4219,7 @@ msgstr "평가된 청산 거래 없음"
 #~ msgstr "연결 없음"
 
 #: src/components/equity-card.tsx:82
-#: src/components/reports/risk-section.tsx:84
+#: src/components/reports/risk-section.tsx:100
 msgid "No equity data in this range."
 msgstr "이 기간의 자산 데이터가 없습니다."
 
@@ -4169,7 +4227,7 @@ msgstr "이 기간의 자산 데이터가 없습니다."
 msgid "No events"
 msgstr "이벤트 없음"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:43
+#: src/app/(tabs)/(settings)/api-tokens.tsx:34
 msgid "No expiry"
 msgstr "무기한"
 
@@ -4177,15 +4235,16 @@ msgstr "무기한"
 msgid "no IP"
 msgstr "IP 없음"
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:247
+#: src/app/(tabs)/(dashboard)/checklist.tsx:249
+#: src/app/(tabs)/(dashboard)/daily-checklist.tsx:49
 msgid "No items yet"
 msgstr "아직 항목이 없습니다"
 
-#: src/app/(tabs)/(settings)/trading-journal.tsx:131
+#: src/app/(tabs)/(settings)/trading-journal.tsx:140
 msgid "No limit"
 msgstr "제한 없음"
 
-#: src/app/(tabs)/(dashboard)/notes.tsx:291
+#: src/app/(tabs)/(dashboard)/notes.tsx:286
 msgid "No matching notes"
 msgstr "일치하는 노트가 없습니다"
 
@@ -4193,11 +4252,11 @@ msgstr "일치하는 노트가 없습니다"
 msgid "No mistakes tagged."
 msgstr "태그된 실수가 없습니다."
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:183
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:184
 msgid "No models"
 msgstr "모델 없음"
 
-#: src/app/(tabs)/(dashboard)/notes.tsx:291
+#: src/app/(tabs)/(dashboard)/notes.tsx:286
 msgid "No notes yet"
 msgstr "아직 노트가 없습니다"
 
@@ -4214,16 +4273,16 @@ msgstr "{0} 에서 응답이 없습니다. 연결 상태, 또는 서버가 실�
 msgid "No revenge patterns detected — flags trades opened within an hour of a losing close: same-symbol re-entries inside 15 minutes, or entries sized 1.5× above your recent median."
 msgstr "복수 매매 패턴이 감지되지 않았습니다 — 손실 청산 후 1시간 이내 진입(15분 이내 동일 종목 재진입 또는 최근 중앙값의 1.5배 초과 규모)을 플래그합니다."
 
-#: src/components/reports/risk-section.tsx:135
+#: src/components/reports/risk-section.tsx:151
 msgid "No risk rules configured — set max risk per trade and max daily loss to score every trading day against your own process."
 msgstr "리스크 규칙이 설정되지 않았습니다 — 거래당 최대 리스크와 일일 최대 손실을 설정하면 매 거래일을 자신의 프로세스로 채점할 수 있습니다."
 
-#: src/app/(tabs)/(settings)/risk-rules.tsx:114
-msgid "No risk rules yet"
-msgstr "아직 리스크 규칙이 없습니다"
+#: src/app/(tabs)/(settings)/risk-rules.tsx:113
+#~ msgid "No risk rules yet"
+#~ msgstr "아직 리스크 규칙이 없습니다"
 
 #. placeholder {0}: query.trim()
-#: src/app/(tabs)/(settings)/index.tsx:339
+#: src/app/(tabs)/(settings)/index.tsx:344
 msgid "No settings match “{0}”."
 msgstr "“{0}”과(와) 일치하는 설정이 없습니다."
 
@@ -4236,7 +4295,7 @@ msgstr "이 범위에서 거래된 셋업이 없습니다."
 msgid "No setups yet"
 msgstr "아직 셋업이 없습니다"
 
-#: src/components/reports/risk-section.tsx:105
+#: src/components/reports/risk-section.tsx:121
 msgid "no stops recorded"
 msgstr "스톱 기록 없음"
 
@@ -4248,7 +4307,7 @@ msgstr "연승 패턴이 감지되지 않았습니다 — 연승 직후 규모�
 msgid "No tagged trades in this range."
 msgstr "이 범위에 태그된 거래가 없습니다."
 
-#: src/app/(tabs)/(settings)/tags.tsx:150
+#: src/app/(tabs)/(settings)/tags.tsx:162
 msgid "No tags yet"
 msgstr "아직 태그가 없습니다"
 
@@ -4264,7 +4323,7 @@ msgstr "아직 태그가 없습니다"
 #~ msgid "No thanks"
 #~ msgstr "추가 안 함"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:237
+#: src/app/(tabs)/(settings)/api-tokens.tsx:216
 msgid "No tokens yet"
 msgstr "아직 토큰이 없습니다"
 
@@ -4296,7 +4355,7 @@ msgstr "\"{search}\" 와 일치하는 거래가 없습니다"
 msgid "No trades on this day."
 msgstr "이 날에는 거래가 없습니다."
 
-#: src/app/quick-journal.tsx:202
+#: src/app/quick-journal.tsx:201
 msgid "No trades to review yet"
 msgstr "아직 리뷰할 트레이드가 없습니다"
 
@@ -4312,7 +4371,7 @@ msgstr "아직 트레이드가 없습니다"
 msgid "No trades yet — import a broker CSV to get started."
 msgstr "아직 거래가 없습니다 — 브로커 CSV를 가져와 시작하세요."
 
-#: src/app/(tabs)/(settings)/funding.tsx:203
+#: src/app/(tabs)/(settings)/funding.tsx:228
 msgid "No transactions yet"
 msgstr "아직 입출금 내역이 없습니다"
 
@@ -4326,7 +4385,7 @@ msgstr "쓰기 가능한 미리 알림 목록을 찾을 수 없습니다."
 
 #: src/app/trade-preview.tsx:187
 #: src/components/insights-card.tsx:99
-#: src/components/trade-form.tsx:315
+#: src/components/trade-form.tsx:290
 #: src/components/trade-result-card.tsx:50
 #: src/components/trade-summary.tsx:199
 msgid "None"
@@ -4361,11 +4420,11 @@ msgstr "찾을 수 없음"
 msgid "Not rated"
 msgstr "평가 없음"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:249
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:250
 #: src/app/(tabs)/(settings)/integrations.tsx:27
-#: src/app/(tabs)/(settings)/integrations.tsx:54
-#: src/app/(tabs)/(settings)/prop-settings.tsx:124
-#: src/app/(tabs)/(settings)/prop-settings.tsx:172
+#: src/app/(tabs)/(settings)/integrations.tsx:56
+#: src/app/(tabs)/(settings)/prop-settings.tsx:112
+#: src/app/(tabs)/(settings)/prop-settings.tsx:161
 #: src/app/(tabs)/(settings)/trading-journal.tsx:108
 msgid "Not set"
 msgstr "설정 안 함"
@@ -4387,10 +4446,10 @@ msgid "Not valid JSON."
 msgstr "유효한 JSON이 아닙니다."
 
 #: src/app/(tabs)/(calendar)/day/[date].tsx:204
-#: src/app/(tabs)/(dashboard)/notes.tsx:104
-#: src/app/cash-form.tsx:219
+#: src/app/(tabs)/(dashboard)/notes.tsx:99
+#: src/app/cash-form.tsx:201
 #: src/components/note-form.tsx:83
-#: src/components/trade-form.tsx:626
+#: src/components/trade-form.tsx:601
 #: src/lib/outbox.ts:448
 msgid "Note"
 msgstr "노트"
@@ -4405,9 +4464,9 @@ msgstr "노트를 찾을 수 없습니다"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:94
 #: src/app/(tabs)/(dashboard)/index.tsx:217
-#: src/app/(tabs)/(dashboard)/notes.tsx:181
-#: src/app/(tabs)/(dashboard)/notes.tsx:232
-#: src/app/(tabs)/(trades)/[id].tsx:749
+#: src/app/(tabs)/(dashboard)/notes.tsx:176
+#: src/app/(tabs)/(dashboard)/notes.tsx:227
+#: src/app/(tabs)/(trades)/[id].tsx:773
 #: src/components/tools-menu.tsx:63
 msgid "Notes"
 msgstr "메모"
@@ -4420,11 +4479,11 @@ msgstr "이 파일에서 아무것도 읽을 수 없습니다. 설정 → AI에�
 msgid "Nothing journaled for this day yet. A two-minute recap while it's fresh beats a perfect writeup never written."
 msgstr "이 날에 대한 기록이 아직 없습니다. 기억이 생생할 때의 2분 회고가, 끝내 쓰지 않을 완벽한 정리보다 낫습니다."
 
-#: src/app/(tabs)/(trades)/[id].tsx:722
+#: src/app/(tabs)/(trades)/[id].tsx:746
 msgid "Nothing logged yet. A minute of review now is what makes this trade worth something later."
 msgstr "아직 기록이 없습니다. 지금의 1분 리뷰가 이 매매를 나중에 값지게 만듭니다."
 
-#: src/app/(tabs)/(trades)/[id].tsx:721
+#: src/app/(tabs)/(trades)/[id].tsx:745
 msgid "Nothing logged yet. Note the setup and why you took it while it's fresh."
 msgstr "아직 기록이 없습니다. 기억이 생생할 때 셋업과 진입 이유를 남기세요."
 
@@ -4437,7 +4496,7 @@ msgstr "아직 기록이 없습니다. 기억이 생생할 때 셋업과 진입 
 msgid "Nothing to replay."
 msgstr "재생할 항목이 없습니다."
 
-#: src/app/(tabs)/(trades)/[id].tsx:275
+#: src/app/(tabs)/(trades)/[id].tsx:299
 msgid "Notional"
 msgstr "명목 금액"
 
@@ -4454,20 +4513,20 @@ msgid "of {0}"
 msgstr "/ {0}"
 
 #: src/app/(tabs)/(settings)/ai.tsx:45
-#: src/app/(tabs)/(settings)/profile.tsx:106
-#: src/app/(tabs)/(settings)/user-detail.tsx:156
+#: src/app/(tabs)/(settings)/profile.tsx:91
+#: src/app/(tabs)/(settings)/user-detail.tsx:112
 msgid "Off"
 msgstr "끔"
 
-#: src/app/share-trade.tsx:158
+#: src/app/share-trade.tsx:151
 msgid "Off by default — the card shows R and return % only."
 msgstr "기본값은 꺼짐 — 카드에는 R과 수익률 %만 표시됩니다."
 
-#: src/app/share-wrapped.tsx:170
+#: src/app/share-wrapped.tsx:163
 msgid "Off by default — the card shows win rate and ratios only."
 msgstr "기본값은 꺼짐 — 카드에는 승률과 비율만 표시됩니다."
 
-#: src/app/share-reports-link.tsx:122
+#: src/app/share-reports-link.tsx:117
 msgid "Off shares only win rate and ratios — account size stays private."
 msgstr "끄면 승률과 비율만 공유됩니다 — 계좌 규모는 비공개로 유지됩니다."
 
@@ -4480,8 +4539,8 @@ msgid "Omit account details"
 msgstr "계좌 정보 제외"
 
 #: src/app/(tabs)/(settings)/ai.tsx:44
-#: src/app/(tabs)/(settings)/profile.tsx:106
-#: src/app/(tabs)/(settings)/user-detail.tsx:156
+#: src/app/(tabs)/(settings)/profile.tsx:91
+#: src/app/(tabs)/(settings)/user-detail.tsx:112
 msgid "On"
 msgstr "켬"
 
@@ -4497,11 +4556,11 @@ msgstr "순조로움"
 msgid "One entry per client, not per request — a repeat from the same IP and app is folded in for ten minutes. The 50 most recent are kept."
 msgstr "요청이 아니라 클라이언트 단위로 한 건씩입니다. 같은 IP와 앱에서의 재사용은 10분 동안 하나로 묶입니다. 최근 50건을 보관합니다."
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:125
+#: src/app/(tabs)/(dashboard)/checklist.tsx:127
 msgid "One rule to clear before you trade."
 msgstr "거래 전에 점검할 규칙 하나."
 
-#: src/app/new-setup.tsx:247
+#: src/app/new-setup.tsx:246
 msgid "One thing that has to be true"
 msgstr "충족돼야 할 조건 하나"
 
@@ -4522,13 +4581,13 @@ msgstr "이 서버의 계정은 소유자만 관리할 수 있습니다."
 msgid "Only the first {0} files fit under the cap."
 msgstr "한도 내에는 처음 {0}개 파일만 들어갑니다."
 
-#: src/app/(tabs)/(trades)/[id].tsx:191
-#: src/app/(tabs)/(trades)/[id].tsx:256
+#: src/app/(tabs)/(trades)/[id].tsx:207
+#: src/app/(tabs)/(trades)/[id].tsx:280
 #: src/app/(tabs)/(trades)/index.tsx:274
-#: src/app/quick-journal.tsx:156
+#: src/app/quick-journal.tsx:155
 #: src/app/trade-preview.tsx:147
 #: src/components/performance-card.tsx:99
-#: src/components/trade-form.tsx:145
+#: src/components/trade-form.tsx:135
 #: src/components/trade-result-card.tsx:55
 #: src/components/trade-result-card.tsx:66
 #: src/components/trade-row.tsx:30
@@ -4536,7 +4595,7 @@ msgstr "한도 내에는 처음 {0}개 파일만 들어갑니다."
 msgid "Open"
 msgstr "오픈"
 
-#: src/app/(tabs)/(trades)/[id].tsx:100
+#: src/app/(tabs)/(trades)/[id].tsx:104
 #: src/components/share-card.tsx:160
 msgid "OPEN"
 msgstr "진행 중"
@@ -4558,11 +4617,11 @@ msgstr "진입일"
 msgid "Open price"
 msgstr "진입 가격"
 
-#: src/components/reports/risk-section.tsx:141
+#: src/components/reports/risk-section.tsx:157
 msgid "Open risk rules"
 msgstr "리스크 규칙 열기"
 
-#: src/app/share-reports-link.tsx:174
+#: src/app/share-reports-link.tsx:169
 msgid "Open settings"
 msgstr "설정 열기"
 
@@ -4570,11 +4629,11 @@ msgstr "설정 열기"
 msgid "Open time"
 msgstr "진입 시각"
 
-#: src/app/(tabs)/(settings)/index.tsx:240
+#: src/app/(tabs)/(settings)/index.tsx:245
 msgid "openai model screenshot scan coach key"
 msgstr "OpenAI 모델 스크린샷 스캔 코치 키 AI"
 
-#: src/app/(tabs)/(trades)/[id].tsx:248
+#: src/app/(tabs)/(trades)/[id].tsx:272
 msgid "Opened"
 msgstr "진입"
 
@@ -4582,16 +4641,16 @@ msgstr "진입"
 #~ msgid "Opens iOS Passwords or whichever authenticator you use. Nothing is saved until you enter a code below."
 #~ msgstr "iOS 암호 앱이나 사용 중인 인증 앱을 엽니다. 아래에 코드를 입력하기 전까지 아무것도 저장되지 않습니다."
 
-#: src/app/(tabs)/(settings)/two-factor.tsx:145
+#: src/app/(tabs)/(settings)/two-factor.tsx:150
 msgid "Opens your password manager or whichever authenticator you use. Nothing is saved until you enter a code below."
 msgstr "비밀번호 관리자 또는 사용 중인 인증 앱을 엽니다. 아래에 코드를 입력하기 전까지는 아무것도 저장되지 않습니다."
 
 #: src/app/(tabs)/(trades)/index.tsx:287
-#: src/components/trade-form.tsx:305
+#: src/components/trade-form.tsx:280
 msgid "Option"
 msgstr "옵션"
 
-#: src/components/trade-form.tsx:629
+#: src/components/trade-form.tsx:604
 msgid "Optional"
 msgstr "선택 사항"
 
@@ -4599,7 +4658,7 @@ msgstr "선택 사항"
 #~ msgid "Optional — e.g. AAPL"
 #~ msgstr "선택 사항 — 예: AAPL"
 
-#: src/app/cash-form.tsx:224
+#: src/app/cash-form.tsx:206
 msgid "Optional note"
 msgstr "메모 (선택)"
 
@@ -4611,11 +4670,12 @@ msgstr "메모 (선택)"
 msgid "Options"
 msgstr "옵션"
 
-#: src/app/replay.tsx:1038
+#: src/app/replay.tsx:1048
 msgid "Order"
 msgstr "주문"
 
-#: src/app/login.tsx:273
+#: src/app/(tabs)/(settings)/change-server.tsx:41
+#: src/app/login.tsx:274
 msgid "Origin only — the app adds /api/v1 itself."
 msgstr "오리진만 입력 — /api/v1은 앱이 자동으로 붙입니다."
 
@@ -4623,7 +4683,7 @@ msgstr "오리진만 입력 — /api/v1은 앱이 자동으로 붙입니다."
 msgid "Original"
 msgstr "원래 스톱"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:249
+#: src/app/(tabs)/(settings)/account-form.tsx:244
 msgid "Other"
 msgstr "기타"
 
@@ -4643,11 +4703,11 @@ msgstr "최근 {windowSize}건 기준"
 
 #. placeholder {0}: day.risk_violations
 #: src/app/(tabs)/(calendar)/day/[date].tsx:162
-#: src/components/reports/risk-section.tsx:201
+#: src/components/reports/risk-section.tsx:208
 msgid "over-risked ×{0}"
 msgstr "리스크 초과 ×{0}"
 
-#: src/components/reports/risk-section.tsx:200
+#: src/components/reports/risk-section.tsx:205
 msgid "over-traded"
 msgstr "거래 수 초과"
 
@@ -4672,10 +4732,11 @@ msgstr "연승 후 과대 사이즈 ×{0}"
 msgid "Overview"
 msgstr "개요"
 
-#: src/app/(tabs)/(settings)/index.tsx:356
-#: src/app/(tabs)/(settings)/profile.tsx:64
-#: src/app/(tabs)/(settings)/user-detail.tsx:166
-#: src/app/(tabs)/(settings)/user-form.tsx:116
+#: src/app/(tabs)/(settings)/index.tsx:361
+#: src/app/(tabs)/(settings)/profile.tsx:60
+#: src/app/(tabs)/(settings)/user-detail.tsx:122
+#: src/app/(tabs)/(settings)/user-form.tsx:127
+#: src/app/(tabs)/(settings)/user-form.tsx:132
 #: src/app/(tabs)/(settings)/users.tsx:52
 msgid "Owner"
 msgstr "소유자"
@@ -4684,13 +4745,13 @@ msgstr "소유자"
 #~ msgid "Owners can add, remove and reset every account on this server — including yours."
 #~ msgstr ""
 
-#: src/app/(tabs)/(settings)/user-detail.tsx:163
-#: src/app/(tabs)/(settings)/user-form.tsx:114
+#: src/app/(tabs)/(settings)/user-detail.tsx:119
+#: src/app/(tabs)/(settings)/user-form.tsx:129
 msgid "Owners can add, remove and reset every account on this server, including yours."
 msgstr "소유자는 본인 계정을 포함해 이 서버의 모든 계정을 추가·삭제·재설정할 수 있습니다."
 
-#: src/app/(tabs)/(trades)/[id].tsx:213
-#: src/app/(tabs)/(trades)/[id].tsx:343
+#: src/app/(tabs)/(trades)/[id].tsx:233
+#: src/app/(tabs)/(trades)/[id].tsx:367
 #: src/components/reports/winloss-section.tsx:85
 msgid "P&L"
 msgstr "손익"
@@ -4710,11 +4771,11 @@ msgstr "손익 워터폴"
 msgid "P&L heatmap"
 msgstr "손익 히트맵"
 
-#: src/components/reports/risk-section.tsx:159
+#: src/components/reports/risk-section.tsx:175
 msgid "P&L, rules broken"
 msgstr "손익 (규칙 위반일)"
 
-#: src/components/reports/risk-section.tsx:154
+#: src/components/reports/risk-section.tsx:170
 msgid "P&L, rules followed"
 msgstr "손익 (규칙 준수일)"
 
@@ -4727,17 +4788,18 @@ msgstr "페이퍼"
 msgid "Parsed"
 msgstr "해석 완료"
 
-#: src/app/(tabs)/(settings)/two-factor.tsx:99
-#: src/app/(tabs)/(settings)/user-form.tsx:104
-#: src/app/login.tsx:309
+#: src/app/(tabs)/(settings)/two-factor.tsx:97
+#: src/app/(tabs)/(settings)/two-factor.tsx:101
+#: src/app/(tabs)/(settings)/user-form.tsx:110
+#: src/app/login.tsx:311
 msgid "Password"
 msgstr "비밀번호"
 
-#: src/app/(tabs)/(settings)/change-password.tsx:66
+#: src/app/(tabs)/(settings)/change-password.tsx:64
 msgid "Password changed"
 msgstr "비밀번호가 변경되었습니다"
 
-#: src/app/(tabs)/(settings)/user-detail.tsx:76
+#: src/app/(tabs)/(settings)/reset-password.tsx:55
 msgid "Password reset"
 msgstr "비밀번호를 재설정했습니다"
 
@@ -4795,11 +4857,11 @@ msgstr "거래당"
 msgid "Per-share risk"
 msgstr "주당 리스크"
 
-#: src/lib/risk-rules.ts:105
+#: src/lib/risk-rules.ts:123
 msgid "Percent must be between 0 and 100."
 msgstr "퍼센트는 0에서 100 사이여야 합니다."
 
-#: src/app/(tabs)/(settings)/account-form.tsx:297
+#: src/app/(tabs)/(settings)/account-form.tsx:296
 #: src/components/performance-card.tsx:58
 #: src/components/reports/overview-section.tsx:108
 msgid "Performance"
@@ -4810,17 +4872,17 @@ msgid "Performance — gross"
 msgstr "성과 — 총액"
 
 #. placeholder {0}: account?.name ?? ''
-#: src/app/(tabs)/(settings)/account-form.tsx:205
+#: src/app/(tabs)/(settings)/account-form.tsx:199
 msgid "Permanently deletes {0} with its trades and cash records."
 msgstr "{0} 계좌를 거래 및 입출금 기록과 함께 영구 삭제합니다."
 
 #. placeholder {0}: account?.name ?? ''
-#: src/app/(tabs)/(settings)/account-form.tsx:194
+#: src/app/(tabs)/(settings)/account-form.tsx:188
 msgid "Permanently deletes {tradeCount} trades and their executions from {0}."
 msgstr "{0}에서 거래 {tradeCount}건과 체결 내역을 영구 삭제합니다."
 
-#: src/app/(tabs)/(trades)/[id].tsx:503
-#: src/components/swipeable-trade-row.tsx:54
+#: src/app/(tabs)/(trades)/[id].tsx:527
+#: src/components/swipeable-trade-row.tsx:44
 msgid "Permanently deletes this trade and all of its fills. This cannot be undone."
 msgstr "이 트레이드와 모든 체결이 영구 삭제됩니다. 되돌릴 수 없습니다."
 
@@ -4836,7 +4898,7 @@ msgstr "PF"
 msgid "Photo Library"
 msgstr "사진 보관함"
 
-#: src/components/symbol-journal.tsx:384
+#: src/components/symbol-journal.tsx:372
 msgid "Pick a symbol"
 msgstr "종목 선택"
 
@@ -4857,12 +4919,12 @@ msgstr "먼저 계좌를 선택하세요."
 #~ msgstr "고정됨 — iOS 설정과 관계없이 이 앱은 항상 라이트로 표시됩니다."
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:659
-#: src/app/new-setup.tsx:209
-#: src/components/trade-form.tsx:486
+#: src/app/new-setup.tsx:208
+#: src/components/trade-form.tsx:461
 msgid "Plan"
 msgstr "계획"
 
-#: src/app/(tabs)/(trades)/[id].tsx:624
+#: src/app/(tabs)/(trades)/[id].tsx:648
 msgid "Plan & risk"
 msgstr "계획 및 리스크"
 
@@ -4874,7 +4936,7 @@ msgstr "재생"
 msgid "Playback speed"
 msgstr "재생 속도"
 
-#: src/app/(tabs)/(dashboard)/_layout.tsx:99
+#: src/app/(tabs)/(dashboard)/_layout.tsx:103
 #: src/app/(tabs)/(dashboard)/index.tsx:227
 #: src/app/(tabs)/(dashboard)/playbook.tsx:176
 #: src/app/(tabs)/(dashboard)/playbook.tsx:226
@@ -4896,11 +4958,11 @@ msgstr "거래한 전략"
 #~ "Origin only — /api/v1 is added automatically."
 #~ msgstr "내 TraderMemos 인스턴스에 연결하세요."
 
-#: src/components/trade-form.tsx:411
+#: src/components/trade-form.tsx:386
 msgid "Point value"
 msgstr "포인트 가치"
 
-#: src/lib/change-server.ts:70
+#: src/app/(tabs)/(settings)/change-server.tsx:62
 msgid "Points the app at a different TraderMemos instance and signs you out. Unsynced offline changes will be discarded."
 msgstr "앱을 다른 TraderMemos 인스턴스에 연결하고 로그아웃합니다. 동기화되지 않은 오프라인 변경 사항은 삭제됩니다."
 
@@ -4913,8 +4975,8 @@ msgstr "미흡"
 #~ msgstr ""
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:354
-#: src/app/(tabs)/(trades)/[id].tsx:268
-#: src/app/(tabs)/(trades)/[id].tsx:372
+#: src/app/(tabs)/(trades)/[id].tsx:292
+#: src/app/(tabs)/(trades)/[id].tsx:396
 #: src/components/trade-result-card.tsx:69
 msgid "Position"
 msgstr "포지션"
@@ -4929,11 +4991,11 @@ msgstr "포지션 크기"
 msgid "Position value"
 msgstr "포지션 가치"
 
-#: src/app/(tabs)/(trades)/[id].tsx:660
+#: src/app/(tabs)/(trades)/[id].tsx:684
 msgid "Post-exit MAE"
 msgstr "청산 후 MAE"
 
-#: src/app/(tabs)/(trades)/[id].tsx:653
+#: src/app/(tabs)/(trades)/[id].tsx:677
 msgid "Post-exit MFE"
 msgstr "청산 후 MFE"
 
@@ -4950,7 +5012,7 @@ msgid "Premium paid"
 msgstr "지불 프리미엄"
 
 #: src/app/(tabs)/(settings)/export-trades.tsx:127
-#: src/app/(tabs)/(settings)/two-factor.tsx:133
+#: src/app/(tabs)/(settings)/two-factor.tsx:138
 msgid "Preparing…"
 msgstr "준비 중…"
 
@@ -4963,7 +5025,8 @@ msgstr "이전"
 #~ msgstr "이전 {0}"
 
 #: src/app/(tabs)/(settings)/display.tsx:100
-#: src/components/trade-form.tsx:732
+#: src/app/new-trade.tsx:142
+#: src/components/trade-form.tsx:707
 msgid "Preview"
 msgstr "미리 보기"
 
@@ -4988,7 +5051,7 @@ msgid "Previous year"
 msgstr "이전 해"
 
 #: src/app/(tabs)/(settings)/import-trades.tsx:46
-#: src/components/trade-form.tsx:169
+#: src/components/trade-form.tsx:159
 msgid "Price"
 msgstr "가격"
 
@@ -5008,7 +5071,7 @@ msgstr "이전"
 #~ msgid "Privacy"
 #~ msgstr "개인정보 보호"
 
-#: src/app/(tabs)/(settings)/index.tsx:259
+#: src/app/(tabs)/(settings)/index.tsx:264
 msgid "privacy hide amounts market timezone clock currency formatting"
 msgstr "프라이버시 금액 숨기기 시장 시간대 시계 통화 표시 형식"
 
@@ -5036,7 +5099,11 @@ msgstr "프라이버시, 통화, 시계 설정이 기본값으로 돌아갑니�
 msgid "Process and outcome aligned. Capture what you did right in review notes so you can repeat it."
 msgstr "프로세스와 결과가 일치했습니다. 잘한 점을 리뷰 노트에 남겨 재현하세요."
 
-#: src/app/(tabs)/(settings)/index.tsx:172
+#: src/app/(tabs)/(settings)/risk-rules.tsx:281
+#~ msgid "Process rules you score yourself — \"mark levels before the open\", \"no revenge entries\" — live in the daily checklist."
+#~ msgstr "스스로 점검하는 프로세스 룰 — \"개장 전 레벨 표시\", \"복수 매매 금지\" 등 — 은 데일리 체크리스트에 있습니다."
+
+#: src/app/(tabs)/(settings)/index.tsx:171
 msgid "profile email password sign in owner admin security"
 msgstr "프로필 이메일 비밀번호 로그인 소유자 관리자 보안"
 
@@ -5067,8 +5134,8 @@ msgstr "반납한 이익"
 msgid "profit given back ×{0}"
 msgstr "이익 반납 ×{0}"
 
-#: src/app/(tabs)/(settings)/prop-settings.tsx:134
-#: src/app/(tabs)/(settings)/prop-settings.tsx:137
+#: src/app/(tabs)/(settings)/prop-settings.tsx:123
+#: src/app/(tabs)/(settings)/prop-settings.tsx:126
 #: src/components/prop-status-card.tsx:162
 msgid "Profit target"
 msgstr "이익 목표"
@@ -5077,12 +5144,12 @@ msgstr "이익 목표"
 #~ msgid "Profit target — {0}"
 #~ msgstr "이익 목표 — {0}"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:374
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:382
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:377
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:387
 msgid "Prompt"
 msgstr "프롬프트"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:45
+#: src/app/(tabs)/(settings)/account-form.tsx:39
 msgid "Prop"
 msgstr "프랍"
 
@@ -5096,13 +5163,13 @@ msgstr "프랍 드로다운"
 msgid "Prop evaluation"
 msgstr "프랍 평가"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:77
-#: src/app/(tabs)/(settings)/account-form.tsx:325
-#: src/app/(tabs)/(settings)/prop-settings.tsx:129
+#: src/app/(tabs)/(settings)/_layout.tsx:95
+#: src/app/(tabs)/(settings)/account-form.tsx:324
+#: src/app/(tabs)/(settings)/prop-settings.tsx:118
 msgid "Prop rules"
 msgstr "프랍 규칙"
 
-#: src/app/(tabs)/(settings)/index.tsx:222
+#: src/app/(tabs)/(settings)/index.tsx:227
 msgid "push notifications webhook loss streak drawdown"
 msgstr "푸시 알림 웹훅 연속 손실 드로다운"
 
@@ -5115,22 +5182,22 @@ msgid "Push unavailable"
 msgstr "푸시를 사용할 수 없습니다"
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:292
-#: src/components/trade-form.tsx:317
+#: src/components/trade-form.tsx:292
 #: src/components/trade-row.tsx:61
 msgid "Put"
 msgstr "풋"
 
-#: src/app/(tabs)/(trades)/[id].tsx:177
+#: src/app/(tabs)/(trades)/[id].tsx:190
 msgid "PUT"
 msgstr "풋"
 
-#: src/app/replay.tsx:1021
+#: src/app/replay.tsx:1031
 msgid "Qty"
 msgstr "수량"
 
 #: src/app/(tabs)/(settings)/import-trades.tsx:45
-#: src/app/(tabs)/(trades)/[id].tsx:269
-#: src/components/trade-form.tsx:162
+#: src/app/(tabs)/(trades)/[id].tsx:293
+#: src/components/trade-form.tsx:152
 msgid "Quantity"
 msgstr "수량"
 
@@ -5138,7 +5205,7 @@ msgstr "수량"
 msgid "Quarter Kelly"
 msgstr "쿼터 켈리"
 
-#: src/app/(tabs)/(settings)/flex-sync.tsx:121
+#: src/app/(tabs)/(settings)/flex-sync.tsx:111
 msgid "Query ID"
 msgstr "쿼리 ID"
 
@@ -5154,13 +5221,13 @@ msgstr "빠른 필터"
 msgid "Quick loss — thesis failed fast"
 msgstr "빠른 손실 — 가설이 빠르게 무너짐"
 
-#: src/app/(tabs)/(dashboard)/_layout.tsx:102
+#: src/app/(tabs)/(dashboard)/_layout.tsx:106
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:732
 #: src/components/tools-menu.tsx:45
 msgid "R calculator"
 msgstr "R 계산기"
 
-#: src/app/(tabs)/(trades)/[id].tsx:635
+#: src/app/(tabs)/(trades)/[id].tsx:659
 msgid "R multiple"
 msgstr "R 배수"
 
@@ -5182,7 +5249,7 @@ msgstr "R 배수"
 msgid "Raise the cap under Settings → Display to queue more."
 msgstr "더 추가하려면 설정 → 표시에서 한도를 올리세요."
 
-#: src/components/trade-form.tsx:607
+#: src/components/trade-form.tsx:582
 msgid "Rate how you executed, not how it paid — a disciplined trade can still lose."
 msgstr "손익이 아니라 실행의 질을 평가하세요. 원칙을 지킨 매매도 손실이 날 수 있습니다."
 
@@ -5220,7 +5287,7 @@ msgstr "{settled} / {0} 읽는 중… 스크린샷은 비전 엔드포인트로 
 msgid "Reading…"
 msgstr "읽는 중…"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:41
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:42
 msgid "Reads broker screenshots into executions on Import."
 msgstr "가져오기에서 브로커 스크린샷을 체결 내역으로 읽어 들입니다."
 
@@ -5228,11 +5295,12 @@ msgstr "가져오기에서 브로커 스크린샷을 체결 내역으로 읽어 
 #~ msgid "Reads broker screenshots into executions on Import. Works with any OpenAI-compatible API."
 #~ msgstr "가져오기에서 브로커 스크린샷을 체결 내역으로 읽어들입니다. OpenAI 호환 API에서 작동합니다."
 
-#: src/components/checklist-card.tsx:189
+#: src/app/(tabs)/(dashboard)/daily-checklist.tsx:61
+#: src/components/checklist-card.tsx:53
 msgid "Ready to trade"
 msgstr "거래 준비 완료"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:304
+#: src/app/(tabs)/(settings)/account-form.tsx:303
 #: src/components/prop-status-card.tsx:198
 msgid "Realized P&L"
 msgstr "실현 손익"
@@ -5241,7 +5309,7 @@ msgstr "실현 손익"
 msgid "Recap"
 msgstr "요약"
 
-#: src/components/reports/risk-section.tsx:190
+#: src/components/reports/risk-section.tsx:195
 msgid "Recent breach days"
 msgstr "최근 위반일"
 
@@ -5253,7 +5321,7 @@ msgstr "최근 이벤트"
 msgid "Recent trades"
 msgstr "최근 트레이드"
 
-#: src/app/(tabs)/(trades)/[id].tsx:589
+#: src/app/(tabs)/(trades)/[id].tsx:613
 msgid "Recompute MAE/MFE"
 msgstr "MAE/MFE 다시 계산"
 
@@ -5273,7 +5341,7 @@ msgstr "다시 생성"
 msgid "Regular hours"
 msgstr "정규장"
 
-#: src/app/(tabs)/(trades)/[id].tsx:271
+#: src/app/(tabs)/(trades)/[id].tsx:295
 msgid "Remaining"
 msgstr "잔여 수량"
 
@@ -5281,11 +5349,11 @@ msgstr "잔여 수량"
 msgid "Remind me"
 msgstr "미리 알림 설정"
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:268
+#: src/app/(tabs)/(dashboard)/checklist.tsx:270
 msgid "Reminders"
 msgstr "미리 알림"
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:72
+#: src/app/(tabs)/(dashboard)/checklist.tsx:74
 #: src/app/(tabs)/(dashboard)/economic-events.tsx:755
 msgid "Reminders access needed"
 msgstr "미리 알림 접근 권한 필요"
@@ -5294,22 +5362,20 @@ msgstr "미리 알림 접근 권한 필요"
 msgid "Reminders need a rebuild"
 msgstr "미리 알림에는 재빌드가 필요합니다"
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:72
+#: src/app/(tabs)/(dashboard)/checklist.tsx:74
 msgid "Reminders unavailable"
 msgstr "미리 알림을 사용할 수 없음"
 
-#: src/app/(tabs)/(settings)/flex-sync.tsx:108
-#: src/app/(tabs)/(settings)/funding.tsx:52
-#: src/app/(tabs)/(settings)/funding.tsx:131
-#: src/app/(tabs)/(settings)/prop-settings.tsx:119
-#: src/app/(tabs)/(settings)/risk-rules.tsx:69
-#: src/app/(tabs)/(settings)/risk-rules.tsx:80
-#: src/app/(tabs)/(trades)/[id].tsx:506
-#: src/app/cash-form.tsx:143
+#: src/app/(tabs)/(settings)/flex-sync.tsx:102
+#: src/app/(tabs)/(settings)/funding.tsx:62
+#: src/app/(tabs)/(settings)/funding.tsx:153
+#: src/app/(tabs)/(settings)/prop-settings.tsx:107
+#: src/app/(tabs)/(settings)/risk-rules.tsx:116
+#: src/app/(tabs)/(trades)/[id].tsx:530
 #: src/components/attachments-card.tsx:152
 #: src/components/note-images.tsx:138
-#: src/components/swipeable-trade-row.tsx:57
-#: src/components/swipeable-trade-row.tsx:103
+#: src/components/swipeable-trade-row.tsx:47
+#: src/components/swipeable-trade-row.tsx:87
 msgid "Remove"
 msgstr "삭제"
 
@@ -5319,23 +5385,23 @@ msgid "Remove {0}"
 msgstr "{0} 제거"
 
 #. placeholder {0}: trade.symbol
-#: src/components/swipeable-trade-row.tsx:53
+#: src/components/swipeable-trade-row.tsx:43
 msgid "Remove {0}?"
 msgstr "{0}을(를) 삭제할까요?"
 
-#: src/app/new-setup.tsx:264
+#: src/app/new-setup.tsx:263
 msgid "Remove check"
 msgstr "체크 삭제"
 
-#: src/components/trade-form.tsx:219
+#: src/components/trade-form.tsx:198
 msgid "Remove fill"
 msgstr "체결 삭제"
 
-#: src/app/(tabs)/(settings)/flex-sync.tsx:172
+#: src/app/(tabs)/(settings)/flex-sync.tsx:185
 msgid "Remove Flex sync"
 msgstr "Flex 동기화 제거"
 
-#: src/app/(tabs)/(settings)/flex-sync.tsx:106
+#: src/app/(tabs)/(settings)/flex-sync.tsx:100
 msgid "Remove Flex sync?"
 msgstr "Flex 동기화를 제거할까요?"
 
@@ -5355,11 +5421,11 @@ msgstr "이미지를 삭제할까요?"
 #~ msgid "Remove position"
 #~ msgstr "포지션 삭제"
 
-#: src/app/(tabs)/(settings)/prop-settings.tsx:183
+#: src/app/(tabs)/(settings)/prop-settings.tsx:172
 msgid "Remove prop rules"
 msgstr "프랍 규칙 제거"
 
-#: src/app/(tabs)/(settings)/prop-settings.tsx:117
+#: src/app/(tabs)/(settings)/prop-settings.tsx:105
 msgid "Remove prop rules?"
 msgstr "프랍 규칙을 제거할까요?"
 
@@ -5367,9 +5433,9 @@ msgstr "프랍 규칙을 제거할까요?"
 msgid "Remove reminder"
 msgstr "미리 알림 삭제"
 
-#: src/app/(tabs)/(settings)/risk-rules.tsx:66
-msgid "Remove rule?"
-msgstr "규칙을 삭제할까요?"
+#: src/app/(tabs)/(settings)/risk-rules.tsx:64
+#~ msgid "Remove rule?"
+#~ msgstr "규칙을 삭제할까요?"
 
 #: src/components/attachments-card.tsx:150
 msgid "Remove screenshot?"
@@ -5378,7 +5444,7 @@ msgstr "스크린샷을 제거할까요?"
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:554
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:696
 #: src/components/note-form.tsx:269
-#: src/components/trade-form.tsx:743
+#: src/components/trade-form.tsx:718
 msgid "Remove symbol"
 msgstr "종목 삭제"
 
@@ -5386,31 +5452,29 @@ msgstr "종목 삭제"
 msgid "Remove tier"
 msgstr "티어 제거"
 
-#: src/app/(tabs)/(trades)/[id].tsx:598
+#: src/app/(tabs)/(trades)/[id].tsx:622
 msgid "Remove trade"
 msgstr "트레이드 삭제"
 
-#: src/app/(tabs)/(trades)/[id].tsx:502
+#: src/app/(tabs)/(trades)/[id].tsx:526
 msgid "Remove trade?"
 msgstr "거래를 제거할까요?"
 
 #: src/app/cash-form.tsx:242
-msgid "Remove transaction"
-msgstr "입출금 내역 삭제"
+#~ msgid "Remove transaction"
+#~ msgstr "입출금 내역 삭제"
 
-#: src/app/(tabs)/(settings)/funding.tsx:129
-#: src/app/cash-form.tsx:141
+#: src/app/(tabs)/(settings)/funding.tsx:151
 msgid "Remove transaction?"
 msgstr "입출금 내역을 삭제할까요?"
 
 #. placeholder {0}: tag.name
-#: src/app/(tabs)/(settings)/tags.tsx:84
+#: src/app/(tabs)/(settings)/tags.tsx:96
 msgid "Removes “{0}” from every trade it annotates."
 msgstr "주석이 달린 모든 거래에서 “{0}” 태그를 제거합니다."
 
-#: src/app/(tabs)/(settings)/flex-sync.tsx:172
-#: src/app/(tabs)/(settings)/prop-settings.tsx:183
-#: src/app/cash-form.tsx:242
+#: src/app/(tabs)/(settings)/flex-sync.tsx:185
+#: src/app/(tabs)/(settings)/prop-settings.tsx:172
 msgid "Removing…"
 msgstr "삭제 중…"
 
@@ -5425,23 +5489,22 @@ msgstr "삭제 중…"
 
 #: src/components/symbol-journal.tsx:462
 #: src/components/trade-chart.tsx:90
-msgid "Replay"
-msgstr "리플레이"
+#~ msgid "Replay"
+#~ msgstr "리플레이"
 
-#: src/components/symbol-journal.tsx:437
+#: src/components/symbol-journal.tsx:425
 msgid "Replay {symbol}"
 msgstr "{symbol} 재생"
 
-#: src/app/replay.tsx:444
+#: src/app/replay.tsx:450
 msgid "Replay actions"
 msgstr "리플레이 작업"
 
-#: src/components/trade-chart.tsx:86
-#: src/components/trade-chart.tsx:108
+#: src/components/trade-chart.tsx:96
 msgid "Replay this trade"
 msgstr "이 매매 재생"
 
-#: src/app/(tabs)/(trades)/[id].tsx:570
+#: src/app/(tabs)/(trades)/[id].tsx:594
 msgid "Replay trade"
 msgstr "거래 리플레이"
 
@@ -5453,14 +5516,13 @@ msgstr "리플레이 기간"
 msgid "Report an issue"
 msgstr "문제 신고"
 
-#: src/app/(tabs)/(dashboard)/_layout.tsx:122
+#: src/app/(tabs)/(dashboard)/_layout.tsx:126
 #: src/app/(tabs)/(dashboard)/reports.tsx:117
 #: src/components/tools-menu.tsx:40
 msgid "Reports"
 msgstr "리포트"
 
 #: src/app/(tabs)/(settings)/display.tsx:89
-#: src/app/(tabs)/(settings)/user-detail.tsx:105
 msgid "Reset"
 msgstr "초기화"
 
@@ -5468,14 +5530,19 @@ msgstr "초기화"
 msgid "Reset display settings?"
 msgstr "표시 설정을 초기화할까요?"
 
-#: src/app/(tabs)/(settings)/user-detail.tsx:103
-#: src/app/(tabs)/(settings)/user-detail.tsx:178
+#: src/app/(tabs)/(settings)/_layout.tsx:54
+#: src/app/(tabs)/(settings)/reset-password.tsx:118
+#: src/app/(tabs)/(settings)/user-detail.tsx:134
 msgid "Reset password"
 msgstr "비밀번호 재설정"
 
 #: src/app/(tabs)/(settings)/display.tsx:194
 msgid "Reset to defaults"
 msgstr "기본값으로 초기화"
+
+#: src/app/(tabs)/(settings)/reset-password.tsx:118
+msgid "Resetting…"
+msgstr "재설정하는 중…"
 
 #: src/components/replay-controls.tsx:165
 msgid "Restart"
@@ -5485,7 +5552,7 @@ msgstr "처음부터"
 msgid "Result"
 msgstr "결과"
 
-#: src/app/(tabs)/(settings)/index.tsx:329
+#: src/app/(tabs)/(settings)/index.tsx:334
 msgid "Results"
 msgstr "검색 결과"
 
@@ -5493,12 +5560,12 @@ msgstr "검색 결과"
 msgid "Retry"
 msgstr "재시도"
 
-#: src/app/(tabs)/(trades)/[id].tsx:355
+#: src/app/(tabs)/(trades)/[id].tsx:379
 #: src/components/error-state.tsx:83
 msgid "Retrying…"
 msgstr "다시 시도하는 중…"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:310
+#: src/app/(tabs)/(settings)/account-form.tsx:309
 msgid "Return"
 msgstr "수익률"
 
@@ -5511,9 +5578,10 @@ msgstr "복수 매매 ×{0}"
 msgid "Revenge trading"
 msgstr "복수 매매"
 
-#: src/app/(tabs)/(trades)/[id].tsx:678
+#: src/app/(tabs)/(trades)/[id].tsx:702
 #: src/app/quick-journal.tsx:90
-#: src/components/trade-form.tsx:571
+#: src/app/quick-journal.tsx:210
+#: src/components/trade-form.tsx:546
 msgid "Review"
 msgstr "리뷰"
 
@@ -5525,17 +5593,17 @@ msgstr "검토 후 저장"
 msgid "Review import"
 msgstr "가져오기 검토"
 
-#: src/app/(tabs)/(trades)/[id].tsx:713
+#: src/app/(tabs)/(trades)/[id].tsx:737
 #: src/app/quick-journal.tsx:100
-#: src/components/trade-form.tsx:601
+#: src/components/trade-form.tsx:576
 msgid "Review notes"
 msgstr "리뷰 노트"
 
-#: src/app/replay.tsx:1058
+#: src/app/replay.tsx:1068
 msgid "Reviewing an earlier bar — step forward to trade."
 msgstr "이전 봉을 검토 중입니다 — 거래하려면 앞으로 이동하세요."
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:36
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:37
 msgid "Reviews your journal and trades to surface patterns on the dashboard."
 msgstr "저널과 매매를 검토해 대시보드에 패턴을 보여줍니다."
 
@@ -5543,13 +5611,12 @@ msgstr "저널과 매매를 검토해 대시보드에 패턴을 보여줍니다.
 #~ msgid "Reviews your journal and trades to surface patterns. Works with any OpenAI-compatible API."
 #~ msgstr "저널과 거래를 검토해 패턴을 찾아냅니다. OpenAI 호환 API에서 작동합니다."
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:63
-#: src/app/(tabs)/(settings)/api-tokens.tsx:68
-#: src/app/(tabs)/(settings)/api-tokens.tsx:163
+#: src/app/(tabs)/(settings)/api-tokens.tsx:49
+#: src/app/(tabs)/(settings)/api-tokens.tsx:151
 msgid "Revoke"
 msgstr "폐기"
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:159
+#: src/app/(tabs)/(settings)/api-tokens.tsx:147
 msgid "Revoke token?"
 msgstr "토큰을 폐기할까요?"
 
@@ -5574,8 +5641,8 @@ msgstr "리스크 예산이 1계약 미만 — 리스크%를 높이거나 스톱
 msgid "Risk rule broken"
 msgstr "리스크 규칙 위반"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:69
-#: src/app/(tabs)/(settings)/index.tsx:215
+#: src/app/(tabs)/(settings)/_layout.tsx:77
+#: src/app/(tabs)/(settings)/index.tsx:214
 #: src/app/(tabs)/(settings)/trading-journal.tsx:114
 msgid "Risk rules"
 msgstr "리스크 규칙"
@@ -5596,13 +5663,17 @@ msgstr "리스크·목표·스톱이 모두 비어 있습니다. 계획이 없�
 msgid "Risk, target, and stop are blank — and you tagged this as no plan. Define all three before entry next time so you can measure R and review honestly."
 msgstr "리스크·목표·스톱이 비어 있고 스스로 '무계획' 태그를 달았습니다. 다음엔 진입 전에 셋 다 정해 R을 측정하고 정직하게 복기하세요."
 
-#: src/app/(tabs)/(settings)/profile.tsx:63
+#: src/app/(tabs)/(settings)/profile.tsx:59
 msgid "Role"
 msgstr "역할"
 
 #: src/components/reports/winloss-section.tsx:139
 msgid "Rolling win rate"
 msgstr "롤링 승률"
+
+#: src/app/(tabs)/(settings)/index.tsx:221
+msgid "routine morning pre-market process rules"
+msgstr "루틴 아침 장전 프로세스 규칙"
 
 #. placeholder {0}: error.row
 #. placeholder {1}: error.message
@@ -5618,7 +5689,7 @@ msgstr "행 수"
 msgid "Rows with errors"
 msgstr "오류가 있는 행"
 
-#: src/components/reports/risk-section.tsx:127
+#: src/components/reports/risk-section.tsx:143
 msgid "Rule compliance"
 msgstr "규칙 준수"
 
@@ -5635,12 +5706,12 @@ msgstr "규칙"
 msgid "rules followed"
 msgstr "규칙 준수"
 
-#: src/app/(tabs)/(settings)/prop-settings.tsx:130
+#: src/app/(tabs)/(settings)/prop-settings.tsx:119
 msgid "Rules the firm scores this evaluation on. Blank rules are skipped."
 msgstr "프랍 회사가 이 평가를 채점하는 규칙입니다. 빈 규칙은 건너뜁니다."
 
 #. placeholder {0}: me.data?.email ?? ''
-#: src/app/(tabs)/(settings)/two-factor.tsx:119
+#: src/app/(tabs)/(settings)/two-factor.tsx:124
 msgid "Run \"tradermemos disable-totp --email {0}\" on the server. There are no recovery codes to lose."
 msgstr "서버에서 \"tradermemos disable-totp --email {0}\"을(를) 실행하세요. 분실할 복구 코드는 없습니다."
 
@@ -5669,17 +5740,15 @@ msgstr "샘플 JSON"
 msgid "Sat"
 msgstr "토"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:226
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:260
-#: src/app/(tabs)/(settings)/change-password.tsx:99
-#: src/app/(tabs)/(settings)/flex-sync.tsx:140
-#: src/app/(tabs)/(settings)/prop-settings.tsx:70
-#: src/app/(tabs)/(settings)/prop-settings.tsx:94
-#: src/app/(tabs)/(settings)/risk-rules.tsx:47
-#: src/app/(tabs)/(settings)/web-address.tsx:62
-#: src/components/form-sheet.tsx:173
+#: src/app/(tabs)/(settings)/account-form.tsx:220
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:261
+#: src/app/(tabs)/(settings)/change-password.tsx:100
+#: src/app/(tabs)/(settings)/flex-sync.tsx:146
+#: src/app/(tabs)/(settings)/risk-rule-form.tsx:102
+#: src/app/(tabs)/(settings)/web-address.tsx:61
+#: src/components/form-sheet.tsx:182
 #: src/components/use-prompt.tsx:47
-#: src/components/use-prompt.tsx:95
+#: src/components/use-prompt.tsx:97
 msgid "Save"
 msgstr "저장"
 
@@ -5695,7 +5764,7 @@ msgstr "샘플 파일을 저장해 예상 형식을 확인하세요. 파일은 �
 #~ msgid "Save checklist"
 #~ msgstr "체크리스트 저장"
 
-#: src/app/replay.tsx:455
+#: src/app/replay.tsx:461
 msgid "Save frame to note"
 msgstr "프레임을 노트에 저장"
 
@@ -5707,7 +5776,7 @@ msgstr "프레임을 노트에 저장"
 #~ msgid "Save risk rules"
 #~ msgstr "리스크 규칙 저장"
 
-#: src/app/replay.tsx:907
+#: src/app/replay.tsx:913
 msgid "Save session"
 msgstr "세션 저장"
 
@@ -5715,7 +5784,7 @@ msgstr "세션 저장"
 msgid "Save trade"
 msgstr "매매 저장"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:248
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:249
 msgid "Saved"
 msgstr "저장됨"
 
@@ -5723,15 +5792,16 @@ msgstr "저장됨"
 #~ msgid "Saved — leave blank to keep"
 #~ msgstr "저장됨 — 비워 두면 유지됩니다"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:226
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:260
-#: src/app/(tabs)/(settings)/change-password.tsx:148
-#: src/app/(tabs)/(settings)/flex-sync.tsx:140
+#: src/app/(tabs)/(settings)/account-form.tsx:220
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:261
+#: src/app/(tabs)/(settings)/change-password.tsx:100
+#: src/app/(tabs)/(settings)/flex-sync.tsx:146
+#: src/app/(tabs)/(settings)/risk-rule-form.tsx:102
 #: src/app/(tabs)/(settings)/trading-journal.tsx:105
 #: src/app/trade-preview.tsx:216
-#: src/components/form-sheet.tsx:166
-#: src/components/form-sheet.tsx:173
-#: src/components/form-sheet.tsx:232
+#: src/components/form-sheet.tsx:175
+#: src/components/form-sheet.tsx:182
+#: src/components/form-sheet.tsx:241
 msgid "Saving…"
 msgstr "저장 중…"
 
@@ -5752,11 +5822,12 @@ msgstr "AI로 스캔 중…"
 #~ msgid "Scanning…"
 #~ msgstr "스캔 중…"
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:257
+#: src/app/(tabs)/(dashboard)/checklist.tsx:259
 msgid "Schedule"
 msgstr "일정"
 
 #: src/app/(tabs)/(settings)/flex-sync.tsx:136
+#: src/app/(tabs)/(settings)/flex-sync.tsx:141
 msgid "Scheduled sync"
 msgstr "예약 동기화"
 
@@ -5776,13 +5847,13 @@ msgid "Screenshot upload failed ({0})"
 msgstr "스크린샷 업로드 실패 ({0})"
 
 #: src/components/attachments-card.tsx:159
-#: src/components/trade-form.tsx:636
+#: src/components/trade-form.tsx:611
 msgid "Screenshots"
 msgstr "스크린샷"
 
-#: src/app/(tabs)/(settings)/index.tsx:233
+#: src/app/(tabs)/(settings)/index.tsx:238
 #: src/app/(tabs)/(settings)/trading-journal.tsx:69
-#: src/app/(tabs)/(settings)/trading-journal.tsx:127
+#: src/app/(tabs)/(settings)/trading-journal.tsx:136
 msgid "Screenshots per trade"
 msgstr "거래당 스크린샷 수"
 
@@ -5806,7 +5877,7 @@ msgstr "종목 검색"
 #~ msgid "Search a ticker above to load its chart."
 #~ msgstr "위에서 티커를 검색하면 차트가 표시됩니다."
 
-#: src/components/symbol-journal.tsx:386
+#: src/components/symbol-journal.tsx:374
 msgid "Search a ticker to see its chart — with your own trades drawn on it."
 msgstr "티커를 검색하면 차트 위에 내 거래가 함께 표시됩니다."
 
@@ -5819,18 +5890,18 @@ msgstr "이벤트 검색"
 #~ msgid "Search finds any setting directly, without opening its page."
 #~ msgstr "검색하면 해당 페이지를 열지 않고도 설정으로 바로 이동합니다."
 
-#: src/app/(tabs)/(dashboard)/notes.tsx:207
-#: src/app/(tabs)/(dashboard)/notes.tsx:308
+#: src/app/(tabs)/(dashboard)/notes.tsx:202
+#: src/app/(tabs)/(dashboard)/notes.tsx:303
 msgid "Search notes"
 msgstr "노트 검색"
 
-#: src/app/(tabs)/(settings)/index.tsx:318
-#: src/app/(tabs)/(settings)/index.tsx:476
+#: src/app/(tabs)/(settings)/index.tsx:323
+#: src/app/(tabs)/(settings)/index.tsx:479
 msgid "Search settings"
 msgstr "설정 검색"
 
 #: src/app/(tabs)/(dashboard)/backtest.tsx:115
-#: src/components/symbol-journal.tsx:341
+#: src/components/symbol-journal.tsx:329
 msgid "Search symbol"
 msgstr "종목 검색"
 
@@ -5847,30 +5918,30 @@ msgstr "초"
 #~ msgid "Seconds"
 #~ msgstr "초"
 
-#: src/app/(tabs)/(settings)/profile.tsx:95
-#: src/app/(tabs)/(settings)/user-detail.tsx:173
+#: src/app/(tabs)/(settings)/profile.tsx:80
+#: src/app/(tabs)/(settings)/user-detail.tsx:129
 msgid "Security"
 msgstr "보안"
 
-#: src/app/(tabs)/(settings)/index.tsx:186
+#: src/app/(tabs)/(settings)/index.tsx:185
 msgid "security credentials reset"
 msgstr "보안 자격 증명 재설정 비밀번호"
 
-#: src/app/(tabs)/(settings)/profile.tsx:73
-msgid "Self-hosted — your journal never leaves this server."
-msgstr "셀프 호스팅 — 저널은 이 서버를 벗어나지 않습니다."
+#: src/app/(tabs)/(settings)/profile.tsx:74
+#~ msgid "Self-hosted — your journal never leaves this server."
+#~ msgstr "셀프 호스팅 — 저널은 이 서버를 벗어나지 않습니다."
 
 #: src/app/login.tsx:371
 msgid "Self-hosted — your trade data stays on your stack."
 msgstr "셀프 호스팅 — 거래 데이터는 내 서버에 저장됩니다."
 
-#: src/app/replay.tsx:897
-#: src/components/trade-form.tsx:127
+#: src/app/replay.tsx:903
+#: src/components/trade-form.tsx:117
 #: src/components/trade-summary.tsx:84
 msgid "Sell"
 msgstr "매도"
 
-#: src/app/(tabs)/(trades)/[id].tsx:772
+#: src/app/(tabs)/(trades)/[id].tsx:796
 msgid "SELL"
 msgstr "매도"
 
@@ -5879,12 +5950,14 @@ msgid "Sell %"
 msgstr "매도 %"
 
 #: src/app/(tabs)/(settings)/about.tsx:60
-#: src/app/(tabs)/(settings)/index.tsx:179
-#: src/app/(tabs)/(settings)/index.tsx:365
-#: src/app/(tabs)/(settings)/profile.tsx:72
+#: src/app/(tabs)/(settings)/index.tsx:178
+#: src/app/(tabs)/(settings)/index.tsx:369
+#: src/app/(tabs)/(settings)/profile.tsx:74
 msgid "Server"
 msgstr "서버"
 
+#: src/app/(tabs)/(settings)/change-server.tsx:36
+#: src/app/(tabs)/(settings)/change-server.tsx:46
 #: src/app/login.tsx:263
 msgid "Server address"
 msgstr "서버 주소"
@@ -5897,13 +5970,13 @@ msgstr "서버 오류"
 msgid "Server URL"
 msgstr "서버 URL"
 
-#: src/app/(tabs)/(trades)/[id].tsx:692
+#: src/app/(tabs)/(trades)/[id].tsx:716
 #: src/components/tools-menu.tsx:97
-#: src/components/trade-form.tsx:521
+#: src/components/trade-form.tsx:496
 msgid "Session"
 msgstr "세션"
 
-#: src/app/replay.tsx:957
+#: src/app/replay.tsx:967
 msgid "Session actions"
 msgstr "세션 작업"
 
@@ -5930,7 +6003,7 @@ msgstr "세션은 뉴욕 시간을 따릅니다."
 msgid "Set stop loss targets"
 msgstr "손절 목표 설정"
 
-#: src/app/share-reports-link.tsx:169
+#: src/app/share-reports-link.tsx:164
 msgid "Set the web app address first — links open there, and this server doesn't advertise one."
 msgstr "먼저 웹 앱 주소를 설정하세요 — 링크는 그곳에서 열립니다. 이 서버는 주소를 알려주지 않습니다."
 
@@ -5942,17 +6015,17 @@ msgstr "설정 필요"
 msgid "Set up rules"
 msgstr "규칙 설정"
 
-#: src/app/(tabs)/(settings)/two-factor.tsx:133
+#: src/app/(tabs)/(settings)/two-factor.tsx:138
 msgid "Set up two-factor"
 msgstr "2단계 인증 설정"
 
-#: src/app/new-trade.tsx:59
+#: src/app/new-trade.tsx:60
 #: src/components/trade-prefill-bar.tsx:34
 msgid "Set up Vision scan first"
 msgstr "먼저 비전 스캔을 설정하세요"
 
 #. placeholder {0}: user?.email ?? ''
-#: src/app/(tabs)/(settings)/user-detail.tsx:104
+#: src/app/(tabs)/(settings)/reset-password.tsx:81
 msgid "Sets a new password for {0} without their current one."
 msgstr "현재 비밀번호 없이 {0} 님의 새 비밀번호를 설정합니다."
 
@@ -5961,7 +6034,7 @@ msgstr "현재 비밀번호 없이 {0} 님의 새 비밀번호를 설정합니�
 msgid "Settings"
 msgstr "설정"
 
-#: src/app/(tabs)/(trades)/[id].tsx:684
+#: src/app/(tabs)/(trades)/[id].tsx:708
 #: src/components/breakdown-card.tsx:26
 #: src/components/reports/overview-section.tsx:470
 msgid "Setup"
@@ -5971,15 +6044,19 @@ msgstr "셋업"
 msgid "Setup {grade}"
 msgstr "셋업 {grade}"
 
-#: src/app/(tabs)/(trades)/[id].tsx:707
+#: src/app/(tabs)/(settings)/two-factor.tsx:164
+msgid "Setup key copied"
+msgstr "설정 키를 복사했습니다"
+
+#: src/app/(tabs)/(trades)/[id].tsx:731
 #: src/app/manage-tags.tsx:126
-#: src/components/trade-form.tsx:541
-#: src/components/trade-form.tsx:543
+#: src/components/trade-form.tsx:516
+#: src/components/trade-form.tsx:518
 msgid "Setup rating"
 msgstr "셋업 평가"
 
 #: src/app/manage-tags.tsx:102
-#: src/components/trade-form.tsx:513
+#: src/components/trade-form.tsx:488
 msgid "Setups"
 msgstr "셋업"
 
@@ -5988,28 +6065,29 @@ msgid "Setups restored"
 msgstr "복원된 셋업"
 
 #: src/app/(tabs)/(dashboard)/wrapped.tsx:390
-#: src/app/share-reports-link.tsx:153
-#: src/app/share-trade.tsx:186
-#: src/app/share-wrapped.tsx:198
+#: src/app/share-reports-link.tsx:148
+#: src/app/share-trade.tsx:179
+#: src/app/share-wrapped.tsx:191
 msgid "Share"
 msgstr "공유"
 
-#: src/app/(tabs)/(trades)/[id].tsx:580
+#: src/app/(tabs)/(trades)/[id].tsx:604
 #: src/app/share-trade.tsx:80
 #: src/app/share-wrapped.tsx:90
 msgid "Share card"
 msgstr "카드 공유"
 
-#: src/app/replay.tsx:461
+#: src/app/replay.tsx:467
 msgid "Share frame"
 msgstr "프레임 공유"
 
 #: src/app/(tabs)/(dashboard)/reports.tsx:53
-#: src/app/share-reports-link.tsx:103
+#: src/app/share-reports-link.tsx:105
 msgid "Share link"
 msgstr "공유 링크"
 
-#: src/app/(tabs)/(settings)/web-address.tsx:68
+#: src/app/(tabs)/(settings)/_layout.tsx:74
+#: src/app/(tabs)/(settings)/integrations.tsx:55
 msgid "Share links"
 msgstr "공유 링크"
 
@@ -6022,7 +6100,7 @@ msgstr "공유 링크는 이 주소({0})로 만들어집니다."
 msgid "Share links need this address. Your server doesn't advertise one, so set the domain your web app is served from."
 msgstr "공유 링크에는 이 주소가 필요합니다. 서버가 알려주지 않으므로 웹 앱이 제공되는 도메인을 설정하세요."
 
-#: src/app/(tabs)/(settings)/web-address.tsx:41
+#: src/app/(tabs)/(settings)/web-address.tsx:40
 msgid "Share links will use whatever your server reports."
 msgstr "공유 링크는 서버가 알려주는 주소를 사용합니다."
 
@@ -6030,7 +6108,7 @@ msgstr "공유 링크는 서버가 알려주는 주소를 사용합니다."
 msgid "Share replay frame"
 msgstr "리플레이 프레임 공유"
 
-#: src/app/new-token.tsx:103
+#: src/app/new-token.tsx:104
 msgid "Share token"
 msgstr "토큰 공유"
 
@@ -6052,15 +6130,15 @@ msgstr "주식 수"
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:585
 #: src/app/new-setup.tsx:166
 #: src/components/reports-filter-menu.tsx:41
-#: src/components/trade-form.tsx:312
+#: src/components/trade-form.tsx:287
 #: src/components/trade-row.tsx:64
 #: src/components/trade-summary.tsx:160
 msgid "Short"
 msgstr "숏"
 
-#: src/app/(tabs)/(trades)/[id].tsx:173
-#: src/app/quick-journal.tsx:160
-#: src/app/replay.tsx:499
+#: src/app/(tabs)/(trades)/[id].tsx:186
+#: src/app/quick-journal.tsx:159
+#: src/app/replay.tsx:505
 #: src/components/share-card.tsx:231
 msgid "SHORT"
 msgstr "숏"
@@ -6071,16 +6149,16 @@ msgid "Short {0}"
 msgstr "숏 {0}"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:27
+#: src/app/share-reports-link.tsx:115
 #: src/app/share-reports-link.tsx:120
-#: src/app/share-reports-link.tsx:125
-#: src/app/share-trade.tsx:156
-#: src/app/share-trade.tsx:164
-#: src/app/share-wrapped.tsx:168
-#: src/app/share-wrapped.tsx:176
+#: src/app/share-trade.tsx:149
+#: src/app/share-trade.tsx:157
+#: src/app/share-wrapped.tsx:161
+#: src/app/share-wrapped.tsx:169
 msgid "Show amounts"
 msgstr "금액 표시"
 
-#: src/components/password-input.tsx:37
+#: src/components/password-input.tsx:40
 msgid "Show password"
 msgstr "비밀번호 표시"
 
@@ -6090,7 +6168,7 @@ msgstr "잠금 화면에 세션 표시"
 
 #: src/app/(tabs)/(settings)/import-trades.tsx:44
 #: src/components/reports-filter-menu.tsx:36
-#: src/components/trade-form.tsx:148
+#: src/components/trade-form.tsx:138
 msgid "Side"
 msgstr "매매 구분"
 
@@ -6103,12 +6181,12 @@ msgstr "로그인"
 #~ msgid "Sign in failed"
 #~ msgstr "로그인에 실패했습니다"
 
-#: src/app/(tabs)/(settings)/index.tsx:135
-#: src/app/(tabs)/(settings)/index.tsx:470
+#: src/app/(tabs)/(settings)/index.tsx:134
+#: src/app/(tabs)/(settings)/index.tsx:473
 msgid "Sign out"
 msgstr "로그아웃"
 
-#: src/app/(tabs)/(settings)/index.tsx:130
+#: src/app/(tabs)/(settings)/index.tsx:129
 msgid "Sign out?"
 msgstr "로그아웃할까요?"
 
@@ -6116,7 +6194,7 @@ msgstr "로그아웃할까요?"
 msgid "Signal"
 msgstr "시그널"
 
-#: src/app/(tabs)/(settings)/profile.tsx:50
+#: src/app/(tabs)/(settings)/profile.tsx:46
 msgid "Signed in as"
 msgstr "로그인 계정"
 
@@ -6180,7 +6258,7 @@ msgstr "시작일"
 msgid "Start replay"
 msgstr "리플레이 시작"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:285
+#: src/app/(tabs)/(settings)/account-form.tsx:281
 msgid "Starting balance"
 msgstr "시작 잔고"
 
@@ -6188,12 +6266,12 @@ msgstr "시작 잔고"
 msgid "static"
 msgstr "고정"
 
-#: src/app/(tabs)/(settings)/prop-settings.tsx:156
+#: src/app/(tabs)/(settings)/prop-settings.tsx:145
 msgid "Static — fixed floor"
 msgstr "고정 — 하한이 움직이지 않음"
 
 #: src/app/(tabs)/(settings)/about.tsx:64
-#: src/app/(tabs)/(settings)/flex-sync.tsx:147
+#: src/app/(tabs)/(settings)/flex-sync.tsx:151
 #: src/app/(tabs)/(trades)/index.tsx:385
 msgid "Status"
 msgstr "상태"
@@ -6209,8 +6287,8 @@ msgstr "한 봉 앞으로"
 #: src/app/(tabs)/(dashboard)/backtest.tsx:84
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:281
 #: src/app/(tabs)/(trades)/index.tsx:286
-#: src/components/symbol-journal.tsx:308
-#: src/components/trade-form.tsx:304
+#: src/components/symbol-journal.tsx:304
+#: src/components/trade-form.tsx:279
 msgid "Stock"
 msgstr "주식"
 
@@ -6220,10 +6298,10 @@ msgstr "주식 / 옵션"
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:339
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:663
-#: src/app/(tabs)/(trades)/[id].tsx:629
-#: src/app/new-setup.tsx:229
+#: src/app/(tabs)/(trades)/[id].tsx:653
+#: src/app/new-setup.tsx:228
 #: src/app/tool-position-size.tsx:87
-#: src/components/trade-form.tsx:496
+#: src/components/trade-form.tsx:471
 msgid "Stop"
 msgstr "손절가"
 
@@ -6231,6 +6309,10 @@ msgstr "손절가"
 #: src/components/trade-summary.tsx:41
 msgid "Stop {0}"
 msgstr "손절 {0}"
+
+#: src/lib/risk-rules.ts:60
+msgid "Stop after this many losing trades in a row."
+msgstr "이 횟수만큼 연속으로 손실이 나면 매매를 멈춥니다."
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:503
 msgid "Stop at R"
@@ -6256,11 +6338,11 @@ msgstr "스톱 프리미엄"
 msgid "Stop premium must be below entry premium"
 msgstr "스톱 프리미엄은 진입 프리미엄보다 낮아야 합니다"
 
-#: src/lib/risk-rules.ts:31
+#: src/lib/risk-rules.ts:36
 msgid "Stop when today's realized loss hits this amount."
 msgstr "오늘 실현 손실이 이 금액에 도달하면 중단합니다."
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:216
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:217
 msgid "Stored on your server, never on this phone."
 msgstr "키는 서버에만 저장되며 이 기기에는 남지 않습니다."
 
@@ -6268,7 +6350,7 @@ msgstr "키는 서버에만 저장되며 이 기기에는 남지 않습니다."
 msgid "Strength"
 msgstr "강점"
 
-#: src/components/trade-form.tsx:393
+#: src/components/trade-form.tsx:368
 msgid "Strike"
 msgstr "행사가"
 
@@ -6288,7 +6370,7 @@ msgstr "+{r}R의 좋은 결과"
 #~ msgid "Suggested"
 #~ msgstr "추천 항목"
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:176
+#: src/app/(tabs)/(dashboard)/checklist.tsx:178
 msgid "Suggested items"
 msgstr "추천 항목"
 
@@ -6296,7 +6378,7 @@ msgstr "추천 항목"
 msgid "suggested risk"
 msgstr "권장 리스크"
 
-#: src/lib/risk-rules.ts:52
+#: src/lib/risk-rules.ts:68
 msgid "Suggested size as a percent of account equity."
 msgstr "계좌 자산 대비 권장 포지션 크기(%)입니다."
 
@@ -6332,15 +6414,19 @@ msgstr "스윙"
 msgid "Switch account"
 msgstr "계좌 전환"
 
+#: src/app/(tabs)/(settings)/change-server.tsx:52
+msgid "Switching…"
+msgstr "전환하는 중…"
+
 #: src/app/(tabs)/(dashboard)/backtest.tsx:130
 #: src/app/(tabs)/(dashboard)/backtest.tsx:132
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:203
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:263
 #: src/app/(tabs)/(settings)/import-trades.tsx:43
-#: src/app/new-setup.tsx:215
+#: src/app/new-setup.tsx:214
 #: src/components/breakdown-card.tsx:27
-#: src/components/trade-form.tsx:366
-#: src/components/trade-form.tsx:433
+#: src/components/trade-form.tsx:341
+#: src/components/trade-form.tsx:408
 msgid "Symbol"
 msgstr "종목"
 
@@ -6350,9 +6436,9 @@ msgstr "종목"
 
 #. placeholder {0}: index + 1
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:248
-#: src/app/new-trade.tsx:105
+#: src/app/new-trade.tsx:106
 #: src/components/note-form.tsx:264
-#: src/components/trade-form.tsx:739
+#: src/components/trade-form.tsx:714
 msgid "Symbol {0}"
 msgstr "종목 {0}"
 
@@ -6360,19 +6446,19 @@ msgstr "종목 {0}"
 msgid "Symbol A–Z"
 msgstr "종목 A–Z"
 
-#: src/app/(tabs)/(dashboard)/_layout.tsx:106
+#: src/app/(tabs)/(dashboard)/_layout.tsx:110
 #: src/app/(tabs)/(trades)/_layout.tsx:41
-#: src/components/symbol-journal.tsx:335
+#: src/components/symbol-journal.tsx:323
 #: src/components/tools-menu.tsx:50
 msgid "Symbol journal"
 msgstr "심볼 저널"
 
-#: src/app/(tabs)/(trades)/[id].tsx:133
+#: src/app/(tabs)/(trades)/[id].tsx:137
 msgid "Symbol journal for {symbol}"
 msgstr "{symbol} 심볼 저널"
 
 #: src/app/(tabs)/(dashboard)/backtest.tsx:209
-#: src/components/symbol-journal.tsx:528
+#: src/components/symbol-journal.tsx:521
 msgid "Symbol, e.g. SPY"
 msgstr "종목 (예: SPY)"
 
@@ -6381,27 +6467,27 @@ msgstr "종목 (예: SPY)"
 msgid "Symbols"
 msgstr "종목"
 
-#: src/app/(tabs)/(settings)/flex-sync.tsx:83
+#: src/app/(tabs)/(settings)/flex-sync.tsx:77
 msgid "Sync complete"
 msgstr "동기화 완료"
 
-#: src/app/(tabs)/(settings)/flex-sync.tsx:87
+#: src/app/(tabs)/(settings)/flex-sync.tsx:81
 msgid "Sync failed"
 msgstr "동기화 실패"
 
-#: src/app/(tabs)/(settings)/flex-sync.tsx:163
+#: src/app/(tabs)/(settings)/flex-sync.tsx:175
 msgid "Sync now"
 msgstr "지금 동기화"
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:276
+#: src/app/(tabs)/(dashboard)/checklist.tsx:278
 msgid "Sync to Reminders"
 msgstr "미리 알림에 동기화"
 
-#: src/app/(tabs)/(settings)/flex-sync.tsx:163
+#: src/app/(tabs)/(settings)/flex-sync.tsx:175
 msgid "Syncing…"
 msgstr "동기화 중…"
 
-#: src/app/(tabs)/(settings)/index.tsx:436
+#: src/app/(tabs)/(settings)/index.tsx:439
 msgid "System"
 msgstr "시스템"
 
@@ -6414,28 +6500,36 @@ msgstr "시스템"
 #~ msgstr "태그 이름을 입력하세요."
 
 #: src/app/(tabs)/(settings)/_layout.tsx:41
-#: src/app/(tabs)/(settings)/index.tsx:227
-#: src/app/(tabs)/(settings)/trading-journal.tsx:122
-#: src/app/(tabs)/(trades)/[id].tsx:737
+#: src/app/(tabs)/(settings)/index.tsx:232
+#: src/app/(tabs)/(settings)/trading-journal.tsx:131
+#: src/app/(tabs)/(trades)/[id].tsx:761
 #: src/app/manage-tags.tsx:75
 #: src/components/reports/detailed-section.tsx:307
-#: src/components/trade-form.tsx:550
+#: src/components/trade-form.tsx:525
 msgid "Tags"
 msgstr "태그"
 
-#: src/app/(tabs)/(settings)/tags.tsx:143
-msgid "Tags annotate trades with mistakes, habits, and custom labels. Tap a row to edit it, swipe to delete."
-msgstr "태그는 실수, 습관, 사용자 지정 라벨로 거래에 주석을 답니다. 행을 탭하면 편집, 밀면 삭제합니다."
+#: src/app/(tabs)/(settings)/tags.tsx:140
+#~ msgid "Tags annotate trades with mistakes, habits, and custom labels. Swipe a row to edit or delete it."
+#~ msgstr "태그는 실수, 습관, 사용자 지정 라벨로 거래에 주석을 답니다. 행을 밀면 편집하거나 삭제합니다."
 
-#: src/app/(tabs)/(settings)/tags.tsx:152
+#: src/app/(tabs)/(settings)/tags.tsx:155
+msgid "Tags annotate trades with mistakes, habits, and custom labels. Tap a row to edit it, or swipe to delete."
+msgstr "태그는 실수·습관·사용자 지정 라벨로 매매에 주석을 답니다. 행을 탭하면 수정하고, 스와이프하면 삭제할 수 있습니다."
+
+#: src/app/(tabs)/(settings)/tags.tsx:136
+#~ msgid "Tags annotate trades with mistakes, habits, and custom labels. Tap a row to edit it, swipe to delete."
+#~ msgstr "태그는 실수, 습관, 사용자 지정 라벨로 거래에 주석을 답니다. 행을 탭하면 편집, 밀면 삭제합니다."
+
+#: src/app/(tabs)/(settings)/tags.tsx:164
 msgid "Tap + to add one — tags annotate trades with mistakes, habits, and custom labels."
 msgstr "+를 탭해 추가하세요 — 태그는 실수, 습관, 사용자 지정 라벨로 거래에 주석을 답니다."
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:239
+#: src/app/(tabs)/(settings)/api-tokens.tsx:218
 msgid "Tap + to generate one and authenticate scripts against your server."
 msgstr "+ 를 눌러 생성하면 스크립트로 서버를 인증할 수 있습니다."
 
-#: src/app/(tabs)/(settings)/funding.tsx:205
+#: src/app/(tabs)/(settings)/funding.tsx:230
 msgid "Tap + to log a deposit, withdrawal, or fee — they drive the equity curve alongside trade P&L."
 msgstr "+를 눌러 입금, 출금, 수수료를 기록하세요. 거래 손익과 함께 자산 곡선에 반영됩니다."
 
@@ -6463,14 +6557,18 @@ msgstr "현재 평점을 탭하면 해제됩니다."
 msgid "Tap the file to swap it for another one."
 msgstr "파일을 탭하면 다른 파일로 바꿀 수 있습니다."
 
+#: src/app/(tabs)/(dashboard)/daily-checklist.tsx:51
+msgid "Tap the pencil to write the routine you clear before you trade."
+msgstr "연필을 탭해 거래 전에 완료할 루틴을 작성하세요."
+
 #: src/components/rating-indicator.tsx:191
 #~ msgid "Tap to rate"
 #~ msgstr ""
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:665
-#: src/app/(tabs)/(trades)/[id].tsx:626
-#: src/app/new-setup.tsx:223
-#: src/components/trade-form.tsx:489
+#: src/app/(tabs)/(trades)/[id].tsx:650
+#: src/app/new-setup.tsx:222
+#: src/components/trade-form.tsx:464
 msgid "Target"
 msgstr "목표가"
 
@@ -6492,11 +6590,11 @@ msgstr "목표 R"
 msgid "target reached"
 msgstr "목표 달성"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:366
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:367
 msgid "Test connection"
 msgstr "연결 테스트"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:366
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:367
 msgid "Testing…"
 msgstr "테스트 중…"
 
@@ -6508,12 +6606,12 @@ msgstr "테스트 중…"
 msgid "That code is not valid. Codes change every 30 seconds."
 msgstr "코드가 올바르지 않습니다. 코드는 30초마다 바뀝니다."
 
-#: src/app/(tabs)/(settings)/change-password.tsx:86
+#: src/app/(tabs)/(settings)/change-password.tsx:81
 msgid "That is already your password."
 msgstr "현재 비밀번호와 동일합니다."
 
 #. placeholder {0}: history.length
-#: src/components/symbol-journal.tsx:517
+#: src/components/symbol-journal.tsx:510
 msgid "The {MAX_TRADE_ROWS} most recent of {0} trades."
 msgstr "전체 {0}건 중 최근 {MAX_TRADE_ROWS}건입니다."
 
@@ -6521,7 +6619,7 @@ msgstr "전체 {0}건 중 최근 {MAX_TRADE_ROWS}건입니다."
 msgid "The AI review failed — try again."
 msgstr "AI 리뷰에 실패했습니다 — 다시 시도하세요."
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:199
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:200
 msgid "The base URL must start with http:// or https://."
 msgstr "베이스 URL은 http:// 또는 https:// 로 시작해야 합니다."
 
@@ -6533,15 +6631,15 @@ msgstr "종료일은 시작일보다 뒤여야 합니다."
 #~ msgid "The endpoint answered successfully."
 #~ msgstr "엔드포인트가 정상적으로 응답했습니다."
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:159
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:160
 msgid "The endpoint did not answer."
 msgstr "엔드포인트가 응답하지 않았습니다."
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:183
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:184
 msgid "The endpoint listed no models."
 msgstr "엔드포인트가 모델을 반환하지 않았습니다."
 
-#: src/app/(tabs)/(settings)/prop-settings.tsx:117
+#: src/app/(tabs)/(settings)/prop-settings.tsx:105
 msgid "The evaluation card disappears from Home."
 msgstr "홈에서 평가 카드가 사라집니다."
 
@@ -6570,19 +6668,20 @@ msgstr "거래일은 시장 시간대가 정합니다. 캘린더 셀, 기간 필
 #~ msgid "The market timezone defines the trading day — calendar days and hourly stats follow it. The display timezone only formats clock times."
 #~ msgstr "시장 시간대가 거래일을 정의합니다 — 캘린더 날짜와 시간별 통계가 이를 따릅니다. 표시 시간대는 시각 표기에만 사용됩니다."
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:231
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:232
 msgid "The model id as the endpoint spells it, e.g. gpt-4o-mini."
 msgstr "엔드포인트가 사용하는 그대로의 모델 ID (예: gpt-4o-mini)."
 
-#: src/app/(tabs)/(settings)/change-password.tsx:78
+#: src/app/(tabs)/(settings)/change-password.tsx:86
+#: src/app/(tabs)/(settings)/reset-password.tsx:71
 msgid "The new passwords don't match."
 msgstr "새 비밀번호가 일치하지 않습니다."
 
-#: src/app/replay.tsx:861
+#: src/app/replay.tsx:867
 msgid "The orders you placed will not be saved."
 msgstr "입력한 주문은 저장되지 않습니다."
 
-#: src/app/(tabs)/(settings)/profile.tsx:53
+#: src/app/(tabs)/(settings)/profile.tsx:49
 msgid "The owner account — the first user created on this server."
 msgstr "소유자 계정 — 이 서버에서 처음 만들어진 사용자입니다."
 
@@ -6594,7 +6693,7 @@ msgstr "해당 연도에 청산 거래가 있으면 회고가 표시됩니다."
 msgid "The replay starts a few bars in for context, then reveals one bar at a time. Orders fill at the bar's close."
 msgstr "리플레이는 맥락을 위해 몇 봉 뒤에서 시작하고, 이후 한 봉씩 공개됩니다. 주문은 해당 봉의 종가로 체결됩니다."
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:191
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:192
 msgid "The root of an OpenAI-compatible API, ending in /v1."
 msgstr "OpenAI 호환 API의 루트 주소이며 /v1 로 끝납니다."
 
@@ -6610,11 +6709,11 @@ msgstr "서버에 경제 캘린더 제공자가 설정되어 있지 않습니다
 msgid "The server is rate limiting this app. Try again in a moment."
 msgstr "서버가 이 앱의 요청을 제한하고 있습니다. 잠시 후 다시 시도하세요."
 
-#: src/app/(tabs)/(settings)/account-form.tsx:267
+#: src/app/(tabs)/(settings)/account-form.tsx:286
 msgid "The starting balance is saved as the first deposit in the cash ledger."
 msgstr "시작 잔고는 현금 원장의 첫 입금으로 저장됩니다."
 
-#: src/app/(tabs)/(settings)/flex-sync.tsx:106
+#: src/app/(tabs)/(settings)/flex-sync.tsx:100
 msgid "The stored token is deleted from the server."
 msgstr "저장된 토큰이 서버에서 삭제됩니다."
 
@@ -6626,8 +6725,8 @@ msgstr "저장된 토큰이 서버에서 삭제됩니다."
 msgid "The trade worked but closed well off its best point. Note what would have kept you in for the next similar setup."
 msgstr "거래는 통했지만 최고점에서 한참 떨어져 청산했습니다. 다음 유사 셋업에서 버틸 수 있었을 조건을 메모하세요."
 
-#: src/app/(tabs)/(settings)/index.tsx:251
-#: src/app/(tabs)/(settings)/index.tsx:432
+#: src/app/(tabs)/(settings)/index.tsx:256
+#: src/app/(tabs)/(settings)/index.tsx:435
 msgid "Theme"
 msgstr "테마"
 
@@ -6639,7 +6738,7 @@ msgstr "테마"
 #~ msgid "These run on Home each morning and seed every new daily log. Tap an item to edit it, swipe to delete or reorder."
 #~ msgstr "매일 아침 홈에서 점검하며 새 데일리 로그의 기본 항목이 됩니다. 항목을 탭하면 편집, 스와이프하면 삭제하거나 순서를 바꿉니다."
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:198
+#: src/app/(tabs)/(dashboard)/checklist.tsx:200
 msgid "These run on Home each morning and seed every new daily log. Tap an item to edit it, swipe to delete, drag to reorder."
 msgstr "매일 아침 홈에 표시되며 새로 만드는 일지에도 그대로 들어갑니다. 항목을 눌러 수정하고, 밀어서 삭제하고, 끌어서 순서를 바꿉니다."
 
@@ -6651,15 +6750,15 @@ msgstr "매일 아침 홈에 표시되며 새로 만드는 일지에도 그대�
 msgid "This account doesn't have access to that."
 msgstr "이 계정에는 접근 권한이 없습니다."
 
-#: src/app/(tabs)/(settings)/user-detail.tsx:136
+#: src/app/(tabs)/(settings)/user-detail.tsx:92
 msgid "This account no longer exists."
 msgstr "이 계정은 더 이상 존재하지 않습니다."
 
-#: src/app/(tabs)/(settings)/user-detail.tsx:122
+#: src/app/(tabs)/(settings)/user-detail.tsx:78
 msgid "This also deletes every account, trade, note and screenshot they own. There is no undo."
 msgstr "해당 사용자의 계좌, 매매, 노트, 스크린샷도 모두 삭제됩니다. 되돌릴 수 없습니다."
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:75
+#: src/app/(tabs)/(dashboard)/checklist.tsx:77
 msgid "This build can't reach the Reminders app. Rebuild the dev client and try again."
 msgstr "이 빌드에서는 미리 알림 앱에 접근할 수 없습니다. 개발 빌드를 다시 만들어 주세요."
 
@@ -6683,12 +6782,11 @@ msgstr "이 항목은 더 이상 존재하지 않습니다. 삭제되었을 수 
 msgid "This month"
 msgstr "이번 달"
 
-#: src/app/(tabs)/(settings)/funding.tsx:129
-#: src/app/cash-form.tsx:141
+#: src/app/(tabs)/(settings)/funding.tsx:151
 msgid "This permanently deletes the ledger entry."
 msgstr "이 원장 항목이 영구적으로 삭제됩니다."
 
-#: src/app/(tabs)/(settings)/two-factor.tsx:171
+#: src/app/(tabs)/(settings)/two-factor.tsx:185
 msgid "This proves the authenticator was added before it's required."
 msgstr "필수가 되기 전에 인증 앱이 추가되었는지 확인합니다."
 
@@ -6742,7 +6840,7 @@ msgstr "시간 형식"
 msgid "Time in the market"
 msgstr "시장 체류 시간"
 
-#: src/app/(tabs)/(trades)/[id].tsx:259
+#: src/app/(tabs)/(trades)/[id].tsx:283
 msgid "Time in trade"
 msgstr "보유 시간"
 
@@ -6750,8 +6848,8 @@ msgstr "보유 시간"
 msgid "Timestamp"
 msgstr "일시"
 
-#: src/app/(tabs)/(trades)/[id].tsx:246
-#: src/app/(tabs)/(trades)/[id].tsx:368
+#: src/app/(tabs)/(trades)/[id].tsx:270
+#: src/app/(tabs)/(trades)/[id].tsx:392
 msgid "Timing"
 msgstr "타이밍"
 
@@ -6777,12 +6875,12 @@ msgstr "현재까지: 승률 {0} · PF {1} · 누적 {2}"
 
 #: src/app/(tabs)/(dashboard)/economic-events.tsx:145
 #: src/app/(tabs)/(dashboard)/economic-events.tsx:163
-#: src/app/(tabs)/(dashboard)/notes.tsx:44
+#: src/app/(tabs)/(dashboard)/notes.tsx:45
 #: src/app/(tabs)/(trades)/index.tsx:278
 msgid "Today"
 msgstr "오늘"
 
-#: src/app/(tabs)/(settings)/flex-sync.tsx:130
+#: src/app/(tabs)/(settings)/flex-sync.tsx:122
 msgid "Token"
 msgstr "토큰"
 
@@ -6798,7 +6896,7 @@ msgstr "토큰 생성됨"
 #~ msgid "Token name is required."
 #~ msgstr "토큰 이름을 입력하세요."
 
-#: src/app/new-token.tsx:125
+#: src/app/new-token.tsx:126
 msgid "Tokens authenticate scripts and integrations against your server's API."
 msgstr "토큰은 스크립트와 연동을 서버 API에 인증합니다."
 
@@ -6806,7 +6904,7 @@ msgstr "토큰은 스크립트와 연동을 서버 API에 인증합니다."
 #~ msgid "Tokens authenticate scripts and integrations against your server's API. Swipe a row to revoke."
 #~ msgstr "토큰은 스크립트와 연동이 서버 API를 인증하는 데 쓰입니다. 행을 스와이프하면 취소됩니다."
 
-#: src/app/(tabs)/(settings)/api-tokens.tsx:230
+#: src/app/(tabs)/(settings)/api-tokens.tsx:209
 msgid "Tokens authenticate scripts and integrations against your server's API. Tap one to see where it has been used; swipe to revoke."
 msgstr "토큰은 스크립트와 연동이 서버 API에 인증하는 수단입니다. 탭하면 사용 위치를 볼 수 있고, 밀면 해지됩니다."
 
@@ -6841,12 +6939,12 @@ msgstr "주요 종목"
 msgid "Total"
 msgstr "합계"
 
-#: src/app/(tabs)/(trades)/[id].tsx:234
+#: src/app/(tabs)/(trades)/[id].tsx:257
 msgid "Total P&L"
 msgstr "총 손익"
 
-#: src/app/(tabs)/(trades)/[id].tsx:336
-#: src/app/(tabs)/(trades)/[id].tsx:439
+#: src/app/(tabs)/(trades)/[id].tsx:360
+#: src/app/(tabs)/(trades)/[id].tsx:463
 msgid "Trade"
 msgstr "거래"
 
@@ -6855,7 +6953,7 @@ msgstr "거래"
 msgid "Trade {0}"
 msgstr "거래 {0}"
 
-#: src/app/(tabs)/(trades)/[id].tsx:551
+#: src/app/(tabs)/(trades)/[id].tsx:575
 msgid "Trade actions"
 msgstr "거래 작업"
 
@@ -6863,7 +6961,7 @@ msgstr "거래 작업"
 #~ msgid "Trade date basis"
 #~ msgstr "거래 날짜 기준"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:145
+#: src/app/(tabs)/(settings)/account-form.tsx:139
 msgid "Trade history cleared"
 msgstr "거래 기록을 지웠습니다"
 
@@ -6871,16 +6969,16 @@ msgstr "거래 기록을 지웠습니다"
 msgid "Trade lands on"
 msgstr "거래 귀속일"
 
-#: src/app/edit-trade.tsx:112
-#: src/app/quick-journal.tsx:214
+#: src/app/edit-trade.tsx:120
+#: src/app/quick-journal.tsx:215
 #: src/app/replay.tsx:162
-#: src/app/share-trade.tsx:105
+#: src/app/share-trade.tsx:98
 msgid "Trade not found"
 msgstr "거래를 찾을 수 없습니다"
 
-#: src/app/new-trade.tsx:109
-#: src/app/new-trade.tsx:113
-#: src/app/new-trade.tsx:116
+#: src/app/new-trade.tsx:110
+#: src/app/new-trade.tsx:114
+#: src/app/new-trade.tsx:117
 msgid "Trade not ready"
 msgstr "거래가 완성되지 않았습니다"
 
@@ -6904,10 +7002,10 @@ msgstr "TraderMemos는 셀프 호스팅 트레이딩 저널입니다 — 데이�
 msgid "TraderMemos is self-hosted: this app is the client for a server you run, and every screen in it comes from that server."
 msgstr "TraderMemos는 셀프 호스팅 방식입니다. 이 앱은 사용자가 직접 운영하는 서버의 클라이언트이며, 모든 화면의 내용은 그 서버에서 옵니다."
 
-#: src/app/share-trade.tsx:170
-#: src/app/share-trade.tsx:176
-#: src/app/share-wrapped.tsx:182
-#: src/app/share-wrapped.tsx:188
+#: src/app/share-trade.tsx:163
+#: src/app/share-trade.tsx:169
+#: src/app/share-wrapped.tsx:175
+#: src/app/share-wrapped.tsx:181
 msgid "TraderMemos mark"
 msgstr "TraderMemos 마크"
 
@@ -6916,12 +7014,12 @@ msgstr "TraderMemos 마크"
 #: src/app/(tabs)/(calendar)/day/[date].tsx:365
 #: src/app/(tabs)/(dashboard)/playbook.tsx:131
 #: src/app/(tabs)/(dashboard)/playbook.tsx:233
-#: src/app/(tabs)/(settings)/account-form.tsx:314
+#: src/app/(tabs)/(settings)/account-form.tsx:313
 #: src/app/(tabs)/(settings)/data-backup.tsx:66
 #: src/app/(tabs)/(settings)/import-trades.tsx:330
 #: src/app/(tabs)/(settings)/import-trades.tsx:356
 #: src/app/(tabs)/(trades)/_layout.tsx:36
-#: src/components/symbol-journal.tsx:495
+#: src/components/symbol-journal.tsx:488
 msgid "Trades"
 msgstr "거래"
 
@@ -6937,8 +7035,8 @@ msgstr "거래 일지는 유지됩니다 — 플레이북 항목만 삭제됩니
 #~ msgid "Trading"
 #~ msgstr "트레이딩"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:58
-#: src/app/(tabs)/(settings)/index.tsx:443
+#: src/app/(tabs)/(settings)/_layout.tsx:66
+#: src/app/(tabs)/(settings)/index.tsx:446
 msgid "Trading & journal"
 msgstr "트레이딩과 저널"
 
@@ -6957,7 +7055,7 @@ msgstr "거래일"
 msgid "trailing"
 msgstr "트레일링"
 
-#: src/app/(tabs)/(settings)/prop-settings.tsx:154
+#: src/app/(tabs)/(settings)/prop-settings.tsx:143
 msgid "Trailing — ratchets on every high"
 msgstr "트레일링 — 신고점마다 상향"
 
@@ -6965,7 +7063,7 @@ msgstr "트레일링 — 신고점마다 상향"
 msgid "Trailing stop should sit below the first tier"
 msgstr "트레일링 스톱은 첫 티어보다 아래여야 합니다"
 
-#: src/app/cash-form.tsx:57
+#: src/app/cash-form.tsx:55
 msgid "Transaction"
 msgstr "입출금"
 
@@ -6973,16 +7071,16 @@ msgstr "입출금"
 msgid "Trough"
 msgstr "최대 손실"
 
-#: src/app/(tabs)/(dashboard)/notes.tsx:297
+#: src/app/(tabs)/(dashboard)/notes.tsx:292
 msgid "Try a different filter."
 msgstr "다른 필터를 시도해 보세요."
 
-#: src/app/(tabs)/(dashboard)/notes.tsx:295
+#: src/app/(tabs)/(dashboard)/notes.tsx:290
 msgid "Try a different search."
 msgstr "다른 검색어를 시도해 보세요."
 
 #: src/app/(tabs)/(settings)/users.tsx:80
-#: src/app/(tabs)/(trades)/[id].tsx:355
+#: src/app/(tabs)/(trades)/[id].tsx:379
 #: src/components/error-state.tsx:83
 msgid "Try again"
 msgstr "다시 시도"
@@ -6991,29 +7089,28 @@ msgstr "다시 시도"
 msgid "Tue"
 msgstr "화"
 
-#: src/app/(tabs)/(settings)/two-factor.tsx:92
-#: src/app/(tabs)/(settings)/two-factor.tsx:108
+#: src/app/(tabs)/(settings)/two-factor.tsx:113
 msgid "Turn off two-factor"
 msgstr "2단계 인증 끄기"
 
-#: src/app/(tabs)/(settings)/two-factor.tsx:180
+#: src/app/(tabs)/(settings)/two-factor.tsx:190
 msgid "Turn on two-factor"
 msgstr "2단계 인증 켜기"
 
-#: src/app/(tabs)/(settings)/two-factor.tsx:93
+#: src/app/(tabs)/(settings)/two-factor.tsx:108
 msgid "Turning it off needs your password and a current code, so a borrowed unlocked phone can't remove it."
 msgstr "끄려면 비밀번호와 현재 코드가 필요합니다. 잠금 해제된 기기를 빌린 것만으로는 해제할 수 없습니다."
 
-#: src/app/(tabs)/(settings)/two-factor.tsx:108
+#: src/app/(tabs)/(settings)/two-factor.tsx:113
 msgid "Turning off…"
 msgstr "끄는 중…"
 
 #: src/app/(tabs)/(settings)/_layout.tsx:46
-#: src/app/(tabs)/(settings)/user-detail.tsx:155
+#: src/app/(tabs)/(settings)/user-detail.tsx:111
 msgid "Two-factor"
 msgstr "2단계 인증"
 
-#: src/app/(tabs)/(settings)/profile.tsx:105
+#: src/app/(tabs)/(settings)/profile.tsx:90
 msgid "Two-factor authentication"
 msgstr "2단계 인증"
 
@@ -7021,25 +7118,25 @@ msgstr "2단계 인증"
 #~ msgid "Two-factor authentication is on."
 #~ msgstr "2단계 인증이 켜져 있습니다."
 
-#: src/app/(tabs)/(settings)/two-factor.tsx:79
+#: src/app/(tabs)/(settings)/two-factor.tsx:85
 msgid "Two-factor is off"
 msgstr "2단계 인증을 껐습니다"
 
-#: src/app/(tabs)/(settings)/two-factor.tsx:58
+#: src/app/(tabs)/(settings)/two-factor.tsx:64
 msgid "Two-factor is on"
 msgstr "2단계 인증이 켜졌습니다"
 
-#: src/app/cash-form.tsx:195
-#: src/app/cash-form.tsx:200
+#: src/app/cash-form.tsx:176
+#: src/app/cash-form.tsx:182
 #: src/components/note-form.tsx:86
 msgid "Type"
 msgstr "유형"
 
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:331
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:332
 msgid "Type a model id…"
 msgstr "모델 ID 입력…"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:255
+#: src/app/(tabs)/(settings)/account-form.tsx:251
 msgid "Type broker name"
 msgstr "브로커 이름 입력"
 
@@ -7075,8 +7172,8 @@ msgstr "미평가"
 msgid "Unreviewed trades"
 msgstr "리뷰하지 않은 거래"
 
-#: src/app/(tabs)/(dashboard)/notes.tsx:96
-#: src/app/(tabs)/(dashboard)/notes.tsx:160
+#: src/app/(tabs)/(dashboard)/notes.tsx:91
+#: src/app/(tabs)/(dashboard)/notes.tsx:155
 msgid "Untitled"
 msgstr "제목 없음"
 
@@ -7091,7 +7188,7 @@ msgstr "제목 없음"
 msgid "Upload failed ({0})"
 msgstr "업로드 실패 ({0})"
 
-#: src/components/trade-form.tsx:641
+#: src/components/trade-form.tsx:616
 msgid "Uploaded to this symbol's trade when it saves. Tap a thumbnail to remove it."
 msgstr "저장 시 이 종목의 거래에 업로드됩니다. 썸네일을 탭하면 제거됩니다."
 
@@ -7099,43 +7196,44 @@ msgstr "저장 시 이 종목의 거래에 업로드됩니다. 썸네일을 탭�
 #~ msgid "Use \"- [ ]\" for each rule — those lines appear as task items when you create a daily log on New Note."
 #~ msgstr "각 규칙에 \"- [ ]\"를 사용하세요 — 새 노트에서 데일리 로그를 만들면 작업 항목으로 표시됩니다."
 
-#: src/app/(tabs)/(settings)/change-password.tsx:82
-#: src/app/(tabs)/(settings)/user-detail.tsx:108
-#: src/app/(tabs)/(settings)/user-form.tsx:70
+#: src/app/(tabs)/(settings)/change-password.tsx:76
+#: src/app/(tabs)/(settings)/reset-password.tsx:67
+#: src/app/(tabs)/(settings)/user-form.tsx:74
 msgid "Use at least {MIN_LENGTH} characters."
 msgstr "{MIN_LENGTH}자 이상 입력하세요."
 
-#: src/app/(tabs)/(settings)/risk-rules.tsx:91
+#: src/app/(tabs)/(settings)/risk-rules.tsx:210
+#: src/app/(tabs)/(settings)/risk-rules.tsx:242
 msgid "Used by Check compliance on New Trade. Add only the limits you want enforced."
 msgstr "새 거래의 규칙 준수 검사에 사용됩니다. 적용할 한도만 추가하세요."
 
-#: src/app/(tabs)/(settings)/user-form.tsx:58
+#: src/app/(tabs)/(settings)/user-form.tsx:62
 msgid "User added"
 msgstr "사용자를 추가했습니다"
 
-#: src/app/(tabs)/(settings)/profile.tsx:60
-#: src/app/(tabs)/(settings)/user-detail.tsx:149
+#: src/app/(tabs)/(settings)/profile.tsx:56
+#: src/app/(tabs)/(settings)/user-detail.tsx:105
 #: src/app/(tabs)/(settings)/user-form.tsx:96
-#: src/app/login.tsx:290
+#: src/app/login.tsx:291
 msgid "Username"
 msgstr "사용자 이름"
 
-#: src/app/(tabs)/(settings)/_layout.tsx:52
-#: src/app/(tabs)/(settings)/index.tsx:191
-#: src/app/(tabs)/(settings)/profile.tsx:90
+#: src/app/(tabs)/(settings)/_layout.tsx:60
+#: src/app/(tabs)/(settings)/index.tsx:190
+#: src/app/(tabs)/(settings)/profile.tsx:75
 #: src/app/(tabs)/(settings)/users.tsx:34
 msgid "Users"
 msgstr "사용자"
 
-#: src/app/(tabs)/(settings)/risk-rules.tsx:40
+#: src/app/(tabs)/(settings)/risk-rule-form.tsx:80
 msgid "Value (%)"
 msgstr "값 (%)"
 
-#: src/app/(tabs)/(settings)/risk-rules.tsx:40
+#: src/app/(tabs)/(settings)/risk-rule-form.tsx:80
 msgid "Value ($)"
 msgstr "값 ($)"
 
-#: src/app/(tabs)/(settings)/risk-rules.tsx:40
+#: src/app/(tabs)/(settings)/risk-rule-form.tsx:80
 msgid "Value (trades)"
 msgstr "값 (거래 수)"
 
@@ -7143,7 +7241,7 @@ msgstr "값 (거래 수)"
 msgid "Version"
 msgstr "버전"
 
-#: src/app/(tabs)/(settings)/index.tsx:289
+#: src/app/(tabs)/(settings)/index.tsx:294
 msgid "version build server licence"
 msgstr "버전 빌드 서버 라이선스"
 
@@ -7151,12 +7249,12 @@ msgstr "버전 빌드 서버 라이선스"
 msgid "View all"
 msgstr "모두 보기"
 
-#: src/components/reports/risk-section.tsx:164
+#: src/components/reports/risk-section.tsx:180
 msgid "Violations"
 msgstr "위반"
 
 #: src/app/(tabs)/(settings)/ai.tsx:28
-#: src/app/(tabs)/(settings)/ai/[kind].tsx:40
+#: src/app/(tabs)/(settings)/ai/[kind].tsx:41
 msgid "Vision scan"
 msgstr "비전 스캔"
 
@@ -7168,7 +7266,7 @@ msgstr "비전 스캔은 가져오기에서 브로커 스크린샷을 체결 내
 msgid "Waiting"
 msgstr "대기 중"
 
-#: src/app/(tabs)/(dashboard)/notes.tsx:106
+#: src/app/(tabs)/(dashboard)/notes.tsx:101
 msgid "Waiting to sync"
 msgstr "동기화 대기 중"
 
@@ -7184,10 +7282,10 @@ msgstr "주의"
 
 #: src/app/(tabs)/(settings)/_layout.tsx:66
 #: src/app/(tabs)/(settings)/integrations.tsx:53
-msgid "Web app address"
-msgstr "웹 앱 주소"
+#~ msgid "Web app address"
+#~ msgstr "웹 앱 주소"
 
-#: src/app/(tabs)/(settings)/flex-sync.tsx:131
+#: src/app/(tabs)/(settings)/flex-sync.tsx:125
 msgid "Web Service token"
 msgstr "Web Service 토큰"
 
@@ -7212,11 +7310,11 @@ msgstr "주 {0}, {1}"
 msgid "Week {0}, No trades"
 msgstr "주 {0}, 거래 없음"
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:261
+#: src/app/(tabs)/(dashboard)/checklist.tsx:263
 msgid "Weekdays only"
 msgstr "평일만"
 
-#: src/app/(tabs)/(dashboard)/checklist.tsx:258
+#: src/app/(tabs)/(dashboard)/checklist.tsx:260
 msgid "Weekends hide the card on Home. Turn this off if you trade Saturday or Sunday sessions."
 msgstr "주말에는 홈 카드를 숨깁니다. 토요일이나 일요일에도 거래한다면 끄세요."
 
@@ -7237,12 +7335,12 @@ msgstr "어떻게 움직였나요?"
 msgid "What happened today?"
 msgstr "오늘은 어땠나요?"
 
-#: src/app/new-setup.tsx:201
+#: src/app/new-setup.tsx:200
 msgid "What has to be happening for this play to be on? Where is it wrong?"
 msgstr "이 플레이가 성립하려면 무엇이 필요합니까? 언제 무효가 됩니까?"
 
 #: src/app/quick-journal.tsx:104
-#: src/components/trade-form.tsx:604
+#: src/components/trade-form.tsx:579
 msgid "What would you do differently?"
 msgstr "다음에는 무엇을 다르게 하시겠습니까?"
 
@@ -7250,15 +7348,15 @@ msgstr "다음에는 무엇을 다르게 하시겠습니까?"
 msgid "When something authenticates with this token, the IP and app it used show up here."
 msgstr "이 토큰으로 인증이 일어나면 사용된 IP와 앱이 여기에 표시됩니다."
 
-#: src/components/trade-form.tsx:566
+#: src/components/trade-form.tsx:541
 msgid "Why did you enter?"
 msgstr "왜 진입했습니까?"
 
-#: src/components/trade-form.tsx:598
+#: src/components/trade-form.tsx:573
 msgid "Why did you exit?"
 msgstr "왜 청산했습니까?"
 
-#: src/app/(tabs)/(trades)/[id].tsx:96
+#: src/app/(tabs)/(trades)/[id].tsx:100
 #: src/components/share-card.tsx:156
 msgid "WIN"
 msgstr "수익"
@@ -7279,7 +7377,7 @@ msgstr "평균 수익 ÷ 평균 손실"
 #: src/components/reports/overview-section.tsx:156
 #: src/components/share-card.tsx:308
 #: src/components/share-card.tsx:353
-#: src/components/symbol-journal.tsx:487
+#: src/components/symbol-journal.tsx:480
 msgid "Win rate"
 msgstr "승률"
 
@@ -7326,7 +7424,7 @@ msgstr "최장 연패"
 msgid "Worst trade"
 msgstr "최대 손실 트레이드"
 
-#: src/app/(tabs)/(trades)/[id].tsx:726
+#: src/app/(tabs)/(trades)/[id].tsx:750
 msgid "Write review"
 msgstr "리뷰 작성"
 
@@ -7344,14 +7442,14 @@ msgstr "기억이 생생할 때 진입 이유를 쓰세요. 미래의 나에게 
 msgid "Year"
 msgstr "연"
 
-#: src/app/(tabs)/(dashboard)/_layout.tsx:144
+#: src/app/(tabs)/(dashboard)/_layout.tsx:148
 #: src/app/(tabs)/(dashboard)/reports.tsx:59
 #: src/app/(tabs)/(dashboard)/wrapped.tsx:384
 #: src/components/reports/overview-section.tsx:703
 msgid "Year Wrapped"
 msgstr "Year Wrapped"
 
-#: src/app/(tabs)/(dashboard)/notes.tsx:48
+#: src/app/(tabs)/(dashboard)/notes.tsx:49
 msgid "Yesterday"
 msgstr "어제"
 
@@ -7359,7 +7457,7 @@ msgstr "어제"
 msgid "You"
 msgstr "나"
 
-#: src/app/(tabs)/(settings)/user-detail.tsx:162
+#: src/app/(tabs)/(settings)/user-detail.tsx:118
 msgid "You are an owner. The last owner cannot be demoted — promote someone else first."
 msgstr "당신은 소유자입니다. 마지막 소유자는 강등할 수 없습니다. 먼저 다른 사람을 소유자로 지정하세요."
 
@@ -7390,18 +7488,18 @@ msgstr "수익 거래를 일찍 끊었을 수 있습니다. MFE와 순손익을 
 msgid "You rated the setup {0} but execution {1}. The idea may be fine — focus on entries, sizing, and stop discipline."
 msgstr "셋업은 {0}, 실행은 {1}로 평가했습니다. 아이디어는 좋을 수 있으니 진입·규모·스톱 규율에 집중하세요."
 
-#: src/app/(tabs)/(settings)/index.tsx:131
+#: src/app/(tabs)/(settings)/index.tsx:130
 msgid "You will need to sign in again to reach this server."
 msgstr "이 서버에 다시 접속하려면 로그인해야 합니다."
 
-#: src/app/(tabs)/(settings)/two-factor.tsx:59
+#: src/app/(tabs)/(settings)/two-factor.tsx:65
 msgid "You'll need a code from your authenticator the next time you sign in."
 msgstr "다음 로그인부터 인증 앱의 코드가 필요합니다."
 
 #: src/app/(tabs)/(settings)/_layout.tsx:43
-#: src/app/(tabs)/(settings)/index.tsx:171
-#: src/app/(tabs)/(settings)/index.tsx:355
-#: src/app/(tabs)/(settings)/profile.tsx:39
+#: src/app/(tabs)/(settings)/index.tsx:170
+#: src/app/(tabs)/(settings)/index.tsx:360
+#: src/app/(tabs)/(settings)/profile.tsx:35
 msgid "Your account"
 msgstr "내 계정"
 
@@ -7417,7 +7515,7 @@ msgstr "하이라이트"
 msgid "Your lows"
 msgstr "로우라이트"
 
-#: src/app/(tabs)/(settings)/change-password.tsx:67
+#: src/app/(tabs)/(settings)/change-password.tsx:65
 msgid "Your other devices will be signed out the next time they reconnect."
 msgstr "다른 기기는 다음 연결 시 로그아웃됩니다."
 
@@ -7425,11 +7523,11 @@ msgstr "다른 기기는 다음 연결 시 로그아웃됩니다."
 msgid "Your P&L target shows on the dashboard; risk limits drive Check compliance on New Trade."
 msgstr "손익 목표는 대시보드에 표시되고, 리스크 한도는 새 거래의 규칙 준수 검사에 사용됩니다."
 
-#: src/app/(tabs)/(settings)/two-factor.tsx:79
+#: src/app/(tabs)/(settings)/two-factor.tsx:85
 msgid "Your password alone signs you in again."
 msgstr "이제 비밀번호만으로 로그인합니다."
 
-#: src/components/symbol-journal.tsx:477
+#: src/components/symbol-journal.tsx:470
 msgid "Your record"
 msgstr "나의 성적"
 
@@ -7437,11 +7535,11 @@ msgstr "나의 성적"
 msgid "Your rhythm"
 msgstr "나의 리듬"
 
-#: src/app/(tabs)/(settings)/web-address.tsx:72
+#: src/app/(tabs)/(settings)/web-address.tsx:78
 msgid "Your server doesn't report one, so share links need this address. Use the domain your web app is served from — not the API address."
 msgstr "서버가 알려주지 않으므로 공유 링크에 이 주소가 필요합니다. API 주소가 아니라 웹 앱이 제공되는 도메인을 입력하세요."
 
-#: src/app/(tabs)/(settings)/web-address.tsx:71
+#: src/app/(tabs)/(settings)/web-address.tsx:77
 msgid "Your server reports {advertised}. Set an address here only to override it."
 msgstr "서버는 {advertised} 을(를) 알려줍니다. 재정의할 때만 여기에 주소를 설정하세요."
 
@@ -7449,7 +7547,7 @@ msgstr "서버는 {advertised} 을(를) 알려줍니다. 재정의할 때만 여
 msgid "Your session expired. Sign in again."
 msgstr "세션이 만료되었습니다. 다시 로그인하세요."
 
-#: src/components/symbol-journal.tsx:509
+#: src/components/symbol-journal.tsx:502
 msgid "Your trades"
 msgstr "나의 거래"
 

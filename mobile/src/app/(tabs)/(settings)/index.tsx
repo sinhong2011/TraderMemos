@@ -19,7 +19,7 @@ import {
 import { useSession } from '@/api/session';
 import { t } from '@lingui/core/macro';
 import { ledgerBalance } from '@/lib/cash';
-import { serverHost, useChangeServer } from '@/lib/change-server';
+import { serverHost } from '@/lib/change-server';
 import { describeError } from '@/lib/errors';
 import { useFormatters } from '@/lib/format';
 import { clearOutbox, usePendingCount } from '@/lib/outbox';
@@ -55,7 +55,6 @@ export default function SettingsScreen() {
   const palette = usePnlPalette();
   const [foreground] = useCSSVariable(['--color-foreground']) as [string];
   const { session, signOut } = useSession();
-  const { changeServer, element: changeServerPrompt } = useChangeServer();
   // Offline writes still waiting to sync — signing out would discard them.
   const pendingSyncs = usePendingCount();
   const accountsQuery = useAccounts();
@@ -178,7 +177,7 @@ export default function SettingsScreen() {
       icon: 'externaldrive.badge.wifi',
       label: t`Server`,
       terms: t`change server url instance host address self-hosted connect`,
-      onPress: changeServer,
+      onPress: () => router.push('/change-server'),
     },
     {
       icon: 'lock.rotation',
@@ -215,6 +214,12 @@ export default function SettingsScreen() {
       label: t`Risk rules`,
       terms: t`limits daily loss compliance position size`,
       onPress: () => router.push('/risk-rules'),
+    },
+    {
+      icon: 'checkmark.circle',
+      label: t`Daily checklist`,
+      terms: t`routine morning pre-market process rules`,
+      onPress: () => router.push('/daily-checklist'),
     },
     {
       icon: 'bell.badge',
@@ -301,7 +306,6 @@ export default function SettingsScreen() {
 
   return (
     <>
-      {changeServerPrompt}
       {/* Trades-style search: the header magnifier (✕ while open) toggles the
           floating bottom Liquid Glass bar. UISearchController placements were
           all tried and rejected on sight — always-visible `stacked`,
@@ -357,16 +361,14 @@ export default function SettingsScreen() {
               value={me.data?.is_admin ? t`Owner` : undefined}
               onPress={() => router.push('/profile')}
             />
-            {/* No chevron — it opens a prompt, not a push (NavRow doc). It
-                lives on the hub because the hub stays navigable when the
+            {/* It lives on the hub because the hub stays navigable when the
                 server is unreachable, which is exactly when this is needed;
                 Profile is a full-screen error state by then. */}
             <NavRow
               systemImage="externaldrive.badge.wifi"
               label={t`Server`}
               value={serverHost(session?.serverUrl ?? '')}
-              accessory="none"
-              onPress={changeServer}
+              onPress={() => router.push('/change-server')}
             />
           </SettingsSection>
 

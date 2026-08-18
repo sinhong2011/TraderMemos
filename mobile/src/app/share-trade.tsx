@@ -2,13 +2,13 @@ import * as Sharing from 'expo-sharing';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useRef, useState } from 'react';
 import { Chip, Spinner, Switch } from 'panelui-native';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { captureRef } from 'react-native-view-shot';
 import { useCSSVariable } from 'uniwind';
 
 import { useTrade } from '@/api/hooks';
 import { ErrorState } from '@/components/error-state';
-import { GlassButton } from '@/components/glass-button';
+import { GlassButton, GlassIconButton } from '@/components/glass-button';
 import {
   SHARE_CARD_STYLES,
   ShareCardView,
@@ -78,14 +78,7 @@ export default function ShareTradeScreen() {
     >
       <View className="flex-row items-center justify-between">
         <Text className="text-[20px] font-bold text-foreground">{t`Share card`}</Text>
-        <Pressable
-          onPress={() => router.back()}
-          hitSlop={8}
-          accessibilityRole="button"
-          className="p-1 active:opacity-60"
-        >
-          <Text className="text-[15px] font-semibold text-foreground">{t`Done`}</Text>
-        </Pressable>
+        <GlassIconButton systemImage="xmark" label={t`Close`} onPress={() => router.back()} />
       </View>
 
       {trade.isLoading ? (

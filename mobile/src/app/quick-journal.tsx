@@ -103,7 +103,6 @@ function QuickJournalForm({ trade, mistakeTags }: { trade: TradeDetail; mistakeT
           onChangeText={setReviewNotes}
           placeholder={t`What would you do differently?`}
           multiline
-          autoFocus
         />
       </FormField>
       <FormField label={t`Execution rating`}>
@@ -206,9 +205,11 @@ export default function QuickJournalScreen() {
 
   if (isLoading || tradesLoading || !trade || !tags) {
     return isLoading || tradesLoading || !tags ? (
-      <View className="flex-1 bg-background">
+      // Same chrome as the loaded form so the fields don't jump when the
+      // queries land (see new-trade.tsx).
+      <FormSheet title={t`Review`} saveDisabled onSave={() => {}}>
         <FormSkeleton fields={3} />
-      </View>
+      </FormSheet>
     ) : (
       <View className={CENTERED}>
         <Text className="text-center text-muted-foreground">{t`Trade not found`}</Text>

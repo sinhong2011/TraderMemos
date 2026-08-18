@@ -46,6 +46,14 @@ export default function SettingsLayout() {
         options={{ title: t`Two-factor`, headerLargeTitle: false }}
       />
       <Stack.Screen
+        name="change-server"
+        options={{ title: t`Change server`, headerLargeTitle: false }}
+      />
+      <Stack.Screen
+        name="reset-password"
+        options={{ title: t`Reset password`, headerLargeTitle: false }}
+      />
+      <Stack.Screen
         name="change-password"
         options={{ title: t`Change password`, headerLargeTitle: false }}
       />
@@ -63,10 +71,20 @@ export default function SettingsLayout() {
       />
       <Stack.Screen
         name="web-address"
-        options={{ title: t`Web app address`, headerLargeTitle: false }}
+        options={{ title: t`Share links`, headerLargeTitle: false }}
       />
       <Stack.Screen name="general" options={{ title: t`General`, headerLargeTitle: false }} />
       <Stack.Screen name="risk-rules" options={{ title: t`Risk rules` }} />
+      {/* Title comes from the rule being edited, set by the screen itself. */}
+      <Stack.Screen name="risk-rule-form" options={{ headerLargeTitle: false }} />
+      <Stack.Screen
+        name="daily-checklist"
+        options={{ title: t`Daily checklist`, headerLargeTitle: false }}
+      />
+      <Stack.Screen
+        name="checklist"
+        options={{ title: t`Edit checklist`, headerLargeTitle: false }}
+      />
       <Stack.Screen name="alerts" options={{ title: t`Alerts`, headerLargeTitle: false }} />
       <Stack.Screen
         name="display"

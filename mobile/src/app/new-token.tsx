@@ -76,7 +76,8 @@ export default function NewTokenScreen() {
       <FormSheet
         inSheet
         title={t`Token created`}
-        saveLabel={t`Done`}
+        saveIcon="xmark"
+        saveLabel={t`Close`}
         hideClose
         onSave={() => router.back()}
       >
@@ -131,7 +132,6 @@ export default function NewTokenScreen() {
           onChangeText={setName}
           placeholder={t`e.g. CLI import`}
           autoCorrect={false}
-          autoFocus
           returnKeyType="done"
           onSubmitEditing={handleCreate}
         />

@@ -1,10 +1,10 @@
 import type { SFSymbol } from 'expo-symbols';
-import { cn, Frame, Input, Menu, Switch, Text } from 'panelui-native';
-import { useState, type ReactNode } from 'react';
+import { BottomSheet, cn, Frame, Item, Switch, Text } from 'panelui-native';
+import { Fragment, useState, type ReactNode } from 'react';
+import { Pressable, ScrollView } from 'react-native';
 import { useCSSVariable } from 'uniwind';
 
 import { Icon } from '@/components/icon';
-import { numericText } from '@/lib/amount';
 
 /**
  * The settings-row vocabulary — one implementation for both platforms, drawn
@@ -64,18 +64,6 @@ export interface ValueTextProps {
    */
   color?: string;
   children: string;
-}
-
-export interface SettingsInputProps {
-  label: string;
-  placeholder?: string;
-  /** Seeds the field at mount; the row owns the text from then on. */
-  defaultValue?: string;
-  /** Trailing unit label (a currency code) after the field. */
-  suffix?: string;
-  /** Amount entry: decimal keyboard, and non-numeric characters filtered out. */
-  numeric?: boolean;
-  onChangeText: (text: string) => void;
 }
 
 export interface SettingsButtonProps {
@@ -196,54 +184,6 @@ export function ValueText({ color, children }: ValueTextProps) {
   );
 }
 
-/** A label paired with an inline, trailing-aligned text field. */
-export function SettingsInput({
-  label,
-  placeholder,
-  defaultValue,
-  suffix,
-  numeric,
-  onChangeText,
-}: SettingsInputProps) {
-  // The field is drawn in JS now, so a rejected character can be filtered in
-  // the same commit that produced it — no worklet, and no letter that appears
-  // and vanishes the way an uncontrolled RN field used to give.
-  const [value, setValue] = useState(defaultValue ?? '');
-
-  function handleChange(next: string) {
-    const cleaned = numeric ? numericText(next) : next;
-    setValue(cleaned);
-    onChangeText(cleaned);
-  }
-
-  return (
-    <Frame.Row>
-      <Frame.Content>
-        <Frame.Title>{label}</Frame.Title>
-      </Frame.Content>
-      <Frame.Actions className="min-w-0 shrink grow justify-end gap-2">
-        <Input
-          variant="filled"
-          size="sm"
-          value={value}
-          onChangeText={handleChange}
-          placeholder={placeholder}
-          keyboardType={numeric ? 'decimal-pad' : 'default'}
-          autoCorrect={!numeric}
-          accessibilityLabel={label}
-          className="text-right"
-          containerClassName="w-auto min-w-0 shrink grow"
-        />
-        {suffix != null ? (
-          <Text size="sm" muted>
-            {suffix}
-          </Text>
-        ) : null}
-      </Frame.Actions>
-    </Frame.Row>
-  );
-}
-
 /** A labelled on/off row. */
 export function SettingsToggle({ systemImage, label, value, onValueChange }: SettingsToggleProps) {
   return (
@@ -262,10 +202,11 @@ export function SettingsToggle({ systemImage, label, value, onValueChange }: Set
 /**
  * A labelled single-choice row.
  *
- * The whole row is the trigger and the options arrive in a `Menu` — the
- * pull-down shape SwiftUI's `pickerStyle('menu')` gave the row before, rather
- * than `Select`'s bordered trigger, which would put a second control box
- * inside a card that is already one.
+ * The whole row is the trigger and the options arrive in a bottom sheet with
+ * the Segmented picker sheet's row anatomy — 52pt rows, hairline separators,
+ * the chosen row bold with a trailing check — so every option list in the app
+ * reads as one component. (`Menu.RadioItem`'s sheet presentation drew tall,
+ * dividerless rows with a leading check gutter — a different, sparser list.)
  */
 export function SettingsPicker<T extends string>({
   systemImage,
@@ -274,39 +215,70 @@ export function SettingsPicker<T extends string>({
   onValueChange,
   items,
 }: SettingsPickerProps<T>) {
-  const [mutedForeground] = useCSSVariable(['--color-muted-foreground']) as [string];
+  const [open, setOpen] = useState(false);
+  const [mutedForeground, primary] = useCSSVariable([
+    '--color-muted-foreground',
+    '--color-primary',
+  ]) as [string, string];
   const selected = items.find((item) => item.value === selectedValue);
 
   return (
-    <Menu presentation="bottom-sheet">
-      <Menu.Trigger>
-        <Frame.Row accessibilityRole="button" accessibilityLabel={label}>
-          {systemImage != null ? <RowIcon name={systemImage} /> : null}
-          <Frame.Content>
-            <Frame.Title>{label}</Frame.Title>
-          </Frame.Content>
-          <Frame.Actions>
-            {selected ? (
-              <Text size="sm" muted>
-                {selected.label}
-              </Text>
-            ) : null}
-            <Icon name="chevron.up.chevron.down" size={11} tintColor={mutedForeground} />
-          </Frame.Actions>
-        </Frame.Row>
-      </Menu.Trigger>
-      <Menu.Content width="full" className="shadow-none rounded-none">
-        <Menu.RadioGroup
-          value={selectedValue}
-          onValueChange={(value) => onValueChange(value as T)}
-        >
-          {items.map((item) => (
-            <Menu.RadioItem key={item.value} value={item.value}>
-              {item.label}
-            </Menu.RadioItem>
-          ))}
-        </Menu.RadioGroup>
-      </Menu.Content>
-    </Menu>
+    <>
+      <Frame.Row
+        onPress={() => setOpen(true)}
+        accessibilityRole="button"
+        accessibilityLabel={label}
+      >
+        {systemImage != null ? <RowIcon name={systemImage} /> : null}
+        <Frame.Content>
+          <Frame.Title>{label}</Frame.Title>
+        </Frame.Content>
+        <Frame.Actions>
+          {selected ? (
+            <Text size="sm" muted>
+              {selected.label}
+            </Text>
+          ) : null}
+          <Icon name="chevron.up.chevron.down" size={11} tintColor={mutedForeground} />
+        </Frame.Actions>
+      </Frame.Row>
+      <BottomSheet open={open} onOpenChange={setOpen}>
+        <BottomSheet.Content>
+          <BottomSheet.Header title={label} />
+          {/* Capped ScrollView, not BottomSheet.Body — Body is a flex-1
+              scroller that collapses in a sheet sized to its options (the
+              Segmented picker sheet's reasoning). */}
+          <ScrollView className="max-h-[440px]" bounces={false}>
+            {items.map((item, index) => {
+              const isSelected = item.value === selectedValue;
+              return (
+                <Fragment key={item.value}>
+                  {index > 0 ? <Item.Separator /> : null}
+                  <Pressable
+                    onPress={() => {
+                      onValueChange(item.value);
+                      setOpen(false);
+                    }}
+                    accessibilityRole="radio"
+                    accessibilityState={{ checked: isSelected }}
+                    className="min-h-[52px] flex-row items-center gap-3 active:opacity-60"
+                  >
+                    <Text className={cn('flex-1 text-[17px]', isSelected && 'font-semibold')}>
+                      {item.label}
+                    </Text>
+                    {/* Only the chosen row carries a mark — a hollow circle on
+                        every other row would read as five decisions instead of
+                        one made. */}
+                    {isSelected ? (
+                      <Icon name="checkmark.circle.fill" size={22} tintColor={primary} />
+                    ) : null}
+                  </Pressable>
+                </Fragment>
+              );
+            })}
+          </ScrollView>
+        </BottomSheet.Content>
+      </BottomSheet>
+    </>
   );
 }

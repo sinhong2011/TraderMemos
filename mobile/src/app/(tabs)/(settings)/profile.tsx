@@ -1,12 +1,10 @@
 import { useRouter } from 'expo-router';
 
 import { useMe } from '@/api/hooks';
-import { useSession } from '@/api/session';
 import { ErrorState } from '@/components/error-state';
 import { NavRow } from '@/components/nav-row';
 import { SettingsForm } from '@/components/settings-form';
-import { SettingsButton, SettingsRow, SettingsSection, ValueText } from '@/components/settings-rows';
-import { serverHost, useChangeServer } from '@/lib/change-server';
+import { SettingsRow, SettingsSection, ValueText } from '@/components/settings-rows';
 import { useFormatters } from '@/lib/format';
 import { t } from '@lingui/core/macro';
 
@@ -20,8 +18,6 @@ import { t } from '@lingui/core/macro';
 export default function ProfileScreen() {
   const { formatDate } = useFormatters();
   const router = useRouter();
-  const { session } = useSession();
-  const { changeServer, element: changeServerPrompt } = useChangeServer();
   const me = useMe();
 
   // The whole screen is /me, so a failure has nothing to sit beside — it gets
@@ -46,7 +42,6 @@ export default function ProfileScreen() {
 
   return (
     <SettingsForm>
-      {changeServerPrompt}
       <SettingsSection
         title={t`Signed in as`}
         footer={
@@ -69,28 +64,17 @@ export default function ProfileScreen() {
         </SettingsRow>
       </SettingsSection>
 
-      <SettingsSection
-        title={t`Server`}
-        footer={t`Self-hosted — your journal never leaves this server.`}
-      >
-        <SettingsRow label={t`Host`}>
-          <ValueText>{serverHost(session?.serverUrl ?? '')}</ValueText>
-        </SettingsRow>
-        {/* Plain action row, no chevron — it opens a prompt, not a push (NavRow
-            doc). The hub carries the same action for the server-unreachable
-            case, where this screen is a full-screen error. */}
-        <SettingsButton
-          label={t`Change server`}
-          systemImage="arrow.left.arrow.right"
-          onPress={changeServer}
-        />
-        {/* Owner-only: managing other people's accounts is a property of the
-            server, not of your profile, but this is the only screen that
-            already knows which one you are signed in to. */}
-        {me.data.is_admin ? (
+      {/* No Host / Change server here — the hub's Server row is the one place
+          that edits the connection (it must stay reachable when the server
+          isn't, which is exactly when this screen is a full-screen error).
+          Owner-only: managing other people's accounts is a property of the
+          server, not of your profile, but this is the only screen that
+          already knows which one you are signed in to. */}
+      {me.data.is_admin ? (
+        <SettingsSection title={t`Server`}>
           <NavRow systemImage="person.2" label={t`Users`} onPress={() => router.push('/users')} />
-        ) : null}
-      </SettingsSection>
+        </SettingsSection>
+      ) : null}
 
       <SettingsSection
         title={t`Security`}

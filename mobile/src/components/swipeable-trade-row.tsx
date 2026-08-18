@@ -1,13 +1,11 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
-import { Swipe, type SwipeHandle } from 'panelui-native';
-import { useEffect, useRef } from 'react';
 import { Alert } from 'react-native';
-import { useCSSVariable } from 'uniwind';
 
 import { Icon } from '@/components/icon';
 import { useApiRequest } from '@/api/hooks';
 import type { Trade } from '@/api/types';
+import { Swipe } from '@/components/swipe';
 import { TradeRow } from '@/components/trade-row';
 import { t } from '@lingui/core/macro';
 import { errorMessage } from '@/lib/errors';
@@ -29,14 +27,6 @@ export function SwipeableTradeRow({
   const router = useRouter();
   const queryClient = useQueryClient();
   const api = useApiRequest();
-  const swipeable = useRef<SwipeHandle>(null);
-  // A tile's content is white on every colored fill; the neutral `default`
-  // tile takes the background token instead, which is what its label uses.
-  const [background] = useCSSVariable(['--color-background']) as [string];
-
-  useEffect(() => {
-    swipeable.current?.close();
-  }, [trade.id]);
 
   const deleteTrade = useMutation({
     mutationFn: (id: string) => api<void>(`/trades/${id}`, { method: 'DELETE' }),
@@ -59,49 +49,43 @@ export function SwipeableTradeRow({
     );
   }
 
-  const go = (action: () => void) => () => {
-    swipeable.current?.close();
-    action();
-  };
   const isOpen = trade.status === 'open';
 
   return (
-    // No full swipe: both outermost actions are destructive-ish (remove, and
-    // closing a position), and neither should fire from a hard drag alone.
-    <Swipe ref={swipeable} fullSwipe={false}>
+    // List-recycling safe: `resetKey` snaps an open swipe shut when the
+    // instance is handed a different trade.
+    <Swipe resetKey={trade.id}>
       <Swipe.Start>
         {isOpen ? (
           <Swipe.Action
             color="success"
-            icon={<Icon name="flag.checkered" size={17} tintColor="#FFFFFF" />}
+            icon={<Icon name="flag.checkered" />}
             label={t`Close`}
-            onPress={go(() =>
-              router.push({ pathname: '/edit-trade', params: { id: trade.id, addExit: '1' } }),
-            )}
+            onPress={() =>
+              router.push({ pathname: '/edit-trade', params: { id: trade.id, addExit: '1' } })
+            }
           />
         ) : (
           <Swipe.Action
             color="primary"
-            icon={<Icon name="square.and.pencil" size={17} tintColor="#FFFFFF" />}
+            icon={<Icon name="square.and.pencil" />}
             label={t`Journal`}
-            onPress={go(() =>
-              router.push({ pathname: '/quick-journal', params: { id: trade.id } }),
-            )}
+            onPress={() => router.push({ pathname: '/quick-journal', params: { id: trade.id } })}
           />
         )}
       </Swipe.Start>
       <Swipe.End>
         <Swipe.Action
-          color="default"
-          icon={<Icon name="pencil" size={17} tintColor={background} />}
+          color="info"
+          icon={<Icon name="pencil" />}
           label={t`Edit`}
-          onPress={go(() => router.push({ pathname: '/edit-trade', params: { id: trade.id } }))}
+          onPress={() => router.push({ pathname: '/edit-trade', params: { id: trade.id } })}
         />
         <Swipe.Action
           color="destructive"
-          icon={<Icon name="trash.fill" size={17} tintColor="#FFFFFF" />}
+          icon={<Icon name="trash.fill" />}
           label={t`Remove`}
-          onPress={go(confirmDelete)}
+          onPress={confirmDelete}
         />
       </Swipe.End>
       <TradeRow trade={trade} showDate={showDate} />

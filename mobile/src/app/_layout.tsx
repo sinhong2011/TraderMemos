@@ -257,15 +257,15 @@ export default function RootLayout() {
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="login" options={{ presentation: 'modal', headerShown: false }} />
-            {/* New trade is a destination, not an interruption: a real push
-                with the standard back gesture. Edit stays a page sheet (not
-                formSheet: react-native-screens' formSheet lays the ScrollView
-                out over the header with these full-height forms). */}
+            {/* New trade and edit trade are destinations, not interruptions:
+                real pushes with the standard back gesture (not formSheet:
+                react-native-screens' formSheet lays the ScrollView out over
+                the header with these full-height forms). */}
             <Stack.Screen name="new-trade" />
             {/* Review & save rides the same push stack as the form. */}
             <Stack.Screen name="trade-preview" />
 
-            <Stack.Screen name="edit-trade" options={{ presentation: 'modal' }} />
+            <Stack.Screen name="edit-trade" />
             <Stack.Screen
               name="manage-tags"
               options={{
@@ -282,12 +282,10 @@ export default function RootLayout() {
             <Stack.Screen name="new-note" options={{ presentation: 'modal' }} />
             <Stack.Screen name="edit-note" options={{ presentation: 'modal' }} />
             <Stack.Screen name="new-setup" options={{ presentation: 'modal' }} />
-            {/* Replay is a thing you watch, not a form you fill: full screen so
-                the chart gets the height, with its own header for the actions. */}
-            <Stack.Screen
-              name="replay"
-              options={{ presentation: 'fullScreenModal', headerShown: true }}
-            />
+            {/* Replay is a thing you watch, not a form you fill: a pushed page
+                (not a modal) so it stacks under the trade you came from, with
+                its own header for the actions. */}
+            <Stack.Screen name="replay" options={{ headerShown: true }} />
             {/* One-shot calculators ride in half sheets; the R calculator is a
                 pushed screen under (dashboard). */}
             <Stack.Screen
@@ -346,18 +344,12 @@ export default function RootLayout() {
                 sheetCornerRadius: 24,
               }}
             />
-            {/* Add/edit cash transaction — a creation sheet like new-token,
-                launched from the Funding list's + button. Taller detent than
-                the token sheet: five stacked fields, not two. */}
-            <Stack.Screen
-              name="cash-form"
-              options={{
-                presentation: 'formSheet',
-                sheetAllowedDetents: [0.75, 1],
-                sheetGrabberVisible: true,
-                sheetCornerRadius: 24,
-              }}
-            />
+            {/* Add/edit cash transaction — a pushed card (the new-trade
+                shape), launched from the Funding list's + button. Not a
+                formSheet: its account/type/date pickers are PanelUI sheets,
+                which portal to the root host and draw *under* a natively
+                presented sheet. */}
+            <Stack.Screen name="cash-form" />
             <Stack.Screen
               name="new-token"
               options={{
@@ -367,17 +359,9 @@ export default function RootLayout() {
                 sheetCornerRadius: 24,
               }}
             />
-            {/* Add/edit tag — the Tags list's + button, same sheet as above;
-                the swatch row makes it one detent taller. */}
-            <Stack.Screen
-              name="tag-form"
-              options={{
-                presentation: 'formSheet',
-                sheetAllowedDetents: [0.6, 1],
-                sheetGrabberVisible: true,
-                sheetCornerRadius: 24,
-              }}
-            />
+            {/* Add/edit tag — a pushed card (the cash-form shape), so the
+                Tags list's rows can tap-to-edit and long-press-preview it. */}
+            <Stack.Screen name="tag-form" />
           </Stack>
           {/* Above the navigator, so it stays put across pushes and sheets. */}
           <OfflineBanner />

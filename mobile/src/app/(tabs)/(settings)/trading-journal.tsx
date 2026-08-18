@@ -114,6 +114,15 @@ export default function TradingJournalScreen() {
             label={t`Risk rules`}
             onPress={() => router.push('/risk-rules')}
           />
+          {/* The process-rule sibling of Risk rules — the limits the engine
+              can't score, run by hand each morning. The bare path resolves to
+              this stack's own mount of the run screen, so back returns here
+              rather than popping to Home. */}
+          <NavRow
+            systemImage="checkmark.circle"
+            label={t`Daily checklist`}
+            onPress={() => router.push('/daily-checklist')}
+          />
           <NavRow
             systemImage="bell.badge"
             label={t`Alerts`}

@@ -1,7 +1,7 @@
 import { useForm } from '@tanstack/react-form';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
-import { Alert, Button, Card, Input } from 'panelui-native';
+import { Alert, Button, Card, Input, OtpInput } from 'panelui-native';
 import { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
@@ -266,6 +266,7 @@ export default function LoginScreen() {
                 <form.Field name="serverUrl">
                   {(field) => (
                     <Input
+                      variant="filled"
                       value={field.state.value}
                       onChangeText={field.handleChange}
                       onBlur={() => void checkServer(field.state.value)}
@@ -280,7 +281,7 @@ export default function LoginScreen() {
                         void checkServer(field.state.value);
                         usernameRef.current?.focus();
                       }}
-                      className="min-h-[52px] text-[17px]"
+                      className="min-h-[52px] rounded-3xl border-0 text-[17px]"
                     />
                   )}
                 </form.Field>
@@ -292,6 +293,7 @@ export default function LoginScreen() {
                   {(field) => (
                     <Input
                       ref={usernameRef}
+                      variant="filled"
                       value={field.state.value}
                       onChangeText={field.handleChange}
                       placeholder={t`Enter your username`}
@@ -300,7 +302,7 @@ export default function LoginScreen() {
                       textContentType="username"
                       returnKeyType="next"
                       onSubmitEditing={() => passwordRef.current?.focus()}
-                      className="min-h-[52px] text-[17px]"
+                      className="min-h-[52px] rounded-3xl border-0 text-[17px]"
                     />
                   )}
                 </form.Field>
@@ -327,19 +329,16 @@ export default function LoginScreen() {
                 <Text className="text-base font-semibold text-foreground">{t`Authenticator code`}</Text>
                 <form.Field name="totpCode">
                   {(field) => (
-                    <Input
+                    // One cell per digit; the hidden field carries the
+                    // one-time-code autofill, so iOS still fills it straight
+                    // from the Passwords app.
+                    <OtpInput
                       ref={totpRef}
+                      className="items-center"
                       value={field.state.value}
                       onChangeText={field.handleChange}
-                      placeholder={t`6-digit code`}
-                      keyboardType="number-pad"
-                      // iOS fills this straight from the Passwords app.
-                      textContentType="oneTimeCode"
-                      autoComplete="one-time-code"
-                      maxLength={6}
-                      onSubmitEditing={() => void form.handleSubmit()}
-                      returnKeyType="go"
-                      className="min-h-[52px] text-[17px]"
+                      onComplete={() => void form.handleSubmit()}
+                      accessibilityLabel={t`Authenticator code`}
                     />
                   )}
                 </form.Field>
@@ -358,7 +357,8 @@ export default function LoginScreen() {
             <form.Subscribe selector={(state) => state.isSubmitting}>
               {(submitting) => (
                 <Button
-                  size="lg"
+                  size="md"
+                  className="rounded-3xl"
                   fullWidth
                   loading={submitting}
                   onPress={() => void form.handleSubmit()}

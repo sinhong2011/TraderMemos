@@ -1,7 +1,7 @@
 import type { SFSymbol } from 'expo-symbols';
 import { BottomSheet, Item, Tabs, cn } from 'panelui-native';
 import { Fragment, useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Keyboard, Pressable, ScrollView, Text, View } from 'react-native';
 import { useCSSVariable } from 'uniwind';
 
 import { Icon } from '@/components/icon';
@@ -23,7 +23,22 @@ export type SegmentedProps<T extends string> = {
   variant?: 'segmented' | 'menu' | 'wheel';
   /** Fixes a tight frame for nav bars instead of hugging content. */
   compact?: boolean;
-  /** Stretches to the container width — form rows, where hugging leaves dead space. */
+  /**
+   * Drops the track entirely — a row of plain text segments for spots where
+   * even the recessed track is too much chrome (a card header). The selection
+   * reads by weight and color instead of a travelling chip. On the menu
+   * variants it shrinks the trigger to the same 11pt text, and when the
+   * current value is not among this control's options the trigger collapses
+   * to just the chevron — the overflow half of a split picker
+   * (see interval-picker.tsx).
+   */
+  bare?: boolean;
+  /**
+   * Stretches to the container width — form rows, where hugging leaves dead
+   * space. On the sheet-trigger variants this also parks the chevron on the
+   * trailing edge (the FormPicker anatomy), so a field-shaped trigger reads
+   * value-left, affordance-right.
+   */
   fill?: boolean;
   /**
    * Cancels a menu trigger's own label padding so it lands on the same edge as
@@ -59,6 +74,7 @@ export function Segmented<T extends string>({
   title,
   variant = 'segmented',
   compact,
+  bare,
   fill,
   flush,
 }: SegmentedProps<T>) {
@@ -75,29 +91,40 @@ export function Segmented<T extends string>({
     const selected = options.find((option) => option.value === value);
     const hasIcons = options.some((option) => option.icon != null);
     return (
-      <BottomSheet open={open} onOpenChange={setOpen}>
+      <BottomSheet
+        open={open}
+        // Opening from a focused field must take the keyboard down with it —
+        // a decimal pad has no return key, so this tap is its only dismissal.
+        onOpenChange={(next) => {
+          if (next) Keyboard.dismiss();
+          setOpen(next);
+        }}
+      >
         <BottomSheet.Trigger>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel={selected?.label}
+            accessibilityLabel={selected?.label ?? title}
             hitSlop={6}
             className={cn(
-              'flex-row items-center gap-1.5 active:opacity-60',
+              'flex-row items-center active:opacity-60',
+              bare ? 'gap-0.5 px-1.5 py-1' : 'gap-1.5',
               // The default padding is what fills a `ControlPill`; flush
               // triggers sit on an edge a row already owns.
-              !flush && 'px-3 py-1.5',
-              fill && 'self-stretch',
+              !flush && !bare && 'px-3 py-1.5',
+              fill && 'flex-1 justify-between self-stretch',
             )}
           >
-            <Text
-              className={cn(
-                'font-medium text-foreground',
-                compact ? 'text-[13px]' : 'text-[15px]',
-              )}
-              numberOfLines={1}
-            >
-              {selected?.label ?? ''}
-            </Text>
+            {bare && !selected ? null : (
+              <Text
+                className={cn(
+                  'font-medium text-foreground',
+                  bare ? 'text-[11px] font-semibold' : compact ? 'text-[13px]' : 'text-[15px]',
+                )}
+                numberOfLines={1}
+              >
+                {selected?.label ?? ''}
+              </Text>
+            )}
             <Icon name="chevron.up.chevron.down" size={11} tintColor={mutedForeground} />
           </Pressable>
         </BottomSheet.Trigger>
@@ -125,9 +152,10 @@ export function Segmented<T extends string>({
                     }}
                     accessibilityRole="radio"
                     accessibilityState={{ checked: isSelected }}
-                    // Bled to the sheet edges so the press highlight runs the
-                    // full width, then padded back to the content column.
-                    className="-mx-5 min-h-[52px] flex-row items-center gap-3 px-5 active:bg-accent"
+                    // Press feedback dims the row (the app's pressable idiom) —
+                    // a filled accent slab bled across the sheet read as a
+                    // mispainted band.
+                    className="min-h-[52px] flex-row items-center gap-3 active:opacity-60"
                   >
                     {option.icon ? (
                       <View
@@ -159,6 +187,38 @@ export function Segmented<T extends string>({
           </ScrollView>
         </BottomSheet.Content>
       </BottomSheet>
+    );
+  }
+
+  // Trackless: each option is a small text button, the selected one lifted to
+  // full foreground weight. Labels only — a bare glyph row would read as
+  // stray icons, not a choice.
+  if (bare) {
+    return (
+      <View className="flex-row items-center">
+        {options.map((option) => {
+          const isSelected = option.value === value;
+          return (
+            <Pressable
+              key={option.value}
+              onPress={() => onChange(option.value)}
+              hitSlop={6}
+              accessibilityRole="button"
+              accessibilityState={{ selected: isSelected }}
+              className="px-1.5 py-1 active:opacity-60"
+            >
+              <Text
+                className={cn(
+                  'text-[11px]',
+                  isSelected ? 'font-semibold text-foreground' : 'font-medium text-muted-foreground',
+                )}
+              >
+                {option.label}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
     );
   }
 

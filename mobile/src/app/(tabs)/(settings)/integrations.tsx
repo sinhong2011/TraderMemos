@@ -48,9 +48,11 @@ export default function IntegrationsScreen() {
               ? t`Share links are built from this address (${source.toLowerCase()}).`
               : t`Share links need this address. Your server doesn't advertise one, so set the domain your web app is served from.`}
       >
+        {/* Named for what it does — the share-link domain — not "address",
+            which read as yet another server URL beside the hub's Server row. */}
         <NavRow
           systemImage="globe"
-          label={t`Web app address`}
+          label={t`Share links`}
           value={effective ? hostOf(effective) : t`Not set`}
           onPress={() => router.push('/web-address')}
         />

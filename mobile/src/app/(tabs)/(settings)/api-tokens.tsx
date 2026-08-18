@@ -1,13 +1,9 @@
 import { FlashList } from '@shopify/flash-list';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useRouter } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
 import { cn } from 'panelui-native';
-import { useRef } from 'react';
 import { Alert, Pressable, RefreshControl, Text, View } from 'react-native';
-import ReanimatedSwipeable, {
-  type SwipeableMethods,
-} from 'react-native-gesture-handler/ReanimatedSwipeable';
 import { useCSSVariable } from 'uniwind';
 
 import { EmptyState } from '@/components/empty-state';
@@ -17,24 +13,19 @@ import type { AccessToken } from '@/api/types';
 import { ErrorState } from '@/components/error-state';
 import { HeaderIconButton } from '@/components/header-icon-button';
 import { Skeleton } from '@/components/skeleton';
+import { Swipe } from '@/components/swipe';
 import { t } from '@lingui/core/macro';
 import { errorMessage } from '@/lib/errors';
 import { useFormatters } from '@/lib/format';
 
-/** One token, with a trailing swipe to revoke (the trades-list idiom). */
-function TokenRow({
-  token,
-  onRevoke,
-  onPress,
-}: {
-  token: AccessToken;
-  onRevoke: () => void;
-  onPress: () => void;
-}) {
+/**
+ * One token, in the trades-list row anatomy: a tap opens its activity, a long
+ * press previews it, the trailing swipe revokes.
+ */
+function TokenRow({ token, onRevoke }: { token: AccessToken; onRevoke: () => void }) {
   const [mutedForeground] = useCSSVariable(['--color-muted-foreground']) as [string];
   // Bound to the display timezone (see lib/format.ts).
   const { formatDate } = useFormatters();
-  const swipeable = useRef<SwipeableMethods>(null);
   const lastUsed = token.last_used_at ? formatDate(token.last_used_at) : t`never`;
   // A token past its expiry still lists, so the badge has to say so — "Expires
   // Aug 4" reads as live when that date is in the past.
@@ -48,40 +39,33 @@ function TokenRow({
         : { label: t`Expires ${formatDate(token.expires_at)}`, tone: 'quiet' };
 
   return (
-    <ReanimatedSwipeable
-      ref={swipeable}
-      friction={2}
-      rightThreshold={36}
-      overshootRight={false}
-      renderRightActions={() => (
-        <Pressable
-          onPress={() => {
-            swipeable.current?.close();
-            onRevoke();
-          }}
-          accessibilityRole="button"
-          accessibilityLabel={t`Revoke`}
-          className="ml-2 w-[72px] items-center justify-center gap-[3px] rounded-lg bg-destructive active:opacity-70"
-        >
-          <Icon name="key.slash.fill" size={17} tintColor="#FFFFFF" />
-          <Text className="text-[11px] font-semibold text-white" numberOfLines={1}>
-            {t`Revoke`}
-          </Text>
-        </Pressable>
-      )}
-    >
+    // List-recycling safe: `resetKey` snaps an open swipe shut when the
+    // instance is handed a different token.
+    <Swipe resetKey={token.id}>
+      <Swipe.End>
+        <Swipe.Action
+          color="destructive"
+          icon={<Icon name="key.slash.fill" />}
+          label={t`Revoke`}
+          onPress={onRevoke}
+        />
+      </Swipe.End>
       {/* Name and a lifecycle badge on the title line; the prefix below as a
           monospaced chip, because it is a fragment of a credential and reads
           as one — loose grey text next to prose looks like a caption. Last
           used sits with it on the same baseline: both answer "which token is
           this and is it live". */}
-      <Pressable
-        onPress={onPress}
-        accessibilityRole="button"
-        accessibilityLabel={t`${token.name} activity`}
-        className="gap-1.5 rounded-lg bg-card p-4 active:opacity-70"
+      <Link
+        href={{ pathname: '/token-uses', params: { id: token.id, name: token.name } }}
+        asChild
       >
-        <View className="flex-row items-center gap-2">
+        {/* Link.Trigger clones its child and overwrites `style`, so the
+            Pressable stays bare and an inner View carries the row's surface
+            (the trade-row rule). */}
+        <Link.Trigger>
+          <Pressable accessibilityLabel={t`${token.name} activity`}>
+            <View className="gap-1.5 rounded-lg bg-card p-4">
+              <View className="flex-row items-center gap-2">
           <Icon
             name="key.horizontal.fill"
             size={15}
@@ -132,8 +116,12 @@ function TokenRow({
             {t`Last used ${lastUsed}`}
           </Text>
         </View>
-      </Pressable>
-    </ReanimatedSwipeable>
+            </View>
+          </Pressable>
+        </Link.Trigger>
+        <Link.Preview />
+      </Link>
+    </Swipe>
   );
 }
 
@@ -212,16 +200,7 @@ export default function ApiTokensScreen() {
               />
             }
             renderItem={({ item }) => (
-              <TokenRow
-                token={item}
-                onRevoke={() => confirmRevoke(item)}
-                onPress={() =>
-                  router.push({
-                    pathname: '/token-uses',
-                    params: { id: item.id, name: item.name },
-                  })
-                }
-              />
+              <TokenRow token={item} onRevoke={() => confirmRevoke(item)} />
             )}
             ItemSeparatorComponent={() => <View className="h-2" />}
             ListFooterComponent={

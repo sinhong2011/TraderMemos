@@ -1,12 +1,14 @@
 import { t } from '@lingui/core/macro';
-import { cn, Input } from 'panelui-native';
+import { cn, Input, type InputProps } from 'panelui-native';
 import { useState, type Ref } from 'react';
-import { Pressable, TextInput, type TextInputProps } from 'react-native';
+import { Pressable, TextInput } from 'react-native';
 import { useCSSVariable } from 'uniwind';
 
 import { Icon } from '@/components/icon';
 
-type PasswordInputProps = Omit<TextInputProps, 'secureTextEntry'> & {
+// PanelUI's own prop surface, so `description` / `errorMessage` / `label`
+// pass through — this is an `Input` wearing a reveal toggle, nothing less.
+type PasswordInputProps = Omit<InputProps, 'secureTextEntry' | 'endContent'> & {
   ref?: Ref<TextInput>;
 };
 
@@ -23,13 +25,14 @@ export function PasswordInput({ ref, className, ...props }: PasswordInputProps) 
   return (
     <Input
       ref={ref}
+      variant="filled"
       secureTextEntry={!visible}
       autoCapitalize="none"
       autoCorrect={false}
       textContentType="password"
       // Matches the sibling fields on the sign-in screen; a caller's own
       // classes still win, since they are merged last.
-      className={cn('min-h-[52px] text-[17px]', className)}
+      className={cn('min-h-[52px] rounded-3xl border-0 text-[17px]', className)}
       endContent={
         <Pressable
           onPress={() => setVisible((v) => !v)}

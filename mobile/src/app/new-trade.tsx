@@ -2,6 +2,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { Alert, Text, View } from 'react-native';
 
+import { FormSheet } from '@/components/form-sheet';
 import { FormSkeleton } from '@/components/skeleton';
 
 import { useSession } from '@/api/session';
@@ -132,10 +133,19 @@ export default function NewTradeScreen() {
   }
 
   if (!accounts || !setups || !tags || prefill.importing) {
+    // Same chrome as the loaded form (FormSheet owns the status-bar inset on a
+    // pushed card) so the fields don't jump down when the queries land.
     return (
-      <View className="flex-1 bg-background">
+      <FormSheet
+        pushed
+        title={t`New trade`}
+        saveLabel={t`Preview`}
+        saveIcon="eye"
+        saveDisabled
+        onSave={() => {}}
+      >
         <FormSkeleton />
-      </View>
+      </FormSheet>
     );
   }
   if (accounts.length === 0) {

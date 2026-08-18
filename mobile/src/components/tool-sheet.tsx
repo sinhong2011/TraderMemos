@@ -7,13 +7,21 @@ import { t } from '@lingui/core/macro';
 
 /**
  * Scaffold for the calculator sheets. Same chrome as every other sheet in the
- * app (`FormSheet`): a calculator has nothing to cancel — the numbers are the
- * result — so it drops the close affordance and names its one action Done.
+ * app (`FormSheet`): a calculator has nothing to cancel or commit — the
+ * numbers are the result — so its one control is the close circle (a labelled
+ * "Done" capsule read as an action still waiting to happen).
  */
 export function ToolSheet({ title, children }: { title: string; children: ReactNode }) {
   const router = useRouter();
   return (
-    <FormSheet inSheet hideClose title={title} saveLabel={t`Done`} onSave={() => router.back()}>
+    <FormSheet
+      inSheet
+      hideClose
+      title={title}
+      saveIcon="xmark"
+      saveLabel={t`Close`}
+      onSave={() => router.back()}
+    >
       {children}
     </FormSheet>
   );

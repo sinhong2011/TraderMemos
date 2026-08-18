@@ -33,3 +33,4 @@ minimumReleaseAgeExclude:
 
 patchedDependencies:
   panelui-native: patches/panelui-native.patch
+  react-native-gesture-handler: patches/react-native-gesture-handler.patch

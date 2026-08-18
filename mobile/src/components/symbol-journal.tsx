@@ -3,21 +3,17 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
 import { Chip, cn } from 'panelui-native';
 import { useEffect, useMemo, useState } from 'react';
-import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
+import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useCSSVariable } from 'uniwind';
 
 import { EmptyState } from '@/components/empty-state';
 import { Icon } from '@/components/icon';
 import { useMarketBars, useTradeDetails, useTrades } from '@/api/hooks';
 import type { BarInterval } from '@/api/types';
-import {
-  AXIS_WIDTH,
-  ChartCanvas,
-  type ChartMarker,
-  type ChartPriceLine,
-} from '@/components/chart-canvas';
+import { ChartCanvas, type ChartMarker, type ChartPriceLine } from '@/components/chart-canvas';
 import { DashboardCard } from '@/components/dashboard-card';
 import { InlineError } from '@/components/error-state';
+import { IntervalPicker } from '@/components/interval-picker';
 import { FloatingSearchBar, SearchToggle } from '@/components/search-bar';
 import { Segmented } from '@/components/segmented';
 import { Skeleton } from '@/components/skeleton';
@@ -104,7 +100,7 @@ export default function SymbolJournalScreen() {
   // Chart series and marker tints are JS colors, so they come off the tokens
   // rather than out of a class.
   const palette = usePnlPalette();
-  const [primary, background] = useCSSVariable(['--color-primary', '--color-background']) as [
+  const [primary, foreground] = useCSSVariable(['--color-primary', '--color-foreground']) as [
     string,
     string,
   ];
@@ -319,14 +315,6 @@ export default function SymbolJournalScreen() {
     ...(hasHistory ? [{ value: 'auto' as const, label: t`Auto` }] : []),
     ...(Object.keys(RANGES) as RangeKey[]).map((key) => ({ value: key, label: key })),
   ];
-  const intervals: { value: BarInterval; label: string }[] = [
-    { value: '1', label: '1m' },
-    { value: '5', label: '5m' },
-    { value: '15', label: '15m' },
-    { value: '60', label: '1H' },
-    { value: '240', label: '4H' },
-    { value: 'D', label: '1D' },
-  ];
 
   return (
     <>
@@ -452,14 +440,19 @@ export default function SymbolJournalScreen() {
                     }}
                   />
                   {data.length > 1 ? (
+                    // Watermark, not a button — same faint centred play glyph
+                    // as the trade chart card (see trade-chart.tsx).
                     <View
-                      // Clear of the price gutter, so the badge never covers an
-                      // axis label.
-                      style={{ right: AXIS_WIDTH + 6 }}
-                      className="absolute top-0 flex-row items-center gap-[5px] rounded-full bg-foreground px-[9px] py-[5px]"
+                      pointerEvents="none"
+                      style={StyleSheet.absoluteFill}
+                      className="items-center justify-center"
                     >
-                      <Icon name="play.fill" size={10} tintColor={background} />
-                      <Text className="text-[11px] font-semibold text-background">{t`Replay`}</Text>
+                      <View
+                        className="h-12 w-12 items-center justify-center rounded-full"
+                        style={{ backgroundColor: foreground + '14' }}
+                      >
+                        <Icon name="play.fill" size={18} tintColor={foreground + '8C'} />
+                      </View>
                     </View>
                   ) : null}
                 </Pressable>
@@ -469,7 +462,7 @@ export default function SymbolJournalScreen() {
                   chart card — and outside the branch above, since the empty state
                   tells you to reach for it. */}
               <View className="items-center">
-                <Segmented options={intervals} value={interval} onChange={setIntervalChoice} />
+                <IntervalPicker value={interval} onChange={setIntervalChoice} />
               </View>
             </DashboardCard>
 

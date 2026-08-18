@@ -1,4 +1,10 @@
 import { Button, DatePicker, TimePicker, type TimeValue } from 'panelui-native';
+import { Keyboard } from 'react-native';
+
+/** Pickers open over forms with the keyboard up — take it down with the tap. */
+const dismissKeyboardOnOpen = (open: boolean) => {
+  if (open) Keyboard.dismiss();
+};
 
 /** Props of the date/time control the form rows are built around. */
 export type DateFieldProps = {
@@ -51,7 +57,12 @@ export function DateField({ selection, displayedComponents, onDateChange }: Date
   return (
     <>
       {displayedComponents.includes('date') ? (
-        <DatePicker selected={selection} onSelect={pickDay} presentation="bottom-sheet">
+        <DatePicker
+          selected={selection}
+          onSelect={pickDay}
+          presentation="bottom-sheet"
+          onOpenChange={dismissKeyboardOnOpen}
+        >
           <Button variant="secondary" size="sm">
             {selection.toLocaleDateString(undefined, {
               year: 'numeric',
@@ -67,6 +78,7 @@ export function DateField({ selection, displayedComponents, onDateChange }: Date
           onValueChange={pickTime}
           hourCycle={24}
           presentation="bottom-sheet"
+          onOpenChange={dismissKeyboardOnOpen}
         >
           <Button variant="secondary" size="sm" labelClassName="tabular-nums">
             {`${pad2(selection.getHours())}:${pad2(selection.getMinutes())}`}

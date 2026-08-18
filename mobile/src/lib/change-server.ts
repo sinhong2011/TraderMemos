@@ -1,13 +1,11 @@
 /**
  * Change the API server from inside the app — previously the URL was only
- * editable on the sign-in screen's Advanced sheet, so a moved or renumbered
- * server stranded a signed-in session with no way out but Sign out (and
- * nothing told you that was the fix).
+ * editable on the sign-in screen, so a moved or renumbered server stranded a
+ * signed-in session with no way out but Sign out (and nothing told you that
+ * was the fix). The edit itself lives on the pushed change-server settings
+ * screen; this module owns what applying it means.
  *
- * One value → `usePrompt` (`Alert.prompt` on iOS, a dialog on Android — the
- * bare Alert API is a silent no-op there), the settings idiom for
- * single-field edits.
- * Saving points the app at the new instance and signs out, because both
+ * Applying points the app at the new instance and signs out, because both
  * halves of the session belong to the old server: the token pair was issued
  * by it, and the cached journal/queued writes belong to its account. The
  * login screen prefills the saved URL, so what the change costs is the
@@ -16,12 +14,9 @@
 
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
-import type { ReactNode } from 'react';
 
 import { useApiRequest } from '@/api/hooks';
-import { usePrompt } from '@/components/use-prompt';
-import { normalizeServerUrl, saveServerUrl, useSession } from '@/api/session';
-import { t } from '@lingui/core/macro';
+import { saveServerUrl, useSession } from '@/api/session';
 import { clearOutbox } from '@/lib/outbox';
 import { usePushAlertStore } from '@/lib/push-alerts';
 import { clearPersistedQueryCache } from '@/storage/mmkv';
@@ -36,18 +31,17 @@ export function serverHost(url: string): string {
 }
 
 /**
- * Returns the prompt-opener (safe to hand straight to an `onPress`) and the
- * dialog element the caller must render once — null on iOS and whenever the
- * prompt is closed.
+ * The switch itself: unregister this device's push channel from the old
+ * server, sign out, save the new URL, wipe every cache that belongs to the
+ * old account, and land on the login screen.
  */
-export function useChangeServer(): { changeServer: () => void; element: ReactNode } {
-  const { session, signOut } = useSession();
+export function useApplyServerChange(): (next: string) => Promise<void> {
+  const { signOut } = useSession();
   const router = useRouter();
   const queryClient = useQueryClient();
   const api = useApiRequest();
-  const { prompt, element } = usePrompt();
 
-  async function applyChange(next: string) {
+  return async (next: string) => {
     // Best-effort against the old server while the token still works — this
     // device's alert channel should not outlive the session (same reasoning
     // as Sign out's unregister).
@@ -69,24 +63,5 @@ export function useChangeServer(): { changeServer: () => void; element: ReactNod
     clearPersistedQueryCache();
     clearOutbox();
     router.replace('/login');
-  }
-
-  const changeServer = () => {
-    const current = session?.serverUrl ?? '';
-    prompt({
-      title: t`Change server?`,
-      message: t`Points the app at a different TraderMemos instance and signs you out. Unsynced offline changes will be discarded.`,
-      defaultValue: current,
-      keyboardType: 'url',
-      confirmLabel: t`Change & sign out`,
-      onSubmit: (value) => {
-        const next = normalizeServerUrl(value);
-        // Empty or unchanged: nothing to move to — keep the session.
-        if (!next || next === current) return;
-        void applyChange(next);
-      },
-    });
   };
-
-  return { changeServer, element };
 }

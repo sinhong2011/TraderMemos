@@ -1,17 +1,18 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import * as Clipboard from 'expo-clipboard';
-import { Frame, Input, Text } from 'panelui-native';
+import { Frame, OtpInput, Text } from 'panelui-native';
 import { useState } from 'react';
 import { Alert, Linking, View } from 'react-native';
 
 import { queryKeys, useApiRequest, useMe } from '@/api/hooks';
 import type { TotpSetup } from '@/api/types';
 import { CenteredButton } from '@/components/centered-button';
+import { FormField, FormScreen } from '@/components/form-kit';
 import { PasswordInput } from '@/components/password-input';
-import { SettingsForm } from '@/components/settings-form';
 import { SettingsButton, SettingsSection } from '@/components/settings-rows';
 import { errorMessage } from '@/lib/errors';
 import { notify } from '@/lib/haptics';
+import { showToast } from '@/lib/toast';
 import { t } from '@lingui/core/macro';
 
 /**
@@ -21,6 +22,11 @@ import { t } from '@lingui/core/macro';
  * authenticator, and you cannot scan your own display. The `otpauth://` link
  * hands the secret straight to the platform password manager or any installed
  * authenticator, with the raw secret underneath for typing into a desktop app.
+ *
+ * Typing happens in the form kit's bare fields (the entry-form vocabulary);
+ * `SettingsSection` cards hold only rows. There is no Cancel during enrolment:
+ * nothing is saved until a code is confirmed, so the header back button
+ * already abandons it.
  */
 export default function TwoFactorScreen() {
   const queryClient = useQueryClient();
@@ -87,22 +93,21 @@ export default function TwoFactorScreen() {
   // ---- Enrolled: offer removal -------------------------------------------
   if (enabled) {
     return (
-      <SettingsForm>
-        <SettingsSection
-          title={t`Turn off two-factor`}
-          footer={t`Turning it off needs your password and a current code, so a borrowed unlocked phone can't remove it.`}
-        >
-          <View className="px-4 py-3">
-            <PasswordInput
-              value={password}
-              onChangeText={setPassword}
-              placeholder={t`Password`}
-            />
-          </View>
-          <View className="px-4 py-3">
-            <CodeField value={code} onChangeText={setCode} />
-          </View>
-        </SettingsSection>
+      <FormScreen>
+        <FormField label={t`Password`}>
+          <PasswordInput
+            value={password}
+            onChangeText={setPassword}
+            accessibilityLabel={t`Password`}
+          />
+        </FormField>
+        <FormField label={t`6-digit code`}>
+          <CodeField
+            value={code}
+            onChangeText={setCode}
+            description={t`Turning it off needs your password and a current code, so a borrowed unlocked phone can't remove it.`}
+          />
+        </FormField>
 
         <CenteredButton
           label={disable.isPending ? t`Turning off…` : t`Turn off two-factor`}
@@ -120,13 +125,13 @@ export default function TwoFactorScreen() {
             </Text>
           </Frame.Row>
         </SettingsSection>
-      </SettingsForm>
+      </FormScreen>
     );
   }
 
   // ---- Not enrolled: start, then confirm ----------------------------------
   return (
-    <SettingsForm>
+    <FormScreen>
       {setup == null ? (
         <View className="gap-2">
           <CenteredButton
@@ -155,6 +160,8 @@ export default function TwoFactorScreen() {
               onPress={() => {
                 void Clipboard.setStringAsync(setup.secret);
                 notify('success');
+                // The haptic alone is invisible feedback on Android.
+                showToast({ label: t`Setup key copied` });
               }}
             />
             <Frame.Row>
@@ -166,47 +173,62 @@ export default function TwoFactorScreen() {
             </Frame.Row>
           </SettingsSection>
 
-          <SettingsSection
-            title={t`2. Enter a code to confirm`}
-            footer={t`This proves the authenticator was added before it's required.`}
-          >
-            <View className="px-4 py-3">
-              <CodeField value={code} onChangeText={setCode} />
-            </View>
-          </SettingsSection>
-
-          <View className="gap-2">
-            <CenteredButton
-              label={confirm.isPending ? t`Confirming…` : t`Turn on two-factor`}
-              loading={confirm.isPending}
-              onPress={() => confirm.mutate()}
+          <FormField label={t`2. Enter a code to confirm`}>
+            <CodeField
+              value={code}
+              onChangeText={setCode}
+              // The sixth digit is the submit — a full code is the only thing
+              // the button below would add.
+              onComplete={() => {
+                if (!confirm.isPending) confirm.mutate();
+              }}
+              description={t`This proves the authenticator was added before it's required.`}
             />
-            <CenteredButton label={t`Cancel`} onPress={() => setSetup(null)} />
-          </View>
+          </FormField>
+
+          <CenteredButton
+            label={confirm.isPending ? t`Confirming…` : t`Turn on two-factor`}
+            loading={confirm.isPending}
+            onPress={() => confirm.mutate()}
+          />
         </>
       )}
-    </SettingsForm>
+    </FormScreen>
   );
 }
 
-/** The 6-digit field, wired for the one-time-code autofill both platforms do. */
+/**
+ * The 6-digit field: one cell per digit, so how much is left to type is
+ * visible. `OtpInput` carries the one-time-code autofill on both platforms
+ * itself; it has no `description` line, so the helper rides below.
+ */
 function CodeField({
   value,
   onChangeText,
+  onComplete,
+  description,
 }: {
   value: string;
   onChangeText: (next: string) => void;
+  /** Fires once, when the sixth digit lands. */
+  onComplete?: (code: string) => void;
+  description?: string;
 }) {
   return (
-    <Input
-      value={value}
-      onChangeText={onChangeText}
-      placeholder={t`6-digit code`}
-      keyboardType="number-pad"
-      textContentType="oneTimeCode"
-      autoComplete="one-time-code"
-      maxLength={6}
-      accessibilityLabel={t`6-digit code`}
-    />
+    <View className="gap-2">
+      <OtpInput
+        // Centered: a left-hugging run of six cells reads as truncated.
+        className="items-center"
+        value={value}
+        onChangeText={onChangeText}
+        onComplete={onComplete}
+        accessibilityLabel={t`6-digit code`}
+      />
+      {description ? (
+        <Text size="xs" muted>
+          {description}
+        </Text>
+      ) : null}
+    </View>
   );
 }

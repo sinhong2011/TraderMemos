@@ -86,6 +86,13 @@
       --color-info: #0490c8;
       --color-info-foreground: #1d4ed8;
 
+      /* Content over a full-strength status fill (Swipe.Action tiles). White,
+         the iOS treatment — PanelUI's default is #171717 for its own neon
+         palette and reads as a mistake on ours. */
+      --color-destructive-solid-foreground: #ffffff;
+      --color-success-solid-foreground: #ffffff;
+      --color-info-solid-foreground: #ffffff;
+
       /* Nested-tile ladder on a white card. */
       --color-surface: #f5f5f5;
       --color-surface-secondary: #efefef;
@@ -147,6 +154,11 @@
       --color-success-foreground: #34d399;
       --color-info: #0490c8;
       --color-info-foreground: #60a5fa;
+
+      /* See the light block — white over full-strength status fills. */
+      --color-destructive-solid-foreground: #ffffff;
+      --color-success-solid-foreground: #ffffff;
+      --color-info-solid-foreground: #ffffff;
 
       --color-surface: #212121;
       --color-surface-secondary: #262626;

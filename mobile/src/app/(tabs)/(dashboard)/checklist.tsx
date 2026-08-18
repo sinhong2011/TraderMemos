@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Stack } from 'expo-router';
-import { Frame, Menu, Sortable, Swipe, Text as UIText, reorderItems } from 'panelui-native';
+import { Frame, Menu, Sortable, Text as UIText, reorderItems } from 'panelui-native';
 import { Alert, Pressable } from 'react-native';
 import { useCSSVariable } from 'uniwind';
 
@@ -10,6 +10,7 @@ import { t } from '@lingui/core/macro';
 import { Icon } from '@/components/icon';
 import { SettingsButton, SettingsSection, SettingsToggle } from '@/components/settings-rows';
 import { SettingsForm } from '@/components/settings-form';
+import { Swipe } from '@/components/swipe';
 import { usePrompt } from '@/components/use-prompt';
 import { DateField } from '@/components/date-field';
 import { preMarketRoutine, setWeekdaysOnly, taskBlock, useWeekdaysOnly } from '@/lib/checklist';
@@ -27,9 +28,10 @@ import { errorMessage } from '@/lib/errors';
  * Daily checklist template editor.
  *
  * Lives in the Home stack, not Settings: the routine is a start-of-day thing,
- * reached from the wrench menu or the card that runs it, and back should land
- * on Home. It still uses the settings *form* idiom — grouped sections of rows
- * with no Save button, each edit persisting on its own.
+ * reached from the Home card's Edit or the Daily checklist screen's pencil,
+ * and back should land where the run is. It still uses the settings *form*
+ * idiom — grouped sections of rows with no Save button, each edit persisting
+ * on its own.
  *
  * Items are rows, not markdown: tap to rename, swipe to delete, drag the grip
  * to reorder, add from the bottom row, instead of asking anyone to hand-type
@@ -206,11 +208,11 @@ export default function ChecklistScreen() {
           >
             {items.map((item, index) => (
               <Sortable.Item key={`${index}-${item}`} id={`${index}-${item}`}>
-                <Swipe fullSwipe={false}>
+                <Swipe>
                   <Swipe.End>
                     <Swipe.Action
                       color="destructive"
-                      icon={<Icon name="trash.fill" size={17} tintColor="#FFFFFF" />}
+                      icon={<Icon name="trash.fill" />}
                       label={t`Delete`}
                       onPress={() => remove(index)}
                     />

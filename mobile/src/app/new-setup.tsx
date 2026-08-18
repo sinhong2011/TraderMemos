@@ -190,7 +190,6 @@ export default function NewSetupScreen() {
           placeholderTextColor={mutedForeground}
           className="py-2 text-[22px] font-semibold leading-7 text-foreground"
           autoCorrect={false}
-          autoFocus={!editing}
         />
         {/* `min-h`, never `flex` — a multiline input with no bound inside the
             form's scroll view reports an effectively infinite height

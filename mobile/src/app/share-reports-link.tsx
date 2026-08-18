@@ -2,11 +2,11 @@ import * as Clipboard from 'expo-clipboard';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Spinner, Switch } from 'panelui-native';
-import { Alert, Pressable, ScrollView, Share, Text, View } from 'react-native';
+import { Alert, ScrollView, Share, Text, View } from 'react-native';
 
 import { useAccounts, useApiRequest, useSystemInfo } from '@/api/hooks';
 import type { CreateShareLinkBody, ShareLink } from '@/api/types';
-import { GlassButton } from '@/components/glass-button';
+import { GlassButton, GlassIconButton } from '@/components/glass-button';
 import { Segmented } from '@/components/segmented';
 import { t } from '@lingui/core/macro';
 import { useSelectedAccountId } from '@/lib/account-store';
@@ -15,6 +15,7 @@ import { useGlobalFilters } from '@/lib/filters';
 import { useMoneyFx } from '@/lib/money';
 import { accountBaseCurrency } from '@/lib/prefs';
 import { useWebBaseUrl } from '@/lib/share-prefs';
+import { showToast } from '@/lib/toast';
 
 /** Mirrors web ShareLinkDialog's choices; `0` is the API's "never expires". */
 const EXPIRY_CHOICES = [30, 90, 365, 0] as const;
@@ -90,6 +91,7 @@ export default function ShareReportsLinkScreen() {
   async function copyUrl() {
     if (!url) return;
     await Clipboard.setStringAsync(url);
+    showToast({ label: t`Link copied` });
   }
 
   return (
@@ -101,14 +103,7 @@ export default function ShareReportsLinkScreen() {
     >
       <View className="flex-row items-center justify-between">
         <Text className="text-[20px] font-bold text-foreground">{t`Share link`}</Text>
-        <Pressable
-          onPress={() => router.back()}
-          hitSlop={8}
-          accessibilityRole="button"
-          className="p-1 active:opacity-60"
-        >
-          <Text className="text-[15px] font-semibold text-foreground">{t`Done`}</Text>
-        </Pressable>
+        <GlassIconButton systemImage="xmark" label={t`Close`} onPress={() => router.back()} />
       </View>
 
       <Text className={EXPLAINER}>

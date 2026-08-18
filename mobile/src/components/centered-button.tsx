@@ -31,8 +31,11 @@ export function CenteredButton({
 }) {
   return (
     <Button
-      variant={role === 'destructive' ? 'destructive' : 'primary'}
-      size="lg"
+      variant={
+        role === 'destructive' ? 'destructive' : role === 'cancel' ? 'secondary' : 'primary'
+      }
+      size="md"
+      className="rounded-3xl"
       fullWidth
       disabled={disabled}
       loading={loading}

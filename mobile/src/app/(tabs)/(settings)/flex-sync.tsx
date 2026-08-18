@@ -1,20 +1,14 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
-import { Spinner } from 'panelui-native';
+import { Stack } from 'expo-router/stack';
+import { Button, Field, Spinner, Switch } from 'panelui-native';
 import { useEffect, useRef, useState } from 'react';
 import { Alert, View } from 'react-native';
 
 import { queryKeys, useAccounts, useApiRequest, useFlexSync } from '@/api/hooks';
 import type { FlexSyncPut, FlexSyncResult } from '@/api/types';
-import { CenteredButton } from '@/components/centered-button';
-import { SettingsForm } from '@/components/settings-form';
-import {
-  SettingsInput,
-  SettingsRow,
-  SettingsSection,
-  SettingsToggle,
-  ValueText,
-} from '@/components/settings-rows';
+import { FormField, FormInput, FormScreen } from '@/components/form-kit';
+import { SettingsRow, SettingsSection, ValueText } from '@/components/settings-rows';
 import { t } from '@lingui/core/macro';
 import { errorMessage } from '@/lib/errors';
 import { useFormatters } from '@/lib/format';
@@ -111,36 +105,46 @@ export default function FlexSyncScreen() {
 
   return (
     <View className="flex-1">
-      <SettingsForm>
-        <SettingsSection
-          title={account ? account.name : t`IBKR Flex sync`}
-          footer={t`From IBKR Client Portal: Performance & Reports → Flex Queries. The token is stored server-side only.`}
-        >
-          <SettingsInput
+      {/* The account being configured names the page, not a section strip. */}
+      <Stack.Screen options={{ title: account?.name ?? t`IBKR Flex sync` }} />
+      <FormScreen>
+        <FormField label={t`Query ID`}>
+          <FormInput
             key={`query-${seed}`}
-            label={t`Query ID`}
             placeholder="123456"
             defaultValue={queryIdSeed}
+            keyboardType="number-pad"
             onChangeText={(text) => {
               queryIdText.current = text;
             }}
           />
-          <SettingsInput
+        </FormField>
+        <FormField label={t`Token`}>
+          <FormInput
             key={`token-${seed}`}
-            label={t`Token`}
             placeholder={settings?.token_set ? '••••••••' : t`Web Service token`}
+            description={t`From IBKR Client Portal: Performance & Reports → Flex Queries. The token is stored server-side only.`}
+            autoCapitalize="none"
+            autoCorrect={false}
             onChangeText={(text) => {
               tokenText.current = text;
             }}
           />
-          <SettingsToggle label={t`Scheduled sync`} value={enabled} onValueChange={setEnabled} />
-        </SettingsSection>
+        </FormField>
+        <Field orientation="horizontal">
+          <Field.Content>
+            <Field.Title>{t`Scheduled sync`}</Field.Title>
+          </Field.Content>
+          <Switch
+            value={enabled}
+            onValueChange={setEnabled}
+            accessibilityLabel={t`Scheduled sync`}
+          />
+        </Field>
 
-        <CenteredButton
-          label={save.isPending ? t`Saving…` : t`Save`}
-          loading={save.isPending}
-          onPress={handleSave}
-        />
+        <Button className="rounded-3xl" fullWidth loading={save.isPending} onPress={handleSave}>
+          {save.isPending ? t`Saving…` : t`Save`}
+        </Button>
 
         {settings?.configured ? (
           <>
@@ -159,23 +163,30 @@ export default function FlexSyncScreen() {
               ) : null}
             </SettingsSection>
 
-            <CenteredButton
-              label={run.isPending ? t`Syncing…` : t`Sync now`}
+            <Button
+              variant="secondary"
+              className="rounded-3xl"
+              fullWidth
               loading={run.isPending}
               onPress={() => {
                 if (!run.isPending) run.mutate();
               }}
-            />
+            >
+              {run.isPending ? t`Syncing…` : t`Sync now`}
+            </Button>
 
-            <CenteredButton
-              role="destructive"
-              label={remove.isPending ? t`Removing…` : t`Remove Flex sync`}
+            <Button
+              variant="ghost"
+              fullWidth
+              labelClassName="text-destructive"
               loading={remove.isPending}
               onPress={confirmDelete}
-            />
+            >
+              {remove.isPending ? t`Removing…` : t`Remove Flex sync`}
+            </Button>
           </>
         ) : null}
-      </SettingsForm>
+      </FormScreen>
       {/* The run takes tens of seconds and the button is far up the page by
           then — a corner spinner is the standing proof it is still going. */}
       {run.isPending ? (

@@ -1,9 +1,9 @@
 import { FlashList } from '@shopify/flash-list';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useRouter } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
-import { Card, cn, Swipe, type SwipeHandle } from 'panelui-native';
-import { useMemo, useRef } from 'react';
+import { cn } from 'panelui-native';
+import { useMemo, useState } from 'react';
 import { Alert, Pressable, RefreshControl, Text, View } from 'react-native';
 import { useCSSVariable } from 'uniwind';
 
@@ -13,13 +13,18 @@ import { useAccounts, useApiRequest, useCash } from '@/api/hooks';
 import type { Account, CashTransaction } from '@/api/types';
 import { ErrorState } from '@/components/error-state';
 import { Skeleton } from '@/components/skeleton';
+import { Swipe } from '@/components/swipe';
 import { t } from '@lingui/core/macro';
 import { cashTypeLabel } from '@/lib/cash';
 import { errorMessage } from '@/lib/errors';
 import { useFormatters } from '@/lib/format';
 import { pnlClass } from '@/styles/pnl';
 
-/** One ledger entry: tap to edit, trailing swipe to remove (the api-tokens idiom). */
+/**
+ * One ledger entry, in the trades-list row anatomy: a tap (or the leading
+ * swipe) opens it for editing, a long press previews the edit form, the
+ * trailing swipe removes it.
+ */
 function TransactionRow({
   transaction,
   account,
@@ -33,7 +38,6 @@ function TransactionRow({
 }) {
   // Formatters bound to the display prefs (see lib/format.ts).
   const { formatCurrency, formatDate } = useFormatters();
-  const swipeable = useRef<SwipeHandle>(null);
   // Withdrawals and fees are stored negative, but older rows can carry a bare
   // positive amount — the type still decides the direction.
   const isOutflow =
@@ -42,43 +46,55 @@ function TransactionRow({
   const date = formatDate(transaction.occurred_at);
 
   return (
-    // No full swipe: removing a ledger entry moves the equity curve, so it does
-    // not fire from a hard drag alone.
-    <Swipe ref={swipeable} fullSwipe={false}>
+    <Swipe resetKey={transaction.id}>
+      <Swipe.Start>
+        <Swipe.Action
+          color="info"
+          icon={<Icon name="pencil" />}
+          label={t`Edit`}
+          onPress={onEdit}
+        />
+      </Swipe.Start>
       <Swipe.End>
         <Swipe.Action
           color="destructive"
-          icon={<Icon name="trash.fill" size={17} tintColor="#FFFFFF" />}
+          icon={<Icon name="trash.fill" />}
           label={t`Remove`}
-          onPress={() => {
-            swipeable.current?.close();
-            onRemove();
-          }}
+          onPress={onRemove}
         />
       </Swipe.End>
-      <Pressable onPress={onEdit} accessibilityRole="button" className="active:opacity-70">
-        <Card className="flex-row items-center gap-3 rounded-lg border-0 p-4">
-          <View className="flex-1 gap-0.5">
-            <Text className="text-[15px] font-semibold text-foreground" numberOfLines={1}>
-              {account
-                ? `${cashTypeLabel(transaction.type)} · ${account.name}`
-                : cashTypeLabel(transaction.type)}
-            </Text>
-            <Text className="text-xs tabular-nums text-muted-foreground" numberOfLines={1}>
-              {transaction.note ? `${date} · ${transaction.note}` : date}
-            </Text>
-          </View>
-          <Text
-            className={cn(
-              'text-[15px] font-semibold tabular-nums',
-              pnlClass(isOutflow ? -1 : 1),
-            )}
-            numberOfLines={1}
-          >
-            {formatCurrency(signed, transaction.currency || 'USD')}
-          </Text>
-        </Card>
-      </Pressable>
+      <Link href={{ pathname: '/cash-form', params: { id: transaction.id } }} asChild>
+        {/* Link.Trigger clones its child and overwrites `style`, so the
+            Pressable stays bare and an inner View carries the row's surface
+            (the trade-row rule) — a bare Pressable also skips the opacity
+            press feedback that would ghost the swipe tiles through. */}
+        <Link.Trigger>
+          <Pressable>
+            <View className="flex-row items-center gap-3 rounded-lg bg-card p-4">
+              <View className="flex-1 gap-0.5">
+                <Text className="text-[15px] font-semibold text-foreground" numberOfLines={1}>
+                  {account
+                    ? `${cashTypeLabel(transaction.type)} · ${account.name}`
+                    : cashTypeLabel(transaction.type)}
+                </Text>
+                <Text className="text-xs tabular-nums text-muted-foreground" numberOfLines={1}>
+                  {transaction.note ? `${date} · ${transaction.note}` : date}
+                </Text>
+              </View>
+              <Text
+                className={cn(
+                  'text-[15px] font-semibold tabular-nums',
+                  pnlClass(isOutflow ? -1 : 1),
+                )}
+                numberOfLines={1}
+              >
+                {formatCurrency(signed, transaction.currency || 'USD')}
+              </Text>
+            </View>
+          </Pressable>
+        </Link.Trigger>
+        <Link.Preview />
+      </Link>
     </Swipe>
   );
 }
@@ -88,7 +104,7 @@ function TransactionRow({
  * ledger across all accounts, newest first. Built as a list rather than a
  * settings form — the ledger is unbounded and a form section renders every row
  * eagerly. Creation lives behind the bar's + button so the screen stays a
- * list; rows push the edit form, swipe removes.
+ * list; a row's swipe actions edit and remove.
  *
  * No running total in the header: accounts can hold different base currencies,
  * so a single summed figure would be wrong. Per-account balances live on the
@@ -106,6 +122,12 @@ export default function FundingScreen() {
   const api = useApiRequest();
   const { data: accounts } = useAccounts();
   const cash = useCash();
+  const [pulling, setPulling] = useState(false);
+
+  const pullToRefresh = () => {
+    setPulling(true);
+    void cash.refetch().finally(() => setPulling(false));
+  };
 
   const transactions = useMemo(
     () =>
@@ -177,7 +199,10 @@ export default function FundingScreen() {
           // react-native-screens 4.26; deferring or remounting the control does
           // not help, only dropping the large title does.
           refreshControl={
-            <RefreshControl refreshing={cash.isRefetching} onRefresh={() => void cash.refetch()} />
+            // Only a pull spins. `cash-form` mounts this same query, so letting
+            // `isRefetching` drive this spun the spinner every time a row was
+            // tapped open for editing.
+            <RefreshControl refreshing={pulling} onRefresh={pullToRefresh} />
           }
           renderItem={({ item }) => (
             <TransactionRow
@@ -193,7 +218,7 @@ export default function FundingScreen() {
               // No horizontal inset of its own — the helper text lines up with
               // the card edges above it, not 4pt inside them.
               <Text className="pt-4 text-xs leading-[17px] text-muted-foreground">
-                {t`Deposits, withdrawals, and fees drive the equity curve alongside trade P&L. Tap a row to edit it, swipe to remove.`}
+                {t`Deposits, withdrawals, and fees drive the equity curve alongside trade P&L. Tap a row to edit it, or swipe to remove.`}
               </Text>
             ) : null
           }

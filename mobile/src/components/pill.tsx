@@ -2,6 +2,8 @@ import type { ReactNode } from 'react';
 import { cn } from 'panelui-native';
 import { Text, View } from 'react-native';
 
+import { PnlFill } from '@/styles/pnl';
+
 export type PillTone = 'pos' | 'neg' | 'accent' | 'amber' | 'muted';
 
 /**
@@ -31,12 +33,42 @@ const TONE_LABEL: Record<PillTone, string> = {
   muted: 'text-muted-foreground',
 };
 
-/** Compact status/tag chip (web `Pill`): tinted surface, toned text. */
-export function Pill({ tone = 'muted', children }: { tone?: PillTone; children: ReactNode }) {
+/**
+ * Solid verdict fill per tone — white-on-color, same hue in both schemes (the
+ * Stocks-app signature; see `PnlFill`). `amber`/`muted` have no verdict hue and
+ * fall back to the neutral fill.
+ */
+const TONE_SOLID: Record<PillTone, string> = {
+  pos: PnlFill.pos,
+  neg: PnlFill.neg,
+  accent: PnlFill.open,
+  amber: PnlFill.flat,
+  muted: PnlFill.flat,
+};
+
+/**
+ * Compact status/tag chip (web `Pill`): tinted surface, toned text. `solid`
+ * renders the white-on-color verdict variant (trade-detail outcome badge).
+ */
+export function Pill({
+  tone = 'muted',
+  solid = false,
+  children,
+}: {
+  tone?: PillTone;
+  solid?: boolean;
+  children: ReactNode;
+}) {
   return (
-    <View className={cn('flex-row items-center rounded-sm px-2 py-0.5', TONE_SURFACE[tone])}>
+    <View
+      className={cn('flex-row items-center rounded-sm px-2 py-0.5', !solid && TONE_SURFACE[tone])}
+      style={solid ? { backgroundColor: TONE_SOLID[tone] } : undefined}
+    >
       <Text
-        className={cn('text-[11px] font-semibold tracking-[0.3px]', TONE_LABEL[tone])}
+        className={cn(
+          'text-[11px] font-semibold tracking-[0.3px]',
+          solid ? 'text-white' : TONE_LABEL[tone],
+        )}
         numberOfLines={1}
       >
         {children}

@@ -1,9 +1,7 @@
 import { FlashList } from '@shopify/flash-list';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useRouter } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
-import { Card, Swipe, type SwipeHandle } from 'panelui-native';
-import { useRef } from 'react';
 import { Alert, Pressable, RefreshControl, Text, View } from 'react-native';
 import { useCSSVariable } from 'uniwind';
 
@@ -12,46 +10,60 @@ import { Icon } from '@/components/icon';
 import { queryKeys, useApiRequest, useTags } from '@/api/hooks';
 import type { Tag } from '@/api/types';
 import { ErrorState } from '@/components/error-state';
+import { Swipe } from '@/components/swipe';
 import { Skeleton } from '@/components/skeleton';
 import { t } from '@lingui/core/macro';
 import { errorMessage } from '@/lib/errors';
 import { DEFAULT_TAG_COLOR, kindLabel } from '@/lib/tags';
 
-/** One tag: tap to edit, trailing swipe to delete (the api-tokens idiom). */
+/**
+ * One tag, in the trades-list row anatomy: a tap (or the leading swipe) opens
+ * it for editing, a long press previews the edit form, the trailing swipe
+ * deletes it.
+ */
 function TagRow({ tag, onEdit, onDelete }: { tag: Tag; onEdit: () => void; onDelete: () => void }) {
-  const swipeable = useRef<SwipeHandle>(null);
-
   return (
-    // No full swipe: a tag is deleted off every trade it annotates, so it does
-    // not fire from a hard drag alone.
-    <Swipe ref={swipeable} fullSwipe={false}>
+    <Swipe resetKey={tag.id}>
+      <Swipe.Start>
+        <Swipe.Action
+          color="info"
+          icon={<Icon name="pencil" />}
+          label={t`Edit`}
+          onPress={onEdit}
+        />
+      </Swipe.Start>
       <Swipe.End>
         <Swipe.Action
           color="destructive"
-          icon={<Icon name="trash.fill" size={17} tintColor="#FFFFFF" />}
+          icon={<Icon name="trash.fill" />}
           label={t`Delete`}
-          onPress={() => {
-            swipeable.current?.close();
-            onDelete();
-          }}
+          onPress={onDelete}
         />
       </Swipe.End>
-      <Pressable onPress={onEdit} accessibilityRole="button" className="active:opacity-70">
-        <Card className="flex-row items-center gap-3 rounded-lg border-0 p-4">
-          {/* The dot is the tag's own color — the one thing on the row that is
-              data rather than theme, so it stays an inline style. */}
-          <View
-            className="h-2.5 w-2.5 rounded-full"
-            style={{ backgroundColor: tag.color || DEFAULT_TAG_COLOR }}
-          />
-          <Text className="flex-1 text-[15px] font-semibold text-foreground" numberOfLines={1}>
-            {tag.name}
-          </Text>
-          <Text className="text-[13px] text-muted-foreground" numberOfLines={1}>
-            {kindLabel(tag.kind)}
-          </Text>
-        </Card>
-      </Pressable>
+      <Link href={{ pathname: '/tag-form', params: { id: tag.id } }} asChild>
+        {/* Link.Trigger clones its child and overwrites `style`, so the
+            Pressable stays bare and an inner View carries the row's surface
+            (the trade-row rule). */}
+        <Link.Trigger>
+          <Pressable>
+            <View className="flex-row items-center gap-3 rounded-lg bg-card p-4">
+              {/* The dot is the tag's own color — the one thing on the row that
+                  is data rather than theme, so it stays an inline style. */}
+              <View
+                className="h-2.5 w-2.5 rounded-full"
+                style={{ backgroundColor: tag.color || DEFAULT_TAG_COLOR }}
+              />
+              <Text className="flex-1 text-[15px] font-semibold text-foreground" numberOfLines={1}>
+                {tag.name}
+              </Text>
+              <Text className="text-[13px] text-muted-foreground" numberOfLines={1}>
+                {kindLabel(tag.kind)}
+              </Text>
+            </View>
+          </Pressable>
+        </Link.Trigger>
+        <Link.Preview />
+      </Link>
     </Swipe>
   );
 }
@@ -60,7 +72,7 @@ function TagRow({ tag, onEdit, onDelete }: { tag: Tag; onEdit: () => void; onDel
  * Tag management (web JournalTab parity), built as a list rather than a
  * settings form: the tag list is unbounded and a form section renders every
  * row eagerly. Creation lives behind the bar's + button so the screen stays a
- * list; rows open the edit sheet, swipe deletes.
+ * list; a row's swipe actions edit and delete.
  */
 export default function TagsScreen() {
   const router = useRouter();
@@ -140,7 +152,7 @@ export default function TagsScreen() {
               // No horizontal inset of its own — the helper text lines up with
               // the card edges above it, not 4pt inside them.
               <Text className="pt-4 text-xs leading-[17px] text-muted-foreground">
-                {t`Tags annotate trades with mistakes, habits, and custom labels. Tap a row to edit it, swipe to delete.`}
+                {t`Tags annotate trades with mistakes, habits, and custom labels. Tap a row to edit it, or swipe to delete.`}
               </Text>
             ) : null
           }

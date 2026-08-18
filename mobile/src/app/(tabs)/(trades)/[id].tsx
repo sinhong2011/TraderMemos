@@ -3,7 +3,15 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
 import { cn, Menu, Skeleton } from 'panelui-native';
 import { useState, type ReactNode } from 'react';
-import { Alert, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
+import {
+  Alert,
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  Text,
+  View,
+  type TextStyle,
+} from 'react-native';
 import { useCSSVariable } from 'uniwind';
 
 import { Icon } from '@/components/icon';
@@ -22,27 +30,46 @@ import { errorMessage, isUnreachable } from '@/lib/errors';
 import { armRollingNumbers } from '@/lib/rolling-numbers';
 import { formatDuration, useFormatters } from '@/lib/format';
 import { gradeFromInt, parseEmotionalStates, parseJournalNotes } from '@/lib/journal';
-import { marketLabel, tradeNotional, tradeRMultiple, tradeStatus } from '@/lib/trades';
-import { pnlClass } from '@/styles/pnl';
+import {
+  marketLabel,
+  tradeNotional,
+  tradePriceLine,
+  tradeRMultiple,
+  tradeStatus,
+} from '@/lib/trades';
+import { pnlClass, pnlColor, usePnlPalette } from '@/styles/pnl';
+import { RollingNumber } from '@/components/rolling-number';
+
+/** The rolling hero is a `Text` style, so its hue has to be a JS value. */
+const HERO_TEXT: TextStyle = {
+  fontSize: 36,
+  fontWeight: '700',
+  letterSpacing: -1,
+  fontVariant: ['tabular-nums'],
+};
 
 /** Label/value line — the shape every factual card on this screen is made of. */
 function Row({
   label,
   value,
   tintClassName,
+  emphasized,
 }: {
   label: string;
   value: string;
   /** Tints the figure — the P&L and excursion rows color themselves. */
   tintClassName?: string;
+  /** The result line of a ledger — set apart like a receipt total. */
+  emphasized?: boolean;
 }) {
   return (
-    <View className="flex-row items-center justify-between gap-3">
+    <View className={cn('flex-row items-center justify-between gap-3', emphasized && 'mt-1')}>
       <Text className="text-[15px] text-muted-foreground">{label}</Text>
       <Text
         selectable
         className={cn(
-          'text-[15px] font-medium tabular-nums',
+          'text-[15px] tabular-nums',
+          emphasized ? 'font-semibold' : 'font-medium',
           tintClassName ?? 'text-foreground',
         )}
       >
@@ -146,11 +173,23 @@ function SymbolChip({ symbol, market }: { symbol: string; market: string }) {
 
 /** Direction/status/market, the P&L figure, and its return·R caption. */
 function TradeHero({ trade }: { trade: TradeLike }) {
-  const { formatPnl } = useFormatters();
+  const { formatCurrency, formatPnl } = useFormatters();
+  const palette = usePnlPalette();
   const status = tradeStatus(trade);
+  const hold =
+    trade.time_in_trade_secs != null ? formatDuration(trade.time_in_trade_secs) : null;
   const isLong = trade.direction === 'long';
   const isOpen = trade.status === 'open';
   const tintClass = pnlClass(trade.net_pnl);
+  // LONG CALL / SHORT PUT already names the instrument — the market pill would
+  // say "options" a second time.
+  const rightNamesMarket = trade.option_right === 'call' || trade.option_right === 'put';
+  const captionSurface =
+    isOpen || trade.net_pnl == null || trade.net_pnl === 0
+      ? 'bg-muted'
+      : trade.net_pnl > 0
+        ? 'bg-profit/12'
+        : 'bg-loss/12';
   const r = trade.r_multiple ?? tradeRMultiple(trade);
   const captionParts = [
     ...(trade.return_pct != null
@@ -178,36 +217,68 @@ function TradeHero({ trade }: { trade: TradeLike }) {
                 : []),
           ].join(' ')}
         </Pill>
-        <Pill tone={status.tone}>{statusLabel(status.label)}</Pill>
-        <Pill tone="muted">{marketLabel(trade.instrument_type)}</Pill>
+        <Pill tone={status.tone} solid>
+          {statusLabel(status.label)}
+        </Pill>
+        {rightNamesMarket ? null : <Pill tone="muted">{marketLabel(trade.instrument_type)}</Pill>}
       </View>
-      <Text
-        selectable
-        className={cn(
-          'text-4xl font-bold tracking-[-1px] tabular-nums',
-          isOpen ? 'text-muted-foreground' : tintClass,
-        )}
-      >
-        {isOpen ? t`Open` : formatPnl(trade.net_pnl, trade.pnl_currency)}
-      </Text>
-      {captionParts.length > 0 ? (
-        <Text
-          className={cn(
-            'text-sm font-medium tabular-nums',
-            isOpen ? 'text-muted-foreground' : tintClass,
+      <View className="flex-row items-end gap-4">
+        {/* Figure and its return·R qualifier read as one unit: tighter gap than
+            the pills above, and the caption is a tinted chip, not floating text. */}
+        <View className="items-start gap-1.5">
+          {isOpen ? (
+            <Text selectable className="text-4xl font-bold tracking-[-1px] text-muted-foreground">
+              {t`Open`}
+            </Text>
+          ) : (
+            // 44 for the 36pt line: clears the glyph box so a rolling digit
+            // isn't clipped standing still (same margin as the dashboard hero).
+            <RollingNumber
+              value={formatPnl(trade.net_pnl, trade.pnl_currency)}
+              style={[HERO_TEXT, { color: pnlColor(palette, trade.net_pnl) }]}
+              cellHeight={44}
+            />
           )}
-        >
-          {captionParts.join(' · ')}
-        </Text>
-      ) : null}
+          {captionParts.length > 0 ? (
+            <View className={cn('rounded-sm px-2 py-1', captionSurface)}>
+              <Text
+                className={cn(
+                  'text-[13px] font-semibold tabular-nums',
+                  isOpen ? 'text-muted-foreground' : tintClass,
+                )}
+              >
+                {captionParts.join(' · ')}
+              </Text>
+            </View>
+          ) : null}
+        </View>
+        {/* The corner right of the figure carries the trade's shape — how long
+            and how big — the two facts that qualify the verdict without a
+            scroll to Timing/Position. Muted and bottom-aligned so the figure
+            still wins the first glance; truncates before it crowds the hero. */}
+        <View className="flex-1 items-end gap-0.5">
+          {hold ? (
+            <Text
+              className="text-[13px] font-medium tabular-nums text-muted-foreground"
+              numberOfLines={1}
+            >
+              {hold}
+            </Text>
+          ) : null}
+          <Text className="text-[13px] tabular-nums text-muted-foreground" numberOfLines={1}>
+            {tradePriceLine(trade, (v) => formatCurrency(v, trade.pnl_currency))}
+          </Text>
+        </View>
+      </View>
     </View>
   );
 }
 
 function PnlCard({ trade }: { trade: TradeLike }) {
-  const { formatCurrency, formatPnl } = useFormatters();
+  const { formatPnl } = useFormatters();
   const currency = trade.pnl_currency;
   const dividends = trade.dividend_total ?? 0;
+  const hasTotal = dividends !== 0 && trade.total_pnl != null;
 
   return (
     <DashboardCard title={t`P&L`}>
@@ -216,7 +287,9 @@ function PnlCard({ trade }: { trade: TradeLike }) {
         value={formatPnl(trade.gross_pnl, currency)}
         tintClassName={pnlClass(trade.gross_pnl)}
       />
-      <Row label={t`Fees`} value={formatCurrency(trade.fees_total, currency)} />
+      {/* Signed as the deduction it is (−$6.88), so the ledger visibly sums
+          to net; the color stays neutral — a fee is a cost, not a loss. */}
+      <Row label={t`Fees`} value={formatPnl(-(trade.fees_total ?? 0), currency)} />
       {dividends !== 0 ? (
         <Row
           label={t`Dividends`}
@@ -228,22 +301,31 @@ function PnlCard({ trade }: { trade: TradeLike }) {
         label={t`Net P&L`}
         value={formatPnl(trade.net_pnl, currency)}
         tintClassName={pnlClass(trade.net_pnl)}
+        emphasized={!hasTotal}
       />
-      {dividends !== 0 && trade.total_pnl != null ? (
+      {hasTotal ? (
         <Row
           label={t`Total P&L`}
           value={formatPnl(trade.total_pnl, currency)}
           tintClassName={pnlClass(trade.total_pnl)}
+          emphasized
         />
       ) : null}
     </DashboardCard>
   );
 }
 
-function TimingCard({ trade }: { trade: TradeLike }) {
-  const { formatDate, formatTime } = useFormatters();
+/**
+ * What the hero's glance stack doesn't already say. Timing and Position used
+ * to be two cards here, but the hero took their headline facts — duration and
+ * "5 @ $2.51 → $2.05" repeated below verbatim, through the same formatters —
+ * and what remained (precise timestamps, exposure, any open remainder) is one
+ * card's worth of record, not two.
+ */
+function DetailsCard({ trade }: { trade: TradeLike }) {
+  const { formatCurrency, formatDate, formatTime } = useFormatters();
   return (
-    <DashboardCard title={t`Timing`}>
+    <DashboardCard title={t`Details`}>
       <Row
         label={t`Opened`}
         value={`${formatDate(trade.opened_at)} ${formatTime(trade.opened_at)}`}
@@ -256,23 +338,13 @@ function TimingCard({ trade }: { trade: TradeLike }) {
             : t`Open`
         }
       />
-      <Row label={t`Time in trade`} value={formatDuration(trade.time_in_trade_secs)} />
-    </DashboardCard>
-  );
-}
-
-function PositionCard({ trade }: { trade: TradeLike }) {
-  const { formatCurrency } = useFormatters();
-  const currency = trade.pnl_currency;
-  return (
-    <DashboardCard title={t`Position`}>
-      <Row label={t`Quantity`} value={String(trade.qty_opened)} />
       {trade.qty_remaining > 0 ? (
         <Row label={t`Remaining`} value={String(trade.qty_remaining)} />
       ) : null}
-      <Row label={t`Avg entry`} value={formatCurrency(trade.avg_entry_price, currency)} />
-      <Row label={t`Avg exit`} value={formatCurrency(trade.avg_exit_price, currency)} />
-      <Row label={t`Notional`} value={formatCurrency(tradeNotional(trade), currency)} />
+      <Row
+        label={t`Notional`}
+        value={formatCurrency(tradeNotional(trade), trade.pnl_currency)}
+      />
     </DashboardCard>
   );
 }
@@ -365,11 +437,10 @@ function TradeDetailPending({
           // below it down the moment the real chart mounts.
           <Skeleton className="h-[330px] rounded-[18px]" label={t`Loading trade`} />
         )}
-        {preview ? <TimingCard trade={preview} /> : <CardSkeleton title={t`Timing`} rows={3} />}
         {preview ? (
-          <PositionCard trade={preview} />
+          <DetailsCard trade={preview} />
         ) : (
-          <CardSkeleton title={t`Position`} rows={4} />
+          <CardSkeleton title={t`Details`} rows={3} />
         )}
         {error ? null : <CardSkeleton title={t`Journal`} rows={2} />}
       </ScrollView>
@@ -667,9 +738,7 @@ function TradeDetailBody({
 
         <TradeChart trade={trade} />
 
-        <TimingCard trade={trade} />
-
-        <PositionCard trade={trade} />
+        <DetailsCard trade={trade} />
 
         {hasJournal ? (
           <DashboardCard

@@ -3,7 +3,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { Stack } from 'expo-router/stack';
 import { cn, Frame, Menu, Text, Textarea } from 'panelui-native';
 import { useRef, useState } from 'react';
-import { Alert, View } from 'react-native';
+import { Alert } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useCSSVariable } from 'uniwind';
 
@@ -11,6 +11,7 @@ import { queryKeys, useApiRequest, useLlmSettings, type LlmKind } from '@/api/ho
 import type { LlmApiSettings, LlmApiTestResult, LlmModelsResult } from '@/api/types';
 import { CenteredButton } from '@/components/centered-button';
 import { ErrorState } from '@/components/error-state';
+import { FormField } from '@/components/form-kit';
 import { HeaderIconButton } from '@/components/header-icon-button';
 import { Icon } from '@/components/icon';
 import { NavRow } from '@/components/nav-row';
@@ -371,22 +372,25 @@ function ProviderForm({ kind, settings }: { kind: LlmKind; settings: LlmApiSetti
           }}
         />
 
-        <SettingsSection title={t`Prompt`} footer={copy.promptHint}>
-          <View className="px-4 py-3">
-            <Textarea
-              defaultValue={settings.custom_prompt ?? ''}
-              placeholder={t`Leave blank to use the built-in prompt`}
-              rows={3}
-              autoGrow
-              maxRows={10}
-              accessibilityLabel={t`Prompt`}
-              onChangeText={(text) => {
-                promptText.current = text;
-                setDirty(true);
-              }}
-            />
-          </View>
-        </SettingsSection>
+        {/* An input, so it takes the form-kit anatomy — bare on the
+            background, not floated inside a section card. */}
+        <FormField label={t`Prompt`}>
+          <Textarea
+            variant="filled"
+            className="rounded-3xl border-0"
+            defaultValue={settings.custom_prompt ?? ''}
+            placeholder={t`Leave blank to use the built-in prompt`}
+            description={copy.promptHint}
+            rows={3}
+            autoGrow
+            maxRows={10}
+            accessibilityLabel={t`Prompt`}
+            onChangeText={(text) => {
+              promptText.current = text;
+              setDirty(true);
+            }}
+          />
+        </FormField>
       </SettingsForm>
       {promptElement}
     </>

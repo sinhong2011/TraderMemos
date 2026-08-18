@@ -68,7 +68,7 @@ export function ToolsMenu() {
     {
       label: t`Daily checklist`,
       systemImage: 'checklist',
-      href: '/(tabs)/(dashboard)/checklist',
+      href: '/(tabs)/(dashboard)/daily-checklist',
     },
   ];
 

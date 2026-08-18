@@ -3,6 +3,7 @@ import { Card, cn, Input, Spinner } from 'panelui-native';
 import type { ReactNode } from 'react';
 import {
   Keyboard,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -94,7 +95,8 @@ export function FormSheet({
   /**
    * Set on screens pushed as a card (not presented as a sheet): the leading
    * control becomes a back chevron and the chrome clears the status bar,
-   * which a modal's detent already does for free.
+   * which an iOS modal's detent already does for free (fullscreen Android
+   * modals get the clearance regardless).
    */
   pushed?: boolean;
   /** Extra control rendered beside Save (e.g. the trade form's Import menu). */
@@ -131,7 +133,14 @@ export function FormSheet({
         'flex-row items-center gap-3 px-4 pb-3 pt-4',
         inSheet && 'px-0 pb-0 pt-0',
       )}
-      style={pushed ? { paddingTop: insets.top + 12 } : undefined}
+      // iOS modals float as a card below the status bar, but Android modals
+      // are fullscreen (edge-to-edge), so the pinned chrome has to clear the
+      // status bar itself. The `inSheet` detent starts below it on both.
+      style={
+        pushed || (Platform.OS === 'android' && !inSheet)
+          ? { paddingTop: insets.top + 12 }
+          : undefined
+      }
     >
       <View className="flex-1 flex-row items-center">
         {hideClose ? null : (
@@ -277,7 +286,7 @@ export function FormField({
  */
 export function FormControl({ children }: { children: ReactNode }) {
   return (
-    <View className="min-h-12 flex-row items-center rounded-lg border border-input bg-background px-3.5">
+    <View className="min-h-12 flex-row items-center rounded-3xl bg-muted px-3.5">
       {children}
     </View>
   );
@@ -313,9 +322,9 @@ export function FormFootnote({ children }: { children: ReactNode }) {
 }
 
 /**
- * Filled, bordered input matching the auth screen's fields. `numeric` swaps the
- * text input for the `NumericField` — a number field is its own control here,
- * not a text field with a numeric keyboard (see numeric-field.tsx).
+ * Filled, borderless input matching the auth screen's fields. `numeric` swaps
+ * the text input for the `NumericField` — a number field is its own control
+ * here, not a text field with a numeric keyboard (see numeric-field.tsx).
  */
 export function FormInput({
   className,
@@ -327,7 +336,7 @@ export function FormInput({
 }: TextInputProps & { numeric?: boolean; decimals?: boolean }) {
   if (numeric) {
     return (
-      <View className="h-12 justify-center rounded-lg border border-input bg-background px-3.5">
+      <View className="h-12 justify-center rounded-3xl bg-muted px-3.5">
         <NumericField
           value={props.value ?? ''}
           onChangeText={onChangeText ?? (() => {})}
@@ -340,6 +349,7 @@ export function FormInput({
   }
   return (
     <Input
+      variant="filled"
       multiline={multiline}
       // Android centres a multiline field's text in its box otherwise, so the
       // caret starts halfway down an empty note.
@@ -349,7 +359,7 @@ export function FormInput({
       // effectively infinite intrinsic height (~477,000pt), which swallowed
       // every field below it. Fixed box, scrolls internally past its last
       // visible line.
-      className={cn(multiline && 'h-[168px]', className)}
+      className={cn('rounded-3xl border-0', multiline && 'h-[168px]', className)}
       onChangeText={onChangeText}
       {...props}
     />

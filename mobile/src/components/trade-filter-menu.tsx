@@ -1,10 +1,11 @@
-import { Menu } from 'panelui-native';
-import { Fragment } from 'react';
+import { Item, Menu } from 'panelui-native';
+import { useState } from 'react';
 import type { SFSymbol } from 'sf-symbols-typescript';
-import { Pressable } from 'react-native';
+import { Pressable, Text } from 'react-native';
 import { useCSSVariable } from 'uniwind';
 
 import { t } from '@lingui/core/macro';
+import { PickerSheet } from '@/components/form-kit';
 import { Icon } from '@/components/icon';
 
 export type FilterGroup = {
@@ -34,6 +35,11 @@ function groupSummary(group: FilterGroup): string {
  * Nav-bar pull-down button (iOS Mail/Files pattern): a checkmarked group per
  * dimension; the icon fills when anything is active, and an active menu offers
  * a single reset instead of making you walk every group back to its "All".
+ *
+ * One dimension presents in the app's picker sheet (`PickerSheet` — the
+ * FormPicker anatomy), not the Menu bottom sheet: a lone run of options *is* a
+ * picker, and the Menu presentation has no title and its own row metrics.
+ * Several dimensions keep the Menu, which is what can nest them as submenus.
  */
 export function TradeFilterMenu({
   groups,
@@ -55,54 +61,77 @@ export function TradeFilterMenu({
     '--color-foreground',
     '--color-destructive',
   ]) as [string, string];
-  // One group's options are listed straight into the panel; several become
-  // submenus, which is what keeps the dimensions named and the panel short.
-  const nested = groups.length > 1;
+  const [open, setOpen] = useState(false);
+  const single = groups.length === 1 ? groups[0] : null;
 
-  const options = (group: FilterGroup) => (
-    <Menu.RadioGroup value={group.value} onValueChange={group.onChange}>
-      {group.options.map((option) => (
-        <Menu.RadioItem key={option.value} value={option.value}>
-          {option.label}
-        </Menu.RadioItem>
-      ))}
-    </Menu.RadioGroup>
+  const trigger = (onPress?: () => void) => (
+    <Pressable
+      hitSlop={10}
+      accessibilityRole="button"
+      accessibilityLabel={label ?? t`Filter`}
+      onPress={onPress}
+      className="h-8 w-8 items-center justify-center active:opacity-60"
+    >
+      {/* Neutral glyph — bar icons default to the accent tint. */}
+      <Icon name={active ? activeSystemImage : systemImage} size={18} tintColor={foreground} />
+    </Pressable>
   );
+
+  if (single) {
+    return (
+      <>
+        {trigger(() => setOpen(true))}
+        <PickerSheet
+          open={open}
+          onOpenChange={setOpen}
+          title={single.title ?? label ?? t`Filter`}
+          items={single.options}
+          selectedValue={single.value}
+          onValueChange={(value) => single.onChange(value)}
+          footer={
+            onReset && active ? (
+              <>
+                <Item.Separator />
+                <Pressable
+                  onPress={() => {
+                    onReset();
+                    setOpen(false);
+                  }}
+                  accessibilityRole="button"
+                  className="min-h-[52px] flex-row items-center active:opacity-60"
+                >
+                  <Text className="text-[17px] text-destructive">{t`Clear filters`}</Text>
+                </Pressable>
+              </>
+            ) : null
+          }
+        />
+      </>
+    );
+  }
 
   return (
     <Menu presentation="bottom-sheet">
-      <Menu.Trigger>
-        <Pressable
-          hitSlop={10}
-          accessibilityRole="button"
-          accessibilityLabel={label ?? t`Filter`}
-          className="h-8 w-8 items-center justify-center active:opacity-60"
-        >
-          {/* Neutral glyph — bar icons default to the accent tint. */}
-          <Icon
-            name={active ? activeSystemImage : systemImage}
-            size={18}
-            tintColor={foreground}
-          />
-        </Pressable>
-      </Menu.Trigger>
+      <Menu.Trigger>{trigger()}</Menu.Trigger>
       <Menu.Content width="full" className="shadow-none rounded-none">
-        {groups.map((group) =>
-          nested ? (
-            <Menu.Sub key={group.key}>
-              <Menu.SubTrigger
-                icon={
-                  group.icon ? <Icon name={group.icon} size={16} tintColor={foreground} /> : null
-                }
-              >
-                {groupSummary(group)}
-              </Menu.SubTrigger>
-              <Menu.SubContent>{options(group)}</Menu.SubContent>
-            </Menu.Sub>
-          ) : (
-            <Fragment key={group.key}>{options(group)}</Fragment>
-          ),
-        )}
+        {groups.map((group) => (
+          <Menu.Sub key={group.key}>
+            <Menu.SubTrigger
+              icon={group.icon ? <Icon name={group.icon} size={16} tintColor={foreground} /> : null}
+            >
+              {groupSummary(group)}
+            </Menu.SubTrigger>
+            <Menu.SubContent>
+              <Menu.RadioGroup value={group.value} onValueChange={group.onChange}>
+                {group.options.map((option) => (
+                  <Menu.RadioItem key={option.value} value={option.value}>
+                    {option.label}
+                  </Menu.RadioItem>
+                ))}
+              </Menu.RadioGroup>
+            </Menu.SubContent>
+          </Menu.Sub>
+        ))}
         {onReset && active ? (
           <>
             <Menu.Separator />

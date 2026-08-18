@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Alert, Text, View } from 'react-native';
 
+import { FormSheet } from '@/components/form-sheet';
 import { FormSkeleton } from '@/components/skeleton';
 
 import { useAccounts, useApiRequest, useSetups, useTags, useTrade } from '@/api/hooks';
@@ -104,9 +105,16 @@ export default function EditTradeScreen() {
   }
   if (isLoading || !trade || !accounts || !setups || !tags) {
     return isLoading || !accounts || !setups || !tags ? (
-      <View className="flex-1 bg-background">
+      // Same chrome as the loaded form so the fields don't jump when the
+      // queries land (see new-trade.tsx).
+      <FormSheet
+        title={addExit === '1' ? t`Close position` : t`Edit trade`}
+        pushed
+        saveDisabled
+        onSave={() => {}}
+      >
         <FormSkeleton />
-      </View>
+      </FormSheet>
     ) : (
       <View className="flex-1 items-center justify-center bg-background p-6">
         <Text className="text-center text-muted-foreground">{t`Trade not found`}</Text>
@@ -122,6 +130,7 @@ export default function EditTradeScreen() {
   return (
     <TradeForm
       title={addExit === '1' ? t`Close position` : t`Edit trade`}
+      pushed
       initialBlocks={[initial]}
       accounts={accounts}
       setups={setups}

@@ -1,23 +1,17 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useRef, useState } from 'react';
-import { Alert, View } from 'react-native';
+import { Alert } from 'react-native';
 import { Frame, Text } from 'panelui-native';
 
 import { queryKeys, useAccounts, useApiRequest, useCash, useTrades } from '@/api/hooks';
 import type { Account } from '@/api/types';
-import { CenteredButton } from '@/components/centered-button';
+import { FormField, FormInput, FormPicker, FormScreen } from '@/components/form-kit';
 import { HeaderIconButton } from '@/components/header-icon-button';
 import { NavRow } from '@/components/nav-row';
 import { t } from '@lingui/core/macro';
 import { SettingsForm } from '@/components/settings-form';
-import {
-  SettingsInput,
-  SettingsPicker,
-  SettingsRow,
-  SettingsSection,
-  ValueText,
-} from '@/components/settings-rows';
+import { SettingsButton, SettingsRow, SettingsSection, ValueText } from '@/components/settings-rows';
 import { numericText, parseAmount } from '@/lib/amount';
 import { ledgerBalance } from '@/lib/cash';
 import { errorMessage } from '@/lib/errors';
@@ -87,7 +81,7 @@ function AccountForm({ account, accountCount }: { account?: Account; accountCoun
   const isEdit = account != null;
   const knownBroker = account != null && POPULAR_BROKERS.includes(account.broker.trim());
 
-  // The fields are uncontrolled (`SettingsInput` holds its own text); the ref
+  // The fields are uncontrolled (`FormInput` holds its own text); the ref
   // mirrors capture keystrokes for submit-time reads.
   const nameText = useRef(account?.name ?? '');
   // The ref holds the value; this boolean is the only part the header action
@@ -229,10 +223,9 @@ function AccountForm({ account, accountCount }: { account?: Account; accountCoun
           ),
         }}
       />
-      <SettingsForm>
-        <SettingsSection title={t`Details`}>
-          <SettingsInput
-            label={t`Name`}
+      <FormScreen>
+        <FormField label={t`Name`}>
+          <FormInput
             placeholder={t`e.g. Main Account`}
             defaultValue={account?.name ?? ''}
             onChangeText={(text) => {
@@ -240,7 +233,9 @@ function AccountForm({ account, accountCount }: { account?: Account; accountCoun
               setHasName(text.trim() !== '');
             }}
           />
-          <SettingsPicker
+        </FormField>
+        <FormField label={t`Broker`}>
+          <FormPicker
             label={t`Broker`}
             selectedValue={brokerChoice}
             onValueChange={setBrokerChoice}
@@ -249,48 +244,52 @@ function AccountForm({ account, accountCount }: { account?: Account; accountCoun
               { value: OTHER_BROKER, label: t`Other` },
             ]}
           />
-          {brokerChoice === OTHER_BROKER ? (
-            <SettingsInput
-              label={t`Custom broker`}
+        </FormField>
+        {brokerChoice === OTHER_BROKER ? (
+          <FormField label={t`Custom broker`}>
+            <FormInput
               placeholder={t`Type broker name`}
               defaultValue={initialCustomBroker}
               onChangeText={(text) => {
                 customBrokerText.current = text;
               }}
             />
-          ) : null}
-        </SettingsSection>
+          </FormField>
+        ) : null}
 
         {!isEdit ? (
-          <SettingsSection
-            title={t`Funding`}
-            footer={t`The starting balance is saved as the first deposit in the cash ledger.`}
-          >
-            <SettingsPicker
-              label={t`Account type`}
-              selectedValue={accountType}
-              onValueChange={setAccountType}
-              items={ACCOUNT_TYPES.map((option) => ({
-                value: option.value,
-                label: option.label(),
-              }))}
-            />
-            <SettingsPicker
-              label={t`Base currency`}
-              selectedValue={currency}
-              onValueChange={setCurrency}
-              items={DISPLAY_CURRENCIES.map((code) => ({ value: code, label: code }))}
-            />
-            <SettingsInput
-              label={t`Starting balance`}
-              placeholder="0.00"
-              numeric
-              suffix={currency}
-              onChangeText={(text) => {
-                balanceText.current = numericText(text);
-              }}
-            />
-          </SettingsSection>
+          <>
+            <FormField label={t`Account type`}>
+              <FormPicker
+                label={t`Account type`}
+                selectedValue={accountType}
+                onValueChange={setAccountType}
+                items={ACCOUNT_TYPES.map((option) => ({
+                  value: option.value,
+                  label: option.label(),
+                }))}
+              />
+            </FormField>
+            <FormField label={t`Base currency`}>
+              <FormPicker
+                label={t`Base currency`}
+                selectedValue={currency}
+                onValueChange={setCurrency}
+                items={DISPLAY_CURRENCIES.map((code) => ({ value: code, label: code }))}
+              />
+            </FormField>
+            <FormField label={t`Starting balance`}>
+              <FormInput
+                placeholder="0.00"
+                keyboardType="decimal-pad"
+                suffix={currency}
+                description={t`The starting balance is saved as the first deposit in the cash ledger.`}
+                onChangeText={(text) => {
+                  balanceText.current = numericText(text);
+                }}
+              />
+            </FormField>
+          </>
         ) : null}
 
         {isEdit ? (
@@ -338,32 +337,32 @@ function AccountForm({ account, accountCount }: { account?: Account; accountCoun
           </SettingsSection>
         ) : null}
 
-        {/* Outside a section card: these are actions on the account, not more
-            of its fields, and a filled button inside the panel would fight its
-            corners. */}
+        {/* Destructive actions live in a grouped card of red action rows —
+            the SettingsButton idiom (two-factor, data-backup), not floating
+            ghost text. */}
         {isEdit ? (
-          <View className="gap-2">
-            <CenteredButton
+          <SettingsSection
+            footer={isOnlyAccount ? t`Add another account before deleting this one.` : undefined}
+          >
+            <SettingsButton
+              systemImage="clock.arrow.circlepath"
               role="destructive"
               label={clearTrades.isPending ? t`Clearing…` : t`Clear trade history`}
               disabled={clearTrades.isPending}
               onPress={confirmClearTrades}
             />
             {!isOnlyAccount ? (
-              <CenteredButton
+              <SettingsButton
+                systemImage="trash"
                 role="destructive"
                 label={deleteAccount.isPending ? t`Deleting…` : t`Delete account`}
                 disabled={deleteAccount.isPending}
                 onPress={confirmDeleteAccount}
               />
-            ) : (
-              <Text size="xs" muted className="px-4">
-                {t`Add another account before deleting this one.`}
-              </Text>
-            )}
-          </View>
+            ) : null}
+          </SettingsSection>
         ) : null}
-      </SettingsForm>
+      </FormScreen>
     </>
   );
 }

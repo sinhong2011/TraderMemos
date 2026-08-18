@@ -1,17 +1,15 @@
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
-import { Frame, Text } from 'panelui-native';
-import { useState } from 'react';
-import { Alert, View } from 'react-native';
+import { useRef, useState } from 'react';
+import { Alert, type TextInput } from 'react-native';
 
 import { useApiRequest } from '@/api/hooks';
 import { useSession } from '@/api/session';
 import type { TokenPair } from '@/api/types';
+import { FormField, FormScreen } from '@/components/form-kit';
 import { HeaderIconButton } from '@/components/header-icon-button';
 import { PasswordInput } from '@/components/password-input';
-import { SettingsForm } from '@/components/settings-form';
-import { SettingsSection } from '@/components/settings-rows';
 import { errorMessage } from '@/lib/errors';
 import { notify } from '@/lib/haptics';
 import { t } from '@lingui/core/macro';
@@ -20,13 +18,12 @@ import { t } from '@lingui/core/macro';
 const MIN_LENGTH = 10;
 
 /**
- * Change your own password.
- *
- * Three masked fields rather than a prompt — `Alert.prompt` takes one value,
- * and a confirmation field is the cheapest guard against locking yourself out
- * of a self-hosted server by typo. Each one is the app's `PasswordInput`, so
- * the reveal toggle is there when a typo is the likelier explanation than a
- * wrong password.
+ * Change your own password. An entry form (the form kit), three masked fields
+ * rather than a prompt — `Alert.prompt` takes one value, and a confirmation
+ * field is the cheapest guard against locking yourself out of a self-hosted
+ * server by typo. Each one is the app's `PasswordInput`, so the reveal toggle
+ * is there when a typo is the likelier explanation than a wrong password.
+ * Validation lands under the field it belongs to, not in an alert.
  *
  * The server answers with a fresh token pair, because the change invalidates
  * every token minted against the old password including the one this request
@@ -37,13 +34,14 @@ export default function ChangePasswordScreen() {
   const router = useRouter();
   const { session, signIn } = useSession();
   const api = useApiRequest();
+  const nextField = useRef<TextInput>(null);
+  const confirmField = useRef<TextInput>(null);
 
-  // The fields are drawn in JS now, so the values are simply state: the ref
-  // mirrors only existed because SwiftUI owned the text and submit had to read
-  // it back out.
   const [current, setCurrent] = useState('');
   const [next, setNext] = useState('');
   const [confirm, setConfirm] = useState('');
+  const [nextError, setNextError] = useState<string | null>(null);
+  const [confirmError, setConfirmError] = useState<string | null>(null);
   const filled = current.length > 0 && next.length > 0 && confirm.length > 0;
 
   const change = useMutation({
@@ -74,16 +72,19 @@ export default function ChangePasswordScreen() {
   });
 
   function submit() {
-    if (next !== confirm) {
-      Alert.alert(t`Could not change password`, t`The new passwords don't match.`);
-      return;
-    }
     if (next.length < MIN_LENGTH) {
-      Alert.alert(t`Could not change password`, t`Use at least ${MIN_LENGTH} characters.`);
+      setNextError(t`Use at least ${MIN_LENGTH} characters.`);
+      nextField.current?.focus();
       return;
     }
     if (next === current) {
-      Alert.alert(t`Could not change password`, t`That is already your password.`);
+      setNextError(t`That is already your password.`);
+      nextField.current?.focus();
+      return;
+    }
+    if (next !== confirm) {
+      setConfirmError(t`The new passwords don't match.`);
+      confirmField.current?.focus();
       return;
     }
     change.mutate();
@@ -96,61 +97,59 @@ export default function ChangePasswordScreen() {
           headerRight: () => (
             <HeaderIconButton
               systemImage="checkmark"
-              label={t`Save`}
+              label={change.isPending ? t`Saving…` : t`Save`}
               disabled={!filled || change.isPending}
               onPress={submit}
             />
           ),
         }}
       />
-      <SettingsForm>
-        <SettingsSection title={t`Current password`}>
-          <View className="px-4 py-3">
-            <PasswordInput
-              value={current}
-              onChangeText={setCurrent}
-              placeholder={t`Current password`}
-              textContentType="password"
-              returnKeyType="next"
-            />
-          </View>
-        </SettingsSection>
+      <FormScreen>
+        <FormField label={t`Current password`}>
+          <PasswordInput
+            value={current}
+            onChangeText={setCurrent}
+            textContentType="password"
+            returnKeyType="next"
+            accessibilityLabel={t`Current password`}
+            onSubmitEditing={() => nextField.current?.focus()}
+          />
+        </FormField>
 
-        <SettingsSection
-          title={t`New password`}
-          footer={t`At least ${MIN_LENGTH} characters. Changing it signs out your other devices — this one stays signed in.`}
-        >
-          <View className="px-4 py-3">
-            <PasswordInput
-              value={next}
-              onChangeText={setNext}
-              placeholder={t`New password`}
-              textContentType="newPassword"
-              returnKeyType="next"
-            />
-          </View>
-          <View className="px-4 py-3">
-            <PasswordInput
-              value={confirm}
-              onChangeText={setConfirm}
-              placeholder={t`Confirm new password`}
-              textContentType="newPassword"
-              returnKeyType="go"
-              onSubmitEditing={submit}
-            />
-          </View>
-        </SettingsSection>
+        <FormField label={t`New password`}>
+          <PasswordInput
+            ref={nextField}
+            value={next}
+            onChangeText={(text) => {
+              setNext(text);
+              if (nextError) setNextError(null);
+            }}
+            placeholder={t`At least ${MIN_LENGTH} characters`}
+            errorMessage={nextError ?? undefined}
+            textContentType="newPassword"
+            returnKeyType="next"
+            accessibilityLabel={t`New password`}
+            onSubmitEditing={() => confirmField.current?.focus()}
+          />
+        </FormField>
 
-        {change.isPending ? (
-          <SettingsSection>
-            <Frame.Row>
-              <Text size="sm" muted className="flex-1">
-                {t`Saving…`}
-              </Text>
-            </Frame.Row>
-          </SettingsSection>
-        ) : null}
-      </SettingsForm>
+        <FormField label={t`Confirm new password`}>
+          <PasswordInput
+            ref={confirmField}
+            value={confirm}
+            onChangeText={(text) => {
+              setConfirm(text);
+              if (confirmError) setConfirmError(null);
+            }}
+            description={t`Changing it signs out your other devices — this one stays signed in.`}
+            errorMessage={confirmError ?? undefined}
+            textContentType="newPassword"
+            returnKeyType="go"
+            accessibilityLabel={t`Confirm new password`}
+            onSubmitEditing={submit}
+          />
+        </FormField>
+      </FormScreen>
     </>
   );
 }

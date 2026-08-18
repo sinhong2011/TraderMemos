@@ -64,7 +64,7 @@ export default function NewTagScreen() {
 
   return (
     <FormSheet
-      inSheet
+      pushed
       title={id ? t`Edit tag` : t`New tag`}
       saving={save.isPending}
       // Nothing to save without a name — grey the action instead of letting
@@ -79,7 +79,6 @@ export default function NewTagScreen() {
           onChangeText={setName}
           placeholder={t`e.g. FOMO`}
           autoCorrect={false}
-          autoFocus={!id}
           returnKeyType="done"
           onSubmitEditing={handleSave}
         />

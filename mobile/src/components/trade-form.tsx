@@ -1,14 +1,11 @@
 import { cn } from 'panelui-native';
 import type { SFSymbol } from 'expo-symbols';
-import { useRef, useState, type ReactNode } from 'react';
-import { Pressable, Text, View } from 'react-native';
-import ReanimatedSwipeable, {
-  type SwipeableMethods,
-} from 'react-native-gesture-handler/ReanimatedSwipeable';
+import { useState, type ReactNode } from 'react';
+import { Text, View } from 'react-native';
 import Animated, { FadeInDown, LinearTransition, SlideOutLeft } from 'react-native-reanimated';
-import { useCSSVariable } from 'uniwind';
 
 import { Icon } from '@/components/icon';
+import { Swipe } from '@/components/swipe';
 import type { Account, Setup, Tag } from '@/api/types';
 import { AccountPill } from '@/components/account-pill';
 import { ChipGroup } from '@/components/chips';
@@ -83,9 +80,6 @@ function toggleIn(list: string[], value: string): string[] {
   return list.includes(value) ? list.filter((v) => v !== value) : [...list, value];
 }
 
-/** Squircle corners on the swipe actions — no Tailwind utility maps to this. */
-const CONTINUOUS = { borderCurve: 'continuous' } as const;
-
 /** The app's one spring (see symbol-pager-bar.tsx) — fill-list motion matches. */
 const FILL_SPRING = { duration: 420, dampingRatio: 0.85 } as const;
 const FILL_ENTER = FadeInDown.springify()
@@ -117,10 +111,6 @@ function FillCard({
   onRemove: () => void;
   onDuplicate: () => void;
 }) {
-  const swipeable = useRef<SwipeableMethods>(null);
-  // White-on-color glyphs for the solid swipe fills; `primary-foreground` is
-  // the theme's on-fill ink in both schemes.
-  const [onFill] = useCSSVariable(['--color-primary-foreground']) as [string];
   const { formatPnl } = useFormatters();
   const sides = [
     { value: 'buy' as const, label: t`Buy`, fill: PnlFill.pos },
@@ -189,45 +179,30 @@ function FillCard({
   // duplicates — a scale-out leg is usually the last fill with one field
   // changed, so copy-and-tweak beats retyping.
   return (
-    <ReanimatedSwipeable
-      ref={swipeable}
-      friction={2}
-      leftThreshold={40}
-      rightThreshold={40}
-      overshootLeft={false}
-      overshootRight={false}
-      renderLeftActions={() => (
-        <Pressable
-          onPress={() => {
-            swipeable.current?.close();
-            onDuplicate();
-          }}
-          accessibilityRole="button"
-          accessibilityLabel={t`Duplicate fill`}
-          className="mr-2 w-[72px] items-center justify-center rounded-[20px] bg-primary active:opacity-60"
-          style={CONTINUOUS}
-        >
-          <Icon name="plus.square.on.square" size={18} tintColor={onFill} />
-        </Pressable>
-      )}
-      renderRightActions={
-        removable
-          ? () => (
-              <Pressable
-                onPress={onRemove}
-                accessibilityRole="button"
-                accessibilityLabel={t`Remove fill`}
-                className="ml-2 w-[72px] items-center justify-center rounded-[20px] bg-destructive active:opacity-60"
-                style={CONTINUOUS}
-              >
-                <Icon name="trash.fill" size={18} tintColor={onFill} />
-              </Pressable>
-            )
-          : undefined
-      }
-    >
+    <Swipe>
+      <Swipe.Start>
+        <Swipe.Action
+          color="primary"
+          icon={<Icon name="plus.square.on.square" />}
+          label={t`Duplicate fill`}
+          onPress={onDuplicate}
+        />
+      </Swipe.Start>
+      {removable ? (
+        <Swipe.End>
+          {/* keepOpen: removal unmounts the card with its own exit animation,
+              and the close spring would drag it back mid-slide. */}
+          <Swipe.Action
+            color="destructive"
+            icon={<Icon name="trash.fill" />}
+            label={t`Remove fill`}
+            keepOpen
+            onPress={onRemove}
+          />
+        </Swipe.End>
+      ) : null}
       {card}
-    </ReanimatedSwipeable>
+    </Swipe>
   );
 }
 
@@ -699,7 +674,7 @@ export function TradeForm({
 
   if (!isNew) {
     return (
-      <FormSheet title={title} saving={saving} onSave={() => onSave(blocks)}>
+      <FormSheet title={title} saving={saving} pushed={pushed} onSave={() => onSave(blocks)}>
         {accounts.length > 1 ? (
           <Card>
             <ControlRow label={t`Account`}>

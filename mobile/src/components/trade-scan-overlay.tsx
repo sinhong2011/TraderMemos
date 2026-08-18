@@ -394,7 +394,7 @@ export function TradeScanOverlay({
       <View className="px-4 pt-2" style={{ paddingBottom: insets.bottom + 12 }}>
         {prefill ? (
           <Animated.View entering={springUp(260)}>
-            <Button size="lg" fullWidth onPress={() => onApply(prefill.blocks)}>
+            <Button size="md" className="rounded-3xl" fullWidth onPress={() => onApply(prefill.blocks)}>
               {t`Fill form`}
             </Button>
           </Animated.View>

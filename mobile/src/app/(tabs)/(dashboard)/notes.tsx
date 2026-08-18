@@ -3,8 +3,8 @@ import { FlashList } from '@shopify/flash-list';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
-import { Card, Skeleton, Swipe, type SwipeHandle } from 'panelui-native';
-import { useMemo, useRef, useState } from 'react';
+import { Card, Skeleton } from 'panelui-native';
+import { useMemo, useState } from 'react';
 import { Alert, Pressable, RefreshControl, Text, View } from 'react-native';
 import { useCSSVariable } from 'uniwind';
 
@@ -15,6 +15,7 @@ import type { Note } from '@/api/types';
 import { ErrorState } from '@/components/error-state';
 import { Pill } from '@/components/pill';
 import { FloatingSearchBar, SearchToggle } from '@/components/search-bar';
+import { Swipe } from '@/components/swipe';
 import { TradeFilterMenu } from '@/components/trade-filter-menu';
 import { t } from '@lingui/core/macro';
 import { locale } from '@/i18n';
@@ -67,7 +68,6 @@ function NoteRow({
   onPress: () => void;
   onDelete: () => void;
 }) {
-  const swipeable = useRef<SwipeHandle>(null);
   const excerpt = noteExcerpt(note.body);
   const progress = checklistProgress(note.body);
   // The excerpt strips image markdown, so a chart-only note would read as an
@@ -75,21 +75,16 @@ function NoteRow({
   const charts = noteMediaIds(note.body).length;
 
   return (
-    // No full swipe: deleting a note is destructive and should not fire from a
-    // hard drag alone.
-    <Swipe ref={swipeable} fullSwipe={false}>
+    <Swipe resetKey={note.id}>
       <Swipe.End>
         <Swipe.Action
           color="destructive"
-          icon={<Icon name="trash.fill" size={17} tintColor="#FFFFFF" />}
+          icon={<Icon name="trash.fill" />}
           label={t`Delete`}
-          onPress={() => {
-            swipeable.current?.close();
-            onDelete();
-          }}
+          onPress={onDelete}
         />
       </Swipe.End>
-      <Pressable onPress={onPress} accessibilityRole="button" className="active:opacity-70">
+      <Pressable onPress={onPress} accessibilityRole="button">
         <Card className="gap-1.5 rounded-lg border-0 p-4">
           <View className="flex-row items-baseline gap-2">
             <Text className="flex-1 text-[15px] font-semibold text-foreground" numberOfLines={1}>
@@ -263,6 +258,9 @@ export default function NotesScreen() {
           contentInsetAdjustmentBehavior="automatic"
           contentContainerStyle={{
             paddingHorizontal: 16,
+            // Breathing room below the header — without it the first card's
+            // corners clip against Android's opaque bar (iOS's blur hides it).
+            paddingTop: 12,
             paddingBottom: 48,
             backgroundColor: background,
           }}

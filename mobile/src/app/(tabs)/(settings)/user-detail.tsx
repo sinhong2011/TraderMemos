@@ -10,14 +10,10 @@ import { CenteredButton } from '@/components/centered-button';
 import { NavRow } from '@/components/nav-row';
 import { SettingsForm } from '@/components/settings-form';
 import { SettingsRow, SettingsSection, SettingsToggle, ValueText } from '@/components/settings-rows';
-import { usePrompt } from '@/components/use-prompt';
 import { errorMessage } from '@/lib/errors';
 import { useFormatters } from '@/lib/format';
 import { notify } from '@/lib/haptics';
 import { t } from '@lingui/core/macro';
-
-/** Matches the server's `auth.MinPasswordLen`. */
-const MIN_LENGTH = 10;
 
 /**
  * One account, from an owner's side: role, a password reset, and deletion.
@@ -27,10 +23,6 @@ const MIN_LENGTH = 10;
  */
 export default function UserDetailScreen() {
   const { formatDate } = useFormatters();
-  // One value, so a prompt rather than a pushed form — the settings idiom this
-  // app uses for single-field edits, and `usePrompt` is the cross-platform
-  // form of it (`Alert.prompt` is iOS-only).
-  const { prompt, element: promptElement } = usePrompt();
   const router = useRouter();
   const queryClient = useQueryClient();
   const api = useApiRequest();
@@ -64,25 +56,6 @@ export default function UserDetailScreen() {
     },
   });
 
-  const resetPassword = useMutation({
-    mutationFn: (next: string) =>
-      api<void>(`/admin/users/${id}/password`, {
-        method: 'POST',
-        body: { new_password: next },
-      }),
-    onSuccess: () => {
-      notify('success');
-      Alert.alert(
-        t`Password reset`,
-        t`${user?.email ?? ''} signs in with the new password. Their other devices are signed out.`,
-      );
-    },
-    onError: (err) => {
-      notify('error');
-      Alert.alert(t`Could not reset password`, errorMessage(err));
-    },
-  });
-
   const remove = useMutation({
     mutationFn: () => api<void>(`/admin/users/${id}`, { method: 'DELETE' }),
     onSuccess: () => {
@@ -95,23 +68,6 @@ export default function UserDetailScreen() {
       Alert.alert(t`Could not delete user`, errorMessage(err));
     },
   });
-
-  function promptReset() {
-    // Plain text, not secure: an owner has to read the temporary password back
-    // to whoever they are resetting it for.
-    prompt({
-      title: t`Reset password`,
-      message: t`Sets a new password for ${user?.email ?? ''} without their current one.`,
-      confirmLabel: t`Reset`,
-      onSubmit: (next) => {
-        if (next.length < MIN_LENGTH) {
-          Alert.alert(t`Could not reset password`, t`Use at least ${MIN_LENGTH} characters.`);
-          return;
-        }
-        resetPassword.mutate(next);
-      },
-    });
-  }
 
   function confirmDelete() {
     // Deleting cascades their accounts, trades, notes and screenshots away.
@@ -176,8 +132,7 @@ export default function UserDetailScreen() {
           <NavRow
             systemImage="lock.rotation"
             label={t`Reset password`}
-            accessory="none"
-            onPress={promptReset}
+            onPress={() => router.push({ pathname: '/reset-password', params: { id } })}
           />
         </SettingsSection>
 
@@ -192,7 +147,6 @@ export default function UserDetailScreen() {
           />
         )}
       </SettingsForm>
-      {promptElement}
     </>
   );
 }

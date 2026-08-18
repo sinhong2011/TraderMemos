@@ -287,7 +287,7 @@ export default function ImportTradesScreen() {
 
         <View className="gap-2">
           <CenteredButton label={t`Done`} onPress={() => router.back()} />
-          <CenteredButton label={t`Import another file`} onPress={reset} />
+          <CenteredButton role="cancel" label={t`Import another file`} onPress={reset} />
         </View>
       </SettingsForm>
     );
@@ -427,7 +427,7 @@ export default function ImportTradesScreen() {
               if (!busy) void runCommit();
             }}
           />
-          <CenteredButton label={t`Back`} onPress={() => setPreview(null)} />
+          <CenteredButton role="cancel" label={t`Back`} onPress={() => setPreview(null)} />
         </View>
       </SettingsForm>
     );

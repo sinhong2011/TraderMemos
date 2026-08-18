@@ -143,7 +143,7 @@ export type TradeDetail = Omit<Trade, 'initial_risk'> & {
 };
 
 /** GET /market/bars (api/internal/marketdata/types.go). Wire intervals: 1|5|15|60|240|D. */
-export type BarInterval = '1' | '5' | '15' | '60' | '240' | 'D';
+export type BarInterval = '1' | '5' | '15' | '30' | '60' | '240' | 'D' | 'W' | 'M';
 
 export type MarketBar = {
   /** Unix seconds, UTC. */
@@ -238,6 +238,7 @@ export type RiskRules = {
   max_open_risk: number | null;
   default_account_risk_pct: number | null;
   max_trades_per_day: number | null;
+  max_consecutive_losses: number | null;
 };
 
 /** One cash ledger entry (api dto) — amount is signed; outflows are negative. */
@@ -503,6 +504,7 @@ export type ComplianceDay = {
   unknown_risk: number;
   daily_loss_breach: boolean;
   trade_limit_breach: boolean;
+  loss_streak_breach: boolean;
   compliant: boolean;
 };
 
@@ -518,6 +520,7 @@ export type ComplianceReport = {
   unknown_risk: number;
   daily_loss_breaches: number;
   trade_limit_breaches: number;
+  loss_streak_breaches: number;
 };
 
 /** One flagged trade in a behavior section (analytics.BehaviorEvent). */
