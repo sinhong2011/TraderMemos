@@ -23,6 +23,20 @@ vi.mock("../../lib/hooks/useTrades", () => ({
   useTrades: () => ({ data: [], isLoading: false, isError: false }),
 }));
 
+vi.mock("@tanstack/react-router", () => ({
+  Link: ({ children, className }: { children?: unknown; className?: string }) => (
+    <a href="#mock" className={className}>
+      {children as never}
+    </a>
+  ),
+  useNavigate: () => () => {},
+}));
+
+vi.mock("../../lib/hooks/useImports", () => ({
+  useImports: () => ({ data: [], isLoading: false, isError: false }),
+  useDeleteImport: () => ({ mutate: () => {}, isPending: false }),
+}));
+
 vi.mock("../../lib/hooks/useFlexSync", () => ({
   useFlexSync: () => ({ data: undefined, isLoading: false, isError: false }),
   useFlexSyncConnections: () => ({ data: [], isLoading: false, isError: false }),
@@ -240,14 +254,16 @@ describe("SettingsView", () => {
     window.location.hash = "#accounts";
   });
 
-  it("marks the only account as primary and disables delete", async () => {
+  it("marks the only account as primary and links to its detail page", async () => {
     renderSettings({ ...baseProps });
     expect(await screen.findByText("Primary")).toBeInTheDocument();
     expect(screen.getAllByText("$10,000.00").length).toBeGreaterThan(0);
-    expect(screen.getByRole("button", { name: /delete main/i })).toBeDisabled();
+    // Manage/delete now live on the account detail page the row links to.
+    expect(screen.getByRole("link", { name: /main/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /delete main/i })).not.toBeInTheDocument();
   });
 
-  it("allows deleting a secondary account when two exist", () => {
+  it("lists every account as a row linking to its detail page", () => {
     const second: Account = {
       ...accounts[0],
       id: "a2",
@@ -256,7 +272,7 @@ describe("SettingsView", () => {
     };
     renderSettings({ ...baseProps, accounts: [...accounts, second] });
     expect(screen.getByText("Primary")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /delete paper/i })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /paper/i })).toBeInTheDocument();
   });
 
   it("opens the rules tab from the URL hash", () => {

@@ -2,13 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { SettingsView } from "@/app/screens/SettingsView";
 import { settingsApi } from "@/lib/api/settings";
-import {
-  useAccounts,
-  useClearAccountTrades,
-  useCreateAccount,
-  useDeleteAccount,
-  useUpdateAccount,
-} from "@/lib/hooks/useAccounts";
+import { useAccounts, useCreateAccount } from "@/lib/hooks/useAccounts";
 import { useCash, useCreateCash, useDeleteCash, useUpdateCash } from "@/lib/hooks/useCash";
 import { useRiskRules, useSaveRiskRules } from "@/lib/hooks/useRiskRules";
 import { useAnnualGoal, useClearAnnualGoal, useSaveAnnualGoal } from "@/lib/hooks/useAnnualGoal";
@@ -25,9 +19,6 @@ function SettingsPage() {
   // Accounts
   const accountsQ = useAccounts();
   const createAccountM = useCreateAccount();
-  const updateAccountM = useUpdateAccount();
-  const deleteAccountM = useDeleteAccount();
-  const clearAccountTradesM = useClearAccountTrades();
 
   // Cash - list all cash for selected accounts (no filter = empty filters)
   const cashQ = useCash({});
@@ -72,15 +63,6 @@ function SettingsPage() {
       accountsError={accountsQ.isError}
       onCreateAccount={async (body) => {
         await createAccountM.mutateAsync(body);
-      }}
-      onDeleteAccount={async (id) => {
-        await deleteAccountM.mutateAsync(id);
-      }}
-      onUpdateAccount={async (id, body) => {
-        await updateAccountM.mutateAsync({ id, body });
-      }}
-      onClearAccountTrades={async (id) => {
-        await clearAccountTradesM.mutateAsync(id);
       }}
       cashTransactions={cashQ.data ?? []}
       cashLoading={cashQ.isLoading}

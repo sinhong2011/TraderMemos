@@ -1,6 +1,8 @@
 import { useForm } from "@tanstack/react-form";
+import { Link } from "@tanstack/react-router";
 import {
   Building2,
+  ChevronRight,
   Check,
   Download,
   LogOut,
@@ -17,11 +19,11 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { EmptyState } from "@/components/EmptyState";
 import { LlmApiSettingsForm } from "@/components/LlmApiSettingsForm";
 import { ModeToggle } from "@/components/ModeToggle";
-import { FlexSyncButton } from "@/components/FlexSyncModal";
 import { Badge } from "@/components/reui/badge";
 import { flexSyncFailed } from "@/lib/api/flexSync";
 import { useFlexSyncConnections } from "@/lib/hooks/useFlexSync";
-import { PropRulesButton } from "@/components/PropRulesModal";
+import { ImportHistorySection } from "./import-history";
+import { Pill } from "@/components/Pill";
 import { Modal } from "@/components/Modal";
 import { AmountInput } from "@/components/AmountInput";
 import { DatePicker } from "@/components/DatePicker";
@@ -53,6 +55,7 @@ import {
 import { useTrades } from "@/lib/hooks/useTrades";
 import { formatCashDisplay, signedCashAmount } from "@/lib/cashAmount";
 import { parseAmountToNumber } from "@/lib/amountInput";
+import { cn } from "@/lib/cn";
 import { fmtDate, fmtMoney, fmtSignedMoney } from "@/lib/format";
 import { intlLocale, LOCALE_OPTIONS, settingsLabel, type SettingsLabelKey } from "@/lib/locale";
 import type { LlmApiSettingsLabels } from "@/lib/llmApiSettings";
@@ -89,11 +92,8 @@ import {
   type RiskRuleKey,
 } from "@/lib/settingsFormSchema";
 import {
-  AccountRow,
   BtnGhost,
   BtnPrimary,
-  ClearTradesButton,
-  DeleteAccountButton,
   DeleteButton,
   FormError,
   SettingsInsetForm,
@@ -104,24 +104,12 @@ import {
   SettingsSection,
 } from "./settings-ui";
 
-function primaryAccountId(accounts: Account[]): string | undefined {
+export function primaryAccountId(accounts: Account[]): string | undefined {
   if (accounts.length === 0) return undefined;
   return [...accounts].sort((a, b) => a.created_at.localeCompare(b.created_at))[0]?.id;
 }
 
-function accountRecordDetail(tradeCount: number, cashCount: number): string {
-  const parts: string[] = [];
-  if (tradeCount > 0) {
-    parts.push(`${tradeCount} trade${tradeCount === 1 ? "" : "s"}`);
-  }
-  if (cashCount > 0) {
-    parts.push(`${cashCount} cash transaction${cashCount === 1 ? "" : "s"}`);
-  }
-  if (parts.length === 0) return "No trades or cash records on this account.";
-  return `Permanently deletes ${parts.join(" and ")}.`;
-}
-
-function ledgerBalance(account: Account, transactions: CashTransaction[]) {
+export function ledgerBalance(account: Account, transactions: CashTransaction[]) {
   // Funded equity base is the cash ledger only. Opening balance is seeded as the
   // first deposit when the account is created, so starting_balance is metadata.
   return transactions
@@ -129,7 +117,7 @@ function ledgerBalance(account: Account, transactions: CashTransaction[]) {
     .reduce((sum, t) => sum + t.amount, 0);
 }
 
-const POPULAR_BROKERS = [
+export const POPULAR_BROKERS = [
   "IBKR",
   "Webull",
   "Robinhood",
@@ -140,7 +128,7 @@ const POPULAR_BROKERS = [
   "Moomoo",
   "FUTU NIU NIU",
 ] as const;
-const OTHER_BROKER_VALUE = "__other__";
+export const OTHER_BROKER_VALUE = "__other__";
 
 const CASH_TYPE_OPTIONS = [
   { value: "deposit", label: "Deposit" },
@@ -166,9 +154,6 @@ export interface AccountsTabProps {
     base_currency: string;
     starting_balance: number;
   }) => Promise<void>;
-  onDeleteAccount: (id: string) => Promise<void>;
-  onUpdateAccount: (id: string, body: { name: string; broker: string }) => Promise<void>;
-  onClearAccountTrades: (id: string) => Promise<void>;
   cashTransactions: CashTransaction[];
   cashLoading: boolean;
   cashError: boolean;
@@ -198,9 +183,6 @@ export function AccountsTab({
   accountsLoading,
   accountsError,
   onCreateAccount,
-  onDeleteAccount,
-  onUpdateAccount,
-  onClearAccountTrades,
   cashTransactions,
   cashLoading,
   cashError,
@@ -220,15 +202,7 @@ export function AccountsTab({
   const [showCashForm, setShowCashForm] = useState(false);
   const [filterAccountId, setFilterAccountId] = useState<string | null>(null);
   const [accountFormError, setAccountFormError] = useState<string | null>(null);
-  const [accountDeleteError, setAccountDeleteError] = useState<string | null>(null);
-  const [accountEditError, setAccountEditError] = useState<string | null>(null);
-  const [clearTradesError, setClearTradesError] = useState<string | null>(null);
   const [cashFormError, setCashFormError] = useState<string | null>(null);
-  const [editAccountId, setEditAccountId] = useState<string | null>(null);
-  const [editName, setEditName] = useState("");
-  const [editBrokerChoice, setEditBrokerChoice] = useState<string>(POPULAR_BROKERS[0]);
-  const [editBrokerCustom, setEditBrokerCustom] = useState("");
-  const [editingAccount, setEditingAccount] = useState(false);
   const [editCashId, setEditCashId] = useState<string | null>(null);
   const [editCashType, setEditCashType] = useState("deposit");
   const [editCashAmount, setEditCashAmount] = useState("");
@@ -256,92 +230,6 @@ export function AccountsTab({
     }
     return totals;
   }, [trades]);
-  const cashCountByAccount = useMemo(() => {
-    const counts = new Map<string, number>();
-    for (const tx of cashTransactions) {
-      counts.set(tx.account_id, (counts.get(tx.account_id) ?? 0) + 1);
-    }
-    return counts;
-  }, [cashTransactions]);
-
-  async function handleClearAccountTrades(id: string) {
-    const name = accounts.find((account) => account.id === id)?.name ?? "Account";
-    setClearTradesError(null);
-    try {
-      await onClearAccountTrades(id);
-      toast.add({
-        title: "Trade history cleared",
-        description: `${name} — trades and executions removed.`,
-      });
-    } catch (err) {
-      const message = err instanceof ApiError ? err.message : "Failed to clear trade history.";
-      setClearTradesError(message);
-      toast.add({ title: "Could not clear trades", description: message });
-    }
-  }
-
-  async function handleDeleteAccount(id: string) {
-    const name = accounts.find((account) => account.id === id)?.name ?? "Account";
-    setAccountDeleteError(null);
-    try {
-      await onDeleteAccount(id);
-      toast.add({ title: "Account deleted", description: name });
-    } catch (err) {
-      const message = err instanceof ApiError ? err.message : "Failed to delete account.";
-      setAccountDeleteError(message);
-      toast.add({ title: "Could not delete account", description: message });
-    }
-  }
-
-  function startEditAccount(account: Account) {
-    setAccountEditError(null);
-    setEditAccountId(account.id);
-    setEditName(account.name);
-    const broker = account.broker.trim();
-    if (POPULAR_BROKERS.includes(broker as (typeof POPULAR_BROKERS)[number])) {
-      setEditBrokerChoice(broker);
-      setEditBrokerCustom("");
-    } else {
-      setEditBrokerChoice(OTHER_BROKER_VALUE);
-      setEditBrokerCustom(broker);
-    }
-  }
-
-  function cancelEditAccount() {
-    setAccountEditError(null);
-    setEditAccountId(null);
-    setEditName("");
-    setEditBrokerChoice(POPULAR_BROKERS[0]);
-    setEditBrokerCustom("");
-    setEditingAccount(false);
-  }
-
-  async function handleSaveAccount(id: string) {
-    const name = editName.trim();
-    const broker =
-      editBrokerChoice === OTHER_BROKER_VALUE ? editBrokerCustom.trim() : editBrokerChoice.trim();
-    if (!name) {
-      setAccountEditError("Account name is required.");
-      return;
-    }
-    if (!broker) {
-      setAccountEditError("Broker is required.");
-      return;
-    }
-    setEditingAccount(true);
-    setAccountEditError(null);
-    try {
-      await onUpdateAccount(id, { name, broker });
-      toast.add({ title: "Account updated", description: name });
-      cancelEditAccount();
-    } catch (err) {
-      const message = err instanceof ApiError ? err.message : "Failed to update account.";
-      setAccountEditError(message);
-      toast.add({ title: "Could not update account", description: message });
-      setEditingAccount(false);
-    }
-  }
-
   async function handleDeleteCash(id: string) {
     try {
       await onDeleteCash(id);
@@ -487,30 +375,19 @@ export function AccountsTab({
         title="Accounts"
         description="Broker accounts used for trade grouping and filters."
         action={
-          <div className="flex flex-wrap items-center gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              render={<a href="/connect" className="no-underline" />}
-            >
-              <Building2 size={13} strokeWidth={1.5} />
-              Connect broker
-            </Button>
-            <BtnGhost
-              onClick={() => {
-                setAccountFormError(null);
-                accountForm.reset({
-                  ...defaultAccountFormValues(),
-                  broker: POPULAR_BROKERS[0],
-                });
-                setShowAccountForm(true);
-              }}
-            >
-              <Plus size={13} strokeWidth={1.5} />
-              Add account
-            </BtnGhost>
-          </div>
+          <BtnGhost
+            onClick={() => {
+              setAccountFormError(null);
+              accountForm.reset({
+                ...defaultAccountFormValues(),
+                broker: POPULAR_BROKERS[0],
+              });
+              setShowAccountForm(true);
+            }}
+          >
+            <Plus size={13} strokeWidth={1.5} />
+            Add account
+          </BtnGhost>
         }
       >
         <Modal
@@ -719,7 +596,7 @@ export function AccountsTab({
                 <Button
                   type="button"
                   size="sm"
-                  render={<a href="/connect" className="no-underline" />}
+                  render={<Link to="/connect" className="no-underline" />}
                 >
                   <Building2 size={13} strokeWidth={1.5} />
                   Connect broker
@@ -730,184 +607,84 @@ export function AccountsTab({
         ) : (
           <>
             <div className="flex flex-col gap-3">
-              {accountDeleteError ? (
-                <p className="text-[11px] text-destructive">{accountDeleteError}</p>
-              ) : null}
-              {accountEditError ? (
-                <p className="text-[11px] text-destructive">{accountEditError}</p>
-              ) : null}
-              {clearTradesError ? (
-                <p className="text-[11px] text-destructive">{clearTradesError}</p>
-              ) : null}
               <div className="flex flex-col gap-2">
                 {accounts.map((acc) => {
                   const balance = ledgerBalance(acc, cashTransactions);
                   const isPrimary = acc.id === primaryId;
-                  const isOnlyAccount = accounts.length === 1;
                   const tradeCount = tradeCountByAccount.get(acc.id) ?? 0;
                   const netPnl = netPnlByAccount.get(acc.id) ?? 0;
-                  const cashCount = cashCountByAccount.get(acc.id) ?? 0;
                   const locale = intlLocale();
-                  const depositedLabel = fmtMoney(balance, acc.base_currency, locale);
                   const equity = balance + netPnl;
-                  const equityLabel = fmtMoney(equity, acc.base_currency, locale);
-                  const realizedPnlLabel = fmtSignedMoney(netPnl, acc.base_currency, locale);
-                  const pnlPctLabel =
-                    balance !== 0
-                      ? (netPnl / balance).toLocaleString(locale, {
-                          style: "percent",
-                          maximumFractionDigits: 2,
-                          signDisplay: "exceptZero",
-                        })
-                      : "—";
+                  const conn = connByAccount.get(acc.id);
+                  const metaParts = [
+                    acc.broker || null,
+                    acc.base_currency || null,
+                    tradeCount > 0
+                      ? `${tradeCount} ${tradeCount === 1 ? "trade" : "trades"}`
+                      : null,
+                  ].filter(Boolean);
                   return (
-                    <AccountRow
+                    <Link
                       key={acc.id}
-                      name={acc.name}
-                      broker={acc.broker}
-                      accountType={acc.account_type}
-                      currency={acc.base_currency}
-                      depositedLabel={depositedLabel}
-                      equityLabel={equityLabel}
-                      realizedPnlLabel={realizedPnlLabel}
-                      pnlPctLabel={pnlPctLabel}
-                      tradeCount={tradeCount}
-                      netPnl={netPnl}
-                      isPrimary={isPrimary}
-                      headerAction={
-                        <div className="flex flex-wrap items-center justify-end gap-1.5">
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="icon-sm"
-                            aria-label={`Edit ${acc.name}`}
-                            title="Edit account"
-                            onClick={() => startEditAccount(acc)}
-                            disabled={editingAccount}
-                            className="border-border bg-transparent text-foreground hover:bg-accent"
-                          >
-                            <Pencil size={14} strokeWidth={1.5} />
-                          </Button>
-                          <DeleteAccountButton
-                            accountName={acc.name}
-                            detail={accountRecordDetail(tradeCount, cashCount)}
-                            onDelete={() => void handleDeleteAccount(acc.id)}
-                            disabled={isOnlyAccount}
-                            disabledReason="Add another account before deleting this one"
-                          />
-                        </div>
-                      }
-                      footerActions={
-                        <>
-                          {acc.account_type === "prop" ? (
-                            <PropRulesButton accountId={acc.id} accountName={acc.name} />
+                      to="/accounts/$accountId"
+                      params={{ accountId: acc.id }}
+                      className="group flex items-center gap-3 rounded-lg border border-border px-4 py-3 no-underline transition-colors duration-150 hover:bg-accent/40 motion-reduce:transition-none"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                          <span className="truncate text-[14px] font-semibold tracking-tight text-foreground">
+                            {acc.name}
+                          </span>
+                          {isPrimary ? <Pill tone="amber">Primary</Pill> : null}
+                          {conn ? (
+                            <Badge
+                              variant={
+                                flexSyncFailed(conn)
+                                  ? "destructive-light"
+                                  : conn.enabled
+                                    ? "success-light"
+                                    : "secondary"
+                              }
+                            >
+                              {flexSyncFailed(conn)
+                                ? "Sync failing"
+                                : conn.enabled
+                                  ? "Sync on"
+                                  : "Sync off"}
+                            </Badge>
                           ) : null}
-                          {(() => {
-                            const conn = connByAccount.get(acc.id);
-                            const ibkrish = /ibkr|interactive brokers/i.test(acc.broker);
-                            if (!conn && !ibkrish) return null;
-                            return (
-                              <>
-                                {conn ? (
-                                  <Badge
-                                    variant={
-                                      flexSyncFailed(conn)
-                                        ? "destructive-light"
-                                        : conn.enabled
-                                          ? "success-light"
-                                          : "secondary"
-                                    }
-                                  >
-                                    {flexSyncFailed(conn)
-                                      ? "Sync failing"
-                                      : conn.enabled
-                                        ? "Sync on"
-                                        : "Sync off"}
-                                  </Badge>
-                                ) : null}
-                                <FlexSyncButton accountId={acc.id} accountName={acc.name} />
-                              </>
-                            );
-                          })()}
-
-                          <ClearTradesButton
-                            accountName={acc.name}
-                            tradeCount={tradeCount}
-                            onClear={() => void handleClearAccountTrades(acc.id)}
-                          />
-                        </>
-                      }
-                    />
+                        </div>
+                        <p className="m-0 mt-0.5 text-[12px] text-muted-foreground">
+                          {metaParts.join(" · ")}
+                        </p>
+                      </div>
+                      <div className="shrink-0 text-right">
+                        <p className="m-0 text-[14px] font-semibold tabular-nums tracking-tight text-foreground">
+                          {fmtMoney(equity, acc.base_currency, locale)}
+                        </p>
+                        <p
+                          className={cn(
+                            "m-0 text-[12px] font-medium tabular-nums",
+                            netPnl > 0
+                              ? "text-profit"
+                              : netPnl < 0
+                                ? "text-destructive"
+                                : "text-muted-foreground",
+                          )}
+                        >
+                          {fmtSignedMoney(netPnl, acc.base_currency, locale)}
+                        </p>
+                      </div>
+                      <ChevronRight
+                        size={16}
+                        strokeWidth={1.75}
+                        className="shrink-0 text-muted-foreground transition-transform duration-150 group-hover:translate-x-0.5 motion-reduce:transition-none"
+                      />
+                    </Link>
                   );
                 })}
               </div>
             </div>
-            <Modal
-              open={Boolean(editAccountId)}
-              onOpenChange={(open) => {
-                if (!open) cancelEditAccount();
-              }}
-              title="Edit account"
-              className="max-w-[min(500px,94vw)]"
-              footer={
-                <>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={cancelEditAccount}
-                    disabled={editingAccount}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    type="button"
-                    onClick={() => {
-                      if (editAccountId) void handleSaveAccount(editAccountId);
-                    }}
-                    disabled={editingAccount}
-                  >
-                    {editingAccount ? "Saving…" : "Save"}
-                  </Button>
-                </>
-              }
-            >
-              <div className="flex flex-col gap-3">
-                <Field label="Account name" htmlFor="edit-account-name">
-                  <FormInput
-                    id="edit-account-name"
-                    value={editName}
-                    onChange={(e) => setEditName(e.target.value)}
-                    placeholder="e.g. Main Account"
-                  />
-                </Field>
-                <Field label="Broker">
-                  <NativeSelect
-                    value={editBrokerChoice}
-                    onChange={(e) => setEditBrokerChoice(e.target.value)}
-                    aria-label="Broker"
-                    wrapperClassName="w-full"
-                  >
-                    {POPULAR_BROKERS.map((broker) => (
-                      <NativeSelectOption key={broker} value={broker}>
-                        {broker}
-                      </NativeSelectOption>
-                    ))}
-                    <NativeSelectOption value={OTHER_BROKER_VALUE}>Other</NativeSelectOption>
-                  </NativeSelect>
-                </Field>
-                {editBrokerChoice === OTHER_BROKER_VALUE ? (
-                  <Field label="Custom broker" htmlFor="edit-account-broker">
-                    <FormInput
-                      id="edit-account-broker"
-                      value={editBrokerCustom}
-                      onChange={(e) => setEditBrokerCustom(e.target.value)}
-                      placeholder="Type broker name"
-                    />
-                  </Field>
-                ) : null}
-              </div>
-              {accountEditError ? <FormError message={accountEditError} /> : null}
-            </Modal>
           </>
         )}
       </SettingsSection>
@@ -1201,6 +978,7 @@ export function AccountsTab({
           <FormError message={editCashError} />
         </div>
       </Modal>
+      <ImportHistorySection accounts={accounts} />
     </>
   );
 }

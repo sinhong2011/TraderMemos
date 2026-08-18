@@ -34,7 +34,6 @@ export type SettingsSectionId =
   | "profile"
   | "users"
   | "accounts"
-  | "connections"
   | "rules"
   | "journal"
   | "ai"

@@ -119,7 +119,6 @@ export type SettingsSectionId =
   | "profile"
   | "users"
   | "accounts"
-  | "connections"
   | "rules"
   | "journal"
   | "ai"
@@ -147,9 +146,6 @@ export type SettingsLabelKey =
   | "about"
   | "accountsTitle"
   | "accountsDescription"
-  | "connections"
-  | "connectionsTitle"
-  | "connectionsDescription"
   | "rulesTitle"
   | "rulesDescription"
   | "journalTitle"
@@ -317,9 +313,6 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     api: "API",
     about: "About",
     accountsTitle: "Accounts & funding",
-    connections: "Connections",
-    connectionsTitle: "Broker connections",
-    connectionsDescription: "Connected brokers, sync health, and import history.",
     accountsDescription: "Manage broker accounts, starting balances, and cash flows.",
     rulesTitle: "Rules & checklist",
     rulesDescription: "Risk limits plus a rich-text daily checklist for New Note.",
@@ -512,9 +505,6 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     api: "API",
     about: "關於",
     accountsTitle: "帳戶與資金",
-    connections: "連接",
-    connectionsTitle: "券商連接",
-    connectionsDescription: "已連接嘅券商、同步狀態同匯入紀錄。",
     accountsDescription: "管理券商帳戶、起始結餘及現金流。",
     rulesTitle: "規則與檢查清單",
     rulesDescription: "風險限制及每日筆記檢查清單範本。",
@@ -697,9 +687,6 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     api: "API",
     about: "について",
     accountsTitle: "アカウントと資金",
-    connections: "連携",
-    connectionsTitle: "ブローカー連携",
-    connectionsDescription: "接続済みブローカー、同期状態、インポート履歴。",
     accountsDescription: "証券会社アカウント、開始残高、キャッシュフローを管理します。",
     rulesTitle: "ルールとチェックリスト",
     rulesDescription: "リスク制限とデイリーノートのチェックリストテンプレート。",
@@ -891,9 +878,6 @@ const SETTINGS_LABELS: Record<AppLocale, Record<SettingsLabelKey, string>> = {
     api: "API",
     about: "정보",
     accountsTitle: "계정 및 자금",
-    connections: "연동",
-    connectionsTitle: "브로커 연동",
-    connectionsDescription: "연결된 브로커, 동기화 상태, 가져오기 기록.",
     accountsDescription: "브로커 계정, 시작 잔액, 현금 흐름을 관리합니다.",
     rulesTitle: "규칙 및 체크리스트",
     rulesDescription: "리스크 한도와 일일 노트 체크리스트 템플릿.",
@@ -1101,7 +1085,6 @@ export function settingsNavItems(locale: string): {
       { id: "general", key: "general" },
       { id: "shortcuts", key: "shortcuts" },
       { id: "accounts", key: "accounts" },
-      { id: "connections", key: "connections" },
       { id: "rules", key: "rules" },
       { id: "journal", key: "journal" },
       { id: "ai", key: "ai" },

@@ -606,15 +606,46 @@ func journalOptionOverrides(c *echo.Context) *importer.JournalParseOptions {
 	return &importer.JournalParseOptions{OptionRightByRow: overrides}
 }
 
+// importBatchDTO flattens the store row for JSON: sql.NullString marshals as
+// {"String":…,"Valid":…}, which the web client would render as
+// "[object Object]".
+type importBatchDTO struct {
+	ID            string  `json:"id"`
+	UserID        string  `json:"user_id"`
+	AccountID     string  `json:"account_id"`
+	Source        string  `json:"source"`
+	Filename      *string `json:"filename"`
+	ColumnMapping *string `json:"column_mapping"`
+	RowCount      int64   `json:"row_count"`
+	Status        string  `json:"status"`
+	CreatedAt     string  `json:"created_at"`
+}
+
+func toImportBatchDTO(r store.ImportBatch) importBatchDTO {
+	dto := importBatchDTO{
+		ID: r.ID, UserID: r.UserID, AccountID: r.AccountID, Source: r.Source,
+		RowCount: r.RowCount, Status: r.Status,
+		CreatedAt: r.CreatedAt.UTC().Format(time.RFC3339),
+	}
+	if r.Filename.Valid {
+		dto.Filename = &r.Filename.String
+	}
+	if r.ColumnMapping.Valid {
+		dto.ColumnMapping = &r.ColumnMapping.String
+	}
+	return dto
+}
+
 func (s *Server) handleListImports(c *echo.Context) error {
 	rows, err := s.deps.Store.ListImportBatches(c.Request().Context(), auth.UserID(c))
 	if err != nil {
 		return Fail(http.StatusInternalServerError, "internal", "could not list imports", nil)
 	}
-	if rows == nil {
-		rows = []store.ImportBatch{}
+	out := make([]importBatchDTO, 0, len(rows))
+	for _, r := range rows {
+		out = append(out, toImportBatchDTO(r))
 	}
-	return c.JSON(http.StatusOK, rows)
+	return c.JSON(http.StatusOK, out)
 }
 
 func (s *Server) handleDeleteImport(c *echo.Context) error {
