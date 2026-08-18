@@ -1,11 +1,11 @@
 import { useForm } from "@tanstack/react-form";
 import {
+  Building2,
   Check,
   Download,
   LogOut,
   Pencil,
   Plus,
-  Settings,
   Shield,
   Target,
   Tag,
@@ -478,19 +478,30 @@ export function AccountsTab({
         title="Accounts"
         description="Broker accounts used for trade grouping and filters."
         action={
-          <BtnGhost
-            onClick={() => {
-              setAccountFormError(null);
-              accountForm.reset({
-                ...defaultAccountFormValues(),
-                broker: POPULAR_BROKERS[0],
-              });
-              setShowAccountForm(true);
-            }}
-          >
-            <Plus size={13} strokeWidth={1.5} />
-            Add account
-          </BtnGhost>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              render={<a href="/connect" className="no-underline" />}
+            >
+              <Building2 size={13} strokeWidth={1.5} />
+              Connect broker
+            </Button>
+            <BtnGhost
+              onClick={() => {
+                setAccountFormError(null);
+                accountForm.reset({
+                  ...defaultAccountFormValues(),
+                  broker: POPULAR_BROKERS[0],
+                });
+                setShowAccountForm(true);
+              }}
+            >
+              <Plus size={13} strokeWidth={1.5} />
+              Add account
+            </BtnGhost>
+          </div>
         }
       >
         <Modal
@@ -693,8 +704,18 @@ export function AccountsTab({
           <SettingsPanelBody className="py-8">
             <EmptyState
               title="No accounts yet"
-              hint="Add an account to get started."
-              icon={<Settings size={28} strokeWidth={1.5} />}
+              hint="Start from your broker — we'll show you how to get the trades out of it."
+              icon={<Building2 size={28} strokeWidth={1.5} />}
+              actions={
+                <Button
+                  type="button"
+                  size="sm"
+                  render={<a href="/connect" className="no-underline" />}
+                >
+                  <Building2 size={13} strokeWidth={1.5} />
+                  Connect broker
+                </Button>
+              }
             />
           </SettingsPanelBody>
         ) : (

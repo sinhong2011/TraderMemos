@@ -1,6 +1,7 @@
 import {
   ArrowLeft,
   ArrowRight,
+  Building2,
   Check,
   Download,
   FileArchive,
@@ -11,6 +12,8 @@ import {
   Upload,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { BrokerMark } from "@/components/BrokerMark";
+import { BrokerSteps } from "@/components/BrokerSteps";
 import { Card } from "@/components/Card";
 import { CsvDropZone } from "@/components/CsvDropZone";
 import { DataTable } from "@/components/DataTable";
@@ -35,6 +38,7 @@ import type {
   JournalPreviewSummary,
   JournalTradePreview,
 } from "@/lib/api/types";
+import { findBroker } from "@/lib/brokers";
 import { cn } from "@/lib/cn";
 import { marketTimezoneSelectOptions, usePrivacyMode } from "@/lib/displayPrefs";
 import { fmtSignedMoney } from "@/lib/format";
@@ -182,11 +186,30 @@ function FormatList({ items }: { items: FormatNote[] }) {
   );
 }
 
-function ImportGuidance({ onLogTrade }: { onLogTrade?: () => void }) {
+function ImportGuidance({
+  onLogTrade,
+  onChangeBroker,
+}: {
+  onLogTrade?: () => void;
+  onChangeBroker?: () => void;
+}) {
   return (
     <Card title="Supported formats" className="self-start lg:sticky lg:top-6">
       <div className="flex flex-col gap-4">
         <FormatList items={IMPORT_FORMATS} />
+
+        {onChangeBroker ? (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={onChangeBroker}
+            className="w-full"
+          >
+            <Building2 size={13} strokeWidth={1.75} aria-hidden />
+            Find my broker
+          </Button>
+        ) : null}
 
         <div className="grid grid-cols-2 gap-2">
           <a
@@ -225,6 +248,41 @@ function ImportGuidance({ onLogTrade }: { onLogTrade?: () => void }) {
             className="h-auto w-fit px-0 text-[11px] text-muted-foreground hover:text-foreground"
           >
             Log a trade manually instead →
+          </Button>
+        ) : null}
+      </div>
+    </Card>
+  );
+}
+
+/**
+ * Sidebar when the Connect flow sent us here: this broker's export steps
+ * instead of the generic format list, since the format question is settled.
+ */
+function BrokerGuidance({
+  broker,
+  onChangeBroker,
+}: {
+  broker: NonNullable<ReturnType<typeof findBroker>>;
+  onChangeBroker?: () => void;
+}) {
+  return (
+    <Card title={`Export from ${broker.name}`} className="self-start lg:sticky lg:top-6">
+      <div className="flex flex-col gap-4">
+        <BrokerSteps broker={broker} />
+
+        <p className="text-[11px] leading-relaxed text-muted-foreground">
+          Your file stays on your server. Nothing is sent to third parties.
+        </p>
+
+        {onChangeBroker ? (
+          <Button
+            type="button"
+            variant="link"
+            onClick={onChangeBroker}
+            className="h-auto w-fit px-0 text-[11px] text-muted-foreground hover:text-foreground"
+          >
+            Pick a different broker →
           </Button>
         ) : null}
       </div>
@@ -1047,6 +1105,9 @@ export interface ImportViewProps {
   onCommit: (batchId: string, formData: FormData) => Promise<ImportResult>;
   onDone: () => void;
   onLogTrade?: () => void;
+  /** Broker chosen in the Connect flow — swaps the guidance for its export steps. */
+  brokerKey?: string;
+  onChangeBroker?: () => void;
 }
 
 /**
@@ -1085,7 +1146,10 @@ export function ImportView({
   onCommit,
   onDone,
   onLogTrade,
+  brokerKey,
+  onChangeBroker,
 }: ImportViewProps) {
+  const broker = findBroker(brokerKey);
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [dataMode, setDataMode] = useState<"import" | "export">("import");
   const [preview, setPreview] = useState<ImportPreview | null>(null);
@@ -1173,11 +1237,20 @@ export function ImportView({
           <h1 className="text-[22px] font-semibold tracking-tight text-foreground">
             Import & export
           </h1>
-          <p className="mt-1 max-w-xl text-[13px] leading-relaxed text-muted-foreground">
-            {dataMode === "import"
-              ? "Upload broker history to populate your journal and analytics."
-              : "Download your trades or fills for backup and portability."}
-          </p>
+          {dataMode === "import" && broker ? (
+            <div className="mt-1.5 flex items-center gap-2">
+              <BrokerMark broker={broker} size="sm" />
+              <span className="text-[13px] text-muted-foreground">
+                Importing from <span className="font-medium text-foreground">{broker.name}</span>
+              </span>
+            </div>
+          ) : (
+            <p className="mt-1 max-w-xl text-[13px] leading-relaxed text-muted-foreground">
+              {dataMode === "import"
+                ? "Upload broker history to populate your journal and analytics."
+                : "Download your trades or fills for backup and portability."}
+            </p>
+          )}
         </div>
         <SegmentedControl
           ariaLabel="Import or export"
@@ -1212,7 +1285,11 @@ export function ImportView({
                 error={stepError}
                 loading={loading}
               />
-              <ImportGuidance onLogTrade={onLogTrade} />
+              {broker ? (
+                <BrokerGuidance broker={broker} onChangeBroker={onChangeBroker} />
+              ) : (
+                <ImportGuidance onLogTrade={onLogTrade} onChangeBroker={onChangeBroker} />
+              )}
             </div>
           )}
 

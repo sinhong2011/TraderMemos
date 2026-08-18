@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as CalculatorRouteImport } from './routes/calculator'
 import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as ChartRouteImport } from './routes/chart'
+import { Route as ConnectRouteImport } from './routes/connect'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as EventsRouteImport } from './routes/events'
 import { Route as HomeRouteImport } from './routes/home'
@@ -49,6 +50,11 @@ const CalendarRoute = CalendarRouteImport.update({
 const ChartRoute = ChartRouteImport.update({
   id: '/chart',
   path: '/chart',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConnectRoute = ConnectRouteImport.update({
+  id: '/connect',
+  path: '/connect',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -142,6 +148,7 @@ export interface FileRoutesByFullPath {
   '/calculator': typeof CalculatorRoute
   '/calendar': typeof CalendarRoute
   '/chart': typeof ChartRoute
+  '/connect': typeof ConnectRoute
   '/dashboard': typeof DashboardRoute
   '/events': typeof EventsRoute
   '/home': typeof HomeRoute
@@ -165,6 +172,7 @@ export interface FileRoutesByTo {
   '/calculator': typeof CalculatorRoute
   '/calendar': typeof CalendarRoute
   '/chart': typeof ChartRoute
+  '/connect': typeof ConnectRoute
   '/dashboard': typeof DashboardRoute
   '/events': typeof EventsRoute
   '/home': typeof HomeRoute
@@ -188,6 +196,7 @@ export interface FileRoutesById {
   '/calculator': typeof CalculatorRoute
   '/calendar': typeof CalendarRoute
   '/chart': typeof ChartRoute
+  '/connect': typeof ConnectRoute
   '/dashboard': typeof DashboardRoute
   '/events': typeof EventsRoute
   '/home': typeof HomeRoute
@@ -213,6 +222,7 @@ export interface FileRouteTypes {
     | '/calculator'
     | '/calendar'
     | '/chart'
+    | '/connect'
     | '/dashboard'
     | '/events'
     | '/home'
@@ -236,6 +246,7 @@ export interface FileRouteTypes {
     | '/calculator'
     | '/calendar'
     | '/chart'
+    | '/connect'
     | '/dashboard'
     | '/events'
     | '/home'
@@ -258,6 +269,7 @@ export interface FileRouteTypes {
     | '/calculator'
     | '/calendar'
     | '/chart'
+    | '/connect'
     | '/dashboard'
     | '/events'
     | '/home'
@@ -282,6 +294,7 @@ export interface RootRouteChildren {
   CalculatorRoute: typeof CalculatorRoute
   CalendarRoute: typeof CalendarRoute
   ChartRoute: typeof ChartRoute
+  ConnectRoute: typeof ConnectRoute
   DashboardRoute: typeof DashboardRoute
   EventsRoute: typeof EventsRoute
   HomeRoute: typeof HomeRoute
@@ -327,6 +340,13 @@ declare module '@tanstack/react-router' {
       path: '/chart'
       fullPath: '/chart'
       preLoaderRoute: typeof ChartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/connect': {
+      id: '/connect'
+      path: '/connect'
+      fullPath: '/connect'
+      preLoaderRoute: typeof ConnectRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -469,6 +489,7 @@ const rootRouteChildren: RootRouteChildren = {
   CalculatorRoute: CalculatorRoute,
   CalendarRoute: CalendarRoute,
   ChartRoute: ChartRoute,
+  ConnectRoute: ConnectRoute,
   DashboardRoute: DashboardRoute,
   EventsRoute: EventsRoute,
   HomeRoute: HomeRoute,
