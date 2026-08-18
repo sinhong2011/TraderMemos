@@ -5,6 +5,30 @@ All notable changes to TraderMemos are documented in this file.
 Release versioning is managed by [release-please](https://github.com/googleapis/release-please).
 See [docs/release.md](docs/release.md) for the release workflow.
 
+## [0.9.0](https://github.com/sinhong2011/TraderMemos/compare/v0.8.5...v0.9.0) (2026-08-18)
+
+
+### Features
+
+* **coach:** give the AI coach cross-trade context, a required next action, and per-trade execution axes ([#236](https://github.com/sinhong2011/TraderMemos/issues/236)) ([78d2292](https://github.com/sinhong2011/TraderMemos/commit/78d2292b5555ca93eb3b4beffa62c3ae36d76161))
+* **coach:** keep the reviews the coach writes ([#238](https://github.com/sinhong2011/TraderMemos/issues/238)) ([ca0cab9](https://github.com/sinhong2011/TraderMemos/commit/ca0cab9972ad69025b597d34d4f10777871b4e0a))
+* **coach:** stream review notes as the model writes them ([#240](https://github.com/sinhong2011/TraderMemos/issues/240)) ([26d1f29](https://github.com/sinhong2011/TraderMemos/commit/26d1f297177617191ce87125caffe9a1ba7bb13b))
+* **mobile:** show fill P&L and make executed-at seconds editable ([#234](https://github.com/sinhong2011/TraderMemos/issues/234)) ([5e5c4dd](https://github.com/sinhong2011/TraderMemos/commit/5e5c4dd0a7147bd970ee3226b7665a7805daf6c7))
+* roll the numbers over when a trade write lands ([#237](https://github.com/sinhong2011/TraderMemos/issues/237)) ([3120655](https://github.com/sinhong2011/TraderMemos/commit/312065554ff4fa14d3970d0041d078b83e368545))
+* **web:** add a broker-first Connect flow ([#242](https://github.com/sinhong2011/TraderMemos/issues/242)) ([c5db1fd](https://github.com/sinhong2011/TraderMemos/commit/c5db1fd82efc331b55a3f84a001218240f8cfa2e))
+* **web:** back-port the mobile-first designs — tag colors, energy-bar goal, replay heartbeat ([#248](https://github.com/sinhong2011/TraderMemos/issues/248)) ([4925ae9](https://github.com/sinhong2011/TraderMemos/commit/4925ae9120f1c4bf7b7af3be8081bd026a244101))
+* **web:** make the trade drawer's account field multi-select ([#239](https://github.com/sinhong2011/TraderMemos/issues/239)) ([08dffc1](https://github.com/sinhong2011/TraderMemos/commit/08dffc17e78f2fbd9f068a173cef3f779d6ec376))
+* **web:** polish notes, playbook and auth UI with a performance pass ([#226](https://github.com/sinhong2011/TraderMemos/issues/226)) ([d8312b8](https://github.com/sinhong2011/TraderMemos/commit/d8312b8f62ffdfd3e6feabb1d165ed0d37a4d2f5))
+* **web:** stage screenshot scans in a review overlay ([#232](https://github.com/sinhong2011/TraderMemos/issues/232)) ([e619c16](https://github.com/sinhong2011/TraderMemos/commit/e619c167d3a0323116e3936b206adf2e0c66786e))
+
+
+### Bug Fixes
+
+* **marketing:** add canonical, hreflang, social images and JSON-LD ([#231](https://github.com/sinhong2011/TraderMemos/issues/231)) ([83d927a](https://github.com/sinhong2011/TraderMemos/commit/83d927a660b626117c9f48ec3247f0b28d2df54c))
+* **web:** render toasts above open drawers ([#230](https://github.com/sinhong2011/TraderMemos/issues/230)) ([85772cb](https://github.com/sinhong2011/TraderMemos/commit/85772cbaae00f411d316b4e42c5dd6726f5b866c))
+* **web:** show the button spinner while a form submit is in flight ([#241](https://github.com/sinhong2011/TraderMemos/issues/241)) ([58905bb](https://github.com/sinhong2011/TraderMemos/commit/58905bba403c26e9cecb249d5754c974c2f469a6))
+* **web:** stop the trade detail Fees cell truncating ([#235](https://github.com/sinhong2011/TraderMemos/issues/235)) ([332b47a](https://github.com/sinhong2011/TraderMemos/commit/332b47a5792cd8064078991c20827298b804a515))
+
 ## [0.8.5](https://github.com/sinhong2011/TraderMemos/compare/v0.8.4...v0.8.5) (2026-08-14)
 
 
