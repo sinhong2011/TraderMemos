@@ -253,7 +253,10 @@ jobs:
             # Never --auto-submit: there is no Play listing, and eas submit would
             # fail the run looking for a service account key. --json captures the
             # artifact URL so a production APK can be attached to the release.
-            build android --json > android-build.json
+            # The output lands outside the checkout: eas.json sets requireCommit,
+            # and a file created inside the repo before eas runs is a dirty tree
+            # that aborts the build.
+            build android --json > "$RUNNER_TEMP/android-build.json"
           fi
 
       # Sideloading from the GitHub release page is the Android distribution
@@ -263,7 +266,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          url=$(node -e 'const b=require("./android-build.json"); console.log((Array.isArray(b)?b[0]:b).artifacts.buildUrl)')
+          url=$(node -e 'const b=require(process.env.RUNNER_TEMP + "/android-build.json"); console.log((Array.isArray(b)?b[0]:b).artifacts.buildUrl)')
           version=$(node -e 'console.log(require("./app.json").expo.version)')
           curl -fsSL "$url" -o "tradermemos-${version}.apk"
           if gh release view "v${version}" >/dev/null 2>&1; then
