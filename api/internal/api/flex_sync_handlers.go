@@ -193,6 +193,15 @@ func (s *Server) handleRunFlexSync(c *echo.Context) error {
 	res, syncErr := flexsync.Sync(ctx, s.deps.Store, s.deps.FlexClient, row)
 	flexsync.RecordOutcome(ctx, s.deps.Store, row, res, syncErr)
 	if syncErr != nil {
+		// A statement that isn't ready inside the polling window is normal
+		// IBKR behaviour on the first request — the report keeps generating
+		// server-side and a retry moments later succeeds. Say that instead of
+		// surfacing a raw "not ready after N attempts".
+		if errors.Is(syncErr, flexsync.ErrStatementPending) ||
+			strings.Contains(syncErr.Error(), "statement not ready") {
+			return Fail(http.StatusServiceUnavailable, "statement_pending",
+				"IBKR is still generating the report — try again in a minute.", nil)
+		}
 		return Fail(http.StatusBadGateway, "upstream_error", syncErr.Error(), nil)
 	}
 	return c.JSON(http.StatusOK, res)
