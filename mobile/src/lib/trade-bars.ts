@@ -32,12 +32,32 @@ export const BAR_INTERVALS: readonly { value: BarInterval; label: string }[] = [
   { value: '1', label: '1m' },
   { value: '5', label: '5m' },
   { value: '15', label: '15m' },
+  { value: '30', label: '30m' },
   { value: '60', label: '1H' },
   { value: '240', label: '4H' },
   { value: 'D', label: '1D' },
+  { value: 'W', label: '1W' },
+  { value: 'M', label: '1M' },
 ];
 
-const ESCALATION: readonly BarInterval[] = ['1', '5', '15', '60', '240', 'D'];
+/** The working set an inline chart shows as segments… */
+export const INTERVALS_QUICK: readonly { value: BarInterval; label: string }[] = [
+  { value: '1', label: '1m' },
+  { value: '5', label: '5m' },
+  { value: '30', label: '30m' },
+  { value: '60', label: '1H' },
+  { value: 'D', label: '1D' },
+];
+
+/** …and the rest, behind the picker's chevron (see interval-picker.tsx). */
+export const INTERVALS_MORE: readonly { value: BarInterval; label: string }[] = [
+  { value: '15', label: '15m' },
+  { value: '240', label: '4H' },
+  { value: 'W', label: '1W' },
+  { value: 'M', label: '1M' },
+];
+
+const ESCALATION: readonly BarInterval[] = ['1', '5', '15', '30', '60', '240', 'D'];
 
 export interface TradeBars {
   interval: BarInterval;

@@ -141,12 +141,18 @@ func yahooInterval(interval string) (string, error) {
 		return "5m", nil
 	case "15":
 		return "15m", nil
+	case "30":
+		return "30m", nil
 	case "60":
 		return "60m", nil
 	case "240":
 		return "60m", nil // Yahoo has no 4h; closest
 	case "D":
 		return "1d", nil
+	case "W":
+		return "1wk", nil
+	case "M":
+		return "1mo", nil
 	default:
 		return "", fmt.Errorf("unsupported interval %q", interval)
 	}
@@ -189,10 +195,10 @@ func ParseInterval(raw string) (string, error) {
 		return "5", nil
 	}
 	switch raw {
-	case "1", "5", "15", "60", "240", "D":
+	case "1", "5", "15", "30", "60", "240", "D", "W", "M":
 		return raw, nil
 	default:
-		return "", fmt.Errorf("interval must be one of 1, 5, 15, 60, 240, D")
+		return "", fmt.Errorf("interval must be one of 1, 5, 15, 30, 60, 240, D, W, M")
 	}
 }
 
@@ -266,10 +272,16 @@ func FinnhubResolution(interval string) (string, error) {
 		return "5", nil
 	case "15":
 		return "15", nil
+	case "30":
+		return "30", nil
 	case "60", "240":
 		return "60", nil
 	case "D":
 		return "D", nil
+	case "W":
+		return "W", nil
+	case "M":
+		return "M", nil
 	default:
 		return "", fmt.Errorf("unsupported interval %q", interval)
 	}

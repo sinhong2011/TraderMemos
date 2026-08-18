@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import { Skeleton } from 'panelui-native';
 import { useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useCSSVariable } from 'uniwind';
 
 import { Icon } from '@/components/icon';
@@ -13,9 +13,9 @@ import {
   type ChartMarker,
 } from '@/components/chart-canvas';
 import { DashboardCard } from '@/components/dashboard-card';
-import { Segmented } from '@/components/segmented';
+import { IntervalPicker } from '@/components/interval-picker';
 import { t } from '@lingui/core/macro';
-import { BAR_INTERVALS, useTradeBars } from '@/lib/trade-bars';
+import { useTradeBars } from '@/lib/trade-bars';
 import { usePnlPalette } from '@/styles/pnl';
 
 /**
@@ -31,7 +31,7 @@ import { usePnlPalette } from '@/styles/pnl';
 export function TradeChart({ trade }: { trade: TradeDetail }) {
   const router = useRouter();
   const palette = usePnlPalette();
-  const [primary, background] = useCSSVariable(['--color-primary', '--color-background']) as [
+  const [primary, foreground] = useCSSVariable(['--color-primary', '--color-foreground']) as [
     string,
     string,
   ];
@@ -75,22 +75,10 @@ export function TradeChart({ trade }: { trade: TradeDetail }) {
   return (
     <DashboardCard
       title={t`Chart`}
-      // Top-right of the card, on the title's line: the badge used to float over
-      // the candles, where it covered a fill marker at the right edge.
-      control={
-        canReplay ? (
-          <Pressable
-            onPress={() => router.push({ pathname: '/replay', params: { id: trade.id } })}
-            hitSlop={8}
-            accessibilityRole="button"
-            accessibilityLabel={t`Replay this trade`}
-            className="flex-row items-center gap-[5px] rounded-full bg-foreground px-[9px] py-[5px] active:opacity-70"
-          >
-            <Icon name="play.fill" size={10} tintColor={background} />
-            <Text className="text-[11px] font-semibold text-background">{t`Replay`}</Text>
-          </Pressable>
-        ) : null
-      }
+      // Bare (trackless) in the header: a boxed control up there would outweigh
+      // the grey-caps title. Always mounted, so the interval is still there to
+      // change when a window came back empty.
+      control={<IntervalPicker value={bars.interval} onChange={bars.pickInterval} />}
     >
       {bars.isLoading ? (
         <Skeleton className="h-[220px] rounded-lg" label={t`Loading chart`} />
@@ -99,8 +87,8 @@ export function TradeChart({ trade }: { trade: TradeDetail }) {
           <Text className="text-[13px] text-muted-foreground">{t`No chart data for this symbol.`}</Text>
         </View>
       ) : (
-        // The plot itself stays a target, the way a video thumbnail is — the
-        // header badge is what says so.
+        // The plot itself is the target, the way a video thumbnail is — the
+        // faint play glyph over its centre is what says so.
         <Pressable
           onPress={() => router.push({ pathname: '/replay', params: { id: trade.id } })}
           disabled={!canReplay}
@@ -115,17 +103,25 @@ export function TradeChart({ trade }: { trade: TradeDetail }) {
             bands={bands}
             markers={markers}
           />
+          {canReplay ? (
+            // Watermark, not a button: the whole plot presses, so the glyph
+            // stays translucent enough to read the candles through (hex-alpha
+            // because native views can't color-mix at runtime).
+            <View
+              pointerEvents="none"
+              style={StyleSheet.absoluteFill}
+              className="items-center justify-center"
+            >
+              <View
+                className="h-12 w-12 items-center justify-center rounded-full"
+                style={{ backgroundColor: foreground + '14' }}
+              >
+                <Icon name="play.fill" size={18} tintColor={foreground + '8C'} />
+              </View>
+            </View>
+          ) : null}
         </Pressable>
       )}
-
-      {/* Under the plot rather than in the card header: the interval is
-          something you change while looking at the candles, not a header
-          caption, and it leaves the top corner to the replay badge. Outside the
-          branch above so it is still there to change when a window came back
-          empty. */}
-      <View className="items-center">
-        <Segmented compact options={BAR_INTERVALS} value={bars.interval} onChange={bars.pickInterval} />
-      </View>
     </DashboardCard>
   );
 }

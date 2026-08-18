@@ -32,7 +32,9 @@ function formatAxisPrice(value: number): string {
 
 function formatBarTime(unixSec: number, interval: BarInterval): string {
   const d = new Date(unixSec * 1000);
-  return interval === 'D'
+  // Monthly bars span years, so the day would mislead more than it locates.
+  if (interval === 'M') return d.toLocaleDateString(locale, { month: 'short', year: '2-digit' });
+  return interval === 'D' || interval === 'W'
     ? d.toLocaleDateString(locale, { month: 'short', day: 'numeric' })
     : d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
 }

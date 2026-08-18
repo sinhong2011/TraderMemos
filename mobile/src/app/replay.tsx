@@ -406,9 +406,15 @@ function Stage({
         options={{
           headerShown: true,
           title: symbol,
-          // A full-screen modal gets no back chevron of its own, so it has to
-          // carry its own — replay is a place you came *into* from a trade, not
-          // a form you complete, so it reads as back rather than Done.
+          // Painted to the page token: the stock header surface is a slightly
+          // different shade, which reads as a bar across the top. Opaque, not
+          // headerTransparent — the content is a plain View, so nothing would
+          // re-inset it out from under a floating bar.
+          headerStyle: { backgroundColor: background },
+          headerTitleStyle: { color: foreground },
+          headerShadowVisible: false,
+          // Custom rather than the stock back button so the chevron matches
+          // the app's header icons on both platforms.
           headerLeft: () => (
             <Pressable
               onPress={() => router.back()}
@@ -932,6 +938,10 @@ function BacktestStage({
         options={{
           headerShown: true,
           title: symbol,
+          // Same seamless header as the trade replay above.
+          headerStyle: { backgroundColor: background },
+          headerTitleStyle: { color: foreground },
+          headerShadowVisible: false,
           headerLeft: () => (
             <Pressable
               onPress={leave}
