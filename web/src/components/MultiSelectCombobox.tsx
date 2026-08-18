@@ -16,6 +16,8 @@ export type MultiSelectOption = {
   value: string;
   /** Shown in the popup, on the trigger, and used for search filtering. */
   label: string;
+  /** The item's own hue (a tag's color) — drawn as a leading dot in the list. */
+  color?: string;
 };
 
 /**
@@ -108,6 +110,13 @@ export function MultiSelectCombobox({
         <ComboboxList>
           {(item: MultiSelectOption) => (
             <ComboboxItem key={item.value} value={item}>
+              {item.color ? (
+                <span
+                  aria-hidden
+                  className="mr-1.5 inline-block size-2 shrink-0 rounded-full align-middle"
+                  style={{ backgroundColor: item.color }}
+                />
+              ) : null}
               {item.label}
             </ComboboxItem>
           )}

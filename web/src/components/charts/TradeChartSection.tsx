@@ -10,6 +10,7 @@ import {
 import { intlLocale } from "@/lib/locale";
 import { Modal } from "@/components/Modal";
 import { ReplayControls } from "./ReplayControls";
+import { ReplayHeartbeat } from "./ReplayHeartbeat";
 import {
   computeReplayPnl,
   detectFillBarMismatch,
@@ -100,15 +101,18 @@ export function TradeChartSection({ trade }: { trade: TradeDetail }) {
   };
 
   const replayControls = replay.active && cursorBar && bars && (
-    <ReplayControls
-      controller={replay}
-      barCount={bars.length}
-      timeLabel={formatReplayBarTime(cursorBar.time, interval, intlLocale())}
-      pnl={replayPnl}
-      fillTotal={trade.fills.length}
-      currency={trade.pnl_currency}
-      priceMismatch={priceMismatch}
-    />
+    <>
+      <ReplayHeartbeat fills={trade.fills} bars={bars} interval={interval} cursor={replay.cursor} />
+      <ReplayControls
+        controller={replay}
+        barCount={bars.length}
+        timeLabel={formatReplayBarTime(cursorBar.time, interval, intlLocale())}
+        pnl={replayPnl}
+        fillTotal={trade.fills.length}
+        currency={trade.pnl_currency}
+        priceMismatch={priceMismatch}
+      />
+    </>
   );
 
   return (

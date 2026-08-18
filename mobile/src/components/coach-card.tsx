@@ -8,6 +8,7 @@ import type { CoachReview, TradeDetail } from '@/api/types';
 import { DashboardCard } from '@/components/dashboard-card';
 import { InlineError } from '@/components/error-state';
 import { GlassButton } from '@/components/glass-button';
+import { resolveMarketTimezone, useDisplayPrefs } from '@/lib/prefs';
 import { t } from '@lingui/core/macro';
 import {
   computeTradeInsights,
@@ -59,17 +60,27 @@ export function CoachCard({ trade }: { trade: TradeDetail }) {
   const api = useApiRequest();
   const coachSettings = useLlmSettings('coach');
   const coachConfigured = coachSettings.data?.enabled === true;
+  const prefs = useDisplayPrefs();
 
   const [review, setReview] = useState<CoachReview | null>(null);
 
+  // `tz` is the market timezone the server draws day and week boundaries in
+  // when reconstructing the trader's state at this trade's entry.
+  const marketTz = resolveMarketTimezone(prefs.marketTimezone);
   const generate = useMutation({
-    mutationFn: () => api<CoachReview>(`/trades/${trade.id}/coach`, { method: 'POST' }),
+    mutationFn: () =>
+      api<CoachReview>(`/trades/${trade.id}/coach?tz=${encodeURIComponent(marketTz)}`, {
+        method: 'POST',
+      }),
     onSuccess: setReview,
   });
 
   const insights = computeTradeInsights(trade);
   const localNotes = generateTradeCoachNotes(trade, insights);
   const llmNotes = review?.source === 'llm' ? review.notes : [];
+  // Only ever shown alongside the model's own notes — pairing it with the
+  // rule-based fallback would attribute the action to advice that never ran.
+  const nextAction = review?.source === 'llm' ? review.next_action?.trim() : undefined;
 
   if (localNotes.length === 0 && !coachConfigured) return null;
 
@@ -87,6 +98,16 @@ export function CoachCard({ trade }: { trade: TradeDetail }) {
           {llmNotes.map((note) => (
             <NoteRow key={note.id} note={note} />
           ))}
+          {nextAction ? (
+            // `bg-fill` is the one surface token stronger than the `muted` the
+            // notes use, which is what sets the action apart from them. Not
+            // `accent`: that is a section-title *text* colour (amber in dark),
+            // and as a ground it reads as a warning state.
+            <View className="gap-1 rounded-md bg-fill px-3 py-2.5">
+              <Text className="text-xs font-bold uppercase tracking-wide text-primary">{t`Next action`}</Text>
+              <Text className="text-[13px] leading-[18px] text-foreground">{nextAction}</Text>
+            </View>
+          ) : null}
         </>
       ) : null}
 

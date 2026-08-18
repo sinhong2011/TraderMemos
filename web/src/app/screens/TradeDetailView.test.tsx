@@ -43,6 +43,7 @@ const tradeCoachMock = vi.hoisted(() => ({
             detail: string;
             priority: number;
           }[];
+          next_action?: string;
           error?: string;
         }
       | undefined,
@@ -440,6 +441,73 @@ describe("TradeDetailView", () => {
     expect(screen.getByText("Hold winners longer")).toBeInTheDocument();
     expect(screen.getByText(/trail the stop next time/i)).toBeInTheDocument();
     expect(screen.queryByText(/Write why you entered while it's fresh/i)).not.toBeInTheDocument();
+  });
+
+  it("shows the next action the model committed to", () => {
+    tradeCoachMock.current = {
+      coachConfigured: true,
+      settingsPending: false,
+      data: {
+        source: "llm",
+        notes: [
+          {
+            id: "llm-1",
+            tone: "warn",
+            headline: "Size ran ahead of the plan",
+            detail: "Risk was 1.8× your recent median.",
+            priority: 1,
+          },
+        ],
+        next_action: "Size the next trade at or below 1R before entering.",
+      },
+      isPending: false,
+      isError: false,
+      generate: vi.fn<(...args: any[]) => any>(),
+      reset: vi.fn<(...args: any[]) => any>(),
+    };
+    renderView(<TradeDetailView {...defaultProps} />);
+    expect(screen.getByText("Next action")).toBeInTheDocument();
+    expect(screen.getByText(/at or below 1R before entering/i)).toBeInTheDocument();
+  });
+
+  it("omits the next action when the model returned none", () => {
+    tradeCoachMock.current = {
+      coachConfigured: true,
+      settingsPending: false,
+      data: {
+        source: "llm",
+        notes: [{ id: "llm-1", tone: "tip", headline: "H", detail: "D", priority: 1 }],
+      },
+      isPending: false,
+      isError: false,
+      generate: vi.fn<(...args: any[]) => any>(),
+      reset: vi.fn<(...args: any[]) => any>(),
+    };
+    renderView(<TradeDetailView {...defaultProps} />);
+    expect(screen.queryByText("Next action")).not.toBeInTheDocument();
+  });
+
+  // The action is the model's; pairing it with rule-based fallback notes would
+  // attribute it to advice that never ran.
+  it("does not show a next action alongside rule-based notes", () => {
+    tradeCoachMock.current = {
+      coachConfigured: true,
+      settingsPending: false,
+      data: {
+        source: "error",
+        notes: [],
+        next_action: "Should never surface.",
+        error: "coach api 502: boom",
+      },
+      isPending: false,
+      isError: false,
+      generate: vi.fn<(...args: any[]) => any>(),
+      reset: vi.fn<(...args: any[]) => any>(),
+    };
+    renderView(<TradeDetailView {...defaultProps} />);
+    expect(screen.getByText("Rules")).toBeInTheDocument();
+    expect(screen.queryByText("Next action")).not.toBeInTheDocument();
+    expect(screen.queryByText(/Should never surface/i)).not.toBeInTheDocument();
   });
 
   it("falls back to rule notes when coach API errors", () => {

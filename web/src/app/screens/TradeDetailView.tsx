@@ -124,6 +124,22 @@ function TradeCoachNotes({ notes }: { notes: TradeCoachNote[] }) {
   );
 }
 
+/**
+ * The single step the model was required to commit to. Rendered apart from the
+ * notes because it is the one line meant to change the next trade — the notes
+ * explain, this concludes.
+ */
+function TradeCoachNextAction({ action }: { action: string }) {
+  return (
+    <div className="rounded-lg bg-primary/10 px-3 py-2.5">
+      <p className="m-0 text-[11px] font-semibold uppercase tracking-widest text-primary">
+        Next action
+      </p>
+      <p className="m-0 mt-1.5 text-[13px] leading-relaxed text-foreground">{action}</p>
+    </div>
+  );
+}
+
 function toCoachNotes(
   notes: { id: string; tone: string; headline: string; detail: string; priority: number }[],
 ): TradeCoachNote[] {
@@ -154,6 +170,9 @@ function TradeCoachPanel({ trade, insights }: { trade: TradeDetail; insights: Tr
   const coachNotes = llmNotes ?? ruleNotes;
   const usingLlm = llmNotes != null;
   const showAskAi = coach.coachConfigured;
+  // Only ever shown alongside the model's own notes — pairing it with the
+  // rule-based fallback would attribute the action to advice that never ran.
+  const nextAction = usingLlm ? coach.data?.next_action?.trim() : undefined;
 
   // Excursion moved to the plan card — this panel is advice, not measurement,
   // so with no notes there is nothing left to show.
@@ -237,7 +256,10 @@ function TradeCoachPanel({ trade, insights }: { trade: TradeDetail; insights: Tr
                 <Skeleton className="h-14 w-full" />
               </div>
             ) : (
-              <TradeCoachNotes notes={coachNotes} />
+              <>
+                <TradeCoachNotes notes={coachNotes} />
+                {nextAction ? <TradeCoachNextAction action={nextAction} /> : null}
+              </>
             )}
 
             {errorMsg && !usingLlm ? (
@@ -378,6 +400,8 @@ function TagChipGroup({
             key={tag.id}
             pressed={active}
             tone={tone}
+            // Custom tags carry their own hue; mistakes keep the loss tone.
+            color={tone === "neg" ? undefined : tag.color || undefined}
             onPressedChange={() => onToggle(tag.id)}
             aria-label={tag.name}
           >

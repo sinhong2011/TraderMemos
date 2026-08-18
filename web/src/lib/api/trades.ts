@@ -1,3 +1,4 @@
+import { resolveMarketTimezone, useDisplayPrefs } from "@/lib/displayPrefs";
 import { apiFetch, qs } from "./client";
 import type { TradeCoachReview } from "./trades.coach.types";
 import type { Filters, Trade, TradeDetail } from "./types";
@@ -17,11 +18,16 @@ export interface TradeExcursion {
 export const tradesApi = {
   list: (f: Filters) => apiFetch<Trade[]>(`/trades${qs(f as Record<string, string | undefined>)}`),
   get: (id: string) => apiFetch<TradeDetail>(`/trades/${id}`),
-  /** LLM coach review when enabled in settings; otherwise source "off". */
+  /**
+   * LLM coach review when enabled in settings; otherwise source "off".
+   * `tz` is the market timezone the server draws day and week boundaries in
+   * when reconstructing the trader's state at the reviewed trade's entry.
+   */
   coach: (id: string) =>
-    apiFetch<TradeCoachReview>(`/trades/${id}/coach`, {
-      method: "POST",
-    }),
+    apiFetch<TradeCoachReview>(
+      `/trades/${id}/coach${qs({ tz: resolveMarketTimezone(useDisplayPrefs.getState().marketTimezone) })}`,
+      { method: "POST" },
+    ),
   patch: (
     id: string,
     body: {
