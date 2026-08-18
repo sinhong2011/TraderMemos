@@ -1,21 +1,27 @@
-# Build the iOS app on EAS Build, optionally submitting the result to TestFlight.
+# Build the mobile app on EAS Build. iOS optionally submits to TestFlight; Android
+# builds an installable APK, and a production Android build is attached to the
+# GitHub release (there is no Play Console listing yet, so sideloading from the
+# release page is the Android distribution channel — switch eas.json's production
+# buildType back to app-bundle and wire eas submit when Play is set up).
 #
 # One-time setup (see docs/release.md → "Mobile releases"):
 #   EXPO_TOKEN       repo secret — Expo access token (expo.dev → Account → Access tokens)
 #   eas init         links mobile/app.json to an EAS project (writes extra.eas.projectId)
-#   eas credentials  uploads the distribution cert, provisioning profile, and the
-#                    App Store Connect API key EAS Submit uses
+#   eas credentials  uploads the iOS distribution cert, provisioning profile, and the
+#                    App Store Connect API key EAS Submit uses; the Android upload
+#                    keystore lives on EAS as the default build credentials
 #   eas.json         submit.production.ios.ascAppId + appleTeamId are literal values
 #                    (only the ascApiKey* fields expand $VARIABLES) — change them only
 #                    if the app moves to a different Apple account
 #
 # Triggers:
-#   - workflow_call from release-please (profile: production, submit: true)
-#   - workflow_dispatch (pick the profile; submit is opt-in)
+#   - workflow_call from release-please (profile: production, submit: true, platform: all)
+#   - workflow_dispatch (pick the profile and platform; submit is opt-in)
 #
 # Submitting is the irreversible step, so any run with submit=true goes through the
 # app-store environment and waits for a reviewer — same gate shape as Docker Hub
-# publishing. Plain builds run in eas-build, which needs no approval.
+# publishing. Plain builds run in eas-build, which needs no approval. submit only
+# ever applies to iOS — Android has nowhere to submit to yet.
 
 name: EAS Build
 
@@ -32,8 +38,12 @@ on:
         description: eas.json build profile
         required: true
         type: string
+      platform:
+        description: Platform to build (ios, android, or all)
+        default: ios
+        type: string
       submit:
-        description: Submit the finished build to App Store Connect
+        description: Submit the finished iOS build to App Store Connect
         default: false
         type: boolean
       message:
@@ -50,8 +60,16 @@ on:
           - development
           - preview
           - production
+      platform:
+        description: Platform to build
+        type: choice
+        default: all
+        options:
+          - ios
+          - android
+          - all
       submit:
-        description: Submit the finished build to App Store Connect (TestFlight)
+        description: Submit the finished iOS build to App Store Connect (TestFlight)
         type: boolean
         default: false
       wait:
@@ -72,10 +90,13 @@ jobs:
     uses: ./.github/workflows/mobile-ci.yml
 
   build:
-    name: EAS build (ios · ${{ inputs.profile }})
+    name: EAS build (${{ inputs.platform }} · ${{ inputs.profile }})
     needs: test-mobile
     runs-on: ubuntu-latest
     environment: ${{ inputs.submit && 'app-store' || 'eas-build' }}
+    # contents: write lets the production Android APK be attached to the release.
+    permissions:
+      contents: write
     # EAS queues can be long; the cap keeps a stuck run from pinning the
     # release-please concurrency group.
     timeout-minutes: 120
@@ -91,17 +112,20 @@ jobs:
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
           PROFILE: ${{ inputs.profile }}
+          PLATFORM: ${{ inputs.platform }}
           SUBMIT: ${{ inputs.submit }}
         run: |
           # shellcheck disable=SC2016  # the single-quoted node script is JS, not shell
           [ -n "$EXPO_TOKEN" ] || { echo "::error::EXPO_TOKEN secret is not set (expo.dev → Account → Access tokens)."; exit 1; }
+          case "$PLATFORM" in ios|android|all) ;; *) echo "::error::platform must be ios, android, or all (got \"$PLATFORM\")."; exit 1;; esac
           node -e '
             const { expo } = require("./app.json");
             if (!expo?.extra?.eas?.projectId) {
               console.error("::error::app.json has no extra.eas.projectId — run \"npx eas-cli init\" in mobile/ and commit the result.");
               process.exit(1);
             }
-            if (process.env.SUBMIT !== "true") process.exit(0);
+            // Submission is an iOS-only concept until a Play listing exists.
+            if (process.env.SUBMIT !== "true" || process.env.PLATFORM === "android") process.exit(0);
             const profile = process.env.PROFILE;
             const ios = require("./eas.json").submit?.[profile]?.ios;
             if (!ios) {
@@ -199,19 +223,52 @@ jobs:
       - name: Build
         env:
           PROFILE: ${{ inputs.profile }}
+          PLATFORM: ${{ inputs.platform }}
           SUBMIT: ${{ inputs.submit }}
           # Unset on workflow_call, where waiting is always what we want.
           WAIT: ${{ inputs.wait }}
           MESSAGE: ${{ inputs.message || github.sha }}
         run: |
-          args=(--platform ios --profile "$PROFILE" --non-interactive --message "$MESSAGE")
-          if [ "$SUBMIT" = "true" ]; then
-            # No --what-to-test here: it maps to EAS Submit's Enterprise-only
-            # changelog parameter and fails submission scheduling outright on
-            # other plans. The notes land in the job summary instead.
-            args+=(--auto-submit)
+          build() { # build <platform> [extra eas args…]
+            local platform=$1; shift
+            local args=(--platform "$platform" --profile "$PROFILE" --non-interactive --message "$MESSAGE" "$@")
+            if [ "$WAIT" = "false" ]; then
+              args+=(--no-wait)
+            fi
+            eas build "${args[@]}"
+          }
+
+          if [ "$PLATFORM" = "ios" ] || [ "$PLATFORM" = "all" ]; then
+            submit_args=()
+            if [ "$SUBMIT" = "true" ]; then
+              # No --what-to-test here: it maps to EAS Submit's Enterprise-only
+              # changelog parameter and fails submission scheduling outright on
+              # other plans. The notes land in the job summary instead.
+              submit_args+=(--auto-submit)
+            fi
+            build ios "${submit_args[@]}"
           fi
-          if [ "$WAIT" = "false" ]; then
-            args+=(--no-wait)
+
+          if [ "$PLATFORM" = "android" ] || [ "$PLATFORM" = "all" ]; then
+            # Never --auto-submit: there is no Play listing, and eas submit would
+            # fail the run looking for a service account key. --json captures the
+            # artifact URL so a production APK can be attached to the release.
+            build android --json > android-build.json
           fi
-          eas build "${args[@]}"
+
+      # Sideloading from the GitHub release page is the Android distribution
+      # channel until a Play Console listing exists.
+      - name: Attach Android APK to the GitHub release
+        if: ${{ (inputs.platform == 'android' || inputs.platform == 'all') && inputs.profile == 'production' && inputs.wait != false }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          url=$(node -e 'const b=require("./android-build.json"); console.log((Array.isArray(b)?b[0]:b).artifacts.buildUrl)')
+          version=$(node -e 'console.log(require("./app.json").expo.version)')
+          curl -fsSL "$url" -o "tradermemos-${version}.apk"
+          if gh release view "v${version}" >/dev/null 2>&1; then
+            gh release upload "v${version}" "tradermemos-${version}.apk" --clobber
+            echo "Attached tradermemos-${version}.apk to release v${version}" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "::warning::No GitHub release v${version} to attach the APK to — download it from the EAS dashboard instead."
+          fi

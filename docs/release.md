@@ -123,10 +123,24 @@ and is submitted by EAS Submit — no local Xcode archive, no manual upload.
 flowchart TD
     A["Release published<br/>· workflow_call from release-please<br/>· workflow_dispatch"] --> B["Test mobile<br/>lint · tsc · catalogs · prebuild"]
     B --> C{"app-store environment<br/>required reviewer<br/>(only when submitting)"}
-    C -->|"approve"| D["eas build --profile production --auto-submit"]
+    C -->|"approve"| D["eas build --platform ios --profile production --auto-submit"]
     D --> E["EAS: prebuild → archive → sign"]
     E --> F["App Store Connect · TestFlight"]
+    C -->|"approve"| G["eas build --platform android --profile production"]
+    G --> H["Signed APK attached to the GitHub release"]
 ```
+
+### Android
+
+There is no Play Console listing yet, so Android ships as a **signed, sideloadable
+APK attached to the GitHub release** (every profile builds `buildType: apk`; a
+release run downloads the artifact and `gh release upload`s it). The upload
+keystore lives on EAS as the project's default Android build credentials —
+back it up with `npx eas-cli credentials -p android` → download. When a Play
+listing exists: switch `production.android.buildType` to `app-bundle`, add
+`submit.production.android` (service-account key), and let the workflow submit
+instead of attaching. Android submission is deliberately never attempted today —
+`--auto-submit` applies only to the iOS build.
 
 ### Build profiles (`mobile/eas.json`)
 
