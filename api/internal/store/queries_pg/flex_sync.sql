@@ -21,3 +21,10 @@ SELECT * FROM flex_sync_settings WHERE enabled = 1 ORDER BY account_id;
 UPDATE flex_sync_settings
 SET last_synced_at = $1, last_status = $2, last_error = $3
 WHERE account_id = $4 AND user_id = $5;
+
+-- name: ListFlexSyncSettingsForUser :many
+SELECT f.*, a.name AS account_name
+FROM flex_sync_settings f
+JOIN accounts a ON a.id = f.account_id
+WHERE f.user_id = $1
+ORDER BY a.name;

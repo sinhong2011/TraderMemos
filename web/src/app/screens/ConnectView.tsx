@@ -1,6 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, ArrowRight, Check, PenLine, RefreshCw, Upload } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AmountInput } from "@/components/AmountInput";
 import { BrokerMark } from "@/components/BrokerMark";
 import { BrokerPicker } from "@/components/BrokerPicker";
@@ -16,7 +16,9 @@ import { useToastManager } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { Switch } from "@/components/ui/switch";
-import { flexSyncApi } from "@/lib/api/flexSync";
+import { flexSyncApi, flexSyncFailed } from "@/lib/api/flexSync";
+import { useFlexSync } from "@/lib/hooks/useFlexSync";
+import { Badge } from "@/components/reui/badge";
 import type { Account } from "@/lib/api/types";
 import { type BrokerConnectKind, type BrokerDef, findBroker, KIND_LABEL } from "@/lib/brokers";
 import { useAccounts, useCreateAccount } from "@/lib/hooks/useAccounts";
@@ -214,6 +216,23 @@ function BrokerSetup({
   const [error, setError] = useState<string | null>(null);
   const [synced, setSynced] = useState<{ inserted: number; skipped: number } | null>(null);
 
+  // Connect and manage used to be two surfaces that didn't know about each
+  // other: revisiting /connect on an already-connected account showed a blank
+  // form that would silently overwrite. Load what's stored and say so instead.
+  const existingAccountId =
+    broker.kind === "sync" && resolved.mode === "existing" ? (resolved.existingId ?? "") : "";
+  const existingQ = useFlexSync(existingAccountId, existingAccountId !== "");
+  const existing = existingAccountId !== "" ? existingQ.data : undefined;
+  const connected = existing?.configured === true;
+  const [prefilledFor, setPrefilledFor] = useState<string | null>(null);
+  useEffect(() => {
+    if (!existing?.configured || prefilledFor === existingAccountId) return;
+    setPrefilledFor(existingAccountId);
+    setQueryId(existing.query_id ?? "");
+    setScheduled(existing.enabled);
+    setToken("");
+  }, [existing, existingAccountId, prefilledFor]);
+
   /**
    * Resolve the account this connection writes to, creating it when the flow
    * is on "New account". Every action needs one, so it happens on the action
@@ -253,14 +272,15 @@ function BrokerSetup({
       setError("Flex Query ID is required.");
       return;
     }
-    if (!token.trim()) {
+    if (!token.trim() && !(connected && existing?.token_set)) {
       setError("Flex Web Service token is required.");
       return;
     }
     void run(async (accountId) => {
       await flexSyncApi.save(accountId, {
         query_id: queryId.trim(),
-        token: token.trim(),
+        // Blank keeps the token already stored for this account.
+        ...(token.trim() !== "" ? { token: token.trim() } : {}),
         enabled: scheduled,
       });
       const result = await flexSyncApi.run(accountId);
@@ -338,6 +358,36 @@ function BrokerSetup({
               description="Stored on your server and used by the background sync — nothing is sent anywhere else."
             >
               <div className="flex flex-col gap-3">
+                {connected && existing ? (
+                  <div className="flex flex-col gap-1 rounded-md bg-muted px-3 py-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-[12px] font-medium">Already connected</span>
+                      <Badge
+                        variant={
+                          flexSyncFailed(existing)
+                            ? "destructive-light"
+                            : existing.enabled
+                              ? "success-light"
+                              : "secondary"
+                        }
+                      >
+                        {flexSyncFailed(existing)
+                          ? "Sync failing"
+                          : existing.enabled
+                            ? "Healthy"
+                            : "Manual only"}
+                      </Badge>
+                    </div>
+                    <p className="m-0 text-[12px] text-muted-foreground">
+                      {existing.last_synced_at
+                        ? `Last sync ${new Date(existing.last_synced_at).toLocaleString()} — ${existing.last_status || "done"}`
+                        : "Never synced yet."}
+                    </p>
+                    {existing.last_error ? (
+                      <p className="m-0 text-[12px] text-destructive">{existing.last_error}</p>
+                    ) : null}
+                  </div>
+                ) : null}
                 <Field label="Flex Query ID" htmlFor="connect-flex-query">
                   <FormInput
                     id="connect-flex-query"
@@ -347,12 +397,20 @@ function BrokerSetup({
                     disabled={busy}
                   />
                 </Field>
-                <Field label="Flex Web Service token" htmlFor="connect-flex-token">
+                <Field
+                  label="Flex Web Service token"
+                  htmlFor="connect-flex-token"
+                  description={
+                    connected && existing?.token_set
+                      ? `Saved (${existing.token_hint ?? "hidden"}) — leave blank to keep it.`
+                      : undefined
+                  }
+                >
                   <PasswordInput
                     id="connect-flex-token"
                     value={token}
                     onChange={(event) => setToken(event.target.value)}
-                    placeholder="Paste token"
+                    placeholder={connected && existing?.token_set ? "••••••••" : "Paste token"}
                     aria-label="Flex Web Service token"
                     disabled={busy}
                   />
@@ -397,7 +455,7 @@ function BrokerSetup({
                       </>
                     ) : (
                       <>
-                        Connect and sync
+                        {connected ? "Save and sync" : "Connect and sync"}
                         <ArrowRight size={13} strokeWidth={1.5} />
                       </>
                     )}

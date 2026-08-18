@@ -14,6 +14,7 @@ import (
 )
 
 func (s *Server) flexSyncRoutes(g *echo.Group) {
+	g.GET("/flex-sync", s.handleListFlexSync)
 	g.GET("/accounts/:id/flex-sync", s.handleGetFlexSync)
 	g.PUT("/accounts/:id/flex-sync", s.handlePutFlexSync)
 	g.DELETE("/accounts/:id/flex-sync", s.handleDeleteFlexSync)
@@ -59,6 +60,37 @@ func toFlexSyncDTO(r store.FlexSyncSetting) flexSyncDTO {
 		dto.LastSyncedAt = r.LastSyncedAt.Time.UTC().Format(time.RFC3339)
 	}
 	return dto
+}
+
+// flexSyncListItemDTO is a configured connection across all of the user's
+// accounts — the flex-sync settings row plus the account it belongs to.
+type flexSyncListItemDTO struct {
+	AccountID   string `json:"account_id"`
+	AccountName string `json:"account_name"`
+	flexSyncDTO
+}
+
+// handleListFlexSync returns every configured flex-sync connection for the
+// user in one call, so the connections list and the sync-health badge don't
+// need a per-account round trip.
+func (s *Server) handleListFlexSync(c *echo.Context) error {
+	rows, err := s.deps.Store.ListFlexSyncSettingsForUser(c.Request().Context(), auth.UserID(c))
+	if err != nil {
+		return Fail(http.StatusInternalServerError, "internal", "could not load flex sync settings", nil)
+	}
+	out := make([]flexSyncListItemDTO, 0, len(rows))
+	for _, r := range rows {
+		out = append(out, flexSyncListItemDTO{
+			AccountID:   r.AccountID,
+			AccountName: r.AccountName,
+			flexSyncDTO: toFlexSyncDTO(store.FlexSyncSetting{
+				AccountID: r.AccountID, UserID: r.UserID, Token: r.Token, QueryID: r.QueryID,
+				Enabled: r.Enabled, LastSyncedAt: r.LastSyncedAt, LastStatus: r.LastStatus,
+				LastError: r.LastError, UpdatedAt: r.UpdatedAt,
+			}),
+		})
+	}
+	return c.JSON(http.StatusOK, out)
 }
 
 func (s *Server) handleGetFlexSync(c *echo.Context) error {

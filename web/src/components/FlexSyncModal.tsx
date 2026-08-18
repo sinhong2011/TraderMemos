@@ -15,6 +15,8 @@ import { Switch } from "./ui/switch";
 export interface FlexSyncButtonProps {
   accountId: string;
   accountName: string;
+  /** Trigger label — defaults to "IBKR sync"; the Connections list uses "Configure". */
+  label?: string;
 }
 
 /**
@@ -23,7 +25,11 @@ export interface FlexSyncButtonProps {
  * background job pulls new fills on a schedule; "Sync now" runs one pass
  * immediately.
  */
-export function FlexSyncButton({ accountId, accountName }: FlexSyncButtonProps) {
+export function FlexSyncButton({
+  accountId,
+  accountName,
+  label = "IBKR sync",
+}: FlexSyncButtonProps) {
   const [open, setOpen] = useState(false);
   const toast = useToastManager();
   const settingsQ = useFlexSync(accountId, open);
@@ -97,7 +103,7 @@ export function FlexSyncButton({ accountId, accountName }: FlexSyncButtonProps) 
   return (
     <>
       <Button type="button" variant="outline" size="sm" onClick={() => setOpen(true)}>
-        IBKR sync
+        {label}
       </Button>
       <Modal
         open={open}

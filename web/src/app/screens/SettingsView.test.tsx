@@ -25,6 +25,8 @@ vi.mock("../../lib/hooks/useTrades", () => ({
 
 vi.mock("../../lib/hooks/useFlexSync", () => ({
   useFlexSync: () => ({ data: undefined, isLoading: false, isError: false }),
+  useFlexSyncConnections: () => ({ data: [], isLoading: false, isError: false }),
+  useFlexSyncAttention: () => false,
   useSaveFlexSync: () => ({ mutate: () => {}, isPending: false }),
   useDeleteFlexSync: () => ({ mutate: () => {}, isPending: false }),
   useRunFlexSync: () => ({ mutate: () => {}, isPending: false }),

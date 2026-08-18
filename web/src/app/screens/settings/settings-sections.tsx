@@ -18,6 +18,9 @@ import { EmptyState } from "@/components/EmptyState";
 import { LlmApiSettingsForm } from "@/components/LlmApiSettingsForm";
 import { ModeToggle } from "@/components/ModeToggle";
 import { FlexSyncButton } from "@/components/FlexSyncModal";
+import { Badge } from "@/components/reui/badge";
+import { flexSyncFailed } from "@/lib/api/flexSync";
+import { useFlexSyncConnections } from "@/lib/hooks/useFlexSync";
 import { PropRulesButton } from "@/components/PropRulesModal";
 import { Modal } from "@/components/Modal";
 import { AmountInput } from "@/components/AmountInput";
@@ -207,6 +210,12 @@ export function AccountsTab({
 }: AccountsTabProps) {
   usePrivacyMode();
   const toast = useToastManager();
+  // One request for all accounts' sync state: drives the per-row status pill
+  // and keeps the IBKR-sync affordance off accounts that have no connection.
+  const flexConnections = useFlexSyncConnections();
+  const connByAccount = new Map(
+    (flexConnections.data ?? []).map((conn) => [conn.account_id, conn]),
+  );
   const [showAccountForm, setShowAccountForm] = useState(false);
   const [showCashForm, setShowCashForm] = useState(false);
   const [filterAccountId, setFilterAccountId] = useState<string | null>(null);
@@ -793,7 +802,33 @@ export function AccountsTab({
                           {acc.account_type === "prop" ? (
                             <PropRulesButton accountId={acc.id} accountName={acc.name} />
                           ) : null}
-                          <FlexSyncButton accountId={acc.id} accountName={acc.name} />
+                          {(() => {
+                            const conn = connByAccount.get(acc.id);
+                            const ibkrish = /ibkr|interactive brokers/i.test(acc.broker);
+                            if (!conn && !ibkrish) return null;
+                            return (
+                              <>
+                                {conn ? (
+                                  <Badge
+                                    variant={
+                                      flexSyncFailed(conn)
+                                        ? "destructive-light"
+                                        : conn.enabled
+                                          ? "success-light"
+                                          : "secondary"
+                                    }
+                                  >
+                                    {flexSyncFailed(conn)
+                                      ? "Sync failing"
+                                      : conn.enabled
+                                        ? "Sync on"
+                                        : "Sync off"}
+                                  </Badge>
+                                ) : null}
+                                <FlexSyncButton accountId={acc.id} accountName={acc.name} />
+                              </>
+                            );
+                          })()}
 
                           <ClearTradesButton
                             accountName={acc.name}

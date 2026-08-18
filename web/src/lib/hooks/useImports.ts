@@ -31,6 +31,12 @@ export function useDeleteImport() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => importsApi.delete(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["imports"] }),
+    onSuccess: () => {
+      // A rollback deletes the batch's executions and regroups trades.
+      void queryClient.invalidateQueries({ queryKey: ["imports"] });
+      void queryClient.invalidateQueries({ queryKey: ["trades"] });
+      void queryClient.invalidateQueries({ queryKey: ["accounts"] });
+      void queryClient.invalidateQueries({ queryKey: ["analytics"] });
+    },
   });
 }

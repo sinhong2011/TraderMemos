@@ -1,4 +1,5 @@
 import {
+  Cable,
   Globe,
   Keyboard,
   KeyRound,
@@ -18,6 +19,7 @@ import { useSettingsSection } from "@/lib/hooks/useSettingsSection";
 import { settingsNavItems, settingsSectionCopy, type SettingsSectionId } from "@/lib/locale";
 import type { Account, CashTransaction, Tag as TagType } from "@/lib/api/types";
 import { AboutTab } from "./settings/about-tab";
+import { ConnectionsTab } from "./settings/connections-tab";
 import { AccountTab } from "./settings/account-tab";
 import { AlertsSection } from "./settings/alerts-section";
 import { ApiTab } from "./settings/api-tab";
@@ -101,6 +103,7 @@ const NAV_ICONS: Record<SettingsSectionId, typeof Wallet> = {
   profile: UserRound,
   users: Users,
   accounts: Wallet,
+  connections: Cable,
   rules: Shield,
   journal: Tag,
   ai: Sparkles,
@@ -147,6 +150,7 @@ export function SettingsView(props: SettingsViewProps) {
             onDeleteCash={props.onDeleteCash}
           />
         )}
+        {section === "connections" && <ConnectionsTab accounts={props.accounts} />}
         {section === "rules" && (
           <RulesTab
             riskRules={props.riskRules}

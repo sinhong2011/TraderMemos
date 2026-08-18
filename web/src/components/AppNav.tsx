@@ -3,6 +3,7 @@ import { Settings } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useLayoutEffect, useRef, useState } from "react";
 import { useAppUpdate } from "@/lib/appUpdate";
+import { useFlexSyncAttention } from "@/lib/hooks/useFlexSync";
 import { cn } from "@/lib/cn";
 import { useDisplayPrefs } from "@/lib/displayPrefs";
 import { navLabel } from "@/lib/locale";
@@ -19,6 +20,7 @@ function RailLink({
   icon: Icon,
   active,
   dot,
+  dotTone = "primary",
   itemRef,
 }: {
   to: string;
@@ -27,6 +29,8 @@ function RailLink({
   active: boolean;
   /** Quiet attention dot (e.g. an update is available — detail lives on the page). */
   dot?: boolean;
+  /** destructive marks something broken (a failing sync), primary something new. */
+  dotTone?: "primary" | "destructive";
   itemRef?: (el: HTMLAnchorElement | null) => void;
 }) {
   return (
@@ -58,7 +62,13 @@ function RailLink({
         )}
       />
       {dot ? (
-        <span aria-hidden className="absolute top-1.5 right-1.5 size-1.5 rounded-full bg-primary" />
+        <span
+          aria-hidden
+          className={cn(
+            "absolute top-1.5 right-1.5 size-1.5 rounded-full",
+            dotTone === "destructive" ? "bg-destructive" : "bg-primary",
+          )}
+        />
       ) : null}
       <RailTooltip label={label} />
     </Link>
@@ -83,6 +93,9 @@ export function AppNav() {
     (s) => s.swReady || s.webBehind || s.apiBehind || s.versionMismatch,
   );
   const updateNotices = useDisplayPrefs((s) => s.updateNotices);
+  // A failing broker sync is otherwise invisible until someone opens the right
+  // modal — a silently dead sync looks identical to a quiet trading week.
+  const syncAttention = useFlexSyncAttention();
 
   useLayoutEffect(() => {
     const list = listRef.current;
@@ -186,7 +199,8 @@ export function AppNav() {
             label={label("settings")}
             icon={Settings}
             active={settingsActive}
-            dot={updateNotices && updateAttention}
+            dot={syncAttention || (updateNotices && updateAttention)}
+            dotTone={syncAttention ? "destructive" : "primary"}
           />
         </div>
       </div>

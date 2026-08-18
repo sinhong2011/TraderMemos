@@ -6,6 +6,7 @@ export const SETTINGS_SECTION_IDS: SettingsSectionId[] = [
   "general",
   "shortcuts",
   "accounts",
+  "connections",
   "rules",
   "journal",
   "ai",
