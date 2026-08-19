@@ -793,6 +793,41 @@ export type ExecScoreReport = {
   series: ExecScorePoint[];
 };
 
+/** One fan-chart checkpoint of GET /analytics/montecarlo (Go: analytics.McBand). */
+export type McBand = {
+  n: number;
+  p05: number;
+  p25: number;
+  p50: number;
+  p75: number;
+  p95: number;
+};
+
+/** Payload of GET /analytics/montecarlo (Go: analytics.MonteCarloResult). */
+export type MonteCarloResult = {
+  insufficient_data: boolean;
+  trades: number;
+  paths: number;
+  horizon: number;
+  seed: number;
+  steps: McBand[];
+  terminal: {
+    p05: number;
+    p25: number;
+    p50: number;
+    p75: number;
+    p95: number;
+    mean: number;
+    prob_negative: number;
+  };
+  max_drawdown: { p50: number; p90: number; p95: number; p99: number; worst: number };
+  /** A few individual simulated paths, equity at the same checkpoints as steps. */
+  sample_paths: number[][];
+  risk_of_ruin: number;
+  ruin_threshold: number;
+  historical_max_drawdown: number;
+};
+
 /** GET /flex-sync — every configured connection plus its account. */
 export type FlexSyncConnection = FlexSyncSettings & {
   account_id: string;

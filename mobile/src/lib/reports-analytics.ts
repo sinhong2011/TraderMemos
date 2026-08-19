@@ -234,3 +234,33 @@ export function periodReturns(
     tradingDays: days.size,
   };
 }
+
+export interface DurationScatterPoint {
+  id: string;
+  symbol: string;
+  secs: number;
+  pnl: number;
+}
+
+/** Closed trades with a positive hold time, as scatter points. */
+export function durationScatter(
+  trades: Trade[],
+  tradePnl: (t: Trade) => number = (t) => t.net_pnl ?? 0,
+): DurationScatterPoint[] {
+  return chronologicalClosed(trades)
+    .filter((t) => (t.time_in_trade_secs ?? 0) > 0)
+    .map((t) => ({
+      id: t.id,
+      symbol: t.symbol,
+      secs: t.time_in_trade_secs ?? 0,
+      pnl: tradePnl(t),
+    }));
+}
+
+/** Median hold time of the given scatter points; 0 when empty. */
+export function medianDurationSecs(points: DurationScatterPoint[]): number {
+  if (points.length === 0) return 0;
+  const sorted = points.map((p) => p.secs).sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 === 1 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+}

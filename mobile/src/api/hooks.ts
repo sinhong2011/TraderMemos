@@ -34,6 +34,7 @@ import type {
   ExecScoreReport,
   FlexSyncConnection,
   FlexSyncSettings,
+  MonteCarloResult,
   ImportBatch,
   FxRate,
   Note,
@@ -104,6 +105,7 @@ export const queryKeys = {
   flexSync: (accountId: string) => ['accounts', accountId, 'flex-sync'] as const,
   executionScore: (filters: Filters, bucket: 'week' | 'month') =>
     ['analytics', 'execution-score', bucket, filters] as const,
+  monteCarlo: (filters: Filters) => ['analytics', 'montecarlo', filters] as const,
   flexSyncConnections: () => ['flex-sync'] as const,
   imports: () => ['imports'] as const,
   health: () => ['health'] as const,
@@ -192,6 +194,11 @@ export function useExecutionScore(bucket: 'week' | 'month', filters: Filters = {
     '/analytics/execution-score',
     { ...filters, bucket },
   );
+}
+
+/** Bootstrap-resampled equity fan (web ReportsMonteCarlo parity). */
+export function useMonteCarlo(filters: Filters = {}) {
+  return useApiQuery<MonteCarloResult>(queryKeys.monteCarlo(filters), '/analytics/montecarlo', filters);
 }
 
 export function useSummary(filters: Filters = {}) {

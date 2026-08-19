@@ -1,9 +1,10 @@
 import { useRouter } from 'expo-router';
-import { AreaChart, Skeleton } from 'panelui-native';
+import { AreaChart, LineChart, Skeleton } from 'panelui-native';
 import { useMemo } from 'react';
+import { useCSSVariable } from 'uniwind';
 import { Text, View } from 'react-native';
 
-import { useCompliance, useEquityCurve, useTrades } from '@/api/hooks';
+import { useCompliance, useEquityCurve, useMonteCarlo, useTrades } from '@/api/hooks';
 import { DashboardCard } from '@/components/dashboard-card';
 import { InlineError } from '@/components/error-state';
 import { StatBar } from '@/components/stat-bar';
@@ -12,9 +13,10 @@ import {
   SectionScaffold,
   useReportsFilters,
   useReportsMoney,
+  type ReportsMoneyContext,
 } from '@/components/reports/section-scaffold';
 import { t } from '@lingui/core/macro';
-import { formatPercentPoints } from '@/lib/format';
+import { formatPercent, formatPercentPoints } from '@/lib/format';
 import { avgRiskPerTrade, drawdownDepthSeries } from '@/lib/reports-analytics';
 import { pnlColor, usePnlPalette } from '@/styles/pnl';
 
@@ -218,6 +220,123 @@ export function RiskSection({
           </>
         )}
       </DashboardCard>
+
+      <MonteCarloCard ctx={ctx} />
     </SectionScaffold>
+  );
+}
+
+/**
+ * Bootstrap-resampled equity fan (web ReportsMonteCarlo parity). PanelUI has
+ * no band/range area, so the p05–p95 envelope draws as dashed percentile
+ * lines around the solid median instead of filled bands.
+ */
+function MonteCarloCard({ ctx }: { ctx: ReportsMoneyContext }) {
+  const filters = useReportsFilters();
+  const mc = useMonteCarlo(filters);
+  const { money } = ctx;
+  const [primary, mutedForeground] = useCSSVariable([
+    '--color-primary',
+    '--color-muted-foreground',
+  ]) as [string, string];
+
+  const paletteRef = usePnlPalette();
+  const sim = mc.data;
+  const fan = (sim?.steps ?? []).map((band) => ({
+    n: band.n,
+    p05: money.display(band.p05),
+    p25: money.display(band.p25),
+    median: money.display(band.p50),
+    p75: money.display(band.p75),
+    p95: money.display(band.p95),
+  }));
+
+  const tile = (label: string, value: string, hint: string, tone?: 'pos' | 'neg') => (
+    <View key={label} className="min-w-[45%] flex-1 gap-0.5 rounded-xl bg-muted px-3 py-2.5">
+      <Text className="text-[11px] font-medium text-muted-foreground">{label}</Text>
+      <Text
+        className="text-[15px] font-semibold tabular-nums tracking-tight text-foreground"
+        style={
+          tone === 'pos'
+            ? { color: paletteRef.profit }
+            : tone === 'neg'
+              ? { color: paletteRef.loss }
+              : undefined
+        }
+      >
+        {value}
+      </Text>
+      <Text className="text-[10px] text-muted-foreground">{hint}</Text>
+    </View>
+  );
+
+  return (
+    <DashboardCard title={t`Monte Carlo`}>
+      {mc.isLoading ? (
+        <Skeleton className="h-[240px] rounded-lg" />
+      ) : mc.error && sim == null ? (
+        <InlineError error={mc.error} onRetry={() => void mc.refetch()} />
+      ) : !sim || sim.insufficient_data ? (
+        <Text className="py-4 text-[13px] text-muted-foreground">
+          {t`The simulation needs at least 10 closed trades to resample.`}
+        </Text>
+      ) : (
+        <>
+          <View className="flex-row flex-wrap gap-2">
+            {tile(
+              t`Median outcome`,
+              money.format(sim.terminal.p50),
+              t`over the next ${sim.horizon} trades`,
+              sim.terminal.p50 >= 0 ? 'pos' : 'neg',
+            )}
+            {tile(
+              t`Best case`,
+              money.format(sim.terminal.p95),
+              t`95th percentile`,
+              sim.terminal.p95 > 0 ? 'pos' : undefined,
+            )}
+            {tile(
+              t`Worst case`,
+              money.format(sim.terminal.p05),
+              t`5th percentile`,
+              sim.terminal.p05 < 0 ? 'neg' : undefined,
+            )}
+            {tile(
+              t`Typical max drawdown`,
+              money.format(-sim.max_drawdown.p50),
+              t`1 in 20 worse than ${money.formatCompact(-sim.max_drawdown.p95)}`,
+              'neg',
+            )}
+            {tile(
+              t`Chance of profit`,
+              formatPercent(1 - sim.terminal.prob_negative),
+              t`paths ending above zero`,
+              sim.terminal.prob_negative > 0.25 ? 'neg' : 'pos',
+            )}
+            {tile(
+              t`Risk of ruin`,
+              formatPercent(sim.risk_of_ruin),
+              t`drawdown ≥ ${money.formatCompact(-sim.ruin_threshold)}`,
+              sim.risk_of_ruin > 0.1 ? 'neg' : undefined,
+            )}
+          </View>
+
+          {fan.length > 1 ? (
+            <LineChart data={fan} xDataKey="n" aspectRatio={1.9}>
+              <LineChart.Grid />
+              <LineChart.Line dataKey="p95" color={mutedForeground} strokeWidth={1} dashArray="4,4" />
+              <LineChart.Line dataKey="p75" color={mutedForeground} strokeWidth={1} />
+              <LineChart.Line dataKey="median" color={primary} strokeWidth={1.5} />
+              <LineChart.Line dataKey="p25" color={mutedForeground} strokeWidth={1} />
+              <LineChart.Line dataKey="p05" color={mutedForeground} strokeWidth={1} dashArray="4,4" />
+            </LineChart>
+          ) : null}
+
+          <Text className="text-[11px] leading-relaxed text-muted-foreground">
+            {t`${sim.paths} resamples of your ${sim.trades} closed trades' net P&L — assumes each trade is an independent draw from your history, so streaks and changing conditions are understated.`}
+          </Text>
+        </>
+      )}
+    </DashboardCard>
   );
 }

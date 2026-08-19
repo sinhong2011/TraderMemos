@@ -87,7 +87,7 @@ msgid "{0} closed trades excluded (no stop recorded)."
 msgstr "{0}件の決済済みトレードを除外（ストップ未記録）。"
 
 #. placeholder {0}: report.daily_loss_breaches
-#: src/components/reports/risk-section.tsx:80
+#: src/components/reports/risk-section.tsx:82
 msgid "{0} daily-loss"
 msgstr "日次損失 {0}"
 
@@ -117,7 +117,7 @@ msgid "{0} losers without recorded MAE/MFE could not be checked — recompute ex
 msgstr "MAE/MFE未記録の損失トレード{0}件は判定できませんでした — トレード画面でエクスカーションを再計算してください。"
 
 #. placeholder {0}: report.loss_streak_breaches
-#: src/components/reports/risk-section.tsx:82
+#: src/components/reports/risk-section.tsx:84
 msgid "{0} loss-streak"
 msgstr "連敗超過 {0}"
 
@@ -137,12 +137,12 @@ msgstr "{1}のうち{0}"
 
 #. placeholder {0}: risk.included
 #. placeholder {1}: risk.included + risk.excluded
-#: src/components/reports/risk-section.tsx:120
+#: src/components/reports/risk-section.tsx:122
 msgid "{0} of {1} trades"
 msgstr "{1}件中{0}件"
 
 #. placeholder {0}: report.compliant_days
-#: src/components/reports/risk-section.tsx:166
+#: src/components/reports/risk-section.tsx:168
 msgid "{0} of {scoredDays} days"
 msgstr "{scoredDays}日中{0}日"
 
@@ -160,7 +160,7 @@ msgstr "利益の{0}"
 #~ msgstr "{0}保有 @ {1}"
 
 #. placeholder {0}: report.risk_violations
-#: src/components/reports/risk-section.tsx:79
+#: src/components/reports/risk-section.tsx:81
 msgid "{0} over-risked"
 msgstr "リスク超過 {0}"
 
@@ -173,7 +173,7 @@ msgstr "リスク超過 {0}"
 #~ msgstr "リスク超過 {0} · 日次損失 {1} · 取引数超過 {2}"
 
 #. placeholder {0}: report.trade_limit_breaches
-#: src/components/reports/risk-section.tsx:81
+#: src/components/reports/risk-section.tsx:83
 msgid "{0} over-traded"
 msgstr "取引数超過 {0}"
 
@@ -181,6 +181,12 @@ msgstr "取引数超過 {0}"
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:521
 msgid "{0} per +1R"
 msgstr "+1Rごとに{0}"
+
+#. placeholder {0}: sim.paths
+#. placeholder {1}: sim.trades
+#: src/components/reports/risk-section.tsx:336
+msgid "{0} resamples of your {1} closed trades' net P&L — assumes each trade is an independent draw from your history, so streaks and changing conditions are understated."
+msgstr "あなたの決済済み{1}件の純損益を{0}回リサンプリング。各トレードを独立な抽選と仮定するため、連敗や環境変化は過小評価されます。"
 
 #. placeholder {0}: batch.row_count
 #: src/app/(tabs)/(settings)/import-history.tsx:89
@@ -208,11 +214,11 @@ msgstr "{0}銘柄が見つかりました"
 #: src/app/(tabs)/(dashboard)/playbook.tsx:280
 #: src/components/insights-card.tsx:90
 #: src/components/reports/behavior-section.tsx:116
-#: src/components/reports/detailed-section.tsx:266
+#: src/components/reports/detailed-section.tsx:268
 #: src/components/reports/overview-section.tsx:284
 #: src/components/reports/overview-section.tsx:455
 #: src/components/reports/overview-section.tsx:637
-#: src/components/reports/risk-section.tsx:200
+#: src/components/reports/risk-section.tsx:202
 msgid "{0} trades"
 msgstr "{0}件のトレード"
 
@@ -242,7 +248,7 @@ msgid "{0} trades from {1} rows — {2} fills inserted, {3} duplicates skipped."
 msgstr "{1}行から{0}件のトレード — {2}件の約定を挿入、重複{3}件をスキップ。"
 
 #. placeholder {0}: report.unknown_risk
-#: src/components/reports/risk-section.tsx:189
+#: src/components/reports/risk-section.tsx:191
 msgid "{0} trades had no recorded initial risk and could not be scored against the per-trade rule."
 msgstr "初期リスク未記録のトレードが{0}件あり、1トレードあたりのルールで採点できませんでした。"
 
@@ -384,6 +390,10 @@ msgstr "{symbol} のリプレイ（{barClock}）— {0}"
 msgid "{tradeCount} trades"
 msgstr "{tradeCount}件のトレード"
 
+#: src/components/reports/session-clock-card.tsx:95
+msgid "{tzCity} clock"
+msgstr "{tzCity}時間"
+
 #: src/app/(tabs)/(calendar)/index.tsx:454
 #~ msgid "{weekCount, plural, one {# trade} other {# trades}}"
 #~ msgstr "{weekCount, plural, other {#件}}"
@@ -496,6 +506,11 @@ msgstr "1日"
 msgid "1 file scanned"
 msgstr "1件のファイルをスキャンしました"
 
+#. placeholder {0}: money.formatCompact(-sim.max_drawdown.p95)
+#: src/components/reports/risk-section.tsx:307
+msgid "1 in 20 worse than {0}"
+msgstr "20回に1回は{0}より悪化"
+
 #: src/app/(tabs)/(settings)/index.tsx:141
 msgid "1 offline change hasn't synced yet and will be discarded."
 msgstr "未同期のオフライン変更が1件あり、破棄されます。"
@@ -560,6 +575,10 @@ msgstr "30日間"
 msgid "30d"
 msgstr "30日"
 
+#: src/components/reports/risk-section.tsx:301
+msgid "5th percentile"
+msgstr "5パーセンタイル"
+
 #: src/app/(tabs)/(settings)/two-factor.tsx:104
 #: src/app/(tabs)/(settings)/two-factor.tsx:225
 msgid "6-digit code"
@@ -572,6 +591,10 @@ msgstr "90日間"
 #: src/app/new-token.tsx:18
 msgid "90d"
 msgstr "90日"
+
+#: src/components/reports/risk-section.tsx:295
+msgid "95th percentile"
+msgstr "95パーセンタイル"
 
 #: src/app/(tabs)/(dashboard)/checklist.tsx:247
 #~ msgid "A pre-market routine to start from. Add the ones that fit how you trade."
@@ -826,7 +849,7 @@ msgstr "アドレス"
 msgid "Adds a 6-digit code from an authenticator app to your password at sign-in."
 msgstr "サインイン時に、パスワードへ認証アプリの6桁コードを追加します。"
 
-#: src/components/reports/risk-section.tsx:164
+#: src/components/reports/risk-section.tsx:166
 msgid "Adherence"
 msgstr "遵守率"
 
@@ -847,7 +870,7 @@ msgstr "調整"
 msgid "Adverse excursion exceeded planned risk"
 msgstr "逆行が計画リスクを超えました"
 
-#: src/components/reports/detailed-section.tsx:247
+#: src/components/reports/detailed-section.tsx:249
 msgid "After hours"
 msgstr "アフターアワーズ"
 
@@ -1066,7 +1089,7 @@ msgstr "{MIN_LENGTH} 文字以上"
 #~ msgid "At least {MIN_LENGTH} characters. Changing it signs out your other devices — this one stays signed in."
 #~ msgstr "{MIN_LENGTH} 文字以上。変更すると他の端末はサインアウトされますが、この端末はサインインしたままです。"
 
-#: src/components/reports/risk-section.tsx:112
+#: src/components/reports/risk-section.tsx:114
 msgid "at the highs"
 msgstr "高値圏"
 
@@ -1099,7 +1122,7 @@ msgstr "平均"
 msgid "Average hold"
 msgstr "平均保有時間"
 
-#: src/components/reports/detailed-section.tsx:267
+#: src/components/reports/detailed-section.tsx:269
 msgid "avg"
 msgstr "平均"
 
@@ -1147,7 +1170,7 @@ msgstr "平均損失"
 msgid "Avg R / trade"
 msgstr "平均R/トレード"
 
-#: src/components/reports/risk-section.tsx:116
+#: src/components/reports/risk-section.tsx:118
 msgid "Avg risk / trade"
 msgstr "平均リスク/トレード"
 
@@ -1259,13 +1282,17 @@ msgstr "ペースより遅れ"
 msgid "below average"
 msgstr "平均以下"
 
-#: src/components/reports/risk-section.tsx:133
+#: src/components/reports/risk-section.tsx:135
 msgid "Below peak"
 msgstr "ピークからの下落"
 
 #: src/components/reports/overview-section.tsx:783
 msgid "Best / worst"
 msgstr "最高 / 最低"
+
+#: src/components/reports/risk-section.tsx:293
+msgid "Best case"
+msgstr "最良ケース"
 
 #: src/app/(tabs)/(dashboard)/wrapped.tsx:226
 #: src/components/insights-card.tsx:52
@@ -1491,6 +1518,10 @@ msgstr "入出金"
 msgid "cash-limited"
 msgstr "資金制約"
 
+#: src/components/reports/risk-section.tsx:311
+msgid "Chance of profit"
+msgstr "利益となる確率"
+
 #: src/app/(tabs)/(settings)/change-server.tsx:52
 msgid "Change & sign out"
 msgstr "変更してサインアウト"
@@ -1653,6 +1684,10 @@ msgstr "決済価格"
 #: src/app/(tabs)/(settings)/import-trades.tsx:56
 msgid "Close time"
 msgstr "決済時刻"
+
+#: src/components/reports/duration-scatter-card.tsx:53
+msgid "Close trades with hold times to see the scatter."
+msgstr "保有時間のあるトレードを決済すると散布図が表示されます。"
 
 #: src/app/(tabs)/(trades)/[id].tsx:334
 #: src/app/trade-preview.tsx:157
@@ -2131,7 +2166,7 @@ msgstr "通貨"
 msgid "Currency converter"
 msgstr "通貨コンバーター"
 
-#: src/components/reports/risk-section.tsx:110
+#: src/components/reports/risk-section.tsx:112
 msgid "Current drawdown"
 msgstr "現在のドローダウン"
 
@@ -2186,7 +2221,7 @@ msgstr "デイリーチェックリスト"
 msgid "Daily log"
 msgstr "デイリーログ"
 
-#: src/components/reports/risk-section.tsx:203
+#: src/components/reports/risk-section.tsx:205
 msgid "daily loss"
 msgstr "日次損失"
 
@@ -2245,10 +2280,10 @@ msgstr "日付"
 msgid "Day"
 msgstr "曜日"
 
-#: src/components/reports/detailed-section.tsx:156
-#: src/components/reports/detailed-section.tsx:163
-#: src/components/reports/detailed-section.tsx:171
-#: src/components/reports/detailed-section.tsx:185
+#: src/components/reports/detailed-section.tsx:158
+#: src/components/reports/detailed-section.tsx:165
+#: src/components/reports/detailed-section.tsx:173
+#: src/components/reports/detailed-section.tsx:187
 msgid "Day of week"
 msgstr "曜日"
 
@@ -2437,7 +2472,7 @@ msgstr "表示通貨"
 msgid "Display timezone"
 msgstr "表示タイムゾーン"
 
-#: src/components/reports/risk-section.tsx:137
+#: src/components/reports/risk-section.tsx:139
 msgid "Distance below the running equity peak."
 msgstr "資産曲線の直近ピークからの下落幅です。"
 
@@ -2479,13 +2514,18 @@ msgstr "ダウンロードして共有"
 msgid "download backup csv json zip share"
 msgstr "ダウンロード バックアップ CSV JSON ZIP 共有 エクスポート"
 
-#: src/components/reports/risk-section.tsx:94
+#: src/components/reports/risk-section.tsx:96
 msgid "Drawdown"
 msgstr "ドローダウン"
 
 #: src/components/prop-status-card.tsx:173
 msgid "Drawdown ({drawdownModeLabel})"
 msgstr "ドローダウン（{drawdownModeLabel}）"
+
+#. placeholder {0}: money.formatCompact(-sim.ruin_threshold)
+#: src/components/reports/risk-section.tsx:319
+msgid "drawdown ≥ {0}"
+msgstr "ドローダウン ≥ {0}"
 
 #: src/components/prop-status-card.tsx:215
 msgid "drawdown floor hit"
@@ -2506,6 +2546,10 @@ msgstr "約定を複製"
 #: src/components/reports-filter-menu.tsx:48
 msgid "Duration"
 msgstr "保有期間"
+
+#: src/components/reports/duration-scatter-card.tsx:131
+msgid "Duration vs P&L"
+msgstr "保有時間と損益"
 
 #: src/app/(tabs)/(settings)/user-form.tsx:98
 msgid "e.g. alex"
@@ -3359,6 +3403,10 @@ msgstr "損益が高い順"
 msgid "Hold ratio"
 msgstr "保有時間比"
 
+#: src/components/reports/duration-scatter-card.tsx:135
+msgid "Hold time on a log scale · dashed line marks the median hold"
+msgstr "保有時間は対数スケール · 破線は保有時間の中央値"
+
 #: src/app/(tabs)/(dashboard)/economic-events.tsx:208
 msgid "Holiday"
 msgstr "祝日"
@@ -3376,7 +3424,7 @@ msgstr "ホーム"
 msgid "Hour"
 msgstr "時"
 
-#: src/components/reports/detailed-section.tsx:202
+#: src/components/reports/detailed-section.tsx:204
 msgid "Hour of day"
 msgstr "時間帯"
 
@@ -3727,11 +3775,11 @@ msgstr "カレンダーを読み込み中"
 msgid "Loading chart"
 msgstr "チャートを読み込み中"
 
-#: src/components/reports/risk-section.tsx:145
+#: src/components/reports/risk-section.tsx:147
 msgid "Loading compliance"
 msgstr "ルール遵守状況を読み込み中"
 
-#: src/components/reports/risk-section.tsx:96
+#: src/components/reports/risk-section.tsx:98
 msgid "Loading drawdown"
 msgstr "ドローダウンを読み込み中"
 
@@ -3864,7 +3912,7 @@ msgstr "損失回避"
 msgid "Loss exceeded plan at {r}R"
 msgstr "損失が計画を超過（{r}R）"
 
-#: src/components/reports/risk-section.tsx:207
+#: src/components/reports/risk-section.tsx:209
 msgid "loss streak"
 msgstr "連敗超過"
 
@@ -3943,6 +3991,10 @@ msgstr "主要なサポート・レジスタンスを記入"
 msgid "Market"
 msgstr "市場"
 
+#: src/components/reports/session-clock-card.tsx:94
+msgid "Market sessions"
+msgstr "市場セッション"
+
 #: src/app/(tabs)/(settings)/display.tsx:148
 msgid "Market timezone"
 msgstr "市場タイムゾーン"
@@ -3963,7 +4015,7 @@ msgstr "1日の最大損失"
 #: src/app/(tabs)/(settings)/prop-settings.tsx:133
 #: src/components/equity-card.tsx:122
 #: src/components/insights-card.tsx:93
-#: src/components/reports/risk-section.tsx:105
+#: src/components/reports/risk-section.tsx:107
 msgid "Max drawdown"
 msgstr "最大ドローダウン"
 
@@ -4001,14 +4053,20 @@ msgstr "中央値"
 
 #. placeholder {0}: formatDuration(lossAversion.median_loss_hold_secs)
 #. placeholder {0}: formatDuration(lossAversion.median_win_hold_secs)
+#. placeholder {0}: formatDuration(median)
 #: src/components/reports/behavior-section.tsx:261
 #: src/components/reports/behavior-section.tsx:267
+#: src/components/reports/duration-scatter-card.tsx:102
 msgid "median {0}"
 msgstr "中央値 {0}"
 
 #: src/components/reports/overview-section.tsx:182
 msgid "Median loss"
 msgstr "損失中央値"
+
+#: src/components/reports/risk-section.tsx:287
+msgid "Median outcome"
+msgstr "中央値"
 
 #: src/components/reports/overview-section.tsx:193
 msgid "Median trade"
@@ -4100,6 +4158,10 @@ msgstr "モデル"
 #: src/components/reports/pnl-heatmap-card.tsx:22
 msgid "Mon"
 msgstr "月"
+
+#: src/components/reports/risk-section.tsx:274
+msgid "Monte Carlo"
+msgstr "モンテカルロ"
 
 #: src/app/(tabs)/(calendar)/index.tsx:406
 #: src/components/mini-calendar-card.tsx:56
@@ -4381,7 +4443,7 @@ msgstr "評価対象の決済トレードなし"
 #~ msgstr "接続できません"
 
 #: src/components/equity-card.tsx:82
-#: src/components/reports/risk-section.tsx:100
+#: src/components/reports/risk-section.tsx:102
 msgid "No equity data in this range."
 msgstr "この期間の資産データはありません。"
 
@@ -4439,7 +4501,7 @@ msgstr "{0} から応答がありません。接続、またはサーバーが�
 msgid "No revenge patterns detected — flags trades opened within an hour of a losing close: same-symbol re-entries inside 15 minutes, or entries sized 1.5× above your recent median."
 msgstr "リベンジトレードのパターンは検出されませんでした — 損失決済から1時間以内のトレード（15分以内の同銘柄再エントリー、または直近中央値の1.5倍超のサイズ）をフラグします。"
 
-#: src/components/reports/risk-section.tsx:151
+#: src/components/reports/risk-section.tsx:153
 msgid "No risk rules configured — set max risk per trade and max daily loss to score every trading day against your own process."
 msgstr "リスクルールが未設定です — 1トレードあたりの最大リスクと日次最大損失を設定すると、毎営業日を自分のプロセスで採点できます。"
 
@@ -4461,7 +4523,7 @@ msgstr "この範囲で取引されたセットアップはありません。"
 msgid "No setups yet"
 msgstr "セットアップはまだありません"
 
-#: src/components/reports/risk-section.tsx:121
+#: src/components/reports/risk-section.tsx:123
 msgid "no stops recorded"
 msgstr "ストップ未記録"
 
@@ -4469,7 +4531,7 @@ msgstr "ストップ未記録"
 msgid "No streak patterns detected — flags trades sized up right after a winning streak."
 msgstr "連勝パターンは検出されませんでした — 連勝直後にサイズを上げたトレードをフラグします。"
 
-#: src/components/reports/detailed-section.tsx:310
+#: src/components/reports/detailed-section.tsx:312
 msgid "No tagged trades in this range."
 msgstr "この範囲にタグ付きトレードはありません。"
 
@@ -4501,10 +4563,10 @@ msgid "No trades"
 msgstr "取引なし"
 
 #: src/app/(tabs)/(dashboard)/index.tsx:253
-#: src/components/reports/detailed-section.tsx:172
-#: src/components/reports/detailed-section.tsx:205
-#: src/components/reports/detailed-section.tsx:235
-#: src/components/reports/detailed-section.tsx:299
+#: src/components/reports/detailed-section.tsx:174
+#: src/components/reports/detailed-section.tsx:207
+#: src/components/reports/detailed-section.tsx:237
+#: src/components/reports/detailed-section.tsx:301
 #: src/components/reports/pnl-heatmap-card.tsx:88
 msgid "No trades in this range."
 msgstr "この期間のトレードはありません。"
@@ -4787,7 +4849,7 @@ msgstr "オープン日"
 msgid "Open price"
 msgstr "新規価格"
 
-#: src/components/reports/risk-section.tsx:157
+#: src/components/reports/risk-section.tsx:159
 msgid "Open risk rules"
 msgstr "リスクルールを開く"
 
@@ -4871,13 +4933,18 @@ msgstr "{0} 超過"
 msgid "over the last {windowSize} trades"
 msgstr "直近{windowSize}件"
 
+#. placeholder {0}: sim.horizon
+#: src/components/reports/risk-section.tsx:289
+msgid "over the next {0} trades"
+msgstr "今後{0}トレードで"
+
 #. placeholder {0}: day.risk_violations
 #: src/app/(tabs)/(calendar)/day/[date].tsx:162
-#: src/components/reports/risk-section.tsx:208
+#: src/components/reports/risk-section.tsx:210
 msgid "over-risked ×{0}"
 msgstr "過剰リスク ×{0}"
 
-#: src/components/reports/risk-section.tsx:205
+#: src/components/reports/risk-section.tsx:207
 msgid "over-traded"
 msgstr "取引数超過"
 
@@ -4889,7 +4956,7 @@ msgstr "過信"
 msgid "Overconfidence often shows up as oversizing or ignoring your stop. Check whether conviction exceeded your edge on this setup."
 msgstr "過信はサイズ過大やストップ無視に現れがちです。確信が優位性を上回っていなかったか確認しましょう。"
 
-#: src/components/reports/detailed-section.tsx:249
+#: src/components/reports/detailed-section.tsx:251
 msgid "Overnight"
 msgstr "オーバーナイト"
 
@@ -4941,11 +5008,11 @@ msgstr "損益ウォーターフォール"
 msgid "P&L heatmap"
 msgstr "損益ヒートマップ"
 
-#: src/components/reports/risk-section.tsx:175
+#: src/components/reports/risk-section.tsx:177
 msgid "P&L, rules broken"
 msgstr "損益（ルール違反日）"
 
-#: src/components/reports/risk-section.tsx:170
+#: src/components/reports/risk-section.tsx:172
 msgid "P&L, rules followed"
 msgstr "損益（ルール遵守日）"
 
@@ -4972,6 +5039,10 @@ msgstr "パスワードを変更しました"
 #: src/app/(tabs)/(settings)/reset-password.tsx:55
 msgid "Password reset"
 msgstr "パスワードをリセットしました"
+
+#: src/components/reports/risk-section.tsx:313
+msgid "paths ending above zero"
+msgstr "ゼロ以上で終わるパス"
 
 #: src/components/reports/behavior-section.tsx:62
 msgid "Patience"
@@ -5179,7 +5250,7 @@ msgstr "決済後MFE"
 #~ msgid "Preferences"
 #~ msgstr "環境設定"
 
-#: src/components/reports/detailed-section.tsx:243
+#: src/components/reports/detailed-section.tsx:245
 msgid "Premarket"
 msgstr "プレマーケット"
 
@@ -5488,7 +5559,7 @@ msgstr "実現損益"
 msgid "Recap"
 msgstr "まとめ"
 
-#: src/components/reports/risk-section.tsx:195
+#: src/components/reports/risk-section.tsx:197
 msgid "Recent breach days"
 msgstr "最近の違反日"
 
@@ -5516,7 +5587,7 @@ msgstr "マイナスの年"
 msgid "Regenerate"
 msgstr "再生成"
 
-#: src/components/reports/detailed-section.tsx:245
+#: src/components/reports/detailed-section.tsx:247
 msgid "Regular hours"
 msgstr "通常取引時間"
 
@@ -5821,6 +5892,10 @@ msgstr "リスク予算が1枚分未満 — リスク%を上げるかストッ�
 msgid "Risk journaled before the trade, blended with rule compliance when rules are set."
 msgstr "トレード前に記録したリスク。ルール設定時はルール遵守と合成。"
 
+#: src/components/reports/risk-section.tsx:317
+msgid "Risk of ruin"
+msgstr "破産リスク"
+
 #: src/app/(tabs)/(settings)/alerts.tsx:107
 msgid "Risk rule broken"
 msgstr "リスクルール違反"
@@ -5890,7 +5965,7 @@ msgstr "行数"
 msgid "Rows with errors"
 msgstr "エラーのある行"
 
-#: src/components/reports/risk-section.tsx:143
+#: src/components/reports/risk-section.tsx:145
 msgid "Rule compliance"
 msgstr "ルール遵守"
 
@@ -6202,14 +6277,14 @@ msgstr "セッション操作"
 msgid "Session summary"
 msgstr "セッション概要"
 
-#: src/components/reports/detailed-section.tsx:219
-#: src/components/reports/detailed-section.tsx:226
-#: src/components/reports/detailed-section.tsx:234
-#: src/components/reports/detailed-section.tsx:275
+#: src/components/reports/detailed-section.tsx:221
+#: src/components/reports/detailed-section.tsx:228
+#: src/components/reports/detailed-section.tsx:236
+#: src/components/reports/detailed-section.tsx:277
 msgid "Sessions"
 msgstr "セッション"
 
-#: src/components/reports/detailed-section.tsx:277
+#: src/components/reports/detailed-section.tsx:279
 msgid "Sessions follow the New York clock."
 msgstr "セッションはニューヨーク時間に従います。"
 
@@ -6693,7 +6768,7 @@ msgid "Symbol, e.g. SPY"
 msgstr "銘柄（例: SPY）"
 
 #: src/app/trade-preview.tsx:151
-#: src/components/reports/detailed-section.tsx:296
+#: src/components/reports/detailed-section.tsx:298
 msgid "Symbols"
 msgstr "銘柄"
 
@@ -6754,7 +6829,7 @@ msgstr "システム"
 #: src/app/(tabs)/(settings)/trading-journal.tsx:131
 #: src/app/(tabs)/(trades)/[id].tsx:806
 #: src/app/manage-tags.tsx:75
-#: src/components/reports/detailed-section.tsx:307
+#: src/components/reports/detailed-section.tsx:309
 #: src/components/trade-form.tsx:525
 msgid "Tags"
 msgstr "タグ"
@@ -6972,6 +7047,10 @@ msgstr "サーバーに経済カレンダーのプロバイダーが設定され
 #: src/lib/errors.ts:79
 msgid "The server is rate limiting this app. Try again in a moment."
 msgstr "サーバーがこのアプリのリクエストを制限しています。しばらくしてからもう一度お試しください。"
+
+#: src/components/reports/risk-section.tsx:281
+msgid "The simulation needs at least 10 closed trades to resample."
+msgstr "シミュレーションには決済済みトレードが10件以上必要です。"
 
 #: src/app/(tabs)/(settings)/account-form.tsx:298
 msgid "The starting balance is saved as the first deposit in the cash ledger."
@@ -7191,7 +7270,7 @@ msgid "Top"
 msgstr "上端"
 
 #. placeholder {0}: groups.length
-#: src/components/reports/detailed-section.tsx:141
+#: src/components/reports/detailed-section.tsx:143
 msgid "Top {MAX_ROWS} of {0} by magnitude."
 msgstr "変動額上位{MAX_ROWS}件（全{0}件）。"
 
@@ -7413,6 +7492,10 @@ msgstr "モデルIDを入力…"
 msgid "Type broker name"
 msgstr "ブローカー名を入力"
 
+#: src/components/reports/risk-section.tsx:305
+msgid "Typical max drawdown"
+msgstr "典型的な最大DD"
+
 #: src/app/(tabs)/(settings)/ai.tsx:88
 #~ msgid "Unavailable"
 #~ msgstr "利用できません"
@@ -7526,7 +7609,7 @@ msgstr "バージョン ビルド サーバー ライセンス"
 msgid "View all"
 msgstr "すべて表示"
 
-#: src/components/reports/risk-section.tsx:180
+#: src/components/reports/risk-section.tsx:182
 msgid "Violations"
 msgstr "違反"
 
@@ -7704,6 +7787,10 @@ msgstr "連勝"
 #: src/lib/cash.ts:12
 msgid "Withdrawal"
 msgstr "出金"
+
+#: src/components/reports/risk-section.tsx:299
+msgid "Worst case"
+msgstr "最悪ケース"
 
 #: src/app/(tabs)/(dashboard)/wrapped.tsx:255
 #: src/components/insights-card.tsx:58

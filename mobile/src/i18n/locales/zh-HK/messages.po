@@ -87,7 +87,7 @@ msgid "{0} closed trades excluded (no stop recorded)."
 msgstr "已排除 {0} 筆已平倉交易（未記錄止蝕）。"
 
 #. placeholder {0}: report.daily_loss_breaches
-#: src/components/reports/risk-section.tsx:80
+#: src/components/reports/risk-section.tsx:82
 msgid "{0} daily-loss"
 msgstr "日內虧損 {0}"
 
@@ -117,7 +117,7 @@ msgid "{0} losers without recorded MAE/MFE could not be checked — recompute ex
 msgstr "{0} 筆未記錄 MAE/MFE 的虧損交易無法檢查 — 在交易頁重新計算波幅以補回。"
 
 #. placeholder {0}: report.loss_streak_breaches
-#: src/components/reports/risk-section.tsx:82
+#: src/components/reports/risk-section.tsx:84
 msgid "{0} loss-streak"
 msgstr "連敗超限 {0}"
 
@@ -137,12 +137,12 @@ msgstr "{1} 中的 {0}"
 
 #. placeholder {0}: risk.included
 #. placeholder {1}: risk.included + risk.excluded
-#: src/components/reports/risk-section.tsx:120
+#: src/components/reports/risk-section.tsx:122
 msgid "{0} of {1} trades"
 msgstr "{1} 筆中的 {0} 筆"
 
 #. placeholder {0}: report.compliant_days
-#: src/components/reports/risk-section.tsx:166
+#: src/components/reports/risk-section.tsx:168
 msgid "{0} of {scoredDays} days"
 msgstr "{scoredDays} 日中的 {0} 日"
 
@@ -160,7 +160,7 @@ msgstr "佔利潤 {0}"
 #~ msgstr "持倉 {0} @ {1}"
 
 #. placeholder {0}: report.risk_violations
-#: src/components/reports/risk-section.tsx:79
+#: src/components/reports/risk-section.tsx:81
 msgid "{0} over-risked"
 msgstr "超額風險 {0}"
 
@@ -173,7 +173,7 @@ msgstr "超額風險 {0}"
 #~ msgstr "超額風險 {0} · 日內虧損 {1} · 超量交易 {2}"
 
 #. placeholder {0}: report.trade_limit_breaches
-#: src/components/reports/risk-section.tsx:81
+#: src/components/reports/risk-section.tsx:83
 msgid "{0} over-traded"
 msgstr "超量交易 {0}"
 
@@ -181,6 +181,12 @@ msgstr "超量交易 {0}"
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:521
 msgid "{0} per +1R"
 msgstr "每 +1R {0}"
+
+#. placeholder {0}: sim.paths
+#. placeholder {1}: sim.trades
+#: src/components/reports/risk-section.tsx:336
+msgid "{0} resamples of your {1} closed trades' net P&L — assumes each trade is an independent draw from your history, so streaks and changing conditions are understated."
+msgstr "將你 {1} 筆已平倉交易嘅淨損益重抽樣 {0} 次 — 假設每筆交易係獨立抽取,所以連勝連敗同市況轉變會被低估。"
 
 #. placeholder {0}: batch.row_count
 #: src/app/(tabs)/(settings)/import-history.tsx:89
@@ -208,11 +214,11 @@ msgstr "找到 {0} 個代號"
 #: src/app/(tabs)/(dashboard)/playbook.tsx:280
 #: src/components/insights-card.tsx:90
 #: src/components/reports/behavior-section.tsx:116
-#: src/components/reports/detailed-section.tsx:266
+#: src/components/reports/detailed-section.tsx:268
 #: src/components/reports/overview-section.tsx:284
 #: src/components/reports/overview-section.tsx:455
 #: src/components/reports/overview-section.tsx:637
-#: src/components/reports/risk-section.tsx:200
+#: src/components/reports/risk-section.tsx:202
 msgid "{0} trades"
 msgstr "{0} 筆交易"
 
@@ -242,7 +248,7 @@ msgid "{0} trades from {1} rows — {2} fills inserted, {3} duplicates skipped."
 msgstr "從 {1} 行取得 {0} 筆交易 — 已插入 {2} 筆成交，略過 {3} 筆重複。"
 
 #. placeholder {0}: report.unknown_risk
-#: src/components/reports/risk-section.tsx:189
+#: src/components/reports/risk-section.tsx:191
 msgid "{0} trades had no recorded initial risk and could not be scored against the per-trade rule."
 msgstr "{0} 筆交易未記錄初始風險，無法按每筆風險規則評分。"
 
@@ -384,6 +390,10 @@ msgstr "{symbol} 重播（{barClock}）— {0}"
 msgid "{tradeCount} trades"
 msgstr "{tradeCount} 筆交易"
 
+#: src/components/reports/session-clock-card.tsx:95
+msgid "{tzCity} clock"
+msgstr "{tzCity} 時鐘"
+
 #: src/app/(tabs)/(calendar)/index.tsx:454
 #~ msgid "{weekCount, plural, one {# trade} other {# trades}}"
 #~ msgstr "{weekCount, plural, other {# 筆}}"
@@ -496,6 +506,11 @@ msgstr "1 日"
 msgid "1 file scanned"
 msgstr "已掃描 1 個檔案"
 
+#. placeholder {0}: money.formatCompact(-sim.max_drawdown.p95)
+#: src/components/reports/risk-section.tsx:307
+msgid "1 in 20 worse than {0}"
+msgstr "廿分之一機會差過 {0}"
+
 #: src/app/(tabs)/(settings)/index.tsx:141
 msgid "1 offline change hasn't synced yet and will be discarded."
 msgstr "有 1 項離線變更尚未同步，將會被捨棄。"
@@ -560,6 +575,10 @@ msgstr "30 日"
 msgid "30d"
 msgstr "30日"
 
+#: src/components/reports/risk-section.tsx:301
+msgid "5th percentile"
+msgstr "第 5 百分位"
+
 #: src/app/(tabs)/(settings)/two-factor.tsx:104
 #: src/app/(tabs)/(settings)/two-factor.tsx:225
 msgid "6-digit code"
@@ -572,6 +591,10 @@ msgstr "90 日"
 #: src/app/new-token.tsx:18
 msgid "90d"
 msgstr "90日"
+
+#: src/components/reports/risk-section.tsx:295
+msgid "95th percentile"
+msgstr "第 95 百分位"
 
 #: src/app/(tabs)/(dashboard)/checklist.tsx:247
 #~ msgid "A pre-market routine to start from. Add the ones that fit how you trade."
@@ -826,7 +849,7 @@ msgstr "網址"
 msgid "Adds a 6-digit code from an authenticator app to your password at sign-in."
 msgstr "登入時，除密碼外再要求驗證器的 6 位數驗證碼。"
 
-#: src/components/reports/risk-section.tsx:164
+#: src/components/reports/risk-section.tsx:166
 msgid "Adherence"
 msgstr "遵守率"
 
@@ -847,7 +870,7 @@ msgstr "調整"
 msgid "Adverse excursion exceeded planned risk"
 msgstr "不利波幅超過計劃風險"
 
-#: src/components/reports/detailed-section.tsx:247
+#: src/components/reports/detailed-section.tsx:249
 msgid "After hours"
 msgstr "盤後"
 
@@ -1066,7 +1089,7 @@ msgstr "至少 {MIN_LENGTH} 個字元"
 #~ msgid "At least {MIN_LENGTH} characters. Changing it signs out your other devices — this one stays signed in."
 #~ msgstr "至少 {MIN_LENGTH} 個字元。變更後其他裝置會登出，此裝置維持登入。"
 
-#: src/components/reports/risk-section.tsx:112
+#: src/components/reports/risk-section.tsx:114
 msgid "at the highs"
 msgstr "處於高位"
 
@@ -1099,7 +1122,7 @@ msgstr "平均"
 msgid "Average hold"
 msgstr "平均持倉時間"
 
-#: src/components/reports/detailed-section.tsx:267
+#: src/components/reports/detailed-section.tsx:269
 msgid "avg"
 msgstr "平均"
 
@@ -1147,7 +1170,7 @@ msgstr "平均虧損"
 msgid "Avg R / trade"
 msgstr "每筆平均 R"
 
-#: src/components/reports/risk-section.tsx:116
+#: src/components/reports/risk-section.tsx:118
 msgid "Avg risk / trade"
 msgstr "每筆平均風險"
 
@@ -1259,13 +1282,17 @@ msgstr "進度落後"
 msgid "below average"
 msgstr "低於平均"
 
-#: src/components/reports/risk-section.tsx:133
+#: src/components/reports/risk-section.tsx:135
 msgid "Below peak"
 msgstr "距離高位"
 
 #: src/components/reports/overview-section.tsx:783
 msgid "Best / worst"
 msgstr "最佳 / 最差"
+
+#: src/components/reports/risk-section.tsx:293
+msgid "Best case"
+msgstr "最好情況"
 
 #: src/app/(tabs)/(dashboard)/wrapped.tsx:226
 #: src/components/insights-card.tsx:52
@@ -1491,6 +1518,10 @@ msgstr "資金往來"
 msgid "cash-limited"
 msgstr "受現金限制"
 
+#: src/components/reports/risk-section.tsx:311
+msgid "Chance of profit"
+msgstr "獲利機率"
+
 #: src/app/(tabs)/(settings)/change-server.tsx:52
 msgid "Change & sign out"
 msgstr "更改並登出"
@@ -1653,6 +1684,10 @@ msgstr "平倉價"
 #: src/app/(tabs)/(settings)/import-trades.tsx:56
 msgid "Close time"
 msgstr "平倉時間"
+
+#: src/components/reports/duration-scatter-card.tsx:53
+msgid "Close trades with hold times to see the scatter."
+msgstr "有持倉時間嘅交易平倉後就會見到散點圖。"
 
 #: src/app/(tabs)/(trades)/[id].tsx:334
 #: src/app/trade-preview.tsx:157
@@ -2131,7 +2166,7 @@ msgstr "貨幣"
 msgid "Currency converter"
 msgstr "貨幣換算"
 
-#: src/components/reports/risk-section.tsx:110
+#: src/components/reports/risk-section.tsx:112
 msgid "Current drawdown"
 msgstr "目前回撤"
 
@@ -2186,7 +2221,7 @@ msgstr "每日清單"
 msgid "Daily log"
 msgstr "每日日誌"
 
-#: src/components/reports/risk-section.tsx:203
+#: src/components/reports/risk-section.tsx:205
 msgid "daily loss"
 msgstr "單日虧損"
 
@@ -2245,10 +2280,10 @@ msgstr "日期"
 msgid "Day"
 msgstr "星期"
 
-#: src/components/reports/detailed-section.tsx:156
-#: src/components/reports/detailed-section.tsx:163
-#: src/components/reports/detailed-section.tsx:171
-#: src/components/reports/detailed-section.tsx:185
+#: src/components/reports/detailed-section.tsx:158
+#: src/components/reports/detailed-section.tsx:165
+#: src/components/reports/detailed-section.tsx:173
+#: src/components/reports/detailed-section.tsx:187
 msgid "Day of week"
 msgstr "星期"
 
@@ -2437,7 +2472,7 @@ msgstr "顯示貨幣"
 msgid "Display timezone"
 msgstr "顯示時區"
 
-#: src/components/reports/risk-section.tsx:137
+#: src/components/reports/risk-section.tsx:139
 msgid "Distance below the running equity peak."
 msgstr "資產曲線相對近期高點的回落幅度。"
 
@@ -2479,13 +2514,18 @@ msgstr "下載並分享"
 msgid "download backup csv json zip share"
 msgstr "下載 備份 CSV JSON ZIP 分享 匯出"
 
-#: src/components/reports/risk-section.tsx:94
+#: src/components/reports/risk-section.tsx:96
 msgid "Drawdown"
 msgstr "回撤"
 
 #: src/components/prop-status-card.tsx:173
 msgid "Drawdown ({drawdownModeLabel})"
 msgstr "回撤（{drawdownModeLabel}）"
+
+#. placeholder {0}: money.formatCompact(-sim.ruin_threshold)
+#: src/components/reports/risk-section.tsx:319
+msgid "drawdown ≥ {0}"
+msgstr "回撤 ≥ {0}"
 
 #: src/components/prop-status-card.tsx:215
 msgid "drawdown floor hit"
@@ -2506,6 +2546,10 @@ msgstr "複製成交"
 #: src/components/reports-filter-menu.tsx:48
 msgid "Duration"
 msgstr "持倉時長"
+
+#: src/components/reports/duration-scatter-card.tsx:131
+msgid "Duration vs P&L"
+msgstr "持倉時間 vs 損益"
 
 #: src/app/(tabs)/(settings)/user-form.tsx:98
 msgid "e.g. alex"
@@ -3359,6 +3403,10 @@ msgstr "損益最高"
 msgid "Hold ratio"
 msgstr "持倉時間比"
 
+#: src/components/reports/duration-scatter-card.tsx:135
+msgid "Hold time on a log scale · dashed line marks the median hold"
+msgstr "持倉時間用對數刻度 · 虛線係持倉中位數"
+
 #: src/app/(tabs)/(dashboard)/economic-events.tsx:208
 msgid "Holiday"
 msgstr "假期"
@@ -3376,7 +3424,7 @@ msgstr "主頁"
 msgid "Hour"
 msgstr "時"
 
-#: src/components/reports/detailed-section.tsx:202
+#: src/components/reports/detailed-section.tsx:204
 msgid "Hour of day"
 msgstr "時段"
 
@@ -3727,11 +3775,11 @@ msgstr "正在載入日曆"
 msgid "Loading chart"
 msgstr "正在載入圖表"
 
-#: src/components/reports/risk-section.tsx:145
+#: src/components/reports/risk-section.tsx:147
 msgid "Loading compliance"
 msgstr "正在載入規則遵守情況"
 
-#: src/components/reports/risk-section.tsx:96
+#: src/components/reports/risk-section.tsx:98
 msgid "Loading drawdown"
 msgstr "正在載入回撤"
 
@@ -3864,7 +3912,7 @@ msgstr "損失趨避"
 msgid "Loss exceeded plan at {r}R"
 msgstr "虧損超出計劃（{r}R）"
 
-#: src/components/reports/risk-section.tsx:207
+#: src/components/reports/risk-section.tsx:209
 msgid "loss streak"
 msgstr "連敗超限"
 
@@ -3943,6 +3991,10 @@ msgstr "標記關鍵支撐阻力位"
 msgid "Market"
 msgstr "市場"
 
+#: src/components/reports/session-clock-card.tsx:94
+msgid "Market sessions"
+msgstr "市場時段"
+
 #: src/app/(tabs)/(settings)/display.tsx:148
 msgid "Market timezone"
 msgstr "市場時區"
@@ -3963,7 +4015,7 @@ msgstr "每日最大虧損"
 #: src/app/(tabs)/(settings)/prop-settings.tsx:133
 #: src/components/equity-card.tsx:122
 #: src/components/insights-card.tsx:93
-#: src/components/reports/risk-section.tsx:105
+#: src/components/reports/risk-section.tsx:107
 msgid "Max drawdown"
 msgstr "最大回撤"
 
@@ -4001,14 +4053,20 @@ msgstr "中位數"
 
 #. placeholder {0}: formatDuration(lossAversion.median_loss_hold_secs)
 #. placeholder {0}: formatDuration(lossAversion.median_win_hold_secs)
+#. placeholder {0}: formatDuration(median)
 #: src/components/reports/behavior-section.tsx:261
 #: src/components/reports/behavior-section.tsx:267
+#: src/components/reports/duration-scatter-card.tsx:102
 msgid "median {0}"
 msgstr "中位數 {0}"
 
 #: src/components/reports/overview-section.tsx:182
 msgid "Median loss"
 msgstr "虧損中位數"
+
+#: src/components/reports/risk-section.tsx:287
+msgid "Median outcome"
+msgstr "中位數結果"
 
 #: src/components/reports/overview-section.tsx:193
 msgid "Median trade"
@@ -4100,6 +4158,10 @@ msgstr "模型"
 #: src/components/reports/pnl-heatmap-card.tsx:22
 msgid "Mon"
 msgstr "一"
+
+#: src/components/reports/risk-section.tsx:274
+msgid "Monte Carlo"
+msgstr "蒙地卡羅"
 
 #: src/app/(tabs)/(calendar)/index.tsx:406
 #: src/components/mini-calendar-card.tsx:56
@@ -4381,7 +4443,7 @@ msgstr "沒有已評分的平倉交易"
 #~ msgstr "沒有連線"
 
 #: src/components/equity-card.tsx:82
-#: src/components/reports/risk-section.tsx:100
+#: src/components/reports/risk-section.tsx:102
 msgid "No equity data in this range."
 msgstr "此範圍內無資金數據。"
 
@@ -4439,7 +4501,7 @@ msgstr "{0} 沒有回應。請檢查網絡連線，或伺服器是否正在運�
 msgid "No revenge patterns detected — flags trades opened within an hour of a losing close: same-symbol re-entries inside 15 minutes, or entries sized 1.5× above your recent median."
 msgstr "未偵測到報復性交易 — 標記虧損平倉後一小時內開倉的交易：15 分鐘內同一標的再入場，或倉位超過近期中位數 1.5 倍。"
 
-#: src/components/reports/risk-section.tsx:151
+#: src/components/reports/risk-section.tsx:153
 msgid "No risk rules configured — set max risk per trade and max daily loss to score every trading day against your own process."
 msgstr "未設定風險規則 — 設定每筆最大風險及單日最大虧損，即可按自己的流程為每個交易日評分。"
 
@@ -4461,7 +4523,7 @@ msgstr "此範圍內沒有交易過的策略。"
 msgid "No setups yet"
 msgstr "尚無策略"
 
-#: src/components/reports/risk-section.tsx:121
+#: src/components/reports/risk-section.tsx:123
 msgid "no stops recorded"
 msgstr "未記錄止蝕"
 
@@ -4469,7 +4531,7 @@ msgstr "未記錄止蝕"
 msgid "No streak patterns detected — flags trades sized up right after a winning streak."
 msgstr "未偵測到連勝模式 — 標記連勝後即加大倉位的交易。"
 
-#: src/components/reports/detailed-section.tsx:310
+#: src/components/reports/detailed-section.tsx:312
 msgid "No tagged trades in this range."
 msgstr "此範圍內沒有已標籤的交易。"
 
@@ -4501,10 +4563,10 @@ msgid "No trades"
 msgstr "無交易"
 
 #: src/app/(tabs)/(dashboard)/index.tsx:253
-#: src/components/reports/detailed-section.tsx:172
-#: src/components/reports/detailed-section.tsx:205
-#: src/components/reports/detailed-section.tsx:235
-#: src/components/reports/detailed-section.tsx:299
+#: src/components/reports/detailed-section.tsx:174
+#: src/components/reports/detailed-section.tsx:207
+#: src/components/reports/detailed-section.tsx:237
+#: src/components/reports/detailed-section.tsx:301
 #: src/components/reports/pnl-heatmap-card.tsx:88
 msgid "No trades in this range."
 msgstr "此範圍內無交易。"
@@ -4787,7 +4849,7 @@ msgstr "開倉日"
 msgid "Open price"
 msgstr "開倉價"
 
-#: src/components/reports/risk-section.tsx:157
+#: src/components/reports/risk-section.tsx:159
 msgid "Open risk rules"
 msgstr "開啟風險規則"
 
@@ -4871,13 +4933,18 @@ msgstr "超出 {0}"
 msgid "over the last {windowSize} trades"
 msgstr "最近 {windowSize} 筆"
 
+#. placeholder {0}: sim.horizon
+#: src/components/reports/risk-section.tsx:289
+msgid "over the next {0} trades"
+msgstr "未來 {0} 筆交易"
+
 #. placeholder {0}: day.risk_violations
 #: src/app/(tabs)/(calendar)/day/[date].tsx:162
-#: src/components/reports/risk-section.tsx:208
+#: src/components/reports/risk-section.tsx:210
 msgid "over-risked ×{0}"
 msgstr "風險超標 ×{0}"
 
-#: src/components/reports/risk-section.tsx:205
+#: src/components/reports/risk-section.tsx:207
 msgid "over-traded"
 msgstr "超量交易"
 
@@ -4889,7 +4956,7 @@ msgstr "過度自信"
 msgid "Overconfidence often shows up as oversizing or ignoring your stop. Check whether conviction exceeded your edge on this setup."
 msgstr "過度自信常表現為倉位過大或無視止蝕。檢查信心是否超越了實際優勢。"
 
-#: src/components/reports/detailed-section.tsx:249
+#: src/components/reports/detailed-section.tsx:251
 msgid "Overnight"
 msgstr "隔夜"
 
@@ -4941,11 +5008,11 @@ msgstr "盈虧瀑布圖"
 msgid "P&L heatmap"
 msgstr "盈虧熱力圖"
 
-#: src/components/reports/risk-section.tsx:175
+#: src/components/reports/risk-section.tsx:177
 msgid "P&L, rules broken"
 msgstr "盈虧（違規日）"
 
-#: src/components/reports/risk-section.tsx:170
+#: src/components/reports/risk-section.tsx:172
 msgid "P&L, rules followed"
 msgstr "盈虧（遵守日）"
 
@@ -4972,6 +5039,10 @@ msgstr "密碼已變更"
 #: src/app/(tabs)/(settings)/reset-password.tsx:55
 msgid "Password reset"
 msgstr "密碼已重設"
+
+#: src/components/reports/risk-section.tsx:313
+msgid "paths ending above zero"
+msgstr "高於零收場嘅路徑"
 
 #: src/components/reports/behavior-section.tsx:62
 msgid "Patience"
@@ -5179,7 +5250,7 @@ msgstr "離場後 MFE"
 #~ msgid "Preferences"
 #~ msgstr "偏好設定"
 
-#: src/components/reports/detailed-section.tsx:243
+#: src/components/reports/detailed-section.tsx:245
 msgid "Premarket"
 msgstr "盤前"
 
@@ -5488,7 +5559,7 @@ msgstr "已實現損益"
 msgid "Recap"
 msgstr "總結"
 
-#: src/components/reports/risk-section.tsx:195
+#: src/components/reports/risk-section.tsx:197
 msgid "Recent breach days"
 msgstr "最近違規日"
 
@@ -5516,7 +5587,7 @@ msgstr "虧損之年"
 msgid "Regenerate"
 msgstr "重新生成"
 
-#: src/components/reports/detailed-section.tsx:245
+#: src/components/reports/detailed-section.tsx:247
 msgid "Regular hours"
 msgstr "正常交易時段"
 
@@ -5821,6 +5892,10 @@ msgstr "風險預算不足一張合約 — 提高風險%或收窄止蝕"
 msgid "Risk journaled before the trade, blended with rule compliance when rules are set."
 msgstr "交易前記低嘅風險,設咗規則時會混入規則遵守度。"
 
+#: src/components/reports/risk-section.tsx:317
+msgid "Risk of ruin"
+msgstr "破產風險"
+
 #: src/app/(tabs)/(settings)/alerts.tsx:107
 msgid "Risk rule broken"
 msgstr "違反風險規則"
@@ -5890,7 +5965,7 @@ msgstr "列數"
 msgid "Rows with errors"
 msgstr "有錯誤的列"
 
-#: src/components/reports/risk-section.tsx:143
+#: src/components/reports/risk-section.tsx:145
 msgid "Rule compliance"
 msgstr "規則遵守"
 
@@ -6202,14 +6277,14 @@ msgstr "時段操作"
 msgid "Session summary"
 msgstr "當日摘要"
 
-#: src/components/reports/detailed-section.tsx:219
-#: src/components/reports/detailed-section.tsx:226
-#: src/components/reports/detailed-section.tsx:234
-#: src/components/reports/detailed-section.tsx:275
+#: src/components/reports/detailed-section.tsx:221
+#: src/components/reports/detailed-section.tsx:228
+#: src/components/reports/detailed-section.tsx:236
+#: src/components/reports/detailed-section.tsx:277
 msgid "Sessions"
 msgstr "交易時段"
 
-#: src/components/reports/detailed-section.tsx:277
+#: src/components/reports/detailed-section.tsx:279
 msgid "Sessions follow the New York clock."
 msgstr "交易時段以紐約時間為準。"
 
@@ -6693,7 +6768,7 @@ msgid "Symbol, e.g. SPY"
 msgstr "代號（例如 SPY）"
 
 #: src/app/trade-preview.tsx:151
-#: src/components/reports/detailed-section.tsx:296
+#: src/components/reports/detailed-section.tsx:298
 msgid "Symbols"
 msgstr "標的"
 
@@ -6754,7 +6829,7 @@ msgstr "系統"
 #: src/app/(tabs)/(settings)/trading-journal.tsx:131
 #: src/app/(tabs)/(trades)/[id].tsx:806
 #: src/app/manage-tags.tsx:75
-#: src/components/reports/detailed-section.tsx:307
+#: src/components/reports/detailed-section.tsx:309
 #: src/components/trade-form.tsx:525
 msgid "Tags"
 msgstr "標籤"
@@ -6972,6 +7047,10 @@ msgstr "伺服器未設定經濟日曆供應商。"
 #: src/lib/errors.ts:79
 msgid "The server is rate limiting this app. Try again in a moment."
 msgstr "伺服器正在限制此應用程式的請求。請稍後再試。"
+
+#: src/components/reports/risk-section.tsx:281
+msgid "The simulation needs at least 10 closed trades to resample."
+msgstr "模擬需要至少 10 筆已平倉交易先可以重抽樣。"
 
 #: src/app/(tabs)/(settings)/account-form.tsx:298
 msgid "The starting balance is saved as the first deposit in the cash ledger."
@@ -7191,7 +7270,7 @@ msgid "Top"
 msgstr "頂部"
 
 #. placeholder {0}: groups.length
-#: src/components/reports/detailed-section.tsx:141
+#: src/components/reports/detailed-section.tsx:143
 msgid "Top {MAX_ROWS} of {0} by magnitude."
 msgstr "按變動幅度排列的前 {MAX_ROWS} 項（共 {0} 項）。"
 
@@ -7413,6 +7492,10 @@ msgstr "輸入模型 ID…"
 msgid "Type broker name"
 msgstr "輸入券商名稱"
 
+#: src/components/reports/risk-section.tsx:305
+msgid "Typical max drawdown"
+msgstr "典型最大回撤"
+
 #: src/app/(tabs)/(settings)/ai.tsx:88
 #~ msgid "Unavailable"
 #~ msgstr "無法使用"
@@ -7526,7 +7609,7 @@ msgstr "版本 組建 伺服器 授權"
 msgid "View all"
 msgstr "查看全部"
 
-#: src/components/reports/risk-section.tsx:180
+#: src/components/reports/risk-section.tsx:182
 msgid "Violations"
 msgstr "違規"
 
@@ -7704,6 +7787,10 @@ msgstr "連勝"
 #: src/lib/cash.ts:12
 msgid "Withdrawal"
 msgstr "提款"
+
+#: src/components/reports/risk-section.tsx:299
+msgid "Worst case"
+msgstr "最壞情況"
 
 #: src/app/(tabs)/(dashboard)/wrapped.tsx:255
 #: src/components/insights-card.tsx:58

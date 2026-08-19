@@ -87,7 +87,7 @@ msgid "{0} closed trades excluded (no stop recorded)."
 msgstr "{0} closed trades excluded (no stop recorded)."
 
 #. placeholder {0}: report.daily_loss_breaches
-#: src/components/reports/risk-section.tsx:80
+#: src/components/reports/risk-section.tsx:82
 msgid "{0} daily-loss"
 msgstr "{0} daily-loss"
 
@@ -117,7 +117,7 @@ msgid "{0} losers without recorded MAE/MFE could not be checked — recompute ex
 msgstr "{0} losers without recorded MAE/MFE could not be checked — recompute excursion on the trade to fill them."
 
 #. placeholder {0}: report.loss_streak_breaches
-#: src/components/reports/risk-section.tsx:82
+#: src/components/reports/risk-section.tsx:84
 msgid "{0} loss-streak"
 msgstr "{0} loss-streak"
 
@@ -137,12 +137,12 @@ msgstr "{0} of {1}"
 
 #. placeholder {0}: risk.included
 #. placeholder {1}: risk.included + risk.excluded
-#: src/components/reports/risk-section.tsx:120
+#: src/components/reports/risk-section.tsx:122
 msgid "{0} of {1} trades"
 msgstr "{0} of {1} trades"
 
 #. placeholder {0}: report.compliant_days
-#: src/components/reports/risk-section.tsx:166
+#: src/components/reports/risk-section.tsx:168
 msgid "{0} of {scoredDays} days"
 msgstr "{0} of {scoredDays} days"
 
@@ -160,7 +160,7 @@ msgstr "{0} of profit"
 #~ msgstr "{0} open @ {1}"
 
 #. placeholder {0}: report.risk_violations
-#: src/components/reports/risk-section.tsx:79
+#: src/components/reports/risk-section.tsx:81
 msgid "{0} over-risked"
 msgstr "{0} over-risked"
 
@@ -173,7 +173,7 @@ msgstr "{0} over-risked"
 #~ msgstr "{0} over-risked · {1} daily-loss · {2} over-traded"
 
 #. placeholder {0}: report.trade_limit_breaches
-#: src/components/reports/risk-section.tsx:81
+#: src/components/reports/risk-section.tsx:83
 msgid "{0} over-traded"
 msgstr "{0} over-traded"
 
@@ -181,6 +181,12 @@ msgstr "{0} over-traded"
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:521
 msgid "{0} per +1R"
 msgstr "{0} per +1R"
+
+#. placeholder {0}: sim.paths
+#. placeholder {1}: sim.trades
+#: src/components/reports/risk-section.tsx:336
+msgid "{0} resamples of your {1} closed trades' net P&L — assumes each trade is an independent draw from your history, so streaks and changing conditions are understated."
+msgstr "{0} resamples of your {1} closed trades' net P&L — assumes each trade is an independent draw from your history, so streaks and changing conditions are understated."
 
 #. placeholder {0}: batch.row_count
 #: src/app/(tabs)/(settings)/import-history.tsx:89
@@ -208,11 +214,11 @@ msgstr "{0} symbols found"
 #: src/app/(tabs)/(dashboard)/playbook.tsx:280
 #: src/components/insights-card.tsx:90
 #: src/components/reports/behavior-section.tsx:116
-#: src/components/reports/detailed-section.tsx:266
+#: src/components/reports/detailed-section.tsx:268
 #: src/components/reports/overview-section.tsx:284
 #: src/components/reports/overview-section.tsx:455
 #: src/components/reports/overview-section.tsx:637
-#: src/components/reports/risk-section.tsx:200
+#: src/components/reports/risk-section.tsx:202
 msgid "{0} trades"
 msgstr "{0} trades"
 
@@ -242,7 +248,7 @@ msgid "{0} trades from {1} rows — {2} fills inserted, {3} duplicates skipped."
 msgstr "{0} trades from {1} rows — {2} fills inserted, {3} duplicates skipped."
 
 #. placeholder {0}: report.unknown_risk
-#: src/components/reports/risk-section.tsx:189
+#: src/components/reports/risk-section.tsx:191
 msgid "{0} trades had no recorded initial risk and could not be scored against the per-trade rule."
 msgstr "{0} trades had no recorded initial risk and could not be scored against the per-trade rule."
 
@@ -384,6 +390,10 @@ msgstr "{symbol} replay at {barClock} — {0}"
 msgid "{tradeCount} trades"
 msgstr "{tradeCount} trades"
 
+#: src/components/reports/session-clock-card.tsx:95
+msgid "{tzCity} clock"
+msgstr "{tzCity} clock"
+
 #: src/app/(tabs)/(calendar)/index.tsx:454
 #~ msgid "{weekCount, plural, one {# trade} other {# trades}}"
 #~ msgstr "{weekCount, plural, one {# trade} other {# trades}}"
@@ -496,6 +506,11 @@ msgstr "1 day"
 msgid "1 file scanned"
 msgstr "1 file scanned"
 
+#. placeholder {0}: money.formatCompact(-sim.max_drawdown.p95)
+#: src/components/reports/risk-section.tsx:307
+msgid "1 in 20 worse than {0}"
+msgstr "1 in 20 worse than {0}"
+
 #: src/app/(tabs)/(settings)/index.tsx:141
 msgid "1 offline change hasn't synced yet and will be discarded."
 msgstr "1 offline change hasn't synced yet and will be discarded."
@@ -560,6 +575,10 @@ msgstr "30 days"
 msgid "30d"
 msgstr "30d"
 
+#: src/components/reports/risk-section.tsx:301
+msgid "5th percentile"
+msgstr "5th percentile"
+
 #: src/app/(tabs)/(settings)/two-factor.tsx:104
 #: src/app/(tabs)/(settings)/two-factor.tsx:225
 msgid "6-digit code"
@@ -572,6 +591,10 @@ msgstr "90 days"
 #: src/app/new-token.tsx:18
 msgid "90d"
 msgstr "90d"
+
+#: src/components/reports/risk-section.tsx:295
+msgid "95th percentile"
+msgstr "95th percentile"
 
 #: src/app/(tabs)/(dashboard)/checklist.tsx:247
 #~ msgid "A pre-market routine to start from. Add the ones that fit how you trade."
@@ -826,7 +849,7 @@ msgstr "Address"
 msgid "Adds a 6-digit code from an authenticator app to your password at sign-in."
 msgstr "Adds a 6-digit code from an authenticator app to your password at sign-in."
 
-#: src/components/reports/risk-section.tsx:164
+#: src/components/reports/risk-section.tsx:166
 msgid "Adherence"
 msgstr "Adherence"
 
@@ -847,7 +870,7 @@ msgstr "Adjustment"
 msgid "Adverse excursion exceeded planned risk"
 msgstr "Adverse excursion exceeded planned risk"
 
-#: src/components/reports/detailed-section.tsx:247
+#: src/components/reports/detailed-section.tsx:249
 msgid "After hours"
 msgstr "After hours"
 
@@ -1066,7 +1089,7 @@ msgstr "At least {MIN_LENGTH} characters"
 #~ msgid "At least {MIN_LENGTH} characters. Changing it signs out your other devices — this one stays signed in."
 #~ msgstr "At least {MIN_LENGTH} characters. Changing it signs out your other devices — this one stays signed in."
 
-#: src/components/reports/risk-section.tsx:112
+#: src/components/reports/risk-section.tsx:114
 msgid "at the highs"
 msgstr "at the highs"
 
@@ -1099,7 +1122,7 @@ msgstr "Average"
 msgid "Average hold"
 msgstr "Average hold"
 
-#: src/components/reports/detailed-section.tsx:267
+#: src/components/reports/detailed-section.tsx:269
 msgid "avg"
 msgstr "avg"
 
@@ -1147,7 +1170,7 @@ msgstr "Avg loss"
 msgid "Avg R / trade"
 msgstr "Avg R / trade"
 
-#: src/components/reports/risk-section.tsx:116
+#: src/components/reports/risk-section.tsx:118
 msgid "Avg risk / trade"
 msgstr "Avg risk / trade"
 
@@ -1259,13 +1282,17 @@ msgstr "Behind pace"
 msgid "below average"
 msgstr "below average"
 
-#: src/components/reports/risk-section.tsx:133
+#: src/components/reports/risk-section.tsx:135
 msgid "Below peak"
 msgstr "Below peak"
 
 #: src/components/reports/overview-section.tsx:783
 msgid "Best / worst"
 msgstr "Best / worst"
+
+#: src/components/reports/risk-section.tsx:293
+msgid "Best case"
+msgstr "Best case"
 
 #: src/app/(tabs)/(dashboard)/wrapped.tsx:226
 #: src/components/insights-card.tsx:52
@@ -1491,6 +1518,10 @@ msgstr "Cash transactions"
 msgid "cash-limited"
 msgstr "cash-limited"
 
+#: src/components/reports/risk-section.tsx:311
+msgid "Chance of profit"
+msgstr "Chance of profit"
+
 #: src/app/(tabs)/(settings)/change-server.tsx:52
 msgid "Change & sign out"
 msgstr "Change & sign out"
@@ -1653,6 +1684,10 @@ msgstr "Close price"
 #: src/app/(tabs)/(settings)/import-trades.tsx:56
 msgid "Close time"
 msgstr "Close time"
+
+#: src/components/reports/duration-scatter-card.tsx:53
+msgid "Close trades with hold times to see the scatter."
+msgstr "Close trades with hold times to see the scatter."
 
 #: src/app/(tabs)/(trades)/[id].tsx:334
 #: src/app/trade-preview.tsx:157
@@ -2131,7 +2166,7 @@ msgstr "Currency"
 msgid "Currency converter"
 msgstr "Currency converter"
 
-#: src/components/reports/risk-section.tsx:110
+#: src/components/reports/risk-section.tsx:112
 msgid "Current drawdown"
 msgstr "Current drawdown"
 
@@ -2186,7 +2221,7 @@ msgstr "Daily checklist"
 msgid "Daily log"
 msgstr "Daily log"
 
-#: src/components/reports/risk-section.tsx:203
+#: src/components/reports/risk-section.tsx:205
 msgid "daily loss"
 msgstr "daily loss"
 
@@ -2245,10 +2280,10 @@ msgstr "Date"
 msgid "Day"
 msgstr "Day"
 
-#: src/components/reports/detailed-section.tsx:156
-#: src/components/reports/detailed-section.tsx:163
-#: src/components/reports/detailed-section.tsx:171
-#: src/components/reports/detailed-section.tsx:185
+#: src/components/reports/detailed-section.tsx:158
+#: src/components/reports/detailed-section.tsx:165
+#: src/components/reports/detailed-section.tsx:173
+#: src/components/reports/detailed-section.tsx:187
 msgid "Day of week"
 msgstr "Day of week"
 
@@ -2437,7 +2472,7 @@ msgstr "Display currency"
 msgid "Display timezone"
 msgstr "Display timezone"
 
-#: src/components/reports/risk-section.tsx:137
+#: src/components/reports/risk-section.tsx:139
 msgid "Distance below the running equity peak."
 msgstr "Distance below the running equity peak."
 
@@ -2479,13 +2514,18 @@ msgstr "Download & share"
 msgid "download backup csv json zip share"
 msgstr "download backup csv json zip share"
 
-#: src/components/reports/risk-section.tsx:94
+#: src/components/reports/risk-section.tsx:96
 msgid "Drawdown"
 msgstr "Drawdown"
 
 #: src/components/prop-status-card.tsx:173
 msgid "Drawdown ({drawdownModeLabel})"
 msgstr "Drawdown ({drawdownModeLabel})"
+
+#. placeholder {0}: money.formatCompact(-sim.ruin_threshold)
+#: src/components/reports/risk-section.tsx:319
+msgid "drawdown ≥ {0}"
+msgstr "drawdown ≥ {0}"
 
 #: src/components/prop-status-card.tsx:215
 msgid "drawdown floor hit"
@@ -2506,6 +2546,10 @@ msgstr "Duplicate fill"
 #: src/components/reports-filter-menu.tsx:48
 msgid "Duration"
 msgstr "Duration"
+
+#: src/components/reports/duration-scatter-card.tsx:131
+msgid "Duration vs P&L"
+msgstr "Duration vs P&L"
 
 #: src/app/(tabs)/(settings)/user-form.tsx:98
 msgid "e.g. alex"
@@ -3359,6 +3403,10 @@ msgstr "Highest P&L"
 msgid "Hold ratio"
 msgstr "Hold ratio"
 
+#: src/components/reports/duration-scatter-card.tsx:135
+msgid "Hold time on a log scale · dashed line marks the median hold"
+msgstr "Hold time on a log scale · dashed line marks the median hold"
+
 #: src/app/(tabs)/(dashboard)/economic-events.tsx:208
 msgid "Holiday"
 msgstr "Holiday"
@@ -3376,7 +3424,7 @@ msgstr "Home"
 msgid "Hour"
 msgstr "Hour"
 
-#: src/components/reports/detailed-section.tsx:202
+#: src/components/reports/detailed-section.tsx:204
 msgid "Hour of day"
 msgstr "Hour of day"
 
@@ -3727,11 +3775,11 @@ msgstr "Loading calendar"
 msgid "Loading chart"
 msgstr "Loading chart"
 
-#: src/components/reports/risk-section.tsx:145
+#: src/components/reports/risk-section.tsx:147
 msgid "Loading compliance"
 msgstr "Loading compliance"
 
-#: src/components/reports/risk-section.tsx:96
+#: src/components/reports/risk-section.tsx:98
 msgid "Loading drawdown"
 msgstr "Loading drawdown"
 
@@ -3864,7 +3912,7 @@ msgstr "Loss aversion"
 msgid "Loss exceeded plan at {r}R"
 msgstr "Loss exceeded plan at {r}R"
 
-#: src/components/reports/risk-section.tsx:207
+#: src/components/reports/risk-section.tsx:209
 msgid "loss streak"
 msgstr "loss streak"
 
@@ -3943,6 +3991,10 @@ msgstr "Mark key S/R levels"
 msgid "Market"
 msgstr "Market"
 
+#: src/components/reports/session-clock-card.tsx:94
+msgid "Market sessions"
+msgstr "Market sessions"
+
 #: src/app/(tabs)/(settings)/display.tsx:148
 msgid "Market timezone"
 msgstr "Market timezone"
@@ -3963,7 +4015,7 @@ msgstr "Max daily loss"
 #: src/app/(tabs)/(settings)/prop-settings.tsx:133
 #: src/components/equity-card.tsx:122
 #: src/components/insights-card.tsx:93
-#: src/components/reports/risk-section.tsx:105
+#: src/components/reports/risk-section.tsx:107
 msgid "Max drawdown"
 msgstr "Max drawdown"
 
@@ -4001,14 +4053,20 @@ msgstr "Median"
 
 #. placeholder {0}: formatDuration(lossAversion.median_loss_hold_secs)
 #. placeholder {0}: formatDuration(lossAversion.median_win_hold_secs)
+#. placeholder {0}: formatDuration(median)
 #: src/components/reports/behavior-section.tsx:261
 #: src/components/reports/behavior-section.tsx:267
+#: src/components/reports/duration-scatter-card.tsx:102
 msgid "median {0}"
 msgstr "median {0}"
 
 #: src/components/reports/overview-section.tsx:182
 msgid "Median loss"
 msgstr "Median loss"
+
+#: src/components/reports/risk-section.tsx:287
+msgid "Median outcome"
+msgstr "Median outcome"
 
 #: src/components/reports/overview-section.tsx:193
 msgid "Median trade"
@@ -4100,6 +4158,10 @@ msgstr "Model"
 #: src/components/reports/pnl-heatmap-card.tsx:22
 msgid "Mon"
 msgstr "Mon"
+
+#: src/components/reports/risk-section.tsx:274
+msgid "Monte Carlo"
+msgstr "Monte Carlo"
 
 #: src/app/(tabs)/(calendar)/index.tsx:406
 #: src/components/mini-calendar-card.tsx:56
@@ -4381,7 +4443,7 @@ msgstr "no closed trades scored"
 #~ msgstr "No connection"
 
 #: src/components/equity-card.tsx:82
-#: src/components/reports/risk-section.tsx:100
+#: src/components/reports/risk-section.tsx:102
 msgid "No equity data in this range."
 msgstr "No equity data in this range."
 
@@ -4439,7 +4501,7 @@ msgstr "No response from {0}. Check your connection, or that the server is runni
 msgid "No revenge patterns detected — flags trades opened within an hour of a losing close: same-symbol re-entries inside 15 minutes, or entries sized 1.5× above your recent median."
 msgstr "No revenge patterns detected — flags trades opened within an hour of a losing close: same-symbol re-entries inside 15 minutes, or entries sized 1.5× above your recent median."
 
-#: src/components/reports/risk-section.tsx:151
+#: src/components/reports/risk-section.tsx:153
 msgid "No risk rules configured — set max risk per trade and max daily loss to score every trading day against your own process."
 msgstr "No risk rules configured — set max risk per trade and max daily loss to score every trading day against your own process."
 
@@ -4461,7 +4523,7 @@ msgstr "No setups traded in this range."
 msgid "No setups yet"
 msgstr "No setups yet"
 
-#: src/components/reports/risk-section.tsx:121
+#: src/components/reports/risk-section.tsx:123
 msgid "no stops recorded"
 msgstr "no stops recorded"
 
@@ -4469,7 +4531,7 @@ msgstr "no stops recorded"
 msgid "No streak patterns detected — flags trades sized up right after a winning streak."
 msgstr "No streak patterns detected — flags trades sized up right after a winning streak."
 
-#: src/components/reports/detailed-section.tsx:310
+#: src/components/reports/detailed-section.tsx:312
 msgid "No tagged trades in this range."
 msgstr "No tagged trades in this range."
 
@@ -4501,10 +4563,10 @@ msgid "No trades"
 msgstr "No trades"
 
 #: src/app/(tabs)/(dashboard)/index.tsx:253
-#: src/components/reports/detailed-section.tsx:172
-#: src/components/reports/detailed-section.tsx:205
-#: src/components/reports/detailed-section.tsx:235
-#: src/components/reports/detailed-section.tsx:299
+#: src/components/reports/detailed-section.tsx:174
+#: src/components/reports/detailed-section.tsx:207
+#: src/components/reports/detailed-section.tsx:237
+#: src/components/reports/detailed-section.tsx:301
 #: src/components/reports/pnl-heatmap-card.tsx:88
 msgid "No trades in this range."
 msgstr "No trades in this range."
@@ -4787,7 +4849,7 @@ msgstr "Open date"
 msgid "Open price"
 msgstr "Open price"
 
-#: src/components/reports/risk-section.tsx:157
+#: src/components/reports/risk-section.tsx:159
 msgid "Open risk rules"
 msgstr "Open risk rules"
 
@@ -4871,13 +4933,18 @@ msgstr "Over by {0}"
 msgid "over the last {windowSize} trades"
 msgstr "over the last {windowSize} trades"
 
+#. placeholder {0}: sim.horizon
+#: src/components/reports/risk-section.tsx:289
+msgid "over the next {0} trades"
+msgstr "over the next {0} trades"
+
 #. placeholder {0}: day.risk_violations
 #: src/app/(tabs)/(calendar)/day/[date].tsx:162
-#: src/components/reports/risk-section.tsx:208
+#: src/components/reports/risk-section.tsx:210
 msgid "over-risked ×{0}"
 msgstr "over-risked ×{0}"
 
-#: src/components/reports/risk-section.tsx:205
+#: src/components/reports/risk-section.tsx:207
 msgid "over-traded"
 msgstr "over-traded"
 
@@ -4889,7 +4956,7 @@ msgstr "Overconfidence"
 msgid "Overconfidence often shows up as oversizing or ignoring your stop. Check whether conviction exceeded your edge on this setup."
 msgstr "Overconfidence often shows up as oversizing or ignoring your stop. Check whether conviction exceeded your edge on this setup."
 
-#: src/components/reports/detailed-section.tsx:249
+#: src/components/reports/detailed-section.tsx:251
 msgid "Overnight"
 msgstr "Overnight"
 
@@ -4941,11 +5008,11 @@ msgstr "P&L bridge"
 msgid "P&L heatmap"
 msgstr "P&L heatmap"
 
-#: src/components/reports/risk-section.tsx:175
+#: src/components/reports/risk-section.tsx:177
 msgid "P&L, rules broken"
 msgstr "P&L, rules broken"
 
-#: src/components/reports/risk-section.tsx:170
+#: src/components/reports/risk-section.tsx:172
 msgid "P&L, rules followed"
 msgstr "P&L, rules followed"
 
@@ -4972,6 +5039,10 @@ msgstr "Password changed"
 #: src/app/(tabs)/(settings)/reset-password.tsx:55
 msgid "Password reset"
 msgstr "Password reset"
+
+#: src/components/reports/risk-section.tsx:313
+msgid "paths ending above zero"
+msgstr "paths ending above zero"
 
 #: src/components/reports/behavior-section.tsx:62
 msgid "Patience"
@@ -5187,7 +5258,7 @@ msgstr "Post-exit MFE"
 #~ msgid "Preferences"
 #~ msgstr "Preferences"
 
-#: src/components/reports/detailed-section.tsx:243
+#: src/components/reports/detailed-section.tsx:245
 msgid "Premarket"
 msgstr "Premarket"
 
@@ -5496,7 +5567,7 @@ msgstr "Realized P&L"
 msgid "Recap"
 msgstr "Recap"
 
-#: src/components/reports/risk-section.tsx:195
+#: src/components/reports/risk-section.tsx:197
 msgid "Recent breach days"
 msgstr "Recent breach days"
 
@@ -5524,7 +5595,7 @@ msgstr "RED YEAR"
 msgid "Regenerate"
 msgstr "Regenerate"
 
-#: src/components/reports/detailed-section.tsx:245
+#: src/components/reports/detailed-section.tsx:247
 msgid "Regular hours"
 msgstr "Regular hours"
 
@@ -5829,6 +5900,10 @@ msgstr "Risk budget under 1 contract — raise Risk% or tighten the stop"
 msgid "Risk journaled before the trade, blended with rule compliance when rules are set."
 msgstr "Risk journaled before the trade, blended with rule compliance when rules are set."
 
+#: src/components/reports/risk-section.tsx:317
+msgid "Risk of ruin"
+msgstr "Risk of ruin"
+
 #: src/app/(tabs)/(settings)/alerts.tsx:107
 msgid "Risk rule broken"
 msgstr "Risk rule broken"
@@ -5898,7 +5973,7 @@ msgstr "Rows"
 msgid "Rows with errors"
 msgstr "Rows with errors"
 
-#: src/components/reports/risk-section.tsx:143
+#: src/components/reports/risk-section.tsx:145
 msgid "Rule compliance"
 msgstr "Rule compliance"
 
@@ -6210,14 +6285,14 @@ msgstr "Session actions"
 msgid "Session summary"
 msgstr "Session summary"
 
-#: src/components/reports/detailed-section.tsx:219
-#: src/components/reports/detailed-section.tsx:226
-#: src/components/reports/detailed-section.tsx:234
-#: src/components/reports/detailed-section.tsx:275
+#: src/components/reports/detailed-section.tsx:221
+#: src/components/reports/detailed-section.tsx:228
+#: src/components/reports/detailed-section.tsx:236
+#: src/components/reports/detailed-section.tsx:277
 msgid "Sessions"
 msgstr "Sessions"
 
-#: src/components/reports/detailed-section.tsx:277
+#: src/components/reports/detailed-section.tsx:279
 msgid "Sessions follow the New York clock."
 msgstr "Sessions follow the New York clock."
 
@@ -6701,7 +6776,7 @@ msgid "Symbol, e.g. SPY"
 msgstr "Symbol, e.g. SPY"
 
 #: src/app/trade-preview.tsx:151
-#: src/components/reports/detailed-section.tsx:296
+#: src/components/reports/detailed-section.tsx:298
 msgid "Symbols"
 msgstr "Symbols"
 
@@ -6762,7 +6837,7 @@ msgstr "System"
 #: src/app/(tabs)/(settings)/trading-journal.tsx:131
 #: src/app/(tabs)/(trades)/[id].tsx:806
 #: src/app/manage-tags.tsx:75
-#: src/components/reports/detailed-section.tsx:307
+#: src/components/reports/detailed-section.tsx:309
 #: src/components/trade-form.tsx:525
 msgid "Tags"
 msgstr "Tags"
@@ -6980,6 +7055,10 @@ msgstr "The server has no economic-calendar provider configured."
 #: src/lib/errors.ts:79
 msgid "The server is rate limiting this app. Try again in a moment."
 msgstr "The server is rate limiting this app. Try again in a moment."
+
+#: src/components/reports/risk-section.tsx:281
+msgid "The simulation needs at least 10 closed trades to resample."
+msgstr "The simulation needs at least 10 closed trades to resample."
 
 #: src/app/(tabs)/(settings)/account-form.tsx:298
 msgid "The starting balance is saved as the first deposit in the cash ledger."
@@ -7199,7 +7278,7 @@ msgid "Top"
 msgstr "Top"
 
 #. placeholder {0}: groups.length
-#: src/components/reports/detailed-section.tsx:141
+#: src/components/reports/detailed-section.tsx:143
 msgid "Top {MAX_ROWS} of {0} by magnitude."
 msgstr "Top {MAX_ROWS} of {0} by magnitude."
 
@@ -7421,6 +7500,10 @@ msgstr "Type a model id…"
 msgid "Type broker name"
 msgstr "Type broker name"
 
+#: src/components/reports/risk-section.tsx:305
+msgid "Typical max drawdown"
+msgstr "Typical max drawdown"
+
 #: src/app/(tabs)/(settings)/ai.tsx:88
 #~ msgid "Unavailable"
 #~ msgstr "Unavailable"
@@ -7534,7 +7617,7 @@ msgstr "version build server licence"
 msgid "View all"
 msgstr "View all"
 
-#: src/components/reports/risk-section.tsx:180
+#: src/components/reports/risk-section.tsx:182
 msgid "Violations"
 msgstr "Violations"
 
@@ -7712,6 +7795,10 @@ msgstr "wins in a row"
 #: src/lib/cash.ts:12
 msgid "Withdrawal"
 msgstr "Withdrawal"
+
+#: src/components/reports/risk-section.tsx:299
+msgid "Worst case"
+msgstr "Worst case"
 
 #: src/app/(tabs)/(dashboard)/wrapped.tsx:255
 #: src/components/insights-card.tsx:58

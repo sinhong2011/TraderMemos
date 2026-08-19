@@ -15,6 +15,8 @@ import {
   type ReportsMoneyContext,
 } from '@/components/reports/section-scaffold';
 import { t } from '@lingui/core/macro';
+import { DurationScatterCard } from '@/components/reports/duration-scatter-card';
+import { SessionClockCard } from '@/components/reports/session-clock-card';
 import { formatPercent, formatRatio, useFormatters } from '@/lib/format';
 import { pnlClass, usePnlPalette } from '@/styles/pnl';
 
@@ -309,9 +311,11 @@ export function DetailedSection({
         ctx={ctx}
         emptyLabel={t`No tagged trades in this range.`}
       />
+      <SessionClockCard />
       <DayOfWeekCard ctx={ctx} />
       <HourOfDayCard ctx={ctx} />
       <PnlHeatmapCard ctx={ctx} />
+      <DurationScatterCard ctx={ctx} />
       <SessionCard ctx={ctx} />
     </SectionScaffold>
   );
