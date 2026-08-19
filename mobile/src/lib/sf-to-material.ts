@@ -164,6 +164,10 @@ export const SF_TO_MATERIAL: Record<string, AndroidSymbol> = {
 
   // domain / misc
   banknote: 'payments',
+  bookmark: 'bookmark',
+  checklist: 'checklist',
+  scalemass: 'scale',
+  percent: 'percent',
   'building.columns': 'account_balance',
   sparkles: 'auto_awesome',
   brain: 'psychology',
