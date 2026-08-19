@@ -1030,6 +1030,12 @@ const RISK_RULE_ICONS: Record<RiskRuleKey, LucideIcon> = {
   default_account_risk_pct: Percent,
 };
 
+/** Bare counts read as orphans ("3") — count rules carry their unit word. */
+const RISK_RULE_COUNT_UNITS: Partial<Record<RiskRuleKey, string>> = {
+  max_trades_per_day: "trades",
+  max_consecutive_losses: "losses",
+};
+
 export function RulesTab({
   riskRules,
   riskRulesLoading,
@@ -1238,19 +1244,29 @@ export function RulesTab({
               >
                 {value != null ? (
                   <>
-                    <span className="text-[13.5px] font-semibold tabular-nums text-foreground">
-                      {formatRiskRuleValue(def.key, value, locale)}
-                    </span>
                     <Button
                       type="button"
-                      variant="ghost"
-                      size="icon-xs"
-                      tooltip={false}
+                      variant="soft"
+                      size="sm"
                       aria-label={`Edit ${def.label}`}
                       disabled={riskRulesSaving}
                       onClick={() => openEditRule(def.key, value)}
+                      className="gap-1.5"
                     >
-                      <Pencil size={14} strokeWidth={1.5} />
+                      <span className="font-semibold tabular-nums text-foreground">
+                        {formatRiskRuleValue(def.key, value, locale)}
+                        {RISK_RULE_COUNT_UNITS[def.key] ? (
+                          <span className="ml-1 font-normal text-muted-foreground">
+                            {RISK_RULE_COUNT_UNITS[def.key]}
+                          </span>
+                        ) : null}
+                      </span>
+                      <Pencil
+                        size={12}
+                        strokeWidth={1.5}
+                        aria-hidden
+                        className="text-muted-foreground"
+                      />
                     </Button>
                     <DeleteButton
                       label={def.label}
@@ -1314,19 +1330,19 @@ export function RulesTab({
               label={`${goalYear} target`}
               detail="User-level net P&L goal — respects the account filter on Home and Reports."
             >
-              <span className="text-[15px] font-semibold tabular-nums text-foreground">
-                {fmtMoney(annualGoal.amount, "USD", locale)}
-              </span>
               <Button
                 type="button"
-                variant="ghost"
-                size="icon-xs"
-                tooltip={false}
+                variant="soft"
+                size="sm"
                 aria-label="Edit annual goal"
                 disabled={annualGoalSaving}
                 onClick={openGoalModal}
+                className="gap-1.5"
               >
-                <Pencil size={14} strokeWidth={1.5} />
+                <span className="font-semibold tabular-nums text-foreground">
+                  {fmtMoney(annualGoal.amount, "USD", locale)}
+                </span>
+                <Pencil size={12} strokeWidth={1.5} aria-hidden className="text-muted-foreground" />
               </Button>
               <DeleteButton
                 label="annual goal"

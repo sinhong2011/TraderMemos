@@ -4,6 +4,12 @@ import { EmptyState } from "@/components/EmptyState";
 import { Modal } from "@/components/Modal";
 import { Field } from "@/components/Field";
 import { FormInput } from "@/components/FormInput";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+  InputGroupText,
+} from "@/components/ui/input-group";
 import { ListSkeleton } from "@/components/skeletons/list-skeleton";
 import { useToastManager } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
@@ -58,8 +64,8 @@ function IntInput({
     onCommit(n);
   };
   return (
-    <span className="flex items-center gap-1.5">
-      <FormInput
+    <InputGroup className="h-8 w-30 shrink-0">
+      <InputGroupInput
         type="number"
         inputMode="numeric"
         min={min}
@@ -67,15 +73,19 @@ function IntInput({
         value={draft ?? String(value)}
         disabled={disabled}
         aria-label={ariaLabel}
-        className="w-20 text-right tabular-nums"
+        className="text-right tabular-nums"
         onChange={(e) => setDraft(e.target.value)}
         onBlur={commit}
         onKeyDown={(e) => {
           if (e.key === "Enter") (e.target as HTMLInputElement).blur();
         }}
       />
-      {suffix ? <span className="text-[12px] text-muted-foreground">{suffix}</span> : null}
-    </span>
+      {suffix ? (
+        <InputGroupAddon align="inline-end">
+          <InputGroupText className="text-[12px]">{suffix}</InputGroupText>
+        </InputGroupAddon>
+      ) : null}
+    </InputGroup>
   );
 }
 
