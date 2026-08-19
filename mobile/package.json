@@ -17,6 +17,7 @@
     "expo": "~57.0.14",
     "expo-application": "~57.0.2",
     "expo-blur": "~57.0.2",
+    "expo-build-properties": "~57.0.12",
     "expo-calendar": "~57.0.2",
     "expo-clipboard": "~57.0.1",
     "expo-constants": "~57.0.12",
