@@ -75,15 +75,23 @@ export function RiskSection({
       report.loss_streak_breaches
     : 0;
   // Only the rules actually broken get named — four zero-count segments would
-  // truncate the tile's one-line sub before it said anything.
-  const violationParts = report
+  // truncate the tile's one-line sub before it said anything. With a single
+  // kind the count would just repeat the value above it ("58, 58 over-traded"),
+  // so the sub keeps the kind alone.
+  const violationKinds = report
     ? [
-        report.risk_violations > 0 ? t`${report.risk_violations} over-risked` : null,
-        report.daily_loss_breaches > 0 ? t`${report.daily_loss_breaches} daily-loss` : null,
-        report.trade_limit_breaches > 0 ? t`${report.trade_limit_breaches} over-traded` : null,
-        report.loss_streak_breaches > 0 ? t`${report.loss_streak_breaches} loss-streak` : null,
-      ].filter((part): part is string => part != null)
+        { count: report.risk_violations, label: t`over-risked` },
+        { count: report.daily_loss_breaches, label: t`daily-loss` },
+        { count: report.trade_limit_breaches, label: t`over-traded` },
+        { count: report.loss_streak_breaches, label: t`loss-streak` },
+      ].filter((kind) => kind.count > 0)
     : [];
+  const violationsSub =
+    violationKinds.length === 0
+      ? undefined
+      : violationKinds.length === 1
+        ? violationKinds[0].label
+        : violationKinds.map((kind) => `${kind.count} ${kind.label}`).join(' · ');
   const recentBreaches = report
     ? report.days.filter((day) => !day.compliant).slice(-6).reverse()
     : [];
@@ -190,7 +198,7 @@ export function RiskSection({
                 plain
                 label={t`Violations`}
                 value={String(totalViolations)}
-                sub={violationParts.length > 0 ? violationParts.join(' · ') : undefined}
+                sub={violationsSub}
                 tone={totalViolations > 0 ? 'neg' : 'pos'}
               />
             </View>
@@ -249,7 +257,6 @@ function MonteCarloCard({ ctx }: { ctx: ReportsMoneyContext }) {
     '--color-muted-foreground',
   ]) as [string, string];
 
-  const paletteRef = usePnlPalette();
   const sim = mc.data;
   const fan = (sim?.steps ?? []).map((band) => ({
     n: band.n,
@@ -259,25 +266,6 @@ function MonteCarloCard({ ctx }: { ctx: ReportsMoneyContext }) {
     p75: money.display(band.p75),
     p95: money.display(band.p95),
   }));
-
-  const tile = (label: string, value: string, hint: string, tone?: 'pos' | 'neg') => (
-    <View key={label} className="min-w-[45%] flex-1 gap-0.5 rounded-xl bg-muted px-3 py-2.5">
-      <Text className="text-[11px] font-medium text-muted-foreground">{label}</Text>
-      <Text
-        className="text-[15px] font-semibold tabular-nums tracking-tight text-foreground"
-        style={
-          tone === 'pos'
-            ? { color: paletteRef.profit }
-            : tone === 'neg'
-              ? { color: paletteRef.loss }
-              : undefined
-        }
-      >
-        {value}
-      </Text>
-      <Text className="text-[10px] text-muted-foreground">{hint}</Text>
-    </View>
-  );
 
   return (
     <DashboardCard title={t`Monte Carlo`}>
@@ -292,42 +280,48 @@ function MonteCarloCard({ ctx }: { ctx: ReportsMoneyContext }) {
       ) : (
         <>
           <View className="flex-row flex-wrap gap-2">
-            {tile(
-              t`Median outcome`,
-              money.format(sim.terminal.p50),
-              t`over the next ${sim.horizon} trades`,
-              sim.terminal.p50 >= 0 ? 'pos' : 'neg',
-            )}
-            {tile(
-              t`Best case`,
-              money.format(sim.terminal.p95),
-              t`95th percentile`,
-              sim.terminal.p95 > 0 ? 'pos' : undefined,
-            )}
-            {tile(
-              t`Worst case`,
-              money.format(sim.terminal.p05),
-              t`5th percentile`,
-              sim.terminal.p05 < 0 ? 'neg' : undefined,
-            )}
-            {tile(
-              t`Typical max drawdown`,
-              money.format(-sim.max_drawdown.p50),
-              t`1 in 20 worse than ${money.formatCompact(-sim.max_drawdown.p95)}`,
-              'neg',
-            )}
-            {tile(
-              t`Chance of profit`,
-              formatPercent(1 - sim.terminal.prob_negative),
-              t`paths ending above zero`,
-              sim.terminal.prob_negative > 0.25 ? 'neg' : 'pos',
-            )}
-            {tile(
-              t`Risk of ruin`,
-              formatPercent(sim.risk_of_ruin),
-              t`drawdown ≥ ${money.formatCompact(-sim.ruin_threshold)}`,
-              sim.risk_of_ruin > 0.1 ? 'neg' : undefined,
-            )}
+            <StatBar
+              plain
+              label={t`Median outcome`}
+              value={money.format(sim.terminal.p50)}
+              sub={t`over the next ${sim.horizon} trades`}
+              tone={sim.terminal.p50 >= 0 ? 'pos' : 'neg'}
+            />
+            <StatBar
+              plain
+              label={t`Best case`}
+              value={money.format(sim.terminal.p95)}
+              sub={t`95th percentile`}
+              tone={sim.terminal.p95 > 0 ? 'pos' : 'muted'}
+            />
+            <StatBar
+              plain
+              label={t`Worst case`}
+              value={money.format(sim.terminal.p05)}
+              sub={t`5th percentile`}
+              tone={sim.terminal.p05 < 0 ? 'neg' : 'muted'}
+            />
+            <StatBar
+              plain
+              label={t`Typical max drawdown`}
+              value={money.format(-sim.max_drawdown.p50)}
+              sub={t`1 in 20 worse than ${money.formatCompact(-sim.max_drawdown.p95)}`}
+              tone="neg"
+            />
+            <StatBar
+              plain
+              label={t`Chance of profit`}
+              value={formatPercent(1 - sim.terminal.prob_negative)}
+              sub={t`paths ending above zero`}
+              tone={sim.terminal.prob_negative > 0.25 ? 'neg' : 'pos'}
+            />
+            <StatBar
+              plain
+              label={t`Risk of ruin`}
+              value={formatPercent(sim.risk_of_ruin)}
+              sub={t`drawdown ≥ ${money.formatCompact(-sim.ruin_threshold)}`}
+              tone={sim.risk_of_ruin > 0.1 ? 'neg' : 'muted'}
+            />
           </View>
 
           {fan.length > 1 ? (

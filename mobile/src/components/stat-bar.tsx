@@ -44,25 +44,60 @@ export function StatBar({
    */
   plain?: boolean;
 }) {
-  const Wrap = plain ? View : Card;
+  if (plain) {
+    // The Monte Carlo tile anatomy: left-anchored label, bold value, hint —
+    // a quiet muted tile in a two-column grid. Top-anchored stacks keep every
+    // value on one shared line across the row; the old centred-block layout
+    // floated each figure at a different height.
+    return (
+      <View
+        className="min-w-[45%] flex-1 gap-0.5 rounded-xl bg-muted px-3 py-2.5"
+        accessible
+        accessibilityLabel={[label, value, sub].filter(Boolean).join(', ')}
+      >
+        <Text
+          className="text-[11px] font-medium text-muted-foreground"
+          numberOfLines={1}
+          maxFontSizeMultiplier={1.6}
+        >
+          {label}
+        </Text>
+        <Text
+          selectable
+          className={cn('text-[15px] font-semibold tabular-nums tracking-tight', TONE_CLASS[tone])}
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          minimumFontScale={0.8}
+          maxFontSizeMultiplier={1.4}
+        >
+          {value}
+        </Text>
+        {sub ? (
+          <Text
+            className="text-[10px] text-muted-foreground tabular-nums"
+            numberOfLines={1}
+            maxFontSizeMultiplier={1.4}
+          >
+            {sub}
+          </Text>
+        ) : null}
+      </View>
+    );
+  }
+
   return (
     // Grouped for VoiceOver — read as one "label, value, sub" phrase rather
     // than three orphaned fragments swiped past in sequence.
     //
     // `min-h-[88px]` matches the web tile's min-h so a wrapped sub doesn't make
     // one column taller than its neighbour on the first row it appears in.
-    <Wrap
-      className={cn(
-        'min-h-[88px] grow basis-[140px] gap-2 p-3',
-        !plain && 'rounded-md border-0',
-      )}
+    <Card
+      className="min-h-[88px] grow basis-[140px] gap-2 rounded-md border-0 p-3"
       accessible
       accessibilityLabel={[label, value, sub].filter(Boolean).join(', ')}
     >
       <Text
-        // Surfaceless tiles centre the label over the centred value — a
-        // left-anchored caption floating over open card space reads adrift.
-        className={cn('text-xs font-medium text-muted-foreground', plain && 'text-center')}
+        className="text-xs font-medium text-muted-foreground"
         numberOfLines={1}
         maxFontSizeMultiplier={1.6}
       >
@@ -97,6 +132,6 @@ export function StatBar({
           ) : null}
         </View>
       </View>
-    </Wrap>
+    </Card>
   );
 }

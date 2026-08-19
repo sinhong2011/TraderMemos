@@ -86,10 +86,9 @@ msgstr "청산 {0}건 · 승률 {1} · 거래일 {2}일"
 msgid "{0} closed trades excluded (no stop recorded)."
 msgstr "청산 거래 {0}건 제외 (스톱 미기록)."
 
-#. placeholder {0}: report.daily_loss_breaches
 #: src/components/reports/risk-section.tsx:82
-msgid "{0} daily-loss"
-msgstr "일일 손실 {0}"
+#~ msgid "{0} daily-loss"
+#~ msgstr "일일 손실 {0}"
 
 #. placeholder {0}: traded.length
 #: src/app/(tabs)/(calendar)/index.tsx:996
@@ -116,10 +115,9 @@ msgstr "{0}건이 고점에서 수익 상태"
 msgid "{0} losers without recorded MAE/MFE could not be checked — recompute excursion on the trade to fill them."
 msgstr "MAE/MFE가 기록되지 않은 손실 거래 {0}건은 확인할 수 없습니다 — 거래에서 익스커전을 다시 계산하세요."
 
-#. placeholder {0}: report.loss_streak_breaches
 #: src/components/reports/risk-section.tsx:84
-msgid "{0} loss-streak"
-msgstr "연패 초과 {0}"
+#~ msgid "{0} loss-streak"
+#~ msgstr "연패 초과 {0}"
 
 #. placeholder {0}: s.loss_streak_n
 #: src/app/(tabs)/(settings)/alerts.tsx:117
@@ -137,12 +135,12 @@ msgstr "{1} 중 {0}"
 
 #. placeholder {0}: risk.included
 #. placeholder {1}: risk.included + risk.excluded
-#: src/components/reports/risk-section.tsx:127
+#: src/components/reports/risk-section.tsx:135
 msgid "{0} of {1} trades"
 msgstr "{1}건 중 {0}건"
 
 #. placeholder {0}: report.compliant_days
-#: src/components/reports/risk-section.tsx:174
+#: src/components/reports/risk-section.tsx:182
 msgid "{0} of {scoredDays} days"
 msgstr "{scoredDays}일 중 {0}일"
 
@@ -159,10 +157,9 @@ msgstr "이익의 {0}"
 #~ msgid "{0} open @ {1}"
 #~ msgstr "{0} 보유 @ {1}"
 
-#. placeholder {0}: report.risk_violations
 #: src/components/reports/risk-section.tsx:81
-msgid "{0} over-risked"
-msgstr "리스크 초과 {0}"
+#~ msgid "{0} over-risked"
+#~ msgstr "리스크 초과 {0}"
 
 #: src/components/reports/risk-section.tsx:166
 #~ msgid "{0} over-risked · {1} daily-loss"
@@ -172,10 +169,9 @@ msgstr "리스크 초과 {0}"
 #~ msgid "{0} over-risked · {1} daily-loss · {2} over-traded"
 #~ msgstr "리스크 초과 {0} · 일일 손실 {1} · 거래 수 초과 {2}"
 
-#. placeholder {0}: report.trade_limit_breaches
 #: src/components/reports/risk-section.tsx:83
-msgid "{0} over-traded"
-msgstr "거래 수 초과 {0}"
+#~ msgid "{0} over-traded"
+#~ msgstr "거래 수 초과 {0}"
 
 #. placeholder {0}: money(exitResult.perR)
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:521
@@ -184,7 +180,7 @@ msgstr "+1R당 {0}"
 
 #. placeholder {0}: sim.paths
 #. placeholder {1}: sim.trades
-#: src/components/reports/risk-section.tsx:345
+#: src/components/reports/risk-section.tsx:353
 msgid "{0} resamples of your {1} closed trades' net P&L — assumes each trade is an independent draw from your history, so streaks and changing conditions are understated."
 msgstr "청산 거래 {1}건의 순손익을 {0}회 재표집했습니다. 각 거래를 독립 추출로 가정하므로 연속 손실과 시장 변화는 과소평가됩니다."
 
@@ -218,7 +214,7 @@ msgstr "{0}개 종목을 찾았습니다"
 #: src/components/reports/overview-section.tsx:284
 #: src/components/reports/overview-section.tsx:455
 #: src/components/reports/overview-section.tsx:637
-#: src/components/reports/risk-section.tsx:211
+#: src/components/reports/risk-section.tsx:219
 msgid "{0} trades"
 msgstr "트레이드 {0}건"
 
@@ -248,7 +244,7 @@ msgid "{0} trades from {1} rows — {2} fills inserted, {3} duplicates skipped."
 msgstr "{1}행에서 거래 {0}건 — 체결 {2}건 삽입, 중복 {3}건 건너뜀."
 
 #. placeholder {0}: report.unknown_risk
-#: src/components/reports/risk-section.tsx:200
+#: src/components/reports/risk-section.tsx:208
 msgid "{0} trades had no recorded initial risk and could not be scored against the per-trade rule."
 msgstr "초기 리스크가 기록되지 않은 거래 {0}건은 거래당 리스크 규칙으로 채점할 수 없었습니다."
 
@@ -505,7 +501,7 @@ msgid "1 file scanned"
 msgstr "파일 1개 스캔 완료"
 
 #. placeholder {0}: money.formatCompact(-sim.max_drawdown.p95)
-#: src/components/reports/risk-section.tsx:316
+#: src/components/reports/risk-section.tsx:324
 msgid "1 in 20 worse than {0}"
 msgstr "20번 중 1번은 {0}보다 나쁨"
 
@@ -572,7 +568,7 @@ msgstr "30일"
 msgid "30d"
 msgstr "30일"
 
-#: src/components/reports/risk-section.tsx:310
+#: src/components/reports/risk-section.tsx:318
 msgid "5th percentile"
 msgstr "5번째 백분위"
 
@@ -589,7 +585,7 @@ msgstr "90일"
 msgid "90d"
 msgstr "90일"
 
-#: src/components/reports/risk-section.tsx:304
+#: src/components/reports/risk-section.tsx:312
 msgid "95th percentile"
 msgstr "95번째 백분위"
 
@@ -846,7 +842,7 @@ msgstr "주소"
 msgid "Adds a 6-digit code from an authenticator app to your password at sign-in."
 msgstr "로그인 시 비밀번호에 인증 앱의 6자리 코드를 추가합니다."
 
-#: src/components/reports/risk-section.tsx:172
+#: src/components/reports/risk-section.tsx:180
 msgid "Adherence"
 msgstr "준수율"
 
@@ -1086,7 +1082,7 @@ msgstr "{MIN_LENGTH}자 이상"
 #~ msgid "At least {MIN_LENGTH} characters. Changing it signs out your other devices — this one stays signed in."
 #~ msgstr "{MIN_LENGTH}자 이상. 변경하면 다른 기기는 로그아웃되지만 이 기기는 로그인 상태를 유지합니다."
 
-#: src/components/reports/risk-section.tsx:118
+#: src/components/reports/risk-section.tsx:126
 msgid "at the highs"
 msgstr "고점 부근"
 
@@ -1167,7 +1163,7 @@ msgstr "평균 손실"
 msgid "Avg R / trade"
 msgstr "거래당 평균 R"
 
-#: src/components/reports/risk-section.tsx:123
+#: src/components/reports/risk-section.tsx:131
 msgid "Avg risk / trade"
 msgstr "거래당 평균 리스크"
 
@@ -1267,7 +1263,7 @@ msgstr "본전"
 msgid "Before the open"
 msgstr "장 시작 전"
 
-#: src/app/(tabs)/(dashboard)/reports.tsx:107
+#: src/app/(tabs)/(dashboard)/reports.tsx:117
 msgid "Behavior"
 msgstr "동작"
 
@@ -1279,7 +1275,7 @@ msgstr "페이스 뒤처짐"
 msgid "below average"
 msgstr "평균 이하"
 
-#: src/components/reports/risk-section.tsx:140
+#: src/components/reports/risk-section.tsx:148
 msgid "Below peak"
 msgstr "고점 대비 하락"
 
@@ -1287,7 +1283,7 @@ msgstr "고점 대비 하락"
 msgid "Best / worst"
 msgstr "최고 / 최저"
 
-#: src/components/reports/risk-section.tsx:302
+#: src/components/reports/risk-section.tsx:310
 msgid "Best case"
 msgstr "최상 시나리오"
 
@@ -1515,7 +1511,7 @@ msgstr "현금 거래"
 msgid "cash-limited"
 msgstr "현금 제한"
 
-#: src/components/reports/risk-section.tsx:320
+#: src/components/reports/risk-section.tsx:328
 msgid "Chance of profit"
 msgstr "수익 확률"
 
@@ -2163,7 +2159,7 @@ msgstr "통화"
 msgid "Currency converter"
 msgstr "환율 변환기"
 
-#: src/components/reports/risk-section.tsx:116
+#: src/components/reports/risk-section.tsx:124
 msgid "Current"
 msgstr ""
 
@@ -2222,7 +2218,7 @@ msgstr "데일리 체크리스트"
 msgid "Daily log"
 msgstr "일일 로그"
 
-#: src/components/reports/risk-section.tsx:214
+#: src/components/reports/risk-section.tsx:222
 msgid "daily loss"
 msgstr "일일 손실"
 
@@ -2249,6 +2245,10 @@ msgstr "일일 손실 한도"
 #: src/app/(tabs)/(settings)/prop-settings.tsx:167
 #~ msgid "Daily loss limit — {0}"
 #~ msgstr "일일 손실 한도 — {0}"
+
+#: src/components/reports/risk-section.tsx:84
+msgid "daily-loss"
+msgstr ""
 
 #: src/app/(tabs)/(settings)/display.tsx:130
 #~ msgid "dark"
@@ -2408,7 +2408,7 @@ msgstr "입금·출금·수수료는 매매 손익과 함께 자산 곡선을 �
 #~ msgid "Description"
 #~ msgstr "설명"
 
-#: src/app/(tabs)/(dashboard)/reports.tsx:105
+#: src/app/(tabs)/(dashboard)/reports.tsx:115
 msgid "Detailed"
 msgstr "상세"
 
@@ -2473,7 +2473,7 @@ msgstr "표시 통화"
 msgid "Display timezone"
 msgstr "표시 시간대"
 
-#: src/components/reports/risk-section.tsx:144
+#: src/components/reports/risk-section.tsx:152
 msgid "Distance below the running equity peak."
 msgstr "자산 곡선의 최근 고점 대비 하락 폭입니다."
 
@@ -2515,7 +2515,7 @@ msgstr "다운로드 및 공유"
 msgid "download backup csv json zip share"
 msgstr "다운로드 백업 CSV JSON ZIP 공유 내보내기"
 
-#: src/components/reports/risk-section.tsx:96
+#: src/components/reports/risk-section.tsx:104
 msgid "Drawdown"
 msgstr "드로다운"
 
@@ -2524,7 +2524,7 @@ msgid "Drawdown ({drawdownModeLabel})"
 msgstr "드로다운 ({drawdownModeLabel})"
 
 #. placeholder {0}: money.formatCompact(-sim.ruin_threshold)
-#: src/components/reports/risk-section.tsx:328
+#: src/components/reports/risk-section.tsx:336
 msgid "drawdown ≥ {0}"
 msgstr "낙폭 ≥ {0}"
 
@@ -3776,11 +3776,11 @@ msgstr "캘린더 불러오는 중"
 msgid "Loading chart"
 msgstr "차트 불러오는 중"
 
-#: src/components/reports/risk-section.tsx:152
+#: src/components/reports/risk-section.tsx:160
 msgid "Loading compliance"
 msgstr "규칙 준수 현황 불러오는 중"
 
-#: src/components/reports/risk-section.tsx:98
+#: src/components/reports/risk-section.tsx:106
 msgid "Loading drawdown"
 msgstr "드로다운 불러오는 중"
 
@@ -3913,9 +3913,13 @@ msgstr "손실 회피"
 msgid "Loss exceeded plan at {r}R"
 msgstr "손실이 계획 초과 ({r}R)"
 
-#: src/components/reports/risk-section.tsx:218
+#: src/components/reports/risk-section.tsx:226
 msgid "loss streak"
 msgstr "연패 초과"
+
+#: src/components/reports/risk-section.tsx:86
+msgid "loss-streak"
+msgstr ""
 
 #: src/components/insights-card.tsx:72
 msgid "losses"
@@ -4004,7 +4008,7 @@ msgstr "시장 시간대"
 msgid "Match each field to a column from the file."
 msgstr "각 필드를 파일의 열과 연결하세요."
 
-#: src/components/reports/risk-section.tsx:110
+#: src/components/reports/risk-section.tsx:118
 msgid "Max"
 msgstr ""
 
@@ -4068,7 +4072,7 @@ msgstr "중앙값 {0}"
 msgid "Median loss"
 msgstr "손실 중앙값"
 
-#: src/components/reports/risk-section.tsx:296
+#: src/components/reports/risk-section.tsx:304
 msgid "Median outcome"
 msgstr "중앙값 결과"
 
@@ -4163,7 +4167,7 @@ msgstr "모델"
 msgid "Mon"
 msgstr "월"
 
-#: src/components/reports/risk-section.tsx:283
+#: src/components/reports/risk-section.tsx:291
 msgid "Monte Carlo"
 msgstr "몬테카를로"
 
@@ -4447,7 +4451,7 @@ msgstr "평가된 청산 거래 없음"
 #~ msgstr "연결 없음"
 
 #: src/components/equity-card.tsx:82
-#: src/components/reports/risk-section.tsx:102
+#: src/components/reports/risk-section.tsx:110
 msgid "No equity data in this range."
 msgstr "이 기간의 자산 데이터가 없습니다."
 
@@ -4505,7 +4509,7 @@ msgstr "{0} 에서 응답이 없습니다. 연결 상태, 또는 서버가 실�
 msgid "No revenge patterns detected — flags trades opened within an hour of a losing close: same-symbol re-entries inside 15 minutes, or entries sized 1.5× above your recent median."
 msgstr "복수 매매 패턴이 감지되지 않았습니다 — 손실 청산 후 1시간 이내 진입(15분 이내 동일 종목 재진입 또는 최근 중앙값의 1.5배 초과 규모)을 플래그합니다."
 
-#: src/components/reports/risk-section.tsx:158
+#: src/components/reports/risk-section.tsx:166
 msgid "No risk rules configured — set max risk per trade and max daily loss to score every trading day against your own process."
 msgstr "리스크 규칙이 설정되지 않았습니다 — 거래당 최대 리스크와 일일 최대 손실을 설정하면 매 거래일을 자신의 프로세스로 채점할 수 있습니다."
 
@@ -4527,7 +4531,7 @@ msgstr "이 범위에서 거래된 셋업이 없습니다."
 msgid "No setups yet"
 msgstr "아직 셋업이 없습니다"
 
-#: src/components/reports/risk-section.tsx:128
+#: src/components/reports/risk-section.tsx:136
 msgid "no stops recorded"
 msgstr "스톱 기록 없음"
 
@@ -4853,7 +4857,7 @@ msgstr "진입일"
 msgid "Open price"
 msgstr "진입 가격"
 
-#: src/components/reports/risk-section.tsx:164
+#: src/components/reports/risk-section.tsx:172
 msgid "Open risk rules"
 msgstr "리스크 규칙 열기"
 
@@ -4938,17 +4942,22 @@ msgid "over the last {windowSize} trades"
 msgstr "최근 {windowSize}건 기준"
 
 #. placeholder {0}: sim.horizon
-#: src/components/reports/risk-section.tsx:298
+#: src/components/reports/risk-section.tsx:306
 msgid "over the next {0} trades"
 msgstr "향후 {0}건 기준"
 
+#: src/components/reports/risk-section.tsx:83
+msgid "over-risked"
+msgstr ""
+
 #. placeholder {0}: day.risk_violations
 #: src/app/(tabs)/(calendar)/day/[date].tsx:162
-#: src/components/reports/risk-section.tsx:219
+#: src/components/reports/risk-section.tsx:227
 msgid "over-risked ×{0}"
 msgstr "리스크 초과 ×{0}"
 
-#: src/components/reports/risk-section.tsx:216
+#: src/components/reports/risk-section.tsx:85
+#: src/components/reports/risk-section.tsx:224
 msgid "over-traded"
 msgstr "거래 수 초과"
 
@@ -4969,7 +4978,7 @@ msgstr "오버나이트"
 msgid "oversized after streak ×{0}"
 msgstr "연승 후 과대 사이즈 ×{0}"
 
-#: src/app/(tabs)/(dashboard)/reports.tsx:101
+#: src/app/(tabs)/(dashboard)/reports.tsx:111
 msgid "Overview"
 msgstr "개요"
 
@@ -5012,11 +5021,11 @@ msgstr "손익 워터폴"
 msgid "P&L heatmap"
 msgstr "손익 히트맵"
 
-#: src/components/reports/risk-section.tsx:185
+#: src/components/reports/risk-section.tsx:193
 msgid "P&L, rules broken"
 msgstr "손익 (규칙 위반일)"
 
-#: src/components/reports/risk-section.tsx:179
+#: src/components/reports/risk-section.tsx:187
 msgid "P&L, rules followed"
 msgstr "손익 (규칙 준수일)"
 
@@ -5044,7 +5053,7 @@ msgstr "비밀번호가 변경되었습니다"
 msgid "Password reset"
 msgstr "비밀번호를 재설정했습니다"
 
-#: src/components/reports/risk-section.tsx:322
+#: src/components/reports/risk-section.tsx:330
 msgid "paths ending above zero"
 msgstr "0 위에서 끝나는 경로"
 
@@ -5563,7 +5572,7 @@ msgstr "실현 손익"
 msgid "Recap"
 msgstr "요약"
 
-#: src/components/reports/risk-section.tsx:206
+#: src/components/reports/risk-section.tsx:214
 msgid "Recent breach days"
 msgstr "최근 위반일"
 
@@ -5771,7 +5780,7 @@ msgid "Report an issue"
 msgstr "문제 신고"
 
 #: src/app/(tabs)/(dashboard)/_layout.tsx:128
-#: src/app/(tabs)/(dashboard)/reports.tsx:119
+#: src/app/(tabs)/(dashboard)/reports.tsx:130
 #: src/components/tools-menu.tsx:40
 msgid "Reports"
 msgstr "리포트"
@@ -5876,7 +5885,7 @@ msgstr "토큰을 폐기할까요?"
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:402
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:670
-#: src/app/(tabs)/(dashboard)/reports.tsx:106
+#: src/app/(tabs)/(dashboard)/reports.tsx:116
 #: src/app/tool-position-size.tsx:102
 #: src/components/reports/overview-section.tsx:553
 msgid "Risk"
@@ -5896,7 +5905,7 @@ msgstr "리스크 예산이 1계약 미만 — 리스크%를 높이거나 스톱
 msgid "Risk journaled before the trade, blended with rule compliance when rules are set."
 msgstr "거래 전에 기록한 리스크. 규칙이 있으면 규칙 준수와 혼합됩니다."
 
-#: src/components/reports/risk-section.tsx:326
+#: src/components/reports/risk-section.tsx:334
 msgid "Risk of ruin"
 msgstr "파산 위험"
 
@@ -5969,7 +5978,7 @@ msgstr "행 수"
 msgid "Rows with errors"
 msgstr "오류가 있는 행"
 
-#: src/components/reports/risk-section.tsx:150
+#: src/components/reports/risk-section.tsx:158
 msgid "Rule compliance"
 msgstr "규칙 준수"
 
@@ -7052,7 +7061,7 @@ msgstr "서버에 경제 캘린더 제공자가 설정되어 있지 않습니다
 msgid "The server is rate limiting this app. Try again in a moment."
 msgstr "서버가 이 앱의 요청을 제한하고 있습니다. 잠시 후 다시 시도하세요."
 
-#: src/components/reports/risk-section.tsx:290
+#: src/components/reports/risk-section.tsx:298
 msgid "The simulation needs at least 10 closed trades to resample."
 msgstr "시뮬레이션에는 청산 거래가 최소 10건 필요합니다."
 
@@ -7496,7 +7505,7 @@ msgstr "모델 ID 입력…"
 msgid "Type broker name"
 msgstr "브로커 이름 입력"
 
-#: src/components/reports/risk-section.tsx:314
+#: src/components/reports/risk-section.tsx:322
 msgid "Typical max drawdown"
 msgstr "일반적 최대 낙폭"
 
@@ -7613,7 +7622,7 @@ msgstr "버전 빌드 서버 라이선스"
 msgid "View all"
 msgstr "모두 보기"
 
-#: src/components/reports/risk-section.tsx:191
+#: src/components/reports/risk-section.tsx:199
 msgid "Violations"
 msgstr "위반"
 
@@ -7626,7 +7635,7 @@ msgstr "비전 스캔"
 msgid "Vision scan reads broker screenshots into executions on Import. AI coach reviews your journal and trades to surface patterns. Both work with any OpenAI-compatible API, and keys stay on your server."
 msgstr "비전 스캔은 가져오기에서 브로커 스크린샷을 체결 내역으로 읽어 들이고, AI 코치는 저널과 매매를 검토해 패턴을 보여줍니다. 둘 다 OpenAI 호환 API로 동작하며 키는 서버에 저장됩니다."
 
-#: src/app/(tabs)/(dashboard)/reports.tsx:104
+#: src/app/(tabs)/(dashboard)/reports.tsx:114
 msgid "W/L"
 msgstr ""
 
@@ -7796,7 +7805,7 @@ msgstr "연승"
 msgid "Withdrawal"
 msgstr "출금"
 
-#: src/components/reports/risk-section.tsx:308
+#: src/components/reports/risk-section.tsx:316
 msgid "Worst case"
 msgstr "최악 시나리오"
 
