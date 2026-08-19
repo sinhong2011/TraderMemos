@@ -95,22 +95,26 @@ function SplitStats({
       {/* The event count earns its spot only when it differs from the trade
           count — "54 · 54 events" reads as a stutter, not a second fact. */}
       <StatBar
+        plain
         label={t`Flagged trades`}
         value={String(flagged.trades)}
         sub={events === flagged.trades ? undefined : t`${events} events`}
       />
       <StatBar
+        plain
         label={t`Flagged P&L`}
         value={money.formatCompact(flagged.net_pnl)}
         tone={flagged.net_pnl >= 0 ? 'pos' : 'neg'}
       />
       <StatBar
+        plain
         label={t`Flagged win rate`}
         value={formatPercent(flagged.win_rate, 0)}
         sub={t`baseline ${formatPercent(baseline.win_rate, 0)}`}
         tone={flagged.win_rate < baseline.win_rate ? 'neg' : 'muted'}
       />
       <StatBar
+        plain
         label={t`Baseline P&L`}
         value={money.formatCompact(baseline.net_pnl)}
         sub={t`${baseline.trades} trades`}
@@ -256,18 +260,21 @@ export function BehaviorSection({
               <>
                 <View className="flex-row flex-wrap gap-2">
                   <StatBar
+                    plain
                     label={t`Avg winner hold`}
                     value={formatDuration(lossAversion.avg_win_hold_secs)}
                     sub={t`median ${formatDuration(lossAversion.median_win_hold_secs)}`}
                     tone="pos"
                   />
                   <StatBar
+                    plain
                     label={t`Avg loser hold`}
                     value={formatDuration(lossAversion.avg_loss_hold_secs)}
                     sub={t`median ${formatDuration(lossAversion.median_loss_hold_secs)}`}
                     tone={lossAversion.hold_ratio > 1.5 ? 'neg' : 'muted'}
                   />
                   <StatBar
+                    plain
                     label={t`Hold ratio`}
                     value={
                       lossAversion.hold_ratio > 0 ? `${lossAversion.hold_ratio.toFixed(1)}×` : '0×'
@@ -276,6 +283,7 @@ export function BehaviorSection({
                     tone={lossAversion.hold_ratio > 1.5 ? 'neg' : 'muted'}
                   />
                   <StatBar
+                    plain
                     label={t`Profit given back`}
                     value={money.formatCompact(lossAversion.missed_profit)}
                     sub={t`${lossAversion.give_back_count} green at peak`}

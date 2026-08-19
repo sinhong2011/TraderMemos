@@ -69,8 +69,18 @@ export default function ReportsScreen() {
   // Uniwind can take a `className` on — so its fill has to be a JS value.
   const [background] = useCSSVariable(['--color-background']) as [string];
   const [section, setSection] = useState<ReportsSection>('overview');
+  // Sections mount on first visit, not up front: a chart rendered inside a
+  // never-attached off-screen pager page measures 0×0 and draws stuck — empty
+  // line charts, hairline bars, a radar collapsed to its centre dot. Once
+  // visited a section stays mounted so its scroll position survives.
+  const [visited, setVisited] = useState<ReadonlySet<ReportsSection>>(
+    () => new Set<ReportsSection>(['overview']),
+  );
   const [scrolled, setScrolled] = useState(false);
   const pagerRef = useRef<PagerView>(null);
+
+  const visit = (value: ReportsSection) =>
+    setVisited((prev) => (prev.has(value) ? prev : new Set(prev).add(value)));
 
   // Measured rather than assumed: the switcher's height is also the top inset
   // every page scrolls under, and it changes with the text size.
@@ -99,13 +109,16 @@ export default function ReportsScreen() {
 
   const sections: { value: ReportsSection; label: string }[] = [
     { value: 'overview', label: t`Overview` },
-    { value: 'winloss', label: t`Win / Loss` },
+    // "W/L", not "Win / Loss": five triggers share a 360dp phone's width, and
+    // the long label wraps to two lines and crushes the whole strip.
+    { value: 'winloss', label: t`W/L` },
     { value: 'detailed', label: t`Detailed` },
     { value: 'risk', label: t`Risk` },
     { value: 'behavior', label: t`Behavior` },
   ];
 
   const selectSection = (value: ReportsSection) => {
+    visit(value);
     setSection(value);
     pagerRef.current?.setPage(SECTION_VALUES.indexOf(value));
   };
@@ -136,22 +149,26 @@ export default function ReportsScreen() {
             ref={pagerRef}
             initialPage={0}
             style={FILL}
-            onPageSelected={(event) => setSection(SECTION_VALUES[event.nativeEvent.position])}
+            onPageSelected={(event) => {
+              const next = SECTION_VALUES[event.nativeEvent.position];
+              visit(next);
+              setSection(next);
+            }}
           >
             <View key="overview" className="flex-1">
-              <OverviewSection onScrolledChange={setScrolled} />
+              {visited.has('overview') ? <OverviewSection onScrolledChange={setScrolled} /> : null}
             </View>
             <View key="winloss" className="flex-1">
-              <WinLossSection onScrolledChange={setScrolled} />
+              {visited.has('winloss') ? <WinLossSection onScrolledChange={setScrolled} /> : null}
             </View>
             <View key="detailed" className="flex-1">
-              <DetailedSection onScrolledChange={setScrolled} />
+              {visited.has('detailed') ? <DetailedSection onScrolledChange={setScrolled} /> : null}
             </View>
             <View key="risk" className="flex-1">
-              <RiskSection onScrolledChange={setScrolled} />
+              {visited.has('risk') ? <RiskSection onScrolledChange={setScrolled} /> : null}
             </View>
             <View key="behavior" className="flex-1">
-              <BehaviorSection onScrolledChange={setScrolled} />
+              {visited.has('behavior') ? <BehaviorSection onScrolledChange={setScrolled} /> : null}
             </View>
           </PagerView>
         </ReportsScrollProvider>

@@ -103,18 +103,23 @@ export function RiskSection({
         ) : (
           <>
             <View className="flex-row flex-wrap gap-2">
+              {/* The card title already says "Drawdown" — repeating it in the
+                  labels reads as a stutter. */}
               <StatBar
-                label={t`Max drawdown`}
+                plain
+                label={t`Max`}
                 value={money.formatCompact(maxDd)}
                 tone={maxDd < 0 ? 'neg' : 'muted'}
               />
               <StatBar
-                label={t`Current drawdown`}
+                plain
+                label={t`Current`}
                 value={money.formatCompact(currentDd)}
                 sub={currentDd >= 0 ? t`at the highs` : undefined}
                 tone={currentDd < 0 ? 'neg' : 'pos'}
               />
               <StatBar
+                plain
                 label={t`Avg risk / trade`}
                 value={risk.avg != null ? money.formatCompact(risk.avg) : money.formatCompact(0)}
                 sub={
@@ -163,22 +168,26 @@ export function RiskSection({
           <>
             <View className="flex-row flex-wrap gap-2">
               <StatBar
+                plain
                 label={t`Adherence`}
                 value={adherence != null ? formatPercentPoints(adherence * 100, 0) : '0%'}
                 sub={t`${report.compliant_days} of ${scoredDays} days`}
                 tone={adherence != null && adherence >= 0.8 ? 'pos' : 'amber'}
               />
               <StatBar
+                plain
                 label={t`P&L, rules followed`}
                 value={money.formatCompact(report.compliant_pnl)}
                 tone={report.compliant_pnl >= 0 ? 'pos' : 'neg'}
               />
               <StatBar
+                plain
                 label={t`P&L, rules broken`}
                 value={money.formatCompact(report.breach_pnl)}
                 tone={report.breach_pnl >= 0 ? 'pos' : 'neg'}
               />
               <StatBar
+                plain
                 label={t`Violations`}
                 value={String(totalViolations)}
                 sub={violationParts.length > 0 ? violationParts.join(' · ') : undefined}

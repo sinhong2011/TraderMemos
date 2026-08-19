@@ -31,25 +31,38 @@ export function StatBar({
   value,
   sub,
   tone = 'muted',
+  plain,
 }: {
   label: string;
   value: string;
   sub?: string;
   tone?: StatTone;
+  /**
+   * No surface of its own — for tiles living inside a solid card, where the
+   * Card wrap would read as a box-in-a-box. The parent card separates; the
+   * tile just lays out.
+   */
+  plain?: boolean;
 }) {
+  const Wrap = plain ? View : Card;
   return (
     // Grouped for VoiceOver — read as one "label, value, sub" phrase rather
     // than three orphaned fragments swiped past in sequence.
     //
     // `min-h-[88px]` matches the web tile's min-h so a wrapped sub doesn't make
     // one column taller than its neighbour on the first row it appears in.
-    <Card
-      className="min-h-[88px] grow basis-[140px] gap-2 rounded-md border-0 p-3"
+    <Wrap
+      className={cn(
+        'min-h-[88px] grow basis-[140px] gap-2 p-3',
+        !plain && 'rounded-md border-0',
+      )}
       accessible
       accessibilityLabel={[label, value, sub].filter(Boolean).join(', ')}
     >
       <Text
-        className="text-xs font-medium text-muted-foreground"
+        // Surfaceless tiles centre the label over the centred value — a
+        // left-anchored caption floating over open card space reads adrift.
+        className={cn('text-xs font-medium text-muted-foreground', plain && 'text-center')}
         numberOfLines={1}
         maxFontSizeMultiplier={1.6}
       >
@@ -84,6 +97,6 @@ export function StatBar({
           ) : null}
         </View>
       </View>
-    </Card>
+    </Wrap>
   );
 }
