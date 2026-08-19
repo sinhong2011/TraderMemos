@@ -2,7 +2,7 @@
 // views inside its pages, which killed day-cell selection on these boards.
 import PagerView from 'react-native-pager-view';
 import { Stack, useRouter } from 'expo-router';
-import { useMemo, useRef, useState } from 'react';
+import { Fragment, useMemo, useRef, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import Animated, {
   Easing,
@@ -12,7 +12,7 @@ import Animated, {
   type EntryExitAnimationFunction,
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-screens/experimental';
-import { cn, Skeleton } from 'panelui-native';
+import { BottomSheet, cn, Skeleton } from 'panelui-native';
 import { useCSSVariable } from 'uniwind';
 
 import { Icon } from '@/components/icon';
@@ -146,18 +146,6 @@ function pageWindow(mode: Mode, anchor: string): [string, string, string] {
 function afterFlush(fn: () => void) {
   requestAnimationFrame(() => requestAnimationFrame(fn));
 }
-
-/** The wheel card drops in from under the nav bar and settles. */
-const panelEntering: EntryExitAnimationFunction = () => {
-  'worklet';
-  return {
-    initialValues: { opacity: 0, transform: [{ translateY: -8 }, { scale: 0.97 }] },
-    animations: {
-      opacity: withTiming(1, EASE),
-      transform: [{ translateY: withTiming(0, EASE) }, { scale: withTiming(1, EASE) }],
-    },
-  };
-};
 
 /** Per-day closed-trade tallies (close basis) behind the count and W/L badges. */
 type DayStats = { count: number; wins: number; losses: number };
@@ -710,45 +698,109 @@ export default function CalendarScreen() {
           </View>
         }
         </ScrollView>
-        {pickerOpen ? (
-          <>
-            {/* Scrim closes the picker; kept light so the live board reads
-                through as the wheels page it. */}
-            <Pressable
-              className="absolute bottom-0 left-0 right-0 top-0 bg-background opacity-40"
-              onPress={() => setPickerOpen(false)}
-            />
-            <Animated.View
-              entering={panelEntering}
-              exiting={FadeOut.duration(120)}
-              className={cn(
-                'absolute left-4 right-4 top-1 flex-row rounded-[18px] border border-border bg-card px-2 py-1',
-                // Year mode spins a single wheel — a slim centered card.
-                mode === 'year' && 'left-auto right-auto w-[180px] self-center',
-              )}
-              style={{ boxShadow: '0 12px 32px rgba(0, 0, 0, 0.3)' }}
-            >
-              {mode === 'month' ? (
-                <Segmented
-                  variant="wheel"
-                  title={t`Month`}
-                  options={monthOptions}
-                  value={String(month)}
-                  onChange={(m) => jumpTo(year, Number(m))}
-                />
-              ) : null}
-              <Segmented
-                variant="wheel"
-                title={t`Year`}
-                options={yearOptions}
-                value={String(year)}
-                onChange={(y) => jumpTo(Number(y), month)}
-              />
-            </Animated.View>
-          </>
-        ) : null}
+        <MonthYearSheet
+          open={pickerOpen}
+          onOpenChange={setPickerOpen}
+          showMonths={mode === 'month'}
+          monthOptions={monthOptions}
+          yearOptions={yearOptions}
+          month={month}
+          year={year}
+          onJump={jumpTo}
+        />
       </SafeAreaView>
     </>
+  );
+}
+
+/**
+ * Month/year jump — the app's picker-sheet anatomy (52pt rows, chosen row
+ * bold with a trailing check) in one bottom sheet, two columns when a month
+ * board also needs the month. Year taps retune the board and keep the sheet
+ * open; the month tap is the final word and closes it.
+ */
+function MonthYearSheet({
+  open,
+  onOpenChange,
+  showMonths,
+  monthOptions,
+  yearOptions,
+  month,
+  year,
+  onJump,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  showMonths: boolean;
+  monthOptions: { value: string; label: string }[];
+  yearOptions: { value: string; label: string }[];
+  month: number;
+  year: number;
+  onJump: (year: number, month: number) => void;
+}) {
+  const [primary] = useCSSVariable(['--color-primary']) as [string];
+
+  const column = (
+    items: { value: string; label: string }[],
+    selected: string,
+    onPick: (value: string) => void,
+  ) => {
+    const selectedIndex = Math.max(
+      0,
+      items.findIndex((item) => item.value === selected),
+    );
+    return (
+      <ScrollView
+        className="max-h-[380px] flex-1"
+        bounces={false}
+        contentOffset={{ x: 0, y: Math.max(0, selectedIndex * 52 - 130) }}
+      >
+        {items.map((item, index) => {
+          const isSelected = item.value === selected;
+          return (
+            <Fragment key={item.value}>
+              {index > 0 ? <View className="h-px bg-border/60" /> : null}
+              <Pressable
+                onPress={() => onPick(item.value)}
+                accessibilityRole="radio"
+                accessibilityState={{ checked: isSelected }}
+                className="min-h-[52px] flex-row items-center gap-3 active:opacity-60"
+              >
+                <Text
+                  className={cn('flex-1 text-[17px] text-foreground', isSelected && 'font-semibold')}
+                  numberOfLines={1}
+                >
+                  {item.label}
+                </Text>
+                {isSelected ? (
+                  <Icon name="checkmark.circle.fill" size={22} tintColor={primary} />
+                ) : null}
+              </Pressable>
+            </Fragment>
+          );
+        })}
+      </ScrollView>
+    );
+  };
+
+  return (
+    <BottomSheet open={open} onOpenChange={onOpenChange}>
+      <BottomSheet.Content>
+        <BottomSheet.Header title={showMonths ? t`Jump to` : t`Year`} />
+        <View className="flex-row gap-6">
+          {showMonths
+            ? column(monthOptions, String(month), (m) => {
+                onJump(year, Number(m));
+                onOpenChange(false);
+              })
+            : null}
+          {column(yearOptions, String(year), (y) => {
+            onJump(Number(y), month);
+            if (!showMonths) onOpenChange(false);
+          })}
+        </View>
+      </BottomSheet.Content>
+    </BottomSheet>
   );
 }
 

@@ -16,6 +16,8 @@ export default function SettingsLayout() {
         // Material bar anyway.
         headerTransparent: Platform.OS === 'ios',
         headerShadowVisible: false,
+        // Android left-aligns headerTitle by default; iOS centres. Keep both centred.
+        headerTitleAlign: 'center',
         headerLargeTitleShadowVisible: false,
         headerLargeStyle: { backgroundColor: 'transparent' },
         headerTitleStyle: { color: foreground },

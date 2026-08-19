@@ -254,7 +254,7 @@ export default function RootLayout() {
           <ReachabilityGate />
           <AppErrorBoundary>
           <View style={{ flex: 1 }}>
-          <Stack screenOptions={{ headerShown: false }}>
+          <Stack screenOptions={{ headerShown: false, headerTitleAlign: 'center' }}>
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="login" options={{ presentation: 'modal', headerShown: false }} />
             {/* New trade and edit trade are destinations, not interruptions:
