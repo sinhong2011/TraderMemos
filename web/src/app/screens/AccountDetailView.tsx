@@ -122,6 +122,7 @@ function EditAccountButton({ account }: { account: Account }) {
               id="account-detail-broker"
               value={brokerChoice}
               onChange={(e) => setBrokerChoice(e.target.value)}
+              wrapperClassName="w-full"
             >
               {POPULAR_BROKERS.map((b) => (
                 <NativeSelectOption key={b} value={b}>
