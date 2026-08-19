@@ -1,8 +1,8 @@
 # TraderMemos marketing site
 
 Marketing + docs site for [TraderMemos](https://github.com/sinhong2011/TraderMemos), built with
-[Next.js](https://nextjs.org) and [Fumadocs](https://fumadocs.dev). Supports English (`en`) and
-Traditional Chinese (`zh-Hant`).
+[Next.js](https://nextjs.org) and [Fumadocs](https://fumadocs.dev). Supports English (`en`),
+Japanese (`ja`), Simplified Chinese (`zh-Hans`), and Traditional Chinese (`zh-Hant`).
 
 Run development server:
 
@@ -15,7 +15,7 @@ Open http://localhost:3000 with your browser — it redirects to `/en`.
 ## Explore
 
 - `lib/i18n.ts` / `lib/translations.ts`: locale config and fumadocs-ui chrome translations.
-- `lib/home-content.ts`: per-locale copy for the landing page.
+- `messages/{en,ja,zh-Hans,zh-Hant}.json`: per-locale copy for the landing page and other pages.
 - `lib/source.ts`: content source adapter ([`loader()`](https://fumadocs.dev/docs/headless/source-api)).
 - `lib/layout.shared.tsx`: shared nav/layout options, locale-aware.
 - `proxy.ts`: locale routing + markdown content negotiation (merged, since Next allows only one proxy).
@@ -30,8 +30,8 @@ Open http://localhost:3000 with your browser — it redirects to `/en`.
 
 ### Content
 
-Docs live in `content/docs/`. English is the default (`quick-start.mdx`); Traditional Chinese
-translations use the `.zh-Hant` suffix (`quick-start.zh-Hant.mdx`), per
+Docs live in `content/docs/`. English is the default (`quick-start.mdx`); translations use a
+locale suffix (`quick-start.ja.mdx`, `quick-start.zh-Hans.mdx`, `quick-start.zh-Hant.mdx`), per
 [Fumadocs i18n routing](https://fumadocs.dev/docs/headless/page-conventions#i18n-routing).
 
 ## Learn more

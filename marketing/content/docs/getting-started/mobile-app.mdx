@@ -1,0 +1,46 @@
+---
+title: Mobile app
+description: Install the iOS or Android companion app and connect it to your own server.
+---
+
+The TraderMemos companion app *(beta)* journals against **your own server** — the same
+accounts, trades, and reports as the web app, with offline reads on the go. One Expo
+codebase covers both platforms.
+
+<div className="flex flex-wrap gap-3">
+  <img src="/screenshots/mobile-home.png" alt="The mobile app home screen — equity curve and performance stats" className="w-52 rounded-xl" />
+  <img src="/screenshots/mobile-trades.png" alt="Trade log with per-trade P&L on mobile" className="w-52 rounded-xl" />
+  <img src="/screenshots/mobile-reports.png" alt="Reports overview on mobile — profit factor and win rate" className="w-52 rounded-xl" />
+</div>
+
+## iOS
+
+iOS builds are distributed through **TestFlight** while the app is in beta. Widgets,
+Live Activities, and Siri / Action Button quick capture are iOS-only extras.
+
+## Android
+
+There is no Play Store listing — the APK on the GitHub Release page is the Android
+distribution channel:
+
+1. Open the [latest release](https://github.com/sinhong2011/TraderMemos/releases/latest)
+   and download `TraderMemos-<version>.apk`.
+2. Open the file on your phone and allow **Install unknown apps** for your browser or
+   file manager when Android asks.
+3. To update, install the newer release's APK over the old one — it upgrades in place
+   and keeps your data.
+
+Each release also ships a `.sha256` file next to the APK if you want to verify the
+download.
+
+## Connect to your server
+
+On first launch, enter your instance URL — for example `https://journal.example.com`
+or `http://192.168.1.10:8080` — along with your credentials, the same **Server at
+login** model the web app uses. The app probes `/healthz` first, so an unreachable
+server reports as such rather than as bad credentials.
+
+Your phone needs to reach the server: on the same LAN, over a VPN/tunnel, or via a
+public HTTPS domain (see [Reverse proxy](/en/docs/self-hosting/reverse-proxy)).
+Tokens are stored in the platform keystore (iOS Keychain / Android Keystore), never
+in plain storage.

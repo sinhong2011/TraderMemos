@@ -135,8 +135,8 @@
         "description": "個人存取權杖（tm_pat_…）可用於 MCP / 指令稿；OpenAPI 文件位於 /docs。"
       },
       "mobile": {
-        "title": "iOS App（測試版）",
-        "description": "原生 SwiftUI 隨身版 — 離線記錄、小工具、即時動態與 Siri / 動作按鈕快速記帳。現已在 TestFlight 提供。"
+        "title": "行動 App（測試版）",
+        "description": "iOS 與 Android 原生隨身版 — 雙平台離線記錄；iOS 另有小工具、即時動態與 Siri / 動作按鈕快速記帳。iOS 經 TestFlight 發佈，Android 可從 GitHub Releases 下載 APK。"
       }
     },
     "lookInsideHeading": "實際畫面",
@@ -159,7 +159,7 @@
       },
       {
         "layer": "行動裝置",
-        "value": "Expo · @expo/ui（SwiftUI）· TestFlight"
+        "value": "Expo · PanelUI + Uniwind · TestFlight / APK"
       },
       {
         "layer": "設計",
@@ -190,7 +190,10 @@
     "heading": "幾分鐘內完成部署",
     "sub": "一鍵將 Web UI 部署到你自己的 Vercel、Cloudflare 或 Netlify 帳戶 —— 或用 Docker 在任意機器上執行完整服務。",
     "note": "一鍵按鈕僅部署 Web UI —— 請搭配 Railway 或 Docker 上的 API 使用。",
-    "star": "在 GitHub 上加星"
+    "star": "在 GitHub 上加星",
+    "appLead": "取得行動 App",
+    "appIos": "iOS · TestFlight",
+    "appAndroid": "Android · APK"
   },
   "Changelog": {
     "title": "更新日誌",
@@ -649,7 +652,7 @@
           {
             "row": "介面",
             "them": "功能齊全,但看得出年紀",
-            "tm": "現代終端機風格、深色模式、原生 iOS App"
+            "tm": "現代終端機風格、深色模式、原生 iOS / Android App"
           }
         ],
         "theyWin": [

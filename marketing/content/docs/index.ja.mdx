@@ -29,7 +29,7 @@ TradeZella や TraderSync のようなクラウド型ジャーナルは洗練さ
 - **ツール** — ポジションサイズ・FX・ケリー計算機、高機能チャート、経済指標カレンダー、資金台帳
 - **AI** *(任意)* — OpenAI 互換 API によるスクリーンショットからの約定抽出とトレードコーチ（キーはあなたのもの）
 - **API アクセス** — MCP／スクリプト向けのパーソナルアクセストークン（`tm_pat_…`）、OpenAPI ドキュメントは `/docs`
-- **iOS アプリ** *(ベータ)* — SwiftUI ネイティブのコンパニオンアプリ。オフライン記帳、ウィジェット、Live Activities、Siri クイック記録
+- **モバイルアプリ** *(ベータ)* — iOS / Android 両対応のネイティブコンパニオンアプリ。オフライン記帳、iOS ではウィジェット、Live Activities、Siri クイック記録 — [モバイルアプリ](/ja/docs/getting-started/mobile-app)を参照
 
 ## 技術スタック
 
@@ -37,7 +37,7 @@ TradeZella や TraderSync のようなクラウド型ジャーナルは洗練さ
 |-------|-------|
 | **API** | Go · Echo · sqlc · golang-migrate · SQLite / Postgres |
 | **Web** | React · Vite+ · TanStack Router/Query/Form · Tailwind |
-| **モバイル** | Expo · @expo/ui (SwiftUI) |
+| **モバイル** | Expo（iOS / Android）· PanelUI + Uniwind |
 | **デザイン** | shadcn/ui + coss ui トークン |
 
 ## 次のステップ
@@ -45,6 +45,7 @@ TradeZella や TraderSync のようなクラウド型ジャーナルは洗練さ
 <Cards>
   <Card title="クイックスタート" href="/ja/docs/getting-started/quick-start" description="Docker のコマンド 1 つで、スタック全体をローカルで起動します。" />
   <Card title="最初の一歩" href="/ja/docs/getting-started/first-steps" description="セットアップウィザード、最初のトレード、初めての方向けのアプリ案内。" />
+  <Card title="モバイルアプリ" href="/ja/docs/getting-started/mobile-app" description="iOS（TestFlight）／ Android（APK）のコンパニオンアプリをインストールし、自分のサーバーに接続します。" />
   <Card title="デプロイ" href="/ja/docs/self-hosting/deploy" description="Docker 一体型、CDN + API 分離、エッジリライトの 3 つのデプロイ方式。" />
   <Card title="フォークしてデプロイ" href="/ja/docs/self-hosting/fork-deploy" description="Web UI をあなた自身の Vercel / Cloudflare / Netlify アカウントにワンクリックでデプロイ。" />
   <Card title="トレードのインポート" href="/ja/docs/guides/importing-trades" description="列マッピング対応の証券会社 CSV インポート — 重複は自動的にスキップされます。" />

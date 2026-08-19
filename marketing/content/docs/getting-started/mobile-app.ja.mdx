@@ -1,0 +1,47 @@
+---
+title: モバイルアプリ
+description: iOS / Android のコンパニオンアプリをインストールし、自分のサーバーに接続します。
+---
+
+TraderMemos のコンパニオンアプリ *(ベータ)* は、**自分のサーバー**に対して記帳します —
+Web アプリと同じアカウント・トレード・レポートを、外出先でもオフラインで参照できます。
+1 つの Expo コードベースが両プラットフォームをカバーします。
+
+<div className="flex flex-wrap gap-3">
+  <img src="/screenshots/mobile-home.png" alt="モバイルアプリのホーム画面 — エクイティカーブとパフォーマンス統計" className="w-52 rounded-xl" />
+  <img src="/screenshots/mobile-trades.png" alt="モバイルのトレードログ — トレードごとの損益" className="w-52 rounded-xl" />
+  <img src="/screenshots/mobile-reports.png" alt="モバイルのレポート概要 — プロフィットファクターと勝率" className="w-52 rounded-xl" />
+</div>
+
+## iOS
+
+ベータ期間中、iOS ビルドは **TestFlight** で配信されます。ウィジェット、Live
+Activities、Siri / アクションボタンでのクイック記録は iOS 専用の機能です。
+
+## Android
+
+Play ストアでの配信はありません — GitHub リリースページの APK が Android の配信
+チャネルです:
+
+1. [最新リリース](https://github.com/sinhong2011/TraderMemos/releases/latest)を開き、
+   `TraderMemos-<version>.apk` をダウンロードします。
+2. スマートフォンでファイルを開き、Android の確認が出たらブラウザまたはファイル
+   マネージャーに対して**不明なアプリのインストール**を許可します。
+3. アップデートは、新しいリリースの APK を上書きインストールするだけです —
+   その場で更新され、データは保持されます。
+
+ダウンロードを検証したい場合のために、各リリースには APK と並んで `.sha256`
+ファイルも同梱されています。
+
+## サーバーへの接続
+
+初回起動時に、インスタンスの URL（例: `https://journal.example.com` や
+`http://192.168.1.10:8080`）と認証情報を入力します — Web アプリと同じ
+「ログイン時にサーバーを指定する」方式です。アプリはまず `/healthz` を確認する
+ため、サーバーに到達できない場合は認証エラーではなく接続エラーとして報告されます。
+
+スマートフォンからサーバーに到達できる必要があります: 同一 LAN 内、VPN /
+トンネル経由、または公開 HTTPS ドメイン経由です
+（[リバースプロキシ](/ja/docs/self-hosting/reverse-proxy)を参照）。トークンは
+プラットフォームのキーストア（iOS Keychain / Android Keystore）に保存され、
+平文では保存されません。

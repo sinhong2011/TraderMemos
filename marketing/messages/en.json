@@ -135,8 +135,8 @@
         "description": "Personal access tokens (tm_pat_…) for MCP/scripts; OpenAPI docs at /docs."
       },
       "mobile": {
-        "title": "iOS app (beta)",
-        "description": "Native SwiftUI companion — offline journaling, widgets, Live Activities, and Siri / Action Button quick capture. On TestFlight today."
+        "title": "Mobile app (beta)",
+        "description": "Native companion for iOS and Android — offline journaling on both, plus widgets, Live Activities, and Siri / Action Button quick capture on iOS. TestFlight for iOS · APK from GitHub Releases for Android."
       }
     },
     "lookInsideHeading": "A look inside",
@@ -159,7 +159,7 @@
       },
       {
         "layer": "Mobile",
-        "value": "Expo · @expo/ui (SwiftUI) · TestFlight"
+        "value": "Expo · PanelUI + Uniwind · TestFlight / APK"
       },
       {
         "layer": "Design",
@@ -190,7 +190,10 @@
     "heading": "Deploy in minutes",
     "sub": "One-click the web UI to your own Vercel, Cloudflare, or Netlify account — or run the whole stack with Docker on any machine.",
     "note": "One-click buttons deploy the web UI only — pair them with the API on Railway or Docker.",
-    "star": "Star on GitHub"
+    "star": "Star on GitHub",
+    "appLead": "Get the mobile app",
+    "appIos": "iOS · TestFlight",
+    "appAndroid": "Android · APK"
   },
   "Changelog": {
     "title": "Changelog",
@@ -649,7 +652,7 @@
           {
             "row": "Interface",
             "them": "Functional, showing its age",
-            "tm": "Modern terminal aesthetic, dark mode, native iOS app"
+            "tm": "Modern terminal aesthetic, dark mode, native iOS & Android app"
           }
         ],
         "theyWin": [
