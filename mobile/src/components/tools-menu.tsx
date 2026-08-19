@@ -57,6 +57,7 @@ export function ToolsMenu() {
       systemImage: 'newspaper',
       href: '/(tabs)/(dashboard)/economic-events',
     },
+    { label: t`Connect a broker`, systemImage: 'building.columns', href: '/connect-broker' },
   ];
 
   const journal: { label: string; systemImage: SFSymbol; href: Href }[] = [

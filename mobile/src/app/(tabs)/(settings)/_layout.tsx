@@ -102,6 +102,10 @@ export default function SettingsLayout() {
         name="import-history"
         options={{ title: t`Sync & import history`, headerLargeTitle: false }}
       />
+      <Stack.Screen
+        name="connect-broker"
+        options={{ title: t`Connect a broker`, headerLargeTitle: false }}
+      />
       <Stack.Screen name="ai" options={{ title: t`AI` }} />
       {/* Title comes from the screen — it names the integration being edited. */}
       <Stack.Screen name="ai/[kind]" options={{ headerLargeTitle: false }} />

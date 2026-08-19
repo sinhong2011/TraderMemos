@@ -213,6 +213,12 @@ export default function SettingsScreen() {
       onPress: () => router.push('/funding'),
     },
     {
+      icon: 'building.columns',
+      label: t`Connect a broker`,
+      terms: t`connect broker sync ibkr import`,
+      onPress: () => router.push('/connect-broker'),
+    },
+    {
       icon: 'plus.circle',
       label: t`Add account`,
       terms: t`broker new account`,
@@ -440,6 +446,11 @@ export default function SettingsScreen() {
             ) : accounts?.length === 0 ? (
               <ValueText color={foreground}>{t`No accounts yet`}</ValueText>
             ) : null}
+            <SettingsButton
+              systemImage="building.columns"
+              label={t`Connect a broker`}
+              onPress={() => router.push('/connect-broker')}
+            />
             <SettingsButton
               systemImage="plus.circle"
               label={t`Add account`}
