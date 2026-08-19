@@ -695,9 +695,10 @@ export function ReportsView({
       <>
         <PnlBarChart data={breakdown} />
 
-        <div style={{ maxHeight: 360 }}>
-          <DataTable columns={columns} data={breakdown} />
-        </div>
+        {/* maxHeight must live on DataTable's own scroller — a max-height
+            wrapper has no definite height, so the scroller's percentage cap
+            resolves to nothing and the rows bleed over the next card. */}
+        <DataTable columns={columns} data={breakdown} maxHeight={360} />
       </>
     );
   };
