@@ -12,7 +12,7 @@ import {
   type ReactNode,
   type Ref,
 } from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import ReanimatedSwipeable, {
   type SwipeableMethods,
 } from 'react-native-gesture-handler/ReanimatedSwipeable';
@@ -89,7 +89,7 @@ const FILL: Record<SwipeActionColor, string> = {
 
 export interface SwipeActionProps {
   className?: string;
-  /** What the action does. Icon-only tiles: this is what a screen reader gets. */
+  /** What the action does — drawn under the icon and read by screen readers. */
   label: string;
   /** The glyph, bare — the tile sizes and tints it itself. */
   icon?: ReactNode;
@@ -129,13 +129,20 @@ function SwipeAction({
         onPress?.();
       }}
       className={cn(
-        'w-[72px] items-center justify-center rounded-[20px] active:opacity-60',
+        'w-[72px] items-center justify-center gap-1 rounded-[20px] active:opacity-60',
         FILL[color],
         className,
       )}
       style={CONTINUOUS}
     >
       {sizeIcon(icon, color === 'default' ? background : onFill)}
+      <Text
+        numberOfLines={1}
+        className="text-[10px] font-semibold"
+        style={{ color: color === 'default' ? background : onFill }}
+      >
+        {label}
+      </Text>
     </Pressable>
   );
 }
