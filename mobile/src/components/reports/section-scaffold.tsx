@@ -19,6 +19,7 @@ import { netDeposits } from '@/lib/cash';
 import { useGlobalFilters } from '@/lib/filters';
 import { useFormatters } from '@/lib/format';
 import { useMoneyFx } from '@/lib/money';
+import { useSoftTopEdge } from '@/lib/soft-scroll-edge';
 import { usePagerBottomInset } from '@/lib/pager-insets';
 import { accountBaseCurrency } from '@/lib/prefs';
 import {
@@ -106,6 +107,7 @@ export function SectionScaffold({
   // Nested in the pager, `automatic` never gets the tab-bar bottom inset
   // (see lib/pager-insets.ts) — the last card needs explicit clearance.
   const bottomInset = usePagerBottomInset();
+  const softTopEdge = useSoftTopEdge();
 
   const onScroll = reportsScroll
     ? Animated.event([{ nativeEvent: { contentOffset: { y: reportsScroll.offset } } }], {
@@ -121,6 +123,9 @@ export function SectionScaffold({
 
   return (
     <Animated.ScrollView
+      // The screens-level scrollEdgeEffects can't reach a list nested in the
+      // pager — nominate this scroll view for the soft top fade explicitly.
+      ref={softTopEdge}
       style={styles.page}
       contentContainerStyle={[
         styles.content,
