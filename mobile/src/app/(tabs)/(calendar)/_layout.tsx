@@ -21,6 +21,9 @@ export default function CalendarLayout() {
         headerLargeTitleShadowVisible: false,
         headerLargeStyle: { backgroundColor: 'transparent' },
         headerTitleStyle: { color: foreground },
+        // Android left-aligns headerTitle by default; the view-mode control is
+        // designed to hold the bar's centre on both platforms.
+        headerTitleAlign: 'center',
         headerLargeTitle: true,
         headerBlurEffect: 'none',
         // iOS 27 flipped the nav-bar default edge style from soft to hard, which
