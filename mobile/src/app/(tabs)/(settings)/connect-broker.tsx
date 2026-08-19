@@ -1,4 +1,5 @@
 import { useRouter } from 'expo-router';
+import { Stack } from 'expo-router/stack';
 import { Frame, Text } from 'panelui-native';
 import { Image } from 'expo-image';
 import { useMemo, useState } from 'react';
@@ -6,7 +7,8 @@ import { View } from 'react-native';
 import { useCSSVariable } from 'uniwind';
 
 import { useAccounts } from '@/api/hooks';
-import { FormInput, PickerSheet } from '@/components/form-kit';
+import { PickerSheet } from '@/components/form-kit';
+import { FloatingSearchBar, SearchToggle } from '@/components/search-bar';
 import { Icon } from '@/components/icon';
 import { SettingsForm } from '@/components/settings-form';
 import { SettingsSection } from '@/components/settings-rows';
@@ -54,6 +56,7 @@ export default function ConnectBrokerScreen() {
   const router = useRouter();
   const { data: accounts } = useAccounts();
   const [query, setQuery] = useState('');
+  const [searching, setSearching] = useState(false);
   const [accountPickerFor, setAccountPickerFor] = useState<BrokerDef | null>(null);
   const [mutedForeground] = useCSSVariable(['--color-muted-foreground']) as [string];
 
@@ -97,18 +100,26 @@ export default function ConnectBrokerScreen() {
   }
 
   return (
-    <SettingsForm>
-      <Text size="sm" muted>
-        {t`Pick where you trade. We'll route you to the fastest way to get its data in.`}
-      </Text>
-      <FormInput
-        value={query}
-        onChangeText={setQuery}
-        placeholder={t`Search brokers and platforms`}
-        autoCorrect={false}
-        autoCapitalize="none"
-        clearButtonMode="while-editing"
+    <>
+      <Stack.Screen
+        options={{
+          headerRight: () => (
+            <SearchToggle
+              open={searching}
+              active={query.trim().length > 0}
+              label={t`Search brokers and platforms`}
+              onPress={() => {
+                if (searching) setQuery('');
+                setSearching((open) => !open);
+              }}
+            />
+          ),
+        }}
       />
+      <SettingsForm>
+        <Text size="sm" muted>
+          {t`Pick where you trade. We'll route you to the fastest way to get its data in.`}
+        </Text>
 
       {bySection.map(({ title, description, kind }) => {
         const rows = filtered.filter((b) => b.kind === kind);
@@ -142,6 +153,17 @@ export default function ConnectBrokerScreen() {
           router.push({ pathname: '/flex-sync', params: { accountId } });
         }}
       />
-    </SettingsForm>
+      </SettingsForm>
+      <FloatingSearchBar
+        open={searching}
+        value={query}
+        placeholder={t`Search brokers and platforms`}
+        onChangeText={setQuery}
+        onClose={() => {
+          setQuery('');
+          setSearching(false);
+        }}
+      />
+    </>
   );
 }
