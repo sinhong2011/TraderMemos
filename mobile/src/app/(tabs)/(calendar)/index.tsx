@@ -1,6 +1,7 @@
 // See the note in trade-form.tsx: @expo/ui's SwiftUI pager swallows taps on RN
 // views inside its pages, which killed day-cell selection on these boards.
 import PagerView from 'react-native-pager-view';
+import { FitText } from '@/components/fit-text';
 import { Stack, useRouter } from 'expo-router';
 import { Fragment, useMemo, useRef, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
@@ -224,21 +225,23 @@ function WeekBento({
         <View className="min-w-0 flex-[1.5] gap-0.5 px-2">
           <Text className={BENTO_LABEL}>{t`Net P&L`}</Text>
           <View className="flex-row flex-wrap items-baseline gap-1">
-            <Text
+            <FitText
               className={cn('text-[22px] font-bold tracking-[-0.3px] tabular-nums', pnlTint)}
               numberOfLines={1}
               adjustsFontSizeToFit
+              minimumFontScale={0.75}
             >
               {formatPnl(weekPnl, currency)}
-            </Text>
+            </FitText>
             {weekReturnPct != null ? (
-              <Text
+              <FitText
                 className={cn('text-sm font-semibold tabular-nums', pnlTint)}
                 numberOfLines={1}
                 adjustsFontSizeToFit
+                minimumFontScale={0.75}
               >
                 {`${weekPnl > 0 ? '+' : ''}${formatPercentPoints(weekReturnPct * 100, 1)}`}
-              </Text>
+              </FitText>
             ) : null}
           </View>
         </View>
@@ -550,9 +553,14 @@ export default function CalendarScreen() {
           ),
           headerLeft: () =>
             mode === 'week' ? (
-              <Text className={HEADER_TITLE} numberOfLines={1} adjustsFontSizeToFit>
+              <FitText
+                className={HEADER_TITLE}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.75}
+              >
                 {pagerLabel}
-              </Text>
+              </FitText>
             ) : (
               <Pressable
                 onPress={() => setPickerOpen((open) => !open)}
@@ -560,13 +568,14 @@ export default function CalendarScreen() {
                 accessibilityRole="button"
                 className="flex-row items-center gap-[5px] active:opacity-60"
               >
-                <Text
+                <FitText
                   className={cn(HEADER_TITLE, pickerOpen && 'text-heading')}
                   numberOfLines={1}
                   adjustsFontSizeToFit
+                  minimumFontScale={0.75}
                 >
                   {pagerLabel}
-                </Text>
+                </FitText>
               </Pressable>
             ),
           headerRight: () => (
@@ -913,14 +922,19 @@ function DayCell({
       </Text>
       {hasPnl ? (
         <View className={CELL_BODY}>
-          {/* Figure + W/L only — the trade count lives in the day sheet. */}
-          <Text
+          {/* Figure + W/L only — the trade count lives in the day sheet.
+              minimumFontScale everywhere adjustsFontSizeToFit appears in a
+              tile: first-row tiles measure near-zero while the month pager
+              settles, and an uncapped shrink latches microscopic (same iOS
+              quirk as the Net P&L summary above). */}
+          <FitText
             className={cn('text-[13px] font-bold leading-[15px] tabular-nums', pnlClass(pnl))}
             numberOfLines={1}
             adjustsFontSizeToFit
+            minimumFontScale={0.75}
           >
             {formatPnlCompact(pnl, currency)}
-          </Text>
+          </FitText>
           <WinLoss wins={stats?.wins ?? 0} losses={stats?.losses ?? 0} className="leading-[12px]" />
         </View>
       ) : null}
@@ -982,14 +996,14 @@ function MonthView({
             damage either way. */}
         <View className="min-w-0 flex-1">
           <Text className={SUMMARY_LABEL}>{t`Net P&L`}</Text>
-          <Text
+          <FitText
             className={cn(SUMMARY_VALUE, pnlClass(grid.monthTotal))}
             numberOfLines={1}
             adjustsFontSizeToFit
             minimumFontScale={0.75}
           >
             {formatPnl(grid.monthTotal, currency)}
-          </Text>
+          </FitText>
         </View>
         <View className="items-end gap-[3px] pb-0.5">
           <Text className={SUMMARY_SUB}>
@@ -1043,24 +1057,26 @@ function MonthView({
             </Text>
             {daysTraded > 0 ? (
               <View className={CELL_BODY}>
-                <Text
+                <FitText
                   className={cn('text-[13px] font-bold leading-[15px] tabular-nums', pnlClass(weekPnl))}
                   numberOfLines={1}
                   adjustsFontSizeToFit
+                  minimumFontScale={0.75}
                 >
                   {formatPnlCompact(weekPnl, currency)}
-                </Text>
+                </FitText>
                 {weekReturnPct != null && !compact ? (
-                  <Text
+                  <FitText
                     className={cn(
                       'text-[10px] font-semibold leading-[12px] tabular-nums',
                       pnlClass(weekPnl),
                     )}
                     numberOfLines={1}
                     adjustsFontSizeToFit
+                    minimumFontScale={0.75}
                   >
                     {`${weekPnl > 0 ? '+' : ''}${formatPercentPoints(weekReturnPct * 100, 1)}`}
-                  </Text>
+                  </FitText>
                 ) : null}
                 <WinLoss wins={weekWins} losses={weekLosses} className="leading-[12px]" />
               </View>
@@ -1298,14 +1314,14 @@ function YearView({
         {/* Same bounded-width guard as the month summary. */}
         <View className="min-w-0 flex-1">
           <Text className={SUMMARY_LABEL}>{t`Net P&L`}</Text>
-          <Text
+          <FitText
             className={cn(SUMMARY_VALUE, pnlClass(yearTotal))}
             numberOfLines={1}
             adjustsFontSizeToFit
             minimumFontScale={0.75}
           >
             {formatPnl(yearTotal, currency)}
-          </Text>
+          </FitText>
         </View>
         <View className="items-end gap-[3px] pb-0.5">
           <Text className={SUMMARY_SUB}>
@@ -1376,7 +1392,7 @@ function YearView({
                     ))}
                   </View>
                   {grid.monthTotal !== 0 ? (
-                    <Text
+                    <FitText
                       className={cn(
                         'mt-1.5 text-center text-[13px] font-bold tabular-nums',
                         pnlClass(grid.monthTotal),
@@ -1385,7 +1401,7 @@ function YearView({
                       adjustsFontSizeToFit
                     >
                       {formatPnlCompact(grid.monthTotal, currency)}
-                    </Text>
+                    </FitText>
                   ) : (
                     <Text className="mt-1.5 text-center text-[13px] font-semibold tabular-nums text-muted-foreground">
                       {formatPnlCompact(0, currency)}

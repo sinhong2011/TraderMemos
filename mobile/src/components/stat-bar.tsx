@@ -1,4 +1,5 @@
 import { Card, cn } from 'panelui-native';
+import { FitText } from '@/components/fit-text';
 import { Text, View } from 'react-native';
 
 export type StatTone = 'pos' | 'neg' | 'accent' | 'amber' | 'muted';
@@ -62,7 +63,7 @@ export function StatBar({
         >
           {label}
         </Text>
-        <Text
+        <FitText
           selectable
           className={cn('text-[15px] font-semibold tabular-nums tracking-tight', TONE_CLASS[tone])}
           numberOfLines={1}
@@ -71,7 +72,7 @@ export function StatBar({
           maxFontSizeMultiplier={1.4}
         >
           {value}
-        </Text>
+        </FitText>
         {sub ? (
           <Text
             className="text-[10px] text-muted-foreground tabular-nums"
@@ -108,7 +109,7 @@ export function StatBar({
             under the value instead of pushing the centered row past both
             edges. */}
         <View className="flex-row flex-wrap items-baseline justify-center gap-x-1.5 gap-y-0.5">
-          <Text
+          <FitText
             selectable
             className={cn('shrink text-center text-lg font-semibold tabular-nums', TONE_CLASS[tone])}
             // Money and durations can't wrap (no spaces), so they shrink a
@@ -120,7 +121,7 @@ export function StatBar({
             maxFontSizeMultiplier={1.4}
           >
             {value}
-          </Text>
+          </FitText>
           {sub ? (
             <Text
               className="shrink text-center text-[13px] text-muted-foreground tabular-nums"

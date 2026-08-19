@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { FitText } from '@/components/fit-text';
 import { Pressable, Text, View } from 'react-native';
 import { useCSSVariable } from 'uniwind';
 
@@ -92,14 +93,15 @@ export default function FxToolScreen() {
             <Segmented variant="menu" title={t`To`} options={currencyOptions} value={to} onChange={setTo} />
           </View>
           {converted != null ? (
-            <Text
+            <FitText
               selectable
               numberOfLines={1}
               adjustsFontSizeToFit
+              minimumFontScale={0.75}
               className="text-right text-[34px] font-semibold tracking-[-1px] text-foreground tabular-nums"
             >
               {money(converted, to)}
-            </Text>
+            </FitText>
           ) : (
             <Text className="py-2 text-right text-[17px] text-muted-foreground">
               {fxProblem ? fxProblem.title : t`Fetching rate…`}

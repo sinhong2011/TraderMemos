@@ -1,4 +1,5 @@
 import { cn } from 'panelui-native';
+import { FitText } from '@/components/fit-text';
 import { Text, View } from 'react-native';
 
 import type { DailyPnl } from '@/api/types';
@@ -94,16 +95,17 @@ export function MiniCalendarCard({
                     {Number(cell.date.slice(8, 10))}
                   </Text>
                   {hasPnl ? (
-                    <Text
+                    <FitText
                       className={cn(
                         'text-[9px] font-medium tabular-nums',
                         pnlClass(cell.pnl),
                       )}
                       numberOfLines={1}
                       adjustsFontSizeToFit
+                      minimumFontScale={0.75}
                     >
                       {formatPnlCompact(cell.pnl! * fxRate, currency)}
-                    </Text>
+                    </FitText>
                   ) : null}
                 </View>
               );

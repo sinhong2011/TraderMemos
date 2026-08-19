@@ -1,4 +1,5 @@
 import { useRouter } from 'expo-router';
+import { FitText } from '@/components/fit-text';
 import {
   BarChart,
   cn,
@@ -274,13 +275,14 @@ function DayStripCard({ ctx }: { ctx: ReportsMoneyContext }) {
                 )}
               >
                 <Text className="text-[10px] font-medium text-muted-foreground">{label}</Text>
-                <Text
+                <FitText
                   className={cn('text-sm font-semibold tabular-nums', pnlClass(day.pnl))}
                   numberOfLines={1}
                   adjustsFontSizeToFit
+                  minimumFontScale={0.75}
                 >
                   {ctx.money.formatCompact(day.pnl)}
-                </Text>
+                </FitText>
                 <Text className="text-[10px] tabular-nums text-muted-foreground">{t`${day.trades} trades`}</Text>
               </View>
             );
