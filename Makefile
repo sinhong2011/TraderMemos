@@ -140,7 +140,9 @@ check-mobile: ## tsc typecheck + icon-map check for the Expo app
 ## --- eas ---
 
 # Cloud builds on EAS. One-time setup: `cd mobile && npx eas-cli login && npx eas-cli init`,
-# then `npx eas-cli credentials` for the signing assets and the ASC API key.
+# then `npx eas-cli credentials` for the iOS signing assets + ASC API key, and
+# `npx eas-cli credentials -p android` once to generate the Android release keystore
+# (non-interactive CI builds cannot create one).
 # CI does the same thing via .github/workflows/mobile-eas.yml.
 
 eas-build-dev: ## EAS: simulator dev-client build (development profile)
@@ -155,8 +157,8 @@ eas-build-ios: ## EAS: store build (production profile, no submit)
 eas-submit-ios: ## EAS: submit the latest production build to App Store Connect
 	cd mobile && npx eas-cli submit --platform ios --profile production --latest
 
-eas-build-android: ## EAS: store build (production profile, no submit)
-	cd mobile && npx eas-cli build --platform android --profile production
+eas-build-android: ## EAS: release-signed APK (production-apk profile, sideload/GitHub Release)
+	cd mobile && npx eas-cli build --platform android --profile production-apk
 
 eas-submit-android: ## EAS: submit the latest production build to Google Play
 	cd mobile && npx eas-cli submit --platform android --profile production --latest

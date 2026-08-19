@@ -61,8 +61,10 @@ chrome; never import it directly.)
   first and Hermes segfaults (`EXC_BAD_ACCESS` in `AppContext.prepareRuntime`).
 - **Cloud builds run on EAS** (`mobile/eas.json`, `.github/workflows/mobile-eas.yml`).
   Profiles: `development` (simulator dev client), `preview` (internal), `production`
-  (store, auto-submits to TestFlight on release). Marketing version comes from
-  `app.json`, which release-please bumps; EAS owns the build number
+  (store, iOS auto-submits to TestFlight on release), `production-apk` (release-signed
+  Android APK; on release it is attached to the GitHub Release page — the Android
+  distribution channel, no Play Store presence). Marketing version comes from
+  `app.json`, which release-please bumps; EAS owns the build numbers
   (`appVersionSource: "remote"`). See `docs/release.md` → Mobile releases.
 
 ### Upgrading dependencies
