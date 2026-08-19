@@ -757,6 +757,27 @@ export type FlexSyncResult = {
   rows: number;
 };
 
+/** GET /flex-sync — every configured connection plus its account. */
+export type FlexSyncConnection = FlexSyncSettings & {
+  account_id: string;
+  account_name: string;
+};
+
+/** GET /imports row (import_handlers.go importBatchDTO). */
+export type ImportBatch = {
+  id: string;
+  user_id: string;
+  account_id: string;
+  source: string;
+  filename: string | null;
+  column_mapping: string | null;
+  row_count: number;
+  /** "committed" | "reversed" | "pending" */
+  status: string;
+  /** RFC3339 */
+  created_at: string;
+};
+
 // ---------------------------------------------------------------------------
 // Notes (notes_handlers.go)
 // ---------------------------------------------------------------------------

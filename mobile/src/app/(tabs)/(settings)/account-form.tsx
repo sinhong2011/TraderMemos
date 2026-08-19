@@ -4,7 +4,15 @@ import { useRef, useState } from 'react';
 import { Alert } from 'react-native';
 import { Frame, Text } from 'panelui-native';
 
-import { queryKeys, useAccounts, useApiRequest, useCash, useTrades } from '@/api/hooks';
+import {
+  flexSyncFailed,
+  queryKeys,
+  useAccounts,
+  useApiRequest,
+  useCash,
+  useFlexSync,
+  useTrades,
+} from '@/api/hooks';
 import type { Account } from '@/api/types';
 import { FormField, FormInput, FormPicker, FormScreen } from '@/components/form-kit';
 import { HeaderIconButton } from '@/components/header-icon-button';
@@ -73,6 +81,9 @@ function AccountForm({ account, accountCount }: { account?: Account; accountCoun
   const router = useRouter();
   const queryClient = useQueryClient();
   const api = useApiRequest();
+  // Sync state drives the Integrations row's value and whether it shows at
+  // all — an account that isn't IBKR and has no connection gets no dead row.
+  const flexSync = useFlexSync(account?.id ?? '', account != null);
   // Live P&L hues from the theme tokens (see styles/pnl.ts).
   const pnl = usePnlPalette();
   // Formatters bound to the display prefs (see lib/format.ts).
@@ -316,7 +327,10 @@ function AccountForm({ account, accountCount }: { account?: Account; accountCoun
           </SettingsSection>
         ) : null}
 
-        {isEdit ? (
+        {isEdit &&
+        (account.account_type === 'prop' ||
+          flexSync.data?.configured ||
+          /ibkr|interactive brokers/i.test(account.broker)) ? (
           <SettingsSection title={t`Integrations`}>
             {account.account_type === 'prop' ? (
               <NavRow
@@ -327,13 +341,24 @@ function AccountForm({ account, accountCount }: { account?: Account; accountCoun
                 }
               />
             ) : null}
-            <NavRow
-              systemImage="arrow.triangle.2.circlepath"
-              label={t`IBKR Flex sync`}
-              onPress={() =>
-                router.push({ pathname: '/flex-sync', params: { accountId: account.id } })
-              }
-            />
+            {flexSync.data?.configured || /ibkr|interactive brokers/i.test(account.broker) ? (
+              <NavRow
+                systemImage="arrow.triangle.2.circlepath"
+                label={t`IBKR Flex sync`}
+                value={
+                  flexSync.data?.configured
+                    ? flexSyncFailed(flexSync.data)
+                      ? t`Failing`
+                      : flexSync.data.enabled
+                        ? t`On`
+                        : t`Off`
+                    : undefined
+                }
+                onPress={() =>
+                  router.push({ pathname: '/flex-sync', params: { accountId: account.id } })
+                }
+              />
+            ) : null}
           </SettingsSection>
         ) : null}
 

@@ -98,6 +98,10 @@ export default function SettingsLayout() {
         name="flex-sync"
         options={{ title: t`IBKR Flex sync`, headerLargeTitle: false }}
       />
+      <Stack.Screen
+        name="import-history"
+        options={{ title: t`Sync & import history`, headerLargeTitle: false }}
+      />
       <Stack.Screen name="ai" options={{ title: t`AI` }} />
       {/* Title comes from the screen — it names the integration being edited. */}
       <Stack.Screen name="ai/[kind]" options={{ headerLargeTitle: false }} />

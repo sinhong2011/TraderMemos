@@ -1,4 +1,6 @@
 import { Frame, Text } from 'panelui-native';
+import type { ReactNode } from 'react';
+import { View } from 'react-native';
 import { useCSSVariable } from 'uniwind';
 
 import { Icon } from '@/components/icon';
@@ -13,6 +15,8 @@ export interface AccountRowProps {
   pnl: string;
   /** The profit/loss/muted color the P&L line reads in. */
   pnlColor: string;
+  /** Optional status pill beside the name (broker sync health). */
+  badge?: ReactNode;
   onPress: () => void;
 }
 
@@ -21,13 +25,20 @@ export interface AccountRowProps {
  * disclosure chevron. Both figures carry tabular figures so a column of
  * accounts lines up, per DESIGN.md.
  */
-export function AccountRow({ name, meta, equity, pnl, pnlColor, onPress }: AccountRowProps) {
+export function AccountRow({ name, meta, equity, pnl, pnlColor, badge, onPress }: AccountRowProps) {
   const [mutedForeground] = useCSSVariable(['--color-muted-foreground']) as [string];
 
   return (
     <Frame.Row onPress={onPress}>
       <Frame.Content>
-        <Frame.Title>{name}</Frame.Title>
+        {badge ? (
+          <View className="flex-row items-center gap-2">
+            <Frame.Title>{name}</Frame.Title>
+            {badge}
+          </View>
+        ) : (
+          <Frame.Title>{name}</Frame.Title>
+        )}
         <Frame.Description>{meta}</Frame.Description>
       </Frame.Content>
       <Frame.Actions className="flex-col items-end gap-0.5">

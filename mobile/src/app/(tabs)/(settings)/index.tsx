@@ -4,7 +4,16 @@ import { useMemo, useState } from 'react';
 import type { SFSymbol } from 'expo-symbols';
 import { Alert, Linking } from 'react-native';
 
-import { useAccounts, useApiRequest, useCash, useMe, useTrades } from '@/api/hooks';
+import {
+  flexSyncFailed,
+  useAccounts,
+  useApiRequest,
+  useCash,
+  useFlexSyncConnections,
+  useMe,
+  useTrades,
+} from '@/api/hooks';
+import { Pill } from '@/components/pill';
 import { AccountRow } from '@/components/account-row';
 import { CenteredButton } from '@/components/centered-button';
 import { NavRow } from '@/components/nav-row';
@@ -65,6 +74,12 @@ export default function SettingsScreen() {
   // blank out the rows you aren't currently scoped to).
   const cash = useCash();
   const trades = useTrades();
+  // One request for every account's sync state — drives the per-row health pill.
+  const flexConnections = useFlexSyncConnections();
+  const connByAccount = useMemo(
+    () => new Map((flexConnections.data ?? []).map((conn) => [conn.account_id, conn])),
+    [flexConnections.data],
+  );
   const displayPrefs = useDisplayPrefs();
   // Formatters bound to those prefs — a privacy flip re-formats the rows
   // (see lib/format.ts).
@@ -202,6 +217,12 @@ export default function SettingsScreen() {
       label: t`Add account`,
       terms: t`broker new account`,
       onPress: () => router.push('/account-form'),
+    },
+    {
+      icon: 'clock.arrow.circlepath',
+      label: t`Sync & import history`,
+      terms: t`imports batches rollback flex sync history`,
+      onPress: () => router.push('/import-history'),
     },
     {
       icon: 'target',
@@ -392,11 +413,19 @@ export default function SettingsScreen() {
               ]
                 .filter(Boolean)
                 .join(' · ');
+              const conn = connByAccount.get(account.id);
               return (
                 <AccountRow
                   key={account.id}
                   name={account.name}
                   meta={meta}
+                  badge={
+                    conn ? (
+                      <Pill tone={flexSyncFailed(conn) ? 'neg' : conn.enabled ? 'pos' : 'muted'}>
+                        {flexSyncFailed(conn) ? t`Sync failing` : conn.enabled ? t`Sync on` : t`Sync off`}
+                      </Pill>
+                    ) : undefined
+                  }
                   equity={formatCurrency(deposited + netPnl, account.base_currency)}
                   pnl={formatPnl(netPnl, account.base_currency)}
                   pnlColor={pnlColor(palette, netPnl)}
@@ -420,6 +449,11 @@ export default function SettingsScreen() {
               systemImage="banknote"
               label={t`Deposits & withdrawals`}
               onPress={() => router.push('/funding')}
+            />
+            <NavRow
+              systemImage="clock.arrow.circlepath"
+              label={t`Sync & import history`}
+              onPress={() => router.push('/import-history')}
             />
           </SettingsSection>
 

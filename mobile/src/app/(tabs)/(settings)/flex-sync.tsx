@@ -1,13 +1,14 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
 import { Stack } from 'expo-router/stack';
-import { Button, Field, Spinner, Switch } from 'panelui-native';
+import { Button, Field, Frame, Spinner, Switch, Text } from 'panelui-native';
 import { useEffect, useRef, useState } from 'react';
 import { Alert, View } from 'react-native';
 
-import { queryKeys, useAccounts, useApiRequest, useFlexSync } from '@/api/hooks';
+import { flexSyncFailed, queryKeys, useAccounts, useApiRequest, useFlexSync } from '@/api/hooks';
 import type { FlexSyncPut, FlexSyncResult } from '@/api/types';
 import { FormField, FormInput, FormScreen } from '@/components/form-kit';
+import { Pill } from '@/components/pill';
 import { SettingsRow, SettingsSection, ValueText } from '@/components/settings-rows';
 import { t } from '@lingui/core/macro';
 import { errorMessage } from '@/lib/errors';
@@ -52,6 +53,7 @@ export default function FlexSyncScreen() {
       api(`/accounts/${accountId}/flex-sync`, { method: 'PUT', body }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.flexSync(accountId!) });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.flexSyncConnections() });
       // The token is stored server-side now — drop the local copy.
       tokenText.current = '';
       setSeed((n) => n + 1);
@@ -64,6 +66,7 @@ export default function FlexSyncScreen() {
     onSuccess: () => {
       hydrated.current = false;
       void queryClient.invalidateQueries({ queryKey: queryKeys.flexSync(accountId!) });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.flexSyncConnections() });
     },
     onError: (err) => Alert.alert(t`Could not remove`, errorMessage(err)),
   });
@@ -148,18 +151,38 @@ export default function FlexSyncScreen() {
 
         {settings?.configured ? (
           <>
-            <SettingsSection title={t`Status`} footer={settings.last_error ?? undefined}>
+            <SettingsSection title={t`Status`}>
+              <SettingsRow label={t`Health`}>
+                <Pill tone={flexSyncFailed(settings) ? 'neg' : settings.enabled ? 'pos' : 'muted'}>
+                  {flexSyncFailed(settings)
+                    ? t`Sync failing`
+                    : settings.enabled
+                      ? t`Healthy`
+                      : t`Manual only`}
+                </Pill>
+              </SettingsRow>
               {settings.last_synced_at ? (
                 <SettingsRow label={t`Last synced`}>
                   <ValueText>
                     {`${formatDate(settings.last_synced_at)} ${formatTime(settings.last_synced_at)}`}
                   </ValueText>
                 </SettingsRow>
-              ) : null}
-              {settings.last_status ? (
+              ) : (
+                <SettingsRow label={t`Last synced`}>
+                  <ValueText>{t`Never`}</ValueText>
+                </SettingsRow>
+              )}
+              {settings.last_status && settings.last_status !== 'error' ? (
                 <SettingsRow label={t`Last status`}>
                   <ValueText>{settings.last_status}</ValueText>
                 </SettingsRow>
+              ) : null}
+              {settings.last_error ? (
+                <Frame.Row>
+                  <Text size="sm" className="flex-1 text-destructive">
+                    {settings.last_error}
+                  </Text>
+                </Frame.Row>
               ) : null}
             </SettingsSection>
 
