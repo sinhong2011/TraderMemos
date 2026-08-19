@@ -2,7 +2,9 @@ import { useRouter } from 'expo-router';
 import {
   BarChart,
   cn,
+  LineChart,
   Meter,
+  RadarChart,
   PieChart,
   RingChart,
   ScrollFade,
@@ -21,13 +23,14 @@ import {
   useAnnualGoal,
   useBreakdown,
   useEquityCurve,
+  useExecutionScore,
   useRSummary,
   useSummary,
   useTrades,
   type BreakdownDim,
 } from '@/api/hooks';
 import { Icon } from '@/components/icon';
-import type { RSummary, Summary } from '@/api/types';
+import type { ExecScoreReport, RSummary, Summary } from '@/api/types';
 import { DashboardCard } from '@/components/dashboard-card';
 import { EquityCard } from '@/components/equity-card';
 import { ErrorState, InlineError } from '@/components/error-state';
@@ -35,6 +38,7 @@ import { GoalCard } from '@/components/goal-card';
 import { Segmented } from '@/components/segmented';
 import { StatBar } from '@/components/stat-bar';
 import { signedBars } from '@/components/reports/shared';
+import { periodReturns } from '@/lib/reports-analytics';
 import {
   SectionScaffold,
   useReportsFilters,
@@ -46,7 +50,7 @@ import { locale } from '@/i18n';
 import { formatPercent, formatRatio } from '@/lib/format';
 import { gradeFromInt } from '@/lib/journal';
 import { buildReportsDayStrip, sqnBand } from '@/lib/reports-display';
-import { pnlClass, usePnlPalette } from '@/styles/pnl';
+import { pnlClass, pnlColor, usePnlPalette } from '@/styles/pnl';
 
 // ---------------------------------------------------------------------------
 // Summary bento
@@ -464,6 +468,256 @@ function BreakdownRows({
   );
 }
 
+// ---------------------------------------------------------------------------
+// Period returns strip (web ReportsPeriodReturns parity)
+// ---------------------------------------------------------------------------
+
+function PeriodReturnsCard({ ctx }: { ctx: ReportsMoneyContext }) {
+  const filters = useReportsFilters();
+  const trades = useTrades(filters);
+  const [unit, setUnit] = useState<'abs' | 'pct'>('abs');
+  const palette = usePnlPalette();
+
+  const pctEnabled = ctx.denominator > 0;
+  const usePct = unit === 'pct' && pctEnabled;
+  const returns = periodReturns(trades.data ?? [], ctx.money.tradePnl);
+  if (trades.isLoading || returns === null) return null;
+
+  const format = (raw: number) => {
+    if (usePct) {
+      const v = (raw * ctx.fxRate) / ctx.denominator;
+      return `${v > 0 ? '+' : ''}${formatPercent(v)}`;
+    }
+    return ctx.money.formatCompact(raw);
+  };
+
+  const cells: { label: string; hint: string; value: number }[] = [
+    { label: t`Daily`, hint: t`avg / traded day`, value: returns.daily },
+    { label: t`Weekly`, hint: t`avg / traded week`, value: returns.weekly },
+    { label: t`Monthly`, hint: t`avg / traded month`, value: returns.monthly },
+    { label: t`Annualized`, hint: t`run rate / year`, value: returns.annualized },
+  ];
+
+  return (
+    <DashboardCard
+      title={t`Period returns`}
+      control={
+        pctEnabled ? (
+          <Segmented
+            bare
+            options={[
+              { value: 'abs', label: '$' },
+              { value: 'pct', label: '%' },
+            ]}
+            value={unit}
+            onChange={(v) => setUnit(v as 'abs' | 'pct')}
+          />
+        ) : undefined
+      }
+    >
+      <View className="flex-row flex-wrap gap-2">
+        {cells.map((cell) => (
+          <View key={cell.label} className="min-w-[45%] flex-1 gap-0.5 rounded-xl bg-muted px-3 py-2.5">
+            <Text className="text-[11px] font-medium text-muted-foreground">{cell.label}</Text>
+            <Text
+              className="text-[17px] font-semibold tabular-nums tracking-tight"
+              style={{ color: pnlColor(palette, cell.value) }}
+            >
+              {format(cell.value)}
+            </Text>
+            <Text className="text-[10px] text-muted-foreground">{cell.hint}</Text>
+          </View>
+        ))}
+      </View>
+    </DashboardCard>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Execution score (web ReportsExecutionScore parity)
+// ---------------------------------------------------------------------------
+
+type ExecAxisKey = 'composite' | 'entry' | 'exit' | 'risk' | 'stability' | 'tempo';
+
+function execAxes(): { key: ExecAxisKey; label: string; hint: string }[] {
+  return [
+    { key: 'composite', label: t`Composite`, hint: t`Weighted blend of the five axes below.` },
+    {
+      key: 'entry',
+      label: t`Entry`,
+      hint: t`How little heat entries take relative to the move they find (MAE vs MFE).`,
+    },
+    { key: 'exit', label: t`Exit`, hint: t`Share of each trade's peak open profit kept at the close.` },
+    {
+      key: 'risk',
+      label: t`Risk`,
+      hint: t`Risk journaled before the trade, blended with rule compliance when rules are set.`,
+    },
+    {
+      key: 'stability',
+      label: t`Stability`,
+      hint: t`Consistency of results — average R per unit of variance.`,
+    },
+    {
+      key: 'tempo',
+      label: t`Tempo`,
+      hint: t`Trades free of quick same-symbol re-entries and overtraded days.`,
+    },
+  ];
+}
+
+/** Quality band for a 0–100 score; drives the composite's caption. */
+function execScoreBand(score: number): string {
+  if (score >= 85) return t`excellent`;
+  if (score >= 70) return t`strong`;
+  if (score >= 55) return t`solid`;
+  if (score >= 40) return t`uneven`;
+  return t`weak`;
+}
+
+function execAxisScore(report: ExecScoreReport, key: ExecAxisKey): number | null {
+  return key === 'composite' ? report.composite : report[key].score;
+}
+
+function ExecutionScoreCard() {
+  const filters = useReportsFilters();
+  const [bucket, setBucket] = useState<'week' | 'month'>('week');
+  const [axis, setAxis] = useState<ExecAxisKey>('composite');
+  const score = useExecutionScore(bucket, filters);
+  const palette = usePnlPalette();
+  const [primary, mutedForeground] = useCSSVariable([
+    '--color-primary',
+    '--color-muted-foreground',
+  ]) as [string, string];
+
+  const axes = execAxes();
+  const selected = axes.find((a) => a.key === axis) ?? axes[0];
+  const report = score.data;
+
+  const tone = (value: number) =>
+    value >= 70 ? palette.profit : value < 40 ? palette.loss : undefined;
+
+  return (
+    <DashboardCard
+      title={t`Execution score`}
+      control={
+        <Segmented
+          bare
+          options={[
+            { value: 'week', label: t`Weekly` },
+            { value: 'month', label: t`Monthly` },
+          ]}
+          value={bucket}
+          onChange={(v) => setBucket(v as 'week' | 'month')}
+        />
+      }
+    >
+      {score.isLoading ? (
+        <Skeleton className="h-[260px] rounded-lg" />
+      ) : score.error && report == null ? (
+        <InlineError error={score.error} onRetry={() => void score.refetch()} />
+      ) : !report || report.trades === 0 ? (
+        <Text className="py-4 text-[13px] text-muted-foreground">
+          {t`Add trades or adjust filters to see your score.`}
+        </Text>
+      ) : report.composite == null ? (
+        <Text className="py-4 text-[13px] leading-relaxed text-muted-foreground">
+          {t`Scores unlock at 5 closed trades — journaled risk and auto MAE/MFE sharpen every axis.`}
+        </Text>
+      ) : (
+        <>
+          <View className="items-center gap-0.5">
+            <Text
+              className="text-[40px] font-semibold tabular-nums tracking-tighter text-foreground"
+              style={{ color: tone(report.composite) }}
+            >
+              {Math.round(report.composite)}
+            </Text>
+            <Text className="text-[11px] text-muted-foreground">
+              {`${execScoreBand(report.composite)} · ${t`${report.trades} trades`}`}
+            </Text>
+          </View>
+
+          {(() => {
+            const radarData = axes
+              .filter((a) => a.key !== 'composite')
+              .map((a) => ({ axis: a.label, score: execAxisScore(report, a.key) }))
+              .filter((d): d is { axis: string; score: number } => d.score != null);
+            if (radarData.length < 3) {
+              return (
+                <Text className="px-4 py-2 text-center text-[11px] leading-relaxed text-muted-foreground">
+                  {t`The radar needs at least three scored axes — journal initial risk and run auto MAE/MFE to light up the rest.`}
+                </Text>
+              );
+            }
+            return (
+              <RadarChart data={radarData} axisKey="axis" domain={[0, 100]} aspectRatio={1.4}>
+                <RadarChart.Grid />
+                <RadarChart.Axis />
+                <RadarChart.Series dataKey="score" showDots />
+              </RadarChart>
+            );
+          })()}
+
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <View className="flex-row gap-1.5 py-1">
+              {axes.map((a) => {
+                const value = execAxisScore(report, a.key);
+                const active = axis === a.key;
+                return (
+                  <Pressable
+                    key={a.key}
+                    disabled={value == null}
+                    onPress={() => setAxis(a.key)}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected: active }}
+                    className={cn(
+                      'flex-row items-baseline gap-1.5 rounded-lg px-2.5 py-1.5',
+                      active ? 'bg-accent' : 'bg-muted',
+                      value == null && 'opacity-50',
+                    )}
+                  >
+                    <Text
+                      className={cn(
+                        'text-[11px] font-medium',
+                        active ? 'text-foreground' : 'text-muted-foreground',
+                      )}
+                    >
+                      {a.label}
+                    </Text>
+                    <Text
+                      className="text-[11px] font-semibold tabular-nums"
+                      style={{ color: value == null ? mutedForeground : tone(value) }}
+                    >
+                      {value == null ? t`n/a` : String(Math.round(value))}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </ScrollView>
+
+          {report.series.length > 1 ? (
+            <LineChart
+              data={report.series.map((point) => ({
+                date: point.date,
+                value: point[axis] ?? undefined,
+              }))}
+              xDataKey="date"
+              aspectRatio={1.9}
+              yDomain={[0, 100]}
+            >
+              <LineChart.Grid />
+              <LineChart.Line dataKey="value" color={primary} />
+            </LineChart>
+          ) : null}
+          <Text className="text-[11px] leading-relaxed text-muted-foreground">{selected.hint}</Text>
+        </>
+      )}
+    </DashboardCard>
+  );
+}
+
 function PlaybookCard({ ctx }: { ctx: ReportsMoneyContext }) {
   const [dim, setDim] = useState<BreakdownDim>('setup');
   const dims = [
@@ -660,6 +914,8 @@ export function OverviewSection({
 
           <SummaryCard summary={summary.data} ctx={ctx} />
 
+          <PeriodReturnsCard ctx={ctx} />
+
           <DayStripCard ctx={ctx} />
 
           <PnlBridgeCard ctx={ctx} />
@@ -673,6 +929,8 @@ export function OverviewSection({
               fxRate={ctx.fxRate}
             />
           ) : null}
+
+          <ExecutionScoreCard />
 
           <PlaybookCard ctx={ctx} />
 

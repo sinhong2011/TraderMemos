@@ -82,7 +82,7 @@ msgid "{0} closed trades · {1} win rate · {2} trading days"
 msgstr "청산 {0}건 · 승률 {1} · 거래일 {2}일"
 
 #. placeholder {0}: rSummary.excluded
-#: src/components/reports/overview-section.tsx:539
+#: src/components/reports/overview-section.tsx:793
 msgid "{0} closed trades excluded (no stop recorded)."
 msgstr "청산 거래 {0}건 제외 (스톱 미기록)."
 
@@ -209,8 +209,9 @@ msgstr "{0}개 종목을 찾았습니다"
 #: src/components/insights-card.tsx:90
 #: src/components/reports/behavior-section.tsx:116
 #: src/components/reports/detailed-section.tsx:266
-#: src/components/reports/overview-section.tsx:280
-#: src/components/reports/overview-section.tsx:451
+#: src/components/reports/overview-section.tsx:284
+#: src/components/reports/overview-section.tsx:455
+#: src/components/reports/overview-section.tsx:637
 #: src/components/reports/risk-section.tsx:200
 msgid "{0} trades"
 msgstr "트레이드 {0}건"
@@ -218,7 +219,7 @@ msgstr "트레이드 {0}건"
 #. placeholder {0}: summary.total_trades
 #. placeholder {1}: money.format(-summary.total_fees)
 #. placeholder {2}: money.format(summary.expectancy)
-#: src/components/reports/overview-section.tsx:119
+#: src/components/reports/overview-section.tsx:123
 msgid "{0} trades · Fees {1} · Expectancy {2}"
 msgstr "{0}건 · 수수료 {1} · 기대값 {2}"
 
@@ -291,8 +292,8 @@ msgstr "{0}승 · {1}패"
 #. placeholder {0}: summary.wins
 #. placeholder {1}: group.summary.losses
 #. placeholder {1}: summary.losses
-#: src/components/reports/overview-section.tsx:169
-#: src/components/reports/overview-section.tsx:600
+#: src/components/reports/overview-section.tsx:173
+#: src/components/reports/overview-section.tsx:854
 msgid "{0}W {1}L"
 msgstr "{0}승 {1}패"
 
@@ -319,7 +320,7 @@ msgstr "{daysTraded}일"
 msgid "{events} events"
 msgstr "이벤트 {events}건"
 
-#: src/components/reports/overview-section.tsx:524
+#: src/components/reports/overview-section.tsx:778
 msgid "{included} of {total} trades"
 msgstr "{total}건 중 {included}건"
 
@@ -798,6 +799,10 @@ msgstr "티어 추가"
 msgid "Add to authenticator"
 msgstr "인증 앱에 추가"
 
+#: src/components/reports/overview-section.tsx:621
+msgid "Add trades or adjust filters to see your score."
+msgstr "거래를 추가하거나 필터를 조정하면 점수가 표시됩니다."
+
 #: src/app/(tabs)/(settings)/funding.tsx:166
 #: src/app/cash-form.tsx:137
 msgid "Add transaction"
@@ -969,6 +974,10 @@ msgstr "실수, 습관, 사용자 지정 라벨로 거래에 주석을 답니다
 msgid "annual target profit"
 msgstr "연간 목표 수익"
 
+#: src/components/reports/overview-section.tsx:498
+msgid "Annualized"
+msgstr "연환산"
+
 #: src/app/new-setup.tsx:217
 msgid "Any"
 msgstr "지정 없음"
@@ -1078,7 +1087,7 @@ msgstr "자동"
 msgid "Auto-sync"
 msgstr "자동 동기화"
 
-#: src/components/reports/overview-section.tsx:69
+#: src/components/reports/overview-section.tsx:73
 msgid "average"
 msgstr "보통"
 
@@ -1093,6 +1102,18 @@ msgstr "평균 보유 시간"
 #: src/components/reports/detailed-section.tsx:267
 msgid "avg"
 msgstr "평균"
+
+#: src/components/reports/overview-section.tsx:495
+msgid "avg / traded day"
+msgstr "거래일 평균"
+
+#: src/components/reports/overview-section.tsx:497
+msgid "avg / traded month"
+msgstr "거래월 평균"
+
+#: src/components/reports/overview-section.tsx:496
+msgid "avg / traded week"
+msgstr "거래주 평균"
 
 #: src/components/trade-result-card.tsx:48
 #: src/components/trade-summary.tsx:196
@@ -1113,16 +1134,16 @@ msgstr "평균 보유 시간"
 msgid "Avg loser hold"
 msgstr "손실 평균 보유"
 
-#: src/components/reports/overview-section.tsx:528
+#: src/components/reports/overview-section.tsx:782
 msgid "Avg losing R"
 msgstr "평균 손실 R"
 
 #: src/components/performance-card.tsx:122
-#: src/components/reports/overview-section.tsx:178
+#: src/components/reports/overview-section.tsx:182
 msgid "Avg loss"
 msgstr "평균 손실"
 
-#: src/components/reports/overview-section.tsx:522
+#: src/components/reports/overview-section.tsx:776
 msgid "Avg R / trade"
 msgstr "거래당 평균 R"
 
@@ -1130,12 +1151,12 @@ msgstr "거래당 평균 R"
 msgid "Avg risk / trade"
 msgstr "거래당 평균 리스크"
 
-#: src/components/reports/overview-section.tsx:189
+#: src/components/reports/overview-section.tsx:193
 msgid "Avg trade"
 msgstr "평균 거래"
 
 #: src/components/performance-card.tsx:117
-#: src/components/reports/overview-section.tsx:176
+#: src/components/reports/overview-section.tsx:180
 msgid "Avg win"
 msgstr "평균 수익"
 
@@ -1143,7 +1164,7 @@ msgstr "평균 수익"
 msgid "Avg winner hold"
 msgstr "수익 평균 보유"
 
-#: src/components/reports/overview-section.tsx:527
+#: src/components/reports/overview-section.tsx:781
 msgid "Avg winning R"
 msgstr "평균 수익 R"
 
@@ -1234,7 +1255,7 @@ msgstr "동작"
 msgid "Behind pace"
 msgstr "페이스 뒤처짐"
 
-#: src/components/reports/overview-section.tsx:71
+#: src/components/reports/overview-section.tsx:75
 msgid "below average"
 msgstr "평균 이하"
 
@@ -1242,7 +1263,7 @@ msgstr "평균 이하"
 msgid "Below peak"
 msgstr "고점 대비 하락"
 
-#: src/components/reports/overview-section.tsx:529
+#: src/components/reports/overview-section.tsx:783
 msgid "Best / worst"
 msgstr "최고 / 최저"
 
@@ -1672,6 +1693,10 @@ msgstr "커미션"
 msgid "Commissions and fees were {pct}% of gross — that materially changes the outcome. Fewer legs or lower-cost fills would help."
 msgstr "수수료가 총손익의 {pct}%를 차지해 결과를 크게 바꿨습니다. 레그를 줄이거나 저비용 체결을 고려하세요."
 
+#: src/components/reports/overview-section.tsx:544
+msgid "Composite"
+msgstr "종합"
+
 #: src/app/(tabs)/(settings)/data-backup.tsx:83
 msgid "Config files carry this device's app preferences only — no trades, no credentials. They round-trip with the web app."
 msgstr "설정 파일에는 이 기기의 앱 환경설정만 담깁니다 — 트레이드나 인증 정보는 포함되지 않습니다. 웹 앱과 서로 주고받을 수 있습니다."
@@ -1761,6 +1786,10 @@ msgstr "일관성"
 #: src/app/(tabs)/(settings)/prop-settings.tsx:175
 #~ msgid "Consistency — Not set"
 #~ msgstr "일관성 — 미설정"
+
+#: src/components/reports/overview-section.tsx:559
+msgid "Consistency of results — average R per unit of variance."
+msgstr "결과의 일관성 — 분산 단위당 평균 R."
 
 #: src/components/prop-status-card.tsx:220
 msgid "consistency ok"
@@ -2133,6 +2162,10 @@ msgstr "사용자 지정 색상"
 msgid "Cycles to the next speed"
 msgstr "다음 속도로 전환합니다"
 
+#: src/components/reports/overview-section.tsx:495
+msgid "Daily"
+msgstr "일간"
+
 #: src/app/(tabs)/(dashboard)/_layout.tsx:99
 #: src/app/(tabs)/(settings)/_layout.tsx:84
 #: src/app/(tabs)/(settings)/index.tsx:247
@@ -2498,7 +2531,7 @@ msgstr "각 항목이 TraderMemos 목록의 미리 알림이 됩니다. 미리 �
 msgid "Each point is the win rate across the trailing {windowSize} closed trades."
 msgstr "각 점은 최근 {windowSize}건의 청산 거래 승률입니다."
 
-#: src/components/reports/overview-section.tsx:384
+#: src/components/reports/overview-section.tsx:388
 msgid "Earlier periods are rolled into Prior."
 msgstr "그 이전 기간은 \"이전\"으로 합산됩니다."
 
@@ -2676,6 +2709,7 @@ msgstr "시장 시간 기준 진입"
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:333
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:662
 #: src/app/tool-position-size.tsx:77
+#: src/components/reports/overview-section.tsx:547
 msgid "Entry"
 msgstr "진입"
 
@@ -2761,7 +2795,8 @@ msgstr "모든 화면은 이 인스턴스에서 제공됩니다. 서버를 전�
 msgid "Everything that has to be true before you take the play."
 msgstr "이 플레이를 잡기 전에 충족돼야 하는 조건입니다."
 
-#: src/components/reports/overview-section.tsx:65
+#: src/components/reports/overview-section.tsx:69
+#: src/components/reports/overview-section.tsx:571
 msgid "excellent"
 msgstr "우수"
 
@@ -2774,8 +2809,8 @@ msgstr "실행 {grade}"
 msgid "Executed at"
 msgstr "체결 시각"
 
-#: src/components/reports/overview-section.tsx:560
-#: src/components/reports/overview-section.tsx:576
+#: src/components/reports/overview-section.tsx:814
+#: src/components/reports/overview-section.tsx:830
 msgid "Execution grade"
 msgstr "실행 등급"
 
@@ -2787,9 +2822,17 @@ msgstr "실행 등급"
 msgid "Execution rating"
 msgstr "실행 평가"
 
+#: src/components/reports/overview-section.tsx:602
+msgid "Execution score"
+msgstr "실행 점수"
+
 #: src/app/(tabs)/(trades)/[id].tsx:828
 msgid "Executions"
 msgstr "체결 내역"
+
+#: src/components/reports/overview-section.tsx:550
+msgid "Exit"
+msgstr "청산"
 
 #: src/lib/trade-insights.ts:270
 msgid "Exit dodged ~{r}R of drawdown"
@@ -2857,7 +2900,7 @@ msgstr "만료 {0}"
 msgid "Expiry"
 msgstr "만기일"
 
-#: src/components/reports/overview-section.tsx:707
+#: src/components/reports/overview-section.tsx:965
 msgid "Explore"
 msgstr "더 살펴보기"
 
@@ -2937,7 +2980,7 @@ msgstr "수수료"
 #: src/app/(tabs)/(trades)/[id].tsx:292
 #: src/app/trade-preview.tsx:154
 #: src/components/performance-card.tsx:75
-#: src/components/reports/overview-section.tsx:208
+#: src/components/reports/overview-section.tsx:212
 #: src/components/trade-form.tsx:168
 msgid "Fees"
 msgstr "수수료"
@@ -3216,7 +3259,7 @@ msgstr "목표 진행률"
 msgid "Goal reached"
 msgstr "목표 달성"
 
-#: src/components/reports/overview-section.tsx:67
+#: src/components/reports/overview-section.tsx:71
 msgid "good"
 msgstr "양호"
 
@@ -3249,7 +3292,7 @@ msgstr "총액 (수수료 전)"
 msgid "Gross P&L"
 msgstr "총손익"
 
-#: src/components/reports/overview-section.tsx:152
+#: src/components/reports/overview-section.tsx:156
 msgid "gross profit ÷ gross loss"
 msgstr "총이익 ÷ 총손실"
 
@@ -3340,6 +3383,10 @@ msgstr "시간대"
 #: src/components/note-form.tsx:238
 msgid "How did the session go? Use \"- [ ]\" for checklist items."
 msgstr "세션은 어땠나요? \"- [ ]\"로 체크 항목을 만들 수 있습니다."
+
+#: src/components/reports/overview-section.tsx:548
+msgid "How little heat entries take relative to the move they find (MAE vs MFE)."
+msgstr "진입이 포착한 움직임 대비 얼마나 적은 손실 압박을 받았는지(MAE 대 MFE)."
 
 #: src/app/login.tsx:250
 msgid "How to set one up"
@@ -3546,7 +3593,7 @@ msgstr "JSON은 체결 배열이거나 fills/rows/executions 배열을 가진 �
 msgid "Jump to"
 msgstr "이동"
 
-#: src/components/reports/overview-section.tsx:196
+#: src/components/reports/overview-section.tsx:200
 msgid "Kelly (half)"
 msgstr "켈리 (절반)"
 
@@ -3576,11 +3623,11 @@ msgstr "언어"
 msgid "Language is set per app in iOS Settings."
 msgstr "언어는 iOS 설정에서 앱별로 변경할 수 있습니다."
 
-#: src/components/reports/overview-section.tsx:194
+#: src/components/reports/overview-section.tsx:198
 msgid "Largest loss"
 msgstr "최대 손실"
 
-#: src/components/reports/overview-section.tsx:193
+#: src/components/reports/overview-section.tsx:197
 msgid "Largest win"
 msgstr "최대 수익"
 
@@ -3692,7 +3739,7 @@ msgstr "드로다운 불러오는 중"
 msgid "Loading models…"
 msgstr "모델 불러오는 중…"
 
-#: src/components/reports/overview-section.tsx:638
+#: src/components/reports/overview-section.tsx:892
 msgid "Loading report"
 msgstr "리포트 불러오는 중"
 
@@ -3827,7 +3874,7 @@ msgstr "연패"
 
 #: src/app/(tabs)/(trades)/index.tsx:273
 #: src/components/performance-card.tsx:93
-#: src/components/reports/overview-section.tsx:101
+#: src/components/reports/overview-section.tsx:105
 msgid "Losses"
 msgstr "손실"
 
@@ -3959,15 +4006,15 @@ msgstr "중앙값"
 msgid "median {0}"
 msgstr "중앙값 {0}"
 
-#: src/components/reports/overview-section.tsx:178
+#: src/components/reports/overview-section.tsx:182
 msgid "Median loss"
 msgstr "손실 중앙값"
 
-#: src/components/reports/overview-section.tsx:189
+#: src/components/reports/overview-section.tsx:193
 msgid "Median trade"
 msgstr "거래 중앙값"
 
-#: src/components/reports/overview-section.tsx:176
+#: src/components/reports/overview-section.tsx:180
 msgid "Median win"
 msgstr "수익 중앙값"
 
@@ -4029,7 +4076,7 @@ msgstr "진입 이유 미기록"
 msgid "Missing exit reason on a loser"
 msgstr "손실 거래의 청산 이유 미기록"
 
-#: src/components/reports/overview-section.tsx:471
+#: src/components/reports/overview-section.tsx:725
 #: src/lib/tags.ts:6
 msgid "Mistake"
 msgstr "실수"
@@ -4059,6 +4106,11 @@ msgstr "월"
 #: src/components/reports/winloss-section.tsx:82
 msgid "Month"
 msgstr "이번 달"
+
+#: src/components/reports/overview-section.tsx:497
+#: src/components/reports/overview-section.tsx:608
+msgid "Monthly"
+msgstr "월간"
 
 #: src/components/reports/overview-section.tsx:343
 #~ msgid "Monthly bridge"
@@ -4104,6 +4156,10 @@ msgstr "체결이 많을수록 수수료와 슬리피지가 커집니다. 각 �
 msgid "Multiplier"
 msgstr "승수"
 
+#: src/components/reports/overview-section.tsx:692
+msgid "n/a"
+msgstr "없음"
+
 #: src/app/(tabs)/(dashboard)/playbook.tsx:135
 #: src/app/(tabs)/(settings)/account-form.tsx:239
 #: src/app/new-token.tsx:129
@@ -4115,7 +4171,7 @@ msgstr "이름"
 msgid "Need at least {windowSize} closed trades to fill the window."
 msgstr "윈도우를 채우려면 청산 거래가 {windowSize}건 이상 필요합니다."
 
-#: src/components/reports/overview-section.tsx:204
+#: src/components/reports/overview-section.tsx:208
 msgid "needs 2+ trades"
 msgstr "2건 이상 필요"
 
@@ -4358,7 +4414,7 @@ msgstr "제한 없음"
 msgid "No matching notes"
 msgstr "일치하는 노트가 없습니다"
 
-#: src/components/reports/overview-section.tsx:481
+#: src/components/reports/overview-section.tsx:735
 msgid "No mistakes tagged."
 msgstr "태그된 실수가 없습니다."
 
@@ -4397,7 +4453,7 @@ msgid "No settings match “{0}”."
 msgstr "“{0}”과(와) 일치하는 설정이 없습니다."
 
 #: src/app/(tabs)/(dashboard)/playbook.tsx:257
-#: src/components/reports/overview-section.tsx:481
+#: src/components/reports/overview-section.tsx:735
 msgid "No setups traded in this range."
 msgstr "이 범위에서 거래된 셋업이 없습니다."
 
@@ -4469,7 +4525,7 @@ msgstr "이 날에는 거래가 없습니다."
 msgid "No trades to review yet"
 msgstr "아직 리뷰할 트레이드가 없습니다"
 
-#: src/components/reports/overview-section.tsx:504
+#: src/components/reports/overview-section.tsx:758
 msgid "No trades with a knowable initial risk — set stops to unlock R analytics."
 msgstr "초기 리스크를 알 수 있는 거래가 없습니다 — 스톱을 설정하면 R 분석이 활성화됩니다."
 
@@ -4874,7 +4930,7 @@ msgstr "손익"
 msgid "P&L basis"
 msgstr "손익 기준"
 
-#: src/components/reports/overview-section.tsx:364
+#: src/components/reports/overview-section.tsx:368
 msgid "P&L bridge"
 msgstr "손익 워터폴"
 
@@ -4930,7 +4986,7 @@ msgid "Payoff"
 msgstr "페이오프"
 
 #: src/app/tool-kelly.tsx:45
-#: src/components/reports/overview-section.tsx:183
+#: src/components/reports/overview-section.tsx:187
 msgid "Payoff ratio"
 msgstr "손익비"
 
@@ -4977,13 +5033,17 @@ msgstr "퍼센트는 0에서 100 사이여야 합니다."
 
 #: src/app/(tabs)/(settings)/account-form.tsx:371
 #: src/components/performance-card.tsx:58
-#: src/components/reports/overview-section.tsx:108
+#: src/components/reports/overview-section.tsx:112
 msgid "Performance"
 msgstr "성과"
 
-#: src/components/reports/overview-section.tsx:108
+#: src/components/reports/overview-section.tsx:112
 msgid "Performance — gross"
 msgstr "성과 — 총액"
+
+#: src/components/reports/overview-section.tsx:503
+msgid "Period returns"
+msgstr "기간 수익"
 
 #. placeholder {0}: account?.name ?? ''
 #: src/app/(tabs)/(settings)/account-form.tsx:211
@@ -5062,7 +5122,7 @@ msgstr "재생 속도"
 msgid "Playbook"
 msgstr "플레이북"
 
-#: src/components/reports/overview-section.tsx:475
+#: src/components/reports/overview-section.tsx:729
 msgid "Playbook & leaks"
 msgstr "플레이북과 누수"
 
@@ -5084,7 +5144,7 @@ msgstr "포인트 가치"
 msgid "Points the app at a different TraderMemos instance and signs you out. Unsynced offline changes will be discarded."
 msgstr "앱을 다른 TraderMemos 인스턴스에 연결하고 로그아웃합니다. 동기화되지 않은 오프라인 변경 사항은 삭제됩니다."
 
-#: src/components/reports/overview-section.tsx:73
+#: src/components/reports/overview-section.tsx:77
 msgid "poor"
 msgstr "미흡"
 
@@ -5179,7 +5239,7 @@ msgstr "청산 후에도 가격이 유리한 방향으로 이어졌습니다. �
 msgid "Price moved against the position soon after you closed. Whatever triggered this exit is worth writing down."
 msgstr "청산 직후 가격이 불리하게 움직였습니다. 이 청산을 촉발한 요인을 기록해 둘 가치가 있습니다."
 
-#: src/components/reports/overview-section.tsx:358
+#: src/components/reports/overview-section.tsx:362
 msgid "Prior"
 msgstr "이전"
 
@@ -5234,8 +5294,8 @@ msgstr "목표 도달 수익"
 #: src/app/(tabs)/(calendar)/index.tsx:262
 #: src/app/(tabs)/(dashboard)/playbook.tsx:133
 #: src/app/(tabs)/(dashboard)/wrapped.tsx:341
-#: src/components/reports/overview-section.tsx:129
-#: src/components/reports/overview-section.tsx:134
+#: src/components/reports/overview-section.tsx:133
+#: src/components/reports/overview-section.tsx:138
 #: src/components/share-card.tsx:309
 #: src/components/share-card.tsx:315
 msgid "Profit factor"
@@ -5355,8 +5415,8 @@ msgstr "R 배수"
 msgid "R multiple {0}"
 msgstr "R 배수 {0}"
 
-#: src/components/reports/overview-section.tsx:502
-#: src/components/reports/overview-section.tsx:519
+#: src/components/reports/overview-section.tsx:756
+#: src/components/reports/overview-section.tsx:773
 msgid "R-multiple"
 msgstr "R 배수"
 
@@ -5743,6 +5803,7 @@ msgstr "토큰을 폐기할까요?"
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:670
 #: src/app/(tabs)/(dashboard)/reports.tsx:104
 #: src/app/tool-position-size.tsx:102
+#: src/components/reports/overview-section.tsx:553
 msgid "Risk"
 msgstr "리스크"
 
@@ -5755,6 +5816,10 @@ msgstr "리스크 %"
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:61
 msgid "Risk budget under 1 contract — raise Risk% or tighten the stop"
 msgstr "리스크 예산이 1계약 미만 — 리스크%를 높이거나 스톱을 좁히세요"
+
+#: src/components/reports/overview-section.tsx:554
+msgid "Risk journaled before the trade, blended with rule compliance when rules are set."
+msgstr "거래 전에 기록한 리스크. 규칙이 있으면 규칙 준수와 혼합됩니다."
 
 #: src/app/(tabs)/(settings)/alerts.tsx:107
 msgid "Risk rule broken"
@@ -5850,6 +5915,10 @@ msgstr "프랍 회사가 이 평가를 채점하는 규칙입니다. 빈 규칙�
 #: src/app/(tabs)/(settings)/two-factor.tsx:124
 msgid "Run \"tradermemos disable-totp --email {0}\" on the server. There are no recovery codes to lose."
 msgstr "서버에서 \"tradermemos disable-totp --email {0}\"을(를) 실행하세요. 분실할 복구 코드는 없습니다."
+
+#: src/components/reports/overview-section.tsx:498
+msgid "run rate / year"
+msgstr "연간 런레이트"
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:519
 msgid "Runner"
@@ -5966,6 +6035,10 @@ msgstr "일정"
 #: src/app/(tabs)/(settings)/flex-sync.tsx:144
 msgid "Scheduled sync"
 msgstr "예약 동기화"
+
+#: src/components/reports/overview-section.tsx:625
+msgid "Scores unlock at 5 closed trades — journaled risk and auto MAE/MFE sharpen every axis."
+msgstr "점수는 청산 거래 5건부터 열립니다. 리스크 기록과 자동 MAE/MFE가 각 축을 선명하게 합니다."
 
 #: src/lib/trade-insights.ts:367
 msgid "Scratch trade"
@@ -6177,7 +6250,7 @@ msgstr "설정"
 
 #: src/app/(tabs)/(trades)/[id].tsx:753
 #: src/components/breakdown-card.tsx:26
-#: src/components/reports/overview-section.tsx:470
+#: src/components/reports/overview-section.tsx:724
 msgid "Setup"
 msgstr "셋업"
 
@@ -6244,6 +6317,10 @@ msgstr "공유 링크에는 이 주소가 필요합니다. 서버가 알려주�
 #: src/app/(tabs)/(settings)/web-address.tsx:40
 msgid "Share links will use whatever your server reports."
 msgstr "공유 링크는 서버가 알려주는 주소를 사용합니다."
+
+#: src/components/reports/overview-section.tsx:550
+msgid "Share of each trade's peak open profit kept at the close."
+msgstr "각 거래의 최대 미실현 이익 중 청산 시 지켜낸 비율."
 
 #: src/app/replay.tsx:354
 msgid "Share replay frame"
@@ -6369,6 +6446,10 @@ msgstr "수량/가격이 없는 {skipped}개 행을 건너뛰었습니다."
 msgid "Small sample — patterns firm up as more closed trades accumulate."
 msgstr "표본이 적습니다 — 청산 거래가 쌓일수록 패턴이 뚜렷해집니다."
 
+#: src/components/reports/overview-section.tsx:573
+msgid "solid"
+msgstr "견고"
+
 #: src/components/rating-indicator.tsx:51
 #~ msgid "Solid"
 #~ msgstr ""
@@ -6387,9 +6468,13 @@ msgstr "문제가 발생했습니다"
 msgid "Sort"
 msgstr "정렬"
 
-#: src/components/reports/overview-section.tsx:202
+#: src/components/reports/overview-section.tsx:206
 msgid "SQN"
 msgstr "SQN"
+
+#: src/components/reports/overview-section.tsx:558
+msgid "Stability"
+msgstr "안정성"
 
 #: src/app/(tabs)/(dashboard)/backtest.tsx:165
 msgid "Start date"
@@ -6499,6 +6584,10 @@ msgstr "행사가"
 msgid "Strips the account name, broker, and IDs from the export — useful for sharing."
 msgstr "내보내기에서 계좌 이름, 증권사, ID를 제거합니다 — 공유할 때 유용합니다."
 
+#: src/components/reports/overview-section.tsx:572
+msgid "strong"
+msgstr "강함"
+
 #: src/components/rating-indicator.tsx:50
 #~ msgid "Strong"
 #~ msgstr ""
@@ -6515,7 +6604,7 @@ msgstr "+{r}R의 좋은 결과"
 msgid "Suggested items"
 msgstr "추천 항목"
 
-#: src/components/reports/overview-section.tsx:198
+#: src/components/reports/overview-section.tsx:202
 msgid "suggested risk"
 msgstr "권장 리스크"
 
@@ -6531,7 +6620,7 @@ msgstr "요약"
 msgid "Sun"
 msgstr "일"
 
-#: src/components/reports/overview-section.tsx:63
+#: src/components/reports/overview-section.tsx:67
 msgid "superb"
 msgstr "탁월"
 
@@ -6751,6 +6840,10 @@ msgstr "목표 R"
 msgid "target reached"
 msgstr "목표 달성"
 
+#: src/components/reports/overview-section.tsx:563
+msgid "Tempo"
+msgstr "템포"
+
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:367
 msgid "Test connection"
 msgstr "연결 테스트"
@@ -6851,6 +6944,10 @@ msgstr "입력한 주문은 저장되지 않습니다."
 #: src/app/(tabs)/(settings)/profile.tsx:49
 msgid "The owner account — the first user created on this server."
 msgstr "소유자 계정 — 이 서버에서 처음 만들어진 사용자입니다."
+
+#: src/components/reports/overview-section.tsx:649
+msgid "The radar needs at least three scored axes — journal initial risk and run auto MAE/MFE to light up the rest."
+msgstr "레이더에는 3개 이상의 축 점수가 필요합니다. 초기 리스크 기록과 자동 MAE/MFE로 나머지를 켜세요."
 
 #: src/app/(tabs)/(dashboard)/wrapped.tsx:201
 msgid "The recap appears once the year has closed trades."
@@ -7107,7 +7204,7 @@ msgid "Top symbol"
 msgstr "주요 종목"
 
 #: src/components/mini-calendar-card.tsx:116
-#: src/components/reports/overview-section.tsx:360
+#: src/components/reports/overview-section.tsx:364
 msgid "Total"
 msgstr "합계"
 
@@ -7199,6 +7296,10 @@ msgstr "거래"
 msgid "Trades created"
 msgstr "생성된 매매"
 
+#: src/components/reports/overview-section.tsx:564
+msgid "Trades free of quick same-symbol re-entries and overtraded days."
+msgstr "동일 종목 즉시 재진입과 과잉 거래일이 없는 거래."
+
 #: src/app/new-setup.tsx:158
 msgid "Trades keep their journal — only the playbook entry goes."
 msgstr "거래 일지는 유지됩니다 — 플레이북 항목만 삭제됩니다."
@@ -7218,8 +7319,8 @@ msgid "Trading day"
 msgstr "거래일"
 
 #: src/components/prop-status-card.tsx:202
-#: src/components/reports/overview-section.tsx:237
-#: src/components/reports/overview-section.tsx:245
+#: src/components/reports/overview-section.tsx:241
+#: src/components/reports/overview-section.tsx:249
 msgid "Trading days"
 msgstr "거래일"
 
@@ -7316,6 +7417,10 @@ msgstr "브로커 이름 입력"
 #~ msgid "Unavailable"
 #~ msgstr "사용 불가"
 
+#: src/components/reports/overview-section.tsx:574
+msgid "uneven"
+msgstr "고르지 않음"
+
 #: src/lib/errors.ts:103
 msgid "Unexpected error."
 msgstr "예기치 않은 오류가 발생했습니다."
@@ -7332,7 +7437,7 @@ msgstr "알 수 없는 클라이언트"
 msgid "Unknown symbol"
 msgstr "알 수 없는 종목"
 
-#: src/components/reports/overview-section.tsx:584
+#: src/components/reports/overview-section.tsx:838
 msgid "Unrated"
 msgstr "미평가"
 
@@ -7443,14 +7548,18 @@ msgid "Waiting to sync"
 msgstr "동기화 대기 중"
 
 #: src/components/performance-card.tsx:105
-#: src/components/reports/overview-section.tsx:103
-#: src/components/reports/overview-section.tsx:213
+#: src/components/reports/overview-section.tsx:107
+#: src/components/reports/overview-section.tsx:217
 msgid "Wash"
 msgstr "무승부"
 
 #: src/components/coach-card.tsx:34
 msgid "Watch"
 msgstr "주의"
+
+#: src/components/reports/overview-section.tsx:575
+msgid "weak"
+msgstr "약함"
 
 #: src/app/(tabs)/(settings)/_layout.tsx:66
 #: src/app/(tabs)/(settings)/integrations.tsx:53
@@ -7489,6 +7598,15 @@ msgstr "평일만"
 #: src/app/(tabs)/(dashboard)/checklist.tsx:260
 msgid "Weekends hide the card on Home. Turn this off if you trade Saturday or Sunday sessions."
 msgstr "주말에는 홈 카드를 숨깁니다. 토요일이나 일요일에도 거래한다면 끄세요."
+
+#: src/components/reports/overview-section.tsx:496
+#: src/components/reports/overview-section.tsx:607
+msgid "Weekly"
+msgstr "주간"
+
+#: src/components/reports/overview-section.tsx:544
+msgid "Weighted blend of the five axes below."
+msgstr "아래 5개 축의 가중 혼합입니다."
 
 #: src/app/login.tsx:197
 #~ msgid "Welcome back."
@@ -7541,7 +7659,7 @@ msgstr "수익"
 msgid "Win / Loss"
 msgstr "승패"
 
-#: src/components/reports/overview-section.tsx:185
+#: src/components/reports/overview-section.tsx:189
 msgid "win ÷ loss"
 msgstr "평균 수익 ÷ 평균 손실"
 
@@ -7550,7 +7668,7 @@ msgstr "평균 수익 ÷ 평균 손실"
 #: src/app/(tabs)/(dashboard)/playbook.tsx:132
 #: src/app/(tabs)/(dashboard)/playbook.tsx:235
 #: src/components/reports/behavior-section.tsx:41
-#: src/components/reports/overview-section.tsx:156
+#: src/components/reports/overview-section.tsx:160
 #: src/components/share-card.tsx:308
 #: src/components/share-card.tsx:353
 #: src/components/symbol-journal.tsx:480
@@ -7575,7 +7693,7 @@ msgstr "연승"
 
 #: src/app/(tabs)/(trades)/index.tsx:272
 #: src/components/performance-card.tsx:87
-#: src/components/reports/overview-section.tsx:100
+#: src/components/reports/overview-section.tsx:104
 msgid "Wins"
 msgstr "수익"
 
@@ -7621,7 +7739,7 @@ msgstr "연"
 #: src/app/(tabs)/(dashboard)/_layout.tsx:150
 #: src/app/(tabs)/(dashboard)/reports.tsx:59
 #: src/app/(tabs)/(dashboard)/wrapped.tsx:384
-#: src/components/reports/overview-section.tsx:703
+#: src/components/reports/overview-section.tsx:961
 msgid "Year Wrapped"
 msgstr "Year Wrapped"
 

@@ -178,3 +178,59 @@ export function avgRiskPerTrade(trades: Trade[]): AvgRiskPerTrade {
     excluded,
   };
 }
+
+export interface PeriodReturns {
+  /** Mean P&L per traded day / week / month (raw $, unconverted). */
+  daily: number;
+  weekly: number;
+  monthly: number;
+  /** Total P&L scaled to a 365-day year over the traded span (raw $). */
+  annualized: number;
+  tradingDays: number;
+}
+
+/**
+ * Average return per period plus an annualized run rate. Days bucket on the
+ * UTC day key (same basis as the mobile calendar's tradeDayKey); weeks start
+ * Monday. Returns null with no closed trades.
+ */
+export function periodReturns(
+  trades: Trade[],
+  tradePnl: (t: Trade) => number = (t) => t.net_pnl ?? 0,
+): PeriodReturns | null {
+  const closed = chronologicalClosed(trades);
+  if (closed.length === 0) return null;
+
+  const days = new Map<string, number>();
+  for (const t of closed) {
+    const key = (t.closed_at ?? t.opened_at).slice(0, 10);
+    days.set(key, (days.get(key) ?? 0) + tradePnl(t));
+  }
+
+  const weeks = new Map<string, number>();
+  const months = new Map<string, number>();
+  let total = 0;
+  for (const [day, pnl] of days) {
+    total += pnl;
+    const d = new Date(`${day}T12:00:00Z`);
+    const monday = new Date(d);
+    monday.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7));
+    const weekKey = monday.toISOString().slice(0, 10);
+    weeks.set(weekKey, (weeks.get(weekKey) ?? 0) + pnl);
+    const monthKey = day.slice(0, 7);
+    months.set(monthKey, (months.get(monthKey) ?? 0) + pnl);
+  }
+
+  const dayKeys = [...days.keys()].sort();
+  const first = new Date(`${dayKeys[0]}T12:00:00Z`);
+  const last = new Date(`${dayKeys[dayKeys.length - 1]}T12:00:00Z`);
+  const spanDays = Math.max(1, Math.round((last.getTime() - first.getTime()) / 86_400_000) + 1);
+
+  return {
+    daily: total / days.size,
+    weekly: total / weeks.size,
+    monthly: total / months.size,
+    annualized: (total * 365) / spanDays,
+    tradingDays: days.size,
+  };
+}

@@ -31,6 +31,7 @@ import type {
   EconomicEvent,
   EquityCurve,
   Filters,
+  ExecScoreReport,
   FlexSyncConnection,
   FlexSyncSettings,
   ImportBatch,
@@ -101,6 +102,8 @@ export const queryKeys = {
   propStatus: (accountId: string, filters: Filters) =>
     ['accounts', accountId, 'prop-status', filters] as const,
   flexSync: (accountId: string) => ['accounts', accountId, 'flex-sync'] as const,
+  executionScore: (filters: Filters, bucket: 'week' | 'month') =>
+    ['analytics', 'execution-score', bucket, filters] as const,
   flexSyncConnections: () => ['flex-sync'] as const,
   imports: () => ['imports'] as const,
   health: () => ['health'] as const,
@@ -180,6 +183,15 @@ function useApiQuery<T>(
         });
       }),
   });
+}
+
+/** Execution-quality composite + per-axis series (web ReportsExecutionScore parity). */
+export function useExecutionScore(bucket: 'week' | 'month', filters: Filters = {}) {
+  return useApiQuery<ExecScoreReport>(
+    queryKeys.executionScore(filters, bucket),
+    '/analytics/execution-score',
+    { ...filters, bucket },
+  );
 }
 
 export function useSummary(filters: Filters = {}) {
