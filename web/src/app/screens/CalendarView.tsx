@@ -16,13 +16,7 @@ import { SegmentedControl } from "@/components/SegmentedControl";
 import { CardSkeleton } from "@/components/skeletons/card-skeleton";
 import { Button } from "@/components/ui/button";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/HoverCard";
-import {
-  heroPnlClass,
-  pnlBgTint,
-  pnlColor,
-  TINTED_LABEL,
-  TINTED_LABEL_SUBTLE,
-} from "@/components/theme-tokens";
+import { heroPnlClass, pnlBgTint, pnlColor, TINTED_LABEL_SUBTLE } from "@/components/theme-tokens";
 
 import type { Account, CashTransaction, EquityPoint, Summary, Trade } from "@/lib/api/types";
 import { netDeposits } from "@/lib/headerStats";
@@ -113,11 +107,6 @@ function dayColor(pnl: number): string {
 
 function todayString(tz?: string): string {
   return dayKeyInTz(new Date().toISOString(), tz);
-}
-
-function dayTradeCount(rec: DayRecord | undefined): number {
-  if (!rec) return 0;
-  return rec.wins + rec.losses;
 }
 
 function dayWinRate(rec: DayRecord | undefined): string | null {
@@ -536,7 +525,6 @@ export function CalendarView({
                           const dayNum = Number(cell.date.slice(8, 10));
                           const hasPnl = cell.pnl != null;
                           const rec = records[cell.date];
-                          const trades = dayTradeCount(rec);
                           const winRate = dayWinRate(rec);
                           const isSelected = selectedDay === cell.date;
                           const isToday = cell.date === today;
@@ -571,18 +559,8 @@ export function CalendarView({
                                       intlLocale(),
                                     )}
                                   </span>
-                                  {/* The count is implied by the W/L record below, so it only
-                                      earns a line once the cell can spell it out unclipped. */}
-                                  {trades > 0 && (
-                                    <span
-                                      className={cn(
-                                        "hidden max-w-full truncate text-[10px] tabular-nums @min-[3rem]/day:block",
-                                        TINTED_LABEL,
-                                      )}
-                                    >
-                                      {trades} {trades === 1 ? "trade" : "trades"}
-                                    </span>
-                                  )}
+                                  {/* No trade-count line — the W/L record below carries it;
+                                      the full tally lives in the hover card and day sheet. */}
                                   {winRate && (
                                     <span
                                       className={cn(
@@ -728,19 +706,12 @@ export function CalendarView({
                                       {fmtSignedPct(weekPcts[wi]!, intlLocale())}
                                     </span>
                                   ) : null}
+                                  {/* W/L only — no day-count line, matching the mobile board. */}
                                   {ws.wins + ws.losses > 0 ? (
                                     <span className="max-w-full truncate text-[10px] tabular-nums">
                                       <WinLossRecord wins={ws.wins} losses={ws.losses} />
                                     </span>
                                   ) : null}
-                                  <span
-                                    className={cn(
-                                      "hidden max-w-full truncate text-[10px] tabular-nums @min-[4rem]/week:block",
-                                      TINTED_LABEL_SUBTLE,
-                                    )}
-                                  >
-                                    {ws.daysWithTrades} {ws.daysWithTrades === 1 ? "day" : "days"}
-                                  </span>
                                 </span>
                               ) : (
                                 <span className="flex h-full items-center justify-center text-[10px] text-muted-foreground">

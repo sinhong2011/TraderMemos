@@ -42,17 +42,18 @@ import { pnlBgTint, pnlClass, pnlDotTint, usePnlPalette } from '@/styles/pnl';
  * One day (or week-summary) tile. `borderCurve` has no class, and every board
  * shares this footprint, so it lives here rather than in six call sites.
  */
-const CELL = 'flex-1 items-center justify-center rounded-lg px-[3px] py-1';
+const CELL = 'flex-1 rounded-lg px-[3px] py-1';
 
-/** The number in a tile's top-right corner. */
-const DAY_NUM = 'absolute right-[7px] top-1.5 text-[11px] tabular-nums';
+/** The number in a tile's top-right corner. In flow (not absolute) so the
+ * body below can never be laid out over it on short tiles. */
+const DAY_NUM = 'self-end pr-1 pt-0.5 text-[11px] leading-[13px] tabular-nums';
 
 /** Tile body text on a tinted cell — `muted-foreground` fails contrast there. */
 const ON_TINT = 'text-foreground opacity-[0.72]';
 
-/** The stacked figures under a tile's day number. */
-const CELL_BODY = 'max-w-full items-center gap-[3px] pt-2';
-const CELL_SUB = `text-[10px] tabular-nums ${ON_TINT}`;
+/** The stacked figures under a tile's day number, centered in the space the
+ * number row leaves. Tight leadings keep six-week months inside the tile. */
+const CELL_BODY = 'max-w-full flex-1 items-center justify-center self-center gap-[3px]';
 
 /** Week bento: caption, tile surface, and the three edge-stat figures. */
 const BENTO_LABEL = 'text-[10px] text-muted-foreground';
@@ -413,9 +414,11 @@ export default function CalendarScreen() {
     setAnchor(nextAnchor);
     setPages(pageWindow(next, nextAnchor));
     setPickerOpen(false);
-    // The remounted pager starts centered; forget any in-flight page state.
+    // The remounted pager starts centered; forget any in-flight page state
+    // and let the fresh mount take its post-layout snap.
     settledPage.current = 1;
     recentering.current = false;
+    snappedAfterLayout.current = false;
   }
 
   const selectWeek = (date: string) => switchMode('week', date);
@@ -470,7 +473,19 @@ export default function CalendarScreen() {
   // native scroll is still settling compounds leftover momentum.
   const settledPage = useRef(1);
   const recentering = useRef(false);
+  // Android's ViewPager2 can mount mid-layout and land a fraction off
+  // `initialPage`; one post-layout snap squares it. Reset per mode remount.
+  const snappedAfterLayout = useRef(false);
+  function onPagerLayout() {
+    if (snappedAfterLayout.current) return;
+    snappedAfterLayout.current = true;
+    pagerRef.current?.setPageWithoutAnimation(1);
+  }
   function onPageSelected(event: { nativeEvent: { position: number } }) {
+    // The recenter's programmatic jump and dataset rebuild emit their own
+    // selected events (Android keeps emitting for a few frames); recording
+    // them would trigger a phantom second recenter on the next idle.
+    if (recentering.current) return;
     settledPage.current = event.nativeEvent.position;
   }
   function onPageScrollStateChanged(event: {
@@ -480,15 +495,21 @@ export default function CalendarScreen() {
     const pos = settledPage.current;
     settledPage.current = 1;
     if (pos === 1 || recentering.current) return;
-    recentering.current = true;
     const landed = pos === 2 ? pages[2] : pages[0];
+    // A stale event replaying the period we already recentered onto is a no-op.
+    if (landed === anchor) return;
+    recentering.current = true;
     setAnchor(landed);
     setPages((w) => (pos === 2 ? [w[0], w[2], w[2]] : [w[0], w[0], w[2]]));
     afterFlush(() => {
       pagerRef.current?.setPageWithoutAnimation(1);
       afterFlush(() => {
         setPages((w) => pageWindow(mode, w[1]));
-        recentering.current = false;
+        // Hold the guard one more flush: ViewPager2 keeps emitting
+        // selected/idle for the dataset rebuild itself.
+        afterFlush(() => {
+          recentering.current = false;
+        });
       });
     });
   }
@@ -616,6 +637,7 @@ export default function CalendarScreen() {
                 ref={pagerRef}
                 initialPage={1}
                 style={{ flex: 1 }}
+                onLayout={onPagerLayout}
                 onPageSelected={onPageSelected}
                 onPageScrollStateChanged={onPageScrollStateChanged}
               >
@@ -869,7 +891,6 @@ function DayCell({
   const { formatPnlCompact } = useFormatters();
   const hasPnl = pnl != null;
   const isToday = date === todayKey;
-  const count = stats?.count ?? 0;
 
   return (
     <Pressable
@@ -892,20 +913,15 @@ function DayCell({
       </Text>
       {hasPnl ? (
         <View className={CELL_BODY}>
+          {/* Figure + W/L only — the trade count lives in the day sheet. */}
           <Text
-            className={cn('text-[13px] font-bold tabular-nums', pnlClass(pnl))}
+            className={cn('text-[13px] font-bold leading-[15px] tabular-nums', pnlClass(pnl))}
             numberOfLines={1}
             adjustsFontSizeToFit
           >
             {formatPnlCompact(pnl, currency)}
           </Text>
-          {count > 0 ? (
-            <Text className={CELL_SUB} numberOfLines={1} adjustsFontSizeToFit>
-              {/* Hermes has no Intl.PluralRules, so lingui's plural() crashes — branch by hand. */}
-              {count === 1 ? t`1 trade` : t`${count} trades`}
-            </Text>
-          ) : null}
-          <WinLoss wins={stats?.wins ?? 0} losses={stats?.losses ?? 0} />
+          <WinLoss wins={stats?.wins ?? 0} losses={stats?.losses ?? 0} className="leading-[12px]" />
         </View>
       ) : null}
     </Pressable>
@@ -938,6 +954,11 @@ function MonthView({
 }) {
   const palette = usePnlPalette();
   const { formatPnl, formatPnlCompact } = useFormatters();
+  // Tiles flex to split the board height; when a six-week month (or a short
+  // screen) squeezes them under what the full stack of figures needs, the
+  // tiles drop their count lines instead of overflowing.
+  const [rowHeight, setRowHeight] = useState<number | null>(null);
+  const compact = rowHeight != null && rowHeight < 66;
   const grid = monthGrid(year, month, data);
   const traded = Object.keys(data).filter((k) => k.startsWith(`${year}-${pad(month)}`));
   const green = traded.filter((k) => data[k] > 0).length;
@@ -955,12 +976,17 @@ function MonthView({
   return (
     <View className="flex-1">
       <View className={SUMMARY_ROW}>
-        <View>
+        {/* min-w-0 flex-1 gives the shrinking Text a stable bounded width —
+            without it iOS's adjustsFontSizeToFit can latch onto a transient
+            near-zero measure and stay microscopic. minimumFontScale caps the
+            damage either way. */}
+        <View className="min-w-0 flex-1">
           <Text className={SUMMARY_LABEL}>{t`Net P&L`}</Text>
           <Text
             className={cn(SUMMARY_VALUE, pnlClass(grid.monthTotal))}
             numberOfLines={1}
             adjustsFontSizeToFit
+            minimumFontScale={0.75}
           >
             {formatPnl(grid.monthTotal, currency)}
           </Text>
@@ -1018,16 +1044,16 @@ function MonthView({
             {daysTraded > 0 ? (
               <View className={CELL_BODY}>
                 <Text
-                  className={cn('text-[13px] font-bold tabular-nums', pnlClass(weekPnl))}
+                  className={cn('text-[13px] font-bold leading-[15px] tabular-nums', pnlClass(weekPnl))}
                   numberOfLines={1}
                   adjustsFontSizeToFit
                 >
                   {formatPnlCompact(weekPnl, currency)}
                 </Text>
-                {weekReturnPct != null ? (
+                {weekReturnPct != null && !compact ? (
                   <Text
                     className={cn(
-                      'text-[10px] font-semibold tabular-nums',
+                      'text-[10px] font-semibold leading-[12px] tabular-nums',
                       pnlClass(weekPnl),
                     )}
                     numberOfLines={1}
@@ -1036,19 +1062,27 @@ function MonthView({
                     {`${weekPnl > 0 ? '+' : ''}${formatPercentPoints(weekReturnPct * 100, 1)}`}
                   </Text>
                 ) : null}
-                <WinLoss wins={weekWins} losses={weekLosses} />
-                <Text className={CELL_SUB} numberOfLines={1} adjustsFontSizeToFit>
-                  {daysTraded === 1 ? t`1 day` : t`${daysTraded} days`}
-                </Text>
+                <WinLoss wins={weekWins} losses={weekLosses} className="leading-[12px]" />
               </View>
             ) : (
-              // Idle (untinted) tiles keep the quiet muted text.
-              <Text className="text-[10px] tabular-nums text-muted-foreground">{t`No trades`}</Text>
+              // Idle (untinted) tiles keep the quiet muted text, centered in
+              // the space the W-number row leaves.
+              <View className="flex-1 items-center justify-center">
+                <Text className="text-[10px] tabular-nums text-muted-foreground">{t`No trades`}</Text>
+              </View>
             )}
           </>
         );
         return (
-          <View key={wi} className={GRID_ROW}>
+          <View
+            key={wi}
+            className={GRID_ROW}
+            onLayout={
+              wi === 0
+                ? (e) => setRowHeight(e.nativeEvent.layout.height)
+                : undefined
+            }
+          >
             {dayIdx.map((ci) => {
               const cell = week[ci];
               return cell ? (
@@ -1261,12 +1295,14 @@ function YearView({
   return (
     <View className="flex-1">
       <View className={SUMMARY_ROW}>
-        <View>
+        {/* Same bounded-width guard as the month summary. */}
+        <View className="min-w-0 flex-1">
           <Text className={SUMMARY_LABEL}>{t`Net P&L`}</Text>
           <Text
             className={cn(SUMMARY_VALUE, pnlClass(yearTotal))}
             numberOfLines={1}
             adjustsFontSizeToFit
+            minimumFontScale={0.75}
           >
             {formatPnl(yearTotal, currency)}
           </Text>
