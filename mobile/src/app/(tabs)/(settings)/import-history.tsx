@@ -81,25 +81,27 @@ export default function ImportHistoryScreen() {
         <SettingsSection footer={t`Rolling a batch back deletes its executions and regroups trades. A later sync can import them again.`}>
           {history.map((batch) => (
             <Frame.Row key={batch.id}>
-              <Frame.Content>
+              <Frame.Content className="flex-1 gap-0.5">
                 <Frame.Title>{sourceLabel(batch.source)}</Frame.Title>
-                <Frame.Description>
+                <Text size="xs" muted>
                   {[
                     accountName(batch.account_id),
-                    batch.filename,
                     t`${batch.row_count} rows`,
                     `${formatDate(batch.created_at)} ${formatTime(batch.created_at)}`,
-                  ]
-                    .filter(Boolean)
-                    .join(' · ')}
-                </Frame.Description>
+                  ].join(' · ')}
+                </Text>
+                {batch.filename ? (
+                  <Text size="xs" muted numberOfLines={1} ellipsizeMode="middle">
+                    {batch.filename}
+                  </Text>
+                ) : null}
               </Frame.Content>
               <Frame.Actions>
                 {batch.status === 'reversed' ? (
                   <Pill tone="muted">{t`Rolled back`}</Pill>
                 ) : (
                   <Button
-                    variant="ghost"
+                    variant="secondary"
                     size="sm"
                     labelClassName="text-destructive"
                     loading={rollback.isPending && rollback.variables === batch.id}
