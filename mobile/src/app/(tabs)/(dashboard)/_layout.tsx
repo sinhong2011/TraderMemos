@@ -117,19 +117,18 @@ export default function DashboardLayout() {
         options={{ title: t`Economic calendar`, headerLargeTitle: false }}
       />
       {/* Reports left the tab bar for the Tools menu (2026-08-09), so it pushes
-          in the Home stack. It keeps the stack's large title + transparent bar:
-          the pager pages nominate their scroll view through soft-scroll-edge,
-          so the native collapse and edge fade work despite the plain-View
-          pager root. Account scope is set from the Home header — the back
+          in the Home stack. It keeps every stack default — transparent blurred
+          bar, large title, soft scroll edge: its pager pages nominate their
+          scroll view through soft-scroll-edge, so UIKit drives the bar from
+          the section being read even though the pager root is a plain View.
+          (Before that the bar had to be opaque, which is what cost this screen
+          its blur.) Account scope is set from the Home header — the back
           button owns the left slot here, so Reports keeps only its display
           filters. */}
       <Stack.Screen
         name="reports"
         options={{
           title: t`Reports`,
-          headerLargeTitle: true,
-          headerTransparent: false,
-          headerStyle: { backgroundColor: background },
           headerRight: () => <ReportsHeaderFilterMenu />,
         }}
       />
