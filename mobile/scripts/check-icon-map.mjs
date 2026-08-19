@@ -73,10 +73,12 @@ for (const file of walk(join(root, 'src'))) {
   for (const m of s.matchAll(/\bsystemImage=\{?['"]([^'"}]+)['"]/g)) used.add(m[1]);
 }
 
-// Legacy Material *Icons* variant names survive in expo-symbols' table with
-// codepoints the Material Symbols font no longer carries — the checker passes
-// but the device draws tofu (seen live: info_outline on the About row). The
-// styled axes replaced the suffixed variants; only base names render.
+// Legacy Material *Icons* variant names survive in expo-symbols' table, but
+// the shipped Material Symbols font only aliases *some* of their codepoints
+// to the base glyph — others are simply absent and draw tofu on device (seen
+// live: info_outline on the About row; U+E88F has no cmap entry while every
+// other _outline codepoint aliases its base glyph). Base names are the only
+// namespace guaranteed to render, so reject variant suffixes outright.
 const LEGACY_SUFFIX = /_(outline|outlined|filled|rounded|sharp|two_tone)$/;
 
 const badTarget = [...map].filter(
