@@ -181,6 +181,6 @@ Revised per the 2026-08-08 decision (**build all features first, assign tiers la
 
 1. **Which candidates actually go Pro** — deliberately deferred (decision 2026-08-08: build all features first). Resolve at Phase 1, before the first public App Store release.
 2. **Price point:** $9.99 vs $14.99. Both clear the bar trivially; $14.99 is defensible once widgets and Live Activity both ship.
-3. **Android/Play Store:** out of scope for this document. The $25 one-time Play fee changes the math but not the strategy.
+3. **Android/Play Store:** out of scope for this document. The $25 one-time Play fee changes the math but not the strategy. *(2026-08-19 update: Android now ships as a sideloaded APK on the GitHub Release page — no store, so no IAP surface; if Pro ever gates features on Android, it needs a non-StoreKit path or stays iOS-only until a Play listing exists.)*
 
 *(Resolved: push alerts are free, not Pro — see "Not Pro" above; only a TraderMemos-operated relay could ever be paid. Face ID lock dropped entirely — superseded by the iOS system app lock, #137.)*

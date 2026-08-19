@@ -1,26 +1,31 @@
 # TraderMemos Mobile
 
-Expo SDK 57 client for a self-hosted [TraderMemos](../README.md) server.
+Expo SDK 57 client for a self-hosted [TraderMemos](../README.md) server — one codebase,
+one identical codepath on **iOS and Android**.
 
-Built on **[`@expo/ui`](https://docs.expo.dev/versions/latest/sdk/ui/)** — the settings form is a
-real SwiftUI `Form`, and the tab bar is a native `UITabBarController` via Expo Router's
-`NativeTabs`. Platform chrome comes from the platform, not from restyled `View`s.
+Built on **PanelUI** (`panelui-native`) styled with Tailwind v4 through **Uniwind** —
+JS-drawn components against shadcn-style design tokens in `src/global.css`, so both
+platforms render the same UI. (`@expo/ui` remains installed only as PanelUI's optional
+peer for `<Button native glass>` chrome; it is never imported directly.)
 
 ## Requirements
 
 - Node 25.6.1 (pinned in `.mise.toml`), pnpm 11 (via `../scripts/ensure-pnpm.sh`)
-- Xcode with an iOS simulator runtime (the app runs as a **development build**, not Expo Go)
+- iOS: Xcode with an iOS simulator runtime
+- Android: JDK 17 + the Android SDK / an emulator or device (`make doctor-android` verifies)
+- Either way the app runs as a **development build**, not Expo Go
 
 ## Getting started
 
 ```bash
 pnpm install
-npx expo run:ios   # first time: builds + installs the dev client on the simulator
-pnpm start         # every day after: starts Metro; open the TraderMemos app in the simulator
+npx expo run:ios       # first time: builds + installs the dev client on the simulator
+npx expo run:android   # same for an Android emulator/device
+pnpm start             # every day after: starts Metro; open the TraderMemos app
 ```
 
-Rebuild (`npx expo run:ios`) only when native dependencies or `app.json` change — JS-only
-changes hot-reload through Metro like always.
+Rebuild (`npx expo run:ios` / `run:android`) only when native dependencies or `app.json`
+change — JS-only changes hot-reload through Metro like always.
 
 > **Why not Expo Go?** The Expo Go 57.0.5 binary embeds native worklets 0.10.0 while SDK 57
 > pins the JS at 0.10.1; the mismatch segfaults Expo Go the moment it loads this project.
@@ -58,16 +63,18 @@ src/
   api/         client, session (SecureStore), TanStack Query hooks, wire types
   app/         Expo Router routes only — never co-locate components here
     (tabs)/
-      (dashboard)/   P&L summary
+      (dashboard)/   P&L summary + reports
+      (calendar)/    monthly P&L calendar
       (trades)/      list + detail
-      (settings)/    @expo/ui Form
+      (settings)/    settings lists (SettingsForm)
     login.tsx        server URL + credentials
-  components/  shared views (stat-card, trade-row)
-  constants/   design tokens mirrored from ../DESIGN.md
+  components/  shared views (stat-card, trade-row, …)
+  global.css   design tokens (Tailwind v4 variables, mirrored from the web theme)
+  i18n/        Lingui catalogs (en, ja, ko, zh-HK)
   lib/         formatting helpers
 ```
 
-## iOS Shortcuts / share sheet
+## iOS Shortcuts / share sheet (iOS only)
 
 The new-trade form can be opened with files already scanned into it. A URL scheme carries
 text only, so the file travels through a drop folder instead:
@@ -100,7 +107,7 @@ Sharing a screenshot or a CSV to TraderMemos from Photos/Files reaches the same 
 
 ```bash
 npx expo prebuild --clean
-npx expo run:ios
+npx expo run:ios       # or: npx expo run:android / make run-android
 ```
 
 UIScene adoption for the iOS 27 SDK (expo/expo#46663) is applied by the
@@ -109,24 +116,23 @@ locally or on an EAS worker.
 
 ## Cloud builds (EAS)
 
-`eas.json` defines three iOS profiles: `development` (simulator dev client), `preview`
-(internal distribution) and `production` (store). From the repo root:
+`eas.json` defines four profiles — `development` (simulator dev client / Android APK),
+`preview` (internal distribution), `production` (iOS store build / Android app-bundle)
+and `production-apk` (release-signed sideloadable APK). From the repo root:
 
 ```bash
-make eas-build-dev       # simulator dev client, no local Xcode toolchain needed
+make eas-build-dev       # simulator dev client, no local toolchain needed
 make eas-build-preview   # ad-hoc build for registered devices
-make eas-build-ios       # store build
+make eas-build-ios       # App Store build
 make eas-submit-ios      # push the latest store build to App Store Connect
+make eas-build-android   # release-signed APK (production-apk profile)
 ```
 
 CI does the same through `.github/workflows/mobile-eas.yml` — manually via
-*workflow_dispatch*, or automatically when a release ships (build + TestFlight submit,
-behind the `app-store` approval gate). The marketing version comes from `app.json`
-(release-please bumps it); the build number is assigned by EAS
-(`cli.appVersionSource: "remote"`). One-time account setup is in
-[`docs/release.md`](../docs/release.md#mobile-releases).
-
-Charts are the notable gap — the web app's `lightweight-charts` and `recharts` are DOM
-libraries and do not run here. An equity curve will need `victory-native` (Skia) or
-`react-native-wagmi-charts`; now that the app is a development build, either can be added
-with `pnpm exec expo install` plus a rebuild.
+*workflow_dispatch*, or automatically when a release ships: the iOS build submits to
+TestFlight behind the `app-store` approval gate, and the Android build's APK is attached
+to the GitHub Release page (`TraderMemos-<version>.apk`), which is the Android
+distribution channel — there is no Play Store presence. The marketing version comes from
+`app.json` (release-please bumps it); build numbers are assigned by EAS
+(`cli.appVersionSource: "remote"`). One-time account setup (including the EAS-managed
+Android keystore) is in [`docs/release.md`](../docs/release.md#mobile-releases).

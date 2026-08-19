@@ -6,7 +6,7 @@
 
 ### Own your data. Review your edge.
 
-**A self-hosted trading journal for traders who want their performance data on their own infrastructure** — dashboard, P&L calendar, trade log, playbook, reports, alerts, and a bar-replay backtester, with a native iOS companion app. No subscription, no vendor lock-in.
+**A self-hosted trading journal for traders who want their performance data on their own infrastructure** — dashboard, P&L calendar, trade log, playbook, reports, alerts, and a bar-replay backtester, with a native iOS & Android companion app. No subscription, no vendor lock-in.
 
 <br/>
 
@@ -20,7 +20,7 @@
 
 <br/>
 
-[Quick start](#quick-start) · [Docs site](https://trader-memos.vercel.app) · [Fork guide](docs/fork-deploy.md) · [Contributing](CONTRIBUTING.md) · [Design](DESIGN.md) · [License](LICENSE)
+[Quick start](#quick-start) · [Mobile app](#mobile-app) · [Docs site](https://trader-memos.vercel.app) · [Fork guide](docs/fork-deploy.md) · [Contributing](CONTRIBUTING.md) · [Design](DESIGN.md) · [License](LICENSE)
 
 <br/>
 
@@ -56,8 +56,8 @@
 <p align="center"><strong>Light theme</strong><br/><sub>Dark by default; both themes ship from the same token set.</sub></p>
 </td>
 <td width="26%" valign="top">
-<img src="docs/screenshots/mobile-calendar.png" alt="P&L calendar on a phone-width viewport with a bottom tab bar" />
-<p align="center"><strong>Responsive</strong><br/><sub>Every screen works at phone widths.</sub></p>
+<img src="docs/screenshots/mobile-home.png" alt="The native mobile app's home screen — equity curve, daily checklist, and performance stats" />
+<p align="center"><strong>Mobile app</strong> <em>(beta)</em><br/><sub>Native iOS & Android companion — same journal, same server.</sub></p>
 </td>
 </tr>
 </table>
@@ -105,7 +105,7 @@ TraderMemos brings to performance review what **[Ghost](https://github.com/TryGh
 | 🧮&nbsp; **Tools** | Position-size / FX / Kelly calculators, advanced chart, economic calendar, cash ledger |
 | 🤖&nbsp; **AI** *(optional)* | Screenshot fill extraction + trade coach via OpenAI-compatible APIs — your keys |
 | 🔌&nbsp; **API access** | Personal access tokens (`tm_pat_…`) for MCP/scripts; OpenAPI docs at `/docs` |
-| 📱&nbsp; **iOS app** *(beta)* | Native SwiftUI companion — offline journaling, widgets, Live Activities, Siri / Action Button capture. On TestFlight |
+| 📱&nbsp; **Mobile app** *(beta)* | iOS & Android companion (Expo) — offline journaling on both; widgets, Live Activities, and Siri / Action Button capture on iOS. TestFlight (iOS) · APK on [Releases](https://github.com/sinhong2011/TraderMemos/releases) (Android) |
 | 🌗&nbsp; **Themes** | Dark and light, built on shadcn/ui + [coss ui](https://coss.com/ui/docs) tokens |
 
 ## Tech stack
@@ -114,7 +114,7 @@ TraderMemos brings to performance review what **[Ghost](https://github.com/TryGh
 |-------|-------|
 | **API** | Go · Echo · sqlc · golang-migrate · SQLite / Postgres |
 | **Web** | React · Vite+ · TanStack Router/Query/Form · Tailwind |
-| **Mobile** | Expo · @expo/ui (SwiftUI) · WidgetKit / Live Activities / App Intents |
+| **Mobile** | Expo (iOS & Android) · PanelUI + Uniwind (Tailwind) · iOS extras: WidgetKit / Live Activities / App Intents |
 | **Sync agent** | [tm-sync](docs/tm-sync.md) — a Go binary that watches statement folders and imports on change |
 | **Design** | shadcn/ui + coss ui tokens — see [DESIGN.md](DESIGN.md) |
 
@@ -169,6 +169,15 @@ TM_CORS_ORIGINS=https://*.vercel.app,https://*.pages.dev,https://*.workers.dev,h
 Then open the web app and set **Server** to your API URL (or bake it in with `VITE_API` at build time).
 
 Already forked? Import your fork → Root **`web`** (Vercel/CF) or [`netlify.toml`](netlify.toml) / [`railway.toml`](railway.toml). Details: [docs/fork-deploy.md](docs/fork-deploy.md).
+
+## Mobile app
+
+The companion app (beta) journals against your own server — enter your instance URL at login, same as the web app's **Server** field.
+
+- **iOS** — distributed through TestFlight while in beta.
+- **Android** — download `TraderMemos-<version>.apk` from the [latest release](https://github.com/sinhong2011/TraderMemos/releases/latest) and sideload it (allow *Install unknown apps* for your browser or file manager; a `.sha256` file ships next to the APK for verification). There is no Play Store listing.
+
+Building it yourself instead: see [mobile/README.md](mobile/README.md).
 
 ## Development
 

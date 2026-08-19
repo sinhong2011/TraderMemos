@@ -71,7 +71,7 @@ Hub namespace / tag: copy [`.env.example`](.env.example) → `.env` and set `DOC
 ```
 api/         Go backend (Echo, sqlc, golang-migrate, SQLite)
 web/         React SPA (Vite+, TanStack Router)
-mobile/      Expo (planned)
+mobile/      Expo app (iOS & Android)
 docs/        Specs / roadmaps
 DESIGN.md    Signal Terminal design system — read before UI work
 ```

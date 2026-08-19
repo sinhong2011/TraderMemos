@@ -56,7 +56,7 @@ Positioning is "forever free, no credit card" as a wedge against TradeZella ($35
 | Portfolio across accounts | Yes | Single-`accountId` filter + contribution card | Partial gap |
 | Crypto wallet tracking | Yes | Removed deliberately | Skip |
 | Social feed / leaderboard | Coming soon | — | Skip |
-| Native mobile | iOS + Android | Expo + `@expo/ui`, native iOS 26 idioms | Parity / TM ahead on iOS |
+| Native mobile | iOS + Android | Expo + PanelUI/Uniwind, iOS + Android (APK via GitHub Releases) | Parity |
 | AI coach | Wave AI, vendor keys | `/trades/:id/coach` + OCR, **your** OpenAI-compatible keys | **TM ahead on control** |
 | i18n | English | en / ja / ko / zh-HK | **TM ahead** |
 | Data ownership | Vendor cloud | Self-hosted SQLite, AGPL | **TM's thesis** |
