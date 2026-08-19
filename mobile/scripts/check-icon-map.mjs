@@ -73,11 +73,23 @@ for (const file of walk(join(root, 'src'))) {
   for (const m of s.matchAll(/\bsystemImage=\{?['"]([^'"}]+)['"]/g)) used.add(m[1]);
 }
 
-const badTarget = [...map].filter(([, material]) => !(material in glyphs));
+// Legacy Material *Icons* variant names survive in expo-symbols' table with
+// codepoints the Material Symbols font no longer carries — the checker passes
+// but the device draws tofu (seen live: info_outline on the About row). The
+// styled axes replaced the suffixed variants; only base names render.
+const LEGACY_SUFFIX = /_(outline|outlined|filled|rounded|sharp|two_tone)$/;
+
+const badTarget = [...map].filter(
+  ([, material]) => !(material in glyphs) || LEGACY_SUFFIX.test(material)
+);
 const unmapped = [...used].filter((sf) => !map.has(sf)).sort();
 
 for (const [sf, material] of badTarget) {
-  console.error(`✗ ${sf} → "${material}" is not a Material Symbols name`);
+  console.error(
+    LEGACY_SUFFIX.test(material)
+      ? `✗ ${sf} → "${material}" is a legacy Material Icons variant — use the base name (the Material Symbols font has no glyph at its codepoint)`
+      : `✗ ${sf} → "${material}" is not a Material Symbols name`
+  );
 }
 for (const sf of unmapped) console.error(`✗ ${sf} is used in src/ but has no mapping`);
 

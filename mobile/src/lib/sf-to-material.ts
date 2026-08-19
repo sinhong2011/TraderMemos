@@ -52,24 +52,24 @@ export const SF_TO_MATERIAL: Record<string, AndroidSymbol> = {
 
   // add / edit / remove
   plus: 'add',
-  'plus.circle': 'add_circle_outline',
+  'plus.circle': 'add_circle',
   'plus.circle.fill': 'add_circle',
   'plus.square.on.square': 'library_add',
-  'minus.circle': 'remove_circle_outline',
+  'minus.circle': 'remove_circle',
   pencil: 'edit',
   'square.and.pencil': 'create',
-  trash: 'delete_outline',
+  trash: 'delete',
   'trash.fill': 'delete',
 
   // state / status
   checkmark: 'check',
-  'checkmark.circle': 'check_circle_outline',
+  'checkmark.circle': 'check_circle',
   'checkmark.circle.fill': 'check_circle',
   circle: 'radio_button_unchecked',
-  'exclamationmark.circle': 'error_outline',
+  'exclamationmark.circle': 'error',
   'exclamationmark.circle.fill': 'error',
   'exclamationmark.triangle.fill': 'warning',
-  'info.circle': 'info_outline',
+  'info.circle': 'info',
   star: 'star_border',
   'star.fill': 'star',
 
@@ -212,8 +212,8 @@ export const SF_TO_MATERIAL: Record<string, AndroidSymbol> = {
   'plus.forwardslash.minus': 'exposure',
   'person.crop.circle.badge.exclamationmark': 'no_accounts',
   // Same glyph as the fallback, but deliberate for this name.
-  'questionmark.circle': 'help_outline',
+  'questionmark.circle': 'help',
 };
 
 /** Drawn when a symbol has no row above — visible, so the gap is obvious. */
-export const FALLBACK_MATERIAL_ICON: AndroidSymbol = 'help_outline';
+export const FALLBACK_MATERIAL_ICON: AndroidSymbol = 'help';
