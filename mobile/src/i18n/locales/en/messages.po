@@ -183,7 +183,7 @@ msgid "{0} per +1R"
 msgstr "{0} per +1R"
 
 #. placeholder {0}: batch.row_count
-#: src/app/(tabs)/(settings)/import-history.tsx:90
+#: src/app/(tabs)/(settings)/import-history.tsx:89
 msgid "{0} rows"
 msgstr "{0} rows"
 
@@ -612,7 +612,7 @@ msgid "access token integration webhook"
 msgstr "access token integration webhook"
 
 #: src/app/(tabs)/(settings)/_layout.tsx:35
-#: src/app/(tabs)/(settings)/account-form.tsx:224
+#: src/app/(tabs)/(settings)/account-form.tsx:225
 #: src/app/(tabs)/(settings)/export-trades.tsx:84
 #: src/app/(tabs)/(settings)/export-trades.tsx:87
 #: src/app/(tabs)/(settings)/import-trades.tsx:442
@@ -646,7 +646,7 @@ msgstr "Account currency"
 msgid "Account is too small to take even one share at this risk"
 msgstr "Account is too small to take even one share at this risk"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:171
+#: src/app/(tabs)/(settings)/account-form.tsx:172
 msgid "Account name is required."
 msgstr "Account name is required."
 
@@ -654,8 +654,8 @@ msgstr "Account name is required."
 msgid "Account P&L"
 msgstr "Account P&L"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:273
-#: src/app/(tabs)/(settings)/account-form.tsx:275
+#: src/app/(tabs)/(settings)/account-form.tsx:274
+#: src/app/(tabs)/(settings)/account-form.tsx:276
 msgid "Account type"
 msgstr "Account type"
 
@@ -693,7 +693,7 @@ msgid "Actual risk is below your target."
 msgstr "Actual risk is below your target."
 
 #: src/app/(tabs)/(dashboard)/checklist.tsx:128
-#: src/app/(tabs)/(settings)/account-form.tsx:231
+#: src/app/(tabs)/(settings)/account-form.tsx:232
 #: src/app/(tabs)/(settings)/user-form.tsx:89
 #: src/components/add-menu.tsx:37
 msgid "Add"
@@ -734,7 +734,7 @@ msgstr "Add an OpenAI-compatible vision endpoint and API key under Settings → 
 msgid "Add another"
 msgstr "Add another"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:365
+#: src/app/(tabs)/(settings)/account-form.tsx:402
 msgid "Add another account before deleting this one."
 msgstr "Add another account before deleting this one."
 
@@ -1189,8 +1189,8 @@ msgstr "Balance, {0}"
 msgid "Balance, {0}, from {1}"
 msgstr "Balance, {0}, from {1}"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:284
-#: src/app/(tabs)/(settings)/account-form.tsx:286
+#: src/app/(tabs)/(settings)/account-form.tsx:285
+#: src/app/(tabs)/(settings)/account-form.tsx:287
 msgid "Base currency"
 msgstr "Base currency"
 
@@ -1303,10 +1303,14 @@ msgstr "Breakeven"
 msgid "Breakout pullback"
 msgstr "Breakout pullback"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:248
-#: src/app/(tabs)/(settings)/account-form.tsx:250
+#: src/app/(tabs)/(settings)/account-form.tsx:249
+#: src/app/(tabs)/(settings)/account-form.tsx:251
 msgid "Broker"
 msgstr "Broker"
+
+#: src/app/(tabs)/(settings)/account-form.tsx:336
+msgid "Broker connection"
+msgstr "Broker connection"
 
 #: src/app/(tabs)/(settings)/import-trades.tsx:67
 msgid "Broker execution exports. Map a Market/Asset Type column for mixed stock/option files, or let the symbol decide."
@@ -1316,7 +1320,7 @@ msgstr "Broker execution exports. Map a Market/Asset Type column for mixed stock
 msgid "broker fills csv json backup restore"
 msgstr "broker fills csv json backup restore"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:175
+#: src/app/(tabs)/(settings)/account-form.tsx:176
 msgid "Broker is required."
 msgstr "Broker is required."
 
@@ -1383,8 +1387,8 @@ msgid "Can't reach the server"
 msgstr "Can't reach the server"
 
 #: src/app/(tabs)/(dashboard)/notes.tsx:157
-#: src/app/(tabs)/(settings)/account-form.tsx:201
-#: src/app/(tabs)/(settings)/account-form.tsx:212
+#: src/app/(tabs)/(settings)/account-form.tsx:202
+#: src/app/(tabs)/(settings)/account-form.tsx:213
 #: src/app/(tabs)/(settings)/api-tokens.tsx:150
 #: src/app/(tabs)/(settings)/display.tsx:88
 #: src/app/(tabs)/(settings)/flex-sync.tsx:104
@@ -1442,7 +1446,7 @@ msgstr "Capital can't buy 1 share — pick a cheaper instrument or add capital"
 msgid "Capture market thoughts or a daily log from the + menu."
 msgstr "Capture market thoughts or a daily log from the + menu."
 
-#: src/app/(tabs)/(settings)/account-form.tsx:45
+#: src/app/(tabs)/(settings)/account-form.tsx:46
 msgid "Cash"
 msgstr "Cash"
 
@@ -1565,19 +1569,19 @@ msgstr "Clear filters"
 msgid "Clear this address?"
 msgstr "Clear this address?"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:370
+#: src/app/(tabs)/(settings)/account-form.tsx:407
 msgid "Clear trade history"
 msgstr "Clear trade history"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:198
+#: src/app/(tabs)/(settings)/account-form.tsx:199
 msgid "Clear trade history?"
 msgstr "Clear trade history?"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:202
+#: src/app/(tabs)/(settings)/account-form.tsx:203
 msgid "Clear trades"
 msgstr "Clear trades"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:370
+#: src/app/(tabs)/(settings)/account-form.tsx:407
 msgid "Clearing…"
 msgstr "Clearing…"
 
@@ -1695,7 +1699,7 @@ msgstr "Confirm trade rules"
 msgid "Confirming…"
 msgstr "Confirming…"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:343
+#: src/app/(tabs)/(settings)/account-form.tsx:376
 msgid "Connect IBKR Flex sync"
 msgstr "Connect IBKR Flex sync"
 
@@ -1800,7 +1804,7 @@ msgstr "Could not change password"
 msgid "Could not change role"
 msgstr "Could not change role"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:152
+#: src/app/(tabs)/(settings)/account-form.tsx:153
 msgid "Could not clear trades"
 msgstr "Could not clear trades"
 
@@ -1829,7 +1833,7 @@ msgstr "Could not create token"
 msgid "Could not delete"
 msgstr "Could not delete"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:163
+#: src/app/(tabs)/(settings)/account-form.tsx:164
 msgid "Could not delete account"
 msgstr "Could not delete account"
 
@@ -1931,10 +1935,10 @@ msgstr "Could not revoke token"
 msgid "Could not roll back"
 msgstr "Could not roll back"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:142
-#: src/app/(tabs)/(settings)/account-form.tsx:171
-#: src/app/(tabs)/(settings)/account-form.tsx:175
-#: src/app/(tabs)/(settings)/account-form.tsx:184
+#: src/app/(tabs)/(settings)/account-form.tsx:143
+#: src/app/(tabs)/(settings)/account-form.tsx:172
+#: src/app/(tabs)/(settings)/account-form.tsx:176
+#: src/app/(tabs)/(settings)/account-form.tsx:185
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:139
 #: src/app/(tabs)/(settings)/alerts.tsx:34
 #: src/app/(tabs)/(settings)/flex-sync.tsx:61
@@ -2093,7 +2097,7 @@ msgstr "Current password"
 msgid "Custom"
 msgstr "Custom"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:260
+#: src/app/(tabs)/(settings)/account-form.tsx:261
 msgid "Custom broker"
 msgstr "Custom broker"
 
@@ -2218,7 +2222,7 @@ msgstr "Define the profit target, drawdown, and daily-loss rules to track this e
 #: src/app/(tabs)/(dashboard)/checklist.tsx:216
 #: src/app/(tabs)/(dashboard)/notes.tsx:83
 #: src/app/(tabs)/(dashboard)/notes.tsx:158
-#: src/app/(tabs)/(settings)/account-form.tsx:213
+#: src/app/(tabs)/(settings)/account-form.tsx:214
 #: src/app/(tabs)/(settings)/tags.tsx:39
 #: src/app/(tabs)/(settings)/tags.tsx:98
 #: src/app/(tabs)/(settings)/user-detail.tsx:81
@@ -2232,11 +2236,11 @@ msgstr "Delete"
 msgid "Delete {0}?"
 msgstr "Delete {0}?"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:378
+#: src/app/(tabs)/(settings)/account-form.tsx:415
 msgid "Delete account"
 msgstr "Delete account"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:209
+#: src/app/(tabs)/(settings)/account-form.tsx:210
 msgid "Delete account?"
 msgstr "Delete account?"
 
@@ -2269,7 +2273,7 @@ msgstr "Delete user"
 msgid "Deleted account"
 msgstr "Deleted account"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:378
+#: src/app/(tabs)/(settings)/account-form.tsx:415
 #: src/app/new-setup.tsx:292
 msgid "Deleting…"
 msgstr "Deleting…"
@@ -2278,7 +2282,7 @@ msgstr "Deleting…"
 msgid "Deposit"
 msgstr "Deposit"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:308
+#: src/app/(tabs)/(settings)/account-form.tsx:309
 msgid "Deposited"
 msgstr "Deposited"
 
@@ -2462,7 +2466,7 @@ msgstr "e.g. CLI import"
 msgid "e.g. FOMO"
 msgstr "e.g. FOMO"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:240
+#: src/app/(tabs)/(settings)/account-form.tsx:241
 msgid "e.g. Main Account"
 msgstr "e.g. Main Account"
 
@@ -2597,7 +2601,7 @@ msgstr "Enter a valid number."
 #~ msgid "Enter a valid quantity."
 #~ msgstr "Enter a valid quantity."
 
-#: src/app/(tabs)/(settings)/account-form.tsx:184
+#: src/app/(tabs)/(settings)/account-form.tsx:185
 msgid "Enter a valid starting balance."
 msgstr "Enter a valid starting balance."
 
@@ -2694,7 +2698,7 @@ msgstr "EOD trailing"
 msgid "EOD trailing — ratchets at day close"
 msgstr "EOD trailing — ratchets at day close"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:311
+#: src/app/(tabs)/(settings)/account-form.tsx:312
 #: src/app/tool-position-size.tsx:55
 #: src/components/prop-status-card.tsx:196
 msgid "Equity"
@@ -2893,8 +2897,8 @@ msgstr "Failed to load breakdown."
 #~ msgstr "Failed to load trades."
 
 #: src/app/(tabs)/(settings)/account-form.tsx:347
-msgid "Failing"
-msgstr "Failing"
+#~ msgid "Failing"
+#~ msgstr "Failing"
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:596
 msgid "Fair value gap"
@@ -3236,10 +3240,12 @@ msgstr "Half Kelly"
 msgid "Hand the password over out of band — they can change it from their own account screen."
 msgstr "Hand the password over out of band — they can change it from their own account screen."
 
+#: src/app/(tabs)/(settings)/account-form.tsx:345
 #: src/app/(tabs)/(settings)/flex-sync.tsx:155
 msgid "Health"
 msgstr "Health"
 
+#: src/app/(tabs)/(settings)/account-form.tsx:354
 #: src/app/(tabs)/(settings)/flex-sync.tsx:160
 msgid "Healthy"
 msgstr "Healthy"
@@ -3311,7 +3317,7 @@ msgid "How to set one up"
 msgstr "How to set one up"
 
 #: src/app/(tabs)/(settings)/_layout.tsx:99
-#: src/app/(tabs)/(settings)/account-form.tsx:343
+#: src/app/(tabs)/(settings)/account-form.tsx:367
 #: src/app/(tabs)/(settings)/flex-sync.tsx:112
 #: src/app/(tabs)/(settings)/import-history.tsx:19
 msgid "IBKR Flex sync"
@@ -3437,7 +3443,7 @@ msgid "Instrument"
 msgstr "Instrument"
 
 #: src/app/(tabs)/(settings)/_layout.tsx:70
-#: src/app/(tabs)/(settings)/account-form.tsx:331
+#: src/app/(tabs)/(settings)/account-form.tsx:386
 #: src/app/(tabs)/(settings)/index.tsx:485
 msgid "Integrations"
 msgstr "Integrations"
@@ -3553,6 +3559,7 @@ msgstr "Last 30 days"
 msgid "Last status"
 msgstr "Last status"
 
+#: src/app/(tabs)/(settings)/account-form.tsx:358
 #: src/app/(tabs)/(settings)/flex-sync.tsx:165
 #: src/app/(tabs)/(settings)/flex-sync.tsx:171
 msgid "Last synced"
@@ -3689,7 +3696,7 @@ msgid "Loading your playbook"
 msgstr "Loading your playbook"
 
 #: src/app/(tabs)/(dashboard)/checklist.tsx:246
-#: src/app/(tabs)/(settings)/account-form.tsx:69
+#: src/app/(tabs)/(settings)/account-form.tsx:70
 #: src/app/(tabs)/(settings)/ai.tsx:71
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:83
 #: src/app/(tabs)/(settings)/profile.tsx:36
@@ -3831,6 +3838,7 @@ msgstr "Manage tags"
 msgid "Manual"
 msgstr "Manual"
 
+#: src/app/(tabs)/(settings)/account-form.tsx:355
 #: src/app/(tabs)/(settings)/flex-sync.tsx:161
 msgid "Manual only"
 msgstr "Manual only"
@@ -3839,7 +3847,7 @@ msgstr "Manual only"
 msgid "Map columns"
 msgstr "Map columns"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:46
+#: src/app/(tabs)/(settings)/account-form.tsx:47
 msgid "Margin"
 msgstr "Margin"
 
@@ -4064,7 +4072,7 @@ msgid "Multiplier"
 msgstr "Multiplier"
 
 #: src/app/(tabs)/(dashboard)/playbook.tsx:135
-#: src/app/(tabs)/(settings)/account-form.tsx:238
+#: src/app/(tabs)/(settings)/account-form.tsx:239
 #: src/app/new-token.tsx:129
 #: src/app/tag-form.tsx:76
 msgid "Name"
@@ -4119,6 +4127,7 @@ msgstr "Net P&L by group"
 msgid "never"
 msgstr "never"
 
+#: src/app/(tabs)/(settings)/account-form.tsx:362
 #: src/app/(tabs)/(settings)/flex-sync.tsx:172
 #: src/app/new-token.tsx:16
 #: src/app/share-reports-link.tsx:33
@@ -4133,7 +4142,7 @@ msgstr "Never"
 msgid "New"
 msgstr "New"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:224
+#: src/app/(tabs)/(settings)/account-form.tsx:225
 msgid "New account"
 msgstr "New account"
 
@@ -4580,7 +4589,6 @@ msgstr "Notional"
 msgid "of {0}"
 msgstr "of {0}"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:350
 #: src/app/(tabs)/(settings)/ai.tsx:45
 #: src/app/(tabs)/(settings)/profile.tsx:91
 #: src/app/(tabs)/(settings)/user-detail.tsx:112
@@ -4607,7 +4615,6 @@ msgstr "Oldest first"
 msgid "Omit account details"
 msgstr "Omit account details"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:349
 #: src/app/(tabs)/(settings)/ai.tsx:44
 #: src/app/(tabs)/(settings)/profile.tsx:91
 #: src/app/(tabs)/(settings)/user-detail.tsx:112
@@ -4753,7 +4760,7 @@ msgstr "Origin only — the app adds /api/v1 itself."
 msgid "Original"
 msgstr "Original"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:255
+#: src/app/(tabs)/(settings)/account-form.tsx:256
 msgid "Other"
 msgstr "Other"
 
@@ -4931,7 +4938,7 @@ msgstr "Per-share risk"
 msgid "Percent must be between 0 and 100."
 msgstr "Percent must be between 0 and 100."
 
-#: src/app/(tabs)/(settings)/account-form.tsx:307
+#: src/app/(tabs)/(settings)/account-form.tsx:308
 #: src/components/performance-card.tsx:58
 #: src/components/reports/overview-section.tsx:108
 msgid "Performance"
@@ -4942,12 +4949,12 @@ msgid "Performance — gross"
 msgstr "Performance — gross"
 
 #. placeholder {0}: account?.name ?? ''
-#: src/app/(tabs)/(settings)/account-form.tsx:210
+#: src/app/(tabs)/(settings)/account-form.tsx:211
 msgid "Permanently deletes {0} with its trades and cash records."
 msgstr "Permanently deletes {0} with its trades and cash records."
 
 #. placeholder {0}: account?.name ?? ''
-#: src/app/(tabs)/(settings)/account-form.tsx:199
+#: src/app/(tabs)/(settings)/account-form.tsx:200
 msgid "Permanently deletes {tradeCount} trades and their executions from {0}."
 msgstr "Permanently deletes {tradeCount} trades and their executions from {0}."
 
@@ -5225,7 +5232,7 @@ msgstr "Profit target"
 msgid "Prompt"
 msgstr "Prompt"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:47
+#: src/app/(tabs)/(settings)/account-form.tsx:48
 msgid "Prop"
 msgstr "Prop"
 
@@ -5240,10 +5247,14 @@ msgid "Prop evaluation"
 msgstr "Prop evaluation"
 
 #: src/app/(tabs)/(settings)/_layout.tsx:95
-#: src/app/(tabs)/(settings)/account-form.tsx:335
+#: src/app/(tabs)/(settings)/account-form.tsx:389
 #: src/app/(tabs)/(settings)/prop-settings.tsx:118
 msgid "Prop rules"
 msgstr "Prop rules"
+
+#: src/app/(tabs)/(settings)/account-form.tsx:340
+msgid "Pulls new fills into this account automatically. Statements can also be imported by file."
+msgstr "Pulls new fills into this account automatically. Statements can also be imported by file."
 
 #: src/app/(tabs)/(settings)/index.tsx:248
 msgid "push notifications webhook loss streak drawdown"
@@ -5375,7 +5386,7 @@ msgstr "Reads broker screenshots into executions on Import."
 msgid "Ready to trade"
 msgstr "Ready to trade"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:314
+#: src/app/(tabs)/(settings)/account-form.tsx:315
 #: src/components/prop-status-card.tsx:198
 msgid "Realized P&L"
 msgstr "Realized P&L"
@@ -5640,7 +5651,7 @@ msgstr "Retry"
 msgid "Retrying…"
 msgstr "Retrying…"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:320
+#: src/app/(tabs)/(settings)/account-form.tsx:321
 msgid "Return"
 msgstr "Return"
 
@@ -5743,7 +5754,7 @@ msgid "Role"
 msgstr "Role"
 
 #: src/app/(tabs)/(settings)/import-history.tsx:58
-#: src/app/(tabs)/(settings)/import-history.tsx:108
+#: src/app/(tabs)/(settings)/import-history.tsx:110
 msgid "Roll back"
 msgstr "Roll back"
 
@@ -5751,7 +5762,7 @@ msgstr "Roll back"
 msgid "Roll back this import?"
 msgstr "Roll back this import?"
 
-#: src/app/(tabs)/(settings)/import-history.tsx:99
+#: src/app/(tabs)/(settings)/import-history.tsx:101
 msgid "Rolled back"
 msgstr "Rolled back"
 
@@ -5832,7 +5843,7 @@ msgstr "Sample JSON"
 msgid "Sat"
 msgstr "Sat"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:231
+#: src/app/(tabs)/(settings)/account-form.tsx:232
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:261
 #: src/app/(tabs)/(settings)/change-password.tsx:100
 #: src/app/(tabs)/(settings)/flex-sync.tsx:149
@@ -5884,7 +5895,7 @@ msgstr "Saved"
 #~ msgid "Saved — leave blank to keep"
 #~ msgstr "Saved — leave blank to keep"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:231
+#: src/app/(tabs)/(settings)/account-form.tsx:232
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:261
 #: src/app/(tabs)/(settings)/change-password.tsx:100
 #: src/app/(tabs)/(settings)/flex-sync.tsx:149
@@ -6350,7 +6361,7 @@ msgstr "Start date"
 msgid "Start replay"
 msgstr "Start replay"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:292
+#: src/app/(tabs)/(settings)/account-form.tsx:293
 msgid "Starting balance"
 msgstr "Starting balance"
 
@@ -6573,6 +6584,7 @@ msgstr "Sync complete"
 msgid "Sync failed"
 msgstr "Sync failed"
 
+#: src/app/(tabs)/(settings)/account-form.tsx:352
 #: src/app/(tabs)/(settings)/flex-sync.tsx:158
 #: src/app/(tabs)/(settings)/index.tsx:425
 msgid "Sync failing"
@@ -6826,7 +6838,7 @@ msgstr "The server has no economic-calendar provider configured."
 msgid "The server is rate limiting this app. Try again in a moment."
 msgstr "The server is rate limiting this app. Try again in a moment."
 
-#: src/app/(tabs)/(settings)/account-form.tsx:297
+#: src/app/(tabs)/(settings)/account-form.tsx:298
 msgid "The starting balance is saved as the first deposit in the cash ledger."
 msgstr "The starting balance is saved as the first deposit in the cash ledger."
 
@@ -6834,7 +6846,7 @@ msgstr "The starting balance is saved as the first deposit in the cash ledger."
 msgid "The stored token is deleted from the server."
 msgstr "The stored token is deleted from the server."
 
-#: src/app/(tabs)/(settings)/import-history.tsx:117
+#: src/app/(tabs)/(settings)/import-history.tsx:119
 msgid "The sync time range comes from the Flex Query's period configured in IBKR Client Portal — duplicates are skipped either way."
 msgstr "The sync time range comes from the Flex Query's period configured in IBKR Client Portal — duplicates are skipped either way."
 
@@ -7083,7 +7095,7 @@ msgstr "Trade actions"
 #~ msgid "Trade date basis"
 #~ msgstr "Trade date basis"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:150
+#: src/app/(tabs)/(settings)/account-form.tsx:151
 msgid "Trade history cleared"
 msgstr "Trade history cleared"
 
@@ -7136,7 +7148,7 @@ msgstr "TraderMemos mark"
 #: src/app/(tabs)/(calendar)/day/[date].tsx:365
 #: src/app/(tabs)/(dashboard)/playbook.tsx:131
 #: src/app/(tabs)/(dashboard)/playbook.tsx:233
-#: src/app/(tabs)/(settings)/account-form.tsx:324
+#: src/app/(tabs)/(settings)/account-form.tsx:325
 #: src/app/(tabs)/(settings)/data-backup.tsx:66
 #: src/app/(tabs)/(settings)/import-trades.tsx:330
 #: src/app/(tabs)/(settings)/import-trades.tsx:356
@@ -7258,7 +7270,7 @@ msgstr "Type"
 msgid "Type a model id…"
 msgstr "Type a model id…"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:262
+#: src/app/(tabs)/(settings)/account-form.tsx:263
 msgid "Type broker name"
 msgstr "Type broker name"
 

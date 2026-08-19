@@ -19,6 +19,7 @@ import { HeaderIconButton } from '@/components/header-icon-button';
 import { NavRow } from '@/components/nav-row';
 import { t } from '@lingui/core/macro';
 import { SettingsForm } from '@/components/settings-form';
+import { Pill } from '@/components/pill';
 import { SettingsButton, SettingsRow, SettingsSection, ValueText } from '@/components/settings-rows';
 import { numericText, parseAmount } from '@/lib/amount';
 import { ledgerBalance } from '@/lib/cash';
@@ -87,7 +88,7 @@ function AccountForm({ account, accountCount }: { account?: Account; accountCoun
   // Live P&L hues from the theme tokens (see styles/pnl.ts).
   const pnl = usePnlPalette();
   // Formatters bound to the display prefs (see lib/format.ts).
-  const { formatCurrency, formatPnl } = useFormatters();
+  const { formatCurrency, formatPnl, formatDate, formatTime } = useFormatters();
 
   const isEdit = account != null;
   const knownBroker = account != null && POPULAR_BROKERS.includes(account.broker.trim());
@@ -327,31 +328,67 @@ function AccountForm({ account, accountCount }: { account?: Account; accountCoun
           </SettingsSection>
         ) : null}
 
+        {/* Web AccountDetailView's Broker connection card, in section form:
+            health + last sync at a glance here, the flex-sync screen for
+            credentials and manual runs. */}
         {isEdit ? (
-          <SettingsSection title={t`Integrations`}>
-            {account.account_type === 'prop' ? (
-              <NavRow
-                systemImage="flag.checkered"
-                label={t`Prop rules`}
+          <SettingsSection
+            title={t`Broker connection`}
+            footer={
+              flexSync.data?.configured
+                ? (flexSync.data.last_error ?? undefined)
+                : t`Pulls new fills into this account automatically. Statements can also be imported by file.`
+            }
+          >
+            {flexSync.data?.configured ? (
+              <>
+                <SettingsRow label={t`Health`}>
+                  <Pill
+                    tone={
+                      flexSyncFailed(flexSync.data) ? 'neg' : flexSync.data.enabled ? 'pos' : 'muted'
+                    }
+                  >
+                    {flexSyncFailed(flexSync.data)
+                      ? t`Sync failing`
+                      : flexSync.data.enabled
+                        ? t`Healthy`
+                        : t`Manual only`}
+                  </Pill>
+                </SettingsRow>
+                <SettingsRow label={t`Last synced`}>
+                  <ValueText>
+                    {flexSync.data.last_synced_at
+                      ? `${formatDate(flexSync.data.last_synced_at)} ${formatTime(flexSync.data.last_synced_at)}`
+                      : t`Never`}
+                  </ValueText>
+                </SettingsRow>
+                <NavRow
+                  systemImage="arrow.triangle.2.circlepath"
+                  label={t`IBKR Flex sync`}
+                  onPress={() =>
+                    router.push({ pathname: '/flex-sync', params: { accountId: account.id } })
+                  }
+                />
+              </>
+            ) : (
+              <SettingsButton
+                systemImage="arrow.triangle.2.circlepath"
+                label={t`Connect IBKR Flex sync`}
                 onPress={() =>
-                  router.push({ pathname: '/prop-settings', params: { accountId: account.id } })
+                  router.push({ pathname: '/flex-sync', params: { accountId: account.id } })
                 }
               />
-            ) : null}
+            )}
+          </SettingsSection>
+        ) : null}
+
+        {isEdit && account.account_type === 'prop' ? (
+          <SettingsSection title={t`Integrations`}>
             <NavRow
-              systemImage="arrow.triangle.2.circlepath"
-              label={flexSync.data?.configured ? t`IBKR Flex sync` : t`Connect IBKR Flex sync`}
-              value={
-                flexSync.data?.configured
-                  ? flexSyncFailed(flexSync.data)
-                    ? t`Failing`
-                    : flexSync.data.enabled
-                      ? t`On`
-                      : t`Off`
-                  : undefined
-              }
+              systemImage="flag.checkered"
+              label={t`Prop rules`}
               onPress={() =>
-                router.push({ pathname: '/flex-sync', params: { accountId: account.id } })
+                router.push({ pathname: '/prop-settings', params: { accountId: account.id } })
               }
             />
           </SettingsSection>

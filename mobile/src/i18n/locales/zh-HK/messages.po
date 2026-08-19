@@ -183,7 +183,7 @@ msgid "{0} per +1R"
 msgstr "每 +1R {0}"
 
 #. placeholder {0}: batch.row_count
-#: src/app/(tabs)/(settings)/import-history.tsx:90
+#: src/app/(tabs)/(settings)/import-history.tsx:89
 msgid "{0} rows"
 msgstr "{0} 行"
 
@@ -612,7 +612,7 @@ msgid "access token integration webhook"
 msgstr "存取權杖 API 整合 webhook"
 
 #: src/app/(tabs)/(settings)/_layout.tsx:35
-#: src/app/(tabs)/(settings)/account-form.tsx:224
+#: src/app/(tabs)/(settings)/account-form.tsx:225
 #: src/app/(tabs)/(settings)/export-trades.tsx:84
 #: src/app/(tabs)/(settings)/export-trades.tsx:87
 #: src/app/(tabs)/(settings)/import-trades.tsx:442
@@ -646,7 +646,7 @@ msgstr "帳戶貨幣"
 msgid "Account is too small to take even one share at this risk"
 msgstr "以此風險計算，帳戶連一股也買不起"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:171
+#: src/app/(tabs)/(settings)/account-form.tsx:172
 msgid "Account name is required."
 msgstr "請輸入帳戶名稱。"
 
@@ -654,8 +654,8 @@ msgstr "請輸入帳戶名稱。"
 msgid "Account P&L"
 msgstr "帳戶盈虧"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:273
-#: src/app/(tabs)/(settings)/account-form.tsx:275
+#: src/app/(tabs)/(settings)/account-form.tsx:274
+#: src/app/(tabs)/(settings)/account-form.tsx:276
 msgid "Account type"
 msgstr "帳戶類型"
 
@@ -693,7 +693,7 @@ msgid "Actual risk is below your target."
 msgstr "實際風險低於你的目標。"
 
 #: src/app/(tabs)/(dashboard)/checklist.tsx:128
-#: src/app/(tabs)/(settings)/account-form.tsx:231
+#: src/app/(tabs)/(settings)/account-form.tsx:232
 #: src/app/(tabs)/(settings)/user-form.tsx:89
 #: src/components/add-menu.tsx:37
 msgid "Add"
@@ -734,7 +734,7 @@ msgstr "先在 設定 → AI 加入相容 OpenAI 的視覺 API 端點與 API 金
 msgid "Add another"
 msgstr "再新增一項"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:365
+#: src/app/(tabs)/(settings)/account-form.tsx:402
 msgid "Add another account before deleting this one."
 msgstr "刪除此帳戶前請先新增另一個帳戶。"
 
@@ -1189,8 +1189,8 @@ msgstr "結餘，{0}"
 msgid "Balance, {0}, from {1}"
 msgstr "結餘，{0}，由 {1}"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:284
-#: src/app/(tabs)/(settings)/account-form.tsx:286
+#: src/app/(tabs)/(settings)/account-form.tsx:285
+#: src/app/(tabs)/(settings)/account-form.tsx:287
 msgid "Base currency"
 msgstr "基礎貨幣"
 
@@ -1303,10 +1303,14 @@ msgstr "打和"
 msgid "Breakout pullback"
 msgstr "突破回踩"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:248
-#: src/app/(tabs)/(settings)/account-form.tsx:250
+#: src/app/(tabs)/(settings)/account-form.tsx:249
+#: src/app/(tabs)/(settings)/account-form.tsx:251
 msgid "Broker"
 msgstr "券商"
+
+#: src/app/(tabs)/(settings)/account-form.tsx:336
+msgid "Broker connection"
+msgstr ""
 
 #: src/app/(tabs)/(settings)/import-trades.tsx:67
 msgid "Broker execution exports. Map a Market/Asset Type column for mixed stock/option files, or let the symbol decide."
@@ -1316,7 +1320,7 @@ msgstr "券商成交紀錄匯出。股票與期權混合的檔案請對應 Marke
 msgid "broker fills csv json backup restore"
 msgstr "券商 成交 CSV JSON 備份 還原 匯入"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:175
+#: src/app/(tabs)/(settings)/account-form.tsx:176
 msgid "Broker is required."
 msgstr "請輸入券商。"
 
@@ -1383,8 +1387,8 @@ msgid "Can't reach the server"
 msgstr "無法連接伺服器"
 
 #: src/app/(tabs)/(dashboard)/notes.tsx:157
-#: src/app/(tabs)/(settings)/account-form.tsx:201
-#: src/app/(tabs)/(settings)/account-form.tsx:212
+#: src/app/(tabs)/(settings)/account-form.tsx:202
+#: src/app/(tabs)/(settings)/account-form.tsx:213
 #: src/app/(tabs)/(settings)/api-tokens.tsx:150
 #: src/app/(tabs)/(settings)/display.tsx:88
 #: src/app/(tabs)/(settings)/flex-sync.tsx:104
@@ -1442,7 +1446,7 @@ msgstr "資金買不起一股 — 選較便宜的標的或增加資金"
 msgid "Capture market thoughts or a daily log from the + menu."
 msgstr "從 + 選單記錄市場想法或每日日誌。"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:45
+#: src/app/(tabs)/(settings)/account-form.tsx:46
 msgid "Cash"
 msgstr "現金"
 
@@ -1565,19 +1569,19 @@ msgstr "清除篩選"
 msgid "Clear this address?"
 msgstr "要清除此網址嗎？"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:370
+#: src/app/(tabs)/(settings)/account-form.tsx:407
 msgid "Clear trade history"
 msgstr "清除交易紀錄"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:198
+#: src/app/(tabs)/(settings)/account-form.tsx:199
 msgid "Clear trade history?"
 msgstr "清除交易紀錄？"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:202
+#: src/app/(tabs)/(settings)/account-form.tsx:203
 msgid "Clear trades"
 msgstr "清除交易"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:370
+#: src/app/(tabs)/(settings)/account-form.tsx:407
 msgid "Clearing…"
 msgstr "清除中…"
 
@@ -1695,7 +1699,7 @@ msgstr "確認交易規則"
 msgid "Confirming…"
 msgstr "確認中…"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:343
+#: src/app/(tabs)/(settings)/account-form.tsx:376
 msgid "Connect IBKR Flex sync"
 msgstr "連接 IBKR Flex 同步"
 
@@ -1800,7 +1804,7 @@ msgstr "無法變更密碼"
 msgid "Could not change role"
 msgstr "無法更改角色"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:152
+#: src/app/(tabs)/(settings)/account-form.tsx:153
 msgid "Could not clear trades"
 msgstr "無法清除交易"
 
@@ -1829,7 +1833,7 @@ msgstr "無法建立權杖"
 msgid "Could not delete"
 msgstr "無法刪除"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:163
+#: src/app/(tabs)/(settings)/account-form.tsx:164
 msgid "Could not delete account"
 msgstr "無法刪除帳戶"
 
@@ -1931,10 +1935,10 @@ msgstr "無法撤銷權杖"
 msgid "Could not roll back"
 msgstr "無法還原"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:142
-#: src/app/(tabs)/(settings)/account-form.tsx:171
-#: src/app/(tabs)/(settings)/account-form.tsx:175
-#: src/app/(tabs)/(settings)/account-form.tsx:184
+#: src/app/(tabs)/(settings)/account-form.tsx:143
+#: src/app/(tabs)/(settings)/account-form.tsx:172
+#: src/app/(tabs)/(settings)/account-form.tsx:176
+#: src/app/(tabs)/(settings)/account-form.tsx:185
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:139
 #: src/app/(tabs)/(settings)/alerts.tsx:34
 #: src/app/(tabs)/(settings)/flex-sync.tsx:61
@@ -2093,7 +2097,7 @@ msgstr "目前密碼"
 msgid "Custom"
 msgstr "自訂"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:260
+#: src/app/(tabs)/(settings)/account-form.tsx:261
 msgid "Custom broker"
 msgstr "自訂券商"
 
@@ -2218,7 +2222,7 @@ msgstr "設定利潤目標、回撤及單日虧損規則，即可追蹤此評估
 #: src/app/(tabs)/(dashboard)/checklist.tsx:216
 #: src/app/(tabs)/(dashboard)/notes.tsx:83
 #: src/app/(tabs)/(dashboard)/notes.tsx:158
-#: src/app/(tabs)/(settings)/account-form.tsx:213
+#: src/app/(tabs)/(settings)/account-form.tsx:214
 #: src/app/(tabs)/(settings)/tags.tsx:39
 #: src/app/(tabs)/(settings)/tags.tsx:98
 #: src/app/(tabs)/(settings)/user-detail.tsx:81
@@ -2232,11 +2236,11 @@ msgstr "刪除"
 msgid "Delete {0}?"
 msgstr "刪除 {0}？"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:378
+#: src/app/(tabs)/(settings)/account-form.tsx:415
 msgid "Delete account"
 msgstr "刪除帳戶"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:209
+#: src/app/(tabs)/(settings)/account-form.tsx:210
 msgid "Delete account?"
 msgstr "刪除帳戶？"
 
@@ -2269,7 +2273,7 @@ msgstr "刪除用戶"
 msgid "Deleted account"
 msgstr "已刪除嘅帳戶"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:378
+#: src/app/(tabs)/(settings)/account-form.tsx:415
 #: src/app/new-setup.tsx:292
 msgid "Deleting…"
 msgstr "刪除中…"
@@ -2278,7 +2282,7 @@ msgstr "刪除中…"
 msgid "Deposit"
 msgstr "存款"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:308
+#: src/app/(tabs)/(settings)/account-form.tsx:309
 msgid "Deposited"
 msgstr "已存入"
 
@@ -2462,7 +2466,7 @@ msgstr "例如：CLI 匯入"
 msgid "e.g. FOMO"
 msgstr "例如：FOMO"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:240
+#: src/app/(tabs)/(settings)/account-form.tsx:241
 msgid "e.g. Main Account"
 msgstr "例如：主帳戶"
 
@@ -2597,7 +2601,7 @@ msgstr "請輸入有效數字。"
 #~ msgid "Enter a valid quantity."
 #~ msgstr "請輸入有效數量。"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:184
+#: src/app/(tabs)/(settings)/account-form.tsx:185
 msgid "Enter a valid starting balance."
 msgstr "請輸入有效的初始結餘。"
 
@@ -2694,7 +2698,7 @@ msgstr "收市移動"
 msgid "EOD trailing — ratchets at day close"
 msgstr "收市移動 — 每日收市時上調"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:311
+#: src/app/(tabs)/(settings)/account-form.tsx:312
 #: src/app/tool-position-size.tsx:55
 #: src/components/prop-status-card.tsx:196
 msgid "Equity"
@@ -2893,8 +2897,8 @@ msgstr "無法載入分項分析。"
 #~ msgstr "無法載入交易。"
 
 #: src/app/(tabs)/(settings)/account-form.tsx:347
-msgid "Failing"
-msgstr "失敗緊"
+#~ msgid "Failing"
+#~ msgstr "失敗緊"
 
 #: src/app/(tabs)/(dashboard)/r-calculator.tsx:596
 msgid "Fair value gap"
@@ -3236,10 +3240,12 @@ msgstr "一半凱利"
 msgid "Hand the password over out of band — they can change it from their own account screen."
 msgstr "請以其他方式把密碼交給對方，他們可以在自己的帳戶頁面更改。"
 
+#: src/app/(tabs)/(settings)/account-form.tsx:345
 #: src/app/(tabs)/(settings)/flex-sync.tsx:155
 msgid "Health"
 msgstr "健康狀態"
 
+#: src/app/(tabs)/(settings)/account-form.tsx:354
 #: src/app/(tabs)/(settings)/flex-sync.tsx:160
 msgid "Healthy"
 msgstr "正常"
@@ -3311,7 +3317,7 @@ msgid "How to set one up"
 msgstr "如何架設伺服器"
 
 #: src/app/(tabs)/(settings)/_layout.tsx:99
-#: src/app/(tabs)/(settings)/account-form.tsx:343
+#: src/app/(tabs)/(settings)/account-form.tsx:367
 #: src/app/(tabs)/(settings)/flex-sync.tsx:112
 #: src/app/(tabs)/(settings)/import-history.tsx:19
 msgid "IBKR Flex sync"
@@ -3437,7 +3443,7 @@ msgid "Instrument"
 msgstr "商品類型"
 
 #: src/app/(tabs)/(settings)/_layout.tsx:70
-#: src/app/(tabs)/(settings)/account-form.tsx:331
+#: src/app/(tabs)/(settings)/account-form.tsx:386
 #: src/app/(tabs)/(settings)/index.tsx:485
 msgid "Integrations"
 msgstr "整合"
@@ -3553,6 +3559,7 @@ msgstr "最近 30 日"
 msgid "Last status"
 msgstr "上次狀態"
 
+#: src/app/(tabs)/(settings)/account-form.tsx:358
 #: src/app/(tabs)/(settings)/flex-sync.tsx:165
 #: src/app/(tabs)/(settings)/flex-sync.tsx:171
 msgid "Last synced"
@@ -3689,7 +3696,7 @@ msgid "Loading your playbook"
 msgstr "正在載入策略手冊"
 
 #: src/app/(tabs)/(dashboard)/checklist.tsx:246
-#: src/app/(tabs)/(settings)/account-form.tsx:69
+#: src/app/(tabs)/(settings)/account-form.tsx:70
 #: src/app/(tabs)/(settings)/ai.tsx:71
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:83
 #: src/app/(tabs)/(settings)/profile.tsx:36
@@ -3831,6 +3838,7 @@ msgstr "管理標籤"
 msgid "Manual"
 msgstr "手動"
 
+#: src/app/(tabs)/(settings)/account-form.tsx:355
 #: src/app/(tabs)/(settings)/flex-sync.tsx:161
 msgid "Manual only"
 msgstr "只限手動"
@@ -3839,7 +3847,7 @@ msgstr "只限手動"
 msgid "Map columns"
 msgstr "對應欄位"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:46
+#: src/app/(tabs)/(settings)/account-form.tsx:47
 msgid "Margin"
 msgstr "保證金"
 
@@ -4064,7 +4072,7 @@ msgid "Multiplier"
 msgstr "乘數"
 
 #: src/app/(tabs)/(dashboard)/playbook.tsx:135
-#: src/app/(tabs)/(settings)/account-form.tsx:238
+#: src/app/(tabs)/(settings)/account-form.tsx:239
 #: src/app/new-token.tsx:129
 #: src/app/tag-form.tsx:76
 msgid "Name"
@@ -4119,6 +4127,7 @@ msgstr "按組別淨損益"
 msgid "never"
 msgstr "無"
 
+#: src/app/(tabs)/(settings)/account-form.tsx:362
 #: src/app/(tabs)/(settings)/flex-sync.tsx:172
 #: src/app/new-token.tsx:16
 #: src/app/share-reports-link.tsx:33
@@ -4133,7 +4142,7 @@ msgstr "永不過期"
 msgid "New"
 msgstr "新增"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:224
+#: src/app/(tabs)/(settings)/account-form.tsx:225
 msgid "New account"
 msgstr "新增帳戶"
 
@@ -4580,7 +4589,6 @@ msgstr "名義金額"
 msgid "of {0}"
 msgstr "/ {0}"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:350
 #: src/app/(tabs)/(settings)/ai.tsx:45
 #: src/app/(tabs)/(settings)/profile.tsx:91
 #: src/app/(tabs)/(settings)/user-detail.tsx:112
@@ -4607,7 +4615,6 @@ msgstr "最舊優先"
 msgid "Omit account details"
 msgstr "略去帳戶資料"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:349
 #: src/app/(tabs)/(settings)/ai.tsx:44
 #: src/app/(tabs)/(settings)/profile.tsx:91
 #: src/app/(tabs)/(settings)/user-detail.tsx:112
@@ -4753,7 +4760,7 @@ msgstr "只需填寫來源網址 — App 會自動加上 /api/v1。"
 msgid "Original"
 msgstr "原止蝕"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:255
+#: src/app/(tabs)/(settings)/account-form.tsx:256
 msgid "Other"
 msgstr "其他"
 
@@ -4931,7 +4938,7 @@ msgstr "每股風險"
 msgid "Percent must be between 0 and 100."
 msgstr "百分比必須介乎 0 至 100。"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:307
+#: src/app/(tabs)/(settings)/account-form.tsx:308
 #: src/components/performance-card.tsx:58
 #: src/components/reports/overview-section.tsx:108
 msgid "Performance"
@@ -4942,12 +4949,12 @@ msgid "Performance — gross"
 msgstr "表現 — 毛額"
 
 #. placeholder {0}: account?.name ?? ''
-#: src/app/(tabs)/(settings)/account-form.tsx:210
+#: src/app/(tabs)/(settings)/account-form.tsx:211
 msgid "Permanently deletes {0} with its trades and cash records."
 msgstr "將永久刪除 {0} 及其交易與資金紀錄。"
 
 #. placeholder {0}: account?.name ?? ''
-#: src/app/(tabs)/(settings)/account-form.tsx:199
+#: src/app/(tabs)/(settings)/account-form.tsx:200
 msgid "Permanently deletes {tradeCount} trades and their executions from {0}."
 msgstr "將從 {0} 永久刪除 {tradeCount} 筆交易及其成交紀錄。"
 
@@ -5217,7 +5224,7 @@ msgstr "利潤目標"
 msgid "Prompt"
 msgstr "提示"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:47
+#: src/app/(tabs)/(settings)/account-form.tsx:48
 msgid "Prop"
 msgstr "自營"
 
@@ -5232,10 +5239,14 @@ msgid "Prop evaluation"
 msgstr "Prop 評估"
 
 #: src/app/(tabs)/(settings)/_layout.tsx:95
-#: src/app/(tabs)/(settings)/account-form.tsx:335
+#: src/app/(tabs)/(settings)/account-form.tsx:389
 #: src/app/(tabs)/(settings)/prop-settings.tsx:118
 msgid "Prop rules"
 msgstr "Prop 規則"
+
+#: src/app/(tabs)/(settings)/account-form.tsx:340
+msgid "Pulls new fills into this account automatically. Statements can also be imported by file."
+msgstr "自動將新成交拉入呢個帳戶。對帳單亦可以用檔案匯入。"
 
 #: src/app/(tabs)/(settings)/index.tsx:248
 msgid "push notifications webhook loss streak drawdown"
@@ -5367,7 +5378,7 @@ msgstr "在匯入時把券商截圖讀成成交紀錄。"
 msgid "Ready to trade"
 msgstr "準備好交易"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:314
+#: src/app/(tabs)/(settings)/account-form.tsx:315
 #: src/components/prop-status-card.tsx:198
 msgid "Realized P&L"
 msgstr "已實現損益"
@@ -5632,7 +5643,7 @@ msgstr "重試"
 msgid "Retrying…"
 msgstr "重試中…"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:320
+#: src/app/(tabs)/(settings)/account-form.tsx:321
 msgid "Return"
 msgstr "回報率"
 
@@ -5735,7 +5746,7 @@ msgid "Role"
 msgstr "角色"
 
 #: src/app/(tabs)/(settings)/import-history.tsx:58
-#: src/app/(tabs)/(settings)/import-history.tsx:108
+#: src/app/(tabs)/(settings)/import-history.tsx:110
 msgid "Roll back"
 msgstr "還原"
 
@@ -5743,7 +5754,7 @@ msgstr "還原"
 msgid "Roll back this import?"
 msgstr "要還原呢次匯入?"
 
-#: src/app/(tabs)/(settings)/import-history.tsx:99
+#: src/app/(tabs)/(settings)/import-history.tsx:101
 msgid "Rolled back"
 msgstr "已還原"
 
@@ -5824,7 +5835,7 @@ msgstr "範例 JSON"
 msgid "Sat"
 msgstr "六"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:231
+#: src/app/(tabs)/(settings)/account-form.tsx:232
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:261
 #: src/app/(tabs)/(settings)/change-password.tsx:100
 #: src/app/(tabs)/(settings)/flex-sync.tsx:149
@@ -5876,7 +5887,7 @@ msgstr "已儲存"
 #~ msgid "Saved — leave blank to keep"
 #~ msgstr "已儲存 — 留空以保留"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:231
+#: src/app/(tabs)/(settings)/account-form.tsx:232
 #: src/app/(tabs)/(settings)/ai/[kind].tsx:261
 #: src/app/(tabs)/(settings)/change-password.tsx:100
 #: src/app/(tabs)/(settings)/flex-sync.tsx:149
@@ -6342,7 +6353,7 @@ msgstr "開始日期"
 msgid "Start replay"
 msgstr "開始重播"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:292
+#: src/app/(tabs)/(settings)/account-form.tsx:293
 msgid "Starting balance"
 msgstr "初始結餘"
 
@@ -6565,6 +6576,7 @@ msgstr "同步完成"
 msgid "Sync failed"
 msgstr "同步失敗"
 
+#: src/app/(tabs)/(settings)/account-form.tsx:352
 #: src/app/(tabs)/(settings)/flex-sync.tsx:158
 #: src/app/(tabs)/(settings)/index.tsx:425
 msgid "Sync failing"
@@ -6818,7 +6830,7 @@ msgstr "伺服器未設定經濟日曆供應商。"
 msgid "The server is rate limiting this app. Try again in a moment."
 msgstr "伺服器正在限制此應用程式的請求。請稍後再試。"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:297
+#: src/app/(tabs)/(settings)/account-form.tsx:298
 msgid "The starting balance is saved as the first deposit in the cash ledger."
 msgstr "初始結餘會儲存為資金帳目中的第一筆存款。"
 
@@ -6826,7 +6838,7 @@ msgstr "初始結餘會儲存為資金帳目中的第一筆存款。"
 msgid "The stored token is deleted from the server."
 msgstr "已儲存的權杖會從伺服器刪除。"
 
-#: src/app/(tabs)/(settings)/import-history.tsx:117
+#: src/app/(tabs)/(settings)/import-history.tsx:119
 msgid "The sync time range comes from the Flex Query's period configured in IBKR Client Portal — duplicates are skipped either way."
 msgstr "同步時間範圍由 IBKR Client Portal 入面 Flex Query 設定嘅期間決定 — 重複紀錄一律會跳過。"
 
@@ -7075,7 +7087,7 @@ msgstr "交易操作"
 #~ msgid "Trade date basis"
 #~ msgstr "交易日期基準"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:150
+#: src/app/(tabs)/(settings)/account-form.tsx:151
 msgid "Trade history cleared"
 msgstr "已清除交易紀錄"
 
@@ -7128,7 +7140,7 @@ msgstr "TraderMemos 標記"
 #: src/app/(tabs)/(calendar)/day/[date].tsx:365
 #: src/app/(tabs)/(dashboard)/playbook.tsx:131
 #: src/app/(tabs)/(dashboard)/playbook.tsx:233
-#: src/app/(tabs)/(settings)/account-form.tsx:324
+#: src/app/(tabs)/(settings)/account-form.tsx:325
 #: src/app/(tabs)/(settings)/data-backup.tsx:66
 #: src/app/(tabs)/(settings)/import-trades.tsx:330
 #: src/app/(tabs)/(settings)/import-trades.tsx:356
@@ -7250,7 +7262,7 @@ msgstr "類型"
 msgid "Type a model id…"
 msgstr "輸入模型 ID…"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:262
+#: src/app/(tabs)/(settings)/account-form.tsx:263
 msgid "Type broker name"
 msgstr "輸入券商名稱"
 
