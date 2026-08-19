@@ -3148,6 +3148,10 @@ msgstr "カレンダーを開く"
 msgid "Full Kelly"
 msgstr "フルケリー"
 
+#: src/app/(tabs)/(dashboard)/index.tsx:266
+msgid "Full reports"
+msgstr "レポートをすべて見る"
+
 #: src/app/(tabs)/(settings)/_layout.tsx:39
 msgid "Funding"
 msgstr "資金"

@@ -3148,6 +3148,10 @@ msgstr "전체 캘린더"
 msgid "Full Kelly"
 msgstr "풀 켈리"
 
+#: src/app/(tabs)/(dashboard)/index.tsx:266
+msgid "Full reports"
+msgstr "전체 리포트"
+
 #: src/app/(tabs)/(settings)/_layout.tsx:39
 msgid "Funding"
 msgstr "자금"

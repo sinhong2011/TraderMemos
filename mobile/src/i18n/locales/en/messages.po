@@ -3148,6 +3148,10 @@ msgstr "Full calendar"
 msgid "Full Kelly"
 msgstr "Full Kelly"
 
+#: src/app/(tabs)/(dashboard)/index.tsx:266
+msgid "Full reports"
+msgstr "Full reports"
+
 #: src/app/(tabs)/(settings)/_layout.tsx:39
 msgid "Funding"
 msgstr "Funding"

@@ -50,7 +50,7 @@ export default function DashboardScreen() {
   const router = useRouter();
   const queryClient = useQueryClient();
   // The quick-link glyphs are tinted with a JS value, not a class.
-  const [heading] = useCSSVariable(['--color-heading']) as [string];
+  const [heading, mutedForeground] = useCSSVariable(['--color-heading', '--color-muted-foreground']) as [string, string];
 
   const now = new Date();
   const year = now.getFullYear();
@@ -255,6 +255,17 @@ export default function DashboardScreen() {
           recentTrades.map((trade) => <TradeRow key={trade.id} trade={trade} />)
         )}
       </View>
+
+      {/* The dashboard is the appetiser — the full analysis lives one tap away. */}
+      <Pressable
+        onPress={() => router.navigate('/(tabs)/(dashboard)/reports')}
+        accessibilityRole="button"
+        className="flex-row items-center gap-3 rounded-2xl bg-card px-4 py-3.5 active:opacity-70"
+      >
+        <Icon name="chart.pie" size={18} tintColor={heading} />
+        <Text className="flex-1 text-[15px] font-medium text-foreground">{t`Full reports`}</Text>
+        <Icon name="chevron.right" size={12} tintColor={mutedForeground} />
+      </Pressable>
     </ScrollView>
   );
 }

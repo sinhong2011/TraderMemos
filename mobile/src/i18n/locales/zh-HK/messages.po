@@ -3148,6 +3148,10 @@ msgstr "完整日曆"
 msgid "Full Kelly"
 msgstr "全凱利"
 
+#: src/app/(tabs)/(dashboard)/index.tsx:266
+msgid "Full reports"
+msgstr "完整報告"
+
 #: src/app/(tabs)/(settings)/_layout.tsx:39
 msgid "Funding"
 msgstr "資金"
