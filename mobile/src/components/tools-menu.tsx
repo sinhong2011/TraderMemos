@@ -92,7 +92,7 @@ export function ToolsMenu() {
       {/* shadow-none: the sheet is already the surface, but Menu.Content
           always adds its popover panel chrome (shadow-lg halo + rounded
           box) which reads as a second card floating inside the sheet. */}
-      <Menu.Content width="full" className="shadow-none rounded-none">
+      <Menu.Content width="full" className="shadow-none rounded-none pb-0">
         {tradingSession.supported ? (
           <Fragment>
             <Menu.Label>{t`Session`}</Menu.Label>
@@ -126,21 +126,21 @@ export function ToolsMenu() {
         {/* Bento grid: quiet muted tiles, icon and label centered. Menu.Item
             keeps the press fill/scale and close-on-select; the class
             overrides reshape the row into a tile. */}
-        <View className="flex-row flex-wrap gap-2 pb-1 pt-1">
+        <View className="flex-row flex-wrap gap-1.5 pt-1">
           {tools.map((action) => (
             <Menu.Item
               key={action.label}
-              className="min-h-[76px] w-[48%] rounded-2xl bg-secondary p-3"
+              className="min-h-[56px] w-[48%] rounded-xl bg-secondary p-2"
               onSelect={() => router.push(action.href)}
             >
               {/* Menu.Item wraps children in a plain flex-1 View, so the
                   centering has to live on our own inner View — alignment
                   classes on the item itself never reach the content. */}
-              <View className="flex-1 items-center justify-center gap-2">
-                <Icon name={action.systemImage} size={20} tintColor={overlayForeground} />
+              <View className="flex-1 items-center justify-center gap-1">
+                <Icon name={action.systemImage} size={18} tintColor={overlayForeground} />
                 <Text
                   numberOfLines={2}
-                  className="text-center text-[13px] font-medium text-overlay-foreground"
+                  className="text-center text-[12px] font-medium text-overlay-foreground"
                 >
                   {action.label}
                 </Text>

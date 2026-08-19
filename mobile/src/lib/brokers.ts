@@ -16,11 +16,16 @@ export interface BrokerDef {
   brand: string;
   monogram: string;
   formats: string;
+  /** Official site — its favicon is fetched at runtime as the real mark.
+   *  Nothing trademarked ships with the app; offline falls back to the
+   *  monogram. Absent = always monogram. */
+  domain?: string;
 }
 
 export const BROKERS: readonly BrokerDef[] = [
   {
     key: 'ibkr',
+    domain: 'interactivebrokers.com',
     name: 'Interactive Brokers',
     accountBroker: 'IBKR',
     kind: 'sync',
@@ -30,6 +35,7 @@ export const BROKERS: readonly BrokerDef[] = [
   },
   {
     key: 'thinkorswim',
+    domain: 'thinkorswim.com',
     name: 'thinkorswim',
     accountBroker: 'Charles Schwab',
     kind: 'file',
@@ -39,6 +45,7 @@ export const BROKERS: readonly BrokerDef[] = [
   },
   {
     key: 'schwab',
+    domain: 'schwab.com',
     name: 'Charles Schwab',
     accountBroker: 'Charles Schwab',
     kind: 'file',
@@ -48,6 +55,7 @@ export const BROKERS: readonly BrokerDef[] = [
   },
   {
     key: 'webull',
+    domain: 'webull.com',
     name: 'Webull',
     accountBroker: 'Webull',
     kind: 'file',
@@ -57,6 +65,7 @@ export const BROKERS: readonly BrokerDef[] = [
   },
   {
     key: 'tradovate',
+    domain: 'tradovate.com',
     name: 'Tradovate',
     accountBroker: 'Tradovate',
     kind: 'file',
@@ -66,6 +75,7 @@ export const BROKERS: readonly BrokerDef[] = [
   },
   {
     key: 'ninjatrader',
+    domain: 'ninjatrader.com',
     name: 'NinjaTrader',
     accountBroker: 'NinjaTrader',
     kind: 'file',
@@ -75,6 +85,7 @@ export const BROKERS: readonly BrokerDef[] = [
   },
   {
     key: 'ctrader',
+    domain: 'ctrader.com',
     name: 'cTrader',
     accountBroker: 'cTrader',
     kind: 'file',
@@ -84,6 +95,7 @@ export const BROKERS: readonly BrokerDef[] = [
   },
   {
     key: 'dxtrade',
+    domain: 'dx.trade',
     name: 'DXtrade',
     accountBroker: 'DXtrade',
     kind: 'file',
@@ -93,6 +105,7 @@ export const BROKERS: readonly BrokerDef[] = [
   },
   {
     key: 'matchtrader',
+    domain: 'match-trade.com',
     name: 'Match-Trader',
     accountBroker: 'Match-Trader',
     kind: 'file',
@@ -102,6 +115,7 @@ export const BROKERS: readonly BrokerDef[] = [
   },
   {
     key: 'metatrader',
+    domain: 'metatrader5.com',
     name: 'MetaTrader 4 / 5',
     accountBroker: 'MetaTrader',
     kind: 'file',
@@ -111,6 +125,7 @@ export const BROKERS: readonly BrokerDef[] = [
   },
   {
     key: 'tastytrade',
+    domain: 'tastytrade.com',
     name: 'tastytrade',
     accountBroker: 'tastytrade',
     kind: 'file',
@@ -120,6 +135,7 @@ export const BROKERS: readonly BrokerDef[] = [
   },
   {
     key: 'fidelity',
+    domain: 'fidelity.com',
     name: 'Fidelity',
     accountBroker: 'Fidelity',
     kind: 'file',
@@ -129,6 +145,7 @@ export const BROKERS: readonly BrokerDef[] = [
   },
   {
     key: 'etrade',
+    domain: 'etrade.com',
     name: 'E*TRADE',
     accountBroker: 'E*TRADE',
     kind: 'file',
@@ -138,6 +155,7 @@ export const BROKERS: readonly BrokerDef[] = [
   },
   {
     key: 'moomoo',
+    domain: 'moomoo.com',
     name: 'moomoo / Futu',
     accountBroker: 'Moomoo',
     kind: 'file',
@@ -147,6 +165,7 @@ export const BROKERS: readonly BrokerDef[] = [
   },
   {
     key: 'robinhood',
+    domain: 'robinhood.com',
     name: 'Robinhood',
     accountBroker: 'Robinhood',
     kind: 'file',

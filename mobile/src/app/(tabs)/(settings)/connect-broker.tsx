@@ -1,5 +1,6 @@
 import { useRouter } from 'expo-router';
 import { Frame, Text } from 'panelui-native';
+import { Image } from 'expo-image';
 import { useMemo, useState } from 'react';
 import { View } from 'react-native';
 import { useCSSVariable } from 'uniwind';
@@ -12,15 +13,33 @@ import { SettingsSection } from '@/components/settings-rows';
 import { t } from '@lingui/core/macro';
 import { BROKERS, type BrokerDef } from '@/lib/brokers';
 
+/**
+ * The real favicon when the network has it, the brand-tinted monogram when it
+ * doesn't. Nothing trademarked ships with the app — the mark is fetched from
+ * the broker's own site at view time and disk-cached by expo-image.
+ */
 function BrokerMark({ broker }: { broker: BrokerDef }) {
+  const [failed, setFailed] = useState(false);
+  const showIcon = broker.domain != null && !failed;
+
   return (
     <View
-      className="size-9 items-center justify-center rounded-lg"
-      style={{ backgroundColor: `${broker.brand}26` }}
+      className="size-9 items-center justify-center overflow-hidden rounded-lg"
+      style={{ backgroundColor: showIcon ? undefined : `${broker.brand}26` }}
     >
-      <Text size="xs" className="font-bold" style={{ color: broker.brand }}>
-        {broker.monogram}
-      </Text>
+      {showIcon ? (
+        <Image
+          source={{ uri: `https://www.google.com/s2/favicons?domain=${broker.domain}&sz=64` }}
+          style={{ width: 26, height: 26, borderRadius: 5 }}
+          cachePolicy="disk"
+          transition={80}
+          onError={() => setFailed(true)}
+        />
+      ) : (
+        <Text size="xs" className="font-bold" style={{ color: broker.brand }}>
+          {broker.monogram}
+        </Text>
+      )}
     </View>
   );
 }
