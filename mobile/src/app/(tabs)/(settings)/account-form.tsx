@@ -327,10 +327,7 @@ function AccountForm({ account, accountCount }: { account?: Account; accountCoun
           </SettingsSection>
         ) : null}
 
-        {isEdit &&
-        (account.account_type === 'prop' ||
-          flexSync.data?.configured ||
-          /ibkr|interactive brokers/i.test(account.broker)) ? (
+        {isEdit ? (
           <SettingsSection title={t`Integrations`}>
             {account.account_type === 'prop' ? (
               <NavRow
@@ -341,24 +338,22 @@ function AccountForm({ account, accountCount }: { account?: Account; accountCoun
                 }
               />
             ) : null}
-            {flexSync.data?.configured || /ibkr|interactive brokers/i.test(account.broker) ? (
-              <NavRow
-                systemImage="arrow.triangle.2.circlepath"
-                label={t`IBKR Flex sync`}
-                value={
-                  flexSync.data?.configured
-                    ? flexSyncFailed(flexSync.data)
-                      ? t`Failing`
-                      : flexSync.data.enabled
-                        ? t`On`
-                        : t`Off`
-                    : undefined
-                }
-                onPress={() =>
-                  router.push({ pathname: '/flex-sync', params: { accountId: account.id } })
-                }
-              />
-            ) : null}
+            <NavRow
+              systemImage="arrow.triangle.2.circlepath"
+              label={flexSync.data?.configured ? t`IBKR Flex sync` : t`Connect IBKR Flex sync`}
+              value={
+                flexSync.data?.configured
+                  ? flexSyncFailed(flexSync.data)
+                    ? t`Failing`
+                    : flexSync.data.enabled
+                      ? t`On`
+                      : t`Off`
+                  : undefined
+              }
+              onPress={() =>
+                router.push({ pathname: '/flex-sync', params: { accountId: account.id } })
+              }
+            />
           </SettingsSection>
         ) : null}
 

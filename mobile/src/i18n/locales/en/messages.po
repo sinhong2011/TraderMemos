@@ -734,7 +734,7 @@ msgstr "Add an OpenAI-compatible vision endpoint and API key under Settings → 
 msgid "Add another"
 msgstr "Add another"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:370
+#: src/app/(tabs)/(settings)/account-form.tsx:365
 msgid "Add another account before deleting this one."
 msgstr "Add another account before deleting this one."
 
@@ -1565,7 +1565,7 @@ msgstr "Clear filters"
 msgid "Clear this address?"
 msgstr "Clear this address?"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:375
+#: src/app/(tabs)/(settings)/account-form.tsx:370
 msgid "Clear trade history"
 msgstr "Clear trade history"
 
@@ -1577,7 +1577,7 @@ msgstr "Clear trade history?"
 msgid "Clear trades"
 msgstr "Clear trades"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:375
+#: src/app/(tabs)/(settings)/account-form.tsx:370
 msgid "Clearing…"
 msgstr "Clearing…"
 
@@ -1694,6 +1694,10 @@ msgstr "Confirm trade rules"
 #: src/app/(tabs)/(settings)/two-factor.tsx:190
 msgid "Confirming…"
 msgstr "Confirming…"
+
+#: src/app/(tabs)/(settings)/account-form.tsx:343
+msgid "Connect IBKR Flex sync"
+msgstr "Connect IBKR Flex sync"
 
 #: src/app/login.tsx:228
 msgid "Connect to your TraderMemos server."
@@ -2228,7 +2232,7 @@ msgstr "Delete"
 msgid "Delete {0}?"
 msgstr "Delete {0}?"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:383
+#: src/app/(tabs)/(settings)/account-form.tsx:378
 msgid "Delete account"
 msgstr "Delete account"
 
@@ -2265,7 +2269,7 @@ msgstr "Delete user"
 msgid "Deleted account"
 msgstr "Deleted account"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:383
+#: src/app/(tabs)/(settings)/account-form.tsx:378
 #: src/app/new-setup.tsx:292
 msgid "Deleting…"
 msgstr "Deleting…"
@@ -2888,7 +2892,7 @@ msgstr "Failed to load breakdown."
 #~ msgid "Failed to load trades."
 #~ msgstr "Failed to load trades."
 
-#: src/app/(tabs)/(settings)/account-form.tsx:351
+#: src/app/(tabs)/(settings)/account-form.tsx:347
 msgid "Failing"
 msgstr "Failing"
 
@@ -3307,7 +3311,7 @@ msgid "How to set one up"
 msgstr "How to set one up"
 
 #: src/app/(tabs)/(settings)/_layout.tsx:99
-#: src/app/(tabs)/(settings)/account-form.tsx:347
+#: src/app/(tabs)/(settings)/account-form.tsx:343
 #: src/app/(tabs)/(settings)/flex-sync.tsx:112
 #: src/app/(tabs)/(settings)/import-history.tsx:19
 msgid "IBKR Flex sync"
@@ -3433,7 +3437,7 @@ msgid "Instrument"
 msgstr "Instrument"
 
 #: src/app/(tabs)/(settings)/_layout.tsx:70
-#: src/app/(tabs)/(settings)/account-form.tsx:334
+#: src/app/(tabs)/(settings)/account-form.tsx:331
 #: src/app/(tabs)/(settings)/index.tsx:485
 msgid "Integrations"
 msgstr "Integrations"
@@ -4576,7 +4580,7 @@ msgstr "Notional"
 msgid "of {0}"
 msgstr "of {0}"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:354
+#: src/app/(tabs)/(settings)/account-form.tsx:350
 #: src/app/(tabs)/(settings)/ai.tsx:45
 #: src/app/(tabs)/(settings)/profile.tsx:91
 #: src/app/(tabs)/(settings)/user-detail.tsx:112
@@ -4603,7 +4607,7 @@ msgstr "Oldest first"
 msgid "Omit account details"
 msgstr "Omit account details"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:353
+#: src/app/(tabs)/(settings)/account-form.tsx:349
 #: src/app/(tabs)/(settings)/ai.tsx:44
 #: src/app/(tabs)/(settings)/profile.tsx:91
 #: src/app/(tabs)/(settings)/user-detail.tsx:112
@@ -5236,7 +5240,7 @@ msgid "Prop evaluation"
 msgstr "Prop evaluation"
 
 #: src/app/(tabs)/(settings)/_layout.tsx:95
-#: src/app/(tabs)/(settings)/account-form.tsx:338
+#: src/app/(tabs)/(settings)/account-form.tsx:335
 #: src/app/(tabs)/(settings)/prop-settings.tsx:118
 msgid "Prop rules"
 msgstr "Prop rules"

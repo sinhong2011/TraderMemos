@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { Trash2 } from "lucide-react";
+import { Eraser, Trash2 } from "lucide-react";
 import { useId, useState, type ReactNode } from "react";
 import { Modal } from "@/components/Modal";
 import { Pill } from "@/components/Pill";
@@ -814,11 +814,12 @@ export function ClearTradesButton({
     <>
       <Button
         type="button"
-        variant="secondary"
+        variant="outline"
         size="sm"
         onClick={() => setOpen(true)}
-        className="text-destructive hover:text-destructive"
+        className="border-border bg-transparent text-destructive hover:bg-destructive/10 hover:text-destructive"
       >
+        <Eraser size={14} strokeWidth={1.5} />
         Clear trades
       </Button>
       <Modal

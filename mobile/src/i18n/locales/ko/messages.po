@@ -734,7 +734,7 @@ msgstr "설정 → AI에서 OpenAI 호환 비전 엔드포인트와 API 키를 �
 msgid "Add another"
 msgstr "하나 더 추가"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:370
+#: src/app/(tabs)/(settings)/account-form.tsx:365
 msgid "Add another account before deleting this one."
 msgstr "이 계좌를 삭제하기 전에 다른 계좌를 추가하세요."
 
@@ -1565,7 +1565,7 @@ msgstr "필터 지우기"
 msgid "Clear this address?"
 msgstr "이 주소를 삭제할까요?"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:375
+#: src/app/(tabs)/(settings)/account-form.tsx:370
 msgid "Clear trade history"
 msgstr "거래 기록 지우기"
 
@@ -1577,7 +1577,7 @@ msgstr "거래 기록을 지울까요?"
 msgid "Clear trades"
 msgstr "거래 지우기"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:375
+#: src/app/(tabs)/(settings)/account-form.tsx:370
 msgid "Clearing…"
 msgstr "지우는 중…"
 
@@ -1694,6 +1694,10 @@ msgstr "매매 규칙 확인"
 #: src/app/(tabs)/(settings)/two-factor.tsx:190
 msgid "Confirming…"
 msgstr "확인 중…"
+
+#: src/app/(tabs)/(settings)/account-form.tsx:343
+msgid "Connect IBKR Flex sync"
+msgstr "IBKR Flex 동기화 연결"
 
 #: src/app/login.tsx:228
 msgid "Connect to your TraderMemos server."
@@ -2228,7 +2232,7 @@ msgstr "삭제"
 msgid "Delete {0}?"
 msgstr "{0} 님을 삭제할까요?"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:383
+#: src/app/(tabs)/(settings)/account-form.tsx:378
 msgid "Delete account"
 msgstr "계좌 삭제"
 
@@ -2265,7 +2269,7 @@ msgstr "사용자 삭제"
 msgid "Deleted account"
 msgstr "삭제된 계정"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:383
+#: src/app/(tabs)/(settings)/account-form.tsx:378
 #: src/app/new-setup.tsx:292
 msgid "Deleting…"
 msgstr "삭제 중…"
@@ -2888,7 +2892,7 @@ msgstr "분석을 불러오지 못했습니다."
 #~ msgid "Failed to load trades."
 #~ msgstr "거래를 불러오지 못했습니다."
 
-#: src/app/(tabs)/(settings)/account-form.tsx:351
+#: src/app/(tabs)/(settings)/account-form.tsx:347
 msgid "Failing"
 msgstr "실패 중"
 
@@ -3307,7 +3311,7 @@ msgid "How to set one up"
 msgstr "서버 구축 방법"
 
 #: src/app/(tabs)/(settings)/_layout.tsx:99
-#: src/app/(tabs)/(settings)/account-form.tsx:347
+#: src/app/(tabs)/(settings)/account-form.tsx:343
 #: src/app/(tabs)/(settings)/flex-sync.tsx:112
 #: src/app/(tabs)/(settings)/import-history.tsx:19
 msgid "IBKR Flex sync"
@@ -3433,7 +3437,7 @@ msgid "Instrument"
 msgstr "상품 유형"
 
 #: src/app/(tabs)/(settings)/_layout.tsx:70
-#: src/app/(tabs)/(settings)/account-form.tsx:334
+#: src/app/(tabs)/(settings)/account-form.tsx:331
 #: src/app/(tabs)/(settings)/index.tsx:485
 msgid "Integrations"
 msgstr "연동"
@@ -4576,7 +4580,7 @@ msgstr "명목 금액"
 msgid "of {0}"
 msgstr "/ {0}"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:354
+#: src/app/(tabs)/(settings)/account-form.tsx:350
 #: src/app/(tabs)/(settings)/ai.tsx:45
 #: src/app/(tabs)/(settings)/profile.tsx:91
 #: src/app/(tabs)/(settings)/user-detail.tsx:112
@@ -4603,7 +4607,7 @@ msgstr "오래된 순"
 msgid "Omit account details"
 msgstr "계좌 정보 제외"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:353
+#: src/app/(tabs)/(settings)/account-form.tsx:349
 #: src/app/(tabs)/(settings)/ai.tsx:44
 #: src/app/(tabs)/(settings)/profile.tsx:91
 #: src/app/(tabs)/(settings)/user-detail.tsx:112
@@ -5228,7 +5232,7 @@ msgid "Prop evaluation"
 msgstr "프랍 평가"
 
 #: src/app/(tabs)/(settings)/_layout.tsx:95
-#: src/app/(tabs)/(settings)/account-form.tsx:338
+#: src/app/(tabs)/(settings)/account-form.tsx:335
 #: src/app/(tabs)/(settings)/prop-settings.tsx:118
 msgid "Prop rules"
 msgstr "프랍 규칙"

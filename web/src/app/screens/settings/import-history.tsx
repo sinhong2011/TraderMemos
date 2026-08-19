@@ -39,10 +39,10 @@ function RollbackButton({ batch, accountName }: { batch: ImportBatch; accountNam
     <>
       <Button
         type="button"
-        variant="ghost"
+        variant="outline"
         size="sm"
-        className="text-destructive"
         onClick={() => setOpen(true)}
+        className="border-border bg-transparent text-destructive hover:bg-destructive/10 hover:text-destructive"
       >
         <Undo2 size={13} strokeWidth={1.5} />
         Roll back

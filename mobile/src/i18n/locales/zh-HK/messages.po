@@ -734,7 +734,7 @@ msgstr "先在 設定 → AI 加入相容 OpenAI 的視覺 API 端點與 API 金
 msgid "Add another"
 msgstr "再新增一項"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:370
+#: src/app/(tabs)/(settings)/account-form.tsx:365
 msgid "Add another account before deleting this one."
 msgstr "刪除此帳戶前請先新增另一個帳戶。"
 
@@ -1565,7 +1565,7 @@ msgstr "清除篩選"
 msgid "Clear this address?"
 msgstr "要清除此網址嗎？"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:375
+#: src/app/(tabs)/(settings)/account-form.tsx:370
 msgid "Clear trade history"
 msgstr "清除交易紀錄"
 
@@ -1577,7 +1577,7 @@ msgstr "清除交易紀錄？"
 msgid "Clear trades"
 msgstr "清除交易"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:375
+#: src/app/(tabs)/(settings)/account-form.tsx:370
 msgid "Clearing…"
 msgstr "清除中…"
 
@@ -1694,6 +1694,10 @@ msgstr "確認交易規則"
 #: src/app/(tabs)/(settings)/two-factor.tsx:190
 msgid "Confirming…"
 msgstr "確認中…"
+
+#: src/app/(tabs)/(settings)/account-form.tsx:343
+msgid "Connect IBKR Flex sync"
+msgstr "連接 IBKR Flex 同步"
 
 #: src/app/login.tsx:228
 msgid "Connect to your TraderMemos server."
@@ -2228,7 +2232,7 @@ msgstr "刪除"
 msgid "Delete {0}?"
 msgstr "刪除 {0}？"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:383
+#: src/app/(tabs)/(settings)/account-form.tsx:378
 msgid "Delete account"
 msgstr "刪除帳戶"
 
@@ -2265,7 +2269,7 @@ msgstr "刪除用戶"
 msgid "Deleted account"
 msgstr "已刪除嘅帳戶"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:383
+#: src/app/(tabs)/(settings)/account-form.tsx:378
 #: src/app/new-setup.tsx:292
 msgid "Deleting…"
 msgstr "刪除中…"
@@ -2888,7 +2892,7 @@ msgstr "無法載入分項分析。"
 #~ msgid "Failed to load trades."
 #~ msgstr "無法載入交易。"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:351
+#: src/app/(tabs)/(settings)/account-form.tsx:347
 msgid "Failing"
 msgstr "失敗緊"
 
@@ -3307,7 +3311,7 @@ msgid "How to set one up"
 msgstr "如何架設伺服器"
 
 #: src/app/(tabs)/(settings)/_layout.tsx:99
-#: src/app/(tabs)/(settings)/account-form.tsx:347
+#: src/app/(tabs)/(settings)/account-form.tsx:343
 #: src/app/(tabs)/(settings)/flex-sync.tsx:112
 #: src/app/(tabs)/(settings)/import-history.tsx:19
 msgid "IBKR Flex sync"
@@ -3433,7 +3437,7 @@ msgid "Instrument"
 msgstr "商品類型"
 
 #: src/app/(tabs)/(settings)/_layout.tsx:70
-#: src/app/(tabs)/(settings)/account-form.tsx:334
+#: src/app/(tabs)/(settings)/account-form.tsx:331
 #: src/app/(tabs)/(settings)/index.tsx:485
 msgid "Integrations"
 msgstr "整合"
@@ -4576,7 +4580,7 @@ msgstr "名義金額"
 msgid "of {0}"
 msgstr "/ {0}"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:354
+#: src/app/(tabs)/(settings)/account-form.tsx:350
 #: src/app/(tabs)/(settings)/ai.tsx:45
 #: src/app/(tabs)/(settings)/profile.tsx:91
 #: src/app/(tabs)/(settings)/user-detail.tsx:112
@@ -4603,7 +4607,7 @@ msgstr "最舊優先"
 msgid "Omit account details"
 msgstr "略去帳戶資料"
 
-#: src/app/(tabs)/(settings)/account-form.tsx:353
+#: src/app/(tabs)/(settings)/account-form.tsx:349
 #: src/app/(tabs)/(settings)/ai.tsx:44
 #: src/app/(tabs)/(settings)/profile.tsx:91
 #: src/app/(tabs)/(settings)/user-detail.tsx:112
@@ -5228,7 +5232,7 @@ msgid "Prop evaluation"
 msgstr "Prop 評估"
 
 #: src/app/(tabs)/(settings)/_layout.tsx:95
-#: src/app/(tabs)/(settings)/account-form.tsx:338
+#: src/app/(tabs)/(settings)/account-form.tsx:335
 #: src/app/(tabs)/(settings)/prop-settings.tsx:118
 msgid "Prop rules"
 msgstr "Prop 規則"
