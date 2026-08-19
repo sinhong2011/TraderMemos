@@ -243,6 +243,121 @@ export function SettingsSection({
   );
 }
 
+/**
+ * Borderless card block — one `bg-card` surface per logical settings section,
+ * per the card-blocks preference (no box borders; spacing separates rows).
+ */
+export function SettingsCard({
+  id,
+  title,
+  description,
+  action,
+  children,
+  className,
+}: {
+  id?: string;
+  title?: string;
+  description?: string;
+  action?: ReactNode;
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <section
+      id={id}
+      className={cn("scroll-mt-4 flex flex-col overflow-hidden rounded-xl bg-card", className)}
+    >
+      {(title || description || action) && (
+        <header className="flex flex-col gap-3 px-5 pb-1 pt-5 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+          <div className="min-w-0">
+            {title ? (
+              <h2 className="m-0 text-[14px] font-semibold tracking-tight text-foreground">
+                {title}
+              </h2>
+            ) : null}
+            {description ? (
+              <p className="mt-1 max-w-2xl text-[12px] leading-relaxed text-muted-foreground">
+                {description}
+              </p>
+            ) : null}
+          </div>
+          {action ? (
+            <div className="flex flex-wrap items-center gap-2 sm:shrink-0 sm:justify-end">
+              {action}
+            </div>
+          ) : null}
+        </header>
+      )}
+      <div className="flex flex-col pb-3 pt-2">{children}</div>
+    </section>
+  );
+}
+
+/**
+ * Card row with an optional leading icon chip. The chip tints `primary` when
+ * the row's setting is active, staying muted otherwise — state at a glance.
+ */
+export function SettingsCardRow({
+  icon: Icon,
+  active = false,
+  label,
+  detail,
+  children,
+  className,
+}: {
+  icon?: LucideIcon;
+  active?: boolean;
+  label: ReactNode;
+  detail?: ReactNode;
+  children?: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={cn("flex items-center gap-3.5 px-5 py-3", className)}>
+      {Icon ? (
+        <span
+          aria-hidden
+          className={cn(
+            "flex size-9 shrink-0 items-center justify-center rounded-lg transition-colors duration-150",
+            active ? "bg-primary/12 text-primary" : "bg-muted text-muted-foreground",
+          )}
+        >
+          <Icon size={16} strokeWidth={1.75} />
+        </span>
+      ) : null}
+      <div className="min-w-0 flex-1">
+        <div className="text-[13px] font-medium text-foreground">{label}</div>
+        {detail ? (
+          <p className="mt-0.5 text-[12px] leading-relaxed text-muted-foreground">{detail}</p>
+        ) : null}
+      </div>
+      {children ? (
+        <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">{children}</div>
+      ) : null}
+    </div>
+  );
+}
+
+/** Plain text row inside a SettingsCard — hints and load errors. */
+export function SettingsCardNote({
+  children,
+  tone = "muted",
+}: {
+  children: ReactNode;
+  tone?: "muted" | "destructive";
+}) {
+  return (
+    <p
+      className={cn(
+        "m-0 px-5 py-3 text-[12px] leading-relaxed",
+        tone === "destructive" ? "text-destructive" : "text-muted-foreground",
+      )}
+    >
+      {children}
+    </p>
+  );
+}
+
 export function SettingsToggle({
   checked,
   onCheckedChange,

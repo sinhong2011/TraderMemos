@@ -1,22 +1,30 @@
 import { useForm } from "@tanstack/react-form";
 import { Link } from "@tanstack/react-router";
+import type { LucideIcon } from "lucide-react";
 import {
   Building2,
   ChevronRight,
   Check,
+  Crosshair,
   Download,
+  Hash,
+  Layers,
   LogOut,
   Pencil,
+  Percent,
   Plus,
-  Shield,
+  Repeat,
   Target,
   Tag,
+  TrendingDown,
   Upload,
   Wallet,
   X,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { EmptyState } from "@/components/EmptyState";
+import { GoalProgressBar } from "@/components/GoalProgressBar";
+import { paceLabel, paceTone } from "@/components/AnnualGoalCard";
 import { LlmApiSettingsForm } from "@/components/LlmApiSettingsForm";
 import { ModeToggle } from "@/components/ModeToggle";
 import { Badge } from "@/components/reui/badge";
@@ -37,6 +45,9 @@ import { Button } from "@/components/ui/button";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { ApiError, editableApiBaseUrl, getCustomApiBaseUrl, setBaseUrl } from "@/lib/api/client";
 import { applyParsedAppConfig, buildAppConfigExport, parseAppConfig } from "@/lib/appConfig";
+import { computeAnnualGoalProgress, ytdFiltersForYear } from "@/lib/annualGoal";
+import { cn } from "@/lib/cn";
+import { useSummary } from "@/lib/hooks/useAnalytics";
 import type { AnnualGoal, RiskRules } from "@/lib/api/settings";
 import {
   useCoachSettings,
@@ -55,7 +66,6 @@ import {
 import { useTrades } from "@/lib/hooks/useTrades";
 import { formatCashDisplay, signedCashAmount } from "@/lib/cashAmount";
 import { parseAmountToNumber } from "@/lib/amountInput";
-import { cn } from "@/lib/cn";
 import { fmtDate, fmtMoney, fmtSignedMoney } from "@/lib/format";
 import { intlLocale, LOCALE_OPTIONS, settingsLabel, type SettingsLabelKey } from "@/lib/locale";
 import type { LlmApiSettingsLabels } from "@/lib/llmApiSettings";
@@ -75,8 +85,7 @@ import {
   useDisplayPrefs,
 } from "@/lib/displayPrefs";
 import {
-  activeRiskRuleEntries,
-  availableRiskRuleKeys,
+  RISK_RULE_DEFS,
   defaultAccountFormValues,
   defaultCashFormValues,
   defaultTagFormValues,
@@ -96,6 +105,9 @@ import {
   BtnPrimary,
   DeleteButton,
   FormError,
+  SettingsCard,
+  SettingsCardNote,
+  SettingsCardRow,
   SettingsInsetForm,
   SettingsPanelBody,
   SettingsGroup,
@@ -1007,10 +1019,16 @@ export interface RulesTabProps {
   onSaveChecklist: (body: { items?: string[]; content: string }) => Promise<void>;
 }
 
-type RuleModalState =
-  | { open: false }
-  | { open: true; mode: "add" }
-  | { open: true; mode: "edit"; key: RiskRuleKey };
+type RuleModalState = { open: false } | { open: true; mode: "set" | "edit"; key: RiskRuleKey };
+
+const RISK_RULE_ICONS: Record<RiskRuleKey, LucideIcon> = {
+  max_risk_per_trade: Crosshair,
+  max_daily_loss: TrendingDown,
+  max_open_risk: Layers,
+  max_trades_per_day: Hash,
+  max_consecutive_losses: Repeat,
+  default_account_risk_pct: Percent,
+};
 
 export function RulesTab({
   riskRules,
@@ -1031,14 +1049,16 @@ export function RulesTab({
   checklistSaving,
   onSaveChecklist,
 }: RulesTabProps) {
+  usePrivacyMode();
   const toast = useToastManager();
   const locale = intlLocale();
   const goalYear = annualGoal?.year ?? new Date().getFullYear();
+  const ytdFilters = useMemo(() => ytdFiltersForYear({}, goalYear), [goalYear]);
+  const ytdSummaryQ = useSummary(ytdFilters);
   const [goalModalOpen, setGoalModalOpen] = useState(false);
   const [goalDraft, setGoalDraft] = useState("");
   const [goalError, setGoalError] = useState<string | null>(null);
   const [ruleModal, setRuleModal] = useState<RuleModalState>({ open: false });
-  const [ruleKey, setRuleKey] = useState<RiskRuleKey>("max_risk_per_trade");
   const [ruleValue, setRuleValue] = useState("");
   const [ruleError, setRuleError] = useState<string | null>(null);
 
@@ -1052,9 +1072,10 @@ export function RulesTab({
     setChecklistEditorKey((k) => k + 1);
   }, [checklistContent, checklistModalOpen]);
 
-  const activeRules = useMemo(() => activeRiskRuleEntries(riskRules), [riskRules]);
-  const availableKeys = useMemo(() => availableRiskRuleKeys(riskRules), [riskRules]);
-  const canAddRule = availableKeys.length > 0;
+  const goalProgress =
+    annualGoal?.amount != null && annualGoal.amount > 0 && ytdSummaryQ.data != null
+      ? computeAnnualGoalProgress(annualGoal.amount, ytdSummaryQ.data.net_pnl, goalYear)
+      : null;
 
   function closeRuleModal() {
     setRuleModal({ open: false });
@@ -1075,17 +1096,13 @@ export function RulesTab({
     setChecklistEditorKey((k) => k + 1);
   }
 
-  function openAddRule() {
-    const first = availableKeys[0];
-    if (!first) return;
-    setRuleKey(first);
+  function openSetRule(key: RiskRuleKey) {
     setRuleValue("");
     setRuleError(null);
-    setRuleModal({ open: true, mode: "add" });
+    setRuleModal({ open: true, mode: "set", key });
   }
 
   function openEditRule(key: RiskRuleKey, value: number) {
-    setRuleKey(key);
     setRuleValue(String(value));
     setRuleError(null);
     setRuleModal({ open: true, mode: "edit", key });
@@ -1104,7 +1121,8 @@ export function RulesTab({
   }
 
   async function handleSaveRule() {
-    const key = ruleModal.open && ruleModal.mode === "edit" ? ruleModal.key : ruleKey;
+    if (!ruleModal.open) return;
+    const key = ruleModal.key;
     const validation = validateRiskRuleValue(key, ruleValue);
     if (validation) {
       setRuleError(validation);
@@ -1118,7 +1136,7 @@ export function RulesTab({
     setRuleError(null);
     await persistRules(
       setRiskRuleValue(riskRules, key, parsed),
-      ruleModal.open && ruleModal.mode === "edit" ? "Rule updated" : "Rule added",
+      ruleModal.mode === "edit" ? "Rule updated" : "Rule set",
     );
   }
 
@@ -1190,189 +1208,222 @@ export function RulesTab({
     }
   }
 
-  const modalDef = riskRuleDef(ruleKey);
-  const modalTitle =
-    ruleModal.open && ruleModal.mode === "edit" ? "Edit risk rule" : "Add risk rule";
+  const modalDef = ruleModal.open ? riskRuleDef(ruleModal.key) : null;
+  const modalTitle = modalDef
+    ? `${ruleModal.open && ruleModal.mode === "edit" ? "Edit" : "Set"} ${modalDef.label}`
+    : "";
 
   return (
     <>
-      <SettingsSection
+      <SettingsCard
         title="Risk Rules"
-        description="Used by Check compliance on New Trade. Add only the limits you want enforced."
-        action={
-          <BtnGhost
-            onClick={openAddRule}
-            disabled={!canAddRule || riskRulesLoading || riskRulesSaving}
-          >
-            <Plus size={13} strokeWidth={1.5} />
-            Add rule
-          </BtnGhost>
-        }
+        description="Checked by Check compliance on New Trade. Only the limits you set are enforced."
       >
         {riskRulesLoading ? (
-          <SettingsPanelBody>
-            <ListSkeleton rows={3} />
-          </SettingsPanelBody>
+          <div className="px-5 py-3">
+            <ListSkeleton rows={4} />
+          </div>
         ) : riskRulesError ? (
-          <SettingsPanelBody>
-            <p className="text-[12px] text-destructive">Failed to load risk rules.</p>
-          </SettingsPanelBody>
-        ) : activeRules.length === 0 ? (
-          <SettingsPanelBody className="py-8">
-            <EmptyState
-              title="No risk rules yet"
-              hint="Add a limit — max risk per trade, daily loss, open risk, or account risk %."
-              icon={<Shield size={28} strokeWidth={1.5} />}
-            />
-          </SettingsPanelBody>
+          <SettingsCardNote tone="destructive">Failed to load risk rules.</SettingsCardNote>
         ) : (
-          <SettingsGroup>
-            {activeRules.map(({ key, value, def }, index) => (
-              <SettingsRow
-                key={key}
-                last={index === activeRules.length - 1}
-                primary={def.label}
-                secondary={def.detail}
-                actions={
+          RISK_RULE_DEFS.map((def) => {
+            const value = riskRules?.[def.key];
+            return (
+              <SettingsCardRow
+                key={def.key}
+                icon={RISK_RULE_ICONS[def.key]}
+                active={value != null}
+                label={def.label}
+                detail={def.detail}
+              >
+                {value != null ? (
                   <>
-                    <span className="text-[13px] font-medium tabular-nums text-foreground">
-                      {formatRiskRuleValue(key, value, locale)}
+                    <span className="text-[13.5px] font-semibold tabular-nums text-foreground">
+                      {formatRiskRuleValue(def.key, value, locale)}
                     </span>
                     <Button
                       type="button"
-                      variant="outline"
-                      size="sm"
+                      variant="ghost"
+                      size="icon-xs"
+                      tooltip={false}
                       aria-label={`Edit ${def.label}`}
                       disabled={riskRulesSaving}
-                      onClick={() => openEditRule(key, value)}
+                      onClick={() => openEditRule(def.key, value)}
                     >
-                      Edit
+                      <Pencil size={14} strokeWidth={1.5} />
                     </Button>
                     <DeleteButton
                       label={def.label}
                       disabled={riskRulesSaving}
-                      onDelete={() => void handleDeleteRule(key)}
+                      onDelete={() => void handleDeleteRule(def.key)}
                     />
                   </>
-                }
-              />
-            ))}
-          </SettingsGroup>
+                ) : (
+                  <>
+                    <span className="text-[12px] text-muted-foreground/70">Off</span>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      aria-label={`Set ${def.label}`}
+                      disabled={riskRulesSaving}
+                      onClick={() => openSetRule(def.key)}
+                    >
+                      Set
+                    </Button>
+                  </>
+                )}
+              </SettingsCardRow>
+            );
+          })
         )}
-      </SettingsSection>
+      </SettingsCard>
 
-      <SettingsSection
+      <SettingsCard
         title="Annual P&L Goal"
-        description={`Net P&L target for ${goalYear}. Shown on Home and Reports with YTD progress.`}
-        action={
-          <BtnGhost
-            onClick={openGoalModal}
-            disabled={annualGoalLoading || annualGoalSaving}
-            aria-label={annualGoal?.amount != null ? "Edit annual goal" : "Set annual goal"}
-          >
-            <Pencil size={13} strokeWidth={1.5} />
-            {annualGoal?.amount != null ? "Edit" : "Set goal"}
-          </BtnGhost>
-        }
+        description={`Net P&L target for ${goalYear}. Progress shows here and on Home and Reports.`}
       >
         {annualGoalLoading ? (
-          <SettingsPanelBody>
+          <div className="px-5 py-3">
             <ListSkeleton rows={1} />
-          </SettingsPanelBody>
+          </div>
         ) : annualGoalError ? (
-          <SettingsPanelBody>
-            <p className="text-[12px] text-destructive">Failed to load annual goal.</p>
-          </SettingsPanelBody>
+          <SettingsCardNote tone="destructive">Failed to load annual goal.</SettingsCardNote>
         ) : annualGoal?.amount == null ? (
-          <SettingsPanelBody className="py-8">
-            <EmptyState
-              title="No annual goal yet"
-              hint="Set a net P&L target for the year — progress appears on Home and Reports."
-              icon={<Target size={28} strokeWidth={1.5} />}
-            />
-          </SettingsPanelBody>
-        ) : (
-          <SettingsGroup>
-            <SettingsRow
-              last
-              primary={`${goalYear} target`}
-              secondary="User-level net P&L goal (respects account filter on Home/Reports)"
-              actions={
-                <>
-                  <span className="text-[13px] font-medium tabular-nums text-foreground">
-                    ${annualGoal.amount.toLocaleString(locale, { maximumFractionDigits: 2 })}
-                  </span>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    aria-label="Edit annual goal"
-                    disabled={annualGoalSaving}
-                    onClick={openGoalModal}
-                  >
-                    Edit
-                  </Button>
-                  <DeleteButton
-                    label="annual goal"
-                    disabled={annualGoalSaving}
-                    onDelete={() => void handleClearGoal()}
-                  />
-                </>
-              }
-            />
-          </SettingsGroup>
-        )}
-      </SettingsSection>
-
-      <SettingsSection
-        title="Daily Checklist"
-        description="Trading rules and checklist items for New Note. Edit in a modal — task items appear when you create a daily log."
-        action={
-          <BtnGhost
-            onClick={openChecklistModal}
-            disabled={checklistLoading || checklistError}
-            aria-label="Edit checklist"
+          <SettingsCardRow
+            icon={Target}
+            label="No annual goal yet"
+            detail="Set a net P&L target for the year — progress appears on Home and Reports."
           >
-            <Pencil size={13} strokeWidth={1.5} />
-            Edit
-          </BtnGhost>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              aria-label="Set annual goal"
+              disabled={annualGoalSaving}
+              onClick={openGoalModal}
+            >
+              Set goal
+            </Button>
+          </SettingsCardRow>
+        ) : (
+          <>
+            <SettingsCardRow
+              icon={Target}
+              active
+              label={`${goalYear} target`}
+              detail="User-level net P&L goal — respects the account filter on Home and Reports."
+            >
+              <span className="text-[15px] font-semibold tabular-nums text-foreground">
+                {fmtMoney(annualGoal.amount, "USD", locale)}
+              </span>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-xs"
+                tooltip={false}
+                aria-label="Edit annual goal"
+                disabled={annualGoalSaving}
+                onClick={openGoalModal}
+              >
+                <Pencil size={14} strokeWidth={1.5} />
+              </Button>
+              <DeleteButton
+                label="annual goal"
+                disabled={annualGoalSaving}
+                onDelete={() => void handleClearGoal()}
+              />
+            </SettingsCardRow>
+            {goalProgress ? (
+              <div className="flex flex-col gap-2 px-5 pb-2 pt-1 sm:pl-[70px]">
+                <GoalProgressBar
+                  progress={goalProgress.progress}
+                  className="h-3"
+                  aria-label="Annual goal progress"
+                />
+                <p className="m-0 text-[12px] text-muted-foreground">
+                  <span
+                    className={cn(
+                      "font-medium tabular-nums",
+                      goalProgress.ytdNetPnl > 0
+                        ? "text-profit"
+                        : goalProgress.ytdNetPnl < 0
+                          ? "text-destructive"
+                          : "text-muted-foreground",
+                    )}
+                  >
+                    {fmtSignedMoney(goalProgress.ytdNetPnl, "USD", locale)}
+                  </span>{" "}
+                  YTD ·{" "}
+                  <span className="tabular-nums">{Math.round(goalProgress.progressPct)}%</span> of
+                  goal ·{" "}
+                  <span className={paceTone(goalProgress.paceStatus)}>
+                    {paceLabel(goalProgress.paceStatus)}
+                  </span>
+                </p>
+              </div>
+            ) : null}
+          </>
+        )}
+      </SettingsCard>
+
+      <SettingsCard
+        title="Daily Checklist"
+        description="Trading rules for New Note — task items appear when you create a daily log."
+        action={
+          checklistItems.length > 0 || checklistContent.trim() ? (
+            <BtnGhost
+              onClick={openChecklistModal}
+              disabled={checklistLoading || checklistError}
+              aria-label="Edit checklist"
+            >
+              <Pencil size={13} strokeWidth={1.5} />
+              Edit
+            </BtnGhost>
+          ) : undefined
         }
       >
         {checklistLoading ? (
-          <SettingsPanelBody>
+          <div className="px-5 py-3">
             <ListSkeleton rows={3} />
-          </SettingsPanelBody>
+          </div>
         ) : checklistError ? (
-          <SettingsPanelBody>
-            <p className="text-[12px] text-destructive">Failed to load checklist template.</p>
-          </SettingsPanelBody>
+          <SettingsCardNote tone="destructive">Failed to load checklist template.</SettingsCardNote>
         ) : checklistItems.length === 0 && !checklistContent.trim() ? (
-          <SettingsPanelBody className="py-8">
-            <EmptyState
-              title="No checklist yet"
-              hint="Add rules and - [ ] items. They show up on New Note."
-              icon={<Check size={28} strokeWidth={1.5} />}
-            />
-          </SettingsPanelBody>
+          <SettingsCardRow
+            icon={Check}
+            label="No checklist yet"
+            detail="Add rules and - [ ] items — they show up on New Note."
+          >
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              aria-label="Edit checklist"
+              onClick={openChecklistModal}
+            >
+              Create checklist
+            </Button>
+          </SettingsCardRow>
         ) : checklistItems.length > 0 ? (
-          <SettingsGroup>
+          <div className="flex flex-col px-5 py-1">
             {checklistItems.map((item, index) => (
-              <SettingsRow
-                key={`${item}-${index}`}
-                last={index === checklistItems.length - 1}
-                primary={item}
-              />
+              <div key={`${item}-${index}`} className="flex items-center gap-3 py-1.5">
+                <span
+                  aria-hidden
+                  className="size-4 shrink-0 rounded-[4px] border-[1.5px] border-muted-foreground/35"
+                />
+                <span className="min-w-0 text-[13px] text-foreground">{item}</span>
+              </div>
             ))}
-          </SettingsGroup>
+          </div>
         ) : (
-          <SettingsPanelBody>
-            <p className="text-[12px] text-muted-foreground">
-              Checklist text saved — add <code className="text-primary">- [ ]</code> items so they
-              appear on New Note.
-            </p>
-          </SettingsPanelBody>
+          <SettingsCardNote>
+            Checklist text saved — add <code className="text-primary">- [ ]</code> items so they
+            appear on New Note.
+          </SettingsCardNote>
         )}
-      </SettingsSection>
+      </SettingsCard>
 
       <Modal
         open={checklistModalOpen}
@@ -1435,76 +1486,47 @@ export function RulesTab({
             >
               Cancel
             </Button>
-            <Button
-              type="button"
-              disabled={
-                riskRulesSaving || (ruleModal.open && ruleModal.mode === "add" && !canAddRule)
-              }
-              onClick={() => void handleSaveRule()}
-            >
+            <Button type="button" disabled={riskRulesSaving} onClick={() => void handleSaveRule()}>
               {riskRulesSaving
                 ? "Saving…"
                 : ruleModal.open && ruleModal.mode === "edit"
                   ? "Save"
-                  : "Add rule"}
+                  : "Set rule"}
             </Button>
           </>
         }
       >
-        <div className="flex flex-col gap-3">
-          {ruleModal.open && ruleModal.mode === "add" ? (
-            <Field label="Rule type">
-              <NativeSelect
-                size="sm"
-                value={ruleKey}
-                onChange={(e) => setRuleKey(e.target.value as RiskRuleKey)}
-                aria-label="Rule type"
-                className="h-8 w-full text-[12px]"
-                wrapperClassName="w-full"
-              >
-                {availableKeys.map((key) => {
-                  const def = riskRuleDef(key);
-                  return (
-                    <NativeSelectOption key={key} value={key}>
-                      {def.label}
-                    </NativeSelectOption>
-                  );
-                })}
-              </NativeSelect>
+        {modalDef ? (
+          <div className="flex flex-col gap-3">
+            <p className="m-0 text-[12px] leading-relaxed text-muted-foreground">
+              {modalDef.detail}
+            </p>
+            <Field
+              label={
+                modalDef.unit === "%"
+                  ? "Value (%)"
+                  : modalDef.unit === "count"
+                    ? "Value (trades)"
+                    : "Value ($)"
+              }
+              htmlFor="risk-rule-value"
+              error={ruleError ?? undefined}
+            >
+              <AmountInput
+                id="risk-rule-value"
+                value={ruleValue}
+                onValueChange={(v) => {
+                  setRuleValue(v);
+                  if (ruleError) setRuleError(null);
+                }}
+                placeholder={modalDef.placeholder}
+                aria-label={modalDef.label}
+                className="w-full"
+                autoFocus
+              />
             </Field>
-          ) : (
-            <div className="flex flex-col gap-1">
-              <span className="text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground">
-                Rule type
-              </span>
-              <p className="m-0 text-[13px] font-medium text-foreground">{modalDef.label}</p>
-              <p className="m-0 text-[12px] text-muted-foreground">{modalDef.detail}</p>
-            </div>
-          )}
-          <Field
-            label={
-              modalDef.unit === "%"
-                ? "Value (%)"
-                : modalDef.unit === "count"
-                  ? "Value (trades)"
-                  : "Value ($)"
-            }
-            htmlFor="risk-rule-value"
-            error={ruleError ?? undefined}
-          >
-            <AmountInput
-              id="risk-rule-value"
-              value={ruleValue}
-              onValueChange={(v) => {
-                setRuleValue(v);
-                if (ruleError) setRuleError(null);
-              }}
-              placeholder={modalDef.placeholder}
-              aria-label={modalDef.label}
-              className="w-full"
-            />
-          </Field>
-        </div>
+          </div>
+        ) : null}
       </Modal>
 
       <Modal

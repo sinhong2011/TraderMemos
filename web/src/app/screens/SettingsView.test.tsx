@@ -37,6 +37,11 @@ vi.mock("../../lib/hooks/useImports", () => ({
   useDeleteImport: () => ({ mutate: () => {}, isPending: false }),
 }));
 
+// RulesTab reads YTD net P&L for the annual-goal progress readout.
+vi.mock("../../lib/hooks/useAnalytics", () => ({
+  useSummary: () => ({ data: undefined, isLoading: false, isError: false }),
+}));
+
 vi.mock("../../lib/hooks/useFlexSync", () => ({
   useFlexSync: () => ({ data: undefined, isLoading: false, isError: false }),
   useFlexSyncConnections: () => ({ data: [], isLoading: false, isError: false }),
@@ -350,18 +355,23 @@ describe("SettingsView", () => {
     expect(screen.getByText("No tags yet")).toBeInTheDocument();
   });
 
-  it("renders risk rules section on the rules tab", async () => {
+  it("renders the full risk-rule catalog on the rules tab", async () => {
     const user = userEvent.setup();
     renderSettings({ ...baseProps });
     await user.click(screen.getByRole("link", { name: /^Rules$/i }));
     expect(screen.getByText("Risk Rules")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /add rule/i })).toBeInTheDocument();
-    expect(screen.getByText("No risk rules yet")).toBeInTheDocument();
+    // Every rule from the catalog shows as a row with a Set affordance.
+    expect(screen.getByText("Max risk / trade")).toBeInTheDocument();
+    expect(screen.getByText("Max daily loss")).toBeInTheDocument();
+    expect(screen.getByText("Max open risk")).toBeInTheDocument();
+    expect(screen.getByText("Default account risk %")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Set Max risk / trade" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Set Default account risk %" })).toBeInTheDocument();
     expect(screen.getByText("Annual P&L Goal")).toBeInTheDocument();
     expect(screen.getByText("No annual goal yet")).toBeInTheDocument();
   });
 
-  it("lists configured risk rules and opens add modal", async () => {
+  it("shows configured rule values and opens the set modal from a row", async () => {
     const user = userEvent.setup();
     renderSettings({
       ...baseProps,
@@ -375,11 +385,11 @@ describe("SettingsView", () => {
       },
     });
     await user.click(screen.getByRole("link", { name: /^Rules$/i }));
-    expect(screen.getByText("Max risk / trade")).toBeInTheDocument();
     expect(screen.getByText("$100")).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: /add rule/i }));
-    expect(screen.getByRole("heading", { name: /add risk rule/i })).toBeInTheDocument();
-    expect(screen.getByLabelText(/rule type/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Edit Max risk / trade" })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Set Max daily loss" }));
+    expect(screen.getByRole("heading", { name: /set max daily loss/i })).toBeInTheDocument();
+    expect(screen.getByLabelText("Max daily loss")).toBeInTheDocument();
   });
 
   it("opens checklist editor in a modal on rules tab", async () => {
