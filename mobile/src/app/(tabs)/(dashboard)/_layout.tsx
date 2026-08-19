@@ -117,16 +117,17 @@ export default function DashboardLayout() {
         options={{ title: t`Economic calendar`, headerLargeTitle: false }}
       />
       {/* Reports left the tab bar for the Tools menu (2026-08-09), so it pushes
-          in the Home stack. The bar goes opaque because the pager root is a
-          plain View, not an inset-aware ScrollView; the segmented section
-          switcher keeps the vertical room a large title would take. Account
-          scope is set from the Home header — the back button owns the left slot
-          here, so Reports keeps only its display filters. */}
+          in the Home stack. It keeps the stack's large title + transparent bar:
+          the pager pages nominate their scroll view through soft-scroll-edge,
+          so the native collapse and edge fade work despite the plain-View
+          pager root. Account scope is set from the Home header — the back
+          button owns the left slot here, so Reports keeps only its display
+          filters. */}
       <Stack.Screen
         name="reports"
         options={{
           title: t`Reports`,
-          headerLargeTitle: false,
+          headerLargeTitle: true,
           headerTransparent: false,
           headerStyle: { backgroundColor: background },
           headerRight: () => <ReportsHeaderFilterMenu />,

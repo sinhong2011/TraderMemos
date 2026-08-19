@@ -76,7 +76,6 @@ export default function ReportsScreen() {
   const [visited, setVisited] = useState<ReadonlySet<ReportsSection>>(
     () => new Set<ReportsSection>(['overview']),
   );
-  const [scrolled, setScrolled] = useState(false);
   const pagerRef = useRef<PagerView>(null);
 
   const visit = (value: ReportsSection) =>
@@ -127,7 +126,7 @@ export default function ReportsScreen() {
     <>
       <Stack.Screen
         options={{
-          title: scrolled ? t`Reports` : '',
+          title: t`Reports`,
           headerRight: () => <ReportsHeaderRight />,
         }}
       />
@@ -156,19 +155,19 @@ export default function ReportsScreen() {
             }}
           >
             <View key="overview" className="flex-1">
-              {visited.has('overview') ? <OverviewSection onScrolledChange={setScrolled} /> : null}
+              {visited.has('overview') ? <OverviewSection /> : null}
             </View>
             <View key="winloss" className="flex-1">
-              {visited.has('winloss') ? <WinLossSection onScrolledChange={setScrolled} /> : null}
+              {visited.has('winloss') ? <WinLossSection /> : null}
             </View>
             <View key="detailed" className="flex-1">
-              {visited.has('detailed') ? <DetailedSection onScrolledChange={setScrolled} /> : null}
+              {visited.has('detailed') ? <DetailedSection /> : null}
             </View>
             <View key="risk" className="flex-1">
-              {visited.has('risk') ? <RiskSection onScrolledChange={setScrolled} /> : null}
+              {visited.has('risk') ? <RiskSection /> : null}
             </View>
             <View key="behavior" className="flex-1">
-              {visited.has('behavior') ? <BehaviorSection onScrolledChange={setScrolled} /> : null}
+              {visited.has('behavior') ? <BehaviorSection /> : null}
             </View>
           </PagerView>
         </ReportsScrollProvider>

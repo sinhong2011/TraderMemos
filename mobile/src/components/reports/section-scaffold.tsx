@@ -7,7 +7,7 @@
  */
 
 import { useQueryClient } from '@tanstack/react-query';
-import { createContext, useContext, type ReactNode } from 'react';
+import { createContext, useContext, useRef, type ReactNode } from 'react';
 import { Animated, RefreshControl, View } from 'react-native';
 import { useCSSVariable } from 'uniwind';
 
@@ -19,7 +19,7 @@ import { netDeposits } from '@/lib/cash';
 import { useGlobalFilters } from '@/lib/filters';
 import { useFormatters } from '@/lib/format';
 import { useMoneyFx } from '@/lib/money';
-import { useSoftTopEdge } from '@/lib/soft-scroll-edge';
+import { nominateSoftTopEdge, useSoftTopEdge } from '@/lib/soft-scroll-edge';
 import { usePagerBottomInset } from '@/lib/pager-insets';
 import { accountBaseCurrency } from '@/lib/prefs';
 import {
@@ -113,14 +113,19 @@ export function SectionScaffold({
   const bottomInset = usePagerBottomInset();
   const softTopEdge = useSoftTopEdge();
 
+  const scrollNode = useRef<unknown>(null);
   const onScroll = reportsScroll
-    ? Animated.event([{ nativeEvent: { contentOffset: { y: reportsScroll.offset } } }], {
+    ? // eslint-disable-next-line react-hooks/refs -- the ref is only read inside the scroll listener, never during render
+      Animated.event([{ nativeEvent: { contentOffset: { y: reportsScroll.offset } } }], {
         useNativeDriver: true,
         // Same boolean the index has always used for its title; setState with
         // an unchanged value is a no-op, so it needn't be de-duped here.
         listener: (event) => {
           const { y } = (event.nativeEvent as { contentOffset: { y: number } }).contentOffset;
           onScrolledChange?.(y > 24);
+          // Whichever page the user drags is the one the header should track
+          // (large-title collapse + soft edge) — repeat nominations dedupe.
+          nominateSoftTopEdge(scrollNode.current);
         },
       })
     : undefined;
@@ -129,10 +134,21 @@ export function SectionScaffold({
     <Animated.ScrollView
       // The screens-level scrollEdgeEffects can't reach a list nested in the
       // pager — nominate this scroll view for the soft top fade explicitly.
-      ref={softTopEdge}
+      ref={(node: unknown) => {
+        scrollNode.current = node;
+        softTopEdge(node);
+      }}
       style={{ flex: 1, backgroundColor: background }}
-      contentContainerStyle={{ paddingTop: headerHeight, paddingBottom: 48 + bottomInset }}
-      contentInsetAdjustmentBehavior="automatic"
+      contentContainerStyle={{ paddingBottom: 48 + bottomInset }}
+      // No top padding, and both inset mechanisms off: once the scroll view is
+      // associated with the nav bar (lib/soft-scroll-edge), UIKit positions the
+      // content below the expanded large title itself, and the switcher rides
+      // in that same band. Adding either the manual switcher inset or an
+      // automatic one on top of that reopens a large-title-sized gap under the
+      // switcher. Bottom clearance stays explicit — `automatic` never
+      // delivered the tab-bar inset inside the pager (see lib/pager-insets.ts).
+      contentInsetAdjustmentBehavior="never"
+      automaticallyAdjustContentInsets={false}
       scrollEventThrottle={16}
       onScroll={onScroll}
       refreshControl={
