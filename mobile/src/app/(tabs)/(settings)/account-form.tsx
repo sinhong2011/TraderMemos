@@ -347,13 +347,22 @@ function AccountForm({ account, accountCount }: { account?: Account; accountCoun
                   }
                 />
               </>
-            ) : (
+            ) : /ibkr|interactive brokers/i.test(account.broker) ? (
               <SettingsButton
                 systemImage="arrow.triangle.2.circlepath"
                 label={t`Connect IBKR Flex sync`}
                 onPress={() =>
                   router.push({ pathname: '/flex-sync', params: { accountId: account.id } })
                 }
+              />
+            ) : (
+              // A non-IBKR account gets the broker catalogue, not a hard-coded
+              // IBKR pitch — auto-sync only exists for IBKR, but file import
+              // covers the rest.
+              <SettingsButton
+                systemImage="building.columns"
+                label={t`Connect a broker`}
+                onPress={() => router.push('/connect-broker')}
               />
             )}
           </SettingsSection>
