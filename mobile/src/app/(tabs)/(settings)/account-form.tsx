@@ -304,29 +304,6 @@ function AccountForm({ account, accountCount }: { account?: Account; accountCoun
           </>
         ) : null}
 
-        {isEdit ? (
-          <SettingsSection title={t`Performance`}>
-            <SettingsRow label={t`Deposited`}>
-              <ValueText>{formatCurrency(deposited, account.base_currency)}</ValueText>
-            </SettingsRow>
-            <SettingsRow label={t`Equity`}>
-              <ValueText>{formatCurrency(equity, account.base_currency)}</ValueText>
-            </SettingsRow>
-            <SettingsRow label={t`Realized P&L`}>
-              <ValueText color={pnlColor(pnl, netPnl)}>
-                {formatPnl(netPnl, account.base_currency)}
-              </ValueText>
-            </SettingsRow>
-            {deposited !== 0 ? (
-              <SettingsRow label={t`Return`}>
-                <ValueText>{formatPercent(netPnl / deposited)}</ValueText>
-              </SettingsRow>
-            ) : null}
-            <SettingsRow label={t`Trades`}>
-              <ValueText>{String(tradeCount)}</ValueText>
-            </SettingsRow>
-          </SettingsSection>
-        ) : null}
 
         {/* Web AccountDetailView's Broker connection card, in section form:
             health + last sync at a glance here, the flex-sync screen for
@@ -379,6 +356,29 @@ function AccountForm({ account, accountCount }: { account?: Account; accountCoun
                 }
               />
             )}
+          </SettingsSection>
+        ) : null}
+        {isEdit ? (
+          <SettingsSection title={t`Performance`}>
+            <SettingsRow label={t`Deposited`}>
+              <ValueText>{formatCurrency(deposited, account.base_currency)}</ValueText>
+            </SettingsRow>
+            <SettingsRow label={t`Equity`}>
+              <ValueText>{formatCurrency(equity, account.base_currency)}</ValueText>
+            </SettingsRow>
+            <SettingsRow label={t`Realized P&L`}>
+              <ValueText color={pnlColor(pnl, netPnl)}>
+                {formatPnl(netPnl, account.base_currency)}
+              </ValueText>
+            </SettingsRow>
+            {deposited !== 0 ? (
+              <SettingsRow label={t`Return`}>
+                <ValueText>{formatPercent(netPnl / deposited)}</ValueText>
+              </SettingsRow>
+            ) : null}
+            <SettingsRow label={t`Trades`}>
+              <ValueText>{String(tradeCount)}</ValueText>
+            </SettingsRow>
           </SettingsSection>
         ) : null}
 
