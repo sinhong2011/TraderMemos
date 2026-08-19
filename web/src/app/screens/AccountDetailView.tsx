@@ -315,6 +315,9 @@ export function AccountDetailView({
             <ArrowLeft size={13} strokeWidth={1.5} />
             All accounts
           </Button>
+          {account.account_type === "prop" ? (
+            <PropRulesButton accountId={account.id} accountName={account.name} />
+          ) : null}
           <EditAccountButton account={account} />
         </div>
       </header>
@@ -337,40 +340,55 @@ export function AccountDetailView({
 
       <ImportHistorySection accounts={accounts} accountId={account.id} />
 
-      <Card
-        title="Danger zone"
-        description="Destructive actions for this account. Both ask before doing anything."
-      >
-        <div className="flex flex-wrap items-center gap-2">
-          {account.account_type === "prop" ? (
-            <PropRulesButton accountId={account.id} accountName={account.name} />
-          ) : null}
-          <ClearTradesButton
-            accountName={account.name}
-            tradeCount={tradeCount}
-            onClear={async () => {
-              try {
-                await clearTrades.mutateAsync(account.id);
-                toast.add({ title: "Trades cleared", description: account.name });
-              } catch {
-                toast.add({ title: "Could not clear trades", description: "Try again." });
-              }
-            }}
-          />
-          <DeleteAccountButton
-            accountName={account.name}
-            onDelete={async () => {
-              try {
-                await deleteAccount.mutateAsync(account.id);
-                toast.add({ title: "Account deleted", description: account.name });
-                onDeleted();
-              } catch {
-                toast.add({ title: "Could not delete account", description: "Try again." });
-              }
-            }}
-            disabled={isOnlyAccount}
-            disabledReason="Add another account before deleting this one"
-          />
+      <Card title="Danger zone" description="Both actions ask before doing anything.">
+        <div className="flex flex-col divide-y divide-border/40">
+          <div className="flex flex-wrap items-center gap-3 py-3 first:pt-0 last:pb-0">
+            <div className="min-w-0 flex-1">
+              <p className="m-0 text-[13px] font-medium text-foreground">Clear trade history</p>
+              <p className="m-0 mt-0.5 text-[12px] text-muted-foreground">
+                {tradeCount > 0
+                  ? `Deletes the ${tradeCount} trade${tradeCount === 1 ? "" : "s"} and every execution in this account.`
+                  : "Deletes every trade and execution in this account."}
+              </p>
+            </div>
+            <ClearTradesButton
+              accountName={account.name}
+              tradeCount={tradeCount}
+              onClear={async () => {
+                try {
+                  await clearTrades.mutateAsync(account.id);
+                  toast.add({ title: "Trades cleared", description: account.name });
+                } catch {
+                  toast.add({ title: "Could not clear trades", description: "Try again." });
+                }
+              }}
+            />
+          </div>
+          <div className="flex flex-wrap items-center gap-3 py-3 first:pt-0 last:pb-0">
+            <div className="min-w-0 flex-1">
+              <p className="m-0 text-[13px] font-medium text-foreground">Delete account</p>
+              <p className="m-0 mt-0.5 text-[12px] text-muted-foreground">
+                {isOnlyAccount
+                  ? "Add another account before deleting this one."
+                  : "Removes the account with its trades, cash transactions and attachments."}
+              </p>
+            </div>
+            <DeleteAccountButton
+              accountName={account.name}
+              label="Delete account"
+              onDelete={async () => {
+                try {
+                  await deleteAccount.mutateAsync(account.id);
+                  toast.add({ title: "Account deleted", description: account.name });
+                  onDeleted();
+                } catch {
+                  toast.add({ title: "Could not delete account", description: "Try again." });
+                }
+              }}
+              disabled={isOnlyAccount}
+              disabledReason="Add another account before deleting this one"
+            />
+          </div>
         </div>
       </Card>
     </Page>

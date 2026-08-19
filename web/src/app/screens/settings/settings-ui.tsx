@@ -762,12 +762,15 @@ export function DeleteAccountButton({
   onDelete,
   disabled,
   disabledReason,
+  label,
 }: {
   accountName: string;
   detail?: string;
   onDelete: () => void;
   disabled?: boolean;
   disabledReason?: string;
+  /** Render a labelled trigger instead of the icon-only one (detail page). */
+  label?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [typed, setTyped] = useState("");
@@ -785,7 +788,7 @@ export function DeleteAccountButton({
       <Button
         type="button"
         variant="outline"
-        size="icon-sm"
+        size={label ? "sm" : "icon-sm"}
         disabled={disabled}
         title={disabled ? disabledReason : "Delete account"}
         aria-label={`Delete ${accountName}`}
@@ -793,6 +796,7 @@ export function DeleteAccountButton({
         className="border-border bg-transparent text-destructive hover:bg-destructive/10 hover:text-destructive disabled:opacity-40"
       >
         <Trash2 size={14} strokeWidth={1.5} />
+        {label}
       </Button>
       <Modal
         open={open}
