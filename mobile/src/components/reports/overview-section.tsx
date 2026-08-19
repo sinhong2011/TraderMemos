@@ -602,7 +602,7 @@ function ExecutionScoreCard() {
       title={t`Execution score`}
       control={
         <Segmented
-          bare
+          compact
           options={[
             { value: 'week', label: t`Weekly` },
             { value: 'month', label: t`Monthly` },
@@ -686,8 +686,14 @@ function ExecutionScoreCard() {
                       {a.label}
                     </Text>
                     <Text
-                      className="text-[11px] font-semibold tabular-nums"
-                      style={{ color: value == null ? mutedForeground : tone(value) }}
+                      className="text-[11px] font-semibold tabular-nums text-foreground"
+                      style={
+                        value == null
+                          ? { color: mutedForeground }
+                          : tone(value) != null
+                            ? { color: tone(value) }
+                            : undefined
+                      }
                     >
                       {value == null ? t`n/a` : String(Math.round(value))}
                     </Text>
@@ -709,6 +715,9 @@ function ExecutionScoreCard() {
             >
               <LineChart.Grid />
               <LineChart.Line dataKey="value" color={primary} />
+              <LineChart.XAxis
+                format={(datum) => String(datum.date ?? '').slice(5).replace('-', '/')}
+              />
             </LineChart>
           ) : null}
           <Text className="text-[11px] leading-relaxed text-muted-foreground">{selected.hint}</Text>
