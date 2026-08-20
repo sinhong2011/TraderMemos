@@ -466,7 +466,7 @@ export default function TradesScreen() {
                 ? t`No trades matching "${search}"`
                 : status !== 'all'
                   ? t`No trades match this filter.`
-                  : t`No trades yet — import a broker CSV to get started.`}
+                  : t`Tap + to log a trade, or import from Settings → Import trades.`}
             </Text>
           </View>
         }

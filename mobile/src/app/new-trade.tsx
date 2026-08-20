@@ -108,7 +108,7 @@ export default function NewTradeScreen() {
         case 'account':
           return Alert.alert(
             t`Trade not ready`,
-            t`No account found — create one on the web app first.`,
+            t`No account found — create one in Settings → Accounts.`,
           );
         case 'symbol':
           return Alert.alert(t`Trade not ready`, t`Enter a symbol for ${label}.`);
@@ -151,7 +151,7 @@ export default function NewTradeScreen() {
   if (accounts.length === 0) {
     return (
       <View className="flex-1 items-center justify-center bg-background p-6">
-        <Text className="text-center text-muted-foreground">{t`No account found — create one on the web app first.`}</Text>
+        <Text className="text-center text-muted-foreground">{t`No account found — create one in Settings → Accounts.`}</Text>
       </View>
     );
   }

@@ -7,7 +7,7 @@
  * UnauthorizedError so the UI can send the user back to login.
  */
 
-import type { Credentials, TokenPair } from './types';
+import type { Credentials, SetupAccountInput, SetupResult, SetupStatus, TokenPair } from './types';
 import { clearTokens, saveTokens, type Session } from './session';
 import { reportReachable, reportUnreachable } from '@/lib/connectivity';
 
@@ -231,4 +231,28 @@ export async function ping(serverUrl: string): Promise<boolean> {
   } catch {
     return false;
   }
+}
+
+/** Unauthenticated — whether this host still needs its first (owner) account. */
+export async function setupStatus(serverUrl: string): Promise<SetupStatus> {
+  const response = await netFetch(serverUrl, buildUrl(serverUrl, '/setup/status'));
+  if (!response.ok) throw await toApiError(response);
+  return (await response.json()) as SetupStatus;
+}
+
+/**
+ * Unauthenticated, succeeds once. The 201 body already carries the token pair,
+ * so the caller should `signIn` with it rather than bouncing to the login form.
+ */
+export async function completeSetup(
+  serverUrl: string,
+  body: { email: string; password: string; account?: SetupAccountInput | null },
+): Promise<SetupResult> {
+  const response = await netFetch(serverUrl, buildUrl(serverUrl, '/setup'), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (!response.ok) throw await toApiError(response);
+  return (await response.json()) as SetupResult;
 }
