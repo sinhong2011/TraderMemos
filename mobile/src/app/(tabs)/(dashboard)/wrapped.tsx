@@ -163,7 +163,13 @@ function YearIndicator({
   if (years.length < 2) return null;
 
   return (
-    <View className="flex-row items-center justify-center gap-2 px-4 py-3">
+    <View
+      // Top padding, not a top offset: the strip's own height is what the
+      // pages inset by, so padding keeps the two in step. `useHeaderHeight`
+      // under-reports the bar by the scroll-edge boundary's own height, which
+      // is why an even `py` left the dots hugging the hairline.
+      className="flex-row items-center justify-center gap-2 px-4 pb-3 pt-7"
+    >
       {Array.from({ length: windowSize }, (_, i) => {
         const pageIndex = windowStart + i;
         return (
