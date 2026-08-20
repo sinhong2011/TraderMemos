@@ -153,7 +153,7 @@ function WrappedYear({
       // here (lib/pager-insets.ts), so it would leave the content under the bar.
       contentInsetAdjustmentBehavior="never"
       contentContainerClassName="gap-4 p-4"
-      contentContainerStyle={{ paddingTop: headerHeight + 8, paddingBottom: 48 + bottomInset }}
+      contentContainerStyle={{ paddingTop: headerHeight + 24, paddingBottom: 48 + bottomInset }}
       refreshControl={
         <RefreshControl
           refreshing={trades.isRefetching}
