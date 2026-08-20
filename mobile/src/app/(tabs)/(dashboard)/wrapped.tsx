@@ -53,19 +53,15 @@ function monthShort(month: number): string {
 function YearIndicator({
   years,
   index,
-  currentYear,
   onSelect,
 }: {
   years: number[];
   index: number;
-  currentYear: number;
   onSelect: (index: number) => void;
 }) {
   const year = years[index]!;
   const prev = index > 0 ? years[index - 1] : null;
   const next = index < years.length - 1 ? years[index + 1] : null;
-  const inProgress = year === currentYear;
-
   // Sliding window of at most 7 dots so a 2000→now range doesn't paint a grid.
   const windowSize = Math.min(7, years.length);
   const windowStart = Math.max(
@@ -88,17 +84,14 @@ function YearIndicator({
             {prev ?? ' '}
           </Text>
         </Pressable>
+        {/* The year alone. An "· in progress" tail here sat at the same
+            weight as the subject and read as half a sentence; the hero card's
+            caption below says it in words instead. */}
         <Text
           className="text-center text-lg font-semibold text-foreground tabular-nums"
           accessibilityRole="header"
         >
           {year}
-          {inProgress ? (
-            <Text className="text-[13px] font-normal text-muted-foreground">
-              {' '}
-              · {t`in progress`}
-            </Text>
-          ) : null}
         </Text>
         <Pressable
           onPress={() => next != null && onSelect(index + 1)}
@@ -142,10 +135,13 @@ function YearIndicator({
 function WrappedYear({
   year,
   active,
+  inProgress,
   indicator,
 }: {
   year: number;
   active: boolean;
+  /** The year hasn't ended — the recap is a partial one. */
+  inProgress: boolean;
   /** Rendered at the top of this page's scroll content — see the screen below. */
   indicator: ReactNode;
 }) {
@@ -190,7 +186,7 @@ function WrappedYear({
       // here (lib/pager-insets.ts), so it would leave the content under the bar.
       contentInsetAdjustmentBehavior="never"
       contentContainerClassName="gap-4 p-4"
-      contentContainerStyle={{ paddingTop: headerHeight, paddingBottom: 48 + bottomInset }}
+      contentContainerStyle={{ paddingTop: headerHeight + 8, paddingBottom: 48 + bottomInset }}
       refreshControl={
         <RefreshControl
           refreshing={trades.isRefetching}
@@ -225,7 +221,7 @@ function WrappedYear({
         </View>
       ) : (
         <>
-          <DashboardCard title={t`${year} in one number`}>
+          <DashboardCard title={inProgress ? t`${year} so far` : t`${year} in one number`}>
             <View className="items-center gap-1 py-2">
               <Text
                 selectable
@@ -436,13 +432,9 @@ export default function WrappedScreen() {
               <WrappedYear
                 year={year}
                 active={Math.abs(pageIndex - index) <= 1}
+                inProgress={year === currentYear}
                 indicator={
-                  <YearIndicator
-                    years={years}
-                    index={index}
-                    currentYear={currentYear}
-                    onSelect={selectIndex}
-                  />
+                  <YearIndicator years={years} index={index} onSelect={selectIndex} />
                 }
               />
             </View>
