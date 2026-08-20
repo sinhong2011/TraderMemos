@@ -275,6 +275,51 @@ func (q *Queries) ListExecutionsForAccount(ctx context.Context, arg ListExecutio
 	return items, nil
 }
 
+const listOptionExecutions = `-- name: ListOptionExecutions :many
+SELECT id, user_id, account_id, external_id, symbol, instrument_type, side, quantity, price, fees, commission, executed_at, multiplier, details, import_batch_id, dedup_hash, created_at FROM executions WHERE instrument_type = 'option' ORDER BY user_id, account_id, executed_at, id
+`
+
+func (q *Queries) ListOptionExecutions(ctx context.Context) ([]Execution, error) {
+	rows, err := q.db.QueryContext(ctx, listOptionExecutions)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Execution
+	for rows.Next() {
+		var i Execution
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.AccountID,
+			&i.ExternalID,
+			&i.Symbol,
+			&i.InstrumentType,
+			&i.Side,
+			&i.Quantity,
+			&i.Price,
+			&i.Fees,
+			&i.Commission,
+			&i.ExecutedAt,
+			&i.Multiplier,
+			&i.Details,
+			&i.ImportBatchID,
+			&i.DedupHash,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateExecution = `-- name: UpdateExecution :execrows
 UPDATE executions
 SET side = $1,
@@ -315,4 +360,31 @@ func (q *Queries) UpdateExecution(ctx context.Context, arg UpdateExecutionParams
 		return 0, err
 	}
 	return result.RowsAffected()
+}
+
+const updateExecutionContract = `-- name: UpdateExecutionContract :exec
+UPDATE executions
+SET symbol = $1,
+    details = $2,
+    dedup_hash = $3
+WHERE id = $4 AND user_id = $5
+`
+
+type UpdateExecutionContractParams struct {
+	Symbol    string         `json:"symbol"`
+	Details   sql.NullString `json:"details"`
+	DedupHash string         `json:"dedup_hash"`
+	ID        string         `json:"id"`
+	UserID    string         `json:"user_id"`
+}
+
+func (q *Queries) UpdateExecutionContract(ctx context.Context, arg UpdateExecutionContractParams) error {
+	_, err := q.db.ExecContext(ctx, updateExecutionContract,
+		arg.Symbol,
+		arg.Details,
+		arg.DedupHash,
+		arg.ID,
+		arg.UserID,
+	)
+	return err
 }

@@ -38,6 +38,8 @@ var brokerPresets = []BrokerPreset{
 			"commission":      {"ibcommission", "commission"},
 			"instrument_type": {"assetclass", "assetcategory"},
 			"option_right":    {"put/call"},
+			"strike":          {"strike"},
+			"expiry":          {"expiry"},
 			"multiplier":      {"multiplier"},
 		},
 	},

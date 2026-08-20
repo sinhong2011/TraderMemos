@@ -8,6 +8,8 @@ type ParsedExecution struct {
 	Symbol         string
 	InstrumentType string
 	OptionRight    string // call|put when instrument is option
+	Strike         string // option strike, decimal string ("120", "37.5")
+	Expiry         string // option expiry, YYYY-MM-DD
 	Side           string // buy|sell
 	Quantity       float64
 	Price          float64

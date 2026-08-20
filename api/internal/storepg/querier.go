@@ -111,6 +111,7 @@ type Querier interface {
 	ListJournalRisks(ctx context.Context, userID string) ([]ListJournalRisksRow, error)
 	ListMediaFilesForUser(ctx context.Context, userID string) ([]MediaFile, error)
 	ListOptionExecutionDetailsForUser(ctx context.Context, userID string) ([]ListOptionExecutionDetailsForUserRow, error)
+	ListOptionExecutions(ctx context.Context) ([]Execution, error)
 	ListPropSettingsForUser(ctx context.Context, userID string) ([]PropSetting, error)
 	ListSetups(ctx context.Context, userID string) ([]Setup, error)
 	ListSetupsForTrade(ctx context.Context, tradeID string) ([]Setup, error)
@@ -143,6 +144,7 @@ type Querier interface {
 	UpdateAlertChannelStatus(ctx context.Context, arg UpdateAlertChannelStatusParams) error
 	UpdateCashTransaction(ctx context.Context, arg UpdateCashTransactionParams) (CashTransaction, error)
 	UpdateExecution(ctx context.Context, arg UpdateExecutionParams) (int64, error)
+	UpdateExecutionContract(ctx context.Context, arg UpdateExecutionContractParams) error
 	UpdateFlexSyncStatus(ctx context.Context, arg UpdateFlexSyncStatusParams) error
 	UpdateJournalNote(ctx context.Context, arg UpdateJournalNoteParams) (JournalNote, error)
 	UpdateSetup(ctx context.Context, arg UpdateSetupParams) error

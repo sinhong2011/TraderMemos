@@ -273,6 +273,9 @@ func (g *Generic) parseRow(row map[string]string) (ParsedExecution, error) {
 		if p.OptionRight == "" {
 			p.OptionRight = InferOptionRight(p.Symbol)
 		}
+		p.Strike = parseStrikeCell(g.col(row, "strike"))
+		p.Expiry = parseExpiryCell(g.col(row, "expiry"))
+		normalizeOCCOption(&p)
 	}
 	g.applyMultiplier(&p, row)
 	return p, nil
