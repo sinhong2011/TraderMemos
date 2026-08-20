@@ -42,7 +42,8 @@
               "public.plain-text"
             ]
           }
-        ]
+        ],
+        "CFBundleIconName": "expo"
       }
     },
     "android": {
