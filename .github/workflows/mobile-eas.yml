@@ -46,6 +46,14 @@ on:
         description: Submit the finished iOS build to App Store Connect
         default: false
         type: boolean
+      # Declared here as well as on workflow_dispatch: an input that only the
+      # dispatch trigger knows about reads as null on workflow_call, and
+      # `inputs.wait != false` is then false (GitHub coerces null and false
+      # alike to 0) — which silently skipped the release's APK attach step.
+      wait:
+        description: Keep the job running until EAS finishes the build
+        default: true
+        type: boolean
       message:
         description: Build message shown in the EAS dashboard
         required: false
@@ -225,7 +233,7 @@ jobs:
           PROFILE: ${{ inputs.profile }}
           PLATFORM: ${{ inputs.platform }}
           SUBMIT: ${{ inputs.submit }}
-          # Unset on workflow_call, where waiting is always what we want.
+          # Defaults to true on workflow_call, where waiting is always what we want.
           WAIT: ${{ inputs.wait }}
           MESSAGE: ${{ inputs.message || github.sha }}
         run: |
