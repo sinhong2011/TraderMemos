@@ -3,12 +3,14 @@
 import PagerView from 'react-native-pager-view';
 import { FitText } from '@/components/fit-text';
 import { Stack, useRouter } from 'expo-router';
-import { Fragment, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import Animated, {
   Easing,
   FadeOut,
   ReduceMotion,
+  useAnimatedStyle,
+  useSharedValue,
   withTiming,
   type EntryExitAnimationFunction,
 } from 'react-native-reanimated';
@@ -71,6 +73,28 @@ const SUMMARY_SUB = 'text-xs tabular-nums text-muted-foreground';
 const HEADER_TITLE = 'max-w-[118px] text-[11px] font-semibold text-foreground';
 
 const PAGER_BUTTON = 'h-8 w-8 items-center justify-center rounded-full active:opacity-60';
+
+/** One tile in the jump sheet's 4x3 grid — a month, or a year. */
+const JUMP_TILE = 'h-12 flex-1 items-center justify-center rounded-lg';
+
+/**
+ * The jump sheet's body height: header row, three tile rows, footer, and the
+ * gaps between. Stated rather than measured because the two faces are stacked
+ * on top of each other while they cross-fade, and a body that sized itself to
+ * whichever was mounted would resize the sheet mid-transition.
+ */
+const JUMP_BODY = 'h-[248px]';
+
+/**
+ * Localized short month names. `locale` settles once at startup, so the twelve
+ * names do too; 2023-01 anchors a stable base date and only the name matters.
+ */
+const MONTH_NAMES = Array.from({ length: 12 }, (_unused, i) =>
+  new Date(Date.UTC(2023, i, 1)).toLocaleDateString(locale, {
+    month: 'short',
+    timeZone: 'UTC',
+  }),
+);
 
 /** Summary header above the grid: big net figure left, period facts right. */
 const SUMMARY_ROW = 'flex-row items-end justify-between gap-3 px-0.5 pb-3 pt-1';
@@ -517,6 +541,27 @@ export default function CalendarScreen() {
     });
   }
 
+  /*
+   * Which periods hold trades, for the jump picker. A month or a year with
+   * nothing in it is a board of empty cells, so the picker greys it out rather
+   * than letting you land there. Built off the same full trade list `dayStats`
+   * reads — `/trades` is unpaged, so this is the whole history under the
+   * current filters — and `null` while it loads, which the picker reads as
+   * "no idea yet, offer everything" rather than greying out the lot.
+   */
+  const tradedPeriods = useMemo(() => {
+    if (trades.data == null) return null;
+    const months = new Set<string>();
+    const years = new Set<number>();
+    for (const trade of trades.data) {
+      const key = tradeDayKey(trade);
+      if (!key) continue;
+      months.add(key.slice(0, 7));
+      years.add(Number(key.slice(0, 4)));
+    }
+    return { months, years };
+  }, [trades.data]);
+
   /** Direct jump from the header pickers. */
   function jumpTo(y: number, m: number) {
     const key = `${y}-${pad(m)}-01`;
@@ -524,22 +569,6 @@ export default function CalendarScreen() {
     setAnchor(key);
     setPages(pageWindow(mode, key));
   }
-
-  const monthOptions = Array.from({ length: 12 }, (_, i) => ({
-    value: String(i + 1),
-    // 2023-01 anchors a stable base date; only the localized name matters.
-    label: new Date(Date.UTC(2023, i, 1)).toLocaleDateString(locale, {
-      month: 'long',
-      timeZone: 'UTC',
-    }),
-  }));
-  // Next year down through ten back, always including the viewed year.
-  const nowYear = now.getFullYear();
-  const yearRange = Array.from({ length: 12 }, (_, i) => nowYear + 1 - i);
-  if (!yearRange.includes(year)) yearRange.push(year);
-  const yearOptions = yearRange
-    .sort((a, b) => b - a)
-    .map((y) => ({ value: String(y), label: String(y) }));
 
   return (
     <>
@@ -733,8 +762,7 @@ export default function CalendarScreen() {
           open={pickerOpen}
           onOpenChange={setPickerOpen}
           showMonths={mode === 'month'}
-          monthOptions={monthOptions}
-          yearOptions={yearOptions}
+          tradedPeriods={tradedPeriods}
           month={month}
           year={year}
           onJump={jumpTo}
@@ -745,17 +773,26 @@ export default function CalendarScreen() {
 }
 
 /**
- * Month/year jump — the app's picker-sheet anatomy (52pt rows, chosen row
- * bold with a trailing check) in one bottom sheet, two columns when a month
- * board also needs the month. Year taps retune the board and keep the sheet
- * open; the month tap is the final word and closes it.
+ * Month/year jump — a month-year picker, which is not a calendar.
+ *
+ * Two faces of the same shape: twelve months of a year, or twelve years of a
+ * decade, on a 4x3 grid under a header that names the span and steps it either
+ * way. The header's own label is the toggle between them, so a month of any
+ * year is two taps and no scrolling, and `Today` is always one.
+ *
+ * The faces share a footprint and are stacked, so switching cross-fades in
+ * place on the board's own drill-in/drill-out motion — going to the years is
+ * zooming out a level, coming back is zooming in — rather than the sheet
+ * resizing under the finger.
+ *
+ * A year board asks only for the year, so it opens on the year face, stays
+ * there, and closes on the tap.
  */
 function MonthYearSheet({
   open,
   onOpenChange,
   showMonths,
-  monthOptions,
-  yearOptions,
+  tradedPeriods,
   month,
   year,
   onJump,
@@ -763,72 +800,308 @@ function MonthYearSheet({
   open: boolean;
   onOpenChange: (open: boolean) => void;
   showMonths: boolean;
-  monthOptions: { value: string; label: string }[];
-  yearOptions: { value: string; label: string }[];
+  tradedPeriods: { months: ReadonlySet<string>; years: ReadonlySet<number> } | null;
   month: number;
   year: number;
   onJump: (year: number, month: number) => void;
 }) {
-  const [primary] = useCSSVariable(['--color-primary']) as [string];
+  const [foreground, mutedForeground] = useCSSVariable([
+    '--color-foreground',
+    '--color-muted-foreground',
+  ]) as [string, string];
+  // A month board starts on the months and flips on demand; a year board has
+  // only the one face.
+  const [pickingYear, setPickingYear] = useState(false);
+  const showYears = !showMonths || pickingYear;
+  /*
+   * How many decades the year face has been paged from the one holding the
+   * chosen year. An offset rather than the decade itself, so the grid follows
+   * the board when the board moves underneath it and there is no stale decade
+   * to reset.
+   */
+  const [decadeOffset, setDecadeOffset] = useState(0);
+  const decade = Math.floor(year / 10) * 10 + decadeOffset * 10;
 
-  const column = (
-    items: { value: string; label: string }[],
-    selected: string,
-    onPick: (value: string) => void,
-  ) => {
-    const selectedIndex = Math.max(
-      0,
-      items.findIndex((item) => item.value === selected),
-    );
-    return (
-      <ScrollView
-        className="max-h-[380px] flex-1"
-        bounces={false}
-        contentOffset={{ x: 0, y: Math.max(0, selectedIndex * 52 - 130) }}
-      >
-        {items.map((item, index) => {
-          const isSelected = item.value === selected;
-          return (
-            <Fragment key={item.value}>
-              {index > 0 ? <View className="h-px bg-border/60" /> : null}
-              <Pressable
-                onPress={() => onPick(item.value)}
-                accessibilityRole="radio"
-                accessibilityState={{ checked: isSelected }}
-                className="min-h-[52px] flex-row items-center gap-3 active:opacity-60"
-              >
-                <Text
-                  className={cn('flex-1 text-[17px] text-foreground', isSelected && 'font-semibold')}
-                  numberOfLines={1}
-                >
-                  {item.label}
-                </Text>
-                {isSelected ? (
-                  <Icon name="checkmark.circle.fill" size={22} tintColor={primary} />
-                ) : null}
-              </Pressable>
-            </Fragment>
-          );
-        })}
-      </ScrollView>
-    );
+  /*
+   * The crossfade between the faces, as one value both of them read.
+   *
+   * Not Reanimated's `entering`/`exiting` on a keyed view, which is the
+   * obvious way to write this and does not work here: a layout animation that
+   * begins inside the sheet's portal never starts, so the incoming face keeps
+   * the `initialValues` it was mounted with — opacity zero — and switching
+   * faces empties the sheet instead of filling it. Both faces stay mounted and
+   * the value drives their opacity, so there is no animation to fail to run.
+   */
+  const progress = useSharedValue(showYears ? 1 : 0);
+  useEffect(() => {
+    progress.value = withTiming(showYears ? 1 : 0, EASE);
+  }, [showYears, progress]);
+
+  // The board's own drill motion, read either way: the months settle back as
+  // the years zoom out over them, and grow in again on the way back.
+  const monthsStyle = useAnimatedStyle(() => ({
+    opacity: 1 - progress.value,
+    transform: [{ scale: 1 - 0.02 * progress.value }],
+  }));
+  const yearsStyle = useAnimatedStyle(() => ({
+    opacity: progress.value,
+    transform: [{ scale: 1.03 - 0.03 * progress.value }],
+  }));
+
+  const today = new Date();
+  const todayYear = today.getFullYear();
+  const todayMonth = today.getMonth() + 1;
+
+  /*
+   * Where the picker will let you land: a period that holds trades, plus the
+   * one you are already on and the one today is in. Those two are always open
+   * because the alternative is a wall of dead tiles for someone who has just
+   * started — and because `Today` has to have somewhere to go. Until the trade
+   * list arrives nothing is ruled out; greying the whole grid for a second
+   * while it loads reads as broken.
+   */
+  const openMonth = (value: number) =>
+    tradedPeriods == null ||
+    tradedPeriods.months.has(`${year}-${pad(value)}`) ||
+    value === month ||
+    (year === todayYear && value === todayMonth);
+  const openYear = (value: number) =>
+    tradedPeriods == null ||
+    tradedPeriods.years.has(value) ||
+    value === year ||
+    value === todayYear;
+  /*
+   * The last year there is anything to see in. Past it the tiles are drawn as
+   * empty slots rather than greyed ones: a year before the first trade is a
+   * period you had a journal for and did nothing in, which is worth saying,
+   * but 2031 is not a period at all yet.
+   */
+  const lastOpenYear = tradedPeriods
+    ? Math.max(todayYear, year, ...tradedPeriods.years)
+    : Infinity;
+
+  /** Whether any year the picker would open lies past `edge` in that direction. */
+  const yearBeyond = (edge: number, back: boolean) => {
+    if (tradedPeriods == null) return true;
+    const reachable = [...tradedPeriods.years, year, todayYear];
+    return reachable.some((candidate) => (back ? candidate < edge : candidate > edge));
   };
 
+  const close = () => {
+    setPickingYear(false);
+    setDecadeOffset(0);
+    onOpenChange(false);
+  };
+
+  const stepper = (back: boolean, onPress: () => void, label: string, enabled: boolean) => (
+    <Pressable
+      disabled={!enabled}
+      onPress={onPress}
+      hitSlop={8}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      accessibilityState={{ disabled: !enabled }}
+      className={cn(PAGER_BUTTON, !enabled && 'opacity-30')}
+    >
+      <Icon name={back ? 'chevron.left' : 'chevron.right'} size={15} tintColor={foreground} />
+    </Pressable>
+  );
+
+  /** One face: the header its span owns, its twelve tiles, and `Today`. */
+  const face = (
+    caption: string,
+    captionLabel: string,
+    onCaption: (() => void) | undefined,
+    onBack: () => void,
+    onForward: () => void,
+    stepLabels: [string, string],
+    steppable: [boolean, boolean],
+    tiles: {
+      key: string;
+      label: string;
+      selected: boolean;
+      today: boolean;
+      disabled: boolean;
+      /** Drawn as an empty slot: nothing to offer, and no reason to say so. */
+      hidden?: boolean;
+      onPress: () => void;
+    }[],
+  ) => (
+    <>
+      {/* `pe-12` clears the sheet's close button, which is absolutely
+          positioned in the top-right corner this row now reaches into. */}
+      <View className="h-10 flex-row items-center justify-between pe-12">
+        <Pressable
+          onPress={onCaption}
+          disabled={!onCaption}
+          hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel={captionLabel}
+          className="flex-row items-center gap-1.5 px-1 active:opacity-60"
+        >
+          <Text className="text-base font-semibold tabular-nums text-foreground">{caption}</Text>
+          {onCaption ? (
+            <Icon name="chevron.up.chevron.down" size={13} tintColor={mutedForeground} />
+          ) : null}
+        </Pressable>
+        <View className="flex-row gap-1">
+          {stepper(true, onBack, stepLabels[0], steppable[0])}
+          {stepper(false, onForward, stepLabels[1], steppable[1])}
+        </View>
+      </View>
+      {[0, 4, 8].map((offset) => (
+        <View key={offset} className="flex-row gap-2">
+          {tiles.slice(offset, offset + 4).map((tile) =>
+            tile.hidden ? (
+              <View key={tile.key} className={JUMP_TILE} />
+            ) : (
+            <Pressable
+              key={tile.key}
+              disabled={tile.disabled}
+              onPress={tile.onPress}
+              accessibilityRole="radio"
+              accessibilityState={{ checked: tile.selected, disabled: tile.disabled }}
+              className={cn(
+                JUMP_TILE,
+                tile.selected
+                  ? 'bg-primary'
+                  : tile.today
+                    ? 'border border-primary'
+                    : !tile.disabled && 'active:bg-accent',
+              )}
+            >
+              <Text
+                className={cn(
+                  'text-[15px] tabular-nums',
+                  tile.selected
+                    ? 'font-semibold text-primary-foreground'
+                    : tile.today
+                      ? 'text-primary'
+                      : tile.disabled
+                        ? 'text-muted-foreground/40'
+                        : 'text-foreground',
+                )}
+                numberOfLines={1}
+              >
+                {tile.label}
+              </Text>
+            </Pressable>
+            ),
+          )}
+        </View>
+      ))}
+      <View className="h-8 flex-row items-center justify-end">
+        <Pressable
+          onPress={() => {
+            onJump(todayYear, todayMonth);
+            close();
+          }}
+          hitSlop={8}
+          accessibilityRole="button"
+          className="rounded-md px-2 py-1 active:opacity-60"
+        >
+          <Text className="text-[15px] font-semibold text-primary">{t`Today`}</Text>
+        </Pressable>
+      </View>
+    </>
+  );
+
   return (
-    <BottomSheet open={open} onOpenChange={onOpenChange}>
+    <BottomSheet
+      open={open}
+      onOpenChange={(next) => {
+        // The sheet reopens on its own face and its own decade, never on the
+        // ones a previous visit happened to leave behind.
+        if (!next) close();
+        else onOpenChange(next);
+      }}
+    >
       <BottomSheet.Content>
-        <BottomSheet.Header title={showMonths ? t`Jump to` : t`Year`} />
-        <View className="flex-row gap-6">
-          {showMonths
-            ? column(monthOptions, String(month), (m) => {
-                onJump(year, Number(m));
-                onOpenChange(false);
-              })
-            : null}
-          {column(yearOptions, String(year), (y) => {
-            onJump(Number(y), month);
-            if (!showMonths) onOpenChange(false);
-          })}
+        <View className={cn('relative', JUMP_BODY)}>
+          {showMonths ? (
+            <Animated.View
+              style={monthsStyle}
+              // The face behind takes no touches and is not read out: it is
+              // still mounted, and a hidden grid of months would otherwise
+              // answer taps meant for the years on top of it.
+              pointerEvents={showYears ? 'none' : 'auto'}
+              accessibilityElementsHidden={showYears}
+              importantForAccessibility={showYears ? 'no-hide-descendants' : 'auto'}
+              className="absolute bottom-0 left-0 right-0 top-0 gap-2"
+            >
+              {face(
+                String(year),
+                t`Choose year`,
+                () => {
+                  setDecadeOffset(0);
+                  setPickingYear(true);
+                },
+                () => onJump(year - 1, month),
+                () => onJump(year + 1, month),
+                [t`Previous year`, t`Next year`],
+                [yearBeyond(year, true), yearBeyond(year, false)],
+                MONTH_NAMES.map((label, index) => {
+                  const value = index + 1;
+                  return {
+                    key: label,
+                    label,
+                    selected: value === month,
+                    // The real month, marked only where it isn't already the
+                    // chosen one — two filled tiles would read as two answers.
+                    today: value !== month && year === todayYear && value === todayMonth,
+                    disabled: !openMonth(value),
+                    onPress: () => {
+                      onJump(year, value);
+                      close();
+                    },
+                  };
+                }),
+              )}
+            </Animated.View>
+          ) : null}
+          <Animated.View
+            style={yearsStyle}
+            pointerEvents={showYears ? 'auto' : 'none'}
+            accessibilityElementsHidden={!showYears}
+            importantForAccessibility={showYears ? 'auto' : 'no-hide-descendants'}
+            className="absolute bottom-0 left-0 right-0 top-0 gap-2"
+          >
+            {face(
+              `${decade}–${decade + 9}`,
+              t`Choose month`,
+              // Nothing to go back to on a year board.
+              showMonths ? () => setPickingYear(false) : undefined,
+              () => setDecadeOffset((offset) => offset - 1),
+              () => setDecadeOffset((offset) => offset + 1),
+              [t`Previous decade`, t`Next decade`],
+              // The grid already shows the year either side of the decade, so
+              // paging is only worth offering past those.
+              [yearBeyond(decade - 1, true), yearBeyond(decade + 10, false)],
+              // A decade's ten years, with the neighbours either side for the
+              // same reason a month grid shows them: the row reads as
+              // continuous, and the year just over the edge is one tap rather
+              // than a page away.
+              Array.from({ length: 12 }, (_unused, index) => {
+                const value = decade - 1 + index;
+                return {
+                  key: String(value),
+                  label: String(value),
+                  selected: value === year,
+                  today: value !== year && value === todayYear,
+                  disabled: !openYear(value),
+                  hidden: value > lastOpenYear,
+                  onPress: () => {
+                    onJump(value, month);
+                    // On a month board the year was only half the answer.
+                    if (showMonths) {
+                      setDecadeOffset(0);
+                      setPickingYear(false);
+                    } else close();
+                  },
+                };
+              }),
+            )}
+          </Animated.View>
         </View>
       </BottomSheet.Content>
     </BottomSheet>

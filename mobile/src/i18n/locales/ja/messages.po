@@ -91,7 +91,7 @@ msgstr "{0}件の決済済みトレードを除外（ストップ未記録）。
 #~ msgstr "日次損失 {0}"
 
 #. placeholder {0}: traded.length
-#: src/app/(tabs)/(calendar)/index.tsx:1010
+#: src/app/(tabs)/(calendar)/index.tsx:1198
 msgid "{0} days"
 msgstr "{0}日"
 
@@ -307,8 +307,8 @@ msgstr "チャート{charts}枚"
 #~ msgid "{count, plural, one {# trade} other {# trades}}"
 #~ msgstr "{count, plural, other {#件}}"
 
-#: src/app/(tabs)/(calendar)/index.tsx:1251
-#: src/app/(tabs)/(calendar)/index.tsx:1414
+#: src/app/(tabs)/(calendar)/index.tsx:1439
+#: src/app/(tabs)/(calendar)/index.tsx:1602
 #: src/app/(tabs)/(trades)/index.tsx:450
 msgid "{count} trades"
 msgstr "{count}件のトレード"
@@ -393,7 +393,7 @@ msgstr "{tzCity}時間"
 #~ msgid "{weekCount, plural, one {# trade} other {# trades}}"
 #~ msgstr "{weekCount, plural, other {#件}}"
 
-#: src/app/(tabs)/(calendar)/index.tsx:256
+#: src/app/(tabs)/(calendar)/index.tsx:280
 msgid "{weekCount} trades"
 msgstr "{weekCount}件のトレード"
 
@@ -428,7 +428,7 @@ msgstr "{year}年の損益目標"
 #~ msgid "{yearCount, plural, one {# trade} other {# trades}}"
 #~ msgstr "{yearCount, plural, other {#件}}"
 
-#: src/app/(tabs)/(calendar)/index.tsx:1328
+#: src/app/(tabs)/(calendar)/index.tsx:1516
 msgid "{yearCount} trades"
 msgstr "{yearCount}件のトレード"
 
@@ -488,7 +488,7 @@ msgstr "1件の変更が同期待ち"
 msgid "1 chart"
 msgstr "チャート1枚"
 
-#: src/app/(tabs)/(calendar)/index.tsx:1010
+#: src/app/(tabs)/(calendar)/index.tsx:1198
 msgid "1 day"
 msgstr "1日"
 
@@ -517,10 +517,10 @@ msgstr "保存後にスクリーンショットを1枚アップロードしま�
 msgid "1 symbol found"
 msgstr "1銘柄が見つかりました"
 
-#: src/app/(tabs)/(calendar)/index.tsx:256
-#: src/app/(tabs)/(calendar)/index.tsx:1251
-#: src/app/(tabs)/(calendar)/index.tsx:1328
-#: src/app/(tabs)/(calendar)/index.tsx:1414
+#: src/app/(tabs)/(calendar)/index.tsx:280
+#: src/app/(tabs)/(calendar)/index.tsx:1439
+#: src/app/(tabs)/(calendar)/index.tsx:1516
+#: src/app/(tabs)/(calendar)/index.tsx:1602
 msgid "1 trade"
 msgstr "1件"
 
@@ -693,7 +693,7 @@ msgstr "有効な上限"
 #~ msgid "Active tokens"
 #~ msgstr "有効なトークン"
 
-#: src/app/(tabs)/(calendar)/index.tsx:249
+#: src/app/(tabs)/(calendar)/index.tsx:273
 msgid "Activity"
 msgstr "取引"
 
@@ -1214,19 +1214,19 @@ msgstr "バックテスト"
 #~ msgid "Backup or restore local app preferences."
 #~ msgstr "端末内のアプリ設定をバックアップ・復元します。"
 
-#: src/app/(tabs)/(calendar)/index.tsx:286
+#: src/app/(tabs)/(calendar)/index.tsx:310
 #: src/app/trade-preview.tsx:185
 msgid "Balance"
 msgstr "残高"
 
 #. placeholder {0}: formatCurrency(0, currency)
-#: src/app/(tabs)/(calendar)/index.tsx:283
+#: src/app/(tabs)/(calendar)/index.tsx:307
 msgid "Balance, {0}"
 msgstr "残高、{0}"
 
 #. placeholder {0}: formatCurrency(endBalance, currency)
 #. placeholder {1}: formatCurrency(startBalance, currency)
-#: src/app/(tabs)/(calendar)/index.tsx:282
+#: src/app/(tabs)/(calendar)/index.tsx:306
 msgid "Balance, {0}, from {1}"
 msgstr "残高、{0}、{1}から"
 
@@ -1398,7 +1398,7 @@ msgstr "買い"
 msgid "BUY"
 msgstr "買"
 
-#: src/app/(tabs)/_layout.tsx:83
+#: src/app/(tabs)/_layout.tsx:93
 #: src/app/(tabs)/(calendar)/_layout.tsx:38
 msgid "Calendar"
 msgstr "カレンダー"
@@ -1588,6 +1588,10 @@ msgstr "チェックリスト"
 msgid "Choose CSV or JSON file"
 msgstr "CSVまたはJSONファイルを選択"
 
+#: src/app/(tabs)/(calendar)/index.tsx:991
+msgid "Choose month"
+msgstr "月を選択"
+
 #: src/app/manage-tags.tsx:71
 msgid "Choose which journal options show as filter chips on the trades list."
 msgstr "トレード一覧のフィルターチップに表示するジャーナル項目を選択します。"
@@ -1595,6 +1599,10 @@ msgstr "トレード一覧のフィルターチップに表示するジャーナ
 #: src/app/manage-tags.tsx:36
 #~ msgid "Choose which journal tags show as quick filters. Tags are created in the trade form."
 #~ msgstr "クイックフィルターに表示するジャーナルタグを選択します。タグはトレードフォームで作成します。"
+
+#: src/app/(tabs)/(calendar)/index.tsx:956
+msgid "Choose year"
+msgstr "年を選択"
 
 #: src/components/share-card.tsx:21
 msgid "Classic"
@@ -2946,7 +2954,7 @@ msgstr "期待値"
 msgid "Expect"
 msgstr "期待値"
 
-#: src/app/(tabs)/(calendar)/index.tsx:270
+#: src/app/(tabs)/(calendar)/index.tsx:294
 #: src/app/(tabs)/(dashboard)/playbook.tsx:134
 #: src/app/(tabs)/(dashboard)/wrapped.tsx:394
 msgid "Expectancy"
@@ -3445,7 +3453,7 @@ msgstr "保有時間は対数スケール · 破線は保有時間の中央値"
 msgid "Holiday"
 msgstr "祝日"
 
-#: src/app/(tabs)/_layout.tsx:73
+#: src/app/(tabs)/_layout.tsx:83
 #: src/app/(tabs)/(dashboard)/_layout.tsx:86
 msgid "Home"
 msgstr "ホーム"
@@ -3667,9 +3675,9 @@ msgstr "JSONバックアップ"
 msgid "JSON must be an array of fills, or an object with a fills/rows/executions array."
 msgstr "JSONは約定の配列、または fills/rows/executions 配列を持つオブジェクトである必要があります。"
 
-#: src/app/(tabs)/(calendar)/index.tsx:820
-msgid "Jump to"
-msgstr "移動先"
+#: src/app/(tabs)/(calendar)/index.tsx:912
+#~ msgid "Jump to"
+#~ msgstr "移動先"
 
 #: src/components/reports/overview-section.tsx:201
 msgid "Kelly (half)"
@@ -3797,7 +3805,7 @@ msgstr "リンクをコピーしました"
 msgid "Loading behavior report"
 msgstr "行動レポートを読み込み中"
 
-#: src/app/(tabs)/(calendar)/index.tsx:844
+#: src/app/(tabs)/(calendar)/index.tsx:1032
 msgid "Loading calendar"
 msgstr "カレンダーを読み込み中"
 
@@ -4212,7 +4220,7 @@ msgstr "月"
 msgid "Monte Carlo"
 msgstr "モンテカルロ"
 
-#: src/app/(tabs)/(calendar)/index.tsx:410
+#: src/app/(tabs)/(calendar)/index.tsx:434
 #: src/components/mini-calendar-card.tsx:57
 #: src/components/reports/winloss-section.tsx:82
 msgid "Month"
@@ -4304,9 +4312,9 @@ msgid "Net (after fees)"
 msgstr "ネット（手数料後）"
 
 #: src/app/(tabs)/(calendar)/day/[date].tsx:330
-#: src/app/(tabs)/(calendar)/index.tsx:226
-#: src/app/(tabs)/(calendar)/index.tsx:998
-#: src/app/(tabs)/(calendar)/index.tsx:1316
+#: src/app/(tabs)/(calendar)/index.tsx:250
+#: src/app/(tabs)/(calendar)/index.tsx:1186
+#: src/app/(tabs)/(calendar)/index.tsx:1504
 #: src/app/(tabs)/(dashboard)/playbook.tsx:130
 #: src/app/(tabs)/(dashboard)/playbook.tsx:240
 #: src/app/(tabs)/(trades)/[id].tsx:301
@@ -4402,7 +4410,7 @@ msgstr "新規トレード"
 msgid "Newest first"
 msgstr "新しい順"
 
-#: src/app/(tabs)/(calendar)/index.tsx:596
+#: src/app/(tabs)/(calendar)/index.tsx:604
 msgid "Next"
 msgstr "次へ"
 
@@ -4414,13 +4422,17 @@ msgstr "次のアクション"
 msgid "Next day"
 msgstr "翌日"
 
+#: src/app/(tabs)/(calendar)/index.tsx:996
+msgid "Next decade"
+msgstr "次の10年"
+
 #: src/app/(tabs)/(dashboard)/economic-events.tsx:290
 #~ msgid "Next week"
 #~ msgstr "翌週"
 
-#: src/app/(tabs)/(dashboard)/wrapped.tsx:106
-#~ msgid "Next year"
-#~ msgstr "翌年"
+#: src/app/(tabs)/(calendar)/index.tsx:963
+msgid "Next year"
+msgstr "翌年"
 
 #: src/app/new-trade.tsx:111
 #: src/app/new-trade.tsx:154
@@ -4608,9 +4620,9 @@ msgid "No tokens yet"
 msgstr "トークンがまだありません"
 
 #: src/app/(tabs)/(calendar)/day/[date].tsx:337
-#: src/app/(tabs)/(calendar)/index.tsx:1087
-#: src/app/(tabs)/(calendar)/index.tsx:1267
-#: src/app/(tabs)/(calendar)/index.tsx:1414
+#: src/app/(tabs)/(calendar)/index.tsx:1275
+#: src/app/(tabs)/(calendar)/index.tsx:1455
+#: src/app/(tabs)/(calendar)/index.tsx:1602
 msgid "No trades"
 msgstr "取引なし"
 
@@ -5346,7 +5358,7 @@ msgstr "プレビュー"
 msgid "Preview import"
 msgstr "インポートをプレビュー"
 
-#: src/app/(tabs)/(calendar)/index.tsx:587
+#: src/app/(tabs)/(calendar)/index.tsx:595
 msgid "Previous"
 msgstr "前へ"
 
@@ -5354,13 +5366,17 @@ msgstr "前へ"
 msgid "Previous day"
 msgstr "前日"
 
+#: src/app/(tabs)/(calendar)/index.tsx:996
+msgid "Previous decade"
+msgstr "前の10年"
+
 #: src/app/(tabs)/(dashboard)/economic-events.tsx:278
 #~ msgid "Previous week"
 #~ msgstr "前週"
 
-#: src/app/(tabs)/(dashboard)/wrapped.tsx:82
-#~ msgid "Previous year"
-#~ msgstr "前年"
+#: src/app/(tabs)/(calendar)/index.tsx:963
+msgid "Previous year"
+msgstr "前年"
 
 #: src/app/(tabs)/(settings)/import-trades.tsx:46
 #: src/components/trade-form.tsx:159
@@ -5427,7 +5443,7 @@ msgstr "プロフィール メール パスワード サインイン オーナ�
 msgid "Profit at target"
 msgstr "目標到達時利益"
 
-#: src/app/(tabs)/(calendar)/index.tsx:266
+#: src/app/(tabs)/(calendar)/index.tsx:290
 #: src/app/(tabs)/(dashboard)/playbook.tsx:133
 #: src/app/(tabs)/(dashboard)/wrapped.tsx:389
 #: src/components/reports/overview-section.tsx:134
@@ -6394,7 +6410,7 @@ msgstr "先に画像スキャンを設定してください"
 msgid "Sets a new password for {0} without their current one."
 msgstr "現在のパスワードなしで {0} の新しいパスワードを設定します。"
 
-#: src/app/(tabs)/_layout.tsx:92
+#: src/app/(tabs)/_layout.tsx:102
 #: src/app/(tabs)/(settings)/_layout.tsx:34
 msgid "Settings"
 msgstr "設定"
@@ -7318,6 +7334,7 @@ msgstr "変換先"
 msgid "To date: {0} win rate · PF {1} · {2} cumulative"
 msgstr "累計: 勝率 {0} · PF {1} · 累積 {2}"
 
+#: src/app/(tabs)/(calendar)/index.tsx:925
 #: src/app/(tabs)/(dashboard)/economic-events.tsx:145
 #: src/app/(tabs)/(dashboard)/economic-events.tsx:163
 #: src/app/(tabs)/(dashboard)/notes.tsx:45
@@ -7454,7 +7471,7 @@ msgstr "TraderMemos はセルフホスト型です。このアプリはあなた
 msgid "TraderMemos mark"
 msgstr "TraderMemos マーク"
 
-#: src/app/(tabs)/_layout.tsx:77
+#: src/app/(tabs)/_layout.tsx:87
 #: src/app/(tabs)/(calendar)/day/[date].tsx:334
 #: src/app/(tabs)/(calendar)/day/[date].tsx:365
 #: src/app/(tabs)/(dashboard)/playbook.tsx:131
@@ -7767,20 +7784,20 @@ msgstr "Web Serviceトークン"
 msgid "Wed"
 msgstr "水"
 
-#: src/app/(tabs)/(calendar)/index.tsx:409
-#: src/app/(tabs)/(calendar)/index.tsx:1026
+#: src/app/(tabs)/(calendar)/index.tsx:433
+#: src/app/(tabs)/(calendar)/index.tsx:1214
 #: src/components/reports/winloss-section.tsx:81
 msgid "Week"
 msgstr "週"
 
 #. placeholder {0}: wi + 1
 #. placeholder {1}: formatPnlCompact(weekPnl, currency)
-#: src/app/(tabs)/(calendar)/index.tsx:1046
+#: src/app/(tabs)/(calendar)/index.tsx:1234
 msgid "Week {0}, {1}"
 msgstr "週 {0}, {1}"
 
 #. placeholder {0}: wi + 1
-#: src/app/(tabs)/(calendar)/index.tsx:1047
+#: src/app/(tabs)/(calendar)/index.tsx:1235
 msgid "Week {0}, No trades"
 msgstr "週 {0}、取引なし"
 
@@ -7857,7 +7874,7 @@ msgid "win ÷ loss"
 msgstr "平均利益 ÷ 平均損失"
 
 #: src/app/(tabs)/(calendar)/day/[date].tsx:336
-#: src/app/(tabs)/(calendar)/index.tsx:262
+#: src/app/(tabs)/(calendar)/index.tsx:286
 #: src/app/(tabs)/(dashboard)/playbook.tsx:132
 #: src/app/(tabs)/(dashboard)/playbook.tsx:235
 #: src/components/reports/behavior-section.tsx:41
@@ -7928,8 +7945,7 @@ msgstr "振り返りを書く"
 msgid "Write why you entered while it's fresh. Future you needs the thesis, not just the P&L."
 msgstr "記憶が新しいうちにエントリー理由を書きましょう。未来の自分に必要なのは損益ではなく仮説です。"
 
-#: src/app/(tabs)/(calendar)/index.tsx:411
-#: src/app/(tabs)/(calendar)/index.tsx:820
+#: src/app/(tabs)/(calendar)/index.tsx:435
 msgid "Year"
 msgstr "年"
 
