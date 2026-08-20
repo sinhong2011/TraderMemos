@@ -5,6 +5,19 @@ All notable changes to TraderMemos are documented in this file.
 Release versioning is managed by [release-please](https://github.com/googleapis/release-please).
 See [docs/release.md](docs/release.md) for the release workflow.
 
+## [0.11.0](https://github.com/sinhong2011/TraderMemos/compare/v0.10.0...v0.11.0) (2026-08-20)
+
+
+### Features
+
+* **marketing:** one-tap APK download from the install guide ([#262](https://github.com/sinhong2011/TraderMemos/issues/262)) ([f7c9abb](https://github.com/sinhong2011/TraderMemos/commit/f7c9abb46569bef74cdc2ee1852087d2470cb064))
+
+
+### Bug Fixes
+
+* **api:** one option dedup key across manual entry and imports ([#258](https://github.com/sinhong2011/TraderMemos/issues/258)) ([54da6af](https://github.com/sinhong2011/TraderMemos/commit/54da6af25d0d84c7e37172d864cfac58f5913ab3))
+* **mobile:** translate the last eight strings in ja, ko and zh-HK ([#259](https://github.com/sinhong2011/TraderMemos/issues/259)) ([1d6c203](https://github.com/sinhong2011/TraderMemos/commit/1d6c20334db33f17e6e081f764e576348969fd65))
+
 ## [0.10.0](https://github.com/sinhong2011/TraderMemos/compare/v0.9.0...v0.10.0) (2026-08-20)
 
 
