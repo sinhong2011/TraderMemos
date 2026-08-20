@@ -58,12 +58,13 @@ jobs:
   # the released marketing version; EAS assigns the build number. Gated on the
   # app-store environment because it submits to TestFlight.
   build-mobile:
-    name: Build iOS app
+    name: Build mobile apps
     needs: release-please
     if: ${{ needs.release-please.outputs.releases_created == 'true' }}
     uses: ./.github/workflows/mobile-eas.yml
     with:
       profile: production
+      platform: all
       submit: true
       message: v${{ needs.release-please.outputs.version }}
     secrets: inherit
