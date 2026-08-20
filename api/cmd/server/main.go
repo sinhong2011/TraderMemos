@@ -63,8 +63,8 @@ func main() {
 	if err := store.SeedInstrumentSpecs(context.Background(), q); err != nil {
 		logger.Warn("could not seed instrument specs", "err", err)
 	}
-	if err := importer.NormalizeOCCOptionExecutions(context.Background(), q, logger); err != nil {
-		logger.Warn("could not normalize OCC option symbols", "err", err)
+	if err := importer.NormalizeOptionExecutions(context.Background(), q, logger); err != nil {
+		logger.Warn("could not normalize option executions", "err", err)
 	}
 	jwt := auth.NewJWT(cfg.JWTSecret)
 	attachDir := cfg.AttachDir

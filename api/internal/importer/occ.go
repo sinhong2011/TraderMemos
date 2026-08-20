@@ -100,12 +100,29 @@ func parseExpiryCell(raw string) string {
 	return ""
 }
 
-// dedupSymbol widens the dedup key with the contract for options: with the
-// contract moved out of the symbol, "MU" alone could collide across strikes
-// filled at the same time/price/quantity.
-func dedupSymbol(p ParsedExecution) string {
-	if p.InstrumentType == "option" && (p.Strike != "" || p.Expiry != "") {
-		return p.Symbol + "|" + p.OptionRight + "|" + p.Strike + "|" + p.Expiry
+// OptionDedupSymbol widens the dedup key with the contract for options: with
+// the contract moved out of the symbol, "MU" alone could collide across
+// strikes filled at the same time/price/quantity.
+//
+// Every write path must agree on this key. Manual entry, OCR and broker
+// imports all store an option as underlying + contract details, so a fill
+// logged by hand and the same fill arriving from a broker sync have to hash
+// identically or they land as two rows for one trade.
+func OptionDedupSymbol(symbol, instrumentType, right, strike, expiry string) string {
+	if instrumentType == "option" && (strike != "" || expiry != "") {
+		return symbol + "|" + right + "|" + strike + "|" + expiry
 	}
-	return p.Symbol
+	return symbol
+}
+
+// OptionDedupSymbolFromDetails is OptionDedupSymbol for a stored execution,
+// whose contract lives in the decoded `details` JSON rather than in fields.
+func OptionDedupSymbolFromDetails(symbol, instrumentType string, details map[string]string) string {
+	return OptionDedupSymbol(
+		symbol, instrumentType, details["option_right"], details["strike"], details["expiry"],
+	)
+}
+
+func dedupSymbol(p ParsedExecution) string {
+	return OptionDedupSymbol(p.Symbol, p.InstrumentType, p.OptionRight, p.Strike, p.Expiry)
 }

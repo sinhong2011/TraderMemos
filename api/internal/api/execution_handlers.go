@@ -66,7 +66,14 @@ func (s *Server) handleCreateExecution(c *echo.Context) error {
 	in.Multiplier = importer.ResolveMultiplier(
 		c.Request().Context(), s.deps.Store, in.InstrumentType, in.Symbol, in.Multiplier,
 	)
-	hash := importer.DedupHash(in.Symbol, in.Side, in.Quantity, in.Price, in.ExecutedAt)
+	// Options hash on underlying + contract, the same key the importer uses —
+	// otherwise two strikes filled at one price/time/quantity collide into a
+	// single row, and a hand-logged fill never dedups against the broker sync
+	// of the same fill. See importer.OptionDedupSymbol.
+	hash := importer.DedupHash(
+		importer.OptionDedupSymbolFromDetails(in.Symbol, in.InstrumentType, in.Details),
+		in.Side, in.Quantity, in.Price, in.ExecutedAt,
+	)
 
 	// Idempotent: same fill already logged → return existing trade link.
 	if existing, err := s.deps.Store.GetExecutionByDedup(c.Request().Context(), store.GetExecutionByDedupParams{
@@ -177,7 +184,17 @@ func (s *Server) handleUpdateExecution(c *echo.Context) error {
 	if in.Commission != nil {
 		commission = *in.Commission
 	}
-	hash := importer.DedupHash(ex.Symbol, in.Side, in.Quantity, in.Price, in.ExecutedAt)
+	// This endpoint edits side/quantity/price/time only, so the contract comes
+	// from the stored row — but it still has to take part in the key, or an
+	// edit would rewrite an option's hash back to the bare-symbol form.
+	details := map[string]string{}
+	if ex.Details.Valid && ex.Details.String != "" {
+		_ = json.Unmarshal([]byte(ex.Details.String), &details)
+	}
+	hash := importer.DedupHash(
+		importer.OptionDedupSymbolFromDetails(ex.Symbol, ex.InstrumentType, details),
+		in.Side, in.Quantity, in.Price, in.ExecutedAt,
+	)
 	n, err := s.deps.Store.UpdateExecution(c.Request().Context(), store.UpdateExecutionParams{
 		Side: in.Side, Quantity: in.Quantity, Price: in.Price,
 		Fees: in.Fees, Commission: commission, ExecutedAt: in.ExecutedAt,
