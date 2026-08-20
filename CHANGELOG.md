@@ -5,6 +5,20 @@ All notable changes to TraderMemos are documented in this file.
 Release versioning is managed by [release-please](https://github.com/googleapis/release-please).
 See [docs/release.md](docs/release.md) for the release workflow.
 
+## [0.10.0](https://github.com/sinhong2011/TraderMemos/compare/v0.9.0...v0.10.0) (2026-08-20)
+
+
+### Features
+
+* **mobile:** first-user setup screen for an empty server ([#255](https://github.com/sinhong2011/TraderMemos/issues/255)) ([fbb537d](https://github.com/sinhong2011/TraderMemos/commit/fbb537d647e5fc5437729bed03d201e191d1eb54))
+* **mobile:** PanelUI migration with Android parity ([#250](https://github.com/sinhong2011/TraderMemos/issues/250)) ([bdd8549](https://github.com/sinhong2011/TraderMemos/commit/bdd854933dcda70a57732c148e3ac1593a708959))
+
+
+### Bug Fixes
+
+* **api:** store broker-imported option contracts as underlying + details ([#253](https://github.com/sinhong2011/TraderMemos/issues/253)) ([f117853](https://github.com/sinhong2011/TraderMemos/commit/f1178533d9140759bd1780a3c837d68c728c46c5))
+* **mobile:** allow cleartext HTTP so Android release builds can reach self-hosted servers ([#254](https://github.com/sinhong2011/TraderMemos/issues/254)) ([f94c4d0](https://github.com/sinhong2011/TraderMemos/commit/f94c4d02ddb15809507db40a087b53984211246d))
+
 ## [0.9.0](https://github.com/sinhong2011/TraderMemos/compare/v0.8.5...v0.9.0) (2026-08-18)
 
 
